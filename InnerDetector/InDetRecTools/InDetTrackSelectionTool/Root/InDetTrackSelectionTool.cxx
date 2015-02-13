@@ -609,6 +609,10 @@ StatusCode InDet::InDetTrackSelectionTool::initialize() {
 StatusCode InDet::InDetTrackSelectionTool::finalize()
 {
   ATH_MSG_INFO("Finalizing track selection tool.");
+  if (m_numTracksProcessed == 0) {
+    ATH_MSG_INFO( "No tracks processed in selection tool." );
+    return StatusCode::SUCCESS;
+  }
   ATH_MSG_INFO( m_numTracksPassed << " / " << m_numTracksProcessed << " = "
 		<< m_numTracksPassed*100./m_numTracksProcessed << "% passed all cuts." );
   for (const auto& cutFamily : m_trackCuts) {

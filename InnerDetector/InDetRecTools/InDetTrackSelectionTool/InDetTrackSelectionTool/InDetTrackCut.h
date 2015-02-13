@@ -74,7 +74,7 @@ namespace InDet {
   class MaxSummaryValueRatioCut : public virtual TrackCut {
   public:
     MaxSummaryValueRatioCut(InDetTrackSelectionTool*);
-    void setMaxValue(Int_t max) {m_maxValue = max;}
+    void setMaxValue(Double_t max) {m_maxValue = max;}
     void addSummaryTypeNumerator(xAOD::SummaryType type) {m_summaryTypesNum.push_back(type);}
     void addSummaryTypeDenominator(xAOD::SummaryType type) {m_summaryTypesDen.push_back(type);}
     virtual StatusCode initialize();

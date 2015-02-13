@@ -202,7 +202,6 @@ bool InDet::MaxSummaryValueRatioCut::result() const
     }
     denominator += summaryAccessor->getValue();
   }
-
   return numerator <= m_maxValue*denominator;
 }
 
@@ -232,10 +231,10 @@ bool InDet::MinTrtHitCut::result() const
     ATH_MSG_WARNING( "Track eta accessor not valid. Track will not pass this cut." );
     return false;
   }
-  if (std::fabs(m_etaAccessor->getValue()) <= m_maxTrtEtaAcceptance)
+  float absEta = std::fabs(m_etaAccessor->getValue());
+  if (absEta <= m_maxTrtEtaAcceptance || absEta > m_maxEtaForCut)
     return true;
-  else
-    return MinSummaryValueCut::result();
+  return MinSummaryValueCut::result();
 }
 
 // ---------------- MaxTrtHitRatioCut ----------------
@@ -264,10 +263,10 @@ bool InDet::MaxTrtHitRatioCut::result() const
     ATH_MSG_WARNING( "Track eta accessor not valid. Track will not pass this cut." );
     return false;
   }
-  if (std::fabs(m_etaAccessor->getValue()) <= m_maxTrtEtaAcceptance)
+  float absEta = std::fabs(m_etaAccessor->getValue());
+  if (absEta <= m_maxTrtEtaAcceptance || absEta > m_maxEtaForCut)
     return true;
-  else
-    return MaxSummaryValueRatioCut::result();
+  return MaxSummaryValueRatioCut::result();
 }
 
 // ---------------- MinUsedHitsdEdxCut ----------------
