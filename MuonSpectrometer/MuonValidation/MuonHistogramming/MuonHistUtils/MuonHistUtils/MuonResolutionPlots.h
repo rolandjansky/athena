@@ -32,8 +32,28 @@ class MuonResolutionPlots:public PlotBase {
   TProfile *Res_pT_vs_eta;
   TProfile *Res_pT_vs_phi;
 
+    
   int findBin(float x,std::vector<float> bins);
 
+};
+
+class MomentumDiffPlots:public PlotBase {
+ public:
+  MomentumDiffPlots(PlotBase* pParent, std::string sDir);
+  ~MomentumDiffPlots();
+
+  TH1* dp_CB_truthIP;
+  TH1* dp_ME_truthIP;
+  TH1* dp_ME_truthIP_MS_truthMS;
+
+  TH1* dp_CB_truthIP_Tail;
+  TH1* dp_ME_truthIP_Tail;
+  TH1* dp_ME_truthIP_MS_truthMS_Tail;
+
+  TH1* dp_eloss;
+  
+  void fill(const xAOD::Muon& muon, const xAOD::TrackParticle* muontpIP, const xAOD::TruthParticle& truthprt);
+  void initializePlots();
 };
 }
 
