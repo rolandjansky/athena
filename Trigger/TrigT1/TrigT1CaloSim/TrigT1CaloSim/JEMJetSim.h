@@ -23,8 +23,7 @@
  #include <vector>
 
  // Athena/Gaudi
- #include "GaudiKernel/Algorithm.h"
- #include "GaudiKernel/MsgStream.h"
+ #include "AthenaBaseComps/AthAlgorithm.h"
  #include "GaudiKernel/ServiceHandle.h"
  #include "GaudiKernel/ToolHandle.h"
  
@@ -50,7 +49,7 @@
    /**
   The algorithm responsible for simulating the Jet trigger.
    */
- class JEMJetSim : public Algorithm
+ class JEMJetSim : public AthAlgorithm
  {
 
   public:

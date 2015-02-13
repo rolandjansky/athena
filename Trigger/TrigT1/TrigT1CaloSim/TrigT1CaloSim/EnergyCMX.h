@@ -16,7 +16,7 @@
  #include <map>
 
  // Athena/Gaudi
- #include "GaudiKernel/Algorithm.h"
+ #include "AthenaBaseComps/AthAlgorithm.h"
  #include "GaudiKernel/ServiceHandle.h"  
  #include "GaudiKernel/ToolHandle.h"
  
@@ -49,7 +49,7 @@
  EnergyCMX uses EnergyCrate and JetElement objects in order to closely follow
  the layout of the hardware.
    */
- class EnergyCMX : public Algorithm
+ class EnergyCMX : public AthAlgorithm
  {
   typedef DataVector<EnergyCMXData> EnergyCMXDataCollection;
   public:

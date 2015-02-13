@@ -29,8 +29,7 @@
 
 // Athena/Gaudi
 #include "GaudiKernel/DataSvc.h"
-#include "GaudiKernel/Algorithm.h"
-#include "GaudiKernel/MsgStream.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/DataObject.h"
 #include "DataModel/DataVector.h"
@@ -106,7 +105,7 @@ cells can be produced either by GEANT or other fast simulation packages
 CellType to 1 for CaloCells, 2 to reprocess TriggerTowers and 3 for LAr/Tile TTL1 input (a simulation of analogue towers);
 */
 
-class TriggerTowerMaker : public Algorithm,
+class TriggerTowerMaker : public AthAlgorithm,
                           public IIncidentListener 
 {
   typedef DataVector<TriggerTower> t_TTCollection;

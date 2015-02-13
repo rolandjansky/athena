@@ -5,9 +5,6 @@
 // ================================================
 // Run2TriggerTowerMaker class Implementation
 // ================================================
-// TODO:
-// - configuration source
-
 #include "TrigT1CaloSim/Run2TriggerTowerMaker.h"
 
 // trigger include(s)
@@ -119,7 +116,8 @@ Run2TriggerTowerMaker::Run2TriggerTowerMaker(const std::string& name, ISvcLocato
   // parameters for elements (eta bins)
   for(int i = 0; i < s_NLAYER; ++i) {
     m_CalibLUTElement[i].assign(s_NELEMENT, 1.);
-    m_ThresholdElement[i].assign(s_NELEMENT, 0);
+    m_ThresholdElementCP[i].assign(s_NELEMENT, 0);
+    m_ThresholdElementJEP[i].assign(s_NELEMENT, 0);
 
     m_SatLowElement[i].assign(s_NELEMENT, 0);
     m_SatHighElement[i].assign(s_NELEMENT, 0);
@@ -127,8 +125,10 @@ Run2TriggerTowerMaker::Run2TriggerTowerMaker(const std::string& name, ISvcLocato
       m_elementInfo[i][j].FIRCoeff.assign(s_FIRLENGTH, 0); //default all to zero
     }
   }
-  declareProperty("EmThreshElement", m_ThresholdElement[0]);
-  declareProperty("HadThreshElement", m_ThresholdElement[1]);
+  declareProperty("EmThreshElementCP", m_ThresholdElementCP[0]);
+  declareProperty("HadThreshElementCP", m_ThresholdElementCP[1]);
+  declareProperty("EmThreshElementJEP", m_ThresholdElementJEP[0]);
+  declareProperty("HadThreshElementJEP", m_ThresholdElementJEP[1]);
   declareProperty("EmSlopeElement", m_CalibLUTElement[0]);
   declareProperty("HadSlopeElement", m_CalibLUTElement[1]);
   declareProperty("EmSatLowElement", m_SatLowElement[0]);
@@ -572,9 +572,15 @@ void Run2TriggerTowerMaker::handy(int cal, int iLayer, int iElement) {
   int slope = element.slope;
   int FIRsum = element.FIRsum;
   int dropBits = element.nDrop;
-  element.thresh = m_ThresholdElement[iLayer][iElement];
+  element.thresh_cp = m_ThresholdElementCP[iLayer][iElement];
+  element.thresh_jep = m_ThresholdElementJEP[iLayer][iElement];
   // in case it is not given fall back to default value per layer
-  if(element.thresh <= 0) element.thresh = (iLayer == 0) ? m_emThresh : m_hadThresh;
+  if(element.thresh_cp <= 0) {
+    element.thresh_cp = (iLayer == 0) ? m_emThresh : m_hadThresh;
+  }
+  if(element.thresh_jep <= 0) {
+    element.thresh_jep = element.thresh_cp;
+  }
 
   float calslope = int(slope*m_CalibLUTElement[iLayer][iElement]);
   for(int iphi = 0; iphi < nPhi; ++iphi) {
@@ -1099,7 +1105,8 @@ void LVL1::Run2TriggerTowerMaker::preProcessTower(xAOD::TriggerTower *tower, int
     pedsub = element.offset;
   }
   int slope = element.slope;
-  int thresh = element.thresh;
+  int thresh_cp = element.thresh_cp;
+  int thresh_jep = element.thresh_jep;
 
   int firPed = element.FIRsum * floor(pedvalue + 0.5);
 
@@ -1117,19 +1124,19 @@ void LVL1::Run2TriggerTowerMaker::preProcessTower(xAOD::TriggerTower *tower, int
     // and need to be multiplied by the scale factor
 
     // CP Lut
-    m_TTtool->lut(lutIn, m_cpLutScale*slope, m_cpLutScale*pedsub, m_cpLutScale*thresh,
+    m_TTtool->lut(lutIn, m_cpLutScale*slope, m_cpLutScale*pedsub, m_cpLutScale*thresh_cp,
                   int(m_pedVal), m_LUTStrategy, false, lutOut_cp);
     // JEP Lut
-    m_TTtool->lut(lutIn, m_jepLutScale*slope, m_jepLutScale*pedsub, m_jepLutScale*thresh,
+    m_TTtool->lut(lutIn, m_jepLutScale*slope, m_jepLutScale*pedsub, m_jepLutScale*thresh_jep,
                   int(m_pedVal), m_LUTStrategy, false, lutOut_jep);
   } else if(m_LUTStrategy == 0) {
     // for old strategy pedsub and thresh are in units of LUTIn and *do not*
     // need to be multiplied by the scale factor
 
     // CP Lut
-    m_TTtool->lut(lutIn, m_cpLutScale*slope, pedsub, thresh, int(m_pedVal), m_LUTStrategy, false, lutOut_cp);
+    m_TTtool->lut(lutIn, m_cpLutScale*slope, pedsub, thresh_cp, int(m_pedVal), m_LUTStrategy, false, lutOut_cp);
     // JEP Lut
-    m_TTtool->lut(lutIn, m_jepLutScale*slope, pedsub, thresh, int(m_pedVal), m_LUTStrategy, false, lutOut_jep);
+    m_TTtool->lut(lutIn, m_jepLutScale*slope, pedsub, thresh_jep, int(m_pedVal), m_LUTStrategy, false, lutOut_jep);
   }
   m_TTtool->bcid(fir, digits, m_PeakFinderCond, element.SatLow, element.SatHigh, m_SatLevel, BCIDOut);
 

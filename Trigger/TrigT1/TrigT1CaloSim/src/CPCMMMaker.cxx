@@ -5,7 +5,6 @@
 
 #include <numeric>
 
-#include "GaudiKernel/MsgStream.h"
 #include "StoreGate/StoreGateSvc.h"
 
 #include "TrigT1CaloEvent/CMMCPHits.h"
@@ -22,7 +21,7 @@ namespace LVL1 {
 
 
 CPCMMMaker::CPCMMMaker(const std::string& name, ISvcLocator* pSvcLocator)
-                       : Algorithm(name, pSvcLocator), 
+                       : AthAlgorithm(name, pSvcLocator), 
                          m_storeGate("StoreGateSvc", name),
 			 m_cpHitsTool("LVL1::L1CPHitsTools/L1CPHitsTools")
 {
@@ -50,16 +49,16 @@ CPCMMMaker::~CPCMMMaker()
 
 StatusCode CPCMMMaker::initialize()
 {
-  MsgStream log( msgSvc(), name() );
+  
 
   StatusCode sc = m_storeGate.retrieve();
   if ( sc.isFailure() ) {
-    log << MSG::ERROR << "Couldn't connect to " << m_storeGate.typeAndName() 
-        << endreq;
+    ATH_MSG_ERROR( "Couldn't connect to " << m_storeGate.typeAndName() 
+        );
     return sc;
   } else {
-    log << MSG::DEBUG << "Connected to " << m_storeGate.typeAndName() 
-        << endreq;
+    ATH_MSG_DEBUG( "Connected to " << m_storeGate.typeAndName() 
+        );
   }
 
   if (m_runSimulation) {
@@ -68,7 +67,7 @@ StatusCode CPCMMMaker::initialize()
 
     sc = m_cpHitsTool.retrieve();
     if ( sc.isFailure() ) {
-      log << MSG::ERROR << "Couldn't retrieve CPHitsTool" << endreq;
+      ATH_MSG_ERROR( "Couldn't retrieve CPHitsTool" );
       return sc;
     }
   }
@@ -80,7 +79,7 @@ StatusCode CPCMMMaker::initialize()
 
 StatusCode CPCMMMaker::execute()
 {
-  MsgStream log( msgSvc(), name() );
+  
 
   StatusCode sc;
 
@@ -90,20 +89,20 @@ StatusCode CPCMMMaker::execute()
 
     sc = makeCmmCp();
     if (sc.isFailure()) {
-      log << MSG::ERROR << "Unable to make CMM-CP" << endreq;
+      ATH_MSG_ERROR( "Unable to make CMM-CP" );
     }
     else {
-      log << MSG::DEBUG << "Made CMM-CP" << endreq;
+      ATH_MSG_DEBUG( "Made CMM-CP" );
     }
 
     // CPM RoIs
 
     sc = makeCpmRoi();
     if (sc.isFailure()) {
-      log << MSG::ERROR << "Unable to make CPM RoIs" << endreq;
+      ATH_MSG_ERROR( "Unable to make CPM RoIs" );
     }
     else {
-      log << MSG::DEBUG << "Made CPM RoIs" << endreq;
+      ATH_MSG_DEBUG( "Made CPM RoIs" );
     }
   }
 
@@ -111,7 +110,7 @@ StatusCode CPCMMMaker::execute()
 
   sc = makeCpBsCollection();
   if (sc.isFailure()) {
-    log << MSG::ERROR << "Unable to make CP bytestream container" << endreq;
+    ATH_MSG_ERROR( "Unable to make CP bytestream container" );
   }
 
   return StatusCode::SUCCESS;
@@ -129,7 +128,7 @@ StatusCode CPCMMMaker::finalize()
 
 StatusCode CPCMMMaker::makeCmmCp()
 {
-  MsgStream log( msgSvc(), name() );
+  
 
   // Find CPM hits
 
@@ -139,11 +138,11 @@ StatusCode CPCMMMaker::makeCmmCp()
     sc = m_storeGate->retrieve(hitCollection, m_cpmHitsLocation);
   } else sc = StatusCode::FAILURE;
   if (sc.isFailure() || !hitCollection) {
-    log << MSG::DEBUG << "No CPM Hits container found" << endreq;
+    ATH_MSG_DEBUG( "No CPM Hits container found" );
     hitCollection = 0;
   }
   else {
-    log << MSG::DEBUG << "Found CPM Hits container" << endreq;
+    ATH_MSG_DEBUG( "Found CPM Hits container" );
   }
 
   // Create CMM-CP container
@@ -155,11 +154,11 @@ StatusCode CPCMMMaker::makeCmmCp()
 
   sc = m_storeGate->overwrite(cmm, m_cmmHitsLocation,true,false,false);
   if (sc.isFailure()) {
-    log << MSG::ERROR << "Error recording CMM-CP container in TDS " << endreq;
+    ATH_MSG_ERROR( "Error recording CMM-CP container in TDS " );
     return sc;
   }
   else {
-    log << MSG::DEBUG << "Recorded CMM-CP container" << endreq;
+    ATH_MSG_DEBUG( "Recorded CMM-CP container" );
   }
 
   return StatusCode::SUCCESS;
@@ -169,7 +168,7 @@ StatusCode CPCMMMaker::makeCmmCp()
 
 StatusCode CPCMMMaker::makeCpmRoi()
 {
-  MsgStream log( msgSvc(), name() );
+  
 
   // Find EmTauROIs
 
@@ -179,7 +178,7 @@ StatusCode CPCMMMaker::makeCpmRoi()
     sc = m_storeGate->retrieve(etrCollection, m_emTauRoiLocation);
   } else sc = StatusCode::FAILURE;
   if (sc.isFailure() || !etrCollection) {
-    log << MSG::DEBUG << "No EmTauROIs found" << endreq;
+    ATH_MSG_DEBUG( "No EmTauROIs found" );
     etrCollection = 0;
   }
 
@@ -190,7 +189,7 @@ StatusCode CPCMMMaker::makeCpmRoi()
     EmTauROICollection::const_iterator pos  = etrCollection->begin();
     EmTauROICollection::const_iterator pose = etrCollection->end();
     for (; pos != pose; ++pos) {
-      log << MSG::DEBUG << "Add new CPMRoI" << endreq;
+      ATH_MSG_DEBUG( "Add new CPMRoI" );
       roiCollection->push_back(new CPMRoI((*pos)->roiWord()));
     }
   }
@@ -199,11 +198,11 @@ StatusCode CPCMMMaker::makeCpmRoi()
 
   sc = m_storeGate->overwrite(roiCollection, m_cpmRoiLocation,true,false,false);
   if (sc != StatusCode::SUCCESS) {
-    log << MSG::ERROR << "Error recording CPMRoI container in TDS " << endreq;
+    ATH_MSG_ERROR( "Error recording CPMRoI container in TDS " );
     return sc;
   }
   else {
-    log << MSG::DEBUG << "Stored CPMRoI container" << endreq;
+    ATH_MSG_DEBUG( "Stored CPMRoI container" );
   }
 
   return StatusCode::SUCCESS;
@@ -213,7 +212,7 @@ StatusCode CPCMMMaker::makeCpmRoi()
 
 StatusCode CPCMMMaker::makeCpBsCollection()
 {
-  MsgStream log( msgSvc(), name() );
+  
 
   // Find CPM trigger towers
 
@@ -223,7 +222,7 @@ StatusCode CPCMMMaker::makeCpBsCollection()
     sc = m_storeGate->retrieve(ttCollection, m_cpmTowerLocation);
   } else sc = StatusCode::FAILURE;
   if (sc.isFailure() || !ttCollection) {
-    log << MSG::DEBUG << "No CPM Towers found" << endreq;
+    ATH_MSG_DEBUG( "No CPM Towers found" );
     ttCollection = 0;
   }
 
@@ -234,7 +233,7 @@ StatusCode CPCMMMaker::makeCpBsCollection()
     sc = m_storeGate->retrieve(hitCollection, m_cpmHitsLocation);
   } else sc = StatusCode::FAILURE;
   if (sc.isFailure() || !hitCollection) {
-    log << MSG::DEBUG << "No CPM Hits found" << endreq;
+    ATH_MSG_DEBUG( "No CPM Hits found" );
     hitCollection = 0;
   }
 
@@ -243,7 +242,7 @@ StatusCode CPCMMMaker::makeCpBsCollection()
   const CMMHitsCollection* cmmHitCollection = 0;
   sc = m_storeGate->retrieve(cmmHitCollection, m_cmmHitsLocation);
   if (sc.isFailure() || !cmmHitCollection) {
-    log << MSG::DEBUG << "No CMM Hits found" << endreq;
+    ATH_MSG_DEBUG( "No CMM Hits found" );
     cmmHitCollection = 0;
   }
 
@@ -253,7 +252,7 @@ StatusCode CPCMMMaker::makeCpBsCollection()
                                                         cmmHitCollection);
   sc = m_storeGate->overwrite(cp, m_cpBsCollectionLocation,true,false,false);
   if (sc != StatusCode::SUCCESS) {
-    log << MSG::ERROR << "Error recording CP container in TDS " << endreq;
+    ATH_MSG_ERROR( "Error recording CP container in TDS " );
     return sc;
   }
 

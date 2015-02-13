@@ -22,8 +22,7 @@
 #include <vector>
 
 // Athena/Gaudi
-#include "GaudiKernel/Algorithm.h"
-#include "GaudiKernel/MsgStream.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/DataObject.h"
 #include "DataModel/DataVector.h"
 //#include "StoreGate/DataHandle.h"
@@ -68,7 +67,7 @@ namespace LVL1 {
 /**
  The Tester algorithm checks the performance of the LVL1 em simulation.
 */
-class Tester : public Algorithm
+class Tester : public AthAlgorithm
 {
 
  public:

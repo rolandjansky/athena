@@ -27,8 +27,7 @@
  #include <vector>
 
  // Athena/Gaudi
- #include "GaudiKernel/Algorithm.h"
- #include "GaudiKernel/MsgStream.h"
+ #include "AthenaBaseComps/AthAlgorithm.h"
  #include "GaudiKernel/ServiceHandle.h"
  #include "GaudiKernel/ToolHandle.h"
  
@@ -59,7 +58,7 @@
    /**
   The algorithm responsible for simulating the Em/tau calo trigger.
    */
- class EmTauTrigger : public Algorithm
+ class EmTauTrigger : public AthAlgorithm
  {
 
   public:

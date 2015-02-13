@@ -16,7 +16,7 @@
  #include <map>
 
  // Athena/Gaudi
- #include "GaudiKernel/Algorithm.h"
+ #include "AthenaBaseComps/AthAlgorithm.h"
  #include "GaudiKernel/ServiceHandle.h"  
  #include "GaudiKernel/ToolHandle.h"
  
@@ -42,7 +42,7 @@
  JEMEnergySim uses EnergyCrate and JetElement objects in order to closely follow
  the layout of the hardware.
    */
- class JEMEnergySim : public Algorithm
+ class JEMEnergySim : public AthAlgorithm
  {
   typedef DataVector<JEMEtSums>     JEMEtSumsCollection;
   typedef DataVector<EnergyCMXData> EnergyCMXDataCollection;

@@ -47,7 +47,7 @@ using namespace TrigConf;
 
 EmTauTrigger::EmTauTrigger
   ( const std::string& name, ISvcLocator* pSvcLocator )
-    : Algorithm( name, pSvcLocator ), 
+    : AthAlgorithm( name, pSvcLocator ), 
       m_vectorOfEmTauROIs(0),
       m_intROIContainer(0),
       m_cpmHitsContainer(0),
@@ -72,8 +72,7 @@ EmTauTrigger::EmTauTrigger
 
 // Destructor
 EmTauTrigger::~EmTauTrigger() {
-  MsgStream log( messageService(), name() ) ;
-  log << MSG::INFO << "Destructor called" << endreq;
+  ATH_MSG_INFO( "Destructor called" );
 }
 
 
@@ -86,7 +85,6 @@ StatusCode EmTauTrigger::initialize()
 
   // We must here instantiate items which can only be made after
   // any job options have been set
-  MsgStream log( messageService(), name() ) ;
   int outputLevel = msgSvc()->outputLevel( name() );
 
      //
@@ -94,30 +92,28 @@ StatusCode EmTauTrigger::initialize()
     //
   StatusCode sc = m_configSvc.retrieve();
   if ( sc.isFailure() ) {
-    log << MSG::ERROR << "Couldn't connect to " << m_configSvc.typeAndName() 
-        << endreq;
+    ATH_MSG_ERROR( "Couldn't connect to " << m_configSvc.typeAndName() );
     return sc;
   } else if (outputLevel <= MSG::DEBUG) {
-    log << MSG::DEBUG << "Connected to " << m_configSvc.typeAndName() 
-        << endreq;
+    ATH_MSG_DEBUG( "Connected to " << m_configSvc.typeAndName() );
   }
 
   // Now connect to the StoreGateSvc
 
   sc = m_storeGate.retrieve();
   if ( sc.isFailure() ) {
-    log << MSG::ERROR << "Couldn't connect to " << m_storeGate.typeAndName() 
-        << endreq;
+    ATH_MSG_ERROR( "Couldn't connect to " << m_storeGate.typeAndName() 
+        );
     return sc;
   } else if (outputLevel <= MSG::DEBUG) {
-    log << MSG::DEBUG << "Connected to " << m_storeGate.typeAndName() 
-        << endreq;
+    ATH_MSG_DEBUG( "Connected to " << m_storeGate.typeAndName() 
+        );
   }
 
   // Retrieve L1EmTauTool
   sc = m_EmTauTool.retrieve();
   if (sc.isFailure()) {
-    log << MSG::ERROR << "Problem retrieving EmTauTool. Abort execution" << endreq;
+    ATH_MSG_ERROR( "Problem retrieving EmTauTool. Abort execution" );
     return StatusCode::SUCCESS;
   }
     
@@ -146,8 +142,7 @@ StatusCode EmTauTrigger::beginRun()
 
 StatusCode EmTauTrigger::finalize()
 {
-   MsgStream log( messageService(), name() ) ;
-   log << MSG::INFO << "Finalizing" << endreq;
+   ATH_MSG_INFO( "Finalizing" );
    return StatusCode::SUCCESS ;
 }
 
@@ -163,9 +158,8 @@ StatusCode EmTauTrigger::execute( )
 
   //make a message logging stream
 
-  MsgStream log( messageService(), name() );
   int outputLevel = msgSvc()->outputLevel( name() );
-  if (outputLevel <= MSG::DEBUG) log << MSG::DEBUG << "starting emTauTrigger" << endreq; 
+  if (outputLevel <= MSG::DEBUG) ATH_MSG_DEBUG( "starting emTauTrigger" ); 
 
   // Create containers for this event
   m_intROIContainer   =new DataVector<CPAlgorithm>;       //Container of ROIs
@@ -179,7 +173,7 @@ StatusCode EmTauTrigger::execute( )
     if ( sc==StatusCode::SUCCESS ) {
        // Check size of CPMTowerCollection - zero would indicate a problem
       if (storedTTs->size() == 0)
-         log << MSG::WARNING << "Empty CPMTowerContainer - looks like a problem" << endreq;
+         ATH_MSG_WARNING( "Empty CPMTowerContainer - looks like a problem" );
   
       // Use L1EmTauTools to produce DataVector of RoIs passing trigger conditions
       m_EmTauTool->findRoIs(storedTTs, m_intROIContainer);
@@ -189,14 +183,14 @@ StatusCode EmTauTrigger::execute( )
       for ( ; intROI_it!=m_intROIContainer->end() ; intROI_it++){
         EmTauROI* test = (*intROI_it)->produceExternal();
         if (outputLevel <= MSG::DEBUG)
-            log << MSG::DEBUG << "*****InternalROI passes trigger : created an external ROI with ROI word "
-            << std::hex << test->roiWord() << std::dec<<endreq;
+            ATH_MSG_DEBUG( "*****InternalROI passes trigger : created an external ROI with ROI word "
+            << std::hex << test->roiWord() << std::dec);
         m_vectorOfEmTauROIs->push_back( test );
       }//end for loop
     }
-    else log << MSG::WARNING << "Error retrieving CPMTowers" << endreq;
+    else ATH_MSG_WARNING( "Error retrieving CPMTowers" );
   }
-  else log << MSG::WARNING << "No CPMTowerContainer at " << m_CPMTowerLocation << endreq;
+  else ATH_MSG_WARNING( "No CPMTowerContainer at " << m_CPMTowerLocation );
   
   // Save external RoIs in TES
   saveExternalROIs();
@@ -218,19 +212,18 @@ StatusCode EmTauTrigger::execute( )
 /** place final ROI objects in the TES. */
 void LVL1::EmTauTrigger::saveExternalROIs() {
 
-  MsgStream log( messageService(), name() );
   int outputLevel = msgSvc()->outputLevel( name() );
     
   StatusCode sc = m_storeGate->overwrite(m_vectorOfEmTauROIs, m_emTauOutputLocation,true,false,false);
 
   if (sc.isSuccess()) {
      if (outputLevel <= MSG::VERBOSE)
-         log << MSG::VERBOSE << "Stored " <<m_vectorOfEmTauROIs->size()
-             << " EmTauROls at " << m_emTauOutputLocation << endreq;
+         ATH_MSG_VERBOSE("Stored " <<m_vectorOfEmTauROIs->size()
+             << " EmTauROls at " << m_emTauOutputLocation );
   }
   else {
-     log << MSG::ERROR << "failed to write EmTauROIs to  "
-         << m_emTauOutputLocation << endreq;
+     ATH_MSG_ERROR( "failed to write EmTauROIs to  "
+         << m_emTauOutputLocation );
   } 
 
   return;
@@ -240,9 +233,8 @@ void LVL1::EmTauTrigger::saveExternalROIs() {
 
 /** Store CPM energy sums for bytestream simulation */
 void LVL1::EmTauTrigger::formCPMHits() {
-  MsgStream log(messageService(), name() );
   int outputLevel = msgSvc()->outputLevel( name() );
-  if (outputLevel <= MSG::DEBUG) log << MSG::DEBUG << "formCPMHits executing" << endreq;
+  if (outputLevel <= MSG::DEBUG) ATH_MSG_DEBUG( "formCPMHits executing" );
   
   ClusterProcessorModuleKey testKey;
   CoordToHardware conv;
@@ -258,32 +250,32 @@ void LVL1::EmTauTrigger::formCPMHits() {
     unsigned int module = conv.cpModule(coord);
     unsigned int key = testKey.cpmKey(crate, module);
     if (outputLevel <= MSG::DEBUG) {
-      log << MSG::DEBUG << "Found RoI with (eta, phi) = ("
+      ATH_MSG_DEBUG( "Found RoI with (eta, phi) = ("
       << (*it)->eta() << ", " << (*it)->phi() << ") " << ", RoIWord = "
-      << std::hex << (*it)->roiWord() << std::dec << endreq;
-      log << MSG::DEBUG << "Crate = " << crate << ", Module = " << module << 
-      ", CPM key = " << key << endreq;
+      << std::hex << (*it)->roiWord() << std::dec );
+      ATH_MSG_DEBUG( "Crate = " << crate << ", Module = " << module << 
+      ", CPM key = " << key );
     }
     CPMHits* cpmHits=0;
    // find whether corresponding CPMHits already exists
     std::map<int, CPMHits*>::iterator test=m_cpmHitsContainer->find(key);
     // if not, create it
     if ( test==m_cpmHitsContainer->end()){
-      if (outputLevel <= MSG::DEBUG) log << MSG::DEBUG << "New key. CPM has crate = " 
+      if (outputLevel <= MSG::DEBUG) ATH_MSG_DEBUG( "New key. CPM has crate = " 
                                                 << crate << ", Module = " 
-						<< module << endreq;
-      if (outputLevel <= MSG::DEBUG) log << MSG::DEBUG << "Create new CPMHits" << endreq; 
+						<< module );
+      if (outputLevel <= MSG::DEBUG) ATH_MSG_DEBUG( "Create new CPMHits" ); 
       cpmHits = new CPMHits(crate, module);
       
-      if (outputLevel <= MSG::DEBUG) log << MSG::DEBUG << "and insert into map" << endreq; 
+      if (outputLevel <= MSG::DEBUG) ATH_MSG_DEBUG( "and insert into map" ); 
       m_cpmHitsContainer->insert(std::map<int,CPMHits*>::value_type(key,cpmHits));
     }
     else {
-      if (outputLevel <= MSG::DEBUG) log << MSG::DEBUG << "Existing CPMHits" << endreq; 
+      if (outputLevel <= MSG::DEBUG) ATH_MSG_DEBUG( "Existing CPMHits" ); 
       cpmHits = test->second; // Already exists, so set pointer
     }
     // increment hit multiplicity. Word format different for FCAL CPMs
-    if (outputLevel <= MSG::DEBUG) log << MSG::DEBUG << "Update CPM hits" << endreq; 
+    if (outputLevel <= MSG::DEBUG) ATH_MSG_DEBUG( "Update CPM hits" ); 
     unsigned int hits0 = cpmHits->HitWord0();
     unsigned int hits1 = cpmHits->HitWord1();
     hits0 = addHits(hits0,(*it)->roiWord()&0xFF);
@@ -293,7 +285,7 @@ void LVL1::EmTauTrigger::formCPMHits() {
     hitvec0.push_back(hits0);
     hitvec1.push_back(hits1);
     cpmHits->addHits(hitvec0,hitvec1);
-    if (outputLevel <= MSG::DEBUG) log << MSG::DEBUG << "All done for this one" << endreq; 
+    if (outputLevel <= MSG::DEBUG) ATH_MSG_DEBUG( "All done for this one" ); 
   }
   
   // Now add them to the TES
@@ -304,9 +296,8 @@ void LVL1::EmTauTrigger::formCPMHits() {
 
 /** put CPMHits into SG */
 void LVL1::EmTauTrigger::saveCPMHits(){
-  MsgStream log( messageService(), name() );
   int outputLevel = msgSvc()->outputLevel( name() );
-  if (outputLevel <= MSG::DEBUG) log << MSG::DEBUG <<"saveCPMHits running"<<endreq;
+  if (outputLevel <= MSG::DEBUG) ATH_MSG_DEBUG("saveCPMHits running");
   
   CPMHitsCollection* CPMHvector = new  CPMHitsCollection;
 
@@ -315,12 +306,10 @@ void LVL1::EmTauTrigger::saveCPMHits(){
      CPMHvector->push_back(it->second);
   }
 
-  if (outputLevel <= MSG::DEBUG) log <<MSG::DEBUG<< m_cpmHitsContainer->size()<<" CPMHits have been saved"<<endreq;
+  if (outputLevel <= MSG::DEBUG) ATH_MSG_DEBUG( m_cpmHitsContainer->size()<<" CPMHits have been saved");
   StatusCode sc = m_storeGate->overwrite(CPMHvector, m_cpmHitsLocation,true,false,false);
   if (sc != StatusCode::SUCCESS) {
-    log << MSG::ERROR
-        << "Error registering CPMHits collection in TES "
-        << endreq;
+    ATH_MSG_ERROR("Error registering CPMHits collection in TES ");
   }
   
   return;
@@ -328,12 +317,12 @@ void LVL1::EmTauTrigger::saveCPMHits(){
 
 /** Increment CPM hit word */
 unsigned int LVL1::EmTauTrigger::addHits(unsigned int hitMult, unsigned int hitVec) {
-  MsgStream log( messageService(), name() );
+
   int outputLevel = msgSvc()->outputLevel( name() );
   
   if (outputLevel <= MSG::DEBUG) 
-     log << MSG::DEBUG <<"addHits: Original hitMult = " << std::hex << hitMult
-         << ". Add hitWord = " << hitVec << std::dec<<endreq;
+     ATH_MSG_DEBUG("addHits: Original hitMult = " << std::hex << hitMult
+         << ". Add hitWord = " << hitVec << std::dec);
 	 
 // Results transmitted in 2 words, each reporting half of the CP thresholds
   int nthresh = TrigT1CaloDefs::numOfCPThresholds/2;
@@ -341,7 +330,7 @@ unsigned int LVL1::EmTauTrigger::addHits(unsigned int hitMult, unsigned int hitV
   int nbits = 24/nthresh;  // 24 bits of results per word
   
   if (outputLevel <= MSG::DEBUG) 
-     log << MSG::DEBUG <<" Bits per threshold = " << nbits <<endreq;
+     ATH_MSG_DEBUG(" Bits per threshold = " << nbits );
   
   int max = (1<<nbits) - 1;
   unsigned int multMask = max;
@@ -361,7 +350,7 @@ unsigned int LVL1::EmTauTrigger::addHits(unsigned int hitMult, unsigned int hitV
   }
   
   if (outputLevel <= MSG::DEBUG) 
-     log << MSG::DEBUG <<"addHits returning hitMult = " << std::hex << hits << std::dec << endreq;
+     ATH_MSG_DEBUG("addHits returning hitMult = " << std::hex << hits << std::dec );
   
   return hits;
 }
@@ -371,7 +360,6 @@ unsigned int LVL1::EmTauTrigger::addHits(unsigned int hitMult, unsigned int hitV
 
 /** retrieves the Calo config put into detectorstore by TrigT1CTP and set up trigger menu */
 void LVL1::EmTauTrigger::setupTriggerMenuFromCTP(){
-  MsgStream log( messageService(), name() );
   
   L1DataDef def;
 
@@ -379,23 +367,23 @@ void LVL1::EmTauTrigger::setupTriggerMenuFromCTP(){
   std::vector<TrigConf::TriggerThreshold*>::const_iterator it;
   for (it = thresholds.begin(); it != thresholds.end(); ++it) {
     if ( (*it)->type() == def.emType() || (*it)->type() == def.tauType() ) {
-      log << MSG::DEBUG << "TriggerThreshold " << (*it)->id() << " has name " << (*it)->name() << endreq
+      ATH_MSG_DEBUG( "TriggerThreshold " << (*it)->id() << " has name " << (*it)->name() << endreq
           << "  threshold number " << (*it)->thresholdNumber() << endreq
-          << "  number of values = " << (*it)->numberofValues() << endreq;
+          << "  number of values = " << (*it)->numberofValues() );
       for (std::vector<TriggerThresholdValue*>::const_iterator tv = (*it)->thresholdValueVector().begin();
            tv != (*it)->thresholdValueVector().end(); ++tv) {
         ClusterThresholdValue* ctv;
         ctv = dynamic_cast<ClusterThresholdValue*> (*tv);
 	if (!ctv) {
-          log << MSG::ERROR << "Threshold type name is EM/Tau, but is not a ClusterThreshold object!" << endreq;
+          ATH_MSG_ERROR( "Threshold type name is EM/Tau, but is not a ClusterThreshold object!" );
           continue;
         }
-        log << MSG::DEBUG << "ClusterThresholdValue: " << endreq
+        ATH_MSG_DEBUG( "ClusterThresholdValue: " << endreq
             << "  Threshold value = " << ctv->thresholdValueCount() << endreq
             << "  EM isolation = " << ctv->emIsolationCount() << endreq
             << "  Had isolation = " << ctv->hadIsolationCount() << endreq
             << "  Had veto = " << ctv->hadVetoCount() << endreq
-            << "  EtaMin = " << ctv->etamin() << ", EtaMax = " << ctv->etamax() << endreq;
+            << "  EtaMin = " << ctv->etamin() << ", EtaMax = " << ctv->etamax() );
         
       } // end of loop over threshold values
     } //  is type == em or tau?

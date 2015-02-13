@@ -5,7 +5,6 @@
 
 #include <numeric>
 
-#include "GaudiKernel/MsgStream.h"
 #include "StoreGate/StoreGateSvc.h"
 
 #include "TrigT1CaloEvent/CMMEtSums.h"
@@ -27,7 +26,7 @@ namespace LVL1 {
 
 
 JEPCMMMaker::JEPCMMMaker(const std::string& name, ISvcLocator* pSvcLocator)
-             : Algorithm(name, pSvcLocator),
+             : AthAlgorithm(name, pSvcLocator),
 	       m_storeGate("StoreGateSvc", name),
 	       m_jepEtSumsTool("LVL1::L1JEPEtSumsTools/L1JEPEtSumsTools"),
 	       m_jepHitsTool("LVL1::L1JEPHitsTools/L1JEPHitsTools")
@@ -64,16 +63,16 @@ JEPCMMMaker::~JEPCMMMaker()
 
 StatusCode JEPCMMMaker::initialize()
 {
-  MsgStream log( msgSvc(), name() );
+  
 
   StatusCode sc = m_storeGate.retrieve();
   if (sc.isFailure()) {
-    log << MSG::ERROR << "Couldn't connect to " << m_storeGate.typeAndName()
-        << endreq;
+    ATH_MSG_ERROR( "Couldn't connect to " << m_storeGate.typeAndName()
+        );
     return sc;
   } else {
-    log << MSG::DEBUG << "Connected to " << m_storeGate.typeAndName()
-        << endreq;
+    ATH_MSG_DEBUG( "Connected to " << m_storeGate.typeAndName()
+        );
   }
 
   if (m_runSimulation) {
@@ -82,7 +81,7 @@ StatusCode JEPCMMMaker::initialize()
 
     sc = m_jepEtSumsTool.retrieve();
     if ( sc.isFailure() ) {
-      log << MSG::ERROR << "Couldn't retrieve JEPEtSumsTool" << endreq;
+      ATH_MSG_ERROR( "Couldn't retrieve JEPEtSumsTool" );
       return sc;
     }
 
@@ -90,7 +89,7 @@ StatusCode JEPCMMMaker::initialize()
 
     sc = m_jepHitsTool.retrieve();
     if ( sc.isFailure() ) {
-      log << MSG::ERROR << "Couldn't retrieve JEPHitsTool" << endreq;
+      ATH_MSG_ERROR( "Couldn't retrieve JEPHitsTool" );
       return sc;
     }
   }
@@ -102,7 +101,7 @@ StatusCode JEPCMMMaker::initialize()
 
 StatusCode JEPCMMMaker::execute()
 {
-  MsgStream log( msgSvc(), name() );
+  
 
   StatusCode sc;
 
@@ -112,28 +111,28 @@ StatusCode JEPCMMMaker::execute()
 
     sc = makeCmmJet();
     if (sc.isFailure()) {
-      log << MSG::ERROR << "Unable to make CMM-Jet" << endreq;
+      ATH_MSG_ERROR( "Unable to make CMM-Jet" );
     }
 
     // CMM-Energy
 
     sc = makeCmmEnergy();
     if (sc.isFailure()) {
-      log << MSG::ERROR << "Unable to make CMM-Energy" << endreq;
+      ATH_MSG_ERROR( "Unable to make CMM-Energy" );
     }
 
     // JEM RoIs
 
     sc = makeJemRoi();
     if (sc.isFailure()) {
-      log << MSG::ERROR << "Unable to make JEM RoIs" << endreq;
+      ATH_MSG_ERROR( "Unable to make JEM RoIs" );
     }
 
     // CMM RoIs
 
     sc = makeCmmRoi();
     if (sc.isFailure()) {
-      log << MSG::ERROR << "Unable to make CMM RoIs" << endreq;
+      ATH_MSG_ERROR( "Unable to make CMM RoIs" );
     }
   }
 
@@ -141,15 +140,15 @@ StatusCode JEPCMMMaker::execute()
 
   sc = makeJepBsCollection();
   if (sc.isFailure()) {
-    log << MSG::ERROR << "Unable to make JEP bytestream collection" << endreq;
+    ATH_MSG_ERROR( "Unable to make JEP bytestream collection" );
   }
 
   // JEP RoI bytestream collection
 
   sc = makeJepRoiBsCollection();
   if (sc.isFailure()) {
-    log << MSG::ERROR << "Unable to make JEP RoI bytestream collection"
-        << endreq;
+    ATH_MSG_ERROR( "Unable to make JEP RoI bytestream collection"
+        );
   }
 
   return StatusCode::SUCCESS;
@@ -167,7 +166,7 @@ StatusCode JEPCMMMaker::finalize()
 
 StatusCode JEPCMMMaker::makeCmmJet()
 {
-  MsgStream log( msgSvc(), name() );
+  
 
   // Find jet hits
 
@@ -177,7 +176,7 @@ StatusCode JEPCMMMaker::makeCmmJet()
     sc = m_storeGate->retrieve(hitCollection, m_jemHitsLocation);
   } else sc = StatusCode::FAILURE;
   if (sc.isFailure() || !hitCollection) {
-    log << MSG::DEBUG << "No Jet Hits container found" << endreq;
+    ATH_MSG_DEBUG( "No Jet Hits container found" );
     hitCollection = 0;
   }
 
@@ -190,7 +189,7 @@ StatusCode JEPCMMMaker::makeCmmJet()
 
   sc = m_storeGate->overwrite(cmm, m_cmmJetLocation,true,false,false);
   if (sc.isFailure()) {
-    log << MSG::ERROR << "Error recording CMM-Jet container in TDS " << endreq;
+    ATH_MSG_ERROR( "Error recording CMM-Jet container in TDS " );
     return sc;
   }
 
@@ -201,7 +200,7 @@ StatusCode JEPCMMMaker::makeCmmJet()
 
 StatusCode JEPCMMMaker::makeCmmEnergy()
 {
-  MsgStream log( msgSvc(), name() );
+  
 
   // Find energy sums
 
@@ -211,7 +210,7 @@ StatusCode JEPCMMMaker::makeCmmEnergy()
     sc = m_storeGate->retrieve(sumsCollection, m_jemEtSumsLocation);
   } else sc = StatusCode::FAILURE;
   if (sc.isFailure() || !sumsCollection) {
-    log << MSG::DEBUG << "No Energy Sums container found" << endreq;
+    ATH_MSG_DEBUG( "No Energy Sums container found" );
     sumsCollection = 0;
   }
 
@@ -224,8 +223,8 @@ StatusCode JEPCMMMaker::makeCmmEnergy()
 
   sc = m_storeGate->overwrite(cmm, m_cmmEnergyLocation,true,false,false);
   if (sc.isFailure()) {
-    log << MSG::ERROR << "Error recording CMM-Energy container in TDS "
-        << endreq;
+    ATH_MSG_ERROR( "Error recording CMM-Energy container in TDS "
+        );
     return sc;
   }
 
@@ -236,7 +235,7 @@ StatusCode JEPCMMMaker::makeCmmEnergy()
 
 StatusCode JEPCMMMaker::makeJemRoi()
 {
-  MsgStream log( msgSvc(), name() );
+  
 
   // Create container
 
@@ -250,7 +249,7 @@ StatusCode JEPCMMMaker::makeJemRoi()
     sc = m_storeGate->retrieve(jrCollection, m_jetRoiLocation);
   } else sc = StatusCode::FAILURE;
   if (sc.isFailure() || !jrCollection) {
-    log << MSG::DEBUG << "No Jet RoIs found" << endreq;
+    ATH_MSG_DEBUG( "No Jet RoIs found" );
   }
   else {
     // Create JEMRoIs and add to container
@@ -265,7 +264,7 @@ StatusCode JEPCMMMaker::makeJemRoi()
 
   sc = m_storeGate->overwrite(roiCollection, m_jemRoiLocation,true,false,false);
   if (sc != StatusCode::SUCCESS) {
-    log << MSG::ERROR << "Error recording JEMRoI container in TDS" << endreq;
+    ATH_MSG_ERROR( "Error recording JEMRoI container in TDS" );
     return sc;
   }
 
@@ -276,7 +275,7 @@ StatusCode JEPCMMMaker::makeJemRoi()
 
 StatusCode JEPCMMMaker::makeCmmRoi()
 {
-  MsgStream log( msgSvc(), name() );
+  
 
   // Find Jet-Et RoI in CMM hits
 
@@ -287,7 +286,7 @@ StatusCode JEPCMMMaker::makeCmmRoi()
     sc = m_storeGate->retrieve(cmmJet, m_cmmJetLocation);
   } else sc = StatusCode::FAILURE;
   if (sc.isFailure() || !cmmJet) {
-    log << MSG::DEBUG << "No CMM Hits found" << endreq;
+    ATH_MSG_DEBUG( "No CMM Hits found" );
   } else {
     CmmJetCollection::const_iterator icmmj  = cmmJet->begin();
     CmmJetCollection::const_iterator icmmjE = cmmJet->end();
@@ -315,7 +314,7 @@ StatusCode JEPCMMMaker::makeCmmRoi()
     sc = m_storeGate->retrieve(cmmEnergy, m_cmmEnergyLocation);
   } else sc = StatusCode::FAILURE;
   if (sc.isFailure() || !cmmEnergy) {
-    log << MSG::DEBUG << "No CMM Energy Sums found" << endreq;
+    ATH_MSG_DEBUG( "No CMM Energy Sums found" );
   } else {
     CmmEnergyCollection::const_iterator icmme  = cmmEnergy->begin();
     CmmEnergyCollection::const_iterator icmmeE = cmmEnergy->end();
@@ -346,7 +345,7 @@ StatusCode JEPCMMMaker::makeCmmRoi()
 
   sc = m_storeGate->overwrite(roi, m_cmmRoiLocation,true,false,false);
   if (sc != StatusCode::SUCCESS) {
-    log << MSG::ERROR << "Error recording CMMRoI container in TDS" << endreq;
+    ATH_MSG_ERROR( "Error recording CMMRoI container in TDS" );
     return sc;
   }
 
@@ -357,7 +356,7 @@ StatusCode JEPCMMMaker::makeCmmRoi()
 
 StatusCode JEPCMMMaker::makeJepBsCollection()
 {
-  MsgStream log( msgSvc(), name() );
+  
 
   // Find jet elements
 
@@ -367,7 +366,7 @@ StatusCode JEPCMMMaker::makeJepBsCollection()
     sc = m_storeGate->retrieve(jeCollection, m_jetElementLocation);
   } else sc = StatusCode::FAILURE;
   if (sc.isFailure() || !jeCollection) {
-    log << MSG::DEBUG << "No Jet Elements found" << endreq;
+    ATH_MSG_DEBUG( "No Jet Elements found" );
     jeCollection = 0;
   }
 
@@ -378,7 +377,7 @@ StatusCode JEPCMMMaker::makeJepBsCollection()
     sc = m_storeGate->retrieve(hitCollection, m_jemHitsLocation);
   } else sc = StatusCode::FAILURE;
   if (sc.isFailure() || !hitCollection) {
-    log << MSG::DEBUG << "No Jet Hits found" << endreq;
+    ATH_MSG_DEBUG( "No Jet Hits found" );
     hitCollection = 0;
   }
 
@@ -389,7 +388,7 @@ StatusCode JEPCMMMaker::makeJepBsCollection()
     sc = m_storeGate->retrieve(etCollection, m_jemEtSumsLocation);
   } else sc = StatusCode::FAILURE;
   if (sc.isFailure() || !etCollection) {
-    log << MSG::DEBUG << "No Energy Sums found" << endreq;
+    ATH_MSG_DEBUG( "No Energy Sums found" );
     etCollection = 0;
   }
 
@@ -400,7 +399,7 @@ StatusCode JEPCMMMaker::makeJepBsCollection()
     sc = m_storeGate->retrieve(cmmHitCollection, m_cmmJetLocation);
   } else sc = StatusCode::FAILURE;
   if (sc.isFailure() || !cmmHitCollection) {
-    log << MSG::DEBUG << "No CMM Hits found" << endreq;
+    ATH_MSG_DEBUG( "No CMM Hits found" );
     cmmHitCollection = 0;
   }
 
@@ -411,7 +410,7 @@ StatusCode JEPCMMMaker::makeJepBsCollection()
     sc = m_storeGate->retrieve(cmmEtCollection, m_cmmEnergyLocation);
   } else sc = StatusCode::FAILURE;
   if (sc.isFailure() || !cmmEtCollection) {
-    log << MSG::DEBUG << "No CMM Energy Sums found" << endreq;
+    ATH_MSG_DEBUG( "No CMM Energy Sums found" );
     cmmEtCollection = 0;
   }
 
@@ -422,7 +421,7 @@ StatusCode JEPCMMMaker::makeJepBsCollection()
 				                           cmmEtCollection);
   sc = m_storeGate->overwrite(jep, m_jepBsCollectionLocation,true,false,false);
   if (sc != StatusCode::SUCCESS) {
-    log << MSG::ERROR << "Error recording JEP container in TDS " << endreq;
+    ATH_MSG_ERROR( "Error recording JEP container in TDS " );
     return sc;
   }
 
@@ -433,7 +432,7 @@ StatusCode JEPCMMMaker::makeJepBsCollection()
 
 StatusCode JEPCMMMaker::makeJepRoiBsCollection()
 {
-  MsgStream log( msgSvc(), name() );
+  
 
   // Find JEMRoIs
 
@@ -443,7 +442,7 @@ StatusCode JEPCMMMaker::makeJepRoiBsCollection()
     sc = m_storeGate->retrieve(jeCollection, m_jemRoiLocation);
   } else sc = StatusCode::FAILURE;
   if (sc.isFailure() || !jeCollection) {
-    log << MSG::DEBUG << "No JEMRoIs found" << endreq;
+    ATH_MSG_DEBUG( "No JEMRoIs found" );
     jeCollection = 0;
   }
 
@@ -454,7 +453,7 @@ StatusCode JEPCMMMaker::makeJepRoiBsCollection()
     sc = m_storeGate->retrieve(cr, m_cmmRoiLocation);
   } else sc = StatusCode::FAILURE;
   if (sc.isFailure() || !cr ) {
-    log << MSG::DEBUG << "No CMMRoI found" << endreq;
+    ATH_MSG_DEBUG( "No CMMRoI found" );
     cr = 0;
   }
 
@@ -465,7 +464,7 @@ StatusCode JEPCMMMaker::makeJepRoiBsCollection()
     sc = m_storeGate->retrieve(cmmHitCollection, m_cmmJetLocation);
   } else sc = StatusCode::FAILURE;
   if (sc.isFailure() || !cmmHitCollection) {
-    log << MSG::DEBUG << "No CMM Hits found" << endreq;
+    ATH_MSG_DEBUG( "No CMM Hits found" );
     cmmHitCollection = 0;
   }
 
@@ -476,7 +475,7 @@ StatusCode JEPCMMMaker::makeJepRoiBsCollection()
     sc = m_storeGate->retrieve(cmmEtCollection, m_cmmEnergyLocation);
   } else sc = StatusCode::FAILURE;
   if (sc.isFailure() || !cmmEtCollection) {
-    log << MSG::DEBUG << "No CMM Energy Sums found" << endreq;
+    ATH_MSG_DEBUG( "No CMM Energy Sums found" );
     cmmEtCollection = 0;
   }
 
@@ -486,7 +485,7 @@ StatusCode JEPCMMMaker::makeJepRoiBsCollection()
                                         cmmHitCollection, cmmEtCollection);
   sc = m_storeGate->overwrite(jep, m_jepRoiBsCollectionLocation,true,false,false);
   if (sc != StatusCode::SUCCESS) {
-    log << MSG::ERROR << "Error recording JEP RoI container in TDS" << endreq;
+    ATH_MSG_ERROR( "Error recording JEP RoI container in TDS" );
     return sc;
   }
 
