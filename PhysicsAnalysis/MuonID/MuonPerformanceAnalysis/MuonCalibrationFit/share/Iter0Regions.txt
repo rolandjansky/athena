@@ -1,0 +1,6 @@
+Var:eta[min]  Var:eta[max]  Var:absphi[min]  Var:absphi[max]  Name
+-2.50         -1.50         0                3.1416           Region1
+-1.50         -0.50         0                3.1416           Region2
+-0.50          0.50         0                3.1416           Region3
+ 0.50          1.50         0                3.1416           Region4
+ 1.50          2.50         0                3.1416           Region5
