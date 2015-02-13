@@ -745,7 +745,7 @@ HLT::ErrorCode TrigL2BMuMuFex::acceptInputs(HLT::TEConstVec& inputTE, bool& pass
     if ( m_oppositeCharge ) {
         if ( mu1ptq * mu2ptq > 0 ) {
             if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "Combination discarded by opposite charge check" << endreq;
-            pass = false;
+            pass = true; // ST: to actually pass the empty collection to L2BMuMuHypo
             if ( timerSvc() ){
                 m_BmmHypTot->stop();
                 mon_TotalRunTime = m_BmmHypTot->elapsed();
@@ -756,7 +756,7 @@ HLT::ErrorCode TrigL2BMuMuFex::acceptInputs(HLT::TEConstVec& inputTE, bool& pass
     if ( m_sameCharge ) {
         if ( mu1ptq * mu2ptq < 0 ) {
             if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "Combination discarded by same charge check" << endreq;
-            pass = false;
+            pass = true; // ST: to actually pass the empty collection to L2BMuMuHypo
             if ( timerSvc() ){
                 m_BmmHypTot->stop();
                 mon_TotalRunTime = m_BmmHypTot->elapsed();
@@ -787,7 +787,7 @@ HLT::ErrorCode TrigL2BMuMuFex::acceptInputs(HLT::TEConstVec& inputTE, bool& pass
     if ( mass < m_lowerMassCut || (mass > m_upperMassCut && m_ApplyupperMassCut) ) {
         if ( msgLvl() <= MSG::DEBUG )
             msg() << MSG::DEBUG << "Combination discarded by mass cut: " << mass << " MeV" << endreq;
-        pass = false;
+        pass = true; // ST: to actually pass the empty collection to L2BMuMuHypo
         if ( timerSvc() ) {
             m_BmmHypTot->stop();
             mon_TotalRunTime = m_BmmHypTot->elapsed();
