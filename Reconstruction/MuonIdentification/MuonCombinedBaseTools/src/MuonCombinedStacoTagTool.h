@@ -46,7 +46,7 @@ namespace MuonCombined {
 
   private:
 
-    const Trk::Perigee* theCombIdMu( const Trk::Perigee& indetPerigee, const Trk::Perigee& extrPerigee, double& chi2 ) const;
+    std::unique_ptr<const Trk::Perigee> theCombIdMu( const Trk::Perigee& indetPerigee, const Trk::Perigee& extrPerigee, double& chi2 ) const;
 
     // helpers, managers, tools
     ToolHandle<Muon::MuonEDMPrinterTool>        m_printer;

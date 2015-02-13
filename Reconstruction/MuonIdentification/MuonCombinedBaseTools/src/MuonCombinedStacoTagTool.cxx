@@ -62,7 +62,7 @@ namespace MuonCombined {
 	!muonCandidate.extrapolatedTrack()->perigeeParameters() ||
 	!muonCandidate.extrapolatedTrack()->perigeeParameters()->covariance() ) return;
 
-    const Trk::Perigee* bestPerigee = 0;
+    std::unique_ptr<const Trk::Perigee> bestPerigee;
     InDetCandidate*     bestCandidate = 0;
     double              bestChi2=2e20;
 
@@ -98,7 +98,7 @@ namespace MuonCombined {
         }
       }
       double chi2 = 0;
-      const Trk::Perigee* perigee = theCombIdMu(idTP->indetTrackParticle().perigeeParameters(),*muonCandidate.extrapolatedTrack()->perigeeParameters(),chi2);
+      std::unique_ptr<const Trk::Perigee> perigee = theCombIdMu(idTP->indetTrackParticle().perigeeParameters(),*muonCandidate.extrapolatedTrack()->perigeeParameters(),chi2);
       if( msPer != muonCandidate.extrapolatedTrack()->perigeeParameters() ) delete msPer;
       if( !perigee ) {
 	ATH_MSG_DEBUG("Combination failed");
@@ -106,10 +106,8 @@ namespace MuonCombined {
       }
       if( chi2 < bestChi2 ){
 	bestChi2 = chi2;
-	bestPerigee = perigee;
+	bestPerigee = std::move(perigee);
 	bestCandidate = idTP;
-      }else{
-	delete perigee;
       }
     }
     if( bestCandidate ){
@@ -123,28 +121,28 @@ namespace MuonCombined {
     }    
   }
 
-  const Trk::Perigee* MuonCombinedStacoTagTool::theCombIdMu( const Trk::Perigee& indetPerigee, const Trk::Perigee& extrPerigee, 
+  std::unique_ptr<const Trk::Perigee> MuonCombinedStacoTagTool::theCombIdMu( const Trk::Perigee& indetPerigee, const Trk::Perigee& extrPerigee, 
 							     double& chi2 ) const {
 
 
     chi2   = 1e20;
     if( !indetPerigee.covariance() || !extrPerigee.covariance() ){
       ATH_MSG_WARNING("Perigee parameters without covariance");
-      return 0;
+      return nullptr;
     }
     
     const AmgSymMatrix(5)& covID = *indetPerigee.covariance();
     const AmgSymMatrix(5)  weightID = covID.inverse();
     if  ( weightID.determinant() == 0 ){
       ATH_MSG_WARNING( " ID weight matrix computation failed     " ) ;
-      return 0;
+      return nullptr;
     }
 
     const AmgSymMatrix(5)& covMS = *extrPerigee.covariance();
     const AmgSymMatrix(5)  weightMS = covMS.inverse();
     if  ( weightMS.determinant() == 0 ){
       ATH_MSG_WARNING( "weightMS computation failed      " ) ;
-      return 0;
+      return nullptr;
     }
 
     AmgSymMatrix(5) weightCB = weightID + weightMS ;
@@ -152,7 +150,7 @@ namespace MuonCombined {
     if (covCB->determinant() == 0){
       ATH_MSG_WARNING( " Inversion of weightCB failed " ) ;
       delete covCB;
-      return 0;
+      return nullptr;
     }
 
     AmgSymMatrix(5) covSum = covID + covMS ;
@@ -160,7 +158,7 @@ namespace MuonCombined {
 
     if (invCovSum.determinant() == 0){
       ATH_MSG_WARNING( " Inversion of covSum failed " ) ;
-      return 0;
+      return nullptr;
     }
 
     AmgVector(5) parsMS(extrPerigee.parameters());
@@ -176,10 +174,11 @@ namespace MuonCombined {
 
     if(parsCB[Trk::phi]>M_PI)       parsCB[Trk::phi] -= 2.*M_PI; 
     else if(parsCB[Trk::phi]<-M_PI) parsCB[Trk::phi] += 2.*M_PI;
-    
-    return indetPerigee.associatedSurface().createParameters<5,Trk::Charged>( parsCB[Trk::locX], parsCB[Trk::locY],
-									      parsCB[Trk::phi],  parsCB[Trk::theta], parsCB[Trk::qOverP], 
-									      covCB );
+
+    return std::unique_ptr<const Trk::Perigee>
+      (indetPerigee.associatedSurface().createParameters<5,Trk::Charged>( parsCB[Trk::locX], parsCB[Trk::locY],
+                                                                          parsCB[Trk::phi],  parsCB[Trk::theta], parsCB[Trk::qOverP], 
+                                                                          covCB ) );
   }
 
 }	// end of namespace
