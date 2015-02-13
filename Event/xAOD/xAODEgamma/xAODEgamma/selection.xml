@@ -1,4 +1,4 @@
-<!-- $Id: selection.xml 619839 2014-10-03 13:38:44Z christos $ -->
+<!-- $Id: selection.xml 645853 2015-02-10 20:40:06Z blenzi $ -->
 <lcgdict>
 
   <!-- Egamma_v1 dictionaries: -->
@@ -83,7 +83,10 @@
   <enum pattern="xAOD::EgammaParameters::*" />
   
   <!--Add Helper Functions -->
-  <function pattern="xAOD::EgammaHelpers::*" />  
+  <function pattern="xAOD::EgammaHelpers::*" />
+  
+  <!--Returned by helper functions -->
+  <class name="std::set<const xAOD::TrackParticle*>" />
 
   <!-- Suppress the unwanted classes found by ROOT 6. -->
   <!-- Hopefully we can remove these extra lines at one point... -->

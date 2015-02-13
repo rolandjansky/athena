@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: ElectronxAODHelpers.h 636327 2014-12-16 16:34:24Z christos $
+// $Id: ElectronxAODHelpers.h 646800 2015-02-13 15:56:31Z christos $
 #ifndef XAOD_ELECTRONXAODHELPERS_H
 #define XAOD_ELECTRONXAODHELPERS_H
 
@@ -22,6 +22,9 @@ namespace xAOD {
 
     ///@brief Helper function for getting the "Original" Track Particle (i.e before GSF) via the GSF Track Particle
     const xAOD::TrackParticle* getOriginalTrackParticleFromGSF(const xAOD::TrackParticle* trkPar);
+
+    ///@Brief return parameters for the last measurement for a GSF track particle
+    float getLastMeasurementQoverP(const xAOD::TrackParticle *tp);
 
     ///@Brief Return a list of all or only the best TrackParticle associated to the object. 
     ///If useBremAssoc is set, get the original TrackParticle 

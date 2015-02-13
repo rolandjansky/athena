@@ -32,6 +32,18 @@ const xAOD::TrackParticle* xAOD::EgammaHelpers::getOriginalTrackParticleFromGSF(
 
 // ==================================================================
 
+float xAOD::EgammaHelpers::getLastMeasurementQoverP(const xAOD::TrackParticle *tp){
+ 
+  static SG::AuxElement::Accessor<float > QoverPLM  ("QoverPLM");
+  if(tp && QoverPLM.isAvailable(*tp)){
+    return QoverPLM(*tp);
+  }
+  return -999 ; 
+}
+
+
+// ==================================================================
+
 const std::set<const xAOD::TrackParticle*> xAOD::EgammaHelpers::getTrackParticles(const xAOD::Electron* el, 
   bool useBremAssoc /* = true */, bool allParticles /* = true */){
 
@@ -59,6 +71,7 @@ std::size_t xAOD::EgammaHelpers::numberOfSiHits(const xAOD::TrackParticle *tp){
   }
   return nSiHits;
 }  
+
 
 
 

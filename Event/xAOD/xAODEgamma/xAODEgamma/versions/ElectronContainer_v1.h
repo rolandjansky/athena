@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: ElectronContainer_v1.h 628253 2014-11-13 19:47:54Z christos $
+// $Id: ElectronContainer_v1.h 644948 2015-02-07 01:33:06Z christos $
 #ifndef XAODEGAMMA_VERSIONS_ELECTRONCONTAINER_V1_H
 #define XAODEGAMMA_VERSIONS_ELECTRONCONTAINER_V1_H
 
@@ -14,9 +14,10 @@
 // Local include(s):
 #include "xAODEgamma/versions/Electron_v1.h"
 #include "xAODEgamma/versions/EgammaContainer_v1.h"
+#include "xAODEgamma/ElectronContainerFwd.h"
 
-// Declare Egamma_v1 as a base class of Electron_v1:
-DATAVECTOR_BASE( xAOD::Electron_v1, xAOD::Egamma_v1 );
+//Need that to compler the DATAVECTOR_BASE_FWD
+template struct DataVector_detail::DVLEltBaseInit< xAOD::Electron_v1>;
 
 namespace xAOD {
    /// The container is a simple typedef for now

@@ -14,8 +14,8 @@
 #include "xAODEgamma/PhotonContainer.h"
 
 // ==================================================================
-const xAOD::TruthParticle* xAOD::EgammaHelpers::getTruthParticle(const xAOD::IParticle* particle, bool debug /* =false */){
-  return getLink<xAOD::TruthParticle>(particle, "truthParticleLink", debug);
+const xAOD::TruthParticle* xAOD::EgammaHelpers::getTruthParticle(const xAOD::IParticle* particle){
+  return getLink<xAOD::TruthParticle>(particle, "truthParticleLink");
 }
 
 int xAOD::EgammaHelpers::getParticleTruthType(const xAOD::IParticle* particle){
@@ -33,12 +33,12 @@ int xAOD::EgammaHelpers::getParticleTruthOrigin(const xAOD::IParticle* particle)
 
 // ==================================================================
 
-const xAOD::Electron* xAOD::EgammaHelpers::getRecoElectron(const xAOD::TruthParticle* particle, bool debug /* =false */){
-  return getLink<xAOD::Electron>(particle, "recoElectronLink", debug);
+const xAOD::Electron* xAOD::EgammaHelpers::getRecoElectron(const xAOD::TruthParticle* particle){
+  return getLink<xAOD::Electron>(particle, "recoElectronLink");
 }
 
-const xAOD::Photon* xAOD::EgammaHelpers::getRecoPhoton(const xAOD::TruthParticle* particle, bool debug /* =false */){
-  return getLink<xAOD::Photon>(particle, "recoPhotonLink", debug);
+const xAOD::Photon* xAOD::EgammaHelpers::getRecoPhoton(const xAOD::TruthParticle* particle){
+  return getLink<xAOD::Photon>(particle, "recoPhotonLink");
 }
 
 // ==================================================================
