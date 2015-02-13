@@ -1100,9 +1100,13 @@ bool FastShowerCellBuilderTool::get_calo_surface(std::vector<Trk::HitInfo>* hitV
     eta_calo_surf=surface_hitPos.eta();
     phi_calo_surf=surface_hitPos.phi();
     d_calo_surf=surface_hitPos.mag();
-
-    ATH_MSG_WARNING("only entrance to calo entrance layer found, no surface : eta="<<eta_calo_surf<<" phi="<<phi_calo_surf<<" d="<<d_calo_surf);
-
+    
+    double pT=(*it).trackParms->momentum().perp();
+    if(TMath::Abs(eta_calo_surf)>4.9 || pT<500 || (TMath::Abs(eta_calo_surf)>4 && pT<1000) ) {
+      ATH_MSG_DEBUG("only entrance to calo entrance layer found, no surface : eta="<<eta_calo_surf<<" phi="<<phi_calo_surf<<" d="<<d_calo_surf<<" pT="<<pT);
+    } else {  
+      ATH_MSG_WARNING("only entrance to calo entrance layer found, no surface : eta="<<eta_calo_surf<<" phi="<<phi_calo_surf<<" d="<<d_calo_surf<<" pT="<<pT);
+    }  
   } else {
     ATH_MSG_DEBUG("entrance to calo surface : sample="<<sample_calo_surf<<" eta="<<eta_calo_surf<<" phi="<<phi_calo_surf<<" deta="<<min_calo_surf_dist<<" dsurf="<<d_calo_surf);
   }
@@ -1213,7 +1217,7 @@ StatusCode FastShowerCellBuilderTool::process_particle(CaloCellContainer* theCel
   }
   
   std::stringstream particle_info_str;
-  particle_info_str<<"id="<<pdgid<<" rid="<<refid<<" e="<<ptruth_e<<" Ein="<<Ein<<" pt="<<ptruth_pt<<" p="<<ptruth_p<<" m="<<mass<<" eta="<<ptruth_eta<<" phi="<<ptruth_phi;
+  particle_info_str<<"id="<<pdgid<<" rid="<<refid<<" e="<<ptruth_e<<" Ein="<<Ein<<" EinT="<<EinT<<" pt="<<ptruth_pt<<" p="<<ptruth_p<<" m="<<mass<<" eta="<<ptruth_eta<<" phi="<<ptruth_phi;
 
   if(msgLvl(MSG::DEBUG)) {
     ATH_MSG_DEBUG("====================================================");
@@ -1237,7 +1241,11 @@ StatusCode FastShowerCellBuilderTool::process_particle(CaloCellContainer* theCel
   }  
   
   if(!get_calo_surface(hitVector)) {
-    ATH_MSG_WARNING("Calo hit vector does not contain calo layer entry: aborting processing particle "<<particle_info_str);
+    if(TMath::Abs(ptruth_eta)>5 || EinT<500) {
+      ATH_MSG_DEBUG("Calo hit vector does not contain calo layer entry: aborting processing particle "<<particle_info_str.str());
+    } else {  
+      ATH_MSG_WARNING("Calo hit vector does not contain calo layer entry: aborting processing particle "<<particle_info_str.str());
+    }  
     if(m_storeFastShowerInfo) delete fastshowerinfo;
     return StatusCode::FAILURE;
   }
@@ -2453,8 +2461,20 @@ StatusCode FastShowerCellBuilderTool::process(CaloCellContainer* theCellContaine
     Amg::Vector3D mom((*part)->momentum().x(),(*part)->momentum().y(),(*part)->momentum().z());
 
     if(process_particle(theCellContainer,hitVector,mom,(*part)->generated_mass(),
-                        (*part)->pdg_id(),(*part)->barcode())) ++stat_npar_nOK;
-     else ++stat_npar_OK;
+                        (*part)->pdg_id(),(*part)->barcode())) {
+      ++stat_npar_nOK;
+    } else {
+      ++stat_npar_OK;
+    } 
+
+    for(std::vector<Trk::HitInfo>::iterator it = hitVector->begin();it < hitVector->end();++it)  {
+      if((*it).trackParms) {
+        delete (*it).trackParms;
+        (*it).trackParms=0;
+      }  
+    }
+    delete hitVector;
+
     ++stat_npar;
   }
   //std::cout <<"ZH Processed: "<<stat_npar<<"(ok: "<<stat_npar_nOK<<")"<<std::endl;
