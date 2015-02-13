@@ -69,6 +69,12 @@ m_trackToVertexTool("Reco::TrackToVertex") //for TrackToVertexTool
   m_numberOfEvents=0;
   clear(m_phiVsNstrips);
   clear(m_phiVsNstrips_Side);
+  clear(m_phiVsNstrips_100);
+  clear(m_phiVsNstrips_Side_100);
+  clear(m_phiVsNstrips_111);
+  clear(m_phiVsNstrips_Side_111);
+
+
 }
 
 //====================================================================================================
@@ -144,8 +150,25 @@ StatusCode SCTLorentzMonTool::bookHistograms( )                                 
 /// This is the real workhorse, called for each event. It retrieves the data each time
 //====================================================================================================
 StatusCode SCTLorentzMonTool::fillHistograms(){
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<"enters fillHistograms"<< endreq;
+  
 
+
+
+
+
+
+
+
+
+
+
+
+  int layer100[] = {2,2,3,2,2,2,0,2,3,2,0,2,3,2,3,2,0,2,3,0,2,0,2,3,2,2,2,0,0,0,0,0,0,3,0,3,2,0,2,2,0,3,3,3,0,2,2,2,2,2,2,2,3,2,2,3,3,2,2,2,2,2,3,3,2,3,2,2,2,3,3,3,2,2,2,2,3,3,2,3,2,3,3,2,3,2,2,2,2,2,2,2};
+  int phi100[] = {29,29,6,13,23,13,14,29,9,29,14,29,9,29,39,32,21,32,13,22,32,22,32,13,32,32,32,20,20,20,20,20,20,13,21,17,33,5,33,33,31,6,19,47,21,37,37,37,37,33,37,37,24,33,33,47,19,33,33,37,37,37,55,9,38,24,37,38,8,9,9,26,38,38,38,38,39,39,38,11,45,54,54,24,31,14,47,45,47,47,47,47};
+  int eta100[] = {3,-4,-6,2,6,3,-5,-1,6,-2,-6,-5,5,-3,2,6,-3,5,5,3,4,2,2,2,-1,-3,-4,1,-1,-2,-3,-4,4,-1,-5,6,2,4,3,1,6,-2,6,3,-6,-1,2,1,3,-5,4,5,-3,-4,-3,-5,-2,-1,-2,-3,-2,-4,-3,2,3,-6,-5,4,6,1,-6,1,1,-5,-4,-3,-3,-5,-2,1,5,5,4,4,5,4,-1,-5,3,4,1,-5};
+  
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<"enters fillHistograms"<< endreq;
+ 
   const TrackCollection *tracks (0);  
   if ( evtStore()->contains<TrackCollection> ( m_tracksName) ){
     if(evtStore()->retrieve(tracks, m_tracksName).isFailure()) {
@@ -198,7 +221,19 @@ StatusCode SCTLorentzMonTool::fillHistograms(){
             const int bec(m_pSCTHelper->barrel_ec(sct_id));
             const int layer(m_pSCTHelper->layer_disk(sct_id));
             const int side(m_pSCTHelper->side(sct_id));
+            const int eta(m_pSCTHelper->eta_module(sct_id));
+            const int phi(m_pSCTHelper->phi_module(sct_id));
+
+            bool in100 = false;
             if(bec!=0) continue; //We only care about the barrel
+            
+            for (int i=0 ; i<184 ; i++){
+                if (layer100[i]==layer && eta100[i]==eta && phi100[i]==phi){ 
+                    in100=true;
+                    break;
+                }
+            }
+            
             // find cluster size
             const std::vector<Identifier>& rdoList = RawDataClus->rdoList();
             int nStrip = rdoList.size();
@@ -236,7 +271,9 @@ StatusCode SCTLorentzMonTool::fillHistograms(){
 
               else if( (track->perigeeParameters()->parameters()[Trk::qOverP] < 0.) && // use negative track only
                 (fabs( perigee->parameters()[Trk::d0] ) < 1.) &&  // d0 < 1mm
-		(fabs( perigee->parameters()[Trk::z0] * sin(perigee->parameters()[Trk::theta]) ) < 1.)  // d0 < 1mm 
+		(fabs( perigee->parameters()[Trk::z0] * sin(perigee->parameters()[Trk::theta]) ) < 1.) && // d0 < 1mm 
+		  (trkp->momentum().mag() > 500.) &&  // Pt > 500MeV 
+		 (summary->get(Trk::numberOfSCTHits) > 6 )// && // #SCTHits >6
                 //(summary->get(Trk::numberOfPixelHits) > 1 ) // #pixelHits >1
               ){
                 passesCuts=true;	       
@@ -248,6 +285,21 @@ StatusCode SCTLorentzMonTool::fillHistograms(){
               //Fill profile
                 m_phiVsNstrips[layer]->Fill(phiToWafer,nStrip,1.);
                 m_phiVsNstrips_Side[layer][side]->Fill(phiToWafer,nStrip,1.);
+               
+              if (in100){	
+                    //cout << "This event is going to 100" << endl;	
+                    m_phiVsNstrips_100[layer]->Fill(phiToWafer,nStrip,1.);
+                    m_phiVsNstrips_Side_100[layer][side]->Fill(phiToWafer,nStrip,1.);
+                    //cout << "bec: " << bec << " Layer: " << layer << " Eta: " << eta << " Phi: " << phi << endl;
+
+                }else{
+                   //cout << "This event is going to 111" << endl; 
+                   m_phiVsNstrips_111[layer]->Fill(phiToWafer,nStrip,1.);
+                   m_phiVsNstrips_Side_111[layer][side]->Fill(phiToWafer,nStrip,1.);
+                  //cout << "bec: " << bec << " Layer: " << layer << " Eta: " << eta << " Phi: " << phi << endl;
+               
+              }
+ 
               }// end if passesCuts
             }// end if mtrkp
 	    //            delete perigee;perigee = 0;
@@ -310,13 +362,32 @@ StatusCode SCTLorentzMonTool::bookLorentzHistos(){                              
     for(int l=0;l!=nLayers;++l){
       //granularity set to one profile/layer for now
       int iflag=0;
+      m_phiVsNstrips_100[l] = pFactory("h_phiVsNstrips_100"+hNum[l],"100 - Inc. Angle vs nStrips for Layer "+hNum[l],nProfileBins,-90.,90.,Lorentz,iflag);
+      m_phiVsNstrips_111[l] = pFactory("h_phiVsNstrips_111"+hNum[l],"111 - Inc. Angle vs nStrips for Layer "+hNum[l],nProfileBins,-90.,90.,Lorentz,iflag);
+
       m_phiVsNstrips[l] = pFactory("h_phiVsNstrips"+hNum[l],"Inc. Angle vs nStrips for Layer"+hNum[l],nProfileBins,-90.,90.,Lorentz,iflag);
       m_phiVsNstrips[l]->GetXaxis()->SetTitle("#phi to Wafer");
       m_phiVsNstrips[l]->GetYaxis()->SetTitle("Num of Strips");
+
+      m_phiVsNstrips_100[l]->GetXaxis()->SetTitle("#phi to Wafer");
+      m_phiVsNstrips_100[l]->GetYaxis()->SetTitle("Num of Strips");  
+
+      m_phiVsNstrips_111[l]->GetXaxis()->SetTitle("#phi to Wafer");
+      m_phiVsNstrips_111[l]->GetYaxis()->SetTitle("Num of Strips");
+
       for(int side=0;side<nSides;++side){
+        m_phiVsNstrips_Side_100[l][side] = pFactory("h_phiVsNstrips_100_"+hNum[l]+"Side"+hNumS[side],"100 - Inc. Angle vs nStrips for Layer Side "+hNum[l]+hNumS[side],nProfileBins,-90.,90.,Lorentz,iflag);
+        m_phiVsNstrips_Side_111[l][side] = pFactory("h_phiVsNstrips_111_"+hNum[l]+"Side"+hNumS[side],"111 - Inc. Angle vs nStrips for Layer Side "+hNum[l]+hNumS[side],nProfileBins,-90.,90.,Lorentz,iflag);
         m_phiVsNstrips_Side[l][side] = pFactory("h_phiVsNstrips"+hNum[l]+"Side"+hNumS[side],"Inc. Angle vs nStrips for Layer Side"+hNum[l]+hNumS[side],nProfileBins,-90.,90.,Lorentz,iflag);
+
 	m_phiVsNstrips_Side[l][side]->GetXaxis()->SetTitle("#phi to Wafer");
 	m_phiVsNstrips_Side[l][side]->GetYaxis()->SetTitle("Num of Strips");
+
+        m_phiVsNstrips_Side_100[l][side]->GetXaxis()->SetTitle("#phi to Wafer");
+        m_phiVsNstrips_Side_100[l][side]->GetYaxis()->SetTitle("Num of Strips");
+
+        m_phiVsNstrips_Side_111[l][side]->GetXaxis()->SetTitle("#phi to Wafer");
+        m_phiVsNstrips_Side_111[l][side]->GetYaxis()->SetTitle("Num of Strips");    
       }
       success*=iflag;
     }

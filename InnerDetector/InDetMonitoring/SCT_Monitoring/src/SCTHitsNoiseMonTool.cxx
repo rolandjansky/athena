@@ -1322,6 +1322,7 @@ SCTHitsNoiseMonTool::bookSPvsEventNumber(){
   //  if(isNewRun){
   if(newRun){
     free(nSP_buf);
+    free(nHits_buf);
     free(nmaxHits_buf);
     free(nminHits_buf);
     free(nmaxModule_buf);
