@@ -264,7 +264,7 @@ private:
   // Check consistency of the info received in the EventId and the CTP fragment
   bool checkEventIdConsistency(const hltinterface::EventId& evId) const;
   // serialize rob from steering's HLTResult
-  bool serializeRob(std::unique_ptr<uint32_t>& tmpstor,
+  bool serializeRob(uint32_t*& tmpstor,
                     eformat::write::ROBFragment& rob,
                     HLT::HLTResult& dobj,
                     unsigned int robid,

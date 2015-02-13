@@ -12,14 +12,6 @@ class TrigCOOLUpdateHelper(_TrigCOOLUpdateHelper):
       super(TrigCOOLUpdateHelper, self).__init__(name)
       return
 
-   def setDefaults(cls,handle):
-      """Set default property values (is being called more than once!)"""
-      
-      # Folder allowed to be updated during the run 
-      handle.allowedFolderUpdates = ["/Indet/Onl/Beampos"]
-      
-      return
-
    def enable(self, folder='/TRIGGER/HLT/COOLUPDATE', tag=None):
       """Enable the COOL folder updates (only use this for data)"""
       

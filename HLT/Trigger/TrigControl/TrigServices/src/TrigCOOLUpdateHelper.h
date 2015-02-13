@@ -26,7 +26,7 @@
 #include "StoreGate/DataHandle.h"
 #include "EventInfo/EventID.h"
 
-#include "TrigConfL1Data/CTPExtraWordsFormat.h"
+#include "CTPfragment/CTPExtraWordsFormat.h"
 
 class TH1F;
 class IIOVSvc;
@@ -49,13 +49,13 @@ struct FolderInfo {
  */
 struct FolderUpdate {
   FolderUpdate() : lumiBlock(0), folderIndex(0), needsUpdate(true) {}
-  FolderUpdate(const CTP::FolderEntry& entry) :
+  FolderUpdate(const CTPfragment::FolderEntry& entry) :
     lumiBlock(entry.lumiBlock),
     folderIndex(entry.folderIndex),
     needsUpdate(true) {}
   
   EventID::number_type lumiBlock;
-  CTP::FolderIndex folderIndex;
+  CTPfragment::FolderIndex folderIndex;
   bool needsUpdate;
 };
 
@@ -126,13 +126,13 @@ public:
    * @param idx         Folder index
    * @param folderName  Returns folder name
    */
-  StatusCode getFolderName(CTP::FolderIndex idx, std::string& folderName);
+  StatusCode getFolderName(CTPfragment::FolderIndex idx, std::string& folderName);
   
   /**
    * @brief Set the folder updates as retrieved from the CTP fragment
-   * @param map returned by CTP::ExtraPayload::getFolderUpdates()
+   * @param map returned by CTPfragment::ExtraPayload::getFolderUpdates()
    */
-  void setFolderUpdates(const std::map<CTP::FolderIndex, CTP::FolderEntry>& folderUpdates);
+  void setFolderUpdates(const std::map<CTPfragment::FolderIndex, CTPfragment::FolderEntry>& folderUpdates);
   
 private:
 
@@ -165,7 +165,7 @@ private:
   FolderInfoMap m_folderInfo;  //!< COOL folder info
   
   const DataHandle<CondAttrListCollection> m_folderMapHandle;
-  std::map<CTP::FolderIndex, FolderUpdate> m_folderUpdates;
+  std::map<CTPfragment::FolderIndex, FolderUpdate> m_folderUpdates;
   
   // Services and Tools
   IIOVSvc*                    m_iovSvc;
@@ -178,7 +178,6 @@ private:
   // Properties
   std::string               m_coolFolderName;        //!< COOL folder name
   std::vector<std::string>  m_beginRunFolders;  //!< Folders to reset before BeginRun
-  std::vector<std::string>  m_checkIOVFolders;  //!< Folders to reset before CheckIOV
 };
 
 

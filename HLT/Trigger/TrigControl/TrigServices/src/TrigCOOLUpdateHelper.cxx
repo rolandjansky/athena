@@ -7,7 +7,7 @@
  * @brief  Helper tool for COOL updates
  * @author Frank Winklmeier
  *
- * $Id: TrigCOOLUpdateHelper.cxx 591968 2014-04-08 14:55:15Z ricab $
+ * $Id: TrigCOOLUpdateHelper.cxx 645782 2015-02-10 17:24:35Z fwinkl $
  */
 
 #include "TrigCOOLUpdateHelper.h"
@@ -55,7 +55,6 @@ TrigCOOLUpdateHelper::TrigCOOLUpdateHelper(const std::string &type,
 
   declareProperty("coolFolder", m_coolFolderName = "", "Name of COOL folder containing folder map");
   declareProperty("foldersToResetOnBeginRun", m_beginRunFolders, "COOL folders to reset at beginning of run");
-  declareProperty("allowedFolderUpdates", m_checkIOVFolders, "Folders allowed to be udpated during the run");
 }
 
 
@@ -73,8 +72,6 @@ StatusCode TrigCOOLUpdateHelper::initialize()
 
   ATH_MSG_INFO(" ---> foldersToResetOnBeginRun = ["
                << boost::algorithm::join(m_beginRunFolders, ",") << "]");
-  ATH_MSG_INFO(" ---> allowedFolderUpdates = ["
-               << boost::algorithm::join(m_checkIOVFolders, ",") << "]");
   
   // Register DataHandle with COOLUPDATE folder
   if (!m_coolFolderName.empty()) {
@@ -267,7 +264,7 @@ StatusCode TrigCOOLUpdateHelper::hltCoolUpdate(EventID::number_type currentLB,
   bool checkIOV_done = false;
   
   // Loop over folders to be updated
-  std::map<CTP::FolderIndex, FolderUpdate>::iterator f = m_folderUpdates.begin();
+  std::map<CTPfragment::FolderIndex, FolderUpdate>::iterator f = m_folderUpdates.begin();
   for (; f!=m_folderUpdates.end(); ++f) {
           
     if (f->second.needsUpdate) {
@@ -314,13 +311,6 @@ StatusCode TrigCOOLUpdateHelper::hltCoolUpdate(const std::string& folderName,
   longlong t1_ms = System::currentTime(System::milliSec);
 
   // Reset folder and make IOVDbSvc drop objects
-  vector<string>::const_iterator f = find(m_checkIOVFolders.begin(),
-                                          m_checkIOVFolders.end(),
-                                          folderName);	
-  if (f == m_checkIOVFolders.end()) {
-    ATH_MSG_ERROR("COOL folder " << folderName << " is not in the list of allowed folders to be reset");
-    return StatusCode::SUCCESS;      
-  }
   
   if (resetFolder(folderName, currentRun, true).isFailure()) {
     ATH_MSG_ERROR("Reset of " << folderName << " failed");
@@ -352,7 +342,7 @@ void TrigCOOLUpdateHelper::checkIOV(EventID::number_type currentLB,
 }
 
 
-StatusCode TrigCOOLUpdateHelper::getFolderName(CTP::FolderIndex idx, std::string& folderName)
+StatusCode TrigCOOLUpdateHelper::getFolderName(CTPfragment::FolderIndex idx, std::string& folderName)
 {
   if (m_coolFolderName.empty()) return StatusCode::SUCCESS;
   
@@ -376,14 +366,14 @@ StatusCode TrigCOOLUpdateHelper::getFolderName(CTP::FolderIndex idx, std::string
 //=========================================================================
 // Schedule COOL folder updates (called on every event by EventLoopMgr)
 //=========================================================================
-void TrigCOOLUpdateHelper::setFolderUpdates(const std::map<CTP::FolderIndex, CTP::FolderEntry>& folderUpdates)
+void TrigCOOLUpdateHelper::setFolderUpdates(const std::map<CTPfragment::FolderIndex, CTPfragment::FolderEntry>& folderUpdates)
 {
   // Loop over potential new folder updates
-  std::map<CTP::FolderIndex, CTP::FolderEntry>::const_iterator i = folderUpdates.begin();
+  std::map<CTPfragment::FolderIndex, CTPfragment::FolderEntry>::const_iterator i = folderUpdates.begin();
   for (; i!=folderUpdates.end(); ++i) {
 
     // Check if we already have an update for this folder
-    std::map<CTP::FolderIndex, FolderUpdate>::const_iterator f = m_folderUpdates.find(i->first);
+    std::map<CTPfragment::FolderIndex, FolderUpdate>::const_iterator f = m_folderUpdates.find(i->first);
 
     // No updates yet or this update superseds the previous one
     if (f==m_folderUpdates.end() || (f->second.lumiBlock != i->second.lumiBlock)) {

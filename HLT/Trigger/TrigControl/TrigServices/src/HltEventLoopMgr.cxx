@@ -49,7 +49,6 @@ static std::string CMT_PACKAGE_VERSION = PACKAGE_VERSION;
 #include "TrigKernel/IHltTHistSvc.h"
 #include "TrigSteeringEvent/HLTResult.h"
 #include "TrigSteeringEvent/HLTExtraData.h"
-#include "TrigConfL1Data/CTPExtraWordsFormat.h"
 #include "TrigNavigation/TrigEDMSizes.h"
 
 // TDAQ includes
@@ -61,6 +60,7 @@ static std::string CMT_PACKAGE_VERSION = PACKAGE_VERSION;
 #include "hltinterface/EventId.h"
 #include "hltinterface/HLTResult.h"
 #include "CTPfragment/CTPfragment.h"
+#include "CTPfragment/CTPExtraWordsFormat.h"
 #include "CTPfragment/Issue.h"
 
 // ROOT includes
@@ -823,11 +823,11 @@ StatusCode HltEventLoopMgr::executeEvent(void* par)
   //-----------------------------------------------------------------------
   // Decode CTP extra payload words
   //-----------------------------------------------------------------------
-  CTP::ExtraPayload ctp_payload;
+  CTPfragment::ExtraPayload ctp_payload;
   try {
-    ctp_payload = CTP::ExtraPayload(l1_extraPayload);
+    ctp_payload = CTPfragment::ExtraPayload(l1_extraPayload);
   }
-  catch (CTP::ExtraPayloadTooLong& ex) {
+  catch (CTPfragment::ExtraPayloadTooLong& ex) {
     b_invalidCTPRob=true;
     ISSUE(IssueSeverity::ERROR, std::string("Invalid CTP fragment. Exception = ")+ex.what());
   }
@@ -2794,9 +2794,12 @@ HltEventLoopMgr::serializeRobs(hltinterface::HLTResult& hltr, bool& serOk,
       return hltonl::PSC_ERROR_ROB_BUILD_FAILED;
     
     // serialize data and fill rob up
-    std::unique_ptr<uint32_t> tmpstor;
-    serOk &= serializeRob(tmpstor, *robp, *dobj, modid,
+    uint32_t* tmp{nullptr};
+    serOk &= serializeRob(tmp, *robp, *dobj, modid,
                           spaceleft - initial_robsize);
+
+    // Hold this until we've copied it into the HLTResult
+    auto tmpstor = std::unique_ptr<uint32_t[]>{tmp};
 
     // copy it in and delete temporary data, updating spaceleft
     addRobToHLTResult(hltr, *robp, fp, spaceleft);
@@ -2806,7 +2809,7 @@ HltEventLoopMgr::serializeRobs(hltinterface::HLTResult& hltr, bool& serOk,
 }
 
 //=========================================================================
-bool HltEventLoopMgr::serializeRob(std::unique_ptr<uint32_t>& tmpstor,
+bool HltEventLoopMgr::serializeRob(uint32_t*& tmpstor,
                                    eformat::write::ROBFragment& rob,
                                    HLT::HLTResult& dobj,
                                    unsigned int modid,
@@ -2816,9 +2819,7 @@ bool HltEventLoopMgr::serializeRob(std::unique_ptr<uint32_t>& tmpstor,
   int payload = 0;
 
   // serialize current rob
-  uint32_t* tmp{0};
-  auto ret = dobj.serialize(tmp, payload, payload_max, modid);
-  tmpstor = std::unique_ptr<uint32_t>{tmp};
+  auto ret = dobj.serialize(tmpstor, payload, payload_max, modid);
 
   if(payload > payload_max)
   {
@@ -2839,7 +2840,7 @@ bool HltEventLoopMgr::serializeRob(std::unique_ptr<uint32_t>& tmpstor,
     rob.rod_status(2, m_status_words);
   }
 
-  rob.rod_data(payload, tmp);
+  rob.rod_data(payload, tmpstor);
 
   return ret;
 }
