@@ -14,6 +14,7 @@
 
 
 #include <map>
+#include <memory>
 using std::make_pair;
 
 #include "PathResolver/PathResolver.h"
@@ -27,6 +28,11 @@ namespace CP{
     m_dataHistoName("hData"),
     m_mcHistoName("hMC")
   {          
+  }
+
+  ShowerDepthTool::~ShowerDepthTool() {
+    delete m_hData;
+    delete m_hMC;
   }
       
   bool ShowerDepthTool::initialize() 
@@ -159,19 +165,18 @@ namespace CP{
 
   TH1* ShowerDepthTool::getHistoFromFile(const TString& fileName,const TString& histoName)
   {
-    TFile *f = TFile::Open(fileName);
-    if (!f)
-    {
-//       ATH_MSG_INFO( "Invalid file: " << fileName );
+    std::unique_ptr<TFile> f(TFile::Open(fileName));
+    if (f.get()){
       return 0;
     }
     TH1 *h = dynamic_cast<TH1*>( f->Get(histoName) );
-    if (!h)
-    {
-//       ATH_MSG_INFO( "Invalid histogram name (" << histoName << ") or type" );
+    if (!h){
+      f.get()->Close();
       return 0;
     }
+    //The file we be deleted so use SetDirectory
     h->SetDirectory(0);
+    f.get()->Close();
     return h;
   }
 

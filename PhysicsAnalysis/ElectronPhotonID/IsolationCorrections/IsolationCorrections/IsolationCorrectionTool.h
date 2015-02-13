@@ -40,8 +40,10 @@ class IsolationCorrectionTool  : virtual public IIsolationCorrectionTool,
         //Use specific systematic
         virtual CP::SystematicCode applySystematicVariation ( const CP::SystematicSet& systConfig );
         
+        float GetEtaPointing(const xAOD::Egamma* input) {return m_isol_corr->GetEtaPointing(input);};
+        
         float GetPtCorrectedIsolation(const xAOD::Egamma&, xAOD::Iso::IsolationType);
-	float GetPtCorrection(const xAOD::Egamma&, xAOD::Iso::IsolationType);
+		float GetPtCorrection(const xAOD::Egamma&, xAOD::Iso::IsolationType);
 
     private:
 
