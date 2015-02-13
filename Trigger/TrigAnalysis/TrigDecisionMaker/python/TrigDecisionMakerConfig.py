@@ -146,21 +146,28 @@ class WriteTrigDecision ( object ) :
         from AthenaCommon.Logging import logging  # loads logger
         log = logging.getLogger( 'WriteTrigDecisionToAOD' )
 
-        if doxAOD:
-            from xAODTriggerCnv.xAODTriggerCnvConf import xAODMaker__TrigDecisionCnvAlg
-            alg = xAODMaker__TrigDecisionCnvAlg()
-
-            alg.xAODKey = "xTrigDecision"
-            TopAlg += alg
-
-            from xAODTriggerCnv.xAODTriggerCnvConf import xAODMaker__TrigNavigationCnvAlg
-            TopAlg += xAODMaker__TrigNavigationCnvAlg()
-
-
         log.info('TrigDecision writing enabled')
 
     def addItemsToList(self, itemList) :
         itemList += [ "TrigDec::TrigDecision#*" ]
+
+class WritexAODTrigDecision ( object ) :
+    def __init__(self):
+        from AthenaCommon.AlgSequence import AlgSequence
+        TopAlg = AlgSequence()
+
+        from xAODTriggerCnv.xAODTriggerCnvConf import xAODMaker__TrigDecisionCnvAlg
+        alg = xAODMaker__TrigDecisionCnvAlg()
+
+        alg.xAODKey = "xTrigDecision"
+        TopAlg += alg
+
+        from xAODTriggerCnv.xAODTriggerCnvConf import xAODMaker__TrigNavigationCnvAlg
+        TopAlg += xAODMaker__TrigNavigationCnvAlg()
+
+        from AthenaCommon.Logging import logging  # loads logger
+        log = logging.getLogger( 'WritexAODTrigDecision' )
+        log.info('TrigDecision writing to xAOD enabled')
 
 
 
