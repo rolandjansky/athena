@@ -64,7 +64,6 @@
 
 #include "xAODTrigMinBias/TrigHisto2D.h"
 #include "TrigInDetEvent/TrigVertexCollection.h"
-//#include <xAODTrigMinBias/TrigVertexCounts.h>
 
 #include "xAODTracking/TrackParticle.h"
 
@@ -87,8 +86,7 @@ using namespace std;
  *  numbers to be used, and the timebin.
  */
 HLTMinBiasMonTool::HLTMinBiasMonTool(const std::string & type, const std::string & myname, const IInterface* parent) :
-	IHLTMonTool(type, myname, parent), m_log(0), m_tdthandle("Trig::TrigDecisionTool/monTrigDecTool"),
-	m_tileTBID(0), m_selTool( "InDet::InDetTrackSelectionTool/TrackSelection", this )//, m_selTool( "TrackSelection" )
+	IHLTMonTool(type, myname, parent), m_log(0), m_tileTBID(0)
 {
 	m_log = new MsgStream(msgSvc(), name());
 
@@ -114,24 +112,24 @@ HLTMinBiasMonTool::HLTMinBiasMonTool(const std::string & type, const std::string
 	declareProperty("min_pt", m_min_pt = 0.2); // (GeV)
 	
 	// Parameter to be tuned to correspond to trigger threshold
-        declareProperty("TimeCut", m_timeCut = 20.0);
-        declareProperty("EnergyCut", m_energyCut = 40. / 222.); // It should be 60./222.
+	declareProperty("TimeCut", m_timeCut = 20.0);
+	declareProperty("EnergyCut", m_energyCut = 40. / 222.); // It should be 60./222.
 	
 	// -------------------------------------------------------- NEW AUTOMATIC WAY TO COPE WITH THINGS----------------------
-        declareProperty("MinBiasTrigItem", m_trigItems);
-        declareProperty("MinBiasAvailableAlgorithms", m_availableAlgs);
-        declareProperty("MinBiasHistoTargets", m_histoTargets);	
+	declareProperty("monitoring_minbias", m_trigItems);
+	declareProperty("MinBiasAvailableAlgorithms", m_availableAlgs);
+	declareProperty("MinBiasHistoTargets", m_histoTargets);	
 
-        m_numberOfEvents=0;
-        //Energy-Time
-        declareProperty("T2MBTSContainerName", m_t2mbtsContainerName);
-        declareProperty("MBTSContainerName", m_mbtsContainerName);
-        declareProperty("MBTS_countsSideA", m_mbtsCountsSideA);
-        declareProperty("MBTS_countsSideC", m_mbtsCountsSideC);
+	m_numberOfEvents=0;
+	//Energy-Time
+	declareProperty("T2MBTSContainerName", m_t2mbtsContainerName);
+	declareProperty("MBTSContainerName", m_mbtsContainerName);
+	declareProperty("MBTS_countsSideA", m_mbtsCountsSideA);
+	declareProperty("MBTS_countsSideC", m_mbtsCountsSideC);
         
-        //BCM
-        declareProperty("BCMContainerName", m_bcmContainerName = "BCM_RDOs");
-        //Timing Cut-offs
+	//BCM
+	declareProperty("BCMContainerName", m_bcmContainerName = "BCM_RDOs");
+	//Timing Cut-offs
 	declareProperty("OutOfTimePulsePosition", m_OOTPulse = 11); //6 old value
 	declareProperty("InTimePulsePosition", m_ITPulse = 43); //38 old value
 	declareProperty("WideInTimePulsePosition", m_WITPulse = 38); //38 old value
@@ -146,46 +144,49 @@ HLTMinBiasMonTool::HLTMinBiasMonTool(const std::string & type, const std::string
 	declareProperty("ZDC_ContainerName", m_ZdcContainerName);
 	declareProperty("Calo_ContainerName", m_CaloCellContainerName);
 
-        std::ostringstream ss;
-        std::string partName;
+	std::ostringstream ss;
+	std::string partName;
 
-        //side A
-        for (int c = 0; c < 16; c++) {
-                partName = "A";
-                ss.str("");
-                ss << partName << std::setfill('0') << std::setw(2) << c << std::setfill(' '); //MBTS_A00, MBTS_C03
-                m_moduleLabel.push_back(ss.str());
-        }
+	//side A
+	for (int c = 0; c < 16; c++) {
+		partName = "A";
+		ss.str("");
+		ss << partName << std::setfill('0') << std::setw(2) << c << std::setfill(' '); //MBTS_A00, MBTS_C03
+		m_moduleLabel.push_back(ss.str());
+	}
 
-        //side C
-        for (int c = 0; c < 16; c++) {
-                partName = "C";
-                ss.str("");
-                ss << partName << std::setfill('0') << std::setw(2) << c << std::setfill(' '); //MBTS_A00, MBTS_C03
-                m_moduleLabel.push_back(ss.str());
-        }
-        //HMT
-        
-        declareProperty("VCContainerName", m_vcContainerName);
-        declareProperty("VColContainerName", m_vcolContainerName);
-        //declareProperty("TrigSpacePointCountsName", m_trigSpacePointCountsName);
-        // Cut made on time overthreshold before any multiplicities are calculated.
-        declareProperty("PixelCLToTCut", m_timeOverThreshold_cut = 20.);
+	//side C
+	for (int c = 0; c < 16; c++) {
+		partName = "C";
+		ss.str("");
+		ss << partName << std::setfill('0') << std::setw(2) << c << std::setfill(' '); //MBTS_A00, MBTS_C03
+		m_moduleLabel.push_back(ss.str());
+	}
+
+	//HMT
+	declareProperty("VCContainerName", m_vcContainerName);
+	declareProperty("VColContainerName", m_vcolContainerName);
+	//declareProperty("TrigSpacePointCountsName", m_trigSpacePointCountsName);
+	// Cut made on time overthreshold before any multiplicities are calculated.
+	declareProperty("PixelCLToTCut", m_timeOverThreshold_cut = 20.);
 		
-		//purity & efficiency
-		declareProperty("InDetTrackParticleContainerName", m_inDetTrackParticleContainerName);
-		declareProperty("CutLevel", m_cutLevel);
+	//purity & efficiency
+	declareProperty("InDetTrackParticleContainerName", m_inDetTrackParticleContainerName);
+	
+	declareProperty("MinBiasRefTrigItem", m_refTrigItem);
+	declareProperty("MinBiasEffCuts", m_effCuts);
+	declareProperty("MinBiasPurCuts", m_purCuts);
 }
 
 StatusCode HLTMinBiasMonTool::init()
 {
     StatusCode sc;
 
-	sc = service("StoreGateSvc", m_storeGate);
+	/*sc = service("StoreGateSvc", m_storeGate);
 	if (sc.isFailure()) {
 		ATH_MSG_FATAL("Unable to locate Service StoreGateSvc");
 		return sc;
-	}
+	}*/
 
 	sc = service("DetectorStore", m_detStore);
 	if (sc.isFailure()) {
@@ -212,26 +213,29 @@ StatusCode HLTMinBiasMonTool::init()
 	}*/
 
 	// retrieve the trigger decision tool
-	sc = m_tdthandle.retrieve();
+	/*sc = m_tdthandle.retrieve();
 	if (sc.isFailure()) {
 		*m_log << MSG::ERROR << "Could not retrieve TrigDecisionTool!" << endreq;
 		return sc;
-	}
+	}*/
 	
-        // -------------------------------------------------------- NEW AUTOMATIC WAY TO COPE WITH THINGS----------------------
+	// --------------------------------- NEW AUTOMATIC WAY TO COPE WITH THINGS----------------------
         
-        //filling map so that only desired algorithms will be executed in the following steps...
-        for (unsigned i = 0; i < m_availableAlgs.size(); ++i)
-                m_algorithmsForChain[m_availableAlgs[i]] = m_histoTargets[i]; 
+	//filling map so that only desired algorithms will be executed in the following steps...
+	for (unsigned i = 0; i < m_availableAlgs.size(); ++i)
+	{
+		m_algorithmsForChainClass[m_availableAlgs[i]] = m_histoTargets[i]; 
+		m_effCutForChainClass[m_availableAlgs[i]] = i;
+	}
+  
+	m_pathForGroup[MBTS]  =         "MBTS";
+	m_pathForGroup[LUCID] =         "LUCID";
+	m_pathForGroup[IDMINBIAS] =     "IDMinbias";
+	m_pathForGroup[ZDC] =           "ZDC";
+	m_pathForGroup[BCM] =           "BCM";
+	m_pathForGroup[HMT] =           "HMT";
         
-        m_pathForGroup[MBTS]  =         "MBTS";
-        m_pathForGroup[LUCID] =         "LUCID";
-        m_pathForGroup[IDMINBIAS] =     "IDMinbias";
-        m_pathForGroup[ZDC] =           "ZDC";
-        m_pathForGroup[BCM] =           "BCM";
-        m_pathForGroup[HMT] =           "HMT";
-        
-        m_mbtsCountsBothSides = m_mbtsCountsSideA + m_mbtsCountsSideC;
+	m_mbtsCountsBothSides = m_mbtsCountsSideA + m_mbtsCountsSideC;
         
 	/*
 	 sc = service("THistSvc", m_histsvc);
@@ -247,143 +251,196 @@ StatusCode HLTMinBiasMonTool::init()
 		return sc;
 	}
 	
-	//purity & efficiency
-	//m_selTool = InDet::InDetTrackSelectionTool ( "TrackSelection" );
-	switch(m_cutLevel)
-	{
-		case 0:
-			m_selTool->setCutLevel( InDet::CutLevel::NoCut );
-			break;
-		case 1:
-			m_selTool->setCutLevel( InDet::CutLevel::Loose );
-			break;
-		case 2:
-			m_selTool->setCutLevel( InDet::CutLevel::LoosePrimary );
-			break;
-		case 3:
-			m_selTool->setCutLevel( InDet::CutLevel::TightPrimary );
-			break;
-		default:
-			*m_log << MSG::WARNING << "Inappropriate cut level for InDetTrackSelectionTool" << endreq;
-	}
-	//m_selTool->setCutLevel( m_cutLevel ); //set cuts
-	sc = m_selTool->initialize();
-	if (sc.isFailure())
-	{
-		*m_log << MSG::ERROR << "Unable to initialize InDetTrackSelectionTool" << endreq;
-		return sc;
-	}
+	//purity & efficiency	
+	initSelTools(m_effSelTool, m_effCuts);
+	initSelTools(m_purSelTool, m_purCuts);
 	
 	return sc;
 }
 
-StatusCode HLTMinBiasMonTool::book()
+void HLTMinBiasMonTool::initSelTools(std::vector< ToolHandle< InDet::IInDetTrackSelectionTool > > &selTool, const std::vector<unsigned> &cuts)
 {
-        // -------------------------------------------------------- NEW AUTOMATIC WAY TO COPE WITH THINGS----------------------
-        addMonGroup(new MonGroup(this,"HLT/MinBiasMon", run, ATTRIB_UNMANAGED));
-        //Trigger entries
-        TH1I *th1i = new TH1I("TriggerEntries", "Trigger Entries;trigger chain id;entry rate", m_trigItems.size(), 0, m_trigItems.size());		
-        TProfile *tProf = new TProfile("TriggerEntriesProfile", "Trigger Entries;trigger chain id;entry rate", m_trigItems.size(), 0, m_trigItems.size(), 0, 1);
-		//histogram filled with mean purity for every trigger chain
-		TH1F *tAllTracks = new TH1F("TriggerTracksAll", "Trigger All Tracks;trigger chain id;entry rate", m_trigItems.size(), 0, m_trigItems.size());	
-		TH1F *tTracksPassed = new TH1F("TriggerTracksPassed", "Trigger Tracks Passed;trigger chain id;entry rate", m_trigItems.size(), 0, m_trigItems.size());	
-		TH1F *tPurities = new TH1F("TriggerPurities", "Trigger Purities;trigger chain id;purity", m_trigItems.size(), 0, m_trigItems.size());	
-        
-        //Error rates for IDMinBias
-        addMonGroup(new MonGroup(this,"HLT/MinBiasMon/IDMinbias", run, ATTRIB_UNMANAGED));
-		TProfile *tTrigErrors = new TProfile("IDMinBiasTriggerErrors", "Trigger Errors;trigger chain id;error rate", m_trigItems.size(), 0, m_trigItems.size(), 0, 1);	
+	StatusCode sc;
+	
+	selTool.resize(cuts.size()); 
+	for (unsigned i = 0; i < cuts.size(); ++i )
+	{
+		selTool[i] = ToolHandle< InDet::IInDetTrackSelectionTool >( "InDet::InDetTrackSelectionTool/TrackSelection", this );
+		switch(cuts[i])
+		{
+			case 0:
+				selTool[i]->setCutLevel( InDet::CutLevel::NoCut );
+				break;
+			case 1:
+				selTool[i]->setCutLevel( InDet::CutLevel::Loose );
+				break;
+			case 2:
+				selTool[i]->setCutLevel( InDet::CutLevel::LoosePrimary );
+				break;
+			case 3:
+				selTool[i]->setCutLevel( InDet::CutLevel::TightPrimary );
+				break;
+			default:
+				*m_log << MSG::WARNING << "Inappropriate cut level for InDetTrackSelectionTool - setting to default..." << endreq;
+		}
+		
+		sc = selTool[i]->initialize();
+		if (sc.isFailure())
+		{
+			*m_log << MSG::ERROR << "Unable to initialize InDetTrackSelectionTool" << endreq;
+		}
+	}
+	
+	return;
+}
+#ifdef ManagedMonitorToolBase_Uses_API_201401
+StatusCode HLTMinBiasMonTool::book()
+#else
+StatusCode HLTMinBiasMonTool::book(bool newEventsBlock, bool newLumiBlock, bool newRun)
+#endif
+{
+	// -------------------------------------------------------- NEW AUTOMATIC WAY TO COPE WITH THINGS----------------------
+	addMonGroup(new MonGroup(this,"HLT/MinBiasMon", run, ATTRIB_UNMANAGED));
+	//Trigger entries
+	TH1I *th1i = new TH1I("TriggerEntries", "Trigger Entries;trigger chain id;entry rate", m_trigItems.size(), 0, m_trigItems.size());		
+	TProfile *tProf = new TProfile("TriggerEntriesProfile", "Trigger Entries;trigger chain id;entry rate", m_trigItems.size(), 0, m_trigItems.size(), 0, 1);
+	
+	//histograms filled with mean purity for every trigger chain
+	TH1F *tAllTracks = new TH1F("TriggerPuritiesAll", "Trigger All Purities;trigger chain id;entry rate", m_trigItems.size(), 0, m_trigItems.size());	
+	TH1F *tTracksPassed = new TH1F("TriggerPuritiesPassed", "Trigger Purities Passed;trigger chain id;entry rate", m_trigItems.size(), 0, m_trigItems.size());	
+	TH1F *tPurities = new TH1F("TriggerPurities", "Trigger Purities;trigger chain id;purity", m_trigItems.size(), 0, m_trigItems.size());
+	
+	//histograms filled with mean efficiency for every trigger chain
+	TH1F *tEffAll = new TH1F("TriggerEfficienciesAll", "Trigger All Efficiencies;trigger chain id;entry rate", m_trigItems.size(), 0, m_trigItems.size());
+	TH1F *tEffPassed = new TH1F("TriggerEfficienciesPassed", "Trigger Efficiencies Passed;trigger chain id;entry rate", m_trigItems.size(), 0, m_trigItems.size());
+	TH1F *tEff = new TH1F("TriggerEfficiencies", "Trigger Efficiencies;trigger chain id;entry rate", m_trigItems.size(), 0, m_trigItems.size());
+	
+	//Error rates for IDMinBias
+	addMonGroup(new MonGroup(this,"HLT/MinBiasMon/IDMinbias", run, ATTRIB_UNMANAGED));
+	TProfile *tTrigErrors = new TProfile("IDMinBiasTriggerErrors", "Trigger Errors;trigger chain id;error rate", m_trigItems.size(), 0, m_trigItems.size(), 0, 1);	
         	
-        for (const auto &i: m_trigItems)	//for each chain
-        {
-			tProf->GetXaxis()->FindBin(i.c_str());
-			tAllTracks->GetXaxis()->FindBin(i.c_str());
-			tTracksPassed->GetXaxis()->FindBin(i.c_str());
-			tPurities->GetXaxis()->FindBin(i.c_str());
-			tTrigErrors->GetXaxis()->FindBin(i.c_str());
-
-                for (const auto &j: m_availableAlgs)	//iterate through algorithms
+	for (const auto &i: m_trigItems)	//for each chain
+	{
+		tProf->GetXaxis()->FindBin(i.c_str());
+		
+		tAllTracks->GetXaxis()->FindBin(i.c_str());
+		tTracksPassed->GetXaxis()->FindBin(i.c_str());
+		tPurities->GetXaxis()->FindBin(i.c_str());
+		
+		tEffAll->GetXaxis()->FindBin(i.c_str());
+		tEffPassed->GetXaxis()->FindBin(i.c_str());
+		tEff->GetXaxis()->FindBin(i.c_str());
+		
+		tTrigErrors->GetXaxis()->FindBin(i.c_str());
+	
+		for (const auto &j: m_availableAlgs)	//iterate through algorithms
+		{
+			if (std::string::npos != i.find(j)) //and find their signatures in the chain name
+			{
+				unsigned k = m_algorithmsForChainClass[j];
+				m_chainProperties[i].histoGroup = k;//assign histoGroup(s) for a given chain
+				m_chainProperties[i].effCutIdx = m_effCutForChainClass[j];
+				if (k)
 				{
-					if (std::string::npos != i.find(j)) //and find their signatures in the chain name
+					for (const auto &l: m_pathForGroup)//book needed histograms
 					{
-						unsigned k = m_algorithmsForChain[j];
-						m_histoGroupForChain[i] = k;//assign histoGroup(s) for a given chain
-
-						if (k)
-						{
- 		 	                for (const auto &l: m_pathForGroup)//book needed histograms
- 		 	                {
- 		 	                        if ( (k & l.first) == l.first)
- 		 	                        {
- 		 	                                addMonGroup(new MonGroup(this,"HLT/MinBiasMon/" + l.second + "/" + i, run, ATTRIB_UNMANAGED));
- 		 	                                bookHistogramsForItem(i, l.first);
- 		 	                        }
- 		 	                }
-						}
-						break; //no need to look further
+							if ( (k & l.first) == l.first)
+							{
+									addMonGroup(new MonGroup(this,"HLT/MinBiasMon/" + l.second + "/" + i, run, ATTRIB_UNMANAGED));
+									if (newRun)
+										bookHistogramsForItem(i, l.first);
+							}
 					}
 				}
-			//Time-dependent purity histograms
-			addMonGroup(new MonGroup(this,"HLT/MinBiasMon/Purities/" + i, run, ATTRIB_UNMANAGED));
-			addHistogram(new TH1F("TracksAll", "Trigger All Tracks;lumiblock;entry rate", 1000, -0.5, 999.5));
-			addHistogram(new TH1F("TracksPassed", "Trigger Passed Tracks;lumiblock;entry rate", 1000, -0.5, 999.5));
+				break; //no need to look further
+			}
+		}
+		//Time-dependent purity&efficiency histograms
+		addMonGroup(new MonGroup(this,"HLT/MinBiasMon/Purities&Efficiencies/" + i, run, ATTRIB_UNMANAGED));
+		if (newRun)
+		{
+			addHistogram(new TH1F("PurityAll", "Trigger All Purity;lumiblock;entry rate", 1000, -0.5, 999.5));
+			addHistogram(new TH1F("PurityPassed", "Trigger Passed Purity;lumiblock;entry rate", 1000, -0.5, 999.5));
 			addHistogram(new TH1F("Purity", "Trigger Purity;lumiblock;entry rate", 1000, -0.5, 999.5));
+			
+			addHistogram(new TH1F("EfficiencyAll", "Trigger All Efficiency;lumiblock;entry rate", 1000, -0.5, 999.5));
+			addHistogram(new TH1F("EfficiencyPassed", "Trigger Passed Efficiency;lumiblock;entry rate", 1000, -0.5, 999.5));
+			addHistogram(new TH1F("Efficiency", "Trigger Efficiency;lumiblock;entry rate", 1000, -0.5, 999.5));
+			
+			addHistogram(new TH1F("EfficiencyTracksAll", "Trigger All Efficiency per Track;tracks;entry rate", 1000, -0.5, 999.5));
+			addHistogram(new TH1F("EfficiencyTracksPassed", "Trigger Passed Efficiency per Track;tracks;entry rate", 1000, -0.5, 999.5));
+			addHistogram(new TH1F("EfficiencyTracks", "Trigger Efficiency per Track;tracks;entry rate", 1000, -0.5, 999.5));
+			
+			addHistogram(new TH1I("NumGoodOfflineTracks", "Number of accepted offline tracks (trigger passed);tracks;entry rate", 1000, 0, 1000));
+		}
  	}
-    tProf->ResetBit(TH1::kCanRebin);
-	tProf->SetMinimum(0.0);
 	
-	tAllTracks->SetMinimum(0.0);
-	tTracksPassed->SetMinimum(0.0);
-	tPurities->SetMinimum(0.0);
-	
-	th1i->SetMinimum(0.0);
-	
-	tTrigErrors->ResetBit(TH1::kCanRebin);
-	tTrigErrors->SetMinimum(0.0);
-
-        addProfile(tProf, "HLT/MinBiasMon");
-        addHistogram(th1i, "HLT/MinBiasMon");
+	if (newRun)
+	{
+		tProf->ResetBit(TH1::kCanRebin);
+		tProf->SetMinimum(0.0);
 		
+		tAllTracks->SetMinimum(0.0);
+		tTracksPassed->SetMinimum(0.0);
+		tPurities->SetMinimum(0.0);
+		
+		tEffAll->SetMinimum(0.0);
+		tEffPassed->SetMinimum(0.0);
+		tEff->SetMinimum(0.0);
+		
+		th1i->SetMinimum(0.0);
+		
+		tTrigErrors->ResetBit(TH1::kCanRebin);
+		tTrigErrors->SetMinimum(0.0);
+		
+		addProfile(tProf, "HLT/MinBiasMon");
+		addHistogram(th1i, "HLT/MinBiasMon");
+			
 		addHistogram(tAllTracks, "HLT/MinBiasMon");
 		addHistogram(tTracksPassed, "HLT/MinBiasMon");
 		addHistogram(tPurities, "HLT/MinBiasMon");
-        
-        addProfile(tTrigErrors, "HLT/MinBiasMon/IDMinbias");
-        
-        return StatusCode::SUCCESS;
+			
+		addHistogram(tEffAll, "HLT/MinBiasMon");
+		addHistogram(tEffPassed, "HLT/MinBiasMon");
+		addHistogram(tEff, "HLT/MinBiasMon");
+			
+		addProfile(tTrigErrors, "HLT/MinBiasMon/IDMinbias");
+	} 
+	return StatusCode::SUCCESS;
 }
 
 void HLTMinBiasMonTool::bookHistogramsForItem(const std::string &item, unsigned histGroup)
 {
-        TH1I *th1i;
-        TH1F *th1f;
-        TH2I *th2i;
-        TH2F *th2f;
-        TProfile *tProf;
-        
-        (*m_log) << MSG::DEBUG << "Booking histograms for " << item << " chain in hisGroups: " << histGroup << endreq; 
-
-        if ( (histGroup & MBTS) == MBTS)
+	TH1I *th1i;
+	TH1F *th1f;
+	TH2I *th2i;
+	TH2F *th2f;
+	TProfile *tProf;
+	
+	(*m_log) << MSG::DEBUG << "Booking histograms for " << item << " chain in hisGroups: " << histGroup << endreq; 
+	
+	if ( (histGroup & MBTS) == MBTS)
  	{
- 	        th1i = new TH1I("Occupancy", "Offline MBTS Occupancy (no time cut);channel id;entries", 32, 0, 32);
+		th1i = new TH1I("Occupancy", "Offline MBTS Occupancy (no time cut);channel id;entries", 32, 0, 32);
 		fixXaxis(th1i);
 		th1i->SetMinimum(0.0);
 		addHistogram(th1i);
  	        
- 	        th1i = new TH1I("Occupancy_Online", "Online MBTS Occupancy (no time cut);channel id;entries", 32, 0, 32);
- 	        fixXaxis(th1i);
- 	        addHistogram(th1i);
+		th1i = new TH1I("Occupancy_Online", "Online MBTS Occupancy (no time cut);channel id;entries", 32, 0, 32);
+		fixXaxis(th1i);
+		addHistogram(th1i);
 		
 		th2f = new TH2F("m_h_time", "MBTS time;channel id;MBTS Time [ns]", 32, 0, 32, 100, -100, 100);
 		fixXaxis(th2f);
 		addHistogram(th2f);
  	        
- 	        th2f = new TH2F("m_h_time_Online", "Online MBTS Time;channel id;MBTS Time [ns]", 32, 0, 32, 100, -100, 100);
+		th2f = new TH2F("m_h_time_Online", "Online MBTS Time;channel id;MBTS Time [ns]", 32, 0, 32, 100, -100, 100);
 		fixXaxis(th2f);
 		addHistogram(th2f);
 		
 		th2f = new TH2F("m_h_energy", "MBTS energy;channel id;MBTS Energy [pC]", 32, 0, 32, 100, -2, 2);
 		fixXaxis(th2f);
-                addHistogram(th2f);
+		addHistogram(th2f);
 		
 		th2f = new TH2F("m_h_energy_Online", "Online MBTS energy;channel id;MBTS Energy [pC]", 32, 0, 32, 100,-2, 2);
 		fixXaxis(th2f);
@@ -392,22 +449,22 @@ void HLTMinBiasMonTool::bookHistogramsForItem(const std::string &item, unsigned 
 		addHistogram(new TH1I("mbMbts_N_N_hits", "mbMbts_N_N Passed;Min #hits on side A or C;entries", TMath::Max(m_mbtsCountsSideA, m_mbtsCountsSideC) + 1, -0.5, TMath::Max(m_mbtsCountsSideA, m_mbtsCountsSideC) + 0.5));
 		addHistogram(new TH1I("TriggerRate", "# of Events per Trigger;trigger chain id;# events", 1, 0, 1));
 		addHistogram(new TH1I("TriggerRatePS","# of Events per Trigger * Prescale;trigger chain id;# events * prescale", 10, 0, 10));	        
- 	        addHistogram(new TH1I("mbMbts_hits", "mbMbts total hits;#hits;entries", m_mbtsCountsBothSides + 1, -0.5, m_mbtsCountsBothSides + 0.5));
+		addHistogram(new TH1I("mbMbts_hits", "mbMbts total hits;#hits;entries", m_mbtsCountsBothSides + 1, -0.5, m_mbtsCountsBothSides + 0.5));
 
-                th2f = new TH2F("m_h_time_TF_SP", "L2 bit failed & simulation passed;channel id;MBTS Time [ns]", 32, 0,	32, 100, -100, 100);
-		fixXaxis(th2f);
-                addHistogram(th2f);
-
-                th2f = new TH2F("m_h_time_TP_SF", "L2 bit passed & simulation failed;channel id;MBTS Time [ns]", 32, 0,	32, 100, -100, 100);
+		th2f = new TH2F("m_h_time_TF_SP", "L2 bit failed & simulation passed;channel id;MBTS Time [ns]", 32, 0,	32, 100, -100, 100);
 		fixXaxis(th2f);
 		addHistogram(th2f);
 
-                tProf = new TProfile("MbtsEnergyErrors", "Offline MBTS Energy Discrepancies;channel id;error rate", 32, 0, 32, 0, 1);
+		th2f = new TH2F("m_h_time_TP_SF", "L2 bit passed & simulation failed;channel id;MBTS Time [ns]", 32, 0,	32, 100, -100, 100);
+		fixXaxis(th2f);
+		addHistogram(th2f);
+
+		tProf = new TProfile("MbtsEnergyErrors", "Offline MBTS Energy Discrepancies;channel id;error rate", 32, 0, 32, 0, 1);
 		fixXaxis(tProf);
 		tProf->SetMinimum(0.0);
-                addProfile(tProf);
+		addProfile(tProf);
                 
-                tProf = new TProfile("MbtsTimeErrors", "Offline MBTS Time Discrepancies;channel id;error rate", 32, 0, 32, 0, 1);
+		tProf = new TProfile("MbtsTimeErrors", "Offline MBTS Time Discrepancies;channel id;error rate", 32, 0, 32, 0, 1);
 		fixXaxis(tProf);
 		tProf->SetMinimum(0.0);
 		addProfile(tProf);
@@ -422,7 +479,7 @@ void HLTMinBiasMonTool::bookHistogramsForItem(const std::string &item, unsigned 
 	 	addHistogram(new TH1I("minbiasTracks", "number of minbias tracks;# of tracks; entries", 125, -0.5, 2499.5));             
 	 	
 		// MBTS energy
-  	        // The A side mean energy passed the trigger
+		// The A side mean energy passed the trigger
 		addHistogram(new TH1F("m_h_energyMean_A", "Mean MBTS Energy A side passed;MBTS Energy [pC];entries", 100, -5, 95));           
 		
 		//The A side  maximum energy passed the trigger
@@ -435,12 +492,12 @@ void HLTMinBiasMonTool::bookHistogramsForItem(const std::string &item, unsigned 
 		addHistogram(new TH1F("m_h_energyMax_C", "Maximum MBTS Energy C side passed;MBTS Energy [pC];entries", 100, -5, 95));         
 
 		//energy online + L2 , EF passed/failed
-  	        //The  time online
-		addHistogram(new TH1D("m_h_energy_onl", "MBTS Energy  online;MBTS Energy [pC];entries", 100, -5, 95));                  
+		//The  time online
+		addHistogram(new TH1D("m_h_energy_onl", "MBTS Energy online;MBTS Energy [pC];entries", 100, -5, 95));                  
 
 		// Time
-  	        //=== The time is monitored only if the energy is sufficient to suppress noise
-   	        //The A side  mean time passed the trigger
+		//=== The time is monitored only if the energy is sufficient to suppress noise
+		//The A side  mean time passed the trigger
 		addHistogram(new TH1F("m_h_timeMean_A", "Mean MBTS Time A side passed;MBTS Time [ns];entries", 100, -25, 25));        
 
 		//The A side  minimum time passed the trigger
@@ -452,13 +509,13 @@ void HLTMinBiasMonTool::bookHistogramsForItem(const std::string &item, unsigned 
 		//The C side  minimum time passed the trigger
 		addHistogram(new TH1F("m_h_timeMin_C", "Minimum MBTS Time C side passed;MBTS Time [ns];entries", 100, -25, 25));      
 
-  	        // time online + L2 , EF passed/failed
-   	        //The  time online
-		addHistogram(new TH1D("m_h_time_onl", "MBTS Time  online;MBTS Time [ns];entries", 100, -25, 25));                       
+		// time online + L2 , EF passed/failed
+		//The  time online
+		addHistogram(new TH1D("m_h_time_onl", "MBTS Time online;MBTS Time [ns];entries", 100, -25, 25));                       
 
 		// energy-time cell occupancy
-  	        // side A
-  	        th1i = new TH1I("Occupancy_Online - side A", "Online MBTS Occupancy (no time cut);channel id;entries", 32, 0, 32);        	
+		// side A
+		th1i = new TH1I("Occupancy_Online - side A", "Online MBTS Occupancy (no time cut);channel id;entries", 32, 0, 32);        	
 		th1i->SetMinimum(0.0);
 		addHistogram(th1i);
 		
@@ -467,6 +524,7 @@ void HLTMinBiasMonTool::bookHistogramsForItem(const std::string &item, unsigned 
 		th1i->SetMinimum(0.0);
 		addHistogram(th1i);
  	}
+	
  	if ( (histGroup & LUCID) == LUCID)
  	{
  	        // Lucid
@@ -474,16 +532,16 @@ void HLTMinBiasMonTool::bookHistogramsForItem(const std::string &item, unsigned 
 		addHistogram(new TH1I("lucidChannels_pBX", "occupancy for the previous BX;channel;hits per channel", 40,	-0.5, 39.5));
 		addHistogram(new TH1I("lucidChannels_nBX", "occupancy for the next BX;channel;hits per channel", 40, -0.5, 39.5));
 		
-                //addHistogram(new TH1F("LUCID_All", "L1_LUCID All passed;max. # of hits on side A or C;entries", 21, -0.5, 20.5));
-                addHistogram(new TH1F("LUCID_A_C_All", "L1_LUCID_A_C All passed; min. # of hits on side A or C;entries", 21, -0.5, 20.5));
-                addHistogram(new TH1F("LUCID_All", "L1_LUCID All passed;max. # of hits on side A or C;entries", 21, -0.5, 20.5));
-                addHistogram(new TH1F("LUCID_nBX", "L1_LUCID passed;max. # of hits on side A or C for the next BX;entries", 21,-0.5, 20.5));
-                addHistogram(new TH1F("LUCID_pBX", "L1_LUCID passed;max. # of hits on side A or C for the previous BX;entries",21, -0.5, 20.5));
-                addHistogram(new TH1F("LUCID_A_C", "L1_LUCID_A_C passed; min. # of hits on side A or C;entries", 21, -0.5, 20.5));
-                addHistogram(new TH1F("LUCID_A_C_nBX","L1_LUCID_A_C passed; min. # of hits on side A or C for the next BX;entries", 21, -0.5, 20.5));
-                addHistogram(new TH1F("LUCID_A_C_pBX","L1_LUCID_A_C passed; min. # of hits on side A or C for the previous BX;entries", 21, -0.5, 20.5));
-                
-                //Error rates
+		//addHistogram(new TH1F("LUCID_All", "L1_LUCID All passed;max. # of hits on side A or C;entries", 21, -0.5, 20.5));
+		addHistogram(new TH1F("LUCID_A_C_All", "L1_LUCID_A_C All passed; min. # of hits on side A or C;entries", 21, -0.5, 20.5));
+		addHistogram(new TH1F("LUCID_All", "L1_LUCID All passed;max. # of hits on side A or C;entries", 21, -0.5, 20.5));
+		addHistogram(new TH1F("LUCID_nBX", "L1_LUCID passed;max. # of hits on side A or C for the next BX;entries", 21,-0.5, 20.5));
+		addHistogram(new TH1F("LUCID_pBX", "L1_LUCID passed;max. # of hits on side A or C for the previous BX;entries",21, -0.5, 20.5));
+		addHistogram(new TH1F("LUCID_A_C", "L1_LUCID_A_C passed; min. # of hits on side A or C;entries", 21, -0.5, 20.5));
+		addHistogram(new TH1F("LUCID_A_C_nBX","L1_LUCID_A_C passed; min. # of hits on side A or C for the next BX;entries", 21, -0.5, 20.5));
+		addHistogram(new TH1F("LUCID_A_C_pBX","L1_LUCID_A_C passed; min. # of hits on side A or C for the previous BX;entries", 21, -0.5, 20.5));
+		
+		//Error rates
 		tProf = new TProfile("TriggerErrors", "Trigger Errors;trigger chain id;error rate", 5, 0, 5, 0, 1);
 		tProf->GetXaxis()->FindBin("L1_LUCID");
 		tProf->GetXaxis()->FindBin("L1_LUCID_A");
@@ -497,8 +555,8 @@ void HLTMinBiasMonTool::bookHistogramsForItem(const std::string &item, unsigned 
  		 	                
  	if ( (histGroup & IDMINBIAS) == IDMINBIAS)
  	{
- 	        //default:
-                // L2, ID
+		//default:
+		// L2, ID
 	 	addHistogram(new TH1I("pixBarr_sp", "number of L2 pixel spacepoints in the barrel;;entries", 250, -0.5, 2499.5));       
 	 	addHistogram(new TH1I("pixECA_sp", "number of L2 pixel spacepoints in ECA;;entries", 250, -0.5, 2499.5));               
 	 	addHistogram(new TH1I("pixECC_sp", "number of L2 pixel spacepoints in ECC;;entries", 250, -0.5, 2499.5));               
@@ -506,49 +564,51 @@ void HLTMinBiasMonTool::bookHistogramsForItem(const std::string &item, unsigned 
 	 	addHistogram(new TH1I("sctECA_sp", "number of L2 sct spacepoints in ECA;;entries", 300, -0.5, 2999.5));                 
 	 	addHistogram(new TH1I("sctECC_sp", "number of L2 sct spacepoints in ECC;;entries", 300, -0.5, 2999.5));                 
 	 	
-	 	addHistogram(new TH1I("h_pixTot", "L2_mbMbts_eff passed;total number of L2 pixel space-points;entries", 250, -0.5, 2499.5));
-	 	addHistogram(new TH1I("h_sctTot", "L2_mbMbts_eff passed;total number of L2 SCT space-points;entries", 300, -0.5, 2999.5));
+	 	addHistogram(new TH1I("h_pixTot", "L2_mbMbts_ passed;total number of L2 pixel space-points;entries", 250, -0.5, 2499.5));
+	 	addHistogram(new TH1I("h_sctTot", "L2_mbMbts_ passed;total number of L2 SCT space-points;entries", 300, -0.5, 2999.5));
 	}
+	
  	if ( (histGroup & ZDC) == ZDC)
  	{
- 	        addHistogram(new TH2I("zdcChannels", "occupancy;channel ID;hits per channel", 8, -0.5, 7.5, 100, 0,1200));
-                addHistogram(new TH1I("ZDC_EMPTY", "L1_ZDC_EMPTY passed;min. Low Gain ADC counts on side A or C;entries", 100,0., 2000.));
-
-                th1f = new TH1F("m_h_ZDC_LHCF_corr", "L1_ZDC_C vs L1_LHCF with MbSp(Trk);;events accepted", 4,0,4);
+		addHistogram(new TH2I("zdcChannels", "occupancy;channel ID;hits per channel", 8, -0.5, 7.5, 100, 0,1200));
+		addHistogram(new TH1I("ZDC_EMPTY", "L1_ZDC_EMPTY passed;min. Low Gain ADC counts on side A or C;entries", 100,0., 2000.));
+		
+		th1f = new TH1F("m_h_ZDC_LHCF_corr", "L1_ZDC_C vs L1_LHCF with MbSp(Trk);;events accepted", 4,0,4);
 		th1f->GetXaxis()->FindBin("LHCF and ZDC_C");
 		th1f->GetXaxis()->FindBin("no LHCF and no ZDC_C");
 		th1f->GetXaxis()->FindBin("LHCF, no ZDC_C");
 		th1f->GetXaxis()->FindBin("no LHCF but ZDC_C");
-                th1f->ResetBit(TH1::kCanRebin);
-                th1f->Sumw2();
-                addHistogram(th1f);
-                
-                th1f = new TH1F("m_h_ZDC_TE", "L1_TE and L1_ZDC_x_VTE with MbSp(Trk);;events accepted", 5,0,5);
+		th1f->ResetBit(TH1::kCanRebin);
+		th1f->Sumw2();
+		addHistogram(th1f);
+		
+		th1f = new TH1F("m_h_ZDC_TE", "L1_TE and L1_ZDC_x_VTE with MbSp(Trk);;events accepted", 5,0,5);
 		th1f->GetXaxis()->FindBin("L1_TE0");
 		th1f->GetXaxis()->FindBin("L1_TE20");
 		th1f->GetXaxis()->FindBin("L1_TE50");
 		th1f->GetXaxis()->FindBin("L1_ZDC_A_VTE20");
 		th1f->GetXaxis()->FindBin("L1_ZDC_C_VTE20");
-                th1f->ResetBit(TH1::kCanRebin);
-                th1f->Sumw2();
-                addHistogram(th1f);
-                
-                addHistogram(new TH1I("ZDC_All", "L1_ZDC passed any beam;min. Low Gain ADC counts on side A or C;entries", 100, 0., 2000.));
-                addHistogram(new TH1I("ZDC_A_C_All", "L1_ZDC_A_C passed any beam;max. Low Gain ADC counts on side A or C;entries", 100, 0.,2000.));
-                addHistogram(new TH2F("ZDC_vs_FCAL_A_All","L1_ZDC_A passed any beam;Low Gain ADC counts on side A;Calo energy", 100, 0., 2000., 100, 0., 20000));
-                addHistogram(new TH1I("ZDC_A_All", "L1_ZDC_A passed any beam;Low Gain ADC counts on side A;entries", 100, 0., 2000.));
-                addHistogram(new TH2F("ZDC_vs_FCAL_C_All","L1_ZDC_C passed any beam;Low Gain ADC counts on side C;Calo energy", 100, 0., 2000., 100, 0., 20000));
-                addHistogram(new TH1I("ZDC_C_All", "L1_ZDC_C passed any beam;Low Gain ADC counts on side C;entries", 100, 0., 2000.));
+		th1f->ResetBit(TH1::kCanRebin);
+		th1f->Sumw2();
+		addHistogram(th1f);
+		
+		addHistogram(new TH1I("ZDC_All", "L1_ZDC passed any beam;min. Low Gain ADC counts on side A or C;entries", 100, 0., 2000.));
+		addHistogram(new TH1I("ZDC_A_C_All", "L1_ZDC_A_C passed any beam;max. Low Gain ADC counts on side A or C;entries", 100, 0.,2000.));
+		addHistogram(new TH2F("ZDC_vs_FCAL_A_All","L1_ZDC_A passed any beam;Low Gain ADC counts on side A;Calo energy", 100, 0., 2000., 100, 0., 20000));
+		addHistogram(new TH1I("ZDC_A_All", "L1_ZDC_A passed any beam;Low Gain ADC counts on side A;entries", 100, 0., 2000.));
+		addHistogram(new TH2F("ZDC_vs_FCAL_C_All","L1_ZDC_C passed any beam;Low Gain ADC counts on side C;Calo energy", 100, 0., 2000., 100, 0., 20000));
+		addHistogram(new TH1I("ZDC_C_All", "L1_ZDC_C passed any beam;Low Gain ADC counts on side C;entries", 100, 0., 2000.));
  	}
+	
  	if ( (histGroup & BCM) == BCM)
  	{
- 	        addHistogram(new TH1I("bcmChannels", "occupancy;channel;hits per channel", 16, -0.5, 15.5));
- 	        addHistogram(new TH2I("pulse1position", "1st pulse timing;channel;position of pulse1", 16, -0.5, 15.5, 64, -0.5, 63.5));
- 	        addHistogram(new TH2I("pulse1width", "1st pulse width;channel;width of pulse1", 16, -0.5, 15.5, 32, -0.5, 31.5));
- 	        addHistogram(new TH2I("pulse2position", "2nd pulse timing;channel;position of pulse2", 16, -0.5, 15.5, 64, -0.5, 63.5));
- 	        addHistogram(new TH2I("pulse2width", "2nd pulse width;channel; width of pulse2", 16, -0.5, 15.5, 32, -0.5, 31.5));
- 	        
- 	        //TProfiles are to be drawn on top of the corresponsing 1D plots
+		addHistogram(new TH1I("bcmChannels", "occupancy;channel;hits per channel", 16, -0.5, 15.5));
+		addHistogram(new TH2I("pulse1position", "1st pulse timing;channel;position of pulse1", 16, -0.5, 15.5, 64, -0.5, 63.5));
+		addHistogram(new TH2I("pulse1width", "1st pulse width;channel;width of pulse1", 16, -0.5, 15.5, 32, -0.5, 31.5));
+		addHistogram(new TH2I("pulse2position", "2nd pulse timing;channel;position of pulse2", 16, -0.5, 15.5, 64, -0.5, 63.5));
+		addHistogram(new TH2I("pulse2width", "2nd pulse width;channel; width of pulse2", 16, -0.5, 15.5, 32, -0.5, 31.5));
+		
+		//TProfiles are to be drawn on top of the corresponsing 1D plots
 
 		addProfile(new TProfile("pulse1position_prof", "1st pulse average timing;channel;position of pulse1",16, -0.5, 15.5, -0.5, 63.5));
 		addProfile(new TProfile("pulse1width_prof", "1st pulse average width;channel;width of pulse1", 16, -0.5, 15.5, -0.5, 31.5));
@@ -571,42 +631,68 @@ void HLTMinBiasMonTool::bookHistogramsForItem(const std::string &item, unsigned 
 		tProf->SetMinimum(0.0);
 		addProfile(tProf);
  	}
+	
  	if ( (histGroup & HMT) == HMT)
  	{
- 	        addHistogram(new TH1I("numSpacePoints", "Space points;amount;entries", 1000, -0.5, 9999.5));
- 	        
- 	        addHistogram(new TH1I("numVertices", "Vertices;amount;entries", 100, -0.5, 99.5));
- 	        addHistogram(new TH1I("numTracksAtVertex", "Tracks at vertex;amount;entries", 100, -0.5, 99.5));
- 	        
- 	        addHistogram(new TH1I("numHitsAtVertex", "Hits at vertex;amount;entries", 200, -0.5, 999.5));
+		addHistogram(new TH1I("numSpacePoints", "Space points;amount;entries", 1000, -0.5, 9999.5));
+		
+		addHistogram(new TH1I("numVertices", "Vertices;amount;entries", 100, -0.5, 99.5));
+		addHistogram(new TH1I("numTracksAtVertex", "Tracks at vertex;amount;entries", 100, -0.5, 99.5));
+		
+		addHistogram(new TH1I("numHitsAtVertex", "Hits at vertex;amount;entries", 200, -0.5, 999.5));
  	}
+	
  	(*m_log) << MSG::DEBUG << "All histograms booked successfully" << endreq; 
 }
 
 StatusCode HLTMinBiasMonTool::fill()
 {
-        StatusCode sc = StatusCode::SUCCESS;
-        
-        for (const auto &i: m_trigItems)
-        {
-                if (m_tdthandle->isPassed(/*"EF_"*/ "HLT_" + i))        //temporally
-                {
-                       profile("TriggerEntriesProfile", "HLT/MinBiasMon")->Fill(i.c_str(), 1);
-                       hist("TriggerEntries", "HLT/MinBiasMon")->Fill(i.c_str(), 1);
-                       fillHistogramsForItem(i, m_histoGroupForChain[i]);
-					   fillPurityForItem(i);
-                }
-                else{
-                        profile("TriggerEntriesProfile", "HLT/MinBiasMon")->Fill(i.c_str(), 0);
-                        hist("TriggerEntries", "HLT/MinBiasMon")->Fill(i.c_str(), 0);
-                        (*m_log) << MSG::DEBUG << i << " chain is empty" << endreq; 
-                }
-        }
-        
-        return sc;
+	StatusCode sc = StatusCode::SUCCESS;
+	
+	bool refTrigPassed = getTDT()->isPassed(/*"EF_"*/ "HLT_" + m_refTrigItem);
+	unsigned goodTracks;
+	
+	for (const auto &i: m_trigItems)
+	{
+		goodTracks = howManyGoodTracks(m_effSelTool[m_chainProperties[i].effCutIdx]);
+		
+		if (getTDT()->isPassed(/*"EF_"*/ "HLT_" + i))        //temporally
+		{
+			profile("TriggerEntriesProfile", "HLT/MinBiasMon")->Fill(i.c_str(), 1);
+			hist("TriggerEntries", "HLT/MinBiasMon")->Fill(i.c_str(), 1);
+			fillHistogramsForItem(i, m_chainProperties[i].histoGroup);
+			fillPurityForItem(i, m_purSelTool[0]);
+			
+			if (refTrigPassed && (goodTracks > 1)) fillEfficiencyForItem(i, goodTracks, true);
+			
+			hist("NumGoodOfflineTracks", "HLT/MinBiasMon/Purities&Efficiencies/" + i)->Fill(goodTracks, 1);
+		}
+		else
+		{
+			profile("TriggerEntriesProfile", "HLT/MinBiasMon")->Fill(i.c_str(), 0);
+			hist("TriggerEntries", "HLT/MinBiasMon")->Fill(i.c_str(), 0);
+			(*m_log) << MSG::DEBUG << i << " chain is empty" << endreq; 
+			
+			if (refTrigPassed && (goodTracks > 1)) fillEfficiencyForItem(i, goodTracks, false);
+		}
+	}	
+	return sc;
 }
 
-void HLTMinBiasMonTool::fillPurityForItem(const std::string &item)
+void HLTMinBiasMonTool::fillEfficiencyForItem(const std::string &item, unsigned goodTracks, bool isPassed)
+{
+	hist("TriggerEfficienciesAll", "HLT/MinBiasMon")->Fill(item.c_str(), 1);
+	hist("EfficiencyAll", "HLT/MinBiasMon/Purities&Efficiencies/" + item)->Fill(getLumiBlockNr(), 1);
+	hist("EfficiencyTracksAll", "HLT/MinBiasMon/Purities&Efficiencies/" + item)->Fill(goodTracks, 1);
+	
+	hist("TriggerEfficienciesPassed", "HLT/MinBiasMon")->Fill(item.c_str(), (isPassed)?1:0);
+	hist("EfficiencyPassed", "HLT/MinBiasMon/Purities&Efficiencies/" + item)->Fill(getLumiBlockNr(), (isPassed)?1:0);
+	hist("EfficiencyTracksPassed", "HLT/MinBiasMon/Purities&Efficiencies/" + item)->Fill(goodTracks, (isPassed)?1:0);
+	
+	return;
+}
+
+unsigned HLTMinBiasMonTool::howManyGoodTracks(const ToolHandle< InDet::IInDetTrackSelectionTool > &selTool)
 {
 	StatusCode sc = StatusCode::SUCCESS;
 	// Get the InDetTrackParticles from the event:
@@ -626,109 +712,140 @@ void HLTMinBiasMonTool::fillPurityForItem(const std::string &item)
 		for ( ; itr!=end; ++itr)
 		{
 			const xAOD::TrackParticle* track = (*itr);
-			if (m_selTool->accept(*track)) ++goodTracks;
+			if (selTool->accept(*track)) ++goodTracks;
 		}
-		hist("TriggerTracksAll", "HLT/MinBiasMon")->Fill(item.c_str(), 1);
-		hist("TracksAll", "HLT/MinBiasMon/Purities/" + item)->Fill(getLumiBlockNr(), 1);
-		hist("TriggerTracksPassed", "HLT/MinBiasMon")->Fill(item.c_str(), ((goodTracks > 1)?1:0));
-		hist("TracksPassed", "HLT/MinBiasMon/Purities/" + item)->Fill(getLumiBlockNr(), ((goodTracks > 1)?1:0));
+	}
+	return goodTracks;
+}
+
+void HLTMinBiasMonTool::fillPurityForItem(const std::string &item, const ToolHandle< InDet::IInDetTrackSelectionTool > &selTool, unsigned greaterThan)
+{
+	StatusCode sc = StatusCode::SUCCESS;
+	// Get the InDetTrackParticles from the event:
+	const xAOD::TrackParticleContainer* tracks = nullptr;
+	sc = m_storeGate->retrieve(tracks,m_inDetTrackParticleContainerName);
+	unsigned goodTracks(0);
+	if (sc.isFailure() || tracks->empty()) {
+		if (sc.isFailure())
+			(*m_log) << MSG::WARNING << "Failed to retrieve TrackParticleCollection" << endreq;
+		else
+			(*m_log) << MSG::DEBUG << "TrackParticleCollection is empty." << endreq;
+	} else {
+	
+		xAOD::TrackParticleContainer::const_iterator itr = tracks->begin();
+		xAOD::TrackParticleContainer::const_iterator end = tracks->end();
+	
+		for ( ; itr!=end; ++itr)
+		{
+			const xAOD::TrackParticle* track = (*itr);
+			if (selTool->accept(*track)) ++goodTracks;
+		}
+		hist("TriggerPuritiesAll", "HLT/MinBiasMon")->Fill(item.c_str(), 1);
+		hist("PurityAll", "HLT/MinBiasMon/Purities&Efficiencies/" + item)->Fill(getLumiBlockNr(), 1);
+		hist("TriggerPuritiesPassed", "HLT/MinBiasMon")->Fill(item.c_str(), ((goodTracks > greaterThan)?1:0));
+		hist("PurityPassed", "HLT/MinBiasMon/Purities&Efficiencies/" + item)->Fill(getLumiBlockNr(), ((goodTracks > greaterThan)?1:0));
 	}
 }
 
 void HLTMinBiasMonTool::fillHistogramsForItem(const std::string &item, unsigned histGroup)
 {
-        StatusCode sc = StatusCode::SUCCESS;
-        
-        (*m_log) << MSG::DEBUG << "Currently processing: " << item << " in " << histGroup << endreq;
-
-        if ( (histGroup & MBTS) == MBTS)
+	StatusCode sc = StatusCode::SUCCESS;
+	
+	(*m_log) << MSG::DEBUG << "Currently processing: " << item << " in " << histGroup << endreq;
+	
+	if ( (histGroup & MBTS) == MBTS)
  	{
- 	        setCurrentMonGroup("HLT/MinBiasMon/MBTS/" + item);
- 	        sc = fillMbtsInfo(item);
-                if (sc.isFailure())
-                {
-                        (*m_log) << MSG::WARNING << "Couldn't fill MBTS info properly for: " << item << endreq;
-                }
-                sc = fillHLTMbtsInfo();
-                if (sc.isFailure())
-                {
-                        (*m_log) << MSG::WARNING << "Couldn't fill HLT MBTS info properly for: " << item << endreq;
-                }
-				sc = fillTrackingInfo();
-                if (sc.isFailure())
-                {
-                        (*m_log) << MSG::WARNING << "Couldn't fill tracking info properly for: " << item << endreq;
-                }	
- 	}
- 	if ( (histGroup & LUCID) == LUCID)
- 	{
- 	        setCurrentMonGroup("HLT/MinBiasMon/LUCID/" + item);
- 	        sc = fillLUCIDInfo();
-                if (sc.isFailure())
-                {
-                        (*m_log) << MSG::WARNING << "Couldn't fill LUCID info properly for: " << item << endreq;
-                }
- 	}
-        if ( (histGroup & IDMINBIAS) == IDMINBIAS)
- 	{
- 	        setCurrentMonGroup("HLT/MinBiasMon/IDMinbias/" + item);
- 	        sc = fillSpacePointInfo(item);
-                if (sc.isFailure())
-                {
-                        (*m_log) << MSG::WARNING << "Couldn't fill space point info properly for: " << item << endreq;
-                }        
- 	}
- 	if ( (histGroup & ZDC) == ZDC)
- 	{
- 	        setCurrentMonGroup("HLT/MinBiasMon/ZDC/" + item);
- 	        sc = fillZDCInfo();
-                if (sc.isFailure())
-                {
-                        (*m_log) << MSG::WARNING << "Couldn't fill ZDC info properly for: " << item << endreq;
-                }
- 	}
- 	if ( (histGroup & BCM) == BCM)
- 	{
- 	        setCurrentMonGroup("HLT/MinBiasMon/BCM/" + item);
- 	        sc = fillBCMInfo();
-                if (sc.isFailure())
-                {
-                        (*m_log) << MSG::WARNING << "Couldn't fill BCM info properly for: " << item << endreq;
-                }
- 	}
-        
-        if ( (histGroup & HMT) == HMT)
-        {
-                setCurrentMonGroup("HLT/MinBiasMon/HMT/" + item);
-                sc = fillHMTSpacePointsInfo();
-                if (sc.isFailure())
-                {
-                        (*m_log) << MSG::WARNING << "Couldn't fill HMTSpacePoints info properly for: " << item << endreq;
-                }
-                sc = fillHMTVertexCountsInfo();
-                if (sc.isFailure())
-                {
-                        (*m_log) << MSG::WARNING << "Couldn't fill HMTVertexCounts info properly for: " << item << endreq;
-                }
-                sc = fillHMTTrigVertexCollectionInfo();
-                if (sc.isFailure())
-                {
-                        (*m_log) << MSG::WARNING << "Couldn't fill HMTTrigVertexCollection info properly for: " << item << endreq;
-                }
-        }
+		setCurrentMonGroup("HLT/MinBiasMon/MBTS/" + item);
+		sc = fillMbtsInfo(item);
 		if (sc.isFailure())
 		{
-			(*m_log) << MSG::WARNING << "Unknown error occurred in FillHistogramsForItem!" << endreq;
+			(*m_log) << MSG::WARNING << "Couldn't fill MBTS info properly for: " << item << endreq;
 		}
-        ++m_numberOfEvents;
-        (*m_log) << MSG::DEBUG << "PROCESSED SUCCESSFULLY" << endreq;        
+		sc = fillHLTMbtsInfo();
+		if (sc.isFailure())
+		{
+			(*m_log) << MSG::WARNING << "Couldn't fill HLT MBTS info properly for: " << item << endreq;
+		}
+		sc = fillTrackingInfo();
+		if (sc.isFailure())
+		{
+			(*m_log) << MSG::WARNING << "Couldn't fill tracking info properly for: " << item << endreq;
+		}	
+ 	}
+	
+ 	if ( (histGroup & LUCID) == LUCID)
+ 	{
+		setCurrentMonGroup("HLT/MinBiasMon/LUCID/" + item);
+		sc = fillLUCIDInfo();
+		if (sc.isFailure())
+		{
+			(*m_log) << MSG::WARNING << "Couldn't fill LUCID info properly for: " << item << endreq;
+		}
+ 	}
+	
+	if ( (histGroup & IDMINBIAS) == IDMINBIAS)
+ 	{
+		setCurrentMonGroup("HLT/MinBiasMon/IDMinbias/" + item);
+		sc = fillSpacePointInfo(item);
+		if (sc.isFailure())
+		{
+			(*m_log) << MSG::WARNING << "Couldn't fill space point info properly for: " << item << endreq;
+		}        
+ 	}
+	
+ 	if ( (histGroup & ZDC) == ZDC)
+ 	{
+		setCurrentMonGroup("HLT/MinBiasMon/ZDC/" + item);
+		sc = fillZDCInfo();
+		if (sc.isFailure())
+		{
+			(*m_log) << MSG::WARNING << "Couldn't fill ZDC info properly for: " << item << endreq;
+		}
+ 	}
+	
+ 	if ( (histGroup & BCM) == BCM)
+ 	{
+		setCurrentMonGroup("HLT/MinBiasMon/BCM/" + item);
+		sc = fillBCMInfo();
+		if (sc.isFailure())
+		{
+			(*m_log) << MSG::WARNING << "Couldn't fill BCM info properly for: " << item << endreq;
+		}
+ 	}
+        
+	if ( (histGroup & HMT) == HMT)
+	{
+		setCurrentMonGroup("HLT/MinBiasMon/HMT/" + item);
+		sc = fillHMTSpacePointsInfo();
+		if (sc.isFailure())
+		{
+			(*m_log) << MSG::WARNING << "Couldn't fill HMTSpacePoints info properly for: " << item << endreq;
+		}
+		sc = fillHMTVertexCountsInfo();
+		if (sc.isFailure())
+		{
+			(*m_log) << MSG::WARNING << "Couldn't fill HMTVertexCounts info properly for: " << item << endreq;
+		}
+		sc = fillHMTTrigVertexCollectionInfo();
+		if (sc.isFailure())
+		{
+			(*m_log) << MSG::WARNING << "Couldn't fill HMTTrigVertexCollection info properly for: " << item << endreq;
+		}
+	}
+	if (sc.isFailure())
+	{
+		(*m_log) << MSG::WARNING << "Unknown error occurred in FillHistogramsForItem!" << endreq;
+	}
+	
+	++m_numberOfEvents;
+	(*m_log) << MSG::DEBUG << "PROCESSED SUCCESSFULLY" << endreq;        
 }
 
 StatusCode HLTMinBiasMonTool::fillZDCInfo()
 {
-        StatusCode sc = StatusCode::SUCCESS;
-        
-        // Unapcking Calorimeter energy:
+	StatusCode sc = StatusCode::SUCCESS;
+	
+	// Unapcking Calorimeter energy:
 
 	const CaloCellContainer * cellColl = 0;
 	sc = m_storeGate->retrieve(cellColl,m_CaloCellContainerName);
@@ -809,47 +926,47 @@ StatusCode HLTMinBiasMonTool::fillZDCInfo()
 	//----------------------------------------------------------------------
 	hist("ZDC_EMPTY")->Fill(TMath::Max(E_A, E_C));
 
-        // LHCf vs ZDC_C
-        hist("m_h_ZDC_LHCF_corr")->Fill("LHCF and ZDC_C",1.0);
-        hist("m_h_ZDC_LHCF_corr")->Fill("no LHCF and no ZDC_C",1.0);
-        hist("m_h_ZDC_LHCF_corr")->Fill("LHCF, no ZDC_C",1.0);
-        hist("m_h_ZDC_LHCF_corr")->Fill("no LHCF but ZDC_C",1.0);
-        hist("m_h_ZDC_TE")->Fill("L1_TE0",1.0);
-        hist("m_h_ZDC_TE")->Fill("L1_TE20",1.0);
-        hist("m_h_ZDC_TE")->Fill("L1_TE50",1.0);
-        hist("m_h_ZDC_TE")->Fill("L1_ZDC_C_VTE20",1.0);
-        hist("m_h_ZDC_TE")->Fill("L1_ZDC_A_VTE20",1.0);
-
-        // Any beam
+	// LHCf vs ZDC_C
+	hist("m_h_ZDC_LHCF_corr")->Fill("LHCF and ZDC_C",1.0);
+	hist("m_h_ZDC_LHCF_corr")->Fill("no LHCF and no ZDC_C",1.0);
+	hist("m_h_ZDC_LHCF_corr")->Fill("LHCF, no ZDC_C",1.0);
+	hist("m_h_ZDC_LHCF_corr")->Fill("no LHCF but ZDC_C",1.0);
+	hist("m_h_ZDC_TE")->Fill("L1_TE0",1.0);
+	hist("m_h_ZDC_TE")->Fill("L1_TE20",1.0);
+	hist("m_h_ZDC_TE")->Fill("L1_TE50",1.0);
+	hist("m_h_ZDC_TE")->Fill("L1_ZDC_C_VTE20",1.0);
+	hist("m_h_ZDC_TE")->Fill("L1_ZDC_A_VTE20",1.0);
+	
+	// Any beam
 	//----------------------------------------------------------------------
-        hist("ZDC_All")->Fill(TMath::Max(E_A, E_C));
-        hist("ZDC_A_C_All")->Fill(TMath::Min(E_A, E_C));
-        hist2("ZDC_vs_FCAL_A_All")->Fill(E_A,FCal_A);
-        hist("ZDC_A_All")->Fill(E_A);
-        hist2("ZDC_vs_FCAL_C_All")->Fill(E_C,FCal_C);
-		hist("ZDC_C_All")->Fill(E_C);
-
-        // MBTS condition (stable beam)
+	hist("ZDC_All")->Fill(TMath::Max(E_A, E_C));
+	hist("ZDC_A_C_All")->Fill(TMath::Min(E_A, E_C));
+	hist2("ZDC_vs_FCAL_A_All")->Fill(E_A,FCal_A);
+	hist("ZDC_A_All")->Fill(E_A);
+	hist2("ZDC_vs_FCAL_C_All")->Fill(E_C,FCal_C);
+	hist("ZDC_C_All")->Fill(E_C);
+	
+	// MBTS condition (stable beam)
 	//----------------------------------------------------------------------
 
 
 	/*if (orthogonal_trigger)
 		return sc;*/
 
-        return sc;
+	return sc;
 }
 
 StatusCode HLTMinBiasMonTool::fillLUCIDInfo()
 {
-        StatusCode sc = StatusCode::SUCCESS;
-        
-        const int m_nLucidTubes = 40;
-        
-        int hitsA       = 0, hitsC      = 0;
+	StatusCode sc = StatusCode::SUCCESS;
+	
+	const int m_nLucidTubes = 40;
+	
+	int hitsA       = 0, hitsC      = 0;
 	int hitsAp      = 0, hitsCp     = 0;
 	int hitsAn      = 0, hitsCn     = 0;
         
-        const LUCID_RawDataContainer* m_LUCID_RawDataContainer;
+	const LUCID_RawDataContainer* m_LUCID_RawDataContainer;
 	sc = m_storeGate->retrieve(m_LUCID_RawDataContainer, m_LUCID_RawDataContainerName);
 
 	if (sc.isFailure() || m_LUCID_RawDataContainer->empty()) {
@@ -913,25 +1030,25 @@ StatusCode HLTMinBiasMonTool::fillLUCIDInfo()
 	/*if (orthogonal_trigger)               //how to resolve this???
 		return sc;*/
         
-        hist("LUCID_All")->Fill(TMath::Max(hitsA, hitsC));
+	hist("LUCID_All")->Fill(TMath::Max(hitsA, hitsC));
 	hist("LUCID_nBX")->Fill(TMath::Max(hitsAn, hitsCn));
 	hist("LUCID_pBX")->Fill(TMath::Max(hitsAp, hitsCp));
 	profile("TriggerErrors")->Fill("L1_LUCID", error_bit(TMath::Max(hitsA, hitsC) >= 1, 1));
-        profile("TriggerErrors")->Fill("L1_LUCID_COMM", error_bit(TMath::Max(hitsA, hitsC) >= 1, 1));
+	profile("TriggerErrors")->Fill("L1_LUCID_COMM", error_bit(TMath::Max(hitsA, hitsC) >= 1, 1));
 
-        hist("LUCID_A_C")->Fill(TMath::Min(hitsA, hitsC));
+	hist("LUCID_A_C")->Fill(TMath::Min(hitsA, hitsC));
 	hist("LUCID_A_C_nBX")->Fill(TMath::Min(hitsAn, hitsCn));
 	hist("LUCID_A_C_pBX")->Fill(TMath::Min(hitsAp, hitsCp));
 	profile("TriggerErrors")->Fill("L1_LUCID_A_C", error_bit(TMath::Min(hitsA, hitsC) >= 1, 1));
-        profile("TriggerErrors")->Fill("L1_LUCID_A", error_bit(TMath::Min(hitsA, hitsC) >= 1, 1));
-        profile("TriggerErrors")->Fill("L1_LUCID_C", error_bit(TMath::Min(hitsA, hitsC) >= 1, 1));
+	profile("TriggerErrors")->Fill("L1_LUCID_A", error_bit(TMath::Min(hitsA, hitsC) >= 1, 1));
+	profile("TriggerErrors")->Fill("L1_LUCID_C", error_bit(TMath::Min(hitsA, hitsC) >= 1, 1));
 
 	return sc;
 }
 
 StatusCode HLTMinBiasMonTool::fillBCMInfo()
 {
-        //hits on high-gain channels
+	//hits on high-gain channels
 	int n_OOT_A     = 0;
 	int n_OOT_C     = 0;
 	int n_W_OOT_A   = 0;
@@ -1088,8 +1205,8 @@ StatusCode HLTMinBiasMonTool::fillBCMInfo()
 	profile("TriggerErrors")->Fill("L1_BCM_Wide", error_bit(TMath::Min(n_W_IT_A, n_W_IT_C) >= 1, 1));
 	
 	//int min_all = TMath::Max(TMath::Min(n_OOT_A, n_IT_C), TMath::Min(n_OOT_C, n_IT_A));
-        hist("BCM_AC_CA")->Fill(min_all);     
-        profile("TriggerErrors")->Fill("L1_BCM_AC_CA", error_bit(TMath::Min(n_OOT_A, n_IT_C) >= 1 || TMath::Min(n_OOT_C, n_IT_A) >= 1, 1));
+	hist("BCM_AC_CA")->Fill(min_all);     
+	profile("TriggerErrors")->Fill("L1_BCM_AC_CA", error_bit(TMath::Min(n_OOT_A, n_IT_C) >= 1 || TMath::Min(n_OOT_C, n_IT_A) >= 1, 1));
         
 	//up to 16 hits in total [0,16]
 	hist("BCM_HT")->Fill(n_LG_A + n_LG_C);
@@ -1111,145 +1228,143 @@ StatusCode HLTMinBiasMonTool::fillBCMInfo()
 
 StatusCode HLTMinBiasMonTool::fillHLTMbtsInfo()
 {
-        StatusCode sc = StatusCode::SUCCESS;
-        
-        // Energy Time
-        
-        unsigned int triggerWord = 0;
-        unsigned int timeWord = 0;
-
-        std::vector<float> mbtsHitEnergies; // energy (in pC) of signal in a counter (relative to IP), vector for all counters
-        std::vector<float> mbtsHitTimes; // time of signal in counter (relative to IP), vector for all counters        
-
-        int time_ebaCounters=0, time_ebcCounters=0;
-        int energy_ebaCounters=0, energy_ebcCounters=0;
-        float timeMean_A = 0.;
-        float timeMean_C = 0.;
-        float timeMin_A = 10000.;
-        float timeMin_C = 10000.;
-        float energyMean_A = 0.;
-        float energyMean_C = 0.;
-        float energyMax_A = -10000.;
-        float energyMax_C = -10000.;
-
-        //==============================================================================
-        // MBTS BITS INFORMATION
-        //==============================================================================
-        
-        const xAOD::TrigT2MbtsBitsContainer* mbTScont = 0;
-        sc = m_storeGate->retrieve(mbTScont, m_t2mbtsContainerName);
-
-        if (sc.isFailure() || mbTScont->empty()) {
-                if (sc.isFailure())
-                        (*m_log) << MSG::WARNING << "Failed to retrieve MbtsMinBiasMonTool for xAOD::TrigT2MbtsBitsContainer" << endreq;
-                else
-                        (*m_log) << MSG::DEBUG << "xAOD::TrigT2MbtsBitsContainer is empty." << endreq;
-        } else {
-                (*m_log) << MSG::DEBUG << " ====== START MbtsMinBiasMonTool for xAOD::TrigT2MbtsBitsContainer ====== " << endreq;
-
-                // Loop over EF TrigMinBias objects
-                xAOD::TrigT2MbtsBitsContainer::const_iterator mbTS_coll_itr = mbTScont->begin();
-                for (; mbTS_coll_itr != mbTScont->end(); ++mbTS_coll_itr) {
-
-                        xAOD::TrigT2MbtsBits *mbtsFeature = (*mbTS_coll_itr);
-
-                        mbtsHitEnergies = mbtsFeature->triggerEnergies();
-                        mbtsHitTimes = mbtsFeature->triggerTimes();
-
-                        if (mbtsHitTimes.size() != 32)
-                                (*m_log) << MSG::ERROR << "MBTS Cell Times are stored incorrectly. The array should have 32 elements."
-                                                << endreq;
-
-                        if (mbtsHitEnergies.size() != 32)
-                                (*m_log) << MSG::ERROR << "MBTS Cell Energies are stored incorrectly. The array should have 32 elements."
-                                                << endreq;
-
-                        //The energy-dependent bitmask is produced below
-                        for (std::size_t k = 0; k < mbtsHitEnergies.size() && k < 32; k++)
-                                if (mbtsHitEnergies.at(k) > m_energyCut) {
-                                        triggerWord += (1 << k);
-                                        // Online distributions
-                                        const char* cell_name = (m_moduleLabel[k]).data();
-                                        if (k < 16) { // A side
-                                               hist("Occupancy_Online - side A")->Fill(cell_name, 1.0);
-                                               timeMean_A += mbtsHitTimes.at(k); time_ebaCounters++;
-                                               if (mbtsHitTimes.at(k) < timeMin_A) timeMin_A = mbtsHitTimes.at(k);
-                                               if (k == 15) {  
-                                                     hist("m_h_timeMin_A")->Fill(timeMin_A);
-                                                     if (time_ebaCounters> 0) {
-                                                          timeMean_A /= time_ebaCounters;
-                                                          hist("m_h_timeMean_A")->Fill(timeMean_A);
-                                                     } 
-                                                     else {
-                                         	           timeMean_A = -999.0;
-                                                     }
-                                               }
-                                        } else { // C side 
-                                               hist("Occupancy_Online - side C")->Fill(cell_name, 1.0);
-                                               timeMean_C += mbtsHitTimes.at(k); time_ebcCounters++;
-                                               if (mbtsHitTimes.at(k) < timeMin_C) timeMin_C = mbtsHitTimes.at(k);
-                                               if (k == 31) {
-                                                    hist("m_h_timeMin_C")->Fill(timeMin_C);
-                                                    if (time_ebcCounters> 0) {
-                                                         timeMean_C /= time_ebcCounters;
-                                                         hist("m_h_timeMean_C")->Fill(timeMean_C);
-                                                    } 
-                                                    else {
-                                         	         timeMean_C = -999.0;
-                                                    }
-                                               }
-                                        }
-                                        //Time online
-                                        hist("m_h_time_onl")->Fill(mbtsHitTimes.at(k));                                        
-                                }
-                        //The time-dependent bitmask is produced for the case
-                        //of time-dependent L2 trigger
-                        for (std::size_t k = 0; k < mbtsHitTimes.size() && k < 32; k++) {
-                                if (fabs(mbtsHitTimes.at(k)) < m_timeCut || m_timeCut <= 0.0)
-                                        timeWord += (1 << k);
-
-                                // Online distributions
-                                //const char* cell_name = (m_moduleLabel[k]).data();
-
-                                if (k < 16) { // A side
-                                       energyMean_A += mbtsHitEnergies.at(k); energy_ebaCounters++;
-                                       if (mbtsHitEnergies.at(k) > energyMax_A) energyMax_A = mbtsHitEnergies.at(k);
-                                       if (k == 15) {
-                                              hist("m_h_energyMax_A")->Fill(energyMax_A);                                             
-                                              if (energy_ebaCounters> 0) {
-                                                      energyMean_A /= energy_ebaCounters;
-                                                      hist("m_h_energyMean_A")->Fill(energyMean_A);
-                                              } 
-                                              else {
-                                         	      energyMean_A = -999.0;
-                                              }
-                                       }
-                                } else { // C side 
-                                       energyMean_C += mbtsHitEnergies.at(k); energy_ebcCounters++;
-                                       if (mbtsHitEnergies.at(k) > energyMax_C) energyMax_C = mbtsHitEnergies.at(k);
-                                       if (k == 31)  {
-                                             hist("m_h_energyMax_C")->Fill(energyMax_C);
-                                             if ( energy_ebcCounters> 0) {
-                                                     energyMean_C /= energy_ebcCounters;
-                                                     hist("m_h_energyMean_C")->Fill(energyMean_C);
-                                             } 
-                                             else {
-                                                     energyMean_C = -999.0;
-                                             }
-                                       }
-                                }
-                                //Energy online
-                                hist("m_h_energy_onl")->Fill(mbtsHitEnergies.at(k));                                 
-                        }
-                }
-        } // end TrigT2MbtsBitsContainer.h    
-        
-        return sc;
+	StatusCode sc = StatusCode::SUCCESS;
+	
+	// Energy Time
+	
+	unsigned int triggerWord = 0;
+	unsigned int timeWord = 0;
+	
+	std::vector<float> mbtsHitEnergies; // energy (in pC) of signal in a counter (relative to IP), vector for all counters
+	std::vector<float> mbtsHitTimes; // time of signal in counter (relative to IP), vector for all counters        
+	
+	int time_ebaCounters=0, time_ebcCounters=0;
+	int energy_ebaCounters=0, energy_ebcCounters=0;
+	float timeMean_A = 0.;
+	float timeMean_C = 0.;
+	float timeMin_A = 10000.;
+	float timeMin_C = 10000.;
+	float energyMean_A = 0.;
+	float energyMean_C = 0.;
+	float energyMax_A = -10000.;
+	float energyMax_C = -10000.;
+	
+	//==============================================================================
+	// MBTS BITS INFORMATION
+	//==============================================================================
+	
+	const xAOD::TrigT2MbtsBitsContainer* mbTScont = 0;
+	sc = m_storeGate->retrieve(mbTScont, m_t2mbtsContainerName);
+	
+	if (sc.isFailure() || mbTScont->empty()) {
+		if (sc.isFailure())
+			(*m_log) << MSG::WARNING << "Failed to retrieve MbtsMinBiasMonTool for xAOD::TrigT2MbtsBitsContainer" << endreq;
+		else
+			(*m_log) << MSG::DEBUG << "xAOD::TrigT2MbtsBitsContainer is empty." << endreq;
+	} else {
+		(*m_log) << MSG::DEBUG << " ====== START MbtsMinBiasMonTool for xAOD::TrigT2MbtsBitsContainer ====== " << endreq;
+	
+		// Loop over EF TrigMinBias objects
+		xAOD::TrigT2MbtsBitsContainer::const_iterator mbTS_coll_itr = mbTScont->begin();
+		for (; mbTS_coll_itr != mbTScont->end(); ++mbTS_coll_itr) {
+	
+			xAOD::TrigT2MbtsBits *mbtsFeature = (*mbTS_coll_itr);
+	
+			mbtsHitEnergies = mbtsFeature->triggerEnergies();
+			mbtsHitTimes = mbtsFeature->triggerTimes();
+	
+			if (mbtsHitTimes.size() != 32)
+				(*m_log) << MSG::ERROR << "MBTS Cell Times are stored incorrectly. The array should have 32 elements." << endreq;
+	
+			if (mbtsHitEnergies.size() != 32)
+				(*m_log) << MSG::ERROR << "MBTS Cell Energies are stored incorrectly. The array should have 32 elements." << endreq;
+	
+			//The energy-dependent bitmask is produced below
+			for (std::size_t k = 0; k < mbtsHitEnergies.size() && k < 32; k++)
+				if (mbtsHitEnergies.at(k) > m_energyCut) {
+					triggerWord += (1 << k);
+					// Online distributions
+					const char* cell_name = (m_moduleLabel[k]).data();
+					if (k < 16) { // A side
+						hist("Occupancy_Online - side A")->Fill(cell_name, 1.0);
+						timeMean_A += mbtsHitTimes.at(k); time_ebaCounters++;
+						if (mbtsHitTimes.at(k) < timeMin_A) timeMin_A = mbtsHitTimes.at(k);
+						if (k == 15) {  
+							hist("m_h_timeMin_A")->Fill(timeMin_A);
+							if (time_ebaCounters> 0) {
+								timeMean_A /= time_ebaCounters;
+								hist("m_h_timeMean_A")->Fill(timeMean_A);
+							} 
+							else {
+							timeMean_A = -999.0;
+							}
+						}
+					} else { // C side 
+						hist("Occupancy_Online - side C")->Fill(cell_name, 1.0);
+						timeMean_C += mbtsHitTimes.at(k); time_ebcCounters++;
+						if (mbtsHitTimes.at(k) < timeMin_C) timeMin_C = mbtsHitTimes.at(k);
+						if (k == 31) {
+							hist("m_h_timeMin_C")->Fill(timeMin_C);
+							if (time_ebcCounters> 0) {
+								timeMean_C /= time_ebcCounters;
+								hist("m_h_timeMean_C")->Fill(timeMean_C);
+							} 
+							else {
+							timeMean_C = -999.0;
+							}
+						}
+					}
+					//Time online
+					hist("m_h_time_onl")->Fill(mbtsHitTimes.at(k));                                        
+				}
+			//The time-dependent bitmask is produced for the case
+			//of time-dependent L2 trigger
+			for (std::size_t k = 0; k < mbtsHitTimes.size() && k < 32; k++) {
+				if (fabs(mbtsHitTimes.at(k)) < m_timeCut || m_timeCut <= 0.0)
+					timeWord += (1 << k);
+	
+				// Online distributions
+				//const char* cell_name = (m_moduleLabel[k]).data();
+	
+				if (k < 16) { // A side
+					energyMean_A += mbtsHitEnergies.at(k); energy_ebaCounters++;
+					if (mbtsHitEnergies.at(k) > energyMax_A) energyMax_A = mbtsHitEnergies.at(k);
+					if (k == 15) {
+						hist("m_h_energyMax_A")->Fill(energyMax_A);                                             
+						if (energy_ebaCounters> 0) {
+							energyMean_A /= energy_ebaCounters;
+							hist("m_h_energyMean_A")->Fill(energyMean_A);
+						} 
+						else {
+							energyMean_A = -999.0;
+						}
+					}
+				} else { // C side 
+					energyMean_C += mbtsHitEnergies.at(k); energy_ebcCounters++;
+					if (mbtsHitEnergies.at(k) > energyMax_C) energyMax_C = mbtsHitEnergies.at(k);
+					if (k == 31)  {
+						hist("m_h_energyMax_C")->Fill(energyMax_C);
+						if ( energy_ebcCounters> 0) {
+							energyMean_C /= energy_ebcCounters;
+							hist("m_h_energyMean_C")->Fill(energyMean_C);
+						} 
+						else {
+							energyMean_C = -999.0;
+						}
+					}
+				}
+				//Energy online
+				hist("m_h_energy_onl")->Fill(mbtsHitEnergies.at(k));                                 
+			}
+		}
+	} // end TrigT2MbtsBitsContainer.h    
+	
+	return sc;
 }
 
 StatusCode HLTMinBiasMonTool::fillMbtsInfo(const std::string &item)
 {
-        unsigned int triggerWord = 0;
+	unsigned int triggerWord = 0;
 	unsigned int timeWord = 0;
 	const unsigned int mask = 65535; // 2^16 - 1
 	//int counter = 0;
@@ -1365,7 +1480,7 @@ StatusCode HLTMinBiasMonTool::fillMbtsInfo(const std::string &item)
 
                         hist("mbMbts_N_N_hits")->Fill(TMath::Min(sideA_hits, sideC_hits));               
 			hist("TriggerRate")->Fill(/*item.c_str(),*/ 1);                                      
-			hist("TriggerRatePS")->Fill(/*item.c_str(),*/ m_tdthandle->getChainGroup(item.c_str())->getPrescale());       
+			//hist("TriggerRatePS")->Fill(/*item.c_str(),*/ m_tdthandle->getChainGroup(item.c_str())->getPrescale());       
 			hist("mbMbts_hits")->Fill(total_hits_NoCut_Time);  
 			
 			hist2("m_h_mbtsCorr_N_N")->Fill(sideA_hits, sideC_hits, 1);                        
@@ -1493,9 +1608,9 @@ StatusCode HLTMinBiasMonTool::fillMbtsInfo(const std::string &item)
 
 StatusCode HLTMinBiasMonTool::fillSpacePointInfo(const std::string &item)
 {
-        StatusCode sc = StatusCode::SUCCESS;
-
-        pixSpBarr = 0;
+	StatusCode sc = StatusCode::SUCCESS;
+	
+	pixSpBarr = 0;
 	pixSpECA = 0;
 	pixSpECC = 0;
 	sctSpBarr = 0;
@@ -1570,7 +1685,7 @@ StatusCode HLTMinBiasMonTool::fillSpacePointInfo(const std::string &item)
 
 StatusCode HLTMinBiasMonTool::fillTrackingInfo()
 {
-        StatusCode sc = StatusCode::SUCCESS;
+	StatusCode sc = StatusCode::SUCCESS;
 
 	// EF ID (it is the same for trt and pixel+sct)
 	const xAOD::TrigTrackCountsContainer* mbTTcont = 0;
@@ -1609,150 +1724,150 @@ StatusCode HLTMinBiasMonTool::fillTrackingInfo()
 
 StatusCode HLTMinBiasMonTool::fillHMTSpacePointsInfo()
 {
-        StatusCode sc = StatusCode::SUCCESS;
-        
-        // for monitoring
-        int totNumPixSP = -999;
-        int totNumSctSP = -999;
-        double multiplicity[3];
-        for (auto &i: multiplicity) i = 0.0;
-        
-        const xAOD::TrigSpacePointCountsContainer* mbSPcont = nullptr;
-        sc = m_storeGate->retrieve(mbSPcont, m_spContainerName);
-
-        if (sc.isFailure() || !mbSPcont) {
-                if (sc.isFailure())
-                        (*m_log) << MSG::WARNING << "Failed to retrieve TrigSpacePointCountsMonTool for xAOD::TrigSpacePointCounts" << endreq;
-                else
-                        (*m_log) << MSG::DEBUG << "xAOD::TrigSpacePointCounts is empty." << endreq;
-        } else {
-                (*m_log) << MSG::DEBUG << " ====== START TrigSpacePointCountsMonTool for xAOD::TrigSpacePointCounts ====== " << endreq;
-                
-				xAOD::TrigSpacePointCountsContainer::const_iterator mbSP_coll_itr = mbSPcont->begin();
-				xAOD::TrigSpacePointCountsContainer::const_iterator mbSP_coll_itrE = mbSPcont->end();
-				unsigned tmp = 0;
-				for (; mbSP_coll_itr != mbSP_coll_itrE; ++mbSP_coll_itr) 
-				{
-					xAOD::TrigSpacePointCounts *trigSpacePointCounts = (*mbSP_coll_itr);
-					++tmp;
-
-					totNumSctSP = trigSpacePointCounts->sctSpEndcapC() + trigSpacePointCounts->sctSpEndcapA() + trigSpacePointCounts->sctSpBarrel();
-					
-					xAOD::TrigHisto2D *th2dPixelClusEndcapC = new xAOD::TrigHisto2D;
-					xAOD::TrigHisto2D *th2dPixelClusBarrel  = new xAOD::TrigHisto2D;
-					xAOD::TrigHisto2D *th2dPixelClusEndcapA = new xAOD::TrigHisto2D;
-                
-					//make private stores
-					th2dPixelClusEndcapC->makePrivateStore();
-					th2dPixelClusBarrel->makePrivateStore();
-					th2dPixelClusEndcapA->makePrivateStore();
-                
-					th2dPixelClusEndcapC->initialize(trigSpacePointCounts->pixelClusTotBins(),
-												trigSpacePointCounts->pixelClusTotMin(),
-												trigSpacePointCounts->pixelClusTotMax(),
-												trigSpacePointCounts->pixelClusSizeBins(),
-												trigSpacePointCounts->pixelClusSizeMin(),
-												trigSpacePointCounts->pixelClusSizeMax());
-	 
-					th2dPixelClusEndcapC->setContents(trigSpacePointCounts->contentsPixelClusEndcapC());
-	 
-					th2dPixelClusBarrel->initialize(trigSpacePointCounts->pixelClusTotBins(),
-												trigSpacePointCounts->pixelClusTotMin(),
-												trigSpacePointCounts->pixelClusTotMax(),
-												trigSpacePointCounts->pixelClusSizeBins(),
-												trigSpacePointCounts->pixelClusSizeMin(),
-												trigSpacePointCounts->pixelClusSizeMax());
-	 
-					th2dPixelClusBarrel->setContents(trigSpacePointCounts->contentsPixelClusBarrel());
-	 
-					th2dPixelClusEndcapA->initialize(trigSpacePointCounts->pixelClusTotBins(),
-												trigSpacePointCounts->pixelClusTotMin(),
-												trigSpacePointCounts->pixelClusTotMax(),
-												trigSpacePointCounts->pixelClusSizeBins(),
-												trigSpacePointCounts->pixelClusSizeMin(),
-												trigSpacePointCounts->pixelClusSizeMax());
-	 
-					th2dPixelClusEndcapA->setContents(trigSpacePointCounts->contentsPixelClusEndcapA());
-	        
-					multiplicity[0] = th2dPixelClusEndcapC->sumEntries(m_timeOverThreshold_cut, 0., xAOD::TrigHistoCutType::ABOVE_X_ABOVE_Y);
-					multiplicity[1] = th2dPixelClusEndcapA->sumEntries(m_timeOverThreshold_cut, 0., xAOD::TrigHistoCutType::ABOVE_X_ABOVE_Y);
-					multiplicity[2] = th2dPixelClusBarrel->sumEntries(m_timeOverThreshold_cut, 0., xAOD::TrigHistoCutType::ABOVE_X_ABOVE_Y);
-					totNumPixSP = multiplicity[0] + multiplicity[1] + multiplicity[2];
-                
-					hist("numSpacePoints")->Fill(totNumPixSP + totNumSctSP);
-                
-					//check if it fits the problem :)
-					th2dPixelClusEndcapC->releasePrivateStore();
-					th2dPixelClusBarrel->releasePrivateStore();
-					th2dPixelClusEndcapA->releasePrivateStore();
-				}
-        }
-        
-        return sc;
+	StatusCode sc = StatusCode::SUCCESS;
+	
+	// for monitoring
+	int totNumPixSP = -999;
+	int totNumSctSP = -999;
+	double multiplicity[3];
+	for (auto &i: multiplicity) i = 0.0;
+	
+	const xAOD::TrigSpacePointCountsContainer* mbSPcont = nullptr;
+	sc = m_storeGate->retrieve(mbSPcont, m_spContainerName);
+	
+	if (sc.isFailure() || !mbSPcont) {
+		if (sc.isFailure())
+			(*m_log) << MSG::WARNING << "Failed to retrieve TrigSpacePointCountsMonTool for xAOD::TrigSpacePointCounts" << endreq;
+		else
+			(*m_log) << MSG::DEBUG << "xAOD::TrigSpacePointCounts is empty." << endreq;
+	} else {
+		(*m_log) << MSG::DEBUG << " ====== START TrigSpacePointCountsMonTool for xAOD::TrigSpacePointCounts ====== " << endreq;
+		
+		xAOD::TrigSpacePointCountsContainer::const_iterator mbSP_coll_itr = mbSPcont->begin();
+		xAOD::TrigSpacePointCountsContainer::const_iterator mbSP_coll_itrE = mbSPcont->end();
+		unsigned tmp = 0;
+		for (; mbSP_coll_itr != mbSP_coll_itrE; ++mbSP_coll_itr) 
+		{
+			xAOD::TrigSpacePointCounts *trigSpacePointCounts = (*mbSP_coll_itr);
+			++tmp;
+	
+			totNumSctSP = trigSpacePointCounts->sctSpEndcapC() + trigSpacePointCounts->sctSpEndcapA() + trigSpacePointCounts->sctSpBarrel();
+			
+			xAOD::TrigHisto2D *th2dPixelClusEndcapC = new xAOD::TrigHisto2D;
+			xAOD::TrigHisto2D *th2dPixelClusBarrel  = new xAOD::TrigHisto2D;
+			xAOD::TrigHisto2D *th2dPixelClusEndcapA = new xAOD::TrigHisto2D;
+		
+			//make private stores
+			th2dPixelClusEndcapC->makePrivateStore();
+			th2dPixelClusBarrel->makePrivateStore();
+			th2dPixelClusEndcapA->makePrivateStore();
+		
+			th2dPixelClusEndcapC->initialize(trigSpacePointCounts->pixelClusTotBins(),
+										trigSpacePointCounts->pixelClusTotMin(),
+										trigSpacePointCounts->pixelClusTotMax(),
+										trigSpacePointCounts->pixelClusSizeBins(),
+										trigSpacePointCounts->pixelClusSizeMin(),
+										trigSpacePointCounts->pixelClusSizeMax());
+	
+			th2dPixelClusEndcapC->setContents(trigSpacePointCounts->contentsPixelClusEndcapC());
+	
+			th2dPixelClusBarrel->initialize(trigSpacePointCounts->pixelClusTotBins(),
+										trigSpacePointCounts->pixelClusTotMin(),
+										trigSpacePointCounts->pixelClusTotMax(),
+										trigSpacePointCounts->pixelClusSizeBins(),
+										trigSpacePointCounts->pixelClusSizeMin(),
+										trigSpacePointCounts->pixelClusSizeMax());
+	
+			th2dPixelClusBarrel->setContents(trigSpacePointCounts->contentsPixelClusBarrel());
+	
+			th2dPixelClusEndcapA->initialize(trigSpacePointCounts->pixelClusTotBins(),
+										trigSpacePointCounts->pixelClusTotMin(),
+										trigSpacePointCounts->pixelClusTotMax(),
+										trigSpacePointCounts->pixelClusSizeBins(),
+										trigSpacePointCounts->pixelClusSizeMin(),
+										trigSpacePointCounts->pixelClusSizeMax());
+	
+			th2dPixelClusEndcapA->setContents(trigSpacePointCounts->contentsPixelClusEndcapA());
+	
+			multiplicity[0] = th2dPixelClusEndcapC->sumEntries(m_timeOverThreshold_cut, 0., xAOD::TrigHistoCutType::ABOVE_X_ABOVE_Y);
+			multiplicity[1] = th2dPixelClusEndcapA->sumEntries(m_timeOverThreshold_cut, 0., xAOD::TrigHistoCutType::ABOVE_X_ABOVE_Y);
+			multiplicity[2] = th2dPixelClusBarrel->sumEntries(m_timeOverThreshold_cut, 0., xAOD::TrigHistoCutType::ABOVE_X_ABOVE_Y);
+			totNumPixSP = multiplicity[0] + multiplicity[1] + multiplicity[2];
+		
+			hist("numSpacePoints")->Fill(totNumPixSP + totNumSctSP);
+		
+			//check if it fits the problem :)
+			th2dPixelClusEndcapC->releasePrivateStore();
+			th2dPixelClusBarrel->releasePrivateStore();
+			th2dPixelClusEndcapA->releasePrivateStore();
+		}
+	}
+	
+	return sc;
 }
 //Works fine
 StatusCode HLTMinBiasMonTool::fillHMTVertexCountsInfo()
 {
-        StatusCode sc = StatusCode::SUCCESS;
-        
-        //const xAOD::TrigVertexCounts* trigVertexCounts = nullptr;
-		const xAOD::TrigVertexCountsContainer* vcCont = nullptr;
-        sc = m_storeGate->retrieve(vcCont, m_vcContainerName);
+    StatusCode sc = StatusCode::SUCCESS;
+    
+    //const xAOD::TrigVertexCounts* trigVertexCounts = nullptr;
+	const xAOD::TrigVertexCountsContainer* vcCont = nullptr;
+    sc = m_storeGate->retrieve(vcCont, m_vcContainerName);
 
-        if (sc.isFailure() || !vcCont) {
-                if (sc.isFailure())
-                        (*m_log) << MSG::WARNING << "Failed to retrieve TrigVertexCountsMonTool for xAOD::TrigVertexCounts" << endreq;
-                else
-                        (*m_log) << MSG::DEBUG << "xAOD::TrigVertexCounts is empty." << endreq;
-        } else {
-                (*m_log) << MSG::DEBUG << " ====== START TrigVertexCountsMonTool for xAOD::TrigVertexCounts ====== " << endreq;
-                
-				xAOD::TrigVertexCountsContainer::const_iterator vc_coll_itr = vcCont->begin();
-				xAOD::TrigVertexCountsContainer::const_iterator vc_coll_itrE = vcCont->end();
-				
-				for (; vc_coll_itr != vc_coll_itrE; ++vc_coll_itr) 
-				{
-					xAOD::TrigVertexCounts *trigVertexCounts = (*vc_coll_itr);
-				
-					// Get the number of tracks per vertex
-					std::vector<unsigned int> vtxNtrks = trigVertexCounts->vtxNtrks();
-					unsigned int nvtx = vtxNtrks.size();
-                                
-					hist("numVertices")->Fill(nvtx);
-					for (const auto &i: vtxNtrks)
-					{
-                        hist("numTracksAtVertex")->Fill(i);
-					}
-				}
-        }
-        return sc;
+    if (sc.isFailure() || !vcCont) {
+		if (sc.isFailure())
+			(*m_log) << MSG::WARNING << "Failed to retrieve TrigVertexCountsMonTool for xAOD::TrigVertexCounts" << endreq;
+		else
+			(*m_log) << MSG::DEBUG << "xAOD::TrigVertexCounts is empty." << endreq;
+    } else {
+		(*m_log) << MSG::DEBUG << " ====== START TrigVertexCountsMonTool for xAOD::TrigVertexCounts ====== " << endreq;
+		
+		xAOD::TrigVertexCountsContainer::const_iterator vc_coll_itr = vcCont->begin();
+		xAOD::TrigVertexCountsContainer::const_iterator vc_coll_itrE = vcCont->end();
+		
+		for (; vc_coll_itr != vc_coll_itrE; ++vc_coll_itr) 
+		{
+			xAOD::TrigVertexCounts *trigVertexCounts = (*vc_coll_itr);
+		
+			// Get the number of tracks per vertex
+			std::vector<unsigned int> vtxNtrks = trigVertexCounts->vtxNtrks();
+			unsigned int nvtx = vtxNtrks.size();
+						
+			hist("numVertices")->Fill(nvtx);
+			for (const auto &i: vtxNtrks)
+			{
+				hist("numTracksAtVertex")->Fill(i);
+			}
+		}
+    }
+    return sc;
 }
 	
 StatusCode HLTMinBiasMonTool::fillHMTTrigVertexCollectionInfo()
 {
-        StatusCode sc = StatusCode::SUCCESS;
-        
-        const TrigVertexCollection* vertexCollection = nullptr;
-        sc = m_storeGate->retrieve(vertexCollection, m_vcolContainerName);
-
-        if (sc.isFailure() || vertexCollection->empty()) {
-                if (sc.isFailure())
-                        (*m_log) << MSG::WARNING << "Failed to retrieve VertexCollectionMonTool for TrigVertexCollection" << endreq;
-                else
-                        (*m_log) << MSG::DEBUG << "TrigVertexCollection is empty." << endreq;
-        } else {
-                (*m_log) << MSG::DEBUG << " ====== START VertexCollectionMonTool for TrigVertexCollection ====== " << endreq;
-                
-                for( /*const auto &i: vertexCollection*/TrigVertexCollection::const_iterator vtxIt = vertexCollection->begin(); vtxIt != vertexCollection->end(); ++vtxIt)
-                {
-					hist("numHitsAtVertex")->Fill((*vtxIt)->z() );
-	                //m_vertexWeight.push_back( (*vtxIt)->z() );
-	                //if ( (*vtxIt)->z() > m_vertexWeightMax ) m_vertexWeightMax = (*vtxIt)->z(); //looking for the biggest weight
-	                //if ( (*vtxIt)->z() > -999. && (*vtxIt)->z() > m_weightThreshold ) nVertices++;
-				}
-        }
-        
-        return sc;
+	StatusCode sc = StatusCode::SUCCESS;
+	
+	const TrigVertexCollection* vertexCollection = nullptr;
+	sc = m_storeGate->retrieve(vertexCollection, m_vcolContainerName);
+	
+	if (sc.isFailure() || vertexCollection->empty()) {
+		if (sc.isFailure())
+			(*m_log) << MSG::WARNING << "Failed to retrieve VertexCollectionMonTool for TrigVertexCollection" << endreq;
+		else
+			(*m_log) << MSG::DEBUG << "TrigVertexCollection is empty." << endreq;
+	} else {
+		(*m_log) << MSG::DEBUG << " ====== START VertexCollectionMonTool for TrigVertexCollection ====== " << endreq;
+		
+		for( /*const auto &i: vertexCollection*/TrigVertexCollection::const_iterator vtxIt = vertexCollection->begin(); vtxIt != vertexCollection->end(); ++vtxIt)
+		{
+			hist("numHitsAtVertex")->Fill((*vtxIt)->z() );
+			//m_vertexWeight.push_back( (*vtxIt)->z() );
+			//if ( (*vtxIt)->z() > m_vertexWeightMax ) m_vertexWeightMax = (*vtxIt)->z(); //looking for the biggest weight
+			//if ( (*vtxIt)->z() > -999. && (*vtxIt)->z() > m_weightThreshold ) nVertices++;
+		}
+	}
+	
+	return sc;
 }
 
 
@@ -1790,19 +1905,25 @@ StatusCode HLTMinBiasMonTool::proc()
 StatusCode HLTMinBiasMonTool::proc(bool endOfEventsBlock, bool endOfLumiBlock, bool endOfRun)
 #endif
 {
-        StatusCode sc = StatusCode::SUCCESS;
+	StatusCode sc = StatusCode::SUCCESS;
+	
+	if (endOfRun)
+	{
+		hist("TriggerPurities", "HLT/MinBiasMon")->Divide(hist("TriggerPuritiesPassed", "HLT/MinBiasMon"), hist("TriggerPuritiesAll", "HLT/MinBiasMon"), 1.0, 1.0, "B");
 		
-		if (endOfRun)
+		hist("TriggerEfficiencies", "HLT/MinBiasMon")->Divide(hist("TriggerEfficienciesPassed", "HLT/MinBiasMon"), hist("TriggerEfficienciesAll", "HLT/MinBiasMon"), 1.0, 1.0, "B");
+		
+		
+		for (const auto &i: m_trigItems)
 		{
-			hist("TriggerPurities", "HLT/MinBiasMon")->Divide(hist("TriggerTracksPassed", "HLT/MinBiasMon"), hist("TriggerTracksAll", "HLT/MinBiasMon"), 1.0, 1.0, "B");
+			hist("Purity", "HLT/MinBiasMon/Purities&Efficiencies/" + i)->Divide(hist("PurityPassed", "HLT/MinBiasMon/Purities&Efficiencies/" + i), hist("PurityAll", "HLT/MinBiasMon/Purities&Efficiencies/" + i), 1.0, 1.0, "B");
 			
-			for (const auto &i: m_trigItems)
-			{
-				hist("Purity", "HLT/MinBiasMon/Purities/" + i)->Divide(hist("TracksPassed", "HLT/MinBiasMon/Purities/" + i), hist("TracksAll", "HLT/MinBiasMon/Purities/" + i), 1.0, 1.0, "B");
-			}
+			hist("Efficiency", "HLT/MinBiasMon/Purities&Efficiencies/" + i)->Divide(hist("EfficiencyPassed", "HLT/MinBiasMon/Purities&Efficiencies/" + i), hist("EfficiencyAll", "HLT/MinBiasMon/Purities&Efficiencies/" + i), 1.0, 1.0, "B");
+			hist("EfficiencyTracks", "HLT/MinBiasMon/Purities&Efficiencies/" + i)->Divide(hist("EfficiencyTracksPassed", "HLT/MinBiasMon/Purities&Efficiencies/" + i), hist("EfficiencyTracksAll", "HLT/MinBiasMon/Purities&Efficiencies/" + i), 1.0, 1.0, "B");
 		}
-        
-        return sc;
+	}
+	
+	return sc;
 }
 
 /*---------------------------------------------------------*/
