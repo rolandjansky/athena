@@ -50,8 +50,8 @@
 #define LUCID 		2
 #define IDMINBIAS 	4
 #define ZDC 		8
-#define BCM 	        16
-#define HMT             32
+#define BCM 		16
+#define HMT			32
 
 class TileTBID; 
 
@@ -64,14 +64,15 @@ public:
 
 	virtual ~HLTMinBiasMonTool();
 	
-        StatusCode init(); // called by initialize
-        StatusCode book(); // called by bookHistograms
-        StatusCode fill(); // called by fillHistograms
-		#ifdef ManagedMonitorToolBase_Uses_API_201401
-		StatusCode proc();
-		#else
-		StatusCode proc(bool endOfEventsBlock, bool endOfLumiBlock, bool endOfRun);
-		#endif
+	StatusCode init(); // called by initialize
+	StatusCode fill(); // called by fillHistograms
+#ifdef ManagedMonitorToolBase_Uses_API_201401
+	StatusCode proc();
+	StatusCode book(); // called by bookHistograms
+#else
+	StatusCode book(bool newEventsBlock, bool newLumiBlock, bool newRun)
+	StatusCode proc(bool endOfEventsBlock, bool endOfLumiBlock, bool endOfRun);
+#endif
         //StatusCode procHistograms(bool isEndOfEventsBlock, bool isEndOfLumiBlock, bool isEndOfRun); // called by procHistograms
 
         /* -----------Left for future efficiency implementation----------- */
@@ -84,24 +85,26 @@ public:
 
 
 private:
-
-        int m_numberOfEvents;
-
-        void fixXaxis(TH1* h); //Adjusts the axis lables to avoid rebinning.
-        int error_bit(bool a, bool b);
+	int m_numberOfEvents;
+	void fixXaxis(TH1* h); //Adjusts the axis lables to avoid rebinning.
+	int error_bit(bool a, bool b);
 
 	MsgStream* m_log; //Message Stream
-	StoreGateSvc* m_storeGate; //Store Gate
+	//StoreGateSvc* m_storeGate; //Store Gate
 	StoreGateSvc* m_detStore; //Detector Store
 	// Histogram Service
 	//ITHistSvc* m_histsvc;
 
 	//Trigger Decision
-	ToolHandle<Trig::TrigDecisionTool> m_tdthandle;
+	/*ToolHandle<Trig::ITrigDecisionTool> m_tdthandle;*/
 	
 	void bookHistogramsForItem(const std::string &item, unsigned histGroup);
 	void fillHistogramsForItem(const std::string &item, unsigned histGroup);
-	void fillPurityForItem(const std::string &item);
+	void fillPurityForItem(const std::string &item, const ToolHandle< InDet::IInDetTrackSelectionTool > &selTool, unsigned greaterThan = 1);
+	unsigned howManyGoodTracks(const ToolHandle< InDet::IInDetTrackSelectionTool > &selTool);
+	void fillEfficiencyForItem(const std::string &item, unsigned goodTracks, bool isPassed);
+	
+	void initSelTools(std::vector< ToolHandle< InDet::IInDetTrackSelectionTool > > &selTool, const std::vector<unsigned> &cuts);
 	
 	StatusCode fillHLTMbtsInfo();
 	StatusCode fillMbtsInfo(const std::string &item);
@@ -128,9 +131,16 @@ private:
 	std::vector< unsigned > m_histoTargets;   // eg. [MBTS + ZDC, IDMinBias, '', '', '' ] numerically set in config file
 	
 	//Which histograms have to be filled by given algorithm key = m_availableAlgs, items = m_histoTarget
-	std::map< std::string, unsigned > m_algorithmsForChain;
 	
-	std::map< std::string, unsigned > m_histoGroupForChain;
+	std::map< std::string, unsigned > m_algorithmsForChainClass;
+	std::map< std::string, unsigned > m_effCutForChainClass;
+	std::map< std::string, unsigned > m_numGoodTracksPerCutType;
+	
+	struct chainMapping{
+		unsigned histoGroup;
+		unsigned effCutIdx;
+	};
+	std::map< std::string, chainMapping > m_chainProperties;
 	
 	std::map< unsigned, std::string > m_pathForGroup;
 	
@@ -156,25 +166,25 @@ private:
 
 //-------------------------
 
-        std::string m_spContainerName;
+	std::string m_spContainerName;
 	std::string m_trtContainerName;
 	std::string m_tcContainerName;
 
-//Energy-time
-        std::string m_t2mbtsContainerName;
-        std::string m_mbtsContainerName;
-        std::vector<std::string> m_moduleLabel; // array of module names
+	//Energy-time
+	std::string m_t2mbtsContainerName;
+	std::string m_mbtsContainerName;
+	std::vector<std::string> m_moduleLabel; // array of module names
         
-        //HMT
-        std::string m_vcContainerName;
-        std::string m_vcolContainerName;
-        //std::string m_trigSpacePointCountsName;
-        const xAOD::EventInfo* m_evinfo{nullptr};
-        double m_timeOverThreshold_cut;
-        //
+	//HMT
+	std::string m_vcContainerName;
+	std::string m_vcolContainerName;
+	//std::string m_trigSpacePointCountsName;
+	const xAOD::EventInfo* m_evinfo{nullptr};
+	double m_timeOverThreshold_cut;
+	//
 
-        float m_energyCut; // Controls the simulated trigger decision
-        float m_timeCut; // Controls the simulated trigger decision
+	float m_energyCut; // Controls the simulated trigger decision
+	float m_timeCut; // Controls the simulated trigger decision
 
 	// ID L2
 	int pixSpBarr;
@@ -208,11 +218,14 @@ private:
 	int totpix_spEF;
 	int totsct_spEF;
 	
-	//purity & efficiency
-	//InDet::InDetTrackSelectionTool m_selTool;
-	ToolHandle< InDet::IInDetTrackSelectionTool > m_selTool;
+	std::vector< ToolHandle< InDet::IInDetTrackSelectionTool > > m_effSelTool;
+	std::vector< ToolHandle< InDet::IInDetTrackSelectionTool > > m_purSelTool;
+	
 	std::string m_inDetTrackParticleContainerName;
-	unsigned m_cutLevel;
+	std::vector<unsigned> m_effCuts;
+	std::vector<unsigned> m_purCuts;
+	
+	std::string m_refTrigItem;
 };
 
 #endif
