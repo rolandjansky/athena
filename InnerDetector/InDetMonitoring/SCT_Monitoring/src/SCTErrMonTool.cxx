@@ -683,8 +683,8 @@ StatusCode SCTErrMonTool::bookErrHistosHelper(MonGroup & mg, TString name, TStri
 //====================================================================================================
 //StatusCode SCTErrMonTool::bookErrHistos(bool newRun, bool newLumiBlock){
 StatusCode SCTErrMonTool::bookErrHistos(){
-  const std::string m_errorsNames[] = {"ABCD","Raw","TimeOut","LVL1ID","BCID","Premable","Formatter","MaskedLink","RODClock","TruncROD","ROBFrag","BSParse","summary"};
-  std::string m_errorsNamesMG[] = {"SCT/SCTB/errors/ABCD","SCT/SCTB/errors/Raw","SCT/SCTB/errors/TimeOut","SCT/SCTB/errors/LVL1ID","SCT/SCTB/errors/BCID","SCT/SCTB/errors/Premable","SCT/SCTB/errors/Formatter","SCT/SCTB/errors/MaskedLink","SCT/SCTB/errors/RODClock","SCT/SCTB/errors/TruncROD","SCT/SCTB/errors/ROBFrag","SCT/SCTB/errors/BSParse","SCT/SCTB/errors/summary"};
+  const std::string m_errorsNames[] = {"ABCD","Raw","TimeOut","LVL1ID","BCID","Preamble","Formatter","MaskedLink","RODClock","TruncROD","ROBFrag","BSParse","summary"};
+  std::string m_errorsNamesMG[] = {"SCT/SCTB/errors","SCT/SCTB/errors","SCT/SCTB/errors","SCT/SCTB/errors/LVL1ID","SCT/SCTB/errors/BCID","SCT/SCTB/errors/Preamble","SCT/SCTB/errors/Formatter","SCT/SCTB/errors/MaskedLink","SCT/SCTB/errors/RODClock","SCT/SCTB/errors/TruncROD","SCT/SCTB/errors/ROBFrag","SCT/SCTB/errors","SCT/SCTB/errors"};
   if(m_doPerLumiErrors) {
     MonGroup lumiErr(this,"SCT/SCTB/errors",lumiBlock,ATTRIB_UNMANAGED );
     if(ManagedMonitorToolBase::newLumiBlock) {
@@ -769,7 +769,7 @@ StatusCode SCTErrMonTool::bookErrHistos(){
 //====================================================================================================
 StatusCode SCTErrMonTool::bookPositiveEndCapErrHistos(){
   std::string m_errorsNames[] = {"ABCD","Raw","TimeOut","LVL1ID","BCID","Preamble","Formatter","MaskedLink","RODClock","TruncROD","ROBFrag","BSParse", "summary"};
-  std::string m_errorsNamesMG[] = {"SCT/SCTEA/errors/ABCD","SCT/SCTEA/errors/Raw","SCT/SCTEA/errors/TimeOut","SCT/SCTEA/errors/LVL1ID","SCT/SCTEA/errors/BCID","SCT/SCTEA/errors/Premable","SCT/SCTEA/errors/Formatter","SCT/SCTEA/errors/MaskedLink","SCT/SCTEA/errors/RODClock","SCT/SCTEA/errors/TruncROD","SCT/SCTEA/errors/ROBFrag","SCT/SCTEA/errors/BSParse","SCT/SCTEA/errors/summary"};//07.01.2015
+  std::string m_errorsNamesMG[] = {"SCT/SCTEA/errors","SCT/SCTEA/errors","SCT/SCTEA/errors","SCT/SCTEA/errors/LVL1ID","SCT/SCTEA/errors/BCID","SCT/SCTEA/errors/Preamble","SCT/SCTEA/errors/Formatter","SCT/SCTEA/errors/MaskedLink","SCT/SCTEA/errors/RODClock","SCT/SCTEA/errors/TruncROD","SCT/SCTEA/errors/ROBFrag","SCT/SCTEA/errors","SCT/SCTEA/errors"};//07.01.2015
   if(m_doPerLumiErrors) {
     MonGroup lumiErr(this,"SCT/SCTEA/errors",lumiBlock,ATTRIB_UNMANAGED );
     if(ManagedMonitorToolBase::newLumiBlock) {
@@ -840,11 +840,11 @@ StatusCode SCTErrMonTool::bookPositiveEndCapErrHistos(){
 //StatusCode SCTErrMonTool::bookNegativeEndCapErrHistos(bool isNewRun, bool isNewLumiBlock){
 StatusCode SCTErrMonTool::bookNegativeEndCapErrHistos(){
   std::string m_errorsNames[] = {"ABCD","Raw","TimeOut","LVL1ID","BCID","Preamble","Formatter","MaskedLink","RODClock","TruncROD","ROBFrag","BSParse", "summary"};
-  std::string m_errorsNamesMG[] = {"SCT/SCTEC/errors/ABCD","SCT/SCTEC/errors/Raw","SCT/SCTEC/errors/TimeOut","SCT/SCTEC/errors/LVL1ID","SCT/SCTEC/errors/BCID","SCT/SCTEC/errors/Premable","SCT/SCTEC/errors/Formatter","SCT/SCTEC/errors/MaskedLink","SCT/SCTEC/errors/RODClock","SCT/SCTEC/errors/TruncROD","SCT/SCTEC/errors/ROBFrag","SCT/SCTEC/errors/BSParse","SCT/SCTEC/errors/summary"};//07.01.2015
+  std::string m_errorsNamesMG[] = {"SCT/SCTEC/errors","SCT/SCTEC/errors","SCT/SCTEC/errors","SCT/SCTEC/errors/LVL1ID","SCT/SCTEC/errors/BCID","SCT/SCTEC/errors/Preamble","SCT/SCTEC/errors/Formatter","SCT/SCTEC/errors/MaskedLink","SCT/SCTEC/errors/RODClock","SCT/SCTEC/errors/TruncROD","SCT/SCTEC/errors/ROBFrag","SCT/SCTEC/errors","SCT/SCTEC/errors"};//07.01.2015
   if(m_doPerLumiErrors) {
     MonGroup lumiErr(this,"SCT/SCTEC/errors",lumiBlock,ATTRIB_UNMANAGED );
     if(ManagedMonitorToolBase::newLumiBlock) {
-      //std::string m_errorsNames[] = {"ABCD","Raw","TimeOut","LVL1ID","BCID","Premable","Formatter","MaskedLink","RODClock","TruncROD","ROBFrag","BSParse"};
+      //std::string m_errorsNames[] = {"ABCD","Raw","TimeOut","LVL1ID","BCID","Preamble","Formatter","MaskedLink","RODClock","TruncROD","ROBFrag","BSParse"};
       std::string m_layerNames[N_DISKSx2] = {"0_0","0_1","1_0","1_1","2_0","2_1","3_0","3_1","4_0","4_1","5_0","5_1","6_0","6_1","7_0","7_1","8_0","8_1"};
       m_numErrorsPerLumi[iECm] = new TH2F("NumErrsPerLumi","Total Number of Error Types for Disk per Lumi-Block",n_lumiErrBins,-0.5,n_lumiErrBins-0.5,N_ENDCAPSx2,-0.5,N_ENDCAPSx2-0.5);
       if(lumiErr.regHist(m_numErrorsPerLumi[iECm]).isFailure()) msg(MSG::WARNING) << "Couldn't book NumErrsPerLumi" << endreq;

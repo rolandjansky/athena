@@ -1022,6 +1022,7 @@ StatusCode SCTHitEffMonTool::fillHistograms(){
       const Trk::TrackParameters * trkParamOnSurface((*TSOSItr)->trackParameters());
       Double_t trackHitResidual(getResidual(surfaceID, trkParamOnSurface, p_sctclcontainer));
 
+
       Float_t distCut(m_effdistcut);
 
       if((*TSOSItr)->type(Trk::TrackStateOnSurface::Measurement) or (*TSOSItr)->type(Trk::TrackStateOnSurface::Outlier)) m_eff = 1;
@@ -1565,7 +1566,8 @@ Double_t SCTHitEffMonTool::getResidual(const Identifier& surfaceID,const Trk::Tr
       if(m_sctId->wafer_id(surfaceID) == m_sctId->wafer_id(((*rioIterator)->detectorElement())->identify())){
         const Trk::PrepRawData * rioo(dynamic_cast<const Trk::PrepRawData*>(*rioIterator));   
         const Trk::RIO_OnTrack * rio(m_rotcreator->correct(*rioo, *trkParam));
-        if (!m_residualPullCalculator.empty()) { 
+        if (!m_residualPullCalculator.empty()) {
+	  if(m_residualPullCalculator->residualPull(rio, trkParam,Trk::ResidualPull::Unbiased)==0)continue;
           const Trk::ResidualPull * residualPull(m_residualPullCalculator->residualPull(rio, trkParam,Trk::ResidualPull::Unbiased));
           if (fabs(residualPull->residual()[Trk::loc1]) < fabs(trackHitResidual)) trackHitResidual = residualPull->residual()[Trk::loc1];
           delete residualPull;

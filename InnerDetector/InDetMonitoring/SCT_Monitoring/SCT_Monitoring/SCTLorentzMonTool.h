@@ -84,8 +84,12 @@ private:
 
   /// Vector of pointers to profile histogram of local inc angle (phi) vs nStrips (one/layer)
   Prof_t m_phiVsNstrips[4];
+  Prof_t m_phiVsNstrips_100[4];
+  Prof_t m_phiVsNstrips_111[4];
   /// Vector of pointers to profile histogram of local inc angle (phi) vs nStrips (one/layer/side)
   Prof_t m_phiVsNstrips_Side[4][2];
+  Prof_t m_phiVsNstrips_Side_100[4][2];
+  Prof_t m_phiVsNstrips_Side_111[4][2];
 
   std::string m_stream;
   std::string m_path;

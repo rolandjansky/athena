@@ -721,8 +721,8 @@ StatusCode SCTTracksMonTool::bookTrackHistos(const SCT_Monitoring::Bec becVal){ 
   const string regionNames[N_REGIONS] = {"Negative Endcap", "Barrel", "Positive Endcap"};
   const string abbreviations[N_REGIONS] = {"ECm", "", "ECp"};
   const string localPaths[N_REGIONS] = {"SCT/SCTEC/tracks", "SCT/SCTB/tracks", "SCT/SCTEA/tracks"};
-  const string localPathsResi[N_REGIONS] = {"SCT/SCTEC/tracks/residuals", "SCT/SCTB/tracks/residuals", "SCT/SCTEA/tracks/residuals"};//07.01.2015
-  const string localPathsPull[N_REGIONS] = {"SCT/SCTEC/tracks/pulls", "SCT/SCTB/tracks/pulls", "SCT/SCTEA/tracks/pulls"};//07.01.2015
+  const string localPathsResi[N_REGIONS] = {"SCT/SCTEC/tracks", "SCT/SCTB/tracks", "SCT/SCTEA/tracks"};//07.01.2015
+  const string localPathsPull[N_REGIONS] = {"SCT/SCTEC/tracks", "SCT/SCTB/tracks", "SCT/SCTEA/tracks"};//07.01.2015
   const unsigned int limits[N_REGIONS] = {N_DISKSx2, N_BARRELSx2, N_DISKSx2};
   const unsigned int systemIndex(bec2Index(becVal));
 
