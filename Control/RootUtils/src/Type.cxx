@@ -576,9 +576,11 @@ bool Type::checkAssign() const
       proto += "&";
       m_assign.InitWithPrototype (m_cls, "operator=", proto.c_str());
       if (!m_assign.IsValid()) {
-        ::Warning ("RootUtils::Type: Can't get assignent op for type `%s'.",
+        ::Warning ("RootUtils::Type",
+                   "Can't get assignent op for type `%s'.",
                    m_cls->GetName());
       }
+      m_assignInitialized = true;
     }
   }
 
