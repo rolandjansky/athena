@@ -1,0 +1,6 @@
+Var:abseta[min]  Var:abseta[max]  Var:absphi[min]  Var:absphi[max]  Name
+ 0.00             0.50            0                3.1416           Region1
+ 0.50             1.00            0                3.1416           Region2
+ 1.00             1.50            0                3.1416           Region3
+ 1.50             2.00            0                3.1416           Region4
+ 2.00             2.50            0                3.1416           Region5

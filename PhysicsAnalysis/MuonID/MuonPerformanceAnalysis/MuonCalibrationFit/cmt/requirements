@@ -1,0 +1,26 @@
+package MuonCalibrationFit
+
+author Giacomo Artoni <Giacomo.Artoni@cern.ch> 
+
+public
+
+use AtlasPolicy     AtlasPolicy-*
+use AtlasROOT       AtlasROOT-*       External
+use AtlasTBB        AtlasTBB-*        External
+use AtlasBoost      AtlasBoost-*      External
+use AthenaBaseComps AthenaBaseComps-* Control
+
+private
+
+apply_tag ROOTMathLibs
+apply_tag ROOTRooFitLibs
+apply_tag ROOTGraphicsLibs
+
+use GaudiInterface  GaudiInterface-*  External
+
+end_private
+
+library MuonCalibrationFit *.cxx -s=components *.cxx
+
+apply_pattern component_library
+apply_pattern declare_joboptions files=*.py
