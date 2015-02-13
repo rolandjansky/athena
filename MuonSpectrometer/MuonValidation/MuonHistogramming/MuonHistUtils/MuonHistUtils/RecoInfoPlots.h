@@ -7,6 +7,7 @@
 
 #include "TrkValHistUtils/PlotBase.h"
 #include "TrkValHistUtils/RecoInfoPlots.h"
+
 #include "xAODMuon/Muon.h"
 
 namespace Muon{
@@ -25,18 +26,9 @@ class RecoInfoPlots: public PlotBase {
     TH1* quality;
     TH1* muonType;
 
-    TH1* innerMatchingChi2;
-    TH1* innerMatchingNdof;
-    TH1* innerMatchingCon;
-
-    TH1* outerMatchingChi2;
-    TH1* outerMatchingNdof;
-    TH1* outerMatchingCon;
-
-
+  
   private:
     void initializePlots();
-    void fillMatchingPlots(TH1* matchingChi2, TH1* matchingNdof, TH1* matchingCon, xAOD::Muon::ParamDef eChi2, xAOD::Muon::ParamDef eNdof, const xAOD::Muon& mu);
 
 };
 
