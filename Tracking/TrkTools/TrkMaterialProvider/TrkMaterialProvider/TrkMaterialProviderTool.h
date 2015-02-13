@@ -84,9 +84,10 @@ namespace Trk{
 		   const Trk::Surface&		surf,
 		   Trk::PropDirection		dir,
 		   Trk::ParticleHypothesis	mateffects,
+                   double&                      Eloss,
 		   const Trk::TrackParameters*	parms=0,
 		   bool                         boundaryCheck=false,
-		   bool                         removeOoC=false)  const;
+		   bool                         removeOoC=false)     const;
 
     /**Helper to get last calo TSOS with TP*/
     const Trk::TrackStateOnSurface* getCaloExitTSOS(const std::vector<const Trk::TrackStateOnSurface*>* caloTSOS, Trk::PropDirection dir) const;
@@ -128,7 +129,8 @@ namespace Trk{
 		       double pCaloEntry, 
 		       double momentumError,
 		       double& Eloss_tot,
-                       bool useMeasuredEnergy=true) const;
+                       bool useMeasuredEnergy=true,
+                       double mopELoss=0., double meanELossIoni=0., double sigmaELossIoni=0.) const;
 
     /** Function to get mop and mean (ionization) energy loss*/
     void getMopAndIoniEnergyLoss(const std::vector<const Trk::TrackStateOnSurface*>* matvec,
@@ -179,6 +181,7 @@ namespace Trk{
     double m_paramPtCut;
     bool m_useCaloEnergyMeasurement;
     bool m_useMuonCaloEnergyTool;
+    bool m_overwriteElossParam;
   };
 } // end namespace
 
