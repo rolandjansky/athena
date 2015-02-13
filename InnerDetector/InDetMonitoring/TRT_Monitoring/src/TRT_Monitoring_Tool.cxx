@@ -2107,13 +2107,11 @@ StatusCode TRT_Monitoring_Tool::Fill_TRT_RDOs()
               m_hAvgLLOccMod_side[ibe][iside]->Fill(i, (float(moduleHits_B[modulenum_tmp])/float(numberOfStrawsMod[nclass])));       //Avg. Occupancy
               m_hAvgHLOccMod_side[ibe][iside]->Fill(i, (float(HLmoduleHits_B[modulenum_tmp])/float(numberOfStrawsMod[nclass])));     //Avg. Occupancy
             } else if (ibe==1) {
-	      //limit test
-	      /*
-	      if((index_tmp-32*nclass)>62){
-		printf("(index_tmp-32*nclass) == %d \n",(index_tmp-32*nclass));
+	      if (index_tmp-32*nclass<64) { 
+		m_LLOcc[ibe][(index_tmp-32*nclass)] += float(moduleHits_E[modulenum_tmp])/float(numberOfStrawsWheel[nclass]);
+	      } else {
+		ATH_MSG_WARNING("m_LLOcc index out of bounds!"); // To satisfy Coverity defect CID 16514 which we believe is a false report.
 	      }
-	      */
-              m_LLOcc[ibe][(index_tmp-32*nclass)] += float(moduleHits_E[modulenum_tmp])/float(numberOfStrawsWheel[nclass]);
               m_hAvgLLOcc_side[ibe][iside]->Fill(i-(32*nclass), (float(moduleHits_E[modulenum_tmp])/float(numberOfStrawsWheel[nclass])));       //Avg. Occupancy
               m_hAvgHLOcc_side[ibe][iside]->Fill(i-(32*nclass), (float(HLmoduleHits_E[modulenum_tmp])/float(numberOfStrawsWheel[nclass])));     //Avg. Occupancy
               m_hAvgLLOccMod_side[ibe][iside]->Fill(i, (float(moduleHits_E[modulenum_tmp])/float(numberOfStrawsWheel[nclass])));       //Avg. Occupancy
@@ -3629,6 +3627,13 @@ StatusCode TRT_Monitoring_Tool::Fill_TRT_HT()
       int InputBar = -1;
       if(A1||A2||A3)InputBar=0;
       if(C1||C2||C3)InputBar=1;
+
+      if(InputBar==-1&&Ba_Ec==0) { //Coverity CID 25096
+	ATH_MSG_WARNING("The variable \"InputBar\" is -1!.");
+	continue;
+      }
+
+
 
       //Fill Barrel Plots
 

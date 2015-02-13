@@ -47,7 +47,8 @@ DetFlags.Print()
 from InDetRecExample.InDetJobProperties import InDetFlags
 InDetFlags.doTruth       = (globalflags.DataSource == 'geant4' and globalflags.InputFormat() == 'pool')
 InDetFlags.doxKalman              = False
-InDetFlags.doiPatRec              = True
+InDetFlags.doiPatRec              = False
+InDetFlags.doNewTracking          = True 
 InDetFlags.doMonitoringGlobal    = True
 InDetFlags.doMonitoringPixel     = False
 InDetFlags.doMonitoringSCT       = False
