@@ -125,14 +125,14 @@ int main( int argc, char* argv[] ) {
 	 track->summaryValue(trt, xAOD::numberOfTRTHits);
 
        // Select "good" tracks:
-       if( ! selTool.accept( *track/*, track->vertex() */) ) {
+	 if( ! selTool.accept( *track/*, track->vertex() */) ) {
        // accept() returns a TAccept object, which allows for more sophisticated
        // selection than a simple all/none, if we want it.
 	 // Info( APP_NAME, "pt = %f, eta = %f", track->pt(), track->eta() );
 	 // Info( APP_NAME, "pix: %i sct: %i trt: %i shared pix: %i shared sct: %i",
 	 //       pix, sct, trt, sharedPix, sharedSct );
-	 continue;
-       }
+	   continue;
+	 }
        
        numGoodTracks++;
        
