@@ -28,7 +28,6 @@ use AtlasCORAL            AtlasCORAL-*             External
 use AthenaPoolUtilities   AthenaPoolUtilities-*    Database/AthenaPOOL
 use TrigInterfaces        TrigInterfaces-*         Trigger/TrigSteer
 use TrigConfInterfaces    TrigConfInterfaces-*     Trigger/TrigConfiguration
-use TrigConfL1Data        TrigConfL1Data-*         Trigger/TrigConfiguration
 use TrigMonitorBase       TrigMonitorBase-*        Trigger/TrigMonitoring
 use TrigNavigation        TrigNavigation-*         Trigger/TrigEvent
 use CLIDSvc               CLIDSvc-*                Control
