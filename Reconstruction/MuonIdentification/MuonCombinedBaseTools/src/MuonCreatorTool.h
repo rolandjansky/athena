@@ -114,9 +114,6 @@ namespace MuonCombined {
 
     void setP4( xAOD::Muon& muon, const xAOD::TrackParticle& tp ) const;
 
-
-    bool addCaloExtensionPositions(  xAOD::Muon& muon ) const;
-    void setClosestCluster( xAOD::Muon& muon ) const;
     void collectCells( xAOD::Muon& muon, xAOD::CaloClusterContainer& clusterContainer ) const;
 
     /// flag to decide whether or not to make link to MS track before extrapolation
@@ -134,10 +131,6 @@ namespace MuonCombined {
     /// Since the Calo information can come from various sources, make sure that we don't overwrite once 'best' source added.
     mutable bool m_haveAddedCaloInformation;
 
-    /// flag to decide whether to save caloextension positions
-    bool m_saveCaloExtensionPosition;
-    Trk::TrackParametersIdHelper  parsIdHelper;
-
     /// flag to print muon edm
     bool m_printSummary;
 
@@ -147,8 +140,6 @@ namespace MuonCombined {
     ToolHandle<Muon::MuonEDMHelperTool>           m_edmHelper;
     ToolHandle<Rec::IMuonPrintingTool>            m_muonPrinter;
     ToolHandle<Trk::IParticleCaloExtensionTool>   m_caloExtTool;
-    ToolHandle<Rec::IParticleCaloClusterAssociationTool>   m_caloClusterAssociationTool;
-    ToolHandle<Rec::IParticleCaloCellAssociationTool> m_caloCellAssociationTool;
     ToolHandle<Trk::ITrackParticleCreatorTool>    m_particleCreator;
     ToolHandle<Trk::ITrackAmbiguityProcessorTool> m_ambiguityProcessor;
     ToolHandle<Trk::IPropagator>                  m_propagator;

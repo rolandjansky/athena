@@ -71,6 +71,8 @@ namespace MuonCombined {
     bool bestMatchChooser(const InDetCandidate& curCandidate, const CombinedFitTag& curTag,
 			  const InDetCandidate& bestCandidate, const CombinedFitTag& bestTag) const;
 
+    void dumpCaloEloss(const Trk::Track* track, std::string txt ) const;
+
     // helpers, managers, tools
     ToolHandle<Muon::MuonEDMPrinterTool>              m_printer;
     ToolHandle<MuonCombined::IMuonTrackTagTool>       m_tagTool;

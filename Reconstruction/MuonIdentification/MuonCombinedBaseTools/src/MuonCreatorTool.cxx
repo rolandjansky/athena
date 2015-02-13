@@ -72,8 +72,6 @@ namespace MuonCombined {
 	m_edmHelper("Muon::MuonEDMHelperTool/MuonEDMHelperTool"),
 	m_muonPrinter("Rec::MuonPrintingTool/MuonPrintingTool"),
         m_caloExtTool("Trk::ParticleCaloExtensionTool/ParticleCaloExtensionTool"),
-        m_caloClusterAssociationTool("Rec::ParticleCaloClusterAssociationTool/ParticleCaloClusterAssociationTool"),
-        m_caloCellAssociationTool("Rec::ParticleCaloCellAssociationTool/ParticleCaloCellAssociationTool"),
 	m_particleCreator("Trk::TrackParticleCreatorTool/MuonCombinedTrackParticleCreator"),
 	m_ambiguityProcessor("Trk::TrackSelectionProcessorTool/MuonSimpleAmbiProcessorTool"),
 	m_propagator("Trk::RungeKuttaPropagator/AtlasRungeKuttaPropagator"),
@@ -89,7 +87,6 @@ namespace MuonCombined {
     declareProperty("MuonIdHelperTool",m_idHelper );
     declareProperty("Printer",m_printer );
     declareProperty("ParticleCaloExtensionTool", m_caloExtTool);      
-    declareProperty("ParticleCaloClusterAssociationTool",m_caloClusterAssociationTool);
     declareProperty("Helper",m_edmHelper );
     declareProperty("MuonPrinter",m_muonPrinter );
     declareProperty("TrackParticleCreator",m_particleCreator );
@@ -102,7 +99,6 @@ namespace MuonCombined {
     declareProperty("BuildStauContainer",m_buildStauContainer=false);
     declareProperty("FillEnergyLossFromTrack",m_fillEnergyLossFromTrack=true);
     declareProperty("FillExtraELossInfo", m_fillExtraELossInfo=true);
-    declareProperty("SaveCaloExtensionPosition", m_saveCaloExtensionPosition=true);
     declareProperty("PrintSummary", m_printSummary=false);
     //Default data source for the calocells
     declareProperty("CaloCellContainer", m_cellContainerName="AllCalo");
@@ -130,9 +126,7 @@ namespace MuonCombined {
     if(!m_scatteringAngleTool.empty()) ATH_CHECK(m_scatteringAngleTool.retrieve());   
     if(!m_selectorTool.empty()) ATH_CHECK(m_selectorTool.retrieve());
     if(!m_meanMDTdADCTool.empty()) ATH_CHECK(m_meanMDTdADCTool.retrieve());
-    if(m_saveCaloExtensionPosition) ATH_CHECK(m_caloExtTool.retrieve());
-    if(!m_caloClusterAssociationTool.empty()) ATH_CHECK(m_caloClusterAssociationTool.retrieve());
-    if(!m_caloCellAssociationTool.empty())    ATH_CHECK(m_caloCellAssociationTool.retrieve());
+    ATH_CHECK(m_caloExtTool.retrieve());
     return StatusCode::SUCCESS;
   }
 
@@ -339,7 +333,8 @@ namespace MuonCombined {
       return 0;
     }
     
-    // check if there is a cluster container, if yes collect the cells around the muon
+    // check if there is a cluster container, if yes collect the cells around the muon and fill
+    // Etcore variables for muon
     if( outputData.clusterContainer ) collectCells(*muon,*outputData.clusterContainer);
 
     ATH_MSG_DEBUG("Done creating muon");
@@ -1040,9 +1035,6 @@ namespace MuonCombined {
 
 	      muon.setEnergyLossType(static_cast<xAOD::Muon::EnergyLossType>( caloEnergy->energyLossType() ) );
               muon.setParameter(static_cast<float>( caloEnergy->fsrCandidateEnergy() ), xAOD::Muon::FSR_CandidateEnergy);
-              if ( m_fillExtraELossInfo) {
-                muon.auxdata< float >("ET_Core")   = caloEnergy->etCore();
-              }
               m_haveAddedCaloInformation=true;
             }
           }
@@ -1060,91 +1052,9 @@ namespace MuonCombined {
       }
     }
 
-    //// add calo eta, phi decoration
-    if(m_saveCaloExtensionPosition) addCaloExtensionPositions( muon );
-    
-    //// add closest cluster
-    if( !m_caloClusterAssociationTool.empty() ) setClosestCluster(muon);
-
     return true;
   }
   
-  void MuonCreatorTool::setClosestCluster( xAOD::Muon& muon ) const {
-    if( !muon.primaryTrackParticle() ) return;
-
-    // get cluster association
-    const Rec::ParticleClusterAssociation* association = 0;
-    if( !m_caloClusterAssociationTool->particleClusterAssociation( *muon.primaryTrackParticle(), association, 0.1 ) ||
-        !association || 
-        association->caloExtension().caloLayerIntersections().empty() ||
-        association->data().empty() ){
-      return;
-    }
-
-    ATH_MSG_DEBUG("Got associated clusters " << association->data().size() );
-    const Trk::CaloExtension& caloExtension =  association->caloExtension();
-    float eta = caloExtension.caloLayerIntersections().front()->position().eta();
-    float phi = caloExtension.caloLayerIntersections().front()->position().phi();
-    float dr2Min = 1e9;
-    unsigned int closestIndex = 0;
-    for( unsigned int i=0;i<association->data().size();++i ){
-      auto el = association->data()[i];
-      if( !el.isValid() ){
-        ATH_MSG_WARNING("Found invalid element to cluster!");
-        continue;
-      }
-      float dPhi = P4Helpers::deltaPhi( (*el)->phi(), phi);
-      float dEta = (*el)->eta()-eta;
-      float dr2  = dPhi*dPhi+ dEta*dEta;
-      ATH_MSG_DEBUG("  dr " << sqrt(dr2) << " index " << i << " min dr " << sqrt(dr2Min) );
-      if( dr2 < dr2Min ){
-        dr2Min = dr2;
-        closestIndex = i;
-      }
-    }
-    ATH_MSG_DEBUG("Selected closest cluster: dr " << sqrt(dr2Min) << " index " << closestIndex );
-    muon.setClusterLink(association->data()[closestIndex]);
-  }
-
-  bool MuonCreatorTool::addCaloExtensionPositions(  xAOD::Muon& muon ) const {	
-    const xAOD::TrackParticle* tp = muon.primaryTrackParticle();
-    if(!tp){
-      ATH_MSG_WARNING("Can not get primary track.");
-      return false;
-    }
-
-    const Trk::CaloExtension* caloExtension = 0;
-    if(!m_caloExtTool->caloExtension(*tp,caloExtension)){
-      ATH_MSG_WARNING("Can not get caloExtension.");
-      return false;
-    };
-
-    const std::vector<const Trk::CurvilinearParameters*>& intersections = caloExtension->caloLayerIntersections();
-    const unsigned int nIntersections = intersections.size();
-    std::vector< int > caloExtIdentifier(nIntersections, -999);
-    std::vector< float > caloExtEta(nIntersections, -999);
-    std::vector< float > caloExtPhi(nIntersections, -999);
-    if (nIntersections>0) {
-      Amg::Vector3D avePoint(0,0,0);
-      for (unsigned int i = 0; i < intersections.size(); ++i){
-        const Amg::Vector3D& point = intersections[i]->position();
-        caloExtIdentifier[i] = (int)parsIdHelper.caloSample(intersections[i]->cIdentifier());
-        caloExtEta[i] = point.eta();
-        caloExtPhi[i] = point.phi();
-        ATH_MSG_DEBUG("Intersection: " << i << " ID: " << parsIdHelper.caloSample(intersections[i]->cIdentifier())
-		      <<  " eta-phi (" << point.eta() << ", " << point.phi() << ")");
-      }
-
-      muon.auxdata< std::vector< int > >("caloExt_id") = caloExtIdentifier;
-      muon.auxdata< std::vector< float > >("caloExt_eta") = caloExtEta;
-      muon.auxdata< std::vector< float > >("caloExt_phi") = caloExtPhi;
-    }else{
-      ATH_MSG_WARNING("caloExtension intersections.size() = 0. Nothing done.");
-    }
-
-    return true;
-  }
-
   void MuonCreatorTool::collectCells( xAOD::Muon& muon, xAOD::CaloClusterContainer& clusterContainer ) const {
 
     const xAOD::TrackParticle* tp = muon.primaryTrackParticle();
@@ -1171,6 +1081,10 @@ namespace MuonCombined {
 
     xAOD::CaloCluster* cluster = m_cellCollector.collectCells( *caloExtension, *container, clusterContainer );
     if( !cluster ){
+      muon.auxdata< float >("ET_Core")     = 0;
+      muon.auxdata< float >("ET_EMCore")   = 0;
+      muon.auxdata< float >("ET_TileCore") = 0;
+      muon.auxdata< float >("ET_HECCore")  = 0;
       ATH_MSG_WARNING("Failed to create cluster from ParticleCellAssociation");
       return;
     }else{
@@ -1179,9 +1093,19 @@ namespace MuonCombined {
 	
     // create element links
     ElementLink< xAOD::CaloClusterContainer >   clusterLink(clusterContainer,clusterContainer.size()-1);
-    muon.auxdata< ElementLink< xAOD::CaloClusterContainer > >("crossedCellClusterLink") = clusterLink;
-    
+    muon.setClusterLink(clusterLink);
+
+    // collect the core energy
+    std::vector<float> etcore(4, 0);
+    m_cellCollector.collectEtCore( *cluster, etcore );
+    muon.auxdata< float >("ET_Core")     = etcore[Rec::CaloCellCollector::ET_Core];
+    muon.auxdata< float >("ET_EMCore")   = etcore[Rec::CaloCellCollector::ET_EMCore];
+    muon.auxdata< float >("ET_TileCore") = etcore[Rec::CaloCellCollector::ET_TileCore];
+    muon.auxdata< float >("ET_HECCore")  = etcore[Rec::CaloCellCollector::ET_HECCore];  
+
+    ATH_MSG_DEBUG("Etcore: tot/em/tile/hec " << etcore[Rec::CaloCellCollector::ET_Core] << "/"    
+                  << etcore[Rec::CaloCellCollector::ET_EMCore] << "/"    
+                  << etcore[Rec::CaloCellCollector::ET_TileCore] << "/"    
+                  << etcore[Rec::CaloCellCollector::ET_HECCore]);
   }
-
-
 }	// end of namespace
