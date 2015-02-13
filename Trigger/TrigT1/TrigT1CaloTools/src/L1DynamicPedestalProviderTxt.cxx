@@ -220,7 +220,12 @@ int L1DynamicPedestalProviderTxt::dynamicPedestal(int iElement, int layer, int p
   } else {
     ATH_MSG_ERROR("Wrong layer index. Give 0 for Em, 1 for Had.");
   }
-  return correction + pedestal;
+
+  // Hardware cannot calculate a dynamic pedestal < 0, but it is possible the parameterisation can
+  int dynamic_pedestal = correction + pedestal;
+  if (dynamic_pedestal < 0) dynamic_pedestal = 0;
+
+  return dynamic_pedestal;
 }
 
 //================ Parse input file ============================================
