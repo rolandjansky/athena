@@ -94,16 +94,20 @@ double InDet::TRT_ElectronPidToolRun2::HTcalculator::getProbHT( double pTrk, Trk
   if (fabs(mass-0.511) < 0.1) {      // Electron!
     double pHTel = pHTvsP(TrtPart, pTrk, mass);
     if (UseOccupancy)
-      pHTel = pHTel * Corr_el_SL(TrtPart, StrawLayer)* Corr_el_SP(TrtPart, ZRpos ) * Corr_el_RT(TrtPart, rTrkWire) * Corr_el_OC(TrtPart, Occupancy);
+      pHTel = pHTel * Corr_el_SL(TrtPart, StrawLayer) * Corr_el_SP(TrtPart, ZRpos )
+	            * Corr_el_RT(TrtPart, rTrkWire)   * Corr_el_OC(TrtPart, Occupancy);
     else
-      pHTel = pHTel * Corr_el_SL(TrtPart, StrawLayer)* Corr_el_SP(TrtPart, ZRpos ) * Corr_el_RT(TrtPart, rTrkWire);
+      pHTel = pHTel * Corr_el_SL(TrtPart, StrawLayer) * Corr_el_SP(TrtPart, ZRpos )
+                    * Corr_el_RT(TrtPart, rTrkWire);
     return pHTel;
-  } else {
+  } else {                           // Non-electron!
     double pHTmu = pHTvsP(TrtPart, pTrk, mass);
     if (UseOccupancy)
-      pHTmu = pHTmu * Corr_mu_SL(TrtPart, StrawLayer)* Corr_mu_SP(TrtPart, ZRpos ) * Corr_mu_RT(TrtPart, rTrkWire) * Corr_mu_OC(TrtPart, Occupancy);
+      pHTmu = pHTmu * Corr_mu_SL(TrtPart, StrawLayer) * Corr_mu_SP(TrtPart, ZRpos )
+	            * Corr_mu_RT(TrtPart, rTrkWire)   * Corr_mu_OC(TrtPart, Occupancy);
     else
-      pHTmu = pHTmu * Corr_mu_SL(TrtPart, StrawLayer)* Corr_mu_SP(TrtPart, ZRpos ) * Corr_mu_RT(TrtPart, rTrkWire);
+      pHTmu = pHTmu * Corr_mu_SL(TrtPart, StrawLayer) * Corr_mu_SP(TrtPart, ZRpos )
+	            * Corr_mu_RT(TrtPart, rTrkWire);
     return pHTmu;
   }
 
