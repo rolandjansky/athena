@@ -41,7 +41,7 @@ StatusCode TGCRecRoiSvc::initialize (void)
   MsgStream log(msgSvc(), name());
   log << MSG::DEBUG << "initialize" << endreq;
 
-  StatusCode sc = Service::initialize();
+  StatusCode sc = AthService::initialize();
   if ( sc.isFailure() ) return sc;
     
   // set properties from jobO 
