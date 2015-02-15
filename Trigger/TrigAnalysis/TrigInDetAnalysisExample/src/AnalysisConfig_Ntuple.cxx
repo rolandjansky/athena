@@ -309,8 +309,8 @@ void AnalysisConfig_Ntuple::loop() {
 
 	m_provider->msg(MSG::DEBUG) << "[91;1m" 
 		<< "L2 pass " << L2chain->isPassed()  << "\t" 
-		<< "L2 pass " << EFchain->isPassed()  << "\t" 
-		<< "EF pass " << HLTchain->isPassed() << "[m"
+		<< "EF pass " << EFchain->isPassed()  << "\t" 
+		<< "HLT pass " << HLTchain->isPassed() << "[m"
 		<< endreq;
 
 	///////////////////////////////////////////////////////////////////////////////
@@ -339,7 +339,6 @@ void AnalysisConfig_Ntuple::loop() {
 				<< endreq;
 			continue;
 		}
-
 
 
 		m_provider->msg(MSG::INFO) << "Chain "  << chainName 
@@ -1168,7 +1167,7 @@ void AnalysisConfig_Ntuple::book() {
 	m_provider->msg(MSG::INFO) << "[91;1m" << " booking ntuple" << "[m" << endreq;
 	m_provider->msg(MSG::INFO) << "[91;1m" << " trying to create new ntple file" << "[m" << endreq;
 
-	//  gDirectory->pwd();
+	gDirectory->pwd();
 
 	/// save the current directory so we can return there after
 	TDirectory* dir = gDirectory;
@@ -1188,7 +1187,7 @@ void AnalysisConfig_Ntuple::book() {
 
 	m_provider->msg(MSG::INFO) << "book() Writing to file " << outputFileName << endreq;
 
-	//  gDirectory->pwd();
+	gDirectory->pwd();
 
 	if ( first_open || genericFlag() ) {
 		/// create a brand new ntple
@@ -1218,6 +1217,7 @@ void AnalysisConfig_Ntuple::book() {
 
 	first_open = false;
 
+	std::cout << "change directory " << name() << "  " << dir->GetName() << std::endl;
 	/// go back to original directory
 	dir->cd();
 
@@ -1251,6 +1251,8 @@ void AnalysisConfig_Ntuple::finalize() {
 
 	TDirectory* directory = gDirectory; 
 
+	std::cout << "change directory " << name() << "  " << mDir->GetName() << std::endl;
+
 	mDir->cd();
 
 	//  gDirectory->pwd();
@@ -1273,6 +1275,8 @@ void AnalysisConfig_Ntuple::finalize() {
 
 	//  f.Write();
 	//  f.Close();
+
+	std::cout << "change directory " << name() << "  " << directory->GetName() << std::endl;
 
 	directory->cd();
 
