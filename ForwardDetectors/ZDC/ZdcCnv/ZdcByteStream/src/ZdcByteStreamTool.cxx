@@ -50,11 +50,11 @@ ZdcByteStreamTool::ZdcByteStreamTool(const std::string& type,
 										      const std::string& name,
 										      const IInterface* parent) :
 			AthAlgTool(type, name, parent),
-			//m_version(1),
-			//m_compVers(4),
+			m_version(1),
+			m_compVers(4),
 			m_channels(64),
 			m_crates(8),
-			//m_modules(16),
+			m_modules(16),
 			m_subDetector(eformat::FORWARD_ZDC),
 			m_srcIdMap(0),
 			//m_towerKey(0),
@@ -100,17 +100,17 @@ ZdcByteStreamTool::~ZdcByteStreamTool()
 StatusCode ZdcByteStreamTool::initialize()
 {
 	msg(MSG::INFO) << "Initializing " << name() << " - package version " << PACKAGE_VERSION
-			<< endmsg;
+			<< endreq;
 
 	/*
 	 * This would be used for crate/module/channel to eta/phi/layer mappings
 	StatusCode sc = m_zdcMaps.retrieve();
 	if (sc.isFailure())
 	{
-		msg(MSG::ERROR) << "Failed to retrieve tool " << m_zdcMaps << endmsg;
+		msg(MSG::ERROR) << "Failed to retrieve tool " << m_zdcMaps << endreq;
 		return sc;
 	}
-	else msg(MSG::INFO) << "Retrieved tool " << m_zdcMaps << endmsg;
+	else msg(MSG::INFO) << "Retrieved tool " << m_zdcMaps << endreq;
     */
 	m_srcIdMap = new ZdcSrcIdMap();
 	m_errorBlock = new ZdcPpmSubBlock();
@@ -118,11 +118,11 @@ StatusCode ZdcByteStreamTool::initialize()
 
 	const ZdcID* zdcID = 0;
 	if (detStore()->retrieve( zdcID ).isFailure() ) {
-	  msg(MSG::ERROR) << "execute: Could not retrieve ZdcID object from the detector store" << endmsg;
+	  msg(MSG::ERROR) << "execute: Could not retrieve ZdcID object from the detector store" << endreq;
 	  return StatusCode::FAILURE;
 	}
 	else {
-	  msg(MSG::DEBUG) << "execute: retrieved ZdcID" << endmsg;
+	  msg(MSG::DEBUG) << "execute: retrieved ZdcID" << endreq;
 	}
 	m_zdcID = zdcID;
 	ZdcCablingService::getInstance()->setZdcID(m_zdcID);
@@ -169,7 +169,7 @@ StatusCode ZdcByteStreamTool::convert( const IROBDataProviderSvc::VROBFRAG& robF
   hashmapType digits_map;
 
   // Loop over ROB fragments
-  //msg(MSG::INFO) << "ZDC: Inside EVENT !" << endmsg;
+  //msg(MSG::INFO) << "ZDC: Inside EVENT !" << endreq;
   int robCount = 0;
   ROBIterator rob = robFrags.begin();
   ROBIterator robEnd = robFrags.end();
@@ -179,7 +179,7 @@ StatusCode ZdcByteStreamTool::convert( const IROBDataProviderSvc::VROBFRAG& robF
       ++robCount;
       if (debug)
 	{
-	  msg() << "ZDC: Treating ROB fragment " << robCount << endmsg;
+	  msg() << "ZDC: Treating ROB fragment " << robCount << endreq;
 	}
 
       // Unpack ROD data (slinks)
@@ -192,7 +192,7 @@ StatusCode ZdcByteStreamTool::convert( const IROBDataProviderSvc::VROBFRAG& robF
       payload = payloadBeg;
       if (payload == payloadEnd)
 	{
-	  if (debug) msg() << "ZDC: ROB fragment empty" << endmsg;
+	  if (debug) msg() << "ZDC: ROB fragment empty" << endreq;
 	  continue;
 	}
 
@@ -204,14 +204,14 @@ StatusCode ZdcByteStreamTool::convert( const IROBDataProviderSvc::VROBFRAG& robF
 	      != 0)
 	    {
 	      msg() << "ZDC: Wrong source identifier in data: " << MSG::hex << sourceID << MSG::dec
-		    << endmsg;
+		    << endreq;
 	    }
 	}
       const int rodCrate = m_srcIdMap->crate(sourceID);
       if (debug)
 	{
 	  msg() << "ZDC: Treating crate " << rodCrate << " slink " << m_srcIdMap->slink(sourceID)
-		<< "From SubDetectorID " << m_srcIdMap->subDet(sourceID) << endmsg;
+		<< "From SubDetectorID " << m_srcIdMap->subDet(sourceID) << endreq;
 	}
 
       /* Comment out - this needs adaptation as there are too much L1 dialect in here
@@ -226,7 +226,7 @@ StatusCode ZdcByteStreamTool::convert( const IROBDataProviderSvc::VROBFRAG& robF
       const int headerWords = userHeader.words();
       if (headerWords != 1 && debug)
 	{
-	  msg() << "ZDC: Unexpected number of user header words: " << headerWords << endmsg;
+	  msg() << "ZDC: Unexpected number of user header words: " << headerWords << endreq;
 	}
       // Does this makes sense??? Look above headerWords == 1
       for (int i = 0; i < headerWords; ++i)
@@ -239,9 +239,9 @@ StatusCode ZdcByteStreamTool::convert( const IROBDataProviderSvc::VROBFRAG& robF
       if (debug)
 	{
 	  msg() << "ZDC: Minor format version number: " << MSG::hex << minorVersion << MSG::dec
-		<< endmsg << "ZDC: LUT triggered slice offset:  " << trigLut << endmsg
-		<< "ZDC: FADC triggered slice offset: " << trigFadc << endmsg
-		<< "ZDC: FADC baseline lower bound:   " << m_fadcBaseline << endmsg;
+		<< endreq << "ZDC: LUT triggered slice offset:  " << trigLut << endreq
+		<< "ZDC: FADC triggered slice offset: " << trigFadc << endreq
+		<< "ZDC: FADC baseline lower bound:   " << m_fadcBaseline << endreq;
 	}
       const int runNumber = (*rob)->rod_run_no() & 0xffffff;
 
@@ -251,7 +251,7 @@ StatusCode ZdcByteStreamTool::convert( const IROBDataProviderSvc::VROBFRAG& robF
 	{
 	  if (ZdcSubBlock::wordType(*payload) != ZdcSubBlock::HEADER)
 	    {
-	      msg(MSG::ERROR) << "Missing Sub-block header" << endmsg;
+	      msg(MSG::ERROR) << "Missing Sub-block header" << endreq;
 	      return StatusCode::FAILURE;
 	    }
 	  ZdcPpmSubBlock testBlock;
@@ -262,19 +262,19 @@ StatusCode ZdcByteStreamTool::convert( const IROBDataProviderSvc::VROBFRAG& robF
 	  if (chanPerSubBlock == 0)
 	    {
 	      msg(MSG::ERROR) << "Unsupported version/data format: " << testBlock.version()
-			      << "/" << testBlock.format() << endmsg;
+			      << "/" << testBlock.format() << endreq;
 	      return StatusCode::FAILURE;
 	    }
 	  if (m_channels % chanPerSubBlock != 0)
 	    {
-	      msg(MSG::ERROR) << "Invalid channels per sub-block: " << chanPerSubBlock << endmsg;
+	      msg(MSG::ERROR) << "Invalid channels per sub-block: " << chanPerSubBlock << endreq;
 	      return StatusCode::FAILURE;
 	    }
-	  if (debug) msg() << "Channels per sub-block: " << chanPerSubBlock << endmsg;
+	  if (debug) msg() << "Channels per sub-block: " << chanPerSubBlock << endreq;
 	}
       else
 	{
-	  if (debug) msg() << "ROB fragment contains user header only" << endmsg;
+	  if (debug) msg() << "ROB fragment contains user header only" << endreq;
 	  continue;
 	}
       const int numSubBlocks = m_channels / chanPerSubBlock;
@@ -297,7 +297,7 @@ StatusCode ZdcByteStreamTool::convert( const IROBDataProviderSvc::VROBFRAG& robF
 	      if (ZdcSubBlock::wordType(*payload) != ZdcSubBlock::HEADER
 		  || ZdcPpmSubBlock::errorBlock(*payload))
 		{
-		  msg(MSG::ERROR) << "Unexpected data sequence" << endmsg;
+		  msg(MSG::ERROR) << "Unexpected data sequence" << endreq;
 		  return StatusCode::FAILURE;
 		}
 	      if (chanPerSubBlock != m_channels && ZdcSubBlock::seqno(*payload) != block
@@ -307,14 +307,14 @@ StatusCode ZdcByteStreamTool::convert( const IROBDataProviderSvc::VROBFRAG& robF
 		    {
 		      msg() << "Unexpected channel sequence number: "
 			    << ZdcSubBlock::seqno(*payload) << " expected " << block
-			* chanPerSubBlock << endmsg;
+			* chanPerSubBlock << endreq;
 		    }
 		  if (!m_ppmBlocks.empty()) break;
 		  else
 		    {
 		      if (!debug)
 			{
-			  msg(MSG::ERROR) << "Unexpected channel sequence number" << endmsg;
+			  msg(MSG::ERROR) << "Unexpected channel sequence number" << endreq;
 			}
 		      return StatusCode::FAILURE;
 		    }
@@ -328,10 +328,10 @@ StatusCode ZdcByteStreamTool::convert( const IROBDataProviderSvc::VROBFRAG& robF
 		  module = subBlock->module();
 		  if (debug)
 		    {
-		      msg() << "Module " << module << endmsg;
+		      msg() << "Module " << module << endreq;
 		      if (crate != rodCrate)
 			{
-			  msg() << "Inconsistent crate number in ROD source ID" << endmsg;
+			  msg() << "Inconsistent crate number in ROD source ID" << endreq;
 			}
 		    }
 		}
@@ -339,18 +339,18 @@ StatusCode ZdcByteStreamTool::convert( const IROBDataProviderSvc::VROBFRAG& robF
 		{
 		  if (subBlock->crate() != crate)
 		    {
-		      msg(MSG::ERROR) << "Inconsistent crate number in sub-blocks" << endmsg;
+		      msg(MSG::ERROR) << "Inconsistent crate number in sub-blocks" << endreq;
 		      return StatusCode::FAILURE;
 		    }
 		  if (subBlock->module() != module)
 		    {
-		      msg(MSG::ERROR) << "Inconsistent module number in sub-blocks" << endmsg;
+		      msg(MSG::ERROR) << "Inconsistent module number in sub-blocks" << endreq;
 		      return StatusCode::FAILURE;
 		    }
 		}
 	      if (payload == payloadEnd && block != numSubBlocks - 1)
 		{
-		  if (debug) msg() << "Premature end of data" << endmsg;
+		  if (debug) msg() << "Premature end of data" << endreq;
 		  break;
 		}
 	    }
@@ -365,17 +365,17 @@ StatusCode ZdcByteStreamTool::convert( const IROBDataProviderSvc::VROBFRAG& robF
 	      if (ZdcSubBlock::wordType(*payload) == ZdcSubBlock::HEADER
 		  && ZdcPpmSubBlock::errorBlock(*payload))
 		{
-		  if (debug) msg() << "Error block found" << endmsg;
+		  if (debug) msg() << "Error block found" << endreq;
 		  //m_errorBlock = new ZdcPpmSubBlock();
 		  payload = m_errorBlock->read(payload, payloadEnd);
 		  if (m_errorBlock->crate() != crate)
 		    {
-		      msg(MSG::ERROR) << "Inconsistent crate number in error block" << endmsg;
+		      msg(MSG::ERROR) << "Inconsistent crate number in error block" << endreq;
 		      return StatusCode::FAILURE;
 		    }
 		  if (m_errorBlock->module() != module)
 		    {
-		      msg(MSG::ERROR) << "Inconsistent module number in error block" << endmsg;
+		      msg(MSG::ERROR) << "Inconsistent module number in error block" << endreq;
 		      return StatusCode::FAILURE;
 		    }
 		  if (m_errorBlock->dataWords() && !m_errorBlock->unpack())
@@ -383,7 +383,7 @@ StatusCode ZdcByteStreamTool::convert( const IROBDataProviderSvc::VROBFRAG& robF
 		      if (debug)
 			{
 			  std::string errMsg(m_errorBlock->unpackErrorMsg());
-			  msg() << "Unpacking error block failed: " << errMsg << endmsg;
+			  msg() << "Unpacking error block failed: " << errMsg << endreq;
 			}
 		    }
 		  //delete m_errorBlock;
@@ -404,14 +404,14 @@ StatusCode ZdcByteStreamTool::convert( const IROBDataProviderSvc::VROBFRAG& robF
 	      if (debug)
 		{
 		  msg() << "Unpacking sub-block version/format/seqno: " << subBlock->version()
-			<< "/" << subBlock->format() << "/" << subBlock->seqno() << endmsg;
+			<< "/" << subBlock->format() << "/" << subBlock->seqno() << endreq;
 		}
 	      if (subBlock->dataWords() && !subBlock->unpack())
 		{
 		  if (debug)
 		    {
 		      std::string errMsg(subBlock->unpackErrorMsg());
-		      msg() << "Unpacking PPM sub-block failed: " << errMsg << endmsg;
+		      msg() << "Unpacking PPM sub-block failed: " << errMsg << endreq;
 		    }
 		}
 	      if (m_printCompStats) addCompStats(subBlock->compStats());
@@ -431,7 +431,7 @@ StatusCode ZdcByteStreamTool::convert( const IROBDataProviderSvc::VROBFRAG& robF
 			{
 			  msg() << "Triggered LUT slice from header "
 				<< "inconsistent with number of slices: " << trigLut << ", "
-				<< lut.size() << ", reset to 0" << endmsg;
+				<< lut.size() << ", reset to 0" << endreq;
 			}
 //		      trigLutKeep = 0;
 		    }
@@ -441,7 +441,7 @@ StatusCode ZdcByteStreamTool::convert( const IROBDataProviderSvc::VROBFRAG& robF
 			{
 			  msg() << "Triggered FADC slice from header "
 				<< "inconsistent with number of slices: " << trigFadc << ", "
-				<< fadc.size() << ", reset to 0" << endmsg;
+				<< fadc.size() << ", reset to 0" << endreq;
 			}
 //		      trigFadcKeep = 0;
 		    }
@@ -486,11 +486,11 @@ StatusCode ZdcByteStreamTool::convert( const IROBDataProviderSvc::VROBFRAG& robF
 
 		  int ppmChannel = subBlock->getPpmChannel(channel);
 
-		  msg(MSG::DEBUG) << "--> ZCS: " << ZdcCablingService::getInstance() << endmsg;
+		  msg(MSG::DEBUG) << "--> ZCS: " << ZdcCablingService::getInstance() << endreq;
 		  chan_id = ZdcCablingService::getInstance()->h2s_channel_id(module, ppmChannel);
 
 		  const uint32_t chan_hash = chan_id.get_identifier32().get_compact();
-		  msg(MSG::DEBUG) << "chan_hash = " << chan_hash << endmsg;
+		  msg(MSG::DEBUG) << "chan_hash = " << chan_hash << endreq;
 
 		  //Change after uncommenting the above
 		  //if (any || error)
@@ -500,39 +500,39 @@ StatusCode ZdcByteStreamTool::convert( const IROBDataProviderSvc::VROBFRAG& robF
 		      int delay = ZdcCablingService::getInstance()->hwid2delay(module,ppmChannel);
 		      if (debug)
 			{
-			  msg(MSG::DEBUG) << endmsg;
-			  msg(MSG::DEBUG) <<" --------------------------------------" << endmsg;
+			  msg(MSG::DEBUG) << endreq;
+			  msg(MSG::DEBUG) <<" --------------------------------------" << endreq;
 			  msg(MSG::DEBUG) <<
 			    "--> ZDC: [SubDet., Crate, Mod., Slink Chn., PPM Chan.] ";
 			  msg(MSG::DEBUG) <<
 			    "[" << m_subDetector << ", " << crate << ", " <<
-			    module << ", " << channel << "," << ppmChannel << "]" << endmsg;
+			    module << ", " << channel << "," << ppmChannel << "]" << endreq;
 
 			  msg(MSG::DEBUG) << "--> ZDC: LUT:      ";
 			  printVec(lut);
-			  msg(MSG::DEBUG) << endmsg;
+			  msg(MSG::DEBUG) << endreq;
 
 			  msg(MSG::DEBUG) << "--> ZDC: FADC:     ";
 			  printVec(fadc);
-			  msg(MSG::DEBUG) << endmsg;
+			  msg(MSG::DEBUG) << endreq;
 
 			  msg(MSG::DEBUG) << "--> ZDC: bcidLUT:  ";
 			  printVec(bcidLut);
-			  msg(MSG::DEBUG) << endmsg;
+			  msg(MSG::DEBUG) << endreq;
 
 			  msg(MSG::DEBUG) << "--> ZDC: bcidFADC: ";
 			  printVec(bcidFadc);
-			  msg(MSG::DEBUG) << endmsg;
+			  msg(MSG::DEBUG) << endreq;
 
-			  msg(MSG::DEBUG) << "--> ZDC ID: " << chan_id.getString() << endmsg;
-			  msg(MSG::DEBUG) << "--> ID side: " << m_zdcID->side(chan_id) << endmsg;
-			  msg(MSG::DEBUG) << "--> ID module: " << m_zdcID->module(chan_id) << endmsg;
-			  msg(MSG::DEBUG) << "--> ID type: " << m_zdcID->type(chan_id) << endmsg;
-			  msg(MSG::DEBUG) << "--> ID channel: " << m_zdcID->channel(chan_id) << endmsg;
+			  msg(MSG::DEBUG) << "--> ZDC ID: " << chan_id.getString() << endreq;
+			  msg(MSG::DEBUG) << "--> ID side: " << m_zdcID->side(chan_id) << endreq;
+			  msg(MSG::DEBUG) << "--> ID module: " << m_zdcID->module(chan_id) << endreq;
+			  msg(MSG::DEBUG) << "--> ID type: " << m_zdcID->type(chan_id) << endreq;
+			  msg(MSG::DEBUG) << "--> ID channel: " << m_zdcID->channel(chan_id) << endreq;
 
-			  msg(MSG::DEBUG) << "gain=" << gain << " delay=" << delay << endmsg;
+			  msg(MSG::DEBUG) << "gain=" << gain << " delay=" << delay << endreq;
 
-			  msg(MSG::DEBUG) <<" --------------------------------------" << endmsg;
+			  msg(MSG::DEBUG) <<" --------------------------------------" << endreq;
 
 			}
 
@@ -565,7 +565,7 @@ StatusCode ZdcByteStreamTool::convert( const IROBDataProviderSvc::VROBFRAG& robF
       iter++;
     }
 
-  msg(MSG::DEBUG) << "-->ZDC: Collection has " << ttCollection->size() << " elements " << endmsg;
+  msg(MSG::DEBUG) << "-->ZDC: Collection has " << ttCollection->size() << " elements " << endreq;
 
   return StatusCode::SUCCESS;
 }
@@ -573,10 +573,10 @@ StatusCode ZdcByteStreamTool::convert( const IROBDataProviderSvc::VROBFRAG& robF
 
 //==================================================================================================
 // Conversion of ZDCCollection to bytestream
-StatusCode ZdcByteStreamTool::convert( const ZdcDigitsCollection* const /*ttCollection*/,
-				       RawEventWrite* const /*re*/)
+StatusCode ZdcByteStreamTool::convert( const ZdcDigitsCollection* const ttCollection,
+				       RawEventWrite* const re)
 {
-        //if (re) ttCollection->size();
+	if (re) ttCollection->size();
 	//See PpmByteStreamTool for a implementation
 	return StatusCode::SUCCESS;
 }
@@ -604,7 +604,7 @@ void ZdcByteStreamTool::printCompStats() const
 	{
 		msg() << " " << i << "/" << m_compStats[i];
 	}
-	msg() << endmsg;
+	msg() << endreq;
 }
 //==================================================================================================
 
@@ -639,7 +639,7 @@ void ZdcByteStreamTool::printVec(const std::vector<int>& vec) const
 		if (pos != vec.begin()) msg() << ",";
 		msg() << *pos;
 	}
-	//msg() << endmsg;
+	//msg() << endreq;
 }
 //==================================================================================================
 

@@ -14,4 +14,3 @@
 
 const std::string ZdcDefs::ZdcDigitsLocation="ZdcDigitsContainer";
 const std::string ZdcDefs::ZdcDigitsCollectionLocation="ZdcDigitsCollection";
-const std::string ZdcDefs::ZdcTriggerTowerContainerLocation="ZdcTriggerTowers";

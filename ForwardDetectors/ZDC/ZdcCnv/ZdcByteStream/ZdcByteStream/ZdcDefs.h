@@ -18,7 +18,6 @@ class ZdcDefs {
 	public:
 		static const std::string ZdcDigitsLocation;
 		static const std::string ZdcDigitsCollectionLocation;
-		static const std::string ZdcTriggerTowerContainerLocation;
 };
 
 #endif /* ZDCDEFS_H_ */

@@ -13,20 +13,19 @@ include( "ByteStreamCnvSvc/BSEventStorageEventSelector_jobOptions.py" )
 ByteStreamInputSvc =  svcMgr.ByteStreamInputSvc
 
 ByteStreamInputSvc.FullFileName = \
-["root://eosatlas//eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/data11_hi.00193403.physics_HardProbes.merge.RAW._lb0012._SFO-9._0001.1"]
-#["/tmp/leite/test_map/data_test.00146536.calibration_map.daq.RAW._lb0000._ROSEventBuilder._0001.data"]
+["/tmp/leite/test_map/data_test.00146536.calibration_map.daq.RAW._lb0000._ROSEventBuilder._0001.data"]
 #["/castor/cern.ch/grid/atlas/DAQ/2009/00115405/physics_ZDCStream/" + \
 #"data09_cos.00115405.physics_ZDCStream.daq.RAW._lb0000._SFO-1._0064.data"]
 
 #include( "ByteStreamCnvSvcBase/BSAddProvSvc_RDO_jobOptions.py" )
 
 from AthenaCommon.GlobalFlags import GlobalFlags
-#GlobalFlags.InputFormat.set_bytestream()
+GlobalFlags.InputFormat.set_bytestream()
 
 
 from AthenaCommon.JobProperties import jobproperties
 #jobproperties.Global.DetDescrVersion="ATLAS-CSC-01-02-00"
-#jobproperties.Global.DetDescrVersion="ATLAS-CSC-02-00-00"
+jobproperties.Global.DetDescrVersion="ATLAS-CSC-02-00-00"
 
 from AtlasGeoModel import SetGeometryVersion
 from AtlasGeoModel import GeoModelInit
@@ -45,7 +44,6 @@ ByteStreamCnvSvc.InitCnvs += [  "ZdcDigitsCollection"]
 theApp.ExtSvc += [ "ByteStreamCnvSvc"]
 
 from ZdcByteStream.ZdcByteStreamConf import ZdcByteStreamTool
-from ZdcByteStream.ZdcByteStreamConf import ZdcByteStreamTester
 
 ToolSvc=Service("ToolSvc")
 ToolSvc += ZdcByteStreamTool("ZdcByteStreamTool")

@@ -56,7 +56,7 @@ ZdcByteStreamTester::~ZdcByteStreamTester()
 StatusCode ZdcByteStreamTester::initialize()
 {
 	msg(MSG::INFO) << "Initializing " << name() << " - package version " << PACKAGE_VERSION
-			<< endmsg;
+			<< endreq;
 
 	return StatusCode::SUCCESS;
 }
@@ -73,12 +73,11 @@ StatusCode ZdcByteStreamTester::execute()
 	/// otherwise just skip this
 	/// TODO keep record somewhere of this type of error?
 
-	//ZdcDigitsCollection* ttCollection = 0;
-	const DataHandle<ZdcDigitsCollection> ttCollection;
+	ZdcDigitsCollection* ttCollection = 0;
 	StatusCode sc = evtStore()->retrieve(ttCollection, m_ZdcDigitsCollectionLocation);
 	if (sc.isFailure() || !ttCollection || ttCollection->empty())
 	{
-		msg() << "No Zdc Digits found" << endmsg;
+		msg() << "No Zdc Digits found" << endreq;
 		return StatusCode::SUCCESS;
 	}
 
@@ -100,7 +99,7 @@ StatusCode ZdcByteStreamTester::finalize()
 //FIXME There is no such thing like ZdcDigitsMap
 void ZdcByteStreamTester::printZdcDigits() const
 {
-	msg() << "Number of ZdcDigits = " << m_ZdcDigitsMap.size() << endmsg;
+	msg() << "Number of ZdcDigits = " << m_ZdcDigitsMap.size() << endreq;
 // 	ZdcDigitsMap::const_iterator mapIter = m_ZdcDigitsMap.begin();
 // 	ZdcDigitsMap::const_iterator mapEnd = m_ZdcDigitsMap.end();
 }
