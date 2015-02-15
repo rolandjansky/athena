@@ -38,64 +38,31 @@ TGCRecRoiSvc::TGCRecRoiSvc (const std::string& name, ISvcLocator* svc)
 
 StatusCode TGCRecRoiSvc::initialize (void)
 {
-  MsgStream log(msgSvc(), name());
-  log << MSG::DEBUG << "initialize" << endreq;
+  ATH_MSG_DEBUG( "initialize" );
 
-  StatusCode sc = AthService::initialize();
-  if ( sc.isFailure() ) return sc;
-    
-  // set properties from jobO 
-  sc = setProperties();
-  if(sc.isFailure()) {
-      log << MSG::ERROR << " Cannot set properties " << endreq;
-      return sc;
-  }
+  ATH_CHECK( AthService::initialize() );
+  ATH_CHECK( setProperties() );
 
-  StoreGateSvc* detStore=0;
-  sc = service("DetectorStore", detStore);
-  if(sc.isFailure()) {
-      log << MSG::ERROR << " Cannot retrieve DetectorStore " << endreq;
-      return sc;
-  }
-
-  // TgcIdHelper
-  sc = detStore -> retrieve(m_idHelper, "TGCIDHELPER" );
-  if(sc.isFailure()) {
-      log << MSG::ERROR << " Cannot retrieve TGC ID HELPER " << endreq;
-      return sc;
-  }
-
-  // MuonGeoModel
-  sc = detStore->retrieve(m_muonMgr);
-  if(sc.isFailure()) {
-    log << MSG::ERROR << "can't retrieve MuonDetectorManager" << endreq;
-    return sc;
-  }
+  ServiceHandle<StoreGateSvc> detStore ("DetectorStore", name() );
+  ATH_CHECK( detStore.retrieve() );
+  ATH_CHECK( detStore->retrieve(m_idHelper, "TGCIDHELPER" ) );
+  ATH_CHECK( detStore->retrieve(m_muonMgr) );
   
   // try to initialize the TGCcabling
-  sc = getCabling();
+  StatusCode sc = getCabling();
   if(sc.isFailure()) {
-      log << MSG::INFO 
-          << "TGCcablingServer not yet configured; postone TGCcabling initialization at first event. "
-	  << endreq;
+    ATH_MSG_INFO( "TGCcablingServer not yet configured; postone TGCcabling initialization at first event. " );
   }
   
   if (m_patchForM5) {
-    log << MSG::INFO 
-	<< "PatchForM5 is obsolete. No effects on this service"
-	<< endreq;
+    ATH_MSG_INFO( "PatchForM5 is obsolete. No effects on this service" );
   }
   if (m_patchForP5) {
-    log << MSG::INFO 
-	<< "PatchForP5 is obsolete. No effects on this service"
-	<< endreq;
+    ATH_MSG_INFO( "PatchForP5 is obsolete. No effects on this service" );
   }
   if (m_patchForP4) {
-    log << MSG::INFO 
-	<< "PatchForP4 is obsolete. No effects on this service"
-	<< endreq;
+    ATH_MSG_INFO( "PatchForP4 is obsolete. No effects on this service" );
   }
-
 
   return StatusCode::SUCCESS;
 }  
@@ -103,10 +70,7 @@ StatusCode TGCRecRoiSvc::initialize (void)
 
 StatusCode TGCRecRoiSvc::finalize() 
 {
- 
-  MsgStream log(msgSvc(), name());
-  log << MSG::INFO << "finalize" << endreq;
-  
+  ATH_MSG_INFO( "finalize" );
   return StatusCode::SUCCESS;
 }
 
@@ -116,8 +80,7 @@ void TGCRecRoiSvc::reconstruct (const unsigned int & roIWord) const
   m_eta = 0;
   m_phi = 0;
 
-  MsgStream log(msgSvc(), name());
-  log << MSG::DEBUG << "reconstruct" << endreq;
+  ATH_MSG_DEBUG( "reconstruct" );
 
   // get SLB parameters
   TGCIdBase::SideType sideType;
@@ -126,15 +89,12 @@ void TGCRecRoiSvc::reconstruct (const unsigned int & roIWord) const
   int wireSLBId, block;  
 
   if (! this->getSLBparameters(roIWord,sideType,regionType,sectorID,roiNumber,r,phi,wireSLBId,block)){
-    log << MSG::WARNING 
-	<< "TGCRecRoiSvc::reconstruct  : "
-	<< "BAD roiWord " << endreq;
+    ATH_MSG_WARNING( "TGCRecRoiSvc::reconstruct  : " << "BAD roiWord " );
     return;
   }
   if (sideType == TGCIdBase::NoSideType) {
-    log << MSG::WARNING
-	<< "TGCRecRoiSvc::reconstruct  : "
-	<< "This roiWord is not of TGC" << endreq;
+    ATH_MSG_WARNING( "TGCRecRoiSvc::reconstruct  : "
+                     << "This roiWord is not of TGC" );
     return;
   } 
   
@@ -144,18 +104,16 @@ void TGCRecRoiSvc::reconstruct (const unsigned int & roIWord) const
   TGCIdBase * w_asdout;
   this->getWireASDOut(w_asdout,sideType,regionType,sectorID,wireSLBId,block,phi,offset);
   if (w_asdout ==0) {
-    log << MSG::WARNING
-	<< "TGCRecRoiSvc::reconstruct  : "
-	<< "Cannot get ASD out for Wire " << endreq;
+    ATH_MSG_WARNING( "TGCRecRoiSvc::reconstruct  : "
+                     << "Cannot get ASD out for Wire " );
     return;
    }
   
   TGCIdBase * s_asdout;
   this->getStripASDOut(s_asdout,sideType,regionType,sectorID,wireSLBId,block,phi,offset);
   if (s_asdout ==0) {
-    log << MSG::WARNING
-	<< "TGCRecRoiSvc::reconstruct  : "
-	<< "Cannot get ASD out for Strip " << endreq;
+    ATH_MSG_WARNING( "TGCRecRoiSvc::reconstruct  : "
+                     << "Cannot get ASD out for Strip " );
     return;
   }
 
@@ -174,8 +132,8 @@ void TGCRecRoiSvc::reconstruct (const unsigned int & roIWord) const
   m_channelId_eta = wireId;
   m_channelId_phi = stripId;
   
-  log << MSG::DEBUG << "(eta,phi)=" <<" (" << m_eta <<","<< m_phi <<")" <<endreq;
-  log  << MSG::DEBUG  << "channelId_eta=" << m_channelId_eta << "  channelId_phi=" << m_channelId_phi << endreq; 
+  ATH_MSG_DEBUG( "(eta,phi)=" <<" (" << m_eta <<","<< m_phi <<")" );
+  ATH_MSG_DEBUG( "channelId_eta=" << m_channelId_eta << "  channelId_phi=" << m_channelId_phi );
    
   if (w_asdout) delete w_asdout;
   if (s_asdout) delete s_asdout;
@@ -186,8 +144,6 @@ void TGCRecRoiSvc::RoIsize(const unsigned int & roIWord,
 			   double & etaMin, double & etaMax, 
 			   double & phiMin, double & phiMax) const 
 {
-  MsgStream log(msgSvc(), name());
-
   // init
   etaMin=etaMax=phiMin=phiMax=0;
   // 
@@ -202,16 +158,14 @@ void TGCRecRoiSvc::RoIsize(const unsigned int & roIWord,
     // get edge, the range is from 1 to 8. One subsector consists of 8 (or less) wire channels and 8 strip channels
     int offset=1+i*7;
     if (! this->getSLBparameters(roIWord,sideType,regionType,sectorID,roiNumber,r,phi,wireSLBId,block)) {
-      log << MSG::ERROR 
-	  << "TGCRecRoiSvc::RoIsize  : "
-	  << "BAD roiWord " << endreq;
+      ATH_MSG_ERROR( "TGCRecRoiSvc::RoIsize  : "
+                     << "BAD roiWord " );
       return;
     }
 
     if (sideType == TGCIdBase::NoSideType) {
-      log << MSG::ERROR 
-	  << "TGCRecRoiSvc::RoIsize  : "
-	  << "This roiWord is not of TGC" << endreq;
+      ATH_MSG_ERROR( "TGCRecRoiSvc::RoIsize  : "
+                     << "This roiWord is not of TGC" );
       return;
     }
 
@@ -277,32 +231,25 @@ void TGCRecRoiSvc::print(const unsigned int & roIWord)
   unsigned int sectorID, roiNumber,r,phi;
   int wireSLBId, block;  
 
-  MsgStream log(msgSvc(), name());
-
   if( !this->getSLBparameters(roIWord,sideType,regionType,sectorID,roiNumber,r,phi,wireSLBId,block)){
-       log << MSG::ERROR 
-	   << " TGCRecRoiSvc::print() "
+    ATH_MSG_ERROR( " TGCRecRoiSvc::print() "
 	   << " can not get SLBparameters "
-	   << " roi word = " << std::hex << roIWord 
-	   << endreq;
+	   << " roi word = " << std::hex << roIWord  );
        return;
   }
 
 
   if (sideType == TGCIdBase::NoSideType) {
-    log << MSG::ERROR 
-	<< " TGCRecRoiSvc::print() "
+    ATH_MSG_ERROR( " TGCRecRoiSvc::print() "
 	<< "This roiWord is not of TGC" 
- 	<< " roi word = " << std::hex << roIWord 
-	<< endreq;
+ 	<< " roi word = " << std::hex << roIWord  );
  } else {
-    log << MSG::DEBUG
-	<< " SideType  : " << (sideType==TGCIdBase::Aside ? "A-side" : "C-side") 
-	<< " RegionType: " << (regionType==TGCIdBase::Endcap ? "Endcap" : "Foward") 
-	<< " Sector id : " << sectorID 
-	<< " RoI number: " << roiNumber 
-	<< " Chamber R : " << r 
-	<< " Phi       : " << phi << endreq;
+    ATH_MSG_DEBUG( " SideType  : " << (sideType==TGCIdBase::Aside ? "A-side" : "C-side") 
+                   << " RegionType: " << (regionType==TGCIdBase::Endcap ? "Endcap" : "Foward") 
+                   << " Sector id : " << sectorID 
+                   << " RoI number: " << roiNumber 
+                   << " Chamber R : " << r 
+                   << " Phi       : " << phi );
   }
 }
 
@@ -316,8 +263,6 @@ bool TGCRecRoiSvc::getSLBparameters(const unsigned int & roIWord,
 				    int & wireSLBId, 
 				    int & block ) const 
 {
-  MsgStream log(msgSvc(), name());
-
   // init
   sideType =  TGCIdBase::NoSideType;
   regionType= TGCIdBase::NoRegionType;
@@ -389,32 +334,26 @@ bool TGCRecRoiSvc::getSLBparameters(const unsigned int & roIWord,
     }
 
   } else {
-    log << MSG::INFO
-	<< "Bad roiWord  " 
-	<< " roi word = " << std::hex << roIWord 
-	<< " sysID = " << std::dec << sysID
-	<< endreq;
+    ATH_MSG_INFO( "Bad roiWord  " 
+                  << " roi word = " << std::hex << roIWord 
+                  << " sysID = " << std::dec << sysID );
     return false;
   }
 
   if (!isOK) {
-    log << MSG::INFO
-	<< "Bad roiWord  " 
-	<< " roi word = " << std::hex << roIWord 
-	<< " sysID = " << std::dec << sysID
-	<< " trigger sectorID = " << std::dec << t_sectorID
-	<< " sectorID = " << std::dec << sectorID
-	<< " roiNumber = " << std::dec << roiNumber
-	<< endreq;
+    ATH_MSG_INFO( "Bad roiWord  " 
+                  << " roi word = " << std::hex << roIWord 
+                  << " sysID = " << std::dec << sysID
+                  << " trigger sectorID = " << std::dec << t_sectorID
+                  << " sectorID = " << std::dec << sectorID
+                  << " roiNumber = " << std::dec << roiNumber );
     return false;
   } else {
-    log << MSG::DEBUG
-	<< " roi word = " << std::hex << roIWord 
-	<< " sysID = " << std::dec << sysID
-	<< " trigger sectorID = " << std::dec << t_sectorID
-	<< " sectorID = " << std::dec << sectorID
-	<< " roiNumber = " << std::dec << roiNumber
-	<< endreq;
+    ATH_MSG_DEBUG( " roi word = " << std::hex << roIWord 
+                   << " sysID = " << std::dec << sysID
+                   << " trigger sectorID = " << std::dec << t_sectorID
+                   << " sectorID = " << std::dec << sectorID
+                   << " roiNumber = " << std::dec << roiNumber );
   }
   return true;
 
@@ -601,29 +540,13 @@ void TGCRecRoiSvc::getStripInfo(Amg::Vector3D & s_pos,
 }
 
 StatusCode TGCRecRoiSvc::getCabling() const {
-  MsgStream log(msgSvc(), name());
-  // TGCcablingSvc
-  // get Cabling Server Service
-  const ITGCcablingServerSvc* TgcCabGet = 0;
-  StatusCode sc = service("TGCcablingServerSvc", TgcCabGet);
-  if (sc.isFailure()){
-    log << MSG::ERROR << " Can't get TGCcablingServerSvc " << endreq;
-    return StatusCode::FAILURE;
-  }
-  
-  if(!TgcCabGet->isConfigured()) {
-      log << MSG::DEBUG << "TGCcablingServer not yet configured!" << endreq;
+  ServiceHandle<ITGCcablingServerSvc> tgcCabGet ("TGCcablingServerSvc", name());
+  ATH_CHECK( tgcCabGet.retrieve() );
+  if(!tgcCabGet->isConfigured()) {
+      ATH_MSG_DEBUG( "TGCcablingServer not yet configured!" );
       return StatusCode::FAILURE;
   }
-  
-  // get Cabling Service
-  sc = TgcCabGet->giveCabling(*&m_cabling);
-  if (sc.isFailure()){
-    log << MSG::ERROR << " Can't get TGCcablingSvc Server" << endreq;
-    return StatusCode::FAILURE; 
-  } 
-
-  m_isAtlas = TgcCabGet->isAtlas();
-
-  return sc;
+  ATH_CHECK( tgcCabGet->giveCabling(*&m_cabling) );
+  m_isAtlas = tgcCabGet->isAtlas();
+  return StatusCode::SUCCESS;
 }
