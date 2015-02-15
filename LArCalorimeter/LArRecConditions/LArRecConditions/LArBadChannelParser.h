@@ -173,7 +173,8 @@ template<typename T>
 inline bool LArBadChannelParser::stringToNumber(T& theNumber, const std::string& theString) const
 {
         std::istringstream iss(theString);
-        return !(iss >> std::dec >> theNumber).fail() && (static_cast<int>(theString.size()) ==  iss.tellg());
+        //return !(iss >> std::dec >> theNumber).fail() && (static_cast<int>(theString.size()) ==  iss.tellg());
+        return !(iss >> std::dec >> theNumber).fail();
        //the second condition checks for invalid input of the form "123abc"
 }
 
