@@ -113,14 +113,15 @@ StatusCode TrigTestMonToolAC::init() {
 
   msg(MSG::INFO) << "TrigTestMonToolAC::init() " << gDirectory->GetName() << endreq;
 
-  std::cout << "TrigTestMonToolAC::init() SUTT buildNtuple " << m_buildNtuple << std::endl;
+  //  std::cout << "TrigTestMonToolAC::init() SUTT buildNtuple " << m_buildNtuple << std::endl;
   
   // roi width information
   m_roiInfo.etaHalfWidth(m_etaWidth);
   m_roiInfo.phiHalfWidth(m_phiWidth);
   m_roiInfo.zedHalfWidth(m_zedWidth);
   
-  if ( m_buildNtuple && m_analysis_config != "Tier0") { 
+  //  if ( m_buildNtuple && m_analysis_config != "Tier0") { 
+  if ( m_buildNtuple ) { 
     m_sequences.push_back( new AnalysisConfig_Ntuple( &m_roiInfo, m_ntupleChainNames, 
 						      m_outputFileName, m_tauEtCutOffline, m_selectTruthPdgId, 
 						      m_keepAllEvents ) );
@@ -212,11 +213,20 @@ StatusCode TrigTestMonToolAC::book(bool newEventsBlock, bool newLumiBlock, bool 
 	ChainString chainName = (*chainitr);
 	
 	/// get matching chains ...                                                                                                                                                                                                  
+	if ( chainName.head().find("HLT_")==std::string::npos && 
+	     chainName.head().find("EF_")==std::string::npos  && 
+	     chainName.head().find("L2_")==std::string::npos ) { 
+	  chainitr++;
+	  continue;
+	}
+
 	std::vector<std::string> selectChains  = m_tdt->getListOfTriggers( chainName.head() );
 	
 	//                  std::cout << "selected chains " << selectChains.size() << std::endl;                                                                                                                                 
-	
-	if ( selectChains.size()==0 ) msg(MSG::WARNING) << "^[[91;1m" << "No chains matched for requested input " << chainName << "^[[m" << endreq;
+	//  "[91;1m" 
+	//  "[m" 
+
+	if ( selectChains.size()==0 ) msg(MSG::WARNING) << "[91;1m"<< "No chains matched for requested input " << chainName <<   "[m" << endreq;
 	
 	for ( unsigned iselected=0 ; iselected<selectChains.size() ; iselected++ ) {
 	  
@@ -228,7 +238,7 @@ StatusCode TrigTestMonToolAC::book(bool newEventsBlock, bool newLumiBlock, bool 
 	  /// replace wildcard with actual matching chains ...                                                                                                                                                                   
 	  chains.push_back( selectChains[iselected] );
 	  
-	  msg(MSG::INFO) << "^[[91;1m" << "Matching chain " << selectChains[iselected] << "^[[m" << endreq;
+	  msg(MSG::INFO) << "[91;1m"  << "Matching chain " << selectChains[iselected] << "[m" << endreq;
 	  
 	}
 	
@@ -237,11 +247,11 @@ StatusCode TrigTestMonToolAC::book(bool newEventsBlock, bool newLumiBlock, bool 
       
       m_chainNames = chains;
       
-      msg(MSG::INFO) << "^[[91;1m" << "Matching chains " << m_chainNames.size() << " init() ^[[m" << endreq;
+      msg(MSG::INFO) << "[91;1m" << "Matching chains " << m_chainNames.size() << " init() [m" << endreq;
       
       for ( unsigned i=0 ; i<m_chainNames.size() ; i++ ){
 	
-	msg(MSG::INFO) << "^[[91;1m" << "booking a Tier0 chain " << m_chainNames[i] << "^[[m" << endreq;
+	msg(MSG::INFO) << "[91;1m"  << "booking a Tier0 chain " << m_chainNames[i] << " [m" << endreq;
 	
 	m_sequences.push_back( new AnalysisConfig_Tier0(m_chainNames[i], 
 							m_chainNames[i], "", "",
@@ -253,36 +263,22 @@ StatusCode TrigTestMonToolAC::book(bool newEventsBlock, bool newLumiBlock, bool 
 	
 	m_sequences.back()->releaseData(m_releaseMetaData);	
 	
-#if 0
-	if(m_chainNames.at(i).find("L2_e")!=std::string::npos ||
-	   m_chainNames.at(i).find("EF_e")!=std::string::npos) { 
-	  
-	  /// ??? shouldn't this have some different name? seems we might have some duplication here 
-	  
-	  m_sequences.push_back( new AnalysisConfig_Tier0(m_chainNames[i],
-							  m_chainNames[i], "mediumPP", "",
-							  m_chainNames[i], "", "",
-							  &m_roiInfo,
-							  filterTest, filterRef,
-							  dR_matcher,
-							  new Analysis_Tier0(m_chainNames.at(i), 1000., 2.5, 1.5, 1.5 ) ) );
-	  
-	}
-#endif      
-	
       }
       
     }
   }   
   
+  msg(MSG::DEBUG) << "[91;1m  ----- File open? -----  [m" << endreq;
+ 
   if ( !m_fileopen && newRun && ( m_initialisePerRun || m_firstRun ) ) { 
     m_fileopen = true;
     
     for ( unsigned i=0 ; i<m_sequences.size() ; i++ ) { 
-      msg(MSG::INFO) << "^[[91;1m ----- booking for analysis " << m_sequences[i]->name() << " ----- ^[[m" << endreq;
+      msg(MSG::INFO) << "[91;1m ----- booking for analysis " << m_sequences[i]->name() << " ----- [m" << endreq;
       m_sequences[i]->initialize(this, &m_tdt);
       m_sequences[i]->setGenericFlag(m_genericFlag);
       m_sequences[i]->book();      
+      msg(MSG::INFO) << "[91;1m ----- booked for analysis " << m_sequences[i]->name() << " ----- [m" << endreq;
     }
     m_firstRun = false;
   }
@@ -324,8 +320,14 @@ StatusCode TrigTestMonToolAC::proc(bool /* endOfEventsBlock*/, bool /* endOfLumi
 #endif
 
   msg(MSG::DEBUG) << " ----- enter proc() ----- " << endreq;
+
+  msg(MSG::DEBUG) << " ----- initialisePerRun: " <<  m_initialisePerRun << "\tendOfRun: " << endOfRun << "  -----" << endreq;
+ 
   if ( m_initialisePerRun && endOfRun) {
-    for ( unsigned i=0 ; i<m_sequences.size() ; i++ ) m_sequences[i]->finalize();
+    for ( unsigned i=0 ; i<m_sequences.size() ; i++ ) { 
+      msg(MSG::INFO) << "[91;1m ----- finalize for analysis " << m_sequences[i]->name() << " ----- [m" << endreq;
+      m_sequences[i]->finalize();
+    }
     m_fileopen = false;
   }
   msg(MSG::DEBUG) << " ====== exit proc() ====== " << endreq;
