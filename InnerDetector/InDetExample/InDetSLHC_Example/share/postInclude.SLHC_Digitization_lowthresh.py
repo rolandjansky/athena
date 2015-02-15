@@ -45,9 +45,9 @@ if DetFlags.digitize.pixel_on():
         pixeldigi.UsePixCondSum = False
         pixeldigi.DisableDistortions = True
         #   adjustment for low threshold
-        pixeldigi.DiscrThresh = 2000 # default 4100
-        pixeldigi.IntimeThresh = 2500 # default 5000
-        pixeldigi.ToTParE = -2000. # default -3561.25
+        # pixeldigi.DiscrThresh = 2000 # default 4100
+        # pixeldigi.IntimeThresh = 2500 # default 5000
+        # pixeldigi.ToTParE = -2000. # default -3561.25
     else:
         #From PixelDigitization-01-00-05 onwards configure tools directly
         from AthenaCommon.CfgGetter import getService, getPublicTool
@@ -61,9 +61,9 @@ if DetFlags.digitize.pixel_on():
         getPublicTool("IblPlanarChargeTool").DisableDistortions = True
         getPublicTool("Ibl3DChargeTool").DisableDistortions = True
         #   adjustment for low threshold
-        calibSvc.DiscrThresh = 2000 # default 4100
-        calibSvc.IntimeThresh = 2500 # default 5000
-        calibSvc.ToTParE = -2000. # default -3561.25
+        # calibSvc.DiscrThresh = 2000 # default 4100
+        # calibSvc.IntimeThresh = 2500 # default 5000
+        # calibSvc.ToTParE = -2000. # default -3561.25
 
 ##     if DetFlags.pileup.pixel_on():
 ##         #changing the range of the Pixels

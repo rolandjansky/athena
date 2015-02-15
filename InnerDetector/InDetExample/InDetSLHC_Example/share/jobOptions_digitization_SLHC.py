@@ -4,7 +4,7 @@
 #--------------------------------------------------------------
 
 from AthenaCommon.GlobalFlags import globalflags
-globalflags.ConditionsTag = "OFLCOND-ATLAS-HL-LHC-00"
+globalflags.ConditionsTag = "OFLCOND-MC12-ITK-27-00"
 
 include("InDetSLHC_Example/preInclude.SLHC.py")
 
