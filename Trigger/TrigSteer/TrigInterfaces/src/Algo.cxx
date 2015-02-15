@@ -35,7 +35,6 @@ Algo::Algo(const std::string& name, ISvcLocator* pSvcLocator)
   : AthAlgorithm(name, pSvcLocator),
     m_config(0),
     m_monitoringStarted(false),
-    m_pStoreGate(0),
     m_doAuditors(false),
     m_msg( new MsgStream( msgSvc(), name) ),
     m_msgLvl( m_msg->level() ),
@@ -107,18 +106,11 @@ TrigTimer* Algo::totalTimeTimer() const {
 
 StatusCode Algo::initialize()
 {
+
   // reset OutputLevel
   m_msg->setLevel(outputLevel());
   m_msgLvl = outputLevel();
 
-
-  // Retrieve StoreGate
-  StatusCode code2 = service("StoreGateSvc", m_pStoreGate);
-
-  if (code2.isFailure()) {
-    ATH_MSG_FATAL ( "HLTAlgo: Unable to locate Service StoreGateSvc");
-    return code2;
-  }
 
   map<string,string>::const_iterator mitr(m_errorCodeMap.begin());
   map<string,string>::const_iterator mend(m_errorCodeMap.end());
@@ -312,14 +304,6 @@ ErrorCode Algo::processTEs(TEVec& outputTEs)
   return status;
 }
 
-StoreGateSvc*& Algo::store()
-{
-  if(!m_pStoreGate)
-     ATH_MSG_FATAL( "cannot retrieve StoreGate accessor");
-
-  return m_pStoreGate;
-}
-
 
 bool Algo::reset() {
   m_returnErrorCode   = HLT::OK;
@@ -327,9 +311,6 @@ bool Algo::reset() {
   if ( hltEndEvent() != HLT::OK ) return false;
   return true;
 }
-
-
-
 
 
 void Algo::mapAndRecordError(ErrorCode& errorCode, TriggerElement* te) {

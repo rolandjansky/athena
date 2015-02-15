@@ -410,7 +410,7 @@ namespace HLT
      * i.e. usage can be getFeature<MuonFeature, MuonFeatureCollection>(te, EL)
      */
     template<class C, class T> HLT::ErrorCode getFeatureLink(const TriggerElement* te, ElementLink<C>&  feature, 
-							 const std::string& label = "");
+							     const std::string& label = "");
 
     /**
      * @brief Method used to retrieve vectors of features attached to a TE.
@@ -445,38 +445,6 @@ namespace HLT
 							 const std::string& label = "");
 
 
-    /**
-     * @brief Converts Feature link to object pointer (to be used wiht TrigComposite)
-     */
-    template<class T> 
-    HLT::ErrorCode featureLink2Object( const TrigFeatureLink&, const T*& );
-
-    /**
-     * @brief Converts raw obj. pointer to the TrigFeatureLink (to be used wiht TrigComposite)
-     * @param te - the TE whih was used to obtain the object
-     * @param label - the label wich was used to obtain the object
-     * @param obj - raw obj pointer
-     * Note that using this method should be rarely needed since it concertns objects stored singel time per RoI
-     * and asconsequence there should be no ambiguity as to which obj. is concerned.
-     */
-    template<class T> 
-    HLT::ErrorCode  object2FeatureLink(const TriggerElement* te, const std::string& label,
-				       const T* obj, TrigFeatureLink& fl);
-
-    /**
-     * @brief Converts raw obj. pointer to the TrigFeatureLink (to be used wiht TrigComposite)
-     * @param te - the TE whih was used to obtain the object
-     * @param label - the label wich was used to obtain the object
-     * @param obj - raw obj pointer whin the container retrieved
-     * @param container - raw obj pointer to the container retrieved     
-     * 
-     * The usage pattern is meant to be as follows. The container is retrieved but among many objects it has
-     * there interesting one and this one needs to be marked for the future.  
-     */
-    template<class C> 
-    HLT::ErrorCode object2FeatureLink(const TriggerElement* te, const std::string& label,
-				      const typename Container2Object<C>::type * obj, 
-				      const C* container, TrigFeatureLink& fl);
 
 
 
@@ -512,9 +480,7 @@ namespace HLT
      *
      * This method has to be used by developers to request an handle to the StoreGateSvc service.
      */
-    StoreGateSvc*& store();
-    StoreGateSvc*& evtStore() { return store(); }
-
+    StoreGateSvc* store() { return evtStore().operator->(); }
 
     
 
@@ -643,8 +609,6 @@ namespace HLT
 
   private:
 
-    /** @brief Pointer to StoreGateSvc service.*/
-    StoreGateSvc* m_pStoreGate;
     
     /** @brief Timing measurement enable/disable flag.*/
     bool m_doTiming;
@@ -726,13 +690,6 @@ namespace HLT
   }
 
 
-/*   template<class T> std::string Algo::getStoreGateKey(T* feature,  */
-/* 						      const std::string& label) */
-/*   { */
-    
-/*     return m_config->getNavigation()->generateAliasKey(feature, label); */
-/*   } */
-
   template<class T> HLT::ErrorCode Algo::getStoreGateKey(const T* feature, 
                                                          std::string& key) 
   {  
@@ -755,30 +712,6 @@ namespace HLT
     key = m_config->getNavigation()->template getUniqueKey<T>( label );
 
     if (key == "") return HLT::NAV_ERROR;    
-    return HLT::OK;
-  }
-
-  template<class T> 
-  HLT::ErrorCode Algo::featureLink2Object( const TrigFeatureLink& fl, const T*& t) {
-    if (!m_config || !m_config->getNavigation()) return HLT::BAD_JOB_SETUP;
-    t = m_config->getNavigation()->featureLink2Object<T>(fl);
-    return HLT::OK;
-  }
-
-    template<class T> 
-    HLT::ErrorCode  Algo::object2FeatureLink(const TriggerElement* te, const std::string& label,
-					     const T* obj, TrigFeatureLink& fl) {
-      if (!m_config || !m_config->getNavigation()) return HLT::BAD_JOB_SETUP;
-      fl = m_config->getNavigation()->object2FeatureLink(te, label, obj);
-      return HLT::OK;
-    }
-
-  template<class C> 
-  HLT::ErrorCode Algo::object2FeatureLink(const TriggerElement* te, const std::string& label,
-					  const typename Container2Object<C>::type * obj, 
-					  const C* container, TrigFeatureLink& fl) {
-    if (!m_config || !m_config->getNavigation()) return HLT::BAD_JOB_SETUP;
-    fl = m_config->getNavigation()->object2FeatureLink(te, label, obj, container);
     return HLT::OK;
   }
 

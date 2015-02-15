@@ -71,6 +71,8 @@ namespace HLT
      */
     virtual HLT::ErrorCode hltExecute(const TriggerElement* outputTE, bool& pass) = 0;
 
+    virtual bool reset() final { return Algo::reset(); }
+
   protected:
 
     /**
