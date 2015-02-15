@@ -53,6 +53,7 @@ namespace InDet{
       IInDetConditionsSvc*                pixcond    () const {return m_pixcond    ;}
       IInDetConditionsSvc*                sctcond    () const {return m_sctcond    ;}
       const double&                       xi2max     () const {return m_xi2max     ;}
+      const double&                       xi2maxBrem () const {return m_xi2maxBrem ;}
       const double&                       xi2maxNoAdd() const {return m_xi2maxNoAdd;}
       const double&                       xi2maxlink () const {return m_xi2maxlink ;}
       const double&                       xi2multi   () const {return m_xi2multi   ;}
@@ -63,6 +64,7 @@ namespace InDet{
       const bool&                         useassoTool() const {return m_useassoTool;}
       const bool&                         multiTrack () const {return m_multitrack ;}
       const bool&                         bremNoise  () const {return m_bremnoise  ;}
+      const bool&                         electron   () const {return m_electron   ;}
 
       void setTools
 	(Trk::IPatternParametersPropagator* ,
@@ -81,7 +83,7 @@ namespace InDet{
       void setHolesClusters(const int&,const int&,const int&);
       void setAssociation(const int&);
       void setMultiTracks(const int,double);
-      void setBremNoise  (const int&);
+      void setBremNoise  (bool,bool);
 
 
     protected:
@@ -100,6 +102,7 @@ namespace InDet{
       IInDetConditionsSvc*            m_sctcond    ;  // Conditions for sct
 
       double                          m_xi2max     ;  // Max Xi2 for updator 
+      double                          m_xi2maxBrem ;  // Max Xi2 for updator (brem fit)  
       double                          m_xi2maxNoAdd;  // Max Xi2 outlayer 
       double                          m_xi2maxlink ;  // Max Xi2 for search
       double                          m_xi2multi   ;  // Max Xi2 for multi tracks
@@ -110,6 +113,7 @@ namespace InDet{
       bool                            m_useassoTool;  // Use assosiation tool
       bool                            m_multitrack ;  // Do multi tracks
       bool                            m_bremnoise  ;  // Do brem noise
+      bool                            m_electron   ;  // Do electron mode
 
       ///////////////////////////////////////////////////////////////////
       // Methods
@@ -129,7 +133,8 @@ namespace InDet{
       m_riotool     = 0   ;  
       m_pixcond     = 0   ;
       m_sctcond     = 0   ;
-      m_xi2max      = 15. ;
+      m_xi2max      = 9.  ;
+      m_xi2maxBrem  = 15. ;
       m_xi2maxlink  = 200.;
       m_xi2multi    = 5.  ;
       m_xi2maxNoAdd = 20. ; 
@@ -145,24 +150,7 @@ namespace InDet{
 
   inline SiTools_xk::SiTools_xk(const SiTools_xk& T)
     {
-      m_assoTool    = T.m_assoTool   ;
-      m_fieldtool   = T.m_fieldtool  ;
-      m_fieldService= T.m_fieldService;
-      m_proptool    = T.m_proptool   ;
-      m_updatortool = T.m_updatortool;
-      m_riotool     = T.m_riotool    ;
-      m_pixcond     = T.m_pixcond    ;
-      m_sctcond     = T.m_sctcond    ;
-      m_xi2max      = T.m_xi2max     ;
-      m_xi2maxlink  = T.m_xi2maxlink ;
-      m_xi2multi    = T.m_xi2multi   ;
-      m_pTmin       = T.m_pTmin      ;
-      m_nholesmax   = T.m_nholesmax  ;
-      m_dholesmax   = T.m_dholesmax  ;
-      m_nclusmin    = T.m_nclusmin   ; 
-      m_useassoTool = T.m_useassoTool;
-      m_multitrack  = T.m_multitrack ;
-      m_bremnoise   = T.m_bremnoise  ;
+      *this = T;
     }
   
   inline SiTools_xk& SiTools_xk::operator = 
@@ -178,6 +166,7 @@ namespace InDet{
 	m_pixcond     = T.m_pixcond    ;
 	m_sctcond     = T.m_sctcond    ;
 	m_xi2max      = T.m_xi2max     ;
+	m_xi2maxBrem  = T.m_xi2maxBrem ;
 	m_xi2maxlink  = T.m_xi2maxlink ;
 	m_xi2multi    = T.m_xi2multi   ;
 	m_pTmin       = T.m_pTmin      ;
@@ -248,9 +237,10 @@ namespace InDet{
       m_xi2multi = X; 
     }
 
-  inline void SiTools_xk::setBremNoise(const int& N)
+  inline void SiTools_xk::setBremNoise(bool B,bool E)
     {
-      N ? m_bremnoise = true : m_bremnoise = false;
+      m_bremnoise = B;
+      m_electron  = E;
     }
 
 
