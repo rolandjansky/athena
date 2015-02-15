@@ -117,7 +117,7 @@ namespace HLT
     /**
      * @brief The method reset called before each event.
      */
-    virtual bool reset();
+    virtual bool reset() final;
 
 
     /**

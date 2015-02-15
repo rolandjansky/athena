@@ -176,7 +176,7 @@ namespace HLT
     /**
      * @brief Method performing algorithm reset.
      */
-    //TB virtual bool reset();
+    virtual bool reset() final { return TECombineAlgo::reset(); }
 
   protected:
      virtual HLT::ErrorCode processRobRequests(const std::vector< unsigned int >& inputs );

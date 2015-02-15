@@ -82,6 +82,8 @@ namespace HLT
      */
     virtual HLT::ErrorCode prepareRobRequests(const std::vector<HLT::TEConstVec>& inputs );
 
+    virtual bool reset() final { return TECreateAlgo::reset(); }
+
   protected:
 
     /** 
