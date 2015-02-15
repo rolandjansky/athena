@@ -73,7 +73,9 @@ StatusCode ZdcByteStreamRawData::execute()
 	/// otherwise just skip this
 	/// TODO keep record somewhere of this type of error?
 
-	ZdcDigitsCollection* ttCollection = 0;
+	//ZdcDigitsCollection* ttCollection = 0;
+	const DataHandle<ZdcDigitsCollection> ttCollection;
+
 	msg(MSG::DEBUG) << "Looking for ZDC Digits Collection at " << m_ZdcDigitsCollectionLocation << endreq;
 	//std::cout << "Looking for ZDC Digits Collection at " << m_ZdcDigitsCollectionLocation << std::endl;
 	StatusCode sc = evtStore()->retrieve(ttCollection, m_ZdcDigitsCollectionLocation);
