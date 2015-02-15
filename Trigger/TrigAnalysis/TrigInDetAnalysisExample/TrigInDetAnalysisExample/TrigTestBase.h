@@ -135,7 +135,11 @@ protected:
   /// kepp events even if they fail the requested trigger chains
   bool  m_keepAllEvents;
 
+  /// if an ntple file open?
   bool m_fileopen;
+
+  /// is this the first event
+  bool m_first; 
 
   std::string  m_sliceTag;
 

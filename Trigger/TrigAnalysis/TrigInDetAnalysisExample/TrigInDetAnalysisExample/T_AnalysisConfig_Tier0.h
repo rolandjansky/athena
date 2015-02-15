@@ -81,28 +81,28 @@ public:
   // - roiInfo: in case the test chain is a real chain, this is used to specify RoI widths; in case the test chain is a fake chain, this is used for RoI position too
   // - all standard operations are performed in loops over 0=test 1=reference 2=selection
   T_AnalysisConfig_Tier0(const std::string& analysisInstanceName,
-   const std::string& testChainName,      const std::string& testType,      const std::string& testKey,
-   const std::string& referenceChainName, const std::string& referenceType, const std::string& referenceKey,
-   TIDARoiDescriptor* roiInfo,
-   TrackFilter* testFilter, TrackFilter* referenceFilter,
-   TrackAssociator* associator,
-   TrackAnalysis* analysis) :
-   T_AnalysisConfig<T>( analysisInstanceName,
-     testChainName,      testType,      testKey,
-     referenceChainName, referenceType, referenceKey,
-     roiInfo,
-     testFilter, referenceFilter,
-     associator,
-     analysis ),
+			 const std::string& testChainName,      const std::string& testType,      const std::string& testKey,
+			 const std::string& referenceChainName, const std::string& referenceType, const std::string& referenceKey,
+			 TIDARoiDescriptor* roiInfo,
+			 TrackFilter*     testFilter,  TrackFilter*     referenceFilter, 
+			 TrackAssociator* associator,
+			 TrackAnalysis*   analysis) :
+    T_AnalysisConfig<T>( analysisInstanceName,
+			 testChainName,      testType,      testKey,
+			 referenceChainName, referenceType, referenceKey,
+			 roiInfo,
+			 testFilter, referenceFilter,
+			 associator,
+			 analysis ),
     m_doOffline(true),
     m_doMuons(false),
     m_doElectrons(false),
     m_doTaus(false),
     m_doBjets(false),
-   m_hasTruthMap(false),
-   m_NRois(0),
-   m_NRefTracks(0),
-   m_NTestTracks(0)
+    m_hasTruthMap(false),
+    m_NRois(0),
+    m_NRefTracks(0),
+    m_NTestTracks(0)
   {
     m_event = new TrackEvent();
     m_chainNames.push_back(testChainName);
@@ -623,12 +623,27 @@ protected:
         filterRef.setRoi( &chain.rois().at(iroi).roi() );
         test_tracks.clear();
 
+
+	/// This is nonsense and needs restructuring - why is the truth and offline selection 
+	/// done within this RoI loop? It means the complete offline and truth tracks will be 
+	/// retrieved for every RoI ! really we should have the structure 
+	///   
+	///   - check_a_trigger_chain_has_passed
+	///   - get_offline_or_truth_particles
+	///   - loop_over_rois
+	///     - get_trigger_tracks
+	///     - filter_offline_or_truth_reference
+	///     - match_tracks
+	///     - call_analyis_routine
+	///
+	/// will leave as it is for the time being
+
         if(m_provider->msg().level() <= MSG::VERBOSE)
           m_provider->msg(MSG::VERBOSE) << "MC Truth flag " << m_mcTruth << endreq;
 
         bool foundTruth = false;
 
-        if ( m_mcTruth ) {
+        if ( !m_doOffline && m_mcTruth ) {
 
           filter_truth.setRoi( &chain.rois().at(iroi).roi() );
 
@@ -658,7 +673,7 @@ protected:
         }
 
       
-        if ( m_mcTruth && !foundTruth ) {
+        if ( !m_doOffline && m_mcTruth && !foundTruth ) {
           if(m_provider->msg().level() <= MSG::VERBOSE)
             m_provider->msg(MSG::VERBOSE) << "getting Truth" << endreq;
 
@@ -775,7 +790,7 @@ protected:
           }
 
         }
-
+      
         // std::cout << "seeking offline tracks..." << std::endl;
 
         /// get offline tracks
@@ -809,11 +824,12 @@ protected:
               m_provider->msg(MSG::VERBOSE) << "  ref track " << ii << " " << *m_selectorRef->tracks()[ii] << endreq;
           }
         }
-
-        /// what is this ???
-        if ( m_mcTruth && foundTruth ){
-          offline_tracks=selectorTruth.tracks();
-        }
+	else { 
+	  /// what is this ???
+	  if ( m_mcTruth && foundTruth ){
+	    offline_tracks=selectorTruth.tracks();
+	  }
+	}	  
 
         test_tracks.clear();
 
@@ -967,9 +983,12 @@ protected:
     // if ( m_chainNames.at(0).passed() ) decisiontype = TrigDefs::Physics;
     // else                               decisiontype = TrigDefs::alsoDeactivateTEs;
 
-    // folder_name.erase(0,3); // erase "L2_" or "EF_" so histograms all go in same chain folder
+    /// folder_name.erase(0,3); // erase "L2_" or "EF_" so histograms all go in same chain folder - NO!!!! this means 
+    /// they will over write, unless eg L2_, EF_, HLT_ etc is include in the histogram name 
+
+    /// don't use this now
     if(m_testType != "") folder_name = folder_name + "/" + m_testType;
-    else                 folder_name = folder_name + "/offline_tracks";
+    //   else                 folder_name = folder_name + "/offline_tracks";
 
     std::string mongroup = folder_name +"/" + m_chainNames.at(0).tail() + "/" + m_chainNames.at(0).extra() + "/";
 

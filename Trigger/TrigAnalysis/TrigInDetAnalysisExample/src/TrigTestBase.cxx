@@ -31,6 +31,7 @@ TrigTestBase::TrigTestBase(const std::string & type, const std::string & name, c
      m_firstRun(true),
      m_keepAllEvents(false),
      m_fileopen(false),
+     m_first(true),
      m_sliceTag("")
 {
   msg(MSG::INFO) << "TrigTestBase::TrigTestBase() compiled: " << __DATE__ << " " << __TIME__ << endreq;
@@ -131,6 +132,8 @@ StatusCode TrigTestBase::init() {
 }
 
 
+
+
 // bool newEventsBlock, bool newLumiBlock, bool newRun are protected varibales
 // correctly set before this is called
 #ifdef ManagedMonitorToolBase_Uses_API_201401
@@ -148,16 +151,14 @@ StatusCode TrigTestBase::book(bool newEventsBlock, bool newLumiBlock, bool newRu
   msg(MSG::DEBUG) << "TrigTestBase::book() SUTT buildNtuple " << m_buildNtuple
       << "\tNewEventBlock " << newEventsBlock
       << "\tNewLumiBlock "  << newLumiBlock
-      << "\tNewRun "        << newRun  <<  std::endl;
+      << "\tNewRun "        << newRun  <<  endreq;
 
 
   /// create sequences if need be ...
 
-  static bool _first = true;
+  if ( m_first ) {
 
-  if ( _first ) {
-
-    _first = false;
+    m_first = false;
 
     // track filters
     // reference (offline) tracks...
@@ -189,8 +190,12 @@ StatusCode TrigTestBase::book(bool newEventsBlock, bool newLumiBlock, bool newRu
     //    TrackAssociator* phi_matcher = new Associator_BestDeltaPhiMatcher("EBdeltaPhi", m_matchPhi); // this needs to be set correctly
     //    m_associators.push_back(phi_matcher);
 
-    msg(MSG::INFO) << "[91;1m" << "m_analysis_config " << m_analysis_config << "[m" << endreq;
+    // "^[[91;1m"
+    // "^[[m"
 
+    msg(MSG::INFO) << "^[[91;1m" << "AnalysisConfig " << m_analysis_config << "^[[m" << endreq;
+
+    msg(MSG::DEBUG) << "configuring chains: " << m_ntupleChainNames.size() << endreq;
 
     // if (m_analysis_config == "Tier0") {
     {
@@ -200,26 +205,34 @@ StatusCode TrigTestBase::book(bool newEventsBlock, bool newLumiBlock, bool newRu
       /// handle wildcard chain selection - but only the first time
       std::vector<std::string>::iterator chainitr = m_ntupleChainNames.begin();
 
+
       while ( chainitr!=m_ntupleChainNames.end() ) {
         /// get chain
         ChainString chainName = (*chainitr);
 
-        /// check for wildcard ...
-        // if ( chainName.head().find("*")!=std::string::npos ) {
+	msg(MSG::DEBUG) << "\tconfiguring chain: " << chainName.head() << "\t: " << chainName.tail() << endreq;
+	
 
-          // std::cout << "wildcard chains: " << chainName << std::endl;
+	/// check for configured chains only ...
 
-          /// delete from vector
-          // m_ntupleChainNames.erase(chainitr);
+	if ( chainName.head().find("HLT_")==std::string::npos && 
+	     chainName.head().find("EF_")==std::string::npos  && 
+	     chainName.head().find("L2_")==std::string::npos ) { 
+	  chainitr++;
+	  continue;
+	}
 
-          /// get matching chains
-          std::vector<std::string> selectChains  = m_tdt->getListOfTriggers( chainName.head() );
+	/// get matching chains
+	std::vector<std::string> selectChains  = m_tdt->getListOfTriggers( chainName.head() );
 
-          // std::cout << "selected chains " << selectChains.size() << std::endl;
+	// std::cout << "selected chains " << selectChains.size() << std::endl;
 
-          if ( selectChains.size()==0 ) msg(MSG::WARNING) << "[91;1m" << "No chains matched for requested input " << chainName << "[m" << endreq;
+	if ( selectChains.size()==0 ) { 
+	  msg(MSG::WARNING) << "^[[91;1m" << "No chains matched\tchain input " << chainName.head() << "  :  " << chainName.tail() << "^[[m"<< endreq;
+	}
 
-          for ( unsigned iselected=0 ; iselected<selectChains.size() ; iselected++ ) {
+
+	for ( unsigned iselected=0 ; iselected<selectChains.size() ; iselected++ ) {
 
             if ( chainName.tail()!="" )    selectChains[iselected] += ":"+chainName.tail();
             if ( chainName.extra()!="" )   selectChains[iselected] += ":"+chainName.extra();
@@ -229,29 +242,26 @@ StatusCode TrigTestBase::book(bool newEventsBlock, bool newLumiBlock, bool newRu
             /// replace wildcard with actual matching chains ...
             chains.push_back( selectChains[iselected] );
 
-            msg(MSG::INFO) << "^[[91;1m" << "Matching chain " << selectChains[iselected] << "^[[m" << endreq;
+            msg(MSG::VERBOSE) << "^[[91;1m" << "Matching chain " << selectChains[iselected] << "^[[m" << endreq;
 
-          }
-        // } else {
-          // chains.push_back( *chainitr );
-        // }
-
+	}
+        
         ++chainitr;
       }
 
       m_chainNames = chains;
 
-      for (unsigned i=0; i<m_chainNames.size(); ++i){
+      for (unsigned i=0; i<m_chainNames.size(); ++i) {
         m_sequences.push_back( new AnalysisConfig_Tier0( m_sliceTag, // m_chainNames[i],
-							m_chainNames[i], "", "",
-							m_chainNames[i], "", "",
-							&m_roiInfo,
-							filterTest, filterRef,
-							dR_matcher,
-							new Analysis_Tier0(m_chainNames.at(i), m_pTCut, m_etaCut, m_d0Cut, m_z0Cut ) ) );
+							 m_chainNames[i], "", "",
+							 m_chainNames[i], "", "",
+							 &m_roiInfo,
+							 filterTest, filterRef,
+							 dR_matcher,
+							 new Analysis_Tier0( m_chainNames[i], m_pTCut, m_etaCut, m_d0Cut, m_z0Cut ) ) );
 	
         m_sequences.back()->releaseData(m_releaseMetaData);
-        msg(MSG::INFO) << " ----- creating for analysis " << m_sequences.back()->name() << " -----" << endreq;
+        msg(MSG::INFO) << " ----- creating analysis " << m_sequences.back()->name() << " : " << m_chainNames[i] << " -----" << endreq;
 
       }
     }
@@ -270,6 +280,8 @@ StatusCode TrigTestBase::book(bool newEventsBlock, bool newLumiBlock, bool newRu
     m_firstRun = false;
   }
 
+  msg(MSG::DEBUG) << " configured " << m_sequences.size() << " sequences" << endreq;
+
   msg(MSG::DEBUG) << " ----- exit book() ----- " << endreq;
   return StatusCode::SUCCESS;
 
@@ -283,11 +295,21 @@ StatusCode TrigTestBase::fill() {
 
   if(msg().level() <= MSG::DEBUG) {
     msg(MSG::DEBUG) << " ----- enter fill() ----- " << endreq;
-  }
+   }
 
   std::vector<std::string> selectChains  = m_tdt->getListOfTriggers( "HLT_.*" );
 
+   msg(MSG::DEBUG) << " TDT selected chains " << selectChains.size() << endreq;
+
   int passed_count = 0;
+
+  /// print out all the configured chains is need be
+  static bool _first = true;
+  for ( unsigned i=0 ; i<selectChains.size() ; i++ ) {
+    if ( _first ) ATH_MSG_DEBUG( "\tchain " << selectChains[i] << " from TDT" );
+  }
+  _first = false;
+
 
   for ( unsigned i=0 ; i<selectChains.size() ; i++ ) {
     if ( m_tdt->isPassed(selectChains[i]) ) {
