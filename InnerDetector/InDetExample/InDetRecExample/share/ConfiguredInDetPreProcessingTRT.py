@@ -139,21 +139,22 @@ class ConfiguredInDetPreProcessingTRT:
          #
          #    Include alg to save the local occupancy inside xAOD::EventInfo
          #
-         from TRT_ElectronPidTools.TRT_ElectronPidToolsConf import InDet__TRT_LocalOccupancy
-         InDetTRT_LocalOccupancy = InDet__TRT_LocalOccupancy(name ="InDet_TRT_LocalOccupancy")
+         if InDetFlags.doTRTOccupancyEventInfo():
+          from TRT_ElectronPidTools.TRT_ElectronPidToolsConf import InDet__TRT_LocalOccupancy
+          InDetTRT_LocalOccupancy = InDet__TRT_LocalOccupancy(name ="InDet_TRT_LocalOccupancy")
 
-         ToolSvc += InDetTRT_LocalOccupancy
-         if (InDetFlags.doPrintConfigurables()):
-             print InDetTRT_LocalOccupancy
+          ToolSvc += InDetTRT_LocalOccupancy
+          if (InDetFlags.doPrintConfigurables()):
+              print InDetTRT_LocalOccupancy
 
 
-         from TRT_CalibAlgs.TRT_CalibAlgsConf import TRTOccupancyInclude
-         TRTOccupancyInclude = TRTOccupancyInclude( name = "TRTOccupancyInclude",
-                                                  TRT_LocalOccupancyTool = InDetTRT_LocalOccupancy)
+          from TRT_CalibAlgs.TRT_CalibAlgsConf import TRTOccupancyInclude
+          TRTOccupancyInclude = TRTOccupancyInclude( name = prefix+"TRTOccupancyInclude",
+                                                   TRT_LocalOccupancyTool = InDetTRT_LocalOccupancy)
          
-         topSequence += TRTOccupancyInclude
-         if (InDetFlags.doPrintConfigurables()):
-                 print TRTOccupancyInclude
+          topSequence += TRTOccupancyInclude
+          if (InDetFlags.doPrintConfigurables()):
+                  print TRTOccupancyInclude
 
        
          #

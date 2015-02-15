@@ -757,8 +757,9 @@ if InDetFlags.loadSummaryTool():
 
         from TRT_ElectronPidTools.TRT_ElectronPidToolsConf import InDet__TRT_ElectronPidToolRun2
         InDetTRT_ElectronPidTool = InDet__TRT_ElectronPidToolRun2(name   = "InDetTRT_ElectronPidTool",
-                                                                   TRT_LocalOccupancyTool = InDetTRT_LocalOccupancy,
-                                                                   isData = (globalflags.DataSource == 'data') )
+                                                                  TRT_LocalOccupancyTool = InDetTRT_LocalOccupancy,
+                                                                  OccupancyUsedInPID = True,
+                                                                  isData = (globalflags.DataSource == 'data'))
 
         ToolSvc += InDetTRT_ElectronPidTool
         if (InDetFlags.doPrintConfigurables()):
@@ -847,6 +848,7 @@ if InDetFlags.loadSummaryTool():
                                                                                    PixelToTPIDTool = InDetPixelToTPIDTool,
                                                                                    TestBLayerTool  = InDetRecTestBLayerTool,
                                                                                    DoSharedHits    = InDetFlags.doSharedHits(),
+                                                                                   DoSharedHitsTRT = InDetFlags.doSharedHits(),
                                                                                    RunningTIDE_Ambi = InDetFlags.doTIDE_Ambi(),
                                                                                    HoleSearch      = InDetHoleSearchTool,
                                                                                    usePixel        = DetFlags.haveRIO.pixel_on(),

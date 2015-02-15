@@ -154,6 +154,8 @@ class  ConfiguredNewTrackingSiPattern:
          useBremMode = NewTrackingCuts.mode() == "Offline" or NewTrackingCuts.mode() == "SLHC"
          from SiTrackMakerTool_xk.SiTrackMakerTool_xkConf import InDet__SiTrackMaker_xk as SiTrackMaker
          InDetSiTrackMaker = SiTrackMaker(name                      = 'InDetSiTrackMaker'+NewTrackingCuts.extension(),
+                                          useSCT                    = NewTrackingCuts.useSCT(),
+                                          usePixel                  = NewTrackingCuts.usePixel(),
                                           RoadTool                  = InDetSiDetElementsRoadMaker,
                                           CombinatorialTrackFinder  = InDetSiComTrackFinder,
                                           pTmin                     = NewTrackingCuts.minPT(),
