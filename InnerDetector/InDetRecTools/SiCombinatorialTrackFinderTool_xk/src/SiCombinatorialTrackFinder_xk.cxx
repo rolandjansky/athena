@@ -432,7 +432,7 @@ const std::list<Trk::Track*>&  InDet::SiCombinatorialTrackFinder_xk::getTracks
  const std::list<const Trk::SpacePoint*>& Sp,const std::list<Amg::Vector3D>& Gp,
  std::list<const InDetDD::SiDetectorElement*>& DE,const TrackQualityCuts& Cuts)
 {
-  m_tools.setBremNoise(0);
+  m_tools.setBremNoise(false,false);
   m_tracks.erase(m_tracks.begin(),m_tracks.end());
 
   ++m_inputseeds;
@@ -475,7 +475,7 @@ const std::list<Trk::Track*>&  InDet::SiCombinatorialTrackFinder_xk::getTracks
  std::list<const InDetDD::SiDetectorElement*>& DE,
  std::multimap<const Trk::PrepRawData*,const Trk::Track*>& PT)
 {
-  m_tools.setBremNoise(0);
+  m_tools.setBremNoise(false,false);
   m_tracks.erase(m_tracks.begin(),m_tracks.end());
 
   ++m_inputseeds;
@@ -523,13 +523,13 @@ const std::list<Trk::Track*>&  InDet::SiCombinatorialTrackFinder_xk::getTracksWi
   int mult    = 0; if(m_tools.multiTrack()) mult = 1; 
   double Xi2m = m_tools.xi2multi();
 
-  m_tools.setBremNoise(0);
+  m_tools.setBremNoise(false,true);
   m_tracks.erase(m_tracks.begin(),m_tracks.end());
 
   ++m_inputseeds;
   if(!m_pix && !m_sct) return m_tracks;
 
-  bool  Q = findTrack(Tp,Sp,Gp,DE,PT); if(m_trajectory.ndf() < 6) return m_tracks;
+  bool  Q = findTrack(Tp,Sp,Gp,DE,PT); 
   if(Q) Q = m_trajectory.isNewTrack(PT); 
   int na  = 0;
   if(Q) {
@@ -547,19 +547,21 @@ const std::list<Trk::Track*>&  InDet::SiCombinatorialTrackFinder_xk::getTracksWi
 
     if(!t) return m_tracks;
     ++m_findtracks; m_tracks.push_back(t);
-    na = m_trajectory.nclusters()+m_trajectory.nclustersNoAdd();
-    if(na >= 10) return m_tracks;     
+    na = m_trajectory.nclusters(); if(na >=12 && !m_trajectory.nclustersNoAdd()) return m_tracks;  
+   
+    if(m_trajectory.pTfirst() <  m_pTminBrem) return m_tracks;
   }
-  if( (*Sp.begin())->clusterList().second || m_trajectory.pTfirst() <  m_pTminBrem ) return m_tracks; 
-
+  if((*Sp.begin())->clusterList().second) return m_tracks;
+ 
   // Repeat track finding using electron noise model
   //
-  m_tools.setBremNoise(1);
-   
-  if(!findTrack(Tp,Sp,Gp,DE,PT)     ) return m_tracks;
+  m_tools.setBremNoise(true,true);
+  if(!findTrack(Tp,Sp,Gp,DE,PT)  ) return m_tracks;
   if(!m_trajectory.isNewTrack(PT)) return m_tracks;
-  int nb = m_trajectory.nclusters()+m_trajectory.nclustersNoAdd();
+  
+  int nb = m_trajectory.nclusters();
   if(nb <= na ) return m_tracks;
+  
   m_trajectory.sortStep();
 
   // Trk::Track production
@@ -631,7 +633,7 @@ bool InDet::SiCombinatorialTrackFinder_xk::findTrack
   // Track finding
   //
   if(pixseed) {      // Strategy for pixel seeds
-
+    
     if(!m_trajectory.forwardExtension (false,itmax)) return false;
     if(!m_trajectory.backwardSmoother (false)      ) return false;
     if(!m_trajectory.backwardExtension(itmax)      ) return false;
@@ -661,11 +663,11 @@ bool InDet::SiCombinatorialTrackFinder_xk::findTrack
       if(!m_trajectory.backwardSmoother (false)) return false;
     }
   } 
-
+  
   if(m_trajectory.qualityOptimization()     <           (m_qualityCut*m_nclusmin)    ) return false;
   if(m_trajectory.pTfirst  () < m_pTmin     && m_trajectory.nclusters() < m_nclusmin ) return false;
   if(m_trajectory.nclusters() < m_nclusminb || m_trajectory.ndf      () < m_nwclusmin) return false;
-
+  
   return true;
 }
 
@@ -948,7 +950,7 @@ void  InDet::SiCombinatorialTrackFinder_xk::getTrackQualityCuts
   if(m_xi2maxNoAdd  <= m_xi2max   ) m_xi2maxNoAdd = m_xi2max+5.;
   if(m_dholesmax    >  m_nholesmax) m_dholesmax   = m_nholesmax;
   m_nclusminb = m_nclusmin-1; if(m_nclusminb < 3 ) m_nclusminb = 3;
- 
+
   m_tools.setXi2pTmin     (m_xi2max,m_xi2maxNoAdd,m_xi2maxlink,m_pTmin);
   m_tools.setHolesClusters(m_nholesmax,m_dholesmax,m_nclusmin);
   m_tools.setAssociation  (useasso);
