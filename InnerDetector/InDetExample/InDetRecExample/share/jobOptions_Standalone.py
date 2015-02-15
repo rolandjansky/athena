@@ -192,6 +192,9 @@ InDetFlags.doMonitoringAlignment = False
 # activate the print InDetXYZAlgorithm statements
 InDetFlags.doPrintConfigurables = True
 
+#Turn off filling of TRT occupacy to EventInfo (does not work for Standalone)
+InDetFlags.doTRTOccupancyEventInfo = False
+
 # IMPORTANT NOTE: initialization of the flags and locking them is done in InDetRec_jobOptions.py!
 # This way RecExCommon just needs to import the properties without doing anything else!
 # DO NOT SET JOBPROPERTIES AFTER THIS LINE! The change will be ignored!

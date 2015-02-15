@@ -20,7 +20,8 @@ if DetFlags.detdescr.pixel_on() and not 'PixelCabling' in dir():
   else: 
     conddb.addFolderSplitMC("PIXEL","/PIXEL/ReadoutSpeed","/PIXEL/ReadoutSpeed") 
 
-  ServiceMgr += PixelCablingSvc  
+  ServiceMgr += PixelCablingSvc 
+  include('PixelCabling/SelectPixelMap.py') 
   if (InDetFlags.doPrintConfigurables()):
     print  PixelCablingSvc
       

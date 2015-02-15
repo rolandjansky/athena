@@ -993,6 +993,12 @@ class doSLHCVeryForward(InDetFlagsJobProperty):
   allowedTypes = ['bool']
   StoredValue  = False 
 
+class doTRTOccupancyEventInfo(InDetFlagsJobProperty): 
+  """Turn running of Event Info TRT Occupancy Filling Alg on and off""" 
+  statusOn     = True 
+  allowedTypes = ['bool']
+  StoredValue  = True
+
 ##-----------------------------------------------------------------------------
 ## 2nd step
 ## Definition of the InDet flag container
@@ -1121,6 +1127,7 @@ class InDetJobProperties(JobPropertyContainer):
        self.checkThenSet(self.useMBTSTimeDiff        , True )
        self.checkThenSet(self.cutLevel               , 2    )
        self.checkThenSet(self.priVtxCutLevel         , 1    )
+       self.checkThenSet(self.doTrackSegmentsPixelPrdAssociation, False)
 
     # --- special case SLHC
     elif (self.doSLHC()):
@@ -2325,7 +2332,8 @@ _list_InDetJobProperties = [Enabled,
                             pT_SSScut,
                             ForceCoraCool,
                             doTrackSegmentsPixelPrdAssociation,
-                            doSLHCVeryForward
+                            doSLHCVeryForward,
+                            doTRTOccupancyEventInfo
                            ]
 for j in _list_InDetJobProperties: 
     jobproperties.InDetJobProperties.add_JobProperty(j)
