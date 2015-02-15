@@ -52,17 +52,6 @@ if rec.OutputFileNameForRecoStep() == 'RAWtoESD':
 
 # InDetFlags.doStandardPlots=True 
 
-# if hasattr(runArgs,"outputDESDM_TRACKFile"):
-#     from TrackD3PDMaker.TrackD3PDMakerFlags import TrackD3PDFlags
-#     TrackD3PDFlags.trackParametersAtGlobalPerigeeLevelOfDetails     = 2
-#     TrackD3PDFlags.storeTrackPredictionAtBLayer                     = False
-#     TrackD3PDFlags.storeTrackSummary                                = True
-#     TrackD3PDFlags.storeHitTruthMatching                            = True
-#     TrackD3PDFlags.storeDetailedTruth                               = True
-#     InDetFlags.doTrkD3PD.set_Value_and_Lock(True) 
-#     from InDetRecExample.InDetKeys import InDetKeys
-#     InDetKeys.trkD3PDFileName.set_Value_and_Lock(runArgs.outputDESDM_TRACKFile) 
-
 # if rec.OutputFileNameForRecoStep() == 'ESDtoAOD': 
 #     InDetFlags.doNewTracking=False
 #     InDetFlags.doVertexFinding=False
