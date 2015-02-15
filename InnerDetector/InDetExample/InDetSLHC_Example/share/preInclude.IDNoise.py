@@ -1,0 +1,2 @@
+from Digitization.DigitizationFlags import digitizationFlags
+digitizationFlags.doInDetNoise=False
