@@ -89,7 +89,7 @@ if DQMonFlags.monManEnvironment() == 'tier0ESD' or DQMonFlags.monManEnvironment(
         if(egammaMonitorPhotons):
             from egammaPerformance.egammaPerformanceConf import photonMonTool
             phMonTool = photonMonTool(name= "phMonTool",
-                                      PhotonContainer		="PhotonCollection",
+                                      PhotonContainer		="Photons",
 #                                      Photon_Trigger_Items = photonTrigItems,
 #                                      Photon_Selection_Items = ["all","loose","tight"],
 #                                      Photon_Divison_Items = ["PHOB","PHOC","PHOE"],
@@ -108,7 +108,7 @@ if DQMonFlags.monManEnvironment() == 'tier0ESD' or DQMonFlags.monManEnvironment(
         if(egammaMonitorElectrons):
             from egammaPerformance.egammaPerformanceConf import electronMonTool
             elMonTool = electronMonTool(name= "elMonTool",
-                                        ElectronContainer		="ElectronCollection",
+                                        ElectronContainer ="Electrons",
 #                                        Electron_Trigger_Items = electronTrigItems,
 #                                        Electron_Selection_Items = ["all","loose","medium","tight"],
 #                                        Electron_Divison_Items = ["EIDB","EIDC","EIDE","EIDA"],
@@ -128,7 +128,7 @@ if DQMonFlags.monManEnvironment() == 'tier0ESD' or DQMonFlags.monManEnvironment(
         if(egammaMonitorFwdEg):
             from egammaPerformance.egammaPerformanceConf import forwardElectronMonTool
             fwdMonTool = forwardElectronMonTool(name= "fwdMonTool",
-                                              ForwardElectronContainer        ="egammaForwardCollection",
+                                              ForwardElectronContainer  ="ForwardElecrons",
 #                                              Electron_Trigger_Items = FrwdETrigItems,
 #                                              Electron_Selection_Items = ["all","tight","loose"],
                                               OutputLevel = egammaMonOutputLevel,
@@ -146,7 +146,7 @@ if DQMonFlags.monManEnvironment() == 'tier0ESD' or DQMonFlags.monManEnvironment(
         if(egammaMonitorZee):
             from egammaPerformance.egammaPerformanceConf import ZeeTaPMonTool
             ZeeMonTool = ZeeTaPMonTool(name= "ZeeMonTool",
-                                        ElectronContainer		="ElectronCollection",
+                                        ElectronContainer ="Electrons",
 #                                        Trigger_Items = ZeeTrigItems,
 #                                        ProcessName = "Zee",
 #                                        Selection_Items = ["all"],
@@ -185,7 +185,7 @@ if DQMonFlags.monManEnvironment() == 'tier0ESD' or DQMonFlags.monManEnvironment(
         if(egammaMonitorJPsi):
             from egammaPerformance.egammaPerformanceConf import physicsMonTool
             JPsiMonTool = physicsMonTool(name= "JPsiMonTool",
-                                         ElectronContainer="ElectronCollection",
+                                         ElectronContainer="Electrons",
                                          Trigger_Items = JPsiTrigItems,
                                          ProcessName = "JPsiee",
                                          Selection_Items = ["all"],
@@ -204,7 +204,7 @@ if DQMonFlags.monManEnvironment() == 'tier0ESD' or DQMonFlags.monManEnvironment(
         if(egammaMonitorUpsilon1S):
             from egammaPerformance.egammaPerformanceConf import physicsMonTool
             Upsilon1SMonTool = physicsMonTool(name= "Upsilon1SMonTool",
-                                              ElectronContainer="ElectronCollection",
+                                              ElectronContainer="Electrons",
                                               Trigger_Items = UpsilonTrigItems,
                                               ProcessName = "Upsilon1See",
                                               Selection_Items = ["all"],
@@ -223,7 +223,7 @@ if DQMonFlags.monManEnvironment() == 'tier0ESD' or DQMonFlags.monManEnvironment(
         if(egammaMonitorUpsilon2S):
             from egammaPerformance.egammaPerformanceConf import physicsMonTool
             Upsilon2SMonTool = physicsMonTool(name= "Upsilon2SMonTool",
-                                              ElectronContainer="ElectronCollection",
+                                              ElectronContainer="Electrons",
                                               Trigger_Items = UpsilonTrigItems,
                                               ProcessName = "Upsilon2See",
                                               Selection_Items = ["all"],
@@ -241,7 +241,7 @@ if DQMonFlags.monManEnvironment() == 'tier0ESD' or DQMonFlags.monManEnvironment(
         if(egammaMonitorWenu):
             from egammaPerformance.egammaPerformanceConf import ephysicsMonTool
             WenuMonTool = ephysicsMonTool(name= "WenuMonTool",
-                                          ElectronContainer="ElectronCollection",
+                                          ElectronContainer="Electrons",
                                           #JetContainer="Cone7TowerJets",
                                           JetContainer="AntiKt4TopoEMJets",
                                           metName = "MET_RefFinal",
@@ -265,7 +265,7 @@ if DQMonFlags.monManEnvironment() == 'tier0ESD' or DQMonFlags.monManEnvironment(
         if(egammaMonitorTop):
             from egammaPerformance.egammaPerformanceConf import TopphysicsMonTool
             TopMonTool = TopphysicsMonTool(name= "TopMonTool",
-                                          ElectronContainer="ElectronCollection",
+                                          ElectronContainer="Electrons",
                                           JetContainer="AntiKt4TopoEMJets",
                                           metName = "MET_RefFinal",
                                           ProcessName = "Topww",
