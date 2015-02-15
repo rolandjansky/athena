@@ -14,6 +14,8 @@ void Analysis_Tier0::initialise() {
 
   h_chain = new TH1D( "Chain", name().c_str(), 1, 0, 1 );
 
+  addHistogram(h_chain);
+
   h_total_efficiency = new TProfile ("Eff_overall",  "total efficiency",  1, 0., 1.);
 
   h_pTeff   = new TProfile ("Eff_pT",  "pT efficiency",  100, 0., 100.);

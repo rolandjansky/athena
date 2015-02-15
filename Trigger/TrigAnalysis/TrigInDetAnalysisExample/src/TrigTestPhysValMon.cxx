@@ -32,7 +32,8 @@ StatusCode TrigTestPhysValMon::initialize() {
   ATH_MSG_DEBUG(" ----- enter init() ----- ");
   ATH_MSG_INFO("TrigTestPhysValMon::init() " << gDirectory->GetName());
 
-  StatusCode sc = TrigTestBase::init();
+  //  StatusCode sc = TrigTestBase::init();
+  StatusCode sc = ManagedMonitorToolBase::initialize();
 
   ATH_MSG_DEBUG(" -----  exit init() ----- ");
   return sc;
