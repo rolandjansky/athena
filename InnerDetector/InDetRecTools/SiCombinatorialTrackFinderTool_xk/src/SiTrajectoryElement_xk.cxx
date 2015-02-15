@@ -39,6 +39,7 @@ bool InDet::SiTrajectoryElement_xk::set
   m_dholesB      = 0                       ;
   m_nclustersF   = 0                       ;
   m_nclustersB   = 0                       ;
+  m_npixelsB     = 0                       ;
   m_ndfF         = 0                       ;
   m_ndfB         = 0                       ;
   m_ntsos        = 0                       ;
@@ -55,6 +56,7 @@ bool InDet::SiTrajectoryElement_xk::set
   m_xi2B         = 10000.                  ;
   m_xi2totalF    = 0.                      ;
   m_xi2totalB    = 0.                      ;
+  m_tools->electron() ? m_xi2max = m_tools->xi2maxBrem() : m_xi2max = m_tools->xi2max();
   m_halflenght   = 0.                      ;
   m_detelement->isSCT() ? m_ndf=1 : m_ndf=2;
   noiseInitiate()                          ;
@@ -204,7 +206,7 @@ bool InDet::SiTrajectoryElement_xk::lastTrajectorElement()
   m_nholesB      =      0 ;
   m_dholesB      =      0 ;
   m_clusterNoAdd =      0 ;
-  m_nclustersB   =      1 ;
+  m_nclustersB   =      1 ; m_ndf == 2 ? m_npixelsB = 1 : m_npixelsB = 0;
   m_ndfB         =  m_ndf ;
   m_xi2B         =  m_xi2F;
   m_xi2totalB    =  m_xi2F;
@@ -472,6 +474,7 @@ bool InDet::SiTrajectoryElement_xk::BackwardPropagationFilter
   m_nholesB      = TE.m_nholesB                        ;
   m_ndist        = TE.m_ndist                          ;
   m_nclustersB   = TE.m_nclustersB                     ; 
+  m_npixelsB     = TE.m_npixelsB                       ;
   m_ndfB         = TE.m_ndfB                           ;
   m_xi2totalB    = TE.m_xi2totalB                      ;
   m_step        += TE.m_step                           ;
@@ -487,7 +490,7 @@ bool InDet::SiTrajectoryElement_xk::BackwardPropagationFilter
       m_cluster = m_linkB[0].cluster();
       if(!addCluster(m_parametersPB,m_parametersUB)) return false;
       noiseProduction(-1,m_parametersUB);
-      ++m_nclustersB; m_xi2totalB+=m_xi2B; m_ndfB+=m_ndf;
+      ++m_nclustersB; m_xi2totalB+=m_xi2B; m_ndfB+=m_ndf; if(m_ndf==2) ++m_npixelsB;
     }
     else if(m_xi2B <= m_xi2maxNoAdd) { 
       
@@ -546,6 +549,7 @@ bool InDet::SiTrajectoryElement_xk::BackwardPropagationSmoother
   m_nholesB      = TE.m_nholesB            ;
   m_ndist        = TE.m_ndist              ;
   m_nclustersB   = TE.m_nclustersB         ; 
+  m_npixelsB     = TE.m_npixelsB           ;
   m_ndfB         = TE.m_ndfB               ; 
   m_xi2totalB    = TE.m_xi2totalB          ;
   //m_step        += TE.m_step               ;
@@ -566,7 +570,7 @@ bool InDet::SiTrajectoryElement_xk::BackwardPropagationSmoother
 	m_cluster = m_linkB[0].cluster();
 
 	if(!addCluster(m_parametersPB,m_parametersUB)) return false;
-	++m_nclustersB; m_xi2totalB+=m_xi2B; m_ndfB+=m_ndf;
+	++m_nclustersB; m_xi2totalB+=m_xi2B; m_ndfB+=m_ndf; if(m_ndf==2) ++m_npixelsB;
       }
       else if(m_xi2B <= m_xi2maxNoAdd) {
 	
@@ -585,7 +589,7 @@ bool InDet::SiTrajectoryElement_xk::BackwardPropagationSmoother
   m_cluster =  m_clusterOld;
   if(!addCluster(m_parametersPB,m_parametersUB,m_xi2B)) return false;
 
-  if     (m_xi2B <= Xi2max       ) {++m_nclustersB; m_xi2totalB+=m_xi2B; m_ndfB+=m_ndf;}
+  if     (m_xi2B <= Xi2max       ) {++m_nclustersB; m_xi2totalB+=m_xi2B; m_ndfB+=m_ndf; if(m_ndf==2) ++m_npixelsB;}
   else if(m_xi2B <= m_xi2maxNoAdd) {m_cluster      = 0; m_clusterNoAdd = m_clusterOld; }
   else                                      {m_cluster      = 0;                       }
 
@@ -619,7 +623,7 @@ bool InDet::SiTrajectoryElement_xk::addNextClusterB()
   }
   else {
     m_nlinksB = 0;
-    m_cluster = 0; --m_nclustersB; m_ndfB-=m_ndf;
+    m_cluster = 0; --m_nclustersB; m_ndfB-=m_ndf; if(m_ndf==2) --m_npixelsB;
     if(m_inside < 0 ) {++m_nholesB; ++m_dholesB;} m_xi2B = 0.;
     if(m_dist   < -2.) ++m_ndist;
   }
@@ -666,6 +670,7 @@ bool InDet::SiTrajectoryElement_xk::addNextClusterB
   m_clusterOld = m_cluster      ;
   m_cluster    = Cl             ;
   m_nclustersB = TE.m_nclustersB;
+  m_npixelsB   = TE.m_npixelsB  ;
   m_ndfB       = TE.m_ndfB      ;
   m_nholesB    = TE.m_nholesB   ;
   m_ndist      = TE.m_ndist     ;
@@ -677,7 +682,7 @@ bool InDet::SiTrajectoryElement_xk::addNextClusterB
 
     if(!addCluster(m_parametersPB,m_parametersUB,m_xi2B)) return false;
     m_inside    = -1; noiseProduction(-1,m_parametersUB);
-    ++m_nclustersB; m_xi2totalB+=m_xi2B; m_ndfB+=m_ndf; 
+    ++m_nclustersB; m_xi2totalB+=m_xi2B; m_ndfB+=m_ndf; if(m_ndf==2) ++m_npixelsB;
   }
   else  {
 
@@ -816,8 +821,6 @@ int  InDet::SiTrajectoryElement_xk::searchClustersWithoutStereoPIX
 int  InDet::SiTrajectoryElement_xk::searchClustersWithoutStereoSCT
 (Trk::PatternTrackParameters& Tp,InDet::SiClusterLink_xk* L) 
 {
-  const double covb = .25;
-
   int nl     = 0; if(m_detstatus<=0) return 0;
 
   double P0  = Tp.par()[0];
@@ -833,11 +836,9 @@ int  InDet::SiTrajectoryElement_xk::searchClustersWithoutStereoSCT
     
     const InDet::SiCluster*      c = (*p); 
     const Amg::Vector2D&         M = c->localPosition();
-    const Amg::MatrixX&          V = c->localCovariance();
 
-    double MV0 = c->width().phiR(); MV0*=(MV0*.08333);
-
-    double v0  = PV0    ; MV0 > V(0,0) ? v0+=MV0 : v0+=V(0,0);
+    double MV0 = c->width().phiR()   ;
+    double v0  = .08333*(MV0*MV0)+PV0;   
     double r0  = M[0]-P0;
     double d   = 1./v0  ;
     double x   = r0*r0*d;
@@ -851,8 +852,8 @@ int  InDet::SiTrajectoryElement_xk::searchClustersWithoutStereoSCT
       double r1; 
       dP1 > m_halflenght ? r1 = m_halflenght-P1 : r1 = -m_halflenght-P1;
       
-      double v1 =      PV1     ;
-      double v2 = covb+PV2     ;  
+      double v1 = PV1;
+      double v2 = PV2;  
       d         = v0*v2-v1*v1  ; if(d<=0.) continue; 
       x = (r0*(r0*v2-r1*v1)+r1*(r1*v0-r0*v1))/d;
       if(x>Xc) continue;
@@ -965,7 +966,6 @@ int  InDet::SiTrajectoryElement_xk::searchClustersWithoutStereoAssPIX
 int  InDet::SiTrajectoryElement_xk::searchClustersWithoutStereoAssSCT
 (Trk::PatternTrackParameters& Tp,InDet::SiClusterLink_xk* L) 
 {
-  const double covb = 1.;
 
   int nl     = 0; if(m_detstatus<=0) return 0;
 
@@ -982,7 +982,6 @@ int  InDet::SiTrajectoryElement_xk::searchClustersWithoutStereoAssSCT
     
     const InDet::SiCluster*      c = (*p); 
     if(m_assoTool->isUsed(*c)) continue;
-
     const Amg::Vector2D&    M = c->localPosition();
 
     double MV0 = c->width().phiR();
@@ -1000,9 +999,9 @@ int  InDet::SiTrajectoryElement_xk::searchClustersWithoutStereoAssSCT
       double r1; 
       dP1 > m_halflenght ? r1 = m_halflenght-P1 : r1 = -m_halflenght-P1;
       
-      double v1 =      PV1     ;
-      double v2 = covb+PV2     ;  
-      d           = v0*v2-v1*v1; if(d<=0.) continue;
+      double v1 = PV1;
+      double v2 = PV2;  
+      d         = v0*v2-v1*v1; if(d<=0.) continue;
       x = (r0*(r0*v2-r1*v1)+r1*(r1*v0-r0*v1))/d;
       if(x>Xc) continue;
     }

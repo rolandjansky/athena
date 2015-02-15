@@ -50,6 +50,7 @@ namespace InDet{
       const int&  dholesB     () const {return m_dholesB;   }
       const int&  nclustersF  () const {return m_nclustersF;}
       const int&  nclustersB  () const {return m_nclustersB;}
+      const int&  npixelsB    () const {return m_npixelsB;  }
       const bool& stereo      () const {return m_stereo;    }
       const int&  status      () const {return m_status;    }
       const int&  noiseModel  () const {return m_noisemodel;}
@@ -298,6 +299,7 @@ namespace InDet{
       int                                         m_dholesB     ;
       int                                         m_nclustersF  ;
       int                                         m_nclustersB  ;
+      int                                         m_npixelsB    ;
       int                                         m_noisemodel  ;
       int                                         m_ndf         ;
       int                                         m_ndfF        ;
@@ -407,6 +409,7 @@ namespace InDet{
       m_dholesB     = 0 ;
       m_nclustersF  = 0 ;
       m_nclustersB  = 0 ;
+      m_npixelsB    = 0 ;
       m_stereo      = false;
       m_fieldMode   = false;
       m_useassoTool = false;
@@ -466,6 +469,7 @@ namespace InDet{
       m_ntsos        = E.m_ntsos       ;
       m_nclustersF   = E.m_nclustersF  ; 
       m_nclustersB   = E.m_nclustersB  ;
+      m_npixelsB     = E.m_npixelsB    ;
       m_noise        = E.m_noise       ;
       m_tools        = E.m_tools       ;
       m_covariance   = E.m_covariance  ;
