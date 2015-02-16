@@ -32,13 +32,13 @@ namespace ISF {
   typedef std::vector<double>                DoubleVector;
 
   /** @class G4PolyconeGeoIDSvc
-  
+
       @TODO
-  
+
       @author Elmar.Ritsch -at- cern.ch
      */
-  class G4PolyconeGeoIDSvc : public AthService, public ISF::IGeoIDSvc { 
-    public: 
+  class G4PolyconeGeoIDSvc : public AthService, public ISF::IGeoIDSvc {
+    public:
      /** Constructor with parameters */
      G4PolyconeGeoIDSvc(const std::string& name,ISvcLocator* svc);
 
@@ -83,8 +83,8 @@ namespace ISF {
 
      /** a quick way to convert G4 enum EInside to ISF::InsideType */
      ISF::InsideType                   m_typeConverter[ISF::fNumInsideTypes];
-   }; 
-  
+   };
+
 }
 
 
