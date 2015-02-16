@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////
 
 // class header include
-#include "ISF_Geant4CommonTools/EntryLayerTool.h"
+#include "EntryLayerTool.h"
 
 // ISF includes
 #include "ISF_Event/ISFParticle.h"
@@ -17,7 +17,7 @@
 #include "ISF_Interfaces/IParticleFilter.h"
 
 /** Constructor **/
-ISF::EntryLayerTool::EntryLayerTool(const std::string& t, const std::string& n, const IInterface* p) : 
+ISF::EntryLayerTool::EntryLayerTool(const std::string& t, const std::string& n, const IInterface* p) :
   AthAlgTool(t,n,p),
   m_incidentSvc("IncidentSvc",n),
   m_geoIDSvc("GeoIDSvc",n),
@@ -36,7 +36,7 @@ ISF::EntryLayerTool::EntryLayerTool(const std::string& t, const std::string& n, 
                    m_geoIDSvc,
                    "AthenaService used to indentify sub-detector by (x,y,z) coordintes.");
 
-   // particle filters
+  // particle filters
   declareProperty( "ParticleFilters",
                    m_particleFilterHandle,
                    "ISF Particle filters, defining whether a particle will be stored or not.");
@@ -103,8 +103,8 @@ StatusCode  ISF::EntryLayerTool::initialize()
   m_numParticleFilters = m_particleFilterHandle.size();
   m_particleFilter = new ISF::IParticleFilter*[ m_numParticleFilters ];
   for ( size_t curFilter = 0; curFilter<m_numParticleFilters; curFilter++) {
-      // convert ToolHandle to standard c++ class pointer
-      m_particleFilter[curFilter] = &(*m_particleFilterHandle[curFilter]);
+    // convert ToolHandle to standard c++ class pointer
+    m_particleFilter[curFilter] = &(*m_particleFilterHandle[curFilter]);
   }
 
   ATH_MSG_INFO("initialize() successful");
@@ -192,8 +192,18 @@ ISF::EntryLayer ISF::EntryLayerTool::registerParticle(const ISF::ISFParticle& pa
   if ( layerHit != ISF::fUnsetEntryLayer) {
     ATH_MSG_VERBOSE( "Particle >>" << particle << "<< hit boundary surface, "
                      "adding it to '" << m_SGName[layerHit] << "' TrackRecord collection");
-    TrackRecord *tRec = convert(particle, m_volumeName[layerHit]);
-    m_collection[layerHit]->push_back(tRec);
+    double mass            = particle.mass();
+    CLHEP::Hep3Vector      mom( particle.momentum().x(), particle.momentum().y(), particle.momentum().z() );// not optimal, but required by TrackRecord
+    CLHEP::Hep3Vector      pos( particle.position().x(), particle.position().y(), particle.position().z() );// not optimal, but required by TrackRecord
+    double energy          = sqrt(mass*mass + mom.mag2());
+
+    m_collection[layerHit]->Emplace(particle.pdgCode(),
+                                    energy,
+                                    mom,
+                                    pos,
+                                    particle.timeStamp(),
+                                    particle.barcode(),
+                                    m_volumeName[layerHit] );
   }
 
   return layerHit;
@@ -208,41 +218,17 @@ TrackRecordCollection *ISF::EntryLayerTool::setupSGCollection(const std::string 
   // check if storegate already contains the collection
   // (a)     if yes ... try to retrieve it
   if ( evtStore()->contains<TrackRecordCollection>(collectionName) ){
-      if ( (evtStore()->retrieve( collection, collectionName)).isFailure() )
-          ATH_MSG_ERROR( "[ --- ] Unable to retrieve TrackRecordCollection " << collectionName);
-  // (b)     if no ... try to create it     
+    if ( (evtStore()->retrieve( collection, collectionName)).isFailure() )
+      ATH_MSG_ERROR( "[ --- ] Unable to retrieve TrackRecordCollection " << collectionName);
+    // (b)     if no ... try to create it
   } else {
-      collection = new TrackRecordCollection( collectionName);
-      if ( (evtStore()->record( collection, collectionName, true)).isFailure() ) {
-          ATH_MSG_ERROR( "[ --- ] Unable to record SiHitCollection " << collectionName);
-          delete collection;
-          collection=0;
-      }
+    collection = new TrackRecordCollection( collectionName);
+    if ( (evtStore()->record( collection, collectionName, true)).isFailure() ) {
+      ATH_MSG_ERROR( "[ --- ] Unable to record SiHitCollection " << collectionName);
+      delete collection;
+      collection=0;
+    }
   }
 
   return collection;
 }
-
-
-/** convert ISFParticle to TrackRecord */
-TrackRecord *ISF::EntryLayerTool::convert( const ISF::ISFParticle &p,
-                                               std::string &volumeName )
-{
-  // definitions for quick access:
-  double mass            = p.mass();
-  CLHEP::Hep3Vector      mom( p.momentum().x(), p.momentum().y(), p.momentum().z() );// not optimal, but required by TrackRecord
-  CLHEP::Hep3Vector      pos( p.position().x(), p.position().y(), p.position().z() );// not optimal, but required by TrackRecord
-  double energy          = sqrt(mass*mass + mom.mag2());
-  double time            = 0.; //!< @TODO: fix time
-
-  // finally create the TrackRecord
-  TrackRecord *tRec = new TrackRecord( p.pdgCode(),
-                                       energy,
-                                       mom,
-                                       pos,
-                                       time,
-                                       p.barcode(),
-                                       volumeName );
-  return tRec;
-}
-
