@@ -276,7 +276,7 @@ StatusCode Muon::MDT_RawDataProviderTool::convert( const std::vector<const OFFLI
 	}
     }
   //in presence of errors return FAILURE
-  ATH_MSG_DEBUG("After processing numColls="<<m_rdoContainer->numberOfCollections());
+  ATH_MSG_DEBUG("After processing numColls="<<csm->numberOfCollections());
   return StatusCode::SUCCESS;
 }
 
