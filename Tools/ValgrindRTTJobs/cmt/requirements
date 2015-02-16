@@ -9,14 +9,14 @@ use GaudiInterface      GaudiInterface-*        External
 use AtlasPolicy		AtlasPolicy-*
 # use AtlasPython AtlasPython-* External
 use PyJobTransformsCore PyJobTransformsCore-* Tools
-use AtlasValgrind AtlasValgrind-* External
+#use AtlasValgrind AtlasValgrind-* External
 
 use TestPolicy TestPolicy-*
 apply_pattern validate_xml
 
 public
 
-apply_pattern declare_jobtransforms trfs='valgrind_trf.py' jo='*.py'
+#apply_pattern declare_jobtransforms trfs='valgrind_trf.py' jo='*.py'
 
 public
 
