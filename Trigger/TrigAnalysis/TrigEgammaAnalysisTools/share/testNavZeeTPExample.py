@@ -65,5 +65,7 @@ ServiceMgr += THistSvc()
 ServiceMgr.THistSvc.Output += ["Validation_Zee DATAFILE='Validation_Zee.root' OPT='RECREATE'"]
 
 from TrigEgammaAnalysisTools.TrigEgammaAnalysisToolsConfig import TrigEgammaAnalysisAlg
-TrigEgammaAnalysisAlg()
+from TrigEgammaAnalysisTools.TrigEgammaAnalysisToolsConfig import TrigEgammaNavZeeTPCounts
+Counts = TrigEgammaNavZeeTPCounts(name="NavZeeTPCounts",ElectronKey="ElectronCollection",ProbeTriggerList=['e28_tight_iloose','e0_perf_L1EM3'],)
+Alg = TrigEgammaAnalysisAlg(name="MyAlg",Tools=[Counts])
 

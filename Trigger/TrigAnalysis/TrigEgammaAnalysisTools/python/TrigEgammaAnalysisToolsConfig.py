@@ -49,6 +49,7 @@ ToolSvc+=TightLHSelector
 # Using Factories need to set for each tool
 TrigEgammaNavZeeTPBaseTool = ToolFactory(TrigEgammaAnalysisToolsConf.TrigEgammaNavZeeTPBaseTool, name = "TrigEgammaNavZeeTPBaseTool",
         DirectoryPath = 'NavZeeTPBase',
+        ElectronKey = 'Electrons',
         MVACalibTool=mvatool,
         ApplyMVACalib=False,
         ElectronIsEMSelector =[TightElectronSelector,MediumElectronSelector,LooseElectronSelector], 
@@ -67,6 +68,7 @@ TrigEgammaNavZeeTPBaseTool = ToolFactory(TrigEgammaAnalysisToolsConf.TrigEgammaN
 TrigEgammaNavZeeTPCounts = ToolFactory(TrigEgammaAnalysisToolsConf.TrigEgammaNavZeeTPCounts, name = "TrigEgammaNavZeeTPCounts",
         OutputLevel=1,
         DirectoryPath='NavZeeTPCounts',
+        ElectronKey = 'Electrons',
         MVACalibTool=mvatool,
         ApplyMVACalib=False,
         ElectronIsEMSelector =[TightElectronSelector,MediumElectronSelector,LooseElectronSelector], 
@@ -84,6 +86,7 @@ TrigEgammaNavZeeTPCounts = ToolFactory(TrigEgammaAnalysisToolsConf.TrigEgammaNav
 
 TrigEgammaNavZeeTPEff = ToolFactory(TrigEgammaAnalysisToolsConf.TrigEgammaNavZeeTPEff, name = "TrigEgammaNavZeeTPEff",
         DirectoryPath='NavZeeTPEff',
+        ElectronKey = 'Electrons',
         MVACalibTool=mvatool,
         ApplyMVACalib=False,
         ElectronIsEMSelector =[TightElectronSelector,MediumElectronSelector,LooseElectronSelector], 
@@ -101,6 +104,7 @@ TrigEgammaNavZeeTPEff = ToolFactory(TrigEgammaAnalysisToolsConf.TrigEgammaNavZee
 
 TrigEgammaNavZeeTPRes = ToolFactory(TrigEgammaAnalysisToolsConf.TrigEgammaNavZeeTPRes, name = "TrigEgammaNavZeeTPRes",
         DirectoryPath='NavZeeTPRes',
+        ElectronKey = 'Electrons',
         MVACalibTool=mvatool,
         ApplyMVACalib=False,
         ElectronIsEMSelector =[TightElectronSelector,MediumElectronSelector,LooseElectronSelector], 
@@ -118,6 +122,7 @@ TrigEgammaNavZeeTPRes = ToolFactory(TrigEgammaAnalysisToolsConf.TrigEgammaNavZee
 
 TrigEgammaNavZeeTPIneff = ToolFactory(TrigEgammaAnalysisToolsConf.TrigEgammaNavZeeTPIneff, name = "TrigEgammaNavZeeTPIneff",
         DirectoryPath='NavZeeTPIneff',
+        ElectronKey = 'Electrons',
         IneffLabels=["ClusterEtaRange","ConversionMatch","ClusterHadronicLeakage","ClusterMiddleEnergy","ClusterMiddleEratio37","ClusterMiddleEratio33","ClusterMiddleWidth","f3","ClusterStripsEratio","ClusterStripsDeltaEmax2","ClusterStripsDeltaE","ClusterStripsWtot","ClusterStripsFracm","ClusterStripsWeta1c","empty14","ClusterStripsDEmaxs1","TrackBlayer","TrackPixel","TrackSi","TrackA0","TrackMatchEta","TrackMatchPhi","TrackMatchEoverP","empty23","TrackTRThits","TrackTRTratio","TrackTRTratio90","TrackA0Tight","TrackMatchEtaTight","Isolation","ClusterIsolation","TrackIsolation"],
         ElectronOnlPPSelector=[ ToolSvc.AsgElectronIsEMTightSelector,ToolSvc.AsgElectronIsEMMediumSelector,ToolSvc.AsgElectronIsEMLooseSelector ],
         MVACalibTool=mvatool,
