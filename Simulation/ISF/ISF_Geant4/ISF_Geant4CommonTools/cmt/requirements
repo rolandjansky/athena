@@ -9,19 +9,19 @@ manager Elmar Ritsch <Elmar.Ritsch@cern.ch>
 public
 # Framework
 use AtlasPolicy          AtlasPolicy-*
-use AthenaBaseComps      AthenaBaseComps-*       Control
 use GaudiInterface       GaudiInterface-*        External
-# Geant4
-use TrackRecord          TrackRecord-*           Simulation/G4Sim
-# ISF
-use ISF_Interfaces       ISF_Interfaces-*        Simulation/ISF/ISF_Core
 
 #################################################################
 # public use statements
 #################################################################
 private
+# Framework
+use AthenaBaseComps      AthenaBaseComps-*       Control
+# Geant4
+use TrackRecord          TrackRecord-*           Simulation/G4Sim
 # ISF
 use ISF_Event            ISF_Event-*             Simulation/ISF/ISF_Core
+use ISF_Interfaces       ISF_Interfaces-*        Simulation/ISF/ISF_Core
 
 
 public
