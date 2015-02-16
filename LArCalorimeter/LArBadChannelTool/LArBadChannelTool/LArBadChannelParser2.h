@@ -65,8 +65,10 @@ private:
 inline bool LArBadChannelParser2::stringToInt(int& theInt, const std::string& theStr) const
 {
   std::istringstream iss(theStr);
-  return !(iss >> std::dec >> theInt).fail() && (static_cast<int>(theStr.size()) ==  iss.tellg());
   //the second condition checks for invalid input of the form "123abc"
+  //return !(iss >> std::dec >> theInt).fail() && (static_cast<int>(theStr.size()) ==  iss.tellg());
+  iss >> std::dec >> theInt;
+  return !iss.fail() && iss.eof();
 }
 
 #endif

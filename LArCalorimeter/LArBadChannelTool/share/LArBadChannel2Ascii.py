@@ -1,12 +1,15 @@
 if 'OutputFile' not in dir():
     OutputFile="bc_output.txt"
 
+if 'DBInstance' not in dir():
+   DBInstance="CONDBR2"
+
 if 'sqlite' in dir():
-    dbStr="<db>sqlite://;schema="+sqlite+";dbname=COMP200</db>"
+    dbStr="<db>sqlite://;schema="+sqlite+";dbname="+DBInstance+"</db>"
     if not 'tag' in dir():
         tag="LARBadChannelsOflBadChannels-UPD4-00"
 else:
-    dbStr="<db>COOLOFL_LAR/COMP200</db>"
+    dbStr="<db>COOLOFL_LAR/"+DBInstance+"</db>"
 
 if 'tag' in dir():
     tagStr="<tag>"+tag+"</tag>"
@@ -25,9 +28,10 @@ import AthenaCommon.AtlasUnixGeneratorJob
 from AthenaCommon.GlobalFlags import  globalflags
 globalflags.DataSource="data"
 globalflags.InputFormat="bytestream"
+globalflags.DatabaseInstance=DBInstance
 	
 from AthenaCommon.JobProperties import jobproperties
-jobproperties.Global.DetDescrVersion = "ATLAS-GEO-16-00-00"
+jobproperties.Global.DetDescrVersion = "ATLAS-GEO-20-00-01"
 
 from AthenaCommon.DetFlags import DetFlags
 DetFlags.Calo_setOff()
@@ -72,7 +76,7 @@ from AthenaCommon.AppMgr import (theApp, ServiceMgr as svcMgr,ToolSvc)
 conddb.addFolder("","/LAR/BadChannelsOfl/BadChannels"+tagStr+dbStr)
 #conddb.addFolder("LAR_OFL","/LAR/BadChannelsOfl/MissingFEBs")
 
-svcMgr.IOVDbSvc.GlobalTag="COMCOND-BLKPST-004-05" 
+svcMgr.IOVDbSvc.GlobalTag="CONDBR2-ES1PA-2014-01" 
 
 from LArBadChannelTool.LArBadChannelToolConf import LArBadChanTool
 theLArBadChannelTool=LArBadChanTool()

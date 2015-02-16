@@ -11,10 +11,14 @@
 <class name="LArBadChannel"/>
 <class name="std::pair<HWIdentifier,LArBadChannel>"/>
 <class name="std::vector<std::pair<HWIdentifier,LArBadChannel>>"/>
+<class name="std::pair<HWIdentifier32,LArBadChannel>"/>
+<class name="std::vector<std::pair<HWIdentifier32,LArBadChannel>>"/>
 
 <class name="LArBadFeb"/>
 <class name="std::pair<HWIdentifier,LArBadFeb>"/>
 <class name="std::vector<std::pair<HWIdentifier,LArBadFeb>>"/>
+<class name="std::pair<HWIdentifier32,LArBadFeb>"/>
+<class name="std::vector<std::pair<HWIdentifier32,LArBadFeb>>"/>
 
 <class name="LArBadChannelEnum"/>
 <class name="LArBadChanBitPacking"/>

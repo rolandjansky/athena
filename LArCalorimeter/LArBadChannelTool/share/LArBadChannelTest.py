@@ -49,15 +49,15 @@ from AthenaCommon.AppMgr import (theApp, ServiceMgr as svcMgr,ToolSvc)
 BadChanTag=join(split(BadChanFolder, '/'),'') + TagPostfix
 FEBTag=join(split(FEBFolder, '/'),'') + TagPostfix
 
-DBConnection = "<dbConnection>sqlite://;schema=BadChannels.db;dbname=COMP200</dbConnection>"
+DBConnection = "<dbConnection>sqlite://;schema=BadChannels.db;dbname=CONDBR2</dbConnection>"
 DBBadChanFolder = BadChanFolder + "<tag>" + BadChanTag + "</tag>" + DBConnection
 DBFebFolder     = FEBFolder     + "<tag>" + FEBTag     + "</tag>" + DBConnection
 
 svcMgr.IOVDbSvc.Folders+=[DBBadChanFolder]
 svcMgr.IOVDbSvc.Folders+=[DBFebFolder]
 
-#svcMgr.IOVDbSvc.Folders+=["/LAR/BadChannels/BadChannels<tag>LARBadChannelsBadChannels-M6-01</tag><dbConnection>sqlite://;schema=BadChannels.db;dbname=COMP200</dbConnection>" ]
-#svcMgr.IOVDbSvc.Folders+=["/LAR/BadChannels/MissingFEBs<tag>LARBadChannelsMissingFEBs-M6-01</tag><dbConnection>sqlite://;schema=BadChannels.db;dbname=COMP200</dbConnection>" ]
+#svcMgr.IOVDbSvc.Folders+=["/LAR/BadChannels/BadChannels<tag>LARBadChannelsBadChannels-M6-01</tag><dbConnection>sqlite://;schema=BadChannels.db;dbname=CONDBR2</dbConnection>" ]
+#svcMgr.IOVDbSvc.Folders+=["/LAR/BadChannels/MissingFEBs<tag>LARBadChannelsMissingFEBs-M6-01</tag><dbConnection>sqlite://;schema=BadChannels.db;dbname=CONDBR2</dbConnection>" ]
 #conddb.addFolder("LAR","/LAR/BadChannels/BadChannels")
 svcMgr.IOVDbSvc.GlobalTag=GlobalTag
 

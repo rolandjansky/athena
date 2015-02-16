@@ -29,6 +29,7 @@ namespace LArBadChanBlobUtils {
 
   /// Creates a BLOB of the right size and copies the content of the 
   /// vector of pair<HWIdentifier, LArBadChannel> into the blob.
+  //  but fill the blob with vector of pair<HWIdentifier32, LArBadChannel>
   /// Returns a pointer to the new blob, which has to be managed 
   /// (and eventually released) by the caller
   template <class T>

@@ -89,8 +89,8 @@ class LArBadChannelBrowserAlg(PyAthena.Alg):
 
         # -----------------------------------------------------------
         # Read local copy of condb => LarBadChannel folder 
-#        dbstring="sqlite://;schema=./myCondLArDB.db;dbname=COMP200"
-        dbstring="COOLONL_LAR/COMP200"
+#        dbstring="sqlite://;schema=./myCondLArDB.db;dbname=CONDBR2"
+        dbstring="COOLONL_LAR/CONDBR2"
         try:
             self.db = self.dbSvc.openDatabase(dbstring,True)
         except Exception,e:

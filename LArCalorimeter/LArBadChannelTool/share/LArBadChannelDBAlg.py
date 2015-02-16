@@ -1,5 +1,7 @@
 #No input file -> use MC event selector
 
+if 'DBInstance' not in dir():
+    DBInstance="CONDBR2"
 
 if "Folder" not in dir():
     Folder="/LAR/BadChannelsOfl/BadChannels"
@@ -31,9 +33,10 @@ import AthenaCommon.AtlasUnixGeneratorJob
 from AthenaCommon.GlobalFlags import  globalflags
 globalflags.DataSource="data"
 globalflags.InputFormat="bytestream"
+globalflags.DatabaseInstance=DBInstance
 
 from AthenaCommon.JobProperties import jobproperties
-jobproperties.Global.DetDescrVersion = "ATLAS-GEO-16-00-00"
+jobproperties.Global.DetDescrVersion = "ATLAS-GEO-20-00-01"
 
 from AthenaCommon.DetFlags import DetFlags
 DetFlags.Calo_setOff()
@@ -59,11 +62,12 @@ include( "CaloDetMgrDetDescrCnv/CaloDetMgrDetDescrCnv_joboptions.py" )
 
 theApp.EvtMax = 1
 
-svcMgr.EventSelector.RunNumber         = 1
+svcMgr.EventSelector.RunNumber         = 222222
 svcMgr.EventSelector.FirstEvent        = 1
 #svcMgr.EventSelector.InitialTimeStamp  = 0
 #svcMgr.EventSelector.TimeStampInterval = 5
-svcMgr.IOVDbSvc.GlobalTag="COMCOND-ES1P-003-00"
+#svcMgr.IOVDbSvc.GlobalTag="COMCOND-ES1P-003-00"
+svcMgr.IOVDbSvc.GlobalTag="CONDBR2-ES1PA-2014-01"
 
 
 ## get a handle to the default top-level algorithm sequence
@@ -120,7 +124,7 @@ if IOVEndRun > 0 and IOVEndLB >= 0:
    theOutputConditionsAlg.Run2 = IOVEndRun
    theOutputConditionsAlg.LB2 = IOVEndLB
 
-svcMgr.IOVDbSvc.dbConnection  = "sqlite://;schema="+sqlite+";dbname=COMP200"
+svcMgr.IOVDbSvc.dbConnection  = "sqlite://;schema="+sqlite+";dbname="+DBInstance
 from RegistrationServices.RegistrationServicesConf import IOVRegistrationSvc
 svcMgr += IOVRegistrationSvc()
 svcMgr.IOVRegistrationSvc.RecreateFolders = False #Allow add in a second tag

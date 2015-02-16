@@ -86,6 +86,6 @@ toRemove=(0x380cf300,0x380cfc00,0x380cff00)
 
 toAdd={1 : {0x380cf100 : 0x41, 940404992 : 0x41}}
         
-addAndRemove("sqlite://;schema=test.db;dbname=COMP200",
+addAndRemove("sqlite://;schema=test.db;dbname=CONDBR2",
              "/LAR/BadChannelsOfl/BadChannels","LARBadChannelsOflBadChannels-UPD4-00",170000<<32,cool.ValidityKeyMax,toAdd,toRemove)
     

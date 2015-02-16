@@ -16,7 +16,7 @@ def getMissingFebs(run, tag=None):
     
     retval=[]
 
-    dbName="COOLOFL_LAR/COMP200"
+    dbName="COOLOFL_LAR/CONDBR2"
     fName="/LAR/BadChannelsOfl/MissingFEBs"
 
     dbSvc = cool.DatabaseSvcFactory.databaseService()
