@@ -5,7 +5,7 @@
 # @brief Main package for new style ATLAS job transforms
 # @details Core class for ATLAS job transforms
 # @author atlas-comp-transforms-dev@cern.ch
-# @version $Id: transform.py 636429 2014-12-17 09:48:38Z graemes $
+# @version $Id: transform.py 647216 2015-02-16 17:23:57Z graemes $
 # 
 
 __version__ = '$Revision'
@@ -607,10 +607,6 @@ class transform(object):
         else:
             return None
 
-    ## @brief Do transform validation
-    def doTrfValidation(self):
-        self._validation.runValidation()
-
     ## @brief Return a list of fileArgs used by the transform
     #  @param \c io Filter files by io attribute
     #  @return List of argFile instances
@@ -629,7 +625,10 @@ class transform(object):
 
     def validateInFiles(self):
         if (('skipFileValidation' in self._argdict and self._argdict['skipFileValidation'] is True) or
-            ('skipInputFileValidation' in self._argdict and self._argdict['skipInputFileValidation'] is True)):
+            ('skipInputFileValidation' in self._argdict and self._argdict['skipInputFileValidation'] is True) or
+            ('fileValidation' in self._argdict and self._argdict['fileValidation'].value is False) or
+            ('inputFileValidation' in self._argdict and self._argdict['inputFileValidation'].value is False)
+            ):
             msg.info('Standard input file validation turned off for transform %s.' % self.name)
         else:
             msg.info('Validating input files')
@@ -640,7 +639,10 @@ class transform(object):
 
     def validateOutFiles(self):
         if (('skipFileValidation' in self._argdict and self._argdict['skipFileValidation'] is True) or
-            ('skipOutputFileValidation' in self._argdict and self._argdict['skipOutputFileValidation'] is True)):
+            ('skipOutputFileValidation' in self._argdict and self._argdict['skipOutputFileValidation'] is True) or
+            ('fileValidation' in self._argdict and self._argdict['fileValidation'].value is False) or
+            ('outputFileValidation' in self._argdict and self._argdict['outputFileValidation'].value is False)
+            ):
             msg.info('Standard output file validation turned off for transform %s.' % self.name)
         else:
             msg.info('Validating output files')
