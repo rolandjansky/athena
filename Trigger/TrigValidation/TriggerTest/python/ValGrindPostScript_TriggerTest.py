@@ -14,4 +14,6 @@ from RttScriptRunner_TriggerTest import RttScriptRunner_TriggerTest
 class ValGrindPostScript_TriggerTest(RttScriptRunner_TriggerTest):
     pass
 
-#add tony's python post script for valgrind here!!!
+#add tony's python post script for valgrind after this:
+#sed -e '/    definitely lost: / { N; d; }' Valgrind_*_log > Valgrind_test_log_1
+#!!!
