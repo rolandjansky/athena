@@ -21,6 +21,7 @@ apply_pattern installed_library
 private
 use GaudiInterface  GaudiInterface-*    External
 use AtlasCLHEP      AtlasCLHEP-*        External
+use CxxUtils        CxxUtils-*          Control
 use StoreGate       StoreGate-*         Control
 use RDBAccessSvc    RDBAccessSvc-*      Database/AthenaPOOL
 use GeoModelInterfaces   GeoModelInterfaces-*       DetectorDescription/GeoModel

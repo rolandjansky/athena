@@ -48,6 +48,7 @@
 #include "GeoModelInterfaces/IGeoModelSvc.h"
 
 #include "StoreGate/StoreGateSvc.h"
+#include "CxxUtils/make_unique.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/Bootstrap.h"
 
@@ -56,12 +57,10 @@
 #include <iostream>
 
 LArGeo::MWPCConstruction::MWPCConstruction(double Step)
-  :msg(0),
-   MWPCPhysical(0),
-   pAccessSvc(0),
-   geoModelSvc(0)
+  : m_wireStep(Step),
+    m_MWPCPhysical(nullptr)
 {
-  wireStep = Step;
+ 
 }
 
 
@@ -74,7 +73,7 @@ LArGeo::MWPCConstruction::~MWPCConstruction()
 GeoVPhysVol* LArGeo::MWPCConstruction::GetEnvelope()
 {
 
-  if (MWPCPhysical) return MWPCPhysical;
+  if (m_MWPCPhysical) return m_MWPCPhysical;
 
   // Message service:  
   ISvcLocator *svcLocator = Gaudi::svcLocator();
@@ -82,12 +81,12 @@ GeoVPhysVol* LArGeo::MWPCConstruction::GetEnvelope()
   StatusCode status = svcLocator->service("MessageSvc", msgSvc);
   
   if(!status.isFailure()){
-    msg = new MsgStream(msgSvc, "MWPCConstruction");
+    m_msg = CxxUtils::make_unique<MsgStream>(msgSvc, "MWPCConstruction");
   } else {
     throw std::runtime_error("MWPCConstruction: cannot initialze message service");
   }
 
-  (*msg) << MSG::INFO << "MWPCConstruction - creating an MWPC with wire step " << wireStep << "mm !  " << endreq;
+  (*m_msg) << MSG::INFO << "MWPCConstruction - creating an MWPC with wire step " << m_wireStep << "mm !  " << endreq;
 
 
 
@@ -97,14 +96,10 @@ GeoVPhysVol* LArGeo::MWPCConstruction::GetEnvelope()
   }
 
 
-  StatusCode sc;
-
-  IGeoModelSvc *geoModelSvc;
-  sc = svcLocator->service ("GeoModelSvc",geoModelSvc);
-  if (sc != StatusCode::SUCCESS) {
+  ServiceHandle<IGeoModelSvc> geoModelSvc ("GeoModelSvc", "WallsConstruction");
+  if (geoModelSvc.retrieve().isFailure()) {
     throw std::runtime_error ("Cannot locate GeoModelSvc!!");
   }
-
 
 
   // Get the materials from the material manager:-----------------------------------------------------//
@@ -137,8 +132,8 @@ GeoVPhysVol* LArGeo::MWPCConstruction::GetEnvelope()
 
 //   // Test to see whether we can get the ArIso from the database  
 //   GeoMaterial *ArIso2  = materialManager->getMaterial("LArTB::Argon70Isobutane30");
-//   if (!ArIso2) (*msg) << MSG::INFO  << "Found no Argon70Isobutane30 in database" << endreq;
-//   if (ArIso2)  (*msg) << MSG::INFO  << "Did find LArTB::Argon70Isobutane30 in database!" << endreq;
+//   if (!ArIso2) (*m_msg) << MSG::INFO  << "Found no Argon70Isobutane30 in database" << endreq;
+//   if (ArIso2)  (*m_msg) << MSG::INFO  << "Did find LArTB::Argon70Isobutane30 in database!" << endreq;
 
   GeoMaterial *Air  = materialManager->getMaterial("std::Air");
   if (!Air) throw std::runtime_error("Error in MWPCConstruction, std::Air is not found.");
@@ -173,7 +168,7 @@ GeoVPhysVol* LArGeo::MWPCConstruction::GetEnvelope()
 
   //------ Now create a MWPC
  
-  (*msg)  << " Create MWPC5 " << endreq;
+  (*m_msg)  << " Create MWPC5 " << endreq;
 
   std::string baseName = "LAr::TB";
   std::string MWPCName = baseName + "::MWPC";
@@ -186,7 +181,7 @@ GeoVPhysVol* LArGeo::MWPCConstruction::GetEnvelope()
   GeoBox* MWPCShape = new GeoBox(MWPCDxy, MWPCDxy, MWPCDz);  // A generic WWPC
   const GeoLogVol* MWPCLogical = new GeoLogVol( MWPCName, MWPCShape, ArIso ); 
 
-  MWPCPhysical = new GeoPhysVol(MWPCLogical);
+  m_MWPCPhysical = new GeoPhysVol(MWPCLogical);
   
 
   //..... Add Mylar to MWPC:
@@ -202,9 +197,9 @@ GeoVPhysVol* LArGeo::MWPCConstruction::GetEnvelope()
       std::string MylarName = MWPCName + "::Mylar";
       GeoLogVol* MylarLogical = new GeoLogVol( MylarName, MylarShape, Mylar );   
       GeoPhysVol* MylarPhysical = new GeoPhysVol( MylarLogical );
-      MWPCPhysical->add( new GeoIdentifierTag( side ) );
-      MWPCPhysical->add( new GeoTransform( HepGeom::Translate3D( 0.*CLHEP::cm, 0.*CLHEP::cm, (MylarPos) ) ) );
-      MWPCPhysical->add( MylarPhysical );
+      m_MWPCPhysical->add( new GeoIdentifierTag( side ) );
+      m_MWPCPhysical->add( new GeoTransform( HepGeom::Translate3D( 0.*CLHEP::cm, 0.*CLHEP::cm, (MylarPos) ) ) );
+      m_MWPCPhysical->add( MylarPhysical );
     }
   // Done with the Mylar Foils 
 
@@ -231,9 +226,9 @@ GeoVPhysVol* LArGeo::MWPCConstruction::GetEnvelope()
       std::string AluName = MWPCName + "::AlFoil";
       GeoLogVol* AluLogical = new GeoLogVol( AluName, AluShape, Aluminium );  
       GeoPhysVol* AluPhysical = new GeoPhysVol( AluLogical );
-      MWPCPhysical->add( new GeoIdentifierTag( pos ) );
-      MWPCPhysical->add( new GeoTransform( HepGeom::Translate3D( 0.*CLHEP::cm, 0.*CLHEP::cm, (AluPos) ) ) );
-      MWPCPhysical->add( AluPhysical );
+      m_MWPCPhysical->add( new GeoIdentifierTag( pos ) );
+      m_MWPCPhysical->add( new GeoTransform( HepGeom::Translate3D( 0.*CLHEP::cm, 0.*CLHEP::cm, (AluPos) ) ) );
+      m_MWPCPhysical->add( AluPhysical );
     }
   
 
@@ -252,23 +247,23 @@ GeoVPhysVol* LArGeo::MWPCConstruction::GetEnvelope()
   GeoLogVol* YPlaneLogical = new GeoLogVol( YPlaneName, SenPlaneShape, ArIso );  
   GeoPhysVol* XPlanePhysical = new GeoPhysVol( XPlaneLogical );
   GeoPhysVol* YPlanePhysical = new GeoPhysVol( YPlaneLogical );
-  MWPCPhysical->add( new GeoIdentifierTag( 0 ) );
-  MWPCPhysical->add( new GeoTransform( HepGeom::Translate3D( 0.*CLHEP::cm, 0.*CLHEP::cm, (-SenPos) ) ) );
-  MWPCPhysical->add( XPlanePhysical );  
-  MWPCPhysical->add( new GeoIdentifierTag( 0 ) );
-  MWPCPhysical->add( new GeoTransform( HepGeom::Translate3D( 0.*CLHEP::cm, 0.*CLHEP::cm, (SenPos) ) ) );
-  MWPCPhysical->add( YPlanePhysical );
+  m_MWPCPhysical->add( new GeoIdentifierTag( 0 ) );
+  m_MWPCPhysical->add( new GeoTransform( HepGeom::Translate3D( 0.*CLHEP::cm, 0.*CLHEP::cm, (-SenPos) ) ) );
+  m_MWPCPhysical->add( XPlanePhysical );  
+  m_MWPCPhysical->add( new GeoIdentifierTag( 0 ) );
+  m_MWPCPhysical->add( new GeoTransform( HepGeom::Translate3D( 0.*CLHEP::cm, 0.*CLHEP::cm, (SenPos) ) ) );
+  m_MWPCPhysical->add( YPlanePhysical );
   
  
 //.... The X and Y planes have "divisions"
 //     These divisions will eventually be the sensitive volumes
 
   Genfun::Variable Index;
-  int NDiv= int ( 2*MWPCDxy / wireStep ) ;
-  GeoXF::TRANSFUNCTION TX = GeoXF::Pow(HepGeom::TranslateX3D(1.0), -MWPCDxy + wireStep/2.  + wireStep*Index);
-  GeoXF::TRANSFUNCTION TY = GeoXF::Pow(HepGeom::TranslateY3D(1.0), -MWPCDxy + wireStep/2. + wireStep*Index);
-  GeoBox* XPlaneDiv = new GeoBox(wireStep/2., MWPCDxy , SenDz); 
-  GeoBox* YPlaneDiv = new GeoBox(MWPCDxy , wireStep/2., SenDz);   
+  int NDiv= int ( 2*MWPCDxy / m_wireStep ) ;
+  GeoXF::TRANSFUNCTION TX = GeoXF::Pow(HepGeom::TranslateX3D(1.0), -MWPCDxy + m_wireStep/2.  + m_wireStep*Index);
+  GeoXF::TRANSFUNCTION TY = GeoXF::Pow(HepGeom::TranslateY3D(1.0), -MWPCDxy + m_wireStep/2. + m_wireStep*Index);
+  GeoBox* XPlaneDiv = new GeoBox(m_wireStep/2., MWPCDxy , SenDz); 
+  GeoBox* YPlaneDiv = new GeoBox(MWPCDxy , m_wireStep/2., SenDz);   
   std::string XDivName = MWPCName + "::XDiv";
   std::string YDivName = MWPCName + "::YDiv";
   GeoLogVol* XDivLogical = new GeoLogVol( XDivName, XPlaneDiv, ArIso );  
@@ -304,7 +299,7 @@ GeoVPhysVol* LArGeo::MWPCConstruction::GetEnvelope()
   // End Moveable MWPC detectors
 
 
-  return MWPCPhysical;
+  return m_MWPCPhysical;
 }
 
 

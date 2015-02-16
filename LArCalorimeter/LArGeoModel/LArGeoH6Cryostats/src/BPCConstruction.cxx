@@ -54,7 +54,6 @@
 
 LArGeo::BPCConstruction::BPCConstruction(bool old)
    :m_BPCPhysical(0),
-    m_geoModelSvc(0),
     m_msg(0) 
 {
   m_oldType = old;
@@ -93,11 +92,8 @@ GeoVPhysVol* LArGeo::BPCConstruction::GetEnvelope()
   }
 
 
-  StatusCode sc;
-
-  IGeoModelSvc *m_geoModelSvc;
-  sc = svcLocator->service ("GeoModelSvc",m_geoModelSvc);
-  if (sc != StatusCode::SUCCESS) {
+  ServiceHandle<IGeoModelSvc> geoModelSvc ("GeoModelSvc", "BPCConstruction");
+  if (geoModelSvc.retrieve().isFailure()) {
     throw std::runtime_error ("Cannot locate m_geoModelSvc!!");
   }
 
@@ -157,8 +153,8 @@ GeoVPhysVol* LArGeo::BPCConstruction::GetEnvelope()
 
 
   
-  std::string AtlasVersion = m_geoModelSvc->atlasVersion();
-  std::string LArVersion = m_geoModelSvc->LAr_VersionOverride();
+  std::string AtlasVersion = geoModelSvc->atlasVersion();
+  std::string LArVersion = geoModelSvc->LAr_VersionOverride();
 
   std::string detectorKey  = LArVersion.empty() ? AtlasVersion : LArVersion;
   std::string detectorNode = LArVersion.empty() ? "ATLAS" : "LAr";
@@ -226,7 +222,7 @@ GeoVPhysVol* LArGeo::BPCConstruction::GetEnvelope()
   GeoLogVol* log_bpc_almylar = new GeoLogVol(BPCName + "::bpcalmylar",shape_bpc_almylar, AlMylar);
   GeoPhysVol* phys_bpc_almylar = new GeoPhysVol(log_bpc_almylar); 
   for(int i = 0; i < 2; i ++){
-    double mylar_pos;
+    double mylar_pos = 0;
     if(m_oldType) {
        if(i == 0) mylar_pos = bpc_old_z - bpc_old_alml;
        if(i == 1) mylar_pos = bpc_old_alml - bpc_old_z;
@@ -246,7 +242,7 @@ GeoVPhysVol* LArGeo::BPCConstruction::GetEnvelope()
   GeoLogVol* log_bpc_mylar = new GeoLogVol(BPCName + "::bpc_mylar", shape_bpc_mylar, Mylar);
   GeoPhysVol* phys_bpc_mylar = new GeoPhysVol(log_bpc_mylar);
   for(int i = 0; i < 2; ++i){
-    double mylar_pos;
+    double mylar_pos = 0;
     if(m_oldType) {
 //       if(i == 0) mylar_pos = bpc_old_z - bpc_old_frame - bpc_old_alframe - bpc_old_ml/2.;
 //       if(i == 1) mylar_pos = - bpc_old_z + bpc_old_ml/2. + bpc_old_frame + bpc_old_alframe1;

@@ -7,8 +7,8 @@
 // Should be common to H62002, H62003, H62004 
 // Feb-2006 JP Archambault, Mohsen Khakzad
 
-#ifndef __H6CryostatConstruction_H__
-#define __H6CryostatConstruction_H__
+#ifndef LARGEOH6CRYOSTATS_H6CRYOSTATCONSTRUCTION_H
+#define LARGEOH6CRYOSTATS_H6CRYOSTATCONSTRUCTION_H
 
 #include "GeoModelKernel/GeoPhysVol.h"
 #include "GeoModelKernel/GeoFullPhysVol.h"
@@ -35,15 +35,11 @@ namespace LArGeo {
 
     //GeoFullPhysVol*     createEnvelope();
 
-    GeoPhysVol          *cryoEnvelopePhysical;
-    GeoFullPhysVol      *cryoMotherPhysical;
-    GeoPhysVol          *cryoLArPhys;
-
-    IRDBAccessSvc       *pAccessSvc;
-    IGeoModelSvc        *geoModelSvc;
-    
+    GeoFullPhysVol      *m_cryoMotherPhysical;
+    GeoPhysVol          *m_cryoLArPhys;
   };
 
 }    // namespace LArGeo
 
-#endif // __H6CryostatConstruction_H__
+#endif // LARGEOH6CRYOSTATS_H6CRYOSTATCONSTRUCTION_H
+

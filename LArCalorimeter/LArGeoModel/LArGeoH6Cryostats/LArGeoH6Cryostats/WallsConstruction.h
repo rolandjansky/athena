@@ -6,11 +6,12 @@
 // 
 // March 2007 M.Fincke
 
-#ifndef __WallsConstruction_H__
-#define __WallsConstruction_H__
+#ifndef LARGEOH6CRYOSTATS_WALLSCONSTRUCTION_H
+#define LARGEOH6CRYOSTATS_WALLSCONSTRUCTION_H
 
 #include "GeoModelKernel/GeoPhysVol.h"
 #include "GeoModelKernel/GeoFullPhysVol.h"
+#include <memory>
 class IRDBAccessSvc;
 class IGeoModelSvc;
 class MsgStream;
@@ -27,20 +28,11 @@ namespace LArGeo {
     // Get the envelope containing this detector:
     virtual GeoVPhysVol* GetEnvelope();
 
-    MsgStream *msg;
- 
-      
   private:
-
-
-    GeoPhysVol          *WallsPhysical;
-
-
-    IRDBAccessSvc       *pAccessSvc;
-    IGeoModelSvc        *geoModelSvc;
-    
+    std::unique_ptr<MsgStream> m_msg;
+    GeoPhysVol          *m_WallsPhysical;
   };
 
 } // namespace LArGeo
 
-#endif // __WallsConstruction_H__
+#endif // LARGEOH6CRYOSTATS_WALLSCONSTRUCTION_H
