@@ -11,7 +11,7 @@ GlobalFlags.DataSource.set_data()
 GlobalFlags.InputFormat.set_bytestream()
 
 from AthenaCommon.JobProperties import jobproperties
-jobproperties.Global.DetDescrVersion = "ATLAS-Comm-00-00-00"
+jobproperties.Global.DetDescrVersion = "ATLAS-GEO-20-00-01"
 
 from AthenaCommon.DetFlags import DetFlags
 DetFlags.Calo_setOn()
@@ -83,9 +83,9 @@ theLArBadChannelTool.DumpCache=True
 theLArBadChannelTool.OutputLevel=DEBUG
 ToolSvc+=theLArBadChannelTool
 
-svcMgr.IOVDbSvc.Folders+=["/LAR/BadChannels/BadChannels<tag>LARBadChannelsBadChannels-M6-01</tag><dbConnection>sqlite://;schema=BadChannels.db;dbname=COMP200</dbConnection>" ]
-svcMgr.IOVDbSvc.Folders+=["/LAR/BadChannels/MissingFEBs<tag>LARBadChannelsMissingFEBs-M6-01</tag><dbConnection>sqlite://;schema=BadChannels.db;dbname=COMP200</dbConnection>" ]
-svcMgr.IOVDbSvc.GlobalTag="COMCOND-005-00"
+svcMgr.IOVDbSvc.Folders+=["/LAR/BadChannels/BadChannels<tag>LARBadChannelsBadChannels-M6-01</tag><dbConnection>sqlite://;schema=BadChannels.db;dbname=CONDBR2</dbConnection>" ]
+svcMgr.IOVDbSvc.Folders+=["/LAR/BadChannels/MissingFEBs<tag>LARBadChannelsMissingFEBs-M6-01</tag><dbConnection>sqlite://;schema=BadChannels.db;dbname=CONDBR2</dbConnection>" ]
+svcMgr.IOVDbSvc.GlobalTag="CONDBR2-ES1PA-2014-01"
 svcMgr.IOVDbSvc.OutputLevel=DEBUG
 
 #from RegistrationServices.RegistrationServicesConf import IOVRegistrationSvc

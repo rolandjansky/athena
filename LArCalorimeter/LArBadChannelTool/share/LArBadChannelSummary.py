@@ -10,4 +10,4 @@ theLArBadChannels2Ascii.FileName="CompleteBadChannelList.txt"
 theLArBadChannels2Ascii.WithMissing=True
 theLArBadChannels2Ascii.ExecutiveSummaryFile="ForIsabelle.txt"
 
-svcMgr.IOVDbSvc.GlobalTag="COMCOND-BLKPST-004-05" 
+svcMgr.IOVDbSvc.GlobalTag="CONDBR2-ES1PA-2014-01" 

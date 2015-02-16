@@ -1,4 +1,6 @@
 #No input file -> use MC event selector
+if 'DBInstance' not in dir():
+    DBInstance="CONDBR2"
 
 if "InputFile" not in dir():
     InputFile="mf_input.txt"
@@ -33,7 +35,7 @@ globalflags.DataSource="data"
 globalflags.InputFormat="bytestream"
 	
 from AthenaCommon.JobProperties import jobproperties
-jobproperties.Global.DetDescrVersion = "ATLAS-GEO-16-00-00"
+jobproperties.Global.DetDescrVersion = "ATLAS-GEO-20-00-01"
 
 from AthenaCommon.DetFlags import DetFlags
 DetFlags.Calo_setOff()
@@ -63,7 +65,7 @@ svcMgr.EventSelector.RunNumber         = 1
 svcMgr.EventSelector.FirstEvent        = 1
 #svcMgr.EventSelector.InitialTimeStamp  = 0
 #svcMgr.EventSelector.TimeStampInterval = 5
-svcMgr.IOVDbSvc.GlobalTag="COMCOND-ES1C-003-00"
+svcMgr.IOVDbSvc.GlobalTag="CONDBR2-ES1PA-2014-01"
 
 
 ## get a handle to the default top-level algorithm sequence
@@ -109,7 +111,7 @@ if (IOVEndRun > 0 ) and (IOVEndLB >= 0):
    theOutputConditionsAlg.Run2 = IOVEndRun
    theOutputConditionsAlg.LB2 = IOVEndLB
 
-svcMgr.IOVDbSvc.dbConnection  = "sqlite://;schema="+sqlite+";dbname=COMP200"
+svcMgr.IOVDbSvc.dbConnection  = "sqlite://;schema="+sqlite+";dbname="+DBInstance
 from RegistrationServices.RegistrationServicesConf import IOVRegistrationSvc
 svcMgr += IOVRegistrationSvc()
 svcMgr.IOVRegistrationSvc.OutputLevel = DEBUG

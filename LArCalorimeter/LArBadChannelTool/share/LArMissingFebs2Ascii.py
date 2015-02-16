@@ -1,3 +1,6 @@
+if 'DBInstance' not in dir():
+   DBInstance="CONDBR2"
+
 if 'OutputFile' not in dir():
     OutputFile="mf_output.txt"
     
@@ -50,11 +53,11 @@ from AthenaCommon.AppMgr import (theApp, ServiceMgr as svcMgr,ToolSvc)
 
 
 if "sqlite" in dir():
-    conddb.addFolder("","/LAR/BadChannelsOfl/MissingFEBs<db>sqlite://;schema="+sqlite+";dbname=COMP200</db><tag>LARBadChannelsOflMissingFEBs-UPD3-01</tag>")
+    conddb.addFolder("","/LAR/BadChannelsOfl/MissingFEBs<db>sqlite://;schema="+sqlite+";dbname="+DBInstance+"</db><tag>LARBadChannelsOflMissingFEBs-UPD3-01</tag>")
 else:
     conddb.addFolder("LAR_OFL","/LAR/BadChannelsOfl/MissingFEBs")#<tag>LARBadChannelsMissingFEBs-empty</tag>")
                  
-svcMgr.IOVDbSvc.GlobalTag="COMCOND-ES1C-003-00" 
+svcMgr.IOVDbSvc.GlobalTag="CONDBR2-ES1PA-2014-01" 
 
 
 from LArBadChannelTool.LArBadChannelToolConf import LArBadChanTool

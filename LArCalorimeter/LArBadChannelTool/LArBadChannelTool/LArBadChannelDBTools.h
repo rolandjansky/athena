@@ -12,6 +12,7 @@
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 
 #include "Identifier/HWIdentifier.h"
+#include "LArBadChannelTool/HWIdentifier32.h"
 #include "LArRecConditions/LArBadChannel.h"
 #include "LArRecConditions/LArBadFeb.h"
 #include "LArRecConditions/LArBadFebBitPacking.h"
@@ -28,7 +29,7 @@ namespace LArBadChannelDBTools {
   typedef std::pair<HWIdentifier, LArBadFeb>                    BadFebEntry;
   typedef std::vector<BadChanEntry>                             BadChanVec;
   typedef std::vector<BadFebEntry>                              BadFebVec;
-  typedef HWIdentifier::value_type                              Channel;
+  typedef HWIdentifier32::value_type                              Channel;
 
   /// used to get default msg stream 
   MsgStream getDefaultMsgStream();
@@ -47,7 +48,7 @@ namespace LArBadChannelDBTools {
 
   AthenaAttributeList* createFebPayload( const BadFebVec& data);
 
-  AthenaAttributeList* createFebPayloadV1( const std::vector<HWIdentifier>& data);
+  AthenaAttributeList* createFebPayloadV1( const std::vector<HWIdentifier32>& data);
 
   /// Create an empty collection with no bad channels, e.g. for MC
   CondAttrListCollection* createEmptyCoolCollection();

@@ -5,7 +5,7 @@ then
     echo "Syntax: $0 [-append] [-openiov] <tag> <Run1> <LB1>  <File> [Run2] [LB2]"
     echo "optional -append is adding the content of File to a DB"
     echo "optional -openiov is updating UPD4 with open end IOV, if Run2/LB2 is not given" 
-    echo "<tag> can be 'UPD1', 'UPD4' or 'BOTH' or 'Bulk'.  'BOTH' means UPD1 and UPD4, UPD4 update is automatically updating also Bulk.  Bulk is updating only Bulk"
+    echo "<tag> can be 'UPD1', 'UPD4', 'UPD3' or 'BOTH' or 'Bulk'.  'BOTH' means UPD1 and UPD4, UPD4 update is automatically updating also Bulk.  Bulk is updating only Bulk"
     echo "<Run1> <LB1> are start IOV (for UPD4/Bulk)"
     echo "<File> is text file with changed channels, each line should have: B/E pos_neg FT Slot Channel CalibLine BadBitDescription"
     echo "optional Run2 LB2 are end IOV (for UPD4/Bulk) - first LB after the end of problem, if not given open end update..."
@@ -16,11 +16,12 @@ fi
  
 
 echo "Resolving current folder-level tag suffix for /LAR/BadChannelsOfl/BadChannels...."
-fulltag=`getCurrentFolderTag.py "COOLOFL_LAR/COMP200" /LAR/BadChannelsOfl/BadChannels` 
-upd4TagName=`echo $fulltag | grep -o "UPD4-[0-9][0-9]"` 
-echo "Found $upd4TagName"
-upd1TagName="UPD1-00"
-BulkTagName="Bulk-00"
+fulltag=`getCurrentFolderTag.py "COOLOFL_LAR/CONDBR2" /LAR/BadChannelsOfl/BadChannels` 
+upd4TagName=`echo $fulltag | grep -o "RUN2-UPD4-[0-9][0-9]"` 
+echo "Found UPD4 $upd4TagName"
+upd1TagName="RUN2-UPD1-00"
+BulkTagName="RUN2-Bulk-00"
+upd3TagName="RUN2-UPD3-00"
 
 outputSqlite="BadChannels.db"
 outputSqliteOnl="BadChannelsOnl.db"
@@ -54,6 +55,10 @@ elif [ $tag == "UPD4" ]
     then
     echo "Working on UPD4 list"
     tags="${upd4TagName}"
+elif [ $tag == "UPD3" ]
+    then
+    echo "Working on UPD3 list"
+    tags="${upd3TagName}"
 elif [ $tag == "Bulk" ]
     then
     echo "Working on Bulk list"
@@ -63,7 +68,7 @@ elif [ $tag == "BOTH" ]
     echo "Working on UPD1 and UPD4 lists"
         tags="${upd1TagName} ${upd4TagName}"
 else
-    echo "ERROR, expected 'UPD1', 'UPD4' or 'BOTH' or 'Bulk' as type, got $type"
+    echo "ERROR, expected 'UPD1', 'UPD4' or 'BOTH' or 'Bulk' or 'UPD3' as type, got $type"
     exit
 fi
 
@@ -290,13 +295,13 @@ do
   if [ $t == ${upd4TagName} ]
   then
      echo "Copying UPD4 to Bulk as well..."
-     AtlCoolCopy.exe "sqlite://;schema=${outputSqlite};dbname=COMP200"  "sqlite://;schema=${outputSqlite};dbname=COMP200"  -f /LAR/BadChannelsOfl/BadChannels -t LARBadChannelsOflBadChannels-${upd4TagName} -of /LAR/BadChannelsOfl/BadChannels -ot LARBadChannelsOflBadChannels-${BulkTagName}
+     AtlCoolCopy.exe "sqlite://;schema=${outputSqlite};dbname=CONDBR2"  "sqlite://;schema=${outputSqlite};dbname=CONDBR2"  -f /LAR/BadChannelsOfl/BadChannels -t LARBadChannelsOflBadChannels-${upd4TagName} -of /LAR/BadChannelsOfl/BadChannels -ot LARBadChannelsOflBadChannels-${BulkTagName}
   fi   
 
   if [ $t == ${upd1TagName} ]
       then
       echo "Copying UPD1 for online database..."
-      AtlCoolCopy.exe "sqlite://;schema=${outputSqlite};dbname=COMP200" "sqlite://;schema=${outputSqliteOnl};dbname=COMP200" -f /LAR/BadChannelsOfl/BadChannels -t LARBadChannelsOflBadChannels-${upd1TagName} -of  /LAR/BadChannels/BadChannels -ot LARBadChannelsBadChannels-${upd1TagName} -a -c > AtlCoolCopy.onl.log 2>&1
+      AtlCoolCopy.exe "sqlite://;schema=${outputSqlite};dbname=CONDBR2" "sqlite://;schema=${outputSqliteOnl};dbname=CONDBR2" -f /LAR/BadChannelsOfl/BadChannels -t LARBadChannelsOflBadChannels-${upd1TagName} -of  /LAR/BadChannels/BadChannels -ot LARBadChannelsBadChannels-${upd1TagName} -a -c > AtlCoolCopy.onl.log 2>&1
       
       if [ $? -ne 0 ];  then
 	  echo "AtlCoolCopy reported an error! Please check AtlCoolCopy.onl.log!"
@@ -344,11 +349,11 @@ cat $summaryFile
 echo "Output sqlite files:"
 echo "$outputSqlite: Containing UPD1 and/or UPD4 and/or Bulk version of bad-channel list for OFFLINE DB. UPD4 valid as of run $runnumber"
 echo "Upload to OFFLINE oracle server:"
-echo "~atlcond/utils/AtlCoolMerge.py ${outputSqlite} COMP200 ATLAS_COOLWRITE ATLAS_COOLOFL_LAR_W <password>"
+echo "~atlcond/utils/AtlCoolMerge.py ${outputSqlite} CONDBR2 ATLAS_COOLWRITE ATLAS_COOLOFL_LAR_W <password>"
 if [ -f $outputSqliteOnl ];
 then
     echo "$outputSqliteOnl: Containing UPD1 version of bad-channel list for ONLINE DB."
     echo "Upload to ONLINE oracle server using"
-    echo "/afs/cern.ch/user/a/atlcond/utils/AtlCoolMerge.py --online ${outputSqliteOnl} COMP200 ATONR_COOL ATLAS_COOLONL_LAR_W <password>"
+    echo "/afs/cern.ch/user/a/atlcond/utils/AtlCoolMerge.py --online ${outputSqliteOnl} CONDBR2 ATONR_COOL ATLAS_COOLONL_LAR_W <password>"
 fi 
 

@@ -6,6 +6,7 @@ namespace LArBadChanBlobUtils {
 
   /// Creates a BLOB of the right size and copies the content of the 
   /// vector of pair<HWIdentifier, LArBadChannel> into the blob.
+  /// creating inside the blob the vector of pair<HWIdentifier32, LArBadChannel>
   /// Returns a pointer to the new blob, which has to be managed 
   /// (and eventually released) by the caller
   template <class T>
@@ -20,7 +21,7 @@ namespace LArBadChanBlobUtils {
     for ( typename std::vector<Entry>::const_iterator i=vec.begin();
 	  i != vec.end(); i++) {
       Channel* ch = static_cast<Channel*>( adr);
-      *ch = i->first.get_identifier32().get_compact(); // assign channel
+      *ch = i->first.get_identifier32().get_compact(); // assign channel, here is the conversion to 32bit
       BitWord* st = static_cast<BitWord*>(ch+1); // st points just after channel
       *st = i->second.packedData(); // assign status 
       adr = static_cast<void*>(st+1); 

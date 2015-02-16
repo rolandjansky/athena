@@ -54,7 +54,7 @@ theLArBadChannelTool.EMBCfile = "badchan1.txt"
 theLArBadChannelTool.OutputLevel=DEBUG
 ToolSvc+=theLArBadChannelTool
 
-svcMgr.IOVDbSvc.Folders+=["/LAR/ElecCalib/BadChannels<tag>TestTag</tag><dbConnection>sqlite://;schema=BadChannels.db;dbname=COMP200</dbConnection>" ]
+svcMgr.IOVDbSvc.Folders+=["/LAR/ElecCalib/BadChannels<tag>TestTag</tag><dbConnection>sqlite://;schema=BadChannels.db;dbname=CONDBR2</dbConnection>" ]
 
 svcMgr+=CfgMgr.AthenaEventLoopMgr(OutputLevel = WARNING)
 
