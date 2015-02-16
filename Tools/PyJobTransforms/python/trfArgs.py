@@ -3,7 +3,7 @@
 ## @Package PyJobTransforms.trfArgs
 #  @brief Standard arguments supported by trf infrastructure
 #  @author atlas-comp-transforms-dev@cern.ch
-#  @version $Id: trfArgs.py 636448 2014-12-17 11:40:15Z graemes $
+#  @version $Id: trfArgs.py 647216 2015-02-16 17:23:57Z graemes $
 
 import logging
 msg = logging.getLogger(__name__)
@@ -381,22 +381,7 @@ class dpdType(object):
     def treeNames(self):
         return self._treeNames
 
-
-## @brief Add additional DPD arguments
-# @detailed Manually add DPDs that, for some reason, are not in any of the automated
-# lists parsed by the companion functions above.
-# @param parser Argument parser object to add arguments to
-# @param pick Optional list of DPD types to add (use short names, e.g., @c NTUP_EGAMMA)
-# @param transform Transform object. DPD data types will be added to the correct executor (by name or substep)
-# @param multipleOK If the @c multipleOK flag should be set for this argument
-def addExtraDPDTypes(parser, pick=None, transform=None, multipleOK=False):
-    parser.defineArgGroup('Additional DPDs', 'Extra DPD file types')
-    
-    # Note on deprecated arguments c.f. Reco_trf:
-    # TAG_COMM - doesn't produce any output so seems to be deprecated
-    # {DESD,DAOD}_{ZEE,ZMUMU,WENU} are in fact just aliases for ESD or AOD
-    
-    # Build up a simple list of extra DPD objects
+def getExtraDPDList(NTUPOnly = False):
     extraDPDs = []
     extraDPDs.append(dpdType('NTUP_SCT', substeps=['r2e']))
     extraDPDs.append(dpdType('NTUP_MUFAST', substeps=['r2e']))
@@ -414,41 +399,80 @@ def addExtraDPDTypes(parser, pick=None, transform=None, multipleOK=False):
     extraDPDs.append(dpdType('NTUP_HIGHMULT', substeps=['e2a'], treeNames=['MinBiasTree']))
     extraDPDs.append(dpdType('NTUP_PROMPTPHOT', substeps=['e2d', 'a2d'], treeNames=["PAUReco","HggUserData"]))
     
-    extraDPDs.append(dpdType('DESDM_BEAMSPOT'))
-    extraDPDs.append(dpdType('DAOD_HSG2'))
+    if not NTUPOnly:
+        extraDPDs.append(dpdType('DESDM_BEAMSPOT'))
+        extraDPDs.append(dpdType('DAOD_HSG2'))
+
+    return extraDPDs
+
+## @brief Add additional DPD arguments
+# @detailed Manually add DPDs that, for some reason, are not in any of the automated
+# lists parsed by the companion functions above.
+# @param parser Argument parser object to add arguments to
+# @param pick Optional list of DPD types to add (use short names, e.g., @c NTUP_EGAMMA)
+# @param transform Transform object. DPD data types will be added to the correct executor (by name or substep)
+# @param multipleOK If the @c multipleOK flag should be set for this argument
+# @param NTUPMergerArgs If @c True, add NTUP arguments as input/output types, suitable for NTUPMerge_tf
+def addExtraDPDTypes(parser, pick=None, transform=None, multipleOK=False, NTUPMergerArgs = False):
+    parser.defineArgGroup('Additional DPDs', 'Extra DPD file types')
     
-    for dpd in extraDPDs:
-        if pick == None or dpd.name in pick:
-            msg.debug('Adding DPD {0} ({1}, {2}, {3}, {4})'.format(dpd.name, dpd.type, dpd.substeps, dpd.treeNames, dpd.argclass))
-            # NTUPs are a bit special as they can take a treeName to count events
-            if issubclass(dpd.argclass, trfArgClasses.argNTUPFile):
-                parser.add_argument('--output' + dpd.name + 'File', 
-                                    type=argFactory(dpd.argclass, multipleOK=multipleOK, type=dpd.type, treeNames=dpd.treeNames), 
-                                    group = 'Additional DPDs', metavar=dpd.name.upper(), 
-                                    help='DPD output {0} file'.format(dpd.name))
-            else:
-                parser.add_argument('--output' + dpd.name + 'File', 
-                                    type=argFactory(dpd.argclass, multipleOK=multipleOK, type=dpd.type), 
-                                    group = 'Additional DPDs', metavar=dpd.name.upper(), 
-                                    help='DPD output {0} file'.format(dpd.name))
-            if transform:
-                for executor in transform.executors:
-                    if hasattr(executor, 'substep') and executor.substep in dpd.substeps:
-                        executor.outDataUpdate([dpd.name])
-                    if executor.name in dpd.substeps:
-                        executor.outDataUpdate([dpd.name])
+    extraDPDs = getExtraDPDList()
+    
+    if NTUPMergerArgs:
+        for dpd in extraDPDs:
+            if pick == None or dpd.name in pick:
+                if dpd.name.startswith('NTUP'):
+                    parser.add_argument('--input' + dpd.name + 'File', 
+                                        type=argFactory(dpd.argclass, multipleOK=True, io='input', type=dpd.type, treeNames=dpd.treeNames), 
+                                        group = 'Additional DPDs', metavar=dpd.name.upper(), nargs='+',
+                                        help='DPD input {0} file'.format(dpd.name))
+                    parser.add_argument('--output' + dpd.name + '_MRGFile', 
+                                        type=argFactory(dpd.argclass, multipleOK=multipleOK, type=dpd.type, treeNames=dpd.treeNames), 
+                                        group = 'Additional DPDs', metavar=dpd.name.upper(), 
+                                        help='DPD output merged {0} file'.format(dpd.name))
+                    
+        pass
+    else:
+        for dpd in extraDPDs:
+            if pick == None or dpd.name in pick:
+                msg.debug('Adding DPD {0} ({1}, {2}, {3}, {4})'.format(dpd.name, dpd.type, dpd.substeps, dpd.treeNames, dpd.argclass))
+                # NTUPs are a bit special as they can take a treeName to count events
+                if issubclass(dpd.argclass, trfArgClasses.argNTUPFile):
+                    parser.add_argument('--output' + dpd.name + 'File', 
+                                        type=argFactory(dpd.argclass, multipleOK=multipleOK, type=dpd.type, treeNames=dpd.treeNames), 
+                                        group = 'Additional DPDs', metavar=dpd.name.upper(), 
+                                        help='DPD output {0} file'.format(dpd.name))
+                else:
+                    parser.add_argument('--output' + dpd.name + 'File', 
+                                        type=argFactory(dpd.argclass, multipleOK=multipleOK, type=dpd.type), 
+                                        group = 'Additional DPDs', metavar=dpd.name.upper(), 
+                                        help='DPD output {0} file'.format(dpd.name))
+                if transform:
+                    for executor in transform.executors:
+                        if hasattr(executor, 'substep') and executor.substep in dpd.substeps:
+                            executor.outDataUpdate([dpd.name])
+                        if executor.name in dpd.substeps:
+                            executor.outDataUpdate([dpd.name])
     
 
 def addFileValidationArguments(parser):
     parser.defineArgGroup('File Validation', 'Standard file validation switches')
     parser.add_argument('--skipFileValidation', '--omitFileValidation', action='store_true', 
-                        group='File Validation', help='Skip both input and output file validation (warning - do not use this option in production jobs!)')
+                        group='File Validation', help='DEPRECATED. Use --fileValidation BOOL instead')
     parser.add_argument('--skipInputFileValidation', '--omitInputFileValidation', action='store_true', 
-                        group='File Validation', help='Skip input file validation (warning - do not use this option in production jobs!)')
+                        group='File Validation', help='DEPRECATED. Use --inputFileValidation BOOL instead')
     parser.add_argument('--skipOutputFileValidation', '--omitOutputFileValidation', action='store_true', 
-                        group='File Validation', help='Skip output file validation (warning - do not use this option in production jobs!)')
-    parser.add_argument('--parallelFileValidation', type = argFactory(trfArgClasses.argBool),
-                        group='File Validation', help='Parallelise file validation')
+                        group='File Validation', help='DEPRECATED. Use --outputFileValidation BOOL instead')
+
+    parser.add_argument('--fileValidation', type = argFactory(trfArgClasses.argBool), metavar='BOOL',
+                        group='File Validation', help='If FALSE skip both input and output file validation (default TRUE; warning - do not use this option in production jobs!)')
+    parser.add_argument('--inputFileValidation', type = argFactory(trfArgClasses.argBool), metavar='BOOL',
+                        group='File Validation', help='If FALSE skip input file validation (default TRUE; warning - do not use this option in production jobs!)')
+    parser.add_argument('--outputFileValidation', type = argFactory(trfArgClasses.argBool), metavar='BOOL',
+                        group='File Validation', help='If FALSE skip output file validation (default TRUE; warning - do not use this option in production jobs!)')
+    
+    parser.add_argument('--parallelFileValidation', type = argFactory(trfArgClasses.argBool), metavar='BOOL',
+                        group='File Validation', help='Parallelise file validation if True')
 
 def addParallelJobProcessorArguments(parser):
     parser.defineArgGroup('Parallel Job Processor', 'Parallel Job Processor arguments')
@@ -499,5 +523,6 @@ def listKnownD3PDs():
         dpdName = dpdWriter.StreamName.replace('Stream', '')
         inputD3PDList.append(dpdName)
         outputD3PDList.append(dpdName+'_MRG')
+    
     return inputD3PDList, outputD3PDList
    
