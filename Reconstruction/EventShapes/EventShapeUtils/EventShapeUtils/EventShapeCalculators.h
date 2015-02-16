@@ -33,6 +33,10 @@ namespace EventShapeCalculators
 		 const std::vector<double>& errs);
     /*! @brief Copy constructor */
     ProfileShape(const ProfileShape& shape);
+
+    /*! @brief assignment operator */
+    ProfileShape& operator = (const ProfileShape& shape);
+
     /*! @brief Base class destructor */
     virtual ~ProfileShape();
 
@@ -198,6 +202,9 @@ namespace EventShapeCalculators
     ProfileFunctions(const ProfileShape* shape);
     /*! @brief Copy constructor */
     ProfileFunctions(const ProfileFunctions& profile);
+
+    /*! @brief copy assignment operator */
+    ProfileFunctions& operator = (const ProfileFunctions& profile);
 
     /*! @brief Base class destructor */
     virtual ~ProfileFunctions();
