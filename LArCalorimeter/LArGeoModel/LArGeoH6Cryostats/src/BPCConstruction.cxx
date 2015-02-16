@@ -73,16 +73,16 @@ GeoVPhysVol* LArGeo::BPCConstruction::GetEnvelope()
 
   // Message service:  
   ISvcLocator *svcLocator = Gaudi::svcLocator();
-  IMessageSvc * msgSvc;
-  StatusCode status = svcLocator->service("MessageSvc", msgSvc);
+  IMessageSvc * m_msgSvc;
+  StatusCode status = svcLocator->service("MessageSvc", m_msgSvc);
   
   if(!status.isFailure()){
-    m_msg = new MsgStream(msgSvc, "BPCConstruction");
+    m_msg = new MsgStream(m_msgSvc, "BPCConstruction");
   } else {
     throw std::runtime_error("BPCConstruction: cannot initialze message service");
   }
 
-  (*m_msg) << MSG::INFO << "BPCConstruction - creating an BPC oldType: " << m_oldType << " !  " << endmsg;
+  (*m_msg) << MSG::INFO << "BPCConstruction - creating an BPC oldType: " << m_oldType << " !  " << endreq;
 
 
 
@@ -201,7 +201,7 @@ GeoVPhysVol* LArGeo::BPCConstruction::GetEnvelope()
 
   //------ Now create a BPC
  
-  (*m_msg)  << MSG::INFO <<" Create BPC " << endmsg;
+  (*m_msg)  << MSG::INFO <<" Create BPC " << endreq;
 
   std::string BPCName;
   if(m_oldType) BPCName = "LAr::TB::BPCOLD"; else BPCName = "LAr::TB::BPC";
