@@ -280,11 +280,21 @@ StatusCode TileCellMonTool::bookHistTrigPart( int trig , int part ) {
     m_TileCellDetailOccMapOvThr[ part ].push_back( book2F(m_TrigNames[trig]+"/"+m_PartNames[part],
                                                           "tileCellDetailOccMapOvThr_"+m_PartNames[part] + m_TrigNames[trig],
                                                           "Run "+runNumStr+" Trigger "+m_TrigNames[trig]+" Partition "+m_PartNames[part]+
-                                                          ": Occupancy Map Over Threshold "+sene.str()+" MeV",
+                                                          ":  Hi Gain Occupancy Map Over Threshold "+sene.str()+" MeV",
                                                           64,0.5, 64.5,48,-0.5,47.5) ) ;
 
     SetBinLabel(m_TileCellDetailOccMapOvThr[ part ][ element ]->GetYaxis(),m_cellchLabel[part]);
     SetBinLabel(m_TileCellDetailOccMapOvThr[ part ][ element ]->GetXaxis(),m_moduleLabel[part]);
+
+    m_TileCellDetailOccMapLowGainOvThr[ part ].push_back( book2F(m_TrigNames[trig]+"/"+m_PartNames[part],
+                                                          "tileCellDetailOccMapLowGainOvThr_"+m_PartNames[part] + m_TrigNames[trig],
+                                                          "Run "+runNumStr+" Trigger "+m_TrigNames[trig]+" Partition "+m_PartNames[part]+
+                                                          ": Low Gain Occupancy Map Over Threshold "+sene.str()+" MeV",
+                                                          64,0.5, 64.5,48,-0.5,47.5) ) ;
+
+    SetBinLabel(m_TileCellDetailOccMapLowGainOvThr[ part ][ element ]->GetYaxis(),m_cellchLabel[part]);
+    SetBinLabel(m_TileCellDetailOccMapLowGainOvThr[ part ][ element ]->GetXaxis(),m_moduleLabel[part]);
+
       
     m_TileCellDetailOccMapOvThr30GeV[ part ].push_back( book2F(m_TrigNames[trig]+"/"+m_PartNames[part],
                                                           "tileCellDetailOccMapOvThr30GeV_"+m_PartNames[part] + m_TrigNames[trig],
@@ -514,6 +524,7 @@ void  TileCellMonTool::cleanHistVec() {
 
   for (int part = 0; part < NPartHisto; part++) {
     m_TileCellDetailOccMapOvThr[part].clear();
+    m_TileCellDetailOccMapLowGainOvThr[part].clear();
     m_TileCellDetailOccMapOvThr30GeV[part].clear();
     m_TileCellDetailOccMapOvThr300GeV[part].clear();
     m_TileCellDetailOccMap[part].clear();
@@ -992,24 +1003,18 @@ StatusCode TileCellMonTool::fillHistograms() {
             //m_TileCellOccModPartOvThrSamp[ AllSamp ][ vecInd ]->Fill(module, fpartition, 1.);
     
 
-
-
             if (ch1Ok && ene1 > m_Threshold && (!badch1)) {
           
-              // check if ch1 in low gain has masked high gain
-              bool fillCh1OccMapOverThr = (gn1 == 0 && gn2 == 1) ? !m_tileBadChanTool->getAdcStatus(TileCalibUtils::getDrawerIdx(ros1, drw), ch1, 1).isBad() : true;
-
-              if (fillCh1OccMapOverThr) m_TileCellDetailOccMapOvThr[partition][vecInd]->Fill(drawer, ch1, weight);
+              if (gn1 == 1) m_TileCellDetailOccMapOvThr[partition][vecInd]->Fill(drawer, ch1, weight);
+              else m_TileCellDetailOccMapLowGainOvThr[partition][vecInd]->Fill(drawer, ch1, weight);
               if (ene1 > 30000.) m_TileCellDetailOccMapOvThr30GeV[partition][vecInd]->Fill(drawer, ch1);
               if (ene1 > 300000.) m_TileCellDetailOccMapOvThr300GeV[partition][vecInd]->Fill(drawer, ch1);
             }
             
             if (ch2Ok && ene2 > m_Threshold && (!badch2)) {
               
-              // check if ch2 in low gain has masked high gain
-              bool fillCh2OccMapOverThr = (gn2 == 0 && gn1 == 1) ? !m_tileBadChanTool->getAdcStatus(TileCalibUtils::getDrawerIdx(ros2, drw), ch2, 1).isBad() : true;
-              
-              if (fillCh2OccMapOverThr) m_TileCellDetailOccMapOvThr[partition2][vecInd]->Fill(drawer, ch2, 1.0);
+              if (gn2 == 1) m_TileCellDetailOccMapOvThr[partition2][vecInd]->Fill(drawer, ch2, 1.0);
+              else m_TileCellDetailOccMapLowGainOvThr[partition2][vecInd]->Fill(drawer, ch2, 1.0);
               if (ene2 > 30000.) m_TileCellDetailOccMapOvThr30GeV[partition][vecInd]->Fill(drawer, ch2);
               if (ene2 > 300000.) m_TileCellDetailOccMapOvThr300GeV[partition][vecInd]->Fill(drawer, ch2);
             }
