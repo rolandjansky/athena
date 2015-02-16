@@ -62,6 +62,7 @@ private:
     double m_averageEstimator;
     unsigned int m_minNTrackAtVertex;
     bool m_printMissingContainerINFO;
+    bool m_useMu;
     
 };
 

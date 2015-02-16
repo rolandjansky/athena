@@ -188,8 +188,10 @@ StatusCode TauCalibrateLC::execute(TauCandidateData *data)
 	    
 	    if(scMu.isSuccess()){
 	      ATH_MSG_DEBUG("AvgInteractions object in tau candidate = " << muTemp);
+	      nVertex = muTemp;
 	    } else {
-	      ATH_MSG_DEBUG("No AvgInteractions object in tau candidate");
+	      ATH_MSG_DEBUG("No AvgInteractions object in tau candidate - using default value");
+	      nVertex = m_averageNPV;
 	    }
 
 	}
@@ -211,7 +213,7 @@ StatusCode TauCalibrateLC::execute(TauCandidateData *data)
 
         // FF: March,2014
         // no offset correction for trigger        
-        if (inTrigger) offset = 0.;
+        //if (inTrigger) offset = 0.;
 
         if (energyLC - offset <= 0) {
             ATH_MSG_DEBUG("after pile-up correction energy would be = " << energyLC - offset << " --> setting offset=0 now!");

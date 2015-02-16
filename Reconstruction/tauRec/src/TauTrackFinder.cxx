@@ -24,7 +24,8 @@ TauTrackFinder::TauTrackFinder(const std::string& type,
 		m_z0maxDelta(1000),
 		m_applyZ0cut(false),
 		m_storeInOtherTrks(true),
-		m_bypassSelector(false)
+		m_bypassSelector(false),
+		m_bypassExtrapolator(false)
 {
 	declareInterface<TauToolBase > (this);
 	declareProperty("MaxJetDrTau", m_maxJetDr_tau = 0.2);
@@ -37,6 +38,7 @@ TauTrackFinder::TauTrackFinder(const std::string& type,
 	declareProperty("removeTracksOutsideZ0wrtLeadTrk", m_applyZ0cut);
         declareProperty("StoreRemovedCoreWideTracksInOtherTracks", m_storeInOtherTrks = true);
 	declareProperty("BypassSelector", m_bypassSelector = false);
+	declareProperty("BypassExtrapolator", m_bypassExtrapolator = false);
 }
 
 TauTrackFinder::~TauTrackFinder() {
@@ -209,12 +211,16 @@ StatusCode TauTrackFinder::execute(TauCandidateData * data) {
 
 	// extrapolate core tracks to calorimeter surface
 	// store information only in ExtraDetailsContainer
-	sc = extrapolateToCaloSurface(data);
-	if (sc.isFailure() && !sc.isRecoverable()) {
-		ATH_MSG_ERROR("couldn't extrapolate tracks to calo surface");
-		return StatusCode::FAILURE;
-	}
 
+	if(!m_bypassExtrapolator)
+	  {
+	    sc = extrapolateToCaloSurface(data);
+	    if (sc.isFailure() && !sc.isRecoverable()) {
+	      ATH_MSG_ERROR("couldn't extrapolate tracks to calo surface");
+	      return StatusCode::FAILURE;
+	    }
+	  }
+	
 	return StatusCode::SUCCESS;
 }
 
