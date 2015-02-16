@@ -11,18 +11,14 @@
  *  $Id: ReadCond.h,v 1.1 2008-12-10 21:28:11 gemmeren Exp $
  **/
 
-#include <string>
-#include "GaudiKernel/Algorithm.h"
-#include "GaudiKernel/ServiceHandle.h"
-
-class StoreGateSvc;
+#include "AthenaBaseComps/AthAlgorithm.h"
 
 namespace AthPoolEx {
 
 /** @class AthPoolEx::ReadCond
  *  @brief This class provides an example for reading conditions data objects from Pool.
  **/
-class ReadCond : public Algorithm {
+class ReadCond : public AthAlgorithm {
 public: // Constructor and Destructor
    /// Standard Service Constructor
    ReadCond(const std::string& name, ISvcLocator* pSvcLocator);
@@ -34,9 +30,6 @@ public:
    StatusCode initialize();
    StatusCode execute();
    StatusCode finalize();
-
-private:
-   ServiceHandle<StoreGateSvc> m_pCondStore;
 };
 
 } // end AthPoolEx namespace

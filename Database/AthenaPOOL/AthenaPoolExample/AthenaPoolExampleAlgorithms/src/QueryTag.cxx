@@ -10,18 +10,13 @@
 
 #include "QueryTag.h"
 
-#include "GaudiKernel/MsgStream.h"
-
-#include "StoreGate/ActiveStoreSvc.h"
-#include "StoreGate/StoreGateSvc.h"
-
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
 
 using namespace AthPoolEx;
 
 //___________________________________________________________________________
 QueryTag::QueryTag(const std::string& type, const std::string& name, const IInterface* parent) : 
-	AlgTool(type, name, parent), m_eventStore("StoreGateSvc", name), m_attrListKey() {
+	AthAlgTool(type, name, parent), m_attrListKey() {
    declareInterface<IAthenaSelectorTool>(this);
 }
 //___________________________________________________________________________
@@ -29,8 +24,7 @@ QueryTag::~QueryTag() {
 }
 //___________________________________________________________________________
 StatusCode QueryTag::initialize() {
-   MsgStream log(msgSvc(), name());
-   log << MSG::INFO << "in initialize()" << endreq;
+   ATH_MSG_INFO("in initialize()");
    const IService* parentSvc = dynamic_cast<const IService*>(this->parent());
    if (parentSvc != 0) {
       const IProperty* propertyServer = dynamic_cast<const IProperty*>(parentSvc);
@@ -42,29 +36,28 @@ StatusCode QueryTag::initialize() {
          }
       }
    }
-   return(StatusCode::SUCCESS);
+   return StatusCode::SUCCESS;
 }
 //___________________________________________________________________________
 StatusCode QueryTag::postInitialize() {
-   return(StatusCode::SUCCESS);
+   return StatusCode::SUCCESS;
 }
 //__________________________________________________________________________
 StatusCode QueryTag::preNext() {
-   return(StatusCode::SUCCESS);
+   return StatusCode::SUCCESS;
 }
 //__________________________________________________________________________
 StatusCode QueryTag::postNext() {
-   MsgStream log(msgSvc(), name());
-   if (!m_eventStore->contains<AthenaAttributeList>(m_attrListKey)) {
-      log << MSG::DEBUG << "Can't get attributeList for preselection" << endreq;
-      return(StatusCode::SUCCESS);
+   if (!evtStore()->contains<AthenaAttributeList>(m_attrListKey)) {
+      ATH_MSG_DEBUG("Can't get attributeList for preselection");
+      return StatusCode::SUCCESS;
    }
 
    const DataHandle<AthenaAttributeList> attrList;
-   StatusCode status = m_eventStore->retrieve(attrList, m_attrListKey);
+   StatusCode status = evtStore()->retrieve(attrList, m_attrListKey);
    if (status.isFailure()) {
-      log << MSG::ERROR << "Could not retrieve AthenaAttributeList" << endreq;
-      return(StatusCode::FAILURE);
+      ATH_MSG_ERROR("Could not retrieve AthenaAttributeList");
+      return StatusCode::FAILURE;
    }
 
    try {
@@ -72,27 +65,25 @@ StatusCode QueryTag::postNext() {
       unsigned int runNumber = (*attrList)["RunNumber"].data<unsigned int>();
       unsigned int magicNumber = (*attrList)["MagicNumber"].data<unsigned int>();
 
-      log << MSG::DEBUG << "EventNumber = " << eventNumber << endreq;
-      log << MSG::DEBUG << "RunNumber = " << runNumber << endreq;
-      log << MSG::DEBUG << "MagicNumber = " << magicNumber << endreq;
+      ATH_MSG_DEBUG("EventNumber = " << eventNumber);
+      ATH_MSG_DEBUG("RunNumber = " << runNumber);
+      ATH_MSG_DEBUG("MagicNumber = " << magicNumber);
       if (eventNumber < 10 && magicNumber > 17) {
-         return(StatusCode::RECOVERABLE);
+         return StatusCode::RECOVERABLE;
       }
    } catch (...) {
-      log << MSG::DEBUG << "Can't apply attributeList preselection" << endreq;
-      return(StatusCode::SUCCESS);
+      ATH_MSG_DEBUG("Can't apply attributeList preselection");
+      return StatusCode::SUCCESS;
    }
-
-   return(StatusCode::SUCCESS);
+   return StatusCode::SUCCESS;
 }
 //__________________________________________________________________________
 StatusCode QueryTag::preFinalize() {
-   return(StatusCode::SUCCESS);
+   return StatusCode::SUCCESS;
 }
 //__________________________________________________________________________
 StatusCode QueryTag::finalize() {
-   MsgStream log(msgSvc(), name());
-   log << MSG::INFO << "in finalize()" << endreq;
-   return(StatusCode::SUCCESS);
+   ATH_MSG_INFO("in finalize()");
+   return StatusCode::SUCCESS;
 }
 //__________________________________________________________________________

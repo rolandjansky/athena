@@ -77,6 +77,7 @@ else
         grep -v "^value " |\
 	# ROOT file version
 	grep -v "Root file version:" |\
+	grep -v "File version:" |\
 	# ClassIDSvc and ServiceManager messages
 	grep -v "^ClassIDSvc" |\
 	grep -v "^ServiceManager" |\

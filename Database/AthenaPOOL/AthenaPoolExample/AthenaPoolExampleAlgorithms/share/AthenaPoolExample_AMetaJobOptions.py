@@ -70,8 +70,7 @@ topSequence += EBWriter1
 from AthenaPoolExampleAlgorithms.AthenaPoolExampleAlgorithmsConf import AthPoolEx__WriteData,AthPoolEx__WriteCond
 topSequence += AthPoolEx__WriteData( "WriteData" )
 from StoreGate.StoreGateConf import StoreGateSvc
-topSequence += AthPoolEx__WriteCond( "WriteCond",
-                                     Store = "MetaDataStore",
+topSequence += AthPoolEx__WriteCond( "WriteCond", DetStore = StoreGateSvc( "MetaDataStore" ),
                                      ConditionName = "PedestalWriteData"
                                      )
 

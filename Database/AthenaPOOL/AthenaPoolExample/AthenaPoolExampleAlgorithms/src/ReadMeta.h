@@ -11,10 +11,9 @@
  *  $Id: ReadMeta.h,v 1.1 2008-12-10 21:28:11 gemmeren Exp $
  **/
 
-#include <string>
-#include "GaudiKernel/AlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/IIncidentListener.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "AthenaPoolKernel/IMetaDataTool.h"
 
 class StoreGateSvc;
@@ -24,7 +23,7 @@ namespace AthPoolEx {
 /** @class AthPoolEx::ReadMeta
  *  @brief This class provides an example for reading in file meta data objects from Pool.
  **/
-class ReadMeta : public AlgTool, virtual public IMetaDataTool, virtual public IIncidentListener {
+class ReadMeta : public AthAlgTool, virtual public IMetaDataTool, virtual public IIncidentListener {
 public: // Constructor and Destructor
    /// Standard Service Constructor
    ReadMeta(const std::string& type, const std::string& name, const IInterface* parent);
@@ -40,9 +39,8 @@ public:
    void handle(const Incident& incident);
 
 private:
-   typedef ServiceHandle<StoreGateSvc> StoreGateSvc_t;
-   StoreGateSvc_t m_pMetaDataStore;
-   StoreGateSvc_t m_pInputStore;
+   ServiceHandle<StoreGateSvc> m_pMetaDataStore;
+   ServiceHandle<StoreGateSvc> m_pInputStore;
 };
 
 } // end AthPoolEx namespace

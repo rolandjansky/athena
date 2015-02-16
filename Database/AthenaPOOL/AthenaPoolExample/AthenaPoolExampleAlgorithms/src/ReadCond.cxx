@@ -13,66 +13,47 @@
 // the user data-class defintions
 #include "AthenaPoolExampleData/ExampleHitContainer.h"
 
-#include "GaudiKernel/MsgStream.h"
-
-#include "StoreGate/StoreGateSvc.h"
-
 using namespace AthPoolEx;
 
 //___________________________________________________________________________
-ReadCond::ReadCond(const std::string& name, ISvcLocator* pSvcLocator) : Algorithm(name, pSvcLocator), m_pCondStore("DetectorStore", name) {
+ReadCond::ReadCond(const std::string& name, ISvcLocator* pSvcLocator) : AthAlgorithm(name, pSvcLocator) {
 }
 //___________________________________________________________________________
 ReadCond::~ReadCond() {
 }
 //___________________________________________________________________________
 StatusCode ReadCond::initialize() {
-   StatusCode sc = StatusCode::SUCCESS;
-   MsgStream log(msgSvc(), name());
-   log << MSG::INFO << "in initialize()" << endreq;
-
-   // locate the DetectorStore and initialize our local ptr
-   sc = m_pCondStore.retrieve();
-   if (!sc.isSuccess() || 0 == m_pCondStore) {
-      log << MSG::ERROR << "Could not find Store [" << m_pCondStore.typeAndName() << "]" << endreq;
-      return(StatusCode::FAILURE);
-   }
-   return(StatusCode::SUCCESS);
+   ATH_MSG_INFO("in initialize()");
+   return StatusCode::SUCCESS;
 }
 //___________________________________________________________________________
 StatusCode ReadCond::execute() {
-   StatusCode sc = StatusCode::SUCCESS;
-   MsgStream log(msgSvc(), name());
-   log << MSG::DEBUG << "in execute()" << endreq;
+   ATH_MSG_DEBUG("in execute()");
 
-   if (m_pCondStore->contains<ExampleHitContainer>("PedestalWriteData")) {
+   if (detStore()->contains<ExampleHitContainer>("PedestalWriteData")) {
       const DataHandle<ExampleHitContainer> ep;
-      sc = m_pCondStore->retrieve(ep, "PedestalWriteData");
-      if (!sc.isSuccess()) {
-         log << MSG::ERROR << "Could not find DataObject: PedestalWriteData" << endreq;
-         return(StatusCode::FAILURE);
+      if (detStore()->retrieve(ep, "PedestalWriteData").isFailure()) {
+         ATH_MSG_ERROR("Could not find DataObject: PedestalWriteData");
+         return StatusCode::FAILURE;
       }
       for (ExampleHitContainer::const_iterator obj = ep->begin(); obj != ep->end(); obj++) {
-         log << MSG::INFO << "Pedestal x = " << (*obj)->getX() << " y = " << (*obj)->getY() << " z = " << (*obj)->getZ() << " string = " << (*obj)->getDetector() << endreq;
+         ATH_MSG_INFO("Pedestal x = " << (*obj)->getX() << " y = " << (*obj)->getY() << " z = " << (*obj)->getZ() << " string = " << (*obj)->getDetector());
       }
    }
-   if (m_pCondStore->contains<ExampleHitContainer>("PedestalAppendData")) {
+   if (detStore()->contains<ExampleHitContainer>("PedestalAppendData")) {
       const DataHandle<ExampleHitContainer> ep;
-      sc = m_pCondStore->retrieve(ep, "PedestalAppendData");
-      if (!sc.isSuccess()) {
-         log << MSG::ERROR << "Could not find DataObject: PedestalAppendData" << endreq;
-         return(StatusCode::FAILURE);
+      if (detStore()->retrieve(ep, "PedestalAppendData").isFailure()) {
+         ATH_MSG_ERROR("Could not find DataObject: PedestalAppendData");
+         return StatusCode::FAILURE;
       }
       for (ExampleHitContainer::const_iterator obj = ep->begin(); obj != ep->end(); obj++) {
-         log << MSG::INFO << "Pedestal (2) x = " << (*obj)->getX() << " y = " << (*obj)->getY() << " z = " << (*obj)->getZ() << " string = " << (*obj)->getDetector() << endreq;
+         ATH_MSG_INFO("Pedestal (2) x = " << (*obj)->getX() << " y = " << (*obj)->getY() << " z = " << (*obj)->getZ() << " string = " << (*obj)->getDetector());
       }
    }
-
-   return(StatusCode::SUCCESS);
+   return StatusCode::SUCCESS;
 }
 //___________________________________________________________________________
 StatusCode ReadCond::finalize() {
-   MsgStream log(msgSvc(), name());
-   log << MSG::INFO << "in finalize()" << endreq;
-   return(StatusCode::SUCCESS);
+   ATH_MSG_INFO("in finalize()");
+   return StatusCode::SUCCESS;
 }

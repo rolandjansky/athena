@@ -15,7 +15,6 @@
 
 #include "GaudiKernel/ToolFactory.h"
 #include "GaudiKernel/IIncidentSvc.h"
-#include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/FileIncident.h"
 
 #include "StoreGate/StoreGateSvc.h"
@@ -24,7 +23,7 @@ using namespace AthPoolEx;
 
 //___________________________________________________________________________
 ReadMeta::ReadMeta(const std::string& type, const std::string& name, const IInterface* parent) : 
-   AlgTool(type, name, parent), 
+   AthAlgTool(type, name, parent), 
    m_pMetaDataStore ("StoreGateSvc/MetaDataStore",      name), 
    m_pInputStore    ("StoreGateSvc/InputMetaDataStore", name) {
    declareInterface<IMetaDataTool>(this);
@@ -34,57 +33,49 @@ ReadMeta::~ReadMeta() {
 }
 //___________________________________________________________________________
 StatusCode ReadMeta::initialize() {
-   StatusCode sc = StatusCode::SUCCESS;
-   MsgStream log(msgSvc(), name());
-   log << MSG::INFO << "in initialize()" << endreq;
+   ATH_MSG_INFO("in initialize()");
 
    // locate the DetectorStore and initialize our local ptr
-   sc = m_pMetaDataStore.retrieve();
-   if (!sc.isSuccess() || 0 == m_pMetaDataStore) {
-      log << MSG::ERROR << "Could not find MetaDataStore" << endreq;
-      return(StatusCode::FAILURE);
+   if (!m_pMetaDataStore.retrieve().isSuccess()) {
+      ATH_MSG_ERROR("Could not find MetaDataStore");
+      return StatusCode::FAILURE;
    }
-   sc = m_pInputStore.retrieve();
-   if (!sc.isSuccess() || 0 == m_pInputStore) {
-      log << MSG::ERROR << "Could not find InputMetaDataStore" << endreq;
-      return(StatusCode::FAILURE);
+   if (!m_pInputStore.retrieve().isSuccess()) {
+      ATH_MSG_ERROR("Could not find InputMetaDataStore");
+      return StatusCode::FAILURE;
    }
    // Set to be listener for end of event
    ServiceHandle<IIncidentSvc> incSvc("IncidentSvc", this->name());
-   sc = incSvc.retrieve();
-   if (!sc.isSuccess()) {
-      log << MSG::ERROR << "Unable to get the IncidentSvc" << endreq;
-      return(sc);
+   if (!incSvc.retrieve().isSuccess()) {
+      ATH_MSG_ERROR("Unable to get the IncidentSvc");
+      return StatusCode::FAILURE;
    }
    incSvc->addListener(this, "BeginInputFile", 60); // pri has to be < 100 to be after MetaDataSvc.
    incSvc->addListener(this, "EndFile", 50); // pri has to be > 10 to be before MetaDataSvc.
-   return(StatusCode::SUCCESS);
+   return StatusCode::SUCCESS;
 }
 //___________________________________________________________________________
 StatusCode ReadMeta::finalize() {
-   MsgStream log(msgSvc(), name());
-   log << MSG::INFO << "in finalize()" << endreq;
-   return(StatusCode::SUCCESS);
+   ATH_MSG_INFO("in finalize()");
+   return StatusCode::SUCCESS;
 }
 //__________________________________________________________________________
 void ReadMeta::handle(const Incident& inc) {
-   MsgStream log(msgSvc(), name());
-   log << MSG::DEBUG << "handle() " << inc.type() << endreq;
+   ATH_MSG_DEBUG("handle() " << inc.type());
    const FileIncident* fileInc  = dynamic_cast<const FileIncident*>(&inc);
    if (fileInc == 0) {
-      log << MSG::ERROR << " Unable to get FileName from BeginInputFile/EndInputFile incident" << endreq;
+      ATH_MSG_ERROR(" Unable to get FileName from BeginInputFile/EndInputFile incident");
       return;
    }
    const std::string fileName = fileInc->fileName();
-   log << MSG::DEBUG << "handle() " << inc.type() << " for " << fileName << endreq;
+   ATH_MSG_DEBUG("handle() " << inc.type() << " for " << fileName);
 
    if (inc.type() == "BeginInputFile") {
-      log << MSG::DEBUG << "handle() saw BeginInputFile incident." << endreq;
+      ATH_MSG_DEBUG("handle() saw BeginInputFile incident.");
       if (m_pInputStore->contains<ExampleHitContainer>("PedestalWriteData")) {
          std::list<SG::ObjectWithVersion<ExampleHitContainer> > allVersions;
-         StatusCode sc = m_pInputStore->retrieveAllVersions(allVersions, "PedestalWriteData");
-         if (!sc.isSuccess()) {
-            log << MSG::ERROR << "Could not retrieve all versions for PedestalWriteData" << endreq;
+         if (m_pInputStore->retrieveAllVersions(allVersions, "PedestalWriteData").isFailure()) {
+            ATH_MSG_ERROR("Could not retrieve all versions for PedestalWriteData");
             return;
          }
          //const ExampleHitContainer* ep;
@@ -100,15 +91,13 @@ void ReadMeta::handle(const Incident& inc) {
                entry_out->setZ(entry->getZ());
                entry_out->setDetector(entry->getDetector());
                ep_out->push_back(entry_out);
-               StatusCode sc = m_pMetaDataStore->record(ep_out, "PedestalWriteData");
-               if (!sc.isSuccess()) {
-                  log << MSG::ERROR << "Could not record DataObject: PedestalWriteData" << endreq;
+               if (m_pMetaDataStore->record(ep_out, "PedestalWriteData").isFailure()) {
+                  ATH_MSG_ERROR("Could not record DataObject: PedestalWriteData");
                   return;
                }
             } else {
-               StatusCode sc = m_pMetaDataStore->retrieve(ep_out, "PedestalWriteData");
-               if (!sc.isSuccess() || 0 == ep_out) {
-                  log << MSG::ERROR << "Could not find DataObject in output: PedestalWriteData" << endreq;
+               if (m_pMetaDataStore->retrieve(ep_out, "PedestalWriteData").isFailure()) {
+                  ATH_MSG_ERROR("Could not find DataObject in output: PedestalWriteData");
                   return;
                }
                ExampleHit* entry = *ep->begin();
@@ -122,11 +111,11 @@ void ReadMeta::handle(const Incident& inc) {
             }
          }
          for (ExampleHitContainer::const_iterator obj = ep_out->begin(); obj != ep_out->end(); obj++) {
-            log << MSG::INFO << "Pedestal x = " << (*obj)->getX() << " y = " << (*obj)->getY() << " z = " << (*obj)->getZ() << " string = " << (*obj)->getDetector() << endreq;
+            ATH_MSG_INFO("Pedestal x = " << (*obj)->getX() << " y = " << (*obj)->getY() << " z = " << (*obj)->getZ() << " string = " << (*obj)->getDetector());
          }
       }
    } else if (inc.type() == "EndFile") {
-      log << MSG::DEBUG << "handle() saw EndFile incident." << endreq;
+      ATH_MSG_DEBUG("handle() saw EndFile incident.");
    }
 }
 //__________________________________________________________________________

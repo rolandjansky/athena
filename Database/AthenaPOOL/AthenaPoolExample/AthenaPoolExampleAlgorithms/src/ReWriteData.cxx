@@ -14,47 +14,34 @@
 #include "AthenaPoolExampleData/ExampleHitContainer.h"
 #include "AthenaPoolExampleData/ExampleTrackContainer.h"
 
-#include "GaudiKernel/MsgStream.h"
-
-#include "StoreGate/StoreGateSvc.h"
-
 #include <cmath>
 
 using namespace AthPoolEx;
 
 //___________________________________________________________________________
-ReWriteData::ReWriteData(const std::string& name, ISvcLocator* pSvcLocator) : Algorithm(name, pSvcLocator), p_SGevent("StoreGateSvc", name) {
+ReWriteData::ReWriteData(const std::string& name, ISvcLocator* pSvcLocator) : AthAlgorithm(name, pSvcLocator) {
 }
 //___________________________________________________________________________
 ReWriteData::~ReWriteData() {
 }
 //___________________________________________________________________________
 StatusCode ReWriteData::initialize() {
-   MsgStream log(msgSvc(), name());
-   log << MSG::INFO << "in initialize()" << endreq;
-
-   // locate the StoreGateSvc and initialize our local ptr
-   StatusCode sc = p_SGevent.retrieve();
-   if (!sc.isSuccess() || 0 == p_SGevent) {
-      log << MSG::ERROR << "Could not find StoreGateSvc" << endreq;
-   }
-   return(sc);
+   ATH_MSG_INFO("in initialize()");
+   return StatusCode::SUCCESS;
 }
 //___________________________________________________________________________
 StatusCode ReWriteData::execute() {
-   MsgStream log(msgSvc(), name());
-   log << MSG::DEBUG << "in execute()" << endreq;
+   ATH_MSG_DEBUG("in execute()");
 
-   if (p_SGevent->contains<ExampleHitContainer>("MyHits")) {
+   if (evtStore()->contains<ExampleHitContainer>("MyHits")) {
       const DataHandle<ExampleHitContainer> hitCont;
-      StatusCode sc = p_SGevent->retrieve(hitCont, "MyHits");
-      if (!sc.isSuccess()) {
-         log << MSG::ERROR << "Could not find ExampleHitContainer/MyHits" << endreq;
-         return(StatusCode::FAILURE);
+      if (evtStore()->retrieve(hitCont, "MyHits").isFailure()) {
+         ATH_MSG_ERROR("Could not find ExampleHitContainer/MyHits");
+         return StatusCode::FAILURE;
       }
       double pT = 0.0, eta = 0.0, phi = 0.0;
       for (ExampleHitContainer::const_iterator hitObj = hitCont->begin(); hitObj != hitCont->end(); hitObj++) {
-         log << MSG::INFO << "Hit x = " << (*hitObj)->getX() << " y = " << (*hitObj)->getY() << " z = " << (*hitObj)->getZ() << " detector = " << (*hitObj)->getDetector() << endreq;
+         ATH_MSG_INFO("Hit x = " << (*hitObj)->getX() << " y = " << (*hitObj)->getY() << " z = " << (*hitObj)->getZ() << " detector = " << (*hitObj)->getDetector());
          pT = pT + sqrt((*hitObj)->getX() * (*hitObj)->getX() + (*hitObj)->getY() * (*hitObj)->getY());
          eta = eta + (*hitObj)->getX() / (*hitObj)->getZ();
          phi = phi + (*hitObj)->getX() / (*hitObj)->getY();
@@ -65,9 +52,9 @@ StatusCode ReWriteData::execute() {
       trackObj->setPhi(phi);
       trackObj->setDetector("Track made in: " + (*hitCont->begin())->getDetector());
       trackObj->getElementLink1()->toContainedElement(*hitCont, *hitCont->begin());
-      log << MSG::INFO << "ElementLink1 = " << trackObj->getElement1()->getX() << endreq;
+      ATH_MSG_INFO("ElementLink1 = " << trackObj->getElement1()->getX());
       trackObj->getElementLink2()->toIndexedElement(*hitCont, hitCont->size() - 1);
-      log << MSG::INFO << "ElementLink2 = " << trackObj->getElement2()->getX() << endreq;
+      ATH_MSG_INFO("ElementLink2 = " << trackObj->getElement2()->getX());
 
       ElementLink<ExampleHitContainer> eLink1, eLink2, eLink3;
       eLink1.toContainedElement(*hitCont, *hitCont->begin());
@@ -76,43 +63,41 @@ StatusCode ReWriteData::execute() {
       trackObj->getElementLinkVector()->push_back(eLink2);
       eLink3.toContainedElement(*hitCont, (*hitCont)[3]);
       trackObj->getElementLinkVector()->push_back(eLink3);
-      log << MSG::INFO << "Link ElementLinkVector = " << trackObj->getElementLinkVector()->size() << endreq;
+      ATH_MSG_INFO("Link ElementLinkVector = " << trackObj->getElementLinkVector()->size());
       for (ElementLinkVector<ExampleHitContainer>::iterator iter = trackObj->getElementLinkVector()->begin(); iter != trackObj->getElementLinkVector()->end(); ++iter) {
-         log << MSG::INFO << "Element = " << (**iter) << " : " << (**iter)->getX() << endreq;
+         ATH_MSG_INFO("Element = " << (**iter) << " : " << (**iter)->getX());
       }
 
       trackObj->getNavigable()->putElement(hitCont, *hitCont->begin());
       trackObj->getNavigable()->putElement(hitCont, (*hitCont)[5]);
-      log << MSG::INFO << "Link Navigable = " << trackObj->getNavigable()->size() << endreq;
+      ATH_MSG_INFO("Link Navigable = " << trackObj->getNavigable()->size());
       for (Navigable<ExampleHitContainer>::object_iter iter = trackObj->getNavigable()->begin(); iter != trackObj->getNavigable()->end(); ++iter) {
-         log << MSG::INFO << "Element = " << (*iter) << " : " << (*iter)->getX() << endreq;
+         ATH_MSG_INFO("Element = " << (*iter) << " : " << (*iter)->getX());
       }
 
       trackObj->getWeightedNavigable()->putElement(hitCont, *hitCont->begin(), 3.33);
       trackObj->getWeightedNavigable()->putElement(hitCont, (*hitCont)[5], 1.11);
       trackObj->getWeightedNavigable()->putElement(hitCont, (*hitCont)[3], 5.55);
-      log << MSG::INFO << "Link Weighted Navigable = " << trackObj->getWeightedNavigable()->size() << endreq;
+      ATH_MSG_INFO("Link Weighted Navigable = " << trackObj->getWeightedNavigable()->size());
       for (Navigable<ExampleHitContainer, double>::object_iter iter = trackObj->getWeightedNavigable()->begin(); iter != trackObj->getWeightedNavigable()->end(); ++iter) {
-         log << MSG::INFO << "Element = " << (*iter) << " : " << (*iter)->getX() << endreq;
+         ATH_MSG_INFO("Element = " << (*iter) << " : " << (*iter)->getX());
       }
 
       ExampleTrackContainer* trackCont = new ExampleTrackContainer();
       trackCont->push_back(trackObj);
-      sc = p_SGevent->record(trackCont, "MyTracks");
-      if (sc.isFailure()) {
-         log << MSG::ERROR << "Could not register ExampleTrackContainer/MyTracks" << endreq;
-         return(StatusCode::FAILURE);
+      if (evtStore()->record(trackCont, "MyTracks").isFailure()) {
+         ATH_MSG_ERROR("Could not register ExampleTrackContainer/MyTracks");
+         return StatusCode::FAILURE;
       } else {
-         log << MSG::INFO << "Track pt = " << trackObj->getPT() << " eta = " << trackObj->getEta() << " phi = " << trackObj->getPhi() << " detector = " << trackObj->getDetector() << endreq;
+         ATH_MSG_INFO("Track pt = " << trackObj->getPT() << " eta = " << trackObj->getEta() << " phi = " << trackObj->getPhi() << " detector = " << trackObj->getDetector());
       }
    }
 
-   log << MSG::INFO << "registered all data" << endreq;
-   return(StatusCode::SUCCESS);
+   ATH_MSG_INFO("registered all data");
+   return StatusCode::SUCCESS;
 }
 //___________________________________________________________________________
 StatusCode ReWriteData::finalize() {
-   MsgStream log(msgSvc(), name());
-   log << MSG::INFO << "in finalize()" << endreq;
-   return(StatusCode::SUCCESS);
+   ATH_MSG_INFO("in finalize()");
+   return StatusCode::SUCCESS;
 }

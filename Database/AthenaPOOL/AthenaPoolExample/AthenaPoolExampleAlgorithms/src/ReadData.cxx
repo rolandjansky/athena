@@ -14,8 +14,6 @@
 #include "AthenaPoolExampleData/ExampleHitContainer.h"
 #include "AthenaPoolExampleData/ExampleTrackContainer.h"
 
-#include "GaudiKernel/MsgStream.h"
-
 #include "DBDataModel/CollectionMetadata.h"
 
 #include "EventInfo/EventInfo.h"
@@ -23,165 +21,146 @@
 #include "EventInfo/EventStreamInfo.h"
 #include "EventBookkeeperMetaData/EventBookkeeperCollection.h"
 
-#include "StoreGate/StoreGateSvc.h"
-
 #include <set>
 
 using namespace AthPoolEx;
 
 //___________________________________________________________________________
-ReadData::ReadData(const std::string& name, ISvcLocator* pSvcLocator) : Algorithm(name, pSvcLocator), p_SGevent("StoreGateSvc", name), p_SGinMeta("StoreGateSvc/InputMetaDataStore", name), p_SGtagMeta("StoreGateSvc/TagMetaDataStore", name), p_SGmeta("StoreGateSvc/MetaDataStore", name) {
+ReadData::ReadData(const std::string& name, ISvcLocator* pSvcLocator) : AthAlgorithm(name, pSvcLocator), p_SGinMeta("StoreGateSvc/InputMetaDataStore", name), p_SGtagMeta("StoreGateSvc/TagMetaDataStore", name), p_SGmeta("StoreGateSvc/MetaDataStore", name) {
 }
 //___________________________________________________________________________
 ReadData::~ReadData() {
 }
 //___________________________________________________________________________
 StatusCode ReadData::initialize() {
-   MsgStream log(msgSvc(), name());
-   log << MSG::INFO << "in initialize()" << endreq;
+   ATH_MSG_INFO("in initialize()");
 
    // Locate the StoreGateSvc and initialize our local ptr
-   StatusCode sc = p_SGevent.retrieve();
-   if (!sc.isSuccess() || 0 == p_SGevent) {
-      log << MSG::ERROR << "Could not find StoreGateSvc" << endreq;
+   if (!p_SGinMeta.retrieve().isSuccess()) {
+      ATH_MSG_ERROR("Could not find Input MetaData StoreGateSvc");
+      return StatusCode::FAILURE;
    }
-
-   // Locate the StoreGateSvc and initialize our local ptr
-   sc = p_SGinMeta.retrieve();
-   if (!sc.isSuccess() || 0 == p_SGinMeta) {
-      log << MSG::ERROR << "Could not find Input MetaData StoreGateSvc" << endreq;
+   if (!p_SGtagMeta.retrieve().isSuccess()) {
+      ATH_MSG_ERROR("Could not find Tag MetaData StoreGateSvc");
+      return StatusCode::FAILURE;
    }
-   sc = p_SGtagMeta.retrieve();
-   if (!sc.isSuccess() || 0 == p_SGtagMeta) {
-      log << MSG::ERROR << "Could not find Tag MetaData StoreGateSvc" << endreq;
+   if (!p_SGtagMeta.retrieve().isSuccess()) {
+      ATH_MSG_ERROR("Could not find MetaData StoreGateSvc");
+      return StatusCode::FAILURE;
    }
-   sc = p_SGmeta.retrieve();
-   if (!sc.isSuccess() || 0 == p_SGmeta) {
-      log << MSG::ERROR << "Could not find MetaData StoreGateSvc" << endreq;
-   }
-   return(sc);
+   return StatusCode::SUCCESS;
 }
 //___________________________________________________________________________
 StatusCode ReadData::execute() {
-   StatusCode sc = StatusCode::SUCCESS;
-   MsgStream log(msgSvc(), name());
-   log << MSG::DEBUG << "in execute()" << endreq;
+   ATH_MSG_DEBUG("in execute()");
 
    if (p_SGtagMeta->contains<CollectionMetadata>("CollectionMetadata")) {
       const DataHandle<CollectionMetadata> cm;
-      sc = p_SGtagMeta->retrieve(cm, "CollectionMetadata");
-      if (sc.isFailure() || !cm) {
-         log << MSG::FATAL << "Could not find CollectionMetadata" << endreq;
-         return(StatusCode::FAILURE);
+      if (p_SGtagMeta->retrieve(cm, "CollectionMetadata").isFailure()) {
+         ATH_MSG_FATAL("Could not find CollectionMetadata");
+         return StatusCode::FAILURE;
       }
       for (CollectionMetadata::const_iterator iter = cm->begin(), iterEnd = cm->end();
 		      iter != iterEnd; iter++) {
-         log << MSG::INFO << "CollectionMetadata, key = " << iter->first << ", value = " << iter->second << endreq;
+         ATH_MSG_INFO("CollectionMetadata, key = " << iter->first << ", value = " << iter->second);
       }
    }
    // Get the event streamheader, print out 
    const DataHandle<EventStreamInfo> esi1, esi2;
-   sc = p_SGinMeta->retrieve(esi1, esi2);
-   if (sc.isFailure() || esi1 == esi2) {
-      log << MSG::WARNING << "Could not find EventStreamInfo" << endreq;
+   if (p_SGinMeta->retrieve(esi1, esi2).isFailure() || esi1 == esi2) {
+      ATH_MSG_WARNING("Could not find EventStreamInfo");
    } else {
       for (; esi1 != esi2; esi1++) {
-         log << MSG::INFO << "EventStreamInfo: Number of events = " << esi1->getNumberOfEvents() << endreq;
-         log << MSG::INFO << "EventStreamInfo: ItemList:" << endreq;
+         ATH_MSG_INFO("EventStreamInfo: Number of events = " << esi1->getNumberOfEvents());
+         ATH_MSG_INFO("EventStreamInfo: ItemList:");
          for (std::set<std::pair<CLID, std::string> >::const_iterator iter = esi1->getItemList().begin(), iterEnd = esi1->getItemList().end();
 		         iter != iterEnd; iter++) {
-            log << MSG::INFO << "CLID = " << iter->first << ", key = " << iter->second << endreq;
+            ATH_MSG_INFO("CLID = " << iter->first << ", key = " << iter->second);
          }
          for (std::set<EventType>::iterator iter = esi1->getEventTypes().begin(), iterEnd = esi1->getEventTypes().end();
 		         iter != iterEnd; iter++) {
-            log << MSG::INFO << "EventType: " << iter->typeToString() << endreq;
-            log << MSG::INFO << "TagInfo: " << iter->get_detdescr_tags() << endreq;
+            ATH_MSG_INFO("EventType: " << iter->typeToString());
+            ATH_MSG_INFO("TagInfo: " << iter->get_detdescr_tags());
          }
       }
    }
    const std::string ebcKey = "EventSelector.Counter";
    if (p_SGmeta->contains<EventBookkeeperCollection>(ebcKey)) {
       const DataHandle<EventBookkeeperCollection> ebc;
-      sc = p_SGmeta->retrieve(ebc, ebcKey);
-      if (sc.isFailure() || !ebc) {
-         log << MSG::FATAL << "Could not find EventBookkeeperCollection, key =" << endreq;
-         return(StatusCode::FAILURE);
+      if (p_SGmeta->retrieve(ebc, ebcKey).isFailure()) {
+         ATH_MSG_FATAL("Could not find EventBookkeeperCollection, key =");
+         return StatusCode::FAILURE;
       }
       for (EventBookkeeperCollection::const_iterator iter = ebc->begin(), iterEnd = ebc->end();
 		      iter != iterEnd; iter++) {
-         log << MSG::INFO << "EventBookkeeper " << (*iter)->getName() << " accepted events: = " << (*iter)->getNAcceptedEvents() << endreq;
+         ATH_MSG_INFO("EventBookkeeper " << (*iter)->getName() << " accepted events: = " << (*iter)->getNAcceptedEvents());
       }
    }
    const std::string ebcInKey = "EventBookkeepers";
    if (p_SGinMeta->contains<EventBookkeeperCollection>(ebcInKey)) {
       const DataHandle<EventBookkeeperCollection> ebc;
-      sc = p_SGinMeta->retrieve(ebc, ebcInKey);
-      if (sc.isFailure() || !ebc) {
-         log << MSG::FATAL << "Could not find EventBookkeeperCollection, key =" << endreq;
-         return(StatusCode::FAILURE);
+      if (p_SGinMeta->retrieve(ebc, ebcInKey).isFailure()) {
+         ATH_MSG_FATAL("Could not find EventBookkeeperCollection, key =");
+         return StatusCode::FAILURE;
       }
       for (EventBookkeeperCollection::const_iterator iter = ebc->begin(), iterEnd = ebc->end();
 		      iter != iterEnd; iter++) {
-         log << MSG::INFO << "EventBookkeeper (In) " << (*iter)->getName() << " accepted events: = " << (*iter)->getNAcceptedEvents() << endreq;
+         ATH_MSG_INFO("EventBookkeeper (In) " << (*iter)->getName() << " accepted events: = " << (*iter)->getNAcceptedEvents());
       }
    }
    // Get the event header, print out event and run number
    const DataHandle<EventInfo> evt;
-   sc = p_SGevent->retrieve(evt);
-   if (sc.isFailure() || !evt) {
-      log << MSG::FATAL << "Could not find EventInfo" << endreq;
-      return(StatusCode::FAILURE);
+   if (evtStore()->retrieve(evt).isFailure()) {
+      ATH_MSG_FATAL("Could not find EventInfo");
+      return StatusCode::FAILURE;
    }
-   log << MSG::INFO << "EventInfo event: " << evt->event_ID()->event_number() << " run: " << evt->event_ID()->run_number() << endreq;
+   ATH_MSG_INFO("EventInfo event: " << evt->event_ID()->event_number() << " run: " << evt->event_ID()->run_number());
    // Get the DataObject, print out its contents
-   log << MSG::INFO << "Get Smart data ptr 1" << endreq;
+   ATH_MSG_INFO("Get Smart data ptr 1");
 
-   if (p_SGevent->contains<ExampleHitContainer>("MyHits")) {
+   if (evtStore()->contains<ExampleHitContainer>("MyHits")) {
       const DataHandle<ExampleHitContainer> cont;
-      sc = p_SGevent->retrieve(cont, "MyHits");
-      if (!sc.isSuccess()) {
-         log << MSG::ERROR << "Could not find ExampleHitContainer/MyHits" << endreq;
-         return(StatusCode::FAILURE);
+      if (evtStore()->retrieve(cont, "MyHits").isFailure()) {
+         ATH_MSG_ERROR("Could not find ExampleHitContainer/MyHits");
+         return StatusCode::FAILURE;
       }
       for (ExampleHitContainer::const_iterator obj = cont->begin(); obj != cont->end(); obj++) {
-         log << MSG::INFO << "Hit x = " << (*obj)->getX() << " y = " << (*obj)->getY() << " z = " << (*obj)->getZ() << " detector = " << (*obj)->getDetector() << endreq;
+         ATH_MSG_INFO("Hit x = " << (*obj)->getX() << " y = " << (*obj)->getY() << " z = " << (*obj)->getZ() << " detector = " << (*obj)->getDetector());
       }
-      if (p_SGevent->contains<ExampleHitContainer>("PetersHits")) {
-         log << MSG::INFO << "Found ExampleHitContainer/PetersHits (alias)" << endreq;
+      if (evtStore()->contains<ExampleHitContainer>("PetersHits")) {
+         ATH_MSG_INFO("Found ExampleHitContainer/PetersHits (alias)");
       }
    }
-   if (p_SGevent->contains<ExampleTrackContainer>("MyTracks")) {
+   if (evtStore()->contains<ExampleTrackContainer>("MyTracks")) {
       const DataHandle<ExampleTrackContainer> cont;
-      sc = p_SGevent->retrieve(cont, "MyTracks");
-      if (!sc.isSuccess()) {
-         log << MSG::ERROR << "Could not find ExampleTrackContainer/MyTracks" << endreq;
-         return(StatusCode::FAILURE);
+      if (evtStore()->retrieve(cont, "MyTracks").isFailure()) {
+         ATH_MSG_ERROR("Could not find ExampleTrackContainer/MyTracks");
+         return StatusCode::FAILURE;
       }
       for (ExampleTrackContainer::const_iterator obj = cont->begin(); obj != cont->end(); obj++) {
-         log << MSG::INFO << "Track pt = " << (*obj)->getPT() << " eta = " << (*obj)->getEta() << " phi = " << (*obj)->getPhi() << " detector = " << (*obj)->getDetector() << endreq;
-         if (p_SGevent->contains<ExampleHitContainer>("MyHits")) {
-            log << MSG::INFO << "ElementLink1 = " << (*obj)->getElement1()->getX() << endreq;
-            log << MSG::INFO << "ElementLink2 = " << (*obj)->getElement2()->getX() << endreq;
-            log << MSG::INFO << "Link ElementLinkVector = " << (*obj)->getElementLinkVector()->size() << endreq;
+         ATH_MSG_INFO("Track pt = " << (*obj)->getPT() << " eta = " << (*obj)->getEta() << " phi = " << (*obj)->getPhi() << " detector = " << (*obj)->getDetector());
+         if (evtStore()->contains<ExampleHitContainer>("MyHits")) {
+            ATH_MSG_INFO("ElementLink1 = " << (*obj)->getElement1()->getX());
+            ATH_MSG_INFO("ElementLink2 = " << (*obj)->getElement2()->getX());
+            ATH_MSG_INFO("Link ElementLinkVector = " << (*obj)->getElementLinkVector()->size());
             for (ElementLinkVector<ExampleHitContainer>::const_iterator iter = (*obj)->getElementLinkVector()->begin(); iter != (*obj)->getElementLinkVector()->end(); ++iter) {
-               log << MSG::INFO << "Element = " << (**iter) << " : " << (**iter)->getX() << endreq;
+               ATH_MSG_INFO("Element = " << (**iter) << " : " << (**iter)->getX());
             }
-            log << MSG::INFO << "Link Navigable = " << (*obj)->getNavigable()->size() << endreq;
+            ATH_MSG_INFO("Link Navigable = " << (*obj)->getNavigable()->size());
             for (Navigable<ExampleHitContainer>::object_iter iter = (*obj)->getNavigable()->begin(); iter != (*obj)->getNavigable()->end(); iter++) {
-               log << MSG::INFO << "Element = " << (*iter) << " : " << (*iter)->getX() << endreq;
+               ATH_MSG_INFO("Element = " << (*iter) << " : " << (*iter)->getX());
             }
-            log << MSG::INFO << "Link Weighted Navigable = " << (*obj)->getWeightedNavigable()->size() << endreq;
+            ATH_MSG_INFO("Link Weighted Navigable = " << (*obj)->getWeightedNavigable()->size());
             for (Navigable<ExampleHitContainer, double>::object_iter iter = (*obj)->getWeightedNavigable()->begin(); iter != (*obj)->getWeightedNavigable()->end(); iter++) {
-               log << MSG::INFO << "Element = " << (*iter) << " : " << (*iter)->getX() << endreq;
+               ATH_MSG_INFO("Element = " << (*iter) << " : " << (*iter)->getX());
             }
          }
       }
    }
-   return(StatusCode::SUCCESS);
+   return StatusCode::SUCCESS;
 }
 //___________________________________________________________________________
 StatusCode ReadData::finalize() {
-   MsgStream log(msgSvc(), name());
-   log << MSG::INFO << "in finalize()" << endreq;
-   return(StatusCode::SUCCESS);
+   ATH_MSG_INFO("in finalize()");
+   return StatusCode::SUCCESS;
 }

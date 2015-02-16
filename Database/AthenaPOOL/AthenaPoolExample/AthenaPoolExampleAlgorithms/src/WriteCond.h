@@ -11,18 +11,14 @@
  *  $Id: WriteCond.h,v 1.1 2008-12-10 21:28:11 gemmeren Exp $
  **/
 
-#include <string>
-#include "GaudiKernel/Algorithm.h"
-#include "GaudiKernel/ServiceHandle.h"
-
-class StoreGateSvc;
+#include "AthenaBaseComps/AthAlgorithm.h"
 
 namespace AthPoolEx {
 
 /** @class AthPoolEx::WriteCond
  *  @brief This class provides an example for writing conditions data objects to Pool.
  **/
-class WriteCond : public Algorithm {
+class WriteCond : public AthAlgorithm {
 public: // Constructor and Destructor
    /// Standard Service Constructor
    WriteCond(const std::string& name, ISvcLocator* pSvcLocator);
@@ -36,8 +32,6 @@ public:
    StatusCode stop();
 
 private:
-   ServiceHandle<StoreGateSvc> m_pEventStore;
-   ServiceHandle<StoreGateSvc> m_pCondStore;
    StringProperty m_conditionName;
    DoubleProperty m_weight;
    DoubleProperty m_offset;

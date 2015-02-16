@@ -11,9 +11,8 @@
  *  $Id: ReadData.h,v 1.2 2009-03-11 20:08:50 gemmeren Exp $
  **/
 
-#include <string>
-#include "GaudiKernel/Algorithm.h"
 #include "GaudiKernel/ServiceHandle.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 
 class StoreGateSvc;
 
@@ -22,7 +21,7 @@ namespace AthPoolEx {
 /** @class AthPoolEx::ReadData
  *  @brief This class provides an example for reading event data objects from Pool.
  **/
-class ReadData : public Algorithm {
+class ReadData : public AthAlgorithm {
 public: // Constructor and Destructor
    /// Standard Service Constructor
    ReadData(const std::string& name, ISvcLocator* pSvcLocator);
@@ -36,7 +35,6 @@ public:
    StatusCode finalize();
 
 private:
-   ServiceHandle<StoreGateSvc> p_SGevent;
    ServiceHandle<StoreGateSvc> p_SGinMeta;
    ServiceHandle<StoreGateSvc> p_SGtagMeta;
    ServiceHandle<StoreGateSvc> p_SGmeta;
