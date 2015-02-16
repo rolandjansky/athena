@@ -21,7 +21,6 @@
 // ISF includes
 #include "ISF_Interfaces/BaseSimulationSvc.h"
 
-class IDetectorGeometrySvc;
 class IGeoModelSvc;
 class G4Timer;
 
@@ -74,7 +73,6 @@ namespace iGeant4 {
 
     /** GeoModelSvc for callback */
     ServiceHandle<IGeoModelSvc>         m_geoModelSvc;
-    ServiceHandle<IDetectorGeometrySvc> m_detGeoSvc;
 
     /** Track Creation & transport */
     ToolHandle<iGeant4::ITransportTool>  m_simulationTool;            //!< Pointer to the TrackCreator AlgTool
