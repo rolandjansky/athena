@@ -1864,8 +1864,12 @@ StatusCode TrigEDMChecker::dumpxAODElectronContainer() {
           ATH_MSG_INFO(" REGTEST: egamma cluster transverse energy: " << eg->caloCluster()->et() );
           ATH_MSG_INFO(" REGTEST: egamma cluster eta: " << eg->caloCluster()->eta() );
           ATH_MSG_INFO(" REGTEST: egamma cluster phi: " << eg->caloCluster()->phi() );
-          ATH_MSG_INFO(" REGTEST: egamma cluster calo-frame coords. etaCalo = " << eg->caloCluster()->auxdata<float>("etaCalo"));
-          ATH_MSG_INFO(" REGTEST: egamma cluster calo-frame coords. etaCalo = " << eg->caloCluster()->auxdata<float>("phiCalo"));
+          double tmpeta = -999.;
+          double tmpphi = -999.;
+          eg->caloCluster()->retrieveMoment(xAOD::CaloCluster::ETACALOFRAME,tmpeta);
+          eg->caloCluster()->retrieveMoment(xAOD::CaloCluster::PHICALOFRAME,tmpphi); 
+          ATH_MSG_INFO(" REGTEST: egamma cluster calo-frame coords. etaCalo = " << tmpeta); 
+          ATH_MSG_INFO(" REGTEST: egamma cluster calo-frame coords. phiCalo = " << tmpphi);
       } else{
           ATH_MSG_INFO(" REGTEST: problems with egamma cluster pointer" );
       }
@@ -1971,8 +1975,12 @@ StatusCode TrigEDMChecker::dumpxAODPhotonContainer() {
           ATH_MSG_INFO(" REGTEST: egamma cluster transverse energy: " << eg->caloCluster()->et() );
           ATH_MSG_INFO(" REGTEST: egamma cluster eta: " << eg->caloCluster()->eta() );
           ATH_MSG_INFO(" REGTEST: egamma cluster phi: " << eg->caloCluster()->phi() );
-          ATH_MSG_INFO(" REGTEST: egamma cluster calo-frame coords. etaCalo = " << eg->caloCluster()->auxdata<float>("etaCalo"));
-          ATH_MSG_INFO(" REGTEST: egamma cluster calo-frame coords. etaCalo = " << eg->caloCluster()->auxdata<float>("phiCalo"));
+          double tmpeta = -999.;
+          double tmpphi = -999.;
+          eg->caloCluster()->retrieveMoment(xAOD::CaloCluster::ETACALOFRAME,tmpeta);
+          eg->caloCluster()->retrieveMoment(xAOD::CaloCluster::PHICALOFRAME,tmpphi); 
+          ATH_MSG_INFO(" REGTEST: egamma cluster calo-frame coords. etaCalo = " << tmpeta); 
+          ATH_MSG_INFO(" REGTEST: egamma cluster calo-frame coords. phiCalo = " << tmpphi);
       } else{
           ATH_MSG_INFO(" REGTEST: problems with egamma cluster pointer" );
       }
