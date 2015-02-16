@@ -300,7 +300,9 @@ def getIDPileUpCorrection():
         return cached_instances[_name]
     
     from tauRec.tauRecConf import TauIDPileupCorrection
-    IDPileUpCorrection = TauIDPileupCorrection(name = _name)
+    IDPileUpCorrection = TauIDPileupCorrection(name = _name, \
+                                               calibrationFile1Prong = "pileupForOfflineID_1p.root", \
+                                               calibrationFile3Prong = "pileupForOfflineID_3p.root")
     
     cached_instances[_name] = IDPileUpCorrection
     return IDPileUpCorrection

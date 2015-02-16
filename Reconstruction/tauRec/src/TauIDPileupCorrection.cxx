@@ -35,6 +35,7 @@ TauToolBase(type, name, parent)
     declareProperty("calibrationFile1Prong", m_file1P = "fitted.pileup_1prong_hlt.root");
     declareProperty("calibrationFile3Prong", m_file3P = "fitted.pileup_multiprongs_hlt.root");
     declareProperty("vertexContainerKey", m_vertexContainerKey = "PrimaryVertices");
+    declareProperty("useMu", m_useMu = false);
 }
 
 /********************************************************************/
@@ -104,12 +105,13 @@ StatusCode TauIDPileupCorrection::initialize() {
   m_conversion.push_back(TauConversion("tau_InnerTrkAvgDist_fit", xAOD::TauJetParameters::innerTrkAvgDist, xAOD::TauJetParameters::innerTrkAvgDistCorrected));
   m_conversion.push_back(TauConversion("tau_SumPtTrkFrac_fit", xAOD::TauJetParameters::SumPtTrkFrac, xAOD::TauJetParameters::SumPtTrkFracCorrected));
   m_conversion.push_back(TauConversion("tau_etOverPtLeadTrk_fit", xAOD::TauJetParameters::etOverPtLeadTrk, xAOD::TauJetParameters::etOverPtLeadTrkCorrected));
-  m_conversion.push_back(TauConversion("tau_approx_ptRatio_fit", xAOD::TauJetParameters::ptRatioEflowApprox, xAOD::TauJetParameters::ptRatioEflowApprox));
-  m_conversion.push_back(TauConversion("tau_approx_vistau_m_fit", xAOD::TauJetParameters::mEflowApprox, xAOD::TauJetParameters::mEflowApprox));
+  m_conversion.push_back(TauConversion("tau_approx_ptRatio_fit", xAOD::TauJetParameters::ptRatioEflowApprox, xAOD::TauJetParameters::ptRatioEflowApproxCorrected));
+  m_conversion.push_back(TauConversion("tau_approx_vistau_m_fit", xAOD::TauJetParameters::mEflowApprox, xAOD::TauJetParameters::mEflowApproxCorrected));
   m_conversion.push_back(TauConversion("tau_ChPiEMEOverCaloEME_fit", xAOD::TauJetParameters::ChPiEMEOverCaloEME, xAOD::TauJetParameters::ChPiEMEOverCaloEMECorrected));
   m_conversion.push_back(TauConversion("tau_trFlightPathSig_fit", xAOD::TauJetParameters::trFlightPathSig, xAOD::TauJetParameters::trFlightPathSigCorrected));
   m_conversion.push_back(TauConversion("tau_dRmax_fit", xAOD::TauJetParameters::dRmax, xAOD::TauJetParameters::dRmaxCorrected));
   m_conversion.push_back(TauConversion("tau_AbsipSigLeadTrk_BS_fit", xAOD::TauJetParameters::ipSigLeadTrk, xAOD::TauJetParameters::ipSigLeadTrkCorrected));
+  m_conversion.push_back(TauConversion("tau_ipSigLeadTrk_fit", xAOD::TauJetParameters::ipSigLeadTrk, xAOD::TauJetParameters::ipSigLeadTrkCorrected));
   
   return StatusCode::SUCCESS;
 }
@@ -136,10 +138,14 @@ StatusCode TauIDPileupCorrection::execute(TauCandidateData *data)
     bool inTrigger = false;
     if (data->hasObject("InTrigger?")) sc = data->getObject("InTrigger?", inTrigger);
    
+    // check if we were asked to use mu instead of nVertex from the container
+    //TODO read the input root file to decide if we should use mu
+    bool useMu = m_useMu;
+
     int nVertex = 0;
     
     // Only retrieve the container if we are not in trigger
-    if (sc.isFailure() || !inTrigger) {
+    if ((sc.isFailure() || !inTrigger) && !useMu) {
       // try standard 
       if (evtStore()->retrieve(vxContainer, m_vertexContainerKey).isFailure() || !vxContainer) {
 	if (m_printMissingContainerINFO) {
@@ -174,11 +180,12 @@ StatusCode TauIDPileupCorrection::execute(TauCandidateData *data)
       }
     
       nVertex = muTemp;
-  
     }
     
 
-
+    // Possibly get a new averageEstimator
+    // TODO read averageEstimator from the root file
+    double averageEstimator = m_averageEstimator;
 
     // Start corrections
     for(unsigned int i=0; i<m_conversion.size(); i++)
@@ -196,7 +203,7 @@ StatusCode TauIDPileupCorrection::execute(TauCandidateData *data)
 	    ATH_MSG_DEBUG("Variable correction function found");
 	    
 	    // Calculate correction
-	    correction = m_calibFunctions1P[m_conversion[i].detailName].Eval(nVertex) - m_calibFunctions1P[m_conversion[i].detailName].Eval(m_averageEstimator);
+	    correction = m_calibFunctions1P[m_conversion[i].detailName].Eval(nVertex) - m_calibFunctions1P[m_conversion[i].detailName].Eval(averageEstimator);
 	  }
 
 	if(pTau->nTracks() > 1)
@@ -208,7 +215,7 @@ StatusCode TauIDPileupCorrection::execute(TauCandidateData *data)
 	    ATH_MSG_DEBUG("Variable correction function found");
 	    
 	    // Calculate correction
-	    correction = m_calibFunctions3P[m_conversion[i].detailName].Eval(nVertex) - m_calibFunctions3P[m_conversion[i].detailName].Eval(m_averageEstimator);
+	    correction = m_calibFunctions3P[m_conversion[i].detailName].Eval(nVertex) - m_calibFunctions3P[m_conversion[i].detailName].Eval(averageEstimator);
 	  }
 	
 	
@@ -218,13 +225,20 @@ StatusCode TauIDPileupCorrection::execute(TauCandidateData *data)
 	// Retrieve current value and set corrected value
 	float uncorrectedValue;
 	pTau->detail(m_conversion[i].detailUncorr, uncorrectedValue);
-	pTau->setDetail(m_conversion[i].detailCorr, static_cast<float>( uncorrectedValue - correction ));
+
+	float correctedValue;
+	if (m_conversion[i].detailName == "tau_AbsipSigLeadTrk_BS_fit"
+	    || m_conversion[i].detailName == "tau_ipSigLeadTrk_fit")
+	  correctedValue = fabs(uncorrectedValue) - correction;
+	else 
+	  correctedValue = uncorrectedValue - correction;
+	
+	pTau->setDetail(m_conversion[i].detailCorr, correctedValue);
 	
 	ATH_MSG_DEBUG("Old value is: " << uncorrectedValue);
-	ATH_MSG_DEBUG("New value is: " << uncorrectedValue - correction);
-	
+	ATH_MSG_DEBUG("New value is: " << correctedValue);
       }
-
+    
     return StatusCode::SUCCESS;
 }
 
