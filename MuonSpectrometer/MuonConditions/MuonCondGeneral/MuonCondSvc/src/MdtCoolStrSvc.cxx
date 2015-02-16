@@ -155,6 +155,9 @@ StatusCode MdtCoolStrSvc::putFileRT(const std::string& folder,
       fseek (f, 0L, SEEK_SET);
       
       fgets (string , 255 ,f );
+  } else {
+      std::cout << "There is no file available." << std::endl;
+      return StatusCode::FAILURE;
   }
 
   //puts (string);
@@ -381,7 +384,8 @@ StatusCode MdtCoolStrSvc::putAligFromFile(const std::string& folder,
     
     putData(folder,filename,chan,tech,sdata );
   } else {
-    log << MSG::INFO << "Cannot open file " << filename << endreq;
+    fclose (f);
+    log << MSG::INFO << "Cannot open file or empty" << filename << endreq;
     return StatusCode::FAILURE;
   }
   
@@ -462,7 +466,8 @@ StatusCode MdtCoolStrSvc::putFileTube(const std::string& folder,
     fclose (f);
     putData(folder,filename,chan,tech,sdata );
   } else {
-    log << MSG::INFO << "Cannot open file " << filename << endreq;
+    fclose (f);
+    log << MSG::INFO << "Cannot open file or emtpy" << filename << endreq;
     return StatusCode::FAILURE;
   }
   
@@ -493,9 +498,11 @@ StatusCode MdtCoolStrSvc::getFile(const std::string& folder, const int chan,
     fwrite(data.c_str(),size,1,f);
     log << MSG::INFO << "getFile: written data of length " << size <<
     " into file " << rfile << endreq;
+    fclose (f);
   } else {
     log << MSG::ERROR << "Failed to open file " << rfile << " for write" <<
       endreq;
+    fclose (f);
     return StatusCode::FAILURE;
   }
   return StatusCode::SUCCESS;
