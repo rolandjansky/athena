@@ -376,6 +376,8 @@ StatusCode Trk::Extrapolator::finalize()
  
   delete s_referenceSurface;
 
+  emptyGarbageBin();
+
   ATH_MSG_INFO( "finalize() successful" );
   return StatusCode::SUCCESS;
 }
@@ -3805,15 +3807,19 @@ void Trk::Extrapolator::emptyGarbageBin(const Trk::TrackParameters* trPar) const
    
    bool throwCurrent = false;  
    bool throwLast    = false;
+   bool throwBounds  = false;
    for ( ; garbageIter != garbageEnd; ++garbageIter ){
-     if (garbageIter->first && garbageIter->first!=trPar && garbageIter->first != m_lastValidParameters) delete (garbageIter->first);
+     if (garbageIter->first && garbageIter->first!=trPar && garbageIter->first != m_lastValidParameters &&
+	 garbageIter->first!=m_parametersAtBoundary.nextParameters) delete (garbageIter->first);
      if (garbageIter->first && garbageIter->first==trPar) throwCurrent = true; 
      if (garbageIter->first && garbageIter->first==m_lastValidParameters) throwLast = true; 
+     if (garbageIter->first && garbageIter->first==m_parametersAtBoundary.nextParameters) throwBounds = true; 
    }
 
    m_garbageBin.clear();
    if (throwCurrent) throwIntoGarbageBin(trPar);
    if (throwLast) throwIntoGarbageBin(m_lastValidParameters);
+   if (throwBounds) throwIntoGarbageBin(m_parametersAtBoundary.nextParameters);
 }
 
 void Trk::Extrapolator::addMaterialEffectsOnTrack(const Trk::IPropagator& prop,
@@ -3977,7 +3983,7 @@ const std::vector< std::pair< const Trk::TrackParameters*, int > >*  Trk::Extrap
 
     ATH_MSG_DEBUG( "  Identified subdetector boundary crossing saved " << positionOutput(subDetBounds->position()) );
     m_identifiedParameters->push_back(std::pair<const Trk::TrackParameters* , int> 
-				      (subDetBounds->clone(), m_currentStatic? m_currentStatic->geometrySignature() : 0));  
+				      (subDetBounds, m_currentStatic? m_currentStatic->geometrySignature() : 0));  
 
     if (m_currentStatic &&  m_currentStatic->geometrySignature()==destination) break;
 
@@ -3986,6 +3992,8 @@ const std::vector< std::pair< const Trk::TrackParameters*, int > >*  Trk::Extrap
     subDetBounds = extrapolateToVolumeWithPathLimit( *subDetBounds, -1.,dir,particle, boundaryVol);
   }
   
+  emptyGarbageBin();  
+
   return ( m_identifiedParameters->size() ? m_identifiedParameters : 0  ) ;  
 } 
 
@@ -4122,6 +4130,7 @@ const Trk::TrackParameters*  Trk::Extrapolator::extrapolateToVolumeWithPathLimit
     if ( !nextVol ) {
       ATH_MSG_DEBUG( "  [+] Word boundary reached        - at " << positionOutput(currPar->position()) );
       if (!destVol) { pathLim=m_path;}
+      //return currPar->clone();
       return currPar;
     }
     m_currentStatic = nextVol;
@@ -4132,8 +4141,11 @@ const Trk::TrackParameters*  Trk::Extrapolator::extrapolateToVolumeWithPathLimit
   if ( m_currentStatic && m_currentStatic->geometrySignature()==Trk::Calo ) {
     const Trk::AlignableTrackingVolume* alignTV = dynamic_cast<const Trk::AlignableTrackingVolume*> (m_currentStatic);
     if (alignTV) {
-      std::unique_ptr<const Trk::TrackParameters> nextPar( extrapolateInAlignableTV(*m_stepPropagator,*currPar,0,alignTV,dir,particle) );
-      if (nextPar.get()) return extrapolateToVolumeWithPathLimit( *nextPar, pathLim, dir, particle, destVol, matupmod );
+      const Trk::TrackParameters* nextPar=extrapolateInAlignableTV(*m_stepPropagator,*currPar,0,alignTV,dir,particle) ;
+      if (nextPar) {
+	throwIntoGarbageBin(nextPar); 
+        return extrapolateToVolumeWithPathLimit( *nextPar, pathLim, dir, particle, destVol, matupmod );
+      }
       else return returnParameters; 
     }      
   }
@@ -4418,15 +4430,18 @@ const Trk::TrackParameters*  Trk::Extrapolator::extrapolateToVolumeWithPathLimit
      ATH_MSG_DEBUG( "  [+] Starting propagation at position  " << positionOutput(currPar->position())  
 		    << " (current momentum: " << currPar->momentum().mag() << ")" ); 
      ATH_MSG_DEBUG( "  [+] " << m_navigSurfs.size() << " target surfaces in '" << m_currentDense->volumeName() <<"'.");      // verify that material input makes sense
-     ATH_MSG_DEBUG( "  [+] " << " with path limit"<< pathLim  <<".");      // verify that material input makes sense
+     ATH_MSG_DEBUG( "  [+] " << " with path limit"<< pathLim  <<",");      // verify that material input makes sense
+     ATH_MSG_DEBUG( "  [+] " << " in the direction"<< dir  <<".");      // verify that material input makes sense
      if (!(m_currentDense->inside(currPar->position(),m_tolerance) 
 	   || m_navigator->atVolumeBoundary(currPar,m_currentDense,dir,assocVol,m_tolerance) ) ) m_currentDense = m_highestVolume ;
      //const Trk::TrackParameters* nextPar = m_stepPropagator->propagate(*currPar,m_navigSurfs,dir,*m_currentDense,particle,solutions,path,true);
      if(m_extrapolationCache&&m_dumpCache) std::cout << "  m_stepPropagator->propagate " << m_extrapolationCache << std::endl;
      const Trk::TrackParameters* nextPar = m_stepPropagator->propagate(*currPar,m_navigSurfs,dir,m_fieldProperties,particle,solutions,path,true,false,m_currentDense);
      ATH_MSG_VERBOSE( "  [+] Propagation done. " );
-     if (nextPar)  
+     if (nextPar)  {
        ATH_MSG_DEBUG( "  [+] Position after propagation -   at " << positionOutput(nextPar->position())); 
+       ATH_MSG_DEBUG( "  [+] Momentum after propagation - " << nextPar->momentum()); 
+     }
 
      if ( pathLim>0. && m_path+path>=pathLim ) {
        m_path+=path;
@@ -4439,6 +4454,7 @@ const Trk::TrackParameters*  Trk::Extrapolator::extrapolateToVolumeWithPathLimit
        if ( m_currentDense->zOverAtimesRho() != 0.) {     
          ATH_MSG_DEBUG( "  [!] ERROR: trying to recover: repeat the propagation step in"<< m_highestVolume->volumeName() );
          m_currentDense = m_highestVolume;
+	 throwIntoGarbageBin(nextPar);         
          continue;
        }
      }
@@ -4536,13 +4552,13 @@ const Trk::TrackParameters*  Trk::Extrapolator::extrapolateToVolumeWithPathLimit
 	   // no next volume found --- end of the world
 	   if ( !nextVol ) {
 	     ATH_MSG_DEBUG( "  [+] World boundary reached        - at " << positionOutput(nextPar->position()) );
-	     if (!destVol) { pathLim=m_path; return nextPar;}
+	     if (!destVol) { pathLim=m_path; return nextPar->clone();}
 	   }
            // next volume found and parameters are at boundary
 	   if ( nextVol && nextPar ){ 
 	     ATH_MSG_DEBUG( "  [+] Crossing to next volume '" << nextVol->volumeName() << "', next geoID: "<<nextVol->geometrySignature());
 	     ATH_MSG_DEBUG( "  [+] Crossing position is         - at " <<  positionOutput(nextPar->position()) );
-             if (!destVol && m_currentStatic->geometrySignature()!=nextVol->geometrySignature()) { pathLim=m_path; return nextPar; }   
+             if (!destVol && m_currentStatic->geometrySignature()!=nextVol->geometrySignature()) { pathLim=m_path; return nextPar->clone(); }   
 	   }     
 	   return extrapolateToVolumeWithPathLimit(*nextPar,pathLim,dir,particle,destVol,matupmod);
 	 }
