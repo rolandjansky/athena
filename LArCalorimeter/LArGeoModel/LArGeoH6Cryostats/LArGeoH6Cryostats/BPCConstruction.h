@@ -7,8 +7,8 @@
 // adopted from BPCConstruction
 // Pavol S. May-2007
 
-#ifndef __BPCConstruction_H__
-#define __BPCConstruction_H__
+#ifndef LARGEOH6CRYOSTATS_BPCCONSTRUCTION_H
+#define LARGEOH6CRYOSTATS_BPCCONSTRUCTION_H
 
 #include "GeoModelKernel/GeoPhysVol.h"
 #include "GeoModelKernel/GeoFullPhysVol.h"
@@ -37,11 +37,10 @@ namespace LArGeo {
 
     GeoPhysVol          *m_BPCPhysical;
 
-    IGeoModelSvc        *m_geoModelSvc;
     MsgStream           *m_msg;
     
   };
 
 } // namespace LArGeo
 
-#endif // __BPCConstruction_H__
+#endif // LARGEOH6CRYOSTATS_BPCCONSTRUCTION_H

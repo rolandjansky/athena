@@ -51,11 +51,8 @@
 #include <cmath>
 
 LArGeo::H6CryostatConstruction::H6CryostatConstruction():
-cryoEnvelopePhysical(0),
-cryoMotherPhysical(NULL),
-cryoLArPhys(0),
-pAccessSvc(NULL),
-geoModelSvc(NULL)
+  m_cryoMotherPhysical(NULL),
+  m_cryoLArPhys(0)
 {}
 
 LArGeo::H6CryostatConstruction::~H6CryostatConstruction() {}
@@ -63,7 +60,7 @@ LArGeo::H6CryostatConstruction::~H6CryostatConstruction() {}
 GeoVFullPhysVol* LArGeo::H6CryostatConstruction::GetEnvelope()
 {
 
-  if (cryoMotherPhysical) return cryoMotherPhysical;
+  if (m_cryoMotherPhysical) return m_cryoMotherPhysical;
 
   // Detector Store
   ISvcLocator *svcLocator = Gaudi::svcLocator();
@@ -89,16 +86,9 @@ GeoVFullPhysVol* LArGeo::H6CryostatConstruction::GetEnvelope()
     throw std::runtime_error("Error in H6CryostatConstruction, std::LiquidArgon is not found.");
   }
 
-  // Database
-  StatusCode sc;
-  sc=svcLocator->service("RDBAccessSvc",pAccessSvc);
-  if (sc != StatusCode::SUCCESS) {
-    throw std::runtime_error ("Cannot locate RDBAccessSvc!!");
-  }
-
   // GeoModelSvc
-  sc = svcLocator->service ("GeoModelSvc",geoModelSvc);
-  if (sc != StatusCode::SUCCESS) {
+  ServiceHandle<IGeoModelSvc> geoModelSvc ("GeoModelSvc", "H6CryostatConstruction");
+  if (geoModelSvc.retrieve().isFailure()) {
     throw std::runtime_error ("Cannot locate GeoModelSvc!!");
   }
   
@@ -134,7 +124,7 @@ GeoVFullPhysVol* LArGeo::H6CryostatConstruction::GetEnvelope()
   GeoTube* cryoMotherShape = new GeoTube(0.0 , rwarm+10.0, zcryo+10.0*CLHEP::mm);  //  mother is a little bigger than warm wall   
 
   const GeoLogVol* cryoMotherLogical = new GeoLogVol(cryoMotherName, cryoMotherShape, Air);
-  cryoMotherPhysical = new GeoFullPhysVol(cryoMotherLogical);
+  m_cryoMotherPhysical = new GeoFullPhysVol(cryoMotherLogical);
 
   // Now we have a physical air-filled cylindrical mother, into which we can place all we want and need.
 
@@ -152,9 +142,9 @@ GeoVFullPhysVol* LArGeo::H6CryostatConstruction::GetEnvelope()
   // Warm Wall 
   GeoTube* cryoWarmWallShape = new GeoTube(0. , rwarm, zcryo);   
   const GeoLogVol* cryoWarmWallLog = new GeoLogVol(cryoWarmWallName, cryoWarmWallShape, Iron);
-  //cryoMotherPhysical->add(new GeoNameTag(std::string("Cryostat")));    
+  //m_cryoMotherPhysical->add(new GeoNameTag(std::string("Cryostat")));    
   GeoPhysVol*  cryoWarmWallPhys = new GeoPhysVol(cryoWarmWallLog);
-  cryoMotherPhysical->add(cryoWarmWallPhys);
+  m_cryoMotherPhysical->add(cryoWarmWallPhys);
 
   // "Vacuum" gap (filled with air...)
   GeoTube* cryoVacuumGapShape = new GeoTube(0. , rvac, zcryo-2.0*CLHEP::mm);   // an arbitrary 2mm shorter to avoid confilct  
@@ -177,23 +167,23 @@ GeoVFullPhysVol* LArGeo::H6CryostatConstruction::GetEnvelope()
   // Liquid Argon  
   GeoTube* cryoLArShape = new GeoTube(0. , rlar, zcryo-6.0*CLHEP::mm);  // an arbitrary 2mm shorter to avoid confilct   
   const GeoLogVol* cryoLArLog = new GeoLogVol(cryoLArName, cryoLArShape, LAr);
-  cryoMotherPhysical->add(new GeoNameTag(std::string("Cryostat LAr Physical")));    
-  // cryoLArPhys is a class member so that we can place Detectors inside. 
-  cryoLArPhys = new GeoPhysVol(cryoLArLog);
-  cryoColdWallPhys->add(cryoLArPhys);
+  m_cryoMotherPhysical->add(new GeoNameTag(std::string("Cryostat LAr Physical")));    
+  // m_cryoLArPhys is a class member so that we can place Detectors inside. 
+  m_cryoLArPhys = new GeoPhysVol(cryoLArLog);
+  cryoColdWallPhys->add(m_cryoLArPhys);
  
 
   // What remains needs to be inserted:
   // - Rohacell  (Needs an entry in LArCalorimeter/LArGeoModel/LArGeoAlgs/src/LArMaterialManager.cxx)
 
-  return cryoMotherPhysical;
+  return m_cryoMotherPhysical;
 
 }
 
 // Added so that FCal can be inserted in LArDetectorConstruction.
 GeoPhysVol* LArGeo::H6CryostatConstruction::GetLArPhysical()
 {
-  return cryoLArPhys;
+  return m_cryoLArPhys;
 }
 
 

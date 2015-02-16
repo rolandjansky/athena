@@ -6,11 +6,12 @@
 // Return an envelope that contains the LAr Beam Instrumentation.
 // Apr-2006 mgf
 
-#ifndef __MWPCConstruction_H__
-#define __MWPCConstruction_H__
+#ifndef LARGEOH6CRYOSTATS_MWPCCONSTRUCTION_H
+#define LARGEOH6CRYOSTATS_MWPCCONSTRUCTION_H
 
 #include "GeoModelKernel/GeoPhysVol.h"
 #include "GeoModelKernel/GeoFullPhysVol.h"
+#include <memory>
 
 class IRDBAccessSvc;
 class IGeoModelSvc;
@@ -28,21 +29,14 @@ namespace LArGeo {
     
     virtual GeoVPhysVol* GetEnvelope();
 
-    MsgStream *msg;
 
       
   private:
-
-    double wireStep; 
-
-    GeoPhysVol          *MWPCPhysical;
-
-
-    IRDBAccessSvc       *pAccessSvc;
-    IGeoModelSvc        *geoModelSvc;
-    
+    std::unique_ptr<MsgStream> m_msg;
+    double m_wireStep; 
+    GeoPhysVol          *m_MWPCPhysical;
   };
 
 } // namespace LArGeo
 
-#endif // __MWPCConstruction_H__
+#endif // LARGEOH6CRYOSTATS_MWPCCONSTRUCTION_H

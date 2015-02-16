@@ -28,6 +28,7 @@
 #include "GeoModelInterfaces/StoredMaterialManager.h"
 #include "GeoModelKernel/GeoShapeUnion.h"
 #include "GeoModelKernel/GeoShapeShift.h"
+#include "CxxUtils/make_unique.h"
 
 // For transforms:
 #include "CLHEP/Geometry/Transform3D.h" 
@@ -51,10 +52,7 @@
 #include <iostream>
 
 LArGeo::WallsConstruction::WallsConstruction()
-  :msg(0),
-   WallsPhysical(0),
-   pAccessSvc(0),
-   geoModelSvc(0)
+  : m_WallsPhysical(nullptr)
 {
 }
 
@@ -68,7 +66,7 @@ LArGeo::WallsConstruction::~WallsConstruction()
 GeoVPhysVol* LArGeo::WallsConstruction::GetEnvelope()
 {
 
-  if (WallsPhysical) return WallsPhysical;
+  if (m_WallsPhysical) return m_WallsPhysical;
 
   // Get access to the material manager:
   
@@ -77,12 +75,12 @@ GeoVPhysVol* LArGeo::WallsConstruction::GetEnvelope()
   StatusCode status = svcLocator->service("MessageSvc", msgSvc);
 
   if(!status.isFailure()){
-    msg = new MsgStream(msgSvc, "WallsConstruction");
+    m_msg = CxxUtils::make_unique<MsgStream>(msgSvc, "WallsConstruction");
   } else {
     throw std::runtime_error("WallsConstruction: cannot initialze message service");
   }
 
-  (*msg) << MSG::INFO << "WallsConstruction - creating the walls in front of the cryostat " << endreq;
+  (*m_msg) << MSG::INFO << "WallsConstruction - creating the walls in front of the cryostat " << endreq;
 
 
   StoreGateSvc *detStore;
@@ -91,11 +89,8 @@ GeoVPhysVol* LArGeo::WallsConstruction::GetEnvelope()
   }
 
 
-  StatusCode sc;
-
-  IGeoModelSvc *geoModelSvc;
-  sc = svcLocator->service ("GeoModelSvc",geoModelSvc);
-  if (sc != StatusCode::SUCCESS) {
+  ServiceHandle<IGeoModelSvc> geoModelSvc ("GeoModelSvc", "WallsConstruction");
+  if (geoModelSvc.retrieve().isFailure()) {
     throw std::runtime_error ("Cannot locate GeoModelSvc!!");
   }
 
@@ -175,7 +170,7 @@ GeoVPhysVol* LArGeo::WallsConstruction::GetEnvelope()
   const GeoLogVol* WallsLogical = new GeoLogVol( WallsName, WallsShape, Air );
 
   // This is the Mother Volume for all Walls in front of the cryostat:
-  WallsPhysical = new GeoPhysVol(WallsLogical);
+  m_WallsPhysical = new GeoPhysVol(WallsLogical);
 
 
   // Into the mother, place all indiviual walls (Iron, Lead, Scntillator and additional iron plates)
@@ -183,7 +178,7 @@ GeoVPhysVol* LArGeo::WallsConstruction::GetEnvelope()
 
   //----- First the IronWall
 
-  (*msg) << "Create Iron Wall " << endreq;
+  (*m_msg) << "Create Iron Wall " << endreq;
   
   const double IronX =  1499.*CLHEP::mm;
   const double IronY =  1999.*CLHEP::mm;
@@ -207,9 +202,9 @@ GeoVPhysVol* LArGeo::WallsConstruction::GetEnvelope()
   IronWallPhysical->add(IronHolePhysical);
 
   // Add the iron wall to the Wall mother:
-  WallsPhysical->add( new GeoTransform( HepGeom::Translate3D( 0.*CLHEP::mm, 0.*CLHEP::mm, (WallsZ-IronPosZ) ) ) ) ; 
-  WallsPhysical->add( new GeoNameTag(IronWallName) );
-  WallsPhysical->add( IronWallPhysical );
+  m_WallsPhysical->add( new GeoTransform( HepGeom::Translate3D( 0.*CLHEP::mm, 0.*CLHEP::mm, (WallsZ-IronPosZ) ) ) ) ; 
+  m_WallsPhysical->add( new GeoNameTag(IronWallName) );
+  m_WallsPhysical->add( IronWallPhysical );
   
   //----- Done with IronWall
 
@@ -217,7 +212,7 @@ GeoVPhysVol* LArGeo::WallsConstruction::GetEnvelope()
 
   //----- Now the LeadWall
 
-  (*msg) << "Create Lead Wall " << endreq;
+  (*m_msg) << "Create Lead Wall " << endreq;
   
   const double LeadX =  1499.*CLHEP::mm;
   const double LeadY =  1999.*CLHEP::mm;
@@ -241,16 +236,16 @@ GeoVPhysVol* LArGeo::WallsConstruction::GetEnvelope()
   LeadWallPhysical->add(LeadHolePhysical);
 
   // Add the lead wall to the Wall mother:
-  WallsPhysical->add( new GeoTransform( HepGeom::Translate3D( 0.*CLHEP::mm, 0.*CLHEP::mm, (WallsZ-LeadPosZ) ) ) ) ; 
-  WallsPhysical->add( new GeoNameTag(LeadWallName) );
-  WallsPhysical->add( LeadWallPhysical );
+  m_WallsPhysical->add( new GeoTransform( HepGeom::Translate3D( 0.*CLHEP::mm, 0.*CLHEP::mm, (WallsZ-LeadPosZ) ) ) ) ; 
+  m_WallsPhysical->add( new GeoNameTag(LeadWallName) );
+  m_WallsPhysical->add( LeadWallPhysical );
   
   //----- Done with LeadWall
 
 
   //----- Now the ScintWall
 
-  (*msg) << "Create Scint Wall " << endreq;
+  (*m_msg) << "Create Scint Wall " << endreq;
   
   const double ScintX =  1499.*CLHEP::mm;
   const double ScintY =  1999.*CLHEP::mm;
@@ -274,9 +269,9 @@ GeoVPhysVol* LArGeo::WallsConstruction::GetEnvelope()
   ScintWallPhysical->add(ScintHolePhysical);
 
   // Add the scintillator wall to the Wall mother:
-  WallsPhysical->add( new GeoTransform( HepGeom::Translate3D( 0.*CLHEP::mm, 0.*CLHEP::mm, (WallsZ-ScintPosZ) ) ) ) ; 
-  WallsPhysical->add( new GeoNameTag(ScintWallName) );
-  WallsPhysical->add( ScintWallPhysical );
+  m_WallsPhysical->add( new GeoTransform( HepGeom::Translate3D( 0.*CLHEP::mm, 0.*CLHEP::mm, (WallsZ-ScintPosZ) ) ) ) ; 
+  m_WallsPhysical->add( new GeoNameTag(ScintWallName) );
+  m_WallsPhysical->add( ScintWallPhysical );
   
   //----- Done with ScintWall
 
@@ -284,7 +279,7 @@ GeoVPhysVol* LArGeo::WallsConstruction::GetEnvelope()
 
   //----- Finally the iron plates
 
-  //(*msg) << "Create Iron Plate " << endreq;
+  //(*m_msg) << "Create Iron Plate " << endreq;
   
   const double IronPlateX =   50.*CLHEP::mm;
   const double IronPlateY =  150.*CLHEP::mm;
@@ -299,11 +294,11 @@ GeoVPhysVol* LArGeo::WallsConstruction::GetEnvelope()
   
   if (nPlate>0) {
     // Print out a warning here, because extra matrial is in place only for a few special runs
-    (*msg) << MSG::WARNING << " !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! "  << endreq;
-    (*msg) << MSG::WARNING << " EXTRA MATERIAL IN THE BEAM: " << nPlate << " plates "  << endreq;
-    if (PlatePlace== 1) (*msg) << MSG::WARNING << " between cryostat and Iron Wall " << endreq;
-    //if (PlatePlace==-1) (*msg) << MSG::WARNING << " between Lead Wall and Table " << endreq;
-    (*msg) << MSG::WARNING << " !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! "  << endreq;
+    (*m_msg) << MSG::WARNING << " !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! "  << endreq;
+    (*m_msg) << MSG::WARNING << " EXTRA MATERIAL IN THE BEAM: " << nPlate << " plates "  << endreq;
+    if (PlatePlace== 1) (*m_msg) << MSG::WARNING << " between cryostat and Iron Wall " << endreq;
+    //if (PlatePlace==-1) (*m_msg) << MSG::WARNING << " between Lead Wall and Table " << endreq;
+    (*m_msg) << MSG::WARNING << " !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! "  << endreq;
 
     std::vector<double> v_PlateZ;
     for (int iz=0; iz<(nPlate); iz++)  v_PlateZ.push_back(IronPlatePosZ + double(iz)*(2*IronPlateZ+0.5)); 
@@ -317,23 +312,18 @@ GeoVPhysVol* LArGeo::WallsConstruction::GetEnvelope()
     
     // Add the iron plate to the Plate mother:
     for (int iz=0; iz<(nPlate); iz++) {
-      WallsPhysical->add( new GeoIdentifierTag(iz) );
-      WallsPhysical->add( new GeoTransform( HepGeom::Translate3D( 0.*CLHEP::mm, 0.*CLHEP::mm, double(PlatePlace)*(v_PlateZ[iz]) ) ) ) ; 
-      WallsPhysical->add( new GeoNameTag(IronPlateName) );
-      WallsPhysical->add( IronPlatePhysical );
+      m_WallsPhysical->add( new GeoIdentifierTag(iz) );
+      m_WallsPhysical->add( new GeoTransform( HepGeom::Translate3D( 0.*CLHEP::mm, 0.*CLHEP::mm, double(PlatePlace)*(v_PlateZ[iz]) ) ) ) ; 
+      m_WallsPhysical->add( new GeoNameTag(IronPlateName) );
+      m_WallsPhysical->add( IronPlatePhysical );
     }
   }
   //----- Done with Iron Plates
- 
-
-
-
-
 
   // Done with all walls in front of the cryostat.
 
 
-  return WallsPhysical;
+  return m_WallsPhysical;
 }
 
 
