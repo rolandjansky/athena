@@ -21,10 +21,11 @@ import os, re
 from time import ctime
 # Turn off X11 requirement in ROOT
 sys.argv = sys.argv[:1] + ['-b'] + sys.argv[1:]
+import cppyy
 import ROOT
 # Turn off X11 requirement in ROOT
 sys.argv.remove('-b')
-import PyCintex
+# import PyCintex
 #import AthenaROOTAccess.transientTree
 
 from optparse import OptionParser
@@ -108,7 +109,7 @@ if __name__ == "__main__":
             try:
                 treeName  = "CollectionTree"
                 treeKey = f.FindKey( treeName )
-                #print "found ei ", treeKey
+                # print "found tree ", treeKey
                 if treeKey != None:
                     # Found tree, print out run number
                     eitree = treeKey.ReadObj()
@@ -116,7 +117,9 @@ if __name__ == "__main__":
                     eibr = None
                     # Get EventInfo branch
                     eiP3 = False
+                    isPileupEI = False
                     for br in eitree.GetListOfBranches():
+                        print br.GetName()
                         if re.match(r'EventInfo_p3_.*?', br.GetName()):
                             eibr = br
                             eiP3 = True
@@ -128,16 +131,23 @@ if __name__ == "__main__":
                         elif re.match(r'EventInfo_p2_.*?', br.GetName()):
                             eibr = br
                             break
+                        elif re.match(r'PileUpEventInfo_p5_.*?', br.GetName()):
+                            eibr = br
+                            isPileupEI = True
+
+                            print "match PileUpEventInfo_p5"
+                            break
                         pass
                     # read events
                     for i in range (i1, i2):
-                        print 'event',i
+                        # print 'event',i
                         if eibr.GetEntry(i) <= 0:
                             print "Could not read event", i, "May be end of file"
                             break
+                            pass
                         #  access event info
                         ei = getattr( eitree, eibr.GetName() )
-                        # print run-event
+                        #  print run-event
                         if eiP3:
                             # p3 version of EventInfo
                             data = ei.m_AllTheData
@@ -155,6 +165,28 @@ if __name__ == "__main__":
 
                             else:
                                 print "run number: ", data[ioffset]
+                                pass
+                        elif isPileupEI:
+                            if doDetailedDump:
+                                # print "Found pileUpEventInfo"
+                                eid    = ei.m_event_ID
+                                etyp   = ei.m_event_type
+                                eflags = ei.m_event_flags
+                                # print "eid, etyp, eflags ", eid, etyp, eflags
+                                # print "flags ", len(eflags)
+                                if len(eflags) == 0:
+                                    print "run, lb, evt, mcChan, mcEvt, act/ave int: ", i, eid.m_run_number, eid.m_lumiBlock, eid.m_event_number, etyp.m_mc_channel_number, etyp.m_mc_event_number
+                                else:
+                                    # print "flags ", eflags[9],hex(eflags[9])
+                                    interactions = eflags[9]
+                                    actInt = float(interactions & 0xFFFF)
+                                    actInt /= 100.
+                                    aveInt = float((interactions & 0xFFFF000) >> 16);
+                                    aveInt /= 100.
+                                    print "run, lb, evt, mcChan, mcEvt, act/ave int: ", i, eid.m_run_number, eid.m_lumiBlock, eid.m_event_number, etyp.m_mc_channel_number, etyp.m_mc_event_number, actInt, aveInt
+                                    pass
+                            else:
+                                print "run number: ", eid.m_run_number
                         else:
                             eid  = ei.m_event_ID
                             etyp = ei.m_event_type;
