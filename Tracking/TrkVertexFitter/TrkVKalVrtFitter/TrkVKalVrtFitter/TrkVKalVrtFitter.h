@@ -56,7 +56,7 @@ namespace Trk{
     VertexID mergedTO;                    //  merged to another vertex (not separate anymore) 
     std::vector<VertexID> mergedIN;       //  vertices attached to current
     int indexInSimpleCascade;
-    cascadeV(){ outPointingV=0; mergedTO=0; indexInSimpleCascade=0;};
+    cascadeV(){ vID=-999; outPointingV=0; mergedTO=0; indexInSimpleCascade=0;};
    ~cascadeV(){};
   };
   
@@ -411,8 +411,6 @@ namespace Trk{
 //
         const Perigee* GetPerigee( const TrackParticleBase* i_ntrk); 
         const Perigee* GetPerigee( const TrackParameters*   i_ntrk); 
-      /*const NeutralPerigee* GetNeutralPerigee( const TrackParticleBase* i_ntrk);   //VK Doesn't exist for the moment*/
-        const NeutralPerigee* GetNeutralPerigee( const NeutralParameters* i_ntrk); 
         const TrackParameters*  GetFirstPoint(const Trk::TrackParticleBase* i_ntrk);
       /*const TrackParameters*  GetFirstPoint(const xAOD::TrackParticle* i_ntrk);  //VK Cannot be implemented. xAOD::TrackParticle
                                                                                    //returns local copy(!!!) of first point  */

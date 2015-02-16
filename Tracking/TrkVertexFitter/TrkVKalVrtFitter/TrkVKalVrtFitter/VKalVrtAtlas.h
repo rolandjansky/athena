@@ -80,6 +80,8 @@ class StraightLineSurface;
         const NeutralParameters* myExtrapNeutral( const NeutralParameters *inpPer,
                                                      Amg::Vector3D *endPoint) const;
 
+        const Perigee* myxAODFstPntOnTrk(const xAOD::TrackParticle* xprt) const;
+	
     private:
     
         const IExtrapolator     *m_extrapolator;       //!< Pointer to Extrapolator AlgTool

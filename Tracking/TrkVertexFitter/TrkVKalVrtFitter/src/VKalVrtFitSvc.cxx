@@ -98,17 +98,25 @@ StatusCode TrkVKalVrtFitter::VKalVrtFit(const std::vector<const xAOD::TrackParti
 //
     long int ntrk=0;
     std::vector<const TrackParameters*>   tmpInputC(0);
-    std::vector<const NeutralParameters*> tmpInputN(0);
-    StatusCode sc; sc.setCode(0);
+    StatusCode sc; sc.setChecked(); 
     if(m_firstMeasuredPoint){               //First measured point strategy
-       unsigned int index=0; 
        //------
        if(InpTrkC.size()){
+          if( m_InDetExtrapolator == 0 && m_PropagatorType != 3 ){
+            if(msgLvl(MSG::WARNING))msg()<< "No InDet extrapolator given."<<
+	                                 "Can't use FirstMeasuredPoint with xAOD::TrackParticle!!!" << endreq;
+            return StatusCode::FAILURE;        
+          }
           std::vector<const xAOD::TrackParticle*>::const_iterator     i_ntrk;
+          if(msgLvl(MSG::DEBUG))msg()<< "Start Perigee extrapolation to FirstMeasuredPoint radius"<<'\n';
           for (i_ntrk = InpTrkC.begin(); i_ntrk < InpTrkC.end(); ++i_ntrk) {
-             if ((*i_ntrk)->indexOfParameterAtPosition(index, xAOD::FirstMeasurement)){
-                tmpInputC.push_back(new CurvilinearParameters((*i_ntrk)->curvilinearParameters(index)));
-             }
+             tmpInputC.push_back(m_fitPropagator->myxAODFstPntOnTrk((*i_ntrk))); 
+	     if(tmpInputC[tmpInputC.size()-1]==0){  //Extrapolation failure 
+             if(msgLvl(MSG::WARNING))msg()<< "InDetExtrapolator can't etrapolate xAOD::TrackParticle Perigee "<<
+	                                      "to FirstMeasuredPoint radius! Stop vertex fit!" << endreq;
+               for(unsigned int i=0; i<tmpInputC.size()-1; i++) delete tmpInputC[i]; 
+               return StatusCode::FAILURE;
+	     }
           }
           sc=CvtTrackParameters(tmpInputC,ntrk);
           if(sc.isFailure()){
@@ -116,30 +124,16 @@ StatusCode TrkVKalVrtFitter::VKalVrtFit(const std::vector<const xAOD::TrackParti
             return StatusCode::FAILURE;
           }
        }
-       //------
-       if(InpTrkN.size()){
-          std::vector<const xAOD::NeutralParticle*>::const_iterator   i_nneu;
-          for (i_nneu = InpTrkN.begin(); i_nneu < InpTrkN.end(); ++i_nneu) {
-             tmpInputN.push_back(new NeutralPerigee((*i_nneu)->perigeeParameters()));
-          }
-          sc=CvtNeutralParameters(tmpInputN,ntrk);
-          if(sc.isFailure()){
-            for(unsigned int i=0; i<tmpInputN.size(); i++) delete tmpInputN[i]; 
-            for(unsigned int i=0; i<tmpInputC.size(); i++) delete tmpInputC[i]; 
-            return StatusCode::FAILURE;
-          }
-       }
     }else{
-       if(InpTrkC.size()){sc=CvtTrackParticle(InpTrkC,ntrk);   if(sc.isFailure())return StatusCode::FAILURE;}
-       if(InpTrkN.size()){sc=CvtNeutralParticle(InpTrkN,ntrk); if(sc.isFailure())return StatusCode::FAILURE;}
+       if(InpTrkC.size()) sc=CvtTrackParticle(InpTrkC,ntrk);
     }
     if(sc.isFailure())return StatusCode::FAILURE;
+    if(InpTrkN.size()){sc=CvtNeutralParticle(InpTrkN,ntrk); if(sc.isFailure())return StatusCode::FAILURE;}
 //--
     long int ierr = VKalVrtFit3( ntrk, Vertex, Momentum, Charge, ErrorMatrix, 
                                  Chi2PerTrk, TrkAtVrt,Chi2 ) ;
 //--
     for(unsigned int i=0; i<tmpInputC.size(); i++) delete tmpInputC[i]; 
-    for(unsigned int i=0; i<tmpInputN.size(); i++) delete tmpInputN[i]; 
     if (ierr) return StatusCode::FAILURE;
     return StatusCode::SUCCESS;
 }
@@ -791,7 +785,7 @@ long int TrkVKalVrtFitter::VKalVrtFit3( long int ntrk,
     int NDOF=2*m_FitStatus-3;
     if(m_usePointingCnst)         { NDOF+=2; }
     else if(m_useZPointingCnst)   { NDOF+=1; }
-    if( m_usePassWithTrkErr || m_usePassWithTrkErr ) { NDOF+= 2; } 
+    if( m_usePassNear || m_usePassWithTrkErr ) { NDOF+= 2; } 
 
     if( m_MassForConstraint>0. )  { NDOF+=1; }
     if( m_PartMassCnst.size()>0 ) { NDOF+= m_PartMassCnst.size(); }
