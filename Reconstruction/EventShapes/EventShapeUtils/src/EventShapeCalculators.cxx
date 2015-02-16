@@ -38,6 +38,16 @@ EventShapeCalculators::ProfileShape::ProfileShape(const ProfileShape& shape)
   : m_parameters(shape.m_parameters)
   , m_errors(shape.m_errors)
 { }
+
+EventShapeCalculators::ProfileShape&  
+EventShapeCalculators::ProfileShape::operator = (const ProfileShape& shape){
+  if (this != &shape) {// protect against invalid self-assignment
+    m_parameters = shape.m_parameters;
+    m_errors= shape.m_errors;
+  }
+  // by convention, always return *this
+  return *this;
+}
   
 EventShapeCalculators::ProfileShape::~ProfileShape()
 { }
@@ -250,6 +260,24 @@ EventShapeCalculators::ProfileFunctions::ProfileFunctions(const
   , m_etaMin(profile.m_etaMin)
   , m_etaMax(profile.m_etaMax)
 { }
+
+EventShapeCalculators::ProfileFunctions& 
+EventShapeCalculators::ProfileFunctions::operator = (const ProfileFunctions& profile){
+  if (this != &profile) {// protect against invalid self-assignment
+
+    delete f_shape;
+    f_shape=new ProfileShape(*(profile.f_shape));
+    //
+    m_window =profile.m_window;
+    m_npv=profile.m_npv;
+    m_mu=profile.m_mu;
+    m_etaMin=profile.m_etaMin;
+    m_etaMax=profile.m_etaMax;
+  }
+  // by convention, always return *this
+  return *this;
+}
+
 
 EventShapeCalculators::ProfileFunctions::~ProfileFunctions()
 { if ( f_shape != 0 ) delete f_shape; }
