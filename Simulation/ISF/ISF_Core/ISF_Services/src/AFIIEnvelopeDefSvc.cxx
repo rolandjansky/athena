@@ -7,13 +7,13 @@
 ///////////////////////////////////////////////////////////////////
 
 // class header include
-#include "ISF_Services/AFIIEnvelopeDefSvc.h"
-
-// STL
-#include <limits>
+#include "AFIIEnvelopeDefSvc.h"
 
 // AtlasDetDescr
 #include "AtlasDetDescr/AtlasRegionHelper.h"
+
+// STL
+#include <limits>
 
 /** Constructor */
 ISF::AFIIEnvelopeDefSvc::AFIIEnvelopeDefSvc(const std::string& name, ISvcLocator* svc) :

@@ -8,45 +8,33 @@ manager Wolfgang Lukas <Wolfgang.Lukas@cern.ch>
 #################################################################
 # public use statements
 use AtlasPolicy                   AtlasPolicy-*
-use FadsSensitiveDetector         FadsSensitiveDetector-* Simulation/G4Sim/FADS
 use GaudiInterface                GaudiInterface-*        External
-use AthenaBaseComps               AthenaBaseComps-*       Control
-
-use SubDetectorEnvelopes          SubDetectorEnvelopes-*  AtlasGeometryCommon
-
-use ISF_Interfaces                ISF_Interfaces-*        Simulation/ISF/ISF_Core
-use ISF_Event                     ISF_Event-*             Simulation/ISF/ISF_Core
-
-use TrackRecord                   TrackRecord-*           Simulation/G4Sim
-
-use InDetSimEvent                 InDetSimEvent-*         InnerDetector
-use TileSimEvent                  TileSimEvent-*          TileCalorimeter
-use MuonSimEvent                  MuonSimEvent-*          MuonSpectrometer
-use CaloSimEvent                  CaloSimEvent-*          Calorimeter
-
-use AtlasDetDescr                 AtlasDetDescr-*         DetectorDescription
-use BarcodeInterfaces             BarcodeInterfaces-*     Simulation/Barcode
-
 
 #################################################################
 # private use statements
 private
 
-use StoreGate                     StoreGate-*             Control
-use AtlasROOT                     AtlasROOT-*             External
-
-use CaloSimEvent                  CaloSimEvent-*          Calorimeter
-use CaloIdentifier                CaloIdentifier-*        Calorimeter
-use LArSimEvent                   LArSimEvent-*           LArCalorimeter
-
-use GeneratorObjects              GeneratorObjects-*      Generators
+use AthenaBaseComps               AthenaBaseComps-*       Control
+use AtlasDetDescr                 AtlasDetDescr-*         DetectorDescription
 use AtlasHepMC                    AtlasHepMC-*            External
-
-use SimHelpers                    SimHelpers-*            Simulation/G4Sim
-
-use PmbCxxUtils                   PmbCxxUtils-*           Tools
-
+use AtlasROOT                     AtlasROOT-*             External
+use BarcodeInterfaces             BarcodeInterfaces-*     Simulation/Barcode
 use BarcodeServices               BarcodeServices-*        Simulation/Barcode
+use CaloIdentifier                CaloIdentifier-*        Calorimeter
+use CaloSimEvent                  CaloSimEvent-*          Calorimeter
+use FadsSensitiveDetector         FadsSensitiveDetector-* Simulation/G4Sim/FADS
+use GeneratorObjects              GeneratorObjects-*      Generators
+use InDetSimEvent                 InDetSimEvent-*         InnerDetector
+use ISF_Interfaces                ISF_Interfaces-*        Simulation/ISF/ISF_Core
+use ISF_Event                     ISF_Event-*             Simulation/ISF/ISF_Core
+use LArSimEvent                   LArSimEvent-*           LArCalorimeter
+use MuonSimEvent                  MuonSimEvent-*          MuonSpectrometer
+use PmbCxxUtils                   PmbCxxUtils-*           Tools
+use SimHelpers                    SimHelpers-*            Simulation/G4Sim
+use StoreGate                     StoreGate-*             Control
+use SubDetectorEnvelopes          SubDetectorEnvelopes-*  AtlasGeometryCommon
+use TileSimEvent                  TileSimEvent-*          TileCalorimeter
+use TrackRecord                   TrackRecord-*           Simulation/G4Sim
 
 public
 library ISF_Services *.cxx components/*.cxx
@@ -57,3 +45,4 @@ private
 # use this to activate debug info in this package:
 #macro cppdebugflags '$(cppdebugflags_s)'
 #macro_remove componentshr_linkopts "-Wl,-s"
+end_private

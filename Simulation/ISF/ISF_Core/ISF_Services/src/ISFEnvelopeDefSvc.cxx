@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////
 
 // class header include
-#include "ISF_Services/ISFEnvelopeDefSvc.h"
+#include "ISFEnvelopeDefSvc.h"
 
 // STL
 #include <limits>
@@ -44,7 +44,7 @@ StatusCode ISF::ISFEnvelopeDefSvc::initialize()
   }
 
   // change InnerDetector boundaries according to ISF conventions
-  //   ie. remove the beampipe from inside the ID volume and move the 
+  //   ie. remove the beampipe from inside the ID volume and move the
   //       ID volume all the way down to r==0.
   //
   m_rposzInDet = m_atlasEnvDefSvc->getRPositiveZBoundary( AtlasDetDescr::fAtlasID      );
@@ -59,7 +59,7 @@ StatusCode ISF::ISFEnvelopeDefSvc::initialize()
       double curR = m_rposzInDet[curPos].first;
       double curZ = m_rposzInDet[curPos].second;
 
-      if (curR < rMin) { 
+      if (curR < rMin) {
         rMin    = curR;
         zAtRMin = curZ;
         rMinPos = curPos;
@@ -96,7 +96,7 @@ StatusCode ISF::ISFEnvelopeDefSvc::initialize()
     ATH_MSG_ERROR("Could not find InDet envelope point (r,z)=("<<rMin<<","<<zAtRMin<<") in the BeamPipe/Forward envelope -> Unable to shift it down to r=0.");
     return StatusCode::FAILURE;
   }
- 
+
   // mirror the RZPairs provided in m_rposz to describe all corner points
   // in (r,z) space for the BeamPipe/Forward and the InnerDetector envelopes
   mirrorRZ( m_rposzBeamPipe, m_rzBeamPipe );
@@ -151,13 +151,12 @@ const RZPairVector &ISF::ISFEnvelopeDefSvc::getRPositiveZBoundary( AtlasDetDescr
 /** Query the interfaces. */
 StatusCode ISF::ISFEnvelopeDefSvc::queryInterface(const InterfaceID& riid, void** ppvInterface) {
 
- if ( IID_IEnvelopeDefSvc == riid ) 
+  if ( IID_IEnvelopeDefSvc == riid )
     *ppvInterface = (IEnvelopeDefSvc*)this;
- else  {
-   // Interface is not directly available: try out a base class
-   return Service::queryInterface(riid, ppvInterface);
- }
- addRef();
- return StatusCode::SUCCESS;
+  else  {
+    // Interface is not directly available: try out a base class
+    return Service::queryInterface(riid, ppvInterface);
+  }
+  addRef();
+  return StatusCode::SUCCESS;
 }
-
