@@ -222,7 +222,7 @@ double eflowCellSubtractionFacilitator::subtractCells(eflowCellSubtractionManage
 
         } else {
           cluster->removeCell(cell);
-          eSubtracted += cluster->e();
+          eSubtracted += oldCellEnergy;
 
           //update the clusters having done the subtraction
           updateClusterKinematics(cluster);
