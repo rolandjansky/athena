@@ -62,6 +62,7 @@
 IDAlignMonTruthComparison::IDAlignMonTruthComparison( const std::string & type, const std::string & name, const IInterface* parent )
 	     :ManagedMonitorToolBase( type, name, parent ),
 	      m_Pi(3.14156),
+	      m_idHelper(0),
 	      m_tracksName("ExtendedTracks"),
 	      m_tracksTruthName("ExtendedTracksTruthCollection")
 {
@@ -370,8 +371,16 @@ StatusCode IDAlignMonTruthComparison::fillHistograms()
     if (msgLvl(MSG::VERBOSE)) msg() <<"Track collection \"" << m_tracksName << "\" not found." << endreq;
     return StatusCode::SUCCESS;
   }
-  if (RecCollection)  if (msgLvl(MSG::VERBOSE)) msg() << "Retrieved " << m_tracksName << " with size " << RecCollection->size() << " reconstructed tracks from storegate" << endreq;
-  
+  if (RecCollection)  
+    {
+      if (msgLvl(MSG::VERBOSE)) 
+	msg() << "Retrieved " << m_tracksName << " with size " << RecCollection->size() << " reconstructed tracks from storegate" << endreq;
+    }
+  else 
+    {
+      if (msgLvl(MSG::VERBOSE)) msg()<<"Problem in retrieving " << m_tracksName << endreq;
+      return StatusCode::SUCCESS;
+    }
 
   // get TrackTruthCollection
   const TrackTruthCollection  * TruthMap  = NULL;
@@ -623,8 +632,8 @@ StatusCode IDAlignMonTruthComparison::fillHistograms()
 		      float m_track_truth_theta        = generatedTrackPerigee->parameters()[Trk::theta];
 		      delete  generatedTrackPerigee; 		      
 		      float m_track_truth_pt           = 1./fabs(m_track_truth_qoverpt);  
-		      float m_track_truth_charge       = 1; 
-		      if(m_track_truth_qoverpt<0) m_track_truth_charge = -1;
+		      //float m_track_truth_charge       = 1; 
+		      //if(m_track_truth_qoverpt<0) m_track_truth_charge = -1;
 		      if (m_track_truth_phi<0) m_track_truth_phi+=2*m_Pi;
 		      if (msgLvl(MSG::VERBOSE)) msg() << "Found matched truth track with phi, PT = " << m_track_truth_phi << ", " << m_track_truth_pt << endreq; 
 

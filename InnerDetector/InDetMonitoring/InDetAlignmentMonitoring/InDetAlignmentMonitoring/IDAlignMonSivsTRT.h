@@ -56,6 +56,7 @@ public:
 	virtual ~IDAlignMonSivsTRT();
 
 	virtual StatusCode initialize();
+	
 	virtual StatusCode bookHistograms();
 	virtual StatusCode fillHistograms();
 	virtual StatusCode procHistograms();
@@ -63,6 +64,8 @@ public:
 	void RegisterHisto(MonGroup& mon, TH1* histo);
 	void RegisterHisto(MonGroup& mon, TH2* histo);
 	void RegisterHisto(MonGroup& mon, TProfile* histo);
+	//Not sure should be public
+	void InitializeHistograms();
 
 protected:
 

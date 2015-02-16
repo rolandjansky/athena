@@ -13,17 +13,17 @@ if (userPDF): oFext="pdf"
 # specify the ROOT histogram files containing the monitoring plots here
 # Strings can be empty BUT MUST BE 3
 
-rootFileNames = ["/afs/cern.ch/work/m/martis/public/athena/19.3.0.1_M7_new/runBatchL3/Iter0/cosmics/TotalMonitoring.root",
-                 "/afs/cern.ch/user/l/lbarranc/public/TotalMonitoring.root",#"/afs/cern.ch/work/m/martis/public/athena/19.3.0.1_M7_new/runBatchL3/Iter0/cosmics/TotalMonitoring.root",
-                 ""]#"/afs/cern.ch/work/m/martis/public/athena/19.3.0.1_M7_new/runBatchL3/Iter2/cosmics/TotalMonitoring.root"]
+rootFileNames = ["/afs/cern.ch/work/m/martis/public/athena/19.3.0.3/runBatch/Iter0/cosmics/TotalMonitoring.root",
+                 "/afs/cern.ch/work/m/martis/public/athena/19.3.0.3/runBatch/Iter5/cosmics/TotalMonitoring.root",
+                 "/afs/cern.ch/work/m/martis/public/athena/19.3.0.3/runBatch2/Iter1/cosmics/TotalMonitoring.root"]
 
-#rootFileNames = ["/afs/cern.ch/work/m/martis/public/athena/19.3.0.1_M7_2/runBatch/Iter0_HitQual/cosmics/TotalMonitoring.root",
+#rootFileNames = ["/afs/cern.ch/work/m/martis/public/athena/19.3.0.1_M7_2/runBatch/Iter0/cosmics/TotalMonitoring.root",
 #                 "/afs/cern.ch/work/m/martis/public/athena/19.3.0.1_M7_2/runBatch/Iter0_GOOD/cosmics/TotalMonitoring.root",
 #                 ""]#"/afs/cern.ch/work/m/martis/public/athena/19.3.0.1_M7_new/runBatchL3/Iter2/cosmics/TotalMonitoring.root"]
 
 markerStyles = [kOpenCircle, kFullCircle, kOpenSquare] #determines marker styles for plots
 markerColors = [kRed+1, kGray+2, kGreen+1] #determines marker colors for plots
-legendTitles = ["B ON","B OFF", "L2"] #determines legend titles
+legendTitles = ["Iter 0","L11", "L2"] #determines legend titles
 canvasText   = ["M7 cosmic rays","","",""] #specifies additional canvas text
 
 normaliseHistos = True # set to true if you want to normalise to same area
@@ -56,8 +56,8 @@ genericTracksDir = [
 #following array determines ROOT file directory from which HitEfficiency plots are taken
 #for each of the 3 files 
 hitEffDir = [
-    "/IDAlignMon/AlignTracks_all/HitEfficiencies/"
-    "/IDAlignMon/AlignTracks_all/HitEfficiencies/"
+    "/IDAlignMon/AlignTracks_all/HitEfficiencies/",
+    "/IDAlignMon/AlignTracks_all/HitEfficiencies/",
     "/IDAlignMon/AlignTracks_all/HitEfficiencies/"
     ] 
 #following array determines ROOT file directory from which SivsTRT plots are taken

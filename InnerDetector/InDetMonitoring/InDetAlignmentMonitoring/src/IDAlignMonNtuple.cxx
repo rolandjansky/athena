@@ -59,7 +59,14 @@ static const int s_n_ERRORVALUE = 99999;
 // *********************************************************************
 
 IDAlignMonNtuple::IDAlignMonNtuple( const std::string & type, const std::string & name, const IInterface* parent )
-  :ManagedMonitorToolBase( type, name, parent )
+  :ManagedMonitorToolBase( type, name, parent ),
+   m_doPulls(false),
+   m_idHelper(0),
+   m_SCT_Mgr(0),
+   m_pixelID(0),
+   m_sctID(0),
+   m_ntupleSvc(0),
+   ntuple(0)
 {
   m_iUpdator = ToolHandle<Trk::IUpdator>("Trk::KalmanUpdator");
   m_propagator = ToolHandle<Trk::IPropagator>("Trk::RungeKuttaPropagator");
@@ -823,6 +830,9 @@ const Trk::TrackParameters* IDAlignMonNtuple::getUnbiasedTrackParameters(const T
 
   const Trk::RIO_OnTrack* hitOnTrack = dynamic_cast <const Trk::RIO_OnTrack*>(tsos->measurementOnTrack());
   
+  if (hitOnTrack == NULL)
+    return NULL;
+
 
   surfaceID = hitOnTrack->identify();
   // if SCT Hit and TrueUnbiased then remove other side hit first

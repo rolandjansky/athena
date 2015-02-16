@@ -41,15 +41,73 @@ IDAlignMonSivsTRT::IDAlignMonSivsTRT( const std::string & type, const std::strin
   m_trackSumTool = ToolHandle<Trk::ITrackSummaryTool>("Trk::TrackSummaryTool/InDetTrackSummaryTool");
   m_triggerChainName = "NoTriggerSelection";
 
+  InitializeHistograms();
+
+
   declareProperty("CheckRate"              , m_checkrate = 1000);
   declareProperty("triggerChainName"       , m_triggerChainName);
   declareProperty("trackSelection"         , m_trackSelection);
   declareProperty("trackSumTool"           , m_trackSumTool);
   declareProperty("MatchdRCut"             , m_matchdRcut = 0.01);
-
+  
 }
 
 //---------------------------------------------------------------------------------------
+
+void IDAlignMonSivsTRT::InitializeHistograms(){
+  
+  
+  m_delta_phi0 = 0 ;
+  m_delta_eta0 = 0 ;
+  m_delta_R = 0 ;
+  m_delta_qoverp = 0 ;
+  m_delta_charge = 0 ;
+  m_delta_d0 = 0 ;
+  m_delta_z0 = 0 ;
+  m_delta_pt = 0 ;
+  m_reldelta_pt = 0 ;
+  m_nhitstrt = 0 ;
+ 
+  m_delta_phi0_b = 0 ;
+  m_delta_eta0_b = 0 ;
+  m_delta_R_b = 0 ;
+  m_delta_qoverp_b = 0 ;
+  m_delta_charge_b = 0 ;
+  m_delta_d0_b = 0 ;
+  m_delta_z0_b = 0 ;
+  m_delta_pt_b = 0 ;
+  m_reldelta_pt_b = 0 ;
+ 
+  m_alltrks_phi0 = 0 ;
+  m_alltrks_phi0_b = 0 ;
+  m_alltrks_phi0_eca = 0 ;
+  m_alltrks_phi0_ecc = 0 ;
+  m_alltrks_eta0 = 0 ;
+  m_si_phi0 = 0 ;
+  m_si_eta0 = 0 ;
+  m_trt_phi0 = 0 ;
+  m_trt_phi0_b = 0 ;
+  m_trt_phi0_eca = 0 ;
+  m_trt_phi0_ecc = 0 ;
+  m_trt_eta0 = 0 ;
+  m_matched_phi0 = 0 ;
+  m_matched_eta0 = 0;
+  
+  m_sieff_phi0 = 0 ;
+  m_sieff_eta0 = 0 ;
+  m_trteff_phi0 = 0 ;
+  m_trteff_phi0_b = 0 ;
+  m_trteff_phi0_eca = 0 ;
+  m_trteff_phi0_ecc = 0 ;
+  m_trteff_eta0 = 0 ;
+  
+
+}
+
+
+
+
+
 
 IDAlignMonSivsTRT::~IDAlignMonSivsTRT() { }
 
@@ -292,20 +350,35 @@ StatusCode IDAlignMonSivsTRT::fillHistograms()
     
 
     const Trk::Perigee* TRTPerigee =  trackTRT->perigeeParameters();
+
+    if (!TRTPerigee)
+      msg(MSG::WARNING) << "TRTPerigee is NULL. Track Information may be missing"<<endreq;
+    
+
     const AmgSymMatrix(5)* TRTPerCovariance = TRTPerigee ? TRTPerigee->covariance() : NULL;
     
     if ( TRTPerCovariance == 0 )  
       msg(MSG::WARNING) << " failed dynamic_cast TRT track perigee to measured perigee, some parameters may be missing" << endreq; 
 
-    double d0 = TRTPerigee->parameters()[Trk::d0];
-    double phi0 = TRTPerigee->parameters()[Trk::phi0];
-    double qoverp = TRTPerigee->parameters()[Trk::qOverP]*1000;
-    double eta0 = TRTPerigee->eta();
-    double z0 = TRTPerigee->parameters()[Trk::z0];
-    double charge = TRTPerigee->charge();
-    //double pt = (1/qoverp)*charge*sin(theta);
+    double d0 = -999;
+    double phi0 = -999;
+    double qoverp = -999;
+    double eta0 = -999;
+    double z0 = -999;
+    double charge = -999.;
     double pt = -999;
-    if ( TRTPerCovariance != 0 )  pt = TRTPerigee->pT()/1000.; 
+
+    if (TRTPerigee)
+      {
+
+	d0 = TRTPerigee->parameters()[Trk::d0];
+	phi0 = TRTPerigee->parameters()[Trk::phi0];
+	qoverp = TRTPerigee->parameters()[Trk::qOverP]*1000;
+	eta0 = TRTPerigee->eta();
+	z0 = TRTPerigee->parameters()[Trk::z0];
+	charge = TRTPerigee->charge();
+	if ( TRTPerCovariance != 0 )  pt = TRTPerigee->pT()/1000.; 
+      }
     
 
     //trackStateOnSurfaces is a vector of Trk::TrackStateOnSurface objects which contain information 
@@ -374,37 +447,47 @@ StatusCode IDAlignMonSivsTRT::fillHistograms()
 
       
       const Trk::Perigee* SiPerigee = trackSi->perigeeParameters();
+      
+      if (!SiPerigee)
+	msg(MSG::WARNING) << " SiPerigee is NULL. Track information may be missing"<<endreq;
+      
       const AmgSymMatrix(5)* SiPerCovariance = SiPerigee ? SiPerigee->covariance() : NULL;
 
       if ( SiPerCovariance == 0 )  
 	msg(MSG::WARNING) << " failed dynamic_cast Si track perigee to measured perigee, some parameters may be missing" << endreq; 
       
-      double Siphi0 = SiPerigee->parameters()[Trk::phi0];
-      double Sieta0 = SiPerigee->eta();
-    
-      if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Si Track = " << nTracksSi << endreq;
-      if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Si Track Eta = " << Sieta0 << ", phi = " << Siphi0 << endreq;
-
-      //selecting Sionly track that is closest to TRT in eta-phi
-      double dphi2 = (phi0 - Siphi0)*(phi0 - Siphi0);
-      double deta2 = (eta0 - Sieta0)*(eta0 - Sieta0);
-      double dR = sqrt(dphi2 + deta2);
-      if(dR < mindR){
-	mindR = dR;
-	//Xtheta = SiPerigee->parameters()[Trk::theta];  
-	Xd0 = SiPerigee->parameters()[Trk::d0];
-	Xphi0 = SiPerigee->parameters()[Trk::phi0];
-	Xqoverp = SiPerigee->parameters()[Trk::qOverP]*1000;
-	Xeta0 = SiPerigee->eta();
-	Xz0 = SiPerigee->parameters()[Trk::z0];
-	Xcharge = SiPerigee->charge();
-	//Xpt = (1/Xqoverp)*Xcharge*sin(Xtheta);
-	if ( SiPerCovariance != 0 ) Xpt = SiPerigee->pT()/1000.; 
-	if(dR < m_matchdRcut) matchFound = true;
-      }
-
-      nTracksSi++;
+      double Siphi0 = -9999;
+      double Sieta0 = -9999;
+      double dphi2  = -9999;
+      double deta2  = -9999;
+      double dR     = -9999;
       
+      
+      if (SiPerigee)
+	{
+	  Siphi0 = SiPerigee->parameters()[Trk::phi0];
+	  Sieta0 = SiPerigee->eta();
+	  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Si Track = " << nTracksSi << endreq;
+	  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Si Track Eta = " << Sieta0 << ", phi = " << Siphi0 << endreq;
+	  //selecting Sionly track that is closest to TRT in eta-phi
+	  dphi2 = (phi0 - Siphi0)*(phi0 - Siphi0);
+	  deta2 = (eta0 - Sieta0)*(eta0 - Sieta0);
+	  dR = sqrt(dphi2 + deta2);
+	  if(dR < mindR){
+	    mindR = dR;
+	    //Xtheta = SiPerigee->parameters()[Trk::theta];  
+	    Xd0 = SiPerigee->parameters()[Trk::d0];
+	    Xphi0 = SiPerigee->parameters()[Trk::phi0];
+	    Xqoverp = SiPerigee->parameters()[Trk::qOverP]*1000;
+	    Xeta0 = SiPerigee->eta();
+	    Xz0 = SiPerigee->parameters()[Trk::z0];
+	    Xcharge = SiPerigee->charge();
+	    //Xpt = (1/Xqoverp)*Xcharge*sin(Xtheta);
+	    if ( SiPerCovariance != 0 ) Xpt = SiPerigee->pT()/1000.; 
+	    if(dR < m_matchdRcut) matchFound = true;
+	  }
+	}
+      nTracksSi++;
     }
 
     //filling for closest Si-only match in dR (before dR cut)

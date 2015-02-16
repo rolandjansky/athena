@@ -47,10 +47,11 @@ DrawPlots(TrackNPIXHitsEcc, outputDir+"/"+"nPIXHitsEcc."+oFext, "", "N Tracks",
           "N PIX Hits ECC", 0.69, 0.6, "",
           canvasText,makeOutput)
 
-
-
-
 # Hit Efficiencies
+SiBarrelHitEff = MakePlots(hitEffDir,legendTitles,markerColors,markerStyles,"measurements_eff_vs_layer_barrel","noFit",rootFiles,nFiles,False)
+DrawPlots(SiBarrelHitEff, outputDir+"/"+"SiBarrelHitEff."+oFext, "Si Barrel Hit Eff.", "Hit Efficiency",
+          "Barrel Layer", 0.53, 0.32, "",
+          canvasText,makeOutput,0.50,0.50,True)
 
 SiBarrelSeenHits = MakePlots(hitEffDir,legendTitles,markerColors,markerStyles,"measurements_vs_layer_barrel","noFit",rootFiles,nFiles,False) 
 DrawPlots(SiBarrelSeenHits, outputDir+"/"+"SiBarrelSeenHits."+oFext, "Si Barrel measurements", "Seen hits",
@@ -61,11 +62,6 @@ SiBarrelExpectedHits = MakePlots(hitEffDir,legendTitles,markerColors,markerStyle
 DrawPlots(SiBarrelExpectedHits, outputDir+"/"+"SiBarrelExpectedHits."+oFext, "Si Barrel expected hits", "Expected hits",
           "Barrel Layer", 0.20, 0.87, "",
           canvasText,makeOutput,0.55,0.41,True)
-
-SiBarrelHitEff = MakePlots(hitEffDir,legendTitles,markerColors,markerStyles,"measurements_eff_vs_layer_barrel","noFit",rootFiles,nFiles,False)
-DrawPlots(SiBarrelHitEff, outputDir+"/"+"SiBarrelHitEff."+oFext, "Si Barrel Hit Eff.", "Hit Efficiency",
-          "Barrel Layer", 0.53, 0.32, "",
-          canvasText,makeOutput,0.50,0.50,True)
 
 SiEcaHitEff = MakePlots(hitEffDir,legendTitles,markerColors,markerStyles,"measurements_eff_vs_layer_eca","noFit",rootFiles,nFiles,False)
 DrawPlots(SiEcaHitEff, outputDir+"/"+"SiEcaHitEff."+oFext, "Si Endcap A Hit Eff.", "Hit Efficiency",

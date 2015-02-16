@@ -105,6 +105,11 @@ IDAlignMonTrackSegments::IDAlignMonTrackSegments( const std::string & type, cons
   m_trackSelectionLower = ToolHandle<InDetAlignMon::TrackSelectionTool>("InDetAlignMon::TrackSelectionTool");
   m_trackSumTool        = ToolHandle<Trk::ITrackSummaryTool>("Trk::TrackSummaryTool/InDetTrackSummaryTool");
 
+
+  InitializeHistograms();
+
+
+
   declareProperty("triggerChainName"       , m_triggerChainName);
   declareProperty("MatchedRCut", m_matchedRcut = 0.2);
   declareProperty("UseCTBSplitTracks", m_useCTBSplitTracks);
@@ -143,6 +148,31 @@ IDAlignMonTrackSegments::~IDAlignMonTrackSegments(){
   delete m_delta_nHits;
   delete m_delta_charge;
 }
+
+void IDAlignMonTrackSegments::InitializeHistograms()
+{
+  m_upper_hist = 0;
+  m_lower_hist = 0;
+
+  m_delta_d0 = 0;
+  m_delta_z0= 0;
+  m_delta_phi0= 0;
+  m_delta_eta0= 0;
+  m_delta_qOverPt= 0;
+  m_delta_PtqOverPt= 0;
+  m_delta_nHits= 0;
+  m_delta_charge= 0;
+
+  m_debug_phi0 = 0 ;
+  m_debug_eta0 = 0;
+  
+  // pt 
+  m_delta_pt = 0 ;
+  m_reldelta_pt = 0 ;
+  
+}
+
+
 
 //---------------------------------------------------------------------------------------
 
@@ -570,8 +600,8 @@ StatusCode IDAlignMonTrackSegments::fillHistograms()
   const TrackCollection* tracksLower(0);
 
   if (false) {
-  std::cout << " -- SALVA -- IDAlignMonTrackSegments::fillHistograms -- upper= "<< m_upperTracksName << "   lower: "<< m_lowerTracksName << " START " 
-	    << std::endl;
+    std::cout << " -- SALVA -- IDAlignMonTrackSegments::fillHistograms -- upper= "<< m_upperTracksName << "   lower: "<< m_lowerTracksName << " START " 
+	      << std::endl;
   }
 
   if(m_useCTBSplitTracks){
@@ -634,7 +664,7 @@ StatusCode IDAlignMonTrackSegments::fillHistograms()
     tracksLower = m_trackSelectionLower->selectTracks(m_lowerTracksName);
     if (!tracksLower) {
       if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "TrackCollection with name "<<m_lowerTracksName<<" is NULL" << endreq;
-      if (false) std::cout << " -- SALVA -- TrackCollection with name "<<m_lowerTracksName<<" is NULL" << endreq;
+      //if (false) std::cout << " -- SALVA -- TrackCollection with name "<<m_lowerTracksName<<" is NULL" << endl;
     }
 
   }
@@ -723,13 +753,13 @@ StatusCode IDAlignMonTrackSegments::fillHistograms()
 	if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Measured Upper Perigee not retrieved" << endreq;
       }
 
-    if (false) {
-      std::cout << " -- SALVA -- IDAlignMonTrackSegments::fillHistograms() -- upper hits: Pix << " << nHitsPixUp 
-		<< "  SCT " <<  nHitsSCTUp
-		<< "  TRT " << nHitsTRTUp
-		<< "  FILLING " 
-		<< std::endl;
-    }
+    //if (false) {
+    //  std::cout << " -- SALVA -- IDAlignMonTrackSegments::fillHistograms() -- upper hits: Pix << " << nHitsPixUp 
+    //		<< "  SCT " <<  nHitsSCTUp
+    //		<< "  TRT " << nHitsTRTUp
+    //		<< "  FILLING " 
+    //		<< std::endl;
+    //}
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Filling Upper info" << endreq;
     m_upper_hist->nhitstrt->Fill(nHitsTRTUp);
     m_upper_hist->nhitsSi->Fill(nHitsSCTUp + nHitsPixUp);

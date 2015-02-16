@@ -61,6 +61,7 @@ class IDAlignMonTrackSegments : public ManagedMonitorToolBase
   //virtual StatusCode procHistograms();
   void RegisterHisto(MonGroup& mon, TH1F_LW* histo);
   void RegisterHisto(MonGroup& mon, TH2F_LW* histo);
+ 
   
  protected:
   
@@ -70,7 +71,7 @@ class IDAlignMonTrackSegments : public ManagedMonitorToolBase
   StatusCode setupTools();
   TH1F_LW* MakeHist(const std::string & name, const std::string & title, int nBins, float xLow, float xUp, const std::string & xAxisTitle="", const std::string & yAxisTitle="");
   TH2F_LW* MakeHist(const std::string & name, const std::string & title, int nXBins, float xLow, float xUp, int nYBins, float yLow, float yUp, const std::string & xAxisTitle="", const std::string & yAxisTitle="");
-  
+  void InitializeHistograms();
   std::string m_stream;
   std::string m_inputTracksName;
   std::string m_upperTracksName;

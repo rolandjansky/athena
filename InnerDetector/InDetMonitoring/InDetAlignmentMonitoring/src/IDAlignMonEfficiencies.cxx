@@ -193,7 +193,17 @@ IDAlignMonEfficiencies::IDAlignMonEfficiencies( const std::string & type, const 
   :ManagedMonitorToolBase( type, name, parent ),
    m_trt_b_hist(new TRTBarrelHistograms),
    m_trt_ec_hist(new TRTEndcapHistograms),
-   m_Pi(3.14156)
+   m_idHelper(0),
+   m_pixelID(0),
+   m_sctID(0),
+   m_trtID(0),
+   m_PIX_Mgr(0),
+   m_SCT_Mgr(0),
+   m_Pi(3.14156),
+   m_NPixLayers(0),
+   m_events(0),
+   m_histosBooked(0),
+   m_doHitQuality(false)
 {
   m_trackSelection = ToolHandle<InDetAlignMon::TrackSelectionTool>("InDetAlignMon::TrackSelectionTool");
   m_hitQualityTool = ToolHandle<IInDetAlignHitQualSelTool>("");
@@ -204,6 +214,8 @@ IDAlignMonEfficiencies::IDAlignMonEfficiencies( const std::string & type, const 
   m_minSiliconEffWindow = 0.8;
   m_maxSiliconEffWindow = 1.05;
   m_triggerChainName = "NoTriggerSelection";
+
+  InitializeHistograms();
   
   declareProperty("tracksName"             , m_tracksName);
   declareProperty("CheckRate"              , m_checkrate=1000);
@@ -224,6 +236,88 @@ IDAlignMonEfficiencies::~IDAlignMonEfficiencies() {
   delete m_trt_b_hist;
   delete m_trt_ec_hist;
 }
+
+void IDAlignMonEfficiencies::InitializeHistograms()
+{
+  
+  m_hits_vs_layer_barrel = 0;
+  m_hits_vs_layer_eca = 0;
+  m_hits_vs_layer_ecc = 0;
+
+  m_measurements_vs_layer_barrel = 0;
+  m_measurements_vs_layer_eca = 0;
+  m_measurements_vs_layer_ecc = 0;
+
+  m_outliers_vs_layer_barrel = 0;
+  m_outliers_vs_layer_eca = 0;
+  m_outliers_vs_layer_ecc = 0;
+  
+  m_holes_vs_layer_barrel = 0;
+  m_holes_vs_layer_eca = 0;
+  m_holes_vs_layer_ecc = 0;
+  
+  m_noholes_vs_layer_barrel = 0;
+  m_noholes_vs_layer_eca = 0;
+  m_noholes_vs_layer_ecc = 0;
+
+  m_overlapX_vs_layer_barrel = 0;
+  m_overlapX_vs_layer_eca = 0;
+  m_overlapX_vs_layer_ecc = 0;
+  m_overlapY_vs_layer_barrel = 0;
+  m_overlapY_vs_layer_eca = 0;
+  m_overlapY_vs_layer_ecc = 0;
+
+  m_measurements_eff_vs_layer_barrel = 0;
+  m_measurements_eff_vs_layer_eca = 0;
+  m_measurements_eff_vs_layer_ecc = 0;
+
+  m_outliers_eff_vs_layer_barrel = 0;
+  m_outliers_eff_vs_layer_eca = 0;
+  m_outliers_eff_vs_layer_ecc = 0;
+  
+  m_holes_eff_vs_layer_barrel = 0;
+  m_holes_eff_vs_layer_eca = 0;
+  m_holes_eff_vs_layer_ecc = 0;
+  
+  m_noholes_eff_vs_layer_barrel = 0;
+  m_noholes_eff_vs_layer_eca = 0;
+  m_noholes_eff_vs_layer_ecc = 0;
+
+  m_overlapX_eff_vs_layer_barrel = 0;
+  m_overlapX_eff_vs_layer_eca = 0;
+  m_overlapX_eff_vs_layer_ecc = 0;
+  m_overlapY_eff_vs_layer_barrel = 0;
+  m_overlapY_eff_vs_layer_eca = 0;
+  m_overlapY_eff_vs_layer_ecc = 0;
+
+  m_measurements_eff_vs_Eta_Phi_pix_eca = 0;
+  m_measurements_eff_vs_Eta_Phi_pix_ecc = 0;
+  m_measurements_vs_Eta_Phi_pix_eca = 0;
+  m_measurements_vs_Eta_Phi_pix_ecc = 0;
+  m_hits_vs_Eta_Phi_pix_eca = 0;
+  m_hits_vs_Eta_Phi_pix_ecc = 0;
+  m_outliers_vs_Eta_Phi_pix_eca = 0;
+  m_outliers_vs_Eta_Phi_pix_ecc = 0;
+  m_holes_vs_Eta_Phi_pix_eca = 0;
+  m_holes_vs_Eta_Phi_pix_ecc = 0;
+
+  m_measurements_eff_vs_Eta_Phi_sct_eca = 0;
+  m_measurements_eff_vs_Eta_Phi_sct_ecc = 0;
+  m_measurements_vs_Eta_Phi_sct_eca = 0;
+  m_measurements_vs_Eta_Phi_sct_ecc = 0;
+  m_measurements_vs_Eta_Phi_sct_eca_3d_s0 = 0;
+  m_measurements_vs_Eta_Phi_sct_eca_3d_s1 = 0;
+  m_measurements_vs_Eta_Phi_sct_ecc_3d_s0 = 0;
+  m_measurements_vs_Eta_Phi_sct_ecc_3d_s1 = 0;
+  m_hits_vs_Eta_Phi_sct_eca = 0;
+  m_hits_vs_Eta_Phi_sct_ecc = 0;
+  m_outliers_vs_Eta_Phi_sct_eca = 0;
+  m_outliers_vs_Eta_Phi_sct_ecc = 0;
+  m_holes_vs_Eta_Phi_sct_eca = 0;
+  m_holes_vs_Eta_Phi_sct_ecc = 0;
+}
+
+
 
 StatusCode IDAlignMonEfficiencies::initialize()
 {

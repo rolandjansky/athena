@@ -67,6 +67,7 @@ public:
   void RegisterHisto(MonGroup& mon, TProfile* histo);
 
   void ProcessAsymHistograms(TH1F* m_neg, TH1F* m_pos, TH1F* m_asym); 
+  void InitializeHistograms();
 
 protected:
 

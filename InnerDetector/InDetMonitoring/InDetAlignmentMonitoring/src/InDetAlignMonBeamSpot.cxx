@@ -341,7 +341,10 @@ StatusCode InDetAlignMonBeamSpot::fillHistograms() {
 
 
       m_hPvChiSqDoF->Fill( (*vxIter)->recVertex().fitQuality().chiSquared() / (*vxIter)->recVertex().fitQuality().numberDoF() );
-      m_hPvNTracks->Fill( vxTrackAtVertex!=0 ? vxTrackAtVertex->size() : -1. );
+      //Coverity report. vxTrackAtVertex cannot be NULL. taking out the ? : and setting to thee vxTrackAtVertex->size() (pbutti: 28Jan15)
+      //m_hPvNTracks->Fill( vxTrackAtVertex!=0 ? vxTrackAtVertex->size() : -1. );
+
+      m_hPvNTracks->Fill(vxTrackAtVertex->size());
 
       m_hPvXZ->Fill(z,x);
       m_hPvYZ->Fill(z,y);

@@ -408,7 +408,15 @@ def MakePlots(histogramDir,legendTitles,markerColors,markerStyles,histogramName,
     #first have to get all the histograms because they may be used to normalise each other etc 
     for i in range(nFiles):
         print " <MakePlots> ===  ",histogramName,"  ==="
-        if (debug): print " <MakePlots> retriveing ",histogramName," from file ",i," --> ",rootFiles[i]
+        if (debug): 
+            print " <MakePlots> retriveing ",histogramName," from file i= ",i," --> ",rootFiles[i]
+            print " length of rootFiles array: ", len(rootFiles) ,"  rootFile[",i,"] =", rootFiles[i]
+            print " length of histogramDir array: ", len(histogramDir) 
+            print " length of histoGram array: ", len(histoGram)     
+            print " length of markerColors array: ", len(markerColors) ,"   color[",i,"] =", markerColors[i]
+            print " length of markerStyles array: ", len(markerStyles) ,"   style[",i,"] =", markerStyles[i]
+            print " histogramName: ", histogramName
+            print " GetHistogram(",rootFiles[i],",", histogramDir[i],")"
         histoGram[i] = GetHistogram(rootFiles[i],histogramDir[i],histogramName,markerColors[i],markerStyles[i], i)
         
     for i in range(nFiles):
@@ -1036,8 +1044,19 @@ def MakeErrVsPtHisto(histogramName,histogramDir,rootFile):
 
     return newHist
 
+#########################################################################################
 def GetHistogram(rootFile,histogramDir,histogramName,markerColor,markerStyle, fileID=0):
 
+    debug = False
+    if (debug): 
+        print " -- GetHistogram -- -- START -- -- "
+        print "    rootFile = ", rootFile
+        print "    histogramDir = ", histogramDir
+        print "    histogramName = ", histogramName
+        print "    markerColor = ", markerColor
+        print "    markerStyle = ",markerStyle
+        print "    fileID = ",fileID
+        
     if histogramName=="pix_ec_residualx":
         histoGramECA = rootFile.Get(histogramDir + "pix_eca_residualx")
         histoGramECC = rootFile.Get(histogramDir + "pix_ecc_residualx")
@@ -1416,7 +1435,7 @@ def GetHistogram(rootFile,histogramDir,histogramName,markerColor,markerStyle, fi
     #print "bin size for ",histogramName," = " , histoGram.GetBinWidth(50)        
 
 
-    
+    if (debug): print " -- GetHistogram -- -- COMPLETED -- -- "
     return histoGram
 
 ###########################################################################
@@ -2240,8 +2259,8 @@ def MakeHitMaps(histogramDir, legendTitles, rootFiles, fileID, detecName="pixels
         for i in range(nLayers):
             myHistoName = shortName + str(i)
             if (debug): print " -- MakeHitMaps -- fetching histogram names: detector ",detecName,"  layer/disk ",i,"   histo=",myHistoName 
+            print " lenght of histoGram: ", len(histoGram)     
             histoGram[i] = GetHistogram(rootFiles[fileID],histogramDir[fileID],myHistoName,0,0)
-            if (detecName=="SCT" and barrelEndCap=="BAR"): histoGram[i] = niceSCTBarrelMap (histoGram[i])
 
     if (detecName == "SCT" and barrelEndCap == "BAR"):
         for i in range(nLayers):

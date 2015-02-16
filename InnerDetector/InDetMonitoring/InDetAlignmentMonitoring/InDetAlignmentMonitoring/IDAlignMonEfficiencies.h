@@ -105,6 +105,8 @@ class IDAlignMonEfficiencies : public ManagedMonitorToolBase
   void fillTRTOutliers(int m_barrel_ec,int m_layer_or_wheel,int m_phi_module,int m_straw_layer);
   void fillTRTBarrelOutliers(int m_layer_or_wheel,int m_phi_module,int m_straw_layer);
   void fillTRTEndcapOutliers(int m_barrel_ec, int m_layer_or_wheel,int m_straw_layer);
+  
+  void InitializeHistograms();
 
   unsigned int getRing(unsigned int wheel,unsigned int strawlayer);
  
