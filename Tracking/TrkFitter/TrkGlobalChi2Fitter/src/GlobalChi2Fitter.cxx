@@ -1519,7 +1519,7 @@ Track* GlobalChi2Fitter::fit (const Track&             inputTrack,
         nscats++;
         const TrackParameters *layerpars=state->trackParameters(); 
         const MaterialProperties* matprop=meff->materialProperties();
-        double p=1./std::abs(layerpars->parameters()[Trk::qOverP])-.001*meff->delta_p(); 
+        double p=1./std::abs(layerpars->parameters()[Trk::qOverP]-.0005*meff->delta_p()); 
         const Amg::Vector2D *locpos = state->surface()->globalToLocal( layerpars->position()); 
         const Amg::Vector3D *layerNormal = state->surface()->normal(*locpos); 
         double costracksurf = 1.;     
@@ -1543,6 +1543,7 @@ Track* GlobalChi2Fitter::fit (const Track&             inputTrack,
           MaterialProperties tmpprop(1.,meff->x0(),0.,0.,0.,0.);
           sigmascat=sqrt(m_scattool->sigmaSquare(tmpprop,p,1./costracksurf,matEffects)); 
         }
+        //std::cout << "p: " << p << " delta p: " << .001*meff->delta_p() << " sigma phi: " << sigmascat/sin(layerpars->parameters()[Trk::theta]) << " theta: " << sigmascat << std::endl;
         meff->setScatteringSigmas(sigmascat/sin(layerpars->parameters()[Trk::theta]),sigmascat); 
 
         if (matEffects==electron){
@@ -2048,10 +2049,7 @@ void GlobalChi2Fitter::makeProtoStateFromMeasurement(GXFTrajectory &trajectory, 
         if (std::abs(dotprod1)<.5 && std::abs(dotprod2)<.5) measphi=true;
       }
       if (msgLvl(MSG::DEBUG)) {
-        //const RIO_OnTrack *rot= (crot) ? crot->rioOnTrack(0) : dynamic_cast<const RIO_OnTrack *>(measbase2);
-        //std::cout << "rot: " << rot << std::endl;
-        //if (!rot) std::cout << "measbase: " << *measbase2 << std::endl;
-        msg(MSG::DEBUG) << "#" << m_hitcount << " " << string1 << string2 << " pos=" << measbase2->globalPosition(); // print out the hit type     
+        msg(MSG::DEBUG) << "#" << m_hitcount << " " << string1 << string2 << " pos=(" << measbase2->globalPosition().x() << "," << measbase2->globalPosition().y() << "," << measbase2->globalPosition().z() << ") "; // print out the hit type     
         if (measphi) {
           msg(MSG::DEBUG) << " measures phi";
         }
@@ -2060,6 +2058,11 @@ void GlobalChi2Fitter::makeProtoStateFromMeasurement(GXFTrajectory &trajectory, 
         }
         if (isoutlier) msg(MSG::DEBUG) << " outlier";
 #ifdef GXFDEBUGCODE
+        const RIO_OnTrack *rot=0;
+        if (crot) rot=&crot->rioOnTrack(0);
+        else rot= dynamic_cast<const RIO_OnTrack *>(measbase2);
+        //std::cout << "rot: " << rot << std::endl;
+        //if (!rot) std::cout << "measbase: " << *measbase2 << std::endl;
 	if (m_truth && rot) printTruth(rot->identify());
 #endif
 	msg(MSG::DEBUG) << endreq;
@@ -2431,7 +2434,7 @@ void GlobalChi2Fitter::addIDMaterialFast(GXFTrajectory &trajectory,const TrackPa
 	}
       }
       Amg::Vector3D intersect;
-      double currentqoverp=parforextrap->parameters()[Trk::qOverP];
+      double currentqoverp= (matEffects!=Trk::electron) ? parforextrap->parameters()[Trk::qOverP] : refpar2->parameters()[Trk::qOverP];
       double costracksurf;
       pos[0]=parforextrap->position().x();
       pos[1]=parforextrap->position().y();
@@ -3889,7 +3892,7 @@ void GlobalChi2Fitter::fillResiduals(GXFTrajectory &trajectory,int it,TMatrixDSy
   }
 
   if (state_maxbrempull && trajectory.converged()) {
-    state_maxbrempull->materialEffects()->setSigmaDeltaE(5*state_maxbrempull->materialEffects()->sigmaDeltaEPos());
+    state_maxbrempull->materialEffects()->setSigmaDeltaE(10*state_maxbrempull->materialEffects()->sigmaDeltaEPos());
     state_maxbrempull->materialEffects()->setKink(true);
     trajectory.setConverged(false); 
     //doderiv=true;
@@ -3909,6 +3912,7 @@ void GlobalChi2Fitter::fillResiduals(GXFTrajectory &trajectory,int it,TMatrixDSy
     }
     lu.SetMatrix(a);
     trajectory.setChi2(1e15);
+    doderiv=true;
 
   }
 
@@ -5268,7 +5272,7 @@ FitterStatusCode GlobalChi2Fitter::calculateTrackParameters(GXFTrajectory &traje
     if (jac) {
       if (states[hitno]->materialEffects() && states[hitno]->materialEffects()->deltaE()!=0) {
 
-        if (states[hitno]->materialEffects()->sigmaDeltaE()<=0) {
+        if (states[hitno]->materialEffects()->sigmaDeltaE()<=0 && !m_straightline) {
           double p=1/std::abs(currenttrackpar->parameters()[Trk::qOverP]);
           double de=std::abs(states[hitno]->materialEffects()->deltaE());
           double mass = trajectory.mass();
@@ -5363,7 +5367,7 @@ FitterStatusCode GlobalChi2Fitter::calculateTrackParameters(GXFTrajectory &traje
 
     if (jac) {
       if (states[hitno]->materialEffects() && states[hitno]->materialEffects()->deltaE()!=0) {
-        if ( states[hitno]->materialEffects()->sigmaDeltaE()<=0){
+        if ( states[hitno]->materialEffects()->sigmaDeltaE()<=0 && !m_straightline){
           double p=1/std::abs(currenttrackpar->parameters()[Trk::qOverP]);
           double de=std::abs(states[hitno]->materialEffects()->deltaE());
           //double de=states[hitno]->materialEffects()->deltaE();
