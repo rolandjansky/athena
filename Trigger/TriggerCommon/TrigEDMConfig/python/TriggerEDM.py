@@ -40,6 +40,67 @@
 
 from TrigEDMConfig.TriggerEDMRun1 import TriggerL2List,TriggerEFList,TriggerResultsRun1List
 
+#####################
+#####################
+# Container Slimming
+#
+# Here are the definitions of the strings which will be used to slim containers
+# String to separate EDM members
+identifier = ".-"
+
+# ID Triggers
+# ID Variables to be slimmed away
+UnusedIDVariables = ["trackParameterCovarianceMatrices", "parameterX", "parameterY", "parameterZ", "parameterPX",
+                     "parameterPY", "parameterPZ", "parameterPosition"]
+
+# Combine them into a string
+RemoveIDVariables = ".-"+identifier.join(UnusedIDVariables)
+
+# Tau Triggers
+# Tau Trigger Variables to be slimmed away
+PanTauVars = [ "pantau_CellBasedInput_isPanTauCandidate", "pantau_CellBasedInput_DecayModeProto", "pantau_CellBasedInput_DecayMode",
+               "pantau_CellBasedInput_BDTValue_1p0n_vs_1p1n", "pantau_CellBasedInput_BDTValue_1p1n_vs_1pXn",
+               "pantau_CellBasedInput_BDTValue_3p0n_vs_3pXn", "pantau_CellBasedInput_BDTVar_Basic_NNeutralConsts",
+               "pantau_CellBasedInput_BDTVar_Charged_JetMoment_EtDRxTotalEt", "pantau_CellBasedInput_BDTVar_Charged_StdDev_Et_WrtEtAllConsts",
+               "pantau_CellBasedInput_BDTVar_Neutral_HLV_SumM", "pantau_CellBasedInput_BDTVar_Neutral_PID_BDTValues_BDTSort_1",
+               "pantau_CellBasedInput_BDTVar_Neutral_PID_BDTValues_BDTSort_2", "pantau_CellBasedInput_BDTVar_Neutral_Ratio_1stBDTEtOverEtAllConsts",
+               "pantau_CellBasedInput_BDTVar_Neutral_Ratio_EtOverEtAllConsts", "pantau_CellBasedInput_BDTVar_Neutral_Shots_NPhotonsInSeed",
+               "pantau_CellBasedInput_BDTVar_Combined_DeltaR1stNeutralTo1stCharged", "pantau_CellBasedInput_BDTVar_Charged_HLV_SumM",
+               "ptPanTauCellBasedProto", "etaPanTauCellBasedProto", "phiPanTauCellBasedProto", "mPanTauCellBasedProto", "ptPanTauCellBased",
+               "etaPanTauCellBased", "phiPanTauCellBased", "mPanTauCellBased" ]
+
+PFOs = ["chargedPFOLinks", "neutralPFOLinks", "pi0PFOLinks", "protoChargedPFOLinks", "protoNeutralPFOLinks", "protoPi0PFOLinks",
+        "shotPFOLinks", "hadronicPFOLinks" ]
+
+EFlow = ["etEflow", "mEflow", "nPi0", "nCharged", "etEflowTopo", "mEflowTopo", "ptRatioEflowTopo", "nPi0Topo", "nChargedTopo",
+         "ptRatioEflow", "pi0ConeDR" ]
+
+Samplings = ["cellBasedEnergyRing1", "cellBasedEnergyRing2", "cellBasedEnergyRing3", "cellBasedEnergyRing4", "cellBasedEnergyRing5",
+             "cellBasedEnergyRing6", "cellBasedEnergyRing7", "PSSFraction", "ele_E237E277", "ele_PresamplerFraction",
+             "ele_ECALFirstFraction", "TRT_NHT_OVER_NLT" ]
+
+UnusedOldTau = ["ipZ0SinThetaSigLeadTrk", "trkWidth2", "numEffTopoClusters", "topoInvMass",
+                "effTopoInvMass", "topoMeanDeltaR", "effTopoMeanDeltaR", "isolFrac", "stripWidth2",
+                "nStrip", "seedCalo_eta", "seedCalo_phi", "trkAvgDist", "trkRmsDist"
+                "lead2ClusterEOverAllClusterE", "lead3ClusterEOverAllClusterE", "secMaxStripEt",
+                "sumEMCellEtOverLeadTrkPt", "hadLeakEt", "caloIso", "caloIsoCorrected" ]
+
+UnusedProperties = ["Likelihood", "SafeLikelihood", "BDTEleScore", "BDTJetScoreSigTrans", "BDTJetScoreBkgTrans",
+                    "vetoFlags", "isTauFlags", "trackFlags", "trackFilterProngs", "trackFilterQuality", "trackEtaStrip", "trackPhiStrip",
+                    "TauJetVtxFraction" ]
+
+UnusedFourMom = ["ptIntermediateAxis", "etaIntermediateAxis", "phiIntermediateAxis", "mIntermediateAxis",
+                 "ptTauEtaCalib", "etaTauEtaCalib", "phiTauEtaCalib", "mTauEtaCalib", "EM_TES_scale"]
+
+# Combine them into a string
+UnusedTauVariables = PanTauVars + PFOs + EFlow + Samplings + UnusedOldTau + UnusedProperties + UnusedFourMom
+RemoveTauVariables = ".-"+identifier.join(UnusedTauVariables)
+
+
+# Done Slimming
+#####################
+#####################
+
 TriggerHLTList = [
  
     #steer
@@ -138,11 +199,12 @@ TriggerHLTList = [
     ('xAOD::TrigVertexCountsAuxContainer#HLT_vertexcountsAux.',			 'BS ESD AODFULL AODSLIM',  'MinBias'),
     ('xAOD::TrigTrackCounts#HLT_trackcounts',			       		 'BS ESD AODFULL AODSLIM',  'MinBias'),
     ('xAOD::TrigTrackCountsAuxContainer#HLT_trackcountsAux.',			 'BS ESD AODFULL AODSLIM',  'MinBias'),
+
     #taus
     ('xAOD::TauJetContainer#HLT_TrigTauRecMerged',                                 'BS ESD AODFULL AODSLIM', 'Tau'), 
-    ('xAOD::TauJetAuxContainer#HLT_TrigTauRecMergedAux.',                          'BS ESD AODFULL AODSLIM', 'Tau'), 
+    ('xAOD::TauJetAuxContainer#HLT_TrigTauRecMergedAux'+RemoveTauVariables,        'BS ESD AODFULL AODSLIM', 'Tau'), 
     ('xAOD::TauJetContainer#HLT_TrigTauRecPreselection',                           'BS ESD AODFULL AODSLIM', 'Tau'),
-    ('xAOD::TauJetAuxContainer#HLT_TrigTauRecPreselectionAux.',                    'BS ESD AODFULL AODSLIM', 'Tau'),
+    ('xAOD::TauJetAuxContainer#HLT_TrigTauRecPreselectionAux'+RemoveTauVariables,  'BS ESD AODFULL AODSLIM', 'Tau'),
     ('xAOD::JetContainer#HLT_TrigTauJet',                                          'BS ESD AODFULL AODSLIM', 'Tau'), 
     ('xAOD::JetTrigAuxContainer#HLT_TrigTauJetAux.',                               'BS ESD AODFULL AODSLIM', 'Tau'), 
 
@@ -159,25 +221,25 @@ TriggerHLTList = [
     ('xAOD::MuonContainer#HLT_MuonEFInfo',                                         'BS ESD AODFULL AODSLIM',                'Muon'),
     ('xAOD::MuonAuxContainer#HLT_MuonEFInfoAux.',                                  'BS ESD AODFULL AODSLIM',                'Muon'),
     ('xAOD::TrackParticleContainer#HLT_MuonEFInfo_CombTrackParticles',             'BS ESD AODFULL AODSLIM',                'Muon'),#fp
-    ('xAOD::TrackParticleAuxContainer#HLT_MuonEFInfo_CombTrackParticlesAux.-caloExtension.-trackParameterCovarianceMatrices.-parameterX.-parameterY.-parameterZ.-parameterPX.-parameterPY.-parameterPZ.-parameterPosition',   'BS ESD AODFULL AODSLIM','Muon'),#fp
+    ('xAOD::TrackParticleAuxContainer#HLT_MuonEFInfo_CombTrackParticlesAux.-caloExtension'+RemoveIDVariables,   'BS ESD AODFULL AODSLIM','Muon'),#fp
     ('xAOD::TrackParticleContainer#HLT_MuonEFInfo_ExtrapTrackParticles',           'BS ESD AODFULL AODSLIM',                'Muon'),#fp
-    ('xAOD::TrackParticleAuxContainer#HLT_MuonEFInfo_ExtrapTrackParticlesAux.-caloExtension.-trackParameterCovarianceMatrices.-parameterX.-parameterY.-parameterZ.-parameterPX.-parameterPY.-parameterPZ.-parameterPosition', 'BS ESD AODFULL AODSLIM', 'Muon'),#fp
+    ('xAOD::TrackParticleAuxContainer#HLT_MuonEFInfo_ExtrapTrackParticlesAux.-caloExtension'+RemoveIDVariables, 'BS ESD AODFULL AODSLIM', 'Muon'),#fp
 
     #eMuonEFInfo
     ('xAOD::MuonContainer#HLT_eMuonEFInfo',                                        'BS ESD AODFULL AODSLIM',                'Muon'),
     ('xAOD::MuonAuxContainer#HLT_eMuonEFInfoAux.',                                 'BS ESD AODFULL AODSLIM',                'Muon'),
     ('xAOD::TrackParticleContainer#HLT_eMuonEFInfo_CombTrackParticles',            'BS ESD AODFULL AODSLIM',                'Muon'),#fp
-    ('xAOD::TrackParticleAuxContainer#HLT_eMuonEFInfo_CombTrackParticlesAux.-trackParameterCovarianceMatrices.-parameterX.-parameterY.-parameterZ.-parameterPX.-parameterPY.-parameterPZ.-parameterPosition',   'BS ESD AODFULL AODSLIM', 'Muon'),#fp
+    ('xAOD::TrackParticleAuxContainer#HLT_eMuonEFInfo_CombTrackParticlesAux'+RemoveIDVariables,   'BS ESD AODFULL AODSLIM', 'Muon'),#fp
     ('xAOD::TrackParticleContainer#HLT_eMuonEFInfo_ExtrapTrackParticles',          'BS ESD AODFULL AODSLIM',                'Muon'),#fp
-    ('xAOD::TrackParticleAuxContainer#HLT_eMuonEFInfo_ExtrapTrackParticlesAux.-trackParameterCovarianceMatrices.-parameterX.-parameterY.-parameterZ.-parameterPX.-parameterPY.-parameterPZ.-parameterPosition', 'BS ESD AODFULL AODSLIM', 'Muon'),#fp
+    ('xAOD::TrackParticleAuxContainer#HLT_eMuonEFInfo_ExtrapTrackParticlesAux'+RemoveIDVariables, 'BS ESD AODFULL AODSLIM', 'Muon'),#fp
     
     #MuTagIMO_EF
     ('xAOD::MuonContainer#HLT_MuTagIMO_EF',                                        'BS ESD AODFULL AODSLIM',                'Muon'),
     ('xAOD::MuonAuxContainer#HLT_MuTagIMO_EFAux.',                                 'BS ESD AODFULL AODSLIM',                'Muon'),
     ('xAOD::TrackParticleContainer#HLT_MuTagIMO_EF_CombTrackParticles',            'BS ESD AODFULL AODSLIM',                'Muon'),#fp
-    ('xAOD::TrackParticleAuxContainer#HLT_MuTagIMO_EF_CombTrackParticlesAux.-trackParameterCovarianceMatrices.-parameterX.-parameterY.-parameterZ.-parameterPX.-parameterPY.-parameterPZ.-parameterPosition',   'BS ESD AODFULL AODSLIM', 'Muon'),#fp
+    ('xAOD::TrackParticleAuxContainer#HLT_MuTagIMO_EF_CombTrackParticlesAux'+RemoveIDVariables,   'BS ESD AODFULL AODSLIM', 'Muon'),#fp
     ('xAOD::TrackParticleContainer#HLT_MuTagIMO_EF_ExtrapTrackParticles',          'BS ESD AODFULL AODSLIM',                'Muon'),#fp
-    ('xAOD::TrackParticleAuxContainer#HLT_MuTagIMO_EF_ExtrapTrackParticlesAux.-trackParameterCovarianceMatrices.-parameterX.-parameterY.-parameterZ.-parameterPX.-parameterPY.-parameterPZ.-parameterPosition', 'BS ESD AODFULL AODSLIM', 'Muon'),#fp
+    ('xAOD::TrackParticleAuxContainer#HLT_MuTagIMO_EF_ExtrapTrackParticlesAux'+RemoveIDVariables, 'BS ESD AODFULL AODSLIM', 'Muon'),#fp
 
     #MET
     ('xAOD::TrigMissingETContainer#HLT_TrigEFMissingET',                                 'BS ESD AODFULL AODSLIM',                'MET'),
@@ -228,33 +290,48 @@ TriggerHLTList = [
     ('xAOD::TrackParticleContainer#HLT_InDetTrigTrackingxAODCnv_Muon_FTF',             'BS ESD AODFULL AODSLIM',  'Muon'),
     ('xAOD::TrackParticleContainer#HLT_InDetTrigTrackingxAODCnv_Tau_FTF',              'BS ESD AODFULL AODSLIM',  'Tau'),
     ('xAOD::TrackParticleContainer#HLT_InDetTrigTrackingxAODCnv_Bjet_FTF',             'BS ESD AODFULL AODSLIM',  'Bjet'),
+    ('xAOD::TrackParticleContainer#HLT_InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF',             'BS ESD AODFULL AODSLIM',  'Bjet'),
 
-    ('xAOD::TrackParticleAuxContainer#HLT_InDetTrigTrackingxAODCnv_Bjet_EFIDAux.-trackParameterCovarianceMatrices.-parameterX.-parameterY.-parameterZ.-parameterPX.-parameterPY.-parameterPZ.-parameterPosition',             'BS ESD AODFULL',          'Bjet'),
-    ('xAOD::TrackParticleAuxContainer#HLT_InDetTrigTrackingxAODCnv_Bphysics_EFIDAux.-trackParameterCovarianceMatrices.-parameterX.-parameterY.-parameterZ.-parameterPX.-parameterPY.-parameterPZ.-parameterPosition',         'BS ESD AODFULL',          'Bphys'),
-    ('xAOD::TrackParticleAuxContainer#HLT_InDetTrigTrackingxAODCnvIOTRT_CosmicsN_EFIDAux.-trackParameterCovarianceMatrices.-parameterX.-parameterY.-parameterZ.-parameterPX.-parameterPY.-parameterPZ.-parameterPosition',    'BS ESD AODFULL',          'Cosmics'),
-    ('xAOD::TrackParticleAuxContainer#HLT_InDetTrigTrackingxAODCnv_CosmicsN_EFIDAux.-trackParameterCovarianceMatrices.-parameterX.-parameterY.-parameterZ.-parameterPX.-parameterPY.-parameterPZ.-parameterPosition',         'BS ESD AODFULL',          'Cosmics'),
-    ('xAOD::TrackParticleAuxContainer#HLT_InDetTrigTrackingxAODCnv_Electron_EFIDAux.-caloExtension.-trackParameterCovarianceMatrices.-parameterX.-parameterY.-parameterZ.-parameterPX.-parameterPY.-parameterPZ.-parameterPosition',         'BS ESD AODFULL AODSLIM',  'Egamma'),
-    ('xAOD::TrackParticleAuxContainer#HLT_InDetTrigTrackingxAODCnvCombined_Electron_EFIDAux.-caloExtension.-trackParameterCovarianceMatrices.-parameterX.-parameterY.-parameterZ.-parameterPX.-parameterPY.-parameterPZ.-parameterPosition', 'BS ESD AODFULL AODSLIM',  'Egamma'),
-    ('xAOD::TrackParticleAuxContainer#HLT_InDetTrigTrackingxAODCnv_FullScan_EFIDAux.-trackParameterCovarianceMatrices.-parameterX.-parameterY.-parameterZ.-parameterPX.-parameterPY.-parameterPZ.-parameterPosition',         'BS ESD AODFULL',          'Bphys'),
-    ('xAOD::TrackParticleAuxContainer#HLT_InDetTrigTrackingxAODCnv_minBias_EFIDAux.-trackParameterCovarianceMatrices.-parameterX.-parameterY.-parameterZ.-parameterPX.-parameterPY.-parameterPZ.-parameterPosition',          'BS ESD',                  'MinBias'),
-    ('xAOD::TrackParticleAuxContainer#HLT_InDetTrigTrackingxAODCnv_Muon_EFIDAux.-caloExtension.-trackParameterCovarianceMatrices.-parameterX.-parameterY.-parameterZ.-parameterPX.-parameterPY.-parameterPZ.-parameterPosition',             'BS ESD AODFULL AODSLIM',  'Muon'),
-    ('xAOD::TrackParticleAuxContainer#HLT_InDetTrigTrackingxAODCnv_Photon_EFIDAux.-trackParameterCovarianceMatrices.-parameterX.-parameterY.-parameterZ.-parameterPX.-parameterPY.-parameterPZ.-parameterPosition',           'BS ESD AODFULL',  'Egamma'),
-    ('xAOD::TrackParticleAuxContainer#HLT_InDetTrigTrackingxAODCnv_Tau_EFIDAux.-caloExtension.-trackParameterCovarianceMatrices.-parameterX.-parameterY.-parameterZ.-parameterPX.-parameterPY.-parameterPZ.-parameterPosition',              'BS ESD AODFULL AODSLIM',  'Tau'),
-    ('xAOD::TrackParticleAuxContainer#HLT_InDetTrigTrackingxAODCnvTRTOnly_Tau_EFIDAux.-trackParameterCovarianceMatrices.-parameterX.-parameterY.-parameterZ.-parameterPX.-parameterPY.-parameterPZ.-parameterPosition',       'BS ESD AODFULL',  'Tau'),
-    ('xAOD::TrackParticleAuxContainer#HLT_InDetTrigTrackingxAODCnvTRTOnly_Electron_EFIDAux.-trackParameterCovarianceMatrices.-parameterX.-parameterY.-parameterZ.-parameterPX.-parameterPY.-parameterPZ.-parameterPosition',  'BS ESD AODFULL',          'Egamma'),
-    ('xAOD::TrackParticleAuxContainer#HLT_InDetTrigTrackingxAODCnvTRTOnly_Muon_EFIDAux.-trackParameterCovarianceMatrices.-parameterX.-parameterY.-parameterZ.-parameterPX.-parameterPY.-parameterPZ.-parameterPosition',      'BS ESD AODFULL',          'Muon'),
-    ('xAOD::TrackParticleAuxContainer#HLT_InDetTrigTrackingxAODCnvTRTOnly_FullScan_EFIDAux.-trackParameterCovarianceMatrices.-parameterX.-parameterY.-parameterZ.-parameterPX.-parameterPY.-parameterPZ.-parameterPosition',  'BS ESD AODFULL',          'Bphys'),
-    ('xAOD::TrackParticleAuxContainer#HLT_InDetTrigTrackingxAODCnv_MuonIso_EFIDAux.-trackParameterCovarianceMatrices.-parameterX.-parameterY.-parameterZ.-parameterPX.-parameterPY.-parameterPZ.-parameterPosition',          'BS ESD AODFULL',          'Muon'),
+    ('xAOD::TrackParticleContainer#HLT_InDetTrigTrackingxAODCnv_Electron_IDTrig',      'BS ESD AODFULL',  'Egamma'),
+    ('xAOD::TrackParticleContainer#HLT_InDetTrigTrackingxAODCnv_Muon_IDTrig',          'BS ESD AODFULL AODSLIM',  'Muon'),
+    ('xAOD::TrackParticleContainer#HLT_InDetTrigTrackingxAODCnv_Tau_IDTrig',           'BS ESD AODFULL AODSLIM',  'Tau'),
+    ('xAOD::TrackParticleContainer#HLT_InDetTrigTrackingxAODCnv_Bjet_IDTrig',          'BS ESD AODFULL AODSLIM',  'Bjet'),
+    ('xAOD::TrackParticleContainer#HLT_InDetTrigTrackingxAODCnv_Bphysics_IDTrig',      'BS ESD AODFULL',          'Bphys'),
+
+
+    ('xAOD::TrackParticleAuxContainer#HLT_InDetTrigTrackingxAODCnv_Bjet_EFIDAux'+RemoveIDVariables,             'BS ESD AODFULL',          'Bjet'),
+    ('xAOD::TrackParticleAuxContainer#HLT_InDetTrigTrackingxAODCnv_Bphysics_EFIDAux'+RemoveIDVariables,         'BS ESD AODFULL',          'Bphys'),
+    ('xAOD::TrackParticleAuxContainer#HLT_InDetTrigTrackingxAODCnvIOTRT_CosmicsN_EFIDAux'+RemoveIDVariables,    'BS ESD AODFULL',          'Cosmics'),
+    ('xAOD::TrackParticleAuxContainer#HLT_InDetTrigTrackingxAODCnv_CosmicsN_EFIDAux'+RemoveIDVariables,         'BS ESD AODFULL',          'Cosmics'),
+    ('xAOD::TrackParticleAuxContainer#HLT_InDetTrigTrackingxAODCnv_Electron_EFIDAux.-caloExtension'+RemoveIDVariables,         'BS ESD AODFULL AODSLIM',  'Egamma'),
+    ('xAOD::TrackParticleAuxContainer#HLT_InDetTrigTrackingxAODCnvCombined_Electron_EFIDAux.-caloExtension'+RemoveIDVariables, 'BS ESD AODFULL AODSLIM',  'Egamma'),
+    ('xAOD::TrackParticleAuxContainer#HLT_InDetTrigTrackingxAODCnv_FullScan_EFIDAux'+RemoveIDVariables,         'BS ESD AODFULL',          'Bphys'),
+    ('xAOD::TrackParticleAuxContainer#HLT_InDetTrigTrackingxAODCnv_minBias_EFIDAux'+RemoveIDVariables,          'BS ESD',                  'MinBias'),
+    ('xAOD::TrackParticleAuxContainer#HLT_InDetTrigTrackingxAODCnv_Muon_EFIDAux.-caloExtension'+RemoveIDVariables,             'BS ESD AODFULL AODSLIM',  'Muon'),
+    ('xAOD::TrackParticleAuxContainer#HLT_InDetTrigTrackingxAODCnv_Photon_EFIDAux'+RemoveIDVariables,           'BS ESD AODFULL',  'Egamma'),
+    ('xAOD::TrackParticleAuxContainer#HLT_InDetTrigTrackingxAODCnv_Tau_EFIDAux.-caloExtension'+RemoveIDVariables,              'BS ESD AODFULL AODSLIM',  'Tau'),
+    ('xAOD::TrackParticleAuxContainer#HLT_InDetTrigTrackingxAODCnvTRTOnly_Tau_EFIDAux'+RemoveIDVariables,       'BS ESD AODFULL',  'Tau'),
+    ('xAOD::TrackParticleAuxContainer#HLT_InDetTrigTrackingxAODCnvTRTOnly_Electron_EFIDAux'+RemoveIDVariables,  'BS ESD AODFULL',          'Egamma'),
+    ('xAOD::TrackParticleAuxContainer#HLT_InDetTrigTrackingxAODCnvTRTOnly_Muon_EFIDAux'+RemoveIDVariables,      'BS ESD AODFULL',          'Muon'),
+    ('xAOD::TrackParticleAuxContainer#HLT_InDetTrigTrackingxAODCnvTRTOnly_FullScan_EFIDAux'+RemoveIDVariables,  'BS ESD AODFULL',          'Bphys'),
+    ('xAOD::TrackParticleAuxContainer#HLT_InDetTrigTrackingxAODCnv_MuonIso_EFIDAux'+RemoveIDVariables,          'BS ESD AODFULL',          'Muon'),
     #
-    ('xAOD::TrackParticleAuxContainer#HLT_InDetTrigTrackingxAODCnv_Electron_FTFAux.-trackParameterCovarianceMatrices.-parameterX.-parameterY.-parameterZ.-parameterPX.-parameterPY.-parameterPZ.-parameterPosition',          'BS ESD AODFULL',  'Egamma'),
-    ('xAOD::TrackParticleAuxContainer#HLT_InDetTrigTrackingxAODCnv_Electron_L2IDAux.-trackParameterCovarianceMatrices.-parameterX.-parameterY.-parameterZ.-parameterPX.-parameterPY.-parameterPZ.-parameterPosition',         'BS ESD AODFULL',  'Egamma'),
-    ('xAOD::TrackParticleAuxContainer#HLT_InDetTrigTrackingxAODCnv_Muon_FTFAux.-trackParameterCovarianceMatrices.-parameterX.-parameterY.-parameterZ.-parameterPX.-parameterPY.-parameterPZ.-parameterPosition',              'BS ESD AODFULL AODSLIM',  'Muon'),
-    ('xAOD::TrackParticleAuxContainer#HLT_InDetTrigTrackingxAODCnv_Tau_FTFAux.-caloExtension.-trackParameterCovarianceMatrices.-parameterX.-parameterY.-parameterZ.-parameterPX.-parameterPY.-parameterPZ.-parameterPosition',               'BS ESD AODFULL AODSLIM',  'Tau'),
-    ('xAOD::TrackParticleAuxContainer#HLT_InDetTrigTrackingxAODCnv_Bjet_FTFAux.-trackParameterCovarianceMatrices.-parameterX.-parameterY.-parameterZ.-parameterPX.-parameterPY.-parameterPZ.-parameterPosition',              'BS ESD AODFULL AODSLIM',  'Bjet'),
+    ('xAOD::TrackParticleAuxContainer#HLT_InDetTrigTrackingxAODCnv_Electron_FTFAux'+RemoveIDVariables,          'BS ESD AODFULL',  'Egamma'),
+    ('xAOD::TrackParticleAuxContainer#HLT_InDetTrigTrackingxAODCnv_Electron_L2IDAux'+RemoveIDVariables,         'BS ESD AODFULL',  'Egamma'),
+    ('xAOD::TrackParticleAuxContainer#HLT_InDetTrigTrackingxAODCnv_Muon_FTFAux'+RemoveIDVariables,              'BS ESD AODFULL AODSLIM',  'Muon'),
+    ('xAOD::TrackParticleAuxContainer#HLT_InDetTrigTrackingxAODCnv_Tau_FTFAux.-caloExtension'+RemoveIDVariables,               'BS ESD AODFULL AODSLIM',  'Tau'),
+    ('xAOD::TrackParticleAuxContainer#HLT_InDetTrigTrackingxAODCnv_Bjet_FTFAux'+RemoveIDVariables,              'BS ESD AODFULL AODSLIM',  'Bjet'),
+    ('xAOD::TrackParticleAuxContainer#HLT_InDetTrigTrackingxAODCnv_BjetPrmVtx_FTFAux'+RemoveIDVariables,              'BS ESD AODFULL AODSLIM',  'Bjet'),
+
+    ('xAOD::TrackParticleAuxContainer#HLT_InDetTrigTrackingxAODCnv_Electron_IDTrigAux'+RemoveIDVariables,       'BS ESD AODFULL',  'Egamma'),
+    ('xAOD::TrackParticleAuxContainer#HLT_InDetTrigTrackingxAODCnv_Muon_IDTrigAux'+RemoveIDVariables,           'BS ESD AODFULL AODSLIM',  'Muon'),
+    ('xAOD::TrackParticleAuxContainer#HLT_InDetTrigTrackingxAODCnv_Tau_IDTrigAux.-caloExtension'+RemoveIDVariables,  'BS ESD AODFULL AODSLIM',  'Tau'),
+    ('xAOD::TrackParticleAuxContainer#HLT_InDetTrigTrackingxAODCnv_Bjet_IDTrigAux'+RemoveIDVariables,              'BS ESD AODFULL AODSLIM',  'Bjet'),
+    ('xAOD::TrackParticleAuxContainer#HLT_InDetTrigTrackingxAODCnv_Bphysics_IDTrigAux'+RemoveIDVariables,         'BS ESD AODFULL',          'Bphys'),
 
     #jets
     ('xAOD::JetContainer#HLT_TrigHLTJetDSSelectorCollection',            'DS ESD AODFULL', 'Jet'),
-    ('xAOD::JetTrigAuxContainer#HLT_TrigHLTJetDSSelectorCollectionAux',  'DS ESD AODFULL', 'Jet'),
+    ('xAOD::JetTrigAuxContainer#HLT_TrigHLTJetDSSelectorCollectionAux.',  'DS ESD AODFULL', 'Jet'),
 
     ('xAOD::JetContainer#HLT_TrigHLTJetRec',				 '',                       'Jet'),
     ('xAOD::JetTrigAuxContainer#HLT_TrigHLTJetRecAux.',			 '',                       'Jet'),
@@ -487,11 +564,11 @@ TriggerHLTList = [
    ('TrigInDetTrackCollection#HLT_TrigL2SiTrackFinder_FullScan' ,        '',          'Bphys'),
    ('TrigInDetTrackCollection#HLT_TrigL2SiTrackFinder_Tile' ,            '',          'Muon'),
    ('TrigInDetTrackCollection#HLT_TrigL2SiTrackFinder' ,                 '',          'Tracking'),
-   ('TrigInDetTrackCollection#HLT_TrigFastTrackFinder_TrigInDetTrack_Muon', '',          'Muon'),
+   ('TrigInDetTrackCollection#HLT_TrigFastTrackFinder_TrigInDetTrack_Muon', '',       'Muon'),
 
     # calocell == L2 List
-    #    ('CaloCellContainer#HLT_TrigT2CaloEgammaCells',                       'BS ESD AODFULL',          'Egamma'), 
-    #    ('CaloCellContainer#HLT_TrigT2CaloTauCells',                          'BS ESD',                  'Tau'), 
+    ('CaloCellContainer#HLT_TrigT2CaloEgammaCells',                       'BS ESD',   'Egamma'), 
+    ('CaloCellContainer#HLT_TrigT2CaloTauCells',                          'BS ESD',   'Tau'), 
 
     ('MuonFeatureDetails#HLT',                                            'BS ESD AODFULL AODSLIM',  'Muon'),
 
@@ -580,9 +657,9 @@ TriggerHLTList = [
     ('TrigOperationalInfo#HLT_EXPRESS_OPI_EF',                            'BS',                      'Steer'),
     ('TrigMonConfig#HLT_OPI_EF_monitoring_config',                        'BS',                      'Steer'),
     ('TrigMonEvent#HLT_OPI_EF_monitoring_event',                          'BS',                      'Steer'),
-   #     ('CaloCellContainer#HLT_TrigCaloCellMaker_eGamma',                    'BS ESD',                  'Calo'), 
-   #    ('CaloCellContainer#HLT_TrigCaloCellMaker_tau',                       'BS ESD',                  'Calo'),  
-   #    ('CaloCellContainer#HLT_TrigCaloCellLoF',                             'BS ESD',                  'Calo')         # category?  
+    ('CaloCellContainer#HLT_TrigCaloCellMaker_eGamma',                    'BS ESD',                  'Calo'), 
+    ('CaloCellContainer#HLT_TrigCaloCellMaker_tau',                       'BS ESD',                  'Calo'),  
+    ('CaloCellContainer#HLT_TrigCaloCellLoF',                             'BS ESD',                  'Calo')         # category?  
     # == end of L2+EF lists
 
 ]
@@ -594,7 +671,7 @@ TriggerResultsList=[
     ('xAOD::TrigConfKeys#TrigConfKeys' ,              'ESD AODFULL AODSLIM', 'Steer'),
     #    ('HLT::HLTResult#HLTResult_L2',                    'ESD AODFULL AODSLIM', 'Steer'),#still needed for Run2?
     #    ('HLT::HLTResult#HLTResult_EF' ,                   'ESD AODFULL AODSLIM', 'Steer'),#still needed for Run2?
-    ('HLT::HLTResult#HLTResult_HLT',                  '',                    'Steer'),
+    ('HLT::HLTResult#HLTResult_HLT',                  'ESD AODFULL AODSLIM', 'Steer'),
     ('xAOD::TrigNavigation#TrigNavigation' ,          'ESD AODFULL AODSLIM', 'Steer'),
     ('xAOD::TrigNavigationAuxInfo#TrigNavigationAux.','ESD AODFULL AODSLIM', 'Steer')
     ]
@@ -747,7 +824,7 @@ EDMDetails[ "TrigPassFlags" ]             = {'persistent':"TrigPassFlagsCollecti
 EDMDetails[ "ElectronMuonTopoInfo" ]      = {'persistent':"ElectronMuonTopoInfoContainer_p1",     'typealias':'AOD', 'collection':"ElectronMuonTopoInfoContainer"}
 EDMDetails[ "TrigComposite" ]             = {'persistent':"TrigCompositeContainer_p1",            'typealias':'Comp', 'collection':'TrigCompositeContainer'}
 EDMDetails["TrigDec::TrigDecision"]               = {'persistent':"",               'typealias':'' }
-EDMDetails["HLT::HLTResult"]                      = {'persistent':"",               'typealias':'' }
+#EDMDetails["HLT::HLTResult"]                      = {'persistent':"",               'typealias':'' }
 EDMDetails["HLT::HLTResult"]                      = {'persistent':"",               'typealias':'' }
 EDMDetails["DataVector<LVL1::TriggerTower>"]      = {'persistent':"",               'typealias':'' }
 EDMDetails["DataVector<LVL1::JetElement>"]        = {'persistent':"",               'typealias':'' }
