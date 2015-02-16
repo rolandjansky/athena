@@ -31,7 +31,6 @@ use xAODCaloEvent       xAODCaloEvent-*         Event/xAOD
 use xAODPFlow           xAODPFlow-*             Event/xAOD
 use xAODTracking        xAODTracking-*          Event/xAOD
 use TrkParameters 	TrkParameters-* 	Tracking/TrkEvent
-use TrkExInterfaces	TrkExInterfaces-*	Tracking/TrkExtrapolation
 use eflowEvent          eflowEvent-*            Reconstruction
 
 use InDetTrackSelectionTool InDetTrackSelectionTool-*	InnerDetector/InDetRecTools
@@ -48,7 +47,6 @@ use ParticleEvent       ParticleEvent-*         PhysicsAnalysis/AnalysisCommon
 use PathResolver        PathResolver-*          Tools
 use TrkToolInterfaces   TrkToolInterfaces-*     Tracking/TrkTools
 use TrkTrack 		TrkTrack-* 		Tracking/TrkEvent
-use TrkSurfaces         TrkSurfaces-*           Tracking/TrkDetDescr
 use TrkCaloExtension	TrkCaloExtension-*	Tracking/TrkEvent
 use TrkParametersIdentificationHelpers	TrkParametersIdentificationHelpers-* Tracking/TrkEvent
 

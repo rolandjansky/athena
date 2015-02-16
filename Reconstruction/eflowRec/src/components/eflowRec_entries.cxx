@@ -10,7 +10,6 @@
 #include "eflowRec/eflowLCCalibTool.h"
 #include "eflowRec/eflowMomentCalculatorTool.h"
 #include "eflowRec/eflowClusterCollectionTool.h"
-#include "eflowRec/eflowTrackExtrapolatorTool.h"
 #include "eflowRec/eflowTrackCaloExtensionTool.h"
 #include "eflowRec/PFTrackClusterMatchingTool.h"
 #include "eflowRec/eflowCellEOverPTool.h"
@@ -36,7 +35,6 @@ DECLARE_TOOL_FACTORY( eflowTauLCCalibTool )
 DECLARE_TOOL_FACTORY( eflowLCCalibTool )
 DECLARE_TOOL_FACTORY( eflowMomentCalculatorTool )
 DECLARE_TOOL_FACTORY( eflowClusterCollectionTool )
-DECLARE_TOOL_FACTORY( eflowTrackExtrapolatorTool )
 DECLARE_TOOL_FACTORY( eflowTrackCaloExtensionTool )
 DECLARE_TOOL_FACTORY( PFTrackClusterMatchingTool )
 DECLARE_TOOL_FACTORY( eflowCellEOverPTool )
@@ -60,7 +58,6 @@ DECLARE_FACTORY_ENTRIES(eflowRec) {
     DECLARE_TOOL ( eflowMomentCalculatorTool )
     DECLARE_TOOL ( eflowClusterCollectionTool )
     DECLARE_TOOL ( eflowLCCalibTool )
-    DECLARE_TOOL ( eflowTrackExtrapolatorTool )
     DECLARE_TOOL ( eflowTrackCaloExtensionTool )
     DECLARE_TOOL ( PFTrackClusterMatchingTool )
     DECLARE_TOOL (eflowCellEOverPTool)
