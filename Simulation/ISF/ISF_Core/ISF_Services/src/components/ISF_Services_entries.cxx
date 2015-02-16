@@ -1,10 +1,10 @@
 #include "GaudiKernel/DeclareFactoryEntries.h"
-#include "ISF_Services/ParticleBrokerDynamicOnReadIn.h"
-#include "ISF_Services/SimHitSvc.h"
-#include "ISF_Services/ParticleKillerSimSvc.h"
-#include "ISF_Services/ISFEnvelopeDefSvc.h"
-#include "ISF_Services/AFIIEnvelopeDefSvc.h"
-#include "ISF_Services/GeoIDSvc.h"
+#include "../ParticleBrokerDynamicOnReadIn.h"
+#include "../SimHitSvc.h"
+#include "../ParticleKillerSimSvc.h"
+#include "../ISFEnvelopeDefSvc.h"
+#include "../AFIIEnvelopeDefSvc.h"
+#include "../GeoIDSvc.h"
 
 DECLARE_NAMESPACE_SERVICE_FACTORY( ISF , ParticleBrokerDynamicOnReadIn    )
 DECLARE_NAMESPACE_SERVICE_FACTORY( ISF , SimHitSvc                     )
