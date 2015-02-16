@@ -1449,8 +1449,12 @@ namespace MuonCalib {
   //-----------------------------------------------------------------------------------
   unsigned int CscCoolStrSvc::getLayerHash( const Identifier & id) const 
   {
-
-    unsigned int stationName = m_cscId->stationName(id) -50;
+    unsigned int stationName = m_cscId->stationName(id);
+    if(m_cscId->stationName(id) >= 50 ) stationName = stationName - 50;
+    else {
+      m_log <<MSG::ERROR << "stationName: " << stationName << " is not CSC - emergency stop." << endreq;
+      throw;
+    }
     unsigned int stationEta = (m_cscId->stationEta(id) == 1 ? 1 :0);
     unsigned int stationPhi = m_cscId->stationPhi(id) -1; 
     unsigned int wireLayer = m_cscId->wireLayer(id) -1;
