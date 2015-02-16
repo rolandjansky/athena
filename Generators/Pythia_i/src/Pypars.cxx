@@ -6,13 +6,13 @@
 #include "Pythia_i/Pypars.h"
 
 // set pointer to zero at start
-Pypars::PYPARS* Pypars::s_pypars =0;
+Pypars::PYPARS* Pypars::_pypars =0;
 
 // Constructor
 Pypars::Pypars() 
 {
-  m_dummy=-999;
-  m_realdummy=-999.;
+  _dummy=-999;
+  _realdummy=-999.;
 }
 
 // Destructor
@@ -24,39 +24,39 @@ Pypars::~Pypars()
 int& Pypars::mstp(int n) {
   init(); // check COMMON is initialized
   if(n < 1 || n > lenMstp()) {
-  m_dummy = -999;
-  return m_dummy;
+  _dummy = -999;
+  return _dummy;
   }
-  return s_pypars->mstp[n-1];
+  return _pypars->mstp[n-1];
 }
 
 // access parp in common
 double& Pypars::parp(int n) {
   init(); // check COMMON is initialized
   if(n < 1 || n > lenParp()) {
-  m_realdummy = -999.;
-  return m_realdummy;
+  _realdummy = -999.;
+  return _realdummy;
   }
-  return s_pypars->parp[n-1];
+  return _pypars->parp[n-1];
 }
 
 // access msti in common
 int& Pypars::msti(int n) {
   init(); // check COMMON is initialized
   if(n < 1 || n > lenMsti()) {
-  m_dummy = -999;
-  return m_dummy;
+  _dummy = -999;
+  return _dummy;
   }
-  return s_pypars->msti[n-1];
+  return _pypars->msti[n-1];
 }
 
 // access pari in common
 double& Pypars::pari(int n) {
   init(); // check COMMON is initialized
   if(n < 1 || n > lenPari()) {
-  m_realdummy = -999.;
-  return m_realdummy;
+  _realdummy = -999.;
+  return _realdummy;
   }
-  return s_pypars->pari[n-1];
+  return _pypars->pari[n-1];
 }
 

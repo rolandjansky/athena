@@ -4,12 +4,12 @@
 
 #include "Pythia_i/Pyssmt.h"
 #include <iostream>
-Pyssmt::PYSSMT const * Pyssmt::s_pyssmt = 0;
+Pyssmt::PYSSMT const * Pyssmt::_pyssmt = 0;
 
 Pyssmt::Pyssmt() 
   : 
-  m_dummy(-999)
-  , m_realdummy(-999.0) 
+  _dummy(-999)
+  , _realdummy(-999.0) 
 {
   init();
 }
@@ -19,57 +19,57 @@ Pyssmt::~Pyssmt()
 }
 
 const double& Pyssmt::zmix(int i, int j) const {
-  if (i<0 || i>s_sizeZmix || j<0 || j>s_sizeZmix) {
+  if (i<0 || i>_sizeZmix || j<0 || j>_sizeZmix) {
     std::cout 
       << "Pyssmt: attempt to read or write ZMIX out of bounds" << std::endl;
-    m_realdummy=-999.0;
-    return m_realdummy;
+    _realdummy=-999.0;
+    return _realdummy;
   } else {
-    return s_pyssmt->zmix[j-1][i-1];
+    return _pyssmt->zmix[j-1][i-1];
   }
 }
 
 const double& Pyssmt::umix(int i, int j) const {
-  if (i<0 || i>s_sizeUmix || j<0 || j>s_sizeUmix) {
+  if (i<0 || i>_sizeUmix || j<0 || j>_sizeUmix) {
     std::cout
       << "Pyssmt: attempt to read or write UMIX out of bounds" << std::endl;
-    m_realdummy=-999.0;
-    return m_realdummy;
+    _realdummy=-999.0;
+    return _realdummy;
   } else {
-    return s_pyssmt->umix[j-1][i-1];
+    return _pyssmt->umix[j-1][i-1];
   }
 }
 
 const double& Pyssmt::vmix(int i, int j) const {
-  if (i<0 || i>s_sizeVmix || j<0 || j>s_sizeVmix) {
+  if (i<0 || i>_sizeVmix || j<0 || j>_sizeVmix) {
     std::cout
       << "Pyssmt: attempt to read or write VMIX out of bounds" << std::endl;
-    m_realdummy=-999.0;
-    return m_realdummy;
+    _realdummy=-999.0;
+    return _realdummy;
   } else {
-    return s_pyssmt->vmix[j-1][i-1];
+    return _pyssmt->vmix[j-1][i-1];
   }
 }
 
 const double& Pyssmt::smz(int i) const {
-  if (i<0 || i>s_lenSmz) {
+  if (i<0 || i>_lenSmz) {
     std::cout
       << "Pyssmt: attempt to read or write SMZ out of bounds" << std::endl;
-    m_realdummy=-999.0;
-    return m_realdummy;
+    _realdummy=-999.0;
+    return _realdummy;
   } else {
-    return s_pyssmt->smz[i-1];
+    return _pyssmt->smz[i-1];
   }
 }
 
 const double& Pyssmt::smw(int i) const {
-  if (i<0 || i>s_lenSmw) {
+  if (i<0 || i>_lenSmw) {
     std::cout
       << "Pyssmt: attempt to read or write SMW out of bounds" << std::endl;
-    m_realdummy=-999.0;
-    return m_realdummy;
+    _realdummy=-999.0;
+    return _realdummy;
   } else {
-    return s_pyssmt->smw[i-1];
+    return _pyssmt->smw[i-1];
   }
 }
 

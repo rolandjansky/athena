@@ -44,7 +44,7 @@ private:
     double scalePdf, xPdf1, xPdf2;
   };
 
-  static LHEFINFO* s_lhefinfo;
+  static LHEFINFO* _lhefinfo;
 };
 
 #include "Pythia_i/Lhefinfo.icc"

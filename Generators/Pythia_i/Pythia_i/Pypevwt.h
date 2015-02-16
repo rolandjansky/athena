@@ -33,8 +33,8 @@ class Pypevwt
   int& ievwt(int n);
   double& revwt(int n);
 
-  int lenIevwt() const {return s_lenIevwt;}
-  int lenRevwt() const {return s_lenRevwt;}
+  int lenIevwt() const {return _lenIevwt;}
+  int lenRevwt() const {return _lenRevwt;}
 
   //PYPEVWT* _pypevwt initialization
   inline void init();
@@ -42,8 +42,8 @@ class Pypevwt
   //private methods and members
  private: 
   
-  static const int s_lenIevwt = 100;
-  static const int s_lenRevwt = 100;
+  static const int _lenIevwt = 100;
+  static const int _lenRevwt = 100;
 
   //PYPEVWT common block declaration and members
   struct PYPEVWT;
@@ -51,14 +51,14 @@ class Pypevwt
 
   struct PYPEVWT
   {
-    int ievwt[s_lenIevwt];
-    double revwt[s_lenRevwt];
+    int ievwt[_lenIevwt];
+    double revwt[_lenRevwt];
   };
 
-  int m_dummy;
-  double m_realdummy;
+  int _dummy;
+  double _realdummy;
 
-  static PYPEVWT* s_pypevwt;
+  static PYPEVWT* _pypevwt;
 };
 
 #include "Pythia_i/Pypevwt.icc"
