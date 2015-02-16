@@ -1,4 +1,4 @@
-// emacs: this is -*- c++ -*-
+// emacs: this is -*- C++ -*-
 //
 //   @file    RPC_RegionSelectorTable.h        
 //
@@ -13,23 +13,15 @@
 #define __RPC_REGIONSELECTORTABLE_H
 
 
-
 #include "RegSelLUT/IRegionIDLUT_Creator.h"
 
-// #include "GaudiKernel/AlgTool.h"
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/ServiceHandle.h"
 
-#include "GeoPrimitives/GeoPrimitives.h"
-
-// class StoreGateSvc;
-class RegSelSiLUT;
-
-#include <iostream>
 #include <string>
 
 
+class RegSelSiLUT;
+class IRPCcablingSvc;
 
 
 class RPC_RegionSelectorTable : public AthAlgTool, virtual public IRegionIDLUT_Creator {
@@ -50,8 +42,9 @@ private:
   
   StatusCode createTable();
   
-  //  StoreGateSvc*  m_detStore;
   RegSelSiLUT*   m_regionLUT;
+  
+  const IRPCcablingSvc* m_rpcCabling;
 
 };
 
