@@ -361,9 +361,16 @@ if InDetFlags.loadExtrapolator():
       InDetMaterialUpdator.ForcedMomentumValue = 1000*MeV
 
     ToolSvc += InDetMaterialUpdator
+
+
+    from TrkExTools.TrkExToolsConf import Trk__MultipleScatteringUpdator
+    InDetMultipleScatteringUpdator = Trk__MultipleScatteringUpdator(name = "InDetMultipleScatteringUpdator",
+                                                                    UseTrkUtils = False)
+
+    ToolSvc += InDetMultipleScatteringUpdator
     
     if (InDetFlags.doPrintConfigurables()):
-      print      InDetMaterialUpdator
+      print      InDetMultipleScatteringUpdator
       
     # CONFIGURE PROPAGATORS/UPDATORS ACCORDING TO GEOMETRY SIGNATURE
        
@@ -544,6 +551,7 @@ if InDetFlags.loadFitter():
                                                  PropagatorTool        = InDetPropagator,
                                                  RotCreatorTool        = InDetRotCreator,
                                                  BroadRotCreatorTool   = BroadInDetRotCreator,
+                                                 MultipleScatteringTool = InDetMultipleScatteringUpdator,
                                                  MeasurementUpdateTool = InDetUpdator,
                                                  TrackingGeometrySvc   = AtlasTrackingGeometrySvc,
                                                  MaterialUpdateTool    = InDetMaterialUpdator,
@@ -587,6 +595,7 @@ if InDetFlags.loadFitter():
                                                           PropagatorTool        = InDetPropagator,
                                                           RotCreatorTool        = InDetRotCreator,
                                                           BroadRotCreatorTool   = BroadInDetRotCreator,
+                                                          MultipleScatteringTool = InDetMultipleScatteringUpdator,
                                                           MeasurementUpdateTool = InDetUpdator,
                                                           StraightLine          = not InDetFlags.solenoidOn(),
                                                           OutlierCut            = 5.0,
@@ -608,6 +617,7 @@ if InDetFlags.loadFitter():
                                                     NavigatorTool         = InDetNavigator,
                                                     PropagatorTool        = InDetPropagator,
                                                     RotCreatorTool        = InDetRefitRotCreator,
+                                                    MultipleScatteringTool = InDetMultipleScatteringUpdator,
                                                     MeasurementUpdateTool = InDetUpdator,
                                                     StraightLine          = not InDetFlags.solenoidOn(),
                                                     ReintegrateOutliers   = False, 
