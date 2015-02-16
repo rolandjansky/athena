@@ -19,7 +19,6 @@ public:
     m_maxSiliconLayer = 19;
 
     m_doubletD0Max         = 5.0;
-    m_doubletZ0Max         = 230.0;
 
     m_tripletD0Max      = 4.0; 
     m_tripletD0_PPS_Max = 1.7; 
@@ -34,7 +33,6 @@ public:
   int m_maxBarrelPix, m_minEndcapPix, m_maxEndcapPix, m_maxSiliconLayer;
 
   float m_doubletD0Max;
-  float m_doubletZ0Max;
   float m_magFieldZ;
   float m_tripletD0Max;
   float m_tripletD0_PPS_Max;
