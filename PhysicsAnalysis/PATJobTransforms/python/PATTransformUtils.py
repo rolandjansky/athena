@@ -11,7 +11,7 @@ msg = msg.getChild(__name__)
 import PyJobTransforms.trfArgClasses as trfArgClasses
 
 from PyJobTransforms.trfExe import athenaExecutor
-from PyJobTransforms.trfArgs import listKnownD3PDs
+from PyJobTransforms.trfArgs import listKnownD3PDs, getExtraDPDList
 from PyJobTransforms.trfExe import  NTUPMergeExecutor, hybridPOOLMergeExecutor
 
 def addPhysValidationFiles(parser):
@@ -49,11 +49,16 @@ def appendPhysValidationSubstep(trf):
 def addNTUPMergeSubsteps(executorSet):
     # Ye olde NTUPs
     try:
+        # 'Standard' D3PDs
         inDataList, outDataList = listKnownD3PDs()
         for (inData, outData) in iter(zip(inDataList, outDataList)):
             executorSet.add(NTUPMergeExecutor(name='NTUPLEMerge'+inData.replace('_',''), exe='hadd', inData=[inData], outData=[outData], exeArgs=[]))
         # Physics Validation NTUP
         executorSet.add(NTUPMergeExecutor(name='NTUPLEMergePHYSVAL', exe='hadd', inData=['NTUP_PHYSVAL'], outData=['NTUP_PHYSVAL_MRG'], exeArgs=[]))
+        # Extra Tier-0 NTUPs
+        extraNTUPs = getExtraDPDList(NTUPOnly = True)
+        for ntup in extraNTUPs:
+            executorSet.add(NTUPMergeExecutor(name='NTUPLEMerge'+ntup.name.replace('_',''), exe='hadd', inData=[ntup.name], outData=[ntup.name+'_MRG'], exeArgs=[]))
     except ImportError, e:
         msg.warning("Failed to get D3PD lists - probably D3PDs are broken in this release: {0}".format(e))
 
