@@ -11,14 +11,14 @@ import fnmatch
 
 myfile=""
 for file in os.listdir('.'):
-    if fnmatch.fnmatch(file, 'Valgrind_*_log'):
+    if fnmatch.fnmatch(file, 'Valgrind_*_log_1'):
         f=open(file,"r")
         myfile=file
 #        exit()
 
 
 if not os.path.isfile(myfile):
-    print "Did not find a log file matching to Valgrind_*_log"
+    print "Did not find a log file matching to Valgrind_*_log_1"
     quit() 
 
 # Find top 20 instances of memory leaks as reported by valgrind
