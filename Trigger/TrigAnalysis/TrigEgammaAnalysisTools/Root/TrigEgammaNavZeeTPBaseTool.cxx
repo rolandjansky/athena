@@ -36,6 +36,7 @@ TrigEgammaNavZeeTPBaseTool( const std::string& myname )
 : TrigEgammaAnalysisBaseTool(myname),
     m_trigdec("Trig::TrigDecisionTool/TrigDecisionTool") 
 {
+    declareProperty("ElectronKey",m_offElContKey="Electrons");
   declareProperty("MVACalibTool", m_MVACalibTool);
   declareProperty("ApplyMVACalib", m_applyMVACalib=false);
   declareProperty("ElectronIsEMSelector", m_electronPPCutIDTool);
@@ -113,7 +114,7 @@ bool TrigEgammaNavZeeTPBaseTool::EventWiseSelection(){
     ATH_MSG_DEBUG("Apply EventWise selection");
     // Check Size of Electron Container
     m_offElectrons = 0;
-    if ( (m_storeGate->retrieve(m_offElectrons,"ElectronCollection")).isFailure() ){
+    if ( (m_storeGate->retrieve(m_offElectrons,m_offElContKey)).isFailure() ){
         ATH_MSG_ERROR("Failed to retrieve offline Electrons ");
 	return false;
     }

@@ -93,6 +93,8 @@ private:
   /*! Offline LH Selectors */
   ToolHandleArray<IAsgElectronLikelihoodTool> m_electronLHTool; 
 
+  /*! String for offline container key */
+  std::string m_offElContKey;
   std::map< std::string, unsigned int > m_PidMap; /*! Pass a string to pick up correct selector */
   //
   /*! Event Wise offline ElectronContainer Access and end iterator */
