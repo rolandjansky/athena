@@ -43,6 +43,7 @@ private:
      * eta and phi of the cells are corrected wrt to the origin of the tau vertex
      */
     bool m_doCellCorrection;
+    bool m_doAxisCorrection;
 };
 
 #endif

@@ -129,10 +129,11 @@ private:
     std::vector<float> m_vDeltaZ0wideTrks;
 
     //-------------------------------------------------------------
-    // Bypass TrackSelectorTool
+    // Bypass TrackSelectorTool / Extrapolation
     //-------------------------------------------------------------
 
     bool m_bypassSelector;
+    bool m_bypassExtrapolator;
 
     //-------------------------------------------------------------
     //! Convenience functions to handle storegate objects

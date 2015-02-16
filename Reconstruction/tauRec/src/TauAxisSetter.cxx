@@ -26,12 +26,14 @@ TauAxisSetter::TauAxisSetter(const std::string& type,
         const IInterface* parent):
 TauToolBase(type, name, parent),
 m_clusterCone(0.2),
-m_doCellCorrection(false)
+m_doCellCorrection(false),
+m_doAxisCorrection(true)
 {
     declareInterface<TauToolBase > (this);
     declareProperty("ClusterCone", m_clusterCone);
     declareProperty("tauContainerKey", tauContainerKey = "TauJets");
     declareProperty("CellCorrection", m_doCellCorrection);
+    declareProperty("AxisCorrection", m_doAxisCorrection = true);
 }
 
 /********************************************************************/
@@ -121,34 +123,38 @@ StatusCode TauAxisSetter::execute(TauCandidateData *data)
 
     ///////////////////////////////////////////////////////////////////////////
     // calculate tau intermediate axis (corrected for tau vertex)
-    TLorentzVector tauInterAxis;
+    // not needed at trigger level
+    if(m_doAxisCorrection)
+      {
+	TLorentzVector tauInterAxis;
+	
+	for (cItr = pJetSeed->getConstituents().begin(); cItr != cItrE; ++cItr) {
+	  tempClusterVector.SetPtEtaPhiE( (*cItr)->pt(), (*cItr)->eta(), (*cItr)->phi(), (*cItr)->e() );
+	  if (BaryCenter.DeltaR(tempClusterVector) > m_clusterCone)
+	    continue;
+	  
+	  const xAOD::CaloCluster* cluster = dynamic_cast<const xAOD::CaloCluster*>( (*cItr)->rawConstituent() ); 
+	  if (!cluster) continue;
+	  
+	  if (pTau->vertexLink())
+	    tauInterAxis += xAOD::CaloVertexedCluster(*cluster, (*pTau->vertexLink())->position()).p4();
+	  else
+	    tauInterAxis += xAOD::CaloVertexedCluster(*cluster).p4();
+	}
+	
+	// save values for tau intermediate axis
+	// energy will be overwritten by EnergyCalibrationLC (if correctEnergy is enabled)
+	// direction will be overwritten by EnergyCalibrationLC (if correctAxis is enabled)
+	
+	// intermediate axis( set default) 
+	pTau->setP4(tauInterAxis.Pt(), tauInterAxis.Eta(), tauInterAxis.Phi(), pTau->m());
+	
+	ATH_MSG_VERBOSE("tau axis:" << tauInterAxis.Pt()<< " " << tauInterAxis.Eta() << " " << tauInterAxis.Phi()  << " " << tauInterAxis.E() );
+	
+	// save intermediateAxis 
+	pTau->setP4(xAOD::TauJetParameters::IntermediateAxis, tauInterAxis.Pt(), tauInterAxis.Eta(), tauInterAxis.Phi(), tauInterAxis.M());
+      }
     
-    for (cItr = pJetSeed->getConstituents().begin(); cItr != cItrE; ++cItr) {
-      tempClusterVector.SetPtEtaPhiE( (*cItr)->pt(), (*cItr)->eta(), (*cItr)->phi(), (*cItr)->e() );
-      if (BaryCenter.DeltaR(tempClusterVector) > m_clusterCone)
-	continue;
-      
-      const xAOD::CaloCluster* cluster = dynamic_cast<const xAOD::CaloCluster*>( (*cItr)->rawConstituent() ); 
-      if (!cluster) continue;
-         
-      if (pTau->vertexLink())
-        tauInterAxis += xAOD::CaloVertexedCluster(*cluster, (*pTau->vertexLink())->position()).p4();
-      else
-        tauInterAxis += xAOD::CaloVertexedCluster(*cluster).p4();
-    }
-
-    // save values for tau intermediate axis
-    // energy will be overwritten by EnergyCalibrationLC (if correctEnergy is enabled)
-    // direction will be overwritten by EnergyCalibrationLC (if correctAxis is enabled)
-
-    // intermediate axis( set default) 
-    pTau->setP4(tauInterAxis.Pt(), tauInterAxis.Eta(), tauInterAxis.Phi(), pTau->m());
-
-    ATH_MSG_VERBOSE("tau axis:" << tauInterAxis.Pt()<< " " << tauInterAxis.Eta() << " " << tauInterAxis.Phi()  << " " << tauInterAxis.E() );
-    
-    // save intermediateAxis 
-    pTau->setP4(xAOD::TauJetParameters::IntermediateAxis, tauInterAxis.Pt(), tauInterAxis.Eta(), tauInterAxis.Phi(), tauInterAxis.M());
-
     return StatusCode::SUCCESS;
 }
 
