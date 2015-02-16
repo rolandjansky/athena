@@ -425,6 +425,38 @@
       return endPer;
   }
 
+/*--------------------------------------------------------------------------------------*/
+/*   xAOD method to find FirstMeasuredPoint on TrackParticle.				*/
+/*											*/
+/*    All points are in GLOBAL Atlas frame here!					*/
+/*    											*/
+/*   xAOD::TrackParticle Perigee is extrapolated to cylinder with radius of first hit	*/
+/*--------------------------------------------------------------------------------------*/
+  const Perigee* VKalExtPropagator::myxAODFstPntOnTrk(const xAOD::TrackParticle* xprt) const
+  {
+    if(!xprt->isAvailable<float>("radiusOfFirstHit")) return 0;  // No radiusOfFirstHit on track
+
+    const Trk::Perigee*  m_mPer = &(xprt->perigeeParameters()); 
+    Amg::Transform3D *trnsf = new Amg::Transform3D(); 
+    (*trnsf).setIdentity();
+    CylinderSurface surfacePntOnTrk( trnsf, xprt->radiusOfFirstHit(), 20000.);        
+    ParticleHypothesis prtType = pion;
+    
+    const TrackParameters *hitOnTrk = 
+          m_extrapolator->extrapolate( *m_mPer, surfacePntOnTrk, alongMomentum, true, prtType, removeNoise);
+//std::cout<<" Radius="<<xprt->radiusOfFirstHit()<<" extrap="<<hitOnTrk<<'\n';
+    if(hitOnTrk==0)hitOnTrk=m_extrapolator->extrapolateDirectly( *m_mPer, surfacePntOnTrk, alongMomentum, true, prtType);
+    if(hitOnTrk==0)return 0;
+
+    //convert result to Perigee 
+    PerigeeSurface surfacePerigee( hitOnTrk->position() );
+    const TrackParameters *hitOnTrkPerig = m_extrapolator->extrapolate( *hitOnTrk, surfacePerigee);
+    delete hitOnTrk;  // Delete temporary results
+    if(hitOnTrkPerig==0)return 0;
+//std::cout<<" perig="<<(*hitOnTrkPerig)<<'\n';
+    return dynamic_cast<const Perigee* > (hitOnTrkPerig);
+  }
+
 //--------------------------------------------------------------------------
 //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 //  Setting interface to setup VKalVrt InDet extrapolator

@@ -463,7 +463,7 @@ VxCascadeInfo * TrkVKalVrtFitter::fitCascade(const Vertex* primVrt, bool FirstDe
 	     }else{
 	        std::vector<int> tmpI(1); tmpI[0]=inV;
                 IERR = findPositions(tmpI, new_cascadeDefinition[index], indexVV);
-		if(IERR)break; for(int ki=0; ki<(int)indexTT.size(); ki++) indexV.push_back(indexVV[ki]);
+		if(IERR)break; for(int ki=0; ki<(int)indexVV.size(); ki++) indexV.push_back(indexVV[ki]);
              }							 
          }   if(IERR)break;
          //std::cout<<"trk2="; for(int I=0; I<(int)indexT.size(); I++)std::cout<<indexT[I]; std::cout<<'\n';

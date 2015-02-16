@@ -44,13 +44,12 @@ namespace Trk {
 //  Cycle to determine common reference point for the fit
 //
      int counter =0;
-     Amg::Vector3D perGlobalVrt,perGlobalPos;
+     Amg::Vector3D perGlobalPos;
      m_trkControl.clear(); m_trkControl.reserve(InpTrk.size());
      for (i_ntrk = InpTrk.begin(); i_ntrk < InpTrk.end(); ++i_ntrk) {
 //-- (Measured)Perigee in xAOD::TrackParticle
        m_mPer = &(*i_ntrk)->perigeeParameters(); 
        if( m_mPer==0 ) continue; // No perigee!!!
-       perGlobalVrt =  m_mPer->associatedSurface().center();      //Global position of reference point
        perGlobalPos =  m_mPer->position();    //Global position of perigee point
        if(fabs(perGlobalPos.z())   > m_IDsizeZ)return StatusCode::FAILURE;   // Crazy user protection
        if(     perGlobalPos.perp() > m_IDsizeR)return StatusCode::FAILURE;
@@ -73,49 +72,52 @@ namespace Trk {
     tmp_refFrameY /= counter;
     tmp_refFrameZ /= counter;
     m_refGVertex = Amg::Vector3D(tmp_refFrameX, tmp_refFrameY, tmp_refFrameZ);
+
+    PerigeeSurface surfGRefPoint( m_refGVertex );       // Reference perigee surface for current fit
 //
-//std::cout.setf( std::ios::scientific); std::cout.precision(5);
+//std::cout.setf( std::ios::scientific); std::cout.precision(9);
 //std::cout<<" VK ref.frame="<<tmp_refFrameX<<", "<<tmp_refFrameY<<", "<<tmp_refFrameZ<<'\n';
 //
 //  Common reference frame is ready. Start extraction of parameters for fit.
 //
 
+    m_refFrameX=m_refFrameY=m_refFrameZ=0.;        //set ATLAS frame
+    m_fitField->setAtlasMagRefFrame( 0., 0., 0.);  //set ATLAS frame
     for (i_ntrk = InpTrk.begin(); i_ntrk < InpTrk.end(); ++i_ntrk) {
 //
 //-- (Measured)Perigee in TrackParticle
 //
        m_mPer = &(*i_ntrk)->perigeeParameters(); 
        if( m_mPer==0 ) continue; // No perigee!!!
-       VectPerig    =  m_mPer->parameters(); 
-       perGlobalVrt =  m_mPer->associatedSurface().center();      //Global position of reference point
        perGlobalPos =  m_mPer->position();    //Global position of perigee point
        if( !convertAmg5SymMtx(m_mPer->covariance(), CovVertTrk) ) return StatusCode::FAILURE; //VK no good covariance matrix!;
-       m_refFrameX=m_refFrameY=m_refFrameZ=0.; m_fitField->setAtlasMagRefFrame( 0., 0., 0.);  //restore ATLAS frame
-       m_fitField->getMagFld( perGlobalPos.x(), perGlobalPos.y(), perGlobalPos.z(), // Magnetic field
-                                                                  fx, fy, m_BMAG_FIXED);                                // at track perigee point
+       m_fitField->getMagFld( perGlobalPos.x(), perGlobalPos.y(), perGlobalPos.z(),           // Magnetic field
+                                                                  fx, fy, m_BMAG_FIXED);      // at the track perigee point
        if(fabs(m_BMAG_FIXED) < 0.01) m_BMAG_FIXED=0.01;
-
-
+//
+//--- Get rid of beamline rotation and move ref. frame to the track common point m_refGVertex
+//    Small beamline inclination doesn't change track covariance matrix 
+       AmgSymMatrix(5) * tmpCov = new AmgSymMatrix(5)(*(m_mPer->covariance()));
+       const Perigee * tmpPer=surfGRefPoint.createTrackParameters(m_mPer->position(),m_mPer->momentum(),m_mPer->charge(),tmpCov);
+       VectPerig    =  tmpPer->parameters(); 
+//std::cout.precision(12);
+//std::cout<<"beamtilt="<<(*i_ntrk)->beamlineTiltX()<<", "<<(*i_ntrk)->beamlineTiltY()<<'\n';
+//std::cout<<" Def per==>"<<(*m_mPer)<<'\n';
+//std::cout<<" Def srf==>"<<m_mPer->associatedSurface()<<'\n';
+//std::cout<<" Def rot==>"<<m_mPer->associatedSurface().transform().rotation()<<'\n';
+//std::cout<<" Def trn==>"<<m_mPer->associatedSurface().transform().translation()<<'\n';
+//std::cout<<" New per==>"<<(*tmpPer)<<'\n';
+//std::cout<<" New per==>"<<tmpPer->momentum()<<'\n';
+//std::cout<<" New srf==>"<<tmpPer->associatedSurface()<<'\n';
+//std::cout<<" New rot==>"<<tmpPer->associatedSurface().transform().rotation()<<'\n';
+//std::cout<<" New trn==>"<<tmpPer->associatedSurface().transform().translation()<<'\n';
+//
+//--- Transform to internal parametrisation
        VKalTransform( m_BMAG_FIXED, (double)VectPerig[0], (double)VectPerig[1],
               (double)VectPerig[2], (double)VectPerig[3], (double)VectPerig[4], CovVertTrk,
                      m_ich[ntrk],&m_apar[ntrk][0],&m_awgt[ntrk][0]);
+       delete tmpPer; //tmpCov matrix is deleted here!!!
 //
-// Check if propagation to common reference point is needed and make it
-       m_refFrameX=perGlobalVrt.x();  // initial track reference position
-       m_refFrameY=perGlobalVrt.y();
-       m_refFrameZ=perGlobalVrt.z();
-       m_fitField->setAtlasMagRefFrame( m_refFrameX, m_refFrameY, m_refFrameZ);
-       double dX=tmp_refFrameX-perGlobalVrt.x();   // Track shift for VKalVrtCore
-       double dY=tmp_refFrameY-perGlobalVrt.y();
-       double dZ=tmp_refFrameZ-perGlobalVrt.z();
-       if(fabs(dX)+fabs(dY)+fabs(dZ) != 0.) {
-	  double pari[5],covi[15]; double vrtini[3]={0.,0.,0.}; double vrtend[3]={dX,dY,dZ};
-	  for(int i=0; i<5; i++) pari[i]=m_apar[ntrk][i];
-	  for(int i=0; i<15;i++) covi[i]=m_awgt[ntrk][i];
-          long int Charge = m_ich[ntrk];  
-          myPropagator.Propagate(ntrk, Charge, pari, covi, vrtini, vrtend,&m_apar[ntrk][0],&m_awgt[ntrk][0]);
-       }
-
        ntrk++; if(ntrk>=m_NTrMaxVFit) return StatusCode::FAILURE;
     }
 //-------------- Finally setting new reference frame common for ALL tracks
@@ -150,13 +152,12 @@ namespace Trk {
 //  Cycle to determine common reference point for the fit
 //
      int counter =0;
-     Amg::Vector3D perGlobalVrt,perGlobalPos;
+     Amg::Vector3D perGlobalPos;
      m_trkControl.clear(); m_trkControl.reserve(InpTrk.size());
      for (i_ntrk = InpTrk.begin(); i_ntrk < InpTrk.end(); ++i_ntrk) {
 //-- (Measured)Perigee in xAOD::NeutralParticle
        m_mPer = &(*i_ntrk)->perigeeParameters(); 
        if( m_mPer==0 ) continue; // No perigee!!!
-       perGlobalVrt =  m_mPer->associatedSurface().center();      //Global position of reference point
        perGlobalPos =  m_mPer->position();    //Global position of perigee point
        if(fabs(perGlobalPos.z())   > m_IDsizeZ)return StatusCode::FAILURE;   // Crazy user protection
        if(     perGlobalPos.perp() > m_IDsizeR)return StatusCode::FAILURE;
@@ -179,6 +180,7 @@ namespace Trk {
     tmp_refFrameY /= counter;
     tmp_refFrameZ /= counter;
     m_refGVertex = Amg::Vector3D(tmp_refFrameX, tmp_refFrameY, tmp_refFrameZ);
+    PerigeeSurface surfGRefPoint( m_refGVertex );       // Reference perigee surface for current fit
 //
 //std::cout.setf( std::ios::scientific); std::cout.precision(5);
 //std::cout<<" VK ref.frame="<<tmp_refFrameX<<", "<<tmp_refFrameY<<", "<<tmp_refFrameZ<<'\n';
@@ -186,22 +188,28 @@ namespace Trk {
 //  Common reference frame is ready. Start extraction of parameters for fit.
 //
 
+    m_refFrameX=m_refFrameY=m_refFrameZ=0.;        //set ATLAS frame
+    m_fitField->setAtlasMagRefFrame( 0., 0., 0.);  //set ATLAS frame
     for (i_ntrk = InpTrk.begin(); i_ntrk < InpTrk.end(); ++i_ntrk) {
 //
 //-- (Measured)Perigee in TrackParticle
 //
        m_mPer = &(*i_ntrk)->perigeeParameters(); 
        if( m_mPer==0 ) continue; // No perigee!!!
-       VectPerig    =  m_mPer->parameters(); 
-       perGlobalVrt =  m_mPer->associatedSurface().center();      //Global position of reference point
        perGlobalPos =  m_mPer->position();    //Global position of perigee point
        if( !convertAmg5SymMtx(m_mPer->covariance(), CovVertTrk) ) return StatusCode::FAILURE; //VK no good covariance matrix!;
-       m_refFrameX=m_refFrameY=m_refFrameZ=0.; m_fitField->setAtlasMagRefFrame( 0., 0., 0.);  //restore ATLAS frame
-       m_fitField->getMagFld( perGlobalPos.x(), perGlobalPos.y(), perGlobalPos.z(), // Magnetic field
-                                                                  fx, fy, m_BMAG_FIXED);                                // at track perigee point
+       m_fitField->getMagFld( perGlobalPos.x(), perGlobalPos.y(), perGlobalPos.z(),           // Magnetic field
+                                                                  fx, fy, m_BMAG_FIXED);      // at track perigee point
        if(fabs(m_BMAG_FIXED) < 0.01) m_BMAG_FIXED=0.01;
 
-
+//
+//--- Get rid of beamline rotation and move ref. frame to the track common point m_refGVertex
+//    Small beamline inclination doesn't change track covariance matrix 
+//
+       AmgSymMatrix(5) tmpCov(*(m_mPer->covariance()));
+       const Perigee * tmpPer=surfGRefPoint.createTrackParameters(m_mPer->position(),m_mPer->momentum(),m_mPer->charge(),&tmpCov);
+       VectPerig    =  tmpPer->parameters(); 
+       //--- Transform to internal parametrisation
        VKalTransform( m_BMAG_FIXED, (double)VectPerig[0], (double)VectPerig[1],
               (double)VectPerig[2], (double)VectPerig[3], (double)VectPerig[4], CovVertTrk,
                      m_ich[ntrk],&m_apar[ntrk][0],&m_awgt[ntrk][0]);
@@ -212,20 +220,6 @@ namespace Trk {
                               m_awgt[ntrk][12] = -m_awgt[ntrk][12];
                               m_awgt[ntrk][13] = -m_awgt[ntrk][13]; }
 //
-// Check if propagation to common reference point is needed and make it
-       m_refFrameX=perGlobalVrt.x();  // initial track reference position
-       m_refFrameY=perGlobalVrt.y();
-       m_refFrameZ=perGlobalVrt.z();
-       m_fitField->setAtlasMagRefFrame( m_refFrameX, m_refFrameY, m_refFrameZ);
-       double dX=tmp_refFrameX-perGlobalVrt.x();   // Track shift for VKalVrtCore
-       double dY=tmp_refFrameY-perGlobalVrt.y();
-       double dZ=tmp_refFrameZ-perGlobalVrt.z();
-       if(fabs(dX)+fabs(dY)+fabs(dZ) != 0.) {
-	  double pari[5],covi[15]; double vrtini[3]={0.,0.,0.}; double vrtend[3]={dX,dY,dZ};
-	  for(int i=0; i<5; i++) pari[i]=m_apar[ntrk][i];
-	  for(int i=0; i<15;i++) covi[i]=m_awgt[ntrk][i];
-          myPropagator.Propagate(ntrk, 0, pari, covi, vrtini, vrtend,&m_apar[ntrk][0], &m_awgt[ntrk][0]);
-       }
 
        ntrk++; if(ntrk>=m_NTrMaxVFit) return StatusCode::FAILURE;
     }
@@ -242,7 +236,7 @@ namespace Trk {
 
 
 //--------------------------------------------------------------------
-//  Extract Rec::TrackParticles
+//  Extract Trk::TrackParticlesBase
 //
 
  StatusCode TrkVKalVrtFitter::CvtTrackParticle(const std::vector<const TrackParticleBase*>& InpTrk,
@@ -251,7 +245,6 @@ namespace Trk {
     std::vector<const TrackParticleBase*>::const_iterator   i_ntrk;
     AmgVector(5) VectPerig; VectPerig<<0.,0.,0.,0.,0.;
     const Trk::Perigee*        m_mPer=0;
-    const Trk::NeutralPerigee* m_mPerN=0;
     double CovVertTrk[15]; std::fill(CovVertTrk,CovVertTrk+15,0.);
     double tmp_refFrameX=0, tmp_refFrameY=0, tmp_refFrameZ=0;
     double fx,fy,m_BMAG_FIXED;
@@ -265,26 +258,15 @@ namespace Trk {
 //  Cycle to determine common reference point for the fit
 //
      int counter =0;
-     Amg::Vector3D perGlobalVrt,perGlobalPos;
+     Amg::Vector3D perGlobalPos;
      m_trkControl.clear(); m_trkControl.reserve(InpTrk.size());
      for (i_ntrk = InpTrk.begin(); i_ntrk < InpTrk.end(); ++i_ntrk) {
 //-- (Measured)Perigee in TrackParticle
-       m_mPer = GetPerigee(*i_ntrk); m_mPerN=0;  //if( !m_mPer ) m_mPerN = GetNeutralPerigee(*i_ntrk); //VK No NEUTRAL TrackParticles for now!!!
-       if( m_mPer==0 && m_mPerN==0) continue; // No perigee!!!
-       if( m_mPer ){
-          //perGlobalVrt =  m_mPer->vertex();      //Global position of reference point
-          perGlobalVrt =  m_mPer->associatedSurface().center();      //Global position of reference point
-          perGlobalPos =  m_mPer->position();    //Global position of perigee point
-       }else{ 
-          //perGlobalVrt =  m_mPerN->vertex();      //Global position of reference point
-          perGlobalVrt =  m_mPerN->associatedSurface().center();      //Global position of reference point
-          perGlobalPos =  m_mPerN->position();    //Global position of perigee point
-       }
+       m_mPer = GetPerigee(*i_ntrk); 
+       if( m_mPer==0 ) continue; // No perigee!!!
+       perGlobalPos =  m_mPer->position();    //Global position of perigee point
        if(fabs(perGlobalPos.z())   > m_IDsizeZ)return StatusCode::FAILURE;   // Crazy user protection
        if(     perGlobalPos.perp() > m_IDsizeR)return StatusCode::FAILURE;
-       //tmp_refFrameX += perGlobalVrt.x() ;		// Reference system calculation
-       //tmp_refFrameY += perGlobalVrt.y() ;		// Normally gives (0,0,)
-       //tmp_refFrameZ += perGlobalVrt.z() ;
        tmp_refFrameX += perGlobalPos.x() ;	// Reference system calculation
        tmp_refFrameY += perGlobalPos.y() ;	// Use hit position itself to get more precise 
        tmp_refFrameZ += perGlobalPos.z() ;	// magnetic field
@@ -311,25 +293,17 @@ namespace Trk {
 //  Common reference frame is ready. Start extraction of parameters for fit.
 //
 
+    Amg::Vector3D perGlobalVrt;
     for (i_ntrk = InpTrk.begin(); i_ntrk < InpTrk.end(); ++i_ntrk) {
 //
 //-- (Measured)Perigee in TrackParticle
 //
-       m_mPer = GetPerigee(*i_ntrk); m_mPerN=0; //if( !m_mPer ) m_mPerN = GetNeutralPerigee(*i_ntrk); //VK No NEUTRAL TrackParticles for now!!!
-       if( m_mPer==0 && m_mPerN==0) continue; // No perigee!!!
-       if( m_mPer ){
-          VectPerig    =  m_mPer->parameters(); 
-          //perGlobalVrt =  m_mPer->vertex();      //Global position of reference point
-          perGlobalVrt =  m_mPer->associatedSurface().center();      //Global position of reference point
-          perGlobalPos =  m_mPer->position();    //Global position of perigee point
-          if( !convertAmg5SymMtx(m_mPer->covariance(), CovVertTrk) ) return StatusCode::FAILURE; //VK no good covariance matrix!;
-       }else{ 
-          VectPerig    =  m_mPerN->parameters(); 
-          //perGlobalVrt =  m_mPerN->vertex();      //Global position of reference point
-          perGlobalVrt =  m_mPerN->associatedSurface().center();      //Global position of reference point
-          perGlobalPos =  m_mPerN->position();    //Global position of perigee point
-          if( !convertAmg5SymMtx(m_mPerN->covariance(), CovVertTrk) ) return StatusCode::FAILURE; //VK no good covariance matrix!
-       }
+       m_mPer = GetPerigee(*i_ntrk);
+       if( m_mPer==0 ) continue; // No perigee!!!
+       VectPerig    =  m_mPer->parameters(); 
+       perGlobalVrt =  m_mPer->associatedSurface().center();      //Global position of reference point
+       perGlobalPos =  m_mPer->position();    //Global position of perigee point
+       if( !convertAmg5SymMtx(m_mPer->covariance(), CovVertTrk) ) return StatusCode::FAILURE; //VK no good covariance matrix!;
        m_refFrameX=m_refFrameY=m_refFrameZ=0.; m_fitField->setAtlasMagRefFrame( 0., 0., 0.);  //restore ATLAS frame
        m_fitField->getMagFld( perGlobalPos.x(), perGlobalPos.y(), perGlobalPos.z(), // Magnetic field
                               fx, fy, m_BMAG_FIXED);                                // at track perigee point
@@ -339,14 +313,6 @@ namespace Trk {
        VKalTransform( m_BMAG_FIXED, (double)VectPerig[0], (double)VectPerig[1],
               (double)VectPerig[2], (double)VectPerig[3], (double)VectPerig[4], CovVertTrk,
                      m_ich[ntrk],&m_apar[ntrk][0],&m_awgt[ntrk][0]);
-       if( m_mPerN ) {                                              //neutral track
-         m_ich[ntrk]=0; 
-         if(m_apar[ntrk][4]<0){ m_apar[ntrk][4]  = -m_apar[ntrk][4];      // Charge=0 is always equal to Charge=+1
-                                m_awgt[ntrk][10] = -m_awgt[ntrk][10];
-                                m_awgt[ntrk][11] = -m_awgt[ntrk][11];
-                                m_awgt[ntrk][12] = -m_awgt[ntrk][12];
-                                m_awgt[ntrk][13] = -m_awgt[ntrk][13]; }
-       }
 //std::cout<< "New="<<m_awgt[ntrk][0]<<", "<<m_awgt[ntrk][1]<<", "<<m_awgt[ntrk][2]<<", "<<m_awgt[ntrk][3]<<'\n';
 //std::cout<< "New="<<m_awgt[ntrk][11]<<", "<<m_awgt[ntrk][12]<<", "<<m_awgt[ntrk][13]<<", "<<m_awgt[ntrk][14]<<'\n';
 //std::cout<<"-------------------------------------"<<'\n';
@@ -395,50 +361,6 @@ namespace Trk {
            m_mPer = dynamic_cast<const Perigee*> (&(i_ntrk->definingParameters()));
        return m_mPer ;
   }
-
-  const Perigee* TrkVKalVrtFitter::GetPerigee( const TrackParameters* i_ntrk) 
-  {
-       const Perigee* m_mPer = 0;
-       if(i_ntrk->associatedSurface().type()==Surface::Perigee && i_ntrk->covariance()!= 0 ) 
-            m_mPer = dynamic_cast<const Perigee*> (i_ntrk);
-       return m_mPer;
-  }
-
-// Universal approach, apparently not needed anymore...
-/*  const Perigee* TrkVKalVrtFitter::GetPerigee( const Track* i_ntrk) {
-   const Perigee* m_mPer=0;
-     const DataVector<const TrackParameters>* AllTrkPar = i_ntrk->trackParameters(); 
-     DataVector<const TrackParameters>::const_iterator i_apar=AllTrkPar->begin();
-     while( i_apar != AllTrkPar->end() ){
-       if((*i_apar)->associatedSurface().type()==Surface::Perigee && (*i_apar)->covariance()!= 0 ){m_mPer=(*i_apar); break;}
-       i_apar++;
-     }
-     return m_mPer;}
-*/
-
-//------------------------------------------------------------------------------------------------
-//-- (Measured)NeutralPerigee in Trk::TrackParticleBase.   Trk::Track has ->perigeeParameters() member function 
-//--  Others not defined yet.
-//
-
-/*VK Neutral TrackParticleBase doesn't exist for the moment!!!! 
-  const NeutralPerigee* TrkVKalVrtFitter::GetNeutralPerigee( const TrackParticleBase* i_ntrk) 
-  {
-       const NeutralPerigee* m_mPer = 0;
-       if(   i_ntrk->definingParameters().associatedSurface().type() == Surface::Perigee
-          && i_ntrk->definingParameters().covariance() != 0 ) 
-           m_mPer= dynamic_cast<const NeutralPerigee*> (&(i_ntrk->definingParameters()));
-       return m_mPer ;
-  }*/
-
-  const NeutralPerigee* TrkVKalVrtFitter::GetNeutralPerigee( const NeutralParameters* i_ntrk) 
-  {
-       const NeutralPerigee* m_mPer = 0;
-       if(i_ntrk->associatedSurface().type()==Surface::Perigee && i_ntrk->covariance()!= 0 ) m_mPer=dynamic_cast<const NeutralPerigee*>(i_ntrk);
-       return m_mPer;
-  }
-
-//----------------------------------------------------------------------------------------------------------
   const TrackParameters* TrkVKalVrtFitter::GetFirstPoint(const Trk::TrackParticleBase* i_ntrk)
   {
       std::vector<const TrackParameters*>::const_iterator vpb = i_ntrk->trackParameters().begin();        
@@ -452,6 +374,17 @@ namespace Trk {
       if(!res) res=&(i_ntrk->definingParameters());  //if nothing is found - then use track defining parameters
                                                      // Perigee presumably
       return res;      
+  }
+
+
+//----------------------------------------------------------------------------------------------------------
+
+  const Perigee* TrkVKalVrtFitter::GetPerigee( const TrackParameters* i_ntrk) 
+  {
+       const Perigee* m_mPer = 0;
+       if(i_ntrk->associatedSurface().type()==Surface::Perigee && i_ntrk->covariance()!= 0 ) 
+            m_mPer = dynamic_cast<const Perigee*> (i_ntrk);
+       return m_mPer;
   }
 
 
