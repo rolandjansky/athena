@@ -102,6 +102,8 @@ class IDAlignMonResiduals : public ManagedMonitorToolBase
   void RegisterHisto(MonGroup& mon, TH2* histo);
   void RegisterHisto(MonGroup& mon, TProfile* histo);
 
+  void InitializeHistograms();
+
 
  protected:
   const ComTime *theComTime;
@@ -526,69 +528,16 @@ class IDAlignMonResiduals : public ManagedMonitorToolBase
   TH1F* m_pix_eca_residualy_fine;
   TH1F* m_pix_ecc_residualx_fine;
   TH1F* m_pix_ecc_residualy_fine;
-  TH1F* m_pix_b0_residualx;
-  TH1F* m_pix_b1_residualx;
-  TH1F* m_pix_b2_residualx;
-  TH1F* m_pix_b0_residualy;
-  TH1F* m_pix_b1_residualy;
-  TH1F* m_pix_b2_residualy;
-  TH1F* m_pix_b0_pullx;
-  TH1F* m_pix_b1_pullx;
-  TH1F* m_pix_b2_pullx;
-  TH1F* m_pix_b0_pully;
-  TH1F* m_pix_b1_pully;
-  TH1F* m_pix_b2_pully;
+ 
   TH1F* m_pix_eca_pullx;
   TH1F* m_pix_eca_pully;
   TH1F* m_pix_ecc_pullx;
   TH1F* m_pix_ecc_pully;
 
-  TH1F* m_pix_b0_top_residualx;
-  TH1F* m_pix_b0_top_residualy;
-  TH1F* m_pix_b0_btm_residualx;
-  TH1F* m_pix_b0_btm_residualy;
-  TH1F* m_pix_b1_top_residualx;
-  TH1F* m_pix_b1_top_residualy;
-  TH1F* m_pix_b1_btm_residualx;
-  TH1F* m_pix_b1_btm_residualy;
-  TH1F* m_pix_b2_top_residualx;
-  TH1F* m_pix_b2_top_residualy;
-  TH1F* m_pix_b2_btm_residualx;
-  TH1F* m_pix_b2_btm_residualy;
+  
 
-  TH3F* m_pix_b0_Oxresxvsmodetaphi_3d;
-  TH3F* m_pix_b0_Oxresyvsmodetaphi_3d;
-  TH3F* m_pix_b0_Oyresxvsmodetaphi_3d;
-  TH3F* m_pix_b0_Oyresyvsmodetaphi_3d;
-  TH3F* m_pix_b1_Oxresxvsmodetaphi_3d;
-  TH3F* m_pix_b1_Oxresyvsmodetaphi_3d;
-  TH3F* m_pix_b1_Oyresxvsmodetaphi_3d;
-  TH3F* m_pix_b1_Oyresyvsmodetaphi_3d;
-  TH3F* m_pix_b2_Oxresxvsmodetaphi_3d;
-  TH3F* m_pix_b2_Oxresyvsmodetaphi_3d;
-  TH3F* m_pix_b2_Oyresxvsmodetaphi_3d;
-  TH3F* m_pix_b2_Oyresyvsmodetaphi_3d;
-  TH3F* m_sct_b0_Oxresxvsmodetaphi_3d;
-  TH3F* m_sct_b0_Oyresxvsmodetaphi_3d;
-  TH3F* m_sct_b1_Oxresxvsmodetaphi_3d;
-  TH3F* m_sct_b1_Oyresxvsmodetaphi_3d;
-  TH3F* m_sct_b2_Oxresxvsmodetaphi_3d;
-  TH3F* m_sct_b2_Oyresxvsmodetaphi_3d;
-  TH3F* m_sct_b3_Oxresxvsmodetaphi_3d;
-  TH3F* m_sct_b3_Oyresxvsmodetaphi_3d;
-	
-  TH1F* m_pix_b0_xoverlapresidualx;
-  TH1F* m_pix_b1_xoverlapresidualx;
-  TH1F* m_pix_b2_xoverlapresidualx;
-  TH1F* m_pix_b0_yoverlapresidualx;
-  TH1F* m_pix_b1_yoverlapresidualx;
-  TH1F* m_pix_b2_yoverlapresidualx;
-  TH1F* m_pix_b0_xoverlapresidualy;
-  TH1F* m_pix_b1_xoverlapresidualy;
-  TH1F* m_pix_b2_xoverlapresidualy;
-  TH1F* m_pix_b0_yoverlapresidualy;
-  TH1F* m_pix_b1_yoverlapresidualy;
-  TH1F* m_pix_b2_yoverlapresidualy;
+  
+ 
 
   TProfile* m_pix_bec_Oxresx_mean;
   TProfile* m_pix_bec_Oyresx_mean;
@@ -607,6 +556,35 @@ class IDAlignMonResiduals : public ManagedMonitorToolBase
   TH1F* m_pix_ecc_xresvsmodphi;
   TH1F* m_pix_eca_yresvsmodphi;
   TH1F* m_pix_ecc_yresvsmodphi;
+
+
+
+
+
+  TH2F* m_pix_b_biased_residualx_pt;
+  TH2F* m_pix_b_biased_residualy_pt ;
+  TH1F* m_pix_eca_biased_residualx ;
+  TH1F* m_pix_eca_biased_residualy ;
+  TH2F* m_pix_eca_biased_residualx_pt;
+  TH2F* m_pix_eca_biased_residualy_pt;
+  TH1F* m_pix_ecc_biased_residualx ;
+  TH1F* m_pix_ecc_biased_residualy ;
+  TH2F* m_pix_ecc_biased_residualx_pt;
+  TH2F* m_pix_ecc_biased_residualy_pt;
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
 
   TH2F* m_pix_eca_xresvsmodphi_2d;
   TH2F* m_pix_ecc_xresvsmodphi_2d;
@@ -666,24 +644,6 @@ class IDAlignMonResiduals : public ManagedMonitorToolBase
   std::vector<TH2F*> m_pix_ecc_biased_xresvsmodphi_2ds;
   std::vector<TH2F*> m_pix_ecc_biased_yresvsmodphi_2ds;
 
-
-  TProfile* m_pix_eca_unbiased_xresvsmodphi_disk0;
-  TProfile* m_pix_eca_unbiased_xresvsmodphi_disk1;
-  TProfile* m_pix_eca_unbiased_xresvsmodphi_disk2;
-  TProfile* m_pix_eca_unbiased_yresvsmodphi_disk0;
-  TProfile* m_pix_eca_unbiased_yresvsmodphi_disk1;
-  TProfile* m_pix_eca_unbiased_yresvsmodphi_disk2;
-
-  TProfile* m_pix_ecc_unbiased_xresvsmodphi_disk0;
-  TProfile* m_pix_ecc_unbiased_xresvsmodphi_disk1;
-  TProfile* m_pix_ecc_unbiased_xresvsmodphi_disk2;
-  TProfile* m_pix_ecc_unbiased_yresvsmodphi_disk0;
-  TProfile* m_pix_ecc_unbiased_yresvsmodphi_disk1;
-  TProfile* m_pix_ecc_unbiased_yresvsmodphi_disk2;
-
-
-
-
   //SCT histograms
   TH1F* m_sct_b_residualx;
   TH1F* m_sct_b_residualx_fine;
@@ -692,27 +652,12 @@ class IDAlignMonResiduals : public ManagedMonitorToolBase
   TH1F* m_sct_ecc_residualx;
   TH1F* m_sct_eca_residualx_fine;
   TH1F* m_sct_ecc_residualx_fine;
-  TH1F* m_sct_b0_residualx;
-  TH1F* m_sct_b1_residualx;
-  TH1F* m_sct_b2_residualx;
-  TH1F* m_sct_b3_residualx;
-  //TH1F* m_sct_b0_residualy;
-  TH1F* m_sct_b0_pullx;
-  TH1F* m_sct_b1_pullx;
-  TH1F* m_sct_b2_pullx;
-  TH1F* m_sct_b3_pullx;
-  //TH1F* m_sct_b0_pully;
+  
+ 
+ 
   TH1F* m_sct_eca_pullx;
   TH1F* m_sct_ecc_pullx;
 
-  TH1F* m_sct_b0_xoverlapresidualx;
-  TH1F* m_sct_b1_xoverlapresidualx;
-  TH1F* m_sct_b2_xoverlapresidualx;
-  TH1F* m_sct_b3_xoverlapresidualx;
-  TH1F* m_sct_b0_yoverlapresidualx;
-  TH1F* m_sct_b1_yoverlapresidualx;
-  TH1F* m_sct_b2_yoverlapresidualx;
-  TH1F* m_sct_b3_yoverlapresidualx;
 	
   TProfile* m_sct_bec_Oxresx_mean;
   TProfile* m_sct_bec_Oyresx_mean;
@@ -734,100 +679,11 @@ class IDAlignMonResiduals : public ManagedMonitorToolBase
   TProfile* m_sct_eca_Oxresxvsmodphi;
   TProfile* m_sct_ecc_Oxresxvsmodphi;
 
-  TProfile* m_sct_eca_unbiased_xresvsmodphi_disk0;
-  TProfile* m_sct_eca_unbiased_xresvsmodphi_disk1;
-  TProfile* m_sct_eca_unbiased_xresvsmodphi_disk2;
-  TProfile* m_sct_eca_unbiased_xresvsmodphi_disk3;
-  TProfile* m_sct_eca_unbiased_xresvsmodphi_disk4;
-  TProfile* m_sct_eca_unbiased_xresvsmodphi_disk5;
-  TProfile* m_sct_eca_unbiased_xresvsmodphi_disk6;
-  TProfile* m_sct_eca_unbiased_xresvsmodphi_disk7;
-  TProfile* m_sct_eca_unbiased_xresvsmodphi_disk8;
-
-  TProfile* m_sct_ecc_unbiased_xresvsmodphi_disk0;
-  TProfile* m_sct_ecc_unbiased_xresvsmodphi_disk1;
-  TProfile* m_sct_ecc_unbiased_xresvsmodphi_disk2;
-  TProfile* m_sct_ecc_unbiased_xresvsmodphi_disk3;
-  TProfile* m_sct_ecc_unbiased_xresvsmodphi_disk4;
-  TProfile* m_sct_ecc_unbiased_xresvsmodphi_disk5;
-  TProfile* m_sct_ecc_unbiased_xresvsmodphi_disk6;
-  TProfile* m_sct_ecc_unbiased_xresvsmodphi_disk7;
-  TProfile* m_sct_ecc_unbiased_xresvsmodphi_disk8;
-
-  TProfile* m_sct_eca_BIASED_xresvsmodphi_disk0;
-  TProfile* m_sct_eca_BIASED_xresvsmodphi_disk1;
-  TProfile* m_sct_eca_BIASED_xresvsmodphi_disk2;
-  TProfile* m_sct_eca_BIASED_xresvsmodphi_disk3;
-  TProfile* m_sct_eca_BIASED_xresvsmodphi_disk4;
-  TProfile* m_sct_eca_BIASED_xresvsmodphi_disk5;
-  TProfile* m_sct_eca_BIASED_xresvsmodphi_disk6;
-  TProfile* m_sct_eca_BIASED_xresvsmodphi_disk7;
-  TProfile* m_sct_eca_BIASED_xresvsmodphi_disk8;
-
-  TProfile* m_sct_ecc_BIASED_xresvsmodphi_disk0;
-  TProfile* m_sct_ecc_BIASED_xresvsmodphi_disk1;
-  TProfile* m_sct_ecc_BIASED_xresvsmodphi_disk2;
-  TProfile* m_sct_ecc_BIASED_xresvsmodphi_disk3;
-  TProfile* m_sct_ecc_BIASED_xresvsmodphi_disk4;
-  TProfile* m_sct_ecc_BIASED_xresvsmodphi_disk5;
-  TProfile* m_sct_ecc_BIASED_xresvsmodphi_disk6;
-  TProfile* m_sct_ecc_BIASED_xresvsmodphi_disk7;
-  TProfile* m_sct_ecc_BIASED_xresvsmodphi_disk8;
 
 
   // Extended histograms
-  //Pixel
-  TH1F* m_pix_b0_biased_residualx;
-  TH1F* m_pix_b1_biased_residualx;
-  TH1F* m_pix_b2_biased_residualx;
-  TH1F* m_pix_b0_biased_residualy;
-  TH1F* m_pix_b1_biased_residualy;
-  TH1F* m_pix_b2_biased_residualy;
-  TH1F* m_pix_eca_biased_residualx;
-  TH1F* m_pix_eca_biased_residualy;
-  TH1F* m_pix_ecc_biased_residualx;
-  TH1F* m_pix_ecc_biased_residualy;
+ 
 
-  TH1F* m_pix_eca_d0_biased_residualx;
-  TH1F* m_pix_eca_d0_biased_residualy;
-  TH1F* m_pix_eca_d1_biased_residualx;
-  TH1F* m_pix_eca_d1_biased_residualy;
-  TH1F* m_pix_eca_d2_biased_residualx;
-  TH1F* m_pix_eca_d2_biased_residualy;
-  TH1F* m_pix_ecc_d0_biased_residualx;
-  TH1F* m_pix_ecc_d0_biased_residualy;
-  TH1F* m_pix_ecc_d1_biased_residualx;
-  TH1F* m_pix_ecc_d1_biased_residualy;
-  TH1F* m_pix_ecc_d2_biased_residualx;
-  TH1F* m_pix_ecc_d2_biased_residualy;
-  
-  // Pixel biased residuals vs pt
-  TH2F* m_pix_b_biased_residualx_pt;
-  TH2F* m_pix_b_biased_residualy_pt;
-  TH2F* m_pix_eca_biased_residualx_pt;
-  TH2F* m_pix_eca_biased_residualy_pt;
-  TH2F* m_pix_ecc_biased_residualx_pt;
-  TH2F* m_pix_ecc_biased_residualy_pt;
-
-  TH2F* m_pix_b0_biased_residualx_pt;
-  TH2F* m_pix_b1_biased_residualx_pt;
-  TH2F* m_pix_b2_biased_residualx_pt;
-  TH2F* m_pix_b0_biased_residualy_pt;
-  TH2F* m_pix_b1_biased_residualy_pt;
-  TH2F* m_pix_b2_biased_residualy_pt;
-
-  TH2F* m_pix_eca_d0_biased_residualx_pt;
-  TH2F* m_pix_eca_d0_biased_residualy_pt;
-  TH2F* m_pix_eca_d1_biased_residualx_pt;
-  TH2F* m_pix_eca_d1_biased_residualy_pt;
-  TH2F* m_pix_eca_d2_biased_residualx_pt;
-  TH2F* m_pix_eca_d2_biased_residualy_pt;
-  TH2F* m_pix_ecc_d0_biased_residualx_pt;
-  TH2F* m_pix_ecc_d0_biased_residualy_pt;
-  TH2F* m_pix_ecc_d1_biased_residualx_pt;
-  TH2F* m_pix_ecc_d1_biased_residualy_pt;
-  TH2F* m_pix_ecc_d2_biased_residualx_pt;
-  TH2F* m_pix_ecc_d2_biased_residualy_pt;
 
   // Pixel unbiased residuals vs pt
   TH2F* m_pix_b_residualx_pt;
@@ -836,186 +692,25 @@ class IDAlignMonResiduals : public ManagedMonitorToolBase
   TH2F* m_pix_eca_residualy_pt;
   TH2F* m_pix_ecc_residualx_pt;
   TH2F* m_pix_ecc_residualy_pt;
-
-  TH2F* m_pix_b0_residualx_pt;
-  TH2F* m_pix_b1_residualx_pt;
-  TH2F* m_pix_b2_residualx_pt;
-  TH2F* m_pix_b0_residualy_pt;
-  TH2F* m_pix_b1_residualy_pt;
-  TH2F* m_pix_b2_residualy_pt;
-
-  TH2F* m_pix_eca_d0_residualx_pt;
-  TH2F* m_pix_eca_d0_residualy_pt;
-  TH2F* m_pix_eca_d1_residualx_pt;
-  TH2F* m_pix_eca_d1_residualy_pt;
-  TH2F* m_pix_eca_d2_residualx_pt;
-  TH2F* m_pix_eca_d2_residualy_pt;
-  TH2F* m_pix_ecc_d0_residualx_pt;
-  TH2F* m_pix_ecc_d0_residualy_pt;
-  TH2F* m_pix_ecc_d1_residualx_pt;
-  TH2F* m_pix_ecc_d1_residualy_pt;
-  TH2F* m_pix_ecc_d2_residualx_pt;
-  TH2F* m_pix_ecc_d2_residualy_pt;
   
-  // versus qoverp2
-  TH2F* m_pix_b0_biased_residualx_qoverp2;
-  TH2F* m_pix_b1_biased_residualx_qoverp2;
-  TH2F* m_pix_b2_biased_residualx_qoverp2;
-  TH2F* m_pix_b0_biased_residualy_qoverp2;
-  TH2F* m_pix_b1_biased_residualy_qoverp2;
-  TH2F* m_pix_b2_biased_residualy_qoverp2;
-
-  TH2F* m_pix_eca_d0_biased_residualx_qoverp2;
-  TH2F* m_pix_eca_d0_biased_residualy_qoverp2;
-  TH2F* m_pix_eca_d1_biased_residualx_qoverp2;
-  TH2F* m_pix_eca_d1_biased_residualy_qoverp2;
-  TH2F* m_pix_eca_d2_biased_residualx_qoverp2;
-  TH2F* m_pix_eca_d2_biased_residualy_qoverp2;
-  TH2F* m_pix_ecc_d0_biased_residualx_qoverp2;
-  TH2F* m_pix_ecc_d0_biased_residualy_qoverp2;
-  TH2F* m_pix_ecc_d1_biased_residualx_qoverp2;
-  TH2F* m_pix_ecc_d1_biased_residualy_qoverp2;
-  TH2F* m_pix_ecc_d2_biased_residualx_qoverp2;
-  TH2F* m_pix_ecc_d2_biased_residualy_qoverp2;
   
-  // unbiased residual vs qoverp2
-  TH2F* m_pix_b0_unbiased_residualx_qoverp2;
-  TH2F* m_pix_b1_unbiased_residualx_qoverp2;
-  TH2F* m_pix_b2_unbiased_residualx_qoverp2;
-  TH2F* m_pix_b0_unbiased_residualy_qoverp2;
-  TH2F* m_pix_b1_unbiased_residualy_qoverp2;
-  TH2F* m_pix_b2_unbiased_residualy_qoverp2;
-
-  TH2F* m_pix_eca_d0_unbiased_residualx_qoverp2;
-  TH2F* m_pix_eca_d0_unbiased_residualy_qoverp2;
-  TH2F* m_pix_eca_d1_unbiased_residualx_qoverp2;
-  TH2F* m_pix_eca_d1_unbiased_residualy_qoverp2;
-  TH2F* m_pix_eca_d2_unbiased_residualx_qoverp2;
-  TH2F* m_pix_eca_d2_unbiased_residualy_qoverp2;
-  TH2F* m_pix_ecc_d0_unbiased_residualx_qoverp2;
-  TH2F* m_pix_ecc_d0_unbiased_residualy_qoverp2;
-  TH2F* m_pix_ecc_d1_unbiased_residualx_qoverp2;
-  TH2F* m_pix_ecc_d1_unbiased_residualy_qoverp2;
-  TH2F* m_pix_ecc_d2_unbiased_residualx_qoverp2;
-  TH2F* m_pix_ecc_d2_unbiased_residualy_qoverp2;
-
-
-  TH3F* m_pix_b0_biased_xresvsmodetaphi_3d;
-  TH3F* m_pix_b0_biased_yresvsmodetaphi_3d;
-  TH3F* m_pix_b1_biased_xresvsmodetaphi_3d;
-  TH3F* m_pix_b1_biased_yresvsmodetaphi_3d;
-  TH3F* m_pix_b2_biased_xresvsmodetaphi_3d;
-  TH3F* m_pix_b2_biased_yresvsmodetaphi_3d;
   
-  TH2F* m_pix_eca_d0_biased_xresvsmodphi_2d;
-  TH2F* m_pix_eca_d1_biased_xresvsmodphi_2d;
-  TH2F* m_pix_eca_d2_biased_xresvsmodphi_2d;
-  TH2F* m_pix_eca_d0_biased_yresvsmodphi_2d;
-  TH2F* m_pix_eca_d1_biased_yresvsmodphi_2d;
-  TH2F* m_pix_eca_d2_biased_yresvsmodphi_2d;
-  
-  TH2F* m_pix_ecc_d0_biased_xresvsmodphi_2d;
-  TH2F* m_pix_ecc_d1_biased_xresvsmodphi_2d;
-  TH2F* m_pix_ecc_d2_biased_xresvsmodphi_2d;
-  TH2F* m_pix_ecc_d0_biased_yresvsmodphi_2d;
-  TH2F* m_pix_ecc_d1_biased_yresvsmodphi_2d;
-  TH2F* m_pix_ecc_d2_biased_yresvsmodphi_2d;
-  
-  TH3F* m_sct_b0_s0_biased_xresvsmodetaphi_3d;
-  TH3F* m_sct_b1_s0_biased_xresvsmodetaphi_3d;
-  TH3F* m_sct_b2_s0_biased_xresvsmodetaphi_3d;
-  TH3F* m_sct_b3_s0_biased_xresvsmodetaphi_3d;
- 
-  TH3F* m_sct_b0_s1_biased_xresvsmodetaphi_3d;
-  TH3F* m_sct_b1_s1_biased_xresvsmodetaphi_3d;
-  TH3F* m_sct_b2_s1_biased_xresvsmodetaphi_3d;
-  TH3F* m_sct_b3_s1_biased_xresvsmodetaphi_3d;
-  
-  TH3F* m_sct_eca_d0_s0_biased_xresvsmodetaphi_3d;
-  TH3F* m_sct_eca_d1_s0_biased_xresvsmodetaphi_3d;
-  TH3F* m_sct_eca_d2_s0_biased_xresvsmodetaphi_3d;
-  TH3F* m_sct_eca_d3_s0_biased_xresvsmodetaphi_3d;
-  TH3F* m_sct_eca_d4_s0_biased_xresvsmodetaphi_3d;
-  TH3F* m_sct_eca_d5_s0_biased_xresvsmodetaphi_3d;
-  TH3F* m_sct_eca_d6_s0_biased_xresvsmodetaphi_3d;
-  TH3F* m_sct_eca_d7_s0_biased_xresvsmodetaphi_3d;
-  TH3F* m_sct_eca_d8_s0_biased_xresvsmodetaphi_3d;
-  TH3F* m_sct_ecc_d0_s0_biased_xresvsmodetaphi_3d;
-  TH3F* m_sct_ecc_d1_s0_biased_xresvsmodetaphi_3d;
-  TH3F* m_sct_ecc_d2_s0_biased_xresvsmodetaphi_3d;
-  TH3F* m_sct_ecc_d3_s0_biased_xresvsmodetaphi_3d;
-  TH3F* m_sct_ecc_d4_s0_biased_xresvsmodetaphi_3d;
-  TH3F* m_sct_ecc_d5_s0_biased_xresvsmodetaphi_3d;
-  TH3F* m_sct_ecc_d6_s0_biased_xresvsmodetaphi_3d;
-  TH3F* m_sct_ecc_d7_s0_biased_xresvsmodetaphi_3d;
-  TH3F* m_sct_ecc_d8_s0_biased_xresvsmodetaphi_3d;
-
-  TH3F* m_sct_eca_d0_s1_biased_xresvsmodetaphi_3d;
-  TH3F* m_sct_eca_d1_s1_biased_xresvsmodetaphi_3d;
-  TH3F* m_sct_eca_d2_s1_biased_xresvsmodetaphi_3d;
-  TH3F* m_sct_eca_d3_s1_biased_xresvsmodetaphi_3d;
-  TH3F* m_sct_eca_d4_s1_biased_xresvsmodetaphi_3d;
-  TH3F* m_sct_eca_d5_s1_biased_xresvsmodetaphi_3d;
-  TH3F* m_sct_eca_d6_s1_biased_xresvsmodetaphi_3d;
-  TH3F* m_sct_eca_d7_s1_biased_xresvsmodetaphi_3d;
-  TH3F* m_sct_eca_d8_s1_biased_xresvsmodetaphi_3d;
-  TH3F* m_sct_ecc_d0_s1_biased_xresvsmodetaphi_3d;
-  TH3F* m_sct_ecc_d1_s1_biased_xresvsmodetaphi_3d;
-  TH3F* m_sct_ecc_d2_s1_biased_xresvsmodetaphi_3d;
-  TH3F* m_sct_ecc_d3_s1_biased_xresvsmodetaphi_3d;
-  TH3F* m_sct_ecc_d4_s1_biased_xresvsmodetaphi_3d;
-  TH3F* m_sct_ecc_d5_s1_biased_xresvsmodetaphi_3d;
-  TH3F* m_sct_ecc_d6_s1_biased_xresvsmodetaphi_3d;
-  TH3F* m_sct_ecc_d7_s1_biased_xresvsmodetaphi_3d;
-  TH3F* m_sct_ecc_d8_s1_biased_xresvsmodetaphi_3d;  
-  // Pixel halfshell residuals
-  TH1F* m_pix_b0_top_biased_residualx;
-  TH1F* m_pix_b0_top_biased_residualy;
-  TH1F* m_pix_b0_btm_biased_residualx;
-  TH1F* m_pix_b0_btm_biased_residualy;
-  TH1F* m_pix_b1_top_biased_residualx;
-  TH1F* m_pix_b1_top_biased_residualy;
-  TH1F* m_pix_b1_btm_biased_residualx;
-  TH1F* m_pix_b1_btm_biased_residualy;
-  TH1F* m_pix_b2_top_biased_residualx;
-  TH1F* m_pix_b2_top_biased_residualy;
-  TH1F* m_pix_b2_btm_biased_residualx;
-  TH1F* m_pix_b2_btm_biased_residualy;
   
   TH1F* m_sct_b_biased_residualx;
-  TH1F* m_sct_b0_biased_residualx; 	
-  TH1F* m_sct_b1_biased_residualx;	
-  TH1F* m_sct_b2_biased_residualx;	
-  TH1F* m_sct_b3_biased_residualx;	
-  
+ 
   TH2F* m_sct_b_biased_residualx_pt;
-  TH2F* m_sct_b0_biased_residualx_pt;	
-  TH2F* m_sct_b1_biased_residualx_pt;	
-  TH2F* m_sct_b2_biased_residualx_pt;
-  TH2F* m_sct_b3_biased_residualx_pt;
+  
 
   TH2F* m_sct_b_residualx_pt;
-  TH2F* m_sct_b0_residualx_pt;	
-  TH2F* m_sct_b1_residualx_pt;	
-  TH2F* m_sct_b2_residualx_pt;
-  TH2F* m_sct_b3_residualx_pt;
+ 
  
   TH2F* m_sct_b_biased_residualx_qoverp2;
-  TH2F* m_sct_b0_biased_residualx_qoverp2;	
-  TH2F* m_sct_b1_biased_residualx_qoverp2;	
-  TH2F* m_sct_b2_biased_residualx_qoverp2;
-  TH2F* m_sct_b3_biased_residualx_qoverp2;
+ 
 
   TH2F* m_sct_b_unbiased_residualx_qoverp2;
-  TH2F* m_sct_b0_unbiased_residualx_qoverp2;	
-  TH2F* m_sct_b1_unbiased_residualx_qoverp2;	
-  TH2F* m_sct_b2_unbiased_residualx_qoverp2;
-  TH2F* m_sct_b3_unbiased_residualx_qoverp2;
+ 
     
-  TH1F* m_sct_b0_biased_pullx; 	
-  TH1F* m_sct_b1_biased_pullx;	
-  TH1F* m_sct_b2_biased_pullx;	
-  TH1F* m_sct_b3_biased_pullx;	
+  
   TH1F* m_sct_eca_biased_residualx;	
   TH1F* m_sct_eca_biased_residualy;	
   TH1F* m_sct_ecc_biased_residualx;	
@@ -1032,101 +727,9 @@ class IDAlignMonResiduals : public ManagedMonitorToolBase
 
   TH2F* m_sct_eca_unbiased_residualx_qoverp2;	
   TH2F* m_sct_ecc_unbiased_residualx_qoverp2;	
-    
-  TH1F* m_sct_eca_d0_biased_residualx;
-  TH1F* m_sct_eca_d1_biased_residualx;
-  TH1F* m_sct_eca_d2_biased_residualx;
-  TH1F* m_sct_eca_d3_biased_residualx;
-  TH1F* m_sct_eca_d4_biased_residualx;
-  TH1F* m_sct_eca_d5_biased_residualx;
-  TH1F* m_sct_eca_d6_biased_residualx;
-  TH1F* m_sct_eca_d7_biased_residualx;
-  TH1F* m_sct_eca_d8_biased_residualx;
-  TH1F* m_sct_ecc_d0_biased_residualx;
-  TH1F* m_sct_ecc_d1_biased_residualx;
-  TH1F* m_sct_ecc_d2_biased_residualx;
-  TH1F* m_sct_ecc_d3_biased_residualx;
-  TH1F* m_sct_ecc_d4_biased_residualx;
-  TH1F* m_sct_ecc_d5_biased_residualx;
-  TH1F* m_sct_ecc_d6_biased_residualx;
-  TH1F* m_sct_ecc_d7_biased_residualx;
-  TH1F* m_sct_ecc_d8_biased_residualx;
+   
   
-  TH2F* m_sct_eca_d0_biased_residualx_pt;
-  TH2F* m_sct_eca_d1_biased_residualx_pt;
-  TH2F* m_sct_eca_d2_biased_residualx_pt;
-  TH2F* m_sct_eca_d3_biased_residualx_pt;
-  TH2F* m_sct_eca_d4_biased_residualx_pt;
-  TH2F* m_sct_eca_d5_biased_residualx_pt;
-  TH2F* m_sct_eca_d6_biased_residualx_pt;
-  TH2F* m_sct_eca_d7_biased_residualx_pt;
-  TH2F* m_sct_eca_d8_biased_residualx_pt;
-  TH2F* m_sct_ecc_d0_biased_residualx_pt;
-  TH2F* m_sct_ecc_d1_biased_residualx_pt;
-  TH2F* m_sct_ecc_d2_biased_residualx_pt;
-  TH2F* m_sct_ecc_d3_biased_residualx_pt;
-  TH2F* m_sct_ecc_d4_biased_residualx_pt;
-  TH2F* m_sct_ecc_d5_biased_residualx_pt;
-  TH2F* m_sct_ecc_d6_biased_residualx_pt;
-  TH2F* m_sct_ecc_d7_biased_residualx_pt;
-  TH2F* m_sct_ecc_d8_biased_residualx_pt;
 
-  TH2F* m_sct_eca_d0_residualx_pt;
-  TH2F* m_sct_eca_d1_residualx_pt;
-  TH2F* m_sct_eca_d2_residualx_pt;
-  TH2F* m_sct_eca_d3_residualx_pt;
-  TH2F* m_sct_eca_d4_residualx_pt;
-  TH2F* m_sct_eca_d5_residualx_pt;
-  TH2F* m_sct_eca_d6_residualx_pt;
-  TH2F* m_sct_eca_d7_residualx_pt;
-  TH2F* m_sct_eca_d8_residualx_pt;
-  TH2F* m_sct_ecc_d0_residualx_pt;
-  TH2F* m_sct_ecc_d1_residualx_pt;
-  TH2F* m_sct_ecc_d2_residualx_pt;
-  TH2F* m_sct_ecc_d3_residualx_pt;
-  TH2F* m_sct_ecc_d4_residualx_pt;
-  TH2F* m_sct_ecc_d5_residualx_pt;
-  TH2F* m_sct_ecc_d6_residualx_pt;
-  TH2F* m_sct_ecc_d7_residualx_pt;
-  TH2F* m_sct_ecc_d8_residualx_pt;
-  
-  TH2F* m_sct_eca_d0_biased_residualx_qoverp2;
-  TH2F* m_sct_eca_d1_biased_residualx_qoverp2;
-  TH2F* m_sct_eca_d2_biased_residualx_qoverp2;
-  TH2F* m_sct_eca_d3_biased_residualx_qoverp2;
-  TH2F* m_sct_eca_d4_biased_residualx_qoverp2;
-  TH2F* m_sct_eca_d5_biased_residualx_qoverp2;
-  TH2F* m_sct_eca_d6_biased_residualx_qoverp2;
-  TH2F* m_sct_eca_d7_biased_residualx_qoverp2;
-  TH2F* m_sct_eca_d8_biased_residualx_qoverp2;
-  TH2F* m_sct_ecc_d0_biased_residualx_qoverp2;
-  TH2F* m_sct_ecc_d1_biased_residualx_qoverp2;
-  TH2F* m_sct_ecc_d2_biased_residualx_qoverp2;
-  TH2F* m_sct_ecc_d3_biased_residualx_qoverp2;
-  TH2F* m_sct_ecc_d4_biased_residualx_qoverp2;
-  TH2F* m_sct_ecc_d5_biased_residualx_qoverp2;
-  TH2F* m_sct_ecc_d6_biased_residualx_qoverp2;
-  TH2F* m_sct_ecc_d7_biased_residualx_qoverp2;
-  TH2F* m_sct_ecc_d8_biased_residualx_qoverp2;
-
-  TH2F* m_sct_eca_d0_unbiased_residualx_qoverp2;
-  TH2F* m_sct_eca_d1_unbiased_residualx_qoverp2;
-  TH2F* m_sct_eca_d2_unbiased_residualx_qoverp2;
-  TH2F* m_sct_eca_d3_unbiased_residualx_qoverp2;
-  TH2F* m_sct_eca_d4_unbiased_residualx_qoverp2;
-  TH2F* m_sct_eca_d5_unbiased_residualx_qoverp2;
-  TH2F* m_sct_eca_d6_unbiased_residualx_qoverp2;
-  TH2F* m_sct_eca_d7_unbiased_residualx_qoverp2;
-  TH2F* m_sct_eca_d8_unbiased_residualx_qoverp2;
-  TH2F* m_sct_ecc_d0_unbiased_residualx_qoverp2;
-  TH2F* m_sct_ecc_d1_unbiased_residualx_qoverp2;
-  TH2F* m_sct_ecc_d2_unbiased_residualx_qoverp2;
-  TH2F* m_sct_ecc_d3_unbiased_residualx_qoverp2;
-  TH2F* m_sct_ecc_d4_unbiased_residualx_qoverp2;
-  TH2F* m_sct_ecc_d5_unbiased_residualx_qoverp2;
-  TH2F* m_sct_ecc_d6_unbiased_residualx_qoverp2;
-  TH2F* m_sct_ecc_d7_unbiased_residualx_qoverp2;
-  TH2F* m_sct_ecc_d8_unbiased_residualx_qoverp2;
     
     
   // Local positions (extrapolated)
@@ -1183,52 +786,7 @@ class IDAlignMonResiduals : public ManagedMonitorToolBase
   TH2F* m_pix_ecc_pullx_pt;
   TH2F* m_pix_ecc_pully_pt;
 
-  TH2F* m_pix_b0_pullx_pt;
-  TH2F* m_pix_b1_pullx_pt;
-  TH2F* m_pix_b2_pullx_pt;
-  TH2F* m_pix_b0_pully_pt;
-  TH2F* m_pix_b1_pully_pt;
-  TH2F* m_pix_b2_pully_pt;
-
-  TH2F* m_pix_eca_d0_pullx_pt;
-  TH2F* m_pix_eca_d0_pully_pt;
-  TH2F* m_pix_eca_d1_pullx_pt;
-  TH2F* m_pix_eca_d1_pully_pt;
-  TH2F* m_pix_eca_d2_pullx_pt;
-  TH2F* m_pix_eca_d2_pully_pt;
-  TH2F* m_pix_ecc_d0_pullx_pt;
-  TH2F* m_pix_ecc_d0_pully_pt;
-  TH2F* m_pix_ecc_d1_pullx_pt;
-  TH2F* m_pix_ecc_d1_pully_pt;
-  TH2F* m_pix_ecc_d2_pullx_pt;
-  TH2F* m_pix_ecc_d2_pully_pt;
-
-  // SCT
-  
-  TH2F* m_sct_b0_pullx_pt;	
-  TH2F* m_sct_b1_pullx_pt;	
-  TH2F* m_sct_b2_pullx_pt;
-  TH2F* m_sct_b3_pullx_pt;
-
-    
-  TH2F* m_sct_eca_d0_pullx_pt;
-  TH2F* m_sct_eca_d1_pullx_pt;
-  TH2F* m_sct_eca_d2_pullx_pt;
-  TH2F* m_sct_eca_d3_pullx_pt;
-  TH2F* m_sct_eca_d4_pullx_pt;
-  TH2F* m_sct_eca_d5_pullx_pt;
-  TH2F* m_sct_eca_d6_pullx_pt;
-  TH2F* m_sct_eca_d7_pullx_pt;
-  TH2F* m_sct_eca_d8_pullx_pt;
-  TH2F* m_sct_ecc_d0_pullx_pt;
-  TH2F* m_sct_ecc_d1_pullx_pt;
-  TH2F* m_sct_ecc_d2_pullx_pt;
-  TH2F* m_sct_ecc_d3_pullx_pt;
-  TH2F* m_sct_ecc_d4_pullx_pt;
-  TH2F* m_sct_ecc_d5_pullx_pt;
-  TH2F* m_sct_ecc_d6_pullx_pt;
-  TH2F* m_sct_ecc_d7_pullx_pt;
-  TH2F* m_sct_ecc_d8_pullx_pt;
+ 
 
   /**====================================
    //TRT histograms

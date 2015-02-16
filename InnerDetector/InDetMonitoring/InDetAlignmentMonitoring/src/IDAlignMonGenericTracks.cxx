@@ -60,21 +60,33 @@
 
 IDAlignMonGenericTracks::IDAlignMonGenericTracks( const std::string & type, const std::string & name, const IInterface* parent )
        :ManagedMonitorToolBase( type, name, parent ),
-        m_Pi(3.14156),
+	m_idHelper(0),
+	m_pixelID(0),
+	m_sctID(0),
+	m_trtID(0),
+	m_Pi(3.14156),
+	m_events(0),
+	m_histosBooked(0),
         m_tracksName("ExtendedTracks"),
         m_triggerChainName("NoTriggerSelection"),
         m_barrelEta(0.8),
+	m_vertices(0),
+	m_doHitQuality(0),
 	m_d0Range(2.0),
 	m_z0Range(250.0),
 	m_NTracksRange(200),
         m_beamCondSvc("BeamCondSvc",name),
         m_trackToVertexIPEstimator("Trk::TrackToVertexIPEstimator"), 
-        m_etapTWeight(0)
+	m_hWeightInFile(0),
+	m_etapTWeight(0)
+	
 {
   m_trackSelection = ToolHandle< InDetAlignMon::TrackSelectionTool >("InDetAlignMon::TrackSelectionTool");
   m_hitQualityTool = ToolHandle<IInDetAlignHitQualSelTool>("");
  
   m_pTRange = 100.0;
+  
+  InitializeHistograms();
   
   declareProperty("tracksName"           , m_tracksName);
   declareProperty("CheckRate"            , m_checkrate=1000);
@@ -99,6 +111,318 @@ IDAlignMonGenericTracks::IDAlignMonGenericTracks( const std::string & type, cons
 
 
 IDAlignMonGenericTracks::~IDAlignMonGenericTracks() { }
+
+
+void IDAlignMonGenericTracks::InitializeHistograms() {
+  
+  m_summary = 0;
+  
+  m_trk_chi2oDoF = 0;
+  m_trk_chi2Prob = 0;
+
+
+
+  //Histo for self beam spot calculatio = 0n
+  m_trk_d0_vs_phi0_z0 = 0;
+
+  // barrel
+  m_trk_d0_barrel = 0;
+  m_trk_d0_barrel_zoomin = 0;
+  m_trk_d0c_barrel = 0;
+  m_trk_z0_barrel = 0;
+  m_trk_z0_barrel_zoomin = 0;
+  m_trk_qopT_vs_phi_barrel = 0;
+  m_trk_d0_vs_phi_barrel = 0;
+  m_trk_d0_vs_z0_barrel = 0;
+  m_trk_phi0_neg_barrel = 0;
+  m_trk_phi0_pos_barrel = 0;
+  m_trk_phi0_asym_barrel = 0;
+  m_trk_pT_neg_barrel = 0;
+  m_trk_pT_pos_barrel = 0;
+  m_trk_pT_asym_barrel = 0;
+  m_npixhits_per_track_barrel = 0;
+  m_nscthits_per_track_barrel = 0;
+  m_ntrthits_per_track_barrel = 0;
+  m_chi2oDoF_barrel = 0;
+  m_phi_barrel = 0;
+  m_hitMap_barrel = 0;
+  m_hitMap_endcapA = 0;
+  m_hitMap_endcapC = 0;
+
+  m_trk_d0_vs_phi_vs_eta_barrel = 0;
+  m_trk_pT_vs_eta_barrel = 0;
+  m_trk_d0_wrtPV_vs_phi_vs_eta_barrel = 0;
+  m_trk_z0_wrtPV_vs_phi_vs_eta_barrel = 0;
+
+  // endcap A
+  m_trk_d0_eca = 0 ;
+  m_trk_d0_eca_zoomin = 0 ;
+  m_trk_d0c_eca = 0;
+  m_trk_z0_eca = 0;
+  m_trk_z0_eca_zoomin = 0;
+  m_trk_qopT_vs_phi_eca = 0;
+  m_trk_d0_vs_phi_eca = 0;
+  m_trk_d0_vs_z0_eca = 0;
+  m_trk_phi0_neg_eca = 0;
+  m_trk_phi0_pos_eca = 0;
+  m_trk_phi0_asym_eca = 0;
+  m_trk_pT_neg_eca = 0;
+  m_trk_pT_pos_eca = 0;
+  m_trk_pT_asym_eca = 0;
+  m_npixhits_per_track_eca = 0;
+  m_nscthits_per_track_eca = 0;
+  m_ntrthits_per_track_eca = 0;
+  m_chi2oDoF_eca = 0;
+  m_phi_eca = 0;
+
+  m_trk_d0_vs_phi_vs_eta_eca = 0;
+  m_trk_pT_vs_eta_eca = 0;
+  m_trk_d0_wrtPV_vs_phi_vs_eta_eca = 0;
+  m_trk_z0_wrtPV_vs_phi_vs_eta_eca = 0;
+
+
+  // endcap C
+  m_trk_d0_ecc = 0;
+  m_trk_d0_ecc_zoomin = 0;
+  m_trk_d0c_ecc = 0;
+  m_trk_z0_ecc = 0;
+  m_trk_z0_ecc_zoomin = 0;
+  m_trk_qopT_vs_phi_ecc = 0;
+  m_trk_d0_vs_phi_ecc = 0;
+  m_trk_d0_vs_z0_ecc = 0;
+  m_trk_phi0_neg_ecc = 0;
+  m_trk_phi0_pos_ecc = 0;
+  m_trk_phi0_asym_ecc = 0;
+  m_trk_pT_neg_ecc = 0;
+  m_trk_pT_pos_ecc = 0;
+  m_trk_pT_asym_ecc = 0;
+  m_npixhits_per_track_ecc = 0;
+  m_nscthits_per_track_ecc = 0;
+  m_ntrthits_per_track_ecc = 0;
+  m_chi2oDoF_ecc = 0;
+  m_phi_ecc = 0;
+
+  m_trk_d0_vs_phi_vs_eta_ecc = 0;
+  m_trk_pT_vs_eta_ecc = 0;
+
+  m_trk_d0_wrtPV_vs_phi_vs_eta_ecc = 0;
+  m_trk_z0_wrtPV_vs_phi_vs_eta_ecc = 0;
+
+  // Whole detector
+
+
+  m_nhits_per_event = 0;
+  m_nhits_per_track = 0;
+  m_ntrk = 0;
+  m_ngtrk = 0;
+  m_npixhits_per_track = 0;
+  m_nscthits_per_track = 0;
+  m_ntrthits_per_track = 0;
+  m_chi2oDoF = 0;
+  m_eta = 0;
+  m_phi = 0;
+  m_z0 = 0;
+  m_z0sintheta = 0;
+  m_z0_pvcorr = 0;
+  m_z0sintheta_pvcorr = 0;
+  m_d0 = 0;
+  m_d0_pvcorr = 0;
+  m_d0_bscorr = 0;
+  m_pT = 0;
+  m_pTRes = 0;
+  m_pTResOverP = 0;
+  m_P = 0;
+  
+  m_trk_d0_vs_phi_vs_eta = 0;
+  m_trk_pT_vs_eta = 0;
+  
+  m_trk_d0_wrtPV_vs_phi_vs_eta = 0;
+  m_trk_z0_wrtPV_vs_phi_vs_eta = 0;
+
+
+  // extended plots
+  m_trk_PIXvSCTHits = 0;
+  m_trk_PIXHitsvEta = 0;
+  m_trk_SCTHitsvEta = 0;
+  m_trk_TRTHitsvEta = 0;
+  m_trk_chi2oDoF_Phi = 0;
+  m_trk_chi2oDoF_Pt = 0;
+  m_trk_chi2oDoF_P = 0;
+  m_trk_chi2ProbDist = 0;
+  m_errCotTheta = 0;
+  m_errCotThetaVsD0BS = 0;
+  m_errCotThetaVsPt = 0;
+  m_errCotThetaVsP = 0;
+  m_errCotThetaVsPhi = 0;
+  m_errCotThetaVsEta = 0;
+  m_errTheta = 0;
+  m_errThetaVsD0BS = 0;
+  m_errThetaVsPt = 0;
+  m_errThetaVsP = 0;
+  m_errThetaVsPhi = 0;
+  m_errThetaVsEta = 0;
+  m_errD0 = 0;
+  m_errD0VsD0BS = 0;
+  m_errD0VsPt = 0;
+  m_errD0VsP = 0;
+  m_errD0VsPhi = 0;
+  m_errD0VsPhiBarrel = 0;
+  m_errD0VsPhiECA = 0;
+  m_errD0VsPhiECC = 0;
+  m_errD0VsEta = 0;
+  m_errPhi0 = 0;
+  m_errPhi0VsD0BS = 0;
+  m_errPhi0VsPt = 0;
+  m_errPhi0VsP = 0;
+  m_errPhi0VsPhi0 = 0;
+  m_errPhi0VsEta = 0;
+  m_errZ0 = 0;
+  m_errZ0VsD0BS = 0;
+  m_errZ0VsPt = 0;
+  m_errZ0VsP = 0;
+  m_errZ0VsPhi0 = 0;
+  m_errZ0VsEta = 0;
+  m_errPt = 0;
+  m_PtVsPhi0Pos = 0;
+  m_PtVsPhi0Neg = 0;
+  m_errPtVsD0BS = 0;
+  m_errPtVsPt = 0;
+  m_errPtVsP = 0;
+  m_errPt_Pt2 = 0;
+  m_errPt_Pt2VsPt = 0;
+  m_errPt_Pt2VsPhi0 = 0;
+  m_errPt_Pt2VsEta = 0;
+  m_errPtVsPhi0 = 0;
+  m_errPtVsEta = 0;
+  
+  m_D0VsPhi0 = 0;
+  m_Z0VsEta = 0;
+  m_QoverPtVsPhi0 = 0;
+  m_QoverPtVsEta = 0;
+  m_QPtVsPhi0 = 0;
+  m_QPtVsEta = 0;
+       
+  //BeamSpot Plot = 0s
+
+  m_D0bsVsPhi0 = 0;
+  m_D0bsVsPhi0ECC = 0;
+  m_D0bsVsPhi0ECA = 0;
+  m_D0bsVsPhi0Barrel = 0;
+  m_D0bsVsEta = 0;
+  m_D0bsVsPt = 0;
+  m_D0bsVsPtECC = 0;
+  m_D0bsVsPtECA = 0;
+  m_D0bsVsPtBarrel = 0;
+
+
+  //BeamSpot Position Plot = 0s
+
+  m_YBs_vs_XBs = 0;
+  m_YBs_vs_ZBs = 0;
+  m_XBs_vs_ZBs = 0;
+
+  m_XBs = 0;
+  m_YBs = 0;
+  m_ZBs = 0;
+  m_TiltX_Bs = 0;
+  m_TiltY_Bs = 0;
+
+  //versus lumibloc = 0k
+  m_XBs_vs_LumiBlock = 0;
+  m_YBs_vs_LumiBlock = 0;
+  m_ZBs_vs_LumiBlock = 0;
+  m_BeamSpotTiltX_vs_LumiBlock = 0;
+  m_BeamSpotTiltY_vs_LumiBlock = 0;
+  
+  // End of extended plots
+  
+  m_phi_barrel_pos_2_5GeV = 0;
+  m_phi_barrel_pos_5_10GeV = 0;
+  m_phi_barrel_pos_10_20GeV = 0;
+  m_phi_barrel_pos_20plusGeV = 0;
+  m_phi_barrel_neg_2_5GeV = 0;
+  m_phi_barrel_neg_5_10GeV = 0;
+  m_phi_barrel_neg_10_20GeV = 0;
+  m_phi_barrel_neg_20plusGeV = 0;
+
+  m_phi_eca_pos_2_5GeV = 0;
+  m_phi_eca_pos_5_10GeV = 0;
+  m_phi_eca_pos_10_20GeV = 0;
+  m_phi_eca_pos_20plusGeV = 0;
+  m_phi_eca_neg_2_5GeV = 0;
+  m_phi_eca_neg_5_10GeV = 0;
+  m_phi_eca_neg_10_20GeV = 0;
+  m_phi_eca_neg_20plusGeV = 0;
+
+  m_phi_ecc_pos_2_5GeV = 0;
+  m_phi_ecc_pos_5_10GeV = 0;
+  m_phi_ecc_pos_10_20GeV = 0;
+  m_phi_ecc_pos_20plusGeV = 0;
+  m_phi_ecc_neg_2_5GeV = 0;
+  m_phi_ecc_neg_5_10GeV = 0;
+  m_phi_ecc_neg_10_20GeV = 0;
+  m_phi_ecc_neg_20plusGeV = 0;
+
+  m_eta_phi_pos_2_5GeV = 0;
+  m_eta_phi_pos_5_10GeV = 0;
+  m_eta_phi_pos_10_20GeV = 0;
+  m_eta_phi_pos_20plusGeV = 0;
+  m_eta_phi_neg_2_5GeV = 0;
+  m_eta_phi_neg_5_10GeV = 0;
+  m_eta_phi_neg_10_20GeV = 0;
+  m_eta_phi_neg_20plusGeV = 0;
+
+  m_Zmumu = 0;
+  m_Zmumu_barrel = 0;
+  m_Zmumu_eca = 0;
+  m_Zmumu_ecc = 0;
+  m_Zmumu_barrel_eca = 0;
+  m_Zmumu_barrel_ecc = 0;
+  m_ZpT_n = 0;
+  m_ZpT_p = 0;
+  m_ZpT_diff = 0;
+
+  m_pT_n = 0;
+  m_pT_p = 0;
+  m_pT_diff = 0;
+  m_trk_pT_asym = 0;
+
+  m_eta_neg = 0;
+  m_eta_pos = 0;
+  m_eta_asym = 0;
+
+  m_LumiBlock = 0;
+  m_Tracks_per_LumiBlock = 0;
+
+  m_trk_d0c_pos = 0;
+  m_trk_d0c_neg = 0;
+  m_trk_d0c_pos_barrel = 0;
+  m_trk_d0c_neg_barrel = 0;
+  m_trk_d0c_pos_eca = 0;
+  m_trk_d0c_neg_eca = 0;
+  m_trk_d0c_pos_ecc = 0;
+  m_trk_d0c_neg_ecc = 0;
+  m_trk_d0c_asym = 0;
+  m_trk_d0c_asym_barrel = 0;
+  m_trk_d0c_asym_eca = 0;
+  m_trk_d0c_asym_ecc = 0;
+
+  m_trk_z0c_pos = 0;
+  m_trk_z0c_neg = 0;
+  m_trk_z0c_pos_barrel = 0;
+  m_trk_z0c_neg_barrel = 0;
+  m_trk_z0c_pos_eca = 0;
+  m_trk_z0c_neg_eca = 0;
+  m_trk_z0c_pos_ecc = 0;
+  m_trk_z0c_neg_ecc = 0;
+  m_trk_z0c_asym = 0;
+  m_trk_z0c_asym_barrel = 0;
+  m_trk_z0c_asym_eca = 0;
+  m_trk_z0c_asym_ecc = 0;
+
+}
+
+
 
 
 StatusCode IDAlignMonGenericTracks::initialize()

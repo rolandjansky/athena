@@ -216,6 +216,7 @@ IDAlignMonResiduals::IDAlignMonResiduals( const std::string & type, const std::s
   theComTime(0),
   m_comTimeObjectName("ComTime"),
   m_trtcaldbSvc("TRT_CalDbSvc",name),
+  m_hWeightInFile(0),
   m_etapTWeight(0) 
 {
 	m_iUpdator               = ToolHandle<Trk::IUpdator>("Trk::KalmanUpdator");
@@ -255,8 +256,12 @@ IDAlignMonResiduals::IDAlignMonResiduals( const std::string & type, const std::s
 	m_doClusterSizeHistos   = false;
 	m_FinerBinningFactor    = 1;
 	
+	
 	m_gap_pix = 4;
 	m_gap_sct = 4;
+
+	InitializeHistograms();
+	
 	
 	declareProperty("tracksName"                , m_tracksName);
 	declareProperty("CheckRate"                 , m_checkrate=1000);
@@ -300,6 +305,250 @@ IDAlignMonResiduals::IDAlignMonResiduals( const std::string & type, const std::s
 IDAlignMonResiduals::~IDAlignMonResiduals() {
 	delete m_trt_b_hist;
 	delete m_trt_ec_hist;
+}
+
+
+void IDAlignMonResiduals::InitializeHistograms()
+{
+  
+  m_totalEvents = 0;
+  m_sirescalcfailure =0;
+  m_pix_eca_xresvsmodphidisk_3d = 0;
+  m_pix_ecc_xresvsmodphidisk_3d = 0;
+  m_pix_eca_yresvsmodphidisk_3d = 0;
+  m_pix_ecc_yresvsmodphidisk_3d = 0;
+  m_dbm_xresvsmodphi_2d = 0;
+  m_sct_b_pullx_pt = 0;
+  m_sct_eca_pullx_pt = 0       ;
+  m_sct_ecc_pullx_pt = 0;
+  m_sct_b0_xresvsmodetaphi_3d = 0;
+  m_sct_b1_xresvsmodetaphi_3d = 0;
+  m_sct_b2_xresvsmodetaphi_3d = 0;
+  m_sct_b3_xresvsmodetaphi_3d = 0;
+
+  m_si_residualx = 0;
+  m_si_b_residualx = 0;
+
+  m_si_barrel_resX_mean = 0;
+  m_si_eca_resX_mean = 0;
+  m_si_ecc_resX_mean = 0;
+  m_si_barrel_resY_mean = 0;
+  m_si_eca_resY_mean = 0;
+  m_si_ecc_resY_mean = 0;
+
+  m_si_barrel_resX_mean_profile = 0;
+  m_si_barrel_resY_mean_profile = 0;
+
+
+  m_si_barrel_resX_rms = 0;
+  m_si_eca_resX_rms = 0;
+  m_si_ecc_resX_rms = 0;
+  m_si_barrel_resY_rms = 0;
+  m_si_eca_resY_rms = 0;
+  m_si_ecc_resY_rms = 0;
+
+  m_si_barrel_pullX = 0;
+  m_si_eca_pullX = 0;
+  m_si_ecc_pullX = 0;
+  m_si_barrel_pullY = 0;
+  m_si_eca_pullY = 0;
+  m_si_ecc_pullY = 0;
+
+  m_si_barrel_resX = 0;
+  m_si_eca_resX = 0;
+  m_si_ecc_resX = 0;
+  m_si_barrel_resY = 0;
+  m_si_eca_resY = 0;
+  m_si_ecc_resY = 0;
+
+  m_si_barrel_pullX_width = 0;
+  m_si_eca_pullX_width = 0;
+  m_si_ecc_pullX_width = 0;
+  m_si_barrel_pullY_width = 0;
+  m_si_eca_pullY_width = 0;
+  m_si_ecc_pullY_width = 0;
+
+  m_si_barrel_pullX_mean = 0;
+  m_si_eca_pullX_mean = 0;
+  m_si_ecc_pullX_mean = 0;
+  m_si_barrel_pullY_mean = 0;
+  m_si_eca_pullY_mean = 0;
+  m_si_ecc_pullY_mean = 0;
+  m_pix_b_residualx = 0;
+  m_pix_b_residualy = 0;
+  m_pix_b_residualx_fine = 0;
+  m_pix_b_residualy_fine = 0;
+  m_pix_b_biased_residualx = 0;
+  m_pix_b_biased_residualy = 0;
+  m_pix_eca_residualx = 0;
+  m_pix_eca_residualy = 0;
+  m_pix_ecc_residualx = 0;
+  m_pix_ecc_residualy = 0;
+  m_pix_eca_residualx_fine = 0;
+  m_pix_eca_residualy_fine = 0;
+  m_pix_ecc_residualx_fine = 0;
+  m_pix_ecc_residualy_fine = 0;
+ 
+  m_pix_eca_pullx = 0;
+  m_pix_eca_pully = 0;
+  m_pix_ecc_pullx = 0;
+  m_pix_ecc_pully = 0;
+  m_pix_bec_Oxresx_mean = 0;
+  m_pix_bec_Oyresx_mean = 0;
+  m_pix_bec_Oxresy_mean = 0;
+  m_pix_bec_Oyresy_mean = 0;
+  m_pix_bec_Oxresx_rms = 0;
+  m_pix_bec_Oyresx_rms = 0;
+  m_pix_bec_Oxresy_rms = 0;
+  m_pix_bec_Oyresy_rms = 0;
+
+  m_pix_b_xresvsmodeta = 0;
+  m_pix_b_xresvsmodphi = 0;
+  m_pix_b_yresvsmodeta = 0;
+  m_pix_b_yresvsmodphi = 0;
+  m_pix_eca_xresvsmodphi = 0;
+  m_pix_ecc_xresvsmodphi = 0;
+  m_pix_eca_yresvsmodphi = 0;
+  m_pix_ecc_yresvsmodphi = 0;
+  m_pix_b_biased_residualx_pt = 0;
+  m_pix_b_biased_residualy_pt  = 0;
+  m_pix_eca_biased_residualx  = 0;
+  m_pix_eca_biased_residualy  = 0;
+  m_pix_eca_biased_residualx_pt = 0;
+  m_pix_eca_biased_residualy_pt = 0;
+  m_pix_ecc_biased_residualx  = 0;
+  m_pix_ecc_biased_residualy  = 0;
+  m_pix_ecc_biased_residualx_pt = 0;
+  m_pix_ecc_biased_residualy_pt = 0;
+  m_pix_eca_xresvsmodphi_2d = 0;
+  m_pix_ecc_xresvsmodphi_2d = 0;
+  m_pix_eca_yresvsmodphi_2d = 0;
+  m_pix_ecc_yresvsmodphi_2d = 0;
+  
+  m_pix_b_Oxresxvsmodeta = 0;
+  m_pix_b_Oxresxvsmodphi = 0;
+  m_pix_b_Oyresyvsmodeta = 0;
+  m_pix_b_Oyresyvsmodphi = 0;
+  m_pix_eca_Oxresxvsmodphi = 0;
+  m_pix_ecc_Oxresxvsmodphi = 0;
+  m_pix_eca_Oyresyvsmodphi = 0;
+  m_pix_ecc_Oyresyvsmodphi = 0;
+  m_pix_eca_unbiased_xresvsmodphi = 0;
+  m_pix_eca_unbiased_yresvsmodphi = 0;
+  m_pix_ecc_unbiased_xresvsmodphi = 0;
+  m_pix_ecc_unbiased_yresvsmodphi = 0;
+  m_sct_b_residualx = 0;
+  m_sct_b_residualx_fine = 0;
+  m_sct_b_biasedresidualx = 0;
+  m_sct_eca_residualx = 0;
+  m_sct_ecc_residualx = 0;
+  m_sct_eca_residualx_fine = 0;
+  m_sct_ecc_residualx_fine = 0;
+  
+  m_sct_eca_pullx = 0;
+  m_sct_ecc_pullx = 0;
+  	
+  m_sct_bec_Oxresx_mean = 0;
+  m_sct_bec_Oyresx_mean = 0;
+  m_sct_bec_Oxresx_rms = 0;
+  m_sct_bec_Oyresx_rms = 0;
+
+  m_sct_eca_xresvsmodphi_2d = 0;
+  m_sct_ecc_xresvsmodphi_2d = 0;
+
+  m_sct_b_xresvsmodeta = 0;
+  m_sct_b_xresvsmodphi = 0;
+  m_sct_eca_xresvsmodphi = 0;
+  m_sct_ecc_xresvsmodphi = 0;
+
+  m_sct_b_Oxresxvsmodeta = 0;
+  m_sct_b_Oxresxvsmodphi = 0;
+  m_sct_b_Oyresxvsmodeta = 0;
+  m_sct_b_Oyresxvsmodphi = 0;
+  m_sct_eca_Oxresxvsmodphi = 0;
+  m_sct_ecc_Oxresxvsmodphi = 0;
+  m_pix_b_residualx_pt = 0;
+  m_pix_b_residualy_pt = 0;
+  m_pix_eca_residualx_pt = 0;
+  m_pix_eca_residualy_pt = 0;
+  m_pix_ecc_residualx_pt = 0;
+  m_pix_ecc_residualy_pt = 0;
+  
+  m_sct_b_biased_residualx = 0;
+  m_sct_b_biased_residualx_pt = 0;
+  m_sct_b_residualx_pt = 0;
+  m_sct_b_biased_residualx_qoverp2 = 0;
+  m_sct_b_unbiased_residualx_qoverp2 = 0;
+  
+  m_sct_eca_biased_residualx = 0	;
+  m_sct_eca_biased_residualy = 0	;
+  m_sct_ecc_biased_residualx = 0	;
+  m_sct_ecc_biased_residualy = 0	;
+  
+  m_sct_eca_biased_residualx_pt = 0	;
+  m_sct_ecc_biased_residualx_pt = 0	;
+
+  m_sct_eca_residualx_pt = 0	;
+  m_sct_ecc_residualx_pt = 0	;
+  
+  m_sct_eca_biased_residualx_qoverp2 =0 ;	
+  m_sct_ecc_biased_residualx_qoverp2= 0;	
+
+  m_sct_eca_unbiased_residualx_qoverp2= 0;	
+  m_sct_ecc_unbiased_residualx_qoverp2= 0;	
+  // Local positions (extrapolated)
+  m_pix_b_extrapolated_localx= 0;
+  m_pix_b_extrapolated_localy= 0;
+  m_sct_b_extrapolated_st_localx= 0;
+  m_sct_b_extrapolated_st_localy= 0;
+  m_sct_b_extrapolated_nst_localx= 0;
+  m_sct_b_extrapolated_nst_localy= 0; 
+  
+  // Local positions (mesasured)
+  m_pix_b_measured_localx= 0;
+  m_pix_b_measured_localy= 0;
+  m_sct_b_measured_st_localx= 0;
+  m_sct_b_measured_st_localy= 0;  
+  m_sct_b_measured_nst_localx= 0;
+  m_sct_b_measured_nst_localy= 0;  
+  
+  
+  // Hit errors
+  
+  m_hiterror_sct_b= 0;
+  m_hiterror_sct_ec= 0;
+  m_hiterror_sct_b_WideRange= 0;
+  m_hiterror_sct_ec_WideRange= 0;
+
+  m_hiterror_x_pix_b= 0;
+  m_hiterror_x_pix_ec= 0;
+  m_hiterror_y_pix_b= 0;
+  m_hiterror_y_pix_ec= 0;
+
+  m_hiterror_x_pix_b_WideRange= 0;
+  m_hiterror_x_pix_ec_WideRange= 0;
+  m_hiterror_y_pix_b_WideRange= 0;
+  m_hiterror_y_pix_ec_WideRange= 0;
+
+  m_hiterror_x_ibl_b= 0;
+  m_hiterror_x_ibl_ec= 0;
+  m_hiterror_y_ibl_b= 0;
+  m_hiterror_y_ibl_ec= 0;
+
+  m_hiterror_x_ibl_b_WideRange= 0;
+  m_hiterror_x_ibl_ec_WideRange= 0;
+  m_hiterror_y_ibl_b_WideRange= 0;
+  m_hiterror_y_ibl_ec_WideRange= 0;
+
+  // Pulls vs pt
+  // Pixel
+  
+  m_pix_b_pullx_pt= 0;
+  m_pix_b_pully_pt= 0;
+  m_pix_eca_pullx_pt= 0;
+  m_pix_eca_pully_pt= 0;
+  m_pix_ecc_pullx_pt= 0;
+  m_pix_ecc_pully_pt =0;
 }
 
 
@@ -703,28 +952,29 @@ StatusCode IDAlignMonResiduals::fillHistograms()
 
   // Code is able to get a weight from an external file and appy it to all histograms
   double hweight = 1.;
-  if ( m_applyHistWeight ){
-    m_hWeightInFile =  new TFile( m_hWeightInFileName.c_str() ,"read");
+  if ( m_applyHistWeight )
+    {
+      m_hWeightInFile =  new TFile( m_hWeightInFileName.c_str() ,"read");
     
-    if ( m_hWeightInFile->IsZombie() || !(m_hWeightInFile->IsOpen()) ) {
-      ATH_MSG_FATAL( " Problem reading TFile " << m_hWeightInFileName );
-      return StatusCode::FAILURE;
-    }
+      if (m_hWeightInFile->IsZombie() || !(m_hWeightInFile->IsOpen()) ) { 
+	ATH_MSG_FATAL( " Problem reading TFile " << m_hWeightInFileName );
+	return StatusCode::FAILURE;
+      }
    
-    ATH_MSG_INFO("Opened  file containing the contraints" << m_hWeightInFileName);
-    
-    
-    m_etapTWeight = (TH2F*) m_hWeightInFile -> Get( m_hWeightHistName.c_str() );
-    if( !m_etapTWeight ){
-      ATH_MSG_FATAL( " Problem getting constraints Hist.  Name " << m_hWeightHistName );
-      m_hWeightInFile -> Close();
+      ATH_MSG_INFO("Opened  file containing the contraints" << m_hWeightInFileName);
+      
+      
+      m_etapTWeight = (TH2F*) m_hWeightInFile -> Get( m_hWeightHistName.c_str() );
+      if( !m_etapTWeight ){
+	ATH_MSG_FATAL( " Problem getting constraints Hist.  Name " << m_hWeightHistName );
+	m_hWeightInFile -> Close();
       delete m_hWeightInFile;
       return StatusCode::FAILURE;
     }
+      
+      ATH_MSG_INFO("Opened contraints histogram " << m_hWeightHistName);
     
-    ATH_MSG_INFO("Opened contraints histogram " << m_hWeightHistName);
-    
-  }
+    }
   
   // NB the weight is a "per track" weight, so histograms such as BS info are never weighted
 
@@ -948,8 +1198,12 @@ StatusCode IDAlignMonResiduals::fillHistograms()
 	//float eventPhase = timeCor;  I think this is useless. I would prefer not to assign this and pass directly timeCor
 
 	const InDet::TRT_DriftCircleOnTrack *trtCircle = dynamic_cast<const InDet::TRT_DriftCircleOnTrack*>((*iter_tsos)->measurementOnTrack());
-	const InDet::TRT_DriftCircle *RawDriftCircle = dynamic_cast<const InDet::TRT_DriftCircle*>(trtCircle->prepRawData());
-
+	
+	const InDet::TRT_DriftCircle *RawDriftCircle(NULL);
+	
+	if (trtCircle!=NULL)
+	  RawDriftCircle = dynamic_cast<const InDet::TRT_DriftCircle*>(trtCircle->prepRawData());
+  
 	if ( trtCircle != NULL && RawDriftCircle != NULL){
 	  bool isValid;
 	  float leadingEdge = RawDriftCircle->driftTime(isValid);
@@ -1013,8 +1267,8 @@ StatusCode IDAlignMonResiduals::fillHistograms()
 	  
 	  const Identifier& id = m_pixelID->wafer_id(hitId);
 	  barrelEC  = m_pixelID -> barrel_ec(id);
-	  if ((barrelEC != 0) && (barrelEC != 2) && (barrelEC !=-2))
-	    std::cout<<"###################################################DBM????###########################################"<<std::cout;
+	  //if ((barrelEC != 0) && (barrelEC != 2) && (barrelEC !=-2))
+	  //  std::cout<<"###################################################DBM????###########################################"<<std::cout;
 	  layerDisk = m_pixelID -> layer_disk(id);
 	  modEta    = m_pixelID -> eta_module(id);  //For the endcaps these are the rings
 	  modPhi    = m_pixelID -> phi_module(id);
@@ -1092,7 +1346,8 @@ StatusCode IDAlignMonResiduals::fillHistograms()
 	    //globR = (float)sqrt(mesh->globalPosition().x()*mesh->globalPosition().x()+mesh->globalPosition().y()*mesh->globalPosition().y());
 						
 	    if (detType==1 && barrelEC!=0){  // Hit error calculation for the SCT Endcaps
-	      const InDetDD::SiDetectorElement *siDet = dynamic_cast<const InDetDD::SiDetectorElement*>(hit->detectorElement()); // I think I can do something here
+	      const InDetDD::SiDetectorElement *siDet = dynamic_cast<const InDetDD::SiDetectorElement*>(hit->detectorElement());
+
 	      // MeasurementBase --> virtual const Amg::Vector3D& globalPosition() const = 0;
 	       /// Angle of strip in local frame with respect to the etaAxis.
 	      /// Zero for all elements except trapezoidal detectors (ie SCT forward modules).
@@ -1100,17 +1355,20 @@ StatusCode IDAlignMonResiduals::fillHistograms()
 	      /// See previous method
 	      ////SiDetectorElement -->double sinStereoLocal(const HepGeom::Point3D<double> &globalPos) const;
 	      
-	      double sinAlpha = siDet->sinStereoLocal(siDet->localPosition(mesh->globalPosition()));
-	      double cosAlpha = sqrt(1 - sinAlpha*sinAlpha);
-	      AmgMatrix(2,2) RotMat;
-	      RotMat.setZero();
-	      RotMat(0,0) = cosAlpha;
-	      RotMat(0,1) = sinAlpha;
-	      RotMat(1,0) = -sinAlpha;
-	      RotMat(1,1) = cosAlpha;
-
-	      AmgSymMatrix(2) transformedROTCov = mesh->localCovariance().similarity(RotMat);
-	      hitErrorX = sqrt(transformedROTCov(0,0));
+	      if (siDet != NULL)
+		{
+		  double sinAlpha = siDet->sinStereoLocal(siDet->localPosition(mesh->globalPosition()));
+		  double cosAlpha = sqrt(1 - sinAlpha*sinAlpha);
+		  AmgMatrix(2,2) RotMat;
+		  RotMat.setZero();
+		  RotMat(0,0) = cosAlpha;
+		  RotMat(0,1) = sinAlpha;
+		  RotMat(1,0) = -sinAlpha;
+		  RotMat(1,1) = cosAlpha;
+		  
+		  AmgSymMatrix(2) transformedROTCov = mesh->localCovariance().similarity(RotMat);
+		  hitErrorX = sqrt(transformedROTCov(0,0));
+		}
 	    }
 	  }
 					
@@ -1968,8 +2226,8 @@ bool IDAlignMonResiduals::isEdge(const Trk::RIO_OnTrack* hit)
 	int pixelIdPhi = m_pixelID->phi_index(hit_ID_list[i]) ;
 	int pixelIdEta = m_pixelID->eta_index(hit_ID_list[i]) ;
 			
-	if( pixelIdPhi == 0 || pixelIdPhi == 327 || pixelIdEta == 0 || pixelIdEta == 143 ) {
-	  if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Pixel Overlap in Eta" << pixelIdPhi <<  endreq;
+	if(pixelIdEta == 0 || pixelIdEta == 143 ) {
+	  if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Pixel Overlap in Eta" << pixelIdEta <<  endreq;
 	  return true ;
 	}
 			
@@ -2221,7 +2479,8 @@ const Trk::TrackParameters* IDAlignMonResiduals::getUnbiasedTrackParameters(cons
 	
   const Trk::RIO_OnTrack* hitOnTrack = dynamic_cast <const Trk::RIO_OnTrack*>(tsos->measurementOnTrack());
 	
-  if (hitOnTrack != 0) surfaceID = hitOnTrack->identify(); 
+  if (hitOnTrack != 0) 
+    surfaceID = hitOnTrack->identify(); 
                                                              
 
   // if SCT Hit and TrueUnbiased then remove other side hit first
