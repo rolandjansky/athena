@@ -73,9 +73,9 @@ namespace LVL1 {
     HWIdentifier HWId = m_ttSvc->createTTChannelID(Id);
     return m_ttOnlineIdHelper->channel(HWId);
   }
-  //Hanno: added more general CoolChannelId instead of em/had distinction:
+
   unsigned int L1CaloOfflineTriggerTowerTools::CoolChannelId(const xAOD::TriggerTower* tt) const{
-    Identifier Id = this->ID(tt->eta(),tt->phi());
+    Identifier Id = this->ID(tt->eta(),tt->phi(),tt->layer());
     HWIdentifier HWId = m_ttSvc->createTTChannelID(Id);
     L1CaloCoolChannelId coolId = m_ttSvc->createL1CoolChannelId(HWId);
     return coolId.id();
@@ -390,7 +390,7 @@ namespace LVL1 {
   }
 
   float L1CaloOfflineTriggerTowerTools::TTCellsEt(const xAOD::TriggerTower* tt) const{
-    Identifier Id = this->ID(tt->eta(),tt->phi());
+    Identifier Id = this->ID(tt->eta(),tt->phi(),tt->layer());
     return m_cells2tt->et( m_cells2tt->caloCells(Id) );
   }  
   
@@ -1808,8 +1808,8 @@ namespace LVL1 {
     return m_l1CaloTTIdTools->phiIndex(eta,phi);
   }
   
-  Identifier L1CaloOfflineTriggerTowerTools::ID(const double eta,const double phi) const{
-    return m_lvl1Helper->tower_id(this->pos_neg_z(eta),0,this->region(eta),this->ieta(eta),this->iphi(eta,phi));
+  Identifier L1CaloOfflineTriggerTowerTools::ID(const double eta,const double phi,int layer) const{
+    return m_lvl1Helper->tower_id(this->pos_neg_z(eta),layer,this->region(eta),this->ieta(eta),this->iphi(eta,phi));
   }
 
   Identifier L1CaloOfflineTriggerTowerTools::emID(const double eta,const double phi) const{

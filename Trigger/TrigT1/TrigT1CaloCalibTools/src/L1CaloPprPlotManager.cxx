@@ -465,7 +465,6 @@ void L1CaloPprPlotManager::fillDifferentialOnlineHistos(const xAOD::TriggerTower
     {
         double eta  = trigTower->eta();
         std::string plotType = this->GetDetectorLayerString(theLayer);
-	std::cout << "Now in fillDifferentialOnlineHistos and plotType = " << plotType << std::endl;
         CaloDivisionEnum detectorRegion = this->GetDetectorRegion(eta,theLayer);
         std::string detectorRegionString = this->GetDetectorRegionString(detectorRegion);
 
@@ -574,7 +573,6 @@ void L1CaloPprPlotManager::fillPartitionOfflineHistos(const xAOD::TriggerTower* 
     double eta= trigTower->eta();
 
     std::string plotType = this->GetDetectorLayerString(theLayer);
-    std::cout << "Now in fillPartitionOfflineHistos and plotType = " << plotType << std::endl;
     CaloDivisionEnum detectorRegion  = this->GetDetectorRegion(eta,theLayer);
     std::string detectorRegionString = this->GetDetectorRegionString(detectorRegion);
 

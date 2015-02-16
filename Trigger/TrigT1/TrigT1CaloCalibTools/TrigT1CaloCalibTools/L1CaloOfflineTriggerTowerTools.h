@@ -116,7 +116,7 @@ namespace LVL1{
       float                                      emTTCellsEnergy(const TriggerTower* tt) const;
       std::vector<float>                         emTTCellsEnergyByLayer(const TriggerTower* tt) const;
       std::vector<float>                         emTTCellsEnergyByReceiver(const TriggerTower* tt,const int mode=0) const;
-      float                                      TTCellsEt(const xAOD::TriggerTower* tt) const;      //added by Hanno
+      float                                      TTCellsEt(const xAOD::TriggerTower* tt) const;
       float                                      emTTCellsEt(const TriggerTower* tt) const;
       std::vector<float>                         emTTCellsEtByLayer(const TriggerTower* tt) const;
       std::vector<float>                         emTTCellsEtByReceiver(const TriggerTower* tt,const int mode=0) const;
@@ -219,7 +219,7 @@ namespace LVL1{
       void                                       larDigits(const LArDigitContainer* lar);
       void                                       tileDigits(const TileDigitsContainer* tile);
       void                                       l1CaloLArTowerEnergy(const CaloCellContainer* cells, const TriggerTowerCollection* ttc);
-      Identifier                                 ID(const double eta,const double phi) const;
+      Identifier                                 ID(const double eta,const double phi,int layer) const;
       Identifier                                 emID(const double eta,const double phi) const;
       Identifier                                 hadID(const double eta,const double phi) const;
 
