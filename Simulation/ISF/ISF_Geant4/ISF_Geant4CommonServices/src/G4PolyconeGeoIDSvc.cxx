@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////
 
 // class header include
-#include "ISF_Geant4CommonServices/G4PolyconeGeoIDSvc.h"
+#include "G4PolyconeGeoIDSvc.h"
 
 // C includes
 #include <math.h>
@@ -55,14 +55,14 @@ ISF::G4PolyconeGeoIDSvc::~G4PolyconeGeoIDSvc()
 /** Query the interfaces. */
 StatusCode ISF::G4PolyconeGeoIDSvc::queryInterface(const InterfaceID& riid, void** ppvInterface){
 
- if ( ISF::IID_IGeoIDSvc == riid ) 
+  if ( ISF::IID_IGeoIDSvc == riid )
     *ppvInterface = (IGeoIDSvc*)this;
- else  {
-   // Interface is not directly available: try out a base class
-   return Service::queryInterface(riid, ppvInterface);
- }
- addRef();
- return StatusCode::SUCCESS;
+  else  {
+    // Interface is not directly available: try out a base class
+    return Service::queryInterface(riid, ppvInterface);
+  }
+  addRef();
+  return StatusCode::SUCCESS;
 }
 
 
@@ -94,8 +94,8 @@ StatusCode  ISF::G4PolyconeGeoIDSvc::initialize()
 
 
 StatusCode  ISF::G4PolyconeGeoIDSvc::finalize() {
-    ATH_MSG_INFO("finalize() successful");
-    return StatusCode::SUCCESS;
+  ATH_MSG_INFO("finalize() successful");
+  return StatusCode::SUCCESS;
 }
 
 
@@ -126,12 +126,12 @@ AtlasDetDescr::AtlasRegion ISF::G4PolyconeGeoIDSvc::identifyGeoID(const Amg::Vec
       return AtlasDetDescr::AtlasRegion(geoID);
   }
   // point is not inside any of the registered geoIDs
-  return AtlasDetDescr::fUndefinedAtlasRegion;  
+  return AtlasDetDescr::fUndefinedAtlasRegion;
 }
 
 
 AtlasDetDescr::AtlasRegion ISF::G4PolyconeGeoIDSvc::identifyNextGeoID(const Amg::Vector3D &pos,
-                                               const Amg::Vector3D &dir) const {
+                                                                      const Amg::Vector3D &dir) const {
 
   // if position inside a volume -> return that volume as the next geoID
   AtlasDetDescr::AtlasRegion geoID = identifyGeoID(pos);
@@ -140,7 +140,7 @@ AtlasDetDescr::AtlasRegion ISF::G4PolyconeGeoIDSvc::identifyNextGeoID(const Amg:
       return geoID;
     }
   //not inside - make a step towards the p direction and check if inside again
-  const Amg::Vector3D &dirUnit = dir.unit();                                                    
+  const Amg::Vector3D &dirUnit = dir.unit();
   const Amg::Vector3D &posStep = pos+dirUnit;
   AtlasDetDescr::AtlasRegion closestGeoID = identifyGeoID(posStep);
   if validAtlasRegion(closestGeoID)
@@ -188,7 +188,7 @@ StatusCode ISF::G4PolyconeGeoIDSvc::createVolume(AtlasDetDescr::AtlasRegion geoI
     for ( size_t i=0; i<curVolNumPoints; ++i) {
       r[i] = rzIt->first;
       z[i] = rzIt->second;
-  
+
       ++rzIt;
     }
 
@@ -207,4 +207,3 @@ StatusCode ISF::G4PolyconeGeoIDSvc::createVolume(AtlasDetDescr::AtlasRegion geoI
 
   return StatusCode::SUCCESS;
 }
-

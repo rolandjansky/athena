@@ -10,22 +10,22 @@ public
 # Framework
 use AtlasPolicy                 AtlasPolicy-*
 use GaudiInterface              GaudiInterface-*         External
-use AthenaBaseComps             AthenaBaseComps-*        Control
-use AtlasDetDescr               AtlasDetDescr-*          DetectorDescription
-# ISF
-use ISF_Interfaces              ISF_Interfaces-*         Simulation/ISF/ISF_Core
 
 
 #################################################################
 # private use statements
 #################################################################
 private
+# Framework
+use AthenaBaseComps             AthenaBaseComps-*        Control
 # Geant4
 use Geant4                      Geant4-*                 External
 # Geometry
+use AtlasDetDescr               AtlasDetDescr-*          DetectorDescription
 use SubDetectorEnvelopes        SubDetectorEnvelopes-*   AtlasGeometryCommon
 # ISF
 use ISF_Event                   ISF_Event-*              Simulation/ISF/ISF_Core
+use ISF_Interfaces              ISF_Interfaces-*         Simulation/ISF/ISF_Core
 
 
 public
