@@ -46,6 +46,7 @@ else:
     TriggerFlags.triggerMenuSetup = 'MC_pp_v5' 
 
 TriggerFlags.doHLT=True
+TriggerFlags.AODEDMSet="AODFULL"
 
 def egammaOnly():
     TriggerFlags.Slices_all_setOff()

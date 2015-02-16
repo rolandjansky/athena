@@ -43,6 +43,7 @@ if  ('menu' in dir()):
 TriggerFlags.doHLT=True
 TriggerFlags.L1PrescaleSet  = '' 
 TriggerFlags.HLTPrescaleSet = '' 
+TriggerFlags.AODEDMSet="AODFULL"
 
 #-------------end of flag for tests-------------------
 
