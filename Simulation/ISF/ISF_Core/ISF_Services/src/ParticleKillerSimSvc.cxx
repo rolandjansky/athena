@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////
 
 // class header include
-#include "ISF_Services/ParticleKillerSimSvc.h"
+#include "ParticleKillerSimSvc.h"
 
 // ISF includes
 #include "ISF_Event/ISFParticle.h"
@@ -18,33 +18,33 @@ ISF::ParticleKillerSimSvc::ParticleKillerSimSvc(const std::string& name, ISvcLoc
 {
 }
 
-ISF::ParticleKillerSimSvc::~ParticleKillerSimSvc() 
+ISF::ParticleKillerSimSvc::~ParticleKillerSimSvc()
 {}
 
 /** framework methods */
 StatusCode ISF::ParticleKillerSimSvc::initialize()
 {
-   ATH_MSG_INFO ( m_screenOutputPrefix << "initialize() ...");
-   return StatusCode::SUCCESS;
+  ATH_MSG_INFO ( m_screenOutputPrefix << "initialize() ...");
+  return StatusCode::SUCCESS;
 }
 
 /** framework methods */
 StatusCode ISF::ParticleKillerSimSvc::finalize()
 {
-    ATH_MSG_INFO ( m_screenOutputPrefix << "finalize() ...");
-    return StatusCode::SUCCESS;
+  ATH_MSG_INFO ( m_screenOutputPrefix << "finalize() ...");
+  return StatusCode::SUCCESS;
 }
 
 StatusCode ISF::ParticleKillerSimSvc::setupEvent()
-{ 
+{
   ATH_MSG_DEBUG ( m_screenOutputPrefix << "setup Event");
   return StatusCode::SUCCESS;
-}  
+}
 
-StatusCode ISF::ParticleKillerSimSvc::releaseEvent() 
-{ 
-  ATH_MSG_DEBUG ( m_screenOutputPrefix << "release Event");  
-  return StatusCode::SUCCESS; 
+StatusCode ISF::ParticleKillerSimSvc::releaseEvent()
+{
+  ATH_MSG_DEBUG ( m_screenOutputPrefix << "release Event");
+  return StatusCode::SUCCESS;
 }
 
 /** Simulation Call */
@@ -61,5 +61,3 @@ StatusCode ISF::ParticleKillerSimSvc::simulate(const ISF::ISFParticle& particle)
   // (memory management, ie delete, of the ISFParticle is done inside the ISFKernel)
   return StatusCode::SUCCESS;
 }
-
-

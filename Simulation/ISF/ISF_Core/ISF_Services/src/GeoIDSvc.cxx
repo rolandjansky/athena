@@ -7,10 +7,7 @@
 ///////////////////////////////////////////////////////////////////
 
 // class header include
-#include "ISF_Services/GeoIDSvc.h"
-
-// STL includes
-#include <algorithm>
+#include "GeoIDSvc.h"
 
 // framework includes
 #include "GaudiKernel/Bootstrap.h"
@@ -18,6 +15,9 @@
 
 // DetectorDescription
 #include "AtlasDetDescr/AtlasRegionHelper.h"
+
+// STL includes
+#include <algorithm>
 
 /** Constructor **/
 ISF::GeoIDSvc::GeoIDSvc(const std::string& name,ISvcLocator* svc) :
@@ -47,14 +47,14 @@ ISF::GeoIDSvc::~GeoIDSvc()
 /** Query the interfaces. */
 StatusCode ISF::GeoIDSvc::queryInterface(const InterfaceID& riid, void** ppvInterface){
 
- if ( ISF::IID_IGeoIDSvc == riid ) 
+  if ( ISF::IID_IGeoIDSvc == riid )
     *ppvInterface = (IGeoIDSvc*)this;
- else  {
-   // Interface is not directly available: try out a base class
-   return Service::queryInterface(riid, ppvInterface);
- }
- addRef();
- return StatusCode::SUCCESS;
+  else  {
+    // Interface is not directly available: try out a base class
+    return Service::queryInterface(riid, ppvInterface);
+  }
+  addRef();
+  return StatusCode::SUCCESS;
 }
 
 
@@ -135,8 +135,8 @@ StatusCode  ISF::GeoIDSvc::initialize()
   } // loop over geoIDs
 
   ATH_MSG_DEBUG("Combining individual volumen boundaries in one common representation");
-  // convert and combine the gathered tmpRBins, tmpZBins into 
-  // tmpZBinsGlobal, tmpRBinsGlobal which will have the same 
+  // convert and combine the gathered tmpRBins, tmpZBins into
+  // tmpZBinsGlobal, tmpRBinsGlobal which will have the same
   // format as the member variables m_zBins and m_radiusBins
   size_t  tmpZBinIndex[AtlasDetDescr::fNumAtlasRegions];
   for (int geoID=AtlasDetDescr::fFirstAtlasRegion; geoID<AtlasDetDescr::fNumAtlasRegions; ++geoID)
@@ -198,7 +198,7 @@ StatusCode  ISF::GeoIDSvc::initialize()
 
   ATH_MSG_DEBUG("Converting volume representation into faster format");
   // finally write the information in tmpZBinsGlobal and tmpRBinsGlobal
-  // into the m_zBins and m_radiusBins 
+  // into the m_zBins and m_radiusBins
   m_numZBins   = tmpZBinsGlobal.size();
   m_zBins      = new double[m_numZBins];
   m_radiusBins = new RadiusGeoIDPair[(m_numZBins+1)*m_maxRBins];
@@ -267,10 +267,10 @@ StatusCode  ISF::GeoIDSvc::initialize()
 
 
 StatusCode  ISF::GeoIDSvc::finalize() {
-    ATH_MSG_INFO("finalize() ...");
+  ATH_MSG_INFO("finalize() ...");
 
-    ATH_MSG_INFO("finalize() successful");
-    return StatusCode::SUCCESS;
+  ATH_MSG_INFO("finalize() successful");
+  return StatusCode::SUCCESS;
 }
 
 
@@ -297,7 +297,7 @@ ISF::InsideType ISF::GeoIDSvc::inside(const Amg::Vector3D &pos, AtlasDetDescr::A
     // 1. inside
     if ( (geoIDFwd == geoIDAft)  ) {
       where = ISF::fInside;
-    // 2. surface
+      // 2. surface
     } else if ( geoIDFwd != geoIDAft ) {
       where = ISF::fSurface;
     }
@@ -324,13 +324,13 @@ AtlasDetDescr::AtlasRegion ISF::GeoIDSvc::identifyGeoID(const Amg::Vector3D &pos
   //       this linear search
   int radiusBin = 0;
   double r2 = pos.perp2();
-  while ( (m_radiusBins[zBin*m_maxRBins+radiusBin].second!=AtlasDetDescr::fUndefinedAtlasRegion) && 
+  while ( (m_radiusBins[zBin*m_maxRBins+radiusBin].second!=AtlasDetDescr::fUndefinedAtlasRegion) &&
           (r2 >= m_radiusBins[zBin*m_maxRBins+radiusBin].first) ) {
     radiusBin++;
   }
   //ATH_MSG_VERBOSE(" radiusBin=" << radiusBin <<
   //                " (r<"<< sqrt(m_radiusBins[zBin*m_maxRBins+radiusBin].first)<<")");
-  ////                " r>"<<m_radiusBins[zBin*m_maxRBins+radiusBin-1]); 
+  ////                " r>"<<m_radiusBins[zBin*m_maxRBins+radiusBin-1]);
   //ATH_MSG_VERBOSE("  --> geoID=" << m_radiusBins[zBin*m_maxRBins+radiusBin].second);
 
   // returns the found GeoID
@@ -340,7 +340,7 @@ AtlasDetDescr::AtlasRegion ISF::GeoIDSvc::identifyGeoID(const Amg::Vector3D &pos
 
 
 AtlasDetDescr::AtlasRegion ISF::GeoIDSvc::identifyNextGeoID(const Amg::Vector3D &pos,
-                                               const Amg::Vector3D &dir) const {
+                                                            const Amg::Vector3D &dir) const {
 
   // push the particle a little and check the volume it's in
   AtlasDetDescr::AtlasRegion geoID = identifyGeoID( pos + dir.unit()*m_tolerance );
@@ -403,7 +403,7 @@ ISF::RZPairList* ISF::GeoIDSvc::prepareRZPairs( AtlasDetDescr::AtlasRegion geoID
       ATH_MSG_VERBOSE( " signZChanges=" << signZChanges<<
                        " curZSign=" <<curZSign<<
                        " prevZSign=" << prevZSign<<
-                       " curZ=" <<curZ << 
+                       " curZ=" <<curZ <<
                        " curR=" <<curRZ.first );
 
       // select negative RZPairList to fill
@@ -521,4 +521,3 @@ bool ISF::GeoIDSvc::checkSymmetric( RZPairList& positiveZ, RZPairList& negativeZ
   // all fine
   return true;
 }
-

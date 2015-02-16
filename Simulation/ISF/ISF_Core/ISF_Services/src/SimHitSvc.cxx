@@ -6,153 +6,153 @@
 // SimHitSvc.cxx, (c) ATLAS Detector software
 ///////////////////////////////////////////////////////////////////
 
-// ISF_Services include
-#include "ISF_Services/SimHitSvc.h"
-// Athena Framework stuff
-#include "StoreGate/StoreGateSvc.h"
-// SimHelper stuff
-#include "SimHelpers/AthenaHitsCollectionHelper.h"
+// class header include
+#include "SimHitSvc.h"
 
-#include "LArSimEvent/LArHitContainer.h"
-#include "CaloSimEvent/CaloCalibrationHitContainer.h"
+// Athena includes
 #include "CaloIdentifier/CaloIdManager.h"
 #include "CaloIdentifier/LArMiniFCAL_ID.h"
+#include "CaloSimEvent/CaloCalibrationHitContainer.h"
+#include "FadsSensitiveDetector/FadsSensitiveDetector.h"
 #include "GeneratorObjects/HepMcParticleLink.h"
+#include "LArSimEvent/LArHitContainer.h"
+#include "SimHelpers/AthenaHitsCollectionHelper.h"
+#include "StoreGate/StoreGateSvc.h"
+
+// HepMC includes
 #include "HepMC/GenParticle.h"
 
-#include "FadsSensitiveDetector/FadsSensitiveDetector.h"
-//#include "FadsSensitiveDetector/SensitiveDetectorCatalog.h"
 // ROOT includes
 #include "TTree.h"
 
 /** Constructor **/
 ISF::SimHitSvc::SimHitSvc(const std::string& name,ISvcLocator* svc) :
- AthService(name,svc),
- m_validationOutput(false),
- m_thistSvc("THistSvc",name),
- m_validationStream("ISFSimHit"),
- m_t_simHits(0),
- m_mdt_n(-1),
- m_rpc_n(-1),
- m_tgc_n(-1),
- m_csc_n(-1),
- m_type(-1),
- m_id(-1),
- m_mother(-1),
- m_barcode(-1),
- m_time(-1.),
- m_drift(-1.),
- m_edeposit(-1.),
- m_momentum(-1.), 
- m_theta(-1.),
- m_phi(-1.),
- m_eta(-1.),
- m_hitCollectionHelper(new AthenaHitsCollectionHelper),
- m_pixHits(0),
- m_pixHitCollectionName("PixelHits"),
- m_sctHits(0),
- m_sctHitCollectionName("SCT_Hits"),
- m_trtHits(0),
- m_trtHitCollectionName("TRTUncompressedHits"),
- m_blmHits(0),
- m_blmHitCollectionName("BLMHits"),
- m_bcmHits(0),
- m_bcmHitCollectionName("BCMHits"),
- m_embHitCollectionName("LArHitEMB"),
- m_emecHitCollectionName("LArHitEMEC"),
- m_fcalHitCollectionName("LArHitFCAL"),
- m_hecHitCollectionName("LArHitHEC"),
- m_miniFcalHitCollectionName("LArHitMiniFCAL"),
- m_activeLArHitCollectionName("LArCalibrationHitActive"),
- m_inactiveLArHitCollectionName("LArCalibrationHitInactive"),
- m_deadLArHitCollectionName("LArCalibrationHitDeadMaterial"),
- m_tileHitVecHits(0),
- m_tileHitVecHitCollectionName("TileHitVec"),
- m_mbtsHits(0),
- m_mbtsHitCollectionName("MBTSHits"),
- m_tileActiveCellCalibHits(0),
- m_tileActiveCellCalibHitCollectionName("TileCalibHitActiveCell"),
- m_tileInactiveCellCalibHits(0),
- m_tileInactiveCellCalibHitCollectionName("TileCalibHitInactiveCell"),
- m_tileDeadMaterialCalibHits(0),
- m_tileDeadMaterialCalibHitCollectionName("TileCalibHitDeadMaterial"),
- m_mdtHits(0),
- m_mdtHitCollectionName("MDT_Hits"),
- m_rpcHits(0),
- m_rpcHitCollectionName("RPC_Hits"),
- m_tgcHits(0),
- m_tgcHitCollectionName("TGC_Hits"),
- m_cscHits(0),
- m_cscHitCollectionName("CSC_Hits"),
- m_muonHits(0),
- m_muonHitCollectionName("GenericMuon_Hits"),
- m_storedContainers(0),
- m_storedCalibContainers(0),
- m_doMiniFcal(false),
- m_doTileCalibHits(false),
- m_caloEntryLayerTracks(0),
- m_caloEntryLayerTrackCollectionName("CaloEntryLayer"),
- m_muonEntryLayerTracks(0),
- m_muonEntryLayerTrackCollectionName("MuonEntryLayer"),
- m_muonExitLayerTracks(0),
- m_muonExitLayerTrackCollectionName("MuonExitLayer"),
- m_cosmicPerigeeTracks(0),
- m_cosmicPerigeeTrackCollectionName("CosmicPerigee"),
- m_sd(0)
+  AthService(name,svc),
+  m_validationOutput(false),
+  m_thistSvc("THistSvc",name),
+  m_validationStream("ISFSimHit"),
+  m_t_simHits(0),
+  m_mdt_n(-1),
+  m_rpc_n(-1),
+  m_tgc_n(-1),
+  m_csc_n(-1),
+  m_type(-1),
+  m_id(-1),
+  m_mother(-1),
+  m_barcode(-1),
+  m_time(-1.),
+  m_drift(-1.),
+  m_edeposit(-1.),
+  m_momentum(-1.),
+  m_theta(-1.),
+  m_phi(-1.),
+  m_eta(-1.),
+  m_hitCollectionHelper(new AthenaHitsCollectionHelper),
+  m_pixHits(0),
+  m_pixHitCollectionName("PixelHits"),
+  m_sctHits(0),
+  m_sctHitCollectionName("SCT_Hits"),
+  m_trtHits(0),
+  m_trtHitCollectionName("TRTUncompressedHits"),
+  m_blmHits(0),
+  m_blmHitCollectionName("BLMHits"),
+  m_bcmHits(0),
+  m_bcmHitCollectionName("BCMHits"),
+  m_embHitCollectionName("LArHitEMB"),
+  m_emecHitCollectionName("LArHitEMEC"),
+  m_fcalHitCollectionName("LArHitFCAL"),
+  m_hecHitCollectionName("LArHitHEC"),
+  m_miniFcalHitCollectionName("LArHitMiniFCAL"),
+  m_activeLArHitCollectionName("LArCalibrationHitActive"),
+  m_inactiveLArHitCollectionName("LArCalibrationHitInactive"),
+  m_deadLArHitCollectionName("LArCalibrationHitDeadMaterial"),
+  m_tileHitVecHits(0),
+  m_tileHitVecHitCollectionName("TileHitVec"),
+  m_mbtsHits(0),
+  m_mbtsHitCollectionName("MBTSHits"),
+  m_tileActiveCellCalibHits(0),
+  m_tileActiveCellCalibHitCollectionName("TileCalibHitActiveCell"),
+  m_tileInactiveCellCalibHits(0),
+  m_tileInactiveCellCalibHitCollectionName("TileCalibHitInactiveCell"),
+  m_tileDeadMaterialCalibHits(0),
+  m_tileDeadMaterialCalibHitCollectionName("TileCalibHitDeadMaterial"),
+  m_mdtHits(0),
+  m_mdtHitCollectionName("MDT_Hits"),
+  m_rpcHits(0),
+  m_rpcHitCollectionName("RPC_Hits"),
+  m_tgcHits(0),
+  m_tgcHitCollectionName("TGC_Hits"),
+  m_cscHits(0),
+  m_cscHitCollectionName("CSC_Hits"),
+  m_muonHits(0),
+  m_muonHitCollectionName("GenericMuon_Hits"),
+  m_storedContainers(0),
+  m_storedCalibContainers(0),
+  m_doMiniFcal(false),
+  m_doTileCalibHits(false),
+  m_caloEntryLayerTracks(0),
+  m_caloEntryLayerTrackCollectionName("CaloEntryLayer"),
+  m_muonEntryLayerTracks(0),
+  m_muonEntryLayerTrackCollectionName("MuonEntryLayer"),
+  m_muonExitLayerTracks(0),
+  m_muonExitLayerTrackCollectionName("MuonExitLayer"),
+  m_cosmicPerigeeTracks(0),
+  m_cosmicPerigeeTrackCollectionName("CosmicPerigee"),
+  m_sd(0)
 {
-    // validation output section
-    declareProperty( "ValidationOutput",
-                     m_validationOutput = false,
-                     "If turned on, write out a ROOT tree.");
-    declareProperty("ValidationStreamName",
-                     m_validationStream = "ISFSimHit",
-                     "Name of the output stream" );
-    declareProperty("THistService",
-                     m_thistSvc,
-                     "The THistSvc" );
+  // validation output section
+  declareProperty( "ValidationOutput",
+                   m_validationOutput = false,
+                   "If turned on, write out a ROOT tree.");
+  declareProperty("ValidationStreamName",
+                  m_validationStream = "ISFSimHit",
+                  "Name of the output stream" );
+  declareProperty("THistService",
+                  m_thistSvc,
+                  "The THistSvc" );
 
-    declareProperty("PixelHitCollection", m_pixHitCollectionName );
-    declareProperty("SCT_HitCollection",  m_sctHitCollectionName );
-    declareProperty("TRT_HitCollection",  m_trtHitCollectionName );
-    declareProperty("BLM_HitCollection",  m_blmHitCollectionName );
-    declareProperty("BCM_HitCollection",  m_bcmHitCollectionName );
+  declareProperty("PixelHitCollection", m_pixHitCollectionName );
+  declareProperty("SCT_HitCollection",  m_sctHitCollectionName );
+  declareProperty("TRT_HitCollection",  m_trtHitCollectionName );
+  declareProperty("BLM_HitCollection",  m_blmHitCollectionName );
+  declareProperty("BCM_HitCollection",  m_bcmHitCollectionName );
 
-    declareProperty("EMBLAr_HitCollection",      m_embHitCollectionName );
-    declareProperty("EMECLAr_HitCollection",     m_emecHitCollectionName );
-    declareProperty("FCAL_HitCollection",        m_fcalHitCollectionName );
-    declareProperty("HEC_HitCollection",         m_hecHitCollectionName );
-    declareProperty("MiniFCAL_HitCollection",    m_miniFcalHitCollectionName );
-    declareProperty("ActiveLAr_HitCollection",   m_activeLArHitCollectionName );
-    declareProperty("InactiveLAr_HitCollection", m_inactiveLArHitCollectionName );
-    declareProperty("DeadMatlLAr_HitCollection", m_deadLArHitCollectionName );
+  declareProperty("EMBLAr_HitCollection",      m_embHitCollectionName );
+  declareProperty("EMECLAr_HitCollection",     m_emecHitCollectionName );
+  declareProperty("FCAL_HitCollection",        m_fcalHitCollectionName );
+  declareProperty("HEC_HitCollection",         m_hecHitCollectionName );
+  declareProperty("MiniFCAL_HitCollection",    m_miniFcalHitCollectionName );
+  declareProperty("ActiveLAr_HitCollection",   m_activeLArHitCollectionName );
+  declareProperty("InactiveLAr_HitCollection", m_inactiveLArHitCollectionName );
+  declareProperty("DeadMatlLAr_HitCollection", m_deadLArHitCollectionName );
 
 
-    declareProperty("TileHitVec_HitCollection",  m_tileHitVecHitCollectionName );
-    declareProperty("MBTS_HitCollection",        m_mbtsHitCollectionName );
+  declareProperty("TileHitVec_HitCollection",  m_tileHitVecHitCollectionName );
+  declareProperty("MBTS_HitCollection",        m_mbtsHitCollectionName );
 
-    declareProperty("TileActiveCellCalibHitCollection",   m_tileActiveCellCalibHitCollectionName );
-    declareProperty("TileInactiveCellCalibHitCollection", m_tileInactiveCellCalibHitCollectionName );
-    declareProperty("TileDeadMaterialCalibHitCollection", m_tileDeadMaterialCalibHitCollectionName );
+  declareProperty("TileActiveCellCalibHitCollection",   m_tileActiveCellCalibHitCollectionName );
+  declareProperty("TileInactiveCellCalibHitCollection", m_tileInactiveCellCalibHitCollectionName );
+  declareProperty("TileDeadMaterialCalibHitCollection", m_tileDeadMaterialCalibHitCollectionName );
 
-    declareProperty("MDT_HitCollection",  m_mdtHitCollectionName );
-    declareProperty("RPC_HitCollection",  m_rpcHitCollectionName );
-    declareProperty("TGC_HitCollection",  m_tgcHitCollectionName );
-    declareProperty("CSC_HitCollection",  m_cscHitCollectionName );
-    declareProperty("GenericMuon_HitCollection",  m_muonHitCollectionName );
+  declareProperty("MDT_HitCollection",  m_mdtHitCollectionName );
+  declareProperty("RPC_HitCollection",  m_rpcHitCollectionName );
+  declareProperty("TGC_HitCollection",  m_tgcHitCollectionName );
+  declareProperty("CSC_HitCollection",  m_cscHitCollectionName );
+  declareProperty("GenericMuon_HitCollection",  m_muonHitCollectionName );
 
-    declareProperty("CaloEntryLayer_TrackCollection",  m_caloEntryLayerTrackCollectionName );
-    declareProperty("MuonEntryLayer_TrackCollection",  m_muonEntryLayerTrackCollectionName );
-    declareProperty("MuonExitLayer_TrackCollection",   m_muonExitLayerTrackCollectionName );
+  declareProperty("CaloEntryLayer_TrackCollection",  m_caloEntryLayerTrackCollectionName );
+  declareProperty("MuonEntryLayer_TrackCollection",  m_muonEntryLayerTrackCollectionName );
+  declareProperty("MuonExitLayer_TrackCollection",   m_muonExitLayerTrackCollectionName );
 
-    declareProperty("CosmicPerigee_TrackCollection",   m_cosmicPerigeeTrackCollectionName );
+  declareProperty("CosmicPerigee_TrackCollection",   m_cosmicPerigeeTrackCollectionName );
 
-    declareProperty("DoTileCalibHits", m_doTileCalibHits );
+  declareProperty("DoTileCalibHits", m_doTileCalibHits );
 }
 
 
 ISF::SimHitSvc::~SimHitSvc()
 {
-    delete m_hitCollectionHelper;
+  delete m_hitCollectionHelper;
 
 }
 
@@ -238,23 +238,23 @@ StatusCode ISF::SimHitSvc::finalize()
 /** Insert a SiHit - used for Pixels, SCT */
 void ISF::SimHitSvc::insert(const SiHit& siHit)
 {
-    if (siHit.isPixel())
-        m_pixHits->Insert(siHit);
-    else
-        m_sctHits->Insert(siHit);
+  if (siHit.isPixel())
+    m_pixHits->Insert(siHit);
+  else
+    m_sctHits->Insert(siHit);
 }
 
 /* Insert a TRT Hit */
 void ISF::SimHitSvc::insert(const TRTHit&)
 {
-    // do nothing;
+  // do nothing;
 }
 
 /* Insert a TRTUncompressed Hit */
 void ISF::SimHitSvc::insert(const TRTUncompressedHit& trtHit)
 {
-    // initialize hit collections if not already done
-    m_trtHits->Insert(trtHit);
+  // initialize hit collections if not already done
+  m_trtHits->Insert(trtHit);
 }
 
 /** Initialize event */
@@ -326,334 +326,334 @@ StatusCode ISF::SimHitSvc::initializeEvent()
 StatusCode ISF::SimHitSvc::releaseEvent()
 {
 
-    // call EndOfEvent for all SD classes
-    for (std::vector<FADS::FadsSensitiveDetector*>::iterator it=m_sd.begin();
+  // call EndOfEvent for all SD classes
+  for (std::vector<FADS::FadsSensitiveDetector*>::iterator it=m_sd.begin();
        it!=m_sd.end();++it) {
-      (**it).EndOfEvent(0);
-    }
+    (**it).EndOfEvent(0);
+  }
 
-    if (m_validationOutput) {
+  if (m_validationOutput) {
 
-      // loop over collections
-      if (m_mdtHits->size()) {
-        MDTSimHitCollection::const_iterator ih=m_mdtHits->begin();
-        while ( ih!=m_mdtHits->end()) {
-          m_type = 1;
-          m_id = (*ih).MDTid();
-          m_mother = (*ih).particleEncoding();
-          m_time = (*ih).globalTime();
-          m_drift = (*ih).driftRadius();
-          m_edeposit = (*ih).energyDeposit();
-          m_barcode = (*ih).trackNumber();
-          HepMcParticleLink HMPL = (*ih).particleLink();
-          if (HMPL.isValid()) {
-            m_momentum = (HMPL.cptr())->momentum().rho();
-            m_eta= (HMPL.cptr())->momentum().eta();
-            m_theta= (HMPL.cptr())->momentum().theta();
-            m_phi  = (HMPL.cptr())->momentum().phi();
-          } else {
-            m_momentum=-1.;
-            m_theta=-1.;
-            m_eta=-10.;
-            m_phi = -10.;
-          }
-
-          ih++;
-          while (ih!=m_mdtHits->end() && m_id==(*ih).MDTid() && m_barcode==(*ih).trackNumber() ) {
-            // merge energy deposits and move on
-            m_edeposit += (*ih).energyDeposit();
-            ih++;
-          }
-          m_t_simHits->Fill();
+    // loop over collections
+    if (m_mdtHits->size()) {
+      MDTSimHitCollection::const_iterator ih=m_mdtHits->begin();
+      while ( ih!=m_mdtHits->end()) {
+        m_type = 1;
+        m_id = (*ih).MDTid();
+        m_mother = (*ih).particleEncoding();
+        m_time = (*ih).globalTime();
+        m_drift = (*ih).driftRadius();
+        m_edeposit = (*ih).energyDeposit();
+        m_barcode = (*ih).trackNumber();
+        HepMcParticleLink HMPL = (*ih).particleLink();
+        if (HMPL.isValid()) {
+          m_momentum = (HMPL.cptr())->momentum().rho();
+          m_eta= (HMPL.cptr())->momentum().eta();
+          m_theta= (HMPL.cptr())->momentum().theta();
+          m_phi  = (HMPL.cptr())->momentum().phi();
+        } else {
+          m_momentum=-1.;
+          m_theta=-1.;
+          m_eta=-10.;
+          m_phi = -10.;
         }
-      }
 
-      if (m_rpcHits->size()) {
-        RPCSimHitCollection::const_iterator ih=m_rpcHits->begin();
-        while (ih!=m_rpcHits->end()) {
-          m_type = 2;
-          m_id = (*ih).RPCid();
-          m_mother = (*ih).particleEncoding();
-          m_time = (*ih).globalTime();
-          m_drift = 0.;
-          m_edeposit = (*ih).energyDeposit();
-          m_barcode = (*ih).trackNumber();
-          HepMcParticleLink HMPL = (*ih).particleLink();
-          if (HMPL.isValid()) {
-            m_momentum = (HMPL.cptr())->momentum().rho();
-            m_eta= (HMPL.cptr())->momentum().eta();
-            m_theta= (HMPL.cptr())->momentum().theta();
-            m_phi  = (HMPL.cptr())->momentum().phi();
-          } else {
-            m_momentum=-1.;
-            m_theta=-1.;
-            m_eta=-10.;
-            m_phi = -10.;
-          }
-
+        ih++;
+        while (ih!=m_mdtHits->end() && m_id==(*ih).MDTid() && m_barcode==(*ih).trackNumber() ) {
+          // merge energy deposits and move on
+          m_edeposit += (*ih).energyDeposit();
           ih++;
-          while (ih!=m_rpcHits->end() && m_id==(*ih).RPCid() && m_barcode==(*ih).trackNumber() ) {
-            // merge energy deposits and move on
-            m_edeposit += (*ih).energyDeposit();
-            ih++;
-          }
-          m_t_simHits->Fill();
         }
-      }
-      if (m_tgcHits->size()) {
-        TGCSimHitCollection::const_iterator ih=m_tgcHits->begin();
-        while ( ih!=m_tgcHits->end()) {
-          m_type = 3;
-          m_id = (*ih).TGCid();
-          m_mother = (*ih).particleEncoding();
-          m_time = (*ih).globalTime();
-          m_drift = 0.;
-          m_edeposit = (*ih).energyDeposit();
-          m_barcode = (*ih).trackNumber();
-          HepMcParticleLink HMPL = (*ih).particleLink();
-          if (HMPL.isValid()) {
-            m_momentum = (HMPL.cptr())->momentum().rho();
-            m_eta= (HMPL.cptr())->momentum().eta();
-            m_theta= (HMPL.cptr())->momentum().theta();
-            m_phi  = (HMPL.cptr())->momentum().phi();
-          } else {
-            m_momentum=-1.;
-            m_theta=-1.;
-            m_eta=-10.;
-            m_phi = -10.;
-          }
-
-          ih++;
-          while (ih!=m_tgcHits->end() && m_id==(*ih).TGCid() && m_barcode==(*ih).trackNumber() ) {
-            // merge energy deposits and move on
-            m_edeposit += (*ih).energyDeposit();
-            ih++;
-          }
-          m_t_simHits->Fill();
-        }
-      }
-      if (m_cscHits->size()) {
-        CSCSimHitCollection::const_iterator ih=m_cscHits->begin();
-        while ( ih!=m_cscHits->end()) {
-          m_type = 4;
-          m_id = (*ih).CSCid();
-          m_mother = (*ih).particleID();
-          m_time = (*ih).globalTime();
-          m_drift = 0.;
-          m_edeposit = (*ih).energyDeposit();
-          m_barcode = (*ih).trackNumber();
-          HepMcParticleLink HMPL = (*ih).particleLink();
-          if (HMPL.isValid()) {
-            m_momentum = (HMPL.cptr())->momentum().rho();
-            m_eta= (HMPL.cptr())->momentum().eta();
-            m_theta= (HMPL.cptr())->momentum().theta();
-            m_phi  = (HMPL.cptr())->momentum().phi();
-          } else {
-            m_momentum=-1.;
-            m_theta=-1.;
-            m_eta=-10.;
-            m_phi = -10.;
-          }
-
-          ih++;
-          while (ih!=m_cscHits->end() && m_id==(*ih).CSCid() && m_barcode==(*ih).trackNumber() ) {
-            // merge energy deposits and move on
-            m_edeposit += (*ih).energyDeposit();
-            ih++;
-          }
-          m_t_simHits->Fill();
-        }
-      }
-      if (m_pixHits->size()) {
-        SiHitCollection::const_iterator ih=m_pixHits->begin();
-        while (ih!=m_pixHits->end()) {
-          m_type = 5;
-          m_id = (*ih).identify();
-          HepMcParticleLink HMPL = (*ih).particleLink();
-          if (HMPL.isValid()) m_mother = (HMPL.cptr())->pdg_id();
-          else m_mother=0;
-          m_time = (*ih).meanTime();
-          m_drift = 0.;
-          m_edeposit = (*ih).energyLoss();
-          m_barcode = (*ih).trackNumber();
-
-          if (HMPL.isValid()) {
-            m_momentum = (HMPL.cptr())->momentum().rho();
-            m_eta= (HMPL.cptr())->momentum().eta();
-            m_theta= (HMPL.cptr())->momentum().theta();
-            m_phi  = (HMPL.cptr())->momentum().phi();
-          } else {
-            m_momentum=-1.;
-            m_theta=-1.;
-            m_eta=-10.;
-            m_phi = -10.;
-          }
-
-          ih++;
-          while (ih!=m_pixHits->end() && ((unsigned int)m_id)==(*ih).identify() && m_barcode==(*ih).trackNumber() ) {
-            // merge energy deposits and move on
-            m_edeposit += (*ih).energyLoss();
-            ih++;
-          }
-          m_t_simHits->Fill();
-        }
-      }
-      if (m_sctHits->size()) {
-        SiHitCollection::const_iterator ih=m_sctHits->begin();
-        while (ih!=m_sctHits->end()) {
-          m_type = 6;
-          m_id = (*ih).identify();
-          HepMcParticleLink HMPL = (*ih).particleLink();
-          if (HMPL.isValid()) m_mother = (HMPL.cptr())->pdg_id();
-          else m_mother=0;
-          m_time = (*ih).meanTime();
-          m_drift = 0.;
-          m_edeposit = (*ih).energyLoss();
-          m_barcode = (*ih).trackNumber();
-
-          if (HMPL.isValid()) {
-            m_momentum = (HMPL.cptr())->momentum().rho();
-            m_eta= (HMPL.cptr())->momentum().eta();
-            m_theta= (HMPL.cptr())->momentum().theta();
-            m_phi  = (HMPL.cptr())->momentum().phi();
-          } else {
-            m_momentum=-1.;
-            m_theta=-1.;
-            m_eta=-10.;
-            m_phi = -10.;
-          }
-
-          ih++;
-          while (ih!=m_sctHits->end() && ((unsigned int)m_id)==(*ih).identify() && m_barcode==(*ih).trackNumber() ) {
-            // merge energy deposits and move on
-            m_edeposit += (*ih).energyLoss();
-            ih++;
-          }
-          m_t_simHits->Fill();
-        }
-      }
-      if (m_trtHits->size()) {
-        TRTUncompressedHitCollection::const_iterator ih=m_trtHits->begin();
-        while ( ih!=m_trtHits->end()) {
-          m_type = 7;
-          m_id = (*ih).GetHitID();
-          m_mother = (*ih).GetParticleEncoding();
-          HepMcParticleLink HMPL = (*ih).particleLink();
-          m_time = (*ih).GetGlobalTime();
-          m_drift = 0.;
-          m_edeposit = (*ih).GetEnergyDeposit();
-          m_barcode = (*ih).GetTrackID();
-
-          if (HMPL.isValid()) {
-            m_momentum = (HMPL.cptr())->momentum().rho();
-            m_eta= (HMPL.cptr())->momentum().eta();
-            m_theta= (HMPL.cptr())->momentum().theta();
-            m_phi  = (HMPL.cptr())->momentum().phi();
-          } else {
-            m_momentum=-1.;
-            m_theta=-1.;
-            m_eta=-10.;
-            m_phi = -10.;
-          }
-
-          ih++;
-          while (ih!=m_trtHits->end() && m_id==(*ih).GetHitID() && m_barcode==(*ih).GetTrackID() ) {
-            // merge energy deposits and move on
-            m_edeposit += (*ih).GetEnergyDeposit();
-            ih++;
-          }
-          m_t_simHits->Fill();
-        }
+        m_t_simHits->Fill();
       }
     }
 
-    // set all collections to const
-    m_hitCollectionHelper->SetConstCollection<SiHitCollection>(m_pixHits);
-    m_hitCollectionHelper->SetConstCollection<SiHitCollection>(m_sctHits);
-    m_hitCollectionHelper->SetConstCollection<TRTUncompressedHitCollection>(m_trtHits);
-    m_pixHits=0;
-    m_sctHits=0;
-    m_trtHits=0;
+    if (m_rpcHits->size()) {
+      RPCSimHitCollection::const_iterator ih=m_rpcHits->begin();
+      while (ih!=m_rpcHits->end()) {
+        m_type = 2;
+        m_id = (*ih).RPCid();
+        m_mother = (*ih).particleEncoding();
+        m_time = (*ih).globalTime();
+        m_drift = 0.;
+        m_edeposit = (*ih).energyDeposit();
+        m_barcode = (*ih).trackNumber();
+        HepMcParticleLink HMPL = (*ih).particleLink();
+        if (HMPL.isValid()) {
+          m_momentum = (HMPL.cptr())->momentum().rho();
+          m_eta= (HMPL.cptr())->momentum().eta();
+          m_theta= (HMPL.cptr())->momentum().theta();
+          m_phi  = (HMPL.cptr())->momentum().phi();
+        } else {
+          m_momentum=-1.;
+          m_theta=-1.;
+          m_eta=-10.;
+          m_phi = -10.;
+        }
 
-    m_hitCollectionHelper->SetConstCollection<SiHitCollection>(m_blmHits);
-    m_blmHits=0;
-
-    m_hitCollectionHelper->SetConstCollection<SiHitCollection>(m_bcmHits);
-    m_bcmHits=0;
-
-
-    m_hitCollectionHelper->SetConstCollection< LArHitContainer >(m_storedContainers->embHitCollection);
-    m_hitCollectionHelper->SetConstCollection< LArHitContainer >(m_storedContainers->emecHitCollection);
-    m_hitCollectionHelper->SetConstCollection< LArHitContainer >(m_storedContainers->fcalHitCollection);
-    m_hitCollectionHelper->SetConstCollection< LArHitContainer >(m_storedContainers->hecHitCollection);
-
-    m_storedContainers->embHitCollection=0;
-    m_storedContainers->emecHitCollection=0;
-    m_storedContainers->fcalHitCollection=0;
-    m_storedContainers->hecHitCollection=0;
-
-    if(m_doMiniFcal) {
-      m_hitCollectionHelper->SetConstCollection< LArHitContainer >(m_storedContainers->miniFcalHitCollection);
-      m_storedContainers->miniFcalHitCollection=0;
+        ih++;
+        while (ih!=m_rpcHits->end() && m_id==(*ih).RPCid() && m_barcode==(*ih).trackNumber() ) {
+          // merge energy deposits and move on
+          m_edeposit += (*ih).energyDeposit();
+          ih++;
+        }
+        m_t_simHits->Fill();
+      }
     }
+    if (m_tgcHits->size()) {
+      TGCSimHitCollection::const_iterator ih=m_tgcHits->begin();
+      while ( ih!=m_tgcHits->end()) {
+        m_type = 3;
+        m_id = (*ih).TGCid();
+        m_mother = (*ih).particleEncoding();
+        m_time = (*ih).globalTime();
+        m_drift = 0.;
+        m_edeposit = (*ih).energyDeposit();
+        m_barcode = (*ih).trackNumber();
+        HepMcParticleLink HMPL = (*ih).particleLink();
+        if (HMPL.isValid()) {
+          m_momentum = (HMPL.cptr())->momentum().rho();
+          m_eta= (HMPL.cptr())->momentum().eta();
+          m_theta= (HMPL.cptr())->momentum().theta();
+          m_phi  = (HMPL.cptr())->momentum().phi();
+        } else {
+          m_momentum=-1.;
+          m_theta=-1.;
+          m_eta=-10.;
+          m_phi = -10.;
+        }
 
-    m_hitCollectionHelper->SetConstCollection< CaloCalibrationHitContainer >(m_storedCalibContainers->activeHitCollection);
-    m_hitCollectionHelper->SetConstCollection< CaloCalibrationHitContainer >(m_storedCalibContainers->inactiveHitCollection);
-
-
-    m_hitCollectionHelper->SetConstCollection< CaloCalibrationHitContainer >(m_storedCalibContainers->deadHitCollection);
-    m_storedCalibContainers->activeHitCollection=0;
-    m_storedCalibContainers->inactiveHitCollection=0;
-    m_storedCalibContainers->deadHitCollection=0;
-
-    m_hitCollectionHelper->SetConstCollection< TileHitVector >(m_tileHitVecHits);
-    m_hitCollectionHelper->SetConstCollection< TileHitVector >(m_mbtsHits);
-    m_tileHitVecHits=0;
-    m_mbtsHits=0;
-    if (m_doTileCalibHits) {
-      m_hitCollectionHelper->SetConstCollection< CaloCalibrationHitContainer >(m_tileActiveCellCalibHits);
-      m_hitCollectionHelper->SetConstCollection< CaloCalibrationHitContainer >(m_tileInactiveCellCalibHits);
-      m_hitCollectionHelper->SetConstCollection< CaloCalibrationHitContainer >(m_tileDeadMaterialCalibHits);
-      m_tileActiveCellCalibHits=0;
-      m_tileInactiveCellCalibHits=0;
-      m_tileDeadMaterialCalibHits=0;
+        ih++;
+        while (ih!=m_tgcHits->end() && m_id==(*ih).TGCid() && m_barcode==(*ih).trackNumber() ) {
+          // merge energy deposits and move on
+          m_edeposit += (*ih).energyDeposit();
+          ih++;
+        }
+        m_t_simHits->Fill();
+      }
     }
+    if (m_cscHits->size()) {
+      CSCSimHitCollection::const_iterator ih=m_cscHits->begin();
+      while ( ih!=m_cscHits->end()) {
+        m_type = 4;
+        m_id = (*ih).CSCid();
+        m_mother = (*ih).particleID();
+        m_time = (*ih).globalTime();
+        m_drift = 0.;
+        m_edeposit = (*ih).energyDeposit();
+        m_barcode = (*ih).trackNumber();
+        HepMcParticleLink HMPL = (*ih).particleLink();
+        if (HMPL.isValid()) {
+          m_momentum = (HMPL.cptr())->momentum().rho();
+          m_eta= (HMPL.cptr())->momentum().eta();
+          m_theta= (HMPL.cptr())->momentum().theta();
+          m_phi  = (HMPL.cptr())->momentum().phi();
+        } else {
+          m_momentum=-1.;
+          m_theta=-1.;
+          m_eta=-10.;
+          m_phi = -10.;
+        }
 
-    m_hitCollectionHelper->SetConstCollection< MDTSimHitCollection >(m_mdtHits);
-    m_hitCollectionHelper->SetConstCollection< RPCSimHitCollection >(m_rpcHits);
-    m_hitCollectionHelper->SetConstCollection< TGCSimHitCollection >(m_tgcHits);
-    m_hitCollectionHelper->SetConstCollection< CSCSimHitCollection >(m_cscHits);
-    m_hitCollectionHelper->SetConstCollection< GenericMuonSimHitCollection >(m_muonHits);
-    m_mdtHits=0;
-    m_rpcHits=0;
-    m_tgcHits=0;
-    m_cscHits=0;
-    m_muonHits=0;
+        ih++;
+        while (ih!=m_cscHits->end() && m_id==(*ih).CSCid() && m_barcode==(*ih).trackNumber() ) {
+          // merge energy deposits and move on
+          m_edeposit += (*ih).energyDeposit();
+          ih++;
+        }
+        m_t_simHits->Fill();
+      }
+    }
+    if (m_pixHits->size()) {
+      SiHitCollection::const_iterator ih=m_pixHits->begin();
+      while (ih!=m_pixHits->end()) {
+        m_type = 5;
+        m_id = (*ih).identify();
+        HepMcParticleLink HMPL = (*ih).particleLink();
+        if (HMPL.isValid()) m_mother = (HMPL.cptr())->pdg_id();
+        else m_mother=0;
+        m_time = (*ih).meanTime();
+        m_drift = 0.;
+        m_edeposit = (*ih).energyLoss();
+        m_barcode = (*ih).trackNumber();
 
-    m_hitCollectionHelper->SetConstCollection<TrackRecordCollection>(m_caloEntryLayerTracks);
-    m_hitCollectionHelper->SetConstCollection<TrackRecordCollection>(m_muonEntryLayerTracks);
-    m_hitCollectionHelper->SetConstCollection<TrackRecordCollection>(m_muonExitLayerTracks);
-    m_caloEntryLayerTracks = 0;
-    m_muonEntryLayerTracks = 0;
-    m_muonExitLayerTracks = 0;
+        if (HMPL.isValid()) {
+          m_momentum = (HMPL.cptr())->momentum().rho();
+          m_eta= (HMPL.cptr())->momentum().eta();
+          m_theta= (HMPL.cptr())->momentum().theta();
+          m_phi  = (HMPL.cptr())->momentum().phi();
+        } else {
+          m_momentum=-1.;
+          m_theta=-1.;
+          m_eta=-10.;
+          m_phi = -10.;
+        }
 
-    m_hitCollectionHelper->SetConstCollection<TrackRecordCollection>(m_cosmicPerigeeTracks);
-    m_cosmicPerigeeTracks = 0;
+        ih++;
+        while (ih!=m_pixHits->end() && ((unsigned int)m_id)==(*ih).identify() && m_barcode==(*ih).trackNumber() ) {
+          // merge energy deposits and move on
+          m_edeposit += (*ih).energyLoss();
+          ih++;
+        }
+        m_t_simHits->Fill();
+      }
+    }
+    if (m_sctHits->size()) {
+      SiHitCollection::const_iterator ih=m_sctHits->begin();
+      while (ih!=m_sctHits->end()) {
+        m_type = 6;
+        m_id = (*ih).identify();
+        HepMcParticleLink HMPL = (*ih).particleLink();
+        if (HMPL.isValid()) m_mother = (HMPL.cptr())->pdg_id();
+        else m_mother=0;
+        m_time = (*ih).meanTime();
+        m_drift = 0.;
+        m_edeposit = (*ih).energyLoss();
+        m_barcode = (*ih).trackNumber();
+
+        if (HMPL.isValid()) {
+          m_momentum = (HMPL.cptr())->momentum().rho();
+          m_eta= (HMPL.cptr())->momentum().eta();
+          m_theta= (HMPL.cptr())->momentum().theta();
+          m_phi  = (HMPL.cptr())->momentum().phi();
+        } else {
+          m_momentum=-1.;
+          m_theta=-1.;
+          m_eta=-10.;
+          m_phi = -10.;
+        }
+
+        ih++;
+        while (ih!=m_sctHits->end() && ((unsigned int)m_id)==(*ih).identify() && m_barcode==(*ih).trackNumber() ) {
+          // merge energy deposits and move on
+          m_edeposit += (*ih).energyLoss();
+          ih++;
+        }
+        m_t_simHits->Fill();
+      }
+    }
+    if (m_trtHits->size()) {
+      TRTUncompressedHitCollection::const_iterator ih=m_trtHits->begin();
+      while ( ih!=m_trtHits->end()) {
+        m_type = 7;
+        m_id = (*ih).GetHitID();
+        m_mother = (*ih).GetParticleEncoding();
+        HepMcParticleLink HMPL = (*ih).particleLink();
+        m_time = (*ih).GetGlobalTime();
+        m_drift = 0.;
+        m_edeposit = (*ih).GetEnergyDeposit();
+        m_barcode = (*ih).GetTrackID();
+
+        if (HMPL.isValid()) {
+          m_momentum = (HMPL.cptr())->momentum().rho();
+          m_eta= (HMPL.cptr())->momentum().eta();
+          m_theta= (HMPL.cptr())->momentum().theta();
+          m_phi  = (HMPL.cptr())->momentum().phi();
+        } else {
+          m_momentum=-1.;
+          m_theta=-1.;
+          m_eta=-10.;
+          m_phi = -10.;
+        }
+
+        ih++;
+        while (ih!=m_trtHits->end() && m_id==(*ih).GetHitID() && m_barcode==(*ih).GetTrackID() ) {
+          // merge energy deposits and move on
+          m_edeposit += (*ih).GetEnergyDeposit();
+          ih++;
+        }
+        m_t_simHits->Fill();
+      }
+    }
+  }
+
+  // set all collections to const
+  m_hitCollectionHelper->SetConstCollection<SiHitCollection>(m_pixHits);
+  m_hitCollectionHelper->SetConstCollection<SiHitCollection>(m_sctHits);
+  m_hitCollectionHelper->SetConstCollection<TRTUncompressedHitCollection>(m_trtHits);
+  m_pixHits=0;
+  m_sctHits=0;
+  m_trtHits=0;
+
+  m_hitCollectionHelper->SetConstCollection<SiHitCollection>(m_blmHits);
+  m_blmHits=0;
+
+  m_hitCollectionHelper->SetConstCollection<SiHitCollection>(m_bcmHits);
+  m_bcmHits=0;
 
 
-    // always return success
-    return StatusCode::SUCCESS;
+  m_hitCollectionHelper->SetConstCollection< LArHitContainer >(m_storedContainers->embHitCollection);
+  m_hitCollectionHelper->SetConstCollection< LArHitContainer >(m_storedContainers->emecHitCollection);
+  m_hitCollectionHelper->SetConstCollection< LArHitContainer >(m_storedContainers->fcalHitCollection);
+  m_hitCollectionHelper->SetConstCollection< LArHitContainer >(m_storedContainers->hecHitCollection);
+
+  m_storedContainers->embHitCollection=0;
+  m_storedContainers->emecHitCollection=0;
+  m_storedContainers->fcalHitCollection=0;
+  m_storedContainers->hecHitCollection=0;
+
+  if(m_doMiniFcal) {
+    m_hitCollectionHelper->SetConstCollection< LArHitContainer >(m_storedContainers->miniFcalHitCollection);
+    m_storedContainers->miniFcalHitCollection=0;
+  }
+
+  m_hitCollectionHelper->SetConstCollection< CaloCalibrationHitContainer >(m_storedCalibContainers->activeHitCollection);
+  m_hitCollectionHelper->SetConstCollection< CaloCalibrationHitContainer >(m_storedCalibContainers->inactiveHitCollection);
+
+
+  m_hitCollectionHelper->SetConstCollection< CaloCalibrationHitContainer >(m_storedCalibContainers->deadHitCollection);
+  m_storedCalibContainers->activeHitCollection=0;
+  m_storedCalibContainers->inactiveHitCollection=0;
+  m_storedCalibContainers->deadHitCollection=0;
+
+  m_hitCollectionHelper->SetConstCollection< TileHitVector >(m_tileHitVecHits);
+  m_hitCollectionHelper->SetConstCollection< TileHitVector >(m_mbtsHits);
+  m_tileHitVecHits=0;
+  m_mbtsHits=0;
+  if (m_doTileCalibHits) {
+    m_hitCollectionHelper->SetConstCollection< CaloCalibrationHitContainer >(m_tileActiveCellCalibHits);
+    m_hitCollectionHelper->SetConstCollection< CaloCalibrationHitContainer >(m_tileInactiveCellCalibHits);
+    m_hitCollectionHelper->SetConstCollection< CaloCalibrationHitContainer >(m_tileDeadMaterialCalibHits);
+    m_tileActiveCellCalibHits=0;
+    m_tileInactiveCellCalibHits=0;
+    m_tileDeadMaterialCalibHits=0;
+  }
+
+  m_hitCollectionHelper->SetConstCollection< MDTSimHitCollection >(m_mdtHits);
+  m_hitCollectionHelper->SetConstCollection< RPCSimHitCollection >(m_rpcHits);
+  m_hitCollectionHelper->SetConstCollection< TGCSimHitCollection >(m_tgcHits);
+  m_hitCollectionHelper->SetConstCollection< CSCSimHitCollection >(m_cscHits);
+  m_hitCollectionHelper->SetConstCollection< GenericMuonSimHitCollection >(m_muonHits);
+  m_mdtHits=0;
+  m_rpcHits=0;
+  m_tgcHits=0;
+  m_cscHits=0;
+  m_muonHits=0;
+
+  m_hitCollectionHelper->SetConstCollection<TrackRecordCollection>(m_caloEntryLayerTracks);
+  m_hitCollectionHelper->SetConstCollection<TrackRecordCollection>(m_muonEntryLayerTracks);
+  m_hitCollectionHelper->SetConstCollection<TrackRecordCollection>(m_muonExitLayerTracks);
+  m_caloEntryLayerTracks = 0;
+  m_muonEntryLayerTracks = 0;
+  m_muonExitLayerTracks = 0;
+
+  m_hitCollectionHelper->SetConstCollection<TrackRecordCollection>(m_cosmicPerigeeTracks);
+  m_cosmicPerigeeTracks = 0;
+
+
+  // always return success
+  return StatusCode::SUCCESS;
 }
 
 /** Query the interfaces. */
 StatusCode ISF::SimHitSvc::queryInterface(const InterfaceID& riid, void** ppvInterface){
 
- if ( IID_ISimHitSvc == riid )
+  if ( IID_ISimHitSvc == riid )
     *ppvInterface = (ISimHitSvc*)this;
- else  {
-   // Interface is not directly available: try out a base class
-   return Service::queryInterface(riid, ppvInterface);
- }
- addRef();
- return StatusCode::SUCCESS;
+  else  {
+    // Interface is not directly available: try out a base class
+    return Service::queryInterface(riid, ppvInterface);
+  }
+  addRef();
+  return StatusCode::SUCCESS;
 }
