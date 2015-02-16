@@ -89,8 +89,6 @@ if __name__ == '__main__':
 	print('#################### TEST 5 ####################')
 
 	try:
-		pyAMI.atlas.api.init()
-
 		pyAMI.utils.safeprint(pyAMI.atlas.api.list_datasets(client, patterns = 'data14_cos%', type = 'AOD', order = 'run_number', limit = 10))
 
 		print('[SUCCESS]')
@@ -105,4 +103,3 @@ if __name__ == '__main__':
 	sys.exit(ret)
 
 #############################################################################
-
