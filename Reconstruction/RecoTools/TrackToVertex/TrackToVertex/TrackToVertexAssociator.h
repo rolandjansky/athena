@@ -133,17 +133,9 @@ namespace Reco {
          ATH_MSG_DEBUG("Extrapolation to beamline did not succeed, return 0.");
          return 0;
      }
-     // get the new local position and the covariance matrix (if existed)
-     const Trk::TrackParameters* trackParameters = dynamic_cast<const Trk::TrackParameters*>(ataLine);
-     if (!trackParameters){
-         delete ataLine;
-         ATH_MSG_DEBUG("Method not implemented for neutral parameters (yet), return 0.");
-         return 0;
-     }
-      
-     Trk::SharedObject<const Amg::Vector2D> localImpactParameter(new Amg::Vector2D(trackParameters->localPosition()));
+
+     Trk::SharedObject<const Amg::Vector2D> localImpactParameter(new Amg::Vector2D(ataLine->localPosition()));
      Amg::MatrixX* cov = 0;
-     //const Trk::TrackParameters* mtp = dynamic_cast<const Trk::TrackParameters*>(ataLine);
      if (ataLine->covariance()){
          // d0, z0
          double covD0 = (*ataLine->covariance())(Trk::d0,Trk::d0);
@@ -167,7 +159,7 @@ namespace Reco {
      for ( ; vBLIter!= vBLIterEnd && vIter != vIterEnd; ++vBLIter, ++vIter )
          tvaVector->push_back(Reco::TrackToVertexAssociation(*vIter,*vBLIter,localImpactParameter,localCovariance));
      // memory cleanup
-     delete ataLine;
+     delete ataLine; 
      // sort the vector before returning, using operator< defined for TrackToVertexAssociation
      std::sort(tvaVector->begin(),tvaVector->end());
      // return what you have

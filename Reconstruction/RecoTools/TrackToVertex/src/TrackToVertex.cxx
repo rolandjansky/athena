@@ -233,10 +233,8 @@ const Trk::Perigee* Reco::TrackToVertex::perigeeAtBeamline(const Trk::Track& tra
       {
 	ATH_MSG_DEBUG("Perigee of Track is already expressed to given vertex, a copy is returned.");
 	vertexPerigee = trackPerigee->clone();
-	delete amgTransf;
       } else{
       ATH_MSG_DEBUG("Extrapolation to Beamline Perigee failed, NULL pointer is returned.");
-      delete amgTransf;
     }
     }
   return (vertexPerigee); 
