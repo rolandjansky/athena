@@ -55,6 +55,14 @@ if hasattr(runArgs,"preInclude"):
 if hasattr(runArgs,"topOptions"): include(runArgs.topOptions)
 else: include( "RecExCommon/RecExCommon_topOptions.py" )
 
+from AnalysisTriggerAlgs.AnalysisTriggerAlgsConfig import \
+        RoIBResultToAOD
+idx=0
+for i in topSequence.getAllChildren():
+    idx += 1
+    if "TrigSteer_HLT" in i.getName():
+       topSequence.insert(idx+1, RoIBResultToAOD("RoIBResultToxAOD"))
+
 from TrigDecisionMaker.TrigDecisionMakerConfig import WriteTrigDecision
 trigDecWriter = WriteTrigDecision()
 # inform TD maker that some parts may be missing
@@ -73,32 +81,34 @@ else:
     topSequence.TrigDecMaker.doL2 = False
     topSequence.TrigDecMaker.doEF = False
 
-from TrigEDMConfig.TriggerEDM import getLvl1ESDList, getESDList, \
-                  getAODList, getLvl1AODList, getTrigIDTruthList
-esdList = getESDList()
-aodList = getAODList()
-l1EsdList = getLvl1ESDList()
-l1AodList = getLvl1AODList()
-# In HLTTriggerResultGetter.py filled only when rec.doESD or rec.doAOD
-trigIDTruthESD = getTrigIDTruthList(TriggerFlags.ESDEDMSet())
-trigIDTruthAOD = getTrigIDTruthList(TriggerFlags.AODEDMSet())
+_TriggerESDList = {}
+_TriggerAODList = {}
+from TrigEDMConfig.TriggerEDM import getTriggerEDMList
+_TriggerESDList.update( getTriggerEDMList(TriggerFlags.ESDEDMSet(),  TriggerFlags.EDMDecodingVersion()) )
+_TriggerAODList.update( getTriggerEDMList(TriggerFlags.AODEDMSet(),  TriggerFlags.EDMDecodingVersion()) )
 
-def fillTrigList(inlist):
-    triglist = []
-    for k in inlist:
-      items = inlist[k]
-      for j in items:
-          triglist.append( k + "#" + j)
-    return triglist
+def preplist(input):
+   triglist = []
+   for k,val in input.iteritems():
+      for j in val:
+         triglist.append(k + "#" + j)
+   return triglist
 
-triglists = fillTrigList(esdList)
-triglists += fillTrigList(aodList)
-triglists += fillTrigList(l1EsdList)
-triglists += fillTrigList(l1AodList)
-triglists += fillTrigList(trigIDTruthESD)
-triglists += fillTrigList(trigIDTruthAOD)
+StreamRDO.ItemList += ["HLT::HLTResult#HLTResult_HLT"]
+StreamRDO.ItemList += preplist(_TriggerESDList)
+StreamRDO.ItemList += preplist(_TriggerAODList)
+from TrigEDMConfig.TriggerEDM import getLvl1ESDList
+StreamRDO.ItemList += preplist(getLvl1ESDList())
+from TrigEDMConfig.TriggerEDM import getLvl1AODList
+StreamRDO.ItemList += preplist(getLvl1AODList())
 
-StreamRDO.ItemList += list(set(triglists))
+StreamRDO.ItemList += [ "DataVector<LVL1::TriggerTower>#TriggerTowers" ]
+StreamRDO.ItemList += [ "TRT_RDO_Container#TRT_RDOs" ]
+StreamRDO.ItemList += [ "SCT_RDO_Container#SCT_RDOs" ]
+StreamRDO.ItemList += [ "PixelRDO_Container#PixelRDOs" ]
+StreamRDO.ItemList +=["2721#*"]
+StreamRDO.ItemList +=["2927#*"]
+StreamRDO.ItemList +=["2934#*"]
 
 rec.OutputFileNameForRecoStep="RDOtoRDO_TRIG"
 
@@ -113,4 +123,3 @@ if hasattr(runArgs,"postExec"):
     for cmd in runArgs.postExec:
         recoLog.info(cmd)
         exec(cmd)
-        

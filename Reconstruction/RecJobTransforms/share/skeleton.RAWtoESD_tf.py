@@ -42,6 +42,17 @@ if hasattr(runArgs,"inputRDO_TRIGFile"):
     globalflags.InputFormat.set_Value_and_Lock('pool')
     athenaCommonFlags.PoolRDOInput.set_Value_and_Lock( runArgs.inputRDO_TRIGFile)
     TriggerFlags.doTriggerConfigOnly.set_Value_and_Lock( True )
+    rec.doTrigger.set_Value_and_Lock(True)
+    recAlgs.doTrigger.set_Value_and_Lock(False)
+    from TrigDecisionMaker.TrigDecisionMakerConfig import TrigDecisionMaker
+    trigDecMaker = TrigDecisionMaker()
+    from TriggerJobOpts.HLTTriggerResultGetter import HLTTriggerResultGetter
+    hltoutput = HLTTriggerResultGetter()
+    from TriggerJobOpts.Lvl1ResultBuilderGetter import Lvl1ResultBuilderGetter
+    l1output = Lvl1ResultBuilderGetter()
+    from RecExConfig.ObjKeyStore import cfgKeyStore
+    if cfgKeyStore.isInInput("HLT::HLTResult","HLTResult_HLT"):
+       cfgKeyStore.clear("HLT::HLTResult")
 if hasattr(runArgs,"inputRDO_FILTFile"):
     rec.readRDO.set_Value_and_Lock( True )
     globalflags.InputFormat.set_Value_and_Lock('pool')
@@ -153,6 +164,9 @@ if hasattr(runArgs,"preInclude"):
 #========================================================
 if hasattr(runArgs,"topOptions"): include(runArgs.topOptions)
 else: include( "RecExCommon/RecExCommon_topOptions.py" )
+
+if hasattr(runArgs,"inputRDO_TRIGFile") and hasattr(topSequence,'TrigDecMaker'):
+   topSequence.TrigDecMaker.doL1 = False
 
 ## Post-include
 if hasattr(runArgs,"postInclude"): 

@@ -3,7 +3,7 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 ## SkimRAW_tf.py - Bytestream skimmer transform
-# @version $Id: RAWSkim_tf.py 571272 2013-11-19 14:33:37Z graemes $ 
+# @version $Id: RAWSkim_tf.py 643395 2015-02-01 19:51:21Z graemes $ 
 
 import sys
 import time
@@ -53,13 +53,13 @@ def addMyArgs(parser):
     parser.defineArgGroup('SkimRAW', 'Skim RAW Options')
     parser.add_argument('--inputBSFile', nargs='+', 
                         type=trfArgClasses.argFactory(trfArgClasses.argBSFile, io='input', type='bs'),
-                        help='Input bytestream file(s)', group='SkimRAW', metavar='FILE', required=True)
+                        help='Input bytestream file(s)', group='SkimRAW', metavar='FILE')
     parser.add_argument('--outputBS_SKIMFile', '--outputBSFile', 
                         type=trfArgClasses.argFactory(trfArgClasses.argBSFile, io='output', type='bs'),
-                        help='Output skimmed bytestream file', group='SkimRAW', metavar='SkimmedFILE', required=True)
+                        help='Output skimmed bytestream file', group='SkimRAW', metavar='SkimmedFILE')
     parser.add_argument('--filterFile',
                         type=trfArgClasses.argFactory(trfArgClasses.argString),
-                        help='Filter file for skimming bytestream', group='SkimRAW', required=True)
+                        help='Filter file for skimming bytestream', group='SkimRAW')
 
 
 if __name__ == '__main__':

@@ -106,6 +106,9 @@ def addRecoSubsteps(executorSet):
                                    substep = 'a2da', inData = ['AOD'], outData = ['DAOD']))
     executorSet.add(reductionFrameworkExecutorNTUP(name = 'NTUPtoRED', skeletonFile = 'PATJobTransforms/skeleton.NTUPtoRED_tf.py',
                                    substep = 'n2n', inData = ['NTUP_COMMON'], outData = ['DNTUP']))
+    executorSet.add(reductionFrameworkExecutor(name = 'EVNTtoDAOD', skeletonFile = 'PATJobTransforms/skeleton.AODtoDAOD_tf.py',
+                                   substep = 'ev2da', inData = ['EVNT'], outData = ['DAOD']))
+
 
 
 ## @brief The standard suite of reconstruction specific arguments
