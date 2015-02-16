@@ -312,7 +312,7 @@ void TileCellNoiseMonTool::do2GFit() {
   TF1 fitfunction ("total", "gaus(0)+gaus(3)", xmin, xmax);
   fitfunction.SetLineColor(2);
 
-  double fitresults[9];
+  double fitresults[9] = {0};
   double R, rmsOsig;
   for (int ipart = 0; ipart < 4; ++ipart) {
 

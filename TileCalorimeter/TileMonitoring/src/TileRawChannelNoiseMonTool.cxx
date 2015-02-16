@@ -248,10 +248,10 @@ void TileRawChannelNoiseMonTool::do2GFit() {
   float xmin = -1000.;
   float xmax = 1000.;
 
-  TF1 *fitfunction = new TF1("total", "gaus(0)+gaus(3)", xmin, xmax);
-  fitfunction->SetLineColor(2);
+  TF1 fitfunction("total", "gaus(0)+gaus(3)", xmin, xmax);
+  fitfunction.SetLineColor(2);
 
-  double *fitresults = new double[9];
+  double fitresults[9] = {0};
   double R, rmsOsig;
   for (unsigned int ros = 1; ros < TileCalibUtils::MAX_ROS; ++ros) {
 
@@ -266,7 +266,7 @@ void TileRawChannelNoiseMonTool::do2GFit() {
 
           ATH_MSG_VERBOSE("in  do2GFit() (3) : starting the 2G fit");
 
-          do2GFit(m_TileChannelEne[ros][drawer].at(channel), fitresults, fitfunction);
+          do2GFit(m_TileChannelEne[ros][drawer].at(channel), fitresults, &fitfunction);
 
           // then store the fitresults into a permanent container
           ATH_MSG_VERBOSE( "Fit results:"
@@ -313,14 +313,11 @@ void TileRawChannelNoiseMonTool::do2GFit() {
     } // drawer
   } // ros
 
-  delete fitresults;
-  delete fitfunction;
-
   return;
 } // do2GFit
 
 /*---------------------------------------------------------*/
-void TileRawChannelNoiseMonTool::do2GFit(TH1F* h, double * fitresults, TF1* fitfunction) {
+void TileRawChannelNoiseMonTool::do2GFit(TH1F* h, double* fitresults, TF1* fitfunction) {
   /*---------------------------------------------------------*/
 
   ATH_MSG_VERBOSE("entering do2GFit(TH1F* h, double * fitresults, TF1* fitfunction) = " << h->GetName());
