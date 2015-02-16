@@ -11,18 +11,14 @@
  *  $Id: WriteData.h,v 1.1 2008-12-10 21:28:11 gemmeren Exp $
  **/
 
-#include <string>
-#include "GaudiKernel/Algorithm.h"
-#include "GaudiKernel/ServiceHandle.h"
-
-class StoreGateSvc;
+#include "AthenaBaseComps/AthAlgorithm.h"
 
 namespace AthPoolEx {
 
 /** @class AthPoolEx::WriteData
  *  @brief This class provides an example for writing event data objects to Pool.
  **/
-class WriteData : public Algorithm {
+class WriteData : public AthAlgorithm {
 public: // Constructor and Destructor
    /// Standard Service Constructor
    WriteData(const std::string& name, ISvcLocator* pSvcLocator);
@@ -34,9 +30,6 @@ public:
    StatusCode initialize();
    StatusCode execute();
    StatusCode finalize();
-
-private:
-   ServiceHandle<StoreGateSvc> p_SGevent;
 };
 
 } // end AthPoolEx namespace

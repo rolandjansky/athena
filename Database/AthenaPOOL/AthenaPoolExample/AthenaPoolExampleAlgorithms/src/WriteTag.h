@@ -11,11 +11,7 @@
  *  $Id: WriteTag.h,v 1.1 2008-12-10 21:28:11 gemmeren Exp $
  **/
 
-#include <string>
-#include "GaudiKernel/Algorithm.h"
-#include "GaudiKernel/ServiceHandle.h"
-
-class StoreGateSvc;
+#include "AthenaBaseComps/AthAlgorithm.h"
 
 class AthenaAttributeListSpecification;
 
@@ -24,7 +20,7 @@ namespace AthPoolEx {
 /** @class AthPoolEx::WriteTag
  *  @brief This class provides an example for writing event data objects to Pool.
  **/
-class WriteTag : public Algorithm {
+class WriteTag : public AthAlgorithm {
 public: // Constructor and Destructor
    /// Standard Service Constructor
    WriteTag(const std::string& name, ISvcLocator* pSvcLocator);
@@ -38,7 +34,6 @@ public:
    StatusCode finalize();
 
 private:
-   ServiceHandle<StoreGateSvc> p_SGevent;
    StringProperty m_key;
    IntegerProperty m_magic;
    /// Specification of the event tag metadata schema

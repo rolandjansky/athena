@@ -13,48 +13,34 @@
 // the user data-class defintions
 #include "AthenaPoolExampleData/ExampleHitContainer.h"
 
-#include "GaudiKernel/MsgStream.h"
-
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
-
-#include "StoreGate/StoreGateSvc.h"
 
 using namespace AthPoolEx;
 
 //___________________________________________________________________________
-WriteData::WriteData(const std::string& name, ISvcLocator* pSvcLocator) : Algorithm(name, pSvcLocator), p_SGevent("StoreGateSvc", name) {
+WriteData::WriteData(const std::string& name, ISvcLocator* pSvcLocator) : AthAlgorithm(name, pSvcLocator) {
 }
 //___________________________________________________________________________
 WriteData::~WriteData() {
 }
 //___________________________________________________________________________
 StatusCode WriteData::initialize() {
-   MsgStream log(msgSvc(), name());
-   log << MSG::INFO << "in initialize()" << endreq;
-
-   // locate the StoreGateSvc and initialize our local ptr
-   StatusCode sc = p_SGevent.retrieve();
-   if (!sc.isSuccess() || 0 == p_SGevent) {
-      log << MSG::ERROR << "Could not find StoreGateSvc" << endreq;
-   }
-   return(sc);
+   ATH_MSG_INFO("in initialize()");
+   return StatusCode::SUCCESS;
 }
 //___________________________________________________________________________
 StatusCode WriteData::execute() {
-   StatusCode sc = StatusCode::SUCCESS;
-   MsgStream log(msgSvc(), name());
-   log << MSG::DEBUG << "in execute()" << endreq;
+   ATH_MSG_DEBUG("in execute()");
 
    const DataHandle<EventInfo> evt;
-   sc = p_SGevent->retrieve(evt);
-   if (sc.isFailure() || evt == 0) {
-      log << MSG::FATAL << "Could not find event" << endreq;
-      return(StatusCode::FAILURE);
+   if (evtStore()->retrieve(evt).isFailure()) {
+      ATH_MSG_FATAL("Could not find event");
+      return StatusCode::FAILURE;
    }
    int eventNumber = evt->event_ID()->event_number();
    int runNumber = evt->event_ID()->run_number();
-   log << MSG::INFO << "EventInfo event: " << eventNumber << "  run: " << runNumber << endreq;
+   ATH_MSG_INFO("EventInfo event: " << eventNumber << "  run: " << runNumber);
 
    ExampleHitContainer* hitCont = new ExampleHitContainer();
    for (int i = 0; i < 10; i++) {
@@ -65,25 +51,22 @@ StatusCode WriteData::execute() {
       hitObj->setDetector("DummyHitDetector");
       hitCont->push_back(hitObj);
    }
-   sc = p_SGevent->record(hitCont, "MyHits");
-   if (sc.isFailure()) {
-      log << MSG::ERROR << "Could not register ExampleHitContainer/MyHits" << endreq;
-      return(StatusCode::FAILURE);
+   if (evtStore()->record(hitCont, "MyHits").isFailure()) {
+      ATH_MSG_ERROR("Could not register ExampleHitContainer/MyHits");
+      return StatusCode::FAILURE;
    }
    if (eventNumber == 14) {
-      log << MSG::INFO << "Now creating ExampleHit alias for event: " << eventNumber << endreq;
-      sc = p_SGevent->setAlias(hitCont, "PetersHits");
-      if (sc.isFailure()) {
-         log << MSG::ERROR << "Could not register alias for ExampleHitContainer/MyHits" << endreq;
-         return(StatusCode::FAILURE);
+      ATH_MSG_INFO("Now creating ExampleHit alias for event: " << eventNumber);
+      if (evtStore()->setAlias(hitCont, "PetersHits").isFailure()) {
+         ATH_MSG_ERROR("Could not register alias for ExampleHitContainer/MyHits");
+         return StatusCode::FAILURE;
       }
    }
-   log << MSG::INFO << "registered all data" << endreq;
-   return(StatusCode::SUCCESS);
+   ATH_MSG_INFO("registered all data");
+   return StatusCode::SUCCESS;
 }
 //___________________________________________________________________________
 StatusCode WriteData::finalize() {
-   MsgStream log(msgSvc(), name());
-   log << MSG::INFO << "in finalize()" << endreq;
-   return(StatusCode::SUCCESS);
+   ATH_MSG_INFO("in finalize()");
+   return StatusCode::SUCCESS;
 }

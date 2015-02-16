@@ -36,3 +36,9 @@
 > Stream2             DEBUG Proxy name=Stream1
 < [a-zA-Z0-9_\(\)\/]* Debug endTransaction: go to finish
 > [a-zA-Z0-9_\(\)\/]* Debug endTransaction: go to finish
+< Warning in <TInterpreter::ReadRootmapFile>: class 
+< GUID: Class 
+< Athena               INFO executing ROOT6Setup
+> AthenaRootStrea...   INFO 
+< !! WARNING, type unsigned int does not have property ClassID
+< ===========

@@ -59,10 +59,8 @@ Stream1.ObjectList += [ "ExampleHitContainer#PedestalAppendData" ]
 # Load "user algorithm" top algorithms to be run, and the libraries that house them
 from AthenaPoolExampleAlgorithms.AthenaPoolExampleAlgorithmsConf import AthPoolEx__ReadData,AthPoolEx__WriteCond
 topSequence += AthPoolEx__ReadData("ReadData")
-from StoreGate.StoreGateConf import StoreGateSvc
 topSequence += AthPoolEx__WriteCond( "WriteCond",
                                      ConditionName = "PedestalAppendData",
-                                     Store  = StoreGateSvc("DetectorStore"),
                                      Weight = 0.5,
                                      Offset = 100.0 )
 

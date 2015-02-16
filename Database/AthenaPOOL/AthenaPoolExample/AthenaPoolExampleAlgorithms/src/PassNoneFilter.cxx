@@ -9,19 +9,17 @@
 
 #include "PassNoneFilter.h"
 
-#include <string>
-
 using namespace AthPoolEx;
 
-PassNoneFilter::PassNoneFilter(const std::string& name, ISvcLocator* pSvcLocator) : Algorithm(name, pSvcLocator) {}
+PassNoneFilter::PassNoneFilter(const std::string& name, ISvcLocator* pSvcLocator) : AthAlgorithm(name, pSvcLocator) {}
 
 PassNoneFilter::~PassNoneFilter() {}
 
-StatusCode PassNoneFilter::initialize() { return(StatusCode::SUCCESS); }
+StatusCode PassNoneFilter::initialize() { return StatusCode::SUCCESS; }
 
 StatusCode PassNoneFilter::execute() {
    setFilterPassed(false);
-   return(StatusCode::SUCCESS);
+   return StatusCode::SUCCESS;
 }
 
-StatusCode PassNoneFilter::finalize() { return(StatusCode::SUCCESS); }
+StatusCode PassNoneFilter::finalize() { return StatusCode::SUCCESS; }

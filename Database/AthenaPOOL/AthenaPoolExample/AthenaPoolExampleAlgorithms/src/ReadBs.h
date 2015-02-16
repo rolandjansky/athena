@@ -11,9 +11,7 @@
  *  $Id: ReadBs.h,v 1.2 2009-03-11 20:08:50 gemmeren Exp $
  **/
 
-#include <string>
-#include "GaudiKernel/Algorithm.h"
-#include "GaudiKernel/ServiceHandle.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 
 class StoreGateSvc;
 
@@ -22,7 +20,7 @@ namespace AthPoolEx {
 /** @class AthPoolEx::ReadBs
  *  @brief This class provides an example for reading event data objects from Pool.
  **/
-class ReadBs : public Algorithm {
+class ReadBs : public AthAlgorithm {
 public: // Constructor and Destructor
    /// Standard Service Constructor
    ReadBs(const std::string& name, ISvcLocator* pSvcLocator);

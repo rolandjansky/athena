@@ -57,9 +57,8 @@ Stream1.ObjectList += [ "ExampleHitContainer#PedestalWriteData" ]
 from AthenaPoolExampleAlgorithms.AthenaPoolExampleAlgorithmsConf import AthPoolEx__ReadData,AthPoolEx__WriteCond
 topSequence += AthPoolEx__ReadData("ReadData")
 from StoreGate.StoreGateConf import StoreGateSvc
-topSequence += AthPoolEx__WriteCond( "WriteCond",
+topSequence += AthPoolEx__WriteCond( "WriteCond", DetStore  = StoreGateSvc( "DetectorStore" ),
                                      ConditionName = "PedestalWriteData",
-                                     Store  = StoreGateSvc( "DetectorStore" ),
                                      Weight = 0.0,
                                      Offset = 0.0 )
 

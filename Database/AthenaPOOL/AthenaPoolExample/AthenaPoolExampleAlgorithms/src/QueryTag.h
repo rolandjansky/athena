@@ -11,20 +11,17 @@
  *  $Id: QueryTag.h,v 1.1 2008-12-10 21:28:11 gemmeren Exp $
  **/
 
-#include "GaudiKernel/AlgTool.h"
-#include "GaudiKernel/ServiceHandle.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "AthenaKernel/IAthenaSelectorTool.h"
 
 #include <string>
-
-class StoreGateSvc;
 
 namespace AthPoolEx {
 
 /** @class AthPoolEx::QueryTag
  *  @brief This class provides an example for reading with a ISelectorTool to veto events on AttributeList.
  **/
-class QueryTag : public AlgTool, virtual public IAthenaSelectorTool {
+class QueryTag : public AthAlgTool, virtual public IAthenaSelectorTool {
 public: // Constructor and Destructor
    /// Standard Service Constructor
    QueryTag(const std::string& type, const std::string& name, const IInterface* parent);
@@ -41,7 +38,6 @@ public:
    virtual StatusCode finalize();
 
 private:
-   ServiceHandle<StoreGateSvc> m_eventStore;
    std::string m_attrListKey;
 };
 

@@ -55,11 +55,8 @@ svcMgr.PoolSvc.ReadCatalog += [ "file:Catalog1.xml" ]
 # Private Application Configuration options
 #--------------------------------------------------------------
 # Load "user algorithm" top algorithms to be run, and the libraries that house them
-#from StoreGate.StoreGateConf import StoreGateSvc
-import DetDescrCnvSvc.DetStoreConfig
 from AthenaPoolExampleAlgorithms.AthenaPoolExampleAlgorithmsConf import AthPoolEx__ReadData,AthPoolEx__ReadCond
-topSequence += AthPoolEx__ReadCond( "ReadCond" ) #,
-#                                    Store = StoreGateSvc("DetectorStore") )
+topSequence += AthPoolEx__ReadCond( "ReadCond" )
 topSequence += AthPoolEx__ReadData( "ReadData" )
 
 #--------------------------------------------------------------
