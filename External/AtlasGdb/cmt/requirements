@@ -1,5 +1,4 @@
 package AtlasGdb
-author  Sebastien Binet
 author  Rolf Seuster (re-write w/o pkgbuild)
 
 ## For Athena policies: it has to be the first use statement
@@ -17,6 +16,13 @@ macro AtlasGdb_lib "$(AtlasGdb_root)/$(CMTCONFIG)/lib"
 
 private
 
+# remove some compiler flags which gdb doesn't like.
+macro_remove cflags "-std=c11"
+macro_remove cflags "-std=c11"
+
+# make sure, 32 bit executable is created for i686 (fixing another compilation failure)
+macro supp_conf_flags "" target-i686 " --build=i686-linux"
+
 # the usual, tar; configure; make; make install cycle implemented as actions
 #  here, one additional step is involved to get the include files installed
 #  into the location <package>_root
@@ -25,9 +31,9 @@ action external_untar "(cd ../$(CMTCONFIG); tar xvfJ ../src/gdb-$(AtlasGdb_nativ
 
 # gdb is a standalone executable, independent of compiler flags used for the rest of the atlas software
 #  only exception is that we need to link against libiberty and bfd, so build and expose them
-action external_configure "(cd ../$(CMTCONFIG)/gdb-$(AtlasGdb_native_version); ./configure --prefix=$(AtlasGdb_root)/$(CMTCONFIG) --with-system-gdbinit=$(AtlasGdb_root)/$(CMTCONFIG)/etc/gdbinit --with-python=$(Python_home) --enable-install-libiberty CXXFLAGS='$(cppflags) -fPIC' CFLAGS='-fPIC' LDFLAGS='-L$(Python_home)/lib')"
+action external_configure "(cd ../$(CMTCONFIG)/gdb-$(AtlasGdb_native_version); ./configure --prefix=$(AtlasGdb_root)/$(CMTCONFIG) --with-system-gdbinit=$(AtlasGdb_root)/$(CMTCONFIG)/etc/gdbinit --with-python=$(Python_home) --enable-install-libiberty CXXFLAGS='$(cppflags) -fPIC' CFLAGS='$(cflags)' LDFLAGS='-L$(Python_home)/lib' $(supp_conf_flags))"
 
-action external_make_compile "(cd ../$(CMTCONFIG)/gdb-$(AtlasGdb_native_version); make )"
+action external_make_compile "(cd ../$(CMTCONFIG)/gdb-$(AtlasGdb_native_version); make)"
 
 action external_make_preinstall "(cd ..; ln -sf $(CMTCONFIG)/include )"
 
@@ -66,6 +72,9 @@ macro_append AtlasGdb_linkopts "" \
    $(AtlasGdb_root)/$(tag)/lib/x86_64/libiberty.a -lz " \
   slc6&64&icc13 \ 
  " $(AtlasGdb_root)/$(tag)/lib/libbfd.a \ 
+   $(AtlasGdb_root)/$(tag)/lib/libiberty.a -lz " \
+  slc6&target-i686 \
+ " $(AtlasGdb_root)/$(tag)/lib/libbfd.a \
    $(AtlasGdb_root)/$(tag)/lib/libiberty.a -lz " \
   slc6 \
  " $(AtlasGdb_root)/$(tag)/lib/libbfd.a \
