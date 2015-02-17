@@ -187,10 +187,17 @@ namespace InDet
 	ATH_MSG_ERROR("Unable to record xAOD::VertexContainer in StoreGate");
 	return StatusCode::FAILURE;
       }      
+      
+      if (myVxContainer.first == 0) {
+	ATH_MSG_WARNING("Vertex container has no associated store.");
+	return StatusCode::SUCCESS;
+      }
+
       if (not myVxContainer.first->hasStore()) {
 	ATH_MSG_WARNING("Vertex container has no associated store.");
 	return StatusCode::SUCCESS;
       }
+
       std::string vxContainerAuxName = m_vxCandidatesOutputName + m_vxCandidatesOutputNameAuxPostfix;
       if ( evtStore()->record ( myVxContainer.second, vxContainerAuxName ).isFailure() ) {
 	ATH_MSG_ERROR("Unable to record xAOD::VertexAuxContainer in StoreGate");
