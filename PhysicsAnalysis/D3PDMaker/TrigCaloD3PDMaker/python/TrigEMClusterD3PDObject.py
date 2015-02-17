@@ -13,7 +13,7 @@ TrigEMClusterD3PDObject = make_SGDataVector_D3PDObject('DataVector<xAOD::TrigEMC
 TrigEMClusterD3PDObject.defineBlock (
     0, 'Basics',
     D3PDMakerCoreComps.AuxDataFillerTool,
-    Vars = ['quality = clusterQuality < float: 0'])
+    Vars = ['quality = clusterQuality < unsigned int: 0'])
 TrigEMClusterD3PDObject.defineBlock (
     0, 'Basics1',
     D3PDMakerCoreComps.AuxDataFillerTool,
@@ -44,7 +44,7 @@ TrigEMClusterD3PDObject.defineBlock (
     Vars = ['rawEnergy < float:0',
             'rawEta < float:0',
             'rawPhi < float:0',
-            'RoIWord = RoIword < int: 0',
+            'RoIWord = RoIword < long: 0',
             'nCells < int: 0'])
 #TrigEMClusterD3PDObject.defineBlock (
 #    2, 'Details1',
