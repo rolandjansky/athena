@@ -35,6 +35,7 @@
 SCT_ServMatFactoryDC2::SCT_ServMatFactoryDC2(StoreGateSvc *detStore,ServiceHandle<IRDBAccessSvc> pRDBAccess) :
   m_detStore(detStore),
   m_rdbAccess(pRDBAccess),
+  m_materialManager(0),
   m_msg("SCT_ServMatFactoryDC2")
 {
   
