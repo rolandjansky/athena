@@ -26,6 +26,9 @@
 #include "CaloGeoHelpers/CaloSampling.h"
 #include "CaloUtils/CaloVertexedCluster.h"
 
+#include "AthenaBaseComps/AthMessaging.h"
+
+
 // redefine the macro to print strings instead of enums as in TauDetails.h
 #undef ENUM_OR_STRING
 #define ENUM_OR_STRING( x ) #x   
@@ -168,6 +171,7 @@ bool TauDetailsManager::update(const xAOD::TauJet& tauJet)
 	this->float_data[Details::E]   = tauJet.e();
 	this->float_data[Details::ET]  = tauJet.pt();
 	this->float_data[Details::PT]  = tauJet.pt();
+	this->float_data[Details::TAU_PT]  = tauJet.pt();
 	this->float_data[Details::M]   = tauJet.m();
 
 	float etOverpTLeadTrk;
@@ -230,7 +234,43 @@ bool TauDetailsManager::update(const xAOD::TauJet& tauJet)
 	// in case TauDiscriminant::TauDetailsManager is called after a full TauDiscriminant run or on a already full processed AOD/xAOD
 	//  this variable is filled properly
 	this->float_data[Details::BDTJETSCORE] = tauJet.discriminant(TauJetParameters::BDTJetScore);
+	
+	//==========================================================================================
+	// variables added by Aleksey and Pedro for Run2
+	//==========================================================================================
+	
+//	ATH_MSG_WARNING("=================================================================================");
+//	ATH_MSG_WARNING("BEFORE TAU_PTRATIOEFLOWCORRECTED");
+	tauJet.detail(TauJetParameters::ptRatioEflowApproxCorrected,	this->float_data[Details::TAU_PTRATIOEFLOWAPPROXCORRECTED]);
+		
+	tauJet.detail(TauJetParameters::centFracCorrected,		this->float_data[Details::TAU_CENTFRACCORRECTED]);
+	tauJet.detail(TauJetParameters::etOverPtLeadTrkCorrected,	this->float_data[Details::TAU_ETOVERPTLEADTRKCORRECTED]);
+	tauJet.detail(TauJetParameters::innerTrkAvgDistCorrected,	this->float_data[Details::TAU_INNERTRKAVGDISTCORRECTED]);
+	tauJet.detail(TauJetParameters::ipSigLeadTrkCorrected,		this->float_data[Details::TAU_IPSIGLEADTRKCORRECTED]);
+	tauJet.detail(TauJetParameters::SumPtTrkFracCorrected,		this->float_data[Details::TAU_SUMPTTRKFRACCORRECTED]);
+	tauJet.detail(TauJetParameters::mEflowApproxCorrected,		this->float_data[Details::TAU_MEFLOWAPPROXCORRECTED]);
+	tauJet.detail(TauJetParameters::ChPiEMEOverCaloEMECorrected,	this->float_data[Details::TAU_CHPIEMEOVERCALOEMECORRECTED]);
+	tauJet.detail(TauJetParameters::EMPOverTrkSysPCorrected,	this->float_data[Details::TAU_EMPOVERTRKSYSPCORRECTED]);
+	tauJet.detail(TauJetParameters::dRmaxCorrected,			this->float_data[Details::TAU_DRMAXCORRECTED]);
+	tauJet.detail(TauJetParameters::trFlightPathSigCorrected,	this->float_data[Details::TAU_TRFLIGHTPATHSIGCORRECTED]);
+	tauJet.detail(TauJetParameters::massTrkSysCorrected,		this->float_data[Details::TAU_MASSTRKSYSCORRECTED]);
+	/*
+	ATH_MSG_INFO("====================================================================================");
+	ATH_MSG_INFO("TAU_PTRATIOEFLOWAPPROXCORRECTED 	 = "<<this->float_data[Details::TAU_PTRATIOEFLOWAPPROXCORRECTED]);
+	ATH_MSG_INFO("TAU_CENTFRACCORRECTED 	 	 = "<<this->float_data[Details::TAU_CENTFRACCORRECTED]);
+	ATH_MSG_INFO("TAU_ETOVERPTLEADTRKCORRECTED 	 = "<<this->float_data[Details::TAU_ETOVERPTLEADTRKCORRECTED]);
+	ATH_MSG_INFO("TAU_INNERTRKAVGDISTCORRECTED 	 = "<<this->float_data[Details::TAU_INNERTRKAVGDISTCORRECTED]);
+	ATH_MSG_INFO("TAU_IPSIGLEADTRKCORRECTED 	 = "<<this->float_data[Details::TAU_IPSIGLEADTRKCORRECTED]);
+	ATH_MSG_INFO("TAU_SUMPTTRKFRACCORRECTED 	 = "<<this->float_data[Details::TAU_SUMPTTRKFRACCORRECTED]);
+	ATH_MSG_INFO("TAU_MEFLOWAPPROXCORRECTED 	 = "<<this->float_data[Details::TAU_MEFLOWAPPROXCORRECTED]);
+	ATH_MSG_INFO("TAU_CHPIEMEOVERCALOEMECORRECTED 	 = "<<this->float_data[Details::TAU_CHPIEMEOVERCALOEMECORRECTED]);
+	ATH_MSG_INFO("TAU_EMPOVERTRKSYSPCORRECTED 	 = "<<this->float_data[Details::TAU_EMPOVERTRKSYSPCORRECTED]);
+	ATH_MSG_INFO("TAU_DRMAXCORRECTED		 = "<<this->float_data[Details::TAU_DRMAXCORRECTED]);
+	ATH_MSG_INFO("TAU_TRFLIGHTPATHSIGCORRECTED	 = "<<this->float_data[Details::TAU_TRFLIGHTPATHSIGCORRECTED]);
+	ATH_MSG_INFO("TAU_MASSTRKSYSCORRECTED	 	 = "<<this->float_data[Details::TAU_MASSTRKSYSCORRECTED]);
+	*/
 
+	
 
 	//==========================================================================================
 	// calculate now variables needed for TauID not calculated by tauRec

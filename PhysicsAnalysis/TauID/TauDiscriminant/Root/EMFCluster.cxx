@@ -16,13 +16,16 @@
 // Default Constructor
 //---------------------------------------------------------
 EMFCluster::EMFCluster()
-{}
+{
+	EMFCluster(0.0);
+}
+
 
 
 //---------------------------------------------------------
 // Initiate TLorentzVector Contructor
 //---------------------------------------------------------
-EMFCluster::EMFCluster(double pt)
+EMFCluster::EMFCluster(double pt) 
 {
     m_cluster = TLorentzVector(pt, 0.0, 0.0, 0.0);
     m_PSSF = 0.0;
@@ -34,6 +37,7 @@ EMFCluster::EMFCluster(double pt)
     m_EM2E = 0.;
     m_EM3E = 0.;
     m_HADE = 0.0;
+    m_pseudoHADF = 0.0;
 }
 
 
