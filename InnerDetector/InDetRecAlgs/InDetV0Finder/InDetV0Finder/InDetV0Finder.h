@@ -23,7 +23,9 @@
 /**
    @class InDetV0Finder
    Execute method for the main V0 finding module.
-   InDetV0Finder first gets its input tracks from StoreGate.
+   InDetV0Finder uses the InDetV0FinderTool and records the V0 containers:
+   V0UnconstrVertices, V0KshortVertices, V0LambdaVertices and V0LambdabarVertices.
+   If decorateV0 = True, the mass, pT and Rxy with corresponding errors are stored.
 */
 
 /* Forward declarations */

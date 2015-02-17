@@ -22,6 +22,50 @@
 #include "DataModel/DataVector.h"
 #include "ITrackToVertex/ITrackToVertex.h"
 
+/**
+   The InDetV0FinderTool reads in the TrackParticle container from StoreGate,
+   if useorigin = True only tracks not associated to a primary vertex are used.
+   There are options to use silicon tracks only (default) or include Si+TRT and TRT+TRT.
+
+   Pairs of tracks passing pre-selection (using InDetTrackSelectorTool) are
+   fitted to a common vertex using TrkV0Fitter or TrkVKalVrtFitter (useV0Fitter = False).
+
+   InDetV0FinderTool can take as input a vertex (or a collection of vertices)
+   w.r.t which the V0s can be selected to minimise combinatorics.
+     - if such a vertex is provided, tracks are used if fabs(d0/sig_d0) > d0_cut (= 2.)
+     - if useVertexCollection = True all vertices in the collection are used
+     - if useVertexCollection = False
+       - if trkSelPV = True either a primary vertex, if provided, or the beam spot are used
+       - if trkSelPV = False (default) all track combinations are used.
+
+   The unconstrained vertex fit is attempted if the radius of the starting point is < maxsxy (= 1000 mm)
+   and at least one invariant mass at the starting point is in the allowed range:
+   uksmin < m(pipi) < uksmax or ulamin < m(ppi) < ulamax or ulamin < m(pip) < ulamax
+
+   V0s are kept if the cumulative chi2 probability of the unconstrained fit is > minVertProb (= 0.0001)
+  
+   If doSimpleV0 = True all vertices that pass these cuts are stored in V0UnconstrVertices.
+
+   If doSimpleV0 = False (default) mass constrained fits are attempted if
+     - the invariant mass of the unconstrained V0 is in the allowed range:
+       ksmin < m(pipi) < ksmax, lamin < m(ppi), m(pip) < lamax
+       and the error on the invariant mass is < errmass (= 100 MeV)
+     - if an input vertex (collection) is provided the unconstrained V0 is required to 
+       have an impact parameter w.r.t the vertex < vert_a0xy_cut (= 3 mm) in xy and
+       < vert_a0z_cut (= 15 mm) in z, the cosine of the angle between the V0 momentum and
+       the direction from the input vertex to the V0 vertex is > 0, 
+       Lxy w.r.t the vertex is < vert_lxy_cut (= 500 mm) and Lxy/sigma(Lxy) > vert_lxy_sig (= 2)
+
+   Mass constrainedV0s are kept if the cumulative chi2 probability of the fit is > minVertProb (= 0.0001)
+
+   For successful mass constrained fits a conversion fit is also attempted and if successful,
+   the corresponding unconstrained V0 is decorated with the invariant mass, its error and
+   the vertex probability of the conversion fit.
+
+   The links between the unconstrained V0 and the successful mass constrained V0s are stored.
+*/
+
+
 /* Forward declarations */
 
 class IBeamCondSvc;
@@ -80,7 +124,7 @@ namespace InDet
     bool          m_useorigin;                //!< = true only using tracks that have no vertex association (true)
     bool          m_samesign;                 //!< = true select tracks with same sign (false)
     bool          m_pv;                       //!< = true select tracks wrt primary vertex (false)
-    bool          m_use_vertColl;             //!< = true select tracks wrt a vertex collection (true)
+    bool          m_use_vertColl;             //!< = true select tracks wrt a vertex collection (false)
     bool          m_useTRTplusTRT;            //!< = use TRT+TRT pairs (true)
     bool          m_useTRTplusSi;             //!< = use TRT+Si pairs (true)
     bool          m_useV0Fitter;              //!< = true if using TrkV0Fitter, = false if using VKalVert (true)
@@ -103,8 +147,8 @@ namespace InDet
     double        m_errmass;                  //!< Maximum mass error (100. MeV)
     double        m_minVertProb;              //!< Minimum vertex probability (0.0001)
     double        m_minConstrVertProb;        //!< Minimum vertex probability for constrained fit (0.0001)
-    double        m_d0_cut;                   //!< track d0 significance wrt a vertex (>5.)
-    double        m_vert_lxy_sig;             //!< V0 lxy significance wrt a vertex (>5.)
+    double        m_d0_cut;                   //!< track d0 significance wrt a vertex (>2.)
+    double        m_vert_lxy_sig;             //!< V0 lxy significance wrt a vertex (>2.)
     double        m_vert_lxy_cut;             //!< V0 lxy V0 lxy  (<500.)
     double        m_vert_a0xy_cut;            //!< V0 |a0xy| wrt a vertex (<3.)
     double        m_vert_a0z_cut;             //!< V0 |a0z| wrt a vertex (<15.)
@@ -119,7 +163,6 @@ namespace InDet
     ServiceHandle <IBeamCondSvc> m_beamConditionsService;
 
     std::string   m_TrkParticleCollection ;   //!< Name of input track particle collection
-    std::string   m_V0CandidatesOutputName;   //!< Name of output container to store results
 
 
     void SGError(std::string errService);

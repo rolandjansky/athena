@@ -66,7 +66,6 @@ InDetV0FinderTool::InDetV0FinderTool(const std::string& t, const std::string& n,
   m_doSimpleV0(false),
   m_useorigin(true),
   m_samesign(false),
-  //m_pv(true),
   m_pv(false),
   m_use_vertColl(false),
   m_useTRTplusTRT(false),
@@ -91,14 +90,13 @@ InDetV0FinderTool::InDetV0FinderTool(const std::string& t, const std::string& n,
   m_errmass(100.),
   m_minVertProb(0.0001),
   m_minConstrVertProb(0.0001),
-  m_d0_cut(5.),
-  m_vert_lxy_sig(5.),
+  m_d0_cut(2.),
+  m_vert_lxy_sig(2.),
   m_vert_lxy_cut(500.),
   m_vert_a0xy_cut(3.),
   m_vert_a0z_cut(15.),
   m_beamConditionsService("BeamCondSvc", n),
-  m_TrkParticleCollection("TrackParticleCandidate"),
-  m_V0CandidatesOutputName("V0Candidates")
+  m_TrkParticleCollection("TrackParticleCandidate")
 {
   declareInterface<InDetV0FinderTool>(this);
   declareProperty("VertexFitterTool", m_iVertexFitter);
@@ -147,7 +145,6 @@ InDetV0FinderTool::InDetV0FinderTool(const std::string& t, const std::string& n,
   declareProperty("vert_a0z_cut", m_vert_a0z_cut );
   declareProperty("BeamConditionsSvc", m_beamConditionsService); 
   declareProperty("TrackParticleCollection", m_TrkParticleCollection);
-  declareProperty("V0CandidatesOutputName",m_V0CandidatesOutputName="V0Candidates");
 }
 
 InDetV0FinderTool::~InDetV0FinderTool() {}
@@ -507,6 +504,7 @@ StatusCode InDetV0FinderTool::performSearch(xAOD::VertexContainer*& v0Container,
                     if (!m_use_vertColl && m_pv && primaryVertex) {
                       if ( !pointAtVertex(myVxCandidate,primaryVertex) ) pointAtVert = false;
                     }
+                    if (m_doSimpleV0) pointAtVert = true;
                     if (pointAtVert)
                     {
                       Trk::Vertex vertex0(m_V0Tools->vtx(myVxCandidate));
@@ -607,7 +605,7 @@ StatusCode InDetV0FinderTool::performSearch(xAOD::VertexContainer*& v0Container,
                         }
                         if (doGamma && !m_doSimpleV0) {
                           myGamma = massFit(22, pairV0, vertex0, concreteVertexFitter);
-                          if (myGamma != 0) {
+                          if (myGamma != 0 && m_V0Tools->vertexProbability(myGamma) >= m_minConstrVertProb) {
                             gamma_fit = 1;
                             gamma_prob = m_V0Tools->vertexProbability(myGamma);
                             gamma_mass = m_V0Tools->invariantMass(myGamma,m_masse,m_masse);
@@ -763,12 +761,12 @@ bool InDetV0FinderTool::pointAtVertex(xAOD::Vertex* v0, xAOD::Vertex* PV)
   double v0lxy = m_V0Tools->lxy(v0,PV);
   double v0lxyError = m_V0Tools->lxyError(v0,PV);
   double cos = -1;
-  if (PV->vxTrackAtVertexAvailable()) {
-    double prod = m_V0Tools->V0Momentum(v0).dot(m_V0Tools->V0Momentum(PV));
-    cos = prod/(m_V0Tools->V0Momentum(v0).mag()*m_V0Tools->V0Momentum(PV).mag());
-  } else {
+  //if (PV->vxTrackAtVertexAvailable()) {
+  //  double prod = m_V0Tools->V0Momentum(v0).dot(m_V0Tools->V0Momentum(PV));
+  //  cos = prod/(m_V0Tools->V0Momentum(v0).mag()*m_V0Tools->V0Momentum(PV).mag());
+  //} else {
     cos = m_V0Tools->cosTheta(v0,PV);
-  }
+  //}
   double v0a0xy = m_V0Tools->a0xy(v0,PV);
   double v0a0z = m_V0Tools->a0z(v0,PV);
   if (v0lxy/v0lxyError > m_vert_lxy_sig && cos > 0. &&
