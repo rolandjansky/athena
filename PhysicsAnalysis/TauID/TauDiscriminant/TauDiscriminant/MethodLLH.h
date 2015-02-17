@@ -45,7 +45,8 @@ namespace TauID
                 MethodBase(_name),
                 isBuilt(false),
                 nLevels(0),
-                llh(NULL)
+                llh(NULL),
+		m_option(0)
             {}
             #endif
 

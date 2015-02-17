@@ -215,7 +215,7 @@ Node* TreeReader::readTree(
         }
         else if(variable == GRAPH || variable == FUNC || variable == TRANS) // Now reading a UnivariateSlidingCut1D/Tranformation node
         {
-            int numPoints;
+            int numPoints = 0;
             string expression;
             string graphName;
             float lowX, highX;
@@ -692,7 +692,7 @@ Node* TreeReader::build(
     category_it = categories.begin();
     category_end = categories.end();
 
-    unsigned int numTrees;
+    unsigned int numTrees = 0;
     float weight;
 
     // Build the (categorized) TreeVector
