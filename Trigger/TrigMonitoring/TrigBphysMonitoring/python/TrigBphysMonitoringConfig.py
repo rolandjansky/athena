@@ -6,7 +6,10 @@
 
 #from TrigEDMConfig import TriggerEDM
 #containers = [x[0] for x in TriggerEDM.TriggerHLTList if "TrigBphysContainer" in x[0]]
-containers = ["HLT_xAOD__TrigBphysContainer_EFBMuMuFex"]
+containers = ["HLT_xAOD__TrigBphysContainer_L2BMuMuFex",  "HLT_xAOD__TrigBphysContainer_EFBMuMuFex",
+              "HLT_xAOD__TrigBphysContainer_L2BMuMuXFex", "HLT_xAOD__TrigBphysContainer_EFBMuMuXFex",
+              "HLT_xAOD__TrigBphysContainer_L2MultiMuFex","HLT_xAOD__TrigBphysContainer_EFMultiMuFex",
+              "HLT_xAOD__TrigBphysContainer_L2TrackMass", "HLT_xAOD__TrigBphysContainer_EFTrackMass"]
 
 #from TriggerMenu.menu import DC14 as menu  #note should move to MC asap
 #from TriggerJobOpts.TriggerFlags          import TriggerFlags
@@ -97,6 +100,20 @@ def TrigBphysMonitoringTool():
                                   OniaMass_max        =  12000,
                                   OniaPt_min          =  8,
                                   OniaPt_max          =  100,
+                                  MassErr_min         =  0.,
+                                  MassErr_max         =  200.,
+                                  Lxy_min             =  -2.,
+                                  Lxy_max             =  20.,
+                                  LxyErr_min          =  0.,
+                                  LxyErr_max          =  20.,
+                                  Tau_min             =  -2.,
+                                  Tau_max             =  20.,
+                                  TauErr_min          =  0.,
+                                  TauErr_max          =  20.,
+                                  pT_min              =  0.,
+                                  pT_max              =  100.,
+                                  pTErr_min           =  0.,
+                                  pTErr_max           =  1.,
                                   )
     from AthenaCommon.AppMgr import ToolSvc
     ToolSvc += HLTBphysMon
