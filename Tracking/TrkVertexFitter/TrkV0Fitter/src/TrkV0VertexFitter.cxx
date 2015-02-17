@@ -12,6 +12,7 @@
 #include "VxVertex/ExtendedVxCandidate.h"
 #include "GaudiKernel/ToolFactory.h"
 #include "TrkSurfaces/PerigeeSurface.h"
+#include "TrkSurfaces/CylinderSurface.h"
 #include "TrkExInterfaces/IExtrapolator.h"
 #include "TrkDetDescrUtils/GeometryStatics.h"
 #include "TrkTrack/TrackCollection.h"
@@ -32,7 +33,7 @@ namespace
 {
   struct V0FitterTrack
   {
-    V0FitterTrack() : originalPerigee(0) {}
+    V0FitterTrack() : originalPerigee(0), chi2(-1.) {}
     virtual ~V0FitterTrack() {}
     const Trk::TrackParameters * originalPerigee;
     double chi2;
@@ -48,6 +49,7 @@ namespace Trk
       m_maxDchi2PerNdf(0.1),
       m_maxR(2000.),
       m_maxZ(5000.),
+      m_firstMeas(true),
       m_deltaR(false),
       m_extrapolator("Trk::Extrapolator/InDetExtrapolator"),
       m_magFieldSvc("AtlasFieldSvc",n)
@@ -56,6 +58,7 @@ namespace Trk
     declareProperty("MaxChi2PerNdf",             m_maxDchi2PerNdf);
     declareProperty("MaxR",                      m_maxR);
     declareProperty("MaxZ",                      m_maxZ);
+    declareProperty("FirstMeasuredPoint",        m_firstMeas);
     declareProperty("Use_deltaR",                m_deltaR);
     declareProperty("Extrapolator",              m_extrapolator);
     declareProperty("MagFieldSvc",               m_magFieldSvc);
@@ -197,13 +200,37 @@ namespace Trk
 					const Trk::RecVertex* pointingVertex,
 					const Trk::Vertex& firstStartingPoint)
   {
-    // push_back measured perigees at first measurements into vector<const Trk::ParametersBase*>
     std::vector<const Trk::TrackParameters*> measuredPerigees;
+    std::vector<const Trk::TrackParameters*> measuredPerigees_delete;
     for (const xAOD::TrackParticle* p : vectorTrk)
     {
-      measuredPerigees.push_back (&p->perigeeParameters());
+      if (m_firstMeas) {
+        Amg::Transform3D * CylTrf = new Amg::Transform3D;
+        CylTrf->setIdentity();
+        Trk::CylinderSurface estimationCylinder(CylTrf, p->radiusOfFirstHit(), 10e10);
+        const Trk::TrackParameters* chargeParameters = &p->perigeeParameters();
+        MaterialUpdateMode mode = Trk::removeNoise;
+        const Trk::TrackParameters* extrapolatedPerigee(0);
+        extrapolatedPerigee = m_extrapolator->extrapolate(*chargeParameters, estimationCylinder, Trk::alongMomentum, true, Trk::pion, mode);
+        if (extrapolatedPerigee!=0) {
+          measuredPerigees.push_back (extrapolatedPerigee);
+          measuredPerigees_delete.push_back (extrapolatedPerigee);
+        } else {
+          extrapolatedPerigee = m_extrapolator->extrapolateDirectly(*chargeParameters, estimationCylinder, Trk::alongMomentum, true, Trk::pion);
+          if (extrapolatedPerigee!=0) {
+            measuredPerigees.push_back (extrapolatedPerigee);
+            measuredPerigees_delete.push_back (extrapolatedPerigee);
+          } else {
+            msg(MSG::INFO) << "Failed to extrapolate to the first measurement on track, using Perigee parameters" << endreq;
+            measuredPerigees.push_back (&p->perigeeParameters());
+            delete extrapolatedPerigee;
+          }
+        }
+      } else {
+        measuredPerigees.push_back (&p->perigeeParameters());
+      }
     }
-    
+
     Trk::VxCandidate* fitVxCandidate = fit(measuredPerigees, masses, constraintMass, pointingVertex, firstStartingPoint);
     
     if (fitVxCandidate == 0) return 0;
@@ -248,6 +275,9 @@ namespace Trk
     }
     vx->setCovariance(floatErrMtx);
 
+    for (auto ptr : measuredPerigees_delete){ delete ptr; }
+    delete vxCandidate;
+
     return vx;
   }
   
@@ -270,22 +300,23 @@ namespace Trk
       if(!tsos) {
         ATH_MSG_DEBUG("Couldn't find first measurement, using perigee parameters");
         measuredPerigees.push_back((*trItr)->perigeeParameters());
+      } else {
+        int ntp = 0;
+        DataVector<const Trk::TrackStateOnSurface>::const_iterator its,itse = tsos->end();
+        for(its=tsos->begin();its!=itse;++its) {
+          const Trk::MeasurementBase* mb = (*its)->measurementOnTrack();
+          if(!mb) continue;
+          const Trk::TrackParameters* trkP = (*its)->trackParameters();
+          const Trk::TrackParameters* mTrkP = dynamic_cast<const Trk::TrackParameters*>(trkP);
+          if(!mTrkP) continue;
+          double loc = trkP->associatedSurface().center().perp();
+          if(loc<10.) continue;
+          if(ntp==0) firstTrkPar = trkP;
+          ntp++;
+        }
+        measuredPerigees.push_back(firstTrkPar);
+        //measuredPerigees.push_back((*trItr)->perigeeParameters());
       }
-      int ntp = 0;
-      DataVector<const Trk::TrackStateOnSurface>::const_iterator its,itse = tsos->end();
-      for(its=tsos->begin();its!=itse;++its) {
-        const Trk::MeasurementBase* mb = (*its)->measurementOnTrack();
-        if(!mb) continue;
-        const Trk::TrackParameters* trkP = (*its)->trackParameters();
-        const Trk::TrackParameters* mTrkP = dynamic_cast<const Trk::TrackParameters*>(trkP);
-        if(!mTrkP) continue;
-        double loc = trkP->associatedSurface().center().perp();
-        if(loc<10.) continue;
-        if(ntp==0) firstTrkPar = trkP;
-        ntp++;
-      }
-      measuredPerigees.push_back(firstTrkPar);
-      //measuredPerigees.push_back((*trItr)->perigeeParameters());
     }
 
     Trk::VxCandidate* fittedVxCandidate = fit(measuredPerigees, masses, constraintMass, pointingVertex, firstStartingPoint);
@@ -526,8 +557,8 @@ namespace Trk
         for (PTIter = v0FitterTracks.begin(); PTIter != v0FitterTracks.end() ; ++PTIter)
         {
           V0FitterTrack locP((*PTIter));
-           Wmeas0_mat.block(5*i,5*i,5,5) = locP.Wi_mat;
-           Wmeas_mat.block(5*i,5*i,5,5) = locP.Wi_mat;
+          Wmeas0_mat.block(5*i,5*i,5,5) = locP.Wi_mat;
+          Wmeas_mat.block(5*i,5*i,5,5) = locP.Wi_mat;
           for (int j=0; j<5; ++j) {
             Y0_vec(j+5*i)  = locP.TrkPar[j];
           }
@@ -723,18 +754,19 @@ namespace Trk
         F_fac_vec[i+nTrk] = 1.;
       }
       if(massConstraint) F_vec(2*nTrk+0) = -FMass;
-      if(massConstraint) F_fac_vec(2*nTrk+0) = 1.;
+      //if(massConstraint) F_fac_vec(2*nTrk+0) = 1.;
+      if(massConstraint) F_fac_vec(2*nTrk+0) = 0.000001;
       if(pointingConstraint) {
         if(massConstraint) {
           F_vec(2*nTrk+1) = -FPxy;
           F_vec(2*nTrk+2) = -FPxz;
-          F_fac_vec(2*nTrk+1) = 0.00001;
-          F_fac_vec(2*nTrk+2) = 0.00001;
+          F_fac_vec(2*nTrk+1) = 0.000001;
+          F_fac_vec(2*nTrk+2) = 0.000001;
         } else {
           F_vec(2*nTrk+0) = -FPxy;
           F_vec(2*nTrk+1) = -FPxz;
-          F_fac_vec(2*nTrk+0) = 0.00001;
-          F_fac_vec(2*nTrk+1) = 0.00001;
+          F_fac_vec(2*nTrk+0) = 0.000001;
+          F_fac_vec(2*nTrk+1) = 0.000001;
         }
       }
 
@@ -875,6 +907,8 @@ namespace Trk
       const Amg::Vector3D * globalPositionItr = &frameOriginItr;
       if (globalPositionItr->perp() > m_maxR && globalPositionItr->z() > m_maxZ) return 0;
 
+      if (onConstr && fabs(chi2Old-chi2New) < 0.1) { break; }
+
       double fieldXYZItr[3];  double BFieldItr[3];
       fieldXYZItr[0] = globalPositionItr->x();
       fieldXYZItr[1] = globalPositionItr->y();
@@ -955,7 +989,7 @@ namespace Trk
         restartFit = true;
       }
 
-      if (onConstr && fabs(chi2Old-chi2New) < 0.1) { break; }
+      //if (onConstr && fabs(chi2Old-chi2New) < 0.1) { break; }
 
     } // end of iteration
 

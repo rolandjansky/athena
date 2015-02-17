@@ -153,6 +153,7 @@ namespace Trk
     double m_maxDchi2PerNdf;
     double m_maxR;
     double m_maxZ;
+    bool   m_firstMeas;
     bool   m_deltaR;
 
     /** Data members to store the results */
