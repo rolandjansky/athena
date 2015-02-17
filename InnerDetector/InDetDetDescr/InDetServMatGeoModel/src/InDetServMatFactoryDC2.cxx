@@ -30,6 +30,7 @@
 InDetServMatFactoryDC2::InDetServMatFactoryDC2(StoreGateSvc *detStore,ServiceHandle<IRDBAccessSvc> pRDBAccess) :
   m_detStore(detStore),
   m_rdbAccess(pRDBAccess),
+  m_manager(0),
   m_msg("InDetServMatFactoryDC2")
 {
   
@@ -46,8 +47,6 @@ InDetServMatFactoryDC2::~InDetServMatFactoryDC2()
 //## Other Operations (implementation)
 void InDetServMatFactoryDC2::create(GeoPhysVol *world)
 {
-
-
   // create a new det manager
   m_manager = new InDetDD::InDetServMatManager();
 

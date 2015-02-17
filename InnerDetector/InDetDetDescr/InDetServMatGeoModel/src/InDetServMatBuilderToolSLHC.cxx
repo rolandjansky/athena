@@ -118,7 +118,7 @@ void InDetServMatBuilderToolSLHC::build()
   geoInit();
   m_init = true;
   if (!m_geoMgr->buildServices()) return;
-
+  
   // build the geometry
   if (msgLvl(MSG::DEBUG)) {
     msg(MSG::DEBUG) << "pixelNumLayers: " << m_geoMgr->pixelNumLayers() << endreq;

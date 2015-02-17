@@ -233,6 +233,7 @@ int InDetServMatGeometryManager::pixelModulesPerEndcapSector( int layer) const
       //msg(MSG::INFO) << "Pixel Ring " << ring << " on disk " << disk << " has " << pixelModulesPerRing( ring) << " modules" << endreq;
     }
   }
+  if(pixelEndcapNumSectorsForLayer(layer)==0) return 0;
   return nModulesDisk / pixelEndcapNumSectorsForLayer(layer);
 }
 
@@ -250,6 +251,7 @@ int InDetServMatGeometryManager::pixelChipsPerModuleForDisk( int layer) const
       sumChips += nModules * pixelChipsPerModule( moduleType);
     }
   }
+  if(sumModules==0) return 0;
   if (sumChips % sumModules == 0) return sumChips/sumModules;
   else return 1 + sumChips/sumModules; // round to larger integer
 }
