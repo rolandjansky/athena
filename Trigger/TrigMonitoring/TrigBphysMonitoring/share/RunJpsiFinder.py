@@ -3,12 +3,17 @@
 # J. Catmore (James.Catmore@cern.ch)
 # ------------------------------------------------------------
 
+from AthenaCommon.BeamFlags import jobproperties
+bphysTrigCosmics = False
+if jobproperties.Beam.beamType == 'cosmics':
+    print "Setup Bphysics Monitoring in cosmics mode"
+    bphysTrigCosmics = True
+
 # ------------------------
 # SET UP FITTER 
 # ------------------------
 include( "JpsiUpsilonTools/configureServices.py" )
 
-print "JWW: apply temp fix TrkVKalVrtFitter.firstMeasuredPoint = False"
 TrkVKalVrtFitter.FirstMeasuredPoint = False
 
 # ----------------------------------
@@ -16,16 +21,16 @@ TrkVKalVrtFitter.FirstMeasuredPoint = False
 # ----------------------------------
 from JpsiUpsilonTools.JpsiUpsilonToolsConf import Analysis__JpsiFinder
 ExampleJpsiFinder = Analysis__JpsiFinder(name                        = "BPhysJpsiFinder",
-                                         OutputLevel                 = DEBUG,
-                                         muAndMu                     = True,
+                                         OutputLevel                 = INFO,
+                                         muAndMu                     = False if bphysTrigCosmics else True,
                                          muAndTrack                  = False,
-                                         TrackAndTrack               = False,
+                                         TrackAndTrack               = True if bphysTrigCosmics else False ,
                                          assumeDiMuons               = True,    # If true, will assume dimu hypothesis and use PDG value for mu mass
                                          invMassUpper                = 100e3,
                                          invMassLower                = 0.0,
                                          Chi2Cut                     = 20.,
-                                         oppChargesOnly              = True,
-                                         atLeastOneComb              = True,
+                                         oppChargesOnly              = False if bphysTrigCosmics else True,
+                                         atLeastOneComb              = False if bphysTrigCosmics else True,
                                          useCombinedMeasurement      = False, # Only takes effect if combOnly=True
                                          muonCollectionKey           = "Muons",
                                          TrackParticleCollection     = "InDetTrackParticles",
@@ -46,5 +51,5 @@ from JpsiUpsilonTools.JpsiUpsilonToolsConf import JpsiAlg
 
 topSequence += JpsiAlg(JpsiCandidatesOutputName = "JpsiCandidates",
                        JpsiFinderName           = ExampleJpsiFinder,
-                       OutputLevel  = DEBUG)
+                       OutputLevel  = INFO)
  

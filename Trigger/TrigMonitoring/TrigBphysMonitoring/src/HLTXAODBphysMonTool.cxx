@@ -173,7 +173,7 @@ StatusCode HLTXAODBphysMonTool::init()
 StatusCode HLTXAODBphysMonTool::book()
 //-----------------------------------------------------------
 {
-    ATH_MSG_INFO ("Booking... ");
+    ATH_MSG_DEBUG ("Booking... ");
 
     if (!newRun) {
         ATH_MSG_INFO ("Booking... not a new run, continuing");
@@ -181,23 +181,23 @@ StatusCode HLTXAODBphysMonTool::book()
     }
     
     // book the offline di-muon hists
-    ATH_MSG_INFO ("Booking... JpsiFinder");
+    ATH_MSG_DEBUG ("Booking... JpsiFinder");
     if (bookJpsiFinder().isFailure()) {ATH_MSG_ERROR("Problems booking JpsiFinder method"); return StatusCode::FAILURE;}
     
     // book the general monitoring hists
-    ATH_MSG_INFO ("Booking... Triggers");
+    ATH_MSG_DEBUG ("Booking... Triggers");
     if (bookTriggers().isFailure())   {ATH_MSG_ERROR("Problems booking Triggers method"); return StatusCode::FAILURE;}
     
     // book the container hists
-    ATH_MSG_INFO ("Booking... TriggerGroups");
+    ATH_MSG_DEBUG ("Booking... TriggerGroups");
     if (bookTriggerGroups().isFailure())   {ATH_MSG_ERROR("Problems booking Containers method"); return StatusCode::FAILURE;}
     
     // book the chain specific hists
-    ATH_MSG_INFO ("Booking... Containers");
+    ATH_MSG_DEBUG ("Booking... Containers");
     if (bookContainers().isFailure())   {ATH_MSG_ERROR("Problems booking Containers method"); return StatusCode::FAILURE;}
 
     // book the efficiency hists
-    ATH_MSG_INFO ("Booking... Efficiency");
+    ATH_MSG_DEBUG ("Booking... Efficiency");
     if (bookEfficiencyGroups().isFailure())   {ATH_MSG_ERROR("Problems booking Efficiency method"); return StatusCode::FAILURE;}
     
     
@@ -208,26 +208,26 @@ StatusCode HLTXAODBphysMonTool::book()
 StatusCode HLTXAODBphysMonTool::fill()
 //-----------------------------------------------------------
 {
-    ATH_MSG_INFO ("fill... ");
+    ATH_MSG_DEBUG ("fill... ");
 
     // fill the offline di-muon hists
-    ATH_MSG_INFO ("fill... JpsiFinder");
+    ATH_MSG_DEBUG ("fill... JpsiFinder");
     if (fillJpsiFinder().isFailure()) {ATH_MSG_WARNING("Problems filling JpsiFinder method");}
     
     // fill the general monitoring hists
-    ATH_MSG_INFO ("fill... Triggers");
+    ATH_MSG_DEBUG ("fill... Triggers");
     if (fillTriggers().isFailure())   {ATH_MSG_WARNING("Problems filling Triggers method");}
     
     // fill the container hists
-    ATH_MSG_INFO ("fill... Containers");
+    ATH_MSG_DEBUG ("fill... Containers");
     if (fillContainers().isFailure())   {ATH_MSG_WARNING("Problems filling Containers method");}
 
     // fill the chain specific hists
-    ATH_MSG_INFO ("fill... TriggerGroups");
+    ATH_MSG_DEBUG ("fill... TriggerGroups");
     if (fillTriggerGroups().isFailure())   {ATH_MSG_WARNING("Problems filling Containers method");}
 
     // fill the efficiency hists
-    ATH_MSG_INFO ("fill... Efficiency");
+    ATH_MSG_DEBUG ("fill... Efficiency");
     if (fillEfficiencyGroups().isFailure())   {ATH_MSG_WARNING("Problems filling Efficiency method");}
 
     return StatusCode::SUCCESS;
@@ -235,7 +235,7 @@ StatusCode HLTXAODBphysMonTool::fill()
 
 
 StatusCode HLTXAODBphysMonTool::proc() {
-    ATH_MSG_INFO ("proc... ");
+    ATH_MSG_DEBUG ("proc... ");
     
     if (!endOfRun)
     {
