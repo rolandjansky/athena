@@ -40,6 +40,10 @@ InDet::SiTrackMaker_xk::SiTrackMaker_xk
   m_sct          = false              ;
   m_usePix       = true              ;
   m_useSct       = true              ;
+  m_usePix       = true              ;
+  m_useSct       = true              ;
+  m_usePix       = true              ;
+  m_useSct       = true              ;
   m_useassoTool  = false              ;
   m_cosmicTrack  = false              ;    
   m_simpleTrack  = false              ;
@@ -98,12 +102,12 @@ InDet::SiTrackMaker_xk::SiTrackMaker_xk
   declareProperty("doCaloSeededBrem"        ,m_useCaloSeeds);
   declareProperty("doHadCaloSeedSSS"        ,m_useHClusSeed);
   declareProperty("phiWidth"                ,m_phiWidth    );
+  declareProperty("useSCT"                  , m_useSct);
+  declareProperty("usePixel"                , m_usePix);
   declareProperty("etaWidth"                ,m_etaWidth    );
   declareProperty("InputClusterContainerName"   ,m_inputClusterContainerName   );
   declareProperty("InputHadClusterContainerName",m_inputHadClusterContainerName);
   declareProperty("MagFieldSvc"             , m_fieldServiceHandle);
-  declareProperty("useSCT"                  , m_useSct);
-  declareProperty("usePixel"                , m_usePix);
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -137,7 +141,8 @@ StatusCode InDet::SiTrackMaker_xk::initialize()
   if ( m_roadmaker.retrieve().isFailure() ) {
     msg(MSG::FATAL) << "Failed to retrieve tool " << m_roadmaker << endreq;
     return StatusCode::FAILURE;
-  } else {
+  } 
+  else {
     msg(MSG::INFO) << "Retrieved tool " << m_roadmaker << endreq;
   }
 
@@ -146,7 +151,8 @@ StatusCode InDet::SiTrackMaker_xk::initialize()
   if ( m_tracksfinder.retrieve().isFailure() ) {
     msg(MSG::FATAL) << "Failed to retrieve tool " << m_tracksfinder << endreq;
     return StatusCode::FAILURE;
-  } else {
+  } 
+  else {
     msg(MSG::INFO) << "Retrieved tool " << m_tracksfinder << endreq;
   }
 
@@ -454,7 +460,7 @@ const std::list<Trk::Track*>& InDet::SiTrackMaker_xk::getTracks
   if(!m_pix && !m_sct) return m_tracks;
   
   bool good;  m_sss = false; 
-  !m_seedsfilter ? good=true : good=newSeed(Sp);  
+  !m_seedsfilter ? good=true : m_seedsfilter==1 ? good=newClusters(Sp) : good=newSeed(Sp);  
 
   if(!good) return m_tracks;
   
@@ -720,52 +726,119 @@ void InDet::SiTrackMaker_xk::magneticFieldInit()
 // New clusters comparison with clusters associated with track
 ///////////////////////////////////////////////////////////////////
 
+bool InDet::SiTrackMaker_xk::newClusters(const std::list<const Trk::SpacePoint*>& Sp)
+{
+  const Trk::PrepRawData* prd   [ 40];
+  const Trk::Track*       trk[2][200];
+  std::multimap<const Trk::PrepRawData*,const Trk::Track*>::const_iterator 
+    t[40],te = m_clusterTrack.end();
+
+  std::list<const Trk::SpacePoint*>::const_iterator s=Sp.begin(),se=Sp.end();
+  int n = 0;
+  for(; s!=se; ++s) {
+
+     if((*s)->clusterList().first ) {
+       prd[n] = (*s)->clusterList().first;
+       t  [n] = m_clusterTrack.find(prd[n]); if(t[n]==te) return true; ++n;
+     }
+     if((*s)->clusterList().second) {
+       prd[n] = (*s)->clusterList().second;
+       t  [n] = m_clusterTrack.find(prd[n]); if(t[n]==te) return true; ++n;
+     }
+     if(n==40) break;
+  }
+  if(!n) return false;
+
+  int m = 0;
+  for(; t[0]!=te; ++t[0]) {
+    if( (*t[0]).first != prd[0] ) break; trk[0][m++] = (*t[0]).second; 
+    if(m==200) break;
+  } 
+  
+  int in=0, ou=1;
+
+  for(int i=1; i!=n; ++i) {
+
+    int l = 0;
+    for(; t[i]!=te; ++t[i]) {
+
+      if( (*t[i]).first != prd[i] ) break;
+
+      for(int j=0; j!=m; ++j) {
+	if((*t[i]).second == trk[in][j]) {trk[ou][l++]= trk[in][j]; break;}
+      }
+    }
+    if(l==0) return true;
+    m=l; if(in==0) {in=1; ou=0;} else {in=0; ou=1;}
+  }
+  return false;
+}
+
+///////////////////////////////////////////////////////////////////
+// New clusters comparison with clusters associated with track
+///////////////////////////////////////////////////////////////////
+
 bool InDet::SiTrackMaker_xk::newSeed(const std::list<const Trk::SpacePoint*>& Sp)
 {
-  std::multiset<const Trk::Track*> trackseed;
-  std::multimap<const Trk::PrepRawData*,const Trk::Track*>::const_iterator pt,pte = m_clusterTrack.end();
+  const Trk::PrepRawData* prd   [ 40];
+  const Trk::Track*       trk[2][200];
+  std::multimap<const Trk::PrepRawData*,const Trk::Track*>::const_iterator 
+    tt,t[40],te = m_clusterTrack.end();
+
   std::list<const Trk::SpacePoint*>::const_iterator s=Sp.begin(),se=Sp.end();
+  int n  = 0;
+  int nc = 0;
+  for(; s!=se; ++s) {
 
-  int n = 0;
-  for(s = Sp.begin(); s!=se; ++s) {
-
-    const Trk::PrepRawData* p = (*s)->clusterList().first; 
-   
-    for(pt = m_clusterTrack.find(p); pt!=pte; ++pt) {if((*pt).first!=p) break; trackseed.insert((*pt).second);} ++n;
-
-    p = (*s)->clusterList().second; if(!p) continue;
-
-    for(pt = m_clusterTrack.find(p); pt!=pte; ++pt) {if((*pt).first!=p) break; trackseed.insert((*pt).second);} ++n;
-
+     if((*s)->clusterList().first ) {
+       prd[n] = (*s)->clusterList().first;
+       t  [n] = m_clusterTrack.find(prd[n]); if(t[n]!=te) ++nc; ++n;
+     }
+     if((*s)->clusterList().second) {
+       prd[n] = (*s)->clusterList().second;
+       t  [n] = m_clusterTrack.find(prd[n]); if(t[n]!=te) ++nc; ++n; 
+     }
+     if(n==40) break;
   }
 
-  if(trackseed.empty()) return true;
+  if(!nc || (!m_cosmicTrack && n==3 && m_sct && (*Sp.begin())->r() > 43.)) return true; 
+  if(n==nc) {
 
-  std::multiset<const Trk::Track*>::iterator t = trackseed.begin(), te = trackseed.end();
+    int m = 0;
+    for(tt=t[0]; tt!=te; ++tt) {
+      if( (*tt).first != prd[0] ) break; trk[0][m++] = (*tt).second;
+      if(m == 200) break;
+    } 
+    
+    int in=0, ou=1, i=1;
 
-  const Trk::Track* tr0 = 0                                ;
-  const Trk::Track* tr  = (*t)                             ;
-  unsigned int      nsm = tr->measurementsOnTrack()->size();
-  int               nt  = 1                                ;
-  int               t3  = 0                                ;
+    for(; i!=n; ++i) {
 
-  for(++t; t!=te; ++t) {
-
-    if((*t) == tr) {++nt; continue;}
-    if (nt  == n ) {++t3; tr0 = tr;}  
-    tr = (*t); nt = 1;
-    unsigned int ns = tr->measurementsOnTrack()->size(); if(ns > nsm) nsm = ns;
+      int l = 0;
+      for(tt=t[i]; t[i]!=te; ++tt) {
+	if( (*tt).first != prd[i] ) break;
+	for(int j=0; j!=m; ++j) {
+	  if((*tt).second == trk[in][j]) {trk[ou][l++]= trk[in][j]; break;}
+	}
+      }
+      if(l==0) break;
+      m=l; if(in==0) {in=1; ou=0;} else {in=0; ou=1;}
+    }
+    if(i==n) return false;
   }
-  if(nt == n) {++t3; tr0 = tr;}
 
-  if(t3 > 1) return false;
-  if(t3==1 && tr0->measurementsOnTrack()->size() >= 14) return false;
-  if( !m_cosmicTrack && n==3 && m_sct && (*Sp.begin())->r() > 43. ) return true;
-  if(t3 > 0) return false;
+  if(n==3) return true;
 
-  if(  nsm < m_wrongcluster ) return true;
+  int h = 0;
+  for(int i=0; i!=n; ++i) {
+
+    for(tt=t[i]; t[i]!=te; ++tt) {
+      if( (*tt).first != prd[i] ) break;
+      if((*tt).second->measurementsOnTrack()->size() >= m_wrongcluster) {++h; break;}
+    }
+  }
+  if(        !h             )                return true;
   if(n==6 && !m_useSSSfilter) {m_sss = true; return true;}
-
   return false;
 }
 
