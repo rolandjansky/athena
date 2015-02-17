@@ -11,7 +11,7 @@
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 
 TrigProblemFinder::TrigProblemFinder(const std::string &name, ISvcLocator *pSvcLocator) 
-  : Algorithm(name, pSvcLocator),
+  : AthAlgorithm(name, pSvcLocator),
     m_log(0),
     m_trigDec("Trig::TrigDecisionTool/TrigDecisionTool"),
     m_storeGate("StoreGateSvc", name)
