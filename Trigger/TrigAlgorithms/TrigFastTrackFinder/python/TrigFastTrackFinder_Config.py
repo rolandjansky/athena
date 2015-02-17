@@ -6,189 +6,12 @@ from TrigOnlineSpacePointTool.TrigOnlineSpacePointToolConf import TrigL2LayerNum
 from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
 
 from AthenaCommon.AppMgr import ToolSvc
-import math
 
-numberingTool = TrigL2LayerNumberTool()
-ToolSvc += numberingTool
 
 
 from TrigMonitorBase.TrigGenericMonitoringToolConfig import defineHistogram, TrigGenericMonitoringToolConfig
 
 from AthenaCommon.SystemOfUnits import *
-
-class CommonSettings() :
-    def __init__(self):
-        self.allowedInstanceNames = ['Muon', 'eGamma', 'muonIso', 'Tau', 'TauCore', 'TauIso',
-                                     'Jet', 'Bphysics', 'FullScan', 'BeamSpot', 'Tile', 'FullScan_ZF_Only', 'Cosmic']
-        self.db = {}
-   
-    def __getitem__(self, (quantity, slice)):
-        v = None
-        try:
-            q = self.db[quantity]
-            try:
-                v = q[slice]
-            except:
-                print 'Settings has no instance %s ' % slice
-        except:
-            print 'Settings has no setting %s ' % quantity
-        return v
-
-    def __setitem__(self, (quantity, slice), value):
-        try:
-            q = self.db[quantity]
-            try:
-                q[slice] = value
-            except:
-                print 'Settings has no instance %s ' % slice
-        except:
-            print 'Settings has no setting %s ' % quantity
-
-class ConfigurationFactory() :
-    def __init__(self):
-        self.settings = CommonSettings()
-       
-        width = {}
-        usezvtool = {}
-        seedsfilterlevel = {}
-        tripletminptfrac = {}
-        tripletnmaxphislice = {}
-        tripletmaxbufferlength = {}
-        doredundantseeds = {}
-        ptmin = {}
-        dospacepointphifiltering = {}
-        doubletz0max = {}
-        tripletd0max = {}
-        tripletd0_pps_max = {}
-        triplet_do_pss = {}
-        trackinitiald0max = {}
-
-        for i in self.settings.allowedInstanceNames :
-            width[i] = 10.0
-            usezvtool[i] = True
-            seedsfilterlevel[i] = 0
-            tripletminptfrac[i] = 1.0
-            tripletnmaxphislice[i] = 53
-            tripletmaxbufferlength[i] = 3
-            doredundantseeds[i] = True
-            ptmin[i] = 1.0*GeV
-            dospacepointphifiltering[i] = True
-            doubletz0max[i] = 230.0
-            tripletd0max[i] = 4.0
-            tripletd0_pps_max[i] = 1.7
-            trackinitiald0max[i] = 20
-            triplet_do_pss[i] = False
-       
-        doredundantseeds['Tau'] = False
-        doredundantseeds['Jet'] = False
-
-        doredundantseeds['Cosmic'] = False
-        tripletnmaxphislice['Cosmic'] = 2
-        doubletz0max['Cosmic'] = 1000.0
-        tripletd0max['Cosmic'] = 1000.0
-        tripletd0_pps_max['Cosmic'] = 1000.0
-        trackinitiald0max['Cosmic'] = 1000.0
-
-
-
-        # extend settings database
-        self.settings.db['RoadWidth']=width
-        self.settings.db['useZvertexTool'] = usezvtool
-        self.settings.db['SeedsFilterLevel'] = seedsfilterlevel
-        self.settings.db['Triplet_MinPtFrac'] = tripletminptfrac
-        self.settings.db['Triplet_nMaxPhiSlice'] = tripletnmaxphislice
-        self.settings.db['Triplet_MaxBufferLength'] = tripletmaxbufferlength
-        self.settings.db['doSeedRedundancyCheck'] = doredundantseeds
-        self.settings.db['pTmin'] = ptmin
-        self.settings.db['doSpacePointPhiFiltering'] = dospacepointphifiltering 
-        self.settings.db["Doublet_Z0Max"] = doubletz0max
-        self.settings.db["Triplet_D0Max"] = tripletd0max
-        self.settings.db["Triplet_D0_PPS_Max"] = tripletd0_pps_max
-        self.settings.db["TrackInitialD0Max"] = trackinitiald0max
-        self.settings.db["TripletDoPSS"] = triplet_do_pss
-
-    def configureInstance(self, ftfInstance, instName) :
-        if instName in self.settings.allowedInstanceNames :
-            from AthenaCommon.AppMgr import ToolSvc
-
-            #Spacepoint conversion
-            from TrigOnlineSpacePointTool.TrigOnlineSpacePointToolConf import TrigSpacePointConversionTool
-            spTool = TrigSpacePointConversionTool()
-            spTool.DoPhiFiltering = self.settings[('doSpacePointPhiFiltering',instName)]
-            spTool.UseBeamTilt = False
-            ToolSvc += spTool
-            ftfInstance.SpacePointProviderTool=spTool
-
-            ## SCT and Pixel detector elements road builder
-            from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigSiDetElementsRoadMaker
-            InDetTrigSiDetElementsRoadMaker_FTF = InDetTrigSiDetElementsRoadMaker.clone('InDetTrigSiDetElementsRoadMaker_FTF')
-            InDetTrigSiDetElementsRoadMaker_FTF.RoadWidth = self.settings[('RoadWidth',instName)]
-            if instName=="Cosmic": 
-              from InDetTrigRecExample.InDetTrigConfigRecLoadToolsCosmics import InDetTrigSiDetElementsRoadMakerCosmics
-              InDetTrigSiDetElementsRoadMaker_FTF = InDetTrigSiDetElementsRoadMakerCosmics.clone('InDetTrigSiDetElementsRoadMaker_FTF')
-            ToolSvc += InDetTrigSiDetElementsRoadMaker_FTF
-
-
-            from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigSiComTrackFinder
-            InDetTrigSiComTrackFinder_FTF = InDetTrigSiComTrackFinder.clone("InDetTrigSiComTrackFinder_FTF")
-            ToolSvc += InDetTrigSiComTrackFinder_FTF
-            
-            
-            from InDetTrigRecExample.ConfiguredNewTrackingTrigCuts import EFIDTrackingCuts
-            TrackingCuts = EFIDTrackingCuts
-            if instName=="Cosmic":
-              from InDetTrigRecExample.ConfiguredNewTrackingTrigCuts import EFIDTrackingCutsCosmics
-              TrackingCuts = EFIDTrackingCutsCosmics
-
-            from SiTrackMakerTool_xk.SiTrackMakerTool_xkConf import InDet__SiTrackMaker_xk
-
-            TrackMaker_FTF = InDet__SiTrackMaker_xk(name = 'InDetTrigSiTrackMaker_FTF_'+instName,
-                                                    RoadTool       = InDetTrigSiDetElementsRoadMaker_FTF,
-                                                    CombinatorialTrackFinder = InDetTrigSiComTrackFinder_FTF,
-                                                    pTmin          = self.settings[('pTmin',instName)],
-                                                    nClustersMin   = TrackingCuts.minClusters(),
-                                                    nHolesMax      = TrackingCuts.nHolesMax(),
-                                                    nHolesGapMax   = TrackingCuts.nHolesGapMax(),
-                                                    SeedsFilterLevel = self.settings[('SeedsFilterLevel',instName)],
-                                                    Xi2max         = TrackingCuts.Xi2max(),
-                                                    Xi2maxNoAdd    = TrackingCuts.Xi2maxNoAdd(),
-                                                    nWeightedClustersMin= TrackingCuts.nWeightedClustersMin(),
-                                                    Xi2maxMultiTracks         = TrackingCuts.Xi2max(),
-                                                    UseAssociationTool       = False)
-
-            if instName=="Cosmic":
-              TrackMaker_FTF.RoadTool.CosmicTrack=True
-            ToolSvc += TrackMaker_FTF
-            ftfInstance.offlineTrackMaker = TrackMaker_FTF
-            print TrackMaker_FTF
-            print InDetTrigSiDetElementsRoadMaker_FTF
-            from TrigInDetTrackFitter.TrigInDetTrackFitterConf import TrigInDetTrackFitter
-            theTrigInDetTrackFitter = TrigInDetTrackFitter()
-            theTrigInDetTrackFitter.correctClusterPos = False #Flag to control whether to correct cluster position
-
-            from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigRotCreator
-            ToolSvc += InDetTrigRotCreator
-
-            theTrigInDetTrackFitter.ROTcreator = InDetTrigRotCreator
-            ToolSvc += theTrigInDetTrackFitter
-            ftfInstance.trigInDetTrackFitter = theTrigInDetTrackFitter
-
-            ftfInstance.Triplet_MinPtFrac = self.settings[('Triplet_MinPtFrac',instName)]
-            ftfInstance.Triplet_nMaxPhiSlice = self.settings[('Triplet_nMaxPhiSlice',instName)]
-            ftfInstance.Triplet_MaxBufferLength = self.settings[('Triplet_MaxBufferLength',instName)]
-            ftfInstance.doSeedRedundancyCheck = self.settings[('doSeedRedundancyCheck',instName)]
-            ftfInstance.Doublet_Z0Max        = self.settings[('Doublet_Z0Max',instName)]
-            ftfInstance.Triplet_D0Max        = self.settings[('Triplet_D0Max',instName)]
-            ftfInstance.Triplet_D0_PPS_Max   = self.settings[('Triplet_D0_PPS_Max',instName)]
-            ftfInstance.TrackInitialD0Max   = self.settings[('TrackInitialD0Max',instName)]
-            ftfInstance.TripletDoPSS   = self.settings[('TripletDoPSS',instName)]
-
-            ftfInstance.pTmin = self.settings[('pTmin',instName)]
-
-        else :
-            print "Instance "+instName+" of TrigFastTrackFinder is not supported!"
-            ftfInstance.offlineTrackMaker = None
-   
 
 #Monitoring
 class TrigFastTrackFinder_CommonMonitoring(TrigGenericMonitoringToolConfig):
@@ -370,34 +193,129 @@ class TrigFastTrackFinder_Cosmic_Monitoring(TrigFastTrackFinder_CommonMonitoring
                                              title="Number of Tracks",
                                              xbins = 100, xmin=-0.5, xmax=99.5)]
 
-
+def remapper(type):
+    remap  = {
+        "Muon"     : "muon",
+        "eGamma"   : "electron",
+        "Tau"      : "tau",
+        "TauCore"  : "tauCore",
+        "TauIso"   : "tauIso",
+        "Jet"      : "bjet",
+        "Jet"      : "bjetVtx",
+        "FullScan" : "fullScan",
+        "BeamSpot" : "beamSpot",
+        "Bphysics" : "bphysics",
+        "Cosmic"   : "cosmics",
+    }
+    if type in remap.keys():
+      return remap[type]
+    else:
+      return type
 
 
 class TrigFastTrackFinderBase(TrigFastTrackFinder):
     __slots__ = []
-    def __init__(self, instName, seqName):
-        TrigFastTrackFinder.__init__(self,instName)
-        self.LayerNumberTool=numberingTool
-        self.MinHits = 5
+    def __init__(self, name, type):
+        TrigFastTrackFinder.__init__(self,name)
+        remapped_type = remapper(type)
         
-        self.retrieveBarCodes = False
+        self.retrieveBarCodes = False#Look at truth information for spacepoints from barcodes
         #self.SignalBarCodes = [10001] #single particles
         self.SignalBarCodes = [11 ,12] #z->mumu
        
-        self.OutputCollectionSuffix=instName.replace("TrigFastTrackFinder_","")
+        self.OutputCollectionSuffix = type
         from AthenaCommon.AppMgr import ToolSvc
+
+        numberingTool = TrigL2LayerNumberTool()
+        ToolSvc += numberingTool
+        self.LayerNumberTool=numberingTool
 
         timeHist = TrigTimeHistToolConfig("Time")
         timeHist.TimerHistLimits = [0,2000]
         self.AthenaMonTools = [ TrigFastTrackFinder_ValidationMonitoring("TrigFastTrackFinder_ValidationMonitoring"),
                                 TrigFastTrackFinder_OnlineMonitoring("TrigFastTrackFinder_OnlineMonitoring"),
                                 timeHist ]
+        from InDetTrigRecExample.InDetTrigSliceSettings import InDetTrigSliceSettings
+
+        #Spacepoint conversion
+        from TrigOnlineSpacePointTool.TrigOnlineSpacePointToolConf import TrigSpacePointConversionTool
+        spTool = TrigSpacePointConversionTool()
+        spTool.DoPhiFiltering = True#Not currently configured
+        spTool.UseBeamTilt = False
+        ToolSvc += spTool
+        self.SpacePointProviderTool=spTool
+        self.MinSPs = 5 #Only process RoI with more than 5 spacepoints 
+
+        self.Triplet_MinPtFrac = 1
+        self.Triplet_nMaxPhiSlice = 53
+        if type=="Cosmic":
+          self.Triplet_nMaxPhiSlice = 2 #Divide detector in 2 halves for cosmics
+          
+        self.Triplet_MaxBufferLength = 3
+        self.doSeedRedundancyCheck = InDetTrigSliceSettings[('checkRedundantSeeds',remapped_type)]
+        self.Triplet_D0Max        = InDetTrigSliceSettings[('d0SeedMax',remapped_type)]
+        self.Triplet_D0_PPS_Max   = InDetTrigSliceSettings[('d0SeedPPSMax',remapped_type)] 
+        self.TrackInitialD0Max   = InDetTrigSliceSettings[('d0TrackInitialMax',remapped_type)] 
+        self.TripletDoPSS   = False
+        self.pTmin = InDetTrigSliceSettings[('pTmin',remapped_type)]
+
+        ## SCT and Pixel detector elements road builder
+        from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigSiDetElementsRoadMaker
+        InDetTrigSiDetElementsRoadMaker_FTF = InDetTrigSiDetElementsRoadMaker.clone('InDetTrigSiDetElementsRoadMaker_FTF')
+        InDetTrigSiDetElementsRoadMaker_FTF.RoadWidth = 10.0
+        if type=="Cosmic": 
+          from InDetTrigRecExample.InDetTrigConfigRecLoadToolsCosmics import InDetTrigSiDetElementsRoadMakerCosmics
+          InDetTrigSiDetElementsRoadMaker_FTF = InDetTrigSiDetElementsRoadMakerCosmics.clone('InDetTrigSiDetElementsRoadMaker_FTF')
+        ToolSvc += InDetTrigSiDetElementsRoadMaker_FTF
+
+
+        from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigSiComTrackFinder
+        InDetTrigSiComTrackFinder_FTF = InDetTrigSiComTrackFinder.clone("InDetTrigSiComTrackFinder_FTF")
+        ToolSvc += InDetTrigSiComTrackFinder_FTF
+        
+        
+        from InDetTrigRecExample.ConfiguredNewTrackingTrigCuts import EFIDTrackingCuts
+        TrackingCuts = EFIDTrackingCuts
+        if type=="Cosmic":
+          from InDetTrigRecExample.ConfiguredNewTrackingTrigCuts import EFIDTrackingCutsCosmics
+          TrackingCuts = EFIDTrackingCutsCosmics
+
+        from SiTrackMakerTool_xk.SiTrackMakerTool_xkConf import InDet__SiTrackMaker_xk
+
+        TrackMaker_FTF = InDet__SiTrackMaker_xk(name = 'InDetTrigSiTrackMaker_FTF_'+type,
+                                                RoadTool       = InDetTrigSiDetElementsRoadMaker_FTF,
+                                                CombinatorialTrackFinder = InDetTrigSiComTrackFinder_FTF,
+                                                pTmin          = InDetTrigSliceSettings[('pTmin',remapped_type)],
+                                                nClustersMin   = TrackingCuts.minClusters(),
+                                                nHolesMax      = TrackingCuts.nHolesMax(),
+                                                nHolesGapMax   = TrackingCuts.nHolesGapMax(),
+                                                SeedsFilterLevel = 0, # Do not use built-in seeds filter
+                                                Xi2max         = TrackingCuts.Xi2max(),
+                                                Xi2maxNoAdd    = TrackingCuts.Xi2maxNoAdd(),
+                                                nWeightedClustersMin= TrackingCuts.nWeightedClustersMin(),
+                                                Xi2maxMultiTracks         = TrackingCuts.Xi2max(),
+                                                UseAssociationTool       = False)
+
+        if type=="Cosmic":
+          TrackMaker_FTF.RoadTool.CosmicTrack=True
+        ToolSvc += TrackMaker_FTF
+        self.offlineTrackMaker = TrackMaker_FTF
+
+        print TrackMaker_FTF
+        print InDetTrigSiDetElementsRoadMaker_FTF
+        from TrigInDetTrackFitter.TrigInDetTrackFitterConf import TrigInDetTrackFitter
+        theTrigInDetTrackFitter = TrigInDetTrackFitter()
+        theTrigInDetTrackFitter.correctClusterPos = False #Flag to control whether to correct cluster position
+
+        from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigRotCreator
+        ToolSvc += InDetTrigRotCreator
+
+        theTrigInDetTrackFitter.ROTcreator = InDetTrigRotCreator
+        ToolSvc += theTrigInDetTrackFitter
+        self.trigInDetTrackFitter = theTrigInDetTrackFitter
 
         from TrigInDetConf.TrigInDetRecCommonTools import InDetTrigFastTrackSummaryTool
         self.TrackSummaryTool = InDetTrigFastTrackSummaryTool
-
-        cfg = ConfigurationFactory()
-        cfg.configureInstance(self,seqName)
         print self
 
 
