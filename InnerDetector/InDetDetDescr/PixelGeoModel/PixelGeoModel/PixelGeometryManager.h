@@ -188,6 +188,7 @@ public:
   virtual int PixelServiceFrameNum(const std::string &, int)=0;
   virtual int PixelServiceEnvelopeNum(const std::string & type, int index)=0;
   virtual int PixelServiceParentEnvelopeNum(const std::string & type, int index)=0;
+  virtual int PixelServiceShift(const std::string & type, int index)=0;
 
   // Pixel container
   virtual double PixelRMin()=0;
@@ -230,6 +231,7 @@ public:
   // Pixel Layers Geomtry
   virtual int PixelStaveLayout()=0;
   virtual double PixelLayerRadius()=0;
+  virtual double PixelLayerGlobalShift()=0;
   virtual double PixelLadderLength()=0;
   virtual double PixelLadderWidthClearance()=0;
   virtual double PixelLadderThicknessClearance()=0;
