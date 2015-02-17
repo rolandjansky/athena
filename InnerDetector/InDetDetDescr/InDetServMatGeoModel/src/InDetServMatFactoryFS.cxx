@@ -40,6 +40,7 @@
 InDetServMatFactoryFS::InDetServMatFactoryFS(StoreGateSvc *detStore,ServiceHandle<IRDBAccessSvc> pRDBAccess) :
   m_detStore(detStore),
   m_rdbAccess(pRDBAccess),
+  m_manager(0),
   m_msg("InDetServMatFactoryFS")
 {
   
