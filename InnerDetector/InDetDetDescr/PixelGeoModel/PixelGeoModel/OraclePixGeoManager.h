@@ -339,6 +339,7 @@ class OraclePixGeoManager : public PixelGeometryManager {
   int PixelServiceFrameNum(const std::string &, int);
   int PixelServiceEnvelopeNum(const std::string & type, int index);
   int PixelServiceParentEnvelopeNum(const std::string & type, int index);
+  int PixelServiceShift(const std::string & type, int index);
 
 
   IRDBRecordset_ptr  getPixelServiceRecordset(const std::string & type);
@@ -395,6 +396,7 @@ class OraclePixGeoManager : public PixelGeometryManager {
   int PixelStaveIndex(int layer);
   int PixelStaveLayout();
   double PixelLayerRadius();
+  double PixelLayerGlobalShift();
   double PixelLadderLength();
   double PixelLadderWidthClearance();
   double PixelLadderThicknessClearance();

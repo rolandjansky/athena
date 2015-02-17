@@ -599,11 +599,11 @@ GeoVPhysVol* GeoPixelDetailedStaveSupport::Build() {
 	std::string flexMatName=gmt_mgr->IBLFlexMaterial(iModule+1,"staveA");
 	scaledFlexMaterial= mat_mgr->getMaterial(flexMatName);
       }
-      else if(bFlexConstantThickness){
-	std::ostringstream tmp;
-	tmp<<"Staveflex"<<iModule+1<<"_IBL";
-	scaledFlexMaterial= mat_mgr->getMaterial("pix::CableFlex_IBL", flexDensity*(iModule+1), tmp.str());
-      }
+//       else if(bFlexConstantThickness){
+// 	std::ostringstream tmp;
+// 	tmp<<"Staveflex"<<iModule+1<<"_IBL";
+// 	scaledFlexMaterial= mat_mgr->getMaterial("pix::CableFlex_IBL", flexDensity*(iModule+1), tmp.str());
+//       }
 
       // Add flex in 3D model : A component
       CLHEP::Hep3Vector cableflex_pos((flex1x+flex2x+flex3x+flex4x)*0.25,(flex1y+flex2y+flex3y+flex4y)*0.25,ModulePosZ+flexGapZ*0.5);
