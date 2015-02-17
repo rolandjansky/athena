@@ -51,6 +51,7 @@ GeoVPhysVol* GeoPixelBarrel::Build( ) {
 
   // In case of IBL stave detailed description -> add stave ring support and emdblocks
   bool bAddIBLStaveRings=false;
+  gmt_mgr->SetCurrentLD(0);
   if(gmt_mgr->ibl()&&gmt_mgr->PixelStaveLayout()>3&&gmt_mgr->PixelStaveLayout()<7)
     {
       bAddIBLStaveRings=true;
@@ -66,7 +67,12 @@ GeoVPhysVol* GeoPixelBarrel::Build( ) {
     if(gmt_mgr->isLDPresent()){
       std::ostringstream lname;
       lname << "Layer" << ii;
-      GeoAlignableTransform * xform = new GeoAlignableTransform(HepGeom::Transform3D()); 
+      //      GeoAlignableTransform * xform = new GeoAlignableTransform(HepGeom::Transform3D()); 
+
+      // IBL layer shift ( 2mm shift issue )
+      double layerZshift = gmt_mgr->PixelLayerGlobalShift();
+      GeoAlignableTransform* xform = new GeoAlignableTransform(HepGeom::Transform3D(CLHEP::HepRotation(),CLHEP::Hep3Vector(0.,0.,layerZshift)));
+
       GeoVPhysVol* layerphys = layer.Build();
       GeoNameTag *tag = new GeoNameTag(lname.str());         
       barrelPhys->add(tag);
@@ -77,11 +83,10 @@ GeoVPhysVol* GeoPixelBarrel::Build( ) {
       // Store the transform (at level 1)
       Identifier id = gmt_mgr->getIdHelper()->wafer_id(0,ii,0,0);
       DDmgr->addAlignableTransform(1, id, xform, layerphys);
-      
+
       // IBL stave ring service area  ( ring + endblocks + flexes + pipe + ...)
       if(m_pixServices&&bAddIBLStaveRings&&ii==0)
 	{
-	  
 	  // ----------- end of stave services (side A)
 	  GeoNameTag * tagSupportA = new GeoNameTag("StaveRingAndEndblocks_A");
 	  GeoTransform *xformSupportA = layer.getSupportTrfA();

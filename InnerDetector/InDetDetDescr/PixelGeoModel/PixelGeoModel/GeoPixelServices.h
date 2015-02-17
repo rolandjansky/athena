@@ -27,9 +27,9 @@ public:
 private:
   
   std::vector<const InDetDD::ServiceVolume *> m_services;
-
   InDetDD::VolumeBuilder * m_pixServBuilder;
   InDetDD::VolumeBuilder * m_servMatBuilder;
+  std::vector<double> m_layerShift;
 };
     
 

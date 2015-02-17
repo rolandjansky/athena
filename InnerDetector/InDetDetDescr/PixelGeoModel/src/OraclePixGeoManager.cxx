@@ -96,9 +96,6 @@ OraclePixGeoManager::init()
 
   m_versionTag = rdbSvc->getChildTag("Pixel", versionKey.tag(), versionKey.node(), false);
 
-  
-
-
 /////////////////////////////////////////////////////////
 //
 // Gets the structures from the det store
@@ -818,6 +815,15 @@ std::string OraclePixGeoManager::PixelServiceShape(const std::string & type, int
 }
 
 
+int OraclePixGeoManager::PixelServiceShift(const std::string & type, int index) {
+  if (!getPixelServiceRecordTestField("SHIFT",type,index)) {
+    return 0;
+  } else {
+    return getPixelServiceRecordInt("SHIFT",type,index); 
+  }
+}
+
+
 int OraclePixGeoManager::PixelServiceLD(const std::string & type, int index) {
   return getPixelServiceRecordInt("LAYERNUM",type,index)-1;
 }
@@ -946,8 +952,12 @@ double OraclePixGeoManager::getPixelServiceRecordDouble(const std::string & name
 }
 
 bool OraclePixGeoManager::getPixelServiceRecordTestField(const std::string & name, const std::string & type, int index) {
-  IRDBRecordset_ptr recordSet = getPixelServiceRecordset(type);
-  return db()->testField(recordSet, name, index);
+  try {
+    IRDBRecordset_ptr recordSet = getPixelServiceRecordset(type);
+    return db()->testField(recordSet, name, index);
+  }
+  catch(...){}
+  return false;
 }
 
 
@@ -1445,6 +1455,14 @@ double OraclePixGeoManager::PixelLayerRadius()
       << endreq;
   return radius;
 }
+
+double OraclePixGeoManager::PixelLayerGlobalShift() 
+{
+  if (db()->testField(PixelLayer,"GBLSHIFT",currentLD))
+    return db()->getDouble(PixelLayer,"GBLSHIFT",currentLD);
+  return 0.;
+}
+
 
 bool OraclePixGeoManager::PixelLayerSupportCylPresent() 
 {

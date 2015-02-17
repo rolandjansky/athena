@@ -37,6 +37,9 @@ GeoVPhysVol* GeoPixelIFlexServices::Build()
 
   double safety = 0.01*CLHEP::mm;
 
+  // IBL layer shift ( 2mm shift issue )
+  double layerZshift = gmt_mgr->PixelLayerGlobalShift();
+
   double barrelZmax = gmt_mgr->PixelBarrelHalfLength();
   int nSectors = gmt_mgr->NPixelSectors();
 
@@ -45,13 +48,16 @@ GeoVPhysVol* GeoPixelIFlexServices::Build()
   double angle=360./(double)nSectors*CLHEP::deg;
 
   double zmin=0., zmax=0.;
+  double deltaLength = 0.;
   if(m_section==0) {
     zmin = gmt_mgr->IBLFlexPP0Z(1);
     zmax=barrelZmax-0.001;
+    deltaLength=layerZshift;
   }
   else if(m_section==1) {
     zmin = barrelZmax+0.001;
     zmax = gmt_mgr->IBLFlexPP0Z(2);
+    deltaLength=-layerZshift;
   }
   else if(m_section==2) {
     zmin = gmt_mgr->IBLFlexPP0Z(2);
@@ -62,17 +68,36 @@ GeoVPhysVol* GeoPixelIFlexServices::Build()
     zmax = gmt_mgr->IBLFlexPP0Z(4);
   }
 
+  double zStartPosA = zmin+layerZshift;
+  double zStartPosC = -zmax+layerZshift;
+  // Caution : section 0 is in thebarrel volume that is already globally shifted
+  if(m_section==0){    
+    zStartPosA=zmin;
+    zStartPosC=-zmax; 
+  }
+  if(m_section==1) zStartPosA=zmin; 
 
   double innerRadius = gmt_mgr->IBLServiceGetMaxRadialPosition("IPT","simple",zmin,zmax)+safety;
   double outerRadius = gmt_mgr->IBLServiceGetMinRadialPosition("IST","simple",zmin,zmax)-safety;
   double phiOfModuleZero =  gmt_mgr->PhiOfModuleZero();  
 
+  double halfLengthA = (zmax-zmin)*0.5-deltaLength*.5;
+  double halfLengthC = (zmax-zmin)*0.5+deltaLength*.5;
+
+  // Define IFlex section for side A and C
+  std::ostringstream lnameA;
+  lnameA<<"Brl0A_FlexRingPP0_S"<<m_section;
+  std::ostringstream lnameC;
+  lnameC<<"Brl0C_FlexRingPP0_S"<<m_section;
 
   // Define IFlex section for side A
-  const GeoTube* supportShape = new GeoTube(innerRadius,outerRadius,(zmax-zmin)*0.5);
+  const GeoTube* supportShapeA = new GeoTube(innerRadius,outerRadius,halfLengthA);
+  const GeoTube* supportShapeC = new GeoTube(innerRadius,outerRadius,halfLengthC);
   const GeoMaterial* ether = mat_mgr->getMaterial("special::Ether");
-  GeoLogVol* supportLogVol_A = new GeoLogVol("Brl0A_FlexRingPP0",supportShape,ether);
-  GeoLogVol* supportLogVol_C = new GeoLogVol("Brl0C_FlexRingPP0",supportShape,ether);
+//   GeoLogVol* supportLogVol_A = new GeoLogVol("Brl0A_FlexRingPP0",supportShapeA,ether);
+//   GeoLogVol* supportLogVol_C = new GeoLogVol("Brl0C_FlexRingPP0",supportShapeC,ether);
+  GeoLogVol* supportLogVol_A = new GeoLogVol(lnameA.str(),supportShapeA,ether);
+  GeoLogVol* supportLogVol_C = new GeoLogVol(lnameC.str(),supportShapeC,ether);
 
   m_supportPhysA = new GeoPhysVol(supportLogVol_A);
   m_supportPhysC = new GeoPhysVol(supportLogVol_C);
@@ -85,26 +110,35 @@ GeoVPhysVol* GeoPixelIFlexServices::Build()
   double TubeInnerDiam = gmt_mgr->IBLStaveTubeInnerDiameter();
   double cooling_angle = -2.154*CLHEP::deg;
 
-  const GeoTube* service_coolingPipe = new GeoTube(0.0,TubeOuterDiam*0.5,(zmax-zmin)*0.5);
+  const GeoTube* service_coolingPipeA = new GeoTube(0.0,TubeOuterDiam*0.5,halfLengthA);
+  const GeoTube* service_coolingPipeC = new GeoTube(0.0,TubeOuterDiam*0.5,halfLengthC);
 
   const GeoMaterial* cp_service_material = mat_mgr->getMaterial("pix::CoolingPipe_IBL");
-  GeoLogVol * cp_service_log = new GeoLogVol("PP0CoolingPipe",service_coolingPipe,cp_service_material);
-  GeoPhysVol* cpPhysVol = new GeoPhysVol(cp_service_log);
+  GeoLogVol * cp_service_logA = new GeoLogVol("PP0CoolingPipe",service_coolingPipeA,cp_service_material);
+  GeoLogVol * cp_service_logC = new GeoLogVol("PP0CoolingPipe",service_coolingPipeC,cp_service_material);
+  GeoPhysVol* cpPhysVolA = new GeoPhysVol(cp_service_logA);
+  GeoPhysVol* cpPhysVolC = new GeoPhysVol(cp_service_logC);
 
-  const GeoTube* service_coolingPipeInner = new GeoTube(0.0,TubeInnerDiam*0.5,(zmax-zmin)*0.5);
+  const GeoTube* service_coolingPipeInnerA = new GeoTube(0.0,TubeInnerDiam*0.5,halfLengthA);
+  const GeoTube* service_coolingPipeInnerC = new GeoTube(0.0,TubeInnerDiam*0.5,halfLengthC);
   const GeoMaterial* cp_service_inner_material = mat_mgr->getMaterial(gmt_mgr->getMaterialName("CoolingFluid",0,0));
-  GeoLogVol * cp_service_inner_log = new GeoLogVol("PP0CoolingPipeInner",service_coolingPipeInner,cp_service_inner_material);
-  GeoPhysVol * cp_service_inner_logPV = new GeoPhysVol(cp_service_inner_log);
+  GeoLogVol * cp_service_inner_logA = new GeoLogVol("PP0CoolingPipeInner",service_coolingPipeInnerA,cp_service_inner_material);
+  GeoLogVol * cp_service_inner_logC = new GeoLogVol("PP0CoolingPipeInner",service_coolingPipeInnerC,cp_service_inner_material);
+  GeoPhysVol * cp_service_inner_logPVA = new GeoPhysVol(cp_service_inner_logA);
+  GeoPhysVol * cp_service_inner_logPVC = new GeoPhysVol(cp_service_inner_logC);
 
   GeoNameTag* cp_service_inner_tag = new GeoNameTag("PP0CoolingPipeInner");
   CLHEP::Hep3Vector cp_service_inner_pos(0.0,0.0,0.0);
   GeoTransform* cp_service_inner_xform = new GeoTransform(HepGeom::Transform3D(CLHEP::HepRotation(),cp_service_inner_pos));
-  cpPhysVol->add(cp_service_inner_tag);
-  cpPhysVol->add(cp_service_inner_xform);
-  cpPhysVol->add(cp_service_inner_logPV);
+  cpPhysVolA->add(cp_service_inner_tag);
+  cpPhysVolA->add(cp_service_inner_xform);
+  cpPhysVolA->add(cp_service_inner_logPVA);
+  cpPhysVolC->add(cp_service_inner_tag);
+  cpPhysVolC->add(cp_service_inner_xform);
+  cpPhysVolC->add(cp_service_inner_logPVC);
 
-
-  GeoLogVol* flex_logVol = 0;
+  GeoLogVol* flex_logVolA = 0;
+  GeoLogVol* flex_logVolC = 0;
 
   double flex_angle = -15.001*CLHEP::deg;
   double flex_rot=0.30265;
@@ -130,15 +164,15 @@ GeoVPhysVol* GeoPixelIFlexServices::Build()
     else if(m_section==3)
       flexMatName = gmt_mgr->IBLFlexMaterial(1,"PP0FlexA");
     
-    gmt_mgr->msg(MSG::DEBUG)<<"Dogleg flex material : "<<m_section<<" "<<flexMatName<<endreq;
-    
-    GeoBox * flex_shape = new GeoBox((flex_rmax-flex_rmin)*.5, flex_width*.5, (zmax-zmin)*0.5);
+    GeoBox * flex_shapeA = new GeoBox((flex_rmax-flex_rmin)*.5, flex_width*.5, halfLengthA);
+    GeoBox * flex_shapeC = new GeoBox((flex_rmax-flex_rmin)*.5, flex_width*.5, halfLengthC);
     CLHEP::Hep3Vector flex_pos(0.,0.,0.);
     //    GeoTransform* flex_xform = new GeoTransform(HepGeom::Transform3D(CLHEP::HepRotation(0.0,0.0,fabs(flex_rot)),flex_pos));
     const GeoMaterial* flex_material = mat_mgr->getMaterial(flexMatName);
     if(flex_material==0) gmt_mgr->msg(MSG::DEBUG)<<"-> error while reading material"<<flexMatName<<endreq;
     
-    flex_logVol = new GeoLogVol("Flex",flex_shape,flex_material);
+    flex_logVolA = new GeoLogVol("Flex",flex_shapeA,flex_material);
+    flex_logVolC = new GeoLogVol("Flex",flex_shapeC,flex_material);
   }
   else {
     
@@ -161,11 +195,12 @@ GeoVPhysVol* GeoPixelIFlexServices::Build()
     
     if(Iflex_material==0) gmt_mgr->msg(MSG::DEBUG)<<"-> error while reading IFlex material"<<endreq;
     
-    flex_logVol = new GeoLogVol("IFlex",Iflex_shape,Iflex_material);
+    flex_logVolA = new GeoLogVol("IFlex",Iflex_shape,Iflex_material);
+    flex_logVolC = new GeoLogVol("IFlex",Iflex_shape,Iflex_material);
   }
 
-  GeoPhysVol * flexPhysVol = new GeoPhysVol(flex_logVol);
-
+  GeoPhysVol * flexPhysVolA = new GeoPhysVol(flex_logVolA);
+  GeoPhysVol * flexPhysVolC = new GeoPhysVol(flex_logVolC);
 
   // Loop over sectors
   for(int ii = 0; ii < nSectors; ii++) {
@@ -180,11 +215,11 @@ GeoVPhysVol* GeoPixelIFlexServices::Build()
     GeoTransform* xform1 = new GeoTransform(HepGeom::RotateZ3D(phiOfCooling)*HepGeom::TranslateX3D(cooling_radius));
     m_supportPhysA->add(tag1);
     m_supportPhysA->add(xform1);
-    m_supportPhysA->add(cpPhysVol);
+    m_supportPhysA->add(cpPhysVolA);
 
     m_supportPhysC->add(tag1);
     m_supportPhysC->add(xform1);
-    m_supportPhysC->add(cpPhysVol);
+    m_supportPhysC->add(cpPhysVolC);
 
 
     // flex transform 
@@ -199,12 +234,12 @@ GeoVPhysVol* GeoPixelIFlexServices::Build()
       GeoTransform* xformA2 = new GeoTransform(HepGeom::RotateZ3D(phiOfFlex)*HepGeom::TranslateX3D(flexYmidPos)*HepGeom::RotateZ3D(-90.*CLHEP::deg)*HepGeom::RotateY3D(-90.*CLHEP::deg)*HepGeom::RotateX3D(flex_rot));
       m_supportPhysA->add(tag2);
       m_supportPhysA->add(xformA2);
-      m_supportPhysA->add(flexPhysVol);
+      m_supportPhysA->add(flexPhysVolA);
 
       GeoTransform* xformC2 = new GeoTransform(HepGeom::RotateZ3D(phiOfFlex)*HepGeom::TranslateX3D(flexYmidPos)*HepGeom::RotateZ3D(-90.*CLHEP::deg)*HepGeom::RotateY3D(90.*CLHEP::deg)*HepGeom::RotateX3D(-flex_rot));
       m_supportPhysC->add(tag2);
       m_supportPhysC->add(xformC2);
-      m_supportPhysC->add(flexPhysVol);
+      m_supportPhysC->add(flexPhysVolC);
 
     }
     else {
@@ -215,23 +250,29 @@ GeoVPhysVol* GeoPixelIFlexServices::Build()
 
       m_supportPhysA->add(tag2);
       m_supportPhysA->add(xform2);
-      m_supportPhysA->add(flexPhysVol);
+      m_supportPhysA->add(flexPhysVolA);
       
       m_supportPhysC->add(tag2);
       m_supportPhysC->add(xform2);
-      m_supportPhysC->add(flexPhysVol);
+      m_supportPhysC->add(flexPhysVolC);
     }
 
 
   }
 
+  double middleA = zStartPosA+halfLengthA;
+  double middleC = zStartPosC+halfLengthC;
 
-  HepGeom::Transform3D supportTrfA = HepGeom::TranslateZ3D((zmin+zmax)*0.5);
+  HepGeom::Transform3D supportTrfA = HepGeom::TranslateZ3D(middleA);   //(zmin+zmax)*0.5+layerZshift);
   m_xformSupportA = new GeoTransform(supportTrfA);
   
-  HepGeom::Transform3D supportTrfC = HepGeom::TranslateZ3D(-(zmin+zmax)*0.5);
+  //  std::cout<<"Section final A  "<<m_section<<" - "<<middleA-halfLengthA<<" "<<middleA+halfLengthA<<"    "<<middleA<<std::endl;
+
+  HepGeom::Transform3D supportTrfC = HepGeom::TranslateZ3D(middleC);   //(zmin+zmax)*0.5+layerZshift);
   m_xformSupportC = new GeoTransform(supportTrfC);
 
-  return 0;
+  //  std::cout<<"Section final C  "<<m_section<<" - "<<middleC-halfLengthC<<" "<<middleC+halfLengthC<<"    "<<middleC<<std::endl;
+  //  std::cout<<"Section ---"<<std::endl;
 
+  return 0;
 }
