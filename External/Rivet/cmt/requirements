@@ -52,3 +52,7 @@ path_prepend TEXMFHOME "$(Rivet_texmf)"
 path_prepend TEXMFCNF "$(Rivet_texmf)/cnf"
 path_prepend TEXINPUTS "$(Rivet_texmf)/tex"
 path_prepend LATEXINPUTS "$(Rivet_texmf)/tex"
+
+macro Rivet_pp_cppflags "-isystem $(Rivet_dir)/include "
+
+
