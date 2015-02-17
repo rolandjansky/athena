@@ -112,7 +112,8 @@
 
 GeoPixelServices::GeoPixelServices(InDetDD::Zone * pixZone) 
   : m_pixServBuilder(0),
-    m_servMatBuilder(0)
+    m_servMatBuilder(0),
+    m_layerShift(0)
 {
   
   // Get dimensions of barrel and endcap
@@ -154,6 +155,14 @@ GeoPixelServices::GeoPixelServices(InDetDD::Zone * pixZone)
   std::cout<<"GEOPIXELSERVICES pixel : "<<pixelRmin<<" "<<pixelRmax<<" //  "<<pixelZmax<<std::endl;
   std::cout<<"GEOPIXELSERVICES barrel : "<<barrelRmin<<" "<<barrelRmax<<" //  "<<barrelZmin<<" "<<barrelZmax<<std::endl;
   std::cout<<"GEOPIXELSERVICES endcap : "<<endcapRmin<<" "<<endcapRmax<<" //  "<<endcapZmin<<" "<<endcapZmax<<std::endl;
+
+  // Collect the layer shifts / IBL 2mm shift
+  m_layerShift.clear();
+  for(int ii = 0; ii < gmt_mgr->PixelBarrelNLayer(); ii++){
+    gmt_mgr->SetCurrentLD(ii);
+    m_layerShift.push_back(gmt_mgr->PixelLayerGlobalShift());
+  }
+
 
   // We process all tables. 
   bool barrelPresent   = gmt_mgr->partPresent("Barrel");
@@ -370,6 +379,11 @@ void GeoPixelServices::initializeOld(const std::string & a)
     param.setZmax(gmt_mgr->PixelServiceZMax(a, ii));
     param.setZsymm(gmt_mgr->PixelServiceZsymm(a, ii));
     param.setVolName(gmt_mgr->PixelServiceName(a, ii));
+
+    double zShift=0.;           // the famous IBL Z shift
+    int iShiftIndex = gmt_mgr->PixelServiceShift(a, ii); 
+    if(iShiftIndex>0) zShift=m_layerShift[iShiftIndex-100];
+    param.setZShift(zShift);
 
     // Service envelopes
     int envNum=gmt_mgr->PixelServiceEnvelopeNum(a, ii);
