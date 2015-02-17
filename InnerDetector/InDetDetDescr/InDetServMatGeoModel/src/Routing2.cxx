@@ -127,7 +127,7 @@ void Routing2::createRoutes(ServicesTracker& tracker)
   bool bMSTI = tracker.geoMgr()->SupportTubeExists("MSTI");
   bool bMSTM = tracker.geoMgr()->SupportTubeExists("MSTM");
   bool bMSTO = tracker.geoMgr()->SupportTubeExists("MSTO");
-  if(bMSTO||bMSTM||bMSTO)
+  if(bMSTI||bMSTM||bMSTO)
     if(bpHRouteZmax_mode>0.1&&bpHRouteZmax_mode<bpHRouteZmax) bpHRouteZmax = bpHRouteZmax_mode-0.001;
 
   msg(MSG::INFO)<< "Changing bpHRouteZmax to " << bpHRouteZmax << endreq;
