@@ -8,7 +8,7 @@
 #define TRIGMONITORTOOLBASE_TRIGMONITORTOOLBASE_H
 
 #include "AthenaMonitoring/IMonitorToolBase.h"
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ITHistSvc.h"
 #include "GaudiKernel/ServiceHandle.h"
 
@@ -29,7 +29,7 @@ class TH1;
 
 
 
-class TrigMonitorToolBase : public AlgTool, virtual public IMonitorToolBase {
+class TrigMonitorToolBase : public AthAlgTool, virtual public IMonitorToolBase {
  public:
 
   TrigMonitorToolBase(const std::string & type, 

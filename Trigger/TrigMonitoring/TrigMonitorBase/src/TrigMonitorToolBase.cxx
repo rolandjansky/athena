@@ -9,7 +9,6 @@
 //
 // ********************************************************************
 
-#include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/ITHistSvc.h"
 #include "TrigMonitorBase/TrigMonitorToolBase.h"
 #include "TrigMonitorBase/TrigLBNHist.h"
@@ -22,7 +21,8 @@
 TrigMonitorToolBase::TrigMonitorToolBase(const std::string & type, 
 					 const std::string & name,
 					 const IInterface* parent)
-  : AlgTool(type, name, parent), m_histSvc("THistSvc", name), // there is somthing fish
+  : AthAlgTool(type, name, parent),
+    m_histSvc("THistSvc", name), // there is somthing fish
     m_execs(0),
     m_lbnHistoryDepth(0)
 {
@@ -38,17 +38,8 @@ TrigMonitorToolBase::~TrigMonitorToolBase()
 
 
 StatusCode TrigMonitorToolBase::initialize() {
-  MsgStream log(msgSvc(), name());
-  if (setProperties().isFailure()) {
-    log << MSG::ERROR << "setting properties" << endreq;
-    return  StatusCode::FAILURE;
-  }
-   
-  if ( m_histSvc.retrieve().isFailure() ) {
-    log << MSG::ERROR << "getting THistSvc" << endreq;
-    return  StatusCode::FAILURE;
-  } 
-
+  ATH_CHECK( setProperties() );
+  ATH_CHECK( m_histSvc.retrieve() );
   return StatusCode::SUCCESS;
 }
 

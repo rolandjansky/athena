@@ -5,13 +5,13 @@ use GaudiInterface      GaudiInterface-*      External
 use AtlasBoost          AtlasBoost-*          External
 
 use AthenaMonitoring    AthenaMonitoring-*    Control
+use AthenaBaseComps     AthenaBaseComps-*     Control
 use AtlasROOT           AtlasROOT-*           External
 
 apply_pattern declare_python_modules files="__init__.py TrigGenericMonitoringToolConfig.py"
 apply_pattern dual_use_library files=*.cxx
 
 private
-use DataModel           DataModel-*           Control
 use TrigInterfaces      TrigInterfaces-*      Trigger/TrigSteer
 
 use TestTools           TestTools-*           AtlasTest
