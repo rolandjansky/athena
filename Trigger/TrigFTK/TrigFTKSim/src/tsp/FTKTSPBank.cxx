@@ -27,7 +27,7 @@ FTKTSPBank::FTKTSPBank(int bankid, int subid) :
     m_setAMSize(0), m_AMSplit(0),
     m_DCMatchMethod(0),
     m_ssmap_tsp(0x0), m_splitted_ssmap(0x0),
-    m_cachepath("")
+    m_cachepath(""), m_file(0)
 {}
 
 
@@ -324,8 +324,9 @@ int FTKTSPBank::readROOTBank(const char *fname, int maxpatt)
         ftksetup.usageStat("Read TSP patterns");
 
         FTKSetup::PrintMessage(ftk::info, "TSPProcessor creation");
-        // prepare don't care data
-        m_splitted_ssmap = new map<int, FTKSS>[m_nplanes];
+        // prepare internal hit distribution structure, if required
+        if (!m_DCMatchMethod) m_splitted_ssmap = new map<int, FTKSS>[m_nplanes];
+
         // nested TSP processor
         m_TSPProcessor = new TSPLevel(m_file, 2,
                                       this, AMPatternList,
@@ -396,10 +397,8 @@ int FTKTSPBank::readROOTBankCache(const char *fname)
     TTree *amtree = dynamic_cast<TTree *>(rootcache->Get("Bank"));
     FTKPattern *curpatt = 0x0;
     amtree->SetBranchAddress("Pattern", &curpatt);
-
     // get the number of the patterns
     m_npatterns = amtree->GetEntries();
-
     // uset the first pattern to setup global variables
     amtree->GetEntry(0);
     setNPlanes(curpatt->getNPlanes());
@@ -411,7 +410,7 @@ int FTKTSPBank::readROOTBankCache(const char *fname)
     {
         FTKSetup::PrintMessage(ftk::info, "TSPProcessor preparation for cache read");
         // prepare don't care data
-        m_splitted_ssmap = new map<int, FTKSS>[m_nplanes];
+        if (!m_DCMatchMethod) m_splitted_ssmap = new map<int, FTKSS>[m_nplanes];
         // nested TSP processor
         m_TSPProcessor = new TSPLevel(2, m_npatterns, m_nplanes - 1, m_ssmap, m_ssmap_tsp, m_splitted_ssmap, m_SimulateTSP > 2);
     }
@@ -453,6 +452,9 @@ int FTKTSPBank::readROOTBankCache(const char *fname)
     FTKSetup::PrintMessageFmt(ftk::info, "Loaded #%d TSP Patterns", m_npatternsTSP);
     readBankInitEnd();
 
+    if (m_DCMatchMethod>0) {
+      m_TSPProcessor->clearExtraInfo();
+    }
     // set the flag to use a cached bank
     m_CachedBank = true;
     return m_npatterns;
@@ -1125,7 +1127,7 @@ AMSelection::AMSelection() :
 }
 
 AMSelection::AMSelection(int amid, int tspid, unsigned coverage, unsigned int hpmask) :
-    m_AMID(amid), m_TSPID(), m_HalfPlaneMask()
+    m_AMID(amid), m_Coverage(coverage), m_TSPID(), m_HalfPlaneMask()
 {
     m_TSPID.push_back(tspid);
     m_HalfPlaneMask.push_back(hpmask);

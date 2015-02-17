@@ -10,14 +10,34 @@ FTKAMSplit::FTKAMSplit() :
     m_DCSplit(0), m_DCThreshold(0),
     m_AMPatternThreshold(4194304), m_deltaThresholdBin(-1),
     m_totalDeltaPatterns(0), m_BankVolume(0),
-    m_volumeReduction(0)
+    m_volumeReduction(0),
+    DCBitsHist(0),
+    deltaVolumeOverDeltaPatternsBin1(0),
+    deltaVolumeOverDeltaPatternsClusterBin1(0),
+    deltaVolume(0),
+    deltaVolumeClusterH(0),
+    deltaPatterns(0),
+    deltaPatternsClusterH(0),
+    WeightedDeltaVolumeOverDeltaPatternsBin1(0),
+    WeightedDeltaVolumeOverDeltaPatternsClusterBin1(0),
+    DeltaVolumeOverDeltaPatternCumulativeH(0)
 {}
 
 FTKAMSplit::FTKAMSplit(int AMSplit) :
     m_DCSplit (AMSplit), m_DCThreshold(AMSplit),
     m_AMPatternThreshold(4194304), m_deltaThresholdBin(-1),
     m_totalDeltaPatterns(0), m_BankVolume(0),
-    m_volumeReduction(0)
+    m_volumeReduction(0),
+    DCBitsHist(0),
+    deltaVolumeOverDeltaPatternsBin1(0),
+    deltaVolumeOverDeltaPatternsClusterBin1(0),
+    deltaVolume(0),
+    deltaVolumeClusterH(0),
+    deltaPatterns(0),
+    deltaPatternsClusterH(0),
+    WeightedDeltaVolumeOverDeltaPatternsBin1(0),
+    WeightedDeltaVolumeOverDeltaPatternsClusterBin1(0),
+    DeltaVolumeOverDeltaPatternCumulativeH(0)
 {}
 
 void FTKAMSplit::mergeClusters(pair<int, int> /*merge*/)

@@ -37,7 +37,7 @@ private:
   int m_phifw; // phi value as caculated by the FW
   int m_z0fw; // z0 from the FW
   int m_cthetafw; //
-  long long m_chi2fw; // chisq calculation using the AUX card or SS board firmware-like code
+  double m_chi2fw; // chisq calculation using the AUX card or SS board firmware-like code
 
   int m_nmissing; // number of missing coordinates
   unsigned int m_typemask; // set on in bits related to the step recovery were used, ex.: 0 no recovery, 01, rec 1st step, 11, recovery in the 1st and the 2nd stage
@@ -99,7 +99,7 @@ public:
   int getPhiFW() const { return m_phifw; }
   int getZ0FW() const { return m_z0fw; }
   int getCTheta() const { return m_cthetafw; }
-  long long getChi2FW() const { return m_chi2fw; }
+  double getChi2FW() const { return m_chi2fw; }
   const int&   getNMissing() const { return m_nmissing; }
   const unsigned int& getTypeMask() const { return m_typemask; }
   const unsigned int& getBitmask() const { return m_bitmask; }
@@ -143,7 +143,7 @@ public:
   void getPhiFW(int v) {  m_phifw = v; }
   void getZ0FW(int v) {  m_z0fw = v; }
   void getCTheta(int v) {  m_cthetafw = v; }
-  void setChi2FW(long long v) { m_chi2fw = v; }
+  void setChi2FW(double v) { m_chi2fw = v; }
   void setNMissing(int v) { m_nmissing = v; }
   void setTypeMask(unsigned int v) { m_typemask = v; }
   void setBitmask(unsigned int v) { m_bitmask = v; }

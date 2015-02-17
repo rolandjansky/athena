@@ -156,6 +156,12 @@ def addTrigFTKSimTFOptions(parser):
 
     parser.add_argument('--SecondStageFit', type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=True),
                         help="Enables the second stage fitter", group='TrigFTKTrackFitter')
+    parser.add_argument('--doAuxFW', type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=True),
+                        help="Enables firmware-style constants", group='TrigFTKSim')
+    parser.add_argument('--MaxNcomb', type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True),
+                        help="Limit on the number of combinations per road", group='TrigFTKSim')
+    parser.add_argument('--MaxNhitsPerPlane', type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True),
+                        help="limit the number of hits per plane per road", group='TrigFTKSim')
 
     parser.add_argument("--Save1stStageTrks", type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=True),
                         help="Save the tracks after the first stage", group='TrigFTKTrackFitter')
@@ -195,6 +201,10 @@ def addTrigFTKSimMergeOptions(parser):
     parser.add_argument('--FTKDoGrid', 
                         type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=True),
                         help='Use the naming for the grid input', group='TrigFTKMerge')
+
+    parser.add_argument('--MergeRoads',
+                        type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=True),
+                        help='Merge roads', group='TrigFTKMerge')
     return None
 
 if __name__ == '__main__':

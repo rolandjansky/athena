@@ -23,8 +23,9 @@ FTKDataInput::FTKDataInput() :
   m_SplitBlayerModules(false),  
   m_init(false), m_save_unused(false), m_read_clusters(false),
   m_trackinput(0), m_roadinput(0), // cy road
-  m_nao_nhits_tot(0), m_nao_nclus_tot(0),
-  m_regional(false)
+  m_nao_nhits_tot(0), m_nao_nclus_tot(0), m_firstEvent(-1),
+  m_regional(false),
+  m_reghits(m_reghits), m_original_reghits(0), m_goodRegions(0)
 {;}
 
 FTKDataInput::FTKDataInput(const FTKPlaneMap *pmap, const FTKPlaneMap *pmap_unused) :
@@ -39,7 +40,8 @@ FTKDataInput::FTKDataInput(const FTKPlaneMap *pmap, const FTKPlaneMap *pmap_unus
   m_init(false), m_save_unused(false), m_read_clusters(false),
   m_trackinput(0), m_roadinput(0), // cy road
   m_nao_nhits_tot(0), m_nao_nclus_tot(0), m_firstEvent(-1),
-  m_regional(false)
+  m_regional(false),
+  m_reghits(m_reghits), m_original_reghits(0), m_goodRegions(0)
 {;}
 
 FTKDataInput::~FTKDataInput()

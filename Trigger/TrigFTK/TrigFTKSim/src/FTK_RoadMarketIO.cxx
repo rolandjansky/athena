@@ -17,7 +17,7 @@ void FTK_RoadMarketInput::notValid(const char *method)
 
 
 FTK_RoadMarketInput::FTK_RoadMarketInput(FTK_RoadMarketTool *market) :
-  m_market(market)
+   m_market(market),cur_road(0), cur_iroad(0)
 {;}
 
 

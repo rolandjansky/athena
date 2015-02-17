@@ -23,15 +23,22 @@ FTKRegionMapItem::FTKRegionMapItem() :
 
 
 FTKRegionMap::FTKRegionMap() :
-  m_isok(false), m_old_format(false), m_nregions(0), m_nregions_phi(0)
+   m_isok(false), m_old_format(false), m_nregions(0), m_nregions_phi(0),
+   m_pmap(0), m_nplanes(0), m_sections(0), m_map(0)
 {
   // nothing to do
 }
 
+FTKRegionMap::~FTKRegionMap()
+{
+   if (m_sections) delete m_sections;
+   if (m_map) delete [] m_map;
+}
 
 /** create a regions' map file from an ASCII file describing it */
 FTKRegionMap::FTKRegionMap(FTKPlaneMap *pmap, const char *path) :
-  m_isok(false), m_old_format(false), m_path(path), m_pmap(pmap), m_nregions(0), m_nregions_phi(0)
+  m_isok(false), m_old_format(false), m_path(path), m_pmap(pmap), m_nregions(0), m_nregions_phi(0),
+  m_nplanes(0), m_sections(0x0), m_map(0x0)
 {
   FTKSetup &ftkset = FTKSetup::getFTKSetup();
 
@@ -97,8 +104,9 @@ FTKRegionMap::FTKRegionMap(FTKPlaneMap *pmap, const char *path) :
     if(region != i) // verify the regions are read in sequence
       FTKSetup::PrintMessage(sevr, "readRegionMap: syntax error in rmap file");
     for(j = 0; j < m_pmap->getRLayers(); ++j) { // loop over the real layers
-      if (cmDebug > 3) 
-	printf("i = %d, j = %d, m_pmap->rlayers = %d\n",i,j,m_pmap->getRLayers());
+       // cannot be here for bool
+      // if (cmDebug > 3) 
+      //    printf("i = %d, j = %d, m_pmap->rlayers = %d\n",i,j,m_pmap->getRLayers());
       fgets(line,100,infile); // reading the line
 
       if (cmDebug) FTKSetup::PrintMessageFmt(debg,"read %s\n",line);
@@ -119,15 +127,16 @@ FTKRegionMap::FTKRegionMap(FTKPlaneMap *pmap, const char *path) :
 
       // if the physical layer is used by the current pmap the information is read
       if((plane = m_pmap->getMap(type,isEC,layer).getPlane()) > -1) {
-	section = m_pmap->getMap(type,isEC,layer).getSection();
-	m_map[i][plane][section].setPhiMin(phi_min);
-	m_map[i][plane][section].setPhiMax(phi_max);
-	m_map[i][plane][section].setPhiTot(phi_tot);
-	m_map[i][plane][section].setEtaMin(eta_min);
-	m_map[i][plane][section].setEtaMax(eta_max);
-	m_map[i][plane][section].setEtaTot(eta_tot);
-	if(cmDebug>3)  printf("map[reg=%d,plane=%d,sec=%d] = (%d/%d/%d:%d/%d/%d)\n",
-			      i,plane,section,phi_min,phi_max,phi_tot,eta_min,eta_max,eta_tot);
+         section = m_pmap->getMap(type,isEC,layer).getSection();
+         m_map[i][plane][section].setPhiMin(phi_min);
+         m_map[i][plane][section].setPhiMax(phi_max);
+         m_map[i][plane][section].setPhiTot(phi_tot);
+         m_map[i][plane][section].setEtaMin(eta_min);
+         m_map[i][plane][section].setEtaMax(eta_max);
+         m_map[i][plane][section].setEtaTot(eta_tot);
+         // Cannot be here for bool
+         // if(cmDebug>3)  printf("map[reg=%d,plane=%d,sec=%d] = (%d/%d/%d:%d/%d/%d)\n",
+         // 		      i,plane,section,phi_min,phi_max,phi_tot,eta_min,eta_max,eta_tot);
       }
     } // end loop over the real layers
     if(cmDebug>3) printf("\n");

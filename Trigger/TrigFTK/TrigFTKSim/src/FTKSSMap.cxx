@@ -24,7 +24,9 @@ using namespace std;
 #define SS_MIN_PIX_ETA 10  // was 15
 
 FTKSSMap::FTKSSMap() :
-  m_rmap(0), m_ssm(0), m_fraction(0), m_bound_checks(false)
+  m_rmap(0), m_ssm(0), m_fraction(0), m_bound_checks(false),
+  m_eta_nondcbits(0), m_nbitsssid(0), m_nbitsssid_module_pixel(0),
+  m_nbitsssid_module_strip(0)
 {
   // nothing special to do
 }
@@ -50,7 +52,9 @@ FTKSSMap::~FTKSSMap()
     layers */
 FTKSSMap::FTKSSMap(FTKRegionMap *rmap, const char *fname, 
                    bool BoundChecks)
-  : m_rmap(rmap), m_ssm(0), m_fraction(0), m_bound_checks(BoundChecks)
+  : m_rmap(rmap), m_ssm(0), m_fraction(0), m_bound_checks(BoundChecks),
+    m_eta_nondcbits(0), m_nbitsssid(0), m_nbitsssid_module_pixel(0),
+    m_nbitsssid_module_strip(0)
 {
   // input stream
   ifstream fin(fname);

@@ -23,7 +23,7 @@ FTKTrack::FTKTrack() :
    m_nplanes(0), m_hits(0x0),
    m_HF_rejected(0),m_HW_rejected(0),m_HW_track(-1),
    m_eventindex(-1), m_barcode(-1), m_barcode_frac(0.),
-   m_connindex(-1)
+   m_connindex(-1), m_patternID(0)
 {
    // nothing to do
 }
@@ -73,6 +73,8 @@ FTKTrack::FTKTrack(const FTKTrack &cpy) :
    for (int i=0;i<m_ncoords;++i)
       m_coord[i] = cpy.m_coord[i];
 
+   m_patternID = cpy.m_patternID;
+
    m_nplanes = cpy.m_nplanes;
    m_hits = new FTKHit[m_nplanes];
    for (int i=0;i!=m_nplanes;++i)
@@ -91,7 +93,7 @@ FTKTrack::FTKTrack(const int &ncoords, const int &nplanes) :
    m_nplanes(nplanes),
    m_HF_rejected(0),m_HW_rejected(0),m_HW_track(-1),
    m_eventindex(-1), m_barcode(-1), m_barcode_frac(0.),
-   m_connindex(-1)
+   m_connindex(-1), m_patternID(0), m_rawd0(0), m_rawphi(0), m_rawz0(0)
 {
   m_coord = new float[m_ncoords];
   for (int i=0;i<m_ncoords;++i) m_coord[i] = 0;

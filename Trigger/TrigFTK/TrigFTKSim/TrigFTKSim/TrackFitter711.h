@@ -136,7 +136,6 @@ protected:
 			     const FTKRoad &,FTKTrack&) const;
 public:
   TrackFitter711();
-
   void setUseGuessing(bool flag) { m_use_guessing = flag; }
   bool getUseGuessing() { return m_use_guessing; }
 

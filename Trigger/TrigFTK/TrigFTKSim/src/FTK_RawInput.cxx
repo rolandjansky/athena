@@ -31,14 +31,16 @@ using namespace std;
     to change these anyway */
 FTK_RawInput::FTK_RawInput(const FTKPlaneMap *pmap, const FTKPlaneMap *pmap_unused) :
   FTKDataInput(pmap,pmap_unused),
-  m_current_file(), m_glob_event(0)
+  m_current_file(), m_glob_event(0),
+  m_ntruth_tracks(0)
 {
   // nothing to do
 }
 
 FTK_RawInput::FTK_RawInput(const FTK_RawInput& v) :
   FTKDataInput(v),
-  m_current_file(), m_glob_event(0)
+  m_current_file(), m_glob_event(0),
+  m_ntruth_tracks(0)
 { 
   // nothing to do
 }

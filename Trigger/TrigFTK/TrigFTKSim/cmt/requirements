@@ -119,12 +119,9 @@ apply_pattern dual_use_library files="FTKRoadFinderAlgo.cxx FTKDumpCondAlgo.cxx 
 #########################
 #Stuff for RTT
 #include the TestConfig file
-macro TrigFTKSim_TestConfiguration "../test/TrigFTKSim_TestConfiguration.xml" 
-apply_pattern declare_runtime extras= "../test/TrigFTKSim_TestConfiguration.xml"
-
-#add in script to run in RTT
-apply_pattern declare_scripts files="../scripts/RunATowerPU20.py
-
+macro TrigFTKSim_TestConfiguration "../test/TrigFTKSim_TestConfiguration.xml"
+#install all the files for RTT where it can find them
+apply_pattern declare_runtime extras= "../test/TrigFTKSim_TestConfiguration.xml ../scripts/RunATowerPU20.py"
 #########################
 
 # the following two lines are required to enable the debug flags

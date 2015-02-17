@@ -382,4 +382,9 @@ void FTKDetectorTool::dumpGlobalToLocalModuleMap() {
       }
   }
   fout.close();
+
+  // clear the memory
+  for (int ireg=0;ireg!=nregions;++ireg) delete [] grouped_modules[ireg];
+  delete [] grouped_modules;
+
 }

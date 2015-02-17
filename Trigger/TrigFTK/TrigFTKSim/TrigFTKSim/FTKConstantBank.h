@@ -6,7 +6,9 @@
 #define FTKCONSTANTBANK_H
 
 class FTKTrack;
-//#include <TMatrixD.h>
+// #include <TMatrixD.h>
+// #include <fstream>
+
 #include <Eigen/Core>
 #include <Eigen/LU>
 
@@ -21,6 +23,8 @@ private:
   int m_npars; // numbers of parameters
 
   int m_ncoords; // number of coordinates used in the linear fit
+
+  bool m_AUX; // Use the AUX fitting mode.
 
   int *m_coordsmask; // mask used for the majority
   int *m_missid; // ids of the missing coordinates
@@ -48,9 +52,10 @@ private:
   signed long long ***m_kernel_aux; //[m_nsectors][m_nconstr][m_ncoords] covariance matrix
   signed long long **m_kaverage_aux; //[m_nsectors][m_nconstr] 
   signed long long ***m_maj_invkk_aux; //!
+  short int ***m_maj_invkk_pow; //!
 
   // function to model behavior of arithmetic shift register, used in firmware tests
-  signed long long aux_asr( const signed long long &input , const int &shift , const int &width , bool &overflow ) const;
+  signed long long aux_asr(signed long long input, int shift, int width, bool &overflow) const;
 
 public:
   FTKConstantBank();
@@ -72,6 +77,14 @@ public:
   float *getKaverage(int sectid) const { return m_kaverage[sectid]; }
   float **getKernel(int sectid) const { return m_kernel[sectid]; }
 
+  void doAuxFW(bool a);
+
+  static const int KAVE_SHIFT = 6;
+  static const int KERN_SHIFT = KAVE_SHIFT + 7;
+  static const int EFF_SHIFT  = KAVE_SHIFT + 10;
+  static const int FIT_PREC   = 18;
+  static const int CONST_PREC = 13;
+
 
   int  linfit(int, FTKTrack &) const;
   void linfit_chisq(int, FTKTrack&) const;
@@ -82,6 +95,7 @@ public:
   int invlinfit(int, FTKTrack &, double *constr=0x0) const;
   //  int missing_point_guess(float *,int *, int, float *newcoords=0);
   int missing_point_guess(FTKTrack &, int, float *newcoords=0) const;
+  int missing_point_guess_aux(FTKTrack &track, int secid) const;
   
   void extrapolate_coords(FTKTrack &,int,int *, int *) const;
 

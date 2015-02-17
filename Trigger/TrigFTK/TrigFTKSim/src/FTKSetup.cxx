@@ -22,11 +22,12 @@ MsgStream* FTKSetup::m_log(0x0);
 
 
 FTKSetup::FTKSetup() :
-   m_BarrelOnly(0), m_SCTtrkMode(0), m_IBLMode(0),
+   m_BarrelOnly(0), m_SCTtrkMode(0), m_IBLMode(0), m_verbosity(0),
    m_tot_events(0), m_EnableFTKSim(0), m_RawMode(1),
    m_SectorsAsPatterns(0),
    m_MaxMissingPlanes(1), m_MaskLayers(0), m_RoadWarrior(1),
    m_KeepRemoved(0), m_HWModeSS(0), m_event(-1), m_MaxMissingSctPairs(0),
+   m_restrictSctPairLayer(0), m_restrictSctPairModule(0),
    m_usage_ncalls(0)
 {
   m_pid = getpid();
@@ -155,10 +156,11 @@ void FTKSetup::usageStat(const char *header /* =0 */)
 
   ++m_usage_ncalls;
 
-  if (!cpuinfo&0) {
-    cerr << "USG[" << setw(2) << m_usage_ncalls << "]::Error occurred reading the file statistic, skipped" << endl;
-    return;
-  }
+  // Comment out to make Coverity happy
+  // if (!cpuinfo&0) {
+  //   cerr << "USG[" << setw(2) << m_usage_ncalls << "]::Error occurred reading the file statistic, skipped" << endl;
+  //   return;
+  // }
 
   cerr << endl;
   if (header) {
