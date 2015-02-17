@@ -6,23 +6,25 @@
 // ParticleHelper.cxx, (c) ATLAS Detector software
 ///////////////////////////////////////////////////////////////////
 
-// class include
-#include "ISF_Tools/ParticleHelper.h"
-// HepMC includes
+// class header include
+#include "ParticleHelper.h"
+
+// ISF includes
 #include "ISF_Event/ISFParticle.h"
 #include "ISF_Event/ITruthBinding.h"
-// Barcode 
+
+// Barcode
 #include "BarcodeInterfaces/IBarcodeSvc.h"
 
 
 /** Constructor **/
-ISF::ParticleHelper::ParticleHelper(const std::string& t, const std::string& n, const IInterface* p) : 
+ISF::ParticleHelper::ParticleHelper(const std::string& t, const std::string& n, const IInterface* p) :
   AthAlgTool(t,n,p),
-  m_barcodeSvc("BarcodeSvc",n) 
+  m_barcodeSvc("BarcodeSvc",n)
 {
-    declareInterface<ISF::IParticleHelper>(this);
-    // different options
-    declareProperty("BarcodeSvc",               m_barcodeSvc);
+  declareInterface<ISF::IParticleHelper>(this);
+  // different options
+  declareProperty("BarcodeSvc",               m_barcodeSvc);
 
 }
 
@@ -30,8 +32,8 @@ ISF::ParticleHelper::ParticleHelper(const std::string& t, const std::string& n, 
 // Athena algtool's Hooks
 StatusCode  ISF::ParticleHelper::initialize()
 {
-    ATH_MSG_VERBOSE("Initializing ...");
-    return StatusCode::SUCCESS;
+  ATH_MSG_VERBOSE("Initializing ...");
+  return StatusCode::SUCCESS;
 }
 
 
@@ -45,15 +47,15 @@ ISF::ISFParticle* ISF::ParticleHelper::createParticle(double x, double y, double
                                                       const ISFParticle &parent,
                                                       Barcode::ParticleBarcode bc,
                                                       ITruthBinding* tBinding) const {
-   return new ISF::ISFParticle( Amg::Vector3D(x,y,z),
-                                Amg::Vector3D(px,py,pz),
-                                pMass,
-                                pCharge,
-                                pPdgId,
-                                pTime,
-                                parent,
-                                bc,
-                                tBinding);
+  return new ISF::ISFParticle( Amg::Vector3D(x,y,z),
+                               Amg::Vector3D(px,py,pz),
+                               pMass,
+                               pCharge,
+                               pPdgId,
+                               pTime,
+                               parent,
+                               bc,
+                               tBinding);
 }
 
 
@@ -67,15 +69,15 @@ ISF::ISFParticle* ISF::ParticleHelper::createParticle( const Amg::Vector3D& x,
                                                        const ISFParticle &parent,
                                                        Barcode::ParticleBarcode bc,
                                                        ITruthBinding* tBinding) const {
-   return new ISF::ISFParticle( x,
-                                p,
-                                pMass,
-                                pCharge,
-                                pPdgId,
-                                pTime,
-                                parent,
-                                bc,
-                                tBinding);
+  return new ISF::ISFParticle( x,
+                               p,
+                               pMass,
+                               pCharge,
+                               pPdgId,
+                               pTime,
+                               parent,
+                               bc,
+                               tBinding);
 }
 
 /** Create a new particle */
@@ -88,15 +90,15 @@ ISF::ISFParticle* ISF::ParticleHelper::createParticle( const HepGeom::Point3D<do
                                                        const ISFParticle &parent,
                                                        Barcode::ParticleBarcode bc,
                                                        ITruthBinding* tBinding) const {
-   return createParticle( pos.x(), pos.y(), pos.z(),
-                          mom.x(), mom.y(), mom.z(),
-                          pMass,
-                          pCharge,
-                          pPdgId,
-                          pTime,
-                          parent,
-                          bc,
-                          tBinding );
+  return createParticle( pos.x(), pos.y(), pos.z(),
+                         mom.x(), mom.y(), mom.z(),
+                         pMass,
+                         pCharge,
+                         pPdgId,
+                         pTime,
+                         parent,
+                         bc,
+                         tBinding );
 }
 
 /** Returns the Particle Stack, should register truth */
@@ -105,38 +107,37 @@ ISF::ISFParticle* ISF::ParticleHelper::updatedParticle(const ISFParticle& origIs
                                                        const Amg::Vector3D& updatedMom,
                                                        double deltaTime) const
 {
-    return new ISF::ISFParticle( updatedPos,
-                                 updatedMom,
-                                 origIsp.mass(),
-                                 origIsp.charge(),
-                                 origIsp.pdgCode(),
-                                 origIsp.timeStamp()+deltaTime,
-                                 origIsp,
-                                 origIsp.barcode(),
-                                 origIsp.truthBinding() ? origIsp.truthBinding()->clone() : 0);
+  return new ISF::ISFParticle( updatedPos,
+                               updatedMom,
+                               origIsp.mass(),
+                               origIsp.charge(),
+                               origIsp.pdgCode(),
+                               origIsp.timeStamp()+deltaTime,
+                               origIsp,
+                               origIsp.barcode(),
+                               origIsp.truthBinding() ? origIsp.truthBinding()->clone() : 0);
 }
 
 /** Returns the Particle Stack, should register truth */
 ISF::ISFParticle* ISF::ParticleHelper::updatedParticle(const ISFParticle& origIsp,
-                                const HepGeom::Point3D<double>&  updatedPos,
-                                const HepGeom::Vector3D<double>& updatedMom,
-                                double deltaTime) const
+                                                       const HepGeom::Point3D<double>&  updatedPos,
+                                                       const HepGeom::Vector3D<double>& updatedMom,
+                                                       double deltaTime) const
 {
-    return new ISF::ISFParticle( Amg::Vector3D( updatedPos.x(), updatedPos.y(), updatedPos.z()),
-                                 Amg::Vector3D( updatedMom.x(), updatedPos.x(), updatedPos.z()),
-                                 origIsp.mass(),
-                                 origIsp.charge(),
-                                 origIsp.pdgCode(),
-                                 origIsp.timeStamp()+deltaTime,
-                                 origIsp,
-                                 origIsp.barcode(),
-                                 origIsp.truthBinding() ? origIsp.truthBinding()->clone() : 0);
+  return new ISF::ISFParticle( Amg::Vector3D( updatedPos.x(), updatedPos.y(), updatedPos.z()),
+                               Amg::Vector3D( updatedMom.x(), updatedPos.x(), updatedPos.z()),
+                               origIsp.mass(),
+                               origIsp.charge(),
+                               origIsp.pdgCode(),
+                               origIsp.timeStamp()+deltaTime,
+                               origIsp,
+                               origIsp.barcode(),
+                               origIsp.truthBinding() ? origIsp.truthBinding()->clone() : 0);
 }
-                                      
+
 
 StatusCode  ISF::ParticleHelper::finalize()
 {
-    ATH_MSG_VERBOSE("Finalizing ...");
-    return StatusCode::SUCCESS;
+  ATH_MSG_VERBOSE("Finalizing ...");
+  return StatusCode::SUCCESS;
 }
-

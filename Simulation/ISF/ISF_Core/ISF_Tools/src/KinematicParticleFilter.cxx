@@ -7,13 +7,13 @@
 ///////////////////////////////////////////////////////////////////
 
 // class header include
-#include "ISF_Tools/KinematicParticleFilter.h"
+#include "KinematicParticleFilter.h"
 
 // ISF includes
 #include "ISF_Event/ISFParticle.h"
 
 /** Constructor **/
-ISF::KinematicParticleFilter::KinematicParticleFilter(const std::string& t, const std::string& n, const IInterface* p) : 
+ISF::KinematicParticleFilter::KinematicParticleFilter(const std::string& t, const std::string& n, const IInterface* p) :
   AthAlgTool(t,n,p),
   KinematicParticleCuts(),
   m_maxEtaSym(3.0f)
@@ -63,4 +63,3 @@ StatusCode  ISF::KinematicParticleFilter::finalize()
 bool ISF::KinematicParticleFilter::passFilter(const ISFParticle &p) const {
   return ISF::KinematicParticleCuts::pass(p);
 }
-

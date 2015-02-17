@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////
 
 // class header include
-#include "ISF_Tools/GenericBarcodeFilter.h"
+#include "GenericBarcodeFilter.h"
 
 // ISF includes
 #include "ISF_Event/ISFParticle.h"
@@ -16,7 +16,7 @@
 #include "ISF_Interfaces/IParticleFilter.h"
 
 /** Constructor **/
-ISF::GenericBarcodeFilter::GenericBarcodeFilter(const std::string& t, const std::string& n, const IInterface* p) : 
+ISF::GenericBarcodeFilter::GenericBarcodeFilter(const std::string& t, const std::string& n, const IInterface* p) :
   AthAlgTool(t,n,p),
   m_filterOutUnsetBarcodes(true),
   m_onlyLegacyPrimaries(false),
@@ -83,4 +83,3 @@ bool ISF::GenericBarcodeFilter::passFilter(const ISFParticle &p) const {
 
   return pass;
 }
-
