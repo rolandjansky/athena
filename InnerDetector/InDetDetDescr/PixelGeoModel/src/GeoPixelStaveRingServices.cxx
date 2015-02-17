@@ -267,29 +267,32 @@ GeoVPhysVol* GeoPixelStaveRingServices::Build()
     }
   }
   
-  CLHEP::Hep3Vector ring_posA(0.0,0.0,staveRing.GetPositionAlongZAxis()-serviceZpos-dogLegStaveLength*0.5);
+  // IBL layer shift ( 2mm shift issue )
+  double layerZshift = gmt_mgr->PixelLayerGlobalShift();
+
+  CLHEP::Hep3Vector ring_posA(0.0,0.0,staveRing.GetPositionAlongZAxis()-serviceZpos-dogLegStaveLength*0.5+layerZshift);
   GeoTransform* xformA  = new GeoTransform(HepGeom::Transform3D(CLHEP::HepRotation(),ring_posA));
   m_supportPhysA->add(tagA);
   m_supportPhysA->add(xformA);
   m_supportPhysA->add(ringphysA);
   
-  CLHEP::Hep3Vector ring_posC(0.0,0.0,-staveRing.GetPositionAlongZAxis()+serviceZpos+dogLegStaveLength*0.5);
+  CLHEP::Hep3Vector ring_posC(0.0,0.0,-staveRing.GetPositionAlongZAxis()+serviceZpos+dogLegStaveLength*0.5+layerZshift);
   GeoTransform* xformC  = new GeoTransform(HepGeom::Transform3D(CLHEP::HepRotation(),ring_posC));
   m_supportPhysC->add(tagC);
   m_supportPhysC->add(xformC);
   m_supportPhysC->add(ringphysC);
   
   gmt_mgr->msg(MSG::DEBUG)<<"IBL EOS : zpos "<<serviceZpos<<endreq;
-  HepGeom::Transform3D supportTrfA = HepGeom::TranslateZ3D(serviceZpos+dogLegStaveLength*0.5);
+  HepGeom::Transform3D supportTrfA = HepGeom::TranslateZ3D(serviceZpos+dogLegStaveLength*0.5+layerZshift);
   m_xformSupportA = new GeoTransform(supportTrfA);
   
-  HepGeom::Transform3D supportTrfC = HepGeom::TranslateZ3D(-serviceZpos-dogLegStaveLength*0.5);
+  HepGeom::Transform3D supportTrfC = HepGeom::TranslateZ3D(-serviceZpos-dogLegStaveLength*0.5+layerZshift);
   m_xformSupportC = new GeoTransform(supportTrfC);
   
   std::ostringstream lnameM;
   lnameM << "Brl0M_StaveRing";
   m_supportMidRing = staveRing.SetParametersAndBuild(lnameM.str(),"Mid");
-  CLHEP::Hep3Vector ring_posM(0.0,0.0,0.0);
+  CLHEP::Hep3Vector ring_posM(0.0,0.0,0.0+layerZshift);
   m_xformSupportMidRing = new GeoTransform(HepGeom::Transform3D(CLHEP::HepRotation(),ring_posM));
 
 

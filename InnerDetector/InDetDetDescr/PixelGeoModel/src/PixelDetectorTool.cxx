@@ -127,6 +127,7 @@ StatusCode PixelDetectorTool::create( StoreGateSvc* detStore )
     // come from the database:
     
     std::string versionName;
+    std::string descrName="noDescr";
 
     if (versionKey.custom()) {
 
@@ -145,6 +146,9 @@ StatusCode PixelDetectorTool::create( StoreGateSvc* detStore )
       m_initialLayout      = switchTable->getInt("INITIALLAYOUT");
       if (!switchTable->isFieldNull("VERSIONNAME")) {
 	versionName        = switchTable->getString("VERSIONNAME");
+      }
+      if (!switchTable->isFieldNull("DESCRIPTION")) {
+	descrName        = switchTable->getString("DESCRIPTION");
       }
       m_buildDBM        = switchTable->getInt("BUILDDBM");
    }
@@ -306,7 +310,10 @@ StatusCode PixelDetectorTool::create( StoreGateSvc* detStore )
       } else {
 	// DC3, SLHC, IBL
         PixelDetectorFactory thePixel(m_athenaComps, switches);
-        thePixel.create(world);      
+	if(descrName.compare("TrackingGeometry")!=0)
+	  thePixel.create(world);      
+	else
+	  msg(MSG::INFO) << "Pixel - TrackingGeometry tag - no geometry built" << endreq; 
         m_manager  = thePixel.getDetectorManager();
       }	  
       

@@ -52,7 +52,9 @@ GeoVPhysVol* GeoPixelDisk::Build( ) {
 
   // angle between two adjacent modules on one side of the disk
   // it is 360 deg / 24 modules = 15 deg	 	
-  double deltaPhi = 360.*CLHEP::deg/ (float) gmt_mgr->PixelECNSectors1();
+  int nbECSector = gmt_mgr->PixelECNSectors1();
+  if(nbECSector==0) return 0;
+  double deltaPhi = 360.*CLHEP::deg/ (float) nbECSector;
  
   // This is the start angle of the even modules (3.75 deg):
   double startAngle = deltaPhi/4.;
