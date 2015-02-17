@@ -52,7 +52,7 @@ if hasattr(runArgs,"inputRDO_TRIGFile"):
     l1output = Lvl1ResultBuilderGetter()
     from RecExConfig.ObjKeyStore import cfgKeyStore
     if cfgKeyStore.isInInput("HLT::HLTResult","HLTResult_HLT"):
-       cfgKeyStore.clear("HLT::HLTResult")
+       cfgKeyStore['inputFile'].removeItem(["HLT::HLTResult#HLTResult_HLT"])
 if hasattr(runArgs,"inputRDO_FILTFile"):
     rec.readRDO.set_Value_and_Lock( True )
     globalflags.InputFormat.set_Value_and_Lock('pool')
