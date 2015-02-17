@@ -1,5 +1,5 @@
 # FTK Simulation Transform Skeleton Job Options
-# $Id: skeleton.FTKStandaloneSim.py 643672 2015-02-02 22:02:23Z jahreda $
+# $Id: skeleton.FTKStandaloneSim.py 646626 2015-02-12 22:20:57Z jsaxon $
 
 from AthenaCommon.AthenaCommonFlags import jobproperties as jp
 from AthenaCommon.Logging import logging
@@ -91,7 +91,8 @@ runArgsFromTrfOptionalTF = {'IBLMode': 0,
                             'KeepRejected': 0,
                             'FitRemoved': 0,
                             'HWNDiff': 6,
-                            'MaxNcomb': 1000000,                            
+                            'MaxNcomb': 1000000, 
+                            'MaxNhitsPerPlane': -1, 
                             'doTrackFile': True,
                             'addRoads': True,
                             'TRACKFITTER_MODE': 1,
@@ -212,10 +213,11 @@ FTKTagOptions["TDAQTDRv2"] =  \
          'loadHWConf_path': 'raw_12L.hw','pmapcomplete_path': 'raw_12Libl.pmap','SetAMSize': 2, 'SecondStageFit': True, 'TRACKFITTER_MODE': 3, 'SSFMultiConnection': True, 'SSFNConnections': 4, \
          'SSFAllowExtraMiss': 1, 'SSFTRDefn': 1, 'SSFTRMaxEta': 1.4, 'SSFTRMinEta': 1.0, \
          'IBLMode': 1, 'PixelClusteringMode': 1}
+
 FTKTagOptions['SectorsAsPatterns'] = \
     {'NBanks': 64, 'NSubRegions': 1, 'pmap_path': 'raw_8LcIbl123.pmap', 'rmap_path': 'raw_12Libl.tmap', 'ssmap_path': 'raw_30x32x72Ibl.ss', 'ssmapunused_path': 'raw_8LcIBL123_unusedmedium.ss', 'pmapunused_path': 'raw_8LcIbl123_unused.pmap', 'bankpatterns': [-1]*NumberOfSubregions, \
          'ssmaptsp_path': 'raw_15x16x36Ibl.ss', 'UseTSPBank': False, \
-         'loadHWConf_path': 'raw_8Lc.hw','SecondStageFit': False, \
+         'loadHWConf_path': 'raw_8Lc.hw','SecondStageFit': False, 'TRACKFITTER_MODE': 1,
          'IBLMode': 1, 'PixelClusteringMode': 1, 'SectorsAsPatterns': 1}
     
 # enable the "Scenario" runarg that sets other runarg values as consequence
@@ -342,6 +344,11 @@ elif not getattr(runArgs,'SecondStageFit') :
 else :
    # Second stage case
    FTKTrackFitter.SecondStageFit = True
+
+
+if not hasattr(runArgs,'doAuxFW'):
+  FTKTrackFitter.doAuxFW = False
+else: FTKTrackFitter.doAuxFW = getattr(runArgs,'doAuxFW')
 
 
 # set the FTKTrackFitter properties

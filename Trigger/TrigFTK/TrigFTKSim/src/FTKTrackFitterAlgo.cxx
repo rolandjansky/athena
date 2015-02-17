@@ -34,6 +34,7 @@ FTKTrackFitterAlgo::FTKTrackFitterAlgo(const std::string& name, ISvcLocator* pSv
   m_chi2cut_maj(14),
   m_chi2cut_vetmaj(-1),
   m_chi2dofcut(4),
+  m_doAuxFW(false),
   m_HitWarrior(2),
   m_KeepRejected(0), 
   m_FitRemoved(0),
@@ -72,6 +73,7 @@ FTKTrackFitterAlgo::FTKTrackFitterAlgo(const std::string& name, ISvcLocator* pSv
   declareProperty("Chi2Cut_Maj",m_chi2cut_maj);
   declareProperty("Chi2Cut_VetoMaj",m_chi2cut_vetmaj);
   declareProperty("Chi2DofCut",m_chi2dofcut);
+  declareProperty("doAuxFW", m_doAuxFW);
   declareProperty("HitWarrior", m_HitWarrior);
   declareProperty("KeepRejected", m_KeepRejected);
   declareProperty("FitRemoved", m_FitRemoved);
@@ -402,13 +404,16 @@ StatusCode FTKTrackFitterAlgo::initialize(){
       log << MSG::INFO << "*** set bank *** region:" << ir << "\t subregions:" << is << "\t bank path:" << bankpath11L.c_str() << endreq;
 
       FTKConstantBank* bank8 = new FTKConstantBank(dynamic_cast<TrackFitter711*>(m_tfpobj)->getNCoordsIncomplete(),bankpath8L.c_str());
+      bank8->doAuxFW(m_doAuxFW);
+
       FTKConstantBank* bank11 = new FTKConstantBank(dynamic_cast<TrackFitter711*>(m_tfpobj)->getNCoordsComplete(),bankpath11L.c_str());
       FTKSector711DB * sector= new FTKSector711DB(bank8->getNSectors(),m_pmap_complete->getNPlanes()-m_pmap->getNPlanes(),sectorpath_s.c_str());
       dynamic_cast<TrackFitter711*>(m_tfpobj)->setBank(ir,is,bank11,bank8, sector);
     }
     else{
-	 FTKConstantBank* bank8 = new FTKConstantBank(m_tfpobj->getNCoords(),bankpath8L.c_str());
-	 m_tfpobj->setBank(ir,is,bank8);
+      FTKConstantBank* bank8 = new FTKConstantBank(m_tfpobj->getNCoords(),bankpath8L.c_str());
+      bank8->doAuxFW(m_doAuxFW);
+      m_tfpobj->setBank(ir,is,bank8);
 
     }
        

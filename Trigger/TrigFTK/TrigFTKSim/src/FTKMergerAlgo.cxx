@@ -53,7 +53,6 @@ FTKMergerAlgo::FTKMergerAlgo(const std::string& name, ISvcLocator* pSvcLocator) 
   m_neventsMerged(0),
   m_outputTree(0),
   m_outputFile(0),
-  m_merged_bank(0),
   m_HW_level(2),
   m_HW_ndiff(6),
   m_NCoords(0),
@@ -64,6 +63,7 @@ FTKMergerAlgo::FTKMergerAlgo(const std::string& name, ISvcLocator* pSvcLocator) 
   m_ftktrack_tomerge_firstregion(0),
   m_ftktrack_tomerge_firstsubreg(0),
   m_ftrtrack_tomerge_bfname("FTKTracksStream%u."),
+  m_ftkroad_tomerge_bfname("FTKRoadsStream%u."),
   m_MergeRegion(-1),
   m_ftktrack_mergeoutput("ftkmerged.root"),
   m_ftktrack_mergeInputPath(""),
@@ -73,6 +73,7 @@ FTKMergerAlgo::FTKMergerAlgo(const std::string& name, ISvcLocator* pSvcLocator) 
   m_ftktrack_paths_merged(),
   m_mergedtracks_chain(0x0),
   m_mergedtracks_stream(0x0),
+  m_merged_bank(0),
   m_mergedtracks_bname("FTKBankMerged"), /* Old standalone name is FTKBankMerged, prdosys FTKMergedTracksStream */
   m_force_merge(false),
   m_out_indettrack_Name("FTK_LVL2_Tracks"), // of the collection to store RAW TrigInDetTracks
@@ -104,7 +105,28 @@ FTKMergerAlgo::FTKMergerAlgo(const std::string& name, ISvcLocator* pSvcLocator) 
   m_truthFileNames(),
   m_truthTrackTreeName(""),
   m_evtinfoTreeName(""),
-  m_saveTruthTree(1)
+  m_saveTruthTree(1),
+  m_StoreGate(0),
+  m_detStore(0),
+  m_mergeSvc(0),
+  m_HW_dev(0),
+  m_nStreamsToMerge(0),
+  m_ftktrack_tomerge_tree(0),
+  m_ftktrack_tomerge_file(0),
+  m_ftktrack_tomerge_branch(0),
+  m_ftktrack_tomerge_stream(0),
+  m_ftkroad_tomerge_branch(0),
+  m_ftkroad_tomerge_stream(0),
+  m_mergedtracks_tree(0),
+  m_mergedtracks_iev(0),
+  m_nfits_rej(0),
+  m_idHelper(0),
+  m_PIX_mgr(0),
+  m_SCT_mgr(0),
+  m_pixel_id(0),
+  m_sct_id(0),
+  m_primcontainer(0),
+  m_out_convTrackPC(0)
 {
   declareProperty("useStandalone",m_useStandalone,"Use tracks produced from the standalone version");
   declareProperty("SingleProces",m_singleProces,"Assume in the same process with the TF");
@@ -133,8 +155,9 @@ FTKMergerAlgo::FTKMergerAlgo(const std::string& name, ISvcLocator* pSvcLocator) 
   declareProperty("FTKUnmergedFileRoot",m_ftktrack_mergeFileRoot);
   declareProperty("FTKForceAllInput",m_forceAllInput,"Require all inputFiles to be present");
   declareProperty("FTKDoGrid",m_doGrid,"Assume Naming used on grid");
-  declareProperty("MergeRegion",m_MergeRegion,"If >=0 enables the merging for a single region, -1 means global merging");
+  declareProperty("MergeRegion",m_MergeRegion,"If 0-63 enables the merging for a single region, -1 means global merging, -2 means keep all regions, just merge to one file");
   declareProperty("FTKUnmergedFormatName",m_ftrtrack_tomerge_bfname,"Format for the branch-name of the unmerged tracks");
+  declareProperty("FTKUnmergedRoadFormatName",m_ftkroad_tomerge_bfname,"Format for the branch-name of the unmerged roads");
   declareProperty("FTKPixelClustersCollName",m_FTKPxlClu_CollName,"FTK pixel clusters collection");
   declareProperty("FTKSCTClusterCollName",m_FTKSCTClu_CollName,"FTK SCT clusters collection");
   declareProperty("TrackConverter",m_trackConverterTool);
@@ -435,11 +458,24 @@ StatusCode FTKMergerAlgo::execute() {
      }
    }
    else if (m_useStandalone && m_doMerging) {
+      if (m_MergeRoads) { // do this first so event counter is correct
+        for (unsigned int ib=0;ib<m_nregions;++ib) { // bank loop
+           if (m_banks[ib] != nullptr) {
+              m_banks[ib]->clear();
+              StatusCode sc = merge_roads(m_banks[ib],m_srbanks[ib], ib, m_nsubregions);
+              if (sc.isFailure()) {
+                 log << MSG::FATAL << "Unable to merge roads" << endreq;
+                 return sc;
+              }
+           }
+        }
+     }
      StatusCode sc = mergeStandaloneTracks();
      if (sc.isFailure()) {
        log << MSG::FATAL << "Unable convert merged tracks" << endreq;
        return sc;
      }
+
    }
    else if (m_singleProces && m_doMerging) {
      StatusCode sc = mergeSGContent();
@@ -469,7 +505,7 @@ StatusCode FTKMergerAlgo::execute() {
 //
 //  Initialize inputput when merging standalone input
 //   this mode reads unmerged tracks from a previous FTKTrackFitterAlgo 
-//
+//  Note that it also uses the same files so that we can merge roads if that is called for
 StatusCode FTKMergerAlgo::initStandaloneTracks()
 {
   MsgStream log(msgSvc(), name());
@@ -478,15 +514,15 @@ StatusCode FTKMergerAlgo::initStandaloneTracks()
   // reset the internal event counter
   //
   m_mergedtracks_iev = 0;
-    
   // prepare the input from the FTK tracks, merged in an external simulation
-  m_mergedtracks_tree = new TTree("ftkdata","Merged tracks chain");
+  // for now this is going to also hold the roads, if they are to be merged
+
+  m_mergedtracks_tree = new TTree("ftkdata","Merged chain");
   log << MSG::DEBUG << "Will Merge:  " << m_nregions << " region and "  << m_nsubregions << " subregions " <<endreq;
   log << MSG::DEBUG << "Starting with region " << m_ftktrack_tomerge_firstregion << " and subregion " << m_ftktrack_tomerge_firstsubreg << endreq;
-	  
 
   //
-  //  The output stream
+  //  The output streams
   //
   m_mergedtracks_stream = new FTKTrackStream;
   m_mergedtracks_tree->Branch("FTKBankMerged",&m_mergedtracks_stream);
@@ -494,17 +530,26 @@ StatusCode FTKMergerAlgo::initStandaloneTracks()
   //
   // allocate memory
   //
+
   m_ftktrack_tomerge_file   = new TFile**[m_nregions];
   m_ftktrack_tomerge_tree   = new TTree**[m_nregions];
   m_ftktrack_tomerge_branch = new TBranch**[m_nregions];
   m_ftktrack_tomerge_stream = new FTKTrackStream**[m_nregions]; 
+  if (m_MergeRoads) {
+     m_srbanks = new FTKRoadStream **[m_nregions];
+     m_ftkroad_tomerge_branch = new TBranch**[m_nregions];
+  }
+
   for (unsigned int ir=0;ir!=m_nregions;++ir) { // region loop
     m_ftktrack_tomerge_file[ir]   = new TFile*[m_nsubregions];
     m_ftktrack_tomerge_tree[ir]   = new TTree*[m_nsubregions];
     m_ftktrack_tomerge_branch[ir] = new TBranch*[m_nsubregions];
     m_ftktrack_tomerge_stream[ir] = new FTKTrackStream*[m_nsubregions];
+    if (m_MergeRoads) {
+       m_srbanks[ir] = new FTKRoadStream*[m_nsubregions];
+       m_ftkroad_tomerge_branch[ir] = new TBranch*[m_nsubregions];
+    }
   }
-
   //
   // Assume that the files are ordered, so all we need is:
   //   - the path
@@ -522,14 +567,18 @@ StatusCode FTKMergerAlgo::initStandaloneTracks()
 	//
 	//  init memory
 	//
-	m_ftktrack_tomerge_file  [ireg][isub] = 0;
-	m_ftktrack_tomerge_tree  [ireg][isub] = 0;
-	m_ftktrack_tomerge_branch[ireg][isub] = 0;
-	m_ftktrack_tomerge_stream[ireg][isub] = 0;
+         m_ftktrack_tomerge_file  [ireg][isub] = 0;
+         m_ftktrack_tomerge_tree  [ireg][isub] = 0;
+         m_ftktrack_tomerge_branch[ireg][isub] = 0;
+         m_ftktrack_tomerge_stream[ireg][isub] = 0;
+         if (m_MergeRoads) {
+            m_ftkroad_tomerge_branch[ireg][isub] = 0;
+            m_srbanks[ireg][isub] = 0;
+         }
       } // end subreg loop
     } // end region loop
     // end merge structure initialization
-
+    
     // calculate the offset of the file number
     const unsigned int ifile_offset = m_ftktrack_tomerge_firstregion*m_nsubregions+m_ftktrack_tomerge_firstsubreg;
 
@@ -545,188 +594,258 @@ StatusCode FTKMergerAlgo::initStandaloneTracks()
       // associate the current file to the current (region,sub-region
       TFile *curfile  = TFile::Open(curfilepath.c_str());
       if (!curfile){
-	log << MSG::FATAL << " Error opening the file: " << curfilepath << endreq;
-	return StatusCode::FAILURE;
+         log << MSG::FATAL << " Error opening the file: " << curfilepath << endreq;
+         return StatusCode::FAILURE;
       }
-
+      
       m_ftktrack_tomerge_file[regionID][subregID] = curfile;
       m_ftktrack_tomerge_tree[regionID][subregID] = (TTree*) curfile->Get("ftkdata");
       if (!m_ftktrack_tomerge_tree[regionID][subregID]) {
-	log << MSG::FATAL << "TTree \"ftkdata\" not found in the file: " << curfilepath << endreq;
-	return StatusCode::FAILURE;
+         log << MSG::FATAL << "TTree \"ftkdata\" not found in the file: " << curfilepath << endreq;
+         return StatusCode::FAILURE;
+      }
+      m_ftktrack_tomerge_stream[regionID][subregID] = new FTKTrackStream();
+      if (m_MergeRoads) {
+         m_srbanks[regionID][subregID] = new FTKRoadStream();
       }
 
-      m_ftktrack_tomerge_stream[regionID][subregID] = new FTKTrackStream();
       //m_ftktrack_tomerge_tree[regionID][subregID]->Print();
       Int_t res = m_ftktrack_tomerge_tree[regionID][subregID]->SetBranchAddress(Form(m_ftrtrack_tomerge_bfname.c_str(),regionID),&m_ftktrack_tomerge_stream[regionID][subregID],&m_ftktrack_tomerge_branch[regionID][subregID]);
-      if (res<0) {
-	// negative reeturn values are errors, no specific action taken, just exit
-	log << MSG::FATAL << "Error connecting branch: " << Form(m_ftrtrack_tomerge_bfname.c_str(),regionID) << endreq;
-	return StatusCode::FAILURE;
-      }
 
+      if (res<0) {
+         // negative reeturn values are errors, no specific action taken, just exit
+         log << MSG::FATAL << "Error connecting branch: " << Form(m_ftrtrack_tomerge_bfname.c_str(),regionID) << endreq;
+         return StatusCode::FAILURE;
+      }
+      if (m_MergeRoads) {
+         res = m_ftktrack_tomerge_tree[regionID][subregID]->SetBranchAddress(Form(m_ftkroad_tomerge_bfname.c_str(),regionID),&m_srbanks[regionID][subregID],&m_ftkroad_tomerge_branch[regionID][subregID]);
+         if (res<0) {
+            // negative eeturn values are errors, no specific action taken, just exit
+            log << MSG::FATAL << "Error connecting branch: " << Form(m_ftkroad_tomerge_bfname.c_str(),regionID) << endreq;
+            return StatusCode::FAILURE;
+         }
+      }
       //
       // Set Number of events and the file name (from the first TTree)
       //
       if (m_neventsUnmergedFiles==0) {
-	m_neventsUnmergedFiles = m_ftktrack_tomerge_tree[regionID][subregID]->GetEntries();
-	log << MSG::DEBUG << "Setting nevents to " << m_neventsUnmergedFiles << " (with regionNum:" << regionID << " subregionNum: " << subregID << " ) " << endreq;
+         m_neventsUnmergedFiles = m_ftktrack_tomerge_tree[regionID][subregID]->GetEntries();
+         log << MSG::DEBUG << "Setting nevents to " << m_neventsUnmergedFiles << " (with regionNum:" << regionID << " subregionNum: " << subregID << " ) " << endreq;
       }
       
     } // end file loop
   } // end merge using a list of input files
   else { 
-    // Merge all the regions (correct for offset)
-    //
-    for (  unsigned int ireg=0; ireg!=m_nregions;   ++ireg) { // region loop
-
-      //
-      //  Get the region number including the offset
-      //
-      unsigned int regNum = ireg + m_ftktrack_tomerge_firstregion;
-
-      // 
+     // Merge all the regions (correct for offset)
+     //
+     for (  unsigned int ireg=0; ireg!=m_nregions;   ++ireg) { // region loop
+        
+        //
+        //  Get the region number including the offset
+        //
+        unsigned int regNum = ireg + m_ftktrack_tomerge_firstregion;
+        
+        // 
       // Merge all the subregions
       //
-      for (unsigned int isub=0; isub!=m_nsubregions; ++isub) { // subregion loop
+        for (unsigned int isub=0; isub!=m_nsubregions; ++isub) { // subregion loop
+           
+           //
+           //  Get the subregion number including the offset
+           //
+           unsigned int subNum = isub + m_ftktrack_tomerge_firstsubreg;
+           
+           //
+           //  init memory
+           //
+           m_ftktrack_tomerge_file  [ireg][isub] = 0;
+           m_ftktrack_tomerge_tree  [ireg][isub] = 0;
+           m_ftktrack_tomerge_branch[ireg][isub] = 0;
+           m_ftktrack_tomerge_stream[ireg][isub] = 0;
+           if (m_MergeRoads) {
+              m_ftkroad_tomerge_branch[ireg][isub] = 0;
+              m_srbanks[ireg][isub] = 0;
+           }
+           //
+           // Path to files being merged
+           //
+           //m_ftktrack_mergeInputPath = "/afs/cern.ch/work/g/gvolpi/ftksimoutput20120918/";
+           std::string thisPath = GetPathName(regNum,subNum);
+           
+           if(!m_doGrid){
+              //
+              //  Check that the intput file exists
+              //
+              ifstream testStream(thisPath.c_str());
+              if(!testStream.good()){
+                 
+                 // 
+                 // If not file doesnt exist try with only one digit
+                 //
+                 log << MSG::VERBOSE << " Could not read " << thisPath << endreq;
+                 thisPath = m_ftktrack_mergeInputPath + "/"+m_ftktrack_mergeFileRoot + Form("_reg%d_sub%d.root",regNum,subNum);
+                 log << MSG::VERBOSE << " Trying  " << thisPath << endreq;
+                 
+                 testStream.close();
+                 testStream.open(thisPath.c_str());
+                 
+                 if(!testStream.good()){
+                    log << MSG::VERBOSE << thisPath << " also failed" << endreq;
+                    log << MSG::WARNING << " Could not read " << GetPathName(regNum,subNum)  
+                        << " or " << thisPath << endreq;
+                    
+                    if(m_forceAllInput){
+                       log << MSG::FATAL << " Missing inputFile, " << thisPath << " Failing... " << endreq;
+                       return StatusCode::FAILURE;
+                    }else{
+                       log << MSG::WARNING << " Missing inputFile, " << thisPath << " Skipping... " << endreq;
+                       continue;
+                    }
+                 }else{
+                    log << MSG::VERBOSE << " InputFile, " << thisPath << " Found " << endreq;
+                 }
+              }
+              testStream.close();
+           }
+           
+           //
+           // this will become equal the filename of the first valid region
+           //
+           string merged_fname("merged_file.root");	
+           
+           if (thisPath.empty()) continue;
+           log << MSG::INFO << "Opening: " << thisPath << endreq;
+           
+           //
+           //  Get the TFile and the TTree
+           //
+           m_ftktrack_tomerge_file[ireg][isub] = TFile::Open(thisPath.c_str());
+           m_ftktrack_tomerge_tree[ireg][isub] = (TTree*) m_ftktrack_tomerge_file[ireg][isub]->Get("ftkdata");
+           if (!m_ftktrack_tomerge_tree[ireg][isub]) {
+              log << MSG::ERROR << "*** Error: TTree in file \"" << thisPath << "\" not found" << endreq;
+              return StatusCode::FAILURE;
+           }
+           
+           //
+           //  Create the Stream
+           //
+           m_ftktrack_tomerge_stream[ireg][isub] = new FTKTrackStream();
+           if (m_MergeRoads) {
+              m_srbanks[ireg][isub] = new FTKRoadStream();
+           }
+           // JOHNDA: Not sure which one we want here.
+           //   assume output of track fitter for now
 
-	//
-	//  Get the subregion number including the offset
-	//
-	unsigned int subNum = isub + m_ftktrack_tomerge_firstsubreg;
+           // JAA this code does nothing and has been commented out in the interest of making coverity happy
+           // bool input_tree_merged = false;
+           // if(input_tree_merged){ // if merging output of track_merger
+           //    m_ftktrack_tomerge_tree[ireg][isub]->Print();
+           //    m_ftktrack_tomerge_tree[ireg][isub]->SetBranchAddress("FTKBankMerged",&m_ftktrack_tomerge_stream[ireg][isub],&m_ftktrack_tomerge_branch[ireg][isub]);
+           // }
 
-	//
-	//  init memory
-	//
-	m_ftktrack_tomerge_file  [ireg][isub] = 0;
-	m_ftktrack_tomerge_tree  [ireg][isub] = 0;
-	m_ftktrack_tomerge_branch[ireg][isub] = 0;
-	m_ftktrack_tomerge_stream[ireg][isub] = 0;
+           // else {                 /// bracket below also commented out
+              //
+              // Try to find branches named after teh region
+           //
+              if(m_ftktrack_tomerge_tree[ireg][isub]->FindBranch(Form("FTKTracksStream%d.",regNum))){
+                 log << MSG::VERBOSE << "Setting branch with region number: " << regNum << " ireg: " << ireg << " isub: " << isub << endreq;
+                 m_ftktrack_tomerge_tree[ireg][isub]->SetBranchAddress(Form("FTKTracksStream%d.",regNum),&m_ftktrack_tomerge_stream[ireg][isub],&m_ftktrack_tomerge_branch[ireg][isub]);
+                 
+              //
+              // If not, Try to find branches named after merging has been done
+              //
+                 
+              }
+              else{
+                 log << MSG::DEBUG << "Setting branch with name: FTKMergedTracksStream" << endreq;
+                 m_ftktrack_tomerge_tree[ireg][isub]->SetBranchAddress("FTKMergedTracksStream",&m_ftktrack_tomerge_stream[ireg][isub],&m_ftktrack_tomerge_branch[ireg][isub]);
+              }
+///           } // from not used else
+           
+           //
+           // Set Number of events and the file name (from the first TTree)
+           //
+           if (m_neventsUnmergedFiles==0) {
+              m_neventsUnmergedFiles = m_ftktrack_tomerge_tree[ireg][isub]->GetEntries();
+              log << MSG::DEBUG << "Setting nevents to " << m_neventsUnmergedFiles << " (with regionNum:" << regNum << " subregionNum: " << subNum << " ) " << endreq;
+              merged_fname = gSystem->BaseName(thisPath.c_str());
+           }
+        }// subregions
+     }// regions
+  }// end by position merge
 
-	//
-	// Path to files being merged
-	//
-	//m_ftktrack_mergeInputPath = "/afs/cern.ch/work/g/gvolpi/ftksimoutput20120918/";
-	std::string thisPath = GetPathName(regNum,subNum);
-      
-	if(!m_doGrid){
-	  //
-	  //  Check that the intput file exists
-	  //
-	  ifstream testStream(thisPath.c_str());
-	  if(!testStream.good()){
-      
-	    // 
-	    // If not file doesnt exist try with only one digit
-	    //
-	    log << MSG::VERBOSE << " Could not read " << thisPath << endreq;
-	    thisPath = m_ftktrack_mergeInputPath + "/"+m_ftktrack_mergeFileRoot + Form("_reg%d_sub%d.root",regNum,subNum);
-	    log << MSG::VERBOSE << " Trying  " << thisPath << endreq;
-
-	    testStream.close();
-	    testStream.open(thisPath.c_str());
-	
-	    if(!testStream.good()){
-	      log << MSG::VERBOSE << thisPath << " also failed" << endreq;
-	      log << MSG::WARNING << " Could not read " << GetPathName(regNum,subNum)  
-		  << " or " << thisPath << endreq;
-
-	      if(m_forceAllInput){
-		log << MSG::FATAL << " Missing inputFile, " << thisPath << " Failing... " << endreq;
-		return StatusCode::FAILURE;
-	      }else{
-		log << MSG::WARNING << " Missing inputFile, " << thisPath << " Skipping... " << endreq;
-		continue;
-	      }
-	    }else{
-	      log << MSG::VERBOSE << " InputFile, " << thisPath << " Found " << endreq;
-	    }
-	  }
-	  testStream.close();
-	}
-
-	//
-	// this will become equal the filename of the first valid region
-	//
-	string merged_fname("merged_file.root");	
-
-	if (thisPath.empty()) continue;
-	log << MSG::INFO << "Opening: " << thisPath << endreq;
-	
-	//
-	//  Get the TFile and the TTree
-	//
-	m_ftktrack_tomerge_file[ireg][isub] = TFile::Open(thisPath.c_str());
-	m_ftktrack_tomerge_tree[ireg][isub] = (TTree*) m_ftktrack_tomerge_file[ireg][isub]->Get("ftkdata");
-	if (!m_ftktrack_tomerge_tree[ireg][isub]) {
-	  log << MSG::ERROR << "*** Error: TTree in file \"" << thisPath << "\" not found" << endreq;
-	  return StatusCode::FAILURE;
-	}
-	
-	//
-	//  Create the Stream
-	//
-	m_ftktrack_tomerge_stream[ireg][isub] = new FTKTrackStream();
-	
-	// JOHNDA: Not sure which one we want here.
-	//   assume output of track fitter for now
-	bool input_tree_merged = false;
-	if(input_tree_merged){ // if merging output of track_merger
-	  m_ftktrack_tomerge_tree[ireg][isub]->Print();
-	  m_ftktrack_tomerge_tree[ireg][isub]->SetBranchAddress("FTKBankMerged",&m_ftktrack_tomerge_stream[ireg][isub],&m_ftktrack_tomerge_branch[ireg][isub]);
-	}else {                 
-	  //
-	  // Try to find branches named after teh region
-	  //
-	  if(m_ftktrack_tomerge_tree[ireg][isub]->FindBranch(Form("FTKTracksStream%d.",regNum))){
-	    log << MSG::VERBOSE << "Setting branch with region number: " << regNum << " ireg: " << ireg << " isub: " << isub << endreq;
-	    m_ftktrack_tomerge_tree[ireg][isub]->SetBranchAddress(Form("FTKTracksStream%d.",regNum),&m_ftktrack_tomerge_stream[ireg][isub],&m_ftktrack_tomerge_branch[ireg][isub]);
-
-	    //
-	    // If not, Try to find branches named after merging has been done
-	    //
-
-	  }else{
-	    log << MSG::DEBUG << "Setting branch with name: FTKMergedTracksStream" << endreq;
-	    m_ftktrack_tomerge_tree[ireg][isub]->SetBranchAddress("FTKMergedTracksStream",&m_ftktrack_tomerge_stream[ireg][isub],&m_ftktrack_tomerge_branch[ireg][isub]);
-	  }
-	}
-
-	//
-	// Set Number of events and the file name (from the first TTree)
-	//
-	if (m_neventsUnmergedFiles==0) {
-	  m_neventsUnmergedFiles = m_ftktrack_tomerge_tree[ireg][isub]->GetEntries();
-	  log << MSG::DEBUG << "Setting nevents to " << m_neventsUnmergedFiles << " (with regionNum:" << regNum << " subregionNum: " << subNum << " ) " << endreq;
-	  merged_fname = gSystem->BaseName(thisPath.c_str());
-	}
-
-      }// subregions
-    }// regions
-  } // end by position merge
-
+     
   //
   // Create the merged file
   //
   if (!m_GenerateRDO) {
-    string ofname = Form("%s",m_ftktrack_mergeoutput.c_str());
-    m_outputFile = TFile::Open(ofname.c_str(),"recreate");
+     string ofname = Form("%s",m_ftktrack_mergeoutput.c_str());
+     m_outputFile = TFile::Open(ofname.c_str(),"recreate");
   }
   //
   // create the TTree and the branches
   //
+
+
   m_outputTree = new TTree("ftkdata","FTK Simulation Results (merged)");
-  m_merged_bank = new FTKTrackStream;
+  m_merged_bank = new FTKTrackStream*[m_nregions];
   const int TREE_ROAD_BUFSIZE = 16000;
-  if (m_MergeRegion==-1) { 
-    // this represent a global merging
-    m_outputTree->Branch("FTKMergedTracksStream",&m_merged_bank,TREE_ROAD_BUFSIZE);
-  }
-  else {
-    // in this case only a partial merge, on a single region is assumed
-    m_outputTree->Branch(Form("FTKMergedTracksStream%d",m_MergeRegion),&m_merged_bank,TREE_ROAD_BUFSIZE);
+  for (unsigned int ib=0;ib<m_nregions;++ib) {
+     bool foundRegion = false;
+     m_merged_bank[ib] = nullptr;
+     for (unsigned int isub=0; isub!=m_nsubregions; ++isub) { // subregion loop
+           if (!m_ftktrack_tomerge_tree[ib][isub]) continue;
+           foundRegion = true;
+        }
+        if (!foundRegion) {
+           m_merged_bank[ib] = nullptr;
+           continue;
+        }
+        m_merged_bank[ib] = new FTKTrackStream();
+        if (m_MergeRegion==-1) { 
+           // this represent a global merging
+           m_outputTree->Branch("FTKMergedTracksStream",&m_merged_bank[ib],TREE_ROAD_BUFSIZE);
+        }
+        else if ((int)ib == m_MergeRegion) {
+           // in this case only a partial merge, on a single region is assumed
+           m_outputTree->Branch(Form("FTKMergedTracksStream%d",m_MergeRegion),&m_merged_bank[ib],TREE_ROAD_BUFSIZE);
+        }
+        else if (m_MergeRegion == -2) {
+           m_outputTree->Branch(Form("FTKMergedTracksStream%d",ib),&m_merged_bank[ib],TREE_ROAD_BUFSIZE);
+        }
   }
 
+  if (m_MergeRoads) {
+     m_banks = new FTKRoadStream*[m_nregions];
+     for (unsigned int ib=0;ib<m_nregions;++ib) {
+        bool foundRegion = false;
+        m_banks[ib] = nullptr;
+        for (unsigned int isub=0; isub!=m_nsubregions; ++isub) { // subregion loop
+           if (!m_ftktrack_tomerge_tree[ib][isub]) continue;
+           foundRegion = true;
+        }
+        if (!foundRegion) {
+           continue;
+        }
+        for (unsigned int isub=0; isub!=m_nsubregions; ++isub) { // subregion loop again
+           if (m_banks[ib] == nullptr && m_ftktrack_tomerge_tree[ib][isub] != 0) {
+              m_banks[ib] = new FTKRoadStream();
+              m_ftkroad_tomerge_branch[ib][isub]->GetEntry(0);
+              m_banks[ib]->init(m_srbanks[ib][isub]->getNPlanes()); 
+           }
+        }
+
+        if (m_MergeRegion==-1) {  // global merging
+           m_outputTree->Branch("FTKMergedRoadsStream",&m_banks[ib],TREE_ROAD_BUFSIZE);
+        }
+        else if ((int)ib == m_MergeRegion) {
+           m_outputTree->Branch(Form("FTKMergedRoadsStream%d",m_MergeRegion),&m_banks[ib],TREE_ROAD_BUFSIZE);
+        }
+        else if (m_MergeRegion == -2) {
+           m_outputTree->Branch(Form("FTKMergedRoadsStream%d",ib),&m_banks[ib],TREE_ROAD_BUFSIZE);
+        }
+     }
+  }
   return StatusCode::SUCCESS;
 }
 
@@ -763,37 +882,47 @@ StatusCode FTKMergerAlgo::mergeStandaloneTracks()
   //  Set event index
   //
   const unsigned int &iev = m_neventsMerged;
-
+  bool found[64];
   log << MSG::VERBOSE << "Getting entries " << endreq;
   for (  unsigned int ireg=0; ireg!=m_nregions;   ++ireg) {
-    for (unsigned int isub=0; isub!=m_nsubregions;  ++isub) {
-      if(!m_ftktrack_tomerge_tree[ireg][isub]){
-	log << MSG::VERBOSE << "Tree does not exist. ireg: " << ireg << " isub: " << isub << " iev: " << iev << endreq;
-	continue;
-      }
-      log << MSG::VERBOSE << "ireg: " << ireg << " isub: " << isub << " iev: " << iev << endreq;
-      log << MSG::VERBOSE << m_ftktrack_tomerge_branch[ireg][isub] << endreq;
-      m_ftktrack_tomerge_branch[ireg][isub]->GetEntry(iev);
-    }
+     found[ireg] = false;
+     for (unsigned int isub=0; isub!=m_nsubregions;  ++isub) {
+        if(!m_ftktrack_tomerge_tree[ireg][isub]){
+           log << MSG::VERBOSE << "Tree does not exist. ireg: " << ireg << " isub: " << isub << " iev: " << iev << endreq;
+           continue;
+        }
+        found[ireg] = true;
+        log << MSG::VERBOSE << "ireg: " << ireg << " isub: " << isub << " iev: " << iev << endreq;
+        log << MSG::VERBOSE << m_ftktrack_tomerge_branch[ireg][isub] << endreq;
+        m_ftktrack_tomerge_branch[ireg][isub]->GetEntry(iev);
+     }
+     log << MSG::VERBOSE << "Got entries " << endreq;
+     if (!found[ireg]) continue;
+     // clear clones for this bank
+     m_merged_bank[ireg]->clear();
   }
-  log << MSG::VERBOSE << "Got entries " << endreq;
-      
-  // clear clones for this bank
-  m_merged_bank->clear();
-	
-  // update roads[ib] summing, after the RW, the original roads
-  merge_tracks(m_merged_bank, m_ftktrack_tomerge_stream);
-      
-  // fill the completed results
-  if (m_GenerateRDO) {
-      // copy the results in a RDO file
-      for (int itrk=0;itrk!=m_merged_bank->getNTracks();++itrk) {
-          const FTKTrack *cutrack = m_merged_bank->getTrack(itrk);
-          m_ftk_raw_trackcollection->push_back(SimToRaw(*cutrack));
-      }
+
+// now we have gotten events time to loop
+  for (  unsigned int ireg=0; ireg!=m_nregions;   ++ireg) {
+     if (!found[ireg]) continue;
+     // update roads[ib] summing, after the RW, the original roads
+     merge_tracks(m_merged_bank[ireg], m_ftktrack_tomerge_stream, ireg);
+     
+     // fill the completed results
+     if (m_GenerateRDO) {
+        // copy the results in a RDO file
+        for (int itrk=0;itrk!=m_merged_bank[ireg]->getNTracks();++itrk) {
+           const FTKTrack *cutrack = m_merged_bank[ireg]->getTrack(itrk);
+           m_ftk_raw_trackcollection->push_back(SimToRaw(*cutrack));
+        }
+     }
+     else if (m_MergeRegion != -2) { // for region == -2 we don't fill until we've looped over all regions
+        m_outputTree->Fill();
+     }
   }
-  else {
-      m_outputTree->Fill();
+  
+  if (!m_GenerateRDO && m_MergeRegion == -2) { // if we do global merge but keep branches separate, only fill now
+     m_outputTree->Fill();
   }
 
   //
@@ -801,7 +930,6 @@ StatusCode FTKMergerAlgo::mergeStandaloneTracks()
   //  
   m_neventsMerged += 1;
   m_mergedtracks_iev+=1;
-
   return StatusCode::SUCCESS;
 }
 
@@ -1923,7 +2051,7 @@ list<FTKTrack>::iterator FTKMergerAlgo::removeTrack(list<FTKTrack> &tracks_list,
 /** this function merges the tracks coming from the banks produced
     fitting the roads in a single banks, the output will have tracks
     from roads found in all the detectors*/
-void FTKMergerAlgo::merge_tracks(FTKTrackStream* &merged_tracks, FTKTrackStream ***reg_tracks)
+void FTKMergerAlgo::merge_tracks(FTKTrackStream* &merged_tracks, FTKTrackStream ***reg_tracks, unsigned int region)
 {
   MsgStream log(msgSvc(), name());
   log << MSG::VERBOSE << "In merged_tracks " << endreq;
@@ -1956,21 +2084,21 @@ void FTKMergerAlgo::merge_tracks(FTKTrackStream* &merged_tracks, FTKTrackStream 
   bool event_sync = true;
   for(unsigned int ireg=0; ireg!=m_nregions; ++ireg) {
     for (unsigned int isub=0; isub!=m_nsubregions;++isub) {
-      if(!reg_tracks[ireg][isub]) continue;
-      unsigned long this_run = reg_tracks[ireg][isub]->runNumber();
-      unsigned long this_event = reg_tracks[ireg][isub]->eventNumber();
-      if( this_run != bank_run || this_event != bank_event ) {
-	event_sync = false;
-	break;
-      }
+       if(!reg_tracks[ireg][isub]) continue;
+       unsigned long this_run = reg_tracks[ireg][isub]->runNumber();
+       unsigned long this_event = reg_tracks[ireg][isub]->eventNumber();
+       if( this_run != bank_run || this_event != bank_event ) {
+          event_sync = false;
+          break;
+       }
     }
   }
   if( !event_sync ) {
     std::cout << "BANKS ARE OUT OF SYNC!!!" << std::endl;
     std::cout << "Bank\t\tSubregion\t\tRun\t\tEvent!" << std::endl;
     for(unsigned int ireg=0; ireg!=m_nregions; ++ireg) {
-      for(unsigned int isub=0; isub!=m_nsubregions; ++isub) {
-	std::cout << ireg << "\t\t" << isub << "\t\t" << reg_tracks[ireg][isub]->runNumber() << "\t\t" << reg_tracks[ireg][isub]->eventNumber() << std::endl;
+       for(unsigned int isub=0; isub!=m_nsubregions; ++isub) {
+          std::cout << ireg << "\t\t" << isub << "\t\t" << reg_tracks[ireg][isub]->runNumber() << "\t\t" << reg_tracks[ireg][isub]->eventNumber() << std::endl;
       }
     }
     return;
@@ -1979,7 +2107,8 @@ void FTKMergerAlgo::merge_tracks(FTKTrackStream* &merged_tracks, FTKTrackStream 
   //
   //  The Merging 
   //
-  for (unsigned int ireg=0;ireg!=m_nregions;++ireg) { // bank loop
+///  for (unsigned int ireg=0;ireg!=m_nregions;++ireg) { // bank loop
+  unsigned int ireg = region;
     for (unsigned int isub=0; isub!=m_nsubregions;++isub) { // subregions loop
       if(!reg_tracks[ireg][isub]) continue;
       
@@ -2073,7 +2202,7 @@ void FTKMergerAlgo::merge_tracks(FTKTrackStream* &merged_tracks, FTKTrackStream 
       } // end intermediate track loop
 
     } // end subregion loop
-  } // end bank loop
+///  } // end bank loop
   
   // synchronize the rejected counter
   merged_tracks->addNFitsHWRejected(m_nfits_rej);
@@ -2370,25 +2499,42 @@ void FTKMergerAlgo::printBits(unsigned int num, unsigned int length){
 }
 
 
-void FTKMergerAlgo::merge_roads(FTKRoadStream * &newbank,FTKRoadStream **oldbanks, int nelements)
+StatusCode FTKMergerAlgo::merge_roads(FTKRoadStream * &newbank,FTKRoadStream **oldbanks, unsigned int region, unsigned int nelements)
 {
+
+   MsgStream log(msgSvc(), name());
+   log << MSG::DEBUG << "FTKMergerAlgo::merge_roads" << endreq;
+
+//first call get entry for all 
+   for (unsigned int isr=0;isr!=nelements;++isr) { // subregions loop
+      if (!m_ftktrack_tomerge_tree[region][isr]) {
+         log << MSG::VERBOSE << "Tree does not exist. ireg: " << region << " isub: " << isr << endl;
+         continue;
+      }
+      m_ftkroad_tomerge_branch[region][isr]->GetEntry(m_mergedtracks_iev);
+   }
+   
+
   // copy run and event number to the output, and check that the
   // subregions are in sync.
   unsigned long sr_run = 0ul;
   unsigned long sr_event = 0ul;
-  for (int isr=0;isr!=nelements;++isr) { // subregions loop
-    unsigned long this_run = oldbanks[isr]->runNumber();
-    unsigned long this_event = oldbanks[isr]->eventNumber();
-    if( this_run==0 && this_event==0 ) { continue; }
-    sr_run = this_run;
-    sr_event = this_event;
-    break;
+  for (unsigned int isr=0;isr!=nelements;++isr) { // subregions loop
+     if (!m_ftktrack_tomerge_tree[region][isr]) continue;
+     unsigned long this_run = oldbanks[isr]->runNumber();
+     unsigned long this_event = oldbanks[isr]->eventNumber();
+     if( this_run==0 && this_event==0 ) { continue; }
+     sr_run = this_run;
+     sr_event = this_event;
+     break;
   }
+
   newbank->setRunNumber( sr_run );
   newbank->setEventNumber( sr_event );
   if( sr_run!=0 || sr_event!=0 ) {
     bool event_sync = true;
-    for(int isr=0; isr!=nelements; ++isr) {
+    for(unsigned int isr=0; isr!=nelements; ++isr) {
+       if (!m_ftktrack_tomerge_tree[region][isr]) continue;
       unsigned long this_run = oldbanks[isr]->runNumber();
       unsigned long this_event = oldbanks[isr]->eventNumber();
       if( this_run != sr_run || this_event != sr_event ) {
@@ -2397,35 +2543,36 @@ void FTKMergerAlgo::merge_roads(FTKRoadStream * &newbank,FTKRoadStream **oldbank
       }
     }
     if( !event_sync ) {
-      std::cout << "SUBREGION BANKS ARE OUT OF SYNC!!!" << std::endl;
-      std::cout << "Subregion\t\tRun\t\tEvent!" << std::endl;
-      for(int isr=0; isr!=nelements; ++isr) {
+      std::cerr << "SUBREGION BANKS ARE OUT OF SYNC!!!" << std::endl;
+      std::cerr << "Subregion\t\tRun\t\tEvent!" << std::endl;
+      for(unsigned int isr=0; isr!=nelements; ++isr) {
+         if (!m_ftktrack_tomerge_tree[region][isr]) continue;
         std::cout << isr << "\t\t" << oldbanks[isr]->runNumber() << "\t\t" << oldbanks[isr]->eventNumber() << std::endl;
       }
-      return;
+      return StatusCode::FAILURE;
     }
   }
 
+//initialize to zero
+   newbank->naoSetNhitsTot(0);
+   newbank->naoSetNclusTot(0);
+   newbank->naoSetNroadsAM(0);
+   newbank->naoSetNroadsMOD(0);
+
+
   // merge together the roads from different regions or subregions
-  for (int isr=0;isr<nelements;++isr) { // subregions loop
-
+  for (unsigned int isr=0;isr<nelements;++isr) { // subregions loop
+     if (!m_ftktrack_tomerge_tree[region][isr]) continue;
     // merge statistical informations
-    if(isr==0) {
-      // total # of hits and clusters is the same in each subregion, so we do it once
-      newbank->naoSetNhitsTot(oldbanks[isr]->naoGetNhitsTot());
-      newbank->naoSetNclusTot(oldbanks[isr]->naoGetNclusTot());
-      // initialize counters from the first subregion
-      newbank->naoSetNclus(oldbanks[isr]->naoGetNclus());
-      newbank->naoSetNss(oldbanks[isr]->naoGetNss());
-      newbank->naoSetNroadsAM(oldbanks[isr]->naoGetNroadsAM());
-      newbank->naoSetNroadsMOD(oldbanks[isr]->naoGetNroadsMOD());
-    }
-    else {
-      // increment counters from other subregions
-      newbank->naoAddNroadsAM(oldbanks[isr]->naoGetNroadsAM());
-      newbank->naoAddNroadsMOD(oldbanks[isr]->naoGetNroadsMOD());
-    }
-
+     // total # of hits and clusters is the same in each subregion, so we can do it once or not, doesn't matter
+     newbank->naoSetNhitsTot(oldbanks[isr]->naoGetNhitsTot());
+     newbank->naoSetNclusTot(oldbanks[isr]->naoGetNclusTot());
+     // initialize counters here
+     newbank->naoSetNclus(oldbanks[isr]->naoGetNclus());
+     newbank->naoSetNss(oldbanks[isr]->naoGetNss());
+     // this just gets added
+     newbank->naoAddNroadsAM(oldbanks[isr]->naoGetNroadsAM());
+     newbank->naoAddNroadsMOD(oldbanks[isr]->naoGetNroadsMOD());
     int nroads = oldbanks[isr]->getNRoads();
     for (int iroad=0;iroad<nroads;++iroad) {
       FTKRoad *cur_road = oldbanks[isr]->getRoad(iroad);
@@ -2434,29 +2581,27 @@ void FTKMergerAlgo::merge_roads(FTKRoadStream * &newbank,FTKRoadStream **oldbank
       new_road->setBankID(/*100*isr*ENCODE_SUBREGION+*/cur_road->getBankID());
     }
     newbank->inc4LRoad(oldbanks[isr]->getN4LRoads());
-
     // add the SS for all the layers
     const FTKSS_container_t &strips_cont = oldbanks[isr]->getSSContainer();
     int cont_nplanes = strips_cont.size();
-
     for (int ipl=0;ipl!=cont_nplanes;++ipl) { // plane loop
-      const FTKSS_map_t &ssmap = strips_cont[ipl];
-
-      FTKSS_map_t::const_iterator iss = ssmap.begin();
-      for (;iss!=ssmap.end();++iss) { // SS loop
-        newbank->addSS(ipl,(*iss).first,(*iss).second);
-      } // end SS loop
+       const FTKSS_map_t &ssmap = strips_cont[ipl];
+       FTKSS_map_t::const_iterator iss = ssmap.begin();
+       for (;iss!=ssmap.end();++iss) { // SS loop
+          newbank->addSS(ipl,(*iss).first,(*iss).second);
+       } // end SS loop
     } // end plane loop
-
     // add te SS strips in the layers ignored in the RF step
     const map< int, map<int,FTKSS> > &unusedStrips_cont = oldbanks[isr]->getUnusedSSMap();
     map< int, map<int,FTKSS> >::const_iterator uSS_iplane = unusedStrips_cont.begin();
     for (;uSS_iplane!=unusedStrips_cont.end();++uSS_iplane) { // unused plane loop
-      const int &plane_id = (*uSS_iplane).first;
-      map<int,FTKSS>::const_iterator uSS_iss = (*uSS_iplane).second.begin();
-      for (;uSS_iss!=(*uSS_iplane).second.end();++uSS_iss) { // SS loop
-        newbank->addUnusedSS(plane_id,(*uSS_iss).first,(*uSS_iss).second);
-      } // end SS loop
+       const int &plane_id = (*uSS_iplane).first;
+       map<int,FTKSS>::const_iterator uSS_iss = (*uSS_iplane).second.begin();
+       for (;uSS_iss!=(*uSS_iplane).second.end();++uSS_iss) { // SS loop
+          newbank->addUnusedSS(plane_id,(*uSS_iss).first,(*uSS_iss).second);
+       } // end SS loop
     } // end unused planes loop
   } // end subregions loop
+
+  return StatusCode::SUCCESS;
 }

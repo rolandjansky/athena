@@ -15,7 +15,8 @@ FTKRoadStream:: FTKRoadStream() :
   m_nao_nhits_tot(0), m_nao_nclus_tot(0),
   m_nao_nroads_am(0), m_nao_nroads_mod(0), m_nao_nroads_rw(0),
   m_evtidx(0x0), m_barcode(0x0), m_frac(0x0),
-  m_fit_list()
+  m_fit_list(),
+  m_nroads_tot(0), m_nroads_good(), m_nroads_maj(0), m_nroads_maj_good(0)
 {
   m_roads = new TClonesArray( "FTKRoad" ,10000);
 }
@@ -121,6 +122,7 @@ int FTKRoadStream::findRoad( int roadid, int bankid)
 
 void FTKRoadStream::addSS( int plane,const int ssid, const FTKSS &ss)
 {
+
   // map for this plane
   map< int,FTKSS> &imap = m_ssmaps[plane];
   // find this ss is in the bank
@@ -169,7 +171,7 @@ void FTKRoadStream::Print( bool printCoords)
    cout << "*** Roads: ***" << endl;
    for ( int ir=0;ir<m_nroads;++ir) {
      FTKRoad *tmpr = dynamic_cast <FTKRoad*>(m_roads->At(ir));
-     cout << (*tmpr) << endl;
+     if (tmpr) cout << (*tmpr) << endl;
    }
    cout << endl;
 

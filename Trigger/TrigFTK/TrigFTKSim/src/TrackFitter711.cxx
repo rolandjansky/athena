@@ -40,16 +40,44 @@ TrackFitter711::TrackFitter711() :
   m_transition_region_max_eta(1.4),
   m_transition_region_min_eta(1.0),
   m_super_exp_allow_extra_miss(false),
-  m_diagnostic_mode(false)
+  m_diagnostic_mode(false),
+  m_histores_hitcoord_PXL(0),
+  m_histores_hitcoord_SCT(0),
+  m_debug_super_extrapolate(0),
+  m_baseHWflag(0),
+  m_region_for_superexp(0),
+  m_subreg_for_superexp(0),
+  m_sector_for_superexp(0),
+  cur_iconn(0),
+  m_cbitmask(0),
+  m_cbitmask_real(0),
+  m_norecovery_mask(0),
+  m_check_TR_by(0),
+  m_diagnostic_plots_tfile(0),
+  m_histo_nhitsfound_per_track_each_layer(0),
+  m_histo_nhitsfound_per_track_each_layer_each_conn(0),
+  m_histo_ncomb_per_track_each_conn(0),
+  m_histo_ncomb_each_conn(0),
+  m_histo_nfits_per_track(0),
+  m_histo_ntrackI_ntrack(0),
+  m_histo_nconn_per_track(0),
+  m_histo_bitmask(0),
+  m_histo_module_value_diff(0),
+  m_ncomb_event_conn(0),
+  m_IBL_res(0),
+  IBLcoordPhi(0),
+  IBLcoordEta(0),
+  m_histo_delta_guessed_hit_found_hit(0),
+  ibl_module_with_hit(0)
 {
-  // change the current default behaviors when the constants
-  m_noconstants_errlevel = ftk::warn;
+   // change the current default behaviors when the constants
+   m_noconstants_errlevel = ftk::warn;
 }
 
 
 TrackFitter711::~TrackFitter711()
 {
-  //for (int i=0;i<m_nregions;++i) {
+   //for (int i=0;i<m_nregions;++i) {
   //  for (int j=0;j!=m_nsubregions;++j) {
   //    if (m_constant_incomplete[i][j])
   //      delete m_constant_incomplete[i][j];
@@ -63,9 +91,7 @@ TrackFitter711::~TrackFitter711()
     }
     delete [] m_constant_incomplete[i];
   }
-
   if (m_nregions>0) delete [] m_constant_incomplete;
-
   if (m_CImap) {
     delete [] m_CImap;
     delete [] m_CIlayermap;
@@ -85,19 +111,19 @@ TrackFitter711::~TrackFitter711()
     m_resfile->Write();
     m_resfile->Close();
   }
-
   if (m_super_extrapolate) {
     delete [] m_section_of_exp_layers;
     delete [] m_ssid;
     delete [] m_hits_more;
     delete [] m_bounds;
   }
-
   if (getDiagnosticMode()) {
     saveDiagnosticPlots();
     deleteDiagnosticVariables();
   }
 
+   if (m_histores_hitcoord_PXL) delete [] m_histores_hitcoord_PXL;
+   if (m_histores_hitcoord_SCT) delete [] m_histores_hitcoord_SCT;
 }
 
 void TrackFitter711::saveDiagnosticPlots() {
@@ -1386,6 +1412,7 @@ void TrackFitter711::processor_Extrapolate(const FTKRoad &road,
       if (maxIN==-1) // no valid sectors
       {
         //printf("Exit point 1\n");
+         delete [] missing_section;
         return;
       }
       // **************** Note: First Exit Point !!! ********************
@@ -2577,6 +2604,7 @@ void TrackFitter711::processor_ResolutionMode(const FTKRoad &road,
     } // end loop to retrieve the hit lists
 
     // Delete unused objects
+    delete [] hits_more;
     delete [] ssid;
     for (int ip=0;ip!=m_nplanes_ignored;++ip)
       delete [] bounds[ip];
@@ -2758,11 +2786,16 @@ void TrackFitter711::processor_ResolutionMode(const FTKRoad &road,
 
         m_histores_hitcoord_PXL[0]->Fill(guessed_coords[0]  - real_coords[0], guessed_coords[1]  - real_coords[1]);
         m_histores_hitcoord_PXL[1]->Fill(newtrk.getCoord(0) - real_coords[0], newtrk.getCoord(1) - real_coords[1]);
-                                         
+      
+        delete [] guessed_coords;
+        delete [] real_coords;
       } // end complete fit loop
     } // end block to complete the fits
 
   }
+
+  delete [] missing_section;
+
 }
 
 

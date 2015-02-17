@@ -48,6 +48,9 @@ import sys
 FTKMerger = FTKMergerAlgo( "FTKMergerAlgo" , OutputLevel=DEBUG)
 FTKMerger.doMerging = True # this enables the behavior of the FTKMergerAlgo as FTK streams merger
 
+if hasattr(runArgs, 'MergeRoads'):
+  FTKMerger.MergeRoads = runArgs.MergeRoads
+
 runArgsMandatory =  ['NBanks', 'NSubRegions', 'pmap_path', 'loadHWConf_path']
 
 runArgsOptional = {'FirstRegion': 0, 'FirstSubreg': 0, 'MergeRegion': -1, 'HWNDiff': 6, 'HitWarrior': 2}
@@ -95,6 +98,7 @@ if hasattr(runArgs, 'MergeFromTowers') :
     if runArgs.MergeFromTowers :
       runArgs.NSubRegions = 1
       FTKMerger.FTKUnmergedFormatName = "FTKMergedTracksStream%u"
+      FTKMerger.FTKUnmergedRoadFormatName = "FTKMergedRoadsStream%u"
 
 # set the FTKRoadMerger properties
 for runArgName in runArgsMandatory + runArgsOptional.keys() :
@@ -111,10 +115,18 @@ for runArgName in runArgsMandatory + runArgsOptional.keys() :
        raise RuntimeError, 'Failed to find mandatory FTKMerger runtime argument for transform %s' % runArgName
 
 # set a meaningful name for the PerfMon file
-if FTKMerger.MergeRegion == -1 : 
+if FTKMerger.MergeRegion < 0:
   pmjp.PerfMonFlags.OutputFile = 'ntuple_FTKMerge.pmon.gz'
 else :
   pmjp.PerfMonFlags.OutputFile = 'ntuple_FTKMergeTower%d.pmon.gz' % FTKMerger.MergeRegion
+
+### overwrite the merger if we need to
+if hasattr(runArgs,'UberFinalMerge') and FTKMerger.MergeRegion < 0: ### only do if it's a final merge
+  if (runArgs.UberFinalMerge):
+    FTKMerger.MergeRegion = -1 ### put all in one stream
+  else:
+    FTKMerger.MergeRegion = -2 ### put all in one file, but keep streams separate
+
 
 ### truth output copying
 if hasattr(runArgs,'EvtInfoTreeName'):

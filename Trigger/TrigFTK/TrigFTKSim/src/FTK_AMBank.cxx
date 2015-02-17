@@ -64,18 +64,25 @@ FTK_AMBank::FTK_AMBank(int id, int subid)
     m_totalCoverage(0),
     m_patterns_matchstatus(0x0),
      //m_nroads(0),
-    m_amout(0),
      //m_do_pattern_stats(0),
-    m_pattern_stats(0x0),
      //m_StoreAllSS(false),
-    m_useWC(false),
      //m_useMinimalAMIN(false),
      //m_nao_nroads_am(0), m_nao_nroads_rw(0),
-    m_ss_patt_lookup_map(0),
+     m_fired_ssmap(0),
+     m_fired_ss(0),
+    //m_require_first(false), m_require_last(false),
+     //m_SaveAllRoads(0),
+    m_amout(0),
+    m_pattern_stats(0x0),
+    m_useWC(false),
+     m_WCSS(0),
+     m_WCSS2(0),
+     m_bad_module_map(0),
+     m_ss_patt_lookup_map(0),
     m_lutsepplane(3), m_upperindex(true),
-     //m_require_first(false), m_require_last(false),
-    m_stlhit_sort(0x0)
-     //m_SaveAllRoads(0)
+ ipatt_step(0),
+     m_stlhit_sort(0x0)
+
 {
   // nothing todo
 }
@@ -281,6 +288,12 @@ void FTK_AMBank::applyWildcard()
 
  if (m_WC_patterns.empty()) {
    FTKSetup::PrintMessage(info,"No wildcards applied");
+
+   // clear the memory for the information on tge dead-module
+   delete [] m_WC_stat;
+   delete [] m_WC_stat_nWClayers;
+   delete [] m_WC_stat_patt;
+
    return;
  }
  else {
@@ -633,7 +646,9 @@ void FTK_AMBank::attach_SS() {
     FTKRoad &last_road = *iroad; 
     int pattID = last_road.getPatternID();
     
-    last_road.setSectorID(m_patterns[_SSPOS(pattID,m_nplanes)]);
+    // last_road.setSectorID(m_patterns[_SSPOS(pattID,m_nplanes)]);
+    if (FTKSetup::getFTKSetup().getSectorsAsPatterns()) last_road.setSectorID(pattID);
+    else last_road.setSectorID(m_patterns[_SSPOS(pattID,m_nplanes)]);
 
     // retrieve the hits
     for (int ipl=0;ipl!=m_nplanes;++ipl) {
@@ -1298,21 +1313,16 @@ int FTK_AMBank::informationMatch(FTKRoad *r1,FTKRoad *r2) {
 	 The different is meaningful only if the two roads are empty in both
 	 patterns or if the patt2 is empty while patt1 is a complete pattern*/
       if ( (m_patterns[_SSPOS(patt1,i)]!=m_patterns[_SSPOS(patt2,i)]) &&
-	   (( (bitmask1 & (1<<i)) && (bitmask2&(1<<i)) )
-	    ||
-	    ( (bitmask1&(1<<i)) && (bitmask2&(1<<i)) )) ) {
-	/* The hitbit requirement is sufficient because because if patt1
+          (( (bitmask1 & (1<<i)) && (bitmask2&(1<<i)) )
+              ||
+              ( (bitmask1&(1<<i))==0 && (bitmask2&(1<<i)) )) ) {
+        /* The bitmaskrequirement is sufficient because because if patt1
 	   has 1 empty SS patt2 has at least a different empty SS,
 	   for this reason an empty SS in patt2 can be suspected to be
 	   a ghost road while an empty SS in patt1 doesn-t */
 
-	// here if the SS of the two patterns in this plane differs
-#ifdef VERBOSE_DEBUG
-	printf("\t\t\tPIXEL %d and %d (%d) differs\n",pattern[ibank][i][patt1],
-	       pattern[ibank][i][patt2],hitbit[ibank][i][patt2/8]&(1<<patt2%8));
-#endif
-	nsame -= 1;
-	return 0;
+        nsame -= 1;
+        return 0;
       }
     } else { // SCT plane
       int ipair = pmap->getPlanePair(i);

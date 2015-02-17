@@ -31,14 +31,18 @@ using namespace std;
     to change these anyway */
 FTK_RegionalRawInput::FTK_RegionalRawInput(const FTKPlaneMap *pmap, const FTKPlaneMap *pmap_unused) :
   FTKDataInput(pmap,pmap_unused),
-  m_curfile(0x0), m_glob_event(0)
+  m_curfile(0x0),
+  m_hittree(0), m_hittree_branch(0), m_evtnum(0), m_evtnumE(0), m_evtinfo(0), m_trackstree(0), 
+  m_glob_event(0), m_ntruth_tracks(0)
 {
   m_regional = true;
 }
 
 FTK_RegionalRawInput::FTK_RegionalRawInput(const FTK_RegionalRawInput& v) :
   FTKDataInput(v),
-  m_curfile(v.m_curfile), m_glob_event(v.m_glob_event)
+  m_curfile(v.m_curfile), 
+  m_hittree(0), m_hittree_branch(0), m_evtnum(0), m_evtnumE(0), m_evtinfo(0), m_trackstree(0), 
+  m_glob_event(v.m_glob_event), m_ntruth_tracks(0)
 { 
   m_regional = true;
 }
@@ -192,21 +196,23 @@ int FTK_RegionalRawInput::nextFile()
     }
     else {
       // connect the TTree with the raw hits information
-      m_hittree = dynamic_cast<TTree*>(m_curfile->Get("ftkhits"));
-      m_evtnumE = m_hittree->GetEntries();
-      for (int ireg=0;ireg!=m_nregions;++ireg) {
-	m_original_reghits[ireg] = 0x0;
-	m_hittree_branch[ireg] = 0x0;
-	m_hittree->SetBranchAddress(Form("RawHits%d",ireg),&m_original_reghits[ireg],&m_hittree_branch[ireg]);
-      }
-
-      // get and connect the event info TTree
-      m_evtinfo = dynamic_cast<TTree*>(m_curfile->Get("evtinfo"));
-      m_evtinfo->SetBranchAddress("RunNumber",&m_run_number);
-      m_evtinfo->SetBranchAddress("EventNumber",&m_event_number);
-
-      m_evtnum = 0l;
-      return 0;
+       m_hittree = dynamic_cast<TTree*>(m_curfile->Get("ftkhits"));
+       if (m_hittree) {
+          m_evtnumE = m_hittree->GetEntries();
+          for (int ireg=0;ireg!=m_nregions;++ireg) {
+             m_original_reghits[ireg] = 0x0;
+             m_hittree_branch[ireg] = 0x0;
+             m_hittree->SetBranchAddress(Form("RawHits%d",ireg),&m_original_reghits[ireg],&m_hittree_branch[ireg]);
+          }
+       }
+       // get and connect the event info TTree
+       m_evtinfo = dynamic_cast<TTree*>(m_curfile->Get("evtinfo"));
+       if (m_evtinfo) {
+          m_evtinfo->SetBranchAddress("RunNumber",&m_run_number);
+          m_evtinfo->SetBranchAddress("EventNumber",&m_event_number);
+       }
+       m_evtnum = 0l;
+       return 0;
     }
   }
   

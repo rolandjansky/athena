@@ -21,7 +21,6 @@ private:
   std::set<unsigned int> m_global_module_ids;
 public:
   FTKRegionMapItem();
-  
   int getPhiMin() const { return m_phi_min; }
   int getPhiMax() const { return m_phi_max; }
   int getPhiTot() const {return m_phi_tot; }
@@ -120,6 +119,7 @@ private:
   
 public:
   FTKRegionMap();
+  virtual ~FTKRegionMap();  
   FTKRegionMap(FTKPlaneMap *, const char *);
 
   void loadModuleIDLUT(const char *);

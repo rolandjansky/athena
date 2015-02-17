@@ -22,19 +22,29 @@ using namespace std;
 //#define SIMPLEMJ // ibl undefined simple majority to see if we can get majority for ibl
 //#define SIMPLEMJ_DBG
 
+
 FTKConstantBank::FTKConstantBank() :
   m_bankID(-1), m_nsectors(0), m_nplanes(0),
-  m_npars(0), m_ncoords(0), m_nconstr(0), m_isgood(0),
+  m_npars(0), m_ncoords(0), m_AUX(false), 
+  m_coordsmask(0), m_missid(0),
+  m_nconstr(0), m_isgood(0),
   m_fit_pars(0), m_fit_const(0), m_kernel(0), m_kaverage(0),
   m_invfit_consts(0x0),
-  m_maj_a(0), m_maj_kk(0), m_maj_invkk(0)
+  m_maj_a(0), m_maj_kk(0), m_maj_invkk(0),
+  m_kernel_aux(0), 
+  m_kaverage_aux(0), m_maj_invkk_aux(0), m_maj_invkk_pow(0)
 {
   // nothing to do
 }
 
 
 FTKConstantBank::FTKConstantBank(int ncoords, const char *fname) :
-  m_invfit_consts(0x0)
+  m_bankID(0),
+  m_nplanes(0),
+  m_invfit_consts(0x0),
+  m_kernel_aux(0),
+  m_kaverage_aux(0),
+  m_maj_invkk_aux(0), m_maj_invkk_pow(0)
 {
   //TODO: make possible to read constants in different formats
   m_ncoords = ncoords;
@@ -98,6 +108,7 @@ FTKConstantBank::FTKConstantBank(int ncoords, const char *fname) :
 
   int isec_step = 1 + m_nsectors/10;
   for (int isec=0;isec<m_nsectors;++isec) { // loop over sectors
+
     double dval; // tmp value used to conver from double to float
     if (isec%isec_step == 0)
       cout << "Load sector: " << isec << "/" << m_nsectors << endl;
@@ -128,9 +139,9 @@ FTKConstantBank::FTKConstantBank(int ncoords, const char *fname) :
     for (int ipar=0;ipar<m_npars;++ipar) { // pars loop
       geocfile >> key;
       for (int icoord=0;icoord<m_ncoords;++icoord) { // coords loop
-	geocfile >> dval;
-	if (dval!=0.) m_isgood[isec] = true;
-	m_fit_pars[isec][ipar][icoord] = dval;
+        geocfile >> dval;
+        if (dval!=0.) m_isgood[isec] = true;
+        m_fit_pars[isec][ipar][icoord] = dval;
       } // end coords loop
     } // end pars loop
 
@@ -143,14 +154,13 @@ FTKConstantBank::FTKConstantBank(int ncoords, const char *fname) :
       m_kaverage[isec][ik] = dval;
     } // end loop kaverages
 
-
     geocfile >> key;
     assert(key=="kernel");
     for (int ik=0;ik<m_nconstr;++ik) { // loop kaverages
       for (int ik2=0;ik2<m_ncoords;++ik2) { // loop kaverages
-	geocfile >> dval;
-	if (dval!=0.) m_isgood[isec] = true;
-	m_kernel[isec][ik][ik2] = dval;
+        geocfile >> dval;
+        if (dval!=0.) m_isgood[isec] = true;
+        m_kernel[isec][ik][ik2] = dval;
       }
     } // end loop kaverages
 
@@ -187,27 +197,113 @@ FTKConstantBank::FTKConstantBank(int ncoords, const char *fname) :
       } // end 2nd coordinate loop
     } // end 1st coordinate loop
 
-#ifdef SIMPLEMJ
     // here the m_maj_kk[isec] elements are filled and the inverse element,
     // used after to simplify the guessing algorithm, can be computed
     // int npixcy = FTKSetup::getFTKSetup().getIBLMode()==1 ? 8 : 6; // this is for ibl, to know how many pixel coords there are
-    int npixcy = 6; // we have 6 pixel coords
+    int npixcy = 6; // we have 6 pixel coords -- not sure what to do about this!!
     /* PIXEL layer [0-5]*/
     for (int ix=0;ix!=npixcy;ix+=2) { // pxl layers loop (2 coordinates each)
-      double det = m_maj_kk[isec][ix][ix]*m_maj_kk[isec][ix+1][ix+1]
-	-m_maj_kk[isec][ix+1][ix]*m_maj_kk[isec][ix][ix+1];
+      double det =   m_maj_kk[isec][ix][ix]   * m_maj_kk[isec][ix+1][ix+1]
+                   - m_maj_kk[isec][ix+1][ix] * m_maj_kk[isec][ix][ix+1];
       m_maj_invkk[isec][ix][ix] = m_maj_kk[isec][ix+1][ix+1]/det;
       m_maj_invkk[isec][ix][ix+1] = -m_maj_kk[isec][ix+1][ix]/det;
       m_maj_invkk[isec][ix+1][ix] = -m_maj_kk[isec][ix][ix+1]/det;
       m_maj_invkk[isec][ix+1][ix+1] = m_maj_kk[isec][ix][ix]/det;
+
     } // end pxl layers loop
     /* SCT layers */
-    for (int ix=npixcy;ix!=m_ncoords;++ix) { // SCT layers loop (2 coordinates each)
+    for (int ix=npixcy;ix!=m_ncoords;++ix) { // SCT layers loop (1 coordinate each)
       m_maj_invkk[isec][ix][ix] = 1./m_maj_kk[isec][ix][ix];      
     } // end SCT layers loop
-#endif // SIMPLEMJ
+
   } // end sector loop
 }
+
+void FTKConstantBank::doAuxFW(bool do_it) {
+
+  m_AUX = do_it;
+  if (!do_it) return;
+  if (m_ncoords == 16) return;
+
+  m_kernel_aux = new signed long long**[m_nsectors];
+  m_kaverage_aux = new signed long long*[m_nsectors];
+
+  for (int isec=0;isec<m_nsectors;++isec) { // loop over sectors
+    
+    m_kernel_aux[isec] = new signed long long*[m_nconstr];
+    m_kaverage_aux[isec] = new signed long long[m_nconstr];
+    for (int i=0;i<m_nconstr;++i) {
+      m_kernel_aux[isec][i] = new signed long long[m_ncoords];
+    }
+
+    bool ofl = false; // overflow for aux shifts.
+    for (int ik=0;ik<m_nconstr;++ik) { // loop kaverages
+      m_kaverage_aux[isec][ik] = aux_asr(m_kaverage[isec][ik] * pow(2., KAVE_SHIFT), 0, FIT_PREC, ofl);
+    } // end loop kaverages
+
+    for (int ik=0;ik<m_nconstr;++ik) { // loop kaverages
+      for (int ik2=0;ik2<m_ncoords;++ik2) { // loop kaverages
+        m_kernel_aux[isec][ik][ik2] = aux_asr(m_kernel[isec][ik][ik2] * pow(2., KERN_SHIFT), 0, FIT_PREC, ofl);
+      }
+    } // end loop kaverages
+
+    if (ofl) FTKSetup::PrintMessageFmt(ftk::warn, "  kernel/kaverage overflowed allowed precision in sector %d.\n", isec);
+  
+  } // end loop over sectors
+
+
+
+  // pre-calculate the majority logic elements
+  m_maj_invkk_aux = new signed long long**[m_nsectors];
+  m_maj_invkk_pow = new short int**[m_nsectors];
+  for (int isec=0;isec!=m_nsectors;++isec) { // sector loop
+    m_maj_invkk_aux[isec] = new signed long long*[m_ncoords];
+    m_maj_invkk_pow[isec] = new short int*[m_ncoords];
+    for (int ix=0;ix!=m_ncoords;++ix) { // 1st coordinate loop    
+
+      m_maj_invkk_aux[isec][ix] = new signed long long[m_ncoords];
+      m_maj_invkk_pow[isec][ix] = new short int[m_ncoords];
+      for (int jx=0;jx!=m_ncoords;++jx) { // 2nd coordinate loop
+        m_maj_invkk_aux[isec][ix][jx] = 0;
+        m_maj_invkk_pow[isec][ix][jx] = 0;
+      	for (int row=0;row!=m_nconstr;++row) {
+          m_maj_kk[isec][ix][jx] += m_kernel[isec][row][ix]*m_kernel[isec][row][jx];
+      	}
+      } // end 2nd coordinate loop
+    } // end 1st coordinate loop
+
+    // here the m_maj_kk[isec] elements are filled and the inverse element,
+    // used after to simplify the guessing algorithm, can be computed
+    // int npixcy = FTKSetup::getFTKSetup().getIBLMode()==1 ? 8 : 6; // this is for ibl, to know how many pixel coords there are
+    int npixcy = 6; // we have 6 pixel coords -- not sure what to do about this!!
+    /* PIXEL layer [0-5]*/
+    for (int ix=0;ix!=npixcy;ix+=2) { // pxl layers loop (2 coordinates each)
+
+      m_maj_invkk_pow[isec][ix][ix]     = CONST_PREC - TMath::CeilNint(TMath::Log2(TMath::Abs(m_maj_invkk[isec][ix][ix]    ))) - 1;
+      m_maj_invkk_pow[isec][ix][ix+1]   = CONST_PREC - TMath::CeilNint(TMath::Log2(TMath::Abs(m_maj_invkk[isec][ix][ix+1]  ))) - 1;
+      m_maj_invkk_pow[isec][ix+1][ix]   = CONST_PREC - TMath::CeilNint(TMath::Log2(TMath::Abs(m_maj_invkk[isec][ix+1][ix]  ))) - 1;
+      m_maj_invkk_pow[isec][ix+1][ix+1] = CONST_PREC - TMath::CeilNint(TMath::Log2(TMath::Abs(m_maj_invkk[isec][ix+1][ix+1]))) - 1;
+
+      bool ofl = false;
+      m_maj_invkk_aux[isec][ix][ix]     = aux_asr(m_maj_invkk[isec][ix][ix]     * pow(2, m_maj_invkk_pow[isec][ix][ix]),     0, CONST_PREC, ofl);
+      m_maj_invkk_aux[isec][ix][ix+1]   = aux_asr(m_maj_invkk[isec][ix][ix+1]   * pow(2, m_maj_invkk_pow[isec][ix][ix+1]),   0, CONST_PREC, ofl);
+      m_maj_invkk_aux[isec][ix+1][ix]   = aux_asr(m_maj_invkk[isec][ix+1][ix]   * pow(2, m_maj_invkk_pow[isec][ix+1][ix]),   0, CONST_PREC, ofl);
+      m_maj_invkk_aux[isec][ix+1][ix+1] = aux_asr(m_maj_invkk[isec][ix+1][ix+1] * pow(2, m_maj_invkk_pow[isec][ix+1][ix+1]), 0, CONST_PREC, ofl);
+
+    } // end pxl layers loop
+    /* SCT layers */
+    for (int ix=npixcy;ix!=m_ncoords;++ix) { // SCT layers loop (1 coordinate each)
+      m_maj_invkk[isec][ix][ix] = 1./m_maj_kk[isec][ix][ix];      
+
+      bool ofl = false;
+      m_maj_invkk_pow[isec][ix][ix] = CONST_PREC - TMath::CeilNint(TMath::Log2(TMath::Abs(m_maj_invkk[isec][ix][ix]))) - 1;
+      m_maj_invkk_aux[isec][ix][ix] = aux_asr(m_maj_invkk[isec][ix][ix] * pow(2, m_maj_invkk_pow[isec][ix][ix]), 0, CONST_PREC, ofl);
+    } // end SCT layers loop
+
+  } // end sector loop
+
+}
+
         
 
 FTKConstantBank::~FTKConstantBank()
@@ -221,12 +317,17 @@ FTKConstantBank::~FTKConstantBank()
       delete [] m_fit_const[isec];
       for (int icoord=0;icoord<m_nconstr;++icoord) {
       	delete [] m_kernel[isec][icoord];
+      	if (m_kernel_aux) delete [] m_kernel_aux[isec][icoord];
       }
       delete [] m_kernel[isec];
       delete [] m_kaverage[isec];
+      if (m_kernel_aux) delete [] m_kernel_aux[isec];
+      if (m_kaverage_aux) delete [] m_kaverage_aux[isec];
 
       for (int ix=0;ix!=m_ncoords;++ix) {
-        delete [] m_maj_kk[isec][ix];
+        if (m_maj_kk) delete [] m_maj_kk[isec][ix];
+        if (m_maj_invkk_aux) delete [] m_maj_invkk_aux[isec][ix];
+        if (m_maj_invkk_pow) delete [] m_maj_invkk_pow[isec][ix];
       }
     }
 
@@ -234,9 +335,14 @@ FTKConstantBank::~FTKConstantBank()
     delete [] m_fit_const;
     delete [] m_kernel;
     delete [] m_kaverage;
+    if (m_kernel_aux) delete [] m_kernel_aux;
+    if (m_kaverage_aux) delete [] m_kaverage_aux;
 
     delete [] m_maj_a;
     delete [] m_maj_kk;
+    if (m_maj_invkk_aux) delete [] m_maj_invkk_aux;
+    if (m_maj_invkk_pow) delete [] m_maj_invkk_pow;
+    delete [] m_maj_invkk;
     delete [] m_isgood;
   }
 
@@ -255,7 +361,9 @@ int FTKConstantBank::linfit(int secid, FTKTrack &track) const
 
   if (nmissing>0) { // use the majority
     // evaluate the missing coordinates
-    guess_res = missing_point_guess(track,secid);    
+    // guess_res = missing_point_guess(track,secid);    
+    if (m_ncoords == 11 && m_AUX) guess_res = missing_point_guess_aux(track, secid);    
+    else guess_res = missing_point_guess(track,secid);    
   }
    
   if (nmissing!=guess_res) {
@@ -264,7 +372,8 @@ int FTKConstantBank::linfit(int secid, FTKTrack &track) const
   }
   else {
     // evaluate the chi2
-    linfit_chisq(secid,track);
+    if (m_ncoords == 11 && m_AUX) linfit_chisq_aux(secid,track);
+    else linfit_chisq(secid,track);
   }
 
 
@@ -670,73 +779,191 @@ void FTKConstantBank::extrapolate_coords(FTKTrack &track, int secid,
 
 
 
-//////////////////////////////////////////////////
-// ADDITIONAL FUNCTIONS 
-// for calculations with limited precision
-// to emulate firmware design
-// (Jordan)
-// 
-// It is assumed here that the constants are loaded as "signed long long"s from a
-// bank specficially designed for this type of run. In the current scheme, these
-// are signed integers scaled by a factor of 2^20 (2^12) in the case of kernel (kaverage)
-// constants. 
-//////////////////////////////////////////////////
+signed long long FTKConstantBank::aux_asr(signed long long input , int shift, int width , bool &overflow ) const {
 
-signed long long FTKConstantBank::aux_asr( const signed long long &input , const int &shift , const int &width , bool &overflow ) const {
+  // deal with the sign separately
+  unsigned long long shifted = abs(input);
 
-  // This is meant to model an arithmetic shift register. In calculations in the firmware, the output from each
-  // multiplier needs to be scaled and then truncated down to a size small enough to be used by other multpliers.
-  // This is done by shifting bits, truncating, and keeping track of overflow.
-  //
-  // WARNING: could run into problems using this functions with very large shifts or widths if 2 to the power
-  // of the value specified is outside int range
+  // clear bits that will "go negative"
+  if (shift < 0) shifted &= ~(static_cast<long long>(pow(2, -shift)-1));
 
-  signed long long output( input );
+  // make the baseline shift
+  if (shift > 0) shifted = (shifted << shift);
+  if (shift < 0) shifted = (shifted >> -shift);
 
-  // shift bits designated number of spots
-  output *= static_cast<signed long long>( pow(2,shift) );
+  // save bits within the width (subtracting one bit for sign)
+  signed long long output = shifted & (static_cast<long long>(pow(2, width-1)-1));
+  if (abs(output) != shifted) overflow = true;
 
-  // keep track of this value so we can compare after truncating the number of bits
-  signed long long expected_output = output;
+  // reinstate the sign.
+  if (input < 0) output *= -1;
 
-  // now truncate to width, assuming signed 2's complement format
-  signed long long range = pow( 2 , width );
-  signed long long halfrange = pow( 2 , width-1 );
-  output = ( (output + halfrange) % range ) - halfrange;
-
-  if( output != expected_output ) overflow = true;
   return output;
 
 }
 
+
 void FTKConstantBank::linfit_chisq_aux(int secid, FTKTrack &trk) const {
 
-  // Multiply integer hits by integer constants. Then scale the resulting
-  // chi-components down by 2^10 before squaring and summing.
+  long double chi2(0);
+  long long chi2LL(0);
 
-  signed long long chi2(0);
-  bool overflow = false;
+  // fstream outfs;
+  // outfs.open("test.txt", fstream::out | fstream::app);
+
+  bool ofl = false; // overflow
 
   for( int i = 0 ; i < m_nconstr ; ++i ) {
 
-    signed long long chi_component = m_kaverage_aux[secid][i] * pow(2,11);
-
+    long double chi_component = m_kaverage[secid][i];
+    signed long long chi_componentLL = aux_asr(m_kaverage_aux[secid][i], 10, 30, ofl); // to the same level as the Sij
+    
     for( int j = 0 ; j < m_ncoords ; ++j ) {
-      chi_component += m_kernel_aux[secid][i][j] * trk.getAUXCoord(j);
+
+      chi_component += m_kernel[secid][i][j] * trk.getCoord(j); 
+      chi_componentLL += m_kernel_aux[secid][i][j] * trk.getAUXCoord(j); // AUX = a factor of 2^3
+
     }
 
-    // arithemetic shift right 10 bits, trunccate to 27-bits
-    chi_component = aux_asr( chi_component , 10 , 27 , overflow );
-
     chi2 += (chi_component * chi_component);
+    
+    chi_componentLL = aux_asr(chi_componentLL, 0, 30, ofl);
+    chi2LL += (chi_componentLL * chi_componentLL);
 
   }  
 
-  // If there was a bit overflow overflow, set the chi-square to some artificially large value so it fails the cut.
+
+  // outfs << "chi2: " << chi2 << " " << chi2LL << " " << aux_asr(chi2LL, 0, 48, ofl) << " " << chi2LL/pow(2., 2*EFF_SHIFT) << endl;
+  chi2LL = aux_asr(chi2LL, 0, 48, ofl);
+
+  // If there was a bit overflow, set the chi-square to some artificially large value so it fails the cut.
   // Otherwise, set to the caluclated value, scaled back to nominal units.
-  trk.setChi2FW(chi2);
-  float fchi2 = overflow ? 9999999. : static_cast<float>(chi2) / pow(2.0,26.0);
-  trk.setChi2(fchi2);
+
+  trk.setChi2FW(chi2LL/pow(2., 2.*EFF_SHIFT));
+  // float fchi2 = ofl ? 9999999. : static_cast<float>(chi2) / pow(2.0,26.0);
+  trk.setChi2(chi2); // fchi2
+
+  // outfs.close();
 
 }
+
+
+int FTKConstantBank::missing_point_guess_aux(FTKTrack &track, int secid) const {
+
+  bool ofl = false; // overflow
+
+  for (int i=0;i<m_ncoords;++i) {
+    m_coordsmask[i] = (track.getBitmask()>>i)&1;
+  }
+
+  // keep track of which hits are missing.
+  int nmissing = 0; int m_missid[2] = {-1, -1};
+  for( int j = 0 ; j < m_ncoords ; ++j ) {
+    if (!m_coordsmask[j]) {
+      m_missid[nmissing] = j;
+      nmissing++;
+    } 
+  }
+
+  // Reject anything other than a *single* missing pixel or SCT hit.
+  int npixcy = 6; // we have 6 pixel coords
+  if (nmissing > 2) {
+    FTKSetup::PrintMessage(ftk::warn, "Cannot guess more than two coordinates.\n");
+    return 0;
+  }
+  if (nmissing == 2) { // 2 missing, must be consecutive pixel hits.
+    if (m_missid[0] >= npixcy || m_missid[0]+1 != m_missid[1]) {
+      FTKSetup::PrintMessageFmt(ftk::warn, "Two guessed coordinates must be from the same pix hit: missing %d, %d.\n", m_missid[0], m_missid[1]);
+      return 0;
+    }
+  }
+  if (nmissing == 1) { // can't imagine how this would happen...
+    if (m_missid[0] < npixcy) {
+      FTKSetup::PrintMessage(ftk::warn, "Single miss/drop must be in SCT - returning.\n");
+      return 0;
+    }
+  }
+
+
+  // calculate the chi partials
+  // long double* m_partials = new long double [m_ncoords];
+  long long*   m_partialsLL = new long long [m_ncoords];
+  for (int i = 0; i < m_nconstr; ++i) {
+
+    // m_partials[i]   = m_kaverage[secid][i]; 
+    m_partialsLL[i] = aux_asr(m_kaverage_aux[secid][i], 10, 30, ofl);
+
+    for (int j = 0 ; j < m_ncoords ; ++j ) {
+      if (m_coordsmask[j]) {
+
+        // m_partials[i]   += m_kernel[secid][i][j] * track.getCoord(j);
+        m_partialsLL[i] += m_kernel_aux[secid][i][j] * track.getAUXCoord(j); 
+      }
+    }
+  }  
+
+  if (ofl) {
+    FTKSetup::PrintMessage(ftk::warn, "AUX-style TF calculation had an overflow!!!\n");
+    return 0; 
+  }
+
+  // calculate the t-vectors
+  // TVectorD t(nmissing);
+  long long tLL[2] = {0, 0};
+  for (int j = 0; j < nmissing; ++j) {
+    for (int i = 0; i < m_nconstr; ++i ) {
+      // t[j] -= m_kernel[secid][i][m_missid[j]] * m_partials[i];
+      tLL[j] -= m_kernel_aux[secid][i][m_missid[j]] * aux_asr(m_partialsLL[i], 0, 30, ofl);
+    }
+
+    tLL[j] = aux_asr(tLL[j], 0, 50, ofl);
+  }
+  // delete [] m_partials;
+  delete [] m_partialsLL;
+
+  // preserved only for testing purposes --
+  // delete once all validation is complete.
+  // TMatrixD coef(nmissing, nmissing); 
+  // for (int ix = 0; ix < nmissing; ++ix) // 1st coordinate loop    
+  //   for (int jx=0; jx < nmissing; ++jx) // 2nd coordinate loop
+  //     for (int row=0;row!=m_nconstr;++row) 
+  //       coef[ix][jx] += m_kernel[secid][row][m_missid[ix]] * m_kernel[secid][row][m_missid[jx]];
+  // coef.Invert();
+  // TVectorD newcoord = coef * t;
+  // fstream outfs;
+  // outfs.open("test.txt", fstream::out | fstream::app);
+
+
+  // get the pointer to the track coordinates
+  float *coords = track.getCoords();
+  if (nmissing == 1) {
+
+    coords[m_missid[0]] = tLL[0] * m_maj_invkk_aux[secid][m_missid[0]][m_missid[0]]
+                          / pow(2., EFF_SHIFT + KERN_SHIFT + m_maj_invkk_pow[secid][m_missid[0]][m_missid[0]]);
+
+    // outfs << "finally coord0: " << newcoord[0] << "  " << coords[m_missid[0]] << endl;
+
+  } else if (nmissing == 2) {
+
+    coords[m_missid[0]] =   tLL[0] * m_maj_invkk_aux[secid][m_missid[0]][m_missid[0]]
+                            / pow(2., EFF_SHIFT + KERN_SHIFT + m_maj_invkk_pow[secid][m_missid[0]][m_missid[0]])
+                          + tLL[1] * m_maj_invkk_aux[secid][m_missid[0]][m_missid[1]]
+                            / pow(2., EFF_SHIFT + KERN_SHIFT + m_maj_invkk_pow[secid][m_missid[0]][m_missid[1]]);
+
+    coords[m_missid[1]] =   tLL[0] * m_maj_invkk_aux[secid][m_missid[1]][m_missid[0]]
+                            / pow(2., EFF_SHIFT + KERN_SHIFT + m_maj_invkk_pow[secid][m_missid[1]][m_missid[0]])
+                          + tLL[1] * m_maj_invkk_aux[secid][m_missid[1]][m_missid[1]]
+                            / pow(2., EFF_SHIFT + KERN_SHIFT + m_maj_invkk_pow[secid][m_missid[1]][m_missid[1]]);
+
+    // outfs << "finally coord0: " << newcoord[0] << "  " << coords[m_missid[0]] << endl;
+    // outfs << "finally coord1: " << newcoord[1] << "  " << coords[m_missid[1]] << endl;
+
+  } 
+
+  // outfs.close();
+  return nmissing;
+    
+}
+
+
 

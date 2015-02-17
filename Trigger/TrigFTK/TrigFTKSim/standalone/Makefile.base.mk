@@ -3,10 +3,10 @@
 ROOTCFLAGS+=$(shell root-config --cflags)
 
 ifeq (i686,$(findstring i686,$(CMTCONFIG)))
-        CXXFLAGS+=-g  -fPIC -Wall -DFTK_STANDALONE -I. $(ROOTCFLAGS) $(BOOST_CXXFLAGS) $(DCAP_CXXFLAGS) -m32
+        CXXFLAGS+=-g  -fPIC -Wall -DFTK_STANDALONE -I. $(ROOTCFLAGS) $(BOOST_CXXFLAGS) $(DCAP_CXXFLAGS) $(EIGEN_CXXFLAGS) -m32
         LIBS+=$(shell root-config --prefix=${ROOTSYS} --libs) $(BOOST_LDFLAGS) $(DCAP_LDFLAGS) -m32
 else
-        CXXFLAGS+=-g  -fPIC -Wall -DFTK_STANDALONE -I. $(ROOTCFLAGS) $(BOOST_CXXFLAGS) $(DCAP_CXXFLAGS) -m64
+        CXXFLAGS+=-g  -fPIC -Wall -DFTK_STANDALONE -I. $(ROOTCFLAGS) $(BOOST_CXXFLAGS) $(DCAP_CXXFLAGS)  $(EIGEN_CXXFLAGS) -m64
         LIBS+=$(shell root-config --prefix=${ROOTSYS} --libs) $(BOOST_LDFLAGS) $(DCAP_LDFLAGS) -m64
 endif
 
@@ -40,12 +40,8 @@ FTKSIM_OBJS =   tmp/tsp/FTKTSPBank.o tmp/tsp/TSPMap.o tmp/tsp/TSPLevel.o \
         tmp/FTKLogging.o tmp/FTKSteering.o tmp/FTKRootFile.o tmp/FTKMergeRoot.o \
         tmp/FTKPatternBySector.o tmp/FTKPatternOneSector.o \
         tmp/FTKPatternWithCoverage.o tmp/tsp/FTKAMSplit.o \
-	tmp/FTK_CompressedAMBank.o tmp/FTK_AMsimulation_base.o
-
-#         tmp/FTKConstantBank.o tmp/FTKTrackInput.o tmp/FTKRoadFileInput.o \
-#        tmp/FTKRegionMap.o tmp/TrackFitter.o tmp/FTKTrackFileOutput.o \
-#        tmp/TrackFitter711.o tmp/FTKSector711DB.o \
-#        tmp/FTKCacheLookup.o tmp/FTK_SingleTrackInput.o \
+		tmp/FTK_CompressedAMBank.o tmp/FTK_AMsimulation_base.o \
+		tmp/FTKConstantBank.o tmp/TrackFitter.o tmp/TrackFitter711.o tmp/FTK_SingleTrackInput.o 
 
 
 SECWALK_OBJS = sectorwalk.o common_fcn.o \

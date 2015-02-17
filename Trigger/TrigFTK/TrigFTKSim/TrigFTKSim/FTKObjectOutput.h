@@ -82,7 +82,8 @@ FTKObjectOutput<FTKObjectStream>::FTKObjectOutput() :
    m_multifile(false), m_filename(""),
    m_outdir(""), m_nbanks(0),
    m_file(0), m_tree(0),
-   m_datafmt("FTKBank%d.")
+   m_datafmt("FTKBank%d."),
+   m_data(0)
 {
 
 }

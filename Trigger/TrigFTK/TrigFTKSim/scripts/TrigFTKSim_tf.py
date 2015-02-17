@@ -3,7 +3,7 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 ## FTK Simulation Transform
-# @version $Id: TrigFTKSim_tf.py 635507 2014-12-12 08:26:15Z gvolpi $ 
+# @version $Id: TrigFTKSim_tf.py 646626 2015-02-12 22:20:57Z jsaxon $ 
 
 import argparse
 import sys
@@ -128,6 +128,9 @@ def addFTKSimulationArgs(parser):
                         group='TrigFTKSim')
     parser.add_argument('--SecondStageFit', type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=True),
                         help="Enables the second stage fitter", group='TrigFTKSim')
+    parser.add_argument('--doAuxFW', type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=True),
+                        help="Enables firmware-style constants", group='TrigFTKSim')
+
 
     parser.add_argument("--PixelClusteringMode",type=trfArgClasses.argFactory(trfArgClasses.argInt,runarg=True),
         help="Set the pixel clustering mode: 0 default, 1 ToT+pixel center",group="TrigFTKSim")
