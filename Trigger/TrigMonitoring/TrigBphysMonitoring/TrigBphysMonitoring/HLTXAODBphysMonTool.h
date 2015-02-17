@@ -18,6 +18,13 @@ class TVector3;
 
 namespace Trig { class chainGroup; }
 
+#include "xAODTracking/VertexFwd.h"
+
+namespace xAOD {
+    class TrigBphys_v1;
+    typedef TrigBphys_v1 TrigBphys; // use Fwd include when it exists
+}
+
 ///Concrete monitoring tool derived from MonitorToolBase
 class HLTXAODBphysMonTool : public IHLTMonTool
 {
@@ -126,7 +133,10 @@ private:
     double m_oniapt_min;
     double m_oniapt_max ;
 
-    
+    double m_lxy_min, m_lxy_max, m_lxyErr_min, m_lxyErr_max;
+    double m_tau_min, m_tau_max, m_tauErr_min, m_tauErr_max;
+    double m_pt_min, m_pt_max, m_ptErr_min, m_ptErr_max;
+    double m_massErr_min, m_massErr_max;
     
     // Method for managing the histogram divisions
     void divide(TH1 *num, TH1 *den, TH1 *quo);
@@ -141,10 +151,10 @@ private:
     TLorentzVector track4Momentum(const xAOD::Vertex * vxCandidate, int trkIndex, double mass) const;
     TVector3       origTrackMomentum(const xAOD::Vertex * vxCandidate, int trkIndex) const;
     TLorentzVector origTrack4Momentum(const xAOD::Vertex * vxCandidate, int trkIndex, double mass) const;
-    double         invariantMassError(const xAOD::Vertex* vxCandidate, std::vector<double> masses) const;
-    double         massErrorVKalVrt(const xAOD::Vertex * vxCandidate, std::vector<double> masses) const;
+    //    double         invariantMassError(const xAOD::Vertex* vxCandidate, std::vector<double> masses) const;
+    //    double         massErrorVKalVrt(const xAOD::Vertex * vxCandidate, std::vector<double> masses) const;
     double         trackCharge(const xAOD::Vertex * vxCandidate, int i) const;
-    Amg::MatrixX*  convertVKalCovMatrix(int NTrk, const std::vector<float> & Matrix) const;
+    //    Amg::MatrixX*  convertVKalCovMatrix(int NTrk, const std::vector<float> & Matrix) const;
     float          cosMethod(const TLorentzVector & Mu1, const TLorentzVector & Mu2, int Mu1_q) const;
     float          phiMethod(const TLorentzVector & Mu1, const TLorentzVector & Mu2, int Mu1_q) const;
     float          deltaR( float eta_1, float phi_1, float eta_2, float phi_2 ) const;

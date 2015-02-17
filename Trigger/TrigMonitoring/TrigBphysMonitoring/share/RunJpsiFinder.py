@@ -16,7 +16,7 @@ TrkVKalVrtFitter.FirstMeasuredPoint = False
 # ----------------------------------
 from JpsiUpsilonTools.JpsiUpsilonToolsConf import Analysis__JpsiFinder
 ExampleJpsiFinder = Analysis__JpsiFinder(name                        = "BPhysJpsiFinder",
-                                         OutputLevel                 = DEBUG,
+                                         OutputLevel                 = INFO,
                                          muAndMu                     = True,
                                          muAndTrack                  = False,
                                          TrackAndTrack               = False,
@@ -46,5 +46,26 @@ from JpsiUpsilonTools.JpsiUpsilonToolsConf import JpsiAlg
 
 topSequence += JpsiAlg(JpsiCandidatesOutputName = "JpsiCandidates",
                        JpsiFinderName           = ExampleJpsiFinder,
-                       OutputLevel  = DEBUG)
- 
+                       OutputLevel  = INFO)
+
+# Set up the decorators and the alg to do the work
+from TrigBphysMonitoring.TrigBphysMonitoringConf import BphysTrigDiMuDecoratorTool
+from TrigBphysMonitoring.TrigBphysMonitoringConf import BphysTrigDecoratorAlg
+
+dimuDeco = BphysTrigDiMuDecoratorTool(name = "BphysTrigDiMuDecoratorTool",
+                                  OutputLevel=VERBOSE)
+
+ToolSvc += dimuDeco
+print      dimuDeco
+
+decoAlg = BphysTrigDecoratorAlg(name="BphysTrigDecoratorAlg",
+                                OutputLevel=INFO,
+                                Decorators = [dimuDeco],
+                                JpsiContainerName = "JpsiCandidates")
+topSequence += decoAlg
+
+
+
+
+
+

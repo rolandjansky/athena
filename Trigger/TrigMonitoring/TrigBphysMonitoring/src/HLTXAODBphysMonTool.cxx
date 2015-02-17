@@ -48,7 +48,6 @@
 
 #include "xAODTracking/Vertex.h"
 #include "xAODTracking/VertexContainer.h"
-#include "xAODTracking/VertexAuxContainer.h"
 #include "xAODMuon/Muon.h"
 
 // TrigBphysMonitoring
@@ -148,6 +147,21 @@ m_muonMass(105.66)
     declareProperty("OniaPt_min"                   , m_oniapt_min           , "Minimum onia pt");
     declareProperty("OniaPt_max"                   , m_oniapt_max           , "Maximum onia pt");
 
+    declareProperty("MassErr_min"                   , m_massErr_min         , "Minimum of Mass Error");
+    declareProperty("MassErr_max"                   , m_massErr_max         , "Maximum of Mass Error");
+    declareProperty("Lxy_min"                       , m_lxy_min             , "Minimum of Lxy Dist");
+    declareProperty("Lxy_max"                       , m_lxy_max             , "Maximum of Lxy Dist");
+    declareProperty("LxyErr_min"                    , m_lxyErr_min          , "Minimum of Lxy Error Dist");
+    declareProperty("LxyErr_max"                    , m_lxyErr_max          , "Maximum of Lxy Error Dist");
+    declareProperty("Tau_min"                       , m_tau_min             , "Minimum of Lifetime Dist");
+    declareProperty("Tau_max"                       , m_tau_max             , "Maximum of Lifetime Dist");
+    declareProperty("TauErr_min"                    , m_tauErr_min          , "Minimum of Lifetime Error Dist");
+    declareProperty("TauErr_max"                    , m_tauErr_max          , "Maximum of Lifetime Error Dist");
+    declareProperty("pT_min"                        , m_pt_min              , "Minimum of pT Dist");
+    declareProperty("pT_max"                        , m_pt_max              , "Maximum of pT Dist");
+    declareProperty("pTErr_min"                     , m_ptErr_min           , "Minimum of pT Error Dist");
+    declareProperty("pTErr_max"                     , m_ptErr_max           , "Maximum of pT Error Dist");
+
     
 } //HLTXAODBphysMonTool
 
@@ -173,31 +187,31 @@ StatusCode HLTXAODBphysMonTool::init()
 StatusCode HLTXAODBphysMonTool::book()
 //-----------------------------------------------------------
 {
-    ATH_MSG_INFO ("Booking... ");
+    ATH_MSG_DEBUG ("Booking... ");
 
     if (!newRun) {
-        ATH_MSG_INFO ("Booking... not a new run, continuing");
+        ATH_MSG_DEBUG ("Booking... not a new run, continuing");
         return StatusCode::SUCCESS;
     }
     
     // book the offline di-muon hists
-    ATH_MSG_INFO ("Booking... JpsiFinder");
+    ATH_MSG_DEBUG ("Booking... JpsiFinder");
     if (bookJpsiFinder().isFailure()) {ATH_MSG_ERROR("Problems booking JpsiFinder method"); return StatusCode::FAILURE;}
     
     // book the general monitoring hists
-    ATH_MSG_INFO ("Booking... Triggers");
+    ATH_MSG_DEBUG ("Booking... Triggers");
     if (bookTriggers().isFailure())   {ATH_MSG_ERROR("Problems booking Triggers method"); return StatusCode::FAILURE;}
     
     // book the container hists
-    ATH_MSG_INFO ("Booking... TriggerGroups");
+    ATH_MSG_DEBUG ("Booking... TriggerGroups");
     if (bookTriggerGroups().isFailure())   {ATH_MSG_ERROR("Problems booking Containers method"); return StatusCode::FAILURE;}
     
     // book the chain specific hists
-    ATH_MSG_INFO ("Booking... Containers");
+    ATH_MSG_DEBUG ("Booking... Containers");
     if (bookContainers().isFailure())   {ATH_MSG_ERROR("Problems booking Containers method"); return StatusCode::FAILURE;}
 
     // book the efficiency hists
-    ATH_MSG_INFO ("Booking... Efficiency");
+    ATH_MSG_DEBUG ("Booking... Efficiency");
     if (bookEfficiencyGroups().isFailure())   {ATH_MSG_ERROR("Problems booking Efficiency method"); return StatusCode::FAILURE;}
     
     
@@ -208,26 +222,26 @@ StatusCode HLTXAODBphysMonTool::book()
 StatusCode HLTXAODBphysMonTool::fill()
 //-----------------------------------------------------------
 {
-    ATH_MSG_INFO ("fill... ");
+    ATH_MSG_DEBUG ("fill... ");
 
     // fill the offline di-muon hists
-    ATH_MSG_INFO ("fill... JpsiFinder");
+    ATH_MSG_DEBUG ("fill... JpsiFinder");
     if (fillJpsiFinder().isFailure()) {ATH_MSG_WARNING("Problems filling JpsiFinder method");}
     
     // fill the general monitoring hists
-    ATH_MSG_INFO ("fill... Triggers");
+    ATH_MSG_DEBUG ("fill... Triggers");
     if (fillTriggers().isFailure())   {ATH_MSG_WARNING("Problems filling Triggers method");}
     
     // fill the container hists
-    ATH_MSG_INFO ("fill... Containers");
+    ATH_MSG_DEBUG ("fill... Containers");
     if (fillContainers().isFailure())   {ATH_MSG_WARNING("Problems filling Containers method");}
 
     // fill the chain specific hists
-    ATH_MSG_INFO ("fill... TriggerGroups");
+    ATH_MSG_DEBUG ("fill... TriggerGroups");
     if (fillTriggerGroups().isFailure())   {ATH_MSG_WARNING("Problems filling Containers method");}
 
     // fill the efficiency hists
-    ATH_MSG_INFO ("fill... Efficiency");
+    ATH_MSG_DEBUG ("fill... Efficiency");
     if (fillEfficiencyGroups().isFailure())   {ATH_MSG_WARNING("Problems filling Efficiency method");}
 
     return StatusCode::SUCCESS;
@@ -235,7 +249,7 @@ StatusCode HLTXAODBphysMonTool::fill()
 
 
 StatusCode HLTXAODBphysMonTool::proc() {
-    ATH_MSG_INFO ("proc... ");
+    ATH_MSG_DEBUG ("proc... ");
     
     if (!endOfRun)
     {
@@ -624,30 +638,75 @@ StatusCode HLTXAODBphysMonTool::bookJpsiFinder() {
     // central eta < |1.05| -- forward eta > |1.05|
     TString prefix = m_prefix; // convert from std::string to TString
     
-    addHistogram( new TH2F(prefix+"_Jpsi_mass_central",         "Bphys Jpsi Mass Central"             ,100, 2950,3250, nTrigSize, 0., nTrigSizeF) );
-    addHistogram( new TH2F(prefix+"_Jpsi_high_pT_central",      "Bphys Jpsi Highest pT Muon Central"  ,50, 0.,50.,     nTrigSize, 0., nTrigSizeF) );
-    addHistogram( new TH2F(prefix+"_Jpsi_low_pT_central",       "Bphys Jpsi Lowest pT Muon Central"   ,50, 0.,50.,     nTrigSize, 0., nTrigSizeF) );
-    addHistogram( new TH2F(prefix+"_Jpsi_dphi_central",         "Bphys Jpsi DeltaPhi Central"         , 64, 0.,3.2,    nTrigSize, 0., nTrigSizeF) );
-    addHistogram( new TH2F(prefix+"_Jpsi_deta_central",         "Bphys Jpsi DeltaEta Central"         , 60, 0.,3.,     nTrigSize, 0., nTrigSizeF) );
+    addHistogram( new TH2F(prefix+"_Jpsi_mass_central",         "Bphys Jpsi Mass Central"               , 100, 2950,3250, nTrigSize, 0., nTrigSizeF) );
+    addHistogram( new TH2F(prefix+"_Jpsi_massErr_central",      "Bphys Jpsi MassErr Central"            , 100, m_massErr_min,m_massErr_max,nTrigSize, 0., nTrigSizeF) );
+    addHistogram( new TH2F(prefix+"_Jpsi_high_pT_central",      "Bphys Jpsi Highest pT Muon Central"    , 50, 0.,50.,     nTrigSize, 0., nTrigSizeF) );
+    addHistogram( new TH2F(prefix+"_Jpsi_low_pT_central",       "Bphys Jpsi Lowest pT Muon Central"     , 50, 0.,50.,     nTrigSize, 0., nTrigSizeF) );
+    addHistogram( new TH2F(prefix+"_Jpsi_dphi_central",         "Bphys Jpsi DeltaPhi Central"           , 64, 0.,3.2,    nTrigSize, 0., nTrigSizeF) );
+    addHistogram( new TH2F(prefix+"_Jpsi_deta_central",         "Bphys Jpsi DeltaEta Central"           , 60, 0.,3.,     nTrigSize, 0., nTrigSizeF) );
+    addHistogram( new TH2F(prefix+"_Jpsi_lxy_bs_central",       "Bphys Jpsi Lxy_bs Central"             , 200, m_lxy_min,m_lxy_max,nTrigSize, 0., nTrigSizeF) );
+    addHistogram( new TH2F(prefix+"_Jpsi_lxyErr_bs_central",    "Bphys Jpsi LxyErr_bs Central"          , 200, m_lxyErr_min,m_lxyErr_max,nTrigSize, 0., nTrigSizeF) );
+    addHistogram( new TH2F(prefix+"_Jpsi_tau_bs_central",       "Bphys Jpsi Tau_bs Central"             , 200, m_tau_min,m_tau_max,nTrigSize, 0., nTrigSizeF) );
+    addHistogram( new TH2F(prefix+"_Jpsi_tauErr_bs_central",    "Bphys Jpsi TauErr_bs Central"          , 200, m_tauErr_min,m_tauErr_max,nTrigSize, 0., nTrigSizeF) );
+    addHistogram( new TH2F(prefix+"_Jpsi_lxy_pv_central",       "Bphys Jpsi Lxy_pv Central"             , 200, m_lxy_min,m_lxy_max,nTrigSize, 0., nTrigSizeF) );
+    addHistogram( new TH2F(prefix+"_Jpsi_lxyErr_pv_central",    "Bphys Jpsi LxyErr_pv Central"          , 200, m_lxyErr_min,m_lxyErr_max,nTrigSize, 0., nTrigSizeF) );
+    addHistogram( new TH2F(prefix+"_Jpsi_tau_pv_central",       "Bphys Jpsi Tau_pv Central"             , 200, m_tau_min,m_tau_max,nTrigSize, 0., nTrigSizeF) );
+    addHistogram( new TH2F(prefix+"_Jpsi_tauErr_pv_central",    "Bphys Jpsi TauErr_pv Central"          , 200, m_tauErr_min,m_tauErr_max,nTrigSize, 0., nTrigSizeF) );
+    addHistogram( new TH2F(prefix+"_Jpsi_pt_central",           "Bphys Jpsi pT Central"                 , 200, m_pt_min,m_pt_max,nTrigSize, 0., nTrigSizeF) );
+    addHistogram( new TH2F(prefix+"_Jpsi_ptErr_central",        "Bphys Jpsi pTErr Central"              , 200, m_ptErr_min,m_ptErr_max,nTrigSize, 0., nTrigSizeF) );
     
-    addHistogram( new TH2F(prefix+"_Jpsi_mass_forward",         "Bphys Jpsi Mass Forward"             ,100, 2800,3400, nTrigSize, 0., nTrigSizeF) );
-    addHistogram( new TH2F(prefix+"_Jpsi_high_pT_forward",      "Bphys Jpsi Highest pT Muon Forward"  ,50, 0.,50.,     nTrigSize, 0., nTrigSizeF) );
-    addHistogram( new TH2F(prefix+"_Jpsi_low_pT_forward",       "Bphys Jpsi Lowest pT Muon Forward"   ,50, 0.,50.,     nTrigSize, 0., nTrigSizeF) );
-    addHistogram( new TH2F(prefix+"_Jpsi_dphi_forward",         "Bphys Jpsi DeltaPhi Forward"         , 64, 0.,3.2,    nTrigSize, 0., nTrigSizeF) );
-    addHistogram( new TH2F(prefix+"_Jpsi_deta_forward",         "Bphys Jpsi DeltaEta Forward"         , 60, 0.,3.,     nTrigSize, 0., nTrigSizeF) );
+    addHistogram( new TH2F(prefix+"_Jpsi_mass_forward",         "Bphys Jpsi Mass Forward"               , 100, 2800,3400, nTrigSize, 0., nTrigSizeF) );
+    addHistogram( new TH2F(prefix+"_Jpsi_massErr_forward",      "Bphys Jpsi MassErr Forward"            , 100, m_massErr_min,m_massErr_max,nTrigSize, 0., nTrigSizeF) );
+    addHistogram( new TH2F(prefix+"_Jpsi_high_pT_forward",      "Bphys Jpsi Highest pT Muon Forward"    , 50, 0.,50.,     nTrigSize, 0., nTrigSizeF) );
+    addHistogram( new TH2F(prefix+"_Jpsi_low_pT_forward",       "Bphys Jpsi Lowest pT Muon Forward"     , 50, 0.,50.,     nTrigSize, 0., nTrigSizeF) );
+    addHistogram( new TH2F(prefix+"_Jpsi_dphi_forward",         "Bphys Jpsi DeltaPhi Forward"           , 64, 0.,3.2,    nTrigSize, 0., nTrigSizeF) );
+    addHistogram( new TH2F(prefix+"_Jpsi_deta_forward",         "Bphys Jpsi DeltaEta Forward"           , 60, 0.,3.,     nTrigSize, 0., nTrigSizeF) );
+    addHistogram( new TH2F(prefix+"_Jpsi_lxy_bs_forward",       "Bphys Jpsi Lxy_bs Forward"             , 200, m_lxy_min,m_lxy_max,nTrigSize, 0., nTrigSizeF) );
+    addHistogram( new TH2F(prefix+"_Jpsi_lxyErr_bs_forward",    "Bphys Jpsi LxyErr_bs Forward"          , 200, m_lxyErr_min,m_lxyErr_max,nTrigSize, 0., nTrigSizeF) );
+    addHistogram( new TH2F(prefix+"_Jpsi_tau_bs_forward",       "Bphys Jpsi Tau_bs Forward"             , 200, m_tau_min,m_tau_max,nTrigSize, 0., nTrigSizeF) );
+    addHistogram( new TH2F(prefix+"_Jpsi_tauErr_bs_forward",    "Bphys Jpsi TauErr_bs Forward"          , 200, m_tauErr_min,m_tauErr_max,nTrigSize, 0., nTrigSizeF) );
+    addHistogram( new TH2F(prefix+"_Jpsi_lxy_pv_forward",       "Bphys Jpsi Lxy_pv Forward"             , 200, m_lxy_min,m_lxy_max,nTrigSize, 0., nTrigSizeF) );
+    addHistogram( new TH2F(prefix+"_Jpsi_lxyErr_pv_forward",    "Bphys Jpsi LxyErr_pv Forward"          , 200, m_lxyErr_min,m_lxyErr_max,nTrigSize, 0., nTrigSizeF) );
+    addHistogram( new TH2F(prefix+"_Jpsi_tau_pv_forward",       "Bphys Jpsi Tau_pv Forward"             , 200, m_tau_min,m_tau_max,nTrigSize, 0., nTrigSizeF) );
+    addHistogram( new TH2F(prefix+"_Jpsi_tauErr_pv_forward",    "Bphys Jpsi TauErr_pv Forward"          , 200, m_tauErr_min,m_tauErr_max,nTrigSize, 0., nTrigSizeF) );
+    addHistogram( new TH2F(prefix+"_Jpsi_pt_forward",           "Bphys Jpsi pT Forward"                 , 200, m_pt_min,m_pt_max,nTrigSize, 0., nTrigSizeF) );
+    addHistogram( new TH2F(prefix+"_Jpsi_ptErr_forward",        "Bphys Jpsi pTErr Forward"              , 200, m_ptErr_min,m_ptErr_max,nTrigSize, 0., nTrigSizeF) );
     
-    addHistogram( new TH2F(prefix+"_Upsi_mass_central",         "Bphys Upsi Mass Central"             ,100, 9000,11500,nTrigSize, 0., nTrigSizeF) );
-    addHistogram( new TH2F(prefix+"_Upsi_high_pT_central",      "Bphys Upsi Highest pT Muon Central"  ,50, 0.,50.,     nTrigSize, 0., nTrigSizeF) );
-    addHistogram( new TH2F(prefix+"_Upsi_low_pT_central",       "Bphys Upsi Lowest pT Muon Central"   ,50, 0.,50.,     nTrigSize, 0., nTrigSizeF) );
-    addHistogram( new TH2F(prefix+"_Upsi_dphi_central",         "Bphys Upsi DeltaPhi Central"         , 64, 0.,3.2,    nTrigSize, 0., nTrigSizeF) );
-    addHistogram( new TH2F(prefix+"_Upsi_deta_central",         "Bphys Upsi DeltaEta Central"         , 60, 0.,3.,     nTrigSize, 0., nTrigSizeF) );
+    addHistogram( new TH2F(prefix+"_Upsi_mass_central",         "Bphys Upsi Mass Central"               , 100, 9000,11500,nTrigSize, 0., nTrigSizeF) );
+    addHistogram( new TH2F(prefix+"_Upsi_massErr_central",      "Bphys Upsi MassErr Central"            , 100, m_massErr_min,m_massErr_max,nTrigSize, 0., nTrigSizeF) );
+    addHistogram( new TH2F(prefix+"_Upsi_high_pT_central",      "Bphys Upsi Highest pT Muon Central"    , 50, 0.,50.,     nTrigSize, 0., nTrigSizeF) );
+    addHistogram( new TH2F(prefix+"_Upsi_low_pT_central",       "Bphys Upsi Lowest pT Muon Central"     , 50, 0.,50.,     nTrigSize, 0., nTrigSizeF) );
+    addHistogram( new TH2F(prefix+"_Upsi_dphi_central",         "Bphys Upsi DeltaPhi Central"           , 64, 0.,3.2,    nTrigSize, 0., nTrigSizeF) );
+    addHistogram( new TH2F(prefix+"_Upsi_deta_central",         "Bphys Upsi DeltaEta Central"           , 60, 0.,3.,     nTrigSize, 0., nTrigSizeF) );
+    addHistogram( new TH2F(prefix+"_Upsi_lxy_bs_central",       "Bphys Upsi Lxy_bs Central"             , 200, m_lxy_min,m_lxy_max,nTrigSize, 0., nTrigSizeF) );
+    addHistogram( new TH2F(prefix+"_Upsi_lxyErr_bs_central",    "Bphys Upsi LxyErr_bs Central"          , 200, m_lxyErr_min,m_lxyErr_max,nTrigSize, 0., nTrigSizeF) );
+    addHistogram( new TH2F(prefix+"_Upsi_tau_bs_central",       "Bphys Upsi Tau_bs Central"             , 200, m_tau_min,m_tau_max,nTrigSize, 0., nTrigSizeF) );
+    addHistogram( new TH2F(prefix+"_Upsi_tauErr_bs_central",    "Bphys Upsi TauErr_bs Central"          , 200, m_tauErr_min,m_tauErr_max,nTrigSize, 0., nTrigSizeF) );
+    addHistogram( new TH2F(prefix+"_Upsi_lxy_pv_central",       "Bphys Upsi Lxy_pv Central"             , 200, m_lxy_min,m_lxy_max,nTrigSize, 0., nTrigSizeF) );
+    addHistogram( new TH2F(prefix+"_Upsi_lxyErr_pv_central",    "Bphys Upsi LxyErr_pv Central"          , 200, m_lxyErr_min,m_lxyErr_max,nTrigSize, 0., nTrigSizeF) );
+    addHistogram( new TH2F(prefix+"_Upsi_tau_pv_central",       "Bphys Upsi Tau_pv Central"             , 200, m_tau_min,m_tau_max,nTrigSize, 0., nTrigSizeF) );
+    addHistogram( new TH2F(prefix+"_Upsi_tauErr_pv_central",    "Bphys Upsi TauErr_pv Central"          , 200, m_tauErr_min,m_tauErr_max,nTrigSize, 0., nTrigSizeF) );
+    addHistogram( new TH2F(prefix+"_Upsi_pt_central",           "Bphys Upsi pT Central"                 , 200, m_pt_min,m_pt_max,nTrigSize, 0., nTrigSizeF) );
+    addHistogram( new TH2F(prefix+"_Upsi_ptErr_central",        "Bphys Upsi pTErr Central"              , 200, m_ptErr_min,m_ptErr_max,nTrigSize, 0., nTrigSizeF) );
+
+    addHistogram( new TH2F(prefix+"_Upsi_mass_forward",         "Bphys Upsi Mass Forward"               , 100, 8000,12000,nTrigSize, 0., nTrigSizeF) );
+    addHistogram( new TH2F(prefix+"_Upsi_massErr_forward",      "Bphys Upsi MassErr Forward"            , 100, m_massErr_min,m_massErr_max,nTrigSize, 0., nTrigSizeF) );
+    addHistogram( new TH2F(prefix+"_Upsi_high_pT_forward",      "Bphys Upsi Highest pT Muon Forward"    , 50, 0.,50.,     nTrigSize, 0., nTrigSizeF) );
+    addHistogram( new TH2F(prefix+"_Upsi_low_pT_forward",       "Bphys Upsi Lowest pT Muon Forward"     , 50, 0.,50.,     nTrigSize, 0., nTrigSizeF) );
+    addHistogram( new TH2F(prefix+"_Upsi_dphi_forward",         "Bphys Upsi DeltaPhi Forward"           , 64, 0.,3.2,    nTrigSize, 0., nTrigSizeF) );
+    addHistogram( new TH2F(prefix+"_Upsi_deta_forward",         "Bphys Upsi DeltaEta Forward"           , 60, 0.,3.,     nTrigSize, 0., nTrigSizeF) );
+    addHistogram( new TH2F(prefix+"_Upsi_lxy_bs_forward",       "Bphys Upsi Lxy_bs Forward"             , 200, m_lxy_min,m_lxy_max,nTrigSize, 0., nTrigSizeF) );
+    addHistogram( new TH2F(prefix+"_Upsi_lxyErr_bs_forward",    "Bphys Upsi LxyErr_bs Forward"          , 200, m_lxyErr_min,m_lxyErr_max,nTrigSize, 0., nTrigSizeF) );
+    addHistogram( new TH2F(prefix+"_Upsi_tau_bs_forward",       "Bphys Upsi Tau_bs Forward"             , 200, m_tau_min,m_tau_max,nTrigSize, 0., nTrigSizeF) );
+    addHistogram( new TH2F(prefix+"_Upsi_tauErr_bs_forward",    "Bphys Upsi TauErr_bs Forward"          , 200, m_tauErr_min,m_tauErr_max,nTrigSize, 0., nTrigSizeF) );
+    addHistogram( new TH2F(prefix+"_Upsi_lxy_pv_forward",       "Bphys Upsi Lxy_pv Forward"             , 200, m_lxy_min,m_lxy_max,nTrigSize, 0., nTrigSizeF) );
+    addHistogram( new TH2F(prefix+"_Upsi_lxyErr_pv_forward",    "Bphys Upsi LxyErr_pv Forward"          , 200, m_lxyErr_min,m_lxyErr_max,nTrigSize, 0., nTrigSizeF) );
+    addHistogram( new TH2F(prefix+"_Upsi_tau_pv_forward",       "Bphys Upsi Tau_pv Forward"             , 200, m_tau_min,m_tau_max,nTrigSize, 0., nTrigSizeF) );
+    addHistogram( new TH2F(prefix+"_Upsi_tauErr_pv_forward",    "Bphys Upsi TauErr_pv Forward"          , 200, m_tauErr_min,m_tauErr_max,nTrigSize, 0., nTrigSizeF) );
+    addHistogram( new TH2F(prefix+"_Upsi_pt_forward",           "Bphys Upsi pT Forward"                 , 200, m_pt_min,m_pt_max,nTrigSize, 0., nTrigSizeF) );
+    addHistogram( new TH2F(prefix+"_Upsi_ptErr_forward",        "Bphys Upsi pTErr Forward"              , 200, m_ptErr_min,m_ptErr_max,nTrigSize, 0., nTrigSizeF) );
     
-    addHistogram( new TH2F(prefix+"_Upsi_mass_forward",         "Bphys Upsi Mass Forward"             ,100, 8000,12000,nTrigSize, 0., nTrigSizeF) );
-    addHistogram( new TH2F(prefix+"_Upsi_high_pT_forward",      "Bphys Upsi Highest pT Muon Forward"  ,50, 0.,50.,     nTrigSize, 0., nTrigSizeF) );
-    addHistogram( new TH2F(prefix+"_Upsi_low_pT_forward",       "Bphys Upsi Lowest pT Muon Forward"   ,50, 0.,50.,     nTrigSize, 0., nTrigSizeF) );
-    addHistogram( new TH2F(prefix+"_Upsi_dphi_forward",         "Bphys Upsi DeltaPhi Forward"         , 64, 0.,3.2,    nTrigSize, 0., nTrigSizeF) );
-    addHistogram( new TH2F(prefix+"_Upsi_deta_forward",         "Bphys Upsi DeltaEta Forward"         , 60, 0.,3.,     nTrigSize, 0., nTrigSizeF) );
-    
+
     // *************** EXPERT ****************** //
     addMonGroup(new MonGroup(this,m_base_path_expert+"/JpsiFinder",run));
     addHistogram( new TH2F(prefix+"_Jpsi_cosThetaStar_central", "Bphys Jpsi CosThetaStar Central"     ,50, -1.,1.,    nTrigSize, 0., nTrigSizeF) );
@@ -674,29 +733,81 @@ StatusCode HLTXAODBphysMonTool::bookJpsiFinder() {
         // ******** SHIFTER ********* //
         setCurrentMonGroup(m_base_path_shifter+"/JpsiFinder");
         hist2(m_prefix+"_Jpsi_mass_central")->GetYaxis()   ->SetBinLabel(iTrigName+1,label); //+1 for hist offset
+        hist2(m_prefix+"_Jpsi_massErr_central")->GetYaxis()   ->SetBinLabel(iTrigName+1,label);
         hist2(m_prefix+"_Jpsi_high_pT_central")->GetYaxis()->SetBinLabel(iTrigName+1,label);
         hist2(m_prefix+"_Jpsi_low_pT_central")->GetYaxis() ->SetBinLabel(iTrigName+1,label);
         hist2(m_prefix+"_Jpsi_dphi_central")->GetYaxis()   ->SetBinLabel(iTrigName+1,label);
         hist2(m_prefix+"_Jpsi_deta_central")->GetYaxis()   ->SetBinLabel(iTrigName+1,label);
+        hist2(m_prefix+"_Jpsi_lxy_bs_central")->GetYaxis() ->SetBinLabel(iTrigName+1,label);
+        hist2(m_prefix+"_Jpsi_lxyErr_bs_central")->GetYaxis() ->SetBinLabel(iTrigName+1,label);
+        hist2(m_prefix+"_Jpsi_tau_bs_central")->GetYaxis() ->SetBinLabel(iTrigName+1,label);
+        hist2(m_prefix+"_Jpsi_tauErr_bs_central")->GetYaxis() ->SetBinLabel(iTrigName+1,label);
+        hist2(m_prefix+"_Jpsi_lxy_pv_central")->GetYaxis() ->SetBinLabel(iTrigName+1,label);
+        hist2(m_prefix+"_Jpsi_lxyErr_pv_central")->GetYaxis() ->SetBinLabel(iTrigName+1,label);
+        hist2(m_prefix+"_Jpsi_tau_pv_central")->GetYaxis() ->SetBinLabel(iTrigName+1,label);
+        hist2(m_prefix+"_Jpsi_tauErr_pv_central")->GetYaxis() ->SetBinLabel(iTrigName+1,label);
+        hist2(m_prefix+"_Jpsi_pt_central")->GetYaxis() ->SetBinLabel(iTrigName+1,label);
+        hist2(m_prefix+"_Jpsi_ptErr_central")->GetYaxis() ->SetBinLabel(iTrigName+1,label);
         
         hist2(m_prefix+"_Jpsi_mass_forward")->GetYaxis()   ->SetBinLabel(iTrigName+1,label);
+        hist2(m_prefix+"_Jpsi_massErr_forward")->GetYaxis()   ->SetBinLabel(iTrigName+1,label);
         hist2(m_prefix+"_Jpsi_high_pT_forward")->GetYaxis()->SetBinLabel(iTrigName+1,label);
         hist2(m_prefix+"_Jpsi_low_pT_forward")->GetYaxis() ->SetBinLabel(iTrigName+1,label);
         hist2(m_prefix+"_Jpsi_dphi_forward")->GetYaxis()   ->SetBinLabel(iTrigName+1,label);
         hist2(m_prefix+"_Jpsi_deta_forward")->GetYaxis()   ->SetBinLabel(iTrigName+1,label);
+        hist2(m_prefix+"_Jpsi_lxy_bs_forward")->GetYaxis()   ->SetBinLabel(iTrigName+1,label);
+        hist2(m_prefix+"_Jpsi_tau_bs_forward")->GetYaxis()   ->SetBinLabel(iTrigName+1,label);
+        hist2(m_prefix+"_Jpsi_lxy_bs_forward")->GetYaxis() ->SetBinLabel(iTrigName+1,label);
+        hist2(m_prefix+"_Jpsi_lxyErr_bs_forward")->GetYaxis() ->SetBinLabel(iTrigName+1,label);
+        hist2(m_prefix+"_Jpsi_tau_bs_forward")->GetYaxis() ->SetBinLabel(iTrigName+1,label);
+        hist2(m_prefix+"_Jpsi_tauErr_bs_forward")->GetYaxis() ->SetBinLabel(iTrigName+1,label);
+        hist2(m_prefix+"_Jpsi_lxy_pv_forward")->GetYaxis() ->SetBinLabel(iTrigName+1,label);
+        hist2(m_prefix+"_Jpsi_lxyErr_pv_forward")->GetYaxis() ->SetBinLabel(iTrigName+1,label);
+        hist2(m_prefix+"_Jpsi_tau_pv_forward")->GetYaxis() ->SetBinLabel(iTrigName+1,label);
+        hist2(m_prefix+"_Jpsi_tauErr_pv_forward")->GetYaxis() ->SetBinLabel(iTrigName+1,label);
+        hist2(m_prefix+"_Jpsi_pt_forward")->GetYaxis() ->SetBinLabel(iTrigName+1,label);
+        hist2(m_prefix+"_Jpsi_ptErr_forward")->GetYaxis() ->SetBinLabel(iTrigName+1,label);
         
         hist2(m_prefix+"_Upsi_mass_central")->GetYaxis()   ->SetBinLabel(iTrigName+1,label);
+        hist2(m_prefix+"_Upsi_massErr_central")->GetYaxis()   ->SetBinLabel(iTrigName+1,label);
         hist2(m_prefix+"_Upsi_high_pT_central")->GetYaxis()->SetBinLabel(iTrigName+1,label);
         hist2(m_prefix+"_Upsi_low_pT_central")->GetYaxis() ->SetBinLabel(iTrigName+1,label);
         hist2(m_prefix+"_Upsi_dphi_central")->GetYaxis()   ->SetBinLabel(iTrigName+1,label);
         hist2(m_prefix+"_Upsi_deta_central")->GetYaxis()   ->SetBinLabel(iTrigName+1,label);
-        
+        hist2(m_prefix+"_Upsi_lxy_bs_central")->GetYaxis() ->SetBinLabel(iTrigName+1,label);
+        hist2(m_prefix+"_Upsi_tau_bs_central")->GetYaxis() ->SetBinLabel(iTrigName+1,label);
+        hist2(m_prefix+"_Upsi_lxy_bs_central")->GetYaxis() ->SetBinLabel(iTrigName+1,label);
+        hist2(m_prefix+"_Upsi_lxyErr_bs_central")->GetYaxis() ->SetBinLabel(iTrigName+1,label);
+        hist2(m_prefix+"_Upsi_tau_bs_central")->GetYaxis() ->SetBinLabel(iTrigName+1,label);
+        hist2(m_prefix+"_Upsi_tauErr_bs_central")->GetYaxis() ->SetBinLabel(iTrigName+1,label);
+        hist2(m_prefix+"_Upsi_lxy_pv_central")->GetYaxis() ->SetBinLabel(iTrigName+1,label);
+        hist2(m_prefix+"_Upsi_lxyErr_pv_central")->GetYaxis() ->SetBinLabel(iTrigName+1,label);
+        hist2(m_prefix+"_Upsi_tau_pv_central")->GetYaxis() ->SetBinLabel(iTrigName+1,label);
+        hist2(m_prefix+"_Upsi_tauErr_pv_central")->GetYaxis() ->SetBinLabel(iTrigName+1,label);
+        hist2(m_prefix+"_Upsi_pt_central")->GetYaxis() ->SetBinLabel(iTrigName+1,label);
+        hist2(m_prefix+"_Upsi_ptErr_central")->GetYaxis() ->SetBinLabel(iTrigName+1,label);
+
         hist2(m_prefix+"_Upsi_mass_forward")->GetYaxis()   ->SetBinLabel(iTrigName+1,label);
+        hist2(m_prefix+"_Upsi_massErr_forward")->GetYaxis()   ->SetBinLabel(iTrigName+1,label);
         hist2(m_prefix+"_Upsi_high_pT_forward")->GetYaxis()->SetBinLabel(iTrigName+1,label);
         hist2(m_prefix+"_Upsi_low_pT_forward")->GetYaxis() ->SetBinLabel(iTrigName+1,label);
         hist2(m_prefix+"_Upsi_dphi_forward")->GetYaxis()   ->SetBinLabel(iTrigName+1,label);
         hist2(m_prefix+"_Upsi_deta_forward")->GetYaxis()   ->SetBinLabel(iTrigName+1,label);
-        
+        hist2(m_prefix+"_Upsi_lxy_bs_forward")->GetYaxis()   ->SetBinLabel(iTrigName+1,label);
+        hist2(m_prefix+"_Upsi_tau_bs_forward")->GetYaxis()   ->SetBinLabel(iTrigName+1,label);
+        hist2(m_prefix+"_Upsi_lxy_bs_forward")->GetYaxis()   ->SetBinLabel(iTrigName+1,label);
+        hist2(m_prefix+"_Upsi_tau_bs_forward")->GetYaxis()   ->SetBinLabel(iTrigName+1,label);
+        hist2(m_prefix+"_Upsi_lxy_bs_forward")->GetYaxis() ->SetBinLabel(iTrigName+1,label);
+        hist2(m_prefix+"_Upsi_lxyErr_bs_forward")->GetYaxis() ->SetBinLabel(iTrigName+1,label);
+        hist2(m_prefix+"_Upsi_tau_bs_forward")->GetYaxis() ->SetBinLabel(iTrigName+1,label);
+        hist2(m_prefix+"_Upsi_tauErr_bs_forward")->GetYaxis() ->SetBinLabel(iTrigName+1,label);
+        hist2(m_prefix+"_Upsi_lxy_pv_forward")->GetYaxis() ->SetBinLabel(iTrigName+1,label);
+        hist2(m_prefix+"_Upsi_lxyErr_pv_forward")->GetYaxis() ->SetBinLabel(iTrigName+1,label);
+        hist2(m_prefix+"_Upsi_tau_pv_forward")->GetYaxis() ->SetBinLabel(iTrigName+1,label);
+        hist2(m_prefix+"_Upsi_tauErr_pv_forward")->GetYaxis() ->SetBinLabel(iTrigName+1,label);
+        hist2(m_prefix+"_Upsi_pt_forward")->GetYaxis() ->SetBinLabel(iTrigName+1,label);
+        hist2(m_prefix+"_Upsi_ptErr_forward")->GetYaxis() ->SetBinLabel(iTrigName+1,label);
+
         // ******** EXPERT ********* //
         setCurrentMonGroup(m_base_path_expert+"/JpsiFinder");
         hist2(m_prefix+"_Jpsi_cosThetaStar_central")->GetYaxis()->SetBinLabel(iTrigName+1,label);
@@ -746,7 +857,7 @@ StatusCode HLTXAODBphysMonTool::fillJpsiFinder(){
         
         // Calculate the invariant masses and their errors
         //double orig_mass = orig_onia.M();                      // mass from original tracks
-        double mass      = ref_onia.M();                        // mass from refitted tracks
+        ///!double mass      = ref_onia.M();                        // mass from refitted tracks
         // double pt      = ref_onia.Pt();                        // pt from refitted tracks
         //double error     = invariantMassError(jpsiCandidate, std::vector<double>(2, m_muonMass));  // invariant mass error
         double rapidity  = ref_onia.Rapidity();
@@ -760,80 +871,180 @@ StatusCode HLTXAODBphysMonTool::fillJpsiFinder(){
         float etaTrk2 = refTrk2.Eta();
         float ptTrk2  = refTrk2.Pt();
 
+
+        
         float absDphi = absDeltaPhi(phiTrk1,phiTrk2);
         float absDeta = absDeltaEta(etaTrk1,etaTrk2);
 
-        int m_trkOrigCharge1=trackCharge(jpsiCandidate, 0);
+      ///!  int m_trkOrigCharge1=trackCharge(jpsiCandidate, 0);
         //int m_trkOrigCharge2=trackCharge(jpsiCandidate, 1);
-        
-        int qTrk1(m_trkOrigCharge1);//, qTrk2(m_trkOrigCharge2);
-        
-        float phiStar = phiMethod(refTrk1, refTrk2, qTrk1);
-        float cosThetaStar = cosMethod(refTrk1, refTrk2, qTrk1);
+      ///!  int qTrk1(m_trkOrigCharge1);//, qTrk2(m_trkOrigCharge2);
+      ///!  float phiStar = phiMethod(refTrk1, refTrk2, qTrk1);
+      ///!  float cosThetaStar = cosMethod(refTrk1, refTrk2, qTrk1);
 
+        
+        // check for, and access, the decorated quantities
+        bool hasAccessorVariables(true);
+        //static Accessor< float > acc("");
+#define createAccesor(name) static SG::AuxElement::Accessor< float > acc_##name(#name)
+        createAccesor(Lxy_bs);
+        createAccesor(LxyError_bs);
+        createAccesor(Tau_bs);
+        createAccesor(TauError_bs);
+        createAccesor(Lxy_pv);
+        createAccesor(LxyError_pv);
+        createAccesor(Tau_pv);
+        createAccesor(TauError_pv);
+        createAccesor(pT);
+        createAccesor(pTError);
+        createAccesor(phiStar);
+        createAccesor(cosThetaStar);
+        createAccesor(mass);
+        createAccesor(massError);
+        
+
+        if (acc_cosThetaStar.isAvailable(*jpsiCandidate)) {
+            ATH_MSG_VERBOSE("Expected, and found, decorated variables");
+        } else {
+            ATH_MSG_DEBUG("Expected, but did not find, decorated variables");
+            hasAccessorVariables = false;
+        }
+
+        float aLxy_bs      = (hasAccessorVariables ? acc_Lxy_bs(*jpsiCandidate) : 0.);
+        float aLxyError_bs = (hasAccessorVariables ? acc_LxyError_bs(*jpsiCandidate) : 0.);
+        float aTau_bs      = (hasAccessorVariables ? acc_Tau_bs(*jpsiCandidate) : 0.);
+        float aTauError_bs = (hasAccessorVariables ? acc_TauError_bs(*jpsiCandidate) : 0.);
+        
+        float aLxy_pv      = (hasAccessorVariables ? acc_Lxy_pv(*jpsiCandidate) : 0.);
+        float aLxyError_pv = (hasAccessorVariables ? acc_LxyError_pv(*jpsiCandidate) : 0.);
+        float aTau_pv      = (hasAccessorVariables ? acc_Tau_pv(*jpsiCandidate) : 0.);
+        float aTauError_pv = (hasAccessorVariables ? acc_TauError_pv(*jpsiCandidate) : 0.);
+        
+        float apT          = (hasAccessorVariables ? acc_pT(*jpsiCandidate) : 0.);
+        float apTError     = (hasAccessorVariables ? acc_pTError(*jpsiCandidate) : 0.);
+        float aphiStar     = (hasAccessorVariables ? acc_phiStar(*jpsiCandidate) : 0.);
+        float acosThetaStar= (hasAccessorVariables ? acc_cosThetaStar(*jpsiCandidate) : 0.);
+        float amass        = (hasAccessorVariables ? acc_mass(*jpsiCandidate) : 0.);
+        float amassError   = (hasAccessorVariables ? acc_massError(*jpsiCandidate) : 0.);
+
+        //ATH_MSG_INFO("old phiStar: " << phiStar);
+        //ATH_MSG_INFO("new phiStar: " << aphiStar);
+        //ATH_MSG_INFO("old cosThetaStar: " << cosThetaStar);
+        //ATH_MSG_INFO("new cosThetaStar: " << acosThetaStar);
+        //ATH_MSG_INFO("old mass: " << mass);
+        //ATH_MSG_INFO("new mass: " << amass);
+        
         bool isCentral = abs_rapidity < 1.05;
         bool isForward = abs_rapidity > 1.05;
 
-        bool isJpsiCentral = isCentral && (mass > m_mw_jpsi_central_min && mass < m_mw_jpsi_central_max);
-        bool isJpsiForward = isForward && (mass > m_mw_jpsi_forward_min && mass < m_mw_jpsi_forward_max);
+        bool isJpsiCentral = isCentral && (amass > m_mw_jpsi_central_min && amass < m_mw_jpsi_central_max);
+        bool isJpsiForward = isForward && (amass > m_mw_jpsi_forward_min && amass < m_mw_jpsi_forward_max);
         
-        bool isUpsiCentral = isCentral && (mass > m_mw_upsi_central_min && mass < m_mw_upsi_central_max);
-        bool isUpsiForward = isForward && (mass > m_mw_upsi_forward_min && mass < m_mw_upsi_forward_max);
+        bool isUpsiCentral = isCentral && (amass > m_mw_upsi_central_min && amass < m_mw_upsi_central_max);
+        bool isUpsiForward = isForward && (amass > m_mw_upsi_forward_min && amass < m_mw_upsi_forward_max);
 
         
         // **** fill the offline entries **** //
         // ******** SHIFTER ********* //
         setCurrentMonGroup(m_base_path_shifter+"/JpsiFinder");
         if (isJpsiCentral) {
-            hist2(m_prefix+"_Jpsi_mass_central")->   Fill(mass, "Offline", 1);
-            hist2(m_prefix+"_Jpsi_high_pT_central")->Fill(ptTrk1/1000., "Offline", 1);
-            hist2(m_prefix+"_Jpsi_low_pT_central")-> Fill(ptTrk2/1000., "Offline", 1);
-            hist2(m_prefix+"_Jpsi_dphi_central")->   Fill(absDphi, "Offline", 1);
-            hist2(m_prefix+"_Jpsi_deta_central")->   Fill(absDeta, "Offline", 1);
+            hist2(m_prefix+"_Jpsi_mass_central")->     Fill(amass, "Offline", 1);
+            hist2(m_prefix+"_Jpsi_massErr_central")->  Fill(amassError, "Offline", 1);
+            hist2(m_prefix+"_Jpsi_high_pT_central")->  Fill(ptTrk1/1000., "Offline", 1);
+            hist2(m_prefix+"_Jpsi_low_pT_central")->   Fill(ptTrk2/1000., "Offline", 1);
+            hist2(m_prefix+"_Jpsi_dphi_central")->     Fill(absDphi, "Offline", 1);
+            hist2(m_prefix+"_Jpsi_deta_central")->     Fill(absDeta, "Offline", 1);
+            hist2(m_prefix+"_Jpsi_lxy_bs_central")->   Fill(aLxy_bs, "Offline", 1);
+            hist2(m_prefix+"_Jpsi_lxyErr_bs_central")->Fill(aLxyError_bs, "Offline", 1);
+            hist2(m_prefix+"_Jpsi_tau_bs_central")->   Fill(aTau_bs, "Offline", 1);
+            hist2(m_prefix+"_Jpsi_tauErr_bs_central")->Fill(aTauError_bs, "Offline", 1);
+            hist2(m_prefix+"_Jpsi_lxy_pv_central")->   Fill(aLxy_pv, "Offline", 1);
+            hist2(m_prefix+"_Jpsi_lxyErr_pv_central")->Fill(aLxyError_pv, "Offline", 1);
+            hist2(m_prefix+"_Jpsi_tau_pv_central")->   Fill(aTau_pv, "Offline", 1);
+            hist2(m_prefix+"_Jpsi_tauErr_pv_central")->Fill(aTauError_pv, "Offline", 1);
+            hist2(m_prefix+"_Jpsi_pt_central")->       Fill(apT/1000., "Offline", 1);
+            hist2(m_prefix+"_Jpsi_ptErr_central")->    Fill(apTError/1000., "Offline", 1);
+    
         }
         if (isJpsiForward) {
-            hist2(m_prefix+"_Jpsi_mass_forward")->   Fill(mass, "Offline", 1);
-            hist2(m_prefix+"_Jpsi_high_pT_forward")->Fill(ptTrk1/1000., "Offline", 1);
-            hist2(m_prefix+"_Jpsi_low_pT_forward")-> Fill(ptTrk2/1000., "Offline", 1);
-            hist2(m_prefix+"_Jpsi_dphi_forward")->   Fill(absDphi, "Offline", 1);
-            hist2(m_prefix+"_Jpsi_deta_forward")->   Fill(absDeta, "Offline", 1);
+            hist2(m_prefix+"_Jpsi_mass_forward")->     Fill(amass, "Offline", 1);
+            hist2(m_prefix+"_Jpsi_massErr_forward")->  Fill(amassError, "Offline", 1);
+            hist2(m_prefix+"_Jpsi_high_pT_forward")->  Fill(ptTrk1/1000., "Offline", 1);
+            hist2(m_prefix+"_Jpsi_low_pT_forward")->   Fill(ptTrk2/1000., "Offline", 1);
+            hist2(m_prefix+"_Jpsi_dphi_forward")->     Fill(absDphi, "Offline", 1);
+            hist2(m_prefix+"_Jpsi_deta_forward")->     Fill(absDeta, "Offline", 1);
+            hist2(m_prefix+"_Jpsi_lxy_bs_forward")->   Fill(aLxy_bs, "Offline", 1);
+            hist2(m_prefix+"_Jpsi_lxyErr_bs_forward")->Fill(aLxyError_bs, "Offline", 1);
+            hist2(m_prefix+"_Jpsi_tau_bs_forward")->   Fill(aTau_bs, "Offline", 1);
+            hist2(m_prefix+"_Jpsi_tauErr_bs_forward")->Fill(aTauError_bs, "Offline", 1);
+            hist2(m_prefix+"_Jpsi_lxy_pv_forward")->   Fill(aLxy_pv, "Offline", 1);
+            hist2(m_prefix+"_Jpsi_lxyErr_pv_forward")->Fill(aLxyError_pv, "Offline", 1);
+            hist2(m_prefix+"_Jpsi_tau_pv_forward")->   Fill(aTau_pv, "Offline", 1);
+            hist2(m_prefix+"_Jpsi_tauErr_pv_forward")->Fill(aTauError_pv, "Offline", 1);
+            hist2(m_prefix+"_Jpsi_pt_forward")->       Fill(apT/1000., "Offline", 1);
+            hist2(m_prefix+"_Jpsi_ptErr_forward")->    Fill(apTError/1000., "Offline", 1);
+    
         }
         if (isUpsiCentral) {
-            hist2(m_prefix+"_Upsi_mass_central")->   Fill(mass, "Offline", 1);
-            hist2(m_prefix+"_Upsi_high_pT_central")->Fill(ptTrk1/1000., "Offline", 1);
-            hist2(m_prefix+"_Upsi_low_pT_central")-> Fill(ptTrk2/1000., "Offline", 1);
-            hist2(m_prefix+"_Upsi_dphi_central")->   Fill(absDphi, "Offline", 1);
-            hist2(m_prefix+"_Upsi_deta_central")->   Fill(absDeta, "Offline", 1);
+            hist2(m_prefix+"_Upsi_mass_central")->     Fill(amass, "Offline", 1);
+            hist2(m_prefix+"_Upsi_massErr_central")->  Fill(amassError, "Offline", 1);
+            hist2(m_prefix+"_Upsi_high_pT_central")->  Fill(ptTrk1/1000., "Offline", 1);
+            hist2(m_prefix+"_Upsi_low_pT_central")->   Fill(ptTrk2/1000., "Offline", 1);
+            hist2(m_prefix+"_Upsi_dphi_central")->     Fill(absDphi, "Offline", 1);
+            hist2(m_prefix+"_Upsi_deta_central")->     Fill(absDeta, "Offline", 1);
+            hist2(m_prefix+"_Upsi_lxy_bs_central")->   Fill(aLxy_bs, "Offline", 1);
+            hist2(m_prefix+"_Upsi_lxyErr_bs_central")->Fill(aLxyError_bs, "Offline", 1);
+            hist2(m_prefix+"_Upsi_tau_bs_central")->   Fill(aTau_bs, "Offline", 1);
+            hist2(m_prefix+"_Upsi_tauErr_bs_central")->Fill(aTauError_bs, "Offline", 1);
+            hist2(m_prefix+"_Upsi_lxy_pv_central")->   Fill(aLxy_pv, "Offline", 1);
+            hist2(m_prefix+"_Upsi_lxyErr_pv_central")->Fill(aLxyError_pv, "Offline", 1);
+            hist2(m_prefix+"_Upsi_tau_pv_central")->   Fill(aTau_pv, "Offline", 1);
+            hist2(m_prefix+"_Upsi_tauErr_pv_central")->Fill(aTauError_pv, "Offline", 1);
+            hist2(m_prefix+"_Upsi_pt_central")->       Fill(apT/1000., "Offline", 1);
+            hist2(m_prefix+"_Upsi_ptErr_central")->    Fill(apTError/1000., "Offline", 1);
+    
         }
         if (isUpsiForward) {
-            hist2(m_prefix+"_Upsi_mass_forward")->   Fill(mass, "Offline", 1);
-            hist2(m_prefix+"_Upsi_high_pT_forward")->Fill(ptTrk1/1000., "Offline", 1);
-            hist2(m_prefix+"_Upsi_low_pT_forward")-> Fill(ptTrk2/1000., "Offline", 1);
-            hist2(m_prefix+"_Upsi_dphi_forward")->   Fill(absDphi, "Offline", 1);
-            hist2(m_prefix+"_Upsi_deta_forward")->   Fill(absDeta, "Offline", 1);
+            hist2(m_prefix+"_Upsi_mass_forward")->     Fill(amass, "Offline", 1);
+            hist2(m_prefix+"_Upsi_massErr_forward")->  Fill(amassError, "Offline", 1);
+            hist2(m_prefix+"_Upsi_high_pT_forward")->  Fill(ptTrk1/1000., "Offline", 1);
+            hist2(m_prefix+"_Upsi_low_pT_forward")->   Fill(ptTrk2/1000., "Offline", 1);
+            hist2(m_prefix+"_Upsi_dphi_forward")->     Fill(absDphi, "Offline", 1);
+            hist2(m_prefix+"_Upsi_deta_forward")->     Fill(absDeta, "Offline", 1);
+            hist2(m_prefix+"_Upsi_lxy_bs_forward")->   Fill(aLxy_bs, "Offline", 1);
+            hist2(m_prefix+"_Upsi_lxyErr_bs_forward")->Fill(aLxyError_bs, "Offline", 1);
+            hist2(m_prefix+"_Upsi_tau_bs_forward")->   Fill(aTau_bs, "Offline", 1);
+            hist2(m_prefix+"_Upsi_tauErr_bs_forward")->Fill(aTauError_bs, "Offline", 1);
+            hist2(m_prefix+"_Upsi_lxy_pv_forward")->   Fill(aLxy_pv, "Offline", 1);
+            hist2(m_prefix+"_Upsi_lxyErr_pv_forward")->Fill(aLxyError_pv, "Offline", 1);
+            hist2(m_prefix+"_Upsi_tau_pv_forward")->   Fill(aTau_pv, "Offline", 1);
+            hist2(m_prefix+"_Upsi_tauErr_pv_forward")->Fill(aTauError_pv, "Offline", 1);
+            hist2(m_prefix+"_Upsi_pt_forward")->       Fill(apT/1000., "Offline", 1);
+            hist2(m_prefix+"_Upsi_ptErr_forward")->    Fill(apTError/1000., "Offline", 1);
+    
         }
         
         
         // ******** EXPERT ********* //
         setCurrentMonGroup(m_base_path_expert+"/JpsiFinder");
         if (isJpsiCentral) {
-            hist2(m_prefix+"_Jpsi_cosThetaStar_central")->Fill(cosThetaStar, "Offline", 1);
-            hist2(m_prefix+"_Jpsi_phiStar_central")->     Fill(phiStar,      "Offline", 1);
+            hist2(m_prefix+"_Jpsi_cosThetaStar_central")->Fill(acosThetaStar, "Offline", 1);
+            hist2(m_prefix+"_Jpsi_phiStar_central")->     Fill(aphiStar,      "Offline", 1);
         }
         if (isJpsiForward) {
-            hist2(m_prefix+"_Jpsi_cosThetaStar_forward")->Fill(cosThetaStar, "Offline", 1);
-            hist2(m_prefix+"_Jpsi_phiStar_forward")->     Fill(phiStar,      "Offline", 1);
+            hist2(m_prefix+"_Jpsi_cosThetaStar_forward")->Fill(acosThetaStar, "Offline", 1);
+            hist2(m_prefix+"_Jpsi_phiStar_forward")->     Fill(aphiStar,      "Offline", 1);
         }
         if (isUpsiCentral) {
-            hist2(m_prefix+"_Upsi_cosThetaStar_central")->Fill(cosThetaStar, "Offline", 1);
-            hist2(m_prefix+"_Upsi_phiStar_central")->     Fill(phiStar,      "Offline", 1);
+            hist2(m_prefix+"_Upsi_cosThetaStar_central")->Fill(acosThetaStar, "Offline", 1);
+            hist2(m_prefix+"_Upsi_phiStar_central")->     Fill(aphiStar,      "Offline", 1);
         }
         if (isUpsiForward) {
-            hist2(m_prefix+"_Upsi_cosThetaStar_forward")->Fill(cosThetaStar, "Offline", 1);
-            hist2(m_prefix+"_Upsi_phiStar_forward")->     Fill(phiStar,      "Offline", 1);
+            hist2(m_prefix+"_Upsi_cosThetaStar_forward")->Fill(acosThetaStar, "Offline", 1);
+            hist2(m_prefix+"_Upsi_phiStar_forward")->     Fill(aphiStar,      "Offline", 1);
         }
 
-        
+
         // **** loop over trigger items **** //
         for (const auto& chainName : m_monitored_chains) {
             const auto cg   = getTDT()->getChainGroup(chainName);
@@ -846,52 +1057,100 @@ StatusCode HLTXAODBphysMonTool::fillJpsiFinder(){
             // ******** SHIFTER ********* //
             setCurrentMonGroup(m_base_path_shifter+"/JpsiFinder");
             if (isJpsiCentral) {
-                hist2(m_prefix+"_Jpsi_mass_central")->   Fill(mass, chainName.c_str(), 1);
+                hist2(m_prefix+"_Jpsi_mass_central")->   Fill(amass, chainName.c_str(), 1);
+                hist2(m_prefix+"_Jpsi_massErr_central")->   Fill(amassError, chainName.c_str(), 1);
                 hist2(m_prefix+"_Jpsi_high_pT_central")->Fill(ptTrk1/1000., chainName.c_str(), 1);
                 hist2(m_prefix+"_Jpsi_low_pT_central")-> Fill(ptTrk2/1000., chainName.c_str(), 1);
                 hist2(m_prefix+"_Jpsi_dphi_central")->   Fill(absDphi, chainName.c_str(), 1);
                 hist2(m_prefix+"_Jpsi_deta_central")->   Fill(absDeta, chainName.c_str(), 1);
+                hist2(m_prefix+"_Jpsi_lxy_bs_central")-> Fill(aLxy_bs, chainName.c_str(), 1);
+                hist2(m_prefix+"_Jpsi_lxyErr_bs_central")-> Fill(aLxyError_bs, chainName.c_str(), 1);
+                hist2(m_prefix+"_Jpsi_tau_bs_central")-> Fill(aTau_bs, chainName.c_str(), 1);
+                hist2(m_prefix+"_Jpsi_tauErr_bs_central")-> Fill(aTauError_bs, chainName.c_str(), 1);
+                hist2(m_prefix+"_Jpsi_lxy_pv_central")-> Fill(aLxy_pv, chainName.c_str(), 1);
+                hist2(m_prefix+"_Jpsi_lxyErr_pv_central")-> Fill(aLxyError_pv, chainName.c_str(), 1);
+                hist2(m_prefix+"_Jpsi_tau_pv_central")-> Fill(aTau_pv, chainName.c_str(), 1);
+                hist2(m_prefix+"_Jpsi_tauErr_pv_central")-> Fill(aTauError_pv, chainName.c_str(), 1);
+                hist2(m_prefix+"_Jpsi_pt_central")-> Fill(apT/1000., chainName.c_str(), 1);
+                hist2(m_prefix+"_Jpsi_ptErr_central")-> Fill(apTError/1000., chainName.c_str(), 1);
+
             }
             if (isJpsiForward) {
-                hist2(m_prefix+"_Jpsi_mass_forward")->   Fill(mass, chainName.c_str(), 1);
+                hist2(m_prefix+"_Jpsi_mass_forward")->   Fill(amass, chainName.c_str(), 1);
+                hist2(m_prefix+"_Jpsi_massErr_forward")->   Fill(amassError, chainName.c_str(), 1);
                 hist2(m_prefix+"_Jpsi_high_pT_forward")->Fill(ptTrk1/1000., chainName.c_str(), 1);
                 hist2(m_prefix+"_Jpsi_low_pT_forward")-> Fill(ptTrk2/1000., chainName.c_str(), 1);
                 hist2(m_prefix+"_Jpsi_dphi_forward")->   Fill(absDphi, chainName.c_str(), 1);
                 hist2(m_prefix+"_Jpsi_deta_forward")->   Fill(absDeta, chainName.c_str(), 1);
+                hist2(m_prefix+"_Jpsi_lxy_bs_forward")-> Fill(aLxy_bs, chainName.c_str(), 1);
+                hist2(m_prefix+"_Jpsi_lxyErr_bs_forward")-> Fill(aLxyError_bs, chainName.c_str(), 1);
+                hist2(m_prefix+"_Jpsi_tau_bs_forward")-> Fill(aTau_bs, chainName.c_str(), 1);
+                hist2(m_prefix+"_Jpsi_tauErr_bs_forward")-> Fill(aTauError_bs, chainName.c_str(), 1);
+                hist2(m_prefix+"_Jpsi_lxy_pv_forward")-> Fill(aLxy_pv, chainName.c_str(), 1);
+                hist2(m_prefix+"_Jpsi_lxyErr_pv_forward")-> Fill(aLxyError_pv, chainName.c_str(), 1);
+                hist2(m_prefix+"_Jpsi_tau_pv_forward")-> Fill(aTau_pv, chainName.c_str(), 1);
+                hist2(m_prefix+"_Jpsi_tauErr_pv_forward")-> Fill(aTauError_pv, chainName.c_str(), 1);
+                hist2(m_prefix+"_Jpsi_pt_forward")-> Fill(apT/1000., chainName.c_str(), 1);
+                hist2(m_prefix+"_Jpsi_ptErr_forward")-> Fill(apTError/1000., chainName.c_str(), 1);
+
             }
             if (isUpsiCentral) {
-                hist2(m_prefix+"_Upsi_mass_central")->   Fill(mass, chainName.c_str(), 1);
+                hist2(m_prefix+"_Upsi_mass_central")->   Fill(amass, chainName.c_str(), 1);
+                hist2(m_prefix+"_Upsi_massErr_central")->   Fill(amassError, chainName.c_str(), 1);
                 hist2(m_prefix+"_Upsi_high_pT_central")->Fill(ptTrk1/1000., chainName.c_str(), 1);
                 hist2(m_prefix+"_Upsi_low_pT_central")-> Fill(ptTrk2/1000., chainName.c_str(), 1);
                 hist2(m_prefix+"_Upsi_dphi_central")->   Fill(absDphi, chainName.c_str(), 1);
                 hist2(m_prefix+"_Upsi_deta_central")->   Fill(absDeta, chainName.c_str(), 1);
+                hist2(m_prefix+"_Upsi_lxy_bs_central")-> Fill(aLxy_bs, chainName.c_str(), 1);
+                hist2(m_prefix+"_Upsi_lxyErr_bs_central")-> Fill(aLxyError_bs, chainName.c_str(), 1);
+                hist2(m_prefix+"_Upsi_tau_bs_central")-> Fill(aTau_bs, chainName.c_str(), 1);
+                hist2(m_prefix+"_Upsi_tauErr_bs_central")-> Fill(aTauError_bs, chainName.c_str(), 1);
+                hist2(m_prefix+"_Upsi_lxy_pv_central")-> Fill(aLxy_pv, chainName.c_str(), 1);
+                hist2(m_prefix+"_Upsi_lxyErr_pv_central")-> Fill(aLxyError_pv, chainName.c_str(), 1);
+                hist2(m_prefix+"_Upsi_tau_pv_central")-> Fill(aTau_pv, chainName.c_str(), 1);
+                hist2(m_prefix+"_Upsi_tauErr_pv_central")-> Fill(aTauError_pv, chainName.c_str(), 1);
+                hist2(m_prefix+"_Upsi_pt_central")-> Fill(apT/1000., chainName.c_str(), 1);
+                hist2(m_prefix+"_Upsi_ptErr_central")-> Fill(apTError/1000., chainName.c_str(), 1);
+
             }
             if (isUpsiForward) {
-                hist2(m_prefix+"_Upsi_mass_forward")->   Fill(mass, chainName.c_str(), 1);
+                hist2(m_prefix+"_Upsi_mass_forward")->   Fill(amass, chainName.c_str(), 1);
+                hist2(m_prefix+"_Upsi_massError_forward")->   Fill(amassError, chainName.c_str(), 1);
                 hist2(m_prefix+"_Upsi_high_pT_forward")->Fill(ptTrk1/1000., chainName.c_str(), 1);
                 hist2(m_prefix+"_Upsi_low_pT_forward")-> Fill(ptTrk2/1000., chainName.c_str(), 1);
                 hist2(m_prefix+"_Upsi_dphi_forward")->   Fill(absDphi, chainName.c_str(), 1);
                 hist2(m_prefix+"_Upsi_deta_forward")->   Fill(absDeta, chainName.c_str(), 1);
+                hist2(m_prefix+"_Upsi_lxy_bs_forward")-> Fill(aLxy_bs, chainName.c_str(), 1);
+                hist2(m_prefix+"_Upsi_lxyErr_bs_forward")-> Fill(aLxyError_bs, chainName.c_str(), 1);
+                hist2(m_prefix+"_Upsi_tau_bs_forward")-> Fill(aTau_bs, chainName.c_str(), 1);
+                hist2(m_prefix+"_Upsi_tauErr_bs_forward")-> Fill(aTauError_bs, chainName.c_str(), 1);
+                hist2(m_prefix+"_Upsi_lxy_pv_forward")-> Fill(aLxy_pv, chainName.c_str(), 1);
+                hist2(m_prefix+"_Upsi_lxyErr_pv_forward")-> Fill(aLxyError_pv, chainName.c_str(), 1);
+                hist2(m_prefix+"_Upsi_tau_pv_forward")-> Fill(aTau_pv, chainName.c_str(), 1);
+                hist2(m_prefix+"_Upsi_tauErr_pv_forward")-> Fill(aTauError_pv, chainName.c_str(), 1);
+                hist2(m_prefix+"_Upsi_pt_forward")-> Fill(apT/1000., chainName.c_str(), 1);
+                hist2(m_prefix+"_Upsi_ptErr_forward")-> Fill(apTError/1000., chainName.c_str(), 1);
+
             }
 
             
             // ******** EXPERT ********* //
             setCurrentMonGroup(m_base_path_expert+"/JpsiFinder");
             if (isJpsiCentral) {
-                hist2(m_prefix+"_Jpsi_cosThetaStar_central")->Fill(cosThetaStar, chainName.c_str(), 1);
-                hist2(m_prefix+"_Jpsi_phiStar_central")->     Fill(phiStar,      chainName.c_str(), 1);
+                hist2(m_prefix+"_Jpsi_cosThetaStar_central")->Fill(acosThetaStar, chainName.c_str(), 1);
+                hist2(m_prefix+"_Jpsi_phiStar_central")->     Fill(aphiStar,      chainName.c_str(), 1);
             }
             if (isJpsiForward) {
-                hist2(m_prefix+"_Jpsi_cosThetaStar_forward")->Fill(cosThetaStar, chainName.c_str(), 1);
-                hist2(m_prefix+"_Jpsi_phiStar_forward")->     Fill(phiStar,      chainName.c_str(), 1);
+                hist2(m_prefix+"_Jpsi_cosThetaStar_forward")->Fill(acosThetaStar, chainName.c_str(), 1);
+                hist2(m_prefix+"_Jpsi_phiStar_forward")->     Fill(aphiStar,      chainName.c_str(), 1);
             }
             if (isUpsiCentral) {
-                hist2(m_prefix+"_Upsi_cosThetaStar_central")->Fill(cosThetaStar, chainName.c_str(), 1);
-                hist2(m_prefix+"_Upsi_phiStar_central")->     Fill(phiStar,      chainName.c_str(), 1);
+                hist2(m_prefix+"_Upsi_cosThetaStar_central")->Fill(acosThetaStar, chainName.c_str(), 1);
+                hist2(m_prefix+"_Upsi_phiStar_central")->     Fill(aphiStar,      chainName.c_str(), 1);
             }
             if (isUpsiForward) {
-                hist2(m_prefix+"_Upsi_cosThetaStar_forward")->Fill(cosThetaStar, chainName.c_str(), 1);
-                hist2(m_prefix+"_Upsi_phiStar_forward")->     Fill(phiStar,      chainName.c_str(), 1);
+                hist2(m_prefix+"_Upsi_cosThetaStar_forward")->Fill(acosThetaStar, chainName.c_str(), 1);
+                hist2(m_prefix+"_Upsi_phiStar_forward")->     Fill(aphiStar,      chainName.c_str(), 1);
             }
 
         } // loop over trigger names
@@ -1334,95 +1593,95 @@ TLorentzVector HLTXAODBphysMonTool::origTrack4Momentum(const xAOD::Vertex * vxCa
 // ---------------------------------------------------------------------------------
 // invariantMassError: returns invariant mass error
 // ---------------------------------------------------------------------------------
-
-double HLTXAODBphysMonTool::invariantMassError(const xAOD::Vertex* vxCandidate, std::vector<double> masses) const
-{
-    uint NTrk = vxCandidate->vxTrackAtVertex().size();
-    if (masses.size() != NTrk) {
-        ATH_MSG_WARNING("The provided number of masses does not match the number of tracks in the vertex");
-        return -999999.;
-    }
-    
-    uint ndim    = vxCandidate->covariance().size();
-    uint ndimExp = (3*NTrk+3)*(3*NTrk+3+1)/2;
-    if (ndim == ndimExp) {
-        return massErrorVKalVrt(vxCandidate,masses);
-    } else {
-        ATH_MSG_WARNING("Unknown covariance matrix dimension: " << ndim << ", expected: " << ndimExp);
-        return -999999.;
-    }
-}
-
-// ---------------------------------------------------------------------------------
-// massErrorVKalVrt: returns invariant mass error for vertex created by VKalVrtFitter
-// ---------------------------------------------------------------------------------
-
-double HLTXAODBphysMonTool::massErrorVKalVrt(const xAOD::Vertex * vxCandidate, std::vector<double> masses) const
-{
-    unsigned int NTrk = vxCandidate->vxTrackAtVertex().size();
-    
-    // construct the full covariance matrix
-    Amg::MatrixX* fullCov = convertVKalCovMatrix(NTrk, vxCandidate->covariance());
-    
-    std::vector<CLHEP::HepLorentzVector> particleMom(NTrk);
-    std::vector<CLHEP::HepMatrix> particleDeriv(NTrk);
-    CLHEP::HepLorentzVector totalMom;
-    CLHEP::HepMatrix tmpDeriv(3,3);
-    
-    double phi=0.,theta=0.,invP=0.;
-    for( unsigned int it=0; it<NTrk; it++){
-        const Trk::TrackParameters*  bPer = vxCandidate->vxTrackAtVertex()[it].perigeeAtVertex();
-        phi   =  bPer->parameters()[Trk::phi];
-        theta =  bPer->parameters()[Trk::theta];
-        invP  =  bPer->parameters()[Trk::qOverP];
-        CLHEP::HepLorentzVector tmp( cos(phi)*sin(theta)/fabs(invP),
-                                    sin(phi)*sin(theta)/fabs(invP),
-                                    cos(theta)/fabs(invP) );
-        double esq = tmp.px()*tmp.px() + tmp.py()*tmp.py() + tmp.pz()*tmp.pz() + masses[it]*masses[it];
-        double e = (esq>0.) ? sqrt(esq) : 0.;
-        tmp.setE(e);
-        particleMom[it] = tmp;
-        totalMom += tmp;
-        
-        //  d(Px,Py,Pz)/d(Phi,Theta,InvP)
-        tmpDeriv(1,1) = - tmp.py();
-        tmpDeriv(2,1) =   tmp.px();
-        tmpDeriv(3,1) =   0.;
-        tmpDeriv(1,2) =   cos(phi) * tmp.pz();
-        tmpDeriv(2,2) =   sin(phi) * tmp.pz();
-        tmpDeriv(3,2) = - sin(theta)/fabs(invP);
-        tmpDeriv(1,3) = - tmp.px()/invP;
-        tmpDeriv(2,3) = - tmp.py()/invP;
-        tmpDeriv(3,3) = - tmp.pz()/invP;
-        particleDeriv[it] = tmpDeriv;
-    }
-    
-    double dMdPx=0., dMdPy=0., dMdPz=0., dMdPhi=0., dMdTheta=0., dMdInvP=0.;
-    std::vector<double> Deriv(3*NTrk+3, 0.);
-    for(unsigned int it=0; it<NTrk; it++){
-        dMdPx = ( totalMom.e() * particleMom[it].px()/particleMom[it].e() - totalMom.px() ) / totalMom.m();
-        dMdPy = ( totalMom.e() * particleMom[it].py()/particleMom[it].e() - totalMom.py() ) / totalMom.m();
-        dMdPz = ( totalMom.e() * particleMom[it].pz()/particleMom[it].e() - totalMom.pz() ) / totalMom.m();
-        
-        dMdPhi   = dMdPx*particleDeriv[it](1,1) + dMdPy*particleDeriv[it](2,1) + dMdPz*particleDeriv[it](3,1);
-        dMdTheta = dMdPx*particleDeriv[it](1,2) + dMdPy*particleDeriv[it](2,2) + dMdPz*particleDeriv[it](3,2);
-        dMdInvP  = dMdPx*particleDeriv[it](1,3) + dMdPy*particleDeriv[it](2,3) + dMdPz*particleDeriv[it](3,3);
-        
-        Deriv[3*it + 3 + 0] = dMdPhi;    Deriv[3*it + 3 + 1] = dMdTheta; Deriv[3*it + 3 + 2] = dMdInvP;
-    }
-    
-    double err = 0;
-    for(unsigned int i=0; i<3*NTrk+3; i++){
-        for(unsigned int j=0; j<3*NTrk+3; j++){
-            err += Deriv[i]*( (*fullCov)(i,j))*Deriv[j];
-        }
-    }
-    
-    // cleanup
-    delete fullCov;
-    
-    return (err>0.) ? sqrt(err) : 0.;
-}
+//
+//double HLTXAODBphysMonTool::invariantMassError(const xAOD::Vertex* vxCandidate, std::vector<double> masses) const
+//{
+//    uint NTrk = vxCandidate->vxTrackAtVertex().size();
+//    if (masses.size() != NTrk) {
+//        ATH_MSG_WARNING("The provided number of masses does not match the number of tracks in the vertex");
+//        return -999999.;
+//    }
+//    
+//    uint ndim    = vxCandidate->covariance().size();
+//    uint ndimExp = (3*NTrk+3)*(3*NTrk+3+1)/2;
+//    if (ndim == ndimExp) {
+//        return massErrorVKalVrt(vxCandidate,masses);
+//    } else {
+//        ATH_MSG_WARNING("Unknown covariance matrix dimension: " << ndim << ", expected: " << ndimExp);
+//        return -999999.;
+//    }
+//}
+//
+//// ---------------------------------------------------------------------------------
+//// massErrorVKalVrt: returns invariant mass error for vertex created by VKalVrtFitter
+//// ---------------------------------------------------------------------------------
+//
+//double HLTXAODBphysMonTool::massErrorVKalVrt(const xAOD::Vertex * vxCandidate, std::vector<double> masses) const
+//{
+//    unsigned int NTrk = vxCandidate->vxTrackAtVertex().size();
+//    
+//    // construct the full covariance matrix
+//    Amg::MatrixX* fullCov = convertVKalCovMatrix(NTrk, vxCandidate->covariance());
+//    
+//    std::vector<CLHEP::HepLorentzVector> particleMom(NTrk);
+//    std::vector<CLHEP::HepMatrix> particleDeriv(NTrk);
+//    CLHEP::HepLorentzVector totalMom;
+//    CLHEP::HepMatrix tmpDeriv(3,3);
+//    
+//    double phi=0.,theta=0.,invP=0.;
+//    for( unsigned int it=0; it<NTrk; it++){
+//        const Trk::TrackParameters*  bPer = vxCandidate->vxTrackAtVertex()[it].perigeeAtVertex();
+//        phi   =  bPer->parameters()[Trk::phi];
+//        theta =  bPer->parameters()[Trk::theta];
+//        invP  =  bPer->parameters()[Trk::qOverP];
+//        CLHEP::HepLorentzVector tmp( cos(phi)*sin(theta)/fabs(invP),
+//                                    sin(phi)*sin(theta)/fabs(invP),
+//                                    cos(theta)/fabs(invP) );
+//        double esq = tmp.px()*tmp.px() + tmp.py()*tmp.py() + tmp.pz()*tmp.pz() + masses[it]*masses[it];
+//        double e = (esq>0.) ? sqrt(esq) : 0.;
+//        tmp.setE(e);
+//        particleMom[it] = tmp;
+//        totalMom += tmp;
+//        
+//        //  d(Px,Py,Pz)/d(Phi,Theta,InvP)
+//        tmpDeriv(1,1) = - tmp.py();
+//        tmpDeriv(2,1) =   tmp.px();
+//        tmpDeriv(3,1) =   0.;
+//        tmpDeriv(1,2) =   cos(phi) * tmp.pz();
+//        tmpDeriv(2,2) =   sin(phi) * tmp.pz();
+//        tmpDeriv(3,2) = - sin(theta)/fabs(invP);
+//        tmpDeriv(1,3) = - tmp.px()/invP;
+//        tmpDeriv(2,3) = - tmp.py()/invP;
+//        tmpDeriv(3,3) = - tmp.pz()/invP;
+//        particleDeriv[it] = tmpDeriv;
+//    }
+//    
+//    double dMdPx=0., dMdPy=0., dMdPz=0., dMdPhi=0., dMdTheta=0., dMdInvP=0.;
+//    std::vector<double> Deriv(3*NTrk+3, 0.);
+//    for(unsigned int it=0; it<NTrk; it++){
+//        dMdPx = ( totalMom.e() * particleMom[it].px()/particleMom[it].e() - totalMom.px() ) / totalMom.m();
+//        dMdPy = ( totalMom.e() * particleMom[it].py()/particleMom[it].e() - totalMom.py() ) / totalMom.m();
+//        dMdPz = ( totalMom.e() * particleMom[it].pz()/particleMom[it].e() - totalMom.pz() ) / totalMom.m();
+//        
+//        dMdPhi   = dMdPx*particleDeriv[it](1,1) + dMdPy*particleDeriv[it](2,1) + dMdPz*particleDeriv[it](3,1);
+//        dMdTheta = dMdPx*particleDeriv[it](1,2) + dMdPy*particleDeriv[it](2,2) + dMdPz*particleDeriv[it](3,2);
+//        dMdInvP  = dMdPx*particleDeriv[it](1,3) + dMdPy*particleDeriv[it](2,3) + dMdPz*particleDeriv[it](3,3);
+//        
+//        Deriv[3*it + 3 + 0] = dMdPhi;    Deriv[3*it + 3 + 1] = dMdTheta; Deriv[3*it + 3 + 2] = dMdInvP;
+//    }
+//    
+//    double err = 0;
+//    for(unsigned int i=0; i<3*NTrk+3; i++){
+//        for(unsigned int j=0; j<3*NTrk+3; j++){
+//            err += Deriv[i]*( (*fullCov)(i,j))*Deriv[j];
+//        }
+//    }
+//    
+//    // cleanup
+//    delete fullCov;
+//    
+//    return (err>0.) ? sqrt(err) : 0.;
+//}
 
 // ---------------------------------------------------------------------------------
 // trackCharge: returns charge of the i-th track
@@ -1442,24 +1701,24 @@ double HLTXAODBphysMonTool::trackCharge(const xAOD::Vertex * vxCandidate, int i)
 //                       into an actual matrix
 // ---------------------------------------------------------------------------------
 
-Amg::MatrixX * HLTXAODBphysMonTool::convertVKalCovMatrix(int NTrk, const std::vector<float> & Matrix) const
-{
-    // stolen from VKalVrtFitter
-    Amg::MatrixX * mtx = new Amg::MatrixX(3+3*NTrk,3+3*NTrk);
-    long int ij=0;
-    for(int i=1; i<=(3+3*NTrk); i++){
-        for(int j=1; j<=i; j++){
-            if(i==j) {
-                (*mtx)(i-1,j-1)=Matrix[ij];
-            }else{
-                (*mtx).fillSymmetric(i-1,j-1,Matrix[ij]);
-            }
-            ij++;
-        }
-    }
-    
-    return mtx;
-}
+//Amg::MatrixX * HLTXAODBphysMonTool::convertVKalCovMatrix(int NTrk, const std::vector<float> & Matrix) const
+//{
+//    // stolen from VKalVrtFitter
+//    Amg::MatrixX * mtx = new Amg::MatrixX(3+3*NTrk,3+3*NTrk);
+//    long int ij=0;
+//    for(int i=1; i<=(3+3*NTrk); i++){
+//        for(int j=1; j<=i; j++){
+//            if(i==j) {
+//                (*mtx)(i-1,j-1)=Matrix[ij];
+//            }else{
+//                (*mtx).fillSymmetric(i-1,j-1,Matrix[ij]);
+//            }
+//            ij++;
+//        }
+//    }
+//    
+//    return mtx;
+//}
 
 float HLTXAODBphysMonTool::phiMethod(const TLorentzVector & Mu1, const TLorentzVector & Mu2, int Mu1_q) const
 {
@@ -1472,10 +1731,10 @@ float HLTXAODBphysMonTool::phiMethod(const TLorentzVector & Mu1, const TLorentzV
     TVector3 V0 = MuMu.Vect();
     MuPlus.RotateZ(-V0.Phi());
     MuPlus.RotateY(-V0.Theta());
-    if(MuMu.Rapidity() < 0) {MuPlus.RotateZ(-TMath::Pi());
-        return -atan2(MuPlus.Y(),MuPlus.X());
-    }
-    else return atan2(MuPlus.Y(),MuPlus.X());
+   // if(MuMu.Rapidity() < 0) {MuPlus.RotateZ(-TMath::Pi());
+   //     return -atan2(MuPlus.Y(),MuPlus.X());
+   // }
+    return atan2(MuPlus.Y(),MuPlus.X());
 }
 
 
