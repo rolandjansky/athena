@@ -6,7 +6,10 @@ author Denis Oliveira Damazio <damazio@mail.cern.ch>
 public
 use  AtlasPolicy                AtlasPolicy-*                   
 use  TrigHLTMonitoring          TrigHLTMonitoring-*             Trigger/TrigMonitoring
+use  xAODTracking               xAODTracking-*                  Event/xAOD
 private
+use  AthenaBaseComps            AthenaBaseComps-*               Control
+use  xAODTrigBphys              xAODTrigBphys-*                 Event/xAOD
 use  AthenaMonitoring           AthenaMonitoring-*              Control
 use  AtlasCLHEP                 AtlasCLHEP-*                    External
 use  AtlasROOT                  AtlasROOT-*                     External
@@ -18,8 +21,7 @@ use  TrkParameters              TrkParameters-*                 Tracking/TrkEven
 use  TrkParametersBase          TrkParametersBase-*             Tracking/TrkEvent
 use  VxVertex                   VxVertex-*                      Tracking/TrkEvent
 use  xAODMuon                   xAODMuon-*                      Event/xAOD
-use  xAODTracking               xAODTracking-*                  Event/xAOD
-use  xAODTrigBphys              xAODTrigBphys-*                 Event/xAOD
+use  TrkVertexAnalysisUtils     TrkVertexAnalysisUtils-*        Tracking/TrkVertexFitter
 end_private
 
 private
