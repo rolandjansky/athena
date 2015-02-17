@@ -8,8 +8,10 @@ class InDetTrigVxSecondaryMonitoring(TrigGenericMonitoringToolConfig):
 
         self.Histograms += [ defineHistogram('SecVtx_NumTrkTot', type='TH1F', title="Total number of tracks from container",
                                              xbins=50, xmin=0.0, xmax=50.0) ]
-        self.Histograms += [ defineHistogram('SecVtx_BadTrkTot', type='TH1F', title="Number of bad tracks from VKalVertex",
-                                             xbins=10, xmin=0.0, xmax=10.0) ]
+        # Consider putting this back in at some point ???
+        # (If so, needs to be added to InDetTrigVxSecondary)
+        #self.Histograms += [ defineHistogram('SecVtx_BadTrkTot', type='TH1F', title="Number of bad tracks from VKalVertex",
+        #                                     xbins=10, xmin=0.0, xmax=10.0) ]
         self.Histograms += [ defineHistogram('SecVtx_TwoTrkTot', type='TH1F', title="Number of 2-track vertices",
                                              xbins=10, xmin=0.0, xmax=10.0) ]
         self.Histograms += [ defineHistogram('SecVtx_NumTrkSV', type='TH1F', title="Number of tracks associated to the reconstructed secondary vertex",
