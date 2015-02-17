@@ -75,6 +75,7 @@ namespace JiveXML {
 //        thrValue.push_back(DataType( (*itMU)->getThrValue()));
 //        energy.push_back(DataType( (*itMU)->getThrValue()/CLHEP::GeV));
 
+	thrName.push_back(DataType( "n_a" )); // placeholders
         thrValue.push_back(DataType( 1. ));
         energy.push_back(DataType( 1. ));
 
