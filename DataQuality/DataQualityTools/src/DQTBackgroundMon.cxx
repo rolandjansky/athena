@@ -748,7 +748,14 @@ StatusCode DQTBackgroundMon::fillHistograms()
               double pt = jet->pt();
               double eta = jet->eta();
               double phi = jet->phi();
-              double sumPtTrk = jet->getAttribute<std::vector<float>>(JetAttribute::SumPtTrkPt1000)[0];
+
+              //double sumPtTrk = jet->getAttribute<std::vector<float>>(JetAttribute::SumPtTrkPt1000)[0];
+              // Suggested fix for the above line
+              std::vector<float> sumPt_v;
+              double sumPtTrk = 0;
+              bool hasSumPt = jet->getAttribute<std::vector<float> >(xAOD::JetAttribute::SumPtTrkPt1000, sumPt_v); 
+              if (hasSumPt) sumPtTrk = sumPt_v[0];
+
               double chf = sumPtTrk / pt;
               double time = jet->getAttribute<float>(JetAttribute::Timing);
               double emf = jet->getAttribute<float>(JetAttribute::EMFrac);
