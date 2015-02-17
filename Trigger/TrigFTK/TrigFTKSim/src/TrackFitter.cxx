@@ -23,12 +23,30 @@ TrackFitter::TrackFitter() :
   m_keep_rejected(0), m_fit_removed(0),  
   m_max_ncomb(10000), m_max_nhitsperplane(-1), m_max_trkout(2000000), m_norecovery_nhits(-1),
   m_one_per_road(false), m_require_first(true), m_do_majority(1),
+  // m_one_per_road(true), m_require_first(false), m_do_majority(1),
   m_roadinput(0), m_trackoutput(0), 
   //m_fwoutput(0), m_maxsectors_fwo(0), m_nsectors_fwo(0), // output for firmware tests
   m_nregions(0), m_nsubregions(0),
   m_constant(0), m_noconstants_errlevel(ftk::sevr), m_pmap(0),
   combtrack(0x0),
-  m_identify_badhit(false)
+  m_identify_badhit(false),
+  m_goodRegion(0),
+  m_ntracks(0),
+  m_ncombs(0),
+  m_nfits(0),
+  m_nfits_maj(0),
+  m_nfits_rec(0),
+  m_nfits_addrec(0),
+  m_nfits_bad(0),
+  m_nfits_rej(0),
+  m_nfits_badmaj(0),
+  m_nfits_rejmaj(0),
+  m_comb_id(0),
+  m_complete_mask(0),
+  m_startlist(0),
+  m_position(0),
+  m_endlist(0),
+  m_hitcnt(0)
 {
   // nothing to do
 #ifdef DEBUG_HITEXTRAPOLATION

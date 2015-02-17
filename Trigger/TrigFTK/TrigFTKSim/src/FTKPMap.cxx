@@ -31,18 +31,25 @@ FTKPlaneSection::FTKPlaneSection(int plane, int section)
 
 FTKModuleInfo::FTKModuleInfo() :
   m_isEndcap(0), m_layer(-1), m_pdisk(0), m_nphi(-1),
-  m_neta(-1), m_nste(0), m_ndimension(0)
+  m_neta(-1), m_nste(0), m_ndimension(0),
+  m_nfi(0), m_ncott(0), m_ncurv(0)
 {
    // nothing to do here
 }
 
 
 FTKPlaneMap::FTKPlaneMap(const char *fname) :
-  m_path(fname), m_nplanes(0), m_rlayers(0), m_totaldim(0), 
-  m_enablePlanePair(false),  m_isok(false)
+   m_path(fname), m_nplanes(0), m_rlayers(0), m_totaldim(0),
+   m_enablePlanePair(false),  m_isok(false),
+   m_nlayers(0),
+   m_planeType(0),
+   m_isZ(0),
+   m_planePair(0),
+   m_nsections(0)
 {
    FTKSetup &ftkset = FTKSetup::getFTKSetup();
-
+   m_idim[0] = 0; m_idim[1] = 0;
+   m_planes = 0x0;
 
    // cmDebug was a variable used in the old version, here
    // redefined as a boolean true if the FTK verbosity level 
@@ -368,10 +375,11 @@ FTKPlaneMap::FTKPlaneMap(const char *fname) :
 	  for(int l=0;l<ndimension && l<2;l++) {
 	    m_isZ[jcoord+l] = l;
 	    m_idim[l][kcoord] = jcoord+l;
-	    if (cmDebug > 4) {
-	      printf("\t\tisZ[j+l] = l:    isZ[%d+%d] = %d\n",jcoord,l,l);
-	      printf("\t\tidim[l][k] = j+l idim[%d][%d] = %d\n",l,kcoord,jcoord+l);
-	    }
+        /// cmDebug is a bool, cannot be here
+	    // if (cmDebug > 4) {
+	    //   printf("\t\tisZ[j+l] = l:    isZ[%d+%d] = %d\n",jcoord,l,l);
+	    //   printf("\t\tidim[l][k] = j+l idim[%d][%d] = %d\n",l,kcoord,jcoord+l);
+	    // }
 	  }
 	  jcoord += ndimension; 
 	  kcoord += 1;
@@ -428,10 +436,11 @@ FTKPlaneMap::FTKPlaneMap(const char *fname) :
 	  for(int l=0;l<ndimension && l<2;l++) {
 	    m_isZ[jcoord+l] = l;
 	    m_idim[l][kcoord] = jcoord+l;
-	    if (cmDebug > 4) {
-	      printf("isZ[j+l] = l:    isZ[%d+%d] = %d\n",jcoord,l,l);
-	      printf("idim[l][k] = j+l idim[%d][%d] = %d\n",l,kcoord,jcoord+l);
-	    }
+        //// cmdebug bool, cannot be here
+	    // if (cmDebug > 4) {
+	    //   printf("isZ[j+l] = l:    isZ[%d+%d] = %d\n",jcoord,l,l);
+	    //   printf("idim[l][k] = j+l idim[%d][%d] = %d\n",l,kcoord,jcoord+l);
+	    // }
 	  }
 	  jcoord += ndimension; 
 	  kcoord += 1;

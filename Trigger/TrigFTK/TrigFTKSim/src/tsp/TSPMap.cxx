@@ -10,16 +10,20 @@
 using namespace std;
 
 /** empty constructor, this doesn't generate a valid TSPMap */
-TSPMap::TSPMap() : m_nplanes(0),
-		   m_nbits(0x0), m_nfactor(0x0), m_internal_nbits(0x0),
-		   m_bitoffset(0x0), m_internal_bitoffset(0x0),
-		   m_ndim(0x0), m_npos(0x0),
-		   m_totbits(0), m_max_nbits(0)
+TSPMap::TSPMap() :
+    m_amssmap(0x0), m_tspssmap(0x0),
+    m_nplanes(0),
+    m_nbits(0x0), m_nfactor(0x0), m_internal_nbits(0x0),
+    m_bitoffset(0x0), m_internal_bitoffset(0x0),
+    m_ndim(0x0), m_npos(0x0),
+    m_totbits(0), m_max_nbits(0)
 {;}
 
 
 /** full constructor, this is able to generate a real TSPMap object */
-TSPMap::TSPMap(const FTKSSMap *amssmap, const FTKSSMap *tspssmap) : m_nplanes(0),
+TSPMap::TSPMap(const FTKSSMap *amssmap, const FTKSSMap *tspssmap) :
+    m_amssmap(0x0), m_tspssmap(0x0),
+    m_nplanes(0),
 		   m_nbits(0x0), m_nfactor(0x0), m_internal_nbits(0x0),
 		   m_bitoffset(0x0), m_internal_bitoffset(0x0),
 		   m_ndim(0x0), m_npos(0x0),
@@ -31,6 +35,8 @@ TSPMap::TSPMap(const FTKSSMap *amssmap, const FTKSSMap *tspssmap) : m_nplanes(0)
 
 /** copy constructor */
 TSPMap::TSPMap(const TSPMap &cpy) :
+    m_amssmap(cpy.m_amssmap),
+    m_tspssmap(cpy.m_tspssmap),
   m_nplanes(cpy.m_nplanes),
   m_nbits(0x0), m_nfactor(0x0), m_internal_nbits(0x0),
   m_bitoffset(0x0), m_internal_bitoffset(0x0),
@@ -81,6 +87,8 @@ TSPMap::~TSPMap()
   delete [] m_bitoffset;
   delete [] m_internal_bitoffset;
   delete [] m_ndim;
+  delete [] m_npos;
+  delete [] m_nfactor;
 }
 
 
@@ -106,7 +114,7 @@ void TSPMap::generate(const FTKSSMap *amssmap, const FTKSSMap *tspssmap)
   // set the number of the planes
   m_nplanes = ampmap->getNPlanes();
   // set the arrays
-  m_nbits = new int[m_nplanes];
+   m_nbits = new int[m_nplanes];
   m_ndim = new int[m_nplanes];
   m_npos = new int[m_nplanes];
   m_nfactor = new int*[m_nplanes];

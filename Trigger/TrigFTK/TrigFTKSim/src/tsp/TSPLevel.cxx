@@ -25,6 +25,7 @@ using namespace std;
 TSPLevel::TSPLevel(int bankID, int nAMpatterns, unsigned threshold, FTKSSMap* ssTopMap, FTKSSMap* ssBottomMap, map<int,FTKSS> *ssmaps, bool onlydc) :
   m_bankID(bankID), m_threshold(threshold), m_nroads(0), m_npatterns(0), 
   m_dcOnly(onlydc),
+  run_ipatt(0), run_fatherID(0), run_dcmask(0), run_hbmask(0),
   m_subPatternID(nAMpatterns), m_hbmask(nAMpatterns), m_dcmask(nAMpatterns),
   m_subssmasks(nAMpatterns), m_splitted_ssmap(ssmaps),
   run_subssmasks(), run_TSPPatternIDs(), run_hbmasks()
@@ -39,6 +40,7 @@ TSPLevel::TSPLevel(TFile *file, int bankID, FTKTSPBank *AMbank,
   m_bankID(bankID), m_threshold(threshold), m_nroads(0), m_npatterns(0), 
   m_dcOnly(onlydc),
   m_splitted_ssmap(ssmaps),
+  run_fatherID(0),
   run_subssmasks(), run_TSPPatternIDs(), run_hbmasks(){
 
   // prepare the statement to require, for each AM pattern, the list of TSP patterns
@@ -157,44 +159,44 @@ void TSPLevel::storeAMInfo()
       // final mask of the allowed regions in the AM SS
       unsigned int mask(0);
       if (ndim==1) {
-	// get the number of the bits
-	const int &nbits = m_tspmap.getNBits(iplane);
+        // get the number of the bits
+        const int &nbits = m_tspmap.getNBits(iplane);
 
-	// SCTs have a single linear mask
-	mask = evaluateSubSSMask(nbits,bitoffset,run_dcmask,run_hbmask);
+        // SCTs have a single linear mask
+        mask = evaluateSubSSMask(nbits,bitoffset,run_dcmask,run_hbmask);
       } // end SCT encoding block
       else if (ndim==2) {
-	/* if the layer has 2 dimensions each one has a different number of bits,
+        /* if the layer has 2 dimensions each one has a different number of bits,
 	   the X mask is at the begin, the Y mask is after. The result for
 	   the allowed sub-SS is obtained crossing these two information */
-	const int &nbitsX = m_tspmap.getNBits(iplane,0);
-	const int &nbitsY = m_tspmap.getNBits(iplane,1);
+        const int &nbitsX = m_tspmap.getNBits(iplane,0);
+        const int &nbitsY = m_tspmap.getNBits(iplane,1);
 
-	// fill the X information
-	int maskX = evaluateSubSSMask(nbitsX,bitoffset,run_dcmask,run_hbmask);
-      
-	// fill the Y information	
-	int maskY = evaluateSubSSMask(nbitsY,bitoffset+nbitsX,run_dcmask,run_hbmask);
+        // fill the X information
+        int maskX = evaluateSubSSMask(nbitsX,bitoffset,run_dcmask,run_hbmask);
 
-	if (!maskY) { // this means the TSP don't use any bit in Y
-	  mask = maskX;
-	}
-	else if (!maskX) { // no bit in X
-	  mask = maskY;
-	}
-	else { 	// derive a matrix from the 2 vectors
-	  int nposX = 1<<nbitsX;
-	  int nposY = 1<<nbitsY;
-	  for (int ipX=0;ipX!=nposX;++ipX) {
-	    for (int ipY=0;ipY!=nposY;++ipY) {
-	      int bitval = (((maskX&(1<<ipX))>>ipX)&((maskY&(1<<ipY))>>ipY));
-	      mask |= bitval<<(ipX+nposX*ipY);
-	    }
-	  }
-	}
+        // fill the Y information
+        int maskY = evaluateSubSSMask(nbitsY,bitoffset+nbitsX,run_dcmask,run_hbmask);
+
+        if (!maskY) { // this means the TSP don't use any bit in Y
+          mask = maskX;
+        }
+        else if (!maskX) { // no bit in X
+          mask = maskY;
+        }
+        else { 	// derive a matrix from the 2 vectors
+          int nposX = 1<<nbitsX;
+          int nposY = 1<<nbitsY;
+          for (int ipX=0;ipX!=nposX;++ipX) {
+            for (int ipY=0;ipY!=nposY;++ipY) {
+              int bitval = (((maskX&(1<<ipX))>>ipX)&((maskY&(1<<ipY))>>ipY));
+              mask |= bitval<<(ipX+nposX*ipY);
+            }
+          }
+        }
       } // end Pixel encoding block
       else {
-	FTKSetup::PrintMessageFmt(ftk::sevr,"TSP with number of dimension %d is not allowed",ndim);
+        FTKSetup::PrintMessageFmt(ftk::sevr,"TSP with number of dimension %d is not allowed",ndim);
       }
 
       /* check is a valid mask: a valid mask has at least 1 bit set, 
@@ -203,7 +205,7 @@ void TSPLevel::storeAMInfo()
       if (npos==32) maskForInvalidBits = 0;
       if (npos>32) FTKSetup::PrintMessageFmt(ftk::sevr,"Error: npos>32 (i.e. more than 5 DC bits) is an invalid configuration. npos=%d\n",npos);
       if (!mask || mask&(maskForInvalidBits)) {
-	FTKSetup::PrintMessageFmt(ftk::sevr,"Error creating the Sub-SS mask for pattern %d, mask[%d]=%d\n",run_ipatt,iplane,mask);
+        FTKSetup::PrintMessageFmt(ftk::sevr,"Error creating the Sub-SS mask for pattern %d, mask[%d]=%d\n",run_ipatt,iplane,mask);
       }
       // add the mask for this layer
       subss_masks.push_back(mask);
@@ -402,44 +404,44 @@ int TSPLevel::getPatternInfo(int ipatt, const FTKPattern *ampatt, bool readTSP)
     // final mask of the allowed regions in the AM SS
     unsigned int mask(0);
     if (ndim==1) {
-	// get the number of the bits
-	const int &nbits = m_tspmap.getNBits(iplane);
+      // get the number of the bits
+      const int &nbits = m_tspmap.getNBits(iplane);
 
-	// SCTs have a single linear mask
-	mask = evaluateSubSSMask(nbits,bitoffset,ampatt->getDCMask(),ampatt->getHBMask());
+      // SCTs have a single linear mask
+      mask = evaluateSubSSMask(nbits,bitoffset,ampatt->getDCMask(),ampatt->getHBMask());
     } // end SCT encoding block
     else if (ndim==2) {
-	/* if the layer has 2 dimensions each one has a different number of bits,
+      /* if the layer has 2 dimensions each one has a different number of bits,
 	   the X mask is at the begin, the Y mask is after. The result for
 	   the allowed sub-SS is obtained crossing these two information */
-	const int &nbitsX = m_tspmap.getNBits(iplane,0);
-	const int &nbitsY = m_tspmap.getNBits(iplane,1);
+      const int &nbitsX = m_tspmap.getNBits(iplane,0);
+      const int &nbitsY = m_tspmap.getNBits(iplane,1);
 
-	// fill the X information
-	int maskX = evaluateSubSSMask(nbitsX,bitoffset,ampatt->getDCMask(),ampatt->getHBMask());
+      // fill the X information
+      int maskX = evaluateSubSSMask(nbitsX,bitoffset,ampatt->getDCMask(),ampatt->getHBMask());
 
-	// fill the Y information
-	int maskY = evaluateSubSSMask(nbitsY,bitoffset+nbitsX,ampatt->getDCMask(),ampatt->getHBMask());
+      // fill the Y information
+      int maskY = evaluateSubSSMask(nbitsY,bitoffset+nbitsX,ampatt->getDCMask(),ampatt->getHBMask());
 
-	if (!maskY) { // this means the TSP don't use any bit in Y
-	  mask = maskX;
-	}
-	else if (!maskX) { // no bit in X
-	  mask = maskY;
-	}
-	else { 	// derive a matrix from the 2 vectors
-	  int nposX = 1<<nbitsX;
-	  int nposY = 1<<nbitsY;
-	  for (int ipX=0;ipX!=nposX;++ipX) {
-	    for (int ipY=0;ipY!=nposY;++ipY) {
-	      int bitval = (((maskX&(1<<ipX))>>ipX)&((maskY&(1<<ipY))>>ipY));
-	      mask |= bitval<<(ipX+nposX*ipY);
-	    }
-	  }
-	}
+      if (!maskY) { // this means the TSP don't use any bit in Y
+        mask = maskX;
+      }
+      else if (!maskX) { // no bit in X
+        mask = maskY;
+      }
+      else { 	// derive a matrix from the 2 vectors
+        int nposX = 1<<nbitsX;
+        int nposY = 1<<nbitsY;
+        for (int ipX=0;ipX!=nposX;++ipX) {
+          for (int ipY=0;ipY!=nposY;++ipY) {
+            int bitval = (((maskX&(1<<ipX))>>ipX)&((maskY&(1<<ipY))>>ipY));
+            mask |= bitval<<(ipX+nposX*ipY);
+          }
+        }
+      }
     } // end Pixel encoding block
     else {
-	FTKSetup::PrintMessageFmt(ftk::sevr,"TSP with number of dimension %d is not allowed",ndim);
+      FTKSetup::PrintMessageFmt(ftk::sevr,"TSP with number of dimension %d is not allowed",ndim);
     }
 
     /* check is a valid mask: a valid mask has at least 1 bit set,
@@ -448,7 +450,7 @@ int TSPLevel::getPatternInfo(int ipatt, const FTKPattern *ampatt, bool readTSP)
     if (npos==32) maskForInvalidBits = 0;
     if (npos>32) FTKSetup::PrintMessageFmt(ftk::sevr,"Error: npos>32 (i.e. more than 5 DC bits) is an invalid configuration. npos=%d\n",npos);
     if (!mask || mask&(maskForInvalidBits)) {
-	FTKSetup::PrintMessageFmt(ftk::sevr,"Error creating the Sub-SS mask for pattern %d, mask[%d]=%d\n",run_ipatt,iplane,mask);
+      FTKSetup::PrintMessageFmt(ftk::sevr,"Error creating the Sub-SS mask for pattern %d, mask[%d]=%d\n",run_ipatt,iplane,mask);
     }
     // add the mask for this layer
     subss_masks.push_back(mask);
@@ -488,4 +490,12 @@ unsigned int TSPLevel::getDCMask(int patt, int layer) const {
 
   // shift the word to have the bits for the layer in LSB position and set to bits after npos
   return (curdcmask>>bitoffset)&(~(~0<<npos));
+}
+
+
+/** This method removes part of the information that is not used required by some emulation methods
+ */
+void TSPLevel::clearExtraInfo() {
+  m_subssmasks.clear();
+  m_subPatternID.clear();
 }

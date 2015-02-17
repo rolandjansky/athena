@@ -68,7 +68,7 @@ int FTKPatternBySectorBase::SetNLayers(int nLayer) {
 
 FTKPatternBySectorReader::FTKPatternBySectorReader(FTKRootFileChain &chain)
    : FTKPatternBySectorBase("FTKPatternBySectorReader") {
-   int error;
+   int error(0); // not that this gets incremented but is currently not used!
    fSourceName=
       TString::Format("FTKRootFileChain(length=%d",chain.GetLength());
    for(int i=0;i<chain.GetLength();i++) {
@@ -409,7 +409,7 @@ int FTKPatternBySectorWriter::AppendMergedPatterns
       FTKPatternOneSectorOrdered *orderedByCoverage=
          mergedPatterns->OrderPatterns(FTKPatternOrderByCoverage(minCoverage));
       error=AppendMergedPatterns(sector,orderedByCoverage);
-      if(error) break;
+      if(error) {delete orderedByCoverage; delete mergedPatterns; break;}
       int coverage=0;
       int begin=0;
       int nPat=0;

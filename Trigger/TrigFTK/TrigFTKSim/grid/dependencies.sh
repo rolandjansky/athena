@@ -62,6 +62,18 @@ else
     if [ "$#" -gt "0" ]; then exit 2; fi;
 fi;
 
+export EIGENDIR=`cd $SITEROOT/AtlasCore/*/External/AtlasEigen/$CMTCONFIG/pkg-build-install-eigen/  && pwd`
+export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${EIGENDIR}/Eigen
+export EIGEN_CXXFLAGS="-I${EIGENDIR}"
+
+if [ -s "${EIGENDIR}/Eigen/LU" ]; then
+	echo "Found EIGENDIR = "$EIGENDIR
+else
+	echo "OOPS, cannot find eigen. Booo"
+    if [ "$#" -gt "0" ]; then exit 2; fi;	
+fi;
+
+
 # Alias to variables used in TrigFTKAna
 export TRIGFTKANA_BOOST_DIR=${BOOSTDIR}
 export TRIGFTKANA_DCAP_DIR=${DCAPDIR}

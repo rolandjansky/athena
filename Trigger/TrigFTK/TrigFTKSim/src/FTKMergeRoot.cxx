@@ -130,6 +130,7 @@ int FTKMergeRoot::DoMerge(int MinCoverage,int compression){
    FTKPatternBySectorReader* input = new FTKPatternBySectorReader(chain);
    if(!input->GetNLayers()) { // sanity check
       Warning("DoMerge")<<"number of layers not set, cannot merge patterns!\n";
+      delete input;
       return 2;
    }
    if((input->GetContentType()!=FTKPatternBySectorBase::CONTENT_NOTMERGED )
@@ -200,10 +201,10 @@ int FTKMergeRoot::DoMerge(int MinCoverage,int compression){
       m_InputFiles.clear();
       m_InputFiles.push_back(string(m_OutFile_rootname));
    }
-   if(input) {
-      delete input;
-      input=0;
-   }
+//   if(input) { // check not needed (coverity doesn't like it, anyway)
+   delete input;
+   input=0;
+//   }
 
   return 0;
 }
@@ -319,6 +320,7 @@ void FTKMergeRoot::DoTextExport(std::string const &TextOutFilename, int /*MinCov
    if(input->GetContentType()!=FTKPatternBySectorBase::CONTENT_MERGED) {
       Fatal("DoTextExport")
          <<"input chain "<<input->GetSourceName()<<"is not ordered\n";
+      delete input;
       return;
    }
    

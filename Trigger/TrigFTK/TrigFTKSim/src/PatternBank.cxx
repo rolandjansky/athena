@@ -273,12 +273,14 @@ bool PatternDefinition::doStaticRoadWarrior(const PatternDefinition &patt1,
 PatternBank::PatternBank(bool usehash) :
   m_fname(""),m_ifile(), m_ready(false), m_okread(false),
   m_nplanes(0), m_npatterns(0), m_maxnhits(0), m_maxnmissing(0),
-  m_usehash(usehash)
+  m_usehash(usehash), m_maps(0)
 {;}
 
 
 PatternBank::PatternBank(const char *fname, bool usehash) :
-  m_ready(false), m_maxnhits(0), m_maxnmissing(0), m_usehash(usehash)
+   m_ready(false), m_nplanes(0), m_npatterns(0),
+   m_maxnhits(0), m_maxnmissing(0), m_usehash(usehash),
+   m_maps(0)
 {
   m_fname = fname;
   setFile(fname);

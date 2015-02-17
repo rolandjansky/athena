@@ -74,7 +74,7 @@ public:
 template<class FTKObjectStream, class FTKObject>
 FTKObjectInput<FTKObjectStream,FTKObject>::FTKObjectInput() :
   m_current_file(0), m_current_tree(0), m_entry(0),
-  m_max_entry(0), m_nbanks(0)
+  m_max_entry(0), m_nbanks(0), m_data(0), cur_iobject(0), cur_object(0), m_init(0)
 {
   // nothing to do
 }

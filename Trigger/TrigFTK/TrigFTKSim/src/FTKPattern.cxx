@@ -19,7 +19,9 @@ FTKPattern::FTKPattern() :
   m_patternID(-1), m_nplanes(0), m_ssid(0x0),
   m_sectorID(-1), m_coverage(0),
   m_dcmask(-1), m_hbmask(-1),
-  m_nsubpatterns(0)
+  m_nsubpatterns(0),
+  m_patternDBID(0),
+  m_hashes(0)
 {
   m_subpatterns = new TClonesArray("FTKPattern",1);
 }
@@ -33,7 +35,9 @@ FTKPattern::FTKPattern(int nplanes) :
   m_patternID(-1), m_nplanes(0),m_ssid(0x0),
   m_sectorID(-1), m_coverage(0),
   m_dcmask(-1), m_hbmask(-1),
-  m_nsubpatterns(0)
+  m_nsubpatterns(0),
+  m_patternDBID(0),
+  m_hashes(0)
 {
   m_subpatterns = new TClonesArray("FTKPattern",1);
   // set the number of planes

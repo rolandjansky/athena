@@ -4,7 +4,7 @@
 
 ## FTK Simulation Transform
 #  Specialist version to do sim x 4 subregions and merge in one job
-# @version $Id: TrigFTKSM4_tf.py 643664 2015-02-02 19:48:36Z jahreda $ 
+# @version $Id: TrigFTKSM4_tf.py 646626 2015-02-12 22:20:57Z jsaxon $ 
 
 import sys
 import time
@@ -30,7 +30,7 @@ from RecJobTransforms.recTransformUtils import addAllRecoArgs
 
 subregions = 4
 
-ListOfDefaultPositionalKeys=['--AMI', '--AMITag', '--CachePath', '--CachedBank', '--DBBankLevel', '--DBRelease', '--DoRoadFile', '--FTKDoGrid', '--FTKForceAllInput', '--FTKSetupTag', '--FTKUnmergedInputPath', '--HWNDiff', '--HitWarrior', '--IBLMode', '--MakeCache', '--NBanks', '--NSubRegions', '--PixelClusteringMode', '--RoadFilesDir', '--SSFAllowExtraMiss', '--SSFMultiConnection', '--SSFNConnections', '--SSFTRDefn', '--SSFTRMaxEta', '--SSFTRMinEta', '--SaveRoads', '--SctClustering', '--SecondStageFit', '--SetAMSize', '--TRACKFITTER_MODE', '--TSPMinCoverage', '--TSPSimulationLevel', '--UseTSPBank', '--asetup', '--athena', '--athenaopts', '--autoConfiguration', '--badmap_path', '--badmap_path_for_hit', '--bankpatterns', '--bankregion', '--beamType', '--checkEventCount', '--command', '--conditionsTag', '--eventAcceptanceEfficiency', '--execOnly', '--fit711constants0path', '--fit711constants1path', '--fit711constants2path', '--fit711constants3path', '--fitconstants0path', '--fitconstants1path', '--fitconstants2path', '--fitconstants3path', '--geometryVersion', '--ignoreErrors', '--ignoreFilters', '--ignorePatterns', '--inputNTUP_FTKIPFile', '--inputNTUP_FTKTMP_0File', '--inputNTUP_FTKTMP_1File', '--inputNTUP_FTKTMP_2File', '--inputNTUP_FTKTMP_3File', '--inputRDOFile', '--inputTXT_FTKIPFile', '--loadHWConf_path', '--maxEvents', '--omitFileValidation', '--outputNTUP_FTKTMPFile', '--outputNTUP_FTKTMP_0File', '--outputNTUP_FTKTMP_1File', '--outputNTUP_FTKTMP_2File', '--outputNTUP_FTKTMP_3File', '--patternbank0path', '--patternbank1path', '--patternbank2path', '--patternbank3path', '--pmap_path', '--pmapcomplete_path', '--pmapunused_path', '--postExec', '--postInclude', '--preExec', '--preInclude', '--reportName', '--rmap_path', '--sector0path', '--sector1path', '--sector2path', '--sector3path', '--showGraph', '--showPath', '--showSteps', '--skipEvents', '--ssmap_path', '--ssmaptsp_path', '--ssmapunused_path', '--uploadtoami', '--validation']
+ListOfDefaultPositionalKeys=['--AMI', '--AMITag', '--CachePath', '--CachedBank', '--DBBankLevel', '--DBRelease', '--DoRoadFile', '--FTKDoGrid', '--FTKForceAllInput', '--FTKSetupTag', '--FTKUnmergedInputPath', '--HWNDiff', '--HitWarrior', '--IBLMode', '--MakeCache', '--NBanks', '--NSubRegions', '--PixelClusteringMode', '--RoadFilesDir', '--SSFAllowExtraMiss', '--SSFMultiConnection', '--SSFNConnections', '--SSFTRDefn', '--SSFTRMaxEta', '--SSFTRMinEta', '--SaveRoads', '--SctClustering', '--SecondStageFit', '--SetAMSize', '--TRACKFITTER_MODE', '--TSPMinCoverage', '--TSPSimulationLevel', '--UseTSPBank', '--asetup', '--athena', '--athenaopts', '--autoConfiguration', '--badmap_path', '--badmap_path_for_hit', '--bankpatterns', '--bankregion', '--beamType', '--checkEventCount', '--command', '--conditionsTag', '--eventAcceptanceEfficiency', '--execOnly', '--fit711constants0path', '--fit711constants1path', '--fit711constants2path', '--fit711constants3path', '--fitconstants0path', '--fitconstants1path', '--fitconstants2path', '--fitconstants3path', '--geometryVersion', '--ignoreErrors', '--ignoreFilters', '--ignorePatterns', '--inputNTUP_FTKIPFile', '--inputNTUP_FTKTMP_0File', '--inputNTUP_FTKTMP_1File', '--inputNTUP_FTKTMP_2File', '--inputNTUP_FTKTMP_3File', '--inputRDOFile', '--inputTXT_FTKIPFile', '--loadHWConf_path', '--maxEvents', '--omitFileValidation', '--outputNTUP_FTKTMPFile', '--outputNTUP_FTKTMP_0File', '--outputNTUP_FTKTMP_1File', '--outputNTUP_FTKTMP_2File', '--outputNTUP_FTKTMP_3File', '--patternbank0path', '--patternbank1path', '--patternbank2path', '--patternbank3path', '--pmap_path', '--pmapcomplete_path', '--pmapunused_path', '--postExec', '--postInclude', '--preExec', '--preInclude', '--reportName', '--rmap_path', '--sector0path', '--sector1path', '--sector2path', '--sector3path', '--showGraph', '--showPath', '--showSteps', '--skipEvents', '--ssmap_path', '--ssmaptsp_path', '--ssmapunused_path', '--uploadtoami', '--validation','--MergeRoads', '--doAuxFW', '--MaxNcomb', 'MaxNhitsPerPlane']
 
 
 @stdTrfExceptionHandler
@@ -157,6 +157,12 @@ def addFTKSimulationArgs(parser):
                         group='TrigFTKSim')
     parser.add_argument('--SecondStageFit', type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=True),
                         help="Enables the second stage fitter", group='TrigFTKSim')
+    parser.add_argument('--doAuxFW', type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=True),
+                        help="Enables firmware-style constants", group='TrigFTKSim')
+    parser.add_argument('--MaxNcomb', type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True),
+                        help="Limit on the number of combinations per road", group='TrigFTKSim')
+    parser.add_argument('--MaxNhitsPerPlane', type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True),
+                        help="limit the number of hits per plane per road", group='TrigFTKSim')
 
     parser.add_argument('--TRACKFITTER_MODE', type=trfArgClasses.argFactory(trfArgClasses.argIntList, runarg=True), 
                         help='track fitter mode', group='TrigFTKSim', nargs='+')

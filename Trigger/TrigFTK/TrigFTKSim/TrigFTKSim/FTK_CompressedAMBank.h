@@ -95,6 +95,8 @@ public:
 
 class FTK_CompressedAMBank : public FTKLogging , public FTK_AMsimulation_base {
 public:
+   
+   virtual ~FTK_CompressedAMBank();
    // set up pattern bank
    FTK_CompressedAMBank(int bankID,int subID,FTKSSMap *ssMap=0,
                         FTKSSMap *ssMapTSP=0,

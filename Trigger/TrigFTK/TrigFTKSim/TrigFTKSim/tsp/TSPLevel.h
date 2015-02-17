@@ -41,6 +41,9 @@ public:
 
 	void fillPatternInfo(int, FTKPattern&, bool writeTSP);
 	int getPatternInfo(int, const FTKPattern*, bool readTSP);
+
+	void clearExtraInfo();
+
 private:
 	int m_nplanes;
 	int m_bankID;

@@ -87,7 +87,6 @@ private:
   //
   TTree *m_outputTree;
   TFile *m_outputFile;
-  FTKTrackStream *m_merged_bank;
   
   //HW parameter 
   int m_HW_level; // hit-warrior level
@@ -105,17 +104,18 @@ private:
   int m_ftktrack_tomerge_firstregion;
   int m_ftktrack_tomerge_firstsubreg;
   std::string m_ftrtrack_tomerge_bfname;
+  std::string m_ftkroad_tomerge_bfname;
   int m_MergeRegion;
   unsigned int m_nStreamsToMerge;
   TTree ***m_ftktrack_tomerge_tree;  
   TFile ***m_ftktrack_tomerge_file;
   TBranch ***m_ftktrack_tomerge_branch;
+  TBranch ***m_ftkroad_tomerge_branch;
   FTKTrackStream ***m_ftktrack_tomerge_stream;  
   std::string m_ftktrack_mergeoutput;
   std::string m_ftktrack_mergeInputPath;
   std::string m_ftktrack_mergeFileRoot;
 
-  TBranch ***m_ftkroad_tomerge_branch;
   FTKTrackStream ***m_ftkroad_tomerge_stream;
   std::string m_ftkroad_mergeoutput;
   std::string m_ftkroad_mergeInputPath;
@@ -138,8 +138,13 @@ private:
   // chain  of ftk merged tracks
   TChain *m_mergedtracks_chain;
   TTree *m_mergedtracks_tree;
-  // streams with the merged roads
+  // streams with the merged tracks;
   FTKTrackStream *m_mergedtracks_stream;
+  FTKRoadStream ***m_srbanks; // old roads
+  FTKRoadStream **m_banks; // new roads
+  FTKTrackStream **m_merged_bank;
+
+
   std::string m_mergedtracks_bname; // name to be used for the merged tracks' branch name
 
   // merged roads counter
@@ -160,10 +165,10 @@ private:
 
   // merging functions for the standalong tracks 
   int m_nfits_rej;
-  void merge_tracks(FTKTrackStream *&, FTKTrackStream ***);
+  void merge_tracks(FTKTrackStream *&, FTKTrackStream ***, unsigned int ireg);
   std::list<FTKTrack>::iterator removeTrack(std::list<FTKTrack>&, std::list<FTKTrack>::iterator, FTKTrack&, const FTKTrack&,bool isnew=false);
 
-  void merge_roads(FTKRoadStream *&,FTKRoadStream **, int);
+   StatusCode merge_roads(FTKRoadStream *&,FTKRoadStream **, unsigned int, unsigned int);
 
   //
   // Format the input file names

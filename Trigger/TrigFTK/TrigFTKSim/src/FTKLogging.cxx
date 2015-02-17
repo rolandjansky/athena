@@ -66,6 +66,7 @@ void FTKLogging::ShowProgress(const char *text) {
 }
 
 FTKLogging::~FTKLogging() {
+   if (fOut) delete fOut;
 }
 
 /* class FTKLogger
@@ -82,6 +83,9 @@ FTKLogger *FTKLogger::logger=0;
 
 FTKLogger::FTKLogger(void) {
    fBuffer=0;
+   fType=0;
+   fAbortLevel = 0;
+   fPrintLevel = 0;
 }
 
 FTKLogger::~FTKLogger() {

@@ -35,6 +35,8 @@
 
 int const FTK_CompressedAMBank::MAX_NROAD=100000;
 
+//using namespace std;
+
 template<class A> inline void FTK_CompressedAMBank::patternLoop
 (A &a,uint8_t const __restrict *ptr,uint32_t firstPattern,int nPattern)
    const {
@@ -71,9 +73,14 @@ template<class A> inline void FTK_CompressedAMBank::patternLoop
    }
 }
 
+FTK_CompressedAMBank::~FTK_CompressedAMBank() {
+   if (m_TSPmap) delete m_TSPmap;
+}
+
 FTK_CompressedAMBank::FTK_CompressedAMBank
 (int bankID,int subID,FTKSSMap *ssMap,FTKSSMap *ssMapTSP,char const *name)
    : FTKLogging(name),FTK_AMsimulation_base(bankID,subID),
+     m_nRoadCand(0), m_nhWCmin(0), m_MAX_MISSING_PLANES(0), m_MAX_MISSING_SCT_PAIRS(0),
      m_SSmapTSP(ssMapTSP) {
    setSSMap(ssMap);
    if(getSSMap()&& getSSMapTSP()) {
@@ -226,12 +233,14 @@ int FTK_CompressedAMBank::convertCachedBankFiles
 	  writer->AppendPattern(pattern->getSectorID(),*outPattern);
 	}
       } else {
+         delete writer;
 	Fatal("ConvertCachedBankFiles")
 	  <<"failed to read TTree \"Bank\" from \""
 	  <<cachedBanks[iInput]<<"\"\n";
 	return 2;
       }
     } else {
+       delete writer;
       Fatal("ConvertCachedBankFiles")<<"failed to open root file \""
 					     <<cachedBanks[iInput]<<"\"\n";
       return 1;
@@ -239,6 +248,7 @@ int FTK_CompressedAMBank::convertCachedBankFiles
   }
   delete writer;
   delete patternsbysector;
+  if (outPattern) delete outPattern;
   return 0;
 }
 
@@ -684,16 +694,18 @@ void FTK_CompressedAMBank::insertSSID(int layer,int tspSSID,int dcSSID0) {
    }
    // insert vector<TSP> into table ordered by DC
    m_DCtoTSP[layer].insert(make_pair(dcSSID,tsp));
-   if(error) {
-      std::cout<<"insertSSID: DC0="<<dcSSID0<<" TSP="<<tspSSID
-               <<" DC="<<dcSSID
-               <<" ->";
-      for(unsigned i=0;i<tsp.size();i++) {
-         std::cout<<" TSP["<<i<<"]="<<tsp[i];
-      }
-      std::cout<<"\n";
-      Fatal("insertSSID")<<"problem while converting SSIDs\n";
-   }
+
+   // for now cannot enter here, does nothing!
+   // if(error) {
+   //    std::cout<<"insertSSID: DC0="<<dcSSID0<<" TSP="<<tspSSID
+   //             <<" DC="<<dcSSID
+   //             <<" ->";
+   //    for(unsigned i=0;i<tsp.size();i++) {
+   //       std::cout<<" TSP["<<i<<"]="<<tsp[i];
+   //    }
+   //    std::cout<<"\n";
+   //    Fatal("insertSSID")<<"problem while converting SSIDs\n";
+   // }
 }
 
 /**
@@ -1076,7 +1088,7 @@ int FTK_CompressedAMBank::writeBinaryFile
     <<"number of SSIDs="<<ssidCountTotal
     <<" total number of sectors="<<sectorCountTotal<<"\n"
     <<" average number of sectors per SSID="
-    <<sectorCountTotal/(double)ssidCountTotal<<"\n";
+    << ((ssidCountTotal > 0) ? (sectorCountTotal/(double)ssidCountTotal) : -1 )<<"\n";
   return error;
 }
 
@@ -1097,7 +1109,7 @@ void FTK_CompressedAMBank::erase(void) {
 int FTK_CompressedAMBank::readBinaryFile
 (char const *binaryFile) {
    erase();
-   ifstream ssidBinary(binaryFile);
+   std::ifstream ssidBinary(binaryFile);
    if(!ssidBinary.is_open()) {
       Fatal("ReadBinaryFile")
          <<"failed to open file \""<<binaryFile<<"\"\n";
@@ -1216,7 +1228,7 @@ void FTK_CompressedAMBank::readBankPostprocessing(char const *where) {
    // count of TSP-SSIDs used to form the patterns (by plane)
    std::vector<uint32_t> patternTSPcount(getNPlanes());
    // total number of patterns
-   int32_t patternCountTotal=-1;
+   m_npatterns=-1;
    // memory consumption (estimate)
    uint32_t memorySSIDlookup=0;
    uint32_t memoryPatternIDlookup=0;
@@ -1294,8 +1306,8 @@ void FTK_CompressedAMBank::readBankPostprocessing(char const *where) {
                         sectordata.m_NPattern);
             int minPatternId=getMinMax.minPatternId;
             int maxPatternId=getMinMax.maxPatternId;
-            if(patternCountTotal<maxPatternId)
-               patternCountTotal=maxPatternId;
+            if(m_npatterns<maxPatternId)
+               m_npatterns=maxPatternId;
             MAP<int,std::pair<int,int> >::iterator is=
                m_SectorFirstLastPattern.find(sectorID);
             if(is==m_SectorFirstLastPattern.end()) {
@@ -1320,8 +1332,8 @@ void FTK_CompressedAMBank::readBankPostprocessing(char const *where) {
          +layerData.m_SSidData.getMemoryEstimate();
    }
    // number of patterns = maximum patternID+1
-   patternCountTotal++;
-   m_hitPatterns.resize(patternCountTotal);
+   m_npatterns++;
+   m_hitPatterns.resize(m_npatterns);
    m_roadCand.resize(MAX_NROAD);
    //
    // get sector number from pattern ID
@@ -1411,11 +1423,11 @@ void FTK_CompressedAMBank::readBankPostprocessing(char const *where) {
                  <<" nbit="<<nbit<<"\n";
       // pattern bank data is stored in 8-bit or 16-bit words per layer
       if(nbit<=8) {
-         m_bank.m_pattern8Data[layer].resize(patternCountTotal);
-         memoryPatternIDlookup += sizeof(uint8_t)*patternCountTotal;
+         m_bank.m_pattern8Data[layer].resize(m_npatterns);
+         memoryPatternIDlookup += sizeof(uint8_t)*m_npatterns;
       } else {
-         m_bank.m_pattern16Data[layer].resize(patternCountTotal);
-         memoryPatternIDlookup +=  sizeof(uint16_t)*patternCountTotal;
+         m_bank.m_pattern16Data[layer].resize(m_npatterns);
+         memoryPatternIDlookup +=  sizeof(uint16_t)*m_npatterns;
       }
    }
 
@@ -1661,18 +1673,18 @@ void FTK_CompressedAMBank::readBankPostprocessing(char const *where) {
    Info(where)
       <<"number of distinct (layer,SSIDs)="<<ssidCountTotal
       <<" number of sectors="<<sectorCountTotal
-      <<" numbner of patterns="<<patternCountTotal
-      <<" (0x"<<std::setbase(16)<<patternCountTotal<<std::setbase(10)<<")\n";
+      <<" number of patterns="<<m_npatterns
+      <<" (0x"<<std::setbase(16)<<m_npatterns<<std::setbase(10)<<")\n";
    Info(where)
       <<"number of TSP-SSIDs per pattern="
-      <<patternTSPcountTotal/patternCountTotal
+      <<patternTSPcountTotal/m_npatterns
       <<" average number of patterns per sector="
-      <<patternCountTotal/(double)sectorCountTotal
+      <<((sectorCountTotal > 0) ? m_npatterns/(double)sectorCountTotal : -1)
       <<" min="<<minPattern<<" max="<<maxPattern<<"\n";
    for(unsigned i=0;i<patternTSPcount.size();i++) {
       Info(where)
          <<"plane="<<i<<" number of TSP/pattern="
-         <<patternTSPcount[i]/(double)patternCountTotal<<"\n";
+         << ((m_npatterns > 0 ) ? (patternTSPcount[i]/(double)m_npatterns) : - 1) <<"\n";
    }
    int memoryBuffers=2*sizeof(VECTOR<HitPattern_t>)+
       (m_sectorUsage.size()+m_hitPatterns.size())*sizeof(HitPattern_t)+
@@ -1686,11 +1698,11 @@ void FTK_CompressedAMBank::readBankPostprocessing(char const *where) {
       <<" MB\n";
    Info(where)
       <<"bytes per pattern and layer: SSID="<<memorySSIDlookup/
-      (double)(patternCountTotal*getNPlanes())
+      (double)(m_npatterns*getNPlanes())
       <<" patternID="<<memoryPatternIDlookup/(double)
-      (patternCountTotal*getNPlanes())
+      (m_npatterns*getNPlanes())
       <<" total="<<(memorySSIDlookup+memoryPatternIDlookup)/
-      (double)(patternCountTotal*getNPlanes())<<"\n";
+      (double)(m_npatterns*getNPlanes())<<"\n";
 }
 
 /**
@@ -1726,7 +1738,7 @@ int FTK_CompressedAMBank::compare(FTK_CompressedAMBank const *bank) const {
 
          class PatternExtractor {
          public:
-            inline PatternExtractor(VECTOR<uint32_t> &data) : m_data(data) { }
+            inline PatternExtractor(VECTOR<uint32_t> &data) : m_data(data),pattern(0){ }
             inline void initialize(uint32_t first) { pattern=first; }
             inline void process(void) {
                m_data.push_back(pattern);
@@ -1837,6 +1849,7 @@ int FTK_CompressedAMBank::compare(FTK_CompressedAMBank const *bank) const {
    see writeRootFile() for further details
 */
 int FTK_CompressedAMBank::readRootFile(char const *filename) {
+   Info("readRootFile")<<"file="<<filename<<"\n";
    erase();
    int error=0;
    TDirectory *in=FTKRootFile::Instance()->OpenRootFileReadonly(filename);
@@ -1861,8 +1874,6 @@ int FTK_CompressedAMBank::readRootFile(char const *filename) {
       }
       LayerData &layerData=m_bank.m_PatternByLayer[layer];
       if(name.BeginsWith("Layer")) {
-         Info("readRootFile")
-            <<"file="<<filename<<" read layer="<<layer<<" data\n";
          TTree *tree;
          in->GetObject(name,tree);
          if(tree) {
@@ -2079,6 +2090,9 @@ void FTK_CompressedAMBank::clear(void) {
    m_FiredSSmap.resize(getNPlanes());
    m_UsedSSmap.resize(0);
    m_UsedSSmap.resize(getNPlanes());
+   // AM input
+   m_tspSSID.resize(0);
+   m_tspSSID.resize(getNPlanes());
    // AM output
    m_roads.clear();
 
@@ -2135,7 +2149,7 @@ void FTK_CompressedAMBank::sort_hits
          tsp_ssid = getSSMapTSP()->getSSTower(*hit,getBankID());
          //dc_ssid = getSSMap()->getSSTower(*hit,getBankID());
       } else {
-         Fatal("passHits")
+         Fatal("sort_hits")
             <<"hardware mode="<<FTKSetup::getFTKSetup().getHWModeSS()
             <<" not supported\n";
       }
@@ -2150,6 +2164,10 @@ void FTK_CompressedAMBank::sort_hits
       // add hit
       (*iSSID).second.push_back(hit);
    }
+   /*for (int ipl=0;ipl<getNPlanes();++ipl) {
+      std::cout<<" layer="<<ipl
+               <<" number of SSIDs: "<<m_tspSSID[ipl].size()<<"\n";
+               }*/
 
    // prepare list of all superstrips
    // indexed by DC-level SSID
@@ -2259,6 +2277,10 @@ void FTK_CompressedAMBank::data_organizer_r
  */
 
 void FTK_CompressedAMBank::am_in(void) {
+   for(int layer=0;layer<<m_tspSSID.size();layer++) {
+      Info("am_in")
+         <<"number of hits layer"<<layer<<" is "<<m_tspSSID[layer].size()<<"\n";
+   }
    am_in_r(m_tspSSID);
 }
 
@@ -2268,7 +2290,6 @@ void FTK_CompressedAMBank::am_in_r
    //   corresponds to am_in()
    //   the hits are fed into the assiciated memory
    //   and road candidates are defined
-
    class MaskUpdaterFast {
       // fast update of hitpattern only
    public:

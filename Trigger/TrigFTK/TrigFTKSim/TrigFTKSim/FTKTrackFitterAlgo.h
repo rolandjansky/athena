@@ -52,6 +52,8 @@ private:
   int m_chi2cut_maj;
   int m_chi2cut_vetmaj;
   int m_chi2dofcut;
+
+  bool m_doAuxFW;
  
   int m_HitWarrior;
   int m_KeepRejected; 
