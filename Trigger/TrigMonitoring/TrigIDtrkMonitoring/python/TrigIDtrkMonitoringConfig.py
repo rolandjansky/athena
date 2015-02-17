@@ -1,7 +1,7 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 def TrigIDtrkMonitoringTool():
-
+	from AthenaCommon.Constants import INFO,ERROR,FALSE,TRUE,DEBUG,VERBOSE
 
 	# dataTypes: userDefined = 0, monteCarlo, collisions, cosmics
 	if not 'DQMonFlags' in dir():
@@ -10,6 +10,7 @@ def TrigIDtrkMonitoringTool():
 
 	from AthenaCommon.AppMgr import ToolSvc
 
+       
 	# Primary Vertex Tool
 	from TrigIDtrkMonitoring.TrigIDtrkMonitoringConf import HLTIDpvtxTool
 	HLTIDpvtx = HLTIDpvtxTool(name               = 'HLTIDpvtx',
@@ -32,37 +33,85 @@ def TrigIDtrkMonitoringTool():
 	list = [ "HLTIDpvtxTool/HLTIDpvtx" ];
 
 
+
+
 	if not 'rec' in dir():
 		from RecExConfig.RecFlags  import rec
 
-	if rec.doInDet:
+
+#	if rec.doInDet:
+	if True:
 		# the old DumpTool has been removed, the old TIDAMonTool code has
 		# been moved to TrigInDetAnalysisExample/TrigTestBase
 		# from TrigIDtrkMonitoring.TrigIDtrkMonitoringConf import TIDAMonTool
+		
+
+		# from TrigInDetAnalysisExample.TrigInDetAnalysisExampleConfig import TrigTestCosmic
+		#               how do we set the base class variables in this way??? What do we need to do in the 
+		#               derived class code?
+		# tidacos = TrigTestCosmic(name = "TIDACosmicMonTool",
+		#                          histoPathBase = "/Trigger/HLT")
+		# tidacos = TrigTestCosmic(name = "TIDACosmicMonTool" )
+		# tidacos.AnalysisConfig = "Tier0"
+		# tidacos.SliceTag = "HLT/IDCosmic"
+		# tidacos.ntupleChainNames += [
+		#		"Offline",
+		#		"HLT_id_cosmic.*:InDetTrigTrackingxAODCnv_CosmicsN_EFID",
+		#		"HLT_id_cosmic.*:InDetTrigTrackingxAODCnvIOTRT_CosmicsN_EFID"
+		#		]
+		#	ToolSvc += tidacos;
+		#	list += [ "TrigTestCosmic/TIDACosmicMonTool" ]
+
 
 		from TrigInDetAnalysisExample.TrigInDetAnalysisExampleConf import TrigTestBase
-		tidacosmic = TrigTestBase(name = "TIDACosmic",
+
+		# Cosmic instance
+		tidacos = TrigTestBase(name = "IDCosmicMonTool",
 					histoPathBase = "/Trigger/HLT")
-		tidacosmic.AnalysisConfig = "Tier0"
-		tidacosmic.SliceTag = "Trigger/HLTCosmic"
-		tidacosmic.ntupleChainNames += [
+		tidacos.AnalysisConfig = "Tier0"
+		tidacos.SliceTag = "HLT/IDMonCosmic"
+		# tidacos.OutputLevel = DEBUG
+		tidacos.ntupleChainNames += [
 			"Offline",
 			"HLT_id_cosmic.*:InDetTrigTrackingxAODCnv_CosmicsN_EFID",
-			"HLT_id_cosmic.*:InDetTrigTrackingxAODCnvIOTRT_CosmicsN_EFID",
+			"HLT_id_cosmic.*:InDetTrigTrackingxAODCnvIOTRT_CosmicsN_EFID"
 			]
-		ToolSvc += tidacosmic;
-		list += [ "TrigTestBase/TIDACosmic" ]
+		ToolSvc += tidacos;
+		list += [ "TrigTestBase/IDCosmicMonTool" ]
 
 
 
+
+		# test instances 
+		tidabase = TrigTestBase(name = "IDMonTool",
+					histoPathBase = "/Trigger/HLT")
+		tidabase.AnalysisConfig = "Tier0"
+		tidabase.SliceTag = "HLT/IDMon"
+		# tidabase.OutputLevel = DEBUG
+		tidabase.ntupleChainNames += [
+			"Offline",
+			"HLT_e.*idperf.*:InDetTrigTrackingxAODCnv_Electron_EFID",
+			"HLT_mu.*idperf.*:InDetTrigTrackingxAODCnv_Muon_EFID",
+			"HLT_tau.*idperf.*:InDetTrigTrackingxAODCnv_TauN_EFID",
+			"HLT_id_cosmic.*:InDetTrigTrackingxAODCnv_CosmicsN_EFID",
+			"HLT_id_cosmic.*:InDetTrigTrackingxAODCnvIOTRT_CosmicsN_EFID"
+			]
+		ToolSvc += tidabase;
+		list += [ "TrigTestBase/IDMonTool" ]
+
+
+
+
+		# test instances
 		tidatool = TrigTestBase(name = "TIDATool",
 					histoPathBase = "/Trigger/HLT")
 		tidatool.AnalysisConfig = "Tier0"
-		tidatool.SliceTag = "Trigger/HLT"
+		tidatool.SliceTag = "HLT/IDMonTest"
+		# tidatool.OutputLevel = DEBUG
 		tidatool.ntupleChainNames += [
 			"Offline",
 			#egamma
-			"EF_e24vh_medium1_IDTrkNoCut:InDetTrigParticleCreation_Electron_EFID",
+			"EF_e24vh_medium1:InDetTrigParticleCreation_Electron_EFID",
 			"L2_e24vh_medium1_IDTrkNoCut:TrigL2SiTrackFinder_eGamma:0",
 			"L2_e24vh_medium1_IDTrkNoCut:TrigL2SiTrackFinder_eGamma:1",
 			"L2_e24vh_medium1_IDTrkNoCut:TrigL2SiTrackFinder_eGamma:2",
