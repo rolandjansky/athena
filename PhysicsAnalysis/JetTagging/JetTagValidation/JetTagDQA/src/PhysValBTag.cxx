@@ -23,6 +23,7 @@
 //#include "../../Event/xAOD/xAODBTagging/xAODBTagging/BTagging.h"
 
 #include "AthenaBaseComps/AthCheckMacros.h"
+#include "ParticleJetTools/JetFlavourInfo.h"
 
 namespace JetTagDQA {
 
@@ -84,8 +85,7 @@ namespace JetTagDQA {
 	m_btagplots.insert(std::make_pair(m_jetName7, m_antiKt10TruthWZPlots));
 	m_btagplots.insert(std::make_pair(m_jetName8, m_antiKt3PV0TrackJetPlots));
 	m_btagplots.insert(std::make_pair(m_jetName9, m_antiKt4PV0TrackJetPlots));
-	m_nevents = 0;		
-	//std::cout << "HALLO   " << evtStore()->contains<xAOD::JetContainer>("AntiKt3PV0TrackJets") << std::endl;
+//	m_nevents = 0;		
     return StatusCode::SUCCESS;
   }
   
@@ -123,7 +123,7 @@ namespace JetTagDQA {
    
 	if (m_detailLevel < 10) return StatusCode::SUCCESS;
 
-	//++m_nevents;
+	++m_nevents;
 	//int njets = 0;
 	//std::cout << "Number of proccessed events = " << m_nevents << std::endl; 
 
@@ -143,19 +143,13 @@ namespace JetTagDQA {
 
      			int label(1000);
 			//double dR(1000);
- 		 
-   			try{
-				jet->getAttribute<int>("TruthLabelID", label);
-			}		
-			catch(std::exception& exception){
-				label=-1;		
-			}
-			//std::cout << "final hadron flavour label: " << xAOD::GAFinalHadronFlavourLabel(jet) << std::endl;
-  			//jet->getAttribute("TruthLabelDeltaR_B", dR);
-		
+ 		 		
 			if(jet->pt() > 20000 && abs(jet->eta()) < 2.5){ 	   
 				(plot_i->second).fill(jet);  
-				//std::cout << "Hallo info b-tag weight = " << btag->IP3D_loglikelihoodratio() << std::endl;	
+
+			        if(jet->isAvailable<int>("ConeTruthLabelID")) label = jetFlavourLabel(jet, xAOD::JetFlavourLabelType::GAFinalHadron);
+		                else jet->getAttribute("TruthLabelID",label);	
+
 				(plot_i->second).fill(label);
      				if (btag){
 		 			(plot_i->second).fill(btag);

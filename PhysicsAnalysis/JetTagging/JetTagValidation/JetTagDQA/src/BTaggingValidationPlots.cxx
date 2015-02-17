@@ -3,7 +3,7 @@
 */
 
 #include "BTaggingValidationPlots.h"
-	
+#include "ParticleJetTools/JetFlavourInfo.h" 
 using CLHEP::GeV;
 
 namespace JetTagDQA{
@@ -108,13 +108,12 @@ namespace JetTagDQA{
 	}
 
 	void BTaggingValidationPlots::fill(const xAOD::Jet* jet, const xAOD::BTagging* btag){
+
 		int label(1000);
-		try{
-                    	jet->getAttribute<int>("TruthLabelID", label);
-                }
-                catch(std::exception& exception){
-                        label=-1;
-                }
+
+		if(jet->isAvailable<int>("ConeTruthLabelID")) label = jetFlavourLabel(jet, xAOD::JetFlavourLabelType::GAFinalHadron);
+		else jet->getAttribute("TruthLabelID",label);	
+			
 		int nGTinSvx(1000);
 		int nIP3DTracks(1000);
 		int nGTinSvx0(1000);
@@ -145,7 +144,7 @@ namespace JetTagDQA{
                 }
 
                 if(jet->pt() > 20000 && abs(jet->eta()) < 2.5){
-			//std::cout << "label: " << label << std::endl;
+			//std::cout << "IP3D weight of jet: " << btag->IP3D_loglikelihoodratio() << std::endl;
                   	if(label == 5) m_truthPt_b->Fill(jet->pt()/GeV);
                   	if(label == 0) m_truthPt_u->Fill(jet->pt()/GeV);
                 	if(label == 4) m_truthPt_c->Fill(jet->pt()/GeV);
