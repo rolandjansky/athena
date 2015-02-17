@@ -114,10 +114,12 @@ StatusCode InDetServMatTool::create( StoreGateSvc* detStore )
   if(msgLvl(MSG::DEBUG)) msg() << "Keys for InDetServMat Switches are "  << versionKey.tag()  << "  " << versionKey.node() << endreq;
   
   std::string versionName;
+  std::string descrName="noDescr";
   if (!m_rdbAccessSvc->getChildTag("InDetServSwitches", versionKey.tag(), versionKey.node(), false).empty()) {
     IRDBRecordset_ptr switchSet = m_rdbAccessSvc->getRecordsetPtr("InDetServSwitches", versionKey.tag(), versionKey.node());
     const IRDBRecord    *switchTable   = (*switchSet)[0];    
     versionName = switchTable->getString("VERSIONNAME"); 
+    if (!switchTable->isFieldNull("DESCRIPTION")) descrName = switchTable->getString("DESCRIPTION");
   }
 
   if (!m_overrideVersionName.empty()) {
@@ -193,7 +195,10 @@ StatusCode InDetServMatTool::create( StoreGateSvc* detStore )
 	  } else if (versionName == "SLHC") {
 	    if(msgLvl(MSG::DEBUG)) msg() << " InDetServMat Factory SLHC version " << endreq;
 	    InDetServMatFactorySLHC theIDSM(m_athenaComps);
-	    theIDSM.create(world);
+	    if(descrName.compare("TrackingGeometry")!=0)
+	      theIDSM.create(world);
+	    else
+	      msg(MSG::INFO) << "InDetServices - TrackingGeometry tag - no geometry built" << endreq; 
 	    m_manager=theIDSM.getDetectorManager();    
 	  } else {
 	    // Unrecognized name.

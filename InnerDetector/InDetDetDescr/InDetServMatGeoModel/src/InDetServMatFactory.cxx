@@ -41,7 +41,8 @@
 #include <iostream>
 
 InDetServMatFactory::InDetServMatFactory(const InDetDD::AthenaComps * athenaComps)
-  : InDetDD::DetectorFactoryBase(athenaComps)
+  : InDetDD::DetectorFactoryBase(athenaComps),
+    m_manager(0)
 {  
 }
 
