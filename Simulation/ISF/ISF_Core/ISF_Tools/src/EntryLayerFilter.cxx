@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////
 
 // class header include
-#include "ISF_Tools/EntryLayerFilter.h"
+#include "EntryLayerFilter.h"
 
 // ISF includes
 #include "ISF_Event/ISFParticle.h"
@@ -16,7 +16,7 @@
 #include "ISF_Interfaces/IParticleFilter.h"
 
 /** Constructor **/
-ISF::EntryLayerFilter::EntryLayerFilter(const std::string& t, const std::string& n, const IInterface* p) : 
+ISF::EntryLayerFilter::EntryLayerFilter(const std::string& t, const std::string& n, const IInterface* p) :
   AthAlgTool(t,n,p),
   m_ekinCharged(-1),
   m_ekinNeutral(-1)
@@ -68,4 +68,3 @@ bool ISF::EntryLayerFilter::passFilter(const ISFParticle &p) const {
 
   return pass;
 }
-

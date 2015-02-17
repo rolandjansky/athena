@@ -1,11 +1,11 @@
 #include "GaudiKernel/DeclareFactoryEntries.h"
-#include "ISF_Tools/ParticleHelper.h"
-#include "ISF_Tools/MemoryMonitoringTool.h"
-#include "ISF_Tools/GenericBarcodeFilter.h"
-#include "ISF_Tools/EntryLayerFilter.h"
-#include "ISF_Tools/KinematicParticleFilter.h"
-#include "ISF_Tools/CosmicEventFilterTool.h"
-#include "ISF_Tools/GenericParticleOrderingTool.h"
+#include "../ParticleHelper.h"
+#include "../MemoryMonitoringTool.h"
+#include "../GenericBarcodeFilter.h"
+#include "../EntryLayerFilter.h"
+#include "../KinematicParticleFilter.h"
+#include "../CosmicEventFilterTool.h"
+#include "../GenericParticleOrderingTool.h"
 
 DECLARE_NAMESPACE_TOOL_FACTORY( ISF , ParticleHelper                    )
 DECLARE_NAMESPACE_TOOL_FACTORY( ISF , MemoryMonitoringTool              )
@@ -23,4 +23,4 @@ DECLARE_FACTORY_ENTRIES( ISF_Tools ) {
   DECLARE_NAMESPACE_TOOL( ISF ,  KineamticParticleFilter           )
   DECLARE_NAMESPACE_TOOL( ISF ,  CosmicEventFilterTool             )
   DECLARE_NAMESPACE_TOOL( ISF ,  GenericParticleOrderingTool       )
-}   
+}
