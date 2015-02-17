@@ -21,3 +21,7 @@ macro MCTester_linkopts "$(MCTESTER_LIB_DIR)/libHepMCEvent.a \
        $(ROOT_linkopts) -lm -ldl -rdynamic"
 
 include_dirs "$(MCTESTER_DIR)/include"
+
+macro MCTester_pp_cppflags "-isystem $(MCTESTER_DIR)/include "
+
+
