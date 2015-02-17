@@ -151,18 +151,7 @@ IDAlignMonTrackSegments::~IDAlignMonTrackSegments(){
 
 void IDAlignMonTrackSegments::InitializeHistograms()
 {
-  m_upper_hist = 0;
-  m_lower_hist = 0;
-
-  m_delta_d0 = 0;
-  m_delta_z0= 0;
-  m_delta_phi0= 0;
-  m_delta_eta0= 0;
-  m_delta_qOverPt= 0;
-  m_delta_PtqOverPt= 0;
-  m_delta_nHits= 0;
-  m_delta_charge= 0;
-
+  
   m_debug_phi0 = 0 ;
   m_debug_eta0 = 0;
   
