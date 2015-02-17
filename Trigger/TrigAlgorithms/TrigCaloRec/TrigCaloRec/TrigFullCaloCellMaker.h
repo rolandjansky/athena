@@ -54,7 +54,8 @@ class TrigFullCaloCellMaker : public HLT::AllTEAlgo {
      *
      * This is used to reset the internal caching mechanism of this T2MissingET algorithm.
      */
-    virtual bool reset() {  m_useCachedResult = false; m_cachedTE=0; return true; }
+  HLT::ErrorCode hltEndEvent() {  m_useCachedResult = false; m_cachedTE=0; return true; }
+  //virtual bool reset() {  m_useCachedResult = false; m_cachedTE=0; return true; }
 
  private:
 

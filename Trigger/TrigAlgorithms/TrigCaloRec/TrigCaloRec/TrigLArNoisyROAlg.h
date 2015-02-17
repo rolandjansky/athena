@@ -48,7 +48,8 @@ class TrigLArNoisyROAlg : public HLT::AllTEAlgo {
   HLT::ErrorCode hltFinalize();
 
  
-  virtual bool reset() { if ( !HLT::AllTEAlgo::reset() ) return false; m_useCachedResult = false; m_roiEtaLimit=4.8; m_cachedTEList.clear(); return true; }
+  //virtual bool reset() { if ( !HLT::AllTEAlgo::reset() ) return false; m_useCachedResult = false; m_roiEtaLimit=4.8; m_cachedTEList.clear(); return true; }
+  HLT::ErrorCode hltEndEvent() { if ( !HLT::AllTEAlgo::reset() ) return false; m_useCachedResult = false; m_roiEtaLimit=4.8; m_cachedTEList.clear(); return true; }
   StatusCode geoInit(IOVSVC_CALLBACK_ARGS);
     
 private:
