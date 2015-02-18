@@ -24,6 +24,7 @@ namespace PFO {
     m_SIGNIFICANCE = Book1D("PFO_SIGNIFICANCE",m_sClusterContainerName + "_SIGNIFICANCE",300,-20.0,20.0);
     m_AVG_LAR_Q = Book1D("PFO_AVG_LAR_Q",m_sClusterContainerName + "_AVG_LAR_Q",240,-1.0,200.0);
     m_AVG_TILE_Q = Book1D("PFO_AVG_TILE_Q",m_sClusterContainerName + "_AVG_TILE_Q",240,-1.0,200.0);
+    m_CELL_SIG_SAMPLING = Book1D("PFO_CELL_SIG_SAMPLING",m_sClusterContainerName + "_CELL_SIG_SAMPLING",31,-1.0,30);
 
   }
 
@@ -98,6 +99,11 @@ namespace PFO {
     gotMoment = cluster.retrieveMoment(xAOD::CaloCluster::AVG_TILE_Q,moment_AVG_TILE_Q);
     if (true == gotMoment) m_AVG_TILE_Q->Fill(moment_AVG_TILE_Q);
     else m_AVG_TILE_Q->Fill(-1.0);
+
+    double moment_CELL_SIG_SAMPLING = 0;
+    gotMoment = cluster.retrieveMoment(xAOD::CaloCluster::CELL_SIG_SAMPLING,moment_CELL_SIG_SAMPLING);
+    if (true == gotMoment) m_CELL_SIG_SAMPLING->Fill(moment_CELL_SIG_SAMPLING);
+    else m_CELL_SIG_SAMPLING->Fill(-1.0);
 
   }
 
