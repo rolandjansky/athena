@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "LArFCALH62004CalibCalculatorBase.h"
+#include "LArG4H6SD/LArFCALH62004CalibCalculatorBase.h"
 #include "LArG4FCAL/LArFCALCalculatorBase.h"
 
 #include "LArG4Code/LArG4Identifier.h"
@@ -45,24 +45,6 @@ namespace CaloG4 {
   class SimulationEnergies;
 }
 
-namespace {
-
-inline
-G4int etaToBin1 (G4double eta, G4double eta0)
-{
-  return static_cast<G4int> ((eta - eta0) * (1./0.1));
-}
-
-
-inline
-G4int etaToBin2 (G4double eta, G4double eta0)
-{
-  return static_cast<G4int> ((eta - eta0) * (1./0.2));
-}
-
-}
-
-
 // constructor
 //
 
@@ -81,13 +63,13 @@ LArFCALH62004CalibCalculatorBase::LArFCALH62004CalibCalculatorBase()
 	
       }
 
-      ISvcLocator  *svcLocator = Gaudi::svcLocator();
+      ISvcLocator  *m_svcLocator = Gaudi::svcLocator();
       IRDBAccessSvc* rdbAccess;
       IGeoModelSvc * geoModel;
       
-      if(svcLocator->service ("GeoModelSvc",geoModel) == StatusCode::FAILURE)
+      if(m_svcLocator->service ("GeoModelSvc",geoModel) == StatusCode::FAILURE)
         throw std::runtime_error("Error in FCALConstruction, cannot access GeoModelSvc");
-      if(svcLocator->service ("RDBAccessSvc",rdbAccess) == StatusCode::FAILURE)
+      if(m_svcLocator->service ("RDBAccessSvc",rdbAccess) == StatusCode::FAILURE)
         throw std::runtime_error("Error in FCALConstruction, cannot access RDBAccessSvc");
       DecodeVersionKey larVersionKey(geoModel, "LAr");
 
@@ -261,17 +243,17 @@ G4bool LArFCALH62004CalibCalculatorBase::Process(const G4Step* a_step,
 	     sampling = m_FCalSampling;
              region = 4;
 	     etaIndex = 0;
-	     phiIndex = G4int(phi*(32/M_PI));
+	     phiIndex = G4int(32*phi/M_PI);
         } else {
 	     region = 0;
-	     etaIndex = etaToBin1 (eta, 1.7);
-	     phiIndex = G4int(phi*(32/M_PI));        
+	     etaIndex = G4int((eta-1.7)/0.1);
+	     phiIndex = G4int(32*phi/M_PI);        
         }
 	}
 	else if ( eta < 8 ) {
 	  region = 1;
-	  etaIndex = etaToBin2 (eta, 5.0);
-	  phiIndex = G4int(phi*(32/M_PI));
+	  etaIndex = G4int((eta-5)/0.2);
+	  phiIndex = G4int(32*phi/M_PI);
 	}
 	else {
 	  region = 2;

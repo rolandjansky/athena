@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "LArG4H6COLDTCMod0Calculator.h"
-#include "LArG4H6COLDTCMod0ChannelMap.h"
+#include "LArG4H6SD/LArG4H6COLDTCMod0Calculator.h"
+#include "LArG4H6SD/LArG4H6COLDTCMod0ChannelMap.h"
 
 // ATLAS LAr includes
 #include "LArG4Code/LArG4Identifier.h"
@@ -21,18 +21,12 @@
 #include "G4TransportationManager.hh"
 #include "G4Navigator.hh"
 #include "G4ios.hh"
-#include "AthenaKernel/Units.h"
 
 #include <cstdlib>
 #include <fstream>
-#include <exception>
 
 #include <cmath>
 #include <limits>
-
-
-namespace Units = Athena::Units;
-
 
 LArG4H6COLDTCMod0Calculator* LArG4H6COLDTCMod0Calculator::m_instance = 0;
 LArG4H6COLDTCMod0Calculator* LArG4H6COLDTCMod0Calculator::GetInstance() {
@@ -96,7 +90,7 @@ G4bool LArG4H6COLDTCMod0Calculator::Process(const G4Step* a_step)
   G4ThreeVector p = (startPoint + endPoint) * 0.5;
   
   // Determine if the hit was in-time.
-  m_time = timeOfFlight/Units::ns - p.mag()/Units::c_light/Units::ns;
+  m_time = timeOfFlight/CLHEP::ns - p.mag()/CLHEP::c_light/CLHEP::ns;
   if (m_time > m_OOTcut)
     m_isInTime = false;
   else
@@ -189,12 +183,5 @@ G4bool LArG4H6COLDTCMod0Calculator::Process(const G4Step* a_step)
 
      return true;
   }
-}
-
-G4bool LArG4H6COLDTCMod0Calculator::Process(const G4Step*, std::vector<LArHitData>&)
-{
-  std::cout << "Not implemented!" << std::endl;
-  throw;
-  return false;
 }
 

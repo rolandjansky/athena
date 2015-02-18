@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "LArG4H62004DeadCalibrationCalculator.h"
+#include "LArG4H6SD/LArG4H62004DeadCalibrationCalculator.h"
 
 #include "G4TouchableHistory.hh"
 
@@ -60,24 +60,6 @@ static const double FCALrouter = 450.*CLHEP::mm; // Outer part of the FCAL
 static const double TBzStart = 11067.*CLHEP::mm;
 //static const double TBzEnd = 12500.*CLHEP::mm;
 static const double offset = 20.*CLHEP::mm; // safety offset while calculated edges of different zones
-
-
-namespace {
-
-inline
-int etaToBin1 (G4double eta, G4double eta0)
-{
-  return static_cast<int> ((eta - eta0) * (1./0.1));
-}
-
-
-inline
-int etaToBin2 (G4double eta, G4double eta0)
-{
-  return static_cast<int> ((eta - eta0) * (1./0.2));
-}
-
-}
 
 
 LArG4H62004DeadCalibrationCalculator::LArG4H62004DeadCalibrationCalculator() 
@@ -178,23 +160,23 @@ G4bool LArG4H62004DeadCalibrationCalculator::Process( const G4Step* a_step,
       if ( phi < 0. ) phi += 2.*M_PI; // Normalize for phiBin calculation
       if(eta<1.5) eta = 1.5;
 
-      phiBin = int(phi * (64 / (2*M_PI)));
+      phiBin = int(phi / (2*M_PI/64));
 
       // First the type, sampling and region
       if( gz < zSamplings[zStartEMEC]) { // before the EMEC
         type = 1; sampling = 1; 
         if(eta < 3.2) { 
            region = 6; 
-           etaBin = etaToBin1 (eta, 1.3);
+           etaBin = int((eta - 1.3)/0.1);
         } else {
            region = 7; 
-           etaBin = etaToBin1 (eta, 3.2);
+           etaBin = int((eta - 3.2)/0.1);
         }
       } else if( gz < zSamplings[zEndEMEC]) { // in EMEC
         if(gr > EMrouter) { // outer
           if( gz < zSamplings[zStartEMEC]) {
             type = 1; sampling = 1; region = 6;
-            etaBin = etaToBin1 (eta, 1.3);
+            etaBin = int((eta - 1.3)/0.1);
           // material "between" inner and outer wheel ('excluder')
           }else if( gz < (zSamplings[zStartEMEC]+68.3575) ) {
             type = 2; sampling = 1; region = 1; etaBin = 0;
@@ -209,13 +191,13 @@ G4bool LArG4H62004DeadCalibrationCalculator::Process( const G4Step* a_step,
             etaBin = 0;
           }else if(eta<3.2) {
             type = 1; sampling = 1; region = 6; 
-            etaBin = etaToBin1 (eta, 1.3);
+            etaBin = int((eta - 1.3)/0.1);
           }else if(eta<5.0) {
             type = 1; sampling = 1; region = 7; 
-            etaBin = etaToBin1 (eta, 3.2);
+            etaBin = int((eta - 3.2)/0.1);
           }else if(eta < 8.0) {
             type = 1; sampling = 3; region = 1; 
-            etaBin = etaToBin2 (eta, 5.0);
+            etaBin = int((eta - 5.0)/0.2);
           }else{
             type = 1; sampling = 3; region = 2;
             etaBin = 0;
@@ -224,13 +206,13 @@ G4bool LArG4H62004DeadCalibrationCalculator::Process( const G4Step* a_step,
       } else if( gz < zSamplings[zStartHEC1]) { // crack EMEC - HEC
         if(eta<3.2){ // crack emec-hec
           type = 1; sampling = 2; region = 3;
-          etaBin = etaToBin1 (eta, 1.5);
+          etaBin = int((eta - 1.5)/0.1);
         }else if (eta<5.0) { // before FCAL
           type = 1; sampling = 1; region = 7; 
-          etaBin = etaToBin1 (eta, 3.2);
+          etaBin = int((eta - 3.2)/0.1);
         }else if (eta<8.0) {
           type = 1; sampling = 3; region = 1; 
-          etaBin = etaToBin2 (eta, 5.0);
+          etaBin = int((eta - 5.0)/0.2);
         }else{
           type = 1; sampling = 3; region = 2;
           etaBin = 0;
@@ -242,46 +224,46 @@ G4bool LArG4H62004DeadCalibrationCalculator::Process( const G4Step* a_step,
             type =1;
             if(eta<1.7){
               sampling = 2; region = 5;
-              etaBin = etaToBin1 (eta, 1.0);
+              etaBin = int((eta - 1.0)/0.1);
             }else{
               sampling = 3; region = 0;
-              etaBin = etaToBin1 (eta, 1.7);
+              etaBin = int((eta - 1.7)/0.1);
             }
           } else { // 4202
             type = 2;
             if(zSamplings[zEndHEC1] - gz < dHec12) sampling = 1; else sampling = 0;
-            phiBin = int(phi * (32/(2*M_PI)));
+            phiBin = int(phi / (2*M_PI/32));
             if(eta > 2.5) {
               region = 3;
-              etaBin = etaToBin2 (eta, 2.5);
+              etaBin = int((eta - 2.5)/0.2);
             } else {
               region = 2;
-              etaBin = etaToBin1 (eta, 1.5);
+              etaBin = int((eta - 1.5)/0.1);
             }
           }
         } else if( gz < zSamplings[zStartHEC2]) { // crack HEC1 - HEC2
           type = 1; sampling = 2; region = 4;
-          etaBin = etaToBin1 (eta, 1.5);
+          etaBin = int((eta - 1.5)/0.1);
         } else if( gz < zSamplings[zEndHEC2]) { // HEC2
           if(gr > HECrouter) {
             type =1;
             if(eta<1.7){
               sampling = 2; region = 5;
-              etaBin = etaToBin1 (eta, 1.0);
+              etaBin = int((eta - 1.0)/0.1);
             }else{
               sampling = 3; region = 0;
-              etaBin = etaToBin1 (eta, 1.7);
+              etaBin = int((eta - 1.7)/0.1);
             }
           } else {
             type = 2;
             sampling = 2;
-            phiBin = int(phi * (32/(2 * M_PI)));
+            phiBin = int(phi / (2 * M_PI/32));
             if(eta > 2.5) {
               region = 3;
-              etaBin = etaToBin2 (eta, 2.5);
+              etaBin = int((eta - 2.5)/0.2);
             } else {
               region = 2;
-              etaBin = etaToBin1 (eta, 1.5);
+              etaBin = int((eta - 1.5)/0.1);
             }
           }
 /*          std::cout << " XXX_3: gz: " << gz << " gr: "  << gr
@@ -302,10 +284,10 @@ G4bool LArG4H62004DeadCalibrationCalculator::Process( const G4Step* a_step,
         } else { // material behind HEC2
           if(eta<1.7){
             type = 1; sampling = 2; region = 5;
-            etaBin = etaToBin1 (eta, 1.0);
+            etaBin = int((eta - 1.0)/0.1);
           }else{
             type = 1; sampling = 3; region = 0;
-            etaBin = etaToBin1 (eta, 1.7);
+            etaBin = int((eta - 1.7)/0.1);
           }
         }
       } else if(gz < zSamplings[zStartFCAL1]) { //before the FCAL
@@ -314,20 +296,20 @@ G4bool LArG4H62004DeadCalibrationCalculator::Process( const G4Step* a_step,
           etaBin = 0;
         }else if(eta>=5.0){
           type = 1; sampling = 3; region = 1; 
-          etaBin = etaToBin2 (eta, 5.0);
+          etaBin = int((eta - 5.0)/0.2);
           if(etaBin < 0) etaBin = 0;
         }else{
           if(gz < zSamplings[zEndEMEC]){ // 4117
             type = 1; sampling = 1; region = 7; 
-            etaBin = etaToBin1 (eta, 3.2);
+            etaBin = int((eta - 3.2)/0.1);
             if(etaBin < 0) etaBin = 0;
           }else if(gz < (zSamplings[zEndEMEC] + 280.5)){ // 4205
             type = 2; sampling = 0; region = 5; 
-            etaBin = etaToBin1 (eta, 3.0);
+            etaBin = int((eta - 3.0)/0.1);
             if(etaBin < 0) etaBin = 0;
           }else{ // 4215
             type = 2; sampling = 1; region = 5; 
-            etaBin = etaToBin1 (eta, 3.0);
+            etaBin = int((eta - 3.0)/0.1);
             if(etaBin < 0) etaBin = 0;
           }
         }
@@ -363,10 +345,10 @@ G4bool LArG4H62004DeadCalibrationCalculator::Process( const G4Step* a_step,
         if(eta < 3.2) {
         }else if(eta < 5) {
           type = 1; sampling = 3; region = 0;
-          etaBin = etaToBin1 (eta, 1.7);
+          etaBin = int((eta - 1.7)/0.1);
         } else if(eta < 8) {
           type = 1; sampling = 3; region = 1;
-          etaBin = etaToBin2 (eta, 5.0);
+          etaBin = int((eta - 5.0)/0.2);
         } else {
           type = 1; sampling = 3; region = 2; etaBin = 0;
         }
@@ -382,42 +364,42 @@ G4bool LArG4H62004DeadCalibrationCalculator::Process( const G4Step* a_step,
         if( eta < 5.0) {
           if(gz < zSamplings[zStartFCAL1] + offset*2.0) {
             type = 2; sampling = 1; region = 5; 
-            etaBin = etaToBin1 (eta, 3.0);
+            etaBin = int((eta - 3.0)/0.1);
             if(etaBin < 0) etaBin = 0;
 //             type = 1; sampling = 1; region = 7; // 4117
 //             etaBin = int((eta - 3.2)/0.1);
 //             if(etaBin < 0) etaBin = 0;
           }else if(gz > zSamplings[zStartFCAL2]-offset && gz < zSamplings[zStartFCAL2]+offset) {
             type = 2; sampling = 2; region = 5; // 4225
-            etaBin = etaToBin1 (eta, 3.0);
+            etaBin = int((eta - 3.0)/0.1);
           }else if(gz > zSamplings[zStartFCAL3]-offset && gz < zSamplings[zStartFCAL3]+offset) {
             type = 2; sampling = 3; region = 5; // 4235
-            etaBin = etaToBin1 (eta, 3.0);
+            etaBin = int((eta - 3.0)/0.1);
           } else {
             type = 1; sampling = 3; region = 0; // 4130
-            etaBin = etaToBin1 (eta, 1.7);
+            etaBin = int((eta - 1.7)/0.1);
           }
         } else {
           type = 1; sampling = 3; region = 1; // 4131
-          etaBin = etaToBin2 (eta, 5.0);
+          etaBin = int((eta - 5.0)/0.2);
         }
       } else {
         // God knows what could be here
         if(eta<5.0){
           if(gz < zSamplings[zStartFCAL1]+offset*2.0 ) {
             type = 2; sampling = 1; region = 5; 
-            etaBin = etaToBin1 (eta, 3.0);
+            etaBin = int((eta - 3.0)/0.1);
             if(etaBin < 0) etaBin = 0;
 //             type = 1; sampling = 1; region = 7; // 4117
 //             etaBin = int((eta - 3.2)/0.1);
 //             if(etaBin < 0) etaBin = 0;
           }else{
             type = 1; sampling = 3; region = 0; // 4130
-            etaBin = etaToBin2 (eta, 1.7);
+            etaBin = int((eta - 1.7)/0.2);
           }
         }else{
           type = 1; sampling = 3; region = 1; // 4131
-          etaBin = etaToBin2 (eta, 5.0);
+          etaBin = int((eta - 5.0)/0.2);
         }
       }
 //    }

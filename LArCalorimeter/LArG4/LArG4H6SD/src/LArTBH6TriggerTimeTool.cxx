@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "LArTBH6TriggerTimeTool.h"
+#include "LArG4H6SD/LArTBH6TriggerTimeTool.h"
 #include "GaudiKernel/IIncidentSvc.h"
 
 #include "LArSimEvent/LArHitContainer.h"
@@ -16,10 +16,6 @@ LArTBH6TriggerTimeTool::LArTBH6TriggerTimeTool(const std::string& type,
   declareInterface< ITriggerTime >(this) ;
   declareProperty("isFixed",m_fixed);
   declareProperty("FixedTime",m_time);
-
-  m_hitcoll.push_back( SG::ReadHandle< LArHitContainer >("LArHitEMEC") );
-  m_hitcoll.push_back( SG::ReadHandle< LArHitContainer >("LArHitHEC") );
-  m_hitcoll.push_back( SG::ReadHandle< LArHitContainer >("LArHitFCAL") );
 }
 
 
@@ -56,8 +52,14 @@ double LArTBH6TriggerTimeTool::time(){
   if(m_fixed || !m_newEvent) return m_time;
 
   // new event, try to get it from FrontHit
-  // double t1 = trackRecordTime();
-  m_time = larTime() ;
+  if( false )
+    {
+    }
+  else
+    {
+      // double t1 = trackRecordTime();
+      m_time = larTime() ;
+    }
 
   m_newEvent= false;
   return m_time;
@@ -66,13 +68,30 @@ double LArTBH6TriggerTimeTool::time(){
 
 double LArTBH6TriggerTimeTool::larTime(){
 
+  std::vector<std::string> keys ;
+  //    keys.push_back("LArHitEMB") ;
+  keys.push_back("LArHitEMEC") ;
+  keys.push_back("LArHitHEC") ;
+  keys.push_back("LArHitFCAL") ;
+
+  std::vector<std::string>::const_iterator it = keys.begin()  ;
+  std::vector<std::string>::const_iterator it_e = keys.end()  ;
   double te = 0;
   double e = 0;
   int n=0;
 
-  for(auto &it : m_hitcoll){
+  for(;it!=it_e;++it){
+    const LArHitContainer* cont;
 
-    for(const auto &hit : *it){
+    if(StatusCode::SUCCESS!=evtStore()->retrieve(cont,(*it) ) )
+      {
+        ATH_MSG_ERROR ( " Failed to retrieve LArHitContainer  " <<*it );
+        return StatusCode::FAILURE;
+      }
+    LArHitContainer::const_iterator hit_it = cont->begin();
+    LArHitContainer::const_iterator hit_it_e = cont->end();
+    for(;hit_it!=hit_it_e;++hit_it){
+      const LArHit * hit = (*hit_it);
       e += hit->energy();
       te += hit->energy() * hit->time() ;
       ++n;
