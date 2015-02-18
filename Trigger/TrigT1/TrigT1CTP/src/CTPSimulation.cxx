@@ -366,8 +366,6 @@ LVL1CTP::CTPSimulation::start() {
 	
    ATH_MSG_DEBUG("Start");
 
-   unsigned int ctpVersion = ( m_ctpVersion != 0 ? m_ctpVersion : m_configSvc->ctpConfig()->ctpVersion() );
-	
    //
    // monitoring
    //
@@ -480,7 +478,7 @@ LVL1CTP::CTPSimulation::beginRun() {
    // get random engine
    CLHEP::HepRandomEngine* rndmEngine=0;
 
-   if(m_doRNDM == true){
+   if(m_doRNDM == true) {
       rndmEngine = m_rndmSvc->GetEngine(m_rndmEngineName);
       if (rndmEngine == 0) {
          ATH_MSG_ERROR("Could not find RndmEngine : " << m_rndmEngineName);
@@ -488,7 +486,6 @@ LVL1CTP::CTPSimulation::beginRun() {
       }
 		
       const TrigConf::Random random(m_configSvc->ctpConfig()->random());
-		
     
       if (ctpVersion<4) {
          std::ostringstream message;
@@ -502,7 +499,7 @@ LVL1CTP::CTPSimulation::beginRun() {
          }
       
          unsigned int rate1 = (0x1 << (8+random.rate1())) - 1;
-         ATH_MSG_DEBUG("REGTEST - Rate for random trigger RNDM0: " << rate1 << " / " << 40080./rate1 << " Hz");
+         ATH_MSG_INFO("REGTEST - Rate for random trigger RNDM0: " << rate1 << " / " << 40080./rate1 << " Hz");
          m_internalTrigger[ make_pair(TrigConf::L1DataDef::RNDM,0)] = new RandomTrigger(0, rate1, ctpVersion, rndmEngine);
       
          if (random.rate2() < 0) {
@@ -510,10 +507,10 @@ LVL1CTP::CTPSimulation::beginRun() {
          }
       
          unsigned int rate2 = (0x1 << (8+random.rate2())) - 1;
-         ATH_MSG_DEBUG("REGTEST - Rate for random trigger RNDM1: " << rate2 << " / " << 40080./rate2 << " Hz");
+         ATH_MSG_INFO("REGTEST - Rate for random trigger RNDM1: " << rate2 << " / " << 40080./rate2 << " Hz");
          m_internalTrigger[ make_pair(TrigConf::L1DataDef::RNDM,1)] = new RandomTrigger(1, rate2, ctpVersion, rndmEngine);
       
-      }else {//XXX How to treat random triggers in run-II?
+      } else {//XXX How to treat random triggers in run-II?
          uint32_t cut0 = random.cuts(0);
          uint32_t cut1 = random.cuts(1);
          uint32_t cut2 = random.cuts(2);
@@ -525,33 +522,19 @@ LVL1CTP::CTPSimulation::beginRun() {
       
          ATH_MSG_DEBUG(message.str());
       
-      
-         ATH_MSG_DEBUG("REGTEST - Cut for random trigger RNDM0: " << hex << cut0 << dec << " (" << cut0 << ")");
-         float rate0 = random.getRateFromCut(0);
-         ATH_MSG_DEBUG("REGTEST - Rate for random trigger RNDM0: " << rate0 << " (" << 40080./rate0 << " Hz)");
-         m_internalTrigger[ make_pair(TrigConf::L1DataDef::RNDM,0)] = new RandomTrigger(0, rate0, ctpVersion, rndmEngine);
-      
-      
-         ATH_MSG_DEBUG("REGTEST - Cut for random trigger RNDM1: " << hex << cut1 << dec << " (" << cut1 << ")");
-         float rate1 = random.getRateFromCut(1);
-         ATH_MSG_DEBUG("REGTEST - Rate for random trigger RNDM0: " << rate1 << " (" << 40080./rate1 << " Hz)");
-         m_internalTrigger[ make_pair(TrigConf::L1DataDef::RNDM,1)] = new RandomTrigger(1, cut1, ctpVersion, rndmEngine);
-      
-      
-         ATH_MSG_DEBUG("REGTEST - Cut for random trigger RNDM2: " << hex << cut2 << dec << " (" << cut2 << ")");
-         float rate2 = random.getRateFromCut(2);
-         ATH_MSG_DEBUG("REGTEST - Rate for random trigger RNDM0: " << rate2 << " (" << 40080./rate2 << " Hz)");
-         m_internalTrigger[ make_pair(TrigConf::L1DataDef::RNDM,2)] = new RandomTrigger(2, cut2, ctpVersion, rndmEngine);
-      
-      
-         ATH_MSG_DEBUG("REGTEST - Cut for random trigger RNDM3: " << hex << cut3 << dec << " (" << cut3 << ")");
-         float rate3 = random.getRateFromCut(3);
-         ATH_MSG_DEBUG("REGTEST - Rate for random trigger RNDM0: " << rate3 << " (" << 40080./rate3 << " Hz)");
-         m_internalTrigger[ make_pair(TrigConf::L1DataDef::RNDM,3)] = new RandomTrigger(3, cut3, ctpVersion, rndmEngine);
-      
+
+         for(int rndmIdx = 0; rndmIdx<4; rndmIdx++) {
+            uint32_t cut = random.cuts(rndmIdx);
+            if(cut>=0x1000000) { cut = 0xFFFFFF; }
+            if(cut==0) { cut = 0x1; }
+            double prescale = double(0xFFFFFF) / (0x1000000-cut);
+
+            ATH_MSG_INFO("REGTEST - Cut for random trigger  RNDM " << rndmIdx << " : " << "0x" << hex << cut << dec << " (" << cut << ")");
+            ATH_MSG_INFO("REGTEST - PS (from 40.08MHz)           " << rndmIdx << " : " << prescale);
+            ATH_MSG_INFO("REGTEST - Rate                         " << rndmIdx << " : " << 40080./prescale << " kHz");
+            m_internalTrigger[ make_pair(TrigConf::L1DataDef::RNDM,rndmIdx)] = new RandomTrigger(rndmIdx, (unsigned int)prescale, ctpVersion, rndmEngine);
+         }
       }
-		
-		
    }
 	
    if(ctpVersion<4 && m_doPSCL == true){
@@ -1465,20 +1448,31 @@ LVL1CTP::CTPSimulation::extractMultiplicities() {
       //XXX Is there a better way to deal with overclocking at front panel?
       else if ( thr->cableName() == "TOPO1" ) {
 
-         ATH_MSG_DEBUG( " ---> Topo input " << dec << thr->name() << " on module TOPO1 with clock " << thr->clock() << ", cable start "
-                        << thr->cableStart() << " and end " << thr->cableEnd() << " word 0x" << setw(8) << setfill('0') << hex << m_topoCTP->cableWord0( thr->clock() ) << dec << setfill(' ') 
-                        );
+         if ( m_topoCTP.isValid() ) {
+            ATH_MSG_DEBUG( " ---> Topo input " << dec << thr->name() << " on module TOPO1 with clock " << thr->clock() << ", cable start "
+                           << thr->cableStart() << " and end " << thr->cableEnd() << " word 0x" << setw(8) << setfill('0') << hex << m_topoCTP->cableWord0( thr->clock() ) << dec << setfill(' ') 
+                           );
 
-         if ( m_topoCTP.isValid() )
             multiplicity = CTPUtil::getMult( m_topoCTP->cableWord0( thr->clock() ), thr->cableStart(), thr->cableEnd() );
+         }
 
       }   
 		
       else if ( thr->cableName() == "TOPO2" ) {
 			
-         if ( m_topoCTP.isValid() )
+         if ( m_topoCTP.isValid() ) {
+            ATH_MSG_DEBUG( " ---> Topo input " << dec << thr->name() << " on module TOPO1 with clock " << thr->clock() << ", cable start "
+                           << thr->cableStart() << " and end " << thr->cableEnd() << " word 0x" << setw(8) << setfill('0') << hex << m_topoCTP->cableWord1( thr->clock() ) << dec << setfill(' ') 
+                           );
+
             multiplicity = CTPUtil::getMult( m_topoCTP->cableWord1( thr->clock() ), thr->cableStart(), thr->cableEnd() );
 
+         }
+
+      }    
+
+      else if ( thr->cableName() == "ALFA" ) {
+	multiplicity = 1;
       }    
 		
       else if ( thr->cableName() == TrigConf::L1DataDef::nimType() ) {
@@ -1489,11 +1483,11 @@ LVL1CTP::CTPSimulation::extractMultiplicities() {
             int n_c=thr->name().find("MBTS_C");
             if (m_mbtsACTP.isValid() && n_a==0) {
                multiplicity = CTPUtil::getMult( m_mbtsACTP->cableWord0(), thr->cableStart(), thr->cableEnd() );
-               ATH_MSG_DEBUG("Extracted multi is: "<< multiplicity);
+               //ATH_MSG_DEBUG("Extracted multi is: "<< multiplicity);
             }
             if (m_mbtsCCTP.isValid() && n_c==0) {
                multiplicity = CTPUtil::getMult( m_mbtsCCTP->cableWord0(), thr->cableStart(), thr->cableEnd() );
-               ATH_MSG_DEBUG("Extracted multi is: "<< multiplicity);
+               //ATH_MSG_DEBUG("Extracted multi is: "<< multiplicity);
             }
          }
 			
@@ -1576,7 +1570,7 @@ LVL1CTP::CTPSimulation::extractMultiplicities() {
          return StatusCode::FAILURE;
       }
 		
-      ATH_MSG_DEBUG(" ---> Threshold with name: " << std::setw( 8 ) << thr->name() << " gets multiplicity: "
+      ATH_MSG_DEBUG(" ---> Threshold with name: " << std::setfill(' ') << std::setw( 8 ) << thr->name() << " gets multiplicity: "
                     << std::setw( 2 ) << multiplicity);
       m_decisionMap->decision( thr )->setValue( multiplicity );
 		
