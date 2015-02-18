@@ -58,13 +58,10 @@ namespace LArG4 {
     
     
     MiniFCALAssignIdentifier::MiniFCALAssignIdentifier()
-    : m_storeGate(0), 
-      m_detStore(0),
-      emecZshift(0),
-      halfLength(0),
-      absThick(0),
-      layThick(0),
-      nRings(0) 
+    : m_halfLength(0),
+      m_absThick(0),
+      m_layThick(0),
+      m_nRings(0) 
     {
       StatusCode sc;
       ISvcLocator *svcLocator = Gaudi::svcLocator();
@@ -120,17 +117,17 @@ namespace LArG4 {
 	log << MSG::ERROR << "Unable to get MiniFcalRings from the database" << endreq;
       }
 
-      halfLength = ((*recEnvelope)[0]->getDouble("DZ"))*CLHEP::mm;    // half-length of MiniFcal module
-      absThick = ((*recCommon)[0]->getDouble("ABSORBERTHICKNESS"))*CLHEP::mm;    // half-length of MiniFcal module
-      layThick = ((*recCommon)[0]->getDouble("LAYERTHICKNESS"))*CLHEP::mm;    // half-length of MiniFcal module
+      m_halfLength = ((*recEnvelope)[0]->getDouble("DZ"))*CLHEP::mm;    // half-length of MiniFcal module
+      m_absThick = ((*recCommon)[0]->getDouble("ABSORBERTHICKNESS"))*CLHEP::mm;    // half-length of MiniFcal module
+      m_layThick = ((*recCommon)[0]->getDouble("LAYERTHICKNESS"))*CLHEP::mm;    // half-length of MiniFcal module
       
-      nRings=recRings->size();
+      m_nRings=recRings->size();
       
       for(unsigned i=0; i<recRings->size(); ++i) {
-	ringIndexes[(*recRings)[i]->getInt("RINGNUM")] = i;
-	ringRouter[(*recRings)[i]->getInt("RINGNUM")] = ((*recRings)[i]->getDouble("ROUTER"))*CLHEP::mm;
-	ringRinner[(*recRings)[i]->getInt("RINGNUM")] = ((*recRings)[i]->getDouble("RINNER"))*CLHEP::mm;
-	nWafers[(*recRings)[i]->getInt("RINGNUM")] =(*recRings)[i]->getInt("NWAFERS") ;
+	m_ringIndexes[(*recRings)[i]->getInt("RINGNUM")] = i;
+	m_ringRouter[(*recRings)[i]->getInt("RINGNUM")] = ((*recRings)[i]->getDouble("ROUTER"))*CLHEP::mm;
+	m_ringRinner[(*recRings)[i]->getInt("RINGNUM")] = ((*recRings)[i]->getDouble("RINNER"))*CLHEP::mm;
+	m_nWafers[(*recRings)[i]->getInt("RINGNUM")] =(*recRings)[i]->getInt("NWAFERS") ;
       }
 
       pAccessSvc->disconnect();      
@@ -217,7 +214,7 @@ namespace LArG4 {
 	  
 	  //--- find idepth - regardless of which volume we are in:
 	  for (int ilongi = 0; ilongi<12; ilongi++) {
-	    if ( midPosition.z() < (-halfLength+absThick+layThick) + double(ilongi)*(absThick+layThick) ) {
+	    if ( midPosition.z() < (-m_halfLength+m_absThick+m_layThick) + double(ilongi)*(m_absThick+m_layThick) ) {
 	      idepth = ilongi;
 	      if (idepth==11) idepth=10; // that includes the end-plate now
 	      break;
@@ -231,16 +228,16 @@ namespace LArG4 {
 	    //--- find ieta:
 	    G4double radi=sqrt(midPosition.x()*midPosition.x() + midPosition.y()*midPosition.y());
 	    
-	    if (radi > ringRinner[0]) {ieta=0;}                      // everything at outer r ieta=0
-	    else if (radi<=ringRinner[nRings-2]) { ieta=nRings-1; }  // at inner r maximum ieta
+	    if (radi > m_ringRinner[0]) {ieta=0;}                      // everything at outer r ieta=0
+	    else if (radi<=m_ringRinner[m_nRings-2]) { ieta=m_nRings-1; }  // at inner r maximum ieta
 	    else {                                                   // all other r in-between
-	      for (int j=0; j<(nRings-2); j++){                      // goes from 0 to (nrings-1)
-		if (radi<=ringRinner[j] && radi>ringRinner[j+1] ) { ieta=j+1;  break;}  
+	      for (int j=0; j<(m_nRings-2); j++){                      // goes from 0 to (nrings-1)
+		if (radi<=m_ringRinner[j] && radi>m_ringRinner[j+1] ) { ieta=j+1;  break;}  
 	      }
 	    }
 	    
 	    //--- find iphi:
-	    double delphi = 360./double(nWafers[ieta]);
+	    double delphi = 360./double(m_nWafers[ieta]);
 	    
 	    if (zSide<0){
 	      phigrad -= 180.;
@@ -248,7 +245,7 @@ namespace LArG4 {
 	      else phigrad = -phigrad + 360. ;
 	    }
 	    
-	    for (int j=0; j<nWafers[ieta]; j++){
+	    for (int j=0; j<m_nWafers[ieta]; j++){
 	      if (phigrad>delphi*double(j) && phigrad<=delphi*double(j+1)) { iphi=j; break;}
 	    }	  
 	    
@@ -266,8 +263,8 @@ namespace LArG4 {
 	  //--- Check if there is anything unusual:
 	  if (iphi<0) log << MSG::INFO << "MiniFcal iphi problem:   Z " << volumeName << " " 
 			  << zSide << " " << phigrad << " " << iphi << " / ieta: " << ieta 
-			  << " " << nWafers[ieta] << endreq;
-	  if (ieta<0||ieta>(nRings-1)) log << MSG::INFO << " MiniFcal ieta problem - ieta=" 
+			  << " " << m_nWafers[ieta] << endreq;
+	  if (ieta<0||ieta>(m_nRings-1)) log << MSG::INFO << " MiniFcal ieta problem - ieta=" 
 					   << volumeName << " " << ieta << endreq;
 	  
 	  
