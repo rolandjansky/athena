@@ -54,7 +54,8 @@ ISF::HepMC_TruthSvc::HepMC_TruthSvc(const std::string& name,ISvcLocator* svc) :
   m_screenOutputPrefix("isf >> "),
   m_screenEmptyPrefix(),
   m_storeExtraBCs(true),
-  m_passWholeVertex(true)
+  m_passWholeVertex(true),
+  m_quasiStableParticlesIncluded(false)
 {
     // the particle stack filler tool
     declareProperty("McEventCollection",                m_collectionName          );
@@ -66,7 +67,7 @@ ISF::HepMC_TruthSvc::HepMC_TruthSvc(const std::string& name,ISvcLocator* svc) :
     declareProperty("SkipIfNoSecondaries",              m_skipIfNoSecondaries     );
     declareProperty("SkipIfNoPrimaryBarcode",           m_skipIfNoPrimaryBarcode  );
     declareProperty("IgnoreUndefinedBarcodes",          m_ignoreUndefinedBarcodes );
-    declareProperty("PassWholeVertices",                  m_passWholeVertex         );
+    declareProperty("PassWholeVertices",                m_passWholeVertex         );
     // the truth strategies for the different SimGeoIDs
     declareProperty("BeamPipeTruthStrategies",          m_geoStrategyHandles[AtlasDetDescr::fAtlasForward] );
     declareProperty("IDTruthStrategies",                m_geoStrategyHandles[AtlasDetDescr::fAtlasID]      );
@@ -74,17 +75,18 @@ ISF::HepMC_TruthSvc::HepMC_TruthSvc(const std::string& name,ISvcLocator* svc) :
     declareProperty("MSTruthStrategies",                m_geoStrategyHandles[AtlasDetDescr::fAtlasMS]      );
 
     declareProperty("StoreExtraBarcodes",               m_storeExtraBCs);
+    declareProperty("QuasiStableParticlesIncluded",   m_quasiStableParticlesIncluded);
 
 }
 
-ISF::HepMC_TruthSvc::~HepMC_TruthSvc() 
+ISF::HepMC_TruthSvc::~HepMC_TruthSvc()
 {}
 
 
 /** Query the interfaces. */
 StatusCode ISF::HepMC_TruthSvc::queryInterface(const InterfaceID& riid, void** ppvInterface)
 {
- if ( IID_ITruthSvc == riid ) 
+ if ( IID_ITruthSvc == riid )
     *ppvInterface = (ITruthSvc*)this;
  else  {
    // Interface is not directly available: try out a base class
@@ -273,14 +275,20 @@ void ISF::HepMC_TruthSvc::registerTruthIncident( ISF::ITruthIncident& truth) {
     bool setPersistent = true;
     HepMC::GenParticle *prim = truth.primaryParticle( setPersistent );
     if (prim->end_vertex()){
-      ATH_MSG_WARNING("Primary found with an end vertex attached.  This should only happen");
-      ATH_MSG_WARNING("in the case of simulating quasi-stable particles.  That functionality");
-      ATH_MSG_WARNING("is not yet validated in ISF, so you'd better know what you're doing.");
-      ATH_MSG_WARNING("Will delete the old vertex and swap in the new one.");
+      if(m_quasiStableParticlesIncluded) {
+        ATH_MSG_VERBOSE("Primary found with an end vertex attached.");
+        ATH_MSG_VERBOSE("Will delete the old vertex and swap in the new one.");
+      }
+      else {
+        ATH_MSG_WARNING("Primary found with an end vertex attached.  This should only happen");
+        ATH_MSG_WARNING("in the case of simulating quasi-stable particles.  That functionality");
+        ATH_MSG_WARNING("is not yet validated in ISF, so you'd better know what you're doing.");
+        ATH_MSG_WARNING("Will delete the old vertex and swap in the new one.");
+      }
       HepMC::GenVertex * old_vtx = prim->end_vertex();
       old_vtx->remove_particle( prim );
       delete old_vtx; // This should be nice and iterative
-    } 
+    }
 
     // generate vertex
     HepMC::GenVertex *vtx = new HepMC::GenVertex( truth.position(), 0, weights ); // 0 = barcode, overwritten below
@@ -297,7 +305,7 @@ void ISF::HepMC_TruthSvc::registerTruthIncident( ISF::ITruthIncident& truth) {
 
     // add primary particle to vtx
     vtx->add_particle_in( prim );
-  
+
     // update primary barcode and add it to the vertex as outgoing particle
     Barcode::ParticleBarcode newPrimBC = m_barcodeSvcQuick->incrementBarcode( primBC, processCode);
     if ( newPrimBC == Barcode::fUndefinedBarcode) {
@@ -315,7 +323,7 @@ void ISF::HepMC_TruthSvc::registerTruthIncident( ISF::ITruthIncident& truth) {
     // MB: sofar extra barcode only contains parent info, so can be the same for each secondary
     if (m_storeExtraBCs)
       truth.setAllSecondaryExtraBarcodes( primExtraBC );
-    
+
     // add all secondary particles to the vertex
     for ( unsigned short i=0; i<numSec; ++i) {
       // generate a new barcode for the secondary particle
@@ -361,4 +369,3 @@ void ISF::HepMC_TruthSvc::registerTruthIncident( ISF::ITruthIncident& truth) {
 
   return;
 }
-
