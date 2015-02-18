@@ -14,9 +14,7 @@
 #ifndef LVL1L1ROITOOLS_H
 #define LVL1L1ROITOOLS_H
 
-#include "GaudiKernel/AlgTool.h"
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/ServiceHandle.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "TrigT1CaloToolInterfaces/IL1RoITools.h"
 #include "TrigT1CaloToolInterfaces/IL1JetElementTools.h"
@@ -57,7 +55,7 @@ namespace LVL1
       @author  Alan Watson <Alan.Watson@cern.ch>
   */  
 
-  class L1RoITools : virtual public IL1RoITools, public AlgTool
+  class L1RoITools : virtual public IL1RoITools, public AthAlgTool
     {
     public:
       
@@ -91,10 +89,7 @@ namespace LVL1
      virtual void findJetTTIDs(const Jet_ROI& roi, std::vector<unsigned int>& coolIDs);
             
     private:
-      
-      /** class member version of retrieving MsgStream */
-      mutable MsgStream                 m_log;
-      int               m_outputlevel;
+
       /** pointer to LVL1ConfigSvc */
       ServiceHandle<TrigConf::ITrigConfigSvc> m_configSvc;
 

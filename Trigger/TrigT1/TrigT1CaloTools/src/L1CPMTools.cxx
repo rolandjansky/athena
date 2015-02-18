@@ -18,8 +18,7 @@ L1CPMTools::L1CPMTools(const std::string& t,
 			  const std::string& n,
 			  const IInterface*  p )
   :
-  AlgTool(t,n,p),
-  m_log(msgSvc(),n),
+  AthAlgTool(t,n,p),
   m_configSvc("TrigConf::TrigConfigSvc/TrigConfigSvc", n),
   m_RoI(0)
 {
@@ -41,25 +40,14 @@ L1CPMTools::~L1CPMTools()
 
 StatusCode L1CPMTools::initialize()
 {
-  m_log.setLevel(outputLevel());
-  
-  StatusCode sc = AlgTool::initialize();
-  if (sc.isFailure()) {
-    m_log << MSG::ERROR << "Problem initializing AlgTool " <<  endreq;
-    return sc;
-  }
-  
-  m_log << MSG::INFO << "Initialization completed" << endreq;
-  
-  return sc;
+  return StatusCode::SUCCESS;
 }
 
 /** Finalisation */
 
 StatusCode L1CPMTools::finalize()
 {
-  StatusCode sc = AlgTool::finalize();
-  return sc;
+  return StatusCode::SUCCESS;
 }
 
 
@@ -355,7 +343,7 @@ void L1CPMTools::mapTowers(const DataVector<CPMTower>* cpmts, std::map<int, CPMT
        int key = testKey.ttKey(TriggerTowerPhi,TriggerTowerEta);
        std::map<int, CPMTower *>::iterator test=towers->find( key );
        if (test != towers->end()){
-         m_log << MSG::ERROR << "ERROR: tower already in map!" << endreq;
+         ATH_MSG_ERROR( "ERROR: tower already in map!" );
        }
        else  {
          std::vector<int> emEt = (*it)->emEnergyVec();

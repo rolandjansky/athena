@@ -17,8 +17,7 @@
 #include <string>
 #include <vector>
 
-#include "GaudiKernel/AlgTool.h"
-#include "GaudiKernel/MsgStream.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "DataModel/DataVector.h"
 #include "TrigT1CaloToolInterfaces/IL1CPHitsTools.h"
 
@@ -45,7 +44,7 @@ class EmTauROI;
       @author  Alan Watson / Peter Faulkner
   */  
 
-class L1CPHitsTools : virtual public IL1CPHitsTools, public AlgTool
+class L1CPHitsTools : virtual public IL1CPHitsTools, public AthAlgTool
 {
   public:
      
@@ -104,8 +103,6 @@ class L1CPHitsTools : virtual public IL1CPHitsTools, public AlgTool
                        const HitsVector& hits0, const HitsVector& hits1,
 		       int crate, int dataId, int peak) const;
 
-    /** class member version of retrieving MsgStream */
-    mutable MsgStream m_log;
     bool m_debug;
      
 };

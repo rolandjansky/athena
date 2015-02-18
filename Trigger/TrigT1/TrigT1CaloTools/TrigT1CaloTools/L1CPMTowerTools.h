@@ -14,9 +14,7 @@
 #ifndef LVL1L1CPMTOWERTOOLS_H
 #define LVL1L1CPMTOWERTOOLS_H
 
-#include "GaudiKernel/AlgTool.h"
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/ServiceHandle.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "TrigT1CaloToolInterfaces/IL1CPMTowerTools.h"
 
 class AtlasDetectorID;
@@ -34,7 +32,7 @@ namespace LVL1
       @author  Alan Watson <Alan.Watson@cern.ch>
   */  
 
-  class L1CPMTowerTools : virtual public IL1CPMTowerTools, public AlgTool
+  class L1CPMTowerTools : virtual public IL1CPMTowerTools, public AthAlgTool
     {
     public:
       typedef DataVector<TriggerTower>          TTCollection ;
@@ -57,10 +55,7 @@ namespace LVL1
       virtual void makeCPMTowers(const DataVector<xAOD::TriggerTower>* triggerTowers, DataVector<CPMTower>* cpmTowers, bool zeroSuppress = true);
             
     private:
-      
-      /** class member version of retrieving MsgStream */
-      mutable MsgStream   m_log;
-      int                 m_outputlevel;
+
              
     }; 
 } // end of namespace

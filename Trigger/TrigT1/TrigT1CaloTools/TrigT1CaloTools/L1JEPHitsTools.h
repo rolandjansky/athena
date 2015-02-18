@@ -17,9 +17,7 @@
 #include <string>
 #include <vector>
 
-#include "GaudiKernel/AlgTool.h"
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/ServiceHandle.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "DataModel/DataVector.h"
 #include "TrigConfInterfaces/ITrigConfigSvc.h"
 #include "TrigT1CaloToolInterfaces/IL1JEPHitsTools.h"
@@ -49,7 +47,7 @@ class JetROI;
       @author  Alan Watson / Peter Faulkner
   */  
 
-class L1JEPHitsTools : virtual public IL1JEPHitsTools, public AlgTool
+class L1JEPHitsTools : virtual public IL1JEPHitsTools, public AthAlgTool
 {
   public:
      
@@ -121,8 +119,7 @@ class L1JEPHitsTools : virtual public IL1JEPHitsTools, public AlgTool
 
     /** trigger configuration service */
     ServiceHandle<TrigConf::ITrigConfigSvc> m_configSvc;
-    /** class member version of retrieving MsgStream */
-    mutable MsgStream m_log;
+
     bool m_debug;
      
 };

@@ -14,9 +14,7 @@
 #ifndef LVL1L1JETETTOOLS_H
 #define LVL1L1JETETTOOLS_H
 
-#include "GaudiKernel/AlgTool.h"
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/ServiceHandle.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "TrigT1CaloToolInterfaces/IL1JetEtTools.h"
 #include "TrigConfInterfaces/ITrigConfigSvc.h"
 
@@ -34,7 +32,7 @@ using namespace TrigConf;
       @author  Alan Watson <Alan.Watson@cern.ch>
   */  
 
-  class L1JetEtTools : virtual public IL1JetEtTools, public AlgTool
+  class L1JetEtTools : virtual public IL1JetEtTools, public AthAlgTool
     {
     public:
       
@@ -64,11 +62,7 @@ using namespace TrigConf;
       virtual void fillMultiplicities(const std::vector< Jet_ROI >& rois, std::vector< unsigned int >& multiplicities);
                   
     private:
-           
-      /** class member version of retrieving MsgStream */
-      mutable MsgStream    m_log;
-      int                  m_outputlevel;
-      
+
       /** pointer to LVL1ConfigSvc */
       ServiceHandle<TrigConf::ITrigConfigSvc> m_configSvc;
            

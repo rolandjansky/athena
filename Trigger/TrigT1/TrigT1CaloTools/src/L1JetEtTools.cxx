@@ -22,8 +22,7 @@ L1JetEtTools::L1JetEtTools(const std::string& t,
 			  const std::string& n,
 			  const IInterface*  p )
   :
-  AlgTool(t,n,p),
-  m_log(msgSvc(),n),
+  AthAlgTool(t,n,p),
   m_configSvc("TrigConf::TrigConfigSvc/TrigConfigSvc", n)
 {
   declareInterface<IL1JetEtTools>(this);
@@ -43,25 +42,14 @@ L1JetEtTools::~L1JetEtTools()
 
 StatusCode L1JetEtTools::initialize()
 {
-  m_log.setLevel(outputLevel());
-  
-  StatusCode sc = AlgTool::initialize();
-  if (sc.isFailure()) {
-    m_log << MSG::ERROR << "Problem initializing AlgTool " <<  endreq;
-    return sc;
-  }
-  
-  m_log << MSG::INFO << "Initialization completed" << endreq;
-  
-  return sc;
+  return StatusCode::SUCCESS;
 }
 
 //================ Finalisation =================================================
 
 StatusCode L1JetEtTools::finalize()
 {
-  StatusCode sc = AlgTool::finalize();
-  return sc;
+  return StatusCode::SUCCESS;
 }
 
 
@@ -123,7 +111,7 @@ unsigned int L1JetEtTools::jetEtSum(const std::vector< unsigned int >& multiplic
   for (unsigned int thresh = 0; thresh < multiplicities.size(); ++thresh) 
      if (thresh < weights.size()) jetEt += multiplicities[thresh] * weights[thresh];
 
-  m_log << MSG::DEBUG << "JetEt value = " << jetEt << endreq;
+  ATH_MSG_DEBUG( "JetEt value = " << jetEt );
   
   return jetEt;
 }
@@ -145,15 +133,14 @@ unsigned int L1JetEtTools::jetEtRoIWord(unsigned int jetEt)
       unsigned int thresholdValue = static_cast<unsigned>((*tv).ptcut());
       // set bit if relevant threshold is passed
       if (jetEt > thresholdValue) hits=hits|(1<<(threshNum));
-      m_log << MSG::DEBUG<<"Passed threshold "  << threshNum
-          << " (" << thresholdValue << "*GeV)"<< endreq;
+      ATH_MSG_DEBUG("Passed threshold "  << threshNum << " (" << thresholdValue << "*GeV)");
     }
   }
 
   /** Form RoIWord */
   unsigned int roiWord = (TrigT1CaloDefs::jetRoIType<<30) + (TrigT1CaloDefs::jetEtRoI<<29);
   roiWord += hits;
-  m_log << MSG::DEBUG << "JetEt RoIWord = " << std::hex << roiWord << std::dec << endreq;
+  ATH_MSG_DEBUG( "JetEt RoIWord = " << std::hex << roiWord << std::dec );
 
   return roiWord;
  

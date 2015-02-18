@@ -14,9 +14,7 @@
 #ifndef LVL1L1EMTAUTOOLS_H
 #define LVL1L1EMTAUTOOLS_H
 
-#include "GaudiKernel/AlgTool.h"
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/ServiceHandle.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "TrigT1CaloToolInterfaces/IL1EmTauTools.h"
 #include "TrigT1CaloEvent/CPMTower.h"
 #include "TrigT1CaloEvent/TriggerTower.h"
@@ -45,7 +43,7 @@ namespace LVL1
       @author  Alan Watson <Alan.Watson@cern.ch>
   */  
 
-  class L1EmTauTools : virtual public IL1EmTauTools, public AlgTool
+  class L1EmTauTools : virtual public IL1EmTauTools, public AthAlgTool
     {
     public:
       typedef DataVector<TriggerTower>         TTCollection ;
@@ -94,9 +92,6 @@ namespace LVL1
             
     private:
       
-      /** class member version of retrieving MsgStream */
-      mutable MsgStream                 m_log;
-      int               m_outputlevel;
       /** pointer to LVL1ConfigSvc */
       ServiceHandle<TrigConf::ITrigConfigSvc> m_configSvc;
 
