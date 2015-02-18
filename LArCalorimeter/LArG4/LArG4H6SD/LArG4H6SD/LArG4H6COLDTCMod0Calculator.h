@@ -89,16 +89,12 @@ private:
   static LArG4H6COLDTCMod0Calculator* m_instance;
   // private datamember handling the hit
   G4float m_OOTcut;
-  G4float m_zShift;
 
   G4double m_time;
   G4double m_energy;
   G4bool   m_isInTime;
   LArG4Identifier m_identifier;
   G4int m_FCalSampling;
-
-  // pointer to detector geometry parameters
-  LArVG4DetectorParameters* m_parameters;
 
   // geometry of ColdTC: overall
   G4double m_phiModuleStart;

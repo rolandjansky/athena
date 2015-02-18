@@ -26,7 +26,6 @@ class LArG4H6EmecMergerFactory : public LArVHitMergerFactory
 
  private:
   StoreGateSvc*       m_detStore;
-  LArHitsEventAction* m_action;
   G4float             m_timeBinWidth;
 
 };

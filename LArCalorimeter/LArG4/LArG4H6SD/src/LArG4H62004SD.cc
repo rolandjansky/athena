@@ -62,10 +62,7 @@ LArG4H62004SD::LArG4H62004SD(G4String a_name)
     m_timeBinWidth(2.5*CLHEP::ns),
     m_detectorName(a_name),
     m_numberInvalidHits(0),
-    m_detStore(0),
-    m_emecHitCollection(0),
-    m_fcalHitCollection(0),
-    m_hecHitCollection(0)
+    m_detStore(0)
 {
 
   // Set appropriate calculator

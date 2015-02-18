@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef __LArG4H62004MergerFactory_H__
-#define __LArG4H62004MergerFactory_H__
+#ifndef LARG4H6SD_LARG4H62004MERGERFACTORY_H
+#define LARG4H6SD_LARG4H62004MERGERFACTORY_H
 
 #include "LArG4Code/LArVHitMergerFactory.h"
 
@@ -26,9 +26,8 @@ class LArG4H62004MergerFactory : public LArVHitMergerFactory
 
  private:
   StoreGateSvc*       m_detStore;
-  LArHitsEventAction* m_action;
   G4float             m_timeBinWidth;
 
 };
 
-#endif // _LArG4H62004MergerFactory_H_
+#endif // LARG4H6SD_LARG4H62004MERGERFACTORY_H

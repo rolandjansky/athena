@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef __LArG4H62004SD_H__
-#define __LArG4H62004SD_H__
+#ifndef LARG4H6SD_LARG4H62004SD_H
+#define LARG4H6SD_LARG4H62004SD_H
 
 #include "LArG4Code/LArG4Identifier.h"
 #include "LArSimEvent/LArHit.h"
@@ -68,11 +68,6 @@ private:
   const LArEM_ID*     m_larEmID;
   const LArFCAL_ID*   m_larFcalID;
   const LArHEC_ID*    m_larHecID;
-
-  // collections
-  LArHitContainer* m_emecHitCollection;
-  LArHitContainer* m_fcalHitCollection;
-  LArHitContainer* m_hecHitCollection;
 };
 
-#endif // __LArG4H62004SD_H__
+#endif // LARG4H6SD_LARG4H62004SD_H
