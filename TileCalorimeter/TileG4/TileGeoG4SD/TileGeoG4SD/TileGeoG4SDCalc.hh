@@ -16,8 +16,8 @@
 //
 //************************************************************
 
-#ifndef TTileGeoG4SDCalc_H
-#define TileGeoG4SDCalc_H 
+#ifndef TILEGEOG4SD_TILEGEOG4SDCALC_H
+#define TILEGEOG4SD_TILEGEOG4SDCALC_H
 
 #include "FadsSensitiveDetector/FadsSensitiveDetector.h"
 #include "CaloIdentifier/TileID.h"
@@ -169,5 +169,4 @@ private:
 
 };  //class TileGeoG4SDCalc
 
-#endif
-
+#endif // not TILEGEOG4SD_TILEGEOG4SDCALC_H
