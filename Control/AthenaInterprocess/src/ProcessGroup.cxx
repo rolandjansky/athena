@@ -60,7 +60,12 @@ pid_t ProcessGroup::launchProcess()
     int status = p.mainloop();
     exit(status);
   }
-  setpgid(p.getProcessID(), m_pgid);
+
+  if(m_processes.empty()) 
+    m_pgid = getpgid(newpid);
+  else
+    setpgid(newpid, m_pgid);
+
   m_processes.push_back(p);
   m_processesCreated++;
   return newpid;
@@ -142,6 +147,7 @@ int ProcessGroup::wait(int options)
 
 pid_t ProcessGroup::wait_once(bool& flag)
 {
+  flag = true;
   if(m_processes.empty()) return 0;
   int child_status = 0;
   pid_t child = waitpid(-m_pgid, &child_status,WNOHANG);
@@ -160,6 +166,9 @@ pid_t ProcessGroup::wait_once(bool& flag)
 	break;
       }
     }
+  }
+  else if(child<0) {
+    flag = false;
   }
   return child;  
 }
