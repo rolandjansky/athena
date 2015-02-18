@@ -43,12 +43,7 @@ namespace LArG4 {
     private:
       static HECGeometry *m_instance;
       
-      MsgStream *m_log;
-
       const HECDetectorManager *hecManager;
-
-      // Pointer to source of detector parameters.
-      LArVG4DetectorParameters* m_parameters;
 
       static bool m_depthHist;
       static bool m_withMother;

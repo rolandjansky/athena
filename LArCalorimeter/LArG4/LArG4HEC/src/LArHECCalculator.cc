@@ -41,7 +41,7 @@ LArHECCalculator* LArHECCalculator::GetCalculator()
 }
 
 
-LArHECCalculator::LArHECCalculator(): m_parameters(0)
+LArHECCalculator::LArHECCalculator()
 {
 
 
