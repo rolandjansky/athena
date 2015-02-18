@@ -54,7 +54,7 @@ namespace Muon {
     unsigned int numberOfMatchedHits() const {
       return mdts.matchedHits.size() + tgcs.matchedHits.size() + rpcs.matchedHits.size() + cscs.matchedHits.size() + stgcs.matchedHits.size() + mms.matchedHits.size() ;
     }
-    MuonTrackTruth() : truthTrack(0),isHitMatched(false),isParameterMatched(false) {}
+    MuonTrackTruth() : truthTrack(0),truthTrajectory(0),isHitMatched(false),isParameterMatched(false) {}
   };
 
   class MuonSegmentTruth {
