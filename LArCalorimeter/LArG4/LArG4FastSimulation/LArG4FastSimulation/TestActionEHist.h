@@ -58,17 +58,17 @@ class TestActionEHist: public FADS::ActionsBase, public FADS::UserAction, public
 
  private:
 
-  const G4VProcess* _pds;		//!< Pointer to current process defining the step at postStepPoint
-  TFile* world;				//!< File in which to store neutron & electron info
+  //const G4VProcess* _pds;		//!< Pointer to current process defining the step at postStepPoint
+  TFile* m_world;				//!< File in which to store neutron & electron info
 
-  bool fFirstStep;			//!< Flag indicating whether step is first in current volume
+  bool m_firstStep;			//!< Flag indicating whether step is first in current volume
 
-  std::string fName;			//!< Name of root output file
-  int dCALO, dBeam, dIDET, dMUON;	//!< Used for depth limits applied in jobOptions
-  std::string dDetail;			//!< Path used to set detailed depth cuts
-  int maxhists, maxdirs;		//!< Used to set maximum number of histograms/directories from jobOptions
-  std::string p_tag;			//!< Used to specify current particle in tracking
-  std::vector<std::string> trajectory;	//!< Used to store volume names which the current track has entered
+  std::string m_name;			//!< Name of root output file
+  int m_dCALO, m_dBeam, m_dIDET, m_dMUON;	//!< Used for depth limits applied in jobOptions
+  std::string m_dDetail;			//!< Path used to set detailed depth cuts
+  int m_maxhists, m_maxdirs;		//!< Used to set maximum number of histograms/directories from jobOptions
+  std::string m_p_tag;			//!< Used to specify current particle in tracking
+  std::vector<std::string> m_trajectory;	//!< Used to store volume names which the current track has entered
 
   void BuildHists (		//!< Function to generate TH1-type histograms
 	  std::string vol_tag,		//!< Tag to identify object by volume
