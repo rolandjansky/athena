@@ -140,18 +140,29 @@ StatusCode AthMpEvtLoopMgr::executeRun(int maxevt)
   std::ostringstream randStream;
   randStream << rand();
 
+  StoreGateSvc* pDetStore(0);
+  if(service("DetectorStore", pDetStore).isFailure() || pDetStore==0) {
+    msg(MSG::FATAL) << "Unable to access Detector Store" << endreq;
+    return StatusCode::FAILURE;
+  }
+
   // Create Shared Event queue if necessary and make it available to the tools
   if(m_strategy=="SharedQueue" || m_strategy=="SharedReader") {
-    StoreGateSvc* pDetStore(0);
-    if(service("DetectorStore", pDetStore).isFailure() || pDetStore==0) {
-      msg(MSG::FATAL) << "Unable to access Detector Store" << endreq;
-      return StatusCode::FAILURE;
-    }
-
     AthenaInterprocess::SharedQueue* evtQueue = new AthenaInterprocess::SharedQueue("AthenaMPEventQueue_"+randStream.str(),2000,sizeof(long));
     if(pDetStore->record(evtQueue,"AthenaMPEventQueue_"+randStream.str()).isFailure()) {
-      msg(MSG::FATAL) << "Unable to record the pointer to Shared Event queue into Detector Store" << endreq;
+      msg(MSG::FATAL) << "Unable to record the pointer to the Shared Event queue into Detector Store" << endreq;
       delete evtQueue;
+      return StatusCode::FAILURE;
+    }
+  }
+
+  // For the Event Service: create a queue for connecting TokenProcessor in the master with TokenScatterer subprocess
+  // The TokenProcessor master will be sending pid-s of failed processes to Token Scatterer
+  if(m_strategy=="TokenScatterer") {
+    AthenaInterprocess::SharedQueue* failedPidQueue = new AthenaInterprocess::SharedQueue("AthenaMPFailedPidQueue_"+randStream.str(),100,sizeof(pid_t));
+    if(pDetStore->record(failedPidQueue,"AthenaMPFailedPidQueue_"+randStream.str()).isFailure()) {
+      msg(MSG::FATAL) << "Unable to record the pointer to the Failed PID queue into Detector Store" << endreq;
+      delete failedPidQueue;
       return StatusCode::FAILURE;
     }
   }
@@ -352,20 +363,20 @@ StatusCode AthMpEvtLoopMgr::wait()
   msg(MSG::INFO) << "Waiting for sub-processes" << endreq;
   ToolHandleArray<IAthenaMPTool>::iterator it = m_tools.begin(),
     itLast = m_tools.end();
-  int nFinishedProc(0);
+  pid_t pid(0);
   bool all_ok(true);
 
   auto memMonTime = std::chrono::system_clock::now();
 
   while(m_nChildProcesses>0) {
     for(it = m_tools.begin(); it!=itLast; ++it) {
-      if((*it)->wait_once(nFinishedProc).isFailure()) {
+      if((*it)->wait_once(pid).isFailure()) {
 	all_ok = false;
 	msg(MSG::ERROR) << "Failure in waiting or sub-process finished abnormally" << endreq;
 	break;
       }
       else {
-	m_nChildProcesses -= nFinishedProc;
+	if(pid>0) m_nChildProcesses -= 1;
       }
     }
     if(!all_ok) break;
