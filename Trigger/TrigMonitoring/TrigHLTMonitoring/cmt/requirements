@@ -32,6 +32,7 @@ use AtlasROOT               AtlasROOT-*             External
 use EventInfo               EventInfo-*             Event
 use AtlasCORAL             AtlasCORAL-*            External
 use AthenaPoolUtilities  AthenaPoolUtilities-*  Database/AthenaPOOL
+use xAODTrigger              xAODTrigger-*          Event/xAOD
 end_private
 
 
