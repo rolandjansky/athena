@@ -6,14 +6,17 @@
 // G4LayerDetectorConstruction.cxx, (c) ATLAS Detector software
 ///////////////////////////////////////////////////////////////////
 
-// Fatras includes
-#include "ISF_Geant4Tools/G4LayerDetectorConstruction.h"
+// class header
+#include "G4LayerDetectorConstruction.h"
+
 // Tracking includes
 #include "TrkEventPrimitives/CurvilinearUVT.h"
 #include "TrkGeometry/MaterialProperties.h"
+
 // CLHEP
 #include "CLHEP/Units/SystemOfUnits.h"
-// Geant includes
+
+// Geant4 includes
 #include "G4Material.hh"
 #include "G4Box.hh"
 #include "G4LogicalVolume.hh"

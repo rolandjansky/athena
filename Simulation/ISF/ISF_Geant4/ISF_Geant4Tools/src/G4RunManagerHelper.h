@@ -6,21 +6,18 @@
 #define ISF_GEANT4TOOLS_G4RUNMANAGERHELPER_H
 
 #include "AthenaBaseComps/AthAlgTool.h"
-
 #include "ISF_Geant4Tools/IG4RunManagerHelper.h"
+
 #include "ISF_Geant4Tools/G4AtlasRunManager.h"
 
-#include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/ServiceHandle.h"
-
 namespace iGeant4 {
-  
+
   class G4RunManagerHelper: virtual public ISF::IG4RunManagerHelper,  public AthAlgTool {
-    
+
   public:
     G4RunManagerHelper(const std::string& type,
-			 const std::string& name,
-			 const IInterface* parent);
+                       const std::string& name,
+                       const IInterface* parent);
     virtual ~G4RunManagerHelper();
 
     StatusCode initialize();
@@ -30,12 +27,12 @@ namespace iGeant4 {
     G4RunManager*      fastG4RunManager() const;
 
   private:
-    
+
     mutable G4AtlasRunManager* m_g4RunManager;
     mutable G4RunManager*      m_fastG4RunManager;
 
   };
-   
+
 }
 
 #endif // ISF_GEANT4TOOLS_G4RUNMANAGERHELPER_H
