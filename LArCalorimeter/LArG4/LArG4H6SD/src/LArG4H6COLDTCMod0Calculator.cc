@@ -40,10 +40,8 @@ LArG4H6COLDTCMod0Calculator* LArG4H6COLDTCMod0Calculator::GetInstance() {
 // constructor
 LArG4H6COLDTCMod0Calculator::LArG4H6COLDTCMod0Calculator()
   : m_OOTcut(0)
-  , m_zShift(0)
   , m_identifier()
   , m_FCalSampling(3)
-  , m_parameters(0)
     , m_phiModuleStart(90.*CLHEP::deg)
     , m_phiModuleEnd(180.*CLHEP::deg)
     , m_fullModuleDepth(3.5*8*CLHEP::cm)

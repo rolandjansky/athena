@@ -49,16 +49,16 @@ enum smp_start_keys { zStartEMEC, zEndEMEC, zStartHEC1, zEndHEC1, zStartHEC2, zE
 
 static const double dHec12 = 2*268.*CLHEP::mm; // depth of second sampling in HEC
 static const double dHec22 = 2*234.*CLHEP::mm; // depth of fourth sampling in HEC
-static const double shiftTB = 7339*CLHEP::mm; // Z_TB -> Z_ATLAS
+//static const double shiftTB = 7339*CLHEP::mm; // Z_TB -> Z_ATLAS
 static const double EMrouter = 698.6*CLHEP::mm; // Outer part of the  EMEC inner wheel
 static const double HECrouter = 1159.0*CLHEP::mm; // Outer part of our HEC module
-static const double EMrinner = 301.4*CLHEP::mm; //  Inner r of the EMEC 
+//static const double EMrinner = 301.4*CLHEP::mm; //  Inner r of the EMEC 
 static const double HECrinner1 = 372.0*CLHEP::mm; // Inner part of the HEC 
 static const double HECrinner2 = 475.0*CLHEP::mm; // Inner part of the HEC 
 static const double FCALrinner = 71.8*CLHEP::mm; // Inner part of the FCAL 
 static const double FCALrouter = 450.*CLHEP::mm; // Outer part of the FCAL 
 static const double TBzStart = 11067.*CLHEP::mm;
-static const double TBzEnd = 12500.*CLHEP::mm;
+//static const double TBzEnd = 12500.*CLHEP::mm;
 static const double offset = 20.*CLHEP::mm; // safety offset while calculated edges of different zones
 
 
