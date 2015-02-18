@@ -26,6 +26,7 @@
 #include "StoreGate/StoreGateSvc.h"
 
 #include "TrigSteeringEvent/HLTResult.h"   
+#include "xAODTrigger/TrigDecision.h"
 
 #include "TH1F.h"
 #include "TH2F.h"
@@ -278,26 +279,76 @@ StatusCode HLTMonTool::bookHLTHistogramsForStream(const std::string& name, const
 }
 
 StatusCode HLTMonTool::fillResultAndConsistencyHistograms(const std::string& key,TH1* chist, TH1* rhist){
-  StatusCode sc = StatusCode::SUCCESS;
-  const HLT::HLTResult*  HLTResult(0);
-  sc = m_storeGate->retrieve(HLTResult,key);
-  if (sc.isFailure()) ATH_MSG_DEBUG(" Failed to retrieve HLT Result " << key);
-  else {
-    uint32_t bskeys[] = {HLTResult->getConfigSuperMasterKey(), HLTResult->getConfigPrescalesKey()};
-    uint32_t dbkeys[] = {m_configsvc->masterKey(), m_configsvc->hltPrescaleKey()};
-    for(int i = 0; i < 2; ++i) {
-      ATH_MSG_VERBOSE("\t\t" << dbkeys[i] << "\t\t" << bskeys[i]);
-      if(dbkeys[i]==0) chist->Fill(3*i+1);
-      if(bskeys[i]==0) chist->Fill(3*i+2);
-      if(dbkeys[i]!=bskeys[i]) chist->Fill(3*i+3);
-    }
+  StatusCode sc_trigDec = StatusCode::FAILURE;
+  StatusCode sc_hltResult = StatusCode::FAILURE;
+  
+  // will try to retrieve either the TrigDecision or the HLTResult
+ const xAOD::TrigDecision* trigDec = 0;  
+ const HLT::HLTResult*  HLTResult(0);
 
-    rhist->Fill(1);
-    if (HLTResult->isAccepted()) rhist->Fill(2); 
-    if (HLTResult->isPassThrough()) rhist->Fill(3);
-  }
-  if(sc.isFailure()) ATH_MSG_INFO("failed filling result and consistenct for " << key);
-  return sc;
+ const std::string m_sgKey = "xTrigDecision"; //sgKey from 20.0.0.2 AOD
+ sc_trigDec = evtStore()->retrieve(trigDec,m_sgKey);
+ if (sc_trigDec.isFailure()) 
+   {
+     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<  "No xAOD::xTrigDecision found in SG " << endreq;
+   }
+ else   
+   if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<  "Found xAOD::xTrigDecision in SG ! " << endreq;
+ 
+ sc_hltResult = m_storeGate->retrieve(HLTResult,key);
+ if (sc_hltResult.isFailure()) 
+   ATH_MSG_DEBUG(" Failed to retrieve HLT Result " << key);
+ else
+   if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<  "Found HLT Result in SG ! " << endreq;
+
+ if(sc_hltResult.isFailure() && sc_trigDec.isFailure())
+   return StatusCode::SUCCESS; // if no info is available we simply skip to the next event
+
+ uint32_t bskeys_1 = 9999; uint32_t bskeys_2 = 9999;
+ bool isAccepted = false; bool isPassThrough = false;
+ typedef std::vector< uint32_t >::const_iterator cIt;
+ if(sc_hltResult == StatusCode::SUCCESS)
+   {
+     bskeys_1 = HLTResult->getConfigSuperMasterKey();
+     bskeys_2 = HLTResult->getConfigPrescalesKey();
+     isAccepted = HLTResult->isAccepted();
+     isPassThrough = HLTResult->isPassThrough();
+   }
+ else if(sc_trigDec == StatusCode::SUCCESS)
+   {
+     bskeys_1 = trigDec->smk();
+     // this is not really useful as the whole point is to cross-check
+     // the prescale key against the one stored in HLTResult;
+     // leave here for now (Christos Leonidopoulos - Feb 15)
+     bskeys_2 = m_configsvc->hltPrescaleKey();
+     for(cIt it = trigDec->efPassedPhysics().begin(); it != trigDec->efPassedPhysics().end(); ++it)
+       if(*it > 0)
+	 {
+	   isAccepted = true;
+	   break;
+	 }
+     for(cIt it= trigDec->efPassedThrough().begin(); it != trigDec->efPassedThrough().end(); ++it)
+       if(*it > 0)
+	 {
+	   isPassThrough = true;
+	   break;
+	 }
+
+   }
+   
+ uint32_t bskeys[] = {bskeys_1, bskeys_2};
+ uint32_t dbkeys[] = {m_configsvc->masterKey(), m_configsvc->hltPrescaleKey()};
+ for(int i = 0; i < 2; ++i) {
+   ATH_MSG_VERBOSE("\t\t" << dbkeys[i] << "\t\t" << bskeys[i]);
+   if(dbkeys[i]==0) chist->Fill(3*i+1);
+   if(bskeys[i]==0) chist->Fill(3*i+2);
+   if(dbkeys[i]!=bskeys[i]) chist->Fill(3*i+3);
+   
+   rhist->Fill(1);
+   if (isAccepted) rhist->Fill(2); 
+   if (isPassThrough) rhist->Fill(3);
+ }
+ return sc_trigDec || sc_hltResult;
 }
 
 StatusCode HLTMonTool::fillLvl1Histograms(){
