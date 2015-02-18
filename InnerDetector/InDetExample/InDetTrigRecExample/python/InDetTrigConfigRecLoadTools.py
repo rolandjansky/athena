@@ -686,8 +686,19 @@ if InDetTrigFlags.loadSummaryTool():
             conddb.folderRequested("/TRT/Onl/Calib/PID_RToT")):
      conddb.addFolderSplitOnline("TRT","/TRT/Onl/Calib/PID_RToT","/TRT/Calib/PID_RToT")
 
-  from TRT_ElectronPidTools.TRT_ElectronPidToolsConf import InDet__TRT_ElectronPidTool
-  InDetTrigTRT_ElectronPidTool = InDet__TRT_ElectronPidTool(name = "InDetTrigTRT_ElectronPidTool")
+  # from TRT_ElectronPidTools.TRT_ElectronPidToolsConf import InDet__TRT_ElectronPidTool
+  # InDetTrigTRT_ElectronPidTool = InDet__TRT_ElectronPidTool(name = "InDetTrigTRT_ElectronPidTool")
+
+  from TRT_ElectronPidTools.TRT_ElectronPidToolsConf import InDet__TRT_ElectronPidToolRun2,InDet__TRT_LocalOccupancy
+  from AthenaCommon.GlobalFlags import globalflags
+
+  InDetTrigTRT_LocalOccupancy = InDet__TRT_LocalOccupancy(name ="InDetTrigTRT_LocalOccupancy")
+  ToolSvc += InDetTrigTRT_LocalOccupancy
+  
+  InDetTrigTRT_ElectronPidTool = InDet__TRT_ElectronPidToolRun2(name   = "InDetTrigTRT_ElectronPidTool",
+                                                                TRT_LocalOccupancyTool = InDetTrigTRT_LocalOccupancy,
+                                                                OccupancyUsedInPID = False,
+                                                                isData = (globalflags.DataSource == 'data'))
 
   ToolSvc += InDetTrigTRT_ElectronPidTool
   if (InDetTrigFlags.doPrintConfigurables()):
