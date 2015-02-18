@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: MuonAccessors_v1.h 636019 2014-12-15 15:55:20Z emoyse $
+// $Id: MuonAccessors_v1.h 647346 2015-02-17 10:24:03Z emoyse $
 #ifndef XAODMUON_MUONACCESSORS_V1_H
 #define XAODMUON_MUONACCESSORS_V1_H
 
@@ -12,7 +12,7 @@
 #include "AthContainers/AuxElement.h"
 
 // Local include(s):
-#include "xAODMuon/Muon.h"
+#include "xAODMuon/versions/Muon_v1.h"
 
 namespace xAOD {
 
@@ -23,7 +23,7 @@ namespace xAOD {
    ///
    template <class T>
    SG::AuxElement::Accessor< T >*
-   parameterAccessorV1( Muon::ParamDef type );
+   parameterAccessorV1( Muon_v1::ParamDef type );
    
 } // namespace xAOD
 

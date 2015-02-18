@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: Muon_v1.h 636019 2014-12-15 15:55:20Z emoyse $
+// $Id: Muon_v1.h 647346 2015-02-17 10:24:03Z emoyse $
 #ifndef XAODMUON_VERSIONS_MUON_V1_H
 #define XAODMUON_VERSIONS_MUON_V1_H
 
@@ -335,9 +335,11 @@ namespace xAOD {
     const ElementLink< TrackParticleContainer >& muonSpectrometerTrackParticleLink() const;
     /// @brief Returns an ElementLink to the InnerDetector TrackParticle used in identification of this muon.
     const ElementLink< TrackParticleContainer >& combinedTrackParticleLink() const;
+    /// @brief Returns an ElementLink to the Extrapolated Muon Spectrometer TrackParticle used in identification of this muon.
+    const ElementLink< TrackParticleContainer >& extrapolatedMuonSpectrometerTrackParticleLink() const;
         
     enum TrackParticleType {
-      Primary, InnerDetectorTrackParticle, MuonSpectrometerTrackParticle, CombinedTrackParticle
+      Primary, InnerDetectorTrackParticle, MuonSpectrometerTrackParticle, CombinedTrackParticle, ExtrapolatedMuonSpectrometerTrackParticle
     };
     /// @brief Returns an ElementLink to the  TrackParticle used in identification of this muon.
     const ElementLink< TrackParticleContainer >& trackParticleLink( TrackParticleType type) const;

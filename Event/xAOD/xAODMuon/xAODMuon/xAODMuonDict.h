@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: xAODMuonDict.h 628928 2014-11-17 16:34:01Z emoyse $
+// $Id: xAODMuonDict.h 647346 2015-02-17 10:24:03Z emoyse $
 #ifndef XAODMUON_XAODMUONDICT_H
 #define XAODMUON_XAODMUONDICT_H
 
@@ -16,6 +16,10 @@
 #endif // __GCCXML__
  
 // Local include(s):
+
+#include "xAODMuon/versions/MuonContainer_v1.h"
+#include "xAODMuon/versions/MuonAuxContainer_v1.h"
+#include "xAODMuon/versions/MuonAuxContainer_v2.h"
 #include "xAODMuon/MuonContainer.h"
 #include "xAODMuon/MuonAuxContainer.h"
 #include "xAODMuon/MuonSegmentContainer.h"
@@ -34,20 +38,22 @@
 namespace {
    struct GCCXML_DUMMY_INSTANTIATION_XAODMUON {
       // Classes in this package
-      xAOD::MuonContainer                                                      c1;
+     xAOD::MuonContainer                                                       c1;
       xAOD::MuonSegmentContainer                                               c2;
-      xAOD::SlowMuonContainer                                                     c4;
-      // Links for this package
+      xAOD::SlowMuonContainer                                                  c4;
+      // Links for Muon
       DataLink< xAOD::MuonContainer >                                          l1;
       ElementLink< xAOD::MuonContainer >                                       l2;
       std::vector< DataLink< xAOD::MuonContainer > >                           l3;
       std::vector< ElementLink< xAOD::MuonContainer > >                        l4;
       std::vector< std::vector< ElementLink< xAOD::MuonContainer > > >         l5;
-      DataLink< xAOD::MuonSegmentContainer >                                   l6;
-      ElementLink< xAOD::MuonSegmentContainer >                                l7;
-      std::vector< DataLink< xAOD::MuonSegmentContainer > >                    l8;
-      std::vector< ElementLink< xAOD::MuonSegmentContainer > >                 l9;
-      std::vector< std::vector< ElementLink< xAOD::MuonSegmentContainer > > > l10;
+      // Segments
+      DataLink< xAOD::MuonSegmentContainer >                                      l6;
+      ElementLink< xAOD::MuonSegmentContainer >                                   l7;
+      std::vector< DataLink< xAOD::MuonSegmentContainer > >                       l8;
+      std::vector< ElementLink< xAOD::MuonSegmentContainer > >                    l9;
+      std::vector< std::vector< ElementLink< xAOD::MuonSegmentContainer > > >    l10;
+      // Slow Muons
       DataLink< xAOD::SlowMuonContainer >                                        l11;
       ElementLink< xAOD::SlowMuonContainer >                                     l12;
       std::vector< DataLink< xAOD::SlowMuonContainer > >                         l13;

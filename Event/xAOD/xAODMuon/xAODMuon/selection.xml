@@ -1,6 +1,11 @@
 <?xml version="1.0"?>
 <lcgdict>
 
+  <!-- MuonAux _v2 dictionaries: -->
+  <class name="xAOD::MuonAuxContainer_v2"
+         id="AB53C81C-B10C-11E4-AC59-6C3BE51AB9F1"/>
+
+
   <!-- Muon_v1 dictionaries: -->
   <class name="xAOD::Muon_v1">
     <field name="m_p4" transient="true"/>
@@ -15,17 +20,19 @@
       m_p4Cached1 = false;
     ]]>
   </read>
-
+  
   <class name="xAOD::MuonAuxContainer_v1"
          id="EC9B677A-B3BA-4C75-87D3-373FC478291E"/>
 
-  <!-- All smart pointer dictionaries for xAOD::Muon -->
+  <!-- All smart pointer dictionaries for xAOD::Muon v1-->
   <class name="DataLink<xAOD::MuonContainer_v1>" />
   <class name="std::vector<DataLink<xAOD::MuonContainer_v1> >" />
 
   <class name="ElementLink<xAOD::MuonContainer_v1>" />
   <class name="std::vector<ElementLink<xAOD::MuonContainer_v1> >" />
   <class name="std::vector<std::vector<ElementLink<xAOD::MuonContainer_v1> > >" />
+
+
 
   <!-- MuonSegment_v1 dictionaries -->
   <class name="xAOD::MuonSegment_v1"/>

@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: Muon_v1.cxx 637257 2014-12-21 14:36:07Z jomeyer $
+// $Id: Muon_v1.cxx 647346 2015-02-17 10:24:03Z emoyse $
 // Misc includes
 #include <vector>
 
@@ -373,6 +373,7 @@ bool Muon_v1::isolationCaloCorrection(  float& value, const Iso::IsolationFlavou
 
   AUXSTORE_OBJECT_GETTER( Muon_v1, ElementLink< TrackParticleContainer >, inDetTrackParticleLink)
   AUXSTORE_OBJECT_GETTER( Muon_v1, ElementLink< TrackParticleContainer >, muonSpectrometerTrackParticleLink)
+  AUXSTORE_OBJECT_GETTER( Muon_v1, ElementLink< TrackParticleContainer >, extrapolatedMuonSpectrometerTrackParticleLink)
   AUXSTORE_OBJECT_GETTER( Muon_v1, ElementLink< TrackParticleContainer >, combinedTrackParticleLink)
 
   const ElementLink< TrackParticleContainer >& Muon_v1::primaryTrackParticleLink() const{
@@ -413,14 +414,17 @@ bool Muon_v1::isolationCaloCorrection(  float& value, const Iso::IsolationFlavou
       case Primary :
         return primaryTrackParticleLink();
         break;
+      case CombinedTrackParticle :
+        return combinedTrackParticleLink();
+        break;
       case InnerDetectorTrackParticle :
         return inDetTrackParticleLink();
         break;
       case MuonSpectrometerTrackParticle :
         return muonSpectrometerTrackParticleLink();
         break;
-      case CombinedTrackParticle :
-        return combinedTrackParticleLink();
+      case ExtrapolatedMuonSpectrometerTrackParticle :
+        return muonSpectrometerTrackParticleLink();
         break;
       default:
         throw std::runtime_error("Unknown TrackParticleType - not sure which track particle to return!");
@@ -454,6 +458,10 @@ bool Muon_v1::isolationCaloCorrection(  float& value, const Iso::IsolationFlavou
       case CombinedTrackParticle :
         static Accessor< ElementLink< TrackParticleContainer > > acc3( "combinedTrackParticleLink" );
         acc3(*this)=link;          
+        break;
+      case ExtrapolatedMuonSpectrometerTrackParticle :
+        static Accessor< ElementLink< TrackParticleContainer > > acc4( "extrapolatedMuonSpectrometerTrackParticleLink" );
+        acc4(*this)=link;
         break;
       case Primary :
       default:
