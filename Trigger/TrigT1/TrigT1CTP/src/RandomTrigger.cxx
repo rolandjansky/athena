@@ -23,7 +23,7 @@ LVL1CTP::RandomTrigger::RandomTrigger() :
 }
 
 LVL1CTP::RandomTrigger::RandomTrigger(unsigned int rand_number, const unsigned int aRate,unsigned int ctpVersionNumber, CLHEP::HepRandomEngine* randEng) :
-   SpecialTrigger(TrigConf::L1DataDef::RNDM, rand_number,ctpVersionNumber, aRate),
+   SpecialTrigger(TrigConf::L1DataDef::RNDM, rand_number, ctpVersionNumber, aRate),
    m_randEngine(randEng)
 {
    Init();
