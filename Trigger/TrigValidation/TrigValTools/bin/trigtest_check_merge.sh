@@ -21,7 +21,7 @@ fi
 
 if [ `grep "WARNING" TrigTest_CheckMerge.log | wc -l`  -gt 0 ]; then
   echo 'TrigTest_CheckMerge test has WARNING'
-  exit 0 
+  exit 1 
 fi 
 
 

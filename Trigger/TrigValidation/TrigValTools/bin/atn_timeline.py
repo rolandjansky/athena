@@ -42,7 +42,7 @@ def parseTestLog(log):
 
    # Test name from log file name
    # Example: Trigger_TrigValidation_TrigP1Test_49__TrigP1Test_TestConfiguration__AllPT_physicsV1_magField_on_off_on__x.loglog
-   test.name = re.match('.*_([0-9]+.*)\.loglog',log).group(1)
+   test.name = re.match('.*?_([0-9]+.*)\.loglog',log).group(1)
    test.alias = test.name.split('__')[2]
    
    for line in f:
