@@ -44,6 +44,12 @@ class InDetTrigSliceSettingsDB:
     monps = {}
     monptmin = {}
 
+    #FTF-specific settings
+    d0seedmax = {}
+    d0seedppsmax = {}
+    d0trackinitialmax = {}
+    checkseedredundancy = {}
+
     #ptmin
     for i in _slices:
       ptmin[i] = 1.*GeV
@@ -60,6 +66,26 @@ class InDetTrigSliceSettingsDB:
     ptmin['minBias400'] = 0.39 * GeV
 
     self.db['pTmin']=ptmin
+
+    for i in _slices:
+      d0seedmax[i] = 4.0
+      d0seedppsmax[i] = 1.7
+      d0trackinitialmax[i] = 20.0
+
+    d0seedmax['cosmics'] = 1000.0
+    d0seedppsmax['cosmics'] = 1000.0
+    d0trackinitialmax['cosmics'] = 1000.0
+
+    self.db['d0SeedMax']=d0seedmax
+    self.db['d0SeedPPSMax']=d0seedppsmax
+    self.db['d0TrackInitialMax']=d0trackinitialmax
+
+    for i in _slices:
+      checkseedredundancy[i] = False
+    checkseedredundancy['electron'] = True
+    checkseedredundancy['muon'] = True
+    checkseedredundancy['bphysics'] = True
+    self.db['checkRedundantSeeds'] = checkseedredundancy
 
     #etaHalfWidth
     etahalf = {
@@ -154,9 +180,9 @@ class InDetTrigSliceSettingsDB:
       try:
         v = q[slice]
       except:
-        print 'InDetTrigConfigRecSliceBased has no slice %s configured' % slice
+        print 'get InDetTrigConfigRecSliceBased has no slice %s configured' % slice
     except:
-      print 'InDetTrigConfigRecSliceBased has no quantity %s configured' % quantity
+      print 'get InDetTrigConfigRecSliceBased has no quantity %s configured' % quantity
 
     return v
 
@@ -166,9 +192,9 @@ class InDetTrigSliceSettingsDB:
       try:
         q[slice] = value
       except:
-        print 'InDetTrigConfigRecSliceBased has no slice %s configured' % slice
+        print 'set InDetTrigConfigRecSliceBased has no slice %s configured' % slice
     except:
-      print 'InDetTrigConfigRecSliceBased has no quantity %s configured' % quantity
+      print 'set InDetTrigConfigRecSliceBased has no quantity %s configured' % quantity
 
 
 
