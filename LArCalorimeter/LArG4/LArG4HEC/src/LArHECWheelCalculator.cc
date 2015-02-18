@@ -29,12 +29,9 @@
 #include "GaudiKernel/Bootstrap.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "AthenaKernel/getMessageSvc.h"
-#include "AthenaKernel/Units.h"
 
 #include "globals.hh"
 #include <cmath>
-
-namespace Units = Athena::Units;
 
 #undef DEBUG_HITS
 
@@ -57,9 +54,7 @@ LArHECWheelCalculator::~LArHECWheelCalculator() {
 }
 
 LArHECWheelCalculator::LArHECWheelCalculator()
-  :m_msgSvc(0),
-   //m_identifier(),m_time(0),m_energy(0),
-   m_isInTime(false), m_birksLaw(NULL)
+  :m_msgSvc(0),m_identifier(),m_time(0),m_energy(0),m_isInTime(false), m_birksLaw(NULL)
 {
    StoreGateSvc* detStore;
    LArG4GlobalOptions *globalOptions=NULL;
@@ -82,7 +77,7 @@ LArHECWheelCalculator::LArHECWheelCalculator()
    }
 
    MsgStream log(Athena::getMessageSvc(),"LArHECWheelCalculator" );
-   log << MSG::INFO << "Use the LArHECWheelCalculator for the HEC" << endmsg;
+   log << MSG::INFO << "Use the LArHECWheelCalculator for the HEC" << endreq;
 
    m_OOTcut = globalOptions->OutOfTimeCut();
 
@@ -109,19 +104,18 @@ LArHECWheelCalculator::LArHECWheelCalculator()
 
 }
 
-G4bool LArHECWheelCalculator::Process(const G4Step* a_step, std::vector<LArHitData>& hdata)
+
+G4bool LArHECWheelCalculator::Process(const G4Step* a_step)
 {
 
-  // make sure hdata is reset
-  hdata.resize(1);
   // First, get the energy.
-  hdata[0].energy = a_step->GetTotalEnergyDeposit();
+  m_energy = a_step->GetTotalEnergyDeposit();
   
 
   // apply BirksLaw if we want to:
-  G4double stepLengthCm = a_step->GetStepLength() / Units::cm;
-  if(hdata[0].energy <= 0. || stepLengthCm <= 0.)  return false;
-  if(m_birksLaw)  hdata[0].energy = (*m_birksLaw)(hdata[0].energy, stepLengthCm, 10.0 /*KeV/cm*/);
+  G4double stepLengthCm = a_step->GetStepLength() / CLHEP::cm;
+  if(m_energy <= 0. || stepLengthCm <= 0.)  return false;
+  if(m_birksLaw)  m_energy = (*m_birksLaw)(m_energy, stepLengthCm, 10.0 /*KeV/cm*/);
 
   // Find out how long it took the energy to get here.
   G4double timeOfFlight        = 0.5* (  a_step->GetPreStepPoint()->GetGlobalTime()
@@ -129,24 +123,24 @@ G4bool LArHECWheelCalculator::Process(const G4Step* a_step, std::vector<LArHitDa
   G4ThreeVector point          = 0.5* (  a_step->GetPreStepPoint()->GetPosition()
 				       + a_step->GetPostStepPoint()->GetPosition() );
 
-  hdata[0].time = timeOfFlight/Units::ns - point.mag()/Units::c_light/Units::ns;
+  m_time = timeOfFlight/CLHEP::ns - point.mag()/CLHEP::c_light/CLHEP::ns;
 
-  if (hdata[0].time > m_OOTcut)
+  if (m_time > m_OOTcut)
     m_isInTime = false;
   else
     m_isInTime = true;
 
   // Calculate the identifier.
   int subgapIndex=0;
-  hdata[0].id = m_Geometry->CalculateIdentifier( a_step, LArG4::HEC::kWheelActive,&subgapIndex);
+  m_identifier = m_Geometry->CalculateIdentifier( a_step, LArG4::HEC::kWheelActive,&subgapIndex);
 
   //  int detector = m_identifier[0];
   //  int subdet   = m_identifier[1];
-  int zSide    = hdata[0].id[2];
-  int sampling = hdata[0].id[3];
-  int region   = hdata[0].id[4];
-  int eta      = hdata[0].id[5];
-  int phi      = hdata[0].id[6];
+  int zSide    = m_identifier[2];
+  int sampling = m_identifier[3];
+  int region   = m_identifier[4];
+  int eta      = m_identifier[5];
+  int phi      = m_identifier[6];
 
   
 
@@ -154,7 +148,7 @@ G4bool LArHECWheelCalculator::Process(const G4Step* a_step, std::vector<LArHitDa
     const HECDetectorRegion *hecRegion=m_DetectorManager->getDetectorRegion(zSide<0? 0: 1, sampling, region);
     HECCellConstLink cell=hecRegion->getHECCell(eta, phi);
     HECHVSubgapConstLink subgap = cell->getSubgap(subgapIndex);
-    hdata[0].energy *= (pow(subgap->voltage()/1800.0,0.6));
+    m_energy *= (pow(subgap->voltage()/1800.0,0.6));
   }
 
   return true;

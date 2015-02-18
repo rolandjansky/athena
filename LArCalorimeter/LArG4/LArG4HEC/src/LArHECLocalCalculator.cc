@@ -21,12 +21,9 @@
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/Bootstrap.h"
 #include "StoreGate/StoreGateSvc.h"
-#include "AthenaKernel/Units.h"
 
 #include "globals.hh"
 #include <cmath>
-
-namespace Units = Athena::Units;
 
 #undef DEBUG_HITS
 
@@ -46,8 +43,7 @@ LArHECLocalCalculator* LArHECLocalCalculator::GetCalculator()
 
 
 LArHECLocalCalculator::LArHECLocalCalculator()
-   ://m_identifier(),m_time(0),m_energy(0),
-      m_isInTime(false),m_birksLaw(NULL)
+   :m_identifier(),m_time(0),m_energy(0),m_isInTime(false),m_birksLaw(NULL)
 {
    StoreGateSvc* detStore;
    LArG4GlobalOptions *globalOptions=NULL;
@@ -72,7 +68,7 @@ LArHECLocalCalculator::LArHECLocalCalculator()
    if(status.isFailure()) m_msgSvc = 0;
    if(m_msgSvc) {
      MsgStream log(m_msgSvc,"LArHECLocalCalculator");
-     log << MSG::INFO << "Constructing Calculator " << endmsg;
+     log << MSG::INFO << "Constructing Calculator " << endreq;
    }
 
    m_OOTcut = globalOptions->OutOfTimeCut();
@@ -101,18 +97,16 @@ void LArHECLocalCalculator::SetX(bool x){
    m_isX = x; 
 }
 
-G4bool LArHECLocalCalculator::Process(const G4Step* a_step, int depthadd, double deadzone, std::vector<LArHitData>& hdata)
+G4bool LArHECLocalCalculator::Process(const G4Step* a_step, int depthadd, double deadzone)
 {
 
-  // make sure vector is clear
-  hdata.clear();
   // First, get the energy.
-  hdata[0].energy = a_step->GetTotalEnergyDeposit();
+  m_energy = a_step->GetTotalEnergyDeposit();
 
   // apply BirksLaw if we want to:
-  G4double stepLengthCm = a_step->GetStepLength() / Units::cm;
-  if(hdata[0].energy <= 0. || stepLengthCm <= 0.)  return false;
-  if(m_birksLaw)  hdata[0].energy = (*m_birksLaw)(hdata[0].energy, stepLengthCm, 10.0 /*KeV/cm*/);
+  G4double stepLengthCm = a_step->GetStepLength() / CLHEP::cm;
+  if(m_energy <= 0. || stepLengthCm <= 0.)  return false;
+  if(m_birksLaw)  m_energy = (*m_birksLaw)(m_energy, stepLengthCm, 10.0 /*KeV/cm*/);
 
 
   // Find out how long it took the energy to get here.
@@ -124,14 +118,14 @@ G4bool LArHECLocalCalculator::Process(const G4Step* a_step, int depthadd, double
   G4ThreeVector endPoint   = post_step_point->GetPosition();
   G4ThreeVector p = (startPoint + endPoint) * 0.5;
 					 
-  hdata[0].time = timeOfFlight/Units::ns - p.mag()/Units::c_light/Units::ns;
-  if (hdata[0].time > m_OOTcut)
+  m_time = timeOfFlight/CLHEP::ns - p.mag()/CLHEP::c_light/CLHEP::ns;
+  if (m_time > m_OOTcut)
     m_isInTime = false;
   else
     m_isInTime = true;
 
   // Calculate the identifier.
-  hdata[0].id = m_Geometry->CalculateIdentifier( a_step, LArG4::HEC::kLocActive, depthadd, deadzone);
+  m_identifier = m_Geometry->CalculateIdentifier( a_step, LArG4::HEC::kLocActive, depthadd, deadzone);
 //  std::cout<<"LArHECLocalCalculator::Process "<<depthadd<<std::endl;
   return true;
 }

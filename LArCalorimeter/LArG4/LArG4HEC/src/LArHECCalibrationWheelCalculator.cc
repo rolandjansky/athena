@@ -27,10 +27,10 @@ namespace LArG4 {
       StatusCode status = svcLocator->service("DetectorStore", detStore);
       MsgStream log(Athena::getMessageSvc(),"LArHECWheelCalculator" );
       if(status != StatusCode::SUCCESS ) {
-         log << MSG::ERROR << "No DetStore available !!" << endmsg;
+         log << MSG::ERROR << "No DetStore available !!" << endreq;
       }
 
-      log << MSG::INFO << "Use the LArHECCalibrationWheelCalculator for the HEC" << endmsg;
+      log << MSG::INFO << "Use the LArHECCalibrationWheelCalculator for the HEC" << endreq;
 
       // Initialize the geometry calculator.
       m_geometryCalculator = HECGeometry::GetInstance();
