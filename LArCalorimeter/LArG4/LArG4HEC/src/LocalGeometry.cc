@@ -123,7 +123,7 @@ double deadZone(double locx, double locy, double /*rot*/=0)
     }
 
 
-    LocalGeometry::LocalGeometry(): m_parameters(0){
+    LocalGeometry::LocalGeometry() {
 
 //       std::cout<<"LArG4::HEC::LocalGeometry called !"<<std::endl;
       StatusCode status;

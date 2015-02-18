@@ -77,7 +77,7 @@ HECGeometry* HECGeometry::GetInstance()
 }
 
 
-    HECGeometry::HECGeometry(): m_log(0),m_parameters(0) {
+    HECGeometry::HECGeometry() {
   
   
   MsgStream log(Athena::getMessageSvc(),"LArG4HEC::HECGeometry" );

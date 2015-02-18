@@ -10,8 +10,8 @@
 
 // 13-Jan-2004 WGS: Now uses LArG4::HEC::Geometry for the Identifier calculations.
 
-#ifndef __LArHECCalculator_H__
-#define __LArHECCalculator_H__
+#ifndef LARG4HEC_LARHECCALCULATOR_H
+#define LARG4HEC_LARHECCALCULATOR_H
 
 #include "globals.hh"
 #include "G4ThreeVector.hh"
@@ -79,10 +79,6 @@ protected:
 private:
   static LArHECCalculator* m_instance;
 
-  // Pointer to source of detector parameters.
-  LArVG4DetectorParameters* m_parameters;
-
-  // 
   G4float m_zShift;
   G4float m_OOTcut;
   LArG4Identifier m_identifier;
@@ -98,4 +94,4 @@ private:
   G4bool m_chargeCollection;
 };
 
-#endif
+#endif // not LARG4HEC_LARHECCALCULATOR_H
