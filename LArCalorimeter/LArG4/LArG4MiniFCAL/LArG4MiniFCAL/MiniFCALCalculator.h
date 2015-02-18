@@ -8,8 +8,8 @@
 
 // Aug-2008: M.Fincke  First implementation for SLHC MiniFCal
 
-#ifndef __MiniFCALCalculator_H__
-#define __MiniFCALCalculator_H__
+#ifndef LARG4MINIFCAL_MINIFCALCALCULATOR_H
+#define LARG4MINIFCAL_MINIFCALCALCULATOR_H
 
 #include "LArG4Code/LArVCalculator.h"
 #include "LArG4Code/LArG4Identifier.h"
@@ -72,7 +72,6 @@ protected:
 
 private:
   static MiniFCALCalculator* m_instance;
-  IMessageSvc *m_msgSvc;
 
   LArG4::MiniFCAL::MiniFCALAssignIdentifier *m_Geometry;
 
@@ -84,4 +83,5 @@ private:
 
 };
 
-#endif
+#endif // LARG4MINIFCAL_MINIFCALCALCULATOR_H
+

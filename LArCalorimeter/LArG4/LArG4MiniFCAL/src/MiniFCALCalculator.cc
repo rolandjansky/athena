@@ -41,7 +41,7 @@ MiniFCALCalculator* MiniFCALCalculator::GetCalculator()
 //MiniFCALCalculator::~MiniFCALCalculator() {}
 
 MiniFCALCalculator::MiniFCALCalculator()
-  :m_msgSvc(0), m_identifier(),m_time(0),m_energy(0),m_isInTime(false)
+  :m_identifier(),m_time(0),m_energy(0),m_isInTime(false)
 {
    StoreGateSvc* detStore;
    LArG4GlobalOptions *globalOptions=NULL;

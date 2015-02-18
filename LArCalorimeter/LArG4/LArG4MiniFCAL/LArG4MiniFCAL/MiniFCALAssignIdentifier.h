@@ -63,21 +63,15 @@ namespace LArG4 {
       static MiniFCALAssignIdentifier *m_instance;
       
       
-      /** a handle on Store Gate for access to the Event Store */
-      StoreGateSvc* m_storeGate;
-      StoreGateSvc* m_detStore;
-      
-            
-      G4double emecZshift;
-      G4double halfLength;
-      G4double absThick;
-      G4double layThick;
+      G4double m_halfLength;
+      G4double m_absThick;
+      G4double m_layThick;
 
       // Map layer and ring numbers to corresponding indexes in recordsets
-      MapNumToIndex layerIndexes, ringIndexes, nWafers;
-      std::map<int,G4double> ringRouter;
-      std::map<int,G4double> ringRinner;
-      int nRings;
+      MapNumToIndex m_ringIndexes, m_nWafers;
+      std::map<int,G4double> m_ringRouter;
+      std::map<int,G4double> m_ringRinner;
+      int m_nRings;
 
       bool m_initialized;      
     };
