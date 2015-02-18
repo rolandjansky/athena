@@ -58,6 +58,16 @@ namespace Muon {
                                                           const Trk::TrackParameters* pars = 0,
                                                           const MuonDriftCircleErrorStrategy* strategy = 0 ) const = 0;
 
+        /** @brief Update error of a ROT without changing the drift radius
+        @param DCT reference to the Muon::MdtDriftCircleOnTrack of which the sign should be updated.
+        @param tp Reference to the extrapolated/predicted TrackParameters at this MdtPrepData (not used)
+        @param errorlist holds the identifier of the chamber/det element and the error to be applied on the DCTs inside
+        @return New ROT with updated error. (the user must delete this object when it is no longer needed).
+        */ 
+        virtual const MdtDriftCircleOnTrack* updateErrorExternal( const MdtDriftCircleOnTrack& DCT,
+                                                                  const Trk::TrackParameters* pars = 0,
+                                                                  const std::map<Identifier,double>* errorlist = 0 ) const = 0;
+
         /** @brief Returns calibrated MdtDriftCircleOnTrack.
         Overrides the IRIO_OnTrackCreator method to add an error strategy object.
         @param prd Reference to a Trk::PrepRawData object (which should always be a Muon::MdtPrepData in this case)
