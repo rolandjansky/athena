@@ -53,9 +53,6 @@ namespace LArG4 {
       
       MsgStream *m_log;
 
-      // Pointer to source of detector parameters.
-      LArVG4DetectorParameters* m_parameters;
-
       static bool m_isX; 
 
     };
