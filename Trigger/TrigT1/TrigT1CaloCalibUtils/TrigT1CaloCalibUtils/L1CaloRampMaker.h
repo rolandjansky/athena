@@ -5,7 +5,7 @@
 #ifndef L1CALORAMPMAKER_H
 #define L1CALORAMPMAKER_H
 
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "Identifier/Identifier.h"
 #include "TrigT1CaloToolInterfaces/IL1TriggerTowerTool.h"
@@ -39,7 +39,7 @@ namespace LVL1{
  *
  * @author Veit Scharf <veit.scharf@kip.uni-heidelberg.de>
  */
-class L1CaloRampMaker : public Algorithm
+class L1CaloRampMaker : public AthAlgorithm
 {
  public:
     L1CaloRampMaker(const std::string& name, ISvcLocator* pSvcLocator);
@@ -72,7 +72,6 @@ class L1CaloRampMaker : public Algorithm
     ToolHandle<LVL1::IL1TriggerTowerTool> m_ttTool; // Handle to L1TriggerTowerTool.
     ToolHandle<TileBeamInfoProvider> m_beamInfo; // Handle to TileBeamInfoProvider for CISPAR info.
 
-    MsgStream m_log;
     unsigned int m_nEvent;
     bool m_firstEvent;
 

@@ -7,10 +7,7 @@
 
 #include <map>
 
-#include "GaudiKernel/Algorithm.h"
-#include "GaudiKernel/MsgStream.h"
-
-#include "StoreGate/StoreGateSvc.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 
 #include "CaloIdentifier/CaloIdManager.h"
 #include "CaloIdentifier/CaloLVL1_ID.h"
@@ -27,7 +24,7 @@
  *  @author Damien Prieur <damien.prieur@cern.ch>
  */
 
-class L1CaloPedestalGenerator : public Algorithm {
+class L1CaloPedestalGenerator : public AthAlgorithm {
 
 public:
     L1CaloPedestalGenerator(const std::string& name, ISvcLocator* pSvcLocator);

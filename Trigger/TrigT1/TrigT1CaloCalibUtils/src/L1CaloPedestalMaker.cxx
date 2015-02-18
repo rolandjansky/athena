@@ -18,7 +18,7 @@
 #include "CoralBase/AttributeListSpecification.h"
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
 
-L1CaloPedestalMaker::L1CaloPedestalMaker(const std::string& name, ISvcLocator* pSvcLocator): Algorithm(name, pSvcLocator),
+L1CaloPedestalMaker::L1CaloPedestalMaker(const std::string& name, ISvcLocator* pSvcLocator): AthAlgorithm(name, pSvcLocator),
     m_detStore(0),
     m_storeGate(0),
     m_caloMgr(0),
@@ -59,41 +59,40 @@ L1CaloPedestalMaker::~L1CaloPedestalMaker()
 //-------------------------------------------
 StatusCode L1CaloPedestalMaker::initialize()
 {
-    MsgStream log( msgSvc(), name() );
-    log << MSG::INFO <<"From Initialize..."<<endreq;
+    ATH_MSG_INFO("From Initialize...");
 
     StatusCode sc;
 
     //get a pointer to DetectorStore services
     sc = service("DetectorStore", m_detStore);
     if (sc.isFailure()) {
-        log << MSG::ERROR << "Cannot access DetectorStore" << endreq;
+        ATH_MSG_ERROR( "Cannot access DetectorStore" );
         return StatusCode::FAILURE;
     }
 
     //get a pointer to Event StoreGate services
     sc = service("StoreGateSvc", m_storeGate);
     if (sc.isFailure()) {
-        log << MSG::ERROR << "Cannot access StoreGate" << endreq;
+        ATH_MSG_ERROR( "Cannot access StoreGate" );
         return StatusCode::FAILURE;
     }
 
 	sc = service("L1CaloCondSvc", m_l1CondSvc);
 	if(sc.isFailure()){
-		log << MSG::ERROR << "Could not retrieve L1CaloCondSvc" << endreq;
+		ATH_MSG_ERROR( "Could not retrieve L1CaloCondSvc" );
 		return StatusCode::FAILURE;
  	}
 
     // Retrieve CaloIdManager
 	sc = m_detStore->retrieve(m_caloMgr);
     if (sc.isFailure()) {
-        log << MSG::ERROR << "Unable to retrieve CaloIdManager from DetectorStore" << endreq;
+        ATH_MSG_ERROR( "Unable to retrieve CaloIdManager from DetectorStore" );
         return StatusCode::FAILURE;
     }
 
     m_lvl1Helper = m_caloMgr->getLVL1_ID();
 	if (!m_lvl1Helper) {
-        log << MSG::ERROR << "Could not access CaloLVL1_ID helper" << endreq;
+        ATH_MSG_ERROR( "Could not access CaloLVL1_ID helper" );
         return StatusCode::FAILURE;
 	}
 
@@ -105,19 +104,19 @@ StatusCode L1CaloPedestalMaker::initialize()
 	if(sc.isSuccess()) {
 	 	sc = toolSvc->retrieveTool("CaloTriggerTowerService",m_ttSvc);
 		if(sc.isFailure()){
-			log << MSG::ERROR << "Could not retrieve CaloTriggerTowerService Tool" << endreq;
+			ATH_MSG_ERROR( "Could not retrieve CaloTriggerTowerService Tool" );
 			return StatusCode::FAILURE;
 	 	}
 
 	 	if (m_bStore2POOL) {
 	 		sc = toolSvc->retrieveTool("AthenaPoolOutputStreamTool", m_streamName, m_streamer);
 			if (sc.isFailure()) {
-			    log << MSG::INFO << "Unable to find AthenaOutputStreamTool" << endreq;
+			    ATH_MSG_INFO( "Unable to find AthenaOutputStreamTool" );
 			    return StatusCode::FAILURE;
 			}
 	 	}
 	} else {
-	  log << MSG::ERROR << "Could not retrieve ToolSvc" << endreq;
+	  ATH_MSG_ERROR( "Could not retrieve ToolSvc" );
 	  return StatusCode::FAILURE;
 	}
 
@@ -125,12 +124,12 @@ StatusCode L1CaloPedestalMaker::initialize()
   if (m_bStore2COOL) {
 		sc = service("IOVRegistrationSvc", m_regSvc);
 		if (sc.isFailure()) {
-		    log << MSG::INFO << "Unable to find IOVRegistrationSvc " << endreq;
+		    ATH_MSG_INFO( "Unable to find IOVRegistrationSvc " );
 		    return StatusCode::FAILURE;
 		} else {
-		    log << MSG::DEBUG << "Found IOVRegistrationSvc "  << endreq;
+		    ATH_MSG_DEBUG( "Found IOVRegistrationSvc "  );
 		}
-	  log  << MSG::INFO << "Tag to be used: " << m_DBTag << endreq;
+	  ATH_MSG_INFO( "Tag to be used: " << m_DBTag );
   }
 
   m_towerKey = new LVL1::TriggerTowerKey();
@@ -143,16 +142,15 @@ StatusCode L1CaloPedestalMaker::initialize()
 //----------------------------------------
 StatusCode L1CaloPedestalMaker::execute()
 {
-  MsgStream log( msgSvc(), name() );
   StatusCode sc;
 
   // retrieve triggertowers container from storegate
   const TriggerTowerCollection* ttCollection = 0;
   sc = m_storeGate->retrieve(ttCollection, m_triggerTowerLocation);
   if (sc.isFailure() || !ttCollection) {
-    log << MSG::ERROR << "No Trigger Towers found" << endreq;
+    ATH_MSG_ERROR( "No Trigger Towers found" );
     return StatusCode::SUCCESS;
-  } else log << MSG::DEBUG <<"TriggerTowerCollection retrieved from StoreGate, size: "<< ttCollection->size() <<endreq;
+  } else ATH_MSG_DEBUG("TriggerTowerCollection retrieved from StoreGate, size: "<< ttCollection->size() );
 
 
     //---
@@ -196,7 +194,7 @@ StatusCode L1CaloPedestalMaker::execute()
                 samples = ptt->hadADC();
             }
 
-            //log<<MSG::INFO<<samples[0]<<" "<<samples[1]<<" "<<samples[2]<<" "<<samples[3]<<" "<<samples[4]<<endreq;
+            //ATH_MSG_INFO(samples[0]<<" "<<samples[1]<<" "<<samples[2]<<" "<<samples[3]<<" "<<samples[4]);
 
             m_mapPedestalCumul[Id];
 
@@ -238,14 +236,14 @@ StatusCode L1CaloPedestalMaker::execute()
 //-----------------------------------------
 StatusCode L1CaloPedestalMaker::finalize()
 {
-  MsgStream log( msgSvc(), name() );
-  log << MSG::INFO <<"From finalize..."<<endreq;
+
+  ATH_MSG_INFO("From finalize...");
 
   StatusCode sc;
 
   L1CaloPedestalContainer* pedestalContainer = new L1CaloPedestalContainer;
 
-  log<<MSG::DEBUG<<"Map size: "<<m_mapPedestalCumul.size() <<endreq;
+  ATH_MSG_DEBUG("Map size: "<<m_mapPedestalCumul.size() );
 
   std::map< Identifier, L1CaloPedestalCumul>::const_iterator it = m_mapPedestalCumul.begin();
   std::map< Identifier, L1CaloPedestalCumul>::const_iterator it_end = m_mapPedestalCumul.end();
@@ -257,7 +255,7 @@ StatusCode L1CaloPedestalMaker::finalize()
       try {
         channelId = m_ttSvc->createTTChannelID(it->first);
       } catch(CaloID_Exception& except) {
-        log << MSG::ERROR << "CaloID_Exception " << (std::string) except << endreq ;
+        ATH_MSG_ERROR( "CaloID_Exception " << (std::string) except );
       }
 
       // Convert Athena Online Id into a TDAQ online one
@@ -265,7 +263,7 @@ StatusCode L1CaloPedestalMaker::finalize()
       try {
         coolChannelId = m_ttSvc->createL1CoolChannelId(channelId);
       } catch(CaloID_Exception& except) {
-        log << MSG::ERROR << "CaloID_Exception " << (std::string) except << endreq ;
+        ATH_MSG_ERROR( "CaloID_Exception " << (std::string) except );
       }
 
       L1CaloPedestal* pedestal = new L1CaloPedestal(coolChannelId.id(), it->second);
@@ -273,19 +271,19 @@ StatusCode L1CaloPedestalMaker::finalize()
   }
 
   sc = m_detStore->record(pedestalContainer, m_PedestalsKey);
-  if (sc.isSuccess()) log << MSG::DEBUG << "Stored Pedestals in DetStore at "<< m_PedestalsKey<< " with size: "<< pedestalContainer->size() << endreq;
+  if (sc.isSuccess()) ATH_MSG_DEBUG( "Stored Pedestals in DetStore at "<< m_PedestalsKey<< " with size: "<< pedestalContainer->size() );
   else {
-    log << MSG::ERROR << "failed to write Pedestals to DetStore at " << m_PedestalsKey << endreq;
+    ATH_MSG_ERROR( "failed to write Pedestals to DetStore at " << m_PedestalsKey );
     return StatusCode::FAILURE;
   }
 
   //---
   // Write transient PedestalContainer to POOL
   if (m_bStore2POOL) {
-  	log << MSG::INFO << "Writing L1CaloPedestalContainer to POOL file"  << endreq;
+  	ATH_MSG_INFO( "Writing L1CaloPedestalContainer to POOL file"  );
     sc = m_streamer->connectOutput();
     if (sc.isFailure()) {
-			log <<MSG::ERROR <<"Could not connect stream to output" <<endreq;
+			ATH_MSG_ERROR("Could not connect stream to output" );
 			return( StatusCode::FAILURE);
     }
 
@@ -296,21 +294,21 @@ StatusCode L1CaloPedestalMaker::finalize()
 		typeKeys[index] = pedestalsContPair;
 		++index;
 
-	  log << MSG::DEBUG <<"Stream out for pairs:" <<endreq;
+	  ATH_MSG_DEBUG("Stream out for pairs:" );
 	  for (unsigned int i = 0; i < typeKeys.size(); ++i) {
-	      log << MSG::DEBUG << typeKeys[i].first << " " << typeKeys[i].second << " " << endreq;
+	      ATH_MSG_DEBUG( typeKeys[i].first << " " << typeKeys[i].second << " " );
 	  }
 
-	  log << MSG::DEBUG <<"StreamObjects" <<endreq;
+	  ATH_MSG_DEBUG("StreamObjects" );
 	  sc = m_streamer->streamObjects(typeKeys);
 	  if (sc.isFailure()) {
-			log <<MSG::ERROR <<"Could not stream out L1CaloPedestalContainer" <<endreq;
+			ATH_MSG_ERROR("Could not stream out L1CaloPedestalContainer" );
 			return( StatusCode::FAILURE);
 	  }
-	  log << MSG::DEBUG <<"commitOutput" <<endreq;
+	  ATH_MSG_DEBUG("commitOutput" );
 	  sc = m_streamer->commitOutput();
 	  if (sc.isFailure()) {
-			log <<MSG::ERROR <<"Could not commit output stream" <<endreq;
+			ATH_MSG_ERROR("Could not commit output stream" );
 			return( StatusCode::FAILURE);
 		}
   }
@@ -318,7 +316,7 @@ StatusCode L1CaloPedestalMaker::finalize()
   //---
   // register condition objetcs in IOVDB
   if (m_bStore2COOL) {
-    log << MSG::INFO << "Registering L1CaloPedestalContainer to IOVDB"  << endreq;
+    ATH_MSG_INFO( "Registering L1CaloPedestalContainer to IOVDB"  );
     StatusCode sc;
     const L1CaloPedestalContainer* constPedestalContainer = pedestalContainer;
     std::string tag = "no tag";
@@ -332,13 +330,13 @@ StatusCode L1CaloPedestalMaker::finalize()
     }
 
     if (sc.isFailure()) {
-			log <<MSG::ERROR <<"Could not register in IOV DB for L1CaloPedestalContainer" <<endreq;
+			ATH_MSG_ERROR("Could not register in IOV DB for L1CaloPedestalContainer" );
 			return( StatusCode::FAILURE);
     }
-    log << MSG::DEBUG << "Registered L1CaloPedestalContainer in folder "<< m_DBFolder <<" with tag " << tag << endreq;
+    ATH_MSG_DEBUG( "Registered L1CaloPedestalContainer in folder "<< m_DBFolder <<" with tag " << tag );
   }
 
-	log << MSG::INFO <<"End of finalize..."<<endreq;
+	ATH_MSG_INFO("End of finalize...");
   return StatusCode::SUCCESS;
 }
 
