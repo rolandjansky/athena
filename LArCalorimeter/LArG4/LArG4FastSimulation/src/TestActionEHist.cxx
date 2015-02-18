@@ -39,8 +39,8 @@ static TestActionEHist ts2("TestActionEHist");
 
 TestActionEHist::TestActionEHist(string s) : 
      FADS::ActionsBase(s), FADS::UserAction(s), FADS::TrackingAction(),
-	 _pds(0),  world(0), fFirstStep(0),  dCALO(2), dBeam(2), dIDET(2), dMUON(2),
-	 dDetail(""), maxhists(1000), maxdirs(1000), p_tag("")
+	 m_world(0), m_firstStep(false),  m_dCALO(2), m_dBeam(2), m_dIDET(2), m_dMUON(2),
+	 m_dDetail(""), m_maxhists(1000), m_maxdirs(1000), m_p_tag("")
 {}
 
 void TestActionEHist::BeginOfRunAction(const G4Run* /*aRun*/)
@@ -54,41 +54,41 @@ void TestActionEHist::BeginOfRunAction(const G4Run* /*aRun*/)
 #endif
 
   // get jobOptions properties
-  fName = theProperties["ROOTFileName"];
-  if (fName.empty()) { 
+  m_name = theProperties["ROOTFileName"];
+  if (m_name.empty()) { 
       ATH_MSG_WARNING("No output file name specified, using default.root!");
-      fName = "default.root";
+      m_name = "default.root";
   }
  
   char * endptr=0;
   if ( !theProperties["CaloDepth"].empty() ){
-    dCALO = strtol(theProperties["CaloDepth"].c_str(),&endptr,0);
+    m_dCALO = strtol(theProperties["CaloDepth"].c_str(),&endptr,0);
     if (endptr[0] != '\0') throw std::invalid_argument("Could not convert string to int: " + std::string(theProperties["CaloDepth"]));
   }
   if ( !theProperties["BeamPipeDepth"].empty() ){
-    dBeam = strtol(theProperties["BeamPipeDepth"].c_str(),&endptr,0);
+    m_dBeam = strtol(theProperties["BeamPipeDepth"].c_str(),&endptr,0);
     if (endptr[0] != '\0') throw std::invalid_argument("Could not convert string to int: " + std::string(theProperties["BeamPipeDepth"]));
   }
   if ( !theProperties["InDetDepth"].empty() ){
-    dIDET = strtol(theProperties["InDetDepth"].c_str(),&endptr,0);
+    m_dIDET = strtol(theProperties["InDetDepth"].c_str(),&endptr,0);
     if (endptr[0] != '\0') throw std::invalid_argument("Could not convert string to int: " + std::string(theProperties["InDetDepth"]));
   }
   if ( !theProperties["MuonDepth"].empty() ){
-    dMUON = strtol(theProperties["MuonDepth"].c_str(),&endptr,0);
+    m_dMUON = strtol(theProperties["MuonDepth"].c_str(),&endptr,0);
     if (endptr[0] != '\0') throw std::invalid_argument("Could not convert string to int: " + std::string(theProperties["MuonDepth"]));
   }
   if ( !theProperties["MaxHists"].empty() ){
-    maxhists = strtol(theProperties["MaxHists"].c_str(),&endptr,0);
+    m_maxhists = strtol(theProperties["MaxHists"].c_str(),&endptr,0);
     if (endptr[0] != '\0') throw std::invalid_argument("Could not convert string to int: " + std::string(theProperties["MaxHists"]));
   }
-  if ( !theProperties["DetailDepth"].empty() ) dDetail = theProperties["DetailDepth"];
-  maxdirs = maxhists;
+  if ( !theProperties["DetailDepth"].empty() ) m_dDetail = theProperties["DetailDepth"];
+  m_maxdirs = m_maxhists;
   ATH_MSG_INFO("Retrieved job properties successfully");
     
 
   // initialize histogramming file (DON'T USE GAUDI) & directories
-  world = new TFile(fName.c_str(), "RECREATE");
-  ATH_MSG_INFO(fName<<" initialized, in directory "<<gDirectory->GetPath());
+  m_world = new TFile(m_name.c_str(), "RECREATE");
+  ATH_MSG_INFO(m_name<<" initialized, in directory "<<gDirectory->GetPath());
 
   return;
 }
@@ -104,10 +104,10 @@ void TestActionEHist::EndOfRunAction(const G4Run* /*aRun*/)
 	 << "#########################################" << G4endl;
 #endif
 
-  world->Write();
-  world->Close();
-  delete world;
-  ATH_MSG_INFO(fName<<" saved & closed.");
+  m_world->Write();
+  m_world->Close();
+  delete m_world;
+  ATH_MSG_INFO(m_name<<" saved & closed.");
 
   return;
 }
@@ -128,10 +128,10 @@ if (aTrack) {
   G4ParticleDefinition* pDef = aTrack->GetDefinition();
   G4String pName    = pDef->GetParticleName();
   G4String pSubType = pDef->GetParticleSubType();
-  if (pName == "neutron" || pName == "proton" ) { p_tag = pName; }
-  else if (pSubType =="e" || pSubType == "pi" ) { p_tag = pSubType; }
-  else { p_tag = pDef->GetParticleType(); }
-  if (!trajectory.empty()) trajectory.clear();
+  if (pName == "neutron" || pName == "proton" ) { m_p_tag = pName; }
+  else if (pSubType =="e" || pSubType == "pi" ) { m_p_tag = pSubType; }
+  else { m_p_tag = pDef->GetParticleType(); }
+  if (!m_trajectory.empty()) m_trajectory.clear();
 }
   return;
 }
@@ -147,7 +147,7 @@ void TestActionEHist::PostUserTrackingAction(const G4Track* aTrack)
 	 << "#########################################" << G4endl;
 #endif
 if (aTrack) {
-  trajectory.clear();
+  m_trajectory.clear();
 }
   return;
 }
@@ -172,23 +172,23 @@ if (aStep) {
 
   // Stores a list of the names of leaf-node volumes which the track has entered
   // and checks it for earlier occurences of the same volume
-  fFirstStep = true;
+  m_firstStep = true;
   if (currentTree.GetStepNumber() > 1) {
-    for ( vector<string>::const_iterator it = trajectory.begin(); it != trajectory.end(); it++ ) {
-      if ( *it == stringify( currentTree.GetVolume()->GetName() ) ) { fFirstStep = false;  break; }
+    for ( vector<string>::const_iterator it = m_trajectory.begin(); it != m_trajectory.end(); it++ ) {
+      if ( *it == stringify( currentTree.GetVolume()->GetName() ) ) { m_firstStep = false;  break; }
     }
   }
 
   // For particles' first step in the current volume
-  if (fFirstStep) {
+  if (m_firstStep) {
     // push_back trajectory element
-    trajectory.push_back( stringify( currentTree.GetVolume()->GetName() ) );
+    m_trajectory.push_back( stringify( currentTree.GetVolume()->GetName() ) );
 
     // set depth cut (MUST implement Simple if Detail is used)
-    currentTree.SetDepthCutSimple(dCALO, dBeam, dIDET, dMUON);
+    currentTree.SetDepthCutSimple(m_dCALO, m_dBeam, m_dIDET, m_dMUON);
     // Detailed depth cut format: /Atlas::Atlas/[level 1]/[level 2]/.../[last directory level]
-    if ( !dDetail.empty() ) {
-        currentTree.SetDepthCutDetail( dDetail.c_str() );
+    if ( !m_dDetail.empty() ) {
+        currentTree.SetDepthCutDetail( m_dDetail.c_str() );
     }
 
     // go to ATLAS::ATLAS
@@ -203,19 +203,19 @@ if (aStep) {
 
 	// construct keyname & directory title
 	string v_name = (thRep == 16969 ? thPV : thPV+"_"+stringify(thRep));
-	string p_name = p_tag + ( currentTree.GetStepNumber() != 1 ? "_entred" : "_madein" );
+	string p_name = m_p_tag + ( currentTree.GetStepNumber() != 1 ? "_entred" : "_madein" );
 	string title = thNoDau+" daughters, "+stringify(currentTree.GetCurrentDepth())+" from base";
 
 	// Build and fill histogram at bottom of tree, then build dir and cd to it
 	if ( currentTree.GetStepNumber() == 1 || currentTree.GetCurrentDepth() == currentTree.GetFullDepth() ) {
-            BuildHists(v_name, p_name, maxhists, currentTree.GetPreStepPoint()->GetKineticEnergy());
+            BuildHists(v_name, p_name, m_maxhists, currentTree.GetPreStepPoint()->GetKineticEnergy());
         }
         if ( !currentTree.Descend() )  break;
-	if ( !BuildDirs(v_name, title, maxdirs) ) break;
+	if ( !BuildDirs(v_name, title, m_maxdirs) ) break;
     }
 
     // Return to world to get ready for next step... FINALLY
-    world->cd();
+    m_world->cd();
   }
 }
   return;
