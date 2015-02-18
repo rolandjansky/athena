@@ -5,10 +5,7 @@
 #ifndef TRIGT1CALOCALIBUTILS_L1CALOTRIGGERTOWERSELECTOR_H
 #define TRIGT1CALOCALIBUTILS_L1CALOTRIGGERTOWERSELECTOR_H
 
-#include "GaudiKernel/Algorithm.h"
-#include "GaudiKernel/MsgStream.h"
-
-#include "StoreGate/StoreGateSvc.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 
 #include "TrigT1CaloEvent/TriggerTower.h"
 #include "TrigT1CaloUtils/TriggerTowerKey.h"
@@ -23,7 +20,7 @@
  *  @author Damien Prieur <damien.prieur@cern.ch>
  */
 
-class L1CaloTriggerTowerSelector : public Algorithm {
+class L1CaloTriggerTowerSelector : public AthAlgorithm {
 
 public:
 	L1CaloTriggerTowerSelector(const std::string& name, ISvcLocator* pSvcLocator);

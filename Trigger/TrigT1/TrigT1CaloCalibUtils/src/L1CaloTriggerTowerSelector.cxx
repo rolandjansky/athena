@@ -6,7 +6,7 @@
 
 #include "TrigT1CaloEvent/TriggerTowerCollection.h"
 
-L1CaloTriggerTowerSelector::L1CaloTriggerTowerSelector(const std::string& name, ISvcLocator* pSvcLocator): Algorithm(name, pSvcLocator), m_storeGate(0), m_towerKey(0)
+L1CaloTriggerTowerSelector::L1CaloTriggerTowerSelector(const std::string& name, ISvcLocator* pSvcLocator): AthAlgorithm(name, pSvcLocator), m_storeGate(0), m_towerKey(0)
 {
     //setting selection range to the whole TTs by default
     m_vEtaSelectionRange.push_back(-5.);
@@ -32,15 +32,14 @@ L1CaloTriggerTowerSelector::~L1CaloTriggerTowerSelector()
 //-------------------------------------------
 StatusCode L1CaloTriggerTowerSelector::initialize()
 {
-    MsgStream log( msgSvc(), name() );
-    log << MSG::INFO <<"From Initialize..."<<endreq;
+    ATH_MSG_INFO("From Initialize...");
 
     StatusCode sc;
 
     //get a pointer to Event StoreGate services
     sc = service("StoreGateSvc", m_storeGate);
     if (sc.isFailure()) {
-        log << MSG::ERROR << "Cannot access StoreGate" << endreq;
+        ATH_MSG_ERROR( "Cannot access StoreGate" );
         return StatusCode::FAILURE;
     }
 
@@ -54,16 +53,15 @@ StatusCode L1CaloTriggerTowerSelector::initialize()
 //----------------------------------------
 StatusCode L1CaloTriggerTowerSelector::execute()
 {
-    MsgStream log( msgSvc(), name() );
     StatusCode sc;
 
     // retrieve triggertowers container from storegate
     const TriggerTowerCollection* ttCollection = 0;
     sc = m_storeGate->retrieve(ttCollection, m_inputTriggerTowerLocation);
     if (sc.isFailure() || !ttCollection) {
-        log << MSG::ERROR << "No Trigger Towers found" << endreq;
+        ATH_MSG_ERROR( "No Trigger Towers found" );
         return StatusCode::SUCCESS;
-    } else log << MSG::DEBUG <<"TriggerTowerCollection retrieved from StoreGate, size: "<< ttCollection->size() <<endreq;
+    } else ATH_MSG_DEBUG("TriggerTowerCollection retrieved from StoreGate, size: "<< ttCollection->size() );
 
 	// create TriggerTowerCollection that will hold the selected TT
 	TriggerTowerCollection* outputTTCollection = new TriggerTowerCollection();
@@ -89,9 +87,9 @@ StatusCode L1CaloTriggerTowerSelector::execute()
 
   	sc = m_storeGate->record(outputTTCollection, m_outputTriggerTowerLocation);
   	if (sc.isFailure()) {
-    	log << MSG::ERROR << "Failed to record output TriggerTowerCollection to TDS with key: "<< m_outputTriggerTowerLocation << endreq;
+    	ATH_MSG_ERROR( "Failed to record output TriggerTowerCollection to TDS with key: "<< m_outputTriggerTowerLocation );
     	return StatusCode::SUCCESS;
-  	} else log << MSG::DEBUG <<"TriggerTowerCollection recorded to TDS with key: "<< m_outputTriggerTowerLocation<<", size: "<< outputTTCollection->size() <<endreq;
+  	} else ATH_MSG_DEBUG("TriggerTowerCollection recorded to TDS with key: "<< m_outputTriggerTowerLocation<<", size: "<< outputTTCollection->size() );
 
     return StatusCode::SUCCESS;
 }

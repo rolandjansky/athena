@@ -11,7 +11,6 @@
 
 #include "GaudiKernel/Bootstrap.h"
 #include "GaudiKernel/IToolSvc.h"
-#include "StoreGate/StoreGateSvc.h"
 
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
@@ -34,7 +33,7 @@
 #include "TrigT1CaloCalibToolInterfaces/IL1CaloCells2TriggerTowers.h"
 
 L1CaloRampMaker::L1CaloRampMaker(const std::string& name, ISvcLocator* pSvcLocator)
-  : Algorithm(name, pSvcLocator),
+  : AthAlgorithm(name, pSvcLocator),
     m_triggerTowerCollectionName("TriggerTowers"),
     m_caloCellContainerName("AllCalo"),
     m_l1CaloCells2TriggerTowersToolName("L1CaloCells2TriggerTowers"),
@@ -54,7 +53,6 @@ L1CaloRampMaker::L1CaloRampMaker(const std::string& name, ISvcLocator* pSvcLocat
     m_tileSaturationCut(150.),
     m_ttTool("LVL1::L1TriggerTowerTool/LVL1::L1TriggerTowerTool"),
     m_beamInfo("TileBeamInfoProvider/TileBeamInfoProvider"),
-    m_log(msgSvc(), name),
     m_nEvent(1),
     m_firstEvent(true),
     m_storeGate(0),
@@ -100,49 +98,49 @@ StatusCode L1CaloRampMaker::initialize()
     
     sc = service("StoreGateSvc", m_storeGate);
     if(sc.isFailure()) {
-        m_log << MSG::FATAL << "Cannot access StoreGateSvc!" << endreq;
+        ATH_MSG_FATAL( "Cannot access StoreGateSvc!" );
         return sc;
     }
 
     sc = service("DetectorStore", m_detStore);
     if(sc.isFailure()) {
-        m_log << MSG::FATAL << "Cannot access DetectorStore!" << endreq;
+        ATH_MSG_FATAL( "Cannot access DetectorStore!" );
         return sc;
     }
     
     sc = service("L1CaloCondSvc", m_condSvc);
     if(sc.isFailure()) {
-        m_log << MSG::FATAL << "Cannot access L1CaloCondSvc!" << endreq;
+        ATH_MSG_FATAL( "Cannot access L1CaloCondSvc!" );
         return sc;
     }
 
     const CaloIdManager *caloMgr;
     sc = m_detStore->retrieve(caloMgr);
     if(sc.isFailure()) {
-	m_log << MSG::FATAL << "Cannot retrieve CaloIdManager from DetectorStore." << endreq;
+	ATH_MSG_FATAL( "Cannot retrieve CaloIdManager from DetectorStore." );
 	return sc;
     }
     m_lvl1Helper = caloMgr->getLVL1_ID();
     if(!m_lvl1Helper) {
-	m_log << MSG::FATAL << "Cannot access CaloLVL1_ID helper." << endreq;
+	ATH_MSG_FATAL( "Cannot access CaloLVL1_ID helper." );
 	return StatusCode::FAILURE;
     }
 
     sc = m_cells2tt.retrieve();
     if(sc.isFailure()){
-      m_log << MSG::FATAL << "Cannot retrieve L1CaloCells2TriggerTowers" << endreq;
+      ATH_MSG_FATAL( "Cannot retrieve L1CaloCells2TriggerTowers" );
      return sc;
     }
 
     sc = m_larEnergy.retrieve();
     if(sc.isFailure()){
-      m_log << MSG::FATAL << "Cannot retrieve L1CaloLArTowerEnergy" << endreq;
+      ATH_MSG_FATAL( "Cannot retrieve L1CaloLArTowerEnergy" );
      return sc;
     }
 
     sc = m_jmTools.retrieve();
     if(sc.isFailure()){
-      m_log << MSG::FATAL << "Cannot retrieve L1CaloOfflineTriggerTowerTools" << endreq;
+      ATH_MSG_FATAL( "Cannot retrieve L1CaloOfflineTriggerTowerTools" );
      return sc;
     }    
     
@@ -150,28 +148,28 @@ StatusCode L1CaloRampMaker::initialize()
 //     IAlgTool* algTool;
 //     sc = service("ToolSvc", toolSvc);
 //     if(sc.isFailure()) {
-// 	m_log << MSG::FATAL << "Cannot retrieve ToolSvc." << endreq;
+// 	ATH_MSG_FATAL( "Cannot retrieve ToolSvc." );
 // 	return sc;
 //     }
 
 //     sc = toolSvc->retrieveTool("L1CaloCells2TriggerTowers", algTool);
 //     m_cells2tt = dynamic_cast<L1CaloCells2TriggerTowers*>(algTool);
 //     if(sc.isFailure() || !m_cells2tt) {
-// 	m_log << MSG::FATAL << "Cannot retrieve L1CaloCells2TriggerTowers from ToolSvc." << endreq;
+// 	ATH_MSG_FATAL( "Cannot retrieve L1CaloCells2TriggerTowers from ToolSvc." );
 // 	return sc;
 //     }
 
 //     sc = toolSvc->retrieveTool("L1CaloLArTowerEnergy", algTool);
 //     m_larEnergy = dynamic_cast<L1CaloLArTowerEnergy*>(algTool);
 //     if(sc.isFailure() || !m_larEnergy) {
-//         m_log << MSG::FATAL << "Cannot retrieve L1CaloLArTowerEnergy from ToolSvc." << endreq;
+//         ATH_MSG_FATAL( "Cannot retrieve L1CaloLArTowerEnergy from ToolSvc." );
 //         return StatusCode::FAILURE;
 //     }
 
 //     sc = toolSvc->retrieveTool("TriggerTowerTools",algTool);
 //     m_jmTools = dynamic_cast<TriggerTowerTools*>(algTool);
 //     if(sc.isFailure() || !m_jmTools) {
-//         m_log << MSG::FATAL << "Could not retrieve TriggerTowerTools" <<endreq;
+//         ATH_MSG_FATAL( "Could not retrieve TriggerTowerTools" );
 // 	return sc;
 //     }
 
@@ -194,8 +192,8 @@ StatusCode L1CaloRampMaker::execute()
     unsigned int wantedEvents = m_nEventsPerStep*m_nSteps;
     if (m_nEvent > wantedEvents) {
         if (m_nEvent == wantedEvents+1) {
-	    m_log << MSG::INFO << "Processed " << wantedEvents
-	          << " events, skipping the rest" << endreq;
+	    ATH_MSG_INFO( "Processed " << wantedEvents
+	          << " events, skipping the rest" );
         }
 	++m_nEvent;
         return StatusCode::SUCCESS;
@@ -205,13 +203,13 @@ StatusCode L1CaloRampMaker::execute()
     const EventID* evID = 0;
     StatusCode sc = m_storeGate->retrieve(evInfo);
     if (sc.isFailure()) {
-        m_log << MSG::WARNING << "No EventInfo found" << endreq;
+        ATH_MSG_WARNING( "No EventInfo found" );
     } else {
         evID = evInfo->event_ID();
         if (evID) evtNumber = evID->event_number();
     }
     if (evtNumber == 0 && m_nEvent > 1) { // Only allow event 0 as first event
-        m_log << MSG::WARNING << "Skipping spurious event number 0" << endreq;
+        ATH_MSG_WARNING( "Skipping spurious event number 0" );
 	return StatusCode::SUCCESS;
     }
 
@@ -219,24 +217,24 @@ StatusCode L1CaloRampMaker::execute()
     const TriggerTowerCollection *triggerTowerCollection(0);
     sc = m_storeGate->retrieve(triggerTowerCollection, m_triggerTowerCollectionName);
     if(!sc.isSuccess()) {
-        m_log << MSG::ERROR << "Cannot retrieve TriggerTowerCollection '"
-              << m_triggerTowerCollectionName << "' from StoreGate." << endreq;
+        ATH_MSG_ERROR( "Cannot retrieve TriggerTowerCollection '"
+              << m_triggerTowerCollectionName << "' from StoreGate." );
         return StatusCode::RECOVERABLE;
     }
 
     const CaloCellContainer *caloCellContainer(0);
     sc = m_storeGate->retrieve(caloCellContainer, m_caloCellContainerName);
     if(!sc.isSuccess()) {
-	m_log << MSG::ERROR << "Cannot retrieve CaloCellContainer '" << m_caloCellContainerName
-	    << "'." << endreq;
+	ATH_MSG_ERROR( "Cannot retrieve CaloCellContainer '" << m_caloCellContainerName
+	    << "'." );
 	return StatusCode::RECOVERABLE;
     }
 
     // init trigger tower to cell mapping - needed each event?
     // not needed - done by m_larEnergy-->init...
     if(!m_cells2tt->initCaloCellsTriggerTowers(*caloCellContainer)) {
-        m_log << MSG::ERROR << "Can not initialize L1CaloCells2TriggerTowers with CaloCellContainer '"
-              << m_caloCellContainerName << "." << endreq;
+        ATH_MSG_ERROR( "Can not initialize L1CaloCells2TriggerTowers with CaloCellContainer '"
+              << m_caloCellContainerName << "." );
         return StatusCode::RECOVERABLE;
     }
 
@@ -251,11 +249,11 @@ StatusCode L1CaloRampMaker::execute()
     // init larTowerEnergy tool
     /*
     if(!m_larEnergy->initL1CaloLArTowerEnergy(*caloCellContainer, *triggerTowerCollection)) {
-        m_log << MSG::ERROR << "Can not initialize L1CaloLArTowerEnergy with CaloCellContainer '"
+        ATH_MSG_ERROR( "Can not initialize L1CaloLArTowerEnergy with CaloCellContainer '"
               << m_caloCellContainerName
               << " and TriggerTowerCollection "
               << m_triggerTowerCollectionName
-              << "." << endreq;
+              << "." );
         return StatusCode::RECOVERABLE;
     }
     */
@@ -276,9 +274,9 @@ StatusCode L1CaloRampMaker::execute()
 	  const AthenaAttributeList& attrList(itr->second);
           const std::string strategy(attrList["name"].data<std::string>());
           const std::string status(attrList["status"].data<std::string>());
-	  m_log << MSG::INFO << "Gain Strategy: channel = " << channel
+	  ATH_MSG_INFO( "Gain Strategy: channel = " << channel
 	                     << ", name = " << strategy
-		             << ", status = " << status << endreq;
+		             << ", status = " << status );
 	  if (gainStrategy == "") gainStrategy = strategy;
           else if (gainStrategy != strategy) consistent = false;
         }
@@ -296,8 +294,8 @@ StatusCode L1CaloRampMaker::execute()
         if (runNumber == 223074) newStrategy = "GainOne";
         if (runNumber == 223075) newStrategy = "GainOne";
         if (newStrategy != "") {
-          m_log << MSG::INFO << "Changing Gain Strategy to " << newStrategy
-                             << endreq;
+          ATH_MSG_INFO( "Changing Gain Strategy to " << newStrategy
+                             );
           gainStrategy = newStrategy;
         }
 	if (gainStrategy != "" && consistent) {
@@ -309,18 +307,18 @@ StatusCode L1CaloRampMaker::execute()
 	  m_isFcalHighEta = (gainStrategy.find("FcalHighEta") !=
 	                                                    std::string::npos);
 	} else if (gainStrategy == "") {
-	  m_log << MSG::WARNING << "Gain Strategy collection empty" << endreq;
+	  ATH_MSG_WARNING( "Gain Strategy collection empty" );
 	} else {
-	  m_log << MSG::WARNING << "Inconsistent Gain Strategies" << endreq;
+	  ATH_MSG_WARNING( "Inconsistent Gain Strategies" );
 	}
       } else {
-        m_log << MSG::WARNING << "No Gain Strategy collection found" << endreq;
+        ATH_MSG_WARNING( "No Gain Strategy collection found" );
       }
-      m_log << MSG::INFO << "isGain1 = "         << m_isGain1
+      ATH_MSG_INFO( "isGain1 = "         << m_isGain1
                          << ", isOvEmb = "       << m_isOvEmb
                          << ", isOvEmec = "      << m_isOvEmec
                          << ", isFcalLowEta = "  << m_isFcalLowEta
-                         << ", isFcalHighEta = " << m_isFcalHighEta << endreq;
+                         << ", isFcalHighEta = " << m_isFcalHighEta );
 
       //unsigned int runNumber = 0;
       //if (evID) runNumber = evID->run_number();
@@ -545,7 +543,7 @@ StatusCode L1CaloRampMaker::finalize()
 
     sc = m_detStore->record(m_rampDataContainer, m_outputFolderName);
     if(sc.isFailure()) {
-        m_log << MSG::FATAL << "Cannot record L1CaloRampDataContainer in DetectorStore" << endreq;
+        ATH_MSG_FATAL( "Cannot record L1CaloRampDataContainer in DetectorStore" );
         return sc;
     }
 

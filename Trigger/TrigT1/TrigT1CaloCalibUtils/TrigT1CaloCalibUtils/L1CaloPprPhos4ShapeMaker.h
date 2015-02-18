@@ -17,9 +17,7 @@
 #include <map>
 
 // Athena includes
-#include "GaudiKernel/Algorithm.h"  
-#include "GaudiKernel/MsgStream.h"
-#include "StoreGate/StoreGateSvc.h"
+#include "AthenaBaseComps/AthAlgorithm.h"  
 #include "GaudiKernel/ITHistSvc.h"
 #include "GaudiKernel/ToolHandle.h"
 
@@ -64,7 +62,7 @@
 class TH2F;
 
 // The AthenaExample class inherits publically from Algorithm. 
-class L1CaloPprPhos4ShapeMaker : public Algorithm
+class L1CaloPprPhos4ShapeMaker : public AthAlgorithm
 {
 public:
    // These are the standard Athena public member functions.
