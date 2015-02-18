@@ -133,12 +133,14 @@ namespace LArG4 {
         { 5,   1.5,   1.8,   0.1, M_PI/32. },
         { 6,   1.3,   3.2,   0.1, M_PI/32. } };
 
+#if 0
     static const RegionInfo_t region011[] =
     // inner cold wall
     // region  etamin etamax deta dphi
       { { 1,   0.0,   1.5,   0.1, M_PI/32. },
         { 4,   1.5,   1.6,   0.1, M_PI/32. }, 
         { 5,   1.5,   1.8,   0.1, M_PI/32. } };
+#endif
 
     static const RegionInfo_t region012[] =
     // inner warm wall, cones, cables and services in front of EMEC
