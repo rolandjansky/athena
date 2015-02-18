@@ -34,6 +34,7 @@ namespace PFO {
      TH1* m_SIGNIFICANCE;
      TH1* m_AVG_LAR_Q;
      TH1* m_AVG_TILE_Q;
+     TH1* m_CELL_SIG_SAMPLING;
 
      void initializePlots();
      std::string m_sClusterContainerName;
