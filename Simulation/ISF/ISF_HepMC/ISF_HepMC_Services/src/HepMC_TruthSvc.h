@@ -101,6 +101,7 @@ namespace ISF {
 
     bool                                      m_storeExtraBCs;
     bool                                      m_passWholeVertex;
+    bool                                      m_quasiStableParticlesIncluded;//!< does this job simulate quasi-stable particles.
   };
 }
 
