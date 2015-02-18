@@ -112,8 +112,8 @@ class EvtInclusiveDecay:public GenBase {
 		std::string m_randomStreamName;
 		std::string m_inputKeyName;
 		std::string m_outputKeyName;
-
-                bool m_readExisting;
+  
+    bool m_readExisting;
 		bool m_prohibitFinalStateDecay;
 		bool m_prohibitReDecay;
 		bool m_prohibitUnDecay;
@@ -126,6 +126,9 @@ class EvtInclusiveDecay:public GenBase {
 		std::vector<int> m_whiteList;
 		std::set<int> m_whiteListSet;   // filed from m_whilteList for speed optimization
 
+    /// The status of decayed particles
+    int m_decayedStatus;
+  
 		bool m_printHepMCBeforeEvtGen;
 		bool m_printHepMCAfterEvtGen;
 		bool m_printHepMCHighlighted;
