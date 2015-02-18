@@ -7,10 +7,7 @@
 
 #include <map>
 
-#include "GaudiKernel/Algorithm.h"
-#include "GaudiKernel/MsgStream.h"
-
-#include "StoreGate/StoreGateSvc.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 
 #include "AthenaKernel/IAthenaOutputStreamTool.h"
 #include "RegistrationServices/IIOVRegistrationSvc.h"
@@ -36,7 +33,7 @@
  *  @author Damien Prieur <damien.prieur@cern.ch>
  */
 
-class L1CaloPedestalMaker : public Algorithm {
+class L1CaloPedestalMaker : public AthAlgorithm {
 
 public:
     L1CaloPedestalMaker(const std::string& name, ISvcLocator* pSvcLocator);

@@ -8,7 +8,7 @@
 #include "TStyle.h"
 #include "TFile.h"
 
-L1CaloPprPhos4ShapeMaker::L1CaloPprPhos4ShapeMaker(const std::string& name, ISvcLocator* pSvcLocator) : Algorithm(name, pSvcLocator),
+L1CaloPprPhos4ShapeMaker::L1CaloPprPhos4ShapeMaker(const std::string& name, ISvcLocator* pSvcLocator) : AthAlgorithm(name, pSvcLocator),
    m_signalShapes(0),
    m_storeGate(0),
    m_detStore(0),
@@ -47,8 +47,7 @@ StatusCode L1CaloPprPhos4ShapeMaker::initialize(){
    // You can specify the level of output in your python jobOptions.py file
    // Options are DEBUG, INFO, WARNING, ERROR, FATAL
    // You can still use std::cout and std::endl, but I guess it's considered bad form.
-   MsgStream log(msgSvc(), name());
-   log<<MSG::INFO<<"In Initialize()"<<endreq;
+   ATH_MSG_INFO("In Initialize()");
    
    
    // create selected histograms
@@ -57,7 +56,7 @@ StatusCode L1CaloPprPhos4ShapeMaker::initialize(){
       sprintf(name,"selected_%08x",m_selectedCoolIds[i]);
       TH2F *histo = new TH2F(name,name,15*25,0,15*25,1024,0,1024);
       m_histosForSelectedCoolIds[m_selectedCoolIds[i]] = histo;
-      log<<MSG::INFO<<"creating select histogram for: "<< std::hex << m_selectedCoolIds[i] << std::dec <<endreq;
+      ATH_MSG_INFO("creating select histogram for: "<< std::hex << m_selectedCoolIds[i] << std::dec );
    }
    
    
@@ -96,9 +95,9 @@ StatusCode L1CaloPprPhos4ShapeMaker::initialize(){
    m_signalShapes = new L1CaloPprPhos4ShapeCollection;
    
    m_signalShapes->SetOutputDirectoryName(m_outputDirectory);
-   log << MSG::INFO << "outputdir: " << m_outputDirectory << endreq;
+   ATH_MSG_INFO( "outputdir: " << m_outputDirectory );
    m_signalShapes->SetMinimumSignalHeight(m_minSignalHeight);
-   log << MSG::INFO << "min signal height: " << m_minSignalHeight << endreq;
+   ATH_MSG_INFO( "min signal height: " << m_minSignalHeight );
    
    // Setup all the Athena Services
    sc = this->loadAthenaObjects();if(sc.isFailure()){return sc;}
@@ -113,19 +112,18 @@ StatusCode L1CaloPprPhos4ShapeMaker::initialize(){
 StatusCode L1CaloPprPhos4ShapeMaker::execute(){
    // This section is for code that is run for each event.
    
-   MsgStream log(msgSvc(), name());
-   log<<MSG::INFO<<"In execute()"<<endreq;
+   ATH_MSG_INFO("In execute()");
    
    StatusCode sc;
    sc = GetEventInfo();
    if(sc.isFailure()){
-      log << MSG::WARNING << "Failed to get Event Info, but continuing." << endreq;
+      ATH_MSG_WARNING( "Failed to get Event Info, but continuing." );
    }
    
    if(m_runNumber == 0){
       m_runNumber = m_evtInfo->event_ID()->run_number();
       
-      log<<MSG::INFO<<"Run Number: " << m_runNumber << endreq;
+      ATH_MSG_INFO("Run Number: " << m_runNumber );
       m_signalShapes->SetRunNumber(m_runNumber);
    }
    
@@ -135,7 +133,7 @@ StatusCode L1CaloPprPhos4ShapeMaker::execute(){
    // Only need to do this once because they do not change from event to event.
    if(!m_currentDatabaseMapsFilled){
       
-      log << MSG::INFO << "Getting database handle for folder " << m_readoutConfigFolderName << endreq;
+      ATH_MSG_INFO( "Getting database handle for folder " << m_readoutConfigFolderName );
       
       
       
@@ -144,7 +142,7 @@ StatusCode L1CaloPprPhos4ShapeMaker::execute(){
       
       sc = GetDatabaseHandle(m_readoutConfigFolderName);
       if(sc.isFailure()){
-         log << MSG::INFO << "Failed to retrieve database handle: " << m_readoutConfigFolderName << endreq;
+         ATH_MSG_INFO( "Failed to retrieve database handle: " << m_readoutConfigFolderName );
          return sc;
       }
       
@@ -161,11 +159,11 @@ StatusCode L1CaloPprPhos4ShapeMaker::execute(){
       } // end for(attrList)
       
       // now retreive the timingRegime from the DerivedRunPars folder
-      log << MSG::INFO << "Getting database handle for folder " << m_l1caloDerivedRunParsFolderName << endreq;
+      ATH_MSG_INFO( "Getting database handle for folder " << m_l1caloDerivedRunParsFolderName );
       
       sc = GetDatabaseHandle(m_l1caloDerivedRunParsFolderName);
       if(sc.isFailure()){
-         log << MSG::INFO << "Failed to retrieve database handle: " << m_l1caloDerivedRunParsFolderName  << endreq;
+         ATH_MSG_INFO( "Failed to retrieve database handle: " << m_l1caloDerivedRunParsFolderName  );
          return sc;
       }
       
@@ -183,11 +181,11 @@ StatusCode L1CaloPprPhos4ShapeMaker::execute(){
       
       // now retreive the ttcConfiguration from the RunParameters folder
       // this allows to check if LAr or Tile is being used.
-      log << MSG::INFO << "Getting database handle for folder " << m_l1caloRunParametersFolderName << endreq;
+      ATH_MSG_INFO( "Getting database handle for folder " << m_l1caloRunParametersFolderName );
       
       sc = GetDatabaseHandle(m_l1caloRunParametersFolderName);
       if(sc.isFailure()){
-         log << MSG::INFO << "Failed to retrieve database handle: " << m_l1caloRunParametersFolderName  << endreq;
+         ATH_MSG_INFO( "Failed to retrieve database handle: " << m_l1caloRunParametersFolderName  );
          return sc;
       }
       
@@ -200,19 +198,19 @@ StatusCode L1CaloPprPhos4ShapeMaker::execute(){
          m_ttcConfiguration = (*attrList)[m_ttcConfigurationName].data<std::string>();
          
          if(m_ttcConfiguration.find("LAr") != std::string::npos){
-            log << MSG::INFO << " This is a LAr run." << endreq;
+            ATH_MSG_INFO( " This is a LAr run." );
             m_isLAr  = true;
             m_isTile = false;
             m_signalShapes->SetLArRun(true);
          }
          else if(m_ttcConfiguration.find("Tile") != std::string::npos){
-            log << MSG::INFO << " This is a Tile run." << endreq;
+            ATH_MSG_INFO( " This is a Tile run." );
             m_isLAr  = false;
             m_isTile = true;
             m_signalShapes->SetTileRun(true);
          }
          else{
-            log << MSG::INFO << " Could not determine Tile or LAr so all channels will be processed." << endreq;
+            ATH_MSG_INFO( " Could not determine Tile or LAr so all channels will be processed." );
             m_isLAr  = false;
             m_isTile = false;
          }
@@ -221,13 +219,13 @@ StatusCode L1CaloPprPhos4ShapeMaker::execute(){
       
       
       
-      log << MSG::INFO << "Getting database handle for folder " << m_pprChanCalibFolderName << endreq;
+      ATH_MSG_INFO( "Getting database handle for folder " << m_pprChanCalibFolderName );
       // now retrieve the PprChanCalib folder so I can
       // get the FullDelayData and the pedestal value
       
       sc = GetDatabaseHandle(m_pprChanCalibFolderName);
       if(sc.isFailure()){
-         log << MSG::INFO << "Failed to retrieve database handle." << endreq;
+         ATH_MSG_INFO( "Failed to retrieve database handle." );
          return sc;
       }
       
@@ -244,7 +242,7 @@ StatusCode L1CaloPprPhos4ShapeMaker::execute(){
          
          sc = m_signalShapes->SetCurrentFullDelayData(coolId,tempFullDelayData);
          if(sc.isFailure()){
-            log << MSG::INFO << "Failed to set FullDelayData from database to channel 0x" << std::hex << coolId << std::dec << endreq;
+            ATH_MSG_INFO( "Failed to set FullDelayData from database to channel 0x" << std::hex << coolId << std::dec );
          }
          
          unsigned int tempPedValue = (*attrList)[m_pedValueName].data<unsigned int>();
@@ -252,14 +250,14 @@ StatusCode L1CaloPprPhos4ShapeMaker::execute(){
          
          sc = m_signalShapes->SetPedValue(coolId,tempPedValue);
          if(sc.isFailure()){
-            log << MSG::INFO << "Failed to set PedValue from database to channel 0x" << std::hex << coolId << std::dec << endreq;
+            ATH_MSG_INFO( "Failed to set PedValue from database to channel 0x" << std::hex << coolId << std::dec );
          }
          
          // utilize this loop over the cool channel id's in order to set the l1aFadcSlice
          // which is the same for all channels.
          sc = m_signalShapes->SetL1aFadcSlice(coolId,m_l1aFadcSlice);
          if(sc.isFailure()){
-            log << MSG::INFO << "Failed to set L1aFadcSlice from database to channel 0x" << std::hex << coolId << std::dec << endreq;
+            ATH_MSG_INFO( "Failed to set L1aFadcSlice from database to channel 0x" << std::hex << coolId << std::dec );
          }
          
          // want to check that this channel is a valid channel
@@ -268,7 +266,7 @@ StatusCode L1CaloPprPhos4ShapeMaker::execute(){
          isValid = IsCoolIdValid(id);
          sc = m_signalShapes->SetValidChannel(coolId,isValid);
          if(sc.isFailure()){
-            log << MSG::INFO << "Failed to set ValidChannel from database to channel 0x" << std::hex << coolId << std::dec << endreq;
+            ATH_MSG_INFO( "Failed to set ValidChannel from database to channel 0x" << std::hex << coolId << std::dec );
          }
          
       } // end for(attrList)
@@ -277,7 +275,7 @@ StatusCode L1CaloPprPhos4ShapeMaker::execute(){
       // want to book the dead channels so I can add this info to the tree
       sc = GetDatabaseHandle(m_ppmDeadChannelsFolderName);
       if(sc.isFailure()){
-         log << MSG::INFO << "Failed to retrieve database handle." << endreq;
+         ATH_MSG_INFO( "Failed to retrieve database handle." );
          return sc;
       }
       
@@ -294,18 +292,18 @@ StatusCode L1CaloPprPhos4ShapeMaker::execute(){
          
          sc = m_signalShapes->SetChannelEnabled(coolId,enabled);
          if(sc.isFailure()){
-            log << MSG::INFO << "Failed to set ChannelEnabled from database to channel 0x" << std::hex << coolId << std::dec << endreq;
+            ATH_MSG_INFO( "Failed to set ChannelEnabled from database to channel 0x" << std::hex << coolId << std::dec );
          }
          
       } // end for(attrList)
       
       
-      log << MSG::INFO << "Finished database initialization." << endreq;
+      ATH_MSG_INFO( "Finished database initialization." );
       m_currentDatabaseMapsFilled = true;
    }
    
    
-   log<<MSG::INFO<<"Event Number: " << eventNum << endreq;
+   ATH_MSG_INFO("Event Number: " << eventNum );
    
    if (eventNum == 0 && m_isTile){
       return sc;
@@ -314,22 +312,22 @@ StatusCode L1CaloPprPhos4ShapeMaker::execute(){
    
    sc = GetTriggerTowers();
    if(sc.isFailure()){
-      log << MSG::FATAL << "Failed to get the trigger tower collection so stopping." << endreq;
+      ATH_MSG_FATAL( "Failed to get the trigger tower collection so stopping." );
       return StatusCode::FAILURE;
    }
    
    sc = GetRODHeader();
    if(sc.isFailure()){
-      log << MSG::FATAL << "Failed to get the ROD Header so stopping." << endreq;
+      ATH_MSG_FATAL( "Failed to get the ROD Header so stopping." );
       return StatusCode::FAILURE;
    }
    
-   log << MSG::INFO << "Filling trigger tower pusles." << endreq;
+   ATH_MSG_INFO( "Filling trigger tower pusles." );
    
    Itr_tt towerItr = m_triggerTowers->begin();
    Itr_tt towerEnd = m_triggerTowers->end();
    
-   log << MSG::INFO << "Trigger Tower Collection Size: " << m_triggerTowers->size() << endreq;
+   ATH_MSG_INFO( "Trigger Tower Collection Size: " << m_triggerTowers->size() );
    
    // Loop over the trigger tower collection
    for(;towerItr != towerEnd;++towerItr){
@@ -358,7 +356,7 @@ StatusCode L1CaloPprPhos4ShapeMaker::execute(){
          
          sc = m_signalShapes->Fill(coolId.id(),phos4step,adcs);
          if(sc.isFailure()){
-            log << MSG::WARNING << " [EM] Failed to fill signal shape collection." << endreq;
+            ATH_MSG_WARNING( " [EM] Failed to fill signal shape collection." );
          }
          
          // fill selected channel histograms
@@ -378,10 +376,10 @@ StatusCode L1CaloPprPhos4ShapeMaker::execute(){
          if(m_firstEvent){
             sc = m_signalShapes->SetL1aFadcSlice(coolId.id(),(*towerItr)->emADCPeak());
             if(sc.isFailure()){
-               log << MSG::WARNING << "Failed to set L1aFadcSlice from Em data to channel 0x" << std::hex << coolId << std::dec << endreq;
+               ATH_MSG_WARNING( "Failed to set L1aFadcSlice from Em data to channel 0x" << std::hex << coolId << std::dec );
             }
             if(!m_signalShapes->SetChannelEtaPhiLayer(coolId.id(),eta,phi,L1CaloPprPhos4Shape::EM)) {
-               log << MSG::WARNING << "Failed to set ChannelEtaPhiLayer from Em data to channel 0x" << std::hex << coolId << std::dec << endreq;
+               ATH_MSG_WARNING( "Failed to set ChannelEtaPhiLayer from Em data to channel 0x" << std::hex << coolId << std::dec );
             }
          }
          
@@ -397,7 +395,7 @@ StatusCode L1CaloPprPhos4ShapeMaker::execute(){
          
          sc = m_signalShapes->Fill(coolId.id(),phos4step,adcs);
          if(sc.isFailure()){
-            log << MSG::WARNING << " [HAD] Failed to fill signal shape collection." << endreq;
+            ATH_MSG_WARNING( " [HAD] Failed to fill signal shape collection." );
          }
          
          
@@ -420,10 +418,10 @@ StatusCode L1CaloPprPhos4ShapeMaker::execute(){
          if(m_firstEvent){
             sc = m_signalShapes->SetL1aFadcSlice(coolId.id(),(*towerItr)->hadADCPeak());
             if(sc.isFailure()){
-               log << MSG::WARNING << "Failed to set L1aFadcSlice from HAD data to channel 0x" << std::hex << coolId << std::dec << endreq;
+               ATH_MSG_WARNING( "Failed to set L1aFadcSlice from HAD data to channel 0x" << std::hex << coolId << std::dec );
             }
             if(!m_signalShapes->SetChannelEtaPhiLayer(coolId.id(),eta,phi,L1CaloPprPhos4Shape::HAD)) {
-               log << MSG::WARNING << "Failed to set ChannelEtaPhiLayer from HAD data to channel 0x" << std::hex << coolId << std::dec << endreq;
+               ATH_MSG_WARNING( "Failed to set ChannelEtaPhiLayer from HAD data to channel 0x" << std::hex << coolId << std::dec );
             }
          }
       }
@@ -440,12 +438,11 @@ StatusCode L1CaloPprPhos4ShapeMaker::execute(){
 
 StatusCode L1CaloPprPhos4ShapeMaker::finalize(){
    // Place your post-event-loop code here
-   MsgStream log(msgSvc(), name());
-   log<<MSG::INFO<<"In finalize()"<<endreq;
+   ATH_MSG_INFO("In finalize()");
    
    StatusCode sc = m_signalShapes->Finalize();
    if(sc.isFailure()){
-      log<<MSG::WARNING<<" PHOS4 Signal Shapes did not Finalize correctly." << endreq;
+      ATH_MSG_WARNING(" PHOS4 Signal Shapes did not Finalize correctly." );
       return sc;
    }
    
@@ -482,14 +479,14 @@ StatusCode L1CaloPprPhos4ShapeMaker::finalize(){
 
 
 StatusCode L1CaloPprPhos4ShapeMaker::loadAthenaObjects(){
-   MsgStream log(msgSvc(), name());
+
    StatusCode sc;
    
    // Load StoreGate Tool 
    // StoreGate is your access to the data.
    sc = service("StoreGateSvc",m_storeGate);
    if(sc.isFailure()){
-      log<<MSG::ERROR<<"Unable to retrieve pointer to StoreGateSvc"<<endreq;
+      ATH_MSG_ERROR("Unable to retrieve pointer to StoreGateSvc");
       return sc;
    }
 
@@ -497,50 +494,50 @@ StatusCode L1CaloPprPhos4ShapeMaker::loadAthenaObjects(){
    // the trigger towers.
    sc = service("DetectorStore", m_detStore);
    if (sc.isFailure()) {
-      log<<MSG::ERROR<<"Cannot access DetectorStore"<<endreq;
+      ATH_MSG_ERROR("Cannot access DetectorStore");
       return StatusCode::FAILURE;
    }
    else
-   	log<<MSG::INFO<<"Found detector store"<<endreq;
+   	ATH_MSG_INFO("Found detector store");
    
    sc = m_detStore->retrieve(m_caloMgr);
    if (sc.isFailure()) {
-      log<<MSG::ERROR<<"Unable to retrieve CaloIdManager from DetectorStore"<<endreq;
+      ATH_MSG_ERROR("Unable to retrieve CaloIdManager from DetectorStore");
       return StatusCode::FAILURE;
    }
    else
-   	log << MSG::INFO << "CaloIdManager retrieved successfully." << endreq;
+   	ATH_MSG_INFO( "CaloIdManager retrieved successfully." );
    
    m_ttOnlineIdHelper = m_caloMgr->getTTOnlineID();
    if (!m_ttOnlineIdHelper) {
-      log << MSG::ERROR << "Could not access TTOnlineId helper" << endreq;
+      ATH_MSG_ERROR( "Could not access TTOnlineId helper" );
       return StatusCode::FAILURE;
    }
    else
-   	log << MSG::INFO << "TTOnlineId retrieved successfully." << endreq;
+   	ATH_MSG_INFO( "TTOnlineId retrieved successfully." );
 	
    m_ttOnlineIdHelper->set_do_checks(true);
    
    m_lvl1Helper = m_caloMgr->getLVL1_ID();
    if (!m_lvl1Helper) {
-      log << MSG::ERROR << "Could not access CaloLVL1_ID helper" << endreq;
+      ATH_MSG_ERROR( "Could not access CaloLVL1_ID helper" );
       return StatusCode::FAILURE;
    }
    else
-   	log << MSG::INFO << "CaloLVL1_ID retrieved successfully." << endreq;
+   	ATH_MSG_INFO( "CaloLVL1_ID retrieved successfully." );
    
    sc = m_histTool.retrieve();
    if (sc.isFailure()) {
-      log << MSG::ERROR << "Could not retrieve TrigT1CaloLWHistogramTool" << endreq;
+      ATH_MSG_ERROR( "Could not retrieve TrigT1CaloLWHistogramTool" );
       return StatusCode::FAILURE;
    }
    else
-   	log << MSG::INFO << "TrigT1CaloLWHistogramTool retrieved successfully." << endreq;
+   	ATH_MSG_INFO( "TrigT1CaloLWHistogramTool retrieved successfully." );
    
 
    sc = m_l1CaloTTIdTools.retrieve();
    if(sc.isFailure()){
-         log << MSG::WARNING << "Cannot get L1CaloTTIdTools !" << endreq;
+         ATH_MSG_WARNING( "Cannot get L1CaloTTIdTools !" );
       }
    
    IToolSvc* toolSvc;
@@ -549,15 +546,15 @@ StatusCode L1CaloPprPhos4ShapeMaker::loadAthenaObjects(){
 //      IAlgTool *algtool;
       
 //       sc = toolSvc->retrieveTool("L1CaloTTIdTools", algtool);
-//       log<<MSG::DEBUG<<"L1CaloTTIdTools retrieved"<<endreq;
+//       ATH_MSG_DEBUG("L1CaloTTIdTools retrieved");
 //       if (sc.isFailure()) {
-//          log << MSG::WARNING << " Cannot get L1CaloTTIdTools !" << endreq;
+//          ATH_MSG_WARNING( " Cannot get L1CaloTTIdTools !" );
 //       }
 //       m_l1CaloTTIdTools = dynamic_cast<L1CaloTTIdTools*> (algtool);
       
       sc = toolSvc->retrieveTool("CaloTriggerTowerService",m_ttSvc);
       if(sc.isFailure()){
-         log << MSG::WARNING << "Could not retrieve CaloTriggerTowerService Tool" << endreq;
+         ATH_MSG_WARNING( "Could not retrieve CaloTriggerTowerService Tool" );
       }
       
    } // End of IToolSvc initialization.
@@ -568,12 +565,11 @@ StatusCode L1CaloPprPhos4ShapeMaker::loadAthenaObjects(){
 }
 
 StatusCode L1CaloPprPhos4ShapeMaker::GetTriggerTowers(void){
-   MsgStream log(msgSvc(), name());
    
    // Load in Trigger Towers. I'm not going to comment the rest, should be obvious.
    StatusCode sc = m_storeGate->retrieve(m_triggerTowers, "TriggerTowers");
    if(sc.isFailure()){
-      log << MSG::INFO <<"Failed to load TriggerTowers"<< endreq;
+      ATH_MSG_INFO("Failed to load TriggerTowers");
       return StatusCode::FAILURE;
    }
    
@@ -581,34 +577,31 @@ StatusCode L1CaloPprPhos4ShapeMaker::GetTriggerTowers(void){
 }
 
 StatusCode L1CaloPprPhos4ShapeMaker::GetRODHeader(){
-   MsgStream log(msgSvc(), name());
    
    StatusCode sc = m_storeGate->retrieve(m_rodHeader, "RODHeaders");
    if(sc.isFailure()){
-      log << MSG::INFO <<"Failed to load ROD Headers"<< endreq;
+      ATH_MSG_INFO("Failed to load ROD Headers");
       return StatusCode::FAILURE;
    }
    return StatusCode::SUCCESS;
 }
 
 StatusCode L1CaloPprPhos4ShapeMaker::GetEventInfo(){
-   MsgStream log(msgSvc(), name());
    
    StatusCode sc = m_storeGate->retrieve(m_evtInfo);
    if(sc.isFailure()){
-      log << MSG::INFO <<"Failed to load Event Information"<< endreq;
+      ATH_MSG_INFO("Failed to load Event Information");
       return StatusCode::FAILURE;
    }
    return StatusCode::SUCCESS;
 }
 
 StatusCode L1CaloPprPhos4ShapeMaker::GetDatabaseHandle(std::string folderName){
-   MsgStream log(msgSvc(), name());
    
    StatusCode sc = m_storeGate->retrieve(m_attrList,folderName.c_str());
-   //log << MSG::INFO << m_detStore->dump() << endreq;
+   //ATH_MSG_INFO( m_detStore->dump() );
    if(sc.isFailure()){
-      log << MSG::INFO <<"Failed to retrieve database handle"<< endreq;
+      ATH_MSG_INFO("Failed to retrieve database handle");
       return StatusCode::FAILURE;
    }
    return StatusCode::SUCCESS;
@@ -644,11 +637,9 @@ bool L1CaloPprPhos4ShapeMaker::IsCoolIdValid(const L1CaloCoolChannelId coolId){
 
 void L1CaloPprPhos4ShapeMaker::SetTimingRegime(std::string regime){
    
-   MsgStream log(msgSvc(), name());
-   
    // Regime should be "Physics", "Calib1", or "Calib2"
    if(regime != "Physics" && regime != "Calib1" && regime != "Calib2"){
-      log << MSG::WARNING << "Timing Regime is expected to be Physics, Calib1, or Calib2, but is actually: " << regime << ", using Calib1 as default." << endreq;
+      ATH_MSG_WARNING( "Timing Regime is expected to be Physics, Calib1, or Calib2, but is actually: " << regime << ", using Calib1 as default." );
       m_timingRegime = "Calib1";
    }
    
