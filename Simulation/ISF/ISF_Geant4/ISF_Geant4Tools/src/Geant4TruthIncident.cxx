@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////
 
 // class header
-#include "ISF_Geant4Tools/Geant4TruthIncident.h"
+#include "Geant4TruthIncident.h"
 
 // ISF includes
 //#include "ISF_Event/ISFParticle.h"
@@ -28,7 +28,7 @@
 #include "FadsActions/FadsTrackingAction.h"
 
 
-// Geant4
+// Geant4 includes
 #include "G4Step.hh"
 #include "G4Track.hh"
 #include "G4ThreeVector.hh"
@@ -37,6 +37,8 @@
 #include "G4TrackStatus.hh"
 #include "G4ProcessType.hh"
 #include "G4EmProcessSubType.hh"
+#include "G4DynamicParticle.hh"
+#include "G4PrimaryParticle.hh"
 
 /*
   Comments:
@@ -242,8 +244,25 @@ HepMC::GenParticle* ISF::Geant4TruthIncident::secondaryParticle(unsigned short i
   prepareSecondaries();
 
   HepMC::GenParticle *p = convert(m_secondaries[i]);
-  p->suggest_barcode( bc);
-  
+  if (m_secondaries[i]->GetDynamicParticle() &&
+      m_secondaries[i]->GetDynamicParticle()->GetPrimaryParticle()){
+    // This is a secondary that came from a primary particle
+    //  It seems like a good idea to get back at the primary particle
+    //  and from there use the gen particle.  But in the step *right* 
+    //  before this, the gen particles are all deleted, so this info   
+    //  is not actually available at this point.  If only.
+
+    // See if it should be stable
+    if (m_secondaries[i]->GetDynamicParticle()->GetPrimaryParticle()->GetDaughter()){
+      p->set_status(2);
+    }
+    // Now we know that we have to deal with the barcode specially
+    p->suggest_barcode( m_secondaries[i]->GetDynamicParticle()->GetPrimaryParticle()->GetTrackID() );
+
+  } else {
+    // Normal situation - no primary particle
+    p->suggest_barcode( bc);
+  }
   
   TrackInformation *ti=new TrackInformation(p);
   ti->SetRegenerationNr(0);

@@ -2,29 +2,39 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "StoreGate/StoreGateSvc.h"
+///////////////////////////////////////////////////////////////////
+// TrackProcessorUserAction.cxx, (c) ATLAS Detector software
+///////////////////////////////////////////////////////////////////
 
-#include "G4DetectorEnvelopes/EnvelopeGeometryManager.h"
+// class header
+#include "TrackProcessorUserAction.h"
 
-#include "SimHelpers/StepHelper.h"
-
-#include "MCTruth/VTrackInformation.h"
-#include "MCTruth/TrackInformation.h"
-#include "MCTruth/TrackBarcodeInfo.h"
-#include "MCTruth/TrackHelper.h"
-
+// ISF includes
 #include "ISF_Event/ISFParticle.h"
 #include "ISF_Event/ITruthBinding.h"
 #include "ISF_Event/EntryLayer.h"
 
-// DetectorDescription
-#include "AtlasDetDescr/AtlasRegion.h"
-
+#include "ISF_HepMC_Event/HepMC_TruthBinding.h"
 
 #include "ISF_Interfaces/IParticleBroker.h"
 
-#include "ISF_HepMC_Event/HepMC_TruthBinding.h"
+// Athena includes
+#include "AtlasDetDescr/AtlasRegion.h"
 
+#include "G4DetectorEnvelopes/EnvelopeGeometryManager.h"
+
+#include "MCTruth/EventInformation.h"
+#include "MCTruth/PrimaryParticleInformation.h"
+#include "MCTruth/TrackBarcodeInfo.h"
+#include "MCTruth/TrackHelper.h"
+#include "MCTruth/TrackInformation.h"
+#include "MCTruth/TruthStrategyManager.h"
+#include "MCTruth/VTrackInformation.h"
+
+#include "SimHelpers/StepHelper.h"
+#include "StoreGate/StoreGateSvc.h"
+
+// Geant4 includes
 #include "G4ParticleDefinition.hh"
 #include "G4DynamicParticle.hh"
 #include "G4TouchableHistory.hh"
@@ -32,12 +42,6 @@
 #include "G4TransportationManager.hh"
 #include "G4LogicalVolumeStore.hh"
 //#include "G4VPhysicalVolume.hh"
-
-#include "ISF_Geant4Tools/TrackProcessorUserAction.h"
-
-#include "MCTruth/PrimaryParticleInformation.h"
-#include "MCTruth/EventInformation.h"
-#include "MCTruth/TruthStrategyManager.h"
 
 #include <iostream>
 

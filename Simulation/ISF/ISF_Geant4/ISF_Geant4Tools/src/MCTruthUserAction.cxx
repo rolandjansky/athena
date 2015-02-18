@@ -7,21 +7,25 @@
 ///////////////////////////////////////////////////////////////////
 
 // class header
-#include "ISF_Geant4Tools/MCTruthUserAction.h"
+#include "MCTruthUserAction.h"
+
+// package includes
+#include "Geant4TruthIncident.h"
+#include "ISFTrajectory.h"
 
 // ISF includes
-#include "ISF_Geant4Tools/Geant4TruthIncident.h"
 #include "ISF_Interfaces/ITruthSvc.h"
 #include "ISF_Interfaces/IParticleBroker.h"
+
 #include "ISF_Event/ISFParticle.h"
 
+// Athena includes
 #include "MCTruth/TrackInformation.h"
 #include "MCTruth/EventInformation.h"
 #include "MCTruth/TrackHelper.h"
 
 #include "SimHelpers/StepHelper.h"
 
-#include "ISF_Geant4Tools/ISFTrajectory.h"
 
 // Atlas G4 Helpers
 
