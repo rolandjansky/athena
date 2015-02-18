@@ -230,8 +230,6 @@ SimplePoolReplica1.root Debug ---->ClassID:????
 SimplePoolReplica1.root Debug --->Adding Shape[0 , ????]:  [1 Column(s)] 
 SimplePoolReplica1.root Debug ---->Class:EventInfo_p4
 SimplePoolReplica1.root Debug ---->[0]:EventInfo_p4 Typ:EventInfo_p4 [21] Size:0 Offset:0 #Elements:1
-SG::fromStorable  WARNING can't convert stored DataObject 0x???? to type (ExampleHitContainer)
- Unless you are following a symlink, it probably means you have a duplicate CLID = 1
 SimplePoolFile1.root Debug --> Access   DbContainer  READ      [ROOT_Tree] CollectionTree(ExampleHitContainer_p1/MyHits)
 ???? Debug Opened container CollectionTree(ExampleHitContainer_p1/MyHits) of type ROOT_Tree
 SimplePoolReplica1.root Debug --> Access   DbContainer  CREA/UPDA [ROOT_Tree] CollectionTree(ExampleHitContainer_p1/MyHits)
@@ -284,8 +282,6 @@ Stream1             DEBUG            Key:MyHits
 Stream1             DEBUG  Going to attempt direct persistent copy for 9102,"MyHits"
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 2
-SG::fromStorable  WARNING can't convert stored DataObject 0x???? to type (ExampleHitContainer)
- Unless you are following a symlink, it probably means you have a duplicate CLID = 1
 Stream1.Stream1...  DEBUG Pers to Pers copy for 1 MyHits
 Stream1.Stream1...  DEBUG In commitOutput
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #1, run #1 2 events processed so far  <<<===
@@ -309,8 +305,6 @@ Stream1             DEBUG            Key:MyHits
 Stream1             DEBUG  Going to attempt direct persistent copy for 9102,"MyHits"
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 3
-SG::fromStorable  WARNING can't convert stored DataObject 0x???? to type (ExampleHitContainer)
- Unless you are following a symlink, it probably means you have a duplicate CLID = 1
 Stream1.Stream1...  DEBUG Pers to Pers copy for 1 MyHits
 Stream1.Stream1...  DEBUG In commitOutput
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #2, run #1 3 events processed so far  <<<===
@@ -334,8 +328,6 @@ Stream1             DEBUG            Key:MyHits
 Stream1             DEBUG  Going to attempt direct persistent copy for 9102,"MyHits"
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 4
-SG::fromStorable  WARNING can't convert stored DataObject 0x???? to type (ExampleHitContainer)
- Unless you are following a symlink, it probably means you have a duplicate CLID = 1
 Stream1.Stream1...  DEBUG Pers to Pers copy for 1 MyHits
 Stream1.Stream1...  DEBUG In commitOutput
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #3, run #1 4 events processed so far  <<<===
@@ -359,8 +351,6 @@ Stream1             DEBUG            Key:MyHits
 Stream1             DEBUG  Going to attempt direct persistent copy for 9102,"MyHits"
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 5
-SG::fromStorable  WARNING can't convert stored DataObject 0x???? to type (ExampleHitContainer)
- Unless you are following a symlink, it probably means you have a duplicate CLID = 1
 Stream1.Stream1...  DEBUG Pers to Pers copy for 1 MyHits
 Stream1.Stream1...  DEBUG In commitOutput
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #4, run #1 5 events processed so far  <<<===
@@ -384,8 +374,6 @@ Stream1             DEBUG            Key:MyHits
 Stream1             DEBUG  Going to attempt direct persistent copy for 9102,"MyHits"
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 6
-SG::fromStorable  WARNING can't convert stored DataObject 0x???? to type (ExampleHitContainer)
- Unless you are following a symlink, it probably means you have a duplicate CLID = 1
 Stream1.Stream1...  DEBUG Pers to Pers copy for 1 MyHits
 Stream1.Stream1...  DEBUG In commitOutput
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #5, run #1 6 events processed so far  <<<===
@@ -409,8 +397,6 @@ Stream1             DEBUG            Key:MyHits
 Stream1             DEBUG  Going to attempt direct persistent copy for 9102,"MyHits"
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 7
-SG::fromStorable  WARNING can't convert stored DataObject 0x???? to type (ExampleHitContainer)
- Unless you are following a symlink, it probably means you have a duplicate CLID = 1
 Stream1.Stream1...  DEBUG Pers to Pers copy for 1 MyHits
 Stream1.Stream1...  DEBUG In commitOutput
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #6, run #1 7 events processed so far  <<<===
@@ -434,8 +420,6 @@ Stream1             DEBUG            Key:MyHits
 Stream1             DEBUG  Going to attempt direct persistent copy for 9102,"MyHits"
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 8
-SG::fromStorable  WARNING can't convert stored DataObject 0x???? to type (ExampleHitContainer)
- Unless you are following a symlink, it probably means you have a duplicate CLID = 1
 Stream1.Stream1...  DEBUG Pers to Pers copy for 1 MyHits
 Stream1.Stream1...  DEBUG In commitOutput
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #7, run #1 8 events processed so far  <<<===
@@ -459,8 +443,6 @@ Stream1             DEBUG            Key:MyHits
 Stream1             DEBUG  Going to attempt direct persistent copy for 9102,"MyHits"
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 9
-SG::fromStorable  WARNING can't convert stored DataObject 0x???? to type (ExampleHitContainer)
- Unless you are following a symlink, it probably means you have a duplicate CLID = 1
 Stream1.Stream1...  DEBUG Pers to Pers copy for 1 MyHits
 Stream1.Stream1...  DEBUG In commitOutput
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #8, run #1 9 events processed so far  <<<===
@@ -484,8 +466,6 @@ Stream1             DEBUG            Key:MyHits
 Stream1             DEBUG  Going to attempt direct persistent copy for 9102,"MyHits"
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 10
-SG::fromStorable  WARNING can't convert stored DataObject 0x???? to type (ExampleHitContainer)
- Unless you are following a symlink, it probably means you have a duplicate CLID = 1
 Stream1.Stream1...  DEBUG Pers to Pers copy for 1 MyHits
 Stream1.Stream1...  DEBUG In commitOutput
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #9, run #1 10 events processed so far  <<<===
@@ -509,8 +489,6 @@ Stream1             DEBUG            Key:MyHits
 Stream1             DEBUG  Going to attempt direct persistent copy for 9102,"MyHits"
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 11
-SG::fromStorable  WARNING can't convert stored DataObject 0x???? to type (ExampleHitContainer)
- Unless you are following a symlink, it probably means you have a duplicate CLID = 1
 Stream1.Stream1...  DEBUG Pers to Pers copy for 1 MyHits
 Stream1.Stream1...  DEBUG In commitOutput
 CollectionTree(EventInfo_p4/McEventInfo) Debug endTransaction: go to finish
@@ -542,8 +520,6 @@ Stream1             DEBUG            Key:MyHits
 Stream1             DEBUG  Going to attempt direct persistent copy for 9102,"MyHits"
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 12
-SG::fromStorable  WARNING can't convert stored DataObject 0x???? to type (ExampleHitContainer)
- Unless you are following a symlink, it probably means you have a duplicate CLID = 1
 Stream1.Stream1...  DEBUG Pers to Pers copy for 1 MyHits
 Stream1.Stream1...  DEBUG In commitOutput
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #11, run #1 12 events processed so far  <<<===
@@ -567,8 +543,6 @@ Stream1             DEBUG            Key:MyHits
 Stream1             DEBUG  Going to attempt direct persistent copy for 9102,"MyHits"
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 13
-SG::fromStorable  WARNING can't convert stored DataObject 0x???? to type (ExampleHitContainer)
- Unless you are following a symlink, it probably means you have a duplicate CLID = 1
 Stream1.Stream1...  DEBUG Pers to Pers copy for 1 MyHits
 Stream1.Stream1...  DEBUG In commitOutput
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #12, run #1 13 events processed so far  <<<===
@@ -592,8 +566,6 @@ Stream1             DEBUG            Key:MyHits
 Stream1             DEBUG  Going to attempt direct persistent copy for 9102,"MyHits"
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 14
-SG::fromStorable  WARNING can't convert stored DataObject 0x???? to type (ExampleHitContainer)
- Unless you are following a symlink, it probably means you have a duplicate CLID = 1
 Stream1.Stream1...  DEBUG Pers to Pers copy for 1 MyHits
 Stream1.Stream1...  DEBUG In commitOutput
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #13, run #1 14 events processed so far  <<<===
@@ -617,8 +589,6 @@ Stream1             DEBUG            Key:MyHits
 Stream1             DEBUG  Going to attempt direct persistent copy for 9102,"MyHits"
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 15
-SG::fromStorable  WARNING can't convert stored DataObject 0x???? to type (ExampleHitContainer)
- Unless you are following a symlink, it probably means you have a duplicate CLID = 1
 Stream1.Stream1...  DEBUG Pers to Pers copy for 1 MyHits
 Stream1.Stream1...  DEBUG In commitOutput
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #14, run #1 15 events processed so far  <<<===
@@ -642,8 +612,6 @@ Stream1             DEBUG            Key:MyHits
 Stream1             DEBUG  Going to attempt direct persistent copy for 9102,"MyHits"
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 16
-SG::fromStorable  WARNING can't convert stored DataObject 0x???? to type (ExampleHitContainer)
- Unless you are following a symlink, it probably means you have a duplicate CLID = 1
 Stream1.Stream1...  DEBUG Pers to Pers copy for 1 MyHits
 Stream1.Stream1...  DEBUG In commitOutput
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #15, run #1 16 events processed so far  <<<===
@@ -667,8 +635,6 @@ Stream1             DEBUG            Key:MyHits
 Stream1             DEBUG  Going to attempt direct persistent copy for 9102,"MyHits"
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 17
-SG::fromStorable  WARNING can't convert stored DataObject 0x???? to type (ExampleHitContainer)
- Unless you are following a symlink, it probably means you have a duplicate CLID = 1
 Stream1.Stream1...  DEBUG Pers to Pers copy for 1 MyHits
 Stream1.Stream1...  DEBUG In commitOutput
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #16, run #1 17 events processed so far  <<<===
@@ -692,8 +658,6 @@ Stream1             DEBUG            Key:MyHits
 Stream1             DEBUG  Going to attempt direct persistent copy for 9102,"MyHits"
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 18
-SG::fromStorable  WARNING can't convert stored DataObject 0x???? to type (ExampleHitContainer)
- Unless you are following a symlink, it probably means you have a duplicate CLID = 1
 Stream1.Stream1...  DEBUG Pers to Pers copy for 1 MyHits
 Stream1.Stream1...  DEBUG In commitOutput
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #17, run #1 18 events processed so far  <<<===
@@ -717,8 +681,6 @@ Stream1             DEBUG            Key:MyHits
 Stream1             DEBUG  Going to attempt direct persistent copy for 9102,"MyHits"
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 19
-SG::fromStorable  WARNING can't convert stored DataObject 0x???? to type (ExampleHitContainer)
- Unless you are following a symlink, it probably means you have a duplicate CLID = 1
 Stream1.Stream1...  DEBUG Pers to Pers copy for 1 MyHits
 Stream1.Stream1...  DEBUG In commitOutput
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #18, run #1 19 events processed so far  <<<===
@@ -742,8 +704,6 @@ Stream1             DEBUG            Key:MyHits
 Stream1             DEBUG  Going to attempt direct persistent copy for 9102,"MyHits"
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 20
-SG::fromStorable  WARNING can't convert stored DataObject 0x???? to type (ExampleHitContainer)
- Unless you are following a symlink, it probably means you have a duplicate CLID = 1
 Stream1.Stream1...  DEBUG Pers to Pers copy for 1 MyHits
 Stream1.Stream1...  DEBUG In commitOutput
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #19, run #1 20 events processed so far  <<<===
