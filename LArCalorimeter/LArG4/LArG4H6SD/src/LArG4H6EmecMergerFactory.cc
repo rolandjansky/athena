@@ -11,10 +11,9 @@
 
 
 LArG4H6EmecMergerFactory::LArG4H6EmecMergerFactory(StoreGateSvc* detStore,
-						   LArHitsEventAction *action,
+						   LArHitsEventAction */*action*/,
 						   G4float timeBinWidth):
   m_detStore(detStore),
-  m_action(action),
   m_timeBinWidth(timeBinWidth)
 {
 }
