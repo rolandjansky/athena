@@ -557,7 +557,7 @@ const Trk::IntersectionSolution*
   //Check inputvalues
   if (m_tolerance <= 0.) return 0;
   if (m_momentumCutOff < 0.) return 0;
-  if (m_energyLoss && ( fabs( 1./trackParameters.parameters()[Trk::qOverP]) <= m_momentumCutOff)) {
+  if (fabs( 1./trackParameters.parameters()[Trk::qOverP]) <= m_momentumCutOff) {
     return 0;
   }
 
@@ -775,7 +775,7 @@ const Trk::TrackParameters*
     trackParameters = &inputTrackParameters;
   }
 
-  if (m_energyLoss && ( fabs( 1./trackParameters->parameters()[Trk::qOverP]) <= m_momentumCutOff)) {
+  if (fabs( 1./trackParameters->parameters()[Trk::qOverP]) <= m_momentumCutOff) {
     if (trackParameters != &inputTrackParameters) delete trackParameters;
     return 0;
   }
@@ -957,7 +957,7 @@ const Trk::TrackParameters*
     trackParameters = &inputTrackParameters;
   }
 
-  if (m_energyLoss && ( fabs( 1./trackParameters->parameters()[Trk::qOverP]) <= m_momentumCutOff)) {
+  if (fabs( 1./trackParameters->parameters()[Trk::qOverP]) <= m_momentumCutOff) {
     if (trackParameters != &inputTrackParameters) delete trackParameters;
     return 0;
   }
