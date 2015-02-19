@@ -96,14 +96,14 @@ TCS::MinDPhiIncl2::process( const std::vector<TCS::TOBArray const *> & input,
    if (input.size() == 2) {
    
       for( TOBArray::const_iterator tob1 = input[0]->begin(); 
-           tob1 != input[0]->end() && distance(input[0]->begin(), tob1) <= p_NumberLeading1;
+           tob1 != input[0]->end() && distance(input[0]->begin(), tob1) < p_NumberLeading1;
            ++tob1)
          {
 
             if( parType_t((*tob1)->Et()) <= p_MinET1) continue; // ET cut
 
             for( TCS::TOBArray::const_iterator tob2 = input[1]->begin(); 
-                 tob2 != input[1]->end() && distance(input[1]->begin(), tob2) <= p_NumberLeading2;
+                 tob2 != input[1]->end() && distance(input[1]->begin(), tob2) < p_NumberLeading2;
                  ++tob2) {
 
                if( parType_t((*tob2)->Et()) <= p_MinET2) continue; // ET cut
