@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: prepareTriggerMenu.cxx 631651 2014-11-27 18:33:16Z lheinric $
+// $Id: prepareTriggerMenu.cxx 647171 2015-02-16 15:33:28Z krasznaa $
 
 // Infrastructure include(s):
 #include "AsgTools/MsgStream.h"
@@ -37,9 +37,18 @@ namespace TrigConf {
    StatusCode prepareTriggerMenu( const xAOD::TriggerMenu* menu,
                                   CTPConfig& ctpConfig,
                                   HLTChainList& chainList,
-				  HLTSequenceList& sequenceList,
+                                  HLTSequenceList& sequenceList,
                                   BunchGroupSet& bgSet,
                                   MsgStream& msg ) {
+
+      // A little sanity check:
+      if( ( ! menu->hasStore() ) && ( ( ! menu->container() ) ||
+                                      ( ! menu->container()->hasStore() ) ) ) {
+         msg << MSG::FATAL << "prepareTriggerMenu(...) Received "
+             << "xAOD::TriggerMenu object is not connected to an auxiliary "
+             << "store" << endreq;
+         return StatusCode::FAILURE;
+      }
 
       // Clear the current LVL1 configuration:
       ctpConfig.menu().clear();
@@ -66,6 +75,9 @@ namespace TrigConf {
       // Clear the current HLT configuration:
       chainList.clear();
 
+      // A helper variable:
+      bool signatureWarningPrinted = false;
+
       // Fill the HLT configuration:
       for( size_t i = 0; i < menu->chainIds().size(); ++i ) {
 
@@ -84,21 +96,54 @@ namespace TrigConf {
          }
          // An empty signature list for the chain:
          std::vector< HLTSignature* > signatures;
-	 
-	 const std::vector< uint32_t > counters = menu->chainSignatureCounters()[ i ];
-	 const std::vector< int > logics = menu->chainSignatureLogics()[ i ];
-	 const std::vector< std::vector< std::string > > outputTEs = menu->chainSignatureOutputTEs()[ i ];
-	 const std::vector< std::string > labels = menu->chainSignatureLabels()[ i ];
 
-	 msg << MSG::VERBOSE << "chain has " << counters.size() << " signatures" << endreq;	 
-	 for(int sig = 0; sig < counters.size(); ++sig ){
-	   std::vector<HLTTriggerElement*> outTEs;
-	   for(uint32_t outTEcounter = 0; outTEcounter< outputTEs[sig].size(); ++outTEcounter){
-	     outTEs.push_back(new HLTTriggerElement(outputTEs[sig][outTEcounter]));
-	   }
-	   signatures.push_back(new HLTSignature(counters[sig],logics[sig],outTEs));
-	   msg << MSG::VERBOSE << "prepared signature: " << *signatures.back() << endreq;
-	 }
+         // If signature information is available, read it in:
+         if( menu->chainSignatureCountersAvailable() &&
+             menu->chainSignatureCounters().size() &&
+             menu->chainSignatureLogicsAvailable() &&
+             menu->chainSignatureLogics().size() &&
+             menu->chainSignatureOutputTEsAvailable() &&
+             menu->chainSignatureOutputTEs().size() /*&&
+             menu->chainSignatureLabelsAvailable() &&
+             menu->chainSignatureLabels().size() */) {
+
+            const std::vector< uint32_t >& counters =
+               menu->chainSignatureCounters()[ i ];
+            const std::vector< int >& logics =
+               menu->chainSignatureLogics()[ i ];
+            const std::vector< std::vector< std::string > >& outputTEs =
+               menu->chainSignatureOutputTEs()[ i ];
+            /*
+            const std::vector< std::string >& labels =
+               menu->chainSignatureLabels()[ i ];
+             */
+
+            if( msg.level() <= MSG::VERBOSE ) {
+               msg << MSG::VERBOSE << "chain has " << counters.size()
+                   << " signatures" << endreq;
+            }
+            for( size_t sig = 0; sig < counters.size(); ++sig ) {
+               std::vector< HLTTriggerElement* > outTEs;
+               for( size_t outTEcounter = 0;
+                    outTEcounter< outputTEs[ sig ].size(); ++outTEcounter ) {
+                  HLTTriggerElement* element =
+                     new HLTTriggerElement( outputTEs[ sig ][ outTEcounter ] );
+                  outTEs.push_back( element );
+               }
+               HLTSignature* signature =
+                  new HLTSignature( counters[ sig ], logics[ sig ], outTEs );
+               signatures.push_back( signature );
+               if( msg.level() <= MSG::VERBOSE ) {
+                  msg << MSG::VERBOSE << "prepared signature: "
+                      << *( signatures.back() ) << endreq;
+               }
+            }
+         } else if( ! signatureWarningPrinted ) {
+            msg << MSG::WARNING << "prepareTriggerMenu(...): "
+                << "HLT Signature information not available on the input"
+                << endreq;
+            signatureWarningPrinted = true;
+         }
 
          // Create the chain object:
          HLTChain* chain = new HLTChain( menu->chainNames()[ i ],
@@ -124,18 +169,30 @@ namespace TrigConf {
          }
       }
 
-      //Add sequence information
+      // Add sequence information if it's available:
+      if( menu->sequenceInputTEsAvailable() &&
+          menu->sequenceOutputTEsAvailable() &&
+          menu->sequenceAlgorithmsAvailable() ) {
 
-      for(size_t i = 0; i< menu->sequenceOutputTEs().size() ; ++i){
-	HLTTriggerElement* outputTE = new HLTTriggerElement(menu->sequenceOutputTEs()[i]);
-	std::vector<HLTTriggerElement*> inputTEs;
-	for(size_t j = 0; j < menu->sequenceInputTEs()[i].size(); ++j){
-	  inputTEs.push_back(new HLTTriggerElement(menu->sequenceInputTEs()[i][j]));
-	}
-	HLTSequence* sequence = new HLTSequence(inputTEs,outputTE,menu->sequenceAlgorithms()[i]);
-	sequenceList.addHLTSequence( sequence );
-	//this throws a runtime_error if it fails, which we don't need to handle, 
-	//since this is a FATAL error anyways
+         for( size_t i = 0; i< menu->sequenceOutputTEs().size(); ++i ) {
+            HLTTriggerElement* outputTE =
+               new HLTTriggerElement( menu->sequenceOutputTEs()[ i ] );
+            std::vector< HLTTriggerElement* > inputTEs;
+            for( size_t j = 0; j < menu->sequenceInputTEs()[ i ].size(); ++j ) {
+               HLTTriggerElement* te =
+                  new HLTTriggerElement( menu->sequenceInputTEs()[ i ][ j ] );
+               inputTEs.push_back( te );
+            }
+            HLTSequence* sequence =
+               new HLTSequence( inputTEs, outputTE,
+                                menu->sequenceAlgorithms()[ i ] );
+            sequenceList.addHLTSequence( sequence );
+            // This throws a runtime_error if it fails, which we don't need to
+            // handle, since this is a FATAL error anyways.
+         }
+      } else {
+         msg << MSG::WARNING << "prepareTriggerMenu(...): "
+             << "HLT Sequence information not available on the input" << endreq;
       }
 
       // Check if bunch-groups are available:
