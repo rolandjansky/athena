@@ -33,6 +33,8 @@ TCS::GenericTOB::GenericTOB(unsigned int Et, int eta, int phi, uint32_t roiWord)
 TCS::GenericTOB::GenericTOB(const GenericTOB & other) :
    BaseTOB(other)
    , m_Et(other.m_Et)
+   , m_EtNarrow(other.EtNarrow())
+   , m_EtWide(other.EtWide())
    , m_eta(other.m_eta)
    , m_phi(other.m_phi)
    , m_EtDouble(other.m_EtDouble)
