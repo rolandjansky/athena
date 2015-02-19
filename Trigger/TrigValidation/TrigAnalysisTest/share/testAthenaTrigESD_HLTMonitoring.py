@@ -66,41 +66,41 @@ ToolSvc += HLTMon;
 HLTMonManager.AthenaMonTools += [ "HLTMonTool/HLTMon" ];
 
 
-#from TrigEgammaMonitoring.TrigEgammaMonitoringConfig import HLTEgammaMonitoringTool
-#HLTMonManager.AthenaMonTools += HLTEgammaMonitoringTool()
-#
-#from TrigCaloMonitoring.TrigCaloMonitoringConfig import HLTCaloMonitoringTool
-#HLTMonManager.AthenaMonTools+=HLTCaloMonitoringTool()
-#
-#from TrigMuonMonitoring.TrigMuonMonitoringConfig import TrigMuonMonitoringTool
-#HLTMonManager.AthenaMonTools += TrigMuonMonitoringTool()
-#
-#from TrigJetMonitoring.TrigJetMonitoringConfig import TrigJetMonitoringTool
-#HLTMonManager.AthenaMonTools += TrigJetMonitoringTool()
-#
-#from TrigIDtrkMonitoring.TrigIDtrkMonitoringConfig import TrigIDtrkMonitoringTool
-#HLTMonManager.AthenaMonTools += TrigIDtrkMonitoringTool()
-#
-#from TrigMETMonitoring.TrigMETMonitoringConfig import HLTMETMonitoringTool
-#HLTMonManager.AthenaMonTools += HLTMETMonitoringTool()
-#
+from TrigEgammaMonitoring.TrigEgammaMonitoringConfig import HLTEgammaMonitoringTool
+HLTMonManager.AthenaMonTools += HLTEgammaMonitoringTool()
+
+from TrigCaloMonitoring.TrigCaloMonitoringConfig import HLTCaloMonitoringTool
+HLTMonManager.AthenaMonTools+=HLTCaloMonitoringTool()
+
+from TrigMuonMonitoring.TrigMuonMonitoringConfig import TrigMuonMonitoringTool
+HLTMonManager.AthenaMonTools += TrigMuonMonitoringTool()
+
+from TrigJetMonitoring.TrigJetMonitoringConfig import TrigJetMonitoringTool
+HLTMonManager.AthenaMonTools += TrigJetMonitoringTool()
+
+from TrigIDtrkMonitoring.TrigIDtrkMonitoringConfig import TrigIDtrkMonitoringTool
+HLTMonManager.AthenaMonTools += TrigIDtrkMonitoringTool()
+
+from TrigMETMonitoring.TrigMETMonitoringConfig import HLTMETMonitoringTool
+HLTMonManager.AthenaMonTools += HLTMETMonitoringTool()
+
 from TrigTauMonitoring.TrigTauMonitoringConfig import TrigTauMonitoringTool
 HLTMonManager.AthenaMonTools += TrigTauMonitoringTool()
-#
-#from TrigJetMonitoring.TrigJetMonitoringConfig import TrigJetMonitoringTool
-#HLTMonManager.AthenaMonTools += TrigJetMonitoringTool()
-#
-#from TrigBjetMonitoring.TrigBjetMonitoringConfig import TrigBjetMonitoringConfig
-#HLTMonManager.AthenaMonTools += TrigBjetMonitoringConfig()
-#
-#from TrigBphysMonitoring.TrigBphysMonitoringConfig import TrigBphysMonitoringTool
-#HLTMonManager.AthenaMonTools += TrigBphysMonitoringTool()
-#
-#from TrigMinBiasMonitoring.TrigMinBiasMonitoringConfig import TrigMinBiasMonitoringTool
-#HLTMonManager.AthenaMonTools += TrigMinBiasMonitoringTool()
-#
-#from TrigEgammaMonitoring.TrigEgammaMonitoringConfig import HLTEgammaMonitoringDumpTool
-#HLTMonManager.AthenaMonTools += HLTEgammaMonitoringDumpTool()
+
+from TrigJetMonitoring.TrigJetMonitoringConfig import TrigJetMonitoringTool
+HLTMonManager.AthenaMonTools += TrigJetMonitoringTool()
+
+from TrigBjetMonitoring.TrigBjetMonitoringConfig import TrigBjetMonitoringConfig
+HLTMonManager.AthenaMonTools += TrigBjetMonitoringConfig()
+
+from TrigBphysMonitoring.TrigBphysMonitoringConfig import TrigBphysMonitoringTool
+HLTMonManager.AthenaMonTools += TrigBphysMonitoringTool()
+
+from TrigMinBiasMonitoring.TrigMinBiasMonitoringConfig import TrigMinBiasMonitoringTool
+HLTMonManager.AthenaMonTools += TrigMinBiasMonitoringTool()
+
+from TrigEgammaMonitoring.TrigEgammaMonitoringConfig import HLTEgammaMonitoringDumpTool
+HLTMonManager.AthenaMonTools += HLTEgammaMonitoringDumpTool()
 
 HLTMonManager.FileKey = "GLOBAL"
 

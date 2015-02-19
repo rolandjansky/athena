@@ -32,7 +32,8 @@ acf.FilesInput=acf.BSRDOInput()
 # this will break every time the default file changes
 #log.warning("setting geometry and coniditions by hand, will break if default RDO file changes")
 
-#from AthenaCommon.GlobalFlags import globalflags
+from AthenaCommon.GlobalFlags import globalflags
+globalflags.ConditionsTag.set_Value_and_Lock('OFLCOND-RUN12-SDR-22')
 #globalflags.ConditionsTag.set_Value_and_Lock("OFLCOND-RUN12-SDR-17")
 #globalflags.DetDescrVersion.set_Value_and_Lock("ATLAS-GEO-21-02-02")
 
