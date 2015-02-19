@@ -9,6 +9,6 @@
 
 
 #include "ElectronEfficiencyCorrection/AsgElectronEfficiencyCorrectionTool.h"
-#include "ElectronEfficiencyCorrection/IAsgElectronEfficiencyCorrectionTool.h"
+#include "ElectronEfficiencyCorrection/TElectronEfficiencyCorrectionTool.h"
 
 #endif
