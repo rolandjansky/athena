@@ -1,5 +1,5 @@
 if not 'DetDescrVersion' in dir():
-    DetDescrVersion="ATLAS-GEO-11-01-00"
+    DetDescrVersion="ATLAS-R2-2015-02-01-00_VALIDATION"
     print "MuonGeoModelTest/simulGeantinoHits Setting now DetDescrVersion to ", DetDescrVersion
 else:
     print "MuonGeoModelTest/simulGeantinoHits DetDescrVersion already set to ", DetDescrVersion
@@ -7,7 +7,7 @@ else:
 # now it's necessary to specify the global condition tag
 from AthenaCommon.GlobalFlags import globalflags
 if not 'ConditionsTag' in dir():
-   ConditionsTag="OFLCOND-SIM-01-00-00"
+   ConditionsTag="OFLCOND-RUN12-SDR-22"
    print "MuonGeoModelTest/simulGeantinoHits Setting now ConditionsTag to ", ConditionsTag
 else:
     print "MuonGeoModelTest/simulGeantinoHits DetDescrVersion already set to ", ConditionsTag
@@ -47,10 +47,12 @@ athenaCommonFlags.EvtMax=1000
 #--- Simulation flags -----------------------------------------
 from G4AtlasApps.SimFlags import SimFlags
 SimFlags.load_atlas_flags()
+SimFlags.SimLayout.set_On()
 SimFlags.SimLayout.set_Value(DetDescrVersion) # specific value 
 #SimFlags.SimLayout.set_On()                  # use the default value
 #  sets the EtaPhi, VertexSpread and VertexRange checks on
-SimFlags.EventFilter.set_Off()  
+SimFlags.EventFilter.set_Off()
+SimFlags.RunNumber=222500  
 #
 print "Reading alignment constants from DB"
 from IOVDbSvc.CondDB import conddb
@@ -71,29 +73,22 @@ MGM_AlignmentDbTool = ToolSvc.MGM_AlignmentDbTool
 MGM_AlignmentDbTool.OutputLevel=DEBUG
 
 from AtlasGeoModel.MuonGM import GeoModelSvc
-#GeoModelSvc.MuonVersionOverride = "MuonSpectrometer-R.01.01.Initial.Light"
+#GeoModelSvc.MuonVersionOverride = "MuonSpectrometer-R.07.01"
 MuonDetectorTool = GeoModelSvc.DetectorTools[ "MuonDetectorTool" ]
 MuonDetectorTool.UseConditionDb = 1
 MuonDetectorTool.OutputLevel=VERBOSE
 
-
-## Run ParticleGenerator
-import AthenaCommon.AtlasUnixGeneratorJob
-spgorders = ['pdgcode: constant 999',
-             'vertX: constant 0.0',
-             'vertY: constant 0.0',
-             'vertZ: constant 0.0',
-             't: constant 0.0',
-             'eta: flat -3.0 3.0',
-             'phi: flat  0 6.283186',
-             'e: constant 10000']
-from ParticleGenerator.ParticleGeneratorConf import ParticleGenerator
-topSeq += ParticleGenerator()
-topSeq.ParticleGenerator.orders = sorted(spgorders)
 from AthenaServices.AthenaServicesConf import AtRanluxGenSvc
 ServiceMgr += AtRanluxGenSvc()
 ServiceMgr.AtRanluxGenSvc.Seeds = ["SINGLE 2040160768 443921183"]
 
+## Run ParticleGun
+import ParticleGun as PG
+pg = PG.ParticleGun(randomSvcName=SimFlags.RandomSvc.get_Value(), randomStream="SINGLE")
+pg.sampler.pid = (999)
+pg.sampler.pos = PG.PosSampler(x=0, y=0, z=0, t=0)
+pg.sampler.mom = PG.EEtaMPhiSampler(energy=100000, eta=[-3,3], phi=[-PG.PI, PG.PI])
+topSeq += pg
 
 ## Add G4 sim framework alg sequence
 from G4AtlasApps.PyG4Atlas import PyG4AtlasAlg
