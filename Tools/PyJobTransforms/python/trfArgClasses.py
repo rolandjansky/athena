@@ -3,7 +3,7 @@
 ## @package PyJobTransforms.trfArgClasses
 # @brief Transform argument class definitions
 # @author atlas-comp-transforms-dev@cern.ch
-# @version $Id: trfArgClasses.py 634461 2014-12-08 15:00:36Z graemes $
+# @version $Id: trfArgClasses.py 648278 2015-02-19 18:31:02Z graemes $
 
 import argparse
 import bz2
@@ -1975,7 +1975,16 @@ class argSubstepFloat(argSubstep):
 
 ## @brief Special argument class to hold steering information
 class argSubstepSteering(argSubstep):
-    steeringAlises = {'doRDO_TRIG': {'RAWtoESD': [('in', '-', 'RDO'), ('in', '+', 'RDO_TRIG')]}}
+    # This singleton is where we define some aliases for common production
+    # usecases of steering. 
+    # "no" - a convenience null option for production managers, does nothing
+    # "doRDO_TRIG" - run split trigger for Reco_tf and friends
+    # "afterburn" - run the B decay afterburner for event generation
+    steeringAlises = {
+                      'no': {},
+                      'doRDO_TRIG': {'RAWtoESD': [('in', '-', 'RDO'), ('in', '+', 'RDO_TRIG'), ('in', '-', 'BS')]},
+                      'afterburn': {'generate': [('out', '-', 'EVNT')]}, 
+                      }
     
     # Reset getter
     @property
