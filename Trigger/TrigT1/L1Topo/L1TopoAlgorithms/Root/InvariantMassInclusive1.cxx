@@ -45,6 +45,7 @@ TCS::InvariantMassInclusive1::InvariantMassInclusive1(const std::string & name) 
    defineParameter("InputWidth", 3);
    defineParameter("MaxTob", 0); 
    defineParameter("NumResultBits", 6);
+   defineParameter("RequireOneBarrel", 0);
    defineParameter("MinMSqr",  0, 0);
    defineParameter("MaxMSqr", 999, 0);
    defineParameter("MinMSqr",  0, 1);
@@ -65,7 +66,12 @@ TCS::InvariantMassInclusive1::InvariantMassInclusive1(const std::string & name) 
    defineParameter("MinET2",0,2);
    defineParameter("MinET1",0,3);
    defineParameter("MinET2",0,3);
-   
+   defineParameter("MinET1",0,4);
+   defineParameter("MinET2",0,4);
+   defineParameter("MinET1",0,5);
+   defineParameter("MinET2",0,5);  
+
+ 
    setNumberOutputBits(6);
 }
 
@@ -82,6 +88,8 @@ TCS::InvariantMassInclusive1::initialize() {
     p_NumberLeading2 = parameter("InputWidth").value();
    }
 
+   p_OneBarrel = parameter("RequireOneBarrel").value();
+
    for(unsigned int i=0; i<numberOutputBits(); ++i) {
       p_InvMassMin[i] = parameter("MinMSqr", i).value();
       p_InvMassMax[i] = parameter("MaxMSqr", i).value();
@@ -91,6 +99,7 @@ TCS::InvariantMassInclusive1::initialize() {
    }
    TRG_MSG_INFO("NumberLeading1 : " << p_NumberLeading1);
    TRG_MSG_INFO("NumberLeading2 : " << p_NumberLeading2);
+   TRG_MSG_INFO("RequireOneBarrel : " << p_OneBarrel);
    for(unsigned int i=0; i<numberOutputBits(); ++i) {
     TRG_MSG_INFO("InvMassMin   : " << p_InvMassMin[i]);
     TRG_MSG_INFO("InvMassMax   : " << p_InvMassMax[i]);
@@ -128,6 +137,9 @@ TCS::InvariantMassInclusive1::process( const std::vector<TCS::TOBArray const *> 
                  ++tob2) {
 
 
+               // OneBarrel
+               if (p_OneBarrel && parType_t(abs((*tob1)->eta())) > 10 && parType_t(abs((*tob2)->eta())) > 10 ) continue;
+               
                // Inv Mass calculation
              
 	       unsigned int invmass2 = calcInvMass( *tob1, *tob2 );

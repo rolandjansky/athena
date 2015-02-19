@@ -78,8 +78,8 @@ TCS::JetMatch::process( const std::vector<TCS::TOBArray const *> & input,
    for( TCS::GenericTOB * tob : *input[0]) {
       ++objC;
 
-      if( parType_t(fabs(tob->etaDouble())) > p_EtaMax ) continue; // Eta cut
-      if( parType_t(fabs(tob->etaDouble())) < p_EtaMin ) continue; // Eta cut
+      if( parType_t(fabs(tob->eta())) > p_EtaMax ) continue; // Eta cut
+      if( parType_t(fabs(tob->eta())) < p_EtaMin ) continue; // Eta cut
       if( tob->EtWide() <= p_MinET1 ) continue; // E_T cut
 
       if( tob->EtNarrow() <= p_MinET2 ) continue; // E_T cut
