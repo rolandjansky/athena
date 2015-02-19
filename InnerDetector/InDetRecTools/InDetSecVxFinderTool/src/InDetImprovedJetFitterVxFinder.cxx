@@ -405,7 +405,7 @@ namespace InDet
 
     Trk::RecVertex dummy;
     
-    const Trk::VxSecVertexInfo* secVxInfo=doTheFinding(dummy,
+    const Trk::VxSecVertexInfo* secVxInfo=doTheFinding(primaryVertex,
                                                        jetMomentum,
                                                        selectedTracks);
 
@@ -437,14 +437,15 @@ namespace InDet
       }
     }
 
-    return doTheFinding(primaryVertex,
+    xAOD::Vertex dummy;
+    return doTheFinding(dummy,
                         jetMomentum,
                         selectedTracks);
   }
   
 
   
-  const Trk::VxSecVertexInfo* InDetImprovedJetFitterVxFinder::doTheFinding(const Trk::RecVertex & /* primaryVertex */,
+  const Trk::VxSecVertexInfo* InDetImprovedJetFitterVxFinder::doTheFinding(const xAOD::Vertex & primaryVertex, //const Trk::RecVertex & /* primaryVertex */,
                                                                             const TLorentzVector & jetMomentum,
                                                                            const std::vector<const Trk::ITrackLink*> & myTracks) const
   {
@@ -460,36 +461,41 @@ namespace InDet
     const double s_massks=497.648;
     const double s_masslambda=1115.683;
 
-    //get the primary vertex information
-    const xAOD::VertexContainer* myVxContainer(0);
-    StatusCode sc = evtStore()->retrieve(myVxContainer,m_VxContainerName);
-    if (sc.isFailure()) {
-      msg(MSG::ERROR) << m_VxContainerName << " not found in StoreGate." << endreq;
-      return 0;
-    }  
+    StatusCode sc;
 
-    xAOD::Vertex* xAODprimaryVertex(0);
-    
-    xAOD::VertexContainer::const_iterator fz_end=myVxContainer->end();
-    for (xAOD::VertexContainer::const_iterator fz = myVxContainer->begin(); fz != fz_end; ++fz) 
-    {
-      if ((*fz)->vertexType() == xAOD::VxType::PriVtx) 
-      {
-        xAODprimaryVertex = *fz;
-        break;
-      }
-    }
-    
-    if (!xAODprimaryVertex) 
-    {
-      if (myVxContainer->size() > 0) 
-      {
-        xAODprimaryVertex = *myVxContainer->begin();
-      }
-    }
+//    //get the primary vertex information
+//    const xAOD::VertexContainer* myVxContainer(0);
+//    StatusCode sc = evtStore()->retrieve(myVxContainer,m_VxContainerName);
+//    if (sc.isFailure()) {
+//      msg(MSG::ERROR) << m_VxContainerName << " not found in StoreGate." << endreq;
+//      return 0;
+//    }  
+//
+//    xAOD::Vertex* xAODprimaryVertex(0);
+//    
+//    xAOD::VertexContainer::const_iterator fz_end=myVxContainer->end();
+//    for (xAOD::VertexContainer::const_iterator fz = myVxContainer->begin(); fz != fz_end; ++fz) 
+//    {
+//      if ((*fz)->vertexType() == xAOD::VxType::PriVtx) 
+//      {
+//        xAODprimaryVertex = *fz;
+//        break;
+//      }
+//    }
+//    
+//    if (!xAODprimaryVertex) 
+//    {
+//      if (myVxContainer->size() > 0) 
+//      {
+//        xAODprimaryVertex = *myVxContainer->begin();
+//      }
+//    }
+
+    xAOD::Vertex xAODprimaryVertex(primaryVertex);
+
 
     Trk::VxCandidate* signalVertex=0;
-    sc = m_VertexEdmFactory->createVxCandidate(*xAODprimaryVertex, signalVertex);
+    sc = m_VertexEdmFactory->createVxCandidate(xAODprimaryVertex, signalVertex);
     if (sc.isFailure()) {
       msg(MSG::ERROR) << m_VertexEdmFactory << " fail to createVxCandidate." << endreq;
       return 0;
@@ -675,6 +681,13 @@ namespace InDet
         double withoutSign=fitQuality.chiSquared();
 
 
+        if (fitQuality.chiSquared()==0.)
+        {
+          withoutSign=m_jetFitterUtils->compatibility(*myMeasuredPerigee,primaryVertexRecVertex).first;
+        }
+        
+
+
         //now assign a sign to the found track (respect to the jet momentum direction)
 	Amg::Vector3D jetMomSpatial(jetMomentum.X(),jetMomentum.Y(),jetMomentum.Z());
         withoutSign=fabs(withoutSign)*m_jetFitterUtils->get3DLifetimeSignOfTrack(*myMeasuredPerigee,
@@ -686,17 +699,22 @@ namespace InDet
         //temporary: to check that everything is fine, notice if the result without considering 
         //that the track was part in the fit is consistent/similar to the correct onw...
 #ifdef InDetImprovedJetFitterVxFinder_DEBUGAddOns
-        double WouldBe=m_jetFitterUtils->compatibility(*myMeasuredPerigee,primaryVertexRecVertex).first;
 
-        if (fitQuality.chiSquared()>0. && fabs(WouldBe/fitQuality.chiSquared()-1)>0.02)
+
+        if (fitQuality.chiSquared()>0.)
+        {
+          double WouldBe=m_jetFitterUtils->compatibility(*myMeasuredPerigee,primaryVertexRecVertex).first;
+
+          if (fabs(WouldBe/fitQuality.chiSquared()-1)>0.02)
           {
             if (msgLvl(MSG::VERBOSE)) msg() << " Probability mismatch: 1st vertex chi2 is: " << fitQuality.chiSquared() << 
-					" while a posteriori chi2 is: " << WouldBe << endreq;
-
+                                          " while a posteriori chi2 is: " << WouldBe << endreq;
+            
 	    if (msgLvl(MSG::VERBOSE)) msg() << "d0/s(d0)" << myMeasuredPerigee->parameters()[Trk::d0]/Amg::error(*myMeasuredPerigee->covariance(),Trk::d0) 
 					    << "z0/s(z0)" << myMeasuredPerigee->parameters()[Trk::z0]/Amg::error(*myMeasuredPerigee->covariance(),Trk::z0) << endreq;
-
+            
           }
+        }
 	//	else
 	//	  {
 	//	    if (msgLvl(MSG::VERBOSE)) msg() << " Probability match: 1st vertex chi2 is: " << fitQuality.chiSquared() <<
