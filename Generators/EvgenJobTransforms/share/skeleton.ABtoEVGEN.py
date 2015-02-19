@@ -35,7 +35,7 @@ postSeq = topSeq.EvgenPostSeq
 ##==============================================================
 
 ## Special setup for event generation
-include("AthenaCommon/Atlas_Gen.UnixStandardJob.py")
+include("AthenaCommon/Atlas.UnixStandardJob.py")
 include("PartPropSvc/PartPropSvc.py")
 
 ## Run performance monitoring (memory logging)
@@ -113,12 +113,14 @@ svcMgr.THistSvc.Output = ["TestHepMCname DATAFILE='TestHepMC.root' OPT='RECREATE
 ## Copy the event weight from HepMC to the Athena EventInfo class
 # TODO: Rewrite in Python?
 from EvgenProdTools.EvgenProdToolsConf import CopyEventWeight
-if not hasattr(postSeq, "CopyEventWeight"):
-    postSeq += CopyEventWeight()
+  #if not hasattr(postSeq, "CopyEventWeight"):
+#    postSeq += CopyEventWeight()
 
 ## Configure the event counting (AFTER all filters)
 # TODO: Rewrite in Python?
 from EvgenProdTools.EvgenProdToolsConf import CountHepMC
+
+import AthenaPoolCnvSvc.ReadAthenaPool
 svcMgr.EventSelector.FirstEvent = runArgs.firstEvent
 theApp.EvtMax = -1
 if not hasattr(postSeq, "CountHepMC"):
@@ -327,6 +329,12 @@ else:
 
 #StreamEVGEN = AthenaPoolOutputStream("StreamEVGEN", runArgs.outputEVNTFile)
 StreamEVGEN = AthenaPoolOutputStream("StreamEVGEN", poolFile)
+if hasattr(runArgs, "inputEVNT_PreFile") :
+  #  import AthenaPoolCnvSvc.ReadAthenaPool
+  #  from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+  #  athenaCommonFlags.PoolEvgenInput.set_Value_and_Lock( runArgs.inputEVNT_PreFile )
+  svcMgr.EventSelector.InputCollections = runArgs.inputEVNT_PreFile
+  StreamEVGEN.TakeItemsFromInput = True
 
 StreamEVGEN.ForceRead = True
 StreamEVGEN.ItemList += ["EventInfo#*", "McEventCollection#*"]

@@ -18,13 +18,14 @@ import PyJobTransforms.trfArgClasses as trfArgClasses
 
 ## Prodsys1 hack...
 # TODO: Remove!
-ListOfDefaultPositionalKeys=['--AMIConfig', '--AMITag', '--argJSON', '--asetup', '--athena', '--athenaMPMergeTargetSize', '--athenaopts', '--attempt', '--checkEventCount', '--command', '--dumpJSON', '--dumpPickle', '--ecmEnergy', '--env', '--eventAcceptanceEfficiency', '--evgenJobOpts', '--execOnly', '--fileValidation', '--firstEvent', '--ignoreErrors', '--ignoreFiles', '--ignorePatterns', '--imf', '--inputEVNT_PreFile', '--inputFileValidation', '--inputGenConfFile', '--inputGeneratorFile', '--jobConfig', '--jobid', '--maxEvents', '--orphanKiller', '--outputEVNTFile', '--outputEVNT_PreFile', '--outputFileValidation', '--outputNTUP_TRUTHFile', '--outputTXTFile', '--parallelFileValidation', '--postExec', '--postInclude', '--preExec', '--preInclude', '--printEvts', '--randomSeed', '--reportName', '--reportType', '--rivetAnas', '--runNumber', '--showGraph', '--showPath', '--showSteps', '--skipEvents', '--skipFileValidation', '--skipInputFileValidation', '--skipOutputFileValidation', '--steering', '--taskid', '--tcmalloc', '--valgrind', '--valgrindbasicopts', '--valgrindextraopts']
+ListOfDefaultPositionalKeys=['--AMI', '--AMITag', '--DBRelease', '--asetup', '--athena', '--athenaopts', '--autoConfiguration', '--beamType', '--checkEventCount', '--command', '--conditionsTag', '--ecmEnergy', '--eventAcceptanceEfficiency', '--evgenJobOpts', '--execOnly', '--firstEvent', '--geometryVersion', '--ignoreErrors', '--ignoreFilters', '--ignorePatterns', '--inputGenConfFile', '--inputGeneratorFile', '--jobConfig', '--maxEvents', '--omitFileValidation', '--outputEVNTFile', '--postExec', '--postInclude', '--preExec', '--preInclude', '--randomSeed', '--reportName', '--runNumber', '--showGraph', '--showPath', '--showSteps', '--skipEvents', '--uploadtoami', '--validation', '--outputTXTFile']
+
 
 class EvgenExecutor(athenaExecutor):
     "Specialised trf executor class for event generation jobs"
 
-    def __init__(self, name="generate", skeleton="EvgenJobTransforms/skeleton.GENtoEVGEN.py", substep=None, inData=["inNULL"], outData=["EVNT", "EVNT_Pre"]):
-        athenaExecutor.__init__(self, name=name, skeletonFile=skeleton, substep=substep, tryDropAndReload=False, inData=inData, outData=outData)
+    def __init__(self, skeleton):
+        athenaExecutor.__init__(self, name="generate", skeletonFile=skeleton, substep="gen2evnt", tryDropAndReload=False, inData=["EVNT_Pre"], outData=["EVNT"])
 
     def preExecute(self, input=set(), output=set()):
         "Get input tarball, unpack and set up env if an evgenJobOpts arg was provided."
@@ -56,17 +57,13 @@ class EvgenExecutor(athenaExecutor):
                     shutil.rmtree(proxypath)
                 os.mkdir(proxypath)
             os.environ['LOCAL_INSTALL_DIR'] = (os.environ['JOBOPTSEARCHPATH']).split(":")[0]
-
-            dirlist =  get_immediate_subdirectories(targetbasepath)
-            subdirlist=dirlist;
-            for dd in (dirlist):
-              if (dd !=('share' or 'cmt')):
-                deepdir = os.path.join(targetbasepath, dd)
-                subdirlist1 = get_immediate_subdirectories(deepdir)
-                subdirlist = subdirlist+["%s" % dd+"/%s" % item for item in subdirlist1]
-            for d in (subdirlist):
+            comdir = os.path.join(targetbasepath, "common")
+            subdirlist = get_immediate_subdirectories(comdir)
+            subdirlist1 = ['common/%s' % item for item in subdirlist]
+            dirlist = ['common','share','gencontrol','susycontrol']
+            for d in (dirlist+subdirlist1):
                 # TODO: we could _maybe_ add the appropriate share/DSIDxxxx/ dir to the path based on the jobConfig arg... too much magic?
-                if (('.svn' not in d) and ('cmt' not in d)):
+                if (d != 'common/.svn'):
                   dpath = os.path.join(proxypath, d)
 
                   if proxypath:
@@ -127,8 +124,7 @@ class EvgenExecutor(athenaExecutor):
 
 def getTransform():
     exeSet = set()
-    exeSet.add(EvgenExecutor(name="generate"))
-    exeSet.add(EvgenExecutor(name="afterburn", skeleton="EvgenJobTransforms/skeleton.ABtoEVGEN.py", inData=["EVNT_Pre"], outData=["EVNT"]))
+    exeSet.add(EvgenExecutor("EvgenJobTransforms/skeleton.ABtoEVGEN.py"))
     exeSet.add(athenaExecutor(name = "AODtoDPD", skeletonFile = "PATJobTransforms/skeleton.AODtoDPD_tf.py",
                               substep = "a2d", inData = ["EVNT"], outData = ["NTUP_TRUTH"], perfMonFile = "ntuple_AODtoDPD.pmon.gz"))
     trf = transform(executor=exeSet)

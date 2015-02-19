@@ -48,6 +48,10 @@ def addStdEvgenArgs(parser):
     #                     help="optional fully showered HepMC input event file",
     #                     type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True))
 
+    parser.add_argument("--inputEVNT_PreFile", group="Evgen",
+                        help="input evgen file for processing with afterburner, e.g. EvtGen",
+                        type=trfArgClasses.argFactory(trfArgClasses.argPOOLFile, runarg=True))
+
     parser.add_argument("--evgenJobOpts", "--EvgenJobOpts", group="Evgen",
                         help="download and install the EvgenJobOpts tarball with the given name",
                         type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True))
@@ -55,6 +59,10 @@ def addStdEvgenArgs(parser):
     # TODO: make optional: by default auto-determine from the JO name. If NONE, don't write?
     parser.add_argument("--outputEVNTFile", "--OutputEVNTFile", group="Evgen",
                         help="POOL file into which generated events will be written",
+                        type=trfArgClasses.argFactory(trfArgClasses.argPOOLFile, runarg=True))
+
+    parser.add_argument("--outputEVNT_PreFile", "--OutputEVNT_PreFile", group="Evgen",
+                        help="POOL file into which pre-afterburner generated events will be written",
                         type=trfArgClasses.argFactory(trfArgClasses.argPOOLFile, runarg=True))
 
     parser.add_argument('--outputNTUP_TRUTHFile',
