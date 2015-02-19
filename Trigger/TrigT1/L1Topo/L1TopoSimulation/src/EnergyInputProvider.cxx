@@ -68,7 +68,7 @@ EnergyInputProvider::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const {
                   );
 
    
-   TCS::MetTOB met( topoData->Ex(), topoData->Ey(), topoData->Et() );
+   TCS::MetTOB met( -(topoData->Ex()), -(topoData->Ey()), topoData->Et() );
    inputEvent.setMET( met );
 
    return StatusCode::SUCCESS;
