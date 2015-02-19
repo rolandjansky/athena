@@ -217,10 +217,10 @@ void TileMonHadEnFex::handle( const Incident& )
       m_2dhists_TB2[hist_grid_eta]->SetXTitle("#phi[#circ]");
       m_2dhists_TB2[hist_grid_eta]->SetYTitle("ln(E_{T}) [GeV]");
 
-      if ( thistSvc->regHist(name_2dhist_toreg,m_2dhists[hist_grid_eta]).isFailure() ) (*m_log) << MSG::ERROR << "Did not register hists" << endreq; //return StatusCode::FAILURE;
-      if ( thistSvc->regHist(name_2dhist_toreg_TB0,m_2dhists_TB0[hist_grid_eta]).isFailure() ) (*m_log) << MSG::ERROR << "Did not register hists" << endreq; //return StatusCode::FAILURE;
-      if ( thistSvc->regHist(name_2dhist_toreg_TB1,m_2dhists_TB1[hist_grid_eta]).isFailure() ) (*m_log) << MSG::ERROR << "Did not register hists" << endreq; //return StatusCode::FAILURE;
-      if ( thistSvc->regHist(name_2dhist_toreg_TB2,m_2dhists_TB2[hist_grid_eta]).isFailure() ) (*m_log) << MSG::ERROR << "Did not register hists" << endreq; //return StatusCode::FAILURE;
+      if ( thistSvc->regHist(name_2dhist_toreg,m_2dhists[hist_grid_eta]).isFailure() )         msg() << MSG::ERROR << "Did not register hists" << endreq; //return StatusCode::FAILURE;
+      if ( thistSvc->regHist(name_2dhist_toreg_TB0,m_2dhists_TB0[hist_grid_eta]).isFailure() ) msg() << MSG::ERROR << "Did not register hists" << endreq; //return StatusCode::FAILURE;
+      if ( thistSvc->regHist(name_2dhist_toreg_TB1,m_2dhists_TB1[hist_grid_eta]).isFailure() ) msg() << MSG::ERROR << "Did not register hists" << endreq; //return StatusCode::FAILURE;
+      if ( thistSvc->regHist(name_2dhist_toreg_TB2,m_2dhists_TB2[hist_grid_eta]).isFailure() ) msg() << MSG::ERROR << "Did not register hists" << endreq; //return StatusCode::FAILURE;
    }
 
    //    m_mainHist = new
@@ -230,16 +230,16 @@ void TileMonHadEnFex::handle( const Incident& )
    //    }
 
 
-   if ( m_log->level() <= MSG::DEBUG )
-      (*m_log) << MSG::DEBUG << "Histograms correctly allocated" << endreq; //
+   if ( msg().level() <= MSG::DEBUG )
+     msg() << MSG::DEBUG << "Histograms correctly allocated" << endreq; //
    m_configured=true;
    //return StatusCode::SUCCESS;
 }
 
 StatusCode TileMonHadEnFex::finalize(){
 // Don't delete histograms. ROOT takes care of this.
-   if ( m_log->level() <= MSG::DEBUG )
-(*m_log) << MSG::DEBUG << " REGTEST: HadEnFex:  call finalize()" << endreq;
+  if ( msg().level() <= MSG::DEBUG )
+    msg() << MSG::DEBUG << " REGTEST: HadEnFex:  call finalize()" << endreq;
 //  for(float eta=-m_end_detec_eta;eta<m_end_detec_eta;eta+=m_eta_division){
 //    int hist_grid_eta=(int)floorf(((eta)+m_end_detec_eta)/m_eta_division);
 //    for(float phi=-m_end_detec_phi;phi<m_end_detec_phi;phi+=m_phi_division){
@@ -259,8 +259,8 @@ StatusCode TileMonHadEnFex::finalize(){
 StatusCode TileMonHadEnFex::execute(TrigEMCluster &/*rtrigEmCluster*/,double etamin,
 		double etamax, double phimin, double phimax)
 {
-   if ( m_log->level() <= MSG::DEBUG )
-       (*m_log) << MSG::DEBUG << " REGTEST: HadEnFex:  call execute()" << endreq;
+    if ( msg().level() <= MSG::DEBUG )
+      msg() << MSG::DEBUG << " REGTEST: HadEnFex:  call execute()" << endreq;
 
   // If there was a problem in configuration, stop now
   if ( !m_configured ) return StatusCode::SUCCESS;
@@ -270,8 +270,8 @@ StatusCode TileMonHadEnFex::execute(TrigEMCluster &/*rtrigEmCluster*/,double eta
 
         // MsgStream log(msgSvc(), name());
 #ifndef NDEBUG
-   if ( m_log->level() <= MSG::DEBUG )
-        (*m_log) << MSG::DEBUG << "in execute(TrigEMCluster &)" << endreq;
+	if ( msg().level() <= MSG::DEBUG )
+	  msg() << MSG::DEBUG << "in execute(TrigEMCluster &)" << endreq;
 #endif
 
   CaloSampling::CaloSample samp;  
@@ -304,8 +304,8 @@ StatusCode TileMonHadEnFex::execute(TrigEMCluster &/*rtrigEmCluster*/,double eta
    if (!m_timersvc.empty()) m_timer[1]->pause();
 
 #ifndef NDEBUG
-   if ( m_log->level() <= MSG::DEBUG )
-       (*m_log) << MSG::DEBUG << " REGTEST:   TILE:  TileContSize()" << m_data->TileContSize() << endreq;
+   if ( msg().level() <= MSG::DEBUG )
+     msg() << MSG::DEBUG << " REGTEST:   TILE:  TileContSize()" << m_data->TileContSize() << endreq;
 #endif
 
    TrigT2TileJet* jet = new TrigT2TileJet();
@@ -345,7 +345,7 @@ StatusCode TileMonHadEnFex::execute(TrigEMCluster &/*rtrigEmCluster*/,double eta
       // possibly do some tower building
       // Energy Eta Phi Layer
       Trig3Momentum tile_cell(energyCell,etaCell,phiCell,samp);
-      jet->insertCell(tile_cell, *m_log);
+      jet->insertCell(tile_cell, msg());
 
    } // end of loop over cells
    
@@ -355,8 +355,8 @@ StatusCode TileMonHadEnFex::execute(TrigEMCluster &/*rtrigEmCluster*/,double eta
   } // End of loop over TileCal drawers
 
 
-   if ( m_log->level()<MSG::DEBUG )
-   jet->print(*m_log);
+   if ( msg().level()<MSG::DEBUG )
+   jet->print(msg());
    jet->findHottestTower(hottest_tower);
 
    // FILL HISTOS if at least one cell is set. if not RoI is not in Tile Barrel or Ext, Barrel and in consequence Hottest_tower would be emtpy
@@ -364,30 +364,30 @@ StatusCode TileMonHadEnFex::execute(TrigEMCluster &/*rtrigEmCluster*/,double eta
    if ( (hottest_tower.cell(0).inCone() || hottest_tower.cell(1).inCone() || hottest_tower.cell(2).inCone()) && hottest_tower.e() > 0.0 )
    {
       
-   if ( m_log->level() <= MSG::DEBUG ){
-      (*m_log) << MSG::DEBUG << " REGTEST: HOTTEST_TOWER:  print:" << endreq;
-      hottest_tower.print(*m_log,MSG::DEBUG);
+   if ( msg().level() <= MSG::DEBUG ){
+      msg() << MSG::DEBUG << " REGTEST: HOTTEST_TOWER:  print:" << endreq;
+      hottest_tower.print(msg(),MSG::DEBUG);
    }
 
       // TOWER
       int hist_grid_eta = (int) floorf( ((hottest_tower.eta()) + m_end_detec_eta)/m_eta_division);
       m_2dhists[hist_grid_eta]->Fill((float)hottest_tower.phi(), logEnergy(hottest_tower.e()) );
-      if ( m_log->level() <= MSG::DEBUG )
-        (*m_log) << MSG::DEBUG << " REGTEST: HOTTEST_TOWER:  fill in histo: eta:" << hottest_tower.eta() << " phi:"<< (float)hottest_tower.phi() << " log(e):" << logEnergy(hottest_tower.e()) << endreq;
+      if ( msg().level() <= MSG::DEBUG )
+        msg() << MSG::DEBUG << " REGTEST: HOTTEST_TOWER:  fill in histo: eta:" << hottest_tower.eta() << " phi:"<< (float)hottest_tower.phi() << " log(e):" << logEnergy(hottest_tower.e()) << endreq;
 
       // CELLS
       if ( hottest_tower.cell(0).inCone() && hottest_tower.cell(0).e() > 0.0 )
       {
          m_2dhists_TB0[hist_grid_eta]->Fill((float)hottest_tower.cell(0).phi(), logEnergy(hottest_tower.cell(0).e()) );
-   	 if ( m_log->level() <= MSG::DEBUG )
-              (*m_log) << MSG::DEBUG << " REGTEST: HOTTEST_CELL_0:  fill in histo: eta:" << hottest_tower.cell(0).eta() << " phi:"<< (float)hottest_tower.cell(0).phi() << " log(e):" << logEnergy(hottest_tower.cell(0).e()) << endreq;
+   	 if ( msg().level() <= MSG::DEBUG )
+   	     msg() << MSG::DEBUG << " REGTEST: HOTTEST_CELL_0:  fill in histo: eta:" << hottest_tower.cell(0).eta() << " phi:"<< (float)hottest_tower.cell(0).phi() << " log(e):" << logEnergy(hottest_tower.cell(0).e()) << endreq;
       }
       
       if ( hottest_tower.cell(1).inCone() && hottest_tower.cell(1).e() > 0.0 )
       {
          m_2dhists_TB1[hist_grid_eta]->Fill((float)hottest_tower.cell(1).phi(), logEnergy(hottest_tower.cell(1).e()) );
-         if ( m_log->level() <= MSG::DEBUG )
-            (*m_log) << MSG::DEBUG << " REGTEST: HOTTEST_CELL_1:  fill in histo: eta:" << hottest_tower.cell(1).eta() << " phi:"<< (float)hottest_tower.cell(1).phi() << " log(e):" << logEnergy(hottest_tower.cell(1).e()) << endreq;
+         if ( msg().level() <= MSG::DEBUG )
+  	     msg() << MSG::DEBUG << " REGTEST: HOTTEST_CELL_1:  fill in histo: eta:" << hottest_tower.cell(1).eta() << " phi:"<< (float)hottest_tower.cell(1).phi() << " log(e):" << logEnergy(hottest_tower.cell(1).e()) << endreq;
       }
       
       if ( hottest_tower.cell(2).inCone() && hottest_tower.cell(2).e() > 0.0 )
@@ -395,8 +395,8 @@ StatusCode TileMonHadEnFex::execute(TrigEMCluster &/*rtrigEmCluster*/,double eta
          // eta is different for layer 2
          hist_grid_eta=(int)floorf( ((hottest_tower.cell(2).eta()) + m_end_detec_eta)/m_eta_division);
          m_2dhists_TB2[hist_grid_eta]->Fill((float)hottest_tower.cell(2).phi(), logEnergy(hottest_tower.cell(2).e()) );
-         if ( m_log->level() <= MSG::DEBUG )
-            (*m_log) << MSG::DEBUG << " REGTEST: HOTTEST_CELL_2:  fill in histo: eta:" << hottest_tower.cell(2).eta() << " phi:"<< (float)hottest_tower.cell(2).phi() << " log(e):" << logEnergy(hottest_tower.cell(2).e()) << endreq;
+         if ( msg().level() <= MSG::DEBUG )
+  	    msg() << MSG::DEBUG << " REGTEST: HOTTEST_CELL_2:  fill in histo: eta:" << hottest_tower.cell(2).eta() << " phi:"<< (float)hottest_tower.cell(2).phi() << " log(e):" << logEnergy(hottest_tower.cell(2).e()) << endreq;
       }
    }
 
