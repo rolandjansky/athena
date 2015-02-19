@@ -47,10 +47,6 @@ the same strip before the dead time is ignored.
 #include "HitManagement/TimedHitCollection.h"
 #include "MuonSimData/MuonSimDataCollection.h"
 
-#include "xAODEventInfo/EventInfo.h"             // NEW EDM
-#include "xAODEventInfo/EventAuxInfo.h"          // NEW EDM
-
-
 #include <vector>
 #include <map>
 
@@ -78,37 +74,33 @@ public:
   RpcDigitizationTool(const std::string& type, const std::string& name, const IInterface* pIID);
 
   /** Initialize */
-    virtual StatusCode initialize() override final;
+  virtual StatusCode initialize();
 
   /** When being run from PileUpToolsAlgs, this method is called at the start of 
       the subevts loop. Not able to access SubEvents */
-  virtual StatusCode prepareEvent(const unsigned int /*nInputEvents*/) override final;
+  StatusCode prepareEvent(const unsigned int /*nInputEvents*/);
 
   /** When being run from PileUpToolsAlgs, this method is called for each active 
       bunch-crossing to process current SubEvents bunchXing is in ns */
-
-  virtual  StatusCode processBunchXing(
-                                    int bunchXing,
-                                    SubEventIterator bSubEvents,
-                                    SubEventIterator eSubEvents
-                                       ) override final;
-
+  StatusCode  processBunchXing(int bunchXing,
+			       PileUpEventInfo::SubEvent::const_iterator bSubEvents,
+			       PileUpEventInfo::SubEvent::const_iterator eSubEvents); 
 
   /** When being run from PileUpToolsAlgs, this method is called at the end of 
       the subevts loop. Not (necessarily) able to access SubEvents */
-  virtual StatusCode mergeEvent() override final;
+  StatusCode mergeEvent();
 
   /** alternative interface which uses the PileUpMergeSvc to obtain
   all the required SubEvents. */
-  virtual StatusCode processAllSubEvents() override final;
+  virtual StatusCode processAllSubEvents();
 
   /** When being run from RPC_Digitizer, this method is called during
       the event loop. Just calls processAllSubEvents - leaving for
       back-compatibility (IMuonDigitizationTool) */
-  virtual StatusCode digitize() override final;
+  StatusCode digitize();
 
   /** Finalize */
-  virtual StatusCode finalize() override final;
+  StatusCode finalize();
 
   /** accessors */
   ServiceHandle<IAtRndmGenSvc> getRndmSvc() const { return m_rndmSvc; }    // Random number service
@@ -195,13 +187,10 @@ private:
   /** CoolDB */
   StatusCode DumpRPCCalibFromCoolDB();
         
-  bool  m_turnON_efficiency      ;
-  bool  m_kill_deadstrips        ;//gabriele
-  bool  m_applyEffThreshold      ;//stefania
-  float m_Minimum_efficiency     ;//gabriele
-  bool  m_turnON_clustersize     ;
-  int   m_testbeam_clustersize   ;
-  int   m_FirstClusterSizeInTail ;
+  bool m_turnON_efficiency      ;
+  bool m_turnON_clustersize     ;
+  int  m_testbeam_clustersize   ;
+  int  m_FirstClusterSizeInTail ;
     
   std::vector<float> m_PhiAndEtaEff_A;
   std::vector<float> m_OnlyPhiEff_A  ; 
