@@ -213,10 +213,15 @@ xAOD::CaloCluster* EMClusterTool::makeNewCluster(const xAOD::CaloCluster& cluste
       ATH_MSG_ERROR("Problem executing cluster correction tool");
     }
     fillPositionsInCalo(newClus);
-    //Fill the raw state , by default the above filled the calib one
+    //Fill the raw state using the cluster with correct size  but not MVA
     newClus->setRawE(newClus->calE());
     newClus->setRawEta(newClus->calEta());
     newClus->setRawPhi(newClus->calPhi());
+    //Fill the Alt state using the 3x5 cluster
+    newClus->setAltE(cluster.calE());
+    newClus->setAltEta(cluster.calEta());
+    newClus->setAltPhi(cluster.calPhi());
+
     if (m_MVACalibTool->execute(newClus,eg).isFailure()){
       ATH_MSG_ERROR("Problem executing MVA cluster tool");
     }
