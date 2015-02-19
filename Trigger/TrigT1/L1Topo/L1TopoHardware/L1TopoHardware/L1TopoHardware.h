@@ -40,14 +40,14 @@ namespace TCS {
    const uint32_t InputWidth1stStageSelectMU                = 16;
 		
    const uint32_t OutputWidthSortEM           = 6;
-   const uint32_t OutputWidthSelectEM         = 6;
+   const uint32_t OutputWidthSelectEM         = 8;
    const uint32_t OutputWidthSortTAU          = 6;
-   const uint32_t OutputWidthSelectTAU        = 6;
-   const uint32_t OutputWidthSortJET          = 10;
-   const uint32_t OutputWidthSelectJET        = 10;
+   const uint32_t OutputWidthSelectTAU        = 8;
+   const uint32_t OutputWidthSortJET          = 6;
+   const uint32_t OutputWidthSelectJET        = 8;
    const uint32_t OutputWidthSortMU           = 6;
    const uint32_t NumberOfDelayedMuons        = 1;
-   const uint32_t OutputWidthSelectMU         = 6;
+   const uint32_t OutputWidthSelectMU         = 8;
 	
    const uint32_t NumberOfAlgorithms          = 30;
    const uint32_t NumberOfSortAlgorithms      = 35;
@@ -64,13 +64,15 @@ namespace TCS {
    const uint32_t KalmanMETCorrection_numberOfEtBins     = 10; // needs to be multiple of 2
    const uint32_t KalmanMETCorrection_correctionBitWidth = 8;  // assuming format unsigned [0.0000000]
 
-   const uint32_t InputWidthMET                = 2;
+   const uint32_t InputWidthMET                = 1;
    const uint32_t OutputWidthMET               = 1;	
-   const uint32_t METEnergyBitWidth           = 15;
+   const uint32_t METEnergyBitWidth           = 16;
    const uint32_t METSqrEnergyBitWidth        = 2 * METEnergyBitWidth;
-	
+   const uint32_t Arctan2InputEnergyBitWidth  = 15;	
+
+
    const uint32_t CosSinBitWidth              = 9;
-   const uint32_t CoshBitWidth                = 11;
+   const uint32_t CoshBitWidth                = 11 + 7;
    const uint32_t SechTanhBitWidth            = 8;
 	
    const uint32_t DefaultJetSize              = 2;
@@ -90,10 +92,16 @@ namespace TCS {
    const uint32_t MuonPhiBitWidth             = 3;
 	
    const uint32_t GenericEtBitWidth           = 10;
-   const uint32_t GenericEtaBitWidth          = 6;
+   const uint32_t GenericEtaBitWidth          = 7;
+   const uint32_t GenericAbsoluteEtaBitWidth  = GenericEtaBitWidth - 1;
    const uint32_t GenericPhiBitWidth          = 6;
 	
    const uint32_t MassSqrBitWidth             = GenericEtBitWidth +  METEnergyBitWidth + 1 + CosSinBitWidth + 1;
+   const uint32_t RatioBitWidth               = 8;
+   const uint32_t InvariantMassSqrBitWidth    = 2 * GenericEtBitWidth + CoshBitWidth + 1 - 7;
+   const uint32_t TransverseMassSqrBitWidth    = 2 * GenericEtBitWidth + CosSinBitWidth + 1 - 7;
+   const uint32_t ContratransverseMassSqrBitWidth    = TransverseMassSqrBitWidth ; 
+
 
    // Maximum number of components that require parameters
    const uint32_t max_components              = 70; //TODO: unused!
@@ -108,7 +116,7 @@ namespace TCS {
 
    const uint32_t ParameterBitWidth           = 32;  // Internal Data width
 	
-   const uint32_t MaxParams                   = 5;  // Maximum number of parameters
+   const uint32_t MaxParams                   = 20;  // Maximum number of parameters
 
 }
 
