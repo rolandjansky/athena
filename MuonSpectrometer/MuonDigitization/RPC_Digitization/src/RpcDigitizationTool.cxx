@@ -144,40 +144,40 @@ RpcDigitizationTool::RpcDigitizationTool(const std::string& type,
 StatusCode RpcDigitizationTool::initialize() {
 
   ATH_MSG_DEBUG ( "RpcDigitizationTool:: in initialize()" );
-  ATH_MSG_INFO ( "Configuration  RpcDigitizationTool " );
+  ATH_MSG_DEBUG ( "Configuration  RpcDigitizationTool " );
 
-  ATH_MSG_INFO ( "Parameters             " << m_paraFile                  );
-  ATH_MSG_INFO ( "CTB2004                " << m_ctb2004                   );
-  ATH_MSG_INFO ( "InputObjectName        " << m_inputHitCollectionName    );
-  ATH_MSG_INFO ( "OutputObjectName       " << m_outputDigitCollectionName );
-  ATH_MSG_INFO ( "WindowLowerOffset      " << m_timeWindowLowerOffset     );
-  ATH_MSG_INFO ( "WindowUpperOffset      " << m_timeWindowUpperOffset     );
-  ATH_MSG_INFO ( "DeadTime               " << m_deadTime                  );
-  ATH_MSG_INFO ( "RndmSvc                " << m_rndmSvc                   );
-  ATH_MSG_INFO ( "RndmEngine             " << m_rndmEngineName            );
-  ATH_MSG_INFO ( "PatchForRpcTime        " << m_patch_for_rpc_time        );
-  ATH_MSG_INFO ( "RpcTimeShift           " << m_rpc_time_shift            );
-  ATH_MSG_INFO ( "RPC_TimeSchema         " << m_RPC_TimeSchema            );
-  ATH_MSG_INFO ( "RPCSDOareRPCDigits     " << m_sdoAreOnlyDigits          );
+  ATH_MSG_DEBUG ( "Parameters             " << m_paraFile                  );
+  ATH_MSG_DEBUG ( "CTB2004                " << m_ctb2004                   );
+  ATH_MSG_DEBUG ( "InputObjectName        " << m_inputHitCollectionName    );
+  ATH_MSG_DEBUG ( "OutputObjectName       " << m_outputDigitCollectionName );
+  ATH_MSG_DEBUG ( "WindowLowerOffset      " << m_timeWindowLowerOffset     );
+  ATH_MSG_DEBUG ( "WindowUpperOffset      " << m_timeWindowUpperOffset     );
+  ATH_MSG_DEBUG ( "DeadTime               " << m_deadTime                  );
+  ATH_MSG_DEBUG ( "RndmSvc                " << m_rndmSvc                   );
+  ATH_MSG_DEBUG ( "RndmEngine             " << m_rndmEngineName            );
+  ATH_MSG_DEBUG ( "PatchForRpcTime        " << m_patch_for_rpc_time        );
+  ATH_MSG_DEBUG ( "RpcTimeShift           " << m_rpc_time_shift            );
+  ATH_MSG_DEBUG ( "RPC_TimeSchema         " << m_RPC_TimeSchema            );
+  ATH_MSG_DEBUG ( "RPCSDOareRPCDigits     " << m_sdoAreOnlyDigits          );
 
-  ATH_MSG_INFO ( "turnON_efficiency      " <<  m_turnON_efficiency        );
-  ATH_MSG_INFO ( "Efficiency_fromCOOL    " <<  m_Efficiency_fromCOOL      );
-  ATH_MSG_INFO ( "turnON_clustersize     " <<  m_turnON_clustersize       );
-  ATH_MSG_INFO ( "ClusterSize_fromCOOL   " <<  m_ClusterSize_fromCOOL     );
-  ATH_MSG_INFO ( "testbeam_clustersize   " <<  m_testbeam_clustersize     );
-  ATH_MSG_INFO ( "FirstClusterSizeInTail " <<  m_FirstClusterSizeInTail   );
-  ATH_MSG_INFO ( "ClusterSize1_2uncorr   " <<  m_ClusterSize1_2uncorr     );
-  ATH_MSG_INFO ( "PrintCalibrationVector " <<  m_PrintCalibrationVector   );
-  ATH_MSG_INFO ( "BOG_BOF_DoubletR2_OFF  " <<  m_BOG_BOF_DoubletR2_OFF    );
-  ATH_MSG_INFO ( "RPCCondSummarySvc      " <<  m_rSummarySvc              );
-  ATH_MSG_INFO ( "DumpFromDbFirst        " <<  m_DumpFromDbFirst          );
-  ATH_MSG_INFO ( "CutMaxClusterSize      " <<  m_CutMaxClusterSize        );
-  ATH_MSG_INFO ( "CutProjectedTracks     " <<  m_CutProjectedTracks       );
-  ATH_MSG_INFO ( "PanelId_OFF_fromlist   " <<  m_PanelId_OFF_fromlist     );
-  ATH_MSG_INFO ( "FileName_DeadPanels    " <<  m_FileName_DeadPanels      );
-  ATH_MSG_INFO ( "PanelId_OK_fromlist    " <<  m_PanelId_OK_fromlist      );
-  ATH_MSG_INFO ( "FileName_GoodPanels    " <<  m_FileName_GoodPanels      );
-  ATH_MSG_INFO ( "ValidationSetup        " <<  m_validationSetup          );
+  ATH_MSG_DEBUG ( "turnON_efficiency      " <<  m_turnON_efficiency        );
+  ATH_MSG_DEBUG ( "Efficiency_fromCOOL    " <<  m_Efficiency_fromCOOL      );
+  ATH_MSG_DEBUG ( "turnON_clustersize     " <<  m_turnON_clustersize       );
+  ATH_MSG_DEBUG ( "ClusterSize_fromCOOL   " <<  m_ClusterSize_fromCOOL     );
+  ATH_MSG_DEBUG ( "testbeam_clustersize   " <<  m_testbeam_clustersize     );
+  ATH_MSG_DEBUG ( "FirstClusterSizeInTail " <<  m_FirstClusterSizeInTail   );
+  ATH_MSG_DEBUG ( "ClusterSize1_2uncorr   " <<  m_ClusterSize1_2uncorr     );
+  ATH_MSG_DEBUG ( "PrintCalibrationVector " <<  m_PrintCalibrationVector   );
+  ATH_MSG_DEBUG ( "BOG_BOF_DoubletR2_OFF  " <<  m_BOG_BOF_DoubletR2_OFF    );
+  ATH_MSG_DEBUG ( "RPCCondSummarySvc      " <<  m_rSummarySvc              );
+  ATH_MSG_DEBUG ( "DumpFromDbFirst        " <<  m_DumpFromDbFirst          );
+  ATH_MSG_DEBUG ( "CutMaxClusterSize      " <<  m_CutMaxClusterSize        );
+  ATH_MSG_DEBUG ( "CutProjectedTracks     " <<  m_CutProjectedTracks       );
+  ATH_MSG_DEBUG ( "PanelId_OFF_fromlist   " <<  m_PanelId_OFF_fromlist     );
+  ATH_MSG_DEBUG ( "FileName_DeadPanels    " <<  m_FileName_DeadPanels      );
+  ATH_MSG_DEBUG ( "PanelId_OK_fromlist    " <<  m_PanelId_OK_fromlist      );
+  ATH_MSG_DEBUG ( "FileName_GoodPanels    " <<  m_FileName_GoodPanels      );
+  ATH_MSG_DEBUG ( "ValidationSetup        " <<  m_validationSetup          );
 
 
   if (detStore()->retrieve( m_GMmgr,"Muon" ).isFailure()) {
@@ -195,7 +195,7 @@ StatusCode RpcDigitizationTool::initialize() {
     ATH_MSG_FATAL ( "Property InputObjectName not set !" );
     return StatusCode::FAILURE;
   } else {
-    ATH_MSG_INFO ( "Input objects: '" << m_inputHitCollectionName << "'" );
+    ATH_MSG_DEBUG ( "Input objects: '" << m_inputHitCollectionName << "'" );
   }
 
   // check the output object name
@@ -203,7 +203,7 @@ StatusCode RpcDigitizationTool::initialize() {
     ATH_MSG_FATAL ( "Property OutputObjectName not set !" );
     return StatusCode::FAILURE;
   } else {
-    ATH_MSG_INFO ( "Output digits: '" << m_outputDigitCollectionName << "'" );
+    ATH_MSG_DEBUG ( "Output digits: '" << m_outputDigitCollectionName << "'" );
   }
 
   // initialize digit container
@@ -241,7 +241,7 @@ StatusCode RpcDigitizationTool::initialize() {
       m_run1 = true; 
     } else { 
       std::string configVal = (*atlasCommonRec)[0]->getString("CONFIG"); 
-      if(configVal=="RUN1"){ 
+      if(configVal=="RUN1" || m_GMmgr->geometryVersion().substr(0,4)=="R.06"){ 
         m_run1 = true; 
       } 
       else if(configVal=="RUN2") { 
@@ -253,8 +253,8 @@ StatusCode RpcDigitizationTool::initialize() {
       } 
     } 
     // 
-    if (m_run1) ATH_MSG_INFO("From Geometry DB configuration is: RUN1"); 
-    else        ATH_MSG_INFO("From Geometry DB configuration is: RUN2"); 
+    if (m_run1) ATH_MSG_DEBUG("From Geometry DB: MuonSpectrometer configuration is: RUN1"); 
+    else        ATH_MSG_DEBUG("From Geometry DB: MuonSpectrometer configuration is: RUN2"); 
   }
   if (m_ignoreRunDepConfig==false) 
     {
@@ -266,6 +266,7 @@ StatusCode RpcDigitizationTool::initialize() {
 	  m_BOG_BOF_DoubletR2_OFF = true;
 	  m_Efficiency_fromCOOL   = true;
 	  m_ClusterSize_fromCOOL  = true;
+	  m_RPCInfoFromDb         = true;
 	}
       else 
 	{
@@ -275,15 +276,21 @@ StatusCode RpcDigitizationTool::initialize() {
 	  m_BOG_BOF_DoubletR2_OFF = false;
 	  m_Efficiency_fromCOOL   = false;
 	  m_ClusterSize_fromCOOL  = false;
+	  m_RPCInfoFromDb         = false;
 	}
-      ATH_MSG_INFO ( "Run1/Run2-dependent configuration is enforced; option setting reset for: " );
-      ATH_MSG_INFO ( "......Efficiency_fromCOOL    " <<  m_Efficiency_fromCOOL      );
-      ATH_MSG_INFO ( "......ClusterSize_fromCOOL   " <<  m_ClusterSize_fromCOOL     );
-      ATH_MSG_INFO ( "......BOG_BOF_DoubletR2_OFF  " <<  m_BOG_BOF_DoubletR2_OFF    );
+      ATH_MSG_DEBUG ( "Run1/Run2-dependent configuration is enforced; option setting reset for: " );
+      ATH_MSG_DEBUG ( "......Efficiency_fromCOOL    " <<  m_Efficiency_fromCOOL      );
+      ATH_MSG_DEBUG ( "......ClusterSize_fromCOOL   " <<  m_ClusterSize_fromCOOL     );
+      ATH_MSG_DEBUG ( "......BOG_BOF_DoubletR2_OFF  " <<  m_BOG_BOF_DoubletR2_OFF    );
+      ATH_MSG_DEBUG ( "......RPCInfoFromDb          " <<  m_RPCInfoFromDb            );
     }
   else
     {
       ATH_MSG_WARNING ( "Run1/Run2-dependent configuration is bypassed; be careful with option settings" );
+      ATH_MSG_DEBUG ( "......Efficiency_fromCOOL    " <<  m_Efficiency_fromCOOL      );
+      ATH_MSG_DEBUG ( "......ClusterSize_fromCOOL   " <<  m_ClusterSize_fromCOOL     );
+      ATH_MSG_DEBUG ( "......BOG_BOF_DoubletR2_OFF  " <<  m_BOG_BOF_DoubletR2_OFF    );
+      ATH_MSG_DEBUG ( "......RPCInfoFromDb          " <<  m_RPCInfoFromDb            );
     }
 
 
@@ -2123,7 +2130,7 @@ int RpcDigitizationTool::ClusterSizeEvaluation(const Identifier* IdRpcStrip, flo
     index += m_FracClusterSize1_A.size()/2*measuresPhi ;
     if( index>m_FracClusterSize1_A.size()    || index>m_FracClusterSize2_A.size() ||
 	index>m_FracClusterSizeTail_A.size() || index>m_MeanClusterSizeTail_A.size() ) {
-      ATH_MSG_ERROR ( "Index out of array in ClusterSizeEvaluation SideA " << index ) ;
+      ATH_MSG_ERROR ( "Index out of array in ClusterSizeEvaluation SideA " << index <<" statName "<<stationName) ;
       return 1;
     }
     FracClusterSize1    = m_FracClusterSize1_A      [index];
@@ -2135,7 +2142,7 @@ int RpcDigitizationTool::ClusterSizeEvaluation(const Identifier* IdRpcStrip, flo
       index += m_FracClusterSize1_C.size()/2*measuresPhi - m_FracClusterSize1_A.size()/2*measuresPhi ;
       if( index>m_FracClusterSize1_C.size()    || index>m_FracClusterSize2_C.size() ||
 	  index>m_FracClusterSizeTail_C.size() || index>m_MeanClusterSizeTail_C.size() ) {
-	ATH_MSG_ERROR ( "Index out of array in ClusterSizeEvaluation SideC " << index ) ;
+	ATH_MSG_ERROR ( "Index out of array in ClusterSizeEvaluation SideC " << index <<" statName "<<stationName) ;
 	return 1;
       }
 
@@ -2173,7 +2180,7 @@ int RpcDigitizationTool::ClusterSizeEvaluation(const Identifier* IdRpcStrip, flo
       index += m_FracClusterSize1_A.size()/2*measuresPhi ;
       if( index>m_FracClusterSize1_A.size()    || index>m_FracClusterSize2_A.size() ||
 	  index>m_FracClusterSizeTail_A.size() || index>m_MeanClusterSizeTail_A.size() ) {
-	ATH_MSG_ERROR ( "Index out of array in ClusterSizeEvaluation SideA " << index ) ;
+	ATH_MSG_ERROR ( "Index out of array in ClusterSizeEvaluation SideA " << index << " statName "<<stationName) ;
 	return 1;
       }
       FracClusterSize1	= m_FracClusterSize1_A      [index];
@@ -2185,7 +2192,7 @@ int RpcDigitizationTool::ClusterSizeEvaluation(const Identifier* IdRpcStrip, flo
 	index += m_FracClusterSize1_C.size()/2*measuresPhi - m_FracClusterSize1_A.size()/2*measuresPhi ;
 	if( index>m_FracClusterSize1_C.size()    || index>m_FracClusterSize2_C.size() ||
 	    index>m_FracClusterSizeTail_C.size() || index>m_MeanClusterSizeTail_C.size() ) {
-	  ATH_MSG_ERROR ( "Index out of array in ClusterSizeEvaluation SideC " << index ) ;
+	  ATH_MSG_ERROR ( "Index out of array in ClusterSizeEvaluation SideC " << index << " statName "<<stationName ) ;
 	  return 1;
 	}
 
@@ -2260,7 +2267,7 @@ int RpcDigitizationTool::ClusterSizeEvaluation(const Identifier* IdRpcStrip, flo
 //--------------------------------------------
 StatusCode RpcDigitizationTool::PrintCalibrationVector() {
 
-  ATH_MSG_DEBUG ( "RpcDigitizationTool::in PrintCalibrationVector" );
+  ATH_MSG_INFO( "RpcDigitizationTool::in PrintCalibrationVector" );
 
   StatusCode sc = StatusCode::SUCCESS;
   int vec_size = 0 ;
