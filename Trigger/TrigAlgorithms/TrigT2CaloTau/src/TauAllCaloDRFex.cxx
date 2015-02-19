@@ -53,20 +53,20 @@ StatusCode TauAllCaloDRFex::initialize()
 {
   StatusCode sc = IAlgToolCalo::initialize();
   if( sc.isFailure() ) return sc;
-  (*m_log)  << MSG::INFO << "REGTEST initialized with:" << endreq;
-  (*m_log)  << MSG::INFO << "REGTEST dRSeed="           << m_dRSeed         << endreq;
-  (*m_log)  << MSG::INFO << "REGTEST StripEthr="        << m_stripEthr      << endreq;
-  (*m_log)  << MSG::INFO << "REGTEST CaloNoiseTool="    << m_noiseTool      << endreq;
-  (*m_log)  << MSG::INFO << "REGTEST applyNoiseCut="    << m_applyNoiseCut  << endreq;
-  (*m_log)  << MSG::INFO << "REGTEST noiseNSigmaCut="   << m_noiseNSigmaCut << endreq;
-  (*m_log)  << MSG::INFO << "REGTEST hecQualityCut="    << m_hecQualityCut  << endreq;
-  (*m_log)  << MSG::INFO << "REGTEST defaultWidth="     << m_defaultWidth   << endreq;
-  (*m_log)  << MSG::INFO << "REGTEST dRConeNarrow="     << m_dRConeNarrow   << endreq;
-  (*m_log)  << MSG::INFO << "REGTEST dRConeMedium="     << m_dRConeMedium   << endreq;
-  (*m_log)  << MSG::INFO << "REGTEST dRConeWide="       << m_dRConeWide     << endreq;
+  msg()  << MSG::INFO << "REGTEST initialized with:" << endreq;
+  msg()  << MSG::INFO << "REGTEST dRSeed="           << m_dRSeed         << endreq;
+  msg()  << MSG::INFO << "REGTEST StripEthr="        << m_stripEthr      << endreq;
+  msg()  << MSG::INFO << "REGTEST CaloNoiseTool="    << m_noiseTool      << endreq;
+  msg()  << MSG::INFO << "REGTEST applyNoiseCut="    << m_applyNoiseCut  << endreq;
+  msg()  << MSG::INFO << "REGTEST noiseNSigmaCut="   << m_noiseNSigmaCut << endreq;
+  msg()  << MSG::INFO << "REGTEST hecQualityCut="    << m_hecQualityCut  << endreq;
+  msg()  << MSG::INFO << "REGTEST defaultWidth="     << m_defaultWidth   << endreq;
+  msg()  << MSG::INFO << "REGTEST dRConeNarrow="     << m_dRConeNarrow   << endreq;
+  msg()  << MSG::INFO << "REGTEST dRConeMedium="     << m_dRConeMedium   << endreq;
+  msg()  << MSG::INFO << "REGTEST dRConeWide="       << m_dRConeWide     << endreq;
   
-  if(   m_saveCells && (*m_log).level() <= MSG::DEBUG )
-    (*m_log) << MSG::DEBUG << "REGTEST: store cells with Et> " << m_cellkeepthr << endreq;
+  if(   m_saveCells && msg().level() <= MSG::DEBUG )
+    msg() << MSG::DEBUG << "REGTEST: store cells with Et> " << m_cellkeepthr << endreq;
   
   if ( !m_timersvc.empty() )
     {     
@@ -82,7 +82,7 @@ StatusCode TauAllCaloDRFex::initialize()
     {
       if(m_noiseTool.retrieve().isFailure())
         {
-          (*m_log) << MSG::FATAL << "Unable to find CaloNoiseTool" << endreq;
+          msg() << MSG::FATAL << "Unable to find CaloNoiseTool" << endreq;
           return StatusCode::FAILURE;
         }
     }
@@ -123,8 +123,8 @@ HLT::ErrorCode TauAllCaloDRFex::execute( TrigTauCluster &rtrigTauCluster,
   double seedPhi = roi.phi();
   double seedEta = roi.eta();
   
-  if ((*m_log).level()<=MSG::DEBUG)
-    (*m_log) << MSG::DEBUG << " Seed position (L1) eta/phi=" << seedEta << "/" << seedPhi << endreq;
+  if (msg().level()<=MSG::DEBUG)
+    msg() << MSG::DEBUG << " Seed position (L1) eta/phi=" << seedEta << "/" << seedPhi << endreq;
   
 
   double energyEta = 0.;
@@ -150,21 +150,21 @@ HLT::ErrorCode TauAllCaloDRFex::execute( TrigTauCluster &rtrigTauCluster,
 
   //------------------ step 1 : clusterization -----------------------------------
   // loop over all samplings 
-  if ((*m_log).level()<=MSG::DEBUG)
-    (*m_log) << MSG::DEBUG << " Start clusterization "<< endreq;
+  if (msg().level()<=MSG::DEBUG)
+    msg() << MSG::DEBUG << " Start clusterization "<< endreq;
 
   for(unsigned int is=0; is<NSamplings;++is)
     {
-      if ((*m_log).level()<=MSG::DEBUG)
-	(*m_log) << MSG::DEBUG << "LAr sampling "<< samplings[is]<< endreq;
+      if (msg().level()<=MSG::DEBUG)
+	msg() << MSG::DEBUG << "LAr sampling "<< samplings[is]<< endreq;
 
       if (!m_timersvc.empty()) { m_timer[3]->pause();  m_timer[1]->resume();}
       //      m_data->RegionSelector(samplings[is], etamin, etamax, phimin, phimax, detectorID[is]);
       m_data->RegionSelector(samplings[is], roi, detectorID[is]);
       if (!m_timersvc.empty()) {m_timer[1]->pause();  m_timer[2]->resume(); }
       if ( m_data->LoadCollections(m_iBegin,m_iEnd).isFailure() ){
-	if ((*m_log).level()<=MSG::DEBUG)
-	  (*m_log) << MSG::DEBUG << " can not LoadCollections " << *m_iBegin << " " << *m_iEnd << endreq;
+	if (msg().level()<=MSG::DEBUG)
+	  msg() << MSG::DEBUG << " can not LoadCollections " << *m_iBegin << " " << *m_iEnd << endreq;
 	return  HLT::TOOL_FAILURE; 
       }
       m_error|=m_data->report_error(); 
@@ -245,8 +245,8 @@ HLT::ErrorCode TauAllCaloDRFex::execute( TrigTauCluster &rtrigTauCluster,
 	  
 	  energyEta += energyCell * etaCell ;
 	  
-	  if ((*m_log).level()<=MSG::DEBUG)
-	    (*m_log) << MSG::DEBUG << "take cell E="<<energyCell << " Eta/Phi="<<etaCell << "/"<<phiCell<< endreq;
+	  if (msg().level()<=MSG::DEBUG)
+	    msg() << MSG::DEBUG << "take cell E="<<energyCell << " Eta/Phi="<<etaCell << "/"<<phiCell<< endreq;
 	  
 	  if (phiCell > 0.){
 	    EnergyMediumPosPhi += energyCell;
@@ -274,8 +274,8 @@ HLT::ErrorCode TauAllCaloDRFex::execute( TrigTauCluster &rtrigTauCluster,
     energyEta /= (EnergyMediumNegPhi + EnergyMediumPosPhi) ;
     energyPhi = calcEnergyPhi(energyNegPhi, energyPosPhi, EnergyMediumNegPhi, EnergyMediumPosPhi, energyNegPhiConv);
   } else {
-    if ((*m_log).level()<=MSG::DEBUG)
-      (*m_log) << MSG::DEBUG <<"REGTEST problems finding seed: negative energy = "<< EnergyMediumNegPhi + EnergyMediumPosPhi 
+    if (msg().level()<=MSG::DEBUG)
+      msg() << MSG::DEBUG <<"REGTEST problems finding seed: negative energy = "<< EnergyMediumNegPhi + EnergyMediumPosPhi 
 	       <<" eta/phi = "<< energyEta<<" / "<<energyPhi <<" . Seed set to L1 direction: eta/phi = "
 	       <<roi.eta()<<" / "<<roi.phi()<<  endreq;
     energyEta = roi.eta() ; // if Cluster energy is null or negative, set L1 position
@@ -285,8 +285,8 @@ HLT::ErrorCode TauAllCaloDRFex::execute( TrigTauCluster &rtrigTauCluster,
     StatError =  HLT::ErrorCode(HLT::Action::CONTINUE, NEG_ENERGY_CLUSTER);
   }
   
-  if ((*m_log).level()<=MSG::DEBUG)
-    (*m_log) << MSG::DEBUG <<"REGTEST Pre-seed eta/phi " << seedEta<<"/"<<seedPhi << " => Cluster eta/phi = "<< energyEta << "/"<< energyPhi << endreq;
+  if (msg().level()<=MSG::DEBUG)
+    msg() << MSG::DEBUG <<"REGTEST Pre-seed eta/phi " << seedEta<<"/"<<seedPhi << " => Cluster eta/phi = "<< energyEta << "/"<< energyPhi << endreq;
   
   while (energyPhi < -M_PI) energyPhi= energyPhi + 2. * M_PI;
   while (energyPhi > M_PI)  energyPhi= energyPhi - 2. * M_PI;
@@ -296,8 +296,8 @@ HLT::ErrorCode TauAllCaloDRFex::execute( TrigTauCluster &rtrigTauCluster,
   
   // If seed is too far from pre seed, means that something has happened, probably too small energy deposition
   if ( fabs(energyEta - seedEta)> m_dRSeed || fabs(dPhiL1)> m_dRSeed){
-    if ((*m_log).level()<=MSG::DEBUG)
-      (*m_log) << MSG::DEBUG <<"REGTEST problems finding seed: eta/phi = "<<energyEta<<" / "<<energyPhi
+    if (msg().level()<=MSG::DEBUG)
+      msg() << MSG::DEBUG <<"REGTEST problems finding seed: eta/phi = "<<energyEta<<" / "<<energyPhi
 	       <<" too far from L1 eta/phi = "<< seedEta<<" / "<<seedPhi 
 	       <<" . Energy = "<< EnergyMediumNegPhi + EnergyMediumPosPhi<<  endreq;
     energyEta=roi.eta();
@@ -327,8 +327,8 @@ HLT::ErrorCode TauAllCaloDRFex::execute( TrigTauCluster &rtrigTauCluster,
   ClearClusterError(TAUCLUSTERROR::HADS2E0);  
   ClearClusterError(TAUCLUSTERROR::HADS3E0);  
   
-  if ((*m_log).level()<=MSG::DEBUG)
-	(*m_log) << MSG::DEBUG << " Start shape calculation "<< endreq;
+  if (msg().level()<=MSG::DEBUG)
+	msg() << MSG::DEBUG << " Start shape calculation "<< endreq;
   
 
   int    numStripCell           = 0;
@@ -421,8 +421,8 @@ HLT::ErrorCode TauAllCaloDRFex::execute( TrigTauCluster &rtrigTauCluster,
     if (!m_timersvc.empty()) { m_timer[1]->pause(); m_timer[2]->resume(); }
 
     if ( m_data->LoadCollections(m_iBegin,m_iEnd).isFailure() ){
-      if ((*m_log).level()<=MSG::DEBUG)
-          (*m_log) << MSG::DEBUG << " can not LoadCollections " << *m_iBegin << " " << *m_iEnd << endreq;
+      if (msg().level()<=MSG::DEBUG)
+          msg() << MSG::DEBUG << " can not LoadCollections " << *m_iBegin << " " << *m_iEnd << endreq;
       return  HLT::TOOL_FAILURE; 
     }
     m_error|=m_data->report_error(); 
@@ -872,8 +872,8 @@ HLT::ErrorCode TauAllCaloDRFex::execute( TrigTauCluster &rtrigTauCluster,
   rtrigTauCluster.setHADenergy( getHADEnergy(pDetails, m_defaultWidth) );
   rtrigTauCluster.setRawEnergy( rtrigTauCluster.rawEnergy() + rtrigTauCluster.EMenergy() + rtrigTauCluster.HADenergy() );
 
-  if ( m_log->level() <= MSG::DEBUG)
-      (*m_log)<<MSG::DEBUG 
+  if ( msg().level() <= MSG::DEBUG)
+      msg()<<MSG::DEBUG 
               << "REGTEST  Record energy RawE" << rtrigTauCluster.rawEnergy() 
               << "Had " << rtrigTauCluster.HADenergy() << endreq;
   
