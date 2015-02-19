@@ -83,7 +83,7 @@ EMConversionBuilder::EMConversionBuilder(const std::string& type,
   declareProperty("maxEoverP_singleTrack_EtSf", m_maxEoverP_singleTrack_EtSf = 0.01,  
       "Scale maxEoverP_singleTrack by ( 1+sf*Et(cluster)/GeV ) ");
   
-  declareProperty("maxTRTTubeHitFraction", m_maxTRTTubeHitFraction = 0.6,
+  declareProperty("maxTRTTubeHitFraction", m_maxTRTTubeHitFraction = 0.65,
       "Maximum fraction of tube hits for vertices with TRT tracks");
   
 
@@ -260,9 +260,11 @@ bool EMConversionBuilder::passPtAndEoverP(const xAOD::Vertex& vertex, const xAOD
   float EoverPcut = m_maxEoverP_singleTrack*(1+m_maxEoverP_singleTrack_EtSf*cluster.et()/1e3);
   
   // Check TRT tube hit fraction
-  if (isTRT && getMaxTRTTubeHitFraction(vertex) < m_maxTRTTubeHitFraction)
+  float tubeHitFraction = getMaxTRTTubeHitFraction(vertex);
+  if (isTRT && tubeHitFraction > m_maxTRTTubeHitFraction)
   {
-    ATH_MSG_DEBUG("Conversion failed cut on TRT tube hit fraction");
+    ATH_MSG_DEBUG("Conversion failed cut on TRT tube hit fraction: " 
+      << tubeHitFraction << " vs. " << m_maxTRTTubeHitFraction);
     return false;
   }
   
@@ -283,11 +285,11 @@ float EMConversionBuilder::getMaxTRTTubeHitFraction(const xAOD::Vertex& vertex) 
   auto getTRTTubeHitFraction = [](const xAOD::TrackParticle *trk)
   {
     uint8_t nTRT, nTRTTube;
-    if (!trk || !trk->summaryValue(nTRT, xAOD::numberOfTRTHits) || !nTRT ) return 1.;
-    return trk->summaryValue(nTRTTube, xAOD::numberOfTRTTubeHits) ? 1.*nTRTTube/nTRT : 1.;
+    if (!trk || !trk->summaryValue(nTRT, xAOD::numberOfTRTHits) || !nTRT ) return 0.;
+    return trk->summaryValue(nTRTTube, xAOD::numberOfTRTTubeHits) ? 1.*nTRTTube/nTRT : 0.;
   };
   
-  float maxTubeHitFraction = 1.;
+  float maxTubeHitFraction = 0.;
   for (unsigned int i=0; i < vertex.nTrackParticles(); ++i)
   {
     if ( !vertex.trackParticle(i) )
@@ -300,12 +302,3 @@ float EMConversionBuilder::getMaxTRTTubeHitFraction(const xAOD::Vertex& vertex) 
   }  
   return maxTubeHitFraction;
 }
-
-//   auto comp = [](const xAOD::TrackParticle *trk1, const xAOD::TrackParticle *trk2)
-//   {
-//     return std::max( getTRTTubeHitFraction(trk1), getTRTTubeHitFraction(trk2) );
-//   }
-//   
-//   std::set<const xAOD::TrackParticle*> conversionTracks = xAOD::EgammaHelpers::getTrackParticles(vertex, false);  
-//   return std::max(conversionTracks.begin(), conversionTracks.end(), comp);
-

@@ -133,17 +133,14 @@ StatusCode EMVertexBuilder::contExecute()
   while (itVtx != itVtxEnd){
     xAOD::Vertex& vertex = **itVtx;
     
-    float p1 = 0.;
     Amg::Vector3D momentum(0., 0., 0.);
     for (unsigned int i = 0; i < vertex.nTrackParticles(); ++i)
     {
       momentum += m_EMExtrapolationTool->getMomentumAtVertex(vertex, i);
-      if (i == 0) p1 = momentum.mag();
     }
     vertex.auxdata<float>("px") = momentum.x();
     vertex.auxdata<float>("py") = momentum.y();
     vertex.auxdata<float>("pz") = momentum.z();
-    vertex.auxdata<float>("p1fraction") = p1/momentum.mag();
     
     xAOD::EgammaParameters::ConversionType convType(xAOD::EgammaHelpers::conversionType((*itVtx)));
     bool vxDoubleTRT = (convType == xAOD::EgammaParameters::doubleTRT);
