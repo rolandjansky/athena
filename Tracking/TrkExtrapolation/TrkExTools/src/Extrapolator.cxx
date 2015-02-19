@@ -38,6 +38,7 @@
 //#include "TrkParameters/CurvilinearParameters.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkExUtils/ExtrapolationCache.h"
+#include "CxxUtils/make_unique.h"
 // for the comparison with a pointer
 #include <stdint.h>
 
@@ -1180,7 +1181,7 @@ const Trk::TrackParameters* Trk::Extrapolator::extrapolateToNextMaterialLayer(co
   if ( staticVol && staticVol->geometrySignature()==Trk::Calo ) {
     const Trk::AlignableTrackingVolume* alignTV = dynamic_cast<const Trk::AlignableTrackingVolume*> (staticVol);
     if (alignTV) {
-      m_identifiedParameters = 0;
+      m_identifiedParameters.reset();
       return extrapolateInAlignableTV(prop,*currPar,destSurf,alignTV,dir,particle);
     }
   }
@@ -2008,8 +2009,13 @@ const Trk::TrackParameters* Trk::Extrapolator::extrapolateInAlignableTV(const IP
      //  arguments : inputParameters, vector of navigation surfaces, propagation direction, b field service, particle type, result,
      //              material collection, intersection collection, path limit, switch for use of path limit, switch for curvilinear on return, current TG volume
      if(m_dumpCache&&m_extrapolationCache) ATH_MSG_DEBUG( "  prop.propagateM " << m_extrapolationCache );
+     // propagateM takes intersections by non-const reference to a pointer.
+     // however, it does not modify the pointer, so the parameter
+     // should really be passed just by pointer.
+     identifiedParameters_t* intersections = m_identifiedParameters.get();
      const Trk::TrackParameters* nextPar = prop.propagateM(*currPar,m_navigSurfs,dir, m_fieldProperties,particle,solutions,
-							   m_matstates,m_identifiedParameters,path,false,false,m_currentDense, m_extrapolationCache);
+							   m_matstates,intersections,path,false,false,m_currentDense, m_extrapolationCache);
+
      ATH_MSG_VERBOSE( "  [+] Propagation done. " ); 
      if (nextPar)  
         ATH_MSG_DEBUG( "  [+] Position after propagation -   at " << positionOutput(nextPar->position())); 
@@ -3966,7 +3972,7 @@ const std::vector< std::pair< const Trk::TrackParameters*, int > >*  Trk::Extrap
   // reset the path 
   m_path = 0.; 
   // initialize parameters vector
-  m_identifiedParameters = new std::vector< std::pair< const Trk::TrackParameters*, int > >;
+  m_identifiedParameters = CxxUtils::make_unique<identifiedParameters_t>();
   // initialize material collection
   m_matstates = material;
   // dummy input
@@ -3994,7 +4000,7 @@ const std::vector< std::pair< const Trk::TrackParameters*, int > >*  Trk::Extrap
   
   emptyGarbageBin();  
 
-  return ( m_identifiedParameters->size() ? m_identifiedParameters : 0  ) ;  
+  return ( m_identifiedParameters->size() ? m_identifiedParameters.release() : 0  ) ;  
 } 
 
 const Trk::TrackParameters*  Trk::Extrapolator::extrapolateWithPathLimit(
