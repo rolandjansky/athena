@@ -26,7 +26,8 @@ use xAODTracking          xAODTracking-*          Event/xAOD
 
 private
 use AtlasROOT             AtlasROOT-*             External
-use DataModel             DataModel-*             Control
+use CxxUtils              CxxUtils-*              Control
+use AthContainers         AthContainers-*         Control
 use StoreGate             StoreGate-*             Control
 
 use TrkTrack              TrkTrack-*		  Tracking/TrkEvent
