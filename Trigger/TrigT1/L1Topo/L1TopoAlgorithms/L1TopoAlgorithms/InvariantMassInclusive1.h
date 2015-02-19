@@ -30,8 +30,9 @@ namespace TCS {
       parType_t      p_NumberLeading2 = { 0 };
       parType_t      p_InvMassMin[6] = {0, 0, 0,0,0,0};
       parType_t      p_InvMassMax[6] = {0, 0, 0,0,0,0};
-      parType_t      p_MinET1[4] = { 0 ,0,0,0};
-      parType_t      p_MinET2[4] = { 0 ,0,0,0};
+      parType_t      p_MinET1[6] = { 0 ,0,0,0,0,0};
+      parType_t      p_MinET2[6] = { 0 ,0,0,0,0,0};
+      parType_t      p_OneBarrel = { 0 };
 
    };
    

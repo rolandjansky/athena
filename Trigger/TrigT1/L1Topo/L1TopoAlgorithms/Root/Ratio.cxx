@@ -83,6 +83,7 @@ TCS::Ratio::process( const std::vector<TCS::TOBArray const *> & input,
 
    const TCS::GenericTOB & met = (*input[0])[0];
 
+
    // loop over all jets
    unsigned int objC(0);
    for( TCS::GenericTOB * tob : *input[1]) {
