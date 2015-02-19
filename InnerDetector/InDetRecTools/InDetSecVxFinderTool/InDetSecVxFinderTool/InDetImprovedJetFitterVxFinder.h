@@ -100,7 +100,7 @@ namespace InDet {
 
   private:
     
-    const Trk::VxSecVertexInfo* doTheFinding(const Trk::RecVertex & primaryVertex ,
+    const Trk::VxSecVertexInfo* doTheFinding(const xAOD::Vertex & primaryVertex, //const Trk::RecVertex & primaryVertex ,
                                               const TLorentzVector & jetMomentum,
                                              const std::vector<const Trk::ITrackLink*> & myTracks) const;
     
