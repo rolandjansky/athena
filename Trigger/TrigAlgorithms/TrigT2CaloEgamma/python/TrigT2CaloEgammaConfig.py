@@ -321,11 +321,11 @@ class RingerFexConfig( RingerFex ):
                         Layer.EMB1,Layer.EME1,
                         Layer.EMB2,Layer.EME2,
                         Layer.EMB3,Layer.EME3,
-                        Layer.TileBar0,Layer.TileGap0,Layer.TileExt0,
-                        Layer.TileBar1,Layer.TileGap1,Layer.TileExt1,
-                        Layer.TileBar2,Layer.TileGap2,Layer.TileExt2];
-    self.NLayersRings = [2, 2, 2, 2, 3, 3, 3];
-    self.NMaxCells = [320, 512, 272, 128, 120, 108, 64];
+                        Layer.HEC0,Layer.TileBar0,Layer.TileGap2,Layer.TileExt0,
+                        Layer.HEC1,Layer.HEC2,Layer.TileBar1,Layer.TileGap0,Layer.TileExt1,
+                        Layer.HEC3,Layer.TileBar2,Layer.TileGap1,Layer.TileExt2];
+    self.NLayersRings = [2, 2, 2, 2, 4, 5, 4];
+    self.NMaxCells = [320, 512, 272, 128, 128, 128, 128];
 
 class T2CaloEgamma_Ringer (T2CaloEgamma_eGamma):
    __slots__ = []
