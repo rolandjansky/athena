@@ -37,7 +37,7 @@
 #include "TTree.h"
 #include "GaudiKernel/ITHistSvc.h" 
 // Data Model
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 // Amg
 #include "EventPrimitives/EventPrimitives.h"
 #include "GeoPrimitives/GeoPrimitives.h"

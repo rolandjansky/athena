@@ -737,7 +737,8 @@ namespace Trk {
     mutable ParametersNextVolume    m_parametersAtBoundary;           //!< return helper for parameters and boundary  
     mutable ParametersNextVolume    m_parametersAtDetachedBoundary;   //!< return helper for parameters and boundary 
     mutable TrackParametersVector*  m_parametersOnDetElements;        //!< return helper for parameters on detector elements
-    mutable std::vector< std::pair< const Trk::TrackParameters*, int > >*  m_identifiedParameters;  // for active volumes 
+    typedef std::vector< std::pair< const Trk::TrackParameters*, int > > identifiedParameters_t;
+    mutable std::unique_ptr<identifiedParameters_t>  m_identifiedParameters;  // for active volumes 
 
     mutable const Trk::TrackParameters* m_lastValidParameters;            //!< parameters to be used for final propagation in case of fallback
 
