@@ -58,7 +58,6 @@ namespace Rec {
  
   private:
 
-    StoreGateSvc* m_storeGate;
     ToolHandle <Trk::IParticleCaloExtensionTool>       m_caloExtensionTool; //!< Tool to make the step-wise extrapolation
     ToolHandle <Rec::IParticleCaloCellAssociationTool> m_caloCellAssociationTool; //!< Tool to make the step-wise extrapolation
     ToolHandle< Trk::ITrackParticleCreatorTool >       m_particleCreator;     /**< The CB Particle Creator Tool */
@@ -80,6 +79,7 @@ namespace Rec {
 
     // PRIVATE METHODS
     double thresholdCorrection(double E_observed,double E_expected,double sigma_Noise) const;
+    double etaCorr(double eta) const;
 
   };
 
