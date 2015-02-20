@@ -4,10 +4,15 @@ from TriggerJobOpts.TriggerFlags import TriggerFlags
 from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
 from TrigMuSuperEFMonitoring import TrigMuSuperEFMonitoring
 from TrigMuonEF.TrigMuonEFMonitoring import TrigMuonEFStandaloneToolMonitoring,TrigMuonEFCombinerToolMonitoring
+from TrigMuonEF.TrigMuonEFConf import TrigMuonEFTrackIsolationTool
 
 from TrigMuonHypo.TrigMuonHypoConfig import TrigMuonEFCombinerHypoConfig
 from TrigMuSuperEFConf import TrigMuSuperEF
 from AthenaCommon.BeamFlags import jobproperties
+
+from AthenaCommon.CfgGetter import getPublicTool
+from AthenaCommon import CfgMgr
+from AthenaCommon.SystemOfUnits import mm
 
 #
 # Default config: RoI based, Combined, TrigMuonEF only
@@ -23,6 +28,7 @@ class TrigMuSuperEFConfig(TrigMuSuperEF):
         kwargs.setdefault("fullScan", False)
         kwargs.setdefault("StandaloneOnly", False)
         kwargs.setdefault("CombinerOnly", False)
+        kwargs.setdefault("CaloTagOnly", False)
         kwargs.setdefault("TMEF_standaloneTrackTool", "TrigMuonEFStandaloneTrackTool")
         kwargs.setdefault("MuonCombinedTool","TMEF_MuonCombinedTool")
         kwargs.setdefault("TrkToTrackParticleConvTool","TMEF_TrkToTrackParticleConvTool")
@@ -35,6 +41,7 @@ class TrigMuSuperEFConfig(TrigMuSuperEF):
         doTrigMuGirl     = kwargs["doInsideOut"]
         doStandaloneOnly = kwargs["StandaloneOnly"]
         doFullScan       = kwargs["fullScan"]
+        doCaloTagOnly    = kwargs["CaloTagOnly"]
         combinerOnly     = kwargs["CombinerOnly"]
         doCosmics        = jobproperties.Beam.beamType == 'cosmics'
         # make instance
@@ -154,6 +161,11 @@ def TrigMuSuperEF_FSSA(name="TrigMuSuperEF_FSSA",**kwargs):
     kwargs.setdefault("StandaloneOnly",True)
     return TrigMuSuperEF_FSCB(name,**kwargs)
 
+def TrigMuSuperEF_CTonly(name="TrigMuSuperEF_CTonly", **kwargs):
+    kwargs.setdefault("CaloTagOnly", True)
+    kwargs.setdefault("IdTrackParticles", "")
+#    kwargs.setdefault("TrackIsolationTool", "TrigMuSuperEF_TrackIsolationTool");
+    return TrigMuSuperEF_FSCB(name, **kwargs)
 
 
 class TrigMuSuperEFHypoConfig(TrigMuonEFCombinerHypoConfig):
@@ -164,4 +176,24 @@ class TrigMuSuperEFHypoConfig(TrigMuonEFCombinerHypoConfig):
         newargs = ['%s_%s_%s' % (args[0],'Muon',args[1])] + list(args)
         # Note: skip the __new__ of TrigMuonEFCombinerHypeConfig, so go directly to its superclass !!!
         return super(TrigMuonEFCombinerHypoConfig, cls ).__new__( cls, *newargs, **kwargs )
-   
+
+
+
+def TrigMuSuperEF_MuonCaloTagTool( name='OnlineMuonCaloTagTool', **kwargs ):
+    kwargs.setdefault("CaloMuonTagLoose",       getPublicTool("CaloMuonTagLoose") )
+    kwargs.setdefault("CaloMuonTagTight",       getPublicTool("CaloMuonTag") )
+    kwargs.setdefault("CaloMuonLikelihoodTool", getPublicTool("CaloMuonLikelihoodTool") )
+    kwargs.setdefault("TrackDepositInCaloTool", getPublicTool("TrigMuSuperEF_TrackDepositInCaloTool") )
+    kwargs.setdefault("TrackSelectorTool",      getPublicTool("CaloTrkMuIdAlgTrackSelectorTool") )
+    #kwargs.setdefault("TrackIsolationTool",     getPublicTool("TrigMuSuperEF_TrackIsolationTool") )
+    kwargs.setdefault("TrackIsolationTool",     None)
+    return CfgMgr.MuonCombined__MuonCaloTagTool(name,**kwargs )
+
+def TrigMuSuperEF_TrackIsolationTool( name = "TrigMuSuperEF_TrackIsolationTool", **kwargs):
+    return TrigMuonEFTrackIsolationTool(name, deltaZCut = 6.0*mm, removeSelf=True, useAnnulus=False) 
+
+def TrigMuSuperEF_TrackDepositInCaloTool(name = "TrigMuSuperEF_TrackDepositInCaloTool", **kwargs):
+    #kwargs.setdefault("CaloCellContainerName", "")
+    #kwargs.setdefault("CaloClusterContainerName", "TrigCaloClusterContainer")
+    return CfgMgr.TrackDepositInCaloTool(name, **kwargs)
+
