@@ -873,7 +873,11 @@ StatusCode MuonRPC_CablingSvc::initMappingModel(IOVSVC_CALLBACK_ARGS_P(I,keys))
           msg(MSG::DEBUG)<<"Pointers to Conf/Corr Maps are "<<(uintptr_t)RPCConfMap<<"/"<<(uintptr_t)RPCCorrMap<<endreq;
 	  cabling = 
 	      dynamic_cast<CablingRPC*>(CablingRPC::instance(RPCConfMap,RPCCorrMap,roads_dir, m_cosmic_configuration));
- 	  msg(MSG::DEBUG)<<"cabling singleton at <"<<(uintptr_t)cabling<<">"<<endreq;
+	  if(!cabling) {
+	    msg(MSG::ERROR)<<"casting of cabling singleton failed."<<endreq;
+	    return StatusCode::FAILURE;
+	  }
+	  else msg(MSG::DEBUG)<<"cabling singleton at <"<<(uintptr_t)cabling<<">"<<endreq;
 	  if (!cabling->isLoaded())
 	  {
 	    // this can happen is someone has already built an empty Cabling Singleton 
@@ -926,7 +930,11 @@ StatusCode MuonRPC_CablingSvc::initMappingModel(IOVSVC_CALLBACK_ARGS_P(I,keys))
 	cabling = 
 	    dynamic_cast<CablingRPC*>(CablingRPC::instance(conf_filename,corr_filename,roads_dir,
 							   m_cosmic_configuration));
-	msg(MSG::DEBUG)<<"cabling singleton at <"<<(uintptr_t)cabling<<">"<<endreq;
+	if(!cabling) {
+	  msg(MSG::ERROR)<<"casting of cabling singleton failed."<<endreq;
+	  return StatusCode::FAILURE;
+	}
+	else msg(MSG::DEBUG)<<"cabling singleton at <"<<(uintptr_t)cabling<<">"<<endreq;
 	if (!cabling->isLoaded())
 	{
 	    // this can happen if someone has already built an empty Cabling Singleton 
@@ -1107,7 +1115,11 @@ StatusCode MuonRPC_CablingSvc::initTrigRoadsModel(IOVSVC_CALLBACK_ARGS_P(I,keys)
           msg(MSG::DEBUG)<<"Pointers to Conf/Corr Maps are "<<(uintptr_t)RPCConfMap<<"/"<<(uintptr_t)RPCCorrMap<<endreq;
 	  cabling = 
 	      dynamic_cast<CablingRPC*>(CablingRPC::instance(RPCConfMap,RPCCorrMap,roads_dir, m_cosmic_configuration));
- 	  msg(MSG::DEBUG)<<"cabling singleton at <"<<(uintptr_t)cabling<<">"<<endreq;
+	  if(!cabling) {
+	    msg(MSG::ERROR)<<"casting of cabling singleton failed."<<endreq;
+	    return StatusCode::FAILURE;
+	  } 
+	  else msg(MSG::DEBUG)<<"cabling singleton at <"<<(uintptr_t)cabling<<">"<<endreq;
 	  if (!cabling->isLoaded())
 	  {
 	    // this can happen is someone has already built an empty Cabling Singleton 
@@ -1142,7 +1154,11 @@ StatusCode MuonRPC_CablingSvc::initTrigRoadsModel(IOVSVC_CALLBACK_ARGS_P(I,keys)
 	    cabling = 
 	      dynamic_cast<CablingRPC*>(CablingRPC::instance(conf_filename,corr_filename,roads_dir,
 							   m_cosmic_configuration));
-	    msg(MSG::DEBUG)<<"cabling singleton at <"<<(uintptr_t)cabling<<">"<<endreq;
+	    if(!cabling) {
+	      msg(MSG::ERROR)<<"casting of cabling singleton failed."<<endreq;
+	      return StatusCode::FAILURE;
+	    }
+	    else msg(MSG::DEBUG)<<"cabling singleton at <"<<(uintptr_t)cabling<<">"<<endreq;
 	    if (!cabling->isLoaded())
 	    {
 	      // this can happen if someone has already built an empty Cabling Singleton 
