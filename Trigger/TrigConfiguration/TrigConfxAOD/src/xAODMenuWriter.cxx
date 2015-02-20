@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: xAODMenuWriter.cxx 631651 2014-11-27 18:33:16Z lheinric $
+// $Id: xAODMenuWriter.cxx 648306 2015-02-19 19:44:19Z stelzer $
 
 // Gaudi/Athena include(s):
 #include "AthenaKernel/errorcheck.h"
@@ -204,31 +204,31 @@ namespace TrigConf {
          chainParentNames.push_back( ( *chain_itr )->lower_chain_name() );
          chainPrescales.push_back( ( *chain_itr )->prescale() );
          chainRerunPrescales.push_back(
-              ( *chain_itr )->prescales().getRerunPrescale("").second );
+                                       ( *chain_itr )->prescales().getRerunPrescale("").second );
          chainPassthroughPrescales.push_back( ( *chain_itr )->pass_through() );
 
-	 std::vector<uint32_t> counters;
-	 std::vector<int> logics;
-	 std::vector<std::vector<std::string> > outputTEs;
+         std::vector<uint32_t> counters;
+         std::vector<int> logics;
+         std::vector<std::vector<std::string> > outputTEs;
          std::vector<std::string> labels;
 
-	 ATH_MSG_VERBOSE((*chain_itr)->chain_name() << " has " << (*chain_itr)->signatureList().size() << " signatures");
-	 for(auto& signature : (*chain_itr)->signatureList() ){
-	   uint32_t cntr = signature->signature_counter();
-	   counters.push_back(cntr);
-	   logics.push_back(signature->logic());
-	   labels.push_back(signature->label());
-	   std::vector<std::string> outputTEids;
-	   for(auto& outputTE : signature->outputTEs()){
-	     outputTEids.push_back(outputTE->name());
-	   }
-	   outputTEs.push_back(outputTEids);
-	   ATH_MSG_VERBOSE("converted this signature: " << *signature);
-	 }
-	 chainSignatureCounters.push_back(counters);
-	 chainSignatureLogics.push_back(logics);
-	 chainSignatureOutputTEs.push_back(outputTEs);
-	 chainSignatureLabels.push_back(labels);
+         ATH_MSG_VERBOSE((*chain_itr)->chain_name() << " has " << (*chain_itr)->signatureList().size() << " signatures");
+         for(auto& signature : (*chain_itr)->signatureList() ){
+            uint32_t cntr = signature->signature_counter();
+            counters.push_back(cntr);
+            logics.push_back(signature->logic());
+            labels.push_back(signature->label());
+            std::vector<std::string> outputTEids;
+            for(auto& outputTE : signature->outputTEs()){
+               outputTEids.push_back(outputTE->name());
+            }
+            outputTEs.push_back(outputTEids);
+            ATH_MSG_VERBOSE("converted this signature: " << *signature);
+         }
+         chainSignatureCounters.push_back(counters);
+         chainSignatureLogics.push_back(logics);
+         chainSignatureOutputTEs.push_back(outputTEs);
+         chainSignatureLabels.push_back(labels);
 
          // Some verbose information:
          ATH_MSG_VERBOSE( "  \"" << chainNames.back() << "\" Chain Id = "
@@ -256,25 +256,25 @@ namespace TrigConf {
       // Set its sequence information:
       //
       ATH_MSG_DEBUG( "Filling sequence information" );
-      auto sequenceList = m_trigConf->sequences();
+      auto& sequenceList = m_trigConf->sequences();
       std::vector<std::vector<std::string> > sequenceInputTEs;
       std::vector<std::string> sequenceOutputTE;
       std::vector<std::vector<std::string> > sequenceAlgorithms;
 
       for(auto& seq : sequenceList){
-	std::vector<std::string> inputTEs;
-	for(auto& input : seq->inputTEs()) inputTEs.push_back(input->name());
-	sequenceInputTEs.push_back(inputTEs);
-	sequenceAlgorithms.push_back(seq->algorithms());
-	sequenceOutputTE.push_back(seq->outputTE()->name());
+         std::vector<std::string> inputTEs;
+         for(auto& input : seq->inputTEs()) inputTEs.push_back(input->name());
+         sequenceInputTEs.push_back(inputTEs);
+         sequenceAlgorithms.push_back(seq->algorithms());
+         sequenceOutputTE.push_back(seq->outputTE()->name());
 
-	ATH_MSG_VERBOSE("original sequence: \n" << *seq);
+         ATH_MSG_VERBOSE("original sequence: \n" << *seq);
 	
-	ATH_MSG_VERBOSE("added sequence with: ");
-	ATH_MSG_VERBOSE("  inputTEs: " << sequenceInputTEs.back());
-	ATH_MSG_VERBOSE("     algos: " << sequenceAlgorithms.back());
-	ATH_MSG_VERBOSE("  outputTE: " << sequenceOutputTE.back());
-     }
+         ATH_MSG_VERBOSE("added sequence with: ");
+         ATH_MSG_VERBOSE("  inputTEs: " << sequenceInputTEs.back());
+         ATH_MSG_VERBOSE("     algos: " << sequenceAlgorithms.back());
+         ATH_MSG_VERBOSE("  outputTE: " << sequenceOutputTE.back());
+      }
 
       menu->setSequenceInputTEs(sequenceInputTEs);
       menu->setSequenceOutputTEs(sequenceOutputTE);
