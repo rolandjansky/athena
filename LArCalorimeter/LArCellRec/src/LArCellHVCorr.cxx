@@ -57,6 +57,13 @@ void LArCellHVCorr::MakeCorrection(CaloCell* theCell) {
     if (hvonline>0. && hvonline<100.) hvcorr = hvcorr/hvonline;
   }
 
-  theCell->setEnergy(theCell->energy()*hvcorr);
+  if (hvcorr>0.01) {
+    //hvcorr might be zero in case of problems with the DCS database
+    theCell->setEnergy(theCell->energy()*hvcorr);
+  }
+  // else
+  //   msg(MSG::WARNING) << "HVScaleCorr is zero for cell with id 0x" 
+  // 		      << std::hex << theCell->ID().get_identifier32().get_compact() << std::dec 
+  // 		      << " Correction NOT applied" << std::endl;
   return;
 }
