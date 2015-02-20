@@ -4,10 +4,8 @@
 
 
 #include "CoolKernel/Exception.h"
-
 #include "HLTRates2COOL/HLTCountsArchiverRCApp.h"
 #include "HLTRates2COOL/HLTCountOHReceiver.h"
-#include "HLTRates2COOL/HLTCountCoolWriter.h"
 #include "HLTRates2COOL/HLTCounter.h"
 
 #include "ipc/partition.h"
@@ -20,7 +18,7 @@
 hltca::HLTCountsArchiverRCApp::HLTCountsArchiverRCApp(JobConfig& config, IPCPartition* part, hltca::HLTCountOHReceiver * rec) :
    Controllable(),
    fJobConfig(config),
-   fCoolWriter(new hltca::HLTCountCoolWriter(config.CoolDb())),
+   fCoolWriter(config.CoolDb()),
    fIPCPartition(part),
    fReceiver(rec)
 {}
@@ -51,12 +49,12 @@ hltca::HLTCountsArchiverRCApp::writeToCool() {
 
    if(!getRunNumberFromIS()) return;
 
-   bool needToOpen = !fCoolWriter->dbIsOpen();
+   bool needToOpen = !fCoolWriter.dbIsOpen();
    bool readOnly = false;
-   if(needToOpen) fCoolWriter->openDb(readOnly);
+   if(needToOpen) fCoolWriter.openDb(readOnly);
 
    try{
-      fCoolWriter->createSchema();
+      fCoolWriter.createSchema();
    } catch(...) {
       // just in case
    }
@@ -66,7 +64,7 @@ hltca::HLTCountsArchiverRCApp::writeToCool() {
       unsigned int n_lb = (unsigned int)lastlb;
 
       // enable buffered writing
-      fCoolWriter->setupStorageBuffers();
+      fCoolWriter.setupStorageBuffers();
 
       // loop over all lumiblocks
       for(unsigned int lb = 1; lb <= n_lb; ++lb) {
@@ -88,11 +86,11 @@ hltca::HLTCountsArchiverRCApp::writeToCool() {
             //             }
 
             // write to COOL (note that buffering is switched on, so writing happens only at the end)
-            fCoolWriter->writeHLTCountersPayload(conf().CurrentRunNumber(), lb, hltCounters, level);
+            fCoolWriter.writeHLTCountersPayload(conf().CurrentRunNumber(), lb, hltCounters, level);
          }
       }
 
-      fCoolWriter->flushStorageBuffers();
+      fCoolWriter.flushStorageBuffers();
 
    }
    catch(cool::Exception ex) {
@@ -104,7 +102,7 @@ hltca::HLTCountsArchiverRCApp::writeToCool() {
       return;
    }
 
-   if(needToOpen) fCoolWriter->closeDb();
+   if(needToOpen) fCoolWriter.closeDb();
    
    return;
   
