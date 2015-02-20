@@ -66,7 +66,7 @@ class TileCellMonTool: public TileFatherMonTool {
     int32_t m_delta_lumiblock;
     int32_t m_OldLumiArray1[4][64][4];
     int32_t m_OldLumiArray2[4][64][4];
-    std::vector<int> m_nEventsProcessed; // number of processed events per trigger
+    int m_nEventsProcessed[9]; // number of processed events per trigger
     std::string m_cellsContName;
 
     std::vector<const CaloCell*> m_muonCells;
