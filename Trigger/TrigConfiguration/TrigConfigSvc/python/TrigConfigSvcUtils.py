@@ -15,9 +15,9 @@ except NameError:
 from AthenaCommon.Logging import logging
 from AthenaCommon.Utils.unixtools import FindFile
 
-if logging.getLogger( "TrigConfigSvcUtils.py" ).level==0:
-    logging.getLogger( "TrigConfigSvcUtils.py" ).setLevel(logging.INFO)
-
+log = logging.getLogger( "TrigConfigSvcUtils.py" )
+if log.level==0: log.setLevel(logging.INFO)
+    
 #**
 # In this section:
 #
@@ -27,7 +27,6 @@ def _getFileLocalOrPath(filename, pathenv):
     """looks for filename in local directory and then in all paths specified in environment variable 'pathenv'
     returns path/filename if existing, otherwise None
     """
-    log = logging.getLogger( "TrigConfigSvcUtils.py" )
     if os.path.exists(filename):
         log.info( "Using local file %s" % filename)
         return filename
@@ -42,7 +41,6 @@ def _getFileLocalOrPath(filename, pathenv):
     
 
 def _getConnectionServicesForAlias(alias):
-    log = logging.getLogger( "TrigConfigSvcUtils.py" )
 
     connectionServices = None # list of services
 
@@ -67,7 +65,6 @@ def _readAuthentication():
     returns dictionary d with d[connection] -> (user,pw)
     """
 
-    log = logging.getLogger( "TrigConfigSvcUtils.py" )
     authDict = {}
 
     dbauthfilename = _getFileLocalOrPath('authentication.xml','CORAL_AUTH_PATH')
@@ -90,7 +87,6 @@ def _readAuthentication():
 authDict = None
 
 def _getConnectionParameters(connection):
-    log = logging.getLogger( "TrigConfigSvcUtils.py" )
     connection = str(connection)
     connectionParameters = {}
 
@@ -156,7 +152,6 @@ def interpretConnection(connection, debug=False, resolveAlias=True):
     # oracle://ATLR/ATLAS_CONF_TRIGGER_V2  -- a service description without user and password, requires lookup in authentication.xml
     # oracle://ATLR/ATLAS_CONF_TRIGGER_V2;username=ATLAS_CONF_TRIGGER_V2_R;password=<...>  -- a service description with user and password
 
-    log = logging.getLogger( "TrigConfigSvcUtils.py" )
     log.info("Specified connection string '%s'" % connection)
 
     # not needed any longer
@@ -310,6 +305,17 @@ def getUsedTables(output, condition, schemaname, tables):
     return ["%s%s %s" % (schemaname,tables[t],t) for t in usedtables]
 
 
+def isRun2(cursor,schemaname):
+    import cx_Oracle
+    if type(cursor.connection)!=cx_Oracle.Connection:
+        log.warning('Detection of DB schema only supported for Oracle. Will assume run-2')
+        return True
+
+    owner = schemaname.rstrip('.')
+    query = "select table_name from all_tables where table_name='ACTIVE_MASTERS' and owner='%s'" % owner
+    cursor.execute(query)
+    return (len(cursor.fetchall())>0)
+    
 def executeQuery(cursor, output, condition, schemaname, tables, bindvars=()):
     query = 'select distinct %s from %s' % \
             (', '.join(output),
@@ -318,9 +324,6 @@ def executeQuery(cursor, output, condition, schemaname, tables, bindvars=()):
     if condition:
         query += ' where ' + ' and '.join(condition)
 
-
-    log = logging.getLogger( "TrigConfigSvcUtils.py" )
-    
     if len(bindvars)==0:
         log.debug("Executing query %s" % query)
         cursor.execute(str(query))
@@ -416,7 +419,9 @@ def getPropertyFromDB(connection, smk, component, parameter):
     
     cursor,schemaname = getTriggerDBCursor(connection)
 
-    output = ['SM.SMT_ID', 'HCP.HCP_NAME', 'PAR.HPA_NAME', 'PAR.HPA_VALUE', 'HS.HST_ID', 'HM.HMT_L2_SETUP_ID']
+    isrun2 = isRun2(cursor,schemaname)
+    output = ['SM.SMT_ID', 'HCP.HCP_NAME', 'PAR.HPA_NAME', 'PAR.HPA_VALUE', 'HS.HST_ID']
+    output += ['HM.HMT_SETUP_ID' if isrun2 else 'HM.HMT_L2_SETUP_ID']
     
     tables = {'SM' : 'SUPER_MASTER_TABLE',
               'HM' : 'HLT_MASTER_TABLE',
@@ -432,7 +437,7 @@ def getPropertyFromDB(connection, smk, component, parameter):
 
     condition = ["SM.SMT_ID IN (%s)" % ",".join([str(i) for i in smk]),
                  'SM.SMT_HLT_MASTER_TABLE_ID = HM.HMT_ID',
-                 '(HM.HMT_L2_SETUP_ID = HS.HST_ID or HM.HMT_EF_SETUP_ID = HS.HST_ID)',
+                 ('HM.HMT_SETUP_ID = HS.HST_ID' if isrun2 else '(HM.HMT_L2_SETUP_ID = HS.HST_ID or HM.HMT_EF_SETUP_ID = HS.HST_ID)'),
                  'HST2CP.HST2CP_SETUP_ID = HS.HST_ID',
                  'HST2CP.HST2CP_COMPONENT_ID = HCP2PA.HCP2PA_COMPONENT_ID',
                  'HST2CP.HST2CP_COMPONENT_ID = HCP.HCP_ID',
@@ -441,13 +446,14 @@ def getPropertyFromDB(connection, smk, component, parameter):
                  "PAR.HPA_NAME like '%s'" % parameter]
 
     res = executeQuery(cursor, output, condition, schemaname, tables)
-    return [ tuple(x[:4]+("L2" if x[4]==x[5] else "EF",) ) for x in res ]
+    
+    if isrun2: return [ tuple(x[:4]+("HLT",) ) for x in res ]
+    else: return [ tuple(x[:4]+("L2" if x[4]==x[5] else "EF",) ) for x in res ]
     
 def getMenuNameFromDB(connection, hltprescalekey):
-    log = logging.getLogger( "TrigConfigSvcUtils.py" )
 
     cursor,schemaname = getTriggerDBCursor(connection)
-
+    
     tables = { 'HPS' : 'HLT_PRESCALE_SET' }
 
     output = ['HPS.HPS_NAME']
@@ -486,7 +492,6 @@ def getKeysFromName(connection, name, MCOnly=False):
     return res
 
 def getKeysFromNameRelease(connection, name, release, l1only):
-    log = logging.getLogger( "TrigConfigSvcUtils.py" )
     
     cursor,schemaname = getTriggerDBCursor(connection)
     
@@ -662,7 +667,6 @@ def getStreams(connection, smk):
 
 
 def getL1Prescales(connection, l1prescalekey): 
-    log = logging.getLogger( "TrigConfigSvcUtils.py" )
     
     cursor,schemaname = getTriggerDBCursor(connection) 
 
@@ -745,7 +749,6 @@ def getExpressStreamPrescales(connection,psk):
 
 
 def test():
-    log = logging.getLogger( "TrigConfigSvcUtils.py" )
     log.setLevel(logging.DEBUG)
 
     ### oracle
@@ -786,7 +789,6 @@ def test():
 
 
 def test2():
-    log = logging.getLogger( "TrigConfigSvcUtils.py" )
     log.setLevel(logging.DEBUG)
 
     connection = "TRIGGERDB_JOERG"

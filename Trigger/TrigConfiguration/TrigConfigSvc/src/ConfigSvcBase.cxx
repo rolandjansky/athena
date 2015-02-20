@@ -20,7 +20,9 @@ ConfigSvcBase::ConfigSvcBase(const std::string& name, ISvcLocator* pSvcLocator) 
 {}
 
 ConfigSvcBase::~ConfigSvcBase()
-{}
+{
+  delete m_storageMgr;
+}
 
 void
 ConfigSvcBase::declareCommonProperties() {

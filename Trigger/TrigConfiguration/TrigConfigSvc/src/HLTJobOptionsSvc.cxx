@@ -123,9 +123,10 @@ TrigConf::HLTJobOptionsSvc::readDbWithMasterKey()
    
    TrigConf::JobOptionTable jot;
    jot.setSMK(m_dbconfig->m_smkey);
-   m_storageMgr->jobOptionTableLoader().load( jot );
+   if(!m_storageMgr->jobOptionTableLoader().load( jot ))
+     return StatusCode::FAILURE;
 
-   freeStorageMgr();
+   CHECK(freeStorageMgr());
 
    //jot.print();
 
