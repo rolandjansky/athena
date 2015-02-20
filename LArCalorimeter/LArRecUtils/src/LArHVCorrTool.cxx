@@ -559,7 +559,7 @@ float LArHVCorrTool::Scale_barrel(const float hv) const
 
 // 0 HV, returns 0 response
    if (hv<-999.) {
-      return 1.;
+      return 0;
    }
    else if (hv<hvref[0]) {
       float resp=facteur[0];
