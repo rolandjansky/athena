@@ -22,6 +22,7 @@
 
 // Tile includes
 #include "TileRecUtils/TileRawChannelBuilder.h"
+#include "TileConditions/TileCondToolOfc.h"
 #include "TileConditions/TileCondToolOfcCool.h"
 #include "TileConditions/TileCondToolTiming.h"
 #include "TileConditions/TileCondToolNoiseSample.h"
@@ -48,11 +49,13 @@ class TileRawChannelBuilderMF: public TileRawChannelBuilder {
 
   private:
     ToolHandle<TileCondToolTiming> m_tileToolTiming;
+    ToolHandle<ITileCondToolOfc> m_tileCondToolOfc;
     ToolHandle<ITileCondToolOfc> m_tileCondToolOfcCool;
     ToolHandle<TileCondToolNoiseSample> m_tileToolNoiseSample;
 
     bool Are3FF(float &dmin, float &dmax); //!< Checks that all the samples are 0x3FF (as sent by the DSP when no data arrives)
 
+    int m_maxIterations; //!< maximum number of iteration to perform
     bool m_correctAmplitude; //!< If true, resulting amplitude is corrected when using weights for tau=0 without iteration
     int m_pedestalMode;	  // -1 pedestal from conditions, 0 - fixed pedestal, 1 (default) pedestal from data
     double m_defPedestal;  // use a fixed pedestal value
@@ -61,6 +64,10 @@ class TileRawChannelBuilderMF: public TileRawChannelBuilder {
     int m_t0Samp;  //!< position of peak sample = (m_NSamp-1)/2
     double m_maxTime; //!< max allowed time = 25*(m_NSamp-1)/2
     double m_minTime; //!< min allowed time = -25*(m_NSamp-1)/2
+
+    bool m_bestphase; // if true, use best phase from COOL DB in "fixed phase" mode (i.e., no iterations)
+    bool m_ofcfromcool; // if true, take OFCs from DB (no on-fly calculations)
+    bool m_timeFromCOF; // if true, take time estimated from second step of COF
 
     std::vector<float> digits;
     int m_chPedCounter[5][64][48][2];

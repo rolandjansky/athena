@@ -48,6 +48,7 @@ TileRawChannelBuilderMF::TileRawChannelBuilderMF(const std::string& type
     , const std::string& name, const IInterface *parent)
     : TileRawChannelBuilder(type, name, parent)
     , m_tileToolTiming("TileCondToolTiming")
+    , m_tileCondToolOfc("TileCondToolOfc")
     , m_tileCondToolOfcCool("TileCondToolOfcCool")
     , m_tileToolNoiseSample("TileCondToolNoiseSample")
     , m_NSamp(0)
@@ -63,12 +64,17 @@ TileRawChannelBuilderMF::TileRawChannelBuilderMF(const std::string& type
 
   //declare properties
   declareProperty("TileCondToolTiming", m_tileToolTiming);
+  declareProperty("TileCondToolOfc", m_tileCondToolOfc  ,"TileCondToolOfc");
   declareProperty("TileCondToolOfcCool", m_tileCondToolOfcCool  ,"TileCondToolOfcCool");
   declareProperty("TileCondToolNoiseSample", m_tileToolNoiseSample);
   declareProperty("AmplitudeCorrection", m_correctAmplitude = false);
   declareProperty("PedestalMode", m_pedestalMode = 1);
   declareProperty("DefaultPedestal", m_defPedestal = 0.0);
   declareProperty("MF", m_MF = 0);
+  declareProperty("MaxIterations",m_maxIterations = 5);
+  declareProperty("BestPhase",m_bestphase = false);
+  declareProperty("TimeFromCOF",m_timeFromCOF = false);
+  declareProperty("OfcfromCool",m_ofcfromcool = false);
 }
 
 
@@ -97,17 +103,26 @@ StatusCode TileRawChannelBuilderMF::initialize() {
   
   // bits 12-15 - various options
   if (m_correctAmplitude) m_bsflags |= 0x2000;
+  if (m_maxIterations > 1) m_bsflags |= 0x4000;
+  if (m_bestphase) m_bsflags |= 0x8000;  
 
   m_NSamp = m_tileInfo->NdigitSamples();
   m_t0Samp = m_tileInfo->ItrigSample();
   m_maxTime = 25 * (m_NSamp - m_t0Samp - 1);
   m_minTime = -25 * m_t0Samp;
 
-  //=== get TileCondToolOfcCool
-  CHECK( m_tileCondToolOfcCool.retrieve() );
+  if (m_ofcfromcool) {
+    //=== get TileCondToolOfcCool
+    CHECK( m_tileCondToolOfcCool.retrieve() );
+  } else {
+    //=== get TileCondToolOfc
+    CHECK( m_tileCondToolOfc.retrieve() );
+  }
 
-  //=== get TileToolTiming
-  CHECK( m_tileToolTiming.retrieve() );
+  if (m_bestphase) {
+    //=== get TileToolTiming
+    CHECK( m_tileToolTiming.retrieve() );
+  }
 
    //=== get TileCondToolNoiseSample
   CHECK( m_tileToolNoiseSample.retrieve() );
@@ -132,7 +147,7 @@ TileRawChannel* TileRawChannelBuilderMF::rawChannel(const TileDigits* tiledigits
 
   ++m_chCounter;
   int i, j, row, col;
-  unsigned int k = 0;
+  unsigned int k;
   double MFchi2 = 0.;
 
   const HWIdentifier adcId = tiledigits->adc_HWID();
@@ -178,7 +193,7 @@ TileRawChannel* TileRawChannelBuilderMF::rawChannel(const TileDigits* tiledigits
   } else {
 
     unsigned int drawerIdx = TileCalibUtils::getDrawerIdx(ros, drawer);
-    phase = (float) -m_tileToolTiming->getSignalPhase(drawerIdx, channel, gain);
+    if (m_bestphase) phase = (float) -m_tileToolTiming->getSignalPhase(drawerIdx, channel, gain);
     rms_aux = m_tileToolNoiseSample->getHfn(drawerIdx, channel, gain);
 
     switch(m_pedestalMode) {
@@ -217,26 +232,31 @@ TileRawChannel* TileRawChannelBuilderMF::rawChannel(const TileDigits* tiledigits
 
     }
 
-    // begin COF iteration for amplitude greater than 100 ADC
+    // begin COF iteration for amplitude greater than m_ampMinThresh (15 ADC) and within +/- bunch spacing/2
     int n = 7;
     HepMatrix A(n, n, 0);
     int t;
     double signalModel[7];
-    bool goodEne;
+    bool goodEne = true;
     t_ch = -phase;
-    for (int it=0;it<5;it++){
+    for (int it=0;it<m_maxIterations;it++){
 
             const TileOfcWeightsStruct* m_weights;
-            m_weights = m_tileCondToolOfcCool->getOfcWeights(drawerIdx, channel, gain, -t_ch, true);
+            if (m_ofcfromcool){
+                m_weights = m_tileCondToolOfcCool->getOfcWeights(drawerIdx, channel, gain, -t_ch, true);
+            }
+            else {
+                m_weights = m_tileCondToolOfc->getOfcWeights(drawerIdx, channel, gain, -t_ch, true);
+            }
 
             double g[9];
             double b[9];
-            double t_aux = 0;	//variable auxiliar to compute the MF time
+            double dg[9];
 
             for (k = 0; k < digits.size(); ++k) {
               b[k] = m_weights->w_b[k];
               g[k] = m_weights->g[k];
-              t_aux += b[k] * digits[k];
+              dg[k] = m_weights->dg[k];
               if (it==0){
                 amp_mf += g[k]*(digits[k]-ped_ch);  // matched filter
                 amp_norm += g[k]*g[k];  // matched filter calibration for amp estimation
@@ -308,6 +328,14 @@ TileRawChannel* TileRawChannelBuilderMF::rawChannel(const TileDigits* tiledigits
             }
 
             // apply second step COF
+            int allBCtrig=0;  // test if all BCs were triggered by decovolution, and if not, we can include the derivative for timing estimation
+            if (m_timeFromCOF){
+                    if (constraint<7) 
+                        constraint += 1;  // this line is to include the derivative in second step of COF, for the time estimation
+                    else
+                        allBCtrig=1;
+            }
+
             HepMatrix H(constraint, n, 0);
 
             t = 4;
@@ -326,6 +354,15 @@ TileRawChannel* TileRawChannelBuilderMF::rawChannel(const TileDigits* tiledigits
               rowAux += 1;
             }
 
+            // including the derivative to better estimate the time if we have less than 7 signals detected by DM
+            if (m_timeFromCOF){
+                    if (rowAux<7){
+                        for (col = 0; col < n; col++) {
+                               H[rowAux][col] = dg[col];
+                        }
+                    }
+            } 
+
             HepMatrix tH(n, constraint, 0);
             HepMatrix resultH(constraint, n, 0);
             HepMatrix multH(constraint, constraint, 0);
@@ -339,6 +376,7 @@ TileRawChannel* TileRawChannelBuilderMF::rawChannel(const TileDigits* tiledigits
                 cof[j] = 0.0;
 	    }	
             int r = 0;
+            int iBC3=0; // variable to be used in case of amplitude correction (m_correctAmplitude)
             if (m_MF == 1){
 	        cof[3] = amp_mf;
 	        for (j = 0; j< n; j++){ 
@@ -348,6 +386,7 @@ TileRawChannel* TileRawChannelBuilderMF::rawChannel(const TileDigits* tiledigits
             else{
             	for (i = 0; i < n; ++i) {
                       	if (pileupDet[i] == 0) continue;
+                        if (i==3) iBC3=r;
                       	for (j = 0; j < n; j++) {
                         	cof[i] += (digits[j] - ped_ch) * resultH[r][j];
                       	}
@@ -357,18 +396,24 @@ TileRawChannel* TileRawChannelBuilderMF::rawChannel(const TileDigits* tiledigits
                       	r++;
             	}
             }
-            amp_ch = cof[3];	// with COF, no need for the amp_ch variable anymore
-                
-            /*
-            // ped=0 means channel disconnect for physics runs/ work only for CIS runs
-            // digits =1023, drawer off
-            if ((ped_ch == 0) || (digits[0] == 1023)) {
-              amp_ch = 0;
-              for (i = 0; i < n; ++i) {
-                cof[i] = 0;
-              }
+         
+            // computation of the timing, instead of taking the b weights from OF2, which are also not optimized for pileup
+            double t_aux=0.0;
+            if (m_timeFromCOF){
+                    for (j = 0; j < n; j++) {
+                        if (allBCtrig==0)
+                       	        t_aux += (digits[j] - ped_ch) * (-resultH[rowAux][j]); // negative to be consistent
+                        else
+                                t_aux += digits[j] * b[j];  // use OF2 b weights (no need to subtract the pedestal), in the case all 7 BC are triggered by deconvolution
+                    }
             }
-            */
+            else {
+                for (j = 0; j < n; j++) {
+                        t_aux += digits[j] * b[j];  // use b weights from OF2 to calculate time
+                }
+            }
+            
+            amp_ch = cof[3];	// with COF, the amp_ch may be deprecated
 
             goodEne = (fabs(cof[3]) > 1.0e-04);
             if (goodEne) {
@@ -381,23 +426,22 @@ TileRawChannel* TileRawChannelBuilderMF::rawChannel(const TileDigits* tiledigits
               }
             }
 
-            // condition for amplitude and time correction
-            if ((cof[3] < 15) || (t_ch < -25 || t_ch > 25)) break;
+            // condition for amplitude and time correction using iterative mode
+            if ((m_maxIterations>1) && ((cof[3] < m_ampMinThresh) || (t_ch < m_timeMinThresh || t_ch > m_timeMaxThresh))) break;
+
+            // amplitude correction for central BC (same as parabolic correction)
+            if (m_correctAmplitude && cof[3] > m_ampMinThresh && t_ch > m_timeMinThresh && t_ch < m_timeMaxThresh) {
+                double correction=0.0;
+                m_weights = m_tileCondToolOfc->getOfcWeights(drawerIdx, channel, gain, -t_ch, true);
+                for (j = 0; j < n; ++j){
+                        correction += m_weights->g[j] * resultH[iBC3][j];
+                }
+                cof[3] += (1-correction)*cof[3];
+            }
             
     } //end of COF iteration
 
-    // If weights for tau=0 are used, deviations are seen in the amplitude =>
-    // function to correct the amplitude
-    /*if (m_correctAmplitude && amp_ch > m_ampMinThresh && t_ch > m_timeMinThresh
-        && t_ch < m_timeMaxThresh) {
-      amp_ch *= correctAmp(t_ch);
-      for (i = 0; i < n; ++i) {
-        cof[i] *= correctAmp(t_ch);
-      }
-
-      ATH_MSG_VERBOSE ( "Amplitude corrected by " << correctAmp(t_ch)
-                       << " new amplitude is " << amp_ch );
-    }*/
+    t_ch += phase;
 
     if (t_ch < m_minTime) t_ch = m_minTime;
     if (t_ch > m_maxTime) t_ch = m_maxTime;
