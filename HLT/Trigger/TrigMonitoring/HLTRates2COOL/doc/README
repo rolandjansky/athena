@@ -1,0 +1,77 @@
+## How to  source tdaq-02-00-03
+source /afs/cern.ch/atlas/project/tdaq/cmt/bin/cmtsetup.sh tdaq-02-00-03 i686-slc4-gcc34-opt
+#export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/afs/cern.ch/atlas/offline/external/LCGCMT/LCGCMT_53f/InstallArea/i686-slc4-gcc34-opt/lib
+export LD_LIBRARY_PATH=/afs/cern.ch/atlas/software/builds/AtlasTrigger/15.5.3/InstallArea/i686-slc4-gcc34-opt/lib:$LD_LIBRARY_PATH
+
+#Set the TDAQ partition name:
+export TDAQ_PARTITION=DQMD
+
+#Set the configuration file:
+export TDAQ_DB_DATA=/afs/cern.ch/atlas/project/tdaq/cmt/tdaq-02-00-02/installed/share/data/dqmf/examples/DQM_test_partition.data.xml
+
+#Start DQM partition:
+setup_daq $TDAQ_PARTITION
+
+
+
+## need additional file project.cmt  -why??
+cd users/risler
+mkdir cmt
+echo "use tdaq-02-00-03" > cmt/project.cmt
+
+## compile ...
+cd HLTtoCOOL/cmt
+cmt config
+. ./setup.sh
+gmake
+
+
+## testHLTtoCOOl
+
+
+## writeHLTtoCOOL
+ source code writeHLTtoCOOl.cxx and MyReceiver.cxx 
+
+## publish_test_histo
+ source code publish_test_histo2.cpp 
+ read histos from debughist.root and publish them to OH, for different lumi blocks   
+
+start infrastructure:
+
+ ipc_server &
+ ipc_server -p MyTestPartition &
+ 
+ is_server -p MyTestPartition -n MyTest2  &
+ is_server -p MyTestPartition -n Histogramming &
+ is_server -p MyTestPartition -n LumiBlock &
+
+publish histos :
+
+../i686-slc4-gcc34-dbg/publish_test_histo -L EF -d 2 
+
+## receive_test_histo
+ source code receive_test_histo.cpp
+ receive the published histos :
+../i686-slc4-gcc34-dbg/receive_test_histo -p MyTestPartition -s Histogramming
+
+## publish_test_data
+ source code publish_test_data.cpp
+ publish L1 info IS_LB with increased counters TBP, TAP, TAV and turns for different lumi Blocks on server MyTest
+ is_server -p MyTestPartition -n MyTest  &
+ 
+## publish_test_runnr
+ source code publish_test_runnr.cpp
+  publish CTP info LB_CTP_<runnr>_<LBnr>  (containing only 1 attribute, runnumber)
+## receive_test_runnr
+ source code receive_test_runnr2.cpp
+  receive LB_CTP.* info and retreive the runnumber 
+## receive_test_keys
+ source code receive_test_keys.cpp
+
+## create info
+ source code create_info.cpp
+
+
+## browse test database file
+## https://twiki.cern.ch/twiki/bin/view/Atlas/AtlCoolConsole
+AtlCoolConsole.py 'sqlite://;schema=testhltcounters.db;dbname=CONFTEST'
