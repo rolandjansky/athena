@@ -57,7 +57,6 @@ TileCellMonTool::TileCellMonTool(const std::string & type, const std::string & n
   , m_tileBadChanTool("TileBadChanTool")
   , m_TileCellTrig(0U)
   , m_delta_lumiblock(0U)
-  , m_nEventsProcessed(9,0)
   , m_TileBadCell(0)
 /*---------------------------------------------------------*/
 {
@@ -132,7 +131,7 @@ StatusCode TileCellMonTool:: initialize() {
   //=== get TileBadChanTool
   CHECK( m_tileBadChanTool.retrieve() );
 
-  for (auto &nEventsPerTrig : m_nEventsProcessed) nEventsPerTrig = 0;
+  memset(m_nEventsProcessed, 0, sizeof(m_nEventsProcessed));
 
   return TileFatherMonTool::initialize();
 }
@@ -502,7 +501,7 @@ void  TileCellMonTool::cleanHistVec() {
     m_activeTrigs[i] = -1;
   }
 
-  for (auto &nEventsPerTrig : m_nEventsProcessed) nEventsPerTrig = 0;
+  memset(m_nEventsProcessed, 0, sizeof(m_nEventsProcessed));
 
   //m_TileCellEtaPhiOvThr.clear() ;
   //m_TileCellEtaOvThr.clear() ;
@@ -1273,11 +1272,12 @@ StatusCode TileCellMonTool::fillHistograms() {
   //Fill synchronization plots
   calculateSynch();
 
-
   // Set number of events as entries
   for (unsigned int i = 0; i < m_eventTrigs.size(); ++i) {
+
     ++m_nEventsProcessed[m_eventTrigs[i]];
     int nEventsPerTrig(m_nEventsProcessed[m_eventTrigs[i]]);
+
     int vecInd = vecIndx(i);
 
     for (int sample = 0; sample < TotalSamp; ++sample) {
