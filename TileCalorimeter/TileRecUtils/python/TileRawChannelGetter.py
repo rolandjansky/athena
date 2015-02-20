@@ -82,18 +82,14 @@ class TileRawChannelGetter ( Configured)  :
 
         # set time window for amplitude correction if it was not set correctly before
         if jobproperties.TileRecFlags.TimeMaxForAmpCorrection() <= jobproperties.TileRecFlags.TimeMinForAmpCorrection() :
-            from AthenaCommon.DetFlags import DetFlags
             from AthenaCommon.BeamFlags import jobproperties
-            if globalflags.DataSource()=='data' or jobproperties.Beam.energy > 10000000.0:
-                mlog.info("adjusting min/max time of parabolic correction for %s" % jobproperties.Beam.bunchSpacing)
-                halfBS = jobproperties.Beam.bunchSpacing.get_Value()/2.
-                if halfBS > 25.1:
-                    mlog.info("Bunch spacing is too big, keeping default limits for parabolic correction")
-                else:
-                    jobproperties.TileRecFlags.TimeMinForAmpCorrection = -halfBS
-                    jobproperties.TileRecFlags.TimeMaxForAmpCorrection = halfBS
+            mlog.info("adjusting min/max time of parabolic correction for %s" % jobproperties.Beam.bunchSpacing)
+            halfBS = jobproperties.Beam.bunchSpacing.get_Value()/2.
+            if halfBS > 25.1:
+                mlog.info("Bunch spacing is too big, keeping default limits for parabolic correction")
             else:
-                mlog.info("DO NOT adjust min/max time of parabolic correction in digitization for %s" % jobproperties.Beam.energy)
+                jobproperties.TileRecFlags.TimeMinForAmpCorrection = -halfBS
+                jobproperties.TileRecFlags.TimeMaxForAmpCorrection = halfBS
 
         ToolSvc += theTileBeamInfoProvider
         
@@ -126,8 +122,8 @@ class TileRawChannelGetter ( Configured)  :
                     return False
       
                 #TileRawChannelBuilderManyAmps Options:
-                jobproperties.TileRecFlags.TileRawChannelContainer = "TileRawChannelCnt"
-                theTileRawChannelBuilderManyAmps.TileRawChannelContainer = "TileRawChannelCnt"
+                jobproperties.TileRecFlags.TileRawChannelContainer = "TileRawChannelManyAmp"
+                theTileRawChannelBuilderManyAmps.TileRawChannelContainer = "TileRawChannelManyAmp"
                 theTileRawChannelBuilderManyAmps.RunType = jobproperties.TileRecFlags.TileRunType()
                 theTileRawChannelBuilderManyAmps.calibrateEnergy = jobproperties.TileRecFlags.calibrateEnergy()
                 theTileRawChannelBuilderManyAmps.correctTime     = jobproperties.TileRecFlags.correctTime()    
@@ -234,15 +230,38 @@ class TileRawChannelGetter ( Configured)  :
                     mlog.error("could not get handle to TileRawChannelBuilderMF Quit")
                     print traceback.format_exc()
                     return False
-      
+                                    
+                # setup COOL to get OFCs, needed for COF to retrieve pulse shape and derivatives
+                if jobproperties.TileRecFlags.OfcFromCOOL():
+                    from TileConditions.TileInfoConfigurator import TileInfoConfigurator
+                    tileInfoConfigurator = TileInfoConfigurator()
+                    tileInfoConfigurator.setupCOOLOFC()
+                else:
+                    from TileConditions.TileInfoConfigurator import TileInfoConfigurator
+                    tileInfoConfigurator = TileInfoConfigurator()
+                    tileInfoConfigurator.setupCOOLPHYPULSE()
+                    tileInfoConfigurator.setupCOOLAutoCr()
+
                 #TileRawChannelBuilderMF Options:
                 jobproperties.TileRecFlags.TileRawChannelContainer = "TileRawChannelMF"
                 theTileRawChannelBuilderMF.TileRawChannelContainer = "TileRawChannelMF"
                 theTileRawChannelBuilderMF.RunType = jobproperties.TileRecFlags.TileRunType()
                 theTileRawChannelBuilderMF.calibrateEnergy = jobproperties.TileRecFlags.calibrateEnergy()
+                if jobproperties.TileRecFlags.BestPhaseFromCOOL(): # can't correct time and use best phase at the same time
+                    theTileRawChannelBuilderMF.correctTime = FALSE
+                else:
+                    theTileRawChannelBuilderMF.correctTime = jobproperties.TileRecFlags.correctTime()
+                theTileRawChannelBuilderMF.BestPhase       = jobproperties.TileRecFlags.BestPhaseFromCOOL()
                 theTileRawChannelBuilderMF.NoiseFilterTools = NoiseFilterTools
-                theTileRawChannelBuilderMF.correctTime = FALSE
-                 
+                theTileRawChannelBuilderMF.MaxIterations = 5; # iterative mode on
+                theTileRawChannelBuilderMF.AmplitudeCorrection = FALSE
+                theTileRawChannelBuilderMF.TimeFromCOF = FALSE
+                theTileRawChannelBuilderMF.OfcfromCool = jobproperties.TileRecFlags.OfcFromCOOL()            
+                theTileRawChannelBuilderMF.AmpMinForAmpCorrection = jobproperties.TileRecFlags.AmpMinForAmpCorrection()
+                if jobproperties.TileRecFlags.TimeMaxForAmpCorrection() > jobproperties.TileRecFlags.TimeMinForAmpCorrection():
+                    theTileRawChannelBuilderMF.TimeMinForAmpCorrection = jobproperties.TileRecFlags.TimeMinForAmpCorrection()
+                    theTileRawChannelBuilderMF.TimeMaxForAmpCorrection = jobproperties.TileRecFlags.TimeMaxForAmpCorrection()
+
                 mlog.info(" adding now TileRawChannelBuilderMF to ToolSvc")   
                 ToolSvc += theTileRawChannelBuilderMF
       
