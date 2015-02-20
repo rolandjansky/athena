@@ -19,15 +19,11 @@ using CLHEP::MeV;
 egammaIso::egammaIso(const std::string& type,
 		     const std::string& name,
 		     const IInterface* parent)
-  : AthAlgTool(type, name, parent),
-    m_cluster(0),
-    m_HADCellList(0),
-    m_ethad(0), 
-    m_ethad1(0),
-    m_ehad1(0)
-{
+  : AthAlgTool(type, name, parent){
+
   // declare Interface
   declareInterface<IegammaIso>(this);
+
 }
 
 // ====================================================================
@@ -41,6 +37,8 @@ egammaIso::~egammaIso()
 StatusCode egammaIso::initialize()
 {
   ATH_MSG_DEBUG(" Initializing egammaIso");
+
+  
   return StatusCode::SUCCESS;
 }
 
@@ -50,8 +48,16 @@ StatusCode egammaIso::finalize()
 {
   return StatusCode::SUCCESS;
 }
+
+
+// NOTE:: First cone has to be the largest
+
+//C.A
+//Method to calculate just the hadronic leakage
+//should be a copy of the relevant lines from the method above
 // ===============================================================
-StatusCode egammaIso::execute(const xAOD::CaloCluster *cluster, CaloCellList* had){
+StatusCode egammaIso::execute(const xAOD::CaloCluster *cluster, CaloCellList* had)
+{
   m_ethad  = 0;
   m_ethad1 = 0;
   m_ehad1  = 0;
