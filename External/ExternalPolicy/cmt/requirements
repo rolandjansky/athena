@@ -289,35 +289,3 @@ cmtpath_pattern \
   path_append        LD_LIBRARY_PATH     "" \
                      host-x86_64         "/usr/lib64"
 
-#--------------------------------------------
-## Filling the JOBOPTSEARCHPATH list with list of currently visible installation areas
-#--------------------------------------------
-
-#path_remove  JOBOPTSEARCHPATH "InstallArea"
-#path_prepend JOBOPTSEARCHPATH `${ATLASPOLICYROOT}/cmt/jo.sh`
-
-cmtpath_pattern \
-  path JOBOPTSEARCHPATH "" ; \
-  path_remove PYTHONPATH "$(cmt_installarea_prefix)" ; \
-  path_remove DATAPATH "$(cmt_installarea_prefix)" ; \
-  path_remove ROOTMAPSEARCHPATH "$(cmt_installarea_prefix)" ; \
-  path_remove XMLPATH "$(cmt_installarea_prefix)"
-
-cmtpath_pattern \
-  path_prepend JOBOPTSEARCHPATH  "" \
-               <project>_with_installarea&Unix "<path>/$(cmt_installarea_prefix)/jobOptions" ; \
-  path_prepend PYTHONPATH        "" \
-               <project>_with_installarea&Unix "<path>/$(cmt_installarea_prefix)/python" ; \
-  path_prepend PYTHONPATH        "" \
-               <project>_with_installarea&Unix "<path>/$(cmt_installarea_prefix)/${CMTCONFIG}/lib/python$(Python_version)" ; \
-  path_prepend DATAPATH          "" \
-               <project>_with_installarea&Unix "<path>/$(cmt_installarea_prefix)/share" ; \
-  path_prepend DATAPATH          "" \
-               <project>_with_installarea&Unix "<path>/$(cmt_installarea_prefix)/${CMTCONFIG}/share" ; \
-  path_prepend ROOTMAPSEARCHPATH "" \
-               <project>_with_installarea&Unix "<path>/$(cmt_installarea_prefix)/rootmap" ; \
-  path_prepend XMLPATH           "" \
-               <project>_with_installarea&Unix "<path>/$(cmt_installarea_prefix)/XML"
-
-cmtpath_pattern \
-  path_prepend JOBOPTSEARCHPATH "."
