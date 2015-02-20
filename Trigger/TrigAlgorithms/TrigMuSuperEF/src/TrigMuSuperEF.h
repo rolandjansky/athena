@@ -22,6 +22,7 @@
 #include "TrigConfHLTData/HLTTriggerElement.h"
 
 #include "TrigMuonToolInterfaces/TrigMuonEFMonVars.h"
+#include "MuonCombinedToolInterfaces/IMuonCombinedTrigCaloTagExtensionTool.h"
 
 // EDM includes
 #include "xAODMuon/MuonContainer.h"
@@ -46,6 +47,7 @@ namespace MuonCombined {
   class IMuonCombinedTool;
   class IMuonCreatorTool;
   class IMuonCombinedInDetExtensionTool;
+  class IMuonCombinedTrigCaloTagExtensionTool;
 }
 
 class TrigMuSuperEF: public virtual HLT::FexAlgo {
@@ -74,19 +76,22 @@ class TrigMuSuperEF: public virtual HLT::FexAlgo {
   void clearRoiCache();
 
   // run the standard chain of MS (possible stopping at that point), then CB
-  HLT::ErrorCode runStandardChain(const HLT::TriggerElement*, HLT::TriggerElement*);
+  HLT::ErrorCode runStandardChain(const HLT::TriggerElement*, HLT::TriggerElement*, std::unique_ptr<xAOD::MuonContainer> muonContainerOwn);
   
   // run in combiner only mode
-  HLT::ErrorCode runCombinerOnly(const HLT::TriggerElement* inputTE, HLT::TriggerElement* TEout) ;
+  HLT::ErrorCode runCombinerOnly(const HLT::TriggerElement* inputTE, HLT::TriggerElement* TEout, std::unique_ptr<xAOD::MuonContainer> muonContainerOwn);
+
+  // run in caloTag mode
+  HLT::ErrorCode runCaloTagOnly(const HLT::TriggerElement* inputTE, HLT::TriggerElement* TEout);
 
   // run the MS+CB reconstruction of TrigMuonEF
   HLT::ErrorCode runMSCBReconstruction(const IRoiDescriptor* muonRoI,
 				       HLT::TriggerElement* TEout, 
 				       MuonCandidateCollection& muonCandidates,
-				       InDetCandidateCollection& inDetCandidates);
+				       InDetCandidateCollection& inDetCandidates, std::unique_ptr<xAOD::MuonContainer>& muonContainerOwn);
 
   // run the MS-only reconstruction
-  HLT::ErrorCode runMSReconstruction(const IRoiDescriptor* muonRoI, HLT::TriggerElement* TEout, MuonCandidateCollection& muonCandidates);
+  HLT::ErrorCode runMSReconstruction(const IRoiDescriptor* muonRoI, HLT::TriggerElement* TEout, MuonCandidateCollection& muonCandidates, std::unique_ptr<xAOD::MuonContainer>& muonContainerOwn);
 
   /// Function to get ID track particle links from trigger element
   HLT::ErrorCode getIDTrackParticleLinks(const HLT::TriggerElement* te, ElementLinkVector<xAOD::TrackParticleContainer>& elv_xaodidtrks) ;
@@ -108,7 +113,7 @@ class TrigMuSuperEF: public virtual HLT::FexAlgo {
   HLT::ErrorCode attachOutput(HLT::TriggerElement* TEout,
 			      xAOD::TrackParticleContainer* combinedTrackParticles,
 			      const TrackCollection* extrapolatedTracks,
-			      xAOD::TrackParticleContainer* extrapolatedTrackParticles);
+			      xAOD::TrackParticleContainer* extrapolatedTrackParticles, std::unique_ptr<xAOD::MuonContainer> muonContainerOwn);
 
   /// Utility function to attached xAOD track particle container to the trigger element
   void attachTrackParticleContainer( HLT::TriggerElement* TEout, const xAOD::TrackParticleContainer* trackParticleCont, const std::string& name);
@@ -127,8 +132,12 @@ class TrigMuSuperEF: public virtual HLT::FexAlgo {
   // function to declare combined muon monitoring variables
   void declareCombinedMonitoringVariables(TrigMuonEFCBMonVars& monVars);
 
+  // function to declare caloTag muon monitoring variables
+  void declareCaloTagMonitoringVariables(TrigMuonCaloTagMonVars& monVars);
+
   void fillMonitoringVars( );
   void fillIDMonitoringVars( const ElementLinkVector<xAOD::TrackParticleContainer>& elv_idtrks );
+  void fillCTMonitoringVars( const xAOD::TrackParticleContainer& idTrks );
   
   void ResetTimers(std::vector<TrigTimer*>& timers);
 
@@ -142,6 +151,9 @@ class TrigMuSuperEF: public virtual HLT::FexAlgo {
   xAOD::MuonContainer* m_muonContainer;
   xAOD::SlowMuonContainer* m_slowMuonContainer;
 
+  // Output tagged TrackParticles
+  xAOD::TrackParticleContainer* m_ctTrackParticleContainer;
+
   // Output combined TrackCollection
   TrackCollection* m_combTrkTrackColl;
 
@@ -151,6 +163,7 @@ class TrigMuSuperEF: public virtual HLT::FexAlgo {
   //Trigger pass/fail counts
   PassCounters m_counter_TrigMuonEF;
   PassCounters m_counter_TrigMuGirl;
+  PassCounters m_counter_CaloTag;
   PassCounters m_counter;
   std::map<unsigned int,PassCounters> m_counter_perTE;  // use TE id as key
 
@@ -160,6 +173,7 @@ class TrigMuSuperEF: public virtual HLT::FexAlgo {
 
   TrigMuonEFMonVars m_TMEF_monVars;
   TrigMuGirlMonVars   m_TrigMuGirl_monVars;
+  TrigMuonCaloTagMonVars m_TrigCaloTag_monVars;
 
   bool m_doInsideOut; // run TrigMuGirl or not
   bool m_doOutsideIn; // run TrigMuonEF or not
@@ -168,6 +182,7 @@ class TrigMuSuperEF: public virtual HLT::FexAlgo {
   bool m_singleContainer;
   bool m_standaloneOnly; // run only the MS reconstruction
   bool m_combinerOnly; // run only the combiner - MS reco must have been run previously
+  bool m_caloTagOnly;
 
   bool m_fullScan;
   bool m_recordSegments;
@@ -182,6 +197,8 @@ class TrigMuSuperEF: public virtual HLT::FexAlgo {
   std::string m_saTrackParticleContName; /// Name of the xAOD track particle container for extrapolated tracks
   std::string m_msTrackParticleContName; /// Name of the xAOD track particle container for muon spectrometer tracks
   std::string m_cbTrackParticleContName; /// Name of the xAOD track particle container for combined tracks
+  std::string m_ctTrackParticleContName; /// Name of the xAOD track particle container for caloTag tracks
+
   std::string m_muonContName; // Name of the xAOD muon container
 
   bool m_debug; // handy flag for conditional DEBUG output
@@ -191,6 +208,7 @@ class TrigMuSuperEF: public virtual HLT::FexAlgo {
   ToolHandle<Trk::ITrackSummaryTool > m_trackSummaryTool;
   ToolHandle<MuonCombined::IMuonCombinedTool> m_muonCombinedTool;
   ToolHandle<MuonCombined::IMuonCombinedInDetExtensionTool> m_muGirlTool;
+  ToolHandle<MuonCombined::IMuonCombinedTrigCaloTagExtensionTool> m_caloTagTool;
 
   /// tool to create track particles from Trk::Tracks
   ToolHandle<Trk::ITrackParticleCreatorTool> m_TrackToTrackParticleConvTool;
