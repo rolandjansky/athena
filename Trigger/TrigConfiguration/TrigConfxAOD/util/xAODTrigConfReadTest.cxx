@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: xAODTrigConfReadTest.cxx 613036 2014-08-22 10:59:33Z krasznaa $
+// $Id: xAODTrigConfReadTest.cxx 646707 2015-02-13 09:51:38Z krasznaa $
 
 // ROOT include(s):
 #ifdef ROOTCORE
@@ -51,7 +51,7 @@ int main( int argc, char* argv[] ) {
    // Create the trigger configuration tool:
    TrigConf::xAODConfigTool configTool( "xAODConfigTool" );
    //   configTool.setProperty( "MetaObjectName", "Bla" );
-   configTool.setProperty( "OutputLevel", MSG::VERBOSE );
+   configTool.setProperty( "OutputLevel", MSG::VERBOSE ).ignore();
    if( configTool.initialize().isFailure() ) {
       ::Error( APP_NAME, "Couldn't initialise the trigger configuration tool" );
       return 1;
@@ -84,6 +84,10 @@ int main( int argc, char* argv[] ) {
                  static_cast< int >( configTool.masterKey() ),
                  static_cast< int >( configTool.lvl1PrescaleKey() ),
                  static_cast< int >( configTool.hltPrescaleKey() ) );
+         ::Info( APP_NAME, "  Number of L1 items: %i",
+                 static_cast< int >( configTool.ctpConfig()->menu().items().size() ) );
+         ::Info( APP_NAME, "  Number of HLT chains: %i",
+                 static_cast< int >( configTool.chains().size() ) );
       }
 
       // Give some feedback of where we are:
