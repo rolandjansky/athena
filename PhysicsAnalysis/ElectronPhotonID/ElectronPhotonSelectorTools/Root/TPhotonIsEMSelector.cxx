@@ -110,6 +110,26 @@ Root::TPhotonIsEMSelector::TPhotonIsEMSelector(const char* name) :
   /** @brief tracker isolation for photon selection */
   m_cutNameTrackIsolation_Photon("TrackIsolation_Photon")
 {
+  m_isEM = 0;
+  m_cutPositionClusterEtaRange_Photon = 0;
+  m_cutPositionClusterBackEnergyFraction_Photon = 0;
+  m_cutPositionClusterHadronicLeakage_Photon = 0;
+  m_cutPositionClusterMiddleEnergy_Photon = 0;
+  m_cutPositionClusterMiddleEratio37_Photon = 0;
+  m_cutPositionClusterMiddleEratio33_Photon = 0;
+  m_cutPositionClusterMiddleWidth_Photon = 0;
+  m_cutPositionClusterStripsEratio_Photon = 0;
+  //m_cutPositionClusterStripsDeltaEmax2_Photon = 0;
+  m_cutPositionClusterStripsDeltaE_Photon = 0;
+  m_cutPositionClusterStripsWtot_Photon = 0;
+  m_cutPositionClusterStripsFracm_Photon = 0;
+  m_cutPositionClusterStripsWeta1c_Photon = 0;
+  m_cutPositionClusterStripsDEmaxs1_Photon = 0;
+  m_cutPositionTrackMatchEoverP_Photon = 0;
+  m_cutPositionAmbiguityResolution_Photon = 0;
+  m_cutPositionIsolation_Photon = 0;
+  m_cutPositionClusterIsolation_Photon = 0;
+  m_cutPositionTrackIsolation_Photon = 0;
 }
 // =================================================================
 Root::TPhotonIsEMSelector::~TPhotonIsEMSelector() 
@@ -538,7 +558,7 @@ unsigned int Root::TPhotonIsEMSelector::calocuts_photonsNonConverted(
   //
   // second sampling cuts  
   //
-  if (e277 >= e277_photonsNonConverted[0] ) {
+  if (e277_photonsNonConverted.size()>0 && e277 >= e277_photonsNonConverted[0] ) {
     if (ibinEta==-1) {
       //std::cout << " pb with eta range = " << eta2 << std::endl;
       iflag |= ( 0x1 << egammaPID::ClusterEtaRange_Photon);
@@ -764,7 +784,7 @@ unsigned int Root::TPhotonIsEMSelector::calocuts_photonsConverted(
   //
   // second sampling cuts  
   //
-  if (e277 >= e277_photonsConverted[0] ) {
+  if (e277_photonsConverted.size()>0 && e277 >= e277_photonsConverted[0] ) {
 
     if (ibinEta==-1) {
       iflag |= ( 0x1 << egammaPID::ClusterEtaRange_Photon);

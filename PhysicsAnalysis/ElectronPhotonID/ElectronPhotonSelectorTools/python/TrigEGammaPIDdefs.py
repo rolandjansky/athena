@@ -74,6 +74,8 @@ class BitDefElectron:
    TrackMatchPhi_Electron          = 21
    """ @brief energy-momentum match """
    TrackMatchEoverP_Electron       = 22
+   """ @brief Cut on the TRT eProbabilityHT_Electron """
+   TrackTRTeProbabilityHT_Electron   = 23
    """ @brief number of TRT hits """
    TrackTRThits_Electron           = 24
    """ @brief ratio of high to all TRT hits for isolated electrons """
@@ -176,7 +178,8 @@ class CutDefElectron:
 	""" @brief TRT hits and TR ratio for electrons"""
 	TRT_ELECTRON =  \
 	   0x1 << BitDefElectron.TrackTRThits_Electron   | \
-	   0x1 << BitDefElectron.TrackTRTratio_Electron
+	   0x1 << BitDefElectron.TrackTRTratio_Electron  | \
+           0x1 << BitDefElectron.TrackTRTeProbabilityHT_Electron
 	""" @brief TRT hits and TR ratio (@90% eff) for electrons"""
 	TRT90_ELECTRON =  \
 	   0x1 << BitDefElectron.TrackTRThits_Electron   | \
@@ -234,6 +237,7 @@ class SelectionDefElectron:
 	ElectronMedium1    = CutDefElectron.CALO_ELECTRON | CutDefElectron.TRACKING_ELECTRON | \
 		CutDefElectron.TRACKMATCHDETA_ELECTRON | \
 		0x1 << BitDefElectron.TrackTRTratio_Electron | \
+                0x1 << BitDefElectron.TrackTRTeProbabilityHT_Electron | \
 		0x1 << BitDefElectron.ClusterBackEnergyFraction_Electron
 	""" @brief Tight Electron1 definition for e15_tight in EF """
 	ElectronTight1 = CutDefElectron.CALO_ELECTRON | CutDefElectron.TRACKING_ELECTRON | \
@@ -254,6 +258,7 @@ class SelectionDefElectron:
 		CutDefElectron.TRACKMATCHDETA_ELECTRON | \
                 CutDefElectron.TRACKMATCHDETATIGHT_ELECTRON | \
 		0x1 << BitDefElectron.TrackTRTratio_Electron | \
+                0x1 << BitDefElectron.TrackTRTeProbabilityHT_Electron | \
 		0x1 << BitDefElectron.ClusterBackEnergyFraction_Electron | \
                 0x1 << BitDefElectron.ClusterMiddleEratio33_Electron
 

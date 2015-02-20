@@ -186,6 +186,9 @@ namespace egammaPID {
     TrackMatchPhi_Electron          = 21,
     /** @brief energy-momentum match */
     TrackMatchEoverP_Electron       = 22,
+
+    /** @brief Cut on the TRT eProbabilityHT_Electron */
+    TrackTRTeProbabilityHT_Electron   = 23,
     /** @brief number of TRT hits */
     TrackTRThits_Electron           = 24,
     /** @brief ratio of high to all TRT hits for isolated electrons */
@@ -329,15 +332,20 @@ namespace egammaPID {
   const unsigned int CONVMATCH_ELECTRON =
     0x1 << ConversionMatch_Electron;
 
-  /** @brief TRT hits and TR ratio for electrons*/
+  /** @brief TRT hits and TR ratio and TR Probability for electrons*/
   const unsigned int TRT_ELECTRON = 
     0x1 << TrackTRThits_Electron   |
-    0x1 << TrackTRTratio_Electron;
+    0x1 << TrackTRTratio_Electron  |
+    0x1 << TrackTRTeProbabilityHT_Electron ;
 
   /** @brief TR ratio for electrons*/
   const unsigned int TRT_RATIO_ELECTRON = 
     0x1 << TrackTRTratio_Electron;
 
+  /** @brief TR PID tool cut  for electrons*/
+  const unsigned int TRT_EPROB_ELECTRON = 
+    0x1 << TrackTRTeProbabilityHT_Electron ;
+    
   /** @brief isolation by tracker */
   const unsigned int TRACKINGISOLATION_ELECTRON = 
     0x1 << TrackIsolation_Electron;
@@ -375,7 +383,8 @@ namespace egammaPID {
     TRACKING_ELECTRON |
     TRACKMATCHDETA_ELECTRON | 
     TRACKMATCHDETATIGHT_ELECTRON |
-    TRT_RATIO_ELECTRON;
+    TRT_RATIO_ELECTRON |
+    TRT_EPROB_ELECTRON ;
 
   /** @brief Medium++ electron selecton with isolation */
   const unsigned int ElectronMediumPPIso = 
@@ -544,7 +553,8 @@ namespace egammaPID {
     CALO_ELECTRON | 
     TRACKING_ELECTRON | 
     TRACKMATCHDETA_ELECTRON |
-    TRT_RATIO_ELECTRON;
+    TRT_RATIO_ELECTRON |
+    TRT_EPROB_ELECTRON;
   
    /** @brief Tight1 tunes electron selecton */
   const unsigned int ElectronTight1 = 
@@ -570,7 +580,8 @@ namespace egammaPID {
     TRACKING_ELECTRON | 
     TRACKMATCHDETA_ELECTRON |
     TRACKMATCHDETATIGHT_ELECTRON |
-    TRT_RATIO_ELECTRON;
+    TRT_RATIO_ELECTRON |
+    TRT_EPROB_ELECTRON;
 
   /** @brief Tight 2014 tunes electron selecton */
   // Add Rphi to Calo selection and CALOBACK

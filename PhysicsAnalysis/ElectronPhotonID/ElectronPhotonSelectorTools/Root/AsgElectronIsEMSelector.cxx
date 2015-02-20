@@ -184,6 +184,10 @@ AsgElectronIsEMSelector::AsgElectronIsEMSelector(std::string myname) :
   // cut on Ratio of TR hits to Number of TRT hits for 90% efficiency
   declareProperty("CutTRTRatio90",m_rootTool->CutTRTRatio90,
 		  "cut on Ratio of TR hits to Number of TRT hits for 90% efficiency");
+  //cut on eProbabilityHT new TRT PID tool
+  declareProperty("CutEProbabilityHT",m_rootTool->CutEProbabilityHT,
+		  "Cut on eProabbiility new TRT PID Tool");
+  
   // for the trigger needs:
   declareProperty("caloOnly", m_caloOnly=false, "Flag to tell the tool if its a calo only cutbase"); 
   declareProperty("trigEtTh", m_trigEtTh=-999. , "Trigger threshold"); 
@@ -270,6 +274,7 @@ StatusCode AsgElectronIsEMSelector::initialize()
     m_rootTool->CutNumTRT = AsgConfigHelper::HelperFloat("CutNumTRT",env);        
     m_rootTool->CutTRTRatio = AsgConfigHelper::HelperFloat("CutTRTRatio",env);    
     m_rootTool->CutTRTRatio90 = AsgConfigHelper::HelperFloat("CutTRTRatio90",env);  
+    m_rootTool->CutEProbabilityHT = AsgConfigHelper::HelperFloat("CutEProbabilityHT",env);    
   } else {
     ATH_MSG_INFO("Conf file empty. Just user Input");
   }
@@ -621,6 +626,7 @@ unsigned int AsgElectronIsEMSelector::TrackCut(const xAOD::Electron* eg,
   uint8_t nTRTOutliers = 0;
   uint8_t nTRTXenonHits = 0;
   uint8_t expectHitInBLayer = true;
+  float   TRT_PID = 0.0; 
 
   bool allFound = true;
 
@@ -637,6 +643,7 @@ unsigned int AsgElectronIsEMSelector::TrackCut(const xAOD::Electron* eg,
   allFound = allFound && t->summaryValue(nTRT, xAOD::numberOfTRTHits);
   allFound = allFound && t->summaryValue(nTRTOutliers, xAOD::numberOfTRTOutliers);
   allFound = allFound && t->summaryValue(nTRTXenonHits, xAOD::numberOfTRTXenonHits);
+  allFound = allFound && t->summaryValue(TRT_PID, xAOD::eProbabilityHT);
   allFound = allFound && t->summaryValue(expectHitInBLayer, xAOD::expectBLayerHit);
 
   const float trackd0 = fabsf(t->d0());
@@ -673,6 +680,7 @@ unsigned int AsgElectronIsEMSelector::TrackCut(const xAOD::Electron* eg,
 			      nTRT,
 			      nTRTOutliers,
 			      nTRTXenonHits,
+			      TRT_PID,
 			      trackd0,
 			      deltaeta,
 			      deltaphi,

@@ -33,7 +33,7 @@ def TrigElectronIsEMLooseSelectorConfigDC14(theTool) :
     
     # the isEM name
     theTool.PIDName = egammaPID.IsEMLoose
-    theTool.ConfigFile = "ElectronPhotonSelectorTools/offline/dc14b_20150121/ElectronIsEMLooseSelectorCutDefs.conf"
+    theTool.ConfigFile = "ElectronPhotonSelectorTools/trigger/dc14b_20150121/ElectronIsEMLooseSelectorCutDefs.conf"
 
 
 def TrigElectronIsEMLooseSelectorConfigDC14OLD(theTool) :

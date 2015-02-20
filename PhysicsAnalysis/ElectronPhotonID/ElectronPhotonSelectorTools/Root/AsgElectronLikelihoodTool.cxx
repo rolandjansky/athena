@@ -484,6 +484,7 @@ const Root::TResult& AsgElectronLikelihoodTool::calculate( const xAOD::Electron*
   float d0sigma(0.0);
   double dpOverp(0.0);
   float TRT_PID(0.0);
+  float trans_TRT_PID(0.0);
   float deltaEta=0, deltaPhiRescaled2=0;
   double rTRT(0.0);
 
@@ -507,6 +508,13 @@ const Root::TResult& AsgElectronLikelihoodTool::calculate( const xAOD::Electron*
         allFound = allFound && t->summaryValue(nTRTOutliers, xAOD::numberOfTRTOutliers);
         allFound = allFound && t->summaryValue(nTRTXenon, xAOD::numberOfTRTXenonHits);
         allFound = allFound && t->summaryValue(TRT_PID, xAOD::eProbabilityHT);
+
+        //Transform the TRT PID output for use in the LH tool.
+        double tau = 15.0; 
+        double fEpsilon = 1e-99;
+        if (TRT_PID >= 1.0) TRT_PID = 1.0 - 1.0e-15;
+        else if (TRT_PID <= 0.0) TRT_PID = fEpsilon;
+        trans_TRT_PID = - log(1.0/TRT_PID - 1.0)/double(tau);
 
         unsigned int index;
         if( t->indexOfParameterAtPosition(index, xAOD::LastMeasurement) ) {
@@ -600,13 +608,13 @@ const Root::TResult& AsgElectronLikelihoodTool::calculate( const xAOD::Electron*
   }
 
 
-  ATH_MSG_VERBOSE ( Form("Vars: eta=5%8.5f, et=%8.5f, f3=%8.5f, rHad==%8.5f, rHad1=%8.5f, Reta=%8.5f, w2=%8.5f, f1=%8.5f, Emaxs1=%8.5f, deltaEta=%8.5f, d0=%8.5f, rTRT=%8.5f, d0sigma=%8.5f, Rphi=%8.5f, ws3=%8.5f, dpOverp=%8.5f, deltaPhiRescaled2=%8.5f, TRT_PID=%8.5f, ip=%8.5f",
+  ATH_MSG_VERBOSE ( Form("Vars: eta=5%8.5f, et=%8.5f, f3=%8.5f, rHad==%8.5f, rHad1=%8.5f, Reta=%8.5f, w2=%8.5f, f1=%8.5f, Emaxs1=%8.5f, deltaEta=%8.5f, d0=%8.5f, rTRT=%8.5f, d0sigma=%8.5f, Rphi=%8.5f, ws3=%8.5f, dpOverp=%8.5f, deltaPhiRescaled2=%8.5f, TRT_PID=%8.5f, trans_TRT_PID=%8.5f, ip=%8.5f",
                          eta, et, f3, Rhad, Rhad1, Reta,
                          w2, f1, Eratio,
                          deltaEta, d0, rTRT,
                          d0sigma, 
                          Rphi, ws3, dpOverp, deltaPhiRescaled2,
-			 TRT_PID,
+			                   TRT_PID, trans_TRT_PID,
                          ip ) );
 
 
@@ -631,7 +639,7 @@ const Root::TResult& AsgElectronLikelihoodTool::calculate( const xAOD::Electron*
                                 Rphi,
                                 dpOverp,
                                 deltaPhiRescaled2,
-				TRT_PID,
+				                        trans_TRT_PID,
                                 ip
                                 );
 }

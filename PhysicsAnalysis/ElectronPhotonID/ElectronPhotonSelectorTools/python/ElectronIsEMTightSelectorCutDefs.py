@@ -32,7 +32,7 @@ def ElectronIsEMTightSelectorConfigDC14(theTool) :
     
     # the isEM name
     theTool.PIDName = egammaPID.IsEMTight
-    theTool.ConfigFile = "ElectronPhotonSelectorTools/offline/dc14b_20150121/ElectronIsEMTightSelectorCutDefs.conf"
+    theTool.ConfigFile = "ElectronPhotonSelectorTools/offline/mc15_20150214/ElectronIsEMTightSelectorCutDefs.conf"
 
 
 def ElectronIsEMTightSelectorConfig2011(theTool) :

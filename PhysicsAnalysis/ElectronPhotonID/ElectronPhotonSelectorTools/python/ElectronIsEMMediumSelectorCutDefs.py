@@ -27,7 +27,7 @@ def ElectronIsEMMediumSelectorConfigDC14(theTool) :
     # the isEM name
     theTool.PIDName = egammaPID.IsEMMedium
 
-    theTool.ConfigFile = "ElectronPhotonSelectorTools/offline/dc14b_20150121/ElectronIsEMMediumSelectorCutDefs.conf"
+    theTool.ConfigFile = "ElectronPhotonSelectorTools/offline/mc15_20150214/ElectronIsEMMediumSelectorCutDefs.conf"
 
 
 def ElectronIsEMMediumSelectorConfig2011(theTool) :

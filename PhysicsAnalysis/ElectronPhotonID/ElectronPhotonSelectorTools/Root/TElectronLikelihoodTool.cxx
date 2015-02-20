@@ -619,7 +619,7 @@ double Root::TElectronLikelihoodTool::TransformLikelihoodOutput(double ps,double
 
     if(disc <= disc_loose_ref){
       // Below threshold for applying pileup correction
-      disc = disc;
+      //disc = disc;
     }
     else if(disc <= disc_hard_cut_ref_prime){
       // Between the loose and hard cut reference points for pileup correction
@@ -631,7 +631,7 @@ double Root::TElectronLikelihoodTool::TransformLikelihoodOutput(double ps,double
     }
     else{
       // Above threshold where pileup correction necessary
-      disc = disc;
+      //disc = disc;
     }
   }
 
