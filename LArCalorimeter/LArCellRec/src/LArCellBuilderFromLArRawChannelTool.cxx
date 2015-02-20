@@ -170,8 +170,13 @@ LArCellBuilderFromLArRawChannelTool::geoInit(IOVSVC_CALLBACK_ARGS) {
 // ========================================================================================== //
 StatusCode LArCellBuilderFromLArRawChannelTool::process(CaloCellContainer * theCellContainer) {
  
+#ifndef ATHENAHIVE
   if (theCellContainer->ownPolicy() == SG::OWN_ELEMENTS) {
     msg(MSG::ERROR) << "Called with a CaloCellContainer with wrong ownership policy! Need a VIEW container!" << endreq;
+#else
+  if (theCellContainer->ownPolicy() != SG::OWN_ELEMENTS) {
+    msg(MSG::ERROR) << "Called with a CaloCellContainer with wrong ownership policy! Need a OWN container!" << endreq;
+#endif
     return StatusCode::FAILURE;
   }
 
@@ -296,10 +301,14 @@ LArCell* LArCellBuilderFromLArRawChannelTool::getCell(const LArRawChannel& theRa
     const uint16_t provenance = (theRawChannel.provenance() & 0x3FFF);   // to be sure not to set by error "dead" bit
     const CaloGain::CaloGain gain = theRawChannel.gain();
 
+#ifndef ATHENAHIVE
     static DataPool<LArCell> larCellsP(m_initialDataPoolSize);
       
     //LArCell * theCell = new LArCell(theDDE,energy,time,quality,gain);
     LArCell *pCell   = larCellsP.nextElementPtr();
+#else
+    LArCell *pCell   = new LArCell();
+#endif
     pCell->m_energy  = energy;
     pCell->m_time    = time;    
     pCell->m_qualProv[0] = quality;
