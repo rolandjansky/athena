@@ -20,12 +20,12 @@
 
 #include "HLTRates2COOL/JobConfig.h"
 #include "RunControl/Common/Controllable.h"
+#include "HLTRates2COOL/HLTCountCoolWriter.h"
 
 #include "ipc/core.h"
 
 namespace hltca {
    class HLTCountsArchiverRCApp;
-   class HLTCountCoolWriter;
    class HLTCountOHReceiver;
    class JobConfig;
 }
@@ -53,7 +53,7 @@ private:
    bool getRunNumberFromIS();
 
    hltca::JobConfig             fJobConfig; // object to hold different job configuration parameters
-   hltca::HLTCountCoolWriter*   fCoolWriter; // the class that does the writing to COOL
+   hltca::HLTCountCoolWriter    fCoolWriter; // the class that does the writing to COOL
    IPCPartition*                fIPCPartition; // the ipc partition object
    hltca::HLTCountOHReceiver*   fReceiver;
 
