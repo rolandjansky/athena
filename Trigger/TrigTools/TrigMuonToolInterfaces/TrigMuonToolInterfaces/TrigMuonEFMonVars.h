@@ -81,6 +81,22 @@ struct TrigMuonEFMonVars {
   TrigMuonEFCBMonVars CB; // Combined (with Inner Detector)
 };
 
+struct TrigMuonCaloTagMonVars {
+  std::vector<int>   numberOfTracks;
+  std::vector<int>   nHit;
+  std::vector<int>   nSct;
+  std::vector<int>   nPixel;
+  std::vector<int>   nTrt;
+  std::vector<int>   nIDTrks;
+  std::vector<int>   IDTrk_CaloTag;
+  std::vector<float> charge;
+  std::vector<float> d0;
+  std::vector<float> z0;
+  std::vector<float> IDTrk_phi;
+  std::vector<float> IDTrk_eta;
+  std::vector<float> IDTrk_pT;
+  std::vector<float> IDTrk_CaloLH;
+};
 
 struct TrigMuGirlMonVars : public TrigMuonEFMSMonVars {
   std::vector<float> cotTh;
