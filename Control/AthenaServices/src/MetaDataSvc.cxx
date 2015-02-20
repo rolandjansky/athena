@@ -261,10 +261,12 @@ void MetaDataSvc::handle(const Incident& inc) {
          }
       }
    } else if (inc.type() == "EndInputFile") {
+/*
       if (!m_inputDataStore->clearStore().isSuccess()) {
          ATH_MSG_WARNING("Unable to clear input MetaData Proxies");
       }
       m_clearedInputDataStore = true;
+*/
       m_allowMetaDataStop = true;
    } else if (inc.type() == "LastInputFile") {
       if (!m_metaDataTools.release().isSuccess()) {
