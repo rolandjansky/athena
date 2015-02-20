@@ -144,9 +144,9 @@ void TileRawChannelTimeMonTool::bookHists(int ros, int drawer) {
     std::string cell_name;
     std::string channel_name;
 
-    for (unsigned int drawer = 0; drawer < TileCalibUtils::MAX_DRAWER; drawer += 2) {
-      module_name = TileCalibUtils::getDrawerString(ros, drawer);
-      profile2d_hist[ros]->GetXaxis()->SetBinLabel(drawer + 1, module_name.c_str());
+    for (unsigned int drw = 0; drw < TileCalibUtils::MAX_DRAWER; drw += 2) {
+      module_name = TileCalibUtils::getDrawerString(ros, drw);
+      profile2d_hist[ros]->GetXaxis()->SetBinLabel(drw + 1, module_name.c_str());
     }
 
     for (unsigned int channel = 0; channel < TileCalibUtils::MAX_CHAN; ++channel) {
