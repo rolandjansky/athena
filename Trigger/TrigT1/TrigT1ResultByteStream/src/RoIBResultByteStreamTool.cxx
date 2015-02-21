@@ -54,8 +54,8 @@ RoIBResultByteStreamTool::RoIBResultByteStreamTool( const std::string& type, con
   m_emModuleID.push_back(0xab) ;
 
   m_l1TopoModuleID.reserve(2);
-  m_emModuleID.push_back(0x00910081);
-  m_emModuleID.push_back(0x00910010);
+  m_l1TopoModuleID.push_back(0x80);
+  m_l1TopoModuleID.push_back(0x90);
 }
 
 /**
