@@ -727,6 +727,8 @@ static bool getDebugStreams(IJobOptionsSvc* jobOptionsSvc,   MsgStream* log, uns
       rb_properties = jobOptionsSvc->getProperties("TrigSteer_L2.ResultBuilder");
     else
       rb_properties = jobOptionsSvc->getProperties("TrigSteer_EF.ResultBuilder");
+      if (rb_properties==0)
+        rb_properties = jobOptionsSvc->getProperties("TrigSteer_HLT.ResultBuilder");
     
     //if(logLvl <= MSG::DEBUG) (*log) << MSG::DEBUG << " Back from request for properties of the ResultBuilder" 
     //				<< endreq;

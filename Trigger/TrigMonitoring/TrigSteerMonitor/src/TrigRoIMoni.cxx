@@ -56,7 +56,7 @@ using namespace HLT;
 
 
 TrigRoIMoni::TrigRoIMoni(const std::string & type, const std::string & name,
-			 const IInterface* parent)
+                         const IInterface* parent)
   :  TrigMonitorToolBase(type, name, parent),
      m_parentAlg(0),
      m_histonroi(0),
@@ -214,7 +214,7 @@ StatusCode TrigRoIMoni::bookHistograms( bool/* isNewEventsBlock*/, bool /*isNewL
    m_histodeta=0;
    m_histodphi=0;
    m_histo_eta0_phi0=0;
-   m_histoverflow=0;	
+   m_histoverflow=0;    
    m_histLinkMultiplicity=0;
   
    m_etaphi_EM_all=0;
@@ -299,7 +299,7 @@ StatusCode TrigRoIMoni::bookHistograms( bool/* isNewEventsBlock*/, bool /*isNewL
          // Get a list of all thresholds for the threshold multiplicity histogram
          m_histThresholdMultiplicity = 0;
          if( m_gotL1Config ) {
-	
+        
             const TrigConf::ThresholdConfig* thresholds = m_trigConfigSvc->thresholdConfig();
 
             int thresholdBin = 0;
@@ -366,7 +366,7 @@ StatusCode TrigRoIMoni::bookHistograms( bool/* isNewEventsBlock*/, bool /*isNewL
    if ( expertHistograms.regHist(m_histonroi).isFailure())
       (*m_log) << MSG::WARNING << "Can't book "
                << m_histoPathexpert+ m_histonroi ->GetName() << endreq;
-	     
+             
    tmpstring="Updates of RoI positions with respect to L1 (phi) ";
    tmpstring+=m_trigLvl;
    htit=Form(tmpstring.c_str());
@@ -445,11 +445,11 @@ StatusCode TrigRoIMoni::fillHists()
       HLT::Navigation *nav = m_parentAlg->getAlgoConfig()->getNavigation();
 
       for(std::map<std::string, std::pair<int, unsigned int> >::const_iterator nameIt = 
-	    m_thresholdNames.begin();
-	  nameIt != m_thresholdNames.end(); nameIt++) {
+            m_thresholdNames.begin();
+          nameIt != m_thresholdNames.end(); nameIt++) {
 
-	unsigned found = nav->countAllOfType(nameIt->second.second, false);
-	m_histThresholdMultiplicity->Fill(nameIt->second.first, found);
+        unsigned found = nav->countAllOfType(nameIt->second.second, false);
+        m_histThresholdMultiplicity->Fill(nameIt->second.first, found);
       }
     }
   }
@@ -498,16 +498,16 @@ StatusCode TrigRoIMoni::fillHists()
       std::vector<const TrigRoiDescriptor*>::const_iterator roiDescriptorIt;
       
       for(roiDescriptorIt= roiDescriptorofDirectSuccessor.begin(); 
-	  roiDescriptorIt != roiDescriptorofDirectSuccessor.end(); ++ roiDescriptorIt){
-	
-	if(*roiDescriptorIt == 0) continue;
-	
-	niniroi++;
-	
-	//store eta0, phi0
-	eta0=(*roiDescriptorIt)->eta();
-	phi0=(*roiDescriptorIt)->phi();
-	
+          roiDescriptorIt != roiDescriptorofDirectSuccessor.end(); ++ roiDescriptorIt){
+        
+        if(*roiDescriptorIt == 0) continue;
+        
+        niniroi++;
+        
+        //store eta0, phi0
+        eta0=(*roiDescriptorIt)->eta();
+        phi0=(*roiDescriptorIt)->phi();
+        
       }
     }
     
@@ -524,29 +524,29 @@ StatusCode TrigRoIMoni::fillHists()
     
     if( stroi ){
       if (m_logLvl <= MSG::DEBUG)
-	(*m_log)<<MSG::DEBUG << nte << ". TE " << label << "  found features "<<roiDescriptor.size()<<endreq;
+        (*m_log)<<MSG::DEBUG << nte << ". TE " << label << "  found features "<<roiDescriptor.size()<<endreq;
       
       std::vector<const TrigRoiDescriptor*>::const_iterator roiDescriptorIt;
       //loop rois
       for(roiDescriptorIt= roiDescriptor.begin(); roiDescriptorIt != roiDescriptor.end(); ++ roiDescriptorIt){
-	if(*roiDescriptorIt == 0) continue;
-	
-	eta=(*roiDescriptorIt)->eta();
-	phi=(*roiDescriptorIt)->phi();
-	deltaeta=eta0-eta;
-	deltaphi=phi0-phi;
-	if (m_logLvl <= MSG::DEBUG)
-	  (*m_log) << MSG::DEBUG <<" found RoIInfo for  "<< // labels[ (*roiDescriptorIt )]<<
-	    " roiWord "<<(*roiDescriptorIt)->roiWord()<<
-	    " phi,eta "<<phi<<","<<eta<<"  Delta "<<deltaphi<<","<<deltaeta<<endreq;
-	
-	//fill histos  m_histodeta and m_histodphi
-	m_histodeta->Fill(deltaeta);
-	m_histodphi->Fill(deltaphi);
+        if(*roiDescriptorIt == 0) continue;
+        
+        eta=(*roiDescriptorIt)->eta();
+        phi=(*roiDescriptorIt)->phi();
+        deltaeta=eta0-eta;
+        deltaphi=phi0-phi;
+        if (m_logLvl <= MSG::DEBUG)
+          (*m_log) << MSG::DEBUG <<" found RoIInfo for  "<< // labels[ (*roiDescriptorIt )]<<
+            " roiWord "<<(*roiDescriptorIt)->roiWord()<<
+            " phi,eta "<<phi<<","<<eta<<"  Delta "<<deltaphi<<","<<deltaeta<<endreq;
+        
+        //fill histos  m_histodeta and m_histodphi
+        m_histodeta->Fill(deltaeta);
+        m_histodphi->Fill(deltaphi);
       }
     }else{
       if (m_logLvl <= MSG::DEBUG)
-	(*m_log)<<MSG::DEBUG<<" for "<<nte<<". TE "<<label<<"  no features found "<<endreq;
+        (*m_log)<<MSG::DEBUG<<" for "<<nte<<". TE "<<label<<"  no features found "<<endreq;
     }
   }//loop rois
   
@@ -604,7 +604,7 @@ void TrigRoIMoni::FillT1ResultHists()
     if(m_logLvl <= MSG::WARNING) {
       (*m_log) << MSG::WARNING
                << "Unable to retrieve RoIBResult from storeGate!"
-	       << endreq;
+               << endreq;
       return;
     }  
   }  
@@ -730,15 +730,15 @@ void TrigRoIMoni::FillEtaPhiPlots()
   bool isHLT = (m_trigLvl == "HLT");
 
   if ( (isL2 || isHLT) && (m_etaphi_EM_all== 0 ||
-			   m_etaphi_J_all == 0 ||
-			   m_etaphi_JF_all== 0 ||
-			   m_etaphi_HA_all== 0 ||
-			   m_etaphi_MU_all== 0)) {
+                           m_etaphi_J_all == 0 ||
+                           m_etaphi_JF_all== 0 ||
+                           m_etaphi_HA_all== 0 ||
+                           m_etaphi_MU_all== 0)) {
     
     if(m_logLvl <= MSG::WARNING) {
       (*m_log) << MSG::WARNING
                << "Called FillEtaPhiPLots but >= 1 histo was not booked!"
-	       << endreq;
+               << endreq;
       return;
     }
   }
@@ -762,13 +762,13 @@ void TrigRoIMoni::FillEtaPhiPlots()
     const std::vector< HLT::MuonRoI >& muonRoIs = m_lvl1Tool->createMuonThresholds(*result);
     
     for (std::vector<  HLT::MuonRoI >::const_iterator muonRoI = muonRoIs.begin();
-	 muonRoI != muonRoIs.end(); ++muonRoI) {
+         muonRoI != muonRoIs.end(); ++muonRoI) {
       
       std::vector<TrigConf::TriggerThreshold*> muonDummy; // only need coordinates, not thresholds
       LVL1::RecMuonRoI* recRoI = new LVL1::RecMuonRoI(muonRoI->lvl1RoI().roIWord(), 
-						      m_recRPCRoiSvc, 
-						      m_recTGCRoiSvc, 
-						      &muonDummy);
+                                                      m_recRPCRoiSvc, 
+                                                      m_recTGCRoiSvc, 
+                                                      &muonDummy);
       double eta = recRoI->eta();
       double phi = fixphi(recRoI->phi());
       //std::cout << "MMMM new RoI, eta,phi: " << eta << ", " << phi << std::endl;
@@ -797,30 +797,31 @@ void TrigRoIMoni::FillEtaPhiPlots()
   if (m_gotL1Config) {
     std::vector<TrigConf::TriggerThreshold*> thresholds = m_trigConfigSvc->ctpConfig()->menu().thresholdVector();
     for (std::vector<TrigConf::TriggerThreshold*>::const_iterator it = thresholds.begin();
-	 it != thresholds.end(); ++it) {
+         it != thresholds.end(); ++it) {
       if ( (*it)->type() == TrigConf::L1DataDef::emType() ||
-	   (*it)->type() == TrigConf::L1DataDef::tauType() ) caloConfig.push_back(*it);
+           (*it)->type() == TrigConf::L1DataDef::tauType() ) caloConfig.push_back(*it);
     }
 
     const std::vector< HLT::EMTauRoI >& emTauRoIs = 
       m_lvl1Tool->createEMTauThresholds(*result, false); // MM: can this safely be set to false?
     
     for (std::vector<  HLT::EMTauRoI >::const_iterator emTauRoI = emTauRoIs.begin();
-	 emTauRoI != emTauRoIs.end(); ++emTauRoI) {
+         emTauRoI != emTauRoIs.end(); ++emTauRoI) {
       
       LVL1::RecEmTauRoI* recRoI = new LVL1::RecEmTauRoI(emTauRoI->lvl1RoI().roIWord(), &caloConfig);
       
       std::vector< unsigned int > *tp =  recRoI->thresholdsPassed();
       bool isEM = false, isTau = false;
-      for(std::vector< unsigned int >::const_iterator ittp = tp->begin(); ittp != tp->end(); ittp++) {
-	if(recRoI->thresholdType(*ittp) == LVL1::TrigT1CaloDefs::EMAlg) isEM = true;
-	if(recRoI->thresholdType(*ittp) == LVL1::TrigT1CaloDefs::TauAlg) isTau = true;
+      for(std::vector< unsigned int >::const_iterator ittp = tp->begin(); ittp != tp->end(); ++ittp) {
+        if(recRoI->thresholdType(*ittp) == LVL1::TrigT1CaloDefs::EMAlg) isEM = true;
+        if(recRoI->thresholdType(*ittp) == LVL1::TrigT1CaloDefs::TauAlg) isTau = true;
       }
+      delete tp;
       
       double eta = recRoI->eta();
       double phi = fixphi(recRoI->phi());
       //std::cout << "MMMM new EMtau RoI, isEM, isTau, eta,phi: " << isEM << ", "
-      //		<< isTau << ", " << eta << ", " << phi << std::endl;
+      //                << isTau << ", " << eta << ", " << phi << std::endl;
 
       if((isL2||isHLT) && isEM)  m_etaphi_EM_all->Fill(eta, phi);
       if((isL2||isHLT) && isTau) m_etaphi_HA_all->Fill(eta, phi);
