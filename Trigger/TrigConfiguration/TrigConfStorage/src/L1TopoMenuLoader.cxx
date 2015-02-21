@@ -72,7 +72,7 @@ bool TrigConf::L1TopoMenuLoader::loadTopoAlgos( TXC::L1TopoMenu& tcaTarget) {
 
       coral::AttributeList attList0;
       attList0.extend<int>( "TMT.TMT_TRIGGER_MENU_ID" );
-      attList0.extend<int>( "TMT.TMT_VERSION" );
+      attList0.extend<long>( "TMT.TMT_VERSION" );
       attList0.extend<string>( "TTM.TTM_NAME" );
       attList0.extend<int>( "TTM.TTM_VERSION" );
       attList0.extend<int>( "TTM.TTM_CTPLINK_ID" );
@@ -187,7 +187,7 @@ bool TrigConf::L1TopoMenuLoader::loadAlgRegister( TXC::L1TopoConfigAlg& tcaTarge
 
       coral::AttributeList attList0;
       attList0.extend<string>( "TP.TP_NAME" );
-      attList0.extend<int>( "TP.TP_VALUE" );
+      attList0.extend<long>( "TP.TP_VALUE" );
       attList0.extend<int>( "TP.TP_POSITION" );
       attList0.extend<int>( "TP.TP_SELECTION" );
       query0->defineOutput(attList0);     
@@ -198,7 +198,7 @@ bool TrigConf::L1TopoMenuLoader::loadAlgRegister( TXC::L1TopoConfigAlg& tcaTarge
          const coral::AttributeList& row0 = cursor0.currentRow();
          //std::cout << "loadAlgRegister my row " << row0 << std::endl;
          string tp_name = row0["TP.TP_NAME"].data<string>();
-         int tp_value = row0["TP.TP_VALUE"].data<int>();
+         long tp_value = row0["TP.TP_VALUE"].data<long>();
          int tp_pos = row0["TP.TP_POSITION"].data<int>();
          int tp_sel = row0["TP.TP_SELECTION"].data<int>();
          tcaTarget.addParameter(tp_name,to_string(tp_value),tp_pos, tp_sel);
