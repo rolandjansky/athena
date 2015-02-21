@@ -36,6 +36,7 @@ class TrigL1TopoROBMonitor:public AthAlgorithm {
  private:
   StatusCode doCnvMon(bool);
   StatusCode doRawMon(bool);
+  StatusCode monitorROBs(const std::vector<uint32_t>&, bool);
   StatusCode monitorBlock(uint32_t sourceID, L1Topo::Header& header, std::vector<uint32_t>& vFibreSizes, std::vector<uint32_t>& vFibreStatus, std::vector<L1Topo::L1TopoTOB>& daqTobs);
   StatusCode bookAndRegisterHist(ServiceHandle<ITHistSvc>&, TH1F*& , const Histo1DProperty& prop, std::string extraName, std::string extraTitle);
   StatusCode bookAndRegisterHist(ServiceHandle<ITHistSvc>&, TH1F*& , std::string hName, std::string hTitle, int bins, float lowEdge, float highEdge);
@@ -55,6 +56,7 @@ class TrigL1TopoROBMonitor:public AthAlgorithm {
   TH1F* m_histPayloadCRCFromDAQConv;//
   TH1F* m_histFibreStatusFlagsFromDAQConv;
   //TH2F* m_histFibreSizesFromDAQConv;
+  TH1F* m_histTOBCountsFromROIROB;//
   TH1F* m_histTOBCountsFromDAQROB;//
 };
 

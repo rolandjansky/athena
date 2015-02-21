@@ -243,8 +243,11 @@ StatusCode TrigROBMonitor::execute() {
 
   if (m_hist_dataVolumeFractionForSD) {
     for (std::map< eformat::SubDetector, uint32_t >::const_iterator it = rob_Data_Volume_SD.begin(); it != rob_Data_Volume_SD.end(); ++it) {
-      float ratio = ((float)(*it).second)/((float)total_ROB_Data_Volume) ; 
-      m_hist_dataVolumeFractionForSD->Fill(eformat::helper::SourceIdentifier( (*it).first,0 ).human_detector().c_str(), ratio ,1.);
+      if(total_ROB_Data_Volume)
+      {
+        float ratio = ((float)(*it).second)/((float)total_ROB_Data_Volume) ; 
+        m_hist_dataVolumeFractionForSD->Fill(eformat::helper::SourceIdentifier( (*it).first,0 ).human_detector().c_str(), ratio ,1.);
+      }
     }
   }
 
