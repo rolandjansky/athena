@@ -282,8 +282,10 @@ StatusCode RoIBResultByteStreamTool::convert( const std::vector< ROBF >& robs,
     eformat::helper::SourceIdentifier helpL1TopoID_0( eformat::TDAQ_CALO_TOPO_PROC, m_l1TopoModuleID[0] );
     eformat::helper::SourceIdentifier helpL1TopoID_1( eformat::TDAQ_CALO_TOPO_PROC, m_l1TopoModuleID[1] );
 
-    log << MSG::DEBUG << "Check ROD ID " << rodId << " against L1Topo 0x" << MSG::hex 
-        << helpL1TopoID_0.code() << " 0x" << helpL1TopoID_1.code() << MSG::dec << endreq;
+    log << MSG::DEBUG << "Check ROD ID 0x" << MSG::hex << rodId 
+	<< " against L1Topo 0x" << MSG::hex 
+	<< helpL1TopoID_0.code() << " 0x" << helpL1TopoID_1.code() 
+	<< MSG::dec << endreq;
 
     if( rodId == helpL1TopoID_0.code() || rodId == helpL1TopoID_1.code() ) {
 
