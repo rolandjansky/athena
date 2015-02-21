@@ -53,7 +53,7 @@ class TauLLH: public TauDiscriToolBase
         std::string m_fileNameJetPDF;
         std::string m_fileNameLMTCuts;
 
-        MethodLLH* m_defllh; 
+        //MethodLLH* m_defllh; 
         MethodLLH* m_safellh; 
 };
 
