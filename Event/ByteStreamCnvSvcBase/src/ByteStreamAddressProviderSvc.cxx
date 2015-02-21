@@ -38,8 +38,8 @@ ByteStreamAddressProviderSvc::ByteStreamAddressProviderSvc(const std::string& na
 
   // set default Topo Processor RoI module IDs
   std::vector<unsigned int> default_topoProcModuleID;
-  default_topoProcModuleID.push_back(0x00910080);
-  default_topoProcModuleID.push_back(0x00910090);
+  default_topoProcModuleID.push_back(0x80);
+  default_topoProcModuleID.push_back(0x90);
   m_topoProcModuleID.setValue(default_topoProcModuleID);
 
   declareProperty("TypeNames", m_typeNames);
