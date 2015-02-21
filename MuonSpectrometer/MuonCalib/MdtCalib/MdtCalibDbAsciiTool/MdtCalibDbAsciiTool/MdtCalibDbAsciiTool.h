@@ -5,7 +5,7 @@
 #ifndef MDTCALIBDB_MDTCALIBDBASCIITOOL_H
 #define MDTCALIBDB_MDTCALIBDBASCIITOOL_H
 
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "MdtCalibInterfaces/IMdtCalibDBTool.h"
 #include "MdtCalibData/MdtTubeCalibContainerCollection.h"
 #include "MdtCalibData/MdtRtRelationCollection.h"
@@ -27,7 +27,7 @@ namespace MuonCalib
 
 
 
-class MdtCalibDbAsciiTool: public AlgTool,
+class MdtCalibDbAsciiTool: public AthAlgTool,
 	             virtual public IMdtCalibDBTool
 {
 

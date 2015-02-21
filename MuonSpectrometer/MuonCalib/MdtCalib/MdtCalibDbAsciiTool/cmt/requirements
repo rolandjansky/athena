@@ -3,6 +3,7 @@ package MdtCalibDbAsciiTool
 ########
 
 use AtlasPolicy     AtlasPolicy-* 
+use  AthenaBaseComps            AthenaBaseComps-*               Control
 use GaudiInterface  GaudiInterface-*     External
 use AtlasCLHEP      AtlasCLHEP-*         External
 use MdtCalibData    MdtCalibData-*       MuonSpectrometer/MuonCalib/MdtCalib

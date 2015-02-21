@@ -41,7 +41,7 @@ namespace MuonCalib {
 MdtCalibDbAsciiTool::MdtCalibDbAsciiTool (const std::string& type,
                              const std::string& name,
                              const IInterface* parent)
-  : AlgTool(type, name, parent), 
+  : AthAlgTool(type, name, parent), 
     m_tubeData(NULL),
     m_rtData(NULL),
     m_doCommissioning(false),
