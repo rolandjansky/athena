@@ -29,47 +29,6 @@
       <group>Valgrind_JobTransforms</group>
       <queue>long</queue>
     </jobTransform>
-
-    <jobTransform userJobId="RAWtoESD_MC_MonitoringNoTrigger">
-      <doc>Short Testjob</doc>
-      <jobTransformJobName>RAWtoESD_MC_NoTrigger</jobTransformJobName>
-      <jobTransformCmd>
-	cp ${ROOTSYS}/etc/valgrind-root.supp valgrind-root.supp; get_files newSuppressions.supp; get_files oracleDB.supp; get_files root.supp; get_files valgrindRTT.supp; get_files Gaudi.supp; get_files valgrind-python.supp ; Reco_tf.py --inputRDOFile=root://eosatlas//eos/atlas/user/a/atlaspmb/mc/valid1.117050.PowhegPythia_P2011C_ttbar.recon.RDO.e2658_s1967_s1964_r5787_tid01572821_00/RDO.01572821._000019.pool.root.1 --outputESDFile=myESD.pool.root --preInclude=RecExCommon/ValgrindTweaks.py --maxEvents=10 --preExec='rec.doTrigger=False;rec.doPerfMon.set_Value_and_Lock(False);rec.doDetailedPerfMon.set_Value_and_Lock(False);rec.doSemiDetailedPerfMon.set_Value_and_Lock(False);from PerfMonComps.PerfMonFlags import jobproperties;jobproperties.PerfMonFlags.doMonitoring.set_Value_and_Lock(False);rec.doMonitoring(True)' --execOnly  --athenaopts='--config-only=rec.pkl --stdcmalloc'; valgrind --tool=memcheck --leak-check=full --suppressions=root.supp --suppressions=valgrind-root.supp --suppressions=newSuppressions.supp --suppressions=oracleDB.supp --suppressions=valgrindRTT.supp --suppressions=Gaudi.supp --suppressions=valgrind-python.supp --num-callers=30 `which python` `which athena.py` rec.pkl  
-      </jobTransformCmd>
-      <group>Valgrind_JobTransforms</group>
-      <queue>long</queue>
-    </jobTransform>
-
-    <jobTransform userJobId="RAWtoESD_MC_NoMonitoringNoTrigger">
-      <doc>Short Testjob</doc>
-      <jobTransformJobName>RAWtoESD_MC_NoTrigger</jobTransformJobName>
-      <jobTransformCmd>
-	cp ${ROOTSYS}/etc/valgrind-root.supp valgrind-root.supp; get_files newSuppressions.supp; get_files oracleDB.supp; get_files root.supp; get_files valgrindRTT.supp; get_files Gaudi.supp; get_files valgrind-python.supp ; Reco_tf.py --inputRDOFile=root://eosatlas//eos/atlas/user/a/atlaspmb/mc/valid1.117050.PowhegPythia_P2011C_ttbar.recon.RDO.e2658_s1967_s1964_r5787_tid01572821_00/RDO.01572821._000019.pool.root.1 --outputESDFile=myESD.pool.root --preInclude=RecExCommon/ValgrindTweaks.py --maxEvents=10 --preExec='rec.doTrigger=False;rec.doPerfMon.set_Value_and_Lock(False);rec.doDetailedPerfMon.set_Value_and_Lock(False);rec.doSemiDetailedPerfMon.set_Value_and_Lock(False);from PerfMonComps.PerfMonFlags import jobproperties;jobproperties.PerfMonFlags.doMonitoring.set_Value_and_Lock(False)' --execOnly  --athenaopts='--config-only=rec.pkl --stdcmalloc'; valgrind --tool=memcheck --leak-check=full --suppressions=root.supp --suppressions=valgrind-root.supp --suppressions=newSuppressions.supp --suppressions=oracleDB.supp --suppressions=valgrindRTT.supp --suppressions=Gaudi.supp --suppressions=valgrind-python.supp --num-callers=30 `which python` `which athena.py` rec.pkl  
-      </jobTransformCmd>
-      <group>Valgrind_JobTransforms</group>
-      <queue>long</queue>
-    </jobTransform>
-
-    <jobTransform userJobId="RAWtoESD_MC_SystemOnly_NoTrigger">
-      <doc>Short Testjob</doc>
-      <jobTransformJobName>RAWtoESD_MC_SystemOnly_NoTrigger</jobTransformJobName>
-      <jobTransformCmd>
-	cp ${ROOTSYS}/etc/valgrind-root.supp valgrind-root.supp; get_files newSuppressions.supp; get_files oracleDB.supp; get_files root.supp; get_files valgrindRTT.supp; get_files Gaudi.supp; get_files valgrind-python.supp ; Reco_tf.py --inputRDOFile=root://eosatlas//eos/atlas/user/a/atlaspmb/mc/valid1.117050.PowhegPythia_P2011C_ttbar.recon.RDO.e2658_s1967_s1964_r5787_tid01572821_00/RDO.01572821._000019.pool.root.1 --outputESDFile=myESD.pool.root --preInclude=RecExCommon/ValgrindTweaks.py --maxEvents=10 --preExec='from PerfMonComps.PerfMonFlags import jobproperties as pmjp;pmjp.PerfMonFlags.doPostProcessing=True;pmjp.PerfMonFlags.doSemiDetailedMonitoringFullPrint=True;rec.doTrigger=True;rec.doForwardDet=False;rec.doInDet=True;rec.doMuon=True;rec.doCalo=True;rec.doEgamma=False;rec.doMuonCombined=False;rec.doJetMissingETTag=False;rec.doTau=False;from RecExConfig.RecAlgsFlags import recAlgs;recAlgs.doMuonSpShower=False;rec.doBTagging=False;recAlgs.doEFlow=False;recAlgs.doEFlowJet=False;recAlgs.doMissingET=False;recAlgs.doMissingETSig=False; from JetRec.JetRecFlags import jetFlags;jetFlags.Enabled=False' --execOnly --athenaopts='--config-only=rec.pkl --stdcmalloc'; valgrind --tool=memcheck --leak-check=full --suppressions=root.supp --suppressions=valgrind-root.supp --suppressions=newSuppressions.supp --suppressions=oracleDB.supp --suppressions=valgrindRTT.supp --suppressions=Gaudi.supp --suppressions=valgrind-python.supp --num-callers=30 `which python` `which athena.py` rec.pkl  
-      </jobTransformCmd>
-      <group>Valgrind_JobTransforms</group>
-      <queue>long</queue>
-    </jobTransform>
-    <jobTransform userJobId="RAWtoESD_MC_SystemOnly_Trigger">
-      <doc>Short Testjob</doc>
-      <jobTransformJobName>RAWtoESD_MC_SystemOnly_Trigger</jobTransformJobName>
-      <jobTransformCmd>
-	cp ${ROOTSYS}/etc/valgrind-root.supp valgrind-root.supp; get_files newSuppressions.supp; get_files oracleDB.supp; get_files root.supp; get_files valgrindRTT.supp; get_files Gaudi.supp; get_files valgrind-python.supp ; Reco_tf.py --inputRDOFile=root://eosatlas//eos/atlas/user/a/atlaspmb/mc/valid1.117050.PowhegPythia_P2011C_ttbar.recon.RDO.e2658_s1967_s1964_r5787_tid01572821_00/RDO.01572821._000019.pool.root.1 --outputESDFile=myESD.pool.root --preInclude=RecExCommon/ValgrindTweaks.py --maxEvents=10 --preExec='from PerfMonComps.PerfMonFlags import jobproperties as pmjp;pmjp.PerfMonFlags.doPostProcessing=True;pmjp.PerfMonFlags.doSemiDetailedMonitoringFullPrint=True;rec.doTrigger=True;rec.doForwardDet=False;rec.doInDet=True;rec.doMuon=True;rec.doCalo=True;rec.doEgamma=False;rec.doMuonCombined=False;rec.doJetMissingETTag=False;rec.doTau=False;from RecExConfig.RecAlgsFlags import recAlgs;recAlgs.doMuonSpShower=False;rec.doBTagging=False;recAlgs.doEFlow=False;recAlgs.doEFlowJet=False;recAlgs.doMissingET=False;recAlgs.doMissingETSig=False; from JetRec.JetRecFlags import jetFlags;jetFlags.Enabled=False' --execOnly --athenaopts='--config-only=rec.pkl --stdcmalloc'; valgrind --tool=memcheck --leak-check=full --suppressions=root.supp --suppressions=valgrind-root.supp --suppressions=newSuppressions.supp --suppressions=oracleDB.supp --suppressions=valgrindRTT.supp --suppressions=Gaudi.supp --suppressions=valgrind-python.supp --num-callers=30 `which python` `which athena.py` rec.pkl  
-      </jobTransformCmd>
-      <group>Valgrind_JobTransforms</group>
-      <queue>long</queue>
-    </jobTransform>
-
-
     <!-- ENDE -->
   </jobList>
   
