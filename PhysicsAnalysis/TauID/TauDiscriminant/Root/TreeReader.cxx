@@ -635,7 +635,7 @@ Node* TreeReader::build(
         }
         if (type != 'F' && type != 'I')
         {
-            print("Unsupported variable type found in the discriminant file: "+type);
+            print("Unsupported variable type found in the discriminant file: "+std::to_string(type));
             return 0;
         }
         binningVariableTypeList[j] = type;
@@ -677,7 +677,7 @@ Node* TreeReader::build(
         }
         if (type != 'F' && type != 'I')
         {
-            print("Unsupported variable type found in the discriminant file: "+type);
+            print("Unsupported variable type found in the discriminant file: "+std::to_string(type));
             delete categoryTree;
             return 0;
         }
