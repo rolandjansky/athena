@@ -31,6 +31,24 @@
 #include <algorithm>
 #include <vector>
 #include <iomanip>
+#include <sstream>
+
+
+// To be moved to L1TopoRDO Helpers.cxx
+namespace L1Topo{
+  const std::string formatVecHex8(const std::vector<uint32_t>& vec)
+  {
+    std::ostringstream s;
+    s << "[ ";
+    for (auto elem: vec){
+      s << std::hex << std::showbase << std::setfill('0') << std::setw(8) 
+        << elem << " " << std::dec << std::noshowbase;
+    }
+    s << "]";
+    return s.str();
+  }
+}
+
 
 TrigL1TopoROBMonitor::TrigL1TopoROBMonitor(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator), 
@@ -44,11 +62,13 @@ TrigL1TopoROBMonitor::TrigL1TopoROBMonitor(const std::string& name, ISvcLocator*
   m_histPayloadCRCFromDAQConv(0),
   m_histFibreStatusFlagsFromDAQConv(0),
   //m_histFibreSizesFromDAQConv(0),
+  m_histTOBCountsFromROIROB(0),
   m_histTOBCountsFromDAQROB(0)
 {
   m_scaler = new HLT::PeriodicScaler();
-  declareProperty("L1TopoDAQROBIDs", m_vDAQROBIDs = {0x00910090, 0x00910011}, "L1TOPO DAQ ROB IDs");
-  declareProperty("L1TopoROIROBIDs", m_vROIROBIDs = {0x00910080, 0x00910001},"L1Topo ROI ROB IDs");
+  // 0x00910000 was used for tests; the others are the planned source IDs
+  declareProperty("L1TopoDAQROBIDs", m_vDAQROBIDs = {0x00910000, 0x00910001, 0x00910011}, "L1TOPO DAQ ROB IDs");
+  declareProperty("L1TopoROIROBIDs", m_vROIROBIDs = {0x00910080, 0x00910090},"L1Topo ROI ROB IDs");
   declareProperty("PrescaleDAQROBAccess", m_prescaleForDAQROBAccess = 2, "Prescale factor for requests for DAQ ROBs: can be used to avoid overloading ROS. Zero means disabled, 1 means always, N means sample only 1 in N events");
   declareProperty("doRawMon", m_doRawMon = true, "enable L1Topp monitoring direct from ROB fragments");
   declareProperty("doCnvMon", m_doCnvMon = true, "enable L1Topo monitoring via converters");
@@ -98,7 +118,7 @@ StatusCode TrigL1TopoROBMonitor::execute() {
 }
 
 StatusCode TrigL1TopoROBMonitor::finalize() {
-  ATH_MSG_INFO ("finialize");
+  ATH_MSG_INFO ("finalize");
   delete m_scaler;
   m_scaler=0;
   return StatusCode::SUCCESS;
@@ -143,11 +163,13 @@ StatusCode TrigL1TopoROBMonitor::beginRun() {
   CHECK( bookAndRegisterHist(rootHistSvc, m_histTriggerBitsFromROIConv, "L1Topo CTP signal trigger bits from ROI via converter", "L1Topo CTP signal trigger bits from ROI via converter;overflow bits", 128, 0, 128) );
   CHECK( bookAndRegisterHist(rootHistSvc, m_histPayloadCRCFromDAQConv, m_histPropNoBins, "L1Topo payload CRC from DAQ via converter", "non zero payload CRCs via converter;Payload CRC") );
   CHECK( bookAndRegisterHist(rootHistSvc, m_histFibreStatusFlagsFromDAQConv, "L1Topo Fibre status flags from DAQ via converter", "L1Topo Fibre status flags from DAQ via converter; fibre status flags", 70, 0, 70) );
-  CHECK( bookAndRegisterHist(rootHistSvc, m_histTOBCountsFromDAQROB, "L1Topo TOB types from DAQ direct from ROBs", "4-bit TOB type via ROB;TOB type", 16, 0, 16) );
+  CHECK( bookAndRegisterHist(rootHistSvc, m_histTOBCountsFromROIROB, "L1Topo TOB types from ROI direct from ROBs", "4-bit TOB type via ROI ROB;TOB type", 16, 0, 16) );
+  CHECK( bookAndRegisterHist(rootHistSvc, m_histTOBCountsFromDAQROB, "L1Topo TOB types from DAQ direct from ROBs", "4-bit TOB type via DAQ ROB;TOB type", 16, 0, 16) );
   std::vector<std::string> labels = {"EM","TAU","MU","0x3","JETc1","JETc2","ENERGY","0x7","L1TOPO","0x9","0xa","0xb","HEADER","FIBRE","STATUS","0xf"};
   
   for (unsigned int i=0; i<16; ++i){
-    ATH_MSG_VERBOSE ("bin " << i+1 << " " << labels.at(i));
+    //ATH_MSG_VERBOSE ("bin " << i+1 << " " << labels.at(i));
+    m_histTOBCountsFromROIROB->GetXaxis()->SetBinLabel(i+1,labels.at(i).c_str());
     m_histTOBCountsFromDAQROB->GetXaxis()->SetBinLabel(i+1,labels.at(i).c_str());
   }
   
@@ -167,44 +189,58 @@ StatusCode TrigL1TopoROBMonitor::endRun() {
 StatusCode TrigL1TopoROBMonitor::doRawMon(bool prescalForDAQROBAccess) {
   ATH_MSG_DEBUG( "doRawMon" );
   
-  // Prepare list of ROBs to use: 
-  // always ROI ROBS, 
-  // but observe the prescale on DAQ ROBs, to protect the ROS. 
-  std::vector<uint32_t> vROBIDs = m_vROIROBIDs.value();
+  CHECK( monitorROBs(m_vROIROBIDs.value(),true) ); //isROIROB=true
+  
   if (prescalForDAQROBAccess){
-    vROBIDs.insert(vROBIDs.end(), m_vDAQROBIDs.value().begin(), m_vDAQROBIDs.value().end());
+    CHECK( monitorROBs(m_vDAQROBIDs.value(),false) ); //isROIROB=false
   }
-  ATH_MSG_VERBOSE( "ROB IDs requested: " << vROBIDs);
+  return StatusCode::SUCCESS;
+}
+
+StatusCode TrigL1TopoROBMonitor::monitorROBs(const std::vector<uint32_t>& vROBIDs, bool isROIROB){
+
+  // Iterate over the ROB fragments and histogram their source IDs
+  ATH_MSG_VERBOSE( "ROB IDs of type " << (isROIROB?"ROI":"DAQ") << " requested: " << L1Topo::formatVecHex8(vROBIDs));
 
   // Fetch the ROB fragments
   std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*> vRobFrags;
   vRobFrags.reserve(vROBIDs.size());
   m_robDataProviderSvc->getROBData(vROBIDs,vRobFrags);
   if (vRobFrags.empty()) {
-    ATH_MSG_WARNING( "No L1Topo ROBs found" );
+    ATH_MSG_WARNING( "None of these ROBs found" );
   }
 
-  // Iterate over the ROB fragments and histogram their source IDs
+  // loop over ROB fragments
   for (auto & rob : vRobFrags){
+
     ATH_MSG_DEBUG( "RawMon: found ROB ID " << L1Topo::formatHex8(rob->source_id()) );
+    scoped_lock_histogram lock;
     m_histSIDsDirectFromROBs->Fill(L1Topo::formatHex8(rob->source_id()).c_str(), 1.);
     m_histSIDsDirectFromROBs->LabelsDeflate("X");
-
+    
     // Go through the data words in the ROB and histogram the word types 
     // (TOB type etc.).
     OFFLINE_FRAGMENTS_NAMESPACE::PointerType it_data = rob->rod_data();
     const uint32_t ndata = rob->rod_ndata();
     ATH_MSG_VERBOSE( "L1Topo data words:");
+
+    // loop over data words
     for ( unsigned int i = 0; i < ndata; ++i, ++it_data ) {
       ATH_MSG_VERBOSE( L1Topo::formatHex8(*it_data) );
-      auto type = L1Topo::blockType(static_cast<uint32_t>(*it_data));
-      m_histTOBCountsFromDAQROB->Fill(static_cast<float>(type),1.);
-    }
-  }
+      auto blockType = L1Topo::blockType(static_cast<uint32_t>(*it_data));
+      if (isROIROB){
+        m_histTOBCountsFromROIROB->Fill(static_cast<float>(blockType),1.);
+      } 
+      else {
+        m_histTOBCountsFromDAQROB->Fill(static_cast<float>(blockType),1.);
+      }
+    } // loop over data words
+
+  }//  loop over rob fragments
   
   return StatusCode::SUCCESS;
 }
-
+  
 StatusCode TrigL1TopoROBMonitor::doCnvMon(bool prescalForDAQROBAccess) {
 
   ATH_MSG_DEBUG( "doCnvMon" );
@@ -289,9 +325,7 @@ StatusCode TrigL1TopoROBMonitor::doCnvMon(bool prescalForDAQROBAccess) {
         // initialise colletions filled for each block
         std::vector<L1Topo::L1TopoTOB> daqTobs;
         std::vector<uint32_t> vFibreSizes;
-        auto vFibreSizesIt = vFibreSizes.begin();
         std::vector<uint32_t> vFibreStatus;
-        auto vFibreStatusIt = vFibreStatus.begin();
         // initialise header: beware, this can make a valid-looking header and be misinterpreted; set version 15, BCN -7, which is unlikely:
         L1Topo::Header header(0xf,0,0,0,0,1,0x7); 
         bool firstWord=true;
@@ -306,20 +340,20 @@ StatusCode TrigL1TopoROBMonitor::doCnvMon(bool prescalForDAQROBAccess) {
               header = L1Topo::Header(word);
               // reset containers
               vFibreSizes.clear();
-              vFibreSizes.resize(header.active_fibres());
-              vFibreSizesIt=vFibreSizes.begin();
               vFibreStatus.clear();
-              vFibreStatus.resize(header.active_fibres());
-              vFibreStatusIt=vFibreStatus.begin();
               daqTobs.clear();
               break;
             }
           case L1Topo::BlockTypes::FIBRE:
             {
               auto fibreBlock = L1Topo::Fibre(word);
-              std::copy(fibreBlock.count().begin(),fibreBlock.count().end(),vFibreSizesIt);
-              std::copy(fibreBlock.status().begin(),fibreBlock.status().end(),vFibreStatusIt);
-              // vFibreSizesIt is incremented by copy
+              unsigned int nFibres = fibreBlock.count().size();
+              for (auto fsize: fibreBlock.count()){
+                vFibreSizes.push_back(fsize);
+              }
+              for (auto fstatus: fibreBlock.status()){
+                vFibreStatus.push_back(fstatus);
+              }
               break;
             }
           case L1Topo::BlockTypes::STATUS:
@@ -346,30 +380,34 @@ StatusCode TrigL1TopoROBMonitor::doCnvMon(bool prescalForDAQROBAccess) {
         } // for word
         // monitor last block
         
-        CHECK( monitorBlock(rdo->getSourceID(),header,vFibreSizes,vFibreStatus,daqTobs) );
+	  CHECK( monitorBlock(rdo->getSourceID(),header,vFibreSizes,vFibreStatus,daqTobs) );
       }
     }
- 
+    
   // Compare ROI and DAQ L1Topo TOBS
 
   // need to sort them first
-  /*
-  if (daqTobsBC0==roiTobs){
-    ATH_MSG_DEBUG( "DAQ L1Topo TOBs from BC0 are the same as ROI L1Topo TOBs" );
+    
+    /*
+      if (daqTobsBC0==roiTobs){
+      ATH_MSG_DEBUG( "DAQ L1Topo TOBs from BC0 are the same as ROI L1Topo TOBs" );
+      }
+      else {
+      ATH_MSG_WARNING( "DAQ L1Topo TOBs from BC0 are NOT the same as ROI L1Topo TOBs" );
+      }
+      //compareL1TopoTOBs(daqTobsBC0,roiTobs);
+    */
+
   }
   else {
-    ATH_MSG_WARNING( "DAQ L1Topo TOBs from BC0 are NOT the same as ROI L1Topo TOBs" );
+    ATH_MSG_DEBUG( "DAQ ROB access via converter skipped due to prescale" );
   }
-  //compareL1TopoTOBs(daqTobsBC0,roiTobs);
-  */
-
-  } // if prescaler said yes
 
   return StatusCode::SUCCESS;
 
 }
 
-StatusCode TrigL1TopoROBMonitor::monitorBlock(uint32_t sourceID, L1Topo::Header& header, std::vector<uint32_t>& /* vFibreSizes */, std::vector<uint32_t>& vFibreStatus, std::vector<L1Topo::L1TopoTOB>& /* daqTobs */) {
+  StatusCode TrigL1TopoROBMonitor::monitorBlock(uint32_t sourceID, L1Topo::Header& header, std::vector<uint32_t>& /* vFibreSizes */, std::vector<uint32_t>& vFibreStatus, std::vector<L1Topo::L1TopoTOB>& /* daqTobs */) {
   ATH_MSG_DEBUG( "monitorBlock" );
   ATH_MSG_DEBUG( header );
   if (header.payload_crc()!=0){
@@ -378,6 +416,9 @@ StatusCode TrigL1TopoROBMonitor::monitorBlock(uint32_t sourceID, L1Topo::Header&
     m_histPayloadCRCFromDAQConv->Fill( (L1Topo::formatHex8(header.payload_crc())).c_str(), 1. );
     m_histPayloadCRCFromDAQConv->LabelsDeflate("X");
   }
+  if (vFibreStatus.size()!=header.active_fibres()){
+    ATH_MSG_WARNING( "Mismatch between number of fibres declared in header " << header.active_fibres() << " and number found " << vFibreStatus.size() );
+  }
   for (unsigned int i=0; i<vFibreStatus.size(); ++i){
     if (vFibreStatus.at(i)!=0){
       ATH_MSG_WARNING( "Fibre status set for fibre " << i << " of ROB " << L1Topo::formatHex8(sourceID) << " header " << header );
@@ -385,7 +426,6 @@ StatusCode TrigL1TopoROBMonitor::monitorBlock(uint32_t sourceID, L1Topo::Header&
     scoped_lock_histogram lock;
     m_histFibreStatusFlagsFromDAQConv->Fill(i,vFibreStatus.at(i));
   }
-  
   return StatusCode::SUCCESS;
 }
 
