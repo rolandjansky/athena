@@ -152,7 +152,7 @@ typedef DataVector<H> HVec;
 
 class EDer : public EVec
 {
-private:
+public:
   int m_dummy[20];
 };
 

@@ -1025,9 +1025,8 @@ ROOT.RootConversions.VectorConverters.initialize()
 cppyy.loadDictionary('libDataModelAthenaPool')
 ROOT.DataModelAthenaPool.CLHEPConverters
 ROOT.DataModelAthenaPool.installPackedContainerConverters()
-if hasattr(ROOT, 'CaloEnergy_p2'):
-    ROOT.CaloEnergy_p2 # side-effect: loads the right dict + lib
-    ROOT.caloenergy_cnv_p2_register_streamer()
+if hasattr(ROOT, 'CaloEnergyCnv_p2_register_streamer'):
+   ROOT.CaloEnergyCnv_p2_register_streamer.reg()
 
 ROOT.TConvertingBranchElement.SetDoDel (True)
 

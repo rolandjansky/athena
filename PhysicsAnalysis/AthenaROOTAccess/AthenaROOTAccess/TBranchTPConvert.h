@@ -427,7 +427,7 @@ private:
       m_br->m_reading_entry = m_old_entry;
     }
   };
-  friend class ReadingEntry;
+  friend struct ReadingEntry;
 
   /// Aux store handling.
   int m_trans_holder_offset;
