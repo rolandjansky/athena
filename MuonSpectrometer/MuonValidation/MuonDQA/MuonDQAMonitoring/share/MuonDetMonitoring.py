@@ -73,7 +73,7 @@ MuonDQADetFlags.doMuonSegmMon = False
 MuonDQADetFlags.doCSCSegmMon = False
 
 ## --- Muon StandAlone Trk Monitoring and MuonCombined options
-MuonDQADetFlags.doMuonTrackMon = False
+MuonDQADetFlags.doMuonTrackMon = True
 
 ## --- MuonTrk Trigger Aware Monitoring options
 MuonDQADetFlags.MuonTrkMonDoTrigger = False 
@@ -170,26 +170,6 @@ if DQMonFlags.doMuonTrackMon():
                include ("MuonTrackMonitoring/MuonTrigTrackDQA_options.py")
    except Exception:
        treatException("DataQualitySteering_jobOptions.py: exception when setting up Muon track monitoring")
-
-##-------------------------------#
-## MuonCombined track monitoring #
-##-------------------------------#
-#if DQMonFlags.doMuonCombinedMon():
-#    try:
-#        if MuonDQADetFlags.doMuonCombTrackMon():
-#            include ("MuonCombinedTrackMonitoring/MuonCombinedTrackDQA_options.py")
-#    except Exception:
-#        treatException("DataQualitySteering_jobOptions.py: exception when setting up Muon CombTrack monitoring")
- 
-#---------------------------#
-# Muon alignment monitoring #
-#---------------------------#
-if DQMonFlags.doMuonAlignMon():
-    try:
-        if MuonDQADetFlags.doMuonTrkAlignMon():
-            include ("MuonAlignMonitoring/MuonAlignDQA_options.py")
-    except Exception:
-        treatException("DataQualitySteering_jobOptions.py: exception when setting up Muon alignment monitoring")
 
 #-------------------------#
 # MuonTrkPhys  monitoring #
