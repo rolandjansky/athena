@@ -385,7 +385,7 @@ int ExpatCoreParser::generic_parse (XML_Parser p, const std::string& file_name)
       
       //std::cout << "2) read=" << items << " [" << buff << "] " << done << std::endl;
       
-      if (! XML_ParseBuffer (p, BUFFSIZE, done)) 
+      if (XML_ParseBuffer (p, BUFFSIZE, done) == XML_STATUS_ERROR) 
 	{
 	  if (!done)
 	    {
@@ -435,15 +435,12 @@ int ExpatCoreParser::generic_text_parse (XML_Parser p, const std::string& text)
 
       int done = 1;
 
-      if (! XML_ParseBuffer (p, text.size(), done)) 
+      if (XML_ParseBuffer (p, text.size(), done) == XML_STATUS_ERROR) 
 	{
-	  if (!done)
-	    {
-	      std::cout << "ExpatCoreParser::Parse error at line " << XML_GetCurrentLineNumber(p)
-			<< ":" << std::endl
-			<< XML_ErrorString (XML_GetErrorCode(p)) << std::endl;
-	      result = 0;
-	    }
+            std::cout << "ExpatCoreParser::Parse error at line " << XML_GetCurrentLineNumber(p)
+                      << ":" << std::endl
+                      << XML_ErrorString (XML_GetErrorCode(p)) << std::endl;
+            result = 0;
 	  /* handle parse error */
 	}
       if (done) break;

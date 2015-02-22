@@ -303,10 +303,10 @@ bool XMLCoreFactory::check_double (const int n, const XMLCoreNode& node, const s
                 << " doubles in \"" << checkstring << "\" for attribute " <<  
           name << ". exit." << std::endl; 
  
-      std::string name   = get_value (node, "name"); 
+      std::string name1  = get_value (node, "name"); 
       std::string volume = get_value (node, "volume"); 
  
-      if (name != "" ) std::cerr << "for name=" << name << std::endl; 
+      if (name1 != "" ) std::cerr << "for name=" << name << std::endl; 
       if (volume != "" ) std::cerr << "for volume=" << volume << std::endl; 
  
       exit(4); 
