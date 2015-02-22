@@ -166,7 +166,7 @@
 		<doc>RecoTrf</doc>
 		<jobTransformJobName>Run00183904_CosmicCalo_noField</jobTransformJobName>
 		<jobTransformCmd>		  
-                  tct_recotrf.py --jobnum=0 --nfiles=3 --maxEvents=500 --trigStream=CosmicCalo --runnum=00183904 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00183904/physics_CosmicCalo --AMI=q205 --lumiblock=6,8 --dropDESDs --dropDRAWs --dropNTUPs --preExec "'rec.doTrigger=False;BTaggingFlags.CalibrationTag=\"BTagCalibALL-07-09\";'"
+                  tct_recotrf.py --jobnum=0 --nfiles=3 --maxEvents=500 --trigStream=CosmicCalo --runnum=00183904 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00183904/physics_CosmicCalo --AMI=q205 --lumiblock=6,8 --dropDESDs --dropDRAWs --dropNTUPs --preExec "'rec.doTrigger=False;'" --conditionsTag="COMCOND-BLKPA-RUN1-07"
 		</jobTransformCmd> 
 		<group>TCTTransform</group>	
                 <queue>medium</queue>
@@ -201,7 +201,7 @@
 		<doc>RecoTrf</doc>
 		<jobTransformJobName>Run00184074_IDCosmic0</jobTransformJobName>
 		<jobTransformCmd>		  
-                  tct_recotrf.py --jobnum=0 --nfiles=3 --maxEvents=500 --trigStream=IDCosmic --runnum=00184074 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00184074/physics_IDCosmic --AMI=q205 --lumiblock=100,102 --dropDESDs --dropDRAWs --dropNTUPs --preExec "'rec.doTrigger=False;BTaggingFlags.CalibrationTag=\"BTagCalibALL-07-09\";'"
+                  tct_recotrf.py --jobnum=0 --nfiles=3 --maxEvents=500 --trigStream=IDCosmic --runnum=00184074 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00184074/physics_IDCosmic --AMI=q205 --lumiblock=100,102 --dropDESDs --dropDRAWs --dropNTUPs --preExec "'rec.doTrigger=False;'" --conditionsTag="COMCOND-BLKPA-RUN1-07"
 		</jobTransformCmd> 
 		<group>TCTTransform</group>	
                 <queue>medium</queue>
@@ -236,7 +236,7 @@
 		<doc>RecoTrf with beamType=collisions</doc>
 		<jobTransformJobName>Run00183021_MinBias0_Collisions</jobTransformJobName>
 		<jobTransformCmd>		  
-                  tct_recotrf.py --jobnum=0 --nfiles=3 --maxEvents=500 --trigStream=MinBias --runnum=00183021 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00183021/physics_MinBias --AMI=q205 --lumiblock=550,552 --dropDESDs --dropDRAWs --dropNTUPs --preExec "'rec.doTrigger=False;BTaggingFlags.CalibrationTag=\"BTagCalibALL-07-09\";'"
+                  tct_recotrf.py --jobnum=0 --nfiles=3 --maxEvents=500 --trigStream=MinBias --runnum=00183021 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00183021/physics_MinBias --AMI=q205 --lumiblock=550,552 --dropDESDs --dropDRAWs --dropNTUPs --preExec "'rec.doTrigger=False;'" --conditionsTag="COMCOND-BLKPA-RUN1-07"
 		</jobTransformCmd> 
 		<group>TCTTransform</group>	
                 <queue>medium</queue>
@@ -271,7 +271,7 @@
 		<doc>RecoTrf with beamType=collisions</doc>
 		<jobTransformJobName>Run00183021_JetTauEtmiss0_Collisions</jobTransformJobName>
 		<jobTransformCmd>		  
-                  tct_recotrf.py --jobnum=0 --nfiles=3 --maxEvents=500 --trigStream=JetTauEtmiss --runnum=00183021 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00183021/physics_JetTauEtmiss --AMI=q205 --lumiblock=550,552 --dropDESDs --dropDRAWs --dropNTUPs --preExec "'rec.doTrigger=False;BTaggingFlags.CalibrationTag=\"BTagCalibALL-07-09\";'"
+                  tct_recotrf.py --jobnum=0 --nfiles=3 --maxEvents=500 --trigStream=JetTauEtmiss --runnum=00183021 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00183021/physics_JetTauEtmiss --AMI=q205 --lumiblock=550,552 --dropDESDs --dropDRAWs --dropNTUPs --preExec "'rec.doTrigger=False;'" --conditionsTag="COMCOND-BLKPA-RUN1-07"
 		</jobTransformCmd> 
 		<group>TCTTransform</group>
                 <queue>medium</queue>
@@ -306,7 +306,7 @@
 		<doc>RecoTrf with beamType=collisions</doc>
 		<jobTransformJobName>Run00183021_Muons_Collisions</jobTransformJobName>
 		<jobTransformCmd>		  
-                  tct_recotrf.py --jobnum=0 --nfiles=3 --maxEvents=500 --trigStream=Muons --runnum=00183021 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00183021/physics_Muons --AMI=q205 --lumiblock=550,552 --dropDESDs --dropDRAWs --dropNTUPs --preExec "'rec.doTrigger=False;BTaggingFlags.CalibrationTag=\"BTagCalibALL-07-09\";'"
+                  tct_recotrf.py --jobnum=0 --nfiles=3 --maxEvents=500 --trigStream=Muons --runnum=00183021 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00183021/physics_Muons --AMI=q205 --lumiblock=550,552 --dropDESDs --dropDRAWs --dropNTUPs --preExec "'rec.doTrigger=False;'" --conditionsTag="COMCOND-BLKPA-RUN1-07"
 		</jobTransformCmd> 
 		<group>TCTTransform</group>
                 <queue>medium</queue>
@@ -342,7 +342,7 @@
 		<doc>RecoTrf with beamType=collisions</doc>
 		<jobTransformJobName>Run00184169_Egamma_Collisions</jobTransformJobName>
 		<jobTransformCmd>		  
-                  tct_recotrf.py --jobnum=0 --nfiles=3 --maxEvents=500 --trigStream=Egamma --runnum=00184169 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00184169/physics_Egamma --AMI=q205 --lumiblock=900,902 --dropDESDs --dropDRAWs --dropNTUPs --preExec "'rec.doTrigger=False;BTaggingFlags.CalibrationTag=\"BTagCalibALL-07-09\";'"
+                  tct_recotrf.py --jobnum=0 --nfiles=3 --maxEvents=500 --trigStream=Egamma --runnum=00184169 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00184169/physics_Egamma --AMI=q205 --lumiblock=900,902 --dropDESDs --dropDRAWs --dropNTUPs --preExec "'rec.doTrigger=False;'" --conditionsTag="COMCOND-BLKPA-RUN1-07"
 		</jobTransformCmd> 
 		<group>TCTTransform</group>
                 <queue>medium</queue>
@@ -384,7 +384,7 @@
                 <doc>RecoTrf</doc>
                 <jobTransformJobName>EgammaStream_Run204073_Pileup_30_Collisions</jobTransformJobName>
                 <jobTransformCmd>   
-                  tct_recotrf.py --jobnum=0 --trigStream=Egamma --nfiles=2 --maxEvents=300 --runnum=00204073 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00204073/physics_Egamma/ --AMI=q205 --autoConfiguration=everything --conditionsTag=COMCOND-BLKPA-RUN1-05 --geometryVersion=ATLAS-GEO-20-00-02 --lumiblock=144,145 --dropDESDs --dropDRAWs --dropNTUPs --preExec "'rec.doTrigger=False;BTaggingFlags.CalibrationTag=\"BTagCalibALL-07-09\";'"
+                  tct_recotrf.py --jobnum=0 --trigStream=Egamma --nfiles=2 --maxEvents=300 --runnum=00204073 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00204073/physics_Egamma/ --AMI=q205 --autoConfiguration=everything --conditionsTag=COMCOND-BLKPA-RUN1-05 --geometryVersion=ATLAS-GEO-20-00-02 --lumiblock=144,145 --dropDESDs --dropDRAWs --dropNTUPs --preExec "'rec.doTrigger=False;'" --conditionsTag="COMCOND-BLKPA-RUN1-07"
                 </jobTransformCmd>
                 <group>TCTTransform</group>
                 <queue>medium</queue>
@@ -419,7 +419,7 @@
                 <doc>RecoTrf</doc>
                 <jobTransformJobName>MuonsStream_Run204073_Pileup_30_Collisions</jobTransformJobName>
                 <jobTransformCmd>   
-                  tct_recotrf.py --jobnum=0 --trigStream=Muons --nfiles=2 --maxEvents=300 --runnum=00204073 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00204073/physics_Muons/ --AMI=q205 --autoConfiguration=everything --conditionsTag=COMCOND-BLKPA-RUN1-05 --geometryVersion=ATLAS-GEO-20-00-02 --lumiblock=144,145 --dropDESDs --dropDRAWs --dropNTUPs --preExec "'rec.doTrigger=False;BTaggingFlags.CalibrationTag=\"BTagCalibALL-07-09\";'"
+                  tct_recotrf.py --jobnum=0 --trigStream=Muons --nfiles=2 --maxEvents=300 --runnum=00204073 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00204073/physics_Muons/ --AMI=q205 --autoConfiguration=everything --conditionsTag=COMCOND-BLKPA-RUN1-05 --geometryVersion=ATLAS-GEO-20-00-02 --lumiblock=144,145 --dropDESDs --dropDRAWs --dropNTUPs --preExec "'rec.doTrigger=False;'" --conditionsTag="COMCOND-BLKPA-RUN1-07"
                 </jobTransformCmd>
                 <group>TCTTransform</group>
                 <queue>medium</queue>
@@ -454,7 +454,7 @@
                 <doc>RecoTrf</doc>
                 <jobTransformJobName>JetTauEtmissStream_Run204073_Pileup_30_Collisions</jobTransformJobName>
                 <jobTransformCmd>   
-                  tct_recotrf.py --jobnum=0 --trigStream=JetTauEtmiss --nfiles=2 --maxEvents=300 --runnum=00204073 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00204073/physics_JetTauEtmiss/ --AMI=q205 --autoConfiguration=everything --conditionsTag=COMCOND-BLKPA-RUN1-05 --geometryVersion=ATLAS-GEO-20-00-02 --lumiblock=144,145 --dropDESDs --dropDRAWs --dropNTUPs --preExec "'rec.doTrigger=False;BTaggingFlags.CalibrationTag=\"BTagCalibALL-07-09\";'"
+                  tct_recotrf.py --jobnum=0 --trigStream=JetTauEtmiss --nfiles=2 --maxEvents=300 --runnum=00204073 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00204073/physics_JetTauEtmiss/ --AMI=q205 --autoConfiguration=everything --conditionsTag=COMCOND-BLKPA-RUN1-05 --geometryVersion=ATLAS-GEO-20-00-02 --lumiblock=144,145 --dropDESDs --dropDRAWs --dropNTUPs --preExec "'rec.doTrigger=False;'" --conditionsTag="COMCOND-BLKPA-RUN1-07"
                 </jobTransformCmd>
                 <group>TCTTransform</group>
                 <queue>medium</queue>
@@ -489,7 +489,7 @@
                 <doc>RecoTrf</doc>
                 <jobTransformJobName>MinBiasStream_Run204073_Pileup_30_Collisions</jobTransformJobName>
                 <jobTransformCmd>   
-                  tct_recotrf.py --jobnum=0 --trigStream=MinBias --nfiles=2 --maxEvents=300 --runnum=00204073 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00204073/physics_MinBias/ --AMI=q205 --autoConfiguration=everything --conditionsTag=COMCOND-BLKPA-RUN1-05 --geometryVersion=ATLAS-GEO-20-00-02 --lumiblock=144,145 --dropDESDs --dropDRAWs --dropNTUPs --preExec "'rec.doTrigger=False;BTaggingFlags.CalibrationTag=\"BTagCalibALL-07-09\";'"
+                  tct_recotrf.py --jobnum=0 --trigStream=MinBias --nfiles=2 --maxEvents=300 --runnum=00204073 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00204073/physics_MinBias/ --AMI=q205 --autoConfiguration=everything --conditionsTag=COMCOND-BLKPA-RUN1-05 --geometryVersion=ATLAS-GEO-20-00-02 --lumiblock=144,145 --dropDESDs --dropDRAWs --dropNTUPs --preExec "'rec.doTrigger=False;'" --conditionsTag="COMCOND-BLKPA-RUN1-07"
                 </jobTransformCmd>
                 <group>TCTTransform</group>
                 <queue>medium</queue>
@@ -530,7 +530,7 @@
 		    <doc>RecoTrf</doc>
 		    <jobTransformJobName>EgammaStream_Run201489_Pileup_20_Collisions</jobTransformJobName>
 		    <jobTransformCmd>   
-		      tct_recotrf.py --jobnum=0 --trigStream=Egamma --nfiles=2 --maxEvents=375 --runnum=00201489 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00201489/physics_Egamma/ --AMI=q205 --autoConfiguration=everything --conditionsTag=COMCOND-BLKPA-RUN1-05 --geometryVersion=ATLAS-GEO-20-00-02 --lumiblock=9,10 --dropDESDs --dropNTUPs --preExec "'rec.doTrigger=False;BTaggingFlags.CalibrationTag=\"BTagCalibALL-07-09\";'"
+		      tct_recotrf.py --jobnum=0 --trigStream=Egamma --nfiles=2 --maxEvents=375 --runnum=00201489 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00201489/physics_Egamma/ --AMI=q205 --autoConfiguration=everything --conditionsTag=COMCOND-BLKPA-RUN1-05 --geometryVersion=ATLAS-GEO-20-00-02 --lumiblock=9,10 --dropDESDs --dropDRAWs --dropNTUPs --preExec "'rec.doTrigger=False;'" --conditionsTag="COMCOND-BLKPA-RUN1-07"
 		    </jobTransformCmd>
 		    <group>TCTTransform</group>
 		    <queue>medium</queue>
@@ -573,7 +573,7 @@
 		      <doc>RecoTrf with beamType=collisions</doc>
 		      <jobTransformJobName>EgammaStream_Run201489_Pileup_20_Collisions_withoutHIST</jobTransformJobName>
 		      <jobTransformCmd>               
-			tct_recotrf.py --jobnum=2 --trigStream=Egamma --nfiles=2 --maxEvents=375 --runnum=00201489 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00201489/physics_Egamma/ --AMI=q205 --autoConfiguration=everything --conditionsTag=COMCOND-BLKPA-RUN1-05 --geometryVersion=ATLAS-GEO-20-00-02 --lumiblock=9,10 --dropHIST --dropDESDs --dropDRAWs --dropNTUPs --preExec "'rec.doTrigger=False;BTaggingFlags.CalibrationTag=\"BTagCalibALL-07-09\";'"
+			tct_recotrf.py --jobnum=2 --trigStream=Egamma --nfiles=2 --maxEvents=375 --runnum=00201489 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00201489/physics_Egamma/ --AMI=q205 --autoConfiguration=everything --conditionsTag=COMCOND-BLKPA-RUN1-05 --geometryVersion=ATLAS-GEO-20-00-02 --lumiblock=9,10 --dropHIST --dropDESDs --dropDRAWs --dropNTUPs --preExec "'rec.doTrigger=False;'" --conditionsTag="COMCOND-BLKPA-RUN1-07"
 		      </jobTransformCmd> 
 		      <group>TCTTransform</group>   
 		      <queue>medium</queue>
@@ -663,7 +663,7 @@
 		    <doc>RecoTrf</doc>
 		    <jobTransformJobName>MuonsStream_Run201489_Pileup_20_Collisions</jobTransformJobName>
 		    <jobTransformCmd>   
-		      tct_recotrf.py --jobnum=0 --trigStream=Muons --nfiles=2 --maxEvents=375 --runnum=00201489 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00201489/physics_Muons/ --AMI=q205 --autoConfiguration=everything --conditionsTag=COMCOND-BLKPA-RUN1-05 --geometryVersion=ATLAS-GEO-20-00-02 --lumiblock=9,10 --dropDESDs --dropNTUPs --preExec "'rec.doTrigger=False;BTaggingFlags.CalibrationTag=\"BTagCalibALL-07-09\";'"
+		      tct_recotrf.py --jobnum=0 --trigStream=Muons --nfiles=2 --maxEvents=375 --runnum=00201489 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00201489/physics_Muons/ --AMI=q205 --autoConfiguration=everything --conditionsTag=COMCOND-BLKPA-RUN1-05 --geometryVersion=ATLAS-GEO-20-00-02 --lumiblock=9,10 --dropDESDs --dropDRAWs --dropNTUPs --preExec "'rec.doTrigger=False;'" --conditionsTag="COMCOND-BLKPA-RUN1-07"
 		    </jobTransformCmd>
 		    <group>TCTTransform</group>
 		    <queue>medium</queue>
@@ -703,7 +703,7 @@
 		      <doc>RecoTrf with beamType=collisions</doc>
 		      <jobTransformJobName>MuonsStream_Run201489_Pileup_20_Collisions_withoutHIST</jobTransformJobName>
 		      <jobTransformCmd>               
-			tct_recotrf.py --jobnum=2 --trigStream=Muons --nfiles=2 --maxEvents=375 --runnum=00201489 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00201489/physics_Muons/ --AMI=q205 --autoConfiguration=everything --conditionsTag=COMCOND-BLKPA-RUN1-05 --geometryVersion=ATLAS-GEO-20-00-02 --lumiblock=9,10 --dropHIST --dropDESDs --dropDRAWs --dropNTUPs --preExec "'rec.doTrigger=False;BTaggingFlags.CalibrationTag=\"BTagCalibALL-07-09\";'"
+			tct_recotrf.py --jobnum=2 --trigStream=Muons --nfiles=2 --maxEvents=375 --runnum=00201489 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00201489/physics_Muons/ --AMI=q205 --autoConfiguration=everything --conditionsTag=COMCOND-BLKPA-RUN1-05 --geometryVersion=ATLAS-GEO-20-00-02 --lumiblock=9,10 --dropHIST --dropDESDs --dropDRAWs --dropNTUPs --preExec "'rec.doTrigger=False;'" --conditionsTag="COMCOND-BLKPA-RUN1-07"
 		      </jobTransformCmd> 
 		      <group>TCTTransform</group>   
 		      <queue>medium</queue>
@@ -793,7 +793,7 @@
 		    <doc>RecoTrf</doc>
 		    <jobTransformJobName>JetTauEtmissStream_Run201489_Pileup_20_Collisions</jobTransformJobName>
 		    <jobTransformCmd>   
-		      tct_recotrf.py --jobnum=0 --trigStream=JetTauEtmiss --nfiles=2 --maxEvents=375 --runnum=00201489 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00201489/physics_JetTauEtmiss/ --AMI=q205 --autoConfiguration=everything --conditionsTag=COMCOND-BLKPA-RUN1-05 --geometryVersion=ATLAS-GEO-20-00-02 --lumiblock=9,10 --dropDESDs --dropDRAWs --dropNTUPs --preExec "'rec.doTrigger=False;BTaggingFlags.CalibrationTag=\"BTagCalibALL-07-09\";'"
+		      tct_recotrf.py --jobnum=0 --trigStream=JetTauEtmiss --nfiles=2 --maxEvents=375 --runnum=00201489 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00201489/physics_JetTauEtmiss/ --AMI=q205 --autoConfiguration=everything --conditionsTag=COMCOND-BLKPA-RUN1-05 --geometryVersion=ATLAS-GEO-20-00-02 --lumiblock=9,10 --dropDESDs --dropDRAWs --dropNTUPs --preExec "'rec.doTrigger=False;'" --conditionsTag="COMCOND-BLKPA-RUN1-07"
 		    </jobTransformCmd>
 		    <group>TCTTransform</group>
 		    <queue>medium</queue>
@@ -832,7 +832,7 @@
 		      <doc>RecoTrf with beamType=collisions</doc>
 		      <jobTransformJobName>JetTauEtmissStream_Run201489_Pileup_20_Collisions_withoutHIST</jobTransformJobName>
 		      <jobTransformCmd>               
-			tct_recotrf.py --jobnum=2 --trigStream=JetTauEtmiss --nfiles=2 --maxEvents=375 --runnum=00201489 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00201489/physics_JetTauEtmiss/ --AMI=q205 --autoConfiguration=everything --conditionsTag=COMCOND-BLKPA-RUN1-05 --geometryVersion=ATLAS-GEO-20-00-02 --lumiblock=9,10 --dropHIST --dropDESDs --dropDRAWs --dropNTUPs --preExec "'rec.doTrigger=False;BTaggingFlags.CalibrationTag=\"BTagCalibALL-07-09\";'"
+			tct_recotrf.py --jobnum=2 --trigStream=JetTauEtmiss --nfiles=2 --maxEvents=375 --runnum=00201489 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00201489/physics_JetTauEtmiss/ --AMI=q205 --autoConfiguration=everything --conditionsTag=COMCOND-BLKPA-RUN1-05 --geometryVersion=ATLAS-GEO-20-00-02 --lumiblock=9,10 --dropHIST --dropDESDs --dropDRAWs --dropNTUPs --preExec "'rec.doTrigger=False;'" --conditionsTag="COMCOND-BLKPA-RUN1-07"
 		      </jobTransformCmd> 
 		      <group>TCTTransform</group>   
 		      <queue>medium</queue>
@@ -922,7 +922,7 @@
 		    <doc>RecoTrf</doc>
 		    <jobTransformJobName>MinBiasStream_Run201489_Pileup_20_Collisions</jobTransformJobName>
 		    <jobTransformCmd>   
-		      tct_recotrf.py --jobnum=0 --trigStream=MinBias --nfiles=2 --maxEvents=375 --runnum=00201489 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00201489/physics_MinBias/ --AMI=q205 --autoConfiguration=everything --conditionsTag=COMCOND-BLKPA-RUN1-05 --geometryVersion=ATLAS-GEO-20-00-02 --lumiblock=9,10 --dropDESDs --dropDRAWs --dropNTUPs --preExec "'rec.doTrigger=False;BTaggingFlags.CalibrationTag=\"BTagCalibALL-07-09\";'"
+		      tct_recotrf.py --jobnum=0 --trigStream=MinBias --nfiles=2 --maxEvents=375 --runnum=00201489 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00201489/physics_MinBias/ --AMI=q205 --autoConfiguration=everything --conditionsTag=COMCOND-BLKPA-RUN1-05 --geometryVersion=ATLAS-GEO-20-00-02 --lumiblock=9,10 --dropDESDs --dropDRAWs --dropNTUPs --preExec "'rec.doTrigger=False;'" --conditionsTag="COMCOND-BLKPA-RUN1-07"
 		    </jobTransformCmd>
 		    <group>TCTTransform</group>
 		    <queue>medium</queue>
@@ -961,7 +961,7 @@
 		      <doc>RecoTrf with beamType=collisions</doc>
 		      <jobTransformJobName>MinBiasStream_Run201489_Pileup_20_Collisions_withoutHIST</jobTransformJobName>
 		      <jobTransformCmd>               
-			tct_recotrf.py --jobnum=2 --trigStream=MinBias --nfiles=2 --maxEvents=375 --runnum=00201489 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00201489/physics_MinBias/ --AMI=q205 --autoConfiguration=everything --conditionsTag=COMCOND-BLKPA-RUN1-05 --geometryVersion=ATLAS-GEO-20-00-02 --lumiblock=9,10 --dropHIST --dropDESDs --dropDRAWs --dropNTUPs --preExec "'rec.doTrigger=False;BTaggingFlags.CalibrationTag=\"BTagCalibALL-07-09\";'"
+			tct_recotrf.py --jobnum=2 --trigStream=MinBias --nfiles=2 --maxEvents=375 --runnum=00201489 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00201489/physics_MinBias/ --AMI=q205 --autoConfiguration=everything --conditionsTag=COMCOND-BLKPA-RUN1-05 --geometryVersion=ATLAS-GEO-20-00-02 --lumiblock=9,10 --dropHIST --dropDESDs --dropDRAWs --dropNTUPs --preExec "'rec.doTrigger=False;'" --conditionsTag="COMCOND-BLKPA-RUN1-07"
 		      </jobTransformCmd> 
 		      <group>TCTTransform</group>   
 		      <queue>medium</queue>
@@ -1458,7 +1458,7 @@
 		    <doc>RecoTrf</doc>
 		    <jobTransformJobName>ExpressStream_1_Run204416_Collisions</jobTransformJobName>
 		    <jobTransformCmd>   
-		      tct_recotrf.py --jobnum=0 --trigStream=express --nfiles=2 --maxEvents=300 --runnum=00204416 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00204416/express_express/ --AMI=q205 --autoConfiguration=everything --conditionsTag=COMCOND-ES1PA-006-05 --geometryVersion=ATLAS-GEO-20-00-02 --lumiblock=15,16 --dropDESDs --dropDRAWs --dropNTUPs --preExec "'rec.doTrigger=False;BTaggingFlags.CalibrationTag=\"BTagCalibALL-07-09\";'"
+		      tct_recotrf.py --jobnum=0 --trigStream=express --nfiles=2 --maxEvents=25 --runnum=00204416 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00204416/express_express/ --AMI=q205 --autoConfiguration=everything --conditionsTag=COMCOND-ES1PA-006-05 --geometryVersion=ATLAS-GEO-20-00-02 --lumiblock=15,16 --dropDESDs --dropDRAWs --dropNTUPs --preExec "'rec.doTrigger=False;'" --conditionsTag="COMCOND-BLKPA-RUN1-07"
 		    </jobTransformCmd>
 		    <group>TCTTransform</group>
 		    <queue>medium</queue>
@@ -1498,7 +1498,7 @@
 		    <doc>RecoTrf</doc>
 		    <jobTransformJobName>ExpressStream_2_Run204416_Collisions</jobTransformJobName>
 		    <jobTransformCmd>   
-		      tct_recotrf.py --jobnum=1 --trigStream=express --nfiles=2 --maxEvents=300 --runnum=00204416 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00204416/express_express/ --AMI=q205 --autoConfiguration=everything --conditionsTag=COMCOND-ES1PA-006-05 --geometryVersion=ATLAS-GEO-20-00-02 --lumiblock=17,18 --dropDESDs --dropDRAWs --dropNTUPs --preExec "'rec.doTrigger=False;BTaggingFlags.CalibrationTag=\"BTagCalibALL-07-09\";'"
+		      tct_recotrf.py --jobnum=1 --trigStream=express --nfiles=2 --maxEvents=25 --runnum=00204416 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00204416/express_express/ --AMI=q205 --autoConfiguration=everything --conditionsTag=COMCOND-ES1PA-006-05 --geometryVersion=ATLAS-GEO-20-00-02 --lumiblock=17,18 --dropDESDs --dropDRAWs --dropNTUPs --preExec "'rec.doTrigger=False;'" --conditionsTag="COMCOND-BLKPA-RUN1-07"
 		    </jobTransformCmd>
 		    <group>TCTTransform</group>
 		    <queue>medium</queue>
@@ -1738,7 +1738,7 @@
 		<doc>RecoTrf</doc>
 		<jobTransformJobName>ExpressStream_3_Run204416_Collisions</jobTransformJobName>
 		<jobTransformCmd>   
-		  tct_recotrf.py --jobnum=2 --trigStream=express --nfiles=2 --maxEvents=300 --runnum=00204416 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00204416/express_express/ --AMI=q205 --autoConfiguration=everything --conditionsTag=COMCOND-ES1PA-006-05 --geometryVersion=ATLAS-GEO-20-00-02 --lumiblock=19,20 --dropDESDs --dropDRAWs --dropNTUPs --preExec "'rec.doTrigger=False;BTaggingFlags.CalibrationTag=\"BTagCalibALL-07-09\";'"
+		  tct_recotrf.py --jobnum=2 --trigStream=express --nfiles=2 --maxEvents=300 --runnum=00204416 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00204416/express_express/ --AMI=q205 --autoConfiguration=everything --conditionsTag=COMCOND-ES1PA-006-05 --geometryVersion=ATLAS-GEO-20-00-02 --lumiblock=19,20 --dropDESDs --dropDRAWs --dropNTUPs --preExec "'rec.doTrigger=False;'" --conditionsTag="COMCOND-BLKPA-RUN1-07"
 		</jobTransformCmd>
 		<group>TCTTransform</group>
 		<queue>medium</queue>
@@ -1772,7 +1772,7 @@
 		<doc>RecoTrf</doc>
 		<jobTransformJobName>ExpressStream_4_Run204416_Collisions</jobTransformJobName>
 		<jobTransformCmd>   
-		  tct_recotrf.py --jobnum=3 --trigStream=express --nfiles=2 --maxEvents=300 --runnum=00204416 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00204416/express_express/ --AMI=q205 --autoConfiguration=everything --conditionsTag=COMCOND-ES1PA-006-05 --geometryVersion=ATLAS-GEO-20-00-02 --lumiblock=101,102 --dropDESDs --dropDRAWs --dropNTUPs --preExec "'rec.doTrigger=False;BTaggingFlags.CalibrationTag=\"BTagCalibALL-07-09\";'"
+		  tct_recotrf.py --jobnum=3 --trigStream=express --nfiles=2 --maxEvents=30 --runnum=00204416 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00204416/express_express/ --AMI=q205 --autoConfiguration=everything --conditionsTag=COMCOND-ES1PA-006-05 --geometryVersion=ATLAS-GEO-20-00-02 --lumiblock=101,102 --dropDESDs --dropDRAWs --dropNTUPs --preExec "'rec.doTrigger=False;'" --conditionsTag="COMCOND-BLKPA-RUN1-07"
 		</jobTransformCmd>
 		<group>TCTTransform</group>
 		<queue>medium</queue>
@@ -1807,7 +1807,7 @@
                 <doc>RecoTrf</doc>
                 <jobTransformJobName>LatestRun_MinBias1</jobTransformJobName>
                 <jobTransformCmd>   
-                  tct_recotrf.py --jobnum=1 --trigStream=MinBias --nfiles=1 --maxEvents=250 --latestrun --castordir=/castor/cern.ch/grid/atlas/DAQ/merge/2012 --AMI=q205 --autoConfiguration=everything --conditionsTag=COMCOND-ES1PA-006-02 --geometryVersion=ATLAS-GEO-20-00-02 --dropDESDs --dropDRAWs --dropNTUPs --preExec "'rec.doTrigger=False;BTaggingFlags.CalibrationTag=\"BTagCalibALL-07-09\";'"
+                  tct_recotrf.py --jobnum=1 --trigStream=MinBias --nfiles=1 --maxEvents=250 --latestrun --castordir=/castor/cern.ch/grid/atlas/DAQ/merge/2012 --AMI=q205 --autoConfiguration=everything --conditionsTag=COMCOND-ES1PA-006-02 --geometryVersion=ATLAS-GEO-20-00-02 --dropDESDs --dropDRAWs --dropNTUPs --preExec "'rec.doTrigger=False;'" --conditionsTag="COMCOND-BLKPA-RUN1-07"
                 </jobTransformCmd>
                 <group>TCTTransform</group>
                 <queue>medium</queue>
@@ -1842,7 +1842,7 @@
                 <doc>RecoTrf</doc>
                 <jobTransformJobName>LatestRun_JetTauEtmiss1</jobTransformJobName>
                 <jobTransformCmd>   
-                  tct_recotrf.py --jobnum=1 --trigStream=JetTauEtmiss --nfiles=1 --maxEvents=100 --latestrun --castordir=/castor/cern.ch/grid/atlas/DAQ/merge/2012 --AMI=q205 --autoConfiguration=everything --conditionsTag=COMCOND-ES1PA-006-02 --geometryVersion=ATLAS-GEO-20-00-02 --dropDESDs --dropDRAWs --dropNTUPs --preExec "'rec.doTrigger=False;BTaggingFlags.CalibrationTag=\"BTagCalibALL-07-09\";'"
+                  tct_recotrf.py --jobnum=1 --trigStream=JetTauEtmiss --nfiles=1 --maxEvents=100 --latestrun --castordir=/castor/cern.ch/grid/atlas/DAQ/merge/2012 --AMI=q205 --autoConfiguration=everything --conditionsTag=COMCOND-ES1PA-006-02 --geometryVersion=ATLAS-GEO-20-00-02 --dropDESDs --dropDRAWs --dropNTUPs --preExec "'rec.doTrigger=False;'" --conditionsTag="COMCOND-BLKPA-RUN1-07"
                 </jobTransformCmd>
                 <group>TCTTransform</group>
                 <queue>medium</queue>
@@ -1877,7 +1877,7 @@
                 <doc>RecoTrf</doc>
                 <jobTransformJobName>LatestRun_Muons1</jobTransformJobName>
                 <jobTransformCmd>   
-                  tct_recotrf.py --jobnum=1 --trigStream=Muons --nfiles=1 --maxEvents=250 --latestrun --castordir=/castor/cern.ch/grid/atlas/DAQ/merge/2012 --AMI=q205 --autoConfiguration=everything --conditionsTag=COMCOND-ES1PA-006-02 --geometryVersion=ATLAS-GEO-20-00-02 --dropDESDs --dropDRAWs --dropNTUPs --preExec "'rec.doTrigger=False;BTaggingFlags.CalibrationTag=\"BTagCalibALL-07-09\";'"
+                  tct_recotrf.py --jobnum=1 --trigStream=Muons --nfiles=1 --maxEvents=250 --latestrun --castordir=/castor/cern.ch/grid/atlas/DAQ/merge/2012 --AMI=q205 --autoConfiguration=everything --conditionsTag=COMCOND-ES1PA-006-02 --geometryVersion=ATLAS-GEO-20-00-02 --dropDESDs --dropDRAWs --dropNTUPs --preExec "'rec.doTrigger=False;'" --conditionsTag="COMCOND-BLKPA-RUN1-07"
                 </jobTransformCmd>
                 <group>TCTTransform</group>
                 <queue>medium</queue>
@@ -1912,7 +1912,7 @@
                 <doc>RecoTrf</doc>
                 <jobTransformJobName>2014_M-week_reco</jobTransformJobName>
                 <jobTransformCmd>
-                  tct_recotrf.py --jobnum=0 --trigStream=express --runnum=00242651 --nfiles=1 --maxEvents=100 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00242651/express_express --lumiblock=100 --autoConfiguration=everything --conditionsTag=CONDBR2-ES1PA-2014-01 --geometryVersion=ATLAS-R2-2015-02-00-00 --dropDESDs --dropDRAWs --dropNTUPs --preExec "'from CaloRec.CaloCellFlags import jobproperties;jobproperties.CaloCellFlags.doLArHVCorr=False;jobproperties.CaloCellFlags.doPileupOffsetBCIDCorr.set_Value_and_Lock(False);from InDetRecExample.InDetJobProperties import InDetFlags;InDetFlags.doInnerDetectorCommissioning.set_Value_and_Lock(True);from TrigHLTMonitoring.HLTMonFlags import HLTMonFlags;HLTMonFlags.doBphys=False;DQMonFlags.enableLumiAccess=False;from JetRec.JetRecFlags import jetFlags;jetFlags.useTracks=False;larCondFlags.OFCShapeFolder.set_Value_and_Lock(\"\");InDetFlags.ForceCoraCool=True;'"
+                  tct_recotrf.py --jobnum=0 --trigStream=IDCosmic --runnum=00252662 --nfiles=1 --maxEvents=100 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00252662/physics_IDCosmic/ --lumiblock=44 --autoConfiguration=everything --conditionsTag=CONDBR2-ES1PA-2014-03 --geometryVersion=ATLAS-R2-2015-02-00-00 --dropDESDs --dropDRAWs --dropNTUPs --preExec "'from CaloRec.CaloCellFlags import jobproperties;jobproperties.CaloCellFlags.doLArHVCorr=False;jobproperties.CaloCellFlags.doPileupOffsetBCIDCorr.set_Value_and_Lock(False);from InDetRecExample.InDetJobProperties import InDetFlags;InDetFlags.doInnerDetectorCommissioning.set_Value_and_Lock(True);DQMonFlags.enableLumiAccess=False;from JetRec.JetRecFlags import jetFlags;jetFlags.useTracks=False;larCondFlags.OFCShapeFolder.set_Value_and_Lock(\"\");DQMonFlags.doLVL1CaloMon=False;DQMonFlags.doCTPMon=False;'"
                 </jobTransformCmd>
                 <group>TCTTransform</group>
                 <queue>medium</queue>
@@ -1980,7 +1980,7 @@
                 <doc>RecoTrf</doc>
                 <jobTransformJobName>2012_reco_wTrigger</jobTransformJobName>
                 <jobTransformCmd>
-                  tct_recotrf.py --jobnum=0 --trigStream=Single_Stream --runnum=00212967 --nfiles=1 --maxEvents=100 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00212967/Single_Stream --lumiblock=291 --autoConfiguration=everything --conditionsTag=COMCOND-ES1PA-006-05 --geometryVersion=ATLAS-GEO-20-00-02 --dropDESDs --dropDRAWs --dropNTUPs --preExec "'rec.doBTagging=False;from CaloRec.CaloCellFlags import jobproperties;jobproperties.CaloCellFlags.doLArHVCorr=False;jobproperties.CaloCellFlags.doPileupOffsetBCIDCorr.set_Value_and_Lock(False);from InDetRecExample.InDetJobProperties import InDetFlags;from TrigHLTMonitoring.HLTMonFlags import HLTMonFlags;HLTMonFlags.doBphys=False;DQMonFlags.enableLumiAccess=False;globalflags.DatabaseInstance=\"COMP200\";'"
+                  tct_recotrf.py --jobnum=0 --trigStream=Single_Stream --runnum=00212967 --nfiles=1 --maxEvents=100 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00212967/Single_Stream --lumiblock=291 --autoConfiguration=everything --conditionsTag=COMCOND-ES1PA-006-05 --geometryVersion=ATLAS-GEO-20-00-02 --dropDESDs --dropDRAWs --dropNTUPs --conditionsTag="COMCOND-BLKPA-RUN1-07"
                 </jobTransformCmd>
                 <group>TCTTransform</group>
                 <queue>medium</queue>
@@ -2008,14 +2008,14 @@
 	    </chainElement>
 
             <sequential> <!-- DigitizationTest, Reconstruct_ttbar_RDO_Collisions -->
-              <!-- Run digitization on a fixed HITS file -->
+              <!-- Run digitization on a fixed RDO file -->
 	      <chainElement>
 	        
 	        <jobTransform userJobId="DigitizationTest">
 		  <doc>Run digitization on a fixed HITS file</doc>
 		  <jobTransformJobName>DigitizationTest</jobTransformJobName>
 		  <jobTransformCmd>
-                    Digi_tf.py --inputHitsFile=root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc12a/mc12_8TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.simul.HITS.e1193_s1469/HITS.782686._001790.pool.root.1 --preExec='HITtoRDO:from Digitization.DigitizationFlags import digitizationFlags;digitizationFlags.overrideMetadata=["SimLayout","PhysicsList"]' --digiSeedOffset1=1 --digiSeedOffset2=2 --geometryVersion=ATLAS-GEO-20-00-02 --conditionsTag=OFLCOND-RUN12-SDR-22 --maxEvents=15 --outputRDOFile=MCtest_ttbar.digit.pool.root
+                    Digi_tf.py --inputHitsFile=/afs/cern.ch/atlas/groups/validation/disk2/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.simul.HITS.e3099_s2082_tid01614220_00/HITS.01614220._000553.pool.root.1 --preExec='HITtoRDO:from Digitization.DigitizationFlags import digitizationFlags;digitizationFlags.overrideMetadata=["SimLayout","PhysicsList"]' --digiSeedOffset1=1 --digiSeedOffset2=2 --geometryVersion=ATLAS-R2-2015-02-01-00_VALIDATION --conditionsTag=OFLCOND-RUN12-SDR-22 --DataRunNumber=222525 --maxEvents=50 --outputRDOFile=MCtest_ttbar.digit.pool.root
 		  </jobTransformCmd> 
 		  <group>TCTTransform</group>
                   <queue>short</queue>
@@ -2035,7 +2035,7 @@
 		  <doc>Reconstruction job from MC RDO</doc>
 	  	  <jobTransformJobName>Reconstruct_ttbar_RDO_Collisions</jobTransformJobName>
 		  <jobTransformCmd>		  
-                    Reco_tf.py --outputTAGFile=myTAG_ttbar_2.root --outputHISTFile=myMergedMonitoring_ttbar_2.root --maxEvents=500 --outputESDFile=myESD_ttbar_2.pool.root --outputAODFile=myAOD_ttbar_2.AOD.pool.root --inputRDOFile=MCtest_ttbar.digit.pool.root --autoConfiguration=everything --triggerConfig=NONE --preExec 'rec.doTrigger=False'
+                    Reco_tf.py --outputTAGFile=myTAG_ttbar_2.root --outputHISTFile=myMergedMonitoring_ttbar_2.root --maxEvents=500 --outputESDFile=myESD_ttbar_2.pool.root --outputAODFile=myAOD_ttbar_2.AOD.pool.root --inputRDOFile=MCtest_ttbar.digit.pool.root --autoConfiguration=everything --triggerConfig=NONE --preExec 'rec.doTrigger=False;'
 		  </jobTransformCmd> 
 		  <group>TCTTransform</group>	
 	          <chaindataset_info>
@@ -2096,7 +2096,7 @@
                 <doc>Fast Physics Monitoring</doc>
                 <jobTransformJobName>FastPhysicsMonitoring</jobTransformJobName>
                 <jobTransformCmd>
-                  Reco_trf.py autoConfiguration=everything inputAODFile=MergedAOD.pool.root outputNTUP_FASTMONFile=myNTUP_FASTMON.root --ignoreerrors=ALL --omitvalidation=ALL
+                  Reco_tf.py --autoConfiguration=everything --inputAODFile=MergedAOD.pool.root --outputNTUP_FASTMONFile=myNTUP_FASTMON.root --ignoreerrors=ALL --omitvalidation=ALL
                 </jobTransformCmd>
 
                 <group>TCTTransform</group>
