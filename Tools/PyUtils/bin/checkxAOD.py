@@ -2,14 +2,14 @@
 
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 #
-# $Id: checkxAOD.py 619905 2014-10-03 16:11:12Z krasznaa $
+# $Id: checkxAOD.py 648762 2015-02-22 09:27:18Z schaffer $
 #
 # This is a modified version of PyUtils/bin/checkFile.py. It has been taught
 # how to sum up the sizes of all the branches belonging to a single xAOD
 # object/container.
 #
 
-__version__ = "$Revision: 619905 $"
+__version__ = "$Revision: 648762 $"
 __author__  = "Sebastien Binet <binet@cern.ch>, " \
     "Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>"
 
@@ -68,7 +68,7 @@ if __name__ == "__main__":
         summedData = {}
         for d in poolFile.data:
             # Skip metadata/TAG/etc. branches:
-            if d.dirType != "B": continue
+            # if d.dirType != "B": continue
             # The name of this branch:
             brName = d.name
             # Check if this is a static auxiliary store:
@@ -127,13 +127,41 @@ if __name__ == "__main__":
         memSize = 0.0
         diskSize = 0.0
         for d in orderedData:
-            if d.nEntries != poolFile.dataHeader.nEntries: continue
-            nameType = "%s (%s)" % \
-                ( d.name, ttree.GetBranch( d.name ).GetClassName() )
+            # keep branches with either the same number of entries as the number of events, or the
+            # special tlp branches with extra event information
+            mtlp = re.match( "(.*)_tlp.$", d.name )
+            if d.nEntries != poolFile.dataHeader.nEntries and not mtlp: continue
+            # print d.name
+            br = ttree.GetBranch( d.name )
+            if br:
+                m = re.match( "(.*)_[pv]._", d.name )
+                m1 = re.match( "(.*)_tlp._", d.name )
+                m2 = re.match( "(.*)_v.>_", d.name )
+                if m:
+                    nameType = "%s (%s)" % ( d.name[m.end():], br.GetClassName() )
+                elif m1:
+                    nameType = "%s (%s)" % ( d.name[m1.end():], br.GetClassName() )
+                elif m2:
+                    nameType = "%s (%s)" % ( d.name[m2.end():], br.GetClassName() )
+                else:
+                    nameType = "%s (%s)" % ( d.name, br.GetClassName() )
+            else:
+                m = re.match( "(.*)_v._", d.name )
+                m1 = re.match( "(.*)(_tlp.$)", d.name )
+                # print "match",m,m1
+                if m:
+                    nameType = "%s (%s)" % ( d.name[m.end():], (d.name[:m.end()-1]) )
+                elif m1:
+                    # print "m1:",m1.group(),m1.group(1)
+                    nt = m1.group(1).replace("_",":") + m1.group(2)
+                    n  = m1.group(1).replace("_",":")
+                    nameType = "%s (%s)" % ( n, nt )
+                else:
+                    nameType = "%s (%s)" % ( d.name, "()" )
             print( PF.PoolOpts.ROW_FORMAT %
                    ( d.memSize,
                      d.diskSize,
-                     ( d.diskSize / d.nEntries ),
+                     ( d.diskSize / poolFile.dataHeader.nEntries ),
                      ( d.memSize / d.diskSize ),
                      d.nEntries,
                      nameType ) )
@@ -158,7 +186,8 @@ if __name__ == "__main__":
         memSize = 0.0
         diskSize = 0.0
         for d in orderedData:
-            if d.nEntries == poolFile.dataHeader.nEntries: continue
+            mtlp = re.match( "(.*)_tlp.$", d.name )
+            if d.nEntries == poolFile.dataHeader.nEntries or mtlp: continue
             print( "%12.3f kb %12.3f kb       %s" %
                    ( d.memSize, d.diskSize, d.name ) )
             memSize = memSize + d.memSize

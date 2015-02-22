@@ -103,11 +103,13 @@ def ROOT6Setup():
 
    try:
        # test if we have Cintex (ROOT5)
-       PyCintex.Cintex.Debug
-   except AttributeError:
+       cppyy.Cintex.Debug
+       # if the previous line did not throw exception, then we have ROOT5 with Cintex and Reflex
+       cppyy.hasCintex = True
+   except AttributeError, e:
        # no Cintex!  do ROOT6 stuff
        # but don't initialize more than once
-       if not hasattr('cppyy','hasFakeCintex'):
+       if not hasattr(cppyy, 'hasFakeCintex'):
           log.info('executing ROOT6Setup')
           cppyyFakeCintex()
           addROOTIncludePaths()

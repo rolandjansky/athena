@@ -175,7 +175,8 @@ def gen_typeregistry_dso(oname=_dflt_typereg_fname):
     import cppyy
     _load_lib = cppyy.loadDict
 
-    if int(cppyy.get_version().split('.')[0]) < 6:
+    # if int(cppyy.get_version().split('.')[0]) < 6:
+    if hasattr(cppyy, 'hasCintex'):
         # load reflex for ROOT ver<6
         msg.debug("::: loading reflex")
         _load_lib('libReflexRflx.so')
@@ -242,8 +243,11 @@ def gen_typeregistry_dso(oname=_dflt_typereg_fname):
         return rflx_names
 
     rflx_names = {}
-    for lib in dict_libs:
-        rflx_names.update(inspect_dict_lib(lib))
+    if hasattr(cppyy, 'hasCintex'):
+        for lib in dict_libs:
+            rflx_names.update(inspect_dict_lib(lib))
+    else:
+        msg.warning("::: DSO functionality disabled in ROOT6!")
                      
     msg.debug("::: rflx types: %d %d",len(rflx_names),len(reg.db.keys()))
     msg.info("::: saving informations in [%s]...", oname)
@@ -328,7 +332,8 @@ class CxxDsoDb(object):
         import PyUtils.RootUtils as ru
         ROOT = ru.import_root()
         self._cxx = ROOT.Ath.DsoDb.instance()
-        if int(cppyy.get_version().split('.')[0]) < 6:
+        # if int(cppyy.get_version().split('.')[0]) < 6:
+        if hasattr(cppyy, 'hasCintex'):
            # load reflex for ROOT ver<6
            _load_dict = cppyy.loadDict
            _load_dict('ReflexRflx')
