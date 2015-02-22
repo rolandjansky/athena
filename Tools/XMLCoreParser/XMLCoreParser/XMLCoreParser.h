@@ -25,6 +25,12 @@ public:
       {
       }
 
+  XMLCoreNode&  operator= (const XMLCoreNode& other)  
+      {
+          m_node = other.m_node;
+          return *this;
+      }
+    
   operator const CoreParser::DOMNode& () const
       {
         return (*m_node);
