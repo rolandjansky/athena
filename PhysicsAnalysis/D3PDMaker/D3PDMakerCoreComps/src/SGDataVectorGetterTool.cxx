@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: SGDataVectorGetterTool.cxx 640104 2015-01-16 19:37:05Z ssnyder $
+// $Id: SGDataVectorGetterTool.cxx 648782 2015-02-22 14:29:39Z ssnyder $
 /**
  * @file D3PDMakerCoreComps/src/SGDataVectorGetterTool.h
  * @author scott snyder <snyder@bnl.gov>
@@ -14,6 +14,7 @@
 #include "SGDataVectorGetterTool.h"
 #include "DataModel/tools/DVLInfo.h"
 #include "TROOT.h"
+#include "TMethodCall.h"
 
 
 namespace D3PD {
@@ -65,7 +66,17 @@ StatusCode SGDataVectorGetterTool::initialize()
   // the converter should always do it.  But now, maybe not.)
   // As a last attempt, try to load a dictionary for the class.
   if (!m_info) {
-    gROOT->GetClass (m_typename.c_str());
+    TClass* cls = gROOT->GetClass (m_typename.c_str());
+    cls->GetBaseClass ("SG::AuxElement");
+    m_info = getInfo (typeinfo());
+  }
+
+  // Ok, one more try...
+  if (!m_info) {
+    TClass* cls = gROOT->GetClass (m_typename.c_str());
+    TMethodCall meth (cls, "initHelper", "");
+    if (meth.IsValid())
+      meth.Execute();
     m_info = getInfo (typeinfo());
   }
 
