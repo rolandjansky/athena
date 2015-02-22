@@ -41,6 +41,11 @@ namespace AthenaInternal {
     return clid;
   }
 
+  struct AthenaInternalInstan {
+    ServiceHandle<StoreGateSvc> hsg;
+    ServiceHandle<IUserDataSvc> huds;
+  };
+
 }
 
 #endif // ATHENAPYTHON_ATHENAPYTHONDICT_H

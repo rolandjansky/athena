@@ -24,6 +24,9 @@
   <class name="PyAthena::Tool" />
   <class name="PyAthena::Aud" />
 
+  <class name="ServiceHandle<StoreGateSvc>" />
+  <class name="ServiceHandle<IUserDataSvc>" />
+
   <!-- not yet
   <function name="AthenaInternal::queryInterface" />
   -->
