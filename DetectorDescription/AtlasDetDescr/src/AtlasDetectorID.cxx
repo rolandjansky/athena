@@ -190,7 +190,6 @@ AtlasDetectorID::operator= (const AtlasDetectorID& other)
         m_muon_dict             = other.m_muon_dict;
         m_calo_dict             = other.m_calo_dict;
         m_fwd_dict              = other.m_fwd_dict;
-        m_helper                = 0;
         m_det_impl              = other.m_det_impl;
         m_indet_part_impl       = other.m_indet_part_impl;
         m_calo_side_impl        = other.m_calo_side_impl;
