@@ -1607,7 +1607,7 @@ CablingRPC::give_strip_id   (unsigned short int SubsystemId,
             const RPCchamber* rpc = s.find_chamber(RPC_station, RPC_chamber);
 	    
             rpcId.stationName = rpc->stationName();
-	    rpcId.stationEta  = (decode.half_barrel())?  rpc->stationEta() : 
+	    rpcId.stationEta  = (decode.half_barrel() == Positive)?  rpc->stationEta() : 
 	                                                -rpc->stationEta();
 	    rpcId.stationPhi  = (sector==31)? 1 : (sector+1)/4 +1;
             rpcId.doubletR    = rpc->doubletR();
@@ -1680,7 +1680,7 @@ CablingRPC::PrintSector(std::ostream& stream,int sector,int station,
                        std::string element,int obj,bool detail) const
 {
     if(detail) PrintMap(stream);
-    if (sector < 0 && sector > 63)
+    if (sector < 0 || sector > 63)
     {
         stream << "Sector n. " << sector << "doesn't exist!" << std::endl;
     }
@@ -1750,7 +1750,7 @@ RPCofflineId CablingRPC::strip_id_fromCode(unsigned long int strip_code)
   const RPCchamber* rpc = s.find_chamber(RPC_station, RPC_chamber);
   
   rpcId.stationName = rpc->stationName();
-  rpcId.stationEta  = (decode.half_barrel())?  rpc->stationEta() : 
+  rpcId.stationEta  = (decode.half_barrel() == Positive)?  rpc->stationEta() : 
     -rpc->stationEta();
   rpcId.stationPhi  = (sector==31)? 1 : (sector+1)/4 +1;
   rpcId.doubletR    = rpc->doubletR();

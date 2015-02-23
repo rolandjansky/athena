@@ -209,6 +209,18 @@ OddPhiCMA::cable_CMA_channels(void)
                 int final_strip= max_st - (max_st - stop );
 		
 		int chs = (this->id().Ixx_index() == 0) ? 40 - max_st/2 : 0;
+		
+		char E = rpc->chamber_name()[2];
+		
+		if( E=='E' && this->id().Ixx_index() == 1){
+		 chs=0;
+		 local_strip=32;
+		}
+		if( E=='E' &&  this->id().Ixx_index() == 0){
+		 chs=0;
+		 final_strip=1;
+		}
+		
                 if (chs <= first_ch_cabled) first_ch_cabled = chs;
                 do
                 {
@@ -248,6 +260,11 @@ OddPhiCMA::cable_CMA_channels(void)
 	    // Set first and last connectors code
 	    int code = m_lowPt_station*100000 + 1*100000000;
 	    int ch = 0;
+
+	    if(last_ch_cabled < 0) {
+	      std::cout << "MuonRPC_Cabling: OddPhiCMA - neg. array idx - taking emergency exit!." <<std::endl;
+	      throw;
+            }
 	
 	    for(ch=0;ch < m_lowPt_rpc_read; ++ch) 
 	        if(m_lowPt[ch][0][last_ch_cabled] >= 0) break;
@@ -297,6 +314,19 @@ OddPhiCMA::cable_CMA_channels(void)
                 int final_strip= max_st - (max_st - stop );
                 
 		int chs = (this->id().Ixx_index() == 0) ? 40 - max_st/2 : 0;
+		
+		char L = rpc->chamber_name()[2];
+		int  sEta = rpc->stationEta();	
+		
+		if(abs(sEta)==8 && L=='L' && this->id().Ixx_index() == 1){
+		 chs=0;
+		 local_strip=64;
+		}
+		if(abs(sEta)==8 && L=='L' && this->id().Ixx_index() == 0){
+		 chs=0;
+		 local_strip=64;
+		 final_strip=1;
+		} 
                 if (chs <= first_ch_cabled) first_ch_cabled = chs;
 		do
                 {
@@ -335,8 +365,13 @@ OddPhiCMA::cable_CMA_channels(void)
 	    // Set first and last connectors code
 	    int code = m_highPt_station*100000 + 1*100000000;
 	    int ch = 0;
+
+	    if(last_ch_cabled < 0) {
+	      std::cout << "MuonRPC_Cabling: OddPhiCMA - neg. array idx - taking emergency exit!." <<std::endl;
+	      throw;
+            }
 	
-	    for(ch=0;ch < m_highPt_rpc_read; ++ch) 
+	    for(ch=0;ch < m_highPt_rpc_read; ++ch)
 	        if(m_highPt[ch][0][last_ch_cabled] >= 0) break;
             if (ch == m_highPt_rpc_read) --ch;
 	    m_first_highPt_code = code + m_highPt[ch][0][last_ch_cabled];
@@ -748,7 +783,8 @@ OddPhiCMA::get_confirm_strip_boundaries(int stat,int max)
 	    m_lowPt_start_st = confirm_channels - (40 - max/2);
 	    if (m_lowPt_start_st >= max ) m_lowPt_start_st = max;
             //m_lowPt_start_st = (confirm_channels<max)? confirm_channels : max;
-        }
+        }	
+	 
     }
     else if (stat == highPt_station())
     {
@@ -766,7 +802,8 @@ OddPhiCMA::get_confirm_strip_boundaries(int stat,int max)
 	    m_highPt_start_st = confirm_channels - (40 - max/2);
 	    if (m_highPt_start_st >= max ) m_highPt_start_st = max;
             //m_highPt_start_st = (confirm_channels<max)? confirm_channels : max;
-        }
+        }	
+	
     }
     
 }
@@ -908,6 +945,7 @@ OddPhiCMA::setup(SectorLogicSetup& setup)
     std::ifstream CMAprogLow;
     std::istringstream CMAprogLow_COOL;
     char name[200];
+    for(int i=0;i<200;++i) name[i] ='\0';
 
     //LB retrieve the pointer to the map of the trigger roads 
     const std::map<std::string, std::string>* p_trigroads=setup.GetPtoTrigRoads();

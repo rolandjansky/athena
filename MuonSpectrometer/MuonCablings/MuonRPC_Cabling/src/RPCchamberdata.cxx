@@ -80,15 +80,15 @@ RPCchamberdata::reset_data()
 bool
 RPCchamberdata::confirm_connectors(ViewType side)
 {
-    int strips     = (side)? m_phi_strips : m_eta_strips;
+    int strips     = (side == Phi)? m_phi_strips : m_eta_strips;
 
-    if(side) m_phi_connectors = strips / m_strips_in_Phi_Conn;
+    if(side == Phi) m_phi_connectors = strips / m_strips_in_Phi_Conn;
     else     m_eta_connectors = strips / m_strips_in_Eta_Conn;
 
-    int connectors = (side)? m_phi_connectors : m_eta_connectors;
-    int strips_in_conn = (side)? m_strips_in_Phi_Conn : m_strips_in_Eta_Conn;
+    int connectors = (side == Phi)? m_phi_connectors : m_eta_connectors;
+    int strips_in_conn = (side == Phi)? m_strips_in_Phi_Conn : m_strips_in_Eta_Conn;
     float str = (float)strips/(float)connectors;
-    std::string view = (side)? "phi" : "eta";
+    std::string view = (side == Phi)? "phi" : "eta";
 
 #if (__GNUC__) && (__GNUC__ > 2) 
     // put your gcc 3.2 specific code here
@@ -137,8 +137,8 @@ bool
 RPCchamberdata::confirm_ijk(ViewType side)
 {
 
-    int ijk = (side)? m_ijk_phiReadout : m_ijk_etaReadout;
-    std::string view = (side)? "phi" : "eta";
+    int ijk = (side == Phi)? m_ijk_phiReadout : m_ijk_etaReadout;
+    std::string view = (side == Phi)? "phi" : "eta";
 
 #if (__GNUC__) && (__GNUC__ > 2) 
     // put your gcc 3.2 specific code here

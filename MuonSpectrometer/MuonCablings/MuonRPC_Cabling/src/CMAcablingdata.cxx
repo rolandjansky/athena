@@ -68,7 +68,7 @@ bool
 CMAcablingdata::confirm_data(ViewType side)
 {
     unsigned int div = 247;
-    std::string view = (side)? "phi" : "eta";
+    std::string view = (side == Phi)? "phi" : "eta";
 
 
 #if (__GNUC__) && (__GNUC__ > 2) 

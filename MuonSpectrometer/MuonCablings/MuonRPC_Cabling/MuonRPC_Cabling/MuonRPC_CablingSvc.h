@@ -180,13 +180,25 @@ public:
     StatusCode giveRDO_fromPRD(const IdentifierHash prdHashId,
                                std::vector<IdentifierHash>& rdoHashVec) const;
                                     
-    StatusCode giveRDO_fromPRD(std::vector<IdentifierHash>& prdHashVec,  
+    StatusCode giveRDO_fromPRD(const std::vector<IdentifierHash>& prdHashVec,  
+                               std::vector<IdentifierHash>& rdoHashVec) const;
+                                     
+    StatusCode giveRDO_fromROB(const uint32_t robId,  
+                               std::vector<IdentifierHash>& rdoHashVec) const;
+                                  
+    StatusCode giveRDO_fromROB(const std::vector<uint32_t>& robIdVec,  
                                std::vector<IdentifierHash>& rdoHashVec) const;
                                     
     StatusCode giveROB_fromPRD(const IdentifierHash prdHashId,
                                std::vector<uint32_t>& robIdVec) const;
                                        
-    StatusCode giveROB_fromPRD(std::vector<IdentifierHash>& prdHashVec,
+    StatusCode giveROB_fromPRD(const std::vector<IdentifierHash>& prdHashVec,
+                               std::vector<uint32_t>& robIdVec) const;
+                                  
+    StatusCode giveROB_fromRDO(const IdentifierHash rdoHashId,
+                               uint32_t& robId) const;
+                                     
+    StatusCode giveROB_fromRDO(const std::vector<IdentifierHash>& rdoHashVec,
                                std::vector<uint32_t>& robIdVec) const;
     
     std::vector<uint32_t> giveFullListOfRobIds() const;
@@ -201,6 +213,7 @@ public:
     typedef std::vector<const RDOindex*> OfflineOnlineHashMap;
     typedef std::map <IdentifierHash, std::set<IdentifierHash> > PRD_RDO_Map;
     typedef std::map <IdentifierHash, std::set<uint32_t> > PRD_ROB_Map;
+    typedef std::map <uint32_t, std::set<IdentifierHash> > ROB_RDO_Map;
     
     //    const std::string* RPCCorrMap;
     //    const std::string* RPCConfMap;
@@ -213,6 +226,7 @@ public:
     OfflineOnlineHashMap    m_HashVec;
     PRD_RDO_Map             m_PRD_RDO_map;
     PRD_ROB_Map             m_PRD_ROB_map;
+    ROB_RDO_Map             m_ROB_RDO_map;
     std::vector<uint32_t>   m_fullListOfRobIds;
     Identifier              m_offline_id[2][32][10];
     const Identifier m_uninitialized_identifier;

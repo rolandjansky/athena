@@ -148,6 +148,11 @@ EvenPhiCMA::cable_CMA_channels(void)
 	    if(m_pivot[ch][0][first_ch_cabled] >= 0) break;
         if(ch == m_pivot_rpc_read) --ch;	
         m_first_pivot_code = code + m_pivot[ch][0][first_ch_cabled];
+
+	if(last_ch_cabled < 0) {
+	  std::cout << "MuonRPC_Cabling: EvenPhiCMA - neg. array idx - taking emergency exit!." <<std::endl;
+	  throw;
+	}
 	
 	for(ch=0;ch < m_pivot_rpc_read; ++ch)
 	    if(m_pivot[ch][0][last_ch_cabled] >= 0) break;
@@ -191,6 +196,18 @@ EvenPhiCMA::cable_CMA_channels(void)
                 int final_strip = stop  - (max_st - rpc_st);
 		
 		int chs = (this->id().Ixx_index() == 0) ? 40 - max_st/2 : 0;
+		
+		char E = rpc->chamber_name()[2];		
+		
+		if( E=='E' && this->id().Ixx_index() == 1){
+		 chs=0;
+		 local_strip=1;
+		}
+		if( E=='E' && this->id().Ixx_index() == 0){
+		 chs=0;
+		 final_strip=32;
+		}
+		
 		chs += (local_strip >=0 )? 0 : abs(local_strip) + 1;
 	        if (chs <= first_ch_cabled) first_ch_cabled = chs;
 		
@@ -228,6 +245,8 @@ EvenPhiCMA::cable_CMA_channels(void)
 		if (chs-1 >= last_ch_cabled) last_ch_cabled = chs-1;
                 if(chs > m_active_lowPt_chs) m_active_lowPt_chs = chs;
             }
+	     
+	     
             wor->add_even_read_mul(multiplicity);	
 	    
 	    // Set first and last connectors code
@@ -238,6 +257,11 @@ EvenPhiCMA::cable_CMA_channels(void)
 	        if(m_lowPt[ch][0][first_ch_cabled] >= 0) break;
 	    if(ch == m_lowPt_rpc_read) --ch;
 	    m_first_lowPt_code = code + m_lowPt[ch][0][first_ch_cabled];
+
+	    if(last_ch_cabled < 0) {
+	      std::cout << "MuonRPC_Cabling: EvenPhiCMA - neg. array idx - taking emergency exit!." <<std::endl;
+	      throw;
+	    }
 	
 	    for(ch=0;ch < m_lowPt_rpc_read; ++ch)
 	        if(m_lowPt[ch][0][last_ch_cabled] >= 0) break;
@@ -282,6 +306,21 @@ EvenPhiCMA::cable_CMA_channels(void)
                 int final_strip= stop  - (max_st - rpc_st);
 		
 		int chs = (this->id().Ixx_index() == 0) ? 40 - max_st/2 : 0;
+		
+		char L    = rpc->chamber_name()[2];
+		int  sEta = rpc->stationEta();		
+		
+		if(abs(sEta)==8 && L=='L' && this->id().Ixx_index() == 1){
+		 chs=0;
+		 local_strip=1;
+		}
+		
+		if(abs(sEta)==8 && L=='L' && this->id().Ixx_index() == 0){
+		 chs=0;
+		 final_strip=64;
+		 local_strip=1;
+		}
+		
 		chs += (local_strip >=0 )? 0 : abs(local_strip) + 1;
 	        if (chs <= first_ch_cabled) first_ch_cabled = chs;
 		
@@ -318,6 +357,8 @@ EvenPhiCMA::cable_CMA_channels(void)
 		if (chs-1 >= last_ch_cabled) last_ch_cabled = chs-1;
                 if(chs > m_active_highPt_chs) m_active_highPt_chs = chs;
             }
+	    
+	    
             wor->add_even_read_mul(multiplicity);
 	    
 	    // Set first and last connectors code
@@ -328,6 +369,11 @@ EvenPhiCMA::cable_CMA_channels(void)
 	        if(m_highPt[ch][0][first_ch_cabled] >= 0) break;
 	    if(ch == m_highPt_rpc_read) --ch;
 	    m_first_highPt_code = code + m_highPt[ch][0][first_ch_cabled];
+
+	    if(last_ch_cabled < 0) {
+	      std::cout << "MuonRPC_Cabling: EvenPhiCMA - neg. array idx - taking emergency exit!." <<std::endl;
+	      throw;
+	    }
 	
 	    for(ch=0;ch < m_highPt_rpc_read; ++ch)
 	        if(m_highPt[ch][0][last_ch_cabled] >= 0) break;
@@ -648,6 +694,7 @@ EvenPhiCMA::connect(SectorLogicSetup& setup)
                     return false;
                 }
             }
+	    
             if(!oldPhiSchema) get_confirm_strip_boundaries(lowPt_station(),max);
 	    else get_confirm_strip_boundariesP03(lowPt_station(),max);
 	}  
@@ -738,6 +785,8 @@ EvenPhiCMA::get_confirm_strip_boundaries(int stat,int max)
             m_lowPt_start_st = max - confirm_channels + 1 + (40 - max/2);
             if (m_lowPt_start_st <= 0) m_lowPt_start_st = 1;
         }
+	
+	
     }
     else if (stat == highPt_station())
     {
@@ -756,7 +805,9 @@ EvenPhiCMA::get_confirm_strip_boundaries(int stat,int max)
 	    m_highPt_stop_st = max;
             m_highPt_start_st = max - confirm_channels + 1 + (40 - max/2);
             if (m_highPt_start_st <= 0) m_highPt_start_st = 1;
-        }
+        }	
+	
+
     }
 }
 
@@ -887,7 +938,7 @@ EvenPhiCMA::setup(SectorLogicSetup& setup)
 
     // olny 1 repository allowed so far
     std::string LVL1_configuration_repository;
-    LVL1_configuration_repository = "ATLAS.121108";
+    LVL1_configuration_repository = "ATLAS.data";
     
 
     // Read the program file if exist
@@ -907,6 +958,7 @@ EvenPhiCMA::setup(SectorLogicSetup& setup)
     std::ifstream CMAprogLow;
     std::istringstream CMAprogLow_COOL;
     char name[200];
+    for(int i=0;i<200;++i) name[i] ='\0';
  
     //LB retrieve pointer to the map of the trigger roads 
     const std::map<std::string, std::string>* p_trigroads=setup.GetPtoTrigRoads();

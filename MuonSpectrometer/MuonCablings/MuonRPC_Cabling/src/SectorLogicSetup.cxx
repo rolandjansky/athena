@@ -1140,6 +1140,7 @@ SectorLogicSetup::operator+=(CMApivotdata& data)
                      << *CMA << std::endl << "in "; 
                 PrintElement(m_message->message(),0,CMA->name(),0,false);
                 DISP_ERROR;
+                delete CMA;
                 return ins.second;
 	    }
             (*inserted).second += *CMA;
@@ -1162,6 +1163,7 @@ SectorLogicSetup::operator+=(CMApivotdata& data)
                      << *CMA << std::endl << "in ";
                 PrintElement(m_message->message(),0,CMA->name(),0,false);
                 DISP_ERROR;
+                delete CMA;
                 return ins.second;
         }
         delete CMA;
