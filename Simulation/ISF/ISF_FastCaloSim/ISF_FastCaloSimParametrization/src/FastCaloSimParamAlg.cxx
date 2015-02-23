@@ -29,8 +29,6 @@
 
 
 #include "CaloIdentifier/CaloCell_ID.h"
-//#include "CaloEvent/CaloSampling.h"
-//Fix for rel19 14.03.14
 #include "CaloGeoHelpers/CaloSampling.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloDetDescr/CaloDetDescrElement.h"
@@ -88,11 +86,17 @@ private:
       }
 };
 */
+
+struct SortByE{
+  bool operator() (const ISF_FCS_Parametrization::FCS_StepInfo& step1, const ISF_FCS_Parametrization::FCS_StepInfo& step2) { return (step1.energy() > step2.energy()); }
+  bool operator() (const ISF_FCS_Parametrization::FCS_StepInfo* step1, const ISF_FCS_Parametrization::FCS_StepInfo* step2) { return (step1->energy() > step2->energy()); }
+};
+
 FastCaloSimParamAlg::FastCaloSimParamAlg(const std::string& name, ISvcLocator* pSvcLocator) 
   : AthAlgorithm(name, pSvcLocator), m_calo_dd_man(0)
 {
   declareProperty("Clusterize", m_clusterize = true, "merge nearby hits");
-  declareProperty("Truncate", m_truncate = 2,"truncate hits with E<0 (if>1) and t>1000ns (if >2)"); 
+  declareProperty("Truncate", m_truncate = 2,"truncate hits with t>1000ns (if >=2)"); 
   declareProperty("MaxDistance",   m_maxDistance = 50000.,
 		  "max distance squared after which the hits will be truncated");
   declareProperty("MinEnergy",   m_minEnergy = .99,
@@ -108,11 +112,11 @@ FastCaloSimParamAlg::FastCaloSimParamAlg(const std::string& name, ISvcLocator* p
   declareProperty("MaxRadiusTile",        m_maxRadiusTile = 100.,
                   "maximal radius in Tile squared until two hits will be combined");
 
-  declareProperty("MaxTime", m_maxTime = 100., "max time difference to merge two hits (ns) ");
-  declareProperty("MaxTimeLAr", m_maxTimeLAr = 100., "max time difference to merge two hits (ns) ");
-  declareProperty("MaxTimeHEC", m_maxTimeHEC = 100., "max time difference to merge two hits (ns) ");
-  declareProperty("MaxTimeFCAL", m_maxTimeFCAL = 100., "max time difference to merge two hits (ns) ");
-  declareProperty("MaxTimeTile", m_maxTimeTile = 100., "max time difference to merge two hits (ns) ");
+  declareProperty("MaxTime", m_maxTime = 25., "max time difference to merge two hits (ns) ");
+  declareProperty("MaxTimeLAr", m_maxTimeLAr = 25., "max time difference to merge two hits (ns) ");
+  declareProperty("MaxTimeHEC", m_maxTimeHEC = 25., "max time difference to merge two hits (ns) ");
+  declareProperty("MaxTimeFCAL", m_maxTimeFCAL = 25., "max time difference to merge two hits (ns) ");
+  declareProperty("MaxTimeTile", m_maxTimeTile = 25., "max time difference to merge two hits (ns) ");
 
 
   declareProperty("ContainmentEnergy",        m_containmentEnergy = 0.95,
@@ -159,6 +163,7 @@ StatusCode FastCaloSimParamAlg::initialize()
 StatusCode FastCaloSimParamAlg::execute()
 {
   const ISF_FCS_Parametrization::FCS_StepInfoCollection* eventStepsES = getFCS_StepInfo();
+  if (!eventStepsES) eventStepsES = new ISF_FCS_Parametrization::FCS_StepInfoCollection(); //create empty one if it doesn't exist!
   std::cout <<"ZH in FastCaloSimParamAlg execute: eventStep size: "<<eventStepsES->size()<<std::endl;
 
   const HepMC::GenParticle* theParticle = getParticleFromMC();
@@ -305,6 +310,21 @@ void FastCaloSimParamAlg::clusterize(ISF_FCS_Parametrization::FCS_StepInfoCollec
     {
       //cellN++;
       //std::cout <<"Merging cell: "<<cellN<<" id: "<<it->first<<" with Nhits: "<<(it->second)->size()<<std::endl;
+      //sort each cell hits by Energy?
+      //std::cout <<"Test: "<<std::endl;
+      //for (ISF_FCS_Parametrization::FCS_StepInfoCollection::iterator itt = FCS_SIC_cells[it->first]->begin(); itt!= FCS_SIC_cells[it->first]->end(); ++itt)
+      //	{
+      //	  std::cout <<"In "<<it->first<<" E: "<<(*itt)->energy()<<std::endl;
+      //	}
+
+      std::sort(FCS_SIC_cells[it->first]->begin(), FCS_SIC_cells[it->first]->end(), SortByE()); 
+      //      std::cout <<"Test: "<<std::endl;
+      //for (ISF_FCS_Parametrization::FCS_StepInfoCollection::iterator itt = FCS_SIC_cells[it->first]->begin(); itt!= FCS_SIC_cells[it->first]->end(); ++itt)
+      //        {
+      //	  std::cout <<"In "<<it->first<<" sorted E: "<<(*itt)->energy()<<std::endl;
+      //        }
+
+      std::sort(FCS_SIC_cells[it->first]->begin(), FCS_SIC_cells[it->first]->end(), SortByE());
 
       //Int_t hitN = 0;
       //ISF_FCS_Parametrization::FCS_StepInfoCollection::iterator it1 = FCS_SIC_cells[it->first]->begin();
@@ -496,12 +516,7 @@ void FastCaloSimParamAlg::truncate(ISF_FCS_Parametrization::FCS_StepInfoCollecti
       ISF_FCS_Parametrization::FCS_StepInfoCollection::iterator i1 = stepinfo->begin();
       while (i1 != stepinfo->end())
 	{
-	  if ((m_truncate>1)&&((*i1)->energy()<0))
-	    {
-	      //i1 = stepinfo->erase(i1); //ok don't ignore negative now
-	      ++i1;
-	    }
-	  else if ((m_truncate>2)&&((*i1)->time()>1000))
+	  if ((m_truncate>=2)&&((*i1)->time()>1000))
 	    {
 	      i1 = stepinfo->erase(i1);
 	    }
