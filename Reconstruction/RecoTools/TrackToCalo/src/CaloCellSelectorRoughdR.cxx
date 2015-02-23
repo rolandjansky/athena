@@ -17,7 +17,6 @@ namespace Trk
 
   CaloCellSelectorRoughdR::CaloCellSelectorRoughdR(double coneSize):
     m_coneSize( coneSize ), 
-    m_coneSize2( coneSize*coneSize ), 
     m_midEta(0),
     m_midPhi(0),
     m_maxDiff(0)

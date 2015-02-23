@@ -5,6 +5,7 @@
 #include "TrackToCalo/CaloCellCollector.h"
 
 #include "TrkCaloExtension/CaloExtensionHelpers.h"
+#include "CaloInterface/ICaloNoiseTool.h"
 
 #include "CaloUtils/CaloClusterStoreHelper.h"
 #include "CaloEvent/CaloCellContainer.h"
@@ -109,21 +110,32 @@ Rec::CaloCellCollector::CaloCellCollector ()
     m_dEtadPhiDRCore[CaloSampling::HEC1]      = 0.07*0.07;
     m_dEtadPhiDRCore[CaloSampling::HEC2]      = 0.07*0.07;
     m_dEtadPhiDRCore[CaloSampling::HEC3]      = 0.07*0.07;
-    m_sampleEtByEtadPhi.resize(CaloSampling::Unknown, false);
-    m_sampleEtByEtadPhi[CaloSampling::PreSamplerB] = true;
-    m_sampleEtByEtadPhi[CaloSampling::PreSamplerE] = true;
-    m_sampleEtByEtadPhi[CaloSampling::EMB1]        = true;
-    m_sampleEtByEtadPhi[CaloSampling::EME1]        = true;
-    m_sampleEtByEtadPhi[CaloSampling::TileBar0]    = true;
-    m_sampleEtByEtadPhi[CaloSampling::TileBar1]    = true;
-    m_sampleEtByEtadPhi[CaloSampling::TileBar2]    = true;
-    m_sampleEtByEtadPhi[CaloSampling::TileExt0]    = true;
-    m_sampleEtByEtadPhi[CaloSampling::TileExt1]    = true;
-    m_sampleEtByEtadPhi[CaloSampling::TileExt2]    = true;
+    m_selectEtCoreByEtadPhi.resize(CaloSampling::Unknown, false);
+    m_selectEtCoreByEtadPhi[CaloSampling::PreSamplerB] = true;
+    m_selectEtCoreByEtadPhi[CaloSampling::PreSamplerE] = true;
+    m_selectEtCoreByEtadPhi[CaloSampling::EMB1]        = true;
+    m_selectEtCoreByEtadPhi[CaloSampling::EME1]        = true;
+    m_selectEtCoreByEtadPhi[CaloSampling::TileBar0]    = true;
+    m_selectEtCoreByEtadPhi[CaloSampling::TileBar1]    = true;
+    m_selectEtCoreByEtadPhi[CaloSampling::TileBar2]    = true;
+    m_selectEtCoreByEtadPhi[CaloSampling::TileExt0]    = true;
+    m_selectEtCoreByEtadPhi[CaloSampling::TileExt1]    = true;
+    m_selectEtCoreByEtadPhi[CaloSampling::TileExt2]    = true;
     
     if (m_doDebug) std::cout << "Set explicit window sizes " << std::endl;
 
 }
+
+void
+Rec::CaloCellCollector::resetCoreParameters (const std::vector<std::pair<float, float> >& dEtadPhiCore,
+                                             const std::vector<float>&                    dEtadPhiDRCore,
+                                             const std::vector<bool>&                     selectEtCoreByEtadPhi)
+{
+    m_dEtadPhiCore          = dEtadPhiCore;
+    m_dEtadPhiDRCore        = dEtadPhiDRCore;
+    m_selectEtCoreByEtadPhi = selectEtCoreByEtadPhi;
+}
+
 
 xAOD::CaloCluster* 
 Rec::CaloCellCollector::collectCells( const Trk::CaloExtension& extension, 
@@ -230,11 +242,13 @@ Rec::CaloCellCollector::collectCells( const Trk::CaloExtension& extension,
               
 void
 Rec::CaloCellCollector::collectEtCore( const xAOD::CaloCluster& clus,
-                                       std::vector<float>& etcore ) const
+                                       std::vector<float>& etcore,
+                                       const ToolHandle <ICaloNoiseTool>& caloNoiseTool,
+                                       bool applyNoiseCut,
+                                       float sigmaNoiseCut) const
 {
     // Collect the cells in the core for a muon
 
-    
     // Collect etCore for the different samples
     float etCore       = 0;
     float etCoreEM     = 0;
@@ -254,22 +268,30 @@ Rec::CaloCellCollector::collectEtCore( const xAOD::CaloCluster& clus,
                                  << CaloSampling::getSamplingName(samp)
                                  << " " << deta << "/" << dphi << "/" << sqrt(deta*deta + dphi*dphi);
 
-        if (m_sampleEtByEtadPhi[samp]) {
+        if (m_selectEtCoreByEtadPhi[samp]) {
             if (fabs(deta) < m_dEtadPhiCore[samp].first && fabs(dphi) < m_dEtadPhiCore[samp].second) {
                 addCell = true;
                 if (m_doDebug) std::cout << " addCell dEta/dPhi, et " << addCell << "/"
-                                         << cell->energy()/cosh(clusEta) << std::endl;
+                                         << cell->energy()/cosh(clusEta);
             }
         }
         else {
             if ((deta*deta + dphi*dphi) < m_dEtadPhiDRCore[samp]) {
                 addCell = true;
                 if (m_doDebug) std::cout << " addCell dR, et        " << addCell << "/"
-                                         << cell->energy()/cosh(clusEta) << std::endl;
+                                         << cell->energy()/cosh(clusEta);
             }
         }
+        // Check if cell passes the noise threshold of 3.4sigma
+        if (m_doDebug && addCell) std::cout << " cell E,3.4*noise: " << cell->energy() << "/" << 3.4*caloNoiseTool->getNoise(cell);
+        if (applyNoiseCut && addCell && cell->energy() < sigmaNoiseCut*caloNoiseTool->getNoise(cell)) {
+            addCell = false;
+        }
         // sum of et, defined by cell E, and muon track eta
-        if (addCell) sampEt[samp] += cell->energy()/cosh(clusEta);
+        if (addCell) {
+            sampEt[samp] += cell->energy()/cosh(clusEta);
+            if (m_doDebug) std::cout << " samp/sum " << samp << "/" << sampEt[samp] << std::endl;
+        }
         else if (m_doDebug) std::cout << std::endl;
     }
     // Set the core ET
@@ -299,8 +321,8 @@ Rec::CaloCellCollector::collectEtCore( const xAOD::CaloCluster& clus,
     etcore[Rec::CaloCellCollector::ET_HECCore]  = etCoreHEC;  
 
     if (m_doDebug) {
-        std::cout << " ET core     " << etCore << std::endl;
-        float et = 0;
+        float et    = 0;
+        float etot1 = 0;
         std::vector<CaloSample> samps;
         samps.push_back(CaloSampling::PreSamplerB);
         samps.push_back(CaloSampling::PreSamplerE);
@@ -311,6 +333,7 @@ Rec::CaloCellCollector::collectEtCore( const xAOD::CaloCluster& clus,
         samps.push_back(CaloSampling::EMB3);
         samps.push_back(CaloSampling::EME3);
         for (auto samp : samps) if (clus.hasSampling(samp)) et += clus.eSample(samp)/cosh(clus.etaSample(samp));
+        etot1 += et;
         std::cout << " ET core,em  " << etCoreEM << "/" << et << std::endl;
         et = 0;
         samps.clear();
@@ -321,6 +344,7 @@ Rec::CaloCellCollector::collectEtCore( const xAOD::CaloCluster& clus,
         samps.push_back(CaloSampling::TileExt1);
         samps.push_back(CaloSampling::TileExt2);
         for (auto samp : samps) if (clus.hasSampling(samp)) et += clus.eSample(samp)/cosh(clus.etaSample(samp));
+        etot1 += et;
         std::cout << " ET core,tile " << etCoreTile << "/" << et << std::endl;
         et = 0;
         samps.clear();
@@ -329,6 +353,8 @@ Rec::CaloCellCollector::collectEtCore( const xAOD::CaloCluster& clus,
         samps.push_back(CaloSampling::HEC2);
         samps.push_back(CaloSampling::HEC3);
         for (auto samp : samps) if (clus.hasSampling(samp)) et += clus.eSample(samp)/cosh(clus.etaSample(samp));
+        etot1 += et;
         std::cout << " ET core,hec  " << etCoreHEC << "/" << et << std::endl;
+        std::cout << " ET core      " << etCore << "/" << etot1 << std::endl;
     }
 }

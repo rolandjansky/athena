@@ -36,7 +36,7 @@ namespace Trk
   private:
     CaloExtensionHelpers::EtaPhiHashLookupVector m_midPoints;
     double m_coneSize2;
-    TrackParametersIdHelper  parsIdHelper;
+    //TrackParametersIdHelper  parsIdHelper;
   };
 } // end of namespace
 
