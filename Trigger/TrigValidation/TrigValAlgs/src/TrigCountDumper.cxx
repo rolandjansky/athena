@@ -336,11 +336,11 @@ StatusCode TrigCountDumper::execute(void) {
         _menu[smk].addTrigger(trigcount::TriggerCount(*i,l1->prescaleFactor(),0.));
       }
     }
-    // Get a list of all the L2 and EF triggers in this menu configuration
-    trigs=_trigDec->getListOfTriggers("L2_.*, EF_.*");
+    // Get a list of all the HLT triggers in this menu configuration
+    trigs=_trigDec->getListOfTriggers("HLT_.*");
     // Loop over all the triggers and add them to the count menu
     for(std::vector<std::string>::const_iterator i=trigs.begin();i!=trigs.end();++i) {
-      ATH_MSG_DEBUG("Adding L2/EF trigger " << *i 
+      ATH_MSG_DEBUG("Adding HLT trigger " << *i 
                     << " with prescale " << _trigDec->getPrescale(*i));
       const TrigConf::HLTChain *ch=expert.getChainConfigurationDetails(*i);
       // Check for the expert chain interface
@@ -377,8 +377,8 @@ StatusCode TrigCountDumper::execute(void) {
   // Add an event to the menu with the given number of interactions
   menu.addEvent(eventInfo->actualInteractionsPerCrossing());
   
-  // Loop over all the L2 and EF triggers to find which ones passed
-  std::vector<std::string> trigs=_trigDec->getListOfTriggers("L2_.*, EF_.*");
+  // Loop over all the HLT triggers to find which ones passed
+  std::vector<std::string> trigs=_trigDec->getListOfTriggers("HLT_.*");
   for(std::vector<std::string>::const_iterator i=trigs.begin();i!=trigs.end();++i) {
     // Check to see if the trigger passed regardless of any prescale value. If it does then
     // add this event to the count

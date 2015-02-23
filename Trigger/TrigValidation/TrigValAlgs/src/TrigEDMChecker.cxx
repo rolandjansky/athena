@@ -623,46 +623,46 @@ void TrigEDMChecker::dumpTrigSpacePointCounts(MsgStream &mLog)
 			getVec = SpacePointCountsCont->at(i)->contentsPixelClusEndcapC();
 			sum = 0.;
 			for (uint j = 0; j < getVec.size(); ++j) sum += getVec[j];
-			sprintf(buff, "REGTEST %s SUM of contentsPixelClusEndcapC() =         %10.2f ", s.c_str(), sum );
+			snprintf(buff, 128, "REGTEST %s SUM of contentsPixelClusEndcapC() =         %10.2f ", s.c_str(), sum );
              		mLog <<MSG::INFO << buff << endreq;
 
 			getVec = SpacePointCountsCont->at(i)->contentsPixelClusBarrel();
 			sum = 0.;
 			for (uint j = 0; j < getVec.size(); ++j) sum += getVec[j];
-			sprintf(buff, "REGTEST %s SUM of contentsPixelClusBarrel() =         %10.2f ", s.c_str(), sum );
+			snprintf(buff, 128, "REGTEST %s SUM of contentsPixelClusBarrel() =         %10.2f ", s.c_str(), sum );
              		mLog <<MSG::INFO << buff << endreq;
 
 			getVec = SpacePointCountsCont->at(i)->contentsPixelClusEndcapA();
 			sum = 0.;
 			for (uint j = 0; j < getVec.size(); ++j) sum += getVec[j];
-			sprintf(buff, "REGTEST %s SUM of contentsPixelClusEndcapA() =         %10.2f ", s.c_str(), sum );
+			snprintf(buff, 128, "REGTEST %s SUM of contentsPixelClusEndcapA() =         %10.2f ", s.c_str(), sum );
              		mLog <<MSG::INFO << buff << endreq;
 
-			sprintf(buff, "REGTEST %s pixelClusTotBins() =        %u ", s.c_str(), SpacePointCountsCont->at(i)->pixelClusTotBins() );
+			snprintf(buff, 128, "REGTEST %s pixelClusTotBins() =        %u ", s.c_str(), SpacePointCountsCont->at(i)->pixelClusTotBins() );
             	 	mLog <<MSG::INFO << buff << endreq;
 
-			sprintf(buff, "REGTEST %s pixelClusTotMin() =        %10.2f ", s.c_str(), SpacePointCountsCont->at(i)->pixelClusTotMin() );
+			snprintf(buff, 128, "REGTEST %s pixelClusTotMin() =        %10.2f ", s.c_str(), SpacePointCountsCont->at(i)->pixelClusTotMin() );
             	 	mLog <<MSG::INFO << buff << endreq;
 
-			sprintf(buff, "REGTEST %s pixelClusTotMax() =        %10.2f ", s.c_str(), SpacePointCountsCont->at(i)->pixelClusTotMax() );
+			snprintf(buff, 128, "REGTEST %s pixelClusTotMax() =        %10.2f ", s.c_str(), SpacePointCountsCont->at(i)->pixelClusTotMax() );
             	 	mLog <<MSG::INFO << buff << endreq;
 
-			sprintf(buff, "REGTEST %s pixelClusSizeBins() =        %u ", s.c_str(), SpacePointCountsCont->at(i)->pixelClusSizeBins() );
+			snprintf(buff, 128, "REGTEST %s pixelClusSizeBins() =        %u ", s.c_str(), SpacePointCountsCont->at(i)->pixelClusSizeBins() );
             	 	mLog <<MSG::INFO << buff << endreq;
 
-			sprintf(buff, "REGTEST %s pixelClusSizeMin()  =        %10.2f ", s.c_str(), SpacePointCountsCont->at(i)->pixelClusSizeMin() );
+			snprintf(buff, 128, "REGTEST %s pixelClusSizeMin()  =        %10.2f ", s.c_str(), SpacePointCountsCont->at(i)->pixelClusSizeMin() );
             	 	mLog <<MSG::INFO << buff << endreq;
 
-			sprintf(buff, "REGTEST %s pixelClusSizeMax() =        %10.2f ", s.c_str(), SpacePointCountsCont->at(i)->pixelClusSizeMax() );
+			snprintf(buff, 128, "REGTEST %s pixelClusSizeMax() =        %10.2f ", s.c_str(), SpacePointCountsCont->at(i)->pixelClusSizeMax() );
 			mLog <<MSG::INFO << buff << endreq;
 
-			sprintf(buff, "REGTEST %s sctSpEndcapC() =        %u ", s.c_str(), SpacePointCountsCont->at(i)->sctSpEndcapC() );
+			snprintf(buff, 128, "REGTEST %s sctSpEndcapC() =        %u ", s.c_str(), SpacePointCountsCont->at(i)->sctSpEndcapC() );
             	 	mLog <<MSG::INFO << buff << endreq;
 
-			sprintf(buff, "REGTEST %s sctSpBarrel() =        %u ", s.c_str(), SpacePointCountsCont->at(i)->sctSpBarrel() );
+			snprintf(buff, 128, "REGTEST %s sctSpBarrel() =        %u ", s.c_str(), SpacePointCountsCont->at(i)->sctSpBarrel() );
             	 	mLog <<MSG::INFO << buff << endreq;
 
-			sprintf(buff, "REGTEST %s sctSpEndcapA() =        %u ", s.c_str(), SpacePointCountsCont->at(i)->sctSpEndcapA() );
+			snprintf(buff, 128, "REGTEST %s sctSpEndcapA() =        %u ", s.c_str(), SpacePointCountsCont->at(i)->sctSpEndcapA() );
             	 	mLog <<MSG::INFO << buff << endreq;
 		}
 	}
@@ -690,13 +690,13 @@ void TrigEDMChecker::dumpTrigT2MBTSBits(MsgStream &mLog){
 			getVec = T2MbtsBitsCont->at(i)->triggerEnergies();
 			sum = 0.;
 			for (uint j = 0; j < getVec.size(); ++j) sum += getVec[j];
-			sprintf(buff, "REGTEST %s SUM of triggerEnergies() =         %10.2f ", s.c_str(), sum );
+			snprintf(buff, 128, "REGTEST %s SUM of triggerEnergies() =         %10.2f ", s.c_str(), sum );
              		mLog <<MSG::INFO << buff << endreq;
 
 			getVec = T2MbtsBitsCont->at(i)->triggerTimes();
 			sum = 0.;
 			for (uint j = 0; j < getVec.size(); ++j) sum += getVec[j];
-			sprintf(buff, "REGTEST %s SUM of triggerTimes() =         %10.2f ", s.c_str(), sum );
+			snprintf(buff, 128, "REGTEST %s SUM of triggerTimes() =         %10.2f ", s.c_str(), sum );
              		mLog <<MSG::INFO << buff << endreq;
 		}
 	}
@@ -725,12 +725,12 @@ void TrigEDMChecker::dumpTrigVertexCounts(MsgStream &mLog){
             	for(uint i = 0; i < T2VertexCountsCont->size(); i++) {
 			ugetVec = T2VertexCountsCont->at(i)->vtxNtrks();
 			for (uint j = 0; j < ugetVec.size(); ++j) usum += ugetVec[j];
-			sprintf(buff, "REGTEST %s SUM of vtxNtrks() =         %u ", s.c_str(), usum );
+			snprintf(buff, 128, "REGTEST %s SUM of vtxNtrks() =         %u ", s.c_str(), usum );
              		mLog <<MSG::INFO << buff << endreq;
 
 			fgetVec = T2VertexCountsCont->at(i)->vtxTrkPtSqSum();
 			for (uint j = 0; j < fgetVec.size(); ++j) fsum += fgetVec[j];
-			sprintf(buff, "REGTEST %s SUM of vtxTrkPtSqSum() =         %10.2f ", s.c_str(), fsum );
+			snprintf(buff, 128, "REGTEST %s SUM of vtxTrkPtSqSum() =         %10.2f ", s.c_str(), fsum );
              		mLog <<MSG::INFO << buff << endreq;
 		}
 	}
@@ -758,49 +758,49 @@ void TrigEDMChecker::dumpTrigTrackCounts(MsgStream &mLog){
 			getVec = T2TrackCountsCont->at(i)->z0_pt();
 			sum = 0.;
 			for (uint j = 0; j < getVec.size(); ++j) sum += getVec[j];
-			sprintf(buff, "REGTEST %s SUM of z0_pt =         %10.2f ", s.c_str(), sum );
+			snprintf(buff, 128, "REGTEST %s SUM of z0_pt =         %10.2f ", s.c_str(), sum );
              		mLog <<MSG::INFO << buff << endreq;
 
 			getVec = T2TrackCountsCont->at(i)->eta_phi();
 			sum = 0.;
 			for (uint j = 0; j < getVec.size(); ++j) sum += getVec[j];
-			sprintf(buff, "REGTEST %s SUM of eta_phi() =         %10.2f ", s.c_str(), sum );
+			snprintf(buff, 128, "REGTEST %s SUM of eta_phi() =         %10.2f ", s.c_str(), sum );
              		mLog <<MSG::INFO << buff << endreq;
 
-			sprintf(buff, "REGTEST %s z0Bins() =        %u ", s.c_str(), T2TrackCountsCont->at(i)->z0Bins() );
+			snprintf(buff, 128, "REGTEST %s z0Bins() =        %u ", s.c_str(), T2TrackCountsCont->at(i)->z0Bins() );
 			mLog <<MSG::INFO << buff << endreq;
 
-			sprintf(buff, "REGTEST %s z0Min() =        %10.2f ", s.c_str(), T2TrackCountsCont->at(i)->z0Min() );
+			snprintf(buff, 128, "REGTEST %s z0Min() =        %10.2f ", s.c_str(), T2TrackCountsCont->at(i)->z0Min() );
 			mLog <<MSG::INFO << buff << endreq;
 
-			sprintf(buff, "REGTEST %s z0Max() =        %10.2f ", s.c_str(), T2TrackCountsCont->at(i)->z0Max() );
+			snprintf(buff, 128, "REGTEST %s z0Max() =        %10.2f ", s.c_str(), T2TrackCountsCont->at(i)->z0Max() );
 			mLog <<MSG::INFO << buff << endreq;
 
-			sprintf(buff, "REGTEST %s ptBins() =        %u ", s.c_str(), T2TrackCountsCont->at(i)->ptBins() );
+			snprintf(buff, 128, "REGTEST %s ptBins() =        %u ", s.c_str(), T2TrackCountsCont->at(i)->ptBins() );
 			mLog <<MSG::INFO << buff << endreq;
 
-			sprintf(buff, "REGTEST %s ptMin() =        %10.2f ", s.c_str(), T2TrackCountsCont->at(i)->ptMin() );
+			snprintf(buff, 128, "REGTEST %s ptMin() =        %10.2f ", s.c_str(), T2TrackCountsCont->at(i)->ptMin() );
 			mLog <<MSG::INFO << buff << endreq;
 
-			sprintf(buff, "REGTEST %s ptMax() =        %10.2f ", s.c_str(), T2TrackCountsCont->at(i)->ptMax() );
+			snprintf(buff, 128, "REGTEST %s ptMax() =        %10.2f ", s.c_str(), T2TrackCountsCont->at(i)->ptMax() );
 			mLog <<MSG::INFO << buff << endreq;
 
-			sprintf(buff, "REGTEST %s etaBins() =        %u ", s.c_str(), T2TrackCountsCont->at(i)->etaBins() );
+			snprintf(buff, 128, "REGTEST %s etaBins() =        %u ", s.c_str(), T2TrackCountsCont->at(i)->etaBins() );
 			mLog <<MSG::INFO << buff << endreq;
 
-			sprintf(buff, "REGTEST %s etaMin() =        %10.2f ", s.c_str(), T2TrackCountsCont->at(i)->etaMin() );
+			snprintf(buff, 128, "REGTEST %s etaMin() =        %10.2f ", s.c_str(), T2TrackCountsCont->at(i)->etaMin() );
 			mLog <<MSG::INFO << buff << endreq;
 
-			sprintf(buff, "REGTEST %s etaMax() =        %10.2f ", s.c_str(), T2TrackCountsCont->at(i)->etaMax() );
+			snprintf(buff, 128, "REGTEST %s etaMax() =        %10.2f ", s.c_str(), T2TrackCountsCont->at(i)->etaMax() );
 			mLog <<MSG::INFO << buff << endreq;
 
-			sprintf(buff, "REGTEST %s phiBins() =        %u ", s.c_str(), T2TrackCountsCont->at(i)->phiBins() );
+			snprintf(buff, 128, "REGTEST %s phiBins() =        %u ", s.c_str(), T2TrackCountsCont->at(i)->phiBins() );
 			mLog <<MSG::INFO << buff << endreq;
 
-			sprintf(buff, "REGTEST %s phiMin() =        %10.2f ", s.c_str(), T2TrackCountsCont->at(i)->phiMin() );
+			snprintf(buff, 128, "REGTEST %s phiMin() =        %10.2f ", s.c_str(), T2TrackCountsCont->at(i)->phiMin() );
 			mLog <<MSG::INFO << buff << endreq;
 
-			sprintf(buff, "REGTEST %s phiMax() =        %10.2f ", s.c_str(), T2TrackCountsCont->at(i)->phiMax() );
+			snprintf(buff, 128, "REGTEST %s phiMax() =        %10.2f ", s.c_str(), T2TrackCountsCont->at(i)->phiMax() );
 			mLog <<MSG::INFO << buff << endreq;
 		}
 	}
@@ -824,10 +824,10 @@ StatusCode TrigEDMChecker::dumpxAODTrigMinBias() {
 StatusCode TrigEDMChecker::dumpxAODTrigMissingET() {
 	MsgStream mLog( messageService(), name() );
 
-	mLog << MSG::INFO << "in Florian: dumpxAODTrigMissingET()" << endreq;
+	mLog << MSG::INFO << "dumpxAODTrigMissingET()" << endreq;
 
 	int ntag=4;
-	std::string METTags[]={"HLT_xAOD__TrigMissingETContainer_EFJetEtSum","HLT_xAOD__TrigMissingETContainer_TrigEFMissingET", "HLT_xAOD__TrigMissingETContainer_TrigEFMissingET_FEB","HLT_xAOD__TrigMissingETContainer_TrigEFMissingET_topocl"};
+	std::string METTags[]={"HLT_xAOD__TrigMissingETContainer_EFJetEtSum","HLT_xAOD__TrigMissingETContainer_TrigEFMissingET", "HLT_xAOD__TrigMissingETContainer_TrigL2MissingET_FEB","HLT_xAOD__TrigMissingETContainer_TrigEFMissingET_topocl"};
 
         for(int itag=0; itag <ntag; itag++) {
 
@@ -843,19 +843,19 @@ StatusCode TrigEDMChecker::dumpxAODTrigMissingET() {
 
              std::string s; char buff[128];
              
-             sprintf(buff, "REGTEST %s Ex =         %10.2f CLHEP::MeV", s.c_str(), MissingETCont->at(i)->ex() );
+             snprintf(buff, 128, "REGTEST %s Ex =         %10.2f CLHEP::MeV", s.c_str(), MissingETCont->at(i)->ex() );
              mLog <<MSG::INFO << buff << endreq;
-             sprintf(buff, "REGTEST %s Ey =         %10.2f CLHEP::MeV", s.c_str(), MissingETCont->at(i)->ey() );
+             snprintf(buff, 128, "REGTEST %s Ey =         %10.2f CLHEP::MeV", s.c_str(), MissingETCont->at(i)->ey() );
              mLog <<MSG::INFO << buff << endreq;
-             sprintf(buff, "REGTEST %s Ez =         %10.2f CLHEP::MeV", s.c_str(), MissingETCont->at(i)->ez() );
+             snprintf(buff, 128, "REGTEST %s Ez =         %10.2f CLHEP::MeV", s.c_str(), MissingETCont->at(i)->ez() );
              mLog <<MSG::INFO << buff << endreq;
-             sprintf(buff, "REGTEST %s SumET =         %10.2f CLHEP::MeV", s.c_str(), MissingETCont->at(i)->sumEt() );
+             snprintf(buff, 128, "REGTEST %s SumET =         %10.2f CLHEP::MeV", s.c_str(), MissingETCont->at(i)->sumEt() );
              mLog <<MSG::INFO << buff << endreq;
-             sprintf(buff, "REGTEST %s SumE =       %10.2f CLHEP::MeV", s.c_str(), MissingETCont->at(i)->sumE() );
+             snprintf(buff, 128, "REGTEST %s SumE =       %10.2f CLHEP::MeV", s.c_str(), MissingETCont->at(i)->sumE() );
              mLog <<MSG::INFO << buff << endreq;
-             sprintf(buff, "REGTEST %s Flag =       %d", s.c_str(), MissingETCont->at(i)->flag() );
+             snprintf(buff, 128, "REGTEST %s Flag =       %d", s.c_str(), MissingETCont->at(i)->flag() );
              mLog <<MSG::INFO << buff << endreq;
-             sprintf(buff, "REGTEST %s Flag =       %d", s.c_str(), MissingETCont->at(i)->roiWord() );
+             snprintf(buff, 128, "REGTEST %s Flag =       %d", s.c_str(), MissingETCont->at(i)->roiWord() );
              mLog <<MSG::INFO << buff << endreq;
              
 
@@ -866,7 +866,7 @@ StatusCode TrigEDMChecker::dumpxAODTrigMissingET() {
              
             for(uint j = 0; j < Nc; j++) {
              
-        std::string name =               MissingETCont->at(i)->nameOfComponent(j);
+                std::string name =               MissingETCont->at(i)->nameOfComponent(j);
 				const short status =             MissingETCont->at(i)->statusComponent(j);
 				const unsigned short usedChan =  MissingETCont->at(i)->usedChannelsComponent(j);
 				const short sumOfSigns =         MissingETCont->at(i)->sumOfSignsComponent(j);
@@ -878,7 +878,7 @@ StatusCode TrigEDMChecker::dumpxAODTrigMissingET() {
 				const float sumE =               MissingETCont->at(i)->sumEComponent(j);
 				const float sumEt =              MissingETCont->at(i)->sumEtComponent(j);
 
-				sprintf(buff,
+				snprintf(buff, 128,
 						"REGTEST   %s   %6d %12d %10d   %6.2f  %6.3f %10.2f %10.2f %10.2f %10.2f %10.2f",
 						name.c_str(), status, usedChan, sumOfSigns, calib1, calib0,
 						ex, ey, ez, sumE, sumEt);
@@ -931,23 +931,23 @@ StatusCode TrigEDMChecker::dumpTrigMissingET() {
 			std::string s;
 			char buff[128];
 
-			sprintf(buff, "REGTEST %s Ex =         %10.2f CLHEP::MeV", s.c_str(), (*trigMETfirst)->ex() );
+			snprintf(buff, 128, "REGTEST %s Ex =         %10.2f CLHEP::MeV", s.c_str(), (*trigMETfirst)->ex() );
 			mLog <<MSG::INFO << buff << endreq;
-			sprintf(buff, "REGTEST %s Ey =         %10.2f CLHEP::MeV", s.c_str(), (*trigMETfirst)->ey() );
+			snprintf(buff, 128, "REGTEST %s Ey =         %10.2f CLHEP::MeV", s.c_str(), (*trigMETfirst)->ey() );
 			mLog <<MSG::INFO << buff << endreq;
-			sprintf(buff, "REGTEST %s Ez =         %10.2f CLHEP::MeV", s.c_str(), (*trigMETfirst)->ez() );
+			snprintf(buff, 128, "REGTEST %s Ez =         %10.2f CLHEP::MeV", s.c_str(), (*trigMETfirst)->ez() );
 			mLog <<MSG::INFO << buff << endreq;
-			sprintf(buff, "REGTEST %s Et =         %10.2f CLHEP::MeV", s.c_str(), (*trigMETfirst)->et() );
+			snprintf(buff, 128, "REGTEST %s Et =         %10.2f CLHEP::MeV", s.c_str(), (*trigMETfirst)->et() );
 			mLog <<MSG::INFO << buff << endreq;
-			sprintf(buff, "REGTEST %s SumEt =      %10.2f CLHEP::MeV", s.c_str(), (*trigMETfirst)->sumEt() );
+			snprintf(buff, 128, "REGTEST %s SumEt =      %10.2f CLHEP::MeV", s.c_str(), (*trigMETfirst)->sumEt() );
 			mLog <<MSG::INFO << buff << endreq;
-			sprintf(buff, "REGTEST %s SumE =       %10.2f CLHEP::MeV", s.c_str(), (*trigMETfirst)->sumE() );
+			snprintf(buff, 128, "REGTEST %s SumE =       %10.2f CLHEP::MeV", s.c_str(), (*trigMETfirst)->sumE() );
 			mLog <<MSG::INFO << buff << endreq;
-			sprintf(buff, "REGTEST %s E =          %10.2f CLHEP::MeV", s.c_str(), (*trigMETfirst)->e() );
+			snprintf(buff, 128, "REGTEST %s E =          %10.2f CLHEP::MeV", s.c_str(), (*trigMETfirst)->e() );
 			mLog <<MSG::INFO << buff << endreq;
-			sprintf(buff, "REGTEST %s flag =    %10d",       s.c_str(), (*trigMETfirst)->getFlag() );
+			snprintf(buff, 128, "REGTEST %s flag =    %10d",       s.c_str(), (*trigMETfirst)->getFlag() );
 			mLog <<MSG::INFO << buff << endreq;
-			sprintf(buff, "REGTEST %s RoIword = %10ld",      s.c_str(), (*trigMETfirst)->RoIword() );
+			snprintf(buff, 128, "REGTEST %s RoIword = %10ld",      s.c_str(), (*trigMETfirst)->RoIword() );
 			mLog <<MSG::INFO << buff << endreq;
 
 			unsigned int Nc = (*trigMETfirst)->getNumOfComponents();
@@ -957,7 +957,7 @@ StatusCode TrigEDMChecker::dumpTrigMissingET() {
 				mLog << MSG::INFO << s << endreq;
 
 				for (unsigned int i=0; i<Nc; ++i) { // loop over components
-					const char* name =              (*trigMETfirst)->getNameOfComponent(i).c_str();
+					std::string name =              (*trigMETfirst)->getNameOfComponent(i);
 					const short status =            (*trigMETfirst)->getStatus(i);
 					const unsigned short usedChan = (*trigMETfirst)->getUsedChannels(i);
 					const short sumOfSigns =        (*trigMETfirst)->getSumOfSigns(i);
@@ -969,9 +969,9 @@ StatusCode TrigEDMChecker::dumpTrigMissingET() {
 					const float sumE =              (*trigMETfirst)->getSumEComponent(i);
 					const float sumEt =             (*trigMETfirst)->getSumEtComponent(i);
 
-					sprintf(buff,
+				    snprintf(buff, 128,
 							"REGTEST   %s   %6d %12d %10d   %6.2f  %6.3f %10.2f %10.2f %10.2f %10.2f %10.2f",
-							name, status, usedChan, sumOfSigns, calib1, calib0,
+							name.c_str(), status, usedChan, sumOfSigns, calib1, calib0,
 							ex, ey, ez, sumE, sumEt);
 					mLog << MSG::INFO << buff << endreq;
 				} // loop over components
@@ -1006,23 +1006,23 @@ StatusCode TrigEDMChecker::dumpTrigMissingET() {
 			s="REGTEST ??? ";
 		}
 
-		sprintf(buff, "%s Ex =         %10.2f CLHEP::MeV", s.c_str(), trigMETfirst->ex() );
+		snprintf(buff, 128, "%s Ex =         %10.2f CLHEP::MeV", s.c_str(), trigMETfirst->ex() );
 		mLog <<MSG::INFO << buff << endreq;
-		sprintf(buff, "%s Ey =         %10.2f CLHEP::MeV", s.c_str(), trigMETfirst->ey() );
+		snprintf(buff, 128, "%s Ey =         %10.2f CLHEP::MeV", s.c_str(), trigMETfirst->ey() );
 		mLog <<MSG::INFO << buff << endreq;
-		sprintf(buff, "%s Ez =         %10.2f CLHEP::MeV", s.c_str(), trigMETfirst->ez() );
+		snprintf(buff, 128, "%s Ez =         %10.2f CLHEP::MeV", s.c_str(), trigMETfirst->ez() );
 		mLog <<MSG::INFO << buff << endreq;
-		sprintf(buff, "%s Et =         %10.2f CLHEP::MeV", s.c_str(), trigMETfirst->et() );
+		snprintf(buff, 128, "%s Et =         %10.2f CLHEP::MeV", s.c_str(), trigMETfirst->et() );
 		mLog <<MSG::INFO << buff << endreq;
-		sprintf(buff, "%s SumE =       %10.2f CLHEP::MeV", s.c_str(), trigMETfirst->sumE() );
+		snprintf(buff, 128, "%s SumE =       %10.2f CLHEP::MeV", s.c_str(), trigMETfirst->sumE() );
 		mLog <<MSG::INFO << buff << endreq;
-		sprintf(buff, "%s SumEt =      %10.2f CLHEP::MeV", s.c_str(), trigMETfirst->sumEt() );
+		snprintf(buff, 128, "%s SumEt =      %10.2f CLHEP::MeV", s.c_str(), trigMETfirst->sumEt() );
 		mLog <<MSG::INFO << buff << endreq;
-		sprintf(buff, "%s E =          %10.2f CLHEP::MeV", s.c_str(), trigMETfirst->e() );
+		snprintf(buff, 128, "%s E =          %10.2f CLHEP::MeV", s.c_str(), trigMETfirst->e() );
 		mLog <<MSG::INFO << buff << endreq;
-		sprintf(buff, "%s flag =    %10d",       s.c_str(), trigMETfirst->getFlag() );
+		snprintf(buff, 128, "%s flag =    %10d",       s.c_str(), trigMETfirst->getFlag() );
 		mLog <<MSG::INFO << buff << endreq;
-		sprintf(buff, "%s RoIword = %10ld",      s.c_str(), trigMETfirst->RoIword() );
+		snprintf(buff, 128, "%s RoIword = %10ld",      s.c_str(), trigMETfirst->RoIword() );
 		mLog <<MSG::INFO << buff << endreq;
 
 		unsigned int Nc = trigMETfirst->getNumOfComponents();
@@ -1032,7 +1032,7 @@ StatusCode TrigEDMChecker::dumpTrigMissingET() {
 			mLog << MSG::INFO << s << endreq;
 
 			for (unsigned int i=0; i<Nc; ++i) { // loop over components
-				const char* name =              trigMETfirst->getNameOfComponent(i).c_str();
+				std::string name =              trigMETfirst->getNameOfComponent(i);
 				const short status =            trigMETfirst->getStatus(i);
 				const unsigned short usedChan = trigMETfirst->getUsedChannels(i);
 				const short sumOfSigns =        trigMETfirst->getSumOfSigns(i);
@@ -1044,9 +1044,9 @@ StatusCode TrigEDMChecker::dumpTrigMissingET() {
 				const float sumE =              trigMETfirst->getSumEComponent(i);
 				const float sumEt =             trigMETfirst->getSumEtComponent(i);
 
-				sprintf(buff,
+				snprintf(buff, 128,
 						"REGTEST   %s   %6d %12d %10d   %6.2f  %6.3f %10.2f %10.2f %10.2f %10.2f %10.2f",
-						name, status, usedChan, sumOfSigns, calib1, calib0,
+						name.c_str(), status, usedChan, sumOfSigns, calib1, calib0,
 						ex, ey, ez, sumE, sumEt);
 				mLog << MSG::INFO << buff << endreq;
 			} // loop over components
@@ -2586,253 +2586,348 @@ StatusCode TrigEDMChecker::dumpTrigL2BphysContainer() {
 //////////////////////////////////////////////////////////////////////////////////
 
 StatusCode TrigEDMChecker::dumpxAODJetContainer() {
-	MsgStream mLog( messageService(), name() );
+    MsgStream mLog( messageService(), name() );
     
-	ATH_MSG_DEBUG("in dumpxAODJetContainer()");
+    ATH_MSG_DEBUG("in dumpxAODJetContainer()");
     
-	ATH_MSG_INFO("REGTEST ==========START of xAOD::JetContainer DUMP===========");
+    ATH_MSG_INFO("REGTEST ==========START of xAOD::JetContainer DUMP===========");
     
-    //retrieve jet collection
-    const xAOD::JetContainer* jetCont = 0;
-    ATH_CHECK( evtStore()->retrieve( jetCont, "HLT_xAOD__JetContainer_TrigHLTJetRec") );
+    std::string containerName[30] = {"HLT_xAOD__JetContainer_a4tcemjesFS",
+                                     "HLT_xAOD__JetContainer_a4tcemsubFS",
+                                     "HLT_xAOD__JetContainer_a4tcemsubjesFS",
+                                     "HLT_xAOD__JetContainer_a4tcemnojcalibFS",
+                                     "HLT_xAOD__JetContainer_a4tcemjesPS",
+                                     "HLT_xAOD__JetContainer_a4tcemnojcalibPS",
+                                     "HLT_xAOD__JetContainer_a4tclcwjesFS",
+                                     "HLT_xAOD__JetContainer_a4tclcwsubFS",
+                                     "HLT_xAOD__JetContainer_a4tclcwsubjesFS",
+                                     "HLT_xAOD__JetContainer_a4tclcwnojcalibFS",
+                                     "HLT_xAOD__JetContainer_a4tclcwjesPS",
+                                     "HLT_xAOD__JetContainer_a4tclcwnojcalibPS",
+                                     "HLT_xAOD__JetContainer_a4TTemnojcalibFS",
+                                     "HLT_xAOD__JetContainer_a4TThadnojcalibFS",
+                                     "HLT_xAOD__JetContainer_a10tcemjesFS",
+                                     "HLT_xAOD__JetContainer_a10tcemsubFS",
+                                     "HLT_xAOD__JetContainer_a10tcemsubjesFS",
+                                     "HLT_xAOD__JetContainer_a10tcemnojcalibFS",
+                                     "HLT_xAOD__JetContainer_a10tcemjesPS",
+                                     "HLT_xAOD__JetContainer_a10tcemnojcalibPS",
+                                     "HLT_xAOD__JetContainer_a10tclcwjesFS",
+                                     "HLT_xAOD__JetContainer_a10tclcwsubFS",
+                                     "HLT_xAOD__JetContainer_a10tclcwsubjesFS",
+                                     "HLT_xAOD__JetContainer_a10tclcwnojcalibFS",
+                                     "HLT_xAOD__JetContainer_a10tclcwjesPS",
+                                     "HLT_xAOD__JetContainer_a10tclcwnojcalibPS",
+                                     "HLT_xAOD__JetContainer_a10TTemnojcalibFS",
+                                     "HLT_xAOD__JetContainer_a10TThadnojcalibFS",
+                                     "HLT_xAOD__JetContainer_a10r_tcemsubjesFS",
+                                     "HLT_xAOD__JetContainer_TrigHLTJetDSSelectorCollection"};
+    float containerSizeParameter[29] = {0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4,
+        1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0}; //no DSSelector
+    int containerInputCalibration[29] = {1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 2, 2,
+        1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 2, 2, 11}; //no DSSelector
+    int containerSignalState[29] = {0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 1,
+        0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 1, 1}; //no DSSelector
+    bool onefilled = false;
     
-    int jetContsize = jetCont->size();
-    ATH_MSG_INFO("REGTEST Got jet container, size: " << jetContsize);
-    
-    int i = 0;
-    for(const auto & thisjet : *jetCont) {
-        ++i;
-        ATH_MSG_INFO( "REGTEST Looking at jet " << i);
-        if (thisjet) {
-            //checks jet variables
-            ATH_MSG_DEBUG("REGTEST    Checking jet variables");
-            ATH_MSG_INFO( "REGTEST    pt: " << thisjet->pt() );
-            ATH_MSG_INFO( "REGTEST    eta: " << thisjet->eta() );
-            ATH_MSG_INFO( "REGTEST    phi: " << thisjet->phi() );
-            ATH_MSG_INFO( "REGTEST    m: " << thisjet->m() );
-            ATH_MSG_INFO( "REGTEST    e: " << thisjet->e() );
-            ATH_MSG_INFO( "REGTEST    px: " << thisjet->px() );
-            ATH_MSG_INFO( "REGTEST    py: " << thisjet->py() );
-            ATH_MSG_INFO( "REGTEST    pz: " << thisjet->pz() );
-            ATH_MSG_INFO( "REGTEST    type: " << thisjet->type() );
-            ATH_MSG_INFO( "REGTEST    algorithm (kt: 0, cam: 1, antikt: 2, ...): " << thisjet->getAlgorithmType() );
-            ATH_MSG_INFO( "REGTEST    size parameter: " << thisjet->getSizeParameter() );
-            ATH_MSG_INFO( "REGTEST    input (LCTopo: 0, EMTopo: 1, ...): " << thisjet->getInputType() );
-            ATH_MSG_INFO( "REGTEST    constituents signal state (uncalibrated: 0, calibrated: 1): " << thisjet->getConstituentsSignalState() );
-            ATH_MSG_INFO( "REGTEST    number of constituents: " << thisjet->numConstituents() );
-            
-            //checks the constituents
-            ATH_MSG_DEBUG("REGTEST    Checking jet constituents");
-            
-            xAOD::JetConstituentVector constitCont = thisjet->getConstituents();
-            int constitContsize = constitCont.size();
-            ATH_MSG_INFO("REGTEST    Got constituent vector, size: " << constitContsize);
-            
-            if (constitContsize != 0) {
-                int j = 0;
-                for (const auto & thisconstit : constitCont) {
-                    ++j;
-                    ATH_MSG_INFO( "REGTEST    Looking at constituent " << j);
-                    if(thisconstit){
-                        ATH_MSG_INFO( "REGTEST        constituent pt: " << thisconstit->pt() );
-                        ATH_MSG_INFO( "REGTEST        constituent eta: " << thisconstit->eta() );
-                        ATH_MSG_INFO( "REGTEST        constituent phi: " << thisconstit->phi() );
-                        ATH_MSG_INFO( "REGTEST        constituent m: " << thisconstit->m() );
-                        ATH_MSG_INFO( "REGTEST        constituent e: " << thisconstit->e() );
-                        ATH_MSG_INFO( "REGTEST        constituent type (CaloCluster: 1, Jet: 2, ...): " << thisconstit->type() );
+    for (int icont=0; icont<30; ++icont) {
+        //retrieve jet collection
+        const xAOD::JetContainer* jetCont = 0;
+        ATH_CHECK( evtStore()->retrieve( jetCont, containerName[icont]) );
+        
+        int jetContsize = jetCont->size();
+        ATH_MSG_INFO("REGTEST Got jet container " << containerName[icont] << ", size: " << jetContsize);
+        if (jetContsize != 0) {
+            onefilled = true;
+            int i = 0;
+            for(const auto & thisjet : *jetCont) {
+                ++i;
+                ATH_MSG_INFO( "REGTEST Looking at jet " << i);
+                if (thisjet) {
+                    //checks jet variables
+                    ATH_MSG_DEBUG("REGTEST    Checking jet variables");
+                    ATH_MSG_INFO( "REGTEST    pt: " << thisjet->pt() );
+                    ATH_MSG_INFO( "REGTEST    eta: " << thisjet->eta() );
+                    ATH_MSG_INFO( "REGTEST    phi: " << thisjet->phi() );
+                    ATH_MSG_INFO( "REGTEST    m: " << thisjet->m() );
+                    ATH_MSG_INFO( "REGTEST    e: " << thisjet->e() );
+                    ATH_MSG_INFO( "REGTEST    px: " << thisjet->px() );
+                    ATH_MSG_INFO( "REGTEST    py: " << thisjet->py() );
+                    ATH_MSG_INFO( "REGTEST    pz: " << thisjet->pz() );
+                    ATH_MSG_INFO( "REGTEST    type: " << thisjet->type() );
+                    ATH_MSG_INFO( "REGTEST    algorithm (kt: 0, cam: 1, antikt: 2, ...): " << thisjet->getAlgorithmType() << "; should be 2");
+                    if(icont != 29 && thisjet->getAlgorithmType() != 2)
+                        ATH_MSG_WARNING("Jet algorithm different from container");
+                    ATH_MSG_INFO( "REGTEST    size parameter: " << thisjet->getSizeParameter() << "; should be " << containerSizeParameter[icont]);
+                    if(icont != 29  && thisjet->getSizeParameter() != containerSizeParameter[icont])
+                        ATH_MSG_WARNING("Jet size different from container");
+                    ATH_MSG_INFO( "REGTEST    input (LCTopo: 0, EMTopo: 1, TopoTower: 2, ...): " << thisjet->getInputType() << "; should be " << containerInputCalibration[icont]);
+                    if(icont != 29 && thisjet->getInputType() != containerInputCalibration[icont])
+                        ATH_MSG_WARNING("Jet input different from container");
+                    ATH_MSG_INFO( "REGTEST    constituents signal state (uncalibrated: 0, calibrated: 1): " << thisjet->getConstituentsSignalState() << "; should be " << containerSignalState[icont]);
+                    if(icont != 29 && thisjet->getConstituentsSignalState() != containerSignalState[icont])
+                        ATH_MSG_WARNING("Jet constituents' signal state different from container");
+                    ATH_MSG_INFO( "REGTEST    number of constituents: " << thisjet->numConstituents() );
+                    
+                    
+                    //checks the constituents
+                    ATH_MSG_DEBUG("REGTEST    Checking jet constituents");
+                    
+                    xAOD::JetConstituentVector constitCont = thisjet->getConstituents();
+                    unsigned int constitContsize = constitCont.size();
+                    ATH_MSG_INFO("REGTEST    Got constituent vector, size: " << constitContsize << "; should be " << thisjet->numConstituents());
+                    if(icont != 29 && constitContsize != thisjet->numConstituents())
+                        ATH_MSG_WARNING("Constituents container size different from number of constituents");
+                    
+                    if (constitContsize != 0) {
+//                        int j = 0;
+                        //                        for (const auto thisconstit : constitCont) {
+                        //                            ++j;
+                        //                            ATH_MSG_INFO( "REGTEST    Looking at constituent " << j);
+                        //                            if(thisconstit){
+                        //                                ATH_MSG_INFO( "REGTEST        constituent pt: " << thisconstit->pt() );
+                        //                                ATH_MSG_INFO( "REGTEST        constituent eta: " << thisconstit->eta() );
+                        //                                ATH_MSG_INFO( "REGTEST        constituent phi: " << thisconstit->phi() );
+                        //                                ATH_MSG_INFO( "REGTEST        constituent m: " << thisconstit->m() );
+                        //                                ATH_MSG_INFO( "REGTEST        constituent e: " << thisconstit->e() );
+                        //                                ATH_MSG_INFO( "REGTEST        constituent type (CaloCluster: 1, Jet: 2, ...): " << thisconstit->type() );
+                        //                            }
+                        //                            else{
+                        //                                ATH_MSG_ERROR("REGTEST Problem with constituent pointer");
+                        //                                return StatusCode::FAILURE;
+                        //                            }
+                        //                        }
+                        //                        ATH_MSG_INFO("REGTEST        size of constituent vector == number of displayed constituents: "<< (constitContsize == j) );
+                        //                        if (constitContsize != j) ATH_MSG_WARNING("REGTEST Problem with displaying this attribute");
                     }
-                    else{
-                        ATH_MSG_ERROR("REGTEST Problem with constituent pointer");
-                        return StatusCode::FAILURE;
+                    //                    else ATH_MSG_WARNING("REGTEST    This jet has 0 constituents!");
+                    
+                    //checks int attributes
+                    ATH_MSG_DEBUG("REGTEST    Checking int attributes");
+                    int valueint;
+                    if( thisjet->getAttribute(xAOD::JetAttribute::GhostMuonSegmentCount, valueint))    ATH_MSG_INFO("REGTEST    GhostMuonSegmentCount: " << valueint);
+                    if( thisjet->getAttribute(xAOD::JetAttribute::GhostTrackCount, valueint))          ATH_MSG_INFO("REGTEST    GhostTrackCount: " << valueint);
+                    if( thisjet->getAttribute(xAOD::JetAttribute::GhostTruthParticleCount, valueint))  ATH_MSG_INFO("REGTEST    GhostTruthParticleCount: " << valueint);
+                    if( thisjet->getAttribute(xAOD::JetAttribute::FracSamplingMaxIndex, valueint))   ATH_MSG_INFO( "REGTEST    FracSamplingMaxIndex: " << valueint);
+                    
+                    
+                    //checks float attributes
+                    ATH_MSG_DEBUG("REGTEST    Checking float attributes");
+                    float value;
+                    if( thisjet->getAttribute(xAOD::JetAttribute::ActiveArea, value))        ATH_MSG_INFO( "REGTEST    ActiveArea: " << value );
+                    // Four-vector type                   if( thisjet->getAttribute(xAOD::JetAttribute::ActiveArea4vec, value))        ATH_MSG_INFO( "REGTEST    ActiveArea4vec: " << value );
+                    if( thisjet->getAttribute(xAOD::JetAttribute::AverageLArQF, value))      ATH_MSG_INFO( "REGTEST    AverageLArQF: " << value );
+                    if( thisjet->getAttribute(xAOD::JetAttribute::BchCorrCell, value))       ATH_MSG_INFO( "REGTEST    BchCorrCell: " << value );
+                    if( thisjet->getAttribute(xAOD::JetAttribute::BchCorrDotx, value))       ATH_MSG_INFO( "REGTEST    BchCorrDotx: " << value );
+                    if( thisjet->getAttribute(xAOD::JetAttribute::BchCorrJet, value))        ATH_MSG_INFO( "REGTEST    BchCorrJet: " << value );
+                    if( thisjet->getAttribute(xAOD::JetAttribute::BchCorrJetForCell, value)) ATH_MSG_INFO( "REGTEST    BchCorrJetForCell: " << value );
+                    if( thisjet->getAttribute(xAOD::JetAttribute::CentroidR, value))         ATH_MSG_INFO( "REGTEST    CentroidR: " << value );
+                    if( thisjet->getAttribute(xAOD::JetAttribute::HECQuality, value))        ATH_MSG_INFO( "REGTEST    HECQuality: " << value );
+                    if( thisjet->getAttribute(xAOD::JetAttribute::IsoKR20Par, value))        ATH_MSG_INFO( "REGTEST    IsoKR20Par: " << value );
+                    if( thisjet->getAttribute(xAOD::JetAttribute::IsoKR20Perp, value))       ATH_MSG_INFO( "REGTEST    IsoKR20Perp: " << value );
+                    // ElementLink<DataVector<xAOD::Vertex> > type                    if( thisjet->getAttribute(xAOD::JetAttribute::HighestJVFVtx, value))       ATH_MSG_INFO( "REGTEST    HighestJVFVtx: " << value );
+                    // ??? type                    if( thisjet->getAttribute(xAOD::JetAttribute::JetLabel, value))       ATH_MSG_INFO( "REGTEST    JetLabel: " << value );
+                    if( thisjet->getAttribute(xAOD::JetAttribute::KtDR, value))              ATH_MSG_INFO( "REGTEST    KtDR: " << value );
+                    if( thisjet->getAttribute(xAOD::JetAttribute::LArBadHVEnergy, value))    ATH_MSG_INFO( "REGTEST    LArBadHVEnergy: " << value );
+                    if( thisjet->getAttribute(xAOD::JetAttribute::LArBadHVRatio, value))     ATH_MSG_INFO( "REGTEST    LArBadHVRatio: " << value );
+                    if( thisjet->getAttribute(xAOD::JetAttribute::LArQuality, value))        ATH_MSG_INFO( "REGTEST    LArQuality: " << value );
+                    if( thisjet->getAttribute(xAOD::JetAttribute::NegativeE, value))         ATH_MSG_INFO( "REGTEST    NegativeE: " << value );
+                    // no tools available yet                    if( thisjet->getAttribute(xAOD::JetAttribute::NumTowers, value))         ATH_MSG_INFO( "REGTEST    NumTowers: " << value );
+                    if( thisjet->getAttribute(xAOD::JetAttribute::SamplingMax, value))       ATH_MSG_INFO( "REGTEST    SamplingMax: " << value );
+                    if( thisjet->getAttribute(xAOD::JetAttribute::Timing, value))            ATH_MSG_INFO( "REGTEST    Timing: " << value );
+                    if( thisjet->getAttribute(xAOD::JetAttribute::VoronoiArea, value))       ATH_MSG_INFO( "REGTEST    VoronoiArea: " << value );
+                    if( thisjet->getAttribute(xAOD::JetAttribute::VoronoiAreaE, value))      ATH_MSG_INFO( "REGTEST    VoronoiAreaE: " << value );
+                    if( thisjet->getAttribute(xAOD::JetAttribute::VoronoiAreaPx, value))     ATH_MSG_INFO( "REGTEST    VoronoiAreaPx: " << value );
+                    if( thisjet->getAttribute(xAOD::JetAttribute::VoronoiAreaPy, value))     ATH_MSG_INFO( "REGTEST    VoronoiAreaPy: " << value );
+                    if( thisjet->getAttribute(xAOD::JetAttribute::VoronoiAreaPz, value))     ATH_MSG_INFO( "REGTEST    VoronoiAreaPz: " << value );
+                    if( thisjet->getAttribute(xAOD::JetAttribute::Width, value))             ATH_MSG_INFO( "REGTEST    WIDTH: " << value );
+                    if( thisjet->getAttribute(xAOD::JetAttribute::FracSamplingMax, value))   ATH_MSG_INFO( "REGTEST    FracSamplingMax: " << value );
+                    if( thisjet->getAttribute(xAOD::JetAttribute::EMFrac, value))            ATH_MSG_INFO( "REGTEST    EMFrac: " << value );
+                    if( thisjet->getAttribute(xAOD::JetAttribute::HECFrac, value))           ATH_MSG_INFO( "REGTEST    HECFrac: " << value );
+                    if( thisjet->getAttribute(xAOD::JetAttribute::isBadLoose, value))        ATH_MSG_INFO( "REGTEST    isBadLoose: " << value );
+                    if( thisjet->getAttribute(xAOD::JetAttribute::isBadMedium, value))       ATH_MSG_INFO( "REGTEST    isBadMedium: " << value );
+                    if( thisjet->getAttribute(xAOD::JetAttribute::isBadTight, value))        ATH_MSG_INFO( "REGTEST    isBadTight: " << value );
+                    // unknown attribute                   if( thisjet->getAttribute(xAOD::JetAttribute::isUgly, value))            ATH_MSG_INFO( "REGTEST    isUgly: " << value );
+                    if( thisjet->getAttribute(xAOD::JetAttribute::N90Constituents, value))   ATH_MSG_INFO( "REGTEST    N90Constituents: " << value );
+                    if( thisjet->getAttribute(xAOD::JetAttribute::N90Cells, value))          ATH_MSG_INFO( "REGTEST    N90Cells: " << value );
+                    if( thisjet->getAttribute(xAOD::JetAttribute::OotFracClusters10, value)) ATH_MSG_INFO( "REGTEST    OotFracClusters10: " << value );
+                    if( thisjet->getAttribute(xAOD::JetAttribute::OotFracClusters5, value))  ATH_MSG_INFO( "REGTEST    OotFracClusters5: " << value );
+                    if( thisjet->getAttribute(xAOD::JetAttribute::OotFracCells5, value))     ATH_MSG_INFO( "REGTEST    OotFracCells5: " << value );
+                    if( thisjet->getAttribute(xAOD::JetAttribute::OotFracCells10, value))    ATH_MSG_INFO( "REGTEST    OotFracCells10: " << value );
+                    if( thisjet->getAttribute(xAOD::JetAttribute::PtTruth, value))    ATH_MSG_INFO( "REGTEST    PtTruth: " << value );
+                    if( thisjet->getAttribute(xAOD::JetAttribute::Tau1, value))              ATH_MSG_INFO( "REGTEST    Tau1: " << value );
+                    if( thisjet->getAttribute(xAOD::JetAttribute::Tau2, value))              ATH_MSG_INFO( "REGTEST    Tau2: " << value );
+                    if( thisjet->getAttribute(xAOD::JetAttribute::Tau3, value))              ATH_MSG_INFO( "REGTEST    Tau3: " << value );
+                    // unknown attribute                  if( thisjet->getAttribute(xAOD::JetAttribute::Split12, value))           ATH_MSG_INFO( "REGTEST    Split12: " << value );
+                    // unknown attribute                   if( thisjet->getAttribute(xAOD::JetAttribute::Split23, value))           ATH_MSG_INFO( "REGTEST    Split23: " << value );
+                    // unknown attribute                   if( thisjet->getAttribute(xAOD::JetAttribute::Split34, value))           ATH_MSG_INFO( "REGTEST    Split34: " << value );
+                    if( thisjet->getAttribute(xAOD::JetAttribute::Dip12, value))             ATH_MSG_INFO( "REGTEST    Dip12: " << value );
+                    if( thisjet->getAttribute(xAOD::JetAttribute::Dip13, value))             ATH_MSG_INFO( "REGTEST    Dip13: " << value );
+                    if( thisjet->getAttribute(xAOD::JetAttribute::Dip23, value))             ATH_MSG_INFO( "REGTEST    Dip23: " << value );
+                    if( thisjet->getAttribute(xAOD::JetAttribute::DipExcl12, value))         ATH_MSG_INFO( "REGTEST    DipExcl12: " << value );
+                    if( thisjet->getAttribute(xAOD::JetAttribute::ThrustMin, value))         ATH_MSG_INFO( "REGTEST    ThrustMin: " << value );
+                    if( thisjet->getAttribute(xAOD::JetAttribute::ThrustMaj, value))         ATH_MSG_INFO( "REGTEST    ThrustMaj: " << value );
+                    if( thisjet->getAttribute(xAOD::JetAttribute::FoxWolfram0, value))       ATH_MSG_INFO( "REGTEST    FoxWolfram0: " << value );
+                    if( thisjet->getAttribute(xAOD::JetAttribute::FoxWolfram1, value))       ATH_MSG_INFO( "REGTEST    FoxWolfram1: " << value );
+                    if( thisjet->getAttribute(xAOD::JetAttribute::FoxWolfram2, value))       ATH_MSG_INFO( "REGTEST    FoxWolfram2: " << value );
+                    if( thisjet->getAttribute(xAOD::JetAttribute::FoxWolfram3, value))       ATH_MSG_INFO( "REGTEST    FoxWolfram3: " << value );
+                    if( thisjet->getAttribute(xAOD::JetAttribute::FoxWolfram4, value))       ATH_MSG_INFO( "REGTEST    FoxWolfram4: " << value );
+                    if( thisjet->getAttribute(xAOD::JetAttribute::Sphericity, value))        ATH_MSG_INFO( "REGTEST    Sphericity: " << value );
+                    if( thisjet->getAttribute(xAOD::JetAttribute::Aplanarity, value))        ATH_MSG_INFO( "REGTEST    Aplanarity: " << value );
+                    
+                    //checks vector<int> attributes
+                    ATH_MSG_DEBUG("REGTEST    Checking vector<int> attributes");
+                    std::vector<int> vecvalueint;
+                    if (thisjet->getAttribute(xAOD::JetAttribute::NumTrkPt1000, vecvalueint)) {
+                        int vecsize = vecvalueint.size();
+                        ATH_MSG_INFO("REGTEST    Got NumTrkPt1000 vector, size: " << vecsize);
+                        if (vecsize != 0) {
+                            int j = 0;
+                            for(const auto & thisvalue : vecvalueint){
+                                ++j;
+                                ATH_MSG_INFO("REGTEST        NumTrkPt1000 #" << j << ": " << thisvalue);
+                            }
+                            ATH_MSG_INFO("REGTEST        size of attribute vector == number of displayed attributes: " << (vecsize == j) );
+                            if (vecsize != j) ATH_MSG_WARNING("REGTEST Problem with displaying this attribute");
+                        }
                     }
+                    if (thisjet->getAttribute(xAOD::JetAttribute::NumTrkPt500, vecvalueint)) {
+                        int vecsize = vecvalueint.size();
+                        ATH_MSG_INFO("REGTEST    Got Got NumTrkPt500 vector, size: " << vecsize);
+                        if (vecsize != 0) {
+                            int j = 0;
+                            for(const auto & thisvalue : vecvalueint){
+                                ++j;
+                                ATH_MSG_INFO("REGTEST        NumTrkPt500 #" << j << ": " << thisvalue);
+                            }
+                            ATH_MSG_INFO("REGTEST        size of attribute vector == number of displayed attributes: " << (vecsize == j) );
+                            if (vecsize != j) ATH_MSG_WARNING("REGTEST Problem with displaying this attribute");
+                        }
+                    }
+                    
+                    //checks vector<float> attributes
+                    ATH_MSG_DEBUG("REGTEST    Checking vector<float> attributes");
+                    std::vector<float> vecvalue;
+                    if (thisjet->getAttribute(xAOD::JetAttribute::JVF, vecvalue)) {
+                        int vecsize = vecvalue.size();
+                        ATH_MSG_INFO("REGTEST    Got JVF vector, size: " << vecsize);
+                        if (vecsize != 0) {
+                            int j = 0;
+                            for(const auto & thisvalue : vecvalue){
+                                ++j;
+                                ATH_MSG_INFO("REGTEST        JVF #" << j << ": " << thisvalue);
+                            }
+                            ATH_MSG_INFO("REGTEST        size of attribute vector == number of displayed attributes: " << (vecsize == j) );
+                            if (vecsize != j) ATH_MSG_WARNING("REGTEST Problem with displaying this attribute");
+                        }
+                    }
+                    if (thisjet->getAttribute(xAOD::JetAttribute::SumPtTrkPt1000, vecvalue)) {
+                        int vecsize = vecvalue.size();
+                        ATH_MSG_INFO("REGTEST    Got SumPtTrkPt1000 vector, size: " << vecsize);
+                        if (vecsize != 0) {
+                            int j = 0;
+                            for(const auto & thisvalue : vecvalue){
+                                ++j;
+                                ATH_MSG_INFO("REGTEST        SumPtTrkPt1000 #" << j << ": " << thisvalue);
+                            }
+                            ATH_MSG_INFO("REGTEST        size of attribute vector == number of displayed attributes: " << (vecsize == j) );
+                            if (vecsize != j) ATH_MSG_WARNING("REGTEST Problem with displaying this attribute");
+                        }
+                    }
+                    if (thisjet->getAttribute(xAOD::JetAttribute::SumPtTrkPt500, vecvalue)) {
+                        int vecsize = vecvalue.size();
+                        ATH_MSG_INFO("REGTEST    Got SumPtTrkPt500 vector, size: " << vecsize);
+                        if (vecsize != 0) {
+                            int j = 0;
+                            for(const auto & thisvalue : vecvalue){
+                                ++j;
+                                ATH_MSG_INFO("REGTEST        SumPtTrkPt500 #" << j << ": " << thisvalue);
+                            }
+                            ATH_MSG_INFO("REGTEST        size of attribute vector == number of displayed attributes: " << (vecsize == j) );
+                            if (vecsize != j) ATH_MSG_WARNING("REGTEST Problem with displaying this attribute");
+                        }
+                    }
+                    if (thisjet->getAttribute(xAOD::JetAttribute::TrackWidthPt1000, vecvalue)) {
+                        int vecsize = vecvalue.size();
+                        ATH_MSG_INFO("REGTEST    Got TrackWidthPt1000 vector, size: " << vecsize);
+                        if (vecsize != 0) {
+                            int j = 0;
+                            for(const auto & thisvalue : vecvalue){
+                                ++j;
+                                ATH_MSG_INFO("REGTEST        TrackWidthPt1000 #" << j << ": " << thisvalue);
+                            }
+                            ATH_MSG_INFO("REGTEST        size of attribute vector == number of displayed attributes: " << (vecsize == j) );
+                            if (vecsize != j) ATH_MSG_WARNING("REGTEST Problem with displaying this attribute");
+                        }
+                    }
+                    if (thisjet->getAttribute(xAOD::JetAttribute::TrackWidthPt500, vecvalue)) {
+                        int vecsize = vecvalue.size();
+                        ATH_MSG_INFO("REGTEST    Got TrackWidthPt500 vector, size: " << vecsize);
+                        if (vecsize != 0) {
+                            int j = 0;
+                            for(const auto & thisvalue : vecvalue){
+                                ++j;
+                                ATH_MSG_INFO("REGTEST        TrackWidthPt500 #" << j << ": " << thisvalue);
+                            }
+                            ATH_MSG_INFO("REGTEST        size of attribute vector == number of displayed attributes: " << (vecsize == j) );
+                            if (vecsize != j) ATH_MSG_WARNING("REGTEST Problem with displaying this attribute");
+                        }
+                    }
+                    if (thisjet->getAttribute(xAOD::JetAttribute::EnergyPerSampling, vecvalue)) {
+                        int vecsize = vecvalue.size();
+                        ATH_MSG_INFO("REGTEST    Got EnergyPerSampling vector, size: " << vecsize);
+                        if (vecsize != 0) {
+                            int j = 0;
+                            for(const auto & thisvalue : vecvalue){
+                                ++j;
+                                ATH_MSG_INFO("REGTEST        EnergyPerSampling #" << j << ": " << thisvalue);
+                            }
+                            ATH_MSG_INFO("REGTEST        size of attribute vector == number of displayed attributes: " << (vecsize == j) );
+                            if (vecsize != j) ATH_MSG_WARNING("REGTEST Problem with displaying this attribute");
+                        }
+                    }
+                    
+                    
+                    //checks associated objects
+                    //                    ATH_MSG_DEBUG("REGTEST    Checking associated objects");
+                    //                                std::vector<const xAOD::TrackParticle*> track;
+                    //                                if( thisjet->getAssociatedObjects(xAOD::JetAttribute::GhostTrack, track) ){
+                    //                                    int vecsize = track.size();
+                    //                                    ATH_MSG_INFO("REGTEST    Got GhostTrack vector, size: " << vecsize);
+                    //                                    if (vecsize != 0) {
+                    //                                        int j = 0;
+                    //                                        for(const auto & thistrack : track){
+                    //                                            ++j;
+                    //                                            //checks only one associated variable, just making sure getting the object worked
+                    //                                            if (thistrack) ATH_MSG_INFO("REGTEST        z0 for GhostTrack #" << j << ": " << thistrack->z0());
+                    //                                            else{
+                    //                                                ATH_MSG_ERROR("REGTEST Problem with attribute pointer");
+                    //                                                return StatusCode::FAILURE;
+                    //                                            }
+                    //                                        }
+                    //                                        ATH_MSG_INFO("REGTEST        size of associated object vector == number of displayed attributes: " << (vecsize == j) );
+                    //                                        if (vecsize != j) ATH_MSG_WARNING("REGTEST Problem with displaying this associated object");
+                    //                                    }
+                    //                                }
                 }
-                ATH_MSG_INFO("REGTEST        size of constituent vector == number of displayed constituents: "<< (constitContsize == j) );
-                if (constitContsize != j) ATH_MSG_WARNING("REGTEST Problem with displaying this attribute");
-            }
-            else ATH_MSG_WARNING("REGTEST    This jet has 0 constituents!");
-            
-            //commented attributes are because they give an ERROR in 19.1.1.Y-VAL
-            
-            //checks int attributes
-//            ATH_MSG_DEBUG("REGTEST    Checking int attributes");
-//            int valueint;
-            //            if( thisjet->getAttribute(xAOD::JetAttribute::GhostMuonSegmentCount, valueint))    ATH_MSG_INFO("REGTEST    GhostMuonSegmentCount: " << valueint);
-            //            if( thisjet->getAttribute(xAOD::JetAttribute::GhostTrackCount, valueint))          ATH_MSG_INFO("REGTEST    GhostTrackCount: " << valueint);
-            //            if( thisjet->getAttribute(xAOD::JetAttribute::GhostTruthParticleCount, valueint))  ATH_MSG_INFO("REGTEST    GhostTruthParticleCount: " << valueint);
-            
-            //checks float attributes
-            ATH_MSG_DEBUG("REGTEST    Checking float attributes");
-            float value;
-            if( thisjet->getAttribute(xAOD::JetAttribute::ActiveArea, value))        ATH_MSG_INFO( "REGTEST    ActiveArea: " << value );
-            if( thisjet->getAttribute(xAOD::JetAttribute::AverageLArQF, value))      ATH_MSG_INFO( "REGTEST    AverageLArQF: " << value );
-            if( thisjet->getAttribute(xAOD::JetAttribute::BchCorrCell, value))       ATH_MSG_INFO( "REGTEST    BchCorrCell: " << value );
-            //            if( thisjet->getAttribute(xAOD::JetAttribute::BchCorrDotx, value))       ATH_MSG_INFO( "REGTEST    BchCorrDotx: " << value );
-            //            if( thisjet->getAttribute(xAOD::JetAttribute::BchCorrJet, value))        ATH_MSG_INFO( "REGTEST    BchCorrJet: " << value );
-            //            if( thisjet->getAttribute(xAOD::JetAttribute::BchCorrJetForCell, value)) ATH_MSG_INFO( "REGTEST    BchCorrJetForCell: " << value );
-            if( thisjet->getAttribute(xAOD::JetAttribute::CentroidR, value))         ATH_MSG_INFO( "REGTEST    CentroidR: " << value );
-            if( thisjet->getAttribute(xAOD::JetAttribute::HECQuality, value))        ATH_MSG_INFO( "REGTEST    HECQuality: " << value );
-            //            if( thisjet->getAttribute(xAOD::JetAttribute::IsoKR20Par, value))        ATH_MSG_INFO( "REGTEST    IsoKR20Par: " << value );
-            //            if( thisjet->getAttribute(xAOD::JetAttribute::IsoKR20Perp, value))       ATH_MSG_INFO( "REGTEST    IsoKR20Perp: " << value );
-            //            if( thisjet->getAttribute(xAOD::JetAttribute::KtDR, value))              ATH_MSG_INFO( "REGTEST    KtDR: " << value );
-            //            if( thisjet->getAttribute(xAOD::JetAttribute::LArBadHVEnergy, value))    ATH_MSG_INFO( "REGTEST    LArBadHVEnergy: " << value );
-            //            if( thisjet->getAttribute(xAOD::JetAttribute::LArBadHVRatio, value))     ATH_MSG_INFO( "REGTEST    LArBadHVRatio: " << value );
-            if( thisjet->getAttribute(xAOD::JetAttribute::LArQuality, value))        ATH_MSG_INFO( "REGTEST    LArQuality: " << value );
-            if( thisjet->getAttribute(xAOD::JetAttribute::NegativeE, value))         ATH_MSG_INFO( "REGTEST    NegativeE: " << value );
-            //            if( thisjet->getAttribute(xAOD::JetAttribute::SamplingMax, value))       ATH_MSG_INFO( "REGTEST    SamplingMax: " << value );
-            if( thisjet->getAttribute(xAOD::JetAttribute::Timing, value))            ATH_MSG_INFO( "REGTEST    Timing: " << value );
-            //            if( thisjet->getAttribute(xAOD::JetAttribute::VoronoiArea, value))       ATH_MSG_INFO( "REGTEST    VoronoiArea: " << value );
-            //            if( thisjet->getAttribute(xAOD::JetAttribute::VoronoiAreaE, value))      ATH_MSG_INFO( "REGTEST    VoronoiAreaE: " << value );
-            //            if( thisjet->getAttribute(xAOD::JetAttribute::VoronoiAreaPx, value))     ATH_MSG_INFO( "REGTEST    VoronoiAreaPx: " << value );
-            //            if( thisjet->getAttribute(xAOD::JetAttribute::VoronoiAreaPy, value))     ATH_MSG_INFO( "REGTEST    VoronoiAreaPy: " << value );
-            //            if( thisjet->getAttribute(xAOD::JetAttribute::VoronoiAreaPz, value))     ATH_MSG_INFO( "REGTEST    VoronoiAreaPz: " << value );
-            //            if( thisjet->getAttribute(xAOD::JetAttribute::WIDTH, value))             ATH_MSG_INFO( "REGTEST    WIDTH: " << value );
-            if( thisjet->getAttribute(xAOD::JetAttribute::FracSamplingMax, value))   ATH_MSG_INFO( "REGTEST    FracSamplingMax: " << value );
-            //            if( thisjet->getAttribute(xAOD::JetAttribute::EMFrac, value))            ATH_MSG_INFO( "REGTEST    EMFrac: " << value );
-            //            if( thisjet->getAttribute(xAOD::JetAttribute::HECFrac, value))           ATH_MSG_INFO( "REGTEST    HECFrac: " << value );
-            if( thisjet->getAttribute(xAOD::JetAttribute::OotFracClusters10, value)) ATH_MSG_INFO( "REGTEST    OotFracClusters10: " << value );
-            if( thisjet->getAttribute(xAOD::JetAttribute::OotFracClusters5, value))  ATH_MSG_INFO( "REGTEST    OotFracClusters5: " << value );
-            //            if( thisjet->getAttribute(xAOD::JetAttribute::OotFracCells5, value))     ATH_MSG_INFO( "REGTEST    OotFracCells5: " << value );
-            //            if( thisjet->getAttribute(xAOD::JetAttribute::OotFracCells10, value))    ATH_MSG_INFO( "REGTEST    OotFracCells10: " << value );
-            if( thisjet->getAttribute(xAOD::JetAttribute::Tau1, value))              ATH_MSG_INFO( "REGTEST    Tau1: " << value );
-            if( thisjet->getAttribute(xAOD::JetAttribute::Tau2, value))              ATH_MSG_INFO( "REGTEST    Tau2: " << value );
-            if( thisjet->getAttribute(xAOD::JetAttribute::Tau3, value))              ATH_MSG_INFO( "REGTEST    Tau3: " << value );
-            //            if( thisjet->getAttribute(xAOD::JetAttribute::Dip12, value))             ATH_MSG_INFO( "REGTEST    Dip12: " << value );
-            //            if( thisjet->getAttribute(xAOD::JetAttribute::Dip13, value))             ATH_MSG_INFO( "REGTEST    Dip13: " << value );
-            //            if( thisjet->getAttribute(xAOD::JetAttribute::Dip23, value))             ATH_MSG_INFO( "REGTEST    Dip23: " << value );
-            //            if( thisjet->getAttribute(xAOD::JetAttribute::DipExcl12, value))         ATH_MSG_INFO( "REGTEST    DipExcl12: " << value );
-            //            if( thisjet->getAttribute(xAOD::JetAttribute::ThrustMin, value))         ATH_MSG_INFO( "REGTEST    ThrustMin: " << value );
-            //            if( thisjet->getAttribute(xAOD::JetAttribute::ThrustMaj, value))         ATH_MSG_INFO( "REGTEST    ThrustMaj: " << value );
-            //            if( thisjet->getAttribute(xAOD::JetAttribute::FoxWolfram0, value))       ATH_MSG_INFO( "REGTEST    FoxWolfram0: " << value );
-            //            if( thisjet->getAttribute(xAOD::JetAttribute::FoxWolfram1, value))       ATH_MSG_INFO( "REGTEST    FoxWolfram1: " << value );
-            //            if( thisjet->getAttribute(xAOD::JetAttribute::FoxWolfram2, value))       ATH_MSG_INFO( "REGTEST    FoxWolfram2: " << value );
-            //            if( thisjet->getAttribute(xAOD::JetAttribute::FoxWolfram3, value))       ATH_MSG_INFO( "REGTEST    FoxWolfram3: " << value );
-            //            if( thisjet->getAttribute(xAOD::JetAttribute::FoxWolfram4, value))       ATH_MSG_INFO( "REGTEST    FoxWolfram4: " << value );
-            //            if( thisjet->getAttribute(xAOD::JetAttribute::Sphericity, value))        ATH_MSG_INFO( "REGTEST    Sphericity: " << value );
-            //            if( thisjet->getAttribute(xAOD::JetAttribute::Aplanarity, value))        ATH_MSG_INFO( "REGTEST    Aplanarity: " << value );
-            
-            //checks vector<int> attributes
-//            ATH_MSG_DEBUG("REGTEST    Checking vector<int> attributes");
-//            std::vector<int> vecvalueint;
-            //            if (thisjet->getAttribute(xAOD::JetAttribute::NumTrkPt1000, vecvalueint)) {
-            //                int vecsize = vecvalueint.size();
-            //                ATH_MSG_INFO("REGTEST    Got NumTrkPt1000 vector, size: " << vecsize);
-            //                if (vecsize != 0) {
-            //                    int j = 0;
-            //                    for(const auto & thisvalue : vecvalueint){
-            //                        ++j;
-            //                        ATH_MSG_INFO("REGTEST        NumTrkPt1000 #" << j << ": " << thisvalue);
-            //                    }
-            //                    ATH_MSG_INFO("REGTEST        size of attribute vector == number of displayed attributes: " << (vecsize == j) );
-            //                    if (vecsize != j) ATH_MSG_WARNING("REGTEST Problem with displaying this attribute");
-            //                }
-            //            }
-            //            if (thisjet->getAttribute(xAOD::JetAttribute::NumTrkPt500, vecvalueint)) {
-            //                int vecsize = vecvalueint.size();
-            //                ATH_MSG_INFO("REGTEST    Got Got NumTrkPt500 vector, size: " << vecsize);
-            //                if (vecsize != 0) {
-            //                    int j = 0;
-            //                    for(const auto & thisvalue : vecvalueint){
-            //                        ++j;
-            //                        ATH_MSG_INFO("REGTEST        NumTrkPt500 #" << j << ": " << thisvalue);
-            //                    }
-            //                    ATH_MSG_INFO("REGTEST        size of attribute vector == number of displayed attributes: " << (vecsize == j) );
-            //                    if (vecsize != j) ATH_MSG_WARNING("REGTEST Problem with displaying this attribute");
-            //                }
-            //            }
-            
-            //checks vector<float> attributes
-            ATH_MSG_DEBUG("REGTEST    Checking vector<float> attributes");
-            std::vector<float> vecvalue;
-            //            if (thisjet->getAttribute(xAOD::JetAttribute::JVF, vecvalue)) {
-            //                int vecsize = vecvalue.size();
-            //                ATH_MSG_INFO("REGTEST    Got JVF vector, size: " << vecsize);
-            //                if (vecsize != 0) {
-            //                    int j = 0;
-            //                    for(const auto & thisvalue : vecvalue){
-            //                        ++j;
-            //                        ATH_MSG_INFO("REGTEST        JVF #" << j << ": " << thisvalue);
-            //                    }
-            //                    ATH_MSG_INFO("REGTEST        size of attribute vector == number of displayed attributes: " << (vecsize == j) );
-            //                    if (vecsize != j) ATH_MSG_WARNING("REGTEST Problem with displaying this attribute");
-            //                }
-            //            }
-            //            if (thisjet->getAttribute(xAOD::JetAttribute::SumPtTrkPt1000, vecvalue)) {
-            //                int vecsize = vecvalue.size();
-            //                ATH_MSG_INFO("REGTEST    Got SumPtTrkPt1000 vector, size: " << vecsize);
-            //                if (vecsize != 0) {
-            //                    int j = 0;
-            //                    for(const auto & thisvalue : vecvalue){
-            //                        ++j;
-            //                        ATH_MSG_INFO("REGTEST        SumPtTrkPt1000 #" << j << ": " << thisvalue);
-            //                    }
-            //                    ATH_MSG_INFO("REGTEST        size of attribute vector == number of displayed attributes: " << (vecsize == j) );
-            //                    if (vecsize != j) ATH_MSG_WARNING("REGTEST Problem with displaying this attribute");
-            //                }
-            //            }
-            //            if (thisjet->getAttribute(xAOD::JetAttribute::SumPtTrkPt500, vecvalue)) {
-            //                int vecsize = vecvalue.size();
-            //                ATH_MSG_INFO("REGTEST    Got SumPtTrkPt500 vector, size: " << vecsize);
-            //                if (vecsize != 0) {
-            //                    int j = 0;
-            //                    for(const auto & thisvalue : vecvalue){
-            //                        ++j;
-            //                        ATH_MSG_INFO("REGTEST        SumPtTrkPt500 #" << j << ": " << thisvalue);
-            //                    }
-            //                    ATH_MSG_INFO("REGTEST        size of attribute vector == number of displayed attributes: " << (vecsize == j) );
-            //                    if (vecsize != j) ATH_MSG_WARNING("REGTEST Problem with displaying this attribute");
-            //                }
-            //            }
-            if (thisjet->getAttribute(xAOD::JetAttribute::EnergyPerSampling, vecvalue)) {
-                int vecsize = vecvalue.size();
-                ATH_MSG_INFO("REGTEST    Got EnergyPerSampling vector, size: " << vecsize);
-                if (vecsize != 0) {
-                    int j = 0;
-                    for(const auto & thisvalue : vecvalue){
-                        ++j;
-                        ATH_MSG_INFO("REGTEST        EnergyPerSampling #" << j << ": " << thisvalue);
-                    }
-                    ATH_MSG_INFO("REGTEST        size of attribute vector == number of displayed attributes: " << (vecsize == j) );
-                    if (vecsize != j) ATH_MSG_WARNING("REGTEST Problem with displaying this attribute");
+                else{
+                    ATH_MSG_ERROR("REGTEST Problem with jet pointer");
+                    return StatusCode::FAILURE;
                 }
             }
             
-            
-            //checks associated objects
-//            ATH_MSG_DEBUG("REGTEST    Checking associated objects");
-            //            std::vector<const xAOD::TrackParticle*> track;
-            //            if( thisjet->getAssociatedObjects(xAOD::JetAttribute::GhostTrack, track) ){
-            //                int vecsize = track.size();
-            //                ATH_MSG_INFO("REGTEST    Got GhostTrack vector, size: " << vecsize);
-            //                if (vecsize != 0) {
-            //                    int j = 0;
-            //                    for(const auto & thistrack : track){
-            //                        ++j;
-            //                        //checks only one associated variable, just making sure getting the object worked
-            //                        if (thistrack) ATH_MSG_INFO("REGTEST        z0 for GhostTrack #" << j << ": " << thistrack->z0());
-            //                        else{
-            //                            ATH_MSG_ERROR("REGTEST Problem with attribute pointer");
-            //                            return StatusCode::FAILURE;
-            //                        }
-            //                    }
-            //                    ATH_MSG_INFO("REGTEST        size of associated object vector == number of displayed attributes: " << (vecsize == j) );
-            //                    if (vecsize != j) ATH_MSG_WARNING("REGTEST Problem with displaying this associated object");
-            //                }
-            //            }
-        }
-        else{
-            ATH_MSG_ERROR("REGTEST Problem with jet pointer");
-            return StatusCode::FAILURE;
+            if (jetContsize == i) ATH_MSG_INFO("REGTEST size of jet container == number of displayed jets: " << (jetContsize == i) );
+            else ATH_MSG_WARNING("REGTEST Problem with displaying jets");
         }
     }
     
-    if (jetContsize == i) ATH_MSG_INFO("REGTEST size of jet container == number of displayed jets: " << (jetContsize == i) );
-    else ATH_MSG_WARNING("REGTEST Problem with displaying jets");
+    if (!onefilled) ATH_MSG_ERROR("There was no filled jet containers");
     
     ATH_MSG_INFO("REGTEST ==========END of xAOD::JetContainer DUMP===========");
     
-	ATH_MSG_DEBUG("leaving dumpxAODJetContainer()");
+    ATH_MSG_DEBUG("leaving dumpxAODJetContainer()");
     
-	return StatusCode::SUCCESS;
+    return StatusCode::SUCCESS;
 }
 
 
