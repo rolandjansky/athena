@@ -263,13 +263,25 @@ StatusCode Muon::RPC_RawDataProviderTool::convert(const ROBFragmentList& vecRobs
     return convert(vecRobs,collections); 
 }
 
+// the new one 
+StatusCode Muon::RPC_RawDataProviderTool::convert(const std::vector<uint32_t>& robIds)
+{
+ //CALLGRIND_START_INSTRUMENTATION
+    std::vector<IdentifierHash> collections;
+    std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*> vecOfRobf;
+    m_robDataProvider->getROBData(robIds, vecOfRobf);
+ //CALLGRIND_STOP_INSTRUMENTATION
+    return convert(vecOfRobf,collections); 
+}
+
 // the new one
 StatusCode Muon::RPC_RawDataProviderTool::convert(const std::vector<IdentifierHash>& rdoIdhVect)
 {
  //CALLGRIND_START_INSTRUMENTATION
     std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*> vecOfRobf;
-    std::vector<uint32_t> robIds = m_rpcCabling->giveFullListOfRobIds(); // temporary: here one should ask list of robIds for rdoIdhVect
-    m_robDataProvider->getROBData( robIds, vecOfRobf);
+    std::vector<uint32_t> robIds;
+    CHECK( m_rpcCabling->giveROB_fromRDO(rdoIdhVect, robIds) );
+    m_robDataProvider->getROBData(robIds, vecOfRobf);
 //CALLGRIND_STOP_INSTRUMENTATION
     return convert(vecOfRobf, rdoIdhVect); // using the old one 
 }
