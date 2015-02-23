@@ -1,3 +1,7 @@
+2015-02-23 Rafal Bielski <rafal.bielski@cern.ch>
+	* tagged as RPCcablingInterface-00-00-41
+	* IRPCcablingSvc.h: added interfaces for mapping RDO->ROB and ROB->RDO
+	
 2015-01-29 Rafal Bielski <rafal.bielski@cern.ch>
 	* tagged as RPCcablingInterface-00-00-40
 	* IRPCcablingSvc.h: added interfaces for mapping PRD->RDO and PRD->ROB
