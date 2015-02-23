@@ -63,7 +63,6 @@ public:
     const  xAOD::TrackParticle* RefittedTrack() const;
     const  xAOD::TrackParticle* MSRefittedTrack() const;
     const  Trk::Track* TrkRefittedTrack() const;
-    const  Trk::Track* TrkMSRefittedTrack() const;
     double qOverP() const;
     double muidELoss() const;
     double annBarrel() const;
@@ -79,9 +78,10 @@ public:
     void setRefittedTrack(const xAOD::TrackParticle* pRefittedTrack);
     void setRefittedTrack(const Trk::Track* pRefittedTrack);
     void setRefittedTrackToSummary(const xAOD::TrackParticle* pRefittedTrack, const Trk::Track* pTrkRefittedTrack, CandidateSummary* Summary);
-    void setMSTrackToSummary(const xAOD::TrackParticle* pRefittedTrack, const Trk::Track* pTrkrefittedTrack, CandidateSummary* Summary);
-    void setMSTrack(const xAOD::TrackParticle* pRefittedTrack);
-    void setMSTrack(const Trk::Track* pRefittedTrack);
+    void setMSTrackToSummary(std::unique_ptr<const xAOD::TrackParticle> pRefittedTrack,
+                             std::unique_ptr<const Trk::Track> pTrkrefittedTrack,
+                             CandidateSummary* Summary);
+
     StatusCode crudeExtrapolate();
     void computeCombinedIntersection(DistanceType eDist,
                                      RegionType eReg);
@@ -241,10 +241,8 @@ protected:
     Trk::TrackSurfaceIntersection*  m_pIDTrkIsect;  /**< The ID track original intersection */
     const xAOD::TrackParticle*      m_pIDTrk;
     const xAOD::TrackParticle*      m_pRefittedTrack;
-    const xAOD::TrackParticle*      m_pMSRefittedTrack;
     const xAOD::TrackParticle*      m_pLowBetaTrack;
     const Trk::Track*               m_pTrkRefittedTrack;    /**< Pointer to the MuGirl refitted Track */
-    const Trk::Track*               m_pMSTrkRefittedTrack;  /**< Pointer to the MuGirl MS refitted track */
     const Trk::Track*               m_pTrkLowBetaTrack;     /**< Pointer to the MuGirl Low Beta refitted Track */
     Cell                            m_cells[ALL_TECHNOLOGIES][DISTANCES][REGIONS];
     IntersectionList                m_iSections;    /**< The global list of intersections */
@@ -298,18 +296,6 @@ inline const xAOD::TrackParticle* Candidate::IDTrk() const
 inline const xAOD::TrackParticle* Candidate::RefittedTrack() const
 {
     return m_pRefittedTrack;
-}
-inline const xAOD::TrackParticle* Candidate::MSRefittedTrack() const
-{
-    return m_pMSRefittedTrack;
-}
-inline const Trk::Track* Candidate::TrkRefittedTrack() const
-{
-    return m_pTrkRefittedTrack;
-}
-inline const Trk::Track* Candidate::TrkMSRefittedTrack() const
-{
-    return m_pMSTrkRefittedTrack;
 }
 inline double Candidate::qOverP() const
 {
