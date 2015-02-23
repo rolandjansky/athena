@@ -49,10 +49,10 @@ namespace MuonCombined {
     const Trk::Track* updatedExtrapolatedTrack() const;
 
     /** set update extrapolated track, takes ownership */
-    void setUpdatedExtrapolatedTrack(const Trk::Track* track);
+    void setUpdatedExtrapolatedTrack(std::unique_ptr<const Trk::Track> track);
 
     /** release combined track, user gets ownership */
-    const Trk::Track* releaseUpdatedExtrapolatedTrack();
+    std::unique_ptr<const Trk::Track> releaseUpdatedExtrapolatedTrack();
 
     /** access segments */
     const std::vector<const Muon::MuonSegment*>& segments() const ;
@@ -78,7 +78,7 @@ namespace MuonCombined {
 
     /** data content */
     const Trk::Track*    m_combinedTrack;  /// combined track 
-    const Trk::Track*    m_updatedExtrapolatedTrack; /// updated extrapolated track
+    std::unique_ptr<const Trk::Track>    m_updatedExtrapolatedTrack; /// updated extrapolated track
     std::vector<const Muon::MuonSegment*> m_segments; /// list of segments
 
   };
@@ -102,14 +102,14 @@ namespace MuonCombined {
     return tmp;
   }
   
-  inline const Trk::Track* MuGirlTag::updatedExtrapolatedTrack() const { return m_updatedExtrapolatedTrack; }
-  
-  inline void MuGirlTag::setUpdatedExtrapolatedTrack(const Trk::Track* track) { m_updatedExtrapolatedTrack = track; }
+  inline const Trk::Track* MuGirlTag::updatedExtrapolatedTrack() const { return m_updatedExtrapolatedTrack.get(); }
+  inline void MuGirlTag::setUpdatedExtrapolatedTrack(std::unique_ptr<const Trk::Track> track)
+  {
+    m_updatedExtrapolatedTrack = std::move(track);
+  }
 
-  inline const Trk::Track* MuGirlTag::releaseUpdatedExtrapolatedTrack() { 
-    const Trk::Track* tmp = m_updatedExtrapolatedTrack;
-    m_updatedExtrapolatedTrack = 0;
-    return tmp;
+  inline std::unique_ptr<const Trk::Track> MuGirlTag::releaseUpdatedExtrapolatedTrack() { 
+    return std::move(m_updatedExtrapolatedTrack);
   }
 
   inline void MuGirlTag::releaseSegments() {
