@@ -42,8 +42,7 @@ class RPC_RawDataProviderTool : virtual public IMuonRawDataProviderTool,
     /** the new ones */
     virtual StatusCode convert(); //!< for the entire event 
     virtual StatusCode convert(const std::vector<IdentifierHash>&); //!< for a selection of rdo collections
-    // decoding method - ROB based ? providing dummy implementation for the moment
-    virtual StatusCode convert(const std::vector<uint32_t>&){return StatusCode::FAILURE;} 
+    virtual StatusCode convert(const std::vector<uint32_t>&);
 
 private:
 

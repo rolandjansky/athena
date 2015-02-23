@@ -64,39 +64,27 @@ public:
 
   // decoding method 
   StatusCode decode( std::vector<IdentifierHash>& idVect, std::vector<IdentifierHash>& selectedIdVect );
-  // decoding method - ROB based ? providing dummy implementation for the moment
-  StatusCode decode( const std::vector<uint32_t>& /*robIds*/ ) {return StatusCode::FAILURE;} 
+  StatusCode decode( const std::vector<uint32_t>& robIds );
 
   // debugging 
   void printInputRdo();
   void printPrepData();
   void printCoinData();
-    
 
-public:
   // to resolve possible conflicts with IProperty::interfaceID()
   static const InterfaceID& interfaceID() { return IMuonRdoToPrepDataTool::interfaceID(); }
-  
+
+
 private:
-  StatusCode getOfflineToOnlineMap(IOVSVC_CALLBACK_ARGS);
-  //void getOfflineToOnlineMap();
-  bool isRequested(std::vector<IdentifierHash>& idVect, IdentifierHash rpcHashId) const;
-  bool isAlreadyConverted(std::vector<const RpcPad *>& rdoCollVec, const RpcPad* rdoColl) const;
   StatusCode processPad(const RpcPad *rdoColl, bool& processingetaview, bool& processingphiview, int& nPrepRawData, 
                         std::vector<IdentifierHash>& idVect, std::vector<IdentifierHash>& idWithDataVect, IdContext& rpcContext);
-  StatusCode getVectorOfRequestedPadHashes(std::vector<IdentifierHash>& idVect,  
-					   std::vector<IdentifierHash>& rdoHashVect,  
-					   std::vector<IdentifierHash>& idWithDataVect);
   StatusCode manageOutputContainers(bool& firstTimeInTheEvent);
   void processTriggerHitHypothesis(RpcCoinMatrix::const_iterator itD, RpcCoinMatrix::const_iterator itD_end, bool highptpad, // these are inputs 
                                    bool& triggerHit,
                                    unsigned short& threshold,
                                    unsigned short& overlap,
                                    bool& toSkip);
-  
-//   MsgStream m_log;
-//   bool m_debug;
-//   bool m_verbose;
+
 
 private:
   double m_factor;
@@ -114,7 +102,6 @@ private:
   float m_timeShift;                    //!< any global time shift ?!
   bool m_useBStoRdoTool;                //!< toggle on/off the decoding of RPC BS into RDO for EF
   bool m_decodeData;                    //!< toggle on/off the decoding of RPC RDO into RpcPerpData
-  bool m_writeMapToFile;
   bool m_RPCInfoFromDb;                 //!< correct time prd from cool db
   // end of configurable options 
 
@@ -147,19 +134,14 @@ private:
   //keepTrackOfFullEventDecoding
   bool m_fullEventDone;
   
-  //the set of already requested and decoded offline collections
+  //the set of already requested and decoded offline (PrepRawData) collections
   std::set<IdentifierHash> m_decodedOfflineHashIds;
+  
+  //the set of already requested and decoded ROBs
+  std::set<uint32_t> m_decodedRobIds;
   
   //the set of unrequested collections with phi hits stored with ambiguityFlag > 1
   std::set<IdentifierHash> m_ambiguousCollections;
-
-  // the vector of pad collections already decoded in the event
-  std::vector<const RpcPad *> *m_decodedRdoCollVec;
-  
-  // the map offline to online 
-  unsigned int nPadsForOfflineDataColl[maxOfflineHash+1];
-  IdentifierHash padHashIdForOfflineDataColl[maxOfflineHash+1][6];
-    //  Identifier     padIdForOfflineDataColl[maxOfflineHash+1][6];
     
 };
 }

@@ -62,7 +62,6 @@ Muon::RpcRdoToPrepDataTool::RpcRdoToPrepDataTool( const std::string& type, const
     m_timeShift(0.),                      //!< any global time shift ?!
     m_useBStoRdoTool(false),              //!< true if running trigger (EF) on BS input
     m_decodeData(true),                   //!< toggle on/off the decoding of RPC RDO into RpcPrepData
-    m_writeMapToFile(false),              //!< toggle on/off the dump on file of the offline to online map
     //m_padHashIdHelper(0),
     m_rawDataProviderTool("Muon::RPC_RawDataProviderTool/RPC_RawDataProviderTool"),
     m_rpcRdoDecoderTool("Muon::RpcRDO_Decoder"),
@@ -82,20 +81,16 @@ Muon::RpcRdoToPrepDataTool::RpcRdoToPrepDataTool( const std::string& type, const
   declareProperty("TriggerOutputCollection",   m_trgOutputCollectionLocation   = "RPC_triggerHits" );
   declareProperty("useBStoRdoTool",            m_useBStoRdoTool       = false);
   declareProperty("DecodeData",                m_decodeData = true );
-  declareProperty("dumpOffToOnlineMapToFile",  m_writeMapToFile = false);
   // tools 
   declareProperty ("RawDataProviderTool",      m_rawDataProviderTool);
   declareProperty ("RdoDecoderTool",           m_rpcRdoDecoderTool);
   
   declareProperty("RPCInfoFromDb",             m_RPCInfoFromDb  = false );
 
-  m_decodedRdoCollVec = NULL;
-  for (unsigned int i=0; i<maxOfflineHash; ++i) {
-    nPadsForOfflineDataColl[i] = 0;
-    for (unsigned int j=0; j<5; ++j) padHashIdForOfflineDataColl[i][j] = 0;
-  }
-  
-  m_decodedOfflineHashIds.clear();
+  //this is a deprecated property, but cannot be removed until it's deleted from all setup scripts
+  bool writeMapToFile = false;
+  declareProperty("dumpOffToOnlineMapToFile",  writeMapToFile = false);
+
 }
 
 //___________________________________________________________________________
@@ -208,18 +203,6 @@ StatusCode Muon::RpcRdoToPrepDataTool::initialize() {
     msg (MSG::VERBOSE) << "RPCcablingSvc obtained: " << (dynamic_cast<const Service*>(m_rpcCabling))->name() << endreq;
   }
   
-  //     if (dynamic_cast<const *>(m_rpcCabling))
-  //     {
-  //  msg(MSG::INFO)<<"RPC-CablingSvc is use is  RPCcablingSimSvc - fill init time the offline to online map"<<endreq;
-  //  //Simulation-style Cabling Svc 
-  //  sc = getOfflineToOnlineMap(IOVSVC_CALLBACK_ARGS);
-  //  if (sc.isFailure()) return sc;
-  //     }
-  //     else 
-  //     {
-  //  msg(MSG::INFO)<<"RPC-CablingSvc is use is data-like - register for call-back the offline to online map filling method"<<endreq;
-  
-  //std::string svcName=m_rpcCabling->name();
   std::string svcName=m_rpcCabling->rpcCabSvcType();
   
   msg(MSG::INFO)<<"Rpc Cabling Svc name is "<<svcName<<endreq;
@@ -227,46 +210,21 @@ StatusCode Muon::RpcRdoToPrepDataTool::initialize() {
   // LBTAG 29/01/10: case RPCcabling or RPCcablingSim
   if (svcName.find("sim")!=std::string::npos) {
     // LBTAG 29/01/10: case RPCcabling
-    if (svcName.find("simulationLikeInitialization")!=std::string::npos)m_processingData = true;
+    if (svcName.find("simulationLikeInitialization")!=std::string::npos) m_processingData = true;
     
     // LBTAG 29/01/10: case MuonRPC_Cabling maps from files
-    else if (svcName.find("simLike_MapsFromFiles")!=std::string::npos)m_processingData = true;
+    else if (svcName.find("simLike_MapsFromFiles")!=std::string::npos) m_processingData = true;
     
     // LBTAG 29/01/10: case RPCcablingSim
     else m_processingData = false;
-    
-    int I;
-    std::list<std::string> k;
-    sc = getOfflineToOnlineMap(I,k);
-    if (sc.isFailure()) return sc;
   }
 
   // LBTAG 29/01/10: case MuonRPC_Cabling maps from COOL
   else 
-    {
-      //Data-Style Cabling Svc 
-      m_processingData = true;
-      sc = detStore()->regFcn(&IRPCcablingSvc::initMappingModel, 
-			      &*m_rpcCabling,
-			      &Muon::RpcRdoToPrepDataTool::getOfflineToOnlineMap, 
-			      this);
-      if (sc.isFailure()) return sc;
-      //  if (sc.isRecoverable()) {
-      //      //Simulation-style Cabling Svc
-      //      msg(MSG::INFO)<<"RPC-CablingSvc is use is Sim-like - call init time getOfflineToOnlineMap"<<endreq;
-      //      int I;
-      //      std::list<std::string> K;
-      //      sc = getOfflineToOnlineMap(I,K);
-      //      if (sc.isFailure()) return sc;
-      //  }
-      //  else if (sc.isSuccess())
-      //  {
-      //      msg(MSG::INFO)<<"RPC-CablingSvc is use is data-like - register for call-back the offline to online map filling method"<<endreq;
-      //  }
-      //  else return sc;
-      msg(MSG::INFO)<<"RPC-CablingSvc is use is data-like - register for call-back the offline to online map filling method"<<endreq;
-      
-    }
+  {
+    //Data-Style Cabling Svc 
+    m_processingData = true;
+  }
   
     
   if (m_RPCInfoFromDb){
@@ -274,7 +232,6 @@ StatusCode Muon::RpcRdoToPrepDataTool::initialize() {
      if (status != StatusCode::SUCCESS) {
        ATH_MSG_WARNING (  "Could not retrieve RPC Info from Db"  );
        return StatusCode::FAILURE;
-       
      }
    }
    
@@ -295,10 +252,6 @@ StatusCode Muon::RpcRdoToPrepDataTool::finalize()
   //         delete m_padHashIdHelper;
   //         m_padHashIdHelper = 0;
   //     }
-  if (0 != m_decodedRdoCollVec) {
-    delete m_decodedRdoCollVec;
-    m_decodedRdoCollVec = 0;
-  }
     
   return StatusCode::SUCCESS;
 }
@@ -312,17 +265,6 @@ StatusCode Muon::RpcRdoToPrepDataTool::decode( std::vector<IdentifierHash>& idVe
   if (sizeVectorRequested == 0) ATH_MSG_DEBUG("Decoding the entire event");
   
   StatusCode status = StatusCode::SUCCESS;
-  
-  
-  if (m_decodedRdoCollVec == NULL) {
-    // create the vector of pad collections already decoded
-    m_decodedRdoCollVec = new std::vector<const RpcPad *>;
-    m_decodedRdoCollVec->reserve( (m_rpcCabling->padHashFunction())->max());
-    
-    // try here
-    //getOfflineToOnlineMap();
-  }
-
     
   // clear output vector of selected data collections containing data 
   idWithDataVect.clear();
@@ -336,7 +278,6 @@ StatusCode Muon::RpcRdoToPrepDataTool::decode( std::vector<IdentifierHash>& idVe
   status=manageOutputContainers(firstTimeInTheEvent);
   if (status.isFailure()) return status;
   if (firstTimeInTheEvent) {
-    m_decodedOfflineHashIds.clear();
     if (sizeVectorRequested == 0)
       m_fullEventDone=true;
     else m_fullEventDone=false;
@@ -558,28 +499,10 @@ StatusCode Muon::RpcRdoToPrepDataTool::decode( std::vector<IdentifierHash>& idVe
     ATH_MSG_DEBUG("sorting and removing duplicates in the accepted collections vector");
     sort( idWithDataVect.begin(), idWithDataVect.end() );
     idWithDataVect.erase( unique( idWithDataVect.begin(), idWithDataVect.end() ), idWithDataVect.end() );
-    
-    /*
-    //remove unrequested collections
-    ATH_MSG_DEBUG("removing unrequested collections");
-    for (auto itDecodedHashId = idWithDataVect.begin(); itDecodedHashId != idWithDataVect.end(); ++itDecodedHashId) {
-      bool wasRequested = false;
-      for (auto itRequestedHashId = idVect.begin(); itRequestedHashId != idVect.end(); ++itRequestedHashId) {
-        if ( (*itDecodedHashId) == (*itRequestedHashId) ) {
-          wasRequested = true;
-          break;
-        }
-      }
-      if (!wasRequested) {
-        idWithDataVect.erase(itDecodedHashId);
-        --itDecodedHashId;
-      }
-    }
-    */
 
     if (msgLvl(MSG::DEBUG)) {
-      for (std::vector<IdentifierHash>::const_iterator ii=idWithDataVect.begin(); ii!=idWithDataVect.end();++ii) {
-	msg (MSG::DEBUG) <<"Accepted collection with hash index: "<<(int)*ii<<endreq;
+      for (IdentifierHash hashId : idWithDataVect) {
+        ATH_MSG_DEBUG("Accepted collection with hashId: " << (unsigned int)hashId);
       }
     }
     
@@ -587,183 +510,202 @@ StatusCode Muon::RpcRdoToPrepDataTool::decode( std::vector<IdentifierHash>& idVe
 }
 
 
-StatusCode Muon::RpcRdoToPrepDataTool::getOfflineToOnlineMap(IOVSVC_CALLBACK_ARGS)
+//___________________________________________________________________________
+StatusCode Muon::RpcRdoToPrepDataTool::decode( const std::vector<uint32_t>& robIds )
 {
-  // fill here
-  // temporary(
-  // unsigned int nPadsForOfflineDataColl[maxOfflineHash];
-  // IdentifierHash padHashIdForOfflineDataColl[maxOfflineHash][5];
-  //)
   
-  msg (MSG::INFO) <<"Building Offline to Online map..."<<endreq;
+  // ROB-based decoding is only applied in seeded mode. Full scan should use the hashId-based method with empty requested collections vector.
   
-  const CablingRPCBase* _cabling = m_rpcCabling->getRPCCabling();
-  if (!_cabling) {    
-    msg (MSG::ERROR) <<" CablingRPCBase not retrieven !!!!!!"<<endreq;
-    return StatusCode::FAILURE;
+  int sizeVectorRequested = robIds.size();
+  ATH_MSG_DEBUG("Decode method called for " << sizeVectorRequested << " ROBs");
+  
+  StatusCode status = StatusCode::SUCCESS;
+  
+  std::vector<uint32_t> robIdsToBeDecoded;
+  robIdsToBeDecoded.reserve(robIds.size());
+  
+  // record the output containers if necessary (if first time in the event)
+  bool firstTimeInTheEvent=false;
+  status=manageOutputContainers(firstTimeInTheEvent);
+  if (status.isFailure()) return status;
+  if (firstTimeInTheEvent) {
+    m_fullEventDone=false;
   }
-  
-  IdentifierHash Idhash;
-  IdContext rpcModuleContext = m_rpcHelper->module_context();
-  //const RpcPadContainer* tmpRdoContainer = new RpcPadContainer(1000);
-  
-  // this is the right thing to do !!!!!!!
-  unsigned int hash_max = (m_rpcCabling->padHashFunction())->max();
-  
-  unsigned short int pad_id;
-  unsigned int       logic_sector;
-  Identifier PadId, PadId_previous;
-  
-  PadId_previous = (int) 0;
-  for (unsigned short int iSubSysId=0; iSubSysId<2; ++iSubSysId) {
-    for (unsigned short int iSectorId=0; iSectorId<32; ++iSectorId) {
-      for (unsigned short int iRoiNumber=0; iRoiNumber<31; ++iRoiNumber) {
-         ATH_MSG_VERBOSE(" SubSysID = " << iSubSysId << " SectorID = " << iSectorId << " RoiNumber =" << iRoiNumber);
-         if (_cabling->give_PAD_address(iSubSysId,iSectorId,iRoiNumber,logic_sector,pad_id,PadId)) {
-           ATH_MSG_VERBOSE("pad_id, PadId ----------------------------------------------------- "
-                 <<  pad_id <<" "
-                 <<  PadId  <<" "
-                 <<m_rpcHelper->show_to_string(PadId));
-           
-           if (PadId_previous == PadId) {          
-             ATH_MSG_VERBOSE("same pad as before ");
-           }
-           else {
-             IdentifierHash padHash = (*(m_rpcCabling->padHashFunction()))(PadId);
-             ATH_MSG_VERBOSE("Associated pad-Hash (via the hash-function) = "<<(int)padHash);
-             if (padHash>hash_max) msg (MSG::ERROR) <<"Computed hashId > hash_max = "<<hash_max<<endreq;
-             
-             unsigned short int Channel = 0;
-             for (unsigned short int CMAId=0; CMAId<8; ++CMAId) {
-               bool etaView = (CMAId<2 || (CMAId>3 && CMAId<6));
-               ATH_MSG_VERBOSE("Loop over cma - id = "<<CMAId);
-               if (etaView) {
-                 ATH_MSG_VERBOSE("Skipping eta");
-                 continue;
-               }
-                                      
-                    
-               for (unsigned short ijk=1; ijk<4; ++ijk) {
-                 Channel = 0;
-                 std::list<Identifier> myOfflineList = 
-                 m_rpcCabling->give_strip_id   (iSubSysId,
-                         iSectorId,
-                         pad_id,
-                         CMAId,
-                         ijk,
-                         Channel);
-            
-                 ATH_MSG_VERBOSE("ijk = "<<ijk<<" channel = "<<Channel<<" list size is "<<myOfflineList.size());
-                 if (!myOfflineList.empty()) {
-                   for (std::list<Identifier>::const_iterator it=myOfflineList.begin(); it!=myOfflineList.end(); ++it) {
-                     ATH_MSG_VERBOSE("ijk = "<<ijk<<" channel = "<<Channel<<" id offline = "<<m_rpcHelper->show_to_string(*it));
-                     Identifier idp = m_rpcHelper->parentID(*it);
-                     int gethash_code = m_rpcHelper->get_hash(idp, Idhash, &rpcModuleContext);
-                     if (gethash_code == 0) {
-                       bool alreadyRegistered = false;
-                       for (unsigned int j=0; j<nPadsForOfflineDataColl[(unsigned int)Idhash]; ++j) {
-                         if(padHashIdForOfflineDataColl[(unsigned int)Idhash][j] == padHash) {			  
-                         //if(padIdForOfflineDataColl[(unsigned int)Idhash][j] == PadId)
-                         //{
-                           ATH_MSG_VERBOSE("Pad id already registered for offline id "<<(unsigned int)Idhash);
-                           alreadyRegistered = true;
-                           break;
-                         }
-                       }
-                  
-                       if (!alreadyRegistered) {
-                         ATH_MSG_VERBOSE("A new Pad id "<<(int)padHash<<" is registered for offline id "<<(unsigned int)Idhash);
-                         nPadsForOfflineDataColl[(unsigned int)Idhash]++;
-                         ATH_MSG_VERBOSE(" nPads = "<<nPadsForOfflineDataColl[(unsigned int)Idhash]);
-                         if (nPadsForOfflineDataColl[(unsigned int)Idhash]>6)
-                           ATH_MSG_VERBOSE(" TOO MANY nPads = "<<nPadsForOfflineDataColl[(unsigned int)Idhash]);
-                         padHashIdForOfflineDataColl[(unsigned int)Idhash][nPadsForOfflineDataColl[(unsigned int)Idhash]-1] = padHash;
-                       }
-                     }
-                     else 
-                       ATH_MSG_DEBUG ("Unable to get offline hash id - module context for this id parent "
-                         <<m_rpcHelper->show_to_string(idp));
-                   }
-                 }
-                 Channel  =31;
-                 myOfflineList = m_rpcCabling->give_strip_id   (iSubSysId,
-                                  iSectorId,
-                                  pad_id,
-                                  CMAId,
-                                  ijk,
-                                  Channel);
-            
-                 ATH_MSG_VERBOSE("ijk = "<<ijk<<" channel = "<<Channel<<" list size is "<<myOfflineList.size());
-                 if (!myOfflineList.empty()) {
-                   for (std::list<Identifier>::const_iterator it=myOfflineList.begin(); it!=myOfflineList.end(); ++it) {		    
-                     ATH_MSG_VERBOSE("ijk = "<<ijk<<" channel = "<<Channel<<" id offline = "<<m_rpcHelper->show_to_string(*it));
-                     Identifier idp = m_rpcHelper->parentID(*it);
-                     int gethash_code = m_rpcHelper->get_hash(idp, Idhash, &rpcModuleContext);
-                     if (gethash_code == 0) {
-                       bool alreadyRegistered = false;
-                       for (unsigned int j=0; j<nPadsForOfflineDataColl[(unsigned int)Idhash]; ++j) {
-                         if(padHashIdForOfflineDataColl[(unsigned int)Idhash][j] == padHash) {
-                         //if(padIdForOfflineDataColl[(unsigned int)Idhash][j] == PadId)
-                         //{
-                           ATH_MSG_VERBOSE("Pad id already registered for offline id "<<(unsigned int)Idhash);
-                           alreadyRegistered = true;
-                           break;
-                         }
-                       }
-                  
-                       if (!alreadyRegistered) {
-                         ATH_MSG_VERBOSE("A new Pad id "<<(int)padHash<<" is registered for offline id "<<(unsigned int)Idhash);
-                         nPadsForOfflineDataColl[(unsigned int)Idhash]++;
-                         ATH_MSG_VERBOSE(" nPads = "<<nPadsForOfflineDataColl[(unsigned int)Idhash]);
-                         if (nPadsForOfflineDataColl[(unsigned int)Idhash]>6)
-                           ATH_MSG_VERBOSE(" TOO MANY nPads = "<<nPadsForOfflineDataColl[(unsigned int)Idhash]);
-                         padHashIdForOfflineDataColl[(unsigned int)Idhash][nPadsForOfflineDataColl[(unsigned int)Idhash]-1] = padHash;
-                       }
-                     }
-                     else 
-                       ATH_MSG_VERBOSE("ERROR --- Unable to get offline hash id - module context for this id parent "
-                         <<m_rpcHelper->show_to_string(idp));
-                   }
-                 }
-               }
-             }
-           }
-           PadId_previous =  PadId;                                            
-         }
-         else 
-           ATH_MSG_VERBOSE("No pad for this side/sector/roi ");
-      }
+  else {
+    if (m_fullEventDone) {
+      ATH_MSG_DEBUG("Whole event has already been decoded; nothing to do.");
+      return status;
     }
   }
+  
+  //check which of the requested robs are not yet decoded
+  for (uint32_t robid : robIds) {
+    if (m_decodedRobIds.insert(robid).second)
+      robIdsToBeDecoded.push_back(robid);
+  }
+  
+  if (robIdsToBeDecoded.size()==0) {
+    ATH_MSG_DEBUG("All requested ROBs have already been decoded; nothing to do.");
+    return status;
+  } else {
+    ATH_MSG_DEBUG(robIdsToBeDecoded.size() << " ROBs have not yet been decoded and will be decoded now.");
+      if (msgLvl(MSG::VERBOSE)) {
+        msg(MSG::VERBOSE) << "The list of ROB Ids to be decoded: ";
+        for (uint32_t robid : robIdsToBeDecoded) msg(MSG::VERBOSE) << "0x" << MSG::hex << robid << MSG::dec << " ";
+        msg(MSG::VERBOSE) << endreq;
+      }
+  }
+  
+  //if all robs will be decoded after the current execution of the method, set the flag m_fullEventDone
+  if (m_decodedRobIds.size() == m_rpcCabling->giveFullListOfRobIds().size()) m_fullEventDone=true;
+  
+  // if RPC decoding is switched off stop here
+  if( !m_decodeData ) {
+    ATH_MSG_DEBUG("Stored empty container. Decoding RPC RDO into RPC PrepRawData is switched off");
+    return status;
+  }
 
-    //delete tmpRdoContainer;
 
-  if (m_writeMapToFile) {
-    std::ofstream save_to_file;
-    save_to_file.open("OnlineToOfflineMap.txt");
-    for (unsigned int i=0; i<maxOfflineHash; ++i) {
-      Identifier idColl;
-      idColl = (int) 0;
-      int  code = m_rpcHelper->get_id(i,idColl, &rpcModuleContext);
-      if (code != 0) save_to_file<<" A problem in hash -> id conversion for next Collection "<<i<<std::endl;
-      else save_to_file<<"\n \n Offline id hash "<<i<<" i.e. "<<m_rpcHelper->show_to_string(idColl)<<" nPads = "<<nPadsForOfflineDataColl[i]<<std::endl;
-      for (unsigned int j=0; j<nPadsForOfflineDataColl[i]; ++j) {
-        Identifier idPad;
-        idPad = (int)0;
-        IdentifierHash pad = padHashIdForOfflineDataColl[i][j];
-        code = m_rpcHelper->get_id(pad,idPad, &rpcModuleContext);
-        if (code==0) save_to_file<<"Offline id hash "<<i<<" "<<j<<"-th online pad id contributing to that "<<(int)padHashIdForOfflineDataColl[i][j]<<"   i.e. "<<m_rpcHelper->show_to_string(idPad)<<std::endl;
-        else save_to_file<<" A problem in hash -> id conversion for pad hash id "<<(int)pad<<std::endl;
+  ATH_MSG_DEBUG("Decoding RPC RDO into RPC PrepRawData");
+  
+  /// RPC context
+  IdContext rpcContext = m_rpcHelper->module_context();
+  
+  const RpcPadContainer* rdoContainer = 0;
+  if(m_useBStoRdoTool) {
+    // we come here if the entire rdo container is not yet in SG (i.e. in EF with BS input) 
+    // ask RpcRawDataProviderTool to decode the list of robs and to fill the rdo IDC
+    CHECK( m_rawDataProviderTool->convert(robIdsToBeDecoded) );
+    ATH_MSG_DEBUG("BS conversion into RDOs for the selected ROBs done !");
+  }
+  
+  // we come here if the rdo container is already in SG (for example in MC RDO!) => the ContainerManager return NULL
+  ATH_MSG_DEBUG("Retrieving Rpc PAD container from the store");
+  status = evtStore()->retrieve( rdoContainer, "RPCPAD" );
+  if (status.isFailure()) {
+    ATH_MSG_WARNING("Retrieval of Rpc RDO container failed ! no RPCPAD in the Event Store");
+    return StatusCode::SUCCESS;                                        
+  }
+  // here the RDO container is retrieved and filled -whatever input type we start with- => check the size 
+  if (rdoContainer->begin() == rdoContainer->end()) {
+    // empty pad container - no rpc rdo in this event
+    ATH_MSG_DEBUG("Empty pad container - no rpc rdo in this event ");
+    return StatusCode::SUCCESS;
+  }
+  ATH_MSG_DEBUG("Not empty pad container in this event ");
+  
+  // obtain a list of PADs (RDOs) to be processed
+  std::vector<IdentifierHash> rdoHashVec;
+  rdoHashVec.reserve(13*robIdsToBeDecoded.size()); // most ROBs have 13 RDOs, some have less
+  CHECK( m_rpcCabling->giveRDO_fromROB(robIdsToBeDecoded, rdoHashVec) );
+  
+  std::vector<IdentifierHash> idVect; //vector passed to processPad - if empty, turns off decoding of additional RDOs for ambiguity solving
+  std::vector<IdentifierHash> idWithDataVect; //vector passed to processPad - filled with IDs of created PrepRawData collections
+
+  // start here to process the RDOs
+  bool processingetaview = true;
+  bool processingphiview = false;
+  if (!m_solvePhiAmbiguities) processingetaview=false;
+  m_doingSecondLoopAmbigColls = false;
+  while (processingetaview || processingphiview || (!m_solvePhiAmbiguities)) {
+    int ipad = 0;
+    int nPrepRawData =0;
+    int nPhiPrepRawData =0;
+    int nEtaPrepRawData =0;
+    if (processingphiview) m_ambiguousCollections.clear();
+    
+    if (processingetaview) ATH_MSG_DEBUG("*** Processing eta view ");
+    else ATH_MSG_DEBUG("*** Processing phi view ");
+    
+    // seeded decoding (for full scan, use the hashId-based method)
+    ATH_MSG_DEBUG("Start loop over pads hashes - seeded mode ");
+    
+    RpcPadContainer::const_iterator rdoColli;
+    const RpcPad* rdoColl;
+    for (IdentifierHash padHashId : rdoHashVec) {
+      rdoColli = rdoContainer->indexFind(padHashId);
+      if (rdoColli == rdoContainer->end()) {
+        ATH_MSG_DEBUG("Requested pad with online id " << (unsigned int)padHashId << " not found in the rdoContainer.");
+        continue;
+      }
+      rdoColl = *rdoColli;
+      ++ipad;
+      ATH_MSG_DEBUG("A new pad here n." << ipad << ", online id " << (int)(rdoColl->identifyHash()) << ", with " << rdoColl->size() <<" CM inside ");
+      CHECK(
+        processPad(rdoColl, 
+                   processingetaview, 
+                   processingphiview, 
+                   nPrepRawData,   
+                   idVect, 
+                   idWithDataVect, 
+                   rpcContext)
+      );
+    }
+    
+    if (processingetaview) {
+      processingetaview=false;
+      processingphiview=true;
+      nEtaPrepRawData = nPrepRawData;
+      ATH_MSG_DEBUG("*** "<<nEtaPrepRawData<<" eta PrepRawData registered");
+    }
+    else {
+      processingphiview=false;
+      nPhiPrepRawData = nPrepRawData-nEtaPrepRawData;
+      ATH_MSG_DEBUG("*** "<<nPhiPrepRawData<<" phi PrepRawData registered");
+    }
+    if (! m_solvePhiAmbiguities) {
+      ATH_MSG_DEBUG("*** "<<nPrepRawData<<" PrepRawData registered");
+      break;
+    }
+  }
+  
+  
+  ATH_MSG_DEBUG("*** Final Cleanup ");
+  //remove empty collections listed in idWithDataVect
+  std::vector<IdentifierHash> temIdWithDataVect;
+  int nn=0;
+  for (IdentifierHash hashId : idWithDataVect) {   
+    ++nn;
+    ATH_MSG_VERBOSE("collection n. " << nn << " has hashId = " << (unsigned int)hashId);
+    RpcPrepDataContainer::const_iterator rpcColli = m_rpcPrepDataContainer->indexFind(hashId);
+    if (rpcColli != m_rpcPrepDataContainer->end()) {
+      if (!(*rpcColli)->empty()) {
+        temIdWithDataVect.push_back(hashId);
+        ATH_MSG_VERBOSE("Accepting non empty coll. "
+                     << m_rpcHelper->show_to_string((*rpcColli)->identify())
+                     << " hashId = " << (unsigned int)hashId
+                     << " in PREPDATA container at " << m_rpcPrepDataContainer);
+      }
+      else {
+        ATH_MSG_DEBUG("Removing from the rpc prep data container empty coll. "
+                   << m_rpcHelper->show_to_string((*rpcColli)->identify())
+                   << " hashId = " << (unsigned int)hashId
+                   << " in PREPDATA container at " << m_rpcPrepDataContainer);
+        delete m_rpcPrepDataContainer->removeCollection(hashId);
       }
     }
-        
-        save_to_file.close();
-  }
-  ATH_MSG_DEBUG("Offline to Online map built...");
-  return StatusCode::SUCCESS;    
+    else
+      ATH_MSG_DEBUG("collection with hashId = " << (unsigned int)hashId << " not found in the PREPDATA container at " << m_rpcPrepDataContainer);
+    }
+    idWithDataVect.clear();
+    idWithDataVect = temIdWithDataVect;
+    
+    //sort and remove duplicate entries in idWithDataVect
+    ATH_MSG_DEBUG("sorting and removing duplicates in the accepted collections vector");
+    sort( idWithDataVect.begin(), idWithDataVect.end() );
+    idWithDataVect.erase( unique( idWithDataVect.begin(), idWithDataVect.end() ), idWithDataVect.end() );
+    
+    if (msgLvl(MSG::DEBUG)) {
+      for (IdentifierHash hashId : idWithDataVect) {
+        ATH_MSG_DEBUG("Accepted collection with hashId: " << (unsigned int)hashId);
+      }
+    }
+  
+  return status;
 }
 
 
+//___________________________________________________________________________
 void Muon::RpcRdoToPrepDataTool::printInputRdo()
 {
   msg (MSG::INFO) << "********************************************************************************************************" << endreq;
@@ -1060,109 +1002,13 @@ void Muon::RpcRdoToPrepDataTool::printCoinData()
   msg (MSG::INFO) <<"--------------------------------------------------------------------------------------------"<<endreq;
 }
 
-bool Muon::RpcRdoToPrepDataTool::isRequested(std::vector<IdentifierHash>& idVect, IdentifierHash rpcHashId) const
-{
-  if (idVect.empty()) return true; // no request !
-  
-  for (std::vector<IdentifierHash>::const_iterator it=idVect.begin(); it!=idVect.end(); ++it) {
-    if ( *it == rpcHashId ) return true;
-  }
-  return false;
-}
-bool Muon::RpcRdoToPrepDataTool::isAlreadyConverted(std::vector<const RpcPad *>& rdoCollVec, const RpcPad* rdoColl) const
-{
-  for (std::vector<const RpcPad *>::const_iterator it=m_decodedRdoCollVec->begin(); it!=m_decodedRdoCollVec->end(); ++it) {
-    if ( *it == rdoColl ) return true; // already decoded in previous RoIs of this event 
-  }
-  
-  if (rdoCollVec.empty()) return false; // no RpcPads selected for decoding yet !
-  for (std::vector<const RpcPad *>::const_iterator it=rdoCollVec.begin(); it!=rdoCollVec.end(); ++it) {    
-      if ( *it == rdoColl ) return true; // already selected for decoding for this RoI
-  }
-  return false;
-}
-
-StatusCode Muon::RpcRdoToPrepDataTool::getVectorOfRequestedPadHashes(std::vector<IdentifierHash>& idVect,  
-								     std::vector<IdentifierHash>& rdoHashVect, 
-								     std::vector<IdentifierHash>& idWithDataVect)
-{
-  StatusCode sc = StatusCode::SUCCESS;
-  ATH_MSG_DEBUG(" ***************** Start of getVectorOfRequestedPadHashes");
-  
-  /// RPC context
-  IdContext rpcContext = m_rpcHelper->module_context();
-  
-  //use set to ensure sorting and eliminate duplicates
-  std::set<IdentifierHash> rdoHashSet;
-  
-  unsigned int nc = 0;
-  //loop over offline hash indices requested to get a vector of pad hashes to be decoded 
-  for (std::vector<IdentifierHash>::iterator rpchid = idVect.begin(); 
-       rpchid != idVect.end(); ++rpchid) {
-    
-    nc++;
-    IdentifierHash offlineCollHash = *rpchid;
-    if (offlineCollHash > m_rpcHelper->module_hash_max()) continue;
-    
-    ATH_MSG_DEBUG("offline id hash n. "<<nc<<" hash id is "<<(int)offlineCollHash);
-    Identifier idCollOff;        
-    if (msgLvl(MSG::DEBUG)) {      
-      int  code = m_rpcHelper->get_id(offlineCollHash, idCollOff, &rpcContext);
-      if  (code != 0) msg (MSG::DEBUG) <<" A problem in hash -> id conversion for next Collection "<<(int)offlineCollHash<<endreq;
-      else ATH_MSG_VERBOSE(nc<<"-th Offline id "<<(int)offlineCollHash
-			   <<" is "<<m_rpcHelper->show_to_string(idCollOff));
-    }
-    
-    // identifiers of collections already decoded and stored in the container will be skipped
-    // functionality moved to the decode method, in order to allow for relooping over ambiguous collections
-    if (m_rpcPrepDataContainer->indexFind(offlineCollHash) != m_rpcPrepDataContainer->end()) {
-      idWithDataVect.push_back(offlineCollHash);
-      ATH_MSG_DEBUG("A collection already exists in the container for offline id hash n. "
-		    <<nc<<" = "<<(int)offlineCollHash);
-    //  continue; see the comment above
-    }
-    
-    // check that the problem is well defined 
-    if (nPadsForOfflineDataColl[offlineCollHash] <= 0) {
-      ATH_MSG_DEBUG("no pad hash associated to this offline hash");
-      continue;
-    }
-    else ATH_MSG_DEBUG(nPadsForOfflineDataColl[offlineCollHash]<<" pad hash associated to this offline hash");
-    
-    // loop over pad hashes associated to such offline hash
-    Identifier idColl;
-    IdentifierHash onlinePadHash;
-    for(unsigned int i=0;i<nPadsForOfflineDataColl[offlineCollHash];++i) {      
-      onlinePadHash = padHashIdForOfflineDataColl[offlineCollHash][i];
-      if (msgLvl(MSG::VERBOSE)) {	      
-	int  code = m_rpcHelper->get_id(onlinePadHash, idColl, &rpcContext);
-	if (code != 0) msg( MSG::VERBOSE )
-			 <<" A problem in hash -> id conversion for next Pad Collection "
-			 <<(int)onlinePadHash<<endreq;
-	else {		  
-	  msg( MSG::VERBOSE )
-	    <<"Online pad id hash  "<<(int)onlinePadHash
-	    <<" extended "<<m_rpcHelper->show_to_string(idColl)<<endreq;
-	}
-      }
-      rdoHashSet.insert(onlinePadHash);
-    }
-  }
-  
-  //convert set to vector
-  for (auto itRdoHash = rdoHashSet.begin(); itRdoHash!=rdoHashSet.end(); ++itRdoHash)
-    rdoHashVect.push_back(*itRdoHash);
-  
-  return sc;
-}
-
 
 StatusCode Muon::RpcRdoToPrepDataTool::processPad(const RpcPad *rdoColl, 
-						  bool& processingetaview, 
-						  bool& processingphiview,
+                                                  bool& processingetaview, 
+                                                  bool& processingphiview,
                                                   int& nPrepRawData,  
-						  std::vector<IdentifierHash>& idVect, 
-						  std::vector<IdentifierHash>& idWithDataVect,
+                                                  std::vector<IdentifierHash>& idVect, // if empty, turns off decoding of additional RDOs for ambiguity solving
+                                                  std::vector<IdentifierHash>& idWithDataVect, // filled with IDs of created PrepRawData collections
                                                   IdContext& rpcContext)
 {
    
@@ -1681,8 +1527,9 @@ StatusCode Muon::RpcRdoToPrepDataTool::manageOutputContainers(bool& firstTimeInT
       return status;
     }
     else ATH_MSG_DEBUG("RPC PrepData Container recorded in StoreGate with key " << m_outputCollectionLocation);
-    m_decodedRdoCollVec->clear();
     
+    m_decodedOfflineHashIds.clear();
+    m_decodedRobIds.clear();
     
     if (m_producePRDfromTriggerWords){
       // record the rpc hit container 
