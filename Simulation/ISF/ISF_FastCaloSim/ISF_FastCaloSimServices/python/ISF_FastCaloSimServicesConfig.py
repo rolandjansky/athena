@@ -723,6 +723,11 @@ def getFastShowerCellBuilderTool(name="ISF_FastShowerCellBuilderTool", **kwargs)
     conddb.addFolder('GLOBAL_OFL','/GLOBAL/AtlfastII/FastCaloSimParam <tag>FastCaloSim_v2</tag>')
     return FastShowerCellBuilderTool
 
+def getLegacyFastShowerCellBuilderTool(name="ISF_LegacyFastShowerCellBuilderTool", **kwargs):
+    FastShowerCellBuilderTool = getFastShowerCellBuilderTool(name,**kwargs)
+    FastShowerCellBuilderTool.Invisibles += [ 13 ]
+    return FastShowerCellBuilderTool
+
 def getPileupFastShowerCellBuilderTool(name="ISF_PileupFastShowerCellBuilderTool", **kwargs):
     from G4AtlasApps.SimFlags import SimFlags,simFlags
     from FastCaloSim.FastCaloSimFactory import FastCaloSimFactory
@@ -887,6 +892,9 @@ def getLegacyAFIIFastCaloSimSvc(name="ISF_LegacyAFIIFastCaloSimSvc", **kwargs):
     from ISF_FastCaloSimServices.ISF_FastCaloSimJobProperties import ISF_FastCaloSimFlags
     kwargs.setdefault("BatchProcessMcTruth" , True )
     kwargs.setdefault("ParticleBroker"                   , getService('ISF_AFIIParticleBrokerSvc')               )
+    kwargs.setdefault("CaloCellMakerTools_simulate"      , [
+                                                             getPublicTool('ISF_LegacyFastShowerCellBuilderTool'),
+                                                           ])
     return getFastCaloSimSvc(name, **kwargs)
 
 def getFastHitConvAlgFastCaloSimSvc(name="ISF_FastHitConvAlgFastCaloSimSvc",**kwargs):
