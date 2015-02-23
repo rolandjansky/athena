@@ -84,7 +84,9 @@ public:
 
     virtual StatusCode fill(int iTrack, const xAOD::TrackParticle* pTrackParticle, const Trk::TrackParameters* extrMuonLayer, bool bSaveMdtSegmentMakerInfo);
     virtual void fillRefittedTrack(const xAOD::TrackParticle* pRefittedTrack, const Trk::Track* trkRefittedTrack, CandidateSummary* pSummary);
-    virtual void fillMSTrack(const xAOD::TrackParticle* pRefittedTrack, const Trk::Track* trkRefittedTrack, CandidateSummary* pSummary);
+    virtual void fillMSTrack(std::unique_ptr<const xAOD::TrackParticle> pRefittedTrack,
+                             std::unique_ptr<const Trk::Track> trkRefittedTrack,
+                             CandidateSummary* pSummary);
     virtual void setLHR(double lhr);
     virtual void setAnn(double barrelNN,double endcapNN);
     virtual void setIsolation(int isolation);

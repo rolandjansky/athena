@@ -64,9 +64,7 @@ Candidate::Candidate(CandidateTool* pMuGirl) :
         m_pIDTrkIsect(NULL),
         m_pIDTrk(NULL),
         m_pRefittedTrack(NULL),
-        m_pMSRefittedTrack(NULL),
         m_pTrkRefittedTrack(NULL),
-        m_pMSTrkRefittedTrack(NULL),
         m_bSaveMdtSegmentMakerInfo(false),
         m_passAnn(false),
         m_passStau(false),
@@ -104,9 +102,7 @@ void Candidate::clear()
     m_startFromEF         = false;
     m_pIDTrk              = NULL;
     m_pRefittedTrack      = NULL;
-    m_pMSRefittedTrack    = NULL;
     m_pTrkRefittedTrack   = NULL;
-    m_pMSTrkRefittedTrack = NULL;
     //delete m_pRefittedTrack;
     delete m_pIDTrkIsect;
     if (m_pIDTrkIsect != NULL)
@@ -432,28 +428,33 @@ void Candidate::setRefittedTrackToSummary(const xAOD::TrackParticle* RefittedTra
     Summary->pRefittedTrack = RefittedTrack;
     Summary->pTrkRefitted   = TrkRefittedTrack;
 }
-void Candidate::setMSTrackToSummary(const xAOD::TrackParticle* RefittedTrack, const Trk::Track* TrkRefittedTrack, CandidateSummary* Summary)
+void Candidate::setMSTrackToSummary(std::unique_ptr<const xAOD::TrackParticle> RefittedTrack,
+                                    std::unique_ptr<const Trk::Track> TrkRefittedTrack,
+                                    CandidateSummary* Summary)
 {
-    Summary->pMSRefittedTrack = RefittedTrack;
-    Summary->pTrkMSRefitted   = TrkRefittedTrack;
+    Summary->pMSRefittedTrack = std::move(RefittedTrack);
+    Summary->pTrkMSRefitted   = std::move(TrkRefittedTrack);
+
 }
 void Candidate::setRefittedTrack(const xAOD::TrackParticle* pRefittedTrack)
 {
     m_pRefittedTrack = pRefittedTrack;
 }
+
+//void Candidate::setMSTrack(const xAOD::TrackParticle* pRefittedTrack)
+//{
+//  m_pMSRefittedTrack = pRefittedTrack;
+//}
+
+//void Candidate::setMSTrack(const Trk::Track* pTrkRefittedTrack)                         
+//{
+//  m_pMSTrkRefittedTrack = pTrkRefittedTrack;
+//}
+
 void Candidate::setRefittedTrack(const Trk::Track* pTrkRefittedTrack)
 {
     m_pTrkRefittedTrack = pTrkRefittedTrack;
 }
-void Candidate::setMSTrack(const xAOD::TrackParticle* pRefittedTrack)
-{
-    m_pMSRefittedTrack = pRefittedTrack;
-}
-void Candidate::setMSTrack(const Trk::Track* pTrkRefittedTrack)
-{
-    m_pMSTrkRefittedTrack = pTrkRefittedTrack;
-}
-
 
 StatusCode Candidate::crudeExtrapolate()
 {
@@ -1725,12 +1726,12 @@ StatusCode Candidate::fillSummaryFromBetaRefit(CandidateSummary* pSummary)
     pSummary->pMuonFeature       = m_muonFeature;
     pSummary->pRefittedTrack     = m_pRefittedTrack;
     pSummary->pTrkRefitted       = m_pTrkRefittedTrack;
-    pSummary->pMSRefittedTrack   = m_pMSRefittedTrack;
-    pSummary->pTrkMSRefitted     = m_pMSTrkRefittedTrack;
+    pSummary->pMSRefittedTrack.reset();
+    pSummary->pTrkMSRefitted.reset();
     pSummary->pLowBetaTrack      = m_pLowBetaTrack;
     pSummary->pTrkLowBeta        = m_pTrkLowBetaTrack;
     pSummary->pLowBetaExtrpTrack = NULL;
-    pSummary->pTrkLowBetaExtr    = NULL;
+    //    pSummary->pTrkLowBetaExtr    = NULL;
 
     if (m_pMuGirl->msgLvl(MSG::DEBUG))
         m_pMuGirl->msg() << "Candidate::fillSummaryFromBetaRefit ended" << endreq;
@@ -1756,12 +1757,12 @@ StatusCode Candidate::fillSummary(CandidateSummary* pSummary)
     pSummary->pMuonFeature       = m_muonFeature;
     pSummary->pRefittedTrack     = m_pRefittedTrack;
     pSummary->pTrkRefitted       = m_pTrkRefittedTrack;
-    pSummary->pMSRefittedTrack   = m_pMSRefittedTrack;
-    pSummary->pTrkMSRefitted     = m_pMSTrkRefittedTrack;
+    pSummary->pMSRefittedTrack.reset();
+    pSummary->pTrkMSRefitted.reset();
     pSummary->pLowBetaTrack      = m_pLowBetaTrack;
     pSummary->pTrkLowBeta        = m_pTrkLowBetaTrack;
     pSummary->pLowBetaExtrpTrack = NULL;
-    pSummary->pTrkLowBetaExtr    = NULL;
+    //    pSummary->pTrkLowBetaExtr    = NULL;
 
     for (std::vector<const Muon::MuonSegment*>::iterator MuonSegItr2=m_muonSegments.begin();  MuonSegItr2!= m_muonSegments.end(); MuonSegItr2++)
     {

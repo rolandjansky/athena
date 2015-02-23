@@ -471,18 +471,22 @@ void CandidateTool::fillRefittedTrack(const xAOD::TrackParticle* pRefittedTrack,
         m_pCandidate->setRefittedTrack(trkRefittedTrack); /** New running schema, using Trk::Track */
     }
 }
-void CandidateTool::fillMSTrack(const xAOD::TrackParticle* pRefittedTrack, const Trk::Track* trkRefittedTrack, CandidateSummary* pSummary)
+void CandidateTool::fillMSTrack
+  (std::unique_ptr<const xAOD::TrackParticle> pRefittedTrack,
+   std::unique_ptr<const Trk::Track> trkRefittedTrack,
+   CandidateSummary* pSummary)
 {
-    m_pCandidate->setMSTrackToSummary(pRefittedTrack,trkRefittedTrack,pSummary);
+  m_pCandidate->setMSTrackToSummary(std::move(pRefittedTrack),
+                                    std::move(trkRefittedTrack),pSummary);
     if (pRefittedTrack!=NULL)
     {
         ATH_MSG_DEBUG("fillMSTrack: old running schema, using TrackParticle");
-        m_pCandidate->setMSTrack(pRefittedTrack);    /** Old running schema, using TrackParticle */
+	//m_pCandidate->setMSTrack(pRefittedTrack.release());    /** Old running schema, using TrackParticle */
     }
     else
     {
         ATH_MSG_DEBUG("fillMSTrack: new running schema, using Trk::Track"); 
-        m_pCandidate->setMSTrack(trkRefittedTrack);  /** New running schema, using Trk::Track */
+        //m_pCandidate->setMSTrack(trkRefittedTrack.release());  /** New running schema, using Trk::Track */
     }
 }
 const std::vector<MdtSegmentMakerInfo*>& CandidateTool::getMdtSegmentMakerInfo() const
