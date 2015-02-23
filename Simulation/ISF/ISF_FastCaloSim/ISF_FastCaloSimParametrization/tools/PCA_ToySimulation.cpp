@@ -36,6 +36,8 @@
 #include "TRandom3.h"
 #include "TRandom.h"
 
+#include "TGaxis.h"
+
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -405,8 +407,9 @@ void PlotterToy1(TH1F* hinput, TH1F* houtput, std::string output){
     double max = hinput->GetMaximum();
     hinput->SetMaximum(max*1.5);
     hinput->SetTitle(output.c_str());
+    hinput->SetLineWidth(2);
     
-    
+    TGaxis::SetMaxDigits(3);
     
     houtput->Draw("SAME");
     houtput->SetLineColor(kBlue);
@@ -435,7 +438,7 @@ void PlotterToy1(TH1F* hinput, TH1F* houtput, std::string output){
     gStyle->SetOptStat(0);
     tcv->Update();
     
-    std::string outputname = output+".png";
+    std::string outputname = output+".pdf";
     tcv->Print(outputname.c_str());
     
     delete tcv;
@@ -518,7 +521,6 @@ void PlotterToy2(TH1F* hinput, TH1F* houtput, std::string output){
 }
 
 ////////////////////////////////////////////////////
-
 void PCA_ToySimulation(TString InputFile="PCAOutput.root", TString InputFile2="PCA_transformation_inputs.root"){
 ////////////////////////////////////////////////////
     
@@ -574,13 +576,13 @@ void PCA_ToySimulation(TString InputFile="PCAOutput.root", TString InputFile2="P
     TVectorD *MeanValues = (TVectorD*)input2->Get("output1_MeanValues");
     TVectorD *SigmaValues = (TVectorD*)input2->Get("output1_SigmaValues");
     
-    TH1F** hdata = new TH1F*[Relevant_Layers.size()];
-    TH1F** hdata_Gauss = new TH1F*[Relevant_Layers.size()];
-    TH1F** hdata_PCA = new TH1F*[Relevant_Layers.size()];
+    TH1F** hdata = new TH1F*[Relevant_Layers.size()+1];
+    TH1F** hdata_Gauss = new TH1F*[Relevant_Layers.size()+1];
+    TH1F** hdata_PCA = new TH1F*[Relevant_Layers.size()+1];
 
-    TH1F** hdata_R = new TH1F*[Relevant_Layers.size()];
-    TH1F** hdata_R_Gauss = new TH1F*[Relevant_Layers.size()];
-    TH1F** hdata_R_PCA = new TH1F*[Relevant_Layers.size()];
+    TH1F** hdata_R = new TH1F*[Relevant_Layers.size()+1];
+    TH1F** hdata_R_Gauss = new TH1F*[Relevant_Layers.size()+1];
+    TH1F** hdata_R_PCA = new TH1F*[Relevant_Layers.size()+1];
     
     TH1F** hCumulative_Id = new TH1F*[Relevant_Layers.size()];
     TH1F** hCumulative_Id_R = new TH1F*[Relevant_Layers.size()];
@@ -590,26 +592,68 @@ void PCA_ToySimulation(TString InputFile="PCAOutput.root", TString InputFile2="P
     TH1F* hTotal_energy_fraction_R = new TH1F("Total_energy_fraction_R", "Total_energy_fraction_R", 100,0, 2);
     TH1F* hTotal_energy_fraction_R_Dispersion_Test = new TH1F("Total_energy_fraction_R_Dispersion_Test", "Total_energy_fraction_R_Dispersion_Test", 100,0,2);
    
-    for (unsigned int k= 0; k<Relevant_Layers.size() ; k++) {
+    for (unsigned int k= 0; k<Relevant_Layers.size()+1 ; k++) {
         
-        //Energy Fraction Dist.
-        hdata[k] = new TH1F(Form("hdata%i",k+1), Form("hdata%i",k+1),50,T_Id->GetMinimum(Form("data_%i",Relevant_Layers[k])),T_Id->GetMaximum(Form("data_%i",Relevant_Layers[k])));
-        hdata_R[k] = new TH1F(Form("hdata_R%i",k+1), Form("hdata_R%i",k+1),50,T_Id->GetMinimum(Form("data_%i",Relevant_Layers[k])),T_Id->GetMaximum(Form("data_%i",Relevant_Layers[k])));
-        
-        for ( int ientry=0;ientry<NEntries;ientry++ ){
-            nr->GetEntry(ientry);
-            hdata[k]->Fill(nr->GetVariable(Form("data_%i",Relevant_Layers[k])));
-        }
-    
-        //Gauss Dist.
-        hdata_Gauss[k] = new TH1F(Form("hdata_Gauss%i",k+1), Form("hdata_Gauss%i",k+1),50,T_Gauss->GetMinimum(Form("data_Gauss_%i",Relevant_Layers[k])),T_Gauss->GetMaximum(Form("data_Gauss_%i",Relevant_Layers[k])));
-        hdata_R_Gauss[k] = new TH1F(Form("hdata_R_Gauss%i",k+1), Form("hdata_R_Gauss%i",k+1),50,T_Gauss->GetMinimum(Form("data_Gauss_%i",Relevant_Layers[k])),T_Gauss->GetMaximum(Form("data_Gauss_%i",Relevant_Layers[k])));
-        
-        for ( int ientry=0;ientry<NEntries_Gauss;ientry++ ){
-            nr_Gauss->GetEntry(ientry);
-            hdata_Gauss[k]->Fill(nr_Gauss->GetVariable(Form("data_Gauss_%i",Relevant_Layers[k])));
-        }
+        if(k==Relevant_Layers.size()){
+            //Energy Fraction Dist.
+          /*  hdata[k] = new TH1F("hdata_Total_Cell_Energy","hdata_Total_Cell_Energy",50,T_Id->GetMinimum("hdata_Total_Cell_Energy"),T_Id->GetMaximum("hdata_Total_Cell_Energy"));
+            hdata_R[k] = new TH1F("hdata_R_Total_Cell_Energy", "hdata_R_Total_Cell_Energy",50,T_Id->GetMinimum("hdata_Total_Cell_Energy"),T_Id->GetMaximum("hdata_Total_Cell_Energy"));
+            */
+            
+            hdata[k] = new TH1F("hdata_Total_Cell_Energy","hdata_Total_Cell_Energy",50,0,90000);
+            hdata_R[k] = new TH1F("hdata_R_Total_Cell_Energy", "hdata_R_Total_Cell_Energy",50,0,90000);
 
+            
+            for ( int ientry=0;ientry<NEntries;ientry++ ){
+                nr->GetEntry(ientry);
+                hdata[k]->Fill(nr->GetVariable("data_Total_Cell_Energy"));
+            }
+            
+            //Gauss Dist.
+            hdata_Gauss[k] = new TH1F("hdata_Gauss_Total_Cell_Energy","hdata_Gauss_Total_Cell_Energy",50,T_Gauss->GetMinimum("hdata_Gauss_Total_Cell_Energy"),T_Gauss->GetMaximum("hdata_Gauss_Total_Cell_Energy"));
+            hdata_R_Gauss[k] = new TH1F("hdata_R_Gauss_Total_Cell_Energy", "hdata_R_Gauss_Total_Cell_Energy",50,T_Gauss->GetMinimum("hdata_Gauss_Total_Cell_Energy"),T_Gauss->GetMaximum("hdata_Gauss_Total_Cell_Energy"));
+            
+            for ( int ientry=0;ientry<NEntries_Gauss;ientry++ ){
+                nr_Gauss->GetEntry(ientry);
+                hdata_Gauss[k]->Fill(nr_Gauss->GetVariable("data_Gauss_Total_Cell_Energy"));
+            }
+            
+            //Cumulatives
+            hCumulative_Id[k] = (TH1F*)input->Get("hCumulative_Total_Cell_Energy");
+            hCumulative_Id_R[k] = new TH1F("hCumulative_R_Total_Cell_Energy", "hCumulative_R_Total_Cell_Energy",50,T_Id->GetMinimum("hdata_Total_Cell_Energy"),T_Id->GetMaximum("hdata_Total_Cell_Energy"));
+            hCumulative_PCA[k] = (TH1F*)input->Get(Form("hCumulative_PCA_%i",k+1));
+
+        }
+        
+        else{     //Energy Fraction Dist.
+            hdata[k] = new TH1F(Form("hdata%i",k+1), Form("hdata%i",k+1),50,T_Id->GetMinimum(Form("data_%i",Relevant_Layers[k])),T_Id->GetMaximum(Form("data_%i",Relevant_Layers[k])));
+            hdata_R[k] = new TH1F(Form("hdata_R%i",k+1), Form("hdata_R%i",k+1),50,T_Id->GetMinimum(Form("data_%i",Relevant_Layers[k])),T_Id->GetMaximum(Form("data_%i",Relevant_Layers[k])));
+            
+            for ( int ientry=0;ientry<NEntries;ientry++ ){
+                nr->GetEntry(ientry);
+                hdata[k]->Fill(nr->GetVariable(Form("data_%i",Relevant_Layers[k])));
+            }
+            
+            //Gauss Dist.
+            hdata_Gauss[k] = new TH1F(Form("hdata_Gauss%i",k+1), Form("hdata_Gauss%i",k+1),50,T_Gauss->GetMinimum(Form("data_Gauss_%i",Relevant_Layers[k])),T_Gauss->GetMaximum(Form("data_Gauss_%i",Relevant_Layers[k])));
+            hdata_R_Gauss[k] = new TH1F(Form("hdata_R_Gauss%i",k+1), Form("hdata_R_Gauss%i",k+1),50,T_Gauss->GetMinimum(Form("data_Gauss_%i",Relevant_Layers[k])),T_Gauss->GetMaximum(Form("data_Gauss_%i",Relevant_Layers[k])));
+            
+            for ( int ientry=0;ientry<NEntries_Gauss;ientry++ ){
+                nr_Gauss->GetEntry(ientry);
+                hdata_Gauss[k]->Fill(nr_Gauss->GetVariable(Form("data_Gauss_%i",Relevant_Layers[k])));
+            }
+            
+            //Cumulatives
+            hCumulative_Id[k] = (TH1F*)input->Get(Form("hCumulative_Id_%i",Relevant_Layers[k]));
+            hCumulative_Id_R[k] = new TH1F(Form("hCumulative_Id_R%i",k+1), Form("hCumulative_Id_R%i",k+1),50,T_Id->GetMinimum(Form("data_%i",Relevant_Layers[k])),T_Id->GetMaximum(Form("data_%i",Relevant_Layers[k])));
+            hCumulative_PCA[k] = (TH1F*)input->Get(Form("hCumulative_PCA_%i",k+1));
+            
+        }
+        
+        
+        
+        
+        
         //PCA Dist.
         hdata_PCA[k] = new TH1F(Form("hdata_PCA%i",k+1), Form("hdata_PCA%i",k+1),50,T_PCA->GetMinimum(Form("PCA_%i",k+1)),T_PCA->GetMaximum(Form("PCA_%i",k+1)) );
         hdata_R_PCA[k] = new TH1F(Form("hdata_R_PCA%i",k+1), Form("hdata_R_PCA%i",k+1),50,T_PCA->GetMinimum(Form("PCA_%i",k+1)),T_PCA->GetMaximum(Form("PCA_%i",k+1)) );
@@ -619,11 +663,8 @@ void PCA_ToySimulation(TString InputFile="PCAOutput.root", TString InputFile2="P
             hdata_PCA[k]->Fill(nr_PCA->GetVariable(Form("PCA_%i",k+1)));
         }
         
+
         
-        //Cumulatives
-        hCumulative_Id[k] = (TH1F*)input->Get(Form("hCumulative_Id_%i",Relevant_Layers[k]));
-        hCumulative_PCA[k] = (TH1F*)input->Get(Form("hCumulative_PCA_%i",k+1));
-        hCumulative_Id_R[k] = new TH1F(Form("hCumulative_Id_R%i",k+1), Form("hCumulative_Id_R%i",k+1),50,T_Id->GetMinimum(Form("data_%i",Relevant_Layers[k])),T_Id->GetMaximum(Form("data_%i",Relevant_Layers[k])));
 
     }
     
@@ -662,15 +703,15 @@ void PCA_ToySimulation(TString InputFile="PCAOutput.root", TString InputFile2="P
         TRandom3* Random = new TRandom3();
         Random->SetSeed(i);
     
-        double Simulated_Uniform[Relevant_Layers.size()];
-        double Simulated_PCA[Relevant_Layers.size()];
-        double Simulated_Gauss[Relevant_Layers.size()];
-        double Simulated_Uniform2[Relevant_Layers.size()];
-        double Simulated_Event[Relevant_Layers.size()];
+        double Simulated_Uniform[Relevant_Layers.size()+1];
+        double Simulated_PCA[Relevant_Layers.size()+1];
+        double Simulated_Gauss[Relevant_Layers.size()+1];
+        double Simulated_Uniform2[Relevant_Layers.size()+1];
+        double Simulated_Event[Relevant_Layers.size()+1];
         double Dispersion_Test[Relevant_Layers.size()];
 
         
-        for (unsigned int k=0; k<Relevant_Layers.size(); k++) {
+        for (unsigned int k=0; k<Relevant_Layers.size()+1; k++) {
             Simulated_Uniform[k] = Random->Uniform(1); //std::cout<<Random->Uniform(1) <<"\t" ;
             Simulated_PCA[k] = InverseCumulant(Simulated_Uniform[k], hCumulative_PCA[k]) ;
             hdata_R_PCA[k]->Fill(Simulated_PCA[k]);
@@ -681,23 +722,24 @@ void PCA_ToySimulation(TString InputFile="PCAOutput.root", TString InputFile2="P
             std::cout<<i <<" sumulated events" <<std::endl;
         }
     
-        P2X(Relevant_Layers.size(), EigenVectors, MeanValues, SigmaValues, Simulated_PCA, Simulated_Gauss, Relevant_Layers.size());
+        P2X(Relevant_Layers.size()+1, EigenVectors, MeanValues, SigmaValues, Simulated_PCA, Simulated_Gauss, Relevant_Layers.size()+1);
 
         double Tampon_total_energy_fraction = 0;
-        for (unsigned int k=0; k< Relevant_Layers.size(); k++) {
+        for (unsigned int k=0; k< Relevant_Layers.size()+1; k++) {
+            
             hdata_R_Gauss[k]->Fill(Simulated_Gauss[k]);
             Simulated_Uniform2[k] = (TMath::Erf(Simulated_Gauss[k]/1.414213562)+1)/2.f;
             Simulated_Event[k] = InverseCumulant(Simulated_Uniform2[k], hCumulative_Id[k]) ;
             hdata_R[k]->Fill(Simulated_Event[k]);
-            
-            Dispersion_Test[k] = InverseCumulant(Simulated_Uniform[k], hCumulative_Id[k]) ;
+          
         }
-        
+   
         double Total_energy_fraction_R = 0 ;
         double Total_energy_fraction_R_Dispersion = 0 ;
         
         
         for (unsigned int k=0; k<Relevant_Layers.size(); k++) {
+            Dispersion_Test[k] = InverseCumulant(Simulated_Uniform[k], hCumulative_Id[k]) ;
             Total_energy_fraction_R = Total_energy_fraction_R + Simulated_Event[k];
             Total_energy_fraction_R_Dispersion = Total_energy_fraction_R_Dispersion + Dispersion_Test[k];
         }
@@ -706,19 +748,30 @@ void PCA_ToySimulation(TString InputFile="PCAOutput.root", TString InputFile2="P
         hTotal_energy_fraction_R_Dispersion_Test->Fill(Total_energy_fraction_R_Dispersion);
 
     }
-    
+  
     //-----------------------------------------------------------------------------------------------
     //    (3) Validation
     //-----------------------------------------------------------------------------------------------
 
     // Control Plots
-    for (unsigned int k=0; k<Relevant_Layers.size(); k++) {
+    for (unsigned int k=0; k<Relevant_Layers.size()+1; k++) {
         
+        if(k==Relevant_Layers.size()){
+            
+            std::string outputname = "ToySimulation2_Var_Total_Cell_Energy";
+            PlotterToy1(hdata[k], hdata_R[k], outputname);
+            
+            std::string outputname2 = "ToySimulation2_Gauss_Total_Cell_Energy";
+            PlotterToy1(hdata_Gauss[k], hdata_R_Gauss[k], outputname2);}
+        
+        else{
         std::string outputname = Form("ToySimulation2_Var%i",Relevant_Layers[k]);
         PlotterToy1(hdata[k], hdata_R[k], outputname);
         
         std::string outputname2 = Form("ToySimulation2_Gauss%i",Relevant_Layers[k]);
         PlotterToy1(hdata_Gauss[k], hdata_R_Gauss[k], outputname2);
+        
+        }
         
         std::string outputname3 = Form("ToySimulation2_PCA%i",k);
         PlotterToy1(hdata_PCA[k], hdata_R_PCA[k], outputname3);
@@ -751,7 +804,13 @@ void PCA_ToySimulation(TString InputFile="PCAOutput.root", TString InputFile2="P
     std::cout<<"hTotal_energy_fraction_R : " <<hTotal_energy_fraction_R->GetRMS() <<"+/-" <<hTotal_energy_fraction_R->GetRMSError() <<std::endl;
     std::cout<<"hTotal_energy_fraction_R_Dispersion_Test : " <<hTotal_energy_fraction_R_Dispersion_Test->GetRMS() <<"+/-" <<hTotal_energy_fraction_R_Dispersion_Test->GetRMSError() <<std::endl;
     
+
+    std::cout<<"hTotal_Cell_energy : " <<hdata[Relevant_Layers.size()]->GetMean() <<"+/-" <<hdata[Relevant_Layers.size()]->GetMeanError() <<"    -    " <<hdata[Relevant_Layers.size()]->GetRMS() <<"+/-" <<hdata[Relevant_Layers.size()]->GetRMSError() <<std::endl;
+ //   std::cout<<"hTotal_Cell_energy_R : " <<hTotal_energy_fraction_R->GetRMS() <<"+/-" <<hTotal_energy_fraction_R->GetRMSError() <<std::endl;
     
+    
+    std::cout<<"hTotal_Cell_energy_R : " <<hdata_R[Relevant_Layers.size()]->GetMean()<<"+/-" <<hdata[Relevant_Layers.size()]->GetMeanError() <<"    -    " <<hdata_R[Relevant_Layers.size()]->GetRMS() <<"+/-" <<hdata_R[Relevant_Layers.size()]->GetRMSError() <<std::endl;
+   
     
 }
 
