@@ -11,12 +11,15 @@ msg = logging.getLogger("PyJobTransforms." + __name__)
 
 import os
 import fnmatch
+import re
 
 from PyJobTransforms.trfExe import athenaExecutor
 
 #imports for preExecute
 from PyJobTransforms.trfUtils import asetupReport
 import PyJobTransforms.trfEnv as trfEnv
+import PyJobTransforms.trfExceptions as trfExceptions
+from PyJobTransforms.trfExitCodes import trfExit as trfExit
 import TrigTransform.dbgAnalysis as dbgStream
 
 
@@ -122,7 +125,12 @@ class trigRecoExecutor(athenaExecutor):
         #to get athenaHLT to read in the relevant parts from the runargs file we have to add the -F option
         if 'athenaHLT' in self._exe:
             self._cmd=['-F runargs.BSRDOtoRAW.py' if x=='runargs.BSRDOtoRAW.py' else x for x in self._cmd]
-
+            
+            #instead of running athenaHLT we can dump the options it has loaded
+            #note the -D needs to go after the -F in the command
+            if 'dumpOptions' in self.conf.argdict:
+                self._cmd=['-F runargs.BSRDOtoRAW.py -D' if x=='-F runargs.BSRDOtoRAW.py' else x for x in self._cmd]
+            
             #Run preRun step debug_stream analysis if debug_stream=True
             if 'debug_stream' in self.conf.argdict:
                 inputFiles = dict()
@@ -159,66 +167,90 @@ class trigRecoExecutor(athenaExecutor):
             
     def postExecute(self):
                 
+        msg.info("Check for expert-monitoring file")
         #runHLT_standalone.py generates the file expert-monitoring.root
-        #to save on panda it is defined as output via the outputHIST_HLTMONFile argument        
-        msg.warning("message from msg.warning in postExecute")
-        print("message from print in postExecute")        
-        #TODO hard-coded default filename!
-        fileName = 'expert-monitoring.root'
-        #check file is created
-        if(os.path.isfile(fileName)):
-            #keep filename if not defined
-            newOutputFileName = 'expert-monitoring.root'   
-            #find transform argument value for name     
-            for arg in self.conf.argdict:
-                if arg == "outputHIST_HLTMONFile":
-                    newOutputFileName = self.conf.argdict[arg].value[0]
-            #rename file
-            msg.info('Renaming %s to %s' % (fileName, newOutputFileName) )        
-            os.rename(fileName, newOutputFileName)
+        #to save on panda it needs to be renamed via the outputHIST_HLTMONFile argument
+        expectedFileName = 'expert-monitoring.root'
+        #first check argument is in dict
+        if 'outputHIST_HLTMONFile' in self.conf.argdict:
+             #check file is created
+             if(os.path.isfile(expectedFileName)):
+                 msg.info('Renaming %s to %s' % (expectedFileName, self.conf.argdict['outputHIST_HLTMONFile'].value[0]) ) 
+                 try:
+                      os.rename(expectedFileName, self.conf.argdict['outputHIST_HLTMONFile'].value[0])
+                 except OSError, e:
+                      raise trfExceptions.TransformExecutionException(trfExit.nameToCode('TRF_OUTPUT_FILE_ERROR'),
+                                    'Exception raised when renaming {0} to {1}: {2}'.format(expectedFileName, self.conf.argdict['outputHIST_HLTMONFile'].value[0], e))
+             else:
+                 msg.error('HLTMON argument defined %s but %s not created' % (self.conf.argdict['outputHIST_HLTMONFile'].value[0], expectedFileName ))
         else:
-            for arg in self.conf.argdict:
-                if arg == "outputHIST_HLTMONFile":
-                    msg.error('HLTMON argument defined but %s not created' % fileName )
-                    
+            msg.info('HLTMON argument not defined so skip %s check' % expectedFileName)
+        
+        
+        
+        msg.info("Check for created BS files")
         #The following is needed to handle the BS file being written with a different name (or names)
         #base is from either the tmp value created by the transform or the value entered by the user
-        originalFileArg = self.conf.dataDictionary['BS']
-        fileNameBase = originalFileArg.value[0] + '*.data'
-        fileNameMatches = []
-        #loop over all files in folder to find matching outputs
-        for file in os.listdir('.'):
-            if fnmatch.fnmatch(file, fileNameBase):
-                fileNameMatches.append(file)
-        #check there are file matches
-        if(len(fileNameMatches)):
-            originalFileArg.multipleOK = True
-            originalFileArg.value = fileNameMatches
-            msg.info('Renaming internal BS arg from %s to %s' % (originalFileArg.value[0], fileNameMatches))
+        if 'BS' in self.conf.dataDictionary:
+            argumentInRunArgs = self.conf.dataDictionary['BS']
+            expectedOutputFileName = argumentInRunArgs.value[0] + '*.data'            
+            argumentInDataset = argumentInRunArgs._dataset
+            matchedOutputFileNames = []
+            #loop over all files in folder to find matching outputs
+            for file in os.listdir('.'):
+                if fnmatch.fnmatch(file, expectedOutputFileName):
+                    matchedOutputFileNames.append(file)
+            #check there are file matches
+            if(len(matchedOutputFileNames)):
+                msg.info('Renaming internal BS arg from %s to %s' % (argumentInRunArgs.value[0], matchedOutputFileNames))
+                argumentInRunArgs.multipleOK = True
+                argumentInRunArgs.value = matchedOutputFileNames
+                argumentInRunArgs._dataset = argumentInDataset
+            else:
+                msg.error('no BS files created with expected name: %s' % expectedOutputFileName )
         else:
-            msg.error('no BS files created with expected name' % fileNameMatches )
+            msg.info('BS output filetype not defined so skip BS filename check')
 
         #Run PostRun step debug_stream analysis if debug_stream=True
         if 'debug_stream' in self.conf.argdict:
             msg.info("debug_stream analysis in postExecute")
+
+            #Rename input to handle Tier-0 naming convention and work around for athenaHLT 0001.data default output
+            argumentInRunArgs = self.conf.dataDictionary['BS']
+            inputFile = argumentInRunArgs.value[0] 
+            expectedInput = str()
+            if not inputFile.endswith(".data") and inputFile[-1:].isdigit():
+                ending = re.split('[^\d]',inputFile)[-1]
+                expectedInput = inputFile.replace(ending,'0001.data')
+                inputFile = inputFile+".data"
+                argumentInRunArgs.value[0] = inputFile
+            else :
+                expectedInput = inputFile.replace(".data",'._0001.data')
+
+            msg.info('Renaming {0} to {1}'.format(expectedInput, inputFile))
+            try:
+                os.rename(expectedInput, inputFile)
+            except OSError, e:
+                msg.error('Exception raised when renaming {0} #to {1}: {2}'.format(expectedInput, inputFile, e))
+                raise trfExceptions.TransformExecutionException(trfExit.nameToCode('TRF_OUTPUT_FILE_ERROR'),
+                                                                'Exception raised when renaming {0} #to {1}: {2}'.format(expectedInput, inputFile, e))
                 
             #set default file name for debug_stream analysis output
             fileNameDbg = ['debug-stream-monitoring.root']
-            for arg in self.conf.argdict:
-                if arg == "outputHIST_DEBUGSTREAMMONFile":
-                    fileNameDbg= self.conf.argdict[arg].value                
-                    msg.info('outputHIST_DEBUGSTREAMMONFile argument is {0}'.format(fileNameDbg) )
-
+            if "outputHIST_DEBUGSTREAMMONFile" in self.conf.argdict:
+                fileNameDbg= self.conf.argdict["outputHIST_DEBUGSTREAMMONFile"].value                
+                msg.info('outputHIST_DEBUGSTREAMMONFile argument is {0}'.format(fileNameDbg) )
+                
             if(os.path.isfile(fileNameDbg[0])):
                 #keep filename if not defined
-                msg.info('Will use file created  in PreRun steep %s'.format(fileNameDbg) )
+                msg.info('Will use file created  in PreRun step {0}'.format(fileNameDbg) )
             else :
-                msg.info('No file created  in PreRun steep {0}'.format(fileNameDbg) )
+                msg.info('No file created  in PreRun step {0}'.format(fileNameDbg) )
 
             #do debug_stream postRun step
-            dbgStream.dbgPostRun(originalFileArg,fileNameDbg)
+            dbgStream.dbgPostRun(argumentInRunArgs,fileNameDbg)
+            #now reset metadata for outputBSFile needed for trf file validation
+            self.conf.dataDictionary['BS']._resetMetadata()
 
         msg.info('Now run athenaExecutor:postExecute')
         super(trigRecoExecutor, self).postExecute()
-        
-    

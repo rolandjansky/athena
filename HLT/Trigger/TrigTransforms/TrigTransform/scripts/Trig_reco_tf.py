@@ -52,12 +52,11 @@ def getTransform():
                                      literalRunargs = ['writeBS = runArgs.writeBS',
                                                        'BSRDOInput = runArgs.inputBS_RDOFile',
                                                        'EvtMax = runArgs.maxEvents',
-                                                       'from AthenaCommon.AthenaCommonFlags import athenaCommonFlags',
-                                                       'athenaCommonFlags.BSRDOOutput.set_Value_and_Lock( runArgs.outputBSFile )',
-                                                       'option = {}',
-                                                       'option[\'file\'] = runArgs.inputBS_RDOFile',
-                                                       'option[\'save-output\'] = runArgs.outputBSFile',
-                                                       'option[\'number-of-events\'] = runArgs.maxEvents']))
+                                                       'if hasattr(runArgs,\'outputBSFile\'):',
+                                                       '   from AthenaCommon.AthenaCommonFlags import athenaCommonFlags',
+                                                       '   athenaCommonFlags.BSRDOOutput.set_Value_and_Lock( runArgs.outputBSFile )',
+                                                       'import TrigTransform.trigTranslate as translate',
+                                                       'option = translate.main(runArgs)']))
 
     #add default reconstruction steps
     # eventually to be replaced by:
@@ -128,13 +127,15 @@ def getTransform():
     #now add specific trigger arguments
     #  putting this last makes them appear last in the help so easier to find
     addTriggerArgs(trf.parser)
+    addTriggerDBArgs(trf.parser)
+    addDebugArgs(trf.parser)
 
     return trf
 
 
 def addTriggerArgs(parser):
     # Use arggroup to get these arguments in their own sub-section (of --help)
-    parser.defineArgGroup('Trigger', 'Specific options related to the trigger configuration')
+    parser.defineArgGroup('Trigger', 'Specific options related to the trigger configuration used for reprocessing')
     
     #new for trigger transform
     #now setup to run athenaHLT, so TODO is to remove:testPhysicsV4 and writeBS
@@ -161,11 +162,44 @@ def addTriggerArgs(parser):
     parser.add_argument('--triggerConfig', nargs='+', metavar='substep:TRIGGERCONFIG',
                         type=trfArgClasses.argFactory(trfArgClasses.argSubstep, runarg=True),
                         help='Trigger Configuration String.', group='Trigger')
+    parser.add_argument('--dumpOptions', type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=True),
+                        help='For testing dump the options athenaHLT has loaded', group='Trigger')
+    parser.add_argument('--precommand', nargs='+', type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True),
+                        help='precommand for athenaHLT aka -c', group='Trigger')
+    
+
+def addTriggerDBArgs(parser):
+    # Use arggroup to get these arguments in their own sub-section (of --help)
+    parser.defineArgGroup('TriggerDB', 'Specific options related to the trigger DB')
+    
+    #TODO add short forms and help messages
+        
+    parser.add_argument('--joboptionsvc-type', type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True),
+                        help='joboptionsvc-type aka -J', group='TriggerDB')
+    parser.add_argument('--use-database', type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=True),
+                        help='use-database', group='TriggerDB')
+    parser.add_argument('--db-type', type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True),
+                        help='db-type', group='TriggerDB')
+    parser.add_argument('--db-server', type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True),
+                        help='db-server', group='TriggerDB')
+    parser.add_argument('--db-smkey', type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True),
+                        help='db-smkey', group='TriggerDB')
+    parser.add_argument('--db-hltpskey', type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True),
+                        help='db-hltpskey', group='TriggerDB')
+    parser.add_argument('--db-extra', type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True),
+                        help='db-extra', group='TriggerDB')
+     
+        
+                        
+def addDebugArgs(parser):
+    # Use arggroup to get these arguments in their own sub-section (of --help)
+    parser.defineArgGroup('Debug', 'Specific options related to the trigger debug recovery')
+
     parser.add_argument('--debug_stream', type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=True),
-                        help='Runs debug_stream analysis', group='Trigger')
+                        help='Runs debug_stream analysis', group='Debug')
     parser.add_argument('--outputHIST_DEBUGSTREAMMONFile', nargs='+', 
                         type=trfArgClasses.argFactory(trfArgClasses.argHISTFile, io='output', runarg=True, countable=False),
-                        help='Output DEBUGSTREAMMON file', group='Trigger')    
+                        help='Output DEBUGSTREAMMON file', group='Debug')    
 
 
 
