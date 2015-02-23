@@ -12,8 +12,12 @@ import os
 import commands
 from TrigTransform.dbgHltResult import hltResult
 import PyCintex
+
+from PyUtils import RootUtils
+ROOT = RootUtils.import_root()
 import ROOT
 from ROOT import *
+
 class dbgEventInfo:
 
     def __init__(self,dbgStep="_Default"):

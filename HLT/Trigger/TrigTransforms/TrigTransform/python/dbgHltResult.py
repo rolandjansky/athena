@@ -1,5 +1,10 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+#!/usr/bin/env python
 
+# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+#### This is the dbgHLTResult class for the Debug Stream event analysis
+
+from PyUtils import RootUtils
+ROOT = RootUtils.import_root()
 from ROOT import std
 import PyCintex
 from CLIDComps.clidGenerator import clidGenerator
