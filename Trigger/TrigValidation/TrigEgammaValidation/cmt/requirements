@@ -2,71 +2,23 @@ package TrigEgammaValidation
 
 author Danilo Enoque Ferreira de Lima <Danilo.Enoque.Ferreira.De.Lima@cern.ch>
 author Denis Oliveira Damazio <Denis.Oliveira.Damazio@cern.ch>
-
+author Carlos Chavez Barajas <carlo.chavez.barajas@cern.ch>
 #private
 #apply_tag no_genconf
 #end_private
 
-use AtlasPolicy AtlasPolicy-*
-
-branches run
-
-use AtlasROOT			AtlasROOT-*			External
-use GaudiInterface		GaudiInterface-*		External
-use StoreGate           	StoreGate-*			Control
-
-use AnalysisTriggerEvent	AnalysisTriggerEvent-*		PhysicsAnalysis/AnalysisTrigger
-#use egammaEvent			egammaEvent-*			Reconstruction/egamma
-use CaloEvent			CaloEvent-*			Calorimeter
-use TrigCaloEvent		TrigCaloEvent-*			Trigger/TrigEvent
-use TrigInDetEvent		TrigInDetEvent-*		Trigger/TrigEvent
-#use TrigDecision TrigDecision-* Trigger/TrigEvent
-use TrigDecisionTool		TrigDecisionTool-*		Trigger/TrigAnalysis
-use TrigConfHLTData             TrigConfHLTData-*               Trigger/TrigConfiguration
-use TrigNavigation              TrigNavigation-*                Trigger/TrigEvent
-use TrigSteeringEvent           TrigSteeringEvent-*             Trigger/TrigEvent
-
-
-use xAODEgamma                  xAODEgamma-*                    Event/xAOD
-use xAODTrigEgamma              xAODTrigEgamma-*                Event/xAOD
-use xAODTracking                xAODTracking-*                  Event/xAOD
-use xAODTrigCalo                xAODTrigCalo-*                  Event/xAOD
-use ElectronPhotonSelectorTools ElectronPhotonSelectorTools-* PhysicsAnalysis/ElectronPhotonID
-
-private
-apply_tag ROOTMathLibs
-use AtlasTriggerRunTime            AtlasTriggerRunTime-*
-use GeneratorObjects            GeneratorObjects-*		Generators
-use Particle                    Particle-*                      Reconstruction
-use EventInfo                   EventInfo-*                     Event
-use FourMom                     FourMom-*                       Event
-use TrigSteering                TrigSteering-*                  Trigger/TrigSteer
-
-use     egammaEvent             egammaEvent-*           Reconstruction/egamma
-use AtlasROOT                   AtlasROOT-*                   External
-#use PATCore                     PATCore-*                     PhysicsAnalysis/AnalysisCommon
-#use AthenaBaseComps AthenaBaseComps-* Control
-
-
-use xAODCaloEvent xAODCaloEvent-* Event/xAOD
-
-
-public
-library TrigEgammaValidation *.cxx components/*.cxx
-
-apply_tag  ROOTBasicLibs
-apply_tag  ROOTMathLibs
-apply_tag  ROOTSTLDictLibs
-apply_tag  ROOTGraphicsLibs
-apply_tag  ROOTTableLibs
-
-apply_pattern component_library
-apply_pattern declare_joboptions files="*.py"
-
 # For RTT
-#macro TrigEgammaValidation_TestConfiguration "../test/TrigEgammaValidation_TestConfiguration.xml"
+public
+
+use AtlasPolicy AtlasPolicy-*                                 
+use AtlasTriggerRunTime            AtlasTriggerRunTime-*
+
+macro TrigEgammaValidation_TestConfiguration "../test/TrigEgammaValidation_TestConfiguration.xml"
 
 apply_pattern declare_runtime files="*.C *.py *.root *.xml" extras="-s=../test TrigEgammaValidation_TestConfiguration.xml"
+#apply_pattern declare_runtime extras="../test/TrigEgammaValidation_TestConfiguration.xml ../share/TrigEgammaValidation_RTT_*.py" 
+
+apply_pattern declare_joboptions files="TrigInDetValidation_RTT_*.py"
 
 apply_pattern declare_docs  files="-s=../doc/Summary-dev *.php *.html content.xml style.css *.gif"
 
@@ -75,5 +27,6 @@ private
 #add validation of RTT xml file
 use TestPolicy TestPolicy-*
 apply_pattern validate_xml
-
+apply_pattern declare_python_modules files="*.py"
 end_private
+
