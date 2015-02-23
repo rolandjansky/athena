@@ -45,13 +45,14 @@ struct CandidateSummary
     const xAOD::TrackParticle* pLowBetaTrack;
     const xAOD::TrackParticle* pLowBetaExtrpTrack;
     const xAOD::TrackParticle* pRefittedTrack;
-    const xAOD::TrackParticle* pMSRefittedTrack;
+  std::unique_ptr<const xAOD::TrackParticle> pMSRefittedTrack;
+
 
     const Trk::Track* pTrkTrack;
     const Trk::Track* pTrkLowBeta;
-    const Trk::Track* pTrkLowBetaExtr;
+  //  const Trk::Track* pTrkLowBetaExtr;
     const Trk::Track* pTrkRefitted;
-    const Trk::Track* pTrkMSRefitted;
+    std::unique_ptr<const Trk::Track> pTrkMSRefitted;
 
     int numMdtHits;
     int numRpcPhiHits;
