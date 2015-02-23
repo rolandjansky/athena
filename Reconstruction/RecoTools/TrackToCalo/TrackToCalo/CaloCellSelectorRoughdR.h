@@ -32,12 +32,11 @@ namespace Trk
 
   private:
     double m_coneSize;
-    double m_coneSize2;
     double m_midEta;
     double m_midPhi;
     double m_maxDiff;
 
-    TrackParametersIdHelper  parsIdHelper;
+    //TrackParametersIdHelper  parsIdHelper;
     CaloExtensionHelpers::EntryExitPerLayerVector m_crossPoints;
   };
 

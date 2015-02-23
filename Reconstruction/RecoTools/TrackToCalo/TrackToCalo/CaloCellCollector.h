@@ -8,11 +8,13 @@
 #include "CaloGeoHelpers/CaloSampling.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "xAODCaloEvent/CaloCluster.h"
+#include "GaudiKernel/ToolHandle.h"
 #include <vector>
 
 // forward declarations
 namespace Trk  { class CaloExtension; }
 class CaloCellContainer;
+class ICaloNoiseTool;
 
 
 namespace Rec {
@@ -35,8 +37,15 @@ namespace Rec {
                                          xAOD::CaloClusterContainer& clusterContainer ) const;
 
         void               collectEtCore( const xAOD::CaloCluster& cluster,
-                                          std::vector<float>& et_core ) const;
+                                          std::vector<float>& et_core,
+                                          const ToolHandle <ICaloNoiseTool>& caloNoiseTool,
+                                          bool  applyNoiseCut = true,
+                                          float sigmaNoiseCut = 3.4) const;
 
+        void               resetCoreParameters (const std::vector<std::pair<float, float> >& dEtadPhiCore,
+                                                const std::vector<float>&                    dEtadPhiDRCore,
+                                                const std::vector<bool>&                     selectEtCoreByEtadPhi);
+        
     private:
         // parameters for overall cell collection
         std::vector<std::pair<float, float> > m_dEtadPhi;
@@ -45,8 +54,8 @@ namespace Rec {
         // parameters for overall EtCore energy collection
         std::vector<std::pair<float, float> > m_dEtadPhiCore;
         std::vector<float>                    m_dEtadPhiDRCore;
-        std::vector<bool>                     m_sampleEtByEtadPhi;
-        bool m_doDebug;
+        std::vector<bool>                     m_selectEtCoreByEtadPhi;
+        bool                                  m_doDebug;
     };
 }
 

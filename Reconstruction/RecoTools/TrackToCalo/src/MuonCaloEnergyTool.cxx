@@ -306,6 +306,7 @@ namespace Rec {
     E_expected = 0.;
     double phiPos = caloExtension.caloEntryLayerIntersection()->position().phi();
     double thetaPos = caloExtension.caloEntryLayerIntersection()->position().theta();
+ 
 
     for(auto it : cellIntersections){ 
 
@@ -316,6 +317,8 @@ namespace Rec {
 
       double f_exp = (it.second)->pathLength(); 
       double E_exp = (it.second)->expectedEnergyLoss();
+
+      if(f_exp>1.) f_exp = 1.;
 
 //      if(f_exp<0.1) f_exp = 0.1;
 
@@ -456,7 +459,16 @@ namespace Rec {
        E_measured = E_em + E_em_threshold + E_tile + E_tile_threshold + E_HEC + E_HEC_threshold;
      }
 
+     double etaPos = caloExtension.caloEntryLayerIntersection()->position().eta();
+     E = E - etaCorr(etaPos) * E_expected;
+
     ATH_MSG_DEBUG( " Total energy " << E << " sigma " << sigma  << " E calo measured in cells " << E_measured << " E calo expected in cells " << E_measured_expected << " E_expected meanIoni from TG " << E_expected );
+
+     if(E_em+E_tile+E_HEC<0.1*E&&E_em+E_tile+E_HEC>1000.) {
+        ATH_MSG_WARNING( " Real Measured Calorimeter energy " << E_em+E_tile+E_HEC  << " is much lower than total " << E << " expected energy too large " << E_expected << " put measured energy to zero ");   
+        E = 0.;
+        sigma = 0.;
+     }
 //    
 // add for validation (temporarily) 
 //
@@ -485,6 +497,22 @@ namespace Rec {
 
   } // calculateMuonEnergies
 
+  double MuonCaloEnergyTool::etaCorr(double eta) const{
+// measured energy* = measured energy + etaCorr(eta) * expected
+
+      int eta_index = int(fabs(eta) * 60./3.);
+      if(eta_index>59) return 0;
+
+      double corr[60] = {
+		0.158063 , 0.172255 , 0.0850137 , 0.0838737 , 0.0816429 , 0.0680014 , 0.0748384 , 0.0649393 , 0.0649034 , 0.0697402 , 0.0756272 , 0.0714071 ,
+		0.0900842 , 0.0866779 , 0.111391 , 0.113118 , 0.0787759 , 0.142918 , 0.122331 , 0.0939613 , 0.102196 , 0.0785662 , 0.0613893 , 0.0550364 ,
+		0.0482447 , 0.0508712 , 0.064098 , 0.0552545 , 0.0444848 , 0.0868562 , 0.1287 , 0.0953612 , 0.140896 , 0.142699 , 0.137379 , 0.13432 , 0.128877,
+		0.103863 , 0.111676 , 0.0893027 , 0.090122 , 0.0713052 , 0.0879814 , 0.0614865 , 0.0733585 , 0.0659965 , 0.0665159 , 0.0669487 , 0.0589612 ,
+		0.0589253 , 0.0821995 , 0.0626487 , 0.0443041 , 0.0728687 , 0.0952599 , 0.0566535 , 0.0547298 , 0.0324415 , 0 , 0.02992  
+      }; // corrections
+
+      return (corr[eta_index]);
+  } // etaCorr
 
   double MuonCaloEnergyTool::thresholdCorrection(double E_observed,double E_expected,double sigma_Noise) const {
 
