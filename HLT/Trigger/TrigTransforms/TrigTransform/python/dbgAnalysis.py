@@ -16,6 +16,8 @@ from TrigTransform.dbgEventInfo import dbgEventInfo
 from TrigConfStorage.TriggerCoolUtil import TriggerCoolUtil
 from PyCool import cool
 
+from PyUtils import RootUtils
+ROOT = RootUtils.import_root()
 from ROOT import TFile
 
 def dbgPreRun(inputFileList,outputFileList):
