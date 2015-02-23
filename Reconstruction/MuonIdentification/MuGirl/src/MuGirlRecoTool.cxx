@@ -529,7 +529,7 @@ bool MuGirlRecoTool::RunFromID(MuGirlNS::CandidateSummaryList& summaryList)
             MuonCombined::MuGirlTag* tag = 0;
             if (summary->pTrkRefitted == NULL) tag = new MuonCombined::MuGirlTag(muonSegmentList);
             else tag = new MuonCombined::MuGirlTag(summary->pTrkRefitted, muonSegmentList);
-            tag->setUpdatedExtrapolatedTrack(summary->pTrkMSRefitted);
+	    tag->setUpdatedExtrapolatedTrack(std::move(summary->pTrkMSRefitted));
             pParticle->pInDetCandidate->addTag(*tag);
             //set the segment into SegmentManager undeletable 
             m_pSegmentManager->setInStore(muonSegmentList, true);
@@ -545,7 +545,7 @@ bool MuGirlRecoTool::RunFromID(MuGirlNS::CandidateSummaryList& summaryList)
             ATH_MSG_DEBUG("RunFromID: delivering the pTrkLowBeta to the MuGirl tag");
             std::vector<const Muon::MuonSegment*> muonSegmentList = summary->muonSegmentList;
             MuonCombined::MuGirlTag* tag = new MuonCombined::MuGirlTag(summary->pTrkLowBeta, muonSegmentList);
-            tag->setUpdatedExtrapolatedTrack(summary->pTrkLowBetaExtr);
+	    tag->setUpdatedExtrapolatedTrack(nullptr);
             pParticle->pInDetCandidate->addTag(*tag);
             //set the segment into SegmentManager undeletable 
             m_pSegmentManager->setInStore(muonSegmentList, true);
@@ -976,9 +976,11 @@ void MuGirlRecoTool::doHoughTransformForNtuple(const xAOD::TrackParticle* pTrack
 
 void MuGirlRecoTool::doSAFit(const Trk::Track* RefittedTrack, MuGirlNS::CandidateSummary& summary)
 {
-    ATH_MSG_DEBUG("RunFromID: looking for an ms track ...");
-    const Trk::Track* msTrack = m_pGlobalFitTool->standAloneRefit(*RefittedTrack);
-    if (msTrack != NULL) {
+  ATH_MSG_DEBUG("RunFromID: looking for an ms track ...");
+  std::unique_ptr<const Trk::Track> msTrack =
+  std::unique_ptr<const Trk::Track>
+    ( m_pGlobalFitTool->standAloneRefit(*RefittedTrack) );
+  if (msTrack) {
         msTrack->info().setPatternRecognitionInfo(Trk::TrackInfo::MuGirl);
         ATH_MSG_DEBUG("MS refit Trk::Track p " << fabs(1. / (msTrack->perigeeParameters()->parameters())[Trk::qOverP]) 
                       << " pt " << msTrack->perigeeParameters()->pT() 
@@ -986,6 +988,6 @@ void MuGirlRecoTool::doSAFit(const Trk::Track* RefittedTrack, MuGirlNS::Candidat
     } else {
         ATH_MSG_DEBUG("No refitted Track");
     }
-    m_pCandidate-> fillMSTrack(NULL, msTrack, &summary);
+    m_pCandidate-> fillMSTrack(NULL, std::move(msTrack), &summary);
 }
 
