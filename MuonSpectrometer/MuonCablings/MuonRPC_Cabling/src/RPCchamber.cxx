@@ -480,6 +480,9 @@ RPCchamber::extendedName (int sector) const
         case 'L' : sd = (sector%2)? "HV" : "RO";
 	break;
 	
+        case 'E' : sd = (sector%2)? "HV" : "RO";
+	break;
+	
 	case 'R' : sd = (sector%2)? "HV" : "RO";
 	break;
 	
@@ -544,6 +547,11 @@ RPCchamber::inversion (int sector) const
     switch (stationName()[2])
     {
         case 'L' :
+	if (sector%2)  return (sector<=31)? true  : false;   //HV
+	else           return (sector<=31)? false : true;   //RO
+	break;
+	
+        case 'E' :
 	if (sector%2)  return (sector<=31)? true  : false;   //HV
 	else           return (sector<=31)? false : true;   //RO
 	break;

@@ -629,7 +629,14 @@ MuonRPC_CablingSvc::buildOfflineOnlineMap()
                 
     if(!ins.second) return false;
     
-    //build the PRD->RDO map
+    //build the ROB->RDO map
+    std::pair<std::set<IdentifierHash>::iterator, bool> insert_ROB_RDO_returnVal = m_ROB_RDO_map[ROB_ID].insert( IdentifierHash(pRDOindex->hash()) );
+    if (insert_ROB_RDO_returnVal.second)
+      ATH_MSG_DEBUG("A new RDO HashId = " << pRDOindex->hash() << " registered for ROB Id = " << ROB_ID);
+    else
+      ATH_MSG_VERBOSE("The RDO HashId = " << pRDOindex->hash() << " was already registered for ROB Id = " << ROB_ID);
+    
+    //build the PRD->RDO and PRD->ROB maps
     ATH_MSG_VERBOSE("Looking for PRDs corresponding to this RDO");
     std::list<Identifier> strip_id_list;
     IdentifierHash rdoHashId( (IdentifierHash::value_type)pRDOindex->hash() );
@@ -873,7 +880,11 @@ StatusCode MuonRPC_CablingSvc::initMappingModel(IOVSVC_CALLBACK_ARGS_P(I,keys))
           msg(MSG::DEBUG)<<"Pointers to Conf/Corr Maps are "<<(uintptr_t)RPCConfMap<<"/"<<(uintptr_t)RPCCorrMap<<endreq;
 	  cabling = 
 	      dynamic_cast<CablingRPC*>(CablingRPC::instance(RPCConfMap,RPCCorrMap,roads_dir, m_cosmic_configuration));
- 	  msg(MSG::DEBUG)<<"cabling singleton at <"<<(uintptr_t)cabling<<">"<<endreq;
+	  if(!cabling) {
+	    msg(MSG::ERROR)<<"casting of cabling singleton failed."<<endreq;
+	    return StatusCode::FAILURE;
+	  }
+	  else msg(MSG::DEBUG)<<"cabling singleton at <"<<(uintptr_t)cabling<<">"<<endreq;
 	  if (!cabling->isLoaded())
 	  {
 	    // this can happen is someone has already built an empty Cabling Singleton 
@@ -926,7 +937,11 @@ StatusCode MuonRPC_CablingSvc::initMappingModel(IOVSVC_CALLBACK_ARGS_P(I,keys))
 	cabling = 
 	    dynamic_cast<CablingRPC*>(CablingRPC::instance(conf_filename,corr_filename,roads_dir,
 							   m_cosmic_configuration));
-	msg(MSG::DEBUG)<<"cabling singleton at <"<<(uintptr_t)cabling<<">"<<endreq;
+	if(!cabling) {
+	  msg(MSG::ERROR)<<"casting of cabling singleton failed."<<endreq;
+	  return StatusCode::FAILURE;
+	}
+	else msg(MSG::DEBUG)<<"cabling singleton at <"<<(uintptr_t)cabling<<">"<<endreq;
 	if (!cabling->isLoaded())
 	{
 	    // this can happen if someone has already built an empty Cabling Singleton 
@@ -1107,7 +1122,11 @@ StatusCode MuonRPC_CablingSvc::initTrigRoadsModel(IOVSVC_CALLBACK_ARGS_P(I,keys)
           msg(MSG::DEBUG)<<"Pointers to Conf/Corr Maps are "<<(uintptr_t)RPCConfMap<<"/"<<(uintptr_t)RPCCorrMap<<endreq;
 	  cabling = 
 	      dynamic_cast<CablingRPC*>(CablingRPC::instance(RPCConfMap,RPCCorrMap,roads_dir, m_cosmic_configuration));
- 	  msg(MSG::DEBUG)<<"cabling singleton at <"<<(uintptr_t)cabling<<">"<<endreq;
+	  if(!cabling) {
+	    msg(MSG::ERROR)<<"casting of cabling singleton failed."<<endreq;
+	    return StatusCode::FAILURE;
+	  } 
+	  else msg(MSG::DEBUG)<<"cabling singleton at <"<<(uintptr_t)cabling<<">"<<endreq;
 	  if (!cabling->isLoaded())
 	  {
 	    // this can happen is someone has already built an empty Cabling Singleton 
@@ -1142,7 +1161,11 @@ StatusCode MuonRPC_CablingSvc::initTrigRoadsModel(IOVSVC_CALLBACK_ARGS_P(I,keys)
 	    cabling = 
 	      dynamic_cast<CablingRPC*>(CablingRPC::instance(conf_filename,corr_filename,roads_dir,
 							   m_cosmic_configuration));
-	    msg(MSG::DEBUG)<<"cabling singleton at <"<<(uintptr_t)cabling<<">"<<endreq;
+	    if(!cabling) {
+	      msg(MSG::ERROR)<<"casting of cabling singleton failed."<<endreq;
+	      return StatusCode::FAILURE;
+	    }
+	    else msg(MSG::DEBUG)<<"cabling singleton at <"<<(uintptr_t)cabling<<">"<<endreq;
 	    if (!cabling->isLoaded())
 	    {
 	      // this can happen if someone has already built an empty Cabling Singleton 
@@ -1264,7 +1287,7 @@ StatusCode MuonRPC_CablingSvc::giveRDO_fromPRD(const IdentifierHash prdHashId,
 }
 
 
-StatusCode MuonRPC_CablingSvc::giveRDO_fromPRD(std::vector<IdentifierHash>& prdHashVec,  
+StatusCode MuonRPC_CablingSvc::giveRDO_fromPRD(const std::vector<IdentifierHash>& prdHashVec,  
                                                std::vector<IdentifierHash>& rdoHashVec) const
 {
   ATH_MSG_VERBOSE("giveRDO_fromPRD called for a vector of " << prdHashVec.size() << " PRD HashIds");
@@ -1293,6 +1316,51 @@ StatusCode MuonRPC_CablingSvc::giveRDO_fromPRD(std::vector<IdentifierHash>& prdH
 }
 
 
+StatusCode MuonRPC_CablingSvc::giveRDO_fromROB(const uint32_t robId,  
+                                               std::vector<IdentifierHash>& rdoHashVec) const
+{
+  StatusCode sc = StatusCode::SUCCESS;
+  
+  rdoHashVec.clear();
+  
+  ROB_RDO_Map::const_iterator it = m_ROB_RDO_map.find(robId);
+  
+  if (it == m_ROB_RDO_map.cend()) return sc;
+  
+  for (IdentifierHash rdoId : (*it).second)
+    rdoHashVec.push_back(rdoId);
+  
+  return sc;
+}
+                                  
+StatusCode MuonRPC_CablingSvc::giveRDO_fromROB(const std::vector<uint32_t>& robIdVec,  
+                                               std::vector<IdentifierHash>& rdoHashVec) const
+{
+  ATH_MSG_VERBOSE("giveRDO_fromROB called for a vector of " << robIdVec.size() << " ROB Ids");
+  
+  StatusCode sc = StatusCode::SUCCESS;
+  
+  rdoHashVec.clear();
+  std::set<IdentifierHash> requestedRdoHashSet;
+  
+  for (uint32_t robId : robIdVec) {
+    //find the requested ROB Id in the map
+    ROB_RDO_Map::const_iterator it = m_ROB_RDO_map.find(robId);
+    if (it == m_ROB_RDO_map.cend()) {
+      ATH_MSG_DEBUG("The requested ROB Id = " << robId << " not found in the ROB->RDO map!");
+      continue;
+    }
+    //if the ROB Id was found in the map, add the corresponding set of RDO HashIds to the set of requested RDO HashIds
+    requestedRdoHashSet.insert((*it).second.begin(), (*it).second.end());
+  }
+  
+  //convert set to vector
+  for (IdentifierHash rdoHashId : requestedRdoHashSet)
+    rdoHashVec.push_back(rdoHashId);
+  
+  return sc;
+}
+
 StatusCode MuonRPC_CablingSvc::giveROB_fromPRD(const IdentifierHash prdHashId,
                                                std::vector<uint32_t>& robIdVec) const
 {
@@ -1311,7 +1379,7 @@ StatusCode MuonRPC_CablingSvc::giveROB_fromPRD(const IdentifierHash prdHashId,
 }
 
 
-StatusCode MuonRPC_CablingSvc::giveROB_fromPRD(std::vector<IdentifierHash>& prdHashVec,  
+StatusCode MuonRPC_CablingSvc::giveROB_fromPRD(const std::vector<IdentifierHash>& prdHashVec,  
                                                std::vector<uint32_t>& robIdVec) const
 {
   ATH_MSG_VERBOSE("giveROB_fromPRD called for a vector of " << prdHashVec.size() << " PRD HashIds");
@@ -1335,6 +1403,49 @@ StatusCode MuonRPC_CablingSvc::giveROB_fromPRD(std::vector<IdentifierHash>& prdH
   //convert set to vector
   for (IdentifierHash robId : requestedRobIdSet)
     robIdVec.push_back(robId);
+  
+  return sc;
+}
+
+
+                                  
+StatusCode MuonRPC_CablingSvc::giveROB_fromRDO(const IdentifierHash rdoHashId,
+                                               uint32_t& robId) const
+{
+  StatusCode sc = StatusCode::SUCCESS;
+  unsigned int hash = (unsigned int)rdoHashId;
+  
+  if (hash>=m_HashVec.size()) {
+    ATH_MSG_ERROR("giveROB_fromRDO called for RDO hash Id outside of range! rdoHashId=" << hash << " >= m_HashVec.size()=" << m_HashVec.size());
+    return StatusCode::FAILURE;
+  }
+  
+  unsigned short int rob_id = m_HashVec[hash]->ROBid();
+  unsigned short int side  = m_HashVec[hash]->side();
+  
+  robId = (side << 16) | rob_id;
+  
+  return sc;
+}
+
+StatusCode MuonRPC_CablingSvc::giveROB_fromRDO(const std::vector<IdentifierHash>& rdoHashVec,
+                                               std::vector<uint32_t>& robIdVec) const
+{
+  ATH_MSG_VERBOSE("giveROB_fromRDO called for a vector of " << rdoHashVec.size() << " RDO HashIds");
+  
+  StatusCode sc = StatusCode::SUCCESS;
+  
+  robIdVec.clear();
+  
+  for (IdentifierHash rdoHashId : rdoHashVec) {
+    uint32_t robid = 0xffffffff;
+    CHECK( giveROB_fromRDO(rdoHashId,robid) );
+    robIdVec.push_back(robid);
+  }
+  
+  //sort and remove duplicates
+  std::sort( robIdVec.begin(), robIdVec.end() );
+  robIdVec.erase( unique( robIdVec.begin(), robIdVec.end() ), robIdVec.end() );
   
   return sc;
 }

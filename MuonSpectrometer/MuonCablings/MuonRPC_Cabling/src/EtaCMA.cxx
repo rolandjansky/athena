@@ -408,7 +408,7 @@ EtaCMA::setup(SectorLogicSetup& setup)
     
     // only 1 repository allowed so far
     std::string LVL1_configuration_repository;
-    LVL1_configuration_repository = "ATLAS.121108";
+    LVL1_configuration_repository = "ATLAS.data";
     
     // Read the program file if exist
     SectorLogicSetup::SECTORlist sectors = setup.sectors();

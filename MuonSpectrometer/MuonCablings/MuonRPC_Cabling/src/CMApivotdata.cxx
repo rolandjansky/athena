@@ -92,7 +92,7 @@ CMApivotdata::confirm_data(ViewType side)
 {
     int start = m_start_ch*100 + m_start_st;
     int stop  = m_stop_ch*100 + m_stop_st;
-    std::string view = (side)? "phi" : "eta";
+    std::string view = (side == Phi)? "phi" : "eta";
 
 #if (__GNUC__) && (__GNUC__ > 2) 
     // put your gcc 3.2 specific code here
