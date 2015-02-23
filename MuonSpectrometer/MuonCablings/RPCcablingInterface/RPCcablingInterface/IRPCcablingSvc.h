@@ -165,15 +165,31 @@ class IRPCcablingSvc : virtual public IInterface
                                      std::vector<IdentifierHash>& rdoHashVec) const=0;
                                   
   //map a vector of PRD HashIds into a vector of RDO HashIds
-  virtual StatusCode giveRDO_fromPRD(std::vector<IdentifierHash>& prdHashVec,  
+  virtual StatusCode giveRDO_fromPRD(const std::vector<IdentifierHash>& prdHashVec,  
+                                     std::vector<IdentifierHash>& rdoHashVec) const=0;
+                                     
+  //map a single ROB Id into a vector of RDO HashIds
+  virtual StatusCode giveRDO_fromROB(const uint32_t robId,  
                                      std::vector<IdentifierHash>& rdoHashVec) const=0;
                                   
-  //map a single PRD HashId into a list of corresponding ROB Ids
+  //map a vector of ROB Ids into a vector of RDO HashIds
+  virtual StatusCode giveRDO_fromROB(const std::vector<uint32_t>& robIdVec,  
+                                     std::vector<IdentifierHash>& rdoHashVec) const=0;
+                                  
+  //map a single PRD HashId into a vector of corresponding ROB Ids
   virtual StatusCode giveROB_fromPRD(const IdentifierHash prdHashId,
                                      std::vector<uint32_t>& robIdVec) const=0;
                                      
-  //map a vector of PRD HashIds into a list of corresponding ROB Ids
-  virtual StatusCode giveROB_fromPRD(std::vector<IdentifierHash>& prdHashVec,
+  //map a vector of PRD HashIds into a vector of corresponding ROB Ids
+  virtual StatusCode giveROB_fromPRD(const std::vector<IdentifierHash>& prdHashVec,
+                                     std::vector<uint32_t>& robIdVec) const=0;
+                                  
+  //map a single RDO HashId into a single ROB Id
+  virtual StatusCode giveROB_fromRDO(const IdentifierHash rdoHashId,
+                                     uint32_t& robId) const=0;
+                                     
+  //map a vector of RDO HashIds into a vector of corresponding ROB Ids
+  virtual StatusCode giveROB_fromRDO(const std::vector<IdentifierHash>& rdoHashVec,
                                      std::vector<uint32_t>& robIdVec) const=0;
    
     //provide the full list of ROB id
