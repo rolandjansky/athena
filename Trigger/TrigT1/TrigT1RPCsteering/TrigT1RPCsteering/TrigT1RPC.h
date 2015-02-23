@@ -7,7 +7,8 @@
 
 #include <vector>
 
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
+
 #include "GaudiKernel/Property.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/INTupleSvc.h"
@@ -38,7 +39,7 @@ class RpcIdHelper;
 
 /////////////////////////////////////////////////////////////////////////////
 
-class TrigT1RPC : public Algorithm {
+class TrigT1RPC : public AthAlgorithm {
 
 public:
 

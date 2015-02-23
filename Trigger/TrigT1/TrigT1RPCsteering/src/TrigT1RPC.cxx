@@ -55,7 +55,7 @@ static int digit_out = 0;
 /////////////////////////////////////////////////////////////////////////////
 
 TrigT1RPC::TrigT1RPC(const std::string& name, ISvcLocator* pSvcLocator) :
-  Algorithm(name, pSvcLocator),
+  AthAlgorithm(name, pSvcLocator),
   m_EvtStore("StoreGateSvc",name),
   m_cabling_getter("RPCcablingServerSvc/RPCcablingServerSvc","TrigT1RPC"),
   m_cabling(0)
@@ -113,6 +113,7 @@ StatusCode TrigT1RPC::initialize(){
     if ( sc.isSuccess() ) {
         sc = detStore->retrieve( m_MuonMgr );
         if ( sc.isFailure() ) {
+
             mylog << MSG::FATAL
 	          << " Cannot retrieve MuonGeoModel " << endreq;
             return sc;
