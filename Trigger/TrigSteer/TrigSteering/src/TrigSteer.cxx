@@ -36,6 +36,7 @@
 #include "TrigSteering/ScalerSvc.h"
 #include "TrigSteering/PeriodicScaler.h"
 #include "TrigSteering/RandomScaler.h"
+#include "TrigSteering/EventInfoAccessTool.h"
 
 #include "TrigSteeringEvent/RobRequestInfo.h"
 
@@ -109,6 +110,7 @@ TrigSteer::TrigSteer(const std::string& name, ISvcLocator* pSvcLocator)
     m_storeGate("StoreGateSvc", name),
     m_coreDumpSvc("CoreDumpSvc", name),
     m_executionOrderStrategy("HLT__OptimalExecutionOrderStrategy", this),
+    m_EventInfoTool("HLT::EventInfoAccessTool/EventInfoAccessTool", this),
     m_timerSvc("TrigTimerSvc/TrigTimerSvc", name),    
     m_timerTotal(0),m_timerTotalAccepted(0), m_timerTotalRejected(0),
     m_timerLvlConverter(0), m_timerChains(0), m_timerResultBuilder(0), m_timerMonitoring(0), m_timerMonitoringSave(0),
@@ -144,6 +146,7 @@ TrigSteer::TrigSteer(const std::string& name, ISvcLocator* pSvcLocator)
    declareProperty("EBstrategy", m_strategyEB = 0, "EB strategy: 0 = call by chains, 1 = call at the end of chains ");
    declareProperty("doL1TopoSimulation",m_doL1TopoSimulation=true,"Turns on L1Topo Sim");
    declareProperty("TopoOutputLevel", m_topoOutputLevel, "OutputLevel for L1Topo algorithms" );
+   declareProperty("EventInfoAccessTool", m_EventInfoTool,"Tool to update the EventInfo at the end of the execution");
 }
 
 
@@ -392,6 +395,10 @@ StatusCode TrigSteer::initialize()
    CHECK(m_monTools.retrieve());
    ATH_MSG_DEBUG("Retrieved " << m_monTools);
   
+   //Create EventInfoAccess Tool
+   CHECK( m_EventInfoTool.retrieve() );
+   ATH_MSG_DEBUG("Retrieved " << m_EventInfoTool);
+
 
    // Add Incident listeners
    CHECK( m_incSvc.retrieve() );
@@ -424,6 +431,10 @@ StatusCode TrigSteer::initialize()
       CHECK( m_executionOrderStrategy->prepare(m_chains) );
       //    (*m_log) << MSG::WARNING << "Can not prepare chains ordering tool: " << m_executionOrderStrategy << " will continue w/o it" << endreq;    
    }
+
+
+
+
  
    ATH_MSG_DEBUG("initializing done");
 
@@ -661,6 +672,12 @@ StatusCode TrigSteer::execute()
 
    if ( ec2 != OK ) {
       (*m_log) << MSG::ERROR << "ResultBuilder algorithm failed with: " << strErrorCode(ec2) << endreq;
+   }
+
+   //called after the TriggerInfo is filled
+   if ( m_EventInfoTool->updateStreamTag(m_activeChains) != StatusCode::SUCCESS){
+     (*m_log) << MSG::FATAL << "Failed to update the EventInfo" << endreq;
+     return StatusCode::FAILURE;
    }
 
    if (m_doTiming) {
