@@ -55,10 +55,7 @@ namespace Trk {
 
 class TrigL2LayerSetLUT;
 class TrigSpacePointStorage;
-class TrigInDetDoublet;
 class TrigInDetTriplet;
-class TrigInDetTripletCluster;
-class TrigCombinatorialTrackFinding;
 class IBeamCondSvc;
 //class EventID;
 class PixelID;
