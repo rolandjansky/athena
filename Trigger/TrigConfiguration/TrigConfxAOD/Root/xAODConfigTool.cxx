@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: xAODConfigTool.cxx 631651 2014-11-27 18:33:16Z lheinric $
+// $Id: xAODConfigTool.cxx 649237 2015-02-24 12:50:00Z krasznaa $
 
 // System include(s):
 #include <stdexcept>
@@ -170,8 +170,8 @@ namespace TrigConf {
       // Point the menu pointer to the first element by default:
       m_menu = m_tmc->at( 0 );
       // Cache the menu's configuration:
-      ATH_CHECK( prepareTriggerMenu( m_menu, m_ctpConfig, m_chainList, m_sequenceList,
-                                     m_bgSet, msg() ) );
+      ATH_CHECK( prepareTriggerMenu( m_menu, m_ctpConfig, m_chainList,
+                                     m_sequenceList, m_bgSet, msg() ) );
 
       // Return gracefully:
       return StatusCode::SUCCESS;
@@ -205,8 +205,8 @@ namespace TrigConf {
          // Remember it's pointer:
          m_menu = *menu_itr;
          // Cache the menu's configuration:
-         ATH_CHECK( prepareTriggerMenu( m_menu, m_ctpConfig, m_chainList, m_sequenceList,
-                                        m_bgSet, msg() ) );
+         ATH_CHECK( prepareTriggerMenu( m_menu, m_ctpConfig, m_chainList,
+                                        m_sequenceList, m_bgSet, msg() ) );
          // We're done:
          return StatusCode::SUCCESS;
       }

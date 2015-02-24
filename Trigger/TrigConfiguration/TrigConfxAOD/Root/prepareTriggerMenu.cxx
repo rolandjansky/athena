@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: prepareTriggerMenu.cxx 648561 2015-02-20 15:59:51Z krasznaa $
+// $Id: prepareTriggerMenu.cxx 649237 2015-02-24 12:50:00Z krasznaa $
 
 // Infrastructure include(s):
 #include "AsgTools/MsgStream.h"
@@ -69,6 +69,7 @@ namespace TrigConf {
 
       // Clear the current HLT configuration:
       chainList.clear();
+      sequenceList.clear();
 
       // A helper variable:
       bool signatureWarningPrinted = false;
