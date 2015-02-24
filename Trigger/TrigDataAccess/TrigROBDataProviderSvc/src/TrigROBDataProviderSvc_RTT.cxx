@@ -83,7 +83,7 @@ StatusCode TrigROBDataProviderSvc_RTT::initialize()
   
   // fill the list of ROBs from L1 that must not be considered
   // logStream() << MSG::INFO << "  ---> TrigROBDataProviderSvc_RTT fill the list of ROBs that must be retained"<< endreq;
-  m_l1_ROB_ids.reserve(11);   
+  m_l1_ROB_ids.reserve(47);   
   // ROBs from ROIB
   m_l1_ROB_ids.push_back(0x770001);  // CTP
   m_l1_ROB_ids.push_back(0x760001);  // muCTPi
@@ -93,6 +93,47 @@ StatusCode TrigROBDataProviderSvc_RTT::initialize()
   m_l1_ROB_ids.push_back(0x7300ab);  // Calo cluster RoI
   m_l1_ROB_ids.push_back(0x7500ac);  // Calo Jet/Energy RoI
   m_l1_ROB_ids.push_back(0x7500ad);  // Calo Jet/Energy RoI
+  // ROBs from CPMSim/CPCMX -24
+  m_l1_ROB_ids.push_back(0x720008);  
+  m_l1_ROB_ids.push_back(0x720018);  
+  m_l1_ROB_ids.push_back(0x720028);  
+  m_l1_ROB_ids.push_back(0x720038);  
+  m_l1_ROB_ids.push_back(0x720009);  
+  m_l1_ROB_ids.push_back(0x720019);  
+  m_l1_ROB_ids.push_back(0x720029);  
+  m_l1_ROB_ids.push_back(0x720039);  
+  m_l1_ROB_ids.push_back(0x72000a);  
+  m_l1_ROB_ids.push_back(0x72001a);  
+  m_l1_ROB_ids.push_back(0x72002a);  
+  m_l1_ROB_ids.push_back(0x72003a);  
+  m_l1_ROB_ids.push_back(0x72000b);  
+  m_l1_ROB_ids.push_back(0x72001b);  
+  m_l1_ROB_ids.push_back(0x72002b);  
+  m_l1_ROB_ids.push_back(0x72003b);  
+  m_l1_ROB_ids.push_back(0x730088);  
+  m_l1_ROB_ids.push_back(0x730098);  
+  m_l1_ROB_ids.push_back(0x730089);  
+  m_l1_ROB_ids.push_back(0x730099);  
+  m_l1_ROB_ids.push_back(0x73008a);  
+  m_l1_ROB_ids.push_back(0x73009a);  
+  m_l1_ROB_ids.push_back(0x73008b);  
+  m_l1_ROB_ids.push_back(0x73009b);  
+
+  // ROBs from JEMJetSim/JEMEnergySim -12
+  m_l1_ROB_ids.push_back(0x74000c);  
+  m_l1_ROB_ids.push_back(0x74001c);  
+  m_l1_ROB_ids.push_back(0x74002c);  
+  m_l1_ROB_ids.push_back(0x74003c);  
+  m_l1_ROB_ids.push_back(0x74000d);  
+  m_l1_ROB_ids.push_back(0x74001d);  
+  m_l1_ROB_ids.push_back(0x74002d);  
+  m_l1_ROB_ids.push_back(0x74003d);  
+  m_l1_ROB_ids.push_back(0x75008c);  
+  m_l1_ROB_ids.push_back(0x75009c);  
+  m_l1_ROB_ids.push_back(0x75008d);  
+  m_l1_ROB_ids.push_back(0x75009d);  
+
+
   // ROBs from DAQ
   m_l1_ROB_ids.push_back(0x770000);  // CTP    DAQ
   m_l1_ROB_ids.push_back(0x760000);  // muCTPi DAQ
