@@ -104,7 +104,6 @@ public:
 
    static void setOutputLevel(MSG::Level level);
 
-       static bool m_coutLogging;
 
    private:
       static bool PR_find( const std::string& logical_file_name, const std::string& search_list, PR_file_type file_type, SearchType search_type,
@@ -119,14 +118,14 @@ public:
        static MsgStream& msg() { return asgMsg().msg(); }
        static MsgStream& msg( const MSG::Level lvl ) { return asgMsg().msg(lvl); }
        static asg::AsgMessaging& asgMsg();
+
+
 };
 
 std::string PathResolverFindXMLFile (const std::string& logical_file_name);
 std::string PathResolverFindDataFile (const std::string& logical_file_name);
 std::string PathResolverFindCalibFile (const std::string& logical_file_name);
-std::string PathResolverFindCalibFilePython (const std::string& logical_file_name);
 std::string PathResolverFindCalibDirectory (const std::string& logical_file_name);
-std::string PathResolverFindCalibDirectoryPython (const std::string& logical_file_name);
 void PathResolverSetOutputLevel(int lvl);
 
 #endif
