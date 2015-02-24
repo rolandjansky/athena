@@ -298,8 +298,8 @@ StatusCode TileLaserDefaultCalibTool::execute(){
   // LASERII
   for(int i=0; i<NDIODES; ++i){
     ATH_MSG_DEBUG ( i << "UNKNOWN RUN HG="
-                    << laserObj->getDiodeADC(i,0)
-                    << "  &  LG=" << laserObj->getDiodeADC(i,1)
+                    << laserObj->getDiodeADC(i,1)
+                    << "  &  LG=" << laserObj->getDiodeADC(i,0)
                     << " ( DAQ TYPE=" << laserObj->getDaqType()
                     << " ) " );
     
@@ -433,13 +433,13 @@ StatusCode TileLaserDefaultCalibTool::execute(){
     if(laserObj->isSet(chan/2, chan%2, 1) && laserObj->getMean (chan/2,chan%2,1)>0) m_chan_SLin[chan]   = laserObj->getSigma(chan/2,chan%2,1);
     
     // DEBUG OUTPUT
-    if(chan%2==0){
+    if(chan%2==1){
       ATH_MSG_DEBUG ("HG CHAN " << chan/2 << " PED= " << m_chan_Ped[chan]   << "+/-" << m_chan_SPed[chan]   << " ( " << laserObj->isSet(chan/2, chan%2, 0) << " ) " );
       ATH_MSG_DEBUG ("HG CHAN " << chan/2 << " PED= " << m_chan_Lin[chan]   << "+/-" << m_chan_SLin[chan]   << " ( " << laserObj->isSet(chan/2, chan%2, 1) << " ) " );
       ATH_MSG_DEBUG ("HG CHAN " << chan/2 << " LED= " << m_chan_Led[chan]   << "+/-" << m_chan_SLed[chan]   << " ( " << laserObj->isSet(chan/2, chan%2, 2) << " ) " );
       ATH_MSG_DEBUG ("HG CHAN " << chan/2 << " ALP= " << m_chan_Alpha[chan] << "+/-" << m_chan_SAlpha[chan] << " ( " << laserObj->isSet(chan/2, chan%2, 3) << " ) " );
     } // IF
-    if(chan%2==1){
+    if(chan%2==0){
       ATH_MSG_DEBUG ("LG CHAN " << chan/2 << " PED= " << m_chan_Ped[chan]   << "+/-" << m_chan_SPed[chan]   << " ( " << laserObj->isSet(chan/2, chan%2, 0) << " ) " );
       ATH_MSG_DEBUG ("LG CHAN " << chan/2 << " PED= " << m_chan_Lin[chan]   << "+/-" << m_chan_SLin[chan]   << " ( " << laserObj->isSet(chan/2, chan%2, 1) << " ) " );
       ATH_MSG_DEBUG ("LG CHAN " << chan/2 << " LED= " << m_chan_Led[chan]   << "+/-" << m_chan_SLed[chan]   << " ( " << laserObj->isSet(chan/2, chan%2, 2) << " ) " );
@@ -497,7 +497,6 @@ StatusCode TileLaserDefaultCalibTool::execute(){
       HWIdentifier hwid=(*it)->adc_HWID();
       int chan   = m_tileHWID->channel(hwid);  // 0 to 47 channel not PMT
       int gain   = m_tileHWID->adc(hwid);      // low=0 high=1
-      int gainrv = gain==0?1:0;                // low=1 high=0 GAIN INDEX
       //log << MSG::DEBUG << "ROS=" << ros << " DRAWER=" << drawer << " CHAN=" << chan << " GAIN=" << gain << endreq;
       float amp = (*it)->amplitude();
       float ofctime = (*it)->time();
@@ -547,20 +546,20 @@ StatusCode TileLaserDefaultCalibTool::execute(){
       // FIRST 4 EVENTS ARE SKIPPED TO RETRIEVE LASER PEDESTALS
       if(m_LASERII && m_evtNr>4){
         for(int i=0; i<NDIODES; ++i){
-          if(gainrv==0) ATH_MSG_DEBUG ( "HG CHANNEL " << i << " SIG=" << ampInPicoCoulombs << " " << laserObj->getDiodeADC(i,gainrv) << " " << m_chan_Ped[i*2+gainrv] );
-          if(gainrv==1) ATH_MSG_DEBUG ( "LG CHANNEL " << i << " SIG=" << ampInPicoCoulombs << " " << laserObj->getDiodeADC(i,gainrv) << " " << m_chan_Ped[i*2+gainrv] );
+          if(gain==1) ATH_MSG_DEBUG ( "HG CHANNEL " << i << " SIG=" << ampInPicoCoulombs << " " << laserObj->getDiodeADC(i,gain) << " " << m_chan_Ped[i*2+gain] );
+          if(gain==0) ATH_MSG_DEBUG ( "LG CHANNEL " << i << " SIG=" << ampInPicoCoulombs << " " << laserObj->getDiodeADC(i,gain) << " " << m_chan_Ped[i*2+gain] );
           
           // MONITORING DIODES
-          if(laserObj->getDiodeADC(i,gainrv)-m_chan_Ped[i*2+gainrv]!=0)
-            m_rs_ratio_LASERII[i*2+gainrv][ros][drawer][chan][gain]->Push(ampInPicoCoulombs/
-                                                                        (laserObj->getDiodeADC(i,gainrv)-m_chan_Ped[i*2+gainrv])
+          if(laserObj->getDiodeADC(i,gain)-m_chan_Ped[i*2+gain]!=0)
+            m_rs_ratio_LASERII[i*2+gain][ros][drawer][chan][gain]->Push(ampInPicoCoulombs/
+                                                                        (laserObj->getDiodeADC(i,gain)-m_chan_Ped[i*2+gain])
                                                                         );
           
           // MONITORING PMTS
           if(i<2){
-            if(laserObj->getPMADC(i,gainrv)-m_chan_Ped[i*2+gainrv+NDIODES*2]!=0)
-              m_rs_ratio_LASERII[i*2+gainrv+NDIODES*2][ros][drawer][chan][gain]->Push(ampInPicoCoulombs/
-                                                                                    (laserObj->getPMADC(i,gainrv)-m_chan_Ped[i*2+gainrv+NDIODES*2])
+            if(laserObj->getPMADC(i,gain)-m_chan_Ped[i*2+gain+NDIODES*2]!=0)
+              m_rs_ratio_LASERII[i*2+gain+NDIODES*2][ros][drawer][chan][gain]->Push(ampInPicoCoulombs/
+                                                                                    (laserObj->getPMADC(i,gain)-m_chan_Ped[i*2+gain+NDIODES*2])
                                                                                     );
           } // IF
         } // FOR
@@ -732,7 +731,7 @@ StatusCode TileLaserDefaultCalibTool::writeNtuple(int runNumber, int runType, TF
   t->Branch("TimeRun",&m_las_time, "timeofrun/F");
   
   if(m_LASERII){
-    const char* gainnames[2]  = {"HG","LG"};
+    const char* gainnames[2]  = {"LG","HG"};
     const char* channames[16] = {"Diode0","Diode1","Diode2","Diode3","Diode4","Diode5","Diode6","Diode7",
       "Diode8","Diode9","PMT1","ExtCIS0","IntCIS","DiodePhocal","PMT2","ExtCIS1"};
     for(int chan=0;chan<NCHANNELS;++chan){
