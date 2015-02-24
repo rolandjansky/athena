@@ -11,6 +11,7 @@
 #include "TrigSteering/ScalerSvc.h"
 #include "TrigSteering/Lvl1ResultAccessTool.h"
 #include "TrigSteering/HLTResultAccessTool.h"
+#include "TrigSteering/EventInfoAccessTool.h"
 #include "TrigSteering/Lvl1ConsistencyChecker.h"
 
 #include "../DefaultStreamingStrategy.h"
@@ -29,6 +30,7 @@ DECLARE_NAMESPACE_TOOL_FACTORY( HLT, ResultBuilder )
 DECLARE_NAMESPACE_TOOL_FACTORY( HLT, RandomScaler )
 DECLARE_NAMESPACE_TOOL_FACTORY( HLT, Lvl1ResultAccessTool )
 DECLARE_NAMESPACE_TOOL_FACTORY( HLT, HLTResultAccessTool )
+DECLARE_NAMESPACE_TOOL_FACTORY( HLT, EventInfoAccessTool )
 DECLARE_NAMESPACE_TOOL_FACTORY( HLT, Lvl1Converter )
 DECLARE_NAMESPACE_TOOL_FACTORY( HLT, LvlTopoConverter )
 DECLARE_NAMESPACE_TOOL_FACTORY( HLT, Lvl1FromFile )
@@ -55,6 +57,7 @@ DECLARE_FACTORY_ENTRIES(TrigSteering) {
     DECLARE_NAMESPACE_TOOL( HLT, RandomScaler )
     DECLARE_NAMESPACE_TOOL( HLT, Lvl1ResultAccessTool )
     DECLARE_NAMESPACE_TOOL( HLT, HLTResultAccessTool )
+    DECLARE_NAMESPACE_TOOL( HLT, EventInfoAccessTool )
     DECLARE_TOOL( Lvl1ConsistencyChecker )
     DECLARE_NAMESPACE_TOOL( HLT, DefaultStreamingStrategy )
     DECLARE_NAMESPACE_TOOL( HLT, HeavyIonStreamingStrategy )

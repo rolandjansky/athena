@@ -157,6 +157,16 @@ class Lvl1ResultAccessTool ( HLT__Lvl1ResultAccessTool ) :
         pass
 
 
+
+class EventInfoAccessTool ( HLT__EventInfoAccessTool ):
+    __slots__ = []
+    def __init__(self, name = "EventInfoAccessTool"):
+        super( EventInfoAccessTool, self ).__init__( name )
+
+    def setDefaults(self,handle):
+        pass
+
+
 class TrigSteer_baseClass( HLT__TrigSteer ):
 
     def __init__(self, name):
@@ -470,7 +480,10 @@ class TrigSteer_HLT( TrigSteer_baseClass ):
             handle.Navigation = HLTNavigationOffline()
         if not hasattr( handle, 'ResultBuilder' ):
             handle.ResultBuilder= ResultBuilder()
-
+        if not hasattr( handle, 'EventInfoAccessTool' ):
+            handle.EventInfoAccessTool= EventInfoAccessTool()
+            #FPP
+            #handle.EventInfoAccessTool.ListOfChainsAddingStreamTag=["HLT_id_cosmicid:CosmicID"]
             
 #specific instcenes of the configuration
 class ReruningTrigSteer_L2(TrigSteer_L2):

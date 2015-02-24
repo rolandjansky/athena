@@ -79,6 +79,7 @@ namespace HLT {
    class IReusableScaler;
    class IExecutionOrderStrategy;
    class LvlTopoConverter;
+   class IEventInfoAccessTool;
 
    /**
       @class TrigSteer
@@ -255,6 +256,7 @@ namespace HLT {
       ServiceHandle<StoreGateSvc> m_storeGate;            //!< StoreGateSvc
       ServiceHandle<ICoreDumpSvc> m_coreDumpSvc;          //!< CoreDumpSvc
       ToolHandle<IExecutionOrderStrategy> m_executionOrderStrategy; //!< Tool altering order of chains execution
+      ToolHandle<IEventInfoAccessTool> m_EventInfoTool;   //!< Tool  to modify EventInfo after execution
 
       // ----------------
       // Timings measurements instrumentation
