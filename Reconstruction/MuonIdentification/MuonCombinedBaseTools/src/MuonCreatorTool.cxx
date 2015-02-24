@@ -60,6 +60,8 @@
 #include "TrackToCalo/CaloCellCollector.h"
 #include "CaloEvent/CaloCellContainer.h"
 
+#include "TrkToolInterfaces/ITrkMaterialProviderTool.h"
+
 namespace MuonCombined {
  
   //<<<<<< CLASS STRUCTURE INITIALIZATION                                 >>>>>>
@@ -80,7 +82,9 @@ namespace MuonCombined {
         m_scatteringAngleTool("Rec::MuonScatteringAngleSignificanceTool/MuonScatteringAngleSignificanceTool"),
         m_selectorTool("CP::MuonSelectionTool/MuonSelectionTool"),
       	m_muonSegmentConverterTool("Muon::MuonSegmentConverterTool/MuonSegmentConverterTool"),
-      	m_meanMDTdADCTool("Rec::MuonMeanMDTdADCFillerTool/MuonMeanMDTdADCFillerTool")	
+      	m_meanMDTdADCTool("Rec::MuonMeanMDTdADCFillerTool/MuonMeanMDTdADCFillerTool"),
+        m_caloNoiseTool(""),
+	m_caloMaterialProvider("Trk::TrkMaterialProviderTool/TrkMaterialProviderTool")	
   {
     declareInterface<IMuonCreatorTool>(this);
     declareProperty("MakeTrackAtMSLink",m_makeMSPreExtrapLink=false);
@@ -100,8 +104,13 @@ namespace MuonCombined {
     declareProperty("FillEnergyLossFromTrack",m_fillEnergyLossFromTrack=true);
     declareProperty("FillExtraELossInfo", m_fillExtraELossInfo=true);
     declareProperty("PrintSummary", m_printSummary=false);
+    declareProperty("UseUpdatedExtrapolatedTrack", m_useUpdatedExtrapolatedTrack = true );
     //Default data source for the calocells
     declareProperty("CaloCellContainer", m_cellContainerName="AllCalo");
+    declareProperty("CaloNoiseTool", m_caloNoiseTool);
+    declareProperty("DoCaloNoiseCut", m_applyCaloNoiseCut=false);
+    declareProperty("SigmaCaloNoiseCut", m_sigmaCaloNoiseCut=3.4);
+    declareProperty("CaloMaterialProvider", m_caloMaterialProvider);
   }
 
   MuonCreatorTool::~MuonCreatorTool()
@@ -126,7 +135,19 @@ namespace MuonCombined {
     if(!m_scatteringAngleTool.empty()) ATH_CHECK(m_scatteringAngleTool.retrieve());   
     if(!m_selectorTool.empty()) ATH_CHECK(m_selectorTool.retrieve());
     if(!m_meanMDTdADCTool.empty()) ATH_CHECK(m_meanMDTdADCTool.retrieve());
-    ATH_CHECK(m_caloExtTool.retrieve());
+    if(m_applyCaloNoiseCut) {
+        // apply CaloNoiseTool to cell collected for ET_Core
+        if(!m_caloNoiseTool.empty()) ATH_CHECK(m_caloNoiseTool.retrieve());
+        else {
+            if (m_applyCaloNoiseCut) ATH_MSG_WARNING("YOU MUST PROVIDE NAME of CaloNoiseTool for ET_Core cell collection.");
+            m_applyCaloNoiseCut = false;
+        }
+    }
+    ATH_MSG_INFO("ET_Core calculation: tool, doNoiseCut, sigma - " << m_caloNoiseTool.name() << " "
+                 << m_applyCaloNoiseCut << " " << m_sigmaCaloNoiseCut);
+
+    ATH_CHECK(m_caloMaterialProvider.retrieve());
+    
     return StatusCode::SUCCESS;
   }
 
@@ -279,7 +300,6 @@ namespace MuonCombined {
 
         muon->addAllAuthor(tag->author());
         
-        m_haveAddedCaloInformation = false;
         // this is not too elegant, maybe rethink implementation
         if( tag->type() == xAOD::Muon::Combined ){
           // work out type of tag
@@ -327,12 +347,21 @@ namespace MuonCombined {
       }
     }// m_buildStauContainer
 
-    if( !dressMuon(*muon) ){
+    m_haveAddedCaloInformation = false;
+
+    if( !dressMuon(*muon) ){ 
       ATH_MSG_WARNING("Failed to dress muon");
       delete muon; 
       return 0;
     }
-    
+
+    // If eLoss is not already available then build it
+    if(!m_haveAddedCaloInformation) {
+      ATH_MSG_DEBUG("Adding Energy Loss to muon");
+      addEnergyLossToMuon(*muon);
+      //ATH_MSG_DEBUG(m_muonPrinter->print(*muon));
+    }
+        
     // check if there is a cluster container, if yes collect the cells around the muon and fill
     // Etcore variables for muon
     if( outputData.clusterContainer ) collectCells(*muon,*outputData.clusterContainer);
@@ -401,9 +430,10 @@ namespace MuonCombined {
       if( outputData.combinedTrackParticleContainer ){
 
         // create element link from the track, const_cast for now until we sort out the constness of the tags
-        ElementLink<xAOD::TrackParticleContainer> link = createTrackParticleElementLink( *const_cast<CombinedFitTag&>(tag).releaseCombinedTrack(), 
+        ElementLink<xAOD::TrackParticleContainer> link = createTrackParticleElementLink( std::unique_ptr<const Trk::Track>(const_cast<CombinedFitTag&>(tag).releaseCombinedTrack()),
                                                                                          *outputData.combinedTrackParticleContainer,
                                                                                          outputData.combinedTrackCollection  );
+
         if( link.isValid() ) {
           //link.toPersistent();
           ATH_MSG_DEBUG("Adding combined fit: pt " << (*link)->pt() << " eta " << (*link)->eta() << " phi " << (*link)->phi() );
@@ -411,10 +441,12 @@ namespace MuonCombined {
         }
         else ATH_MSG_WARNING("Creating of Combined TrackParticle Link failed");
       }
-
     }
+
     // add muon candidate
-    addMuonCandidate(tag.muonCandidate(),muon,outputData);
+    const Trk::Track* updatedExtrapolatedTrack = m_useUpdatedExtrapolatedTrack ? const_cast<CombinedFitTag&>(tag).releaseUpdatedExtrapolatedTrack() : 0;
+
+    addMuonCandidate(tag.muonCandidate(),muon,outputData,updatedExtrapolatedTrack);
 
     ATH_MSG_DEBUG("Done adding Combined Fit Muon  " << tag.author() << " type " << tag.type());
 
@@ -486,7 +518,7 @@ namespace MuonCombined {
       // if the combined track particle is part of a container set the link
       if( outputData.combinedTrackParticleContainer ){
         // create element link 
-        ElementLink<xAOD::TrackParticleContainer> link = createTrackParticleElementLink( *const_cast<MuGirlLowBetaTag&>(tag).releaseCombinedTrack(), 
+        ElementLink<xAOD::TrackParticleContainer> link = createTrackParticleElementLink( std::unique_ptr<const Trk::Track>(const_cast<MuGirlLowBetaTag&>(tag).releaseCombinedTrack()), 
                                                                                          *outputData.combinedTrackParticleContainer,
                                                                                          outputData.combinedTrackCollection  );                    
         
@@ -546,7 +578,7 @@ namespace MuonCombined {
       if( outputData.combinedTrackParticleContainer ){
         
         // create element link 
-        ElementLink<xAOD::TrackParticleContainer> link = createTrackParticleElementLink( *const_cast<MuGirlTag&>(tag).releaseCombinedTrack(), 
+	ElementLink<xAOD::TrackParticleContainer> link = createTrackParticleElementLink( std::unique_ptr<const Trk::Track>(const_cast<MuGirlTag&>(tag).releaseCombinedTrack()),
                                                                                          *outputData.combinedTrackParticleContainer,
                                                                                          outputData.combinedTrackCollection  );                    
         
@@ -560,7 +592,7 @@ namespace MuonCombined {
 
       if( outputData.extrapolatedTrackParticleContainer &&  tag.updatedExtrapolatedTrack()){
         // create element link 
-        ElementLink<xAOD::TrackParticleContainer> link = createTrackParticleElementLink( *const_cast<MuGirlTag&>(tag).releaseUpdatedExtrapolatedTrack(),
+	ElementLink<xAOD::TrackParticleContainer> link = createTrackParticleElementLink( std::unique_ptr<const Trk::Track>(const_cast<MuGirlTag&>(tag).releaseUpdatedExtrapolatedTrack()),
                                                                                          *outputData.extrapolatedTrackParticleContainer,
                                                                                          outputData.extrapolatedTrackCollection  );                
                 
@@ -612,14 +644,14 @@ namespace MuonCombined {
   void MuonCreatorTool::addCaloTag( xAOD::Muon& mu, const CaloTag& tag ) const {
     ATH_MSG_DEBUG("Adding Calo Muon  " << tag.author() << " type " << tag.type());
     
-    if (!m_haveAddedCaloInformation){
-      mu.setParameter(static_cast<float>( tag.fsrCandidateEnergy() ), xAOD::Muon::FSR_CandidateEnergy);
-      //std::cout<<"EJWM Adding Calo muon with elt="<<tag.energyLossType()<<std::endl;
-      mu.setEnergyLossType(static_cast<xAOD::Muon::EnergyLossType>( tag.energyLossType() ) );
-      mu.setParameter(static_cast<float>( tag.caloLRLikelihood() ), xAOD::Muon::CaloLRLikelihood);
-      mu.setParameter(static_cast<int>( tag.caloMuonIdTag() ), xAOD::Muon::CaloMuonIDTag); 
-      m_haveAddedCaloInformation = true;
-    }
+    //if (!m_haveAddedCaloInformation){
+    //mu.setParameter(static_cast<float>( tag.fsrCandidateEnergy() ), xAOD::Muon::FSR_CandidateEnergy);
+    //std::cout<<"EJWM Adding Calo muon with elt="<<tag.energyLossType()<<std::endl;
+    //mu.setEnergyLossType(static_cast<xAOD::Muon::EnergyLossType>( tag.energyLossType() ) );
+    mu.setParameter(static_cast<float>( tag.caloLRLikelihood() ), xAOD::Muon::CaloLRLikelihood);
+    mu.setParameter(static_cast<int>( tag.caloMuonIdTag() ), xAOD::Muon::CaloMuonIDTag); 
+    //m_haveAddedCaloInformation = true;
+    // }
     
     if ( m_fillExtraELossInfo) {
       // Here we can make sure that we store the extra calotag information - just always add it since this is then unambigious for debugging
@@ -631,13 +663,15 @@ namespace MuonCombined {
     // FIXME - calo deposits
   }
   
-  ElementLink<xAOD::TrackParticleContainer> MuonCreatorTool::createTrackParticleElementLink( const Trk::Track& track, 
+  ElementLink<xAOD::TrackParticleContainer> MuonCreatorTool::createTrackParticleElementLink( std::unique_ptr<const Trk::Track> track, 
                                                                                              xAOD::TrackParticleContainer& trackParticleContainer, 
                                                                                              TrackCollection* trackCollection  ) const {
     const xAOD::TrackParticle* tp = 0;
+    const Trk::Track* track_ref = track.get();
+    
     if( trackCollection ) {
       // if a track collection is provided add the track to the collection and create the TP using the element link
-      trackCollection->push_back(const_cast<Trk::Track*>(&track));
+      trackCollection->push_back(const_cast<Trk::Track*>(track.release()));
       ElementLink<TrackCollection> link( *trackCollection,trackCollection->size()-1);
       if( link.isValid() ) {
         //link.toPersistent();
@@ -646,9 +680,8 @@ namespace MuonCombined {
     }
     if( !tp ){
       // create extrapolated track particle without a link to the track
-      tp = m_particleCreator->createParticle( track, &trackParticleContainer, 0, xAOD::muon );
+      tp = m_particleCreator->createParticle( *track_ref, &trackParticleContainer, 0, xAOD::muon );
     }
-    if( !trackCollection ) delete &track;
     if( tp ){
       ElementLink<xAOD::TrackParticleContainer> link( trackParticleContainer,trackParticleContainer.size()-1);
       //link.toPersistent();
@@ -687,10 +720,13 @@ namespace MuonCombined {
     return ElementLink<xAOD::MuonSegmentContainer>();
   }
 
-  void MuonCreatorTool::addMuonCandidate( const MuonCandidate& candidate, xAOD::Muon& muon, OutputData& outputData ) const {
+  void MuonCreatorTool::addMuonCandidate( const MuonCandidate& candidate, xAOD::Muon& muon, OutputData& outputData, const Trk::Track* updatedExtrapolatedTrack ) const {
 
     // only set once 
-    if( muon.muonSpectrometerTrackParticleLink().isValid() ) return;
+    if( muon.muonSpectrometerTrackParticleLink().isValid() ) {
+      delete updatedExtrapolatedTrack;
+      return;
+    }
 
     if(m_makeMSPreExtrapLink) {
       // copy over element link to the MS track before extrapolation
@@ -698,13 +734,24 @@ namespace MuonCombined {
       ATH_MSG_DEBUG("Added aux data element link, status = " << muon.auxdata< ElementLink<xAOD::TrackParticleContainer> >("msTrackLink").isValid());
     }
 
-    // we both the container and the extrapolated muon track particle to add the link
-    if( !outputData.extrapolatedTrackParticleContainer || !candidate.extrapolatedTrack() ) return; 
+    // we need both the container and the extrapolated muon track to add the link
+    if( !outputData.extrapolatedTrackParticleContainer || (!candidate.extrapolatedTrack() && !updatedExtrapolatedTrack) ) {
+      delete updatedExtrapolatedTrack;
+      return;
+    }
     
+    // now a bit of nasty logic to ensure the extrapolated track of the candidate is always released so the candidate is flagged as 'used'
+    const Trk::Track* extrapolatedTrack = const_cast<MuonCandidate&>(candidate).releaseExtrapolatedTrack();
+    if( updatedExtrapolatedTrack ){
+      delete extrapolatedTrack; // delete to avoid leak
+      extrapolatedTrack = updatedExtrapolatedTrack;
+    }
+
     // create element link from the track, const_cast for now until we sort out the constness of the MuonCanidates
-    ElementLink<xAOD::TrackParticleContainer> link = createTrackParticleElementLink( *const_cast<MuonCandidate&>(candidate).releaseExtrapolatedTrack(),
+    ElementLink<xAOD::TrackParticleContainer> link = createTrackParticleElementLink( std::unique_ptr<const Trk::Track>(extrapolatedTrack),
 										     *outputData.extrapolatedTrackParticleContainer,
 										     outputData.extrapolatedTrackCollection );
+    
     if( link.isValid() ) {
       ATH_MSG_DEBUG("Adding standalone fit: pt " << (*link)->pt() << " eta " << (*link)->eta() << " phi " << (*link)->phi() );
       //link.toPersistent();
@@ -995,9 +1042,6 @@ namespace MuonCombined {
       
     }
     
-    float energyloss=0.0;
-    unsigned int numEnergyLossPerTrack=0;
-    bool problem=false;
     if (m_fillEnergyLossFromTrack){
       const Trk::Track* trk =0;
       if (muon.combinedTrackParticleLink ().isValid()){
@@ -1007,52 +1051,100 @@ namespace MuonCombined {
         trk = (*(muon.muonSpectrometerTrackParticleLink() ) )->track();
       }
       if (trk) {
-        for (  auto tsos : trk->trackStateOnSurfaces ()->stdcont() ){
-          const Trk::MaterialEffectsOnTrack* meot = dynamic_cast<const Trk::MaterialEffectsOnTrack*>(tsos->materialEffectsOnTrack () );
-          if ( meot ){
-            const Trk::EnergyLoss* el = meot->energyLoss();
-            // tsos->type(Trk::TrackStateOnSurface::CaloDeposit)
-            if (false && el) {
-              numEnergyLossPerTrack++;
-              energyloss+=el->deltaE(); // FIXME - should we be summing these?
-              if (el->deltaE()<0) {
-                ATH_MSG_WARNING("Found negative energy loss (i.e. energy gain!) for this object: "<<(*el));
-                problem=true;
-              }
-            }
-            
-            const CaloEnergy* caloEnergy = dynamic_cast<const CaloEnergy*>(el);
-            if (caloEnergy){
-              numEnergyLossPerTrack++;
-
-              muon.setParameter(static_cast<float>( caloEnergy->deltaE() ),                xAOD::Muon::EnergyLoss);
-              muon.setParameter(static_cast<float>( caloEnergy->deltaEParam() ),           xAOD::Muon::ParamEnergyLoss);
-              muon.setParameter(static_cast<float>( caloEnergy->deltaEMeas() ),            xAOD::Muon::MeasEnergyLoss);
-	      muon.setParameter(static_cast<float>( caloEnergy->sigmaDeltaE() ),           xAOD::Muon::EnergyLossSigma);
-	      muon.setParameter(static_cast<float>( caloEnergy->sigmaDeltaEMeas() ),       xAOD::Muon::MeasEnergyLossSigma);
-	      muon.setParameter(static_cast<float>( caloEnergy->sigmaPlusDeltaEParam() ),  xAOD::Muon::ParamEnergyLossSigmaPlus);
-	      muon.setParameter(static_cast<float>( caloEnergy->sigmaMinusDeltaEParam() ), xAOD::Muon::ParamEnergyLossSigmaMinus);
-
-	      muon.setEnergyLossType(static_cast<xAOD::Muon::EnergyLossType>( caloEnergy->energyLossType() ) );
-              muon.setParameter(static_cast<float>( caloEnergy->fsrCandidateEnergy() ), xAOD::Muon::FSR_CandidateEnergy);
-              m_haveAddedCaloInformation=true;
-            }
-          }
-        }
-        if (numEnergyLossPerTrack>1) {
-          ATH_MSG_VERBOSE("More than one e loss per track... ");
-          problem=true;
-        }
-        if (m_fillExtraELossInfo) muon.auxdata< unsigned int >("numEnergyLossPerTrack")   = numEnergyLossPerTrack;
-        if (problem) ATH_MSG_VERBOSE("Dumping problematic track: "<<(*trk));
-        // if (!m_haveAddedCaloInformation) muon.setParameter(energyloss, xAOD::Muon::EnergyLoss);
-        // ATH_MSG_VERBOSE("Setting energy loss to :"<<energyloss );
+	fillEnergyLossFromTrack(muon, trk->trackStateOnSurfaces()->stdcont());
       } else {
         ATH_MSG_VERBOSE("Couldn't find matching track which might have energy loss." );
       }
     }
 
     return true;
+  }
+  
+  void MuonCreatorTool::addEnergyLossToMuon( xAOD::Muon& muon ) const {
+
+    if(!muon.inDetTrackParticleLink().isValid()) {
+      ATH_MSG_WARNING("Missing ID track particle link in addEnergyLossToMuon!");
+      return;
+    }
+    
+    const Trk::Track* trk = (*(muon.inDetTrackParticleLink()))->track();
+    if(!trk) {
+      ATH_MSG_WARNING("Missing ID trk::track in addEnergyLossToMuon!");
+      return;    
+    }
+
+    const Trk::TrackStateOnSurface* lastID=0;
+    std::vector<const Trk::TrackStateOnSurface*>::const_reverse_iterator it = trk->trackStateOnSurfaces()->rbegin();
+    std::vector<const Trk::TrackStateOnSurface*>::const_reverse_iterator itEnd = trk->trackStateOnSurfaces()->rend();
+    for(; it!=itEnd; ++it) {
+      if((*it)->trackParameters()) {
+	lastID = *it;
+	break;
+      }
+    }
+
+    if(!lastID) {
+      ATH_MSG_WARNING("Missing ID TSOS with track parameters in addEnergyLossToMuon!");
+      return;        
+    }
+    
+    std::vector<const Trk::TrackStateOnSurface*>* caloTSOS = 
+      m_caloMaterialProvider->getCaloTSOS(*((*it)->trackParameters()), *trk);
+    
+    if(!caloTSOS) {
+      ATH_MSG_WARNING("Unable to find calo TSOS in addEnergyLossToMuon!");
+      return;              
+    }
+    
+    fillEnergyLossFromTrack(muon, *caloTSOS);    
+  }
+
+  void MuonCreatorTool::fillEnergyLossFromTrack(xAOD::Muon& muon, const std::vector<const Trk::TrackStateOnSurface*>& tsosVector) const
+  {    
+    float energyloss=0.0;
+    unsigned int numEnergyLossPerTrack=0;
+    bool problem=false;
+    for (  auto tsos : tsosVector  ){
+      
+      const Trk::MaterialEffectsOnTrack* meot = dynamic_cast<const Trk::MaterialEffectsOnTrack*>(tsos->materialEffectsOnTrack () );
+      if ( meot ){
+	const Trk::EnergyLoss* el = meot->energyLoss();
+	// tsos->type(Trk::TrackStateOnSurface::CaloDeposit)
+	if (false && el) {
+	  numEnergyLossPerTrack++;
+	  energyloss+=el->deltaE(); // FIXME - should we be summing these?
+	  if (el->deltaE()<0) {
+	    ATH_MSG_WARNING("Found negative energy loss (i.e. energy gain!) for this object: "<<(*el));
+	    problem=true;
+	  }
+	}
+        
+	const CaloEnergy* caloEnergy = dynamic_cast<const CaloEnergy*>(el);
+	if (caloEnergy){
+	  numEnergyLossPerTrack++;
+	  
+	  muon.setParameter(static_cast<float>( caloEnergy->deltaE() ),                xAOD::Muon::EnergyLoss);
+	  muon.setParameter(static_cast<float>( caloEnergy->deltaEParam() ),           xAOD::Muon::ParamEnergyLoss);
+	  muon.setParameter(static_cast<float>( caloEnergy->deltaEMeas() ),            xAOD::Muon::MeasEnergyLoss);
+	  muon.setParameter(static_cast<float>( caloEnergy->sigmaDeltaE() ),           xAOD::Muon::EnergyLossSigma);
+	  muon.setParameter(static_cast<float>( caloEnergy->sigmaDeltaEMeas() ),       xAOD::Muon::MeasEnergyLossSigma);
+	  muon.setParameter(static_cast<float>( caloEnergy->sigmaPlusDeltaEParam() ),  xAOD::Muon::ParamEnergyLossSigmaPlus);
+	  muon.setParameter(static_cast<float>( caloEnergy->sigmaMinusDeltaEParam() ), xAOD::Muon::ParamEnergyLossSigmaMinus);
+	  
+	  muon.setEnergyLossType(static_cast<xAOD::Muon::EnergyLossType>( caloEnergy->energyLossType() ) );
+	  muon.setParameter(static_cast<float>( caloEnergy->fsrCandidateEnergy() ), xAOD::Muon::FSR_CandidateEnergy);
+	  m_haveAddedCaloInformation=true;
+	}
+      }
+    }
+    if (numEnergyLossPerTrack>1) {
+      ATH_MSG_VERBOSE("More than one e loss per track... ");
+      problem=true;
+    }
+    if (m_fillExtraELossInfo) muon.auxdata< unsigned int >("numEnergyLossPerTrack")   = numEnergyLossPerTrack;
+    if (problem) ATH_MSG_VERBOSE("Dumping problematic muon: "<<m_muonPrinter->print(muon));
+    // if (!m_haveAddedCaloInformation) muon.setParameter(energyloss, xAOD::Muon::EnergyLoss);
+    // ATH_MSG_VERBOSE("Setting energy loss to :"<<energyloss );
   }
   
   void MuonCreatorTool::collectCells( xAOD::Muon& muon, xAOD::CaloClusterContainer& clusterContainer ) const {
@@ -1097,11 +1189,14 @@ namespace MuonCombined {
 
     // collect the core energy
     std::vector<float> etcore(4, 0);
-    m_cellCollector.collectEtCore( *cluster, etcore );
+    m_cellCollector.collectEtCore( *cluster, etcore, m_caloNoiseTool, m_applyCaloNoiseCut, m_sigmaCaloNoiseCut );
     muon.auxdata< float >("ET_Core")     = etcore[Rec::CaloCellCollector::ET_Core];
     muon.auxdata< float >("ET_EMCore")   = etcore[Rec::CaloCellCollector::ET_EMCore];
     muon.auxdata< float >("ET_TileCore") = etcore[Rec::CaloCellCollector::ET_TileCore];
     muon.auxdata< float >("ET_HECCore")  = etcore[Rec::CaloCellCollector::ET_HECCore];  
+
+    ATH_MSG_DEBUG("Tool,apply,sigma: " << m_caloNoiseTool->name() << "/" << m_applyCaloNoiseCut << "/"
+                  << m_sigmaCaloNoiseCut);
 
     ATH_MSG_DEBUG("Etcore: tot/em/tile/hec " << etcore[Rec::CaloCellCollector::ET_Core] << "/"    
                   << etcore[Rec::CaloCellCollector::ET_EMCore] << "/"    

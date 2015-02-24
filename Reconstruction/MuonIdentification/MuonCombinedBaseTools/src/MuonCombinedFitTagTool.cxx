@@ -34,6 +34,12 @@
 
 #include "MuonCombinedFitTagTool.h"
 
+#include "TrkMaterialOnTrack/MaterialEffectsOnTrack.h"
+#include "Identifier/Identifier.h"
+#include "TrkEventUtils/IdentifierExtractor.h"
+#include "TrkMaterialOnTrack/ScatteringAngles.h"
+
+
 namespace MuonCombined {
  
   //<<<<<< CLASS STRUCTURE INITIALIZATION                                 >>>>>>
@@ -48,7 +54,8 @@ namespace MuonCombined {
 	m_momentumBalanceTool("Rec::MuonMomentumBalanceSignificanceTool/MuonMomentumBalanceSignifTool"),
 	m_muonRecovery(""),
 	m_matchQuality("Rec::MuonMatchQuality/MuonMatchQuality"),
-	m_trackScoringTool("Muon::MuonTrackScoringTool/MuonTrackScoringTool")
+	m_trackScoringTool("Muon::MuonTrackScoringTool/MuonTrackScoringTool"),
+        m_DetID(0)
   {
     declareInterface<IMuonCombinedTagTool>(this);
     declareProperty("Printer",                  m_printer);
@@ -83,6 +90,11 @@ namespace MuonCombined {
     ATH_CHECK(m_muonRecovery.retrieve()); 
     ATH_CHECK(m_matchQuality.retrieve());
     ATH_CHECK(m_trackScoringTool.retrieve());
+
+    if (detStore()->retrieve(m_DetID, "AtlasID").isFailure()) {
+      ATH_MSG_ERROR ("Could not get AtlasDetectorID helper" );
+      return StatusCode::FAILURE;
+    }
 
     return StatusCode::SUCCESS;
   }
@@ -386,6 +398,71 @@ namespace MuonCombined {
     } else {
        ATH_MSG_DEBUG( txt << " No Calorimeter Eloss");
     }
+
+    const DataVector <const Trk::TrackStateOnSurface>* trackTSOS =  track->trackStateOnSurfaces(); 
+
+    double Eloss = 0.;
+    double idEloss = 0.;
+    double caloEloss = 0.;
+    double msEloss = 0.;
+    double deltaP = 0.;
+    double pcalo = 0.;
+    double pstart = 0.;
+    double eta = 0.;
+    double pMuonEntry = 0.;
+     
+    for(auto m : *trackTSOS) {
+      const Trk::MeasurementBase* mot = m->measurementOnTrack();
+      if(m->trackParameters()) pMuonEntry = m->trackParameters()->momentum().mag();
+      if(mot) {
+        Identifier id = Trk::IdentifierExtractor::extract(mot);
+        if(id.is_valid()) {
+// skip after first Muon hit
+          if(m_DetID->is_muon(id)) break;
+        } 
+      }
+      if(pstart==0&&m->trackParameters()) {
+        pstart = m->trackParameters()->momentum().mag();
+        eta = m->trackParameters()->momentum().eta();
+        ATH_MSG_DEBUG("Start pars found eta " << eta << " r " << (m->trackParameters())->position().perp() << " z " << (m->trackParameters())->position().z() << " pstart " << pstart );
+      }
+      if(m->materialEffectsOnTrack()) {
+        const Trk::MaterialEffectsOnTrack* meot = dynamic_cast<const Trk::MaterialEffectsOnTrack*>(m->materialEffectsOnTrack());
+        if(meot) {
+          if(meot->thicknessInX0()>20) {
+             const Trk::ScatteringAngles* scatAngles = meot->scatteringAngles();
+             ATH_MSG_DEBUG(" Calorimeter X0  " << meot->thicknessInX0() << "  pointer scat " << scatAngles );
+             if(scatAngles) {
+               pcalo = m->trackParameters()->momentum().mag();
+               double pullPhi = scatAngles->deltaPhi()/scatAngles->sigmaDeltaPhi();
+               double pullTheta = scatAngles->deltaTheta()/scatAngles->sigmaDeltaTheta();
+               ATH_MSG_DEBUG(" Calorimeter scatterer deltaPhi " << scatAngles->deltaPhi() << " pull " << pullPhi << " deltaTheta " << scatAngles->deltaTheta() << " pull " << pullTheta  );
+             } 
+          } 
+          const Trk::EnergyLoss* energyLoss = meot->energyLoss();
+          if (energyLoss) {
+            ATH_MSG_DEBUG("Eloss found r " << (m->trackParameters())->position().perp() << " z " << (m->trackParameters())->position().z() << " value " << energyLoss->deltaE() << " Eloss " << Eloss);
+            if(m->type(Trk::TrackStateOnSurface::CaloDeposit)) {
+              idEloss   = Eloss;
+              caloEloss = fabs(energyLoss->deltaE()); 
+              Eloss = 0.;
+              deltaP =  m->trackParameters()->momentum().mag() - pcalo;
+              const Trk::Surface& surface = m->surface();
+              ATH_MSG_DEBUG(" Calorimeter surface " << surface );
+              ATH_MSG_DEBUG( txt << " Calorimeter delta p " << deltaP << " deltaE " << caloEloss << " delta pID = pcaloEntry-pstart " << pcalo-pstart);
+            } else {
+              Eloss += fabs(energyLoss->deltaE());
+            }
+          }
+        }
+      }
+    }
+    msEloss =  Eloss;
+    Eloss = idEloss + caloEloss + msEloss; 
+    ATH_MSG_DEBUG( txt << " eta " << eta << " pstart " << pstart/1000. << " Eloss on TSOS idEloss " << idEloss << " caloEloss " << caloEloss << " msEloss " << msEloss << " Total " << Eloss << " pstart - pMuonEntry " << pstart - pMuonEntry);
+
+
+
     return;
   }
 
