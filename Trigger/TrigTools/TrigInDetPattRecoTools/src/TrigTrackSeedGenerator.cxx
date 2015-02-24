@@ -8,7 +8,7 @@
 #include <algorithm>
 #include <iterator>
 #include "TrigInDetEvent/TrigSiSpacePointBase.h"
-#include "TrigInDetPattRecoEvent/TrigInDetTracklet.h"
+#include "TrigInDetPattRecoEvent/TrigInDetTriplet.h"
 #include "TrigInDetPattRecoTools/TrigTrackSeedGenerator.h"
 #include "IRegionSelector/IRoiDescriptor.h"
 
@@ -50,7 +50,7 @@ void TrigTrackSeedGenerator::loadSpacePoints(const std::vector<TrigSiSpacePointB
 
   m_pStore->reset();
 
-  for(auto l : m_radLayers) {
+  for(auto& l : m_radLayers) {
     l.clear();
   }
   for(std::vector<TrigSiSpacePointBase>::const_iterator it = vSP.begin();it != vSP.end();++it) {
@@ -58,7 +58,7 @@ void TrigTrackSeedGenerator::loadSpacePoints(const std::vector<TrigSiSpacePointB
     unsigned int idx = (*it).r()/m_radBinWidth;
     m_radLayers[idx].push_back(&(*it));
   }
-  for(auto s : m_phiSlices) {
+  for(auto& s : m_phiSlices) {
     s.clear();
   }
   for(std::vector<std::vector<const TrigSiSpacePointBase*> >::iterator lIt=m_radLayers.begin();lIt!=m_radLayers.end();++lIt) {
@@ -162,9 +162,10 @@ void TrigTrackSeedGenerator::createSeeds() {
 
               double tau = (zm - (*spIt)->z())/(rm - (*spIt)->r());
               double z0  = zm - rm*tau;
-
-              if (!m_settings.roiDescriptor->contains(z0, tau)) {
-                continue;
+              if (m_settings.m_doubletFilterRZ) {
+                if (!m_settings.roiDescriptor->contains(z0, tau)) {
+                  continue;
+                }
               }
 
               m_SoA.m_sp.push_back(*spIt);
@@ -207,8 +208,10 @@ void TrigTrackSeedGenerator::createSeeds() {
               double tau = (zm - (*spIt)->z())/(rm - (*spIt)->r());
               double z0  = zm - rm*tau;
 
-              if (!m_settings.roiDescriptor->contains(z0, tau)) {
-                continue;
+              if (m_settings.m_doubletFilterRZ) {
+                if (!m_settings.roiDescriptor->contains(z0, tau)) {
+                  continue;
+                }
               }
 
               m_SoA.m_sp.push_back(*spIt);
@@ -304,7 +307,7 @@ void TrigTrackSeedGenerator::createTriplets(const TrigSiSpacePointBase* pS, int 
     
     double dCov = m_CovMS*(1+m_SoA.m_t[innIdx]*m_SoA.m_t[innIdx]);
 
-    double z0 = pS->z() - m_SoA.m_t[innIdx]*pS->r();
+    //double z0 = pS->z() - m_SoA.m_t[innIdx]*pS->r();
 
     for(int outIdx=nInner;outIdx<nSP;outIdx++) {
       /*
@@ -370,8 +373,7 @@ void TrigTrackSeedGenerator::createTriplets(const TrigSiSpacePointBase* pS, int 
         output.erase(it);
       }
 
-      TrigInDetTriplet* t = new TrigInDetTriplet(*m_SoA.m_sp[innIdx], *pS, *m_SoA.m_sp[outIdx], 
-						 m_SoA.m_t[innIdx], phi0, z0, d0, sqrt(pT2), Q);
+      TrigInDetTriplet* t = new TrigInDetTriplet(*m_SoA.m_sp[innIdx], *pS, *m_SoA.m_sp[outIdx], Q);
 
 
       output.insert(std::pair<double, TrigInDetTriplet*>(Q,t));

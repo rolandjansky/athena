@@ -15,7 +15,6 @@ use	AtlasPolicy			AtlasPolicy-*
 #use	VxVertex                	VxVertex-*                      Tracking/TrkEvent
 
 use	TrigInDetEvent			TrigInDetEvent-*		Trigger/TrigEvent
-use     TrigInDetPattRecoEvent		TrigInDetPattRecoEvent-*	Trigger/TrigEvent
 #use     TrigSiTrack			TrigSiTrack-*			Trigger/TrigAlgorithms
 #use	InDetRecToolInterfaces		InDetRecToolInterfaces-* 	InnerDetector/InDetRecTools 
 #use	TrigInDetToolInterfaces		TrigInDetToolInterfaces-* 	Trigger/TrigTools
@@ -33,6 +32,7 @@ private
 
 #use GeoPrimitives               GeoPrimitives-*              DetectorDescription 
 use IRegionSelector        IRegionSelector-*        DetectorDescription
+use     TrigInDetPattRecoEvent		TrigInDetPattRecoEvent-*	Trigger/TrigEvent
 
 #use	DataModel			DataModel-*			Control
 #use 	StoreGate			StoreGate-*			Control
@@ -52,7 +52,6 @@ use IRegionSelector        IRegionSelector-*        DetectorDescription
 #use	TrkEventPrimitives		TrkEventPrimitives-*		Tracking/TrkEvent 
 #use	TrkSpacePoint           	TrkSpacePoint-*			Tracking/TrkEvent 
 
-use	TrigSteeringEvent		TrigSteeringEvent-*     	Trigger/TrigEvent
 #use	TrigTimeAlgs			TrigTimeAlgs-*			Trigger/TrigTools
 #use     TrkSegment                      TrkSegment-*                    Tracking/TrkEvent
 #use     InDetRIO_OnTrack                InDetRIO_OnTrack-*              InnerDetector/InDetRecEvent
