@@ -54,7 +54,7 @@
 #include "TrigInDetPattRecoEvent/TrigL2SpacePointStorage.h"
 #include "TrigInDetPattRecoEvent/TrigL2SpacePointStorageFiller.h"
 #include "TrigInDetPattRecoEvent/TrigL2TimeoutException.h"
-#include "TrigInDetPattRecoEvent/TrigInDetTracklet.h"
+#include "TrigInDetPattRecoEvent/TrigInDetTriplet.h"
 
 #include "InDetRecToolInterfaces/ISiTrackMaker.h" 
 #include "TrigInDetPattRecoTools/TrigCombinatorialSettings.h"
@@ -102,8 +102,7 @@ TrigFastTrackFinder::TrigFastTrackFinder(const std::string& name, ISvcLocator* p
 {
 
   /** Doublet finding properties. */
-
-  declareProperty("Doublet_Z0Max",            m_tcs.m_doubletZ0Max         = 230.0);
+  declareProperty("Doublet_FilterRZ",            m_tcs.m_doubletFilterRZ = true);
 
   /** Triplet finding properties. */
 
@@ -500,13 +499,13 @@ HLT::ErrorCode TrigFastTrackFinder::hltExecute(const HLT::TriggerElement* /*inpu
       }
     }
 
-    InDet::SiSpacePointsSeed offlineSeed(osp1, osp2, osp3, (double)seed->z0());
+    std::list<const Trk::SpacePoint*> spList = {osp1, osp2, osp3};
 
     bool trackFound=false;
 
     ++m_nSeeds;
 
-    const std::list<Trk::Track*>& tracks = m_trackMaker->getTracks(offlineSeed.spacePoints());
+    const std::list<Trk::Track*>& tracks = m_trackMaker->getTracks(spList);
 
     for(std::list<Trk::Track*>::const_iterator t=tracks.begin(); t!=tracks.end(); ++t) {
       if((*t)) {
@@ -549,7 +548,7 @@ HLT::ErrorCode TrigFastTrackFinder::hltExecute(const HLT::TriggerElement* /*inpu
   }
 
   m_trackMaker->endEvent();
-  for(auto seed : triplets) delete seed;
+  for(auto& seed : triplets) delete seed;
 
   //clone removal
   filterSharedTracks(qualityTracks);
@@ -587,13 +586,9 @@ HLT::ErrorCode TrigFastTrackFinder::hltExecute(const HLT::TriggerElement* /*inpu
 
   if ( timerSvc() ) m_TrackFitterTimer->start();
 
-  TrackCollection* fittedTracks = offlineTracks;
+  TrackCollection* fittedTracks = m_trigInDetTrackFitter->fit(*offlineTracks, m_particleHypothesis);
+  delete offlineTracks;
 
-
-  if (offlineTracks->size() > 0) {
-    fittedTracks = m_trigInDetTrackFitter->fit(*offlineTracks, m_particleHypothesis);
-    delete offlineTracks;
-  }
   if( fittedTracks->empty() ) {
     ATH_MSG_DEBUG("REGTEST / No tracks fitted");
   }
@@ -647,6 +642,7 @@ HLT::ErrorCode TrigFastTrackFinder::hltExecute(const HLT::TriggerElement* /*inpu
     if ( code != HLT::OK ) {
       ATH_MSG_ERROR("REGTEST/ Write into outputTE failed");
       if (fittedTracks!=nullptr) {
+        delete fittedTracks;
         delete fittedTracks_TIDT;
       }
       return code;
