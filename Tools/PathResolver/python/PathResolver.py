@@ -8,6 +8,6 @@
 
 import PyCintex
 PyCintex.loadDict('libPathResolverDict')
-FindCalibFile = PyCintex.gbl.PathResolverFindCalibFilePython
-FindCalibDirectory = PyCintex.gbl.PathResolverFindCalibDirectoryPython
+FindCalibFile = PyCintex.gbl.PathResolverFindCalibFile
+FindCalibDirectory = PyCintex.gbl.PathResolverFindCalibDirectory
 
