@@ -743,7 +743,7 @@ JetTagMonitoring::Jet_t JetTagMonitoring::applyQualityCuts(const xAOD::Jet *jet)
 	nTrk_JetProb++;
 
     } else {
-      const std::bitset<16> failedCuts = m_trackSelectorTool->currentTrackpassedCuts();
+      const std::bitset<17> failedCuts = m_trackSelectorTool->currentTrackpassedCuts();
       fillBadTrackBits(failedCuts, trk_eta, trk_phi);
 
       if ( failedCuts[deadBLayer] || failedCuts[nHitBLayer] || failedCuts[nHitSi] )
@@ -1038,7 +1038,7 @@ void JetTagMonitoring::fillDetailedHistograms(const xAOD::Jet *jet) {
 }
 
 
-void JetTagMonitoring::fillBadTrackBits(const std::bitset<16> failedCuts, double eta, double phi) {
+void JetTagMonitoring::fillBadTrackBits(const std::bitset<17> failedCuts, double eta, double phi) {
 
     if ( failedCuts[pTMin] ) m_tracks_pTMin_2D->Fill(eta, phi, 1.);
     if ( failedCuts[d0Max] ) m_tracks_d0Max_2D->Fill(eta, phi, 1.);

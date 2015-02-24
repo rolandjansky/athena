@@ -90,7 +90,7 @@ private:
     //void fillElectronHistograms(const xAOD::Jet *jet);
     //void fillMuonHistograms(const xAOD::Jet *jet);
     void fillTrackInJetHistograms(const xAOD::Jet *jet);
-    void fillBadTrackBits(const std::bitset<16> failedCuts, double eta, double phi);
+    void fillBadTrackBits(const std::bitset<17> failedCuts, double eta, double phi);
     //void fillBadZone(int zone, double w);
     bool isGoodJet(const xAOD::Jet *jet);
 
