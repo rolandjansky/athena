@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: prepareTriggerMenu.cxx 792850 2017-01-18 18:58:03Z ssnyder $
+// $Id: prepareTriggerMenu.cxx 649237 2015-02-24 12:50:00Z krasznaa $
 
 // Infrastructure include(s):
 #include "AsgTools/MsgStream.h"
@@ -46,7 +46,7 @@ namespace TrigConf {
                                       ( ! menu->container()->hasStore() ) ) ) {
          msg << MSG::FATAL << "prepareTriggerMenu(...) Received "
              << "xAOD::TriggerMenu object is not connected to an auxiliary "
-             << "store" << endmsg;
+             << "store" << endreq;
          return StatusCode::FAILURE;
       }
 
@@ -63,7 +63,7 @@ namespace TrigConf {
          ctpConfig.menu().addTriggerItem( item );
          if( menu->itemPrescalesAvailable() ) {
             ctpConfig.prescaleSet().setPrescale( menu->itemCtpIds()[ i ],
-						 static_cast< float >( menu->itemPrescales()[ i ] ) );
+               static_cast< int >( menu->itemPrescales()[ i ] ) );
          }
       }
 
@@ -88,7 +88,7 @@ namespace TrigConf {
          } else {
             msg << MSG::WARNING << "prepareTriggerMenu(...): "
                 << "Couldn't figure out 'level' for chain: "
-                << menu->chainNames()[ i ] << endmsg;
+                << menu->chainNames()[ i ] << endreq;
          }
          // An empty signature list for the chain:
          std::vector< HLTSignature* > signatures;
@@ -116,7 +116,7 @@ namespace TrigConf {
 
             if( msg.level() <= MSG::VERBOSE ) {
                msg << MSG::VERBOSE << "chain has " << counters.size()
-                   << " signatures" << endmsg;
+                   << " signatures" << endreq;
             }
             for( size_t sig = 0; sig < counters.size(); ++sig ) {
                std::vector< HLTTriggerElement* > outTEs;
@@ -131,13 +131,13 @@ namespace TrigConf {
                signatures.push_back( signature );
                if( msg.level() <= MSG::VERBOSE ) {
                   msg << MSG::VERBOSE << "prepared signature: "
-                      << *( signatures.back() ) << endmsg;
+                      << *( signatures.back() ) << endreq;
                }
             }
          } else if( ! signatureWarningPrinted ) {
             msg << MSG::WARNING << "prepareTriggerMenu(...): "
                 << "HLT Signature information not available on the input"
-                << endmsg;
+                << endreq;
             signatureWarningPrinted = true;
          }
 
@@ -155,15 +155,11 @@ namespace TrigConf {
          if( menu->chainPassthroughPrescalesAvailable() ) {
             chain->set_pass_through( menu->chainPassthroughPrescales()[ i ] );
          }
-         if ( menu->chainPrescalesAvailable() ) {
-             chain->set_prescale( menu->chainPrescales()[ i ]);
-         }
-
          // Add it to the list of chains:
          if( ! chainList.addHLTChain( chain ) ) {
             msg << MSG::FATAL << "prepareTriggerMenu(...): "
                 << "Couldn't add chain \"" << chain->name()
-                << "\"" << endmsg;
+                << "\"" << endreq;
             delete chain;
             return StatusCode::FAILURE;
          }
@@ -192,7 +188,7 @@ namespace TrigConf {
          }
       } else {
          msg << MSG::WARNING << "prepareTriggerMenu(...): "
-             << "HLT Sequence information not available on the input" << endmsg;
+             << "HLT Sequence information not available on the input" << endreq;
       }
 
       // Check if bunch-groups are available:
@@ -226,14 +222,14 @@ namespace TrigConf {
       } else {
          msg << MSG::WARNING << "prepareTriggerMenu(...): "
              << "Bunch-group information not available on the "
-             << "input" << endmsg;
+             << "input" << endreq;
       }
 
       // Let the user know what happened:
-      msg << MSG::INFO << "Loaded configuration:" << endmsg;
+      msg << MSG::INFO << "Loaded configuration:" << endreq;
       msg << MSG::INFO << "  SMK = " << menu->smk()
           << ", L1PSK = " << menu->l1psk()
-          << ", HLTPSK = " << menu->hltpsk() << endmsg;
+          << ", HLTPSK = " << menu->hltpsk() << endreq;
 
       // Return gracefully:
       return StatusCode::SUCCESS;

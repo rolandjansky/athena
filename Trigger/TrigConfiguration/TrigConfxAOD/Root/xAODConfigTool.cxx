@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: xAODConfigTool.cxx 673576 2015-06-09 08:44:29Z krasznaa $
+// $Id: xAODConfigTool.cxx 649237 2015-02-24 12:50:00Z krasznaa $
 
 // System include(s):
 #include <stdexcept>
@@ -162,12 +162,9 @@ namespace TrigConf {
 
       // A little sanity check:
       if( ! m_tmc->size() ) {
-         // This can happen when we encounter empty input files. In which
-         // case we should not bail, but continue, and only bail if by the
-         // start of an event, we still don't see any configurations.
-         ATH_MSG_WARNING( "No trigger configurations are available on "
-                          "the input" );
-         return StatusCode::SUCCESS;
+         ATH_MSG_ERROR( "No trigger configurations are available on "
+                        "the input" );
+         return StatusCode::FAILURE;
       }
 
       // Point the menu pointer to the first element by default:
@@ -195,7 +192,7 @@ namespace TrigConf {
       ATH_CHECK( evtStore()->retrieve( keys, m_eventName ) );
 
       // Check if we have the correct menu already:
-      if( m_menu && xAODKeysMatch( keys, m_menu ) ) {
+      if( xAODKeysMatch( keys, m_menu ) ) {
          return StatusCode::SUCCESS;
       }
 
