@@ -500,6 +500,7 @@ TrigConf::MenuLoader::loadCaloInfo(TrigConf::Menu& menu) {
    // load the CaloInfo
    TrigConf::CaloInfo ci;
    ci.setSMK(menu.smk());
+   m_storageMgr.caloInfoLoader().setLevel(outputLevel());
    m_storageMgr.caloInfoLoader().load(ci);
    menu.setCaloInfo(ci);
 }

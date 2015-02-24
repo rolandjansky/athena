@@ -10,6 +10,8 @@
 #include <fstream>
 #include <map>
 #include <cstring>
+#include <climits>
+#include <unistd.h>
 #include "RelationalAccess/IDatabaseServiceDescription.h"
 #include "ReplicaSorter.h"
 
@@ -18,7 +20,7 @@ using namespace std;
 TrigConf::ReplicaSorter::ReplicaSorter() :
    m_frontiergen(false) 
 {
-   cout << "ReplicaSorter constructor" << endl;
+   std::cout << "ReplicaSorter constructor" << std::endl;
    readConfig();
 }
 
@@ -66,24 +68,16 @@ TrigConf::ReplicaSorter::readConfig() {
    m_hostname="";
    const char* chost=getenv("ATLAS_CONDDB");
    if (chost) m_hostname=chost;
-   std::cout << "JOERG 1 " << m_hostname << std::endl;
    if (m_hostname.empty()) {
       const char* chost=getenv("HOSTNAME");
       if (chost) m_hostname=chost;
-      std::cout << "JOERG 2 " << m_hostname << "  " << chost << std::endl;
       // check if the returned host has a .
       if (m_hostname.find(".")==std::string::npos) {
          m_hostname="unknown";
-         system("hostname --fqdn > hostnamelookup.tmp");
-         std::ifstream infile;
-         infile.open("hostnamelookup.tmp");
-         if (infile) { 
-            infile >> m_hostname; 
-            std::cout << "JOERG 3 " << m_hostname << std::endl;
-         } else {
-            std::cout << "JOERG 4 " << m_hostname << std::endl;
-            m_hostname="unknown";
-         }
+	 char cstr_host[HOST_NAME_MAX];
+	 if (gethostname(cstr_host, sizeof(cstr_host))==0) {
+	   m_hostname=std::string(cstr_host);
+	 }
       }
    }
    std::cout << "Using machine hostname " << m_hostname << " for DB replica resolution" << std::endl;

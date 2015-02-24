@@ -452,6 +452,7 @@ TrigConf::ThresholdConfigLoader::loadCaloInfo( ThresholdConfig& thrConfig, long 
       startSession();
       CaloInfoLoader& cildr = dynamic_cast<CaloInfoLoader&>
          ((dynamic_cast<StorageMgr&>(m_storageMgr)).caloInfoLoader());
+      cildr.setLevel(outputLevel());
       CaloInfo ci;
       ci.setId(caloInfoId);
       if ( !cildr.load( ci )) {
