@@ -2278,47 +2278,51 @@ void TileROD_Decoder::unpack_frag17(uint32_t /* version */, const uint32_t* p,
         if (std[channel*2+HG]>0.0) std[channel*2+HG] = sqrt(std[channel*2+HG]);
         if (std[channel*2+LG]>0.0) std[channel*2+LG] = sqrt(std[channel*2+LG]);
         
-        laserObject.setCalib(channel,int(p[31]), double(sum[channel*2+LG]), double(ssq[channel*2+LG]), nevt, LG);
-        laserObject.setCalib(channel,int(p[31]), double(sum[channel*2+HG]), double(ssq[channel*2+HG]), nevt, HG);
+        // PLEASE NOTE THAT   LG EQUALS 1  WHEN  TILEID::LOWGAIN  EQUALS 0
+        //                    HG EQUALS 0  WHEN  TILEID::HIGHGAIN EQUALS 1
+        // THIS CONFUSING INDEXING IS TAKEN CARE OF IN THE FOLLOWING TWO LINES AND WILL *NOT*
+        // BE PROPAGATED FURTHER DOWN THE CHAIN. THIS MEANS THAT AFTER THIS LG=0 AND HG=1
+        laserObject.setCalib(channel,int(p[31]), double(sum[channel*2+LG]), double(ssq[channel*2+LG]), nevt, TileID::LOWGAIN);
+        laserObject.setCalib(channel,int(p[31]), double(sum[channel*2+HG]), double(ssq[channel*2+HG]), nevt, TileID::HIGHGAIN);
         
         // DEBUGGING OUTPUT
         if(debug){
-          ATH_MSG_DEBUG("PED CHAN=" << channel << " GAIN=LG" << " TYPE=" << laserObject.getType(channel,LG,0) << " MEAN=" << laserObject.getMean(channel,LG,0) << " SIGMA=" << laserObject.getSigma(channel,LG,0) << " N=" << laserObject.getN(channel,LG,0) << " isSet?=" << laserObject.isSet(channel,LG,0) );
-          ATH_MSG_DEBUG("PED CHAN=" << channel << " GAIN=HG" << " TYPE=" << laserObject.getType(channel,HG,0) << " MEAN=" << laserObject.getMean(channel,HG,0) << " SIGMA=" << laserObject.getSigma(channel,HG,0) << " N=" << laserObject.getN(channel,HG,0) << " isSet?=" << laserObject.isSet(channel,HG,0) );
+          ATH_MSG_DEBUG("PED CHAN=" << channel << " GAIN=LG" << " TYPE=" << laserObject.getType(channel,TileID::LOWGAIN,0) << " MEAN=" << laserObject.getMean(channel,TileID::LOWGAIN,0) << " SIGMA=" << laserObject.getSigma(channel,TileID::LOWGAIN,0) << " N=" << laserObject.getN(channel,TileID::LOWGAIN,0) << " isSet?=" << laserObject.isSet(channel,TileID::LOWGAIN,0) );
+          ATH_MSG_DEBUG("PED CHAN=" << channel << " GAIN=HG" << " TYPE=" << laserObject.getType(channel,TileID::HIGHGAIN,0) << " MEAN=" << laserObject.getMean(channel,TileID::HIGHGAIN,0) << " SIGMA=" << laserObject.getSigma(channel,TileID::HIGHGAIN,0) << " N=" << laserObject.getN(channel,TileID::HIGHGAIN,0) << " isSet?=" << laserObject.isSet(channel,TileID::HIGHGAIN,0) );
           
-          ATH_MSG_DEBUG("PED CHAN=" << channel << " GAIN=LG" << " TYPE=" << laserObject.getType(channel,LG,1) << " MEAN=" << laserObject.getMean(channel,LG,1) << " SIGMA=" << laserObject.getSigma(channel,LG,1) << " N=" << laserObject.getN(channel,LG,1) << " isSet?=" << laserObject.isSet(channel,LG,1) );
-          ATH_MSG_DEBUG("PED CHAN=" << channel << " GAIN=HG" << " TYPE=" << laserObject.getType(channel,HG,1) << " MEAN=" << laserObject.getMean(channel,HG,1) << " SIGMA=" << laserObject.getSigma(channel,HG,1) << " N=" << laserObject.getN(channel,HG,1) << " isSet?=" << laserObject.isSet(channel,HG,1) );
+          ATH_MSG_DEBUG("PED CHAN=" << channel << " GAIN=LG" << " TYPE=" << laserObject.getType(channel,TileID::LOWGAIN,1) << " MEAN=" << laserObject.getMean(channel,TileID::LOWGAIN,1) << " SIGMA=" << laserObject.getSigma(channel,TileID::LOWGAIN,1) << " N=" << laserObject.getN(channel,TileID::LOWGAIN,1) << " isSet?=" << laserObject.isSet(channel,TileID::LOWGAIN,1) );
+          ATH_MSG_DEBUG("PED CHAN=" << channel << " GAIN=HG" << " TYPE=" << laserObject.getType(channel,TileID::HIGHGAIN,1) << " MEAN=" << laserObject.getMean(channel,TileID::HIGHGAIN,1) << " SIGMA=" << laserObject.getSigma(channel,TileID::HIGHGAIN,1) << " N=" << laserObject.getN(channel,TileID::HIGHGAIN,1) << " isSet?=" << laserObject.isSet(channel,TileID::HIGHGAIN,1) );
           
-          ATH_MSG_DEBUG("LED CHAN=" << channel << " GAIN=LG" << " TYPE=" << laserObject.getType(channel,LG,2) << " MEAN=" << laserObject.getMean(channel,LG,2) << " SIGMA=" << laserObject.getSigma(channel,LG,2) << " N=" << laserObject.getN(channel,LG,2) << " isSet?=" << laserObject.isSet(channel,LG,2) );
-          ATH_MSG_DEBUG("LED CHAN=" << channel << " GAIN=HG" << " TYPE=" << laserObject.getType(channel,HG,2) << " MEAN=" << laserObject.getMean(channel,HG,2) << " SIGMA=" << laserObject.getSigma(channel,HG,2) << " N=" << laserObject.getN(channel,HG,2) << " isSet?=" << laserObject.isSet(channel,HG,2) );
+          ATH_MSG_DEBUG("LED CHAN=" << channel << " GAIN=LG" << " TYPE=" << laserObject.getType(channel,TileID::LOWGAIN,2) << " MEAN=" << laserObject.getMean(channel,TileID::LOWGAIN,2) << " SIGMA=" << laserObject.getSigma(channel,TileID::LOWGAIN,2) << " N=" << laserObject.getN(channel,TileID::LOWGAIN,2) << " isSet?=" << laserObject.isSet(channel,TileID::LOWGAIN,2) );
+          ATH_MSG_DEBUG("LED CHAN=" << channel << " GAIN=HG" << " TYPE=" << laserObject.getType(channel,TileID::HIGHGAIN,2) << " MEAN=" << laserObject.getMean(channel,TileID::HIGHGAIN,2) << " SIGMA=" << laserObject.getSigma(channel,TileID::HIGHGAIN,2) << " N=" << laserObject.getN(channel,TileID::HIGHGAIN,2) << " isSet?=" << laserObject.isSet(channel,TileID::HIGHGAIN,2) );
           
-          ATH_MSG_DEBUG("ALP CHAN=" << channel << " GAIN=LG" << " TYPE=" << laserObject.getType(channel,LG,3) << " MEAN=" << laserObject.getMean(channel,LG,3) << " SIGMA=" << laserObject.getSigma(channel,LG,3) << " N=" << laserObject.getN(channel,LG,3) << " isSet?=" << laserObject.isSet(channel,LG,3) );
-          ATH_MSG_DEBUG("ALP CHAN=" << channel << " GAIN=HG" << " TYPE=" << laserObject.getType(channel,HG,3) << " MEAN=" << laserObject.getMean(channel,HG,3) << " SIGMA=" << laserObject.getSigma(channel,HG,3) << " N=" << laserObject.getN(channel,HG,3) << " isSet?=" << laserObject.isSet(channel,HG,3) );
+          ATH_MSG_DEBUG("ALP CHAN=" << channel << " GAIN=LG" << " TYPE=" << laserObject.getType(channel,TileID::LOWGAIN,3) << " MEAN=" << laserObject.getMean(channel,TileID::LOWGAIN,3) << " SIGMA=" << laserObject.getSigma(channel,TileID::LOWGAIN,3) << " N=" << laserObject.getN(channel,TileID::LOWGAIN,3) << " isSet?=" << laserObject.isSet(channel,TileID::LOWGAIN,3) );
+          ATH_MSG_DEBUG("ALP CHAN=" << channel << " GAIN=HG" << " TYPE=" << laserObject.getType(channel,TileID::HIGHGAIN,3) << " MEAN=" << laserObject.getMean(channel,TileID::HIGHGAIN,3) << " SIGMA=" << laserObject.getSigma(channel,TileID::HIGHGAIN,3) << " N=" << laserObject.getN(channel,TileID::HIGHGAIN,3) << " isSet?=" << laserObject.isSet(channel,TileID::HIGHGAIN,3) );
           
           ATH_MSG_DEBUG(std::hex << msb0 << " + " << lsb0 << " => " << SSQ0 <<
                         std::dec << "  >>>  D" << channel << "(HG)"
                         << " SUMX/N="
-                        << sum[channel*2+0]
+                        << sum[channel*2+HG]
                         << " / " << nevt
                         << " = "
-                        << ped[channel*2+0]
+                        << ped[channel*2+HG]
                         << " SUMX2/N="
-                        << ssq[channel*2+0]
+                        << ssq[channel*2+HG]
                         << " / " << nevt
                         << " => STD="
                         << std[channel*2+0]);
           ATH_MSG_DEBUG(std::hex << msb1 << " + " << lsb1 << " => " << SSQ1 <<
                         std::dec << "  >>>  D" << channel << "(LG)"
                         << " SUMX/N="
-                        << sum[channel*2+1]
+                        << sum[channel*2+LG]
                         << " / " << nevt
                         << " = "
-                        << ped[channel*2+1]
+                        << ped[channel*2+LG]
                         << " SUMX2/N="
-                        << ssq[channel*2+1]
+                        << ssq[channel*2+LG]
                         << " / " << nevt
                         << " => STD="
-                        << std[channel*2+1]);
+                        << std[channel*2+LG]);
         } // IF
         
         ped[channel*2+0] = 8500. - ped[channel*2+0];
