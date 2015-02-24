@@ -73,6 +73,10 @@ void TrigConf::HLTSequence::writeXML(std::ofstream & xmlfile) {
    }
    xmlfile << "\"";
 
+   if (m_topoStartTE) {
+      xmlfile << " topo_start_from=\"" << m_topoStartTE->name() << "\"";
+   }
+
    xmlfile << "/> " << endl;
    return;
 }
