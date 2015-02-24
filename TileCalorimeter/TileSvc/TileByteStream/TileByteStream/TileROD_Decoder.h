@@ -404,7 +404,7 @@ class TileROD_Decoder: public AthAlgTool {
     bool m_calibrateEnergy;
     // next two are needed to handle automatic conversion channels->cells,
     // when HLT request for cells,which are not normally present in ByteStream
-    TileCellBuilder* m_CellBuilder;
+    //TileCellBuilder* m_CellBuilder;
     std::string m_TileDefaultCellBuilder;
 
     uint32_t m_sizeOverhead;
