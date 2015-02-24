@@ -178,9 +178,10 @@ if recAlgs.doEFlow():
 if recAlgs.doTrackParticleCellAssociation():    
     trackParticleCellAssociationList=["xAOD::CaloClusterContainer#InDetTrackParticlesAssociatedClusters",
                                       "xAOD::CaloClusterAuxContainer#InDetTrackParticlesAssociatedClustersAux.",
+                                      "CaloClusterCellLinkContainer#InDetTrackParticlesAssociatedClusters_links",
                                       "xAOD::TrackParticleClusterAssociationContainer#InDetTrackParticlesClusterAssociations",
                                       "xAOD::TrackParticleClusterAssociationAuxContainer#InDetTrackParticlesClusterAssociationsAux."]
-    fullESDList += CfgItemList("trackParticleCellAsso",items=trackParticleCellAssociationList)
+    fullESDList += CfgItemList("trackParticleCellAssoEsd",items=trackParticleCellAssociationList)
     
 
 # Muon combined reconstruction
