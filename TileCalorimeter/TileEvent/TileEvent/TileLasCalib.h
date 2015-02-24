@@ -18,7 +18,7 @@ namespace TileLaser{
   public:
     
     TileLasCalib() :
-    HG(0),LG(1), m_mean_LG(-99.), m_sigma_LG(-99.), m_mean_HG(-99.), m_sigma_HG(-99.), m_type(-1), m_nevts(0), m_isSet_LG(false), m_isSet_HG(false) { }
+    HG(1),LG(0), m_mean_LG(-99.), m_sigma_LG(-99.), m_mean_HG(-99.), m_sigma_HG(-99.), m_type(-1), m_nevts(0), m_isSet_LG(false), m_isSet_HG(false) { }
     
     ~TileLasCalib() { }
     
