@@ -127,6 +127,7 @@ namespace Analysis {
       for (; tAssocIter!=tAssocEnd; ++tAssocIter) {
 	if (tracks) {
 	  tpContainer = tracks;
+          sc.setChecked();
 	} else {
 	  sc = evtStore()->retrieve( tpContainer, *tNameIter );
 	  if ( sc.isFailure() || tpContainer==0) {

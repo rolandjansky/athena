@@ -5,6 +5,7 @@
 #include "BTagging/BTagLabeling.h"
 #include "BTagging/BTagTrackAssociation.h"
 #include "BTagging/BTagSecVertexing.h"
+#include "BTagging/BTagJetPtScaling.h"
 //#include "BTagging/BTagRemoving.h"
 #include "BTagging/JetBTaggerTool.h"
 #include "BTagging/StandAloneJetBTaggerAlg.h"
@@ -17,6 +18,7 @@ DECLARE_ALGORITHM_FACTORY( StandAloneJetBTaggerAlg )
 DECLARE_TOOL_FACTORY( BTagLabeling )
 DECLARE_TOOL_FACTORY( BTagTrackAssociation )
 DECLARE_TOOL_FACTORY( BTagSecVertexing )
+DECLARE_TOOL_FACTORY( BTagJetPtScaling )
 //DECLARE_TOOL_FACTORY( BTagRemoving )
 DECLARE_TOOL_FACTORY( BTagTool )
 DECLARE_TOOL_FACTORY( JetBTaggerTool )
@@ -30,6 +32,7 @@ DECLARE_FACTORY_ENTRIES( BTagging )
   DECLARE_TOOL( BTagLabeling );
   DECLARE_TOOL( BTagTrackAssociation );
   DECLARE_TOOL( BTagSecVertexing );
+  DECLARE_TOOL( BTagJetPtScaling );
 //  DECLARE_TOOL( BTagRemoving );
   DECLARE_TOOL( BTagTool );
   DECLARE_TOOL( JetBTaggerTool );

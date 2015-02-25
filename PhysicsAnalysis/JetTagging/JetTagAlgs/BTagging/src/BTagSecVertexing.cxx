@@ -124,6 +124,11 @@ namespace Analysis {
     
     if (vtx) {
       primaryVertex = vtx;
+      if (sc.isFailure()) {
+         ATH_MSG_WARNING("#BTAG# Primary vertex not passed through interface");
+         return StatusCode::SUCCESS;
+      }
+
     } else {
       //retrieve primary vertex 
       const xAOD::VertexContainer* vxContainer(0);

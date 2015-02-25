@@ -1249,6 +1249,7 @@ def setupSecVtxTool(name, ToolSvc, Verbose = False, options={}):
     options = dict(options)
     options.setdefault('SecVtxFinderList', [])
     options.setdefault('SecVtxFinderTrackNameList', [])
+    options.setdefault('PrimaryVertexName',BTaggingFlags.PrimaryVertexCollectionName)
     options.setdefault('OutputLevel', BTaggingFlags.OutputLevel)
     options['name'] = name
     from BTagging.BTaggingConf import Analysis__BTagSecVertexing
