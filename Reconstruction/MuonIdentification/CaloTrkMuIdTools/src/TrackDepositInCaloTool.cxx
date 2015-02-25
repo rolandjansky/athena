@@ -33,8 +33,8 @@ TrackDepositInCaloTool::TrackDepositInCaloTool( const std::string& type, const s
   AthAlgTool(type,name,pInterface),
   m_extrapolator("Trk::Extrapolator/AtlasExtrapolator"),
   m_cellContainer(0),
-  m_solenoidRadius(1280),
-  m_solenoidHalfLength(2900)
+  m_solenoidRadius(1280)
+  //m_solenoidHalfLength(2900)
 {
   declareInterface<ITrackDepositInCaloTool>(this);
   declareProperty("ExtrapolatorHandle", m_extrapolator );   

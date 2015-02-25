@@ -174,11 +174,11 @@ class TrackDepositInCaloTool: public AthAlgTool, virtual public ITrackDepositInC
     bool            m_debugMode;                                               //!< Flag to run in specialized debug mode
     bool            m_showNeighbours;
     double          m_solenoidRadius;                                          //!< Radius of the solenoid surrounding the ID
-    double          m_solenoidHalfLength;                                      //!< Halflength of the solenoid surrounding the ID
+    //double          m_solenoidHalfLength;                                      //!< Halflength of the solenoid surrounding the ID
     CaloLayerMap    m_barrelLayerMap;                                          //!< std::map of \f$r\f$ distance versus descriptor for cylindrical calo regions
     CaloLayerMap    m_endCapLayerMap;                                          //!< std::map of \f$z\f$ distance versus descriptor for disc-like calo regions
     
-    mutable int     m_stacks;                                                  //!< Counts the number of stacks (diagnoses indefinite recursion).
+    //mutable int     m_stacks;                                                  //!< Counts the number of stacks (diagnoses indefinite recursion).
 
     // Histograms        
     TH1F* hDepositLayer12;

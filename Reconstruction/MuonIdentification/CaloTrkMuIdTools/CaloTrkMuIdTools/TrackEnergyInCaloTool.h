@@ -137,7 +137,7 @@ class TrackEnergyInCaloTool: public AthAlgTool,  virtual public ITrackEnergyInCa
   
   
   /** Class member version of retrieving MsgStream */
-  int                                m_outputlevel;
+  //int                                m_outputlevel;
    
   const CaloDetDescrManager*         m_calo_dd;       
 
