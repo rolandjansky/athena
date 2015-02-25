@@ -5,7 +5,7 @@
 ## @Package test_trfAMI.py
 #  @brief Unittests for trfAMI.py
 #  @author bjorn.sarrazin@cern.ch
-#  @version $Id: test_trfAMI.py 643045 2015-01-30 13:43:56Z graemes $
+#  @version $Id: test_trfAMI.py 649424 2015-02-24 22:06:20Z graemes $
 
 import unittest
 
@@ -21,10 +21,7 @@ class trfAMIUnitTests(unittest.TestCase):
 
     # test T0 tag
     def test_info_q120(self):
-        physics={'AMITag':'q120',
-                 'maxEvents': -1,
-                 'autoConfiguration':'everything',
-                 'preExec':'rec.doFloatingPointException.set_Value_and_Lock(True)'}
+        physics = {'AMIConfig': 'q120', 'maxEvents': '-1', 'AMITag': 'q120', 'autoConfiguration': ['everything'], 'preExec': {'all': ['rec.doTrigger=False;BTaggingFlags.CalibrationTag="BTagCalibALL-07-09";rec.doFloatingPointException.set_Value_and_Lock(True)']}}
         
         tag=TagInfo('q120')
         self.assertTrue(isinstance(tag.trfs[0], TrfConfig))
@@ -55,7 +52,8 @@ class trfAMIUnitTests(unittest.TestCase):
         
     # test a new transform tag from AMI
     def test_info_q220(self):
-        physics = {'conditionsTag': {'all': 'OFLCOND-RUN1-SDR-05'}, 'AMITag': 'q220', 'postInclude': {'all': ['RecJobTransforms/UseFrontier.py']}, 'preExec': {'ESDtoAOD': ['TriggerFlags.AODEDMSet="AODSLIM"'], 'all': ['rec.Commissioning.set_Value_and_Lock(True);jobproperties.Beam.numberOfCollisions.set_Value_and_Lock(0.)'], 'HITtoRDO': ['userRunLumiOverride={"run":212272, "lb":1, "starttstamp":1349603811, "mu":0.000}'], 'RAWtoESD': ['from CaloRec.CaloCellFlags import jobproperties;jobproperties.CaloCellFlags.doLArCellEmMisCalib=False']}, 'autoConfiguration': ['everything'], 'maxEvents': '-1', 'preInclude': {'HITtoRDO': ['RunDependentSimData/configLumi_user.py', 'SimulationJobOptions/preInclude.PileUpBunchTrains2011Config8_DigitConfig.py']}, 'digiSeedOffset2': 39, 'inputHITSFile': ['/afs/cern.ch/atlas/groups/validation/RTT/HITS.01454684._000014.pool.root.1'], 'digiSeedOffset1': 39, 'triggerConfig': {'RAWtoESD': 'NONE'}, 'inputCavernHitsFile': ['/afs/cern.ch/atlas/groups/validation/RTT/HITS.01415612._000121.pool.root.2'], 'geometryVersion': {'all': 'ATLAS-R1-2012-02-00-00'}, 'numberOfCavernBkg': 0, 'jobNumber': 1}
+        self.maxDiff = None
+        physics = {'conditionsTag': {'all': 'CONDBR2-ES1PA-2014-01'}, 'beamType': 'cosmics', 'ignoreErrors': True, 'autoConfiguration': ['everything'], 'maxEvents': '-1', 'AMITag': 'q220', 'preExec': {'all': ['from CaloRec.CaloCellFlags import jobproperties;jobproperties.CaloCellFlags.doLArHVCorr=False;jobproperties.CaloCellFlags.doPileupOffsetBCIDCorr.set_Value_and_Lock(False);from InDetRecExample.InDetJobProperties import InDetFlags;InDetFlags.doInnerDetectorCommissioning.set_Value_and_Lock(True);InDetFlags.useBroadClusterErrors.set_Value_and_Lock(False);DQMonFlags.doStreamAwareMon=False;DQMonFlags.enableLumiAccess=False;from JetRec.JetRecFlags import jetFlags;jetFlags.useTracks=False;DQMonFlags.doLVL1CaloMon=False;DQMonFlags.doCTPMon=False;']}, 'geometryVersion': {'all': 'ATLAS-R2-2015-02-00-00'}}
         tag=TagInfo("q220")
         self.assertTrue(isinstance(tag.trfs[0], TrfConfig))
         self.assertEqual(tag.isProdSys, False)

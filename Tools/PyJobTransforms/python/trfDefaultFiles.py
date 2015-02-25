@@ -29,13 +29,13 @@ DefaultInputs={
 def getOutputFileName(fmt):
     value='my'+fmt
     fmt=fmt.split('_')[0]
-    if fmt in ['RAW', 'DRAW']:
+    if fmt in ['RAW', 'DRAW', 'BS']:
         value += '.data'
     elif fmt in ['RDO', 'EVNT', 'TAG', 'HITS', 'ESD', 'DESD', 'D2ESD', 'DESDM', 'D2ESDM', 'AOD', 'DAOD', 'D2AOD', 'DAODM', 'D2AODM']:
         value += '.pool.root'
     elif fmt in ['HIST', 'NTUP']:
         value += '.root'
-    return value    
+    return value
 
 
 def getInputFileName(arg, tag=None):
@@ -44,9 +44,8 @@ def getInputFileName(arg, tag=None):
         return DefaultInputs["cosmicsBS"]                
     elif tag=="q126" and arg=='inputBSFile':
         return DefaultInputs["topBS"]
-    else:
-        fmt = arg.replace('input','').replace('File','')
-        return DefaultInputs.get(arg, getOutputFileName(fmt) )
+    datatype = arg.replace('input','').replace('File', '')
+    return DefaultInputs.get(arg, getOutputFileName(datatype))
 
     
 

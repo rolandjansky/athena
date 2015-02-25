@@ -3,7 +3,7 @@
 ## @package PyJobTransforms.trfArgClasses
 # @brief Transform argument class definitions
 # @author atlas-comp-transforms-dev@cern.ch
-# @version $Id: trfArgClasses.py 636699 2014-12-18 12:00:24Z aalshehr $
+# @version $Id: trfArgClasses.py 648491 2015-02-20 14:31:23Z graemes $
 
 import argparse
 import bz2
@@ -1834,6 +1834,8 @@ class argSubstepBool(argSubstep):
         msg.debug('Attempting to set argSubstep from {0!s} (type {1}'.format(value, type(value)))
         if value is None:
             self._value = {}
+        elif isinstance(value, bool):
+            self._value = {self._defaultSubstep: value}
         elif isinstance(value, str):
             subStep, subStepValue = self._parseStringAsSubstep(value)
             self._value = {subStep: strToBool(subStepValue)}
@@ -1875,6 +1877,8 @@ class argSubstepInt(argSubstep):
         try:
             if value is None:
                 self._value = {}
+            elif isinstance(value, int):
+                self._value = {self._defaultSubstep: value}
             elif isinstance(value, str):
                 subStep, subStepValue = self._parseStringAsSubstep(value)
                 self._value = {subStep: int(subStepValue)}
@@ -1930,14 +1934,11 @@ class argSubstepFloat(argSubstep):
         try:
             if value is None:
                 self._value = {}
+            elif isinstance(value, float):
+                self._value = {self._defaultSubstep: value}              
             elif isinstance(value, str):
-                if (self._min != None and float(value) < self._min) or (self._max != None and float(value) > self._max):
-                    raise trfExceptions.TransformArgException(trfExit.nameToCode('TRF_ARG_OUT_OF_RANGE'),
-                                                          'argFloat value out of range: %s is not between %s and %s' % 
-                                                          (value, self._min, self._max))
-                else:
-                    subStep, subStepValue = self._parseStringAsSubstep(value)
-                    self._value = {subStep: float(subStepValue)}
+                subStep, subStepValue = self._parseStringAsSubstep(value)
+                self._value = {subStep: float(subStepValue)}
             elif isinstance(value, (list, tuple)):
                 # This is a list of strings to parse
                 self._value = {}
@@ -1945,10 +1946,6 @@ class argSubstepFloat(argSubstep):
                     if not isinstance(item, str):
                         raise trfExceptions.TransformArgException(trfExit.nameToCode('TRF_ARG_CONV_FAIL'), 
                                                                   'Failed to convert list item {0!s} to substep (should be a string)'.format(item))
-                    if (self._min != None and float(item) < self._min) or (self._max != None and float(item) > self._max):
-                        raise trfExceptions.TransformArgException(trfExit.nameToCode('TRF_ARG_OUT_OF_RANGE'),
-                                                          'argFloat value out of range: %s is not between %s and %s' % 
-                                                          (item, self._min, self._max))
                     subStep, subStepValue = self._parseStringAsSubstep(item)
                     self._value[subStep] = float(subStepValue)
             elif isinstance(value, dict):
@@ -1959,14 +1956,15 @@ class argSubstepFloat(argSubstep):
                     if not isinstance(v, float):
                         raise trfExceptions.TransformArgException(trfExit.nameToCode('TRF_ARG_CONV_FAIL'), 
                                                                   'Dictionary value {0!s} for substep is not an float'.format(v))
-                    if (self._min != None and float(v) < self._min) or (self._max != None and float(v) > self._max):
-                        raise trfExceptions.TransformArgException(trfExit.nameToCode('TRF_ARG_OUT_OF_RANGE'),
-                                                          'argFloat value out of range: %s is not between %s and %s' % 
-                                                          (v, self._min, self._max))
                 self._value = value
             else:
                 raise trfExceptions.TransformArgException(trfExit.nameToCode('TRF_ARG_CONV_FAIL'), 
                                                           'Setter value {0!s} (type {1}) for substep argument cannot be parsed'.format(value, type(value)))
+            # Now do min/max checks
+            for my_float in self._value.values():
+                if (self._min != None and my_float < self._min) or (self._max != None and my_float > self._max):
+                        raise trfExceptions.TransformArgException(trfExit.nameToCode('TRF_ARG_OUT_OF_RANGE'),
+                                                              'argFloat value out of range: {0} is not between {1} and {2}'.format(my_float, self._min, self._max))
         except ValueError, e:
             raise trfExceptions.TransformArgException(trfExit.nameToCode('TRF_ARG_CONV_FAIL'), 
                                                       'Failed to convert substep value {0} to float: {1}'.format(value, e))
@@ -1974,7 +1972,16 @@ class argSubstepFloat(argSubstep):
 
 ## @brief Special argument class to hold steering information
 class argSubstepSteering(argSubstep):
-    steeringAlises = {'doRDO_TRIG': {'RAWtoESD': [('in', '-', 'RDO'), ('in', '+', 'RDO_TRIG')]}}
+    # This singleton is where we define some aliases for common production
+    # usecases of steering. 
+    # "no" - a convenience null option for production managers, does nothing
+    # "doRDO_TRIG" - run split trigger for Reco_tf and friends
+    # "afterburn" - run the B decay afterburner for event generation
+    steeringAlises = {
+                      'no': {},
+                      'doRDO_TRIG': {'RAWtoESD': [('in', '-', 'RDO'), ('in', '+', 'RDO_TRIG'), ('in', '-', 'BS')]},
+                      'afterburn': {'generate': [('out', '-', 'EVNT')]}, 
+                      }
     
     # Reset getter
     @property
