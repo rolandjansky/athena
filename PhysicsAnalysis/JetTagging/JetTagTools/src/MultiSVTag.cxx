@@ -204,10 +204,12 @@ namespace Analysis
     float totalmass = 0.;
     float distnorm = 0.;
     
-    BTag->variable<float>(m_secVxFinderName, "normdist", distnorm);
-    BTag->variable<int>(m_secVxFinderName, "nvsec", msv_n);
+    bool status = true;
+
+    status &= BTag->variable<float>(m_secVxFinderName, "normdist", distnorm);
+    status &= BTag->variable<int>(m_secVxFinderName, "nvsec", msv_n);
     std::vector< ElementLink< xAOD::VertexContainer > > msvVertices;
-    BTag->variable<std::vector<ElementLink<xAOD::VertexContainer> > >(m_secVxFinderName, "vertices", msvVertices);
+    status &= BTag->variable<std::vector<ElementLink<xAOD::VertexContainer> > >(m_secVxFinderName, "vertices", msvVertices);
     ATH_MSG_DEBUG("#BTAG# MSV_vertices: " <<msvVertices.size());
     std::vector<float> v_vtxmass = std::vector<float>(10,0);
     std::vector<float> v_vtxefrc = std::vector<float>(10,0);
@@ -269,12 +271,17 @@ namespace Analysis
       int diffntrk = -999;
       int SV0ntrk  = 0;
       std::vector< ElementLink< xAOD::VertexContainer > > SV0Vertice;
-      BTag->variable<std::vector<ElementLink<xAOD::VertexContainer> > >(m_sv0_infosource, "vertices", SV0Vertice);
+      status &= BTag->variable<std::vector<ElementLink<xAOD::VertexContainer> > >(m_sv0_infosource, "vertices", SV0Vertice);
       if (SV0Vertice.size()>0 && SV0Vertice[0].isValid()){
-         BTag->taggerInfo(SV0ntrk, xAOD::BTagInfo::SV0_NGTinSvx);
+         status &= BTag->taggerInfo(SV0ntrk, xAOD::BTagInfo::SV0_NGTinSvx);
          diffntrk = all_trks - SV0ntrk;
       }else{ diffntrk = all_trks;
       }    
+
+      if (!status) {
+        ATH_MSG_WARNING("Error retrieving input values; results will be incorrect!");
+      }
+
       /*if(_msv_n>0 &&SV0Vertices.size()>0){
          diffntrk = all_trks - SV0ntrk;
       }else{if(_msv_n>0)diffntrk = all_trks;

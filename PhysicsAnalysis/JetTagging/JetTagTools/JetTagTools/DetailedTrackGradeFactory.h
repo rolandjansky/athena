@@ -56,18 +56,19 @@ private:
 
   TrackGradesDefinition m_trackGradesDefinition;
 
-  bool m_useRun2TrackGrading;
-  bool m_hitBLayerGrade;   // grade for tracks without hit in Blayer
-
+  bool m_hitBLayerGrade;   // grade for tracks without hit in First Layers
   bool m_useSharedHitInfo; /// if false the following cuts are ignored
-  bool m_useDetailSharedHitInfo; //blayer, pixel or sct shared hits
+
+  bool m_useRun2TrackGrading; // enabling run2 grading
+  bool m_useInnerLayers0HitInfo; //grading categories with no hits in one of the first 2 innermost pixel layers
+  bool m_useDetailSharedHitInfo; //grading categories according to shared hit content
+  bool m_useDetailSplitHitInfo;  //grading categories according to Split hit content
+
   int m_nSharedBLayer;/// max. number of shared hits in B layer
   int m_nSharedPix;   /// max. number of shared hits in pixels
   int m_nSharedSct;   /// max. number of shared hits in SCT
   int m_nSharedSi;    /// max. number of shared hits in pixels+SCT
-
-  bool m_hitInnerLayersGrade;   // grade for tracks without hit in Blayer                                                                                                                    
-  int m_nSharedInnermostPixelLayer;/// max. number of shared hits in innermost pixel layer (IBL)                                                                                              
+  int m_nSharedInnermostPixelLayer;/// max. number of shared hits in innermost pixel layer (IBL)
   int m_nSharedNextToInnermostPixelLayer;/// max. number of shared hits next-to-innermost pixel layer (Run1 B layer)
 
   bool m_ptFracGrade;   // grade for tracks with ptFrac < m_ptFracCut

@@ -50,7 +50,7 @@ public:
       passing the selection */
   StatusCode selectAllTracks();
 
-  inline const std::bitset<16> currentTrackpassedCuts() const { return m_passedCuts; }
+  inline const std::bitset<17> currentTrackpassedCuts() const { return m_passedCuts; }
 
 private:
   Amg::Vector3D m_primaryVertex;
@@ -99,6 +99,7 @@ private:
   double m_antiPileUpSigZ0Cut;
   int m_antiPileUpNHitSiCut;
   int m_antiPileUpNHolePixCut;
+  bool m_useTrackingTightDefinition;
   // for debugging:
   int m_ntri;
   int m_ntrf;
@@ -106,7 +107,7 @@ private:
 
   ToolHandle< Reco::ITrackToVertex > m_trackToVertexTool;
 
-  std::bitset<16> m_passedCuts;
+  std::bitset<17> m_passedCuts;
 
 };
 

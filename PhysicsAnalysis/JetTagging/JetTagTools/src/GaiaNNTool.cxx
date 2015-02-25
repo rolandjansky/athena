@@ -236,35 +236,35 @@ namespace Analysis {
         
         // check if we have vertices
         int jf_nvtx_tmp(0); bool jfitter_ok(false);
-        BTag->variable<int>(m_jftNN_infosource, "JetFitter_nVTX", jf_nvtx_tmp);
+        BTag->variable<int>(m_jftNN_infosource, "nVTX", jf_nvtx_tmp);
         if(jf_nvtx_tmp>0) jfitter_ok = true;
 
         if(jfitter_ok) {
         
             // Get values from the xAOD
             if("JetFitter" == m_jftNN_infosource) { // check if JetFitter is known by the xAOD?
-                BTag->taggerInfo(jf_nvtx, xAOD::BTagInfo::JetFitter_nVTX);
-                BTag->taggerInfo(jf_nvtx1t, xAOD::BTagInfo::JetFitter_nSingleTracks);
+                BTag->taggerInfo(jf_nvtx,     xAOD::BTagInfo::JetFitter_nVTX);
+                BTag->taggerInfo(jf_nvtx1t,   xAOD::BTagInfo::JetFitter_nSingleTracks);
                 BTag->taggerInfo(jf_ntrkAtVx, xAOD::BTagInfo::JetFitter_nTracksAtVtx);
-                BTag->taggerInfo(jf_efrc, xAOD::BTagInfo::JetFitter_energyFraction);
-                BTag->taggerInfo(jf_mass, xAOD::BTagInfo::JetFitter_mass);
-                BTag->taggerInfo(jf_sig3d, xAOD::BTagInfo::JetFitter_significance3d);
-                BTag->taggerInfo(jf_n2tv, xAOD::BTagInfo::JetFitter_N2Tpair);
+                BTag->taggerInfo(jf_efrc,     xAOD::BTagInfo::JetFitter_energyFraction);
+                BTag->taggerInfo(jf_mass,     xAOD::BTagInfo::JetFitter_mass);
+                BTag->taggerInfo(jf_sig3d,    xAOD::BTagInfo::JetFitter_significance3d);
+                BTag->taggerInfo(jf_n2tv,     xAOD::BTagInfo::JetFitter_N2Tpair);
             }
             else { // get variables explicitely
-                BTag->variable<int>(m_jftNN_infosource, "JetFitter_nVTX", jf_nvtx);
-                BTag->variable<int>(m_jftNN_infosource, "JetFitter_nSingleTracks", jf_nvtx1t);
-                BTag->variable<int>(m_jftNN_infosource, "JetFitter_nTracksAtVtx", jf_ntrkAtVx);
-                BTag->variable<float>(m_jftNN_infosource, "JetFitter_energyFraction", jf_efrc);
-                BTag->variable<float>(m_jftNN_infosource, "JetFitter_mass", jf_mass);
-                BTag->variable<float>(m_jftNN_infosource, "JetFitter_significance3d", jf_sig3d);
-                BTag->variable<int>(m_jftNN_infosource, "JetFitter_N2Tpair", jf_n2tv);
+                BTag->variable<int>(m_jftNN_infosource,   "nVTX",           jf_nvtx);
+                BTag->variable<int>(m_jftNN_infosource,   "nSingleTracks",  jf_nvtx1t);
+                BTag->variable<int>(m_jftNN_infosource,   "nTracksAtVtx",   jf_ntrkAtVx);
+                BTag->variable<float>(m_jftNN_infosource, "energyFraction", jf_efrc);
+                BTag->variable<float>(m_jftNN_infosource, "mass",           jf_mass);
+                BTag->variable<float>(m_jftNN_infosource, "significance3d", jf_sig3d);
+                BTag->variable<int>(m_jftNN_infosource,   "N2Tpair",        jf_n2tv);
             }
  
             // Get information from the PV of jetfitter
             std::vector<float> fittedPosition, fittedCov;
-            BTag->variable<std::vector<float> >(m_jftNN_infosource, "fittedPosition", fittedPosition); 
-            BTag->variable<std::vector<float> >(m_jftNN_infosource, "fittedCov", fittedCov);           
+            BTag->variable<std::vector<float> >(m_jftNN_infosource, "fittedPosition", fittedPosition);
+            BTag->variable<std::vector<float> >(m_jftNN_infosource, "fittedCov",      fittedCov);
             double phi, theta, errphi, errtheta;
             enum { jet_phi = 3, jet_theta = 4 };
 
@@ -284,8 +284,8 @@ namespace Analysis {
             }
 
             // fit quality variables
-            BTag->variable<float>(m_jftNN_infosource, "JetFitter_chi2", jfvtx_chi2);
-            BTag->variable<int>(m_jftNN_infosource, "JetFitter_ndof", jfvtx_ndof);
+            BTag->variable<float>(m_jftNN_infosource, "chi2", jfvtx_chi2);
+            BTag->variable<int>(m_jftNN_infosource,   "ndof", jfvtx_ndof);
              
         }
 

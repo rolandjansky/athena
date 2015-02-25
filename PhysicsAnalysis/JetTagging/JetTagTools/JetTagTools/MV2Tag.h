@@ -72,6 +72,9 @@ namespace Analysis {
     /** reader to define the TMVA algorithms */
 
     // addeed by VD (new training from Kazuya)
+    float m_pt;
+    float m_absEta;
+
     //more ip2 variables
     float m_ip2;
     float m_ip2_c;
@@ -91,6 +94,7 @@ namespace Analysis {
     float m_sv1_Lxy;
     float m_sv1_L3d;
     float m_sv1_sig3;
+    float m_sv1_dR;
     //more jf variables
     float m_jf_dR;
 

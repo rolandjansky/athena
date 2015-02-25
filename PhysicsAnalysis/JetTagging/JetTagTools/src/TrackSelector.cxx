@@ -63,6 +63,7 @@ namespace Analysis {
     declareProperty("antiPileUpSigZ0Cut", m_antiPileUpSigZ0Cut = 3.8);
     declareProperty("antiPileUpNHitSiCut", m_antiPileUpNHitSiCut = 9);
     declareProperty("antiPileUpNHolePixCut", m_antiPileUpNHolePixCut = 9);
+    declareProperty("useTrackingTightDefinition", m_useTrackingTightDefinition = false);	
   }
 
   TrackSelector::~TrackSelector() {
@@ -89,6 +90,11 @@ namespace Analysis {
       ATH_MSG_DEBUG("#BTAG# Retrieved tool " << m_trackToVertexTool);
     }
 
+    if (m_useTrackingTightDefinition){
+      m_d0Max = 2*Gaudi::Units::mm;
+      m_z0Max = 3*Gaudi::Units::mm;
+      m_pTMin = 0.4*Gaudi::Units::GeV;
+    }
  
     /** dump cuts: */
     if (msgLvl(MSG::DEBUG)) {
@@ -158,7 +164,7 @@ namespace Analysis {
     /** for debugging purposes: */
     enum Cuts { pTMin, d0Max, z0Max, sigd0Max, sigz0Max, etaMax, 
 		nHitBLayer, deadBLayer, nHitPix, nHitSct, nHitSi, nHitTrt, nHitTrtHighE,
-		fitChi2, fitProb,fitChi2OnNdfMax,
+		fitChi2, fitProb,fitChi2OnNdfMax, trackingTightDef,
 		numCuts };
     std::bitset<numCuts> failedCuts;
     
@@ -309,10 +315,26 @@ namespace Analysis {
 	pass = false;
 	failedCuts.set(nHitTrtHighE);
       }
+      // Tracking CP group Tight definition
+      if(m_useTrackingTightDefinition) {
+	uint8_t nibl, nnibl;
+	track->summaryValue(nibl , xAOD::numberOfPixelHits);
+	track->summaryValue(nnibl, xAOD::numberOfPixelHits);
+	bool innerHitsCrit = ((nibl+nnibl)>0);
+	bool lowetaCrit  = fabs(track->eta())> 1.65 && (ns+np)>=11;
+	bool highetaCrit = fabs(track->eta())<=1.65 && (ns+np)>=9 ;
+	bool pixholeCrit = (nhp==0) ;
+	bool isTight = innerHitsCrit && pixholeCrit && (lowetaCrit || highetaCrit);
+	if (!isTight){
+	  pass=false;
+	  failedCuts.set(trackingTightDef);
+	}
+	  
+      }
     }
     
     // Now the fit quality
-    double chi2 =  track->chiSquared();
+    double chi2 = track->chiSquared();
     int ndf = track->numberDoF();
     double proba = 1.;
     if(ndf>0 && chi2>=0.) {
