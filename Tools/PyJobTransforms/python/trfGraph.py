@@ -4,7 +4,7 @@
 ## @brief Transform graph utilities
 #  @details Graph which represents transform executors (nodes) connected vis data types (edges)
 #  @author atlas-comp-transforms-dev@cern.ch
-#  @version $Id: trfGraph.py 630866 2014-11-25 12:09:22Z graemes $
+#  @version $Id: trfGraph.py 649424 2015-02-24 22:06:20Z graemes $
 #  @note  There are a few well established python graph implementations, but none seem to be in the ATLAS
 #  release (NetworkX, igraph). Our needs are so basic that we might well be able to just take a few well
 #  known routines and have them in this module. See, e.g., http://www.python.org/doc/essays/graphs.html
@@ -51,7 +51,7 @@ class executorGraph(object):
         # Set basic node list
         self._nodeDict = {}
         
-        msg.debug('Graph input data: {0}; output data {1}'.format(inputData, outputData))
+        msg.info('Transform graph input data: {0}; output data {1}'.format(inputData, outputData))
         
         if len(executorSet) == 1:
             # Single executor - in this case inData/outData is not mandatory, so we set them to the 

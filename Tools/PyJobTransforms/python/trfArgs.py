@@ -3,7 +3,7 @@
 ## @Package PyJobTransforms.trfArgs
 #  @brief Standard arguments supported by trf infrastructure
 #  @author atlas-comp-transforms-dev@cern.ch
-#  @version $Id: trfArgs.py 647216 2015-02-16 17:23:57Z graemes $
+#  @version $Id: trfArgs.py 648491 2015-02-20 14:31:23Z graemes $
 
 import logging
 msg = logging.getLogger(__name__)
@@ -46,7 +46,9 @@ def addStandardTrfArgs(parser):
                         help='Steer the transform by manipulating the execution graph before the execution path is calculated. '
                         'Format is substep:{in,out}{+-}DATA,{in,out}{+-}DATA,... to modify the substep\'s input/output ' 
                         ' by adding/removing a data type. e.g. RAWtoESD:in-RDO,in+RDO_TRIG would remove RDO and add '
-                        'RDO_TRIG to the list of valid input datatypes for the RAWtoESD substep.')
+                        'RDO_TRIG to the list of valid input datatypes for the RAWtoESD substep. See current version of '
+                        'trfArgClasses.argSubstepSteering.steeringAlises for supported aliases. '
+                        'https://twiki.cern.ch/twiki/bin/view/AtlasComputing/TransformSteering')
     addMetadataArguments(parser)
 
 
