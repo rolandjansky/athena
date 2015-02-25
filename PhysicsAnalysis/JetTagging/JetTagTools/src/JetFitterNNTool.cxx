@@ -333,35 +333,40 @@ StatusCode JetFitterNNTool::finalize() {
   
   int nVTX, nTracksAtVtx, nSingleTracks;
   float energyFraction, mass, significance3d;
+  bool status = true;
   
   if("JetFitter" == inputbasename){
-    BTag->taggerInfo(nVTX, xAOD::BTagInfo::JetFitter_nVTX);
-    BTag->taggerInfo(nTracksAtVtx, xAOD::BTagInfo::JetFitter_nTracksAtVtx);
-    BTag->taggerInfo(nSingleTracks, xAOD::BTagInfo::JetFitter_nSingleTracks);
-    BTag->taggerInfo(energyFraction, xAOD::BTagInfo::JetFitter_energyFraction);
+    status &= BTag->taggerInfo(nVTX, xAOD::BTagInfo::JetFitter_nVTX);
+    status &= BTag->taggerInfo(nTracksAtVtx, xAOD::BTagInfo::JetFitter_nTracksAtVtx);
+    status &= BTag->taggerInfo(nSingleTracks, xAOD::BTagInfo::JetFitter_nSingleTracks);
+    status &= BTag->taggerInfo(energyFraction, xAOD::BTagInfo::JetFitter_energyFraction);
 
     if(m_usePtCorrectedMass){
-      BTag->taggerInfo(mass, xAOD::BTagInfo::JetFitter_mass);
+      status &= BTag->taggerInfo(mass, xAOD::BTagInfo::JetFitter_mass);
     }
     else{
-      BTag->variable<float>(inputbasename, "massUncorr",mass );
+      status &= BTag->variable<float>(inputbasename, "massUncorr",mass );
     }
-    BTag->taggerInfo(significance3d, xAOD::BTagInfo::JetFitter_significance3d);
+    status &= BTag->taggerInfo(significance3d, xAOD::BTagInfo::JetFitter_significance3d);
   }
   else{
     if(m_usePtCorrectedMass){
-      BTag->variable<float>(inputbasename, "mass",mass );
+      status &= BTag->variable<float>(inputbasename, "mass",mass );
     }
     else{
-      BTag->variable<float>(inputbasename, "massUncorr",mass );
+      status &= BTag->variable<float>(inputbasename, "massUncorr",mass );
     }
-    BTag->variable<float>(inputbasename, "significance3d", significance3d);
-    BTag->variable<float>(inputbasename, "energyFraction", energyFraction);
-    BTag->variable<>(inputbasename, "nVTX", nVTX);
-    BTag->variable<>(inputbasename, "nTracksAtVtx", nTracksAtVtx);
-    BTag->variable<>(inputbasename, "nSingleTracks", nSingleTracks);
+    status &= BTag->variable<float>(inputbasename, "significance3d", significance3d);
+    status &= BTag->variable<float>(inputbasename, "energyFraction", energyFraction);
+    status &= BTag->variable<>(inputbasename, "nVTX", nVTX);
+    status &= BTag->variable<>(inputbasename, "nTracksAtVtx", nTracksAtVtx);
+    status &= BTag->variable<>(inputbasename, "nSingleTracks", nSingleTracks);
   }
 
+  if (!status) {
+     ATH_MSG_WARNING(" Missing input data: cannot compute desired results");
+     // return StatusCode::SUCCESS;
+  }
 
   std::vector<Double_t> inputData;
   inputData.push_back(norm_nVTX(nVTX));

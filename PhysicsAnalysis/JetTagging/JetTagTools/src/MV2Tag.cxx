@@ -303,6 +303,62 @@ namespace Analysis {
 	tmvaReader->AddVariable("jf_efrc",&m_jf_efrc);
 	tmvaReader->AddVariable("jf_dR",&m_jf_dR);
 	tmvaReader->AddVariable("jf_sig3",&m_jf_sig3);
+      } else if (m_trainingConfig=="NoJF_NoSV0NoSv1_V2" ) {
+	// IP2D posteriors
+	tmvaReader->AddVariable("ip2",&m_ip2);
+	tmvaReader->AddVariable("ip2_c",&m_ip2_c);
+	tmvaReader->AddVariable("ip2_cu",&m_ip2_cu);
+	// IP3D posteriors
+	tmvaReader->AddVariable("ip3",&m_ip3);
+	tmvaReader->AddVariable("ip3_c",&m_ip3_c);
+	tmvaReader->AddVariable("ip3_cu",&m_ip3_cu);
+	//more sv1 informations
+	tmvaReader->AddVariable("sv1_ntkv" ,&m_sv1_ntkv);
+	tmvaReader->AddVariable("sv1_mass" ,&m_sv1_mass);
+	tmvaReader->AddVariable("sv1_efrc" ,&m_sv1_efrc);
+	tmvaReader->AddVariable("sv1_n2t"  ,&m_sv1_n2t);
+	tmvaReader->AddVariable("sv1_Lxy"  ,&m_sv1_Lxy);
+	tmvaReader->AddVariable("sv1_L3d"  ,&m_sv1_L3d);
+	tmvaReader->AddVariable("sv1_sig3" ,&m_sv1_sig3);
+	tmvaReader->AddVariable("sv1_dR"   ,&m_sv1_dR);
+	//JetFitter informations
+	tmvaReader->AddVariable("jf_n2tv",&m_jf_n2tv);
+	tmvaReader->AddVariable("jf_ntrkv",&m_jf_ntrkv);
+	tmvaReader->AddVariable("jf_nvtx",&m_jf_nvtx);
+	tmvaReader->AddVariable("jf_nvtx1t",&m_jf_nvtx1t);
+	tmvaReader->AddVariable("jf_mass",&m_jf_mass);
+	tmvaReader->AddVariable("jf_efrc",&m_jf_efrc);
+	tmvaReader->AddVariable("jf_dR",&m_jf_dR);
+	tmvaReader->AddVariable("jf_sig3",&m_jf_sig3);
+      } else if (m_trainingConfig=="NoJF_NoSV0NoSv1_V3" ) {
+	tmvaReader->AddVariable("pt",&m_pt);	
+	tmvaReader->AddVariable("abs(eta)",&m_absEta);	
+	// IP2D posteriors
+	tmvaReader->AddVariable("ip2",&m_ip2);
+	tmvaReader->AddVariable("ip2_c",&m_ip2_c);
+	tmvaReader->AddVariable("ip2_cu",&m_ip2_cu);
+	// IP3D posteriors
+	tmvaReader->AddVariable("ip3",&m_ip3);
+	tmvaReader->AddVariable("ip3_c",&m_ip3_c);
+	tmvaReader->AddVariable("ip3_cu",&m_ip3_cu);
+	//more sv1 informations
+	tmvaReader->AddVariable("sv1_ntkv" ,&m_sv1_ntkv);
+	tmvaReader->AddVariable("sv1_mass" ,&m_sv1_mass);
+	tmvaReader->AddVariable("sv1_efrc" ,&m_sv1_efrc);
+	tmvaReader->AddVariable("sv1_n2t"  ,&m_sv1_n2t);
+	tmvaReader->AddVariable("sv1_Lxy"  ,&m_sv1_Lxy);
+	tmvaReader->AddVariable("sv1_L3d"  ,&m_sv1_L3d);
+	tmvaReader->AddVariable("sv1_sig3" ,&m_sv1_sig3);
+	tmvaReader->AddVariable("sv1_dR"   ,&m_sv1_dR);
+	//JetFitter informations
+	tmvaReader->AddVariable("jf_n2tv",&m_jf_n2tv);
+	tmvaReader->AddVariable("jf_ntrkv",&m_jf_ntrkv);
+	tmvaReader->AddVariable("jf_nvtx",&m_jf_nvtx);
+	tmvaReader->AddVariable("jf_nvtx1t",&m_jf_nvtx1t);
+	tmvaReader->AddVariable("jf_mass",&m_jf_mass);
+	tmvaReader->AddVariable("jf_efrc",&m_jf_efrc);
+	tmvaReader->AddVariable("jf_dR",&m_jf_dR);
+	tmvaReader->AddVariable("jf_sig3",&m_jf_sig3);
       } else {
 	ATH_MSG_ERROR( " configString: "+m_trainingConfig+" not recognized .... returning failure");
 	return StatusCode::FAILURE;
@@ -329,6 +385,10 @@ namespace Analysis {
     
     double jpt = myJet.pt();
     double jeta= myJet.eta();
+    m_pt = jpt;
+    m_absEta = fabs(jeta);
+  
+    TVector3 v3_jet(myJet.px(),myJet.py(),myJet.pz());
 
     /* default D3PD values*/
     // these variable are not alwasy defined -> make sure to use always the same default when training
@@ -359,9 +419,11 @@ namespace Analysis {
     int sv1_n2t   = -1;
     int sv1_ntkv  = -1;
 
-    BTag->variable<double>(m_ip2d_infosource, "pu", ip2_pu);
-    BTag->variable<double>(m_ip2d_infosource, "pb", ip2_pb);
-    BTag->variable<double>(m_ip2d_infosource, "pc", ip2_pc);
+    bool status = true;
+
+    status &= BTag->variable<double>(m_ip2d_infosource, "pu", ip2_pu);
+    status &= BTag->variable<double>(m_ip2d_infosource, "pb", ip2_pb);
+    status &= BTag->variable<double>(m_ip2d_infosource, "pc", ip2_pc);
     m_ip2=BTag->IP2D_loglikelihoodratio();
 
     if("IP3D"==m_ip3d_infosource){
@@ -370,9 +432,9 @@ namespace Analysis {
       ip3_pc=BTag->IP3D_pc();
     } 
     else {
-      BTag->variable<double>(m_ip3d_infosource, "pu", ip3_pu);
-      BTag->variable<double>(m_ip3d_infosource, "pb", ip3_pb);
-      BTag->variable<double>(m_ip3d_infosource, "pc", ip3_pc);
+      status &= BTag->variable<double>(m_ip3d_infosource, "pu", ip3_pu);
+      status &= BTag->variable<double>(m_ip3d_infosource, "pb", ip3_pb);
+      status &= BTag->variable<double>(m_ip3d_infosource, "pc", ip3_pc);
     }
     m_ip3=BTag->calcLLR(ip3_pb,ip3_pu);
 
@@ -383,9 +445,9 @@ namespace Analysis {
       sv1_pc=BTag->SV1_pc();
     } 
     else {
-      BTag->variable<double>(m_sv1_infosource, "pu", sv1_pu);
-      BTag->variable<double>(m_sv1_infosource, "pb", sv1_pb);
-      BTag->variable<double>(m_sv1_infosource, "pc", sv1_pc);
+      status &= BTag->variable<double>(m_sv1_infosource, "pu", sv1_pu);
+      status &= BTag->variable<double>(m_sv1_infosource, "pb", sv1_pb);
+      status &= BTag->variable<double>(m_sv1_infosource, "pc", sv1_pc);
     }
     m_sv1=BTag->calcLLR(sv1_pb,sv1_pu);
 
@@ -400,17 +462,17 @@ namespace Analysis {
       jfc_pc=BTag->JetFitter_pc();
     } 
     else {
-      BTag->variable<double>(m_jfprob_infosource, "pu", jfc_pu);
-      BTag->variable<double>(m_jfprob_infosource, "pb", jfc_pb);
-      BTag->variable<double>(m_jfprob_infosource, "pc", jfc_pc);
+      status &= BTag->variable<double>(m_jfprob_infosource, "pu", jfc_pu);
+      status &= BTag->variable<double>(m_jfprob_infosource, "pb", jfc_pb);
+      status &= BTag->variable<double>(m_jfprob_infosource, "pc", jfc_pc);
     }
    
-
-    BTag->variable<double>(m_sv0_infosource, "discriminant", sv0);
+    status &= BTag->variable<double>(m_sv0_infosource, "significance3D", sv0);
+    if (!status) ATH_MSG_WARNING("error after reading SV0 significance information");
 
     bool sv0OK=false;
     std::vector< ElementLink< xAOD::VertexContainer > > myVertices;
-    BTag->variable<std::vector<ElementLink<xAOD::VertexContainer> > >(m_sv0_infosource, "vertices", myVertices);
+    status &= BTag->variable<std::vector<ElementLink<xAOD::VertexContainer> > >(m_sv0_infosource, "vertices", myVertices);
     if (myVertices.size()>0 && myVertices[0].isValid()){
       const xAOD::Vertex* firstVertex = *(myVertices[0]);
       sv0OK=true;
@@ -418,16 +480,16 @@ namespace Analysis {
 
     if(sv0OK){
       if ("SV0" == m_sv0_infosource){
-	BTag->taggerInfo(m_sv0_mass, xAOD::BTagInfo::SV0_masssvx);
-	BTag->taggerInfo(m_sv0_efrc, xAOD::BTagInfo::SV0_efracsvx);
-	BTag->taggerInfo(sv0_n2t, xAOD::BTagInfo::SV0_N2Tpair);
-	BTag->taggerInfo(sv0_ntkv, xAOD::BTagInfo::SV0_NGTinSvx);
+	status &= BTag->taggerInfo(m_sv0_mass, xAOD::BTagInfo::SV0_masssvx);
+	status &= BTag->taggerInfo(m_sv0_efrc, xAOD::BTagInfo::SV0_efracsvx);
+	status &= BTag->taggerInfo(sv0_n2t, xAOD::BTagInfo::SV0_N2Tpair);
+	status &= BTag->taggerInfo(sv0_ntkv, xAOD::BTagInfo::SV0_NGTinSvx);
       }
       else{
-	BTag->variable<float>(m_sv0_infosource, "masssvx", m_sv0_mass);
-	BTag->variable<float>(m_sv0_infosource, "efracsvx", m_sv0_efrc);
-	BTag->variable<int>(m_sv0_infosource, "N2Tpair", sv0_n2t);
-	BTag->variable<int>(m_sv0_infosource, "NGTinSvx", sv0_ntkv);
+	status &= BTag->variable<float>(m_sv0_infosource, "masssvx", m_sv0_mass);
+	status &= BTag->variable<float>(m_sv0_infosource, "efracsvx", m_sv0_efrc);
+	status &= BTag->variable<int>(m_sv0_infosource, "N2Tpair", sv0_n2t);
+	status &= BTag->variable<int>(m_sv0_infosource, "NGTinSvx", sv0_ntkv);
       }
       if ( m_trainingConfig=="Default" ) m_sv0_mass/=1000.;
     }
@@ -445,13 +507,16 @@ namespace Analysis {
     
     bool sv1OK=false;
     std::vector< ElementLink< xAOD::VertexContainer > > myVertices1;
-    BTag->variable<std::vector<ElementLink<xAOD::VertexContainer> > >(m_sv1_infosource, "vertices", myVertices1);
+    status &= BTag->variable<std::vector<ElementLink<xAOD::VertexContainer> > >(m_sv1_infosource, "vertices", myVertices1);
     if (myVertices1.size()>0 && myVertices1[0].isValid()){
       const xAOD::Vertex* firstVertex = *(myVertices1[0]);
 
       float dx = firstVertex->x() - pv_x;
       float dy = firstVertex->y() - pv_y;
       float dz = firstVertex->z() - pv_z;
+      
+      TVector3 v3_PvSv(dx,dy,dz);
+      m_sv1_dR = v3_PvSv.DeltaR(v3_jet);
 
       m_sv1_Lxy= sqrt( pow(dx,2) + pow(dy,2) );
       m_sv1_L3d= sqrt( pow(dx,2) + pow(dy,2) + pow(dz,2) );
@@ -462,55 +527,61 @@ namespace Analysis {
 
     if(sv1OK){
       if ("SV1" == m_sv1_infosource){
-	BTag->taggerInfo(m_sv1_mass, xAOD::BTagInfo::SV1_masssvx);
-	BTag->taggerInfo(m_sv1_efrc, xAOD::BTagInfo::SV1_efracsvx);
-	BTag->taggerInfo(sv1_n2t   , xAOD::BTagInfo::SV1_N2Tpair);
-	BTag->taggerInfo(sv1_ntkv  , xAOD::BTagInfo::SV1_NGTinSvx);
-	BTag->variable<float>(m_sv1_infosource, "significance3d" , m_sv1_sig3);
+	status &= BTag->taggerInfo(m_sv1_mass, xAOD::BTagInfo::SV1_masssvx);
+	status &= BTag->taggerInfo(m_sv1_efrc, xAOD::BTagInfo::SV1_efracsvx);
+	status &= BTag->taggerInfo(sv1_n2t   , xAOD::BTagInfo::SV1_N2Tpair);
+	status &= BTag->taggerInfo(sv1_ntkv  , xAOD::BTagInfo::SV1_NGTinSvx);
+	status &= BTag->variable<float>(m_sv1_infosource, "significance3d" , m_sv1_sig3);
       }
       else{
-	BTag->variable<float>(m_sv1_infosource, "masssvx" , m_sv1_mass);
-	BTag->variable<float>(m_sv1_infosource, "efracsvx", m_sv1_efrc);
-	BTag->variable<int>(m_sv1_infosource  , "N2Tpair" , sv1_n2t);
-	BTag->variable<int>(m_sv1_infosource  , "NGTinSvx", sv1_ntkv);
-	BTag->variable<float>(m_sv1_infosource, "significance3d" , m_sv1_sig3);
+	status &= BTag->variable<float>(m_sv1_infosource, "masssvx" , m_sv1_mass);
+	status &= BTag->variable<float>(m_sv1_infosource, "efracsvx", m_sv1_efrc);
+	status &= BTag->variable<int>(m_sv1_infosource  , "N2Tpair" , sv1_n2t);
+	status &= BTag->variable<int>(m_sv1_infosource  , "NGTinSvx", sv1_ntkv);
+	status &= BTag->variable<float>(m_sv1_infosource, "significance3d" , m_sv1_sig3);
       }
-      m_sv1_mass;
     }
 
     int jf_nvtx_tmp=0;
+    int jf_nvtx1t_tmp=0;
     bool jfitok=false;
-    BTag->variable<int>(m_jftNN_infosource, "nVTX", jf_nvtx_tmp);
+    status &= BTag->variable<int>(m_jftNN_infosource, "nVTX", jf_nvtx_tmp);
+    status &= BTag->variable<int>(m_jftNN_infosource, "nSingleTracks",  jf_nvtx1t_tmp);
     //std::cout << jf_nvtx_tmp << std::endl;
-    if(jf_nvtx_tmp>0){
+    if(jf_nvtx_tmp>0 ||  jf_nvtx1t_tmp>0){
       jfitok=true;
     }
 
     if(jfitok){
       if("JetFitter" == m_jftNN_infosource){
-	BTag->taggerInfo(jf_nvtx, xAOD::BTagInfo::JetFitter_nVTX);
-	BTag->taggerInfo(jf_nvtx1t, xAOD::BTagInfo::JetFitter_nSingleTracks);
-	BTag->taggerInfo(jf_ntrkv, xAOD::BTagInfo::JetFitter_nTracksAtVtx);
-	BTag->taggerInfo(m_jf_efrc, xAOD::BTagInfo::JetFitter_energyFraction);
-	BTag->taggerInfo(m_jf_mass, xAOD::BTagInfo::JetFitter_mass);
-	BTag->taggerInfo(m_jf_sig3, xAOD::BTagInfo::JetFitter_significance3d);
-	BTag->taggerInfo(m_jf_dphi, xAOD::BTagInfo::JetFitter_deltaphi);
-	BTag->taggerInfo(m_jf_deta, xAOD::BTagInfo::JetFitter_deltaeta);
-	BTag->taggerInfo(jf_n2tv, xAOD::BTagInfo::JetFitter_N2Tpair);
+	status &= BTag->taggerInfo(jf_nvtx, xAOD::BTagInfo::JetFitter_nVTX);
+	status &= BTag->taggerInfo(jf_nvtx1t, xAOD::BTagInfo::JetFitter_nSingleTracks);
+	status &= BTag->taggerInfo(jf_ntrkv, xAOD::BTagInfo::JetFitter_nTracksAtVtx);
+	status &= BTag->taggerInfo(m_jf_efrc, xAOD::BTagInfo::JetFitter_energyFraction);
+	status &= BTag->taggerInfo(m_jf_mass, xAOD::BTagInfo::JetFitter_mass);
+	status &= BTag->taggerInfo(m_jf_sig3, xAOD::BTagInfo::JetFitter_significance3d);
+	status &= BTag->taggerInfo(m_jf_dphi, xAOD::BTagInfo::JetFitter_deltaphi);
+	status &= BTag->taggerInfo(m_jf_deta, xAOD::BTagInfo::JetFitter_deltaeta);
+	status &= BTag->taggerInfo(jf_n2tv, xAOD::BTagInfo::JetFitter_N2Tpair);
       }
       else{
-	BTag->variable<int>(m_jftNN_infosource, "nVTX", jf_nvtx);
-	BTag->variable<int>(m_jftNN_infosource, "nSingleTracks", jf_nvtx1t);
-	BTag->variable<int>(m_jftNN_infosource, "nTracksAtVtx", jf_ntrkv);
-	BTag->variable<float>(m_jftNN_infosource, "energyFraction", m_jf_efrc);
-	BTag->variable<float>(m_jftNN_infosource, "mass", m_jf_mass);
-	BTag->variable<float>(m_jftNN_infosource, "significance3d", m_jf_sig3);
-	BTag->variable<float>(m_jftNN_infosource, "deltaphi", m_jf_dphi);
-	BTag->variable<float>(m_jftNN_infosource, "deltaeta", m_jf_deta);
-	BTag->variable<int>(m_jftNN_infosource, "N2Tpair", jf_n2tv);
+	status &= BTag->variable<int>(m_jftNN_infosource, "nVTX", jf_nvtx);
+	status &= BTag->variable<int>(m_jftNN_infosource, "nSingleTracks", jf_nvtx1t);
+	status &= BTag->variable<int>(m_jftNN_infosource, "nTracksAtVtx", jf_ntrkv);
+	status &= BTag->variable<float>(m_jftNN_infosource, "energyFraction", m_jf_efrc);
+	status &= BTag->variable<float>(m_jftNN_infosource, "mass", m_jf_mass);
+	status &= BTag->variable<float>(m_jftNN_infosource, "significance3d", m_jf_sig3);
+	status &= BTag->variable<float>(m_jftNN_infosource, "deltaphi", m_jf_dphi);
+	status &= BTag->variable<float>(m_jftNN_infosource, "deltaeta", m_jf_deta);
+	status &= BTag->variable<int>(m_jftNN_infosource, "N2Tpair", jf_n2tv);
       }
     }
     
+    if (!status) {
+      ATH_MSG_WARNING(" Missing input data: cannot compute desired results");
+      // return StatusCode::SUCCESS;
+    }
+
     m_sv0 = sv0;
     m_ip2_pb = ip2_pb;
     m_ip2_pc = ip2_pc;
@@ -534,11 +605,17 @@ namespace Analysis {
     m_sv0_ntkv  = sv0_ntkv;
     
     // VD: new variables from Kazuya
-    m_jf_dR     = hypot(m_jf_dphi,m_jf_deta);
+    if      (m_jf_dphi==-10 and m_jf_deta==-10) m_jf_dR = -1;
+    else if (m_jf_dphi==-11 and m_jf_deta==-11) m_jf_dR = -1;
+    else                                        m_jf_dR = hypot(m_jf_dphi,m_jf_deta) ;
+					     
+    if(m_ip2==-30) m_ip2==-20;
     m_ip2_c  = (m_ip2_pb>0 && m_ip2_pc>0) ? log(m_ip2_pb/m_ip2_pc) : -20;
     m_ip2_cu = (m_ip2_pc>0 && m_ip2_pu>0) ? log(m_ip2_pc/m_ip2_pu) : -20;
+    if(m_ip3==-30) m_ip3==-20;
     m_ip3_c  = (m_ip3_pb>0 && m_ip3_pc>0) ? log(m_ip3_pb/m_ip3_pc) : -20;
     m_ip3_cu = (m_ip3_pc>0 && m_ip3_pu>0) ? log(m_ip3_pc/m_ip3_pu) : -20;
+
     m_sv1_c  = (m_sv1_pb>0 && m_sv1_pc>0) ? log(m_sv1_pb/m_sv1_pc) : -20;
     m_sv1_cu = (m_sv1_pc>0 && m_sv1_pu>0) ? log(m_sv1_pc/m_sv1_pu) : -20;
     m_sv1_n2t   = sv1_n2t;
@@ -586,7 +663,8 @@ namespace Analysis {
 		  ", sv1_n2t= "    << m_sv1_n2t    <<
 		  ", sv1_Lxy= "    << m_sv1_Lxy    <<
 		  ", sv1_L3d= "    << m_sv1_L3d    << 
-		  ", sv1_sig3= "    << m_sv1_sig3);
+		  ", sv1_sig3= "   << m_sv1_sig3   <<
+		  ", sv1_dR= "     << m_sv1_dR);
     ATH_MSG_DEBUG("#BTAG# more jf inputs: " <<
 		  ", jf_mass= "    << m_jf_mass    <<
 		  ", jf_efrc= "    << m_jf_efrc    <<
@@ -632,22 +710,23 @@ namespace Analysis {
   }
   
   void MV2Tag::ClearInputs() {
-     m_ip2=-1;
-     m_ip2_c=-1;
-     m_ip2_cu=-1;
-     m_ip3=-1;
-     m_ip3_c=-1;
-     m_ip3_cu=-1;
-     m_sv1=-1;
-     m_sv1_c=-1;
-     m_sv1_cu=-1;
+     m_ip2=-20;
+     m_ip2_c=-20;
+     m_ip2_cu=-20;
+     m_ip3=-20;
+     m_ip3_c=-20;
+     m_ip3_cu=-20;
+     m_sv1=-10;
+     m_sv1_c=-10;
+     m_sv1_cu=-10;
      m_sv1_ntkv=-1; 
-     m_sv1_mass=-1; 
+     m_sv1_mass=-1000; 
      m_sv1_efrc=-1; 
      m_sv1_n2t=-1; 
-     m_sv1_Lxy=-1;
-     m_sv1_L3d=-1;
-     m_sv1_sig3=-1;
+     m_sv1_Lxy=-100;
+     m_sv1_L3d=-100;
+     m_sv1_sig3=-100;
+     m_sv1_dR=-1;
      m_jf_dR=-1;
      m_ip2_pu=-1; 
      m_ip2_pb=-1; 
@@ -667,15 +746,15 @@ namespace Analysis {
      m_sv0_efrc=-1; 
      m_sv0_n2t=-1; 
      m_sv0_radius=-1; 
-     m_jf_mass=-999; 
-     m_jf_efrc=-999; 
+     m_jf_mass=-1000; 
+     m_jf_efrc=-1; 
      m_jf_n2tv=-1; 
      m_jf_ntrkv=-1; 
      m_jf_nvtx=-1; 
      m_jf_nvtx1t=-1; 
-     m_jf_dphi=-999; 
-     m_jf_deta=-999; 
-     m_jf_sig3=-999;
+     m_jf_dphi=-11; 
+     m_jf_deta=-11; 
+     m_jf_sig3=-100;
   }
 
 }//end namespace

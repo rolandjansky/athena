@@ -2387,12 +2387,18 @@ void JetFitterLikelihood::fillLikelihoodValues(xAOD::BTagging* BTag,
   int i_nVTX, i_nTracksAtVtx, i_nSingleTracks;
   float f_energyFraction, f_mass, f_significance3d;
   
-  BTag->taggerInfo(i_nVTX, xAOD::BTagInfo::JetFitter_nVTX);
-  BTag->taggerInfo(i_nTracksAtVtx, xAOD::BTagInfo::JetFitter_nTracksAtVtx);
-  BTag->taggerInfo(i_nSingleTracks, xAOD::BTagInfo::JetFitter_nSingleTracks);
-  BTag->taggerInfo(f_energyFraction, xAOD::BTagInfo::JetFitter_energyFraction);
-  BTag->taggerInfo(f_mass, xAOD::BTagInfo::JetFitter_mass);
-  BTag->taggerInfo(f_significance3d, xAOD::BTagInfo::JetFitter_significance3d);
+  bool status = true;
+
+  status &= BTag->taggerInfo(i_nVTX, xAOD::BTagInfo::JetFitter_nVTX);
+  status &= BTag->taggerInfo(i_nTracksAtVtx, xAOD::BTagInfo::JetFitter_nTracksAtVtx);
+  status &= BTag->taggerInfo(i_nSingleTracks, xAOD::BTagInfo::JetFitter_nSingleTracks);
+  status &= BTag->taggerInfo(f_energyFraction, xAOD::BTagInfo::JetFitter_energyFraction);
+  status &= BTag->taggerInfo(f_mass, xAOD::BTagInfo::JetFitter_mass);
+  status &= BTag->taggerInfo(f_significance3d, xAOD::BTagInfo::JetFitter_significance3d);
+
+  if (!status) {
+    ATH_MSG_WARNING("Error retrieving input variables; calculations will be incorrect!");
+  }
 
   //set them to the right values
   cat_nVTX->setIndex(i_nVTX);

@@ -8,6 +8,8 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "JetTagTools/ITagTool.h"
+#include "TMVA/MethodBase.h" 
+#include "TMVA/IMethod.h"
 #include <vector>
 #include <string>
 #include <map>
@@ -78,7 +80,8 @@ class MVbTag : public AthAlgTool , virtual public ITagTool {
     float m_pt;
     float m_eta;
 
-    std::map<std::string, std::vector<TMVA::Reader*> > m_tmvaReaders;
+    std::map<std::string, TMVA::Reader*>  m_tmvaReaders[4];
+    std::map<std::string, TMVA::MethodBase*> m_tmvaMethod[4];
     std::list<std::string> m_undefinedReaders;
     // keep track of undefined readers to prevent too many warnings.
 

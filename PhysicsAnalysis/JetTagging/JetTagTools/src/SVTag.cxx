@@ -214,16 +214,21 @@ namespace Analysis
     int NSVPair = -1;
 
     //retrieving the secondary vertices
+    bool status = true;
     std::vector< ElementLink< xAOD::VertexContainer > > myVertices;
-    BTag->variable<std::vector<ElementLink<xAOD::VertexContainer> > >(m_secVxFinderName, "vertices", myVertices);
+    status &= BTag->variable<std::vector<ElementLink<xAOD::VertexContainer> > >(m_secVxFinderName, "vertices", myVertices);
       // BTag->auxdata<std::vector<ElementLink<xAOD::VertexContainer> > >(m_secVxFinderName+"_vertices");
         
     if (myVertices.size()>0) {
 
-      BTag->variable<float>(m_secVxFinderName, "masssvx", ambtot);// mass in MeV
+      status &= BTag->variable<float>(m_secVxFinderName, "masssvx", ambtot);// mass in MeV
       ambtot/=c_mom;
-      BTag->variable<float>(m_secVxFinderName, "efracsvx", xratio);
-      BTag->variable<int>(m_secVxFinderName, "N2Tpair", NSVPair);
+      status &= BTag->variable<float>(m_secVxFinderName, "efracsvx", xratio);
+      status &= BTag->variable<int>(m_secVxFinderName, "N2Tpair", NSVPair);
+
+      if (!status) {
+        ATH_MSG_WARNING("Error retrieving variables for SV finder name " << m_secVxFinderName << ", result will be incorrect!");
+      }
           
       // DR between Jet axis and PV-SV axis
       // For the time being computed only for Single Vertex...

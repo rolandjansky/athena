@@ -90,12 +90,14 @@ StatusCode MVbTag::initialize() {
         ATH_MSG_INFO("#BTAG# Retrieved tool " << m_calibrationTool);
     }
     
-    for (unsigned int ietabin=1; ietabin<=njMVbetabin; ietabin++){
-        TString calibname("bin"); calibname+=(ietabin);calibname+="/";
+    for (unsigned int ietabin=0; ietabin<njMVbetabin; ietabin++){
+        TString calibname("bin"); calibname+=(ietabin+1);calibname+="/";
         calibname+=m_taggerNameBase;calibname+="Calib";
         std::string calibstring(calibname.Data());
         
         m_calibrationTool->registerHistogram(m_taggerNameBase, calibstring);
+        m_tmvaReaders[ietabin].clear();
+        m_tmvaMethod[ietabin].clear();
     }
 
     return StatusCode::SUCCESS;
@@ -105,10 +107,14 @@ StatusCode MVbTag::initialize() {
 
 StatusCode MVbTag::finalize() {
     // delete reader:
-    std::map<std::string, std::vector<TMVA::Reader*> >::iterator pos = m_tmvaReaders.begin();
-    for( ; pos != m_tmvaReaders.end(); ++pos ) {
-        for (unsigned int ietabin=0; ietabin<njMVbetabin; ietabin++){
-            delete pos->second[ietabin];
+    for (unsigned int ietabin=0; ietabin<njMVbetabin; ietabin++){
+      std::map<std::string, TMVA::Reader*>::iterator pos = m_tmvaReaders[ietabin].begin();
+      for( ; pos != m_tmvaReaders[ietabin].end(); ++pos ) {
+            delete pos->second;
+        }
+      std::map<std::string, TMVA::MethodBase*>::iterator posm = m_tmvaMethod[ietabin].begin();
+      for( ; posm != m_tmvaMethod[ietabin].end(); ++posm ) {
+            delete posm->second;
         }
     }
     return StatusCode::SUCCESS;
@@ -124,21 +130,25 @@ StatusCode MVbTag::finalize() {
       author = JetTagUtils::getJetAuthor(myJet);
     }
     std::string alias = m_calibrationTool->channelAlias(author);
-    TString xmlFileNames[10];
+    //TString xmlFileNames[10];
     /// now configure the TMVAReaders:
     /// check if the reader for this tagger needs update
 
     //ATH_MSG_INFO("#BTAG# try to get xml..." );
-    std::vector<TMVA::Reader*> tmvaReaders(njMVbetabin, (TMVA::Reader*)0);
-    bool calibHasChanged = false;
+    //std::vector<TMVA::Reader*> tmvaReaders(njMVbetabin, (TMVA::Reader*)0);
+    TMVA::Reader* tmvaReaders[njMVbetabin];
+    std::map<std::string, TMVA::Reader*>::iterator pos;
+    std::ostringstream iss;
+    TMVA::MethodBase * kl[njMVbetabin];
+    std::map<std::string, TMVA::MethodBase*>::iterator itmap;
     for (unsigned int ietabin=0; ietabin<njMVbetabin; ietabin++){
-      xmlFileNames[ietabin]="btag"; 
-      xmlFileNames[ietabin]+=m_taggerNameBase;
-      xmlFileNames[ietabin]+="bin";
-      xmlFileNames[ietabin]+=(ietabin+1); 
-      xmlFileNames[ietabin]+="Config_";
-      xmlFileNames[ietabin]+=alias; 
-      xmlFileNames[ietabin]+=".xml";
+      //xmlFileNames[ietabin]="btag"; 
+      //xmlFileNames[ietabin]+=m_taggerNameBase;
+      //xmlFileNames[ietabin]+="bin";
+      //xmlFileNames[ietabin]+=(ietabin+1); 
+      //xmlFileNames[ietabin]+="Config_";
+      //xmlFileNames[ietabin]+=alias; 
+      //xmlFileNames[ietabin]+=".xml";
       /* check if calibration (neural net structure or weights) has to be updated: */
         
       TString calibname("bin");
@@ -148,18 +158,20 @@ StatusCode MVbTag::finalize() {
       calibname+="Calib";
       std::string calibstring(calibname.Data());
         
-      std::ifstream testfile(xmlFileNames[ietabin]);
-      if (!testfile) {
-	calibHasChanged = true;
-      }
+      //std::ifstream testfile(xmlFileNames[ietabin]);
+      //if (!testfile) {
+	//calibHasChanged = true;
+      //}
       //ATH_MSG_INFO("#BTAG# xml file to be created: "<<xmlFileNames[ietabin]
       //    << " for " << calibstring << " with author " << author );
+      ATH_MSG_DEBUG("#BTAG# Retrieve calib " << m_taggerNameBase << " " << author << " " << calibstring);
       std::pair<TList*, bool> calib = m_calibrationTool->retrieveTObject<TList>(m_taggerNameBase,
 										author,calibstring);
       //         if(!m_calibrationTool->updatedTagger(m_taggerNameBase, 
       //                     alias, calibstring, name()) ){
       ATH_MSG_DEBUG("#BTAG# calib has changed: "<< calib.second);
-      calibHasChanged = (calibHasChanged || (calib.second));
+      bool calibHasChanged = calib.second;
+      //calibHasChanged = (calibHasChanged || (calib.second));
       if(calibHasChanged) {
 	ATH_MSG_DEBUG("#BTAG# " << m_taggerNameBase << " calib updated -> try to retrieve");
 	if(!calib.first) {
@@ -171,33 +183,25 @@ StatusCode MVbTag::finalize() {
 						 alias, calibstring, false);
 
 	// now the ugly part: write an xml text file to be read by TMVAReader:
+	//now the new part istringstream
 	TList* list = calib.first;
-	std::ofstream ofile( xmlFileNames[ietabin] );
-	if(!ofile) {
-	  ATH_MSG_WARNING("#BTAG# Unable to create output file " << xmlFileNames[ietabin] );
-	  return StatusCode::SUCCESS;
-	}
-	for(int i=0; i<list->GetSize(); ++i) {
+        for(int i=0; i<list->GetSize(); ++i) {
 	  TObjString* ss = (TObjString*)list->At(i);
-	  ofile << ss->String() << std::endl;
+	  std::string sss = ss->String().Data();
+	  //KM: if it doesn't find "<" in the string, it starts from non-space character
+	  int posi = sss.find('<')!=-1 ? sss.find('<') : sss.find_first_not_of(" ");
+	  std::string tmp = sss.erase(0,posi);
+	  iss << tmp.data();      //iss << sss.Data();
 	}
-	ofile.close();
-	ATH_MSG_DEBUG("#BTAG# XML file created: " << xmlFileNames[ietabin] );
-	m_calibrationTool->updateHistogramStatusPerTagger(m_taggerNameBase, 
-							  alias, calibstring, false, name());
+	//m_calibrationTool->updateHistogramStatusPerTagger(m_taggerNameBase, 
+	//						  alias, calibstring, false, name());
 
-      }
-    } // end for(ietabin)
+      }  //end calibHasChanged
 
-    //ATH_MSG_INFO("#BTAG# try readers..." );
-    std::map<std::string, std::vector<TMVA::Reader*> >::iterator readerIter = m_tmvaReaders.find(alias);
-    if (readerIter == m_tmvaReaders.end() || calibHasChanged) {
-      // reader for alias not yet found, create it...
-      for (unsigned int ietabin=0; ietabin<njMVbetabin; ietabin++){
-	if (readerIter != m_tmvaReaders.end()) {
-	  delete (readerIter->second)[ietabin];
-	}
-	//ATH_MSG_INFO("#BTAG# init reader with : "<<xmlFileNames[ietabin] );
+      // now configure the TMVAReaders:
+      /// check if the reader for this tagger needs updatei   
+      if (!m_calibrationTool->updatedTagger(m_taggerNameBase, 
+					  alias, calibstring, name())) {
 	tmvaReaders[ietabin] = new TMVA::Reader();
 	tmvaReaders[ietabin]->AddVariable("jfit_ntrkAtVx",&m_jf_ntrkv);
 	tmvaReaders[ietabin]->AddVariable("SV_2tv",&m_sv0_n2t);
@@ -216,19 +220,32 @@ StatusCode MVbTag::finalize() {
 	tmvaReaders[ietabin]->AddVariable("jfit_deltaR",&m_jf_deltaR);
 	tmvaReaders[ietabin]->AddVariable("pT",&m_pt);
 	tmvaReaders[ietabin]->AddSpectator("Eta",&m_eta);
-	tmvaReaders[ietabin]->BookMVA("BDT", xmlFileNames[ietabin]);
-	//tmvaReaders[ietabin]->Print();
-	ATH_MSG_VERBOSE("#BTAG# new TMVA reader created from config"<< xmlFileNames[ietabin]);
-      }
-      m_tmvaReaders[alias] = tmvaReaders;
-    } else {
-      tmvaReaders = m_tmvaReaders[alias];
-      //tmvaReaders = readerIter->second;
-    }
-      
-    ATH_MSG_DEBUG("#BTAG# Jet author for MVb: " << author << ", alias: " << alias );
+        TMVA::IMethod* method= tmvaReaders[ietabin]->BookMVA(TMVA::Types::kBDT, iss.str().data() );
+	ATH_MSG_DEBUG("#BTAG# new TMVA reader created from config"<< iss.str().data());
+        kl[ietabin] = dynamic_cast<TMVA::MethodBase*>(method);
+ 
+        // add it or overwrite it in the map of readers:
+	pos = m_tmvaReaders[ietabin].find(alias);
+        if (pos!=m_tmvaReaders[ietabin].end()) {
+          delete pos->second;
+	  m_tmvaReaders[ietabin].erase(pos);
+        }
+        m_tmvaReaders[ietabin].insert( std::make_pair( alias, tmvaReaders[ietabin] ) );
+        itmap = m_tmvaMethod[ietabin].find(alias);
+        if(itmap!=m_tmvaMethod[ietabin].end()) {
+          delete itmap->second;
+          m_tmvaMethod[ietabin].erase(itmap);
+        }
+        m_tmvaMethod[ietabin].insert( std::make_pair( alias, kl[ietabin] ) );
 
-    
+        m_calibrationTool->updateHistogramStatusPerTagger(m_taggerNameBase,
+                                                          alias, calibstring, false, name());
+      }
+
+    } // end for(ietabin)
+
+    /* retrieving MVb inputs*/    
+    ATH_MSG_DEBUG("#BTAG# Jet author for MVb: " << author << ", alias: " << alias );
 
     m_pt   = myJet.pt()/1e3;
     m_eta  = std::fabs(myJet.eta());
@@ -278,14 +295,14 @@ StatusCode MVbTag::finalize() {
       if ("SV0" == m_sv0_infosource){
 	BTag->taggerInfo(m_sv0_mass, xAOD::BTagInfo::SV0_masssvx);
 	BTag->taggerInfo(m_sv0_efrc, xAOD::BTagInfo::SV0_efracsvx);
-	BTag->taggerInfo(sv0_n2t, xAOD::BTagInfo::SV0_N2Tpair);
-	BTag->taggerInfo(sv0_ntrkv, xAOD::BTagInfo::SV0_NGTinSvx);
+	BTag->taggerInfo(sv0_n2t,    xAOD::BTagInfo::SV0_N2Tpair);
+	BTag->taggerInfo(sv0_ntrkv,  xAOD::BTagInfo::SV0_NGTinSvx);
       }
       else{
-	BTag->variable<float>(m_sv0_infosource, "masssvx", m_sv0_mass);
+	BTag->variable<float>(m_sv0_infosource, "masssvx",  m_sv0_mass);
 	BTag->variable<float>(m_sv0_infosource, "efracsvx", m_sv0_efrc);
-	BTag->variable<int>(m_sv0_infosource, "N2Tpair", sv0_n2t);
-	BTag->variable<int>(m_sv0_infosource, "NGTinSvx", sv0_ntrkv);
+	BTag->variable<int>(m_sv0_infosource,   "N2Tpair",  sv0_n2t);
+	BTag->variable<int>(m_sv0_infosource,   "NGTinSvx", sv0_ntrkv);
       }
       m_sv0_mass/=1000.;
     }
@@ -303,22 +320,22 @@ StatusCode MVbTag::finalize() {
 
     if(has_jfit_vertex){
       if("JetFitter" == m_jftNN_infosource){
-	BTag->taggerInfo(jf_ntrkv, xAOD::BTagInfo::JetFitter_nTracksAtVtx);
+	BTag->taggerInfo(jf_ntrkv,  xAOD::BTagInfo::JetFitter_nTracksAtVtx);
 	BTag->taggerInfo(m_jf_efrc, xAOD::BTagInfo::JetFitter_energyFraction);
 	BTag->taggerInfo(m_jf_mass, xAOD::BTagInfo::JetFitter_mass);
 	BTag->taggerInfo(m_jf_sig3, xAOD::BTagInfo::JetFitter_significance3d);
-	BTag->taggerInfo(jf_dphi, xAOD::BTagInfo::JetFitter_deltaphi);
-	BTag->taggerInfo(jf_deta, xAOD::BTagInfo::JetFitter_deltaeta);
+	BTag->taggerInfo(jf_dphi,   xAOD::BTagInfo::JetFitter_deltaphi);
+	BTag->taggerInfo(jf_deta,   xAOD::BTagInfo::JetFitter_deltaeta);
 	BTag->taggerInfo(jf_nvtx1t, xAOD::BTagInfo::JetFitter_nSingleTracks);
       }
       else{
-	BTag->variable<int>(m_jftNN_infosource, "JetFitter_nTracksAtVtx", jf_ntrkv);
-	BTag->variable<float>(m_jftNN_infosource, "JetFitter_energyFraction", m_jf_efrc);
-	BTag->variable<float>(m_jftNN_infosource, "JetFitter_mass", m_jf_mass);
-	BTag->variable<float>(m_jftNN_infosource, "JetFitter_significance3d", m_jf_sig3);
-	BTag->variable<float>(m_jftNN_infosource, "JetFitter_deltaphi", jf_dphi);
-	BTag->variable<float>(m_jftNN_infosource, "JetFitter_deltaeta", jf_deta);
-	BTag->variable<int>(m_jftNN_infosource, "JetFitter_nSingleTracks", jf_nvtx1t);
+	BTag->variable<int>(m_jftNN_infosource,   "nTracksAtVtx",   jf_ntrkv);
+	BTag->variable<float>(m_jftNN_infosource, "energyFraction", m_jf_efrc);
+	BTag->variable<float>(m_jftNN_infosource, "mass",           m_jf_mass);
+	BTag->variable<float>(m_jftNN_infosource, "significance3d", m_jf_sig3);
+	BTag->variable<float>(m_jftNN_infosource, "deltaphi",       jf_dphi);
+	BTag->variable<float>(m_jftNN_infosource, "deltaeta",       jf_deta);
+	BTag->variable<int>(m_jftNN_infosource,   "nSingleTracks",  jf_nvtx1t);
 
       }
       m_jf_deltaR = std::sqrt(std::pow(jf_dphi,2)+std::pow(jf_deta,2));
@@ -332,7 +349,7 @@ StatusCode MVbTag::finalize() {
       BTag->taggerInfo(ip3d_track_d0sig, xAOD::BTagInfo::IP3D_sigD0wrtPVofTracks);
     }
     else{
-      BTag->variable<std::vector<float> >(m_ip3d_infosource, "IP3D_sigD0wrtPVofTracks", ip3d_track_d0sig);
+      BTag->variable<std::vector<float> >(m_ip3d_infosource, "sigD0wrtPVofTracks", ip3d_track_d0sig);
     }
 
     for(unsigned int i=0; i<ip3d_track_d0sig.size(); ++i){
@@ -359,34 +376,6 @@ StatusCode MVbTag::finalize() {
     m_jf_ntrkv = jf_ntrkv;
     m_ngood_trks = ngood_trks;
 
-
-
-    //std::cout<<"MVb: going to prepare track counting:  "<<std::endl;
-
-    //ATH_MSG_VERBOSE("#BTAG# the z of the primary = " << m_priVtx->recVertex().position().z());
-
-    //     std::cout<<"testing MVb input quantities" <<std::endl;
-    //     std::cout<<"pt :               "<<m_pt<<std::endl;
-    //     std::cout<<"eta:               "<<m_eta<<std::endl;
-    //     std::cout<<"IP3D:              "<<m_ip3d<<std::endl;
-    //     std::cout<<"IP2D:              "<<m_ip2d<<std::endl;
-    //     std::cout<<"JF valid ?         "<<jvIsValid<<std::endl;
-    //     std::cout<<"jf_dR:             "<<m_jf_deltaR<<std::endl;
-    //     std::cout<<"jf_ntrkv:          "<<m_jf_ntrkv<<std::endl;
-    //     std::cout<<"jf_nvtx1t:         "<<m_jf_nvtx1t<<std::endl;
-    //     std::cout<<"jf_efrac:          "<<m_jf_efrc<<std::endl;
-    //     std::cout<<"jf_efrac2:         "<<m_jf_efrc2<<std::endl;
-    //     std::cout<<"jf_mass:           "<<m_jf_mass<<std::endl;
-    //     std::cout<<"jf_sig3:           "<<m_jf_sig3<<std::endl;
-    //     std::cout<<"SV valid ?         "<<svIsValid<<std::endl;
-    //     std::cout<<"SV0 :              "<<m_sv0<<std::endl;
-    //     std::cout<<"L_xy:              "<<m_sv0_radius<<std::endl;
-    //     std::cout<<"sv_mass:           "<<m_sv0_mass<<std::endl;
-    //     std::cout<<"sv_n2t:            "<<m_sv0_n2t<<std::endl;
-    //     std::cout<<"sv_efrc:           "<<m_sv0_efrc<<std::endl;
-    //     std::cout<<"sv_efrc2:          "<<m_sv0_efrc2<<std::endl;
-    //     std::cout<<"ngoodTracks        "<<m_ngood_trks<<std::endl;
-    
     /* compute MVb: */
     double mvb = -1.;
     int binnb = -1;
@@ -399,13 +388,24 @@ StatusCode MVbTag::finalize() {
     } else if (std::fabs(m_eta)>=1.8) {
       binnb=3;
     }
-    ATH_MSG_DEBUG("#BTAG# MVb pt=" << std::fabs(m_eta) << " binnb = " << binnb);
-    if (!tmvaReaders[binnb]) {
-      ATH_MSG_WARNING("#BTAG# no TMVAReader defined for jet collection " << alias);
-      return StatusCode::SUCCESS;
+    ATH_MSG_DEBUG("#BTAG# MVb pt=" << std::fabs(m_eta) << " binnb = " << binnb+1);
+
+    pos = m_tmvaReaders[binnb].find(alias);
+    if(pos==m_tmvaReaders[binnb].end()) {
+      int alreadyWarned = std::count(m_undefinedReaders.begin(),m_undefinedReaders.end(),alias);
+      if(0==alreadyWarned) {
+        ATH_MSG_WARNING("#BTAG# no TMVAReader defined for jet collection " << alias);
+        m_undefinedReaders.push_back(alias);
+      }
     }
-    if (has_sV_vertex==true || has_jfit_vertex==true) {
-      mvb =(double) tmvaReaders[binnb]->EvaluateMVA("BDT");
+    else {
+      std::map<std::string, TMVA::MethodBase*>::iterator itmap2 = m_tmvaMethod[binnb].find(alias);
+      if((itmap2->second)!=0) {
+	if (has_sV_vertex==true || has_jfit_vertex==true) {
+	  mvb =(double) pos->second->EvaluateMVA(itmap2->second);
+	}
+      }
+      else ATH_MSG_WARNING("#BTAG#  kl==0");
     }
     /// 0.5 because signal and background were scaled to the same amount (handling pt as input)   ///correct reader ????
     ATH_MSG_DEBUG("#BTAG# MVb weight: " << mvb);
