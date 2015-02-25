@@ -336,6 +336,8 @@ HLT::ErrorCode T2MissingET::hltExecute(std::vector<std::vector<HLT::TriggerEleme
       return hltStatus;
     }
 
+    init(m_met_feature);
+
     m_useCachedResult = true;
     m_cachedTE = outputTE;
 
