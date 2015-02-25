@@ -362,12 +362,19 @@ def getTrfConfigFromAMI(tag):
     try:
         trf = TrfConfig()
         trf.name=result[0]['transformationName']
+        trf.inputs=result[0].get('inputs', {})
         trf.outputs=result[0].get('outputs', {})
         trf.release=result[0]['groupName'] + "," + result[0]['cacheName']
         trf.physics=deserialiseFromAMIString(result[0]['phconfig'])
         if not isinstance(trf.physics, dict):
             raise TransformAMIException(AMIerrorCode, "Bad result for tag's phconfig: {0}".format(trf.physics))
-        trf.inFiles=dict( (k, getInputFileName(k)) for k in deserialiseFromAMIString(result[0]['inputs']).iterkeys() )
+        trf.inFiles=deserialiseFromAMIString(result[0]['inputs'])
+        for inFileType, inFileName in trf.inFiles.iteritems():
+            # Not all AMI tags actually have a working filename, so fallback to trfDefaultFiles
+            # if necessary
+            if inFileName == '' or inFileName =={} or inFileName == [] or inFileName == '{}':
+                trf.inFiles[inFileType] = getInputFileName(inFileType, tag)
+        print trf.inFiles
         outputs=deserialiseFromAMIString(result[0]['outputs'])
         trf.outFiles=dict( (k, getOutputFileName(outputs[k]['dstype']) ) for k in outputs.iterkeys() )
         trf.outfmts=[ outputs[k]['dstype'] for k in outputs.iterkeys() ]

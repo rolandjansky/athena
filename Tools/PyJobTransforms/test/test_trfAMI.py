@@ -5,7 +5,7 @@
 ## @Package test_trfAMI.py
 #  @brief Unittests for trfAMI.py
 #  @author bjorn.sarrazin@cern.ch
-#  @version $Id: test_trfAMI.py 648031 2015-02-19 09:57:41Z graemes $
+#  @version $Id: test_trfAMI.py 649424 2015-02-24 22:06:20Z graemes $
 
 import unittest
 
@@ -21,10 +21,7 @@ class trfAMIUnitTests(unittest.TestCase):
 
     # test T0 tag
     def test_info_q120(self):
-        physics={'AMITag':'q120',
-                 'maxEvents': -1,
-                 'autoConfiguration':'everything',
-                 'preExec':'rec.doFloatingPointException.set_Value_and_Lock(True)'}
+        physics = {'AMIConfig': 'q120', 'maxEvents': '-1', 'AMITag': 'q120', 'autoConfiguration': ['everything'], 'preExec': {'all': ['rec.doTrigger=False;BTaggingFlags.CalibrationTag="BTagCalibALL-07-09";rec.doFloatingPointException.set_Value_and_Lock(True)']}}
         
         tag=TagInfo('q120')
         self.assertTrue(isinstance(tag.trfs[0], TrfConfig))

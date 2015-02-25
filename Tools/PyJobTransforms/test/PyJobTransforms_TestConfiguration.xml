@@ -361,6 +361,16 @@
           <queue>short</queue>
         </jobTransform>
 
+        <jobTransform userJobId="SubstepIntegratonTest">
+          <doc>Test compound transforms can be constructed ok</doc>
+          <jobTransformJobName>SubstepIntegration</jobTransformJobName>
+          <jobTransformCmd>
+            TransformTestRunner.py test_trfSubstepIntegration.py 
+          </jobTransformCmd>
+          <group>PyJobTransforms:TransformCoreTests</group>
+          <queue>short</queue>
+        </jobTransform>
+
     </jobList>
     
 	<jobGroups>
