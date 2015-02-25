@@ -26,7 +26,7 @@
 #include "TrkDetDescrInterfaces/ITrackingVolumesSvc.h"
 #include "TrkDetDescrInterfaces/ITrackingGeometrySvc.h"
 #include "TrkGeometry/MagneticFieldProperties.h"
-
+#include "AtlasDetDescr/AtlasDetectorID.h"
 
 //<<<<<< CLASS DECLARATIONS                                             >>>>>>
 
@@ -219,6 +219,9 @@ namespace Rec
 	Trk::PseudoMeasurementOnTrack*			vertexOnTrack(
 	    const Trk::TrackParameters&					parameters,
 	    const Trk::RecVertex*					vertex) const;
+
+        void dumpCaloEloss(const Trk::Track* track, std::string txt ) const;
+
 	
 	// helpers, managers, tools
 	ToolHandle<Rec::IMuidCaloEnergy>		m_caloEnergyParam;
@@ -305,6 +308,9 @@ namespace Rec
 	bool                                            m_useCaloTG;
 	bool                                            m_iterateCombinedTrackFit;
 	bool                                            m_refineELossCombinedTrackFit;
+	bool                                            m_refineELossStandAloneTrackFit;
+        bool                                            m_addElossID;
+        const AtlasDetectorID*                          m_DetID;
     };
  
 }	// end of namespace

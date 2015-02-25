@@ -25,6 +25,7 @@
 #include "MuonRecToolInterfaces/IMuonErrorOptimisationTool.h"
 #include "TrkToolInterfaces/ITrackSummaryTool.h"
 #include "TrkTrack/Track.h"
+#include "TrkDetDescrInterfaces/ITrackingVolumesSvc.h"
 #include "TrkMaterialOnTrack/MaterialEffectsOnTrack.h"
 #include "TrkMaterialOnTrack/ScatteringAngles.h"
 #include "TrkMaterialOnTrack/EnergyLoss.h"
@@ -32,6 +33,9 @@
 #include "TrkParameters/TrackParameters.h"
 #include "TrkTrackSummary/TrackSummary.h"
 #include "TrkMeasurementBase/MeasurementBase.h"
+#include "VxVertex/RecVertex.h"
+#include "TrkGeometry/TrackingVolume.h"
+#include "TrkPseudoMeasurementOnTrack/PseudoMeasurementOnTrack.h"
 
 namespace Rec
 {
@@ -47,6 +51,8 @@ OutwardsCombinedMuonTrackBuilder::OutwardsCombinedMuonTrackBuilder (const std::s
 	m_trackSummary		(""),
         m_muonHoleRecovery      (""),
         m_muonErrorOptimizer    (""),
+        m_trackingVolumesSvc            ("TrackingVolumesSvc/TrackingVolumesSvc",name),
+        m_indetVolume             (0),
 	m_allowCleanerVeto	(true),
 	m_cleanCombined		(true),
 	m_recoverCombined	(false)
@@ -138,6 +144,19 @@ OutwardsCombinedMuonTrackBuilder::initialize()
 	ATH_MSG_INFO( "Retrieved tool " << m_trackSummary );
     }
     }
+
+    if (m_trackingVolumesSvc.retrieve().isFailure())
+    {
+        ATH_MSG_FATAL( "Failed to retrieve Svc " << m_trackingVolumesSvc );
+        return StatusCode::FAILURE;
+    }
+    else
+    {
+        ATH_MSG_DEBUG( "Retrieved Svc " << m_trackingVolumesSvc );
+        m_indetVolume           = new Trk::Volume( m_trackingVolumesSvc->volume(Trk::ITrackingVolumesSvc::CalorimeterEntryLayer));
+    }
+         
+
     return StatusCode::SUCCESS;
 }
 
@@ -206,11 +225,82 @@ OutwardsCombinedMuonTrackBuilder::standaloneFit	(const Trk::Track&	/*spectromete
    refit a track removing any indet measurements with optional addition of pseudoMeasurements
        according to original extrapolation */
 Trk::Track*
-OutwardsCombinedMuonTrackBuilder::standaloneRefit (const Trk::Track& /*track*/) const
+OutwardsCombinedMuonTrackBuilder::standaloneRefit (const Trk::Track& combinedTrack) const
 {
-    ATH_MSG_DEBUG( "standalone refit not implemented" );
 
-    return 0;
+    ATH_MSG_DEBUG( " start OutwardsCombinedMuonTrackBuilder standaloneRefit" );
+    double vertex3DSigmaRPhi = 6.0;
+    double vertex3DSigmaZ    = 60.0;
+    
+    DataVector<const Trk::TrackStateOnSurface>* trackStateOnSurfaces =
+	new DataVector<const Trk::TrackStateOnSurface>;
+ 
+   bool addVertexRegion = true;  
+    Amg::Vector3D		origin(0.,0.,0.);
+    AmgSymMatrix(3) * vertexRegionCovariance = new AmgSymMatrix(3);
+     vertexRegionCovariance->setZero();
+    (*vertexRegionCovariance)(0,0)		= vertex3DSigmaRPhi*vertex3DSigmaRPhi;
+    (*vertexRegionCovariance)(1,1)		= vertex3DSigmaRPhi*vertex3DSigmaRPhi;
+    (*vertexRegionCovariance)(2,2)		= vertex3DSigmaZ*vertex3DSigmaZ;
+    Trk::RecVertex* vertex			= new Trk::RecVertex(origin,*vertexRegionCovariance);
+    
+//    if(!combinedTrack.perigeeParameters()) return 0;
+    int itsos = 0;
+    DataVector<const Trk::TrackStateOnSurface>::const_iterator t = combinedTrack.trackStateOnSurfaces()->begin();
+    // create perigee TSOS
+    for ( ; t != combinedTrack.trackStateOnSurfaces()->end(); ++t) {
+      itsos++;
+      if((**t).type(Trk::TrackStateOnSurface::Perigee)) {
+        const Trk::TrackParameters* pars = (**t).trackParameters();
+        if(pars) {
+          const Trk::TrackStateOnSurface* TSOS = const_cast<const Trk::TrackStateOnSurface*>((**t).clone());
+          trackStateOnSurfaces->push_back(TSOS);
+           
+    // including vertex region pseudoMeas 
+          if (addVertexRegion) {
+  	    const Trk::PseudoMeasurementOnTrack* vertexInFit = vertexOnTrack(pars,vertex);
+	    if (vertexInFit) {
+	      std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> type;
+	      type.set(Trk::TrackStateOnSurface::Measurement);
+	      trackStateOnSurfaces->push_back(new const Trk::TrackStateOnSurface(vertexInFit,
+									       0,
+									       0,
+									       0,
+									       type) );
+              ATH_MSG_DEBUG( " found Perigee and added vertex " << itsos );
+	    }
+          }
+          break;	    
+        }
+      }
+    }
+    for ( ; t != combinedTrack.trackStateOnSurfaces()->end(); ++t) {
+      itsos++;
+      if((**t).trackParameters()) {
+          if((**t).measurementOnTrack()) {
+            if(m_indetVolume->inside((**t).trackParameters()->position())) {
+              ATH_MSG_DEBUG( " skip ID measurement " << itsos );
+              continue;
+            }
+          } 
+      }
+      const Trk::TrackStateOnSurface* TSOS = const_cast<const Trk::TrackStateOnSurface*>((**t).clone());
+      trackStateOnSurfaces->push_back(TSOS);
+    }   
+    ATH_MSG_DEBUG( " trackStateOnSurfaces found " << trackStateOnSurfaces <<  " from total " << itsos );
+
+    Trk::Track* standaloneTrack = new Trk::Track(combinedTrack.info(), trackStateOnSurfaces, 0);
+    standaloneTrack->info().setPatternRecognitionInfo(Trk::TrackInfo::MuidStandaloneRefit);
+    Trk::Track* refittedTrack   = fit(*standaloneTrack,false,Trk::muon);
+    delete standaloneTrack;
+
+    if (! refittedTrack) {
+      ATH_MSG_DEBUG( " OutwardsCombinedMuonTrackBuilder standaloneRefit FAILED " );
+      return 0;
+    }
+    ATH_MSG_DEBUG( " OutwardsCombinedMuonTrackBuilder standaloneRefit OK " );
+    m_trackSummary->updateTrack(*refittedTrack);
+    return refittedTrack;
 }
 
 /**ITrackFitter interface: refit a track */
@@ -405,6 +495,34 @@ OutwardsCombinedMuonTrackBuilder::fit (const Trk::Track&		indetTrack,
     return fittedTrack;
 }
     
+
+
+Trk::PseudoMeasurementOnTrack*
+OutwardsCombinedMuonTrackBuilder::vertexOnTrack(const Trk::TrackParameters*	parameters,
+      					        const Trk::RecVertex*		vertex) const
+{
+    // create the corresponding PerigeeSurface, localParameters and covarianceMatrix
+    const Trk::PerigeeSurface surface(vertex->position());
+    Trk::LocalParameters localParameters;
+    Amg::MatrixX covarianceMatrix;
+    covarianceMatrix.setZero();
+    // transform Cartesian (x,y,z) to beam axis or perigee
+    Amg::Vector2D localPosition(0,0);
+    double ptInv			=  1./parameters->momentum().perp();
+    localParameters			=  Trk::LocalParameters(localPosition);
+    Amg::MatrixX jacobian(2,3);
+    jacobian.setZero();
+    jacobian(0,0)			= -ptInv*parameters->momentum().y();
+    jacobian(0,1)			=  ptInv*parameters->momentum().x();
+    jacobian(1,2)			=  1.0;
+    const Amg::MatrixX& cov         =  vertex->covariancePosition();
+    covarianceMatrix		=  cov.similarity(jacobian);
+    
+    
+    return new Trk::PseudoMeasurementOnTrack(localParameters,
+					     covarianceMatrix,
+					     surface);
+}
 
 
 }	// end of namespace
