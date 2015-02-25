@@ -494,7 +494,7 @@ StatusCode IsolationBuilder::DecorateEgamma(std::string egType) {
       if (bsc) {
 	unsigned int nI = isoH.isoTypes.size();
 	for (unsigned int i = 0; i < nI; i++) {
-	  float iso = TrackIsoResult.ptcones[nI-1-i], isoV = TrackIsoResult.ptvarcones_10GeVDivPt[nI-1-i];
+	  float iso = TrackIsoResult.ptcones[i], isoV = TrackIsoResult.ptvarcones_10GeVDivPt[i];
 	  ATH_MSG_DEBUG("custom Iso " << xAOD::Iso::toString(isoH.isoTypes[i]) << " = " << iso/1e3 << ", var cone = " << isoV/1e3);
 	  (*isoH.isoDeco[2*i])(*eg)   = iso;
 	  (*isoH.isoDeco[2*i+1])(*eg) = isoV;
@@ -559,7 +559,7 @@ StatusCode IsolationBuilder::DecorateMuon() {
       if (bsc) {
 	unsigned int nI = isoH.isoTypes.size();
 	for (unsigned int i = 0; i < nI; i++) {
-	  float iso = TrackIsoResult.ptcones[nI-1-i], isoV = TrackIsoResult.ptvarcones_10GeVDivPt[nI-1-i];
+	  float iso = TrackIsoResult.ptcones[i], isoV = TrackIsoResult.ptvarcones_10GeVDivPt[i];
 	  ATH_MSG_DEBUG("custom Iso " << xAOD::Iso::toString(isoH.isoTypes[i]) << " = " << iso/1e3 << ", var cone = " << isoV/1e3);
 	  (*isoH.isoDeco[2*i])(*mu)   = iso;
 	  (*isoH.isoDeco[2*i+1])(*mu) = isoV;

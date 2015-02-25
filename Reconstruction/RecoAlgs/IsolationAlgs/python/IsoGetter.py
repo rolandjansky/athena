@@ -193,8 +193,8 @@ IsoCorEg = [
   [ isoPar.coreTrackPtr ] #still hard-coded
   ]
 IsoCorMu = [
-  [ isoPar.coreCone ], 
-  #[ isoPar.coreMuon ],
+  #[ isoPar.coreCone ], 
+  [ isoPar.coreMuon ],
   [ isoPar.coreCone, isoPar.pileupCorrection ],
   [ isoPar.coreTrackPtr ] #still hard-coded
   ]
