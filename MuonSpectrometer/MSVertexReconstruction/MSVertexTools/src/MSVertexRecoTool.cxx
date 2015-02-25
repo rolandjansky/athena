@@ -623,7 +623,10 @@ namespace Muon {
 	surfaceTransformMatrix->setIdentity();
 	Trk::CylinderSurface cyl(surfaceTransformMatrix, rpos, 10000.);//create the surface
         //extrapolate to the surface
-	const Trk::AtaCylinder* extrap = dynamic_cast<const Trk::AtaCylinder*>(m_extrapolator->extrapolate(*TracksForVertexing[k].at(i), cyl,Trk::anyDirection,boundaryCheck,Trk::muon));
+        std::unique_ptr<const Trk::TrackParameters> extrap_par
+          ( m_extrapolator->extrapolate(*TracksForVertexing[k].at(i), cyl,Trk::anyDirection,boundaryCheck,Trk::muon) );
+
+	const Trk::AtaCylinder* extrap = dynamic_cast<const Trk::AtaCylinder*>(extrap_par.get());
 
         if(extrap) {
 	  //if the track is neutral just store the uncertainty due to angular uncertainty of the orignal tracklet
@@ -650,7 +653,10 @@ namespace Muon {
 	    Amg::Transform3D* srfTransMat2 = new Amg::Transform3D;
 	    srfTransMat2->setIdentity();
 	    Trk::CylinderSurface cyl2(srfTransMat2, rpos, 10000.);
-	    const Trk::AtaCylinder* extrap2 = dynamic_cast<const Trk::AtaCylinder*>(m_extrapolator->extrapolate(*TracksForErrors[k].at(i), cyl2,Trk::anyDirection,boundaryCheck,Trk::muon));
+            std::unique_ptr<const Trk::TrackParameters> extrap_par2
+              ( m_extrapolator->extrapolate(*TracksForErrors[k].at(i), cyl,Trk::anyDirection,boundaryCheck,Trk::muon) );
+            const Trk::AtaCylinder* extrap2 = dynamic_cast<const Trk::AtaCylinder*>(extrap_par2.get());
+
 	    if(extrap2) {
 	      float sz = Amg::error(*extrap->covariance(),Trk::locY);
 	      float zdiff = extrap->localPosition().y() - extrap2->localPosition().y();	  
@@ -668,11 +674,9 @@ namespace Muon {
 	      }
 	    }		  
 	    else ExtrapSuc[k].push_back(false);//not possible to calculate the uncertainty -- do not use tracklet in vertex
-	    delete extrap2;
-	}
+          }
         }//fi extrap
         else ExtrapSuc[k].push_back(false);//not possible to extrapolate the tracklet
-        delete extrap;
       }//end loop on perigeebase
     }//end loop on radial planes
 
