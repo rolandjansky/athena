@@ -144,13 +144,16 @@ StatusCode TileCellToNtuple::execute()
       
   } else {
 
+
+
+
     // step1: read RCs from TDS
     const CaloCellContainer* CellCnt;
     CHECK( evtStore()->retrieve(CellCnt, m_cellContainer) );
 
     // step2: to fill items in ntuple
-    CaloCellContainer::const_iterator it = CellCnt->begin();
-    CaloCellContainer::const_iterator end = CellCnt->end();
+    CaloCellContainer::const_iterator it = CellCnt->beginConstCalo(CaloCell_ID::TILE);
+    CaloCellContainer::const_iterator end = CellCnt->endConstCalo(CaloCell_ID::TILE);
     for(; it != end; ++it) {
       const TileCell *cell = (const TileCell *)(*it);
       m_tolE+=cell->energy();

@@ -35,7 +35,7 @@
 
 // set a limit to the dimension of nt vectors
 //
-const int max_inputs=128; // this is the maximum possible number of inputs for the 
+//const int max_inputs=128; // this is the maximum possible number of inputs for the 
                           // current configuration of tile-d trigger i.e. 1 input per EB module (2x64)
 
 // Constructor 
