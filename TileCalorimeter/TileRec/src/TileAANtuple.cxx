@@ -575,16 +575,16 @@ StatusCode TileAANtuple::storeLaser() {
       m_chan[i*2+0] = laserObj->getDiodeADC(i,0);
       m_chan[i*2+1] = laserObj->getDiodeADC(i,1);
       
-      msg(MSG::DEBUG) << "LASERII CHANNEL " << i << " (HG) " << m_chan[i*2+0] << endreq;
-      msg(MSG::DEBUG) << "LASERII CHANNEL " << i << " (LG) " << m_chan[i*2+1] << endreq;
+      msg(MSG::DEBUG) << "LASERII CHANNEL " << i << " (LG) " << m_chan[i*2+0] << endreq;
+      msg(MSG::DEBUG) << "LASERII CHANNEL " << i << " (HG) " << m_chan[i*2+1] << endreq;
       
       // MONITORING PMTS
       if(i<2){
         m_chan[i*2+0+14*2] = laserObj->getPMADC(i,0);
         m_chan[i*2+1+14*2] = laserObj->getPMADC(i,1);
         
-        msg(MSG::DEBUG) << "LASERII PMT " << i << " (HG) " << m_chan[i*2+0+14*2] << endreq;
-        msg(MSG::DEBUG) << "LASERII PMT " << i << " (LG) " << m_chan[i*2+1+14*2] << endreq;
+        msg(MSG::DEBUG) << "LASERII PMT " << i << " (LG) " << m_chan[i*2+0+14*2] << endreq;
+        msg(MSG::DEBUG) << "LASERII PMT " << i << " (HG) " << m_chan[i*2+1+14*2] << endreq;
       } // IF
     } // FOR
     
@@ -600,14 +600,14 @@ StatusCode TileAANtuple::storeLaser() {
       if(laserObj->isSet(chan/2, chan%2, 1) && laserObj->getSigma(chan/2,chan%2,1)>0) m_chan_SLin[chan]   = laserObj->getSigma(chan/2,chan%2,1);
       
       // DEBUG OUTPUT
-      if(chan%2==0){
+      if(chan%2==1){
         msg(MSG::DEBUG) << "HG CHAN " << chan/2 << " SIG= " << m_chan[chan] << endreq;
         msg(MSG::DEBUG) << "HG CHAN " << chan/2 << " PED= " << m_chan_Ped[chan]   << "+/-" << m_chan_SPed[chan]   << " ( " << laserObj->isSet(chan/2, chan%2, 0) << " ) " << endreq;
         msg(MSG::DEBUG) << "HG CHAN " << chan/2 << " PED= " << m_chan_Lin[chan]   << "+/-" << m_chan_SLin[chan]   << " ( " << laserObj->isSet(chan/2, chan%2, 1) << " ) " << endreq;
         msg(MSG::DEBUG) << "HG CHAN " << chan/2 << " LED= " << m_chan_Led[chan]   << "+/-" << m_chan_SLed[chan]   << " ( " << laserObj->isSet(chan/2, chan%2, 2) << " ) " << endreq;
         msg(MSG::DEBUG) << "HG CHAN " << chan/2 << " ALP= " << m_chan_Alpha[chan] << "+/-" << m_chan_SAlpha[chan] << " ( " << laserObj->isSet(chan/2, chan%2, 3) << " ) " << endreq;
       } // IF
-      if(chan%2==1){
+      if(chan%2==0){
         msg(MSG::DEBUG) << "LG CHAN " << chan/2 << " SIG= " << m_chan[chan] << endreq;
         msg(MSG::DEBUG) << "LG CHAN " << chan/2 << " PED= " << m_chan_Ped[chan]   << "+/-" << m_chan_SPed[chan]   << " ( " << laserObj->isSet(chan/2, chan%2, 0) << " ) " << endreq;
         msg(MSG::DEBUG) << "LG CHAN " << chan/2 << " PED= " << m_chan_Lin[chan]   << "+/-" << m_chan_SLin[chan]   << " ( " << laserObj->isSet(chan/2, chan%2, 1) << " ) " << endreq;
@@ -1568,7 +1568,7 @@ void TileAANtuple::LASER_addBranch(void) {
   
   if (m_laserObject.size() > 0) {
     
-    const char* gainnames[2]  = {"HG","LG"};
+    const char* gainnames[2]  = {"LG","HG"};
     const char* channames[16] = {"Diode0","Diode1","Diode2","Diode3","Diode4","Diode5","Diode6","Diode7",
       "Diode8","Diode9","PMT1","ExtCIS0","IntCIS","DiodePhocal","PMT2","ExtCIS1"};
     
