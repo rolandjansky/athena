@@ -6,10 +6,10 @@
 #define MUONALIGNERRORTOOL_ALIGNMENTERRORTOOL_H
 
 // for accessing info from the DB
-#include "MuonCondInterface/IMuonAlignmentErrorDbSvc.h" 
+#include "MuonCondInterface/IMuonAlignmentErrorDbSvc.h"
 
 #include "TrkToolInterfaces/ITrkAlignmentDeviationTool.h"
-#include "MuonAlignErrorTool/AlignmentDeviation.h"
+#include "MuonAlignErrorBase/AlignmentDeviation.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "MuonCalibITools/IIdToFixedIdTool.h"
