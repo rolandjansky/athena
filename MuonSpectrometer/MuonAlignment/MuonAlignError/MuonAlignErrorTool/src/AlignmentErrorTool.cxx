@@ -8,13 +8,14 @@
 ////////////////////////////////////////////////////////////////////
 
 #include "MuonAlignErrorTool/AlignmentErrorTool.h"
-#include "MuonAlignErrorTool/AlignmentTranslationDeviation.h"
-#include "MuonAlignErrorTool/AlignmentRotationDeviation.h"
+#include "MuonAlignErrorBase/AlignmentTranslationDeviation.h"
+#include "MuonAlignErrorBase/AlignmentRotationDeviation.h"
 #include "TrkTrack/Track.h"
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
 #include "TrkPrepRawData/PrepRawData.h"
 #include "TrkCompetingRIOsOnTrack/CompetingRIOsOnTrack.h"
 
+#include "PathResolver/PathResolver.h"
 #include "GeoPrimitives/CLHEPtoEigenConverter.h"
 
 // For the call-back
@@ -33,8 +34,8 @@ AlignmentErrorTool::AlignmentErrorTool(const std::string& t, const std::string& 
 {
   declareInterface<Trk::ITrkAlignmentDeviationTool>(this);
   declareProperty("idTool", m_idTool);
-  declareProperty("read_local_file", m_read_local_file);
-  declareProperty("local_input_filename", m_local_input_filename);
+  declareProperty("read_local_file", m_read_local_file=true);
+  declareProperty("local_input_filename", m_local_input_filename="AlignmentUncertaintiesStart2015.txt");
 }
 
 AlignmentErrorTool::~AlignmentErrorTool() {
@@ -56,18 +57,13 @@ StatusCode AlignmentErrorTool::initialize() {
   ATH_MSG_INFO("*****************************************");
   ATH_MSG_INFO("AlignmentErrorTool::initialize()");
 
-  StatusCode sc(StatusCode::SUCCESS);
-  sc = m_pMuonAlignmentErrorDbSvc.retrieve();
-  if (sc != StatusCode::SUCCESS) {
-    msg(MSG::ERROR)<<"Could not retrieve the MuonAlignmentErrorDbSvc, it won't be possible to access the muon alignment error database."<<endreq;
-  }
-
   // MAP DEVIATION INITIALIZATION
   // from local file
   if ( m_read_local_file ) {
      // THESE METHODS SHOULD BE CALLED AT EACH CALL-BACK
-     std::ifstream indata(m_local_input_filename.c_str());
-     initializeAlignmentDeviationsList( indata ); 
+     std::string full_input_filename = PathResolver::find_file( m_local_input_filename, "DATAPATH");
+     std::ifstream indata(full_input_filename.c_str());
+     initializeAlignmentDeviationsList( indata );
      
      //ATH_MSG_DEBUG("###########################################");
      //ATH_MSG_DEBUG("List of deviations updated");
@@ -75,6 +71,11 @@ StatusCode AlignmentErrorTool::initialize() {
      //ATH_MSG_DEBUG("###########################################");
   } else {
   // from DB
+
+    StatusCode sc = m_pMuonAlignmentErrorDbSvc.retrieve();
+    if (sc != StatusCode::SUCCESS) {
+      msg(MSG::ERROR)<<"Could not retrieve the MuonAlignmentErrorDbSvc, it won't be possible to access the muon alignment error database."<<endreq;
+    }
 
     StatusCode detstore_status = service("DetectorStore",detStore);
 
@@ -122,7 +123,7 @@ StatusCode AlignmentErrorTool::finalize() {
 
 void AlignmentErrorTool::makeAlignmentDeviations (const Trk::Track& track, std::vector<Trk::AlignmentDeviation*>& deviations) const {
 
-  ATH_MSG_INFO("AlignmentErrorTool::makeAlignmentDeviations()");
+  ATH_MSG_DEBUG("AlignmentErrorTool::makeAlignmentDeviations()");
 
   // CLEAR HITS VECTOR //
   for ( unsigned int i = 0; i<deviationsVec.size(); i++) {
@@ -361,7 +362,7 @@ void AlignmentErrorTool::makeAlignmentDeviations (const Trk::Track& track, std::
 void AlignmentErrorTool::initializeAlignmentDeviationsList (std::istream& indata) {
 
   // CLEANUP
-  deleteAlignmentDeviationsList(); 
+  deleteAlignmentDeviationsList();
 
   if (!indata) {
     ATH_MSG_ERROR("Alignment error configuration invalid");
@@ -378,7 +379,7 @@ void AlignmentErrorTool::initializeAlignmentDeviationsList (std::istream& indata
     // READING COMMENTS
     if ( line.substr(0, 1) == "#" ) {
       // ATH_MSG_DEBUG("Reading a commented line saying " << line);
-      continue; 
+      continue;
     }
 
     // READING FROM INPUT FILE:                                //

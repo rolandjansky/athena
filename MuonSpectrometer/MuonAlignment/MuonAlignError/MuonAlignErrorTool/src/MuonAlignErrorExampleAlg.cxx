@@ -3,7 +3,7 @@
 */
 
 #include "MuonAlignErrorTool/MuonAlignErrorExampleAlg.h"
-#include "MuonAlignErrorTool/AlignmentDeviation.h"
+#include "MuonAlignErrorBase/AlignmentDeviation.h"
 #include "TrkTrack/TrackCollection.h"
 #include <iostream>
 

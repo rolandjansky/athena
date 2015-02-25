@@ -10,6 +10,7 @@ use MuonCalibITools   MuonCalibITools-*   MuonSpectrometer/MuonCalib
 use GeoPrimitives     GeoPrimitives-*     DetectorDescription
 use MuonCondInterface MuonCondInterface-* MuonSpectrometer/MuonConditions/MuonCondGeneral
 use TrkToolInterfaces     TrkToolInterfaces-*        Tracking/TrkTools
+use MuonAlignErrorBase    MuonAlignErrorBase-*       MuonSpectrometer/MuonAlignment/MuonAlignError
 
 private
 use TrkTrack              TrkTrack-*                 Tracking/TrkEvent
@@ -17,9 +18,11 @@ use TrkRIO_OnTrack        TrkRIO_OnTrack-*           Tracking/TrkEvent
 use TrkCompetingRIOsOnTrack TrkCompetingRIOsOnTrack-*  Tracking/TrkEvent
 use TrkPrepRawData        TrkPrepRawData-*           Tracking/TrkEvent
 use StoreGate             StoreGate-*             Control
+use PathResolver          PathResolver-*             Tools
 
 apply_tag ROOTMathLibs 
 
 public
 apply_pattern component_library
+apply_pattern declare_runtime files="AlignmentUncertaintiesStart2015.txt"
 library MuonAlignErrorTool *.cxx -s=components *.cxx
