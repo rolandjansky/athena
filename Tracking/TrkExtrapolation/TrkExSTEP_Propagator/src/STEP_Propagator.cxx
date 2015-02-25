@@ -568,8 +568,8 @@ const Trk::IntersectionSolution*
 
   //Check inputvalues
   if (m_tolerance <= 0.) return 0;
-  if (m_momentumCutOff < 0.) return 0;
-  if (m_energyLoss && ( fabs( 1./trackParameters.parameters()[Trk::qOverP]) <= m_momentumCutOff)) {
+  if (m_momentumCutOff < 0. ) return 0;
+  if (fabs( 1./trackParameters.parameters()[Trk::qOverP]) <= m_momentumCutOff) {
     return 0;
   }
 
@@ -787,7 +787,7 @@ const Trk::TrackParameters*
     trackParameters = &inputTrackParameters;
   }
 
-  if (m_energyLoss && ( fabs( 1./trackParameters->parameters()[Trk::qOverP]) <= m_momentumCutOff)) {
+  if (fabs( 1./trackParameters->parameters()[Trk::qOverP]) <= m_momentumCutOff) {
     if (trackParameters != &inputTrackParameters) delete trackParameters;
     return 0;
   }
@@ -969,7 +969,7 @@ const Trk::TrackParameters*
     trackParameters = &inputTrackParameters;
   }
 
-  if (m_energyLoss && ( fabs( 1./trackParameters->parameters()[Trk::qOverP]) <= m_momentumCutOff)) {
+  if (fabs( 1./trackParameters->parameters()[Trk::qOverP]) <= m_momentumCutOff) {
     if (trackParameters != &inputTrackParameters) delete trackParameters;
     return 0;
   }
@@ -2450,7 +2450,7 @@ const Trk::TrackParameters* Trk::STEP_Propagator::createStraightLine( const Trk:
   AmgVector(5) lp = inputTrackParameters->parameters();
   lp[Trk::qOverP] = 1./1e10;
 
-  ATH_MSG_WARNING("STEP propagator detects invalid input parameters (q/p=0 ), resetting momentum to 1.e10");
+//  ATH_MSG_VERBOSE("STEP propagator detects invalid input parameters (q/p=0 ), resetting momentum to 1.e10");
 
   if (dynamic_cast<const Trk::CurvilinearParameters*>(inputTrackParameters)) {
     return new Trk::CurvilinearParameters(  inputTrackParameters->position(), lp[2], lp[3], lp[4], 
