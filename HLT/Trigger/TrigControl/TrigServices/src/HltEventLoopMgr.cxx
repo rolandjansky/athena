@@ -67,6 +67,7 @@ static std::string CMT_PACKAGE_VERSION = PACKAGE_VERSION;
 #include "TH1F.h"
 #include "TH2I.h"
 #include "TProfile.h"
+#include "TClass.h"
 
 // Other includes
 #include <set>
@@ -916,6 +917,10 @@ StatusCode HltEventLoopMgr::prepareForRun(const ptree & pt)
 {
   try
   {
+    
+    (void)TClass::GetClass("vector<unsigned short>"); // preload to overcome an issue with dangling references in serialization
+    (void)TClass::GetClass("vector<unsigned long>");
+
     const SOR * sor;
     if(internalPrepareResets().isFailure() || // do the necessary resets and
        !(sor = processRunParams(pt))) // update SOR in det store and get it back
