@@ -62,6 +62,7 @@
         <TEST name="HLT_MC_BSfromRDO" type="script" suite="TrigP1HLTcore">
             <options_atn>trigtest.pl --cleardir --test HLT_MC_BSfromRDO --rundir HLT_MC_BSfromRDO --conf TrigP1Test.conf</options_atn>
             <timelimit>20</timelimit>
+            <nightly_exclude>.*</nightly_exclude>
             <expectations>
                 <errorMessage>FAILURE </errorMessage>
                 <returnValue>0</returnValue>
@@ -110,8 +111,8 @@
             </expectations> 
         </TEST>    
         
-        <TEST name="HLT_physicsV5_COS_M7MUONS" type="script" suite="TrigP1HLTphysv5"> 
-            <options_atn>trigtest.pl --cleardir --test HLT_physicsV5_COS_M7MUONS --rundir HLT_physicsV5_COS_M7MUONS --conf TrigP1Test.conf</options_atn> 
+        <TEST name="HLT_physicsV5_COS_M8MUONS" type="script" suite="TrigP1HLTphysv5"> 
+            <options_atn>trigtest.pl --cleardir --test HLT_physicsV5_COS_M8MUONS --rundir HLT_physicsV5_COS_M8MUONS --conf TrigP1Test.conf</options_atn> 
             <timelimit>20</timelimit> 
             <expectations> 
                 <errorMessage>FAILURE </errorMessage> 
@@ -119,9 +120,9 @@
             </expectations> 
         </TEST>
 
-        <TEST name="HLT_physicsV5_COS_M7IDCOSMICS" type="script" suite="TrigP1HLTphysv5"> 
-            <options_atn>trigtest.pl --cleardir --test HLT_physicsV5_COS_M7IDCOSMICS --rundir HLT_physicsV5_COS_M7IDCOSMICS --conf TrigP1Test.conf</options_atn> 
-            <timelimit>20</timelimit> 
+        <TEST name="HLT_physicsV5_COS_M8IDCOSMICS" type="script" suite="TrigP1HLTphysv5"> 
+            <options_atn>trigtest.pl --cleardir --test HLT_physicsV5_COS_M8IDCOSMICS --rundir HLT_physicsV5_COS_M8IDCOSMICS --conf TrigP1Test.conf</options_atn> 
+            <timelimit>20</timelimit>  
             <expectations> 
                 <errorMessage>FAILURE </errorMessage> 
                 <returnValue>0</returnValue> 
