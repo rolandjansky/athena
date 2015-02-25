@@ -5,7 +5,7 @@
 # @brief Main package for new style ATLAS job transforms
 # @details Core class for ATLAS job transforms
 # @author atlas-comp-transforms-dev@cern.ch
-# @version $Id: transform.py 647216 2015-02-16 17:23:57Z graemes $
+# @version $Id: transform.py 649424 2015-02-24 22:06:20Z graemes $
 # 
 
 __version__ = '$Revision'
@@ -168,6 +168,16 @@ class transform(object):
             # Use the argparse infrastructure to get the actual command line arguments
             self._argdict=vars(self.parser.parse_args(args))
 
+            # Need to know if any input or output files were set - if so then we suppress the
+            # corresponding parameters from AMI
+            inputFiles = outputFiles = False
+            for k, v in self._argdict.iteritems():
+                if k.startswith('input') and isinstance(v, argFile):
+                    inputFiles = True
+                elif k.startswith('output') and isinstance(v, argFile):
+                    outputFiles = True
+            msg.debug("CLI Input files: {0}; Output files {1}".format(inputFiles, outputFiles))
+
             # Now look for special arguments, which expand out to other parameters
             # Note that the pickled argdict beats AMIConfig because dict.update() will overwrite
             # (However, we defend the real command line against updates from either source)
@@ -180,7 +190,16 @@ class transform(object):
                 updateDict = {}
                 for k, v in dict(tag.trfs[0]).iteritems():
                     # Convert to correct internal key form
-                    updateDict[cliToKey(k)] = v
+                    k = cliToKey(k)
+                    if inputFiles and k.startswith('input'):
+                        msg.debug('Suppressing argument {0} from AMI'
+                                  ' because input files have been specified on the command line'.format(k))
+                        continue
+                    if outputFiles and k.startswith('output'):
+                        msg.debug('Suppressing argument {0} from AMI'
+                                  ' because output files have been specified on the command line'.format(k))
+                        continue
+                    updateDict[k] = v
                 extraParameters.update(updateDict)
             # Pickled arguments?
             if 'argdict' in self._argdict:
@@ -204,6 +223,9 @@ class transform(object):
                     argfile.close()
                 except Exception, e:
                     raise trfExceptions.TransformArgException(trfExit.nameToCode('TRF_ARG_ERROR'), 'Error when deserialising JSON file {0} ({1})'.format(self._argdict['argJSON'], e))
+            
+            
+            
             # Process anything we found
             for k,v in extraParameters.iteritems():
                 msg.debug('Found this extra argument: {0} with value: {1} ({2})'.format(k, v, type(v)))
