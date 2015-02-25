@@ -105,29 +105,29 @@ if l1caloRawMon:
         ToolSvc += L1CaloPMTScoresMonTool
         L1Man.AthenaMonTools += [ L1CaloPMTScoresMonTool ]
 
-    if isData and DQMonFlags.doCTPMon():
+    #if isData and DQMonFlags.doCTPMon():
 
         ####################### L1Calo->CTP ################################
-        from IOVDbSvc.CondDB import conddb
-        conddb.addFolderWithTag("TRIGGER", "/TRIGGER/LVL1/CTPCoreInputMapping", "HEAD")
+     #   from IOVDbSvc.CondDB import conddb
+     #   conddb.addFolderWithTag("TRIGGER", "/TRIGGER/LVL1/CTPCoreInputMapping", "HEAD")
 
-        from TrigT1Monitoring.TrigT1MonitoringConf import L1CaloCTPMon
-        L1CaloCTPMonTool = L1CaloCTPMon(
-            name = "L1CaloCTPMonTool",
-            #OutputLevel = DEBUG,
-            #OutputLevel = VERBOSE,
-            )
-        ToolSvc += L1CaloCTPMonTool
-        L1Man.AthenaMonTools += [ L1CaloCTPMonTool ]
+     #   from TrigT1Monitoring.TrigT1MonitoringConf import L1CaloCTPMon
+     #   L1CaloCTPMonTool = L1CaloCTPMon(
+     #       name = "L1CaloCTPMonTool",
+     #       #OutputLevel = DEBUG,
+     #       #OutputLevel = VERBOSE,
+     #       )
+     #   ToolSvc += L1CaloCTPMonTool
+     #   L1Man.AthenaMonTools += [ L1CaloCTPMonTool ]
 
     ####################### L1Calo->Level-2 ################################
-    from TrigT1Monitoring.TrigT1MonitoringConf import L1CaloLevel2Mon
-    L1CaloLevel2MonTool = L1CaloLevel2Mon(
-        name = "L1CaloLevel2MonTool",
-        #OutputLevel = DEBUG,
-        )
-    ToolSvc += L1CaloLevel2MonTool
-    L1Man.AthenaMonTools += [ L1CaloLevel2MonTool ]
+    #from TrigT1Monitoring.TrigT1MonitoringConf import L1CaloLevel2Mon
+    #L1CaloLevel2MonTool = L1CaloLevel2Mon(
+    #    name = "L1CaloLevel2MonTool",
+    #    #OutputLevel = DEBUG,
+    #    )
+    #ToolSvc += L1CaloLevel2MonTool
+    #L1Man.AthenaMonTools += [ L1CaloLevel2MonTool ]
 
     ##########################################################################
     # FileKey must match that given to THistSvc
