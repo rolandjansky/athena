@@ -1,0 +1,9 @@
+package Quirks
+branches src cmt
+use AtlasPolicy AtlasPolicy-*
+use Geant4      Geant4-*        External
+use FadsPhysics FadsPhysics-*   Simulation/G4Sim/FADS
+use FadsActions FadsActions-*   Simulation/G4Sim/FADS
+include_dirs "${Quirks_root}"
+library Quirks ../src/*.cxx
+apply_pattern linked_library

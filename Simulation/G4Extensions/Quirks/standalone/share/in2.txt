@@ -1,0 +1,10 @@
+/control/verbose 0
+/tracking/verbose 0
+/event/verbose 0
+/cuts/verbose 0
+/run/verbose 0
+/particle/verbose 0
+/process/verbose 0
+/material/verbose 0
+/run/beamOn 1
+exit
