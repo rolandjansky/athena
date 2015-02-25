@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TRIGT1CALOMONITORINGTOOLS_TRIGT1CALOLWHISTOGRAMTOOL_H
-#define TRIGT1CALOMONITORINGTOOLS_TRIGT1CALOLWHISTOGRAMTOOL_H
+#ifndef TRIGT1CALOMONITORINGTOOLS_TRIGT1CALOLWHISTOGRAMTOOLV1_H
+#define TRIGT1CALOMONITORINGTOOLS_TRIGT1CALOLWHISTOGRAMTOOLV1_H
 
 #include <string>
 #include <vector>
@@ -74,12 +74,14 @@ namespace TrigConf {
  *  @author Peter Faulkner
  */
 
-class TrigT1CaloLWHistogramTool : public AthAlgTool {
+//Class for Run1 data
+
+class TrigT1CaloLWHistogramToolV1 : public AthAlgTool {
 
  public:
-   TrigT1CaloLWHistogramTool(const std::string& type, const std::string& name,
+   TrigT1CaloLWHistogramToolV1(const std::string& type, const std::string& name,
                              const IInterface* parent);
-   virtual ~TrigT1CaloLWHistogramTool();
+   virtual ~TrigT1CaloLWHistogramToolV1();
 
    /// AlgTool InterfaceID
    static const InterfaceID& interfaceID();
@@ -137,14 +139,12 @@ class TrigT1CaloLWHistogramTool : public AthAlgTool {
    // Labelling Utilities - CPM
    ////////////////////////////////
 
-   /// Label bins with CPM chip/local coordinate (3bit/3bit)
+   /// Label bins with CPM chip/local coordinate
    void cpmChipLocalCoord(LWHist* hist, int offset = 0, bool xAxis = true);
-   /// Label bins with CMX-CP TOB chip/local coordinate (4bit/2bit)
-   void cpmTobChipLocalCoord(LWHist* hist, int offset = 0, bool xAxis = true);
-   /// Label bins with CPM/CMX crate/module
-   void cpmCMXCrateModule(LWHist* hist, int offset = 0, bool xAxis = true);
-   /// Label bins with CPM crate/CMX
-   void cpmCrateCMX(LWHist* hist, int offset = 0, bool xAxis = true);
+   /// Label bins with CPM/CMM crate/module
+   void cpmCMMCrateModule(LWHist* hist, int offset = 0, bool xAxis = true);
+   /// Label bins with CPM crate/CMM
+   void cpmCrateCMM(LWHist* hist, int offset = 0, bool xAxis = true);
    /// Label bins with CPM crate/module
    void cpmCrateModule(LWHist* hist, int offset = 0, bool xAxis = true);
    /// Label bins with CPM RoI threshold names
@@ -156,10 +156,10 @@ class TrigT1CaloLWHistogramTool : public AthAlgTool {
 
    /// Label bins with JEM crate/module
    void jemCrateModule(LWHist* hist, int offset = 0, bool xAxis = true);
-   /// Label bins with JEM/CMX crate/module
-   void jemCMXCrateModule(LWHist* hist, int offset = 0, bool xAxis = true);
-   /// Label bins with JEM crate/CMX
-   void jemCrateCMX(LWHist* hist, int offset = 0, bool xAxis = true);
+   /// Label bins with JEM/CMM crate/module
+   void jemCMMCrateModule(LWHist* hist, int offset = 0, bool xAxis = true);
+   /// Label bins with JEM crate/CMM
+   void jemCrateCMM(LWHist* hist, int offset = 0, bool xAxis = true);
    /// Label bins with JEM frame/local coord
    void jemFrameLoc(LWHist* hist, int offset = 0, bool xAxis = true);
    /// Label bins with JEM RoI threshold names
@@ -261,12 +261,9 @@ class TrigT1CaloLWHistogramTool : public AthAlgTool {
    // Booking Utilities - CPM
    ////////////////////////////////
 
-   /// Book CPM crate/module vs chip/local coordinate (3bits/3bits)
+   /// Book CPM crate/module vs chip/local coordinate
    TH2F_LW* bookCPMCrateModuleVsChipLocalCoord(const std::string& name,
                                                const std::string& title);
-   /// Book CPM crate/module vs TOB chip/local coordinate (4bits/2bits)
-   TH2F_LW* bookCPMCrateModuleVsTobChipLocalCoord(const std::string& name,
-						  const std::string& title);
    /// Book CPM crate/module vs FPGA
    TH2F_LW* bookCPMCrateModuleVsFPGA(const std::string& name,
                                      const std::string& title);
@@ -284,23 +281,18 @@ class TrigT1CaloLWHistogramTool : public AthAlgTool {
    /// Book CPM module vs crate
    TH2F_LW* bookCPMModuleVsCrate(const std::string& name,
                                  const std::string& title);
-   /// Book CPM module vs crate/CMX
-   TH2F_LW* bookCPMModuleVsCrateCMX(const std::string& name,
+   /// Book CPM module vs crate/CMM
+   TH2F_LW* bookCPMModuleVsCrateCMM(const std::string& name,
                                     const std::string& title);
-   /// Book CPM crate/module vs CMX
-   TH2F_LW* bookCPMCrateModuleVsCMX(const std::string& name,
-				    const std::string& title);
    /// Book CPM sub-status errors vs crate/module
    TH2F_LW* bookCPMSubStatusVsCrateModule(const std::string& name,
                                           const std::string& title);
-   /// Book CPM Sum/CMX
-   TH1F_LW* bookCPMSumCMX(const std::string& name,const std::string& title);
+   /// Book CPM Sum/CMM
+   TH1F_LW* bookCPMSumCMM(const std::string& name,const std::string& title);
    /// Book CPM Sum vs Threshold
    TH2F_LW* bookCPMSumVsThreshold(const std::string& name,
                                   const std::string& title);
-   /// Book CPM Sum vs Threshold by CMX
-   TH2F_LW* bookCPMSumVsThreshold(const std::string& name,
-				  const std::string& title, int cmx);
+
    ////////////////////////////////
    // Booking Utilities - JEM
    ////////////////////////////////
@@ -329,7 +321,7 @@ class TrigT1CaloLWHistogramTool : public AthAlgTool {
                                const std::string& title);
    /// Book JEM energy with bins matching QuadLinear encoding
    TH1F_LW* bookJEMQuadLinear(const std::string& name, const std::string& title,
-			      int scale = 1);
+                                                               int scale = 1);
    /// Book JEM main jet thresholds
    TH1F_LW* bookMainJetThresholds(const std::string& name,
                                   const std::string& title);
