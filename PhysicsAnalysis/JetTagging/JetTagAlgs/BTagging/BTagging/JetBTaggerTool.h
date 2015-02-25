@@ -22,6 +22,7 @@ namespace Analysis{
 class IBTagTool;
 class IBTagTrackAssociation;
 class IBTagSecVertexing;
+class IBTagJetPtScaling;
 
 class  JetBTaggerTool: 
   virtual public asg::AsgTool, 
@@ -47,8 +48,9 @@ class  JetBTaggerTool:
   ToolHandle< IBTagTool > m_bTagTool; 
   ToolHandle< IBTagTrackAssociation > m_BTagTrackAssocTool;
   ToolHandle< IBTagSecVertexing > m_bTagSecVtxTool;
+  ToolHandle< IBTagJetPtScaling> m_PtRescalingTool;
   mutable bool m_retag;
-  
+  bool m_PtRescale;
 };
 
 }

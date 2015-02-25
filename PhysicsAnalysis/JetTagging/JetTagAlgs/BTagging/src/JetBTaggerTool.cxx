@@ -18,6 +18,7 @@
 #include "BTagging/BTagTool.h"
 #include "BTagging/BTagTrackAssociation.h"
 #include "BTagging/BTagSecVertexing.h"
+#include "BTagging/BTagJetPtScaling.h"
 
 #include <iostream>
 #include <string>
@@ -32,7 +33,8 @@ JetBTaggerTool::JetBTaggerTool(const std::string& n) :
   m_BTagJFVtxName(""),
   m_BTagTrackAssocTool("Analysis::BTagTrackAssociation"),
   m_bTagSecVtxTool("Analysis::BTagSecVertexing"),
-  m_retag(false)
+  m_PtRescalingTool("Analysis::BTagJetPtScaling"),
+  m_retag(false), m_PtRescale(false)
 {
 
   declareProperty( "BTagTool", m_bTagTool);
@@ -41,6 +43,7 @@ JetBTaggerTool::JetBTaggerTool(const std::string& n) :
   declareProperty( "BTagSVName", m_BTagSVName );
   declareProperty( "BTagJFVtxName", m_BTagJFVtxName );
   declareProperty( "BTagSecVertexing", m_bTagSecVtxTool);
+  declareProperty( "BTagJetPtRescale", m_PtRescale, "switch to decide whether to carry out jet pt rescaling (to use calorimeter jet tunings for track jets)");
 }
 
 JetBTaggerTool::~JetBTaggerTool()
@@ -72,7 +75,7 @@ StatusCode JetBTaggerTool::initialize() {
     ATH_MSG_DEBUG("#BTAG# Retrieved tool " << m_bTagTool);
   }
 
-  //retrive the bTagSecVtxTool
+  /// retrieve the bTagSecVtxTool
   if ( m_bTagSecVtxTool.retrieve().isFailure() ) {
     ATH_MSG_FATAL("#BTAGVTX# Failed to retrieve tool " << m_bTagSecVtxTool);
     return StatusCode::FAILURE;
@@ -80,7 +83,13 @@ StatusCode JetBTaggerTool::initialize() {
       ATH_MSG_DEBUG("#BTAGVTX# Retrieved tool " << m_bTagSecVtxTool); 
   }
 
-  
+  /// retrieve the jet pt rescaling tool
+  if (m_PtRescalingTool.retrieve().isFailure()) {
+    ATH_MSG_FATAL("#BTAG# Failed to retrieve tool " << m_PtRescalingTool);
+    return StatusCode::FAILURE;
+  } else {
+      ATH_MSG_DEBUG("#BTAG# Retrieved tool " << m_PtRescalingTool); 
+  }
 
   return StatusCode::SUCCESS;
 }
@@ -110,6 +119,7 @@ int JetBTaggerTool::modify(xAOD::JetContainer& jets) const{
   if (evtStore()->contains<xAOD::BTaggingContainer > ( bTaggingContName )) { //prepare re-tagging
     //BTaggingContainer in SG - overwrite it
     ATH_MSG_VERBOSE("#BTAG# BTagging container " << bTaggingContName << " in store, re-tagging scenario");
+    // FF: here, have to make a choice between overwriting and extending
     m_retag = true;
     bTaggingContainer = new xAOD::BTaggingContainer();
     bTaggingAuxContainer = new xAOD::BTaggingAuxContainer();
@@ -140,6 +150,7 @@ int JetBTaggerTool::modify(xAOD::JetContainer& jets) const{
   xAOD::ShallowAuxContainer* bTagSVShallowAuxContainer(0);
   bool reuse_SVContainer = false;
   if (evtStore()->contains<xAOD::VertexContainer > ( bTagSecVertexContName )) {
+    // FF: here, have to make a choice between overwriting or retaining
     if (m_retag) {
       bTagSecVertexContainer = new xAOD::VertexContainer;
       xAOD::VertexAuxContainer * bTagSecVertexAuxContainer =  new xAOD::VertexAuxContainer;
@@ -174,6 +185,7 @@ int JetBTaggerTool::modify(xAOD::JetContainer& jets) const{
   xAOD::ShallowAuxContainer* bTagJFVShallowAuxContainer(0);
   bool reuse_JFVContainer = false;
   if (evtStore()->contains<xAOD::BTagVertexContainer > ( bTagJFVertexContName )) {
+    // FF: here, have to make a choice between overwriting or retaining
     if (m_retag) {
       bTagJFVertexContainer = new xAOD::BTagVertexContainer();
       xAOD::BTagVertexAuxContainer * bTagJFVertexAuxContainer =  new xAOD::BTagVertexAuxContainer();
@@ -213,7 +225,7 @@ int JetBTaggerTool::modify(xAOD::JetContainer& jets) const{
   std::vector<xAOD::Jet*> jetsList;
   xAOD::JetContainer::iterator itB = jets.begin();
   xAOD::JetContainer::iterator itE = jets.end();
-  for(xAOD::JetContainer::iterator it = itB ; it != itE; ++it) {
+  for (xAOD::JetContainer::iterator it = itB ; it != itE; ++it) {
     xAOD::Jet& jetToTag = ( **it );
     jetsList.push_back(&jetToTag);
     xAOD::BTagging * newBTag = new xAOD::BTagging();
@@ -229,7 +241,33 @@ int JetBTaggerTool::modify(xAOD::JetContainer& jets) const{
     }
   } //end loop JetContainer
 
+  // From here on, no modification should be made to the JetContainer anymore.
+  // We use this to create a shallow copy of the JetContainer, for the case of track-jet collections.
+  // This allows us to rescale the jet pt values used in the Flavour Tagging algorithms without affecting the input jets.
+  
+  xAOD::ShallowAuxContainer* jetShallowAuxContainer(0);
+  xAOD::JetContainer* jetShallowContainer(0);
+  if (m_PtRescale) {
+    auto rec = xAOD::shallowCopyContainer (jets);
+    jetShallowContainer = rec.first;
+    jetShallowAuxContainer = rec.second;
+    StatusCode sc = m_PtRescalingTool->BTagJetPtScaling_exec(*jetShallowContainer);
+    if (sc.isFailure()) {
+      ATH_MSG_WARNING("#BTAG# Failed to carry out jet pt rescaling");
+    }
+    // also change the iterators to point to the shallow-copied JetContainer
+    itB = jetShallowContainer->begin();
+    itE = jetShallowContainer->end();
+    // and modify the jetsList variable accordingly
+    unsigned int ijet = 0;
+    for (auto it = itB; it != itE; ++it) {
+      xAOD::Jet& jetToTag = **it;
+      jetsList[ijet++] = &jetToTag;
+    }
+  }  
+  
   //if (!m_retag) {
+  // FF: the logic may need to be changed to allow for omitting the track association without yielding a WARNING for every jet
     StatusCode jetIsAssociated;
     if (!m_BTagTrackAssocTool.empty()) {
       ATH_MSG_VERBOSE("#BTAG# Track association tool is not empty");
@@ -245,7 +283,7 @@ int JetBTaggerTool::modify(xAOD::JetContainer& jets) const{
   //}
 
   std::vector<xAOD::BTagging *>::iterator itBTag = btagsList.begin();
-  for(xAOD::JetContainer::iterator it = itB ; it != itE; ++it,++itBTag) {
+  for (xAOD::JetContainer::iterator it = itB ; it != itE; ++it,++itBTag) {
     xAOD::Jet& jetToTag = ( **it );
     // Secondary vertex reconstruction: unless it is clear that previous results are to be re-used, run this always.
     if (! reuse_SVContainer) {
@@ -270,6 +308,11 @@ int JetBTaggerTool::modify(xAOD::JetContainer& jets) const{
      delete bTagJFVShallowAuxContainer;
    }
 
+   if (m_PtRescale) { // is a shallow copy
+     delete jetShallowAuxContainer;
+     delete jetShallowContainer;
+   }
+   
   /// testme
   /*for(xAOD::JetContainer::iterator it = itB ; it != itE; ++it) {
     xAOD::Jet& jetToTag = ( **it );
