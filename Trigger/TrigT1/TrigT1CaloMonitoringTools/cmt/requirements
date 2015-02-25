@@ -16,7 +16,7 @@ use EventInfo            	EventInfo-*	        Event
 use TrigT1CaloEvent             TrigT1CaloEvent-*       Trigger/TrigT1
 use TrigT1CaloUtils             TrigT1CaloUtils-*       Trigger/TrigT1
 use TrigT1Interfaces            TrigT1Interfaces-*      Trigger/TrigT1
-use TrigConfigSvc               TrigConfigSvc-*         Trigger/TrigConfiguration
+use TrigConfInterfaces          TrigConfInterfaces-*    Trigger/TrigConfiguration	
 use TrigConfL1Data              TrigConfL1Data-*        Trigger/TrigConfiguration
 end_private
 

@@ -35,28 +35,30 @@
 #include "TrigT1CaloUtils/DataError.h"
 #include "TrigT1CaloUtils/QuadLinear.h"
 
-#include "TrigT1CaloMonitoringTools/TrigT1CaloLWHistogramTool.h"
+#include "TrigT1CaloMonitoringTools/TrigT1CaloLWHistogramToolV1.h"
+
+// To be used for Run1 data 
 
 // Interface ID
 
-static const InterfaceID IID_ITrigT1CaloLWHistogramTool(
-                                           "TrigT1CaloLWHistogramTool", 1, 1);
+static const InterfaceID IID_ITrigT1CaloLWHistogramToolV1(
+                                           "TrigT1CaloLWHistogramToolV1", 1, 1);
 
-const InterfaceID& TrigT1CaloLWHistogramTool::interfaceID()
+const InterfaceID& TrigT1CaloLWHistogramToolV1::interfaceID()
 {
-  return IID_ITrigT1CaloLWHistogramTool;
+  return IID_ITrigT1CaloLWHistogramToolV1;
 }
 
 // Constructor
 
-TrigT1CaloLWHistogramTool::TrigT1CaloLWHistogramTool(const std::string& type,
+TrigT1CaloLWHistogramToolV1::TrigT1CaloLWHistogramToolV1(const std::string& type,
                                                      const std::string& name,
 	    			                     const IInterface*  parent)
         : AthAlgTool(type, name, parent),
 	  m_configSvc("TrigConf::TrigConfigSvc/TrigConfigSvc", name),
 	  m_monGroup(0), m_phiScaleTT(32./M_PI), m_phiScaleJE(16./M_PI)
 {
-  declareInterface<TrigT1CaloLWHistogramTool>(this);
+  declareInterface<TrigT1CaloLWHistogramToolV1>(this);
 
   declareProperty( "LVL1ConfigSvc", m_configSvc, "LVL1 Config Service");
 
@@ -68,7 +70,7 @@ TrigT1CaloLWHistogramTool::TrigT1CaloLWHistogramTool(const std::string& type,
 
 // Destructor
 
-TrigT1CaloLWHistogramTool::~TrigT1CaloLWHistogramTool()
+TrigT1CaloLWHistogramToolV1::~TrigT1CaloLWHistogramToolV1()
 {
 }
 
@@ -78,7 +80,7 @@ TrigT1CaloLWHistogramTool::~TrigT1CaloLWHistogramTool()
 #define PACKAGE_VERSION "unknown"
 #endif
 
-StatusCode TrigT1CaloLWHistogramTool::initialize()
+StatusCode TrigT1CaloLWHistogramToolV1::initialize()
 {
   msg(MSG::INFO) << "Initializing " << name() << " - package version "
                  << PACKAGE_VERSION << endreq;
@@ -100,7 +102,7 @@ StatusCode TrigT1CaloLWHistogramTool::initialize()
 
 // Finalize
 
-StatusCode TrigT1CaloLWHistogramTool::finalize()
+StatusCode TrigT1CaloLWHistogramToolV1::finalize()
 {
   return StatusCode::SUCCESS;
 }
@@ -111,7 +113,7 @@ StatusCode TrigT1CaloLWHistogramTool::finalize()
 
 // Return int/double pair as a string
 
-std::string TrigT1CaloLWHistogramTool::intDoubleString(int num, double val,
+std::string TrigT1CaloLWHistogramToolV1::intDoubleString(int num, double val,
                                                               int precision)
 {
   std::ostringstream cnum;
@@ -123,7 +125,7 @@ std::string TrigT1CaloLWHistogramTool::intDoubleString(int num, double val,
 
 // Label bins with number pairs
 
-void TrigT1CaloLWHistogramTool::numberPairs(LWHist* hist, int firstMin,
+void TrigT1CaloLWHistogramToolV1::numberPairs(LWHist* hist, int firstMin,
                                 int firstMax, int secondMin, int secondMax,
 	                        int step, int offset, bool xAxis)
 {
@@ -142,7 +144,7 @@ void TrigT1CaloLWHistogramTool::numberPairs(LWHist* hist, int firstMin,
 
 // Label bins with number pairs without skipping bins when stepping
 
-void TrigT1CaloLWHistogramTool::numberPairs2(LWHist* hist,
+void TrigT1CaloLWHistogramToolV1::numberPairs2(LWHist* hist,
                int firstMin, int firstMax,
                int secondMin, int secondMax, int step, int offset, bool xAxis)
 {
@@ -160,7 +162,7 @@ void TrigT1CaloLWHistogramTool::numberPairs2(LWHist* hist,
 
 // Label bins with numbers
 
-void TrigT1CaloLWHistogramTool::numbers(LWHist* hist, int min, int max,
+void TrigT1CaloLWHistogramToolV1::numbers(LWHist* hist, int min, int max,
                                         int step, int offset, bool xAxis)
 {
   LWHist::LWHistAxis* axis = (xAxis) ? hist->GetXaxis() : hist->GetYaxis();
@@ -175,7 +177,7 @@ void TrigT1CaloLWHistogramTool::numbers(LWHist* hist, int min, int max,
 
 // Split long names for Y axis
 
-std::string TrigT1CaloLWHistogramTool::splitLine(const std::string& word,
+std::string TrigT1CaloLWHistogramToolV1::splitLine(const std::string& word,
                                                                   bool xAxis)
 {
   std::string newWord(word);
@@ -193,7 +195,7 @@ std::string TrigT1CaloLWHistogramTool::splitLine(const std::string& word,
 
 // Label bins with sub-status error bit names
 
-void TrigT1CaloLWHistogramTool::subStatus(LWHist* hist, int offset, bool xAxis)
+void TrigT1CaloLWHistogramToolV1::subStatus(LWHist* hist, int offset, bool xAxis)
 {
   LWHist::LWHistAxis* axis = (xAxis) ? hist->GetXaxis() : hist->GetYaxis();
   const LVL1::DataError err(0);
@@ -207,7 +209,7 @@ void TrigT1CaloLWHistogramTool::subStatus(LWHist* hist, int offset, bool xAxis)
 // Get list of threshold names for given type
 // NB. Treats EM/TAU as one
 
-bool TrigT1CaloLWHistogramTool::thresholdNames(const std::string& type,
+bool TrigT1CaloLWHistogramToolV1::thresholdNames(const std::string& type,
                                              std::vector<std::string>& names)
 {
   bool found = false;
@@ -262,7 +264,7 @@ bool TrigT1CaloLWHistogramTool::thresholdNames(const std::string& type,
 
 // Label bins with threshold names
 
-void TrigT1CaloLWHistogramTool::thresholds(LWHist* hist,
+void TrigT1CaloLWHistogramToolV1::thresholds(LWHist* hist,
                               const std::string& type, int offset, bool xAxis)
 {
    LWHist::LWHistAxis* axis = (xAxis) ? hist->GetXaxis() : hist->GetYaxis();
@@ -278,7 +280,7 @@ void TrigT1CaloLWHistogramTool::thresholds(LWHist* hist,
 
 // Put threshold hit values into a string suitable for printing
 
-std::string TrigT1CaloLWHistogramTool::thresholdString(int val, int nThresh,
+std::string TrigT1CaloLWHistogramToolV1::thresholdString(int val, int nThresh,
                                                               int nBits)
 {
   std::ostringstream cval;
@@ -293,7 +295,7 @@ std::string TrigT1CaloLWHistogramTool::thresholdString(int val, int nThresh,
 
 // Flag which threshold hit values are non-zero and the same
 
-int TrigT1CaloLWHistogramTool::thresholdsSame(int val1, int val2,
+int TrigT1CaloLWHistogramToolV1::thresholdsSame(int val1, int val2,
                                                       int nThresh, int nBits)
 {
   int result = 0;
@@ -308,7 +310,7 @@ int TrigT1CaloLWHistogramTool::thresholdsSame(int val1, int val2,
 
 // Flag which threshold hit values are different
 
-int TrigT1CaloLWHistogramTool::thresholdsDiff(int val1, int val2,
+int TrigT1CaloLWHistogramToolV1::thresholdsDiff(int val1, int val2,
                                                       int nThresh, int nBits)
 {
   int result = 0;
@@ -324,7 +326,7 @@ int TrigT1CaloLWHistogramTool::thresholdsDiff(int val1, int val2,
 // Get threshold bit mask for given type
 // NB. Treats EM and TAU separately
 
-unsigned int TrigT1CaloLWHistogramTool::thresholdMask(const std::string& type)
+unsigned int TrigT1CaloLWHistogramToolV1::thresholdMask(const std::string& type)
 {
    unsigned int mask = 0;
    //TrigConf::L1DataDef def;
@@ -365,14 +367,14 @@ unsigned int TrigT1CaloLWHistogramTool::thresholdMask(const std::string& type)
 
 // Get threshold bit mask for EM
 
-unsigned int TrigT1CaloLWHistogramTool::thresholdMaskEm()
+unsigned int TrigT1CaloLWHistogramToolV1::thresholdMaskEm()
 {
   return thresholdMask(TrigConf::L1DataDef::emType());
 }
 
 // Get threshold bit mask for Tau
 
-unsigned int TrigT1CaloLWHistogramTool::thresholdMaskTau()
+unsigned int TrigT1CaloLWHistogramToolV1::thresholdMaskTau()
 {
   return thresholdMask(TrigConf::L1DataDef::tauType());
 }
@@ -381,9 +383,9 @@ unsigned int TrigT1CaloLWHistogramTool::thresholdMaskTau()
 //  Labelling Utilities - CPM
 //===========================================================================
 
-// Label bins with CPM chip/local coordinate (3bit/3bit)
+// Label bins with CPM chip/local coordinate
 
-void TrigT1CaloLWHistogramTool::cpmChipLocalCoord(LWHist* hist, int offset,
+void TrigT1CaloLWHistogramToolV1::cpmChipLocalCoord(LWHist* hist, int offset,
                                                                     bool xAxis)
 {
   const int nChips = 8;
@@ -393,47 +395,35 @@ void TrigT1CaloLWHistogramTool::cpmChipLocalCoord(LWHist* hist, int offset,
   axis->SetTitle("Chip/Local Coord");
 }
 
-// Label bins with CMX-CP TOB chip/local coordinate (4bit/2bit)
+// Label bins with CPM/CMM crate/module
 
-void TrigT1CaloLWHistogramTool::cpmTobChipLocalCoord(LWHist* hist, int offset,
-                                                                    bool xAxis)
-{
-  const int nChips = 16;
-  const int nLoc   = 4;
-  numberPairs(hist, 0, nChips-1, 0, nLoc-1, 4, offset, xAxis);
-  LWHist::LWHistAxis* axis = (xAxis) ? hist->GetXaxis() : hist->GetYaxis();
-  axis->SetTitle("Chip/Local Coord");
-}
-
-// Label bins with CPM/CMX crate/module
-
-void TrigT1CaloLWHistogramTool::cpmCMXCrateModule(LWHist* hist, int offset,
+void TrigT1CaloLWHistogramToolV1::cpmCMMCrateModule(LWHist* hist, int offset,
                                                                     bool xAxis)
 {
   cpmCrateModule(hist, offset, xAxis);
   LWHist::LWHistAxis* axis = (xAxis) ? hist->GetXaxis() : hist->GetYaxis();
   axis->SetBinLabel(1+offset,  "CPM");
-  axis->SetBinLabel(57+offset, "CMX");
+  axis->SetBinLabel(57+offset, "CMM");
   axis->SetBinLabel(59+offset, "1/0");
   axis->SetBinLabel(61+offset, "2/0");
   axis->SetBinLabel(63+offset, "3/0");
 }
 
-// Label bins with CPM crate/CMX
+// Label bins with CPM crate/CMM
 
-void TrigT1CaloLWHistogramTool::cpmCrateCMX(LWHist* hist, int offset,
+void TrigT1CaloLWHistogramToolV1::cpmCrateCMM(LWHist* hist, int offset,
                                                           bool xAxis)
 {
   const int nCrates = 4;
-  const int nCMXs   = 2;
-  numberPairs(hist, 0, nCrates-1, 0, nCMXs-1, 1, offset, xAxis);
+  const int nCMMs   = 2;
+  numberPairs(hist, 0, nCrates-1, 0, nCMMs-1, 1, offset, xAxis);
   LWHist::LWHistAxis* axis = (xAxis) ? hist->GetXaxis() : hist->GetYaxis();
-  axis->SetTitle("Crate/CMX");
+  axis->SetTitle("Crate/CMM");
 }
 
 // Label bins with CPM crate/module
 
-void TrigT1CaloLWHistogramTool::cpmCrateModule(LWHist* hist, int offset,
+void TrigT1CaloLWHistogramToolV1::cpmCrateModule(LWHist* hist, int offset,
                                                              bool xAxis)
 {
   const int nCrates = 4;
@@ -445,7 +435,7 @@ void TrigT1CaloLWHistogramTool::cpmCrateModule(LWHist* hist, int offset,
 
 // Label bins with CPM RoI threshold names
 
-void TrigT1CaloLWHistogramTool::cpmThresholds(LWHist* hist, int offset,
+void TrigT1CaloLWHistogramToolV1::cpmThresholds(LWHist* hist, int offset,
                                                             bool xAxis)
 {
   thresholds(hist, TrigConf::L1DataDef::emType(), offset, xAxis);
@@ -457,7 +447,7 @@ void TrigT1CaloLWHistogramTool::cpmThresholds(LWHist* hist, int offset,
 
 // Label bins with JEM crate/module
 
-void TrigT1CaloLWHistogramTool::jemCrateModule(LWHist* hist, int offset,
+void TrigT1CaloLWHistogramToolV1::jemCrateModule(LWHist* hist, int offset,
                                                              bool xAxis)
 {
   const int nCrates = 2;
@@ -467,33 +457,33 @@ void TrigT1CaloLWHistogramTool::jemCrateModule(LWHist* hist, int offset,
   axis->SetTitle("Crate/Module");
 }
 
-// Label bins with JEM/CMX crate/module
+// Label bins with JEM/CMM crate/module
 
-void TrigT1CaloLWHistogramTool::jemCMXCrateModule(LWHist* hist, int offset,
+void TrigT1CaloLWHistogramToolV1::jemCMMCrateModule(LWHist* hist, int offset,
                                                                     bool xAxis)
 {
   jemCrateModule(hist, offset, xAxis);
   LWHist::LWHistAxis* axis = (xAxis) ? hist->GetXaxis() : hist->GetYaxis();
   axis->SetBinLabel(1+offset,  "JEM");
-  axis->SetBinLabel(33+offset, "CMX");
+  axis->SetBinLabel(33+offset, "CMM");
   axis->SetBinLabel(35+offset, "1/0");
 }
 
-// Label bins with JEM crate/CMX
+// Label bins with JEM crate/CMM
 
-void TrigT1CaloLWHistogramTool::jemCrateCMX(LWHist* hist, int offset,
+void TrigT1CaloLWHistogramToolV1::jemCrateCMM(LWHist* hist, int offset,
                                                           bool xAxis)
 {
   const int nCrates = 2;
-  const int nCMXs   = 2;
-  numberPairs(hist, 0, nCrates-1, 0, nCMXs-1, 1, offset, xAxis);
+  const int nCMMs   = 2;
+  numberPairs(hist, 0, nCrates-1, 0, nCMMs-1, 1, offset, xAxis);
   LWHist::LWHistAxis* axis = (xAxis) ? hist->GetXaxis() : hist->GetYaxis();
-  axis->SetTitle("Crate/CMX");
+  axis->SetTitle("Crate/CMM");
 }
 
 // Label bins with JEM frame/local coord
 
-void TrigT1CaloLWHistogramTool::jemFrameLoc(LWHist* hist, int offset,
+void TrigT1CaloLWHistogramToolV1::jemFrameLoc(LWHist* hist, int offset,
                                                               bool xAxis)
 {
   const int nFrame = 8;
@@ -505,7 +495,7 @@ void TrigT1CaloLWHistogramTool::jemFrameLoc(LWHist* hist, int offset,
 
 // Label bins with JEM RoI threshold names
 
-void TrigT1CaloLWHistogramTool::jemThresholds(LWHist* hist, int offset,
+void TrigT1CaloLWHistogramToolV1::jemThresholds(LWHist* hist, int offset,
                                                                 bool xAxis)
 {
   int newOffset = offset;
@@ -518,7 +508,7 @@ void TrigT1CaloLWHistogramTool::jemThresholds(LWHist* hist, int offset,
 
 // Label bins with Main Jet threshold names
 
-void TrigT1CaloLWHistogramTool::mainJetThresholds(LWHist* hist, int offset,
+void TrigT1CaloLWHistogramToolV1::mainJetThresholds(LWHist* hist, int offset,
                                                                     bool xAxis)
 {
   thresholds(hist, TrigConf::L1DataDef::jetType(), offset, xAxis);
@@ -526,7 +516,7 @@ void TrigT1CaloLWHistogramTool::mainJetThresholds(LWHist* hist, int offset,
 
 // Label bins with Backward Jet threshold names
 
-void TrigT1CaloLWHistogramTool::backwardJetThresholds(LWHist* hist, int offset,
+void TrigT1CaloLWHistogramToolV1::backwardJetThresholds(LWHist* hist, int offset,
                                                                     bool xAxis)
 {
   thresholds(hist, TrigConf::L1DataDef::jbType(), offset, xAxis);
@@ -534,7 +524,7 @@ void TrigT1CaloLWHistogramTool::backwardJetThresholds(LWHist* hist, int offset,
 
 // Label bins with Forward Jet threshold names
 
-void TrigT1CaloLWHistogramTool::forwardJetThresholds(LWHist* hist, int offset,
+void TrigT1CaloLWHistogramToolV1::forwardJetThresholds(LWHist* hist, int offset,
                                                                    bool xAxis)
 {
   thresholds(hist, TrigConf::L1DataDef::jfType(), offset, xAxis);
@@ -542,7 +532,7 @@ void TrigT1CaloLWHistogramTool::forwardJetThresholds(LWHist* hist, int offset,
 
 // Label bins with JetEt threshold names
 
-void TrigT1CaloLWHistogramTool::jetEtThresholds(LWHist* hist, int offset,
+void TrigT1CaloLWHistogramToolV1::jetEtThresholds(LWHist* hist, int offset,
                                                               bool xAxis)
 {
   thresholds(hist, TrigConf::L1DataDef::jeType(), offset, xAxis);
@@ -550,7 +540,7 @@ void TrigT1CaloLWHistogramTool::jetEtThresholds(LWHist* hist, int offset,
 
 // Label bins with MissingEt threshold names
 
-void TrigT1CaloLWHistogramTool::missingEtThresholds(LWHist* hist, int offset,
+void TrigT1CaloLWHistogramToolV1::missingEtThresholds(LWHist* hist, int offset,
                                                                   bool xAxis)
 {
   thresholds(hist, TrigConf::L1DataDef::xeType(), offset, xAxis);
@@ -558,7 +548,7 @@ void TrigT1CaloLWHistogramTool::missingEtThresholds(LWHist* hist, int offset,
 
 // Label bins with SumEt threshold names
 
-void TrigT1CaloLWHistogramTool::sumEtThresholds(LWHist* hist, int offset,
+void TrigT1CaloLWHistogramToolV1::sumEtThresholds(LWHist* hist, int offset,
                                                               bool xAxis)
 {
   thresholds(hist, TrigConf::L1DataDef::teType(), offset, xAxis);
@@ -566,7 +556,7 @@ void TrigT1CaloLWHistogramTool::sumEtThresholds(LWHist* hist, int offset,
 
 // Label bins with MissingEtSig threshold names
 
-void TrigT1CaloLWHistogramTool::missingEtSigThresholds(LWHist* hist, int offset,
+void TrigT1CaloLWHistogramToolV1::missingEtSigThresholds(LWHist* hist, int offset,
                                                                      bool xAxis)
 {
   //thresholds(hist, TrigConf::L1DataDef::xsType(), offset, xAxis);
@@ -579,7 +569,7 @@ void TrigT1CaloLWHistogramTool::missingEtSigThresholds(LWHist* hist, int offset,
 
 // Label bins with PPM crate/module
 
-void TrigT1CaloLWHistogramTool::ppmCrateModule(LWHist* hist, int firstCrate,
+void TrigT1CaloLWHistogramToolV1::ppmCrateModule(LWHist* hist, int firstCrate,
                                       int lastCrate, int offset, bool xAxis)
 {
   int step = 2;
@@ -591,7 +581,7 @@ void TrigT1CaloLWHistogramTool::ppmCrateModule(LWHist* hist, int firstCrate,
 
 // Label bins with PPM error bit names
 
-void TrigT1CaloLWHistogramTool::ppmErrors(LWHist* hist, int offset, bool xAxis)
+void TrigT1CaloLWHistogramToolV1::ppmErrors(LWHist* hist, int offset, bool xAxis)
 {
   LWHist::LWHistAxis* axis = (xAxis) ? hist->GetXaxis() : hist->GetYaxis();
   const LVL1::DataError err(0);
@@ -604,7 +594,7 @@ void TrigT1CaloLWHistogramTool::ppmErrors(LWHist* hist, int offset, bool xAxis)
 
 // Label bins with PPM submodule/channel
 
-void TrigT1CaloLWHistogramTool::ppmSubmoduleChannel(LWHist* hist, int offset,
+void TrigT1CaloLWHistogramToolV1::ppmSubmoduleChannel(LWHist* hist, int offset,
                                                                   bool xAxis)
 {
   numberPairs(hist, 0, 15, 0, 3, 4, offset, xAxis);
@@ -618,7 +608,7 @@ void TrigT1CaloLWHistogramTool::ppmSubmoduleChannel(LWHist* hist, int offset,
 
 // Book and register a 1D histogram
 
-TH1F_LW* TrigT1CaloLWHistogramTool::book1F(const std::string& name,
+TH1F_LW* TrigT1CaloLWHistogramToolV1::book1F(const std::string& name,
                                            const std::string& title,
                                            int nx, double xmin, double xmax)
 {
@@ -629,7 +619,7 @@ TH1F_LW* TrigT1CaloLWHistogramTool::book1F(const std::string& name,
 
 // Book and register a 1D histogram with variable width bins
 
-TH1F_LW* TrigT1CaloLWHistogramTool::book1F(const std::string& name,
+TH1F_LW* TrigT1CaloLWHistogramToolV1::book1F(const std::string& name,
                                            const std::string& title,
                                            int nx, const double* xbins)
 {
@@ -640,7 +630,7 @@ TH1F_LW* TrigT1CaloLWHistogramTool::book1F(const std::string& name,
 
 // Book and register a 1D profile histogram
 
-TProfile_LW* TrigT1CaloLWHistogramTool::bookProfile(const std::string& name,
+TProfile_LW* TrigT1CaloLWHistogramToolV1::bookProfile(const std::string& name,
                     const std::string& title, int nx, double xmin, double xmax)
 {
   TProfile_LW *hist = TProfile_LW::create(name.c_str(), title.c_str(),
@@ -651,7 +641,7 @@ TProfile_LW* TrigT1CaloLWHistogramTool::bookProfile(const std::string& name,
 
 // Book and register a 1D profile histogram with variable width bins
 
-TProfile_LW* TrigT1CaloLWHistogramTool::bookProfile(const std::string& name,
+TProfile_LW* TrigT1CaloLWHistogramToolV1::bookProfile(const std::string& name,
                          const std::string& title, int nx, const double* xbins)
 {
   TProfile_LW *hist = TProfile_LW::create(name.c_str(), title.c_str(),
@@ -662,7 +652,7 @@ TProfile_LW* TrigT1CaloLWHistogramTool::bookProfile(const std::string& name,
 
 // Book and register a 2D histogram
 
-TH2F_LW* TrigT1CaloLWHistogramTool::book2F(const std::string& name,
+TH2F_LW* TrigT1CaloLWHistogramToolV1::book2F(const std::string& name,
                                            const std::string& title,
                                            int nx, double xmin, double xmax,  
 	                                   int ny, double ymin, double ymax)
@@ -676,7 +666,7 @@ TH2F_LW* TrigT1CaloLWHistogramTool::book2F(const std::string& name,
 
 // Book and register a 2D histogram with variable width bins
 
-TH2F_LW* TrigT1CaloLWHistogramTool::book2F(const std::string& name,
+TH2F_LW* TrigT1CaloLWHistogramToolV1::book2F(const std::string& name,
                                            const std::string& title,
                                            int nx, const double* xbins,
                                            int ny, double ymin, double ymax)
@@ -690,7 +680,7 @@ TH2F_LW* TrigT1CaloLWHistogramTool::book2F(const std::string& name,
 
 // Book and register a 2D histogram with variable width bins both axes
 
-TH2F_LW* TrigT1CaloLWHistogramTool::book2F(const std::string& name,
+TH2F_LW* TrigT1CaloLWHistogramToolV1::book2F(const std::string& name,
                                            const std::string& title,
                                            int nx, const double* xbins,
                                            int ny, const double* ybins)
@@ -704,7 +694,7 @@ TH2F_LW* TrigT1CaloLWHistogramTool::book2F(const std::string& name,
 
 // Book and register a 2D profile histogram
 
-TProfile2D_LW* TrigT1CaloLWHistogramTool::bookProfile2D(
+TProfile2D_LW* TrigT1CaloLWHistogramToolV1::bookProfile2D(
            const std::string& name, const std::string& title,
            int nx, double xmin, double xmax, int ny, double ymin, double ymax)
 {		
@@ -717,7 +707,7 @@ TProfile2D_LW* TrigT1CaloLWHistogramTool::bookProfile2D(
 
 // Book and register a 2D profile histogram with variable width bins
 
-TProfile2D_LW* TrigT1CaloLWHistogramTool::bookProfile2D(
+TProfile2D_LW* TrigT1CaloLWHistogramToolV1::bookProfile2D(
                 const std::string& name, const std::string& title,
                 int nx, const double* xbins, int ny, double ymin, double ymax)
 {
@@ -730,7 +720,7 @@ TProfile2D_LW* TrigT1CaloLWHistogramTool::bookProfile2D(
 
 // Book and register a 2D profile histogram with variable width bins both axes
 
-TProfile2D_LW* TrigT1CaloLWHistogramTool::bookProfile2D(
+TProfile2D_LW* TrigT1CaloLWHistogramToolV1::bookProfile2D(
                 const std::string& name, const std::string& title,
                 int nx, const double* xbins, int ny, const double* ybins)
 {
@@ -743,7 +733,7 @@ TProfile2D_LW* TrigT1CaloLWHistogramTool::bookProfile2D(
 
 // Book and register a 2D histogram of integers displayed as text
 
-TH2I_LW* TrigT1CaloLWHistogramTool::book2I(const std::string& name,
+TH2I_LW* TrigT1CaloLWHistogramToolV1::book2I(const std::string& name,
                                            const std::string& title,
                                            int nx, double xmin, double xmax,
 	                                   int ny, double ymin, double ymax)
@@ -757,7 +747,7 @@ TH2I_LW* TrigT1CaloLWHistogramTool::book2I(const std::string& name,
 
 // Book and register a 2D histogram containing event numbers as bin contents
 
-TH2I_LW* TrigT1CaloLWHistogramTool::bookEventNumbers(
+TH2I_LW* TrigT1CaloLWHistogramToolV1::bookEventNumbers(
                 const std::string& name, const std::string& title,
 		int ny, double ymin, double ymax)
 {
@@ -770,7 +760,7 @@ TH2I_LW* TrigT1CaloLWHistogramTool::bookEventNumbers(
 
 // Register a histogram
 
-void TrigT1CaloLWHistogramTool::registerHist(LWHist* hist)
+void TrigT1CaloLWHistogramToolV1::registerHist(LWHist* hist)
 {
   if (m_monGroup && m_monGroup->regHist(hist) != StatusCode::SUCCESS) {
     msg(MSG::WARNING) << "Could not register histogram : "
@@ -782,7 +772,7 @@ void TrigT1CaloLWHistogramTool::registerHist(LWHist* hist)
 
 // Book and register a 1D histogram
 
-TH1F* TrigT1CaloLWHistogramTool::bookTH1F(const std::string& name,
+TH1F* TrigT1CaloLWHistogramToolV1::bookTH1F(const std::string& name,
                                           const std::string& title,
                                           int nx, double xmin, double xmax)
 {
@@ -793,7 +783,7 @@ TH1F* TrigT1CaloLWHistogramTool::bookTH1F(const std::string& name,
 
 // Book and register a 2D histogram
 
-TH2F* TrigT1CaloLWHistogramTool::bookTH2F(const std::string& name,
+TH2F* TrigT1CaloLWHistogramToolV1::bookTH2F(const std::string& name,
                                           const std::string& title,
                                           int nx, double xmin, double xmax,  
 	                                  int ny, double ymin, double ymax)
@@ -807,7 +797,7 @@ TH2F* TrigT1CaloLWHistogramTool::bookTH2F(const std::string& name,
 
 // Register a histogram
 
-void TrigT1CaloLWHistogramTool::registerHist(TH1* hist)
+void TrigT1CaloLWHistogramToolV1::registerHist(TH1* hist)
 {
   if (m_monGroup && m_monGroup->regHist(hist) != StatusCode::SUCCESS) {
     msg(MSG::WARNING) << "Could not register histogram : "
@@ -820,9 +810,9 @@ void TrigT1CaloLWHistogramTool::registerHist(TH1* hist)
 //  Booking Utilities - CPM
 //===========================================================================
 
-// Book CPM crate/module vs chip/local coordinate (3bits/3bits)
+// Book CPM crate/module vs chip/local coordinate
 
-TH2F_LW* TrigT1CaloLWHistogramTool::bookCPMCrateModuleVsChipLocalCoord(
+TH2F_LW* TrigT1CaloLWHistogramToolV1::bookCPMCrateModuleVsChipLocalCoord(
                      const std::string& name, const std::string& title)
 {
   TH2F_LW *hist = book2F(name, title, 56, 0., 56., 64, 0., 64.);
@@ -831,20 +821,9 @@ TH2F_LW* TrigT1CaloLWHistogramTool::bookCPMCrateModuleVsChipLocalCoord(
   return hist;
 }
 
-// Book CPM crate/module vs TOB chip/local coordinate (4bits/2bits)
-
-TH2F_LW* TrigT1CaloLWHistogramTool::bookCPMCrateModuleVsTobChipLocalCoord(
-                     const std::string& name, const std::string& title)
-{
-  TH2F_LW *hist = book2F(name, title, 56, 0., 56., 64, 0., 64.);
-  cpmCrateModule(hist);
-  cpmTobChipLocalCoord(hist, 0, false);
-  return hist;
-}
-
 // Book CPM crate/module vs FPGA
 
-TH2F_LW* TrigT1CaloLWHistogramTool::bookCPMCrateModuleVsFPGA(
+TH2F_LW* TrigT1CaloLWHistogramToolV1::bookCPMCrateModuleVsFPGA(
                      const std::string& name, const std::string& title)
 {
   TH2F_LW *hist = book2F(name, title, 56, 0., 56., 20, 0., 20.);
@@ -862,7 +841,7 @@ TH2F_LW* TrigT1CaloLWHistogramTool::bookCPMCrateModuleVsFPGA(
 
 // Book CPM crate/module vs thresholds
 
-TH2F_LW* TrigT1CaloLWHistogramTool::bookCPMCrateModuleVsThreshold(
+TH2F_LW* TrigT1CaloLWHistogramToolV1::bookCPMCrateModuleVsThreshold(
                      const std::string& name, const std::string& title)
 {
   TH2F_LW *hist = book2F(name, title, 56, 0., 56., 16, 0., 16.);
@@ -873,7 +852,7 @@ TH2F_LW* TrigT1CaloLWHistogramTool::bookCPMCrateModuleVsThreshold(
 
 // Book CPM eta vs phi
 
-TH2F_LW* TrigT1CaloLWHistogramTool::bookCPMEtaVsPhi(const std::string& name,
+TH2F_LW* TrigT1CaloLWHistogramToolV1::bookCPMEtaVsPhi(const std::string& name,
                                                     const std::string& title)
 {
   TH2F_LW*  hist = 0;
@@ -902,7 +881,7 @@ TH2F_LW* TrigT1CaloLWHistogramTool::bookCPMEtaVsPhi(const std::string& name,
 
 // Book CPM RoI eta vs phi
 
-TH2F_LW* TrigT1CaloLWHistogramTool::bookCPMRoIEtaVsPhi(const std::string& name,
+TH2F_LW* TrigT1CaloLWHistogramToolV1::bookCPMRoIEtaVsPhi(const std::string& name,
                                                        const std::string& title)
 {
   TH2F_LW*  hist = 0;
@@ -935,7 +914,7 @@ TH2F_LW* TrigT1CaloLWHistogramTool::bookCPMRoIEtaVsPhi(const std::string& name,
 
 // Book CPM events with error/mismatch vs crate/module
 
-TH2I_LW* TrigT1CaloLWHistogramTool::bookCPMEventVsCrateModule(
+TH2I_LW* TrigT1CaloLWHistogramToolV1::bookCPMEventVsCrateModule(
                           const std::string& name, const std::string& title)
 {
   TH2I_LW* hist = bookEventNumbers(name, title, 56, 0., 56.);
@@ -945,7 +924,7 @@ TH2I_LW* TrigT1CaloLWHistogramTool::bookCPMEventVsCrateModule(
 
 // Book CPM module vs crate
 
-TH2F_LW* TrigT1CaloLWHistogramTool::bookCPMModuleVsCrate(
+TH2F_LW* TrigT1CaloLWHistogramToolV1::bookCPMModuleVsCrate(
                      const std::string& name, const std::string& title)
 {
   TH2F_LW *hist = book2F(name, title, 14, 1., 15., 4, 0., 4.);
@@ -956,33 +935,21 @@ TH2F_LW* TrigT1CaloLWHistogramTool::bookCPMModuleVsCrate(
   return hist;
 }
 
-// Book CPM module vs crate/CMX
+// Book CPM module vs crate/CMM
 
-TH2F_LW* TrigT1CaloLWHistogramTool::bookCPMModuleVsCrateCMX(
+TH2F_LW* TrigT1CaloLWHistogramToolV1::bookCPMModuleVsCrateCMM(
                      const std::string& name, const std::string& title)
 {
   TH2F_LW *hist = book2F(name, title, 14, 1., 15., 8, 0., 8.);
   numbers(hist, 1, 14);
   hist->GetXaxis()->SetTitle("Module");
-  cpmCrateCMX(hist, 0, false);
-  return hist;
-}
-
-// Book CPM crate/module vs CMX
-
-TH2F_LW* TrigT1CaloLWHistogramTool::bookCPMCrateModuleVsCMX(
-                     const std::string& name, const std::string& title)
-{
-  TH2F_LW *hist = book2F(name, title, 56, 0., 56., 2, 0., 2.);
-  cpmCrateModule(hist);
-  numbers(hist, 0, 3, 1, 0, false);
-  hist->GetYaxis()->SetTitle("CMX");
+  cpmCrateCMM(hist, 0, false);
   return hist;
 }
 
 // Book CPM sub-status errors vs crate/module
 
-TH2F_LW* TrigT1CaloLWHistogramTool::bookCPMSubStatusVsCrateModule(
+TH2F_LW* TrigT1CaloLWHistogramToolV1::bookCPMSubStatusVsCrateModule(
                             const std::string& name, const std::string& title)
 {
   TH2F_LW* hist = book2F(name, title, 8, 0., 8., 56, 0., 56.);
@@ -991,9 +958,9 @@ TH2F_LW* TrigT1CaloLWHistogramTool::bookCPMSubStatusVsCrateModule(
   return hist;
 }
 
-// Book CPM Sum/CMX
+// Book CPM Sum/CMM
 
-TH1F_LW* TrigT1CaloLWHistogramTool::bookCPMSumCMX(const std::string& name,
+TH1F_LW* TrigT1CaloLWHistogramToolV1::bookCPMSumCMM(const std::string& name,
                                                   const std::string& title)
 {
   TH1F_LW* hist = book1F(name, title, 16, 0., 16.);
@@ -1014,13 +981,13 @@ TH1F_LW* TrigT1CaloLWHistogramTool::bookCPMSumCMX(const std::string& name,
   axis->SetBinLabel(14, "R2/1");
   axis->SetBinLabel(15, "T/0");
   axis->SetBinLabel(16, "T/1");
-  axis->SetTitle("Sum/CMX");
+  axis->SetTitle("Sum/CMM");
   return hist;
 }
 
 // Book CPM Sum vs Threshold
 
-TH2F_LW* TrigT1CaloLWHistogramTool::bookCPMSumVsThreshold(
+TH2F_LW* TrigT1CaloLWHistogramToolV1::bookCPMSumVsThreshold(
                             const std::string& name, const std::string& title)
 {
   TH2F_LW* hist = book2F(name, title, 8, 0., 8., 16, 0., 16.);
@@ -1038,35 +1005,13 @@ TH2F_LW* TrigT1CaloLWHistogramTool::bookCPMSumVsThreshold(
   return hist;
 }
 
-// Book CPM Sum vs Threshold by CMX
-
-TH2F_LW* TrigT1CaloLWHistogramTool::bookCPMSumVsThreshold(
-                    const std::string& name, const std::string& title, int cmx)
-{
-  TH2F_LW* hist = book2F(name, title, 8, 0., 8., 16, 0., 16.);
-  LWHist::LWHistAxis* axis = hist->GetXaxis();
-  axis->SetBinLabel(1, "L0");
-  axis->SetBinLabel(2, "L1");
-  axis->SetBinLabel(3, "L2");
-  axis->SetBinLabel(4, "L3");
-  axis->SetBinLabel(5, "R0");
-  axis->SetBinLabel(6, "R1");
-  axis->SetBinLabel(7, "R2");
-  axis->SetBinLabel(8, "T");
-  axis->SetTitle("Sum (Local/Remote/Total)");
-  std::string type = (cmx) ? TrigConf::L1DataDef::emType()                     // <<== CHECK
-                           : TrigConf::L1DataDef::tauType();
-  thresholds(hist, type, 0, false);
-  return hist;
-}
-
 //===========================================================================
 //  Booking Utilities - JEM
 //===========================================================================
 
 // Book JEM crate/module vs EX,Ey,Et
 
-TH2F_LW* TrigT1CaloLWHistogramTool::bookJEMCrateModuleVsExEyEt(
+TH2F_LW* TrigT1CaloLWHistogramToolV1::bookJEMCrateModuleVsExEyEt(
                              const std::string& name, const std::string& title)
 {
   TH2F_LW* hist = book2F(name, title, 32, 0., 32., 3, 0., 3.);
@@ -1080,7 +1025,7 @@ TH2F_LW* TrigT1CaloLWHistogramTool::bookJEMCrateModuleVsExEyEt(
 
 // Book JEM crate/module vs frame/local coord
 
-TH2F_LW* TrigT1CaloLWHistogramTool::bookJEMCrateModuleVsFrameLoc(
+TH2F_LW* TrigT1CaloLWHistogramToolV1::bookJEMCrateModuleVsFrameLoc(
                              const std::string& name, const std::string& title)
 {
   TH2F_LW* hist = book2F(name, title, 32, 0., 32., 32, 0., 32.);
@@ -1091,7 +1036,7 @@ TH2F_LW* TrigT1CaloLWHistogramTool::bookJEMCrateModuleVsFrameLoc(
 
 // Book JEM crate/module vs thresholds
 
-TH2F_LW* TrigT1CaloLWHistogramTool::bookJEMCrateModuleVsThresholds(
+TH2F_LW* TrigT1CaloLWHistogramToolV1::bookJEMCrateModuleVsThresholds(
                              const std::string& name, const std::string& title)
 {
   TH2F_LW* hist = book2F(name, title, 32, 0., 32., 16, 0., 16.);
@@ -1102,7 +1047,7 @@ TH2F_LW* TrigT1CaloLWHistogramTool::bookJEMCrateModuleVsThresholds(
 
 // Book JEM events with error/mismatch vs crate/module
 
-TH2I_LW* TrigT1CaloLWHistogramTool::bookJEMEventVsCrateModule(
+TH2I_LW* TrigT1CaloLWHistogramToolV1::bookJEMEventVsCrateModule(
                              const std::string& name, const std::string& title)
 {
   TH2I_LW* hist = bookEventNumbers(name, title, 32, 0., 32.);
@@ -1112,7 +1057,7 @@ TH2I_LW* TrigT1CaloLWHistogramTool::bookJEMEventVsCrateModule(
 
 // Book JEM module Vs crate
 
-TH2F_LW* TrigT1CaloLWHistogramTool::bookJEMModuleVsCrate(
+TH2F_LW* TrigT1CaloLWHistogramToolV1::bookJEMModuleVsCrate(
                              const std::string& name, const std::string& title)
 {
   TH2F_LW* hist = book2F(name, title, 16, 0., 16., 2, 0., 2.);
@@ -1125,7 +1070,7 @@ TH2F_LW* TrigT1CaloLWHistogramTool::bookJEMModuleVsCrate(
 
 // Book JEM eta
 
-TH1F_LW* TrigT1CaloLWHistogramTool::bookJEMEta(const std::string& name,
+TH1F_LW* TrigT1CaloLWHistogramToolV1::bookJEMEta(const std::string& name,
                                                const std::string& title)
 {
   const int nxbins = 32;
@@ -1140,7 +1085,7 @@ TH1F_LW* TrigT1CaloLWHistogramTool::bookJEMEta(const std::string& name,
 
 // Book JEM eta vs phi
 
-TH2F_LW* TrigT1CaloLWHistogramTool::bookJEMEtaVsPhi(const std::string& name,
+TH2F_LW* TrigT1CaloLWHistogramToolV1::bookJEMEtaVsPhi(const std::string& name,
                                                     const std::string& title)
 {
   TH2F_LW*  hist = 0;
@@ -1181,7 +1126,7 @@ TH2F_LW* TrigT1CaloLWHistogramTool::bookJEMEtaVsPhi(const std::string& name,
 
 // Book JEM RoI eta vs phi
 
-TH2F_LW* TrigT1CaloLWHistogramTool::bookJEMRoIEtaVsPhi(const std::string& name,
+TH2F_LW* TrigT1CaloLWHistogramToolV1::bookJEMRoIEtaVsPhi(const std::string& name,
                                                        const std::string& title)
 {
   TH2F_LW*  hist = 0;
@@ -1220,7 +1165,7 @@ TH2F_LW* TrigT1CaloLWHistogramTool::bookJEMRoIEtaVsPhi(const std::string& name,
 
 // Book JEM energy with bins matching QuadLinear encoding
 
-TH1F_LW* TrigT1CaloLWHistogramTool::bookJEMQuadLinear(const std::string& name,
+TH1F_LW* TrigT1CaloLWHistogramToolV1::bookJEMQuadLinear(const std::string& name,
                                                       const std::string& title,
      						      int scale)
 {
@@ -1247,10 +1192,9 @@ TH1F_LW* TrigT1CaloLWHistogramTool::bookJEMQuadLinear(const std::string& name,
   return hist;
 }
 
-
 // Book JEM main jet thresholds
 
-TH1F_LW* TrigT1CaloLWHistogramTool::bookMainJetThresholds(
+TH1F_LW* TrigT1CaloLWHistogramToolV1::bookMainJetThresholds(
                             const std::string& name, const std::string& title)
 {
   const int nbins = TrigConf::L1DataDef::max_JET_Threshold_Number();
@@ -1261,7 +1205,7 @@ TH1F_LW* TrigT1CaloLWHistogramTool::bookMainJetThresholds(
 
 // Book JEM backward jet thresholds
 
-TH1F_LW* TrigT1CaloLWHistogramTool::bookBackwardJetThresholds(
+TH1F_LW* TrigT1CaloLWHistogramToolV1::bookBackwardJetThresholds(
                             const std::string& name, const std::string& title)
 {
   const int nbins = TrigConf::L1DataDef::max_JB_Threshold_Number();
@@ -1272,7 +1216,7 @@ TH1F_LW* TrigT1CaloLWHistogramTool::bookBackwardJetThresholds(
 
 // Book JEM forward jet thresholds
 
-TH1F_LW* TrigT1CaloLWHistogramTool::bookForwardJetThresholds(
+TH1F_LW* TrigT1CaloLWHistogramToolV1::bookForwardJetThresholds(
                             const std::string& name, const std::string& title)
 {
   const int nbins = TrigConf::L1DataDef::max_JF_Threshold_Number();
@@ -1283,7 +1227,7 @@ TH1F_LW* TrigT1CaloLWHistogramTool::bookForwardJetThresholds(
 
 // Book JEM JetEt thresholds
 
-TH1F_LW* TrigT1CaloLWHistogramTool::bookJetEtThresholds(
+TH1F_LW* TrigT1CaloLWHistogramToolV1::bookJetEtThresholds(
                             const std::string& name, const std::string& title)
 {
   const int nbins = TrigConf::L1DataDef::max_JE_Threshold_Number();
@@ -1294,7 +1238,7 @@ TH1F_LW* TrigT1CaloLWHistogramTool::bookJetEtThresholds(
 
 // Book JEM MissingEt thresholds
 
-TH1F_LW* TrigT1CaloLWHistogramTool::bookMissingEtThresholds(
+TH1F_LW* TrigT1CaloLWHistogramToolV1::bookMissingEtThresholds(
                             const std::string& name, const std::string& title)
 {
   const int nbins = TrigConf::L1DataDef::max_XE_Threshold_Number();
@@ -1305,7 +1249,7 @@ TH1F_LW* TrigT1CaloLWHistogramTool::bookMissingEtThresholds(
 
 // Book JEM SumEt thresholds
 
-TH1F_LW* TrigT1CaloLWHistogramTool::bookSumEtThresholds(
+TH1F_LW* TrigT1CaloLWHistogramToolV1::bookSumEtThresholds(
                             const std::string& name, const std::string& title)
 {
   //const int nbins = TrigConf::L1DataDef::max_TE_Threshold_Number();
@@ -1317,7 +1261,7 @@ TH1F_LW* TrigT1CaloLWHistogramTool::bookSumEtThresholds(
 
 // Book JEM MissingEtSig thresholds
 
-TH1F_LW* TrigT1CaloLWHistogramTool::bookMissingEtSigThresholds(
+TH1F_LW* TrigT1CaloLWHistogramToolV1::bookMissingEtSigThresholds(
                             const std::string& name, const std::string& title)
 {
   //const int nbins = TrigConf::L1DataDef::max_XS_Threshold_Number();
@@ -1329,7 +1273,7 @@ TH1F_LW* TrigT1CaloLWHistogramTool::bookMissingEtSigThresholds(
 
 // Book JEM sub-status errors vs crate/module
 
-TH2F_LW* TrigT1CaloLWHistogramTool::bookJEMSubStatusVsCrateModule(
+TH2F_LW* TrigT1CaloLWHistogramToolV1::bookJEMSubStatusVsCrateModule(
                             const std::string& name, const std::string& title)
 {
   TH2F_LW* hist = book2F(name, title, 8, 0., 8., 32, 0., 32.);
@@ -1340,7 +1284,7 @@ TH2F_LW* TrigT1CaloLWHistogramTool::bookJEMSubStatusVsCrateModule(
 
 // Book JEM sub-status errors vs crate
 
-TH2F_LW* TrigT1CaloLWHistogramTool::bookJEMSubStatusVsCrate(
+TH2F_LW* TrigT1CaloLWHistogramToolV1::bookJEMSubStatusVsCrate(
                             const std::string& name, const std::string& title)
 {
   TH2F_LW* hist = book2F(name, title, 8, 0., 8., 2, 0., 2.);
@@ -1356,7 +1300,7 @@ TH2F_LW* TrigT1CaloLWHistogramTool::bookJEMSubStatusVsCrate(
 
 // Book PPM Em eta
 
-TH1F_LW* TrigT1CaloLWHistogramTool::bookPPMEmEta(const std::string name,
+TH1F_LW* TrigT1CaloLWHistogramToolV1::bookPPMEmEta(const std::string name,
                                                  const std::string title)
 {
   const int nxbins = 66;
@@ -1375,7 +1319,7 @@ TH1F_LW* TrigT1CaloLWHistogramTool::bookPPMEmEta(const std::string name,
 
 // Book PPM Had eta
 
-TH1F_LW* TrigT1CaloLWHistogramTool::bookPPMHadEta(const std::string name,
+TH1F_LW* TrigT1CaloLWHistogramToolV1::bookPPMHadEta(const std::string name,
                                                   const std::string title)
 {
   const int nxbins = 62;
@@ -1394,7 +1338,7 @@ TH1F_LW* TrigT1CaloLWHistogramTool::bookPPMHadEta(const std::string name,
  
 // Book PPM Em eta vs phi
 
-TH2F_LW* TrigT1CaloLWHistogramTool::bookPPMEmEtaVsPhi(const std::string name,
+TH2F_LW* TrigT1CaloLWHistogramToolV1::bookPPMEmEtaVsPhi(const std::string name,
                                                       const std::string title)
 {
   TH2F_LW* hist = 0;
@@ -1441,7 +1385,7 @@ TH2F_LW* TrigT1CaloLWHistogramTool::bookPPMEmEtaVsPhi(const std::string name,
 
 // Book PPM Had eta vs phi
 
-TH2F_LW* TrigT1CaloLWHistogramTool::bookPPMHadEtaVsPhi(const std::string name,
+TH2F_LW* TrigT1CaloLWHistogramToolV1::bookPPMHadEtaVsPhi(const std::string name,
                                                        const std::string title)
 {
   TH2F_LW* hist = bookPPMEmEtaVsPhi(name, title);
@@ -1456,7 +1400,7 @@ TH2F_LW* TrigT1CaloLWHistogramTool::bookPPMHadEtaVsPhi(const std::string name,
 
 // Book PPM Em eta vs phi profile
 
-TProfile2D_LW* TrigT1CaloLWHistogramTool::bookProfilePPMEmEtaVsPhi(
+TProfile2D_LW* TrigT1CaloLWHistogramToolV1::bookProfilePPMEmEtaVsPhi(
                               const std::string name, const std::string title)
 {
   // todo - remove duplication with above
@@ -1504,7 +1448,7 @@ TProfile2D_LW* TrigT1CaloLWHistogramTool::bookProfilePPMEmEtaVsPhi(
 
 // Book PPM Had eta vs phi profile
 
-TProfile2D_LW* TrigT1CaloLWHistogramTool::bookProfilePPMHadEtaVsPhi(
+TProfile2D_LW* TrigT1CaloLWHistogramToolV1::bookProfilePPMHadEtaVsPhi(
                               const std::string name, const std::string title)
 {
   TProfile2D_LW* hist = bookProfilePPMEmEtaVsPhi(name, title);
@@ -1519,7 +1463,7 @@ TProfile2D_LW* TrigT1CaloLWHistogramTool::bookProfilePPMHadEtaVsPhi(
 
 // Book PPM events with error/mismatch vs crate/module
 
-TH2I_LW* TrigT1CaloLWHistogramTool::bookPPMEventVsCrateModule(
+TH2I_LW* TrigT1CaloLWHistogramToolV1::bookPPMEventVsCrateModule(
                      const std::string& name, const std::string& title,
 		     int firstCrate, int lastCrate)
 {
@@ -1531,7 +1475,7 @@ TH2I_LW* TrigT1CaloLWHistogramTool::bookPPMEventVsCrateModule(
 
 // Book PPM Crate/Module vs Submodule/Channel
 
-TH2F_LW* TrigT1CaloLWHistogramTool::bookPPMCrateModuleVsSubmoduleChannel(
+TH2F_LW* TrigT1CaloLWHistogramToolV1::bookPPMCrateModuleVsSubmoduleChannel(
                      const std::string& name, const std::string& title,
                      int firstCrate, int lastCrate)
 {
@@ -1545,7 +1489,7 @@ TH2F_LW* TrigT1CaloLWHistogramTool::bookPPMCrateModuleVsSubmoduleChannel(
 // Book PPM Crate/Module vs Submodule/Channel profile
 
 TProfile2D_LW*
-  TrigT1CaloLWHistogramTool::bookProfilePPMCrateModuleVsSubmoduleChannel(
+  TrigT1CaloLWHistogramToolV1::bookProfilePPMCrateModuleVsSubmoduleChannel(
                      const std::string& name, const std::string& title,
                      int firstCrate, int lastCrate)
 {
@@ -1559,7 +1503,7 @@ TProfile2D_LW*
 
 // Book PPM SubStatus vs crate/module
 
-TH2F_LW* TrigT1CaloLWHistogramTool::bookPPMSubStatusVsCrateModule(
+TH2F_LW* TrigT1CaloLWHistogramToolV1::bookPPMSubStatusVsCrateModule(
                      const std::string& name, const std::string& title,
 		     int firstCrate, int lastCrate)
 {
@@ -1572,7 +1516,7 @@ TH2F_LW* TrigT1CaloLWHistogramTool::bookPPMSubStatusVsCrateModule(
 
 // Book PPM ASIC errors vs crate/module
 
-TH2F_LW* TrigT1CaloLWHistogramTool::bookPPMErrorsVsCrateModule(
+TH2F_LW* TrigT1CaloLWHistogramToolV1::bookPPMErrorsVsCrateModule(
                      const std::string& name, const std::string& title,
 		     int firstCrate, int lastCrate)
 {
@@ -1589,7 +1533,7 @@ TH2F_LW* TrigT1CaloLWHistogramTool::bookPPMErrorsVsCrateModule(
 
 // Get Minimum and Maximun bins and contents of 2D histogram
 
-bool TrigT1CaloLWHistogramTool::getMinMaxBin(LWHist2D* hist,
+bool TrigT1CaloLWHistogramToolV1::getMinMaxBin(LWHist2D* hist,
                        int& minBinx, int& minBiny, int& maxBinx, int& maxBiny,
 		       double& minValue, double& maxValue)
 {
@@ -1633,7 +1577,7 @@ bool TrigT1CaloLWHistogramTool::getMinMaxBin(LWHist2D* hist,
 
 // Get Minimum and Maximun bins and contents of 2D Profile histogram
 
-bool TrigT1CaloLWHistogramTool::getMinMaxBin(TProfile2D_LW* hist,
+bool TrigT1CaloLWHistogramToolV1::getMinMaxBin(TProfile2D_LW* hist,
                        int& minBinx, int& minBiny, int& maxBinx, int& maxBiny,
 		       double& minValue, double& maxValue)
 {
@@ -1682,7 +1626,7 @@ bool TrigT1CaloLWHistogramTool::getMinMaxBin(TProfile2D_LW* hist,
 
 // Fill Error/Mismatch event number
 
-void TrigT1CaloLWHistogramTool::fillEventNumber(LWHist2D* hist, double y)
+void TrigT1CaloLWHistogramToolV1::fillEventNumber(LWHist2D* hist, double y)
 {
   int eventNumber = 0;
   const EventInfo* evInfo = 0;
@@ -1721,7 +1665,7 @@ void TrigT1CaloLWHistogramTool::fillEventNumber(LWHist2D* hist, double y)
 
 // Fill weighted thresholds 1D
 
-void TrigT1CaloLWHistogramTool::fillThresholds(LWHist1D* hist, int val,
+void TrigT1CaloLWHistogramToolV1::fillThresholds(LWHist1D* hist, int val,
                                           int nThresh, int nBits, int offset)
 {
   if (val) {
@@ -1735,7 +1679,7 @@ void TrigT1CaloLWHistogramTool::fillThresholds(LWHist1D* hist, int val,
 
 // Fill weighted thresholds 2D, X axis
 
-void TrigT1CaloLWHistogramTool::fillThresholdsVsY(LWHist2D* hist, int val,
+void TrigT1CaloLWHistogramToolV1::fillThresholdsVsY(LWHist2D* hist, int val,
                                     int y, int nThresh, int nBits, int offset)
 {
   if (val) {
@@ -1749,7 +1693,7 @@ void TrigT1CaloLWHistogramTool::fillThresholdsVsY(LWHist2D* hist, int val,
 
 // Fill weighted thresholds 2D, Y axis
 
-void TrigT1CaloLWHistogramTool::fillXVsThresholds(LWHist2D* hist, int x,
+void TrigT1CaloLWHistogramToolV1::fillXVsThresholds(LWHist2D* hist, int x,
                                   int val, int nThresh, int nBits, int offset)
 {
   if (val) {
@@ -1763,7 +1707,7 @@ void TrigT1CaloLWHistogramTool::fillXVsThresholds(LWHist2D* hist, int x,
 
 // Replace the contents of one 2D histogram with those of another
 
-void TrigT1CaloLWHistogramTool::replaceContents(LWHist2D* histTo,
+void TrigT1CaloLWHistogramToolV1::replaceContents(LWHist2D* histTo,
                                                 LWHist2D* histFrom)
 {
   histTo->Reset();
@@ -1789,7 +1733,7 @@ void TrigT1CaloLWHistogramTool::replaceContents(LWHist2D* histTo,
 
 // Replace the contents of one 2D Profile histogram with those of another
 
-void TrigT1CaloLWHistogramTool::replaceContents(TProfile2D_LW* histTo,
+void TrigT1CaloLWHistogramToolV1::replaceContents(TProfile2D_LW* histTo,
                                                 TProfile2D_LW* histFrom)
 {
   histTo->Reset();
@@ -1831,7 +1775,7 @@ void TrigT1CaloLWHistogramTool::replaceContents(TProfile2D_LW* histTo,
 
 // Fill CPM eta vs phi
 
-void TrigT1CaloLWHistogramTool::fillCPMEtaVsPhi(LWHist2D* hist, double eta,
+void TrigT1CaloLWHistogramToolV1::fillCPMEtaVsPhi(LWHist2D* hist, double eta,
                                                 double phi, double weight)
 {
   const double phiMod = phi * m_phiScaleTT;
@@ -1840,7 +1784,7 @@ void TrigT1CaloLWHistogramTool::fillCPMEtaVsPhi(LWHist2D* hist, double eta,
 
 // Fill CPM RoI eta vs phi
 
-void TrigT1CaloLWHistogramTool::fillCPMRoIEtaVsPhi(LWHist2D* hist, double eta,
+void TrigT1CaloLWHistogramToolV1::fillCPMRoIEtaVsPhi(LWHist2D* hist, double eta,
                                                    double phi, double weight)
 {
   const double phiMod = phi * m_phiScaleTT - 0.5;
@@ -1855,7 +1799,7 @@ void TrigT1CaloLWHistogramTool::fillCPMRoIEtaVsPhi(LWHist2D* hist, double eta,
 
 // Fill JEM eta vs phi
 
-void TrigT1CaloLWHistogramTool::fillJEMEtaVsPhi(LWHist2D* hist, double eta,
+void TrigT1CaloLWHistogramToolV1::fillJEMEtaVsPhi(LWHist2D* hist, double eta,
                                                 double phi, double weight)
 {
   double phiMod = phi * m_phiScaleJE;
@@ -1879,7 +1823,7 @@ void TrigT1CaloLWHistogramTool::fillJEMEtaVsPhi(LWHist2D* hist, double eta,
 
 // Fill JEM RoI eta vs phi
 
-void TrigT1CaloLWHistogramTool::fillJEMRoIEtaVsPhi(LWHist2D* hist, double eta,
+void TrigT1CaloLWHistogramToolV1::fillJEMRoIEtaVsPhi(LWHist2D* hist, double eta,
                                                    double phi, double weight)
 {
   const double phiMod = phi * m_phiScaleJE - 0.5;
@@ -1905,7 +1849,7 @@ void TrigT1CaloLWHistogramTool::fillJEMRoIEtaVsPhi(LWHist2D* hist, double eta,
 
 // Fill JEM phi allowing for granularity varying with eta
 
-void TrigT1CaloLWHistogramTool::fillJEMPhi(LWHist1D* hist,
+void TrigT1CaloLWHistogramToolV1::fillJEMPhi(LWHist1D* hist,
                                        double eta, double phi, double weight)
 {
   const double halfBin = 1./(2.*m_phiScaleJE);
@@ -1922,7 +1866,7 @@ void TrigT1CaloLWHistogramTool::fillJEMPhi(LWHist1D* hist,
 
 // Fill PPM Em eta vs phi
 
-void TrigT1CaloLWHistogramTool::fillPPMEmEtaVsPhi(LWHist2D* hist, double eta,
+void TrigT1CaloLWHistogramToolV1::fillPPMEmEtaVsPhi(LWHist2D* hist, double eta,
                                                   double phi, double weight)
 {
   double phiMod = phi * m_phiScaleTT;
@@ -1953,7 +1897,7 @@ void TrigT1CaloLWHistogramTool::fillPPMEmEtaVsPhi(LWHist2D* hist, double eta,
 
 // Fill PPM Had eta vs phi
 
-void TrigT1CaloLWHistogramTool::fillPPMHadEtaVsPhi(LWHist2D* hist, double eta,
+void TrigT1CaloLWHistogramToolV1::fillPPMHadEtaVsPhi(LWHist2D* hist, double eta,
                                                    double phi, double weight)
 {
   // Use EM mapping - puts FCAL2 in left half of bin and FCAL3 in right half
@@ -1962,7 +1906,7 @@ void TrigT1CaloLWHistogramTool::fillPPMHadEtaVsPhi(LWHist2D* hist, double eta,
 
 // Fill PPM Em eta vs phi profile
 
-void TrigT1CaloLWHistogramTool::fillPPMEmEtaVsPhi(TProfile2D_LW* hist,
+void TrigT1CaloLWHistogramToolV1::fillPPMEmEtaVsPhi(TProfile2D_LW* hist,
                               double eta, double phi, double z, double weight)
 {
   double phiMod = phi * m_phiScaleTT;
@@ -1993,7 +1937,7 @@ void TrigT1CaloLWHistogramTool::fillPPMEmEtaVsPhi(TProfile2D_LW* hist,
 
 // Fill PPM Had eta vs phi profile
 
-void TrigT1CaloLWHistogramTool::fillPPMHadEtaVsPhi(TProfile2D_LW* hist,
+void TrigT1CaloLWHistogramToolV1::fillPPMHadEtaVsPhi(TProfile2D_LW* hist,
                               double eta, double phi, double z, double weight)
 {
   // Use EM mapping - puts FCAL2 in left half of bin and FCAL3 in right half
@@ -2002,7 +1946,7 @@ void TrigT1CaloLWHistogramTool::fillPPMHadEtaVsPhi(TProfile2D_LW* hist,
 
 // Fill PPM phi allowing for granularity varying with eta
 
-void TrigT1CaloLWHistogramTool::fillPPMPhi(LWHist1D* hist,
+void TrigT1CaloLWHistogramToolV1::fillPPMPhi(LWHist1D* hist,
                                        double eta, double phi, double weight)
 {
   const double halfBin = 1./(2.*m_phiScaleTT);
@@ -2022,7 +1966,7 @@ void TrigT1CaloLWHistogramTool::fillPPMPhi(LWHist1D* hist,
 
 // Fill PPM phi profile allowing for granularity varying with eta
 
-void TrigT1CaloLWHistogramTool::fillPPMPhi(TProfile_LW* hist,
+void TrigT1CaloLWHistogramToolV1::fillPPMPhi(TProfile_LW* hist,
                              double eta, double phi, double z, double weight)
 {
   const double halfBin = 1./(2.*m_phiScaleTT);
@@ -2042,7 +1986,7 @@ void TrigT1CaloLWHistogramTool::fillPPMPhi(TProfile_LW* hist,
 
 // Find bin in Em eta vs phi
 
-void TrigT1CaloLWHistogramTool::findBinPPMEmEtaVsPhi(LWHist* hist,
+void TrigT1CaloLWHistogramToolV1::findBinPPMEmEtaVsPhi(LWHist* hist,
                                 double eta, double phi, int& binx, int& biny)
 {
   double phiMod = phi * m_phiScaleTT;
@@ -2064,7 +2008,7 @@ void TrigT1CaloLWHistogramTool::findBinPPMEmEtaVsPhi(LWHist* hist,
 
 // Find bin in Had eta vs phi
 
-void TrigT1CaloLWHistogramTool::findBinPPMHadEtaVsPhi(LWHist* hist,
+void TrigT1CaloLWHistogramToolV1::findBinPPMHadEtaVsPhi(LWHist* hist,
                                 double eta, double phi, int& binx, int& biny)
 {
   findBinPPMEmEtaVsPhi(hist, eta, phi, binx, biny);
@@ -2072,7 +2016,7 @@ void TrigT1CaloLWHistogramTool::findBinPPMHadEtaVsPhi(LWHist* hist,
 
 // Set bin content and optionally error in Em eta vs phi
 
-void TrigT1CaloLWHistogramTool::setBinPPMEmEtaVsPhi(LWHist2D* hist,
+void TrigT1CaloLWHistogramToolV1::setBinPPMEmEtaVsPhi(LWHist2D* hist,
                              int binx, int biny, double content, double error)
 {
   int nbin = 1;
@@ -2088,7 +2032,7 @@ void TrigT1CaloLWHistogramTool::setBinPPMEmEtaVsPhi(LWHist2D* hist,
 
 // Set bin content and optionally error in Had eta vs phi
 
-void TrigT1CaloLWHistogramTool::setBinPPMHadEtaVsPhi(LWHist2D* hist,
+void TrigT1CaloLWHistogramToolV1::setBinPPMHadEtaVsPhi(LWHist2D* hist,
                              int binx, int biny, double content, double error)
 {
   setBinPPMEmEtaVsPhi(hist, binx, biny, content, error);
@@ -2104,7 +2048,7 @@ void TrigT1CaloLWHistogramTool::setBinPPMHadEtaVsPhi(LWHist2D* hist,
 
 // Obsolete - superceded by lowerLB merge method.
 
-void TrigT1CaloLWHistogramTool::scaleForMerge(LWHist2D* hist, int nevents)
+void TrigT1CaloLWHistogramToolV1::scaleForMerge(LWHist2D* hist, int nevents)
 {
   unsigned int entries = hist->GetEntries();
   if (entries > 0 && nevents > 0) {
@@ -2124,7 +2068,7 @@ void TrigT1CaloLWHistogramTool::scaleForMerge(LWHist2D* hist, int nevents)
 // Compute efficiencies and errors for perBinEffPerCent merge method
 // Call from procHistograms.
 
-void TrigT1CaloLWHistogramTool::efficienciesForMerge(LWHist* lw1, LWHist* lw2,
+void TrigT1CaloLWHistogramToolV1::efficienciesForMerge(LWHist* lw1, LWHist* lw2,
 		                                     LWHist* lw3) {
   TH1* hist1 = lw1->getROOTHistBase(); // denominator
   TH1* hist2 = lw2->getROOTHistBase(); // numerator
