@@ -245,7 +245,7 @@ void LVL1::CPMTobAlgorithm::emAlgorithm() {
   for (std::vector<IsolationParam>::const_iterator it = emIsolParams.begin(); it != emIsolParams.end(); ++it) {   
     //if ((*it).isDefined()) {
       float offset = (*it).offset()/10.*scale;
-      float slope  = (*it).slope()/10.*scale;
+      float slope  = (*it).slope()/10.;
       float mincut = (*it).mincut()/10.*scale;
       int upperlimit = (*it).upperlimit()*scale;
       int bit = (*it).isobit();
@@ -265,7 +265,7 @@ void LVL1::CPMTobAlgorithm::emAlgorithm() {
   for (std::vector<IsolationParam>::const_iterator it = hadIsolParams.begin(); it != hadIsolParams.end(); ++it) {   
     //if ((*it).isDefined()) {
       float offset = (*it).offset()/10.*scale;
-      float slope  = (*it).slope()/10.*scale;
+      float slope  = (*it).slope()/10.;
       float mincut = (*it).mincut()/10.*scale;
       int upperlimit = (*it).upperlimit()*scale;
       int bit = (*it).isobit();
@@ -338,7 +338,7 @@ void LVL1::CPMTobAlgorithm::tauAlgorithm() {
   for (std::vector<IsolationParam>::const_iterator it = emIsolParams.begin(); it != emIsolParams.end(); ++it) {   
     if ((*it).isDefined()) {
       float offset = (*it).offset()/10.*scale;
-      float slope  = (*it).slope()/10.*scale;
+      float slope  = (*it).slope()/10.;
       float mincut = (*it).mincut()/10.*scale;
       int upperlimit = (*it).upperlimit()*scale;
       int bit = (*it).isobit();
