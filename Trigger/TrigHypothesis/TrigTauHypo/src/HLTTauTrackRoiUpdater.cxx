@@ -9,6 +9,7 @@
 #include "GaudiKernel/StatusCode.h"
 #include "StoreGate/StoreGateSvc.h"
 
+#include "TrigSteeringEvent/PhiHelper.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 
 #include "TrkTrack/Track.h"
@@ -115,7 +116,7 @@ HLT::ErrorCode HLTTauTrackRoiUpdater::hltExecute(const HLT::TriggerElement*, HLT
 	
        float trkEta = trackPer->eta();
        float trkPhi = trackPer->parameters()[Trk::phi];
-       double dRTrkTau = sqrt((roiEta-trkEta)*(roiEta-trkEta) + (roiPhi-trkPhi)*(roiPhi-trkPhi));
+       double dRTrkTau = sqrt((roiEta-trkEta)*(roiEta-trkEta) + HLT::wrapPhi(roiPhi-trkPhi)*HLT::wrapPhi(roiPhi-trkPhi));
        
        float trackPt = trackPer->pT()/1000.;
        if ((trackPt > trkPtMax) && dRTrkTau < m_deltaRLeadTrkRoI) {

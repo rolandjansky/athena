@@ -32,6 +32,7 @@
 #include "TrigTauHypo/HLTTrackPreSelHypo.h"
 
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
+#include "TrigSteeringEvent/PhiHelper.h"
 
 #include "xAODJet/Jet.h"
 #include "xAODJet/JetContainer.h"
@@ -180,7 +181,7 @@ HLT::ErrorCode HLTTrackPreSelHypo::hltExecute(const HLT::TriggerElement* inputTE
 
 	float trk_eta = tp->eta();
 	float trk_phi = tp->parameters()[Trk::phi];
-	double dR_trk_tau = sqrt((roIEta-trk_eta)*(roIEta-trk_eta) + (roIPhi-trk_phi)*(roIPhi-trk_phi));
+	double dR_trk_tau = sqrt((roIEta-trk_eta)*(roIEta-trk_eta) + HLT::wrapPhi(roIPhi-trk_phi)*HLT::wrapPhi(roIPhi-trk_phi));
 
 	float trk_pt = tp->pT()/1000.;
 	if ((trk_pt > trk_pt_max) && dR_trk_tau < m_deltaRLeadTrkRoI) {
@@ -224,7 +225,7 @@ HLT::ErrorCode HLTTrackPreSelHypo::hltExecute(const HLT::TriggerElement* inputTE
 	float trk_phi = tp->parameters()[Trk::phi];
 	float trk_z0 = tp->parameters()[Trk::z0];
 		
-	float dR_trki_ltrk = sqrt((ltrk_eta-trk_eta)*(ltrk_eta-trk_eta) + (ltrk_phi-trk_phi)*(ltrk_phi-trk_phi));
+	float dR_trki_ltrk = sqrt((ltrk_eta-trk_eta)*(ltrk_eta-trk_eta) + HLT::wrapPhi(ltrk_phi-trk_phi)*HLT::wrapPhi(ltrk_phi-trk_phi));
 	float dZ0 = abs(ltrk_z0 - trk_z0);
 	
 	if((dR_trki_ltrk < m_coreSize) && ((dZ0 < m_deltaZ0Cut)||!usePileupSuppCut)){
