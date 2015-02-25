@@ -69,6 +69,19 @@ static std::string dir2String(const Amg::Vector3D& dir)
 
 typedef std::pair<std::string, int> LayerID;
 
+static inline double getFirstPointR(const Muon::Fit2D::PointArray& points)
+{
+    for (auto pPoint : points)
+    {
+        if (!pPoint->bExclude)
+        {
+            auto pRIO = static_cast<const Muon::MuonClusterOnTrack*>(pPoint->pData);
+            return pRIO->globalPosition().perp();
+        }
+    }
+    return 0.0;
+}
+
 std::vector<const Muon::MuonSegment*>*
 RPC_LinearSegmentMakerTool::find(const Trk::TrackRoad& road,
                                  const std::vector< std::vector< const Muon::MdtDriftCircleOnTrack* > >&,
@@ -92,9 +105,8 @@ RPC_LinearSegmentMakerTool::find(const Trk::TrackRoad& road,
 
     const MuonGM::RpcReadoutElement* pReadoutElement =
         dynamic_cast<const MuonGM::RpcReadoutElement*>(rios.front()->detectorElement());
+        
     if (!pReadoutElement) return pMuonSegs;
-    double baseR = pReadoutElement->center().perp();
-
     
     std::set<LayerID> zStations, phiStations;
     int iHit = 0;
@@ -161,6 +173,8 @@ RPC_LinearSegmentMakerTool::find(const Trk::TrackRoad& road,
             fit.fitPoint(zPoints,   m_fExclChi2, msgLvl(MSG::DEBUG), zSimpleStats);
             fit.fitPoint(phiPoints, m_fExclChi2, msgLvl(MSG::DEBUG), phiSimpleStats);
             ATH_MSG_DEBUG("  Z: " << zSimpleStats.toString() );
+            double baseR = getFirstPointR(zPoints);
+            ATH_MSG_DEBUG("    baseR=" << baseR);
             ATH_MSG_DEBUG("Phi: " << phiSimpleStats.toString() );
             pos[0]=baseR;
             pos[1]=0.;
@@ -175,6 +189,8 @@ RPC_LinearSegmentMakerTool::find(const Trk::TrackRoad& road,
             double z, zErr, phi, phiErr;
             fit.fitLine(zPoints, m_fExclChi2, msgLvl(MSG::DEBUG), zLinStats);
             ATH_MSG_DEBUG("Z: " << zLinStats.toString() );
+            double baseR = getFirstPointR(zPoints);
+            ATH_MSG_DEBUG("    baseR=" << baseR);
             zLinStats.eval(baseR, z, zErr);
             dChi2 = zLinStats.fChi2;
             nDegf = zLinStats.n - 2;
@@ -212,21 +228,27 @@ RPC_LinearSegmentMakerTool::find(const Trk::TrackRoad& road,
             Amg::setPhi(p1, phi);
             dir = (p1 - pos).unit();
         }
+        ATH_MSG_DEBUG("After fit: pos=" << point2String(pos) << ", dir=" << dir2String(dir));
+        const Trk::Surface& surface = pReadoutElement->surface();
+        Trk::Intersection intersection = surface.straightLineIntersection(pos,dir);
         // Intersect segment with surface
         double u =
             (pReadoutElement->normal().dot(pReadoutElement->center() - pos)) /
             (pReadoutElement->normal().dot(dir));
         pos += dir * u;
 
-        ATH_MSG_DEBUG("Segment position " << point2String(pos) );
+        ATH_MSG_DEBUG("Segment position " << point2String(pos) << " from intersection " << point2String(intersection.position));
         ATH_MSG_DEBUG("Segment direction " << dir2String(dir) );
 
-        const Trk::Surface& surface = pReadoutElement->surface();
         if (msgLvl(MSG::DEBUG))
         {
+          Amg::Vector3D loc3Dframe = surface.transform().inverse()*pos;
+
 //             surface.dump(log);
 //             const Amg::Vector3D& pos = surface.center();
-            ATH_MSG_DEBUG("Surface at " << " pos: " << point2String(surface.center()) << " dir: " << dir2String(surface.normal()) );
+          ATH_MSG_DEBUG("Surface at  pos: " << surface.center().perp() << " " << surface.center().z() 
+                        << " RE " << pReadoutElement->center().perp() << " " << pReadoutElement->center().z()
+                        << " loc (" << loc3Dframe.x() << "," << loc3Dframe.y() << "," << loc3Dframe.z() << ")" );
         }
         const Trk::PlaneSurface* pSurface = dynamic_cast<const Trk::PlaneSurface*>(&surface);
         if (pSurface == NULL)
@@ -265,7 +287,12 @@ RPC_LinearSegmentMakerTool::find(const Trk::TrackRoad& road,
             Muon::Fit2D::Point* pPt = *itPt;
             if (!pPt->bExclude)
             {
-                pRios->push_back(static_cast<const Trk::MeasurementBase*>((const Muon::MuonClusterOnTrack*)(pPt->pData))->clone());
+              
+              pRios->push_back(static_cast<const Trk::MeasurementBase*>((const Muon::MuonClusterOnTrack*)(pPt->pData))->clone());
+              Trk::Intersection intersection = pRios->back()->associatedSurface().straightLineIntersection(pos,dir);
+              Amg::Vector3D loc3Dframe = pRios->back()->associatedSurface().transform().inverse()*intersection.position;
+              
+              ATH_MSG_DEBUG("Hit on segment " << loc3Dframe.x() << " " << loc3Dframe.y() << " " << loc3Dframe.z() );
             }
         }
         for (Muon::Fit2D::PointArray::const_iterator itPt = phiPoints.begin(); itPt != phiPoints.end(); itPt++)
