@@ -44,7 +44,7 @@ TileCosmicsTrigger::TileCosmicsTrigger(const std::string name, ISvcLocator* pSvc
   , m_TThreshold(5.0)
   , m_NBOARDS(8)
   , m_NDRAWERSPERBOARD(12)
-  , m_NTOWERSPERDRAWER(8)
+  //, m_NTOWERSPERDRAWER(8)
   , m_TileTriggerContainer("TileTriggerCnt")
   , m_TT_ID(0)
   , m_TTHash(0)

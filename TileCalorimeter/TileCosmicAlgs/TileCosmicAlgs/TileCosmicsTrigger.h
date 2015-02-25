@@ -83,7 +83,7 @@ class TileCosmicsTrigger: public AthAlgorithm {
     static const int m_NMaxTowers;
     int m_NBOARDS;
     int m_NDRAWERSPERBOARD;
-    int m_NTOWERSPERDRAWER;
+    //int m_NTOWERSPERDRAWER;
 
     bool m_ConnectedTowers[NMAXTOWERS];
     bool m_FiredTowers[NMAXTOWERS];

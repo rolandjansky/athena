@@ -28,6 +28,8 @@ use CaloIdentifier	CaloIdentifier-*	Calorimeter
 
 apply_tag ROOTMathLibs
 
+# Specify required ROOT components for cmake (transparent to CMT)
+apply_pattern cmake_add_command command="find_package(ROOT COMPONENTS Minuit2)"
 
 library TileCosmicAlgs Tile*.cxx components/*.cxx
 apply_pattern component_library
