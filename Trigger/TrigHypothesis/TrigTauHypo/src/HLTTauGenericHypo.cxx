@@ -127,10 +127,15 @@ HLT::ErrorCode HLTTauGenericHypo::hltExecute(const HLT::TriggerElement* inputTE,
     return status;
   } else {
     msg() << MSG::DEBUG << " Input tau collection has size " << myTauContainers.size() << endreq;
+    if((myTauContainers.back())->size()==0)
+      {
+	msg() << MSG::WARNING << "No taus in input collection: Rejecting" << endreq;
+	return status;
+      }
   }
-
+  
   const xAOD::TauJet* theTau = (myTauContainers.back())->back();
-
+  
   int hasFailed = 0;
 
   // We have to implement the cuts here - Eventually, declare the formulas in the initialize
