@@ -97,7 +97,7 @@ TileMuonFitter::TileMuonFitter(std::string name, ISvcLocator* pSvcLocator)
   , m_tileHWID(0)
   , m_tileMgr(0)
   , m_caloCells(0)
-  , m_theTrack(0)
+  , theTrack(0)
   , m_nCells(0)
   , m_meanX(0.0)
   , m_meanY(0.0)
@@ -142,12 +142,12 @@ StatusCode TileMuonFitter::initialize() {
   CHECK( detStore()->retrieve(m_tileHWID) );
 
 
-  m_cellEnergy.resize(m_tileID->cell_hash_max());
-  m_cellWeight.resize(m_tileID->cell_hash_max());
-  m_cellTime.resize(m_tileID->cell_hash_max());
-  m_cellDeltaTime.resize(m_tileID->cell_hash_max());
-  m_cellHash.resize(m_tileID->cell_hash_max());
-  m_cellPosition.resize(m_tileID->cell_hash_max());
+  m_CellEnergy.resize(m_tileID->cell_hash_max());
+  m_CellWeight.resize(m_tileID->cell_hash_max());
+  m_CellTime.resize(m_tileID->cell_hash_max());
+  m_CellDeltaTime.resize(m_tileID->cell_hash_max());
+  m_CellHash.resize(m_tileID->cell_hash_max());
+  m_CellPosition.resize(m_tileID->cell_hash_max());
 
   if (m_minimumCells < 2) m_minimumCells = 2;
 
@@ -255,7 +255,7 @@ StatusCode TileMuonFitter::execute() {
   ATH_MSG_DEBUG( " start execute " );
 
   int fitStatus = 2; //not even try
-  setEventDefaults();
+  SetEventDefaults();
 
   if (evtStore()->retrieve(m_caloCells, m_cellContainer).isFailure()) {
     ATH_MSG_WARNING( " Could not find container " << m_cellContainer );
@@ -266,19 +266,19 @@ StatusCode TileMuonFitter::execute() {
     if (m_caloCells->nCellsCalo(m_caloIndex) == 0) {
       ATH_MSG_DEBUG( "no TileCells in CellContainer " << m_cellContainer << "> for this event!" );
     } else {
-      buildCells();
+      BuildCells();
     }
 
-    if (eventSelection()) {
+    if (EventSelection()) {
       if (!m_doHoughTransform)
-        fitStatus = fitTrack();
+        fitStatus = FitTrack();
       else
-        fitStatus = houghTrack();
-      if (fitStatus) calculateTime();
+        fitStatus = HoughTrack();
+      if (fitStatus) CalculateTime();
     }
 
-    buildTileCosmicMuon(fitStatus);
-    buildComTime(fitStatus);
+    BuildTileCosmicMuon(fitStatus);
+    BuildComTime(fitStatus);
   }
 
   // Execution completed.
@@ -291,17 +291,17 @@ StatusCode TileMuonFitter::execute() {
 // ********************************************************************
 // ********************************************************************
 
-void TileMuonFitter::setEventDefaults() {
+void TileMuonFitter::SetEventDefaults() {
   m_nCells = 0;
   for (unsigned int i = 0; i < m_tileID->cell_hash_max(); i++) {
-    m_cellEnergy[i] = 0.0;
-    m_cellWeight[i] = 0.0;
-    m_cellTime[i] = 0.0;
-    m_cellDeltaTime[i] = 999.;
-    m_cellHash[i] = 0;
-    m_cellPosition[i].setX(0.0);
-    m_cellPosition[i].setY(0.0);
-    m_cellPosition[i].setZ(0.0);
+    m_CellEnergy[i] = 0.0;
+    m_CellWeight[i] = 0.0;
+    m_CellTime[i] = 0.0;
+    m_CellDeltaTime[i] = 999.;
+    m_CellHash[i] = 0;
+    m_CellPosition[i].setX(0.0);
+    m_CellPosition[i].setY(0.0);
+    m_CellPosition[i].setZ(0.0);
   }
 
   m_linePar.clear();
@@ -313,7 +313,7 @@ void TileMuonFitter::setEventDefaults() {
 // ********************************************************************
 // ********************************************************************
 
-void TileMuonFitter::buildCells() {
+void TileMuonFitter::BuildCells() {
 
   // CaloCellContainer::const_iterator collItr = celcoll->begin();
   // CaloCellContainer::const_iterator lastColl = celcoll->end();
@@ -353,16 +353,16 @@ void TileMuonFitter::buildCells() {
     }
 
     if (m_doDensity)
-      m_cellWeight[m_nCells] = ener / volume;
+      m_CellWeight[m_nCells] = ener / volume;
     else
-      m_cellWeight[m_nCells] = ener;
-    m_cellEnergy[m_nCells] = ener;
-    m_cellTime[m_nCells] = time;
-    m_cellDeltaTime[m_nCells] = deltatime;
-    m_cellHash[m_nCells] = cell_idhash;
-    m_cellPosition[m_nCells].setX(caloDDE->x());
-    m_cellPosition[m_nCells].setY(caloDDE->y());
-    m_cellPosition[m_nCells].setZ(caloDDE->z());
+      m_CellWeight[m_nCells] = ener;
+    m_CellEnergy[m_nCells] = ener;
+    m_CellTime[m_nCells] = time;
+    m_CellDeltaTime[m_nCells] = deltatime;
+    m_CellHash[m_nCells] = cell_idhash;
+    m_CellPosition[m_nCells].setX(caloDDE->x());
+    m_CellPosition[m_nCells].setY(caloDDE->y());
+    m_CellPosition[m_nCells].setZ(caloDDE->z());
     m_nCells++;
 
   }	//end of CaloCellContainer cycle
@@ -372,7 +372,7 @@ void TileMuonFitter::buildCells() {
 // ********************************************************************
 // ********************************************************************
 
-bool TileMuonFitter::eventSelection() {
+bool TileMuonFitter::EventSelection() {
   // simple check if there are cells on top and bottom halfs
   // returns 1 if both top and bottom have energy, 
   // JM, Aug08: Change to allow for single beam halo muon
@@ -380,40 +380,37 @@ bool TileMuonFitter::eventSelection() {
 
   if (m_nCells < m_minimumCells) return false;
 
-  double maxReg1Energy;
-  double maxReg2Energy;
-  double cellPosition;
-  int maxReg1Index;
-  int maxReg2Index;
+  double maxReg1Energy, maxReg2Energy, cellposition;
+  int m_maxReg1Index, m_maxReg2Index;
   bool selection = false;
   maxReg1Energy = maxReg2Energy = 0.;
-  maxReg1Index = maxReg2Index = -1;
+  m_maxReg1Index = m_maxReg2Index = -1;
 
   for (int i = 0; i < m_nCells; i++) {
     if (!m_beamType.compare("singlebeam")) {
-      cellPosition = m_cellPosition[i].getZ();
+      cellposition = m_CellPosition[i].getZ();
     } else if (!m_beamType.compare("collisions")) {
-      cellPosition = 1.;
+      cellposition = 1.;
     } else {
-      cellPosition = m_cellPosition[i].getY();
+      cellposition = m_CellPosition[i].getY();
     }
 
-    if (cellPosition > 0) {
-      if (m_cellEnergy[i] > maxReg1Energy) {
-        maxReg1Energy = m_cellEnergy[i];
-        maxReg1Index = i;
+    if (cellposition > 0) {
+      if (m_CellEnergy[i] > maxReg1Energy) {
+        maxReg1Energy = m_CellEnergy[i];
+        m_maxReg1Index = i;
       }
     } else {
-      if (m_cellEnergy[i] > maxReg2Energy) {
-        maxReg2Energy = m_cellEnergy[i];
-        maxReg2Index = i;
+      if (m_CellEnergy[i] > maxReg2Energy) {
+        maxReg2Energy = m_CellEnergy[i];
+        m_maxReg2Index = i;
       }
     }
   }
 
   m_reg1to2 = 1;
-  if (maxReg1Index >= 0 && maxReg2Index >= 0) {
-    if (m_cellTime[maxReg2Index] < m_cellTime[maxReg1Index]) m_reg1to2 = 0;
+  if (m_maxReg1Index >= 0 && m_maxReg2Index >= 0) {
+    if (m_CellTime[m_maxReg2Index] < m_CellTime[m_maxReg1Index]) m_reg1to2 = 0;
   }
 
   if (!m_beamType.compare("collisions")) {
@@ -429,7 +426,7 @@ bool TileMuonFitter::eventSelection() {
 // ********************************************************************
 // ********************************************************************
 
-int TileMuonFitter::fitTrack() {
+int TileMuonFitter::FitTrack() {
 
   ATH_MSG_DEBUG( "Fitting with Std method" << m_nCells << " cells." );
 
@@ -441,15 +438,15 @@ int TileMuonFitter::fitTrack() {
   Z.resize(m_nCells);
   for (int i = 0; i < m_nCells; i++) {
 
-    X[i] = m_cellPosition[i].getX();
-    Y[i] = m_cellPosition[i].getY();
-    Z[i] = m_cellPosition[i].getZ();
+    X[i] = m_CellPosition[i].getX();
+    Y[i] = m_CellPosition[i].getY();
+    Z[i] = m_CellPosition[i].getZ();
     double rr = sqrt(X[i] * X[i] + Y[i] * Y[i]);
 
     ATH_MSG_DEBUG( "Cell " << i
-                  << "   Energy " << m_cellEnergy[i]
-                  << " Weight " << m_cellWeight[i]
-                  << "   Time " << m_cellTime[i]
+                  << "   Energy " << m_CellEnergy[i]
+                  << " Weight " << m_CellWeight[i]
+                  << "   Time " << m_CellTime[i]
                   << "   r " << rr
                   << "   X " << X[i]
                   << "   Y " << Y[i]
@@ -459,28 +456,28 @@ int TileMuonFitter::fitTrack() {
 
   // Minuit Method ------------------------------------------------------------
 
-  m_theTrack = new TileMuonTrackDistance(X, Y, Z, m_cellWeight);
-  m_theTrack->SetWeighted(m_doWeighted);
-  m_theTrack->Means();
+  theTrack = new TileMuonTrackDistance(X, Y, Z, m_CellWeight);
+  theTrack->SetWeighted(m_doWeighted);
+  theTrack->Means();
 
   double aa, bb, cc, dd;
   double erraa, errbb, errcc, errdd;
   aa = bb = cc = dd = erraa = errbb = errcc = errdd = 0.0;
-  if (m_cellPosition[m_maxTopIndex].getX() == m_cellPosition[m_maxBottomIndex].getX()) {
+  if (m_CellPosition[m_maxTopIndex].getX() == m_CellPosition[m_maxBottomIndex].getX()) {
     bb = 0.;
     dd = 0.;
   } else {
-    bb = (m_cellPosition[m_maxTopIndex].getY() - m_cellPosition[m_maxBottomIndex].getY())
-        / (m_cellPosition[m_maxTopIndex].getX() - m_cellPosition[m_maxBottomIndex].getX());
-    dd = (m_cellPosition[m_maxTopIndex].getZ() - m_cellPosition[m_maxBottomIndex].getZ())
-        / (m_cellPosition[m_maxTopIndex].getX() - m_cellPosition[m_maxBottomIndex].getX());
+    bb = (m_CellPosition[m_maxTopIndex].getY() - m_CellPosition[m_maxBottomIndex].getY())
+        / (m_CellPosition[m_maxTopIndex].getX() - m_CellPosition[m_maxBottomIndex].getX());
+    dd = (m_CellPosition[m_maxTopIndex].getZ() - m_CellPosition[m_maxBottomIndex].getZ())
+        / (m_CellPosition[m_maxTopIndex].getX() - m_CellPosition[m_maxBottomIndex].getX());
   }
 
   MnUserParameters upar;
   upar.Add("bb", bb, 0.1);
   upar.Add("dd", dd, 0.1);
 
-  MnMigrad migrad(*m_theTrack, upar);
+  MnMigrad migrad(*theTrack, upar);
   FunctionMinimum min = migrad();
 
   bool myIsValid = min.IsValid();
@@ -490,14 +487,14 @@ int TileMuonFitter::fitTrack() {
   if (myIsValid) {
     bb = min.UserState().Value("bb");
     dd = min.UserState().Value("dd");
-    aa = m_theTrack->GetMeanY() - bb * m_theTrack->GetMeanX();
-    cc = m_theTrack->GetMeanZ() - dd * m_theTrack->GetMeanX();
+    aa = theTrack->GetMeanY() - bb * theTrack->GetMeanX();
+    cc = theTrack->GetMeanZ() - dd * theTrack->GetMeanX();
     errbb = min.UserState().Error("bb");
     errdd = min.UserState().Error("dd");
-    erraa = fabs(errbb * m_theTrack->GetMeanX());
-    errcc = fabs(errdd * m_theTrack->GetMeanX());
+    erraa = fabs(errbb * theTrack->GetMeanX());
+    errcc = fabs(errdd * theTrack->GetMeanX());
 
-    addTrack(aa, bb, cc, dd);
+    AddTrack(aa, bb, cc, dd);
 
     m_fitMinimum[m_fitMinimum.size() - 1] = min.UserState().Fval();
   }
@@ -524,19 +521,19 @@ int TileMuonFitter::fitTrack() {
 // ********************************************************************
 // ********************************************************************
 
-void TileMuonFitter::calculateTime() {
+void TileMuonFitter::CalculateTime() {
 
   if (!m_beamType.compare("singlebeam") || !m_beamType.compare("collisions"))
-    calculateTimeAtZequal0();
+    CalculateTimeAtZequal0();
   else
-    calculateTimeAtYequal0();
+    CalculateTimeAtYequal0();
 
 }
 // ********************************************************************
 // ********************************************************************
 // ********************************************************************
 
-void TileMuonFitter::calculateTimeAtYequal0() {
+void TileMuonFitter::CalculateTimeAtYequal0() {
 
   // Uses the track parameters to calculate:
   //   time, position  at horizontal plane
@@ -564,23 +561,23 @@ void TileMuonFitter::calculateTimeAtYequal0() {
       if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Using cells to calculate time at Y=0: ";
 
       for (int i = 0; i < m_nCells; i++) {
-        if (m_doHoughTransform && m_cellInfo[i].track_index != (int) n) continue; // use only cells that belong to the current track
+        if (m_doHoughTransform && ci[i].track_index != (int) n) continue; // use only cells that belong to the current track
 
         if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << i << "/ ";
-        Hep3Vector dataP(m_cellPosition[i].getX(), m_cellPosition[i].getY(),
-            m_cellPosition[i].getZ());
-        Hep3Vector lineP(m_theTrack->ClosestPoint(&dataP, m_linePar[n]));
+        Hep3Vector dataP(m_CellPosition[i].getX(), m_CellPosition[i].getY(),
+            m_CellPosition[i].getZ());
+        Hep3Vector lineP(theTrack->ClosestPoint(&dataP, m_linePar[n]));
         correction = (theZeroCrossingPosition - lineP).mag() / c_light;
 
-        if (m_doWeighted) weight = m_cellEnergy[i];
-        if ((m_reg1to2 && (m_cellPosition[i].getY() > 0))
-            || (!m_reg1to2 && (m_cellPosition[i].getY() < 0))) {
+        if (m_doWeighted) weight = m_CellEnergy[i];
+        if ((m_reg1to2 && (m_CellPosition[i].getY() > 0))
+            || (!m_reg1to2 && (m_CellPosition[i].getY() < 0))) {
           correction = 1.0 * correction;
         } else {
           correction = -1.0 * correction;
         }
 
-        time += weight * (m_cellTime[i] + correction);
+        time += weight * (m_CellTime[i] + correction);
         weightsum += weight;
       }
 
@@ -599,7 +596,7 @@ void TileMuonFitter::calculateTimeAtYequal0() {
 // ********************************************************************
 // ********************************************************************
 
-void TileMuonFitter::calculateTimeAtZequal0() {
+void TileMuonFitter::CalculateTimeAtZequal0() {
 
   // Uses the track parameters to calculate:
   //   time, position  at vertical plane
@@ -627,22 +624,22 @@ void TileMuonFitter::calculateTimeAtZequal0() {
       if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Using cells to calculate time at Z=0: ";
 
       for (int i = 0; i < m_nCells; i++) {
-        if (m_doHoughTransform && m_cellInfo[i].track_index != (int) n) continue; // use only cells that belong to the current track
+        if (m_doHoughTransform && ci[i].track_index != (int) n) continue; // use only cells that belong to the current track
 
         if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << i << "/ ";
-        Hep3Vector dataP(m_cellPosition[i].getX(), m_cellPosition[i].getY(),
-            m_cellPosition[i].getZ());
-        Hep3Vector lineP(m_theTrack->ClosestPoint(&dataP, m_linePar[n]));
+        Hep3Vector dataP(m_CellPosition[i].getX(), m_CellPosition[i].getY(),
+            m_CellPosition[i].getZ());
+        Hep3Vector lineP(theTrack->ClosestPoint(&dataP, m_linePar[n]));
         correction = (theZeroCrossingPosition - lineP).mag() / c_light;
 
-        if (m_doWeighted) weight = m_cellEnergy[i];
-        if ((m_reg1to2 && (m_cellPosition[i].getZ() > 0))
-            || (!m_reg1to2 && (m_cellPosition[i].getZ() < 0)))
+        if (m_doWeighted) weight = m_CellEnergy[i];
+        if ((m_reg1to2 && (m_CellPosition[i].getZ() > 0))
+            || (!m_reg1to2 && (m_CellPosition[i].getZ() < 0)))
           correction = 1.0 * correction;
         else
           correction = -1.0 * correction;
 
-        time += weight * (m_cellTime[i] + correction);
+        time += weight * (m_CellTime[i] + correction);
         weightsum += weight;
       }
 
@@ -662,12 +659,12 @@ void TileMuonFitter::calculateTimeAtZequal0() {
 // ********************************************************************
 // ********************************************************************
 
-void TileMuonFitter::buildTileCosmicMuon(int fitok) {
+void TileMuonFitter::BuildTileCosmicMuon(int fitok) {
 
   if (!m_beamType.compare("singlebeam") || !m_beamType.compare("collisions"))
-    buildTileCosmicMuonAtZequal0(fitok);
+    BuildTileCosmicMuonAtZequal0(fitok);
   else
-    buildTileCosmicMuonAtYequal0(fitok);
+    BuildTileCosmicMuonAtYequal0(fitok);
 
 }
 
@@ -675,7 +672,7 @@ void TileMuonFitter::buildTileCosmicMuon(int fitok) {
 // ********************************************************************
 // ********************************************************************
 
-void TileMuonFitter::buildTileCosmicMuonAtYequal0(int fitok) {
+void TileMuonFitter::BuildTileCosmicMuonAtYequal0(int fitok) {
 
   // Uses the track parameters to calculate:
   //   position and direction at horizontal at horizontal plane
@@ -711,10 +708,10 @@ void TileMuonFitter::buildTileCosmicMuonAtYequal0(int fitok) {
       std::vector<double> segPath;
       std::vector<int> segPartition, segModule, segSampling;
 
-      if (m_linePar.size() > 0) trackIntersection(ltop, lbot, n);
+      if (m_linePar.size() > 0) TrackIntersection(ltop, lbot, n);
       if (m_linePar.size() > 0)
-        trackSegmentIntersection(segPath, segPartition, segModule, segSampling, n);
-      if (m_linePar.size() > 0) energyInTrack(etop, ebot, cells, n);
+        TrackSegmentIntersection(segPath, segPartition, segModule, segSampling, n);
+      if (m_linePar.size() > 0) EnergyInTrack(etop, ebot, cells, n);
 
       theTileCosmicMuon->SetTime(m_zeroCrossingTime[n]);
       theTileCosmicMuon->SetPositionX(-1.0 * p0 / p1);
@@ -744,13 +741,13 @@ void TileMuonFitter::buildTileCosmicMuonAtYequal0(int fitok) {
     ATH_MSG_FATAL( "Cannot record TileCosmicMuonContainer" );
   }
 
-  if (fitok != 2) delete m_theTrack;
+  if (fitok != 2) delete theTrack;
 }
 // ********************************************************************
 // ********************************************************************
 // ********************************************************************
 
-void TileMuonFitter::buildTileCosmicMuonAtZequal0(int fitok) {
+void TileMuonFitter::BuildTileCosmicMuonAtZequal0(int fitok) {
 
   // Uses the track parameters to calculate:
   //   position and direction at horizontal at horizontal plane
@@ -786,10 +783,10 @@ void TileMuonFitter::buildTileCosmicMuonAtZequal0(int fitok) {
       std::vector<double> segPath;
       std::vector<int> segPartition, segModule, segSampling;
 
-      if (m_linePar.size() > 0) trackIntersection(ltop, lbot, n);
+      if (m_linePar.size() > 0) TrackIntersection(ltop, lbot, n);
       if (m_linePar.size() > 0)
-        trackSegmentIntersection(segPath, segPartition, segModule, segSampling, n);
-      if (m_linePar.size() > 0) energyInTrack(etop, ebot, cells, n);
+        TrackSegmentIntersection(segPath, segPartition, segModule, segSampling, n);
+      if (m_linePar.size() > 0) EnergyInTrack(etop, ebot, cells, n);
 
       theTileCosmicMuon->SetTime(m_zeroCrossingTime[n]);
       theTileCosmicMuon->SetPositionX(-1.0 * p2 / p3);
@@ -819,33 +816,33 @@ void TileMuonFitter::buildTileCosmicMuonAtZequal0(int fitok) {
     ATH_MSG_FATAL( "Cannot record TileCosmicMuonContainer" );
   }
 
-  if (fitok != 2) delete m_theTrack;
+  if (fitok != 2) delete theTrack;
 }
 
 // ********************************************************************
 // ********************************************************************
 // ********************************************************************
-void TileMuonFitter::trackIntersection(std::vector<double> & ltop, std::vector<double> & lbot,
+void TileMuonFitter::TrackIntersection(std::vector<double> & ltop, std::vector<double> & lbot,
     int index) {
 
-  const double p0 = m_linePar[index][0];
-  const double p1 = m_linePar[index][1];
-  const double p2 = m_linePar[index][2];
-  const double p3 = m_linePar[index][3];
+  double p0 = m_linePar[index][0];
+  double p1 = m_linePar[index][1];
+  double p2 = m_linePar[index][2];
+  double p3 = m_linePar[index][3];
 
   ATH_MSG_DEBUG( "Starting TrackIntersection: " );
   int is, ip;
-  std::vector<Hep3Vector> intPoint; //intersection points
-  std::vector<Hep3Vector> topIPO;   //intersection points on top hemisphere, order according to y
-  std::vector<Hep3Vector> bottomIPO; //intersection points on bottom hemisphere, order according to y
-  std::vector<Hep3Vector> temp3v;
-  std::vector<Hep3Vector> plane;
-  Hep3Vector horizontalPlane;
+  std::vector<Hep3Vector> m_intPoint; //intersection points
+  std::vector<Hep3Vector> m_topIPO;   //intersection points on top hemisphere, order according to y
+  std::vector<Hep3Vector> m_botIPO; //intersection points on bottom hemisphere, order according to y
+  std::vector<Hep3Vector> m_temp3v;
+  std::vector<Hep3Vector> m_Plane;
+  Hep3Vector m_horizontalPlane;
 
-  plane.resize(6);
+  m_Plane.resize(6);
   lbot.resize(3);
   ltop.resize(3);
-  temp3v.resize(2);
+  m_temp3v.resize(2);
   for (is = 0; is < 3; is++) {
     ltop[is] = 0.0;
     lbot[is] = 0.0;
@@ -859,8 +856,8 @@ void TileMuonFitter::trackIntersection(std::vector<double> & ltop, std::vector<d
       double x[2] = { (-1.0 * p0 * p1 + sqrt(aux_squared)) / (1 + p1 * p1), (-1.0 * p0 * p1
           - sqrt(aux_squared)) / (1 + p1 * p1) };
       for (uint8_t i = 0; i < 2; i++) {
-        temp3v[i].set(x[i], p0 + p1 * x[i], p2 + p3 * x[i]);
-        if (checkLBz(temp3v[i].z())) intPoint.push_back(temp3v[i]);
+        m_temp3v[i].set(x[i], p0 + p1 * x[i], p2 + p3 * x[i]);
+        if (checkLBz(m_temp3v[i].z())) m_intPoint.push_back(m_temp3v[i]);
       }
     }
 
@@ -870,67 +867,65 @@ void TileMuonFitter::trackIntersection(std::vector<double> & ltop, std::vector<d
       double x[2] = { (-1.0 * p0 * p1 + sqrt(aux_squared)) / (1 + p1 * p1), (-1.0 * p0 * p1
           - sqrt(aux_squared)) / (1 + p1 * p1) };
       for (uint8_t i = 0; i < 2; i++) {
-        temp3v[i].set(x[i], p0 + p1 * x[i], p2 + p3 * x[i]);
-        if (checkEBz(temp3v[i].z())) intPoint.push_back(temp3v[i]);
+        m_temp3v[i].set(x[i], p0 + p1 * x[i], p2 + p3 * x[i]);
+        if (checkEBz(m_temp3v[i].z())) m_intPoint.push_back(m_temp3v[i]);
       }
     }
 
   }
-  uint8_t ncylint = intPoint.size();
+  uint8_t ncylint = m_intPoint.size();
 
   /** check intersection with vertical planes */
   for (ip = 0; ip < 6; ip++)
-    plane[ip].set(0, 0, 0);
+    m_Plane[ip].set(0, 0, 0);
   if (p3 != 0) {
-    const double inv_p3 = 1. / p3;
     for (ip = 0; ip < 2; ip++) {
-      plane[ip].set((m_tileDD_zLB[ip] - p2) * inv_p3, p0 + p1 * (m_tileDD_zLB[ip] - p2) * inv_p3,
+      m_Plane[ip].set((m_tileDD_zLB[ip] - p2) / p3, p0 + p1 * (m_tileDD_zLB[ip] - p2) / p3,
           m_tileDD_zLB[ip]);
 
-      plane[ip + 2].set((m_tileDD_zEBA[ip] - p2) * inv_p3, p0 + p1 * (m_tileDD_zEBA[ip] - p2) * inv_p3,
+      m_Plane[ip + 2].set((m_tileDD_zEBA[ip] - p2) / p3, p0 + p1 * (m_tileDD_zEBA[ip] - p2) / p3,
           m_tileDD_zEBA[ip]);
 
-      plane[ip + 4].set((m_tileDD_zEBC[ip] - p2) * inv_p3, p0 + p1 * (m_tileDD_zEBC[ip] - p2) * inv_p3,
+      m_Plane[ip + 4].set((m_tileDD_zEBC[ip] - p2) / p3, p0 + p1 * (m_tileDD_zEBC[ip] - p2) / p3,
           m_tileDD_zEBC[ip]);
 
       for (is = 0; is < 3; is++) {
-        if (checkLBr(plane[ip].perp(), is)) intPoint.push_back(plane[ip]);
-        if (checkEBr(plane[ip + 2].perp(), is)) intPoint.push_back(plane[ip + 2]);
-        if (checkEBr(plane[ip + 4].perp(), is)) intPoint.push_back(plane[ip + 4]);
+        if (checkLBr(m_Plane[ip].perp(), is)) m_intPoint.push_back(m_Plane[ip]);
+        if (checkEBr(m_Plane[ip + 2].perp(), is)) m_intPoint.push_back(m_Plane[ip + 2]);
+        if (checkEBr(m_Plane[ip + 4].perp(), is)) m_intPoint.push_back(m_Plane[ip + 4]);
       }
     }
   }
 
   ATH_MSG_DEBUG( "Intersection with cylinders: " << ncylint
-                << " with planes: " << intPoint.size() - ncylint );
+                << " with planes: " << m_intPoint.size() - ncylint );
 
   /** We need to check if we need to add the horizontal point.
    The criterion is: is the horizontal plane crossing point
    within TileCal or not? */
-  horizontalPlane.set(0, 0, 0);
+  m_horizontalPlane.set(0, 0, 0);
   uint16_t idx_hor = 99;
   uint16_t i, j, k, jmax;
   if (p1 != 0) {
-    const double inv_p1 = 1. / p1;
     /**check intersection with horizontal plane*/
-    horizontalPlane.set(-1.0 * p0 * inv_p1, 0, p2 - p3 * p0 * inv_p1);
-    if (checkLBz(horizontalPlane.z()) && checkLBr(horizontalPlane.x())) {
+    m_horizontalPlane.set(-1.0 * p0 / p1, 0, p2 - p3 * p0 / p1);
+    if (checkLBz(m_horizontalPlane.z()) && checkLBr(m_horizontalPlane.x())) {
       for (i = 0; i < 3; i++)
-        if (checkLBr(horizontalPlane.x(), i)) idx_hor = i;
+        if (checkLBr(m_horizontalPlane.x(), i)) idx_hor = i;
     }
-    if (checkEBz(horizontalPlane.z()) && checkEBr(horizontalPlane.x())) {
+    if (checkEBz(m_horizontalPlane.z()) && checkEBr(m_horizontalPlane.x())) {
       for (i = 0; i < 3; i++)
-        if (checkEBr(horizontalPlane.x(), i)) idx_hor = i;
+        if (checkEBr(m_horizontalPlane.x(), i)) idx_hor = i;
     }
   }
 
   ATH_MSG_DEBUG( "Horizontal Plane idx: " << idx_hor
-                << " X: " << horizontalPlane.x()
-                << " Z: " << horizontalPlane.z() );
+                << " X: " << m_horizontalPlane.x()
+                << " Z: " << m_horizontalPlane.z() );
 
   /** Order points according to the y coordinate, and create two
    different vectors, one for bottom, one for top */
-  uint16_t npoints = intPoint.size();
+  uint16_t npoints = m_intPoint.size();
   float ymax;
   bool filled;
   std::vector<uint8_t> neworder;
@@ -944,8 +939,8 @@ void TileMuonFitter::trackIntersection(std::vector<double> & ltop, std::vector<d
         if (j == neworder[k]) filled = true;
       }
       if (filled) continue;
-      if (intPoint[j].y() > ymax) {
-        ymax = intPoint[j].y();
+      if (m_intPoint[j].y() > ymax) {
+        ymax = m_intPoint[j].y();
         jmax = j;
       }
     }
@@ -960,20 +955,20 @@ void TileMuonFitter::trackIntersection(std::vector<double> & ltop, std::vector<d
    if needed. This must go at the top of the bottom list and at
    the bottom of the top list, since they are ordered according to y.*/
 
-  if (idx_hor < 99) bottomIPO.push_back(horizontalPlane);
+  if (idx_hor < 99) m_botIPO.push_back(m_horizontalPlane);
 
   for (i = 0; i < npoints; i++) {
-    if (intPoint[neworder[i]].y() > 0)
-      topIPO.push_back(intPoint[neworder[i]]);
+    if (m_intPoint[neworder[i]].y() > 0)
+      m_topIPO.push_back(m_intPoint[neworder[i]]);
     else
-      bottomIPO.push_back(intPoint[neworder[i]]);
+      m_botIPO.push_back(m_intPoint[neworder[i]]);
   }
-  if (idx_hor < 99) topIPO.push_back(horizontalPlane);
+  if (idx_hor < 99) m_topIPO.push_back(m_horizontalPlane);
 
-  ATH_MSG_DEBUG( "Number of points on top: " << topIPO.size()
-                << " and on bottom: " << bottomIPO.size() );
+  ATH_MSG_DEBUG( "Number of points on top: " << m_topIPO.size()
+                << " and on bottom: " << m_botIPO.size() );
 
-  if (topIPO.size() > 1 && bottomIPO.size()) {
+  if (m_topIPO.size() > 1 && m_botIPO.size()) {
 
     /** Now let's turn points into segment lengths. We take
      two successive points from the top or bottom stack.
@@ -983,13 +978,13 @@ void TileMuonFitter::trackIntersection(std::vector<double> & ltop, std::vector<d
 
     Hep3Vector temp_midpoint;
     int temp_idx;
-    for (i = 0; i < topIPO.size() - 1; i++) {
+    for (i = 0; i < m_topIPO.size() - 1; i++) {
       ATH_MSG_DEBUG( "Top points : " << i
-                    << " X: " << topIPO[i].x()
-                    << " Y: " << topIPO[i].y()
-                    << " Z: " << topIPO[i].z() );
+                    << " X: " << m_topIPO[i].x()
+                    << " Y: " << m_topIPO[i].y()
+                    << " Z: " << m_topIPO[i].z() );
 
-      temp_midpoint = (topIPO[i] + topIPO[i + 1]) / 2.;
+      temp_midpoint = (m_topIPO[i] + m_topIPO[i + 1]) / 2.;
       ATH_MSG_DEBUG( "Temp_midz top: " << temp_midpoint.z() );
 
       if (checkLBz(temp_midpoint.z()))
@@ -1002,26 +997,26 @@ void TileMuonFitter::trackIntersection(std::vector<double> & ltop, std::vector<d
       ATH_MSG_DEBUG( "Temp_idx : " << temp_idx );
 
       if (temp_idx < 0 || temp_idx > 2) continue;
-      ltop[temp_idx] += (topIPO[i] - topIPO[i + 1]).mag();
+      ltop[temp_idx] += (m_topIPO[i] - m_topIPO[i + 1]).mag();
 
       ATH_MSG_DEBUG( "ltop : " << ltop[temp_idx] );
 
     }
 
-    ATH_MSG_DEBUG( "Top points : " << topIPO.size() - 1
-                  << " X: " << topIPO[topIPO.size() - 1].x()
-                  << " Y: " << topIPO[topIPO.size() - 1].y()
-                  << " Z: " << topIPO[topIPO.size() - 1].z() );
+    ATH_MSG_DEBUG( "Top points : " << m_topIPO.size() - 1
+                  << " X: " << m_topIPO[m_topIPO.size() - 1].x()
+                  << " Y: " << m_topIPO[m_topIPO.size() - 1].y()
+                  << " Z: " << m_topIPO[m_topIPO.size() - 1].z() );
 
 
-    for (i = 0; i < bottomIPO.size() - 1; i++) {
+    for (i = 0; i < m_botIPO.size() - 1; i++) {
       ATH_MSG_DEBUG( "Bot points : " << i
-                    << " X: " << bottomIPO[i].x()
-                    << " Y: " << bottomIPO[i].y()
-                    << " Z: " << bottomIPO[i].z() );
+                    << " X: " << m_botIPO[i].x()
+                    << " Y: " << m_botIPO[i].y()
+                    << " Z: " << m_botIPO[i].z() );
 
 
-      temp_midpoint = (bottomIPO[i] + bottomIPO[i + 1]) / 2.;
+      temp_midpoint = (m_botIPO[i] + m_botIPO[i + 1]) / 2.;
       ATH_MSG_DEBUG( "Temp_midz bottom: " << temp_midpoint.z() );
 
       if (checkLBz(temp_midpoint.z()))
@@ -1034,15 +1029,15 @@ void TileMuonFitter::trackIntersection(std::vector<double> & ltop, std::vector<d
       ATH_MSG_DEBUG( "Temp_idx : " << temp_idx );
 
       if (temp_idx < 0 || temp_idx > 2) continue;
-      lbot[temp_idx] += (bottomIPO[i] - bottomIPO[i + 1]).mag();
+      lbot[temp_idx] += (m_botIPO[i] - m_botIPO[i + 1]).mag();
 
       ATH_MSG_DEBUG( "lbot : " << lbot[temp_idx] );
     }
 
-    ATH_MSG_DEBUG( "Bot points : " << bottomIPO.size() - 1
-                  << " X: " << bottomIPO[bottomIPO.size() - 1].x()
-                  << " Y: " << bottomIPO[bottomIPO.size() - 1].y()
-                  << " Z: " << bottomIPO[bottomIPO.size() - 1].z() );
+    ATH_MSG_DEBUG( "Bot points : " << m_botIPO.size() - 1
+                  << " X: " << m_botIPO[m_botIPO.size() - 1].x()
+                  << " Y: " << m_botIPO[m_botIPO.size() - 1].y()
+                  << " Z: " << m_botIPO[m_botIPO.size() - 1].z() );
 
   }
   ATH_MSG_DEBUG( "Leaving TrackIntersection" );
@@ -1051,7 +1046,7 @@ void TileMuonFitter::trackIntersection(std::vector<double> & ltop, std::vector<d
 // ********************************************************************
 // ********************************************************************
 // ********************************************************************
-void TileMuonFitter::trackSegmentIntersection(std::vector<double> & segPath,
+void TileMuonFitter::TrackSegmentIntersection(std::vector<double> & segPath,
     std::vector<int> & segPartition, std::vector<int> & segModule, std::vector<int> & segSampling,
     int index) {
 
@@ -1062,17 +1057,17 @@ void TileMuonFitter::trackSegmentIntersection(std::vector<double> & segPath,
 
   ATH_MSG_DEBUG( "Starting TrackIntersection: " );
 
-  std::vector<Hep3Vector> intPoint; //intersection points
-  std::vector<Hep3Vector> ordPoint;   //ordered intersection points (according to y)
+  std::vector<Hep3Vector> m_intPoint; //intersection points
+  std::vector<Hep3Vector> m_ordPoint;   //ordered intersection points (according to y)
 
-  std::vector<Hep3Vector> temp3v;
-  std::vector<Hep3Vector> plane;
-  std::vector<Hep3Vector> modPlane;
+  std::vector<Hep3Vector> m_temp3v;
+  std::vector<Hep3Vector> m_Plane;
+  std::vector<Hep3Vector> m_modPlane;
 
-  plane.resize(6);
-  modPlane.clear();
-  modPlane.resize(32);
-  temp3v.resize(2);
+  m_Plane.resize(6);
+  m_modPlane.clear();
+  m_modPlane.resize(32);
+  m_temp3v.resize(2);
   segPath.clear();
   segPartition.clear();
   segModule.clear();
@@ -1089,8 +1084,8 @@ void TileMuonFitter::trackSegmentIntersection(std::vector<double> & segPath,
       double x[2] = { (-1.0 * p0 * p1 + sqrt(aux_squared)) / (1 + p1 * p1), (-1.0 * p0 * p1
           - sqrt(aux_squared)) / (1 + p1 * p1) };
       for (i = 0; i < 2; i++) {
-        temp3v[i].set(x[i], p0 + p1 * x[i], p2 + p3 * x[i]);
-        if (checkLBz(temp3v[i].z())) intPoint.push_back(temp3v[i]);
+        m_temp3v[i].set(x[i], p0 + p1 * x[i], p2 + p3 * x[i]);
+        if (checkLBz(m_temp3v[i].z())) m_intPoint.push_back(m_temp3v[i]);
       }
     }
 
@@ -1100,36 +1095,36 @@ void TileMuonFitter::trackSegmentIntersection(std::vector<double> & segPath,
       double x[2] = { (-1.0 * p0 * p1 + sqrt(aux_squared)) / (1 + p1 * p1), (-1.0 * p0 * p1
           - sqrt(aux_squared)) / (1 + p1 * p1) };
       for (i = 0; i < 2; i++) {
-        temp3v[i].set(x[i], p0 + p1 * x[i], p2 + p3 * x[i]);
-        if (checkEBz(temp3v[i].z())) intPoint.push_back(temp3v[i]);
+        m_temp3v[i].set(x[i], p0 + p1 * x[i], p2 + p3 * x[i]);
+        if (checkEBz(m_temp3v[i].z())) m_intPoint.push_back(m_temp3v[i]);
       }
     }
 
   }
-  uint16_t ncylint = intPoint.size();
+  uint16_t ncylint = m_intPoint.size();
 
   /** check intersection with vertical planes */
   for (ip = 0; ip < 6; ip++)
-    plane[ip].set(0, 0, 0);
+    m_Plane[ip].set(0, 0, 0);
   if (p3 != 0) {
     for (ip = 0; ip < 2; ip++) {
-      plane[ip].set((m_tileDD_zLB[ip] - p2) / p3, p0 + p1 * (m_tileDD_zLB[ip] - p2) / p3,
+      m_Plane[ip].set((m_tileDD_zLB[ip] - p2) / p3, p0 + p1 * (m_tileDD_zLB[ip] - p2) / p3,
           m_tileDD_zLB[ip]);
 
-      plane[ip + 2].set((m_tileDD_zEBA[ip] - p2) / p3, p0 + p1 * (m_tileDD_zEBA[ip] - p2) / p3,
+      m_Plane[ip + 2].set((m_tileDD_zEBA[ip] - p2) / p3, p0 + p1 * (m_tileDD_zEBA[ip] - p2) / p3,
           m_tileDD_zEBA[ip]);
 
-      plane[ip + 4].set((m_tileDD_zEBC[ip] - p2) / p3, p0 + p1 * (m_tileDD_zEBC[ip] - p2) / p3,
+      m_Plane[ip + 4].set((m_tileDD_zEBC[ip] - p2) / p3, p0 + p1 * (m_tileDD_zEBC[ip] - p2) / p3,
           m_tileDD_zEBC[ip]);
 
       for (is = 0; is < 3; is++) {
-        if (checkLBr(plane[ip].perp(), is)) intPoint.push_back(plane[ip]);
-        if (checkEBr(plane[ip + 2].perp(), is)) intPoint.push_back(plane[ip + 2]);
-        if (checkEBr(plane[ip + 4].perp(), is)) intPoint.push_back(plane[ip + 4]);
+        if (checkLBr(m_Plane[ip].perp(), is)) m_intPoint.push_back(m_Plane[ip]);
+        if (checkEBr(m_Plane[ip + 2].perp(), is)) m_intPoint.push_back(m_Plane[ip + 2]);
+        if (checkEBr(m_Plane[ip + 4].perp(), is)) m_intPoint.push_back(m_Plane[ip + 4]);
       }
     }
   }
-  uint16_t nvpint = intPoint.size() - ncylint;
+  uint16_t nvpint = m_intPoint.size() - ncylint;
 
   /** check intersection with module planes */
   double tanTheta, tempX;
@@ -1137,19 +1132,19 @@ void TileMuonFitter::trackSegmentIntersection(std::vector<double> & segPath,
     tanTheta = tan(pi / 32. * double(ip));
     if ((tanTheta - p1) != 0) {
       tempX = p0 / (tanTheta - p1);
-      modPlane[ip].set(tempX, p0 + p1 * tempX, p2 + p3 * tempX);
+      m_modPlane[ip].set(tempX, p0 + p1 * tempX, p2 + p3 * tempX);
 
-      if (checkLBz(modPlane[ip].z()) && checkLBr(modPlane[ip].perp())) {
-        intPoint.push_back(modPlane[ip]);
+      if (checkLBz(m_modPlane[ip].z()) && checkLBr(m_modPlane[ip].perp())) {
+        m_intPoint.push_back(m_modPlane[ip]);
       }
 
-      if (checkEBz(modPlane[ip].z()) && checkEBr(modPlane[ip].perp())) {
-        intPoint.push_back(modPlane[ip]);
+      if (checkEBz(m_modPlane[ip].z()) && checkEBr(m_modPlane[ip].perp())) {
+        m_intPoint.push_back(m_modPlane[ip]);
       }
     }
   }
-  uint16_t nmpint = intPoint.size() - ncylint - nvpint;
-  uint16_t npoints = intPoint.size();
+  uint16_t nmpint = m_intPoint.size() - ncylint - nvpint;
+  uint16_t npoints = m_intPoint.size();
 
   ATH_MSG_DEBUG( "Intersections: " << npoints
                 << " cylinders: " << ncylint
@@ -1170,8 +1165,8 @@ void TileMuonFitter::trackSegmentIntersection(std::vector<double> & segPath,
         if (j == neworder[k]) filled = true;
       }
       if (filled) continue;
-      if (intPoint[j].y() > ymax) {
-        ymax = intPoint[j].y();
+      if (m_intPoint[j].y() > ymax) {
+        ymax = m_intPoint[j].y();
         jmax = j;
       }
     }
@@ -1182,9 +1177,9 @@ void TileMuonFitter::trackSegmentIntersection(std::vector<double> & segPath,
     ATH_MSG_DEBUG( " Npoints " << npoints << " New order: " << neworder.size() );
 
   for (i = 0; i < npoints; i++)
-    ordPoint.push_back(intPoint[neworder[i]]);
+    m_ordPoint.push_back(m_intPoint[neworder[i]]);
 
-  ATH_MSG_DEBUG( "Number of points: " << ordPoint.size() );
+  ATH_MSG_DEBUG( "Number of points: " << m_ordPoint.size() );
 
   /** Now let's turn points into segment lengths. We take
    two successive points from the stack.
@@ -1192,19 +1187,19 @@ void TileMuonFitter::trackSegmentIntersection(std::vector<double> & segPath,
    indices are checked with the midpoint. We discard
    this segment if its midpoint is in the LB/EB gap.*/
 
-  if (ordPoint.size() > 1) {
+  if (m_ordPoint.size() > 1) {
     Hep3Vector temp_midpoint;
     int temp_idr, temp_idp, temp_idm;
     bool extra_debug = false;
-    for (i = 0; i < ordPoint.size(); i++) {
+    for (i = 0; i < m_ordPoint.size(); i++) {
       ATH_MSG_DEBUG( "Ordered points : " << i
-                    << " X: " << ordPoint[i].x()
-                    << " Y: " << ordPoint[i].y()
-                    << " Z: " << ordPoint[i].z() );
+                    << " X: " << m_ordPoint[i].x()
+                    << " Y: " << m_ordPoint[i].y()
+                    << " Z: " << m_ordPoint[i].z() );
 
-      if (i == ordPoint.size() - 1) break;
+      if (i == m_ordPoint.size() - 1) break;
 
-      temp_midpoint = (ordPoint[i] + ordPoint[i + 1]) / 2.;
+      temp_midpoint = (m_ordPoint[i] + m_ordPoint[i + 1]) / 2.;
 
       if (checkLBz(temp_midpoint.z())) {
         temp_idr = whichLBr(temp_midpoint.perp());
@@ -1219,7 +1214,7 @@ void TileMuonFitter::trackSegmentIntersection(std::vector<double> & segPath,
       if (temp_idr < 0 || temp_idr > 2) continue;
       if (temp_idm < 0 || temp_idm > 63) continue;
 
-      segPath.push_back((ordPoint[i] - ordPoint[i + 1]).mag());
+      segPath.push_back((m_ordPoint[i] - m_ordPoint[i + 1]).mag());
       segPartition.push_back(temp_idp);
       segModule.push_back(temp_idm);
       segSampling.push_back(temp_idr);
@@ -1249,11 +1244,11 @@ void TileMuonFitter::trackSegmentIntersection(std::vector<double> & segPath,
                         << " vertical planes: " << nvpint
                         << " module planes: " << nmpint << endmsg;
 
-      for (i = 0; i < ordPoint.size(); i++) {
+      for (i = 0; i < m_ordPoint.size(); i++) {
         msg(MSG::DEBUG) << "Ordered points : " << i
-                         << " X: " << ordPoint[i].x()
-                         << " Y: " << ordPoint[i].y()
-                         << " Z: " << ordPoint[i].z() << endmsg;
+                         << " X: " << m_ordPoint[i].x()
+                         << " Y: " << m_ordPoint[i].y()
+                         << " Z: " << m_ordPoint[i].z() << endmsg;
       }
 
       for (i = 0; i < segPath.size(); i++) {
@@ -1374,13 +1369,13 @@ int TileMuonFitter::whichModule(Hep3Vector tempvec) {
   if (phi > 2.0 * pi)
     mod = -1;
   else
-    mod = int(phi * (64.0 / (2.0 * pi)));
+    mod = int(phi / (2.0 * pi) * 64.0);
   return mod;
 }
 // ********************************************************************
 // ********************************************************************
 // ********************************************************************
-void TileMuonFitter::energyInTrack(std::vector<double> & etop, std::vector<double> & ebot
+void TileMuonFitter::EnergyInTrack(std::vector<double> & etop, std::vector<double> & ebot
     , std::vector<IdentifierHash> & cells, int index) {
 
   int is;
@@ -1417,7 +1412,7 @@ void TileMuonFitter::energyInTrack(std::vector<double> & etop, std::vector<doubl
     int section = m_tileID->section(cell_id);
     if (section < 1 || section > 2 || sample < 0 || sample >= 3) break;
     dataP.set(caloDDE->x(), caloDDE->y(), caloDDE->z());
-    lineP = m_theTrack->ClosestPoint(&dataP, m_linePar[index]);
+    lineP = theTrack->ClosestPoint(&dataP, m_linePar[index]);
     double distance = (dataP - lineP).mag();
     if (distance < distance_cut[section - 1][sample]) {
       cells.push_back(cell_idhash);
@@ -1433,19 +1428,19 @@ void TileMuonFitter::energyInTrack(std::vector<double> & etop, std::vector<doubl
 // ********************************************************************
 // ********************************************************************
 
-void TileMuonFitter::buildComTime(int fitok) {
+void TileMuonFitter::BuildComTime(int fitok) {
 
   if (!m_beamType.compare("singlebeam") || !m_beamType.compare("collisions"))
-    buildComTimeAtZequal0(fitok);
+    BuildComTimeAtZequal0(fitok);
   else
-    buildComTimeAtYequal0(fitok);
+    BuildComTimeAtYequal0(fitok);
 
 }
 // ********************************************************************
 // ********************************************************************
 // ********************************************************************
 
-void TileMuonFitter::buildComTimeAtYequal0(int fitok) {
+void TileMuonFitter::BuildComTimeAtYequal0(int fitok) {
 
   // Uses the track parameters to calculate:
   //   position and direction at horizontal at horizontal plane
@@ -1509,7 +1504,7 @@ void TileMuonFitter::buildComTimeAtYequal0(int fitok) {
 // ********************************************************************
 // ********************************************************************
 
-void TileMuonFitter::buildComTimeAtZequal0(int fitok) {
+void TileMuonFitter::BuildComTimeAtZequal0(int fitok) {
 
   // Uses the track parameters to calculate:
   //   position and direction at vertical plane
@@ -1641,24 +1636,24 @@ void TileMuonFitter::points2dir(CellInfo &ci1, CellInfo &ci2, float *w) {
 // count number of cells inside RoI (line between two cells)
 unsigned int TileMuonFitter::CntCells(unsigned int index1, unsigned int index2, double &skew) {
 
-  unsigned int size = m_cellInfo.size();
+  unsigned int size = ci.size();
   double dist;
 
   // compute direction -------------------------------------------------------
 
-  float p[3] = { m_cellInfo[index1].x, m_cellInfo[index1].y, m_cellInfo[index1].z };
+  float p[3] = { ci[index1].x, ci[index1].y, ci[index1].z };
   float w[3];
-  points2dir(m_cellInfo[index1], m_cellInfo[index2], w);
+  points2dir(ci[index1], ci[index2], w);
 
   // find number of cells inside RoI -----------------------------------------
 
   unsigned int cnt = 0U;
   skew = 0.0;
   for (unsigned int i = 0U; i < size; i++) {
-    if (!m_cellInfo[i].use || i == index1 || i == index2) continue;
+    if (!ci[i].use || i == index1 || i == index2) continue;
 
-    dist = dist2line(m_cellInfo[i], p, w);
-    if (dist < m_cellInfo[i].dist * 0.5F) {
+    dist = dist2line(ci[i], p, w);
+    if (dist < ci[i].dist * 0.5F) {
       cnt++;
       skew += dist;
     }
@@ -1669,16 +1664,16 @@ unsigned int TileMuonFitter::CntCells(unsigned int index1, unsigned int index2, 
 }
 
 // get the line between two cells with the highest number of cells inside RoI
-bool TileMuonFitter::guessTrack(unsigned int &index1, unsigned int &index2) {
+bool TileMuonFitter::GuessTrack(unsigned int &index1, unsigned int &index2) {
   unsigned int i, j;
-  unsigned int NPoints = m_cellInfo.size();
+  unsigned int NPoints = ci.size();
 
   double skew, skew_min = 999999999.9;
   unsigned int cnt, cnt_max = 0U;
 
   for (i = 1; i < NPoints; i++) {
     for (j = 0; j < i; j++) {
-      if (m_cellInfo[i].use && m_cellInfo[j].use) {
+      if (ci[i].use && ci[j].use) {
         cnt = CntCells(i, j, skew);
         if (cnt > cnt_max || (cnt == cnt_max && skew < skew_min)) {
           cnt_max = cnt;
@@ -1694,54 +1689,54 @@ bool TileMuonFitter::guessTrack(unsigned int &index1, unsigned int &index2) {
 }
 
 // build vector of CellInfo with all activated cells
-unsigned int TileMuonFitter::buildCellInfoVector() {
+unsigned int TileMuonFitter::BuildCIVector() {
   const float distance_cut[2][3] = { { 300.0, 820.0, 470.0 }, { 350.0, 540.0, 740.0 } };
 
-  m_cellInfo.clear();
+  ci.clear();
   m_linePar.clear();
 
   for (int i = 0; i < m_nCells; i++) {
     CellInfo cell;
 
-    cell.x = m_cellPosition[i].getX() + SHIFT_X;
-    cell.y = m_cellPosition[i].getY();
-    cell.z = m_cellPosition[i].getZ() + SHIFT_Z;
+    cell.x = m_CellPosition[i].getX() + SHIFT_X;
+    cell.y = m_CellPosition[i].getY();
+    cell.z = m_CellPosition[i].getZ() + SHIFT_Z;
 
-    cell.e = m_cellEnergy[i];
-    cell.ev = m_cellWeight[i];
+    cell.e = m_CellEnergy[i];
+    cell.ev = m_CellWeight[i];
 
     cell.use = true;
     cell.is_out = true;
     cell.track_index = -1;
 
-    int sample = m_tileID->sample(m_tileID->cell_id(m_cellHash[i]));
-    int section = m_tileID->section(m_tileID->cell_id(m_cellHash[i]));
+    int sample = m_tileID->sample(m_tileID->cell_id(m_CellHash[i]));
+    int section = m_tileID->section(m_tileID->cell_id(m_CellHash[i]));
     if (section < 1 || section > 2 || sample < 0 || sample >= 3)
       cell.dist = 500.0;
     else
       cell.dist = distance_cut[section - 1][sample];
 
-    m_cellInfo.push_back(cell);
+    ci.push_back(cell);
   }
 
-  return m_cellInfo.size();
+  return ci.size();
 }
 
 // select cells that are inside RoI
-float TileMuonFitter::selectCells(float *p, float *w) {
-  unsigned int NPoints = m_cellInfo.size();
+float TileMuonFitter::SelectCells(float *p, float *w) {
+  unsigned int NPoints = ci.size();
   float toten = 0.0;
   unsigned int ntrack = m_linePar.size();
 
   for (unsigned int i = 0; i < NPoints; i++) {
-    if (m_cellInfo[i].use == false || dist2line(m_cellInfo[i], p, w) > m_cellInfo[i].dist) {
-      m_cellInfo[i].is_out = true;
+    if (ci[i].use == false || dist2line(ci[i], p, w) > ci[i].dist) {
+      ci[i].is_out = true;
     } else {
-      m_cellInfo[i].is_out = false;
-      m_cellInfo[i].use = false;
-      m_cellInfo[i].track_index = ntrack;
+      ci[i].is_out = false;
+      ci[i].use = false;
+      ci[i].track_index = ntrack;
 
-      toten += m_cellInfo[i].e;
+      toten += ci[i].e;
     }
   }
 
@@ -1749,17 +1744,17 @@ float TileMuonFitter::selectCells(float *p, float *w) {
 }
 
 // if line is close to horizontal in plane zy, it should be halo event
-bool TileMuonFitter::isHaloMuon(double azy) {
+bool TileMuonFitter::IsHaloMuon(double azy) {
   if ((azy > 1.0 * pi / 2.0 - 6.0 * BIN_RES_AZY && azy < 1.0 * pi / 2.0 + 6.0 * BIN_RES_AZY)||
   (azy > 3.0*pi/2.0 - 6.0*BIN_RES_AZY && azy < 3.0*pi/2.0 + 6.0*BIN_RES_AZY))return true;
   else return false;
 }
 
-void TileMuonFitter::doHough(double &rxy, double &axy, double &rzy, double &azy) {
+void TileMuonFitter::DoHough(double &rxy, double &axy, double &rzy, double &azy) {
   unsigned int i, j;
 
   // dont need to compute other iteration for Halo events
-  if (isHaloMuon(azy)) return;
+  if (IsHaloMuon(azy)) return;
 
   float nminrxy = rxy - 4.0 * BIN_RES_RXY;
   float nmaxrxy = rxy + 4.0 * BIN_RES_RXY;
@@ -1777,16 +1772,16 @@ void TileMuonFitter::doHough(double &rxy, double &axy, double &rzy, double &azy)
   float arzy = 0.0F;
   float aazy = 0.0F;
 
-  unsigned int NPoints = m_cellInfo.size();
+  unsigned int NPoints = ci.size();
   for (i = 1; i < NPoints; i++) {
     for (j = 0; j < i; j++) {
-      cart2hough(m_cellInfo[i].x, m_cellInfo[i].y, m_cellInfo[j].x, m_cellInfo[j].y, rxy, axy);
-      cart2hough(m_cellInfo[i].z, m_cellInfo[i].y, m_cellInfo[j].z, m_cellInfo[j].y, rzy, azy);
+      cart2hough(ci[i].x, ci[i].y, ci[j].x, ci[j].y, rxy, axy);
+      cart2hough(ci[i].z, ci[i].y, ci[j].z, ci[j].y, rzy, azy);
 
       if (rxy < nminrxy || rxy > nmaxrxy || axy < nminaxy || axy > nmaxaxy || rzy < nminrzy
           || rzy > nmaxrzy || azy < nminazy || azy > nmaxazy) continue;
 
-      weight = m_cellInfo[i].ev * m_cellInfo[j].ev;
+      weight = ci[i].ev * ci[j].ev;
 
       arxy += rxy * weight;
       aaxy += axy * weight;
@@ -1796,21 +1791,26 @@ void TileMuonFitter::doHough(double &rxy, double &axy, double &rzy, double &azy)
     }
   }
 
-  const double inv_aw = 1. / aw;
-  rxy = arxy * inv_aw;
-  axy = aaxy * inv_aw;
-  rzy = arzy * inv_aw;
-  azy = aazy * inv_aw;
+// 	float inv_aw = 1.0F / aw;
+// 	rxy = arxy * inv_aw;
+// 	axy = aaxy * inv_aw;
+// 	rzy = arzy * inv_aw;
+// 	azy = aazy * inv_aw;
+
+  rxy = arxy / aw;
+  axy = aaxy / aw;
+  rzy = arzy / aw;
+  azy = aazy / aw;
 }
 
-int TileMuonFitter::houghTrack() {
+int TileMuonFitter::HoughTrack() {
 
   ATH_MSG_DEBUG( "Fitting with Hough method" << m_nCells << " cells." );
 
   // Build vector with cell Infos --------------------------------------------
   bool compute = true;
 
-  unsigned int NPoints = buildCellInfoVector();
+  unsigned int NPoints = BuildCIVector();
   if (NPoints > MAX_NCELLS) compute = false;
 
   // loop to find tracks -----------------------------------------------------
@@ -1820,26 +1820,26 @@ int TileMuonFitter::houghTrack() {
     // Get direction with maximum number of cells --------------------------
 
     unsigned int index1, index2;
-    if (!guessTrack(index1, index2)) break;
+    if (!GuessTrack(index1, index2)) break;
 
     // select cells which belong to the track ------------------------------
 
-    float p[3] = { m_cellInfo[index1].x, m_cellInfo[index1].y, m_cellInfo[index1].z };
+    float p[3] = { ci[index1].x, ci[index1].y, ci[index1].z };
     float w[3];
-    points2dir(m_cellInfo[index1], m_cellInfo[index2], w);
+    points2dir(ci[index1], ci[index2], w);
 
-    float en = selectCells(p, w);
+    float en = SelectCells(p, w);
     if (en < MIN_ENERGY_MEV) continue;
 
     // compute reference direction -----------------------------------------
 
     double rxy, axy, rzy, azy;
-    cart2hough(m_cellInfo[index1].x, m_cellInfo[index1].y, m_cellInfo[index2].x, m_cellInfo[index2].y, rxy, axy);
-    cart2hough(m_cellInfo[index1].z, m_cellInfo[index1].y, m_cellInfo[index2].z, m_cellInfo[index2].y, rzy, azy);
+    cart2hough(ci[index1].x, ci[index1].y, ci[index2].x, ci[index2].y, rxy, axy);
+    cart2hough(ci[index1].z, ci[index1].y, ci[index2].z, ci[index2].y, rzy, azy);
 
     // compute Hough Transform ---------------------------------------------
 
-    doHough(rxy, axy, rzy, azy);
+    DoHough(rxy, axy, rzy, azy);
 
     // compute track parameters --------------------------------------------
 
@@ -1848,7 +1848,7 @@ int TileMuonFitter::houghTrack() {
     hough2cart(rxy, axy, SHIFT_X, bb, aa);
     hough2cart(rzy, azy, SHIFT_Z, dd, cc);
 
-    addTrack(aa, bb, (aa - cc) / dd, bb / dd);
+    AddTrack(aa, bb, (aa - cc) / dd, bb / dd);
 
     ATH_MSG_DEBUG( "Minimum Value  aa: " << aa
                   << "   bb: " << bb
@@ -1869,19 +1869,19 @@ int TileMuonFitter::houghTrack() {
   Z.resize(m_nCells);
 
   for (int i = 0; i < m_nCells; i++) {
-    X[i] = m_cellPosition[i].getX();
-    Y[i] = m_cellPosition[i].getY();
-    Z[i] = m_cellPosition[i].getZ();
+    X[i] = m_CellPosition[i].getX();
+    Y[i] = m_CellPosition[i].getY();
+    Z[i] = m_CellPosition[i].getZ();
   }
 
-  m_theTrack = new TileMuonTrackDistance(X, Y, Z, m_cellWeight);
-  m_theTrack->SetWeighted(m_doWeighted);
+  theTrack = new TileMuonTrackDistance(X, Y, Z, m_CellWeight);
+  theTrack->SetWeighted(m_doWeighted);
 
   if (m_linePar.size() > 0) return 1;
   else return 0;
 }
 
-void TileMuonFitter::addTrack(double aa, double bb, double cc, double dd) {
+void TileMuonFitter::AddTrack(double aa, double bb, double cc, double dd) {
   std::vector<double> par;
   par.resize(4);
 
