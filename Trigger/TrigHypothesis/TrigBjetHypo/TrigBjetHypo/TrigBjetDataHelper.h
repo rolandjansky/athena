@@ -81,6 +81,9 @@ class TrigBjetTrackInfo {
   void setBlayer(int blayer) { m_Blayer = blayer; }
   int Blayer(void) const { return m_Blayer; }
 
+  void setGrade(int grade) { m_grade = grade; }
+  int grade(void) const { return m_grade; }
+
   void clear(void);
 
  private:
@@ -92,6 +95,7 @@ class TrigBjetTrackInfo {
   uint8_t m_pixHits, m_sctHits, m_siHits;
   float m_chi2;
   int m_Blayer;
+  int m_grade;
 };
 
 std::string str(const TrigBjetTrackInfo&);
