@@ -32,6 +32,9 @@ except: # default values if not done
     from __main__ import ALLOWDISABLE
     from __main__ import ALLOWBACKNAV
 
+from AthenaCommon.Logging import logging
+mlog = logging.getLogger( 'TileDigitiization' )
+
 if doTileHitToRawChannelDirect:
     
     from TileSimAlgs.TileRawChannelFromHitsGetter import *
@@ -51,9 +54,7 @@ if doTileHitToDigit:
     
 if doTileDigitsFromPulse:
     
-    from AthenaCommon.Logging import logging
     import traceback
-    mlog = logging.getLogger( 'TileDigitiization' )
 
     try:        
         from TileSimAlgs.TileSimAlgsConf import TileDigitsFromPulse
@@ -78,6 +79,32 @@ if doTileDigitToRawChannel:
     jobproperties.TileRecFlags.doTileOpt = False
     if jobproperties.Beam.beamType == 'collisions': 
         jobproperties.TileRecFlags.doTileOptATLAS = True
+
+        if jobproperties.Beam.bunchSpacing.get_Value()<75:
+            from Digitization.DigitizationFlags import digitizationFlags
+            halfBS=float(digitizationFlags.bunchSpacing.get_Value())
+            if halfBS>0.0:
+                if digitizationFlags.BeamIntensityPattern.statusOn:
+                    pat=digitizationFlags.BeamIntensityPattern.get_Value()
+                    if len(pat)>1:
+                        filled=0
+                        for p in xrange(len(pat)):
+                            if float(pat[p]) > 0.0:
+                                if filled > 0:
+                                    halfBS/=2.
+                                    break
+                                else:
+                                    filled=1
+                            else:
+                                filled=0
+                        if halfBS>25.0: halfBS=25.0
+                    else:
+                        halfBS/=2.
+                else:
+                    halfBS/=2.
+                mlog.info("Setting max/min time for parabolic correction to +/- %4.1f ns" % halfBS)
+                jobproperties.TileRecFlags.TimeMinForAmpCorrection = -halfBS
+                jobproperties.TileRecFlags.TimeMaxForAmpCorrection = halfBS
     else: 
         jobproperties.TileRecFlags.doTileOpt2 = True
     
@@ -103,3 +130,12 @@ ToolSvc.TileBeamInfoProvider.TileRawChannelContainer=""; # disable checking of D
 
 #
 include( "TileSimAlgs/TileSamplingFraction_jobOptions.py" )
+
+if jobproperties.TileRecFlags.doTileMF():
+    print  ToolSvc.TileRawChannelBuilderMF
+if jobproperties.TileRecFlags.doTileOptATLAS():
+    print  ToolSvc.TileRawChannelBuilderOptATLAS
+if jobproperties.TileRecFlags.doTileOpt2():
+    print  ToolSvc.TileRawChannelBuilderOpt2Filter
+
+

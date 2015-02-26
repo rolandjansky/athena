@@ -338,7 +338,9 @@ StatusCode TilePulseForTileMuonReceiver::execute() {
       if (ros == 3) {
         jch = Dchan[index];
       } else if (ros == 4) {
-        index = index + std::pow(-1, index);
+        //index = index + std::pow(-1, index);
+        int sgn = (index&1) ? -1 : 1;
+        index += sgn;
         jch = Dchan[index];
       }
 
