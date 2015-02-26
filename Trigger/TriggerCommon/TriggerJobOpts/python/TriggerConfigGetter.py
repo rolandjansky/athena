@@ -86,6 +86,7 @@ class TriggerConfigGetter(Configured):
 
     def setConfigSvcConnParams(self,connectionParameters):
         sl = []
+        if hasattr(svcMgr,'L1TopoConfigSvc'): sl += [svcMgr.L1TopoConfigSvc]
         if hasattr(svcMgr,'LVL1ConfigSvc'): sl += [svcMgr.LVL1ConfigSvc]
         if hasattr(svcMgr,'HLTConfigSvc'): sl += [svcMgr.HLTConfigSvc]
 
