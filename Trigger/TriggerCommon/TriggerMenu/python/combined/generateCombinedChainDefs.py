@@ -224,24 +224,87 @@ def _addMatching(theChainDef,chainDicts,listOfChainDefs):
     for cD in listOfChainDefs: 
         allInputTEsEF +=[deepcopy(cD.signatureList[-1]['listOfTriggerElements'][0])] 
 
-    #print 'WOOF all input TEs', allInputTEsEF
-
     inputTEsEF = theChainDef.signatureList[-1]['listOfTriggerElements']
     secondlastTEsEF = theChainDef.signatureList[-2]['listOfTriggerElements']
-    
+    muonTE = theChainDef.signatureList[3]['listOfTriggerElements']
+
     from TrigBjetHypo.TrigLeptonJetMatchAllTEConfig  import getLeptonJetMatchAllTEInstance
     LeptonJetFexAllTE_RZ = getLeptonJetMatchAllTEInstance("CloseBy","RZ")
 
     logCombined.debug("Input TEs to LeptonJet algorithm: %s" % inputTEsEF)
-
     EFChainName = "EF_" + chainDicts[0]['chainName']
 
-    #print 'WOOF inputTEsEF', inputTEsEF
-    #print 'WOOF secondlastTEsEF', secondlastTEsEF
 
-    #NOTE: muonTE has to come first, the jet TE
-    theChainDef.addSequence([LeptonJetFexAllTE_RZ],allInputTEsEF,EFChainName)
-    theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [EFChainName])    
+    #-----------------------------------------------------------------------------------
+    # algo imports
+    #-----------------------------------------------------------------------------------
+    # super ROI building
+    from TrigBjetHypo.TrigSuperRoiBuilderAllTEConfig import getSuperRoiBuilderAllTEInstance
+    theSuperRoi=getSuperRoiBuilderAllTEInstance()
+
+    # tracking
+    from TrigInDetConf.TrigInDetSequence import TrigInDetSequence # new
+    [trkvtx, trkftf, trkprec] = TrigInDetSequence("Bjet", "bjet", "IDTrig", "2step").getSequence() # new
+    # for b-tagging
+    theBjetTracks = trkftf+trkprec
+    # for vertexing
+    theVertexTracks = trkvtx 
+    
+    # primary vertexing
+    from TrigT2HistoPrmVtx.TrigT2HistoPrmVtxAllTEConfig import EFHistoPrmVtxAllTE_Jet
+    from TrigT2HistoPrmVtx.TrigT2HistoPrmVtxComboConfig import EFHistoPrmVtxCombo_Jet
+
+    #jet splitting
+    from TrigBjetHypo.TrigJetSplitterAllTEConfig import getJetSplitterAllTEInstance
+    theJetSplit=getJetSplitterAllTEInstance()
+
+    # Et hypo (doesn't work in superROI mode)
+    hypoThresh ='55GeV'
+    from TrigBjetHypo.TrigBjetEtHypoConfig import getBjetEtHypoInstance
+    theBjetEtHypo   = getBjetEtHypoInstance("EF", "Btagging", hypoThresh)
+
+    # secondary vertexing
+    from InDetTrigVxSecondary.InDetTrigVxSecondary_LoadTools import TrigVxSecondaryCombo_EF
+    theVxSecondary = TrigVxSecondaryCombo_EF()
+
+    #lepton jet matching
+    from TrigBjetHypo.TrigLeptonJetMatchAllTEConfig  import getLeptonJetMatchAllTEInstance
+    LeptonJetFexAllTE_RZ = getLeptonJetMatchAllTEInstance("CloseBy","RZ")
+
+
+    #-----------------------------------------------------------------------------------
+    # sequence assembling & TE definitions
+    #-----------------------------------------------------------------------------------
+    superTE = inputTEsEF[0]+'_sRoi'
+    superTrackingTE = superTE+'_sTrk'
+    prmVertexTE = superTrackingTE+'_prmVtx'
+    comboPrmVtxTE = inputTEsEF[0]+'_sRoisTrkVtx'
+    jetSplitTE=comboPrmVtxTE+'_jetSplit'
+    jetEtHypoTE=jetSplitTE+'_bjetHypo'+hypoThresh
+    jetTrackTE=jetEtHypoTE+'bjettrk'
+    secVtxTE=comboPrmVtxTE+'bj'+hypoThresh+'Vxsec'
+    
+
+    # Vertexing part of the chain
+    theChainDef.addSequence(theSuperRoi,                 inputTEsEF,                    superTE        )
+    theChainDef.addSequence(theVertexTracks,             superTE,                       superTrackingTE) 
+    theChainDef.addSequence([EFHistoPrmVtxAllTE_Jet()],  superTrackingTE,               prmVertexTE    )
+    theChainDef.addSequence([EFHistoPrmVtxCombo_Jet()], [superTrackingTE, prmVertexTE], comboPrmVtxTE  )
+    
+    theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [comboPrmVtxTE])
+
+    # b-tagging part of the chain (requires PV)
+    theChainDef.addSequence(theJetSplit,             [inputTEsEF, comboPrmVtxTE], jetSplitTE )
+    theChainDef.addSequence(theBjetEtHypo,            jetSplitTE,                 jetEtHypoTE)  
+    theChainDef.addSequence(theBjetTracks,            jetEtHypoTE,                jetTrackTE )   
+    theChainDef.addSequence(theVxSecondary,          [jetTrackTE, comboPrmVtxTE], secVtxTE   )
+
+    theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [secVtxTE])
+
+    # matching part of the chain
+    theChainDef.addSequence([LeptonJetFexAllTE_RZ], [muonTE,     secVtxTE],EFChainName)    
+
+    theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [EFChainName])
 
     return theChainDef
 

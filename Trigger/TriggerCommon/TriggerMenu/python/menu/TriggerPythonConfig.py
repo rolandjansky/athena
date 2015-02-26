@@ -63,6 +63,7 @@ class TriggerPythonConfig:
         self.theHLTChains      = []
         self.theSeqLists       = []
         self.theSeqDict        = {} # dict by Seq output TE
+        self.theTopoStartFrom    = []
         self.setMuctpiInfo(low_pt=1, high_pt=1, max_cand=13)
         self.Lvl1CaloInfo().setName('standard')
         self.Lvl1CaloInfo().setGlobalScale(1)
@@ -77,6 +78,7 @@ class TriggerPythonConfig:
         TPClog.debug("self.theEFHLTChains: %s" % self.theEFHLTChains)
         TPClog.debug("self.theSeqLists: %s" % self.theSeqLists)
         TPClog.debug("self.theSeqDict: %s" % self.theSeqDict) 
+        TPClog.debug("self.theTopoStartFrom: %s" % self.theTopoStartFrom) 
         
 
 
@@ -454,7 +456,7 @@ items in BGRP1"""
             return found[0]
         return None
 
-    def addSequence(self,  inTE, algolist, outTE, topo_starts_from=None):
+    def addSequence(self,  inTE, algolist, outTE, topo_start_from=None):
         """ Adds HLT sequences to the menu """
 
         if outTE in self.theSeqDict.iterkeys():
@@ -464,7 +466,7 @@ items in BGRP1"""
             
         if outTE in self.theLVL1Thresholds.thresholdNames():
             logger().error("LVL1 theshold of name identical to output TE: "+outTE +" exists")
-        seq = HLTSequence(inTE, algolist, outTE, topo_starts_from)
+        seq = HLTSequence(inTE, algolist, outTE, topo_start_from)
         self.theSeqLists.append(seq)
         self.theSeqDict[outTE] = seq
         return outTE
@@ -473,7 +475,7 @@ items in BGRP1"""
         """ Adds HLT sequences to TPC """
         outTE = theHLTSequence.output
         inTE = theHLTSequence.input
-        topo_starts_from = theHLTSequence.topo_starts_from
+        topo_start_from = theHLTSequence.topo_start_from
         algolist = theHLTSequence.algs
         
         if outTE in self.theSeqDict.iterkeys():
@@ -708,13 +710,22 @@ items in BGRP1"""
             return te
         def renameKey(key, teRemap):
             # print 'key=',key
-            tes, algos = key.split('#')
+            keycount = key.count("#")
+            if (keycount == 2):
+                tes, algos, tsf = key.split('#')
+            else:
+                tes, algos = key.split('#')
+
             tes = tes.split(',')
             key1 = ''
             for te in tes:
                 key1 += '%s,' % renameTE(te, teRemap)
             if len(key1)>0: key1 = key1[:-1]
-            return '%s#%s' % (key1, algos)
+            if keycount == 1:
+                return '%s#%s' % (key1, algos)
+            elif keycount ==2:
+                return '%s#%s#%s' % (key1, algos,tsf)
+
         def chooseName(v):
             """pick the name of the output TE from a list of output TE's (which have the same definition)
             v: list of TE names of length >= 2
@@ -730,7 +741,11 @@ items in BGRP1"""
             """
             inTEs = ','.join([str(te) for te in seq.input])
             algs  = ','.join([str(a) for a in seq.algs])
-            return '%s#%s' % (inTEs, algs)
+            if (seq.topo_start_from):
+                tsf = ','.join([str(a) for a in seq.topo_start_from])
+                return '%s#%s#%s' % (inTEs, algs, tsf)
+            else:
+                return '%s#%s' % (inTEs, algs)
 
         seqs = self.allSequences()
         seq_list0 = [] # original sequences
@@ -739,13 +754,14 @@ items in BGRP1"""
         seq_to_outTEs = {}
         for seq in seqs:
             key = createKey(seq)
+            topoStartFrom = seq.topo_start_from
             outTE = seq.output
             if key in seq_to_outTEs:
                 seq_to_outTEs[key] += [outTE]
             else:
                 seq_to_outTEs[key]  = [outTE]
-            seq_list0.append( (key, outTE))
-            seq_list1.append( (key, outTE))
+            seq_list0.append( (key, outTE) ) 
+            seq_list1.append( (key, outTE) ) 
 
         # Update the renaming rules
         teRenaming = {}
@@ -761,6 +777,7 @@ items in BGRP1"""
             # First update the renaming rules based on the previous iteration
             for seq, outTEs in seq_to_outTEs.iteritems():
                 if len(outTEs) <= 1: continue
+                                       
                 name = chooseName(outTEs)
                 for x in outTEs:
                     teRenaming[x] = name

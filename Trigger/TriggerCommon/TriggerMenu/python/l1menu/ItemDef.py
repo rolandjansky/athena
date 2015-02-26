@@ -54,6 +54,10 @@ class ItemDef:
         unpairedRcond       = BGRP0 & BGRP7 # unpaired beams 1 oR beam 2
         bgrp7cond           = BGRP0 & BGRP7 # No unpaired anymore
 
+        exec("BGRP10 = Logic(Lvl1InternalTrigger('BGRP10'))")
+        alfacalib           = BGRP0 & BGRP10
+        abortgap            = BGRP2 & BGRP8
+
         # partition 1
         bgrpcond1           = BGRP0 & BGRP11
         calibcond1          = BGRP0 & BGRP12
@@ -82,6 +86,8 @@ class ItemDef:
         LVL1MenuItem('L1_EM16'      ).setLogic( EM16       & physcond).setTriggerType( emTT )
         LVL1MenuItem('L1_EM8VH'     ).setLogic( EM8VH      & physcond).setTriggerType( emTT )
         LVL1MenuItem('L1_EM10VH'    ).setLogic( EM10VH     & physcond).setTriggerType( emTT )
+        LVL1MenuItem('L1_EM20A'     ).setLogic( EM20A       & physcond).setTriggerType( emTT )
+        LVL1MenuItem('L1_EM20C'     ).setLogic( EM20C       & physcond).setTriggerType( emTT )
         LVL1MenuItem('L1_EM13VH'    ).setLogic( EM13VH     & physcond).setTriggerType( emTT )
         LVL1MenuItem('L1_EM15VH'    ).setLogic( EM15VH     & physcond).setTriggerType( emTT )  
         LVL1MenuItem('L1_EM18VH'    ).setLogic( EM18VH     & physcond).setTriggerType( emTT )  
@@ -291,6 +297,7 @@ class ItemDef:
         LVL1MenuItem('L1_MU10_TAU12I'      ).setLogic( MU10  & HA12I         & physcond).setTriggerType( TT.calo )
         LVL1MenuItem('L1_MU10_TAU12IM'     ).setLogic( MU10  & HA12IM        & physcond).setTriggerType( TT.calo )
         LVL1MenuItem('L1_MU10_TAU20'       ).setLogic( MU10  & HA20          & physcond).setTriggerType( TT.calo )
+        LVL1MenuItem('L1_MU10_TAU20IM'     ).setLogic( MU10  & HA20IM        & physcond).setTriggerType( TT.calo )
         LVL1MenuItem('L1_MU10_TAU20I'       ).setLogic( MU10  & HA20I        & physcond).setTriggerType( TT.calo )
         LVL1MenuItem('L1_TAU12I_MU10_J25'  ).setLogic( HA12I & MU10 & J25    & physcond).setTriggerType( TT.calo )
         LVL1MenuItem('L1_TAU12I_MU10_J25_2J12'  ).setLogic( HA12I & MU10 & J25 & J12.x(2)  & physcond).setTriggerType( TT.calo )
@@ -343,6 +350,8 @@ class ItemDef:
         LVL1MenuItem('L1_J50'   ).setLogic( J50  & physcond).setTriggerType(TT.calo)
         LVL1MenuItem('L1_J60'   ).setLogic( J60  & physcond).setTriggerType(TT.calo)
         LVL1MenuItem('L1_J75'   ).setLogic( J75  & physcond).setTriggerType(TT.calo)
+        LVL1MenuItem('L1_J75A'  ).setLogic( J75A & physcond).setTriggerType(TT.calo)
+        LVL1MenuItem('L1_J75C'  ).setLogic( J75C & physcond).setTriggerType(TT.calo)
         LVL1MenuItem('L1_J85'   ).setLogic( J85  & physcond).setTriggerType(TT.calo)
         LVL1MenuItem('L1_J100'  ).setLogic( J100 & physcond).setTriggerType(TT.calo)
         LVL1MenuItem('L1_J120'  ).setLogic( J120 & physcond).setTriggerType(TT.calo)
@@ -381,6 +390,7 @@ class ItemDef:
         LVL1MenuItem('L1_J30.32ETA49_EMPTY').setLogic( J3032ETA49 & cosmiccond ).setTriggerType(TT.calo)
         LVL1MenuItem('L1_J30.32ETA49_FIRSTEMPTY').setLogic( J3032ETA49 & firstempty ).setTriggerType(TT.calo)
         LVL1MenuItem('L1_J30.32ETA49_UNPAIRED_ISO'   ).setLogic( J3032ETA49 & unpaired_isocond   ).setTriggerType(TT.calo)
+        LVL1MenuItem('L1_J30.32ETA49_UNPAIRED_NONISO'   ).setLogic( J3032ETA49 & unpaired_nonisocond   ).setTriggerType(TT.calo)
         
         # multi jet
         LVL1MenuItem('L1_2J25.32ETA49'  ).setLogic( JF25 & JB25 & physcond).setTriggerType(TT.calo)
@@ -403,7 +413,7 @@ class ItemDef:
         LVL1MenuItem('L1_3J15.0ETA24' ).setLogic( J150ETA24.x(3) & physcond).setTriggerType(TT.calo)
         LVL1MenuItem('L1_5J15.0ETA24' ).setLogic( J150ETA24.x(5) & physcond).setTriggerType(TT.calo)
 
-        LVL1MenuItem('L1_ZB_J20').setLogic(ZB_EM15 & J20 & physcond).setTriggerType(TT.zerobs)
+#        LVL1MenuItem('L1_ZB_J20').setLogic(ZB_EM15 & J20 & physcond).setTriggerType(TT.zerobs)
         if ('Physics_HI_v3' in TriggerFlags.triggerMenuSetup()):
             LVL1MenuItem('L1_ZB', ctpid=240).setLogic(ZB_J75 & physcond).setTriggerType(TT.zerobs)
         else:
@@ -468,15 +478,18 @@ class ItemDef:
         MBTS_2_2 = MBTS_A.x(2) & MBTS_C.x(2)
         MBTS_3_3 = MBTS_A.x(3) & MBTS_C.x(3)
         MBTS_4_4 = MBTS_A.x(4) & MBTS_C.x(4)
-        
+        MBTS_4_A = MBTS_A.x(4)
+        MBTS_4_C = MBTS_C.x(4)
+
         LVL1MenuItem('L1_MBTS_1'             ).setLogic( MBTS_1   & physcond ).setTriggerType(TT.minb)
         LVL1MenuItem('L1_MBTS_2'             ).setLogic( MBTS_2   & physcond ).setTriggerType(TT.minb)
         LVL1MenuItem('L1_MBTS_1_1'           ).setLogic( MBTS_1_1 & physcond ).setTriggerType(TT.minb)
         LVL1MenuItem('L1_MBTS_2_2'           ).setLogic( MBTS_2_2 & physcond ).setTriggerType(TT.minb)
         LVL1MenuItem('L1_MBTS_3_3'           ).setLogic( MBTS_3_3 & physcond ).setTriggerType(TT.minb)
         LVL1MenuItem('L1_MBTS_4_4'           ).setLogic( MBTS_4_4 & physcond ).setTriggerType(TT.minb)
+        LVL1MenuItem('L1_MBTS_4_A'           ).setLogic( MBTS_4_A & physcond ).setTriggerType(TT.minb)
+        LVL1MenuItem('L1_MBTS_4_C'           ).setLogic( MBTS_4_C & physcond ).setTriggerType(TT.minb)
 
-        
         LVL1MenuItem('L1_MBTS_1_UNPAIRED_ISO'  ).setLogic( MBTS_1   & unpaired_isocond).setTriggerType(TT.minb)
         LVL1MenuItem('L1_MBTS_2_UNPAIRED_ISO'  ).setLogic( MBTS_2   & unpaired_isocond).setTriggerType(TT.minb)
         LVL1MenuItem('L1_MBTS_1_1_UNPAIRED_ISO').setLogic( MBTS_1_1 & unpaired_isocond).setTriggerType(TT.minb)
@@ -582,7 +595,18 @@ class ItemDef:
         LVL1MenuItem('L1_BCM_HT_BGRP0'               ).setLogic( BCM_Comb.x(7) & BGRP0).setTriggerType(TT.minb)
         LVL1MenuItem('L1_BCM_AC_CA_BGRP0'            ).setLogic((BCM_AtoC|BCM_CtoA) & BGRP0).setTriggerType(TT.minb) 
         LVL1MenuItem('L1_BCM_AC_CA_UNPAIRED_ISO'     ).setLogic((BCM_AtoC|BCM_CtoA)&unpaired_isocond).setTriggerType(TT.minb)
+
+        LVL1MenuItem('L1_BCM_AC_UNPAIRED_ISO'     ).setLogic( BCM_AtoC & unpaired_isocond).setTriggerType(TT.minb)
+        LVL1MenuItem('L1_BCM_CA_UNPAIRED_ISO'     ).setLogic( BCM_CtoA & unpaired_isocond).setTriggerType(TT.minb)
         
+        LVL1MenuItem('L1_BCM_AC_UNPAIRED_NONISO'     ).setLogic( BCM_AtoC & unpaired_nonisocond).setTriggerType(TT.minb)
+        LVL1MenuItem('L1_BCM_CA_UNPAIRED_NONISO'     ).setLogic( BCM_CtoA & unpaired_nonisocond).setTriggerType(TT.minb)
+        
+        #LVL1MenuItem('L1_BCM_AC_ABORTGAP'     ).setLogic( BCM_AtoC & abortgap).setTriggerType(TT.minb)
+        #LVL1MenuItem('L1_BCM_CA_ABORTGAP'     ).setLogic( BCM_CtoA & abortgap).setTriggerType(TT.minb)
+        #LVL1MenuItem('L1_BCM_Wide_ABORTGAP'   ).setLogic( BCM_Wide & abortgap).setTriggerType(TT.minb)        
+
+
         # RANDOM
         LVL1MenuItem('L1_RD0_FILLED'         ).setLogic( RNDM0 & physcond           ).setTriggerType(TT.rand)
         LVL1MenuItem('L1_RD0_EMPTY'          ).setLogic( RNDM0 & cosmiccond         ).setTriggerType(TT.rand)
@@ -591,6 +615,12 @@ class ItemDef:
 
         LVL1MenuItem('L1_RD1_FILLED'         ).setLogic( RNDM1 & physcond           ).setTriggerType(TT.rand)
         LVL1MenuItem('L1_RD1_EMPTY'          ).setLogic( RNDM1 & cosmiccond         ).setTriggerType(TT.zerobs)
+
+        LVL1MenuItem('L1_RD2_FILLED'         ).setLogic( RNDM2 & physcond           ).setTriggerType(TT.rand)
+        LVL1MenuItem('L1_RD2_EMPTY'          ).setLogic( RNDM2 & cosmiccond         ).setTriggerType(TT.rand)
+
+        LVL1MenuItem('L1_RD3_FILLED'         ).setLogic( RNDM3 & physcond           ).setTriggerType(TT.rand)
+        LVL1MenuItem('L1_RD3_EMPTY'          ).setLogic( RNDM3 & cosmiccond         ).setTriggerType(TT.rand)
 
         # BGRP
         LVL1MenuItem('L1_BGRP0').setLogic( BGRP0 ).setTriggerType(TT.rand)
@@ -613,106 +643,306 @@ class ItemDef:
         LVL1MenuItem('L1_TRT', ctpid=0x4e).setLogic(NIMTRT & BGRP0).setTriggerType(TT.rpcout)
 
         # ALFA 
-        LVL1MenuItem('L1_ALFA_ANY').setLogic((ALFA_B7L1U | ALFA_B7L1L | ALFA_A7L1U | ALFA_A7L1L | ALFA_A7R1U | ALFA_A7R1L | ALFA_B7R1U | ALFA_B7R1L) & physcond).setTriggerType(TT.rpcout)
+        ALFA_ANY_A=( ALFA_B7L1U | ALFA_B7L1L | ALFA_A7L1U | ALFA_A7L1L )
+        ALFA_ANY_C=( ALFA_A7R1U | ALFA_A7R1L | ALFA_B7R1U | ALFA_B7R1L ) 
+        ALFA_ANY= ( ALFA_ANY_A | ALFA_ANY_C )
+        ALFA_C= ( (ALFA_A7R1U & ALFA_B7R1U ) |  (ALFA_A7R1L & ALFA_B7R1L ) )
+        ALFA_A= ( (ALFA_A7L1U & ALFA_B7L1U ) |  (ALFA_A7L1L & ALFA_B7L1L ) )
+        ALFA_EINE= ((ALFA_B7L1U | ALFA_B7L1L | ALFA_A7L1U | ALFA_A7L1L) & ( ALFA_A7R1U | ALFA_A7R1L | ALFA_B7R1U | ALFA_B7R1L))
+        ALFA_ELASTIC= ( ((ALFA_B7L1U | ALFA_A7L1U) & (ALFA_A7R1L | ALFA_B7R1L)) | ((ALFA_B7L1L | ALFA_A7L1L) & (ALFA_A7R1U | ALFA_B7R1U)) )
+        ALFA_ANTI_ELASTIC= (((ALFA_B7L1U | ALFA_A7L1U) & (ALFA_A7R1U | ALFA_B7R1U)) | ((ALFA_B7L1L | ALFA_A7L1L) & (ALFA_A7R1L | ALFA_B7R1L)))
+
+        MBTS_INNER = (MBTS_A0 | MBTS_A1 |  MBTS_A2 | MBTS_A3 | MBTS_A4 | MBTS_A5 | MBTS_A6 | MBTS_A7 | MBTS_C0 | MBTS_C1 | MBTS_C2 | MBTS_C3 | MBTS_C4 | MBTS_C5 | MBTS_C6 | MBTS_C7)         
+
+        
+        LVL1MenuItem('L1_ALFA_ELAST1').setLogic((ALFA_B7L1U & ALFA_A7L1U &  ALFA_A7R1L & ALFA_B7R1L) &
+                                                Not(ALFA_B7L1L | ALFA_A7L1L |  ALFA_A7R1U | ALFA_B7R1U) & physcond).setTriggerType(TT.rpcout)
+        
+        
+        LVL1MenuItem('L1_ALFA_ELAST2').setLogic((ALFA_B7L1L & ALFA_A7L1L &  ALFA_A7R1U & ALFA_B7R1U) &
+                                                Not(ALFA_B7L1U | ALFA_A7L1U |  ALFA_A7R1L | ALFA_B7R1L) & physcond).setTriggerType(TT.rpcout)
+        
+        
+        LVL1MenuItem('L1_ALFA_ELAST11').setLogic((ALFA_B7L1U & ALFA_A7L1U &  ALFA_A7R1L & ALFA_B7R1L) & physcond).setTriggerType(TT.rpcout)
+        LVL1MenuItem('L1_ALFA_ELAST12').setLogic((ALFA_B7L1L & ALFA_A7L1L &  ALFA_A7R1U & ALFA_B7R1U) & physcond).setTriggerType(TT.rpcout)
+        LVL1MenuItem('L1_ALFA_ELAST13').setLogic((ALFA_B7L1U | ALFA_A7L1U) & (ALFA_A7R1L & ALFA_B7R1L) & physcond).setTriggerType(TT.rpcout)
+        LVL1MenuItem('L1_ALFA_ELAST14').setLogic((ALFA_B7L1U & ALFA_A7L1U) & (ALFA_A7R1L | ALFA_B7R1L) & physcond).setTriggerType(TT.rpcout)
+        LVL1MenuItem('L1_ALFA_ELAST15').setLogic((ALFA_B7L1U | ALFA_A7L1U) & (ALFA_A7R1L | ALFA_B7R1L) & physcond).setTriggerType(TT.rpcout)
+        
+        LVL1MenuItem('L1_ALFA_ELAST15_Calib').setLogic((ALFA_B7L1U | ALFA_A7L1U) & (ALFA_A7R1L | ALFA_B7R1L) &  alfacalib).setTriggerType(TT.rpcout) ## CHECK
+
+        LVL1MenuItem('L1_ALFA_ELAST16').setLogic((ALFA_B7L1L | ALFA_A7L1L) & (ALFA_A7R1U & ALFA_B7R1U) & physcond).setTriggerType(TT.rpcout)
+        LVL1MenuItem('L1_ALFA_ELAST17').setLogic((ALFA_B7L1L & ALFA_A7L1L) & (ALFA_A7R1U | ALFA_B7R1U) & physcond).setTriggerType(TT.rpcout)
+        LVL1MenuItem('L1_ALFA_ELAST18').setLogic((ALFA_B7L1L | ALFA_A7L1L) & (ALFA_A7R1U | ALFA_B7R1U) & physcond).setTriggerType(TT.rpcout)
+
+        LVL1MenuItem('L1_ALFA_ELAST18_Calib').setLogic((ALFA_B7L1L | ALFA_A7L1L) & (ALFA_A7R1U | ALFA_B7R1U) & alfacalib).setTriggerType(TT.rpcout)
+
+
+        LVL1MenuItem('L1_ALFA_SDIFF1').setLogic(   (ALFA_B7L1U & ALFA_A7L1U) &
+                                                Not(ALFA_B7L1L | ALFA_A7L1L | ALFA_A7R1U |  ALFA_A7R1L | ALFA_B7R1U | ALFA_B7R1L )
+                                                &  physcond).setTriggerType(TT.rpcout) 
+        
+        LVL1MenuItem('L1_ALFA_SDIFF2').setLogic(   (ALFA_A7R1L & ALFA_B7R1L) &
+                                                 Not(ALFA_B7L1U | ALFA_B7L1L | ALFA_A7L1U |  ALFA_A7L1L | ALFA_A7R1U | ALFA_B7R1U )
+                                                   &  physcond).setTriggerType(TT.rpcout) 
+
+        LVL1MenuItem('L1_ALFA_SDIFF3').setLogic(   (ALFA_B7L1L & ALFA_A7L1L) &
+                                                Not(ALFA_B7L1U | ALFA_A7L1U | ALFA_A7R1U |  ALFA_A7R1L | ALFA_B7R1U | ALFA_B7R1L )
+                                                &  physcond).setTriggerType(TT.rpcout) 
+
+        LVL1MenuItem('L1_ALFA_SDIFF4').setLogic(   (ALFA_A7R1U & ALFA_B7R1U) &
+                                                 Not(ALFA_B7L1U | ALFA_B7L1L | ALFA_A7L1U |  ALFA_A7L1L | ALFA_A7R1L | ALFA_B7R1L )
+                                                   &  physcond).setTriggerType(TT.rpcout) 
+
+        LVL1MenuItem('L1_ALFA_SDIFF5').setLogic(   (ALFA_B7L1U & ALFA_A7L1U) &  physcond).setTriggerType(TT.rpcout) 
+        LVL1MenuItem('L1_ALFA_SDIFF6').setLogic(   (ALFA_A7R1L & ALFA_B7R1L) &  physcond).setTriggerType(TT.rpcout) 
+        LVL1MenuItem('L1_ALFA_SDIFF7').setLogic(   (ALFA_B7L1L & ALFA_A7L1L) &  physcond).setTriggerType(TT.rpcout) 
+        LVL1MenuItem('L1_ALFA_SDIFF8').setLogic(   (ALFA_A7R1U & ALFA_B7R1U) &  physcond).setTriggerType(TT.rpcout) 
+                                                           
+        LVL1MenuItem('L1_MBTS_1_A_ALFA_C').setLogic( MBTS_A & ALFA_C  & physcond).setTriggerType(TT.rpcout) 
+        LVL1MenuItem('L1_MBTS_1_C_ALFA_A').setLogic( MBTS_C & ALFA_A & physcond).setTriggerType(TT.rpcout)        
+        LVL1MenuItem('L1_MBTS_1_A_ALFA_C_UNPAIRED_ISO').setLogic( MBTS_A & ALFA_C & unpaired_isocond).setTriggerType(TT.rpcout) 
+        LVL1MenuItem('L1_MBTS_1_C_ALFA_A_UNPAIRED_ISO').setLogic( MBTS_C & ALFA_A & unpaired_isocond).setTriggerType(TT.rpcout)        
+        LVL1MenuItem('L1_MBTS_1_ALFA').setLogic( MBTS_1 & ALFA_ANY  & physcond).setTriggerType(TT.rpcout) ##should be called L1_MBTS_1_ALFA_ANY                          
+        
+        ##check definition of MBTS_2
+        LVL1MenuItem('L1_MBTS_2_A_ALFA_C').setLogic( MBTS_A.x(2) & ALFA_C & physcond).setTriggerType(TT.rpcout) 
+        LVL1MenuItem('L1_MBTS_2_C_ALFA_A').setLogic( MBTS_C.x(2) & ALFA_A & physcond).setTriggerType(TT.rpcout)        
+        LVL1MenuItem('L1_MBTS_2_A_ALFA_C_UNPAIRED_ISO').setLogic( MBTS_A.x(2) & ALFA_C & unpaired_isocond).setTriggerType(TT.rpcout) 
+        LVL1MenuItem('L1_MBTS_2_C_ALFA_A_UNPAIRED_ISO').setLogic( MBTS_C.x(2) & ALFA_A & unpaired_isocond).setTriggerType(TT.rpcout)        
+        LVL1MenuItem('L1_MBTS_2_ALFA').setLogic( MBTS_2 & ALFA_ANY & physcond).setTriggerType(TT.rpcout)              
+                
+        LVL1MenuItem('L1_LUCID_A_ALFA_C').setLogic( LUCID_A & ALFA_C & physcond).setTriggerType(TT.rpcout) 
+        LVL1MenuItem('L1_LUCID_C_ALFA_A').setLogic( LUCID_C & ALFA_A & physcond).setTriggerType(TT.rpcout)     
+        LVL1MenuItem('L1_LUCID_A_ALFA_C_UNPAIRED_ISO').setLogic( LUCID_A & ALFA_C & unpaired_isocond).setTriggerType(TT.rpcout) 
+        LVL1MenuItem('L1_LUCID_C_ALFA_A_UNPAIRED_ISO').setLogic( LUCID_C & ALFA_A & unpaired_isocond).setTriggerType(TT.rpcout) 
+        LVL1MenuItem('L1_LUCID_ALFA').setLogic( (LUCID_A | LUCID_C) & ALFA_ANY & physcond).setTriggerType(TT.rpcout) 
+                                                      
+        LVL1MenuItem('L1_ZDC_A_ALFA_C').setLogic( ZDC_A  & ALFA_C & physcond).setTriggerType(TT.rpcout) 
+        LVL1MenuItem('L1_ZDC_C_ALFA_A').setLogic( ZDC_C  & ALFA_A & physcond).setTriggerType(TT.rpcout)     
+        LVL1MenuItem('L1_ZDC_ALFA').setLogic( (ZDC_A | ZDC_C) & ALFA_ANY & physcond).setTriggerType(TT.rpcout) 
+
+        LVL1MenuItem('L1_EM3_ALFA_ANY').setLogic( EM3 & ALFA_ANY & physcond).setTriggerType(TT.rpcout)
+        LVL1MenuItem('L1_EM3_ALFA_ANY_UNPAIRED_ISO').setLogic( EM3 & ALFA_ANY  & unpaired_isocond).setTriggerType(TT.rpcout)
+
+        LVL1MenuItem('L1_EM3_ALFA_ANY_VETO_MBTS').setLogic( EM3 & Not(MBTS_INNER) & ALFA_ANY & physcond).setTriggerType(TT.rpcout)
+        LVL1MenuItem('L1_EM3_ALFA_EINE').setLogic( EM3 & ALFA_EINE & physcond).setTriggerType(TT.rpcout)
+        LVL1MenuItem('L1_EM3_ALFA_EINE_VETO_MBTS').setLogic( EM3 & Not(MBTS_INNER) & ALFA_EINE & physcond).setTriggerType(TT.rpcout)
+        
+        LVL1MenuItem('L1_EM3_ALFA_MBTS_A').setLogic( EM3 & MBTS_A & ( ALFA_A7R1U | ALFA_A7R1L | ALFA_B7R1U | ALFA_B7R1L) & physcond).setTriggerType(TT.rpcout)
+        LVL1MenuItem('L1_EM3_ALFA_MBTS_C').setLogic( EM3 & MBTS_A & ( ALFA_A7L1U | ALFA_A7L1L | ALFA_B7L1U | ALFA_B7L1L) & physcond).setTriggerType(TT.rpcout)
+        LVL1MenuItem('L1_EM3_ALFA_MBTS_A_UNPAIRED_ISO').setLogic( EM3 & MBTS_A & ( ALFA_A7R1U | ALFA_A7R1L | ALFA_B7R1U | ALFA_B7R1L) & unpaired_isocond).setTriggerType(TT.rpcout)
+        LVL1MenuItem('L1_EM3_ALFA_MBTS_C_UNPAIRED_ISO').setLogic( EM3 & MBTS_A & ( ALFA_A7L1U | ALFA_A7L1L | ALFA_B7L1U | ALFA_B7L1L) & unpaired_isocond).setTriggerType(TT.rpcout)
+        
+        LVL1MenuItem('L1_J12_ALFA_ANY').setLogic( J12 & ALFA_ANY & physcond).setTriggerType(TT.rpcout)
+        LVL1MenuItem('L1_J12_ALFA_ANY_UNPAIRED_ISO').setLogic( J12 & ALFA_ANY & unpaired_isocond).setTriggerType(TT.rpcout)
+
+        LVL1MenuItem('L1_TE5_ALFA_ANY').setLogic( TE5 & ALFA_ANY & physcond).setTriggerType(TT.rpcout)
+        LVL1MenuItem('L1_TE5_ALFA_ANY_UNPAIRED_ISO').setLogic( TE5 & ALFA_ANY & unpaired_isocond).setTriggerType(TT.rpcout)
+        LVL1MenuItem('L1_TE5_ALFA_EINE').setLogic( TE5 & ALFA_EINE & physcond).setTriggerType(TT.rpcout)
+        
+        LVL1MenuItem('L1_TRT_ALFA_ANY').setLogic( NIMTRT & ALFA_ANY & physcond).setTriggerType(TT.rpcout)
+        LVL1MenuItem('L1_TRT_ALFA_ANY_UNPAIRED_ISO').setLogic( NIMTRT & ALFA_ANY & unpaired_isocond).setTriggerType(TT.rpcout)
+
+        ##mbsptrk are duplicated L1 Items, for different PS
+        LVL1MenuItem('L1_TRT_ALFA_ANY_mbSpTrk').setLogic( NIMTRT & ALFA_ANY & physcond).setTriggerType(TT.rpcout)
+        LVL1MenuItem('L1_TRT_ALFA_ANY_mbSpTrk_UNPAIRED_ISO').setLogic( NIMTRT & ALFA_ANY & unpaired_isocond).setTriggerType(TT.rpcout)
+                                                           
+        LVL1MenuItem('L1_TRT_ALFA_ANY_VETO_MBTS').setLogic( NIMTRT & Not(MBTS_INNER) & ALFA_ANY & physcond).setTriggerType(TT.rpcout)
+        LVL1MenuItem('L1_TRT_ALFA_ANY_VETO_MBTS_mbSpTrk').setLogic( NIMTRT & Not(MBTS_INNER) & ALFA_ANY & physcond).setTriggerType(TT.rpcout)
+
+        LVL1MenuItem('L1_TRT_ALFA_EINE').setLogic( NIMTRT & ALFA_EINE & physcond).setTriggerType(TT.rpcout)
+        LVL1MenuItem('L1_TRT_ALFA_EINE_mbSpTrk').setLogic( NIMTRT & ALFA_EINE & physcond).setTriggerType(TT.rpcout)
+        LVL1MenuItem('L1_TRT_ALFA_EINE_VETO_MBTS').setLogic( NIMTRT & Not(MBTS_INNER) & ALFA_EINE & physcond).setTriggerType(TT.rpcout)
+        
+        LVL1MenuItem('L1_ALFA_ELASTIC_VETO_MBTS').setLogic(  Not(MBTS_INNER) & ALFA_ELASTIC & physcond).setTriggerType(TT.rpcout)
+        LVL1MenuItem('L1_ALFA_ELASTIC_VETO_MBTS_UNPAIRED_ISO').setLogic(  Not(MBTS_INNER) & ALFA_ELASTIC & unpaired_isocond).setTriggerType(TT.rpcout)
+
+        LVL1MenuItem('L1_ALFA_ANTI_ELASTIC_VETO_MBTS').setLogic(  Not(MBTS_INNER) & ALFA_ANTI_ELASTIC & physcond).setTriggerType(TT.rpcout)
+        LVL1MenuItem('L1_ALFA_ANTI_ELASTIC_VETO_MBTS_UNPAIRED_ISO').setLogic(  Not(MBTS_INNER) & ALFA_ANTI_ELASTIC & unpaired_isocond).setTriggerType(TT.rpcout)
+
+        LVL1MenuItem('L1_ALFA_ANY_VETO_MBTS').setLogic(  Not(MBTS_INNER) & ALFA_ANY & physcond).setTriggerType(TT.rpcout)
+        LVL1MenuItem('L1_ALFA_ANY_VETO_MBTS_UNPAIRED_ISO').setLogic(  Not(MBTS_INNER) & ALFA_ANY & unpaired_isocond).setTriggerType(TT.rpcout)
+                
+        LVL1MenuItem('L1_LHCF_ALFA_ANY_A').setLogic( NIMLHCF & ALFA_ANY_A & physcond).setTriggerType(TT.rpcout)
+        LVL1MenuItem('L1_LHCF_ALFA_ANY_C').setLogic( NIMLHCF & ALFA_ANY_C & physcond).setTriggerType(TT.rpcout)
+        LVL1MenuItem('L1_LHCF_ALFA_ANY_A_UNPAIRED_ISO').setLogic( NIMLHCF & ALFA_ANY_A & unpaired_isocond).setTriggerType(TT.rpcout)
+        LVL1MenuItem('L1_LHCF_ALFA_ANY_C_UNPAIRED_ISO').setLogic( NIMLHCF & ALFA_ANY_C & unpaired_isocond).setTriggerType(TT.rpcout)
+        
+        LVL1MenuItem('L1_BGRP1_ALFA_BGT').setLogic(physcond).setTriggerType(TT.rpcout)
+        LVL1MenuItem('L1_BGRP4_ALFA_BGT').setLogic(unpaired_isocond).setTriggerType(TT.rpcout)
+        LVL1MenuItem('L1_BGRP7_ALFA_BGT').setLogic(bgrp7cond).setTriggerType(TT.rpcout)
+
+
+        LVL1MenuItem('L1_ALFA_SHOW1').setLogic((ALFA_B7L1U | ALFA_B7L1L | ALFA_A7L1U | ALFA_A7L1L) & Not(ALFA_A7R1U | ALFA_A7R1L | ALFA_B7R1U | ALFA_B7R1L)& physcond).setTriggerType(TT.rpcout)
+        LVL1MenuItem('L1_ALFA_SHOW2').setLogic( Not(ALFA_B7L1U | ALFA_B7L1L | ALFA_A7L1U | ALFA_A7L1L) & (ALFA_A7R1U | ALFA_A7R1L | ALFA_B7R1U | ALFA_B7R1L)& physcond).setTriggerType(TT.rpcout)
+        LVL1MenuItem('L1_ALFA_SHOW3').setLogic((ALFA_B7L1U & ALFA_B7L1L & ALFA_A7L1U & ALFA_A7L1L) & physcond).setTriggerType(TT.rpcout)
+        LVL1MenuItem('L1_ALFA_SHOW4').setLogic((ALFA_A7R1U & ALFA_A7R1L & ALFA_B7R1U & ALFA_B7R1L) & physcond).setTriggerType(TT.rpcout)
+
+        LVL1MenuItem('L1_ALFA_SHOWSYST1').setLogic( (ALFA_B7L1U & ALFA_B7L1L) & physcond).setTriggerType(TT.rpcout)
+        LVL1MenuItem('L1_ALFA_SHOWSYST2').setLogic( (ALFA_A7L1U & ALFA_A7L1L) & physcond).setTriggerType(TT.rpcout)
+        LVL1MenuItem('L1_ALFA_SHOWSYST3').setLogic( (ALFA_A7R1U & ALFA_A7R1L) & physcond).setTriggerType(TT.rpcout)
+        LVL1MenuItem('L1_ALFA_SHOWSYST4').setLogic( (ALFA_B7R1U & ALFA_B7R1L) & physcond).setTriggerType(TT.rpcout)
+        LVL1MenuItem('L1_ALFA_SHOWSYST5').setLogic( (ALFA_ANY_A & ALFA_ANY_C) & physcond).setTriggerType(TT.rpcout)
+                                                                                                      
+
+        LVL1MenuItem('L1_ALFA_SYST1').setLogic( (ALFA_B7L1U & ALFA_B7L1L) & Not(ALFA_A7L1U | ALFA_A7L1L | ALFA_A7R1U | ALFA_A7R1L | ALFA_B7R1U | ALFA_B7R1L) & physcond).setTriggerType(TT.rpcout)
+        LVL1MenuItem('L1_ALFA_SYST2').setLogic( (ALFA_A7L1U & ALFA_A7L1L) & Not(ALFA_B7L1U | ALFA_B7L1L | ALFA_A7R1U | ALFA_A7R1L | ALFA_B7R1U | ALFA_B7R1L) & physcond).setTriggerType(TT.rpcout)
+        LVL1MenuItem('L1_ALFA_SYST3').setLogic( (ALFA_A7R1U & ALFA_A7R1L) & Not(ALFA_B7L1U | ALFA_B7L1L | ALFA_A7L1U | ALFA_A7L1L | ALFA_B7R1U | ALFA_B7R1L) & physcond).setTriggerType(TT.rpcout)
+        LVL1MenuItem('L1_ALFA_SYST4').setLogic( (ALFA_B7R1U & ALFA_B7R1L) & Not(ALFA_B7L1U | ALFA_B7L1L | ALFA_A7L1U | ALFA_A7L1L | ALFA_A7R1U | ALFA_A7R1L) & physcond).setTriggerType(TT.rpcout)
+        LVL1MenuItem('L1_ALFA_SYST9').setLogic( (ALFA_B7L1U & ALFA_A7L1U & ALFA_A7R1U & ALFA_B7R1U) & Not(ALFA_B7L1L | ALFA_A7L1L | ALFA_A7R1L | ALFA_B7R1L) & physcond).setTriggerType(TT.rpcout)
+        LVL1MenuItem('L1_ALFA_SYST10').setLogic( (ALFA_B7L1L & ALFA_A7L1L & ALFA_A7R1L & ALFA_B7R1L) & Not(ALFA_B7L1U | ALFA_A7L1U | ALFA_A7R1U | ALFA_B7R1U) & physcond).setTriggerType(TT.rpcout)
+        LVL1MenuItem('L1_ALFA_SYST11').setLogic( (ALFA_B7L1U & ALFA_A7L1U & ALFA_A7R1U & ALFA_B7R1U) & physcond).setTriggerType(TT.rpcout)
+        LVL1MenuItem('L1_ALFA_SYST12').setLogic( (ALFA_B7L1L & ALFA_A7L1L & ALFA_A7R1L & ALFA_B7R1L) & physcond).setTriggerType(TT.rpcout)
+        LVL1MenuItem('L1_ALFA_SYST17').setLogic( ( (ALFA_B7L1U | ALFA_A7L1U) & (ALFA_A7R1U | ALFA_B7R1U) ) & physcond).setTriggerType(TT.rpcout)
+        LVL1MenuItem('L1_ALFA_SYST18').setLogic( ( (ALFA_B7L1L | ALFA_A7L1L) & (ALFA_A7R1L | ALFA_B7R1L) ) & physcond).setTriggerType(TT.rpcout)
+       
+        LVL1MenuItem('L1_ALFA_ANY').setLogic(ALFA_ANY & physcond).setTriggerType(TT.rpcout)
+        LVL1MenuItem('L1_ALFA_ANY_JET').setLogic(ALFA_ANY & physcond).setTriggerType(TT.rpcout)
+        LVL1MenuItem('L1_ALFA_ANY_mbSpTrk').setLogic(ALFA_ANY & physcond).setTriggerType(TT.rpcout)
+        
+        LVL1MenuItem('L1_ALFA_ANY_EMPTY').setLogic(ALFA_ANY & cosmiccond).setTriggerType(TT.rpcout)
+        LVL1MenuItem('L1_ALFA_ANY_FIRSTEMPTY').setLogic(ALFA_ANY & firstempty).setTriggerType(TT.rpcout)
+        LVL1MenuItem('L1_ALFA_ANY_UNPAIRED_ISO').setLogic(ALFA_ANY & unpaired_isocond).setTriggerType(TT.rpcout)
+        LVL1MenuItem('L1_ALFA_ANY_UNPAIRED_NONISO').setLogic(ALFA_ANY & unpaired_nonisocond).setTriggerType(TT.rpcout)
+
+        LVL1MenuItem('L1_ALFA_ANY_BGRP7').setLogic(ALFA_ANY & bgrp7cond).setTriggerType(TT.rpcout)
+        #LVL1MenuItem('L1_ALFA_ANY_ABORTGAP').setLogic( ALFA_ANY & abortgap).setTriggerType(TT.rpcout)
+
+        LVL1MenuItem('L1_ALFA_B7L1U').setLogic(ALFA_B7L1U & BGRP0).setTriggerType(TT.rpcout)
+        LVL1MenuItem('L1_ALFA_B7L1L').setLogic(ALFA_B7L1L & BGRP0).setTriggerType(TT.rpcout)
+        LVL1MenuItem('L1_ALFA_A7L1U').setLogic(ALFA_A7L1U & BGRP0).setTriggerType(TT.rpcout)
+        LVL1MenuItem('L1_ALFA_A7L1L').setLogic(ALFA_A7L1L & BGRP0).setTriggerType(TT.rpcout)
+        LVL1MenuItem('L1_ALFA_A7R1U').setLogic(ALFA_A7R1U & BGRP0).setTriggerType(TT.rpcout)
+        LVL1MenuItem('L1_ALFA_A7R1L').setLogic(ALFA_A7R1L & BGRP0).setTriggerType(TT.rpcout)
+        LVL1MenuItem('L1_ALFA_B7R1U').setLogic(ALFA_B7R1U & BGRP0).setTriggerType(TT.rpcout)
+        LVL1MenuItem('L1_ALFA_B7R1L').setLogic(ALFA_B7R1L & BGRP0).setTriggerType(TT.rpcout)
+
+        LVL1MenuItem('L1_ALFA_ANY_A_EMPTY').setLogic(ALFA_ANY_A & cosmiccond).setTriggerType(TT.rpcout)
+        LVL1MenuItem('L1_ALFA_ANY_C_EMPTY').setLogic(ALFA_ANY_C & cosmiccond).setTriggerType(TT.rpcout)
+        
+        LVL1MenuItem('L1_ALFA_B7L1U_OD').setLogic(ALFA_B7L1U_OD & BGRP0).setTriggerType(TT.rpcout)
+        LVL1MenuItem('L1_ALFA_B7L1L_OD').setLogic(ALFA_B7L1L_OD & BGRP0).setTriggerType(TT.rpcout)
+        LVL1MenuItem('L1_ALFA_A7L1U_OD').setLogic(ALFA_A7L1U_OD & BGRP0).setTriggerType(TT.rpcout)
+        LVL1MenuItem('L1_ALFA_A7L1L_OD').setLogic(ALFA_A7L1L_OD & BGRP0).setTriggerType(TT.rpcout)
+        LVL1MenuItem('L1_ALFA_A7R1U_OD').setLogic(ALFA_A7R1U_OD & BGRP0).setTriggerType(TT.rpcout)
+        LVL1MenuItem('L1_ALFA_A7R1L_OD').setLogic(ALFA_A7R1L_OD & BGRP0).setTriggerType(TT.rpcout)
+        LVL1MenuItem('L1_ALFA_B7R1U_OD').setLogic(ALFA_B7R1U_OD & BGRP0).setTriggerType(TT.rpcout)
+        LVL1MenuItem('L1_ALFA_B7R1L_OD').setLogic(ALFA_B7R1L_OD & BGRP0).setTriggerType(TT.rpcout)
+
+        LVL1MenuItem('L1_ALFA_B7L1_OD').setLogic( (ALFA_B7L1U_OD | ALFA_B7L1L_OD) & BGRP0).setTriggerType(TT.rpcout)
+        LVL1MenuItem('L1_ALFA_A7L1_OD').setLogic( (ALFA_A7L1U_OD | ALFA_A7L1L_OD) & BGRP0).setTriggerType(TT.rpcout)
+        LVL1MenuItem('L1_ALFA_B7R1_OD').setLogic( (ALFA_B7R1U_OD | ALFA_B7R1L_OD) & BGRP0).setTriggerType(TT.rpcout)
+        LVL1MenuItem('L1_ALFA_A7R1_OD').setLogic( (ALFA_A7R1U_OD | ALFA_A7R1L_OD) & BGRP0).setTriggerType(TT.rpcout)
 
 
         # Topo items (keep them all together)
         try:
 
             # M8 menu
-            LVL1MenuItem('L1_4INVM9999-AJ0s6-AJ0s6', ctpid=-1).setLogic( TOPO_4INVM9999_AJ0s6_AJ0s6 & physcond)
-            LVL1MenuItem('L1_3INVM9999-AJ0s6-AJ0s6', ctpid=-1).setLogic( TOPO_3INVM9999_AJ0s6_AJ0s6 & physcond)
-            LVL1MenuItem('L1_2INVM9999-AJ0s6-AJ0s6', ctpid=-1).setLogic( TOPO_2INVM9999_AJ0s6_AJ0s6 & physcond)
-            LVL1MenuItem('L1_1INVM9999-AJ0s6-AJ0s6', ctpid=-1).setLogic( TOPO_1INVM9999_AJ0s6_AJ0s6 & physcond)
+            LVL1MenuItem('L1_MJJ-4', ctpid=-1).setLogic( TOPO_4INVM9999_AJ0s6_AJ0s6 & physcond)
+            LVL1MenuItem('L1_MJJ-3', ctpid=-1).setLogic( TOPO_3INVM9999_AJ0s6_AJ0s6 & physcond)
+            LVL1MenuItem('L1_MJJ-2', ctpid=-1).setLogic( TOPO_2INVM9999_AJ0s6_AJ0s6 & physcond)
+            LVL1MenuItem('L1_MJJ-1', ctpid=-1).setLogic( TOPO_1INVM9999_AJ0s6_AJ0s6 & physcond)
             
-            LVL1MenuItem('L1_HT200-AJ20s5.ETA49', ctpid=-1).setLogic( TOPO_HT200_AJ20s5ETA49 & physcond)
-            LVL1MenuItem('L1_HT190-AJ20s5.ETA49', ctpid=-1).setLogic( TOPO_HT190_AJ20s5ETA49 & physcond)
-            LVL1MenuItem('L1_HT1-AJ0all.ETA49',   ctpid=-1).setLogic( TOPO_HT1_AJ0allETA49 & physcond)
+            LVL1MenuItem('L1_HT200-J20s5.ETA49', ctpid=-1).setLogic( TOPO_HT200_AJ20s5ETA49 & physcond)
+            LVL1MenuItem('L1_HT190-J20s5.ETA49', ctpid=-1).setLogic( TOPO_HT190_AJ20s5ETA49 & physcond)
+            LVL1MenuItem('L1_HT1-J0.ETA49',   ctpid=-1).setLogic( TOPO_HT1_AJ0allETA49 & physcond)
 
-            LVL1MenuItem('L1_1INVM5-EM6s2-EMall', ctpid=-1).setLogic( TOPO_1INVM5_EM6s2_EMall & physcond)
-            LVL1MenuItem('L1_1INVM5-EMs2-EMs', ctpid=-1).setLogic( TOPO_1INVM5_EMs2_EMs & physcond)
-            LVL1MenuItem('L1_1INVM5-EM6s2-EMs',ctpid=-1).setLogic( TOPO_1INVM5_EM6s2_EMs & physcond)
-            LVL1MenuItem('L1_1INVM5-EM12s2-EMs',ctpid=-1).setLogic( TOPO_1INVM5_EM12s2_EMs & physcond)
+            # LVL1MenuItem('L1_JPSI-1M5-EM6', ctpid=-1).setLogic( TOPO_1INVM5_EM6s2_EMall & physcond)
+            LVL1MenuItem('L1_JPSI-1M5-EMs', ctpid=-1).setLogic( TOPO_1INVM5_EMs2_EMs & physcond)
+            LVL1MenuItem('L1_JPSI-1M5-EM6s',ctpid=-1).setLogic( TOPO_1INVM5_EM6s2_EMs & physcond)
+            LVL1MenuItem('L1_JPSI-1M5-EM12s',ctpid=-1).setLogic( TOPO_1INVM5_EM12s2_EMs & physcond)
             
             # B-jet
-            LVL1MenuItem('L1_0DR04-MU4ab-CJ15ab', ctpid=-1).setLogic( TOPO_0DR04_MU4ab_CJ15ab & physcond)
-            LVL1MenuItem('L1_0DR04-MU4ab-CJ30ab', ctpid=-1).setLogic( TOPO_0DR04_MU4ab_CJ30ab & physcond)
-            LVL1MenuItem('L1_0DR04-MU6ab-CJ25ab', ctpid=-1).setLogic( TOPO_0DR04_MU6ab_CJ25ab & physcond)
-            LVL1MenuItem('L1_0DR04-MU4ab-CJ17ab', ctpid=-1).setLogic( TOPO_0DR04_MU4ab_CJ17ab & physcond) 
-            LVL1MenuItem('L1_0DR04-MU4ab-CJ20ab', ctpid=-1).setLogic( TOPO_0DR04_MU4ab_CJ20ab & physcond)
+            LVL1MenuItem('L1_BTAG-MU4J15', ctpid=-1).setLogic( TOPO_0DR04_MU4ab_CJ15ab & physcond)
+            LVL1MenuItem('L1_BTAG-MU4J30', ctpid=-1).setLogic( TOPO_0DR04_MU4ab_CJ30ab & physcond)
+            LVL1MenuItem('L1_BTAG-MU6J25', ctpid=-1).setLogic( TOPO_0DR04_MU6ab_CJ25ab & physcond)
+            LVL1MenuItem('L1_BTAG-MU4J17', ctpid=-1).setLogic( TOPO_0DR04_MU4ab_CJ17ab & physcond) 
+            LVL1MenuItem('L1_BTAG-MU4J20', ctpid=-1).setLogic( TOPO_0DR04_MU4ab_CJ20ab & physcond)
 
             # ZH
-            LVL1MenuItem('L1_J40_10MINDPHI-Js2-XE50',   ctpid=-1).setLogic( J40 & TOPO_10MINDPHI_Js2_XE50 & physcond) 
-            LVL1MenuItem('L1_J40_10MINDPHI-J20s2-XE50', ctpid=-1).setLogic( J40 & TOPO_10MINDPHI_J20s2_XE50 & physcond) 
-            LVL1MenuItem('L1_J40_10MINDPHI-J20ab-XE50', ctpid=-1).setLogic( J40 & TOPO_10MINDPHI_J20ab_XE50 & physcond) 
-            LVL1MenuItem('L1_J40_10MINDPHI-CJ20ab-XE50',ctpid=-1).setLogic( J40 & TOPO_10MINDPHI_CJ20ab_XE50 & physcond) 
+            LVL1MenuItem('L1_J40_DPHI-Js2XE50',   ctpid=-1).setLogic( J40 & TOPO_10MINDPHI_Js2_XE50 & physcond) 
+            LVL1MenuItem('L1_J40_DPHI-J20s2XE50', ctpid=-1).setLogic( J40 & TOPO_10MINDPHI_J20s2_XE50 & physcond) 
+            LVL1MenuItem('L1_J40_DPHI-J20XE50', ctpid=-1).setLogic( J40 & TOPO_10MINDPHI_J20ab_XE50 & physcond) 
+            LVL1MenuItem('L1_J40_DPHI-CJ20XE50',ctpid=-1).setLogic( J40 & TOPO_10MINDPHI_CJ20ab_XE50 & physcond) 
 
             # HT
-            LVL1MenuItem('L1_HT0-AJ0all.ETA49',   ctpid=-1).setLogic( TOPO_HT0_AJ0allETA49 & physcond)
-            LVL1MenuItem('L1_HT190-AJ15all.ETA20',   ctpid=-1).setLogic( TOPO_HT190_AJ15allETA20 & physcond)
+            LVL1MenuItem('L1_HT0-J0.ETA49',   ctpid=-1).setLogic( TOPO_HT0_AJ0allETA49 & physcond)
+            LVL1MenuItem('L1_HT190-J15.ETA20',   ctpid=-1).setLogic( TOPO_HT190_AJ15allETA20 & physcond)
             LVL1MenuItem('L1_HT190-J15s5.ETA20',   ctpid=-1).setLogic( TOPO_HT190_J15s5ETA20 & physcond)
-            LVL1MenuItem('L1_HT150-AJ20all.ETA30',   ctpid=-1).setLogic( TOPO_HT150_AJ20allETA30 & physcond)
+            LVL1MenuItem('L1_HT150-J20.ETA30',   ctpid=-1).setLogic( TOPO_HT150_AJ20allETA30 & physcond)
             LVL1MenuItem('L1_HT150-J20s5.ETA30',   ctpid=-1).setLogic( TOPO_HT150_J20s5ETA30 & physcond)
             
             # Jpsi T&P
-            LVL1MenuItem("L1_1INVM5-EMs2-EMall",  ctpid=-1).setLogic( TOPO_1INVM5_EMs2_EMall & physcond)
-            LVL1MenuItem("L1_1INVM5-EM7s2-EMall", ctpid=-1).setLogic( TOPO_1INVM5_EM7s2_EMall & physcond)
-            LVL1MenuItem("L1_1INVM5-EM12s2-EMall",ctpid=-1).setLogic( TOPO_1INVM5_EM12s2_EMall & physcond)
+            LVL1MenuItem("L1_JPSI-1M5",  ctpid=-1).setLogic( TOPO_1INVM5_EMs2_EMall & physcond)
+            LVL1MenuItem("L1_JPSI-1M5-EM7", ctpid=-1).setLogic( TOPO_1INVM5_EM7s2_EMall & physcond)
+            LVL1MenuItem("L1_JPSI-1M5-EM12",ctpid=-1).setLogic( TOPO_1INVM5_EM12s2_EMall & physcond)
 
             # W T&P
-            LVL1MenuItem("L1_10MINDPHI-AJj15s2-XE0",ctpid=-1).setLogic( TOPO_10MINDPHI_AJj15s2_XE0 & physcond)
-            LVL1MenuItem("L1_20MINDPHI-AJjs6-XE0",ctpid=-1).setLogic( TOPO_20MINDPHI_AJjs6_XE0 & physcond)
-            LVL1MenuItem("L1_20MINDPHI-AJj15s2-XE0",ctpid=-1).setLogic( TOPO_20MINDPHI_AJj15s2_XE0 & physcond)
-            LVL1MenuItem("L1_10MINDPHI-EM6s1-XE0",ctpid=-1).setLogic( TOPO_10MINDPHI_EM6s1_XE0 & physcond)
-            LVL1MenuItem("L1_20MINDPHI-EM9s6-XE0",ctpid=-1).setLogic( TOPO_20MINDPHI_EM9s6_XE0 & physcond)
-            LVL1MenuItem("L1_20MINDPHI-EM6s1-XE0",ctpid=-1).setLogic( TOPO_20MINDPHI_EM6s1_XE0 & physcond)
-            LVL1MenuItem("L1_05RATIO-XE0-HT0-AJj15all.ETA49",ctpid=-1).setLogic( TOPO_05RATIO_XE0_HT0_AJj15allETA49 & physcond)
-            LVL1MenuItem("L1_08RATIO-XE0-HT0-AJj0all.ETA49",ctpid=-1).setLogic( TOPO_08RATIO_XE0_HT0_AJj0allETA49 & physcond)
-            LVL1MenuItem("L1_40RATIO2-XE0-HT0-AJj15all.ETA49",ctpid=-1).setLogic( TOPO_40RATIO2_XE0_HT0_AJj15allETA49 & physcond)
-            LVL1MenuItem("L1_90RATIO2-XE0-HT0-AJj0all.ETA49",ctpid=-1).setLogic( TOPO_90RATIO2_XE0_HT0_AJj0allETA49 & physcond)
-            LVL1MenuItem("L1_HT20-AJj0all.ETA49",ctpid=-1).setLogic( TOPO_HT20_AJj0allETA49 & physcond)
-            LVL1MenuItem("L1_NOT-02MATCH-EM9s1-AJj15all.ETA49",ctpid=-1).setLogic( TOPO_NOT_02MATCH_EM9s1_AJj15allETA49 & physcond)
-            LVL1MenuItem("L1_NOT-02MATCH-EM9s1-AJj15all.ETA49_05RATIO-XE0-SUM0-EM9s1-HT0-AJj15all.ETA49",ctpid=-1).setLogic( TOPO_NOT_02MATCH_EM9s1_AJj15allETA49 & TOPO_05RATIO_XE0_SUM0_EM9s1_HT0_AJj15allETA49 & physcond)
+            LVL1MenuItem("L1_W-10DPHI-JXE-0",ctpid=-1).setLogic( TOPO_10MINDPHI_AJj15s2_XE0 & physcond)
+            LVL1MenuItem("L1_W-20DPHI-JXE-1",ctpid=-1).setLogic( TOPO_20MINDPHI_AJjs6_XE0 & physcond)
+            LVL1MenuItem("L1_W-20DPHI-JXE-0",ctpid=-1).setLogic( TOPO_20MINDPHI_AJj15s2_XE0 & physcond)
+            LVL1MenuItem("L1_W-10DPHI-EMXE-0",ctpid=-1).setLogic( TOPO_10MINDPHI_EM6s1_XE0 & physcond)
+            LVL1MenuItem("L1_W-20DPHI-EMXE-1",ctpid=-1).setLogic( TOPO_20MINDPHI_EM9s6_XE0 & physcond)
+            LVL1MenuItem("L1_W-20DPHI-EMXE-0",ctpid=-1).setLogic( TOPO_20MINDPHI_EM6s1_XE0 & physcond)
+            LVL1MenuItem("L1_W-05RO-XEHT-0",ctpid=-1).setLogic( TOPO_05RATIO_XE0_HT0_AJj15allETA49 & physcond)
+            LVL1MenuItem("L1_W-08RO-XEHT-1",ctpid=-1).setLogic( TOPO_08RATIO_XE0_HT0_AJj0allETA49 & physcond)
+            LVL1MenuItem("L1_W-40RO2-XEHT-0",ctpid=-1).setLogic( TOPO_40RATIO2_XE0_HT0_AJj15allETA49 & physcond)
+            LVL1MenuItem("L1_W-90RO2-XEHT-1",ctpid=-1).setLogic( TOPO_90RATIO2_XE0_HT0_AJj0allETA49 & physcond)
+            LVL1MenuItem("L1_W-HT20-JJ0.ETA49",ctpid=-1).setLogic( TOPO_HT20_AJj0allETA49 & physcond)
+            LVL1MenuItem("L1_W-NOMATCH",ctpid=-1).setLogic( TOPO_NOT_02MATCH_EM9s1_AJj15allETA49 & physcond)
+            LVL1MenuItem("L1_W-NOMATCH_W-05RO-XEEMHT",ctpid=-1).setLogic( TOPO_NOT_02MATCH_EM9s1_AJj15allETA49 & TOPO_05RATIO_XE0_SUM0_EM9s1_HT0_AJj15allETA49 & physcond)
 
+            # MT 
+            LVL1MenuItem("L1_EM3_W-MT20", ctpid=-1).setLogic( TOPO_20MT_EM6s6_XE0 & EM3 & physcond)
+            LVL1MenuItem("L1_EM3_W-MT30", ctpid=-1).setLogic( TOPO_30MT_EM6s6_XE0 & EM3 & physcond)
+            LVL1MenuItem("L1_EM3_W-MT40", ctpid=-1).setLogic( TOPO_40MT_EM6s6_XE0 & EM3 & physcond)
+            
             # Bphysics triggers
-            LVL1MenuItem("L1_2DR15-2MU4ab",  ctpid=-1).setLogic( TOPO_2DR15_2MU4ab & physcond)            
-            LVL1MenuItem("L1_2INVM999-2MU4ab",  ctpid=-1).setLogic( TOPO_2INVM999_2MU4ab & physcond)            
-            LVL1MenuItem("L1_4INVM8-2MU4ab",  ctpid=-1).setLogic( TOPO_4INVM8_2MU4ab & physcond)            
-            LVL1MenuItem("L1_2DR15-2MU4ab_2INVM999-2MU4ab",  ctpid=-1).setLogic( TOPO_2DR15_2MU4ab & TOPO_2INVM999_2MU4ab & physcond)            
-            LVL1MenuItem("L1_2DR15-2MU4ab_4INVM8-2MU4ab",  ctpid=-1).setLogic( TOPO_2DR15_2MU4ab & TOPO_4INVM8_2MU4ab & physcond)            
+            LVL1MenuItem("L1_BPH-DR-2MU4",  ctpid=-1).setLogic( TOPO_2DR15_2MU4ab & physcond)            
+            LVL1MenuItem("L1_BPH-2M-2MU4",  ctpid=-1).setLogic( TOPO_2INVM999_2MU4ab & physcond)        
+            LVL1MenuItem("L1_BPH-4M8-2MU4",  ctpid=-1).setLogic( TOPO_4INVM8_2MU4ab & physcond)            
+            LVL1MenuItem("L1_BPH-DR-2MU4_BPH-2M-2MU4",  ctpid=-1).setLogic( TOPO_2DR15_2MU4ab & TOPO_2INVM999_2MU4ab & physcond)            
+            LVL1MenuItem("L1_BPH-DR-2MU4_BPH-4M8-2MU4",  ctpid=-1).setLogic( TOPO_2DR15_2MU4ab & TOPO_4INVM8_2MU4ab & physcond)            
 
-            LVL1MenuItem("L1_2DR15-2MU6ab",  ctpid=-1).setLogic( TOPO_2DR15_2MU6ab & physcond)            
-            LVL1MenuItem("L1_2INVM999-2MU6ab",  ctpid=-1).setLogic( TOPO_2INVM999_2MU6ab & physcond)            
-            LVL1MenuItem("L1_4INVM8-2MU6ab",  ctpid=-1).setLogic( TOPO_4INVM8_2MU6ab & physcond)            
-            LVL1MenuItem("L1_2DR15-2MU6ab_2INVM999-2MU6ab",  ctpid=-1).setLogic( TOPO_2DR15_2MU6ab & TOPO_2INVM999_2MU6ab & physcond)            
-            LVL1MenuItem("L1_2DR15-2MU6ab_4INVM8-2MU6ab",  ctpid=-1).setLogic( TOPO_2DR15_2MU6ab & TOPO_4INVM8_2MU6ab & physcond)            
+            LVL1MenuItem("L1_BPH-DR-2MU6",  ctpid=-1).setLogic( TOPO_2DR15_2MU6ab & physcond)            
+            LVL1MenuItem("L1_BPH-2M-2MU6",  ctpid=-1).setLogic( TOPO_2INVM999_2MU6ab & physcond)            
+            LVL1MenuItem("L1_BPH-4M8-2MU6",  ctpid=-1).setLogic( TOPO_4INVM8_2MU6ab & physcond)            
+            LVL1MenuItem("L1_BPH-DR-2MU6_BPH-2M-2MU6",  ctpid=-1).setLogic( TOPO_2DR15_2MU6ab & TOPO_2INVM999_2MU6ab & physcond)            
+            LVL1MenuItem("L1_BPH-DR-2MU6_BPH-4M8-2MU6",  ctpid=-1).setLogic( TOPO_2DR15_2MU6ab & TOPO_4INVM8_2MU6ab & physcond)            
 
+            LVL1MenuItem("L1_MULT0-CMU4", ctpid=-1).setLogic( TOPO_MULT_CMU4ab_0 & physcond)
+            LVL1MenuItem("L1_MULT1-CMU4", ctpid=-1).setLogic( TOPO_MULT_CMU4ab_1 & physcond)
+            LVL1MenuItem("L1_MULT0-CMU6", ctpid=-1).setLogic( TOPO_MULT_CMU6ab_0 & physcond)
+            LVL1MenuItem("L1_MULT1-CMU6", ctpid=-1).setLogic( TOPO_MULT_CMU6ab_1 & physcond) 
+            
             ##Combined L1Top 
-            LVL1MenuItem('L1_0DR28-MU10ab-TAU12abi_1DISAMB-TAU12abi-J25ab',   ctpid=-1).setLogic( TOPO_0DR28_MU10ab_TAU12abi &  TOPO_1DISAMB_TAU12abi_J25ab & physcond)
-            LVL1MenuItem('L1_XE35_DISAMB-EM15abhi-TAU12abi',                  ctpid=-1).setLogic( XE35 &  TOPO_DISAMB_EM15abhi_TAU12abi & physcond)  
-            LVL1MenuItem('L1_XE40_DISAMB-EM15abhi-TAU12abi',                  ctpid=-1).setLogic( XE40 &  TOPO_DISAMB_EM15abhi_TAU12abi & physcond)  
-            LVL1MenuItem('L1_XE45_1DISAMB-TAU20ab-J20ab',                     ctpid=-1).setLogic( XE45 & TOPO_1DISAMB_TAU20ab_J20ab & physcond)
-            LVL1MenuItem('L1_J25_2J20_3J12_0DR28-TAU20abi-TAU12abi',          ctpid=-1).setLogic( J25 & J20.x(2) & J12.x(3) &  TOPO_0DR28_TAU20abi_TAU12abi & physcond)
-            LVL1MenuItem('L1_J25_3J12_DISAMB-EM15abhi-TAU12abi',              ctpid=-1).setLogic( J25 & J12.x(3) &  TOPO_DISAMB_EM15abhi_TAU12abi & physcond)  
-            LVL1MenuItem('L1_J25_2J12_0DR28-MU10ab-TAU12abi',                 ctpid=-1).setLogic( J25 & J12.x(2) &  TOPO_0DR28_MU10ab_TAU12abi & physcond)
-            LVL1MenuItem('L1_J25_2J20_3J12_0DETA20-0DPHI20-TAU20abi-TAU12abi',ctpid=-1).setLogic( J25 & J20.x(2) & J12.x(3) & TOPO_0DETA20_0DPHI20_TAU20abi_TAU12abi & physcond)
+            LVL1MenuItem('L1_DR-MU10TAU12I_TAU12I-J25',   ctpid=-1).setLogic( TOPO_0DR28_MU10ab_TAU12abi &  TOPO_1DISAMB_TAU12abi_J25ab & physcond)
+            LVL1MenuItem('L1_XE35_EM15-TAU12I',                  ctpid=-1).setLogic( XE35 &  TOPO_DISAMB_EM15abhi_TAU12abi & physcond)  
+            LVL1MenuItem('L1_XE40_EM15-TAU12I',                  ctpid=-1).setLogic( XE40 &  TOPO_DISAMB_EM15abhi_TAU12abi & physcond)  
+            LVL1MenuItem('L1_XE45_TAU20-J20',                     ctpid=-1).setLogic( XE45 & TOPO_1DISAMB_TAU20ab_J20ab & physcond)
+            LVL1MenuItem('L1_J25_2J20_3J12_DR-TAU20ITAU12I',          ctpid=-1).setLogic( J25 & J20.x(2) & J12.x(3) &  TOPO_0DR28_TAU20abi_TAU12abi & physcond)
+            LVL1MenuItem('L1_J25_3J12_EM15-TAU12I',              ctpid=-1).setLogic( J25 & J12.x(3) &  TOPO_DISAMB_EM15abhi_TAU12abi & physcond)  
+            LVL1MenuItem('L1_J25_2J12_DR-MU10TAU12I',                 ctpid=-1).setLogic( J25 & J12.x(2) &  TOPO_0DR28_MU10ab_TAU12abi & physcond)
+            LVL1MenuItem('L1_J25_2J20_3J12_BOX-TAU20ITAU12I',ctpid=-1).setLogic( J25 & J20.x(2) & J12.x(3) & TOPO_0DETA20_0DPHI20_TAU20abi_TAU12abi & physcond)
 
-            LVL1MenuItem('L1_MU6_200INVM9999-AJ30s6-AJ20s6',  ctpid=-1).setLogic( MU6 & TOPO_200INVM9999_AJ30s6_AJ20s6 & physcond)
-            LVL1MenuItem('L1_MU6_300INVM9999-AJ30s6-AJ20s6',  ctpid=-1).setLogic( MU6 & TOPO_300INVM9999_AJ30s6_AJ20s6 & physcond)
-            LVL1MenuItem('L1_MU6_400INVM9999-AJ30s6-AJ20s6',  ctpid=-1).setLogic( MU6 & TOPO_400INVM9999_AJ30s6_AJ20s6 & physcond)
-            LVL1MenuItem('L1_MU6_500INVM9999-AJ30s6-AJ20s6',  ctpid=-1).setLogic( MU6 & TOPO_500INVM9999_AJ30s6_AJ20s6 & physcond) 
+            LVL1MenuItem('L1_MU6_MJJ-200',  ctpid=-1).setLogic( MU6 & TOPO_200INVM9999_AJ30s6_AJ20s6 & physcond)
+            LVL1MenuItem('L1_MU6_MJJ-300',  ctpid=-1).setLogic( MU6 & TOPO_300INVM9999_AJ30s6_AJ20s6 & physcond)
+            LVL1MenuItem('L1_MU6_MJJ-400',  ctpid=-1).setLogic( MU6 & TOPO_400INVM9999_AJ30s6_AJ20s6 & physcond)
+            LVL1MenuItem('L1_MU6_MJJ-500',  ctpid=-1).setLogic( MU6 & TOPO_500INVM9999_AJ30s6_AJ20s6 & physcond) 
 
-            LVL1MenuItem('L1_J30_2J20_4J20.0ETA49_400INVM9999-AJ30s6-AJ20s6',  ctpid=-1).setLogic( J30 & J20.x(2) & J200ETA49.x(4) & TOPO_400INVM9999_AJ30s6_AJ20s6 & physcond)
-            LVL1MenuItem('L1_J30_2J20_4J20.0ETA49_700INVM9999-AJ30s6-AJ20s6',  ctpid=-1).setLogic( J30 & J20.x(2) & J200ETA49.x(4) & TOPO_700INVM9999_AJ30s6_AJ20s6 & physcond) 
-            LVL1MenuItem('L1_J30_2J20_4J20.0ETA49_800INVM9999-AJ30s6-AJ20s6',  ctpid=-1).setLogic( J30 & J20.x(2) & J200ETA49.x(4) & TOPO_800INVM9999_AJ30s6_AJ20s6 & physcond)
-            LVL1MenuItem('L1_J30_2J20_4J20.0ETA49_900INVM9999-AJ30s6-AJ20s6',  ctpid=-1).setLogic( J30 & J20.x(2) & J200ETA49.x(4) & TOPO_900INVM9999_AJ30s6_AJ20s6 & physcond)
+            LVL1MenuItem('L1_J30_2J20_4J20.0ETA49_MJJ-400',  ctpid=-1).setLogic( J30 & J20.x(2) & J200ETA49.x(4) & TOPO_400INVM9999_AJ30s6_AJ20s6 & physcond)
+            LVL1MenuItem('L1_J30_2J20_4J20.0ETA49_MJJ-700',  ctpid=-1).setLogic( J30 & J20.x(2) & J200ETA49.x(4) & TOPO_700INVM9999_AJ30s6_AJ20s6 & physcond) 
+            LVL1MenuItem('L1_J30_2J20_4J20.0ETA49_MJJ-800',  ctpid=-1).setLogic( J30 & J20.x(2) & J200ETA49.x(4) & TOPO_800INVM9999_AJ30s6_AJ20s6 & physcond)
+            LVL1MenuItem('L1_J30_2J20_4J20.0ETA49_MJJ-900',  ctpid=-1).setLogic( J30 & J20.x(2) & J200ETA49.x(4) & TOPO_900INVM9999_AJ30s6_AJ20s6 & physcond)
 
-            LVL1MenuItem('L1_3J20_4J20.0ETA49_400INVM9999-AJ30s6-AJ20s6',  ctpid=-1).setLogic( J20.x(3) & J200ETA49.x(4) & TOPO_400INVM9999_AJ30s6_AJ20s6 & physcond)
-            LVL1MenuItem('L1_3J20_4J20.0ETA49_700INVM9999-AJ30s6-AJ20s6',  ctpid=-1).setLogic( J20.x(3) & J200ETA49.x(4) & TOPO_700INVM9999_AJ30s6_AJ20s6 & physcond) 
-            LVL1MenuItem('L1_3J20_4J20.0ETA49_800INVM9999-AJ30s6-AJ20s6',  ctpid=-1).setLogic( J20.x(3) & J200ETA49.x(4) & TOPO_800INVM9999_AJ30s6_AJ20s6 & physcond)
-            LVL1MenuItem('L1_3J20_4J20.0ETA49_900INVM9999-AJ30s6-AJ20s6',  ctpid=-1).setLogic( J20.x(3) & J200ETA49.x(4) & TOPO_900INVM9999_AJ30s6_AJ20s6 & physcond)
+            LVL1MenuItem('L1_3J20_4J20.0ETA49_MJJ-400',  ctpid=-1).setLogic( J20.x(3) & J200ETA49.x(4) & TOPO_400INVM9999_AJ30s6_AJ20s6 & physcond)
+            LVL1MenuItem('L1_3J20_4J20.0ETA49_MJJ-700',  ctpid=-1).setLogic( J20.x(3) & J200ETA49.x(4) & TOPO_700INVM9999_AJ30s6_AJ20s6 & physcond) 
+            LVL1MenuItem('L1_3J20_4J20.0ETA49_MJJ-800',  ctpid=-1).setLogic( J20.x(3) & J200ETA49.x(4) & TOPO_800INVM9999_AJ30s6_AJ20s6 & physcond)
+            LVL1MenuItem('L1_3J20_4J20.0ETA49_MJJ-900',  ctpid=-1).setLogic( J20.x(3) & J200ETA49.x(4) & TOPO_900INVM9999_AJ30s6_AJ20s6 & physcond)
 
-            LVL1MenuItem('L1_XE35_200INVM9999-AJ30s6-AJ20s6',  ctpid=-1).setLogic( XE35 & TOPO_200INVM9999_AJ30s6_AJ20s6 & physcond)
+            LVL1MenuItem('L1_XE35_MJJ-200',  ctpid=-1).setLogic( XE35 & TOPO_200INVM9999_AJ30s6_AJ20s6 & physcond)
 
             
             # CTP items for L1Topo streamers
@@ -720,64 +950,67 @@ class ItemDef:
             LVL1MenuItem('L1_DPhi_EMsTAUs',   ctpid=-1).setLogic( TOPO_DPhi_EMsTAUs & physcond)
             LVL1MenuItem('L1_DEta_AJabAJab',   ctpid=-1).setLogic( TOPO_DEta_AJabAJab & physcond)
             LVL1MenuItem('L1_DEta_EMabTAUab',   ctpid=-1).setLogic( TOPO_DEta_EMabTAUab & physcond)
-            LVL1MenuItem('L1_2INVM999-CMU4ab-MU4ab',   ctpid=-1).setLogic( TOPO_2INVM999_CMU4ab_MU4ab & physcond)
-            LVL1MenuItem('L1_2INVM999-2CMU4ab',   ctpid=-1).setLogic( TOPO_2INVM999_2CMU4ab & physcond)
-            LVL1MenuItem('L1_2INVM999-MU6ab-MU4ab',   ctpid=-1).setLogic( TOPO_2INVM999_MU6ab_MU4ab & physcond)
-            LVL1MenuItem('L1_2INVM999-CMU6ab-CMU4ab',   ctpid=-1).setLogic( TOPO_2INVM999_CMU6ab_CMU4ab & physcond)
-            LVL1MenuItem('L1_4INVM8-CMU4ab-MU4ab',   ctpid=-1).setLogic( TOPO_4INVM8_CMU4ab_MU4ab & physcond)
-            LVL1MenuItem('L1_4INVM8-2CMU4ab',   ctpid=-1).setLogic( TOPO_4INVM8_2CMU4ab & physcond)
-            LVL1MenuItem('L1_4INVM8-MU6ab-MU4ab',   ctpid=-1).setLogic( TOPO_4INVM8_MU6ab_MU4ab & physcond)
-            LVL1MenuItem('L1_4INVM8-CMU6ab-CMU4ab',   ctpid=-1).setLogic( TOPO_4INVM8_CMU6ab_CMU4ab & physcond)
-            LVL1MenuItem('L1_2DR99-2MU4ab',   ctpid=-1).setLogic( TOPO_2DR99_2MU4ab & physcond)
-            LVL1MenuItem('L1_5DETA99-5DPHI99-2MU4ab',   ctpid=-1).setLogic( TOPO_5DETA99_5DPHI99_2MU4ab & physcond)
-            LVL1MenuItem('L1_5DETA99-5DPHI99-MU6ab-MU4ab',   ctpid=-1).setLogic( TOPO_5DETA99_5DPHI99_MU6ab_MU4ab & physcond)
-            LVL1MenuItem('L1_5DETA99-5DPHI99-2MU6ab',   ctpid=-1).setLogic( TOPO_5DETA99_5DPHI99_2MU6ab & physcond)
-            LVL1MenuItem('L1_0DR10-MU10ab-MU6ab',   ctpid=-1).setLogic( TOPO_0DR10_MU10ab_MU6ab & physcond)
-            LVL1MenuItem('L1_0DETA04-0DPHI03-EM8abi-MU10ab',   ctpid=-1).setLogic( TOPO_0DETA04_0DPHI03_EM8abi_MU10ab & physcond)
-            LVL1MenuItem('L1_0DETA04-0DPHI03-EM15abi-MUab',   ctpid=-1).setLogic( TOPO_0DETA04_0DPHI03_EM15abi_MUab & physcond)
-            LVL1MenuItem('L1_10MINDPHI-Js2-XE50',   ctpid=-1).setLogic( TOPO_10MINDPHI_Js2_XE50 & physcond)
-            LVL1MenuItem('L1_10MINDPHI-J20s2-XE50',   ctpid=-1).setLogic( TOPO_10MINDPHI_J20s2_XE50 & physcond)
-            LVL1MenuItem('L1_10MINDPHI-J20ab-XE50',   ctpid=-1).setLogic( TOPO_10MINDPHI_J20ab_XE50 & physcond)
-            LVL1MenuItem('L1_10MINDPHI-CJ20ab-XE50',   ctpid=-1).setLogic( TOPO_10MINDPHI_CJ20ab_XE50 & physcond)
+            LVL1MenuItem('L1_BPH-2M-2MU4-B',   ctpid=-1).setLogic( TOPO_2INVM999_CMU4ab_MU4ab & physcond)
+            LVL1MenuItem('L1_BPH-2M-2MU4-BO',   ctpid=-1).setLogic( TOPO_2INVM999_2CMU4ab & physcond)
+            LVL1MenuItem('L1_BPH-2M-MU6MU4',   ctpid=-1).setLogic( TOPO_2INVM999_MU6ab_MU4ab & physcond)
+            LVL1MenuItem('L1_BPH-2M-MU6MU4-B', ctpid=-1).setLogic( TOPO_2INVM999_ONEBARREL_MU6ab_MU4ab & physcond)
+            LVL1MenuItem('L1_BPH-2M-MU6MU4-BO',   ctpid=-1).setLogic( TOPO_2INVM999_CMU6ab_CMU4ab & physcond)
+            LVL1MenuItem('L1_BPH-4M8-2MU4-B',   ctpid=-1).setLogic( TOPO_4INVM8_CMU4ab_MU4ab & physcond)
+            LVL1MenuItem('L1_BPH-4M8-2MU4-BO',   ctpid=-1).setLogic( TOPO_4INVM8_2CMU4ab & physcond)
+            LVL1MenuItem('L1_BPH-4M8-MU6MU4',   ctpid=-1).setLogic( TOPO_4INVM8_MU6ab_MU4ab & physcond)
+            LVL1MenuItem('L1_BPH-4M8-MU6MU4-B', ctpid=-1).setLogic( TOPO_4INVM8_ONEBARREL_MU6ab_MU4ab & physcond)
+            LVL1MenuItem('L1_BPH-4M8-MU6MU4-BO',   ctpid=-1).setLogic( TOPO_4INVM8_CMU6ab_CMU4ab & physcond)
+            LVL1MenuItem('L1_DY-DR-2MU4',   ctpid=-1).setLogic( TOPO_2DR99_2MU4ab & physcond)
+            LVL1MenuItem('L1_DY-BOX-2MU4',   ctpid=-1).setLogic( TOPO_5DETA99_5DPHI99_2MU4ab & physcond)
+            LVL1MenuItem('L1_DY-BOX-MU6MU4',   ctpid=-1).setLogic( TOPO_5DETA99_5DPHI99_MU6ab_MU4ab & physcond)
+            LVL1MenuItem('L1_DY-BOX-2MU6',   ctpid=-1).setLogic( TOPO_5DETA99_5DPHI99_2MU6ab & physcond)
+            LVL1MenuItem('L1_LFV-MU',   ctpid=-1).setLogic( TOPO_0DR10_MU10ab_MU6ab & physcond)
+            LVL1MenuItem('L1_LFV-EM8I',   ctpid=-1).setLogic( TOPO_0DETA04_0DPHI03_EM8abi_MU10ab & physcond)
+            LVL1MenuItem('L1_LFV-EM15I',   ctpid=-1).setLogic( TOPO_0DETA04_0DPHI03_EM15abi_MUab & physcond)
+            LVL1MenuItem('L1_DPHI-Js2XE50',   ctpid=-1).setLogic( TOPO_10MINDPHI_Js2_XE50 & physcond)
+            LVL1MenuItem('L1_DPHI-J20s2XE50',   ctpid=-1).setLogic( TOPO_10MINDPHI_J20s2_XE50 & physcond)
+            LVL1MenuItem('L1_DPHI-J20XE50',   ctpid=-1).setLogic( TOPO_10MINDPHI_J20ab_XE50 & physcond)
+            LVL1MenuItem('L1_DPHI-CJ20XE50',   ctpid=-1).setLogic( TOPO_10MINDPHI_CJ20ab_XE50 & physcond)
 
-            LVL1MenuItem('L1_900INVM9999-AJ30s6-AJ20s6',   ctpid=-1).setLogic( TOPO_900INVM9999_AJ30s6_AJ20s6 & physcond)
-            LVL1MenuItem('L1_800INVM9999-AJ30s6-AJ20s6',   ctpid=-1).setLogic( TOPO_800INVM9999_AJ30s6_AJ20s6 & physcond)
-            LVL1MenuItem('L1_700INVM9999-AJ30s6-AJ20s6',   ctpid=-1).setLogic( TOPO_700INVM9999_AJ30s6_AJ20s6 & physcond)
-            LVL1MenuItem('L1_400INVM9999-AJ30s6-AJ20s6',   ctpid=-1).setLogic( TOPO_400INVM9999_AJ30s6_AJ20s6 & physcond)
-            LVL1MenuItem('L1_350INVM9999-AJ30s6-AJ20s6',   ctpid=-1).setLogic( TOPO_350INVM9999_AJ30s6_AJ20s6 & physcond)
-            LVL1MenuItem('L1_300INVM9999-AJ30s6-AJ20s6',   ctpid=-1).setLogic( TOPO_300INVM9999_AJ30s6_AJ20s6 & physcond)
-            LVL1MenuItem('L1_200INVM9999-AJ30s6-AJ20s6',   ctpid=-1).setLogic( TOPO_200INVM9999_AJ30s6_AJ20s6 & physcond)
-            LVL1MenuItem('L1_100INVM9999-AJ30s6-AJ20s6',   ctpid=-1).setLogic( TOPO_100INVM9999_AJ30s6_AJ20s6 & physcond)
+            LVL1MenuItem('L1_MJJ-900',   ctpid=-1).setLogic( TOPO_900INVM9999_AJ30s6_AJ20s6 & physcond)
+            LVL1MenuItem('L1_MJJ-800',   ctpid=-1).setLogic( TOPO_800INVM9999_AJ30s6_AJ20s6 & physcond)
+            LVL1MenuItem('L1_MJJ-700',   ctpid=-1).setLogic( TOPO_700INVM9999_AJ30s6_AJ20s6 & physcond)
+            LVL1MenuItem('L1_MJJ-400',   ctpid=-1).setLogic( TOPO_400INVM9999_AJ30s6_AJ20s6 & physcond)
+            LVL1MenuItem('L1_MJJ-350',   ctpid=-1).setLogic( TOPO_350INVM9999_AJ30s6_AJ20s6 & physcond)
+            LVL1MenuItem('L1_MJJ-300',   ctpid=-1).setLogic( TOPO_300INVM9999_AJ30s6_AJ20s6 & physcond)
+            LVL1MenuItem('L1_MJJ-200',   ctpid=-1).setLogic( TOPO_200INVM9999_AJ30s6_AJ20s6 & physcond)
+            LVL1MenuItem('L1_MJJ-100',   ctpid=-1).setLogic( TOPO_100INVM9999_AJ30s6_AJ20s6 & physcond)
 
-            LVL1MenuItem('L1_350INVM9999-J30s6-J20s6',   ctpid=-1).setLogic( TOPO_350INVM9999_J30s6_J20s6 & physcond)
-            LVL1MenuItem('L1_300INVM9999-J30s6-J20s6',   ctpid=-1).setLogic( TOPO_300INVM9999_J30s6_J20s6 & physcond)
-            LVL1MenuItem('L1_250INVM9999-J30s6-J20s6',   ctpid=-1).setLogic( TOPO_250INVM9999_J30s6_J20s6 & physcond)
-            LVL1MenuItem('L1_200INVM9999-J30s6-J20s6',   ctpid=-1).setLogic( TOPO_200INVM9999_J30s6_J20s6 & physcond)
-            LVL1MenuItem('L1_40DETA99-AJ30s6-AJ20s6',   ctpid=-1).setLogic( TOPO_40DETA99_AJ30s6_AJ20s6 & physcond)
-            LVL1MenuItem('L1_40DETA99-J30s6-J20s6',   ctpid=-1).setLogic( TOPO_40DETA99_J30s6_J20s6 & physcond)
-            LVL1MenuItem('L1_HT150-AJj15all.ETA49',   ctpid=-1).setLogic( TOPO_HT150_AJj15allETA49 & physcond)
-            LVL1MenuItem('L1_0DETA10-Js1-Js2',   ctpid=-1).setLogic( TOPO_0DETA10_Js1_Js2 & physcond)
-            LVL1MenuItem('L1_0MATCH-4AJ20.ETA32-4AJj15',   ctpid=-1).setLogic( TOPO_0MATCH_4AJ20ETA32_4AJj15 & physcond)
-            LVL1MenuItem('L1_05RATIO-XE0-SUM0-EM9s1-HT0-AJj15all.ETA49',   ctpid=-1).setLogic( TOPO_05RATIO_XE0_SUM0_EM9s1_HT0_AJj15allETA49 & physcond)
-            LVL1MenuItem('L1_210RATIO-0MATCH-TAU30si2-EMall',   ctpid=-1).setLogic( TOPO_210RATIO_0MATCH_TAU30si2_EMall & physcond)
-            LVL1MenuItem('L1_NOT-0MATCH-TAU30si2-EMall',   ctpid=-1).setLogic( TOPO_NOT_0MATCH_TAU30si2_EMall & physcond)
-            LVL1MenuItem('L1_0DR28-MU10ab-TAU12abi',   ctpid=-1).setLogic( TOPO_0DR28_MU10ab_TAU12abi & physcond)
-            LVL1MenuItem('L1_1DISAMB-TAU12abi-J25ab',   ctpid=-1).setLogic( TOPO_1DISAMB_TAU12abi_J25ab & physcond)
-            LVL1MenuItem('L1_DISAMB-EM15abhi-TAU40ab',   ctpid=-1).setLogic( TOPO_DISAMB_EM15abhi_TAU40ab & physcond)
-            LVL1MenuItem('L1_1DISAMB-TAU20ab-J20ab',   ctpid=-1).setLogic( TOPO_1DISAMB_TAU20ab_J20ab & physcond)
-            LVL1MenuItem('L1_DISAMB-EM15abhi-TAU12abi',   ctpid=-1).setLogic( TOPO_DISAMB_EM15abhi_TAU12abi & physcond)
-            LVL1MenuItem('L1_1DISAMB-EM15his2-TAU12abi-J25ab',   ctpid=-1).setLogic( TOPO_1DISAMB_EM15his2_TAU12abi_J25ab & physcond)
-            LVL1MenuItem('L1_1DISAMB-J25ab-0DR28-EM15his2-TAU12abi',   ctpid=-1).setLogic( TOPO_1DISAMB_J25ab_0DR28_EM15his2_TAU12abi & physcond)
-            LVL1MenuItem('L1_1DISAMB-TAU20abi-TAU12abi-J25ab',   ctpid=-1).setLogic( TOPO_1DISAMB_TAU20abi_TAU12abi_J25ab & physcond)
-            LVL1MenuItem('L1_0DR28-TAU20abi-TAU12abi',   ctpid=-1).setLogic( TOPO_0DR28_TAU20abi_TAU12abi & physcond)
-            LVL1MenuItem('L1_0DETA20-0DPHI20-TAU20abi-TAU12abi',   ctpid=-1).setLogic( TOPO_0DETA20_0DPHI20_TAU20abi_TAU12abi & physcond)
-            LVL1MenuItem('L1_1DISAMB-J25ab-0DR28-TAU20abi-TAU12abi',   ctpid=-1).setLogic( TOPO_1DISAMB_J25ab_0DR28_TAU20abi_TAU12abi & physcond)
-            LVL1MenuItem('L1_LAR-EM50s1',   ctpid=-1).setLogic( TOPO_LAR_EM50s1 & physcond)
-            LVL1MenuItem('L1_LAR-J100s1',   ctpid=-1).setLogic( TOPO_LAR_J100s1 & physcond)
-            LVL1MenuItem('L1_2DR15-CMU4ab-MU4ab',   ctpid=-1).setLogic( TOPO_2DR15_CMU4ab_MU4ab & physcond)
-            LVL1MenuItem('L1_2DR15-2CMU4ab',   ctpid=-1).setLogic( TOPO_2DR15_2CMU4ab & physcond)
-            LVL1MenuItem('L1_2DR15-MU6ab-MU4ab',   ctpid=-1).setLogic( TOPO_2DR15_MU6ab_MU4ab & physcond)
-            LVL1MenuItem('L1_2DR15-CMU6ab-CMU4ab',   ctpid=-1).setLogic( TOPO_2DR15_CMU6ab_CMU4ab & physcond)
+            LVL1MenuItem('L1_MJJ-350-0',   ctpid=-1).setLogic( TOPO_350INVM9999_J30s6_J20s6 & physcond)
+            LVL1MenuItem('L1_MJJ-300-0',   ctpid=-1).setLogic( TOPO_300INVM9999_J30s6_J20s6 & physcond)
+            LVL1MenuItem('L1_MJJ-250-0',   ctpid=-1).setLogic( TOPO_250INVM9999_J30s6_J20s6 & physcond)
+            LVL1MenuItem('L1_MJJ-200-0',   ctpid=-1).setLogic( TOPO_200INVM9999_J30s6_J20s6 & physcond)
+#            LVL1MenuItem('L1_40DETA99-AJ30s6-AJ20s6',   ctpid=-1).setLogic( TOPO_40DETA99_AJ30s6_AJ20s6 & physcond)
+#            LVL1MenuItem('L1_40DETA99-J30s6-J20s6',   ctpid=-1).setLogic( TOPO_40DETA99_J30s6_J20s6 & physcond)
+            LVL1MenuItem('L1_HT150-JJ15.ETA49',   ctpid=-1).setLogic( TOPO_HT150_AJj15allETA49 & physcond)
+            LVL1MenuItem('L1_DETA-JJ',   ctpid=-1).setLogic( TOPO_0DETA10_Js1_Js2 & physcond)
+            LVL1MenuItem('L1_J4-MATCH',   ctpid=-1).setLogic( TOPO_0MATCH_4AJ20ETA32_4AJj15 & physcond)
+            LVL1MenuItem('L1_W-05RO-XEEMHT',   ctpid=-1).setLogic( TOPO_05RATIO_XE0_SUM0_EM9s1_HT0_AJj15allETA49 & physcond)
+            LVL1MenuItem('L1_LLP-RO',   ctpid=-1).setLogic( TOPO_210RATIO_0MATCH_TAU30si2_EMall & physcond)
+            LVL1MenuItem('L1_LLP-NOMATCH',   ctpid=-1).setLogic( TOPO_NOT_0MATCH_TAU30si2_EMall & physcond)
+            LVL1MenuItem('L1_DR-MU10TAU12I',   ctpid=-1).setLogic( TOPO_0DR28_MU10ab_TAU12abi & physcond)
+            LVL1MenuItem('L1_TAU12I-J25',   ctpid=-1).setLogic( TOPO_1DISAMB_TAU12abi_J25ab & physcond)
+            LVL1MenuItem('L1_EM15-TAU40',   ctpid=-1).setLogic( TOPO_DISAMB_EM15abhi_TAU40ab & physcond)
+            LVL1MenuItem('L1_TAU20-J20',   ctpid=-1).setLogic( TOPO_1DISAMB_TAU20ab_J20ab & physcond)
+            LVL1MenuItem('L1_EM15-TAU12I',   ctpid=-1).setLogic( TOPO_DISAMB_EM15abhi_TAU12abi & physcond)
+            LVL1MenuItem('L1_EM15TAU12I-J25',   ctpid=-1).setLogic( TOPO_1DISAMB_EM15his2_TAU12abi_J25ab & physcond)
+            LVL1MenuItem('L1_DR-EM15TAU12I-J25',   ctpid=-1).setLogic( TOPO_1DISAMB_J25ab_0DR28_EM15his2_TAU12abi & physcond)
+            LVL1MenuItem('L1_TAU20ITAU12I-J25',   ctpid=-1).setLogic( TOPO_1DISAMB_TAU20abi_TAU12abi_J25ab & physcond)
+            LVL1MenuItem('L1_DR-TAU20ITAU12I',   ctpid=-1).setLogic( TOPO_0DR28_TAU20abi_TAU12abi & physcond)
+            LVL1MenuItem('L1_BOX-TAU20ITAU12I',   ctpid=-1).setLogic( TOPO_0DETA20_0DPHI20_TAU20abi_TAU12abi & physcond)
+            LVL1MenuItem('L1_DR-TAU20ITAU12I-J25',   ctpid=-1).setLogic( TOPO_1DISAMB_J25ab_0DR28_TAU20abi_TAU12abi & physcond)
+            LVL1MenuItem('L1_LAR-EM',   ctpid=-1).setLogic( TOPO_LAR_EM50s1 & physcond)
+            LVL1MenuItem('L1_LAR-J',   ctpid=-1).setLogic( TOPO_LAR_J100s1 & physcond)
+            LVL1MenuItem('L1_BPH-DR-2MU4-B',   ctpid=-1).setLogic( TOPO_2DR15_CMU4ab_MU4ab & physcond)
+            LVL1MenuItem('L1_BPH-DR-2MU4-BO',   ctpid=-1).setLogic( TOPO_2DR15_2CMU4ab & physcond)
+            LVL1MenuItem('L1_BPH-DR-MU6MU4',   ctpid=-1).setLogic( TOPO_2DR15_MU6ab_MU4ab & physcond)
+            LVL1MenuItem('L1_BPH-DR-MU6MU4-B', ctpid=-1).setLogic( TOPO_2DR15_ONEBARREL_MU6ab_MU4ab & physcond)
+            LVL1MenuItem('L1_BPH-DR-MU6MU4-BO',   ctpid=-1).setLogic( TOPO_2DR15_CMU6ab_CMU4ab & physcond)
 
 
             

@@ -29,12 +29,18 @@ def setupMenu():
 	['mu10_idperf',         'L1_MU6', [], ['Muon'], ['RATE:SingleMuon','BW:Muon'], -1],
  	
 	#RoI muons
+	['mu4',                 'L1_MU4', [], ['Muon'], ['RATE:SingleMuon','BW:Muon'], -1],
 	['mu6',                 'L1_MU4', [], ['Muon'], ['RATE:SingleMuon','BW:Muon'], -1],
 	['mu10',                'L1_MU6', [], ['Muon'], ['RATE:SingleMuon','BW:Muon'], -1],
 	
 	#Full scan
         ['mu4_mu4noL1',         'L1_MU4', ['L1_MU4',''], ['Muon'], ['RATE:MultiMuon','BW:Muon'], -1, ['serial',-1,["mu4","mu4noL1"]]],
         ['mu6_mu4noL1',         'L1_MU4', ['L1_MU4',''], ['Muon'], ['RATE:MultiMuon','BW:Muon'], -1, ['serial',-1,["mu6","mu4noL1"]]],
+        
+        #Full-scan supporting
+        ['mu4noL1',         'L1_MU4', ['L1_MU4',''], ['Muon'], ['RATE:SingleMuon','BW:Muon'], -1, ],
+        ['mu6noL1',         'L1_MU4', ['L1_MU4',''], ['Muon'], ['RATE:SingleMuon','BW:Muon'], -1, ],
+
         ]
 
     TriggerFlags.JetSlice.signatures = [
@@ -98,15 +104,20 @@ def setupMenu():
         ]
    
     TriggerFlags.MinBiasSlice.signatures = [
-        ['mb_mbts_L1MBTS_2',    'L1_MBTS_2', [], ['MinBias'],["BW:MinBias", "RATE:MinBias"], 1],
-        #['mb_mbts_L1MBTS_1_1',, 'L1_MBTS_1_1', [], ['MinBias'],["BW:MinBias", "RATE:MinBias"], 1], #does not work, needs to be fixed
+        ['mb_mbts_L1MBTS_2',    'L1_MBTS_2',   [], ['MinBias'],["BW:MinBias", "RATE:MinBias"], 1],
+        ['mb_mbts_L1MBTS_1_1',  'L1_MBTS_1_1', [], ['MinBias'],["BW:MinBias", "RATE:MinBias"], 1], 
         ['mb_mbts_L1MBTS_2_2',  'L1_MBTS_2_2', [], ['MinBias'],["BW:MinBias", "RATE:MinBias"], 1],
         ['mb_mbts_L1MBTS_3_3',  'L1_MBTS_3_3', [], ['MinBias'],["BW:MinBias", "RATE:MinBias"], 1],
         ['mb_mbts_L1MBTS_4_4',  'L1_MBTS_4_4', [], ['MinBias'],["BW:MinBias", "RATE:MinBias"], 1],
 
+	#sptrk
         ['mb_sp',  'L1_RD0_FILLED', [], ['MinBias'],["BW:MinBias", "RATE:MinBias"], 1],
         ['mb_sptrk_ion_L1ZDC_A_C_VTE50',  'L1_ZDC_A_C_VTE50', [], ['MinBias'],["BW:MinBias", "RATE:MinBias"], 1],
         ['mb_idperf_ion_L1MBTS_1', 'L1_MBTS_1', [], ['MinBias'],["BW:MinBias", "RATE:MinBias"], 1],
+        
+        #Zdc
+	['mb_zdcperf',  'L1_RD0_FILLED', [], ['MinBias'],["BW:MinBias", "RATE:MinBias"], 1],
+        ['mb_zdcperf_L1ZDC_A_C',  'L1_ZDC_A_C', [], ['MinBias'],["BW:MinBias", "RATE:MinBias"], 1],
         ]
 
     TriggerFlags.CalibSlice.signatures   = []

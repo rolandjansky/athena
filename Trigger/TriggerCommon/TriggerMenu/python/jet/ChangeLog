@@ -1,3 +1,27 @@
+2015-02-23   Peter Sherwood  <peter@localhost>
+
+	* JetDef.py (_check_chainpart_consistency.remove_hypodata): 
+	remove 'topo' from the chainPArt entries tested for consistency
+	ATR-9250
+
+2015-02-13   Peter Sherwood  <peter@pb-d-128-141-184-24.cern.ch>
+
+	* JetSequencesBuilder.py (JetSequencesBuilder.make_fexd): 
+	fix bug setting up diagnostics alg list.
+
+2015-02-16   Peter Sherwood  <peter@localhost>
+
+	* JetDef_test.py (TestJetDef.setUp): reduce output to screen.
+
+	* JetDef.py: turn off logging: messages do not make it to the 
+	job log file, and it obfuscates the test suite.
+
+	* run_testsuite.py: add module JetDef_test2.
+
+	* Add test module JetDef_test2.py to check for errors in
+	setting up all chains including diagnostics chains.
+
+
 2015-02-05   Peter Sherwood  <peter@localhost>
 
 	* JetDef.py (_check_chainpart_consistency.remove_hypodata): 

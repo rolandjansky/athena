@@ -454,7 +454,7 @@ class L2EFChain_e(L2EFChainDef):
         isoInfo = self.chainPart['isoInfo']
         run1 = self.chainPart['trkInfo']
        
-        logElectronDef.debug('setup_eXXvh_idperf')
+        logElectronDef.debug('setup_eXXvh_idperf_heavyIon')
         logElectronDef.debug('threshold: %s',threshold)
         logElectronDef.debug('isoInfo: %s',isoInfo)
         logElectronDef.debug('IDinfo: %s',IDinfo)
@@ -501,17 +501,17 @@ class L2EFChain_e(L2EFChainDef):
             from TrigEgammaHypo.TrigEFElectronHypoConfig import TrigEFElectronHypo_e_EtCut
             from TrigEgammaHypo.TrigEFCaloHypoConfig import TrigEFCaloHypo_EtCut
             theL2CaloHypo      = L2CaloHypo_NoCut("L2CaloHypo_e"+str(threshold)+"_NoCut",threshold ) 
-            theTrigEFCaloHypo = TrigEFCaloHypo_EtCut("TrigEFCaloHypo_e"+str(threshold)+"_EtCut",threshold);
-            theEFElectronHypo  = TrigEFElectronHypo_e_EtCut("TrigEFElectronHypo_e"+str(threshold)+"_EtCut",threshold)
+            theTrigEFCaloHypo = TrigEFCaloHypo_EtCut("TrigEFCaloHypo_e"+str(threshold)+"_EtCut_heavyIon",threshold);
+            theEFElectronHypo  = TrigEFElectronHypo_e_EtCut("TrigEFElectronHypo_e"+str(threshold)+"_EtCut_heavyIon",threshold)
         elif self.chainPart['IDinfo']:
             from TrigEgammaHypo.TrigL2CaloHypoConfig import L2CaloHypo_e_ID
             theL2CaloHypo = L2CaloHypo_e_ID("TrigL2CaloHypo_e"+str(threshold)+"_"+str(IDinfo),threshold,IDinfo)
             from TrigEgammaHypo.TrigEFCaloHypoConfig import TrigEFCaloHypo_e_ID
             # EF Calo
-            theTrigEFCaloHypo = TrigEFCaloHypo_e_ID("TrigEFCaloHypo_e"+str(threshold)+"_"+str(IDinfo),threshold,IDinfo);
+            theTrigEFCaloHypo = TrigEFCaloHypo_e_ID("TrigEFCaloHypo_e"+str(threshold)+"_"+str(IDinfo)+"_heavyIon",threshold,IDinfo);
             from TrigEgammaHypo.TrigEFElectronHypoConfig import TrigEFElectronHypo_e_ID_CaloOnly
             theEFElectronHypo  = \
-                TrigEFElectronHypo_e_ID_CaloOnly("TrigEFElectronHypo_e"+str(threshold)+"_"+str(IDinfo)+"_CaloOnly",threshold,IDinfo)
+                TrigEFElectronHypo_e_ID_CaloOnly("TrigEFElectronHypo_e"+str(threshold)+"_"+str(IDinfo)+"_CaloOnly_heavyIon",threshold,IDinfo)
 
         if 'conv' in self.chainPart['addInfo']:
             theTrigEgammaFex = theTrigEgammaRec_Conv_eGamma
@@ -532,7 +532,7 @@ class L2EFChain_e(L2EFChainDef):
         self.EFsequenceList += [[['L2_e_step1'], 
                                      [theFSCellMaker], 'EF_e_step1_fs']]
 
-        self.EFsequenceList += [[['EF_e_step1_fs'], 
+        self.EFsequenceList += [[['L2_e_step1'], 
                                  [theTrigCaloCellMaker_eGamma, theTrigCaloTowerMaker_eGamma, theTrigCaloClusterMaker_slw], 
                                  'EF_e_step1']]
         
@@ -1056,7 +1056,7 @@ class L2EFChain_e(L2EFChainDef):
         addInfo = self.chainPart['addInfo']
         trkInfo = self.chainPart['trkInfo']
       
-        logElectronDef.debug('setup_eXXvh_ID_run2')
+        logElectronDef.debug('setup_eXXvh_ID_run2_heavyIon')
         logElectronDef.debug('threshold: %s',threshold)
         logElectronDef.debug('isoInfo: %s',isoInfo)
         logElectronDef.debug('IDinfo: %s',IDinfo)
@@ -1113,9 +1113,9 @@ class L2EFChain_e(L2EFChainDef):
             from TrigEgammaHypo.TrigEFCaloHypoConfig import TrigEFCaloHypo_EtCut
             theL2CaloHypo      = L2CaloHypo_NoCut("L2CaloHypo_e"+str(threshold)+"_NoCut",threshold ) 
             theL2ElectronHypo  = L2ElectronHypo_e_NoCut("L2ElectronHypo_e"+str(threshold)+"_NoCut",threshold ) 
-            theTrigEFCaloHypo = TrigEFCaloHypo_EtCut("TrigEFCaloHypo_e"+str(threshold)+"_EtCut",threshold);
-            theEFTrackHypo     = EFTrackHypo_e_NoCut("EFTrackHypo_e"+str(threshold)+"_NoCut",threshold) 
-            theEFElectronHypo  = TrigEFElectronHypo_e_EtCut("TrigEFElectronHypo_e"+str(threshold)+"_EtCut",threshold)
+            theTrigEFCaloHypo = TrigEFCaloHypo_EtCut("TrigEFCaloHypo_e"+str(threshold)+"_EtCut_heavyIon",threshold);
+            theEFTrackHypo     = EFTrackHypo_e_NoCut("EFTrackHypo_e"+str(threshold)+"_NoCut_heavyIon",threshold) 
+            theEFElectronHypo  = TrigEFElectronHypo_e_EtCut("TrigEFElectronHypo_e"+str(threshold)+"_EtCut_heavyIon",threshold)
         elif 'perf' in self.chainPart['addInfo']:
             from TrigEgammaHypo.TrigL2CaloHypoConfig import L2CaloHypo_NoCut
             from TrigEgammaHypo.TrigL2ElectronHypoConfig import L2ElectronHypo_e_NoCut
@@ -1125,9 +1125,9 @@ class L2EFChain_e(L2EFChainDef):
             theL2CaloHypo      = L2CaloHypo_NoCut("L2CaloHypo_e"+str(threshold)+"_NoCut",threshold ) 
             theL2ElectronHypo  = L2ElectronHypo_e_NoCut("L2ElectronHypo_e"+str(threshold)+"_NoCut",threshold ) 
             theTrigEFCaloHypo = TrigEFCaloHypo_All("TrigEFCaloHypo_e"+str(threshold)+"_NoCut",threshold);
-            theEFTrackHypo     = EFTrackHypo_e_NoCut("EFTrackHypo_e"+str(threshold)+"_NoCut",threshold) 
+            theEFTrackHypo     = EFTrackHypo_e_NoCut("EFTrackHypo_e"+str(threshold)+"_NoCut_heavyIon",threshold) 
             # EF Electron
-            theEFElectronHypo  = TrigEFElectronHypo_e_NoCut("TrigEFElectronHypo_e"+str(threshold)+"_NoCut",threshold)
+            theEFElectronHypo  = TrigEFElectronHypo_e_NoCut("TrigEFElectronHypo_e"+str(threshold)+"_NoCut_heavyIon",threshold)
 
         elif self.chainPart['IDinfo']:
             algoSuffix = "e%s_%s()" % (str(threshold),IDinfo)
@@ -1155,7 +1155,7 @@ class L2EFChain_e(L2EFChainDef):
             theL2ElectronHypo  = L2ElectronHypo_e_ID("TrigL2ElectronHypo_e"+str(threshold)+"_"+str(IDinfo),threshold,IDinfo)
             
             # EF Calo
-            theTrigEFCaloHypo = TrigEFCaloHypo_e_ID("TrigEFCaloHypo_e"+str(threshold)+"_"+str(IDinfo),threshold,IDinfo);
+            theTrigEFCaloHypo = TrigEFCaloHypo_e_ID("TrigEFCaloHypo_e"+str(threshold)+"_"+str(IDinfo)+"_heavyIon",threshold,IDinfo);
            
             # EF Track
             theEFTrackHypo     = EFTrackHypo_e("EFTrackHypo_e"+str(threshold)+"_"+str(IDinfo),threshold)
@@ -1163,19 +1163,19 @@ class L2EFChain_e(L2EFChainDef):
             # EF Electron
             if self.chainPart['isoInfo']:
                 if 'etisem' in self.chainPart['addInfo']:
-                    theEFElectronHypo  = TrigEFElectronHypo_e_ID_EtIsEM_Iso("TrigEFElectronHypo_e"+str(threshold)+"_"+str(IDinfo)+"_EtIsEM"+"_"+str(isoInfo),threshold,IDinfo)
+                    theEFElectronHypo  = TrigEFElectronHypo_e_ID_EtIsEM_Iso("TrigEFElectronHypo_e"+str(threshold)+"_"+str(IDinfo)+"_EtIsEM"+"_"+str(isoInfo)+"_heavyIon",threshold,IDinfo)
                 elif self.chainPart['lhInfo']:
                     lhInfo = self.chainPart['lhInfo']
-                    theEFElectronHypo = TrigEFElectronHypo_e_LH_Iso("TrigEFElectronHypo_e"+str(threshold)+"_"+str(IDinfo)+"_"+str(lhInfo)+"_"+str(isoInfo),threshold,lhInfo)
+                    theEFElectronHypo = TrigEFElectronHypo_e_LH_Iso("TrigEFElectronHypo_e"+str(threshold)+"_"+str(IDinfo)+"_"+str(lhInfo)+"_"+str(isoInfo)+"_heavyIon",threshold,lhInfo)
                 else:
-                    theEFElectronHypo  = TrigEFElectronHypo_e_Iso("TrigEFElectronHypo_e"+str(threshold)+"_"+str(IDinfo)+"_"+str(isoInfo),threshold,IDinfo,isoInfo)
+                    theEFElectronHypo  = TrigEFElectronHypo_e_Iso("TrigEFElectronHypo_e"+str(threshold)+"_"+str(IDinfo)+"_"+str(isoInfo)+"_heavyIon",threshold,IDinfo,isoInfo)
             elif 'etisem' in self.chainPart['addInfo']:
-                theEFElectronHypo  = TrigEFElectronHypo_e_ID_EtIsEM("TrigEFElectronHypo_e"+str(threshold)+"_"+str(IDinfo)+"_EtIsEM",threshold,IDinfo)
+                theEFElectronHypo  = TrigEFElectronHypo_e_ID_EtIsEM("TrigEFElectronHypo_e"+str(threshold)+"_"+str(IDinfo)+"_EtIsEM_heavyIon",threshold,IDinfo)
             elif self.chainPart['lhInfo']:
                 lhInfo = self.chainPart['lhInfo']
-                theEFElectronHypo = TrigEFElectronHypo_e_LH("TrigEFElectronHypo_e"+str(threshold)+"_"+str(IDinfo)+"_"+str(lhInfo),threshold,lhInfo)
+                theEFElectronHypo = TrigEFElectronHypo_e_LH("TrigEFElectronHypo_e"+str(threshold)+"_"+str(IDinfo)+"_"+str(lhInfo)+"_heavyIon",threshold,lhInfo)
             else: 
-                theEFElectronHypo  = TrigEFElectronHypo_e_ID("TrigEFElectronHypo_e"+str(threshold)+"_"+str(IDinfo),threshold,IDinfo)
+                theEFElectronHypo  = TrigEFElectronHypo_e_ID("TrigEFElectronHypo_e"+str(threshold)+"_"+str(IDinfo)+"_heavyIon",threshold,IDinfo)
         else:
             algoSuffix = "e%s_%s()" % (str(threshold),IDinfo)
             logElectronDef.error('Chain %s could not be assembled', self.chainPartName)
@@ -1219,7 +1219,7 @@ class L2EFChain_e(L2EFChainDef):
         self.EFsequenceList += [[['L2_e_step3'], 
                                  [theFSCellMaker], 'EF_e_step1_fs']]
 
-        self.EFsequenceList += [[['EF_e_step1_fs'], 
+        self.EFsequenceList += [[['L2_e_step3'], 
                                  [theTrigCaloCellMaker_eGamma, theTrigCaloTowerMaker_eGamma, theTrigCaloClusterMaker_slw],
                                  'EF_e_step1']]
         

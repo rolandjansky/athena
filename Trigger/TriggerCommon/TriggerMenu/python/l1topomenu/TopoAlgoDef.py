@@ -21,8 +21,13 @@ class TopoAlgoDef:
 
         _etamax = 49
         _minet = 0
-        _emscale_for_decision = 2 # global scale for EM, TAU
 
+        _emscale_for_decision = 2 # global scale for EM, TAU        
+        if hasattr(TriggerFlags, 'useRun1CaloEnergyScale'):
+            if TriggerFlags.useRun1CaloEnergyScale :
+                _emscale_for_decision=1     
+                log.info("Changed mscale_for_decision %s for Run1CaloEnergyScale" % _emscale_for_decision)
+                
         alg = AlgConf.ClusterSort( name = 'EMs', inputs = 'ClusterTobArray', outputs = 'EMs', algoId = currentAlgoId ); currentAlgoId += 1
         alg.addgeneric('InputWidth', HW.InputWidthEM)
         alg.addgeneric('InputWidth1stStage', HW.InputWidth1stStageSortEM)
@@ -615,7 +620,7 @@ class TopoAlgoDef:
                                                         otype, str(ocut2) , olist, str(nleading1) if olist=="s" else "")
                                                         
             log.info("Define %s" % toponame)
-            print toponame
+
             inputList = otype + olist
 
             alg = AlgConf.InvariantMassInclusive1( name = toponame,  inputs = inputList, outputs = [ toponame ], algoId = currentAlgoId); currentAlgoId += 1
@@ -661,19 +666,22 @@ class TopoAlgoDef:
             
         # dimu INVM items
         for x in [
-            {"minInvm": 2, "maxInvm": 999, "mult": 2, "otype1" : "MU", "ocut1": 4, "olist" : "ab", "otype2" :"", "ocut2" : 0},
-            {"minInvm": 2, "maxInvm": 999, "mult": 2, "otype1" : "CMU","ocut1": 4, "olist" : "ab", "otype2" :"", "ocut2" : 0},
-            {"minInvm": 2, "maxInvm": 999, "mult": 2, "otype1" : "MU", "ocut1": 6, "olist" : "ab", "otype2" :"", "ocut2" : 0},
-            {"minInvm": 2, "maxInvm": 999, "mult": 1, "otype1" : "CMU","ocut1": 4, "olist" : "ab", "otype2" :"MU", "ocut2" : 4},
-            {"minInvm": 2, "maxInvm": 999, "mult": 1, "otype1" : "MU", "ocut1": 6, "olist" : "ab", "otype2" :"MU", "ocut2" : 4},
-            {"minInvm": 2, "maxInvm": 999, "mult": 1, "otype1" : "CMU","ocut1": 6, "olist" : "ab", "otype2" :"CMU","ocut2" : 4},
+            {"minInvm": 2, "maxInvm": 999, "mult": 2, "otype1" : "MU", "ocut1": 4, "olist" : "ab", "otype2" :"", "ocut2" : 0, "onebarrel": 0},
+            {"minInvm": 2, "maxInvm": 999, "mult": 2, "otype1" : "CMU","ocut1": 4, "olist" : "ab", "otype2" :"", "ocut2" : 0, "onebarrel": 0},
+            {"minInvm": 2, "maxInvm": 999, "mult": 2, "otype1" : "MU", "ocut1": 6, "olist" : "ab", "otype2" :"", "ocut2" : 0, "onebarrel": 0},
+            {"minInvm": 2, "maxInvm": 999, "mult": 1, "otype1" : "CMU","ocut1": 4, "olist" : "ab", "otype2" :"MU", "ocut2" : 4, "onebarrel": 0},
+            {"minInvm": 2, "maxInvm": 999, "mult": 1, "otype1" : "MU", "ocut1": 6, "olist" : "ab", "otype2" :"MU", "ocut2" : 4, "onebarrel": 0},
+            {"minInvm": 2, "maxInvm": 999, "mult": 1, "otype1" : "MU", "ocut1": 6, "olist" : "ab", "otype2" :"MU", "ocut2" : 4, "onebarrel": 1},
+            {"minInvm": 2, "maxInvm": 999, "mult": 1, "otype1" : "CMU","ocut1": 6, "olist" : "ab", "otype2" :"CMU","ocut2" : 4, "onebarrel": 0},
 
-            {"minInvm": 4, "maxInvm": 8, "mult": 2, "otype1" : "MU", "ocut1": 4, "olist" : "ab", "otype2" : "",  "ocut2" : 0},
-            {"minInvm": 4, "maxInvm": 8, "mult": 2, "otype1" : "CMU","ocut1": 4, "olist" : "ab", "otype2" : "",  "ocut2" : 0},
-            {"minInvm": 4, "maxInvm": 8, "mult": 2, "otype1" : "MU", "ocut1": 6, "olist" : "ab", "otype2" : "",  "ocut2" : 0},
-            {"minInvm": 4, "maxInvm": 8, "mult": 1, "otype1" : "CMU","ocut1": 4, "olist" : "ab", "otype2" : "MU","ocut2" : 4},
-            {"minInvm": 4, "maxInvm": 8, "mult": 1, "otype1" : "MU", "ocut1": 6, "olist" : "ab", "otype2" : "MU","ocut2" : 4},
-            {"minInvm": 4, "maxInvm": 8, "mult": 1, "otype1" : "CMU","ocut1": 6, "olist" : "ab", "otype2" : "CMU","ocut2": 4},
+            {"minInvm": 4, "maxInvm": 8, "mult": 2, "otype1" : "MU", "ocut1": 4, "olist" : "ab", "otype2" : "",  "ocut2" : 0, "onebarrel": 0},
+            {"minInvm": 4, "maxInvm": 8, "mult": 2, "otype1" : "CMU","ocut1": 4, "olist" : "ab", "otype2" : "",  "ocut2" : 0, "onebarrel": 0},
+            {"minInvm": 4, "maxInvm": 8, "mult": 2, "otype1" : "MU", "ocut1": 6, "olist" : "ab", "otype2" : "",  "ocut2" : 0, "onebarrel": 0},
+            {"minInvm": 4, "maxInvm": 8, "mult": 1, "otype1" : "CMU","ocut1": 4, "olist" : "ab", "otype2" : "MU","ocut2" : 4, "onebarrel": 0},
+            {"minInvm": 4, "maxInvm": 8, "mult": 1, "otype1" : "MU", "ocut1": 6, "olist" : "ab", "otype2" : "MU","ocut2" : 4, "onebarrel": 0},
+            {"minInvm": 4, "maxInvm": 8, "mult": 1, "otype1" : "MU", "ocut1": 6, "olist" : "ab", "otype2" : "MU","ocut2" : 4, "onebarrel": 1},
+            {"minInvm": 4, "maxInvm": 8, "mult": 1, "otype1" : "CMU","ocut1": 6, "olist" : "ab", "otype2" : "CMU","ocut2": 4, "onebarrel": 0},
+
             ]:
             
             for k in x:
@@ -681,9 +689,10 @@ class TopoAlgoDef:
 
             obj1 = "%s%s%s%s" % ((str(mult) if mult>1 else ""), otype1, str(ocut1), olist)
             obj2 = "-%s%s%s" % (otype2, str(ocut2), olist)
-            toponame = "%iINVM%i-%s%s"  % (minInvm, maxInvm, obj1, "" if mult>1 else obj2)
+            toponame = "%iINVM%i-%s%s%s"  % (minInvm, maxInvm, "ONEBARREL-" if onebarrel==1 else "", obj1, "" if mult>1 else obj2)
             
             log.info("Define %s" % toponame)
+
             
             inputList = [otype1 + olist] if (mult>1 or otype1==otype2) else [otype1 + olist, otype2 + olist]
             algoname = AlgConf.InvariantMassInclusive1 if (mult>1 or otype1==otype2) else AlgConf.InvariantMassInclusive2
@@ -691,6 +700,7 @@ class TopoAlgoDef:
             if (mult>1 or otype1==otype2):
                 alg.addgeneric('InputWidth', HW.OutputWidthSelectMU) 
                 alg.addgeneric('MaxTob', HW.OutputWidthSelectMU)
+                alg.addgeneric('RequireOneBarrel', onebarrel)
             else:
                 alg.addgeneric('InputWidth1', HW.OutputWidthSelectMU)
                 alg.addgeneric('InputWidth2', HW.OutputWidthSelectMU) 
@@ -703,22 +713,17 @@ class TopoAlgoDef:
             alg.addvariable('MaxMSqr', maxInvm * maxInvm)
             tm.registerAlgo(alg)
             
-        # Missing
-        # '2DR15-ONEBARREL10-CMU6ab-MU4ab', # Need DR-ONEBARREL algo
-        # 'MULT-BIT{0,1}-CMU{4,6}ab' # Need MULTI-BIT algo
-        # '2INVM999-ONEBARREL10-MU4ab-MU6ab', # Need INVM-ONEBARREL algo
-        # '4INVM8-ONEBARREL10-MU4ab-MU6ab', # Need INVM-ONEBARREL algo
-            
         # dimu DR items
         for x in [  
-            {"minDr": 2, "maxDr": 15, "mult": 2, "otype1" : "MU" ,"ocut1": 4,  "olist" : "ab", "otype2" : "",   "ocut2": 4}, # Bphys
-            {"minDr": 2, "maxDr": 15, "mult": 1, "otype1" : "CMU","ocut1": 4,  "olist" : "ab", "otype2" : "MU", "ocut2": 4},
-            {"minDr": 2, "maxDr": 15, "mult": 2, "otype1" : "CMU","ocut1": 4,  "olist" : "ab", "otype2" : "",   "ocut2": 4},
-            {"minDr": 2, "maxDr": 15, "mult": 1, "otype1" : "MU", "ocut1": 6,  "olist" : "ab", "otype2" : "MU", "ocut2": 4},
-            {"minDr": 2, "maxDr": 15, "mult": 1, "otype1" : "CMU","ocut1": 6,  "olist" : "ab", "otype2" : "CMU","ocut2": 4},
-            {"minDr": 2, "maxDr": 15, "mult": 2, "otype1" : "MU" ,"ocut1": 6,  "olist" : "ab", "otype2" : "",   "ocut2": 6},
-            {"minDr": 2, "maxDr": 99, "mult": 2, "otype1" : "MU" ,"ocut1": 4,  "olist" : "ab", "otype2" : "",   "ocut2": 4}, # SM Y
-            {"minDr": 0, "maxDr": 10, "mult": 1, "otype1" : "MU" ,"ocut1": 10, "olist" : "ab", "otype2" : "MU", "ocut2": 6}, # Exotic LFV 
+            {"minDr": 2, "maxDr": 15, "mult": 2, "otype1" : "MU" ,"ocut1": 4,  "olist" : "ab", "otype2" : "",   "ocut2": 4, "onebarrel": 0}, # Bphys
+            {"minDr": 2, "maxDr": 15, "mult": 1, "otype1" : "CMU","ocut1": 4,  "olist" : "ab", "otype2" : "MU", "ocut2": 4, "onebarrel": 0},
+            {"minDr": 2, "maxDr": 15, "mult": 2, "otype1" : "CMU","ocut1": 4,  "olist" : "ab", "otype2" : "",   "ocut2": 4, "onebarrel": 0},
+            {"minDr": 2, "maxDr": 15, "mult": 1, "otype1" : "MU", "ocut1": 6,  "olist" : "ab", "otype2" : "MU", "ocut2": 4, "onebarrel": 0},
+            {"minDr": 2, "maxDr": 15, "mult": 1, "otype1" : "MU", "ocut1": 6,  "olist" : "ab", "otype2" : "MU","ocut2": 4, "onebarrel": 1},            
+            {"minDr": 2, "maxDr": 15, "mult": 1, "otype1" : "CMU","ocut1": 6,  "olist" : "ab", "otype2" : "CMU","ocut2": 4, "onebarrel": 0},
+            {"minDr": 2, "maxDr": 15, "mult": 2, "otype1" : "MU" ,"ocut1": 6,  "olist" : "ab", "otype2" : "",   "ocut2": 6, "onebarrel": 0},
+            {"minDr": 2, "maxDr": 99, "mult": 2, "otype1" : "MU" ,"ocut1": 4,  "olist" : "ab", "otype2" : "",   "ocut2": 4, "onebarrel": 0}, # SM Y
+            {"minDr": 0, "maxDr": 10, "mult": 1, "otype1" : "MU" ,"ocut1": 10, "olist" : "ab", "otype2" : "MU", "ocut2": 6, "onebarrel": 0}, # Exotic LFV 
             ]:
 
             for k in x:
@@ -726,7 +731,7 @@ class TopoAlgoDef:
 
             obj1 = "%s%s%s%s" % ((str(mult) if mult>1 else ""), otype1, str(ocut1), olist)
             obj2 = "-%s%s%s" % (otype2, str(ocut2), olist)
-            toponame = "%iDR%i-%s%s"  % (minDr, maxDr, obj1, "" if mult>1 else obj2)
+            toponame = "%iDR%i-%s%s%s"  % (minDr, maxDr, "ONEBARREL-" if onebarrel==1 else "", obj1, "" if mult>1 else obj2)
 
             log.info("Define %s" % toponame)
             
@@ -736,11 +741,14 @@ class TopoAlgoDef:
             if (mult>1 or otype1==otype2):
                 alg.addgeneric('InputWidth', HW.OutputWidthSelectMU)
                 alg.addgeneric('MaxTob', HW.OutputWidthSelectMU)
+                alg.addgeneric('RequireOneBarrel', onebarrel)
             else:
                 alg.addgeneric('InputWidth1', HW.OutputWidthSelectMU)
                 alg.addgeneric('InputWidth2', HW.OutputWidthSelectMU) 
                 alg.addgeneric('MaxTob1', HW.OutputWidthSelectMU)
                 alg.addgeneric('MaxTob2', HW.OutputWidthSelectMU)
+                
+
             alg.addgeneric('NumResultBits', 1)
             alg.addvariable('DeltaRMin', minDr)
             alg.addvariable('DeltaRMax', maxDr)
@@ -820,6 +828,29 @@ class TopoAlgoDef:
             alg.addvariable('DeltaPhiMin', minDPhi, 0)
             tm.registerAlgo(alg)
 
+        # MT
+        for x in [
+            {"minMT": 20, "otype" : "EM", "ocut" : "6", "olist" : "s", "nleading" : 6, "inputwidth": HW.OutputWidthSortEM},
+            {"minMT": 30, "otype" : "EM", "ocut" : "6", "olist" : "s", "nleading" : 6, "inputwidth": HW.OutputWidthSortEM},
+            {"minMT": 40, "otype" : "EM", "ocut" : "6", "olist" : "s", "nleading" : 6, "inputwidth": HW.OutputWidthSortEM},
+            ]:
+            for k in x:
+                exec("%s = x[k]" % k)
+
+            toponame = "%iMT-%s%s%s%s-XE0"  % (minMT, otype, str(ocut) if ocut > 0 else "", olist, str(nleading) if olist=="s" else "")
+            log.info("Define %s" % toponame)
+
+            inputList = otype + olist
+            
+            alg = AlgConf.TransverseMassInclusive1( name = toponame, inputs = [ inputList, 'XE'], outputs = [ toponame ], algoId = currentAlgoId ); currentAlgoId += 1
+
+            alg.addgeneric('InputWidth', HW.OutputWidthSortEM)
+            alg.addgeneric('MaxTob', str(nleading))
+            alg.addgeneric('NumResultBits', 1)
+            alg.addvariable('MinMTSqr', minMT*minMT)
+            alg.addvariable('MinET1', str(ocut))            
+            tm.registerAlgo(alg)
+            
         # JetMatch
         toponame = "0MATCH-4AJ20.ETA32-4AJj15"
         alg = AlgConf.JetMatch( name = toponame, inputs = [ 'AJall' ], outputs = [ toponame ], algoId = currentAlgoId ); currentAlgoId += 1
@@ -931,6 +962,27 @@ class TopoAlgoDef:
         alg.addvariable('DRCut', 0)
         tm.registerAlgo(alg)        
 
+        # MULT-BIT
+        for x in [
+            {"otype1" : "CMU" ,"ocut1": 4, "olist1" : "ab", "nleading1": HW.OutputWidthSelectMU, "inputwidth1": HW.OutputWidthSelectMU},
+            {"otype1" : "CMU" ,"ocut1": 6, "olist1" : "ab", "nleading1": HW.OutputWidthSelectMU, "inputwidth1": HW.OutputWidthSelectMU},
+            ]:
+            for k in x:
+                exec("%s = x[k]" % k)
+                
+            toponame = "MULT-%s%s%s" % (otype1, str(ocut1), olist1)
+            toponames = [toponame+"-0", toponame+"-1"]
+            log.info("Define %s" % toponames)
+            
+            inputList = [otype1 + olist1] 
+            alg = AlgConf.Multiplicity( name = toponame,  inputs = inputList, outputs = toponames, algoId = currentAlgoId); currentAlgoId += 1
+            
+            alg.addgeneric('InputWidth', inputwidth1)
+            alg.addgeneric('MaxTob', nleading1)
+            alg.addgeneric('NumResultBits', 2)
+            alg.addgeneric('MinET', ocut1)
+            tm.registerAlgo(alg)        
+            
         for x in [  
             {"minDr": 0, "maxDr": 28, "otype1" : "MU" ,"ocut1": 10, "olist1" : "ab", "nleading1": HW.OutputWidthSelectMU, "inputwidth1": HW.OutputWidthSelectMU, "otype2" : "TAU", "ocut2": 12, "olist2" : "abi", "nleading2": HW.OutputWidthSelectTAU, "inputwidth2": HW.OutputWidthSelectTAU},
             {"minDr": 0, "maxDr": 28, "otype1" : "TAU" ,"ocut1": 20, "olist1" : "abi","nleading1": HW.OutputWidthSelectTAU, "inputwidth1": HW.OutputWidthSelectTAU,"otype2" : "TAU", "ocut2": 12, "olist2" : "abi", "nleading2": HW.OutputWidthSelectTAU, "inputwidth2": HW.OutputWidthSelectTAU},
@@ -1099,3 +1151,4 @@ class TopoAlgoDef:
             alg.addvariable('PhiMax', maxPhi)
             tm.registerAlgo(alg)
 
+     

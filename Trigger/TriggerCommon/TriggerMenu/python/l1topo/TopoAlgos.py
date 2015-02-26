@@ -2,6 +2,7 @@
 
 from AthenaCommon.Logging import logging
 from copy import deepcopy 
+from TriggerJobOpts.TriggerFlags import TriggerFlags
 
 log = logging.getLogger("TopoAlgo") 
 
@@ -63,7 +64,13 @@ class SortingAlgo(TopoAlgo):
             if self.outputs.find("TAU")>=0: self.inputvalue= self.inputvalue.replace("Cluster","Tau")            
             if self.outputs.find("EM")>=0:  self.inputvalue= self.inputvalue.replace("Cluster","Em")
             
-    def xml(self): 
+    def xml(self):
+        _emscale_for_decision=2
+        if hasattr(TriggerFlags, 'useRun1CaloEnergyScale'):
+            if TriggerFlags.useRun1CaloEnergyScale :
+                _emscale_for_decision=1
+                log.info("Changed mscale_for_decision %s for Run1CaloEnergyScale" % _emscale_for_decision)  
+        
         s='  <SortAlgo type="%s" name="%s" output="%s" algoId="%i">\n' % (self.classtype, self.name, self.outputs, self.algoId)
         s+='    <Fixed>\n'
         s+='      <Input name="%s" value="%s"/>\n' % (self.inputs, self.inputvalue) 
@@ -76,7 +83,7 @@ class SortingAlgo(TopoAlgo):
         for (pos, variable) in enumerate(self.variables):
             # scale MinEt if outputs match with EM or TAU
             if variable.name=="MinEt" and (self.outputs.find("TAU")>=0 or self.outputs.find("EM")>=0):
-                variable.value = variable.value * 2
+                variable.value = variable.value * _emscale_for_decision
             s+='      <Parameter pos="%i" name="%s" value="%i"/>\n' % ( pos, variable.name, variable.value )
         s+='    </Variable>\n'    
         s+='  </SortAlgo>\n'
@@ -90,6 +97,13 @@ class DecisionAlgo(TopoAlgo):
         self.outputs = outputs if type(outputs)==list else [outputs]
         
     def xml(self): 
+
+        _emscale_for_decision=2
+        if hasattr(TriggerFlags, 'useRun1CaloEnergyScale'):
+            if TriggerFlags.useRun1CaloEnergyScale :
+                _emscale_for_decision=1
+                log.info("Changed mscale_for_decision %s for Run1CaloEnergyScale" % _emscale_for_decision)  
+        
         s='  <DecisionAlgo type="%s" name="%s" algoId="%i">\n' % (self.classtype, self.name, self.algoId)
         s+='    <Fixed>\n'
 
@@ -119,7 +133,7 @@ class DecisionAlgo(TopoAlgo):
                 for (tobid, _input) in enumerate(self.inputs):
                     if (_input.find("TAU")>=0 or _input.find("EM")>=0):
                         if (len(self.inputs)>1 and (variable.name=="MinET"+str(tobid+1) or (tobid==0 and variable.name=="MinET"))) or (len(self.inputs)==1 and (variable.name.find("MinET")>=0)):
-                            variable.value = variable.value * 2 
+                            variable.value = variable.value * _emscale_for_decision
             s+='      <Parameter pos="%i" name="%s"%s value="%i"/>\n' % ( pos, variable.name, ((' selection="%i"'%variable.selection) if (variable.selection>=0) else ""), variable.value )
         s+='    </Variable>\n'    
         s+='  </DecisionAlgo>\n'

@@ -98,6 +98,8 @@ class L2EFChain_MB(L2EFChainDef):
             self.setup_mb_perf()
         elif "idperf" in self.chainPart['recoAlg']:
             self.setup_mb_idperf()
+        elif "zdcperf" in self.chainPart['recoAlg']:
+            self.setup_mb_zdcperf()
         elif "hmt" in self.chainPart['recoAlg']:
             self.setup_mb_hmt()
         elif "hmtperf" in self.chainPart['recoAlg']:
@@ -280,6 +282,48 @@ class L2EFChain_MB(L2EFChainDef):
             }
 
 ###########################
+    def setup_mb_zdcperf(self):
+        doHeavyIon=False
+        if 'ion' in self.chainPart['extra']:
+            doHeavyIon=True
+
+        ########## L2 algos ##################
+        if "zdcperf" in self.chainPart['recoAlg']:
+            chainSuffix = "zdcperf"
+            theL2Fex1  = L2MbSpFex_noPix
+            theL2Hypo1 = L2MbSpHypo_PT
+            theL2Fex2  = L2MbZdcFex
+            theL2Hypo2 = L2MbZdcHypo_PT
+
+        ########## EF algos ##################
+
+        ########### Sequence List ##############
+
+        self.L2sequenceList += [["",
+                                 [dummyRoI]+ efiddataprep,
+                                 'L2_mb_iddataprep']] 
+        
+        self.L2sequenceList += [[['L2_mb_iddataprep'],
+                                 [theL2Fex1, theL2Hypo1],
+                                 'L2_mb_step1']]
+
+        self.L2sequenceList += [[['L2_mb_step1'],
+                                 [theL2Fex2, theL2Hypo2],
+                                 'L2_mb_step2']]
+
+        ########### Signatures ###########
+        self.L2signatureList += [ [['L2_mb_iddataprep']] ]
+        self.L2signatureList += [ [['L2_mb_step1']] ]
+        self.L2signatureList += [ [['L2_mb_step2']] ]
+
+
+        self.TErenamingDict = {
+            'L2_mb_step1': mergeRemovingOverlap('L2_', 'sp_iddataprep_'+chainSuffix),
+            'L2_mb_step1': mergeRemovingOverlap('L2_', 'sp_'+chainSuffix),
+            'L2_mb_step2': mergeRemovingOverlap('L2_', 'zdc_'+chainSuffix),
+            }
+
+###########################
     def setup_mb_mbts(self):
         doHeavyIon=False
         if 'ion' in self.chainPart['extra']:
@@ -288,8 +332,9 @@ class L2EFChain_MB(L2EFChainDef):
         ########## L2 algos ##################
         if "mbts" in self.chainPart['recoAlg']:
             l2hypo = self.chainName
-            l2HypoCut_temp=l2hypo.lstrip('mb_mbts_L1MBTS')
-            #print 'igb:', l2HypoCut_temp
+            #print 'igb before:', l2hypo
+            l2HypoCut_temp=l2hypo.replace('mb_mbts_L1MBTS_','')
+            #print 'igb after:', l2HypoCut_temp
             if  len(l2HypoCut_temp) > 3:
                 if len(l2HypoCut_temp.replace('_UNPAIRED_ISO','')) < 4:
                     l2HypoCut=l2HypoCut_temp.replace('_UNPAIRED_ISO','')
@@ -298,6 +343,7 @@ class L2EFChain_MB(L2EFChainDef):
             else:
                 l2HypoCut=l2HypoCut_temp
             
+            #print 'igb end:', l2HypoCut
             #print 'igb:', l2hypo
             #print 'igb:', l2HypoCut
             #print 'igb', len(l2HypoCut)

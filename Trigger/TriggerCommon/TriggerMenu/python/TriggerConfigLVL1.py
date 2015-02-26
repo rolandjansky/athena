@@ -72,8 +72,6 @@ class TriggerConfigLVL1:
                 tpcl1 = TriggerConfigL1Topo( menuName = TriggerConfigL1Topo.getMenuBaseName(menu) )
                 tpcl1.generateMenu()
                 triggerLines = tpcl1.menu.getTriggerLines()
-                #for tr in triggerLines:
-                #    print "        ",tr
             except Exception, ex:
                 print "Topo menu generation inside L1 menu failed, but will be ignored for the time being",ex 
                 
@@ -232,7 +230,25 @@ class TriggerConfigLVL1:
 
         # build list of items for the menu from the list of requested names
         itemsForMenu = []
-        for itemName in Lvl1Flags.items():
+                
+        itemsToRemove =[]
+        for index, itemName in enumerate(Lvl1Flags.items()):
+            for olditem in Lvl1Flags.ItemMap():
+                if (olditem == itemName) and (Lvl1Flags.ItemMap()[olditem] == ''):
+                    itemsToRemove.append(index)
+        
+        for i in reversed(itemsToRemove):
+            del Lvl1Flags.items()[i]
+
+        for item_index, itemName in enumerate(Lvl1Flags.items()):
+            #Beam splash: add here the remapping list!
+            for olditem in Lvl1Flags.ItemMap():
+                if (olditem == itemName) and (Lvl1Flags.ItemMap()[olditem] != ''):
+                    #log.info("Remapping item %s as defined in the menu" %(itemName, str(Lvl1Flags.ItemMap()[olditem])))
+                    Lvl1Flags.items()[item_index] = Lvl1Flags.ItemMap()[olditem]
+                                                
+                    itemName = Lvl1Flags.ItemMap()[olditem]
+
             registeredItem = self.getRegisteredItem(itemName)
             if registeredItem == None:
                 log.fatal("LVL1 item '%s' has not been registered" % itemName)
@@ -252,7 +268,6 @@ class TriggerConfigLVL1:
         available_ctpids = sorted( list( set(range(Limits.MaxTrigItems)) - set(assigned_ctpids) ) )
         available_ctpids.reverse()
 
-
         # add the items to the menu
         from TriggerMenu.l1.TriggerTypeDef import TT
         for item in itemsForMenu:
@@ -271,11 +286,20 @@ class TriggerConfigLVL1:
 
         # add the thresholds to the menu
         undefined_thr = False
-        for thresholdName in Lvl1Flags.thresholds():
+
+        for index, thresholdName in enumerate(Lvl1Flags.thresholds()):
+            #Beam splash: add here the remapping list!
+            if (Lvl1Flags.ThresholdMap() != {}):
+                for  olditem in (Lvl1Flags.ThresholdMap()):
+                    if olditem == thresholdName:
+                        #log.info("Remapping thresholds as defined in the menu")
+                        Lvl1Flags.thresholds()[index] = Lvl1Flags.ThresholdMap()[olditem]
+                        thresholdName = Lvl1Flags.ThresholdMap()[olditem]
+                        
             if thresholdName in self.menu.thresholds:
                 continue
             threshold = self.getRegisteredThreshold(thresholdName)
-            if threshold is None:
+            if threshold is None and not thresholdName=="":
                 log.error('Threshold %s is listed in menu but not defined' % thresholdName )
                 undefined_thr = True
             else:
@@ -328,7 +352,6 @@ class TriggerConfigLVL1:
                 thr.mapping = nextFreeMapping[thr.ttype]
                 nextFreeMapping[thr.ttype] += 1
 
-            #print thr, thr.ttype, thr.mapping
             thr.setCableInput()
 
 

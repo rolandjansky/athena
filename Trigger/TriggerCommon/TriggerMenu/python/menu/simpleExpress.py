@@ -16,7 +16,7 @@ def addExpressStream(triggerPythonConfig):
     menu_name = TriggerFlags.triggerMenuSetup()
     if menu_name.startswith('L1_pp_v4') or menu_name.startswith('Physics_pp_v4') or menu_name.startswith('MC_pp_v4'):
         Names = ExpressNamesPPV4
-    elif menu_name.startswith('L1_pp_v5') or menu_name.startswith('Physics_pp_v5') or menu_name.startswith('MC_pp_v5'):
+    elif menu_name.startswith('L1_pp_v5') or menu_name.startswith('Physics_pp_v5') or menu_name.startswith('MC_pp_v5') or menu_name.startswith('BeamSplash'):
         Names = ExpressNamesPPV5
 
 

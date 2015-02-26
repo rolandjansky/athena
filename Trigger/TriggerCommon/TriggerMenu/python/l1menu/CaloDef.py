@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-
+from TriggerJobOpts.TriggerFlags import TriggerFlags
 
 class CaloDef:
 
@@ -19,7 +19,12 @@ class CaloDef:
         caloInfo = tc.menu.CaloInfo
 
         # global scale
-        caloInfo.setGlobalEmScale(2)
+        em_scale=2
+        if hasattr(TriggerFlags, 'useRun1CaloEnergyScale'):
+            if TriggerFlags.useRun1CaloEnergyScale :
+                em_scale=1
+
+        caloInfo.setGlobalEmScale(em_scale)
         caloInfo.setGlobalJetScale(1)
 
         # XS parameterization
