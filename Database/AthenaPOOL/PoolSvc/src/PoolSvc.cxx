@@ -23,8 +23,6 @@
 #include "CollectionBase/CollectionDescription.h"
 
 #include "FileCatalog/IFileCatalog.h"
-#include "FileCatalog/FCLeaf.h"
-#include "FileCatalog/FCImpl.h"
 #include "FileCatalog/IFCAction.h"
 
 #include "PersistencySvc/IPersistencySvcFactory.h"
@@ -297,8 +295,7 @@ StatusCode PoolSvc::queryInterface(const InterfaceID& riid, void** ppvInterface)
 const Token* PoolSvc::registerForWrite(const pool::Placement* placement,
                                        const void* obj,
                                        const RootType& classDesc) const {
-   Token* token = m_persistencySvcVec[IPoolSvc::kOutputStream]
-      ->registerForWrite(*placement, obj, classDesc);
+   Token* token = m_persistencySvcVec[IPoolSvc::kOutputStream]->registerForWrite(*placement, obj, classDesc);
    if (token == 0) {
       ATH_MSG_WARNING("Cannot write object: " << placement->containerName());
    }
@@ -446,6 +443,13 @@ pool::ICollection* PoolSvc::createCollection(const std::string& collectionType,
          }
          if (find(it->second.begin(), it->second.end(), collection) == it->second.end()) {
             ATH_MSG_INFO("Failed to find container " << collection << " to create POOL collection.");
+            if (insertFile && m_attemptCatalogPatch.value()) {
+               dbH->setTechnology(pool::ROOT_StorageType.type());
+               pool::FCregister action;
+               m_catalog->setAction(action);
+               std::string fid = dbH->fid();
+               action.registerPFN(connection.substr(4), "ROOT_All", fid);
+            }
             delete dbH; dbH = 0;
             return(0); // no events
          }
@@ -487,11 +491,10 @@ pool::ICollection* PoolSvc::createCollection(const std::string& collectionType,
          return(collPtr);
       }
       dbH->setTechnology(pool::ROOT_StorageType.type());
-      pool::FCLeaf* writeCatalog = dynamic_cast<pool::FCLeaf*>(m_catalog->getWriteCatalog());
-      if (writeCatalog != 0 && !dbH->fid().empty()) {
-         pool::PFNEntry entry(connection.substr(4), dbH->fid(), "ROOT_All");
-         writeCatalog->getImpl()->insertPFN(entry);
-      }
+      pool::FCregister action;
+      m_catalog->setAction(action);
+      std::string fid = dbH->fid();
+      action.registerPFN(connection.substr(4), "ROOT_All", fid);
       delete dbH; dbH = 0;
    }
    return(collPtr);
