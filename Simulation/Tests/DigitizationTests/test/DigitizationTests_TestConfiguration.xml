@@ -16,54 +16,206 @@
         <displayComponent>Det-Combined</displayComponent>
       </classification>
       <!-- DC14 TEST JOB -->
+ 
+      <!-- BASIC MC15 JOBS -->
       <chain>
-        <chainName>RegressionTest_dc14_ttbar_with_pileup</chainName>
-        <abortOnError />
-        <sequential>
-
-          <chainElement>
-            <jobTransform userJobId="dc14_ttbar_with_pileup">
-              <jobTransformJobName>DigitizationRTT_JobTransforms</jobTransformJobName>
-              <jobTransformCmd>xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc12a/mc12_8TeV.119996.Pythia8_A2MSTW2008LO_minbias_inelastic_high.merge.HITS.e1119_s1469_s1471/HITS.743322._014186.pool.root.1 HITS.743322._014186.pool.root.1; xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc12a/mc12_8TeV.119996.Pythia8_A2MSTW2008LO_minbias_inelastic_high.merge.HITS.e1119_s1469_s1471/HITS.743322._017085.pool.root.1 HITS.743322._017085.pool.root.1; xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc12a/mc12_8TeV.119996.Pythia8_A2MSTW2008LO_minbias_inelastic_high.merge.HITS.e1119_s1469_s1471/HITS.743322._017301.pool.root.1 HITS.743322._017301.pool.root.1; xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc12a/mc12_8TeV.119996.Pythia8_A2MSTW2008LO_minbias_inelastic_high.merge.HITS.e1119_s1469_s1471/HITS.743322._019675.pool.root.1 HITS.743322._019675.pool.root.1; xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc12a/mc12_8TeV.119995.Pythia8_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e1119_s1469_s1471/HITS.743321._000029.pool.root.1 HITS.743321._000029.pool.root.1; xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc12a/mc12_8TeV.119995.Pythia8_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e1119_s1469_s1471/HITS.743321._000200.pool.root.1 HITS.743321._000200.pool.root.1; xrdcp oot://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc12a/mc12_8TeV.119995.Pythia8_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e1119_s1469_s1471/HITS.743321._000614.pool.root.5 HITS.743321._000614.pool.root.5; xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc12a/mc12_8TeV.119995.Pythia8_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e1119_s1469_s1471/HITS.743321._000817.pool.root.5 HITS.743321._000817.pool.root.5; xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc12a/mc12_8TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.simul.HITS.e1193_s1469/HITS.782686._001790.pool.root.1 HITS.782686._001790.pool.root.1; Digi_tf.py --inputHITSFile=HITS.782686._001790.pool.root.1 --outputRDOFile=dc14_ttbar.RDO.pool.root --maxEvents=25 --skipEvents=0 --geometryVersion=ATLAS-GEO-20-00-01 --conditionsTag=OFLCOND-MC12-SDR-06 --digiSeedOffset1=11 --digiSeedOffset2=22 --preInclude=Digitization/ForceUseOfPileUpTools.py,SimulationJobOptions/preInclude.PileUpBunchTrains2011Config8_DigitConfig.py,RunDependentSimData/configLumi_mc12_v1.py --numberOfHighPtMinBias=0.045336 --numberOfLowPtMinBias=39.954664 '--inputLowPtMinbiasHitsFile=HITS.743321._000*.pool.root.?' '--inputHighPtMinbiasHitsFile=HITS.743322._01*.pool.root.?' --jobNumber=1
-              </jobTransformCmd>
-              <group>DigitizationTests_JobTransforms</group>
-              <queue>medium</queue>
-              <test>
-                <modulename>FlexibleDiffPoolFilesRunner</modulename>
-                <testname>FlexibleDiffPoolFilesRunner</testname>
-                <arg>
-                  <argname>platformDependent</argname>
-                  <argvalue>True</argvalue>
-                </arg>
-                <arg>
-                  <argname>doDetailedChecks</argname>
-                  <argvalue>True</argvalue>
-                </arg>
-                <arg>
-                  <argname>fileName</argname>
-                  <argvalue>dc14_ttbar.RDO.pool.root</argvalue>
-                </arg>
-                <arg>
-                  <argname>refFileName</argname>
-                  <argvalue>root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/ReferenceFiles/dev/CMTCONFIG/mc12_ttbar_with_pileup.RDO.pool.root</argvalue>
-                </arg>
-                <keepFilePattern>dc14_ttbar.RDO.pool.root_mc12_ttbar_with_pileup.RDO.pool.root.diffPool</keepFilePattern>
-              </test>
-            </jobTransform>
-          </chainElement>
-
-          <chainElement>
-            <jobTransform userJobId="dc14_ttbar_with_pileup_Reg">
-              <doc>Regression test between releases</doc>
-              <jobTransformJobName>dc14_ttbar_with_pileup_Reg</jobTransformJobName>
-              <jobTransformCmd>sim_reg_test.py dc14_ttbar_with_pileup dc14_ttbar.RDO.pool.root RDO.pool</jobTransformCmd>
-              <group>DigitizationTests:DigitizationRegressionTests</group>
-              <queue>short</queue>
-            </jobTransform>
-          </chainElement>
-
-        </sequential>
+          <chainName>RegressionTest_mc15_2010_ttbar_no_pileup</chainName>
+          <abortOnError />
+          <sequential>
+              
+              <chainElement>
+                  <jobTransform userJobId="mc15_2010_ttbar_no_pileup">
+                      <jobTransformJobName>DigitizationRTT_JobTransforms</jobTransformJobName>
+                      <jobTransformCmd>Digi_tf.py --inputHITSFile root://eosatlas///eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/temp/ttbar.ATLAS-R1-2010-02-00-00.HITS.pool.root --outputRDOFile mc15_2010_ttbar.RDO.pool.root --maxEvents 25 --skipEvents 0  --digiSeedOffset1=11 --digiSeedOffset2=22 --geometryVersion ATLAS-R1-2010-02-00-00 --conditionsTag OFLCOND-RUN12-SDR-22 --DataRunNumber 155697
+                      </jobTransformCmd>
+                      <group>DigitizationTests:DigitizationTests_JobTransforms</group>
+                      <queue>medium</queue>
+                      <test>
+                          <modulename>FlexibleDiffPoolFilesRunner</modulename>
+                          <testname>FlexibleDiffPoolFilesRunner</testname>
+                          <arg>
+                              <argname>platformDependent</argname>
+                              <argvalue>True</argvalue>
+                          </arg>
+                          <arg>
+                              <argname>doDetailedChecks</argname>
+                              <argvalue>True</argvalue>
+                          </arg>
+                          <arg>
+                              <argname>fileName</argname>
+                              <argvalue>mc15_2010_ttbar.RDO.pool.root</argvalue>
+                          </arg>
+                          <arg>
+                              <argname>refFileName</argname>
+                              <argvalue>root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/ReferenceFiles/dev/CMTCONFIG/mc15_2010_ttbar_no_pileup.RDO.pool.root</argvalue>
+                          </arg>
+                          <keepFilePattern>mc15_2010_ttbar.RDO.pool.root_mc15_2010_ttbar_no_pileup.RDO.pool.root.diffPool</keepFilePattern>
+                      </test>
+                  </jobTransform>
+              </chainElement>
+              
+              <chainElement>
+                  <jobTransform userJobId="mc15_2010_ttbar_no_pileup_Reg">
+                      <doc>Regression test between releases</doc>
+                      <jobTransformJobName>mc15_2010_ttbar_no_pileup_Reg</jobTransformJobName>
+                      <jobTransformCmd>sim_reg_test.py mc15_2010_ttbar_no_pileup mc15_ttbar.RDO.pool.root RDO.pool</jobTransformCmd>
+                      <group>DigitizationTests:DigitizationRegressionTests</group>
+                      <queue>short</queue>
+                  </jobTransform>
+              </chainElement>
+              
+          </sequential>
       </chain>
+
+
+      <chain>
+          <chainName>RegressionTest_mc15_2011_ttbar_no_pileup</chainName>
+          <abortOnError />
+          <sequential>
+              
+              <chainElement>
+                  <jobTransform userJobId="mc15_2011_ttbar_no_pileup">
+                      <jobTransformJobName>DigitizationRTT_JobTransforms</jobTransformJobName>
+                      <jobTransformCmd>Digi_tf.py --inputHITSFile root://eosatlas///eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/temp/ttbar.ATLAS-R1-2011-02-00-00.HITS.pool.root --outputRDOFile mc15_2011_ttbar.RDO.pool.root --maxEvents 25 --skipEvents 0  --digiSeedOffset1=11 --digiSeedOffset2=22 --geometryVersion ATLAS-R1-2011-02-00-00 --conditionsTag OFLCOND-RUN12-SDR-22  --DataRunNumber 180164
+                      </jobTransformCmd>
+                      <group>DigitizationTests:DigitizationTests_JobTransforms</group>
+                      <queue>medium</queue>
+                      <test>
+                          <modulename>FlexibleDiffPoolFilesRunner</modulename>
+                          <testname>FlexibleDiffPoolFilesRunner</testname>
+                          <arg>
+                              <argname>platformDependent</argname>
+                              <argvalue>True</argvalue>
+                          </arg>
+                          <arg>
+                              <argname>doDetailedChecks</argname>
+                              <argvalue>True</argvalue>
+                          </arg>
+                          <arg>
+                              <argname>fileName</argname>
+                              <argvalue>mc15_2011_ttbar.RDO.pool.root</argvalue>
+                          </arg>
+                          <arg>
+                              <argname>refFileName</argname>
+                              <argvalue>root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/ReferenceFiles/dev/CMTCONFIG/mc15_2011_ttbar_no_pileup.RDO.pool.root</argvalue>
+                          </arg>
+                          <keepFilePattern>mc15_2011_ttbar.RDO.pool.root_mc15_2011_ttbar_no_pileup.RDO.pool.root.diffPool</keepFilePattern>
+                      </test>
+                  </jobTransform>
+              </chainElement>
+              
+              <chainElement>
+                  <jobTransform userJobId="mc15_2011_ttbar_no_pileup_Reg">
+                      <doc>Regression test between releases</doc>
+                      <jobTransformJobName>mc15_2011_ttbar_no_pileup_Reg</jobTransformJobName>
+                      <jobTransformCmd>sim_reg_test.py mc15_2011_ttbar_no_pileup mc15_ttbar.RDO.pool.root RDO.pool</jobTransformCmd>
+                      <group>DigitizationTests:DigitizationRegressionTests</group>
+                      <queue>short</queue>
+                  </jobTransform>
+              </chainElement>
+              
+          </sequential>
+      </chain>
+
+
+      <chain>
+          <chainName>RegressionTest_mc15_2012_ttbar_no_pileup</chainName>
+          <abortOnError />
+          <sequential>
+              
+              <chainElement>
+                  <jobTransform userJobId="mc15_2012_ttbar_no_pileup">
+                      <jobTransformJobName>DigitizationRTT_JobTransforms</jobTransformJobName>
+                      <jobTransformCmd>Digi_tf.py --inputHITSFile root://eosatlas///eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/temp/ttbar.ATLAS-R1-2012-03-00-00.HITS.pool.root --outputRDOFile mc15_2012_ttbar.RDO.pool.root --maxEvents 25 --skipEvents 0  --digiSeedOffset1=11 --digiSeedOffset2=22 --geometryVersion ATLAS-R1-2012-03-00-00 --conditionsTag OFLCOND-RUN12-SDR-22 --DataRunNumber 212272
+                      </jobTransformCmd>
+                      <group>DigitizationTests:DigitizationTests_JobTransforms</group>
+                      <queue>medium</queue>
+                      <test>
+                          <modulename>FlexibleDiffPoolFilesRunner</modulename>
+                          <testname>FlexibleDiffPoolFilesRunner</testname>
+                          <arg>
+                              <argname>platformDependent</argname>
+                              <argvalue>True</argvalue>
+                          </arg>
+                          <arg>
+                              <argname>doDetailedChecks</argname>
+                              <argvalue>True</argvalue>
+                          </arg>
+                          <arg>
+                              <argname>fileName</argname>
+                              <argvalue>mc15_2012_ttbar.RDO.pool.root</argvalue>
+                          </arg>
+                          <arg>
+                              <argname>refFileName</argname>
+                              <argvalue>root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/ReferenceFiles/dev/CMTCONFIG/mc15_2012_ttbar_no_pileup.RDO.pool.root</argvalue>
+                          </arg>
+                          <keepFilePattern>mc15_2012_ttbar.RDO.pool.root_mc15_2012_ttbar_no_pileup.RDO.pool.root.diffPool</keepFilePattern>
+                      </test>
+                  </jobTransform>
+              </chainElement>
+              
+              <chainElement>
+                  <jobTransform userJobId="mc15_2012_ttbar_no_pileup_Reg">
+                      <doc>Regression test between releases</doc>
+                      <jobTransformJobName>mc15_2012_ttbar_no_pileup_Reg</jobTransformJobName>
+                      <jobTransformCmd>sim_reg_test.py mc15_2012_ttbar_no_pileup mc15_ttbar.RDO.pool.root RDO.pool</jobTransformCmd>
+                      <group>DigitizationTests:DigitizationRegressionTests</group>
+                      <queue>short</queue>
+                  </jobTransform>
+              </chainElement>
+              
+          </sequential>
+      </chain>
+
+<chain>
+    <chainName>RegressionTest_mc15_2015_ttbar_no_pileup</chainName>
+    <abortOnError />
+    <sequential>
+        
+        <chainElement>
+            <jobTransform userJobId="mc15_2015_ttbar_no_pileup">
+                <jobTransformJobName>DigitizationRTT_JobTransforms</jobTransformJobName>
+                <jobTransformCmd>Digi_tf.py --inputHITSFile root://eosatlas///eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/temp/ttbar.ATLAS-R2-2015-02-01-00.HITS.pool.root --outputRDOFile mc15_2015_ttbar.RDO.pool.root --maxEvents 25 --skipEvents 0  --digiSeedOffset1=11 --digiSeedOffset2=22 --geometryVersion ATLAS-R2-2015-02-01-00 --conditionsTag OFLCOND-RUN12-SDR-22 --DataRunNumber 222500
+                </jobTransformCmd>
+                <group>DigitizationTests:DigitizationTests_JobTransforms</group>
+                <queue>medium</queue>
+                <test>
+                    <modulename>FlexibleDiffPoolFilesRunner</modulename>
+                    <testname>FlexibleDiffPoolFilesRunner</testname>
+                    <arg>
+                        <argname>platformDependent</argname>
+                        <argvalue>True</argvalue>
+                    </arg>
+                    <arg>
+                        <argname>doDetailedChecks</argname>
+                        <argvalue>True</argvalue>
+                    </arg>
+                    <arg>
+                        <argname>fileName</argname>
+                        <argvalue>mc15_2015_ttbar.RDO.pool.root</argvalue>
+                    </arg>
+                    <arg>
+                        <argname>refFileName</argname>
+                        <argvalue>root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/ReferenceFiles/dev/CMTCONFIG/mc15_2015_ttbar_no_pileup.RDO.pool.root</argvalue>
+                    </arg>
+                    <keepFilePattern>mc15_2015_ttbar.RDO.pool.root_mc15_2015_ttbar_no_pileup.RDO.pool.root.diffPool</keepFilePattern>
+                </test>
+            </jobTransform>
+        </chainElement>
+        
+        <chainElement>
+            <jobTransform userJobId="mc15_2015_ttbar_no_pileup_Reg">
+                <doc>Regression test between releases</doc>
+                <jobTransformJobName>mc15_2015_ttbar_no_pileup_Reg</jobTransformJobName>
+                <jobTransformCmd>sim_reg_test.py mc15_2015_ttbar_no_pileup mc15_ttbar.RDO.pool.root RDO.pool</jobTransformCmd>
+                <group>DigitizationTests:DigitizationRegressionTests</group>
+                <queue>short</queue>
+            </jobTransform>
+        </chainElement>
+        
+    </sequential>
+</chain>
+
 
       <!-- BASIC MC12 JOBS -->
       <chain>
@@ -217,54 +369,6 @@
 
       <!-- BASIC MC11 JOBS -->
       <chain>
-        <chainName>RegressionTest_mc11_ttbar_no_pileup</chainName>
-        <abortOnError />
-        <sequential>
-
-          <chainElement>
-            <jobTransform userJobId="mc11_ttbar_no_pileup">
-              <jobTransformJobName>DigitizationRTT_JobTransforms</jobTransformJobName>
-              <jobTransformCmd>Digi_tf.py --inputHITSFile=root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc11a/mc11_7TeV.105200.T1_McAtNlo_Jimmy.merge.HITS.e835_s1310_s1300/HITS.508808._000857.pool.root.1 --outputRDOFile=mc11_ttbar.RDO.pool.root --maxEvents=25 --skipEvents=0 --geometryVersion=ATLAS-GEO-18-01-03 --conditionsTag=OFLCOND-SDR-BS7T-05-24 --digiSeedOffset1=11 --digiSeedOffset2=22
-              </jobTransformCmd>
-              <group>DigitizationTests_JobTransforms</group>
-              <queue>medium</queue>
-              <test>
-                <modulename>FlexibleDiffPoolFilesRunner</modulename>
-                <testname>FlexibleDiffPoolFilesRunner</testname>
-                <arg>
-                  <argname>platformDependent</argname>
-                  <argvalue>True</argvalue>
-                </arg>
-                <arg>
-                  <argname>doDetailedChecks</argname>
-                  <argvalue>True</argvalue>
-                </arg>
-                <arg>
-                  <argname>fileName</argname>
-                  <argvalue>mc11_ttbar.RDO.pool.root</argvalue>
-                </arg>
-                <arg>
-                  <argname>refFileName</argname>
-                  <argvalue>root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/ReferenceFiles/dev/CMTCONFIG/mc11_ttbar_no_pileup.RDO.pool.root</argvalue>
-                </arg>
-                <keepFilePattern>mc11_ttbar.RDO.pool.root_mc11_ttbar_no_pileup.RDO.pool.root.diffPool</keepFilePattern>
-              </test>
-            </jobTransform>
-          </chainElement>
-
-          <chainElement>
-            <jobTransform userJobId="mc11_ttbar_no_pileup_Reg">
-              <doc>Regression test between releases</doc>
-              <jobTransformJobName>mc11_ttbar_no_pileup_Reg</jobTransformJobName>
-              <jobTransformCmd>sim_reg_test.py mc11_ttbar_no_pileup mc11_ttbar.RDO.pool.root RDO.pool</jobTransformCmd>
-              <group>DigitizationTests:DigitizationRegressionTests</group>
-              <queue>short</queue>
-            </jobTransform>
-          </chainElement>
-
-        </sequential>
-      </chain>
-      <chain>
         <chainName>RegressionTest_mc11_ttbar_with_pileup</chainName>
         <abortOnError />
         <sequential>
@@ -314,54 +418,6 @@
       </chain>
 
       <!-- BASIC MC10 JOBS -->
-      <chain>
-        <chainName>RegressionTest_mc10_ttbar_no_pileup</chainName>
-        <abortOnError />
-        <sequential>
-
-          <chainElement>
-            <jobTransform userJobId="mc10_ttbar_no_pileup">
-              <jobTransformJobName>DigitizationRTT_JobTransforms</jobTransformJobName>
-              <jobTransformCmd>Digi_tf.py --inputHITSFile=root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc10/mc10_7TeV.105200.T1_McAtNlo_Jimmy.simul.HITS.e598_s933_tid168076_00/HITS.168076._008421.pool.root.1 --outputRDOFile=mc10_ttbar.RDO.pool.root --maxEvents=25 --skipEvents=0 --geometryVersion=ATLAS-GEO-16-00-00 --conditionsTag=OFLCOND-SDR-BS7T-05-14 --digiSeedOffset1=11 --digiSeedOffset2=22
-              </jobTransformCmd>
-              <group>DigitizationTests_JobTransforms</group>
-              <queue>medium</queue>
-              <test>
-                <modulename>FlexibleDiffPoolFilesRunner</modulename>
-                <testname>FlexibleDiffPoolFilesRunner</testname>
-                <arg>
-                  <argname>platformDependent</argname>
-                  <argvalue>True</argvalue>
-                </arg>
-                <arg>
-                  <argname>doDetailedChecks</argname>
-                  <argvalue>True</argvalue>
-                </arg>
-                <arg>
-                  <argname>fileName</argname>
-                  <argvalue>mc10_ttbar.RDO.pool.root</argvalue>
-                </arg>
-                <arg>
-                  <argname>refFileName</argname>
-                  <argvalue>root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/ReferenceFiles/dev/CMTCONFIG/mc10_ttbar_no_pileup.RDO.pool.root</argvalue>
-                </arg>
-                <keepFilePattern>mc10_ttbar.RDO.pool.root_mc10_ttbar_no_pileup.RDO.pool.root.diffPool</keepFilePattern>
-              </test>
-            </jobTransform>
-          </chainElement>
-
-          <chainElement>
-            <jobTransform userJobId="mc10_ttbar_no_pileup_Reg">
-              <doc>Regression test between releases</doc>
-              <jobTransformJobName>mc10_ttbar_no_pileup_Reg</jobTransformJobName>
-              <jobTransformCmd>sim_reg_test.py mc10_ttbar_no_pileup mc10_ttbar.RDO.pool.root RDO.pool</jobTransformCmd>
-              <group>DigitizationTests:DigitizationRegressionTests</group>
-              <queue>short</queue>
-            </jobTransform>
-          </chainElement>
-
-        </sequential>
-      </chain>
       <chain>
         <chainName>RegressionTest_mc10_ttbar_with_pileup</chainName>
         <abortOnError />
