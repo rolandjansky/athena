@@ -341,7 +341,8 @@ class POOL2EI(PyAthena.Alg):
                     pool_string = pool.db_string
                     # take string until \0 is found
                     n=pool_string.find('\0')
-                    pool_string=pool_string[:n]
+                    if n != -1:
+                        pool_string=pool_string[:n]
                     match = pool_token(pool_string)
                     if not match:
                         continue
@@ -360,12 +361,18 @@ class POOL2EI(PyAthena.Alg):
         if self.DoTriggerInfo and self.HaveHlt:
             ##/TRIGGER/HLT/HltConfigKeys
             (hltck_info, hltck_iovs) = self.process_metadata(self.inputStore,'/TRIGGER/HLT/HltConfigKeys')
-            hltpsk_l = [ x['HltPrescaleConfigurationKey'] for x in hltck_info ]
-            for val, iov in zip(hltpsk_l,hltck_iovs):
-                self._iov.add('HLTPSK',val,iov[:4])
+            #hltpsk_l = [ x['HltPrescaleConfigurationKey'] for x in hltck_info ]
+            #for val, iov in zip(hltpsk_l,hltck_iovs):
+            #    self._iov.add('HLTPSK',val,iov[:4])
             smk_l = [ x['MasterConfigurationKey'] for x in hltck_info ]
             for val, iov in zip(smk_l,hltck_iovs):
                 self._iov.add('SMK',val,iov[:4])
+
+            ##/TRIGGER/HLT/PrescaleKey
+            (l1ck_info, l1ck_iovs) = self.process_metadata(self.inputStore,'/TRIGGER/HLT/PrescaleKey')
+            l1ck_l = [ x['HltPrescaleKey'] for x in l1ck_info ]
+            for val, iov in zip(l1ck_l,l1ck_iovs):
+                self._iov.add('HLTPSK',val,iov[:4])
 
             ##/TRIGGER/LVL1/Lvl1ConfigKey
             (l1ck_info, l1ck_iovs) = self.process_metadata(self.inputStore,'/TRIGGER/LVL1/Lvl1ConfigKey')
@@ -593,7 +600,7 @@ class POOL2EI(PyAthena.Alg):
             trigL2_RS=list(32*eit.level2TriggerInfo().size()*"0")
             for pos,name in self.ccnameL2.items():
                 passedBits    = self.trigDec.isPassedBits(name)
-                passedPhysics = ( self.trigDec.isPassed(name) != 0 )
+                passedPhysics = self.trigDec.isPassed(name)
                 passedPT      = ( passedBits & L2_passThrough != 0 )
                 passedRes     = ( passedBits & L2_resurrected != 0 )
                 if passedPhysics :
@@ -621,7 +628,7 @@ class POOL2EI(PyAthena.Alg):
             trigEF_INC=list(32*eit.eventFilterInfo().size()*"0")
             for pos,name in self.ccnameEF.items():
                 passedBits    = self.trigDec.isPassedBits(name)
-                passedPhysics = ( self.trigDec.isPassed(name) != 0 )
+                passedPhysics = self.trigDec.isPassed(name)
                 passedPT      = ( passedBits & EF_passThrough != 0 )
                 passedRes     = ( passedBits & EF_resurrected != 0 )
                 if passedPhysics :
@@ -721,6 +728,7 @@ class POOL2EI(PyAthena.Alg):
             _info("Updated ref token "+stk)
         except:
             pass
+
         del dh
 
         if  self._eif is not None:
