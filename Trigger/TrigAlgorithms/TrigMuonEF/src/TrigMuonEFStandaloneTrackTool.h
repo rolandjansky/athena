@@ -239,7 +239,7 @@ class TrigMuonEFStandaloneTrackTool : public AthAlgTool,
 			     std::vector<TrigTimer*>& timers, unsigned int firstTimerIndex );
 
 #if DEBUG_ROI_VS_FULL
-  void sanity_check(const std::vector<IdentifierHash>& input_hash_ids, const std::vector<IdentifierHash>& hash_ids_withData,const std::string& technology, std::ostream& outfile);
+  void sanity_check(const std::vector<IdentifierHash>& input_hash_ids, const std::vector<IdentifierHash>& hash_ids_withData, std::ostream& outfile);
 #endif
   
   void unpackTimers( std::vector<TrigTimer*>& timers, unsigned int firstIndex,

@@ -11,65 +11,76 @@
 #include "GaudiKernel/IIncidentListener.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
+#include "CaloEvent/CaloCellContainer.h"
 
 class StoreGateSvc;
 class IsoMuonFeature;
 
 
-namespace xAOD{
-  class ICaloCellIsolationTool;
+namespace xAOD {
+class ICaloCellIsolationTool;
+class ICaloTopoClusterIsolationTool;
 }
 
 /**
  * @class TrigMuonEFCaloIsolation
  *
- * @brief Algorithm to fill etcone calorimeter isolation for EF muons
+ * @brief Algorithm to fill etcone or topoetcone calorimeter isolation for EF muons
  *
  * This class calculates calorimeter isolation for EF muons. It uses
- * the last created calorimeter cell containter from TrigCaloRec as input to
- * the offline TrackInCaloTools algorithm to calculate the isolation.
+ * the last created calorimeter cell containter or topo cluster container 
+ * from TrigCaloRec as input to the CaloIsolationTool to calculate the isolation.
  *
- * @author Graham Jones (Graham.Jones@cern.ch)
+ * @author Martin Spangenberg (Martin.Spangenberg@cern.ch)
  */
 class TrigMuonEFCaloIsolation : public virtual HLT::FexAlgo,
-				public virtual IIncidentListener
-{
- public:
+    public virtual IIncidentListener {
+public:
 
-  /// Constructor
-  TrigMuonEFCaloIsolation (const std::string& name, ISvcLocator* pSvcLocator);
-  /// Destructor
-  ~TrigMuonEFCaloIsolation();
+    /// Constructor
+    TrigMuonEFCaloIsolation (const std::string &name, ISvcLocator *pSvcLocator);
+    /// Destructor
+    ~TrigMuonEFCaloIsolation();
 
-  /// Initialize the algorithm
-  HLT::ErrorCode hltInitialize();
-  /// Execute - called per trigger element
-  HLT::ErrorCode hltExecute(const HLT::TriggerElement*, HLT::TriggerElement*);
-  /// Finalize the algorithm
-  HLT::ErrorCode hltFinalize();
+    /// Initialize the algorithm
+    HLT::ErrorCode hltInitialize();
+    /// Execute - called per trigger element
+    HLT::ErrorCode hltExecute(const HLT::TriggerElement *, HLT::TriggerElement *);
+    /// Finalize the algorithm
+    HLT::ErrorCode hltFinalize();
 
- private:
+private:
 
-  /// Fill et-cone isolation values for xAOD muons
-  void fillCaloIsolation(const xAOD::MuonContainer* muons);
+    /// Fill et-cone isolation values for xAOD muons
+    void fillCaloIsolation(const xAOD::MuonContainer *muons,
+                           const xAOD::CaloClusterContainer *clustercont = 0,
+                           const CaloCellContainer *cellcont = 0);
 
-  /// Require that EF muons are combined
-  bool m_requireCombined;
 
-  /// flag to see if debug is enabled
-  bool m_debug;
+    /// Require that EF muons are combined
+    bool m_requireCombined;
 
-  /// Tools to calculate the isolation
-  ToolHandle<xAOD::ICaloCellIsolationTool> m_caloIsolationTool;
+    /// Select if pileup correction should be applied
+    bool m_applyPileupCorrection;
 
-  /// Monitoring Histograms
-  StringProperty m_histo_path_base;     // set the histo path for Monitoring
-  std::vector<double > m_etiso_cone1;
-  std::vector<double > m_etiso_cone2;
-  std::vector<double > m_etiso_cone3;
-  std::vector<double > m_etiso_cone4;
+    /// Use topo clusters for isolation, if false it uses cells
+    bool m_useTopoClusters;
 
-  void handle(const Incident &);
+    /// flag to see if debug is enabled
+    bool m_debug;
+
+    /// Tools to calculate the isolation
+    ToolHandle<xAOD::ICaloCellIsolationTool> m_caloCellIsolationTool;
+    ToolHandle<xAOD::ICaloTopoClusterIsolationTool> m_caloTopoClusterIsolationTool;
+
+    /// Monitoring Histograms
+    StringProperty m_histo_path_base;     // set the histo path for Monitoring
+    std::vector<double > m_etiso_cone1;
+    std::vector<double > m_etiso_cone2;
+    std::vector<double > m_etiso_cone3;
+    std::vector<double > m_etiso_cone4;
+
+    void handle(const Incident &);
 
 }; //class TrigMuonEFCaloIsolation
 
