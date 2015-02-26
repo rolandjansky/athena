@@ -147,7 +147,9 @@ namespace xAOD {
       ATH_MSG_WARNING("Failed to obtain reference particle");
       return false;
     }
-    
+    m_derefMap.clear();
+    m_derefMap[ip] = &particle;
+
     // muon etcone isolation
     const TrackParticle* trkp = dynamic_cast<const TrackParticle*>(ip);
     if( trkp ) return caloCellIsolation(result,*trkp,cones,corrlist,container);
@@ -178,6 +180,8 @@ namespace xAOD {
       ATH_MSG_WARNING("Failed to obtain reference particle");
       return false;
     }
+    m_derefMap.clear();
+    m_derefMap[ip] = &particle;
 
     // muon topoetcone isolation
     const TrackParticle* trkp = dynamic_cast<const TrackParticle*>(ip);
@@ -204,6 +208,8 @@ namespace xAOD {
       ATH_MSG_WARNING("Failed to obtain reference particle");
       return false;
     }
+    m_derefMap.clear();
+    m_derefMap[ip] = &particle;
 
     // muon pflowetcone isolation
     const TrackParticle* trkp = dynamic_cast<const TrackParticle*>(ip);
@@ -335,7 +341,7 @@ namespace xAOD {
     
     if (!m_saveOnlyRequestedCorrections || result.corrlist.calobitset.test(static_cast<unsigned int>(Iso::pileupCorrection))) {
       // do pile-up correction
-      if (!EDCorrection(result,isoTypes,eta))
+      if (m_doEnergyDensityCorrection && !EDCorrection(result,isoTypes,eta))
 	ATH_MSG_WARNING("Could not apply ED correction to topo isolation");
     }
     
@@ -388,7 +394,7 @@ namespace xAOD {
     if (!m_saveOnlyRequestedCorrections || result.corrlist.calobitset.test(static_cast<unsigned int>(Iso::pileupCorrection))) {
       // do pile-up correction
       std::string type = "PFlow";
-      if (!EDCorrection(result,isoTypes,eta,type))
+      if (m_doEnergyDensityCorrection && !EDCorrection(result,isoTypes,eta,type))
 	ATH_MSG_WARNING("Could not apply ED correction to topo isolation");
     }
     
@@ -434,7 +440,7 @@ namespace xAOD {
 
     // do pile-up correction
     std::string type = "PFlow";
-    if (!EDCorrection(result,isoTypes,eta,type)) 
+    if (m_doEnergyDensityCorrection && !EDCorrection(result,isoTypes,eta,type)) 
       ATH_MSG_WARNING("Could not apply ED correction to eflow isolation for muon");
     
     return true;
@@ -501,7 +507,7 @@ namespace xAOD {
     }
 
     if (!m_saveOnlyRequestedCorrections || result.corrlist.calobitset.test(static_cast<unsigned int>(Iso::pileupCorrection))) {
-      if (!EDCorrection(result,isoTypes,eta))
+      if (m_doEnergyDensityCorrection && !EDCorrection(result,isoTypes,eta))
 	ATH_MSG_WARNING("Could not apply ED correction to topo isolation");
     }
 
@@ -1073,38 +1079,46 @@ bool CaloIsolationTool::correctIsolationEnergy_pflowCore(CaloIsolation& result, 
 
     // initialize varialbes
     double ecore = 0.;
-//     bool noEM = false; // should be an argument of the function
-//     const CaloSampling::CaloSample firstTile = CaloSampling::HEC0;
-
-    /// get intersections
-    const Trk::CaloExtension* caloExtension = 0;
-    if(!m_caloExtTool->caloExtension(tp, caloExtension)){
-      ATH_MSG_WARNING("Can not get caloExtension.");
-      return false;
+    auto muI = m_derefMap.find(&tp);
+    if(muI!=m_derefMap.end() && muI->second->isAvailable<float>("ET_Core")){
+      ecore = muI->second->auxdataConst<float>("ET_Core");
+    }else{
+     ATH_MSG_WARNING("ET_Core of muon not found! coreMuon isolation correction will not be applied!!!");
+     return false;
     }
-    const std::vector<const Trk::CurvilinearParameters*>& intersections = caloExtension->caloLayerIntersections();
 
-    /// start calculation
-    Amg::Vector3D enterMom(0.,0.,0.), currentMom(0.,0.,0.);
-    bool entered = false;
-    for (unsigned int i=0;i<intersections.size();++i){
-      int layerID = parsIdHelper.caloSample(intersections[i]->cIdentifier());
-      if(layerID>=24) continue;
-//       if(noEM && layerID<=firstTile) continue;
-
-      bool entering = parsIdHelper.isEntryToVolume(intersections[i]->cIdentifier());
-      currentMom = intersections[i]->momentum();
-
-      /// if already entered and it's not entering another
-      if(entered && !entering) ecore += enterMom.mag() - currentMom.mag();
-      ATH_MSG_DEBUG("layerID=" <<  layerID <<" entering=" << entering << " entered=" << entered << " enterMom=" << enterMom.mag() << " currentMom=" << currentMom.mag() << " ecore=" << ecore);
-
-      /// if just entering after leaving the previous one
-      if(entering && !entered) enterMom = currentMom;
-
-      /// save preious status
-      entered = entering;
-    }
+// //     bool noEM = false; // should be an argument of the function
+// //     const CaloSampling::CaloSample firstTile = CaloSampling::HEC0;
+// 
+//     /// get intersections
+//     const Trk::CaloExtension* caloExtension = 0;
+//     if(!m_caloExtTool->caloExtension(tp, caloExtension)){
+//       ATH_MSG_WARNING("Can not get caloExtension.");
+//       return false;
+//     }
+//     const std::vector<const Trk::CurvilinearParameters*>& intersections = caloExtension->caloLayerIntersections();
+// 
+//     /// start calculation
+//     Amg::Vector3D enterMom(0.,0.,0.), currentMom(0.,0.,0.);
+//     bool entered = false;
+//     for (unsigned int i=0;i<intersections.size();++i){
+//       int layerID = parsIdHelper.caloSample(intersections[i]->cIdentifier());
+//       if(layerID>=24) continue;
+// //       if(noEM && layerID<=firstTile) continue;
+// 
+//       bool entering = parsIdHelper.isEntryToVolume(intersections[i]->cIdentifier());
+//       currentMom = intersections[i]->momentum();
+// 
+//       /// if already entered and it's not entering another
+//       if(entered && !entering) ecore += enterMom.mag() - currentMom.mag();
+//       ATH_MSG_DEBUG("layerID=" <<  layerID <<" entering=" << entering << " entered=" << entered << " enterMom=" << enterMom.mag() << " currentMom=" << currentMom.mag() << " ecore=" << ecore);
+// 
+//       /// if just entering after leaving the previous one
+//       if(entering && !entered) enterMom = currentMom;
+// 
+//       /// save preious status
+//       entered = entering;
+//     }
    
     std::map<Iso::IsolationCorrectionParameter,float> corecorr;
     corecorr[Iso::coreEnergy] = ecore;
