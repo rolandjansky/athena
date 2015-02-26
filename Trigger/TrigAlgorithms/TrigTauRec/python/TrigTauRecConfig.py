@@ -137,7 +137,7 @@ class TrigTauRecMerged_TauPreselection (TrigTauRecMerged) :
             tools.append(taualgs.getTauAxis())
             # Count tracks with deltaZ0 cut of 2mm -> Need to remove quality criteria for fast-tracks here
             # Insert bypass later?
-            tools.append(taualgs.getTauTrackFinder(applyZ0cut=True, maxDeltaZ0=2, prefix="TrigTauPreselection_"))
+            tools.append(taualgs.getTauTrackFinder(applyZ0cut=True, maxDeltaZ0=2, prefix="TrigTauPreselection_", noSelector = True))
             # Calibrate to TES
             tools.append(taualgs.getEnergyCalibrationLC(correctEnergy=True, correctAxis=False, postfix='_onlyEnergy'))
             # Calculate cell-based quantities: strip variables, EM and Had energies/radii, centFrac, isolFrac and ring energies
@@ -148,12 +148,50 @@ class TrigTauRecMerged_TauPreselection (TrigTauRecMerged) :
             # Cluster-based sub-structure, with dRMax also
             tools.append(taualgs.getTauSubstructure())
             # tools.append(taualgs.getEnergyCalibrationLC(correctEnergy=False, correctAxis=True, postfix='_onlyAxis'))
+            tools.append(taualgs.getPileUpCorrection())
+
 
             self.Tools = tools
                 
             #necessary to write out deltaZ0 between tracks and lead trk
             #self.theTauPVTool = taualgs.getTauPVTrackTool()
             #self.useTauPVTool = True;
+
+class TrigTauRecMerged_TauCaloOnly (TrigTauRecMerged) :
+        __slots__ = [ '_mytools']
+        def __init__(self, name = "TrigTauRecMerged_TauCaloOnly"):
+            super( TrigTauRecMerged_TauCaloOnly , self ).__init__( name )
+            self._mytools = []
+            
+            # monitoring part. To switch off do in topOption TriggerFlags.enableMonitoring = []
+            from TrigTauRec.TrigTauRecMonitoring import TrigTauRecValidationMonitoring, TrigTauRecOnlineMonitoring 
+            validation = TrigTauRecValidationMonitoring()        
+            online     = TrigTauRecOnlineMonitoring()
+                
+            from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
+            time = TrigTimeHistToolConfig("Time")
+            self.AthenaMonTools = [ time, validation, online ]
+
+            import TrigTauRec.TrigTauAlgorithmsHolder as taualgs
+            tools = []
+
+            taualgs.setPrefix("TrigTauCaloOnly_")
+            
+            # Collection name - not stored
+            self.OutputCollection = "TrigTauRecCaloOnly"
+            
+            # Only include tools needed for calo pre-selection
+            
+            # Set seedcalo energy scale (Full RoI)
+            tools.append(taualgs.getJetSeedBuilder())
+            # Set LC energy scale (0.2 cone) and intermediate axis (corrected for vertex: useless at trigger)
+            tools.append(taualgs.getTauAxis())
+            # Calibrate to TES
+            tools.append(taualgs.getEnergyCalibrationLC(correctEnergy=True, correctAxis=False, postfix='_onlyEnergy'))
+            # Calculate cell-based quantities: strip variables, EM and Had energies/radii, centFrac, isolFrac and ring energies
+            tools.append(taualgs.getCellVariables(cellConeSize=0.2, prefix="TrigTauCaloOnly_"))
+
+            self.Tools = tools
 
 
 class TrigTauRecMerged_TauPrecision (TrigTauRecMerged) :
@@ -201,6 +239,7 @@ class TrigTauRecMerged_TauPrecision (TrigTauRecMerged) :
             # Cluster-based sub-structure, with dRMax also
             tools.append(taualgs.getTauSubstructure())
             # tools.append(taualgs.getEnergyCalibrationLC(correctEnergy=False, correctAxis=True, postfix='_onlyAxis'))
+            tools.append(taualgs.getPileUpCorrection())
             
             self.Tools = tools
             
