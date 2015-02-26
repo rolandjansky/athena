@@ -124,10 +124,10 @@ namespace InDet{
   {
 
     // Get the messaging service, print where you are
-    msg() << MSG::INFO << "Pixel_TrgClusterization::hltBeginRun() configured with";
-    msg() << MSG::INFO << "PhiHalfWidth: " << m_phiHalfWidth << " EtaHalfWidth: "<< m_etaHalfWidth;
-    if (m_doFullScan) msg() << MSG::INFO << "FullScan mode";
-    msg() << MSG::INFO << "will be driven by RoI objects" << endreq;
+    ATH_MSG_INFO( "Pixel_TrgClusterization::hltBeginRun() configured with:"
+		  << "PhiHalfWidth: " << m_phiHalfWidth << " EtaHalfWidth: "<< m_etaHalfWidth );
+    if (m_doFullScan) ATH_MSG_INFO( "FullScan mode" );
+    ATH_MSG_INFO( "will be driven by RoI objects" );
 
     /*
     StatusCode sc = m_rawDataProvider->initContainer();
@@ -146,50 +146,40 @@ namespace InDet{
 
     //using namespace InDetReco;
 	
-    msg() << MSG::INFO << "Pixel_TrgClusterization::hltInitialize()" << endreq;
+    ATH_MSG_INFO( "Pixel_TrgClusterization::hltInitialize()" );
   
 
     // get the InDet::MergedPixelsTool
     if ( m_clusteringTool.retrieve().isFailure() ) {
-      msg() << MSG::FATAL << m_clusteringTool.propertyName() << ": Failed to retrieve tool " << m_clusteringTool.type() << endreq;
+      ATH_MSG_FATAL( m_clusteringTool.propertyName() << ": Failed to retrieve tool " << m_clusteringTool.type() );
       return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
     }
     else {
-      msg() << MSG::INFO << m_clusteringTool.propertyName() << ": Retrieved tool " << m_clusteringTool.type() << endreq;
+      ATH_MSG_INFO( m_clusteringTool.propertyName() << ": Retrieved tool " << m_clusteringTool.type() );
     }
 
     // get the InDet::PixelGangedAmbiguitiesFinder
     if ( m_gangedAmbiguitiesFinder.retrieve().isFailure() ) {
-      msg() << MSG::FATAL << m_gangedAmbiguitiesFinder.propertyName() << ": Failed to retrieve tool " << m_gangedAmbiguitiesFinder.type() << endreq;
+      ATH_MSG_FATAL( m_gangedAmbiguitiesFinder.propertyName() << ": Failed to retrieve tool " << m_gangedAmbiguitiesFinder.type() );
       return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
     }
     else {
-      msg() << MSG::INFO << m_gangedAmbiguitiesFinder.propertyName() << ": Retrieved tool " << m_gangedAmbiguitiesFinder.type() << endreq;
+      ATH_MSG_INFO( m_gangedAmbiguitiesFinder.propertyName() << ": Retrieved tool " << m_gangedAmbiguitiesFinder.type() );
     }
 
-    // get the detector description.
-    StoreGateSvc* detStore(0);
-    StatusCode sc = service("DetectorStore", detStore);
+  
+    StatusCode sc =detStore()->retrieve(m_manager,m_managerName);
     if (sc.isFailure()){
-      msg() << MSG::FATAL << "Detector service not found !" << endreq;
-      return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
-    } 
-
-    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Detector service found" << endreq;
-
-    sc =detStore->retrieve(m_manager,m_managerName);
-    if (sc.isFailure()){
-      msg() << MSG::FATAL << "Cannot retrieve the Pixel detector manager " 
-	    << m_managerName << endreq;
+      ATH_MSG_FATAL( "Cannot retrieve the Pixel detector manager " 
+		     << m_managerName );
       return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
     } else {
-      if(msgLvl() <= MSG::DEBUG)
-	msg() << MSG::DEBUG << "Pixel detector manager retrieved!" << endreq;
+      ATH_MSG_DEBUG( "Pixel detector manager retrieved!" );
     }
 
     const PixelID * IdHelper(0);
-    if (detStore->retrieve(IdHelper, "PixelID").isFailure()) {
-      msg() << MSG::FATAL << "Could not get SCT ID helper" << endreq;
+    if (detStore()->retrieve(IdHelper, "PixelID").isFailure()) {
+      ATH_MSG_FATAL( "Could not get SCT ID helper" );
       return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
     }
 
@@ -199,79 +189,74 @@ namespace InDet{
     // ------------------------------------------------------
   
     if(!store()->transientContains<PixelClusterContainer>(m_clustersName)){
-  
+      
       // declare the container:
       m_clusterContainer = new PixelClusterContainer(m_idHelper->wafer_hash_max());
-  
+      
       if (store()->record(m_clusterContainer, m_clustersName).isFailure()) {
-	msg() << MSG::WARNING << " Container " << m_clustersName
-	      << " could not be recorded in StoreGate !" 
-	      << endreq;
+	ATH_MSG_WARNING( " Container " << m_clustersName
+			 << " could not be recorded in StoreGate !" );
       } 
       else {
-	msg() << MSG::INFO << "Container " << m_clustersName 
-	      << " registered  in StoreGate" << endreq;  
+	ATH_MSG_INFO( "Container " << m_clustersName 
+		      << " registered  in StoreGate" );  
       }
     }
     else {    
       sc = store()->retrieve(m_clusterContainer, m_clustersName);
-
+      
       if (sc.isFailure()) {
-	msg() << MSG::ERROR << "Failed to get Cluster Container" << endreq;
+	ATH_MSG_ERROR( "Failed to get Cluster Container" );
 	return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
       }
       else { 
-	msg() << MSG::INFO << "Got Cluster Container from TDS: " << m_clustersName << endreq;
+	ATH_MSG_INFO( "Got Cluster Container from TDS: " << m_clustersName );
       }
+      
     }
-    m_clusterContainer->addRef();
 
+    m_clusterContainer->addRef();
+      
     // symlink the collection
     const SiClusterContainer* symSiContainer(0);
     sc = store()->symLink(m_clusterContainer,symSiContainer);
     if (sc.isFailure()) {
-      msg() << MSG::WARNING
-	    << "Pixel clusters could not be symlinked in StoreGate !"
-	    << endreq;
-    } 
-    else if (msgLvl() <= MSG::DEBUG) {
-      msg() << MSG::DEBUG << "Pixel clusters '" << m_clustersName 
-	    << "' symlinked in StoreGate" << endreq;
+      ATH_MSG_WARNING( "Pixel clusters could not be symlinked in StoreGate !" );
     }
-
+    ATH_MSG_DEBUG( "Pixel clusters '" << m_clustersName 
+		   << "' symlinked in StoreGate" );
+    
+    
     if(!m_doFullScan){
       // Retrieving Region Selector Tool:
       if ( m_regionSelector.retrieve().isFailure() ) {
-	msg() << MSG::FATAL 
-	      << m_regionSelector.propertyName()
-	      << " : Unable to retrieve RegionSelector tool "  
-	      << m_regionSelector.type() << endreq;
+	ATH_MSG_FATAL( m_regionSelector.propertyName()
+		       << " : Unable to retrieve RegionSelector tool "  
+		       << m_regionSelector.type() );
 	return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
       }
     }
     else{
-      msg() << MSG::INFO 
-	    << "RegionSelector tool not needed for FullScan"  << endreq;
+      ATH_MSG_INFO( "RegionSelector tool not needed for FullScan" );
     }  
 
     //retrieve rob data provider service
     if (m_robDataProvider.retrieve().isFailure()) {
-      msg() << MSG::FATAL << "Failed to retrieve " << m_robDataProvider << endreq;
+      ATH_MSG_FATAL( "Failed to retrieve " << m_robDataProvider );
       return StatusCode::FAILURE;
     } else
-      msg() << MSG::INFO << "Retrieved service " << m_robDataProvider << " in Pixel_trgClusterization. " << endreq;
+      ATH_MSG_INFO( "Retrieved service " << m_robDataProvider << " in Pixel_trgClusterization. " );
 
     //decoding tool
     if (m_rawDataProvider.retrieve().isFailure()){
-      msg() << MSG::ERROR 
-	    << "Raw data provider not available"  << endreq;
+      ATH_MSG_ERROR( "Raw data provider not available" );
       return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
     }
 
 
     //BS Error Svc
     if (m_bsErrorSvc.retrieve().isFailure()){
-      msg() << MSG::FATAL << "Could not retrieve " << m_bsErrorSvc << endreq;
+      ATH_MSG_FATAL( "Could not retrieve " << m_bsErrorSvc );
       return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
     }
 
@@ -291,8 +276,8 @@ namespace InDet{
 						     HLT::TriggerElement* outputTE){
     //----------------------------------------------------------------------------
 
-    if(msgLvl() <= MSG::DEBUG)
-      msg() << MSG::DEBUG << "REGTEST: Pixel_TrgClusterization::HLTexecute()" << endreq;
+
+    ATH_MSG_DEBUG( "REGTEST: Pixel_TrgClusterization::HLTexecute()" );
   
     //initialisation of monitored quantities
     m_numPixIds = 0;
@@ -315,22 +300,18 @@ namespace InDet{
       if (store()->record(m_clusterContainer,
 			  m_clustersName,false).isFailure()) {
 
-	msg() << MSG::WARNING << " Container " << m_clustersName
-	      << " could not be recorded in StoreGate !" 
-	      << endreq;
+	ATH_MSG_WARNING( " Container " << m_clustersName
+			 << " could not be recorded in StoreGate !" );
       } 
       else{
-	if (msgLvl() <= MSG::DEBUG)
-	  msg() << MSG::DEBUG << " REGTEST: Cluster Container saved in StoreGate "
-		<< endreq;
+	ATH_MSG_DEBUG( " REGTEST: Cluster Container saved in StoreGate " );
       }
 
 
     }
     else {  
-      if (msgLvl() <= MSG::DEBUG) 
-	msg() << MSG::DEBUG << "REGTEST: Container " << m_clustersName 
-	      << " existed already in StoreGate " << endreq;
+      ATH_MSG_DEBUG( "REGTEST: Container " << m_clustersName 
+		     << " existed already in StoreGate " );
     }
  
     // ------------------------------------------------------
@@ -343,26 +324,20 @@ namespace InDet{
 
       AmbiguitiesMap = new PixelGangedClusterAmbiguities();
       if (store()->record(AmbiguitiesMap,m_ambiguitiesMapName,true,true).isFailure()){
-	msg() << MSG::WARNING
-	      <<m_ambiguitiesMapName <<" could not be recorded in StoreGate !"
-	      << endreq;
+	ATH_MSG_WARNING( m_ambiguitiesMapName <<" could not be recorded in StoreGate !" );
 	return HLT::OK;
       }
       else{
-	if (msgLvl() <= MSG::DEBUG) 
-	  msg() << MSG::DEBUG << "REGTEST: " << m_ambiguitiesMapName
-		<< " recorded in StoreGate" << endreq;
+	ATH_MSG_DEBUG( "REGTEST: " << m_ambiguitiesMapName
+		       << " recorded in StoreGate" );
       }
     }
     else{
-      if(msgLvl() <= MSG::DEBUG) 
-	msg() << MSG::DEBUG << "REGTEST: " << m_ambiguitiesMapName
-	      << " existed already in StoreGate" << endreq;
+      ATH_MSG_DEBUG( "REGTEST: " << m_ambiguitiesMapName
+		     << " existed already in StoreGate" );
 
       if(!store()->retrieve(AmbiguitiesMap, m_ambiguitiesMapName)){
-	msg() << MSG::WARNING
-	      <<m_ambiguitiesMapName <<" could not be recorded in StoreGate !"
-	      << endreq;
+	ATH_MSG_WARNING(m_ambiguitiesMapName <<" could not be recorded in StoreGate !" );
 	return HLT::OK;
       }
     }
@@ -385,12 +360,12 @@ namespace InDet{
     // Get RoiDescriptor
     const TrigRoiDescriptor* roi;
     if ( HLT::OK != getFeature(outputTE, roi) ) {
-      msg() << MSG::WARNING << "Can't get RoI" << endreq;
+      ATH_MSG_WARNING( "Can't get RoI" );
       return HLT::NAV_ERROR;
     }
     
     if (!roi){
-      msg() << MSG::WARNING << "Received NULL RoI" << endreq;
+      ATH_MSG_WARNING( "Received NULL RoI" );
       return HLT::NAV_ERROR;
     }
  
@@ -406,23 +381,23 @@ namespace InDet{
     if (!roi->isFullscan()){
       if( fabs(RoiEtaWidth/2. - m_etaHalfWidth) > 0.02) {
 	if(msgLvl() <= MSG::DEBUG) {
-	  msg() << MSG::DEBUG << "ROI range is different from configuration: " << endreq;
-	  msg() << MSG::DEBUG << "eta width = " << RoiEtaWidth << "; with etaPlus = " << roi->etaPlus() << "; etaMinus = " << roi->etaMinus() << endreq;
-	  msg() << MSG::DEBUG << "etaHalfWidth from config: " << m_etaHalfWidth << endreq;
+	  ATH_MSG_DEBUG( "ROI range is different from configuration: " );
+	  ATH_MSG_DEBUG( "eta width = " << RoiEtaWidth << "; with etaPlus = " << roi->etaPlus() << "; etaMinus = " << roi->etaMinus() );
+	  ATH_MSG_DEBUG( "etaHalfWidth from config: " << m_etaHalfWidth );
 	}
       }
 
     }
     else {
       if (m_etaHalfWidth<2.5 || m_phiHalfWidth<3.) {
-	msg() << MSG::WARNING << "FullScan RoI and etaHalfWidth from config: " << m_etaHalfWidth << endreq;
-	msg() << MSG::WARNING << "FullScan RoI and phiHalfWidth from config: " << m_phiHalfWidth << endreq;
+	ATH_MSG_WARNING( "FullScan RoI and etaHalfWidth from config: " << m_etaHalfWidth );
+	ATH_MSG_WARNING( "FullScan RoI and phiHalfWidth from config: " << m_phiHalfWidth );
       }
     }
 
-    if (msgLvl() <= MSG::DEBUG) {
-      msg() << MSG::DEBUG << "REGTEST:" << *roi << endreq;
-    }
+
+    ATH_MSG_DEBUG( "REGTEST:" << *roi );
+
     
     if(doTiming()) m_timerDecoder->start();
     scdec = m_rawDataProvider->decode(roi);
@@ -442,9 +417,8 @@ namespace InDet{
       if(doTiming()) m_timerRegSel->start();
       m_regionSelector->DetHashIDList( PIXEL, *roi, m_listOfPixIds);
       m_numPixIds = m_listOfPixIds.size();
-      if (msgLvl() <= MSG::DEBUG) 
-	msg() << MSG::DEBUG << "REGTEST: Pixel : Roi contains " 
-	      << m_numPixIds << " det. Elements" << endreq;
+      ATH_MSG_DEBUG( "REGTEST: Pixel : Roi contains " 
+		     << m_numPixIds << " det. Elements" );
       
       if(doTiming()) m_timerRegSel->stop();
     }
@@ -463,33 +437,31 @@ namespace InDet{
 	bsErrors[idx] = n_errors;
       }
 
-      if (msgLvl() <= MSG::DEBUG)
-	msg() << MSG::DEBUG << "decoding errors: "  << n_err_total;
+
+      ATH_MSG_DEBUG( "decoding errors: "  << n_err_total );
 
       if (n_err_total){
 	for (size_t idx = 0; idx<=size_t(IPixelByteStreamErrorsSvc::lastErrType); idx++){
 	  //	  m_PixBSErr.push_back(bsErrors[idx]);
 	  if (bsErrors[idx])
 	    m_PixBSErr.push_back(idx);
-	  msg() << MSG::DEBUG << " " << bsErrors[idx];
+	  if(msgLvl(MSG::DEBUG))
+	     msg(MSG::DEBUG) << " " << bsErrors[idx];
 	}
+	     
+	ATH_MSG_DEBUG( "" );
+
+      } else {
+	ATH_MSG_DEBUG( " m_rawDataProvider->decode failed" );
       }
-
-      if (msgLvl() <= MSG::DEBUG)
-	msg() << MSG::DEBUG << endreq;
-
-
-    } else {
-      msg() << MSG::DEBUG << " m_rawDataProvider->decode failed" << endreq;
     }
-
 
     if(doTiming()) m_timerSGate->resume();
     
     PixelRDO_Container* p_pixelRDOContainer;
     if (store()->retrieve(p_pixelRDOContainer,  m_pixelRDOContainerName).isFailure() ) {
-      msg() << MSG::WARNING << "Could not find the PixelRDO_Container " 
-	    << m_pixelRDOContainerName << endreq;
+      ATH_MSG_WARNING( "Could not find the PixelRDO_Container " 
+		      << m_pixelRDOContainerName );
     
       // Activate the TriggerElement anyhow.
       // (FEX algorithms should not cut and it could be that in the SCT/TRT 
@@ -497,9 +469,9 @@ namespace InDet{
     
       return HLT::OK;
     } 
-    else if(msgLvl() <= MSG::DEBUG) {
-      msg() << MSG::DEBUG << " REGTEST: Found the Pixel_RDO_Container " 
-	    << m_pixelRDOContainerName << endreq;
+    else{
+      ATH_MSG_DEBUG( "REGTEST: Found the Pixel_RDO_Container " 
+		     << m_pixelRDOContainerName );
     }
     if(doTiming()) m_timerSGate->pause();
 
@@ -511,7 +483,7 @@ namespace InDet{
       for (unsigned int i=0; i<m_listOfPixIds.size(); i++) {
 
 	if (m_doTimeOutChecks && Athena::Timeout::instance().reached() ) {
-	  msg() << MSG::WARNING << "Timeout reached. Aborting sequence." << endreq;
+	  ATH_MSG_WARNING( "Timeout reached. Aborting sequence." );
 	  return HLT::ErrorCode(HLT::Action::ABORT_CHAIN, HLT::Reason::TIMEOUT);
 	}
  
@@ -524,13 +496,13 @@ namespace InDet{
       
 	if (!RDO_Collection) continue;
       
-	if (msgLvl() <= MSG::DEBUG){
-	  msg() << MSG::VERBOSE << "RDO collection size="
-		<< RDO_Collection->size()
-		<< ", ID=" << RDO_Collection->identify() << endreq;
-	  msg() << MSG::VERBOSE << "Ambiguities map: " 
-		<< AmbiguitiesMap->size() << " elements" << endreq;
-	}
+
+	ATH_MSG_VERBOSE( "RDO collection size="
+			 << RDO_Collection->size()
+			 << ", ID=" << RDO_Collection->identify() );
+	ATH_MSG_VERBOSE( "Ambiguities map: " 
+			 << AmbiguitiesMap->size() << " elements" );
+      
       
 	if (RDO_Collection->size() != 0){
 	
@@ -546,28 +518,25 @@ namespace InDet{
 	  
 	    if (m_clusterContainer->addCollection( m_clusterCollection, 
 						   m_clusterCollection->identifyHash() ).isFailure()) {
-	      if (msgLvl() <= MSG::VERBOSE)
-		msg() << MSG::VERBOSE << "Failed to add Cluster collection : "
-		      << m_clusterCollection->identifyHash() << endreq;
+	      
+	      ATH_MSG_VERBOSE( "Failed to add Cluster collection : "
+			       << m_clusterCollection->identifyHash() );
 	      delete m_clusterCollection;
 	    } else {
 	      m_ClusHashId.push_back(m_clusterCollection->identifyHash());
-	      if (msgLvl() <= MSG::VERBOSE)
-		msg() << MSG::VERBOSE << "Filling ambiguities map" << endreq;
+	      ATH_MSG_VERBOSE( "Filling ambiguities map" );
 	      
 	      const size_t ambiMapSize = AmbiguitiesMap->size();
 	      m_gangedAmbiguitiesFinder->execute(m_clusterCollection,
 						 *m_manager, *AmbiguitiesMap);
 	      
-	      if (msgLvl() <= MSG::DEBUG && ambiMapSize != AmbiguitiesMap->size())
-		msg() << MSG::DEBUG << "After filling - Ambiguities map: " 
-		      << AmbiguitiesMap->size() << " elements" << endreq;
+	      if (ambiMapSize != AmbiguitiesMap->size())
+		ATH_MSG_DEBUG( "After filling - Ambiguities map: " 
+			       << AmbiguitiesMap->size() << " elements" );
 	    }
 	  } 
 	  else {
-	    if (msgLvl() <= MSG::DEBUG)
-	      msg() << MSG::DEBUG << "Clustering algorithm found no clusters"
-		    << endreq;
+	    ATH_MSG_DEBUG( "Clustering algorithm found no clusters" );
 	    delete m_clusterCollection;
 	  }
 	}
@@ -591,17 +560,17 @@ namespace InDet{
 	if (!RDO_Collection) continue;
 
 	if (m_doTimeOutChecks && Athena::Timeout::instance().reached() ) {
-	  msg() << MSG::WARNING << "Timeout reached. Aborting sequence." << endreq;
+	  ATH_MSG_WARNING( "Timeout reached. Aborting sequence." );
 	  return HLT::ErrorCode(HLT::Action::ABORT_CHAIN, HLT::Reason::TIMEOUT);
 	}
 
-	if (msgLvl() <= MSG::DEBUG){
-	  msg() << MSG::VERBOSE << "RDO collection size="
-		<< RDO_Collection->size()
-		<< ", ID=" << RDO_Collection->identify() << endreq;
-	  msg() << MSG::VERBOSE << "Ambiguities map: " 
-		<< AmbiguitiesMap->size() << " elements" << endreq;
-	}
+
+	ATH_MSG_VERBOSE( "RDO collection size="
+			 << RDO_Collection->size()
+			 << ", ID=" << RDO_Collection->identify() );
+	ATH_MSG_VERBOSE( "Ambiguities map: " 
+			 << AmbiguitiesMap->size() << " elements" );
+
 
 	if (RDO_Collection->size() != 0){
 	  // Use one of the specific clustering AlgTools to make clusters
@@ -618,34 +587,27 @@ namespace InDet{
 	      if (m_clusterContainer->addCollection( m_clusterCollection, 
 						     m_clusterCollection->identifyHash() ).isSuccess()){
 		m_ClusHashId.push_back(m_clusterCollection->identifyHash());
-		if (msgLvl() <= MSG::DEBUG)	    
-		  msg() << MSG::VERBOSE << "Filling ambiguities map" << endreq;  
+		ATH_MSG_VERBOSE( "Filling ambiguities map" );  
 		
 		m_gangedAmbiguitiesFinder->execute(m_clusterCollection,
 						   *m_manager,
 						   *AmbiguitiesMap);
-		if (msgLvl() <= MSG::DEBUG)
-		  msg() << MSG::VERBOSE << "Ambiguities map: " 
-			<< AmbiguitiesMap->size() << " elements" << endreq;
+		
+		ATH_MSG_VERBOSE( "Ambiguities map: " 
+				 << AmbiguitiesMap->size() << " elements" );
 	      
-		if (msgLvl() <= MSG::DEBUG)
-		  msg() << MSG::VERBOSE
-			<< "Clusters successfully added to Container !"
-			<< endreq;
+
+		ATH_MSG_VERBOSE( "Clusters successfully added to Container !" );
 	      }
 	      else{
-		if (msgLvl() <= MSG::VERBOSE){
-		  msg() << MSG::VERBOSE << "Failed to add Clusters to container"
-			<< endreq;
-		}
+
+		ATH_MSG_VERBOSE( "Failed to add Clusters to container" );
 		delete m_clusterCollection;
 		//return StatusCode::FAILURE;
 	      }
 	    } 
 	    else{
-	      if (msgLvl() <= MSG::DEBUG)
-		msg() << MSG::DEBUG << "Clustering algorithm found no clusters"
-		      << endreq;
+	      ATH_MSG_DEBUG( "Clustering algorithm found no clusters" );
 	      // -me- clean up memory
 	      delete m_clusterCollection;
 	    }
@@ -660,9 +622,8 @@ namespace InDet{
       m_timerSGate->stop();
     }
 
-    if(msgLvl() <= MSG::DEBUG)
-      msg() << MSG::DEBUG << " REGTEST: Number of reconstructed clusters = " 
-	    << m_numPixClusters << endreq;
+    ATH_MSG_DEBUG( " REGTEST: Number of reconstructed clusters = " 
+		   << m_numPixClusters );
   
 
     return HLT::OK;
@@ -674,7 +635,7 @@ namespace InDet{
   //----------------------------------------------------------------------------
   {
   
-    msg() << MSG::INFO << "Pixel_TrgClusterization::finalize()" << endreq;
+    ATH_MSG_INFO( "Pixel_TrgClusterization::finalize()" );
 
     m_clusterContainer->cleanup();    
 	
@@ -692,7 +653,7 @@ namespace InDet{
   HLT::ErrorCode Pixel_TrgClusterization::hltEndRun()
   {
 
-    msg() << MSG::INFO << "Pixel_TrgClusterization::endRun()" << endreq;
+    ATH_MSG_INFO( "Pixel_TrgClusterization::endRun()" );
 
     return HLT::OK;
   }
@@ -703,8 +664,8 @@ namespace InDet{
   //-------------------------------------------------------------------------
   HLT::ErrorCode Pixel_TrgClusterization::prepareRobRequests(const HLT::TriggerElement* inputTE ) {
 
-    msg() << MSG::INFO << "Running prepareRobRequests in Pixel_trgClusterization. " << endreq;
- 
+    ATH_MSG_INFO( "Running prepareRobRequests in Pixel_trgClusterization. " );
+    
     // Calculate ROBs needed  - this code should be shared with hltExecute to avoid slightly different requests
     const TrigRoiDescriptor* roi = 0;
 
@@ -713,15 +674,15 @@ namespace InDet{
     }
  
     if ( roi==NULL ) { 
-      msg() <<  MSG::WARNING << "REGTEST / Failed to find RoiDescriptor " << endreq;
+      ATH_MSG_WARNING( "REGTEST / Failed to find RoiDescriptor " );
       return HLT::NAV_ERROR;
     }
 
-    if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "REGTEST prepareROBs / event"
-				      << " RoI id " << roi->roiId()
-				      << " located at   phi = " <<  roi->phi()
-				      << ", eta = " << roi->eta()
-				      << endreq;
+    ATH_MSG_DEBUG( "REGTEST prepareROBs / event"
+		   << " RoI id " << roi->roiId()
+		   << " located at   phi = " <<  roi->phi()
+		   << ", eta = " << roi->eta() );
+		
 
     //const TrigRoiDescriptor fs(true);
 
@@ -729,12 +690,10 @@ namespace InDet{
     m_regionSelector->DetROBIDListUint( PIXEL, *roi, uIntListOfRobs );
     //m_regionSelector->DetROBIDListUint( PIXEL, fs, uIntListOfRobs );
 
-    if (msgLvl() <= MSG::DEBUG) {
-      msg() << MSG::DEBUG << "list of pre-registered ROB ID in PIX: "  << endreq;
-      for(uint i_lid(0); i_lid<uIntListOfRobs.size(); i_lid++)
-	msg() << MSG::DEBUG << uIntListOfRobs.at(i_lid) << endreq;
-    }
-
+    ATH_MSG_DEBUG( "list of pre-registered ROB ID in PIX: " );
+    for(uint i_lid(0); i_lid<uIntListOfRobs.size(); i_lid++)
+      ATH_MSG_DEBUG( uIntListOfRobs.at(i_lid) );
+    
     //m_robDataProvider->addROBData( uIntListOfRobs );
     config()->robRequestInfo()->addRequestScheduledRobIDs( uIntListOfRobs );
     uIntListOfRobs.clear();

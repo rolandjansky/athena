@@ -36,6 +36,7 @@
 class IRegSelSvc;
 class TrigTimer;
 class ITRT_ByteStream_ConditionsSvc;
+class IROBDataProviderSvc;
 
 namespace InDet{
 
@@ -57,6 +58,11 @@ namespace InDet{
     HLT::ErrorCode hltFinalize   ()  ;
     virtual HLT::ErrorCode hltEndRun();
   
+    //Method to prepare ROB ID list
+    using HLT::FexAlgo::prepareRobRequests;
+    HLT::ErrorCode prepareRobRequests(const HLT::TriggerElement* inputTE);
+
+
     // /////////////////////////////////////////////////////////////////
     //!< Private data
     // /////////////////////////////////////////////////////////////////
@@ -82,7 +88,8 @@ namespace InDet{
 
     ServiceHandle<IRegSelSvc>    m_regionSelector; //!<  region selector service
     ServiceHandle<ITRT_ByteStream_ConditionsSvc> m_bsErrorSvc;
-
+    ServiceHandle<IROBDataProviderSvc>    m_robDataProvider;   //!< ROB Data Provide Service
+    
     bool m_doFullScan;            //!< support for FullScan
 
     double                   m_etaHalfWidth;       //!< ROI half-width in eta.
