@@ -150,7 +150,7 @@ void Trk::DiscLayer::moveLayer(Amg::Transform3D& shift) const {
        m_center = new Amg::Vector3D(m_transform->translation());
        delete m_normal; 
        m_normal = new Amg::Vector3D(m_transform->rotation().col(2));
-       // rebuild that
+       // rebuild that - deletes the current one
        if (m_approachDescriptor &&  m_approachDescriptor->rebuild()) 
            buildApproachDescriptor();       
 }
@@ -182,8 +182,10 @@ void Trk::DiscLayer::resizeLayer(const VolumeBounds& bounds, double envelope) co
         }
     }
 
-    if (m_approachDescriptor &&  m_approachDescriptor->rebuild()) 
+    if (m_approachDescriptor &&  m_approachDescriptor->rebuild()){
+        // rebuild the approach descriptor - delete the current approach descriptor
         buildApproachDescriptor();
+    }
     
 }
 
@@ -234,7 +236,9 @@ const Trk::Surface& Trk::DiscLayer::surfaceOnApproach(const Amg::Vector3D& pos,
 
 /** build approach surfaces */
 void Trk::DiscLayer::buildApproachDescriptor() const {
-    // delete the surfaces    
+    // delete the current approach descriptor
+    delete m_approachDescriptor;
+    // create the surface container   
     Trk::ApproachSurfaces* aSurfaces = new Trk::ApproachSurfaces;
     // get the center
     const Amg::Vector3D aspPosition(center()+0.5*thickness()*normal());
