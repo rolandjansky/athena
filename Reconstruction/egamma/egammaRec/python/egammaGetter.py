@@ -14,11 +14,18 @@ from egammaRec.Factories import AlgFactory, FcnWrapper
 from egammaRec import egammaRecFlags as egRecFlags
 egammaRecFlags = egRecFlags.jobproperties.egammaRecFlags
 
+def doSuperclusters():
+  return egammaRecFlags.doSuperclusters()
+
 from egammaTools.egammaToolsFactories import \
     EMBremCollectionBuilder, EMTrackMatchBuilder,\
     EMVertexBuilder, EMConversionBuilder, EMAmbiguityTool,\
     EMClusterTool, EMFourMomBuilder, EMShowerBuilder, egammaOQFlagsBuilder, \
     ElectronPIDBuilder, PhotonPIDBuilder
+
+if doSuperclusters() : 
+  from egammaTools.egammaToolsFactories import \
+      egammaSuperClusterBuilder, egammaClusterOverlapMarker
 
 def doConversions() :
   return DetFlags.detdescr.ID_on() and egammaRecFlags.doConversions()
@@ -39,7 +46,10 @@ def doTopoCaloSeeded():
 
 def egammaDecorationTools():
   "Return a list with the tools that decorate both electrons and photons"
-  return [EMClusterTool(), EMFourMomBuilder(), EMShowerBuilder(), egammaOQFlagsBuilder()]
+  if doSuperclusters() :
+    return [EMFourMomBuilder(), EMShowerBuilder(), egammaOQFlagsBuilder()]
+  else:
+    return [EMClusterTool(), EMFourMomBuilder(), EMShowerBuilder(), egammaOQFlagsBuilder()]
 
 def electronDecorationTools():
   "Return a list with the tools that decorate only electrons"
@@ -48,8 +58,6 @@ def electronDecorationTools():
 def photonDecorationTools():
   "Return a list with the tools that decorate only photons"
   return [ PhotonPIDBuilder() ]
-  
-
 
 class egammaGetter ( Configured ) :
 
@@ -57,7 +65,7 @@ class egammaGetter ( Configured ) :
         mlog = logging.getLogger ('egammaGetter.py::configure:')
         mlog.info('entering')        
 
-        egammaBuilder = AlgFactory(egammaRecConf.egammaBuilder, name = 'egamma',
+        egammaBuilder = AlgFactory(egammaRecConf.topoEgammaBuilder if doSuperclusters() else egammaRecConf.egammaBuilder, name = 'egamma',
                                    # Keys
                                    ElectronOutputName = egammaKeys.outputElectronKey(),
                                    PhotonOutputName = egammaKeys.outputPhotonKey(),
@@ -66,7 +74,7 @@ class egammaGetter ( Configured ) :
                                    # Builder tools
                                    BremCollectionBuilderTool = EMBremCollectionBuilder,
                                    TrackMatchBuilderTool = EMTrackMatchBuilder,
-                                   VertexBuilder = EMVertexBuilder if doConversions else None,
+                                   VertexBuilder = EMVertexBuilder if doConversions() else None,
                                    ConversionBuilderTool = EMConversionBuilder if doConversions() else None,
                                    AmbiguityTool = EMAmbiguityTool,
                                    
@@ -81,8 +89,14 @@ class egammaGetter ( Configured ) :
                                    doTrackMatching = DetFlags.detdescr.ID_on(),
                                    clusterEnergyCut = 10*MeV,
                                    doConversions = doConversions(), # conversions building/matching depending if ID is on/off
-                                   doTopoSeededPhotons = egammaRecFlags.doTopoCaloSeeded(),
+                                   doTopoSeededPhotons = egammaRecFlags.doTopoCaloSeeded()
                                    )        
+
+        # Configure extra tools if we're using supercluster algorithm.
+        if doSuperclusters() : 
+          egammaBuilder.SuperClusterBuilder = egammaSuperClusterBuilder
+          egammaBuilder.OverlapMarker = egammaClusterOverlapMarker
+        
         # configure egamma here:
         try:
             self._egammaBuilderHandle = egammaBuilder()
