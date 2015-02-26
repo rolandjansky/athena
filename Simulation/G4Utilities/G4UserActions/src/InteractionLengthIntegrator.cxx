@@ -3,15 +3,13 @@
 */
 
 #include "G4UserActions/InteractionLengthIntegrator.h"
-#include <iostream>
-#include <iostream>
 #include <string>
 #include <map>
-#include <cfloat>
 #include "SimHelpers/ServiceAccessor.h"
 
-#include <TH1.h>
-#include <TProfile.h>
+#include "TH1.h"
+#include "TProfile.h"
+#include "TProfile2D.h"
 
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/Bootstrap.h"
@@ -30,16 +28,15 @@ static InteractionLengthIntegrator ts1("InteractionLengthIntegrator");
 
 void InteractionLengthIntegrator::BeginOfEventAction(const G4Event* anEvent)
 {
-	detThick.clear();
+	m_detThick.clear();
 	G4PrimaryVertex *vert=anEvent->GetPrimaryVertex(0);
 	G4PrimaryParticle *part=vert->GetPrimary();
 	G4ThreeVector mom=part->GetMomentum();
-	etaPrimary=mom.eta();
-	phiPrimary=mom.phi();
+	m_etaPrimary=mom.eta();
+	m_phiPrimary=mom.phi();
 }
 void InteractionLengthIntegrator::EndOfEventAction(const G4Event*)
 {
-
     static ITHistSvc* hSvc=0;
     if (!hSvc){
         ISvcLocator* svcLocator = Gaudi::svcLocator();
@@ -48,32 +45,36 @@ void InteractionLengthIntegrator::EndOfEventAction(const G4Event*)
         }
     }
 
-	std::map<std::string,double,std::less<std::string> >::const_iterator it;
-	for (it=detThick.begin();it!=detThick.end();it++)
-	{
-		if (histoMap.find((*it).first)!=histoMap.end())
-		{
-			histoMap[(*it).first]->Fill(etaPrimary,(*it).second,1.);
-		}
-		else
-		{
-			TProfile *prof=new TProfile(((*it).first).c_str(),((*it).first).c_str(),500,-3.,3.);
-			if (hSvc){
-                if (hSvc->regHist("/intLen/"+(*it).first,prof).isFailure()){
-                    ATH_MSG_ERROR( "Registration of histogram " << ((*it).first) << " failed" );
-                }
+	for (auto it : m_detThick) {
+        if (m_etaMap.find(it.first)!=m_etaMap.end()) {
+            m_etaMap[it.first]->Fill(m_etaPrimary,it.second,1.);
+            m_phiMap[it.first]->Fill(m_phiPrimary,it.second,1.);
+		} else {
+			TProfile *prof=new TProfile((it.first).c_str(),(it.first).c_str(),500,-3.,3.);
+			if (hSvc && hSvc->regHist("/intLen/"+it.first,prof).isFailure()){
+                ATH_MSG_ERROR( "Registration of histogram " << (it.first) << " failed" );
             }
-			histoMap[(*it).first]=prof;
-			prof->Fill(etaPrimary,(*it).second,1.);
+			m_etaMap[it.first]=prof;
+			prof->Fill(m_etaPrimary,it.second,1.);
+
+            // Phi profile
+            TProfile *profPhi=new TProfile((it.first+"Phi").c_str(),(it.first+"Phi").c_str(),500,-M_PI,M_PI);
+            if (hSvc && hSvc->regHist("/intLen/"+it.first+"Phi",profPhi).isFailure()){
+                ATH_MSG_ERROR( "Registration of histogram " << (it.first+"Phi") << " failed" );
+            }
+            m_phiMap[it.first]=profPhi;
+            profPhi->Fill(m_phiPrimary,it.second,1.);
 		}
 	}
 
-}
-void InteractionLengthIntegrator::BeginOfRunAction(const G4Run*)
-{
-}
-void InteractionLengthIntegrator::EndOfRunAction(const G4Run*)
-{
+    static bool rzRegistered = false;
+    if (!rzRegistered){
+        if (hSvc && hSvc->regHist("/intLen/RZIntLen",m_rzProf).isFailure()){
+            ATH_MSG_ERROR( "Registration of histogram RZIntLen failed" );
+        } else {
+            rzRegistered = true;
+        }
+    } // Register the R-Z profile
 }
 
 void InteractionLengthIntegrator::SteppingAction(const G4Step* aStep)
@@ -83,9 +84,9 @@ void InteractionLengthIntegrator::SteppingAction(const G4Step* aStep)
 	G4LogicalVolume *lv=touchHist->GetVolume()->GetLogicalVolume();
 	std::string volName=lv->GetName();
 	G4Material *mat=lv->GetMaterial();
-	double radl=mat->GetNuclearInterLength();
+	double intl=mat->GetNuclearInterLength();
 	double stepl=aStep->GetStepLength();
-	double thickstep= radl != 0 ? stepl/radl : DBL_MAX;
+	double thickstep= intl != 0 ? stepl/intl : DBL_MAX;
 	std::string::size_type npos;
 	std::string detName;
 	npos=volName.find("::");
@@ -93,5 +94,10 @@ void InteractionLengthIntegrator::SteppingAction(const G4Step* aStep)
 		detName=volName.substr(0,npos);
 	else
 		detName="Generic";
-	detThick[detName] += thickstep;
+	m_detThick[detName] += thickstep;
+
+    // Store the R-Z profile as well
+    if (!m_rzProf) m_rzProf = new TProfile2D("RZIntLen","RZIntLen",1000,-25000.,25000.,2000,0.,15000.);
+    G4ThreeVector midPoint = (aStep->GetPreStepPoint()->GetPosition()+aStep->GetPostStepPoint()->GetPosition())*0.5;
+    m_rzProf->Fill( midPoint.z() , midPoint.perp() , thickstep , 1. );
 }
