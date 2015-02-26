@@ -128,13 +128,11 @@ void TileCondToolOfc::CalcWeights(unsigned int drawerIdx
                                   , float phase
                                   , bool of2) {
 
-  CLHEP::HepMatrix Correlation(m_nSamples, m_nSamples, 0);
+  CLHEP::HepMatrix Correlation(m_nSamples, m_nSamples, 1);
   //aa , Inverse(m_nSamples,m_nSamples,0), Zero(m_nSamples,m_nSamples,0);
   CLHEP::HepMatrix PulseShape(m_nSamples, 1, 0), DPulseShape(m_nSamples, 1, 0);
   CLHEP::HepMatrix a(m_nSamples, 1, 0), b(m_nSamples, 1, 0);
 
-  for (int i = 0; i < m_nSamples; i++)
-    Correlation[i][i] = 1.;
 
   //int ierr=0;
 
@@ -160,16 +158,32 @@ void TileCondToolOfc::CalcWeights(unsigned int drawerIdx
   if (!m_deltaCorrelation) { //=== Retrieve autocorrelations from COOL DB
     std::vector<float> vecAutoCr;
     m_tileToolAutoCr->getAutoCorr(drawerIdx, channel, gain, vecAutoCr);
-
-    ATH_MSG_DEBUG( " vecAutoCr " << vecAutoCr );
-
-    for (int i = 0; i < m_nSamples - 1; i++) {// Fill non-diag. elements
-      for (int j = 0; j < m_nSamples - i - 1; j++) {
-        Correlation[i][j + i + 1] = vecAutoCr[j];
-        Correlation[j + i + 1][i] = vecAutoCr[j];
+    
+    ATH_MSG_DEBUG( " vecAutoCr size: " << vecAutoCr.size() );
+    ATH_MSG_VERBOSE( " vecAutoCr " << vecAutoCr );
+    if (vecAutoCr[0] > -1233.){
+      if (vecAutoCr.size() == 28){
+        int AutoCrPosition = 0;
+	for (int i = 0; i < m_nSamples; ++i)
+	  for (int j = i; j < m_nSamples; ++j){
+	    Correlation[i][j] = vecAutoCr[AutoCrPosition];
+	    Correlation[j][i] = vecAutoCr[AutoCrPosition];
+            ++AutoCrPosition;
+	  }
+      } else {
+        for (int i = 0; i < m_nSamples; i++)
+          Correlation[i][i] = 1.;
+	for (int i = 0; i < m_nSamples - 1; i++) {// Fill non-diag. elements
+          for (int j = 0; j < m_nSamples - i - 1; j++) {
+            Correlation[i][j + i + 1] = vecAutoCr[j];
+            Correlation[j + i + 1][i] = vecAutoCr[j];
+          }
+        }
       }
     }
   }
+  
+  ATH_MSG_VERBOSE( " Correlation: " << Correlation );
 
   float py = 0.;
   float pdy = 0.;
