@@ -4,18 +4,12 @@
 
 #include "TRT_Monitoring/TRT_Monitoring_Tool.h"
 
-//#include "TRT_TrackHoleSearch/TRTStrawEfficiency.h"// obsolete ?
 #include "TRT_TrackHoleSearch/TRTTrackHoleSearchTool.h"
 #include "DataModel/DataVector.h"
 #include "InDetReadoutGeometry/TRT_DetectorManager.h"
-//#include "InDetRIO_OnTrack/PixelClusterOnTrack.h"//obsolete
-//#include "InDetRIO_OnTrack/SCT_ClusterOnTrack.h"//obsolete
 #include "InDetRIO_OnTrack/TRT_DriftCircleOnTrack.h"
-//#include "TrkParameters/MeasuredPerigee.h"
 #include "TrkToolInterfaces/ITrackSummaryTool.h"
 #include "TrkTrackSummary/TrackSummary.h"
-//#include "TrkExInterfaces/IPropagator.h"//obsolete
-//#include "TrkExInterfaces/IExtrapolator.h"//obselete
 #include "CommissionEvent/ComTime.h"
 #include "AtlasDetDescr/AtlasDetectorID.h"
 #include "Identifier/Identifier.h"//may be obsolete, TRT_ID includes this
@@ -36,8 +30,6 @@
 #include "EventInfo/TriggerInfo.h"
 #include "EventInfo/EventID.h"
 
-//#include "TH1.h"//obsolete
-//#include "TH2.h"//obsolete
 #include "TProfile.h"
 #include "LWHists/TH1F_LW.h"
 #include "LWHists/TH2F_LW.h"
@@ -62,11 +54,8 @@ const int TRT_Monitoring_Tool::s_moduleNum[2]={96,64};
 TRT_Monitoring_Tool::TRT_Monitoring_Tool(const std::string &type, const std::string &name, const IInterface *parent) :
   ManagedMonitorToolBase(type, name, parent),
   lastLumiBlock(-99),
-  nLumiBlock(0),
   evtLumiBlock(0),
   good_bcid(0),
-  probScale(1.0),
-  numberOfTracks(0),
   m_nTotalTracks(0),
   nBSErrors(),
   nRobErrors(),
@@ -346,8 +335,7 @@ TRT_Monitoring_Tool::TRT_Monitoring_Tool(const std::string &type, const std::str
   m_hNTrksperLB_B = 0;
   m_hNHLHitsperLB_B = 0;
   m_hefficiencyBarrel_locR = 0;
-  m_hefficiencyBarrel_locR_Off = 0;
-  m_hefficiencyBarrel_locR_Off_Ar = 0;
+  m_hefficiencyBarrel_locR_Ar = 0;
   m_hHitWMap_B_Ar=0;
   m_hResidual_B_Ar=0;
   m_hTimeResidual_B_Ar=0;
@@ -378,8 +366,7 @@ TRT_Monitoring_Tool::TRT_Monitoring_Tool(const std::string &type, const std::str
     m_hNTrksperLB_E[iside] = 0;
     m_hNHLHitsperLB_E[iside] = 0;
     m_hefficiencyEndCap_locR[iside] = 0;
-    m_hefficiencyEndCap_locR_Off[iside] = 0;
-    m_hefficiencyEndCap_locR_Off_Ar[iside] = 0;
+    m_hefficiencyEndCap_locR_Ar[iside] = 0;
     m_hHitWMap_E_Ar[iside] = 0;
     m_hResidual_E_Ar[iside] = 0;
     m_hTimeResidual_E_Ar[iside] = 0;
@@ -989,6 +976,7 @@ StatusCode TRT_Monitoring_Tool::Book_TRT_Efficiency(bool newLumiBlock, bool newR
     m_hefficiency_pt = bookTProfile_LW(trackShiftEff, "hEfficiency_pt", "Efficiency vs pT", 50, 0, 10, 0, 1, "pT (GeV)", "Efficiency", scode);
     m_hefficiency_z0 = bookTProfile_LW(trackShiftEff, "hEfficiency_z0", "Efficiency vs z0", 50, -200, 200, 0, 1, "z0", "Efficiency", scode);
     m_hefficiencyBarrel_locR = bookTProfile_LW(trackShiftEff, "hEfficiencyBarrel_locR", "Efficiency vs Track-to-Wire Distance" " (Barrel)", 50, -2.5, 2.5, 0, 1, "Track-to-Wire Distance (mm)", "Efficiency", scode);
+    m_hefficiencyBarrel_locR_Ar = bookTProfile_LW(trackShiftEff, "hEfficiencyBarrel_locR_Ar", "Efficiency vs Track-to-Wire Distance for Argon straws" " (Barrel)", 50, -2.5, 2.5, 0, 1, "Track-to-Wire Distance (mm)", "Efficiency", scode);
 
     m_hefficiencyMap[0] = bookTProfile_LW(trackShiftEff, "hEfficiencyBarrelMap", "Straw Efficiency Map" " (Barrel)", s_Straw_max[0], 0, s_Straw_max[0], 0, 1, "Straw Number", "Efficiency", scode);
     m_hefficiencyMap[1] = bookTProfile_LW(trackShiftEff, "hEfficiencyEndCapMap", "Straw Efficiency Map" " (Endcap)", s_Straw_max[1], 0, s_Straw_max[1], 0, 1, "Straw Number", "Efficiency", scode);
@@ -996,6 +984,7 @@ StatusCode TRT_Monitoring_Tool::Book_TRT_Efficiency(bool newLumiBlock, bool newR
     for (int iside=0; iside<2; iside++) {
       const std::string regionTag = " (" + be_id[1]   + side_id[iside] + ")";
       m_hefficiencyEndCap_locR[iside] = bookTProfile_LW(trackShiftEff, "hEfficiencyEndCap"+side_id[iside]+"_locR", "Efficiency vs Track-to-Wire Distance" + regionTag, 50, -2.5, 2.5, 0, 1, "Track-to-Wire Distance (mm)", "Efficiency", scode);
+      m_hefficiencyEndCap_locR_Ar[iside] = bookTProfile_LW(trackShiftEff, "hEfficiencyEndCap"+side_id[iside]+"_locR_Ar", "Efficiency vs Track-to-Wire Distance for Argon straws" + regionTag, 50, -2.5, 2.5, 0, 1, "Track-to-Wire Distance (mm)", "Efficiency", scode);
     }
 
     for (int ibe=0; ibe<2; ibe++) {
@@ -1149,11 +1138,11 @@ StatusCode TRT_Monitoring_Tool::Book_TRT_Shift_Tracks(bool newLumiBlock, bool ne
         m_hHightoLowRatioOnTrack_Scatter[ibe] = bookTH2F_LW(trackShift, "m_hHightoLowRatioOnTrack_Scatter", "HL/LL Ratio on Track in Stacks" + regionTag, 720, -0.5, 720 - 0.5, 40, 0.0, 0.5, "Luminosity Block (mod 720)", "HL/LL Ratio in Stacks", scode);
       }
       //ToDo: Fix this
-      if (ibe==1) continue; //a dirty fix to double booking
+      //if (ibe==1) continue; //a dirty fix to double booking
       //Here begins the booking of offline efficiency histograms.
       //      MonGroup trackEffBarrel(this, "TRT/Shift/Barrel",shift,run);
       //      MonGroup trackEffEndCap(this, "TRT/Shift/EndCap",shift,run);
-      MonGroup trackEffBarrel(this, "TRT/Shift/Barrel",run,ManagedMonitorToolBase::MgmtAttr_t::ATTRIB_UNMANAGED);
+      /*MonGroup trackEffBarrel(this, "TRT/Shift/Barrel",run,ManagedMonitorToolBase::MgmtAttr_t::ATTRIB_UNMANAGED);
       MonGroup trackEffEndCap(this, "TRT/Shift/EndCap",run,ManagedMonitorToolBase::MgmtAttr_t::ATTRIB_UNMANAGED);
       m_hefficiencyBarrel_locR_Off = bookTProfile_LW(trackEffBarrel, "hEfficiencyBarrel_locR_Off", "Efficiency vs Track-to-Wire Distance" " (Barrel)", 50, -2.5, 2.5, 0, 1, "Track-to-Wire Distance (mm)", "Efficiency", scode);
       m_hefficiencyBarrel_locR_Off_Ar = bookTProfile_LW(trackEffBarrel, "hEfficiencyBarrel_locR_Off_Ar", "Efficiency vs Track-to-Wire Distance Argon Straws" " (Barrel)", 50, -2.5, 2.5, 0, 1, "Track-to-Wire Distance (mm)", "Efficiency", scode);
@@ -1163,28 +1152,31 @@ StatusCode TRT_Monitoring_Tool::Book_TRT_Shift_Tracks(bool newLumiBlock, bool ne
         m_hefficiencyEndCap_locR_Off[iside] = bookTProfile_LW(trackEffEndCap, "hEfficiencyEndCap"+side_id[iside]+"_locR_Off", "Efficiency vs Track-to-Wire Distance" + regionTag, 50, -2.5, 2.5, 0, 1, "Track-to-Wire Distance (mm)", "Efficiency", scode);
 	m_hefficiencyEndCap_locR_Off_Ar[iside] = bookTProfile_LW(trackEffEndCap, "hEfficiencyEndCap"+side_id[iside]+"_locR_Off_Ar", "Efficiency vs Track-to-Wire Distance for Argon Straws" + regionTag, 50, -2.5, 2.5, 0, 1, "Track-to-Wire Distance (mm)", "Efficiency", scode);
 	//End of offline efficiency histograms.
-      }
+	}*/
 
       /**Initialize Aging  plots      ************************
        */
 
       for(int iL = 0; iL<5;iL++){    
 	for(int iSide = 0; iSide<2; iSide++){
-	  if(iL<3){ 
-	    m_trackz_All[iL][iSide] = bookTH1F_LW(trackEffBarrel, "trackz_m"+Mod[iL]+"_"+side_id[iSide]+"_All", "Number All Hits side "+side_id[iSide]+" Layer "+Mod[iL], 30, -750., 750., "z [mm]", "Number of Hits", scode);           
-	    m_trackz_HT[iL][iSide] = bookTH1F_LW(trackEffBarrel, "trackz_m"+Mod[iL]+"_"+side_id[iSide]+"_HT", "Number HT Hits side "+side_id[iSide]+" Layer "+Mod[iL], 30, -750., 750., "z [mm]", "Number of HT Hits", scode);           
-	  }
-	  if(iL==3){          
-	    m_trackz_All[iL][iSide] = bookTH1F_LW(trackEffBarrel, "trackz_m1_"+side_id[iSide]+"_All_"+Mod[iL], "Number All Hits side "+side_id[iSide]+" Layer 1 "+Mod[iL], 30, 0., 725., "z [mm]", "Number of Hits", scode);           
-	    m_trackz_HT[iL][iSide] = bookTH1F_LW(trackEffBarrel, "trackz_m1_"+side_id[iSide]+"_HT_"+Mod[iL], "Number HT Hits side "+side_id[iSide]+" Layer 1 "+Mod[iL], 30, 0., 725., "z [mm]", "Number of HT Hits", scode);
-	  }
-	  if(iL==4){          
-	    m_trackz_All[iL][iSide] = bookTH1F_LW(trackEffBarrel, "trackz_m1_"+side_id[iSide]+"_All_"+Mod[iL], "Number All Hits side "+side_id[iSide]+" Layer 1 "+Mod[iL], 30, -725., 0., "z [mm]", "Number of Hits", scode);           
-	    m_trackz_HT[iL][iSide] = bookTH1F_LW(trackEffBarrel, "trackz_m1_"+side_id[iSide]+"_HT_"+Mod[iL], "Number HT Hits side "+side_id[iSide]+" Layer 1 "+Mod[iL], 30, -725., 0., "z [mm]", "Number of HT Hits", scode);
-	  }   
-	  if(iL<4){
-	    m_trackr_All[iL][iSide] = bookTH1F_LW(trackEffEndCap, "trackr_E"+side_id[iSide]+"_"+gas[iL]+"_All", "Number All Hits E"+side_id[iSide]+" "+gas[iL], 30, 644., 1004., "r [mm]", "Number of Hits", scode);           
-	    m_trackr_HT[iL][iSide] = bookTH1F_LW(trackEffEndCap, "trackr_E"+side_id[iSide]+"_"+gas[iL]+"_HT", "Number HT Hits E"+side_id[iSide]+" "+gas[iL], 30, 644., 1004., "r [mm]", "Number of HT Hits", scode);
+	  if (ibe == 0) {
+	    if(iL<3){ 
+	      m_trackz_All[iL][iSide] = bookTH1F_LW(trackShift, "trackz_m"+Mod[iL]+"_"+side_id[iSide]+"_All", "Number All Hits side "+side_id[iSide]+" Layer "+Mod[iL], 30, -750., 750., "z [mm]", "Number of Hits", scode);           
+	      m_trackz_HT[iL][iSide] = bookTH1F_LW(trackShift, "trackz_m"+Mod[iL]+"_"+side_id[iSide]+"_HT", "Number HT Hits side "+side_id[iSide]+" Layer "+Mod[iL], 30, -750., 750., "z [mm]", "Number of HT Hits", scode);           
+	    }
+	    if(iL==3){          
+	      m_trackz_All[iL][iSide] = bookTH1F_LW(trackShift, "trackz_m1_"+side_id[iSide]+"_All_"+Mod[iL], "Number All Hits side "+side_id[iSide]+" Layer 1 "+Mod[iL], 30, 0., 725., "z [mm]", "Number of Hits", scode);           
+	      m_trackz_HT[iL][iSide] = bookTH1F_LW(trackShift, "trackz_m1_"+side_id[iSide]+"_HT_"+Mod[iL], "Number HT Hits side "+side_id[iSide]+" Layer 1 "+Mod[iL], 30, 0., 725., "z [mm]", "Number of HT Hits", scode);
+	    }
+	    if(iL==4){          
+	      m_trackz_All[iL][iSide] = bookTH1F_LW(trackShift, "trackz_m1_"+side_id[iSide]+"_All_"+Mod[iL], "Number All Hits side "+side_id[iSide]+" Layer 1 "+Mod[iL], 30, -725., 0., "z [mm]", "Number of Hits", scode);           
+	      m_trackz_HT[iL][iSide] = bookTH1F_LW(trackShift, "trackz_m1_"+side_id[iSide]+"_HT_"+Mod[iL], "Number HT Hits side "+side_id[iSide]+" Layer 1 "+Mod[iL], 30, -725., 0., "z [mm]", "Number of HT Hits", scode);
+	    }
+	  } else if (ibe ==1) { // prevent double booking of histograms here
+	    if(iL<4){
+	      m_trackr_All[iL][iSide] = bookTH1F_LW(trackShift, "trackr_E"+side_id[iSide]+"_"+gas[iL]+"_All", "Number All Hits E"+side_id[iSide]+" "+gas[iL], 30, 644., 1004., "r [mm]", "Number of Hits", scode);           
+	      m_trackr_HT[iL][iSide] = bookTH1F_LW(trackShift, "trackr_E"+side_id[iSide]+"_"+gas[iL]+"_HT", "Number HT Hits E"+side_id[iSide]+" "+gas[iL], 30, 644., 1004., "r [mm]", "Number of HT Hits", scode);
+	    }
 	  }
 	}//Loop of iSide
       }//Loop over Modules
@@ -2398,150 +2390,6 @@ StatusCode TRT_Monitoring_Tool::Fill_TRT_Tracks()
 
     if (!passed_track_preselection) continue;
 
-    // Here we fill track efficiency histograms for the offline monitoring. Every other efficiency related histograms should come here.
-    ATH_MSG_VERBOSE("Filling TRT Eff Histos");
-
-    const DataVector<const Trk::TrackStateOnSurface>* track_states = (*p_trk)->trackStateOnSurfaces();
-    if (track_states) {
-      ATH_MSG_DEBUG("This track has " << track_states->size() << " track states on surface.");
-    } else {
-      ATH_MSG_DEBUG("This track has null track states on surface.");
-      continue;
-    }
-
-    //Fill Eff vs Track to wire distance histograms with value 1 for each hit on track
-    for (DataVector<const Trk::TrackStateOnSurface>::const_iterator it = track_states->begin(); it != track_states->end(); it++) {
-      if ( !((*it)->type(Trk::TrackStateOnSurface::Measurement))  )continue;// {
-      const Trk::TrackParameters* track_parameters = (*it)->trackParameters();
-      if (track_parameters==0) continue;//{
-      Identifier id = track_parameters->associatedSurface().associatedDetectorElementIdentifier();
-      if (m_pTRTHelper->is_trt(id)==0) continue;//{
-
-
-      // assume always Xe if m_ArgonXenonSplitter is not enabled, otherwise check the straw status (good is Xe, non-good is Ar)
-      const bool isArgonStraw = m_ArgonXenonSplitter && (m_sumSvc->getStatusHT(id) != TRTCond::StrawStatus::Good);
-      float locR = track_parameters->parameters()[Trk::driftRadius];
-      int m_barrel_ec       = m_pTRTHelper->barrel_ec(id);
-      //for (int ibe=0; ibe<2; ibe++) {
-      //if (abs(m_barrel_ec) == sectorflag[ibe][0]) {
-      int ibe   = abs(m_barrel_ec)-1;// ibe =0 barrel , ibe =1 encap
-      int iside = m_barrel_ec > 0 ? 0:1;//iside= 0 side_A , iside = 1 side_C	   
-
-      if (ibe==0) {
-	if (isArgonStraw) {
-	  m_hefficiencyBarrel_locR_Off_Ar->Fill(locR, 1.0); // Fill Efficiency cs Track to Wire Distance
-	} else {
-	  m_hefficiencyBarrel_locR_Off->Fill(locR, 1.0);  // Fill Efficiency cs Track to Wire Distance
-	}
-      } else if (ibe==1) {
-	//  if (m_barrel_ec==sectorflag[ibe][0]) {
-	if (isArgonStraw) {
-	  m_hefficiencyEndCap_locR_Off_Ar[iside]->Fill(locR, 1.0);  // Fill Efficiency cs Track to Wire Distance
-	} else {
-	  m_hefficiencyEndCap_locR_Off[iside]->Fill(locR, 1.0);  // Fill Efficiency cs Track to Wire Distance
-	}
-      }
-    }//loop over track states
-    //}else {
-    //if (isArgonStraw) {
-    // m_hefficiencyEndCap_locR_Off_Ar[1]->Fill(locR, 1.0);  // Fill Efficiency cs Track to Wire Distance
-    // } else {
-    // m_hefficiencyEndCap_locR_Off[1]->Fill(locR, 1.0);  // Fill Efficiency cs Track to Wire Distance
-    //	    }
-    //	  }
-    //	}
-    //      } // is barrel(or endcap)
-    //    } // for (int ibe=0; ibe<2; ibe++)
-    //  }// if is trt
-    //}// if track_parameters
-    // }// if measurement
-    //}// loop over track states
-    if(m_useHoleFinder){
-      const DataVector<const Trk::TrackStateOnSurface>* holes = m_trt_hole_finder->getHolesOnTrack(**p_trk);
-      if (!holes) {
-	ATH_MSG_WARNING("TRTTrackHoleSearchTool returned null results.");
-	continue;
-      } else {
-
-
-	for (DataVector<const Trk::TrackStateOnSurface>::const_iterator it = holes->begin(); it != holes->end(); ++it) {
-	  // if ( (*it)->type(Trk::TrackStateOnSurface::Measurement) ) {// ::Measurement was a copy-paste mistake introduced by me -Emre
-	  if ( !( (*it)->type(Trk::TrackStateOnSurface::Hole) )  )continue;
-	  const Trk::TrackParameters* track_parameters = (*it)->trackParameters();
-	  if (track_parameters==0) continue;//{
-	  Identifier id = track_parameters->associatedSurface().associatedDetectorElementIdentifier();
-	  if (m_pTRTHelper->is_trt(id)==0) continue;//{
-
-	  // assume always Xe if m_ArgonXenonSplitter is not enabled, otherwise check the straw status (good is Xe, non-good is Ar)
-	  const bool isArgonStraw = m_ArgonXenonSplitter && (m_sumSvc->getStatusHT(id) != TRTCond::StrawStatus::Good);
-	  float locR = track_parameters->parameters()[Trk::driftRadius];
-	  int m_barrel_ec       = m_pTRTHelper->barrel_ec(id);
-	  int ibe   = abs(m_barrel_ec)-1;// ibe =0 barrel , ibe =1 encap
-	  int iside = m_barrel_ec > 0 ? 0:1;//iside= 0 side_A , iside = 1 side_C	   
-	  if (ibe==0) {
-	    if (isArgonStraw) {
-	      m_hefficiencyBarrel_locR_Off_Ar->Fill(locR, 0.0); // Fill Efficiency cs Track to Wire Distance
-	    } else {
-	      m_hefficiencyBarrel_locR_Off->Fill(locR, 0.0);  // Fill Efficiency cs Track to Wire Distance
-	    }
-	  } else if (ibe==1) {
-	    //  if (m_barrel_ec==sectorflag[ibe][0]) {
-	    if (isArgonStraw) {
-	      m_hefficiencyEndCap_locR_Off_Ar[iside]->Fill(locR, 0.0);  // Fill Efficiency cs Track to Wire Distance
-	    } else {
-	      m_hefficiencyEndCap_locR_Off[iside]->Fill(locR, 0.0);  // Fill Efficiency cs Track to Wire Distance
-	    }
-	  }
-	}//
-
- 
-	/*
-	  if ((*it)->type(Trk::TrackStateOnSurface::Hole)) {
-	  const Trk::TrackParameters* track_parameters = (*it)->trackParameters();
-	  if (track_parameters) {
-	  Identifier id = track_parameters->associatedSurface().associatedDetectorElementIdentifier();
-	  if (m_pTRTHelper->is_trt(id)) {
-	  // assume always Xe if m_ArgonXenonSplitter is not enabled, otherwise check the straw status (good is Xe, non-good is Ar)
-	  const bool isArgonStraw = m_ArgonXenonSplitter && (m_sumSvc->getStatusHT(id) != TRTCond::StrawStatus::Good);
-	  float locR = track_parameters->parameters()[Trk::driftRadius];
-	  int m_barrel_ec       = m_pTRTHelper->barrel_ec(id);
-	  for (int ibe=0; ibe<2; ibe++) {
-	  if (abs(m_barrel_ec) == sectorflag[ibe][0]) {
-	  if (ibe==0) {
-	  if (isArgonStraw) {
-	  m_hefficiencyBarrel_locR_Off_Ar->Fill(locR, 0.0);  // Fill Efficiency cs Track to Wire Distance
-	  } else {
-	  m_hefficiencyBarrel_locR_Off->Fill(locR, 0.0);  // Fill Efficiency cs Track to Wire Distance
-	  }
-	  } else if (ibe==1) {
-	  if (m_barrel_ec==sectorflag[ibe][0]) {
-	  if (isArgonStraw) {
-	  m_hefficiencyEndCap_locR_Off_Ar[0]->Fill(locR, 0.0);  // Fill Efficiency cs Track to Wire Distance
-	  } else {
-	  m_hefficiencyEndCap_locR_Off[0]->Fill(locR, 0.0);  // Fill Efficiency cs Track to Wire Distance
-	  }
-	  }else {
-	  if (isArgonStraw) {
-	  m_hefficiencyEndCap_locR_Off_Ar[1]->Fill(locR, 0.0);  // Fill Efficiency cs Track to Wire Distance
-	  } else {
-	  m_hefficiencyEndCap_locR_Off[1]->Fill(locR, 0.0);  // Fill Efficiency cs Track to Wire Distance
-	  }
-	  }
-	  }
-	  } // Barrel (or Endcap)
-	  } // for (int ibe=0; ibe<2; ibe++)
-	  } // if is trt
-	  } // if (track_parameters)
-	  }
-	  } */ // loop over holes
-
-
-
-	delete holes;
-      } // found holes
-    }//m_useHoleFinder
-    //Here ends offline efficiency histograms
-    
     m_nTotalTracks++;
 
     int checkB[2]    ={0,0};
@@ -2588,7 +2436,7 @@ StatusCode TRT_Monitoring_Tool::Fill_TRT_Tracks()
     //following 5 arrays were normal variables  
     //They are changed into arrays of the same variable  
     int m_nearest_straw_layer[2] = {100,100}; 
-    int m_nearest_straw[2]       ={0,0};
+    int m_nearest_straw[2]       = {0,0};
     int testLayer[2]             = {100,100};
     int innerstack[2]            = {-999,-999};
     float m_phi2D[2]             = {-100,-100};
@@ -3308,17 +3156,23 @@ StatusCode TRT_Monitoring_Tool::Fill_TRT_Efficiency()
       int m_straw_layer     = m_pTRTHelper->straw_layer(id);
       int m_straw           = m_pTRTHelper->straw(id);
 
-      //for (int ibe=0; ibe<2; ibe++) {
-      //if (abs(m_barrel_ec) == sectorflag[ibe][0]) {
+      // assume always Xe if m_ArgonXenonSplitter is not enabled, otherwise check the straw status (good is Xe, non-good is Ar)
+      const bool isArgonStraw = m_ArgonXenonSplitter && (m_sumSvc->getStatusHT(id) != TRTCond::StrawStatus::Good);
 
       int ibe   = abs(m_barrel_ec)-1;// ibe =0 barrel , ibe =1 encap
       int iside = m_barrel_ec > 0 ? 0:1;//iside= 0 side_A , iside = 1 side_C	   
       if (ibe==0) {
-	m_hefficiencyBarrel_locR->Fill(locR, 1.0);
+	if (isArgonStraw) {
+	  m_hefficiencyBarrel_locR_Ar->Fill(locR, 1.0);
+	} else {
+	  m_hefficiencyBarrel_locR->Fill(locR, 1.0);
+	}
       } else if (ibe==1) {
-	//if (m_barrel_ec==sectorflag[ibe][0]) m_hefficiencyEndCap_locR[0]->Fill(locR, 1.0);
-	//else m_hefficiencyEndCap_locR[1]->Fill(locR, 1.0);
-	m_hefficiencyEndCap_locR[iside]->Fill(locR, 1.0);
+	if (isArgonStraw) {
+	  m_hefficiencyEndCap_locR_Ar[iside]->Fill(locR, 1.0);
+	} else {
+	  m_hefficiencyEndCap_locR[iside]->Fill(locR, 1.0);
+	}
       }
       //if (fabs(locR) < 1.3) {
       if (fabs(locR) >= 1.3) continue; 
@@ -3380,17 +3234,24 @@ StatusCode TRT_Monitoring_Tool::Fill_TRT_Efficiency()
 	  int m_straw_layer     = m_pTRTHelper->straw_layer(id);
 	  int m_straw           = m_pTRTHelper->straw(id);
 
-	  //for (int ibe=0; ibe<2; ibe++) {
-	  //if (abs(m_barrel_ec) == sectorflag[ibe][0]) {
+	  // assume always Xe if m_ArgonXenonSplitter is not enabled, otherwise check the straw status (good is Xe, non-good is Ar)
+	  const bool isArgonStraw = m_ArgonXenonSplitter && (m_sumSvc->getStatusHT(id) != TRTCond::StrawStatus::Good);
+	  
 	  int ibe   = abs(m_barrel_ec)-1;// ibe =0 barrel , ibe =1 encap
 	  int iside = m_barrel_ec > 0 ? 0:1;//iside= 0 side_A , iside = 1 side_C	   
 
 	  if (ibe==0) {
-	    m_hefficiencyBarrel_locR->Fill(locR, 0.0);
+	    if (isArgonStraw) {
+	      m_hefficiencyBarrel_locR_Ar->Fill(locR, 0.0);
+	    } else {
+	      m_hefficiencyBarrel_locR->Fill(locR, 0.0);
+	    }
 	  } else if (ibe==1) {
-	    //if (m_barrel_ec == sectorflag[ibe][0]) m_hefficiencyEndCap_locR[0]->Fill(locR, 0.0);
-	    //else m_hefficiencyEndCap_locR[1]->Fill(locR, 0.0);
-	    m_hefficiencyEndCap_locR[iside]->Fill(locR, 0.0);
+	    if (isArgonStraw) {
+	      m_hefficiencyEndCap_locR_Ar[iside]->Fill(locR, 0.0);
+	    } else {
+	      m_hefficiencyEndCap_locR[iside]->Fill(locR, 0.0);
+	    }
 	  }
 	  //if (fabs(locR) < 1.3) {
 	  if (fabs(locR) >= 1.3) continue;
@@ -3704,7 +3565,6 @@ StatusCode TRT_Monitoring_Tool::Check_TRT_Readout_Integrity(const EventInfo* eve
 
       good_bcid = TRTEventID->bunch_crossing_id();
       if ((int)m_lumiBlock != lastLumiBlock) {
-        //nLumiBlock++;//obsolete
         lastLumiBlock = m_lumiBlock;
       }
 

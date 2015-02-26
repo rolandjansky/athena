@@ -16,8 +16,6 @@
 #include <vector>
 #include <set>
 
-//class TH1F;//We will keep TH*F commented util we need them again
-//class TH2F;
 class TProfile;
 class TH1F_LW;
 class TH2F_LW;
@@ -28,11 +26,8 @@ namespace Trk
 {
   class ITrackHoleSearchTool;
   class Track;
-  //class ITrackHoleSearchTool;//repeated statement
   class TrackStateOnSurface;
-  class ITrackSummaryTool;   
-  //class IExtrapolator;  //no need
-  //class IPropagator;    //no need
+  class ITrackSummaryTool;
 }
 
 namespace InDetDD
@@ -67,11 +62,8 @@ class TRT_Monitoring_Tool : public ManagedMonitorToolBase
 
  private:
   int lastLumiBlock;
-  int nLumiBlock;//obsolete
   int evtLumiBlock;
   int good_bcid;
-  float probScale;//obsolete
-  int numberOfTracks;//obsolete
   int m_nTotalTracks;
   int m_nTracksB[2];
   int m_nTracksEC[2];
@@ -83,33 +75,6 @@ class TRT_Monitoring_Tool : public ManagedMonitorToolBase
   bool m_ArgonXenonSplitter;
 
   const AtlasDetectorID * m_idHelper;
-
-  /** Structure used in collection straw hits into a vector */
-  struct strawHit{
-    float xPos;
-    float yPos;
-    int stack;
-    int straw;
-  };
-  struct chipHit{
-    int stack;
-    int chip;
-  };
-
-  /**
-   * Data Structure containing the board to chip index map.
-   * The chip index is a number from 0-103, where the index corresponds to a unique chip number (hex number).
-   * The board is a string which is the name of the board type.
-   */
-  struct strawIndexMap{
-    std::string board;
-    int index;
-  };
-
-  /**
-   * The maps of chip to board maps.  There is one per side.
-   */
-  strawIndexMap chipToBoard_side[2][600];
 
   StatusCode CheckEventBurst();
   StatusCode Book_TRT_RDOs(bool isNewLumiBlock, bool isNewRun);
@@ -137,9 +102,7 @@ class TRT_Monitoring_Tool : public ManagedMonitorToolBase
   int strawLayerNumber_reverse(int strawLayerNumInp,int* strawLayerNumber, int* LayerNumber);
 
   TH1F_LW* bookTH1F_LW(MonGroup& mongroup, const std::string &hName, const std::string &hTitle, int bins, double lowbin, double highbin, const std::string &xTitle, const std::string &yTitle, StatusCode &scode);
-  //TH1F*       bookTH1F(MonGroup& mongroup, const std::string &hName, const std::string &hTitle, int bins, double lowbin, double highbin, const std::string &xTitle, const std::string &yTitle, StatusCode &scode);
   TH2F_LW* bookTH2F_LW(MonGroup& mongroup, const std::string &hName, const std::string &hTitle, int xbins, double lowxbins, double highxbins, int ybins, double lowybins, double highybins, const std::string &xTitle, const std::string &yTitle, StatusCode &scode);
-  //TH2F*       bookTH2F(MonGroup& mongroup, const std::string &hName, const std::string &hTitle, int xbins, double lowxbins, double highxbins, int ybins, double lowybins, double highybins, const std::string &xTitle, const std::string &yTitle, StatusCode &scode);
   TProfile_LW* bookTProfile_LW(MonGroup& mongroup, const std::string &hName, const std::string &hTitle, int bins, double lowbin, double highbin, double ymin, double ymax, const std::string &xTitle, const std::string &yTitle, StatusCode &scode);
   TProfile*       bookTProfile(MonGroup& mongroup, const std::string &hName, const std::string &hTitle, int bins, double lowbin, double highbin, double ymin, double ymax, const std::string &xTitle, const std::string &yTitle, StatusCode &scode);
   TH1D_LW* bookTH1D_LW(MonGroup& mongroup, const std::string &hName, const std::string &hTitle, int bins, double lowbin, double highbin, const std::string &xTitle, const std::string &yTitle, StatusCode &scode);
@@ -600,7 +563,6 @@ class TRT_Monitoring_Tool : public ManagedMonitorToolBase
   int m_min_tracks_straw;
 
   int m_every_xth_track;
-  std::string m_RODlistfile;
   std::string m_datatype;
 
   ToolHandle<ILuminosityTool>   m_lumiTool; 
@@ -613,12 +575,9 @@ class TRT_Monitoring_Tool : public ManagedMonitorToolBase
   TProfile_LW* m_hefficiency_pt;
   TProfile_LW* m_hefficiency_z0;
   TProfile_LW* m_hefficiencyBarrel_locR;
+  TProfile_LW* m_hefficiencyBarrel_locR_Ar;
   TProfile_LW* m_hefficiencyEndCap_locR[2];
-
-  TProfile_LW* m_hefficiencyBarrel_locR_Off;
-  TProfile_LW* m_hefficiencyBarrel_locR_Off_Ar;
-  TProfile_LW* m_hefficiencyEndCap_locR_Off[2];
-  TProfile_LW* m_hefficiencyEndCap_locR_Off_Ar[2];
+  TProfile_LW* m_hefficiencyEndCap_locR_Ar[2];
 
   TProfile_LW* m_hefficiencyMap[2]; // 0-barrel, 1-endcap
   TProfile_LW* m_hefficiencyS[2][64]; // 0-barrel, 1-endcap
