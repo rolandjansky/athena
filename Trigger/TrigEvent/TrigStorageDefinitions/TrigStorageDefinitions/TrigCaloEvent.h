@@ -40,6 +40,10 @@
 #include "xAODTrigL1Calo/TriggerTowerContainer.h"
 #include "xAODTrigL1Calo/TriggerTowerAuxContainer.h"
 
+#include "xAODHIEvent/HIEventShapeContainer.h"
+#include "xAODHIEvent/HIEventShapeAuxContainer.h"
+
+
 
 HLT_BEGIN_TYPE_REGISTRATION
   HLT_REGISTER_TYPE(struct TrigEMCluster, struct TrigEMCluster,struct TrigEMClusterContainer)
@@ -75,7 +79,9 @@ HLT_BEGIN_TYPE_REGISTRATION
   HLT_REGISTER_TYPE(xAOD::TrigRingerRings, xAOD::TrigRingerRings, xAOD::TrigRingerRingsContainer, xAOD::TrigRingerRingsAuxContainer)
   HLT_REGISTER_TYPE(xAOD::TrigRNNOutput, xAOD::TrigRNNOutput, xAOD::TrigRNNOutputContainer, xAOD::TrigRNNOutputAuxContainer)
   HLT_REGISTER_TYPE(xAOD::TriggerTower, xAOD::TriggerTowerContainer, xAOD::TriggerTowerContainer, xAOD::TriggerTowerAuxContainer)
+  HLT_REGISTER_TYPE(xAOD::HIEventShape, xAOD::HIEventShapeContainer, xAOD::HIEventShapeContainer, xAOD::HIEventShapeAuxContainer)
 HLT_END_TYPE_REGISTRATION(TrigCaloEvent)
+
 
 
 #endif

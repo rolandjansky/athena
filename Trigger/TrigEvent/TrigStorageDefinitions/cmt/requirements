@@ -23,6 +23,8 @@ use  xAODBTagging               xAODBTagging-*                  Event/xAOD
 use  xAODTrigRinger             xAODTrigRinger-*                Event/xAOD
 use  xAODTrigger                xAODTrigger-*                   Event/xAOD
 use  xAODTrigL1Calo             xAODTrigL1Calo-*                   Event/xAOD
+use  xAODHIEvent             xAODHIEvent-*                   Event/xAOD
+
 private
 use TestTools                   TestTools-*                     AtlasTest
 
