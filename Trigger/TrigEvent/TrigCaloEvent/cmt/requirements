@@ -27,6 +27,7 @@ use xAODTrigL1Calo	xAODTrigL1Calo-*	Event/xAOD
 use xAODCaloEvent	xAODCaloEvent-*		Event/xAOD
 use xAODTrigMinBias	xAODTrigMinBias-*	Event/xAOD
 use xAODTrigRinger      xAODTrigRinger-*        Event/xAOD
+use xAODHIEvent         xAODHIEvent-*           Event/xAOD
 end_private
 
 library TrigCaloEvent *.cxx -s=components *.cxx
@@ -67,14 +68,16 @@ typesWithNamespace="xAOD::CaloCluster xAOD::CaloClusterContainer xAOD::CaloClust
                     xAOD::TrigRingerRings xAOD::TrigRingerRingsContainer xAOD::TrigRingerRingsAuxContainer\
                     xAOD::TrigRNNOutput xAOD::TrigRNNOutputContainer xAOD::TrigRNNOutputAuxContainer\
                     xAOD::TrigT2MbtsBits xAOD::TrigT2MbtsBitsContainer xAOD::TrigT2MbtsBitsAuxContainer \
-		    xAOD::TriggerTower xAOD::TriggerTowerContainer xAOD::TriggerTowerAuxContainer" \
+		    xAOD::TriggerTower xAOD::TriggerTowerContainer xAOD::TriggerTowerAuxContainer \
+		    xAOD::HIEventShape xAOD::HIEventShapeContainer xAOD::HIEventShapeAuxContainer " \
        files="-s=${xAODTrigCalo_root}/xAODTrigCalo TrigCaloCluster.h TrigCaloClusterContainer.h TrigCaloClusterAuxContainer.h \
                                 TrigEMCluster.h TrigEMClusterContainer.h TrigEMClusterAuxContainer.h \
        -s=${xAODTrigL1Calo_root}/xAODTrigL1Calo TriggerTower.h TriggerTowerContainer.h TriggerTowerAuxContainer.h \
-       -s=${xAODTrigRinger_root}/xAODTrigRinger TrigRingerRings.h TrigRingerRingsContainer.h TrigRingerRingsAuxContainer.h\
-                                  TrigRNNOutput.h TrigRNNOutputContainer.h TrigRNNOutputAuxContainer.h\
+       -s=${xAODTrigRinger_root}/xAODTrigRinger TrigRingerRings.h TrigRingerRingsContainer.h TrigRingerRingsAuxContainer.h \
+                                  TrigRNNOutput.h TrigRNNOutputContainer.h TrigRNNOutputAuxContainer.h \
        -s=${xAODTrigMinBias_root}/xAODTrigMinBias TrigT2MbtsBits.h TrigT2MbtsBitsContainer.h TrigT2MbtsBitsAuxContainer.h \
-       -s=${xAODCaloEvent_root}/xAODCaloEvent CaloCluster.h CaloClusterContainer.h CaloClusterAuxContainer.h" 
+       -s=${xAODCaloEvent_root}/xAODCaloEvent CaloCluster.h CaloClusterContainer.h CaloClusterAuxContainer.h \
+       -s=${xAODHIEvent_root}/xAODHIEvent HIEventShape.h HIEventShapeContainer.h HIEventShapeAuxContainer.h" 
 
 
 # Doxygen switches
