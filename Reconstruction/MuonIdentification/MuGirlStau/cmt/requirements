@@ -28,7 +28,10 @@ use  TrkToolInterfaces          TrkToolInterfaces-*             Tracking/TrkTool
 use  TrkTrack                   TrkTrack-*                      Tracking/TrkEvent
 use  TrkEventPrimitives         TrkEventPrimitives-*            Tracking/TrkEvent
 use  EventInfo                  EventInfo-*                     Event
+
+
 private
+use  CxxUtils                   CxxUtils-*                      Control
 use  EventInfoMgt               EventInfoMgt-*                  Event
 use  Identifier                 Identifier-*                    DetectorDescription
 use  MdtCalibData               MdtCalibData-*                  MuonSpectrometer/MuonCalib/MdtCalib

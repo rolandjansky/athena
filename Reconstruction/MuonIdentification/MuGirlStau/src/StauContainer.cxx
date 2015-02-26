@@ -39,6 +39,8 @@ MuGirlNS::StauContainer::~StauContainer()
         m_rpcHitsByStation->clear();
         delete m_rpcHitsByStation;
     }
+    for (Consistency* c : m_consistencyList)
+      delete c;
 }
 
 std::ostream& operator<<(std::ostream& ostr, const std::map<MuGirlNS::StauTechnology, MuGirlNS::BetaAvg>& m)

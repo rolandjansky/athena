@@ -682,7 +682,7 @@ void StauTool::clearFcnSteps()
         m_pStauMDT->clearStepData(pStepData->mdtData);
         m_pStauRPC->clearStepData(pStepData->rpcData);
         m_pStauTileCal->clearStepData(pStepData->tileCalData);
-        m_pStauMDTT->clearStepData(pStepData->mdttData);
+        m_pStauMDTT->clearStepData(pStepData->mdttData.get());
         delete pStepData;
     }
     m_pFcnSteps->clear();
@@ -698,7 +698,7 @@ void StauTool::printFcnSteps()
         if (m_pStauMDT != NULL) m_pStauMDT->printStepData(fcnData->mdtData);
         if (m_pStauRPC != NULL) m_pStauRPC->printStepData(fcnData->rpcData);
         if (m_pStauTileCal != NULL) m_pStauTileCal->printStepData(fcnData->tileCalData);
-        if (m_pStauMDTT != NULL) m_pStauMDTT->printStepData(fcnData->mdttData);
+        if (m_pStauMDTT != NULL) m_pStauMDTT->printStepData(fcnData->mdttData.get());
     }
 }
 
@@ -722,7 +722,7 @@ StatusCode StauTool::fillStauSummary(const CandidateSummary* summary, CandidateS
     stauSummary->pLowBetaTrack = summary->pLowBetaTrack;
     stauSummary->pTrkLowBeta = summary->pTrkLowBeta;
     stauSummary->pLowBetaExtrpTrack = summary->pLowBetaExtrpTrack;
-    stauSummary->pTrkLowBetaExtr = summary->pTrkLowBetaExtr;
+    //    stauSummary->pTrkLowBetaExtr = summary->pTrkLowBetaExtr;
     stauSummary->startFromBetaRefit = summary->startFromBetaRefit;
     stauSummary->numRpcPhiHits = summary->numRpcPhiHits;
     stauSummary->numRpcEtaHits = summary->numRpcEtaHits;
@@ -768,8 +768,8 @@ StatusCode StauTool::fillStauSummary(const CandidateSummary* summary, CandidateS
     stauSummary->beta = m_beta;
     stauSummary->pRefittedTrack = NULL;
     stauSummary->pTrkRefitted = NULL;
-    stauSummary->pMSRefittedTrack = NULL;
-    stauSummary->pTrkMSRefitted = NULL;
+    stauSummary->pMSRefittedTrack.reset();
+    stauSummary->pTrkMSRefitted.reset();
     
     LOG_DEBUG << "done" << endreq;
     return StatusCode::SUCCESS;
