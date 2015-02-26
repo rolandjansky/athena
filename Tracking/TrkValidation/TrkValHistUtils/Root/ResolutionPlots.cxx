@@ -14,9 +14,9 @@ void ResolutionPlots::init(){
 
 void ResolutionPlots::initializePlots(){
 
-  Res_pT     = Book1D("Res_pT","Res_pT;(pT-pTtruth)/pTtruth;Entries",100,-0.5,0.5);
-  Res_eta    = Book1D("Res_eta","Res_eta;eta-etatruth;Entries",100,-0.02,0.02);
-  Res_phi    = Book1D("Res_phi","Res_phi;phi-phitruth;Entries",100,-0.005,0.005);
+  Res_pT     = Book1D("Res"+m_sType+"_pT","Res"+m_sType+"_pT;(pT-pTtruth)/pTtruth;Entries",100,-0.5,0.5);
+  Res_eta    = Book1D("Res"+m_sType+"_eta","Res"+m_sType+"_eta;eta-etatruth;Entries",100,-0.02,0.02);
+  Res_phi    = Book1D("Res"+m_sType+"_phi","Res"+m_sType+"_phi;phi-phitruth;Entries",100,-0.005,0.005);
 
 
 }

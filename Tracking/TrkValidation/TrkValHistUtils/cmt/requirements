@@ -10,6 +10,7 @@ use AtlasROOT           AtlasROOT-*            External
 use xAODBase            xAODBase-*             Event/xAOD
 use xAODTracking        xAODTracking-*         Event/xAOD
 use xAODTruth           xAODTruth-*            Event/xAOD
+use TrkEventPrimitives  TrkEventPrimitives-*   Tracking/TrkEvent
 
 private
 use EventPrimitives     EventPrimitives-*      Event
