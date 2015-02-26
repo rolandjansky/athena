@@ -22,6 +22,12 @@
 //*****************************************************************************
 
 //Gaudi Includes
+#include "GaudiKernel/Bootstrap.h"
+#include "GaudiKernel/ISvcLocator.h"
+#include "GaudiKernel/IMessageSvc.h"
+#include "GaudiKernel/INTupleSvc.h"
+#include "GaudiKernel/IDataProviderSvc.h"
+#include "GaudiKernel/SmartDataPtr.h"
 #include "StoreGate/StoreGateSvc.h"
 
 // Calo include
@@ -89,19 +95,38 @@ CalibHitToCaloCell::~CalibHitToCaloCell()
 ////////////////   INITIALIZE   ///////////////////////
 StatusCode CalibHitToCaloCell::initialize() 
 { 
+  MsgStream log(messageService(), name());
+     
   // retrieve ID helpers from det store
-  ATH_MSG_INFO("initialisation ID helpers" );
+  log<<MSG::INFO<<"initialisation ID helpers"<<endreq;
 
-  ATH_CHECK(  detStore()->retrieve(m_caloCell_ID) );
-  ATH_CHECK(  detStore()->retrieve(m_caloDM_ID) );
-  ATH_CHECK(  detStore()->retrieve(m_caloDDMgr, "CaloMgr") );
+  StatusCode sc = detStore()->retrieve(m_caloCell_ID);
+  if (sc.isFailure()) {
+    log << MSG::ERROR
+        << "Unable to retrieve CaloCalibrationID helper from DetectorStore" << endreq;
+    return sc;
+  }
+
+  sc = detStore()->retrieve(m_caloDM_ID);
+  if (sc.isFailure()) {
+    log << MSG::ERROR
+        << "Unable to retrieve CaloCalibrationID helper from DetectorStore" << endreq;
+    return sc;
+  }
+
+  sc = detStore()->retrieve(m_caloDDMgr, "CaloMgr");
+  if (sc.isFailure()) {
+    log << MSG::ERROR
+        << "Unable to retrieve CaloDetDescrManager from DetectorStore" << endreq;
+    return sc;
+  }
 
   if(m_caloCell_Tot   != "")    m_store_Tot   = true;   else m_store_Tot   = false;
   if(m_caloCell_Vis   != "")	m_store_Vis   = true;   else m_store_Vis   = false;
   if(m_caloCell_Em    != "")	m_store_Em    = true;   else m_store_Em    = false;
   if(m_caloCell_NonEm != "")	m_store_NonEm = true;   else m_store_NonEm = false;
 
-  ATH_MSG_INFO("initialisation completed" );
+  log<<MSG::INFO<<"initialisation completed"<<endreq;
   return StatusCode::SUCCESS;
 }
 
@@ -109,6 +134,11 @@ StatusCode CalibHitToCaloCell::initialize()
 /////////////////   EXECUTE   //////////////////////
 StatusCode CalibHitToCaloCell::execute()
 {
+    MsgStream log(messageService(), name());
+    StatusCode sc;
+
+    
+
     // OUTPUT CONTAINERS
     CaloCellContainer* cnt   = 0;
     CaloCellContainer* cnt_1 = 0; 
@@ -126,16 +156,21 @@ StatusCode CalibHitToCaloCell::execute()
     const CaloCalibrationHitContainer* lar_actHitCnt; 
     const CaloCalibrationHitContainer* lar_inactHitCnt;
     const CaloCalibrationHitContainer* lar_dmHitCnt;
-    
-    //retrieving input Calibhit containers
-    ATH_CHECK( evtStore()->retrieve(tile_actHitCnt, m_tileActiveHitCnt) );
-    ATH_CHECK( evtStore()->retrieve(tile_inactHitCnt, m_tileInactiveHitCnt) );
-    ATH_CHECK( evtStore()->retrieve(tile_dmHitCnt,    m_tileDMHitCnt) );
-    ATH_CHECK( evtStore()->retrieve(lar_actHitCnt,    m_larActHitCnt) );
-    ATH_CHECK( evtStore()->retrieve(lar_inactHitCnt,  m_larInactHitCnt) );
-    ATH_CHECK( evtStore()->retrieve(lar_dmHitCnt,     m_larDMHitCnt) );
 
-    ATH_MSG_DEBUG("CaloCalibrationHitContainers retrieved successfuly" );
+    //retrieving input Calibhit containers
+    sc = evtStore()->retrieve(tile_actHitCnt, m_tileActiveHitCnt);
+    if (!sc.isFailure()) sc = evtStore()->retrieve(tile_inactHitCnt, m_tileInactiveHitCnt);
+    if (!sc.isFailure()) sc = evtStore()->retrieve(tile_dmHitCnt,    m_tileDMHitCnt);
+    if (!sc.isFailure()) sc = evtStore()->retrieve(lar_actHitCnt,    m_larActHitCnt);
+    if (!sc.isFailure()) sc = evtStore()->retrieve(lar_inactHitCnt,  m_larInactHitCnt);
+    if (!sc.isFailure()) sc = evtStore()->retrieve(lar_dmHitCnt,     m_larDMHitCnt);
+    if (sc.isFailure())
+    {
+      log<<MSG::ERROR<<"Could not retrieve CaloCalibrationHitContainers" << endreq;
+      return sc;
+    }
+
+    log<<MSG::DEBUG<<"CaloCalibrationHitContainers retrieved successfuly"<<endreq;    
 
     //count
     m_nchan=0;
@@ -205,12 +240,12 @@ StatusCode CalibHitToCaloCell::execute()
 		//another story...
 		else 
 		{
-                  ATH_MSG_DEBUG( "non-LAr ID in LArInactive " 
-                                 << id.getString() << " sub_calo " << m_caloCell_ID->sub_calo(id)  );
+                    log << MSG::DEBUG << "non-LAr ID in LArInactive " 
+                        << id.getString() << " sub_calo " << m_caloCell_ID->sub_calo(id) << endreq;
 		    if(m_storeUnknown)
 		    {
-                      ATH_MSG_DEBUG("Ianctive CalibHit doesn't respect to any LArCell - "
-                                    <<"create dummy LArCell to store energy "  );
+		        log<<MSG::DEBUG<<"Ianctive CalibHit doesn't respect to any LArCell - "
+				       <<"create dummy LArCell to store energy " <<endreq; 
 
                    	if(m_store_Tot) {			
                         	LArCell* calibCell = new LArCell();
@@ -315,12 +350,12 @@ StatusCode CalibHitToCaloCell::execute()
         	    //another story...
 		    else 
 		    { 
-                      ATH_MSG_DEBUG( "non-LAr ID in LArActive " 
-                                     << id.getString() << " sub_calo " << m_caloCell_ID->sub_calo(id)  );
+                        log << MSG::DEBUG << "non-LAr ID in LArActive " 
+                            << id.getString() << " sub_calo " << m_caloCell_ID->sub_calo(id) << endreq;
                         if(m_storeUnknown)
                         {
-                          ATH_MSG_DEBUG("Active CalibHit doesn't respect to any LArCell - "
-                                        <<"create dummy LArCell to store energy " );
+			    log<<MSG::DEBUG<<"Active CalibHit doesn't respect to any LArCell - "
+                        	           <<"create dummy LArCell to store energy "<<endreq; 
 
 
                             if(m_store_Tot) {
@@ -446,12 +481,12 @@ StatusCode CalibHitToCaloCell::execute()
 	}
     } 
 
-    ATH_MSG_VERBOSE("--- LAr INFO --- "<<m_nchan );
-    ATH_MSG_VERBOSE("LArCells  = "<<m_nchan );
-    ATH_MSG_VERBOSE("EMCells   = "<<em_nchan );
-    ATH_MSG_VERBOSE("HECCells  = "<<hec_nchan );
-    ATH_MSG_VERBOSE("FCALCells = "<<fcal_nchan );
-    ATH_MSG_VERBOSE("NOT_VALID (LAr) = "<<lar_unknown_nchan );
+    log<<MSG::VERBOSE<<"--- LAr INFO --- "<<m_nchan<<endreq;
+    log<<MSG::VERBOSE<<"LArCells  = "<<m_nchan<<endreq;
+    log<<MSG::VERBOSE<<"EMCells   = "<<em_nchan<<endreq;
+    log<<MSG::VERBOSE<<"HECCells  = "<<hec_nchan<<endreq;
+    log<<MSG::VERBOSE<<"FCALCells = "<<fcal_nchan<<endreq;
+    log<<MSG::VERBOSE<<"NOT_VALID (LAr) = "<<lar_unknown_nchan<<endreq;
 
 
     if(tile_actHitCnt) 
@@ -500,12 +535,12 @@ StatusCode CalibHitToCaloCell::execute()
 		}
 	        else 
 		{
-                  ATH_MSG_DEBUG( "non-Tile ID in Tile " 
-                                 << id.getString() << " sub_calo " << m_caloCell_ID->sub_calo(id)  );
+                    log << MSG::DEBUG << "non-Tile ID in Tile " 
+                        << id.getString() << " sub_calo " << m_caloCell_ID->sub_calo(id) << endreq;
             	    if(m_storeUnknown)
             	    {
-                      ATH_MSG_DEBUG("Active CalibHit doesn't respect to any TileCell - "
-                                    <<"create dummy TileCell to store energy " );
+		        log<<MSG::DEBUG<<"Active CalibHit doesn't respect to any TileCell - "
+            		               <<"create dummy TileCell to store energy "<<endreq;
 
 			if(m_store_Tot) {
             		    TileCell* calibCell = new TileCell();
@@ -606,12 +641,12 @@ StatusCode CalibHitToCaloCell::execute()
 		}
 	        else 
 		{
-                   ATH_MSG_DEBUG( "non-Tile ID in Tile " 
-                                  << id.getString() << " sub_calo " << m_caloCell_ID->sub_calo(id)  );
+                    log << MSG::DEBUG << "non-Tile ID in Tile " 
+                        << id.getString() << " sub_calo " << m_caloCell_ID->sub_calo(id) << endreq;
             	    if(m_storeUnknown)
             	    {
-                       ATH_MSG_DEBUG("Inactive CalibHit doesn't respect to any TileCell - "
-                                     <<"create dummy TileCell to store energy " );
+		        log<<MSG::DEBUG<<"Inactive CalibHit doesn't respect to any TileCell - "
+            		               <<"create dummy TileCell to store energy "<<endreq;
 
 			if(m_store_Tot) {
             		    TileCell* calibCell = new TileCell();
@@ -665,10 +700,10 @@ StatusCode CalibHitToCaloCell::execute()
 	}
     }
 
-    ATH_MSG_VERBOSE("--- TILE INFO --- "<<m_nchan );
-    ATH_MSG_VERBOSE("TileCells = "<<tile_nchan );
-    ATH_MSG_VERBOSE("NOT_VALID (Tile) = "<<tile_unknown_nchan );
-    ATH_MSG_VERBOSE("ALL CELLS = "<<m_nchan );
+    log<<MSG::VERBOSE<<"--- TILE INFO --- "<<m_nchan<<endreq;	
+    log<<MSG::VERBOSE<<"TileCells = "<<tile_nchan<<endreq;
+    log<<MSG::VERBOSE<<"NOT_VALID (Tile) = "<<tile_unknown_nchan<<endreq;
+    log<<MSG::VERBOSE<<"ALL CELLS = "<<m_nchan<<endreq;
 
 
 /* UNDER DEVELOPING... UNDER DEVELOPING... UNDER DEVELOPING...
@@ -696,14 +731,19 @@ StatusCode CalibHitToCaloCell::execute()
     //Record CaloCellContainer-s in the StoreGate.
     //Check the containers name, if it was declared
     //then record it.
-    if(m_store_Tot)   ATH_CHECK( evtStore()->record(cnt,   m_caloCell_Tot,   false) );
-    if(m_store_Vis)   ATH_CHECK( evtStore()->record(cnt_1, m_caloCell_Vis,   false) );
-    if(m_store_Em)    ATH_CHECK( evtStore()->record(cnt_2, m_caloCell_Em,    false) );
-    if(m_store_NonEm) ATH_CHECK( evtStore()->record(cnt_3, m_caloCell_NonEm, false) );
+    if(m_store_Tot)   sc = evtStore()->record(cnt,   m_caloCell_Tot,   false); 
+    if(m_store_Vis && !sc.isFailure())   sc = evtStore()->record(cnt_1, m_caloCell_Vis,   false);
+    if(m_store_Em && !sc.isFailure())    sc = evtStore()->record(cnt_2, m_caloCell_Em,    false);
+    if(m_store_NonEm && !sc.isFailure()) sc = evtStore()->record(cnt_3, m_caloCell_NonEm, false);
+    if (sc.isFailure())
+    {
+      log<<MSG::ERROR<<"Could not store CaloCalibrationHitContainers"<<endreq;
+      return sc;
+    }
 
     ID.clear();
  
-    ATH_MSG_DEBUG("execute() completed successfully" );
+    log<<MSG::DEBUG<<"execute() completed successfully"<<endreq;
     return StatusCode::SUCCESS;
 }
 
@@ -711,16 +751,20 @@ StatusCode CalibHitToCaloCell::execute()
 /////////////////   FINALIZE   //////////////////////
 StatusCode CalibHitToCaloCell::finalize()
 {
-  ATH_MSG_INFO("finalize() successfully" );
-  return StatusCode::SUCCESS;
+    MsgStream log(messageService(), name());
+    log<<MSG::INFO<<"finalize() successfully"<<endreq;
+    return StatusCode::SUCCESS;
 }
 
 
 //needed only when developing 
 void CalibHitToCaloCell::test_energy(Energy* energy)
 {
-  ATH_MSG_INFO( "Total   =  "<<(*energy)[0]    <<"  |  "
-                << "Visible =  "<<(*energy)[1]    <<"  |  "    
-                << "Em      =  "<<(*energy)[2]    <<"  |  " 
-                << "NonEm   =  "<<(*energy)[3]     );
+      MsgStream log(messageService(), "CalibHitToCaloCell");
+      log << MSG::INFO
+	 << "Total   =  "<<(*energy)[0]    <<"  |  "
+	 << "Visible =  "<<(*energy)[1]    <<"  |  "    
+	 << "Em      =  "<<(*energy)[2]    <<"  |  " 
+         << "NonEm   =  "<<(*energy)[3]    <<
+      endreq;
 }

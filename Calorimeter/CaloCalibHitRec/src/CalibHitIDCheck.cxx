@@ -73,8 +73,17 @@ CalibHitIDCheck::~CalibHitIDCheck()
 /////////////////   INITIALIZE   /////////////////////
 StatusCode CalibHitIDCheck::initialize() 
 { 
-  ATH_CHECK( detStore()->retrieve(m_id_helper) );
-  ATH_MSG_INFO("initialisation completed" );
+  MsgStream log(messageService(), name());
+     
+  StatusCode sc = detStore()->retrieve(m_id_helper);
+  if (sc.isFailure()) {
+    log << MSG::ERROR
+        << "Unable to retrieve AtlasDetectorID helper from DetectorStore" << endreq;
+    return sc;
+  }
+
+
+  log<<MSG::INFO<<"initialisation completed"<<endreq ;
   return StatusCode::SUCCESS;
 }
 
@@ -84,12 +93,15 @@ StatusCode CalibHitIDCheck::initialize()
 ////////////////   EXECUTE   //////////////////////
 StatusCode CalibHitIDCheck::execute()
 {
-  ATH_CHECK( evtStore()->retrieve(m_LArDMHitCnt,        m_larDMHitContainer) );
-  ATH_CHECK( evtStore()->retrieve(m_ActiveHitCnt,       m_larActiveHitContainer) );
-  ATH_CHECK( evtStore()->retrieve(m_InactiveHitCnt,     m_larInactiveHitContainer) );
-  ATH_CHECK( evtStore()->retrieve(m_TileActiveHitCnt,   m_tileActiveHitContainer) );
-  ATH_CHECK( evtStore()->retrieve(m_TileInactiveHitCnt, m_tileInactiveHitContainer) );
-  ATH_CHECK( evtStore()->retrieve(m_TileDMHitCnt,       m_tiledmHitContainer) );
+  MsgStream log(messageService(), name());
+  StatusCode sc;
+
+  sc=evtStore()->retrieve(m_LArDMHitCnt,        m_larDMHitContainer);
+  sc=evtStore()->retrieve(m_ActiveHitCnt,       m_larActiveHitContainer);
+  sc=evtStore()->retrieve(m_InactiveHitCnt,     m_larInactiveHitContainer);
+  sc=evtStore()->retrieve(m_TileActiveHitCnt,   m_tileActiveHitContainer);
+  sc=evtStore()->retrieve(m_TileInactiveHitCnt, m_tileInactiveHitContainer);
+  sc=evtStore()->retrieve(m_TileDMHitCnt,       m_tiledmHitContainer);
 
   //We need merge only Inactive and Active
   //LAr CalibHit Containers only once
@@ -119,7 +131,7 @@ StatusCode CalibHitIDCheck::execute()
   reset();
 
 
-  ATH_MSG_DEBUG("execute() completed successfully" );
+  log<<MSG::DEBUG<<"execute() completed successfully"<<endreq;
   return StatusCode::SUCCESS;
 }
 
@@ -129,7 +141,8 @@ StatusCode CalibHitIDCheck::execute()
 ///////////////   FINALIZE   ////////////////////
 StatusCode CalibHitIDCheck::finalize()
 {
-  ATH_MSG_INFO("finalize() successfully" );
+  MsgStream log(messageService(), name());
+  log<<MSG::INFO<<"finalize() successfully"<<endreq;
   return StatusCode::SUCCESS;
 }
 
@@ -146,6 +159,8 @@ StatusCode CalibHitIDCheck::finalize()
 //('alien') and repeated Identifiers
 void CalibHitIDCheck::check(int l_cnt) {
 
+  MsgStream log(messageService(), "check");
+
   std::vector<Identifier>   id_vec;
   std::map<Identifier, int> id_map;
   std::map<Identifier, int>::iterator map_it;
@@ -160,10 +175,10 @@ void CalibHitIDCheck::check(int l_cnt) {
 
     if((m_InactiveHitCnt->Size()) != 0 )
       {
-        ATH_MSG_INFO(" " );
-        ATH_MSG_INFO("*************************************************************" );
-        ATH_MSG_INFO("Investigate CalibHit IDs from LAr Inactive CalibHit Container" );
-        ATH_MSG_INFO("*************************************************************" );
+        log<<MSG::INFO<<" "<<endreq ;
+        log<<MSG::INFO<<"*************************************************************"<<endreq ;
+        log<<MSG::INFO<<"Investigate CalibHit IDs from LAr Inactive CalibHit Container"<<endreq ;
+        log<<MSG::INFO<<"*************************************************************"<<endreq ;
 
         it = m_InactiveHitCnt->begin();
         end = m_InactiveHitCnt->end();
@@ -179,10 +194,10 @@ void CalibHitIDCheck::check(int l_cnt) {
 
     if((m_ActiveHitCnt->Size()) != 0 )
       {
-        ATH_MSG_INFO(" " );
-        ATH_MSG_INFO("***********************************************************" );
-        ATH_MSG_INFO("Investigate CalibHit IDs from LAr Active CalibHit Container" );
-        ATH_MSG_INFO("***********************************************************" );
+        log<<MSG::INFO<<" "<<endreq ;
+        log<<MSG::INFO<<"***********************************************************"<<endreq ;
+        log<<MSG::INFO<<"Investigate CalibHit IDs from LAr Active CalibHit Container"<<endreq ;
+        log<<MSG::INFO<<"***********************************************************"<<endreq ;
 
         it = m_ActiveHitCnt->begin();
         end = m_ActiveHitCnt->end();
@@ -200,10 +215,10 @@ void CalibHitIDCheck::check(int l_cnt) {
     
     if((m_TileInactiveHitCnt->Size()) != 0 )
       {
-        ATH_MSG_INFO(" " );
-        ATH_MSG_INFO("**************************************************************" );
-        ATH_MSG_INFO("Investigate CalibHit IDs from Tile Inactive CalibHit container" );
-        ATH_MSG_INFO("**************************************************************" );
+        log<<MSG::INFO<<" "<<endreq ;
+        log<<MSG::INFO<<"**************************************************************"<<endreq ;
+        log<<MSG::INFO<<"Investigate CalibHit IDs from Tile Inactive CalibHit container"<<endreq ;
+        log<<MSG::INFO<<"**************************************************************"<<endreq ;
         
         it  = m_TileInactiveHitCnt->begin();
         end = m_TileInactiveHitCnt->end();
@@ -219,10 +234,10 @@ void CalibHitIDCheck::check(int l_cnt) {
     
     if((m_TileActiveHitCnt->Size()) != 0 )
       {
-        ATH_MSG_INFO(" " );
-        ATH_MSG_INFO("************************************************************" );
-        ATH_MSG_INFO("Investigate CalibHit IDs from Tile Active CalibHit container" );
-        ATH_MSG_INFO("************************************************************" );
+        log<<MSG::INFO<<" "<<endreq ;
+        log<<MSG::INFO<<"************************************************************"<<endreq ;
+        log<<MSG::INFO<<"Investigate CalibHit IDs from Tile Active CalibHit container"<<endreq ;
+        log<<MSG::INFO<<"************************************************************"<<endreq ;
         
         it  = m_TileActiveHitCnt->begin();
         end = m_TileActiveHitCnt->end();
@@ -240,10 +255,10 @@ void CalibHitIDCheck::check(int l_cnt) {
 
     if((m_LArDMHitCnt->Size()) != 0 )
       {
-        ATH_MSG_INFO(" " );
-        ATH_MSG_INFO("*******************************************************" );
-        ATH_MSG_INFO("Investigate CalibHit IDs from LAr DM CalibHit Container" );
-        ATH_MSG_INFO("*******************************************************" );
+        log<<MSG::INFO<<" "<<endreq ;
+        log<<MSG::INFO<<"*******************************************************"<<endreq ;
+        log<<MSG::INFO<<"Investigate CalibHit IDs from LAr DM CalibHit Container"<<endreq ;
+        log<<MSG::INFO<<"*******************************************************"<<endreq ;
 
         it = m_LArDMHitCnt->begin();
         end = m_LArDMHitCnt->end();
@@ -259,10 +274,10 @@ void CalibHitIDCheck::check(int l_cnt) {
 
     if((m_TileDMHitCnt->Size()) != 0 )
       {
-        ATH_MSG_INFO(" " );
-        ATH_MSG_INFO("********************************************************" );
-        ATH_MSG_INFO("Investigate CalibHit IDs from Tile DM CalibHit Container" );
-        ATH_MSG_INFO("********************************************************" );
+        log<<MSG::INFO<<" "<<endreq ;
+        log<<MSG::INFO<<"********************************************************"<<endreq ;
+        log<<MSG::INFO<<"Investigate CalibHit IDs from Tile DM CalibHit Container"<<endreq ;
+        log<<MSG::INFO<<"********************************************************"<<endreq ;
         
         it  = m_TileDMHitCnt->begin();
         end = m_TileDMHitCnt->end();
@@ -272,9 +287,7 @@ void CalibHitIDCheck::check(int l_cnt) {
         return;
       }
     break;
-
-  default:
-    return;
+    
   }
 
  
@@ -288,8 +301,8 @@ void CalibHitIDCheck::check(int l_cnt) {
     //Check ID whether is it valid or not
     if(!id.is_valid()) {
 
-      ATH_MSG_ERROR("Invalid Identifier of CalibHit is found! "
-                    <<m_id_helper->show_to_string(id) );
+      log<<MSG::ERROR<<"Invalid Identifier of CalibHit is found! "
+	 <<m_id_helper->show_to_string(id)<<endreq ;
 
       no_invalid=false;
     }
@@ -301,8 +314,8 @@ void CalibHitIDCheck::check(int l_cnt) {
     case 0:
     case 1:
       if( !(m_id_helper->is_lar(id)) ) {
-        ATH_MSG_INFO("Found CalibHit with NO LAr ID "
-                     <<m_id_helper->show_to_string(id) );
+        log<<MSG::INFO<<"Found CalibHit with NO LAr ID "
+           <<m_id_helper->show_to_string(id)<<endreq ;
         no_alien=false;
       } 
       break;
@@ -310,8 +323,8 @@ void CalibHitIDCheck::check(int l_cnt) {
     case 2:
     case 3:
       if( !(m_id_helper->is_tile(id)) ) {
-        ATH_MSG_INFO("Found CalibHit with NO Tile ID "
-                     <<m_id_helper->show_to_string(id) );
+        log<<MSG::INFO<<"Found CalibHit with NO Tile ID "
+        <<m_id_helper->show_to_string(id)<<endreq ;
         no_alien=false;
       }
       break;
@@ -321,16 +334,16 @@ void CalibHitIDCheck::check(int l_cnt) {
           //It's normal to find Tile DM ID 
           //recorded by Default Calculator
           !(m_id_helper->is_tile_dm(id))  ) {
-        ATH_MSG_INFO("Found CalibHit with NO LAr DM ID "
-                     <<m_id_helper->show_to_string(id) );
+        log<<MSG::INFO<<"Found CalibHit with NO LAr DM ID "
+           <<m_id_helper->show_to_string(id)<<endreq ;
         no_alien=false;
       }     
       break;
        
     case 5:
       if( !(m_id_helper->is_tile_dm(id)) ) { 
-        ATH_MSG_INFO("Found CalibHit with NO Tile DM ID "
-                     <<m_id_helper->show_to_string(id) );
+        log<<MSG::INFO<<"Found CalibHit with NO Tile DM ID "
+        <<m_id_helper->show_to_string(id)<<endreq ;	
         no_alien=false;
       }
       break;
@@ -383,9 +396,9 @@ void CalibHitIDCheck::check(int l_cnt) {
   //tell if no invalid IDs were eppeared
   if(no_invalid) {
 
-    ATH_MSG_INFO("------------------------------------- " );
-    ATH_MSG_INFO("No invalid Identifiers has been found " );
-    ATH_MSG_INFO("------------------------------------- " );
+    log<<MSG::INFO<<"------------------------------------- "<<endreq ;
+    log<<MSG::INFO<<"No invalid Identifiers has been found "<<endreq ;    
+    log<<MSG::INFO<<"------------------------------------- "<<endreq ;
 
   }
 
@@ -393,9 +406,9 @@ void CalibHitIDCheck::check(int l_cnt) {
   //tell if no 'alien' IDs were eppeared
   if(no_alien) {
 
-    ATH_MSG_INFO("------------------------------------------------------" );
-    ATH_MSG_INFO("No container not-respective Identifiers has been found" );
-    ATH_MSG_INFO("------------------------------------------------------" );
+    log<<MSG::INFO<<"------------------------------------------------------"<<endreq ;
+    log<<MSG::INFO<<"No container not-respective Identifiers has been found"<<endreq ;    
+    log<<MSG::INFO<<"------------------------------------------------------"<<endreq ;
 
   }
 
@@ -403,21 +416,22 @@ void CalibHitIDCheck::check(int l_cnt) {
   //Print the result of looking for repeated IDs
   if(!id_map.empty()) {
 
-    ATH_MSG_INFO("----------------------------------------------- " );
-    ATH_MSG_INFO("Found repeated Identifiers   |   how many times " );
-    ATH_MSG_INFO("----------------------------------------------- " );
+    log<<MSG::INFO<<"----------------------------------------------- "<<endreq ;
+    log<<MSG::INFO<<"Found repeated Identifiers   |   how many times "<<endreq ;
+    log<<MSG::INFO<<"----------------------------------------------- "<<endreq ;
     
     for(map_it=id_map.begin(); map_it!=id_map.end(); map_it++) {
          
-      ATH_MSG_INFO(m_id_helper->show_to_string(map_it->first)
-                   <<"                  "<<map_it->second );
+      log<<MSG::INFO<<m_id_helper->show_to_string(map_it->first)
+	 <<"                  "<<map_it->second
+	 <<endreq ;
     }
    
   }
   else {
-    ATH_MSG_INFO("----------------------------------------------- " );
-    ATH_MSG_INFO("No repeated CalibHit Identifiers has been found " );
-    ATH_MSG_INFO("----------------------------------------------- " );
+    log<<MSG::INFO<<"----------------------------------------------- "<<endreq ;    
+    log<<MSG::INFO<<"No repeated CalibHit Identifiers has been found "<<endreq ;    
+    log<<MSG::INFO<<"----------------------------------------------- "<<endreq ;
   }
 
 }
@@ -460,13 +474,15 @@ void CalibHitIDCheck::merge(Identifier id) {
 //This method shows all IDs into the string format
 void CalibHitIDCheck::show_all() {
 
-  ATH_MSG_INFO("=================================================" );
-  ATH_MSG_INFO("Show all CalibHits Identifiers for current events" );
-  ATH_MSG_INFO("=================================================" );
+  MsgStream log(messageService(), "show_all");
+
+  log<<MSG::INFO<<"================================================="<<endreq ; 
+  log<<MSG::INFO<<"Show all CalibHits Identifiers for current events"<<endreq ;  
+  log<<MSG::INFO<<"================================================="<<endreq ;  
 
   for (int iter=0; iter != static_cast<int>(m_id_vec.size()); iter++) {
 
-    ATH_MSG_INFO(m_id_helper->show_to_string(m_id_vec[iter]) );
+    log<<MSG::INFO<<m_id_helper->show_to_string(m_id_vec[iter])<<endreq ;
 
   }  
 
@@ -492,10 +508,12 @@ void CalibHitIDCheck::show_all() {
 //contained inside the different containers! 
 void CalibHitIDCheck::check_all_cnts() {
 
-  ATH_MSG_INFO("======================================================" );
-  ATH_MSG_INFO("Check for the CalibHits Identifiers has been repeated " );
-  ATH_MSG_INFO("      inside the different CalibHit containers        " );
-  ATH_MSG_INFO("======================================================" );
+  MsgStream log(messageService(), "check_all_cnts");
+
+  log<<MSG::INFO<<"======================================================"<<endreq ;  
+  log<<MSG::INFO<<"Check for the CalibHits Identifiers has been repeated "<<endreq ;
+  log<<MSG::INFO<<"      inside the different CalibHit containers        "<<endreq ;  
+  log<<MSG::INFO<<"======================================================"<<endreq ;  
 
 
   bool no_rep=true;
@@ -509,10 +527,11 @@ void CalibHitIDCheck::check_all_cnts() {
     m_id_vec.erase (it_end, m_id_vec.end());
 
     if(same!=0) {
-      ATH_MSG_INFO("Identifier  "
-                   <<m_id_helper->show_to_string(m_id_vec[i])
-                   <<"     is repeated  "<<(same+1)<<"  times"
-                   <<" inside different containers " );
+      log<<MSG::INFO<<"Identifier  "
+	 <<m_id_helper->show_to_string(m_id_vec[i])
+	 <<"     is repeated  "<<(same+1)<<"  times"
+	 <<" inside different containers "
+	 <<endreq ;
 
       no_rep=false;
     }
@@ -520,8 +539,9 @@ void CalibHitIDCheck::check_all_cnts() {
 
 
   if(no_rep) {
-    ATH_MSG_INFO("*** No repeated CalibHit Identifier " 
-                 <<"in the different containers was found ***"  );
+    log<<MSG::INFO<<"*** No repeated CalibHit Identifier " 
+       <<"in the different containers was found ***" 
+       <<endreq;
   }
 
 }
