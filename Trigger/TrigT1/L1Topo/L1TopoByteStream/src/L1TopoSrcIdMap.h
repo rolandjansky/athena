@@ -25,6 +25,10 @@ public:
   */
   uint32_t getRodID ();
 
+  /** get a ROD Source ID given a module ID, i.e. combine with the subdet ID
+  */
+  uint32_t getRodID ( int moduleId );
+
   /** get a ROD Source ID given slink, module and DAQ/ROI flag
   */
   uint32_t getRodID (int slink, int module, int daqOrRoi);

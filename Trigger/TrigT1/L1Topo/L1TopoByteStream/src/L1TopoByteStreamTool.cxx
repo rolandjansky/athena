@@ -52,6 +52,8 @@ L1TopoByteStreamTool::~L1TopoByteStreamTool() {
 StatusCode L1TopoByteStreamTool::initialize() {
 
   m_srcIdMap = new L1TopoSrcIdMap();
+  ATH_MSG_DEBUG(m_sourceIDs);
+  ATH_MSG_DEBUG("using sourceIDs " << std::hex << std::showbase << sourceIDs() <<  std::dec << std::noshowbase);
   return AlgTool::initialize();
 
 }
@@ -70,7 +72,7 @@ StatusCode L1TopoByteStreamTool::finalize() {
  * Return list of L1Topo *DAQ* source IDs to use for conversion.
  * Will generate list according to algorithm herein, if not already provided via properties
  * Used by L1TopoByteStreamCnv and L1TopoByteStreamTool
- * Note that the *ROI* source IDs are not set here; instead see RoIBResultByteStreamTool and ByeStreamAddressProviderSvc.
+ * Note that the *ROI* source IDs are not set here; instead see RoIBResultByteStreamTool and ByteStreamAddressProviderSvc.
  */
 const std::vector<uint32_t>& L1TopoByteStreamTool::sourceIDs(){
   if (m_sourceIDs.empty()) {
@@ -146,7 +148,7 @@ StatusCode L1TopoByteStreamTool::convert( const ROBF* rob, L1TopoRDO*& result ) 
   ATH_MSG_DEBUG( "executing convert() from ROBFragment to RDO" );
   
   const std::vector<uint32_t> l1TopoRodIds = sourceIDs();
-  uint32_t rodId = rob->rod_source_id();
+  uint32_t rodId = rob->rob_source_id();
 
   ATH_MSG_DEBUG( "expected ROD sub-detector ID: " << MSG::hex << l1TopoRodIds 
 		 << " ID found: " << MSG::hex << rodId << MSG::dec );  
@@ -207,8 +209,11 @@ StatusCode L1TopoByteStreamTool::convert( const ROBF* rob, L1TopoRDO*& result ) 
     // - bits 16-31: bits 16-31: https://twiki.cern.ch/twiki/bin/viewauth/Atlas/ROBINFragmentErrors
     // Can do something more specific eventually.
     bool error_status(false);
-    if (vStatusWords[0]!=0){
-      ATH_MSG_WARNING( "non-zero first status word, payload may not be valid" );
+    if (vStatusWords.size()==0){
+       ATH_MSG_WARNING( "ROD has no status word" );
+    }
+    if (vStatusWords.size()>0 && vStatusWords.at(0)!=0){
+      ATH_MSG_WARNING( "Non-zero first status word, payload may not be valid" );
       error_status=true;
     }
 
