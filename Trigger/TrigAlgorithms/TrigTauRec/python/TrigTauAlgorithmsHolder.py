@@ -72,6 +72,24 @@ def getJetSeedBuilder():
 
 ########################################################################
 # Tau energy calibration and tau axis direction
+def getPileUpCorrection():
+    _name = sPrefix + 'IDPileUp'
+    
+    if _name in cached_instances:
+        return cached_instances[_name]
+    
+    from tauRec.tauRecConf import TauIDPileupCorrection
+    TauPileUp = TauIDPileupCorrection( name = _name, 
+                                       averageEstimator = 20.,
+                                       calibrationFile1Prong = "fitted.pileup_1prong_hlt.root",
+                                       calibrationFile3Prong = "fitted.pileup_multiprongs_hlt.root",
+                                       useMu = True)
+
+    cached_instances[_name] = TauPileUp
+    return TauPileUp
+
+########################################################################
+# Tau energy calibration and tau axis direction
 def getTauAxis():
     _name = sPrefix + 'TauAxis'
     
@@ -81,7 +99,9 @@ def getTauAxis():
     from tauRec.tauRecConf import TauAxisSetter
     TauAxisSetter = TauAxisSetter(  name = _name, 
                                     ClusterCone = 0.2,
-                                    CellCorrection = doCellCorrection)
+                                    CellCorrection = doCellCorrection,
+                                    AxisCorrection = False)
+    # No Axis correction at trigger level
                                     
     cached_instances[_name] = TauAxisSetter                
     return TauAxisSetter
@@ -97,9 +117,10 @@ def getEnergyCalibrationLC(correctEnergy=True, correctAxis=False, postfix=''):
     
     from tauRec.tauRecConf import TauCalibrateLC
     TauCalibrateLC = TauCalibrateLC(name = _name,
-            calibrationFile = "EnergyCalibrationLC2012_retuned.root",
-            doEnergyCorrection = correctEnergy,
-            doAxisCorrection = correctAxis)
+                                    #calibrationFile = "EnergyCalibrationLC2012_retuned.root",
+                                    calibrationFile = "TES2015_LC_online.root",
+                                    doEnergyCorrection = correctEnergy,
+                                    doAxisCorrection = correctAxis)
             
     cached_instances[_name] = TauCalibrateLC                
     return TauCalibrateLC
@@ -620,7 +641,7 @@ def getTrackToVertexTool():
 
 ########################################################################
 # Tau-Track Association
-def getTauTrackFinder(applyZ0cut=False, maxDeltaZ0=2, prefix=''):
+def getTauTrackFinder(applyZ0cut=False, maxDeltaZ0=2, noSelector = False, prefix=''):
     #if prefix is not given, take global one
     if not prefix:
         prefix=sPrefix
@@ -637,9 +658,13 @@ def getTauTrackFinder(applyZ0cut=False, maxDeltaZ0=2, prefix=''):
                                     TrackParticleContainer    = _DefaultTrigTauTrackContainer,  #???
                                     TrackToVertexTool         = getTrackToVertexTool(),
                                     maxDeltaZ0wrtLeadTrk = maxDeltaZ0, #in mm
-                                    removeTracksOutsideZ0wrtLeadTrk = applyZ0cut
+                                    removeTracksOutsideZ0wrtLeadTrk = applyZ0cut,
+                                    BypassSelector = noSelector,
+                                    BypassExtrapolator = True
                                     )
-    
+    # Selector not needed for fast-tracks
+    # Extrapolator never needed
+
     cached_instances[_name] = TauTrackFinder      
     return TauTrackFinder
 
