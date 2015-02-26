@@ -28,7 +28,7 @@
 #include "TrigTimeAlgs/TrigTimerSvc.h"
 
 #include "InDetTrigToolInterfaces/ITrigRawDataProviderTool.h"
-
+#include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 
 namespace InDet{
 
@@ -46,6 +46,7 @@ namespace InDet{
     m_mode_rio_production(0),
     m_regionSelector("RegSelSvc", name),
     m_bsErrorSvc("TRT_ByteStream_ConditionsSvc",name),
+    m_robDataProvider("ROBDataProviderSvc", name),
     m_doFullScan(false),
     m_etaHalfWidth (0.1),
     m_phiHalfWidth (0.1),
@@ -81,15 +82,12 @@ namespace InDet{
   HLT::ErrorCode TRT_TrgRIO_Maker::hltBeginRun(){
 
     // Get the messaging service, print where you are
-    msg() << MSG::INFO << "TRT_TrgRIO_Maker::hltBeginRun()";
-    if (!m_doFullScan){
-      msg() << MSG::INFO << "PhiHalfWidth: " << m_phiHalfWidth << " EtaHalfWidth: "<< m_etaHalfWidth;
-    } else {
-      msg() << MSG::INFO << "FullScan mode";
-    }
-    msg() << MSG::INFO << endreq;
-
-
+    ATH_MSG_INFO( "TRT_TrgRIO_Maker::hltBeginRun()");
+    if (!m_doFullScan)
+      ATH_MSG_INFO( "PhiHalfWidth: " << m_phiHalfWidth << " EtaHalfWidth: "<< m_etaHalfWidth );
+    else
+      ATH_MSG_INFO( "FullScan mode" );
+   
     /*
     StatusCode sc = m_rawDataProvider->initContainer();
     if (sc.isFailure())
@@ -108,26 +106,26 @@ namespace InDet{
       
     // Get TRT_DriftCircle tool
     if ( m_driftcircle_tool.retrieve().isFailure() ) {
-      msg() << MSG::FATAL << m_driftcircle_tool.propertyName() << ": Failed to retrieve tool " << m_driftcircle_tool << endreq;
+      ATH_MSG_FATAL( m_driftcircle_tool.propertyName() << ": Failed to retrieve tool " << m_driftcircle_tool );
       return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
     }
-    else {
-      msg() << MSG::INFO << m_driftcircle_tool.propertyName() << ": Retrieved tool " << m_driftcircle_tool << endreq;
-    }
+    else
+      ATH_MSG_INFO( m_driftcircle_tool.propertyName() << ": Retrieved tool " << m_driftcircle_tool );
+    
   
     // Get DetectorStore service
     //
-    StoreGateSvc* detStore;
+    /*StoreGateSvc* detStore;
     StatusCode s=service("DetectorStore",detStore);
     if (s.isFailure())  {
-      msg()<<MSG::FATAL<<"DetectorStore service not found"<<endreq; 
+      ATH_MSG_FATAL( "DetectorStore service not found" ); 
       return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
-    } 
+      }*/ 
 
 
     const TRT_ID * IdHelper(0);
-    if (detStore->retrieve(IdHelper, "TRT_ID").isFailure()) {
-      msg() << MSG::FATAL << "Could not get TRT ID helper" << endreq;
+    if (detStore()->retrieve(IdHelper, "TRT_ID").isFailure()) {
+      ATH_MSG_FATAL ("Could not get TRT ID helper" );
       return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
     }
 
@@ -137,30 +135,28 @@ namespace InDet{
       // Create TRT RIO container
       m_riocontainer = new InDet::TRT_DriftCircleContainer(IdHelper->straw_layer_hash_max());
       if(!m_riocontainer) {
-	msg()<< MSG::FATAL <<"Could not creat TRT_DriftCircleContainer "
-	     << m_trt_rio_location << endreq; 
+	ATH_MSG_FATAL( "Could not creat TRT_DriftCircleContainer " << m_trt_rio_location ); 
 	return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
       }
 
       if (store()->record(m_riocontainer, m_trt_rio_location).isFailure()) {
-	msg() << MSG::WARNING << " Container " << m_trt_rio_location
-	      << " could not be recorded in StoreGate !" 
-	      << endreq;
+	ATH_MSG_WARNING( " Container " << m_trt_rio_location
+			 << " could not be recorded in StoreGate !" ); 
       } 
-      else {
-	msg() << MSG::INFO << "Container " << m_trt_rio_location 
-	      << " successfully registered  in StoreGate" << endreq;  
+      else{ 
+	ATH_MSG_INFO( "Container " << m_trt_rio_location 
+		      << " successfully registered  in StoreGate" );  
       }
     }
     else {    
-      s = store()->retrieve(m_riocontainer, m_trt_rio_location);
+      StatusCode s = store()->retrieve(m_riocontainer, m_trt_rio_location);
     
       if (s.isFailure()) {
-	msg() << MSG::ERROR << "Failed to get Cluster Container" << endreq;
+	ATH_MSG_ERROR( "Failed to get Cluster Container" );
 	return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
       }
-      else { 
-	msg() << MSG::INFO << "Got Cluster Container from TDS: " << m_trt_rio_location << endreq;
+      else{  
+	ATH_MSG_INFO( "Got Cluster Container from TDS: " << m_trt_rio_location );
       }
     }
     m_riocontainer->addRef();
@@ -168,30 +164,36 @@ namespace InDet{
     if(!m_doFullScan){
       // Retrieving Region Selector Tool:
       if ( m_regionSelector.retrieve().isFailure() ) {
-	msg() << MSG::FATAL
-	      << m_regionSelector.propertyName()
-	      << " : Unable to retrieve RegionSelector tool "
-	      << m_regionSelector.type() << endreq;
+	ATH_MSG_FATAL( m_regionSelector.propertyName()
+		       << " : Unable to retrieve RegionSelector tool "
+		       << m_regionSelector.type() );
 	return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
       }
     }
     else{
-      msg() << MSG::INFO
-	    << "RegionSelector tool not needed for FullScan"<< endreq;
+      ATH_MSG_INFO( "RegionSelector tool not needed for FullScan" );
     }
 
     if (m_bsErrorSvc.retrieve().isFailure()){
-      msg() << MSG::FATAL << "Could not retrieve " << m_bsErrorSvc << endreq;
+      ATH_MSG_FATAL( "Could not retrieve " << m_bsErrorSvc );
       return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
     }
+    
+    //retrieve rob data provider service
+    if (m_robDataProvider.retrieve().isFailure()){
+      ATH_MSG_FATAL( "Failed to retrieve " << m_robDataProvider );
+      return StatusCode::FAILURE;
+    }
+    else
+      ATH_MSG_INFO( "Retrieved service " << m_robDataProvider << " in TRT_TrgRIO_Maker." );
 
     //decoding tool
     if (m_rawDataProvider.retrieve().isFailure()){
-      msg() << MSG::ERROR 
-	    << "Raw data provider not available"  << endreq;
+      ATH_MSG_ERROR( "Raw data provider not available" );
       return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
     }
 
+    
     // Timers:
     m_timerRegSel  = addTimer("InDetEFTClRegSel"); // 1
     m_timerSeed    = addTimer("InDetEFTClSeed");   // 2
@@ -227,20 +229,17 @@ namespace InDet{
       
       if (store()->record(m_riocontainer,
 			  m_trt_rio_location,false).isFailure()) {
-	msg() << MSG::WARNING << "Container " << m_trt_rio_location
-	      << " could not be recorded in StoreGate !" 
-	      << endreq;
+	ATH_MSG_WARNING( "Container " << m_trt_rio_location
+			 << " could not be recorded in StoreGate !" );
       } 
       else{
-	if(msgLvl() <= MSG::DEBUG)
-	  msg() << MSG::DEBUG << "REGTEST: Container '" << m_trt_rio_location
-		<< " recorded in StoreGate " << endreq;
+	ATH_MSG_DEBUG( "REGTEST: Container '" << m_trt_rio_location
+		       << " recorded in StoreGate " );
       }
     }
     else {
-      if(msgLvl() <= MSG::DEBUG)
-	msg() << MSG::DEBUG << "Container '" << m_trt_rio_location
-	      << "' recorded in StoreGate" << endreq;
+      ATH_MSG_DEBUG( "Container '" << m_trt_rio_location
+		    << "' recorded in StoreGate" );
     }
   
     if(doTiming()) m_timerSGate->pause();
@@ -264,12 +263,12 @@ namespace InDet{
       // Get RoiDescriptor
       const TrigRoiDescriptor* roi;
       if ( HLT::OK !=  getFeature(outputTE, roi) ) {
-	msg() << MSG::WARNING << "Can't get RoI" << endreq;
+	ATH_MSG_WARNING( "Can't get RoI" );
 	return HLT::NAV_ERROR;
       }
     
       if (!roi){
-	msg() << MSG::WARNING << "Received NULL RoI" << endreq;
+	ATH_MSG_WARNING ( "Received NULL RoI" );
 	return HLT::NAV_ERROR;
       }
 
@@ -284,29 +283,24 @@ namespace InDet{
 
       if (!roi->isFullscan()){
 	if( fabs(RoiEtaWidth/2. - m_etaHalfWidth) > 0.02) {
-	  if(msgLvl() <= MSG::DEBUG) {
-	    msg() << MSG::DEBUG << "ROI range is different from configuration: " << endreq;
-	    msg() << MSG::DEBUG << "eta width = " << RoiEtaWidth << "; with etaPlus = " << roi->etaPlus() << "; etaMinus = " << roi->etaMinus() << endreq;
-	    msg() << MSG::DEBUG << "etaHalfWidth from config: " << m_etaHalfWidth << endreq;
-	  }
+	  ATH_MSG_DEBUG( "ROI range is different from configuration: " );
+	  ATH_MSG_DEBUG( "eta width = " << RoiEtaWidth << "; with etaPlus = " << roi->etaPlus() << "; etaMinus = " << roi->etaMinus() );
+	  ATH_MSG_DEBUG( "etaHalfWidth from config: " << m_etaHalfWidth );
 	}
 	
       }
       else {
 	if (m_etaHalfWidth<2.5 || m_phiHalfWidth<3.) {
-	  msg() << MSG::WARNING << "FullScan RoI and etaHalfWidth from config: " << m_etaHalfWidth << endreq;
-	  msg() << MSG::WARNING << "FullScan RoI and phiHalfWidth from config: " << m_phiHalfWidth << endreq;
+	  ATH_MSG_WARNING( "FullScan RoI and etaHalfWidth from config: " << m_etaHalfWidth );
+	  ATH_MSG_WARNING( "FullScan RoI and phiHalfWidth from config: " << m_phiHalfWidth );
 	}
       }
+      ATH_MSG_DEBUG( "REGTEST:" << *roi );
 
-
-      if (msgLvl() <= MSG::DEBUG) {
-	msg() << MSG::DEBUG << "REGTEST:" << *roi << endreq;
-      }
 
       //NaN. this is for the check on the case in which the call of phi() and eta() do not return a well-defined numerical value
       if (roi->phi() != roi->phi() || roi->eta() !=roi->eta()){
-	msg() << MSG::WARNING << "Received bad RoI " << *roi << endreq; 
+	ATH_MSG_WARNING( "Received bad RoI " << *roi ); 
 	return HLT::NAV_ERROR;
       }
 
@@ -325,20 +319,20 @@ namespace InDet{
       //std::vector<IdentifierHash> listOfTrtIds; 
     
       if(doTiming()) m_timerRegSel->start();
-  
+      
       m_regionSelector->DetHashIDList( TRT, *roi, m_listOfTrtIds);
       m_numTrtIds = m_listOfTrtIds.size();
 
       if(doTiming()) m_timerRegSel->stop();
 
-      if (msgLvl() <= MSG::DEBUG) 
-	msg() << MSG::DEBUG << "REGTEST: TRT : Roi contains " 
-	      << m_numTrtIds << " det. Elements" << endreq;
+    
+      ATH_MSG_DEBUG( "REGTEST: TRT : Roi contains " 
+		     << m_numTrtIds << " det. Elements" );
     }
     else {   //fullscan
       scdec = m_rawDataProvider->decode(0);    //NULL RoI means decode everything
     }
-
+    
     if (scdec.isSuccess()){
       //check for recoverable errors
       int n_err_total = 0;
@@ -351,24 +345,22 @@ namespace InDet{
 	bsErrors[idx] = n_errors;
       }
 
-      if (msgLvl() <= MSG::DEBUG)
-	msg() << MSG::DEBUG << "decoding errors: " << n_err_total;
+      if (msgLvl(MSG::DEBUG))
+	msg(MSG::DEBUG) << "decoding errors: " << n_err_total;
 
       if (n_err_total){
 	for (size_t idx = 0; idx<size_t(EFID_MAXNUM_TRT_BS_ERRORS); idx++){
 	  //	  m_TrtBSErr.push_back(bsErrors[idx]);
 	  if (bsErrors[idx])
 	    m_TrtBSErr.push_back(idx);
-
-	  msg() << MSG::DEBUG << " " << bsErrors[idx];
+	  if(msgLvl(MSG::DEBUG))
+	    msg(MSG::DEBUG) << " " << bsErrors[idx];
 	}
       }
-
-      if (msgLvl() <= MSG::DEBUG)
-	msg() << MSG::DEBUG << endreq;
-
-    } else {
-      msg() << MSG::DEBUG << " m_rawDataProvider->decode failed" << endreq;
+      ATH_MSG_DEBUG( "" );
+    }
+    else {
+      ATH_MSG_DEBUG( " m_rawDataProvider->decode failed" );
     }
 
   
@@ -379,8 +371,8 @@ namespace InDet{
     StatusCode sc = store()->retrieve(p_trtRDOContainer, m_trt_rdo_location);
 
     if (sc.isFailure() ) {
-      msg() << MSG::FATAL << "Could not find the TRT_RDO_Container " 
-	    << m_trt_rdo_location << endreq;
+      ATH_MSG_FATAL( "Could not find the TRT_RDO_Container " 
+		     << m_trt_rdo_location );
 
       // Activate the TriggerElement anyhow.
       // (FEX algorithms should not cut and it could be that in the Pixel/SCT 
@@ -388,9 +380,9 @@ namespace InDet{
       return HLT::ERROR;
     } 
     else{
-      if (msgLvl() <= MSG::DEBUG) 
-	msg() << MSG::DEBUG << "REGTEST: Found the TRT_RDO_Container "
-	      << m_trt_rdo_location << endreq;
+
+      ATH_MSG_DEBUG( "REGTEST: Found the TRT_RDO_Container "
+		     << m_trt_rdo_location );
     }
     if(doTiming()) m_timerSGate->pause();
 
@@ -401,7 +393,7 @@ namespace InDet{
       for (unsigned int i=0; i<m_listOfTrtIds.size(); i++) {
 
 	if (m_doTimeOutChecks && Athena::Timeout::instance().reached() ) {
-	  msg() << MSG::WARNING << "Timeout reached. Aborting sequence." << endreq;
+	  ATH_MSG_WARNING( "Timeout reached. Aborting sequence." );
 	  return HLT::ErrorCode(HLT::Action::ABORT_CHAIN, HLT::Reason::TIMEOUT);
 	}
 
@@ -414,10 +406,10 @@ namespace InDet{
       
 	if (!RDO_Collection) continue;
       
-	if (msgLvl() <= MSG::VERBOSE)
-	  msg() << MSG::VERBOSE << "RDO collection size="
-		<< RDO_Collection->size()
-		<< ", ID=" << RDO_Collection->identify() << endreq;
+
+	ATH_MSG_VERBOSE( "RDO collection size="
+			 << RDO_Collection->size()
+			 << ", ID=" << RDO_Collection->identify() );
       
 	if (RDO_Collection->size() != 0){
 
@@ -434,10 +426,8 @@ namespace InDet{
 	    m_ClusHashId.push_back(p_rio->identifyHash());
 
 	    if(sc.isFailure()) {
-	      if (msgLvl() <= MSG::VERBOSE)
-		msg() << MSG::VERBOSE
-		      << "Failed registering TRT_DriftCircle collection : "
-		      <<  p_rio->identify()  <<endreq;
+	      ATH_MSG_VERBOSE( "Failed registering TRT_DriftCircle collection : "
+			       <<  p_rio->identify() );
 	      delete p_rio;
 	    }
 	  } else {
@@ -459,7 +449,7 @@ namespace InDet{
       for(; rdoCollections!=rdoCollectionsEnd; ++rdoCollections) {
       
 	if (m_doTimeOutChecks && Athena::Timeout::instance().reached() ) {
-	  msg() << MSG::WARNING << "Timeout reached. Aborting sequence." << endreq;
+	  ATH_MSG_WARNING( "Timeout reached. Aborting sequence." );
 	  return HLT::ErrorCode(HLT::Action::ABORT_CHAIN, HLT::Reason::TIMEOUT);
 	}
 
@@ -477,15 +467,13 @@ namespace InDet{
 	    sc = m_riocontainer->addCollection(p_rio, p_rio->identifyHash()); 
 	    //s = m_store_gate->record(p_rio,p_riocontainer->key(p_rio->identify()));
 	    if(sc.isFailure()) {
-	      if (msgLvl() <= MSG::VERBOSE)
-		msg() << MSG::VERBOSE << "Error while registering TRT_DriftCircle collection"<<endreq; 
+	      ATH_MSG_VERBOSE( "Error while registering TRT_DriftCircle collection" );
 	      //return HLT::ERROR;
 	      delete p_rio;
 	    }
-	  } 
+	  }
 	  else {
-	    if (msgLvl() <= MSG::DEBUG)
-	      msg() << MSG::DEBUG << "Don't write empty collections" << endreq;
+	    ATH_MSG_DEBUG( "Don't write empty collections" );
 	    // -me- cleanup memory
 	    delete p_rio;
           }
@@ -493,16 +481,14 @@ namespace InDet{
       }
       if(doTiming()) m_timerCluster->pause();
     }
-
-
+    
     if(doTiming()){
       m_timerCluster->stop();
       m_timerSGate->stop();
     }
 
-    if (msgLvl() <= MSG::DEBUG)
-      msg() << MSG::DEBUG << "REGTEST: Reconstructed " << m_numTrtDriftCircles 
-	    << " drift circles in the RoI " << endreq;
+    ATH_MSG_DEBUG( "REGTEST: Reconstructed " << m_numTrtDriftCircles 
+		   << " drift circles in the RoI " );
   
     //igb fixme
     //sc = store()->setConst(m_riocontainer);
@@ -534,9 +520,51 @@ namespace InDet{
   HLT::ErrorCode TRT_TrgRIO_Maker::hltEndRun()
   {
 
-    msg() << MSG::INFO << "TRT_TrgRIO_Maker::endRun()" << endreq;
+    ATH_MSG_INFO( "TRT_TrgRIO_Maker::endRun()" );
 
     return HLT::OK;
+  }
+
+  //---------------------------------------------------------------------------
+
+  //---------------------------------
+  //        prepareRobRequests method:
+  //--------------------------------
+  HLT::ErrorCode TRT_TrgRIO_Maker::prepareRobRequests(const HLT::TriggerElement* inputTE){
+
+    ATH_MSG_INFO( "TRT_TrgRIO_Maker::prepareRobRequests()" );
+
+    //Calculate ROBs needed - this code should be shared with hltExecute to avoid slightly different requests
+    const TrigRoiDescriptor* roi = 0;
+
+    if (getFeature(inputTE, roi, "forID") != HLT::OK || roi == 0)
+      getFeature(inputTE, roi);
+
+    if ( roi==NULL ){
+      ATH_MSG_WARNING( "REGTEST / Failed to find RoiDescriptor" );
+      return HLT::NAV_ERROR;
+    }
+
+    ATH_MSG_DEBUG( "REGTEST prepareROBs / event RoI ID " << roi->roiId()
+		   << " located at   phi = " << roi->phi()
+		   << ", eta = " << roi->eta() );
+
+    //const TrigRoiDescriptor fs(true);
+
+    std::vector<unsigned int> uIntListOfRobs;
+    m_regionSelector->DetROBIDListUint( TRT, *roi, uIntListOfRobs );
+    //m_regionSelector->DetROBIDListUint( TRT, fs, uIntListOfRobs );
+
+    ATH_MSG_DEBUG( "list of pre-registered ROB ID in TRT: ");
+    for(auto i : uIntListOfRobs)
+      ATH_MSG_DEBUG( i );
+
+    //m_robDataProvider->addROBData( uIntListOfRobs );
+    config()->robRequestInfo()->addRequestScheduledRobIDs( uIntListOfRobs );
+    uIntListOfRobs.clear();
+
+    return HLT::OK;
+    
   }
 
   //---------------------------------------------------------------------------
