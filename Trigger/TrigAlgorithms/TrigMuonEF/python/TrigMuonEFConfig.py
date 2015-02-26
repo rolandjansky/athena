@@ -29,6 +29,39 @@ from TrkDetDescrSvc.AtlasTrackingGeometrySvc import AtlasTrackingGeometrySvc
 
 #ToolSvc += TMEFCaloIsolationTool
 
+from egammaRec.Factories import ToolFactory, AlgFactory, getPropertyValue
+
+from egammaCaloTools.egammaCaloToolsFactories import CaloFillRectangularCluster
+from ParticlesInConeTools.ParticlesInConeToolsConf import xAOD__CaloClustersInConeTool
+
+from AthenaCommon.GlobalFlags import globalflags
+isMC = not globalflags.DataSource()=='data'
+from IsolationCorrections.IsolationCorrectionsConf import CP__IsolationCorrectionTool as ICT
+IsoCorrectionTool = ToolFactory(ICT,
+                                name = "NewLeakageCorrTool",
+                                IsMC = isMC)
+
+from PFlowUtils.PFlowUtilsConf import CP__RetrievePFOTool as RetrievePFOTool
+pfoTool = RetrievePFOTool();
+ToolSvc += pfoTool
+
+from ParticlesInConeTools.ParticlesInConeToolsConf import xAOD__PFlowObjectsInConeTool
+PFlowObjectsInConeTool = ToolFactory(xAOD__PFlowObjectsInConeTool,
+                                     name = "PFlowObjectsInConeTool",
+                                     RetrievePFOTool = pfoTool)
+
+from CaloIdentifier import SUBCALO
+from IsolationTool.IsolationToolConf import xAOD__CaloIsolationTool, xAOD__TrackIsolationTool
+
+# tool to collect topo clusters in cone
+from ParticlesInConeTools.ParticlesInConeToolsConf import xAOD__CaloClustersInConeTool
+CaloClustersInConeTool = ToolFactory(xAOD__CaloClustersInConeTool,
+                                     CaloClusterLocation = "CaloCalTopoClusters")
+
+
+
+
+
 
 if not hasattr(ServiceMgr,"TrackingVolumesSvc"):
     from TrkDetDescrSvc.TrkDetDescrSvcConf import Trk__TrackingVolumesSvc
@@ -138,8 +171,8 @@ def TMEF_TrackCleaner(name = 'TMEF_TrackCleaner',**kwargs):
 
 
 def TMEF_TrkMaterialProviderTool(name='TMEF_TrkMaterialProviderTool',**kwargs):
-    kwargs.setdefault("UseCaloEnergyMeasurement", False)
     from TrkMaterialProvider.TrkMaterialProviderConf import Trk__TrkMaterialProviderTool
+    kwargs.setdefault("UseCaloEnergyMeasurement", False)
     return Trk__TrkMaterialProviderTool(name,**kwargs)
 
 
@@ -318,6 +351,7 @@ def TMEF_MuonCandidateTool(name="TMEF_MuonCandidateTool",**kwargs):
 def TMEF_MuonCreatorTool(name="TMEF_MuonCreatorTool",**kwargs):
     kwargs.setdefault('TrackParticleCreator','TMEF_TrkToTrackParticleConvTool')
     kwargs.setdefault('MakeTrackAtMSLink',True)
+    kwargs.setdefault("CaloMaterialProvider", "TMEF_TrkMaterialProviderTool")
     return CfgMgr.MuonCombined__MuonCreatorTool(name,**kwargs)
 
 # TrigMuonEF classes
@@ -383,6 +417,10 @@ class TrigMuonEFStandaloneTrackToolConfig (TrigMuonEFStandaloneTrackTool):
 
         self.TrackToTrackParticleConvTool = "MuonParticleCreatorTool"
 
+        from MuonRecExample.MuonRecTools import MuonSTEP_Propagator
+        MuonSTEP_Propagator.OutputLevel=5
+        CfgGetter.getPublicTool("MuonStraightLinePropagator").OutputLevel=5
+
 class TrigMuonEFCombinerConfigTRTOnly ():
     __slots__ = ()
 
@@ -397,25 +435,43 @@ class TrigMuonEFCaloIsolationConfig (TrigMuonEFCaloIsolation):
         super( TrigMuonEFCaloIsolationConfig, self ).__init__( name )
 
         self.RequireCombinedMuon = True
+        self.applyPileupCorrection = False
+        self.useTopoClusters = True
 
-        # Isolation tools
-        self.TrackInCaloTool   = TMEFTrackInCaloTools
-        self.CaloIsolationTool = TMEFCaloIsolationTool
+        CaloCellIsoTool = ToolFactory(xAOD__CaloIsolationTool, name = "CaloCellIsolationTool",
+                                               postInit                        = [],
+                                               CaloFillRectangularClusterTool  = CaloFillRectangularCluster,
+                                               ClustersInConeTool              = CaloClustersInConeTool,
+                                               PFlowObjectsInConeTool          = PFlowObjectsInConeTool,
+                                               IsoLeakCorrectionTool           = IsoCorrectionTool,
+                                               EMCaloNums                      = [SUBCALO.LAREM],
+                                               HadCaloNums                     = [SUBCALO.LARHEC, SUBCALO.TILE],
+                                               UseEMScale                      = True,
+                                               OutputLevel                     = 3)
 
-        #Better to clone?
-        #self.CaloIsolationTool = CfgGetter.getPublicToolClone("xAOD__CaloIsolationTriggerTool",
-        #                                                      "xAOD__CaloIsolationTool",
-        #                                                      ExtrapolTrackToCaloTool = TMEFTrackInCaloTools)
+        self.CaloCellIsolationTool = CaloCellIsoTool()
 
+        CaloTopoClusterIsoTool = ToolFactory(xAOD__CaloIsolationTool, name = "CaloTopoClusterIsolationTool",
+                                               postInit                        = [],
+                                               CaloFillRectangularClusterTool  = CaloFillRectangularCluster,
+                                               ClustersInConeTool              = CaloClustersInConeTool,
+                                               PFlowObjectsInConeTool          = PFlowObjectsInConeTool,
+                                               IsoLeakCorrectionTool           = IsoCorrectionTool,
+                                               EMCaloNums                      = [SUBCALO.LAREM],
+                                               HadCaloNums                     = [SUBCALO.LARHEC, SUBCALO.TILE],
+                                               UseEMScale                      = True,
+                                               OutputLevel                     = 3)
+
+        self.CaloTopoClusterIsolationTool = CaloTopoClusterIsoTool()
 
 
         # histograms
         self.HistoPathBase = ""
         #validation_caloiso = TrigMuonEFCaloIsolationValidationMonitoring()
         #online_caloiso     = TrigMuonEFCaloIsolationOnlineMonitoring()
-        monitoringCaloIso = TrigMuonEFCaloIsolationMonitoring()
+        #monitoringCaloIso = TrigMuonEFCaloIsolationMonitoring()
 
-        self.AthenaMonTools = [ monitoringCaloIso ]
+        self.AthenaMonTools = [] #monitoringCaloIso
 
 class TrigMuonEFTrackIsolationConfig (TrigMuonEFTrackIsolation):
     __slots__ = ()
