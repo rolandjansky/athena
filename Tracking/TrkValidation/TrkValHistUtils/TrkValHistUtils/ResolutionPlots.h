@@ -13,13 +13,14 @@ namespace Trk{
 
 class ResolutionPlots: public PlotBase {
   public:
-    ResolutionPlots(PlotBase *pParent, std::string sDir):PlotBase(pParent, sDir){ init();}
+    ResolutionPlots(PlotBase *pParent, std::string sDir, std::string sType=""):PlotBase(pParent, sDir),m_sType(sType) { init();}
     void fill(const xAOD::TrackParticle& trkprt, const xAOD::TruthParticle& truthprt);
 
     TH1* Res_pT;
     TH1* Res_eta;
     TH1* Res_phi;
   private:
+    std::string m_sType;
     void init();
     void initializePlots();
 

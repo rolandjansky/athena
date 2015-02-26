@@ -12,7 +12,7 @@ namespace Trk{
 
 class RecoInfoPlots: public PlotBase {
   public:
-    RecoInfoPlots(PlotBase *pParent, std::string sDir):PlotBase(pParent, sDir){ init();}
+ RecoInfoPlots(PlotBase *pParent, std::string sDir, std::string sType=""):PlotBase(pParent, sDir),m_sType(sType){ init();}
     void fill(const xAOD::TrackParticle& trkprt);
  		
     TH1* trackfitchi2;
@@ -21,6 +21,7 @@ class RecoInfoPlots: public PlotBase {
     TH1* trackchi2prob;
     
   private:
+    std::string m_sType;
     void init();
     void initializePlots();
 			
