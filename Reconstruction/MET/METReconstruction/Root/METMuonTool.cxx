@@ -102,7 +102,7 @@ namespace met {
   bool METMuonTool::accept(const xAOD::IParticle* object) const
   {
 
-    if(!object->type() == xAOD::Type::Muon) {
+    if(object->type() != xAOD::Type::Muon) {
       ATH_MSG_WARNING("METMuonTool::accept given an object of type " << object->type());
       return false;
     }
@@ -149,7 +149,7 @@ namespace met {
 				   MissingETBase::Types::weight_t& /*objWeight*/)
   {
 
-    if(!object->type() == xAOD::Type::Muon) {
+    if(object->type() != xAOD::Type::Muon) {
       ATH_MSG_WARNING("METMuonTool::resolveOverlap given an object of type " << object->type());
       return false;
     }
