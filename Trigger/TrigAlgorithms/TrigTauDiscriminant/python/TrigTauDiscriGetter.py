@@ -92,5 +92,5 @@ class TrigTauDiscriGetter2015(TrigTauDiscriBuilder):
 
     def BDTtoolset(self):
         from TauDiscriminant.TauDiscriminantConf import TauJetBDT
-        return TauJetBDT(jetBDT = "trigger.jet.BDT.DC14.ver1.bin",
-                         jetSigBits = "trigger.sig.bits.jet.BDT.DC14.ver1.txt")
+        return TauJetBDT(jetBDT = "offline.jet.BDT.MC15.bin",
+                         jetSigBits = "trigger.sig.bits.jet.BDT.MC15.ver1.txt")
