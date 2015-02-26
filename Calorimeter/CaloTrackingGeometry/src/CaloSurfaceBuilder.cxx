@@ -57,16 +57,19 @@
 
 #include <cmath>
 
+#ifdef HAVE_NEW_IOSTREAMS
 #include <iostream>
 #include <iomanip>
+#else
+#include <iostream.h>
+#include <iomanip.h>
+#endif
 
 CaloSurfaceBuilder::CaloSurfaceBuilder(const std::string& type,
 				       const std::string& name,
 				       const IInterface* parent) :
   AthAlgTool(type, name, parent),
   //m_calo_tb_coord("TBCaloCoordinate"),
-  m_calo_dd(nullptr),
-  m_tile_dd(nullptr),
   m_lar_mat("LArRecoMaterialTool"),
   m_lar_simplegeom("LArRecoSimpleGeomTool"),
   m_calodepth("CaloDepthTool"),
@@ -163,7 +166,7 @@ CaloSurfaceBuilder::finalize()
 }
 
 Trk::Surface*
-CaloSurfaceBuilder:: CreateDDSurface (const CaloCell_ID::CaloSample sample,  const int side) const
+CaloSurfaceBuilder:: CreateDDSurface (const CaloCell_ID::CaloSample sample,  const int side)
 {
   // NB: the Transform3D created here belong to the surface,
   //     and will be deleted by it
@@ -235,7 +238,7 @@ CaloSurfaceBuilder:: CreateDDSurface (const CaloCell_ID::CaloSample sample,  con
 
 Trk::Surface*  CaloSurfaceBuilder:: CreateUserSurface (const CaloCell_ID::CaloSample sample,
 					                                   const double offset,
-					                                   const double etaCaloLocal) const
+					                                   const double etaCaloLocal)
 {
 
  if (sample == CaloCell_ID::Unknown) return 0;
@@ -366,7 +369,7 @@ Trk::Surface*  CaloSurfaceBuilder:: CreateUserSurface (const CaloCell_ID::CaloSa
 Trk::Surface*
 CaloSurfaceBuilder::CreateLastSurface (const CaloCell_ID::CaloSample sample,
 					const double offset,
-					const double etaCaloLocal) const
+					const double etaCaloLocal)
 {
   ATH_MSG_DEBUG( "In CreateLastSurface()" );
 
@@ -503,7 +506,7 @@ CaloSurfaceBuilder::CreateLastSurface (const CaloCell_ID::CaloSample sample,
 
 
 Trk::Surface*
-CaloSurfaceBuilder::CreateGirderSurface() const {
+CaloSurfaceBuilder::CreateGirderSurface(){
   ATH_MSG_FATAL("CaloSufraceBuilder::CreateGirderSurface not implemented in mig5!");
   return NULL;
 
@@ -527,7 +530,7 @@ CaloSurfaceBuilder::CreateGirderSurface() const {
 
 
 bool
-CaloSurfaceBuilder::CreateDDLayers(CaloSubdetNames::ALIGNVOL alvol, std::vector< Trk::CylinderLayer*>* thelayer) const
+CaloSurfaceBuilder::CreateDDLayers(CaloSubdetNames::ALIGNVOL alvol, std::vector< Trk::CylinderLayer*>* thelayer)
 {
   bool result = false;
   thelayer->clear();
@@ -565,7 +568,7 @@ CaloSurfaceBuilder::CreateDDLayers(CaloSubdetNames::ALIGNVOL alvol, std::vector<
 }
 
 bool
-CaloSurfaceBuilder::CreateDDECLayers(CaloSubdetNames::ALIGNVOL alvol, std::vector< Trk::DiscLayer*>* thelayer) const
+CaloSurfaceBuilder::CreateDDECLayers(CaloSubdetNames::ALIGNVOL alvol, std::vector< Trk::DiscLayer*>* thelayer)
 {
   bool result = false;
   thelayer->clear();
@@ -637,7 +640,7 @@ bool
 CaloSurfaceBuilder::get_cylinder_surface (CaloCell_ID::CaloSample sample, int side,
 					  Amg::Transform3D* htrans,
 					  double& radius, double& hphi,
-					  double& hlength, double& depth) const
+					  double& hlength, double& depth)
 {
 
   //MsgStream log(m_msgSvc, name());
@@ -715,7 +718,7 @@ CaloSurfaceBuilder::get_cylinder_surface (CaloCell_ID::CaloSample sample, int si
       CaloDetDescriptor* reg = *first;
       if (reg) {
         if ( reg->getSampling(0) == sample && reg->calo_sign()*side > 0){
-	  /*result =*/(void) reg->get_cylinder_surface(htrans,radius,hphi,hl,depth);
+	  result = reg->get_cylinder_surface(htrans,radius,hphi,hl,depth);
 	  if (hl > hlength) hlength = hl;
 	  hphi    = .5*reg->dphi()*reg->n_phi();
 	}
@@ -732,7 +735,7 @@ bool
 CaloSurfaceBuilder::get_disk_surface (CaloCell_ID::CaloSample sample, int side,
 				      Amg::Transform3D* htrans, double& z,
 				      double& rmin,
-				      double& rmax, double& hphisec, double& depth) const
+				      double& rmax, double& hphisec, double& depth)
 {
   //MsgStream log(m_msgSvc, name());
 
@@ -822,7 +825,7 @@ CaloSurfaceBuilder::get_cylinder_surface (CaloSubdetNames::ALIGNVOL alvol,
                                           Amg::Transform3D* htrans,double& hphi,
 					  std::vector<double>& radius,
 					  std::vector<double>& depth,
-					  std::vector<double>& hlength ) const
+					  std::vector<double>& hlength )
 {
   bool result = m_lar_simplegeom->get_cylinder_surface(alvol, *htrans, hphi, radius, depth, hlength);
 
@@ -851,7 +854,7 @@ CaloSurfaceBuilder::get_disk_surface (CaloSubdetNames::ALIGNVOL alvol,
 				      double& hphi,
 				      std::vector<double>& z,
 				      std::vector<double>& depth,
-				      std::vector<double>& rmin, std::vector<double>& rmax) const
+				      std::vector<double>& rmin, std::vector<double>& rmax)
 {
   bool result = m_lar_simplegeom->get_disk_surface(alvol, *htrans, hphi, z, depth, rmin, rmax );
 
@@ -865,7 +868,7 @@ CaloSurfaceBuilder::get_disk_surface (CaloSubdetNames::ALIGNVOL alvol,
 
 
 //Write all the surfaces into a vector for debugging porposes
-std::vector<const Trk::Surface*> CaloSurfaceBuilder::allSampleSurfaces() const
+std::vector<const Trk::Surface*> CaloSurfaceBuilder::allSampleSurfaces()
 {
   std::vector<const Trk::Surface*> surfaces;
   Trk::Surface * surf;
@@ -892,7 +895,7 @@ std::vector<const Trk::Surface*> CaloSurfaceBuilder::allSampleSurfaces() const
 
 
 //Write all TileBar surfaces into a vector for debugging porposes
-std::vector<const Trk::Surface*> CaloSurfaceBuilder::allTileBarSurfaces() const
+std::vector<const Trk::Surface*> CaloSurfaceBuilder::allTileBarSurfaces()
 {
   std::vector<const Trk::Surface*> surfaces;
   Trk::Surface * surf;
@@ -922,7 +925,7 @@ std::vector<const Trk::Surface*> CaloSurfaceBuilder::allTileBarSurfaces() const
 
 
 //Write all TileBar surfaces into a vector for debugging porposes
-std::vector<const Trk::Surface*> CaloSurfaceBuilder::allTileExtSurfaces() const
+std::vector<const Trk::Surface*> CaloSurfaceBuilder::allTileExtSurfaces()
 {
   std::vector<const Trk::Surface*> surfaces;
   Trk::Surface * surf;
@@ -952,7 +955,7 @@ std::vector<const Trk::Surface*> CaloSurfaceBuilder::allTileExtSurfaces() const
 }
 
 //Write all TileBar surfaces into a vector for debugging porposes
-std::vector<const Trk::Surface*> CaloSurfaceBuilder::allTileGapSurfaces() const
+std::vector<const Trk::Surface*> CaloSurfaceBuilder::allTileGapSurfaces()
 {
   std::vector<const Trk::Surface*> surfaces;
   Trk::Surface * surf;
@@ -983,7 +986,7 @@ std::vector<const Trk::Surface*> CaloSurfaceBuilder::allTileGapSurfaces() const
 
 
 //Write all EMB surfaces into a vector for debugging porposes
-std::vector<const Trk::Surface*> CaloSurfaceBuilder::allEMBSurfaces() const
+std::vector<const Trk::Surface*> CaloSurfaceBuilder::allEMBSurfaces()
 {
   std::vector<const Trk::Surface*> surfaces;
   Trk::Surface * surf;
@@ -1004,7 +1007,7 @@ std::vector<const Trk::Surface*> CaloSurfaceBuilder::allEMBSurfaces() const
 
 
 //Write all EME surfaces into a vector for debugging porposes
-std::vector<const Trk::Surface*> CaloSurfaceBuilder::allEMESurfaces() const
+std::vector<const Trk::Surface*> CaloSurfaceBuilder::allEMESurfaces()
 {
   std::vector<const Trk::Surface*> surfaces;
   Trk::Surface * surf;
@@ -1025,7 +1028,7 @@ std::vector<const Trk::Surface*> CaloSurfaceBuilder::allEMESurfaces() const
 
 
 //Write all HEC surfaces into a vector for debugging porposes
-std::vector<const Trk::Surface*> CaloSurfaceBuilder::allHECSurfaces() const
+std::vector<const Trk::Surface*> CaloSurfaceBuilder::allHECSurfaces()
 {
   std::vector<const Trk::Surface*> surfaces;
   Trk::Surface * surf;
@@ -1066,7 +1069,7 @@ void CaloSurfaceBuilder::fill_tg_surfaces()
 
   // entry surfaces ( id<24 to avoid error messages )
   for (CaloCell_ID::CaloSample sample = CaloCell_ID::PreSamplerB; sample< 24; sample = CaloCell_ID::CaloSample(sample+1) ){
-    float etaRef = ( sample<4 || std::abs(sample-13)<2 ) ? 1. : 2. ;
+    float etaRef = ( sample<4 || fabs(sample-13)<2 ) ? 1. : 2. ;
     const Trk::Surface* spos = CreateUserSurface(sample,0.,etaRef);
     const Trk::Surface* sneg = CreateUserSurface(sample,0.,-etaRef);
     if (spos) spos->setOwner(Trk::TGOwn);
@@ -1120,7 +1123,6 @@ void CaloSurfaceBuilder::fill_tg_surfaces()
     delete surf;  
   }
   cyl = dynamic_cast<const Trk::CylinderSurface*> (m_layerEntries[CaloCell_ID::EMB3].second);
-  if (!cyl) std::abort();
   m_layerEntries[CaloCell_ID::EMB3].second = new Trk::SlidingCylinderSurface(*cyl,
 						      new Trk::BinUtility(neta,etaMin,etaMax,Trk::open,Trk::binEta),
 						      new std::vector<float> (offset));
@@ -1138,7 +1140,6 @@ void CaloSurfaceBuilder::fill_tg_surfaces()
     delete surf;  
   }
   cyl = dynamic_cast<const Trk::CylinderSurface*> (m_layerEntries[CaloCell_ID::EMB3].first);
-  if (!cyl) std::abort();
   m_layerEntries[CaloCell_ID::EMB3].first = new Trk::SlidingCylinderSurface(*cyl,
 						      new Trk::BinUtility(neta,etaMin,etaMax,Trk::open,Trk::binEta),
 						     new std::vector<float> (offset));
@@ -1190,7 +1191,6 @@ void CaloSurfaceBuilder::fill_tg_surfaces()
     delete surf;  
   }
   disc = dynamic_cast<const Trk::DiscSurface*> (m_layerEntries[CaloCell_ID::EME3].second);
-  if (!disc) std::abort();
   m_layerEntries[CaloCell_ID::EME3].second = new Trk::SlidingDiscSurface(*disc,
 									 new Trk::BinUtility(neta,etaMin,etaMax,Trk::open,Trk::binEta),
 									 new std::vector<float> (offset));
@@ -1208,7 +1208,6 @@ void CaloSurfaceBuilder::fill_tg_surfaces()
     delete surf;  
   }
   disc = dynamic_cast<const Trk::DiscSurface*> (m_layerEntries[CaloCell_ID::EME3].first);
-  if (!disc) std::abort();
   m_layerEntries[CaloCell_ID::EME3].first = new Trk::SlidingDiscSurface(*disc,
 									new Trk::BinUtility(neta,etaMin,etaMax,Trk::open,Trk::binEta),
 									new std::vector<float> (offset));
@@ -1223,32 +1222,27 @@ void CaloSurfaceBuilder::fill_tg_surfaces()
   // fix exit for outer layers
   const Trk::Surface* lpos =  CreateLastSurface(CaloCell_ID::TileBar2,0.,1.);
   const Trk::Surface* lneg =  CreateLastSurface(CaloCell_ID::TileBar2,0.,-1.);
-  if (lpos) lpos->setOwner(Trk::TGOwn);
-  if (lneg) lneg->setOwner(Trk::TGOwn);
+  if (lpos) lpos->setOwner(Trk::TGOwn); if (lneg) lneg->setOwner(Trk::TGOwn);
   m_layerExits[CaloCell_ID::TileBar2]=std::pair<const Trk::Surface*,const Trk::Surface*>(lpos,lneg);
 
   lpos =  CreateLastSurface(CaloCell_ID::TileExt2,0.,1.);
   lneg =  CreateLastSurface(CaloCell_ID::TileExt2,0.,-1.);
-  if (lpos) lpos->setOwner(Trk::TGOwn);
-  lneg->setOwner(Trk::TGOwn);
+  if (lpos) lpos->setOwner(Trk::TGOwn); lneg->setOwner(Trk::TGOwn);
   m_layerExits[CaloCell_ID::TileExt2]=std::pair<const Trk::Surface*,const Trk::Surface*>(lpos,lneg);
 
   lpos =  CreateLastSurface(CaloCell_ID::TileGap2,0.,1.);
   lneg =  CreateLastSurface(CaloCell_ID::TileGap2,0.,-1.);
-  if (lpos) lpos->setOwner(Trk::TGOwn);
-  if (lneg) lneg->setOwner(Trk::TGOwn);
+  if (lpos) lpos->setOwner(Trk::TGOwn); if (lneg) lneg->setOwner(Trk::TGOwn);
   m_layerExits[CaloCell_ID::TileGap2]=std::pair<const Trk::Surface*,const Trk::Surface*>(lpos,lneg);
 
   lpos =  CreateLastSurface(CaloCell_ID::TileGap3,0.,1.);
   lneg =  CreateLastSurface(CaloCell_ID::TileGap3,0.,-1.);
-  if (lpos) lpos->setOwner(Trk::TGOwn);
-  if (lneg) lneg->setOwner(Trk::TGOwn);
+  if (lpos) lpos->setOwner(Trk::TGOwn); if (lneg) lneg->setOwner(Trk::TGOwn);
   m_layerExits[CaloCell_ID::TileGap3]=std::pair<const Trk::Surface*,const Trk::Surface*>(lpos,lneg);
 
   lpos =  CreateLastSurface(CaloCell_ID::HEC3,0.,1.);
   lneg =  CreateLastSurface(CaloCell_ID::HEC3,0.,-1.);
-  if (lpos) lpos->setOwner(Trk::TGOwn);
-  if (lneg) lneg->setOwner(Trk::TGOwn);
+  if (lpos) lpos->setOwner(Trk::TGOwn); if (lneg) lneg->setOwner(Trk::TGOwn);
   m_layerExits[CaloCell_ID::HEC3]=std::pair<const Trk::Surface*,const Trk::Surface*>(lpos,lneg);
 
 }

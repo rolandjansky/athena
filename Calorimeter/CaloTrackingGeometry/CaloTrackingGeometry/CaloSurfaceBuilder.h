@@ -66,80 +66,72 @@ public:
   CaloSurfaceBuilder(const std::string& type, 
 		  const std::string& name, 
 		  const IInterface* parent); 
-  
-  virtual ~CaloSurfaceBuilder();
 
-  virtual StatusCode initialize() override;
-  virtual StatusCode finalize() override;
+  ~CaloSurfaceBuilder();
 
-  virtual void setCaloDepth(CaloDepthTool* mytool ) override;
-  virtual CaloDepthTool* getCaloDepth() override;
+  StatusCode initialize();
+  StatusCode finalize();
+
+  void setCaloDepth(CaloDepthTool* mytool );
+  CaloDepthTool* getCaloDepth();
 
   /** entrance of the sample, no eta dependence -> flat approximation */
-  virtual
-  Trk::Surface* CreateDDSurface (const CaloCell_ID::CaloSample sample, const int side) const override;
+  Trk::Surface* CreateDDSurface (const CaloCell_ID::CaloSample sample, const int side);
 
 
   /** overwrite DD radius/z by CaloDepth radius, and an offset can be added */
-  virtual
   Trk::Surface* CreateUserSurface (const CaloCell_ID::CaloSample sample,
 			           const double offset,
-			           const double etaCaloLocal) const override;
+			           const double etaCaloLocal);
 
   /** end of the sample for the last layers of the Calo */
-  virtual
   Trk::Surface* CreateLastSurface (const CaloCell_ID::CaloSample sample,
-                                   const double offset,
-				   const double etaCaloLocal) const override;
+					const double offset,
+				   const double etaCaloLocal);
 
 
   /** Creates a surface at the end of the girder (Tile Calorimeter Iron Support extructure) */
-  virtual Trk::Surface* CreateGirderSurface() const override;
+  Trk::Surface* CreateGirderSurface();
 
-  /** simplified geometry */
-  virtual bool CreateDDLayers(CaloSubdetNames::ALIGNVOL alvol, std::vector< Trk::CylinderLayer*>* thelayer) const override;
-  virtual bool CreateDDECLayers(CaloSubdetNames::ALIGNVOL alvol, std::vector< Trk::DiscLayer*>* thelayer) const override;
+    /** simplified geometry */
+  bool CreateDDLayers(CaloSubdetNames::ALIGNVOL alvol, std::vector< Trk::CylinderLayer*>* thelayer);
+  bool CreateDDECLayers(CaloSubdetNames::ALIGNVOL alvol, std::vector< Trk::DiscLayer*>* thelayer);
 
   /** These methods provide the default parameters used by the CaloTrackingGeometry and Surface Builders,
       clients should not need to use them */
   
-  virtual   
   bool get_cylinder_surface (CaloCell_ID::CaloSample sample, int side,
                              Amg::Transform3D* htrans, 
                              double& radius,  double& hphi, 
-                             double& hlength, double& depth) const override;
+                             double& hlength, double& depth);
   
-  virtual   
   bool get_disk_surface (CaloCell_ID::CaloSample sample, int side,
                          Amg::Transform3D* htrans, double& z, 
                          double& rmin, 
-                         double& rmax, double& hphisec, double& depth) const override;
+                         double& rmax, double& hphisec, double& depth);   
   
-  virtual   
   bool get_cylinder_surface (CaloSubdetNames::ALIGNVOL alvol,
                              Amg::Transform3D* htrans,double& hphi,
                              std::vector<double>& radius,  
                              std::vector<double>& depth, 
-                             std::vector<double>& hlength ) const override;
-
-  virtual   
+                             std::vector<double>& hlength );
+  
   bool get_disk_surface (CaloSubdetNames::ALIGNVOL alvol,
                          Amg::Transform3D* htrans,double& hphi, 
                          std::vector<double>& z, 
                          std::vector<double>& depth,
-                         std::vector<double>& rmin, std::vector<double>& rmax)
-    const override;
+                         std::vector<double>& rmin, std::vector<double>& rmax);
 
-  virtual std::vector<const Trk::Surface*> allSampleSurfaces() const override;
-  virtual std::vector<const Trk::Surface*> allTileBarSurfaces() const override;
-  virtual std::vector<const Trk::Surface*> allTileExtSurfaces() const override;
-  virtual std::vector<const Trk::Surface*> allTileGapSurfaces() const override;
-  virtual std::vector<const Trk::Surface*> allEMBSurfaces() const override;
-  virtual std::vector<const Trk::Surface*> allEMESurfaces() const override;
-  virtual std::vector<const Trk::Surface*> allHECSurfaces() const override;
+  std::vector<const Trk::Surface*> allSampleSurfaces();
+  std::vector<const Trk::Surface*> allTileBarSurfaces();
+  std::vector<const Trk::Surface*> allTileExtSurfaces();
+  std::vector<const Trk::Surface*> allTileGapSurfaces();
+  std::vector<const Trk::Surface*> allEMBSurfaces();
+  std::vector<const Trk::Surface*> allEMESurfaces();
+  std::vector<const Trk::Surface*> allHECSurfaces();
 
-  virtual std::vector<std::pair<const Trk::Surface*,const Trk::Surface*> > entrySurfaces() const override;
-  virtual std::vector<std::pair<const Trk::Surface*,const Trk::Surface*> > exitSurfaces() const override;
+  std::vector<std::pair<const Trk::Surface*,const Trk::Surface*> > entrySurfaces();
+  std::vector<std::pair<const Trk::Surface*,const Trk::Surface*> > exitSurfaces();
 
 private:
 
@@ -174,10 +166,10 @@ private:
   //IMessageSvc*  m_msgSvc;
 };
 
-inline std::vector<std::pair<const Trk::Surface*,const Trk::Surface*> > CaloSurfaceBuilder::entrySurfaces() const
+inline std::vector<std::pair<const Trk::Surface*,const Trk::Surface*> > CaloSurfaceBuilder::entrySurfaces()
 { return m_layerEntries; }
 
-inline std::vector<std::pair<const Trk::Surface*,const Trk::Surface*> > CaloSurfaceBuilder::exitSurfaces() const
+inline std::vector<std::pair<const Trk::Surface*,const Trk::Surface*> > CaloSurfaceBuilder::exitSurfaces()
 { return m_layerExits; }
 
  
