@@ -10,8 +10,7 @@ TileMuRcvPedestal = 11.73 # Should be the same in TileInfo and TileRawChannelBui
 from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 svcMgr.TileInfoLoader.MuRcvNoiseSigma = TileMuRcvNoiseSigma
 svcMgr.TileInfoLoader.MuRcvPed = TileMuRcvPedestal
-# Uncomment for a local run BUT *COMMENT* this line prior to an upload to SVN
-# svcMgr.TileCablingSvc.CablingType = 4 
+# svcMgr.TileCablingSvc.CablingType = 4 # COMMENT this line prior to a upload to SVN
 
 from AthenaCommon import CfgMgr
 toolSvc = CfgMgr.ToolSvc()
@@ -42,7 +41,6 @@ topSequence = AlgSequence()
 
 #  Set up TilePulseForTileMuonReceiver
 topSequence += CfgMgr.TilePulseForTileMuonReceiver('TilePulseForTileMuonReceiver'
-#                                                   , OutputLevel = VERBOSE 
                                                    , IntegerDigits = True
                                                    , UseCoolPedestal = False
                                                    , UseCoolPulseShapes = True
@@ -54,7 +52,6 @@ topSequence += CfgMgr.TilePulseForTileMuonReceiver('TilePulseForTileMuonReceiver
 jobproperties.Digitization.rndmSeedList.addSeed("Tile_PulseForTileMuonReceiver", 4789899, 989240512)
 
 topSequence += CfgMgr.TileMuonReceiverDecision('TileMuonReceiverDecision'
-#                                                , OutputLevel = VERBOSE 
 						, MuonReceiverEneThreshCellD6Low = 500
 						, MuonReceiverEneThreshCellD6andD5Low = 500
 						, MuonReceiverEneThreshCellD6High = 600

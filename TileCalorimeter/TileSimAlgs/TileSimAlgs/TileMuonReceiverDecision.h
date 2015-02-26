@@ -40,7 +40,6 @@ class TileID;
 class TileHWID;
 class TileInfo;
 class TileCablingService;
-class TileCondToolEmscale;
 
 class TileMuonReceiverDecision: public AthAlgorithm {
 
@@ -62,15 +61,12 @@ class TileMuonReceiverDecision: public AthAlgorithm {
   const TileID*             m_tileID;
   const TileHWID*           m_tileHWID;
   const TileCablingService* m_cablingService; //!< TileCabling instance
-  const TileInfo*           m_tileInfo;
-
+  
   float m_threshold_d6_lo;
   float m_threshold_d6_hi;
   float m_threshold_d5d6_lo;
   float m_threshold_d5d6_hi;
   float m_selCutQf;
-
-  ToolHandle<TileCondToolEmscale> m_tileToolEmscale;         //!< main Tile Calibration tool
 
 };
 

@@ -133,6 +133,7 @@ private:
     int nPul;  //!< number of pileup pulses 
     int nPul_eff;  //Used for symetrization of PU in computation
     std::vector<float> m_PUAmp;
+    double n_inTimeAmp; //!< Local loop variable for amplitude of in-time pulse
     
     //Members for simulator
     TilePulseShape*      m_ps[2]; //!< Class for defining pulse. One element for lo gain and one for hi.

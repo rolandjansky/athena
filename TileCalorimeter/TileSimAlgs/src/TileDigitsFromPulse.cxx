@@ -247,7 +247,7 @@ StatusCode TileDigitsFromPulse::execute() {
   TileRawChannelContainer * pRawChannelContainer;
   pRawChannelContainer=new TileRawChannelContainer(true, m_rChType, m_rChUnit);
 #ifdef USE_TILEDIGITS_DATAPOOL
-  DataPool<TileDigits> tileDigitsPool(m_tileHWID->adc_hash_max());
+  static DataPool<TileDigits> tileDigitsPool(m_tileHWID->adc_hash_max());
 #endif
   
   TRandom3 *random = new TRandom3(m_seed); //Randomizer for pulshe-shape imperfection
@@ -262,8 +262,6 @@ StatusCode TileDigitsFromPulse::execute() {
   
   ATH_MSG_DEBUG ("Starting loop");
   int gain=1;
-  double n_inTimeAmp=0.0; //!< Local loop variable for amplitude of in-time pulse
-
   for (int ros=1; ros<5; ++ros) {
     for (int drawer=0; drawer<64; ++drawer) {
       unsigned int drawerIdx =  TileCalibUtils::getDrawerIdx(ros, drawer);
@@ -342,7 +340,7 @@ StatusCode TileDigitsFromPulse::execute() {
         
         ATH_MSG_VERBOSE("New ADC " << ros << "/" << drawer << "/" << channel << "/   saving gain  " << gain);
         
-        TileDigits * digit = NEWTILEDIGITS();
+        TileDigits * digit = tileDigitsPool.nextElementPtr();
         digit->m_adc_hwid = m_tileHWID->adc_id(ros,drawer,channel,gain);
         digit->m_digits = samples;
         outputCont->push_back(digit);
