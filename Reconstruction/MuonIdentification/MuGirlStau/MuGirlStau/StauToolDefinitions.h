@@ -215,7 +215,7 @@ namespace MuGirlNS
         RpcStepData* rpcData;
         TgcStepData* tgcData;
         TileCalStepData* tileCalData;
-        MdttStepData* mdttData;
+        std::unique_ptr<MdttStepData> mdttData;
     };
 
     typedef std::vector<FcnStepData*> FcnStepsData;

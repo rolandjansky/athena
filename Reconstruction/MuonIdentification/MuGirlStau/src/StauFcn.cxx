@@ -9,7 +9,7 @@
 #include "MuGirlStau/StauGF.h"
 #include "MuGirlStau/StauTileCal.h"
 #include "MuGirlStau/StauMDTT.h"
-
+#include "CxxUtils/make_unique.h"
 //================ Constructor =================================================
 
 MuGirlNS::StauFcn::StauFcn(StauTool* pStauTool, MsgStream& log) :
@@ -38,12 +38,6 @@ double MuGirlNS::StauFcn::function(double currentBeta, StauTechnology eTech)
     pFcnStep->rpcData = NULL;
     pFcnStep->tileCalData = NULL;
     pFcnStep->tgcData = NULL;
-    pFcnStep->mdttData = NULL;
-
-    double mdtStepChi2 = 0., rpcStepChi2 = 0., tileCalStepChi2 = 0., gfStepChi2 = 0., tgcStepChi2 =
-            0., mdttStepChi2 = 0.;
-    double mdtStepDoF = 0., rpcStepDoF = 0., tileCalStepDoF = 0., gfStepDoF = 0., tgcStepDoF = 0.,
-            mdttStepDoF = 0.;
 
     bool doMdt = (eTech == MuGirlNS::AOD_TECHS || eTech == MuGirlNS::MDT_TECH
             || eTech == MuGirlNS::MS_TECHS || eTech == MuGirlNS::ALL_TECHS);
@@ -60,13 +54,16 @@ double MuGirlNS::StauFcn::function(double currentBeta, StauTechnology eTech)
                 << " doTile=" << doTile
                 << endreq;
 
+    double fcnStepChi2 = 0;
+    double fcnStepDoF = 0;
+
     if (doMdt)
     {
         pFcnStep->mdtData = new MdtStepData();
         m_pStau->pStauMDT()->initStepData(pFcnStep->mdtData, currentBeta);
         m_pStau->pStauMDT()->processMdtWithBeta(currentBeta, pFcnStep->mdtData);
-        mdtStepChi2 = pFcnStep->mdtData->chi2;
-        mdtStepDoF = pFcnStep->mdtData->dof;
+	fcnStepChi2 += pFcnStep->mdtData->chi2;
+        fcnStepDoF += pFcnStep->mdtData->dof;
     }
 
     if (doRpc)
@@ -74,8 +71,8 @@ double MuGirlNS::StauFcn::function(double currentBeta, StauTechnology eTech)
         pFcnStep->rpcData = new RpcStepData();
         m_pStau->pStauRPC()->initStepData(pFcnStep->rpcData, currentBeta);
         m_pStau->pStauRPC()->processRpcWithBeta(currentBeta, pFcnStep->rpcData);
-        rpcStepChi2 = pFcnStep->rpcData->chi2;
-        rpcStepDoF = pFcnStep->rpcData->dof;
+	fcnStepChi2 += pFcnStep->rpcData->chi2;
+        fcnStepDoF += pFcnStep->rpcData->dof;
     }
 
     if (!m_pStau->noIDTrack() && doTile)
@@ -83,25 +80,22 @@ double MuGirlNS::StauFcn::function(double currentBeta, StauTechnology eTech)
         pFcnStep->tileCalData = new TileCalStepData();
         m_pStau->pStauTileCal()->initStepData(pFcnStep->tileCalData, currentBeta);
         m_pStau->pStauTileCal()->processTileCalWithBeta(currentBeta, pFcnStep->tileCalData);
-        tileCalStepChi2 = pFcnStep->tileCalData->chi2;
-        tileCalStepDoF = pFcnStep->tileCalData->dof;
+	fcnStepChi2 += pFcnStep->tileCalData->chi2;
+	fcnStepDoF += pFcnStep->tileCalData->dof;
     }
 
     if (doMdtt)
     {
-        pFcnStep->mdttData = new MdttStepData();
-        m_pStau->pStauMDTT()->initStepData(pFcnStep->mdttData, currentBeta);
-        m_pStau->pStauMDTT()->processWithBeta(currentBeta, pFcnStep->mdttData);
-        mdttStepChi2 = pFcnStep->mdttData->chi2;
-        mdttStepDoF = pFcnStep->mdttData->dof;
+      pFcnStep->mdttData = CxxUtils::make_unique<MdttStepData>();
+      m_pStau->pStauMDTT()->initStepData(pFcnStep->mdttData.get(), currentBeta);
+      m_pStau->pStauMDTT()->processWithBeta(currentBeta, pFcnStep->mdttData.get());
+      fcnStepChi2 += pFcnStep->mdttData->chi2;
+      fcnStepDoF += pFcnStep->mdttData->dof;
     }
 
 //    if(NULL!=pFcnStep->tileCalData) std::cout << "shikma:: tile dof " << tileCalStepDoF << " chi2 " << tileCalStepChi2 << " numOfCells " << pFcnStep->tileCalData->numOfCells   << std::endl;
 
-    double fcnStepChi2 = mdtStepChi2 + rpcStepChi2 + tileCalStepChi2 + gfStepChi2 + tgcStepChi2
-            + mdttStepChi2;
-    double fcnStepDoF = mdtStepDoF + rpcStepDoF + tileCalStepDoF + gfStepDoF + tgcStepDoF
-            + mdttStepDoF - 1;
+    fcnStepDoF -= 1;
 
     pFcnStep->chi2 = (fcnStepDoF != 0 ? fcnStepChi2 : 1000);
     pFcnStep->dof = fcnStepDoF;
