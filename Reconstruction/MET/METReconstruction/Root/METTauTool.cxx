@@ -108,7 +108,7 @@ namespace met {
 
   bool METTauTool::accept(const xAOD::IParticle* object) const
   {
-    if(!object->type() == xAOD::Type::Tau) {
+    if(object->type() != xAOD::Type::Tau) {
       ATH_MSG_WARNING("METTauTool::accept given an object of type " << object->type());
       return false;
     }
@@ -137,7 +137,7 @@ namespace met {
 				  std::vector<const xAOD::IParticle*>& acceptedSignals,
 				  MissingETBase::Types::weight_t& objWeight)
   {
-    if(!object->type() == xAOD::Type::Tau) {
+    if(object->type() != xAOD::Type::Tau) {
       ATH_MSG_WARNING("METTauTool::resolveOverlap given an object of type " << object->type());
       return false;
     }
