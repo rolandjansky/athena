@@ -361,6 +361,17 @@ if InDetFlags.loadExtrapolator():
       InDetMaterialUpdator.ForcedMomentumValue = 1000*MeV
 
     ToolSvc += InDetMaterialUpdator
+
+    from TrkExTools.TrkExToolsConf import Trk__MultipleScatteringUpdator 
+    InDetMultipleScatteringUpdator = Trk__MultipleScatteringUpdator(name = "InDetMultipleScatteringUpdator", 
+ 		                                                    UseTrkUtils = False) 
+ 		 
+    ToolSvc += InDetMultipleScatteringUpdator 
+ 		     
+    if (InDetFlags.doPrintConfigurables()): 
+        print      InDetMultipleScatteringUpdator 
+
+
     
     if (InDetFlags.doPrintConfigurables()):
       print      InDetMaterialUpdator
@@ -544,6 +555,7 @@ if InDetFlags.loadFitter():
                                                  PropagatorTool        = InDetPropagator,
                                                  RotCreatorTool        = InDetRotCreator,
                                                  BroadRotCreatorTool   = BroadInDetRotCreator,
+                                                 MultipleScatteringTool = InDetMultipleScatteringUpdator,
                                                  MeasurementUpdateTool = InDetUpdator,
                                                  TrackingGeometrySvc   = AtlasTrackingGeometrySvc,
                                                  MaterialUpdateTool    = InDetMaterialUpdator,
@@ -587,6 +599,7 @@ if InDetFlags.loadFitter():
                                                           PropagatorTool        = InDetPropagator,
                                                           RotCreatorTool        = InDetRotCreator,
                                                           BroadRotCreatorTool   = BroadInDetRotCreator,
+                                                          MultipleScatteringTool = InDetMultipleScatteringUpdator,
                                                           MeasurementUpdateTool = InDetUpdator,
                                                           StraightLine          = not InDetFlags.solenoidOn(),
                                                           OutlierCut            = 5.0,
@@ -609,6 +622,7 @@ if InDetFlags.loadFitter():
                                                     PropagatorTool        = InDetPropagator,
                                                     RotCreatorTool        = InDetRefitRotCreator,
                                                     MeasurementUpdateTool = InDetUpdator,
+                                                    MultipleScatteringTool = InDetMultipleScatteringUpdator,
                                                     StraightLine          = not InDetFlags.solenoidOn(),
                                                     ReintegrateOutliers   = False, 
                                                     MaxIterations         = 10,
@@ -1361,7 +1375,8 @@ if (InDetFlags.doVertexFinding() or InDetFlags.doVertexFindingForMonitoring()) o
     from TrkVertexBilloirTools.TrkVertexBilloirToolsConf import Trk__FastVertexFitter
     InDetVxFitterTool = Trk__FastVertexFitter(name                   = "InDetFastVertexFitterTool",
                                               LinearizedTrackFactory = InDetLinFactory,
-                                              Extrapolator           = InDetExtrapolator)
+                                              Extrapolator           = InDetExtrapolator,
+                                              XAODConverter = InDetVxEdmCnv)
 
   elif InDetFlags.primaryVertexSetup() == 'DefaultFullFinding':
     #
