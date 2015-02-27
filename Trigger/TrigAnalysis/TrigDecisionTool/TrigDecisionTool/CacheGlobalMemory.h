@@ -36,9 +36,9 @@
 #include "TrigSteeringEvent/Chain.h"
 
 
-#include "TrigDecisionTool/DecisionObjectHandle.h"
+#include "TrigDecisionTool/IDecisionUnpacker.h"
 #include "TrigDecisionTool/Logger.h"
-
+#include "AsgTools/AsgMessaging.h"
 
 namespace HLT {
   class Chain;
@@ -55,8 +55,10 @@ namespace Trig {
 
   class ChainGroup;
 
-  class CacheGlobalMemory : public virtual Logger {
+  class CacheGlobalMemory : public virtual Logger, public asg::AsgMessaging {
 
+  using Logger::msgLvl;//resolve ambiguity from also inheriting from Logger
+  
   public:
     // constructors, destructor
     CacheGlobalMemory();
@@ -95,9 +97,6 @@ namespace Trig {
 
     const HLT::NavigationCore* navigation() const { return m_navigation; }  //!< gives back pointer to navigation object
     void navigation(HLT::NavigationCore* nav) { m_navigation = nav; }       //!< sets navigation object pointer
-
-    void decisionHandle(DecisionObjectHandle* h) { m_decisionObjectHandle = h; }
-
     
     std::map< std::vector< std::string >, Trig::ChainGroup* >& getChainGroups() {return m_chainGroupsRef;};
     //    std::map<unsigned, const LVL1CTP::Lvl1Item*>  getItems() {return m_items;};
@@ -116,6 +115,8 @@ namespace Trig {
      **/
     bool assert_decision();
 
+    void setUnpacker( Trig::IDecisionUnpacker* up ){ m_unpacker = up; }
+    Trig::IDecisionUnpacker* unpacker(){ return m_unpacker; }
 
     // 
     template<class T>
@@ -126,29 +127,15 @@ namespace Trig {
 
   private:
     friend class DecisionAccess;
-    Trig::DecisionObjectHandle* m_decisionObjectHandle;
 
     /**
      * @brief unpacks whole trigger decision for the event
-     **/
-    StatusCode unpackDecision(const TrigDec::TrigDecision*);
-
+     */
+    StatusCode unpackDecision();
     /**
      * @brief unpacks HLT navigation structure (object access)
-     **/
-    StatusCode unpackNavigation(const TrigDec::TrigDecision*);              
-
-    /**
-     * @brief unpacks chains for one level (L2 or EF) 
-     **/
-    StatusCode unpackChains(const std::vector<uint32_t>& serialized_chains,
-                            std::map<unsigned, HLT::Chain*>& cache,  
-                            std::map<std::string, const HLT::Chain*>& output);
-
-    /**
-     * @brief unpacks CTP decision bits
-     **/
-    StatusCode unpackItems(const LVL1CTP::Lvl1Result& result);
+     */
+    StatusCode unpackNavigation();
 
     /**
      * @brief unpacks everything that belongs to a ChainGroup
@@ -163,6 +150,9 @@ namespace Trig {
     //
     // Data members
     //
+
+    /// Trigger decision unpacker helper
+    IDecisionUnpacker* m_unpacker;
 
     // Navigation owned by CGM
     HLT::NavigationCore* m_navigation;

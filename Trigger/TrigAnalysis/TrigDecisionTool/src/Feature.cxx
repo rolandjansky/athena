@@ -87,16 +87,20 @@ namespace FeatureAccessImpl {
   }
 
   template<typename ROI,typename ROICONTAINER>
-  void xAODcollect(const HLT::TriggerElement* te, std::vector<Trig::Feature<ROI> >& data, unsigned int condition, HLT::NavigationCore* navigation){
+  void xAODcollect(const HLT::TriggerElement* te, std::vector<Trig::Feature<ROI> >& data, unsigned int condition, HLT::NavigationCore* navigation, const std::string& sgkey){
     // first we need to collect RoI descriptors
     std::vector<Trig::Feature<TrigRoiDescriptor> > rois;
     collect<TrigRoiDescriptor>(te, rois, "initialRoI", condition, "", navigation);
     
     //get all EmTau RoIs
     const ROICONTAINER* cont;
-    StatusCode sc = navigation->getAccessProxy()->retrieve(cont);
+    StatusCode sc = navigation->getAccessProxy()->retrieve(cont,sgkey);
     if(sc.isFailure()){
       REPORT_MESSAGE_WITH_CONTEXT(MSG::ERROR,"Feature.cxx:xAODcollect") << "failed retrieving RoI container" << endreq;
+
+      REPORT_MESSAGE_WITH_CONTEXT(MSG::ERROR,"Feature.cxx:xAODcollect") << "\n" << navigation->getAccessProxy()->dump() << endreq;      
+      
+
       return;
     }
 
@@ -114,17 +118,17 @@ namespace FeatureAccessImpl {
 
   template<>
   void collect<xAOD::EmTauRoI>(const HLT::TriggerElement* te, std::vector<Trig::Feature<xAOD::EmTauRoI> >& data, const std::string&, unsigned int condition, const std::string&, HLT::NavigationCore* navigation) {
-    xAODcollect<xAOD::EmTauRoI,xAOD::EmTauRoIContainer>(te, data, condition, navigation);
+    xAODcollect<xAOD::EmTauRoI,xAOD::EmTauRoIContainer>(te, data, condition, navigation,"LVL1EmTauRoIs");
   }
 
   template<>
   void collect<xAOD::MuonRoI>(const HLT::TriggerElement* te, std::vector<Trig::Feature<xAOD::MuonRoI> >& data, const std::string&, unsigned int condition, const std::string&, HLT::NavigationCore* navigation) {
-    xAODcollect<xAOD::MuonRoI,xAOD::MuonRoIContainer>(te, data, condition, navigation);
+    xAODcollect<xAOD::MuonRoI,xAOD::MuonRoIContainer>(te, data, condition, navigation,"LVL1MuonRoIs");
   }
 
   template<>
   void collect<xAOD::JetRoI>(const HLT::TriggerElement* te, std::vector<Trig::Feature<xAOD::JetRoI> >& data, const std::string&, unsigned int condition, const std::string&, HLT::NavigationCore* navigation) {
-    xAODcollect<xAOD::JetRoI,xAOD::JetRoIContainer>(te, data, condition, navigation);
+    xAODcollect<xAOD::JetRoI,xAOD::JetRoIContainer>(te, data, condition, navigation,"LVL1JetRoIs");
   }
 
 

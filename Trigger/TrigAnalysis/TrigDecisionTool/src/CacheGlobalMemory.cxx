@@ -37,7 +37,8 @@
 
 Trig::CacheGlobalMemory::CacheGlobalMemory() 
   : Logger ("CacheGlobalMemory"),
-    m_decisionObjectHandle(0),
+    asg::AsgMessaging("CacheGlobalMemory"),
+    m_unpacker( 0 ),
     m_navigation(0),
     m_confItems(0),  
     m_confChains(0), 
@@ -46,7 +47,7 @@ Trig::CacheGlobalMemory::CacheGlobalMemory()
 
 
 Trig::CacheGlobalMemory::~CacheGlobalMemory() {
-  delete m_decisionObjectHandle;
+  delete m_unpacker;
   // delete chain groups
   ChGrIt cgIt;
   for ( cgIt = m_chainGroups.begin(); cgIt != m_chainGroups.end(); ++cgIt ) { delete cgIt->second; }
@@ -313,183 +314,60 @@ const LVL1CTP::Lvl1Item* Trig::CacheGlobalMemory::item(const std::string& name) 
 
 
 bool Trig::CacheGlobalMemory::assert_decision() {
-  if (!m_decisionObjectHandle) {
-    log() << MSG::ERROR
-	  << "Logic ERROR, no handle for TrigDecisionTool " << endreq;   
-    return false;
-  } 
-  if (m_decisionObjectHandle->get() == 0 ) {
-    if (msgLvl(MSG::INFO))
-      log() << MSG::INFO
-            << "No TrigDecision object accessible " << endreq;   
-    return false;
-  }
-  //  log() << MSG::DEBUG
-  //	<< "TrigDecision object accessible" << endreq;   
-
-  if (!m_decisionObjectHandle->valid()) {
-    if ( unpackDecision( m_decisionObjectHandle->get() ).isFailure() ) {
-      log() << MSG::WARNING << "TrigDecion object incorrect (for chains)" << endreq;
+  
+  if( m_unpacker->assert_handle() ) {
+    if( unpackDecision().isFailure() ) {
+      ATH_MSG_WARNING( "TrigDecion object incorrect (for chains)" );
     }
-    if ( unpackNavigation( m_decisionObjectHandle->get() ).isFailure() ) {
-      log() << MSG::WARNING << "TrigDecion object incorrect (for navigation)" << endreq;
+    if( unpackNavigation().isFailure() ) {
+      static bool warningPrinted = false;
+      if( ! warningPrinted ) {
+	ATH_MSG_WARNING( "TrigDecion object incorrect (for navigation)" );
+	warningPrinted = true;
+      }
     }
-    m_decisionObjectHandle->validate();
+    m_unpacker->validate_handle();
   }
+  
   return true;
 }
 
-
-
-
-StatusCode Trig::CacheGlobalMemory::unpackItems(const LVL1CTP::Lvl1Result& result) {
-  std::map<unsigned, LVL1CTP::Lvl1Item*>::iterator cacheIt;
-  for ( cacheIt = m_itemsCache.begin(); cacheIt != m_itemsCache.end(); ++cacheIt ) {
-    
-    unsigned int ctpid = cacheIt->first;
-    LVL1CTP::Lvl1Item* item = cacheIt->second;
-    if (msgLvl(MSG::VERBOSE))
-      log() << MSG::VERBOSE << "Unpacking bits for item: " << ctpid << " " << item->name() << endreq;
-    item->m_passBP = result.isPassedBeforePrescale(ctpid);
-    item->m_passAP = result.isPassedAfterPrescale(ctpid);
-    item->m_passAV = result.isPassedAfterVeto(ctpid);
-    m_itemsByName[item->name()] = item;
-
-
-  }
-  return StatusCode::SUCCESS;
-}
-
-
-
-StatusCode Trig::CacheGlobalMemory::unpackChains(const std::vector<uint32_t>& serialized_chains,
-                                                 std::map<unsigned, HLT::Chain*>& cache,
-                                                 std::map<std::string, const HLT::Chain*>& output) {
-   
-  if( serialized_chains.size() == 0 ) {
-    log() << MSG::WARNING << "ChainResult is empty" << endreq;
-    return StatusCode::FAILURE;
-  }
-
-
-  std::vector<uint32_t>::const_iterator rawIt = serialized_chains.begin();
-  rawIt++; // skip first number as it is count
-  for ( ; rawIt != serialized_chains.end(); ++rawIt ) {
-
-    unsigned cntr = HLT::Chain::inquireChainCounter(*rawIt);
-
-    // localte now the chain
-    std::map<unsigned, HLT::Chain*>::iterator cacheIt = cache.find(cntr);
-    if ( cacheIt == cache.end() ) {
-      log() << MSG::WARNING << "Missing chain of counter in the configuration: " << cntr << endreq;
-      return StatusCode::FAILURE;
-    } else {
-      cacheIt->second->reset();
-      cacheIt->second->deserialize(*rawIt);
-      output[cacheIt->second->getChainName()] = cacheIt->second;
-      if (msgLvl(MSG::VERBOSE))
-        log() << MSG::VERBOSE << "Updated chain in this event : " << *(cacheIt->second) << endreq;
-    }
-  }
-  return StatusCode::SUCCESS;
-}
-
-
-StatusCode Trig::CacheGlobalMemory::unpackDecision(const TrigDec::TrigDecision* dec) {
-  if (msgLvl(MSG::DEBUG))
-    log() << MSG::DEBUG << "Unpacking TrigDecision " << endreq;
-
-  if (msgLvl(MSG::DEBUG))
-    log() << MSG::DEBUG << "clearing the delete-end-of-event store " << endreq;
+StatusCode Trig::CacheGlobalMemory::unpackDecision() {
+  
+  ATH_MSG_DEBUG("Unpacking TrigDecision ");
+  ATH_MSG_DEBUG("clearing the delete-end-of-event store");
   m_deleteAtEndOfEvent.clear();
-
-
-  // L1 items
-  m_itemsByName.clear();
-  if (msgLvl(MSG::DEBUG))
-    log() << MSG::DEBUG << "Unpacking of L1 items" << endreq;
-  if( unpackItems(dec->getL1Result()).isFailure() ) {
-    log() << MSG::WARNING << "Unpacking  of L1 items failed" << endreq;
-  }
   
-  m_bgCode = dec->BGCode();
+  bool unpackHLT = ( m_confChains != 0 );
+ ATH_CHECK( m_unpacker->unpackDecision( m_itemsByName, m_itemsCache,
+					m_l2chainsByName, m_l2chainsCache,
+					m_efchainsByName, m_efchainsCache,
+					m_bgCode, unpackHLT ) );
  
-  // protect from unpacking in case HLT was not run (i.e. configuration chains are 0)
-  if ( m_confChains == 0 ) 
-    return StatusCode::SUCCESS;
-
-
-  // L2 chains
-  m_l2chainsByName.clear();
-  if ( dec->getL2Result().getHLTLevel() != HLT::UNKNOWN ) {
-    const std::vector<uint32_t>& l2_serialized_chains = dec->getL2Result().getChainResult();
-    if (msgLvl(MSG::DEBUG))
-      log() << MSG::DEBUG << l2_serialized_chains.size() << " L2 chains" << endreq;
-    
-    if ( unpackChains(l2_serialized_chains, m_l2chainsCache, m_l2chainsByName).isFailure() ) {
-      log() << MSG::WARNING << "Unpacking  of L2 chains failed" << endreq;
-    }
-  }
-  
-  // EF chains
-  m_efchainsByName.clear();
-  const std::vector<uint32_t>& ef_serialized_chains = dec->getEFResult().getChainResult();
-  if (msgLvl(MSG::DEBUG)) 
-    log() << MSG::DEBUG << ef_serialized_chains.size() << " EF/HLT chains" << endreq;
-
-  if ( ! ef_serialized_chains.empty()) {
-    if ( unpackChains(ef_serialized_chains, m_efchainsCache, m_efchainsByName).isFailure() ) {
-      log() << MSG::WARNING << "Unpacking  of EF/HLT chains failed" << endreq;    
-    }
-  } else {
-    if (msgLvl(MSG::DEBUG))
-      log() << MSG::DEBUG << "Empty EF/HLT chains" << endreq;
-  }
-  
-  
   return StatusCode::SUCCESS;
 }
 
-StatusCode Trig::CacheGlobalMemory::unpackNavigation(const TrigDec::TrigDecision* dec) {
-  // Navigation 
-  // protect from unpacking in case HLT was not run (i.e. configuration chains are 0)
-  if ( m_confChains == 0 ) 
+
+StatusCode Trig::CacheGlobalMemory::unpackNavigation() {
+  
+  // Navigation
+  // protect from unpacking in case HLT was not run
+  // (i.e. configuration chains are 0)
+  if( m_confChains == 0 ) {
     return StatusCode::SUCCESS;
-  if (msgLvl(MSG::DEBUG))
-    log() << MSG::DEBUG << "Unpacking Navigation " << endreq;
-
-  if (m_navigation) {
-    m_navigation->reset();
-    // try to get navigation from EF/HLT 
-    if (msgLvl(MSG::DEBUG))
-      log() << MSG::DEBUG << "Trying to unpack EF/HLT Navigation of size: " 
-            << dec->getEFResult().getNavigationResult().size() << endreq;
-
-    bool unpacking_status = !dec->getEFResult().getNavigationResult().empty()
-      && m_navigation->deserialize(dec->getEFResult().getNavigationResult());
-
-    if ( ! unpacking_status ) {
-      if (msgLvl(MSG::DEBUG))
-        log() << MSG::DEBUG << "EF/HLT Navigation unpacking failed";
-	  if (!dec->getL2Result().getNavigationResult().empty()){
-		log() << ", falling back to L2 Navigation of size: "
-              << dec->getL2Result().getNavigationResult().size() << endreq;      
-        unpacking_status = m_navigation->deserialize(dec->getL2Result().getNavigationResult());
-      }
-	  else log() << endreq;	
-   }
-    if ( ! unpacking_status ) {
-      if (msgLvl(MSG::DEBUG))
-        log() << MSG::DEBUG << "Full (L2 & EF) Navigation unpacking failed" << endreq;
-    } else {
-      if (msgLvl(MSG::DEBUG))
-        log() << MSG::DEBUG << "Unpacked Navigation " << endreq;  
-      
-      if (msgLvl(MSG::VERBOSE))
-        log() << MSG::VERBOSE <<  *(navigation()) << endreq;
-    }
-
   }
+
+  // Failing to unpack the navigation is not a failure, as it may be missing
+  // from the xAOD file:
+  if( ! m_unpacker->unpackNavigation( m_navigation ).isSuccess() ) {
+    static bool warningPrinted = false;
+    if( ! warningPrinted ) {
+      ATH_MSG_WARNING( "TrigNavigation unpacking failed" );
+      warningPrinted = true;
+    }
+  }
+  
+  // Return gracefully:
   return StatusCode::SUCCESS;
 }
 
