@@ -257,13 +257,16 @@ def CombinedMuonTrackBuilder( name='CombinedMuonTrackBuilder', **kwargs ):
         kwargs.setdefault("Vertex3DSigmaZ"    ,  1.*meter )
 
     # configure tools for data reprocessing 
-    #if muonRecFlags.enableErrorTuning():
-    #    # enable error scaling for Muid/MuGirl
-    #    kwargs.setdefault("MuonErrorOptimisationTool", getPublicToolClone("MuidErrorOptimisationTool",
-    #                                                                      "MuonErrorOptimisationTool",
-    #                                                                      PrepareForFit              = False,
-    #                                                                      RecreateStartingParameters = False,
-    #                                                                      Fitter = getPublicTool("iPatFitter") ) )
+    if muonRecFlags.enableErrorTuning():
+       # enable error scaling for Muid/MuGirl
+       kwargs.setdefault("MuonErrorOptimizer", getPublicToolClone("MuidErrorOptimisationTool",
+                                                                  "MuonErrorOptimisationTool",
+                                                                  PrepareForFit              = False,
+                                                                  RecreateStartingParameters = False,
+                                                                  RefitTool = getPublicToolClone("MuidRefitTool",
+                                                                                                 "MuonRefitTool",
+                                                                                                 Fitter = getPublicTool("iPatFitter"))))
+
     if muonRecFlags.doSegmentT0Fit():
         kwargs.setdefault("MdtRotCreator"                 , "" )
     return CfgMgr.Rec__CombinedMuonTrackBuilder(name,**kwargs)
@@ -317,9 +320,12 @@ def OutwardsCombinedMuonTrackBuilder( name = 'OutwardsCombinedMuonTrackBuilder',
     kwargs.setdefault("TrackSummaryTool"     , ToolSvc.CombinedMuonTrackSummary )
     kwargs.setdefault("MuonHoleRecovery"     , getPublicTool("OutwardsSegmentRegionRecoveryTool") )
     kwargs.setdefault("AllowCleanerVeto"     , False)
-    #if muonRecFlags.enableErrorTuning():
-    #    kwargs.setdefault("MuonErrorOptimizer", getPublicToolClone("OutwardsErrorOptimisationTool", "MuidErrorOptimisationTool",
-    #                                                               PrepareForFit=False,RecreateStartingParameters=False,
-    #                                                               Fitter = getPublicTool("MuonCombinedTrackFitter") ) )
+    if muonRecFlags.enableErrorTuning():
+       kwargs.setdefault("MuonErrorOptimizer", getPublicToolClone("OutwardsErrorOptimisationTool", "MuidErrorOptimisationTool",
+                                                                  PrepareForFit=False,RecreateStartingParameters=False,
+                                                                  RefitTool = getPublicToolClone("OutwardsRefitTool",
+                                                                                                 "MuonRefitTool",
+                                                                                                 Fitter = getPublicTool("MuonCombinedTrackFitter"))))
+
     return CfgMgr.Rec__OutwardsCombinedMuonTrackBuilder(name,**kwargs)
     # tools for ID/MS match quality and recovery of incorrect spectrometer station association	
