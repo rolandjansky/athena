@@ -8,7 +8,7 @@
 
 // FrameWork includes
 //#include "CLHEP/Units/SystemOfUnits.h"
-
+#include "AthenaKernel/errorcheck.h"
 
 //Collections 
 #include "TrkMeasurementBase/MeasurementBase.h"
@@ -46,6 +46,9 @@
 #include "EventPrimitives/EventPrimitives.h"
 #include "EventPrimitives/EventPrimitivesHelpers.h"
 
+#include "MuonAlignErrorBase/AlignmentRotationDeviation.h"
+#include "TrkToolInterfaces/ITrkAlignmentDeviationTool.h"
+
 namespace Muon {
 
   MuonRefitTool::MuonRefitTool( const std::string& ty,const std::string& na,const IInterface* pa) : 
@@ -53,6 +56,7 @@ namespace Muon {
     m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
     m_helper("Muon::MuonEDMHelperTool/MuonEDMHelperTool"), 
     m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool"),
+    m_alignErrorTool(""),
     m_trackFitter("Trk::GlobalChi2Fitter/MCTBFitterMaterialFromTrack"),
     m_extrapolator("Trk::Extrapolator/AtlasExtrapolator"),
     m_mdtRotCreator("Muon::MdtDriftCircleOnTrackCreator/MdtDriftCircleOnTrackCreator"),
@@ -94,6 +98,7 @@ namespace Muon {
     declareProperty("Printer", m_printer );
     declareProperty("Helper", m_helper );
     declareProperty("IdHelper", m_idHelper );
+    declareProperty("AlignmentErrorTool", m_alignErrorTool);
     declareProperty("Extrapolator", m_extrapolator );
     declareProperty("MuonEntryExtrapolationTool", m_muonEntryTrackExtrapolator );
     declareProperty("MdtRotCreator",m_mdtRotCreator);
@@ -134,6 +139,8 @@ namespace Muon {
       ATH_MSG_ERROR ("Unable to retrieve" << m_idHelper);
       return StatusCode::FAILURE;
     }
+
+    if( !m_alignErrorTool.empty() ) CHECK(m_alignErrorTool.retrieve());
 
     if ( m_extrapolator.retrieve().isFailure() ) {
       ATH_MSG_ERROR ("Unable to retrieve" << m_extrapolator);
@@ -357,6 +364,57 @@ namespace Muon {
 
 
   Trk::Track* MuonRefitTool::updateErrors( const Trk::Track& track, const IMuonRefitTool::Settings& settings ) const {
+
+    std::map<Identifier, double> alignerrmap;
+
+    if( !m_alignErrorTool.empty() ){
+      std::vector<Trk::AlignmentDeviation*> align_deviations;
+      m_alignErrorTool->makeAlignmentDeviations(track, align_deviations);
+
+      int numOfMultiStatDev = 0;
+      // loop on deviations
+      for(auto it : align_deviations){
+
+         // only consider if it's not a rotation
+         if( !dynamic_cast<MuonAlign::AlignmentRotationDeviation*>(it) ) {
+
+           // set to store the station name (including eta and phi information, i.e. like BIS eta 3 phi 4)
+           std::set<Identifier> statperdev;
+           // vector to store hit id
+           std::vector<Identifier> hitsperdev;
+           std::vector<const Trk::RIO_OnTrack*> vec_riowithdev;
+           it->getListOfHits(vec_riowithdev);
+           // bool to decide if deviation should be skipped (if it's for more than 1 station)
+           bool skipdev = false;
+           for(auto riowithdev : vec_riowithdev){
+              Identifier id_riowithdev = riowithdev->identify();
+              hitsperdev.push_back(id_riowithdev);
+              Identifier id_station = m_idHelper->chamberId(id_riowithdev);
+              // store station ID (like BIS eta 3 phi 4)
+              statperdev.insert(id_station);
+              // if it turns out the deviation applys to more then one station exit loop on hits and skip deviaion
+              if(statperdev.size() > 1) {
+                numOfMultiStatDev++;
+                skipdev = true;
+                break;
+              }
+           }
+           // if deviation is skipped clear the set with station IDs and the vector with hits -> continue with next deviation
+           if(skipdev) {
+             statperdev.clear();
+             hitsperdev.clear();
+             continue;
+           }
+           // if deviation is accecpted (i.e. only on one station) store the hit IDs associated with the deviation and the error
+           for(auto jt : hitsperdev)
+             alignerrmap.insert( std::pair<Identifier, double>( jt, sqrt(it->getCovariance(0, 0)) * sqrt(vec_riowithdev.size()) ) );
+         }
+      }
+      // if there is more than one multi-station deviation (the MS-ID misalignment deviation is always there) skip and use old approach
+      // see later if on alignerrmap.size() [this means for small-large overlaps and barrel-endcap tracks]
+      // one can consider another strategy later
+      if( numOfMultiStatDev > 1 ) alignerrmap.clear();
+    }
 
     // loop over track and calculate residuals
     const DataVector<const Trk::TrackStateOnSurface>* states = track.trackStateOnSurfaces();
@@ -587,7 +645,7 @@ namespace Muon {
 	  
 	  stIndex = m_idHelper->stationIndex(id);
 
-	  // error update for three stations
+	  // error update for three stations with barrel-endcap and shared sectors
 	  if( !m_deweightTwoStationTracks || nmaxStations > 2 ){
 	    if( m_deweightBEE && stIndex == MuonStationIndex::BE ) {
 	      //std::cout << " MUONREFIT deweightBEE " << std::endl;
@@ -620,11 +678,16 @@ namespace Muon {
 	      rot = m_mdtRotCreator->updateError( *mdt, pars, &m_errorStrategySL );
 	      
 	    }else{
+	      /** default strategy */
 	      //std::cout << " MUONREFIT updateError " << std::endl;
-	      MuonDriftCircleErrorStrategy strat(m_errorStrategy);
-	      if( hasT0Fit )       strat.setParameter(MuonDriftCircleErrorStrategy::T0Refit,true);
-	      if( settings.broad ) strat.setParameter(MuonDriftCircleErrorStrategy::BroadError,true);
-	      rot =  m_mdtRotCreator->updateError( *mdt, pars, &strat );
+	      if( !m_alignErrorTool.empty() && !alignerrmap.empty() ) {
+	        rot = m_mdtRotCreator->updateErrorExternal( *mdt, pars, &alignerrmap);
+	      } else {
+	        MuonDriftCircleErrorStrategy strat(m_errorStrategy);
+	        if( hasT0Fit )       strat.setParameter(MuonDriftCircleErrorStrategy::T0Refit,true);
+	        if( settings.broad ) strat.setParameter(MuonDriftCircleErrorStrategy::BroadError,true);
+	        rot =  m_mdtRotCreator->updateError( *mdt, pars, &strat );
+	      }
 	    }
 	  }else{
 	    rot = m_mdtRotCreator->updateError( *mdt, pars, &m_errorStrategyTwoStations );
