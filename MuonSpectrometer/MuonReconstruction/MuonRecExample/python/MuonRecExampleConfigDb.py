@@ -267,3 +267,10 @@ addTool( "MuonRecExample.MuonStandalone.MuonTrackSteering", "MuonTrackSteering" 
 
 addTool("Muon::MSVertexTrackletTool","MSVertexTrackletTool")
 addTool("Muon::MSVertexRecoTool","MSVertexRecoTool")
+
+################################################################################
+# Alignment Error Tool
+################################################################################
+
+addTool("MuonAlign::AlignmentErrorTool","MuonAlignmentErrorTool")
+

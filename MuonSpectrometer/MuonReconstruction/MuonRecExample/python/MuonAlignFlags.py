@@ -53,7 +53,7 @@ class MuonAlign(JobPropertyContainer):
         else:
             # here reconstruction or real data 
             setDefault(self.UseAlines, 'all')
-            setDefault(self.UseBlines, 'endcaps')
+            setDefault(self.UseBlines, 'all')
             setDefault(self.UseIlines, True)
             logMuon.info("Running a reconstruction job on data: UseAlines=%r UseBlines=%r UseIlines=%r",
                          self.UseAlines(), self.UseBlines(), self.UseIlines())

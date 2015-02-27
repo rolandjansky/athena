@@ -476,6 +476,10 @@ def MuonSeededSegmentFinder(name="MuonSeededSegmentFinder",**kwargs):
 def MuonRefitTool(name,**kwargs):
     if not muonRecFlags.doCSCs():
         kwargs["CscRotCreator"] = None	   
+    # To activate the tuning of meas. errors using alignment constants from DB
+    # kwargs.setdefault("AlignmentErrorTool", getPublicTool("MuonAlignmentErrorTool"))
+    # kwargs.setdefault("DeweightBEE", False)
+    # kwargs.setdefault("DeweightEE", False)
     return CfgMgr.Muon__MuonRefitTool(name,**kwargs)
 
 

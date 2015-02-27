@@ -69,6 +69,8 @@ if DetFlags.detdescr.Muon_on() and rec.doWriteESD():
 
    #trigger related info for offline DQA
    MuonESDList+=["Muon::TgcCoinDataContainer#TrigT1CoinDataCollection"]
+   MuonESDList+=["Muon::TgcCoinDataContainer#TrigT1CoinDataCollectionPriorBC"]
+   MuonESDList+=["Muon::TgcCoinDataContainer#TrigT1CoinDataCollectionNextBC"]
    MuonESDList+=["Muon::RpcCoinDataContainer#RPC_triggerHits"]
    MuonESDList+=["RpcSectorLogicContainer#RPC_SECTORLOGIC"]
 
@@ -102,6 +104,7 @@ if DetFlags.detdescr.Muon_on() and rec.doWriteESD():
       # Write out CSC, RPC, and MDT RDOs.
       # I'm wondering if we should be doing something in MuonCnvExample to ensure we have the right
       # configuration? See bug#59676
+      import MuonCnvExample.MuonCablingConfig
       MuonESDList += [ "MdtCsmContainer#MDTCSM", "CscRawDataContainer#CSCRDO", "RpcPadContainer#RPCPAD"] 
       
 # Muon Clusters
