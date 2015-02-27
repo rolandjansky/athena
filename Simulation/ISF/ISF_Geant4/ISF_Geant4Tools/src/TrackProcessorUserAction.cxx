@@ -544,7 +544,7 @@ iGeant4::TrackProcessorUserAction::nextGeoId(const G4Step* aStep)
 {
   // Static so that it will keep the value from the previous step
   static AtlasDetDescr::AtlasRegion nextGeoID = m_truthVolLevel>1?AtlasDetDescr::fAtlasCavern:AtlasDetDescr::fUndefinedAtlasRegion;
-
+  static const G4Track* aTrack = 0;
   StepHelper step(aStep);
 
   // Protect against being in a mother volume, then reset it to undefined if we don't know where we are
@@ -556,7 +556,11 @@ iGeant4::TrackProcessorUserAction::nextGeoId(const G4Step* aStep)
         step.GetPostStepLogicalVolumeName(m_truthVolLevel-1).find("CavernInfra") ) nextGeoID = AtlasDetDescr::fAtlasCavern;
     return nextGeoID;
   }
-  nextGeoID = AtlasDetDescr::fUndefinedAtlasRegion;
+  if (aTrack != aStep->GetTrack()){
+    // First step with this track!
+    nextGeoID = AtlasDetDescr::fUndefinedAtlasRegion;
+    aTrack = aStep->GetTrack();
+  } // Otherwise use the cached value via the static
 
   static G4LogicalVolume * BPholder=0 , * IDholder=0 , * CALOholder=0 , * MUholder=0 , * TTRholder=0 ;
   if (BPholder==0){ // Initialize
