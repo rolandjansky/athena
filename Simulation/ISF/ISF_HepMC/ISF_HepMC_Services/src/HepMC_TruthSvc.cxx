@@ -216,6 +216,12 @@ StatusCode ISF::HepMC_TruthSvc::releaseEvent() {
 /** Register a truth incident */
 void ISF::HepMC_TruthSvc::registerTruthIncident( ISF::ITruthIncident& truth) {
 
+  static int myLowestVertex = -200000 , myFirstSecondary = 200000;
+  //if (myLowestVertex>0){ // first time only
+  //  myLowestVertex = m_barcodeSvcQuick->getProperty( "FirstVertexBarcode" ) + 1;
+  //  myFirstSecondary = m_barcodeSvcQuick->getProperty( "FirstSecondaryBarcode" ) - 1;
+  //}
+
   // pass whole vertex or individual secondaries
   truth.setPassWholeVertices(m_passWholeVertex);
 
@@ -340,6 +346,19 @@ void ISF::HepMC_TruthSvc::registerTruthIncident( ISF::ITruthIncident& truth) {
 
       // add particle to vertex
       vtx->add_particle_out( p);
+
+      // Check to see if this is meant to be a "primary" vertex
+      if (p->barcode() < myFirstSecondary){
+        vtx->suggest_barcode( myLowestVertex );
+        ++myLowestVertex;
+        if (m_quasiStableParticlesIncluded){
+          ATH_MSG_VERBOSE( "Found a case of low barcode (" << p->barcode() << " < " << myFirstSecondary << " changing vtx barcode to " << myLowestVertex+1 );
+        } else {
+          ATH_MSG_WARNING( "Modifying vertex barcode, but no apparent quasi-stable particle simulation enabled." );
+          ATH_MSG_WARNING( "This means that you have encountered a very strange configuration.  Watch out!" );
+        }
+      }
+
     }
 
     // finally add the vertex to the current GenEvent
