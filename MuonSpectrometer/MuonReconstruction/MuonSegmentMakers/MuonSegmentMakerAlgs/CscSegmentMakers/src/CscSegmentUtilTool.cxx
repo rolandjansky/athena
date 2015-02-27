@@ -240,11 +240,11 @@ getMuonSegments(Identifier eta_id, Identifier phi_id,
     if (!segments->empty()) {
       segments_clone = new std::vector<const MuonSegment*>;
       for (unsigned int i=0; i<segments->size(); ++i){
-        segments_clone->push_back( (*segments)[i]);
+        segments_clone->push_back( (*segments)[i]->clone());
       }
     }
     
-    delete segments;
+    delete Muon4dSegComb;
   }
   
   return segments_clone;
