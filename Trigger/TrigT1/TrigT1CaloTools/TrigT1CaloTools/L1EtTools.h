@@ -14,9 +14,7 @@
 #ifndef LVL1L1ETTOOLS_H
 #define LVL1L1ETTOOLS_H
 
-#include "GaudiKernel/AlgTool.h"
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/ServiceHandle.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "TrigT1CaloToolInterfaces/IL1EtTools.h"
 #include "TrigT1CaloUtils/JetElementKey.h"
 #include "TrigT1CaloUtils/ModuleEnergy.h"
@@ -59,7 +57,7 @@ namespace LVL1
       @author  Alan Watson <Alan.Watson@cern.ch>
   */  
 
-  class L1EtTools : virtual public IL1EtTools, public AlgTool
+  class L1EtTools : virtual public IL1EtTools, public AthAlgTool
     {
     public:
       
@@ -108,9 +106,6 @@ namespace LVL1
       /** Map of JetElements masked out of TE trigger */
       std::map<int, int>* m_TEMasks;
       
-      /** class member version of retrieving MsgStream */
-      mutable MsgStream                 m_log;
-      int               m_outputlevel;
       /** pointer to LVL1ConfigSvc */
       ServiceHandle<TrigConf::ITrigConfigSvc> m_configSvc;
 

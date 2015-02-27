@@ -14,9 +14,7 @@
 #ifndef LVL1L1JEMJETTOOLS_H
 #define LVL1L1JEMJETTOOLS_H
 
-#include "GaudiKernel/AlgTool.h"
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/ServiceHandle.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "TrigT1CaloToolInterfaces/IL1JEMJetTools.h"
 #include "TrigT1CaloEvent/JetInput.h"
 #include "TrigT1CaloEvent/JetElement.h"
@@ -41,7 +39,7 @@ namespace LVL1
       @author  Alan Watson <Alan.Watson@cern.ch>
   */  
 
-  class L1JEMJetTools : virtual public IL1JEMJetTools, public AlgTool
+  class L1JEMJetTools : virtual public IL1JEMJetTools, public AthAlgTool
     {
     public:
       typedef DataVector<JetElement>          JECollection ;
@@ -89,10 +87,6 @@ namespace LVL1
       virtual bool isRoI() const ;
             
     private:
-      
-      /** class member version of retrieving MsgStream */
-      mutable MsgStream    m_log;
-      int                  m_outputlevel;
       
       /** pointer to LVL1ConfigSvc */
       ServiceHandle<TrigConf::ITrigConfigSvc> m_configSvc;

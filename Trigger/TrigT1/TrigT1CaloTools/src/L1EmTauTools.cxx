@@ -16,8 +16,7 @@ L1EmTauTools::L1EmTauTools(const std::string& t,
 			  const std::string& n,
 			  const IInterface*  p )
   :
-  AlgTool(t,n,p),
-  m_log(msgSvc(),n),
+  AthAlgTool(t,n,p),
   m_configSvc("TrigConf::TrigConfigSvc/TrigConfigSvc", n),
   m_RoI(0)
 {
@@ -39,25 +38,14 @@ L1EmTauTools::~L1EmTauTools()
 
 StatusCode L1EmTauTools::initialize()
 {
-  m_log.setLevel(outputLevel());
-  
-  StatusCode sc = AlgTool::initialize();
-  if (sc.isFailure()) {
-    m_log << MSG::ERROR << "Problem initializing AlgTool " <<  endreq;
-    return sc;
-  }
-  
-  m_log << MSG::INFO << "Initialization completed" << endreq;
-  
-  return sc;
+  return StatusCode::SUCCESS;
 }
 
 /** Finalisation */
 
 StatusCode L1EmTauTools::finalize()
 {
-  StatusCode sc = AlgTool::finalize();
-  return sc;
+  return StatusCode::SUCCESS;
 }
 
 
@@ -167,7 +155,7 @@ void L1EmTauTools::mapTowers(const DataVector<TriggerTower>* tts, std::map<int, 
        int key = testKey.ttKey(TriggerTowerPhi,TriggerTowerEta);
        std::map<int, CPMTower *>::iterator test=towers->find( key );
        if (test != towers->end()){
-         m_log << MSG::ERROR << "ERROR: tower already in map!" << endreq;
+         ATH_MSG_ERROR( "ERROR: tower already in map!" );
        }
        else  {
          std::vector<int> emEt = (*it)->emLUT();
@@ -210,7 +198,7 @@ void L1EmTauTools::mapTowers(const DataVector<CPMTower>* cpmts, std::map<int, CP
        int key = testKey.ttKey(TriggerTowerPhi,TriggerTowerEta);
        std::map<int, CPMTower *>::iterator test=towers->find( key );
        if (test != towers->end()){
-         m_log << MSG::ERROR << "ERROR: tower already in map!" << endreq;
+         ATH_MSG_ERROR( "ERROR: tower already in map!" );
        }
        else  {
          std::vector<int> emEt = (*it)->emEnergyVec();
@@ -246,7 +234,7 @@ void L1EmTauTools::mapTowers(const std::map<int, TriggerTower*>* tts, std::map<i
        int key = testKey.ttKey(TriggerTowerPhi,TriggerTowerEta);
        std::map<int, CPMTower *>::iterator test=towers->find( key );
        if (test != towers->end()){
-         m_log << MSG::ERROR << "ERROR: tower already in map!" << endreq;
+         ATH_MSG_ERROR( "ERROR: tower already in map!" );
        }
        else  {
          std::vector<int> emEt = (*it).second->emLUT();

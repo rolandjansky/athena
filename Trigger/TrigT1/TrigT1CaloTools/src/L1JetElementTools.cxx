@@ -16,8 +16,7 @@ L1JetElementTools::L1JetElementTools(const std::string& t,
 			  const std::string& n,
 			  const IInterface*  p )
   :
-  AlgTool(t,n,p),
-  m_log(msgSvc(),n)
+  AthAlgTool(t,n,p)
 {
   declareInterface<IL1JetElementTools>(this);
 
@@ -34,25 +33,14 @@ L1JetElementTools::~L1JetElementTools()
 
 StatusCode L1JetElementTools::initialize()
 {
-  m_log.setLevel(outputLevel());
-  
-  StatusCode sc = AlgTool::initialize();
-  if (sc.isFailure()) {
-    m_log << MSG::ERROR << "Problem initializing AlgTool " <<  endreq;
-    return sc;
-  }
-    
-  m_log << MSG::INFO << "Initialization completed" << endreq;
-  
-  return sc;
+  return StatusCode::SUCCESS;
 }
 
 /** Finalisation */
 
 StatusCode L1JetElementTools::finalize()
 {
-  StatusCode sc = AlgTool::finalize();
-  return sc;
+  return StatusCode::SUCCESS;
 }
 
 /** Fill DataVector of JetElements from user-supplied vector of TriggerTowers */

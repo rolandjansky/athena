@@ -17,9 +17,7 @@
 #include <string>
 #include <vector>
 
-#include "GaudiKernel/AlgTool.h"
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/ServiceHandle.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "DataModel/DataVector.h"
 #include "TrigConfInterfaces/ITrigConfigSvc.h"
@@ -52,7 +50,7 @@ class SystemEnergy;
       @author  Peter Faulkner
   */  
 
-class L1JEPEtSumsTools : virtual public IL1JEPEtSumsTools, public AlgTool
+class L1JEPEtSumsTools : virtual public IL1JEPEtSumsTools, public AthAlgTool
 {
   public:
      
@@ -123,9 +121,6 @@ class L1JEPEtSumsTools : virtual public IL1JEPEtSumsTools, public AlgTool
     ToolHandle<LVL1::IL1JetElementTools> m_jeTool;
     /** Tool for energy sums */
     ToolHandle<LVL1::IL1EtTools> m_etTool;
-    /** class member version of retrieving MsgStream */
-    mutable MsgStream m_log;
-    bool m_debug;
      
 };
 

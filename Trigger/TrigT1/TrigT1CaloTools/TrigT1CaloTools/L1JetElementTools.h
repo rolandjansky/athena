@@ -14,9 +14,7 @@
 #ifndef LVL1L1JETELEMENTTOOLS_H
 #define LVL1L1JETELEMENTTOOLS_H
 
-#include "GaudiKernel/AlgTool.h"
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/ServiceHandle.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "TrigT1CaloToolInterfaces/IL1JetElementTools.h"
 
 class AtlasDetectorID;
@@ -38,7 +36,7 @@ namespace LVL1
       @author  Alan Watson <Alan.Watson@cern.ch>
   */  
 
-  class L1JetElementTools : virtual public IL1JetElementTools, public AlgTool
+  class L1JetElementTools : virtual public IL1JetElementTools, public AthAlgTool
     {
     public:
       typedef DataVector<xAOD::TriggerTower>    xAODTTCollection ;
@@ -62,10 +60,6 @@ namespace LVL1
       virtual void mapJetElements(const DataVector<JetElement>* jetElements, std::map<int, JetElement*>* map);
             
     private:
-      
-      /** class member version of retrieving MsgStream */
-      mutable MsgStream                 m_log;
-      int               m_outputlevel;
 
      /** Trigger Tower and Jet Element properties */
      static const int m_ttSat = 0xFF;
