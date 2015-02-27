@@ -1,0 +1,5 @@
+TARGET_REMAKE_CONFIGURE	= yes
+TARGET_REMAKE_MAKEFILES	= GNUmakefile
+
+include $(SRT_HOME)/standard.mk
+distclean-local:; -rm -f GNUmakefile
