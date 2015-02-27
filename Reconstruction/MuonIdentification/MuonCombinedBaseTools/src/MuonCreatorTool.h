@@ -33,6 +33,7 @@
 #include "TrkSegment/Segment.h"
 #include "MuonSegment/MuonSegment.h"
 #include "TrackToCalo/CaloCellCollector.h"
+#include "CaloInterface/ICaloNoiseTool.h"
 
 namespace Muon {
   class MuonEDMPrinterTool;
@@ -43,6 +44,7 @@ namespace Trk {
   class ITrackParticleCreatorTool;
   class ITrackAmbiguityProcessorTool;
   class IPropagator;
+  class ITrkMaterialProviderTool;
 }
 namespace Rec {
   class IMuonPrintingTool;
@@ -89,12 +91,17 @@ namespace MuonCombined {
 
     void addSegmentTag( xAOD::Muon& muon, const SegmentTag& tag ) const;
     void addCaloTag( xAOD::Muon& muon, const CaloTag& tag ) const;
-    void addMuonCandidate( const MuonCandidate& candidate, xAOD::Muon& muon, OutputData& outputData ) const;
+    
+    /** add muon candidate info to a muon, if an updateExtrapolatedTrack is provided, the routine takes ownership of the track.
+        The track will be used instead of the extrapolatedTrack of the MuonCandidate. The extrapolatedTrack of the MuonCandidate will be release during the operation.
+     */
+    void addMuonCandidate( const MuonCandidate& candidate, xAOD::Muon& muon, OutputData& outputData, const Trk::Track* updatedExtrapolatedTrack = 0 ) const;
 
     /// function creates an element link to a track particle from the track and the TrackParticle collection.
     /// if a TrackCollection is also provided, the element link to the track will also be set
     /// takes ownership of the track
-    ElementLink<xAOD::TrackParticleContainer> createTrackParticleElementLink( const Trk::Track& track, 
+    ElementLink<xAOD::TrackParticleContainer>
+      createTrackParticleElementLink( std::unique_ptr<const Trk::Track> track, 
         xAOD::TrackParticleContainer& trackParticleContainer, 
         TrackCollection* trackCollection = 0 ) const ;
 
@@ -111,6 +118,10 @@ namespace MuonCombined {
     void setMuonHitCounts( xAOD::Muon& muon ) const;
 
     bool dressMuon(  xAOD::Muon& muon ) const;
+
+    void addEnergyLossToMuon( xAOD::Muon& muon ) const;
+
+    void fillEnergyLossFromTrack(xAOD::Muon& muon, const std::vector<const Trk::TrackStateOnSurface*>& tsosVector) const;
 
     void setP4( xAOD::Muon& muon, const xAOD::TrackParticle& tp ) const;
 
@@ -130,6 +141,15 @@ namespace MuonCombined {
     
     /// Since the Calo information can come from various sources, make sure that we don't overwrite once 'best' source added.
     mutable bool m_haveAddedCaloInformation;
+    
+    /// configure whether to use the updated extrapolated track for a combined fit or not
+    bool m_useUpdatedExtrapolatedTrack;
+
+    /// Flag to apply noise cut to calo cells around muons
+    bool m_applyCaloNoiseCut;
+      
+    /// Number of sigma for calo cell noise cut
+    float m_sigmaCaloNoiseCut;
 
     /// flag to print muon edm
     bool m_printSummary;
@@ -149,6 +169,8 @@ namespace MuonCombined {
     ToolHandle<CP::IMuonSelectionTool>            m_selectorTool; 
     ToolHandle<xAODMaker::IMuonSegmentConverterTool>  m_muonSegmentConverterTool;
     ToolHandle<Rec::IMuonMeanMDTdADCFiller>       m_meanMDTdADCTool;
+    ToolHandle <ICaloNoiseTool>                   m_caloNoiseTool; 
+    ToolHandle<Trk::ITrkMaterialProviderTool>     m_caloMaterialProvider;
     Rec::CaloCellCollector                        m_cellCollector;
     std::string                                   m_cellContainerName;
       

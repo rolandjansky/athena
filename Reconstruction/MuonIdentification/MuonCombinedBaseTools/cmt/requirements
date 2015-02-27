@@ -55,6 +55,9 @@ use  xAODCaloEvent              xAODCaloEvent-*                 Event/xAOD
 use  FourMomUtils               FourMomUtils-*                  Event
 use  TrackToCalo                TrackToCalo-*                   Reconstruction/RecoTools
 use  CaloEvent                  CaloEvent-*                     Calorimeter
+use  CaloInterface              CaloInterface-*                 Calorimeter
+use  Identifier                 Identifier-*                    DetectorDescription
+use  TrkEventUtils              TrkEventUtils-*                 Tracking/TrkEvent
 end_private                     
 
 public
