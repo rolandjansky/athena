@@ -69,7 +69,7 @@ namespace Muon {
 
        JobOptions Flags:
        - doMDT: switch on/off ROT creation (default = true)
-       - TimingMode: select timing mode (default = ATLAS)
+       - TimingMode: select timing mode (default = ATLTIME)
        - MuonTofTool: Tool to be used to calculate time of flight (default = "Muon::MuonCosmicTofTool/MuonCosmicTofTool")
        - ErrorScalingTool: Tool to scale errors (default = "Trk::RIO_OnTrackErrorScalingTool/RIO_OnTrackErrorScalingTool")
        - DoWireSag: Flag to turn on application of geometrical wire sagging correstions (default = false)
@@ -77,7 +77,7 @@ namespace Muon {
     */
     class MdtDriftCircleOnTrackCreator : public AthAlgTool, virtual public IMdtDriftCircleOnTrackCreator {
     public:
-      enum TimingMode { ATLAS=0, //!< normal time of flight corrections assuming IP + light speed to be used for simulated data and collision data
+      enum TimingMode { ATLTIME=0, //!< normal time of flight corrections assuming IP + light speed to be used for simulated data and collision data
             NO_CORRECTIONS=1, //!< special case for cosmics taken with scintilator trigger or cosmic simulation without TOF 
             COSMICS_TRIGGERTIME=2, //!<  special case for cosmics taken with scintilator trigger which is read out so the offset with respect to the clock is known. This mode is not completely functional yet as the way to access the trigger time is not known at the moment
             COSMICS_TOF=3, //!< case for normal cosmic data with rpc trigger or simulation including TOF. It uses the MuonCosmicTofTool to calculate the correct timing with respect to the MuonTriggerPoint
@@ -124,6 +124,16 @@ namespace Muon {
       virtual const MdtDriftCircleOnTrack* updateError( const MdtDriftCircleOnTrack& DCT, 
                                                         const Trk::TrackParameters* pars = 0,
                                                         const MuonDriftCircleErrorStrategy* strategy = 0 ) const;
+
+      /** @brief Update error of a ROT without changing the drift radius
+	  @param DCT reference to the Muon::MdtDriftCircleOnTrack of which the sign should be updated.
+	  @param pars track prediction at DCT used when using the track prediction to update the error
+      @param errorlist holds the identifier of the chamber/det element and the error to be applied on the DCTs inside
+	  @return New ROT with updated error. (the user must delete this object when it is no longer needed).
+      */ 
+      virtual const MdtDriftCircleOnTrack* updateErrorExternal( const MdtDriftCircleOnTrack& DCT,
+                                                                const Trk::TrackParameters* pars = 0,
+                                                                const std::map<Identifier,double>* errorlist = 0 ) const;
 
       /** @brief Retrieves just the MdtFullCalibData and uses this to get updated MdtRtRelation.*/
       double getErrorFromRt(const Muon::MdtDriftCircleOnTrack& DCT) const ;
