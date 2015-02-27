@@ -39,6 +39,7 @@ namespace Trk {
   class ITrackFitter;
   class IExtrapolator;
   class MeasurementBase;
+  class ITrkAlignmentDeviationTool;
 }
 
 namespace Muon {
@@ -75,6 +76,7 @@ namespace Muon {
     ToolHandle<MuonEDMPrinterTool>  m_printer; //<! helper to nicely print out tracks
     ToolHandle<MuonEDMHelperTool>   m_helper; //<! muon EDM helper
     ToolHandle<MuonIdHelperTool>    m_idHelper; //<! muon id helper
+    ToolHandle<Trk::ITrkAlignmentDeviationTool>  m_alignErrorTool; //<! alignment error tool
 
     struct State {
       State() : originalState(0), newState(0), copyOriginal(true) {}
