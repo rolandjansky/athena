@@ -102,6 +102,7 @@ namespace Root {
 				int nTRT,
 				int nTRTOutliers,
 				int nTRTXenonHits,
+				float TRT_PID,
 				// transverse impact parameter
 				float trackd0,
 				// Delta eta,phi matching
@@ -164,6 +165,7 @@ namespace Root {
 			  int nTRT,
 			  int nTRTOutliers,
 			  int nTRTXenonHits,
+			  float TRT_PID,
 			  // transverse impact parameter
 			  float trackd0,
 			  // Delta eta,phi matching
@@ -240,6 +242,7 @@ namespace Root {
 			  int nTRT,
 			  int nTRTOutliers,
 			  int nTRTXenonHits,
+			  float TRT_PID,
 			  // transverse impact parameter
 			  float trackd0,
 			  // Delta eta,phi matching
@@ -340,7 +343,8 @@ namespace Root {
     std::vector<float> CutTRTRatio;
     /** @brief cut on Ratio of TR hits to Number of TRT hits for 10% loss due to TRT */
     std::vector<float> CutTRTRatio90;
-    
+    /** @brief cut on on eProbabilityHT new TRT PID tool */
+    std::vector<float> CutEProbabilityHT;
 
     // Private members
   private:
@@ -407,6 +411,8 @@ namespace Root {
     int m_cutPositionTrackMatchPhi_Electron;
     /** @brief energy-momentum match */
     int m_cutPositionTrackMatchEoverP_Electron;
+    /** @brief Cut on the TRT eProbabilityHT_Electron */
+    int m_cutPositionTrackTRTeProbabilityHT_Electron;
     /** @brief number of TRT hits */
     int m_cutPositionTrackTRThits_Electron;
     /** @brief ratio of high to all TRT hits for isolated electrons */
@@ -478,6 +484,8 @@ namespace Root {
     const TString m_cutNameTrackMatchPhi_Electron;
     /** @brief energy-momentum match */
     const TString m_cutNameTrackMatchEoverP_Electron;
+    /** @brief Cut on the TRT eProbabilityHT_Electron */
+    const TString m_cutNameTrackTRTeProbabilityHT_Electron;
     /** @brief number of TRT hits */
     const TString m_cutNameTrackTRThits_Electron;
     /** @brief ratio of high to all TRT hits for isolated electrons */

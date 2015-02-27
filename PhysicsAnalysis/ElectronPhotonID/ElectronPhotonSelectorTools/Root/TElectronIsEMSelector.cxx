@@ -72,6 +72,8 @@ Root::TElectronIsEMSelector::TElectronIsEMSelector(const char* name) :
   m_cutPositionTrackMatchPhi_Electron(0),
   /** @brief energy-momentum match */
   m_cutPositionTrackMatchEoverP_Electron(0),
+  /** @brief Cut on the TRT eProbability_Electron */
+  m_cutPositionTrackTRTeProbabilityHT_Electron(0),
   /** @brief number of TRT hits */
   m_cutPositionTrackTRThits_Electron(0),
   /** @brief ratio of high to all TRT hits for isolated electrons */
@@ -133,6 +135,8 @@ Root::TElectronIsEMSelector::TElectronIsEMSelector(const char* name) :
   m_cutNameTrackMatchPhi_Electron("TrackMatchPhi_Electron"),
   /** @brief energy-momentum match */
   m_cutNameTrackMatchEoverP_Electron("TrackMatchEoverP_Electron"),
+  /** @brief Cut on the TRT eProbability_Electron */
+  m_cutNameTrackTRTeProbabilityHT_Electron("TrackTRTeProbabilityHT_Electron"),
   /** @brief number of TRT hits */
   m_cutNameTrackTRThits_Electron("TrackTRThits_Electron"),
   /** @brief ratio of high to all TRT hits for isolated electrons */
@@ -151,6 +155,33 @@ Root::TElectronIsEMSelector::TElectronIsEMSelector(const char* name) :
   /** @brief tracker isolation */
   m_cutNameTrackIsolation_Electron("TrackIsolation_Electron")
 {
+  m_cutPositionClusterMiddleEratio37_Electron = 0;
+  m_cutPositionClusterMiddleEratio33_Electron = 0;
+  m_cutPositionClusterMiddleWidth_Electron = 0;
+  m_cutPositionClusterBackEnergyFraction_Electron = 0;
+  m_cutPositionClusterStripsEratio_Electron = 0;
+  m_cutPositionClusterStripsDeltaEmax2_Electron = 0;
+  m_cutPositionClusterStripsDeltaE_Electron = 0;
+  m_cutPositionClusterStripsWtot_Electron = 0;
+  m_cutPositionClusterStripsFracm_Electron = 0;
+  m_cutPositionClusterStripsWeta1c_Electron = 0;
+  m_cutPositionClusterStripsDEmaxs1_Electron = 0;
+  m_cutPositionTrackBlayer_Electron = 0;
+  m_cutPositionTrackPixel_Electron = 0;
+  m_cutPositionTrackSi_Electron = 0;
+  m_cutPositionTrackA0_Electron = 0;
+  m_cutPositionTrackMatchEta_Electron = 0;
+  m_cutPositionTrackMatchPhi_Electron = 0;
+  m_cutPositionTrackMatchEoverP_Electron = 0;
+  m_cutPositionTrackTRTeProbabilityHT_Electron = 0;
+  m_cutPositionTrackTRThits_Electron = 0;
+  m_cutPositionTrackTRTratio_Electron = 0;
+  m_cutPositionTrackTRTratio90_Electron = 0;
+  m_cutPositionTrackA0Tight_Electron = 0;
+  m_cutPositionTrackMatchEtaTight_Electron = 0;
+  m_cutPositionIsolation_Electron = 0;
+  m_cutPositionClusterIsolation_Electron = 0;
+  m_cutPositionTrackIsolation_Electron = 0;
 }
 
 // ====================================================================
@@ -286,8 +317,13 @@ int Root::TElectronIsEMSelector::initialize()
     m_accept.addCut(m_cutNameTrackMatchEoverP_Electron, "E/p < Cut");
   if (m_cutPositionTrackMatchEoverP_Electron < 0) sc = 0;
 
-  voidcutpos = m_accept.addCut("VOID2", "No Cut"); // bit 23 is not used
-  if (voidcutpos < 0) sc = 0;
+  //  voidcutpos = m_accept.addCut("VOID2", "No Cut"); // bit 23 is not used
+  //if (voidcutpos < 0) sc = 0;
+
+  /** @brief cut on TRT eProbabilityHT, bit 23 */
+  m_cutPositionTrackTRTeProbabilityHT_Electron = 
+    m_accept.addCut(m_cutNameTrackTRTeProbabilityHT_Electron, "eProbabilityHT TRT hits > Cut");
+  if (m_cutPositionTrackTRTeProbabilityHT_Electron < 0) sc = 0;
 
   /** @brief number of TRT hits, bit 24 */
   m_cutPositionTrackTRThits_Electron = 
@@ -401,6 +437,7 @@ const Root::TAccept& Root::TElectronIsEMSelector::accept(
 							 int nTRT,
 							 int nTRTOutliers,
 							 int nTRTXenonHits,
+							 float TRT_PID,
 							 // transverse impact parameter
 							 float trackd0,
 							 // Delta eta,phi matching
@@ -444,6 +481,7 @@ const Root::TAccept& Root::TElectronIsEMSelector::accept(
 		    nTRT,
 		    nTRTOutliers,
 		    nTRTXenonHits,
+		    TRT_PID,
 		    trackd0,
 		    deltaeta,
 		    deltaphi,
@@ -507,6 +545,7 @@ unsigned int Root::TElectronIsEMSelector::calcIsEm(
 						   int nTRT,
 						   int nTRTOutliers,
 						   int nTRTXenonHits,
+						   float TRT_PID,
 						   // transverse impact parameter
 						   float trackd0,
 						   // Delta eta,phi matching
@@ -549,6 +588,7 @@ unsigned int Root::TElectronIsEMSelector::calcIsEm(
 		   nTRT,
 		   nTRTOutliers,
 		   nTRTXenonHits,
+		   TRT_PID,
 		   trackd0,
 		   deltaeta,
 		   deltaphi,
@@ -730,6 +770,7 @@ unsigned int Root::TElectronIsEMSelector::TrackCut(
 						   int nTRT,
 						   int nTRTOutliers,
 						   int nTRTXenonHits,
+						   float TRT_PID,
 						   // transverse impact parameter
 						   float trackd0,
 						   // Delta eta,phi matching
@@ -740,7 +781,6 @@ unsigned int Root::TElectronIsEMSelector::TrackCut(
 						   bool expectHitInBLayer,
 						   unsigned int iflag) const
 {
-  
   // check the bin number
   std::vector<int> bins =FindEtEtaBin(et,eta2);
   int ibin_eta= bins.at(1);
@@ -937,18 +977,37 @@ unsigned int Root::TElectronIsEMSelector::TrackCut(
     if(ibin_et_TRT>0){
       ibin_combined_TRT =ibin_et_TRT*CutBinEta_TRT.size()+ibin_eta_TRT;
     }
+
+    if ( CheckVar(CutTRTRatio,5) && CheckVar(CutEProbabilityHT,5) )
+      {
+	ATH_MSG_WARNING("We apply both: TRT ratio and eProbabilityHT cuts, are you sure you want that, if yes good luck") ;
+      } 
+    
+    if (CheckVar(CutEProbabilityHT,5)) {
+      
+      // ATH_MSG_DEBUG("We are readng CutEProbabilityHT: bin:: "<<ibin_combined_TRT <<" trt pid "<< TRT_PID << " cut value " << CutEProbabilityHT[ibin_combined_TRT] ) ;
+     
+      if ( TRT_PID < CutEProbabilityHT[ibin_combined_TRT]  && nTRTTotal > 0) {
+	iflag |= ( 0x1 << egammaPID::TrackTRTeProbabilityHT_Electron);
+      } 
+    }
+    
     if (CheckVar(CutTRTRatio,5)) {
+      
+      // ATH_MSG_DEBUG("We are readng cut CutTRTRatio: bin:: "<<ibin_combined_TRT <<" trt pid "<< rTRT << " cut value " << CutTRTRatio[ibin_combined_TRT]   ) ; 
+     
       if ( rTRT < CutTRTRatio[ibin_combined_TRT]  && nTRTTotal > 0) {
 	iflag |= ( 0x1 << egammaPID::TrackTRTratio_Electron);
       } 
     }
-    
+      
     if (CheckVar(CutTRTRatio90,5)) { // not really used
       if ( rTRT < CutTRTRatio90[ibin_combined_TRT] ) {
-       iflag |= ( 0x1 << egammaPID::TrackTRTratio90_Electron);
-      } 
+	iflag |= ( 0x1 << egammaPID::TrackTRTratio90_Electron);
+      }
     } 
-  }
+    
+  } // eta TRT
  
   return iflag; 
 }

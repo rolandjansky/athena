@@ -59,12 +59,7 @@ AsgPhotonIsEMSelector::AsgPhotonIsEMSelector(std::string myname) :
 		  m_rootTool->isEMMask=egammaPID::EgPidUndefined, //All pass by default, if not specified
 		  "The mask to use");
 
-  // Name of the PID, this is not used anymore.
-  declareProperty("PIDName",
-		  m_PIDName=egammaPID::IsEM,
-		  "Name of the PID");
-
-  // boolean to force to test converted photon hypothesis
+   // boolean to force to test converted photon hypothesis
   declareProperty("ForceConvertedPhotonPID",
 		  m_rootTool->forceConvertedPhotonPID=false,
 		  "boolean to force to test converted photon hypothesis");
@@ -381,6 +376,8 @@ std::string AsgPhotonIsEMSelector::getOperatingPointName() const
   if (m_rootTool->isEMMask == egammaPID::PhotonLoose){ return "Loose"; }
   else if (m_rootTool->isEMMask == egammaPID::PhotonMedium ){ return "Medium"; }
   else if (m_rootTool->isEMMask == egammaPID::PhotonTight){ return "Tight"; }
+  else if (m_rootTool->isEMMask == egammaPID::PhotonLooseEF ){ return "LooseEF"; }
+  else if (m_rootTool->isEMMask == egammaPID::PhotonMediumEF){ return "MediumEF"; }
   else if (m_rootTool->isEMMask == 0){ return "0 No cuts applied"; }
   else{
     ATH_MSG_ERROR( "Didn't recognize the given operating point with mask: " << m_rootTool->isEMMask );

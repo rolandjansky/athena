@@ -68,10 +68,7 @@ class AsgPhotonIsEMSelector : virtual public asg::AsgTool,
   /** The value of the isem **/
   unsigned int IsemValue() const {return m_rootTool->isEM(); };
 
-  // what isEM should be filled. Here for legacy Job Options
-  int PIDName() const {return m_PIDName; };
-
-  /** Method to get the operating point */
+   /** Method to get the operating point */
   virtual std::string getOperatingPointName( ) const;
 
   /** The basic isem */
@@ -93,9 +90,6 @@ private:
 
   /** Pointer to the underlying ROOT based tool */
   Root::TPhotonIsEMSelector* m_rootTool;
-
-  /** used to define the name of the operating point**/
-  int m_PIDName;
 
   /** @brief use f3core or f3 (default: use f3)*/
   bool m_useF3core;

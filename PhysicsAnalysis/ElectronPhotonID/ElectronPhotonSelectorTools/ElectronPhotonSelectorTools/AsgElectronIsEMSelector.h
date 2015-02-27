@@ -51,39 +51,51 @@ class AsgElectronIsEMSelector :  virtual public asg::AsgTool,
 
   // Main methods for IAsgSelectionTool interface
 
-  /** The main accept method: the actual cuts are applied here */
-  const Root::TAccept& accept( const xAOD::IParticle* part ) const;
 
-  /** The main accept method: the actual cuts are applied here */
-  const Root::TAccept& accept( const xAOD::Electron* part ) const;
+  /** Accept with generic interface */
+  virtual const Root::TAccept& accept( const xAOD::IParticle* part ) const ;
 
-  /** Accept using reference **/
-  virtual const Root::TAccept& accept( const xAOD::Electron& part ) const {
-    return accept (&part);
-  }
-
-  /** Accept using reference **/
+  /** Accept with generic interface */
   virtual const Root::TAccept& accept( const xAOD::IParticle& part ) const {
-    return accept (&part);
+    return accept(&part);
+  }
+  
+  /** Accept with Egamma objects */
+  virtual const Root::TAccept& accept( const xAOD::Egamma* part) const ;
+
+  /** Accept with Egamma objects */
+  virtual const Root::TAccept& accept( const xAOD::Egamma& part) const {
+    return accept(&part);
   }
 
-  //==============================================================================//
-  /** METHODS FOR THE TRIGGER **/
-  /** This method is for the trigger, and implies CaloCutsOnly set to true */
-  virtual const Root::TAccept& accept( const xAOD::Egamma* part ) const;
+  /** The main accept method: the actual cuts are applied here */
+  virtual const Root::TAccept& accept( const xAOD::Photon* part ) const ;
+
+  /** The main accept method: the actual cuts are applied here */
+  virtual const Root::TAccept& accept( const xAOD::Photon& part ) const {
+    return accept(&part);
+  }
+
+  /** The main accept method: the actual cuts are applied here */
+  virtual const Root::TAccept& accept( const xAOD::Electron* part ) const ;
+
+  /** The main accept method: the actual cuts are applied here */
+  virtual const Root::TAccept& accept( const xAOD::Electron& part ) const{
+    return accept(&part);
+  }
 
   /** The value of the isem **/
   unsigned int IsemValue() const {return m_rootTool->isEM(); };
 
-  // what isEM should be filled. Here for legacy Job Options
-  int PIDName() const {return m_PIDName;};
-
-  /** Method to get the operating point */
+    /** Method to get the operating point */
   virtual std::string getOperatingPointName( ) const;
 
   /** The basic isem */
-  StatusCode execute(const xAOD::Electron* eg) const;
-  
+  StatusCode execute(const xAOD::Electron* el) const;
+
+  /** For Trigger **/
+  virtual StatusCode execute(const xAOD::Photon* ph) const;
+
   /** The isem potentially for the trigger, implies CaloCutsOnly */
   StatusCode execute(const xAOD::Egamma* eg) const;
 
@@ -111,10 +123,6 @@ private:
 
   /** Pointer to the underlying ROOT based tool */
   Root::TElectronIsEMSelector* m_rootTool;
-
-  /** used in the past to define what to fill in the AOD/D3PD **/
-  /*Not needed in xAOD */ 
-  int m_PIDName;
 
   /** @brief use f3core or f3 (default: use f3)*/
   bool m_useF3core;

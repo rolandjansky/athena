@@ -25,9 +25,6 @@ def PhotonIsEMSelectorConfig2011(theTool) :
     
     theTool = GetTool(theTool)
 
-    # the isEM name
-    theTool.PIDName = egammaPID.IsEM
-
     #
     # PHOTON cuts (new menu optimized menus for 16.6.X.Y ( 2011 ) )
     # is even "more robust" for the Tight and Loose part
@@ -291,9 +288,6 @@ def PhotonIsEMSelectorConfig2012OLD(theTool) :
     '''
     
     theTool = GetTool(theTool)
-
-    # the isEM name
-    theTool.PIDName = egammaPID.IsEM
 
     #
     # PHOTON cuts, with loose updated for 2012. (Tight remains the same as 2011 for now)

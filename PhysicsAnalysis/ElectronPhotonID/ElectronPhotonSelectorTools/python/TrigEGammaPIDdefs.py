@@ -74,6 +74,8 @@ class BitDefElectron:
    TrackMatchPhi_Electron          = 21
    """ @brief energy-momentum match """
    TrackMatchEoverP_Electron       = 22
+   """ @brief Cut on the TRT eProbabilityHT_Electron """
+   TrackTRTeProbabilityHT_Electron   = 23
    """ @brief number of TRT hits """
    TrackTRThits_Electron           = 24
    """ @brief ratio of high to all TRT hits for isolated electrons """
@@ -98,170 +100,176 @@ class BitDefElectron:
 # cut definition for electrons
 #
 class CutDefElectron:
-	""" @brief cuts of hadronic leakage"""
-	HADLEAKETA_ELECTRON = \
-	   0x1 << BitDefElectron.ClusterEtaRange_Electron        | \
-	   0x1 << BitDefElectron.ClusterHadronicLeakage_Electron
-	""" @brief old cuts in strips (without ClusterStripsDEmaxs1)"""
-	CALOSTRIPSOLD_ELECTRON = \
-	   0x1 << BitDefElectron.ClusterStripsEratio_Electron     | \
-	   0x1 << BitDefElectron.ClusterStripsDeltaEmax2_Electron | \
-	   0x1 << BitDefElectron.ClusterStripsDeltaE_Electron     | \
-	   0x1 << BitDefElectron.ClusterStripsWtot_Electron       | \
-	   0x1 << BitDefElectron.ClusterStripsFracm_Electron      | \
-	   0x1 << BitDefElectron.ClusterStripsWeta1c_Electron     
-	""" @brief cuts in strips (with ClusterStripsDEmaxs1)"""
-	CALOSTRIPS_ELECTRON = \
-	   0x1 << BitDefElectron.ClusterStripsEratio_Electron     | \
-	   0x1 << BitDefElectron.ClusterStripsDeltaEmax2_Electron | \
-	   0x1 << BitDefElectron.ClusterStripsDeltaE_Electron     | \
-	   0x1 << BitDefElectron.ClusterStripsWtot_Electron       | \
-	   0x1 << BitDefElectron.ClusterStripsFracm_Electron      | \
-	   0x1 << BitDefElectron.ClusterStripsWeta1c_Electron     | \
-	   0x1 << BitDefElectron.ClusterStripsDEmaxs1_Electron    
-	""" @brief cuts in strips for loose electrons  sampling"""
-	CALOSTRIPS_LOOSE_ELECTRON = \
-	   0x1 << BitDefElectron.ClusterStripsWtot_Electron       | \
-	   0x1 << BitDefElectron.ClusterStripsDEmaxs1_Electron    
+        """ @brief cuts of hadronic leakage"""
+        HADLEAKETA_ELECTRON = \
+           0x1 << BitDefElectron.ClusterEtaRange_Electron        | \
+           0x1 << BitDefElectron.ClusterHadronicLeakage_Electron
+        """ @brief old cuts in strips (without ClusterStripsDEmaxs1)"""
+        CALOSTRIPSOLD_ELECTRON = \
+           0x1 << BitDefElectron.ClusterStripsEratio_Electron     | \
+           0x1 << BitDefElectron.ClusterStripsDeltaEmax2_Electron | \
+           0x1 << BitDefElectron.ClusterStripsDeltaE_Electron     | \
+           0x1 << BitDefElectron.ClusterStripsWtot_Electron       | \
+           0x1 << BitDefElectron.ClusterStripsFracm_Electron      | \
+           0x1 << BitDefElectron.ClusterStripsWeta1c_Electron     
+        """ @brief cuts in strips (with ClusterStripsDEmaxs1)"""
+        CALOSTRIPS_ELECTRON = \
+           0x1 << BitDefElectron.ClusterStripsEratio_Electron     | \
+           0x1 << BitDefElectron.ClusterStripsDeltaEmax2_Electron | \
+           0x1 << BitDefElectron.ClusterStripsDeltaE_Electron     | \
+           0x1 << BitDefElectron.ClusterStripsWtot_Electron       | \
+           0x1 << BitDefElectron.ClusterStripsFracm_Electron      | \
+           0x1 << BitDefElectron.ClusterStripsWeta1c_Electron     | \
+           0x1 << BitDefElectron.ClusterStripsDEmaxs1_Electron    
+        """ @brief cuts in strips for loose electrons  sampling"""
+        CALOSTRIPS_LOOSE_ELECTRON = \
+           0x1 << BitDefElectron.ClusterStripsWtot_Electron       | \
+           0x1 << BitDefElectron.ClusterStripsDEmaxs1_Electron    
 
-	""" @brief cuts in middle sampling"""
-	CALOMIDDLE_ELECTRON = \
-	   0x1 << BitDefElectron.ClusterMiddleEnergy_Electron     | \
-	   0x1 << BitDefElectron.ClusterMiddleEratio37_Electron   | \
+        """ @brief cuts in middle sampling"""
+        CALOMIDDLE_ELECTRON = \
+           0x1 << BitDefElectron.ClusterMiddleEnergy_Electron     | \
+           0x1 << BitDefElectron.ClusterMiddleEratio37_Electron   | \
            0x1 << BitDefElectron.ClusterMiddleWidth_Electron
-	""" @brief calorimeter isolation"""
-	CALORIMETRICISOLATION_ELECTRON =  \
-	   0x1 << BitDefElectron.ClusterIsolation_Electron 
+        """ @brief calorimeter isolation"""
+        CALORIMETRICISOLATION_ELECTRON =  \
+           0x1 << BitDefElectron.ClusterIsolation_Electron 
         
-	""" @brief "old" all cuts in calorimeter (except isolation) without ClusterStripsDEmaxs1 """
-	CALONOISOOLD_ELECTRON = HADLEAKETA_ELECTRON | CALOSTRIPSOLD_ELECTRON | CALOMIDDLE_ELECTRON 
-	""" @brief "old" all cuts in calorimeter (including isolation) without ClusterStripsDEmaxs1 """
-	CALOOLD_ELECTRON = CALONOISOOLD_ELECTRON | CALORIMETRICISOLATION_ELECTRON
-	""" @brief all cuts in calorimeter (except isolation)"""
-	CALO_ELECTRON = HADLEAKETA_ELECTRON | CALOSTRIPS_ELECTRON | CALOMIDDLE_ELECTRON 
+        """ @brief "old" all cuts in calorimeter (except isolation) without ClusterStripsDEmaxs1 """
+        CALONOISOOLD_ELECTRON = HADLEAKETA_ELECTRON | CALOSTRIPSOLD_ELECTRON | CALOMIDDLE_ELECTRON 
+        """ @brief "old" all cuts in calorimeter (including isolation) without ClusterStripsDEmaxs1 """
+        CALOOLD_ELECTRON = CALONOISOOLD_ELECTRON | CALORIMETRICISOLATION_ELECTRON
+        """ @brief all cuts in calorimeter (except isolation)"""
+        CALO_ELECTRON = HADLEAKETA_ELECTRON | CALOSTRIPS_ELECTRON | CALOMIDDLE_ELECTRON 
 
-	""" @brief Track quality cuts except b-layer for electrons"""
-	TRACKINGNOBLAYER_ELECTRON = \
-	   0x1 << BitDefElectron.TrackPixel_Electron   | \
-	   0x1 << BitDefElectron.TrackSi_Electron      | \
-	   0x1 << BitDefElectron.TrackA0_Electron
-	""" @brief Track quality cuts except b-layer and A0 for electrons"""
-	TRACKINGLOOSE_ELECTRON = \
-	   0x1 << BitDefElectron.TrackPixel_Electron   | \
-	   0x1 << BitDefElectron.TrackSi_Electron
-	""" @brief Track quality cuts for electrons"""
-	TRACKING_ELECTRON = \
-	   TRACKINGNOBLAYER_ELECTRON | \
-	   0x1 << BitDefElectron.TrackBlayer_Electron
-	""" @brief Track cluster matching in eta for electrons"""
-	TRACKMATCHDETA_ELECTRON = \
-	   0x1 << BitDefElectron.TrackMatchEta_Electron
-	""" @brief Track cluster matching in eta, phi for electrons"""
-	TRACKMATCHNOEOVERP_ELECTRON = \
-	   0x1 << BitDefElectron.TrackMatchEta_Electron      | \
-	   0x1 << BitDefElectron.TrackMatchPhi_Electron
-	""" @brief Track cluster matching in eta, phi, E/p for electrons"""
-	TRACKMATCH_ELECTRON = \
-	   0x1 << BitDefElectron.TrackMatchEta_Electron      | \
-	   0x1 << BitDefElectron.TrackMatchPhi_Electron      | \
-	   0x1 << BitDefElectron.TrackMatchEoverP_Electron  
-	""" @brief Tight Track cluster matching """
-	TRACKMATCHTIGHT_ELECTRON = \
-	   0x1 << BitDefElectron.TrackMatchEtaTight_Electron      | \
-	   0x1 << BitDefElectron.TrackA0Tight_Electron
-	""" @brief Tight conversion matching """
-	CONVMATCH_ELECTRON = \
-	   0x1 << BitDefElectron.ConversionMatch_Electron
+        """ @brief Track quality cuts except b-layer for electrons"""
+        TRACKINGNOBLAYER_ELECTRON = \
+           0x1 << BitDefElectron.TrackPixel_Electron   | \
+           0x1 << BitDefElectron.TrackSi_Electron      | \
+           0x1 << BitDefElectron.TrackA0_Electron
+        """ @brief Track quality cuts except b-layer and A0 for electrons"""
+        TRACKINGLOOSE_ELECTRON = \
+           0x1 << BitDefElectron.TrackPixel_Electron   | \
+           0x1 << BitDefElectron.TrackSi_Electron
+        """ @brief Track quality cuts for electrons"""
+        TRACKING_ELECTRON = \
+           TRACKINGNOBLAYER_ELECTRON | \
+           0x1 << BitDefElectron.TrackBlayer_Electron
+        """ @brief Track cluster matching in eta for electrons"""
+        TRACKMATCHDETA_ELECTRON = \
+           0x1 << BitDefElectron.TrackMatchEta_Electron
+        """ @brief Track cluster matching in eta, phi for electrons"""
+        TRACKMATCHNOEOVERP_ELECTRON = \
+           0x1 << BitDefElectron.TrackMatchEta_Electron      | \
+           0x1 << BitDefElectron.TrackMatchPhi_Electron
+        """ @brief Track cluster matching in eta, phi, E/p for electrons"""
+        TRACKMATCH_ELECTRON = \
+           0x1 << BitDefElectron.TrackMatchEta_Electron      | \
+           0x1 << BitDefElectron.TrackMatchPhi_Electron      | \
+           0x1 << BitDefElectron.TrackMatchEoverP_Electron  
+        """ @brief Tight Track cluster matching """
+        TRACKMATCHTIGHT_ELECTRON = \
+           0x1 << BitDefElectron.TrackMatchEtaTight_Electron      | \
+           0x1 << BitDefElectron.TrackA0Tight_Electron
+        """ @brief Tight conversion matching """
+        CONVMATCH_ELECTRON = \
+           0x1 << BitDefElectron.ConversionMatch_Electron
 
-	""" @brief TRT hits and TR ratio for electrons"""
-	TRT_ELECTRON =  \
-	   0x1 << BitDefElectron.TrackTRThits_Electron   | \
-	   0x1 << BitDefElectron.TrackTRTratio_Electron
-	""" @brief TRT hits and TR ratio (@90% eff) for electrons"""
-	TRT90_ELECTRON =  \
-	   0x1 << BitDefElectron.TrackTRThits_Electron   | \
-	   0x1 << BitDefElectron.TrackTRTratio90_Electron
+        """ @brief TRT hits and TR ratio for electrons"""
+        TRT_ELECTRON =  \
+           0x1 << BitDefElectron.TrackTRThits_Electron   | \
+           0x1 << BitDefElectron.TrackTRTratio_Electron  | \
+           0x1 << BitDefElectron.TrackTRTeProbabilityHT_Electron
+        """ @brief TRT hits and TR ratio (@90% eff) for electrons"""
+        TRT90_ELECTRON =  \
+           0x1 << BitDefElectron.TrackTRThits_Electron   | \
+           0x1 << BitDefElectron.TrackTRTratio90_Electron
 
-	""" @brief isolation by tracker """
-	TRACKINGISOLATION_ELECTRON =  \
-	   0x1 << BitDefElectron.TrackIsolation_Electron
-	""" @brief isolation for electrons is combination of calo and tracker """
-	ISOLATION_ELECTRON =  \
-	   0x1 << BitDefElectron.Isolation_Electron 
-	""" @brief isolation for electrons is combination of calo and tracker """
-	CALOTRACKISOLATION_ELECTRON =  \
-	   CALORIMETRICISOLATION_ELECTRON | TRACKINGISOLATION_ELECTRON
+        """ @brief isolation by tracker """
+        TRACKINGISOLATION_ELECTRON =  \
+           0x1 << BitDefElectron.TrackIsolation_Electron
+        """ @brief isolation for electrons is combination of calo and tracker """
+        ISOLATION_ELECTRON =  \
+           0x1 << BitDefElectron.Isolation_Electron 
+        """ @brief isolation for electrons is combination of calo and tracker """
+        CALOTRACKISOLATION_ELECTRON =  \
+           CALORIMETRICISOLATION_ELECTRON | TRACKINGISOLATION_ELECTRON
 
-	""" @brief all cuts except TRT for electrons"""
-	ALLNOTRT_ELECTRON =  \
-	   TRACKING_ELECTRON | TRACKMATCH_ELECTRON | CALO_ELECTRON
-	""" @brief all cuts except TRT for electrons(old way)"""
-	ALLNOTRTOLD_ELECTRON =  \
-	   TRACKING_ELECTRON | TRACKMATCH_ELECTRON | CALOOLD_ELECTRON
-	""" @brief all cuts for electrons"""
-	ALL_ELECTRON =  \
-	   ALLNOTRT_ELECTRON | TRT_ELECTRON
-	""" @brief all cuts fo electrons (old way)"""
-	ALLOLD_ELECTRON =  \
-	   ALLNOTRTOLD_ELECTRON | TRT_ELECTRON
-	
-	#############
-	### Added TrigEGamma Definitions
-	""" @brief Tight Track cluster matching redefined for EF """
-	TRACKMATCHTIGHT_ELECTRON_EF = 0x1 << BitDefElectron.TrackA0Tight_Electron
-	""" @brief Track-cluster matching with tight deta for electrons"""
-	TRACKMATCHDETATIGHT_ELECTRON = 0x1 << BitDefElectron.TrackMatchEtaTight_Electron
-	""" @brief Track-cluster matching in eta, E/p for electrons redefined for EF"""
-	TRACKMATCH_ELECTRON_EF = 0x1 << BitDefElectron.TrackMatchEta_Electron | \
-		0x1 << BitDefElectron.TrackMatchEoverP_Electron  
-	""" @brief Track-cluster matching in eta for electrons redefined for EF"""
-	TRACKMATCH_ELECTRON_NoEoP_EF = 0x1 << BitDefElectron.TrackMatchEta_Electron
-	""" @brief Track quality cuts except b-layer and A0 for electrons"""
-	TRACKINGNOBLAYERNOA0_ELECTRON = \
-	   0x1 << BitDefElectron.TrackPixel_Electron   | \
-	   0x1 << BitDefElectron.TrackSi_Electron
+        """ @brief all cuts except TRT for electrons"""
+        ALLNOTRT_ELECTRON =  \
+           TRACKING_ELECTRON | TRACKMATCH_ELECTRON | CALO_ELECTRON
+        """ @brief all cuts except TRT for electrons(old way)"""
+        ALLNOTRTOLD_ELECTRON =  \
+           TRACKING_ELECTRON | TRACKMATCH_ELECTRON | CALOOLD_ELECTRON
+        """ @brief all cuts for electrons"""
+        ALL_ELECTRON =  \
+           ALLNOTRT_ELECTRON | TRT_ELECTRON
+        """ @brief all cuts fo electrons (old way)"""
+        ALLOLD_ELECTRON =  \
+           ALLNOTRTOLD_ELECTRON | TRT_ELECTRON
+        
+        #############
+        ### Added TrigEGamma Definitions
+        """ @brief Tight Track cluster matching redefined for EF """
+        TRACKMATCHTIGHT_ELECTRON_EF = 0x1 << BitDefElectron.TrackA0Tight_Electron
+        """ @brief Track-cluster matching with tight deta for electrons"""
+        TRACKMATCHDETATIGHT_ELECTRON = 0x1 << BitDefElectron.TrackMatchEtaTight_Electron
+        """ @brief Track-cluster matching in eta, E/p for electrons redefined for EF"""
+        TRACKMATCH_ELECTRON_EF = 0x1 << BitDefElectron.TrackMatchEta_Electron | \
+                0x1 << BitDefElectron.TrackMatchEoverP_Electron  
+        """ @brief Track-cluster matching in eta for electrons redefined for EF"""
+        TRACKMATCH_ELECTRON_NoEoP_EF = 0x1 << BitDefElectron.TrackMatchEta_Electron
+        """ @brief Track quality cuts except b-layer and A0 for electrons"""
+        TRACKINGNOBLAYERNOA0_ELECTRON = \
+           0x1 << BitDefElectron.TrackPixel_Electron   | \
+           0x1 << BitDefElectron.TrackSi_Electron
 
 class SelectionDefElectron:
-	
-	#############
-	### Added TrigEGamma Definitions
-	ElectronLoose1 =  CutDefElectron.CALOMIDDLE_ELECTRON | \
-                          CutDefElectron.HADLEAKETA_ELECTRON | \
-                          CutDefElectron.CALOSTRIPS_LOOSE_ELECTRON | \
-		          CutDefElectron.TRACKINGLOOSE_ELECTRON |  \
-                          CutDefElectron.TRACKMATCHDETA_ELECTRON
-	#AT: 7Sept2011, remove TRT Hits from medium1, following offline medium++ prescription
-	ElectronMedium1    = CutDefElectron.CALO_ELECTRON | CutDefElectron.TRACKING_ELECTRON | \
-		CutDefElectron.TRACKMATCHDETA_ELECTRON | \
-		0x1 << BitDefElectron.TrackTRTratio_Electron | \
-		0x1 << BitDefElectron.ClusterBackEnergyFraction_Electron
-	""" @brief Tight Electron1 definition for e15_tight in EF """
-	ElectronTight1 = CutDefElectron.CALO_ELECTRON | CutDefElectron.TRACKING_ELECTRON | \
-		CutDefElectron.TRACKMATCHDETA_ELECTRON | CutDefElectron.TRACKMATCH_ELECTRON_EF | \
-		CutDefElectron.TRACKMATCHTIGHT_ELECTRON | CutDefElectron.TRT_ELECTRON
-	
+        
         #############
-	### Added TrigEGammaDC14 Definitions for Run2
-	""" @brief Loose1 with RPhi Electron """
-	ElectronLooseHLT =  CutDefElectron.CALOMIDDLE_ELECTRON | \
+        ### Added TrigEGamma Definitions
+        ElectronLoose1 =  CutDefElectron.CALOMIDDLE_ELECTRON | \
                           CutDefElectron.HADLEAKETA_ELECTRON | \
                           CutDefElectron.CALOSTRIPS_LOOSE_ELECTRON | \
-		          CutDefElectron.TRACKINGLOOSE_ELECTRON |  \
+                          CutDefElectron.TRACKINGLOOSE_ELECTRON |  \
+                          CutDefElectron.TRACKMATCHDETA_ELECTRON
+        #AT: 7Sept2011, remove TRT Hits from medium1, following offline medium++ prescription
+        ElectronMedium1    = CutDefElectron.CALO_ELECTRON | CutDefElectron.TRACKING_ELECTRON | \
+                CutDefElectron.TRACKMATCHDETA_ELECTRON | \
+                0x1 << BitDefElectron.TrackTRTratio_Electron | \
+                0x1 << BitDefElectron.TrackTRTeProbabilityHT_Electron | \
+                0x1 << BitDefElectron.ClusterBackEnergyFraction_Electron
+        """ @brief Tight Electron1 definition for e15_tight in EF """
+        ElectronTight1 = CutDefElectron.CALO_ELECTRON | CutDefElectron.TRACKING_ELECTRON | \
+                CutDefElectron.TRACKMATCHDETA_ELECTRON | CutDefElectron.TRACKMATCH_ELECTRON_EF | \
+                CutDefElectron.TRACKMATCHTIGHT_ELECTRON | CutDefElectron.TRT_ELECTRON
+        
+        #############
+        ### Added TrigEGammaDC14 Definitions for Run2
+        """ @brief Loose1 with RPhi Electron """
+        ElectronLooseHLT =  CutDefElectron.CALOMIDDLE_ELECTRON | \
+                          CutDefElectron.HADLEAKETA_ELECTRON | \
+                          CutDefElectron.CALOSTRIPS_LOOSE_ELECTRON | \
+                          CutDefElectron.TRACKINGLOOSE_ELECTRON |  \
                           CutDefElectron.TRACKMATCHDETA_ELECTRON 
-	""" @brief Medium1 with Rphi Electron definition for trigger """
-	#AT: 7Sept2011, remove TRT Hits from medium1, following offline medium++ prescription
-	ElectronMediumHLT    = CutDefElectron.CALO_ELECTRON | CutDefElectron.TRACKING_ELECTRON | \
-		CutDefElectron.TRACKMATCHDETA_ELECTRON | \
+        """ @brief Medium1 with Rphi Electron definition for trigger """
+        #AT: 7Sept2011, remove TRT Hits from medium1, following offline medium++ prescription
+        ElectronMediumHLT    = CutDefElectron.CALO_ELECTRON | CutDefElectron.TRACKING_ELECTRON | \
+                CutDefElectron.TRACKMATCHDETA_ELECTRON | \
                 CutDefElectron.TRACKMATCHDETATIGHT_ELECTRON | \
-		0x1 << BitDefElectron.TrackTRTratio_Electron | \
-		0x1 << BitDefElectron.ClusterBackEnergyFraction_Electron | \
+                0x1 << BitDefElectron.TrackTRTratio_Electron | \
+                0x1 << BitDefElectron.TrackTRTeProbabilityHT_Electron | \
+                0x1 << BitDefElectron.ClusterBackEnergyFraction_Electron | \
                 0x1 << BitDefElectron.ClusterMiddleEratio33_Electron
 
-	""" @brief Tight with Rphi Electron1 definition """
-	ElectronTightHLT = CutDefElectron.CALO_ELECTRON | CutDefElectron.TRACKING_ELECTRON | \
-		CutDefElectron.TRACKMATCHDETA_ELECTRON | CutDefElectron.TRACKMATCH_ELECTRON_EF | \
-		CutDefElectron.TRACKMATCHTIGHT_ELECTRON | CutDefElectron.TRT_ELECTRON | \
+        """ @brief Tight with Rphi Electron1 definition """
+        ElectronTightHLT = CutDefElectron.CALO_ELECTRON | CutDefElectron.TRACKING_ELECTRON | \
+                CutDefElectron.TRACKMATCHDETA_ELECTRON | CutDefElectron.TRACKMATCH_ELECTRON_EF | \
+                CutDefElectron.TRACKMATCHTIGHT_ELECTRON | CutDefElectron.TRT_ELECTRON | \
                 0x1 << BitDefElectron.ClusterMiddleEratio33_Electron
+        Electron_trk = CutDefElectron.TRACKINGLOOSE_ELECTRON
+        
+
 """ \enum Bitdefinitons for the egamma class for photon identification
     see egammaParameters for info on the variable definitions """
 class BitDefPhoton:
@@ -331,78 +339,78 @@ class BitDefPhoton:
 # Photon cut definitions
 #
 class CutDefPhoton:
-	""" @brief cuts of hadronic leakage (for Loose selection)"""
-	HADLEAKETA_PHOTONLOOSE = \
-	   0x1 << BitDefPhoton.ClusterEtaRange_PhotonLoose  | \
-	   0x1 << BitDefPhoton.ClusterHadronicLeakage_PhotonLoose
-	""" @brief cuts of hadronic leakage"""
-	HADLEAKETA_PHOTON =  \
-	   0x1 << BitDefPhoton.ClusterEtaRange_Photon        | \
-	   0x1 << BitDefPhoton.ClusterHadronicLeakage_Photon
-	""" @brief cuts in middle sampling (for Loose selection)"""
-	CALOMIDDLE_PHOTONLOOSE= \
-	   0x1 << BitDefPhoton.ClusterMiddleEnergy_PhotonLoose     | \
-	   0x1 << BitDefPhoton.ClusterMiddleEratio37_PhotonLoose   | \
-	   0x1 << BitDefPhoton.ClusterMiddleEratio33_PhotonLoose   | \
-	   0x1 << BitDefPhoton.ClusterMiddleWidth_PhotonLoose
-	""" @brief cuts in middle sampling"""
-	CALOMIDDLE_PHOTON = \
-	   0x1 << BitDefPhoton.ClusterMiddleEnergy_Photon     | \
-	   0x1 << BitDefPhoton.ClusterMiddleEratio37_Photon   | \
-	   0x1 << BitDefPhoton.ClusterMiddleEratio33_Photon   | \
-	   0x1 << BitDefPhoton.ClusterMiddleWidth_Photon     
-	""" @brief old cuts in strips (without ClusterStripsDEmaxs1)"""
-	CALOSTRIPSOLD_PHOTON = \
-	   0x1 << BitDefPhoton.ClusterStripsEratio_Photon     | \
-	   0x1 << BitDefPhoton.ClusterStripsDeltaEmax2_Photon | \
-	   0x1 << BitDefPhoton.ClusterStripsDeltaE_Photon     | \
-	   0x1 << BitDefPhoton.ClusterStripsWtot_Photon       | \
-	   0x1 << BitDefPhoton.ClusterStripsFracm_Photon      | \
-	   0x1 << BitDefPhoton.ClusterStripsWeta1c_Photon     
-	""" @brief cuts in strips (with ClusterStripsDEmaxs1)"""
-	CALOSTRIPS_PHOTON = \
-	   0x1 << BitDefPhoton.ClusterStripsEratio_Photon     | \
-	   0x1 << BitDefPhoton.ClusterStripsDeltaEmax2_Photon | \
-	   0x1 << BitDefPhoton.ClusterStripsDeltaE_Photon     | \
-	   0x1 << BitDefPhoton.ClusterStripsWtot_Photon       | \
-	   0x1 << BitDefPhoton.ClusterStripsFracm_Photon      | \
-	   0x1 << BitDefPhoton.ClusterStripsWeta1c_Photon     | \
-	   0x1 << BitDefPhoton.ClusterStripsDEmaxs1_Photon
+        """ @brief cuts of hadronic leakage (for Loose selection)"""
+        HADLEAKETA_PHOTONLOOSE = \
+           0x1 << BitDefPhoton.ClusterEtaRange_PhotonLoose  | \
+           0x1 << BitDefPhoton.ClusterHadronicLeakage_PhotonLoose
+        """ @brief cuts of hadronic leakage"""
+        HADLEAKETA_PHOTON =  \
+           0x1 << BitDefPhoton.ClusterEtaRange_Photon        | \
+           0x1 << BitDefPhoton.ClusterHadronicLeakage_Photon
+        """ @brief cuts in middle sampling (for Loose selection)"""
+        CALOMIDDLE_PHOTONLOOSE= \
+           0x1 << BitDefPhoton.ClusterMiddleEnergy_PhotonLoose     | \
+           0x1 << BitDefPhoton.ClusterMiddleEratio37_PhotonLoose   | \
+           0x1 << BitDefPhoton.ClusterMiddleEratio33_PhotonLoose   | \
+           0x1 << BitDefPhoton.ClusterMiddleWidth_PhotonLoose
+        """ @brief cuts in middle sampling"""
+        CALOMIDDLE_PHOTON = \
+           0x1 << BitDefPhoton.ClusterMiddleEnergy_Photon     | \
+           0x1 << BitDefPhoton.ClusterMiddleEratio37_Photon   | \
+           0x1 << BitDefPhoton.ClusterMiddleEratio33_Photon   | \
+           0x1 << BitDefPhoton.ClusterMiddleWidth_Photon     
+        """ @brief old cuts in strips (without ClusterStripsDEmaxs1)"""
+        CALOSTRIPSOLD_PHOTON = \
+           0x1 << BitDefPhoton.ClusterStripsEratio_Photon     | \
+           0x1 << BitDefPhoton.ClusterStripsDeltaEmax2_Photon | \
+           0x1 << BitDefPhoton.ClusterStripsDeltaE_Photon     | \
+           0x1 << BitDefPhoton.ClusterStripsWtot_Photon       | \
+           0x1 << BitDefPhoton.ClusterStripsFracm_Photon      | \
+           0x1 << BitDefPhoton.ClusterStripsWeta1c_Photon     
+        """ @brief cuts in strips (with ClusterStripsDEmaxs1)"""
+        CALOSTRIPS_PHOTON = \
+           0x1 << BitDefPhoton.ClusterStripsEratio_Photon     | \
+           0x1 << BitDefPhoton.ClusterStripsDeltaEmax2_Photon | \
+           0x1 << BitDefPhoton.ClusterStripsDeltaE_Photon     | \
+           0x1 << BitDefPhoton.ClusterStripsWtot_Photon       | \
+           0x1 << BitDefPhoton.ClusterStripsFracm_Photon      | \
+           0x1 << BitDefPhoton.ClusterStripsWeta1c_Photon     | \
+           0x1 << BitDefPhoton.ClusterStripsDEmaxs1_Photon
 
-	""" @brief calorimeter isolation"""
-	CALORIMETRICISOLATION_PHOTON =  0x1 << BitDefPhoton.ClusterIsolation_Photon
-	""" @brief "old" all cuts in calorimeter (except isolation) without ClusterStripsDEmaxs1 """
-	CALONOISOOLD_PHOTON =  HADLEAKETA_PHOTON | CALOSTRIPSOLD_PHOTON | CALOMIDDLE_PHOTON 
-	""" @brief all cuts in calorimeter (except isolation)"""
-	CALO_PHOTON = HADLEAKETA_PHOTON | CALOSTRIPS_PHOTON | CALOMIDDLE_PHOTON
-	
-	""" @brief isolation by tracker """
-	TRACKINGISOLATION_PHOTON =  0x1 << BitDefPhoton.TrackIsolation_Photon
-	""" @brief isolation for photons is combination of calo and tracker """
-	ISOLATION_PHOTON =  0x1 << BitDefPhoton.Isolation_Photon 
-	""" @brief isolation for photons is combination of calo and tracker """
-	CALOTRACKISOLATION_PHOTON =  CALORIMETRICISOLATION_PHOTON | TRACKINGISOLATION_PHOTON
-	
-	""" @brief Track cluster matching E/p for photons"""
-	TRACKMATCH_PHOTON = 0x1 << BitDefPhoton.TrackMatchEoverP_Photon  
-	
-	""" @brief Ambigiuty resolve for photons """
-	AMBIGUITYRESOLVE_PHOTON = 0x1 << BitDefPhoton.AmbiguityResolution_Photon
-	
-	#######
-	## Added for Trigger
-	""" @brief cuts of hadronic leakage (for Loose selection)"""
-	HADLEAKETA_PHOTON_EF = \
-		0x1 << BitDefPhoton.ClusterEtaRange_Photon | \
-		0x1 << BitDefPhoton.ClusterHadronicLeakage_PhotonLoose
+        """ @brief calorimeter isolation"""
+        CALORIMETRICISOLATION_PHOTON =  0x1 << BitDefPhoton.ClusterIsolation_Photon
+        """ @brief "old" all cuts in calorimeter (except isolation) without ClusterStripsDEmaxs1 """
+        CALONOISOOLD_PHOTON =  HADLEAKETA_PHOTON | CALOSTRIPSOLD_PHOTON | CALOMIDDLE_PHOTON 
+        """ @brief all cuts in calorimeter (except isolation)"""
+        CALO_PHOTON = HADLEAKETA_PHOTON | CALOSTRIPS_PHOTON | CALOMIDDLE_PHOTON
+        
+        """ @brief isolation by tracker """
+        TRACKINGISOLATION_PHOTON =  0x1 << BitDefPhoton.TrackIsolation_Photon
+        """ @brief isolation for photons is combination of calo and tracker """
+        ISOLATION_PHOTON =  0x1 << BitDefPhoton.Isolation_Photon 
+        """ @brief isolation for photons is combination of calo and tracker """
+        CALOTRACKISOLATION_PHOTON =  CALORIMETRICISOLATION_PHOTON | TRACKINGISOLATION_PHOTON
+        
+        """ @brief Track cluster matching E/p for photons"""
+        TRACKMATCH_PHOTON = 0x1 << BitDefPhoton.TrackMatchEoverP_Photon  
+        
+        """ @brief Ambigiuty resolve for photons """
+        AMBIGUITYRESOLVE_PHOTON = 0x1 << BitDefPhoton.AmbiguityResolution_Photon
+        
+        #######
+        ## Added for Trigger
+        """ @brief cuts of hadronic leakage (for Loose selection)"""
+        HADLEAKETA_PHOTON_EF = \
+                0x1 << BitDefPhoton.ClusterEtaRange_Photon | \
+                0x1 << BitDefPhoton.ClusterHadronicLeakage_PhotonLoose
 
-	""" @brief cuts of Eratio (for Medium selection)"""
-	CALO_PHOTON_REAT_WETA2_ERATIO = \
-		0x1 << BitDefPhoton.ClusterEtaRange_Photon | \
-		0x1 << BitDefPhoton.ClusterMiddleEnergy_PhotonLoose | \
-		0x1 << BitDefPhoton.ClusterMiddleEratio37_PhotonLoose | \
-		0x1 << BitDefPhoton.ClusterMiddleWidth_PhotonLoose   | \
-		0x1 << BitDefPhoton.ClusterStripsEratio_Photon
+        """ @brief cuts of Eratio (for Medium selection)"""
+        CALO_PHOTON_REAT_WETA2_ERATIO = \
+                0x1 << BitDefPhoton.ClusterEtaRange_Photon | \
+                0x1 << BitDefPhoton.ClusterMiddleEnergy_PhotonLoose | \
+                0x1 << BitDefPhoton.ClusterMiddleEratio37_PhotonLoose | \
+                0x1 << BitDefPhoton.ClusterMiddleWidth_PhotonLoose   | \
+                0x1 << BitDefPhoton.ClusterStripsEratio_Photon
 
 
 
@@ -410,31 +418,31 @@ class CutDefPhoton:
 # Photon Selection Definitions
 #
 class SelectionDefPhoton:
-	""" @brief Loose photon selection with Ambiguity resolver"""
-	PhotonLooseAR =  CutDefPhoton.CALOMIDDLE_PHOTONLOOSE | CutDefPhoton.HADLEAKETA_PHOTONLOOSE | \
-		CutDefPhoton.AMBIGUITYRESOLVE_PHOTON
-	""" @brief Tight photon selection with Ambiguity resolver"""
-	PhotonTightAR = CutDefPhoton.CALO_PHOTON | CutDefPhoton.TRACKMATCH_PHOTON | \
-		CutDefPhoton.AMBIGUITYRESOLVE_PHOTON
-	""" @brief Tight photon selection with isolation and Ambiguity resolver"""
-	PhotonTightARIso = PhotonTightAR | CutDefPhoton.ISOLATION_PHOTON
-	""" @brief Loose photon selection """
-	PhotonLoose =  CutDefPhoton.CALOMIDDLE_PHOTONLOOSE | CutDefPhoton.HADLEAKETA_PHOTONLOOSE
-	""" @brief Tight photon selection """
-	PhotonTight = CutDefPhoton.CALO_PHOTON 
-	""" @brief Tight photon selection with isolation"""
-	PhotonTightIso = PhotonTight | CutDefPhoton.ISOLATION_PHOTON
-	""" @brief Tight photon (old definition) """
-	PhotonTightOLD = CutDefPhoton.CALONOISOOLD_PHOTON | CutDefPhoton.CALORIMETRICISOLATION_PHOTON
-	
-	#############
-	### Added TrigEGamma Definitions
-	""" @brief Loose photon selection for online EF"""
-	PhotonLooseEF =  CutDefPhoton.CALOMIDDLE_PHOTONLOOSE | CutDefPhoton.HADLEAKETA_PHOTON_EF
+        """ @brief Loose photon selection with Ambiguity resolver"""
+        PhotonLooseAR =  CutDefPhoton.CALOMIDDLE_PHOTONLOOSE | CutDefPhoton.HADLEAKETA_PHOTONLOOSE | \
+                CutDefPhoton.AMBIGUITYRESOLVE_PHOTON
+        """ @brief Tight photon selection with Ambiguity resolver"""
+        PhotonTightAR = CutDefPhoton.CALO_PHOTON | CutDefPhoton.TRACKMATCH_PHOTON | \
+                CutDefPhoton.AMBIGUITYRESOLVE_PHOTON
+        """ @brief Tight photon selection with isolation and Ambiguity resolver"""
+        PhotonTightARIso = PhotonTightAR | CutDefPhoton.ISOLATION_PHOTON
+        """ @brief Loose photon selection """
+        PhotonLoose =  CutDefPhoton.CALOMIDDLE_PHOTONLOOSE | CutDefPhoton.HADLEAKETA_PHOTONLOOSE
+        """ @brief Tight photon selection """
+        PhotonTight = CutDefPhoton.CALO_PHOTON 
+        """ @brief Tight photon selection with isolation"""
+        PhotonTightIso = PhotonTight | CutDefPhoton.ISOLATION_PHOTON
+        """ @brief Tight photon (old definition) """
+        PhotonTightOLD = CutDefPhoton.CALONOISOOLD_PHOTON | CutDefPhoton.CALORIMETRICISOLATION_PHOTON
+        
+        #############
+        ### Added TrigEGamma Definitions
+        """ @brief Loose photon selection for online EF"""
+        PhotonLooseEF =  CutDefPhoton.CALOMIDDLE_PHOTONLOOSE | CutDefPhoton.HADLEAKETA_PHOTON_EF
    
         #Added for 2g20_medium
-	""" @brief Medium photon selection for online EF""" 
-	PhotonMediumEF = CutDefPhoton.HADLEAKETA_PHOTON_EF | CutDefPhoton.CALO_PHOTON_REAT_WETA2_ERATIO
+        """ @brief Medium photon selection for online EF""" 
+        PhotonMediumEF = CutDefPhoton.HADLEAKETA_PHOTON_EF | CutDefPhoton.CALO_PHOTON_REAT_WETA2_ERATIO
 
 
 print ""

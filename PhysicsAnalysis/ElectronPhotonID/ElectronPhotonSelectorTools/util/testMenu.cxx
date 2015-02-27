@@ -20,10 +20,12 @@
 
 // EDM include(s):
 #include "xAODEgamma/ElectronContainer.h" 
+#include "xAODEgamma/PhotonContainer.h" 
 #include "xAODEgamma/Egamma.h"
 
 #include "ElectronPhotonSelectorTools/AsgElectronMultiLeptonSelector.h"
 #include "ElectronPhotonSelectorTools/AsgElectronIsEMSelector.h"
+#include "ElectronPhotonSelectorTools/AsgPhotonIsEMSelector.h"
 #include "ElectronPhotonSelectorTools/AsgElectronLikelihoodTool.h"
 
 #include "PathResolver/PathResolver.h"
@@ -43,7 +45,6 @@ int main( int argc, char* argv[] ) {
 
    // The application's name:
    const char* APP_NAME = argv[ 0 ];
-
    // Check if we received a file name:
    if( argc < 2 ) {
      Error( APP_NAME, "No file name received!" );
@@ -57,7 +58,7 @@ int main( int argc, char* argv[] ) {
    // Open the input file:
    const TString fileName = argv[ 1 ];
    Info( APP_NAME, "Opening file: %s", fileName.Data() );
-   std::auto_ptr< TFile > ifile( TFile::Open( fileName, "READ" ) );
+   std::unique_ptr< TFile > ifile( TFile::Open( fileName, "READ" ) );
    CHECK( ifile.get() );
 
    // Create a TEvent object:
@@ -76,11 +77,12 @@ int main( int argc, char* argv[] ) {
       }
    }
 
-   // Create a transient object store. Needed for the tools.
-   //   xAOD::TStore *m_store;
 
-
+   //The path the conf files
    std::string confDir = "ElectronPhotonSelectorTools/offline/dc14b_20150121/";
+
+   //std examples
+
 
    //MultiLepton
    AsgElectronMultiLeptonSelector myMultiLepton ("myMultiLepton");
@@ -97,13 +99,29 @@ int main( int argc, char* argv[] ) {
    myLoose.setProperty("isEMMask",static_cast<unsigned int> (egammaPID::ElectronLoosePP) );
    myLoose.initialize();
    myLoose.msg().setLevel(MSG::DEBUG); //set MSG LEVEL
+
    //IsEM no cut 
    AsgElectronIsEMSelector nocut ("nocut"); 
    nocut.setProperty("isEMMask",static_cast<unsigned int> (0) );
    nocut.initialize();
 
+   //IsEM Photon no cut 
+   AsgPhotonIsEMSelector phnocut ("phnocut"); 
+   phnocut.setProperty("isEMMask",static_cast<unsigned int> (0) );
+   phnocut.initialize();
+
+   //Tight photon exampe using unique ptr
+   // create the selector
+   std::unique_ptr<AsgPhotonIsEMSelector> m_photonTightIsEMSelector ( new AsgPhotonIsEMSelector ( "PhotonTightIsEMSelector") );
+   // decide which kind of selection (loose/medium/tight) you want to use
+   m_photonTightIsEMSelector.get()->setProperty("isEMMask",egammaPID::PhotonTight);
+   // set the file that contains the cuts on the shower shapes (stored in http://atlas.web.cern.ch/Atlas/GROUPS/DATABASE/GroupData/)
+   m_photonTightIsEMSelector.get()->setProperty("ConfigFile",confDir+"PhotonIsEMTightSelectorCutDefs.conf");
+
+
    ///=========================================================================
-   //IsEM here I am an expert, added as an example of what we can do already...
+   //IsEM here I am an expert, added as an example of what we can do already, but one should
+   //probably not to 
    AsgElectronIsEMSelector expert ("expert"); 
    expert.setProperty("ConfigFile",confDir+"ElectronIsEMLooseSelectorCutDefs.conf");
    expert.setProperty("isEMMask",static_cast<unsigned int> (egammaPID::ElectronLoosePP) );
@@ -115,7 +133,6 @@ int main( int argc, char* argv[] ) {
    expert.setProperty("isEMMask",static_cast<unsigned int> (egammaPID::ElectronMediumPP));
    std::cout<< "Hey just changed that to something else  " << expert.getOperatingPointName( )<<std::endl;
    //Now I am still using Loose cut values due to the conf but medium mask
-
 
    //This could be also cut values
    std::vector<int> expertcutpixel = {2, 2, 2, 2, 2, 2, 2, 2, 2, 2};
@@ -131,7 +148,7 @@ int main( int argc, char* argv[] ) {
    //BUT IT CANNOT BE A DIFFERENT CONF file, it will work, 
    //but without init will not pick up the new cut values
    //The reason is that the conf was designed to get picked up in init
-
+   //=================================================================================
 
    // Loop over the events:
    for( Long64_t entry = 0; entry < entries; ++entry ) {
@@ -141,6 +158,8 @@ int main( int argc, char* argv[] ) {
      
      std::cout << "=================NEXT EVENT==========================" << std::endl;
      
+
+     //Electrons
      const xAOD::ElectronContainer* electrons = 0 ;  
      CHECK( event.retrieve(electrons, "Electrons") );
      
@@ -162,6 +181,7 @@ int main( int argc, char* argv[] ) {
        bool value=false;
        //////////////
        Info (APP_NAME,"Electron No cut  accept() returns %d ", static_cast<bool> (nocut.accept(*el)) );      
+       Info (APP_NAME,"Expert accept() returns %d ", static_cast<bool> (expert.accept(*el)) );      
 
        if(el->passSelection(value,"MultiLepton")){
 	 Info (APP_NAME,"Electron MultiLepton from Reco returns %d ", static_cast<bool> (value) );
@@ -178,14 +198,44 @@ int main( int argc, char* argv[] ) {
        Info (APP_NAME,"Electron Loose accept() returns %d ", static_cast<bool> (myLoose.accept(*el)) );
      }
      
+     //Photons
+     const xAOD::PhotonContainer* photons = 0 ;  
+     CHECK( event.retrieve(photons, "Photons") );
+     
+     if ( !event.retrieve( photons, "Photons" ).isSuccess() ){ // retrieve arguments: container type, container key
+       Error("execute()", "Failed to retrieve Ph container. Exiting." );
+     }
+
+     xAOD::PhotonContainer::const_iterator ph_it      = photons->begin(); 
+     xAOD::PhotonContainer::const_iterator ph_it_last = photons->end(); 
+     unsigned int j = 0; 
+     std::cout << "TEST " << std::endl; 
+     
+     for (; ph_it != ph_it_last; ++ph_it, ++j) {
+
+       const xAOD::Photon* ph = (*ph_it); 
+       std::cout << "Photon " << ph << " Num " << j<< std::endl; 
+       std::cout << "xAOD pt = " << (*ph_it)->pt() << std::endl; 
+       Info (APP_NAME,"Photon #%d", j); 
+
+       Info (APP_NAME,"Photon No cut  accept() returns %d ", static_cast<bool> (phnocut.accept(*ph)) );      
+       Info (APP_NAME,"Photon Tight cut  accept() returns %d ", static_cast<bool> (m_photonTightIsEMSelector.get()->accept(*ph)) );      
+
+     }
+
      Info( APP_NAME,
 	   "===>>>  done processing event #%lld ",entry);
-     
    }
+
    myMultiLepton.finalize();
    myLikelihood.finalize();
    myLoose.finalize();
    nocut.finalize();
+   phnocut.finalize();
+   m_photonTightIsEMSelector.get()->finalize();
+   expert.finalize();
    // Return gracefully:
    return 0;
 }
+
+//  LocalWords:  const

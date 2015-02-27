@@ -26,14 +26,13 @@ GeV = 1000.0
 
 def TrigElectronIsEMTightSelectorConfigDC14(theTool) :
     '''
-    This is for the Tight DC14 LATEST isEM definitions for the Trigger.
+    This is for the Tight MC15 LATEST isEM definitions for the Trigger.
     '''
     
     theTool = GetTool(theTool)
     
     # the isEM name
-    theTool.PIDName = egammaPID.IsEMTight
-    theTool.ConfigFile = "ElectronPhotonSelectorTools/offline/dc14b_20150121/ElectronIsEMTightSelectorCutDefs.conf"
+    theTool.ConfigFile = "ElectronPhotonSelectorTools/trigger/mc15_20150224/ElectronIsEMTightSelectorCutDefs.conf"
 
 
 
@@ -43,8 +42,6 @@ def TrigElectronIsEMTightSelectorConfigDC14OLD(theTool) :
     '''
     
     theTool = GetTool(theTool)
-
-    theTool.PIDName = egammaPID.IsEMTight
 
     # range of eta bins for e-ID
     theTool.CutBinEta = [0.1, 0.6, 0.8, 1.15, 1.37, 1.52, 1.81, 2.01, 2.37, 2.47]

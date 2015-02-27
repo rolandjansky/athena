@@ -168,9 +168,10 @@ int Root::TElectronLikelihoodTool::initialize()
   
   //----------File/Histo operation------------------------------------
   // Load the ROOT file containing the PDFs
-  const char* fname;
-  fname = gSystem->ExpandPathName( PdfFileName.c_str() );
-  m_pdfFile = TFile::Open( fname, "READ" );
+  TString tmpString(PdfFileName);
+  gSystem->ExpandPathName(tmpString);
+  std::string fname(tmpString.Data());
+  m_pdfFile = TFile::Open( fname.c_str(), "READ" );
   // Check that we could load the ROOT file
   if ( !m_pdfFile )
     {
@@ -619,7 +620,7 @@ double Root::TElectronLikelihoodTool::TransformLikelihoodOutput(double ps,double
 
     if(disc <= disc_loose_ref){
       // Below threshold for applying pileup correction
-      disc = disc;
+      //disc = disc;
     }
     else if(disc <= disc_hard_cut_ref_prime){
       // Between the loose and hard cut reference points for pileup correction
@@ -631,7 +632,7 @@ double Root::TElectronLikelihoodTool::TransformLikelihoodOutput(double ps,double
     }
     else{
       // Above threshold where pileup correction necessary
-      disc = disc;
+      //disc = disc;
     }
   }
 

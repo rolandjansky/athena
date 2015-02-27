@@ -19,14 +19,12 @@ GeV = 1000.0
 
 def ElectronIsEMLooseSelectorConfigDC14(theTool) :
     '''
-    These are the cut base isEM definitions: Loose from *DC14*
+    These are the cut base isEM definitions: Loose from MC15
     '''
     
     theTool = GetTool(theTool)
     
-    # the isEM name
-    theTool.PIDName = egammaPID.IsEMLoose
-    theTool.ConfigFile = "ElectronPhotonSelectorTools/offline/dc14b_20150121/ElectronIsEMLooseSelectorCutDefs.conf"
+    theTool.ConfigFile = "ElectronPhotonSelectorTools/offline/mc15_20150224/ElectronIsEMLooseSelectorCutDefs.conf"
 
 
 def ElectronIsEMLooseSelectorConfig2011(theTool) :
@@ -35,9 +33,6 @@ def ElectronIsEMLooseSelectorConfig2011(theTool) :
     '''
     
     theTool = GetTool(theTool)
-
-    #the isEM name
-    theTool.PIDName = egammaPID.IsEMLoose
 
     # the eta ranges
     theTool.CutBinEta += [0.1, 0.6, 0.8, 1.15, 1.37, 1.52, 1.81, 2.01, 2.37, 2.47]
@@ -238,9 +233,6 @@ def ElectronIsEMLooseSelectorConfig2012(theTool) :
     '''
     
     theTool = GetTool(theTool)
-
-    #the isEM name
-    theTool.PIDName = egammaPID.IsEMLoose
 
     # range of eta bins for e-ID
     theTool.CutBinEta += [0.1, 0.6, 0.8, 1.15, 1.37, 1.52, 1.81, 2.01, 2.37, 2.47]
@@ -458,9 +450,6 @@ def ElectronIsEMLooseSelectorConfig2012OLD(theTool) :
     '''
     
     theTool = GetTool(theTool)
-
-    #the isEM name
-    theTool.PIDName = egammaPID.IsEMLoose
 
     # range of eta bins for e-ID
     theTool.CutBinEta += [0.1, 0.6, 0.8, 1.15, 1.37, 1.52, 1.81, 2.01, 2.37, 2.47]
