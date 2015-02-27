@@ -31,7 +31,7 @@ from ElectronPhotonSelectorTools.TrigEGammaPIDdefs import SelectionDefElectron
 from ElectronPhotonSelectorTools.TrigEGammaPIDdefs import SelectionDefPhoton
 
 # Path for versioned configuration
-ConfigFilePath = "ElectronPhotonSelectorTools/trigger/dc14b_20150121/"
+ConfigFilePath = "ElectronPhotonSelectorTools/trigger/mc15_20150224/"
 
 # Dictionaries for ToolNames
 ElectronToolName = {'vloose':'AsgElectronIsEMVLooseSelector',
@@ -231,7 +231,7 @@ def ElectronPidTools():
                 ToolSvc += tool
     
     # Calo-only trigger specific selectors
-    #print '=========== Run1 PID Calo trigger specific ============'
+    #print '=========== Run2 PID Calo trigger specific ============'
     for key in ElectronCaloHypoToolName:
         if not('lh' in key):
             if not('1' in key):
@@ -252,7 +252,7 @@ def ElectronPidTools():
             #print ElectronToolConfigFile[key]
             tool=CfgMgr.AsgElectronLikelihoodTool(ElectronToolName[key])
             tool.ConfigFile = ConfigFilePath + ElectronToolConfigFile[key]
-            tool.inputPDFFileName = ConfigFilePath + "DC14OnlinePDFs.root"
+            #tool.inputPDFFileName = ConfigFilePath + "DC14OnlinePDFs.root"
             #tool.inputPDFFileName = "ElectronPhotonSelectorTools/trigger/dc14b_20141031/DC14OnlinePDFs.root"
             tool.usePVContainer = False
             ToolSvc += tool
@@ -263,7 +263,7 @@ def ElectronPidTools():
         #print ElectronLHToolConfigFile[key]
         tool=CfgMgr.AsgElectronLikelihoodTool(ElectronLHToolName[key])
         tool.ConfigFile = ConfigFilePath + ElectronLHToolConfigFile[key]
-        tool.inputPDFFileName = ConfigFilePath + "DC14OnlinePDFs.root"
+        #tool.inputPDFFileName = ConfigFilePath + "DC14OnlinePDFs.root"
         tool.usePVContainer = False
         ToolSvc += tool
 
@@ -274,7 +274,7 @@ def ElectronPidTools():
             #print ElectronCaloToolName[key]
             tool=CfgMgr.AsgElectronLikelihoodTool(ElectronCaloToolName[key])
             tool.ConfigFile = ConfigFilePath + ElectronCaloToolConfigFile[key]
-            tool.inputPDFFileName = ConfigFilePath + "DC14OnlinePDFs.root"
+            #tool.inputPDFFileName = ConfigFilePath + "DC14OnlinePDFs.root"
             tool.usePVContainer = False
             tool.caloOnly = True
             ToolSvc += tool

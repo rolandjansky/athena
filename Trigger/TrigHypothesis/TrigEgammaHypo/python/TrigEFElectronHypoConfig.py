@@ -143,24 +143,22 @@ class TrigEFElectronHypo_e_WTP (TrigEFElectronHypoBase):
     __slots__ = []
     def __init__(self, name, threshold):
         super( TrigEFElectronHypo_e_WTP, self ).__init__( name ) 
-# Set the properties        
         self.AcceptAll = False
         self.CaloCutsOnly = False
         self.ApplyIsEM = True
         self.ApplyEtIsEM = False
         self.emEt = float(threshold)*GeV
-# Import the SelectorTools        
-        try:
-            from TrigEgammaRec.TrigEgammaAthElectronIsEMSelectors import TrigEgammaAthElectronIsEMSelector
-        except:
-            mlog = logging.getLogger(name+'::__init__')
-            mlog.error("could not get handle to AthenaSelectorTool")
-            print traceback.format_exc()
-            return False
-# Need to check selection to map for W T&P trigger        
-        self.IsEMrequiredBits = SelectionDefElectron.Electron_trk
-        theelectroncutid=TrigEgammaAthElectronIsEMSelector("athElectronIsEMSelector_"+self.name(),TrigEgammaIDQuality.ElectronIDLoose,electronPIDmenu.menuTrig2012)
-        self.egammaElectronCutIDToolName = theelectroncutid.getFullName()
+        self.IsEMrequiredBits = 0X0
+        from TrigEgammaHypo.TrigEgammaPidTools import ElectronToolName
+        from TrigEgammaHypo.TrigEgammaPidTools import ElectronHypoToolName
+        from TrigEgammaHypo.TrigEgammaPidTools import ElectronIsEMBits
+        from ElectronPhotonSelectorTools.TrigEGammaPIDdefs import SelectionDefElectron
+        self.AthenaElectronLHIDSelectorToolName="AsgElectronLikelihoodTool/AsgElectronLHLooseSelector"
+        self.IsEMrequiredBits =  SelectionDefElectron.Electron_trk
+        if( float(threshold) < 20 ):
+            self.egammaElectronCutIDToolName = 'AsgElectronIsEMSelector/'+ElectronToolName['loose']
+        else:
+            self.egammaElectronCutIDToolName = 'AsgElectronIsEMSelector/'+ElectronHypoToolName['loose']
 
 #-----------------------------------------------------------------------
 # --- eXX Particle ID selection CaloCuts only
