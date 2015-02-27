@@ -35,12 +35,6 @@
 #include "TrigDecisionTool/ChainGroup.h"
 #include "TrigDecisionTool/TDTUtilities.h"
 
-#include "TrigDecisionEvent/TrigDecision.h"
-
-
-#include "TrigDecisionTool/DecisionUnpackerAthena.h"
-#include "TrigDecisionTool/DecisionUnpackerEventInfo.h"
-
 Trig::CacheGlobalMemory::CacheGlobalMemory() 
   : Logger ("CacheGlobalMemory"),
     asg::AsgMessaging("CacheGlobalMemory"),
@@ -321,36 +315,6 @@ const LVL1CTP::Lvl1Item* Trig::CacheGlobalMemory::item(const std::string& name) 
 
 bool Trig::CacheGlobalMemory::assert_decision() {
   
-  if(!m_unpacker){
-    ATH_MSG_INFO("decision not set on first (?) assert. deciding how to unpack");
-    
-    //Lukas 26-06-2015: we're hard coding the configuration for now
-    //but we have setters and getters for m_trigDecisionKey (as CGM datamemer)
-    //so we could in the future use the ones set by the python configuration
-    //we're hardcoding in order not to require python configuration changes
-
-
-    bool contains_decision = store()->contains<TrigDec::TrigDecision>("TrigDecision");
-    bool is_l1result_configured = false;
-    if(contains_decision) {
-       const TrigDec::TrigDecision * trigDec(0);
-       store()->retrieve(trigDec,"TrigDecision").ignore();
-       is_l1result_configured = trigDec->getL1Result().isConfigured();
-    }
-    
-    //if(contains_decision){
-    if( is_l1result_configured ){
-      ATH_MSG_INFO("SG contains AOD decision, use DecisionUnpackerAthena");
-      DecisionUnpackerAthena* unpacker = new DecisionUnpackerAthena(store(), "TrigDecision");
-      setUnpacker(unpacker);
-    } else {
-      ATH_MSG_INFO("SG contains NO(!) L1Result in the AOD TrigDecision, assuming also no HLTResult. Read from EventInfo");
-      DecisionUnpackerEventInfo* unpacker = new DecisionUnpackerEventInfo(store(), "");
-      setUnpacker(unpacker);
-    }
-  }
-
-
   if( m_unpacker->assert_handle() ) {
     if( unpackDecision().isFailure() ) {
       ATH_MSG_WARNING( "TrigDecion object incorrect (for chains)" );
@@ -358,15 +322,10 @@ bool Trig::CacheGlobalMemory::assert_decision() {
     if( unpackNavigation().isFailure() ) {
       static bool warningPrinted = false;
       if( ! warningPrinted ) {
-         ATH_MSG_WARNING( "TrigDecion object incorrect (for navigation)" );
-         warningPrinted = true;
+	ATH_MSG_WARNING( "TrigDecion object incorrect (for navigation)" );
+	warningPrinted = true;
       }
     }
-    if(msgLvl(MSG::VERBOSE)) {
-       for(auto item : m_itemsByName)
-          ATH_MSG_VERBOSE("Item " << item.first << "  TBP " << item.second->m_passBP << "  TAP " << item.second->m_passAP << "  TAV " << item.second->m_passAV);
-    }
-
     m_unpacker->validate_handle();
   }
   
@@ -399,7 +358,7 @@ StatusCode Trig::CacheGlobalMemory::unpackNavigation() {
   }
 
   // Failing to unpack the navigation is not a failure, as it may be missing
-  // from the xAOD file or in the bytestream (partial events without HLTResult)
+  // from the xAOD file:
   if( ! m_unpacker->unpackNavigation( m_navigation ).isSuccess() ) {
     static bool warningPrinted = false;
     if( ! warningPrinted ) {

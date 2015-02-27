@@ -30,6 +30,8 @@
 #include "TrigDecisionTool/TrigDecisionTool.h"
 
 
+
+
 static std::vector<std::string> s_instances;
 
 
@@ -96,8 +98,17 @@ Trig::TrigDecisionTool::initialize() {
       return sc;
    }
    cgm()->navigation(&*m_navigation);
-   cgm()->setStore(&*evtStore());
-   cgm()->setDecisionKey(m_decisionKey);
+
+   if(m_useAODDecision){
+     ATH_MSG_INFO("using old decision");
+     DecisionUnpackerAthena* unpacker = new DecisionUnpackerAthena(&*evtStore(), m_decisionKey);
+     cgm()->setUnpacker(unpacker);
+   }
+   else{
+     ATH_MSG_INFO("using new decision");
+     DecisionUnpackerStandalone* unpacker = new DecisionUnpackerStandalone(&*evtStore(),m_decisionKey,"TrigNavigation");
+     cgm()->setUnpacker(unpacker);
+   }
 
    ServiceHandle<IIncidentSvc> incSvc("IncidentSvc",name());
    if (incSvc.retrieve().isFailure()) {
@@ -126,9 +137,7 @@ Trig::TrigDecisionTool::initialize() {
 
 StatusCode Trig::TrigDecisionTool::beginEvent() {
   ATH_MSG_DEBUG("invalidating object handle");
-  if(cgm()->unpacker()){
-    cgm()->unpacker()->invalidate_handle();
-  }
+  cgm()->unpacker()->invalidate_handle();
   return StatusCode::SUCCESS;
 }
 

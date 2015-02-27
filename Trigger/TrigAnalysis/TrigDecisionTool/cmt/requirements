@@ -30,7 +30,7 @@ private
 use  AthenaKernel               AthenaKernel-*                  Control
 use  AthenaBaseComps		AthenaBaseComps-*		Control
 use  TrigSteeringEvent          TrigSteeringEvent-*             Trigger/TrigEvent
-use  EventInfo                  EventInfo-*                     Event  
+#use  EventInfo                  EventInfo-*                     Event  
 use  CxxUtils                   CxxUtils-*                      Control
 # for the test suites
 use  TrigMuonEvent              TrigMuonEvent-*                 Trigger/TrigEvent
