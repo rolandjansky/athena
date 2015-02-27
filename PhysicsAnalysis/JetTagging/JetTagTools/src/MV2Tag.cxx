@@ -303,6 +303,34 @@ namespace Analysis {
 	tmvaReader->AddVariable("jf_efrc",&m_jf_efrc);
 	tmvaReader->AddVariable("jf_dR",&m_jf_dR);
 	tmvaReader->AddVariable("jf_sig3",&m_jf_sig3);
+      } else if (m_trainingConfig=="NoJF_NoSV0NoSv1_V1" ) {
+	tmvaReader->AddVariable("pt",&m_pt);	
+	tmvaReader->AddVariable("abs(eta)",&m_absEta);	
+	// IP2D posteriors
+	tmvaReader->AddVariable("ip2",&m_ip2);
+	tmvaReader->AddVariable("ip2_c",&m_ip2_c);
+	tmvaReader->AddVariable("ip2_cu",&m_ip2_cu);
+	// IP3D posteriors
+	tmvaReader->AddVariable("ip3",&m_ip3);
+	tmvaReader->AddVariable("ip3_c",&m_ip3_c);
+	tmvaReader->AddVariable("ip3_cu",&m_ip3_cu);
+	//more sv1 informations
+	tmvaReader->AddVariable("sv1_ntkv" ,&m_sv1_ntkv);
+	tmvaReader->AddVariable("sv1_mass" ,&m_sv1_mass);
+	tmvaReader->AddVariable("sv1_efrc" ,&m_sv1_efrc);
+	tmvaReader->AddVariable("sv1_n2t"  ,&m_sv1_n2t);
+	tmvaReader->AddVariable("sv1_Lxy"  ,&m_sv1_Lxy);
+	tmvaReader->AddVariable("sv1_L3d"  ,&m_sv1_L3d);
+	tmvaReader->AddVariable("sv1_sig3" ,&m_sv1_sig3);
+	//JetFitter informations
+	tmvaReader->AddVariable("jf_n2tv",&m_jf_n2tv);
+	tmvaReader->AddVariable("jf_ntrkv",&m_jf_ntrkv);
+	tmvaReader->AddVariable("jf_nvtx",&m_jf_nvtx);
+	tmvaReader->AddVariable("jf_nvtx1t",&m_jf_nvtx1t);
+	tmvaReader->AddVariable("jf_mass",&m_jf_mass);
+	tmvaReader->AddVariable("jf_efrc",&m_jf_efrc);
+	tmvaReader->AddVariable("jf_dR",&m_jf_dR);
+	tmvaReader->AddVariable("jf_sig3",&m_jf_sig3);
       } else if (m_trainingConfig=="NoJF_NoSV0NoSv1_V2" ) {
 	// IP2D posteriors
 	tmvaReader->AddVariable("ip2",&m_ip2);
@@ -682,7 +710,7 @@ namespace Analysis {
 		  );
     
     /* compute MV2: */
-    double mv2 = -10.;
+    double mv2 = -10.;  double mv2m_pb=-10., mv2m_pu=-10., mv2m_pc=-10. ;
     pos = m_tmvaReaders.find(alias);
     if(pos==m_tmvaReaders.end()) {
       int alreadyWarned = std::count(m_undefinedReaders.begin(),m_undefinedReaders.end(),alias);
@@ -694,15 +722,31 @@ namespace Analysis {
     else {
       std::map<std::string, TMVA::MethodBase*>::iterator itmap2 = m_tmvaMethod.find(alias);
       if((itmap2->second)!=0) {
-	mv2 = pos->second->EvaluateMVA( itmap2->second );
+	if (m_taggerNameBase.find("MV2c")!=-1) mv2 = pos->second->EvaluateMVA( itmap2->second );
+	else {
+	  std::vector<float> outputs= pos->second->EvaluateMulticlass( itmap2->second );
+	  if (outputs.size()==3) {
+	    mv2m_pb=outputs[0]; mv2m_pu=outputs[1]; mv2m_pc=outputs[2] ;
+	  }
+	  else {
+	    ATH_MSG_WARNING("#BTAG# Unkown error, outputs vector size not 3!!!" );
+	    //return StatusCode::SUCCESS;
+	  }
+	}
       }
       else ATH_MSG_WARNING("#BTAG#  kl==0");
     }
-    ATH_MSG_DEBUG("#BTAG# MV2 weight: " << mv2);
+    if (m_taggerNameBase.find("MV2c")!=-1) ATH_MSG_DEBUG("#BTAG# MV2 weight: " << mv2<<", "<<alias);
+    else ATH_MSG_DEBUG("#BTAG# MV2 pb, pu, pc= " << mv2m_pb<<"\t"<<mv2m_pu<<"\t"<<mv2m_pc<<", "<<alias);
     
     /** give information to the info class. */
     if(m_runModus=="analysis") {
-      BTag->setVariable<double>(m_xAODBaseName, "discriminant", mv2);
+      if (m_taggerNameBase.find("MV2c")!=-1) BTag->setVariable<double>(m_xAODBaseName, "discriminant", mv2);
+      else {
+	BTag->setVariable<double>(m_xAODBaseName, "pb", mv2m_pb);
+	BTag->setVariable<double>(m_xAODBaseName, "pu", mv2m_pu);
+	BTag->setVariable<double>(m_xAODBaseName, "pc", mv2m_pc);
+      }
     }
 
 
