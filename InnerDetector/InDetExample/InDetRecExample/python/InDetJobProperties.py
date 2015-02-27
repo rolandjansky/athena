@@ -1122,7 +1122,6 @@ class InDetJobProperties(JobPropertyContainer):
        self.checkThenSet(self.doConversions          , False)
        self.checkThenSet(self.doStatistics           , False)
        self.checkThenSet(self.doSlimming             , True )
-       self.checkThenSet(self.doSGDeletion           , True )       
        self.checkThenSet(self.writeRDOs              , False)
        self.checkThenSet(self.useMBTSTimeDiff        , True )
        self.checkThenSet(self.cutLevel               , 2    )
@@ -1159,6 +1158,7 @@ class InDetJobProperties(JobPropertyContainer):
        # TEMPORARY FIX TO STOP SEG FAULT
        self.checkThenSet(self.doPixelClusterSplitting, False)
        self.checkThenSet(self.doTIDE_Ambi, False)
+       self.checkThenSet(self.doTrackSegmentsPixelPrdAssociation, False)
 
     elif (self.doIBL()):
        print "----> InDetJobProperties for IBL"
