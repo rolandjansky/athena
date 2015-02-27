@@ -2,7 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-
 // Dear emacs, this is -*-c++-*-
 
 /**
@@ -19,6 +18,7 @@
 #include "ElectronPhotonSelectorTools/AsgElectronIsEMSelector.h"
 #include "ElectronPhotonSelectorTools/AsgElectronPhotonIsEMSelectorConfigHelper.h"
 #include "xAODEgamma/Electron.h"
+#include "xAODEgamma/Photon.h"
 #include "xAODTracking/TrackParticle.h"
 #include "xAODCaloEvent/CaloCluster.h"
 #include "PathResolver/PathResolver.h"
@@ -45,14 +45,7 @@ AsgElectronIsEMSelector::AsgElectronIsEMSelector(std::string myname) :
 		  m_rootTool->isEMMask=egammaPID::EgPidUndefined, //All pass by default, if not specified
 		  "The mask to use");
 
-  //Name of the PID kind. This is not used anymore, 
-  //Should remove, it bar python dependencies (py using this property still)
-  //Do not use, do not advertise
-  declareProperty("PIDName",
-		  m_PIDName=0,
-		  "Name of the PID ");
-  
-  // Boolean to use b-layer prediction
+    // Boolean to use b-layer prediction
   declareProperty("useBLayerHitPrediction", 
 		  m_rootTool->useBLayerHitPrediction = true,
 		  "Boolean to use b-layer prediction");
@@ -184,6 +177,10 @@ AsgElectronIsEMSelector::AsgElectronIsEMSelector(std::string myname) :
   // cut on Ratio of TR hits to Number of TRT hits for 90% efficiency
   declareProperty("CutTRTRatio90",m_rootTool->CutTRTRatio90,
 		  "cut on Ratio of TR hits to Number of TRT hits for 90% efficiency");
+  //cut on eProbabilityHT new TRT PID tool
+  declareProperty("CutEProbabilityHT",m_rootTool->CutEProbabilityHT,
+		  "Cut on eProabbiility new TRT PID Tool");
+  
   // for the trigger needs:
   declareProperty("caloOnly", m_caloOnly=false, "Flag to tell the tool if its a calo only cutbase"); 
   declareProperty("trigEtTh", m_trigEtTh=-999. , "Trigger threshold"); 
@@ -270,11 +267,12 @@ StatusCode AsgElectronIsEMSelector::initialize()
     m_rootTool->CutNumTRT = AsgConfigHelper::HelperFloat("CutNumTRT",env);        
     m_rootTool->CutTRTRatio = AsgConfigHelper::HelperFloat("CutTRTRatio",env);    
     m_rootTool->CutTRTRatio90 = AsgConfigHelper::HelperFloat("CutTRTRatio90",env);  
+    m_rootTool->CutEProbabilityHT = AsgConfigHelper::HelperFloat("CutEProbabilityHT",env);    
   } else {
     ATH_MSG_INFO("Conf file empty. Just user Input");
   }
 
-  ATH_MSG_INFO("operating point : " << this->getOperatingPointName());
+  ATH_MSG_INFO("operating point : " << this->getOperatingPointName() << " with mask: "<< m_rootTool->isEMMask  );
 
   // We need to initialize the underlying ROOT TSelectorTool
   if ( 0 == m_rootTool->initialize() )
@@ -308,59 +306,72 @@ StatusCode AsgElectronIsEMSelector::finalize()
 //=============================================================================
 // The main accept method: the actual cuts are applied here 
 //=============================================================================
-const Root::TAccept& AsgElectronIsEMSelector::accept( const xAOD::IParticle* part ) const
-{
+const Root::TAccept& AsgElectronIsEMSelector::accept( const xAOD::IParticle* part ) const{
 
   ATH_MSG_DEBUG("Entering accept( const IParticle* part )");
   if(part->type()==xAOD::Type::Electron){
-    const xAOD::Electron* eg =static_cast<const xAOD::Electron*> (part);
-    return accept(eg);
+    const xAOD::Electron* el =static_cast<const xAOD::Electron*> (part);
+    return accept(el);
+  }
+  else if(part->type()==xAOD::Type::Photon){
+    const xAOD::Photon* ph =static_cast<const xAOD::Photon*> (part);
+    return accept(ph);
   }
   else{
-    ATH_MSG_ERROR("AsgElectronIsEMSelector::could not convert argument to accept");
+    ATH_MSG_ERROR("AsgElectronIsEMSelector::could not convert argument to Electron/Photon");
     return m_acceptDummy;
   }
 }
 
-const Root::TAccept& AsgElectronIsEMSelector::accept( const xAOD::Electron* eg) const
-{
-  ATH_MSG_DEBUG("Entering accept( const egamma* part )");  
-  if ( eg )
-    {
-      StatusCode sc = execute(eg);
-      if (sc.isFailure()) {
-	ATH_MSG_ERROR("could not calculate isEM");
-	return m_acceptDummy;
-      }
-      return m_rootTool->fillAccept();
-    }
-  else
-    {
-      ATH_MSG_ERROR("AsgElectronIsEMSelector::accept was given a bad argument");
-      return m_acceptDummy;
-    }
+const Root::TAccept& AsgElectronIsEMSelector::accept( const xAOD::Egamma* eg ) const{
+ 
+  if(eg->type()==xAOD::Type::Electron){
+    const xAOD::Electron* el =static_cast<const xAOD::Electron*> (eg);
+    return accept(el);
+  }
+  else if(eg->type()==xAOD::Type::Photon){
+    const xAOD::Photon* ph =static_cast<const xAOD::Photon*> (eg);
+    return accept(ph);
+  }
+  else{
+    ATH_MSG_ERROR("AsgElectronIsEMSelector::could not convert argument to Electron/Photon");
+    return m_acceptDummy;
+  }
 }
 
-const Root::TAccept& AsgElectronIsEMSelector::accept( const xAOD::Egamma* eg ) const
+const Root::TAccept& AsgElectronIsEMSelector::accept( const xAOD::Electron* el) const
 {
-  ATH_MSG_DEBUG("Entering accept( const egamma* part )"); 
-  if ( eg )
-    {
-      StatusCode sc = execute(eg);
-      if (sc.isFailure()) {
-	ATH_MSG_ERROR("could not calculate isEM");
-	return m_acceptDummy;
-      }
-      return m_rootTool->fillAccept();
-    }
-  else
-    {
-      ATH_MSG_ERROR("AsgElectronIsEMSelector::accept was given a bad argument");
+  ATH_MSG_DEBUG("Entering accept( const Electron* part )");  
+  if ( el ){
+    StatusCode sc = execute(el);
+    if (sc.isFailure()) {
+      ATH_MSG_ERROR("could not calculate isEM");
       return m_acceptDummy;
     }
+    return m_rootTool->fillAccept();
+  }
+  else{
+    ATH_MSG_ERROR("AsgElectronIsEMSelector::accept was given a bad argument");
+    return m_acceptDummy;
+  }
 }
 
-
+const Root::TAccept& AsgElectronIsEMSelector::accept( const xAOD::Photon* ph) const
+{
+  ATH_MSG_DEBUG("Entering accept( const Photon* part )");  
+  if ( ph ){
+    StatusCode sc = execute(ph);
+    if (sc.isFailure()) {
+      ATH_MSG_ERROR("could not calculate isEM");
+      return m_acceptDummy;
+    }
+    return m_rootTool->fillAccept();
+  }
+  else{
+    ATH_MSG_ERROR("AsgPhotonIsEMSelector::accept was given a bad argument");
+    return m_acceptDummy;
+  }
+}
 //=============================================================================
 /// Get the name of the current operating point
 //=============================================================================
@@ -370,6 +381,12 @@ std::string AsgElectronIsEMSelector::getOperatingPointName() const
   if (m_rootTool->isEMMask == egammaPID::ElectronLoosePP){ return "Loose"; }
   else if (m_rootTool->isEMMask == egammaPID::ElectronMediumPP ){ return "Medium"; }
   else if (m_rootTool->isEMMask == egammaPID::ElectronTightPP){ return "Tight"; }
+  else if (m_rootTool->isEMMask == egammaPID::ElectronLoose1){return "Loose1";}
+  else if (m_rootTool->isEMMask == egammaPID::ElectronMedium1){return "Medium1";}
+  else if (m_rootTool->isEMMask == egammaPID::ElectronTight1){return "Tight1";}
+  else if (m_rootTool->isEMMask == egammaPID::ElectronLooseHLT){return "LooseHLT";}
+  else if (m_rootTool->isEMMask == egammaPID::ElectronMediumHLT){return "MediumHLT";}
+  else if (m_rootTool->isEMMask == egammaPID::ElectronTightHLT){return "TightHLT";}
   else if (m_rootTool->isEMMask == 0){ return "0 No cuts applied"; }
   else{
       ATH_MSG_INFO( "Didn't recognize the given operating point with mask: " << m_rootTool->isEMMask );
@@ -378,123 +395,106 @@ std::string AsgElectronIsEMSelector::getOperatingPointName() const
 }
 
 ///==========================================================================================//
-// The stuff copied over from egammaElectronCutIDTool
+// ==============================================================
 
 // ==============================================================
-StatusCode AsgElectronIsEMSelector::execute(const xAOD::Electron* eg) const
+StatusCode AsgElectronIsEMSelector::execute(const xAOD::Egamma* eg ) const
+{
+  if(eg->type()==xAOD::Type::Electron){
+    const xAOD::Electron* el =static_cast<const xAOD::Electron*> (eg);
+    return execute(el);
+  }
+  else if(eg->type()==xAOD::Type::Photon){
+    const xAOD::Photon* ph =static_cast<const xAOD::Photon*> (eg);
+    return execute(ph);
+  }
+  else{
+    ATH_MSG_ERROR("AsgElectronIsEMSelector::could not convert argument to Electron");
+    return StatusCode::SUCCESS;
+  }
+}
+
+StatusCode AsgElectronIsEMSelector::execute(const xAOD::Electron* el) const
 {
   //
   // Particle identification for electrons based on cuts
   //
-
-  ATH_MSG_DEBUG("entering execute(const egamma* eg...)");
-
+  ATH_MSG_DEBUG("entering execute(const Electron* el...)");
   // initialisation
   unsigned int iflag = 0; 
-
   // protection against null pointer
-  if (eg==0) {
+  if (el==0) {
     // if object is bad then use the bit for "bad eta"
-    ATH_MSG_DEBUG("exiting because eg is empty");
+    ATH_MSG_DEBUG("exiting because el is NULL");
     iflag = (0x1 << egammaPID::ClusterEtaRange_Electron); 
     m_rootTool->setIsEM(iflag);
     return StatusCode::SUCCESS; 
   }
-
   // retrieve associated cluster
-  const xAOD::CaloCluster* cluster  = eg->caloCluster(); 
-
-  // basic protection : isem is calculated only for objects
-  // which have a cluster, a track, an EMTrackMatch object and an EMShower
-  // which is likely for an electron
+  const xAOD::CaloCluster* cluster  = el->caloCluster(); 
   if ( cluster == 0 ) {
     // if object is bad then use the bit for "bad eta"
+    ATH_MSG_DEBUG("exiting because cluster is NULL");
     iflag = (0x1 << egammaPID::ClusterEtaRange_Electron); 
     m_rootTool->setIsEM(iflag);
     return StatusCode::SUCCESS; 
   }
-  
   // eta position in second sampling
   const float eta2   = fabsf(cluster->etaBE(2));
   // energy in calorimeter 
   const double energy =  cluster->e();
   // transverse energy of the electron (using the track eta) 
-  const double et = eg->pt();
+  const double et = el->pt();
   
-  if( m_caloOnly )   {
-    
-    //ATH_MSG_DEBUG("Doing CaloCutsOnly");
-    //
-    // apply only calo information
-    //
-    
-    // apply calorimeter selection
-    iflag = calocuts_electrons(eg, eta2, et, m_trigEtTh, 0);
+  iflag = calocuts_electrons(el, eta2, et, m_trigEtTh, 0);
 
-
-  } else {
-
-    // apply calorimeter selection
-    iflag = calocuts_electrons(eg, eta2, et, m_trigEtTh, 0);
-    //ATH_MSG_DEBUG(std::hex << "after calo cuts, iflag = " << iflag); 
-
-    // apply track selection 
-    iflag = TrackCut(eg, eta2, et, energy, iflag);
-    //ATH_MSG_DEBUG(std::hex << "after track cuts, iflag = " << iflag); 
-
-
-  }// end of switch(CaloCutsOnly)
-    
+  if(!m_caloOnly){
+    if(el->trackParticle()){
+      iflag = TrackCut(el, eta2, et, energy, iflag);
+    }
+  }
+  
   m_rootTool->setIsEM(iflag);  
   return StatusCode::SUCCESS;
 }
 
-// The only does calocutsonly
+//Only calo cuts
 // ==============================================================
-StatusCode AsgElectronIsEMSelector::execute(const xAOD::Egamma* eg ) const
-{
+StatusCode AsgElectronIsEMSelector::execute(const xAOD::Photon* ph) const{
   //
   // Particle identification for electrons based on cuts
   //
-  
-  ATH_MSG_DEBUG("entering execute(const egamma* eg...)");
-  
+  ATH_MSG_DEBUG("entering execute(const Photon* ph...)");
   // initialisation
-  unsigned int iflag = 0;
-  
+  unsigned int iflag = 0; 
   // protection against null pointer
-  if (eg==0) {
+  if (ph==0) {
     // if object is bad then use the bit for "bad eta"
-    ATH_MSG_DEBUG("exiting because eg is empty");
-    iflag = (0x1 << egammaPID::ClusterEtaRange_Electron);
+    ATH_MSG_DEBUG("exiting because el is NULL");
+    iflag = (0x1 << egammaPID::ClusterEtaRange_Electron); 
     m_rootTool->setIsEM(iflag);
-    return StatusCode::SUCCESS;
+    return StatusCode::SUCCESS; 
   }
-  
   // retrieve associated cluster
-  const xAOD::CaloCluster* cluster  = eg->caloCluster();
-  
-  // basic protection : isem is calculated only for objects
-  // which have a cluster, a track, an EMTrackMatch object and an EMShower
-  // which is likely for an electron
+  const xAOD::CaloCluster* cluster  = ph->caloCluster(); 
   if ( cluster == 0 ) {
     // if object is bad then use the bit for "bad eta"
-    iflag = (0x1 << egammaPID::ClusterEtaRange_Electron);
+    ATH_MSG_DEBUG("exiting because cluster is NULL");
+    iflag = (0x1 << egammaPID::ClusterEtaRange_Electron); 
     m_rootTool->setIsEM(iflag);
-    return StatusCode::SUCCESS;
+    return StatusCode::SUCCESS; 
   }
-  
   // eta position in second sampling
   const float eta2   = fabsf(cluster->etaBE(2));
-  // transverse energy of the electron (using the track eta) 
-  const double et = eg->pt(); 
+  // transverse energy 
+  const double et = ph->pt();
   
-  // apply calorimeter selection
-  iflag = calocuts_electrons(eg, eta2, et, m_trigEtTh, 0);
- 
-  m_rootTool->setIsEM(iflag); 
+  iflag = calocuts_electrons(ph, eta2, et, m_trigEtTh, 0);
+  
+  m_rootTool->setIsEM(iflag);  
   return StatusCode::SUCCESS;
 }
+
 
 // ======================================================================
 unsigned int AsgElectronIsEMSelector::calocuts_electrons(const xAOD::Egamma* eg, 
@@ -502,20 +502,18 @@ unsigned int AsgElectronIsEMSelector::calocuts_electrons(const xAOD::Egamma* eg,
 							 double trigEtTh,
 							 unsigned int iflag) const
 {
-  //
+ 
+ //
   // apply cut-based selection based on calo information
   // eg : xAOD::Electron object
-  // EMShower : EMShower detail
   // trigETthr : threshold in ET to apply the cuts at trigger level
   // iflag: the starting isEM
   //
-
 
   float Reta(0), Rphi(0), Rhad1(0), Rhad(0), e277(0), weta1c(0), weta2c(0), 
     f1(0), emax2(0), Eratio(0), DeltaE(0), wtot(0), fracm(0), f3(0);
 
   bool allFound = true;
-
   // Reta
   allFound = allFound && eg->showerShapeValue(Reta, xAOD::EgammaParameters::Reta);
   // Rphi
@@ -589,8 +587,7 @@ unsigned int AsgElectronIsEMSelector::TrackCut(const xAOD::Electron* eg,
   //  - use of TRT
   // eg : egamma object
   // iflag: the starting isEM to use
-  //
-  
+  //  
   // retrieve associated track
   const xAOD::TrackParticle* t  = eg->trackParticle();    
 
@@ -621,6 +618,7 @@ unsigned int AsgElectronIsEMSelector::TrackCut(const xAOD::Electron* eg,
   uint8_t nTRTOutliers = 0;
   uint8_t nTRTXenonHits = 0;
   uint8_t expectHitInBLayer = true;
+  float   TRT_PID = 0.0; 
 
   bool allFound = true;
 
@@ -637,6 +635,7 @@ unsigned int AsgElectronIsEMSelector::TrackCut(const xAOD::Electron* eg,
   allFound = allFound && t->summaryValue(nTRT, xAOD::numberOfTRTHits);
   allFound = allFound && t->summaryValue(nTRTOutliers, xAOD::numberOfTRTOutliers);
   allFound = allFound && t->summaryValue(nTRTXenonHits, xAOD::numberOfTRTXenonHits);
+  allFound = allFound && t->summaryValue(TRT_PID, xAOD::eProbabilityHT);
   allFound = allFound && t->summaryValue(expectHitInBLayer, xAOD::expectBLayerHit);
 
   const float trackd0 = fabsf(t->d0());
@@ -657,7 +656,6 @@ unsigned int AsgElectronIsEMSelector::TrackCut(const xAOD::Electron* eg,
     return iflag;
   }
 
-  
   return m_rootTool->TrackCut(eta2,
 			      et,
 			      nBL,
@@ -673,6 +671,7 @@ unsigned int AsgElectronIsEMSelector::TrackCut(const xAOD::Electron* eg,
 			      nTRT,
 			      nTRTOutliers,
 			      nTRTXenonHits,
+			      TRT_PID,
 			      trackd0,
 			      deltaeta,
 			      deltaphi,
@@ -682,3 +681,5 @@ unsigned int AsgElectronIsEMSelector::TrackCut(const xAOD::Electron* eg,
 }
 
 
+
+//  LocalWords:  const el

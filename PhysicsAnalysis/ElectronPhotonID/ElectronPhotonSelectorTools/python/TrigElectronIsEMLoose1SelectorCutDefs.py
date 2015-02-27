@@ -30,9 +30,6 @@ def TrigElectronIsEMLoose1SelectorConfig2012(theTool) :
 
     theTool = GetTool(theTool)
 
-    theTool.PIDName = egammaPID.IsEMLoose
-
-
     # range of eta bins for e-ID
     theTool.CutBinEta = [0.1, 0.6, 0.8, 1.15, 1.37, 1.52, 1.81, 2.01, 2.37, 2.47]
 

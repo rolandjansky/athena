@@ -30,10 +30,7 @@ def TrigElectronIsEMMediumSelectorConfigDC14(theTool) :
     '''
     theTool = GetTool(theTool)
     
-    # the isEM name
-    theTool.PIDName = egammaPID.IsEMMedium
-    
-    theTool.ConfigFile = "ElectronPhotonSelectorTools/offline/dc14b_20150121/ElectronIsEMMediumSelectorCutDefs.conf"
+    theTool.ConfigFile = "ElectronPhotonSelectorTools/trigger/mc15_20150224/ElectronIsEMMediumSelectorCutDefs.conf"
 
 
 
@@ -45,8 +42,6 @@ def TrigElectronIsEMMediumSelectorConfigDC14OLD(theTool) :
     
     theTool = GetTool(theTool)
 
-    theTool.PIDName = egammaPID.IsEMMedium
- 
     theTool.CutBinEta = [0.1, 0.6, 0.8, 1.15, 1.37, 1.52, 1.81, 2.01, 2.37, 2.47]
         
     # range of ET bins for e-ID

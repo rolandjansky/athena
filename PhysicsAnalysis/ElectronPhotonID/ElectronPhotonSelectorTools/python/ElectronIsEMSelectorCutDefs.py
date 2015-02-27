@@ -24,8 +24,6 @@ def ElectronIsEMSelectorConfig2011(theTool) :
     
     theTool = GetTool(theTool)
 
-    # the isEM name
-    theTool.PIDName = egammaPID.IsEM
     # the eta ranges
     theTool.CutBinEta += [0.1, 0.6, 0.8, 1.15, 1.37, 1.52, 1.81, 2.01, 2.37, 2.47]
     # range of ET bins for e-ID

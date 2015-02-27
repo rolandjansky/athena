@@ -26,6 +26,7 @@
 
 // Forward declarations
 #include "xAODEgamma/ElectronFwd.h"
+#include "xAODEgamma/PhotonFwd.h"
 #include "xAODEgamma/EgammaFwd.h"
 
 class IAsgElectronIsEMSelector : virtual public IAsgSelectionTool
@@ -38,27 +39,43 @@ class IAsgElectronIsEMSelector : virtual public IAsgSelectionTool
   /**Virtual Destructor*/
   virtual ~IAsgElectronIsEMSelector() {};
 
-  /** The main accept method: using the generic interface */
+  /** Accept with generic interface */
   virtual const Root::TAccept& accept( const xAOD::IParticle* part ) const = 0;
+
+  /** Accept with generic interface */
+  virtual const Root::TAccept& accept( const xAOD::IParticle& part ) const = 0;
+  
+  /** Accept with Egamma objects */
+  virtual const Root::TAccept& accept( const xAOD::Egamma* part) const = 0;
+
+  /** Accept with Egamma objects */
+  virtual const Root::TAccept& accept( const xAOD::Egamma& part) const = 0;
+
+  /** The main accept method: the actual cuts are applied here */
+  virtual const Root::TAccept& accept( const xAOD::Photon* part ) const = 0;
+
+  /** The main accept method: the actual cuts are applied here */
+  virtual const Root::TAccept& accept( const xAOD::Photon& part ) const = 0;
 
   /** The main accept method: the actual cuts are applied here */
   virtual const Root::TAccept& accept( const xAOD::Electron* part ) const = 0;
 
-  /** The main accept method: using the generic interface */
-  virtual const Root::TAccept& accept( const xAOD::IParticle& part ) const = 0;
-
   /** The main accept method: the actual cuts are applied here */
   virtual const Root::TAccept& accept( const xAOD::Electron& part ) const = 0;
-  
-  /** This method is for the trigger, and implies CaloCutsOnly set to true (for Trigger)*/
-  virtual const Root::TAccept& accept( const xAOD::Egamma* part) const = 0;
+
+
+  ///////////////Expert methods //////////////////////////////////////
+
+  /** This is for custom trigger calls */
+  virtual StatusCode execute(const xAOD::Photon* ph) const =0;
 
   /** The basic isem */
-  virtual StatusCode execute(const xAOD::Electron* eg) const =0;
+  virtual StatusCode execute(const xAOD::Electron* el) const =0;
   
   /** The isem potentially for the trigger, imples CalocCutsOnly*/
   virtual StatusCode execute(const xAOD::Egamma* eg) const =0;
-  
+
+  //////////////////////////////////////////////////////////////
   virtual unsigned int IsemValue() const = 0;
   
   /** Method to get the operating point */

@@ -24,9 +24,6 @@ def PhotonIsEMMediumSelectorConfigDC14(theTool) :
     
     theTool = GetTool(theTool)
 
-    # the isEM name
-    theTool.PIDName = egammaPID.IsEMMedium
-
     # MEDIUM (20/11/2013 -- Ludovica@cern.ch)
     #  Coming from Fer
     #
@@ -39,9 +36,6 @@ def PhotonIsEMMediumSelectorConfig2012(theTool) :
     '''
     
     theTool = GetTool(theTool)
-
-    # the isEM name
-    theTool.PIDName = egammaPID.IsEMMedium
 
     # MEDIUM (25/3/2012 -- Jovan.Mitrevski@cern.ch)
     #  Coming from the trigger

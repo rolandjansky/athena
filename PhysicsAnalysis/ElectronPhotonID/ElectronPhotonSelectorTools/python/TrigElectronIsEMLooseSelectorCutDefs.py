@@ -31,9 +31,7 @@ def TrigElectronIsEMLooseSelectorConfigDC14(theTool) :
  
     theTool = GetTool(theTool)
     
-    # the isEM name
-    theTool.PIDName = egammaPID.IsEMLoose
-    theTool.ConfigFile = "ElectronPhotonSelectorTools/offline/dc14b_20150121/ElectronIsEMLooseSelectorCutDefs.conf"
+    theTool.ConfigFile = "ElectronPhotonSelectorTools/trigger/mc15_20150224/ElectronIsEMLooseSelectorCutDefs.conf"
 
 
 def TrigElectronIsEMLooseSelectorConfigDC14OLD(theTool) :
@@ -42,9 +40,6 @@ def TrigElectronIsEMLooseSelectorConfigDC14OLD(theTool) :
     '''
 
     theTool = GetTool(theTool)
-
-    theTool.PIDName = egammaPID.IsEMLoose
-
 
     # range of eta bins for e-ID
     theTool.CutBinEta = [0.1, 0.6, 0.8, 1.15, 1.37, 1.52, 1.81, 2.01, 2.37, 2.47]

@@ -24,8 +24,6 @@ def PhotonIsEMLooseSelectorConfigDC14(theTool) :
     
     theTool = GetTool(theTool)
 
-    # the isEM name
-    theTool.PIDName = egammaPID.IsEMLoose
     #
     # PHOTON Loose cuts, with updated using *DC14*.
     #

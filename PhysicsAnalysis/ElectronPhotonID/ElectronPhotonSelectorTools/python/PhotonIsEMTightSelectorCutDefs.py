@@ -24,8 +24,6 @@ def PhotonIsEMTightSelectorConfigDC14(theTool) :
     
     theTool = GetTool(theTool)
 
-    # the isEM name
-    theTool.PIDName = egammaPID.IsEMTight
     #
     # PHOTON tight cuts, with updated using *DC14*
     #
