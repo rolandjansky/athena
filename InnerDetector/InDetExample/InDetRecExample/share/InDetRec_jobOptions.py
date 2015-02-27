@@ -516,8 +516,8 @@ else:
  		                                                      InDetNewTrackingCutsForwardTracks, 
  		                                                      TrackCollectionKeys, 
  		                                                      TrackCollectionTruthKeys)   
- 		          # --- do not add into list for combination YET 
-         #InputCombinedInDetTracks += [ InDetForwardTracksSiPattern.SiTrackCollection() ] 
+         # for ITK, forward tracks get added to the combined collection
+         InputCombinedInDetTracks += [ InDetForwardTracksSiPattern.SiTrackCollection() ] 
 
 
       else:
@@ -536,8 +536,8 @@ else:
                                                                    InDetNewTrackingCutsForwardTracks,
                                                                    TrackCollectionKeys,
                                                                    TrackCollectionTruthKeys)  
-        # --- do not add into list for combination YET
-        #InputCombinedInDetTracks += [ InDetForwardTracksSiPattern.SiTrackCollection() ]
+        # for ITK, forward tracks get added to the combined collection
+        InputCombinedInDetTracks += [ InDetForwardTracksSiPattern.SiTrackCollection() ]
 
 
     elif InDetFlags.doForwardTracks():

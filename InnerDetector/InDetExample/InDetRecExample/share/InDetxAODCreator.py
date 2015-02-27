@@ -48,7 +48,8 @@ if not InDetFlags.doVertexFinding():
  xAODVertexCnvAlg.TPContainerName = InDetKeys.xAODTrackParticleContainer()
  topSequence += xAODVertexCnvAlg
 
-if (InDetFlags.doForwardTracks() and InDetFlags.doParticleCreation()) or doConversion:       
+#For forward tracks, no separate collection for ITK, since they are already merged
+if (InDetFlags.doForwardTracks() and InDetFlags.doParticleCreation() and not InDetFlags.doSLHC()) or doConversion:       
  xAODForwardTrackParticleCnvAlg = xAODMaker__TrackParticleCnvAlg(InDetKeys.xAODForwardTrackParticleContainer())
  xAODForwardTrackParticleCnvAlg.xAODContainerName = InDetKeys.xAODForwardTrackParticleContainer()
  xAODForwardTrackParticleCnvAlg.xAODTrackParticlesFromTracksContainerName = InDetKeys.xAODForwardTrackParticleContainer()

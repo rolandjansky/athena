@@ -365,7 +365,7 @@ class ConfiguredNewTrackingCuts :
       self.__extension        = "ForwardSLHCTracks" # this runs parallel to NewTracking
       self.__minEta           = 2.4 # restrict to minimal eta
       self.__maxEta           = 3.0
-      self.__minPT            = 2 * Units.GeV
+      self.__minPT            = 0.9 * Units.GeV
       self.__minClusters      = 5
       self.__minSiNotShared   = 3
       self.__maxShared        = 1
@@ -384,7 +384,7 @@ class ConfiguredNewTrackingCuts :
       self.__extension        = "VeryForwardSLHCTracks" # this runs parallel to NewTracking 
       self.__minEta           = 2.4 # restrict to minimal eta 
       self.__maxEta           = 4.0 
-      self.__minPT            = 2 * Units.GeV 
+      self.__minPT            = 0.9 * Units.GeV 
       self.__minClusters      = 5 
       self.__minSiNotShared   = 3 
       self.__maxShared        = 1 

@@ -6,6 +6,10 @@
 #
 # ----------- PrepRawData creation from Raw Data Objects
 #
+
+if not 'redoPatternRecoAndTracking' in dir():
+  redoPatternRecoAndTracking = False
+
 if InDetFlags.doPRDFormation():
    #
    # --- Slim BCM RDOs by zero-suppressing
@@ -40,7 +44,7 @@ if InDetFlags.doPRDFormation():
    #
    # -- Pixel Clusterization
    #
-   if DetFlags.makeRIO.pixel_on() and InDetFlags.doPixelPRDFormation():     
+   if (DetFlags.makeRIO.pixel_on() and InDetFlags.doPixelPRDFormation()) or redoPatternRecoAndTracking:     
       #
       # --- MergedPixelTool (public)
       #
