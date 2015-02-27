@@ -14,10 +14,14 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "StoreGate/DataHandle.h"
-#include "InDetIdentifier/TRT_ID.h"
+//#include "InDetIdentifier/TRT_ID.h"
 #include "TRT_ConditionsServices/ITRT_StrawStatusSummarySvc.h" 
 #include "TRT_ConditionsServices/ITRT_ConditionsSvc.h"
 #include "StoreGate/StoreGateSvc.h"
+
+
+class TRT_ID;
+namespace InDetDD{ class TRT_DetectorManager; }
 
 class IToolSvc;
 /** @class TRT_StrawStatusSummarySvc
@@ -96,10 +100,20 @@ class TRT_StrawStatusSummarySvc: public AthService,
   StatusCode registerObjects(std::string tag, int run1, int event1, int run2, int event2) const;
   
   StatusCode IOVCallBack(IOVSVC_CALLBACK_ARGS);
+  
+  StatusCode ComputeAliveStraws() ;
 
   StrawStatusContainer* getStrawStatusContainer() const ;
   StrawStatusContainer* getStrawStatusPermanentContainer() const ;
   StrawStatusContainer* getStrawStatusHTContainer() const ;
+
+
+  int  *getStwTotal()		;	 
+  int **getStwLocal() 		;
+  int **getStwLocalWheel()  	;
+  int **getStwLocalStraw()  	; 
+
+
 
  private:
   ServiceHandle<StoreGateSvc> m_detStore;
@@ -119,6 +133,7 @@ class TRT_StrawStatusSummarySvc: public AthService,
   std::string par_statstream;            //output stream
   std::string m_inputFile;
   const TRT_ID* m_trtid;
+  const InDetDD::TRT_DetectorManager* m_trtDetMgr; // TRT detector manager (to get ID helper)
   TRTCond::StrawStatusMultChanContainer m_deadstraws ;
   
   bool strawstatuscontainerexists;
@@ -130,6 +145,21 @@ class TRT_StrawStatusSummarySvc: public AthService,
   const DataHandle<TRTCond::StrawStatusMultChanContainer> m_strawstatuspermanentcontainer ; //Same name as in getStrawStatusContainer!
   const DataHandle<TRTCond::StrawStatusMultChanContainer> m_strawstatusHTcontainer ; //Same name as in getStrawStatusContainer!
 
+
+      int  *m_stw_total;
+      int **m_stw_local;
+      int **m_stw_local_wheel;
+      int **m_stw_local_straw;
+
+  void resetArrays();
+
+	// COPIED FROM TRT LOCAL OCCUPANCY TOOL NOT OPTIMAL!!!
+  int findArrayTotalIndex(const int det, const int lay);
+  int findArrayLocalIndex(const int det, const int lay);
+  int findArrayLocalWheelIndex(const int det, const int lay);
+  int findArrayLocalStrawIndex(const int det, const int lay, const int strawlay);
+
+
 };
 
 
@@ -137,6 +167,27 @@ class TRT_StrawStatusSummarySvc: public AthService,
 ////////////////////////////////////////////////////////////////////////////////////////////
 //  inline methods
 ////////////////////////////////////////////////////////////////////////////////////////////
+
+inline int*  TRT_StrawStatusSummarySvc::getStwTotal()
+{
+	return m_stw_total;
+}
+
+inline int**  TRT_StrawStatusSummarySvc::getStwLocal()
+{
+	return m_stw_local;
+}
+
+inline int**  TRT_StrawStatusSummarySvc::getStwLocalWheel()
+{
+	return m_stw_local_wheel;
+}
+
+inline int**  TRT_StrawStatusSummarySvc::getStwLocalStraw()
+{
+	return m_stw_local_straw;
+}
+
 
 
 inline void TRT_StrawStatusSummarySvc::setStatus( const TRTCond::ExpandedIdentifier& id, unsigned int status ) 
