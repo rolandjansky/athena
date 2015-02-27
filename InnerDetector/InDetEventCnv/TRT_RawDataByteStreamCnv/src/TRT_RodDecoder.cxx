@@ -1316,7 +1316,11 @@ TRT_RodDecoder::int_fillFullCompress( const ROBFragment *robFrag,
  * Read Compression Table from file
  */
 StatusCode
-TRT_RodDecoder::ReadCompressTableFile(  std::string TableFilename )
+TRT_RodDecoder::ReadCompressTableFile(  std::string 
+#ifdef TRT_READCOMPTABLE_FILE
+TableFilename
+#endif
+ )
 {  
    ATH_MSG_FATAL( "Reading Compression Table from File is not supported anymore!" );
 
@@ -1865,7 +1869,7 @@ TRT_RodDecoder::update( IOVSVC_CALLBACK_ARGS_P(I,keys) )
 
        const cool::Blob16M& blob = (atrlist)["syms"].data<cool::Blob16M> ();
 
-       if ( blob.size() != (Ctable->m_Nsymbols * sizeof(unsigned int)) )
+       if ( blob.size() != (unsigned int) (Ctable->m_Nsymbols * sizeof(unsigned int)) )
        {
 	  ATH_MSG_ERROR( "Unexpected size of symbol table! ( " << blob.size()
 			 << " != " 
@@ -1881,7 +1885,7 @@ TRT_RodDecoder::update( IOVSVC_CALLBACK_ARGS_P(I,keys) )
        const unsigned char* BlobStart =
 	  static_cast<const unsigned char*> (blob.startingAddress());
        int j = 0;
-       for (int i = 0; (i < blob.size()) && (i < Ctable->m_Nsymbols);
+       for (int i = 0; (i < blob.size()) && (j < Ctable->m_Nsymbols);
 	    i += sizeof(unsigned int))
        {
 	  Ctable->m_syms[j++] = *((unsigned int*) (BlobStart + i));
@@ -1900,7 +1904,7 @@ TRT_RodDecoder::update( IOVSVC_CALLBACK_ARGS_P(I,keys) )
        std::istringstream 
 	  iss2((atrlist)["lengths_integral"].data<cool::String4k>());
        i = 1;
-       while ( getline(iss, tok, ' ') && (i < CTABLE_LI_LENGTH) ) 
+       while ( getline(iss2, tok, ' ') && (i < CTABLE_LI_LENGTH) ) 
        {
 	  Ctable->m_lengths_integral[i++] = atoi(tok.c_str());
        }
@@ -2000,7 +2004,7 @@ TRT_RodDecoder::handle( const Incident &inc )
      std::istringstream 
        iss2((atrlist)["lengths_integral"].data<cool::String4k>());
      i = 0;
-     while (getline(iss, tok, ' ')) 
+     while (getline(iss2, tok, ' ')) 
      {
        Ctable->m_lengths_integral[i++] = atoi(tok.c_str());
      }
