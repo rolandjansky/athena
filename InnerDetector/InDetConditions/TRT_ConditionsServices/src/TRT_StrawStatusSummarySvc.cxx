@@ -20,11 +20,20 @@
 #include "RegistrationServices/IIOVRegistrationSvc.h"
 #include "AthenaKernel/IAthenaOutputStreamTool.h"
 #include "Identifier/Identifier.h"
-#include "InDetReadoutGeometry/TRT_DetectorManager.h"
 
 #include "TRT_ConditionsData/StrawStatusMultChanContainer.h"
 #include "TRT_ConditionsData/ExpandedIdentifier.h"
 #include "PathResolver/PathResolver.h"
+
+
+#include "InDetIdentifier/TRT_ID.h"
+
+#include "InDetReadoutGeometry/TRT_BaseElement.h"
+#include "InDetReadoutGeometry/TRT_DetectorManager.h"
+
+class TRT_ID;
+
+
 
 TRT_StrawStatusSummarySvc::TRT_StrawStatusSummarySvc( const std::string& name,
 						      ISvcLocator* pSvcLocator )
@@ -34,14 +43,12 @@ TRT_StrawStatusSummarySvc::TRT_StrawStatusSummarySvc( const std::string& name,
     par_strawstatuscontainerkey("/TRT/Cond/Status"),
     par_strawstatuspermanentcontainerkey("/TRT/Cond/StatusPermanent"),
     par_strawstatusHTcontainerkey("/TRT/Cond/StatusHT"),
-    //par_stattextfile("/afs/cern.ch/user/i/idcalib/w0/TRT_Calibration/uploadedDB/Status/AprilRepro/listHotStraws.collisions2010.athenaFormat.txt"),
     par_stattextfile(""), // ("dummyNonExisting_TRT_StrawStatus_InputFile_TRT_StrawStatusSummarySvc"), 
-// par_stattextfile("/afs/cern.ch/user/i/idcalib/w0/TRT_Calibration/uploadedDB/Status/2010_09_10_sasa/listNoisyStraws.0162690.athenaFormat.txt"),
-  //  par_stattextfile("/afs/cern.ch/user/i/idcalib/w0/TRT_Calibration/uploadedDB/Status/TrtStrawStatusTemporaryEmpty-BLK-UPD4-00-00/listNoisyStraws.0155678.athenaFormat.txt"),
     par_stattextfilepermanent(""), 
     par_stattextfileHT(""),
     par_statstream("StatStream1"),
     m_trtid(0),
+    m_trtDetMgr(0),
     strawstatuscontainerexists(false),
     strawstatuspermanentcontainerexists(false),
     strawstatusHTcontainerexists(false)
@@ -58,13 +65,11 @@ TRT_StrawStatusSummarySvc::~TRT_StrawStatusSummarySvc()
 {
 }
 
-
 StatusCode TRT_StrawStatusSummarySvc::initialize() 
 {
   msg(MSG::INFO) << "TRT_StrawStatusSummarySvc initialize method called" << endreq;
 
   //  if (par_stattextfilepermanent=="") par_stattextfilepermanent=PathResolver::find_file ("strawstatuspermanent-01.txt", "DATAPATH");
-  
 
   // Retrieve the DetectorStore
   if (StatusCode::SUCCESS!=m_detStore.retrieve()) {
@@ -84,13 +89,7 @@ StatusCode TRT_StrawStatusSummarySvc::initialize()
     return StatusCode::FAILURE;
   }
 
-
-//  msg(MSG::INFO) <<  "/afs/cern.ch/user/i/idcalib/w0/TRT_Calibration/uploadedDB/Status/TrtStrawStatusTemporaryEmpty-BLK-UPD4-00-00/listNoisyStraws.0155678.athenaFormat.txt"  << endreq;
-	  
-  //  par_stattextfile("/afs/cern.ch/user/a/attrtcal/TRT_Calibration/uploadedDB/Status/2010_06_30/listNoisyStraws.0158269.athenaFormat.txt");
-  
   msg(MSG::INFO) << "TRT_StrawStatusSummarySvc::initialize " << par_stattextfile  << endreq;
-
   
   if(msgLvl(MSG::DEBUG)) msg() <<"trying to read "<<par_strawstatuscontainerkey<< " from StoreGateSvc"<<endreq;
   strawstatuscontainerexists = m_detStore->StoreGateSvc::contains<TRTCond::StrawStatusMultChanContainer>(par_strawstatuscontainerkey) ;
@@ -191,11 +190,27 @@ StatusCode TRT_StrawStatusSummarySvc::initialize()
     if(msgLvl(MSG::VERBOSE)) msg() <<i<<" "<<ht_interval*(i+0.5)<<endreq;
   }
 
+
+    // create arrays for alive straws
+  m_stw_total = new int[7];
+  m_stw_local = new int*[10];
+  m_stw_local_wheel = new int*[34];
+  m_stw_local_straw = new int*[36];
+  for (int i=0; i<10; ++i){
+    m_stw_local[i] = new int[32];
+  }
+
+  m_stw_local_wheel = new int*[34];
+  for (int i=0; i<34; ++i){
+    m_stw_local_wheel[i] = new int[32];
+  }
+  m_stw_local_straw = new int*[36];
+  for (int i=0; i<36; ++i){
+    m_stw_local_straw[i] = new int[32];
+  }
+  resetArrays();
+
   msg(MSG::INFO) << "TRT_StrawStatusSummarySvc initialized successfully  " << endreq;
-
-
-
-
   return StatusCode::SUCCESS;
 }
 
@@ -204,6 +219,11 @@ StatusCode TRT_StrawStatusSummarySvc::initialize()
 
 StatusCode TRT_StrawStatusSummarySvc::finalize()
 {
+
+  delete [] m_stw_total;
+  delete [] m_stw_local;
+  delete [] m_stw_local_wheel;
+  delete [] m_stw_local_straw;
 
   msg(MSG::INFO) << " in finalize() " << endreq;
   return StatusCode::SUCCESS;
@@ -507,12 +527,11 @@ AthenaSealSvc                             DEBUG Checking members of type NestedC
   if(!par_stattextfile.empty()) {
     StrawStatusContainer* strawstatuscontainer = getStrawStatusContainer();
     strawstatuscontainer->clear();
-    
+  
     const InDetDD::TRT_DetectorManager* m_TRTDetectorManager ;
     if ((m_detStore->retrieve(m_TRTDetectorManager)).isFailure()) {
       msg(MSG::FATAL) << "Problem retrieving TRT_DetectorManager" << endreq;
     }
-    
 
     // initialize strawlayers with status 'good'
     for( InDetDD::TRT_DetElementCollection::const_iterator it =  m_TRTDetectorManager->getDetectorElementBegin() ;
@@ -720,8 +739,219 @@ StatusCode TRT_StrawStatusSummarySvc::writeToTextFile(const std::string& filenam
   return StatusCode::SUCCESS ;
 }
 
+
+
+
+
+
+
+///////////////////////////////////////////////////
+//
+// Helpers for the alive straws tool Need to consistent with TRT_ElectronPIDTool
+//
 ///////////////////////////////////////////////////
 
+void TRT_StrawStatusSummarySvc::resetArrays(){
+    for (int i=0; i<7; ++i){
+      m_stw_total[i]=0;
+    }
+    for (int i=0; i<10; ++i){
+      for (int j=0; j<32; ++j){
+        m_stw_local[i][j]=0;
+      }
+    }
+
+    for (int i=0; i<34; ++i){
+      for (int j=0; j<32; ++j){
+        m_stw_local_wheel[i][j]=0;
+      }
+    }
+    for (int i=0; i<36; ++i){
+      for (int j=0; j<32; ++j){
+        m_stw_local_straw[i][j]=0;
+      }
+    }
+  return;
+}
+
+
+
+  int TRT_StrawStatusSummarySvc::findArrayTotalIndex(const int det, const int lay){
+    int arrayindex = 0; // to be reset below
+    // NOTE: Below, arrayindex starts at 1
+    // because index 0 is filled with TOTAL value.
+    if      (det == -1) arrayindex = 1; // barrel side C
+    else if (det == -2) {               // endcap side C
+      if (lay < 6)      arrayindex = 2; //   wheel A
+      else              arrayindex = 3; //   wheel B
+    }
+    else if (det ==  1) arrayindex = 4; // barrel side A
+    else if (det ==  2) {               // endcap side A
+      if (lay < 6)      arrayindex = 5; //   wheel A
+      else              arrayindex = 6; //   wheel B
+    }
+    else        ATH_MSG_WARNING(" detector value is: " << det << ", out of range -2, -1, 1, 2, so THIS IS NOT TRT!!!");
+    return arrayindex;
+  }
+
+
+
+
+  int TRT_StrawStatusSummarySvc::findArrayLocalIndex(const int det, const int lay){
+    int arrayindex = 9; // to be reset below
+    if      (det == -1) {                // barrel side C
+      if      (lay == 0) arrayindex = 0; // layer 0
+      else if (lay == 1) arrayindex = 1; // layer 1
+      else if (lay == 2) arrayindex = 2; // layer 2
+    }
+    else if (det == -2) {                // endcap side C
+      if (lay < 6)       arrayindex = 3; //   wheel A
+      else               arrayindex = 4; //   wheel B
+    }
+    else if (det ==  1) {                // barrel side A
+      if      (lay == 0) arrayindex = 5; // layer 0
+      else if (lay == 1) arrayindex = 6; // layer 1
+      else if (lay == 2) arrayindex = 7; // layer 2
+    }
+    else if (det ==  2) {                // endcap side A
+      if (lay < 6)       arrayindex = 8; //   wheel A
+      else               arrayindex = 9; //   wheel B
+    }
+    else        ATH_MSG_WARNING(" detector value is: " << det << ", out of range -2, -1, 1, 2, so THIS IS NOT TRT!!!");
+    return arrayindex;
+  }
+
+  int TRT_StrawStatusSummarySvc::findArrayLocalWheelIndex(const int det, const int lay){
+    int arrayindex = 9; // to be reset below
+    if      (det == -1) {                // barrel side C
+      if      (lay == 0) arrayindex = 0; // layer 0
+      else if (lay == 1) arrayindex = 1; // layer 1
+      else if (lay == 2) arrayindex = 2; // layer 2
+    }
+    else if (det == -2) {                // endcap side C
+      for (int i=0; i<14; ++i){
+        if (lay==i) arrayindex=i+3;
+      }
+    }
+    else if (det ==  1) {                // barrel side A
+      if      (lay == 0) arrayindex = 17; // layer 0
+      else if (lay == 1) arrayindex = 18; // layer 1
+      else if (lay == 2) arrayindex = 19; // layer 2
+    }
+    else if (det ==  2) {                // endcap side A
+      for (int i=0; i<14; ++i){
+        if (lay==i) arrayindex=i+20;
+      }
+    }
+    else        ATH_MSG_WARNING(" detector value is: " << det << ", out of range -2, -1, 1, 2, so THIS IS NOT TRT!!!");
+    return arrayindex;
+  }
+
+
+  int TRT_StrawStatusSummarySvc::findArrayLocalStrawIndex(const int det, const int lay, const int strawlay){
+    int arrayindex = 9; // to be reset below
+    if      (det == -1) {                // barrel side C
+      if      (lay == 0){                // layer 0
+        if (strawlay < 9) arrayindex = 0; // short guys
+        else              arrayindex = 1;
+      }
+      else if (lay == 1)  arrayindex = 2; // layer 1
+      else if (lay == 2)  arrayindex = 3; // layer 2
+    }
+    else if (det == -2) {                // endcap side C
+      for (int i=0; i<14; ++i){
+        if (lay==i) arrayindex=i+4;
+      }
+    }
+    else if (det ==  1) {                // barrel side A
+      if      (lay == 0){                 // layer 0
+        if (strawlay < 9) arrayindex = 18;
+        else              arrayindex = 19;
+      }
+      else if (lay == 1)  arrayindex = 20; // layer 1
+      else if (lay == 2)  arrayindex = 21; // layer 2
+    }
+    else if (det ==  2) {                // endcap side A
+      for (int i=0; i<14; ++i){
+        if (lay==i) arrayindex=i+22;
+      }
+    }
+    else        ATH_MSG_WARNING(" detector value is: " << det << ", out of range -2, -1, 1, 2, so THIS IS NOT TRT!!!");
+    return arrayindex;
+  }
+
+
+
+
+
+///////////////////////////////////////////////////
+StatusCode TRT_StrawStatusSummarySvc::ComputeAliveStraws(){
+   // The TRT helper:
+  bool detectorManager = true;
+  if (StatusCode::SUCCESS!=m_detStore->retrieve(m_trtDetMgr,"TRT")) {
+    msg(MSG::WARNING) << "Problem retrieving TRT Detector Manager. Computation will use IDhelper. CPU slower " << endreq;
+    detectorManager = false;
+  }
+
+  for (std::vector<Identifier>::const_iterator it = m_trtid->straw_layer_begin(); it != m_trtid->straw_layer_end(); it++  ) {
+
+   if (detectorManager){
+     const InDetDD::TRT_BaseElement *el = m_trtDetMgr->getElement(*it);
+     if( !el ) continue;
+     for (unsigned int i=0; i<el->nStraws(); i++) {
+      Identifier id = m_trtid->straw_id( *it, i);
+      int det = m_trtid->barrel_ec(         id)     ;
+      int lay = m_trtid->layer_or_wheel(    id)     ;
+      int phi = m_trtid->phi_module(        id)     ;
+      bool status               = get_status( id );
+      if ( status ) ATH_MSG_VERBOSE(" The sector " << det << " " << lay << " " << phi << " has status " << status);
+      if (status) continue;
+
+      int i_total = findArrayTotalIndex(det, lay);
+      int i_local = findArrayLocalIndex(det, lay);
+      int i_local_wheel = findArrayLocalWheelIndex(det, lay);
+      int strawlay = m_trtid->straw_layer(id);
+      int i_local_straw = findArrayLocalStrawIndex(det, lay, strawlay);
+
+      m_stw_total[0]            +=1;
+      m_stw_total[i_total]      +=1;
+      m_stw_local[i_local][phi] +=1;
+      m_stw_local_wheel[i_local_wheel][phi] +=1;
+      m_stw_local_straw[i_local_straw][phi] +=1;
+     }
+   }// det manager
+   else{ // This is slower!! 
+     for (int i=0; i<=m_trtid->straw_max( *it); i++) {
+      Identifier id = m_trtid->straw_id( *it, i);
+      int det = m_trtid->barrel_ec(         id)     ;
+      int lay = m_trtid->layer_or_wheel(    id)     ;
+      int phi = m_trtid->phi_module(        id)     ;
+
+      bool status               = get_status( id );
+      if ( status ) ATH_MSG_VERBOSE(" The sector " << det << " " << lay << " " << phi << " has status " << status);
+      if (status) continue;
+
+      int i_total = findArrayTotalIndex(det, lay);
+      int i_local = findArrayLocalIndex(det, lay);
+      int i_local_wheel = findArrayLocalWheelIndex(det, lay);
+      int strawlay = m_trtid->straw_layer(id);
+      int i_local_straw = findArrayLocalStrawIndex(det, lay, strawlay);
+
+      m_stw_total[0]            +=1;
+      m_stw_total[i_total]      +=1;
+      m_stw_local[i_local][phi] +=1;
+      m_stw_local_wheel[i_local_wheel][phi] +=1;
+      m_stw_local_straw[i_local_straw][phi] +=1;
+    }
+  }// close eslse
+ }//For
+
+ ATH_MSG_DEBUG("Active Straws: " << m_stw_total[0] << " \t" << m_stw_total[1]<< "\t" << m_stw_total[2]<< "\t" << m_stw_total[3] );	
+ return StatusCode::SUCCESS;
+}
+
+
+///////////////////////////////////////////////////
 
 StatusCode TRT_StrawStatusSummarySvc::IOVCallBack(IOVSVC_CALLBACK_ARGS_P(I,keys))
 {
@@ -731,7 +961,10 @@ StatusCode TRT_StrawStatusSummarySvc::IOVCallBack(IOVSVC_CALLBACK_ARGS_P(I,keys)
   
   // if constants need to be read from textfile, we sue the call back routine to refill the IOV objects
    if(!par_stattextfile.empty()) return readFromTextFile( par_stattextfile) ;
-   return StatusCode::SUCCESS;
+
+   msg(MSG::INFO) << " Compute Alive Straws " << endreq;
+   StatusCode sc = ComputeAliveStraws();
+   return sc ;
 }
 ////////////////////////////////
 

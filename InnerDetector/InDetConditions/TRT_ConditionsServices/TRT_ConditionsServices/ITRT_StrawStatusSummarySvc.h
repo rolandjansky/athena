@@ -56,6 +56,17 @@ class ITRT_StrawStatusSummarySvc: virtual public IService
   virtual StrawStatusContainer* getStrawStatusPermanentContainer() const =0;
   virtual StrawStatusContainer* getStrawStatusHTContainer() const =0;
 
+
+  virtual StatusCode ComputeAliveStraws() =0;
+
+
+
+   virtual int  *getStwTotal()		= 0;	 
+   virtual int **getStwLocal() 		= 0;
+   virtual int **getStwLocalWheel()  	= 0;
+   virtual int **getStwLocalStraw()  	= 0; 
+
+
 };
 
 
