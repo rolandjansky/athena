@@ -2,6 +2,7 @@ package TrigT1RPCsteering
 
 author Alessandro Di Mattia <alessandro.dimattia@roma1.infn.it>
 
+use  AthenaBaseComps            AthenaBaseComps-*               Control
 use AtlasPolicy          AtlasPolicy-*
 use GaudiInterface       GaudiInterface-*         External
 use StoreGate            StoreGate-*              Control
