@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TrigDecisionTool.h 627045 2014-11-08 02:03:47Z ssnyder $
+// $Id: TrigDecisionTool.h 650489 2015-02-27 20:16:43Z lheinric $
 #ifndef TrigDecision_TrigDecisionTool_h
 #define TrigDecision_TrigDecisionTool_h
 /**********************************************************************************
@@ -61,6 +61,9 @@ namespace Trig {
 
     // initialize routine as required for an Algorithm
     StatusCode initialize();
+
+    StatusCode beginEvent();
+
     StatusCode finalize();
       
     static const InterfaceID& interfaceID() { return IID_TrigDecisionTool; }
@@ -94,8 +97,8 @@ namespace Trig {
 
     ToolHandle<HLT::Navigation> m_navigation;
 
-
-
+    
+    bool m_useAODDecision;
     std::string m_decisionKey;
 
     TrigDecisionTool& operator= (const TrigDecisionTool&);

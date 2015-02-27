@@ -37,11 +37,6 @@ Trig::DecisionAccess::DecisionAccess()
 Trig::DecisionAccess::~DecisionAccess() {}
 
 
-StatusCode Trig::DecisionAccess::unpackDecision(const TrigDec::TrigDecision* dec) {
-  cgm()->unpackDecision(dec);
-  return cgm()->unpackNavigation(dec);
-}
-
 bool Trig::DecisionAccess::isPassed(const Trig::ChainGroup* chainGroup, 
 				    unsigned int condition) const
 {

@@ -22,9 +22,8 @@ use  TrigConfL1Data             TrigConfL1Data-*                Trigger/TrigConf
 use  TrigDecisionInterface      TrigDecisionInterface-*         Trigger/TrigEvent
 use  AnalysisTriggerEvent       AnalysisTriggerEvent-*          PhysicsAnalysis/AnalysisTrigger
 use  xAODTrigger		xAODTrigger-*			Event/xAOD
-
+use  AsgTools                   AsgTools-*                      Control/AthToolSupport
 use  TrigStorageDefinitions     TrigStorageDefinitions-*        Trigger/TrigEvent
-
 end_public
 
 private
@@ -35,6 +34,7 @@ use  TrigSteeringEvent          TrigSteeringEvent-*             Trigger/TrigEven
 use  CxxUtils                   CxxUtils-*                      Control
 # for the test suites
 use  TrigMuonEvent              TrigMuonEvent-*                 Trigger/TrigEvent
+use  TrigNavStructure		TrigNavStructure-*		Trigger/TrigEvent
 
 
 end_private

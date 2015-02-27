@@ -22,8 +22,15 @@
 #include "GaudiKernel/MsgStream.h"
 
 
-#include "TrigDecisionTool/DecisionObjectHandle.h"
+#include "TrigDecisionTool/DecisionUnpackerStandalone.h"
+
+#include "TrigDecisionTool/DecisionUnpackerAthena.h"
+
+
 #include "TrigDecisionTool/TrigDecisionTool.h"
+
+
+
 
 static std::vector<std::string> s_instances;
 
@@ -37,9 +44,10 @@ Trig::TrigDecisionTool::TrigDecisionTool(const std::string& name, const std::str
    m_navigation("HLT::Navigation/Navigation", this)
 {
    declareProperty( "TrigConfigSvc", m_configSvc, "Trigger Config Service");
-   declareProperty( "TrigDecisionKey", m_decisionKey="TrigDecision", "StoreGate key of TrigDecision object. Consult checkSG.py for the actual name.");
+   declareProperty( "TrigDecisionKey", m_decisionKey="xTrigDecision", "StoreGate key of TrigDecision object. Consult checkSG.py for the actual name.");
    declareProperty( "Navigation", m_navigation, "HLT Navigation tool");
    declareProperty( "PublicChainGroups", m_publicChainGroups, "Pre-created chain groups");
+   declareProperty( "UseAODDecision", m_useAODDecision = false );
    declareProperty( "EvtStore", m_store );
 
    declareInterface<Trig::TrigDecisionTool>(this);
@@ -74,8 +82,6 @@ Trig::TrigDecisionTool::initialize() {
       return StatusCode::FAILURE;
    }
 
-  
-
    StatusCode sc = m_configSvc.retrieve();
    if ( sc.isFailure() ) {
       log() << MSG::FATAL << "Unable to get pointer to TrigConfigSvc" << endreq;
@@ -92,8 +98,18 @@ Trig::TrigDecisionTool::initialize() {
       return sc;
    }
    cgm()->navigation(&*m_navigation);
-   cgm()->decisionHandle(new DecisionObjectHandleAthena(&*m_store, m_decisionKey));
- 
+
+   if(m_useAODDecision){
+     ATH_MSG_INFO("using old decision");
+     DecisionUnpackerAthena* unpacker = new DecisionUnpackerAthena(&*evtStore(), m_decisionKey);
+     cgm()->setUnpacker(unpacker);
+   }
+   else{
+     ATH_MSG_INFO("using new decision");
+     DecisionUnpackerStandalone* unpacker = new DecisionUnpackerStandalone(&*evtStore(),m_decisionKey,"TrigNavigation");
+     cgm()->setUnpacker(unpacker);
+   }
+
    ServiceHandle<IIncidentSvc> incSvc("IncidentSvc",name());
    if (incSvc.retrieve().isFailure()) {
       log() << MSG::WARNING << "Cannot retrieve IncidentSvc" << endreq;
@@ -102,6 +118,7 @@ Trig::TrigDecisionTool::initialize() {
 
    long int pri=100;
    incSvc->addListener( this, "TrigConf", pri );
+   incSvc->addListener( this, "BeginEvent", pri );
 
    if (msgLvl(MSG::INFO))
       log() << MSG::INFO << "Initialized TDT" << endreq;
@@ -118,6 +135,11 @@ Trig::TrigDecisionTool::initialize() {
    return StatusCode::SUCCESS;
 }
 
+StatusCode Trig::TrigDecisionTool::beginEvent() {
+  ATH_MSG_DEBUG("invalidating object handle");
+  cgm()->unpacker()->invalidate_handle();
+  return StatusCode::SUCCESS;
+}
 
 StatusCode
 Trig::TrigDecisionTool::finalize() {
@@ -130,8 +152,8 @@ Trig::TrigDecisionTool::finalize() {
 void
 Trig::TrigDecisionTool::handle(const Incident& inc) {
    // an update configuration incident triggers the update of the configuration
-   if (msgLvl(MSG::INFO))
-      log() << MSG::INFO << "got  incident type:" << inc.type()  << " source: " << inc.source() << endreq;
+   if (msgLvl(MSG::DEBUG))
+      log() << MSG::DEBUG << "got  incident type:" << inc.type()  << " source: " << inc.source() << endreq;
 
    if (msgLvl(MSG::DEBUG))
       log() << MSG::DEBUG << "got  incident " << endreq;
@@ -139,6 +161,13 @@ Trig::TrigDecisionTool::handle(const Incident& inc) {
    if ( inc.type()=="TrigConf" ) {
       configurationUpdate( m_configSvc->chainList(), 
                            m_configSvc->ctpConfig() );
+   }
+
+   if ( inc.type()=="BeginEvent"){
+     StatusCode sc = beginEvent();
+     if(sc.isFailure()){
+       ATH_MSG_WARNING("handling of BeginEvent failed");
+     }
    }
 }
 

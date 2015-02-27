@@ -69,8 +69,6 @@ namespace Trig {
     DecisionAccess();
     virtual ~DecisionAccess();
 
-    StatusCode unpackDecision(const TrigDec::TrigDecision* dec);
-
     /**
      * @brief true if given group of chains passed
      * @see Trig::ChainGroup

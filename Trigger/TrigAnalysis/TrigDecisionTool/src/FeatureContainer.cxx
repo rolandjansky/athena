@@ -63,7 +63,6 @@ bool Trig::FeatureContainer::addWithChecking(const Combination& newComb)
   return true;
 }
 
-
 void Trig::FeatureContainer::append(const FeatureContainer& other)
 {  
   BOOST_FOREACH(const Trig::Combination& comb, other.m_combinations)
