@@ -8,9 +8,9 @@
 namespace Muon{
 											   
 RecoInfoPlots::RecoInfoPlots(PlotBase *pParent, std::string sDir):PlotBase(pParent, sDir)
-								 ,m_oTrkRecoInfoPlots(this, "IDTrk")
-								 ,m_oMSTrkRecoInfoPlots(this, "MSTrk")
-								 ,m_oRecoInfoPlots(this, "MuTrk")
+								 ,m_oTrkRecoInfoPlots(this, "","IDTrk")
+								 ,m_oMSTrkRecoInfoPlots(this, "", "MSTrk")
+								 ,m_oRecoInfoPlots(this, "")
 								 ,author(NULL)
 								 ,quality(NULL)
 								 ,muonType(NULL)

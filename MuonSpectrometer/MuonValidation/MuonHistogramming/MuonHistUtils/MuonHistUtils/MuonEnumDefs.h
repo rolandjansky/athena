@@ -9,7 +9,19 @@
 
 namespace Muon {
   namespace EnumDefs {
-    
+
+    enum DetRegion { GLOBAL,BA,BC,EA,EC,nDetRegions };
+    static inline const char* toString(Muon::EnumDefs::DetRegion reg) {
+      switch (reg) {
+      case Muon::EnumDefs::GLOBAL: return "Global";
+      case Muon::EnumDefs::BA: return "BA";
+      case Muon::EnumDefs::BC: return "BC";
+      case Muon::EnumDefs::EA: return "EA";
+      case Muon::EnumDefs::EC: return "EC";
+      default: return "UnknownDetRegion";
+      }
+    }
+      
     static inline unsigned int nMuonTypes( ) {return 5;}
     static inline const char* toString(xAOD::Muon::MuonType type) {
       switch (type) {
