@@ -18,7 +18,7 @@
 #include "ISF_FatrasInterfaces/IHadronicInteractionProcessor.h"
 
 //Barcode
-#include "BarcodeEvent/PhysicsProcessCode.h"
+#include "BarcodeInterfaces/PhysicsProcessCode.h"
 
 // Geant4
 #include "G4ThreeVector.hh"
@@ -42,12 +42,16 @@ class G4LayerTrackingAction;
 class G4Step;
 class G4StepPoint;
 class G4AtlasRunManager;
-class G4Material;
-class G4MaterialCutsCouple;
 
 namespace Trk {
+  class Layer;
+  class CylinderVolumeBounds;
+  class TrackingGeometry;
+  class IEnergyLossUpdator;
+  class IMultipleScatteringUpdator;
   class Material;
-  class MaterialProperties;       // TODO: get rid of MatProp dependence
+  class MaterialProperties;
+  class ITrackingGeometrySvc;
 }
 
 namespace ISF {
@@ -82,21 +86,19 @@ namespace iFatras {
       StatusCode finalize();
 
       /** interface for processing of the nuclear interactions */
-      bool hadronicInteraction(const Amg::Vector3D& position, const Amg::Vector3D& momentum, 
-			       double p, double E, double charge, 
+      bool hadronicInteraction(const Trk::TrackParameters& parm, double p, double E,
                                const Trk::MaterialProperties& mprop, double pathCorrection,
                                Trk::ParticleHypothesis particle=Trk::pion) const;
 
-      bool doHadronicInteraction(double time, const Amg::Vector3D& position, const Amg::Vector3D& momentum,
+      bool doHadronicInteraction(double time, const Trk::TrackParameters &parm,
                                  const Trk::Material *ematprop,
 				 Trk::ParticleHypothesis particle=Trk::pion,
                                  bool  processSecondaries=true) const;
 
       /** interface for processing of the presampled nuclear interactions on layer*/
-      ISF::ISFParticleVector doHadIntOnLayer(const ISF::ISFParticle* parent, double time, 
-					     const Amg::Vector3D& position, const Amg::Vector3D& momentum,
-					     const Trk::Material *ematprop,
-					     Trk::ParticleHypothesis particle=Trk::pion) const ;
+      ISF::ISFParticleVector doHadIntOnLayer(const ISF::ISFParticle* parent, double time, const Trk::TrackParameters& parm,
+				       const Trk::MaterialProperties *ematprop,
+				       Trk::ParticleHypothesis particle=Trk::pion) const ;
 
     private:
       /** initialize G4RunManager on first call if not done by then */
@@ -104,14 +106,14 @@ namespace iFatras {
 
       /** collect secondaries for layer material update */                           
       ISF::ISFParticleVector getHadState(const ISF::ISFParticle* parent,
-					 double time, const Amg::Vector3D& position, const Amg::Vector3D& momentum, 
+					 double time, const Trk::TrackParameters& parm,
 					 const Trk::Material *ematprop) const;
 
       //!< Initialize inleastic hadronic Geant4 processes 
       std::map<int,G4VProcess*>::iterator  initProcessPDG(int pdg) const;
 
-      //!< choose for list of predefined (pure) materials
-      std::pair<G4Material*,G4MaterialCutsCouple*> retrieveG4Material(const Trk::Material* ematprop) const;
+      //!< retrieve TrackingGeometry (almost callback ready!)
+      StatusCode                           updateTrackingGeometry() const;
 
       //!< random number service
       ServiceHandle<IAtRndmGenSvc>         m_rndGenSvc;
@@ -125,7 +127,7 @@ namespace iFatras {
       double                               m_hadIntProbScale;
 
       // internal steering : clone type
-      double                               m_minMomentum;
+      double                               m_minEnergy;
       mutable bool                         m_cloneParameters;
 
       /** describe deflection parametric/do real deflection */
@@ -138,16 +140,19 @@ namespace iFatras {
       G4LayerPrimaryGeneratorAction*       m_g4generatorAction;
       G4LayerTrackingAction*               m_g4trackingAction;
 
-      //!< Geant4 processes <PDGcode, process>  TODO : fission, capture
-      mutable std::map<int, G4VProcess*>   m_g4HadrInelasticProcesses;
-      mutable std::map<int, G4VProcess*>   m_g4HadrElasticProcesses;
-
+      //!< Geant4 processes <PDGcode, process>
+      mutable std::map<int, G4VProcess*>   m_g4HadrProcesses;
+      mutable std::map<int, G4VProcess*>   m_g4HadrProcesses_Elastic;
       //!< locally stored Geant4 instances (speeds up processing)
       mutable G4DynamicParticle*           m_g4dynPar;
       mutable const G4ThreeVector*         m_g4zeroPos;
       mutable G4Step*                      m_g4step;
       mutable G4StepPoint*                 m_g4stepPoint;
-      mutable std::vector<std::pair<float,std::pair< G4Material*, G4MaterialCutsCouple*> > > m_g4Material;
+
+      /** Tracking Geometry setup */
+      mutable const Trk::TrackingGeometry*      m_trackingGeometry;       //!< the tracking geometry owned by the navigator
+      ServiceHandle<Trk::ITrackingGeometrySvc>  m_trackingGeometrySvc;    //!< ServiceHandle to the TrackingGeometrySvc
+      std::string                               m_trackingGeometryName;   //!< default name of the TrackingGeometry      
 
       /** ISF services & Tools */
       ServiceHandle<ISF::IParticleBroker>  m_particleBroker;

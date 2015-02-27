@@ -22,12 +22,20 @@
 #include "ISF_Interfaces/ITruthSvc.h"
 #include "ISF_Event/ISFTruthIncident.h"
 
+//#include <G4WHadronElasticProcess.hh>
 #include <G4HadronElasticProcess.hh>
 
 // Boost
 #include <boost/math/special_functions/round.hpp>
 
 // Trk inlcude
+#include "TrkParameters/TrackParameters.h"
+#include "TrkEventPrimitives/ParamDefs.h"
+#include "TrkEventPrimitives/CurvilinearUVT.h"
+#include "TrkSurfaces/Surface.h"
+#include "TrkDetDescrInterfaces/ITrackingGeometrySvc.h"
+#include "TrkGeometry/TrackingGeometry.h"
+#include "TrkGeometry/Layer.h"
 #include "TrkGeometry/MaterialProperties.h"
 
 // Geant4
@@ -64,6 +72,14 @@
 #include "CLHEP/Random/RandFlat.h"
 
 
+//FADS classes
+#include "FadsActions/FadsRunAction.h"
+#include "FadsActions/FadsEventAction.h"
+#include "FadsActions/FadsSteppingAction.h"
+#include "FadsActions/FadsTrackingAction.h"
+#include "FadsActions/FadsStackingAction.h"
+#include "FadsPhysics/PhysicsListCatalog.h"
+
 // using namespace std;
 
 // STD
@@ -83,7 +99,7 @@ iFatras::G4HadIntProcessor::G4HadIntProcessor(const std::string& t, const std::s
   m_g4RunManagerHelper("iGeant4::G4RunManagerHelper/G4RunManagerHelper"),
   m_doElastic(false),
   m_hadIntProbScale(1.0),
-  m_minMomentum(50.0),
+  m_minEnergy(50.0),
   m_cloneParameters(false),
   m_parametricScattering(false),
   m_g4runManager(0),
@@ -93,8 +109,11 @@ iFatras::G4HadIntProcessor::G4HadIntProcessor(const std::string& t, const std::s
   m_g4zeroPos(0),
   m_g4step(0),
   m_g4stepPoint(0),
-  m_particleBroker("ISF_ParticleBrokerSvc", n),
-  m_truthRecordSvc("ISF_ValidationTruthService", n), 
+  m_trackingGeometry(0),
+  m_trackingGeometrySvc("AtlasTrackingGeometrySvc", n),
+  m_trackingGeometryName("AtlasTrackingGeometry"),
+  m_particleBroker("ISF_ParticleParticleBroker", n),
+  m_truthRecordSvc("ISF_TruthRecordSvc", n), 
   m_processCode(121),
   m_randomEngine(0),
   m_randomEngineName("FatrasRnd"),
@@ -137,9 +156,11 @@ iFatras::G4HadIntProcessor::G4HadIntProcessor(const std::string& t, const std::s
 {
   declareInterface<iFatras::IHadronicInteractionProcessor>(this);
   // steering
-  declareProperty("MomentumCut"                     , m_minMomentum                                                       );     
+  declareProperty("MinEnergyCut"                     , m_minEnergy                                                       );     
   declareProperty("DoElasticInteractions"            , m_doElastic                                                       );
   declareProperty("HadronicInteractionScaleFactor"   , m_hadIntProbScale=1.0  , "Scale probability of HadrInteractions"  );     
+  // TrackingGeometry Service
+  declareProperty("TrackingGeometrySvc"              , m_trackingGeometrySvc                                             );
   // ISF Services and Tools
   declareProperty("ParticleBroker"                   , m_particleBroker       , "ISF Particle Broker"                    );
   declareProperty("TruthRecordSvc"                   , m_truthRecordSvc       , "ISF Particle Truth Svc"                 );
@@ -179,6 +200,16 @@ StatusCode iFatras::G4HadIntProcessor::initialize()
       return StatusCode::FAILURE;
     } else
       ATH_MSG_VERBOSE( "Successfully retrieved " << m_validationTool );
+  }
+
+  // get the tracking geometry for layer lookup     
+  // get the TrackingGeometrySvc
+  if (m_trackingGeometrySvc.retrieve().isSuccess()){
+    ATH_MSG_INFO( "Successfully retrieved " << m_trackingGeometrySvc );
+    m_trackingGeometryName = m_trackingGeometrySvc->trackingGeometryName();
+  } else {
+    ATH_MSG_WARNING( "Couldn't retrieve " << m_trackingGeometrySvc << ". " );
+    ATH_MSG_WARNING( " -> Trying to retrieve default '" << m_trackingGeometryName << "' from DetectorStore." );
   }
 
   // get the random generator serice
@@ -233,7 +264,7 @@ std::map<int,G4VProcess*>::iterator iFatras::G4HadIntProcessor::initProcessPDG(i
   // check if everythin is set up properly
   if ( !parDef || !parDef->GetProcessManager() ) {
     ATH_MSG_WARNING( "  [ ---- ] Unable to register particle type with PDG code " << pdg );    
-    return m_g4HadrInelasticProcesses.end();
+    return m_g4HadrProcesses.end();
 
   }
 
@@ -243,7 +274,7 @@ std::map<int,G4VProcess*>::iterator iFatras::G4HadIntProcessor::initProcessPDG(i
   //  G4ProcessVector *physIntVector = parDef->GetProcessManager()->GetPostStepProcessVector(typeDoIt);
   if ( !physIntVector) {
     ATH_MSG_WARNING( "  [ ---- ] No Geant4 processes registered for PDG code " << pdg << " particles" );
-    return m_g4HadrInelasticProcesses.end();
+    return m_g4HadrProcesses.end();
   }
 
   // loop over all processes of current particle type
@@ -255,29 +286,25 @@ std::map<int,G4VProcess*>::iterator iFatras::G4HadIntProcessor::initProcessPDG(i
 
     ATH_MSG_VERBOSE( "  [ g4sim ] Found Geant4 process " << curProc->GetProcessName());
 
-    G4HadronInelasticProcess *hadInelastic = dynamic_cast<G4HadronInelasticProcess*>( curProc);
-    G4HadronElasticProcess *hadElastic = dynamic_cast<G4HadronElasticProcess*>( curProc);
-    ATH_MSG_DEBUG( "  hadronic process inelastic,elastic " << hadInelastic << ", " << hadElastic);
-    if ( !hadInelastic && !hadElastic) {
+    G4HadronInelasticProcess *hadProc = dynamic_cast<G4HadronInelasticProcess*>( curProc);
+    G4HadronElasticProcess *hadProc1 = dynamic_cast<G4HadronElasticProcess*>( curProc);
+    ATH_MSG_DEBUG( "  hadproc 0,1 " << hadProc << ", " << hadProc1);
+    if ( !hadProc && !hadProc1) {
       ATH_MSG_VERBOSE( "  [ g4sim ] Current process not an inelastic or elastic  hadronic process -> process not registered" );
       continue;
     }
 
-    if (hadInelastic || hadElastic) {
-      //Prepare and build the Physics table for primaries 
-      curProc->PreparePhysicsTable(*parDef);
-      curProc->BuildPhysicsTable(*parDef);
-    }
-
-    if(hadInelastic){
-      ret = m_g4HadrInelasticProcesses.insert( std::pair<int,G4VProcess*>( pdg, hadInelastic) );
+    if(!hadProc1){    
+      ret = m_g4HadrProcesses.insert( std::pair<int,G4VProcess*>( pdg, hadProc) );
       ATH_MSG_DEBUG( "  [ g4sim ] Registered Geant4 hadronic interaction processes for particles with pdg code " << pdg );
     }
-    if(m_doElastic && hadElastic ){
-      ret = m_g4HadrElasticProcesses.insert( std::pair<int,G4VProcess*>( pdg, hadElastic) );
-      G4ProcessType pType = curProc->GetProcessType();
-      ATH_MSG_DEBUG( "  [ g4sim ] Registered Geant4 ELASTIC hadronic interaction processes for particles with pdg code " 
-		     << pdg << "and process " <<  pType);
+    if(hadProc1){
+      if(m_doElastic){   
+        ret = m_g4HadrProcesses_Elastic.insert( std::pair<int,G4VProcess*>( pdg, hadProc1) );
+
+        G4ProcessType pType = curProc->GetProcessType();
+        ATH_MSG_DEBUG( "  [ g4sim ] Registered Geant4 ELASTIC hadronic interaction processes for particles with pdg code " << pdg << "and process " <<  pType);
+      }
     } 
 
 
@@ -287,15 +314,38 @@ std::map<int,G4VProcess*>::iterator iFatras::G4HadIntProcessor::initProcessPDG(i
   return ret.first;
 }
 
-bool iFatras::G4HadIntProcessor::hadronicInteraction(const Amg::Vector3D& position, const Amg::Vector3D& momentum, 
-						     double, double, double,
-						     const Trk::MaterialProperties& mprop, double pathCorrection,
-						     Trk::ParticleHypothesis particle) const
+
+StatusCode iFatras::G4HadIntProcessor::updateTrackingGeometry() const
+{
+
+  // -------------------- public TrackingGeometry (from DetectorStore) ----------------------------
+  // get the DetectorStore
+
+  StatusCode s = detStore()->retrieve(m_trackingGeometry, m_trackingGeometryName);
+  if (s.isFailure())
+  {
+    ATH_MSG_FATAL( "Could not retrieve TrackingGeometry '" << m_trackingGeometryName << "' from DetectorStore." );
+    ATH_MSG_FATAL( "  - probably the chosen layout is not supported / no cool tag exists. "                     );
+    return s;
+  }
+
+  return s;
+}
+
+
+bool iFatras::G4HadIntProcessor::hadronicInteraction(const Trk::TrackParameters& parm, double, double,
+    const Trk::MaterialProperties& mprop, double pathCorrection,
+    Trk::ParticleHypothesis particle) const
 {
   // do not treat geantinos
   if (particle==Trk::geantino) return false;
 
   bool processSecondaries = true;
+  // need to identify the layer first
+  if (!m_trackingGeometry && updateTrackingGeometry().isFailure()){
+    ATH_MSG_WARNING( "[ ---- ] Could not retrieve TrackingGeometry. Secondaries will not be processed." );
+    processSecondaries = false;
+  }
 
   // the layer material
   const Trk::MaterialProperties* ematprop  = dynamic_cast<const Trk::MaterialProperties*>(&(mprop));
@@ -314,7 +364,7 @@ bool iFatras::G4HadIntProcessor::hadronicInteraction(const Amg::Vector3D& positi
   // test for hadronic interactions
   if ( rndIntLength < thickness ) {
     ATH_MSG_DEBUG(" [ g4sim ] computing hadronic interaction on current particle in current material layer");
-    return doHadronicInteraction( 0., position, momentum, &(ematprop->material()), particle, processSecondaries);
+    return doHadronicInteraction( 0., parm, &(ematprop->material()), particle, processSecondaries);
   }
 
   // hadronic interaction did not happen
@@ -350,64 +400,12 @@ bool iFatras::G4HadIntProcessor::initG4RunManager() const {
   m_g4stepPoint       = new G4StepPoint();
   m_g4step->SetPreStepPoint( m_g4stepPoint);
 
-  // define the available G4Material
-  m_g4Material.clear();
-
-  G4NistManager* G4Nist = G4NistManager::Instance();
-  G4Material* air = G4Nist->G4NistManager::FindOrBuildMaterial("G4_AIR");
-  if (air) {
-    G4MaterialCutsCouple* airCuts = new G4MaterialCutsCouple(air);
-    // airCuts->SetIndex(0);    // ?
-    std::pair<G4Material*,G4MaterialCutsCouple*> airMat(air,airCuts);
-    m_g4Material.push_back(std::pair<float,std::pair<G4Material*,G4MaterialCutsCouple*> >(0.,airMat));
-  }
-  G4Material* h = G4Nist->G4NistManager::FindOrBuildMaterial("G4_H");
-  if (h) {
-    G4MaterialCutsCouple* hCuts = new G4MaterialCutsCouple(h);
-    std::pair<G4Material*,G4MaterialCutsCouple*> hMat(h,hCuts);
-    m_g4Material.push_back(std::pair<float,std::pair<G4Material*,G4MaterialCutsCouple*> >(1.,hMat));
-  }
-  G4Material* al = G4Nist->G4NistManager::FindOrBuildMaterial("G4_Al");
-  if (al) {
-    G4MaterialCutsCouple* alCuts = new G4MaterialCutsCouple(al);
-    std::pair<G4Material*,G4MaterialCutsCouple*> alMat(al,alCuts);
-    m_g4Material.push_back(std::pair<float,std::pair<G4Material*,G4MaterialCutsCouple*> >(13.,alMat));
-  }
-  G4Material* si = G4Nist->G4NistManager::FindOrBuildMaterial("G4_Si");
-  if (si) {
-    G4MaterialCutsCouple* siCuts = new G4MaterialCutsCouple(si);
-    std::pair<G4Material*,G4MaterialCutsCouple*> siMat(si,siCuts);
-    m_g4Material.push_back(std::pair<float,std::pair<G4Material*,G4MaterialCutsCouple*> >(14.,siMat));
-  }
-  G4Material* ar = G4Nist->G4NistManager::FindOrBuildMaterial("G4_Ar");
-  if (ar) {
-    G4MaterialCutsCouple* arCuts = new G4MaterialCutsCouple(ar);
-    std::pair<G4Material*,G4MaterialCutsCouple*> arMat(ar,arCuts);
-    m_g4Material.push_back(std::pair<float,std::pair<G4Material*,G4MaterialCutsCouple*> >(18.,arMat));
-  }
-  G4Material* fe = G4Nist->G4NistManager::FindOrBuildMaterial("G4_Fe");
-  if (fe) {
-    G4MaterialCutsCouple* feCuts = new G4MaterialCutsCouple(fe);
-    std::pair<G4Material*,G4MaterialCutsCouple*> feMat(fe,feCuts);
-    m_g4Material.push_back(std::pair<float,std::pair<G4Material*,G4MaterialCutsCouple*> >(26.,feMat));
-  }
-  G4Material* pb = G4Nist->G4NistManager::FindOrBuildMaterial("G4_Pb");
-  if (pb) {
-    G4MaterialCutsCouple* pbCuts = new G4MaterialCutsCouple(pb);
-    std::pair<G4Material*,G4MaterialCutsCouple*> pbMat(pb,pbCuts);
-    m_g4Material.push_back(std::pair<float,std::pair<G4Material*,G4MaterialCutsCouple*> >(82.,pbMat));
-  }
- 
-  ATH_MSG_INFO("material vector size for had interaction:"<< m_g4Material.size());
-
-  //G4cout << *(G4Material::GetMaterialTable()) << std::endl;
-
   return true;
 }
 
-ISF::ISFParticleVector iFatras::G4HadIntProcessor::getHadState(const ISF::ISFParticle* parent, 
-							       double time, const Amg::Vector3D& position, const Amg::Vector3D& momentum, 
-							       const Trk::Material *ematprop) const
+ISF::ISFParticleVector iFatras::G4HadIntProcessor::getHadState(const ISF::ISFParticle* parent,
+					 double time, const Trk::TrackParameters& parm,
+					 const Trk::Material *ematprop) const
 {
   ISF::ISFParticleVector chDef(0); 
 
@@ -425,15 +423,16 @@ ISF::ISFParticleVector iFatras::G4HadIntProcessor::getHadState(const ISF::ISFPar
 
   // find corresponding hadronic interaction process ----------------------------------------------
   //
-  std::map<int, G4VProcess*>::iterator processIter_inelast = m_g4HadrInelasticProcesses.find(pdg);
-  std::map<int, G4VProcess*>::iterator processIter_elast   = m_g4HadrElasticProcesses.find(pdg);
+  std::map<int, G4VProcess*>::iterator processIter_inelast = m_g4HadrProcesses.find(pdg);
+  std::map<int, G4VProcess*>::iterator processIter_elast   = m_g4HadrProcesses_Elastic.find(pdg);
 
-  if ( (processIter_inelast==m_g4HadrInelasticProcesses.end()) && (processIter_elast==m_g4HadrElasticProcesses.end()) ) {
+  if ( (processIter_inelast==m_g4HadrProcesses.end()) && (processIter_elast==m_g4HadrProcesses_Elastic.end()) ) {
     ATH_MSG_DEBUG ( " [ g4sim ] No hadronic interactions registered for current particle type (pdg=" << pdg << ")" );
+
     initProcessPDG(pdg);
-    return chDef;       // this interaction aborted but next may go through
+    //return chDef;
   }
-  //if ( processIter_inelast==m_g4HadrInelasticProcesses.end()) return chDef;
+  if ( processIter_inelast==m_g4HadrProcesses.end()) return chDef;
 
   ATH_MSG_DEBUG ( " [ g4sim ] Found registered hadronic interactions for current particle type (pdg=" << pdg << ")" );
 
@@ -444,54 +443,85 @@ ISF::ISFParticleVector iFatras::G4HadIntProcessor::getHadState(const ISF::ISFPar
     ATH_MSG_WARNING( "[ ---- ] Unable to find G4ParticleDefinition for particle with PID=" << pdg << " --> skipping hadronic interactions" );
     return chDef;
   }
-  G4DynamicParticle* inputPar = new G4DynamicParticle();
-  inputPar->SetDefinition( g4parDef);
-  // input momentum - respect upper limits
-  if ( momentum.mag()>1.e08 ) { 
-    ATH_MSG_WARNING( "input momentum beyond limit" << momentum.mag() << " --> skipping hadronic interaction" );
-    return chDef;
-  } 
-  const G4ThreeVector mom( momentum.x(), momentum.y(), momentum.z() );
-  inputPar->SetMomentum( mom);
-  // position and timing dummy
-  G4Track* g4track=new G4Track( inputPar, 0 /* time */, *m_g4zeroPos);
-  //G4TouchableHandle g4touchable(new G4TouchableHistory());     // TODO check memory handling here
-  //g4track->SetTouchableHandle( g4touchable);
+   m_g4dynPar->SetDefinition( g4parDef);
+  const G4ThreeVector mom( parm.momentum().x(), parm.momentum().y(), parm.momentum().z() );
+  m_g4dynPar->SetMomentum( mom);
+  G4Track* g4track = new G4Track( m_g4dynPar, 0 /* time */, *m_g4zeroPos);
+  G4TouchableHandle g4touchable(new G4TouchableHistory());
+  g4track->SetTouchableHandle( g4touchable);
 
   // setup up G4Material ---------------------------------------------------------------------------
-  std::pair<G4Material*, G4MaterialCutsCouple*> g4mat = retrieveG4Material(ematprop);
-  if (!g4mat.first) return chDef;
+  // if not available on input, take Al
+  if (!ematprop) {
+    Trk::Material defMat(88.93,388.62,26.98,13.,0.0027); 
+    ematprop=&defMat;
+  }
+  //
+  // make Z being an integeter
+  int  iZ = boost::math::iround(ematprop->averageZ());
+  
+  // Uses physics table and coupling cuts to make material
+  G4NistManager *G4Nist = G4NistManager::Instance(); 
+  G4Element     *g4elem = G4Nist->G4NistManager::FindOrBuildElement(iZ,false);
+  // debug output:
+  //G4Nist->G4NistManager::PrintElement(iZ);
+
+  // setup the G4Material
+  G4Material *g4mat  = new G4Material( "LayerMaterial",
+                                       ematprop->rho*(CLHEP::g/CLHEP::mm3) /* density */,
+                                       1 /* num elements */,
+                                       kStateSolid 
+                                       /* TODO: temp?, pressure? */);
+  // sanity checks
+  if(g4mat == 0 || g4elem ==0) {
+    ATH_MSG_WARNING ( " Unable to create G4Material or G4Element with Z=" << iZ << " --> skipping hadronic interaction");
+    if (g4mat) delete g4mat;
+    return chDef;
+  }
+  // add the G4Element to our material
+  g4mat->AddElement(g4elem, 1. /* fraction */);
 
   // further G4 initializations (G4Step, G4MaterialCutsCouple, ...)
-  m_g4stepPoint->SetMaterial( g4mat.first);
-  m_g4stepPoint->SetMaterialCutsCouple( g4mat.second);
+  m_g4stepPoint->SetMaterial( g4mat);
+  G4MaterialCutsCouple *g4matCuts = new G4MaterialCutsCouple( g4mat);
+  m_g4stepPoint->SetMaterialCutsCouple( g4matCuts);
+  g4matCuts->SetIndex(0);
+  G4ProductionCutsTable* pkt = G4ProductionCutsTable::GetProductionCutsTable();
+  std::vector<G4double>* vc = const_cast<std::vector<G4double>*>(pkt->GetEnergyCutsVector(3));
+  vc->push_back(0.0);
 
   // preparing G4Step and G4Track
   m_g4step->DeleteSecondaryVector();
   g4track->SetStep( m_g4step);
 
-  // by default, the current process is the inelastic hadr. interaction
-  G4VProcess *process = processIter_inelast!=m_g4HadrInelasticProcesses.end() ? processIter_inelast->second : 0;
+
+  // the current process is the inelastic hadr. interaction
+  G4VProcess *process = processIter_inelast->second;
  
+   //Prepare and build the Physics table for primaries 
+   process->PreparePhysicsTable(*g4parDef);
+   process->BuildPhysicsTable(*g4parDef);
+
   // if elastic interactions are enabled and there is a elastic process
   // in the m_g4HadrProcesses_Elastic std::map 
-  if( m_doElastic && (processIter_elast!=m_g4HadrElasticProcesses.end()) ) {
+  if( m_doElastic && (processIter_elast!=m_g4HadrProcesses_Elastic.end()) ) {
     double rand   = CLHEP::RandFlat::shoot(m_randomEngine, 0., 1.);
 
-    // use a 50% chance to use either elastic or inelastic processes : TODO retrieve cross-section
+    // use a 50% chance to use either elastic or inelastic processes
     if( rand < 0.5) process = processIter_elast->second;
   }
 
-  ATH_MSG_VERBOSE ( " [ g4sim ] Computing " << process->GetProcessName() << " process with current particle" );
+  ATH_MSG_VERBOSE ( " [ g4sim ] Computing " << process->GetProcessName() << "  " << process->GetProcessSubType() << " process with current particle" );
+  ATH_MSG_VERBOSE( "g4track, m_g4step" <<  g4track << " ," << m_g4step );
 
   // do the G4VProcess (actually a G4HadronicProcess) ------------------------------------
+  //
   //process->SetVerboseLevel(10);
   //ATH_MSG_VERBOSE ( "Verbose Level is " << process->GetVerboseLevel() ); 
   
   G4VParticleChange* g4change = process->PostStepDoIt(*g4track, *m_g4step);
   if (!g4change) {
     ATH_MSG_WARNING( " [ ---- ] Geant4 did not return any hadronic interaction information of particle with pdg=" << pdg );
-    delete g4track;
     return chDef;
   }
 
@@ -512,7 +542,7 @@ ISF::ISFParticleVector iFatras::G4HadIntProcessor::getHadState(const ISF::ISFPar
       const G4DynamicParticle *dynPar = trk->GetDynamicParticle();
 
       // drop if below energy threshold
-      if ( dynPar->GetTotalMomentum() < m_minMomentum)
+      if ( dynPar->GetTotalEnergy() < m_minEnergy)
         continue;
 
       // get dynamic particle
@@ -525,14 +555,23 @@ ISF::ISFParticleVector iFatras::G4HadIntProcessor::getHadState(const ISF::ISFPar
       //process->PreparePhysicsTable(*parDef);
       //process->BuildPhysicsTable(*parDef);
 
-      ATH_MSG_VERBOSE( " [ g4sim ] Adding child particle to particle stack (pdg=" << parDef->GetPDGEncoding()
-		       << " p=" << dynPar->GetTotalMomentum() );
+      ATH_MSG_VERBOSE( " [ g4sim ] Adding child particle to particle stack (pdg=" << parDef->GetPDGEncoding() << " E=" << dynPar->GetTotalEnergy() );
+
+      // the parent particle
+      // ISF::ISFParticle *parent = const_cast<ISF::ISFParticle*>(ISF::ParticleClipboard::getInstance().getParticle() );
+      // child particle vector for TruthIncident
+      //  Reserve space for as many paricles as created due to hadr. int.
+      //  However, the number of child particles for TruthIncident might be
+      //  smaller due to (momentum) cuts
+      //  ISF::ISFParticleVector           children(numSecondaries);
+      //  ISF::ISFParticleVector::iterator childrenIt = children.begin();
+      // unsigned short                numChildren = 0;
 
 
       // create the particle to be put into ISF stack
       const G4ThreeVector &momG4 = dynPar->GetMomentum();
       Amg::Vector3D mom( momG4.x(), momG4.y(), momG4.z() );
-      ISF::ISFParticle* cParticle = new ISF::ISFParticle( position,
+      ISF::ISFParticle* cParticle = new ISF::ISFParticle( parm.position(),
                                                           mom,
                                                           parDef->GetPDGMass(),
                                                           parDef->GetPDGCharge(),
@@ -541,30 +580,52 @@ ISF::ISFParticleVector iFatras::G4HadIntProcessor::getHadState(const ISF::ISFPar
                                                           *parent );
       cParticle->setNextGeoID( parent->nextGeoID() );
       cParticle->setNextSimID( parent->nextSimID() );
-      // process sampling tool takes care of validation info
+      // in the validation mode, add process info
+      if (m_validationMode) {
+	ISF::ParticleUserInformation* validInfo = new ISF::ParticleUserInformation();
+        validInfo->setProcess(process->GetProcessSubType());
+        if (parent->getUserInformation()) validInfo->setGeneration(parent->getUserInformation()->generation()+1);
+	else validInfo->setGeneration(1);     // assume parent is a primary track
+        cParticle->setUserInformation(validInfo);
+      }
       *childrenIt = cParticle;
       ++childrenIt; numChildren++;
+      // push onto ParticleStack
+      // @TODO: TruthRecordSvc
     }
 
+
     children.resize(numChildren);
-    // truth info handled by process sampling tool
+    ISF::ISFTruthIncident truth( const_cast<ISF::ISFParticle&>(*parent),
+				 children,
+				 process->GetProcessSubType(),
+				 parent->nextGeoID(),
+				 ISF::fKillsPrimary );
+    m_truthRecordSvc->registerTruthIncident( truth);
+
+    // save info for validation
+    if (m_validationMode && m_validationTool) {
+      Amg::Vector3D* nMom = 0;
+      m_validationTool->saveISFVertexInfo(process->GetProcessSubType(),parm.position(),*parent,parm.momentum(),nMom,children);
+      delete nMom;
+    }
 
     // free up memory
     g4change->Clear();
-    delete g4track;
+
     return children;
 
   }
 
   // free up memory
   g4change->Clear();
-  delete g4track;
+
   return chDef;
 }
 
 
 
-bool iFatras::G4HadIntProcessor::doHadronicInteraction(double time, const Amg::Vector3D& position, const Amg::Vector3D& momentum,
+bool iFatras::G4HadIntProcessor::doHadronicInteraction(double time,const Trk::TrackParameters &parm,
 						       const Trk::Material *ematprop,
 						       Trk::ParticleHypothesis /*particle*/,  
 						       bool  processSecondaries) const
@@ -575,7 +636,7 @@ bool iFatras::G4HadIntProcessor::doHadronicInteraction(double time, const Amg::V
   // something is seriously wrong if there is no parent particle
   assert(parent);
 
-  ISF::ISFParticleVector ispVec=getHadState(parent, time, position, momentum, ematprop);
+  ISF::ISFParticleVector ispVec=getHadState(parent,time, parm, ematprop);
 
   if (!ispVec.size()) return false;
 
@@ -589,44 +650,11 @@ bool iFatras::G4HadIntProcessor::doHadronicInteraction(double time, const Amg::V
 
 }
 
-ISF::ISFParticleVector iFatras::G4HadIntProcessor::doHadIntOnLayer(const ISF::ISFParticle* parent, double time, 
-								   const Amg::Vector3D& position, const Amg::Vector3D& momentum,
-								   const Trk::Material *emat,
+ISF::ISFParticleVector iFatras::G4HadIntProcessor::doHadIntOnLayer(const ISF::ISFParticle* parent, double time, const Trk::TrackParameters& parm,
+				       const Trk::MaterialProperties *ematprop,
 								   Trk::ParticleHypothesis /*particle=Trk::pion*/) const 
 {
  
-  return getHadState(parent, time, position, momentum, emat);
-
-}
-
-std::pair<G4Material*,G4MaterialCutsCouple*> iFatras::G4HadIntProcessor::retrieveG4Material(const Trk::Material *ematprop) const {
-  
-  if (!m_g4Material.size()) {
-    ATH_MSG_WARNING(" no predefined G4 material available for hadronic interaction " );
-    return std::pair<G4Material*,G4MaterialCutsCouple*> (0,0); 
-  }
-  
-  // in the absence of detailed material composition, use average Z
-  // if not available on input, take Al
-  float  iZ = ematprop ? ematprop->averageZ() : 13 ;
-
-  // choose from predefined materials
-  unsigned int imat=0;
-  
-  while (imat < m_g4Material.size() && iZ > m_g4Material[imat].first ) imat++; 
-  
-  unsigned int iSel=imat< m_g4Material.size() ? imat : m_g4Material.size()-1;
-
-  if (iSel>0) { 
-    // pick randomly to reproduce the average Z 
-    //double rnd   = CLHEP::RandFlat::shoot(m_randomEngine, 0., 1.);
-    //if (rnd < (iZ-m_g4Material[iSel-1].first)/(m_g4Material[iSel].first-m_g4Material[iSel-1].first)) iSel--;
-    // weighted   
-    float dz2 =  -pow(m_g4Material[iSel-1].first,2)+pow(m_g4Material[iSel].first,2);
-    double rnd   = CLHEP::RandFlat::shoot(m_randomEngine, 0., 1.);
-    if (iZ*iZ+pow(m_g4Material[iSel-1].first,2) < rnd*dz2) iSel--;
-  }  
-
-  return m_g4Material[iSel].second;
+  return getHadState(parent,time, parm, &(ematprop->material()));
 
 }
