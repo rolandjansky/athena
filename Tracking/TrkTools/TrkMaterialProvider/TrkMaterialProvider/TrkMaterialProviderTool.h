@@ -95,8 +95,10 @@ namespace Trk{
     /**Helper to get first calo TSOS with TP*/
     const Trk::TrackStateOnSurface* getCaloEntryTSOS(const std::vector<const Trk::TrackStateOnSurface*>* caloTSOS, Trk::PropDirection dir) const;
 
-    /** Helper to remove MS TSOS */
+    /** Helper to remove MS and ID TSOS */
     void removeOutOfCalo(std::vector<const Trk::TrackStateOnSurface*>* caloTSOS) const;
+     /** Helper to remove only MS TSOS */
+    void removeMS(std::vector<const Trk::TrackStateOnSurface*>* caloTSOS) const;
 
     /** Helper to update entries in the vector*/
     void updateVector(DataVector<const Trk::TrackStateOnSurface>* inputTSOS, 
@@ -182,6 +184,8 @@ namespace Trk{
     bool m_useCaloEnergyMeasurement;
     bool m_useMuonCaloEnergyTool;
     bool m_overwriteElossParam;
+    bool m_infoExtrapolation; 
+
   };
 } // end namespace
 

@@ -58,7 +58,8 @@ Trk::TrkMaterialProviderTool::TrkMaterialProviderTool(const std::string& t, cons
 	m_paramPtCut(15.0*Gaudi::Units::GeV),
 	m_useCaloEnergyMeasurement(true),
 	m_useMuonCaloEnergyTool(true),
-        m_overwriteElossParam(false)
+        m_overwriteElossParam(false),
+        m_infoExtrapolation(false) 
 {
   declareInterface<ITrkMaterialProviderTool>(this);
 
@@ -77,6 +78,7 @@ Trk::TrkMaterialProviderTool::TrkMaterialProviderTool(const std::string& t, cons
 // this is a temporary solution to write Eloss information in the muon to validate the Eloss
 // default value should be false
   declareProperty("OverwriteElossParam", m_overwriteElossParam);
+  declareProperty("InfoExtrapolation", m_infoExtrapolation);
 }
 
 // destructor
@@ -161,9 +163,9 @@ void Trk::TrkMaterialProviderTool::updateCaloTSOS(Trk::Track& track, const Trk::
 
     if(this->getVolumeByGeo(*it)==1 && (*it)->trackParameters()) 
       lastIDwP = it;
-    if(firstCALO==inputTSOS->end() && this->getVolumeByGeo(*it)==2)
+    if(firstCALO==inputTSOS->end() && this->getVolumeByGeo(*it)==2 && firstMS==itEnd)
       firstCALO = it;
-    else if(this->getVolumeByGeo(*it)==3) {//&& !(*it)->type(Trk::TrackStateOnSurface::Perigee)) {
+    else if(this->getVolumeByGeo(*it)==3 && firstCALO!=inputTSOS->end()) {//&& !(*it)->type(Trk::TrackStateOnSurface::Perigee)) {
       if(firstMS==itEnd) 
 	firstMS = it;
       if((*it)->trackParameters() && (*it)->trackParameters()->covariance()) {
@@ -565,20 +567,13 @@ Trk::TrkMaterialProviderTool::getCaloTSOS (const Trk::TrackParameters&	parm, con
       }    
     }
   }
-  
-  // get boundary surfaces of the target volume
-  auto boundaryIntersections = targetVolume->boundarySurfacesOrdered<Trk::TrackParameters>(parm,dir,false);
-  
-  // loop over surfaces
-  double Eloss_previous = 0.;
-  for (auto& boundaryCandidate : boundaryIntersections){
-    
-    // get the surface object at the boundary
-    const Trk::BoundarySurface<Trk::TrackingVolume>* surfaceTV = boundaryCandidate.object;
-    if(!surfaceTV) continue;
-    
-    // get the Trk::Surface
-    const Trk::Surface& surface = surfaceTV->surfaceRepresentation();
+
+  if(dir == Trk::oppositeMomentum) {
+//
+// go to Beam line 
+//
+    Amg::Vector3D  globPos(0.,0.,0.);
+    PerigeeSurface surface(globPos);
     double Eloss = 0.;
     // Collect calorimeter TSOS
     DataVector<const Trk::TrackStateOnSurface>* caloTSOSdv = this->getCaloTSOS (parm,
@@ -589,22 +584,67 @@ Trk::TrkMaterialProviderTool::getCaloTSOS (const Trk::TrackParameters&	parm, con
                                                                                 Eloss,
 										parms,
 										true,
+										false);  // remove only MS TSOS and keep ID+CALO
+
+    if(m_infoExtrapolation) {
+      if(parms) ATH_MSG_INFO(" go to Beam Line parms position radius " << parms->position().perp() << " z " << parms->position().z());
+      ATH_MSG_INFO(" go to Beam Line destination surface position radius " << surface.center().perp() << " z " << surface.center().z());
+    }
+    if(caloTSOSdv) {
+      for(unsigned int i=0; i<caloTSOSdv->size(); ++i)
+        caloTSOS->push_back(caloTSOSdv->get(i));
+      delete caloTSOSdv;
+    }
+    return caloTSOS;    
+    
+  } else {
+
+    // get boundary surfaces of the target volume
+    auto boundaryIntersections = targetVolume->boundarySurfacesOrdered<Trk::TrackParameters>(parm,dir,false);
+  
+  // loop over surfaces
+    double Eloss_previous = 0.;
+    for (auto& boundaryCandidate : boundaryIntersections){
+    
+      // get the surface object at the boundary
+      const Trk::BoundarySurface<Trk::TrackingVolume>* surfaceTV = boundaryCandidate.object;
+      if(!surfaceTV) continue;
+    
+      // get the Trk::Surface
+      const Trk::Surface& surface = surfaceTV->surfaceRepresentation();
+      double Eloss = 0.;
+    // Collect calorimeter TSOS
+      DataVector<const Trk::TrackStateOnSurface>* caloTSOSdv = this->getCaloTSOS (parm,
+										muonTrack,
+										surface,
+										dir,
+										Trk::muon,
+                                                                                Eloss,
+										parms,
+										true,
 										true); 
 
     // hack to convert DataVector to stl vector and delete the DataVector ...
-    if(caloTSOSdv&&Eloss>Eloss_previous) {
+      if(caloTSOSdv&&Eloss>Eloss_previous) {
 //
 //      keep the TSOS vector with the largest Eloss 
 //      only one of the surfaces gives the rights intersection
 //      partial crossing with a plane or a cylinder give less Eloss
 //
-      ATH_MSG_DEBUG(" getCaloTSOS: Previous solution had Eloss " << Eloss_previous << " latest " << Eloss);
-      if(parms) ATH_MSG_DEBUG(" parms position radius " << parms->position().perp() << " z " << parms->position().z());
-      if(&surface) ATH_MSG_DEBUG(" destination surface position radius " << surface.center().perp() << " z " << surface.center().z());
-      for(unsigned int i=0; i<caloTSOSdv->size(); ++i)
-	caloTSOS->push_back(caloTSOSdv->get(i));
-      delete caloTSOSdv;
-      return caloTSOS;    
+        if(m_infoExtrapolation) {
+          ATH_MSG_INFO(" getCaloTSOS: Previous solution had Eloss " << Eloss_previous << " latest " << Eloss);
+          if(parms) ATH_MSG_INFO(" parms position radius " << parms->position().perp() << " z " << parms->position().z());
+          if(&surface) ATH_MSG_INFO(" destination surface position radius " << surface.center().perp() << " z " << surface.center().z());
+        } else {
+          ATH_MSG_DEBUG(" getCaloTSOS: Previous solution had Eloss " << Eloss_previous << " latest " << Eloss);
+          if(parms) ATH_MSG_DEBUG(" parms position radius " << parms->position().perp() << " z " << parms->position().z());
+          if(&surface) ATH_MSG_DEBUG(" destination surface position radius " << surface.center().perp() << " z " << surface.center().z());
+        } 
+        for(unsigned int i=0; i<caloTSOSdv->size(); ++i)
+  	  caloTSOS->push_back(caloTSOSdv->get(i));
+        delete caloTSOSdv;
+        return caloTSOS;    
+      }
     }
   }
 
@@ -625,14 +665,23 @@ Trk::TrkMaterialProviderTool::getCaloTSOS (const Trk::TrackParameters&	parm,
 					   bool                         boundaryCheck,
 					   bool                         removeOoC) const 
 {
-  ATH_MSG_DEBUG("Retrieving Calorimeter TSOS from extrapolateM (dir=" << dir << ") with starting parameters : "
+
+  bool fremoveMS = false;
+  if(!removeOoC) fremoveMS = true;
+
+  if(m_infoExtrapolation) {
+    ATH_MSG_INFO("Retrieving Calorimeter TSOS from extrapolateM (dir=" << dir << ") with starting parameters : "
 		<< parm << " to surface "<<surf);
-  if(parms)
-    ATH_MSG_DEBUG("Parameters in MS provided : "<< *parms);
+    if(parms) ATH_MSG_INFO("Parameters in MS provided : "<< *parms);
+  } else {
+    ATH_MSG_DEBUG("Retrieving Calorimeter TSOS from extrapolateM (dir=" << dir << ") with starting parameters : "
+		<< parm << " to surface "<<surf);
+    if(parms) ATH_MSG_DEBUG("Parameters in MS provided : "<< *parms);
+  }   
 
   // Get TSOS from extrapolateM (from TG)
   const std::vector<const Trk::TrackStateOnSurface*>* caloTSOS = m_muonExtrapolator->extrapolateM(parm, surf, dir, boundaryCheck, mateffects);
-
+  
   ATH_MSG_DEBUG("Retrieved " << caloTSOS->size() << " Calorimeter TSOS from extrapolateM, no-removal");
 
 #ifdef DEBUGON
@@ -640,31 +689,57 @@ Trk::TrkMaterialProviderTool::getCaloTSOS (const Trk::TrackParameters&	parm,
   for(auto m : *caloTSOS) this->printTSOS(m, "BEFORE-REMOVAL CALO TSOS");
 #endif
   
-  if(removeOoC && !caloTSOS->empty()) removeOutOfCalo(const_cast<std::vector<const Trk::TrackStateOnSurface*>*>(caloTSOS));
-  ATH_MSG_DEBUG("Retrieved " << caloTSOS->size() << " Calorimeter TSOS from extrapolateM");
-  
-#ifdef DEBUGON
-  for(auto m : *caloTSOS) this->printTSOS(m, "ORIGINAL CALO TSOS");
-#endif
 
   Eloss = 0.; 
+  double ElossID = 0.; 
+  double ElossCalo = 0.; 
+  double ElossMS = 0.; 
   for(auto m : *caloTSOS) {
     if(m->materialEffectsOnTrack()) {
       const Trk::MaterialEffectsOnTrack* meot = dynamic_cast<const Trk::MaterialEffectsOnTrack*>(m->materialEffectsOnTrack());
       if(meot) {
         const Trk::EnergyLoss* energyLoss = meot->energyLoss();
         if (energyLoss) {
+        if(m_infoExtrapolation) {
+          ATH_MSG_INFO(" volume " << this->getVolumeByGeo(m) << " Eloss from extrapolateM TG " << energyLoss->deltaE());
+        } else {
+          ATH_MSG_DEBUG(" volume " << this->getVolumeByGeo(m) << " Eloss from extrapolateM TG " << energyLoss->deltaE());
+        }
           Eloss += fabs(energyLoss->deltaE());
+          if(this->getVolumeByGeo(m)==1) ElossID   += fabs(energyLoss->deltaE());
+          if(this->getVolumeByGeo(m)==2) ElossCalo += fabs(energyLoss->deltaE());
+          if(this->getVolumeByGeo(m)==3) ElossMS   += fabs(energyLoss->deltaE());
         }
       }
     }
   }
-  ATH_MSG_DEBUG("Total Eloss on TSOS " << Eloss);
+
+  if(m_infoExtrapolation) {
+    ATH_MSG_INFO("Total Eloss on TSOS from extrapolateM " << Eloss << " ElossID " << ElossID << " ElossMS " << ElossMS <<" Elosscalo " << ElossCalo);
+    if(fremoveMS) ATH_MSG_INFO(" ID Eloss will be added to Calo Eloss " << ElossID+ElossCalo);
+  } else {
+    ATH_MSG_DEBUG("Total Eloss on TSOS from extrapolateM " << Eloss << " ElossID " << ElossID << " ElossMS " << ElossMS <<" Elosscalo " << ElossCalo);
+    if(fremoveMS) ATH_MSG_DEBUG(" ID Eloss will be added to Calo Eloss " << ElossID+ElossCalo);
+  }
+
+  Eloss = ElossCalo;
+
+// remove ID and MS TSOSs
+  if(removeOoC && !caloTSOS->empty()) removeOutOfCalo(const_cast<std::vector<const Trk::TrackStateOnSurface*>*>(caloTSOS));
+  ATH_MSG_DEBUG("Retrieved " << caloTSOS->size() << " Calorimeter TSOS from extrapolateM");
+// remove MS TSOSs
+  if(fremoveMS && !caloTSOS->empty()) removeMS(const_cast<std::vector<const Trk::TrackStateOnSurface*>*>(caloTSOS));
+  ATH_MSG_DEBUG("Retrieved " << caloTSOS->size() << " Calorimeter TSOS from extrapolateM");
+  
+#ifdef DEBUGON
+  for(auto m : *caloTSOS) this->printTSOS(m, "ORIGINAL CALO TSOS");
+#endif
+
 
   DataVector<const Trk::TrackStateOnSurface>*  finalCaloTSOS = 0;
-  if(caloTSOS->size()<1||Eloss<2000.) {
-    Eloss = 0.;
+  if(caloTSOS->size()<1||Eloss<1000.) {
     ATH_MSG_WARNING("Unable to retrieve Calorimeter TSOS from extrapolateM caloTSOS->size() "<< caloTSOS->size() << " Eloss " << Eloss );
+    if(caloTSOS) deleteTSOS(caloTSOS);
     return finalCaloTSOS;
   }
 
@@ -766,8 +841,14 @@ Trk::TrkMaterialProviderTool::getCaloTSOS (const Trk::TrackParameters&	parm,
 						     measCaloEnergy, measCaloEnergyError, fsrCaloEnergy, e_exp,
 						     E_em_meas,E_em_exp,E_tile_meas,E_tile_exp,E_HEC_meas,E_HEC_exp,E_dead_exp);
 
-      ATH_MSG_VERBOSE("Energy measurement from calorimeter: inputs mopELoss, meanELossIoni, sigmaELossIoni " 
-		      << mopELoss << " " << meanELossIoni << " " << sigmaELossIoni );
+ 
+      if(m_infoExtrapolation) {
+        ATH_MSG_INFO(" eta " << eta << " Energy measurement from calorimeter: inputs mopELoss, meanELossIoni, sigmaELossIoni " 
+	<< mopELoss << " " << meanELossIoni << " " << sigmaELossIoni << " e_exp Ioni from TG " << e_exp << " e_exp original " << e_exp*mopELoss/(meanELossIoni+0.001));
+      } else {
+        ATH_MSG_DEBUG(" eta " << eta << " Energy measurement from calorimeter: inputs mopELoss, meanELossIoni, sigmaELossIoni " 
+	<< mopELoss << " " << meanELossIoni << " " << sigmaELossIoni << " e_exp Ioni from TG " << e_exp << " e_exp original " << e_exp*mopELoss/(meanELossIoni+0.001));
+      }
       ATH_MSG_VERBOSE("Energy measurement from calorimeter: outputs measCaloEnergy, measCaloEnergyError, fsrCaloEnergy, e_exp, E_em_meas, E_em_exp, E_tile_meas, E_tile_exp, E_HEC_meas, E_HEC_exp, E_dead_exp " << measCaloEnergy << " " << measCaloEnergyError << " " << fsrCaloEnergy << " " << e_exp << " " << E_em_meas << " " << E_em_exp << " " << E_tile_meas << " " << E_tile_exp << " " << E_HEC_meas << " " << E_HEC_exp << " " << E_dead_exp);
 
     }
@@ -801,7 +882,11 @@ Trk::TrkMaterialProviderTool::getCaloTSOS (const Trk::TrackParameters&	parm,
 				    pAtCaloEntry, pAtMuonEntryError,
 				    Eloss_tot, useMeasuredEnergy, 
                                     mopELoss, meanELossIoni, sigmaELossIoni);
-  
+ 
+  if(m_infoExtrapolation) {
+    ATH_MSG_INFO( " after modifyTSOSvector X0ScaleCALO " << X0ScaleCALO << " ELossScaleCALO " << ELossScaleCALO <<
+                 " pAtCaloEntry " << pAtCaloEntry << " pAtMuonEntryError " << pAtMuonEntryError << " total ELoss from TG through MuonEnergyTool " << Eloss_tot );  
+  } 
   ATH_MSG_DEBUG("Aggregating and correcting TSOS down to : " << finalCaloTSOS->size() << " with total ELoss " << Eloss_tot);
 
 #ifdef DEBUGON
@@ -909,10 +994,10 @@ const Trk::TrackStateOnSurface* Trk::TrkMaterialProviderTool::getCaloEntryTSOS(c
 }
  
 
-/** Helper to remove MS TSOS */
+/** Helper to remove MS and ID TSOS */
 void Trk::TrkMaterialProviderTool::removeOutOfCalo(std::vector<const Trk::TrackStateOnSurface*>* caloTSOS) const
 {
-  // remove all track states on surface with getVolumeByGeo(state)!=2
+  // remove all track states on surface with getVolumeByGeo(state)!=2  ( ID = 1 Calo = 2 MS = 3)
   // and group all other track states at the  beginning of the vector.
   // finally erase from the vector all track state pointer of the 
   // deleted objects, which are after remove_if at the end of the vector.
@@ -921,6 +1006,30 @@ void Trk::TrkMaterialProviderTool::removeOutOfCalo(std::vector<const Trk::TrackS
                                   caloTSOS->end(),
                                   [_this](const Trk::TrackStateOnSurface *&state) {                                  
                                     if (state && _this->getVolumeByGeo(state)!=2) {
+                                      delete state;
+                                      state=nullptr;
+                                      return true;
+                                    }
+                                    else {
+                                      return false;
+                                    }
+                                  } ), 
+                   caloTSOS->end());
+
+}
+
+/** Helper to remove MS TSOS */
+void Trk::TrkMaterialProviderTool::removeMS(std::vector<const Trk::TrackStateOnSurface*>* caloTSOS) const
+{
+  // remove all track states on surface with getVolumeByGeo(state)==3  ( ID = 1 Calo = 2 MS = 3)
+  // and group all other track states at the  beginning of the vector.
+  // finally erase from the vector all track state pointer of the 
+  // deleted objects, which are after remove_if at the end of the vector.
+  const TrkMaterialProviderTool *_this=this;
+  caloTSOS->erase( std::remove_if(caloTSOS->begin(), 
+                                  caloTSOS->end(),
+                                  [_this](const Trk::TrackStateOnSurface *&state) {                                  
+                                    if (state && _this->getVolumeByGeo(state)==3) {
                                       delete state;
                                       state=nullptr;
                                       return true;
@@ -1598,11 +1707,12 @@ void Trk::TrkMaterialProviderTool::getMopAndIoniEnergyLoss(const std::vector<con
 				     deltaE_rad_tot, sigmaDeltaE_rad_tot, 0.) ;
   
   int elossFlag=0;
-  m_elossupdator->updateEnergyLoss(eLoss, 0, 0, pCaloEntry, 0, elossFlag);
+  
+  std::unique_ptr<EnergyLoss> eLoss2 ( m_elossupdator->updateEnergyLoss(eLoss, 0, 0, pCaloEntry, 0, elossFlag) );
 
-  mopELoss = eLoss->deltaE();
-  meanELossIoni = eLoss->meanIoni();  
-  sigmaELossIoni = eLoss->sigmaIoni();
+  mopELoss = eLoss2->deltaE();
+  meanELossIoni = eLoss2->meanIoni();  
+  sigmaELossIoni = eLoss2->sigmaIoni();
 
   ATH_MSG_DEBUG("Mop Energy Loss " << mopELoss << " mean ionization energy loss " << meanELossIoni << " sigmaELossIoni " << sigmaELossIoni);
  
