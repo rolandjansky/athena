@@ -417,10 +417,10 @@ return CalibrationOutput(Amg::Vector2D(),localCov,0.,false);
     m_calibHit->setGeometry(detEl);
     
     switch (m_timeCorrectionType){
-      case ATLAS:
+      case ATLTIME:
         // normal time of flight corrections assuming IP + light speed
         inputData.tof = gpos.mag()*m_invSpeed;
-        ATH_MSG_VERBOSE( " running in ATLAS mode, tof: " << inputData.tof );
+        ATH_MSG_VERBOSE( " running in ATLTIME mode, tof: " << inputData.tof );
         break;
       case NO_CORRECTIONS:
         // special case for cosmics taken with scintilator trigger or cosmic simulation without TOF
@@ -640,6 +640,54 @@ const Muon::MdtDriftCircleOnTrack* Muon::MdtDriftCircleOnTrackCreator::updateErr
   
   // return result
   return rot; 
+}
+
+const Muon::MdtDriftCircleOnTrack* Muon::MdtDriftCircleOnTrackCreator::updateErrorExternal( const MdtDriftCircleOnTrack& DCT,
+                                                                                            const Trk::TrackParameters* /**pars*/ ,
+                                                                                            const std::map<Identifier,double>* errorlist ) const
+{
+  // calculate error
+  double sigmaRT(1.), sigmaEXT(1.);
+  double t = DCT.driftTime();
+
+  const MuonGM::MdtReadoutElement* detEl = DCT.detectorElement();
+  Identifier detElId = detEl->identify();
+  if( !detEl ){
+    ATH_MSG_WARNING("MdtDriftCircleOnTrack without MdtReadoutElement " << m_idHelper->toString(detElId));
+    return 0;
+  }
+
+  sigmaRT = getErrorFromRt(DCT);
+
+  if( sigmaRT < 0.0001 || sigmaRT*sigmaRT < 0.0001 ){
+    ATH_MSG_WARNING( "Bad obtained from calibration service: error " << m_idHelper->toString(detElId) << " reso " << sigmaRT << " sigma2 " << sigmaRT*sigmaRT
+                    << " drift time " << t << " original " << DCT.driftTime() << " => Only external error is applied (if any)!" );
+    sigmaRT=0.;
+    if(!errorlist) {
+      ATH_MSG_WARNING("List of external errors also empty: Returning NULL pointer.");
+      return 0;
+    }
+  }
+
+  if(!errorlist) {
+    ATH_MSG_WARNING("List of external errors empty: Applying only error from RT.");
+    sigmaEXT = 0.;
+  } else {
+    if( errorlist->find(DCT.identify()) != errorlist->end() )
+      sigmaEXT = errorlist->find(DCT.identify())->second;
+    else {
+      ATH_MSG_DEBUG("There is no external error stored in the map for " << m_idHelper->toString(detElId) << ". Applying only error from RT.");
+      sigmaEXT = 0.;
+    }
+  }
+
+  Muon::MdtDriftCircleOnTrack* rot = DCT.clone();
+  rot->m_localCovariance(0,0) = sigmaRT*sigmaRT + sigmaEXT*sigmaEXT;
+
+  ATH_MSG_DEBUG("updated error for " << m_idHelper->toString(DCT.identify()) << " new error " << Amg::error(rot->localCovariance(),Trk::locR)
+                  << " old error " << Amg::error(DCT.localCovariance(),Trk::locR) << " with RT error " << sigmaRT << " and external error " << sigmaEXT );
+
+  return rot;
 }
 
 Muon::MdtDriftCircleStatus Muon::MdtDriftCircleOnTrackCreator::driftCircleStatus( const Muon::MdtDriftCircleOnTrack& DCT ) const 
