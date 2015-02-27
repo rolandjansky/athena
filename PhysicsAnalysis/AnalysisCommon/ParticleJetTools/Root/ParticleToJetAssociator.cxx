@@ -18,12 +18,14 @@
 namespace Analysis
 {
 
-ParticleToJetAssociator::ParticleToJetAssociator(const std::string& t, const std::string& n, const IInterface* p) :
-        AthAlgTool(t,n,p),
-        m_analysisTools("AnalysisTools") {
-
+ParticleToJetAssociator::ParticleToJetAssociator(const std::string& name)
+        : AsgTool(name) {
+//          m_analysisTools("AnalysisTools") {
+#ifndef ROOTCORE
     declareInterface<ParticleToJetAssociator>(this);
-    declareProperty("analysisTools", m_analysisTools);
+#endif
+
+//    declareProperty("analysisTools", m_analysisTools);
     declareProperty("trackCone",  m_trackCone = 0.4);
     declareProperty("shareTracks", m_shareTracks = false);
     declareProperty("useVariableSizedTrackCone", m_useVariableSizedTrackCone = true);
@@ -35,12 +37,12 @@ ParticleToJetAssociator::ParticleToJetAssociator(const std::string& t, const std
 ParticleToJetAssociator::~ParticleToJetAssociator() {}
 
 StatusCode ParticleToJetAssociator::initialize() {
-   if ( m_analysisTools.retrieve().isFailure() ) {
-     ATH_MSG_FATAL("Failed to retrieve tool " << m_analysisTools);
-     return StatusCode::FAILURE;
-   } else {
-     ATH_MSG_DEBUG("Retrieved tool " << m_analysisTools);
-   }
+   //if ( m_analysisTools.retrieve().isFailure() ) {
+   //  ATH_MSG_FATAL("Failed to retrieve tool " << m_analysisTools);
+   //  return StatusCode::FAILURE;
+   //} else {
+   //  ATH_MSG_DEBUG("Retrieved tool " << m_analysisTools);
+   //}
    return StatusCode::SUCCESS;
 }
 

@@ -27,6 +27,8 @@ private:
 
   bool fromWZ( const xAOD::TruthParticle* tp ) const;
   bool fromTau( const xAOD::TruthParticle* tp ) const;
+
+  float m_maxAbsEta;
 };
 
 
