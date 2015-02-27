@@ -83,6 +83,8 @@ namespace MuonCombined {
     ToolHandle<Rec::IMuidMuonRecovery>		      m_muonRecovery; 
     ToolHandle<Rec::IMuonMatchQuality>		      m_matchQuality;
     ToolHandle<Trk::ITrackScoringTool>                m_trackScoringTool;
+    const AtlasDetectorID *m_DetID;
+
     // configuration
     double			m_badFitChi2;
     double			m_momentumBalanceCut;	// Cut on momentum balance of combined track
