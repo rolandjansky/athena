@@ -22,7 +22,7 @@
 #include "ISF_Interfaces/ITruthSvc.h"
 #include "ISF_Event/ISFTruthIncident.h"
 
-#include <G4WHadronElasticProcess.hh>
+//#include <G4WHadronElasticProcess.hh>
 #include <G4HadronElasticProcess.hh>
 
 // Boost
@@ -55,19 +55,14 @@
 #include <G4MaterialCutsCouple.hh>
 
 #include <G4NistManager.hh>
-#include "G4WHadronElasticProcess.hh"
 #include "globals.hh"
 #include "G4CrossSectionDataStore.hh"
 #include "G4HadronElasticDataSet.hh"
-#include "G4VQCrossSection.hh"
-
-#include "G4QCHIPSWorld.hh"
 #include "G4Element.hh"
 #include "G4ElementVector.hh"
 #include "G4IsotopeVector.hh"
 #include "G4Neutron.hh"
 #include "G4ProductionCutsTable.hh"
-
 
 // CLHEP
 #include "CLHEP/Units/SystemOfUnits.h"
@@ -292,7 +287,7 @@ std::map<int,G4VProcess*>::iterator iFatras::G4HadIntProcessor::initProcessPDG(i
     ATH_MSG_VERBOSE( "  [ g4sim ] Found Geant4 process " << curProc->GetProcessName());
 
     G4HadronInelasticProcess *hadProc = dynamic_cast<G4HadronInelasticProcess*>( curProc);
-    G4WHadronElasticProcess *hadProc1 = dynamic_cast<G4WHadronElasticProcess*>( curProc);
+    G4HadronElasticProcess *hadProc1 = dynamic_cast<G4HadronElasticProcess*>( curProc);
     ATH_MSG_DEBUG( "  hadproc 0,1 " << hadProc << ", " << hadProc1);
     if ( !hadProc && !hadProc1) {
       ATH_MSG_VERBOSE( "  [ g4sim ] Current process not an inelastic or elastic  hadronic process -> process not registered" );
