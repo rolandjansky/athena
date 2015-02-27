@@ -14,9 +14,6 @@
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/StatusCode.h"
 
-#include "StoreGate/StoreGate.h"
-#include "StoreGate/StoreGateSvc.h"
-
 #include "GaudiKernel/PropertyMgr.h"
 #include "GaudiKernel/IToolSvc.h"
 
@@ -55,14 +52,11 @@ static int digit_out = 0;
 /////////////////////////////////////////////////////////////////////////////
 
 TrigT1RPC::TrigT1RPC(const std::string& name, ISvcLocator* pSvcLocator) :
-  Algorithm(name, pSvcLocator),
-  m_EvtStore("StoreGateSvc",name),
+  AthAlgorithm(name, pSvcLocator),
   m_cabling_getter("RPCcablingServerSvc/RPCcablingServerSvc","TrigT1RPC"),
   m_cabling(0)
 {
-  declareProperty ( "EventStore",m_EvtStore,"StoreGate Service");
   declareProperty ( "FastDebug", m_fast_debug=0 );
-
   declareProperty ( "Geometric", m_geometric_algo=false );
   declareProperty ( "Hardware", m_hardware_emulation=true );
   declareProperty ( "Logic", m_logic_emulation=false );
@@ -85,7 +79,6 @@ TrigT1RPC::TrigT1RPC(const std::string& name, ISvcLocator* pSvcLocator) :
   declareProperty ( "RXrostructdebug", m_rx_rostruct_debug=0 );
   declareProperty ( "SLrostructdebug", m_sl_rostruct_debug=0 );
 
-  m_activeStore=0;
   m_MuonMgr=0;
   m_rpcId=0;
 }
@@ -94,62 +87,19 @@ TrigT1RPC::TrigT1RPC(const std::string& name, ISvcLocator* pSvcLocator) :
 
 StatusCode TrigT1RPC::initialize(){
 
-  MsgStream mylog(msgSvc(), name());
-  mylog << MSG::INFO << "Initializing";
-  mylog << endreq;
-        
-  StatusCode sc;
-
-    // initialize the Storegate service
-    sc = serviceLocator()->service("ActiveStoreSvc", m_activeStore);
-    if (sc != StatusCode::SUCCESS ) {
-      mylog << MSG::FATAL << " Cannot get ActiveStoreSvc " << endreq;
-      return sc ;
-    }
-
-    StoreGateSvc* detStore = 0;
+    //  MsgStream mylog(msgSvc(), name());
+    ATH_MSG_INFO("Initializing");
     
-    sc = serviceLocator()->service("DetectorStore", detStore);
-    if ( sc.isSuccess() ) {
-        sc = detStore->retrieve( m_MuonMgr );
-        if ( sc.isFailure() ) {
-            mylog << MSG::FATAL
-	          << " Cannot retrieve MuonGeoModel " << endreq;
-            return sc;
-	} else {
-            m_rpcId = m_MuonMgr->rpcIdHelper();
-        }
-    } else {
-        mylog << MSG::ERROR 
-	      << " MuonDetDescrMgr not found in DetectorStore " << endreq;
-    }
+    CHECK (detStore()->retrieve( m_MuonMgr ));
+    m_rpcId = m_MuonMgr->rpcIdHelper();
+    
 
-
-    sc = m_EvtStore.retrieve();
-    if (sc.isFailure()) 
-    {
-        mylog << MSG::FATAL
-	    << "Unable to retrieve the StoreGate Service" << endreq;
-        return sc;
-    }
+    
 
     // initialize RPC cabling service
-    sc = m_cabling_getter.retrieve();
-    if (sc != StatusCode::SUCCESS ) 
-    {
-        mylog << MSG::FATAL << " Cannot get RPCcablingServer Service " << endreq;
-        return sc ;
-    }
+    CHECK(m_cabling_getter.retrieve());
+    CHECK(m_cabling_getter->giveCabling(m_cabling));
     
-    sc = m_cabling_getter->giveCabling(m_cabling);
-    if (sc != StatusCode::SUCCESS ) 
-    {
-        mylog << MSG::FATAL
-	      << " Cannot get Rpc CablingGetter Service from the getter" 
-	      << endreq;
-        return sc ;
-    } 
-
     
   return StatusCode::SUCCESS;
 }
@@ -162,41 +112,37 @@ StatusCode TrigT1RPC::initialize(){
 
 StatusCode TrigT1RPC::execute() {
 
-  static  MsgStream mylog(msgSvc(), name());
-  mylog << MSG::DEBUG << "in execute()" << endreq;
 
-  StatusCode sc;
-
-  RPCsimuData data;         // instanciate the container for the RPC digits
-  sc = fill_RPCdata(data);  // fill the data with RPC simulated digts
-
-  mylog << MSG::DEBUG << "RPC data loaded from G3:" << endl
-      << ShowData<RPCsimuData>(data,"",m_data_detail) << endreq;
-
-
-  mylog << MSG::DEBUG << "RPC digits into station 1 ==> " 
-      << data.how_many(-1,-1,1,-1,-1,-1) << endreq;
-
-  mylog << MSG::DEBUG << "RPC digits into station 2 ==> " 
-      << data.how_many(-1,-1,2,-1,-1,-1) << endreq;
-
-  mylog << MSG::DEBUG << "RPC digits into station 3 ==> " 
-      << data.how_many(-1,-1,3,-1,-1,-1) << endreq;
-
-  // exit(1);
-
-  // ******************** Start of Level-1 simulation section *****************
-
-
-  unsigned long int debug;
-
-  ///// Creates the CMA patterns from RPC digits /////////////////////////
+    ATH_MSG_DEBUG ("in execute()");
+    
+    RPCsimuData data;         // instanciate the container for the RPC digits
+    CHECK(fill_RPCdata(data));  // fill the data with RPC simulated digts
+    
+    ATH_MSG_DEBUG(
+        "RPC data loaded from G3:" << endl
+        << ShowData<RPCsimuData>(data,"",m_data_detail) << endl
+        << "RPC digits into station 1 ==> " 
+        << data.how_many(-1,-1,1,-1,-1,-1) << endl
+        << "RPC digits into station 2 ==> " 
+        << data.how_many(-1,-1,2,-1,-1,-1) << endl
+        << "RPC digits into station 3 ==> " 
+        << data.how_many(-1,-1,3,-1,-1,-1)
+        );
+    
+    // exit(1);
+    
+    // ******************** Start of Level-1 simulation section *****************
+    
+    
+   unsigned long int debug;
+    
+    ///// Creates the CMA patterns from RPC digits /////////////////////////
   debug = (m_hardware_emulation)? m_cma_debug : m_fast_debug;           //
-                       //m_cabling.operator->()                         //
+    //m_cabling.operator->()                         //
   CMAdata patterns(&data,m_cabling,debug);                              //
                                                                         //
-  mylog << MSG::DEBUG << "CMApatterns created from RPC digits:" << endl //
-        << ShowData<CMAdata>(patterns,"",m_data_detail) << endreq;      //
+  ATH_MSG_DEBUG ( "CMApatterns created from RPC digits:" << endl //
+                  << ShowData<CMAdata>(patterns,"",m_data_detail) );      //
   ////////////////////////////////////////////////////////////////////////
 
 
@@ -204,8 +150,8 @@ StatusCode TrigT1RPC::execute() {
   debug = (m_hardware_emulation)? m_pad_debug : m_fast_debug;           //
   PADdata pads(&patterns,m_cabling,debug);                                        //
                                                                         //
-  mylog << MSG::DEBUG << "PADs created from CMA patterns:" << endl      //
-        << ShowData<PADdata>(pads,"",m_data_detail) << endreq;          //  
+  ATH_MSG_DEBUG ( "PADs created from CMA patterns:" << endl      
+                  << ShowData<PADdata>(pads,"",m_data_detail) );
   ////////////////////////////////////////////////////////////////////////
 
 
@@ -213,9 +159,9 @@ StatusCode TrigT1RPC::execute() {
   debug = (m_hardware_emulation)? m_sl_debug : m_fast_debug;            //
   SLdata sectors(&pads,debug);                                          //
                                                                         //
-  mylog << MSG::DEBUG << "Sector Logics created from PAD patterns:"     //
-        << endl                                                         //
-        << ShowData<SLdata>(sectors,"",m_data_detail) << endreq;        //  
+  ATH_MSG_DEBUG("Sector Logics created from PAD patterns:"     //
+                << endl                                                         //
+                << ShowData<SLdata>(sectors,"",m_data_detail) );        //  
   ////////////////////////////////////////////////////////////////////////
 
   ///// Access the SL word and fill the MuCTPInterface ///////////////////
@@ -233,41 +179,25 @@ StatusCode TrigT1RPC::execute() {
       int logic_sector  = sector%32;                                    //
       unsigned int data_word = logic->outputToMuCTPI();                 //
                                                                         //
-#if (__GNUC__) && (__GNUC__ > 2) // gcc 3.2 specific code here          //
-      mylog << MSG::DEBUG                                               //
-            << "Input to MuCTPI: side=" << subsystem                    //
-	    << ", SL= " << logic_sector                                 //
-	    << ", RoI=" << TriggerRPC::ROI1(data_word)                  //
-	    << ", Th=" << TriggerRPC::PT1(data_word)                    //
-	    << ", data word " << MSG::hex << data_word                  //
-	    << MSG::dec << endreq;                                      //
-#else                            // gcc 2.95 specific code here         //   
-      mylog << MSG::DEBUG                                               //
-            << "Input to MuCTPI: side=" << subsystem                    //
-	    << ", SL= " << logic_sector                                 //
-	    << ", RoI=" << TriggerRPC::ROI1(data_word)                  //
-	    << ", Th=" << TriggerRPC::PT1(data_word)                    //
-	    << ", data word " << hex << data_word                       //
-	    << dec << endreq;                                           //
-#endif		                                                        //
-                                                                        //
+      
+      ATH_MSG_DEBUG(                                               //
+          "Input to MuCTPI: side=" << subsystem                    //
+          << ", SL= " << logic_sector                                 //
+          << ", RoI=" << TriggerRPC::ROI1(data_word)                  //
+          << ", Th=" << TriggerRPC::PT1(data_word)                    //
+          << ", data word " << MSG::hex << data_word                  //
+          << MSG::dec );                                      //
+      
                                                                         //
       ctpiInRPC->setSectorLogicData(data_word,0,subsystem,logic_sector);//
                                                                         //
       ++SLit;                                                           //
   }                                                                     //
                                                                         //
-  sc = m_EvtStore->record(ctpiInRPC,DEFAULT_L1MuctpiStoreLocationRPC);  //
-                                                                        //
-  if (sc.isFailure()) {                                                 //
-    mylog << MSG::ERROR                                                 //
-  	  << "ERROR registering "                                       //
-          << "RPC Lvl1MuCTPIInput object in StoreGate !"                //
-  	  << endreq;                                                    //
-    return sc;                                                          //
-  } else {                                                              //
-    mylog << MSG::DEBUG << "put RPC Lvl1MuCTPIInput into SG" << endreq; //
-  }                                                                     //
+  CHECK(evtStore()->record(ctpiInRPC,DEFAULT_L1MuctpiStoreLocationRPC));  //
+  
+  ATH_MSG_DEBUG ("put RPC Lvl1MuCTPIInput into SG" ); //
+  
   ////////////////////////////////////////////////////////////////////////
   
 
@@ -298,8 +228,7 @@ StatusCode TrigT1RPC::execute() {
       // Only the bare structure is dump. To access a specific data member, use
       // the interface methods of MatrixReadOut and PadReadOut classes.
       
-      mylog << MSG::DEBUG << "Start retrieving data from the RPC bytestream class"
-          << endreq;
+      ATH_MSG_DEBUG("Start retrieving data from the RPC bytestream class");
       
       RPCbytestream::PAD_Readout PADmap = bytestream.pad_readout();
       RPCbytestream::PAD_Readout::iterator it = PADmap.begin();
@@ -317,17 +246,17 @@ StatusCode TrigT1RPC::execute() {
 	  (*it).second.give_pad_readout()->bytestream(PADdata);
 	  
 	  //access to PadReadOut class and print the informations inside
-	  mylog << MSG::DEBUG << "Start dumping the PAD " << (*it).second.PAD()
-	      << " bytestream structure" << endl 
-              << PADdata.str() << endreq;
-
+	  ATH_MSG_DEBUG ("Start dumping the PAD " << (*it).second.PAD()
+                         << " bytestream structure" << endl 
+                         << PADdata.str());
+          
           //access to MatrixReadOut classes given in input to that PAD
           for (int i=0;i<8;++i)
 	  {
 	  
-              mylog << MSG::DEBUG << "Start dumping the Matrix " << i 
-	          << " into the PAD n. " << (*it).second.PAD() << endreq;
-		  
+              ATH_MSG_DEBUG( "Start dumping the Matrix " << i 
+                             << " into the PAD n. " << (*it).second.PAD());
+              
               MatrixReadOut* matrix_read_out=(*it).second.matrices_readout(i);
 	  
 	      if(matrix_read_out)
@@ -342,11 +271,11 @@ StatusCode TrigT1RPC::execute() {
 
 	          CMAdata << *matrix_read_out;
 		  
-		  mylog << MSG::DEBUG << CMAdata.str() << endreq;
+		  ATH_MSG_DEBUG (CMAdata.str());
 	      }
 	      else
 	      {
-	          mylog << MSG::DEBUG << "Matrix Read Out not loaded" << endreq;
+	          ATH_MSG_DEBUG( "Matrix Read Out not loaded");
 	      }
 	  }
 
@@ -355,20 +284,19 @@ StatusCode TrigT1RPC::execute() {
 
   }
 
-  mylog << MSG::DEBUG << "TrigT1RPC terminated succesfully!" << endreq;
+  ATH_MSG_DEBUG ( "TrigT1RPC terminated succesfully!" );
 
   return StatusCode::SUCCESS;
 }
 
 StatusCode TrigT1RPC::finalize() {
  
-   MsgStream mylog(msgSvc(), name());
-   mylog << MSG::DEBUG << "in finalize()" << endreq;
- 
-   mylog << MSG::DEBUG << "processed digits = " << digit_num << endreq;
-   mylog << MSG::DEBUG << "digits out of the time window = " 
-                       << digit_out << endreq;
-
+    
+    ATH_MSG_DEBUG ( "in finalize()" << endreq
+                    << "processed digits = " << digit_num << endreq
+                    << "digits out of the time window = " 
+                    << digit_out );
+    
    return StatusCode::SUCCESS;
 }
 
@@ -376,22 +304,15 @@ StatusCode TrigT1RPC::fill_RPCdata(RPCsimuData& data)
 {
     std::string space = "                          ";
 
-    StatusCode sc;
-    static  MsgStream mylog(msgSvc(), name());
-    mylog << MSG::DEBUG << "in execute(): fill RPC data" << endreq;
+    ATH_MSG_DEBUG("in execute(): fill RPC data");
 
     typedef RpcDigitContainer::const_iterator collection_iterator;
     typedef RpcDigitCollection::const_iterator digit_iterator;
 
     string key = "RPC_DIGITS";
     const DataHandle <RpcDigitContainer> container;
-    sc = (*m_activeStore)->retrieve(container,key);
+    CHECK(evtStore()->retrieve(container,key));
 
-    if (sc.isFailure()) 
-    {
-        mylog << MSG::ERROR << " Cannot retrieve RPC Container " << endreq;
-        return StatusCode::FAILURE;
-    }
 
     collection_iterator it1_coll= container->begin(); 
     collection_iterator it2_coll= container->end(); 
@@ -474,28 +395,27 @@ StatusCode TrigT1RPC::fill_RPCdata(RPCsimuData& data)
                         //ostrstream disp_digit (buffer,100);
                         //disp_digit << *rpcDigit;
 						
-                        mylog << MSG::DEBUG << "Muon Identifiers from GM:" <<endl
-                            << space << "StationName = " << StationName << endl
-			    << space << "StationEta  = " << StationEta << endl 
-                            << space << "StationPhi  = " << StationPhi << endl
-                            << space << "DoubletR    = " << DoubletR << endl
-			    << space << "DoubletZ    = " << DoubletZ << endl
-			    << space << "DoubletP    = " << DoubletP << endl
-			    << space << "GasGap      = " << GasGap << endl
-			    << space << "MeasuresPhi = " << MeasuresPhi << endl
-			    << space << "Strip       = " << Strip << endreq;
-		        mylog << MSG::DEBUG << "RPC Digit from GM:" << endl
-			      << space << hex << channelId << dec << endl
-                              //<< space << disp_digit.str() << endl
-			      //<< space << *rpcDigit << endl
-                              << space << "GlobalPosition (cm) = " 
-                              << setiosflags(ios::fixed) << setprecision(3)
-                              << setw(11)<< pos.x() 
-                              << setiosflags(ios::fixed) << setprecision(3)
-                              << setw(11) << pos.y() 
-                              << setiosflags(ios::fixed) << setprecision(3)
-                              << setw(11) << pos.z() << endl <<endreq;
-		       			    
+                        ATH_MSG_DEBUG ( "Muon Identifiers from GM:" <<endl
+                                        << space << "StationName = " << StationName << endl
+                                        << space << "StationEta  = " << StationEta << endl 
+                                        << space << "StationPhi  = " << StationPhi << endl
+                                        << space << "DoubletR    = " << DoubletR << endl
+                                        << space << "DoubletZ    = " << DoubletZ << endl
+                                        << space << "DoubletP    = " << DoubletP << endl
+                                        << space << "GasGap      = " << GasGap << endl
+                                        << space << "MeasuresPhi = " << MeasuresPhi << endl
+                                        << space << "Strip       = " << Strip );
+                        
+		        ATH_MSG_DEBUG ("RPC Digit from GM:" << endl
+                                       << space << hex << channelId << dec << endl
+                                       << space << "GlobalPosition (cm) = " 
+                                       << setiosflags(ios::fixed) << setprecision(3)
+                                       << setw(11)<< pos.x() 
+                                       << setiosflags(ios::fixed) << setprecision(3)
+                                       << setw(11) << pos.y() 
+                                       << setiosflags(ios::fixed) << setprecision(3)
+                                       << setw(11) << pos.z() );
+                        
                     }
                 }
             }

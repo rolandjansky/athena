@@ -7,7 +7,8 @@
 
 #include <vector>
 
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
+
 #include "GaudiKernel/Property.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/INTupleSvc.h"
@@ -32,13 +33,11 @@
 
 #define DEFAULT_L1MuctpiStoreLocationRPC "/Event/L1MuctpiStoreRPC"
 
-class ActiveStoreSvc;
-class MsgStream;
 class RpcIdHelper;
 
 /////////////////////////////////////////////////////////////////////////////
 
-class TrigT1RPC : public Algorithm {
+class TrigT1RPC : public AthAlgorithm {
 
 public:
 
@@ -77,8 +76,8 @@ private:
 
 private:
 
-  ActiveStoreSvc*                      m_activeStore;
-  ServiceHandle<StoreGateSvc>          m_EvtStore;
+    //  ActiveStoreSvc*                      m_activeStore;
+    // ServiceHandle<StoreGateSvc>          m_EvtStore;
   
   const MuonGM::MuonDetectorManager*   m_MuonMgr;
   const RpcIdHelper*                   m_rpcId;
