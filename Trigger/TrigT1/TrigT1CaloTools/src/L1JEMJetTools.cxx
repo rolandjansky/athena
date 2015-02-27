@@ -16,8 +16,7 @@ L1JEMJetTools::L1JEMJetTools(const std::string& t,
 			  const std::string& n,
 			  const IInterface*  p )
   :
-  AlgTool(t,n,p),
-  m_log(msgSvc(),n),
+  AthAlgTool(t,n,p),
   m_configSvc("TrigConf::TrigConfigSvc/TrigConfigSvc", n),
   m_RoI(0)
 {
@@ -39,25 +38,14 @@ L1JEMJetTools::~L1JEMJetTools()
 
 StatusCode L1JEMJetTools::initialize()
 {
-  m_log.setLevel(outputLevel());
-  
-  StatusCode sc = AlgTool::initialize();
-  if (sc.isFailure()) {
-    m_log << MSG::ERROR << "Problem initializing AlgTool " <<  endreq;
-    return sc;
-  }
-  
-  m_log << MSG::INFO << "Initialization completed" << endreq;
-  
-  return sc;
+  return StatusCode::SUCCESS;
 }
 
 //================ Finalisation =================================================
 
 StatusCode L1JEMJetTools::finalize()
 {
-  StatusCode sc = AlgTool::finalize();
-  return sc;
+  return StatusCode::SUCCESS;
 }
 
 //================ Need to load JetInputs into map before can form clusters =======
@@ -91,16 +79,13 @@ void L1JEMJetTools::mapJetInputs(const DataVector<JetElement>* jes, std::map<int
        std::map<int, JetInput*>::iterator test=elements->find( key );
        if (test == elements->end()){
        // no JI yet. Create it!
-         m_log << MSG::DEBUG
-               << "Creating JetInput at ("
-               << jetElementPhi << " , " << jetElementEta << ")"
-               <<endreq ;
+         ATH_MSG_DEBUG( "Creating JetInput at ("
+                        << jetElementPhi << " , " << jetElementEta << ")");
          jetInput=new JetInput(jetElementPhi,jetElementEta, jetElementET, key);
          elements->insert(std::map<int, JetInput*>::value_type(key,jetInput)); //and put it in the map.
        }
        else{
-          m_log << MSG::ERROR
-                << "JetInput already exists (shouldn't happen!) " <<endreq ;
+          ATH_MSG_ERROR( "JetInput already exists (shouldn't happen!) " );
        }
      }
      else {   // FCAL JEs are divided into 2 JIs
@@ -127,16 +112,13 @@ void L1JEMJetTools::mapJetInputs(const DataVector<JetElement>* jes, std::map<int
          JetInput* jetInput=0;
          if (test == elements->end()){
          // no JI yet. Create it!
-           m_log << MSG::DEBUG
-                 << "Creating JetInput at ("
-                 << phiValues[iphi] << " , " << jetElementEta << ")"
-                 <<endreq ;
+           ATH_MSG_DEBUG( "Creating JetInput at ("
+                          << phiValues[iphi] << " , " << jetElementEta << ")" );
            jetInput=new JetInput(phiValues[iphi],jetElementEta, etValues[iphi], key);
            elements->insert(std::map<int, JetInput*>::value_type(key,jetInput)); //and put it in the map.
          }
          else{
-           m_log << MSG::ERROR
-                 << "FCAL JetInput already exists (shouldn't happen!) " <<endreq ;
+           ATH_MSG_ERROR( "FCAL JetInput already exists (shouldn't happen!) " );
          }
        }  // end loop over parts of the JE
      } // end handling of FCAL JEs

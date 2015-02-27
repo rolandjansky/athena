@@ -29,8 +29,7 @@ L1TriggerTowerTool::L1TriggerTowerTool(const std::string& t,
                           const std::string& n,
                           const IInterface*  p )
   :
-  AlgTool(t,n,p),
-  m_log(msgSvc(),n),
+  AthAlgTool(t,n,p),
   m_caloMgr(0),
   m_lvl1Helper(0),
 //   m_l1CaloTTIdTools(0),
@@ -59,19 +58,12 @@ L1TriggerTowerTool::~L1TriggerTowerTool()
 
 StatusCode L1TriggerTowerTool::initialize()
 {
-  m_log.setLevel(outputLevel());
-  m_debug = outputLevel() <= MSG::VERBOSE; // May want to make this VERBOSE!
-  
-  StatusCode sc = AlgTool::initialize();
-  if (sc.isFailure()) {
-    m_log << MSG::ERROR << "Problem initializing AlgTool " <<  endreq;
-    return sc;
-  }
+  m_debug = msgLvl(MSG::VERBOSE); // May want to make this VERBOSE!
     
   ///get a pointer to DetectorStore services
-  sc = service("DetectorStore", m_detStore);
+  StatusCode sc = service("DetectorStore", m_detStore);
   if (sc.isFailure()) {
-      m_log << MSG::ERROR << "Cannot access DetectorStore" << endreq;
+      ATH_MSG_ERROR( "Cannot access DetectorStore" );
       return sc;
   }
 
@@ -79,13 +71,13 @@ StatusCode L1TriggerTowerTool::initialize()
   ///  - note: may use tools without DB, so don't abort if fail here
   sc = service("L1CaloCondSvc", m_l1CondSvc);
   if (sc.isFailure()) {
-    m_log << MSG::WARNING << "Could not retrieve L1CaloCondSvc" << endreq;
+    ATH_MSG_WARNING( "Could not retrieve L1CaloCondSvc" );
   }
 
   /// Retrieve tools for computing identifiers
   sc = m_l1CaloTTIdTools.retrieve();
   if (sc.isFailure()) {
-    m_log << MSG::WARNING << "Cannot get L1CaloTTIdTools !"<< endreq;
+    ATH_MSG_WARNING( "Cannot get L1CaloTTIdTools !");
   }
   
   IToolSvc* toolSvc;
@@ -95,38 +87,38 @@ StatusCode L1TriggerTowerTool::initialize()
   if (scTools.isSuccess()) {
 //      sc = toolSvc->retrieveTool("L1CaloTTIdTools", algtool);
 //      if (sc!=StatusCode::SUCCESS) {
-//        m_log << MSG::WARNING << " Cannot get L1CaloTTIdTools !" << endreq;
+//        ATH_MSG_WARNING( " Cannot get L1CaloTTIdTools !" );
 //      }
 //      m_l1CaloTTIdTools = dynamic_cast<L1CaloTTIdTools*> (algtool);
 
     sc = toolSvc->retrieveTool("CaloTriggerTowerService", m_ttSvc);
     if (sc.isFailure()) {
-      m_log << MSG::WARNING << "Could not retrieve CaloTriggerTowerService Tool" << endreq;
+      ATH_MSG_WARNING( "Could not retrieve CaloTriggerTowerService Tool" );
       //return StatusCode::FAILURE;
     }
   } else {
-    m_log << MSG::WARNING << "Unable to retrieve ToolSvc" << endreq;
+    ATH_MSG_WARNING( "Unable to retrieve ToolSvc" );
   }
   
   StatusCode scID = m_detStore->retrieve(m_caloMgr);
   if (scID.isFailure()) {
-    m_log << MSG::WARNING << "Cannot retrieve m_caloMgr" << endreq;
+    ATH_MSG_WARNING( "Cannot retrieve m_caloMgr" );
   } else {
     m_lvl1Helper = m_caloMgr->getLVL1_ID();
   }
  
   sc = m_mappingTool.retrieve(); 
   if (sc.isFailure()) { 
-    m_log << MSG::WARNING << "Failed to retrieve tool " << m_mappingTool << endreq; 
+    ATH_MSG_WARNING( "Failed to retrieve tool " << m_mappingTool ); 
   } else {
-    m_log << MSG::INFO << "Retrieved tool " << m_mappingTool << endreq; 
+    ATH_MSG_INFO( "Retrieved tool " << m_mappingTool ); 
   }
 
   // Incident Service:
   IIncidentSvc* incSvc = 0;
   sc = service("IncidentSvc", incSvc);
   if (sc.isFailure()) {
-     m_log << MSG::WARNING << "Unable to retrieve pointer to IncidentSvc " << endreq;
+     ATH_MSG_WARNING( "Unable to retrieve pointer to IncidentSvc " );
      //return StatusCode::FAILURE;
   }
 
@@ -134,17 +126,17 @@ StatusCode L1TriggerTowerTool::initialize()
   if (m_correctFir) {
       sc = m_dynamicPedestalProvider.retrieve();
       if (sc.isFailure()) { 
-          m_log << MSG::WARNING << "Failed to retrieve L1DynamicPedestalProvider: " << m_dynamicPedestalProvider << endreq; 
+          ATH_MSG_WARNING( "Failed to retrieve L1DynamicPedestalProvider: " << m_dynamicPedestalProvider ); 
           return StatusCode::FAILURE;
       } else {
-          m_log << MSG::INFO << "Retrieved L1DynamicPedestalProvider: " << m_dynamicPedestalProvider << endreq; 
+          ATH_MSG_INFO( "Retrieved L1DynamicPedestalProvider: " << m_dynamicPedestalProvider ); 
       }
   }
 
   //start listening to "BeginRun"
   if (incSvc) incSvc->addListener(this, "BeginRun");
   
-  m_log << MSG::INFO << "Initialization completed" << endreq;
+  ATH_MSG_INFO( "Initialization completed" );
   
   return StatusCode::SUCCESS;
 }
@@ -153,8 +145,7 @@ StatusCode L1TriggerTowerTool::initialize()
 
 StatusCode L1TriggerTowerTool::finalize()
 {
-  StatusCode sc = AlgTool::finalize();
-  return sc;
+  return StatusCode::SUCCESS;
 }
 
 //================ Reset mapping table at start of run ============================
@@ -162,7 +153,7 @@ StatusCode L1TriggerTowerTool::finalize()
 void L1TriggerTowerTool::handle(const Incident& inc)
 {
   if (inc.type()=="BeginRun") {
-    if (m_debug) m_log << MSG::DEBUG << "Resetting mapping table at start of run" << endreq;
+    ATH_MSG_DEBUG( "Resetting mapping table at start of run" );
    
     m_idTable.clear();
   }
@@ -181,27 +172,27 @@ StatusCode L1TriggerTowerTool::retrieveConditions()
   m_DisabledChannelContainer = 0;
 
   if (m_l1CondSvc) {
-    if (m_debug) m_log << MSG::VERBOSE << "Retrieving Conditions Containers" << endreq;
-    bool verbose = outputLevel() <= MSG::VERBOSE;
+    ATH_MSG_VERBOSE( "Retrieving Conditions Containers" );
+    bool verbose = msgLvl(MSG::VERBOSE);
 
     sc = m_l1CondSvc->retrieve(m_conditionsContainer);
     if (sc.isFailure()) {
-      m_log << MSG::WARNING << "Could not retrieve ConditionsContainer" << endreq;
+      ATH_MSG_WARNING( "Could not retrieve ConditionsContainer" );
       return sc;
     }
-    if (m_debug) m_log << MSG::VERBOSE << "Retrieved ConditionsContainer" << endreq;
+    ATH_MSG_VERBOSE( "Retrieved ConditionsContainer" );
     if (verbose) m_conditionsContainer->dump();
 
     sc = m_l1CondSvc->retrieve(m_DisabledChannelContainer);
     if (sc.isFailure()) {
-      m_log << MSG::WARNING << "Could not retrieve DisabledChannelContainer" << endreq;
+      ATH_MSG_WARNING( "Could not retrieve DisabledChannelContainer" );
       return sc;
     }
-    if (m_debug) m_log << MSG::VERBOSE << "Retrieved DisabledChannelContainer" << endreq;
+    ATH_MSG_VERBOSE( "Retrieved DisabledChannelContainer" );
     if (verbose) m_DisabledChannelContainer->dump();
 
   } else {
-    m_log << MSG::WARNING << "Could not retrieve Conditions Containers" << endreq;
+    ATH_MSG_WARNING( "Could not retrieve Conditions Containers" );
     return StatusCode::FAILURE;
   }
   
@@ -230,10 +221,10 @@ void L1TriggerTowerTool::process(const std::vector<int> &digits, const L1CaloCoo
              std::vector<int> &bcidDecisions)
 {
   if (m_debug) {
-    m_log << MSG::VERBOSE << "::process: ==== Entered Process ====" << endreq;
-    m_log << MSG::VERBOSE << "::process: digits: ";
+    ATH_MSG_VERBOSE( "::process: ==== Entered Process ====" );
+    ATH_MSG_VERBOSE( "::process: digits: ");
     printVec(digits);
-    m_log << MSG::VERBOSE << " channelID: " << MSG::hex << channelId.id() << MSG::dec << endreq;
+    ATH_MSG_VERBOSE( " channelID: " << MSG::hex << channelId.id() << MSG::dec );
   }
   
   /// Initialise
@@ -241,7 +232,7 @@ void L1TriggerTowerTool::process(const std::vector<int> &digits, const L1CaloCoo
   bcidResults.clear();
   bcidDecisions.clear();
 
-  if (m_debug) m_log << MSG::VERBOSE << "::process: ---- FIR filter ----" << endreq;
+  ATH_MSG_VERBOSE( "::process: ---- FIR filter ----" );
       
   /// emulate FIR filter
   std::vector<int> filter;
@@ -249,31 +240,31 @@ void L1TriggerTowerTool::process(const std::vector<int> &digits, const L1CaloCoo
   std::vector<int> lutInput;
   dropBits(filter, channelId, lutInput);
 
-  if (m_debug) m_log << MSG::VERBOSE << "::process: ---- BCID algorithms ----" << endreq;
+  ATH_MSG_VERBOSE( "::process: ---- BCID algorithms ----" );
 
   /// emulate the two BCID algorithms
   bcid(filter, digits, channelId, bcidResults);
 
-  if (m_debug) m_log << MSG::VERBOSE << "::process: ---- BCID decisions ----" << endreq;
+  ATH_MSG_VERBOSE( "::process: ---- BCID decisions ----" );
 
   /// evaluate BCID decisions
   std::vector<int> decisionRange;
   bcidDecisionRange(lutInput, digits, channelId, decisionRange);
   bcidDecision(bcidResults, decisionRange, channelId, bcidDecisions);
 
-  if (m_debug) m_log << MSG::VERBOSE << "::process: ---- LUT ET calculation ----" << endreq;
+  ATH_MSG_VERBOSE( "::process: ---- LUT ET calculation ----" );
 
   /// LUT ET calculation
   std::vector<int> lutOutput;
   lut(lutInput, channelId, lutOutput);
 
-  if (m_debug) m_log << MSG::VERBOSE << "::process: ---- use ET range ----" << endreq;
+  ATH_MSG_VERBOSE( "::process: ---- use ET range ----" );
 
   /// Use ET range to return appropriate ET value
   /// do not test BCID here, since no guarantee enough ADC samples to evaluate it reliably
   applyEtRange(lutOutput, decisionRange, channelId, et);
 
-  if (m_debug) m_log << MSG::VERBOSE << "::process: ==== Leaving Process ====" << endreq;
+  ATH_MSG_VERBOSE( "::process: ==== Leaving Process ====" );
 }
 
 /** Evaluate both peak-finder and saturated BCID algorithms and return
@@ -296,9 +287,9 @@ void L1TriggerTowerTool::bcid(const std::vector<int> &filter, const std::vector<
    output.push_back( (*itpeak<<2) + (*itsat<<1) );
   }
   if (m_debug) {
-   m_log << MSG::VERBOSE << "::bcid: bcidResults: ";
+   ATH_MSG_VERBOSE( "::bcid: bcidResults: ");
    printVec(output);
-   m_log << MSG::VERBOSE << endreq;
+  ATH_MSG_VERBOSE(" ");
   }
 }
 
@@ -323,9 +314,9 @@ void L1TriggerTowerTool::bcid(const std::vector<int> &filter, const std::vector<
    output.push_back( (*itpeak<<2) + (*itsat<<1) );
   }
   if (m_debug) {
-   m_log << MSG::VERBOSE << "::bcid: bcidResults: ";
+   ATH_MSG_VERBOSE( "::bcid: bcidResults: ");
    printVec(output);
-   m_log << MSG::VERBOSE << endreq;
+  ATH_MSG_VERBOSE(" ");
   }
 }
 
@@ -351,9 +342,9 @@ void L1TriggerTowerTool::bcid(const std::vector<int> &filter, const std::vector<
    result.push_back( (*itpeak<<2) + (*itsat<<1) );
   }
   if (m_debug) {
-   m_log << MSG::VERBOSE << "::bcid: bcidResults: ";
+   ATH_MSG_VERBOSE( "::bcid: bcidResults: ");
    printVec(result);
-   m_log << MSG::VERBOSE << endreq;
+  ATH_MSG_VERBOSE(" ");
   }
 
   /// evaluate BCID decisions
@@ -362,9 +353,9 @@ void L1TriggerTowerTool::bcid(const std::vector<int> &filter, const std::vector<
   else                     etRange(lutInput, energyLow, energyHigh, decisionRange);
   bcidDecision(result, decisionRange, decisionConditions, decision);
   if (m_debug) {
-   m_log << MSG::VERBOSE << "::bcid: bcidDecisions: ";
+   ATH_MSG_VERBOSE( "::bcid: bcidDecisions: ");
    printVec(decision);
-   m_log << MSG::VERBOSE << endreq;
+  ATH_MSG_VERBOSE(" ");
   }
 }
 
@@ -387,13 +378,13 @@ void L1TriggerTowerTool::fir(const std::vector<int> &digits, const L1CaloCoolCha
       firCoeffs.reserve(hwCoeffs.size()); // avoid frequent reallocations
       for (int i = hwCoeffs.size()-1; i >= 0; --i) firCoeffs.push_back(hwCoeffs[i]);
 
-    } else if (m_debug) m_log << MSG::VERBOSE << "::fir: No L1CaloPprConditions found" << endreq;
-  } else if (m_debug) m_log << MSG::VERBOSE << "::fir: No Conditions Container retrieved" << endreq;
+    } else ATH_MSG_VERBOSE( "::fir: No L1CaloPprConditions found" );
+  } else ATH_MSG_VERBOSE( "::fir: No Conditions Container retrieved" );
 
   if (m_debug) {
-    m_log << MSG::VERBOSE << "::fir: FIR coefficients: ";
+    ATH_MSG_VERBOSE( "::fir: FIR coefficients: ");
     printVec(firCoeffs);
-    m_log << MSG::VERBOSE << endreq;
+   ATH_MSG_VERBOSE(" ");
   }
 
   fir(digits, firCoeffs, output);
@@ -429,9 +420,9 @@ void L1TriggerTowerTool::fir(const std::vector<int> &digits, const std::vector<i
     output.push_back(sum);
   }
   if (m_debug) {
-    m_log << MSG::VERBOSE << "::fir: output: ";
+    ATH_MSG_VERBOSE( "::fir: output: ");
     printVec(output);
-    m_log << MSG::VERBOSE << endreq;
+   ATH_MSG_VERBOSE(" ");
   }
 }
 /** Peak finder BCID */
@@ -440,9 +431,9 @@ void L1TriggerTowerTool::peakBcid(const std::vector<int> &fir, const L1CaloCoolC
   unsigned int strategy = 0;
   if (m_conditionsContainer) {
     strategy = m_conditionsContainer->peakFinderCond();
-  } else if (m_debug) m_log << MSG::VERBOSE << "::peakBcid: No Conditions Container retrieved" << endreq;
+  } else ATH_MSG_VERBOSE( "::peakBcid: No Conditions Container retrieved" );
 
-  if (m_debug) m_log << MSG::VERBOSE << "::peakBcid: peak-finder strategy: " << strategy << endreq;
+  ATH_MSG_VERBOSE( "::peakBcid: peak-finder strategy: " << strategy );
   
   peakBcid(fir, strategy, output);
 }
@@ -467,9 +458,9 @@ void L1TriggerTowerTool::peakBcid(const std::vector<int> &fir, unsigned int stra
     output.push_back(result);
   }
   if (m_debug) {
-    m_log << MSG::VERBOSE << "::peakBcid: output: ";
+    ATH_MSG_VERBOSE( "::peakBcid: output: ");
     printVec(output);
-    m_log << MSG::VERBOSE << endreq;
+   ATH_MSG_VERBOSE(" ");
   }
 }
 
@@ -486,14 +477,12 @@ void L1TriggerTowerTool::satBcid(const std::vector<int> &digits, const L1CaloCoo
       satLevel = settings->satBcidLevel();
       satLow   = settings->satBcidThreshLow();
       satHigh  = settings->satBcidThreshHigh();
-    } else if (m_debug) m_log << MSG::VERBOSE << "::satBcid: No L1CaloPprConditions found" << endreq;
-  } else if (m_debug) m_log << MSG::VERBOSE << "::satBcid: No Conditions Container retrieved" << endreq;
+    } else ATH_MSG_VERBOSE( "::satBcid: No L1CaloPprConditions found" );
+  } else ATH_MSG_VERBOSE( "::satBcid: No Conditions Container retrieved" );
 
-  if (m_debug) {
-    m_log << MSG::VERBOSE << "::satBcid: satLevel: " << satLevel
+  ATH_MSG_VERBOSE( "::satBcid: satLevel: " << satLevel
       << " satLow: "  << satLow
-      << " satHigh: " << satHigh << endreq;
-  }
+      << " satHigh: " << satHigh );
 
   satBcid(digits, satLow, satHigh, satLevel, output);
 }
@@ -538,9 +527,9 @@ void L1TriggerTowerTool::satBcid(const std::vector<int> &digits, int satLow, int
     output.push_back(flag[0]);
   }
   if (m_debug) {
-    m_log << MSG::VERBOSE << "::satBcid: output: ";
+    ATH_MSG_VERBOSE( "::satBcid: output: ");
     printVec(output);
-    m_log << MSG::VERBOSE << endreq;
+   ATH_MSG_VERBOSE(" ");
   }
 }
 
@@ -551,15 +540,15 @@ void L1TriggerTowerTool::bcidDecisionRange(const std::vector<int>& lutInput, con
   int decisionSource = 0;
   if (m_conditionsContainer) {
     decisionSource = m_conditionsContainer->decisionSource();
-  } else if (m_debug) m_log << MSG::VERBOSE << "::bcidDecisionRange: No Conditions Container retrieved" << endreq;
+  } else ATH_MSG_VERBOSE( "::bcidDecisionRange: No Conditions Container retrieved" );
 
   if (!decisionSource&0x1) etRange(digits, channelId, output);
   else                     etRange(lutInput, channelId, output);
   if (m_debug) {
-    m_log << MSG::VERBOSE << "::bcidDecisionRange: decisionSource: " << decisionSource;
-    m_log << MSG::VERBOSE << " output: ";
+    ATH_MSG_VERBOSE( "::bcidDecisionRange: decisionSource: " << decisionSource);
+    ATH_MSG_VERBOSE( " output: ");
     printVec(output);
-    m_log << MSG::VERBOSE << endreq;
+   ATH_MSG_VERBOSE(" ");
   }
 }
 
@@ -574,14 +563,13 @@ void L1TriggerTowerTool::bcidDecision(const std::vector<int> &bcidResults, const
     decision1 = m_conditionsContainer->bcidDecision1();
     decision2 = m_conditionsContainer->bcidDecision2();
     decision3 = m_conditionsContainer->bcidDecision3();
-  } else if (m_debug) m_log << MSG::VERBOSE << "::bcidDecision: No Conditions Container retrieved" << endreq;
+  } else ATH_MSG_VERBOSE( "::bcidDecision: No Conditions Container retrieved" );
 
   // Reverse the order! (see elog 97082 9/06/10)
   std::vector<unsigned int> mask = { decision3, decision2, decision1 };
-  if (m_debug) {
-   m_log << MSG::VERBOSE << "::bcidDecision: masks: " << MSG::hex
-         << decision3 << " " << decision2 << " " << decision1 << MSG::dec << endreq;
-  }
+  
+  ATH_MSG_VERBOSE( "::bcidDecision: masks: " << MSG::hex
+         << decision3 << " " << decision2 << " " << decision1 << MSG::dec );
 
   bcidDecision(bcidResults, range, mask, output);
 }
@@ -602,9 +590,9 @@ void L1TriggerTowerTool::bcidDecision(const std::vector<int> &bcidResults, const
    else                                                        output.push_back(0);
   }
   if (m_debug) {
-   m_log << MSG::VERBOSE << "::bcidDecision: output: ";
+   ATH_MSG_VERBOSE( "::bcidDecision: output: ");
    printVec(output);
-   m_log << MSG::VERBOSE << endreq;
+  ATH_MSG_VERBOSE(" ");
   }
 }
 
@@ -625,13 +613,12 @@ void L1TriggerTowerTool::lut(const std::vector<int> &fir, const L1CaloCoolChanne
       slope    = settings->lutSlope();
       cut      = settings->lutNoiseCut();
       ped      = settings->pedValue();
-    } else if (m_debug) m_log << MSG::VERBOSE << "::lut: No L1CaloPprConditions found" << endreq;
-  } else if (m_debug) m_log << MSG::VERBOSE << "::lut: No Conditions Container retrieved" << endreq;
+    } else ATH_MSG_VERBOSE( "::lut: No L1CaloPprConditions found" );
+  } else ATH_MSG_VERBOSE( "::lut: No Conditions Container retrieved" );
 
-  if (m_debug) {
-    m_log << MSG::VERBOSE << "::lut: LUT strategy/offset/slope/cut/ped: "
-          << strategy << " " << offset << " " << slope << " " << cut << " " << ped << " " << endreq;
-  }
+  ATH_MSG_VERBOSE( "::lut: LUT strategy/offset/slope/cut/ped: "
+          << strategy << " " << offset << " " << slope << " " << cut << " " << ped << " " );
+
   unsigned int noiseCut = 0;
   bool disabled = disabledChannel(channelId, noiseCut);
   if (noiseCut > 0) cut = noiseCut;
@@ -661,9 +648,9 @@ void L1TriggerTowerTool::lut(const std::vector<int> &fir, int slope, int offset,
     output.push_back(out);
   }
   if (m_debug) {
-    m_log << MSG::VERBOSE << "::lut: output: ";
+    ATH_MSG_VERBOSE( "::lut: output: ");
     printVec(output);
-    m_log << MSG::VERBOSE << endreq;
+   ATH_MSG_VERBOSE(" ");
   } 
 }
 
@@ -682,9 +669,9 @@ void L1TriggerTowerTool::applyEtRange(const std::vector<int>& lut, const std::ve
     ++itrange;
   }
   if (m_debug) {
-    m_log << MSG::VERBOSE << "::applyEtRange: output: ";
+    ATH_MSG_VERBOSE( "::applyEtRange: output: ");
     printVec(output);
-    m_log << MSG::VERBOSE << endreq;
+   ATH_MSG_VERBOSE(" ");
   }
 }
 
@@ -699,14 +686,11 @@ void L1TriggerTowerTool::etRange(const std::vector<int> &et, const L1CaloCoolCha
     if (settings) {
       energyLow  = settings->bcidEnergyRangeLow();
       energyHigh = settings->bcidEnergyRangeHigh();
-    } else if (m_debug) m_log << MSG::VERBOSE << "::etRange: No L1CaloPprConditions found" << endreq;
-  } else if (m_debug) m_log << MSG::VERBOSE << "::etRange: No Conditions Container retrieved" << endreq;
+    } else ATH_MSG_VERBOSE( "::etRange: No L1CaloPprConditions found" );
+  } else ATH_MSG_VERBOSE( "::etRange: No Conditions Container retrieved" );
 
-  if (m_debug) {
-    m_log << MSG::VERBOSE << "::etRange: energyLow: " << energyLow
-                          << " energyHigh: "          << energyHigh
-                          << endreq;
-  }
+  ATH_MSG_VERBOSE( "::etRange: energyLow: " << energyLow
+                          << " energyHigh: "          << energyHigh);
 
   etRange(et, energyLow, energyHigh, output);
 }
@@ -723,9 +707,9 @@ void L1TriggerTowerTool::etRange(const std::vector<int> &et, int energyLow, int 
     else                          output.push_back(2);
   }
   if (m_debug) {
-    m_log << MSG::VERBOSE << "::etRange: output: ";
+    ATH_MSG_VERBOSE( "::etRange: output: ");
     printVec(output);
-    m_log << MSG::VERBOSE << endreq;
+   ATH_MSG_VERBOSE(" ");
   }
 }
 
@@ -737,10 +721,10 @@ void L1TriggerTowerTool::dropBits(const std::vector<int> &fir, const L1CaloCoolC
   if (m_conditionsContainer) {
     const L1CaloPprConditions* settings = m_conditionsContainer->pprConditions(channelId.id());
     if (settings) start = settings->firStartBit();
-    else if (m_debug) m_log << MSG::VERBOSE << "::dropBits: No L1CaloPprConditions found" << endreq;
-  } else if (m_debug) m_log << MSG::VERBOSE << "::dropBits: No Conditions Container retrieved" << endreq;
+    else ATH_MSG_VERBOSE( "::dropBits: No L1CaloPprConditions found" );
+  } else ATH_MSG_VERBOSE( "::dropBits: No Conditions Container retrieved" );
 
-  if (m_debug) m_log << MSG::VERBOSE << "::dropBits: firStartBit: " << start << endreq;
+  ATH_MSG_VERBOSE( "::dropBits: firStartBit: " << start );
   
   dropBits(fir, start, output);
 }
@@ -763,9 +747,9 @@ void L1TriggerTowerTool::dropBits(const std::vector<int> &fir, unsigned int star
      else output.push_back(((*it)&mask)>>start);
   }
   if (m_debug) {
-    m_log << MSG::VERBOSE << "::dropBits: output: ";
+    ATH_MSG_VERBOSE( "::dropBits: output: ");
     printVec(output);
-    m_log << MSG::VERBOSE << endreq;
+   ATH_MSG_VERBOSE(" ");
   }
 }
 
@@ -786,13 +770,13 @@ void L1TriggerTowerTool::firParams(const L1CaloCoolChannelId& channelId, std::ve
       firCoeffs.reserve(hwCoeffs.size()); // avoid frequent reallocations
       for (int i = hwCoeffs.size()-1; i >= 0; --i) firCoeffs.push_back(hwCoeffs[i]);
 
-    } else if (m_debug) m_log << MSG::VERBOSE << "::firParams: No L1CaloPprConditions found" << endreq;
-  } else if (m_debug) m_log << MSG::VERBOSE << "::firParams: No Conditions Container retrieved" << endreq;
+    } else ATH_MSG_VERBOSE( "::firParams: No L1CaloPprConditions found" );
+  } else ATH_MSG_VERBOSE( "::firParams: No Conditions Container retrieved" );
 
   if (m_debug) {
-    m_log << MSG::VERBOSE << "::fir: FIR coefficients: ";
+    ATH_MSG_VERBOSE( "::fir: FIR coefficients: ");
     printVec(firCoeffs);
-    m_log << MSG::VERBOSE << endreq;
+   ATH_MSG_VERBOSE(" ");
   }
 }
 
@@ -825,16 +809,15 @@ void L1TriggerTowerTool::bcidParams(const L1CaloCoolChannelId& channelId, int &e
       satLow   = settings->satBcidThreshLow();
       satHigh  = settings->satBcidThreshHigh();
 
-    } else m_log << MSG::WARNING << "::bcidParams: No L1CaloPprConditions found" << endreq;
-  } else m_log << MSG::WARNING << "::bcid:Params No Conditions Container retrieved" << endreq;
+    } else ATH_MSG_WARNING( "::bcidParams: No L1CaloPprConditions found" );
+  } else ATH_MSG_WARNING( "::bcid:Params No Conditions Container retrieved" );
 
-  if (m_debug) {
-    m_log << MSG::VERBOSE << "::bcidParams: satLevel: " << satLevel
+  ATH_MSG_VERBOSE( "::bcidParams: satLevel: " << satLevel
                         << " satLow: "  << satLow << " satHigh: " << satHigh << endreq
                         << " energyLow: " << energyLow << " energyHigh: " << energyHigh << endreq
                         << " decisionSource: " << decisionSource << " peakFinderStrategy: "
-                        << peakFinderStrategy << endreq;
-  }
+                        << peakFinderStrategy );
+
 }
 
 /** Return LUT parameters for a channel */
@@ -860,13 +843,11 @@ void L1TriggerTowerTool::lutParams(const L1CaloCoolChannelId& channelId, int &st
       cut      = settings->lutNoiseCut();
       pedValue = settings->pedValue();
       pedMean  = settings->pedMean();
-    } else m_log << MSG::WARNING << "::lutParams: No L1CaloPprConditions found" << endreq;
-  } else m_log << MSG::WARNING << "::lutParams: No Conditions Container retrieved" << endreq;
+    } else ATH_MSG_WARNING( "::lutParams: No L1CaloPprConditions found" );
+  } else ATH_MSG_WARNING( "::lutParams: No Conditions Container retrieved" );
 
-  if (m_debug) {
-    m_log << MSG::VERBOSE << "::lutParams: LUT startBit/strategy/offset/slope/cut/pedValue/pedMean: "
-          << startBit << " " << strategy << " " << offset << " " << slope << " " << cut << " " << pedValue << " " << pedMean << endreq;
-  }
+  ATH_MSG_VERBOSE( "::lutParams: LUT startBit/strategy/offset/slope/cut/pedValue/pedMean: "
+          << startBit << " " << strategy << " " << offset << " " << slope << " " << cut << " " << pedValue << " " << pedMean );
   unsigned int noiseCut = 0;
   disabled = disabledChannel(channelId, noiseCut);
   if (noiseCut > 0) cut = noiseCut;
@@ -968,12 +949,10 @@ bool L1TriggerTowerTool::satOverride(int range, const L1CaloCoolChannelId& /*cha
     if (range == 0) override = m_conditionsContainer->satOverride3();
     if (range == 1) override = m_conditionsContainer->satOverride2();
     if (range == 2) override = m_conditionsContainer->satOverride1();
-  } else if (m_debug) m_log << MSG::VERBOSE << "::satOverride: No Conditions Container retrieved" << endreq;
+  } else ATH_MSG_VERBOSE( "::satOverride: No Conditions Container retrieved" );
 
-  if (m_debug) {
-    m_log << MSG::VERBOSE << "::satOverride: range " << range
-          << " has saturation override flag " << override << endreq;
-  }
+  ATH_MSG_VERBOSE( "::satOverride: range " << range
+          << " has saturation override flag " << override );
   
   return override;
 }
@@ -1003,21 +982,21 @@ bool L1TriggerTowerTool::disabledChannel(const L1CaloCoolChannelId& channelId, u
       //else isDisabled = true;
         } //else isDisabled = true;
       } else isDisabled = true;
-      if (m_debug) {
-        m_log << MSG::VERBOSE << MSG::hex
+      
+      ATH_MSG_VERBOSE( MSG::hex
               << "::disabledChannel: calibErrorCode: " << (disabledChan->calibErrorCode()).errorCode()
               << "  deadErrorCode: " << (disabledChan->deadErrorCode()).errorCode()
               << "  noiseCut: "      << disabledChan->noiseCut()
               << "  disabledBits: "  << disabledChan->disabledBits()
-              << MSG::dec << endreq;
-      }
+              << MSG::dec );
+      
     } else {
-      if (m_debug) m_log << MSG::VERBOSE << "::disabledChannel: No L1CaloPprDisabledChannel found" << endreq;
+      ATH_MSG_VERBOSE( "::disabledChannel: No L1CaloPprDisabledChannel found" );
     }
   } else {
-    if (m_debug) m_log << MSG::VERBOSE << "::disabledChannel: No DisabledChannel Container retrieved" << endreq;
+    ATH_MSG_VERBOSE( "::disabledChannel: No DisabledChannel Container retrieved" );
   }
-  if (isDisabled && m_debug) m_log << MSG::VERBOSE << "::disabledChannel: Channel is disabled" << endreq;
+  if (isDisabled && m_debug) ATH_MSG_VERBOSE( "::disabledChannel: Channel is disabled" );
 
   return isDisabled;
 }
@@ -1026,7 +1005,7 @@ bool L1TriggerTowerTool::disabledChannel(const L1CaloCoolChannelId& channelId, u
 
 void L1TriggerTowerTool::setDebug(bool debug)
 {
-  m_debug = (debug && outputLevel() <= MSG::VERBOSE);
+  m_debug = (debug && msgLvl(MSG::VERBOSE));
 }
 
 /** Calculate median eta of FCAL trigger tower from nominal eta and layer.
@@ -1087,10 +1066,10 @@ template <typename T>
 void L1TriggerTowerTool::printVec(const std::vector<T>& vec)
 {
   if (m_debug) {
-    if (vec.empty()) m_log << MSG::VERBOSE << " empty ";
+    if (vec.empty()) ATH_MSG_VERBOSE( " empty ");
     else {
       for(auto v : vec) {
-        m_log << MSG::VERBOSE << v << " ";
+        ATH_MSG_VERBOSE( v << " ");
       }
     }
   }
@@ -1105,20 +1084,20 @@ StatusCode L1TriggerTowerTool::loadFTRefs()
   m_dbFineTimeRefsTowers = 0;
   
   if (m_l1CondSvc) {
-    if (m_debug) m_log << MSG::VERBOSE << "Retrieving FineTimeReferences Containers" << endreq;
+    ATH_MSG_VERBOSE( "Retrieving FineTimeReferences Containers" );
     bool verbose = outputLevel() <= MSG::VERBOSE;
 
 
     sc = m_l1CondSvc->retrieve(m_dbFineTimeRefsTowers);
     if (sc.isFailure()) {
-     m_log << MSG::WARNING << "No FineTimeReferences Folder found" << endreq;
+     ATH_MSG_WARNING( "No FineTimeReferences Folder found" );
      return sc;
     }
-    if (m_debug) m_log << MSG::VERBOSE << "Retrieved FineTimeReferences Container" << endreq;
+    ATH_MSG_VERBOSE( "Retrieved FineTimeReferences Container" );
     if (verbose) m_dbFineTimeRefsTowers->dump();
 
   } else {
-    m_log << MSG::WARNING << "Could not retrieve FineTimeReferences, as Conditon Service not present" << endreq;
+    ATH_MSG_WARNING( "Could not retrieve FineTimeReferences, as Conditon Service not present" );
     return StatusCode::FAILURE;
   }
   
@@ -1140,19 +1119,16 @@ std::pair<double, double> L1TriggerTowerTool::refValues(const L1CaloCoolChannelI
       reference = ftref->refValue();
       calib = ftref->calibValue();
 //        }
-      if (m_debug) {
-        m_log << MSG::VERBOSE << MSG::hex
+      
+      ATH_MSG_VERBOSE( MSG::hex
               << "::refValues: errorCode: " << (ftref->errorCode()).errorCode()
-        << MSG::dec
-        << "  reference: " << ftref->refValue()
-        << "  calib: "  << ftref->calibValue()
-        << endreq;
-      }  
+             << MSG::dec << "  reference: " << ftref->refValue() << "  calib: "  << ftref->calibValue() );
+  
     } else {
-      if (m_debug) m_log << MSG::VERBOSE << "::refValue: No FineTimeRefsTowers found" << endreq;
+      ATH_MSG_VERBOSE( "::refValue: No FineTimeRefsTowers found" );
     }
   } else {
-    if (m_debug) m_log << MSG::VERBOSE << "::refValue: No FineTimeRefs Container retrieved" << endreq;
+    ATH_MSG_VERBOSE( "::refValue: No FineTimeRefs Container retrieved" );
   }
   
   return std::make_pair(reference, calib);
@@ -1173,9 +1149,9 @@ void L1TriggerTowerTool::pedestalCorrection(std::vector<int>& firInOut, int firP
   }
 
   if(m_debug) {
-    m_log << MSG::VERBOSE << "::pedestalCorrection(BCID=" << bcid << ", mu = " << mu << "): ";
+    ATH_MSG_VERBOSE( "::pedestalCorrection(BCID=" << bcid << ", mu = " << mu << "): ");
     printVec(correctionOut);
-    m_log << MSG::VERBOSE << endreq;
+    ATH_MSG_VERBOSE(" ");
   }
 }
 

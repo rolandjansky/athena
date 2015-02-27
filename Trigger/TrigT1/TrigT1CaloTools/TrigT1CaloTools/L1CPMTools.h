@@ -14,9 +14,7 @@
 #ifndef LVL1L1CPMTOOLS_H
 #define LVL1L1CPMTOOLS_H
 
-#include "GaudiKernel/AlgTool.h"
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/ServiceHandle.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "TrigT1CaloToolInterfaces/IL1CPMTools.h"
 #include "TrigT1CaloEvent/CPMTower.h"
 #include "TrigT1CaloUtils/CPMTobAlgorithm.h"
@@ -44,7 +42,7 @@ namespace LVL1
       @author  Alan Watson <Alan.Watson@cern.ch>
   */  
 
-  class L1CPMTools : virtual public IL1CPMTools, public AlgTool
+  class L1CPMTools : virtual public IL1CPMTools, public AthAlgTool
     {
     public:
       typedef DataVector<CPMTower>         CPMTCollection ;
@@ -107,9 +105,6 @@ namespace LVL1
             
     private:
       
-      /** class member version of retrieving MsgStream */
-      mutable MsgStream                 m_log;
-      int               m_outputlevel;
       /** pointer to LVL1ConfigSvc */
       ServiceHandle<TrigConf::ITrigConfigSvc> m_configSvc;
 

@@ -20,6 +20,31 @@ using CxxUtils::make_unique;
 namespace {
 using bcid_t = Trig::IBunchCrossingTool::bcid_type;
 static const bcid_t MAX_BCID = 3564;
+
+// Helper function to parse one line of the input file.
+// The first token on the line is converted to type T1 and returned, the other tokens  
+// are converted to type T2 and stored in std::vector<T2>& output. 
+// A ParseException is thrown, if the conversion fails.
+template <typename T1, typename T2>
+T1 parseLine(const std::string& line, std::vector<T2>& output)
+{
+  std::stringstream ss(line);
+  
+  // convert first token to type T1
+  T1 v;
+  if((ss >> v).fail()) {
+    throw LVL1::ParseException("Could not parse first token on line.");
+  }
+  
+  // other tokens to type T2
+  T2 vv;
+  while(ss.good()) { // stop on eof
+    if((ss >> vv).fail()) throw LVL1::ParseException("Could not parse token.");
+    output.push_back(vv);
+  }
+  return v;
+}
+
 }
 
 namespace LVL1 
@@ -205,8 +230,8 @@ int L1DynamicPedestalProviderTxt::dynamicPedestal(int iElement, int layer, int p
   
   if(bcid < 0) return pedestal;
 
-  // iEta is given (despite its name) as element index
-  int iEta = 33 - iElement - 1;
+  // the second parameterization is a function of the eta-bin (0..65) not the element
+  int iEta = 33 + iElement;
 
   // The parameterization is done for the dynamic pedestal correction,
   // i.e. correction = (dynamic_pedestal - pedestal).
@@ -228,6 +253,15 @@ int L1DynamicPedestalProviderTxt::dynamicPedestal(int iElement, int layer, int p
   return dynamic_pedestal;
 }
 
+namespace {
+void parseSecondParamLine(std::ifstream& ifs, std::string& outSection, int& outP, std::vector<float>& outV) {
+  ifs >> outSection;
+  std::string line;
+  std::getline(ifs, line);
+  outP = parseLine<int, float>(line, outV);
+}
+}
+
 //================ Parse input file ============================================
 // parses the input file @fileName and fills the parameterizations into @params
 // Each line is formatted as a space separated list of tokens. Two different input blocks exist,
@@ -235,19 +269,19 @@ int L1DynamicPedestalProviderTxt::dynamicPedestal(int iElement, int layer, int p
 // i) Parameters used for the first parameterization (one line per eta-slice starting with a integer number)
 // ii) Parameters used for the second parameterization (multiple lines starting with the same upper-case character)
 //
-// A block of type i) exists of a single linke, which looks like: "eta p_1 p_2 ... p_74".
+// A block of type i) exists of a single linke, which looks like: "eta p_1 p_1' p_2 p_2'... p_74 p_74'".
 // Here, eta is an integer denoting the eta-slice ([0, 66[) and p_[BCID] is the parameter of the
 // correspoding BCID (floating point value)
 //
-// A block of type ii) consists of 4 lines each starting with the same character ([A-Z]):
+// A block of type ii) consists of 1 + 3*P lines each starting with the same character ([A-Z]):
 // SECTION eta1 eta2 ... etaN
-// SECTION q0_1 q0_2 ... q0_74
-// SECTION q1_1 q1_2 ... q1_74
-// SECTION q2_1 q2_2 ... q2_74
+// SECTION P q0_1 q0_2 ... q0_74
+// SECTION P q1_1 q1_2 ... q1_74
+// SECTION P q2_1 q2_2 ... q2_74
 //
 // where SECTION is the upper case character, etaN are the eta-slices this parameterization
 // can be applied to and q0_[BCID], q1_[BCID], q2_[BCID] are the parameters for the parabola which parameterizes 
-// p as a function of eta
+// p_P as a function of eta
 //
 // Currently the train-structure simulated in MC consists of 4 Trains (BCID in [1, 350]). Since currently all four trains
 // are treated identically, only 74 BCID values are stored corresponding to one full train plus the unfilled bcid
@@ -273,38 +307,52 @@ void L1DynamicPedestalProviderTxt::parseInputFile(const std::string& fileName, s
       std::string section = parseLine<std::string, int>(line, etaSlices);
 
       // next lines contain q0, q1 and q2
-      std::getline(ifs, line);
-      std::vector<float> q0;
-      if(section != parseLine<std::string, float>(line, q0)) {
-        // premature end of section
-        throw ParseException("Premature end of section, expected q0.");
-      }
+      std::vector<float> q0, q1, q2, q0p, q1p, q2p;
+      std::string S;
+      int P;
 
-      std::getline(ifs, line);
-      std::vector<float> q1;
-      if(section != parseLine<std::string, float>(line, q1)) {
-        // premature end of section
-        throw ParseException("Premature end of section, expected q1.");
-      }
+      // q0
+      parseSecondParamLine(ifs, S, P, q0);
+      if(section != S) throw ParseException("Premature end of section, expected q0.");
+      if(P != 1) throw ParseException("Premature end Parameter, expected 1.");
 
-      std::getline(ifs, line);
-      std::vector<float> q2;
-      if(section != parseLine<std::string, float>(line, q2)) {
-        // premature end of section
-        throw ParseException("Premature end of section, expected q2.");
-      }
+      // q1
+      parseSecondParamLine(ifs, S, P, q1);
+      if(section != S) throw ParseException("Premature end of section, expected q1.");
+      if(P != 1) throw ParseException("Premature end Parameter, expected 1.");
 
+      // q2
+      parseSecondParamLine(ifs, S, P, q2);
+      if(section != S) throw ParseException("Premature end of section, expected q2.");
+      if(P != 1) throw ParseException("Premature end Parameter, expected 1.");
+
+      // q0p
+      parseSecondParamLine(ifs, S, P, q0p);
+      if(section != S) throw ParseException("Premature end of section, expected q0p.");
+      if(P != 2) throw ParseException("Premature end Parameter, expected 2.");
+
+      // q1p
+      parseSecondParamLine(ifs, S, P, q1p);
+      if(section != S) throw ParseException("Premature end of section, expected q1p.");
+      if(P != 2) throw ParseException("Premature end Parameter, expected 2.");
+
+      // q2p
+      parseSecondParamLine(ifs, S, P, q2p);
+      if(section != S) throw ParseException("Premature end of section, expected q2p.");
+      if(P != 2) throw ParseException("Premature end Parameter, expected 2.");
+      
       // check if section really ended by peeking next character
       if(ifs.good() && ifs.peek() == firstChar) {
         throw ParseException("Section to long.");
       }
 
-      if(q0.size() != s_nBCIDPerTrain || q1.size() != s_nBCIDPerTrain || q2.size() != s_nBCIDPerTrain) {
+      if(q0.size() != s_nBCIDPerTrain || q1.size() != s_nBCIDPerTrain || q2.size() != s_nBCIDPerTrain ||
+         q0p.size() != s_nBCIDPerTrain || q1p.size() != s_nBCIDPerTrain || q2p.size() != s_nBCIDPerTrain) {
         throw ParseException("Less entries than BCIDs.");
       }
 
       // create an object of type SecondParameterization and store a pointer to it for every eta-slice
-      SecondParameterization *param = new SecondParameterization(q0, q1, q2);
+      SecondParameterization *param = new SecondParameterization(q0, q1, q2, q0p, q1p, q2p);
       m_allocatedParameterizations.push_back(param);
       for(unsigned iSlice = 0; iSlice < etaSlices.size(); ++iSlice) {
         if(etaSlices[iSlice] < 0 || (unsigned)etaSlices[iSlice] >= s_nElements) {
@@ -318,26 +366,39 @@ void L1DynamicPedestalProviderTxt::parseInputFile(const std::string& fileName, s
     } else if (firstChar >= '0' && firstChar <= '9') {
       ATH_MSG_VERBOSE("::parsing: Found type i) block!");
       // type i) line - start tokenizing
-      std::getline(ifs, line);
+      int element;
+      ifs >> element;
 
-      std::vector<float> p; // holds the parameter values per BCID
-      int etaSlice = parseLine<int, float>(line, p);
+      std::vector<float> p1, p2; // holds the parameter values per BCID
 
-      if(etaSlice < 0 || (unsigned)etaSlice >= s_nElements) {
+      // fill alternatingly p1 and p2
+      while(ifs.good() && ifs.peek() != '\n') {
+        float f1, f2;
+        ifs >> f1 >> f2;
+        p1.push_back(f1);
+        p2.push_back(f2);
+      }
+      ifs.get(); // consume the trailing '\n'
+
+      if(element < 0 || (unsigned)element >= s_nElements) {
         throw ParseException("Eta out of range.");
       }
 
       // check parsed values
-      if(p.size() != s_nBCIDPerTrain) {
-        throw ParseException("Less entries than BCIDs.");
+      if(p1.size() != s_nBCIDPerTrain) {
+        throw ParseException("Less entries than BCIDs (p1).");
+      }
+      if(p2.size() != s_nBCIDPerTrain) {
+        throw ParseException("Less entries than BCIDs (p2).");
       }
 
-      if(params[etaSlice] != 0) {
+      if(params[element] != 0) {
         throw ParseException("Two parameterization for one eta slice.");
       }
-      FirstParameterization *param = new FirstParameterization(p);
+
+      FirstParameterization *param = new FirstParameterization(p1, p2);
       m_allocatedParameterizations.push_back(param);
-      params[etaSlice] = param;
+      params[element] = param;
     } else {
       throw ParseException("Unknown first character.");
     }
@@ -357,18 +418,19 @@ float L1DynamicPedestalProviderTxt::FirstParameterization::get(int /* iEta */,
                                                                int iBCID, float mu) const
 {
   if(iBCID < 0 || (unsigned)iBCID >= s_nBCIDPerTrain) return 0.0f;
-  return m_p[iBCID] * mu;
+  return m_p1[iBCID] * mu + m_p2[iBCID] * mu * mu;
 }
 
 float L1DynamicPedestalProviderTxt::SecondParameterization::get(int iEta,
                                                                 int iBCID, float mu) const
 {
   if(iBCID < 0 || (unsigned)iBCID >= s_nBCIDPerTrain) return 0.0f;
-  if(iEta < 0 || (unsigned)iEta >= s_nElements) return 0.0f;
+  if(iEta < 33 || (unsigned)iEta > 66) return 0.0f;
 
   // p is parameterized as a 2nd order polynomial of eta
-  float p = m_q0[iBCID] + m_q1[iBCID] * iEta + m_q2[iBCID] * iEta * iEta;
-  return p * mu;
+  float p1 = m_q0[iBCID] + m_q1[iBCID] * iEta + m_q2[iBCID] * iEta * iEta;
+  float p2 = m_q0p[iBCID] + m_q1p[iBCID] * iEta + m_q2p[iBCID] * iEta * iEta;
+  return p1 * mu + p2 * mu * mu;
 }
 
 } // end of namespace

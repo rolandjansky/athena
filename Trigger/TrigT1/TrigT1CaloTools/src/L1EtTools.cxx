@@ -14,9 +14,8 @@ L1EtTools::L1EtTools(const std::string& t,
 			  const std::string& n,
 			  const IInterface*  p )
   :
-  AlgTool(t,n,p),
+  AthAlgTool(t,n,p),
   m_TEMasks(0),
-  m_log(msgSvc(),n),
   m_configSvc("TrigConf::TrigConfigSvc/TrigConfigSvc", n)
 {
   declareInterface<IL1EtTools>(this);
@@ -42,25 +41,17 @@ L1EtTools::~L1EtTools()
 
 StatusCode L1EtTools::initialize()
 {
-  m_log.setLevel(outputLevel());
+  ATH_MSG_INFO( "Initialising Algtool" );
 
-  m_log << MSG::INFO << "Initialising Algtool" << endreq;
-  StatusCode sc = AlgTool::initialize();
-  if (sc.isFailure()) {
-    m_log << MSG::ERROR << "Problem initializing AlgTool " <<  endreq;
-    return sc;
-  }
-
-  m_log << MSG::INFO << "get pointer to config svc " << endreq;
-  sc = m_configSvc.retrieve();
+  ATH_MSG_INFO( "get pointer to config svc " );
+  StatusCode sc = m_configSvc.retrieve();
   if ( sc.isFailure() ) {
-    m_log << MSG::ERROR << "Couldn't connect to " << m_configSvc.typeAndName() 
-        << endreq;
+    ATH_MSG_ERROR( "Couldn't connect to " << m_configSvc.typeAndName() );
   }
   
   /** Fill map of JE masked out of TE trigger */
   
-  m_log << MSG::INFO << "Initialization completed" << endreq;
+  ATH_MSG_INFO( "Initialization completed" );
   
   return sc;
 }
@@ -69,10 +60,9 @@ StatusCode L1EtTools::initialize()
 
 StatusCode LVL1::L1EtTools::finalize()
 {
-  StatusCode sc = AlgTool::finalize();
   delete m_TEMasks;
   m_TEMasks = 0;
-  return sc;
+  return StatusCode::SUCCESS;
 }
 
 //================ Fill map of JE masked out of TE trigger ======================
@@ -124,8 +114,7 @@ void L1EtTools::mapJetElements(const DataVector<JetElement>* jetelements,
          jeContainer->insert(std::map<int, JetElement*>::value_type(key,*it)); //and put it in the map.
      }
      else{
-          m_log << MSG::ERROR
-                << "JetElement already in map (shouldn't happen!) " <<endreq ;
+          ATH_MSG_ERROR( "JetElement already in map (shouldn't happen!) ");
      }
   }//endfor
   

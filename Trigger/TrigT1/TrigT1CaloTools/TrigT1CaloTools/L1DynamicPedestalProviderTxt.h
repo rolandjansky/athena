@@ -75,30 +75,37 @@ namespace LVL1
     };
 
     // Concrete Implementation for the 1st parameterization (correction as function of mu).
-    // It is initialized with one parameter per BCID. The dynamic pedestal is caluclated as
-    // d = mu * p[BCID]; where p[BCID] is a the parameters for a bcid of BCID.
+    // It is initialized with two parameter per BCID. The dynamic pedestal is caluclated as
+    // d = mu * p1[BCID] + mu^2 = p2[BCID]; where p[BCID] is a the parameters for a bcid of BCID.
     class FirstParameterization : virtual public IParameterization
     {
     public:
-      FirstParameterization(const std::vector<float>& p) : m_p(p) {}
+      FirstParameterization(const std::vector<float>& p1, const std::vector<float>& p2)
+        : m_p1(p1)
+        , m_p2(p2) {}
       virtual float get(int iEta, int iBCID, float mu) const;
     private:
-      std::vector<float> m_p;  // list of parameters per bcid
+      std::vector<float> m_p1;  // list of parameters per bcid
+      std::vector<float> m_p2;  // list of parameters per bcid
     };
 
     // Concrete Implementation for the 2nd parameterization.
     // In this case the correction is calculated as
-    // d = mu * p(eta, bcid), with p = q_0[BCID] + q_1[BCID] * eta + q_2[BCID] * eta**2
-    // Here, q_0, q_1 and q_2 are parameters for a bcid of BCID
+    // d = mu * p1(eta, bcid) + mu^2*p2(eta, bcid), with
+    // p1 = q_0[BCID] + q_1[BCID] * eta + q_2[BCID] * eta**2
+    // p2 = q_0^'[BCID] + q_1^'[BCID] * eta + q_2^'[BCID] * eta**2
+    // Here, q_0, q_1 and q_2 (as well as the primed q's) are parameters for a bcid of BCID
     class SecondParameterization : virtual public IParameterization
     {
     public:
-      SecondParameterization(const std::vector<float>& q0, const std::vector<float>& q1,
-                             const std::vector<float>& q2)
-        : m_q0(q0), m_q1(q1), m_q2(q2) {}
+      SecondParameterization(const std::vector<float>& q0, const std::vector<float>& q1, const std::vector<float>& q2,
+                             const std::vector<float>& q0p, const std::vector<float>& q1p, const std::vector<float>& q2p)
+        : m_q0(q0), m_q1(q1), m_q2(q2)
+        , m_q0p(q0p), m_q1p(q1p), m_q2p(q2p) {}
       virtual float get(int iEta, int iBCID, float mu) const;
     private:
       std::vector<float> m_q0, m_q1, m_q2;
+      std::vector<float> m_q0p, m_q1p, m_q2p;
     };
 
     // Stores the concrete implementation of the BCID correction for each eta-slice (the index of the vector).
@@ -132,39 +139,9 @@ namespace LVL1
     // parses the input file
     void parseInputFile(const std::string& fileName, std::vector<IParameterization*>& params);
 
-    // helper function to parse one line
-    template <typename T1, typename T2>
-    T1 parseLine(const std::string& line, std::vector<T2>& output);
-
     static const unsigned s_nElements = 33;
     static const unsigned s_nBCIDPerTrain = 74; // actually 72 filled BCIDs + one before and one after
   }; // end of class L1DynamicPedestalProviderTxt
-
-
-  // Helper function to parse one line of the input file.
-  // The first token on the line is converted to type T1 and returned, the other tokens  
-  // are converted to type T2 and stored in std::vector<T2>& output. 
-  // A ParseException is thrown, if the conversion fails.
-  template <typename T1, typename T2>
-  T1 L1DynamicPedestalProviderTxt::parseLine(const std::string& line, std::vector<T2>& output)
-  {
-    std::stringstream ss(line);
-
-    // convert first token to type T1
-    T1 v;
-    if((ss >> v).fail()) {
-      throw ParseException("Could not parse first token on line.");
-    }
-
-    // other tokens to type T2
-    T2 vv;
-    while(ss.good()) { // stop on eof
-      if((ss >> vv).fail()) throw ParseException("Could not parse token.");
-      output.push_back(vv);
-    }
-    return v;
-  }
-
 } // end of namespace
 
 #endif // TRIGT1CALOTOOLS_L1DYNAMICPEDESTALPYTHON_H

@@ -8,7 +8,6 @@ use AtlasPolicy AtlasPolicy-*
 use     GaudiInterface  GaudiInterface-* External
 use     AtlasROOT       AtlasROOT-*      External
 use DataModel DataModel-* Control
-use StoreGate StoreGate-* Control
 use AthenaBaseComps AthenaBaseComps-* Control
 use TrigT1CaloEvent TrigT1CaloEvent-* Trigger/TrigT1
 use TrigT1CaloUtils TrigT1CaloUtils-* Trigger/TrigT1

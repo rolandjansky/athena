@@ -17,8 +17,7 @@ L1RoITools::L1RoITools(const std::string& t,
 			  const std::string& n,
 			  const IInterface*  p )
   :
-  AlgTool(t,n,p),
-  m_log(msgSvc(),n),
+  AthAlgTool(t,n,p),
   m_configSvc("TrigConf::TrigConfigSvc/TrigConfigSvc", n),
   m_JetElementTool("LVL1::L1JetElementTools/L1JetElementTools"),
   m_EmTauTool("LVL1::L1EmTauTools/L1EmTauTools"),
@@ -43,47 +42,40 @@ L1RoITools::~L1RoITools()
 /** Initialisation */
 
 StatusCode L1RoITools::initialize()
-{
-  m_log.setLevel(outputLevel());
-  
-  StatusCode sc = AlgTool::initialize();
-  if (sc.isFailure()) {
-    m_log << MSG::ERROR << "Problem initializing AlgTool " <<  endreq;
-    return sc;
-  }
+{  
   /// Retrieve TrigT1CaloTools
-  sc = m_JetElementTool.retrieve();
+  StatusCode sc = m_JetElementTool.retrieve();
   if (sc.isFailure()) {
-    m_log << MSG::ERROR << "Problem retrieving JetElementTool. Abort execution" << endreq;
+    ATH_MSG_ERROR( "Problem retrieving JetElementTool. Abort execution" );
     return StatusCode::SUCCESS;
   }
   sc = m_EmTauTool.retrieve();
   if (sc.isFailure()) {
-    m_log << MSG::ERROR << "Problem retrieving EmTauTool. Abort execution" << endreq;
+    ATH_MSG_ERROR( "Problem retrieving EmTauTool. Abort execution" );
     return StatusCode::SUCCESS;
   }
   sc = m_JetTool.retrieve();
   if (sc.isFailure()) {
-    m_log << MSG::ERROR << "Problem retrieving JetTool. Abort execution" << endreq;
+    ATH_MSG_ERROR( "Problem retrieving JetTool. Abort execution" );
     return StatusCode::SUCCESS;
   }
   sc = m_EtTool.retrieve();
   if (sc.isFailure()) {
-    m_log << MSG::ERROR << "Problem retrieving EtTool. Abort execution" << endreq;
+    ATH_MSG_ERROR( "Problem retrieving EtTool. Abort execution" );
     return StatusCode::SUCCESS;
   }
   sc = m_JetEtTool.retrieve();
   if (sc.isFailure()) {
-    m_log << MSG::ERROR << "Problem retrieving JetEtTool. Abort execution" << endreq;
+    ATH_MSG_ERROR( "Problem retrieving JetEtTool. Abort execution" );
     return StatusCode::SUCCESS;
   }
   sc = m_TriggerTowerTool.retrieve();
   if (sc.isFailure()) {
-    m_log << MSG::ERROR << "Problem retrieving TriggerTowerTool. Abort execution" << endreq;
+    ATH_MSG_ERROR( "Problem retrieving TriggerTowerTool. Abort execution" );
     return StatusCode::SUCCESS;
   }
 
-  m_log << MSG::INFO << "Initialization completed" << endreq;
+  ATH_MSG_INFO( "Initialization completed" );
   
   return sc;
 }
@@ -92,8 +84,7 @@ StatusCode L1RoITools::initialize()
 
 StatusCode L1RoITools::finalize()
 {
-  StatusCode sc = AlgTool::finalize();
-  return sc;
+  return StatusCode::SUCCESS;
 }
 
 /** Fill a LVL1_ROI with calorimeter trigger results computed from a set of TriggerTowers */

@@ -34,9 +34,8 @@ L1JEPHitsTools::L1JEPHitsTools(const std::string& type,
                                const std::string& name,
                                const IInterface*  parent)
   :
-  AlgTool(type, name, parent),
-  m_configSvc("TrigConf::TrigConfigSvc/TrigConfigSvc", name),
-  m_log(msgSvc(), name)
+  AthAlgTool(type, name, parent),
+  m_configSvc("TrigConf::TrigConfigSvc/TrigConfigSvc", name)
 {
   declareInterface<IL1JEPHitsTools>(this);
   declareProperty( "LVL1ConfigSvc", m_configSvc, "LVL1 Config Service");
@@ -53,28 +52,20 @@ L1JEPHitsTools::~L1JEPHitsTools()
 
 StatusCode L1JEPHitsTools::initialize()
 {
-  m_log.setLevel(outputLevel());
-  m_debug = outputLevel() <= MSG::DEBUG;
-  
-  StatusCode sc = AlgTool::initialize();
-  if (sc.isFailure()) {
-    m_log << MSG::ERROR << "Problem initializing AlgTool " <<  endreq;
-    return sc;
-  }
+  m_debug = msgLvl(MSG::DEBUG);
+
 
   // Connect to the LVL1ConfigSvc for the trigger configuration:
 
-  sc = m_configSvc.retrieve();
+  StatusCode sc = m_configSvc.retrieve();
   if ( sc.isFailure() ) {
-    m_log << MSG::ERROR << "Couldn't connect to " << m_configSvc.typeAndName() 
-          << endreq;
+    ATH_MSG_ERROR( "Couldn't connect to " << m_configSvc.typeAndName() );
     return sc;
-  } else if (m_debug) {
-    m_log << MSG::DEBUG << "Connected to " << m_configSvc.typeAndName()
-          << endreq;
   }
+  ATH_MSG_DEBUG( "Connected to " << m_configSvc.typeAndName() );
+
   
-  m_log << MSG::INFO << "Initialization completed" << endreq;
+  ATH_MSG_INFO( "Initialization completed" );
   
   return sc;
 }
@@ -83,8 +74,7 @@ StatusCode L1JEPHitsTools::initialize()
 
 StatusCode L1JEPHitsTools::finalize()
 {
-  StatusCode sc = AlgTool::finalize();
-  return sc;
+  return StatusCode::SUCCESS;
 }
 
 /** JetAlgorithm to JEMRoI conversion */
@@ -144,21 +134,21 @@ void L1JEPHitsTools::formJEMHits(
       if (m_debug) {
         JEPRoIDecoder decoder;
         CoordinateRange coord = decoder.coordinate(roi->roiWord());
-	if (timeslices > 1) m_log << MSG::DEBUG << "Slice " << slice << ", ";
-        m_log << MSG::DEBUG << "Found RoI with (eta, phi) = ("
+	if (timeslices > 1) ATH_MSG_DEBUG( "Slice " << slice << ", ");
+        ATH_MSG_DEBUG( "Found RoI with (eta, phi) = ("
               << coord.eta() << ", " << coord.phi() << ") " << ", RoIWord = "
-              << std::hex << roi->roiWord() << std::dec << endreq;
-        m_log << MSG::DEBUG << "Crate = " << crate << ", Module = " << module
-              << ", JEM key = " << key << endreq;
+              << std::hex << roi->roiWord() << std::dec );
+        ATH_MSG_DEBUG( "Crate = " << crate << ", Module = " << module
+              << ", JEM key = " << key );
       }
       JEMHits* jemHits=0;
       // find whether corresponding JEMHits already exists
       std::map<unsigned int, JEMHits*>::iterator test=jemHitsMap.find(key);
       // if not, create it
       if ( test==jemHitsMap.end()){
-        if (m_debug) m_log << MSG::DEBUG << "New key. JEM has crate = " 
-                           << crate << ", Module = " << module << endreq;
-        if (m_debug) m_log << MSG::DEBUG << "Create new JEMHits" << endreq; 
+        ATH_MSG_DEBUG( "New key. JEM has crate = " 
+                        << crate << ", Module = " << module );
+        ATH_MSG_DEBUG( "Create new JEMHits" ); 
         jemHits = new JEMHits(crate, module);
 	if (timeslices > 1) {
 	  HitsVector hitVec(timeslices);
@@ -166,17 +156,16 @@ void L1JEPHitsTools::formJEMHits(
 	  jemHits->setPeak(peak);
         }
       
-        if (m_debug) m_log << MSG::DEBUG << "and insert into map" << endreq; 
-        jemHitsMap.insert(
-                    std::map<unsigned int,JEMHits*>::value_type(key,jemHits));
+        ATH_MSG_DEBUG( "and insert into map" ); 
+        jemHitsMap.insert(std::map<unsigned int,JEMHits*>::value_type(key,jemHits));
         jemHitsVec->push_back(jemHits);
       }
       else {
-        if (m_debug) m_log << MSG::DEBUG << "Existing JEMHits" << endreq; 
+        ATH_MSG_DEBUG( "Existing JEMHits" ); 
         jemHits = test->second; // Already exists, so set pointer
       }
       // increment hit multiplicity.
-      if (m_debug) m_log << MSG::DEBUG << "Update JEM hits" << endreq; 
+      ATH_MSG_DEBUG( "Update JEM hits" ); 
       HitsVector hitvec(jemHits->JetHitsVec());
       unsigned int hits = hitvec[slice];
       int nthresh = TrigT1CaloDefs::numOfJetThresholds;
@@ -184,7 +173,7 @@ void L1JEPHitsTools::formJEMHits(
       hits = addHits(hits, roi->roiWord()&0xFFF, 24, nthresh, nthresh);
       hitvec[slice] = hits;
       jemHits->addJetHits(hitvec);
-      if (m_debug) m_log << MSG::DEBUG << "All done for this one" << endreq; 
+      ATH_MSG_DEBUG( "All done for this one" ); 
     }
   }
 }
@@ -360,25 +349,25 @@ void L1JEPHitsTools::formCMMJetHitsEtMap(
       }
       if (m_debug) {
         if (factor.empty()) {
-          m_log << MSG::DEBUG << "No Jet Weights found" << endreq;
+          ATH_MSG_DEBUG( "No Jet Weights found" );
         } else {
-          m_log << MSG::DEBUG << "Jet Weights from thresholds" << endreq;
+          ATH_MSG_DEBUG( "Jet Weights from thresholds" );
         }
       }
     } else if (m_debug) {
-      m_log << MSG::DEBUG << "Jet Weights from ctpConfig()->menu()" << endreq;
+      ATH_MSG_DEBUG( "Jet Weights from ctpConfig()->menu()" );
     }
   } else if (m_debug) {
-    m_log << MSG::DEBUG << "Jet Weights from thresholdConfig()" << endreq;
+    ATH_MSG_DEBUG( "Jet Weights from thresholdConfig()" );
   }
   factor.resize(nthresh);
   if (m_debug) {
-    m_log << MSG::DEBUG << "Jet Weights from configSvc: ";
+    ATH_MSG_DEBUG( "Jet Weights from configSvc: ");
     for (std::vector<int>::const_iterator it  = factor.begin();
                                           it != factor.end(); ++it) {
-      m_log << MSG::DEBUG << " " << (*it);
+      ATH_MSG_DEBUG( " " << (*it));
     }
-    m_log << MSG::DEBUG << endreq;
+    ATH_MSG_DEBUG(" ");
   }
 
   // Get current threshold values
@@ -404,12 +393,12 @@ void L1JEPHitsTools::formCMMJetHitsEtMap(
     }
   }
   if (m_debug) {
-    m_log << MSG::DEBUG << "Jet Et Thresholds from configSvc: ";
+    ATH_MSG_DEBUG( "Jet Et Thresholds from configSvc: ");
     for (std::vector<unsigned int>::const_iterator it = thresholdValues.begin();
                                     it != thresholdValues.end(); ++it) {
-      m_log << MSG::DEBUG << " " << (*it);
+      ATH_MSG_DEBUG( " " << (*it));
     }
-    m_log << MSG::DEBUG << endreq;
+    ATH_MSG_DEBUG(" ");
   }
 
   // Find number of bits to drop in Jet Et summation
@@ -455,10 +444,10 @@ void L1JEPHitsTools::formCMMJetHitsEtMap(
 	if ((j%4 == 3) || (j == nthresh-1)) jetEt = ((jetEt>>dropBits)<<dropBits);
         if (m_debug) {
           if (j < TrigT1CaloDefs::numOfJetThresholds) {
-                 m_log << MSG::DEBUG << "Jet Threshold ";
-          } else m_log << MSG::DEBUG << "Forward Jet Threshold ";
-          m_log << MSG::DEBUG << j << " has multiplicity " << jetMult[j]
-                                   << " giving jetEt = "   << jetEt << endreq; 
+                 ATH_MSG_DEBUG( "Jet Threshold ");
+          } else ATH_MSG_DEBUG( "Forward Jet Threshold ");
+          ATH_MSG_DEBUG( j << " has multiplicity " << jetMult[j]
+                                   << " giving jetEt = "   << jetEt ); 
         }
       }
 
@@ -467,9 +456,8 @@ void L1JEPHitsTools::formCMMJetHitsEtMap(
                                                                        ++thr) {
         if (thresholdSet[thr] && jetEt > thresholdValues[thr]) {
           jetEtThreshMap |= (1 << thr);
-	  if (m_debug) m_log << MSG::DEBUG << "Passed threshold " << thr + 1
-	                     << " (" << thresholdValues[thr] << " GeV)"
-			     << endreq;
+	  ATH_MSG_DEBUG( "Passed threshold " << thr + 1
+	                  << " (" << thresholdValues[thr] << " GeV)" );
         }
       }
     }
@@ -503,15 +491,13 @@ void L1JEPHitsTools::addCMMJetHits(HitsVector& vec1,
 unsigned int L1JEPHitsTools::addHits(unsigned int hitMult, unsigned int hitVec,
 			     int multBits, int vecBits, int nthresh) const
 {
-  if (m_debug) 
-    m_log << MSG::DEBUG <<"addHits: Original hitMult = " << std::hex << hitMult
-          << ". Add hitWord = " << hitVec << std::dec<<endreq;
+  ATH_MSG_DEBUG("addHits: Original hitMult = " << std::hex << hitMult
+                   << ". Add hitWord = " << hitVec << std::dec);
   
   int nbitsOut = multBits/nthresh;
   int nbitsIn  = vecBits/nthresh;
   
-  if (m_debug) m_log << MSG::DEBUG <<" Bits per threshold = " << nbitsOut
-                     <<endreq;
+  ATH_MSG_DEBUG(" Bits per threshold = " << nbitsOut);
   
   int max = (1<<nbitsOut) - 1;
   unsigned int multMask = max;
@@ -530,8 +516,8 @@ unsigned int L1JEPHitsTools::addHits(unsigned int hitMult, unsigned int hitVec,
     shift += nbitsOut;
   }
   
-  if (m_debug) m_log << MSG::DEBUG <<"addHits returning hitMult = "
-                     << std::hex << hits << std::dec << endreq;
+  ATH_MSG_DEBUG("addHits returning hitMult = "
+                  << std::hex << hits << std::dec );
   
   return hits;
 }

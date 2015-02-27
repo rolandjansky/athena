@@ -14,14 +14,11 @@
 #ifndef L1TRIGGERTOWERTOOL_H
 #define L1TRIGGERTOWERTOOL_H
 
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/IIncidentListener.h"
 #include "GaudiKernel/Incident.h"
-#include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "TrigT1CaloToolInterfaces/IL1TriggerTowerTool.h"
-//#include "GaudiKernel/ServiceHandle.h"
-#include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/IToolSvc.h"
 #include "CaloIdentifier/CaloIdManager.h"
 #include "CaloIdentifier/CaloLVL1_ID.h"
@@ -52,7 +49,7 @@ namespace LVL1
       @author  Alan Watson <Alan.Watson@cern.ch>
   */  
 
-  class L1TriggerTowerTool : virtual public IL1TriggerTowerTool, public IIncidentListener, public AlgTool
+  class L1TriggerTowerTool : virtual public IL1TriggerTowerTool, public IIncidentListener, public AthAlgTool
   {
     public:
       
@@ -127,8 +124,6 @@ namespace LVL1
       /** Get extra noise cut with disabled channel */
       bool disabledChannel(const L1CaloCoolChannelId& channelId, unsigned int& noiseCut);
 
-      /** class member version of retrieving MsgStream */
-      mutable MsgStream m_log;
       bool              m_debug;
       /** pointer to StoreGate service */
       StoreGateSvc* m_detStore;

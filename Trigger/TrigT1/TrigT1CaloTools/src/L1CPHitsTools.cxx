@@ -24,8 +24,7 @@ L1CPHitsTools::L1CPHitsTools(const std::string& type,
                              const std::string& name,
                              const IInterface*  parent)
   :
-  AlgTool(type, name, parent),
-  m_log(msgSvc(), name)
+  AthAlgTool(type, name, parent) 
 {
   declareInterface<IL1CPHitsTools>(this);
 }
@@ -41,26 +40,18 @@ L1CPHitsTools::~L1CPHitsTools()
 
 StatusCode L1CPHitsTools::initialize()
 {
-  m_log.setLevel(outputLevel());
-  m_debug = outputLevel() <= MSG::DEBUG;
+  m_debug = msgLvl(MSG::DEBUG);
   
-  StatusCode sc = AlgTool::initialize();
-  if (sc.isFailure()) {
-    m_log << MSG::ERROR << "Problem initializing AlgTool " <<  endreq;
-    return sc;
-  }
+  ATH_MSG_INFO( "Initialization completed" );
   
-  m_log << MSG::INFO << "Initialization completed" << endreq;
-  
-  return sc;
+  return StatusCode::SUCCESS;
 }
 
 /** Finalisation */
 
 StatusCode L1CPHitsTools::finalize()
 {
-  StatusCode sc = AlgTool::finalize();
-  return sc;
+  return StatusCode::SUCCESS;
 }
 
 /** CPAlgorithm to CPMRoI conversion */
@@ -120,21 +111,21 @@ void L1CPHitsTools::formCPMHits(
       if (m_debug) {
         CPRoIDecoder decoder;
         CoordinateRange coord = decoder.coordinate(roi->roiWord());
-	if (timeslices > 1) m_log << MSG::DEBUG << "Slice " << slice << ", ";
-        m_log << MSG::DEBUG << "Found RoI with (eta, phi) = ("
+	if (timeslices > 1) ATH_MSG_DEBUG( "Slice " << slice << ", ");
+        ATH_MSG_DEBUG( "Found RoI with (eta, phi) = ("
               << coord.eta() << ", " << coord.phi() << ") " << ", RoIWord = "
-              << std::hex << roi->roiWord() << std::dec << endreq;
-        m_log << MSG::DEBUG << "Crate = " << crate << ", Module = " << module
-              << ", CPM key = " << key << endreq;
+              << std::hex << roi->roiWord() << std::dec );
+        ATH_MSG_DEBUG( "Crate = " << crate << ", Module = " << module
+              << ", CPM key = " << key );
       }
       CPMHits* cpmHits=0;
       // find whether corresponding CPMHits already exists
       std::map<unsigned int, CPMHits*>::iterator test=cpmHitsMap.find(key);
       // if not, create it
       if ( test==cpmHitsMap.end()){
-        if (m_debug) m_log << MSG::DEBUG << "New key. CPM has crate = " 
-                           << crate << ", Module = " << module << endreq;
-        if (m_debug) m_log << MSG::DEBUG << "Create new CPMHits" << endreq; 
+        ATH_MSG_DEBUG( "New key. CPM has crate = " 
+                           << crate << ", Module = " << module );
+        ATH_MSG_DEBUG( "Create new CPMHits" ); 
         cpmHits = new CPMHits(crate, module);
 	if (timeslices > 1) {
 	  HitsVector hitVec(timeslices);
@@ -142,17 +133,17 @@ void L1CPHitsTools::formCPMHits(
 	  cpmHits->setPeak(peak);
         }
       
-        if (m_debug) m_log << MSG::DEBUG << "and insert into map" << endreq; 
+        ATH_MSG_DEBUG( "and insert into map" ); 
         cpmHitsMap.insert(
                     std::map<unsigned int,CPMHits*>::value_type(key,cpmHits));
         cpmHitsVec->push_back(cpmHits);
       }
       else {
-        if (m_debug) m_log << MSG::DEBUG << "Existing CPMHits" << endreq; 
+        ATH_MSG_DEBUG( "Existing CPMHits" ); 
         cpmHits = test->second; // Already exists, so set pointer
       }
       // increment hit multiplicity.
-      if (m_debug) m_log << MSG::DEBUG << "Update CPM hits" << endreq; 
+      ATH_MSG_DEBUG( "Update CPM hits" ); 
       HitsVector hitvec0(cpmHits->HitsVec0());
       HitsVector hitvec1(cpmHits->HitsVec1());
       unsigned int hits0 = hitvec0[slice];
@@ -162,7 +153,7 @@ void L1CPHitsTools::formCPMHits(
       hitvec0[slice] = hits0;
       hitvec1[slice] = hits1;
       cpmHits->addHits(hitvec0, hitvec1);
-      if (m_debug) m_log << MSG::DEBUG << "All done for this one" << endreq; 
+      ATH_MSG_DEBUG( "All done for this one" ); 
     }
   }
 }
@@ -312,9 +303,8 @@ unsigned int L1CPHitsTools::addHits(unsigned int hitMult,
                                     unsigned int hitVec,
 				    int multBits, int vecBits) const
 {
-  if (m_debug) 
-    m_log << MSG::DEBUG <<"addHits: Original hitMult = " << std::hex << hitMult
-          << ". Add hitWord = " << hitVec << std::dec<<endreq;
+  ATH_MSG_DEBUG("addHits: Original hitMult = " << std::hex << hitMult
+                 << ". Add hitWord = " << hitVec << std::dec);
   
   // Results transmitted in 2 words, each reporting half of the CP thresholds
   int nthresh = TrigT1CaloDefs::numOfCPThresholds/2;
@@ -322,8 +312,7 @@ unsigned int L1CPHitsTools::addHits(unsigned int hitMult,
   int nbitsOut = multBits/nthresh;
   int nbitsIn  = vecBits/nthresh;
   
-  if (m_debug) m_log << MSG::DEBUG <<" Bits per threshold = " << nbitsOut
-                     <<endreq;
+  ATH_MSG_DEBUG(" Bits per threshold = " << nbitsOut);
   
   int max = (1<<nbitsOut) - 1;
   unsigned int multMask = max;
@@ -342,8 +331,8 @@ unsigned int L1CPHitsTools::addHits(unsigned int hitMult,
     shift += nbitsOut;
   }
   
-  if (m_debug) m_log << MSG::DEBUG <<"addHits returning hitMult = "
-                     << std::hex << hits << std::dec << endreq;
+  ATH_MSG_DEBUG("addHits returning hitMult = "
+                  << std::hex << hits << std::dec );
   
   return hits;
 }

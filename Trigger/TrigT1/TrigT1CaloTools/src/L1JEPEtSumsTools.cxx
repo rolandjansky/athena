@@ -22,11 +22,10 @@ L1JEPEtSumsTools::L1JEPEtSumsTools(const std::string& type,
                                const std::string& name,
                                const IInterface*  parent)
   :
-  AlgTool(type, name, parent),
+  AthAlgTool(type, name, parent),
   m_configSvc("TrigConf::TrigConfigSvc/TrigConfigSvc", name),
   m_jeTool("LVL1::L1JetElementTools/L1JetElementTools"),
-  m_etTool("LVL1::L1EtTools/L1EtTools"),
-  m_log(msgSvc(), name)
+  m_etTool("LVL1::L1EtTools/L1EtTools")
 {
   declareInterface<IL1JEPEtSumsTools>(this);
   declareProperty( "LVL1ConfigSvc", m_configSvc, "LVL1 Config Service");
@@ -45,32 +44,20 @@ L1JEPEtSumsTools::~L1JEPEtSumsTools()
 
 StatusCode L1JEPEtSumsTools::initialize()
 {
-  m_log.setLevel(outputLevel());
-  m_debug = outputLevel() <= MSG::DEBUG;
-  
-  StatusCode sc = AlgTool::initialize();
-  if (sc.isFailure()) {
-    m_log << MSG::ERROR << "Problem initializing AlgTool " <<  endreq;
-    return sc;
-  }
-
   // Connect to the LVL1ConfigSvc for the trigger configuration:
 
-  sc = m_configSvc.retrieve();
+  StatusCode sc = m_configSvc.retrieve();
   if ( sc.isFailure() ) {
-    m_log << MSG::ERROR << "Couldn't connect to " << m_configSvc.typeAndName() 
-          << endreq;
+    ATH_MSG_ERROR( "Couldn't connect to " << m_configSvc.typeAndName() );
     return sc;
-  } else if (m_debug) {
-    m_log << MSG::DEBUG << "Connected to " << m_configSvc.typeAndName()
-          << endreq;
-  }
+  } 
+  ATH_MSG_DEBUG( "Connected to " << m_configSvc.typeAndName() );
 
   // Retrieve jet element tool
 
   sc = m_jeTool.retrieve();
   if ( sc.isFailure() ) {
-    m_log << MSG::ERROR << "Couldn't retrieve JetElementTool" << endreq;
+    ATH_MSG_ERROR( "Couldn't retrieve JetElementTool" );
     return sc;
   }
 
@@ -78,11 +65,11 @@ StatusCode L1JEPEtSumsTools::initialize()
 
   sc = m_etTool.retrieve();
   if ( sc.isFailure() ) {
-    m_log << MSG::ERROR << "Couldn't retrieve EtTool" << endreq;
+    ATH_MSG_ERROR( "Couldn't retrieve EtTool" );
     return sc;
   }
   
-  m_log << MSG::INFO << "Initialization completed" << endreq;
+  ATH_MSG_INFO( "Initialization completed" );
   
   return sc;
 }
@@ -91,8 +78,7 @@ StatusCode L1JEPEtSumsTools::initialize()
 
 StatusCode L1JEPEtSumsTools::finalize()
 {
-  StatusCode sc = AlgTool::finalize();
-  return sc;
+  return StatusCode::SUCCESS;
 }
 
 /** form JEMEtSums from JetElements */
