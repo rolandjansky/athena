@@ -57,7 +57,12 @@ StatusCode RpcPadContainerCnv_p2::initialize(MsgStream &log) {
         return StatusCode::FAILURE;
     }
     else {
-      m_padhashmax = m_rpcCabling->padHashFunction()->max();
+      if (!m_rpcCabling->padHashFunction())
+	{
+	  m_padhashmax = 1000;
+	  log<<MSG::INFO << "... hoewever it doesn't look like been already init; container size set by hand to "<< m_padhashmax << endreq;
+	}
+      else m_padhashmax = m_rpcCabling->padHashFunction()->max();
       if (log.level() <= MSG::INFO)    log <<MSG::INFO    << " RPCcablingSvc obtained - hashmax  = "<<m_padhashmax << endreq;
       //      if (log.level() <= MSG::VERBOSE) log <<MSG::VERBOSE << " RPCcablingSvc obtained " << endreq;
     }
