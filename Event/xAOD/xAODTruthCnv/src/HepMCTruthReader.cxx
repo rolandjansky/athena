@@ -80,7 +80,7 @@ void HepMCTruthReader::printEvent(const HepMC::GenEvent* event) {
 // Print method for vertex - mimics the HepMC dump.
 // Particle print method called within here
 void HepMCTruthReader::printVertex(const HepMC::GenVertex* vertex) {
-
+  std::ios::fmtflags f( cout.flags() ); 
   cout << "GenVertex:";
   if (vertex->barcode() != 0) {
     if (vertex->position().x() != 0.0 && vertex->position().y() != 0.0 && vertex->position().z() != 0.0) {
@@ -180,11 +180,14 @@ void HepMCTruthReader::printVertex(const HepMC::GenVertex* vertex) {
     } else cout << "      ";
     printParticle(*iPOut);
   }
+
+  cout.flags(f); 
 }
 
 
 // Print method for particle - mimics the HepMC dump.
 void HepMCTruthReader::printParticle(const HepMC::GenParticle* particle) {
+  std::ios::fmtflags f( cout.flags() ); 
   cout << " ";
   cout.width(9);
   cout << particle->barcode();
@@ -218,6 +221,7 @@ void HepMCTruthReader::printParticle(const HepMC::GenParticle* particle) {
     cout << particle->status();
   }
   cout << endl;
+  cout.flags(f); 
 }
 
 
