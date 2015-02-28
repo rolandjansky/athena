@@ -4,6 +4,9 @@
 
 #include "./HLTSequenceLoader.h"
 
+#include "RelationalAccess/IColumn.h"
+#include "RelationalAccess/ITableDescription.h"
+
 #include "TrigConfHLTData/HLTFrame.h"
 #include "TrigConfHLTData/HLTSequenceList.h"
 #include "TrigConfHLTData/HLTTriggerElement.h"
@@ -40,6 +43,23 @@ TrigConf::HLTSequenceLoader::loadSequences( HLTSequenceList& seqlist ) {
 
    TRG_MSG_INFO("Start loading sequences with SMK " << m_smk);
 
+   coral::ITable & teTable = m_session.nominalSchema().tableHandle( "HLT_TRIGGER_ELEMENT");
+
+   const coral::ITableDescription & desc = teTable.description();
+
+   bool hasTopoStartsFrom = false;
+   try {
+      desc.columnDescription("HTE_TOPO_START_FROM");
+      hasTopoStartsFrom = true;
+   }
+   catch(coral::InvalidColumnNameException & ex) { }
+   
+   //    for(int i=0; i<desc.numberOfColumns(); ++i) {
+   //       const coral::IColumn & col = desc.columnDescription(i);
+   //       cout << "   " << col.name() << endl;
+   //    }
+   TRG_MSG_INFO("Found HTE_TOPO_START_FROM : " << (hasTopoStartsFrom ? "true" : "false") );
+
    unique_ptr< coral::IQuery > q( m_session.nominalSchema().newQuery() );
 
    q->addToTableList ( "SUPER_MASTER_TABLE"    , "SM");
@@ -74,6 +94,8 @@ TrigConf::HLTSequenceLoader::loadSequences( HLTSequenceList& seqlist ) {
    coral::AttributeList attList;
    attList.extend<int>   ( "TE.HTE_ID" );
    attList.extend<string>( "TE.HTE_NAME" );
+   if(hasTopoStartsFrom)
+      attList.extend<string>( "TE.HTE_TOPO_START_FROM" );
    attList.extend<string>( "CP.HCP_NAME" );
    attList.extend<string>( "CP.HCP_ALIAS" );
    attList.extend<int>   ( "TE2CP.HTE2CP_ALGORITHM_COUNTER" );
@@ -89,12 +111,12 @@ TrigConf::HLTSequenceLoader::loadSequences( HLTSequenceList& seqlist ) {
    q->setDistinct();
    coral::ICursor& cursor = q->execute();
 
-   TRG_MSG_DEBUG("Query SELECT "
-                << "TE.HTE_ID, TE.HTE_NAME, CP.HCP_NAME, CP.HCP_ALIAS, TE2CP.HTE2CP_ALGORITHM_COUNTER, TE2TE.HTE2TE_TE_INP_ID, TE2TE.HTE2TE_TE_INP_TYPE, TE2TE.HTE2TE_TE_COUNTER"
-                << " FROM "
-                << "SUPER_MASTER_TABLE SM, HLT_MASTER_TABLE HM, HLT_TM_TO_TC M2C, HLT_TC_TO_TS TC2TS,HLT_TS_TO_TE S2TE, HLT_TRIGGER_ELEMENT TE, HLT_TE_TO_CP TE2CP, HLT_TE_TO_TE TE2TE, HLT_COMPONENT CP"
-                << " WHERE "
-                << theCondition << ";");
+//    TRG_MSG_DEBUG("Query SELECT "
+//                 << "TE.HTE_ID, TE.HTE_NAME, CP.HCP_NAME, CP.HCP_ALIAS, TE2CP.HTE2CP_ALGORITHM_COUNTER, TE2TE.HTE2TE_TE_INP_ID, TE2TE.HTE2TE_TE_INP_TYPE, TE2TE.HTE2TE_TE_COUNTER"
+//                 << " FROM "
+//                 << "SUPER_MASTER_TABLE SM, HLT_MASTER_TABLE HM, HLT_TM_TO_TC M2C, HLT_TC_TO_TS TC2TS,HLT_TS_TO_TE S2TE, HLT_TRIGGER_ELEMENT TE, HLT_TE_TO_CP TE2CP, HLT_TE_TO_TE TE2TE, HLT_COMPONENT CP"
+//                 << " WHERE "
+//                 << theCondition << ";");
 
    while ( cursor.next() ) {
       const coral::AttributeList& row = cursor.currentRow();
@@ -103,6 +125,11 @@ TrigConf::HLTSequenceLoader::loadSequences( HLTSequenceList& seqlist ) {
       if(seq==0) {
          seq = new HLTSequence( vector<HLTTriggerElement*>(), new HLTTriggerElement(te_name), vector<string>() );
          seqlist.addHLTSequence(seq);
+         if(hasTopoStartsFrom) {
+            string topo_start_from = rmtilde(row["TE.HTE_TOPO_START_FROM"].data<string>());
+            if( topo_start_from != "")
+               seq->set_topoStartTE(new HLTTriggerElement(topo_start_from));
+         }
       }
 
 

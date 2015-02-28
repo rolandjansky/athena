@@ -373,7 +373,7 @@ namespace TrigConf {
 
       bool HLTPrescaleFolderExists();
 
-
+      void clearWriteFolder() { m_writeFolderList.clear(); }
   
    private:
       friend class AutoDBOpen;

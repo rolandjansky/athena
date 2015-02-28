@@ -22,6 +22,7 @@
 #include "RelationalAccess/IQuery.h"
 
 #include <iostream>
+#include <iomanip>
 #include <sstream>
 using namespace std;
 
@@ -57,24 +58,23 @@ TrigConf::HLTFrameLoader::load( HLTFrame& frame ) {
 
       // prescale set collection
       bool all_connected(true);
-      cout << "Requested to load prescale sets: " << endl;
+      TRG_MSG_INFO("Requested to load prescale sets: ");
       for( lbnpsk_t lbnpsk: reqested_prescale_keys) {
          unsigned int psk = lbnpsk.second;
          bool is_connected = psk!=0 && connected_psk.find(psk)!=connected_psk.end();
-
-         cout << "  lb " << lbnpsk.first << ": " << lbnpsk.second;
+         TRG_MSG_INFO("LB " << setw(3) << right << lbnpsk.first << " : " << lbnpsk.second);
          if(!is_connected) {
-            cout << " (ERROR prescale key " << lbnpsk.second << " is not connected to SMK)";
+            TRG_MSG_ERROR("prescale key " << lbnpsk.second << " is not connected to SMK");
             all_connected = false;
          }
-         cout << endl;
       }
 
       if(all_connected) {
          frame.thePrescaleSetCollection().set_prescale_keys_to_load( reqested_prescale_keys );
 
          HLTPrescaleSetCollectionLoader pssldr(m_storageMgr, m_session);
-         pssldr.setVerbose(verbose());
+         pssldr.setLevel(outputLevel());
+         //pssldr.setLevel(MSGTC::DEBUG);
          pssldr.load(frame.thePrescaleSetCollection());
 
          

@@ -48,9 +48,7 @@ TrigConf::StorageMgr::StorageMgr( const std::string& cs,
    , m_user( user )
    , m_password( pass )
    , m_ostream( o )
-{
-   cout << "LLLLLLLLLL SM " << sizeof(*this) << endl;
-}
+{}
 
 TrigConf::StorageMgr::StorageMgr( const std::string& type,
                                   const std::string& server,

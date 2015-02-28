@@ -102,6 +102,7 @@ bool
 TrigConf::HLTPrescaleSetCollectionLoader::load( HLTPrescaleSetCollection& psc ) {
 
    IHLTPrescaleSetLoader& pssloader = m_storageMgr.hltPrescaleSetLoader();
+   pssloader.setLevel(outputLevel());
 
    bool loadsuccess = true;
 

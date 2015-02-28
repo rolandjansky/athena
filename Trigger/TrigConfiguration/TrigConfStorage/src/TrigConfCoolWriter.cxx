@@ -342,7 +342,7 @@ TrigConf::TrigConfCoolWriter::writeHLTPayload( ValidityRange vr,
          confkeyFolder->storeObject(vr.since(), vr.until(), payload, 0);
       }
       catch(exception & e) {
-         m_ostream << "<writeRunPayload> caught and re-throw exception: " << e.what() << endl
+         m_ostream << "<writeHLTPayload> caught and re-throw exception: " << e.what() << endl
                    << "WARNING: Failed to write configuration keys to COOL" << endl;
          throw;
       }
@@ -724,22 +724,24 @@ TrigConf::TrigConfCoolWriter::writeL1MenuPayload( ValidityRange vr,
    AutoDBOpen db(this, READ_WRITE);
    TrigConfCoolFolderSpec::createFolderStructure(m_dbPtr); // just in case
 
-   rangeInfo("LVL1 menu", vr.since(), vr.until());
    // writing the Lvl1 menu
    try {
-      // get the folders for the menu, itemDef, and thresholds
-      cool::IFolderPtr lvl1MenuFolder = TrigConfCoolFolderSpec::getLvl1MenuFolder(m_dbPtr);
-      cool::IFolderPtr lvl1ItemDefFolder = TrigConfCoolFolderSpec::getLvl1ItemDefFolder(m_dbPtr);
-      cool::IFolderPtr lvl1ThresholdFolder = TrigConfCoolFolderSpec::getLvl1ThresholdFolder(m_dbPtr);
+      if( shouldFolderBeUpdated("/TRIGGER/LVL1/Thresholds") &&
+          lvl1Menu.thresholdConfig().thresholdVector().size()>0 ) { // if there are no thresholds we don't want to write anything (METsig, JETWeights)
+         // get the folders for the menu, itemDef, and thresholds
+         cool::IFolderPtr lvl1ThresholdFolder = TrigConfCoolFolderSpec::getLvl1ThresholdFolder(m_dbPtr);
          
-      if( shouldFolderBeUpdated("/TRIGGER/LVL1/Thresholds") ) {
+         rangeInfo("LVL1 thresholds", vr.since(), vr.until());
          // first, parse the threshold list and write to threshold folder
          const std::vector<TrigConf::TriggerThreshold*> & lvl1Thrs = lvl1Menu.thresholdConfig().thresholdVector();
          std::vector<TrigConf::TriggerThreshold*>::const_iterator thrIt = lvl1Thrs.begin();
          // use buffer to speed up COOL writing
+
          lvl1ThresholdFolder->setupStorageBuffer();
+
          // go through the thresholds, channels assigned in the order (0..#thr-1)
-         cool::ChannelId thrChannel = 0;
+         // JOERG set back to 0 when done with the fixing
+         cool::ChannelId thrChannel = 2;
          for(;thrIt != lvl1Thrs.end(); thrIt++) {
             Record payloadThr = TrigConfCoolL1PayloadConverters::createLvl1ThresholdPayload( lvl1ThresholdFolder, **thrIt );
             m_ostream << "Writing (to buffer) LVL1 threshold " << (*thrIt)->name() 
@@ -774,11 +776,27 @@ TrigConf::TrigConfCoolWriter::writeL1MenuPayload( ValidityRange vr,
                       << "warning will be ignored, job will continue" << endl;
          }
       }
-				 
+   } catch( cool::Exception & e) {
+      m_ostream << "Caught cool::Exception: " << e.what() << endl;
+      m_ostream << "Failed to write LVL1 menu to COOL" << endl;    
+      throw;
+   } catch(std::exception & e) {
+      m_ostream << "<writeLVL1RunPayload> Caught std::exception: " << e.what() << endl;
+      throw;
+   }
+
+
+   try {
+
       // second, parse the items and write to menu and itemDef folders
       if( shouldFolderBeUpdated("/TRIGGER/LVL1/Menu") ||
           shouldFolderBeUpdated("/TRIGGER/LVL1/ItemDef") ) {
-						 
+         
+         rangeInfo("LVL1 menu", vr.since(), vr.until());
+
+         cool::IFolderPtr lvl1MenuFolder = TrigConfCoolFolderSpec::getLvl1MenuFolder(m_dbPtr);
+         cool::IFolderPtr lvl1ItemDefFolder = TrigConfCoolFolderSpec::getLvl1ItemDefFolder(m_dbPtr);
+
          // use buffer to speed up COOL writing
          lvl1MenuFolder->setupStorageBuffer();
          lvl1ItemDefFolder->setupStorageBuffer();
@@ -791,8 +809,11 @@ TrigConf::TrigConfCoolWriter::writeL1MenuPayload( ValidityRange vr,
                       << " (logic " << payloadItemDef["Logic"].data<cool::String255>() 
                       << ": [" << payloadItemDef["ConditionsList"].data<cool::String4k>() << "]) to channel "
                       << menuChannel << endl;
-            lvl1MenuFolder->storeObject(vr.since(), vr.until(), payloadMenu, menuChannel);
-            lvl1ItemDefFolder->storeObject(vr.since(), vr.until(), payloadItemDef, menuChannel);
+            if( shouldFolderBeUpdated("/TRIGGER/LVL1/Menu") )
+               lvl1MenuFolder->storeObject(vr.since(), vr.until(), payloadMenu, menuChannel);
+
+            if( shouldFolderBeUpdated("/TRIGGER/LVL1/ItemDef") )
+               lvl1ItemDefFolder->storeObject(vr.since(), vr.until(), payloadItemDef, menuChannel);
          }
          // write
          if( shouldFolderBeUpdated("/TRIGGER/LVL1/Menu") ) {
@@ -860,6 +881,9 @@ TrigConf::TrigConfCoolWriter::writeL1CTPCoreInputMapping( ValidityRange vr,
 
       cool::IFolderPtr tipFolder = TrigConfCoolFolderSpec::getLvl1InputMapFolder(m_dbPtr);
       tipFolder->setupStorageBuffer();
+
+      cout << "JOERG PIT SIZE " << lvl1Menu.pitVector().size() << endl;
+      cout << "JOERG TIP SIZE " << lvl1Menu.tipVector().size() << endl;
 
       for ( const TIP * tip : lvl1Menu.tipVector() ) {
 
@@ -1286,26 +1310,26 @@ TrigConfCoolWriter::readL1InputMapPayload(unsigned int run,
    ValidityRange vr(run, 1);
    IObjectIteratorPtr objects;
    IFolderPtr folder = TrigConfCoolFolderSpec::getLvl1InputMapFolder(m_dbPtr);
-   vector<bool> foundPit(256,false);
-   for(ChannelId channel = 0; channel < 160; ++channel) {
-      objects = folder->browseObjects( vr.since(), vr.until(), channel );
+   vector<bool> foundTip(512,false);
+   for(ChannelId channel = 0; channel < 512; ++channel) {
+      objects = folder->browseObjects( vr.since(), vr.until()-1, channel );
       if(objects->size()==0) continue;
       while ( objects->goToNext() ) {
          const IObject& obj = objects->currentRef();
          const IRecord & payload = obj.payload();
          PIT* pit = readLvl1InputMap( payload.attributeList() );
-         uint16_t pitNumber = obj.channelId();
-         if(pitNumber > 159) {
-            m_ostream << "PIT number " << pitNumber << " out of bounds!" << endl;
+         uint16_t tipNumber = obj.channelId();
+         if(tipNumber > 511) {
+            m_ostream << "PIT number " << tipNumber << " out of bounds!" << endl;
             throw runtime_error("PIT number ouf ot bounds!");
          } else {
-            if(foundPit[pitNumber]) {
+            if(foundTip[tipNumber]) {
                stringstream str;
-               str << "PIT '" << pitNumber << "' had already been read!";
+               str << "PIT '" << tipNumber << "' had already been read!";
                throw runtime_error(str.str());
             }
-            foundPit[pitNumber] = true;
-            pit->setPitNumber(pitNumber);
+            foundTip[tipNumber] = true;
+            pit->setPitNumber(tipNumber);
             pits.push_back(pit);
          }
       }     
@@ -1326,7 +1350,7 @@ TrigConfCoolWriter::readL1MonMapPayload(unsigned int run,
 
    for(ChannelId channel = 0; channel < 768; ++channel) {
 
-      objects = folder->browseObjects( vr.since(), vr.until(), channel );
+      objects = folder->browseObjects( vr.since(), vr.until()-1, channel );
       if(objects->size()==0) continue;
       while ( objects->goToNext() ) {
          const IObject& obj = objects->currentRef();
@@ -1362,31 +1386,31 @@ TrigConfCoolWriter::readL1Items(unsigned int run,
 
    IObjectIteratorPtr objects;
    IFolderPtr folder = TrigConfCoolFolderSpec::getLvl1MenuFolder(m_dbPtr);
-   vector<bool> foundItem(256,false);
+   vector<bool> foundItem(512,false);
 
-   for(ChannelId channel = 0; channel < 256; ++channel) {
-      objects = folder->browseObjects( vr.since(), vr.until(), channel );
-      if(objects->size()==0) continue;
-      while ( objects->goToNext() ) {
-         const cool::IObject& obj = objects->currentRef();
-         const cool::IRecord & payload = obj.payload();
-         TriggerItem* item = createLvl1TriggerItem( payload.attributeList() );
-         uint32_t ctpId = obj.channelId();
-         if(ctpId > 255) {
-            m_ostream << "Item ctpid " << ctpId << " out of bounds!" << endl;
-            throw runtime_error("Item ctpid ouf ot bounds!");
-         } else {
-            if(foundItem[ctpId]) {
-               stringstream str;
-               str << "Item '" << ctpId << "' had already been read!";
-               throw runtime_error(str.str());
-            }
-            foundItem[ctpId] = true;
-            item->setCtpId(ctpId);
-            items.push_back(item);
+   //for(ChannelId channel = 0; channel < 512; ++channel) {
+   objects = folder->browseObjects( vr.since(), vr.until()-1,cool::ChannelSelection());
+   //if(objects->size()==0) continue;
+   while ( objects->goToNext() ) {
+      const cool::IObject& obj = objects->currentRef();
+      const cool::IRecord & payload = obj.payload();
+      TriggerItem* item = createLvl1TriggerItem( payload.attributeList() );
+      uint32_t ctpId = obj.channelId();
+      if(ctpId > 511) {
+         m_ostream << "Item ctpid " << ctpId << " out of bounds!" << endl;
+         throw runtime_error("Item ctpid ouf ot bounds!");
+      } else {
+         if(foundItem[ctpId]) {
+            stringstream str;
+            str << "Item '" << ctpId << "' had already been read!";
+            throw runtime_error(str.str());
          }
+         foundItem[ctpId] = true;
+         item->setCtpId(ctpId);
+         items.push_back(item);
       }
    }
+   //   }
 
 }
 
@@ -1401,7 +1425,7 @@ TrigConfCoolWriter::readL1Thresholds(unsigned int run,
    ChannelId thrChannel(0);
    IFolderPtr L1thrFolder = TrigConfCoolFolderSpec::getLvl1ThresholdFolder(m_dbPtr);
    for(;;) {
-      objects = L1thrFolder->browseObjects( vr.since(), vr.until(), thrChannel );
+      objects = L1thrFolder->browseObjects( vr.since(), vr.until()-1, thrChannel );
       if(objects->size()==0) break;
       while ( objects->goToNext() ) {
          const IObject& obj = objects->currentRef();
@@ -1424,7 +1448,7 @@ TrigConfCoolWriter::readL1ItemDef(unsigned int run,
    IFolderPtr L1ItemDefFolder = TrigConfCoolFolderSpec::getLvl1ItemDefFolder(m_dbPtr);
    for(TriggerItem* item: items) {
       ChannelId itemChannel = item->ctpId();
-      IObjectIteratorPtr objects = L1ItemDefFolder->browseObjects( vr.since(), vr.until(), itemChannel );
+      IObjectIteratorPtr objects = L1ItemDefFolder->browseObjects( vr.since(), vr.until()-1, itemChannel );
       while ( objects->goToNext() ) {
          const IObject& obj = objects->currentRef();
          const IRecord & payload = obj.payload();
@@ -1516,7 +1540,7 @@ TrigConf::TrigConfCoolWriter::readL1BunchGroupRunPayload( unsigned int run)
    AutoDBOpen db(this, READ_ONLY);
    ValidityRange vr(run);
    IFolderPtr folder = TrigConfCoolFolderSpec::getLvl1BGDescFolder(m_dbPtr);
-   IObjectIteratorPtr objects = folder->browseObjects( vr.since(), vr.until(), 0 );
+   IObjectIteratorPtr objects = folder->browseObjects( vr.since(), vr.until()-1, 0 );
    objects->goToNext();
    const IObject& obj = objects->currentRef();
    const IRecord & payload = obj.payload();
@@ -1538,7 +1562,7 @@ TrigConfCoolWriter::readL1BunchGroupLBPayload( unsigned int run, unsigned int lb
 {
    AutoDBOpen db(this, READ_ONLY);
    ValidityRange vr(run,lb);
-   vr.until() = vr.since()+1; // single LB
+   vr.until() = vr.since(); // single LB
 
    // read the bunch group key
    IFolderPtr lvl1BGKeyFolder = TrigConfCoolFolderSpec::getLvl1BGKeyFolder(m_dbPtr);
@@ -1623,7 +1647,7 @@ vector<string>
 TrigConf::TrigConfCoolWriter::checkPayloadSize(unsigned int run, unsigned int lb) {
    AutoDBOpen db(this, READ_ONLY);
 
-   ValidityRange vr(run, lb);
+   ValidityRange vr(run, lb); // 
    m_ostream << "Checking for run " << run << " and lb range " << (vr.since() & 0xFFFFFFFF) << " - " << ( (vr.until()-1) & 0xFFFFFFFF) << endl
              << endl
              << "    Folder                                     Payload Size" << endl
@@ -1635,6 +1659,7 @@ TrigConf::TrigConfCoolWriter::checkPayloadSize(unsigned int run, unsigned int lb
       "/TRIGGER/LVL1/Menu",
       "/TRIGGER/LVL1/ItemDef",
       "/TRIGGER/LVL1/Thresholds",
+      "/TRIGGER/LVL1/CTPCoreInputMapping",
       "/TRIGGER/LVL1/Lvl1ConfigKey",
       "/TRIGGER/LVL1/Prescales",
       "/TRIGGER/LVL1/BunchGroupKey",
@@ -1649,9 +1674,14 @@ TrigConf::TrigConfCoolWriter::checkPayloadSize(unsigned int run, unsigned int lb
    
    for(const string & folderName : folderList) {
       IFolderPtr folder = m_dbPtr->getFolder( folderName );
-      unsigned int size = folder->countObjects( vr.since(), vr.until(), ChannelSelection() );
+      unsigned int size = folder->countObjects( vr.since(), vr.until()-1, ChannelSelection() );
       bool isSingleVersion = folder->versioningMode()==FolderVersioning::SINGLE_VERSION;
       bool needsFixing = (size == 0);
+
+      // JOERG: need to remove this after fixing the 
+      if(folderName=="/TRIGGER/LVL1/Thresholds" && size==2)
+         needsFixing = true;
+
       string fn = folderName + (isSingleVersion ? " (sv)" : " (mv)");
       if(needsFixing) {
          m_ostream << setw(2) << foldersToFix.size()+1 << ") ";

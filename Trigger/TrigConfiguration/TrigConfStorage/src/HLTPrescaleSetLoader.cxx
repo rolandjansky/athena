@@ -20,6 +20,7 @@
 
 #include <algorithm>
 #include <iostream>
+#include <iomanip>
 #include <sstream>
 #include <memory>
 
@@ -66,6 +67,8 @@ TrigConf::HLTPrescaleSetLoader::load( HLTPrescaleSet& hltpss ) {
       q->addToTableList ( "HLT_PRESCALE_SET", "PS" );
       q->addToTableList ( "HLT_PRESCALE",     "PR" );
 
+      //printTable(m_session.nominalSchema().tableHandle( "HLT_PRESCALE"));
+
       //Bind list
       coral::AttributeList bindList;
       bindList.extend<int>("psid");
@@ -87,6 +90,7 @@ TrigConf::HLTPrescaleSetLoader::load( HLTPrescaleSet& hltpss ) {
       } else { 
          attList.extend<float>   ( "PR.HPR_VALUE" ); 
          attList.extend<string>  ( "PR.HPR_TYPE" ); 
+         attList.extend<string>  ( "PR.HPR_CONDITION" ); 
       } 
       attList.extend<int>   ( "PR.HPR_CHAIN_COUNTER" ); 
 
@@ -128,47 +132,61 @@ TrigConf::HLTPrescaleSetLoader::load( HLTPrescaleSet& hltpss ) {
          int counter = row["PR.HPR_CHAIN_COUNTER"].data<int>(); 
 
          // this is faster than boost::lexical_cast string->float:
-         float  ps(-999);
-         float  pt(-999); 
          if(isRun1()) {
+            float  ps(-999);
+            float  pt(-999); 
             std::string prescaleStr = row["PR.HPR_PRESCALE"].data<string>(); 
             if(prescaleStr=="-0" || prescaleStr=="na" ) prescaleStr = "-1"; 
             if (!convert(prescaleStr, ps)) { 
-               msg() << "Could not convert prescale string '" << prescaleStr << "' of chain " 
-                     << counter << " to float" << std::endl; 
+               TRG_MSG_WARNING("Could not convert prescale string '" << prescaleStr << "' of chain " << counter << " to float");
             } 
 	 
             std::string passThroughStr = row["PR.HPR_PASS_THROUGH_RATE"].data<string>(); 
             if (!convert(passThroughStr, pt)) { 
-               msg() << "Could not convert passthrough string '" << passThroughStr << "' of chain " 
-                     << counter << " to float" << std::endl; 
-            } 
+               TRG_MSG_WARNING("Could not convert passthrough string '" << passThroughStr << "' of chain " << counter << " to float");
+            }
+
+            if(level=="L2" || level=="l2" || level=="EF" || level=="ef" || level=="hlt" || level=="HLT" || level=="") {
+               hltpss.thePrescale( counter, str2lvl(level) )
+                  .setPrescale(ps)
+                  .setPassThrough(pt);
+            } else {
+               std::string streamnametype(level);
+               // sanity check: stream name and type are separated by ':'
+               if(streamnametype.rfind(':')==std::string::npos)
+                  streamnametype += ":" + streamnametype;
+            }
          } else {
             // RUN 2 
             float value = row["PR.HPR_VALUE"].data<float>(); 
             string pstype = row["PR.HPR_TYPE"].data<string>(); 
-            if(pstype=="Prescale") { 
-               ps = value; 
-            } else if (pstype=="Pass_Through") { 
-               pt = value; 
-            } else if (pstype=="Rerun") { 
-               //float psrr = value; // TODO 
-            }          
-         }
+            string pscondition = row["PR.HPR_CONDITION"].data<string>(); 
 
-         if(level=="L2" || level=="l2" || level=="EF" || level=="ef" || level=="hlt" || level=="HLT" || level=="") {
-            hltpss.thePrescale( counter, str2lvl(level) )
-               .setPrescale(ps)
-               .setPassThrough(pt);
-         } else {
-            std::string streamnametype(level);
-            // sanity check: stream name and type are separated by ':'
-            if(streamnametype.rfind(':')==std::string::npos)
-               streamnametype += ":" + streamnametype;
+            //cout << setw(4) << right << counter << " : " << pstype << " (" << pscondition << ") => " << value << endl;
+
+            auto& thePS = hltpss.thePrescale( counter, str2lvl("HLT") );
+
+            if(pstype=="Prescale") { 
+               thePS.setPrescale(value);
+            } else if (pstype=="Pass_Through") { 
+               thePS.setPassThrough(value);
+            } else if (pstype=="ReRun") { 
+               if(pscondition=="0") pscondition="";
+               thePS.setRerunPrescale(pscondition,value);
+            } else if (pstype=="Stream") { 
+               // pscontition : stream name
+               thePS.setStreamPrescale(pscondition,value);
+            } else {
+               TRG_MSG_WARNING("Could not interpret this entry in the prescale set table: counter " << counter << " : " << pstype << " (" << pscondition << ") => " << value);
+            }
          }
       }
 
-      TRG_MSG_INFO("Loaded " << hltpss.size(L2) << " L2 prescales and " << hltpss.size(EF) << " EF prescales.");
+      if(isRun1()) {
+         TRG_MSG_INFO("Loaded " << hltpss.size(L2) << " L2 prescales and " << hltpss.size(EF) << " EF prescales.");
+      } else {
+         TRG_MSG_INFO("Loaded " << hltpss.size() << " HLT prescales");
+      }
       commitSession();
    }
    catch (const coral::SchemaException& e) {
