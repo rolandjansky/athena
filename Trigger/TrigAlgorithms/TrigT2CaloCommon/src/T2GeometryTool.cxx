@@ -72,25 +72,15 @@ T2GeometryTool::~T2GeometryTool()
 
 StatusCode T2GeometryTool::initialize()
 {
-
-  m_log = new MsgStream(AthAlgTool::msgSvc(), name());
-#ifndef NDEBUG
-    (*m_log) << MSG::INFO << "in initialize() by T2GeometryTool" << endreq;
-#endif
-
- return StatusCode::SUCCESS;
-
+  ATH_MSG_DEBUG("in initialize() by T2GeometryTool");
+ return StatusCode::SUCCESS; 
 }
 
 StatusCode T2GeometryTool::finalize()
 {
-#ifndef NDEBUG
-        (*m_log) << MSG::INFO << "in finalize() by TrigDataAccess" << endreq;
-#endif
+        ATH_MSG_INFO("in finalize() by TrigDataAccess");
 	// Don't forget to clean up
-	delete m_log;
         return StatusCode::SUCCESS;
-
 
 }
 

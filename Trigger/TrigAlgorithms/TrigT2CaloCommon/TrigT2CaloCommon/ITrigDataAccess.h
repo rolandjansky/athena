@@ -19,7 +19,6 @@
 #ifndef TRIGT2CALOCOMMON_ITRIGDATAACCESS_H 
 #define TRIGT2CALOCOMMON_ITRIGDATAACCESS_H
 
-
 #include "LArRawUtils/LArTT_Selector.h"
 #include "TileByteStream/TileCellCont.h"
 #include "TrigT2CaloCommon/LArCellCont.h"
@@ -30,7 +29,6 @@
 #include "CaloEvent/CaloCellContainer.h"
 #include "ZdcEvent/ZdcRawChannelCollection.h"
 
-#include "GaudiKernel/IAlgTool.h"
 // For callbacks
 #include "AthenaKernel/IOVSvcDefs.h"
 
@@ -186,11 +184,6 @@ private :
 	  storeCells(t,t,cont);
 	}
 protected:
-        /** StoreGateSvc pointer */
-	StoreGateSvc*                m_storeGate;
-	/** Need some output for log files */
-        MsgStream* m_log;
-
 };
 
 inline const InterfaceID& ITrigDataAccess::interfaceID()
@@ -215,12 +208,6 @@ ITrigDataAccess::storeCells(T Begin, T End, CaloCellContainer*& pContainer,
 		  size++;
 		}
         }
-#ifndef NDEBUG
-        (*m_log) << MSG::DEBUG << "RoI Container size : "
-                        << pContainer->size() << endreq;
-#endif
-
 }
-
 
 #endif

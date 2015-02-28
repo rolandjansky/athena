@@ -16,8 +16,6 @@
 // ********************************************************************
 
 #include "GaudiKernel/MsgStream.h"
-#include "StoreGate/StoreGateSvc.h"
-
 #include "CaloIdentifier/LArEM_ID.h"
 #include "LArRecEvent/LArCell.h"
 
@@ -35,60 +33,41 @@
 // Retrieval of all Tools to be used during run
 StatusCode IAlgToolCalo::initialize()
 {
-	m_log = new MsgStream(AlgTool::msgSvc(), name());
 
-#ifndef NDEBUG
-	(*m_log) << MSG::INFO << "in initialize() by IAlgToolCalo" << endreq;
-#endif
-
-	// Store Gate will handle input/output data to/from the
-	// Algorithm. This is retrieved here
-	if (service("StoreGateSvc", m_storeGate).isFailure()) {
-		(*m_log) << MSG::ERROR << "Could not find StoreGateSvc"
-				<< endreq;
-		return StatusCode::FAILURE;
-	} // End of if StoreGateSvc
+        ATH_MSG_DEBUG("in initialize() by IAlgToolCalo");
 
 	// Algorithms need m_larMgr
-	StoreGateSvc* detStore = 0;
-        if ( service("DetectorStore",detStore).isSuccess( ) ) {
-                if ((detStore->retrieve(m_larMgr)).isFailure()) {
-                        (*m_log) << MSG::ERROR <<
-                        "Unable to retrieve CaloIdManager from DetectorStore"
-                        << endreq;
-                        return StatusCode::FAILURE;
-                } // End of if for retrieve of CaloIdManager
-        } // End of if for DetectorStore
-        else return StatusCode::FAILURE;
+	if ((detStore()->retrieve(m_larMgr)).isFailure()) {
+	  msg(MSG::ERROR) << "Unable to retrieve CaloIdManager from DetectorStore" << endreq;
+	  return StatusCode::FAILURE;
+	}
 
 	if ((m_data.retrieve()).isFailure()) {
-		(*m_log) << MSG::ERROR << "Could not get m_data" << endreq;
-		return StatusCode::FAILURE;
+	  msg(MSG::ERROR) << "Could not get m_data" << endreq;
+	  return StatusCode::FAILURE;
 	}
 
         if ((m_geometryTool.retrieve()).isFailure()) {
-                (*m_log) << MSG::ERROR << "Could not get m_geometryTool" << endreq;
-                return StatusCode::FAILURE;
+	  msg(MSG::ERROR) << "Could not get m_geometryTool" << endreq;
+	  return StatusCode::FAILURE;
         }
 
 
-       // Initialize timing service in order to perform some measures
+        // Initialize timing service in order to perform some measures
         // of performance
         if( (m_timersvc.retrieve()).isFailure() ) {
-                (*m_log) << MSG::WARNING << name() <<
-                ": Unable to locate TrigTimer Service" << endreq;
-                // Does not need to fail the Algorithm if no
-                // timing service is found
+	  msg(MSG::WARNING) << name() << ": Unable to locate TrigTimer Service" << endreq;
+	  // Does not need to fail the Algorithm if no timing service is found
         } // End of if timing service
         // Initialize four timers for RegionSelector, ByteStreamCnv,
         // Algorithm time, Saving EMShowerMinimal
         if (!m_timersvc.empty()) {
 		if ( name().find("Fex",0) == std::string::npos) 
-			(*m_log) << " Name of Alg not found" << endreq;
+		  msg(MSG::INFO) << " Name of Alg not found" << endreq;
 		else {
                 std::string basename(name().substr(6,1)+name().substr(name().find("Fex",0)-5,5));
                 //basename+=(name().substr(6,1)+name().substr(name().find("Fex",0)-5,5));
-                (*m_log) << MSG::INFO << "BaseName is : " << basename << endreq;
+                msg(MSG::INFO) << "BaseName is : " << basename << endreq;
 		HLT::FexAlgo *p = dynamic_cast<HLT::FexAlgo*>(const_cast<IInterface*>(parent()));
 		/*
                 m_timer[0] = m_timersvc->addItem(basename+"Total");
@@ -123,15 +102,11 @@ StatusCode IAlgToolCalo::initialize()
 // Finalize method for all tools
 // nothing realy important done here
 StatusCode IAlgToolCalo::finalize(){
-#ifndef NDEBUG
-	(*m_log) << MSG::INFO << "in finalize() by IAlgToolCalo" << endreq;
-#endif
-        delete m_log;
-	return StatusCode::SUCCESS;
+  msg(MSG::DEBUG) << "in finalize() by IAlgToolCalo" << endreq;
+  return StatusCode::SUCCESS;
 } // End of finalize
 
 #ifndef NDEBUG
-
 //#define EXTRADEBUG
 // Method designed by Tomek Kott. This method 
 // Loops over cells and try to find out about their energy
@@ -141,6 +116,7 @@ StatusCode IAlgToolCalo::finalize(){
 #else
 # define ARG(x)
 #endif
+
 void IAlgToolCalo::PrintCluster(const double ARG(energyFromAlg),
                                 const int ARG(nCaloType),
                                 const int ARG(nCaloSamp),
@@ -304,8 +280,7 @@ void IAlgToolCalo::PrintCluster(const double ARG(energyFromAlg),
              CaloSampling::getSampling(*(*m_itt)) == SAMP2 ){//If for Det. Description
           double etaCell = (*m_itt)->eta();
           double phiCell = (*m_itt)->phi();
-          if( m_geometryTool->CellInWidCluster(nCaloType,
-                 nCaloSamp,etaCell,phiCell) ) {
+          if( m_geometryTool->CellInWidCluster(nCaloType,nCaloSamp,etaCell,phiCell) ) {
               bool phiDouble=false, etaDouble=false;
               for(phi_it = phiInfo.begin(); phi_it != phiInfo.end(); phi_it++) {
                 if( floorf(1e4*(*phi_it)) == floorf(1e4*phiCell) ) {
@@ -332,11 +307,9 @@ void IAlgToolCalo::PrintCluster(const double ARG(energyFromAlg),
   } // end if HAD samp
   else
   {
-    std::cout << "Incompatible choice of SAMP1= " << SAMP1 << " and SAMP2 = "<<
-                 SAMP2 << std::endl;
+    std::cout << "Incompatible choice of SAMP1= " << SAMP1 << " and SAMP2 = "<< SAMP2 << std::endl;
     return;
   }
-
 
   phiInfo.sort();
   etaInfo.sort();
@@ -391,14 +364,12 @@ void IAlgToolCalo::PrintCluster(const double ARG(energyFromAlg),
            }// end for iterators
          }//end loop tile collections
        }
-
         std::cout << std::setw(7) << (int)floorf(Energy) << "|";
      } // end of for etaInfo
      std::cout << "\n";
   } // end of for phiInfo
 #endif // End of if EXTRADEBUG
 return;
-
 } // End of PrintCluster
 
 #endif
@@ -408,37 +379,29 @@ void IAlgToolCalo::storeCells( void ) {
 
         CaloCellContainer * m_ContainerLAr;
         CaloCellContainer * m_ContainerTile;
-	if ( m_storeGate->contains<CaloCellContainer>("RoILArCells") ) {
-#ifndef NDEBUG
-		(*m_log) << MSG::DEBUG << "Found Container, will retrieve it" << endreq;
-#endif
-        if ( m_storeGate->retrieve(m_ContainerLAr,"RoILArCells").isFailure() ){
-                (*m_log) << MSG::DEBUG << "Could not retrieve container : RoILarCells" << endreq;
+	if ( evtStore()->contains<CaloCellContainer>("RoILArCells") ) {
+	        ATH_MSG_DEBUG("Found Container, will retrieve it");
+	if ( evtStore()->retrieve(m_ContainerLAr,"RoILArCells").isFailure() ){
+	        ATH_MSG_DEBUG("Could not retrieve container : RoILarCells");
 	}
 	} else {
-#ifndef NDEBUG
-		(*m_log) << MSG::DEBUG << "Creating Container RoILArCells" << endreq;
-#endif
+	     ATH_MSG_DEBUG("Creating Container RoILArCells");
              m_ContainerLAr = new CaloCellContainer();
 	
-             if ( m_storeGate->record(m_ContainerLAr,"RoILArCells").isFailure() ){
-                (*m_log) << MSG::ERROR << "Could not store Container" << endreq;
+             if ( evtStore()->record(m_ContainerLAr,"RoILArCells").isFailure() ){
+	        ATH_MSG_ERROR("Error! Could not store Container");
              }
         } // End of if contains
-	if ( m_storeGate->contains<CaloCellContainer>("RoITileCells") ) {
-#ifndef NDEBUG
-		(*m_log) << MSG::DEBUG << "Found Container, will retrieve it" << endreq;
-#endif
-        if ( m_storeGate->retrieve(m_ContainerTile,"RoITileCells").isFailure() ){
-                (*m_log) << MSG::DEBUG << "Could not retrieve container : RoITileCells" << endreq;
+	if ( evtStore()->contains<CaloCellContainer>("RoITileCells") ) {
+	        ATH_MSG_DEBUG("Found Container, will retrieve it");
+	if ( evtStore()->retrieve(m_ContainerTile,"RoITileCells").isFailure() ){
+	        ATH_MSG_DEBUG("Could not retrieve container : RoITileCells");
 	}
 	} else {
-#ifndef NDEBUG
-		(*m_log) << MSG::DEBUG << "Creating Container RoITileCells" << endreq;
-#endif
+	     ATH_MSG_DEBUG("Creating Container RoITileCells");
              m_ContainerTile = new CaloCellContainer();
-             if ( m_storeGate->record(m_ContainerTile,"RoITileCells").isFailure() ){
-                (*m_log) << MSG::ERROR << "Could not store Container" << endreq;
+             if ( evtStore()->record(m_ContainerTile,"RoITileCells").isFailure() ){
+	        ATH_MSG_ERROR("Could not store Container");
              }
         } // End of if retrieve
         // Now I have a LAr container
@@ -447,20 +410,12 @@ void IAlgToolCalo::storeCells( void ) {
                 CaloCell* larcell = (CaloCell*)(*m_it)->clone();
                 m_ContainerLAr->push_back(larcell);
         }
-#ifndef NDEBUG
-        (*m_log) << MSG::DEBUG << "LAr Container size : "
-                        << m_ContainerLAr->size() << endreq;
-#endif
-
+        msg(MSG::DEBUG) << "LAr Container size : " << m_ContainerLAr->size() << endreq;
         // Now I have a Tile container
         if ( tiledecoded )
-        for ( m_itt = m_itBegin; m_itt != m_itEnd; ++m_itt) {
-                CaloCell* tilecell = (CaloCell*)(*m_itt)->clone();
-                m_ContainerTile->push_back(tilecell);
-        }
-#ifndef NDEBUG
-        (*m_log) << MSG::DEBUG << "Tile Container size : "
-                        << m_ContainerTile->size() << endreq;
-#endif
-
+	  for ( m_itt = m_itBegin; m_itt != m_itEnd; ++m_itt) {
+	    CaloCell* tilecell = (CaloCell*)(*m_itt)->clone();
+	    m_ContainerTile->push_back(tilecell);
+	  }
+        msg(MSG::DEBUG) << "Tile Container size : "<< m_ContainerTile->size() << endreq;
 }
