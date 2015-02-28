@@ -31,10 +31,11 @@ use VxVertex			VxVertex-*			Tracking/TrkEvent
 use muonEvent			muonEvent-*			Reconstruction/MuonIdentification
 use MuonIdHelpers		MuonIdHelpers-*			MuonSpectrometer
 use MagFieldInterfaces          MagFieldInterfaces-*            MagneticField
-
+use TrkEventUtils               TrkEventUtils-*                 Tracking/TrkEvent
 public
 use TrkGeometry			TrkGeometry-*			Tracking/TrkDetDescr
 use TrkDetDescrInterfaces       TrkDetDescrInterfaces-*         Tracking/TrkDetDescr
+use AtlasDetDescr               AtlasDetDescr-*              DetectorDescription
 use AtlasPolicy			AtlasPolicy-*
 use AthenaBaseComps		AthenaBaseComps-*		Control
 use GaudiInterface		GaudiInterface-*		External

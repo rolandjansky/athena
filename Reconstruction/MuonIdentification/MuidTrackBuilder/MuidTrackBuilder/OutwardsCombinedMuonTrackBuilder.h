@@ -22,6 +22,7 @@
 #include "MuidInterfaces/ICombinedMuonTrackBuilder.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkTrack/TrackInfo.h"
+#include "TrkDetDescrInterfaces/ITrackingVolumesSvc.h"
 
 //<<<<<< CLASS DECLARATIONS                                             >>>>>>
 
@@ -34,10 +35,17 @@ namespace Muon
 namespace Trk
 {
     class ITrackSummaryTool;
+    class RecVertex;
+    class Surface;
+    class TrackStateOnSurface;
+    class PseudoMeasurementOnTrack;
+    class TrackingVolume;
+    class Volume;
+    class VertexOnTrack; 
 }
 namespace Rec
 {
-    
+
     class OutwardsCombinedMuonTrackBuilder: public AthAlgTool,
 					    virtual public ICombinedMuonTrackBuilder
     {
@@ -124,8 +132,13 @@ namespace Rec
 	    const Trk::Track&			extrapolatedTrack,
 	    const Trk::RunOutlierRemoval	runOutlier = false,
 	    const Trk::ParticleHypothesis	particleHypothesis = Trk::muon) const;
-    
+
     private:
+        Trk::Track* addIDMSerrors(Trk::Track* track) const;
+        Trk::PseudoMeasurementOnTrack*                  vertexOnTrack(
+            		const Trk::TrackParameters*                 parameters,
+            		const Trk::RecVertex*                           vertex) const;
+
 	
 	// helpers, managers, tools
 	ToolHandle<Muon::IMuonTrackCleaner>		m_cleaner;
@@ -133,12 +146,17 @@ namespace Rec
 	ToolHandle<Trk::ITrackSummaryTool>		m_trackSummary;
         ToolHandle<Muon::IMuonHoleRecoveryTool>         m_muonHoleRecovery;	
         ToolHandle<Muon::IMuonErrorOptimisationTool>    m_muonErrorOptimizer;
-
+        ServiceHandle<Trk::ITrackingVolumesSvc>         m_trackingVolumesSvc;
+        const Trk::Volume*                              m_calorimeterVolume;
+        const Trk::Volume*                              m_indetVolume;
 	// other configuration and tolerances
 	bool						m_allowCleanerVeto;
 	bool						m_cleanCombined;
 	bool						m_recoverCombined;
-
+        double                                          m_IDMS_xySigma;
+        double                                          m_IDMS_rzSigma;
+        bool                                            m_addIDMSerrors;
+        
 	
     };
  

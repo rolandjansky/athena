@@ -23,8 +23,10 @@
 #include "MuonRecToolInterfaces/IMuonTrackCleaner.h"
 #include "MuonRecToolInterfaces/IMuonHoleRecoveryTool.h"
 #include "MuonRecToolInterfaces/IMuonErrorOptimisationTool.h"
+#include "MuidInterfaces/ICombinedMuonTrackBuilder.h"
 #include "TrkToolInterfaces/ITrackSummaryTool.h"
 #include "TrkTrack/Track.h"
+#include "TrkDetDescrInterfaces/ITrackingVolumesSvc.h"
 #include "TrkMaterialOnTrack/MaterialEffectsOnTrack.h"
 #include "TrkMaterialOnTrack/ScatteringAngles.h"
 #include "TrkMaterialOnTrack/EnergyLoss.h"
@@ -32,6 +34,9 @@
 #include "TrkParameters/TrackParameters.h"
 #include "TrkTrackSummary/TrackSummary.h"
 #include "TrkMeasurementBase/MeasurementBase.h"
+#include "VxVertex/RecVertex.h"
+#include "TrkGeometry/TrackingVolume.h"
+#include "TrkPseudoMeasurementOnTrack/PseudoMeasurementOnTrack.h"
 
 namespace Rec
 {
@@ -47,9 +52,17 @@ OutwardsCombinedMuonTrackBuilder::OutwardsCombinedMuonTrackBuilder (const std::s
 	m_trackSummary		(""),
         m_muonHoleRecovery      (""),
         m_muonErrorOptimizer    (""),
+        m_trackingVolumesSvc            ("TrackingVolumesSvc/TrackingVolumesSvc",name),
+        m_calorimeterVolume       (0),
+        m_indetVolume             (0),
 	m_allowCleanerVeto	(true),
 	m_cleanCombined		(true),
-	m_recoverCombined	(false)
+	m_recoverCombined	(false),
+        m_IDMS_xySigma          (1.*Gaudi::Units::mm),
+        m_IDMS_rzSigma          (1.*Gaudi::Units::mm),
+        m_addIDMSerrors          (true)
+
+
 {
     declareInterface<ICombinedMuonTrackBuilder>(this);
     declareInterface<Trk::ITrackFitter>(this);
@@ -61,6 +74,11 @@ OutwardsCombinedMuonTrackBuilder::OutwardsCombinedMuonTrackBuilder (const std::s
     declareProperty("CleanCombined",		m_cleanCombined);
     declareProperty("RecoverCombined",		m_recoverCombined);
     declareProperty("MuonErrorOptimizer",       m_muonErrorOptimizer);
+    declareProperty("IDMS_xySigma" ,            m_IDMS_xySigma);
+    declareProperty("IDMS_rzSigma" ,            m_IDMS_rzSigma);
+    declareProperty("AddIDMSerrors",            m_addIDMSerrors);
+
+
 }
 
 OutwardsCombinedMuonTrackBuilder::~OutwardsCombinedMuonTrackBuilder (void) 
@@ -138,6 +156,22 @@ OutwardsCombinedMuonTrackBuilder::initialize()
 	ATH_MSG_INFO( "Retrieved tool " << m_trackSummary );
     }
     }
+
+    if (m_trackingVolumesSvc.retrieve().isFailure())
+    {
+        ATH_MSG_FATAL( "Failed to retrieve Svc " << m_trackingVolumesSvc );
+        return StatusCode::FAILURE;
+    }
+    else
+    {
+        ATH_MSG_DEBUG( "Retrieved Svc " << m_trackingVolumesSvc );
+        m_calorimeterVolume     = new Trk::Volume(
+            m_trackingVolumesSvc->volume(Trk::ITrackingVolumesSvc::MuonSpectrometerEntryLayer));
+
+        m_indetVolume           = new Trk::Volume( m_trackingVolumesSvc->volume(Trk::ITrackingVolumesSvc::CalorimeterEntryLayer));
+    }
+         
+
     return StatusCode::SUCCESS;
 }
 
@@ -206,11 +240,82 @@ OutwardsCombinedMuonTrackBuilder::standaloneFit	(const Trk::Track&	/*spectromete
    refit a track removing any indet measurements with optional addition of pseudoMeasurements
        according to original extrapolation */
 Trk::Track*
-OutwardsCombinedMuonTrackBuilder::standaloneRefit (const Trk::Track& /*track*/) const
+OutwardsCombinedMuonTrackBuilder::standaloneRefit (const Trk::Track& combinedTrack) const
 {
-    ATH_MSG_DEBUG( "standalone refit not implemented" );
 
-    return 0;
+    ATH_MSG_DEBUG( " start OutwardsCombinedMuonTrackBuilder standaloneRefit" );
+    double vertex3DSigmaRPhi = 6.0;
+    double vertex3DSigmaZ    = 60.0;
+    
+    DataVector<const Trk::TrackStateOnSurface>* trackStateOnSurfaces =
+	new DataVector<const Trk::TrackStateOnSurface>;
+ 
+   bool addVertexRegion = true;  
+    Amg::Vector3D		origin(0.,0.,0.);
+    AmgSymMatrix(3) * vertexRegionCovariance = new AmgSymMatrix(3);
+     vertexRegionCovariance->setZero();
+    (*vertexRegionCovariance)(0,0)		= vertex3DSigmaRPhi*vertex3DSigmaRPhi;
+    (*vertexRegionCovariance)(1,1)		= vertex3DSigmaRPhi*vertex3DSigmaRPhi;
+    (*vertexRegionCovariance)(2,2)		= vertex3DSigmaZ*vertex3DSigmaZ;
+    Trk::RecVertex* vertex			= new Trk::RecVertex(origin,*vertexRegionCovariance);
+    
+//    if(!combinedTrack.perigeeParameters()) return 0;
+    int itsos = 0;
+    DataVector<const Trk::TrackStateOnSurface>::const_iterator t = combinedTrack.trackStateOnSurfaces()->begin();
+    // create perigee TSOS
+    for ( ; t != combinedTrack.trackStateOnSurfaces()->end(); ++t) {
+      itsos++;
+      if((**t).type(Trk::TrackStateOnSurface::Perigee)) {
+        const Trk::TrackParameters* pars = (**t).trackParameters();
+        if(pars) {
+          const Trk::TrackStateOnSurface* TSOS = const_cast<const Trk::TrackStateOnSurface*>((**t).clone());
+          trackStateOnSurfaces->push_back(TSOS);
+           
+    // including vertex region pseudoMeas 
+          if (addVertexRegion) {
+  	    const Trk::PseudoMeasurementOnTrack* vertexInFit = vertexOnTrack(pars,vertex);
+	    if (vertexInFit) {
+	      std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> type;
+	      type.set(Trk::TrackStateOnSurface::Measurement);
+	      trackStateOnSurfaces->push_back(new const Trk::TrackStateOnSurface(vertexInFit,
+									       0,
+									       0,
+									       0,
+									       type) );
+              ATH_MSG_DEBUG( " found Perigee and added vertex " << itsos );
+	    }
+          }
+          break;	    
+        }
+      }
+    }
+    for ( ; t != combinedTrack.trackStateOnSurfaces()->end(); ++t) {
+      itsos++;
+      if((**t).trackParameters()) {
+          if((**t).measurementOnTrack()) {
+            if(m_indetVolume->inside((**t).trackParameters()->position())) {
+              ATH_MSG_DEBUG( " skip ID measurement " << itsos );
+              continue;
+            }
+          } 
+      }
+      const Trk::TrackStateOnSurface* TSOS = const_cast<const Trk::TrackStateOnSurface*>((**t).clone());
+      trackStateOnSurfaces->push_back(TSOS);
+    }   
+    ATH_MSG_DEBUG( " trackStateOnSurfaces found " << trackStateOnSurfaces <<  " from total " << itsos );
+
+    Trk::Track* standaloneTrack = new Trk::Track(combinedTrack.info(), trackStateOnSurfaces, 0);
+    standaloneTrack->info().setPatternRecognitionInfo(Trk::TrackInfo::MuidStandaloneRefit);
+    Trk::Track* refittedTrack   = fit(*standaloneTrack,false,Trk::muon);
+    delete standaloneTrack;
+
+    if (! refittedTrack) {
+      ATH_MSG_DEBUG( " OutwardsCombinedMuonTrackBuilder standaloneRefit FAILED " );
+      return 0;
+    }
+    ATH_MSG_DEBUG( " OutwardsCombinedMuonTrackBuilder standaloneRefit OK " );
+    m_trackSummary->updateTrack(*refittedTrack);
+    return refittedTrack;
 }
 
 /**ITrackFitter interface: refit a track */
@@ -331,6 +436,21 @@ OutwardsCombinedMuonTrackBuilder::fit (const Trk::Track&		indetTrack,
 
 	ATH_MSG_VERBOSE( " finished cleaning" );
     }
+    if(fittedTrack){ 
+       Trk::Track* newTrack = addIDMSerrors(fittedTrack);  
+       if(newTrack) {
+         Trk::Track* refittedTrack   = fit(*newTrack,false,Trk::muon);
+         delete newTrack;
+         if(refittedTrack) {
+           if(refittedTrack->fitQuality()) {
+             delete fittedTrack;
+             fittedTrack = refittedTrack;
+           } else {
+             delete refittedTrack;
+           } 
+         }
+       }
+    }
     if (m_recoverCombined && fittedTrack){
       Trk::Track* recoveredTrack = m_muonHoleRecovery->recover(*fittedTrack);
       double oldfitqual=fittedTrack->fitQuality()->chiSquared()/fittedTrack->fitQuality()->numberDoF();
@@ -405,6 +525,151 @@ OutwardsCombinedMuonTrackBuilder::fit (const Trk::Track&		indetTrack,
     return fittedTrack;
 }
     
+
+Trk::Track*  OutwardsCombinedMuonTrackBuilder::addIDMSerrors(Trk::Track* track) const
+{
+//
+// take track and correct the two scattering planes in the Calorimeter 
+// to take into account m_IDMS_rzSigma and m_IDMS_xySigma 
+//
+// returns a new Track
+//   
+    if(!m_addIDMSerrors) return 0;
+
+    ATH_MSG_VERBOSE( " OutwardsCombinedMuonTrackBuilder addIDMSerrors to track ");
+    Amg::Vector3D positionMS(0,0,0);
+    Amg::Vector3D positionCaloFirst(0,0,0);
+    Amg::Vector3D positionCaloLast(0,0,0);
+    int itsos = 0;
+    int itsosCaloFirst = -1;
+    int itsosCaloLast = -1;
+    double p = -1.;
+    DataVector<const Trk::TrackStateOnSurface>::const_iterator t = track->trackStateOnSurfaces()->begin();
+    for ( ; t != track->trackStateOnSurfaces()->end(); ++t) {
+      itsos++;
+      if((**t).trackParameters()) {
+        if(p==-1.) p = (**t).trackParameters()->momentum().mag()/1000.;
+        if(m_indetVolume->inside((**t).trackParameters()->position())) {
+          continue;
+        }
+
+        if((**t).trackParameters()->position().mag()<1000) continue;
+ 
+        if(m_calorimeterVolume->inside((**t).trackParameters()->position())) {
+// first scattering plane in Calorimeter 
+          if((**t).type(Trk::TrackStateOnSurface::Scatterer)&&(**t).materialEffectsOnTrack()) {
+            double X0 = (**t).materialEffectsOnTrack()->thicknessInX0();
+            if(X0<10) continue;
+            if(itsosCaloFirst!=-1) { 
+              itsosCaloLast = itsos;
+              positionCaloLast = (**t).trackParameters()->position(); 
+            }
+            if(itsosCaloFirst==-1) {
+              itsosCaloFirst = itsos;
+              positionCaloFirst = (**t).trackParameters()->position(); 
+            }
+          }
+        }
+        if(!m_calorimeterVolume->inside((**t).trackParameters()->position())) {
+          if((**t).measurementOnTrack()){
+// inside muon system 
+            positionMS = (**t).trackParameters()->position(); 
+            break;
+          }
+        }
+      }
+    }
+
+// it can happen that no Calorimeter Scatterers are found.
+
+    ATH_MSG_DEBUG( " OutwardsCombinedMuonTrackBuilder addIDMSerrors p muon GeV " << p << " First Calorimeter Scatterer radius " <<  positionCaloFirst.perp() << " z " << positionCaloFirst.z() << " Second Scatterer r " << positionCaloLast.perp() << " z " << positionCaloLast.z() << " First Muon hit r " << positionMS.perp() << " z " << positionMS.z() );
+
+   if(itsosCaloFirst<0||itsosCaloLast<0) { 
+     ATH_MSG_DEBUG( " addIDMSerrors keep original track ");
+     return 0;
+   }
+// If no Calorimeter no IDMS uncertainties have to be propagated 
+   positionCaloFirst = positionCaloFirst - positionMS;
+   positionCaloLast  = positionCaloLast  - positionMS;
+
+   double sigmaDeltaPhiIDMS2   = m_IDMS_xySigma / (positionCaloFirst.perp()+positionCaloLast.perp());
+   double sigmaDeltaThetaIDMS2 = m_IDMS_rzSigma / (positionCaloFirst.mag()+positionCaloLast.mag()) ;
+   sigmaDeltaPhiIDMS2   *= sigmaDeltaPhiIDMS2;
+   sigmaDeltaThetaIDMS2 *= sigmaDeltaThetaIDMS2;
+   DataVector<const Trk::TrackStateOnSurface>* trackStateOnSurfaces = new DataVector<const Trk::TrackStateOnSurface>;
+   trackStateOnSurfaces->reserve(track->trackStateOnSurfaces()->size());
+
+    t = track->trackStateOnSurfaces()->begin();
+    itsos = 0;
+    for ( ; t != track->trackStateOnSurfaces()->end(); ++t) {
+      itsos++;
+      if(itsos==itsosCaloFirst||itsos==itsosCaloLast){
+        if((**t).materialEffectsOnTrack()) {
+          double X0 = (**t).materialEffectsOnTrack()->thicknessInX0();
+          const Trk::MaterialEffectsOnTrack* meot = dynamic_cast<const Trk::MaterialEffectsOnTrack*>((**t).materialEffectsOnTrack());
+          if(meot) {
+            const Trk::ScatteringAngles* scat = meot->scatteringAngles();
+            if(scat) {
+              double sigmaDeltaPhi = sqrt((scat->sigmaDeltaPhi())*(scat->sigmaDeltaPhi()) + sigmaDeltaPhiIDMS2);     
+              double sigmaDeltaTheta = sqrt((scat->sigmaDeltaTheta())*(scat->sigmaDeltaTheta()) + sigmaDeltaThetaIDMS2);     
+              const Trk::EnergyLoss* energyLossNew = new Trk::EnergyLoss(0.,0.,0.,0.);
+              const Trk::ScatteringAngles* scatNew = new Trk::ScatteringAngles(0.,0.,sigmaDeltaPhi,sigmaDeltaTheta);
+              Trk::Surface* surfNew = (**t).trackParameters()->associatedSurface().clone();
+              std::bitset<Trk::MaterialEffectsBase::NumberOfMaterialEffectsTypes> meotPattern(0);
+              meotPattern.set(Trk::MaterialEffectsBase::EnergyLossEffects);
+              meotPattern.set(Trk::MaterialEffectsBase::ScatteringEffects);
+              const Trk::MaterialEffectsOnTrack*  meotNew = new Trk::MaterialEffectsOnTrack(X0, scatNew, energyLossNew, *surfNew, meotPattern);
+              const Trk::TrackParameters* parsNew = ((**t).trackParameters())->clone();
+              std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePatternScat(0);
+              typePatternScat.set(Trk::TrackStateOnSurface::Scatterer);
+              const Trk::TrackStateOnSurface* newTSOS  = new Trk::TrackStateOnSurface(0, parsNew, 0, meotNew, typePatternScat);
+              trackStateOnSurfaces->push_back(newTSOS); 
+              ATH_MSG_DEBUG( " old Calo scatterer had sigmaDeltaPhi mrad      " << scat->sigmaDeltaPhi()*1000 << " sigmaDeltaTheta mrad " << scat->sigmaDeltaTheta()*1000 << " X0 " << X0 );
+              ATH_MSG_DEBUG( " new Calo scatterer made with sigmaDeltaPhi mrad " << sigmaDeltaPhi*1000 << " sigmaDeltaTheta mrad " << sigmaDeltaTheta*1000 );
+            } else {
+              ATH_MSG_WARNING( " This should not happen: no Scattering Angles for scatterer ");
+            }
+          } else {
+            ATH_MSG_WARNING( " This should not happen: no MaterialEffectsOnTrack for scatterer ");
+          }
+        } 
+      } else { 
+        const Trk::TrackStateOnSurface* TSOS = const_cast<const Trk::TrackStateOnSurface*>((**t).clone());
+        trackStateOnSurfaces->push_back(TSOS);
+      }
+    }   
+    ATH_MSG_DEBUG( " trackStateOnSurfaces on input track " << track->trackStateOnSurfaces()->size() << " trackStateOnSurfaces found " << trackStateOnSurfaces->size());
+
+    Trk::Track* newTrack = new Trk::Track(track->info(), trackStateOnSurfaces, 0);
+    return newTrack;
+}
+
+Trk::PseudoMeasurementOnTrack*
+OutwardsCombinedMuonTrackBuilder::vertexOnTrack(const Trk::TrackParameters*	parameters,
+      					        const Trk::RecVertex*		vertex) const
+{
+    // create the corresponding PerigeeSurface, localParameters and covarianceMatrix
+    const Trk::PerigeeSurface surface(vertex->position());
+    Trk::LocalParameters localParameters;
+    Amg::MatrixX covarianceMatrix;
+    covarianceMatrix.setZero();
+    // transform Cartesian (x,y,z) to beam axis or perigee
+    Amg::Vector2D localPosition(0,0);
+    double ptInv			=  1./parameters->momentum().perp();
+    localParameters			=  Trk::LocalParameters(localPosition);
+    Amg::MatrixX jacobian(2,3);
+    jacobian.setZero();
+    jacobian(0,0)			= -ptInv*parameters->momentum().y();
+    jacobian(0,1)			=  ptInv*parameters->momentum().x();
+    jacobian(1,2)			=  1.0;
+    const Amg::MatrixX& cov         =  vertex->covariancePosition();
+    covarianceMatrix		=  cov.similarity(jacobian);
+    
+    
+    return new Trk::PseudoMeasurementOnTrack(localParameters,
+					     covarianceMatrix,
+					     surface);
+}
 
 
 }	// end of namespace
