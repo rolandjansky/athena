@@ -73,6 +73,10 @@ void TrigConf::HLTSequence::writeXML(std::ofstream & xmlfile) {
    }
    xmlfile << "\"";
 
+   if (m_topoStartTE) {
+      xmlfile << " topo_start_from=\"" << m_topoStartTE->name() << "\"";
+   }
+
    xmlfile << "/> " << endl;
    return;
 }
@@ -106,8 +110,9 @@ TrigConf::HLTSequence::compareTo(const HLTSequence* o) const {
 
 void
 TrigConf::HLTSequence::print(const std::string& indent, unsigned int detail) const {
-   if(detail==4)
+   if(detail>=4) {
       cout << indent << "HLTSequence "; printNameIdV();
+   }
    if(detail>=5) {
       cout << indent << "        inputTEs  : ";
       bool first = true;
@@ -121,12 +126,18 @@ TrigConf::HLTSequence::print(const std::string& indent, unsigned int detail) con
       }
       cout << indent << "        algorithms: ";
       first = true;
+      uint width = 0;
       for(const string& alg: m_algorithms) {
-         if(first) {first=false;} else {cout << ", ";}
+         width += alg.size();
+         if(first) {first=false;} else {cout << ", "; width+=2; }
+         if(width>=140) {
+            cout << endl << indent << "                    ";
+            width=0;
+         }
          cout << alg;
       }
-      cout << indent << "        outputTE   : " << outputTE();
-      cout << indent <<"---------------------------------------------------------- " << std::endl;
+      cout << endl;
+      cout << indent << "        outputTE   : " << outputTE()->name() << endl;
    }
 }
 

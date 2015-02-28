@@ -88,15 +88,15 @@ HLTFrame::compareTo(const HLTFrame* o) const {
 void
 HLTFrame::print(const std::string& indent, unsigned int detail) const {
    if(detail>=1) {
-      cout << indent << "==================================" << endl;
+      cout << indent << "================================================================================" << endl;
       cout << indent << "HLT Configuration";
       if(smk()>0) cout << " (SMK = " << smk() << ")";
-      cout << ": "; printNameIdV();
+      cout << ": "; printNameIdV(indent);
       cout << indent << "-----------------" << endl;
       getHLTChainList().print(indent + "  ", detail);
       getHLTSequenceList().print(indent + "  ", detail);
       getPrescaleSetCollection().print(indent + "  ", detail);
-      cout << indent << "==================================" << endl;
+      cout << indent << "================================================================================" << endl;
    }
 }
 
