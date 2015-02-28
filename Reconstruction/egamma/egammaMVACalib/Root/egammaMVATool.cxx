@@ -319,15 +319,18 @@ bool egammaMVATool::getConversionVariables(const xAOD::Vertex *phVertex){
   const xAOD::TrackParticle* tp0 = phVertex->trackParticle(0);
   const xAOD::TrackParticle* tp1 = phVertex->trackParticle(1);
 
-  float p1fraction = 1.;
-  static SG::AuxElement::Accessor<float> accP1fraction("p1fraction");
-  if (phVertex->nTrackParticles() != 1 && accP1fraction.isAvailable(*phVertex))
-    p1fraction = accP1fraction(*phVertex);
-  else{
-    ATH_MSG_WARNING("p1fraction not available, will approximate from first measurements");
-    float pt1 = getPtAtFirstMeasurement( tp0 );
-    float pt2 = getPtAtFirstMeasurement( tp1 );
-    p1fraction = pt1 > 0 ? pt1/(pt1+pt2) : 1.;
+  static SG::AuxElement::Accessor<float> accPt1("pt1");
+  static SG::AuxElement::Accessor<float> accPt2("pt2");
+  if (accPt1.isAvailable(*phVertex) && accPt2.isAvailable(*phVertex) )
+  {
+    m_pt1conv = accPt1(*phVertex);
+    m_pt2conv = accPt2(*phVertex);
+  }
+  else
+  {
+    ATH_MSG_WARNING("pt1/pt2 not available, will approximate from first measurements");
+    m_pt1conv = getPtAtFirstMeasurement( tp0 );
+    m_pt2conv = getPtAtFirstMeasurement( tp1 );
   } 
 
   if(tp0){
@@ -347,8 +350,6 @@ bool egammaMVATool::getConversionVariables(const xAOD::Vertex *phVertex){
   }
 
   m_ptconv = xAOD::EgammaHelpers::momentumAtVertex(*phVertex).perp();
-  m_pt1conv = p1fraction * m_ptconv;
-  m_pt2conv = (1. - p1fraction) * m_ptconv;
   return true;
 }
 
