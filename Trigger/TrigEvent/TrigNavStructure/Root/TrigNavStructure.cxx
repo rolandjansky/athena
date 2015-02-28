@@ -560,8 +560,8 @@ bool TrigNavStructure::hasIdFromTheSet ( const TriggerElement* te, std::vector<u
 
 
 
-bool TrigNavStructure::isInitialNode( const TriggerElement* te ) {
-  if ( te->getRelated(TriggerElement::seededByRelation).empty() )
+bool TrigNavStructure::isInitialNode( const TriggerElement* te ) {  
+  if ( te->getRelated(TriggerElement::seededByRelation).empty() and te->getId() == 0 )
     return true;
   return false;
 }
