@@ -545,8 +545,7 @@ bool EMExtrapolationTools::getHackEtaPhiAtCalo (const Trk::TrackParameters* trkP
 Amg::Vector3D EMExtrapolationTools::getMomentumAtVertex(const xAOD::Vertex& vertex, unsigned int index) const
 {
   Amg::Vector3D momentum(0., 0., 0.);
-  if (vertex.nTrackParticles() <= index)
-  {
+  if (vertex.nTrackParticles() <= index){
     ATH_MSG_WARNING("Invalid track index");
   }
   else if (vertex.vxTrackAtVertexAvailable() && vertex.vxTrackAtVertex().size()){
@@ -555,30 +554,30 @@ Amg::Vector3D EMExtrapolationTools::getMomentumAtVertex(const xAOD::Vertex& vert
     ATH_MSG_DEBUG("getMomentumAtVertex : getting from vxTrackAtVertex");
     const auto& trkAtVertex = vertex.vxTrackAtVertex()[index];
     const Trk::TrackParameters* paramAtVertex = trkAtVertex.perigeeAtVertex();
-    if (!paramAtVertex)
+    if (!paramAtVertex){
       ATH_MSG_WARNING("VxTrackAtVertex does not have perigee at vertex");
-    else
+    }else{
       return paramAtVertex->momentum();
+    }
   }
   else if (vertex.nTrackParticles() == 1){
     // Use the first measurement
     ATH_MSG_DEBUG("getMomentumAtVertex : 1 track only, getting from first measurement");
     const xAOD::TrackParticle *tp = vertex.trackParticle(0);
-    unsigned int index(0);
-    if (!tp || !tp->indexOfParameterAtPosition(index, xAOD::FirstMeasurement)){
+    unsigned int paramindex(0);
+    if (!tp || !tp->indexOfParameterAtPosition(paramindex, xAOD::FirstMeasurement)){
       ATH_MSG_WARNING("No TrackParticle or no have first measurement");
     }
-    else
-      momentum += tp->curvilinearParameters(index).momentum();
-    // OR last 3 values of trackParameters(index)
+    else{
+      momentum += tp->curvilinearParameters(paramindex).momentum();
+    }
   }
   else{
     // Extrapolate track particle to vertex
     ATH_MSG_DEBUG("getMomentumAtVertex : extrapolating to perigee surface");
     const xAOD::TrackParticle* tp = vertex.trackParticle( index );
-    if (!tp) ATH_MSG_WARNING("NULL pointer to TrackParticle in vertex");
-    else
-    {
+    if (!tp) {ATH_MSG_WARNING("NULL pointer to TrackParticle in vertex");}
+    else{
       const Trk::PerigeeSurface *surface = new Trk::PerigeeSurface(vertex.position());
       const Trk::TrackParameters* params = m_extrapolator->extrapolate(*tp, *surface, Trk::alongMomentum);
       delete surface;
@@ -589,7 +588,6 @@ Amg::Vector3D EMExtrapolationTools::getMomentumAtVertex(const xAOD::Vertex& vert
   }
   return momentum;  
 }
-
 // =================================================================
 Amg::Vector3D EMExtrapolationTools::getMomentumAtVertex(const xAOD::Vertex& vertex, bool reuse /* = true */) const
 {
@@ -603,8 +601,7 @@ Amg::Vector3D EMExtrapolationTools::getMomentumAtVertex(const xAOD::Vertex& vert
   if (vertex.nTrackParticles() == 0){
       ATH_MSG_WARNING("getMomentumAtVertex : vertex has no track particles!");
       return momentum;
-    }
-  
+    } 
   if (reuse &&
       accPx.isAvailable(vertex) && 
       accPy.isAvailable(vertex) && 
