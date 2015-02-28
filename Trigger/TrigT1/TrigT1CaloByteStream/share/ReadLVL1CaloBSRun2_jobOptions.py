@@ -14,7 +14,6 @@ from TrigT1CaloByteStream.TrigT1CaloByteStreamConf import LVL1BS__CpmRoiByteStre
 from TrigT1CaloByteStream.TrigT1CaloByteStreamConf import LVL1BS__JepByteStreamV2Tool
 from TrigT1CaloByteStream.TrigT1CaloByteStreamConf import LVL1BS__JepRoiByteStreamV2Tool
 
-from TrigT1CaloByteStream.TrigT1CaloByteStreamConf import LVL1BS__PpmByteStreamV2Tool
 from TrigT1CaloByteStream.TrigT1CaloByteStreamConf import LVL1BS__L1CaloByteStreamReadTool
 
 
@@ -25,10 +24,6 @@ ToolSvc += LVL1BS__CpByteStreamV2Tool("CpByteStreamV2Tool")
 ToolSvc += LVL1BS__CpmRoiByteStreamV2Tool("CpmRoiByteStreamV2Tool")
 ToolSvc += LVL1BS__JepByteStreamV2Tool("JepByteStreamV2Tool")
 ToolSvc += LVL1BS__JepRoiByteStreamV2Tool("JepRoiByteStreamV2Tool")
-ToolSvc += LVL1BS__PpmByteStreamV2Tool("PpmByteStreamTool",
-           PpmMappingTool="LVL1::PpmCoolOrBuiltinMappingTool/PpmCoolOrBuiltinMappingTool",
-           PrintCompStats=1
-)
 ToolSvc += LVL1BS__L1CaloByteStreamReadTool("L1CaloByteStreamReadTool")
 ToolSvc += LVL1BS__RodHeaderByteStreamTool("RodHeaderByteStreamTool")
 ToolSvc += LVL1BS__L1CaloErrorByteStreamTool("L1CaloErrorByteStreamTool")
