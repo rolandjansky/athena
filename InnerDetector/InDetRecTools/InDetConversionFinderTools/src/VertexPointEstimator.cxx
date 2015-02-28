@@ -235,7 +235,7 @@ namespace InDet {
     //  rotate, translate to a system, where the two circle centres lie on the X axis
 
     //New cut from Mauro
-    double m_deltaR = U; double PHI = -99999.;
+    m_deltaR = U; double PHI = -99999.;
     double hl = areaVar(XC[0], YC[0], RA[0], XC[1], YC[1], RA[1], PHI);
     
     double COST = DX/D;
@@ -355,7 +355,8 @@ namespace InDet {
       errorcode = 7;
     }
     
-    if(PHI>maxPhi){
+    m_deltaPhi = PHI; // quick fix: cannot get rid of (double) PHI as it is passed by ref and m_deltaPhi is a float
+    if(m_deltaPhi>maxPhi){
       ATH_MSG_DEBUG("Unacceptable difference in phi");
       errorcode = 8;
     }

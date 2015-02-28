@@ -169,7 +169,7 @@ namespace InDet
     // Make collection for conversions.
     VxContainer* InDetConversionContainer = new VxContainer;
     return  InDetConversionContainer;
-   /* 
+    /* 
     ///Retrieve track particles from StoreGate for linking in the end
     //
     const Rec::TrackParticleContainer* TPC;
@@ -179,7 +179,7 @@ namespace InDet
       return InDetConversionContainer;
     }else{
       ATH_MSG_DEBUG("Found track particle collection "<<m_TrkParticleCollection);
-    }
+      }
     ATH_MSG_DEBUG("Track particle container size "<<TPC->size());
     
     // Count for number of successful conversions
@@ -391,7 +391,7 @@ namespace InDet
       InDetConversionContainer->push_back(sConver);
       numSingle++;
     }
-  }
+    }
       }
       ATH_MSG_DEBUG("Number successful reconstructed single track conversion: "<<numSingle);
     }
@@ -470,50 +470,54 @@ namespace InDet
           int type = -1;
           if (( m_isConversion && m_postSelector->selectConversionCandidate(myVertex,flag,positionList)) ||
               (!m_isConversion && m_postSelector->selectSecVtxCandidate(myVertex, flag, positionList, type))){
-            ATH_MSG_DEBUG(" Conversion passed postselection cuts");
-            
-            if (m_decorateVertices)
-            {
-              ATH_MSG_DEBUG("Decorating vertex with values used in track pair selector");
-                for (auto kv : m_trackPairsSelector->getLastValues())
-                  myVertex->auxdata<float>(kv.first) = kv.second;
 
-              ATH_MSG_DEBUG("Decorating vertex with values used in vertex point estimator");
-                for (auto kv : m_vertexEstimator->getLastValues())
-                  myVertex->auxdata<float>(kv.first) = kv.second;
-            }
-            
+            ATH_MSG_DEBUG(" Conversion passed postselection cuts");
+                        
             //Really need to check that this correct.
             //Remove old element links
             myVertex->clearTracks();
-            ElementLink<xAOD::TrackParticleContainer> newLinkPos;
-            newLinkPos.setElement(*iter_pos);
-            newLinkPos.setStorableObject(*trk_coll);
-            newLinkPos.index();
-            ElementLink<xAOD::TrackParticleContainer> newLinkNeg;
-            newLinkNeg.setElement(*iter_neg);
-            newLinkNeg.setStorableObject(*trk_coll);
-            newLinkNeg.index();
-            
-            myVertex->addTrackAtVertex(newLinkPos);
-            myVertex->addTrackAtVertex(newLinkNeg);
-              
-          
-            if (m_isConversion)
-            {
+                        
+            if (m_isConversion){
               myVertex->setVertexType(xAOD::VxType::ConvVtx);
-//               if (myVertex->vxTrackAtVertexAvailable()) myVertex->vxTrackAtVertex().clear();
               InDetConversionContainer->push_back(myVertex);
             }
-            else if (type==101 || type==110 || type==11) // V0
-            {
+            else if (type==101 || type==110 || type==11) {// V0
               myVertex->setVertexType(xAOD::VxType::V0Vtx);
               InDetConversionContainer->push_back(myVertex);
             }
+	    else{
+	      ATH_MSG_WARNING("Unknown type of vertex");
+	      delete myVertex;
+	    }
+
+	    if(myVertex){
+	      if (m_decorateVertices){
+		  ATH_MSG_DEBUG("Decorating vertex with values used in track pair selector");
+		  for (auto kv : m_trackPairsSelector->getLastValues()){
+		    myVertex->auxdata<float>(kv.first) = kv.second;
+		  }
+		  ATH_MSG_DEBUG("Decorating vertex with values used in vertex point estimator");
+		  for (auto kv : m_vertexEstimator->getLastValues()){
+		    myVertex->auxdata<float>(kv.first) = kv.second;
+		  }
+	      }	      
+	      ElementLink<xAOD::TrackParticleContainer> newLinkPos;
+	      newLinkPos.setElement(*iter_pos);
+	      newLinkPos.setStorableObject(*trk_coll);
+	      newLinkPos.index();
+	      ElementLink<xAOD::TrackParticleContainer> newLinkNeg;
+	      newLinkNeg.setElement(*iter_neg);
+	      newLinkNeg.setStorableObject(*trk_coll);
+	      newLinkNeg.index();            
+	      myVertex->addTrackAtVertex(newLinkPos);
+	      myVertex->addTrackAtVertex(newLinkNeg);
+	    }
+
             negIndx[ineg] = 1;
             posIndx[ipos] = 1;
             numConversions++;
-          }else {
+          
+	  }else {
             ATH_MSG_DEBUG("VxCandidate failed the post selection cuts!");
             delete myVertex;
           }
