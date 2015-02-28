@@ -330,8 +330,7 @@ void BinnedEfficiency::clear() {
 TH1F* BinnedEfficiency::getProjection(int axis_number)  const {
 
   int nx = (m_axisEdges.begin()+axis_number)->size() -1 ;
-  float *xedges;
-  xedges = new float[nx + 1];
+  std::vector<float> xedges (nx + 1, 0); 
   if( nx == 0)  throw  runtime_error("BinnedEfficiency::projection: number of bins for axis is 0!") ;
   for( int i = 0; i <=nx;++i) xedges[i]=m_axisEdges.at(axis_number).at(i);
 
@@ -350,7 +349,7 @@ TH1F* BinnedEfficiency::getProjection(int axis_number)  const {
       histname += "_" + info.getTriggerVersionHigh() ;
   }
 
-  TH1F *hist = new TH1F(histname.c_str(),histname.c_str(),nx,xedges);
+  TH1F *hist = new TH1F(histname.c_str(),histname.c_str(),nx,xedges.data());
   hist->GetXaxis()->SetTitle(m_spec.getEffVarNames().at(axis_number).c_str());
 
   vector<EffVal> effval ;
@@ -379,7 +378,6 @@ TH1F* BinnedEfficiency::getProjection(int axis_number)  const {
     }
   }
 
-  delete [] xedges;
   return hist ;
 }
 
@@ -396,9 +394,9 @@ void BinnedEfficiency::makeEfficiencyHistogram(const EffInfo* request,
   int nz = m_axisEdges.size() == 3 ? (m_axisEdges.begin()+2)->size() -1 : 0 ;
 
   // bin boundaries
-  float *xedges = new float[nx+1];
-  float *yedges = new float[ny+1];
-  float *zedges = new float[nz+1];
+  std::vector<float> xedges (nx + 1, 0); 
+  std::vector<float> yedges (ny + 1, 0); 
+  std::vector<float> zedges (nz + 1, 0); 
   if( nx >0) {
     for( int i = 0; i <=nx;++i) xedges[i]=m_axisEdges.at(0).at(i);
   }
@@ -440,7 +438,7 @@ void BinnedEfficiency::makeEfficiencyHistogram(const EffInfo* request,
   }
   // create the histogram
   if( dimension == 1) {
-    TH1F *hist1 = new TH1F(histname,histname,nx,xedges);
+    TH1F *hist1 = new TH1F(histname,histname,nx,xedges.data());
     hist1->GetXaxis()->SetTitle(m_spec.getEffVarNames()[0].c_str());
     for (int i=0; i<nx; ++i) {
       const EffVal & val = getBinContent(i) ;
@@ -448,7 +446,7 @@ void BinnedEfficiency::makeEfficiencyHistogram(const EffInfo* request,
       hist1->SetBinError(i+1,(fabs(val.getErrorHigh()) + fabs(val.getErrorLow()))/2);
     }
   } else if ( dimension == 2) {
-    TH2F *hist2= new TH2F(histname,histname,nx,xedges,ny,yedges);
+    TH2F *hist2= new TH2F(histname,histname,nx,xedges.data(),ny,yedges.data());
     hist2->GetXaxis()->SetTitle(m_spec.getEffVarNames()[0].c_str());
     hist2->GetYaxis()->SetTitle(m_spec.getEffVarNames()[1].c_str());
     for (int i=0; i<nx; ++i) {
@@ -459,7 +457,7 @@ void BinnedEfficiency::makeEfficiencyHistogram(const EffInfo* request,
       }
     }
   } else if( dimension == 3) {
-    TH3F *hist3= new TH3F(histname,histname,nx,xedges,ny,yedges,nz,zedges);
+    TH3F *hist3= new TH3F(histname,histname,nx,xedges.data(),ny,yedges.data(),nz,zedges.data());
     hist3->GetXaxis()->SetTitle(m_spec.getEffVarNames()[0].c_str());
     hist3->GetYaxis()->SetTitle(m_spec.getEffVarNames()[1].c_str());
     hist3->GetZaxis()->SetTitle(m_spec.getEffVarNames()[2].c_str());
@@ -475,9 +473,6 @@ void BinnedEfficiency::makeEfficiencyHistogram(const EffInfo* request,
   }
   gDirectory=currdir;
 
-  delete [] xedges;
-  delete [] yedges;
-  delete [] zedges;
 }
 
 
