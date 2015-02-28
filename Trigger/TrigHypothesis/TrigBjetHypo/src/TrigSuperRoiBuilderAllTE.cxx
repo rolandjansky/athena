@@ -124,8 +124,12 @@ HLT::ErrorCode TrigSuperRoiBuilderAllTE::hltExecute(std::vector<std::vector<HLT:
   TrigRoiDescriptor* superRoi = new TrigRoiDescriptor();
   superRoi->setComposite(true);
 
-  HLT::TriggerElement* initialTE = config()->getNavigation()->getInitialNode();
-  HLT::TriggerElement* outputTE  = config()->getNavigation()->addNode(initialTE,output);
+  //HLT::TriggerElement* initialTE = config()->getNavigation()->getInitialNode();
+  //HLT::TriggerElement* outputTE  = config()->getNavigation()->addNode(initialTE,output);
+
+  std::vector<HLT::TriggerElement*> empty;
+  HLT::TriggerElement* outputTE = config()->getNavigation()->addNode(empty, output);
+
   outputTE->setActiveState(true);
   std::string key = "";
 
@@ -213,7 +217,7 @@ HLT::ErrorCode TrigSuperRoiBuilderAllTE::hltExecute(std::vector<std::vector<HLT:
   
   // Check that we created the superRoi correctly and can retreive it
   // This is really just a sanity check - can probably be removed...
-  const TrigSuperRoi* newSuperRoi;
+  const TrigRoiDescriptor* newSuperRoi;
   if (getFeature(outputTE, newSuperRoi) != HLT::OK) {
     if (msgLvl() <= MSG::WARNING) 
       msg() <<  MSG::WARNING << "No RoI for this Trigger Element " << endreq;

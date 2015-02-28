@@ -34,7 +34,8 @@ TrigBjetTrackInfo::TrigBjetTrackInfo() :
   m_sctHits(0.),
   m_siHits (0.),
   m_chi2(0.0),
-  m_Blayer(0)
+  m_Blayer(0),
+  m_grade(0)
 {}
 
 #ifndef VALIDATION_TOOL
@@ -54,7 +55,8 @@ TrigBjetTrackInfo::TrigBjetTrackInfo(const TrigInDetTrack*& track) :
   m_sctHits(-1),
   m_siHits (track->NPixelSpacePoints()+track->NSCT_SpacePoints()),
   m_chi2(0.0),
-  m_Blayer(0)
+  m_Blayer(0),
+  m_grade(0)
 {}
 
 TrigBjetTrackInfo::TrigBjetTrackInfo(const xAOD::TrackParticle*& track) :
@@ -73,7 +75,8 @@ TrigBjetTrackInfo::TrigBjetTrackInfo(const xAOD::TrackParticle*& track) :
   m_sctHits(-1),
   m_siHits (m_pixHits+m_sctHits),
   m_chi2(0.0),
-  m_Blayer(0)
+  m_Blayer(0),
+  m_grade(0)
 {}
 
 #endif

@@ -17,5 +17,5 @@ class JetSplitterAllTE (TrigJetSplitterAllTE):
         
         self.JetInputKey  = "TrigJetRec"
         self.JetOutputKey = "SplitJet"
-        self.EtaHalfWidth = 0.2
-        self.PhiHalfWidth = 0.2
+        self.EtaHalfWidth = 0.4
+        self.PhiHalfWidth = 0.4

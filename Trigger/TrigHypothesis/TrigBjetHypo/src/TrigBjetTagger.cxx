@@ -90,10 +90,10 @@ void TrigBjetTagger::getWeights(std::vector<TrigBjetTrackInfo>*& m_trigBjetTrack
   m_taggersXMap["IP1D"]=-48; m_taggersXMap["IP2D"]=-48; m_taggersXMap["IP3D"]=-48; m_taggersXMap["CHI2"]=-48;
 
 #ifdef VALIDATION_TOOL
-  m_vectorIP1D.clear();
-  m_vectorIP2D.clear();
-  m_vectorIP1D_lowSiHits.clear();
-  m_vectorIP2D_lowSiHits.clear();
+  m_vectorIP1D_Grade1.clear();
+  m_vectorIP2D_Grade1.clear();
+  m_vectorIP1D_Grade2.clear();
+  m_vectorIP2D_Grade2.clear();
 #endif
 
   float m_sigmaBeamSpot = (m_trigBjetPrmVtxInfo->xBeamSpotWidth()+m_trigBjetPrmVtxInfo->yBeamSpotWidth())/2;
@@ -154,13 +154,18 @@ void TrigBjetTagger::getWeights(std::vector<TrigBjetTrackInfo>*& m_trigBjetTrack
 
 	if (errIP1D) m_IP1D = z0Sign/sqrt(errIP1D*errIP1D);
 
-        if ( (*pTrack).siHits() >= 7 ) {
+        if ( (*pTrack).grade() > 0 ) {
 
 #ifdef VALIDATION_TOOL
           m_vectorIP1D.push_back(m_IP1D);
 #endif
-	  w = getW("IP1D", m_IP1D);
-	  getPuPb("IP1D", m_IP1D, Pu, Pb);
+	  if((*pTrack).grade()==1) {
+	    w = getW("IP1D_Grade1", m_IP1D);
+	    getPuPb("IP1D_Grade1", m_IP1D, Pu, Pb);
+	  } else if((*pTrack).grade()==2) {
+	    w = getW("IP1D_Grade2", m_IP1D);
+	    getPuPb("IP1D_Grade2", m_IP1D, Pu, Pb);
+	  }
         }
       } 
 
@@ -168,13 +173,18 @@ void TrigBjetTagger::getWeights(std::vector<TrigBjetTrackInfo>*& m_trigBjetTrack
 
 	if (errIP2D && m_sigmaBeamSpot) m_IP2D = d0Sign/sqrt(errIP2D*errIP2D + m_sigmaBeamSpot*m_sigmaBeamSpot);
 
-        if ( (*pTrack).siHits() >= 7 ) {
+        if ( (*pTrack).grade() > 0 ) {
 
 #ifdef VALIDATION_TOOL
           m_vectorIP2D.push_back(m_IP2D);
 #endif
-	  w = getW("IP2D", m_IP2D);
-	  getPuPb("IP2D", m_IP2D, Pu, Pb);
+	  if((*pTrack).grade()==1) {
+	    w = getW("IP2D_Grade1", m_IP2D);
+	    getPuPb("IP2D_Grade1", m_IP2D, Pu, Pb);
+	  } else if((*pTrack).grade()==2) {
+	    w = getW("IP2D_Grade2", m_IP2D);
+	    getPuPb("IP2D_Grade2", m_IP2D, Pu, Pb);
+	  }
         }
       } 
 
@@ -183,9 +193,15 @@ void TrigBjetTagger::getWeights(std::vector<TrigBjetTrackInfo>*& m_trigBjetTrack
 	if (errIP1D) m_IP1D = z0Sign/sqrt(errIP1D*errIP1D);
 	if (errIP2D && m_sigmaBeamSpot) m_IP2D = d0Sign/sqrt(errIP2D*errIP2D + m_sigmaBeamSpot*m_sigmaBeamSpot);
 
-        if ( (*pTrack).siHits() >= 7 ) {
-	  w = getW("IP3D", m_IP2D, m_IP1D);
-	  getPuPb("IP3D", m_IP2D, m_IP1D, Pu, Pb);
+        if ( (*pTrack).grade() > 0 ) {
+
+	  if((*pTrack).grade()==1) {
+	    w = getW("IP3D_Grade1", m_IP2D, m_IP1D);
+	    getPuPb("IP3D_Grade1", m_IP2D, m_IP1D, Pu, Pb);
+	  } else if((*pTrack).grade()==2) {
+	    w = getW("IP3D_Grade2", m_IP2D, m_IP1D);
+	    getPuPb("IP3D_Grade2", m_IP2D, m_IP1D, Pu, Pb);
+	  }
         }
 
 	m_trigBjetFex->m_mon_trk_Sz0_sel.push_back(m_IP1D);
@@ -387,8 +403,8 @@ void TrigBjetTagger::getWeights(std::vector<TrigBjetTrackInfo>*& m_trigBjetTrack
     float m_IP2D = d0Sign/sqrt((*pTrack).ed0()*(*pTrack).ed0() + m_sigmaBeamSpot*m_sigmaBeamSpot);
 
     if(fabs(m_IP2D <= 15.0)) {
-      if((*pTrack).siHits() < 7)  p = f_ip(-m_IP2D,0);
-      if((*pTrack).siHits() >= 7) p = f_ip(-m_IP2D,1);
+      if((*pTrack).grade() == 1) p = f_ip(-m_IP2D,1);
+      if((*pTrack).grade() == 2) p = f_ip(-m_IP2D,0);
     } else p = 0.0001;
 
     m_trigBjetFex->m_mon_trk_prob.push_back(p);
