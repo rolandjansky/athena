@@ -391,6 +391,14 @@ def SetupJetCollectionDefault(JetCollection, TaggerList):
     addTool('MV2c20Tag', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
   if 'MV2c20Flip' in TaggerList:
     addTool('MV2c20FlipTag', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
+  if 'MV2c100' in TaggerList:
+    addTool('MV2c100Tag', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
+  if 'MV2c100Flip' in TaggerList:
+    addTool('MV2c100FlipTag', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
+  if 'MV2m' in TaggerList:
+    addTool('MV2mTag', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
+  if 'MV2mFlip' in TaggerList:
+    addTool('MV2mFlipTag', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
 #          if BTaggingFlags.MV2Flip:
 #            addTool('MV2FlipTag', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
 

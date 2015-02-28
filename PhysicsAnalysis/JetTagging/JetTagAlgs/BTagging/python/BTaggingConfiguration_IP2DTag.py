@@ -55,6 +55,12 @@ def toolIP2DTag(name, useBTagFlagsDefaults = True, **options):
                      'Runmodus'                         : BTaggingFlags.Runmodus,
                      'referenceType'                    : BTaggingFlags.ReferenceType,
                      'impactParameterView'              : '2D',
+                     #'trackGradePartitions'             : [ "0HitIn0HitNInExp2","0HitIn0HitNInExpIn","0HitIn0HitNInExpNIn","0HitIn0HitNIn",
+                     #                                       "0HitInExp", "0HitIn",
+                     #                                       "0HitNInExp", "0HitNIn",
+                     #                                       "InANDNInShared", "PixShared", "SctShared",
+                     #                                       "InANDNInSplit", "PixSplit",
+                     #                                       "Good"],
                      'trackGradePartitions'             : [ "Good", "BlaShared", "PixShared", "SctShared", "0HitBLayer" ],
                      'RejectBadTracks'                  : False,
                      'originalTPCollectionName'         : BTaggingFlags.TrackParticleCollectionName,
@@ -94,8 +100,8 @@ def toolIP2DDetailedTrackGradeFactory(name, useBTagFlagsDefaults = True, **optio
 #                     'TrackSummaryTool'       : None,
                      'useSharedHitInfo'       : True,
                      'useDetailSharedHitInfo' : True,
-                     'useRun2TrackGrading'    : False,
-                     'hitInnerLayersGrade'    : True,
+                     #'useRun2TrackGrading'    : False,
+                     #'hitInnerLayersGrade'    : True,
                      'hitBLayerGrade'         : True }
         for option in defaults:
             options.setdefault(option, defaults[option])
@@ -174,6 +180,7 @@ def toolIP2DTrackSelector(name, useBTagFlagsDefaults = True, **options):
     if useBTagFlagsDefaults:
         defaults = { 'OutputLevel'            : BTaggingFlags.OutputLevel,
                      'useBLayerHitPrediction' : True,
+                     'nHitBLayer'             : 0 ,
                      'usepTDepTrackSel'       : False }
         for option in defaults:
             options.setdefault(option, defaults[option])

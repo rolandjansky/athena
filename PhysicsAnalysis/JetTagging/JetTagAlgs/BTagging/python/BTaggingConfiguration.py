@@ -98,6 +98,10 @@ from BTagging.BTaggingConfiguration_MV2c10Tag import *
 from BTagging.BTaggingConfiguration_MV2c10FlipTag import *
 from BTagging.BTaggingConfiguration_MV2c20Tag import *
 from BTagging.BTaggingConfiguration_MV2c20FlipTag import *
+from BTagging.BTaggingConfiguration_MV2c100Tag import *
+from BTagging.BTaggingConfiguration_MV2c100FlipTag import *
+from BTagging.BTaggingConfiguration_MV2mTag import *
+from BTagging.BTaggingConfiguration_MV2mFlipTag import *
 
 # This global dictionary keeps track of tools/taggers that have been initialized
 # the key is the type of the tool, the value is the actual tool. All functions 
@@ -1249,6 +1253,8 @@ def setupSecVtxTool(name, ToolSvc, Verbose = False, options={}):
     options = dict(options)
     options.setdefault('SecVtxFinderList', [])
     options.setdefault('SecVtxFinderTrackNameList', [])
+    options.setdefault('SecVtxFinderxAODBaseNameList', [])
+    options.setdefault('PrimaryVertexName',BTaggingFlags.PrimaryVertexCollectionName)
     options.setdefault('OutputLevel', BTaggingFlags.OutputLevel)
     options['name'] = name
     from BTagging.BTaggingConf import Analysis__BTagSecVertexing
