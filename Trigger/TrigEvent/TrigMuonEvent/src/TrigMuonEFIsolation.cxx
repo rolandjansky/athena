@@ -124,10 +124,6 @@ const TrigMuonEFInfo* TrigMuonEFIsolation::getMuonInfo() const {
   return *m_muonEFLink;
 }
 
-const ElementLink<TrigMuonEFInfoContainer>& TrigMuonEFIsolation::getMuonInfoLink() const {
-  return m_muonEFLink;
-}
-
 const TrigMuonEFInfoTrack* TrigMuonEFIsolation::getEFMuonInfoTrack() const {
 
   const TrigMuonEFInfo* info = getMuonInfo();

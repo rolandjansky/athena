@@ -154,9 +154,6 @@ public:
   inline float getTileWeight()       const { return m_Tile_w; }
 
 private:
-  friend class IsoMuonFeatureCnv_p1;
-  friend class IsoMuonFeatureCnv_p2;
-  friend class IsoMuonFeatureCnv_p3;
 
   /** Calo based isolation */
   float m_sumet01;
