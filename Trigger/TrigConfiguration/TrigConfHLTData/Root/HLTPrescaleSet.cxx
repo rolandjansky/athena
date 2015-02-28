@@ -118,9 +118,14 @@ void TrigConf::HLTPrescaleSet::print(const std::string& indent, unsigned int det
             if(size(level)==0) continue;
             if(level!=HLT)
                cout << indent << "        " << (level==L2?"L2":"EF") << " prescales:" << endl;
-            for(const ScalingMap_t::value_type& sc: getPrescales(level)) {
-               const HLTPrescale& s = sc.second;
-               cout << indent << "        Chain counter: " << setw(4) << sc.first
+
+            const ScalingMap_t& map = m_scalers[static_cast<unsigned int>(level)];
+
+            for(uint cc=0; cc<8192;cc++) {
+               auto s_iter = map.find(cc);
+               if(s_iter==map.end()) continue;
+               const HLTPrescale& s = s_iter->second;
+               cout << indent << "    Chain counter: " << setw(4) << cc
                     << ", prescale: " << setw(4) << s.prescale()
                     << ", pass-through: " << setw(4) << s.pass_through();
                if( s.getRerunPrescales().size()>0 ) {

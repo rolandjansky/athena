@@ -195,12 +195,12 @@ TrigConf::HLTPrescaleSetCollection::print(const std::string& indent, unsigned in
 
       cout << indent << "HLTPrescaleSetCollection has " << size() << " prescale set(s) defined, " << count_loaded << " loaded." << endl;
       if(size()>0) {
-         cout << indent << "       LB   Prescale set key   Loaded   Prescale set" << endl;
+         cout << indent << "       LB      PSK       Loaded     Name" << endl;
          for(const cont& psinfo : m_prescaleSets)
-            cout << indent << setw(9) << psinfo.lb << setw(19) << psinfo.psk << setw(9) << (psinfo.pss!=0?"yes":" no")
-                 << "   " << (psinfo.pss!=0?psinfo.pss->name():"") << endl;
+            cout << indent << setw(9) << right << psinfo.lb << setw(9) << right << psinfo.psk << "          " << (psinfo.pss!=0?"yes":" no")
+                 << "     " << (psinfo.pss!=0?psinfo.pss->name():"") << endl;
       }
-      if(detail>=3) {
+      if(detail>=2) {
          for(const cont& psinfo : m_prescaleSets)
             psinfo.pss->print(indent+"  ", detail);
       }
@@ -211,11 +211,11 @@ TrigConf::HLTPrescaleSetCollection::print(const std::string& indent, unsigned in
 std::ostream&
 TrigConf::operator<<(std::ostream & o, const TrigConf::HLTPrescaleSetCollection & c) {
    boost::recursive_mutex::scoped_lock lock(c.m_prescaleSetCollection_mutex);
-   o << "--- HLTPrescaleSetCollection has " << c.size() << " prescale sets" << endl;
+   o << "HLTPrescaleSetCollection has " << c.size() << " prescale sets" << endl;
    if(c.size()>0) {
       o << "       LB   Prescale set key   Loaded   Prescale set" << endl;
       for(const TrigConf::HLTPrescaleSetCollection::cont& psinfo : c.m_prescaleSets)
-         o << setw(9) << psinfo.lb << setw(19) << psinfo.psk << setw(9) << (psinfo.pss!=0?"yes":" no")
+         o << setw(9) << psinfo.lb << setw(19) << psinfo.psk << "   " << (psinfo.pss!=0?"yes":" no")
            << "   " << (psinfo.pss!=0?psinfo.pss->name():"") << endl;
    }
    return o;

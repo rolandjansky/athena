@@ -180,20 +180,47 @@ TrigConf::HLTChain::createSignatureLabels() {
    }
 }
 
+namespace {
+   TrigConf::HLTStreamTag * findStreamTag(const vector<HLTStreamTag*> & streams, string streamName) {
+      for(auto stream : streams) {
+         if(stream->name() == streamName)
+            return stream;
+      }
+      for(auto stream : streams) {
+         string s(stream->name());
+         if( (s.find('.') != string::npos) && 
+             (s.substr(s.find('.')+1) == streamName) )
+            return stream;
+      }
+      return nullptr;
+   }
+}
 
 TrigConf::HLTChain&
 TrigConf::HLTChain::set_prescales( const HLTPrescale& prescales) { 
+
    // copy the original (menu) stream prescales to the live set
    for(HLTStreamTag* stream : m_streams_orig) {
       HLTStreamTag* target = m_streams_map[stream->name()];
       target->set_prescale(stream->prescale());
    }
-   // copy the stream prescales from the new set of prescales to the live set
+
+   // copy the stream prescales from the new HLTPprescale to the live set
+
    for(HLTPrescale::value_type ps : prescales.getStreamPrescales()) {
-      boost::unordered_map<std::string, HLTStreamTag*>::iterator streamPos = m_streams_map.find(ps.first);
-      if(streamPos == m_streams_map.end())
-         throw runtime_error(string("Can not set prescale for stream ")+ ps.first + "since chain '" + name() + "' does not write to that stream.");
-      streamPos->second->set_prescale(ps.second);
+      const string & streamName = ps.first;
+
+      HLTStreamTag* streamTag = findStreamTag(m_streams, streamName);
+
+      if(streamTag) {
+         streamTag->set_prescale(ps.second);
+      } else {
+         //throw runtime_error(string("Can not set prescale for stream ")+ ps.first + "since chain '" + name() + "' does not write to that stream.");
+         cerr << "TrigConf::HLTChain        WARNING  Can not set prescale for stream '" + streamName + "' since chain '" + name() + "' does not write to that stream. Available are" << endl;
+         for(auto stream : m_streams) {
+            cout << "    Available are " << stream->name() << endl;
+         }
+      }
    }
    m_prescales = prescales;
    return *this;
@@ -327,12 +354,17 @@ TrigConf::HLTChain::print(const std::string& indent, unsigned int detail) const 
       if(id()>0 || version()>0)
          cout << " (id=" << id() << "/v=" << version() << ")";
       if(detail>=3) {
-         cout << " | counter: " << chain_counter()
-              << " | " << level()
-              << " | lower chain: "    << lower_chain_name()
-              << " | lower chain counter: " << lower_chain_counter()
-              << " | prescale: " << prescale()
-              << " | pass through: "        << pass_through();
+         cout << " | counter: " << chain_counter();
+         if(level()!="HLT") {
+            cout << " | " << level()
+                 << " | lower chain: "    << lower_chain_name()
+                 << " | lower chain counter: " << lower_chain_counter();
+         } else {
+            cout << " | CTP input: "    << lower_chain_name()
+                 << " | lower chain counter: " << lower_chain_counter();            
+         }
+         cout << " | prescale: " << prescale()
+              << " | pass through: " << pass_through();
 
          cout << " | rerun: " << prescales().getRerunPrescales().size() << " [ ";
          for(HLTPrescale::value_type rrps : prescales().getRerunPrescales())
@@ -340,8 +372,6 @@ TrigConf::HLTChain::print(const std::string& indent, unsigned int detail) const 
          cout << "]" << std::endl;
 
       }
-      cout << endl;
-
       if(detail>=4) {
          cout << indent << "        Groups : " << groups().size() << " [ ";
          for(const string& group : groups()) cout << "'" << group << "' ";
@@ -352,10 +382,10 @@ TrigConf::HLTChain::print(const std::string& indent, unsigned int detail) const 
          cout << "]" << std::endl;
 
          cout << indent << "        Streams : " << streams().size() << endl;
-         for(HLTStreamTag* streamTag : streams()) cout << *streamTag;
+         for(HLTStreamTag* streamTag : streams()) cout << indent << "            " << *streamTag;
 
          cout << indent << "        Steps : " << signatureList().size() << endl;
-         for(HLTSignature* sig : signatureList()) cout << indent << *sig;
+         for(HLTSignature* sig : signatureList()) sig->print(indent);
          cout << indent << "---------------------------------------------------------- " << endl;
       }
       

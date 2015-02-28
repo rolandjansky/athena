@@ -59,7 +59,7 @@ TrigConf::HLTStreamTag::print(const std::string& indent, unsigned int /*detail*/
 std::ostream &
 TrigConf::operator<<(std::ostream & o, const TrigConf::HLTStreamTag & st) {
    int dp = o.precision();
-   o << "- -- HLTStreamTag "
+   o << "HLTStreamTag "
      << "stream: '"   << st.m_stream 
      << "' type: '"   << st.m_type
      << "' obeyLB: '"  << (st.m_obeyLB?"yes":"no");

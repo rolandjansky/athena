@@ -59,13 +59,19 @@ void TrigConf::HLTSignature::writeXML(std::ofstream & xmlfile)
 
 void
 TrigConf::HLTSignature::print(const std::string& indent, unsigned int /*detail*/) const {
-   std::cout << indent << *this;
+   cout << indent << "signature " << signature_counter()
+        << " (logic=" << logic() << ") output TEs ("<< m_outputTEs.size() <<"):";
+
+   for( HLTTriggerElement* te : m_outputTEs ) {
+      if( te!=0 ) cout << *te << " "; else cout << "(0) ";
+   }
+   cout << endl;
 }
 
 std::ostream &
 TrigConf::operator<<(std::ostream & o, const TrigConf::HLTSignature & s) {
-   o << "- --     signature: " << s.signature_counter() << " (logic=" << s.logic() << ")" << endl;
-   o << "- --       outputTE(s)";
+   o << "signature: " << s.signature_counter() << " (logic=" << s.logic() << ")" << endl;
+   o << "outputTE(s)";
 
    for( HLTTriggerElement* te : s.m_outputTEs ) {
       o << ", ";

@@ -113,8 +113,10 @@ TrigConf::HLTSequenceList::print(const std::string& indent, unsigned int detail)
    if(detail>=1) {
       cout << indent << "HLTSequenceList has " << size() << " sequences" << endl;
       if(detail>=4) {
+         cout << indent << "--------------------------------------------------------------------------------" << endl;
          for(HLTSequence* seq : *this)
             seq->print(indent + "  ", detail);
+         cout << indent << "================================================================================" << endl;
       }
    }
 }
