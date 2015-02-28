@@ -26,7 +26,7 @@
 #include "TrkDetDescrInterfaces/ITrackingVolumesSvc.h"
 #include "TrkDetDescrInterfaces/ITrackingGeometrySvc.h"
 #include "TrkGeometry/MagneticFieldProperties.h"
-
+#include "AtlasDetDescr/AtlasDetectorID.h"
 
 //<<<<<< CLASS DECLARATIONS                                             >>>>>>
 
@@ -156,9 +156,10 @@ namespace Rec
 	    const Trk::Track&			extrapolatedTrack,
 	    const Trk::RunOutlierRemoval	runOutlier = false,
 	    const Trk::ParticleHypothesis	particleHypothesis = Trk::muon) const;
-    
+ 
     private:
 	// private methods
+        Trk::Track* addIDMSerrors(Trk::Track* track) const; 
 	void						appendSelectedTSOS(
 	    DataVector<const Trk::TrackStateOnSurface>&			trackStateOnSurfaces,
 	    DataVector<const Trk::TrackStateOnSurface>::const_iterator	begin,
@@ -219,6 +220,9 @@ namespace Rec
 	Trk::PseudoMeasurementOnTrack*			vertexOnTrack(
 	    const Trk::TrackParameters&					parameters,
 	    const Trk::RecVertex*					vertex) const;
+
+        void dumpCaloEloss(const Trk::Track* track, std::string txt ) const;
+
 	
 	// helpers, managers, tools
 	ToolHandle<Rec::IMuidCaloEnergy>		m_caloEnergyParam;
@@ -267,7 +271,8 @@ namespace Rec
    	double						m_vertex3DSigmaRPhi;
 	double						m_vertex3DSigmaZ;
 	double						m_zECToroid;
-
+        double                                          m_IDMS_xySigma;
+        double                                          m_IDMS_rzSigma;
 	// dummy (unused - kept for backwards compatibility)
 	bool                                            m_indetSlimming; 
 	bool						m_inputSlimming;
@@ -305,6 +310,10 @@ namespace Rec
 	bool                                            m_useCaloTG;
 	bool                                            m_iterateCombinedTrackFit;
 	bool                                            m_refineELossCombinedTrackFit;
+	bool                                            m_refineELossStandAloneTrackFit;
+        bool                                            m_addElossID;
+        bool                                            m_addIDMSerrors;
+        const AtlasDetectorID*                          m_DetID;
     };
  
 }	// end of namespace
