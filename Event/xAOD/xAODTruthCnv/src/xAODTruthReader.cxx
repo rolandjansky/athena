@@ -117,7 +117,7 @@ namespace xAODReader {
   // Print method for vertex - mimics the HepMC dump.
   // Particle print method called within here
   void xAODTruthReader::printVertex(const xAOD::TruthVertex* vertex) {
-
+  std::ios::fmtflags f( cout.flags() ); 
     cout << "TruthVertex:";
     if (vertex->barcode() != 0) {
       if (vertex->x() != 0.0 && vertex->y() != 0.0 && vertex->z() != 0.0) {
@@ -215,11 +215,14 @@ namespace xAODReader {
       } else cout << "      ";
       printParticle(vertex->outgoingParticle(iPOut));
     }
+  
+    cout.flags(f); 
   }
 
 
   // Print method for particle - mimics the HepMC dump.
   void xAODTruthReader::printParticle(const xAOD::TruthParticle* particle) {
+    std::ios::fmtflags f( cout.flags() ); 
     cout << " ";
     cout.width(9);
     cout << particle->barcode();
@@ -253,6 +256,7 @@ namespace xAODReader {
       cout << particle->status();
     }
     cout << endl;
+    cout.flags(f); 
   }
 
 
