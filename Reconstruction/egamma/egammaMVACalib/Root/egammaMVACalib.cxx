@@ -406,8 +406,7 @@ void egammaMVACalib::setupBDT(const TString& fileName)
 
   TString filePath = PathResolverFindCalibFile(fileName.Data());
   unique_ptr<TFile> f(TFile::Open(filePath));
-  if (!f || f->IsZombie())
-  {
+  if (!f.get() || f->IsZombie()){
     ATH_MSG_WARNING("setupBDT " << "Invalid file, skipping " << filePath.Data());
     return;
   }
@@ -431,30 +430,36 @@ void egammaMVACalib::setupBDT(const TString& fileName)
 
   TNamed *formula;
   TIter nextFormula(formulae);
-  while ((formula = (TNamed*) nextFormula()))
+  while ((formula = (TNamed*) nextFormula())){
     predefineFormula(formula->GetName(), formula->GetTitle(), "variable");
+  }
 
   TObjArray *variables = dynamic_cast<TObjArray*>(f->Get("variables"));
-  if (!variables)
-  {
+  if (!variables){
     ATH_MSG_WARNING("setupBDT " << "File does not contain variables, skipping " <<filePath.Data());
+    formulae->Delete();
+    delete formulae;
     return;
   }
 
   TObjArray *trees = dynamic_cast<TObjArray*>(f->Get("trees"));
-  if (trees)
+  if (trees){
     ATH_MSG_INFO("setupBDT" << "BDTs read from TObjArray");
-  else
-  {
+  }
+  else{
     ATH_MSG_INFO("setupBDT" << "Reading trees individually");
     trees = new TObjArray();
     for (int i = 0; i < variables->GetEntries(); ++i)
       trees->AddAtAndExpand(f->Get(Form("BDT%d", i)), i);
 
-    if (!trees->GetEntries())
-    {
+    if (!trees->GetEntries()){
       ATH_MSG_WARNING("setupBDT " << "File does not contain BDTs, skipping " <<filePath.Data());
       f->Close();
+      formulae->Delete();
+      variables->Delete();
+      trees->Delete();
+      delete formulae;
+      delete variables;
       delete trees;
       return;
     }
@@ -496,7 +501,14 @@ void egammaMVACalib::setupBDT(const TString& fileName)
     shift = (TObjString*) nextShift();
     if (shift) m_additional_infos[key]["Mean10"] = getString(shift);
   }
+
+  //Cleanup memory
   f->Close();
+  formulae->Delete();
+  variables->Delete();
+  trees->Delete();
+  delete formulae;
+  delete variables;
   delete trees; // should be NULL if trees taken from TFile
 }
 
