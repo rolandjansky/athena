@@ -93,8 +93,8 @@ class TrigBjetFex: public HLT::FexAlgo {
   //HLT::ErrorCode getSecVtxInfo(const Trk::VxSecVertexInfoContainer*&, const xAOD::VertexContainer*&, const TrigVertexCollection*&);
   HLT::ErrorCode getSecVtxInfo(const Trk::VxSecVertexInfoContainer*&, const xAOD::VertexContainer*&);
 
-  /** @brief To select EF tracks. */
-  bool efTrackSel(const xAOD::TrackParticle*&, unsigned int);
+  /** @brief To select tracks. */
+  bool trackSel(const xAOD::TrackParticle*& track, unsigned int, int, float, int, int, int, int, float, float, float, float, float, float);
 
   /** @brief TrigTrackJetFinder tool. */
   ToolHandle<ITrigTrackJetFinderTool> m_trackJetFinderTool;
@@ -148,20 +148,51 @@ class TrigBjetFex: public HLT::FexAlgo {
   /** @brief to use JetProb parametrization derived from data. */
   bool m_useParamFromData;
 
-  /** @brief lower bound of the chi square of the reconstructed track (to perform track selection). */
-  float m_trkSelChi2;
-  /** @brief lower bound of the number of hits on b-layer of reconstructed track (to perform track selection). */
-  int   m_trkSelBLayer;
-  /** @brief lower bound of the number of hits in pixel detector of reconstructed track (to perform track selection). */
-  int   m_trkSelPixHits;
-  /** @brief lower bound of the number of hits in silicon detectors of reconstructed track (to perform track selection). */
-  int   m_trkSelSiHits;
-  /** @brief upper bound of transverse impact parameter of reconstructed track (to perform track selection). */
-  float m_trkSelD0;
-  /** @brief upper bound of longitudinal impact parameter of reconstructed track (to perform track selection). */
-  float m_trkSelZ0;
-  /** @brief lower bound of pT of the reconstructed track (to perform track selection). */
-  float m_trkSelPt;
+  /** @brief lower bound of the chi square of the reconstructed track (to perform track selection) - grade 1. */
+  float m_trkSelGrade1_Chi2;
+  /** @brief lower bound of the number of hits on innermost layer of reconstructed track (to perform track selection) - grade 1. */
+  int   m_trkSelGrade1_Innermost;
+  /** @brief lower bound of the number of hits on next-to-innermost layer of reconstructed track (to perform track selection) - grade 1. */
+  int   m_trkSelGrade1_NextToInnermost;
+  /** @brief lower bound of the number of hits in pixel detector of reconstructed track (to perform track selection) - grade 1. */
+  int   m_trkSelGrade1_PixHits;
+  /** @brief lower bound of the number of hits in silicon detectors of reconstructed track (to perform track selection) - grade 1. */
+  int   m_trkSelGrade1_SiHits;
+  /** @brief upper bound of transverse impact parameter of reconstructed track (to perform track selection) - grade 1. */
+  float m_trkSelGrade1_D0;
+  /** @brief upper bound of longitudinal impact parameter of reconstructed track (to perform track selection) - grade 1. */
+  float m_trkSelGrade1_Z0;
+  /** @brief lower bound of pT of the reconstructed track (to perform track selection) - grade 1. */
+  float m_trkSelGrade1_Pt;
+  /** @brief upper bound of eta difference between track and jet (to perform track selection) - grade 1. */
+  float m_trkSelGrade1_Eta;
+  /** @brief upper bound of phi difference between track and jet (to perform track selection) - grade 1. */
+  float m_trkSelGrade1_Phi;
+  /** @brief upper bound of R difference between track and jet (to perform track selection) - grade 1. */
+  float m_trkSelGrade1_R;
+
+  /** @brief lower bound of the chi square of the reconstructed track (to perform track selection) - grade 2. */
+  float m_trkSelGrade2_Chi2;
+  /** @brief lower bound of the number of hits on innermost layer of reconstructed track (to perform track selection) - grade 1. */
+  int   m_trkSelGrade2_Innermost;
+  /** @brief lower bound of the number of hits on next-to-innermost layer of reconstructed track (to perform track selection) - grade 1. */
+  int   m_trkSelGrade2_NextToInnermost;
+  /** @brief lower bound of the number of hits in pixel detector of reconstructed track (to perform track selection) - grade 2. */
+  int   m_trkSelGrade2_PixHits;
+  /** @brief lower bound of the number of hits in silicon detectors of reconstructed track (to perform track selection) - grade 2. */
+  int   m_trkSelGrade2_SiHits;
+  /** @brief upper bound of transverse impact parameter of reconstructed track (to perform track selection) - grade 2. */
+  float m_trkSelGrade2_D0;
+  /** @brief upper bound of longitudinal impact parameter of reconstructed track (to perform track selection) - grade 2. */
+  float m_trkSelGrade2_Z0;
+  /** @brief lower bound of pT of the reconstructed track (to perform track selection) - grade 2. */
+  float m_trkSelGrade2_Pt;
+  /** @brief upper bound of eta difference between track and jet (to perform track selection) - grade 2. */
+  float m_trkSelGrade2_Eta;
+  /** @brief upper bound of phi difference between track and jet (to perform track selection) - grade 2. */
+  float m_trkSelGrade2_Phi;
+  /** @brief upper bound of R difference between track and jet (to perform track selection) - grade 2. */
+  float m_trkSelGrade2_R;
 
   //////////////////////
   //* for monitoring *//
@@ -204,17 +235,17 @@ class TrigBjetFex: public HLT::FexAlgo {
   //////////////////////
 
   /** @brief Pointer to TuningLikelihood class for IP1D likelihood tagger. */ 
-  TuningLikelihood* m_tuningLikelihoodIP1D;
+  TuningLikelihood* m_tuningLikelihoodIP1D_Grade1;
   /** @brief Pointer to TuningLikelihood class for IP2D likelihood tagger. */ 
-  TuningLikelihood* m_tuningLikelihoodIP2D;
+  TuningLikelihood* m_tuningLikelihoodIP2D_Grade1;
   /** @brief Pointer to TuningLikelihood class for IP3D likelihood tagger. */ 
-  TuningLikelihood* m_tuningLikelihoodIP3D;
+  TuningLikelihood* m_tuningLikelihoodIP3D_Grade1;
   /** @brief Pointer to TuningLikelihood class for IP1D likelihood tagger. */ 
-  TuningLikelihood* m_tuningLikelihoodIP1D_lowSiHits;
+  TuningLikelihood* m_tuningLikelihoodIP1D_Grade2;
   /** @brief Pointer to TuningLikelihood class for IP2D likelihood tagger. */ 
-  TuningLikelihood* m_tuningLikelihoodIP2D_lowSiHits;
+  TuningLikelihood* m_tuningLikelihoodIP2D_Grade2;
   /** @brief Pointer to TuningLikelihood class for IP3D likelihood tagger. */ 
-  TuningLikelihood* m_tuningLikelihoodIP3D_lowSiHits;
+  TuningLikelihood* m_tuningLikelihoodIP3D_Grade2;
   /** @brief Pointer to TuningLikelihood class for MVtx likelihood tagger. */ 
   TuningLikelihood* m_tuningLikelihoodMVtx;
   /** @brief Pointer to TuningLikelihood class for EVtx likelihood tagger. */ 
@@ -225,20 +256,20 @@ class TrigBjetFex: public HLT::FexAlgo {
   TuningLikelihood* m_tuningLikelihoodSV;
 
   /** @brief necessary for calibration constants for one-dimensional likelihood taggers based on impact parameters. */
-  std::vector<float> m_sizeIP1D, m_bIP1D, m_uIP1D;  
+  std::vector<float> m_sizeIP1D_Grade1, m_bIP1D_Grade1, m_uIP1D_Grade1;  
   /** @brief necessary for calibration constants for two-dimensional likelihood taggers based on impact parameters. */
-  std::vector<float> m_sizeIP2D, m_bIP2D, m_uIP2D;
+  std::vector<float> m_sizeIP2D_Grade1, m_bIP2D_Grade1, m_uIP2D_Grade1;
   /** @brief necessary for calibration constants for three-dimensional likelihood taggers based on impact parameters. */
-  std::vector<float> m_sizeIP3D, m_bIP3D, m_uIP3D;
+  std::vector<float> m_sizeIP3D_Grade1, m_bIP3D_Grade1, m_uIP3D_Grade1;
 
   /** @brief necessary for calibration constants for one-dimensional likelihood taggers based on impact parameters. */
-  std::vector<float> m_sizeIP1D_lowSiHits, m_bIP1D_lowSiHits, m_uIP1D_lowSiHits;
+  std::vector<float> m_sizeIP1D_Grade2, m_bIP1D_Grade2, m_uIP1D_Grade2;
   /** @brief necessary for calibration constants for two-dimensional likelihood taggers based on impact parameters. */
-  std::vector<float> m_sizeIP2D_lowSiHits, m_bIP2D_lowSiHits, m_uIP2D_lowSiHits;
+  std::vector<float> m_sizeIP2D_Grade2, m_bIP2D_Grade2, m_uIP2D_Grade2;
   /** @brief necessary for calibration constants for three-dimensional likelihood taggers based on impact parameters. */
-  std::vector<float> m_sizeIP3D_lowSiHits, m_bIP3D_lowSiHits, m_uIP3D_lowSiHits;
+  std::vector<float> m_sizeIP3D_Grade2, m_bIP3D_Grade2, m_uIP3D_Grade2;
 
-  bool m_useLowSiHits;
+  bool m_useGrading;
 
   /** @brief necessary for calibration constants for one-dimensional likelihood taggers based on mass of secondary vertex. */
   std::vector<float> m_sizeMVtx, m_bMVtx, m_uMVtx;

@@ -33,8 +33,8 @@ TrigJetSplitterAllTE::TrigJetSplitterAllTE(const std::string & name, ISvcLocator
 {
   declareProperty ("JetInputKey",  m_jetInputKey  = "TrigJetRec");
   declareProperty ("JetOutputKey", m_jetOutputKey = "SplitJet");
-  declareProperty ("EtaHalfWidth", m_etaHalfWidth = 0.2);
-  declareProperty ("PhiHalfWidth", m_phiHalfWidth = 0.2);
+  declareProperty ("EtaHalfWidth", m_etaHalfWidth = 0.4);
+  declareProperty ("PhiHalfWidth", m_phiHalfWidth = 0.4);
   declareProperty ("ZHalfWidth",   m_zHalfWidth   = 20.0);// in mm?
   declareProperty ("JetMinEt",     m_minJetEt     = 30.0); // in GeV (increase from 15 GeV to be same as vertex threshold)
   declareProperty ("JetMaxEta",    m_maxJetEta    = 2.5+m_etaHalfWidth);  // tracker acceptance + jet half-width
@@ -222,7 +222,7 @@ HLT::ErrorCode TrigJetSplitterAllTE::hltExecute(std::vector<std::vector<HLT::Tri
     // Use z, zplus and zminus info if available when constructing the ROI.
     // Otherwise, just do it the good old fashioned way.
 
-    TrigRoiDescriptor* roi = new TrigRoiDescriptor();
+    TrigRoiDescriptor* roi;
     if (use_z_constraint && prmVtx_z > -9e9 ) { 
       roi =  new TrigRoiDescriptor(jetEta,   etaMinus, etaPlus, 
 				   jetPhi,   phiMinus, phiPlus,

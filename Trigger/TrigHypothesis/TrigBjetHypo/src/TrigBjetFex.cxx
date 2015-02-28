@@ -64,12 +64,12 @@ TrigBjetFex::TrigBjetFex(const std::string& name, ISvcLocator* pSvcLocator) :
   m_trigBjetJetInfo(0),
   m_totTracks(0),
   m_totSelTracks(0),
-  m_tuningLikelihoodIP1D(0),
-  m_tuningLikelihoodIP2D(0),
-  m_tuningLikelihoodIP3D(0),
-  m_tuningLikelihoodIP1D_lowSiHits(0),
-  m_tuningLikelihoodIP2D_lowSiHits(0),
-  m_tuningLikelihoodIP3D_lowSiHits(0),
+  m_tuningLikelihoodIP1D_Grade1(0),
+  m_tuningLikelihoodIP2D_Grade1(0),
+  m_tuningLikelihoodIP3D_Grade1(0),
+  m_tuningLikelihoodIP1D_Grade2(0),
+  m_tuningLikelihoodIP2D_Grade2(0),
+  m_tuningLikelihoodIP3D_Grade2(0),
   m_tuningLikelihoodMVtx(0),
   m_tuningLikelihoodEVtx(0),
   m_tuningLikelihoodNVtx(0),
@@ -86,26 +86,26 @@ TrigBjetFex::TrigBjetFex(const std::string& name, ISvcLocator* pSvcLocator) :
   declareProperty ("par_0_DT",           m_par_0_DT);
   declareProperty ("par_1_DT",           m_par_1_DT);
 
-  declareProperty ("SizeIP1D",           m_sizeIP1D);
-  declareProperty ("bIP1D",              m_bIP1D);
-  declareProperty ("uIP1D",              m_uIP1D);
-  declareProperty ("SizeIP2D",           m_sizeIP2D);
-  declareProperty ("bIP2D",              m_bIP2D);
-  declareProperty ("uIP2D",              m_uIP2D);
-  declareProperty ("SizeIP3D",           m_sizeIP3D);
-  declareProperty ("bIP3D",              m_bIP3D);
-  declareProperty ("uIP3D",              m_uIP3D);
+  declareProperty ("SizeIP1D_Grade1",    m_sizeIP1D_Grade1);
+  declareProperty ("bIP1D_Grade1",       m_bIP1D_Grade1);
+  declareProperty ("uIP1D_Grade1",       m_uIP1D_Grade1);
+  declareProperty ("SizeIP2D_Grade1",    m_sizeIP2D_Grade1);
+  declareProperty ("bIP2D_Grade1",       m_bIP2D_Grade1);
+  declareProperty ("uIP2D_Grade1",       m_uIP2D_Grade1);
+  declareProperty ("SizeIP3D_Grade1",    m_sizeIP3D_Grade1);
+  declareProperty ("bIP3D_Grade1",       m_bIP3D_Grade1);
+  declareProperty ("uIP3D_Grade1",       m_uIP3D_Grade1);
 
-  declareProperty ("useLowSiHits",                 m_useLowSiHits = false);
-  declareProperty ("SizeIP1D_lowSiHits",           m_sizeIP1D_lowSiHits);
-  declareProperty ("bIP1D_lowSiHits",              m_bIP1D_lowSiHits);
-  declareProperty ("uIP1D_lowSiHits",              m_uIP1D_lowSiHits);
-  declareProperty ("SizeIP2D_lowSiHits",           m_sizeIP2D_lowSiHits);
-  declareProperty ("bIP2D_lowSiHits",              m_bIP2D_lowSiHits);
-  declareProperty ("uIP2D_lowSiHits",              m_uIP2D_lowSiHits);
-  declareProperty ("SizeIP3D_lowSiHits",           m_sizeIP3D_lowSiHits);
-  declareProperty ("bIP3D_lowSiHits",              m_bIP3D_lowSiHits);
-  declareProperty ("uIP3D_lowSiHits",              m_uIP3D_lowSiHits);
+  declareProperty ("useGrading",         m_useGrading = true);
+  declareProperty ("SizeIP1D_Grade2",    m_sizeIP1D_Grade2);
+  declareProperty ("bIP1D_Grade2",       m_bIP1D_Grade2);
+  declareProperty ("uIP1D_Grade2",       m_uIP1D_Grade2);
+  declareProperty ("SizeIP2D_Grade2",    m_sizeIP2D_Grade2);
+  declareProperty ("bIP2D_Grade2",       m_bIP2D_Grade2);
+  declareProperty ("uIP2D_Grade2",       m_uIP2D_Grade2);
+  declareProperty ("SizeIP3D_Grade2",    m_sizeIP3D_Grade2);
+  declareProperty ("bIP3D_Grade2",       m_bIP3D_Grade2);
+  declareProperty ("uIP3D_Grade2",       m_uIP3D_Grade2);
 
   declareProperty ("SizeMVtx",           m_sizeMVtx);
   declareProperty ("bMVtx",              m_bMVtx);
@@ -133,13 +133,29 @@ TrigBjetFex::TrigBjetFex(const std::string& name, ISvcLocator* pSvcLocator) :
   declareProperty ("RetrieveHLTJets",    m_retrieveHLTJets    = true);
   declareProperty ("TagHLTJets",         m_tagHLTJets         = 0);
 
-  declareProperty ("TrkSel_Chi2",        m_trkSelChi2         = 0.001);
-  declareProperty ("TrkSel_BLayer",      m_trkSelBLayer       = 1);
-  declareProperty ("TrkSel_PixHits",     m_trkSelPixHits      = 2);
-  declareProperty ("TrkSel_SiHits",      m_trkSelSiHits       = 4);
-  declareProperty ("TrkSel_D0",          m_trkSelD0           = 1*CLHEP::mm);
-  declareProperty ("TrkSel_Z0",          m_trkSelZ0           = 2*CLHEP::mm);
-  declareProperty ("TrkSel_Pt",          m_trkSelPt           = 1*CLHEP::GeV);
+  declareProperty ("TrkSelGrade1_Chi2",            m_trkSelGrade1_Chi2            = 0.001);
+  declareProperty ("TrkSelGrade1_Innermost",       m_trkSelGrade1_Innermost       = 1);
+  declareProperty ("TrkSelGrade1_NextToInnermost", m_trkSelGrade1_NextToInnermost = 1);
+  declareProperty ("TrkSelGrade1_PixHits",         m_trkSelGrade1_PixHits         = 2);
+  declareProperty ("TrkSelGrade1_SiHits",          m_trkSelGrade1_SiHits          = 4);
+  declareProperty ("TrkSelGrade1_D0",              m_trkSelGrade1_D0              = 1*CLHEP::mm);
+  declareProperty ("TrkSelGrade1_Z0",              m_trkSelGrade1_Z0              = 2*CLHEP::mm);
+  declareProperty ("TrkSelGrade1_Pt",              m_trkSelGrade1_Pt              = 1*CLHEP::GeV);
+  declareProperty ("TrkSelGrade1_Eta",             m_trkSelGrade1_Eta             = 0.4);
+  declareProperty ("TrkSelGrade1_Phi",             m_trkSelGrade1_Phi             = 0.4);
+  declareProperty ("TrkSelGrade1_R",               m_trkSelGrade1_R               = 0.4);
+
+  declareProperty ("TrkSelGrade2_Chi2",            m_trkSelGrade2_Chi2            = 0.001);
+  declareProperty ("TrkSelGrade2_Innermost",       m_trkSelGrade2_Innermost       = 1);
+  declareProperty ("TrkSelGrade2_NextToInnermost", m_trkSelGrade2_NextToInnermost = 1);
+  declareProperty ("TrkSelGrade2_PixHits",         m_trkSelGrade2_PixHits         = 2);
+  declareProperty ("TrkSelGrade2_SiHits",          m_trkSelGrade2_SiHits          = 4);
+  declareProperty ("TrkSelGrade2_D0",              m_trkSelGrade2_D0              = 1*CLHEP::mm);
+  declareProperty ("TrkSelGrade2_Z0",              m_trkSelGrade2_Z0              = 2*CLHEP::mm);
+  declareProperty ("TrkSelGrade2_Pt",              m_trkSelGrade2_Pt              = 1*CLHEP::GeV);
+  declareProperty ("TrkSelGrade2_Eta",             m_trkSelGrade2_Eta             = 0.4);
+  declareProperty ("TrkSelGrade2_Phi",             m_trkSelGrade2_Phi             = 0.4);
+  declareProperty ("TrkSelGrade2_R",               m_trkSelGrade2_R               = 0.4);
 
   declareMonitoredStdContainer("trk_a0",            m_mon_trk_a0,        AutoClear);
   declareMonitoredStdContainer("trk_a0_sel",        m_mon_trk_a0_sel,    AutoClear);
@@ -183,12 +199,12 @@ TrigBjetFex::~TrigBjetFex() {
   if (m_trigBjetPrmVtxInfo)      delete m_trigBjetPrmVtxInfo;
   if (m_trigBjetSecVtxInfo)      delete m_trigBjetSecVtxInfo;
   if (m_trigBjetJetInfo)         delete m_trigBjetJetInfo;
-  if (m_tuningLikelihoodIP1D)    delete m_tuningLikelihoodIP1D;
-  if (m_tuningLikelihoodIP2D)    delete m_tuningLikelihoodIP2D;
-  if (m_tuningLikelihoodIP3D)    delete m_tuningLikelihoodIP3D;
-  if (m_tuningLikelihoodIP1D_lowSiHits)    delete m_tuningLikelihoodIP1D_lowSiHits;
-  if (m_tuningLikelihoodIP2D_lowSiHits)    delete m_tuningLikelihoodIP2D_lowSiHits;
-  if (m_tuningLikelihoodIP3D_lowSiHits)    delete m_tuningLikelihoodIP3D_lowSiHits;
+  if (m_tuningLikelihoodIP1D_Grade1)    delete m_tuningLikelihoodIP1D_Grade1;
+  if (m_tuningLikelihoodIP2D_Grade1)    delete m_tuningLikelihoodIP2D_Grade1;
+  if (m_tuningLikelihoodIP3D_Grade1)    delete m_tuningLikelihoodIP3D_Grade1;
+  if (m_tuningLikelihoodIP1D_Grade2)    delete m_tuningLikelihoodIP1D_Grade2;
+  if (m_tuningLikelihoodIP2D_Grade2)    delete m_tuningLikelihoodIP2D_Grade2;
+  if (m_tuningLikelihoodIP3D_Grade2)    delete m_tuningLikelihoodIP3D_Grade2;
   if (m_tuningLikelihoodMVtx)    delete m_tuningLikelihoodMVtx;
   if (m_tuningLikelihoodEVtx)    delete m_tuningLikelihoodEVtx;
   if (m_tuningLikelihoodNVtx)    delete m_tuningLikelihoodNVtx;
@@ -233,36 +249,49 @@ HLT::ErrorCode TrigBjetFex::hltInitialize() {
           msg() << MSG::DEBUG << " JetProb 0 DT = "      << m_par_0_DT << endreq; 
           msg() << MSG::DEBUG << " JetProb 1 DT = "      << m_par_1_DT << endreq; 
 
-          msg() << MSG::DEBUG << " SizeIP1D = "          << m_sizeIP1D << endreq; 
-          msg() << MSG::DEBUG << " bIP1D = "             << m_bIP1D << endreq; 
-          msg() << MSG::DEBUG << " uIP1D = "             << m_uIP1D << endreq; 
-          msg() << MSG::DEBUG << " SizeIP2D = "          << m_sizeIP2D << endreq;
-          msg() << MSG::DEBUG << " bIP2D = "             << m_bIP2D << endreq; 
-          msg() << MSG::DEBUG << " uIP2D = "             << m_uIP2D << endreq;  
-          msg() << MSG::DEBUG << " SizeIP3D = "          << m_sizeIP3D << endreq; 
-          msg() << MSG::DEBUG << " bIP3D = "             << m_bIP3D << endreq; 
-          msg() << MSG::DEBUG << " uIP3D = "             << m_uIP3D << endreq; 
+          msg() << MSG::DEBUG << " SizeIP1D_Grade1 = "  << m_sizeIP1D_Grade1 << endreq; 
+          msg() << MSG::DEBUG << " bIP1D_Grade1 = "     << m_bIP1D_Grade1 << endreq; 
+          msg() << MSG::DEBUG << " uIP1D_Grade1 = "     << m_uIP1D_Grade1 << endreq; 
+          msg() << MSG::DEBUG << " SizeIP2D_Grade1 = "  << m_sizeIP2D_Grade1 << endreq;
+          msg() << MSG::DEBUG << " bIP2D_Grade1 = "     << m_bIP2D_Grade1 << endreq; 
+          msg() << MSG::DEBUG << " uIP2D_Grade1 = "     << m_uIP2D_Grade1 << endreq;  
+          msg() << MSG::DEBUG << " SizeIP3D_Grade1 = "  << m_sizeIP3D_Grade1 << endreq; 
+          msg() << MSG::DEBUG << " bIP3D_Grade1 = "     << m_bIP3D_Grade1 << endreq; 
+          msg() << MSG::DEBUG << " uIP3D_Grade1 = "     << m_uIP3D_Grade1 << endreq; 
 
-          msg() << MSG::DEBUG << " SizeIP1D_lowSiHits = "  << m_sizeIP1D_lowSiHits << endreq; 
-          msg() << MSG::DEBUG << " bIP1D_lowSiHits = "     << m_bIP1D_lowSiHits << endreq; 
-          msg() << MSG::DEBUG << " uIP1D_lowSiHits = "     << m_uIP1D_lowSiHits << endreq; 
-          msg() << MSG::DEBUG << " SizeIP2D_lowSiHits = "  << m_sizeIP2D_lowSiHits << endreq;
-          msg() << MSG::DEBUG << " bIP2D_lowSiHits = "     << m_bIP2D_lowSiHits << endreq; 
-          msg() << MSG::DEBUG << " uIP2D_lowSiHits = "     << m_uIP2D_lowSiHits << endreq;  
-          msg() << MSG::DEBUG << " SizeIP3D_lowSiHits = "  << m_sizeIP3D_lowSiHits << endreq; 
-          msg() << MSG::DEBUG << " bIP3D_lowSiHits = "     << m_bIP3D_lowSiHits << endreq; 
-          msg() << MSG::DEBUG << " uIP3D_lowSiHits = "     << m_uIP3D_lowSiHits << endreq; 
+          msg() << MSG::DEBUG << " SizeIP1D_Grade2 = "  << m_sizeIP1D_Grade2 << endreq; 
+          msg() << MSG::DEBUG << " bIP1D_Grade2 = "     << m_bIP1D_Grade2 << endreq; 
+          msg() << MSG::DEBUG << " uIP1D_Grade2 = "     << m_uIP1D_Grade2 << endreq; 
+          msg() << MSG::DEBUG << " SizeIP2D_Grade2 = "  << m_sizeIP2D_Grade2 << endreq;
+          msg() << MSG::DEBUG << " bIP2D_Grade2 = "     << m_bIP2D_Grade2 << endreq; 
+          msg() << MSG::DEBUG << " uIP2D_Grade2 = "     << m_uIP2D_Grade2 << endreq;  
+          msg() << MSG::DEBUG << " SizeIP3D_Grade2 = "  << m_sizeIP3D_Grade2 << endreq; 
+          msg() << MSG::DEBUG << " bIP3D_Grade2 = "     << m_bIP3D_Grade2 << endreq; 
+          msg() << MSG::DEBUG << " uIP3D_Grade2 = "     << m_uIP3D_Grade2 << endreq; 
 
-          msg() << MSG::DEBUG << " SizeIP1D = "          << m_sizeIP1D << endreq; 
-          msg() << MSG::DEBUG << " bIP1D = "             << m_bIP1D << endreq; 
-          msg() << MSG::DEBUG << " uIP1D = "             << m_uIP1D << endreq; 
+          msg() << MSG::DEBUG << " TrkSelGrade1_Chi2 = "            << m_trkSelGrade1_Chi2 << endreq; 
+          msg() << MSG::DEBUG << " TrkSelGrade1_Innermost = "       << m_trkSelGrade1_Innermost << endreq; 
+          msg() << MSG::DEBUG << " TrkSelGrade1_NextToInnermost = " << m_trkSelGrade1_NextToInnermost << endreq; 
+          msg() << MSG::DEBUG << " TrkSelGrade1_PixHits = "         << m_trkSelGrade1_PixHits << endreq; 
+          msg() << MSG::DEBUG << " TrkSelGrade1_SiHits = "          << m_trkSelGrade1_SiHits << endreq; 
+          msg() << MSG::DEBUG << " TrkSelGrade1_D0 = "              << m_trkSelGrade1_D0 << endreq; 
+          msg() << MSG::DEBUG << " TrkSelGrade1_Z0 = "              << m_trkSelGrade1_Z0 << endreq; 
+          msg() << MSG::DEBUG << " TrkSelGrade1_Pt = "              << m_trkSelGrade1_Pt << endreq; 
+          msg() << MSG::DEBUG << " TrkSelGrade1_Eta = "             << m_trkSelGrade1_Eta << endreq; 
+          msg() << MSG::DEBUG << " TrkSelGrade1_Phi = "             << m_trkSelGrade1_Phi << endreq; 
+          msg() << MSG::DEBUG << " TrkSelGrade1_R = "               << m_trkSelGrade1_R << endreq; 
 
-          msg() << MSG::DEBUG << " TrkSel_Chi2 = "     << m_trkSelChi2 << endreq; 
-          msg() << MSG::DEBUG << " TrkSel_BLayer = "   << m_trkSelBLayer << endreq; 
-          msg() << MSG::DEBUG << " TrkSel_SiHits = "   << m_trkSelSiHits << endreq; 
-          msg() << MSG::DEBUG << " TrkSel_D0 = "       << m_trkSelD0 << endreq; 
-          msg() << MSG::DEBUG << " TrkSel_Z0 = "       << m_trkSelZ0 << endreq; 
-          msg() << MSG::DEBUG << " TrkSel_Pt = "       << m_trkSelPt << endreq; 
+          msg() << MSG::DEBUG << " TrkSelGrade2_Chi2 = "            << m_trkSelGrade2_Chi2 << endreq; 
+          msg() << MSG::DEBUG << " TrkSelGrade2_Innermost = "       << m_trkSelGrade2_Innermost << endreq; 
+          msg() << MSG::DEBUG << " TrkSelGrade2_NextToInnermost = " << m_trkSelGrade2_NextToInnermost << endreq; 
+          msg() << MSG::DEBUG << " TrkSelGrade2_PixHits = "         << m_trkSelGrade2_PixHits << endreq; 
+          msg() << MSG::DEBUG << " TrkSelGrade2_SiHits = "          << m_trkSelGrade2_SiHits << endreq; 
+          msg() << MSG::DEBUG << " TrkSelGrade2_D0 = "              << m_trkSelGrade2_D0 << endreq; 
+          msg() << MSG::DEBUG << " TrkSelGrade2_Z0 = "              << m_trkSelGrade2_Z0 << endreq; 
+          msg() << MSG::DEBUG << " TrkSelGrade2_Pt = "              << m_trkSelGrade2_Pt << endreq; 
+          msg() << MSG::DEBUG << " TrkSelGrade2_Eta = "             << m_trkSelGrade2_Eta << endreq; 
+          msg() << MSG::DEBUG << " TrkSelGrade2_Phi = "             << m_trkSelGrade2_Phi << endreq; 
+          msg() << MSG::DEBUG << " TrkSelGrade2_R = "               << m_trkSelGrade2_R << endreq; 
 
           msg() << MSG::DEBUG << " SizeMVtx = "       << m_sizeMVtx << endreq; 
           msg() << MSG::DEBUG << " bMVtx = "          << m_bMVtx << endreq; 
@@ -284,25 +313,23 @@ HLT::ErrorCode TrigBjetFex::hltInitialize() {
     if (msgLvl() <= MSG::DEBUG) 
       msg() << MSG::DEBUG << "Retrieving tuning likelihoods." << endreq;
 
-    m_tuningLikelihoodIP1D = new TuningLikelihood(&m_sizeIP1D[0], &m_bIP1D[0], &m_uIP1D[0], m_sizeIP1D.size());
-    m_trigBjetTagger->fillLikelihoodMap("IP1D", m_tuningLikelihoodIP1D);
+    m_tuningLikelihoodIP1D_Grade1 = new TuningLikelihood(&m_sizeIP1D_Grade1[0], &m_bIP1D_Grade1[0], &m_uIP1D_Grade1[0], m_sizeIP1D_Grade1.size());
+    m_trigBjetTagger->fillLikelihoodMap("IP1D_Grade1", m_tuningLikelihoodIP1D_Grade1);
     
-    m_tuningLikelihoodIP2D = new TuningLikelihood(&m_sizeIP2D[0], &m_bIP2D[0], &m_uIP2D[0], m_sizeIP2D.size());   
-    m_trigBjetTagger->fillLikelihoodMap("IP2D", m_tuningLikelihoodIP2D);
+    m_tuningLikelihoodIP2D_Grade1 = new TuningLikelihood(&m_sizeIP2D_Grade1[0], &m_bIP2D_Grade1[0], &m_uIP2D_Grade1[0], m_sizeIP2D_Grade1.size());   
+    m_trigBjetTagger->fillLikelihoodMap("IP2D_Grade1", m_tuningLikelihoodIP2D_Grade1);
 
-    m_tuningLikelihoodIP3D = new TuningLikelihood(&m_sizeIP3D[0], &m_bIP3D[0], &m_uIP3D[0], m_sizeIP3D.size()); 
-    m_trigBjetTagger->fillLikelihoodMap("IP3D", m_tuningLikelihoodIP3D);
+    m_tuningLikelihoodIP3D_Grade1 = new TuningLikelihood(&m_sizeIP3D_Grade1[0], &m_bIP3D_Grade1[0], &m_uIP3D_Grade1[0], m_sizeIP3D_Grade1.size()); 
+    m_trigBjetTagger->fillLikelihoodMap("IP3D_Grade1", m_tuningLikelihoodIP3D_Grade1);
 
-    if (m_useLowSiHits) {
-      m_tuningLikelihoodIP1D_lowSiHits = new TuningLikelihood(&m_sizeIP1D_lowSiHits[0], &m_bIP1D_lowSiHits[0], &m_uIP1D_lowSiHits[0], m_sizeIP1D_lowSiHits.size());
-      m_trigBjetTagger->fillLikelihoodMap("IP1D_lowSiHits", m_tuningLikelihoodIP1D_lowSiHits);
-
-      m_tuningLikelihoodIP2D_lowSiHits = new TuningLikelihood(&m_sizeIP2D_lowSiHits[0], &m_bIP2D_lowSiHits[0], &m_uIP2D_lowSiHits[0], m_sizeIP2D_lowSiHits.size());
-      m_trigBjetTagger->fillLikelihoodMap("IP2D_lowSiHits", m_tuningLikelihoodIP2D_lowSiHits);
-
-      m_tuningLikelihoodIP3D_lowSiHits = new TuningLikelihood(&m_sizeIP3D_lowSiHits[0], &m_bIP3D_lowSiHits[0], &m_uIP3D_lowSiHits[0], m_sizeIP3D_lowSiHits.size());
-      m_trigBjetTagger->fillLikelihoodMap("IP3D_lowSiHits", m_tuningLikelihoodIP3D_lowSiHits);
-    }
+    m_tuningLikelihoodIP1D_Grade2 = new TuningLikelihood(&m_sizeIP1D_Grade2[0], &m_bIP1D_Grade2[0], &m_uIP1D_Grade2[0], m_sizeIP1D_Grade2.size());
+    m_trigBjetTagger->fillLikelihoodMap("IP1D_Grade2", m_tuningLikelihoodIP1D_Grade2);
+    
+    m_tuningLikelihoodIP2D_Grade2 = new TuningLikelihood(&m_sizeIP2D_Grade2[0], &m_bIP2D_Grade2[0], &m_uIP2D_Grade2[0], m_sizeIP2D_Grade2.size());
+    m_trigBjetTagger->fillLikelihoodMap("IP2D_Grade2", m_tuningLikelihoodIP2D_Grade2);
+    
+    m_tuningLikelihoodIP3D_Grade2 = new TuningLikelihood(&m_sizeIP3D_Grade2[0], &m_bIP3D_Grade2[0], &m_uIP3D_Grade2[0], m_sizeIP3D_Grade2.size());
+    m_trigBjetTagger->fillLikelihoodMap("IP3D_Grade2", m_tuningLikelihoodIP3D_Grade2);
 
     m_tuningLikelihoodMVtx = new TuningLikelihood(&m_sizeMVtx[0], &m_bMVtx[0], &m_uMVtx[0], m_sizeMVtx.size()); 
     m_trigBjetTagger->fillLikelihoodMap("MVTX", m_tuningLikelihoodMVtx);
@@ -661,20 +688,26 @@ HLT::ErrorCode TrigBjetFex::getSecVtxInfo(const Trk::VxSecVertexInfoContainer*& 
 //** ----------------------------------------------------------------------------------------------------------------- **//
 
 
-bool TrigBjetFex::efTrackSel(const xAOD::TrackParticle*& track, unsigned int i) {
+bool TrigBjetFex::trackSel(const xAOD::TrackParticle*& track, unsigned int i, int grade,
+			   float trkSelChi2, int trkSelInnermost, int trkSelNextToInnermost, int trkSelPixHits, int trkSelSiHits, float trkSelD0, float trkSelZ0, float trkSelPt,
+			   float trkSelEta, float trkSelPhi, float trkSelR) {
 
   float zv = m_trigBjetPrmVtxInfo->zPrmVtx();
 
   //const Trk::TrackSummary *summary = track->trackSummary();
   //const Trk::FitQuality *quality   = track->fitQuality();
 
-  uint8_t nBlayerHits = 0;
+  //uint8_t nBlayerHits = 0;
+  uint8_t nInnermostHits = 0;
+  uint8_t nNextToInnermostHits = 0;
   uint8_t nPixHits    = 0;  
   uint8_t nSCTHits    = 0; 
 
-  track->summaryValue(nBlayerHits, xAOD::numberOfBLayerHits);
-  track->summaryValue(nPixHits,    xAOD::numberOfPixelHits);
-  track->summaryValue(nSCTHits,    xAOD::numberOfSCTHits);
+  //track->summaryValue(nBlayerHits,          xAOD::numberOfBLayerHits);
+  track->summaryValue(nInnermostHits,       xAOD::numberOfInnermostPixelLayerHits);
+  track->summaryValue(nNextToInnermostHits, xAOD::numberOfNextToInnermostPixelLayerHits);
+  track->summaryValue(nPixHits,             xAOD::numberOfPixelHits);
+  track->summaryValue(nSCTHits,             xAOD::numberOfSCTHits);
 
   int   nSiHits = nPixHits + nSCTHits; //summary->get(Trk::numberOfPixelHits)+summary->get(Trk::numberOfSCTHits);
   float theta   = track->theta();
@@ -682,6 +715,10 @@ bool TrigBjetFex::efTrackSel(const xAOD::TrackParticle*& track, unsigned int i) 
   float pT      = (1/qOverPt);
   float d0      = track->d0();
   float z0      = track->z0() + m_trigBjetPrmVtxInfo->zBeamSpot();
+
+  float dEta = fabs(track->eta() - m_trigBjetJetInfo->etaRoI());
+  float dPhi = fabs(m_taggerHelper->phiCorr(m_taggerHelper->phiCorr(track->phi()) - m_trigBjetJetInfo->phiRoI()));
+  float dR   = sqrt(dEta*dEta+dPhi*dPhi);
 
   // FIX FOR REDEFINED IP REFERENCE (ATR-9051)
   //m_taggerHelper->IPCorr(track->measuredPerigee()->parameters()[Trk::d0], track->measuredPerigee()->parameters()[Trk::z0], 
@@ -691,68 +728,79 @@ bool TrigBjetFex::efTrackSel(const xAOD::TrackParticle*& track, unsigned int i) 
   // END FIX 
 
   if (msgLvl() <= MSG::VERBOSE) {
-    msg() << MSG::VERBOSE << "efTrackSel method"  << endreq;
-    msg() << MSG::VERBOSE << "  Track number "    << i+1  << " to be selected must be:" << endreq;
-    msg() << MSG::VERBOSE << "    Pt "            << fabs(pT)                      << " >= " << m_trkSelPt << endreq;
-    msg() << MSG::VERBOSE << "    d0 "            << fabs(d0)                      << " <= " << m_trkSelD0 << endreq;
-    msg() << MSG::VERBOSE << "    z0*sin(theta) " << fabs(z0-zv)*TMath::Sin(theta) << " <= " << m_trkSelZ0 << endreq;
-    msg() << MSG::VERBOSE << "    bLayer "        << (int)nBlayerHits              << " >= " << m_trkSelBLayer << endreq;
-    msg() << MSG::VERBOSE << "    pixelHit "      << (int)nPixHits                 << " >= " << m_trkSelPixHits << endreq;
-    msg() << MSG::VERBOSE << "    SiHit "         << (int)nSiHits                  << " >= " << m_trkSelSiHits << endreq;
-    msg() << MSG::VERBOSE << "    Prob(chi2) "    << TMath::Prob(track->chiSquared(), (int)nSiHits*3-5) << " > " << m_trkSelChi2 << endreq;
+    msg() << MSG::VERBOSE << "TrackSel method (grade " << grade << ")" << endreq;
+    msg() << MSG::VERBOSE << "  Track number "           << i+1  << " to be selected must be:" << endreq;
+    msg() << MSG::VERBOSE << "    dEta "                 << dEta                          << " <= " << trkSelEta << endreq;
+    msg() << MSG::VERBOSE << "    dPhi "                 << dPhi                          << " <= " << trkSelPhi << endreq;
+    msg() << MSG::VERBOSE << "    dR "                   << dR                            << " <= " << trkSelR << endreq;
+    msg() << MSG::VERBOSE << "    pt "                   << fabs(pT)                      << " >= " << trkSelPt << endreq;
+    msg() << MSG::VERBOSE << "    d0 "                   << fabs(d0)                      << " <= " << trkSelD0 << endreq;
+    msg() << MSG::VERBOSE << "    z0*sin(theta) "        << fabs(z0-zv)*TMath::Sin(theta) << " <= " << trkSelZ0 << endreq;
+    msg() << MSG::VERBOSE << "    innermostLayer "       << (int)nInnermostHits           << " >= " << trkSelInnermost << endreq;
+    msg() << MSG::VERBOSE << "    nextToInnermostLayer " << (int)nNextToInnermostHits     << " >= " << trkSelNextToInnermost << endreq;
+    msg() << MSG::VERBOSE << "    pixelHit "             << (int)nPixHits                 << " >= " << trkSelPixHits << endreq;
+    msg() << MSG::VERBOSE << "    siHit "                << (int)nSiHits                  << " >= " << trkSelSiHits << endreq;
+    msg() << MSG::VERBOSE << "    prob(chi2) "           << TMath::Prob(track->chiSquared(), (int)nSiHits*3-5) << " > " << trkSelChi2 << endreq;
+  }
+  
+  if (dEta > trkSelEta) {
+    if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "  grade " << grade << " track " << i+1 << " is not selected (delta eta matching)" << endreq;
+    m_listCutApplied.push_back(2); return false;
   }
 
-  if(m_useEtaPhiTrackSel) {
-
-    if (fabs(track->eta() - m_trigBjetJetInfo->etaRoI()) > 0.2) {
-      if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "  track " << i+1 << " is not selected (eta matching)" << endreq;
-      m_listCutApplied.push_back(2); return false;
-    }
-
-    if (fabs(m_taggerHelper->phiCorr(m_taggerHelper->phiCorr(track->phi()) - m_trigBjetJetInfo->phiRoI())) > 0.2) {
-      if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "  track " << i+1 << " is not selected (phi matching)" << endreq;
-      m_listCutApplied.push_back(3); return false;
-    }
+  if (dPhi > trkSelPhi) {
+    if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "  grade " << grade << " track " << i+1 << " is not selected (delta phi matching)" << endreq;
+    m_listCutApplied.push_back(3); return false;
   }
 
-  if (fabs(pT) < m_trkSelPt) {
-    if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "  track " << i+1 << " not selected (pT cut)" << endreq;
+  if (dR > trkSelR) {
+    if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "  grade " << grade << " track " << i+1 << " is not selected (delta R matching)" << endreq;
     m_listCutApplied.push_back(4); return false;
   }
 
-  if (fabs(d0) > m_trkSelD0) {
-    if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "  track " << i+1 << " not selected (d0 cut)" << endreq;
+  if (fabs(pT) < trkSelPt) {
+    if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "  grade " << grade << " track " << i+1 << " not selected (pT cut)" << endreq;
     m_listCutApplied.push_back(5); return false;
   }
 
-  if (fabs(z0-zv)*TMath::Sin(theta) > m_trkSelZ0) {
-    if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "  track " << i+1 << " not selected (z0 cut)" << endreq;
+  if (fabs(d0) > trkSelD0) {
+    if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "  grade " << grade << " track " << i+1 << " not selected (d0 cut)" << endreq;
     m_listCutApplied.push_back(6); return false;
   }
 
-  if (nBlayerHits < m_trkSelBLayer) {
-    if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "  track " << i+1 << " not selected (missing b-layer hit)" << endreq;
+  if (fabs(z0-zv)*TMath::Sin(theta) > trkSelZ0) {
+    if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "  grade " << grade << " track " << i+1 << " not selected (z0 cut)" << endreq;
     m_listCutApplied.push_back(7); return false;
   }
 
-  if (nPixHits < m_trkSelPixHits) {
-    if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "  track " << i+1 << " not selected (too few pixel hits)" << endreq;
+  if (nInnermostHits < trkSelInnermost) {
+    if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "  grade " << grade << " track " << i+1 << " not selected (missing innermost layer hit)" << endreq;
     m_listCutApplied.push_back(8); return false;
   }
 
-  if (nSiHits < m_trkSelSiHits) {
-    if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "  track " << i+1 << " not selected (too few silicon hits)" << endreq;
+  if (nNextToInnermostHits < trkSelNextToInnermost) {
+    if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "  grade " << grade << " track " << i+1 << " not selected (missing next to innermost layer hit)" << endreq;
     m_listCutApplied.push_back(9); return false;
   }
 
-  if (TMath::Prob(track->chiSquared(), (int)nSiHits*3-5) <= m_trkSelChi2) {
-    if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "  track " << i+1 << " not selected (chi2 cut)" << endreq;
+  if (nPixHits < trkSelPixHits) {
+    if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "  grade " << grade << " track " << i+1 << " not selected (too few pixel hits)" << endreq;
     m_listCutApplied.push_back(10); return false;
   }
-  
-  if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "    track " << i+1 << " is selected" << endreq;
 
-  m_listCutApplied.push_back(11);
+  if (nSiHits < trkSelSiHits) {
+    if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "  grade " << grade << " track " << i+1 << " not selected (too few silicon hits)" << endreq;
+    m_listCutApplied.push_back(11); return false;
+  }
+
+  if (TMath::Prob(track->chiSquared(), (int)nSiHits*3-5) <= trkSelChi2) {
+    if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "  grade " << grade << " track " << i+1 << " not selected (chi2 cut)" << endreq;
+    m_listCutApplied.push_back(12); return false;
+  }
+  
+  if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "    grade " << grade << " track " << i+1 << " is selected" << endreq;
+
+  m_listCutApplied.push_back(13);
   return true;
 }
 
@@ -1052,10 +1100,19 @@ HLT::ErrorCode TrigBjetFex::hltExecute(const HLT::TriggerElement* /*inputTE*/, H
     m_mon_trk_a0.push_back(track->d0());
     m_mon_trk_z0.push_back(track->z0() + m_trigBjetPrmVtxInfo->zBeamSpot());
     
-    if (efTrackSel(track, j)) {
+    bool passGrade1 = trackSel(track, j, 1, m_trkSelGrade1_Chi2, m_trkSelGrade1_Innermost, m_trkSelGrade1_NextToInnermost, m_trkSelGrade1_PixHits, m_trkSelGrade1_SiHits,
+			       m_trkSelGrade1_D0, m_trkSelGrade1_Z0, m_trkSelGrade1_Pt, m_trkSelGrade1_Eta, m_trkSelGrade1_Phi, m_trkSelGrade1_R);
+
+    bool passGrade2 = trackSel(track, j, 2, m_trkSelGrade2_Chi2, m_trkSelGrade2_Innermost, m_trkSelGrade2_NextToInnermost, m_trkSelGrade2_PixHits, m_trkSelGrade2_SiHits,
+			       m_trkSelGrade2_D0, m_trkSelGrade2_Z0, m_trkSelGrade2_Pt, m_trkSelGrade2_Eta, m_trkSelGrade2_Phi, m_trkSelGrade2_R);
+
+    if (passGrade1 || (m_useGrading && passGrade2)) {
       m_totSelTracks++;
       TrigBjetTrackInfo trigBjetTrackInfo(track);
-      
+
+      if(m_useGrading && passGrade2) trigBjetTrackInfo.setGrade(2);
+      if(passGrade1) trigBjetTrackInfo.setGrade(1);
+     
       float d0Corr=0, z0Corr=0;
       d0Corr=track->d0(); 
       z0Corr=track->z0()+m_trigBjetPrmVtxInfo->zBeamSpot();
@@ -1220,6 +1277,7 @@ HLT::ErrorCode TrigBjetFex::hltExecute(const HLT::TriggerElement* /*inputTE*/, H
   xAOD::BTagging * newBTag = new xAOD::BTagging();
   m_trigBTaggingContainer->push_back(newBTag);
 
+  // Set results
   newBTag->setSV1_pu(m_trigBjetTagger->taggersPuMap("MVTX")*m_trigBjetTagger->taggersPuMap("NVTX")*m_trigBjetTagger->taggersPuMap("EVTX"));
   newBTag->setSV1_pb(m_trigBjetTagger->taggersPbMap("MVTX")*m_trigBjetTagger->taggersPbMap("NVTX")*m_trigBjetTagger->taggersPbMap("EVTX"));
 
@@ -1228,6 +1286,29 @@ HLT::ErrorCode TrigBjetFex::hltExecute(const HLT::TriggerElement* /*inputTE*/, H
 
   newBTag->setIP3D_pu(m_trigBjetTagger->taggersPuMap("IP3D"));
   newBTag->setIP3D_pb(m_trigBjetTagger->taggersPbMap("IP3D"));
+
+  // Set additional SV1 variables
+  newBTag->setVariable<float>("SV1", "masssvx",         m_trigBjetSecVtxInfo->vtxMass());
+  newBTag->setVariable<float>("SV1", "efracsvx",        m_trigBjetSecVtxInfo->energyFraction());
+  newBTag->setVariable<int>  ("SV1", "N2Tpair",         m_trigBjetSecVtxInfo->n2TrkVtx());
+  newBTag->setVariable<float>("SV1", "significance3d",  m_trigBjetSecVtxInfo->decayLengthSignificance());
+
+  // Create element links to the TrackParticles and to the Jet
+  auto& trkAssociationLinks = newBTag->auxdata<std::vector<ElementLink<xAOD::TrackParticleContainer> > >("BTagTrackToJetAssociator");
+  if(pointerToEFTrackCollections) {
+    trkAssociationLinks.resize (pointerToEFTrackCollections->size());
+    for(size_t i = 0; i < pointerToEFTrackCollections->size(); ++i) {
+      trkAssociationLinks[i].toIndexedElement (*pointerToEFTrackCollections, i);
+    }
+  }
+  auto& jetAssociationLinks = newBTag->auxdata<std::vector<ElementLink<xAOD::JetContainer> > >("BTagBtagToJetAssociator");
+  if(jets) {
+    jetAssociationLinks.resize (jets->size());
+    for(size_t i = 0; i < jets->size(); ++i) {
+      jetAssociationLinks[i].toIndexedElement (*jets, i);
+    }
+  }
+
 
   msg() << MSG::DEBUG << "IP2D u/b: " << m_trigBjetTagger->taggersPuMap("IP2D") << "/" << m_trigBjetTagger->taggersPbMap("IP2D")
 	<< "   IP3D u/b: " << m_trigBjetTagger->taggersPuMap("IP3D") << "/" << m_trigBjetTagger->taggersPbMap("IP3D")
@@ -1264,3 +1345,5 @@ HLT::ErrorCode TrigBjetFex::hltFinalize() {
 
 
 
+
+//  LocalWords:  endreq

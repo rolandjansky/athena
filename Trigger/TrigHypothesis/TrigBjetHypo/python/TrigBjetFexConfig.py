@@ -46,25 +46,25 @@ class BjetFex (TrigBjetFex):
         self.par_0_DT = getTuning_par_0_DT(calibInstance)
         self.par_1_DT = getTuning_par_1_DT(calibInstance)
             
-        self.SizeIP1D = getTuning_SizeIP1D(calibInstance)
-        self.bIP1D    = getTuning_bIP1D   (calibInstance)
-        self.uIP1D    = getTuning_uIP1D   (calibInstance)
-        self.SizeIP2D = getTuning_SizeIP2D(calibInstance)
-        self.bIP2D    = getTuning_bIP2D   (calibInstance)
-        self.uIP2D    = getTuning_uIP2D   (calibInstance)
-        self.SizeIP3D = getTuning_SizeIP3D(calibInstance)
-        self.bIP3D    = getTuning_bIP3D   (calibInstance)
-        self.uIP3D    = getTuning_uIP3D   (calibInstance)
+        self.SizeIP1D_Grade1 = getTuning_SizeIP1D_Grade1(calibInstance)
+        self.bIP1D_Grade1    = getTuning_bIP1D_Grade1   (calibInstance)
+        self.uIP1D_Grade1    = getTuning_uIP1D_Grade1   (calibInstance)
+        self.SizeIP2D_Grade1 = getTuning_SizeIP2D_Grade1(calibInstance)
+        self.bIP2D_Grade1    = getTuning_bIP2D_Grade1   (calibInstance)
+        self.uIP2D_Grade1    = getTuning_uIP2D_Grade1   (calibInstance)
+        self.SizeIP3D_Grade1 = getTuning_SizeIP3D_Grade1(calibInstance)
+        self.bIP3D_Grade1    = getTuning_bIP3D_Grade1   (calibInstance)
+        self.uIP3D_Grade1    = getTuning_uIP3D_Grade1   (calibInstance)
         
-        self.SizeIP1D_lowSiHits = getTuning_SizeIP1D_lowSiHits(calibInstance)
-        self.bIP1D_lowSiHits    = getTuning_bIP1D_lowSiHits   (calibInstance)
-        self.uIP1D_lowSiHits    = getTuning_uIP1D_lowSiHits   (calibInstance)
-        self.SizeIP2D_lowSiHits = getTuning_SizeIP2D_lowSiHits(calibInstance)
-        self.bIP2D_lowSiHits    = getTuning_bIP2D_lowSiHits   (calibInstance)
-        self.uIP2D_lowSiHits    = getTuning_uIP2D_lowSiHits   (calibInstance)
-        self.SizeIP3D_lowSiHits = getTuning_SizeIP3D_lowSiHits(calibInstance)
-        self.bIP3D_lowSiHits    = getTuning_bIP3D_lowSiHits   (calibInstance)
-        self.uIP3D_lowSiHits    = getTuning_uIP3D_lowSiHits   (calibInstance)
+        self.SizeIP1D_Grade2 = getTuning_SizeIP1D_Grade2(calibInstance)
+        self.bIP1D_Grade2    = getTuning_bIP1D_Grade2   (calibInstance)
+        self.uIP1D_Grade2    = getTuning_uIP1D_Grade2   (calibInstance)
+        self.SizeIP2D_Grade2 = getTuning_SizeIP2D_Grade2(calibInstance)
+        self.bIP2D_Grade2    = getTuning_bIP2D_Grade2   (calibInstance)
+        self.uIP2D_Grade2    = getTuning_uIP2D_Grade2   (calibInstance)
+        self.SizeIP3D_Grade2 = getTuning_SizeIP3D_Grade2(calibInstance)
+        self.bIP3D_Grade2    = getTuning_bIP3D_Grade2   (calibInstance)
+        self.uIP3D_Grade2    = getTuning_uIP3D_Grade2   (calibInstance)
         
         self.SizeSV   = getTuning_SizeSV  (calibInstance)
         self.bSV      = getTuning_bSV     (calibInstance)
@@ -117,7 +117,7 @@ class BjetFex (TrigBjetFex):
         self.UseBeamSpotFlag    = False
         self.SetBeamSpotWidth   = 1*mm
         self.UseParamFromData   = False
-        self.useLowSiHits       = True
+        self.useGrading         = True
         
         self.UseErrIPParam      = False
         self.UseEtaPhiTrackSel  = False
@@ -125,13 +125,28 @@ class BjetFex (TrigBjetFex):
         self.Taggers            = ["IP1D", "IP2D", "IP3D", "CHI2", "MVTX", "EVTX", "NVTX", "SVTX", "COMB"]
 
         if algo=="EFID" :
-            self.TrkSel_Chi2    = 0.0
-            self.TrkSel_BLayer  = 1
-            self.TrkSel_PixHits = 2
-            self.TrkSel_SiHits  = 7
-            self.TrkSel_D0      = 1*mm
-            self.TrkSel_Z0      = 2*mm
-            self.TrkSel_Pt      = 1*GeV
+            self.TrkSelGrade1_Chi2            = 0.0
+            self.TrkSelGrade1_Innermost       = 1
+            self.TrkSelGrade1_NextToInnermost = 0
+            self.TrkSelGrade1_PixHits         = 2
+            self.TrkSelGrade1_SiHits          = 7
+            self.TrkSelGrade1_D0              = 1*mm
+            self.TrkSelGrade1_Z0              = 2*mm
+            self.TrkSelGrade1_Pt              = 1*GeV
+            self.TrkSelGrade1_Eta             = 0.4
+            self.TrkSelGrade1_Phi             = 0.4
+            self.TrkSelGrade1_R               = 0.4
+            self.TrkSelGrade2_Chi2            = 0.0
+            self.TrkSelGrade2_Innermost       = 1
+            self.TrkSelGrade2_NextToInnermost = 0
+            self.TrkSelGrade2_PixHits         = 2
+            self.TrkSelGrade2_SiHits          = 7
+            self.TrkSelGrade2_D0              = 1*mm
+            self.TrkSelGrade2_Z0              = 2*mm
+            self.TrkSelGrade2_Pt              = 1*GeV
+            self.TrkSelGrade2_Eta             = 0.4
+            self.TrkSelGrade2_Phi             = 0.4
+            self.TrkSelGrade2_R               = 0.4
 
         if instance=="EF" :
             from TrigBjetHypo.TrigBjetFexMonitoring import TrigEFBjetFexValidationMonitoring, TrigEFBjetFexOnlineMonitoring
@@ -178,25 +193,25 @@ class BjetFexSplit (TrigBjetFex):
         self.par_0_DT = getTuning_par_0_DT(calibInstance)
         self.par_1_DT = getTuning_par_1_DT(calibInstance)
             
-        self.SizeIP1D = getTuning_SizeIP1D(calibInstance)
-        self.bIP1D    = getTuning_bIP1D   (calibInstance)
-        self.uIP1D    = getTuning_uIP1D   (calibInstance)
-        self.SizeIP2D = getTuning_SizeIP2D(calibInstance)
-        self.bIP2D    = getTuning_bIP2D   (calibInstance)
-        self.uIP2D    = getTuning_uIP2D   (calibInstance)
-        self.SizeIP3D = getTuning_SizeIP3D(calibInstance)
-        self.bIP3D    = getTuning_bIP3D   (calibInstance)
-        self.uIP3D    = getTuning_uIP3D   (calibInstance)
+        self.SizeIP1D_Grade1 = getTuning_SizeIP1D_Grade1(calibInstance)
+        self.bIP1D_Grade1    = getTuning_bIP1D_Grade1   (calibInstance)
+        self.uIP1D_Grade1    = getTuning_uIP1D_Grade1   (calibInstance)
+        self.SizeIP2D_Grade1 = getTuning_SizeIP2D_Grade1(calibInstance)
+        self.bIP2D_Grade1    = getTuning_bIP2D_Grade1   (calibInstance)
+        self.uIP2D_Grade1    = getTuning_uIP2D_Grade1   (calibInstance)
+        self.SizeIP3D_Grade1 = getTuning_SizeIP3D_Grade1(calibInstance)
+        self.bIP3D_Grade1    = getTuning_bIP3D_Grade1   (calibInstance)
+        self.uIP3D_Grade1    = getTuning_uIP3D_Grade1   (calibInstance)
         
-        self.SizeIP1D_lowSiHits = getTuning_SizeIP1D_lowSiHits(calibInstance)
-        self.bIP1D_lowSiHits    = getTuning_bIP1D_lowSiHits   (calibInstance)
-        self.uIP1D_lowSiHits    = getTuning_uIP1D_lowSiHits   (calibInstance)
-        self.SizeIP2D_lowSiHits = getTuning_SizeIP2D_lowSiHits(calibInstance)
-        self.bIP2D_lowSiHits    = getTuning_bIP2D_lowSiHits   (calibInstance)
-        self.uIP2D_lowSiHits    = getTuning_uIP2D_lowSiHits   (calibInstance)
-        self.SizeIP3D_lowSiHits = getTuning_SizeIP3D_lowSiHits(calibInstance)
-        self.bIP3D_lowSiHits    = getTuning_bIP3D_lowSiHits   (calibInstance)
-        self.uIP3D_lowSiHits    = getTuning_uIP3D_lowSiHits   (calibInstance)
+        self.SizeIP1D_Grade2 = getTuning_SizeIP1D_Grade2(calibInstance)
+        self.bIP1D_Grade2    = getTuning_bIP1D_Grade2   (calibInstance)
+        self.uIP1D_Grade2    = getTuning_uIP1D_Grade2   (calibInstance)
+        self.SizeIP2D_Grade2 = getTuning_SizeIP2D_Grade2(calibInstance)
+        self.bIP2D_Grade2    = getTuning_bIP2D_Grade2   (calibInstance)
+        self.uIP2D_Grade2    = getTuning_uIP2D_Grade2   (calibInstance)
+        self.SizeIP3D_Grade2 = getTuning_SizeIP3D_Grade2(calibInstance)
+        self.bIP3D_Grade2    = getTuning_bIP3D_Grade2   (calibInstance)
+        self.uIP3D_Grade2    = getTuning_uIP3D_Grade2   (calibInstance)
         
         self.SizeSV   = getTuning_SizeSV  (calibInstance)
         self.bSV      = getTuning_bSV     (calibInstance)
@@ -249,7 +264,7 @@ class BjetFexSplit (TrigBjetFex):
         self.UseBeamSpotFlag    = False
         self.SetBeamSpotWidth   = 1*mm
         self.UseParamFromData   = False
-        self.useLowSiHits       = True
+        self.useGrading         = True
         
         self.UseErrIPParam      = False
         self.UseEtaPhiTrackSel  = False
@@ -257,13 +272,28 @@ class BjetFexSplit (TrigBjetFex):
         self.Taggers            = ["IP1D", "IP2D", "IP3D", "CHI2", "MVTX", "EVTX", "NVTX", "SVTX", "COMB"]
 
         if algo=="EFID" :
-            self.TrkSel_Chi2    = 0.0
-            self.TrkSel_BLayer  = 1
-            self.TrkSel_PixHits = 2
-            self.TrkSel_SiHits  = 7
-            self.TrkSel_D0      = 1*mm
-            self.TrkSel_Z0      = 2*mm
-            self.TrkSel_Pt      = 1*GeV
+            self.TrkSelGrade1_Chi2            = 0.0
+            self.TrkSelGrade1_Innermost       = 1
+            self.TrkSelGrade1_NextToInnermost = 0
+            self.TrkSelGrade1_PixHits         = 2
+            self.TrkSelGrade1_SiHits          = 7
+            self.TrkSelGrade1_D0              = 1*mm
+            self.TrkSelGrade1_Z0              = 2*mm
+            self.TrkSelGrade1_Pt              = 1*GeV
+            self.TrkSelGrade1_Eta             = 0.4
+            self.TrkSelGrade1_Phi             = 0.4
+            self.TrkSelGrade1_R               = 0.4
+            self.TrkSelGrade2_Chi2            = 0.0
+            self.TrkSelGrade2_Innermost       = 1
+            self.TrkSelGrade2_NextToInnermost = 0
+            self.TrkSelGrade2_PixHits         = 2
+            self.TrkSelGrade2_SiHits          = 7
+            self.TrkSelGrade2_D0              = 1*mm
+            self.TrkSelGrade2_Z0              = 2*mm
+            self.TrkSelGrade2_Pt              = 1*GeV
+            self.TrkSelGrade2_Eta             = 0.4
+            self.TrkSelGrade2_Phi             = 0.4
+            self.TrkSelGrade2_R               = 0.4
 
         if instance=="EF" :
             from TrigBjetHypo.TrigBjetFexMonitoring import TrigEFBjetFexValidationMonitoring, TrigEFBjetFexOnlineMonitoring
