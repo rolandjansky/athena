@@ -14,6 +14,7 @@
 #include "GaudiKernel/ToolHandle.h"
 
 #include "AthenaBaseComps/AthMessaging.h"
+#include "L1CaloByteStreamReadTool.h"
 
 class DataObject;
 class IByteStreamEventAccess;
@@ -64,13 +65,11 @@ public:
 
   static const CLID& classID();
 
-public:
-  // static const uint16_t NTOWERS = 7168;
-  static const uint16_t NTOWERS = 8128; 
-
 private:
   /// Converter name
   std::string m_name;
+   /// Do the main job - retrieve xAOD TriggerTowers from robs
+  ToolHandle<L1CaloByteStreamReadTool> m_readTool;
 };
 
 } // end namespace

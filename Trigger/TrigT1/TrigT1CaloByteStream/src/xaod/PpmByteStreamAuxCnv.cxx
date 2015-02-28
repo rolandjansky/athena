@@ -72,20 +72,21 @@ StatusCode PpmByteStreamAuxCnv::createObj(IOpaqueAddress* pAddr,
   const std::string nm = *(pBS_Addr->par());
   ATH_MSG_DEBUG("Creating Objects " << nm);
 
-  auto aux = new xAOD::TriggerTowerAuxContainer();
+  auto aux = new xAOD::TriggerTowerAuxContainer;
   xAOD::TriggerTowerContainer ttCollection;
   ttCollection.setStore(aux);
-
+  // -------------------------------------------------------------------------
   StatusCode sc = m_readTool->convert(nm, &ttCollection);
   if (sc.isFailure()) {
       ATH_MSG_ERROR("Failed to create Objects");
       delete aux;
       return sc;
     }
+  // -------------------------------------------------------------------------
   ATH_MSG_VERBOSE(ToString(ttCollection));
   ATH_MSG_DEBUG("Number of readed objects: " << aux->size());
+  // -------------------------------------------------------------------------
   pObj = SG::asStorable(aux);
-  
   return StatusCode::SUCCESS;
 }
 

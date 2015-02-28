@@ -56,7 +56,7 @@ class L1CaloErrorByteStreamTool;
  * @author alexander.mazurov@cern.ch
  */
 
-class L1CaloByteStreamReadTool: public asg::AsgTool {
+class L1CaloByteStreamReadTool: public asg::AsgTool, virtual public IIncidentListener {
 	ASG_TOOL_INTERFACE(L1CaloByteStreamReadTool)
 	ASG_TOOL_CLASS0(L1CaloByteStreamReadTool)
 public:
@@ -65,6 +65,7 @@ public:
 
   virtual StatusCode initialize();
   virtual StatusCode finalize();
+  virtual void handle( const Incident& );
 
   // =========================================================================
   /// Convert ROB fragments to trigger towers
