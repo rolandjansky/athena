@@ -105,7 +105,7 @@ private:
 
 private:
   // typedef DataVector<LVL1::TriggerTower2> TriggerTowerCollection;
-  typedef std::vector<xAOD::TriggerTower*> TriggerTowerVector;
+  typedef std::vector<const xAOD::TriggerTower*> TriggerTowerVector;
   typedef std::map<unsigned int, int> TriggerTowerMap;
   typedef std::vector<uint32_t> ChannelBitVector;
 

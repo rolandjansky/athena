@@ -8,9 +8,11 @@
 // STD:
 // ===========================================================================
 #include <stdexcept>
+#include <bitset>
 // ===========================================================================
 #include "eformat/SourceIdentifier.h"
 #include "TrigT1Interfaces/TrigT1CaloDefs.h"
+#include "xAODTrigL1Calo/TriggerTowerAuxContainer.h" 
 
 #include "CaloUserHeader.h"
 #include "SubBlockHeader.h"
@@ -32,6 +34,17 @@ uint32_t coolId(uint8_t crate, uint8_t module, uint8_t channel) {
   const uint8_t asic = channel / 16;
   return (crate << 24) | (1 << 20) | (module << 16) | (pin << 8) | asic;
 } 
+
+int16_t pedCorrection(uint16_t twoBytePedCor) {
+  return twoBytePedCor > 511? (twoBytePedCor - 1024): twoBytePedCor;
+}
+
+std::string noAuxSuffix(const std::string& name) {
+  if ((name.size() > 4) && (name.substr(name.size()-4, 4) == "Aux.")) {
+    return name.substr(0, name.size() - 4);
+  }
+  return name;
+}
 }
 // ===========================================================================
 namespace LVL1BS {
@@ -67,6 +80,11 @@ StatusCode L1CaloByteStreamReadTool::initialize() {
   CHECK(m_ppmMaps.retrieve());
   CHECK(m_cpmMaps.retrieve());
   CHECK(m_robDataProvider.retrieve());
+
+  ServiceHandle<IIncidentSvc> incidentSvc("IncidentSvc", name());
+  CHECK(incidentSvc.retrieve());
+  incidentSvc->addListener(this, IncidentType::EndEvent);
+  
   return StatusCode::SUCCESS;
 }
 // ===========================================================================
@@ -78,6 +96,12 @@ StatusCode L1CaloByteStreamReadTool::finalize() {
   return StatusCode::SUCCESS;
 }
 
+void L1CaloByteStreamReadTool::handle( const Incident& inc )
+{
+  if ( inc.type() == IncidentType::EndEvent) {
+   
+  } 
+}
 // Conversion bytestream to trigger towers
 StatusCode L1CaloByteStreamReadTool::convert(
     const IROBDataProviderSvc::VROBFRAG& robFrags,
@@ -135,6 +159,9 @@ StatusCode L1CaloByteStreamReadTool::convert(
 
 StatusCode L1CaloByteStreamReadTool::convert(const std::string& sgKey,
     xAOD::TriggerTowerContainer* const ttCollection) {
+
+  m_triggerTowers = ttCollection;
+
   const std::vector<uint32_t>& vID(ppmSourceIDs(sgKey));
   // // get ROB fragments
   IROBDataProviderSvc::VROBFRAG robFrags;
@@ -142,7 +169,6 @@ StatusCode L1CaloByteStreamReadTool::convert(const std::string& sgKey,
   ATH_MSG_DEBUG("Number of ROB fragments:" << robFrags.size());
 
   CHECK(convert(robFrags, ttCollection));
-
   return StatusCode::SUCCESS;
 }
 
@@ -411,7 +437,7 @@ StatusCode L1CaloByteStreamReadTool::processPpmNeutral_() {
         for (uint8_t slice = 0; slice < numLut; ++slice) {
           lcpVal.push_back(rotated[slice] & 0xff);
           ljeVal.push_back(rotated[slice + numLut] & 0xff);
-          pedCor.push_back(rotated[slice + 2 * numLut + numFadc] & 0xff);
+          pedCor.push_back(::pedCorrection(rotated[slice + 2 * numLut + numFadc] & 0x3ff));
           
           lcpBcidVec.push_back((rotated[slice] >> 8) & 0x7);
           ljeSat80Vec.push_back((rotated[slice + numLut] >> 8) & 0x7);
@@ -614,113 +640,122 @@ StatusCode L1CaloByteStreamReadTool::processPpmBlockR4V1_() {
   } else if (m_subBlockHeader.format() >= 2) {
     // TODO: convert compressed
     CHECK(processPpmCompressedR4V1_());
-    return StatusCode::FAILURE;
+    return StatusCode::SUCCESS;
   }
   return StatusCode::FAILURE;
 }
 
 StatusCode L1CaloByteStreamReadTool::processPpmCompressedR4V1_() {
   m_ppPointer = 0;
-  m_ppMaxBit = 32 * m_ppBlock.size();
+  m_ppMaxBit = 31 * m_ppBlock.size();
 
   uint8_t numAdc = m_subBlockHeader.nSlice2();
-  uint8_t  numLut = m_subBlockHeader.nSlice1();
+  uint8_t numLut = m_subBlockHeader.nSlice1();
   int16_t pedCorBase = -20;
+
+
+  // for(size_t i = 0; i < m_ppBlock.size(); ++i) {
+  //   std::bitset<32> x(m_ppBlock[i]);
+  //   std::cout << i << " " << x << std::endl;
+  // }
 
   try{
     for(uint8_t chan = 0; chan < 64; ++chan) {
       uint8_t present = 1;
 
-      std::vector<uint8_t> haveLut(0, numLut);
-      std::vector<uint8_t> lcpVal(0, numLut);
+      std::vector<uint8_t> haveLut(numLut, 0);
+      std::vector<uint8_t> lcpVal(numLut, 0);
       
-      std::vector<uint8_t> lcpExt(0, numLut);
-      std::vector<uint8_t> lcpSat(0, numLut);
-      std::vector<uint8_t> lcpPeak(0, numLut);
-      std::vector<uint8_t> lcpBcidVec(0, numLut);
+      std::vector<uint8_t> lcpExt(numLut, 0);
+      std::vector<uint8_t> lcpSat(numLut, 0);
+      std::vector<uint8_t> lcpPeak(numLut, 0);
+      std::vector<uint8_t> lcpBcidVec(numLut, 0);
       
-      std::vector<uint8_t> ljeVal(0, numLut);
+      std::vector<uint8_t> ljeVal(numLut, 0);
       
-      std::vector<uint8_t> ljeLow(0, numLut);
-      std::vector<uint8_t> ljeHigh(0, numLut);
-      std::vector<uint8_t> ljeRes(0, numLut);
-      std::vector<uint8_t> ljeSat80Vec(0, numLut);
+      std::vector<uint8_t> ljeLow(numLut, 0);
+      std::vector<uint8_t> ljeHigh(numLut, 0);
+      std::vector<uint8_t> ljeRes(numLut, 0);
+      std::vector<uint8_t> ljeSat80Vec(numLut, 0);
 
-      std::vector<uint16_t> adcVal(0, numAdc);
-      std::vector<uint8_t> adcExt(0, numAdc);
-      std::vector<int16_t> pedCor(0, numLut);
-      std::vector<uint8_t> pedEn(0, numLut);
+      std::vector<uint16_t> adcVal(numAdc, 0);
+      std::vector<uint8_t> adcExt(numAdc, 0);
+      std::vector<int16_t> pedCor(numLut, 0);
+      std::vector<uint8_t> pedEn(numLut, 0);
   
       int8_t encoding = -1;
       int8_t minIndex = -1;
 
       if (m_subBlockHeader.format() == 3) {
         present = getPpmBytestreamField_(1);
-        if (present == 1) {
-          interpretPpmHeaderR4V1_(numAdc, encoding, minIndex);
-          CHECK((encoding != -1) && (minIndex != -1));
-
-          // First get the LIT related quantities
-          if (encoding < 3) {
-            // Get the peal finder bits
-            for(uint i=0; i < numLut; ++i) {
-              lcpPeak[i] = getPpmBytestreamField_(1);
+      }
+      if (present == 1) {
+        interpretPpmHeaderR4V1_(numAdc, encoding, minIndex);
+        CHECK((encoding != -1) && (minIndex != -1));
+        //ATH_MSG_DEBUG("SASHA: encoding=" << int(encoding) <<" minIndex=" << int(minIndex));
+        // First get the LIT related quantities
+        if (encoding < 3) {
+          // Get the peal finder bits
+          for(uint i=0; i < numLut; ++i) {
+            lcpPeak[i] = getPpmBytestreamField_(1);
+          }
+          // Get Sat80 low bits
+          if (encoding > 0) {
+            for (uint8_t i = 0; i < numLut; ++i) {
+              ljeLow[i] = getPpmBytestreamField_(1);
             }
-            // Get Sat80 low bits
-            if (encoding > 0) {
-              for (uint8_t i = 0; i < numLut; ++i) {
-                ljeLow[i] = getPpmBytestreamField_(1);
+          }
+          // Get LutCP and LutJEP values (these are
+          // only present if the peak finder is set).
+          if (encoding == 2) {
+            for (uint8_t i = 0; i < numLut; ++i) {
+              if (lcpPeak[i] == 1) {
+                lcpVal[i] = getPpmBytestreamField_(4);
               }
             }
-            // Get LutCP and LutJEP values (these are
-            // only present if the peak finder is set).
-            if (encoding == 2) {
-              for (uint8_t i = 0; i < numLut; ++i) {
-                if (lcpPeak[i] == 1) {
-                  lcpVal[i] = getPpmBytestreamField_(4);
-                }
-              }
-              for(uint8_t i = 0; i < numLut; ++i) {
-                if (lcpPeak[i] == 1){
-                  ljeVal[i] = getPpmBytestreamField_(3);
-                }
-              }
-            }            
-          } else if (encoding < 6) {
-            // Get LUT presence flag for each LUT slice. 
-            for(uint8_t i = 0; i < numLut; ++i){
-              haveLut[i] = getPpmBytestreamField_(1);
-            }
-            // Get external BCID bits (if block is present).
-            uint8_t haveExt = getPpmBytestreamField_(1);
-            if (haveExt == 1) {
-              for (uint8_t i = 0; i < numAdc; ++i) {
-                adcExt[i] = getPpmBytestreamField_(1);
+            for(uint8_t i = 0; i < numLut; ++i) {
+              if (lcpPeak[i] == 1){
+                ljeVal[i] = getPpmBytestreamField_(3);
               }
             }
-            
-            for(uint8_t i = 0; i < numLut; ++i){
-              if (haveLut[i] == 1) {
-                lcpVal[i] = getPpmBytestreamField_(8);
-                lcpExt[i] = getPpmBytestreamField_(1);
-                lcpSat[i] = getPpmBytestreamField_(1);
-                lcpPeak[i] = getPpmBytestreamField_(1);
-              }
-            }
-            // Get JEP LUT values and corresponding bits.         
-            for(uint8_t i = 0; i < numLut; ++i){
-              if (haveLut[i] == 1) {
-                ljeVal[i] = getPpmBytestreamField_(8);
-                ljeLow[i] = getPpmBytestreamField_(1);
-                ljeHigh[i] = getPpmBytestreamField_(1);
-                ljeRes[i] = getPpmBytestreamField_(1);
-              }
-            }
-    
+          }            
+        } else if (encoding < 6) {
+          // Get LUT presence flag for each LUT slice. 
+          for(uint8_t i = 0; i < numLut; ++i){
+            haveLut[i] = getPpmBytestreamField_(1);
           }
 
+          // Get external BCID bits (if block is present).
+          uint8_t haveExt = getPpmBytestreamField_(1);
+
+          if (haveExt == 1) {
+            for (uint8_t i = 0; i < numAdc; ++i) {
+              adcExt[i] = getPpmBytestreamField_(1);
+            }
+          }
+          
+          for(uint8_t i = 0; i < numLut; ++i){
+            if (haveLut[i] == 1) {
+              lcpVal[i] = getPpmBytestreamField_(8);
+              lcpExt[i] = getPpmBytestreamField_(1);
+              lcpSat[i] = getPpmBytestreamField_(1);
+              lcpPeak[i] = getPpmBytestreamField_(1);
+            }
+          }
+          // Get JEP LUT values and corresponding bits.         
+          for(uint8_t i = 0; i < numLut; ++i){
+            if (haveLut[i] == 1) {
+              ljeVal[i] = getPpmBytestreamField_(8);
+              ljeLow[i] = getPpmBytestreamField_(1);
+              ljeHigh[i] = getPpmBytestreamField_(1);
+              ljeRes[i] = getPpmBytestreamField_(1);
+            }
+          }
+  
         }
+
       }
+      CHECK((encoding != -1) && (minIndex != -1));
        // Next get the ADC related quantities (all encodings).
       adcVal = getPpmAdcSamplesR4_(encoding, minIndex);
       // Finally get the pedestal correction.
@@ -736,7 +771,7 @@ StatusCode L1CaloByteStreamReadTool::processPpmCompressedR4V1_() {
         for (uint8_t i = 0; i < numLut; ++i)
         {
           uint16_t val = getPpmBytestreamField_(10);
-          pedCor[i] = (val & 0x1ff) - (val & 0x200);
+          pedCor[i] = ::pedCorrection(val);
           pedEn[i] = getPpmBytestreamField_(1);
         }
       }
@@ -763,6 +798,7 @@ void L1CaloByteStreamReadTool::interpretPpmHeaderR4V1_(uint8_t numAdc,
 
   if (numAdc == 5) {
     minHeader = getPpmBytestreamField_(4);
+    //ATH_MSG_DEBUG("SASHA: minHeader=" << int(minHeader));
     minIndex = minHeader % 5;
     if (minHeader < 15){ // Encodings 0-5
       if (minHeader < 10) {
@@ -775,7 +811,7 @@ void L1CaloByteStreamReadTool::interpretPpmHeaderR4V1_(uint8_t numAdc,
     }
   } else {
       uint8_t numBits = 0;
-      if (numAdc ==3) {
+      if (numAdc ==3 ) {
         numBits = 2;
       } else if (numAdc == 7) {
         numBits = 3;
@@ -811,36 +847,29 @@ std::vector<uint16_t> L1CaloByteStreamReadTool::getPpmAdcSamplesR4_(
 
   if (encoding == 6) {
     uint16_t val = getPpmBytestreamField_(6);
-    return std::vector<uint16_t>(val, numAdc);
+    return std::vector<uint16_t>(numAdc, val);
+  } else if ( encoding < 3) {
+    std::vector<uint16_t> adc(numAdc, 0);
+    uint16_t minAdc = getPpmBytestreamField_(5) + m_caloUserHeader.ppLowerBound();
+    adc[minIndex] = minAdc;
+    for(uint8_t i = 1; i < numAdc; ++i) {
+      adc[i == minIndex? 0: i] = getPpmBytestreamField_(encoding + 2) + minAdc;
+    } 
+    return adc;   
   } else {
-    std::vector<uint16_t> adc(0, numAdc);
-    uint8_t minAdc = 0;
-    for (uint8_t i = 0; i < numAdc; ++i) {
-      uint8_t longField = 0;
-      uint8_t numBits = 0;
-      if (encoding > 2) {
-        longField = getPpmBytestreamField_(1);
-        numBits = longField == 0? 5 : (encoding * 2);
-      } else {
-        numBits = i == 0? 5 : (encoding + 2);
-      }
-
-      if (i == 0) {
-        minAdc = getPpmBytestreamField_(numBits);
-        if (longField == 0) {
-          minAdc += m_caloUserHeader.ppLowerBound();
-        }
-      } else {
-        adc[i] = minAdc + getPpmBytestreamField_(numBits);
-      }
+    std::vector<uint16_t> adc(numAdc, 0);
+    uint16_t minAdc = getPpmBytestreamField_(1)
+                      ? getPpmBytestreamField_(encoding * 2)
+                      : (getPpmBytestreamField_(5) + 
+                          m_caloUserHeader.ppLowerBound());
+ 
+    adc[minIndex] = minAdc;
+    for (uint8_t i = 1; i < numAdc; ++i) {
+      adc[minIndex == i? 0: i] = getPpmBytestreamField_(
+                              getPpmBytestreamField_(1)? encoding * 2: 4
+                            ) + minAdc;
     }
-    if (minIndex == 0) {
-      adc[0] = minAdc;
-    } else {
-      adc[0] = adc[minIndex];
-      adc[minIndex] = minAdc;
-    }
-    return adc;
+   return adc;
   }
 }
 
@@ -897,7 +926,7 @@ StatusCode L1CaloByteStreamReadTool::processPpmStandardR4V1_() {
 
       for (int i = 0; i < numLut; ++i) {
         uint16_t pc = getPpmBytestreamField_(10);
-        pedCor.push_back(((((pc &(0x200))>>9)==1)?-1:+1) * (pc & 0x1ff));
+        pedCor.push_back(pedCorrection(pc));
         pedEn.push_back(getPpmBytestreamField_(1));
       }
     } catch (const std::out_of_range& ex) {
@@ -1138,7 +1167,7 @@ const std::vector<uint32_t>& L1CaloByteStreamReadTool::cpSourceIDs() {
 }
 
 
-uint32_t L1CaloByteStreamReadTool::getPpmBytestreamField_(uint8_t numBits) {
+uint32_t L1CaloByteStreamReadTool::getPpmBytestreamField_(const uint8_t numBits) {
   if ((m_ppPointer + numBits) <= m_ppMaxBit) {
     uint8_t iWord = m_ppPointer / 31;
     uint8_t iBit = m_ppPointer % 31;
@@ -1154,6 +1183,12 @@ uint32_t L1CaloByteStreamReadTool::getPpmBytestreamField_(uint8_t numBits) {
       uint32_t field2 = ::bitFieldSize(m_ppBlock[iWord + 1], 0, nb2);
       result = field1 | (field2 << nb1);
     }
+
+    // std::bitset<32> r(result);
+    // for(size_t i = 0; i < numBits; ++i) {
+    //   std::cout << int(r[i]);
+    // }
+    // std::cout << " " << result << std::endl;
 
     return result;
   }
