@@ -43,7 +43,7 @@ bool TrigConf::L1TopoMenuLoader::load( TXC::L1TopoMenu& tcaTarget ) {
 
 bool TrigConf::L1TopoMenuLoader::loadTopoAlgos( TXC::L1TopoMenu& tcaTarget) {
 
-   TRG_MSG_DEBUG("Calling loadTopoAlgos");
+   TRG_MSG_VERBOSE("Calling loadTopoAlgos");
       
    try {
       startSession();
@@ -72,7 +72,7 @@ bool TrigConf::L1TopoMenuLoader::loadTopoAlgos( TXC::L1TopoMenu& tcaTarget) {
 
       coral::AttributeList attList0;
       attList0.extend<int>( "TMT.TMT_TRIGGER_MENU_ID" );
-      attList0.extend<int>( "TMT.TMT_VERSION" );
+      attList0.extend<long>( "TMT.TMT_VERSION" );
       attList0.extend<string>( "TTM.TTM_NAME" );
       attList0.extend<int>( "TTM.TTM_VERSION" );
       attList0.extend<int>( "TTM.TTM_CTPLINK_ID" );
@@ -85,7 +85,7 @@ bool TrigConf::L1TopoMenuLoader::loadTopoAlgos( TXC::L1TopoMenu& tcaTarget) {
       attList0.extend<int>( "TA.TA_ALGO_ID" );
       query0->defineOutput(attList0);     
       fillQuery(query0.get(), attList0);
-      TRG_MSG_DEBUG("Executing loadTopoAlgos query ");
+      TRG_MSG_VERBOSE("Executing loadTopoAlgos query ");
       coral::ICursor& cursor0 = query0->execute();
 
       int ctplinkid = 0;
@@ -128,7 +128,7 @@ bool TrigConf::L1TopoMenuLoader::loadTopoAlgos( TXC::L1TopoMenu& tcaTarget) {
 
 bool TrigConf::L1TopoMenuLoader::loadAlgInput( TXC::L1TopoConfigAlg& tcaTarget, const int& ta_id ) {
    try {
-      TRG_MSG_DEBUG("Calling loadAlgInput");
+      TRG_MSG_VERBOSE("Calling loadAlgInput");
       startSession();
       
       unique_ptr<coral::IQuery> query0(m_session.nominalSchema().newQuery());
@@ -169,7 +169,7 @@ bool TrigConf::L1TopoMenuLoader::loadAlgInput( TXC::L1TopoConfigAlg& tcaTarget, 
 
 bool TrigConf::L1TopoMenuLoader::loadAlgRegister( TXC::L1TopoConfigAlg& tcaTarget, const int& ta_id ) {
    try {
-      TRG_MSG_DEBUG("Calling loadAlgRegister");
+      TRG_MSG_VERBOSE("Calling loadAlgRegister");
       startSession();
       
       unique_ptr<coral::IQuery> query0(m_session.nominalSchema().newQuery());
@@ -187,7 +187,7 @@ bool TrigConf::L1TopoMenuLoader::loadAlgRegister( TXC::L1TopoConfigAlg& tcaTarge
 
       coral::AttributeList attList0;
       attList0.extend<string>( "TP.TP_NAME" );
-      attList0.extend<int>( "TP.TP_VALUE" );
+      attList0.extend<long>( "TP.TP_VALUE" );
       attList0.extend<int>( "TP.TP_POSITION" );
       attList0.extend<int>( "TP.TP_SELECTION" );
       query0->defineOutput(attList0);     
@@ -198,7 +198,7 @@ bool TrigConf::L1TopoMenuLoader::loadAlgRegister( TXC::L1TopoConfigAlg& tcaTarge
          const coral::AttributeList& row0 = cursor0.currentRow();
          //std::cout << "loadAlgRegister my row " << row0 << std::endl;
          string tp_name = row0["TP.TP_NAME"].data<string>();
-         int tp_value = row0["TP.TP_VALUE"].data<int>();
+         long tp_value = row0["TP.TP_VALUE"].data<long>();
          int tp_pos = row0["TP.TP_POSITION"].data<int>();
          int tp_sel = row0["TP.TP_SELECTION"].data<int>();
          tcaTarget.addParameter(tp_name,to_string(tp_value),tp_pos, tp_sel);
@@ -212,7 +212,7 @@ bool TrigConf::L1TopoMenuLoader::loadAlgRegister( TXC::L1TopoConfigAlg& tcaTarge
 
 bool TrigConf::L1TopoMenuLoader::loadAlgOutput( TXC::L1TopoConfigAlg& tcaTarget, const int& ta_id, const int& ta_bits ) {
    try {
-      TRG_MSG_DEBUG("Calling loadAlgOutput");
+      TRG_MSG_VERBOSE("Calling loadAlgOutput");
       startSession();
       unique_ptr<coral::IQuery> query0(m_session.nominalSchema().newQuery());
       query0->addToTableList("TA_TO_TO","TA2TO");
@@ -254,7 +254,7 @@ bool TrigConf::L1TopoMenuLoader::loadAlgOutput( TXC::L1TopoConfigAlg& tcaTarget,
 
 bool TrigConf::L1TopoMenuLoader::loadAlgFixed( TXC::L1TopoConfigAlg& tcaTarget, const int& ta_id ) {
    try {
-      TRG_MSG_DEBUG("Calling loadAlgFixed");
+      TRG_MSG_VERBOSE("Calling loadAlgFixed");
       startSession();
       
       unique_ptr<coral::IQuery> query0(m_session.nominalSchema().newQuery());
@@ -293,7 +293,7 @@ bool TrigConf::L1TopoMenuLoader::loadAlgFixed( TXC::L1TopoConfigAlg& tcaTarget, 
 
 bool TrigConf::L1TopoMenuLoader::loadOutputList( TXC::L1TopoMenu& tcaTarget, const int& ctplinkid) {
    try {
-      TRG_MSG_DEBUG("Calling loadOutputList");
+      TRG_MSG_VERBOSE("Calling loadOutputList");
       startSession();
       
       unique_ptr<coral::IQuery> query0(m_session.nominalSchema().newQuery());
@@ -346,7 +346,7 @@ bool TrigConf::L1TopoMenuLoader::loadOutputList( TXC::L1TopoMenu& tcaTarget, con
 bool TrigConf::L1TopoMenuLoader::loadTopoConfig( TXC::L1TopoMenu& tcaTarget) {
 
    try {
-      TRG_MSG_DEBUG("Calling loadTopoConfig");
+      TRG_MSG_VERBOSE("Calling loadTopoConfig");
       startSession();
       
       unique_ptr<coral::IQuery> query0(m_session.nominalSchema().newQuery());

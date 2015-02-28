@@ -63,9 +63,11 @@ void printhelp(std::ostream & o, std::ostream& (*lineend) ( std::ostream& os )) 
   o << "TrigConfReadWrite <options>\n";
   o << "\n";
   o << "[Global options]\n";
-  o << "  -i|--input        <cooldb> <run> [<lb>]       ... cool database and run number (mandatory)\n";
-  o << "                                                    e.g. COOLONL_TRIGGER/CONDBR2 242651\n";
-  o << "     --triggerdb    <triggerdb>                 ... trigger database as source of information (default is TRIGGERDB)\n";
+  o << "  -c|--cooldb       <cooldb>                    ... cool database and run number (default is COOLONL_TRIGGER/CONDBR2)\n";
+  o << "                                                    e.g. COOLONL_TRIGGER/CONDBR2 or testcool.db \n";
+  o << "  -r|--run          <run> [<lb>]                ... run number (mandatory) and lb\n";
+  o << "\n";
+  o << "     --triggerdb    <triggerdb>                 ... trigger database as source of information (default is TRIGGERDBR2)\n";
   o << "     --smk          <smk>                       ... SMK to load to cool (specify when needed)\n";
   o << "     --bgsk         <bgsk>                      ... Bunchgroupset key to load to cool (specify when needed)\n";
   o << "     --l1psk        <l1psk>                     ... L1PSK to load to cool (specify when needed)\n";
@@ -87,36 +89,31 @@ class JobConfig {
 public:
    ~JobConfig(){}
    JobConfig() {}
-
-   std::vector<std::string>  inpar;
-
-   // cool input
-   string       coolConnection {""};
+   // input parameters
+   string       cooldb{"COOLONL_TRIGGER/CONDBR2"};
    unsigned int run {0};
    unsigned int lb {0};
-
    // fix the database
    bool         fix {false};
-
-
    // trigger db
-   string      triggerdb {"TRIGGERDB"};
+   string      triggerdb {"TRIGGERDBR2"};
    int         smk {0};
    int         bgsk {0};
    int         l1psk {0};
    int         hltpsk {0};
-
    // other
    bool         help {false};
    int          printlevel {-1};
    MSGTC::Level outputlevel {MSGTC::WARNING};
+   // error strings from option parsing
    vector<string> error;
-
+   // resolved cool connection
+   string       coolConnection {""};
    int parseProgramOptions(int argc, char* argv[]);
-
    void PrintSetup();
-
 } gConfig;
+
+
 
 
 int
@@ -130,10 +127,12 @@ JobConfig::parseProgramOptions(int argc, char* argv[]) {
       bool isParam = (fchar!=0); // string starts with a '-', so it is a parameter name
 
       if(isParam)
-         if( ! (stripped == "i" || stripped == "input" ||
+         if( ! (stripped == "c" || stripped == "cooldb" ||
+                stripped == "r" || stripped == "run" ||
                 stripped == "l" || stripped == "log" ||
                 stripped == "p" || stripped == "print" ||
                 stripped == "f" || stripped == "fix" ||
+                stripped == "triggerdb" ||
                 stripped == "h" || stripped == "help" ||
                 stripped == "v" || stripped == "loglevel") ) {
             listofUnknownParameters += " " + currInput;
@@ -143,11 +142,20 @@ JobConfig::parseProgramOptions(int argc, char* argv[]) {
       if(isParam) {
          currentPar = "";
          if(stripped == "h" || stripped == "help" )        { help = true; continue; }
-         if(stripped == "f" || stripped == "fix")       { fix = true; continue; }
+         if(stripped == "f" || stripped == "fix")          { fix = true; continue; }
          currentPar = stripped;
       } else {
-         if(currentPar == "i" || currentPar == "input")     { inpar.push_back(stripped); continue; }
-         if(currentPar == "p" || currentPar == "print")     { printlevel = boost::lexical_cast<int,string>(stripped); currentPar=""; continue; }
+         if(currentPar == "c" || currentPar == "cooldb")   { cooldb = stripped; currentPar=""; continue; }
+         if(currentPar == "r" || currentPar == "run")      { 
+            if(run==0) {
+               run = boost::lexical_cast<int,string>(stripped); 
+            } else {
+               lb = boost::lexical_cast<int,string>(stripped); 
+            }               
+            continue;
+         }
+         if(currentPar == "triggerdb")                     { triggerdb = stripped; continue; }
+         if(currentPar == "p" || currentPar == "print")    { printlevel = boost::lexical_cast<int,string>(stripped); currentPar=""; continue; }
          if(currentPar == "v" || currentPar == "loglevel") {
             if("NIL" == stripped ) { outputlevel = MSGTC::NIL; }
             else if("VERBOSE" == stripped ) { outputlevel = MSGTC::VERBOSE; }
@@ -160,6 +168,7 @@ JobConfig::parseProgramOptions(int argc, char* argv[]) {
             else { 
                error.push_back("Unknown output level: " + stripped + ". Must be one of NIL, VERBOSE, DEBUG, INFO, WARNING, ERROR, FATAL, ALWAYS");
             }
+            currentPar="";
             continue;
          }
       }
@@ -167,19 +176,17 @@ JobConfig::parseProgramOptions(int argc, char* argv[]) {
    if(listofUnknownParameters!="")
       error.push_back("Unknown parameter(s): " + listofUnknownParameters);
 
-   if(inpar.size()==0)
-      error.push_back("No input cool db and run specified, use '-i <db> <run>' option");
+   if(run==0)
+      error.push_back("No run specified, use '--run <run>' option");
 
-   if(inpar.size()==1)
-      error.push_back("No input run specified, use '-i <db> <run>' option");
 
-   if( inpar.size()>=2 ) {
-      string db = inpar[0];
+   {
+      string db = cooldb;
       string dbname = "CONDBR2";
-      size_t slashpos = inpar[0].find('/');
+      size_t slashpos = cooldb.find('/');
       if(slashpos != string::npos) {
-         db     = inpar[0].substr(0,slashpos);
-         dbname = inpar[0].substr(slashpos+1);
+         db     = cooldb.substr(0,slashpos);
+         dbname = cooldb.substr(slashpos+1);
       }
       if(db.find('.') != string::npos) {
          coolConnection = "sqlite://;schema="+db+";dbname=" + dbname;
@@ -187,12 +194,6 @@ JobConfig::parseProgramOptions(int argc, char* argv[]) {
          coolConnection = db + "/" + dbname;
       }
    }
-
-   if( inpar.size()>=2 )
-      run = boost::lexical_cast<unsigned int,string>(inpar[1]);
-
-   if( inpar.size()>=3 ) 
-      lb = boost::lexical_cast<unsigned int,string>(inpar[2]);
 
    if(help) {
       printhelp(cout, endl);
@@ -293,15 +294,27 @@ int main( int argc, char* argv[] ) {
             cout << "   " << ++idx << "  ...  " << f << endl;
          }
       }
+      cout << endl << "   a  ...  select/deselect all" << endl;
       cout << endl << "   f  ...  fix now" << endl;
       cout << endl << endl << "Select/deselect folder to fix or other option : "; cin >> selection;
 
       try {
-         unsigned int selInd = boost::lexical_cast<unsigned int,string>(selection) - 1;
-         if(selectForFixing.count(selInd)) {
-            selectForFixing.erase(selInd);
+         if(selection=="a") {
+            // select all
+            bool allSelected = (fixableFolders.size() == selectForFixing.size());
+            if(allSelected) {
+               selectForFixing.clear();
+            } else {
+               for(unsigned int selInd = 0; selInd<fixableFolders.size();selInd++)
+                  selectForFixing.insert(selInd);
+            }
          } else {
-            selectForFixing.insert(selInd);
+            unsigned int selInd = boost::lexical_cast<unsigned int,string>(selection) - 1;
+            if(selectForFixing.count(selInd)) {
+               selectForFixing.erase(selInd);
+            } else {
+               selectForFixing.insert(selInd);
+            }
          }
       }
       catch(...){}
@@ -339,6 +352,7 @@ int main( int argc, char* argv[] ) {
          ( folderToFix == "/TRIGGER/LVL1/Menu") ||
          ( folderToFix == "/TRIGGER/LVL1/ItemDef") ||
          ( folderToFix == "/TRIGGER/LVL1/Thresholds") ||
+         ( folderToFix == "/TRIGGER/LVL1/CTPCoreInputMapping") ||
          ( folderToFix == "/TRIGGER/LVL1/BunchGroupDescription");
 
       loadHLT |=
@@ -391,6 +405,7 @@ int main( int argc, char* argv[] ) {
       if(loadL1) {
          ctpConfig = new TrigConf::CTPConfig();
          ctpConfig->setSMK( gConfig.smk );
+         DBLoader::setEnv(DBLoader::CTPOnl);
          cout << endl << endl << "Retrieving Lvl1 CTP configuration" << endl;
          sm->masterTableLoader().setLevel(gConfig.outputlevel);
          sm->masterTableLoader().load(*ctpConfig);
@@ -440,21 +455,40 @@ int main( int argc, char* argv[] ) {
        */
       if( folderToFix == "/TRIGGER/LVL1/Menu" ) {
          if(ctpConfig) {
+            coolWriter->addWriteFolder("/TRIGGER/LVL1/Menu");         
             coolWriter->writeL1MenuPayload( ValidityRange(gConfig.run), ctpConfig->menu());
+            coolWriter->clearWriteFolder();
          }
       }
 
-      if( folderToFix == "/TRIGGER/LVL1/ItemDef")
-         cout << "Writing of COOL folder " << folderToFix << " not yet implemented" << endl;
+      if( folderToFix == "/TRIGGER/LVL1/ItemDef") {
+         coolWriter->addWriteFolder("/TRIGGER/LVL1/ItemDef");
+         coolWriter->writeL1MenuPayload( ValidityRange(gConfig.run), ctpConfig->menu());
+         coolWriter->clearWriteFolder();
+      }
 
-      if( folderToFix == "/TRIGGER/LVL1/Thresholds")
-         cout << "Writing of COOL folder " << folderToFix << " not yet implemented" << endl;
+      if( folderToFix == "/TRIGGER/LVL1/Thresholds") {
+         coolWriter->addWriteFolder("/TRIGGER/LVL1/Thresholds");
+         coolWriter->writeL1MenuPayload( ValidityRange(gConfig.run), ctpConfig->menu());
+         coolWriter->clearWriteFolder();
+      }
+
+      if( folderToFix == "/TRIGGER/LVL1/CTPCoreInputMapping") {
+         coolWriter->addWriteFolder("/TRIGGER/LVL1/CTPCoreInputMapping");
+         coolWriter->writeL1MenuPayload( ValidityRange(gConfig.run), ctpConfig->menu());
+         coolWriter->clearWriteFolder();
+      }
+
+
+
+
 
       /**
        *  HLT
        */
-      if( folderToFix == "/TRIGGER/HLT/HltConfigKeys")
+      if( folderToFix == "/TRIGGER/HLT/HltConfigKeys") {
          cout << "Writing of COOL folder " << folderToFix << " not yet implemented" << endl;
+      }
 
       if( folderToFix == "/TRIGGER/HLT/Menu")
          cout << "Writing of COOL folder " << folderToFix << " not yet implemented" << endl;

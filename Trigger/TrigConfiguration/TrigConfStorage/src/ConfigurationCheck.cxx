@@ -2,7 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-
 /**
  * Menu consistency checks
  */
@@ -1666,6 +1665,39 @@ public:
 };
 
 
+// Check L1 name < 400 character
+class L1SeedLenghtTest : public TrigConfTest {
+public:
+  L1SeedLenghtTest() 
+    : TrigConfTest("Testing the lenght of the L1 Seed"),
+      m_chains("")
+  {}
+  
+  virtual void execute(const Exc_t&) {
+    if ( ! m_hlt ) return;
+    
+    std::set<std::string> l2Chains;    
+    std::set<std::string> l1items;
+    
+    for(const HLTChain* ch : m_hlt->getHLTChainList()) {      
+      const std::string& lcn = ch->lower_chain_name();
+      if ( lcn == "" ) continue;  // unseeded chains are fine
+      if (lcn.size()> 4000.){     
+	m_chains += ch->chain_name() + ", ";
+      }
+      
+      if(m_chains.size()!=0)
+	m_error = "The following chains have a L1 Item that is too long: " + m_chains;
+      
+    }
+  }
+private:
+  std::string m_chains;
+};
+
+
+
+
 // set of tests
 ConfigurationCheck::ConfigurationCheck(TrigConf::CTPConfig* ctp, TrigConf::HLTFrame* hlt) {
   m_tests.push_back(new NumberOfCTPItemsTest());
@@ -1697,6 +1729,7 @@ ConfigurationCheck::ConfigurationCheck(TrigConf::CTPConfig* ctp, TrigConf::HLTFr
   //m_tests.push_back(new L1CaloThrOrder()); //CB 23.05.2014: disabled for now, need to check with L1Calo about eta items order
   m_tests.push_back(new OverlappingThrValues());
 
+  m_tests.push_back(new L1SeedLenghtTest());
   //m_tests.push_back(new SignaturesConnectedTest());
 
 

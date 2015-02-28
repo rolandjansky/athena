@@ -18,6 +18,8 @@
 #include "boost/foreach.hpp"
 #include "boost/lexical_cast.hpp"
 
+#include "RelationalAccess/ITable.h"
+
 #include <string>
 
 namespace TrigConf {
@@ -26,6 +28,7 @@ namespace TrigConf {
 
    inline std::string rmtilde(const std::string & input) { return input=="~" ? "" : input; }
 
+   void printTable(const coral::ITable & teTable);
 
 }
 

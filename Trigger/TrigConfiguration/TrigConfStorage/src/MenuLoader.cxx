@@ -360,12 +360,12 @@ TrigConf::MenuLoader::loadMonitoring(TrigConf::Menu& menu) {
  ***************************************/
 void
 TrigConf::MenuLoader::loadThresholds(TrigConf::Menu& menu) {
-   if(verbose())
-      msg() << "MenuLoader:                       Start loading thresholds" << endl;
+   TRG_MSG_INFO("Loading thresholds");
 
    ThresholdConfigLoader* thrldr = new ThresholdConfigLoader(m_storageMgr, m_session);
+   thrldr->setLevel(outputLevel());
    if ( !thrldr->load( menu.thresholdConfig() ) ) {
-      msg() << "MenuLoader: Error loading ThresholdConfig " << menu.thresholdConfig().id() << endl;
+      TRG_MSG_ERROR("Error loading ThresholdConfig " << menu.thresholdConfig().id());
       throw runtime_error( "MenuLoader: Error loading ThresholdConfig " );
    }
 
@@ -500,6 +500,7 @@ TrigConf::MenuLoader::loadCaloInfo(TrigConf::Menu& menu) {
    // load the CaloInfo
    TrigConf::CaloInfo ci;
    ci.setSMK(menu.smk());
+   m_storageMgr.caloInfoLoader().setLevel(outputLevel());
    m_storageMgr.caloInfoLoader().load(ci);
    menu.setCaloInfo(ci);
 }

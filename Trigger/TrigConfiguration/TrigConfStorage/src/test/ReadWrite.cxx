@@ -386,6 +386,7 @@ int main( int argc, char* argv[] ) {
       //log << "Retrieving Lvl1 Topo configuration" << lineend;
       l1tm  = new TXC::L1TopoMenu();
       l1tm->setSMK(gConfig.getKey(0));
+      sm->masterTableLoader().setLevel(gConfig.outputlevel);
       sm->masterTableLoader().load(*l1tm);
 
       //log << "Retrieving Lvl1 CTP configuration" << lineend;
@@ -395,7 +396,6 @@ int main( int argc, char* argv[] ) {
       ctpc->setBunchGroupSetId( gConfig.getKey(3) );
       DBLoader::setEnv(DBLoader::CTPOnl);
       ctpc->setLoadCtpFiles(gConfig.fw); // load CTP files ?
-      sm->masterTableLoader().setLevel(gConfig.outputlevel);
       sm->masterTableLoader().load(*ctpc);
       ctpc->muCTPi().setSMK( gConfig.getKey(0) );
       sm->masterTableLoader().load( ctpc->muCTPi() );
