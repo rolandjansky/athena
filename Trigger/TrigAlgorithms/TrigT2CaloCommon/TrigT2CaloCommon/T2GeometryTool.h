@@ -186,9 +186,6 @@ private :
     static const double m_phireg[7][4];
     static const double m_phiGran[7][3];
 
-    /** For output messages */
-    MsgStream* m_log;
-
 };
 
 inline int T2GeometryTool::EtaPhiRangeInt(const int layer,
@@ -209,12 +206,12 @@ inline int T2GeometryTool::EtaPhiRangeInt(const int layer,
     EtaMinSign = -1;
     CellEtaMin = fabs(CellEtaMin );  // need a non-negative value
   }
-#ifndef NDEBUG
-  // log removed, this is not an AlgTool
-  (*m_log) << MSG::DEBUG << "At start of EtaPhiRange. layer " << layer <<
-    " aeta " << aeta << " dgra " << dgra << " netaregions " << netaregions
-      << " First CellEtaMin " << CellEtaMin << endreq;
-#endif
+  if (msgLvl(MSG::DEBUG)) {
+    // log removed, this is not an AlgTool
+    msg(MSG::DEBUG) << "At start of EtaPhiRange. layer " << layer 
+		    << " aeta " << aeta << " dgra " << dgra << " netaregions " << netaregions
+		    << " First CellEtaMin " << CellEtaMin << endreq;
+  }
 
   // Go by cell edges not centres since boundaries are at edges.
   // Determine correct cell edges below, if seed is exactly at a cell
@@ -327,10 +324,10 @@ inline int T2GeometryTool::EtaPhiRange(const int nCaloType,const int nCaloSamp,
 
   // test for invalid calorimeter type
   if (nCaloType < 0 || nCaloType > 1)
-      (*m_log) << MSG::ERROR << "Invalid CaloType" << endreq;
+    ATH_MSG_ERROR("Invalid CaloType");
   if (nCaloSamp < 0 || nCaloSamp > 3 ||
             (nCaloSamp == 3 && nCaloType == 1))
-      (*m_log) << MSG::ERROR << "Invalid CaloSamp" << endreq;
+    ATH_MSG_ERROR("Invalid CaloSamp");
   int layer = nCaloType*4+nCaloSamp;
 
   if( nCaloType == 0)
@@ -354,34 +351,31 @@ inline int T2GeometryTool::EtaPhiRange(const int nCaloType,const int nCaloSamp,
 
   }
      
-#ifndef NDEBUG
-  // log removed, this is not an AlgTool
-  (*m_log) << MSG::DEBUG << "At end of EtaPhiRange. layer " << layer 
-      << " CellEtaNorMin : " << m_CellEtaNorMin[layer] << " CellEtaNorMax : " 
-      << m_CellEtaNorMax[layer] << " CellPhiNorMin : " << m_CellPhiNorMin[layer] 
-      << " CellPhiNorMax : " << m_CellPhiNorMax[layer] << " deta : " 
-      << m_CellEtaNorMin[layer] - energyEta << " dphi : "  
-      << m_CellPhiNorMin[layer] - energyPhi << endreq;
-
-  (*m_log) << MSG::DEBUG << " Nar variables ----> CellEtaNarMin : " 
-      << m_CellEtaNarMin[layer]
-      << " CellEtaNarMax : " << m_CellEtaNarMax[layer]  << " CellPhiNarMin : " 
-      << m_CellPhiNarMin[layer] << " CellPhiNarMax : " << m_CellPhiNarMax[layer]
-      << " detaNar : " << m_CellEtaNarMin[layer] - energyEta << " dphiNar : "
-      << m_CellPhiNarMin[layer] - energyPhi << endreq;
-
-  (*m_log) << MSG::DEBUG << " Wid variables ----> CellEtaWidMin : " 
-      << m_CellEtaWidMin[layer] << " CellEtaWidMax : " << m_CellEtaWidMax[layer]
-      << " CellPhiWidMin : "  << m_CellPhiWidMin[layer] << " CellPhiWidMax : " 
-      << m_CellPhiWidMax[layer] << " detaWid : " 
-      << m_CellEtaWidMin[layer] - energyEta << " dphiWid : "
-      << m_CellPhiWidMin[layer] - energyPhi << endreq;
-
-
-#endif
-
-
-	return 0;
+  if (msgLvl(MSG::DEBUG)) {
+    // log removed, this is not an AlgTool
+    msg(MSG::DEBUG) << "At end of EtaPhiRange. layer " << layer 
+		    << " CellEtaNorMin : " << m_CellEtaNorMin[layer] << " CellEtaNorMax : " 
+		    << m_CellEtaNorMax[layer] << " CellPhiNorMin : " << m_CellPhiNorMin[layer] 
+		    << " CellPhiNorMax : " << m_CellPhiNorMax[layer] << " deta : " 
+		    << m_CellEtaNorMin[layer] - energyEta << " dphi : "  
+		    << m_CellPhiNorMin[layer] - energyPhi << endreq;
+    
+    msg(MSG::DEBUG) << " Nar variables ----> CellEtaNarMin : " 
+		    << m_CellEtaNarMin[layer]
+		    << " CellEtaNarMax : " << m_CellEtaNarMax[layer]  << " CellPhiNarMin : " 
+		    << m_CellPhiNarMin[layer] << " CellPhiNarMax : " << m_CellPhiNarMax[layer]
+		    << " detaNar : " << m_CellEtaNarMin[layer] - energyEta << " dphiNar : "
+		    << m_CellPhiNarMin[layer] - energyPhi << endreq;
+    
+    msg(MSG::DEBUG) << " Wid variables ----> CellEtaWidMin : " 
+		    << m_CellEtaWidMin[layer] << " CellEtaWidMax : " << m_CellEtaWidMax[layer]
+		    << " CellPhiWidMin : "  << m_CellPhiWidMin[layer] << " CellPhiWidMax : " 
+		    << m_CellPhiWidMax[layer] << " detaWid : " 
+		    << m_CellEtaWidMin[layer] - energyEta << " dphiWid : "
+		    << m_CellPhiWidMin[layer] - energyPhi << endreq;
+  }
+  
+  return 0;
 } // End of EtaPhiRange
 
 inline bool T2GeometryTool::CellInNorCluster( const int nCaloType, 
@@ -389,10 +383,10 @@ inline bool T2GeometryTool::CellInNorCluster( const int nCaloType,
 
   // test for invalid calorimeter type
   if (nCaloType < 0 || nCaloType > 1)
-      (*m_log) << MSG::ERROR << "Invalid CaloType" << endreq;
+    ATH_MSG_ERROR("Invalid CaloType");
   if (nCaloSamp < 0 || nCaloSamp > 3 ||
-            (nCaloSamp == 3 && nCaloType == 1))
-      (*m_log) << MSG::ERROR << "Invalid CaloSamp" << endreq;
+      (nCaloSamp == 3 && nCaloType == 1))
+    ATH_MSG_ERROR("Invalid CaloSamp");
   int layer = nCaloType*4+nCaloSamp;
 
         int IetaPass=0;
@@ -417,10 +411,10 @@ inline bool T2GeometryTool::CellInNarCluster( const int nCaloType,
        const int nCaloSamp, const double& etaCell, const double& phiCell){
   // test for invalid calorimeter type
   if (nCaloType < 0 || nCaloType > 1)
-      (*m_log) << MSG::ERROR << "Invalid CaloType" << endreq;
+    ATH_MSG_ERROR("Invalid CaloType");
   if (nCaloSamp < 0 || nCaloSamp > 3 ||
-            (nCaloSamp == 3 && nCaloType == 1))
-      (*m_log) << MSG::ERROR << "Invalid CaloSamp" << endreq;
+      (nCaloSamp == 3 && nCaloType == 1))
+    ATH_MSG_ERROR("Invalid CaloSamp");
   int layer = nCaloType*4+nCaloSamp;
 
         int IetaPass=0;
@@ -445,10 +439,10 @@ inline bool T2GeometryTool::CellInWidCluster( const int nCaloType,
        const int nCaloSamp, const double& etaCell, const double& phiCell){
   // test for invalid calorimeter type
   if (nCaloType < 0 || nCaloType > 1)
-      (*m_log) << MSG::ERROR << "Invalid CaloType" << endreq;
+    ATH_MSG_ERROR("Invalid CaloType");
   if (nCaloSamp < 0 || nCaloSamp > 3 ||
             (nCaloSamp == 3 && nCaloType == 1))
-      (*m_log) << MSG::ERROR << "Invalid CaloSamp" << endreq;
+    ATH_MSG_ERROR("Invalid CaloSamp");
   int layer = nCaloType*4+nCaloSamp;
 
 

@@ -41,36 +41,15 @@
 // Retrieval of all Tools to be used during run
 StatusCode TrigDataAccessATLFAST::initialize()
 {
-	m_log = new MsgStream(AlgTool::msgSvc(), name());
 
-
-#ifndef NDEBUG
-	(*m_log) << MSG::INFO << "in initialize() by TrigDataAccessATLFAST" << endreq;
-#endif
+        ATH_MSG_DEBUG("in initialize() by TrigDataAccessATLFAST");
 
 	// Some tools are necessary for the Algorithm to run
 	// The RegionSelector is being retrieved here
         if( (m_pRegionSelector.retrieve()).isFailure() ) {
-          (*m_log) << MSG::FATAL << "Unable to retrieve RegionSelector Service" << endreq;
+	  ATH_MSG_FATAL("Unable to retrieve RegionSelector Service");
 	  return StatusCode::FAILURE;
 	}
-
-	// Store Gate will handle input/output data to/from the
-	// Algorithm. This is retrieved here
-	if (service("StoreGateSvc", m_storeGate).isFailure()) {
-		(*m_log) << MSG::ERROR << "Could not find StoreGateSvc"
-				<< endreq;
-		return StatusCode::FAILURE;
-	} // End of if StoreGateSvc
-
-	// Store Gate will handle input/output data to/from the
-	// Algorithm. This is retrieved here
-	StoreGateSvc* detectStore;
-	if (service("DetectorStore", detectStore).isFailure()) {
-		(*m_log) << MSG::ERROR << "Could not find DetectorStore"
-				<< endreq;
-		return StatusCode::FAILURE;
-	} // End of if StoreGateSvc
 
 	// Reserve vectors space to avoid online memory allocation
 	// Limits to be studied
@@ -80,7 +59,7 @@ StatusCode TrigDataAccessATLFAST::initialize()
 // Event handling
 	IIncidentSvc* p_incSvc;
 	if ( service("IncidentSvc",p_incSvc, true).isFailure() ) {
-		std::cout << MSG::ERROR << "Unable to get the IncidentSvc" << std::endl;
+	  ATH_MSG_ERROR("Unable to get the IncidentSvc");
 	}else{
 	p_incSvc->addListener(this, "BeginEvent",100);
 	}
@@ -88,23 +67,21 @@ StatusCode TrigDataAccessATLFAST::initialize()
 	m_iov_called=false;
 	// Register function for the detector store
         const DataHandle<AthenaAttributeList> febrodmap;
-	if ( detectStore->regFcn(&ITrigDataAccess::beginRunHandle,
+	if ( detStore()->regFcn(&ITrigDataAccess::beginRunHandle,
 		(ITrigDataAccess*)this,
 				 febrodmap, "/LAR/Identifier/FebRodMap", true).isFailure() ) { //FIXME hardcoded database folder name
-		(*m_log) << MSG::ERROR << " Can't regFnc with Condition "
-			<< endreq;
-		return StatusCode::FAILURE;
+	  ATH_MSG_ERROR(" Can't regFnc with Condition ");
+	  return StatusCode::FAILURE;
         }
 	// Just to the Missing Et slice
         if ( m_usefullcoll ) {
 	IRegSelSvc* regSelSvc = &(*m_pRegionSelector);
-	if ( detectStore->regFcn(&IRegSelSvc::handle,
+	if ( detStore()->regFcn(&IRegSelSvc::handle,
 		regSelSvc,
 		&ITrigDataAccess::beginRunHandle_RegSelSvc,
 		(ITrigDataAccess*)this,true).isFailure() ) {
-		(*m_log) << MSG::ERROR << "Can't regFnc with Condition"
-			<< endreq;
-		return StatusCode::FAILURE;
+	  ATH_MSG_ERROR(" Can't regFnc with Condition");
+	  return StatusCode::FAILURE;
 	}
           m_rIdsem0.reserve(12288);
           m_rIdsem1.reserve(300);
@@ -136,16 +113,15 @@ StatusCode TrigDataAccessATLFAST::beginRunHandle(IOVSVC_CALLBACK_ARGS){
 	// The ByteStreamCnv (Through LArTT_Selector needs a map of the
 	// RoIs, being retrieved here
 	if(toolSvc()->retrieveTool("LArRoI_Map",m_roiMap).isFailure()) {
-		(*m_log) << MSG::FATAL << "Could not find LArRoI_Map" << endreq;
-		return StatusCode::FAILURE;
+	  ATH_MSG_FATAL("Could not find LArRoI_Map");
+	  return StatusCode::FAILURE;
 	} // End of if LArRoI_Map
 
 #ifdef DOBYTESTREAMCNV
         //m_datablock.reserve(350);
 	m_larcell = new LArCellCont();
 	if ( (m_larcell->initialize()).isFailure() ){
-                (*m_log) << MSG::FATAL << "Could not init larcell"
-                                << endreq;
+	  ATH_MSG_FATAL("Could not init larcell");
         }
         m_sel= new LArTT_Selector<LArCellCont>(m_roiMap,m_larcell);
         if(m_usefullcoll){
@@ -156,13 +132,11 @@ StatusCode TrigDataAccessATLFAST::beginRunHandle(IOVSVC_CALLBACK_ARGS){
         }
 	m_tilecell = new TileCellCont();
         if ( (m_tilecell->initialize()).isFailure() ){
-                (*m_log) << MSG::FATAL << "Could not init tilecell"
-                                << endreq;
+	  ATH_MSG_FATAL("Could not init tilecell");
         }
         //m_febcoll = new LArFebEnergyCollection();
 	if(m_usefullcoll){
-          (*m_log) << MSG::DEBUG << "Preparing the full collections"
-                   << endreq;
+	  ATH_MSG_DEBUG("Preparing the full collections");
           if ( m_rIdsem0.size() != 0 ) m_rIdsem0.clear();
           if ( m_rIdsem1.size() != 0 ) m_rIdsem1.clear();
           if ( m_rIdsem2.size() != 0 ) m_rIdsem2.clear();
@@ -184,9 +158,7 @@ StatusCode TrigDataAccessATLFAST::beginRunHandle(IOVSVC_CALLBACK_ARGS){
 
 StatusCode TrigDataAccessATLFAST::beginRunHandle_RegSelSvc(IOVSVC_CALLBACK_ARGS){
 	  if(m_usefullcoll){
-          (*m_log) << MSG::DEBUG << "Finalizing Preparation of full collections"
-                   << endreq;
-
+	    ATH_MSG_DEBUG("Finalizing Preparation of full collections");
 	  //	  TrigRoiDescriptor tmproi( 0, -4.8, 4.8, 0, -M_PI, M_PI, 0, 0, 0 );
 	  TrigRoiDescriptor tmproi( true );  /// give it true during the constructor, you get a full scan RoI
 
@@ -272,19 +244,17 @@ StatusCode TrigDataAccessATLFAST::beginRunHandle_RegSelSvc(IOVSVC_CALLBACK_ARGS)
 
 // Finalize method for all tools
 StatusCode TrigDataAccessATLFAST::finalize(){
-#ifndef NDEBUG
-	(*m_log) << MSG::INFO << "in finalize() by TrigDataAccess" << endreq;
-#endif
+        if (msgLvl(MSG::DEBUG)) {
+	  msg(MSG::INFO) << "in finalize() by TrigDataAccess" << endreq;
+	}
 #ifdef DOBYTESTREAMCNV
 	if ( m_iov_called ){
         if ( (m_larcell->finalize()).isFailure() ){
-                (*m_log) << MSG::FATAL << "Could not finish larcell"
-                                << endreq;
+	  ATH_MSG_FATAL("Could not finish larcell");
         }
         delete m_larcell;
         if ( (m_tilecell->finalize()).isFailure() ){
-                (*m_log) << MSG::FATAL << "Could not finish tilecell"
-                                << endreq;
+	  ATH_MSG_FATAL("Could not finish tilecell");
         }
         delete m_tilecell;
         delete m_sel;
@@ -296,7 +266,6 @@ StatusCode TrigDataAccessATLFAST::finalize(){
 	}
 	}
 #endif
-        delete m_log;
 	return StatusCode::SUCCESS;
 
 } // End of finalize
@@ -314,11 +283,11 @@ void TrigDataAccessATLFAST::RegionSelectorRobID (const int sampling,
         else { // TILE does not need sample
 	  m_pRegionSelector->DetROBIDListUint(detid, roi, m_vrodid32);
         }
-#ifndef NDEBUG
-        (*m_log) << MSG::DEBUG << "m_vrodid32.size() = " << m_vrodid32.size() << endreq;
-        for(unsigned int i = 0 ; i < m_vrodid32.size() ; i++)
-	  (*m_log) << MSG::DEBUG << "m_vrodid32[" << i << "]=" << m_vrodid32[i] << endreq;
-#endif
+	if (msgLvl(MSG::DEBUG)) {
+	  msg(MSG::DEBUG) << "m_vrodid32.size() = " << m_vrodid32.size() << endreq;
+	  for(unsigned int i = 0 ; i < m_vrodid32.size() ; i++)
+	    msg(MSG::DEBUG) << "m_vrodid32[" << i << "]=" << m_vrodid32[i] << endreq;
+	}
 }  // End of RegionSelectorRobID
 
 
@@ -336,12 +305,11 @@ void TrigDataAccessATLFAST::RegionSelectorListID (const int sampling,
 	  m_pRegionSelector->DetHashIDList(detid, roi, m_rIds);					   
 	}
 	
-#ifndef NDEBUG
-        (*m_log) << MSG::DEBUG << "m_rIds.size() = " << m_rIds.size() << endreq;
-        for(unsigned int i = 0; i < m_rIds.size() ; i++)
-	  (*m_log) << MSG::DEBUG << "m_rIds[" << i << "]=" << m_rIds[i] << endreq;
-#endif
-	
+	if (msgLvl(MSG::DEBUG)) {
+	  msg(MSG::DEBUG) << "m_rIds.size() = " << m_rIds.size() << endreq;
+	  for(unsigned int i = 0; i < m_rIds.size() ; i++)
+	    msg(MSG::DEBUG) << "m_rIds[" << i << "]=" << m_rIds[i] << endreq;
+	}	
 } // End of RegionSelectorListID
 
 
@@ -355,22 +323,20 @@ StatusCode TrigDataAccessATLFAST::LoadCollections (
 		LArTT_Selector<LArCellCont>::const_iterator& Begin,
 		LArTT_Selector<LArCellCont>::const_iterator& End,
 		const unsigned int /*sample*/, bool /*prepare*/) {
-#ifndef NDEBUG
-        (*m_log) << MSG::DEBUG << "m_rIds.size() in LoadColl = " <<
-                        m_rIds.size() << endreq;
-        for(unsigned int i = 0 ; i < m_rIds.size() ; i++)
-                (*m_log) << MSG::DEBUG << "m_rIds[" << i << "]=" <<
-                         m_rIds[i] << endreq;
-#endif
+        if (msgLvl(MSG::DEBUG)) {
+	  msg(MSG::DEBUG) << "m_rIds.size() in LoadColl = " <<
+	    m_rIds.size() << endreq;
+	  for(unsigned int i = 0 ; i < m_rIds.size() ; i++)
+	    msg(MSG::DEBUG) << "m_rIds[" << i << "]=" <<
+	      m_rIds[i] << endreq;
+	}
 
 	Begin=End;
 
-
 	const DataHandle<CaloCellContainer> cells;
-	if (m_storeGate->retrieve(cells,"AllCalo").isFailure()) {
-                (*m_log) << MSG::ERROR << "Could not find AllCalo container"
-                                << endreq;
-                return StatusCode::FAILURE;
+	if (evtStore()->retrieve(cells,"AllCalo").isFailure()) {
+	  ATH_MSG_ERROR("Could not find AllCalo container");
+	  return StatusCode::FAILURE;
         } // End of if StoreGateSvc
 
         int rodidx = 0;
@@ -396,14 +362,14 @@ StatusCode TrigDataAccessATLFAST::LoadCollections (
         m_sel->setRoIs(m_rIds);
         Begin = m_sel->begin();
         End   = m_sel->end();
-#ifndef NDEBUG
-	LArTT_Selector<LArCellCont>::const_iterator m_it;
-        for ( m_it=Begin; m_it != End; ++m_it ){
-                (*m_log) << MSG::DEBUG << "Eta: " << (*m_it)->eta()
-                << "; Phi: " << (*m_it)->phi() <<
-                "; Energy: " << (*m_it)->energy() << endreq;
-        } // End of for printout cells
-#endif
+	if (msgLvl(MSG::DEBUG)) {
+	  LArTT_Selector<LArCellCont>::const_iterator m_it;
+	  for ( m_it=Begin; m_it != End; ++m_it ){
+	    msg(MSG::DEBUG) << "Eta: " << (*m_it)->eta()
+			    << "; Phi: " << (*m_it)->phi() <<
+	      "; Energy: " << (*m_it)->energy() << endreq;
+	  } // End of for printout cells
+	}
 	return StatusCode::SUCCESS;
 } // End of method
 StatusCode TrigDataAccessATLFAST::LoadCollections (
@@ -412,10 +378,9 @@ StatusCode TrigDataAccessATLFAST::LoadCollections (
                 const unsigned int sample, bool /*prepare*/){
 
 	const DataHandle<CaloCellContainer> cells;
-	if (m_storeGate->retrieve(cells,"AllCalo").isFailure()) {
-                (*m_log) << MSG::ERROR << "Could not find AllCalo container"
-                                << endreq;
-                return StatusCode::FAILURE;
+	if (evtStore()->retrieve(cells,"AllCalo").isFailure()) {
+	  ATH_MSG_ERROR("Could not find AllCalo container");
+	  return StatusCode::FAILURE;
         } // End of if StoreGateSvc
 
 	int i = sample;
@@ -433,15 +398,15 @@ StatusCode TrigDataAccessATLFAST::LoadCollections (
 
         //} // End of for through RobFrags
 
-#ifndef NDEBUG
-        TileCellCollection::const_iterator m_itt = Begin;
-        for (m_itt=Begin;m_itt!=End;++m_itt){
-                (*m_log) << MSG::DEBUG << "Eta: " << (*m_itt)->eta()
-                << "; Phi: " << (*m_itt)->phi() <<
-                "; Energy: " << (*m_itt)->energy() << 
-		"; Hash Id: " << (*m_itt)->caloDDE()->calo_hash() << endreq;
-        } // End of for printout cells
-#endif
+	if (msgLvl(MSG::DEBUG)) {
+	  TileCellCollection::const_iterator m_itt = Begin;
+	  for (m_itt=Begin;m_itt!=End;++m_itt){
+	    msg(MSG::DEBUG) << "Eta: " << (*m_itt)->eta()
+			    << "; Phi: " << (*m_itt)->phi() <<
+	      "; Energy: " << (*m_itt)->energy() << 
+	      "; Hash Id: " << (*m_itt)->caloDDE()->calo_hash() << endreq;
+	  } // End of for printout cells
+	}
         return StatusCode::SUCCESS;
 
 } // End of LoadCollections
@@ -460,14 +425,14 @@ StatusCode TrigDataAccessATLFAST::LoadCollections (
 	LArFebEnergyCollection* m_febcoll;
         m_febcoll = new LArFebEnergyCollection();
         for (size_t i = 0; i < m_robFrags.size(); ++i){
-                m_lardecoder->check_valid(m_robFrags[i],(*m_log));
+                m_lardecoder->check_valid(m_robFrags[i],msg());
                 //m_datablock.clear();
                 // Get Rod Data and size of fragment
                 const uint32_t* roddata1 = 0;
                 m_robFrags[i]->rod_data(roddata1);
                 size_t roddatasize = m_robFrags[i]->rod_ndata();
                 if (roddatasize < 3) {
-                        (*m_log) << MSG::FATAL << "Error reading bytestream"<<
+                        msg(MSG::FATAL) << "Error reading bytestream"<<
                         "event: Empty ROD block (less than 3 words)" << endreq;
                         return StatusCode::FAILURE;
                 } // End of if small size
@@ -483,7 +448,7 @@ StatusCode TrigDataAccessATLFAST::LoadCollections (
 #ifndef NDEBUG
         for(LArFebEnergyCollection::const_iterator it = Begin; 
               it!=End; ++it){
-              (*m_log) << MSG::DEBUG << " Feb ID = " << (*it)->getFebId() 
+              msg(MSG::DEBUG) << " Feb ID = " << (*it)->getFebId() 
                        << " Feb Ex = " << (*it)->getFebEx()
                        << " Feb Ey = " << (*it)->getFebEy() 
                        << " Feb Ez = " << (*it)->getFebEz() << endreq;
@@ -499,21 +464,20 @@ StatusCode TrigDataAccessATLFAST::LoadFullCollections (
                 LArTT_Selector<LArCellCont>::const_iterator& End,
                 const DETID /*detid*/, bool /*prepare*/) {
 
-#ifndef NDEBUG
-        (*m_log) << MSG::DEBUG << "m_rIds.size() in LoadColl = " <<
-                        m_rIds.size() << endreq;
-        for(unsigned int i = 0 ; i < m_rIds.size() ; i++)
-                (*m_log) << MSG::DEBUG << "m_rIds[" << i << "]=" <<
-                         m_rIds[i] << endreq;
-#endif
+        if (msgLvl(MSG::DEBUG)) {
+	  msg(MSG::DEBUG) << "m_rIds.size() in LoadColl = " <<
+	    m_rIds.size() << endreq;
+	  for(unsigned int i = 0 ; i < m_rIds.size() ; i++)
+	    msg(MSG::DEBUG) << "m_rIds[" << i << "]=" <<
+	      m_rIds[i] << endreq;
+	}
 
         Begin=End;
 
         const DataHandle<CaloCellContainer> cells;
-        if (m_storeGate->retrieve(cells,"AllCalo").isFailure()) {
-                (*m_log) << MSG::ERROR << "Could not find AllCalo container"
-                                << endreq;
-                return StatusCode::FAILURE;
+        if (evtStore()->retrieve(cells,"AllCalo").isFailure()) {
+	  ATH_MSG_ERROR("Could not find AllCalo container");
+	  return StatusCode::FAILURE;
         } // End of if StoreGateSvc
 
         int rodidx = 0;
@@ -528,17 +492,16 @@ StatusCode TrigDataAccessATLFAST::LoadFullCollections (
         } // End of for through RobFrags
 
 
-#ifndef NDEBUG
-        int i=0;
-        LArTT_Selector<LArCellCont>::const_iterator m_it;
-        for ( m_it=Begin; m_it != End; ++m_it ){
-                (*m_log) << MSG::DEBUG << "Eta: " << (*m_it)->eta()
-                << "; Phi: " << (*m_it)->phi() <<
-                "; Energy: " << (*m_it)->energy() << endreq;
-                i++;
-        } // End of for printout cells
-#endif
-
+	if (msgLvl(MSG::DEBUG)) {
+	  int i=0;
+	  LArTT_Selector<LArCellCont>::const_iterator m_it;
+	  for ( m_it=Begin; m_it != End; ++m_it ){
+	    msg(MSG::DEBUG) << "Eta: " << (*m_it)->eta()
+			    << "; Phi: " << (*m_it)->phi() <<
+	      "; Energy: " << (*m_it)->energy() << endreq;
+	    i++;
+	  } // End of for printout cells
+	}
         return StatusCode::SUCCESS;
 } // End of method
 StatusCode TrigDataAccessATLFAST::LoadFullCollections (
@@ -547,10 +510,9 @@ StatusCode TrigDataAccessATLFAST::LoadFullCollections (
                 const unsigned int sample, bool /*prepare*/){
 
         const DataHandle<CaloCellContainer> cells;
-        if (m_storeGate->retrieve(cells,"AllCalo").isFailure()) {
-                (*m_log) << MSG::ERROR << "Could not find AllCalo container"
-                                << endreq;
-                return StatusCode::FAILURE;
+        if (evtStore()->retrieve(cells,"AllCalo").isFailure()) {
+	  ATH_MSG_ERROR("Could not find AllCalo container");
+	    return StatusCode::FAILURE;
         } // End of if StoreGateSvc
 
 
@@ -566,16 +528,15 @@ StatusCode TrigDataAccessATLFAST::LoadFullCollections (
                   End = m_col->end();
                 }
 
-#ifndef NDEBUG
-        TileCellCollection::const_iterator m_itt = Begin;
-        for (m_itt=Begin;m_itt!=End;++m_itt){
-                (*m_log) << MSG::DEBUG << "Eta: " << (*m_itt)->eta()
-                << "; Phi: " << (*m_itt)->phi() <<
-                "; Energy: " << (*m_itt)->energy() <<
-                "; Hash Id: " << (*m_itt)->caloDDE()->calo_hash() << endreq;
-        } // End of for printout cells
-#endif
-
+	if (msgLvl(MSG::DEBUG)) {
+	  TileCellCollection::const_iterator m_itt = Begin;
+	  for (m_itt=Begin;m_itt!=End;++m_itt){
+	    msg(MSG::DEBUG) << "Eta: " << (*m_itt)->eta()
+			    << "; Phi: " << (*m_itt)->phi() <<
+	      "; Energy: " << (*m_itt)->energy() <<
+	      "; Hash Id: " << (*m_itt)->caloDDE()->calo_hash() << endreq;
+	  } // End of for printout cells
+	}
         return StatusCode::SUCCESS;
 
 } // End of LoadCollections
@@ -610,12 +571,12 @@ StatusCode TrigDataAccessATLFAST::LoadFullCollections (
         m_febcoll = new LArFebEnergyCollection();
 
         for( size_t i=0; i< m_robFrags.size(); ++i){
-                m_lardecoder->check_valid(m_robFrags[i],(*m_log));
+                m_lardecoder->check_valid(m_robFrags[i],msg());
                 const uint32_t* roddata1 = 0;
                 m_robFrags[i]->rod_data(roddata1);
                 size_t roddatasize = m_robFrags[i]->rod_ndata();
                 if(roddatasize < 3) {
-                       (*m_log) << MSG::FATAL << "Error reading bytestream " <<
+                       msg(MSG::FATAL) << "Error reading bytestream " <<
                                   "event: Empty ROD block (less than 3 words)" << endreq;
                        return StatusCode::FAILURE;
                 }
@@ -631,7 +592,7 @@ StatusCode TrigDataAccessATLFAST::LoadFullCollections (
 #ifndef NDEBUG
         for(LArFebEnergyCollection::const_iterator it = Begin;
               it!=End; ++it){
-              (*m_log) << MSG::DEBUG << " Feb ID = " << (*it)->getFebId()
+              msg(MSG::DEBUG) << " Feb ID = " << (*it)->getFebId()
                        << " Feb Ex = " << (*it)->getFebEx()
                        << " Feb Ey = " << (*it)->getFebEy()
                        << " Feb Ez = " << (*it)->getFebEz() << endreq;

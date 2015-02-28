@@ -49,7 +49,6 @@
 
 #include "TrigSteeringEvent/Enums.h"
 
-class StoreGateSvc;
 //class TrigEMCluster;
 class TrigTauCluster;
 class T2CaloConfig;
@@ -158,11 +157,8 @@ class IAlgToolCalo: public virtual IAlgTool,
     void PrintCluster(const double energyFromAlg, const int nCaloType,const int nCaloSamp,
 		const CaloSampling::CaloSample, const CaloSampling::CaloSample );
 #endif
-    /** Store All Calorimeter Cells in RoI in an StoreGate Container. */
-    void storeCells(void);
-
-    /** StoreGateSvc pointer */
-    StoreGateSvc*		 m_storeGate;
+         /** Store All Calorimeter Cells in RoI in an StoreGate Container. */
+         void storeCells(void);
 
 	/** iterators to LArCells. To be used when online
 	LArCellCont (fast ByteStream Decoder) are to be used.
@@ -186,9 +182,6 @@ class IAlgToolCalo: public virtual IAlgTool,
 	timer and m_timer[4] is the saving data (to TrigCaloEvent
 	object) timer. */
 	TrigTimer* m_timer[5];
-	/** For Logging, in all tools we should use (*m_log) to avoid
-	recalling of the MsgStream all the time. */
-	MsgStream* m_log;
 
 	/** Objects will need T2Calibration. So far, a given tool will
 	not need more than one of such objects. */

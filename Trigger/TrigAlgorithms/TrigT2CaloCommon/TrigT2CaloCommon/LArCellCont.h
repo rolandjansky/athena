@@ -26,7 +26,7 @@
 #include <vector>
 
 class EventInfo;
-class StoreGateSvc;
+//class StoreGateSvc;
 class ILArBadChannelMasker;
 class ILArBadChanTool;
 class LArCablingService;
