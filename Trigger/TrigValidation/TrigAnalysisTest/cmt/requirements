@@ -33,7 +33,7 @@ apply_pattern declare_runtime extras="../test/TrigAnalysisTest_TestConfiguration
                                       ../bin/CheckLog_TrigAnalysisTest.py \
                                       ../bin/LogTail_TrigAnalysisTest.py \
                                       ../bin/TruncateLog_TrigAnalysisTest.py \
-                                      ../python/ValgrindAnalysisScript.py \
+                                      ../python/ValgrindAnalysisScript_TrigAnalysisTest.py \
                                       ../python/ValGrindPostScript_TrigAnalysisTest.py \
                                       ../bin/checkFileTrigSize_RTT.py"
 
