@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: L1Muctpi.h 624535 2014-10-28 10:02:49Z stelzer $
+// $Id: L1Muctpi.h 650693 2015-03-01 16:53:48Z masato $
 #ifndef TRIGT1MUCTPI_L1MUCTPI_H
 #define TRIGT1MUCTPI_L1MUCTPI_H
 
@@ -32,7 +32,7 @@ namespace LVL1MUCTPI {
    class MuctpiSim;
 
    /**
-    *   $Date: 2014-10-28 11:02:49 +0100 (Tue, 28 Oct 2014) $
+    *   $Date: 2015-03-01 17:53:48 +0100 (Sun, 01 Mar 2015) $
     *
     *   @short Main Athena algorithm of the MuCTPI simulation
     *
@@ -50,7 +50,7 @@ namespace LVL1MUCTPI {
     *     @see LVL1::MuCTPICTP
     *
     *  @author $Author: krasznaa $
-    * @version $Revision: 624535 $
+    * @version $Revision: 650693 $
     *
     */
    class L1Muctpi : public AthAlgorithm {
@@ -99,6 +99,7 @@ namespace LVL1MUCTPI {
       // These properties control the way the overlap handling functions:
       std::string m_overlapStrategyName;
       std::string m_lutXMLFile;
+      std::string m_runPeriod;
       bool m_flagMode;
 
       // These properties control how the multiplicity summation happens:

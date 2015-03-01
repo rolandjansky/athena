@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: OverlapLogic.h 441850 2011-06-06 14:50:52Z krasznaa $
+// $Id: OverlapLogic.h 650693 2015-03-01 16:53:48Z masato $
 #ifndef TRIGT1MUCTPI_OVERLAPLOGIC_H
 #define TRIGT1MUCTPI_OVERLAPLOGIC_H
 
@@ -43,8 +43,8 @@ namespace LVL1MUCTPI {
     * @author Thorsten Wengler
     * @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
     *
-    * $Revision: 441850 $
-    * $Date: 2011-06-06 16:50:52 +0200 (Mon, 06 Jun 2011) $
+    * $Revision: 650693 $
+    * $Date: 2015-03-01 17:53:48 +0100 (Sun, 01 Mar 2015) $
     */
    class OverlapLogic {
 
@@ -95,7 +95,7 @@ namespace LVL1MUCTPI {
        *                loaded LUT
        */
       StatusCode initializeLUT( const std::string& lutXMLFile, bool flagMode,
-                                bool dumpLut );
+                                bool dumpLut, const std::string& runPeriod );
 
    private:
       mutable MsgLogger                          m_logger;

@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-# $Id: TrigT1MuctpiConfig.py 515239 2012-08-28 11:39:45Z krasznaa $
+# $Id: TrigT1MuctpiConfig.py 650693 2015-03-01 16:53:48Z masato $
 
 # Local (generated) configurable(s):
 from TrigT1Muctpi.TrigT1MuctpiConf import LVL1MUCTPI__L1Muctpi
@@ -15,12 +15,42 @@ class DefaultL1Muctpi( LVL1MUCTPI__L1Muctpi ):
 
     LVL1MUCTPI__L1Muctpi.__init__( self, name )
 
+    # Create a logger:
+    from AthenaCommon.Logging import logging
+    logger = logging.getLogger( "L1Muctpi" )
+
     # Set properties of the LUT overlap handling:
     self.OverlapStrategyName = "LUT"
     self.DumpLUT = False
-    self.LUTXMLFile = "TrigConfMuctpi/data10_7TeV.periodI.physics_Muons.MuCTPI_LUT.NoBEOverlaps_composedEF.v002.xml"
+    self.LUTXMLFile = "UNDEFINED"
+    self.RunPeriod = "UNDEFINED"
     self.FlaggingMode = False
     self.MultiplicityStrategyName = "INCLUSIVE"
+
+    # Decide which LUT to use, based on which run we are simulating:
+    from AtlasGeoModel.InDetGMJobProperties import GeometryFlags as geoFlags
+    if ( geoFlags.Run() == "RUN1" ) or ( ( geoFlags.Run() == "UNDEFINED" ) and
+                                         ( geoFlags.isIBL() == False ) ):
+      self.LUTXMLFile = "TrigConfMuctpi/data10_7TeV.periodI.physics_Muons.MuCTPI_LUT.NoBEOverlaps_composedEF.v002.xml"
+      self.RunPeriod = "RUN1"
+      logger.info( "Configuring MuCTPI simulation with Run 1 configuration file:" )
+      logger.info( "  TrigConfMuctpi/data10_7TeV.periodI.physics_Muons.MuCTPI_LUT.NoBEOverlaps_composedEF.v002.xml" )
+      logger.info( "  with a RunPeriod=RUN1" )
+    elif ( geoFlags.Run() == "RUN2" ) or ( ( geoFlags.Run() == "UNDEFINED" ) and
+                                           ( geoFlags.isIBL() == True ) ):
+      self.LUTXMLFile = "TrigConfMuctpi/data10_7TeV.periodI.physics_Muons.MuCTPI_LUT.NoBEOverlaps_composedEF.v002_modifiedBB.xml"
+      self.RunPeriod = "RUN2"
+      logger.info( "Configuring MuCTPI simulation with Run 2 configuration file:" )
+      logger.info( "  TrigConfMuctpi/data10_7TeV.periodI.physics_Muons.MuCTPI_LUT.NoBEOverlaps_composedEF.v002_modifiedBB.xml" )
+      logger.info( "  with a RunPeriod=RUN2" )
+    else:
+      self.LUTXMLFile = "TrigConfMuctpi/data10_7TeV.periodI.physics_Muons.MuCTPI_LUT.NoBEOverlaps_composedEF.v002_modifiedBB.xml"
+      self.RunPeriod = "RUN2"
+      logger.warning( "Couldn't determine which run to simulate, using Run 2 configuration file:" )
+      logger.warning( "  TrigConfMuctpi/data10_7TeV.periodI.physics_Muons.MuCTPI_LUT.NoBEOverlaps_composedEF.v002_modifiedBB.xml" )
+      logger.warning( "  with a RunPeriod=RUN2" )
+
+      pass
 
     # Turn on the NIM output creation by default:
     self.DoNIMOutput = True

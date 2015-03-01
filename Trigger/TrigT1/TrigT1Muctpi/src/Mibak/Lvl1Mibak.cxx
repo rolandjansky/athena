@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: Lvl1Mibak.cxx 484720 2012-02-23 16:38:31Z krasznaa $
+// $Id: Lvl1Mibak.cxx 650693 2015-03-01 16:53:48Z masato $
 
 // STL include(s):
 #include <cassert>
@@ -245,9 +245,10 @@ namespace LVL1MUCTPI {
    }
 
    StatusCode Lvl1Mibak::initializeLUTOverlapStrategy( const std::string& lutXMLFile,
-                                                       bool flagMode, bool dumpLut ) {
+                                                       bool flagMode, bool dumpLut,
+						       const std::string& runPeriod ) {
 
-      CHECK( m_lvl1OverlapLogic->initializeLUT( lutXMLFile, flagMode, dumpLut ) );
+     CHECK( m_lvl1OverlapLogic->initializeLUT( lutXMLFile, flagMode, dumpLut, runPeriod ) );
       return StatusCode::SUCCESS;
    }
 

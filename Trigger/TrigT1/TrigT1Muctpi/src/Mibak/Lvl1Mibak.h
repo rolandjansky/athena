@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: Lvl1Mibak.h 484720 2012-02-23 16:38:31Z krasznaa $
+// $Id: Lvl1Mibak.h 650693 2015-03-01 16:53:48Z masato $
 #ifndef TRIGT1MUCTPI_LVL1MIBAK_H
 #define TRIGT1MUCTPI_LVL1MIBAK_H
 
@@ -61,8 +61,8 @@ namespace LVL1MUCTPI {
     * @author Thorsten Wengler
     * @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
     *
-    * $Revision: 484720 $
-    * $Date: 2012-02-23 17:38:31 +0100 (Thu, 23 Feb 2012) $
+    * $Revision: 650693 $
+    * $Date: 2015-03-01 17:53:48 +0100 (Sun, 01 Mar 2015) $
     */
    class Lvl1Mibak {
 
@@ -157,7 +157,8 @@ namespace LVL1MUCTPI {
        * @see LUTStructure
        */
       StatusCode initializeLUTOverlapStrategy( const std::string& lutXMLFile,
-                                               bool flagMode, bool dumpLut );
+                                               bool flagMode, bool dumpLut,
+					       const std::string& runPeriod );
 
       void setMultiplicityStrategy( MultiplicityCalcType type );
       void initializeXMLMultStrategy( const std::string& xmlFile );

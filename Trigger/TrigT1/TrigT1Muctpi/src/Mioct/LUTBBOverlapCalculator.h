@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: LUTBBOverlapCalculator.h 439423 2011-05-25 21:22:40Z krasznaa $
+// $Id: LUTBBOverlapCalculator.h 650693 2015-03-01 16:53:48Z masato $
 #ifndef TRIGT1MUCTPI_LUTBBOVERLAPCALCULATOR_H
 #define TRIGT1MUCTPI_LUTBBOVERLAPCALCULATOR_H
 
@@ -26,8 +26,8 @@ namespace LVL1MUCTPI {
     *
     * @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
     *
-    * $Revision: 439423 $
-    * $Date: 2011-05-25 23:22:40 +0200 (Wed, 25 May 2011) $
+    * $Revision: 650693 $
+    * $Date: 2015-03-01 17:53:48 +0100 (Sun, 01 Mar 2015) $
     */
    class LUTBBOverlapCalculator : public LUTOverlapCalculatorBase {
 
@@ -38,7 +38,7 @@ namespace LVL1MUCTPI {
       LUTBBOverlapCalculator( const LUTBBOverlapCalculator& calc );
 
       /// Function initializing the calculator object
-      virtual StatusCode initialize( const xercesc::DOMNode* bbnode, bool dumpLut );
+     virtual StatusCode initialize( const xercesc::DOMNode* bbnode, bool dumpLut, const std::string& runPeriod );
 
       /// Calculate the overlap flags for two barrel sectors
       void calculate( const BarrelSector& sector1, const BarrelSector& sector2 ) const;

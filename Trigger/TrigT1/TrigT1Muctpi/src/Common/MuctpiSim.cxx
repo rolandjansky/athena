@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: MuctpiSim.cxx 484720 2012-02-23 16:38:31Z krasznaa $
+// $Id: MuctpiSim.cxx 650693 2015-03-01 16:53:48Z masato $
 
 // STL include(s):
 #include <cassert>
@@ -26,11 +26,11 @@
 #include "MuctpiBitMasks.h"
 
 /*******************************************************************
- * $Date: 2012-02-23 17:38:31 +0100 (Thu, 23 Feb 2012) $
+ * $Date: 2015-03-01 17:53:48 +0100 (Sun, 01 Mar 2015) $
  *
  * Implementation of class MuctpiSim
  * @author  $Author: krasznaa $
- * @version $Revision: 484720 $
+ * @version $Revision: 650693 $
  ******************************************************************/
 
 namespace LVL1MUCTPI {
@@ -188,10 +188,11 @@ namespace LVL1MUCTPI {
    }
 
    StatusCode MuctpiSim::initializeLUTOverlapStrategy( const std::string& lutXMLFile,
-                                                       bool flagMode, bool dumpLut ) {
+                                                       bool flagMode, bool dumpLut,
+						       const std::string& runPeriod ) {
 
       CHECK( m_mibak->initializeLUTOverlapStrategy( lutXMLFile, flagMode,
-                                                    dumpLut ) );
+                                                    dumpLut, runPeriod ) );
       return StatusCode::SUCCESS;
    }
 
