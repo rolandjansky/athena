@@ -109,6 +109,17 @@ class TriggerGetter(Configured):
             from TrigConfigSvc.TrigConf2COOL import theConfCOOLWriter
             theConfCOOLWriter.writeConf2COOL()
 
+
+        # preconfigure TrigDecisionTool
+        from TrigDecisionTool.TrigDecisionToolConf import Trig__TrigDecisionTool
+        from AthenaCommon.AppMgr import ToolSvc
+        ToolSvc += Trig__TrigDecisionTool( "TrigDecisionTool" )
+
+        from TrigEDMConfig.TriggerEDM import EDMLibraries
+        ToolSvc.TrigDecisionTool.Navigation.Dlls = [e for e in  EDMLibraries if 'TPCnv' not in e]
+
+
+            
         # actuall trigger simulation running
         if recAlgs.doTrigger() and not TriggerFlags.doTriggerConfigOnly():
             # setup Lvl1
@@ -158,10 +169,8 @@ class TriggerGetter(Configured):
                 from AthenaCommon.AppMgr import ServiceMgr
                 ServiceMgr += RegSelSvcDefault()
                 ServiceMgr.RegSelSvc.enablePixel=False
-                ServiceMgr.RegSelSvc.enableSCT=False
-
-        
-            
+                ServiceMgr.RegSelSvc.enableSCT=False        
+                            
         # prepare result making of L1
         from TriggerJobOpts.Lvl1ResultBuilderGetter import Lvl1ResultBuilderGetter
         hltouput = Lvl1ResultBuilderGetter()
@@ -170,15 +179,6 @@ class TriggerGetter(Configured):
         if TriggerFlags.doLVL2()==True or TriggerFlags.doEF()==True or TriggerFlags.doHLT() or (recAlgs.doTrigger() and TriggerFlags.readBS()):
             from TriggerJobOpts.HLTTriggerResultGetter import HLTTriggerResultGetter
             hltouput = HLTTriggerResultGetter()
-
-        # preconfigure TrigDecisionTool
-        from TrigDecisionTool.TrigDecisionToolConf import Trig__TrigDecisionTool
-        from AthenaCommon.AppMgr import ToolSvc
-        ToolSvc += Trig__TrigDecisionTool( "TrigDecisionTool" )
-	
-        from TrigEDMConfig.TriggerEDM import EDMLibraries
-        ToolSvc.TrigDecisionTool.Navigation.Dlls = [e for e in  EDMLibraries if 'TPCnv' not in e]
-
       
         return True
 

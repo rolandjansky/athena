@@ -210,8 +210,13 @@ class TrigDecisionGetter(Configured):
         if ( rec.doWriteESD() or rec.doWriteAOD() or rec.doESD() or rec.doAOD() ) and \
                ( not ( rec.readAOD() or rec.readESD() or rec.doWriteBS()) ):
             log.info("Will write TrigDecision object to storegate")
+            
             from TrigDecisionMaker.TrigDecisionMakerConfig import WriteTrigDecision
             trigDecWriter = WriteTrigDecision()
+
+#            from TrigDecisionMaker.TrigDecisionMakerConfig import WritexAODTrigDecision
+#            trigDecWriter = WritexAODTrigDecision()
+
             # inform TD maker that some parts may be missing
             if TriggerFlags.dataTakingConditions()=='Lvl1Only':
                 topSequence.TrigDecMaker.doL2=False
@@ -350,7 +355,7 @@ class HLTTriggerResultGetter(Configured):
         def _addSlimming(stream, thinningSvc, edm):
             from AthenaCommon.AlgSequence import AlgSequence 
             topSequence = AlgSequence()
-            from TrigNavTools.TrigNavToolsConf import HLT__StreamTrigNavSlimming
+            from TrigNavTools.TrigNavToolsConf import HLT__StreamTrigNavSlimming, HLT__TrigNavigationSlimming
             from TrigNavTools.TrigNavToolsConfig import navigationSlimming
 
             edmlist = list(y for x in edm.values() for y in x) #flatten names
@@ -372,13 +377,16 @@ class HLTTriggerResultGetter(Configured):
 
 
             # from HLT result drop unrecorded features
-            slimmerHLT = HLT__StreamTrigNavSlimming('HLTNavSlimmer_%s'%stream)
-            tHLT = navigationSlimming({'name':'HLTNav_%s'%stream, 'mode':'trigger', 
+            # slimmerHLT = HLT__StreamTrigNavSlimming('HLTNavSlimmer_%s'%stream)
+            slimmerHLT = HLT__TrigNavigationSlimming('TrigNavigationSlimmer_%s'%stream)
+            tHLT = navigationSlimming({'name':'HLTNav_%s'%stream, 'mode':'cleanup', 
                                                           'ThinningSvc':thinningSvc, 'result':'HLTResult_HLT',
                                                           'features':edmlist})
             #tHLT.SlimmingTool.OutputLevel=DEBUG
+            tHLT.ActInPlace=True
+            print "HHHTB"
             slimmerHLT.ThinningTool = tHLT
-
+            print slimmerHLT.ThinningTool
             topSequence += slimmerHLT
             log.info("Configured slimming of HLT results L2, EF and HLT")
             del edmlist
@@ -389,25 +397,23 @@ class HLTTriggerResultGetter(Configured):
         
         _doSlimming = True
         if _doSlimming and rec.doWriteAOD(): #  and not rec.readAOD(): why not to run it when we read AOD??
-            try:
-                if not hasattr(svcMgr, 'ThinningSvc'): # if the default is there it is configured for AODs
-                    svcMgr += ThinningSvc(name='ThinningSvc', Streams=['StreamAOD'])             
-                _addSlimming('StreamAOD', svcMgr.ThinningSvc, _TriggerAODList )
-                log.info("configures navigation slimming for AOD output")
-            except Exception:
-                log.info("could not configure navigation slimming for AOD output")
+            if not hasattr(svcMgr, 'ThinningSvc'): # if the default is there it is configured for AODs
+                svcMgr += ThinningSvc(name='ThinningSvc', Streams=['StreamAOD'])             
+            _addSlimming('StreamAOD', svcMgr.ThinningSvc, _TriggerAODList )
+            log.info("configured navigation slimming for AOD output")
+            
         if _doSlimming and rec.doWriteESD(): # and not rec.readESD(): why not to run it when ESD is a source            
             svcMgr += ThinningSvc(name='ESDThinningSvc', Streams=['StreamESD']) # the default is configured for AODs
             # this was recommended but does not work
             # from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
             # svcMgr += createThinningSvc(svcName="ESDThinningSvc", outStreams=[MSMgr.GetStream('StreamESD').GetEventStream()])
-            try:
-                _addSlimming('StreamESD', svcMgr.ESDThinningSvc, _TriggerESDList )                
-                log.info("configured navigation slimming for ESD output")              
-            except Exception:
-                log.info("could not configure navigation slimming for ESD output")
 
-        
+            _addSlimming('StreamESD', svcMgr.ESDThinningSvc, _TriggerESDList )                
+            log.info("configured navigation slimming for ESD output")              
+            
+
+
+
         objKeyStore.addManyTypesStreamESD( _TriggerESDList )                        
         objKeyStore.addManyTypesStreamAOD( _TriggerAODList )        
             

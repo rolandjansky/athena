@@ -95,6 +95,13 @@ class useL1CaloCalibration(JobProperty):
 
 _flags.append(useL1CaloCalibration)
 
+class useRun1CaloEnergyScale(JobProperty):
+    statusOn=True
+    allowedType=['bool']
+    StoredValue=False
+
+_flags.append(useRun1CaloEnergyScale)
+
 class doCosmicSim(JobProperty):
     """ run the LVL1 simulation with special setup for cosmic simulation (set to FALSE by default, to do collisions simulation) """
     statusOn=True
@@ -1024,6 +1031,7 @@ class triggerMenuSetup(JobProperty):
         'LS1_v1', # for P1 detector commissioning (cosmics, streamers)
         'DC14', 'DC14_no_prescale', 'DC14_tight_mc_prescale', 'DC14_loose_mc_prescale', # for DC14
         'Physics_HI_v3', 'Physics_HI_v3_no_prescale', # for 2015 lead-lead menu 
+        'BeamSplash_v1',
         ]
 
     _default_menu='MC_pp_v5_tight_mc_prescale'
