@@ -34,7 +34,7 @@ apply_pattern declare_runtime extras="../test/TriggerTest_TestConfiguration.xml 
                                       ../python/CreateIgprofReport_TriggerTest.py \
                                       ../python/TruncateLog_TriggerTest.py \
                                       ../python/ValGrindPostScript_TriggerTest.py \
-                                      ../python/ValgrindAnalysisScript.py \
+                                      ../python/ValgrindAnalysisScript_TriggerTest.py \
                                       ../Testing/*.conf" 
 private
 apply_pattern validate_xml
