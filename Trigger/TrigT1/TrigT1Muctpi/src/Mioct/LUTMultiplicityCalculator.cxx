@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: LUTMultiplicityCalculator.cxx 448474 2011-07-13 09:01:48Z krasznaa $
+// $Id: LUTMultiplicityCalculator.cxx 650693 2015-03-01 16:53:48Z masato $
 
 // STL include(s):
 #include <sstream>
@@ -47,7 +47,7 @@ namespace LVL1MUCTPI {
    }
 
    StatusCode LUTMultiplicityCalculator::initialize( const xercesc::DOMNode* node, bool flagMode,
-                                                     bool dumpLut ) {
+                                                     bool dumpLut,const std::string& runPeriod ) {
 
       //
       // Remember which mode was requested:
@@ -73,28 +73,28 @@ namespace LVL1MUCTPI {
          std::string sname( cname );
          xercesc::XMLString::release( &cname );
 
-         if     ( sname == "BB1LUT" )  CHECK( m_bb_calc_1.initialize( lut_node, dumpLut ) );
-         else if( sname == "BB2LUT" )  CHECK( m_bb_calc_2.initialize( lut_node, dumpLut ) );
-         else if( sname == "EE1LUT" )  CHECK( m_ee_calc_1.initialize( lut_node, dumpLut ) );
-         else if( sname == "EE2LUT" )  CHECK( m_ee_calc_2.initialize( lut_node, dumpLut ) );
-         else if( sname == "EE3LUT" )  CHECK( m_ee_calc_3.initialize( lut_node, dumpLut ) );
-         else if( sname == "EE4LUT" )  CHECK( m_ee_calc_4.initialize( lut_node, dumpLut ) );
-         else if( sname == "EE5LUT" )  CHECK( m_ee_calc_5.initialize( lut_node, dumpLut ) );
-         else if( sname == "FF1LUT" )  CHECK( m_ff_calc_1.initialize( lut_node, dumpLut ) );
-         else if( sname == "FF2LUT" )  CHECK( m_ff_calc_2.initialize( lut_node, dumpLut ) );
-         else if( sname == "BE11LUT" ) CHECK( m_be_calc_11.initialize( lut_node, dumpLut ) );
-         else if( sname == "BE12LUT" ) CHECK( m_be_calc_12.initialize( lut_node, dumpLut ) );
-         else if( sname == "BE22LUT" ) CHECK( m_be_calc_22.initialize( lut_node, dumpLut ) );
-         else if( sname == "BE23LUT" ) CHECK( m_be_calc_23.initialize( lut_node, dumpLut ) );
-         else if( sname == "BE34LUT" ) CHECK( m_be_calc_34.initialize( lut_node, dumpLut ) );
-         else if( sname == "BE35LUT" ) CHECK( m_be_calc_35.initialize( lut_node, dumpLut ) );
-         else if( sname == "BE45LUT" ) CHECK( m_be_calc_45.initialize( lut_node, dumpLut ) );
-         else if( sname == "BE46LUT" ) CHECK( m_be_calc_46.initialize( lut_node, dumpLut ) );
-         else if( sname == "EF21LUT" ) CHECK( m_ef_calc_21.initialize( lut_node, dumpLut ) );
-         else if( sname == "EF31LUT" ) CHECK( m_ef_calc_31.initialize( lut_node, dumpLut ) );
-         else if( sname == "EF42LUT" ) CHECK( m_ef_calc_42.initialize( lut_node, dumpLut ) );
-         else if( sname == "EF52LUT" ) CHECK( m_ef_calc_52.initialize( lut_node, dumpLut ) );
-         else if( sname == "EF63LUT" ) CHECK( m_ef_calc_63.initialize( lut_node, dumpLut ) );
+         if     ( sname == "BB1LUT" )  CHECK( m_bb_calc_1.initialize( lut_node, dumpLut, runPeriod ) );
+         else if( sname == "BB2LUT" )  CHECK( m_bb_calc_2.initialize( lut_node, dumpLut, runPeriod ) );
+         else if( sname == "EE1LUT" )  CHECK( m_ee_calc_1.initialize( lut_node, dumpLut, runPeriod ) );
+         else if( sname == "EE2LUT" )  CHECK( m_ee_calc_2.initialize( lut_node, dumpLut, runPeriod ) );
+         else if( sname == "EE3LUT" )  CHECK( m_ee_calc_3.initialize( lut_node, dumpLut, runPeriod ) );
+         else if( sname == "EE4LUT" )  CHECK( m_ee_calc_4.initialize( lut_node, dumpLut, runPeriod ) );
+         else if( sname == "EE5LUT" )  CHECK( m_ee_calc_5.initialize( lut_node, dumpLut, runPeriod ) );
+         else if( sname == "FF1LUT" )  CHECK( m_ff_calc_1.initialize( lut_node, dumpLut, runPeriod ) );
+         else if( sname == "FF2LUT" )  CHECK( m_ff_calc_2.initialize( lut_node, dumpLut, runPeriod ) );
+         else if( sname == "BE11LUT" ) CHECK( m_be_calc_11.initialize( lut_node, dumpLut, runPeriod ) );
+         else if( sname == "BE12LUT" ) CHECK( m_be_calc_12.initialize( lut_node, dumpLut, runPeriod ) );
+         else if( sname == "BE22LUT" ) CHECK( m_be_calc_22.initialize( lut_node, dumpLut, runPeriod ) );
+         else if( sname == "BE23LUT" ) CHECK( m_be_calc_23.initialize( lut_node, dumpLut, runPeriod ) );
+         else if( sname == "BE34LUT" ) CHECK( m_be_calc_34.initialize( lut_node, dumpLut, runPeriod ) );
+         else if( sname == "BE35LUT" ) CHECK( m_be_calc_35.initialize( lut_node, dumpLut, runPeriod ) );
+         else if( sname == "BE45LUT" ) CHECK( m_be_calc_45.initialize( lut_node, dumpLut, runPeriod ) );
+         else if( sname == "BE46LUT" ) CHECK( m_be_calc_46.initialize( lut_node, dumpLut, runPeriod ) );
+         else if( sname == "EF21LUT" ) CHECK( m_ef_calc_21.initialize( lut_node, dumpLut, runPeriod ) );
+         else if( sname == "EF31LUT" ) CHECK( m_ef_calc_31.initialize( lut_node, dumpLut, runPeriod ) );
+         else if( sname == "EF42LUT" ) CHECK( m_ef_calc_42.initialize( lut_node, dumpLut, runPeriod ) );
+         else if( sname == "EF52LUT" ) CHECK( m_ef_calc_52.initialize( lut_node, dumpLut, runPeriod ) );
+         else if( sname == "EF63LUT" ) CHECK( m_ef_calc_63.initialize( lut_node, dumpLut, runPeriod ) );
 
       }
 

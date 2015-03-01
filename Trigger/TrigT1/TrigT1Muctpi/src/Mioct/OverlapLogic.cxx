@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: OverlapLogic.cxx 472835 2011-12-06 21:05:16Z stelzer $
+// $Id: OverlapLogic.cxx 650693 2015-03-01 16:53:48Z masato $
 
 // Gaudi/Athena include(s):
 #include "AthenaKernel/errorcheck.h"
@@ -17,12 +17,12 @@
 
 //***********************************************************************
 //
-//       Version : $Revision: 472835 $
+//       Version : $Revision: 650693 $
 //
 //   Description :
 //
 //        Author : $Author: krasznaa $
-//          Date : $Date: 2011-12-06 22:05:16 +0100 (Tue, 06 Dec 2011) $
+//          Date : $Date: 2015-03-01 17:53:48 +0100 (Sun, 01 Mar 2015) $
 //
 //
 //
@@ -79,7 +79,7 @@ namespace LVL1MUCTPI {
    }
 
    StatusCode OverlapLogic::initializeLUT( const std::string& lutXMLFile, bool flagMode,
-                                           bool dumpLut ) {
+                                           bool dumpLut,const std::string& runPeriod ) {
 
       LUTStrategy* strat =
          dynamic_cast< LUTStrategy* >( m_overlapStrategyMap[ LUT_OVERLAP ] );
@@ -88,7 +88,7 @@ namespace LVL1MUCTPI {
          return StatusCode::FAILURE;
       }
 
-      CHECK( strat->initialize( lutXMLFile, flagMode, dumpLut ) );
+      CHECK( strat->initialize( lutXMLFile, flagMode, dumpLut, runPeriod ) );
       return StatusCode::SUCCESS;
    }
 

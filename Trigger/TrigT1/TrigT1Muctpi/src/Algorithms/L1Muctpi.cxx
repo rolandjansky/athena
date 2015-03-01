@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: L1Muctpi.cxx 624535 2014-10-28 10:02:49Z stelzer $
+// $Id: L1Muctpi.cxx 650693 2015-03-01 16:53:48Z masato $
 
 // STL include(s):
 #include <iostream>
@@ -63,6 +63,7 @@ namespace LVL1MUCTPI {
       // Declare the properties of the overlap treatment:
       declareProperty( "OverlapStrategyName", m_overlapStrategyName = "NULL" );
       declareProperty( "LUTXMLFile", m_lutXMLFile = "" );
+      declareProperty( "RunPeriod", m_runPeriod = "RUN1" );
       declareProperty( "FlaggingMode", m_flagMode = false );
        
       // Declare the properties for the multiplicity summation:
@@ -145,11 +146,11 @@ namespace LVL1MUCTPI {
             ATH_MSG_INFO( "Using 'flagging mode' in the overlap handling" );
          }
 
-         ATH_MSG_INFO( "XML LUT file defined in jobO: " << m_lutXMLFile );
+         ATH_MSG_INFO( "XML LUT file defined in jobO: " << m_lutXMLFile << " with a RunPeriod=" << m_runPeriod );
          const std::string fullFileName = PathResolverFindXMLFile( m_lutXMLFile );
          ATH_MSG_DEBUG( "Full path to XML LUT file: " << fullFileName );
          CHECK( m_theMuctpi->initializeLUTOverlapStrategy( fullFileName, m_flagMode,
-                                                           m_dumpLut ) );
+                                                           m_dumpLut, m_runPeriod ) );
 
       } else {
 

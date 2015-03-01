@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: LUTStrategy.cxx 472835 2011-12-06 21:05:16Z stelzer $
+// $Id: LUTStrategy.cxx 650693 2015-03-01 16:53:48Z masato $
 
 // STL include(s):
 #include <sstream>
@@ -77,12 +77,12 @@ namespace LVL1MUCTPI {
    }
 
    StatusCode LUTStrategy::initialize( const std::string& lutXMLFile, bool flagMode,
-                                       bool dumpLut ) {
+                                       bool dumpLut, const std::string& runPeriod ) {
 
       m_calculator_list.clear();
       m_calculator_map.clear();
 
-      REPORT_MSG(DEBUG, "Initializing LUTStrategy from file: " << lutXMLFile);
+      REPORT_MSG(DEBUG, "Initializing LUTStrategy from file: " << lutXMLFile << " with a RunPeriod setting " << runPeriod );
 
       //
       // Initialize XercesC:
@@ -171,7 +171,7 @@ namespace LVL1MUCTPI {
 
          REPORT_VERBOSE_MSG( ">>>>>>>>>>>>>>>> Starting to initialize calculator <<<<<<<<<<<<<<<<" );
          LUTMultiplicityCalculator calc( m_multiplicityLogic );
-         CHECK( calc.initialize( mioctNode, flagMode, dumpLut ) );
+         CHECK( calc.initialize( mioctNode, flagMode, dumpLut, runPeriod ) );
          REPORT_VERBOSE_MSG( ">>>>>>>>>>>>>>>> Calculator initialization finished <<<<<<<<<<<<<<<<" );
 
          // Check if this calculator is not defined yet:

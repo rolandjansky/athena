@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: LUTEEOverlapCalculator.cxx 448474 2011-07-13 09:01:48Z krasznaa $
+// $Id: LUTEEOverlapCalculator.cxx 650693 2015-03-01 16:53:48Z masato $
 
 // STL include(s):
 #include <sstream>
@@ -31,7 +31,12 @@ namespace LVL1MUCTPI {
    }
 
    StatusCode LUTEEOverlapCalculator::initialize( const xercesc::DOMNode* eenode,
-                                                  bool dumpLut ) {
+                                                  bool dumpLut, const std::string& runPeriod ) {
+
+     if( runPeriod == "RUN2" ){
+       setMaximumThreshold( 6 );
+       REPORT_VERBOSE_MSG( "RunPeriod=" << runPeriod << " setMaximumThreshold to 6" );
+     }
 
       // Clear the internal LUT:
       m_lut.clear();

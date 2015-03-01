@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: MuctpiSim.h 484720 2012-02-23 16:38:31Z krasznaa $
+// $Id: MuctpiSim.h 650693 2015-03-01 16:53:48Z masato $
 #ifndef TRIGT1MUCTPI_MUCTPISIM_H
 #define TRIGT1MUCTPI_MUCTPISIM_H
 
@@ -37,7 +37,7 @@ namespace LVL1MUCTPI {
 
    /*********************************************************************
     *
-    *    $Date: 2012-02-23 17:38:31 +0100 (Thu, 23 Feb 2012) $
+    *    $Date: 2015-03-01 17:53:48 +0100 (Sun, 01 Mar 2015) $
     *
     *    @short Top level class of the MUCTPI simulation
     *
@@ -56,7 +56,7 @@ namespace LVL1MUCTPI {
     *      @see MibakStreamEvent
     *      @see MirodModule
     *   @author $Author: ssnyder $
-    *  @version $Revision: 484720 $
+    *  @version $Revision: 650693 $
     *
     *******************************************************************
     */
@@ -147,7 +147,8 @@ namespace LVL1MUCTPI {
          m_mibak->setOverlapStrategy( strategy );
       }
       StatusCode initializeLUTOverlapStrategy( const std::string& lutXMLFile,
-                                               bool flagMode, bool dumpLut );
+                                               bool flagMode, bool dumpLut,
+					       const std::string& runPeriod = "RUN1" );
 
       /**
        * These methods are used to set up the simulation's multiplicity calculation

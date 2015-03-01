@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: LUTOverlapCalculatorBase.h 448474 2011-07-13 09:01:48Z krasznaa $
+// $Id: LUTOverlapCalculatorBase.h 650693 2015-03-01 16:53:48Z masato $
 #ifndef TRIGT1MUCTPI_LUTOVERLAPCALCULATORBASE_H
 #define TRIGT1MUCTPI_LUTOVERLAPCALCULATORBASE_H
 
@@ -31,8 +31,8 @@ namespace LVL1MUCTPI {
     *
     * @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
     *
-    * $Revision: 448474 $
-    * $Date: 2011-07-13 11:01:48 +0200 (Wed, 13 Jul 2011) $
+    * $Revision: 650693 $
+    * $Date: 2015-03-01 17:53:48 +0100 (Sun, 01 Mar 2015) $
     */
    class LUTOverlapCalculatorBase {
 
@@ -54,7 +54,7 @@ namespace LVL1MUCTPI {
        * @param dumpLut When set to <code>true</code> the calculator will print
        *                the contents of the read LUT. For debugging only.
        */
-      virtual StatusCode initialize( const xercesc::DOMNode* node, bool dumpLut ) = 0;
+     virtual StatusCode initialize( const xercesc::DOMNode* node, bool dumpLut, const std::string& runPeriod ) = 0;
 
       /// Set the maximal threshold for overlap removal
       /**
