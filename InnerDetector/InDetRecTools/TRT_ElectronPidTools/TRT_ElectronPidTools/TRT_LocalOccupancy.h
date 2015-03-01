@@ -137,7 +137,7 @@ namespace InDet
    /** External tools:  */
    const TRT_ID *m_TRTHelper;
    ServiceHandle<ITRT_StrawStatusSummarySvc> m_TRTStrawStatusSummarySvc;
-
+   const InDetDD::TRT_DetectorManager* m_trtDetMgr; // TRT detector manager (to get ID helper)
    }; 
 }
 #endif 
