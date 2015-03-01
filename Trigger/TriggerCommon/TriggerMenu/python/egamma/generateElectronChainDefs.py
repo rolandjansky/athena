@@ -62,8 +62,27 @@ def _addTopoInfo(theChainDef,chainDict,doAtL2AndEF=True):
     L2ChainName = "L2_" + chainDict['chainName']
     EFChainName = "EF_" + chainDict['chainName']
     HLTChainName = "HLT_" + chainDict['chainName']
+
+
+    useTopoStartFrom = chainDict['topoStartFrom']
+    topoStartFrom = None
+    if useTopoStartFrom:
+        L1item = chainDict['L1item']
+        L1item = L1item.replace("L1_", "")
+        if ("-" in L1item): 
+            topoStartFrom = L1item
+        else: log.error("L1Topo item can't be identified")
+    else:
+        log.debug("topoStartFrom set to False in chain properties in the menu.")
+
     
     if "Jpsiee" in chainDict["topo"]:
+
+        topo2StartFrom = None
+        if topoStartFrom:
+            L2ChainName = L2ChainName+'_tsf'
+            topo2StartFrom = L2ChainName
+            EFChainName = EFChainName+'_tsf'
 
         from TrigEgammaHypo.TrigL2DielectronMassHypoConfig import TrigL2DielectronMassFex_Jpsiee, TrigL2DielectronMassHypo_Jpsiee
         from TrigEgammaHypo.TrigEFDielectronMassHypoConfig import TrigEFDielectronMassFex_Jpsi, TrigEFDielectronMassHypo_Jpsi
@@ -74,10 +93,10 @@ def _addTopoInfo(theChainDef,chainDict,doAtL2AndEF=True):
         EFFex = TrigEFDielectronMassFex_Jpsi()
         EFHypo = TrigEFDielectronMassHypo_Jpsi()
 
-        theChainDef.addSequence([L2Fex, L2Hypo],inputTEsL2,L2ChainName)
+        theChainDef.addSequence([L2Fex, L2Hypo],inputTEsL2,L2ChainName, topo_start_from = topoStartFrom)
         theChainDef.addSignatureL2([L2ChainName])
 
-        theChainDef.addSequence([EFFex, EFHypo],inputTEsEF,EFChainName)
+        theChainDef.addSequence([EFFex, EFHypo],inputTEsEF,EFChainName, topo_start_from = topo2StartFrom)
         theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [EFChainName])
     
     elif "Zeg" in chainDict["topo"]:

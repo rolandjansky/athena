@@ -282,8 +282,8 @@ class L2EFChain_g(L2EFChainDef):
             from TrigEgammaHypo.TrigEFCaloHypoConfig import TrigEFCaloHypo_EtCut
             theL2CaloHypo      = L2CaloHypo_g_nocut()
             theL2PhotonHypo  = L2PhotonHypo_g_EtCut("L2PhotonHypo_g"+str(threshold)+"_EtCut",threshold ) 
-            theTrigEFCaloHypo = TrigEFCaloHypo_EtCut("TrigEFCaloHypo_g"+str(threshold)+"_EtCut",threshold);
-            theEFPhotonHypo  = EFPhotonHypo_g_EtCut("TrigEFPhotonHypo_g"+str(threshold)+"_EtCut",threshold)
+            theTrigEFCaloHypo = TrigEFCaloHypo_EtCut("TrigEFCaloHypo_g"+str(threshold)+"_EtCut_heavyIon",threshold);
+            theEFPhotonHypo  = EFPhotonHypo_g_EtCut("TrigEFPhotonHypo_g"+str(threshold)+"_EtCut_heavyIon",threshold)
         elif 'perf' in self.chainPart['addInfo']:
             from TrigEgammaHypo.TrigL2CaloHypoConfig import L2CaloHypo_g_nocut
             from TrigEgammaHypo.TrigEFPhotonHypoConfig import EFPhotonHypo_g_NoCut
@@ -291,8 +291,8 @@ class L2EFChain_g(L2EFChainDef):
             from TrigEgammaHypo.TrigEFCaloHypoConfig import TrigEFCaloHypo_All
             theL2CaloHypo      = L2CaloHypo_g_nocut()
             theL2PhotonHypo  = L2PhotonHypo_g_NoCut("L2PhotonHypo_g"+str(threshold)+"_NoCut",threshold ) 
-            theTrigEFCaloHypo = TrigEFCaloHypo_All("TrigEFCaloHypo_g"+str(threshold)+"_NoCut",threshold);
-            theEFPhotonHypo  = EFPhotonHypo_g_NoCut("TrigEFPhotonHypo_g"+str(threshold)+"_NoCut",threshold)
+            theTrigEFCaloHypo = TrigEFCaloHypo_All("TrigEFCaloHypo_g"+str(threshold)+"_NoCut_heavyIon",threshold);
+            theEFPhotonHypo  = EFPhotonHypo_g_NoCut("TrigEFPhotonHypo_g"+str(threshold)+"_NoCut_heavyIon",threshold)
         elif self.chainPart['IDinfo']:
             from TrigEgammaHypo.TrigEFPhotonHypoConfig import EFPhotonHypo_g_ID_CaloOnly
             from TrigEgammaHypo.TrigL2CaloHypoConfig import L2CaloHypo_g7
@@ -306,8 +306,8 @@ class L2EFChain_g(L2EFChainDef):
             #theL2PhotonHypo = eval("L2PhotonHypo_"+algoSuffix)
             theL2PhotonHypo  = L2PhotonHypo_g_ID("L2PhotonHypo_g"+str(threshold)+"_"+str(IDinfo),threshold,IDinfo)
             # EF Calo
-            theTrigEFCaloHypo = TrigEFCaloHypo_g_ID("TrigEFCaloHypo_g"+str(threshold)+"_"+str(IDinfo),threshold,IDinfo);
-            theEFPhotonHypo  = EFPhotonHypo_g_ID_CaloOnly("EFPhotonHypo_g"+str(threshold)+"_"+str(IDinfo),threshold,IDinfo)
+            theTrigEFCaloHypo = TrigEFCaloHypo_g_ID("TrigEFCaloHypo_g"+str(threshold)+"_"+str(IDinfo)+"_heavyIon",threshold,IDinfo);
+            theEFPhotonHypo  = EFPhotonHypo_g_ID_CaloOnly("EFPhotonHypo_g"+str(threshold)+"_"+str(IDinfo)+"_heavyIon",threshold,IDinfo)
         else:
             log.error('Chain %s could not be assembled' % (self.chainPartName))
             return False
@@ -343,7 +343,7 @@ class L2EFChain_g(L2EFChainDef):
         self.EFsequenceList += [[['L2_g_step2'], 
                                  [theFSCellMaker], 'EF_g_step1_fs']]
 
-        self.EFsequenceList += [[['EF_g_step1_fs'], 
+        self.EFsequenceList += [[['L2_g_step2'], 
                                  [theTrigCaloCellMaker_eGamma, theTrigCaloTowerMaker_eGamma, theTrigCaloClusterMaker_slw], 
                                  'EF_g_step1']]
         

@@ -42,7 +42,7 @@ ChainDictTemplate = {
     'groups'        : [],
     'EBstep'        : '',
     'chainParts'   : [],
-    'topoStartsFrom' : False,
+    'topoStartFrom' : False,
 }
 
 
@@ -53,14 +53,6 @@ ChainDictTemplate = {
 AllowedTopos_e = ["Jpsiee","Zeg","Zee"]
 AllowedTopos_mu = ['Jpsimumu']
 AllowedTopos_xe = ['dphi1','razor140', 'razor170', 'razor200']
-# AllowedTopos_bphys = ['bJpsi', 'bTau', 'bDiMu', 
-#                       'bJpsiMuMu', 'bUpsiMuMu', 
-#                       'bMuMux', 'bMuMu', 
-#                       'bMuMuxv2', 
-#                       '02dr-2mu6', '2invm', 
-#                       'BcMuMuDs' ,   'BcMuMuDsloose' , 
-#                       '7invm9', 'noos',
-#                       'Trkloose', 'Zmumu']
 AllowedTopos_bphys = ['bJpsi', 'bTau', 'bDimu', 
                       'bJpsimumu', 'bUpsimumu', 
                       'bBmumu', 'bBmumux', 
@@ -74,10 +66,18 @@ AllowedTopos_bphys = ['bJpsi', 'bTau', 'bDimu',
 AllowedTopos_jet = ['muvtx',
                     'llp',
                     'deta2', 
-                    'invm400']
+                    'invm250',
+                    'invm400',
+                    'invm600',
+                    'invm700',
+                    'invm800',
+                    'invm1000']
 AllowedTopos_comb = ['taumass', 'dr05']
 
-AllowedTopos = AllowedTopos_e+AllowedTopos_mu+AllowedTopos_bphys+AllowedTopos_jet+AllowedTopos_xe+AllowedTopos_comb
+#AllowedTopos = AllowedTopos_e+AllowedTopos_mu+AllowedTopos_bphys+AllowedTopos_jet+AllowedTopos_xe+AllowedTopos_comb
+
+#NOTE: removed jets from list, special case for VBF triggers
+AllowedTopos = AllowedTopos_e + AllowedTopos_mu + AllowedTopos_bphys + AllowedTopos_xe + AllowedTopos_comb
 
 
 #==========================================================
@@ -218,7 +218,7 @@ BphysicsChainParts['topo'] = AllowedTopos_bphys
 BphysicsChainParts_Default = deepcopy(MuonChainParts_Default)
 BphysicsChainParts_Default['signature'] = ['Bphysics']
 BphysicsChainParts_Default['topo'] = []
-
+BphysicsChainParts_Default['overlapRemoval'] = ['noOvlpRm']
 
 #==========================================================
 # Taus
@@ -229,7 +229,7 @@ TauChainParts = {
     'L1item'       : '',
     'chainPartName': '',
     'threshold'    : '',
-    'preselection' : ['r1', 'FTK', 'calo', 'track', 'mvonly', 'ptonly', 'caloonly', 'trackonly', 'tracktwo'],
+    'preselection' : ['r1', 'FTK', 'calo', 'track', 'mvonly', 'ptonly', 'caloonly', 'trackonly', 'tracktwo', 'trackcalo', 'tracktwocalo'],
     'selection'    : ['loose1', 'medium1', 'perf', 'r1medium1', 'r1perf', 'cosmic'],
     'multiplicity' : '',
     'trigType'     : ['tau'],   
@@ -244,7 +244,7 @@ TauChainParts_Default = {
     'L1item'       : '',
     'chainPartName': '',
     'threshold'    : '20',
-    'preselection' : 'calo',
+    'preselection' : 'tracktwo',
     'selection'    : 'medium1',
     'multiplicity' : '',
     'trigType'     : ['tau'],   
@@ -337,7 +337,7 @@ ElectronChainParts = {
     'caloInfo'       : ['L2EFCalo','HLTCalo'],
     'lhInfo'         : ['cutd0dphi','nod0','nodphi','nodphires'],
     'L2IDAlg'        : ['L2StarA','L2StarB','L2StarC','FTK','TRT','SiTrack','IdScan'],
-    'addInfo'        : ['etcut','ringer','conv','etisem','gsf',
+    'addInfo'        : ['etcut','ringer','conv','etisem','gsf','trkcut',
                         'L2Star','perf','IdTest'],
     }
 # ---- Egamma Dictinary of default Values ----
@@ -466,7 +466,7 @@ MinBiasChainParts = {
     'pileupInfo'     : ['pusup600', 'pusup700', 'pusup750', 'pusup800',],
     'hypoEFInfo'     : ['trk50', 'trk60', 'trk70', 'trk90', 'trk120',],
     'hypoEFsumEtInfo': ['sumet70', 'sumet110', 'sumet150',],
-    'recoAlg'        : ['mbts', 'sptrk', 'sp', 'noalg', 'perf', 'hmt', 'hmtperf', 'idperf'],
+    'recoAlg'        : ['mbts', 'sptrk', 'sp', 'noalg', 'perf', 'hmt', 'hmtperf', 'idperf', 'zdcperf'],
     'addInfo'        : [ ],
     }
 # ---- MinBiasDictinary of default Values ----

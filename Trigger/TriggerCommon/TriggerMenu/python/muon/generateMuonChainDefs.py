@@ -82,35 +82,35 @@ def generateChainDefs(chainDict):
 def _addTopoInfo(theChainDef,chainDict,doAtL2AndEF=True):
 
     maxL2SignatureIndex = -1
-    for signatureIndex,signature in enumerate(theChainDef.signatureList):
-        if signature['listOfTriggerElements'][0][0:2] == "L2":
-            maxL2SignatureIndex = max(maxL2SignatureIndex,signatureIndex)
+    # for signatureIndex,signature in enumerate(theChainDef.signatureList):
+    #     if signature['listOfTriggerElements'][0][0:2] == "L2":
+    #         maxL2SignatureIndex = max(maxL2SignatureIndex,signatureIndex)
     
-    inputTEsL2 = theChainDef.signatureList[maxL2SignatureIndex]['listOfTriggerElements']    
-    inputTEsEF = theChainDef.signatureList[-1]['listOfTriggerElements']
+    # inputTEsL2 = theChainDef.signatureList[maxL2SignatureIndex]['listOfTriggerElements']    
+    # inputTEsEF = theChainDef.signatureList[-1]['listOfTriggerElements']
 
-    L2ChainName = "L2_" + chainDict['chainName']
-    EFChainName = "EF_" + chainDict['chainName']
-    HLTChainName = "HLT_" + chainDict['chainName']
+    # L2ChainName = "L2_" + chainDict['chainName']
+    # EFChainName = "EF_" + chainDict['chainName']
+    # HLTChainName = "HLT_" + chainDict['chainName']
     
-    if "Jpsimumu" in chainDict["topo"]:
-        # to be adapted!!!!!!!!!!!!!!!!!
-        from TrigEgammaHypo.TrigL2DielectronMassHypoConfig import TrigL2DielectronMassFex_Jpsiee, TrigL2DielectronMassHypo_Jpsiee
-        from TrigEgammaHypo.TrigEFDielectronMassHypoConfig import TrigEFDielectronMassFex_Jpsi, TrigEFDielectronMassHypo_Jpsi
+    # if "Jpsimumu" in chainDict["topo"]:
+    #     # to be adapted!!!!!!!!!!!!!!!!!
+    #     # from TrigEgammaHypo.TrigL2DielectronMassHypoConfig import TrigL2DielectronMassFex_Jpsiee, TrigL2DielectronMassHypo_Jpsiee
+    #     # from TrigEgammaHypo.TrigEFDielectronMassHypoConfig import TrigEFDielectronMassFex_Jpsi, TrigEFDielectronMassHypo_Jpsi
 
-        L2Fex = TrigL2DielectronMassFex_Jpsiee()
-        L2Hypo = TrigL2DielectronMassHypo_Jpsiee()        
+    #     # L2Fex = TrigL2DielectronMassFex_Jpsiee()
+    #     # L2Hypo = TrigL2DielectronMassHypo_Jpsiee()        
 
-        EFFex = TrigEFDielectronMassFex_Jpsi()
-        EFHypo = TrigEFDielectronMassHypo_Jpsi()
+    #     # EFFex = TrigEFDielectronMassFex_Jpsi()
+    #     # EFHypo = TrigEFDielectronMassHypo_Jpsi()
 
 
-        theChainDef.addSequence([L2Fex, L2Hypo],inputTEsL2,L2ChainName)
-        theChainDef.addSignatureL2([L2ChainName])
+    #     # theChainDef.addSequence([L2Fex, L2Hypo],inputTEsL2,L2ChainName)
+    #     # theChainDef.addSignatureL2([L2ChainName])
 
-        theChainDef.addSequence([EFFex, EFHypo],inputTEsEF,EFChainName)
-        theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [EFChainName])
-    
+    #     # theChainDef.addSequence([EFFex, EFHypo],inputTEsEF,EFChainName)
+    #     # theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [EFChainName])
+        
     return theChainDef
 
 

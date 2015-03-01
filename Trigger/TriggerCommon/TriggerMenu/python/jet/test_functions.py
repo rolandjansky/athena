@@ -16,4 +16,6 @@ def run_from_dict_file():
     from test_dicts import test_dicts
     return [generateHLTChainDef(d) for d in test_dicts]
 
-
+if __name__ == '__main__':
+    for c in run_from_dict_file():
+        print c

@@ -73,24 +73,44 @@ class TauHypoProvider:
                         theThresh = self.thresholdsEF[(criteria, int(threshold))]
                         currentHypo = EFTauMVHypo(currentHypoKey, theVars, theThresh)
 
-        if strategy == 'calo' or strategy =='ptonly' or strategy == 'mvonly' or strategy == 'caloonly' or strategy == 'track' or strategy == 'trackonly' or strategy == 'tracktwo':
+        if strategy == 'calo' or strategy =='ptonly' or strategy == 'mvonly' or strategy == 'caloonly' or strategy == 'track' or strategy == 'trackonly' or strategy == 'tracktwo' or strategy == 'trackcalo' or strategy == 'tracktwocalo':
 
             # Simple implementation of 2015 pre-selection
             currentHypoKey = 'l2'+part+'_tau'+threshold+'_'+criteria+'_'+strategy
 
+            # Re-define the calo part using the generic hypo
             if part == 'calo':
-                from TrigTauHypo.TrigTauHypoBase import HLTCaloTauHypo
-                theVars = ['LowerPtCut', 'UseCellCut', 'CoreFractionCut', 'HadRadiusCut']
-                if strategy == 'calo' or strategy == 'caloonly':
-                    theThresh = [int(threshold)*self.GeV, 1, 0.63, 0.8]
-                if strategy == 'ptonly' or strategy == 'trackonly' or strategy == 'track' or strategy == 'tracktwo':
-                    theThresh = [int(threshold)*self.GeV, 0, 0.0, 0.8]
-                if strategy == 'mvonly':
-                    theThresh = [0, 0, 0.0, 0.8]
-                currentHypo = HLTCaloTauHypo(currentHypoKey, theVars, theThresh)
+                from TrigTauHypo.TrigTauHypoConf import HLTTauGenericHypo
+                currentHypo = HLTTauGenericHypo(currentHypoKey)
+
+                # pT cut always defined: ugly string-to-int-to-string conversion, sorry :)
+                myThreshold = str(int(threshold)*self.GeV)
+                theDetails  = [int(-1)]
+                theFormulas = ['y > '+myThreshold]
+
+                if strategy =='calo' or strategy == 'caloonly' or strategy == 'tracktwocalo' or strategy == 'trackcalo':
+                    # centFrac cut (detail #24: 2nd order fit, turn-off at ~ 55 GeV, 95% efficiency)
+                    theDetails += [24]
+                    theFormulas += ['x > (0.945 - (1.26e-05*TMath::Min(y, 50000.)) + (1.05e-10*TMath::Min(y, 50000.)*TMath::Min(y, 50000.)))']
+                    # centFrac cut (detail #24: 2nd order fit, turn-off at 50 GeV, 90% efficiency)
+                    # theFormulas += ['x > TMath::Max(0.936 - (8.5e-06*y) + (6.54e-11*y*y), 0.660)']
+                currentHypo.Details = theDetails
+                currentHypo.Formulas = theFormulas
+                
+            #if part == 'calo':
+            #    from TrigTauHypo.TrigTauHypoBase import HLTCaloTauHypo
+            #    theVars = ['LowerPtCut', 'UseCellCut', 'CoreFractionCut', 'HadRadiusCut']
+            #    if strategy == 'calo' or strategy == 'caloonly':
+            #        theThresh = [int(threshold)*self.GeV, 1, 0.63, 0.8]
+            #    if strategy == 'ptonly' or strategy == 'trackonly' or strategy == 'track' or strategy == 'tracktwo':
+            #        theThresh = [int(threshold)*self.GeV, 0, 0.0, 0.8]
+            #    if strategy == 'mvonly':
+            #        theThresh = [0, 0, 0.0, 0.8]
+            #    currentHypo = HLTCaloTauHypo(currentHypoKey, theVars, theThresh)
 
             if part == 'id':
                 from TrigTauHypo.TrigTauHypoBase import HLTTrackTauHypo
+                # Important Note: the pT cut here is an unused dummy
                 if criteria != 'cosmic':
                     theVars = ['LowerPtCut'] 
                     theThresh = [int(threshold)*self.GeV]
@@ -182,4 +202,5 @@ class TauHypoProvider:
         ('medium1', 50): [3,  50.0*GeV, 2],
         ('medium1', 80): [3,  80.0*GeV, 2],
         ('medium1', 115): [3, 115.0*GeV, 2],
-        ('medium1', 125): [3, 125.0*GeV, 2] }
+        ('medium1', 125): [3, 125.0*GeV, 2], 
+        ('medium1', 160): [3, 160.0*GeV, 2] }

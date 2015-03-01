@@ -258,7 +258,10 @@ class JetSequencesBuilder(object):
         hypo_key = 'jr_hypo_%s' % hypo_key
 
         alias = 'hypo_' + hypo.jet_attributes_tostring()
-        
+
+        # keep note of the alias - used to name the diagnostics algorithm
+        self.alg_factory.hypo_sequence_alias = alias
+
         # return a list of algs that form the jr sequence
         if single_jet:
             return AlgList(self.alg_factory.jr_hypo_single(), alias)
@@ -275,7 +278,7 @@ class JetSequencesBuilder(object):
 
     def make_jhd(self):
         diag_alg = self.alg_factory.jetHypoDiagnostics()
-        return AlgList(alg_list=diag_alg, alias='jethypo_diag')
+        return AlgList(alg_list=diag_alg, alias='jethypo_diagnostics')
 
 
     def make_fexd(self):
@@ -283,13 +286,14 @@ class JetSequencesBuilder(object):
         to be run before the hypo alg"""
 
         algs = []
-        algs.extend([f() for f in (self.alg_factory.roiDiagnostics,
-                                   self.alg_factory.cellDiagnostics,
-                                   self.alg_factory.clusterDiagnostics,
-                                   self.alg_factory.jetRecDiagnostics)])
+        [algs.extend(f()) for f in (self.alg_factory.roiDiagnostics,
+                                    self.alg_factory.cellDiagnostics,
+                                    self.alg_factory.clusterDiagnostics,
+                                    self.alg_factory.jetRecDiagnostics,
+                                    # self.alg_factory.jetRecDebug
+                                )]
         
-        return AlgList(alg_list=algs,
-                       alias='fexd_%s' % self.chain_config.chain_name)
+        return AlgList(alg_list=algs, alias='jetfex_diagnostics')
 
 
     def make_datascouting(self):

@@ -19,7 +19,7 @@ class TestSequence(unittest.TestCase):
 
     def setUp(self):
         self.alg_list = [Alg(), Alg()]
-        self.sequence = Sequence('te_in', self.alg_list, 'te_out')
+        self.sequence = Sequence('te_in', self.alg_list, 'alias', 'te_out')
 
     def test_0(self):
 

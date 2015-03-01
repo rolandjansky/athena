@@ -15,6 +15,9 @@ from TriggerMenu.jet.JetDef import generateHLTChainDef
 from TriggerMenu.jet.JetDef_HT import L2EFChain_HT
 
 from TriggerMenu.menu.MenuUtils import *
+
+from  __builtin__ import any as b_any
+
 ##########################################################################################
 ##########################################################################################
 
@@ -26,7 +29,14 @@ def generateChainDefs(chainDict):
     listOfChainDefs = []
 
     allTrigTypes = []
-    for subCD in listOfChainDicts:  allTrigTypes.append(subCD['chainParts']['trigType'])
+    topoAlgs = []
+    for subCD in listOfChainDicts:  
+        allTrigTypes.append(subCD['chainParts']['trigType'])
+        allTopoAlgs = subCD['chainParts']['topo']
+        for ta in allTopoAlgs:
+            topoAlgs.append(ta)
+
+
     htchain = False
     if ('ht' in allTrigTypes): htchain = True
 
@@ -59,19 +69,27 @@ def generateChainDefs(chainDict):
     #         theChainDef = mergeChainDefs(listOfChainDefs)
     #     else:
     #         theChainDef = listOfChainDefs[0]
-
     # else:
     #     theChainDef = generateHLTChainDef(chainDict)
 
-    if ('muvtx' in chainDict["topo"]) or ('llp' in chainDict["topo"]):
+
+    if ('muvtx' in topoAlgs) or \
+            ('llp' in topoAlgs) or \
+            (b_any(('invm' or 'deta') in x for x in topoAlgs)):
         logJet.info("Adding topo to jet chain")
-        theChainDef = _addTopoInfo(theChainDef, chainDict)
+        theChainDef = _addTopoInfo(theChainDef, chainDict, topoAlgs)
+
+    #if ('muvtx' in chainDict["topo"]) or \
+    #        ('llp' in chainDict["topo"]) or \
+    #        (b_any(('invm' or 'deta') in x for x in chainDict["topo"])):
+    #    logJet.info("Adding topo to jet chain")
+    #    theChainDef = _addTopoInfo(theChainDef, chainDict)
 
     return theChainDef
 
 
 ##########################################################################################
-def _addTopoInfo(theChainDef,chainDict,doAtL2AndEF=True):
+def _addTopoInfo(theChainDef,chainDict, topoAlgs, doAtL2AndEF=True):
 
     maxL2SignatureIndex = -1
     for signatureIndex,signature in enumerate(theChainDef.signatureList):
@@ -84,29 +102,29 @@ def _addTopoInfo(theChainDef,chainDict,doAtL2AndEF=True):
     L2ChainName = "L2_" + chainDict['chainName']
     EFChainName = "EF_" + chainDict['chainName']
     HLTChainName = "HLT_" + chainDict['chainName']   
-    topoAlgs = chainDict["topo"]
+    #topoAlgs = chainDict["topo"]
 
     listOfChainDicts = splitChainDict(chainDict)
     listOfChainDefs = []
 
-
     if ('muvtx' in topoAlgs):
-        theChainDef = generateHVchain(theChainDef, chainDict, inputTEsL2, inputTEsEF)
+        theChainDef = generateHVchain(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoAlgs)
     elif ('llp' in topoAlgs):
-        theChainDef = generateLLPchain(theChainDef, chainDict, inputTEsL2, inputTEsEF)
-    elif ('invm' in topoAlgs) or ('deta' in topoAlgs):
-        theChainDef = addDetaInvmTopo(theChainDef,chainDict,inputTEsL2, inputTEsEF)
+        theChainDef = generateLLPchain(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoAlgs)
+    elif b_any(('invm' or 'deta') in x for x in topoAlgs):
+        print "MEOW found"
+        theChainDef = addDetaInvmTopo(theChainDef,chainDict,inputTEsL2, inputTEsEF, topoAlgs)
     else:
         logJet.error('Your favourite topo configuration is missing.')
 
     return theChainDef
 
 ##########################################################################################
-def generateHVchain(theChainDef, chainDict, inputTEsL2, inputTEsEF):
+def generateHVchain(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoAlgs):
     L2ChainName = "L2_" + chainDict['chainName']
     EFChainName = "EF_" + chainDict['chainName']
     HLTChainName = "HLT_" + chainDict['chainName']   
-    topoAlgs = chainDict["topo"]
+    #    topoAlgs = chainDict["topo"]
     l1item = chainDict["L1item"]
     l1item = l1item[4:]
 
@@ -140,9 +158,9 @@ def generateHVchain(theChainDef, chainDict, inputTEsL2, inputTEsEF):
 
 
 ##########################################################################################
-def generateLLPchain(theChainDef, chainDict, inputTEsL2, inputTEsEF):
+def generateLLPchain(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoAlgs):
     HLTChainName = "HLT_" + chainDict['chainName']   
-    topoAlgs = chainDict["topo"]
+    #topoAlgs = chainDict["topo"]
 
     from TrigL2SiTrackFinder.TrigL2SiTrackFinder_Config import TrigL2SiTrackFinder_muonIsoB
     fex_SiTrackFinder_muonIsoB = TrigL2SiTrackFinder_muonIsoB()
@@ -175,29 +193,29 @@ def generateLLPchain(theChainDef, chainDict, inputTEsL2, inputTEsEF):
 
 
 ##########################################################################################
-def _addDPhiMetJet(theChainDef,chainDicts,inputTEsL2, inputTEsEF):
-#listOfChainDefs): 
+def addDetaInvmTopo(theChainDef,chainDicts,inputTEsL2, inputTEsEF,topoAlgs):
+    print "MEOW found 2"
+        
+    algoName = "EFJetMassDEta"
+    for topo_item in topoAlgs:
+        algoName = algoName+"_"+topo_item
+        if 'deta' in topo_item:
+            detaCut=float(topo_item.split('deta')[1]) 
+        else:
+            logJet.warning("No deta threshold in topo definition, using default deta=99.")
+            detaCut = 99.
 
-    for topo_item in chainDicts[0]['topo']:
-        detaCut=float(topo_item.split('deta')[1]) if 'deta' in topo_item else logCombined.error("No deta threshold in topo definition")
-        invmCut=float(topo_item.split('invm')[1]) if 'inmv' in topo_item else logCombined.error("No inmv threshold in topo definition")
+        if 'invm' in topo_item:
+            invmCut=float(topo_item.split('invm')[1]) 
+        else:
+            logJet.warning("No invm threshold in topo definition, using default invm = 0.")
+            invmCut = 0.
+
+    from TrigJetHypo.TrigEFJetMassDEtaConfig import EFJetMassDEta
+    DEtaMjjJet_Hypo = EFJetMassDEta(algoName, mjj_cut=invmCut, deta_cut=detaCut)
     
-    jetThr=-1
-    for chainPart in chainDict:
-        if 'Jet' in chainPart['signature']:
-            jetThr=int(chainPart['chainParts'][0]['threshold'])
-            break
-
-    if jetThr==-1:
-        logJet.error("No jet chain part found in DEtaMetJet Topo cut")
-
-    from TrigJetHypo.TrigEFJetMassDEtaConfig import *
-    DEtaMjjJet_Hypo = EFJetMassDEta("EFJetMassDEta_J"+str(jetThr).replace(".","")+"_Mjj"+str(mjjCut).replace(".",""),
-                                           MjjCut=mjjCut, DEtaCut=detaCut)
-    
-
-    EFChainName = "EF_" + chainDict[0]['chainName']    
-    theChainDef.addSequence([DEtaMjjJet_Hypo], inputTEsEF, EFChainName)
-    theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [EFChainName])    
+    chainName = "HLT_" + inputTEsEF[0] + "_"+ algoName
+    theChainDef.addSequence([DEtaMjjJet_Hypo], inputTEsEF, chainName)
+    theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [chainName])    
 
     return theChainDef

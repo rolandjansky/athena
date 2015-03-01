@@ -98,6 +98,23 @@ class OldStylePrescales(JobProperty):
     allowedTypes = ['bool']
     StoredValue = False
 
+class ThresholdMap(JobProperty):
+    statusOn = True
+    allowedTypes = ['dict']
+    StoredValue = {}
+
+_flags.append(ThresholdMap)
+
+
+class ItemMap(JobProperty):
+    statusOn = True
+    allowedTypes = ['dict']
+    StoredValue = {}
+
+_flags.append(ItemMap)
+
+
+
 _flags.append(OldStylePrescales)
 
 

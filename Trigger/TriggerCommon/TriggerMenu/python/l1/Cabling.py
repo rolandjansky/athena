@@ -227,9 +227,9 @@ class InputCable:
                 self.range_begin = start + offset * self.bitnum
                 self.range_end   = self.range_begin + self.bitnum-1
                 break
-
+            
             if not self.connector:
-                print "Cable mapping ",cableAssign
+                print "Cable mapping ERROR ",cableAssign
                 raise RuntimeError("No cable has been assigned to threshold type '%s' with mapping %i" % (self.thrtype,self.mapping))
 
 
@@ -253,7 +253,7 @@ class InputCable:
         Gets the cable assignment from L1Common
         """
         exec("cable = Limits.%s_cable" % thrtype)
-
+        
         # we change the format for run 2, the tuple now contains also the bit multiplicity, as it is not constant per type
         infosize = (len(cable)-1)/cable[0]
 

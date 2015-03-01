@@ -28,7 +28,7 @@ class CTPInfo:
 
     # Members of CTPInfo
     def __init__(self):
-        self.random         = CTPInfo.Random( names = ['Random0', 'Random1', 'Random2', 'Random3'], cuts = [5, 5, 5, 5] )
+        self.random         = CTPInfo.Random( names = ['Random0', 'Random1', 'Random2', 'Random3'], cuts = [1, 1, 1, 1] )
         self.prescaledClock = CTPInfo.PrescaledClock('psc01', 10, 100)
         self.bunchGroupSet  = BunchGroupSet()
 

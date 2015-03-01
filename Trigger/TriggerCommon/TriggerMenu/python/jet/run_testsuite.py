@@ -9,6 +9,7 @@ from jetDefAlgToString_test import TestJetDefAlgToString
 from Sequence_test import TestSequence
 from JetSequencesBuilder_test import TestJetSequencesBuilder
 from JetDef_test import TestJetDef
+from JetDef_test2 import TestJetDef2
 from InstantiatorFactory_test import TestInstantiatorFactory
 from hypo_factory_test import Test_hypo_factory
 from jetDefInstantiator_test import Test_jetDefInstantiator
@@ -19,6 +20,7 @@ test_cases = (TestAlgFactory,
               TestSequence,
               TestJetSequencesBuilder,
               TestJetDef,
+              TestJetDef2,
               TestInstantiatorFactory,
               Test_hypo_factory,
               Test_jetDefInstantiator,

@@ -15,18 +15,13 @@ from MC_pp_V5_dicts import MC_pp_V5_dicts
 
 class TestJetDef(unittest.TestCase):
 
-    def output_off(self):
-        self.oldout, self.olderr = sys.stdout, sys.stderr
-        self.out=[StringIO(), StringIO()]
-        sys.stdout,sys.stderr = self.out
-
-    def output_on(self):
-        sys.stdout, sys.stderr = self.oldout, self.olderr
-        
     def setUp(self):
-        # single dictionary to play with
         self.from_central =  copy.deepcopy(MC_pp_V5_dicts[0])
+        self.old_stdout = sys.stdout
+        sys.stdout = StringIO()
 
+    def tearDown(self):
+        sys.stdout = self.old_stdout
         
     def test_0(self):
         """Create ChainDef instances with full instantiation"""
@@ -46,9 +41,7 @@ class TestJetDef(unittest.TestCase):
         'test error handling: missing entry in input dict'
 
         del self.from_central['chainParts']
-        self.output_off()
         chain_def = generateHLTChainDef(self.from_central)
-        self.output_on()
         # if chain_def.__class__.__name__ != 'ChainDef':
         #    print chain_def
         self.assertTrue(chain_def.__class__.__name__ == 'ErrorChainDef')
@@ -57,7 +50,6 @@ class TestJetDef(unittest.TestCase):
         'test error handling: too many chain parts'
 
         self.from_central['chainParts'].extend([{}, {}])
-        self.output_off()
         chain_def = generateHLTChainDef(self.from_central)
         # if chain_def.__class__.__name__ != 'ChainDef':
         #    print chain_def
@@ -67,7 +59,6 @@ class TestJetDef(unittest.TestCase):
         'test error handling: unexpected chain part signature'
 
         self.from_central['chainParts'][0]['signature'] = 'junk'
-        self.output_off()
         chain_def = generateHLTChainDef(self.from_central)
         # if chain_def.__class__.__name__ != 'ChainDef':
         #    print chain_def
@@ -77,7 +68,6 @@ class TestJetDef(unittest.TestCase):
         'test error handling: missing entry in chain part dict'
 
         del self.from_central['chainParts'][0]['etaRange']
-        self.output_off()
         chain_def = generateHLTChainDef(self.from_central)
         # if chain_def.__class__.__name__ != 'ChainDef':
         #    print chain_def
@@ -87,7 +77,6 @@ class TestJetDef(unittest.TestCase):
         'test error handling: unexpected dataType in chain part dict'
 
         self.from_central['chainParts'][0]['dataType'] = 'junk'
-        self.output_off()
         chain_def = generateHLTChainDef(self.from_central)
         # if chain_def.__class__.__name__ != 'ChainDef':
         #    print chain_def
@@ -137,7 +126,6 @@ class TestJetDef(unittest.TestCase):
 
         self.from_central['chainName'] = 'bad reco alg'
         self.from_central['chainParts'][0]['recoAlg'] = 'junk'
-        self.output_off()
         chain_def = generateHLTChainDef(self.from_central)
         # TT not implemented 11/5/2014
         self.assertTrue(chain_def.__class__.__name__ == 'ErrorChainDef')
@@ -148,7 +136,6 @@ class TestJetDef(unittest.TestCase):
 
         self.from_central['chainName'] = 'bad scan type'
         self.from_central['chainParts'][0]['scan'] = 'junk'
-        self.output_off()
         chain_def = generateHLTChainDef(self.from_central)
         # TT not implemented 11/5/2014
         self.assertTrue(chain_def.__class__.__name__ == 'ErrorChainDef')
@@ -169,12 +156,11 @@ class TestJetDef(unittest.TestCase):
 
         self.from_central['chainName'] = 'bad region'
         self.from_central['chainParts'][0]['etaRange'] = 'junk'
-        self.output_off()
         chain_def = generateHLTChainDef(self.from_central)
         self.assertTrue(chain_def.__class__.__name__ == 'ErrorChainDef')
 
     def test_17(self):
-        """excercise usage mesage"""
+        """excercise usage message"""
         usage()
 
 if __name__ == '__main__':
