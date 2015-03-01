@@ -261,7 +261,7 @@ bool HLT::NavigationCore::getRecentFeatureDataOrElementLink( const TriggerElemen
   
   TriggerElement::FeatureVec features_access_helpers;  
   if ( getFeatureAccessors(te, ClassID_traits<T>::ID(), label, true, features_access_helpers, true, true, source, sourcelabel ) == false ) {
-    MLOG(WARNING) << "looking for FAs failed. Returning false! Details CLID: " << ClassID_traits<T>::ID()  << "(" << ClassID_traits<T>::typeName() << ")"
+    MLOG(INFO) << "looking for FAs failed. Returning false! Details CLID: " << ClassID_traits<T>::ID()  << "(" << ClassID_traits<T>::typeName() << ")"
 	      << " in TE: " << te->getId()  
 	      << " label: \"" << label << "\"" << endreq;
     return false;
