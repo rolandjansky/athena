@@ -30,6 +30,11 @@
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
 
+
+#include "InDetReadoutGeometry/TRT_BaseElement.h"
+#include "InDetReadoutGeometry/TRT_DetectorManager.h"
+
+#include "TRT_ConditionsServices/ITRT_StrawStatusSummarySvc.h"
 // Math functions:
 #include <cmath>
 
@@ -47,7 +52,8 @@ TRT_LocalOccupancy::TRT_LocalOccupancy(const std::string& t,
   :
   AthAlgTool(t,n,p),
   m_TRTHelper(0),
-  m_TRTStrawStatusSummarySvc("TRT_StrawStatusSummarySvc", n)
+  m_TRTStrawStatusSummarySvc("TRT_StrawStatusSummarySvc", n),
+  m_trtDetMgr(0)
 {
  declareInterface<ITRT_LocalOccupancy>(this);
   //declareProperty("isData", m_DATA = true);
@@ -64,6 +70,8 @@ StatusCode TRT_LocalOccupancy::initialize()
 
 
    // The TRT helper: 
+
+   
   StatusCode sc = detStore()->retrieve(m_TRTHelper, "TRT_ID");
   if ( sc.isFailure() ) {
     msg(MSG::ERROR) << "Unable to retrieve TRT ID Helper." << endreq;
@@ -75,14 +83,14 @@ StatusCode TRT_LocalOccupancy::initialize()
   // create arrays
   m_occ_total = new int[7];
   m_hit_total = new int[7];
-  m_stw_total = new int[7];
+///  m_stw_total = new int[7];
   m_occ_local = new int*[10];
   m_hit_local = new int*[10];
-  m_stw_local = new int*[10];
+//  m_stw_local = new int*[10];
   for (int i=0; i<10; ++i){
     m_occ_local[i] = new int[32];
     m_hit_local[i] = new int[32];
-    m_stw_local[i] = new int[32];
+//    m_stw_local[i] = new int[32];
   }
 
   m_occ_local_wheel = new int*[34];
@@ -91,15 +99,15 @@ StatusCode TRT_LocalOccupancy::initialize()
   for (int i=0; i<34; ++i){
     m_occ_local_wheel[i] = new int[32];
     m_hit_local_wheel[i] = new int[32];
-    m_stw_local_wheel[i] = new int[32];
+//    m_stw_local_wheel[i] = new int[32];
   }
   m_occ_local_straw = new int*[36];
   m_hit_local_straw = new int*[36];
-  m_stw_local_straw = new int*[36];
+//  m_stw_local_straw = new int*[36];
   for (int i=0; i<36; ++i){
     m_occ_local_straw[i] = new int[32];
     m_hit_local_straw[i] = new int[32];
-    m_stw_local_straw[i] = new int[32];
+//    m_stw_local_straw[i] = new int[32];
   }
 
   m_eventnumber = -1;
@@ -118,16 +126,21 @@ StatusCode TRT_LocalOccupancy::finalize()
   delete [] m_occ_local;
   delete [] m_hit_total;
   delete [] m_hit_local;
-  delete [] m_stw_total;
-  delete [] m_stw_local;
 
   delete [] m_occ_local_wheel;
   delete [] m_hit_local_wheel;
-  delete [] m_stw_local_wheel;
   delete [] m_occ_local_straw;
   delete [] m_hit_local_straw;
-  delete [] m_stw_local_straw;
-
+/*
+  if (m_stw_total)
+	delete [] m_stw_total;
+  if(m_stw_local )
+	delete [] m_stw_local;
+  if(m_stw_local_wheel )
+	delete [] m_stw_local_wheel;
+  if(m_stw_local_straw )
+	delete [] m_stw_local_straw;
+*/
   ATH_MSG_INFO ("finalize() successful in " << name());
   return AlgTool::finalize();
 }
@@ -222,9 +235,20 @@ StatusCode TRT_LocalOccupancy::BeginEvent(){
   }
 */
 
+
+
   // count live straws
+
+  m_stw_total 		=  m_TRTStrawStatusSummarySvc->getStwTotal()		;
+  m_stw_local 		=  m_TRTStrawStatusSummarySvc->getStwLocal()		;
+  m_stw_local_wheel 	=  m_TRTStrawStatusSummarySvc->getStwLocalWheel()	;
+  m_stw_local_straw	=  m_TRTStrawStatusSummarySvc->getStwLocalStraw()	;
+
+/*
   for (std::vector<Identifier>::const_iterator it = m_TRTHelper->straw_layer_begin(); it != m_TRTHelper->straw_layer_end(); it++  ) {
-   for (int i=0; i<=m_TRTHelper->straw_max( *it); i++) {
+   const InDetDD::TRT_BaseElement *el = m_trtDetMgr->getElement(*it);
+   if( !el ) continue;
+   for (unsigned int i=0; i<el->nStraws(); i++) {
       Identifier id = m_TRTHelper->straw_id( *it, i);
       int det = m_TRTHelper->barrel_ec(		id)	;
       int lay = m_TRTHelper->layer_or_wheel(	id)	;
@@ -248,7 +272,7 @@ StatusCode TRT_LocalOccupancy::BeginEvent(){
       m_stw_local_straw[i_local_straw][phi] +=1;
     }
   }
-
+*/
   // Calculate Occs:
   for (int i=0; i<7; ++i) {
     float occ = 0;
@@ -397,13 +421,13 @@ return false;
     for (int i=0; i<7; ++i){
       m_occ_total[i]=0;
       m_hit_total[i]=0;
-      m_stw_total[i]=0;
+//      m_stw_total[i]=0;
     }
     for (int i=0; i<10; ++i){
       for (int j=0; j<32; ++j){
 	m_occ_local[i][j]=0;
     	m_hit_local[i][j]=0;
-	m_stw_local[i][j]=0;
+//	m_stw_local[i][j]=0;
       }
     }
 
@@ -411,14 +435,14 @@ return false;
       for (int j=0; j<32; ++j){
 	m_occ_local_wheel[i][j]=0;
 	m_hit_local_wheel[i][j]=0;
-	m_stw_local_wheel[i][j]=0;
+//	m_stw_local_wheel[i][j]=0;
       }
     }
     for (int i=0; i<36; ++i){
       for (int j=0; j<32; ++j){
 	m_occ_local_straw[i][j]=0;
 	m_hit_local_straw[i][j]=0;
-	m_stw_local_straw[i][j]=0;
+//	m_stw_local_straw[i][j]=0;
       }
     }
   return;
@@ -507,7 +531,7 @@ std::vector<float> TRT_LocalOccupancy::LocalOccupancy(const Trk::Track track ){
      if (hits_array_det<1) continue;
      float occ_det =  (m_occ_total [i])*1.e-2 ;
      if(occ_det == 0 && hits_array_det/m_stw_total[i] > 0.01){
-       ATH_MSG_WARNING("Occupancy is 0 for : " << i << " BUT THERE ARE HITS!!!: " << hits_array_det);
+       ATH_MSG_DEBUG("Occupancy is 0 for : " << i << " BUT THERE ARE HITS!!!: " << hits_array_det);
        continue;
      }	
      averageoccdc_total  += (occ_det*hits_array_det);
@@ -520,7 +544,7 @@ std::vector<float> TRT_LocalOccupancy::LocalOccupancy(const Trk::Track track ){
         if (hits_array_phi<1) continue;
         float occ_phi =  (m_occ_local [i][j])*1.e-2 ;
         if(occ_phi == 0 && hits_array_phi/m_stw_local[i][j] > 0.01){
-          ATH_MSG_WARNING("Occupancy is 0 for : " << i << " " << j << " BUT THERE ARE HITS!!!: " << hits_array_phi);
+          ATH_MSG_DEBUG("Occupancy is 0 for : " << i << " " << j << " BUT THERE ARE HITS!!!: " << hits_array_phi);
           continue;
         }	
         averageoccdc_local  += (occ_phi*hits_array_phi);
@@ -536,7 +560,7 @@ std::vector<float> TRT_LocalOccupancy::LocalOccupancy(const Trk::Track track ){
         if (hits_array_mod<1) continue;
         float occ_mod =  (m_occ_local_wheel [i][j])*1.e-2 ;
         if(occ_mod == 0 && hits_array_mod/m_stw_local_wheel[i][j] > 0.01){
-          ATH_MSG_WARNING("Occupancy is 0 for : " << i << " " << j << " BUT THERE ARE HITS!!!: " << hits_array_mod);
+          ATH_MSG_DEBUG("Occupancy is 0 for : " << i << " " << j << " BUT THERE ARE HITS!!!: " << hits_array_mod);
           continue;
         }	
         averageoccdc_mod  += (occ_mod*hits_array_mod);
