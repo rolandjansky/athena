@@ -42,7 +42,6 @@ class L2EFChain_met(L2EFChainDef):
         
     def defineSequences(self):
         for sequence in self.L2sequenceList:
-            print 'MEOW2 sequence', sequence
             self.addL2Sequence(*sequence)
         for sequence in self.EFsequenceList:
             self.addEFSequence(*sequence)

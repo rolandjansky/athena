@@ -618,7 +618,7 @@ class GenerateMenu:
         theHLTSequences = []
         
         for sequence in theChainDef.sequenceList:
-            theHLTSequences += [HLTSequence(inputTEs=sequence["input"], algos=sequence["algorithm"], outputTE=sequence["output"], topo_starts_from=sequence["topo_starts_from"])]
+            theHLTSequences += [HLTSequence(inputTEs=sequence["input"], algos=sequence["algorithm"], outputTE=sequence["output"], topo_start_from=sequence["topo_start_from"])]
         return theHLTSequences
 
 

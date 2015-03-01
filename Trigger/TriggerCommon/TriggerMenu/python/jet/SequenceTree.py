@@ -3,6 +3,37 @@
 from collections import defaultdict
 from Sequence import Sequence
 
+def _update_if_diagnostic_sequence(sequence):
+        # diagnostic sequences monitor sequences. Ensure diagnostic
+        # Algorithm names are labled by the sequence they are monitoring.
+        # The 'chain_name attribute' - a misnomer, it is realy part
+        # of the histogram file name is also set here.
+        # This is the earliest this information is known
+
+        if 'jetfex_diagnostics' not in sequence.alias:
+            return
+        
+        for a in sequence.alg_list:
+
+            def select(k):
+                if k.startswith('name'):
+                    return True
+                if k.startswith('chain_name'):
+                    return True
+                return false
+            
+            new_kargs = [k for k in a.kargs if not select(k)]
+            to_modify = [k for k in a.kargs if select(k)]
+
+            def modify(k):
+                t  = k.split('=')
+                return  '%s="%s%s"' % (t[0],
+                                       t[1][1:-1],
+                                       sequence.te_in)
+            new_kargs.extend([modify(k) for k in to_modify])
+            a.kargs = new_kargs
+            
+
 class SequenceTree(object):
     """create a list of sequeneces interconnected to for a directed
     acyclic graph.
@@ -18,7 +49,7 @@ class SequenceTree(object):
         self.alias_table = defaultdict(list)
         self.sequences = []
 
-        self.chain_name = chain_name
+        self.chain_name = chain_name  # used only for log messages
 
         # set up a parent-child label of Alglist objects
         for a in alglists:
@@ -45,7 +76,14 @@ class SequenceTree(object):
         #    te_out = 'HLT_' + te_out
         if not te_out.startswith('EF_'):
             te_out = 'EF_' + te_out
-        self.sequences.append(Sequence(te_in, alglist.alg_list, te_out))
+
+        new_sequence = Sequence(te_in,
+                                alglist.alg_list,
+                                alglist.alias,  # for debugging
+                                te_out)
+
+        _update_if_diagnostic_sequence(new_sequence)
+        self.sequences.append(new_sequence)
 
         # having appended the new sequence to the sequence list,
         # the sequence to which it is connected is attached. This
@@ -55,7 +93,9 @@ class SequenceTree(object):
         # into an infinite loop.
         for c in self.alias_table[alglist.alias]:
             self._make_sequences(c, te_out)
-        
+
+
+        # import pdb;pdb.set_trace()
         
     def _check_for_duplicates(self, l):
         """check no te out label is used for more than sequence"""

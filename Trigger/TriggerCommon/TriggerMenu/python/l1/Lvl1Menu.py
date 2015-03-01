@@ -7,6 +7,7 @@ from CaloInfo import CaloInfo
 from MuctpiInfo import MuctpiInfo
 from CTPInfo import CTPInfo
 from Limits import Limits
+from TriggerJobOpts.TriggerFlags import TriggerFlags
 
 from AthenaCommon.Logging import logging
 log = logging.getLogger("TriggerMenu.l1.Lvl1Menu")
@@ -32,7 +33,12 @@ class Lvl1Menu:
         self.MuctpiInfo = MuctpiInfo(low_pt=1, high_pt=1, max_cand=13)
 
         # Calo Info in the menu
-        self.CaloInfo = CaloInfo(name='standard', globalEmScale=2, globalJetScale=1)
+        em_scale=2
+        if hasattr(TriggerFlags, 'useRun1CaloEnergyScale'):
+            if TriggerFlags.useRun1CaloEnergyScale :
+                em_scale=1
+                
+        self.CaloInfo = CaloInfo(name='standard', globalEmScale=em_scale, globalJetScale=1)
 
         if self.menuName:
             from Lvl1MenuUtil import get_smk_psk_Name

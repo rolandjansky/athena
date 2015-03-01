@@ -56,6 +56,8 @@ def generateChainDefs(chainDict):
     #----------------------------------------------------------------------------
 
 
+    print 'MEOW getMultThreshBtagInfo(cDict):', getMultThreshBtagInfo(chainDict)
+
     #----------------------------------------------------------------------------
     # --- build the jet chain, then pass JetChainDef and bjetchainDictionaries to build bjet chains ---
     theAllJetChainDef =  genJetChainDefs(jetchainDict)
@@ -112,11 +114,9 @@ def generateChainDefs(chainDict):
 ###########################################################################
 def buildBjetChains(jchaindef,bjetdict,doAtL2AndEF=True,numberOfSubChainDicts=1):
     inputTEsEF = jchaindef.signatureList[-1]['listOfTriggerElements'][0]
-    print 'MEOW inputTEsEF', inputTEsEF
-    print 'MEOW all inpTEs', jchaindef.signatureList
 
     L2ChainName = "L2_" + bjetdict['chainName']
-    EFChainName = "EF_" + bjetdict['chainName']
+    EFChainName = "EF_bjet_" + bjetdict['chainName']
     HLTChainName = "HLT_" + bjetdict['chainName']   
     topoAlgs = bjetdict["topo"]
 
@@ -138,7 +138,7 @@ def buildBjetChains(jchaindef,bjetdict,doAtL2AndEF=True,numberOfSubChainDicts=1)
 def myBjetConfig_split(theChainDef, chainDict, inputTEsEF,numberOfSubChainDicts=1):
     
     L2ChainName = "L2_" + chainDict['chainName']
-    EFChainName = "EF_" + chainDict['chainName']
+    EFChainName = "EF_bjet_" + chainDict['chainName']
     HLTChainName = "HLT_" + chainDict['chainName']   
 
     chainParts = chainDict['chainParts']
@@ -220,7 +220,6 @@ def myBjetConfig_split(theChainDef, chainDict, inputTEsEF,numberOfSubChainDicts=
     #-----------------------------------------------------------------------------------
     
     tracking = "IDTrig"
-
     jetEtHypoTE     = "HLT_j"+btagthresh
     jetHypoTE       = "HLT_j"+btagthresh+"_eta"
     jetSplitTE      = jetHypoTE+"_jsplit"
@@ -230,7 +229,7 @@ def myBjetConfig_split(theChainDef, chainDict, inputTEsEF,numberOfSubChainDicts=
     prmVertexTE     = superTrackingTE+"_prmVtx"
     comboPrmVtxTE   = prmVertexTE+"Combo"
     secVtxTE        = jetTrackTE+"__"+"superVtx"
-    lastTEout       = "HLT_"+chainParts['chainPartName'] if numberOfSubChainDicts>1 else EFChainName
+    lastTEout       = "HLT_bjet_"+chainParts['chainPartName'] if numberOfSubChainDicts>1 else EFChainName
  
     #-----------------------------------------------------------------------------------
     # sequence assembling
@@ -256,7 +255,7 @@ def myBjetConfig_split(theChainDef, chainDict, inputTEsEF,numberOfSubChainDicts=
 
 def myBjetConfig1(theChainDef, chainDict, inputTEsEF,numberOfSubChainDicts=1):
     L2ChainName = "L2_" + chainDict['chainName']
-    EFChainName = "EF_" + chainDict['chainName']
+    EFChainName = "EF_bjet_" + chainDict['chainName']
     HLTChainName = "HLT_" + chainDict['chainName']   
 
     chainParts = chainDict['chainParts']
@@ -335,7 +334,7 @@ def myBjetConfig1(theChainDef, chainDict, inputTEsEF,numberOfSubChainDicts=1):
     theChainDef.addSequence([EFHistoPrmVtxCombo_Jet()], [ef4, ef5], ef6)
     #theChainDef.addSequence([ef_EtHypo_Btagging], ef6, ef7) 
     theChainDef.addSequence([ef_VxSecondary_EF,ef_EtHypo_Btagging], ef6, ef7) 
-    lastTEout = "EF_"+chainParts['chainPartName'] if numberOfSubChainDicts>1 else EFChainName
+    lastTEout = "EF_bjet_"+chainParts['chainPartName'] if numberOfSubChainDicts>1 else EFChainName
     theChainDef.addSequence([ef_bjet, ef_hypo], ef7, lastTEout)
 
     theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [lastTEout]*int(btagmult))
@@ -468,5 +467,15 @@ def get_lastTE_j35(ChainDef):
     inputTEsEF = ChainDef.signatureList[-1]['listOfTriggerElements']
     return inputTEsEF
 ###########################################################################
+def getMultThreshBtagInfo(cDict):
+    allInfo = []
+    chainPartInfo = []
+    for cpart in cDict['chainParts']:
+        if cpart['signature'] == 'Jet':
+            chainPartInfo.append(cpart['multiplicity'])        
+            chainPartInfo.append(cpart['threshold'])        
+            chainPartInfo.append(cpart['bTag'])
+            allInfo.append(chainPartInfo)
 
-
+    return allInfo
+###########################################################################

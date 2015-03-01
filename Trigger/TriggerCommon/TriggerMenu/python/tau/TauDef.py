@@ -140,12 +140,14 @@ class L2EFChain_tau(L2EFChainDef):
         # Cleaner if-statements
         # Strategies which need calorimeter pre-selection
         needsCaloPre  = ['calo', 'ptonly', 'mvonly', 'caloonly',
-                         'track', 'trackonly', 'tracktwo']
+                         'track', 'trackonly', 'tracktwo',
+                         'trackcalo', 'tracktwocalo']
         # Strategies which need fast-track finding
-        needsTrackPre = ['track', 'trackonly']
+        needsTrackTwoPre = ['tracktwo', 'tracktwoonly', 'tracktwocalo']
+        needsTrackPre    = ['track', 'trackonly', 'trackcalo']
         # Strategies which need Run-II final hypo
         needsRun2Hypo = ['calo', 'ptonly', 'mvonly', 'caloonly',
-                         'trackonly', 'track', 'tracktwo']
+                         'trackonly', 'track', 'tracktwo', 'tracktwocalo', 'trackcalo']
 
         # Temporary hack to handle naming scheme
         if 'r1' in selection:
@@ -162,23 +164,72 @@ class L2EFChain_tau(L2EFChainDef):
 
             from TrigCaloRec.TrigCaloRecConfig import TrigCaloCellMaker_tau
             from TrigCaloRec.TrigCaloRecConfig import TrigCaloClusterMaker_topo
+            from TrigTauHypo.TrigTauHypoConf import HLTTauCaloRoiUpdater
 
             cellmaker         = TrigCaloCellMaker_tau()
             clustermaker_topo = TrigCaloClusterMaker_topo()
+            caloroiupdater    = HLTTauCaloRoiUpdater()
 
             # Run topoclustering
             self.EFsequenceList += [[[ self.currentItem ],
-                                     [cellmaker, clustermaker_topo],
+                                     [cellmaker, clustermaker_topo, caloroiupdater],
                                      self.continueChain('EF', 'clf0')]]
 
+            # Run TrigTauRec, calorimeter only (to get proper calibration, and cell-based vars)
+            from TrigTauRec.TrigTauRecConfig import TrigTauRecMerged_TauCaloOnly
+            caloRec = TrigTauRecMerged_TauCaloOnly()
+
+            self.EFsequenceList += [[[ self.currentItem ],
+                                     [caloRec],
+                                     self.continueChain('EF', 'calorec')]]
+
             # Run the calo-based pre-selection
-            if selection != 'perf':
-                self.EFsequenceList += [[[ self.currentItem ],
-                                         [theHLTPre],
-                                         self.continueChain('EF', 'calopre')]]
+            self.EFsequenceList += [[[ self.currentItem ],
+                                     [theHLTPre],
+                                     self.continueChain('EF', 'calopre')]]
                 
+        # Two step fast-tracking
+        if preselection in needsTrackTwoPre or (preselection != 'r1' and idperf):
+
+            theHLTTrackPre   = self.hypoProvider.GetHypo('L2', threshold, selection, 'id', preselection)
+
+            # Get the necessary fexes
+            from TrigInDetConf.TrigInDetSequence import TrigInDetSequence
+
+            [trkcore, trkiso, trkprec] = TrigInDetSequence("Tau", "tau", "IDTrig", "2step").getSequence()
+
+            # Here we load our new tau-specific RoI Updater
+            from TrigTauHypo.TrigTauHypoConf import HLTTauTrackRoiUpdater
+            tauRoiUpdater = HLTTauTrackRoiUpdater()
+            # This will add up to a tolerance of 5 mm due to the extra 3mm tolerance from the FTF
+            # tauRoiUpdater.z0HalfWidth = 2.0 # Temporarily widened to 10 mm
+            tauRoiUpdater.z0HalfWidth = 7.0
+            # Cut in GeV
+            tauRoiUpdater.minTrackPt = 1.0
+
+            ftracks = trkcore+[tauRoiUpdater]+trkiso
+
+            # Run fast-tracking
+            self.EFsequenceList += [[[ self.currentItem ],
+                                     ftracks,
+                                     self.continueChain('EF', 'trfasttwo')]]
+
+            # Run the track-based pre-selection
+            # Only cut if we're not in idperf
+            if not idperf:
+                self.EFsequenceList += [[[ self.currentItem ],
+                                         [theHLTTrackPre],
+                                         self.continueChain('EF', 'trackpre')]]
+
+            from TrigTauRec.TrigTauRecConfig import TrigTauRecMerged_TauPreselection
+            recPreselection = TrigTauRecMerged_TauPreselection()
+
+            self.EFsequenceList += [[[ self.currentItem ],
+                                     [recPreselection],
+                                     self.continueChain('EF', 'storepre')]]
+
         # One step fast-tracking
-        if preselection in needsTrackPre or (preselection != 'r1' and idperf):
+        if preselection in needsTrackPre:
             # Run-II tracking-based approach
             theHLTTrackPre   = self.hypoProvider.GetHypo('L2', threshold, selection, 'id', preselection)
 
@@ -210,46 +261,7 @@ class L2EFChain_tau(L2EFChainDef):
                                      [recPreselection],
                                      self.continueChain('EF', 'storepre')]]
 
-        # Two step fast-tracking
-        if preselection == 'tracktwo':
 
-            theHLTTrackPre   = self.hypoProvider.GetHypo('L2', threshold, selection, 'id', preselection)
-
-            # Get the necessary fexes
-            from TrigInDetConf.TrigInDetSequence import TrigInDetSequence
-
-            [trkcore, trkiso, trkprec] = TrigInDetSequence("Tau", "tau", "IDTrig", "2step").getSequence()
-
-            # Here we load our new tau-specific RoI Updater
-            from TrigTauHypo.TrigTauHypoConf import HLTTauTrackRoiUpdater
-            tauRoiUpdater = HLTTauTrackRoiUpdater()
-            # This will add up to a tolerance of 5 mm
-            # due to the extra 3mm tolerance from the FTF
-            tauRoiUpdater.z0HalfWidth = 2.0
-            # Cut in GeV
-            tauRoiUpdater.minTrackPt = 1.0
-
-            ftracks = trkcore+[tauRoiUpdater]+trkiso
-
-            # Run fast-tracking
-            self.EFsequenceList += [[[ self.currentItem ],
-                                     ftracks,
-                                     self.continueChain('EF', 'trfasttwo')]]
-
-            # Run the track-based pre-selection
-            # Only cut if we're not in idperf
-            if not idperf:
-                self.EFsequenceList += [[[ self.currentItem ],
-                                         [theHLTTrackPre],
-                                         self.continueChain('EF', 'trackpre')]]
-
-            # Need a fix from offline tauRec
-            from TrigTauRec.TrigTauRecConfig import TrigTauRecMerged_TauPreselection
-            recPreselection = TrigTauRecMerged_TauPreselection()
-
-            self.EFsequenceList += [[[ self.currentItem ],
-                                     [recPreselection],
-                                     self.continueChain('EF', 'storepre')]]
 
         if preselection in needsRun2Hypo:
             # Only run tracking and tau-rec : no need for topoclustering
@@ -267,8 +279,8 @@ class L2EFChain_tau(L2EFChainDef):
                 from TrigTauRec.TrigTauRecCosmicsConfig import TrigTauRecCosmics_Tau2012
                 recmerged_2012    = TrigTauRecCosmics_Tau2012()
             else:
-                from TrigTauRec.TrigTauRecConfig import TrigTauRecMerged_Tau2012
-                recmerged_2012    = TrigTauRecMerged_Tau2012()
+                from TrigTauRec.TrigTauRecConfig import TrigTauRecMerged_TauPrecision
+                recmerged_2012    = TrigTauRecMerged_TauPrecision()
 
 
             [trkcore, trkprec] = TrigInDetSequence("Tau", "tau", "IDTrig").getSequence()
@@ -276,7 +288,8 @@ class L2EFChain_tau(L2EFChainDef):
             efidinsideout = trkprec
 
             # Only run the fast-tracking if it wasn't run at pre-selection
-            if preselection != 'track' and preselection != 'trackonly' and not idperf:
+            # Is two-step preselection good enough?
+            if preselection != 'track' and preselection != 'trackonly' and preselection != 'trackcalo':
                 efidinsideout = trkcore+trkprec
 
             efmv              = TrigTauDiscriGetter2015()

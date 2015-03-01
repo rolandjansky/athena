@@ -90,9 +90,13 @@ def _check_values(chain_parts):
 
 def _check_chainpart_consistency(chain_parts):
     check_chain_parts = [copy.deepcopy(c) for c in chain_parts]
+    
     def remove_hypodata(d):
+        """Remove those from checks those entries allowed to vary across
+        the different chainParts"""
+
         to_remove = ['multiplicity', 'etaRange', 'threshold', 'chainPartName',
-                     'addInfo', 'bTag', 'bTracking', 'bConfig']
+                     'addInfo', 'bTag', 'bTracking', 'bConfig', 'topo']
         for tr in to_remove: 
             try:
                 del d[tr]
@@ -148,10 +152,7 @@ def _make_chaindef(from_central, instantiator):
     # combine the alg_lists and the start sequence trigger element name
     # to produce a list if sequences
 
-    # the start te will either by  '' for a full scan, or dereived
-    # from the L1 seed chain name.
-    start_te = _make_start_te(chain_name=chain_name,
-                              chain_config=chain_config)
+    start_te = _make_start_te(chain_config=chain_config)
 
     sequences = _make_sequences(alg_lists,
                                 start_te,
@@ -190,7 +191,7 @@ def _is_full_scan(chain_config):
     return chain_config.menu_data.scan_type == 'FS'
 
 
-def _make_start_te(chain_name, chain_config):
+def _make_start_te(chain_config):
 
     if _is_full_scan(chain_config):
         return ''  # the te_in name for a full scan is ''

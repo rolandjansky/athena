@@ -20,8 +20,6 @@ class TriggerConfigL1Topo:
             TriggerFlags.triggerMenuSetup = menuName
         self.menuName = TriggerFlags.triggerMenuSetup()
 
-        print self.menuName
-        
         self.inputFile     = inputFile
         self.outputFile    = outputFile
         

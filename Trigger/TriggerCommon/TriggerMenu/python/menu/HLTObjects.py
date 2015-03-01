@@ -318,7 +318,7 @@ class HLTChain:
 
 
 #         ## remove the CPS group from the EF chain    
-#         if self.chain_name.startswith("EF_"):
+#         if self.chain_name.startwith("EF_"):
 #             for g in self.groups:
 #                 if "CPS" in g:
 #                     self.groups.remove(g)
@@ -345,7 +345,7 @@ class HLTChain:
 # HLT Sequence
 #
 class HLTSequence:
-    def __init__(self, inputTEs, algos, outputTE, topo_starts_from=None):
+    def __init__(self, inputTEs, algos, outputTE, topo_start_from=None):
         """HLT Steering Sequence class constructor
         inputTEs argument is a one or list of names TEs for the sequence,
         if empty string is passed then sequence is considered as UNSEEDED
@@ -372,7 +372,7 @@ class HLTSequence:
                 self.algInstances.append(alg)
 
         self.output = outputTE
-        self.topo_starts_from = topo_starts_from
+        self.topo_start_from = topo_start_from
 
         self.__used = None
 
@@ -402,8 +402,8 @@ class HLTSequence:
         #print "output", self.output
         xSequence.setAttribute('algorithm', reduce(lambda x,y: x+' '+y, self.algs))
         #print "algorithm", reduce(lambda x,y: x+' '+y, self.algs)
-        if self.topo_starts_from!= None:
-            xSequence.setAttribute('topo_start_from', self.topo_starts_from)  
+        if self.topo_start_from!= None:
+            xSequence.setAttribute('topo_start_from', self.topo_start_from)  
         xlist.appendChild(xSequence)
 
     def dot(self, algs=True):

@@ -36,26 +36,43 @@ class DictFromChainName(object):
         m_stream = chainInfo[3]
         m_groups = chainInfo[4]
         m_EBstep = chainInfo[5]
-        if len(chainInfo) > 6:
-            m_mergingStrategy = chainInfo[6][0]
-            if not (m_mergingStrategy == "parallel" or m_mergingStrategy == "serial"):
-                logDict.error("Merging strategy %s is not known." % m_mergingStrategy)
-            m_mergingOffset = chainInfo[6][1]
-            m_mergingOrder = chainInfo[6][2]
+
 
         logDict.info("Analysing chain with name: "+ m_chainName)
-
         chainProp = self.analyseShortName(m_chainName,  m_L1items_chainParts)
         logDict.debug('ChainProperties: '+ str(chainProp))
 
         chainProp['stream'] = m_stream
         chainProp['EBstep'] = m_EBstep
         chainProp['groups'] = m_groups
-        if len(chainInfo) > 6:
-            chainProp['mergingStrategy'] = m_mergingStrategy
-            chainProp['mergingOffset'] = m_mergingOffset
-            chainProp['mergingOrder'] = m_mergingOrder
 
+        # for additional options: mergingStrategy and topoStartFrom
+        if len(chainInfo) > 6:
+            for i in xrange(6, len(chainInfo)):
+                mergingInfoFilled = False
+                tsfInfoFilled = False
+                if (type(chainInfo[i]) is list):
+                    if mergingInfoFilled == False:
+                        m_mergingStrategy = chainInfo[i][0]
+                        if not (m_mergingStrategy == "parallel" or m_mergingStrategy == "serial"):
+                            logDict.error("Merging strategy %s is not known." % m_mergingStrategy)
+                        m_mergingOffset = chainInfo[i][1]
+                        m_mergingOrder = chainInfo[i][2]
+                        
+                        chainProp['mergingStrategy'] = m_mergingStrategy
+                        chainProp['mergingOffset'] = m_mergingOffset
+                        chainProp['mergingOrder'] = m_mergingOrder
+                        mergingInfoFilled = True
+                    else: logDict.error("Something went wrong here....topoStartFrom has already been filled!")                  
+
+                elif (type(chainInfo[i]) is bool):
+                    if tsfInfoFilled == False: 
+                        chainProp['topoStartFrom'] = chainInfo[i]
+                        tsfInfoFilled = True
+                    else: logDict.error("Something went wrong here....topoStartFrom has already been filled!")                  
+                else: logDict.error('Input format not recognised for chainInfo[%s]' % str(chainInfo[i]))
+                
+        # setting the L1 item
         if (chainProp['L1item']== ''): 
             chainProp['L1item'] = m_L1item
 
@@ -108,7 +125,6 @@ class DictFromChainName(object):
 
         # ---- specific chain part information ----
         allChainProperties=[]
-        #logDict.debug("ChainName: ", str(chainName))
         cparts = chainName.split("_") 
 
            
@@ -116,9 +132,8 @@ class DictFromChainName(object):
         from SignatureDicts import AllowedTopos
         topo = '';topos=[];toposIndexed={}; topoindex = -5
         for cindex, cpart in enumerate(cparts):
-            #if ('-' in cpart) | (':' in cpart) or cpart in AllowedTopos:
             if  cpart in AllowedTopos:
-                logDict.debug('"- or : or %s" is in this part of the name %s -> topo alg' % (str(AllowedTopos), str(cpart)))
+                logDict.debug('" %s" is in this part of the name %s -> topo alg' % (str(AllowedTopos), str(cpart)))
                 topo = cpart
                 topoindex = cindex
                 toposIndexed.update({topo : topoindex})
@@ -233,9 +248,8 @@ class DictFromChainName(object):
                 logDict.debug(str(signatureNames))
                 mdicts.append(m_groupdict)
 
-
             elif cpart=='eb': 
-                logDict.debug('Doing EnhancedBias')
+                logDict.debug('EnhancedBias chain')
                 multichainindex.append(chainName.index(cpart)) 
                 m_groupdict = {'signature': 'EnhancedBias', 'threshold': '', 'multiplicity': '', 
                                'trigType': 'eb', 'extra': ''}
@@ -249,10 +263,7 @@ class DictFromChainName(object):
         multichainparts=[]
 
         remainder = chainName
-        #print "MEOW remainder", remainder
-        #print "MEOW multichainindex", multichainindex
         multichainindex = sorted(multichainindex, key=int)
-        #print "MEOW multichainindex", multichainindex
         cN = chainName
         for i in reversed(multichainindex):
             if i!=0:
@@ -392,7 +403,7 @@ class DictFromChainName(object):
                 if len(part.split())>0:
                     raise RuntimeError("These parts of the chain name %s are not understood %r" % (origpart,part))
 
-            
+
             # ---- remove properties that aren't allowed in the chain properties for a given siganture ----
             forbiddenProperties = set(chainProperties.keys()) - set(allowedSignaturePropertiesAndValues.keys())
             logDict.debug(str(set(chainProperties.keys()))) 
@@ -403,7 +414,7 @@ class DictFromChainName(object):
                     raise RuntimeError("Property %s not allowed for signature '%s', but specified '%s'" % (fb, chainProperties['signature'], forbiddenValue))
 
 
-
+                
             # ---- the info of the general and the specific chain parts dict ----
             allChainProperties.append(chainProperties)
 

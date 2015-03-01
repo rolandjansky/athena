@@ -34,6 +34,7 @@ from TrigHLTJetRec.TrigHLTJetRecConfig import (TrigHLTJetDiagnostics_named,
                                                TrigHLTCellDiagnostics_named,
                                                TrigHLTHypoDiagnostics_named,
                                                TrigHLTJetRec_param,
+                                               # TrigHLTJetDebug,
                                                TrigHLTEnergyDensity,
                                                TrigHLTJetDSSelector,)
 
@@ -63,7 +64,15 @@ class Instantiator(object):
         """__call__ takes the string returned by alg.asString for
         an object alg, and evals it to return an Athena Algorithm instance"""
 
-        s = a.asString()  # convert alg to a string to be eval'd
+        try:
+            s = a.asString()  # convert alg to a string to be eval'd
+        except Exception, e:
+            m = '%s() call to asString failed for object %s\n%s ' % (err_hdr,
+                                                                     str(s),
+                                                                     str(e))
+            raise RuntimeError(m)
+
+
         alg = self.cache.get(s)
         if alg:
             return alg

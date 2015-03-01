@@ -14,7 +14,7 @@ class Sequence(object):
     complexity of determing the appropriate ATLAS environment variables,failing
     imports, and time to instantiate the python objects."""
 
-    def __init__(self, te_in, alg_list, te_out):
+    def __init__(self, te_in, alg_list, alias, te_out):
         self.te_in = te_in  # input trigger elenment name
 
         # list of Algorithms objects. The may be proxies (which
@@ -22,6 +22,7 @@ class Sequence(object):
         # or the python configuration object itself.
         self.alg_list = alg_list
         self.te_out = te_out    # output trigger elenment name
+        self.alias = alias  # for debugging
 
         # flag signalling whether Algorithm proxies have been
         # converted to an ATLAS python configuration object.

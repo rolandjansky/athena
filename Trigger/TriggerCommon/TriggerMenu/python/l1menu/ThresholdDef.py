@@ -31,6 +31,17 @@ class ThresholdDef:
             tc.registerThr('EM%i' % thrV, 'EM').addThrValue(thrV)
 
 
+        # for beam splashes:
+        #ThresholdValue.setDefaults('EM', {'etamin' : 16,'etamax' : 20, 'phimin' : 0,'phimax' : 64, 'isobits' : '00000', 'use_relIso' : True })
+        tc.registerThr('EM20A', 'EM').addThrValue(255, priority=1)\
+            .addThrValue(20,16,20,priority=2)
+        
+        #ThresholdValue.setDefaults('EM', {'etamin' : -20,'etamax' : -16, 'phimin' : 0,'phimax' : 64, 'isobits' : '00000', 'use_relIso' : True })
+        tc.registerThr('EM20C', 'EM').addThrValue(255, priority=1)\
+            .addThrValue(20,-20,-16,priority=2)
+
+
+
         # variable thresholds (V)
         # hadronic isolation (H) had_isolation=1GeV
         # em isolation (I)
@@ -93,17 +104,19 @@ class ThresholdDef:
                         .addThrValue(21, -20, -16, priority=2).addThrValue(21, 16, 20, priority=2)
 
 
-
-        # (V)HI section
-
-        ThresholdValue.setDefaults('EM', {'isobits' : '01000', 'use_relIso' : True })
-
-        tc.registerThr( 'EM22VHLIL', type='EM').addThrValue(24, priority=1)\
+        tc.registerThr( 'EM22VHI', type='EM').addThrValue(24, priority=1)\
                         .addThrValue(23, -12, -8, priority=2).addThrValue(23, 8, 12, priority=2)\
                         .addThrValue(22, -16, -12, priority=2).addThrValue(22, 12, 16, priority=2)\
                         .addThrValue(23, -20, -16, priority=2).addThrValue(23, 16, 20, priority=2)
 
-        tc.registerThr( 'EM3HLIL', type='EM').addThrValue(3, priority=1)\
+        tc.registerThr( 'EM3HI', type='EM').addThrValue(3, priority=1)\
+
+
+        #ThresholdValue.setDefaults('EM', {'etamin' : 16,'etamax' : 20, 'phimin' : 0,'phimax' : 64, 'isobits' : '00000', 'use_relIso' : True })
+        #tc.registerThr('EM20A', 'EM').addThrValue(20)
+        #ThresholdValue.setDefaults('EM', {'etamin' : -20,'etamax' : -16, 'phimin' : 0,'phimax' : 64, 'isobits' : '00000', 'use_relIso' : True })
+        #tc.registerThr('EM20C', 'EM').addThrValue(20)
+
 
 
 
@@ -165,6 +178,12 @@ class ThresholdDef:
             tc.registerThr('JB%i' % thrV, 'JET').addThrValue(JetOff).addThrValue( thrV, etamin=-49, etamax=-32, priority=1)
 
 
+        # Beam Splashes
+        for thrV in [75]:
+            tc.registerThr('J%iA' % thrV, 'JET').addThrValue(JetOff).addThrValue( thrV, etamin = 16,  etamax = 24, priority=1)
+            tc.registerThr('J%iC' % thrV, 'JET').addThrValue(JetOff).addThrValue( thrV, etamin = -24,  etamax = 16, priority=1)          
+        
+
         # Central jet
         for (thrV, etamax) in [(15,24), (17,22), (20,28), (25,23), ]:
             tc.registerThr('J%i.0ETA%i'  % (thrV, etamax), 'JET').addThrValue(JetOff).addThrValue( thrV, etamin = -etamax,  etamax = etamax, priority=1)  
@@ -193,7 +212,7 @@ class ThresholdDef:
         tc.registerThr('ZB_EM12', 'ZB', seed='EM12',seed_ttype = 'EM',  seed_multi=1, bcdelay=3564)
         tc.registerThr('ZB_EM15', 'ZB', seed='EM15',seed_ttype = 'EM',  seed_multi=1, bcdelay=3564)
         tc.registerThr('ZB_J10',  'ZB', seed='J10', seed_ttype = 'JET', seed_multi=1, bcdelay=3564)
-        tc.registerThr('ZB_J20',  'ZB', seed='J20', seed_ttype = 'JET', seed_multi=1, bcdelay=3564)
+#        tc.registerThr('ZB_J20',  'ZB', seed='J20', seed_ttype = 'JET', seed_multi=1, bcdelay=3564)
         tc.registerThr('ZB_J75',  'ZB', seed='J75', seed_ttype = 'JET', seed_multi=1, bcdelay=3564)
 
         # JE
@@ -204,26 +223,31 @@ class ThresholdDef:
         for thrV in [100, 140, 200, 300, 350, 500]:
             tc.registerThr('JE%i' % thrV, 'JE').addThrValue(thrV)
 
-
-
+        
         # TE
-        for thrV in [5, 10, 20, 30, 40, 50, 60, 2000, 4000]:
+        for thrV in [0,5, 10, 20, 30, 40, 50, 60, 2000, 4000]:
             tc.registerThr('TE%i' % thrV, 'TE').addThrValue(thrV)
-
-        for (thrV, etamax) in [(30,24),]:
-            tc.registerThr('TE%i.0ETA%i' % (thrV, etamax), 'TE').addThrValue(thrV).addThrValue( thrV, etamin = -etamax, etamax = etamax, priority=1)
 
         # XE
         for thrV in [35, 40, 45, 50, 55, 60, 70, 80]:
             tc.registerThr('XE%i' % thrV, 'XE').addThrValue(thrV)
 
         # XS
-        for thrV in [25, 30, 35, 40, 45, 50, 55, 60, 65]:
+        for thrV in [20, 25, 30, 35, 40, 45, 50, 55, 60, 65]:
             tc.registerThr('XS%i' % thrV, 'XS').addThrValue(thrV)
 
-
+        for (thrV, etamax) in [(30,24),]: 
+            tc.registerThr('TE%i.0ETA%i' % (thrV, etamax), 'TE').addThrValue(thrV).addThrValue( thrV, etamin = -etamax, etamax = etamax, priority=1) 
+                
+        ##RESTRICTED ETA THRESHOLD FOR TE and XE HAVE TO USE THE SAME ETA RANGE. Only possible for thesholds 8-15
+        #ThresholdValue.setDefaults('TE', {'etamin' : -24,'etamax' : 24, 'priority': 1})
+        #
+        #for  thrV in [(30),]:
+        #    tc.registerThr('TE%i.0ETA24' % (thrV), 'TE').addThrValue(thrV)
+            
+            
         # CALREQ
-
+            
         for i in range(3):
             tc.registerThr('CAL%i' % i, 'CALREQ', mapping=i).addThrValue(40)
 
@@ -296,10 +320,13 @@ class ThresholdDef:
         #tc.registerThr('NIMDIR26', 'NIM', mapping=35).addThrValue(40)
 
 
-        # ALFA NIMS will not exist in run 2        
+        # ALFA NIMS will not exist in run 2
+        LUToffset = 4 # this is needed because the first 4 direct inputs are in a LUT with 8 PITs so the OR with the next inputs would not work
+        ODoffset = 12 # next LUT
         for i, alfa in enumerate( ['B7R1L', 'B7R1U', 'A7R1L', 'A7R1U', 'A7L1L', 'A7L1U', 'B7L1L', 'B7L1U'] ):
-            tc.registerThr('ALFA_%s'    % alfa, 'ALFA', mapping=i)
-            tc.registerThr('ALFA_%s_OD' % alfa, 'ALFA', mapping=33+i)
+            phaseOffset = 32 * (i%2)
+            tc.registerThr('ALFA_%s'    % alfa, 'ALFA', mapping = LUToffset + i/2 + phaseOffset )
+            tc.registerThr('ALFA_%s_OD' % alfa, 'ALFA', mapping = LUToffset + i/2 + phaseOffset + ODoffset )
 
         # Muon NIMS for Barrel and Endcap
         

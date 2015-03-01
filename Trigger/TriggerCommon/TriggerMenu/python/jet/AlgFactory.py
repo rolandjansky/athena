@@ -70,6 +70,10 @@ class Alg(object):
 
         self.manual_attrs = manual_attrs
 
+        # set from JobSequencesBuilder when knowm
+        self.hypo_sequence_alias = None  
+
+
     def getName(self):
         return self.factory
 
@@ -92,6 +96,11 @@ class Alg(object):
         return s
 
 
+def _get_energy_density_radius():
+    """Provide a common source for the energy density akt radius"""
+    return 0.4
+
+
 class AlgFactory(object):
     def __init__(self, chain_config):
         
@@ -99,6 +108,16 @@ class AlgFactory(object):
         self.chain_config = chain_config
         self.menu_data = chain_config.menu_data
         self.cluster_params = self.menu_data.cluster_params
+        
+        # cluster_calib is a string that will be used to label
+        # the PseudoJetGetter which is used by the offline software.
+        # The name of the PSG will be '%sTopo' % cluster_calib.
+        # The possible names are in JetContainerInfo.h (maybe in the JetOnput
+        # enum?). And thus limited to a finite set of values. "LC" and "EM"
+        # are strings in this set.
+
+        self.cluster_calib = "'LC'" if self.cluster_params.do_lc else "'EM'"
+
         self.fex_params = self.menu_data.fex_params
         self.recluster_params = self.menu_data.recluster_params
         self.hypo_params = self.menu_data.hypo_params
@@ -115,8 +134,6 @@ class AlgFactory(object):
 
         merge_param_str = str(self.fex_params.merge_param).zfill(2)
     
-        cluster_calib = "'LC'" if self.cluster_params.do_lc else "'EM'"
-
         # assign a name which identifies the fex sequence and
         # the python class to be instantiated.
         name = "'TrigHLTJetRec_param_%s'" % (self.fex_params.fex_label)
@@ -125,7 +142,7 @@ class AlgFactory(object):
             'name': name,
             'merge_param': "'%s'" % merge_param_str,
             'jet_calib': "'%s'" % self.fex_params.jet_calib,
-            'cluster_calib': cluster_calib,
+            'cluster_calib': self.cluster_calib,
             'output_collection_label': "'%s'" % (
             self.fex_params.fex_label)
         }
@@ -138,8 +155,6 @@ class AlgFactory(object):
 
         merge_param_str = str(self.fex_params.merge_param).zfill(2)
     
-        cluster_calib = "'LC'" if self.cluster_params.do_lc else "'EM'"
-
         factory = 'TrigHLTJetRecFromCluster'
         # add factory to instance label to facliltate log file searches
         name = '"%s_%s"' %(factory, self.fex_params.fex_label)
@@ -148,7 +163,7 @@ class AlgFactory(object):
             'name': name,  # instance label
             'merge_param': "'%s'" % merge_param_str,
             'jet_calib': "'%s'" % self.fex_params.jet_calib,
-            'cluster_calib': cluster_calib,
+            'cluster_calib': self.cluster_calib,
             'output_collection_label': "'%s'" % (
             self.fex_params.fex_label)
         }
@@ -162,8 +177,6 @@ class AlgFactory(object):
 
         merge_param_str = str(self.recluster_params.merge_param).zfill(2)
     
-        cluster_calib = "'LC'" if self.cluster_params.do_lc else "'EM'"
-
         factory = 'TrigHLTJetRecFromJet'
         # add factory to instance label to facliltate log file searches
         name = '"%s_%s"' %(factory, self.recluster_params.fex_label)
@@ -172,7 +185,7 @@ class AlgFactory(object):
             'name': name,  # instance label
             'merge_param': "'%s'" % merge_param_str,
             'jet_calib': "'%s'" % self.recluster_params.jet_calib,
-            'cluster_calib': cluster_calib,
+            'cluster_calib': self.cluster_calib,
             'output_collection_label': "'%s'" % (
                 self.recluster_params.fex_label),
             # ptMinCut and etaMaxCut are cuts applied to the
@@ -223,7 +236,7 @@ class AlgFactory(object):
 
     def jr_hypo_multi(self):
         """
-        Skype discussion RC/P Sherwood
+        Skype discussion R Goncalo/P Sherwood
         [21/01/15, 18:44:50] Ricardo Goncalo:
         hypo parameters: ET, eta min, eta max
 
@@ -242,11 +255,12 @@ class AlgFactory(object):
         assert mult > 1
         mult = str(mult)
         
-        ja = self.hypo_params.jet_attributes[0]
+        # ja = self.hypo_params.jet_attributes[0]
+        ja = self.hypo_params.jet_attributes_tostring()
 
         name_extension = '_'.join([str(e) for  e in
-                                   (mult + 'j' + str(int(ja.threshold)),
-                                    ja.eta_range,
+                                   (ja,
+                                    # ja.eta_range,
                                     self.fex_params.fex_alg_name,
                                     self.fex_params.data_type,
                                     self.cluster_params.cluster_calib,
@@ -324,36 +338,52 @@ class AlgFactory(object):
         
     def roiDiagnostics(self):
         factory = 'TrigHLTRoIDiagnostics'
-        return [Alg(factory, (), {})]
+        return [Alg(factory, (), {'name': "'TrigHLTRoIDiagnostics_'"})]
 
     def jetRecDiagnostics(self):
-        chain_name = self.chain_config.chain_name.replace('.', '_')
         factory = 'TrigHLTJetDiagnostics_named'
-        kwds = {'name': "'TrigHLTJetDiagnostics_%s'" % chain_name,
-                'chain_name': "'%s'" % chain_name}
+        # the instance name will be completed by with the name of rthe
+        # sequence being monitored at the time the sequences are built
+        # see SequenceTree.py. The same applies to 'chain_name',
+        # which is a misnomer - it is really a histogram file label.
+        kwds = {'name': "'TrigHLTJetDiagnostics_'",
+                'chain_name': "''"}
         return [Alg(factory, (), kwds)]
 
     def jetHypoDiagnostics(self):
-        chain_name = self.chain_config.chain_name.replace('.', '_')
+        # label the output histograms with the hain name for hypo diagnostics
+        
         factory = 'TrigHLTHypoDiagnostics_named'
-        kwds = {'name': "'TrigHLTHypoDiagnostics_%s'" % chain_name,
-                'chain_name': "'%s'" % chain_name}
+        # chain_name = self.chain_config.chain_name.replace('.', '_')
+        # kwds = {'name': '"TrigHLTHypoDiagnostics_%s"' % chain_name,
+        #        'chain_name': '"%s"' % chain_name}
+        kwds = {
+            'name': '"TrigHLTHypoDiagnostics_%s"' % self.hypo_sequence_alias,
+            'chain_name': '"%s"' % self.hypo_sequence_alias}
+
         return [Alg(factory, (), kwds)]
 
 
     def clusterDiagnostics(self):
-        chain_name = self.chain_config.chain_name.replace('.', '_')
+        # the instance name will be completed by with the name of rthe
+        # sequence being monitored at the time the sequences are built
+        # see SequenceTree.py. The same applies to 'chain_name',
+        # which is a misnomer - it is really a histogram file label.
         factory = 'TrigHLTClusterDiagnostics_named'
-        kwds = {'name': "'TrigHLTClusterDiagnostics_%s'" % chain_name,
-                'chain_name': "'%s'" % chain_name}
+        kwds = {'name': "'TrigHLTClusterDiagnostics_'",
+                'chain_name': "''"}
         return [Alg(factory, (), kwds)]
 
 
     def cellDiagnostics(self):
-        chain_name = self.chain_config.chain_name.replace('.', '_')
+        # the instance name will be completed by with the name of rthe
+        # sequence being monitored at the time the sequences are built
+        # see SequenceTree.py. The same applies to 'chain_name',
+        # which is a misnomer - it is really a histogram file label.
+        factory = 'TrigHLTClusterDiagnostics_named'
         factory = 'TrigHLTCellDiagnostics_named'
-        kwds = {'name': "'TrigHLTCellDiagnostics_%s'" % chain_name,
-                'chain_name': "'%s'" % chain_name}
+        kwds = {'name': '"TrigHLTCellDiagnostics_"',
+                'chain_name': '""'}
         return [Alg(factory, (), kwds)]
 
 
@@ -361,20 +391,9 @@ class AlgFactory(object):
 
         factory = 'TrigHLTEnergyDensity'
 
-        # cluster_calib is a string that will be used to label
-        # the PseudoJetGetter which is used by the offline software.
-        # The name of the PSG will be '%sTopo' % cluster_calib.
-        # The possible names are in JetContainerInfo.h (maybe in the JetOnput
-        # enum?). And thus limited to a finite set of values. "LC" and "EM"
-        # are strings in this set.
-
-        cluster_calib = {
-            True: "'LC'",
-            False: "'EM'"}.get(self.cluster_params.do_lc)
-
         # assign a name which identifies the fex sequence and
         # the python class to be instantiated.
-        ed_merge_param = 0.4
+        ed_merge_param = _get_energy_density_radius()
 
 
         name = '"%s_%s%s"' % (
@@ -387,7 +406,7 @@ class AlgFactory(object):
         # so hard wire it here (to be fixed). This is not the fex
         # merge param!
         kwds = {'name':  name,
-                'cluster_calib': cluster_calib,
+                'cluster_calib': self.cluster_calib,
                 'ed_merge_param': ed_merge_param
             }
     
