@@ -86,6 +86,7 @@ class TriggerConfigGetter(Configured):
 
     def setConfigSvcConnParams(self,connectionParameters):
         sl = []
+        if hasattr(svcMgr,'L1TopoConfigSvc'): sl += [svcMgr.L1TopoConfigSvc]
         if hasattr(svcMgr,'LVL1ConfigSvc'): sl += [svcMgr.LVL1ConfigSvc]
         if hasattr(svcMgr,'HLTConfigSvc'): sl += [svcMgr.HLTConfigSvc]
 
@@ -96,8 +97,8 @@ class TriggerConfigGetter(Configured):
                 svc.DBUser = ""
         else:
             technology = connectionParameters["techno"]
-            svcMgr.LVL1ConfigSvc.ConfigSource = technology
-            svcMgr.HLTConfigSvc.ConfigSource  = technology
+            for svc in sl:
+                svc.ConfigSource = technology
 
             if technology == 'sqlite':
                 for svc in sl:
@@ -111,6 +112,9 @@ class TriggerConfigGetter(Configured):
                     svc.DBUser    = connectionParameters["user"  ]
                     svc.DBPass    = connectionParameters["passwd"]
 
+        if hasattr(svcMgr,'L1TopoConfigSvc'):
+            svcMgr.L1TopoConfigSvc.DBSMKey     = TriggerFlags.triggerDbKeys()[0]
+            svcMgr.L1TopoConfigSvc.UseFrontier = TriggerFlags.triggerUseFrontier()
         if hasattr(svcMgr,'LVL1ConfigSvc'):
             svcMgr.LVL1ConfigSvc.DBSMKey     = TriggerFlags.triggerDbKeys()[0]
             svcMgr.LVL1ConfigSvc.DBLVL1PSKey = TriggerFlags.triggerDbKeys()[1]

@@ -57,6 +57,14 @@ class T0TriggerGetter(Configured):
         from TrigConfigSvc.TrigConf2COOL import theConfCOOLWriter
         theConfCOOLWriter.writeConf2COOL()
 
+        # preconfigure TrigDecisionTool
+        from TrigDecisionTool.TrigDecisionToolConf import Trig__TrigDecisionTool
+        from AthenaCommon.AppMgr import ToolSvc
+        ToolSvc += Trig__TrigDecisionTool( "TrigDecisionTool" )
+	
+        from TrigEDMConfig.TriggerEDM import EDMLibraries
+        ToolSvc.TrigDecisionTool.Navigation.Dlls = [e for e in  EDMLibraries if 'TPCnv' not in e]
+
         if withLVL1():
             # setup Lvl1
             # initialize LVL1ConfigSvc
