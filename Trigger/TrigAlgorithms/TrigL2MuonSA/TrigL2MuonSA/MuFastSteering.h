@@ -25,6 +25,7 @@
 #include "GaudiKernel/IIncidentListener.h"
 
 #include "xAODTrigMuon/L2StandAloneMuonContainer.h"
+#include "xAODTrigger/TrigCompositeAuxContainer.h"
 #include "xAODTrigger/TrigCompositeContainer.h"
 
 using namespace TrigL2MuonSA;
@@ -76,6 +77,9 @@ class MuFastSteering : public HLT::FexAlgo,
   // handler for "UpdateAfterFork" actions
   void handle(const Incident& incident);
   
+  using HLT::FexAlgo::prepareRobRequests;
+  virtual HLT::ErrorCode prepareRobRequests(const HLT::TriggerElement* inputTE );
+
  protected:
   
   /**
@@ -107,6 +111,8 @@ class MuFastSteering : public HLT::FexAlgo,
   /** A service handle to StoreGate */
   ServiceHandle<StoreGateSvc> m_storeGate;
   
+  IRegSelSvc*        m_regionSelector;
+
   /** Timers */
   ITrigTimerSvc* m_timerSvc;
   std::vector<TrigTimer*> m_timers;
@@ -150,6 +156,10 @@ class MuFastSteering : public HLT::FexAlgo,
   BooleanProperty  m_use_new_segmentfit;
   BooleanProperty  m_use_rpc;
   BooleanProperty  m_use_mdtcsm;
+  BooleanProperty  m_use_RoIBasedDataAccess_MDT;
+  BooleanProperty  m_use_RoIBasedDataAccess_RPC;
+  BooleanProperty  m_use_RoIBasedDataAccess_TGC;
+  BooleanProperty  m_use_RoIBasedDataAccess_CSC;
   BooleanProperty  m_doCalStream;
   BooleanProperty  m_calDataScouting;
   
@@ -194,6 +204,7 @@ class MuFastSteering : public HLT::FexAlgo,
   StringProperty  m_calBufferName;
   int m_calBufferSize;
   xAOD::TrigCompositeContainer* m_trigCompositeContainer;
+  xAOD::TrigCompositeAuxContainer m_trigCompositeAuxContainer;
  
 };
 

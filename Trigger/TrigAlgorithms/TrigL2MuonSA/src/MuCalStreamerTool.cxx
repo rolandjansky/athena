@@ -89,6 +89,8 @@ StatusCode TrigL2MuonSA::MuCalStreamerTool::initialize()
    // initialize the local vector buffer
    m_localBuffer = new std::vector<int>();
 
+   m_localBufferSize = 0;
+
    return StatusCode::SUCCESS; 
 
 }
@@ -177,6 +179,17 @@ StatusCode TrigL2MuonSA::MuCalStreamerTool::closeStream()
   }
 
   return StatusCode::SUCCESS;
+}
+
+
+// --------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------
+
+void TrigL2MuonSA::MuCalStreamerTool::clearLocalBuffer()
+{
+  m_localBuffer->clear();
+  m_localBufferSize = 0;
+  return;
 }
 
 // --------------------------------------------------------------------------------
@@ -369,7 +382,7 @@ StatusCode TrigL2MuonSA::MuCalStreamerTool::createMdtFragment(TrigL2MuonSA::MdtH
 //
 // prepare the Rpc fragment of the stream
 //
-StatusCode TrigL2MuonSA::MuCalStreamerTool::createRpcFragment(LVL2_MUON_CALIBRATION::RpcCalibFragment& rpcFragment)
+StatusCode TrigL2MuonSA::MuCalStreamerTool::createRpcFragment(LVL2_MUON_CALIBRATION::RpcCalibFragment& /*rpcFragment*/)
 {
 
   /*  
@@ -507,5 +520,4 @@ StatusCode TrigL2MuonSA::MuCalStreamerTool::createRpcFragment(LVL2_MUON_CALIBRAT
 //   
 //   return StatusCode::SUCCESS;
 //}
-
 

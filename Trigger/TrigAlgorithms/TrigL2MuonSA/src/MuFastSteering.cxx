@@ -29,6 +29,7 @@
 MuFastSteering::MuFastSteering(const std::string& name, ISvcLocator* svc) 
   : HLT::FexAlgo(name, svc), 
     m_storeGate("StoreGateSvc", this->name()), 
+    m_regionSelector(0),
     m_dataPreparator("TrigL2MuonSA::MuFastDataPreparator"),
     m_patternFinder("TrigL2MuonSA::MuFastPatternFinder"),
     m_stationFitter("TrigL2MuonSA::MuFastStationFitter"),
@@ -73,6 +74,10 @@ MuFastSteering::MuFastSteering(const std::string& name, ISvcLocator* svc)
 
   declareProperty("USE_RPC", m_use_rpc = true);
   declareProperty("USE_MDTCSM", m_use_mdtcsm = true);
+  declareProperty("USE_ROIBASEDACCESS_MDT", m_use_RoIBasedDataAccess_MDT = true);
+  declareProperty("USE_ROIBASEDACCESS_TGC", m_use_RoIBasedDataAccess_TGC = false);
+  declareProperty("USE_ROIBASEDACCESS_RPC", m_use_RoIBasedDataAccess_RPC = true);
+  declareProperty("USE_ROIBASEDACCESS_CSC", m_use_RoIBasedDataAccess_CSC = false);
 
   declareProperty("USE_NEW_SEGMENTFIT", m_use_new_segmentfit = true);
 
@@ -112,7 +117,7 @@ MuFastSteering::~MuFastSteering() {
 
 HLT::ErrorCode MuFastSteering::hltInitialize()
 {
-  msg() << MSG::DEBUG << "Initializing MuFastSteering - package version " << PACKAGE_VERSION << endreq ;
+  msg() << MSG::INFO << "Initializing MuFastSteering - package version " << PACKAGE_VERSION << endreq ;
   
   if (m_storeGate.retrieve().isFailure()) {
     msg() << MSG::ERROR << "Cannot retrieve service StoreGateSvc" << endreq;
@@ -138,6 +143,14 @@ HLT::ErrorCode MuFastSteering::hltInitialize()
       m_timers.push_back(m_timerSvc->addItem(name()+":TotalProcessing"));
     }
   }
+
+  // Locate RegionSelector
+  sc = service("RegSelSvc", m_regionSelector);
+  if( sc.isFailure() ) {
+    msg() << MSG::ERROR << "Could not retrieve the regionselector service" << endreq;
+    return HLT::ERROR;
+  }
+  msg() << MSG::DEBUG << "Retrieved the RegionSelector service " << endreq;
 
   // 
   if (m_dataPreparator.retrieve().isFailure()) {
@@ -215,7 +228,7 @@ HLT::ErrorCode MuFastSteering::hltInitialize()
   } else {
     IService* svc = dynamic_cast<IService*>(m_jobOptionsSvc);
     if(svc != 0 ) {
-      msg() << MSG::INFO << " Algorithm = " << name() << " is connected to JobOptionsSvc Service = "
+      msg() << MSG::DEBUG << " Algorithm = " << name() << " is connected to JobOptionsSvc Service = "
 	  << svc->name() << endreq;
     }  
   }
@@ -234,12 +247,14 @@ HLT::ErrorCode MuFastSteering::hltInitialize()
     m_calStreamer->setBufferName(m_calBufferName);
     m_calStreamer->setBufferSize(m_calBufferSize);
     m_calStreamer->setDoDataScouting(m_calDataScouting);
-    msg() << MSG::INFO << "Initialized the Muon Calibration Streamer. Buffer name: " << m_calBufferName 
+    msg() << MSG::DEBUG << "Initialized the Muon Calibration Streamer. Buffer name: " << m_calBufferName 
 	  << ", buffer size: " << m_calBufferSize 
 	  << " doDataScouting: "  << m_calDataScouting << endreq;
     
     // create the TrigCompositeContainer to store the calibration buffer
     m_trigCompositeContainer = new xAOD::TrigCompositeContainer();
+    m_trigCompositeContainer->setStore(&m_trigCompositeAuxContainer);
+
 
     ServiceHandle<IIncidentSvc> p_incidentSvc("IncidentSvc",name());
     sc =  p_incidentSvc.retrieve();
@@ -556,8 +571,16 @@ HLT::ErrorCode MuFastSteering::hltExecute(const HLT::TriggerElement* inputTE,
       if ( m_calDataScouting ) {
 	
 	if ( updateTriggerElement ) {
+	  
+	  msg() << MSG::DEBUG << "Updating the trigger element" << endreq;
+	  msg() << MSG::DEBUG << ">> Retrieved the buffer, with size: " 
+		<< m_calStreamer->getLocalBufferSize() << endreq;
+
 	  xAOD::TrigComposite* tc = new xAOD::TrigComposite();
+	  m_trigCompositeContainer->push_back(tc);
 	  tc->setDetail("MuonCalStream", *(m_calStreamer->getLocalBuffer()) );
+
+	  m_calStreamer->clearLocalBuffer();
 
 	} 
 	
@@ -636,6 +659,8 @@ bool MuFastSteering::updateOutputTE(HLT::TriggerElement*                     out
   int inner  = 0;
   int middle = 1;
   int outer  = 2;
+  int ee     = 6;
+  int barrelinner = 0;
 
   std::string muonCollKey = "MuonL2SAInfo";
   
@@ -653,6 +678,8 @@ bool MuFastSteering::updateOutputTE(HLT::TriggerElement*                     out
       inner  = xAOD::L2MuonParameters::Chamber::EndcapInner;
       middle = xAOD::L2MuonParameters::Chamber::EndcapMiddle;
       outer  = xAOD::L2MuonParameters::Chamber::EndcapOuter;
+      ee     = xAOD::L2MuonParameters::Chamber::EndcapExtra;
+      barrelinner     = xAOD::L2MuonParameters::Chamber::BarrelInner;
     } else {
       inner  = xAOD::L2MuonParameters::Chamber::BarrelInner;
       middle = xAOD::L2MuonParameters::Chamber::BarrelMiddle;
@@ -662,6 +689,10 @@ bool MuFastSteering::updateOutputTE(HLT::TriggerElement*                     out
     msg() << MSG::DEBUG << "pattern#0: # of hits at inner  =" << pattern.mdtSegments[inner].size() << endreq;
     msg() << MSG::DEBUG << "pattern#0: # of hits at middle =" << pattern.mdtSegments[middle].size() << endreq;
     msg() << MSG::DEBUG << "pattern#0: # of hits at outer  =" << pattern.mdtSegments[outer].size() << endreq;
+    if (pattern.s_address==-1){
+      msg() << MSG::DEBUG << "pattern#0: # of hits at ee  =" << pattern.mdtSegments[ee].size() << endreq;
+      msg() << MSG::DEBUG << "pattern#0: # of hits at endcap barrel inner  =" << pattern.mdtSegments[barrelinner].size() << endreq;
+    }
     msg() << MSG::DEBUG << "pt=" << pattern.pt << endreq;
 
     // ---------
@@ -724,6 +755,12 @@ bool MuFastSteering::updateOutputTE(HLT::TriggerElement*                     out
                           pattern.superPoints[middle].Alin, pattern.superPoints[middle].Blin, pattern.superPoints[middle].Chi2);
     muonSA->setSuperPoint(outer, pattern.superPoints[outer].R, pattern.superPoints[outer].Z,
                           pattern.superPoints[outer].Alin, pattern.superPoints[outer].Blin, pattern.superPoints[outer].Chi2);
+    if (pattern.s_address==-1){
+      muonSA->setSuperPoint(ee, pattern.superPoints[ee].R, pattern.superPoints[ee].Z,
+                            pattern.superPoints[ee].Alin, pattern.superPoints[ee].Blin, pattern.superPoints[ee].Chi2);
+      muonSA->setSuperPoint(barrelinner, pattern.superPoints[barrelinner].R, pattern.superPoints[barrelinner].Z,
+                            pattern.superPoints[barrelinner].Alin, pattern.superPoints[barrelinner].Blin, pattern.superPoints[barrelinner].Chi2);
+    }
 
     ///////////////////////////////
     // Below are detailed information
@@ -1323,9 +1360,9 @@ StatusCode MuFastSteering::updateMonitor(const LVL1::RecMuonRoI*                
 void MuFastSteering::handle(const Incident& incident) {
   
   if (incident.type()!="UpdateAfterFork") return;
-  msg() << MSG::INFO << "+-----------------------------------+" << endreq;
-  msg() << MSG::INFO << "| handle for UpdateAfterFork called |" << endreq;
-  msg() << MSG::INFO << "+-----------------------------------+" << endreq;
+  msg() << MSG::DEBUG << "+-----------------------------------+" << endreq;
+  msg() << MSG::DEBUG << "| handle for UpdateAfterFork called |" << endreq;
+  msg() << MSG::DEBUG << "+-----------------------------------+" << endreq;
   
   // Find the Worker ID and create an individual muon buffer name for each worker
   StringProperty worker_id;
@@ -1335,15 +1372,15 @@ void MuFastSteering::handle(const Incident& incident) {
   worker_id = std::string("");
   const std::vector<const Property*>* dataFlowProps = m_jobOptionsSvc->getProperties("DataFlowConfig");
   if ( dataFlowProps ) {
-    msg() << MSG::INFO << " Properties available for 'DataFlowConfig': number = " << dataFlowProps->size() << endreq;
-    msg() << MSG::INFO << " --------------------------------------------------- " << endreq;
+    msg() << MSG::DEBUG << " Properties available for 'DataFlowConfig': number = " << dataFlowProps->size() << endreq;
+    msg() << MSG::DEBUG << " --------------------------------------------------- " << endreq;
     for ( std::vector<const Property*>::const_iterator cur = dataFlowProps->begin();
 	  cur != dataFlowProps->end(); cur++) {
-      msg() << MSG::INFO << (*cur)->name() << " = " << (*cur)->toString() << endreq;
+      msg() << MSG::DEBUG << (*cur)->name() << " = " << (*cur)->toString() << endreq;
       // the application name is found
       if ( (*cur)->name() == "DF_WorkerId" ) {
 	if (worker_id.assign(**cur)) {
-	  msg() << MSG::INFO << " ---> got worker ID = " << worker_id.value() << endreq;
+	  msg() << MSG::DEBUG << " ---> got worker ID = " << worker_id.value() << endreq;
 	  worker_name = worker_id.value() ;
 	} else {
 	  msg() << MSG::WARNING << " ---> set property failed." << endreq;
@@ -1352,18 +1389,18 @@ void MuFastSteering::handle(const Incident& incident) {
     }
     
     if ( worker_id.value() == "" ) {
-      msg() << MSG::INFO << " Property for DF_WorkerId not found." << endreq;
+      msg() << MSG::DEBUG << " Property for DF_WorkerId not found." << endreq;
     }
   } else {
-    msg() << MSG::INFO << " No Properties for 'DataFlowConfig' found." << endreq;
+    msg() << MSG::DEBUG << " No Properties for 'DataFlowConfig' found." << endreq;
   }
 
-  msg() << MSG::INFO << " MuonCalBufferSize     = " << m_calBufferSize << endreq;
-  msg() << MSG::INFO << "=================================================" << endreq;
+  msg() << MSG::DEBUG << " MuonCalBufferSize     = " << m_calBufferSize << endreq;
+  msg() << MSG::DEBUG << "=================================================" << endreq;
   
   // release JobOptionsSvc
   unsigned long mjcounter = m_jobOptionsSvc->release();
-  msg() << MSG::INFO << " --> Release JobOptionsSvc Service, Counter = " << mjcounter << endreq;
+  msg() << MSG::DEBUG << " --> Release JobOptionsSvc Service, Counter = " << mjcounter << endreq;
 
   
   //
@@ -1379,4 +1416,96 @@ void MuFastSteering::handle(const Incident& incident) {
     }
   }
 
+}
+
+
+// --------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------
+
+HLT::ErrorCode MuFastSteering::prepareRobRequests(const HLT::TriggerElement* inputTE){
+
+  msg() << MSG::DEBUG << "prepareRobRequests called" << endreq;
+  
+  HLT::RobRequestInfo* RRInfo = config()->robRequestInfo();
+
+  if (!RRInfo) {
+    msg() << MSG::ERROR << "Null pointer to RobRequestInfo" << endreq;
+    return HLT::ERROR;
+  }
+  
+  std::vector<uint32_t> MdtRobList;
+  std::vector<uint32_t> RpcRobList;
+  std::vector<uint32_t> TgcRobList;
+  std::vector<uint32_t> CscRobList;
+  
+  std::vector<const TrigRoiDescriptor*> roids;
+  HLT::ErrorCode hec = getFeatures(inputTE, roids);
+  if (hec != HLT::OK) {
+    return hec;
+  }
+  
+  // RoI base data access
+  for (unsigned int i=0; i < roids.size(); i++) {
+    
+    const IRoiDescriptor* iroi = (IRoiDescriptor*) roids[i];
+
+    if ( m_use_RoIBasedDataAccess_MDT) {
+      MdtRobList.clear();
+      if ( iroi ) m_regionSelector->DetROBIDListUint(MDT, *iroi, MdtRobList);
+      RRInfo->addRequestScheduledRobIDs(MdtRobList);
+      msg() << MSG::DEBUG << "prepareRobRequests, find " << MdtRobList.size() << " Mdt Rob's," << endreq;
+    }
+
+    if ( m_use_RoIBasedDataAccess_RPC) {
+      RpcRobList.clear();
+      if ( iroi ) m_regionSelector->DetROBIDListUint(RPC, *iroi, RpcRobList);
+      RRInfo->addRequestScheduledRobIDs(RpcRobList);
+      msg() << MSG::DEBUG << "prepareRobRequests, find " << RpcRobList.size() << " Rpc Rob's," << endreq;
+    }
+
+    if ( m_use_RoIBasedDataAccess_TGC) {
+      TgcRobList.clear();
+      if ( iroi ) m_regionSelector->DetROBIDListUint(TGC, *iroi, TgcRobList);
+      RRInfo->addRequestScheduledRobIDs(TgcRobList);
+      msg() << MSG::DEBUG << "prepareRobRequests, find " << TgcRobList.size() << " Tgc Rob's," << endreq;
+    }
+
+    if ( m_use_RoIBasedDataAccess_CSC) {
+      CscRobList.clear();
+      if ( iroi ) m_regionSelector->DetROBIDListUint(CSC, *iroi, CscRobList);
+      RRInfo->addRequestScheduledRobIDs(CscRobList);
+      msg() << MSG::DEBUG << "prepareRobRequests, find " << CscRobList.size() << " Csc Rob's," << endreq;
+    }
+  }
+  
+  // Full data access
+  if ( !m_use_RoIBasedDataAccess_MDT ) {
+    MdtRobList.clear();
+    m_regionSelector->DetROBIDListUint(MDT, MdtRobList);
+    RRInfo->addRequestScheduledRobIDs(MdtRobList);
+    msg() << MSG::DEBUG << "prepareRobRequests, find " << MdtRobList.size() << " Mdt Rob's," << endreq;
+  }
+
+  if ( !m_use_RoIBasedDataAccess_RPC ) {
+    RpcRobList.clear();
+    m_regionSelector->DetROBIDListUint(RPC, RpcRobList);
+    RRInfo->addRequestScheduledRobIDs(RpcRobList);
+    msg() << MSG::DEBUG << "prepareRobRequests, find " << RpcRobList.size() << " Rpc Rob's," << endreq;
+  }
+
+  if ( !m_use_RoIBasedDataAccess_TGC ) {
+    TgcRobList.clear();
+    m_regionSelector->DetROBIDListUint(TGC, TgcRobList);
+    RRInfo->addRequestScheduledRobIDs(TgcRobList);
+    msg() << MSG::DEBUG << "prepareRobRequests, find " << TgcRobList.size() << " Tgc Rob's," << endreq;
+  }
+
+  if ( !m_use_RoIBasedDataAccess_CSC ) {
+    CscRobList.clear();
+    m_regionSelector->DetROBIDListUint(CSC, CscRobList);
+    RRInfo->addRequestScheduledRobIDs(CscRobList);
+    msg() << MSG::DEBUG << "prepareRobRequests, find " << CscRobList.size() << " Csc Rob's," << endreq;
+  }
+  
+  return HLT::OK;
 }

@@ -489,9 +489,28 @@ bool TrigL2MuonSA::MdtDataPreparator::decodeMdtCsm(const MdtCsm* csm,
 
    //     std::cout << "NOW using the new cabling " << std::endl;
    MuonMDT_CablingMap* cablingMap = m_mdtCabling->getCablingMap();
+   if (!cablingMap) {
+     msg() << MSG::DEBUG << "Null pointer to MuonMDT_CablingMap" << endreq;
+     return true;
+   }
+
    MdtSubdetectorMap* subdetectorMap = cablingMap->getSubdetectorMap(SubsystemId);
+   if (!subdetectorMap) {
+     msg() << MSG::DEBUG << "Null pointer to MdtSubdetectorMap" << endreq;
+     return true;
+   }
+
    MdtRODMap* rodMap = subdetectorMap->getRODMap(MrodId);
+   if (!rodMap) {
+     msg() << MSG::DEBUG << "Null pointer to MdtRODMap" << endreq;
+     return true;
+   }
+
    MdtCsmMap* csmMap = rodMap->getCsmMap(LinkId);
+   if (!csmMap) {
+     msg() << MSG::DEBUG << "Null pointer to MdtCsmMap" << endreq;
+     return true;
+   }
    
    MdtCsm::const_iterator amt = csm->begin();
    while(amt != csm->end()) {

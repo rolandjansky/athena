@@ -71,10 +71,17 @@ namespace TrigL2MuonSA {
     void setBufferName(std::string buffName) {m_calBufferName=buffName;}
     void setBufferSize(int buffSize) {m_calBufferSize=buffSize;}
 
+    void setMaxLocalBufferSize(int size) {m_maxLocalBufferSize=size;}
+
     bool doDataScouting() {return m_doDataScouting;} 
     void setDoDataScouting(bool doDataScouting) {m_doDataScouting = doDataScouting;}
 
     std::vector<int>* getLocalBuffer()   {return m_localBuffer;}
+    int getLocalBufferSize() {return m_localBuffer->size();}
+    void clearLocalBuffer();
+
+    // access methods
+    int maxLocalBufferSize() { return m_maxLocalBufferSize; }
 
     //
     // initialize the stream

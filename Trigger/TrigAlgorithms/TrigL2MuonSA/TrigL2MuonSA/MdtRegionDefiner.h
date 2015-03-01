@@ -71,8 +71,7 @@ namespace TrigL2MuonSA {
 			  float& etaMin, float& etaMax);
     void find_phi_min_max(float phiMiddle, float& phiMin, float& phiMax);
         
-    void find_station_sector(std::string name, int phi, bool& endcap, int& chamber, int& sector);   
-
+    void find_station_sector(std::string name, int phi, int sectorID, bool& endcap, int& chamber, int& sector);   
 
     StatusCode computePhi(const LVL1::RecMuonRoI*    p_roi,
 			  const TrigL2MuonSA::RpcFitResult& rpcFitResult,
@@ -98,9 +97,6 @@ namespace TrigL2MuonSA {
     TrigL2MuonSA::TgcFit::PointArray m_tgcWireMidPoints;   // List of TGC wire middle station points.
     TrigL2MuonSA::TgcFit::PointArray m_tgcStripInnPoints;  // List of TGC strip inner station points.
     TrigL2MuonSA::TgcFit::PointArray m_tgcWireInnPoints;   // List of TGC wire inner station points.
-
-    
-
 
   };
   
