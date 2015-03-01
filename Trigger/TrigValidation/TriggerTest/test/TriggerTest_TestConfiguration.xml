@@ -697,11 +697,11 @@
                 </doc>
                 <jobTransformJobName>Valgrind_MC_pp_v5</jobTransformJobName>
                 <jobTransformCmd>
-                    pkgco.py -A PyUtils ; cp /afs/cern.ch/user/c/czodrows/public/patch/Tools/PyUtils/python/Dso.py Tools/PyUtils/python ; (cd Tools/PyUtils/cmt;make -j24) ; get_files newSuppressions.supp; get_files oracleDB.supp; get_files root.supp; get_files valgrindRTT.supp; get_files Gaudi.supp; get_files valgrind-python.supp ; valgrind --suppressions=$ROOTSYS/etc/valgrind-root.supp --track-origins=yes --trace-children=yes --suppressions=newSuppressions.supp --suppressions=oracleDB.supp --suppressions=root.supp --suppressions=valgrindRTT.supp --suppressions=Gaudi.supp --suppressions=valgrind-python.supp --error-limit=no --leak-check=yes --num-callers=30 `which athena.py` --stdcmalloc -c 'RunningRTT=TRUE;menu="MC_pp_v5";jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(5);jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;dsName="/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/valid1.117050.PowhegPythia_P2011C_ttbar.merge.HITS.e2658_s1967_s1964";fileRange=[32,32]' TriggerTest/testAthenaTrigRDO.py &gt; valgrind.log 2&gt;&amp;1
+                    cp $ROOTSYS/etc/valgrind-root.supp ./ ; get_files newSuppressions.supp; get_files oracleDB.supp; get_files root.supp; get_files valgrindRTT.supp; get_files Gaudi.supp; get_files valgrind-python.supp ; valgrind --suppressions=valgrind-root.supp --track-origins=yes --trace-children=yes --suppressions=newSuppressions.supp --suppressions=oracleDB.supp --suppressions=root.supp --suppressions=valgrindRTT.supp --suppressions=Gaudi.supp --suppressions=valgrind-python.supp --suppressions=/afs/cern.ch/user/k/krasznaa/public/valgrind/pythonJobO.supp --suppressions=/afs/cern.ch/user/k/krasznaa/public/valgrind/reflexPyROOT.supp --error-limit=no --leak-check=yes --num-callers=30 `which athena.py` --stdcmalloc -c 'RunningRTT=TRUE;menu="MC_pp_v5";jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(5);jp.Rec.doDetailedPerfMon.set_Value_and_Lock( False ) ; jp.Rec.doSemiDetailedPerfMon.set_Value_and_Lock( False ); from PerfMonComps.PerfMonFlags import jobproperties ; jobproperties.PerfMonFlags.doMonitoring.set_Value_and_Lock( False );jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;dsName="/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/valid1.117050.PowhegPythia_P2011C_ttbar.merge.HITS.e2658_s1967_s1964";fileRange=[32,32]' TriggerTest/testAthenaTrigRDO.py 2&gt;&amp;1 | tee valgrind.log ;  sed -e '/    definitely lost: / { N; d; }' valgrind.log > Valgrind_test_log_1 ; cp /afs/cern.ch/user/c/czodrows/public/ValgrindAnalysisScript_TriggerTest.py ./ ; python ValgrindAnalysisScript_TriggerTest.py
                 </jobTransformCmd>
                 <group>TriggerTestMonitorHistos</group>
                 <queue>long</queue>
-                <test position="10">
+                <!--test position="10">
                     <modulename>ValGrindPostScript_TriggerTest</modulename>
                     <testname>ValGrindPostScript_TriggerTest</testname>
                     <arg>
@@ -711,19 +711,15 @@
                     <noalarm />
                 </test>
                 <test position="11">
-                    <modulename>ValgrindAnalysisScript</modulename>
-                    <testname>ValgrindAnalysisScript</testname>
+                    <modulename>ValgrindAnalysisScript_TriggerTest</modulename>
+                    <testname>ValgrindAnalysisScript_TriggerTest</testname>
                     <testdoc>Create a shortened Valgrind log file</testdoc>
                     <arg>
                         <argname>command</argname>
-                        <argvalue>python ValgrindAnalysisScript.py</argvalue>
+                        <argvalue>python ValgrindAnalysisScript_TriggerTest.py</argvalue>
                     </arg>
                     <noalarm />
-                </test> 
-                <!--testToRemove>
-                 <jobGroupName>TriggerTestMonitorHistos</jobGroupName>
-                 <testidentifier>TruncateLog_TriggerTest</testidentifier>
-                 </testToRemove-->
+                </test-->
                 <testToRemove>
                     <jobGroupName>RTT:Athena</jobGroupName>
                     <testidentifier>Athena_FileGrepper</testidentifier>
@@ -732,6 +728,7 @@
                     <jobGroupName>TriggerTestMonitorHistos</jobGroupName>
                     <testidentifier>PerfMonRunner</testidentifier>
                 </testToRemove>
+                <alwaysRunPostProc />
             </jobTransform>
             
             <jobTransform userJobId="Valgrind_Physics_pp_v5" >
@@ -740,11 +737,11 @@
                 </doc>
                 <jobTransformJobName>Valgrind_Physics_pp_v5</jobTransformJobName>
                 <jobTransformCmd>
-                    pkgco.py -A PyUtils ; cp /afs/cern.ch/user/c/czodrows/public/patch/Tools/PyUtils/python/Dso.py Tools/PyUtils/python ; (cd Tools/PyUtils/cmt;make -j24) ; get_files newSuppressions.supp; get_files oracleDB.supp; get_files root.supp; get_files valgrindRTT.supp; get_files Gaudi.supp; get_files valgrind-python.supp ; valgrind --suppressions=$ROOTSYS/etc/valgrind-root.supp --track-origins=yes --trace-children=yes --suppressions=newSuppressions.supp --suppressions=oracleDB.supp --suppressions=root.supp --suppressions=valgrindRTT.supp --suppressions=Gaudi.supp --suppressions=valgrind-python.supp --error-limit=no --leak-check=yes --num-callers=30 `which athena.py` --stdcmalloc -c 'RunningRTT=TRUE;menu="Physics_pp_v5";jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(5);jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;dsName="/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/valid1.117050.PowhegPythia_P2011C_ttbar.merge.HITS.e2658_s1967_s1964";fileRange=[32,32]' TriggerTest/testAthenaTrigRDO.py &gt; valgrind.log 2&gt;&amp;1
+                    cp $ROOTSYS/etc/valgrind-root.supp ./ ; get_files newSuppressions.supp; get_files oracleDB.supp; get_files root.supp; get_files valgrindRTT.supp; get_files Gaudi.supp; get_files valgrind-python.supp ; valgrind --suppressions=valgrind-root.supp --track-origins=yes --trace-children=yes --suppressions=newSuppressions.supp --suppressions=oracleDB.supp --suppressions=root.supp --suppressions=valgrindRTT.supp --suppressions=Gaudi.supp --suppressions=valgrind-python.supp --suppressions=/afs/cern.ch/user/k/krasznaa/public/valgrind/pythonJobO.supp --suppressions=/afs/cern.ch/user/k/krasznaa/public/valgrind/reflexPyROOT.supp --error-limit=no --leak-check=yes --num-callers=30 `which athena.py` --stdcmalloc -c 'RunningRTT=TRUE;menu="Physics_pp_v5";jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(5);jp.Rec.doDetailedPerfMon.set_Value_and_Lock( False ) ; jp.Rec.doSemiDetailedPerfMon.set_Value_and_Lock( False ); from PerfMonComps.PerfMonFlags import jobproperties ; jobproperties.PerfMonFlags.doMonitoring.set_Value_and_Lock( False ) ; jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;dsName="/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/valid1.117050.PowhegPythia_P2011C_ttbar.merge.HITS.e2658_s1967_s1964";fileRange=[32,32]' TriggerTest/testAthenaTrigRDO.py 2&gt;&amp;1 | tee valgrind.log ;  sed -e '/    definitely lost: / { N; d; }' valgrind.log > Valgrind_test_log_1 ; cp /afs/cern.ch/user/c/czodrows/public/ValgrindAnalysisScript_TriggerTest.py ./ ; python ValgrindAnalysisScript_TriggerTest.py
                 </jobTransformCmd>
                 <group>TriggerTestMonitorHistos</group>
                 <queue>long</queue>
-                <test position="10">
+                <!--test position="10">
                     <modulename>ValGrindPostScript_TriggerTest</modulename>
                     <testname>ValGrindPostScript_TriggerTest</testname>
                     <arg>
@@ -754,15 +751,15 @@
                     <noalarm />
                 </test>
                 <test position="11">
-                    <modulename>ValgrindAnalysisScript</modulename>
-                    <testname>ValgrindAnalysisScript</testname>
+                    <modulename>ValgrindAnalysisScript_TriggerTest</modulename>
+                    <testname>ValgrindAnalysisScript_TriggerTest</testname>
                     <testdoc>Create a shortened Valgrind log file</testdoc>
                     <arg>
                         <argname>command</argname>
-                        <argvalue>python ValgrindAnalysisScript.py</argvalue>
+                        <argvalue>python ValgrindAnalysisScript_TriggerTest.py</argvalue>
                     </arg>
                     <noalarm />
-                </test> 
+                </test--> 
                 <testToRemove>
                     <jobGroupName>RTT:Athena</jobGroupName>
                     <testidentifier>Athena_FileGrepper</testidentifier>
@@ -771,6 +768,7 @@
                     <jobGroupName>TriggerTestMonitorHistos</jobGroupName>
                     <testidentifier>PerfMonRunner</testidentifier>
                 </testToRemove>
+                <alwaysRunPostProc />
             </jobTransform>
             
             <jobTransform userJobId="Valgrind_MC_pp_v5_tight_mc_prescale" >
@@ -779,11 +777,11 @@
                 </doc>
                 <jobTransformJobName>Valgrind_MC_pp_v5_tight_mc_prescale</jobTransformJobName>
                 <jobTransformCmd>
-                    pkgco.py -A PyUtils ; cp /afs/cern.ch/user/c/czodrows/public/patch/Tools/PyUtils/python/Dso.py Tools/PyUtils/python ; (cd Tools/PyUtils/cmt;make -j24) ; get_files newSuppressions.supp; get_files oracleDB.supp; get_files root.supp; get_files valgrindRTT.supp; get_files Gaudi.supp; get_files valgrind-python.supp ; valgrind --suppressions=$ROOTSYS/etc/valgrind-root.supp --track-origins=yes --trace-children=yes --suppressions=newSuppressions.supp --suppressions=oracleDB.supp --suppressions=root.supp --suppressions=valgrindRTT.supp --suppressions=Gaudi.supp --suppressions=valgrind-python.supp --error-limit=no --leak-check=yes --num-callers=30 `which athena.py` --stdcmalloc -c 'RunningRTT=TRUE;menu="MC_pp_v5_tight_mc_prescale";jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(5);jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;dsName="/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/valid1.117050.PowhegPythia_P2011C_ttbar.merge.HITS.e2658_s1967_s1964";fileRange=[32,32]' TriggerTest/testAthenaTrigRDO.py &gt; valgrind.log 2&gt;&amp;1
+                    cp $ROOTSYS/etc/valgrind-root.supp ./ ; get_files newSuppressions.supp; get_files oracleDB.supp; get_files root.supp; get_files valgrindRTT.supp; get_files Gaudi.supp; get_files valgrind-python.supp ; valgrind --suppressions=valgrind-root.supp --track-origins=yes --trace-children=yes --suppressions=newSuppressions.supp --suppressions=oracleDB.supp --suppressions=root.supp --suppressions=valgrindRTT.supp --suppressions=Gaudi.supp --suppressions=valgrind-python.supp --suppressions=/afs/cern.ch/user/k/krasznaa/public/valgrind/pythonJobO.supp --suppressions=/afs/cern.ch/user/k/krasznaa/public/valgrind/reflexPyROOT.supp --error-limit=no --leak-check=yes --num-callers=30 `which athena.py` --stdcmalloc -c 'RunningRTT=TRUE;menu="MC_pp_v5_tight_mc_prescale";jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(5);jp.Rec.doDetailedPerfMon.set_Value_and_Lock( False ) ; jp.Rec.doSemiDetailedPerfMon.set_Value_and_Lock( False ); from PerfMonComps.PerfMonFlags import jobproperties ; jobproperties.PerfMonFlags.doMonitoring.set_Value_and_Lock( False ) ; jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;dsName="/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/valid1.117050.PowhegPythia_P2011C_ttbar.merge.HITS.e2658_s1967_s1964";fileRange=[32,32]' TriggerTest/testAthenaTrigRDO.py 2&gt;&amp;1 | tee valgrind.log ;  sed -e '/    definitely lost: / { N; d; }' valgrind.log > Valgrind_test_log_1 ; cp /afs/cern.ch/user/c/czodrows/public/ValgrindAnalysisScript_TriggerTest.py ./ ; python ValgrindAnalysisScript_TriggerTest.py
                 </jobTransformCmd>
                 <group>TriggerTestMonitorHistos</group>
                 <queue>long</queue>
-                <test position="10">
+                <!--test position="10">
                     <modulename>ValGrindPostScript_TriggerTest</modulename>
                     <testname>ValGrindPostScript_TriggerTest</testname>
                     <arg>
@@ -793,19 +791,15 @@
                     <noalarm />
                 </test>
                 <test position="11">
-                    <modulename>ValgrindAnalysisScript</modulename>
-                    <testname>ValgrindAnalysisScript</testname>
+                    <modulename>ValgrindAnalysisScript_TriggerTest</modulename>
+                    <testname>ValgrindAnalysisScript_TriggerTest</testname>
                     <testdoc>Create a shortened Valgrind log file</testdoc>
                     <arg>
                         <argname>command</argname>
-                        <argvalue>python ValgrindAnalysisScript.py</argvalue>
+                        <argvalue>python ValgrindAnalysisScript_TriggerTest.py</argvalue>
                     </arg>
                     <noalarm />
-                </test>   
-                <!--testToRemove>
-                 <jobGroupName>TriggerTestMonitorHistos</jobGroupName>
-                 <testidentifier>TruncateLog_TriggerTest</testidentifier>
-                 </testToRemove-->
+                </test-->
                 <testToRemove>
                     <jobGroupName>RTT:Athena</jobGroupName>
                     <testidentifier>Athena_FileGrepper</testidentifier>
@@ -814,8 +808,8 @@
                     <jobGroupName>TriggerTestMonitorHistos</jobGroupName>
                     <testidentifier>PerfMonRunner</testidentifier>
                 </testToRemove>
+                <alwaysRunPostProc />
             </jobTransform>
-            
             
             <jobTransform userJobId="LeakCheck_default" >
                 <doc>
@@ -847,7 +841,7 @@
                 </doc>
                 <jobTransformJobName>LeakCheck_default_igprof</jobTransformJobName>
                 <jobTransformCmd>
-                    pkgco.py -A PyUtils ; cp /afs/cern.ch/user/c/czodrows/public/patch/Tools/PyUtils/python/Dso.py Tools/PyUtils/python ; (cd Tools/PyUtils/cmt;make -j24) ; export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/afs/cern.ch/atlas/offline/external/igprof/5.9.10/x86_64-slc6-gcc47-opt/lib:/afs/cern.ch/atlas/offline/external/libunwind/1.1/x86_64-slc6-gcc47-opt/lib;export PATH=${PATH}:/afs/cern.ch/atlas/offline/external/igprof/5.9.10/x86_64-slc6-gcc47-opt/bin; /afs/cern.ch/atlas/offline/external/igprof/5.9.10/x86_64-slc6-gcc47-opt/bin/igprof -d -mp -z -o igprof.mp.gz -t python athena.py --stdcmalloc -c 'checkLeak=True;testPhysicsV5=True;jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(100);jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;dsName="/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/mc12_8TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.digit.RDO.e1513_s1499_s1504_d700_tid01177880_00";fileRange=[1,20]' TriggerTest/testAthenaTrigRDO.py 
+                    export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/afs/cern.ch/atlas/offline/external/igprof/5.9.10/x86_64-slc6-gcc47-opt/lib:/afs/cern.ch/atlas/offline/external/libunwind/1.1/x86_64-slc6-gcc47-opt/lib;export PATH=${PATH}:/afs/cern.ch/atlas/offline/external/igprof/5.9.10/x86_64-slc6-gcc47-opt/bin; /afs/cern.ch/atlas/offline/external/igprof/5.9.10/x86_64-slc6-gcc47-opt/bin/igprof -d -mp -z -o igprof.mp.gz -t python athena.py --stdcmalloc -c 'checkLeak=True;testPhysicsV5=True;jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(100);jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;dsName="/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/mc12_8TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.digit.RDO.e1513_s1499_s1504_d700_tid01177880_00";fileRange=[1,20]' TriggerTest/testAthenaTrigRDO.py 
                 </jobTransformCmd>
                 <group>TriggerTestMonitorHistos</group>
                 <queue>long</queue>
@@ -861,13 +855,13 @@
                 </test>
             </jobTransform>
             
-            <jobTransform userJobId="LeakCheck_default_repeated_igprof" >
+            <!--jobTransform userJobId="LeakCheck_default_repeated_igprof" >
                 <doc>
                     Memory leak check default menu on same file 4 times
                 </doc>
                 <jobTransformJobName>LeakCheck_default_repeated_igprof</jobTransformJobName>
                 <jobTransformCmd>
-                    pkgco.py -A PyUtils ; cp /afs/cern.ch/user/c/czodrows/public/patch/Tools/PyUtils/python/Dso.py Tools/PyUtils/python ; (cd Tools/PyUtils/cmt;make -j24) ; export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/afs/cern.ch/atlas/offline/external/igprof/5.9.10/x86_64-slc6-gcc47-opt/lib:/afs/cern.ch/atlas/offline/external/libunwind/1.1/x86_64-slc6-gcc47-opt/lib;export PATH=${PATH}:/afs/cern.ch/atlas/offline/external/igprof/5.9.10/x86_64-slc6-gcc47-opt/bin; /afs/cern.ch/atlas/offline/external/igprof/5.9.10/x86_64-slc6-gcc47-opt/bin/igprof -d -mp -z -o igprof.mp.gz -t python athena.py --stdcmalloc -c 'checkLeak=True;testPhysicsV5=True;jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(50);jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;memFreeze=True;dsName="/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/mc12_8TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.digit.RDO.e1513_s1499_s1504_d700_tid01177880_00";fileRange=[1,20];repeatN=4' TriggerTest/testAthenaTrigRDO.py
+                    export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/afs/cern.ch/atlas/offline/external/igprof/5.9.10/x86_64-slc6-gcc47-opt/lib:/afs/cern.ch/atlas/offline/external/libunwind/1.1/x86_64-slc6-gcc47-opt/lib;export PATH=${PATH}:/afs/cern.ch/atlas/offline/external/igprof/5.9.10/x86_64-slc6-gcc47-opt/bin; /afs/cern.ch/atlas/offline/external/igprof/5.9.10/x86_64-slc6-gcc47-opt/bin/igprof -d -mp -z -o igprof.mp.gz -t python athena.py - -stdcmalloc -c 'checkLeak=True;testPhysicsV5=True;jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(50);jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;memFreeze=True;dsName="/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/mc12_8TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.digit.RDO.e1513_s1499_s1504_d700_tid01177880_00";fileRange=[1,20];repeatN=4' TriggerTest/testAthenaTrigRDO.py
                 </jobTransformCmd>
                 <group>TriggerTestMonitorHistos</group>
                 <queue>long</queue>
@@ -876,10 +870,10 @@
                     <testname>CreateIgprofReport_TriggerTest</testname>
                     <arg>
                         <argname>command</argname>
-                        <argvalue>export IGPROFBINDIR=/afs/cern.ch/atlas/offline/external/igprof/5.9.10/x86_64-slc6-gcc47-opt/bin/ ; mkdir -p cgi-bin/data ; cp ${IGPROFBINDIR}igprof-navigator cgi-bin ; ${IGPROFBINDIR}igprof-analyse --sqlite -d -v -g -r MEM_LIVE igprof.mp.gz | sqlite3 cgi-bin/data/igreport_live.sql3 ; ${IGPROFBINDIR}igprof-analyse --sqlite -d -v -g -r MEM_TOTAL igprof.mp.gz | sqlite3 cgi-bin/data/igreport_total.sql3</argvalue>
+                        <argvalue>export IGPROFBINDIR=/afs/cern.ch/atlas/offline/external/igprof/5.9.10/x86_64-slc6-gcc47-opt/bin/ ; mkdir -p cgi-bin/data ; cp ${IGPROFBINDIR}igprof-navigator cgi-bin ; ${IGPROFBINDIR}igprof-analyse - -sqlite -d -v -g -r MEM_LIVE igprof.mp.gz | sqlite3 cgi-bin/data/igreport_live.sql3 ; ${IGPROFBINDIR}igprof-analyse - -sqlite -d -v -g -r MEM_TOTAL igprof.mp.gz | sqlite3 cgi-bin/data/igreport_total.sql3</argvalue>
                     </arg>
                 </test>
-            </jobTransform>
+            </jobTransform-->
             
             <!--
              dsName='/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/mc12_8TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.digit.RDO.e1513_s1499_s1504_d700_tid01177880_00';fileRange=[1,20]  from AthenaCommon.GlobalFlags import jobproperties;jobproperties.Global.DetDescrVersion='ATLAS-R2-2015-01-01-00';from AthenaCommon.AthenaCommonFlags import athenaCommonFlags;import glob;athenaCommonFlags.FilesInput=glob.glob('/afs/cern.ch/user/p/physval/validafs/disk2/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e2928_s1982_s2008_r5787_tid01606245_00/*') -->
@@ -981,11 +975,11 @@
             
             <athena userJobId="MC_pp_v5_tight_mc_prescale" doMonitoring="True">
                 <doc>
-                    MC_pp_v5_tight_mc_prescale menu on ttbar RDO 
+                    MC_pp_v5_tight_mc_prescale menu on ttbar RDO only 750 events
                 </doc>
                 <displayName>MC_pp_v5_tight_mc_prescale</displayName>
                 <commandLineFlags>
-                    enableCostMonitoring=TRUE;RunningRTT=TRUE;menu='MC_pp_v5_tight_mc_prescale';jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(1000);jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;dsName='/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/valid1.117050.PowhegPythia_P2011C_ttbar.merge.HITS.e2658_s1967_s1964';fileRange=[32,32] valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e2928_s1982_s2008_r5787_tid01606245_00/*')
+                    enableCostMonitoring=TRUE;RunningRTT=TRUE;menu='MC_pp_v5_tight_mc_prescale';jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(750);jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;dsName='/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/valid1.117050.PowhegPythia_P2011C_ttbar.merge.HITS.e2658_s1967_s1964';fileRange=[32,32]
                 </commandLineFlags>
                 <options>testAthenaTrigRDO.py</options>
                 <package>Trigger/TrigValidation/TriggerTest</package>
@@ -1272,9 +1266,10 @@
                 <keepFilePattern info="igprof files"> cgi-bin/data/*.sql3</keepFilePattern>
                 <keepFilePattern info="igprof files"> cgi-bin/igprof-navigator</keepFilePattern>
                 <keepFilePattern info="TrigCostMon files"> costMonitoring*/* </keepFilePattern>
-                <keepFilePattern maxsize="90"> */TrigCostRoot_Results.root</keepFilePattern>
-                <keepFilePattern maxsize="90"> trig_cost.root</keepFilePattern>
-                <keepFilePattern maxsize="90"> costMonitoring*/* </keepFilePattern>
+                <keepFilePattern maxsize="90">*/TrigCostRoot_Results.root</keepFilePattern>
+                <keepFilePattern maxsize="90">trig_cost.root</keepFilePattern>
+                <keepFilePattern maxsize="90">costMonitoring*/*</keepFilePattern>
+                <keepFilePattern maxsize="100">*log</keepFilePattern>
                 
                 <!--binRefFile>*-monitoring.root</binRefFile-->
                 
