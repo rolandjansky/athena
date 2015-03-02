@@ -668,8 +668,8 @@ CombinedMuonTrackBuilder::combinedFit (const Trk::Track& indetTrack,
 	        std::vector<const Trk::TrackStateOnSurface*>::const_iterator it = caloTSOS->begin()+1;
 	        std::vector<const Trk::TrackStateOnSurface*>::const_iterator itEnd = caloTSOS->end();
 	        for (; it != itEnd; ++it) delete *it;
-	        delete caloTSOS; 
 	      }
+	      delete caloTSOS; 		
 	    }
 	  }
 	else
@@ -920,11 +920,12 @@ CombinedMuonTrackBuilder::combinedFit (const Trk::Track& indetTrack,
       // Don't run the outliers anymore at this stage
       if(newTrack) { 
         Trk::Track* refittedTrack = fit(*newTrack, false, Trk::muon);      
-        delete newTrack;
+	if(newTrack != combinedTrack)
+	  delete newTrack;
         if(refittedTrack && refittedTrack->fitQuality()) {
 	  delete combinedTrack;
 	  combinedTrack = refittedTrack;
-        }else {
+        }else{
 	  if(refittedTrack) delete refittedTrack;
         }
       }
@@ -1796,7 +1797,8 @@ CombinedMuonTrackBuilder::standaloneFit	(const Trk::Track&	inputSpectrometerTrac
       // Don't run the outliers anymore at this stage
       if(newTrack) { 
         Trk::Track* refittedTrack = fit(*newTrack, false, Trk::muon);      
-        delete newTrack;
+	if(newTrack != track)
+	  delete newTrack;
         if(refittedTrack && refittedTrack->fitQuality()) {
 	  delete track;
 	  track = refittedTrack;
@@ -2705,7 +2707,7 @@ Trk::Track* CombinedMuonTrackBuilder::addIDMSerrors(Trk::Track* track) const
 //
 // returns a new Track
 //   
-    if(!m_addIDMSerrors) return 0;
+    if(!m_addIDMSerrors) return track;
 
     ATH_MSG_DEBUG( " CombinedMuonTrackBuilder addIDMSerrors to track ");
     Amg::Vector3D positionMS(0,0,0);
@@ -2757,7 +2759,7 @@ Trk::Track* CombinedMuonTrackBuilder::addIDMSerrors(Trk::Track* track) const
 
    if(itsosCaloFirst<0||itsosCaloLast<0) { 
      ATH_MSG_DEBUG( " addIDMSerrors keep original track ");
-     return 0;
+     return track;
    }
 // If no Calorimeter no IDMS uncertainties have to be propagated 
    positionCaloFirst = positionCaloFirst - positionMS;
@@ -2785,11 +2787,11 @@ Trk::Track* CombinedMuonTrackBuilder::addIDMSerrors(Trk::Track* track) const
               double sigmaDeltaTheta = sqrt((scat->sigmaDeltaTheta())*(scat->sigmaDeltaTheta()) + sigmaDeltaThetaIDMS2);     
               const Trk::EnergyLoss* energyLossNew = new Trk::EnergyLoss(0.,0.,0.,0.);
               const Trk::ScatteringAngles* scatNew = new Trk::ScatteringAngles(0.,0.,sigmaDeltaPhi,sigmaDeltaTheta);
-              Trk::Surface* surfNew = (**t).trackParameters()->associatedSurface().clone();
+              const Trk::Surface& surfNew = (**t).trackParameters()->associatedSurface();
               std::bitset<Trk::MaterialEffectsBase::NumberOfMaterialEffectsTypes> meotPattern(0);
               meotPattern.set(Trk::MaterialEffectsBase::EnergyLossEffects);
               meotPattern.set(Trk::MaterialEffectsBase::ScatteringEffects);
-              const Trk::MaterialEffectsOnTrack*  meotNew = new Trk::MaterialEffectsOnTrack(X0, scatNew, energyLossNew, *surfNew, meotPattern);
+              const Trk::MaterialEffectsOnTrack*  meotNew = new Trk::MaterialEffectsOnTrack(X0, scatNew, energyLossNew, surfNew, meotPattern);
               const Trk::TrackParameters* parsNew = ((**t).trackParameters())->clone();
               std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePatternScat(0);
               typePatternScat.set(Trk::TrackStateOnSurface::Scatterer);
@@ -3133,7 +3135,7 @@ CombinedMuonTrackBuilder::createExtrapolatedTrack(
 	// failure in calo association and/or extrapolation to indet
 	if (! trackParameters || ! caloTSOS)
 	{
-	    delete trackParameters;
+	    if(trackParameters) delete trackParameters;
 	
 	    // delete spectrometer TSOS
 	    for (s = spectrometerTSOS.begin(); s != spectrometerTSOS.end(); ++s) delete *s;

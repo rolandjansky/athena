@@ -440,7 +440,8 @@ OutwardsCombinedMuonTrackBuilder::fit (const Trk::Track&		indetTrack,
        Trk::Track* newTrack = addIDMSerrors(fittedTrack);  
        if(newTrack) {
          Trk::Track* refittedTrack   = fit(*newTrack,false,Trk::muon);
-         delete newTrack;
+	 if(newTrack != fittedTrack)
+	   delete newTrack;
          if(refittedTrack) {
            if(refittedTrack->fitQuality()) {
              delete fittedTrack;
@@ -534,7 +535,7 @@ Trk::Track*  OutwardsCombinedMuonTrackBuilder::addIDMSerrors(Trk::Track* track) 
 //
 // returns a new Track
 //   
-    if(!m_addIDMSerrors) return 0;
+    if(!m_addIDMSerrors) return track;
 
     ATH_MSG_VERBOSE( " OutwardsCombinedMuonTrackBuilder addIDMSerrors to track ");
     Amg::Vector3D positionMS(0,0,0);
@@ -586,7 +587,7 @@ Trk::Track*  OutwardsCombinedMuonTrackBuilder::addIDMSerrors(Trk::Track* track) 
 
    if(itsosCaloFirst<0||itsosCaloLast<0) { 
      ATH_MSG_DEBUG( " addIDMSerrors keep original track ");
-     return 0;
+     return track;
    }
 // If no Calorimeter no IDMS uncertainties have to be propagated 
    positionCaloFirst = positionCaloFirst - positionMS;
@@ -614,11 +615,11 @@ Trk::Track*  OutwardsCombinedMuonTrackBuilder::addIDMSerrors(Trk::Track* track) 
               double sigmaDeltaTheta = sqrt((scat->sigmaDeltaTheta())*(scat->sigmaDeltaTheta()) + sigmaDeltaThetaIDMS2);     
               const Trk::EnergyLoss* energyLossNew = new Trk::EnergyLoss(0.,0.,0.,0.);
               const Trk::ScatteringAngles* scatNew = new Trk::ScatteringAngles(0.,0.,sigmaDeltaPhi,sigmaDeltaTheta);
-              Trk::Surface* surfNew = (**t).trackParameters()->associatedSurface().clone();
+              const Trk::Surface& surfNew = (**t).trackParameters()->associatedSurface();
               std::bitset<Trk::MaterialEffectsBase::NumberOfMaterialEffectsTypes> meotPattern(0);
               meotPattern.set(Trk::MaterialEffectsBase::EnergyLossEffects);
               meotPattern.set(Trk::MaterialEffectsBase::ScatteringEffects);
-              const Trk::MaterialEffectsOnTrack*  meotNew = new Trk::MaterialEffectsOnTrack(X0, scatNew, energyLossNew, *surfNew, meotPattern);
+              const Trk::MaterialEffectsOnTrack*  meotNew = new Trk::MaterialEffectsOnTrack(X0, scatNew, energyLossNew, surfNew, meotPattern);
               const Trk::TrackParameters* parsNew = ((**t).trackParameters())->clone();
               std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePatternScat(0);
               typePatternScat.set(Trk::TrackStateOnSurface::Scatterer);
