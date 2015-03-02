@@ -45,8 +45,11 @@ if not BTaggingFlags.DoNotSetupBTagging: # Temporary measure so the JetRec peopl
   #
   # ========== Load and configure everything
   #
-  from BTagging.BTaggingConfiguration import checkFlagsUsingBTaggingFlags
-  if checkFlagsUsingBTaggingFlags():
+  
+  from BTagging.BTaggingConfiguration import getConfiguration
+  ConfInstance = getConfiguration()
+
+  if ConfInstance.checkFlagsUsingBTaggingFlags():
 
     #Jet collections
     JetCollectionList = ['AntiKt4LCTopoJets', 'AntiKt10LCTopoJets', 'AntiKt4EMTopoJets', 'AntiKt4TrackJets', 'AntiKt3TrackJets']
@@ -78,7 +81,7 @@ if not BTaggingFlags.DoNotSetupBTagging: # Temporary measure so the JetRec peopl
     #include( "BTagging/BTagging_Rel19_LoadTools.py" )
 
     #from BTagging.BTaggingConf import Analysis__JetBTaggerTool as JetBTaggerTool
-    from BTagging.BTaggingConfiguration import setupJetBTaggerTool, getJetCollectionTool
+    #from BTagging.BTaggingConfiguration import setupJetBTaggerTool, getJetCollectionTool
     #### should be unique per collection
     #### replaces the jet rec JetBTaggerTool config or the BJetBuilder config in case of retagging
    
@@ -98,7 +101,7 @@ if not BTaggingFlags.DoNotSetupBTagging: # Temporary measure so the JetRec peopl
   #                                   BTagSecVertexing=myBTagSecVtx)
   #
   #          ToolSvc += btagger
-          btagger = setupJetBTaggerTool(ToolSvc, jet) #The [:-4] is not needed here; this function automatically removes trailing 'jets' or 'Jets'.
+          btagger = ConfInstance.setupJetBTaggerTool(ToolSvc, jet) #The [:-4] is not needed here; this function automatically removes trailing 'jets' or 'Jets'.
           if btagger is None:
             continue
           jet = jet.replace("Track", "PV0Track")
@@ -107,7 +110,7 @@ if not BTaggingFlags.DoNotSetupBTagging: # Temporary measure so the JetRec peopl
           jetname.JetModifiers += [ btagger ]
           jetname.lock()
           if BTaggingFlags.OutputLevel < 3:
-            print getJetCollectionTool(jet[:-4])
+            print ConfInstance.getJetCollectionTool(jet[:-4])
         except AttributeError as error:
           print '#BTAG# --> ' + str(error)
           NotInJetToolManager.append(AuthorSubString[i])

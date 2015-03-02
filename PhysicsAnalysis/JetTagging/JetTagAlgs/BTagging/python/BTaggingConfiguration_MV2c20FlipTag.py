@@ -35,6 +35,7 @@ def toolMV2c20FlipTag(name, useBTagFlagsDefaults = True, **options):
     inputIP3DSourceName                 default: "IP3DNeg"
     inputJFSourceName                   default: "JetFitterFlip"
     inputJFProbSourceName               default: "JetFitterCombNNIP3DNeg"
+    trainingConfig                      default: BTaggingFlags.MV2cTrainingConfig
 
     input:             name: The name of the tool (should be unique).
       useBTagFlagsDefaults : Whether to use BTaggingFlags defaults for options that are not specified.
@@ -53,6 +54,7 @@ def toolMV2c20FlipTag(name, useBTagFlagsDefaults = True, **options):
                      'inputIP3DSourceName'              : 'IP3DNeg',
                      'inputJFSourceName'                : 'JetFitterFlip',
                      'inputJFProbSourceName'            : 'JetFitterCombNNIP3DNeg',
+                     'trainingConfig'                   : BTaggingFlags.MV2cTrainingConfig,
                      }
         for option in defaults:
             options.setdefault(option, defaults[option])
