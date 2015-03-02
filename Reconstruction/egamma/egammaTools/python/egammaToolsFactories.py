@@ -77,6 +77,15 @@ EMAmbiguityTool = ToolFactory( egammaToolsConf.EMAmbiguityTool )
 
 EMFourMomBuilder = ToolFactory( egammaToolsConf.EMFourMomBuilder)
 
+#Extra tools for doing electron superclustering.
+if jobproperties.egammaRecFlags.doSuperclusters() :
+  egammaSuperClusterBuilder = ToolFactory( egammaToolsConf.egammaSuperClusterBuilder,
+                                           name = 'egammaSuperClusterBuilder',
+                                           InputClusterContainerName = 'EMTopoCluster430' )
+
+  egammaClusterOverlapMarker = ToolFactory( egammaToolsConf.egammaClusterOverlapMarker,
+                                            name = 'egammaClusterOverlapMarker' )
+
 # Electron Selectors
 from EMPIDBuilderBase import EMPIDBuilderElectronBase
 ElectronPIDBuilder = ToolFactory( EMPIDBuilderElectronBase, name = "ElectronPIDBuilder")

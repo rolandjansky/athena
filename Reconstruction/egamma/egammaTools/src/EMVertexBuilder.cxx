@@ -117,12 +117,12 @@ StatusCode EMVertexBuilder::contExecute()
   xAOD::TrackParticleContainer * TPCol = const_cast<xAOD::TrackParticleContainer*>(TrackParticleInputContainer);
 
   std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> vertices = m_vertexFinderTool->findVertex(TPCol);
-  if (!vertices.first || !vertices.second)
-  {
+  if (!vertices.first || !vertices.second){
     ATH_MSG_ERROR("Null pointer to conversion container");
     return StatusCode::SUCCESS;
   }
-
+  CHECK( evtStore()->record(vertices.first,  m_outputConversionContainerName) );
+  CHECK( evtStore()->record(vertices.second, m_outputConversionContainerName + "Aux.") );
 
   ATH_MSG_DEBUG("New conversion container size: " << vertices.first->size());
 
@@ -134,8 +134,7 @@ StatusCode EMVertexBuilder::contExecute()
     xAOD::Vertex& vertex = **itVtx;
     
     Amg::Vector3D momentum(0., 0., 0.);
-    for (unsigned int i = 0; i < vertex.nTrackParticles(); ++i)
-    {
+    for (unsigned int i = 0; i < vertex.nTrackParticles(); ++i){
       momentum += m_EMExtrapolationTool->getMomentumAtVertex(vertex, i);
     }
     vertex.auxdata<float>("px") = momentum.x();
@@ -178,8 +177,6 @@ StatusCode EMVertexBuilder::contExecute()
 
   ATH_MSG_DEBUG("Writing container " << m_outputConversionContainerName);
 
-  CHECK( evtStore()->record(vertices.first,  m_outputConversionContainerName) );
-  CHECK( evtStore()->record(vertices.second, m_outputConversionContainerName + "Aux.") );
   
   return StatusCode::SUCCESS;
 }

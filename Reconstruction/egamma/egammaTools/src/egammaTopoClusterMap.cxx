@@ -2,9 +2,14 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+#include "StoreGate/StoreGateSvc.h"
+
 #include "egammaTopoClusterMap.h"
-//#include "egammaUtils/EMType.h"
-#include "egammaUtils/EMConversionUtils.h"
+#include "egammaRecEvent/egammaRecContainer.h"
+
+#include "CaloUtils/CaloClusterStoreHelper.h"
+#include "xAODCaloEvent/CaloCluster.h"
+#include "xAODCaloEvent/CaloClusterKineHelper.h"
 
 bool CompareClusterET (const xAOD::CaloCluster* c1, const xAOD::CaloCluster* c2) 
 {
@@ -14,9 +19,9 @@ bool CompareClusterET (const xAOD::CaloCluster* c1, const xAOD::CaloCluster* c2)
 
 }
 
-//================================================
+//////////////////////////////////////////////////
 //Athena interfaces.
-//================================================
+//////////////////////////////////////////////////
 
 //Constructor.
 egammaTopoClusterMap::egammaTopoClusterMap(const std::string& type,
@@ -69,43 +74,79 @@ StatusCode egammaTopoClusterMap::finalize() {
   
 }
 
-//================================================
+//////////////////////////////////////////////////
 //Functional routines.
-//================================================
+//////////////////////////////////////////////////
 
 StatusCode egammaTopoClusterMap::execute(const xAOD::CaloClusterContainer *inputTopoClusterContainer) 
 
 {
 
-  ATH_MSG_INFO("egammaTopoClusterMap::Setting map with granularity dEta x dPhi = " << _dEta << " x " << _dPhi);
+  ATH_MSG_DEBUG("egammaTopoClusterMap::Setting map with granularity dEta x dPhi = " << _dEta << " x " << _dPhi);
 
   ClearMap();
 
-  SetTopoClusters(inputTopoClusterContainer);
-  ATH_MSG_INFO("Topoclusters set ");
+  CHECK(SetTopoClusters(inputTopoClusterContainer));
+  ATH_MSG_DEBUG("Topoclusters set ");
 
   //Now sort the vectors according to Et.
   SortGridVectors();
-  ATH_MSG_INFO("Vectors sorted according to Et ");
+  ATH_MSG_DEBUG("Vectors sorted according to Et ");
 
   return StatusCode::SUCCESS;
 
 }
 
-void egammaTopoClusterMap::SetTopoClusters(const xAOD::CaloClusterContainer *inputTopoClusterContainer) 
+StatusCode egammaTopoClusterMap::SetTopoClusters(const xAOD::CaloClusterContainer *inputTopoClusterContainer) 
 
 {
 
+  StoreGateSvc *m_storeGate(0);
+
+  if (service("StoreGateSvc", m_storeGate).isFailure()) {
+    ATH_MSG_ERROR("Unable to retrieve pointer to StoreGateSvc");
+    return StatusCode::FAILURE;
+  }
+
   typedef xAOD::CaloClusterContainer::const_iterator clus_iterator;
 
+  EgammaRecContainer* egammaSeedRecs = new EgammaRecContainer();
+  if (evtStore()->record(egammaSeedRecs, "TopoTrackClusterMatches").isFailure()) {
+    ATH_MSG_ERROR("Could not record TopoTrackClusterMatches");
+    return StatusCode::FAILURE;
+  }
+
+  //WANT TO MAKE AN OUTPUT CLUSTER CONTAINER HERE, TOO.
+  xAOD::CaloClusterContainer *outputClusterContainer = CaloClusterStoreHelper::makeContainer(m_storeGate, 
+  											     "skimmed430EMClusters", 
+  											     msg());
+  if (!outputClusterContainer) {
+    ATH_MSG_ERROR("Could not make skimmed cluster container! StoreGate failure ...");
+    return StatusCode::FAILURE;
+  }
+
   double eta, phi;
+  int i(-1);
 
   for(clus_iterator cciter = inputTopoClusterContainer->begin();
                     cciter != inputTopoClusterContainer->end(); 
                     ++cciter) 
   {
 
+    i++;
+
     if (GetLArThirdLayerRatio((*cciter)) > 0.1) continue;
+
+    const ElementLink< xAOD::CaloClusterContainer > clusterLink( *inputTopoClusterContainer, i );
+    const std::vector< ElementLink<xAOD::CaloClusterContainer> > elClusters {clusterLink};    
+    egammaRec *egRec = new egammaRec();
+    egRec->setCaloClusters( elClusters );
+
+    egammaSeedRecs->push_back( egRec );
+
+    //Push back cluster into skimmed container (for GSF).
+    xAOD::CaloCluster *newClus = new xAOD::CaloCluster(*(*cciter));
+    outputClusterContainer->push_back(newClus);
 
     //Retrieve eta, phi from ith topocluster.
     eta = (*cciter)->eta();
@@ -116,6 +157,10 @@ void egammaTopoClusterMap::SetTopoClusters(const xAOD::CaloClusterContainer *inp
     
 
   }
+
+  ATH_MSG_INFO("Skimmed container has: " << outputClusterContainer->size() << " clusters in it");
+
+  return StatusCode::SUCCESS;
 
 }
 
@@ -158,15 +203,15 @@ void egammaTopoClusterMap::DumpMapContents() {
 
   for (int i = 0; i <= (GetEtaPhiKeys(_maxEta, _maxPhi).first); i++)
     for (int j = 0; j <= (GetEtaPhiKeys(_maxEta, _maxPhi).second); j++) {
-      ATH_MSG_INFO("Size of topocluster vector at (" << i << "," << j << "): " << _map[i][j].size());
+      ATH_MSG_DEBUG("Size of topocluster vector at (" << i << "," << j << "): " << _map[i][j].size());
       if (_map[i][j].size()) {
-	ATH_MSG_INFO("Contents of vector:");
+	ATH_MSG_DEBUG("Contents of vector:");
 	for (unsigned int k = 0; k < _map[i][j].size(); k++) {
-	  //ATH_MSG_INFO("E: %f, eta: %f, phi: %f, Pt: %f \n",(_map[i][j])[k]->e(), (_map[i][j])[k]->eta(), (_map[i][j])[k]->phi(), (_map[i][j])[k]->pt());
-	  ATH_MSG_INFO("E: " << (_map[i][j])[k]->e()
-		    << ", eta: "     << (_map[i][j])[k]->eta()
-		    << ", phi: "     << (_map[i][j])[k]->phi()
-		    << ", Pt:  "     << (_map[i][j])[k]->pt());
+	  //ATH_MSG_DEBUG("E: %f, eta: %f, phi: %f, Pt: %f \n",(_map[i][j])[k]->e(), (_map[i][j])[k]->eta(), (_map[i][j])[k]->phi(), (_map[i][j])[k]->pt());
+	  ATH_MSG_DEBUG("E: " << (_map[i][j])[k]->e()
+			<< ", eta: "     << (_map[i][j])[k]->eta()
+			<< ", phi: "     << (_map[i][j])[k]->phi()
+			<< ", Pt:  "     << (_map[i][j])[k]->pt());
 	}
       }
     }

@@ -131,7 +131,13 @@ StatusCode EMShowerBuilder::initialize()
     ATH_MSG_FATAL(" Tool Service not found ");
     return StatusCode::FAILURE;
   } 
- 
+
+  //Retrieve shower shape Tool 
+  if (m_UseShowerShapeTool) { 
+    if ((sc = RetrieveShowerShapeTool()).isFailure()) { 
+      return sc; 
+    } 
+  }
   // 
   // call calorimeter isolation tool only if needed
   //
