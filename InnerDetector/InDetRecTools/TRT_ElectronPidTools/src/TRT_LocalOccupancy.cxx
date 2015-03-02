@@ -30,6 +30,11 @@
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
 
+
+#include "InDetReadoutGeometry/TRT_BaseElement.h"
+#include "InDetReadoutGeometry/TRT_DetectorManager.h"
+
+#include "TRT_ConditionsServices/ITRT_StrawStatusSummarySvc.h"
 // Math functions:
 #include <cmath>
 
@@ -47,7 +52,8 @@ TRT_LocalOccupancy::TRT_LocalOccupancy(const std::string& t,
   :
   AthAlgTool(t,n,p),
   m_TRTHelper(0),
-  m_TRTStrawStatusSummarySvc("TRT_StrawStatusSummarySvc", n)
+  m_TRTStrawStatusSummarySvc("TRT_StrawStatusSummarySvc", n),
+  m_trtDetMgr(0)
 {
  declareInterface<ITRT_LocalOccupancy>(this);
   //declareProperty("isData", m_DATA = true);
@@ -64,6 +70,8 @@ StatusCode TRT_LocalOccupancy::initialize()
 
 
    // The TRT helper: 
+  ATH_CHECK( detStore()->retrieve(m_trtDetMgr, "TRT"));
+   
   StatusCode sc = detStore()->retrieve(m_TRTHelper, "TRT_ID");
   if ( sc.isFailure() ) {
     msg(MSG::ERROR) << "Unable to retrieve TRT ID Helper." << endreq;
@@ -224,7 +232,9 @@ StatusCode TRT_LocalOccupancy::BeginEvent(){
 
   // count live straws
   for (std::vector<Identifier>::const_iterator it = m_TRTHelper->straw_layer_begin(); it != m_TRTHelper->straw_layer_end(); it++  ) {
-   for (int i=0; i<=m_TRTHelper->straw_max( *it); i++) {
+   const InDetDD::TRT_BaseElement *el = m_trtDetMgr->getElement(*it);
+   if( !el ) continue;
+   for (unsigned int i=0; i<el->nStraws(); i++) {
       Identifier id = m_TRTHelper->straw_id( *it, i);
       int det = m_TRTHelper->barrel_ec(		id)	;
       int lay = m_TRTHelper->layer_or_wheel(	id)	;
@@ -507,7 +517,7 @@ std::vector<float> TRT_LocalOccupancy::LocalOccupancy(const Trk::Track track ){
      if (hits_array_det<1) continue;
      float occ_det =  (m_occ_total [i])*1.e-2 ;
      if(occ_det == 0 && hits_array_det/m_stw_total[i] > 0.01){
-       ATH_MSG_WARNING("Occupancy is 0 for : " << i << " BUT THERE ARE HITS!!!: " << hits_array_det);
+       ATH_MSG_DEBUG("Occupancy is 0 for : " << i << " BUT THERE ARE HITS!!!: " << hits_array_det);
        continue;
      }	
      averageoccdc_total  += (occ_det*hits_array_det);
@@ -520,7 +530,7 @@ std::vector<float> TRT_LocalOccupancy::LocalOccupancy(const Trk::Track track ){
         if (hits_array_phi<1) continue;
         float occ_phi =  (m_occ_local [i][j])*1.e-2 ;
         if(occ_phi == 0 && hits_array_phi/m_stw_local[i][j] > 0.01){
-          ATH_MSG_WARNING("Occupancy is 0 for : " << i << " " << j << " BUT THERE ARE HITS!!!: " << hits_array_phi);
+          ATH_MSG_DEBUG("Occupancy is 0 for : " << i << " " << j << " BUT THERE ARE HITS!!!: " << hits_array_phi);
           continue;
         }	
         averageoccdc_local  += (occ_phi*hits_array_phi);
@@ -536,7 +546,7 @@ std::vector<float> TRT_LocalOccupancy::LocalOccupancy(const Trk::Track track ){
         if (hits_array_mod<1) continue;
         float occ_mod =  (m_occ_local_wheel [i][j])*1.e-2 ;
         if(occ_mod == 0 && hits_array_mod/m_stw_local_wheel[i][j] > 0.01){
-          ATH_MSG_WARNING("Occupancy is 0 for : " << i << " " << j << " BUT THERE ARE HITS!!!: " << hits_array_mod);
+          ATH_MSG_DEBUG("Occupancy is 0 for : " << i << " " << j << " BUT THERE ARE HITS!!!: " << hits_array_mod);
           continue;
         }	
         averageoccdc_mod  += (occ_mod*hits_array_mod);

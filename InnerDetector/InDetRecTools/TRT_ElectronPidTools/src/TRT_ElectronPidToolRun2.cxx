@@ -141,9 +141,13 @@ StatusCode InDet::TRT_ElectronPidToolRun2::initialize()
   else ATH_MSG_DEBUG("Retrieved tool " << m_TRTdEdxTool);
  
 
-  if ( m_LocalOccTool.retrieve().isFailure() )
+  if (m_OccupancyUsedInPID) { 
+    if ( m_LocalOccTool.retrieve().isFailure() ){
+       m_OccupancyUsedInPID=false; 
        ATH_MSG_WARNING("Failed retrieve Local Occ tool " << m_LocalOccTool);
-  else ATH_MSG_INFO("Retrieved tool " << m_LocalOccTool);
+    }
+   }
+   else ATH_MSG_INFO("Retrieved tool " << m_LocalOccTool);
 
 
   sc = m_TRTStrawSummarySvc.retrieve();
@@ -205,7 +209,7 @@ std::vector<float> InDet::TRT_ElectronPidToolRun2::electronProbability_old(const
 //  for (unsigned int i = 0; i < occ2.size() ; i++){
 //  ATH_MSG_DEBUG("Local occ2: " << i << "\t" << occ2.at(i) );
 //  }
-  std::vector<float>  occ = m_LocalOccTool->LocalOccupancy(track);
+//  std::vector<float>  occ = m_LocalOccTool->LocalOccupancy(track);
 //  for (unsigned int i = 0; i < occ.size() ; i++){
 //  ATH_MSG_DEBUG("Local occ: " << i << "\t" << occ.at(i) );
 //  }
@@ -405,7 +409,10 @@ std::vector<float> InDet::TRT_ElectronPidToolRun2::electronProbability(const Trk
 //  for (unsigned int i = 0; i < occ2.size() ; i++){
 //  ATH_MSG_DEBUG("Local occ2: " << i << "\t" << occ2.at(i) );
 //  }
-  std::vector<float>  occ = m_LocalOccTool->LocalOccupancy(track);
+  std::vector<float>  occ ; 
+  if (m_OccupancyUsedInPID) { 
+        occ = m_LocalOccTool->LocalOccupancy(track); 
+  }
 //  for (unsigned int i = 0; i < occ.size() ; i++){
 //    ATH_MSG_DEBUG("Local occ: " << i << "\t" << occ.at(i) );
 //  }
@@ -413,7 +420,7 @@ std::vector<float> InDet::TRT_ElectronPidToolRun2::electronProbability(const Trk
   //ATH_MSG_INFO("started electronProbabaility");
   //Intialize the return vector
   //m_timingProfile->chronoStart("Tool::electronProb");
- std::vector<float> PIDvalues(4);
+  std::vector<float> PIDvalues(4);
   float & prob_El_Comb      = PIDvalues[0] = 0.5;
   float & prob_El_HT        = PIDvalues[1] = 0.5;
   float & sum_ToT_by_sum_L  = PIDvalues[2] = 0.0;
@@ -542,8 +549,8 @@ std::vector<float> InDet::TRT_ElectronPidToolRun2::electronProbability(const Trk
 
     // Occupancy (0: TRT, 1: Barrel C-side, 2: EndcapA C-side, 3: EndcapB C-side, 4: Barrel A-side, 5: EndcapA A-side, 6: EndcapB A-side)
     // (...to be settled between Alex Alonso and Leigh...!!!):
-    double occB = occ.at(1);
-    double occE = occ.at(1);
+    double occB = (m_OccupancyUsedInPID ? occ.at(1) : 0 );  
+    double occE = (m_OccupancyUsedInPID ? occ.at(1) : 0 );
 
 
 
@@ -606,7 +613,7 @@ std::vector<float> InDet::TRT_ElectronPidToolRun2::electronProbability(const Trk
     }
 
     if (pHTel > 0.999 || pHTpi > 0.999 || pHTel < 0.001 || pHTpi < 0.001) {
-      ATH_MSG_WARNING("  pHT outside allowed range!  pHTel = " << pHTel << "  pHTpi = " << pHTpi << "     TrtPart: " << TrtPart << "  SL: " << SL[TrtPart] << "  ZRpos: " << ZRpos[TrtPart] << "  TWdist: " << rTrkWire << "  Occ: " << Occ[TrtPart]);
+      ATH_MSG_DEBUG("  pHT outside allowed range!  pHTel = " << pHTel << "  pHTpi = " << pHTpi << "     TrtPart: " << TrtPart << "  SL: " << SL[TrtPart] << "  ZRpos: " << ZRpos[TrtPart] << "  TWdist: " << rTrkWire << "  Occ: " << Occ[TrtPart]);
       continue;
     }
       
