@@ -61,7 +61,7 @@
 		<doc>RecoTrf with heavy ions data (express stream)</doc>
 		<jobTransformJobName>Run00193321_express_HICollisions</jobTransformJobName>
 		<jobTransformCmd>		  
-                  tct_recotrf.py --HI --jobnum=0 --AMI=q314 --nfiles=1 --maxEvents=25 --trigStream=express --runnum=00193321 --preInclude=RecJobTransforms/HeavyIonDataRecConfig.py --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00193321/physics_express --lumiblock=192 --dropDESDs
+                  tct_recotrf.py --HI --jobnum=0 --AMI=q314 --nfiles=1 --maxEvents=25 --trigStream=express --runnum=00193321 --preInclude=RecJobTransforms/HeavyIonDataRecConfig.py --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00193321/express_express --lumiblock=192 --dropDESDs
 		</jobTransformCmd> 
 		<group>TCTTransform</group>	
                 <queue>medium</queue>
@@ -1912,7 +1912,7 @@
                 <doc>RecoTrf</doc>
                 <jobTransformJobName>2014_M-week_reco</jobTransformJobName>
                 <jobTransformCmd>
-                  tct_recotrf.py --jobnum=0 --trigStream=IDCosmic --runnum=00252662 --nfiles=1 --maxEvents=100 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00252662/physics_IDCosmic/ --lumiblock=44 --autoConfiguration=everything --conditionsTag=CONDBR2-ES1PA-2014-03 --geometryVersion=ATLAS-R2-2015-02-00-00 --dropDESDs --dropDRAWs --dropNTUPs --preExec "'from CaloRec.CaloCellFlags import jobproperties;jobproperties.CaloCellFlags.doLArHVCorr=False;jobproperties.CaloCellFlags.doPileupOffsetBCIDCorr.set_Value_and_Lock(False);from InDetRecExample.InDetJobProperties import InDetFlags;InDetFlags.doInnerDetectorCommissioning.set_Value_and_Lock(True);DQMonFlags.enableLumiAccess=False;from JetRec.JetRecFlags import jetFlags;jetFlags.useTracks=False;larCondFlags.OFCShapeFolder.set_Value_and_Lock(\"\");DQMonFlags.doLVL1CaloMon=False;DQMonFlags.doCTPMon=False;'"
+                  tct_recotrf.py --jobnum=0 --trigStream=CosmicMuons --runnum=00253010 --nfiles=1 --maxEvents=200 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00253010/physics_CosmicMuons/ --lumiblock=532 --autoConfiguration=everything --conditionsTag=CONDBR2-ES1PA-2014-03 --geometryVersion=ATLAS-R2-2015-02-00-00 --dropDESDs --dropDRAWs --dropNTUPs --preExec "'from CaloRec.CaloCellFlags import jobproperties;jobproperties.CaloCellFlags.doLArHVCorr=False;jobproperties.CaloCellFlags.doPileupOffsetBCIDCorr.set_Value_and_Lock(False);from InDetRecExample.InDetJobProperties import InDetFlags;InDetFlags.doInnerDetectorCommissioning.set_Value_and_Lock(True);DQMonFlags.enableLumiAccess=False;from JetRec.JetRecFlags import jetFlags;jetFlags.useTracks=False;DQMonFlags.doLVL1CaloMon=False;DQMonFlags.doCTPMon=False;'"
                 </jobTransformCmd>
                 <group>TCTTransform</group>
                 <queue>medium</queue>
@@ -1946,7 +1946,7 @@
                 <doc>RecoTrf</doc>
                 <jobTransformJobName>2014_M-week_reco_noTrigger</jobTransformJobName>
                 <jobTransformCmd>
-                  tct_recotrf.py --jobnum=0 --trigStream=express --runnum=00242651 --nfiles=1 --maxEvents=100 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00242651/express_express --lumiblock=100 --autoConfiguration=everything --conditionsTag=CONDBR2-ES1PA-2014-01 --geometryVersion=ATLAS-R2-2015-02-00-00 --dropDESDs --dropDRAWs --dropNTUPs --preExec "'rec.doTrigger.set_Value_and_Lock(False);from CaloRec.CaloCellFlags import jobproperties;jobproperties.CaloCellFlags.doLArHVCorr=False;jobproperties.CaloCellFlags.doPileupOffsetBCIDCorr.set_Value_and_Lock(False);from InDetRecExample.InDetJobProperties import InDetFlags;InDetFlags.doInnerDetectorCommissioning.set_Value_and_Lock(True);from TrigHLTMonitoring.HLTMonFlags import HLTMonFlags;HLTMonFlags.doBphys=False;DQMonFlags.enableLumiAccess=False;from JetRec.JetRecFlags import jetFlags;jetFlags.useTracks=False;larCondFlags.OFCShapeFolder.set_Value_and_Lock(\"\");InDetFlags.ForceCoraCool=True;'"
+                  tct_recotrf.py --jobnum=0 --trigStream=CosmicMuons --runnum=00253010 --nfiles=1 --maxEvents=200 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00253010/physics_CosmicMuons/ --lumiblock=532 --autoConfiguration=everything --conditionsTag=CONDBR2-ES1PA-2014-01 --geometryVersion=ATLAS-R2-2015-02-00-00 --dropDESDs --dropDRAWs --dropNTUPs --preExec "'rec.doTrigger.set_Value_and_Lock(False);from CaloRec.CaloCellFlags import jobproperties;jobproperties.CaloCellFlags.doLArHVCorr=False;jobproperties.CaloCellFlags.doPileupOffsetBCIDCorr.set_Value_and_Lock(False);from InDetRecExample.InDetJobProperties import InDetFlags;InDetFlags.doInnerDetectorCommissioning.set_Value_and_Lock(True);from TrigHLTMonitoring.HLTMonFlags import HLTMonFlags;HLTMonFlags.doBphys=False;DQMonFlags.enableLumiAccess=False;from JetRec.JetRecFlags import jetFlags;jetFlags.useTracks=False;InDetFlags.ForceCoraCool=True;'"
                 </jobTransformCmd>
                 <group>TCTTransform</group>
                 <queue>medium</queue>
@@ -2081,36 +2081,6 @@
                 <queue>short</queue>
                 <batchWallTime>60</batchWallTime>
 		<testToRemove>  <!-- No POOL output produced -->
-		  <jobGroupName>Top</jobGroupName>
-		  <testidentifier>CheckFileRunner0</testidentifier>
-		</testToRemove>
-
-              </jobTransform>
-
-            </chainElement>
-
-            <!-- Fast Physics Monitoring with MergedAOD.pool.root -->
-            <chainElement>
-
-              <jobTransform userJobId="FastPhysicsMonitoring">
-                <doc>Fast Physics Monitoring</doc>
-                <jobTransformJobName>FastPhysicsMonitoring</jobTransformJobName>
-                <jobTransformCmd>
-                  Reco_tf.py --autoConfiguration=everything --inputAODFile=MergedAOD.pool.root --outputNTUP_FASTMONFile=myNTUP_FASTMON.root --ignoreerrors=ALL --omitvalidation=ALL
-                </jobTransformCmd>
-
-                <group>TCTTransform</group>
-                <chaindataset_info>
-                  <jobTransformData/>
-                  <chaindatasetName>MergedAOD.pool.root</chaindatasetName> <!-- Made by MergeJobAODAndTAG -->
-                  <dataset_info>
-                    <jobTransformData/>
-                    <datasetName>/afs/cern.ch/atlas/offline/external/FullChainTest/tier0-vol3/rtt/fallbackfiles/job_IDCosmic_0.AOD.pool.root</datasetName>
-                  </dataset_info>
-                </chaindataset_info>
-                <queue>short</queue>
-                <batchWallTime>60</batchWallTime>
-		<testToRemove> <!-- No POOL output produced -->
 		  <jobGroupName>Top</jobGroupName>
 		  <testidentifier>CheckFileRunner0</testidentifier>
 		</testToRemove>
