@@ -48,14 +48,15 @@
 
 #include "xAODMuon/MuonContainer.h"
 #include "xAODMuon/Muon.h"
+#include "xAODTracking/Vertex.h"
 
 #include "xAODPrimitives/IsolationType.h"
 
 #include "xAODTrigMuon/L2StandAloneMuonContainer.h"
 #include "xAODTrigMuon/L2StandAloneMuon.h"
 
-//#include "xAODTrigMuon/L2CombinedMuonContainer.h"
-//#include "xAODTrigMuon/L2CombinedMuon.h"
+#include "xAODTrigMuon/L2CombinedMuonContainer.h"
+#include "xAODTrigMuon/L2CombinedMuon.h"
 
 // YY: adding vertex information
 #include "VxVertex/Vertex.h"
@@ -268,7 +269,7 @@ StatusCode HLTMuonMonTool::bookChainDQA()
     }
   }
 
-  for(it=m_chainsStandard.begin(); it != m_chainsStandard.end() ; it++ ){
+  for(it=m_histChainEFFS.begin(); it != m_histChainEFFS.end() ; it++ ){
     StatusCode sc = bookChainDQA_standard(*it);
     if (sc.isFailure()) {
       ATH_MSG_VERBOSE("bookChainDQA_standard failed for chain=" << *it ); 
@@ -710,17 +711,17 @@ StatusCode HLTMuonMonTool::bookChainDQA_standard(const std::string& cName )
     if(chainName.find("EFFS")!= string::npos){
 
 	// require one muon match with the pre_trigger ROI
-        name = chainName + "_tagMu18it" + "_Turn_On_Curve_wrt_probe_MuidCB" + "_Denominator";
+        name = chainName + "_tagEFFSpre" + "_Turn_On_Curve_wrt_probe_MuidCB" + "_Denominator";
         nameaxis = name + "; Muid CB pT (GeV); Events";
         addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), histdireffnumdenom );
         hist(name, histdireffnumdenom)->Sumw2();
     
-        name = chainName + "_tagMu18it" + "_Turn_On_Curve_wrt_probe_MuidCB" + "_Numerator";
+        name = chainName + "_tagEFFSpre" + "_Turn_On_Curve_wrt_probe_MuidCB" + "_Numerator";
         nameaxis = name + "; Muid CB pT (GeV); Events";
         addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), histdireffnumdenom );
         hist(name, histdireffnumdenom)->Sumw2();
     
-        name = chainName + "_tagMu18it" + "_Turn_On_Curve_wrt_probe_MuidCB";
+        name = chainName + "_tagEFFSpre" + "_Turn_On_Curve_wrt_probe_MuidCB";
         nameaxis = name + "; Muid CB pT (GeV); Efficiency";
         addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), histdireff );
         hist(name, histdireff)->Sumw2();
@@ -732,17 +733,17 @@ StatusCode HLTMuonMonTool::bookChainDQA_standard(const std::string& cName )
         addGraph( g, histdireff );
 
 	// require one muon match with the pre_trigger ROI,  mu  <= 15
-        name = chainName + "_tagMu18it_mu0_15" + "_Turn_On_Curve_wrt_probe_MuidCB" + "_Denominator";
+        name = chainName + "_tagEFFSpre_mu0_15" + "_Turn_On_Curve_wrt_probe_MuidCB" + "_Denominator";
         nameaxis = name + "; Muid CB pT (GeV); Events";
         addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), histdireffnumdenom );
         hist(name, histdireffnumdenom)->Sumw2();
     
-        name = chainName + "_tagMu18it_mu0_15" + "_Turn_On_Curve_wrt_probe_MuidCB" + "_Numerator";
+        name = chainName + "_tagEFFSpre_mu0_15" + "_Turn_On_Curve_wrt_probe_MuidCB" + "_Numerator";
         nameaxis = name + "; Muid CB pT (GeV); Events";
         addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), histdireffnumdenom );
         hist(name, histdireffnumdenom)->Sumw2();
     
-        name = chainName + "_tagMu18it_mu0_15" + "_Turn_On_Curve_wrt_probe_MuidCB";
+        name = chainName + "_tagEFFSpre_mu0_15" + "_Turn_On_Curve_wrt_probe_MuidCB";
         nameaxis = name + "; Muid CB pT (GeV); Efficiency";
         addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), histdireff );
         hist(name, histdireff)->Sumw2();
@@ -754,17 +755,17 @@ StatusCode HLTMuonMonTool::bookChainDQA_standard(const std::string& cName )
         addGraph( g, histdireff );
 
 	// require one muon match with the pre_trigger ROI,  15 < mu  < 20 
-        name = chainName + "_tagMu18it_mu15_20" + "_Turn_On_Curve_wrt_probe_MuidCB" + "_Denominator";
+        name = chainName + "_tagEFFSpre_mu15_20" + "_Turn_On_Curve_wrt_probe_MuidCB" + "_Denominator";
         nameaxis = name + "; Muid CB pT (GeV); Events";
         addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), histdireffnumdenom );
         hist(name, histdireffnumdenom)->Sumw2();
     
-        name = chainName + "_tagMu18it_mu15_20" + "_Turn_On_Curve_wrt_probe_MuidCB" + "_Numerator";
+        name = chainName + "_tagEFFSpre_mu15_20" + "_Turn_On_Curve_wrt_probe_MuidCB" + "_Numerator";
         nameaxis = name + "; Muid CB pT (GeV); Events";
         addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), histdireffnumdenom );
         hist(name, histdireffnumdenom)->Sumw2();
     
-        name = chainName + "_tagMu18it_mu15_20" + "_Turn_On_Curve_wrt_probe_MuidCB";
+        name = chainName + "_tagEFFSpre_mu15_20" + "_Turn_On_Curve_wrt_probe_MuidCB";
         nameaxis = name + "; Muid CB pT (GeV); Efficiency";
         addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), histdireff );
         hist(name, histdireff)->Sumw2();
@@ -776,17 +777,17 @@ StatusCode HLTMuonMonTool::bookChainDQA_standard(const std::string& cName )
         addGraph( g, histdireff );
 
 	// require one muon match with the pre_trigger ROI,  20 < mu  
-        name = chainName + "_tagMu18it_mu20" + "_Turn_On_Curve_wrt_probe_MuidCB" + "_Denominator";
+        name = chainName + "_tagEFFSpre_mu20" + "_Turn_On_Curve_wrt_probe_MuidCB" + "_Denominator";
         nameaxis = name + "; Muid CB pT (GeV); Events";
         addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), histdireffnumdenom );
         hist(name, histdireffnumdenom)->Sumw2();
     
-        name = chainName + "_tagMu18it_mu20" + "_Turn_On_Curve_wrt_probe_MuidCB" + "_Numerator";
+        name = chainName + "_tagEFFSpre_mu20" + "_Turn_On_Curve_wrt_probe_MuidCB" + "_Numerator";
         nameaxis = name + "; Muid CB pT (GeV); Events";
         addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), histdireffnumdenom );
         hist(name, histdireffnumdenom)->Sumw2();
     
-        name = chainName + "_tagMu18it_mu20" + "_Turn_On_Curve_wrt_probe_MuidCB";
+        name = chainName + "_tagEFFSpre_mu20" + "_Turn_On_Curve_wrt_probe_MuidCB";
         nameaxis = name + "; Muid CB pT (GeV); Efficiency";
         addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), histdireff );
         hist(name, histdireff)->Sumw2();
@@ -808,17 +809,17 @@ StatusCode HLTMuonMonTool::bookChainDQA_standard(const std::string& cName )
 
 	// check the efficiency separately for barrel and endcap region
        for(int be = 0; be < 2; be++){
-         name     = chainName + "_tagMu18it" + "_Turn_On_Curve_wrt_probe_MuidCB" + m_bestr[be] + "_Denominator";
+         name     = chainName + "_tagEFFSpre" + "_Turn_On_Curve_wrt_probe_MuidCB" + m_bestr[be] + "_Denominator";
          nameaxis = name + "; Muid CB pT (GeV); Events";
          addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), histdireffnumdenom );
          hist(name, histdireffnumdenom)->Sumw2();
 
-         name     = chainName + "_tagMu18it" + "_Turn_On_Curve_wrt_probe_MuidCB" + m_bestr[be] + "_Numerator";
+         name     = chainName + "_tagEFFSpre" + "_Turn_On_Curve_wrt_probe_MuidCB" + m_bestr[be] + "_Numerator";
          nameaxis = name + "; Muid CB pT (GeV); Events";
          addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), histdireffnumdenom );
          hist(name, histdireffnumdenom)->Sumw2();
 
-         name     = chainName + "_tagMu18it" + "_Turn_On_Curve_wrt_probe_MuidCB" + m_bestr[be];
+         name     = chainName + "_tagEFFSpre" + "_Turn_On_Curve_wrt_probe_MuidCB" + m_bestr[be];
          nameaxis = name + "; Muid CB pT (GeV); Efficiency";
          addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), histdireff );
          hist(name, histdireff)->Sumw2();
@@ -863,17 +864,17 @@ StatusCode HLTMuonMonTool::bookChainDQA_standard(const std::string& cName )
         addGraph( g, histdireff );
 
 	// pseudo T&P method to check the pre trigger efficiency 
-        name = m_FS_pre_trigger + "_dimuonTP" + "_Turn_On_Curve_wrt_probe_MuidCB" + "_Denominator";
+        name = "EFFSpre_dimuonTP_Turn_On_Curve_wrt_probe_MuidCB_Denominator";
         nameaxis = name + "; Muid CB pT (GeV); Efficiency";
         addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), histdireffnumdenom );
         hist(name, histdireffnumdenom)->Sumw2();
 
-        name = m_FS_pre_trigger + "_dimuonTP" + "_Turn_On_Curve_wrt_probe_MuidCB" + "_Numerator";
+        name = "EFFSpre_dimuonTP_Turn_On_Curve_wrt_probe_MuidCB_Numerator";
         nameaxis = name + "; Muid CB pT (GeV); Efficiency";
         addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), histdireffnumdenom );
         hist(name, histdireffnumdenom)->Sumw2();
 
-        name = m_FS_pre_trigger + "_dimuonTP" + "_Turn_On_Curve_wrt_probe_MuidCB";
+        name = "EFFSpre_dimuonTP_Turn_On_Curve_wrt_probe_MuidCB";
         nameaxis = name + "; Muid CB pT (GeV); Efficiency";
         addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), histdireff);
         hist(name, histdireff)->Sumw2();
@@ -885,17 +886,17 @@ StatusCode HLTMuonMonTool::bookChainDQA_standard(const std::string& cName )
         addGraph( g, histdireff );
 
 	// pseudo T&P method to check the pre trigger efficiency w.r.t L1
-        name = m_FS_pre_trigger + "_dimuonTP" + "_Turn_On_Curve_wrt_L1_probe_MuidCB" + "_Denominator";
+        name = "EFFSpre_dimuonTP_Turn_On_Curve_wrt_L1_probe_MuidCB_Denominator";
         nameaxis = name + "; Muid CB pT (GeV); Efficiency";
         addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), histdireffnumdenom );
         hist(name, histdireffnumdenom)->Sumw2();
 
-        name = m_FS_pre_trigger + "_dimuonTP" + "_Turn_On_Curve_wrt_L1_probe_MuidCB" + "_Numerator";
+        name = "EFFSpre_dimuonTP_Turn_On_Curve_wrt_L1_probe_MuidCB_Numerator";
         nameaxis = name + "; Muid CB pT (GeV); Efficiency";
         addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), histdireffnumdenom );
         hist(name, histdireffnumdenom)->Sumw2();
 
-        name = m_FS_pre_trigger + "_dimuonTP" + "_Turn_On_Curve_wrt_L1_probe_MuidCB";
+        name = "EFFSpre_dimuonTP_Turn_On_Curve_wrt_L1_probe_MuidCB";
         nameaxis = name + "; Muid CB pT (GeV); Efficiency";
         addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), histdireff);
         hist(name, histdireff)->Sumw2();
@@ -907,7 +908,7 @@ StatusCode HLTMuonMonTool::bookChainDQA_standard(const std::string& cName )
         addGraph( g, histdireff );
 
         // pseudo T&P method to check the pre trigger L1 efficiency w.r.t offline 
-        name = m_FS_pre_trigger + "_dimuonTP" + "_L1_Turn_On_Curve_wrt_probe_MuidCB";
+        name = "EFFSpre_dimuonTP_L1_Turn_On_Curve_wrt_probe_MuidCB";
         nameaxis = name + "; Muid CB pT (GeV); Efficiency";
         addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), histdireff);
         hist(name, histdireff)->Sumw2();
@@ -1488,8 +1489,8 @@ StatusCode HLTMuonMonTool::fillCommonDQA()
   //Express stream trigger bits: YY 21.01.11
   // updated for real config: 15.02.11
   std::vector<std::string> vs_ESstd;
-  vs_ESstd.push_back("HLT_mu18it_tight"); // for release
-  vs_ESstd.push_back("HLT_mu24i_tight"); // increasing stat for muZTP, which requests now ES bits
+  vs_ESstd.push_back("HLT_mu18"); // for release
+  vs_ESstd.push_back("HLT_mu24_imedium"); // increasing stat for muZTP, which requests now ES bits
   // vs_ESstd.push_back("HLT_mu18i4_tight"); // for test
   // vs_ESstd.push_back("HLT_mu22_medium"); // for test
 
@@ -1634,14 +1635,13 @@ StatusCode HLTMuonMonTool::fillChainDQA()
     }
   }
 
-  for(it=m_chainsStandard.begin(); it != m_chainsStandard.end() ; it++ ){
-    StatusCode sc = fillChainDQA_standard(*it);
+  for(it=m_chainsEFFS.begin(), itr=0; it != m_chainsEFFS.end() ; it++, itr++ ){
+    StatusCode sc = fillChainDQA_standard(*it, m_histChainEFFS[itr]);
     if (sc.isFailure()) {
       ATH_MSG_VERBOSE("fillChainDQA_standard failed for chain=" << *it );
       retval = StatusCode::RECOVERABLE;
     }
   }
-
 
   for(it=m_chainsGeneric.begin(), itr=0; it != m_chainsGeneric.end() ; it++,itr++ ){
     StatusCode sc = fillChainDQA_generic(*it, m_histChainGeneric[itr], false);
@@ -1658,7 +1658,6 @@ StatusCode HLTMuonMonTool::fillChainDQA()
       retval = StatusCode::RECOVERABLE;
     }
   }
-
 
   return retval;
 }
@@ -2355,9 +2354,9 @@ StatusCode HLTMuonMonTool::fillChainDQA_MSonly(const std::string& chainName, con
   return retval;
 }
 
-StatusCode HLTMuonMonTool::fillChainDQA_standard(const std::string& chainName)
+StatusCode HLTMuonMonTool::fillChainDQA_standard(const std::string& chainName, const std::string & histcName)
 {
-  ATH_MSG_DEBUG("----- fillChainDQA_standard: chain=" << chainName << " -----"); 
+  ATH_MSG_DEBUG("----- fillChainDQA_standard: chain=" << chainName << " histname=" <<histcName<< " -----"); 
 
   using namespace Trig;
 
@@ -2390,7 +2389,7 @@ StatusCode HLTMuonMonTool::fillChainDQA_standard(const std::string& chainName)
     tagInfo->findTag("triggerStreamOfFile",m_tag);
   }
 
-  if(chainName.find("EFFS")!= string::npos){
+  if(chainName.find("noL1")!= string::npos){
         if(m_RecMuonCB_pt.size()<=1) return StatusCode::SUCCESS;
         m_esvect.clear();
         m_esvect = getESbits();
@@ -2412,17 +2411,17 @@ StatusCode HLTMuonMonTool::fillChainDQA_standard(const std::string& chainName)
         int mu1_index = m_RecMuonCB_pt_index[0].second;
         int mu2_index = m_RecMuonCB_pt_index[1].second;
 
-        std::string EF_pre_trigger= "EF_"+m_FS_pre_trigger;   // attention here
-        std::string EF_pre_trigger_second= "EF_"+m_FS_pre_trigger_second;   // attention here
-        //if(getTDT()->isPassed("EF_mu15")!=1) return StatusCode::SUCCESS;
+        std::string EF_pre_trigger= "HLT_"+m_FS_pre_trigger;   
+        std::string EF_pre_trigger_second= "HLT_"+m_FS_pre_trigger_second;   
+
 	if( m_tag == "express" && !m_passedES[ESSTD]) return StatusCode::SUCCESS; 
         if(getTDT()->isPassed(EF_pre_trigger.c_str())!=1 && getTDT()->isPassed(EF_pre_trigger_second.c_str())!=1) return StatusCode::SUCCESS;
 
-        std::string name = chainName + "_Turn_On_Curve_wrt_subleading_MuidCB" + "_Denominator";
+        std::string name = histcName + "_Turn_On_Curve_wrt_subleading_MuidCB" + "_Denominator";
         hist(name, histdireffnumdenom)->Fill(m_RecMuonCB_pt[mu2_index]);
-	std::string EF_FS_trigger = "EF_"+chainName;
+	std::string EF_FS_trigger = "HLT_"+chainName;
         if(getTDT()->isPassed(EF_FS_trigger.c_str())){
-                name =  chainName + "_Turn_On_Curve_wrt_subleading_MuidCB" + "_Numerator";
+                name =  histcName + "_Turn_On_Curve_wrt_subleading_MuidCB" + "_Numerator";
                 hist(name, histdireffnumdenom)->Fill(m_RecMuonCB_pt[mu2_index]);
         }
 
@@ -2439,11 +2438,9 @@ StatusCode HLTMuonMonTool::fillChainDQA_standard(const std::string& chainName)
 
 
 	//*************  check the first pre trigger mu18it_tight *******************//
-        FeatureContainer my_fL2 = getTDT()->features("L2_"+m_FS_pre_trigger,TrigDefs::alsoDeactivateTEs);
-        FeatureContainer my_fEF = getTDT()->features("EF_"+m_FS_pre_trigger,TrigDefs::alsoDeactivateTEs);
+        FeatureContainer my_fHLT = getTDT()->features("HLT_"+m_FS_pre_trigger,TrigDefs::alsoDeactivateTEs);
 
-        std::vector<Combination> my_combsL2 = my_fL2.getCombinations();
-        std::vector<Combination> my_combsEF = my_fEF.getCombinations();
+        std::vector<Combination> my_combsHLT = my_fHLT.getCombinations();
 
         // to match with the initial ROI at L2
         for(int n_mu = 0; n_mu <2;n_mu ++){
@@ -2452,8 +2449,8 @@ StatusCode HLTMuonMonTool::fillChainDQA_standard(const std::string& chainName)
                 else if(n_mu == 1) mu_index = mu2_index;
                 float my_dr_min_l2 = 9999;
                 int   my_id_min_l2 = -1;
-                for(int iL2=0; iL2<(int)my_combsL2.size(); iL2++) {
-                        std::vector< Feature<TrigRoiDescriptor> > initRois = my_combsL2[iL2].get<TrigRoiDescriptor>("initialRoI",TrigDefs::alsoDeactivateTEs);
+                for(int iL2=0; iL2<(int)my_combsHLT.size(); iL2++) {
+                        std::vector< Feature<TrigRoiDescriptor> > initRois = my_combsHLT[iL2].get<TrigRoiDescriptor>("initialRoI",TrigDefs::alsoDeactivateTEs);
                         if( initRois.size() != 1 ) {
                                 ATH_MSG_WARNING("nr TrigRoiDescriptor is not 1 for chain=L2_" << chainName);
                         }
@@ -2471,7 +2468,7 @@ StatusCode HLTMuonMonTool::fillChainDQA_standard(const std::string& chainName)
                         match_L2_RoI[n_mu] = 1;
                         // check the muon fire mu24_tight ROI or not   MuFast
                         bool mf_active = false;
-                        std::vector< Feature<MuonFeature> > mf = my_combsL2[my_id_min_l2].get<MuonFeature>("",TrigDefs::alsoDeactivateTEs);
+			std::vector< Feature<xAOD::L2StandAloneMuonContainer> > mf = my_combsHLT[my_id_min_l2].get<xAOD::L2StandAloneMuonContainer>("MuonL2SAInfo",TrigDefs::alsoDeactivateTEs);
                         if( mf.size() == 1 ) {
                                 mf_active = mf[0].te()->getActiveState();
                                 ATH_MSG_DEBUG("...mF: label/active=" << getTEName(*mf[0].te()) << " / " << mf_active);
@@ -2479,7 +2476,7 @@ StatusCode HLTMuonMonTool::fillChainDQA_standard(const std::string& chainName)
                         //if(!mf_active)return StatusCode::SUCCESS;
 
                         bool combMf_active = false;
-                        std::vector< Feature<CombinedMuonFeature> > combMf = my_combsL2[my_id_min_l2].get<CombinedMuonFeature>("",TrigDefs::alsoDeactivateTEs);
+			std::vector< Feature<xAOD::L2CombinedMuonContainer> > combMf = my_combsHLT[my_id_min_l2].get<xAOD::L2CombinedMuonContainer>("MuonL2CBInfo",TrigDefs::alsoDeactivateTEs);
                         if( combMf.size() == 1 ) {
                                 combMf_active = combMf[0].te()->getActiveState();
                                 ATH_MSG_DEBUG("...combMF: label/active=" << getTEName(*combMf[0].te()) << " / " << combMf_active);
@@ -2494,8 +2491,8 @@ StatusCode HLTMuonMonTool::fillChainDQA_standard(const std::string& chainName)
                 int   my_id_min_ef = -1;
                 // to match with the initial ROI at EF 
 
-                for(int iEF=0; iEF<(int)my_combsEF.size(); iEF++) {
-                        std::vector< Feature<TrigRoiDescriptor> > initRois = my_combsEF[iEF].get<TrigRoiDescriptor>("initialRoI",TrigDefs::alsoDeactivateTEs);
+                for(int iEF=0; iEF<(int)my_combsHLT.size(); iEF++) {
+                        std::vector< Feature<TrigRoiDescriptor> > initRois = my_combsHLT[iEF].get<TrigRoiDescriptor>("initialRoI",TrigDefs::alsoDeactivateTEs);
                         if( initRois.size() != 1 ) {
                                 ATH_MSG_WARNING("nr TrigRoiDescriptor is not 1 for chain=EF_" << chainName);
                         }
@@ -2509,7 +2506,7 @@ StatusCode HLTMuonMonTool::fillChainDQA_standard(const std::string& chainName)
                 }
                 if(my_dr_min_ef < DR_CUT){
                         match_EF_RoI[n_mu] = 1;
-                        bool ef_active       = (my_combsEF[my_id_min_ef]).active();
+                        bool ef_active       = (my_combsHLT[my_id_min_ef]).active();
                         //if(!ef_active) return StatusCode::SUCCESS;
                         if(ef_active) match_EF_RoI_activate[n_mu] = 1;
                 }
@@ -2517,11 +2514,9 @@ StatusCode HLTMuonMonTool::fillChainDQA_standard(const std::string& chainName)
         }
 
 	//*************  check the second pre trigger mu24i_tight *******************//
-        FeatureContainer my_fL2_mu24i_tight = getTDT()->features(m_chainsEF_L2_map[m_FS_pre_trigger_second],TrigDefs::alsoDeactivateTEs);
-        FeatureContainer my_fEF_mu24i_tight = getTDT()->features("EF_"+m_FS_pre_trigger_second,TrigDefs::alsoDeactivateTEs);
+        FeatureContainer my_fHLT_mu24_imedium = getTDT()->features("HLT_"+m_FS_pre_trigger_second,TrigDefs::alsoDeactivateTEs);
 
-        std::vector<Combination> my_combsL2_mu24i_tight = my_fL2_mu24i_tight.getCombinations();
-        std::vector<Combination> my_combsEF_mu24i_tight = my_fEF_mu24i_tight.getCombinations();
+        std::vector<Combination> my_combsHLT_mu24_imedium= my_fHLT_mu24_imedium.getCombinations();
 
         // to match with the initial ROI at L2
         for(int n_mu = 0; n_mu <2;n_mu ++){
@@ -2530,8 +2525,8 @@ StatusCode HLTMuonMonTool::fillChainDQA_standard(const std::string& chainName)
                 else if(n_mu == 1) mu_index = mu2_index;
                 float my_dr_min_l2 = 9999;
                 int   my_id_min_l2 = -1;
-                for(int iL2=0; iL2<(int)my_combsL2_mu24i_tight.size(); iL2++) {
-                        std::vector< Feature<TrigRoiDescriptor> > initRois = my_combsL2_mu24i_tight[iL2].get<TrigRoiDescriptor>("initialRoI",TrigDefs::alsoDeactivateTEs);
+                for(int iL2=0; iL2<(int)my_combsHLT_mu24_imedium.size(); iL2++) {
+                        std::vector< Feature<TrigRoiDescriptor> > initRois = my_combsHLT_mu24_imedium[iL2].get<TrigRoiDescriptor>("initialRoI",TrigDefs::alsoDeactivateTEs);
                         if( initRois.size() != 1 ) {
                                 ATH_MSG_WARNING("nr TrigRoiDescriptor is not 1 for chain=L2_" << chainName);
                         }
@@ -2549,7 +2544,7 @@ StatusCode HLTMuonMonTool::fillChainDQA_standard(const std::string& chainName)
                         match_L2_RoI[n_mu] = 1;
                         // check the muon fire mu24_tight ROI or not   MuFast
                         bool mf_active = false;
-                        std::vector< Feature<MuonFeature> > mf = my_combsL2_mu24i_tight[my_id_min_l2].get<MuonFeature>("",TrigDefs::alsoDeactivateTEs);
+			std::vector< Feature<xAOD::L2StandAloneMuonContainer> > mf = my_combsHLT_mu24_imedium[my_id_min_l2].get<xAOD::L2StandAloneMuonContainer>("MuonL2SAInfo",TrigDefs::alsoDeactivateTEs);
                         if( mf.size() == 1 ) {
                                 mf_active = mf[0].te()->getActiveState();
                                 ATH_MSG_DEBUG("...mF: label/active=" << getTEName(*mf[0].te()) << " / " << mf_active);
@@ -2557,7 +2552,7 @@ StatusCode HLTMuonMonTool::fillChainDQA_standard(const std::string& chainName)
                         //if(!mf_active)return StatusCode::SUCCESS;
 
                         bool combMf_active = false;
-                        std::vector< Feature<CombinedMuonFeature> > combMf = my_combsL2_mu24i_tight[my_id_min_l2].get<CombinedMuonFeature>("",TrigDefs::alsoDeactivateTEs);
+			std::vector< Feature<xAOD::L2CombinedMuonContainer> > combMf = my_combsHLT_mu24_imedium[my_id_min_l2].get<xAOD::L2CombinedMuonContainer>("MuonL2CBInfo",TrigDefs::alsoDeactivateTEs);
                         if( combMf.size() == 1 ) {
                                 combMf_active = combMf[0].te()->getActiveState();
                                 ATH_MSG_DEBUG("...combMF: label/active=" << getTEName(*combMf[0].te()) << " / " << combMf_active);
@@ -2572,8 +2567,8 @@ StatusCode HLTMuonMonTool::fillChainDQA_standard(const std::string& chainName)
                 int   my_id_min_ef = -1;
                 // to match with the initial ROI at EF 
 
-                for(int iEF=0; iEF<(int)my_combsEF_mu24i_tight.size(); iEF++) {
-                        std::vector< Feature<TrigRoiDescriptor> > initRois = my_combsEF_mu24i_tight[iEF].get<TrigRoiDescriptor>("initialRoI",TrigDefs::alsoDeactivateTEs);
+                for(int iEF=0; iEF<(int)my_combsHLT_mu24_imedium.size(); iEF++) {
+                        std::vector< Feature<TrigRoiDescriptor> > initRois = my_combsHLT_mu24_imedium[iEF].get<TrigRoiDescriptor>("initialRoI",TrigDefs::alsoDeactivateTEs);
                         if( initRois.size() != 1 ) {
                                 ATH_MSG_WARNING("nr TrigRoiDescriptor is not 1 for chain=EF_" << chainName);
                         }
@@ -2587,7 +2582,7 @@ StatusCode HLTMuonMonTool::fillChainDQA_standard(const std::string& chainName)
                 }
                 if(my_dr_min_ef < DR_CUT){
                         match_EF_RoI[n_mu] = 1;
-                        bool ef_active       = (my_combsEF_mu24i_tight[my_id_min_ef]).active();
+                        bool ef_active       = (my_combsHLT_mu24_imedium[my_id_min_ef]).active();
                         //if(!ef_active) return StatusCode::SUCCESS;
                         if(ef_active) match_EF_RoI_activate[n_mu] = 1;
                 }
@@ -2669,48 +2664,48 @@ StatusCode HLTMuonMonTool::fillChainDQA_standard(const std::string& chainName)
 		int probe_iBarrelCB = (fabs(m_RecMuonCB_eta[probe_muon_index]) < 1.05) ? 0 : 1;
 
                 // for the Full Scan efficiency //
-                std::string name = chainName + "_tagMu18it" + "_Turn_On_Curve_wrt_probe_MuidCB" + "_Denominator";
+                std::string name = histcName + "_tagEFFSpre" + "_Turn_On_Curve_wrt_probe_MuidCB" + "_Denominator";
                 hist(name, histdireffnumdenom)->Fill(m_RecMuonCB_pt[probe_muon_index]);
 
-                name = chainName + "_tagMu18it" + "_Turn_On_Curve_wrt_probe_MuidCB" + m_bestr[probe_iBarrelCB] + "_Denominator";
+                name = histcName + "_tagEFFSpre" + "_Turn_On_Curve_wrt_probe_MuidCB" + m_bestr[probe_iBarrelCB] + "_Denominator";
                 hist(name, histdireffnumdenom)->Fill(m_RecMuonCB_pt[probe_muon_index]);
 
 		if(mean_mu <= 15){
-			name = chainName + "_tagMu18it_mu0_15" + "_Turn_On_Curve_wrt_probe_MuidCB" + "_Denominator";
+			name = histcName + "_tagEFFSpre_mu0_15" + "_Turn_On_Curve_wrt_probe_MuidCB" + "_Denominator";
 			hist(name, histdireffnumdenom)->Fill(m_RecMuonCB_pt[probe_muon_index]);
 		} else if(mean_mu <= 20){
-			name = chainName + "_tagMu18it_mu15_20" + "_Turn_On_Curve_wrt_probe_MuidCB" + "_Denominator";
+			name = histcName + "_tagEFFSpre_mu15_20" + "_Turn_On_Curve_wrt_probe_MuidCB" + "_Denominator";
 			hist(name, histdireffnumdenom)->Fill(m_RecMuonCB_pt[probe_muon_index]);
 		} else {
-			name = chainName + "_tagMu18it_mu20" + "_Turn_On_Curve_wrt_probe_MuidCB" + "_Denominator";
+			name = histcName + "_tagEFFSpre_mu20" + "_Turn_On_Curve_wrt_probe_MuidCB" + "_Denominator";
 			hist(name, histdireffnumdenom)->Fill(m_RecMuonCB_pt[probe_muon_index]);
 		} 
 
 
                 if(getTDT()->isPassed(EF_FS_trigger.c_str())){
-                        name = chainName + "_tagMu18it" + "_Turn_On_Curve_wrt_probe_MuidCB" + "_Numerator";
+                        name = histcName + "_tagEFFSpre" + "_Turn_On_Curve_wrt_probe_MuidCB" + "_Numerator";
                         hist(name, histdireffnumdenom)->Fill(m_RecMuonCB_pt[probe_muon_index]);
 
-			name = chainName + "_tagMu18it" + "_Turn_On_Curve_wrt_probe_MuidCB" + m_bestr[probe_iBarrelCB] + "_Numerator";
+			name = histcName + "_tagEFFSpre" + "_Turn_On_Curve_wrt_probe_MuidCB" + m_bestr[probe_iBarrelCB] + "_Numerator";
 			hist(name, histdireffnumdenom)->Fill(m_RecMuonCB_pt[probe_muon_index]);
 
 			if(mean_mu <= 15){
-				name = chainName + "_tagMu18it_mu0_15" + "_Turn_On_Curve_wrt_probe_MuidCB" + "_Numerator";
+				name = histcName + "_tagEFFSpre_mu0_15" + "_Turn_On_Curve_wrt_probe_MuidCB" + "_Numerator";
 				hist(name, histdireffnumdenom)->Fill(m_RecMuonCB_pt[probe_muon_index]);
 			} else if(mean_mu <= 20){
-				name = chainName + "_tagMu18it_mu15_20" + "_Turn_On_Curve_wrt_probe_MuidCB" + "_Numerator";
+				name = histcName + "_tagEFFSpre_mu15_20" + "_Turn_On_Curve_wrt_probe_MuidCB" + "_Numerator";
 				hist(name, histdireffnumdenom)->Fill(m_RecMuonCB_pt[probe_muon_index]);
 			} else {
-				name = chainName + "_tagMu18it_mu20" + "_Turn_On_Curve_wrt_probe_MuidCB" + "_Numerator";
+				name = histcName + "_tagEFFSpre_mu20" + "_Turn_On_Curve_wrt_probe_MuidCB" + "_Numerator";
 				hist(name, histdireffnumdenom)->Fill(m_RecMuonCB_pt[probe_muon_index]);
 			} 
 
                 }
 
                 // for the preselection trigger efficiency //
-                std::string denom = m_FS_pre_trigger + "_dimuonTP" + "_Turn_On_Curve_wrt_probe_MuidCB" + "_Denominator";
+                std::string denom = "EFFSpre_dimuonTP_Turn_On_Curve_wrt_probe_MuidCB_Denominator";
                 hist(denom, histdireffnumdenom)->Fill(m_RecMuonCB_pt[probe_muon_index]);
-                std::string nomin = m_FS_pre_trigger + "_dimuonTP" + "_Turn_On_Curve_wrt_probe_MuidCB" + "_Numerator";
+                std::string nomin = "EFFSpre_dimuonTP_Turn_On_Curve_wrt_probe_MuidCB_Numerator";
                 if(probe_muon_pass) {
                         hist(nomin, histdireffnumdenom)->Fill(m_RecMuonCB_pt[probe_muon_index]);
                         // swap the tag and probe muons //
@@ -2719,9 +2714,9 @@ StatusCode HLTMuonMonTool::fillChainDQA_standard(const std::string& chainName)
                 }
 
                 if(matched_tag_muon_index > -1){
-                  denom = m_FS_pre_trigger + "_dimuonTP" + "_Turn_On_Curve_wrt_L1_probe_MuidCB" + "_Denominator";
+                  denom = "EFFSpre_dimuonTP_Turn_On_Curve_wrt_L1_probe_MuidCB_Denominator";
                   hist(denom, histdireffnumdenom)->Fill(m_RecMuonCB_pt[matched_probe_muon_index]);
-                  nomin = m_FS_pre_trigger + "_dimuonTP" + "_Turn_On_Curve_wrt_L1_probe_MuidCB" + "_Numerator";
+                  nomin = "EFFSpre_dimuonTP_Turn_On_Curve_wrt_L1_probe_MuidCB_Numerator";
                   if(matched_probe_muon_pass){
                         hist(nomin, histdireffnumdenom)->Fill(m_RecMuonCB_pt[matched_probe_muon_index]);
                         // swap the tag and probe muons //
@@ -2846,7 +2841,8 @@ StatusCode HLTMuonMonTool::fillChainDQA_generic(const std::string& chainName, co
     std::string wrtalg2 = "_MuFast";
 
     for(int iL2=0; iL2<(int)combsHLT.size(); iL2++) {
-      std::vector< Feature<TrigRoiDescriptor> > initRois = fHLT.get<TrigRoiDescriptor>("initialRoI",TrigDefs::alsoDeactivateTEs);
+      //std::vector< Feature<TrigRoiDescriptor> > initRois = fHLT.get<TrigRoiDescriptor>("initialRoI",TrigDefs::alsoDeactivateTEs);
+      std::vector< Feature<TrigRoiDescriptor> > initRois = combsHLT[iL2].get<TrigRoiDescriptor>("initialRoI",TrigDefs::alsoDeactivateTEs);
       ATH_MSG_DEBUG("TrigRoiDescriptorCollection size: "<<initRois.size());
       if( initRois.size() != 1 ) {
         ATH_MSG_WARNING("nr TrigRoiDescriptor is not 1 for chain=L2_" << chainName);
@@ -2900,7 +2896,7 @@ StatusCode HLTMuonMonTool::fillChainDQA_generic(const std::string& chainName, co
       
       // === MuFast ===
       bool mf_active = false;
-      std::vector< Feature<xAOD::L2StandAloneMuonContainer> > mf = fHLT.get<xAOD::L2StandAloneMuonContainer>("MuonL2SAInfo",TrigDefs::alsoDeactivateTEs);
+      std::vector< Feature<xAOD::L2StandAloneMuonContainer> > mf = combsHLT[id_min_l2].get<xAOD::L2StandAloneMuonContainer>("MuonL2SAInfo",TrigDefs::alsoDeactivateTEs);
 
 	ATH_MSG_DEBUG(" MuFast container size: "<< mf.size());  
       if( mf.size() == 1 ) {
@@ -2992,31 +2988,31 @@ StatusCode HLTMuonMonTool::fillChainDQA_generic(const std::string& chainName, co
 	}
 
 	//
-        std::vector< Feature<CombinedMuonFeature> > combMf = combsHLT[id_min_l2].get<CombinedMuonFeature>("",TrigDefs::alsoDeactivateTEs);
-        if( combMf.size() == 1 ) {
-          combMf_active = combMf[0].te()->getActiveState();
-          ATH_MSG_DEBUG("...combMF: label/active=" << getTEName(*combMf[0].te()) << " / " << combMf_active); 
-        }
-        if( combMf_active ) {
-	  float combMf_pt = combMf[0].cptr()->pt() / CLHEP::GeV;
-	  float combMf_eta = combMf[0].cptr()->eta();
-	  float combMf_phi = combMf[0].cptr()->phi();
+//*        std::vector< Feature<CombinedMuonFeature> > combMf = combsHLT[id_min_l2].get<CombinedMuonFeature>("",TrigDefs::alsoDeactivateTEs);
+//*        if( combMf.size() == 1 ) {
+//*          combMf_active = combMf[0].te()->getActiveState();
+//*          ATH_MSG_DEBUG("...combMF: label/active=" << getTEName(*combMf[0].te()) << " / " << combMf_active); 
+//*        }
+//*        if( combMf_active ) {
+//*	  float combMf_pt = combMf[0].cptr()->pt() / CLHEP::GeV;
+//*	  float combMf_eta = combMf[0].cptr()->eta();
+//*	  float combMf_phi = combMf[0].cptr()->phi();
 
-//      std::vector< Feature<xAOD::L2CombinedMuonContainer> > combMf = fHLT.get<xAOD::L2CombinedMuonContainer>("MuonL2CBInfo",TrigDefs::alsoDeactivateTEs);
-//
-//      if( combMf.size() == 1 ) {
-//        combMf_active = combMf[0].te()->getActiveState();
-//        ATH_MSG_DEBUG("...combMF: label/active=" << getTEName(*combMf[0].te()) << " / " << combMf_active); 
-//      }
-//
-//
-//      if( combMf_active ) {
-//        const xAOD::L2CombinedMuonContainer* combMf_cont = combMf[0];
-//
-//	float combMf_pt  = combMf_cont->at(0)->pt();
-//	float combMf_eta = combMf_cont->at(0)->eta();
-//	float combMf_phi = combMf_cont->at(0)->phi();
-//
+      std::vector< Feature<xAOD::L2CombinedMuonContainer> > combMf = combsHLT[id_min_l2].get<xAOD::L2CombinedMuonContainer>("MuonL2CBInfo",TrigDefs::alsoDeactivateTEs);
+
+      if( combMf.size() == 1 ) {
+        combMf_active = combMf[0].te()->getActiveState();
+        ATH_MSG_DEBUG("...combMF: label/active=" << getTEName(*combMf[0].te()) << " / " << combMf_active); 
+      }
+
+
+      if( combMf_active ) {
+        const xAOD::L2CombinedMuonContainer* combMf_cont = combMf[0];
+
+	float combMf_pt  = combMf_cont->at(0)->pt();
+	float combMf_eta = combMf_cont->at(0)->eta();
+	float combMf_phi = combMf_cont->at(0)->phi();
+
 
 	  
 	  if (EF_lower_passed) {
@@ -3314,7 +3310,7 @@ StatusCode HLTMuonMonTool::procChainDQA()
     }
   }
 
-  for(it=m_chainsStandard.begin(); it != m_chainsStandard.end() ; it++ ){
+  for(it=m_histChainEFFS.begin(); it != m_histChainEFFS.end() ; it++ ){
     StatusCode sc = procChainDQA_standard(*it);
     if (sc.isFailure()) {
       ATH_MSG_VERBOSE("procChainDQA_standard failed for chain=" << *it );
@@ -3546,11 +3542,11 @@ StatusCode HLTMuonMonTool::procChainDQA_standard(const std::string& chainName )
 
 	std::string m_bestr[2] = {"_Barrel", "_Endcap"};
 
-        denom = chainName + "_tagMu18it" + "_Turn_On_Curve_wrt_probe_MuidCB" + "_Denominator";
+        denom = chainName + "_tagEFFSpre" + "_Turn_On_Curve_wrt_probe_MuidCB" + "_Denominator";
 
-        numer = chainName + "_tagMu18it" + "_Turn_On_Curve_wrt_probe_MuidCB" + "_Numerator";
+        numer = chainName + "_tagEFFSpre" + "_Turn_On_Curve_wrt_probe_MuidCB" + "_Numerator";
 
-        effi =  chainName + "_tagMu18it" + "_Turn_On_Curve_wrt_probe_MuidCB";
+        effi =  chainName + "_tagEFFSpre" + "_Turn_On_Curve_wrt_probe_MuidCB";
 
         hist(effi, histdireff)->Divide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom), 1, 1, "B" );
 
@@ -3558,11 +3554,11 @@ StatusCode HLTMuonMonTool::procChainDQA_standard(const std::string& chainName )
 
 	for (int be =0; be<2; be++){
 
-          denom = chainName + "_tagMu18it" + "_Turn_On_Curve_wrt_probe_MuidCB" + m_bestr[be] + "_Denominator";
+          denom = chainName + "_tagEFFSpre" + "_Turn_On_Curve_wrt_probe_MuidCB" + m_bestr[be] + "_Denominator";
 
-          numer = chainName + "_tagMu18it" + "_Turn_On_Curve_wrt_probe_MuidCB" + m_bestr[be] + "_Numerator";
+          numer = chainName + "_tagEFFSpre" + "_Turn_On_Curve_wrt_probe_MuidCB" + m_bestr[be] + "_Numerator";
 
-          effi =  chainName + "_tagMu18it" + "_Turn_On_Curve_wrt_probe_MuidCB" + m_bestr[be];
+          effi =  chainName + "_tagEFFSpre" + "_Turn_On_Curve_wrt_probe_MuidCB" + m_bestr[be];
 
           hist(effi, histdireff)->Divide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom), 1, 1, "B" );
 
@@ -3586,31 +3582,31 @@ StatusCode HLTMuonMonTool::procChainDQA_standard(const std::string& chainName )
 
 	}
 
-        denom = chainName + "_tagMu18it_mu0_15" + "_Turn_On_Curve_wrt_probe_MuidCB" + "_Denominator";
+        denom = chainName + "_tagEFFSpre_mu0_15" + "_Turn_On_Curve_wrt_probe_MuidCB" + "_Denominator";
 
-        numer = chainName + "_tagMu18it_mu0_15" + "_Turn_On_Curve_wrt_probe_MuidCB" + "_Numerator";
+        numer = chainName + "_tagEFFSpre_mu0_15" + "_Turn_On_Curve_wrt_probe_MuidCB" + "_Numerator";
 
-        effi =  chainName + "_tagMu18it_mu0_15" + "_Turn_On_Curve_wrt_probe_MuidCB";
-
-        hist(effi, histdireff)->Divide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom), 1, 1, "B" );
-
-	dynamic_cast<TGraphAsymmErrors*>( graph(effi + "_Fit", histdireff ) )->BayesDivide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom) );
-
-        denom = chainName + "_tagMu18it_mu15_20" + "_Turn_On_Curve_wrt_probe_MuidCB" + "_Denominator";
-
-        numer = chainName + "_tagMu18it_mu15_20" + "_Turn_On_Curve_wrt_probe_MuidCB" + "_Numerator";
-
-        effi =  chainName + "_tagMu18it_mu15_20" + "_Turn_On_Curve_wrt_probe_MuidCB";
+        effi =  chainName + "_tagEFFSpre_mu0_15" + "_Turn_On_Curve_wrt_probe_MuidCB";
 
         hist(effi, histdireff)->Divide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom), 1, 1, "B" );
 
 	dynamic_cast<TGraphAsymmErrors*>( graph(effi + "_Fit", histdireff ) )->BayesDivide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom) );
 
-        denom = chainName + "_tagMu18it_mu20" + "_Turn_On_Curve_wrt_probe_MuidCB" + "_Denominator";
+        denom = chainName + "_tagEFFSpre_mu15_20" + "_Turn_On_Curve_wrt_probe_MuidCB" + "_Denominator";
 
-        numer = chainName + "_tagMu18it_mu20" + "_Turn_On_Curve_wrt_probe_MuidCB" + "_Numerator";
+        numer = chainName + "_tagEFFSpre_mu15_20" + "_Turn_On_Curve_wrt_probe_MuidCB" + "_Numerator";
 
-        effi =  chainName + "_tagMu18it_mu20" + "_Turn_On_Curve_wrt_probe_MuidCB";
+        effi =  chainName + "_tagEFFSpre_mu15_20" + "_Turn_On_Curve_wrt_probe_MuidCB";
+
+        hist(effi, histdireff)->Divide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom), 1, 1, "B" );
+
+	dynamic_cast<TGraphAsymmErrors*>( graph(effi + "_Fit", histdireff ) )->BayesDivide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom) );
+
+        denom = chainName + "_tagEFFSpre_mu20" + "_Turn_On_Curve_wrt_probe_MuidCB" + "_Denominator";
+
+        numer = chainName + "_tagEFFSpre_mu20" + "_Turn_On_Curve_wrt_probe_MuidCB" + "_Numerator";
+
+        effi =  chainName + "_tagEFFSpre_mu20" + "_Turn_On_Curve_wrt_probe_MuidCB";
 
         hist(effi, histdireff)->Divide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom), 1, 1, "B" );
 
@@ -3620,11 +3616,11 @@ StatusCode HLTMuonMonTool::procChainDQA_standard(const std::string& chainName )
 
 	for (int mu_range =0; mu_range<3; mu_range++){
 
-          denom = chainName + "_tagMu18it" + m_mu_range[mu_range] + "_Turn_On_Curve_wrt_probe_MuidCB"  + "_Denominator";
+          denom = chainName + "_tagEFFSpre" + m_mu_range[mu_range] + "_Turn_On_Curve_wrt_probe_MuidCB"  + "_Denominator";
 
-          numer = chainName + "_tagMu18it" + m_mu_range[mu_range] + "_Turn_On_Curve_wrt_probe_MuidCB"  + "_Numerator";
+          numer = chainName + "_tagEFFSpre" + m_mu_range[mu_range] + "_Turn_On_Curve_wrt_probe_MuidCB"  + "_Numerator";
 
-          effi =  chainName + "_tagMu18it" + m_mu_range[mu_range] + "_Turn_On_Curve_wrt_probe_MuidCB" ;
+          effi =  chainName + "_tagEFFSpre" + m_mu_range[mu_range] + "_Turn_On_Curve_wrt_probe_MuidCB" ;
 
           hist(effi, histdireff)->Divide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom), 1, 1, "B" );
 
@@ -3657,31 +3653,31 @@ StatusCode HLTMuonMonTool::procChainDQA_standard(const std::string& chainName )
 
 	dynamic_cast<TGraphAsymmErrors*>( graph(effi + "_Fit", histdireff ) )->BayesDivide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom) );
 
-        denom = m_FS_pre_trigger + "_dimuonTP" + "_Turn_On_Curve_wrt_probe_MuidCB" + "_Denominator";
+        denom = "EFFSpre_dimuonTP_Turn_On_Curve_wrt_probe_MuidCB_Denominator";
 
-        numer = m_FS_pre_trigger + "_dimuonTP" + "_Turn_On_Curve_wrt_probe_MuidCB" + "_Numerator";
+        numer = "EFFSpre_dimuonTP_Turn_On_Curve_wrt_probe_MuidCB_Numerator";
 
-        effi =  m_FS_pre_trigger + "_dimuonTP" + "_Turn_On_Curve_wrt_probe_MuidCB";
-
-        hist(effi, histdireff)->Divide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom), 1, 1, "B" );
-
-	dynamic_cast<TGraphAsymmErrors*>( graph(effi + "_Fit", histdireff ) )->BayesDivide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom) );
-
-        denom = m_FS_pre_trigger + "_dimuonTP" + "_Turn_On_Curve_wrt_L1_probe_MuidCB" + "_Denominator";
-
-        numer = m_FS_pre_trigger + "_dimuonTP" + "_Turn_On_Curve_wrt_L1_probe_MuidCB" + "_Numerator";
-
-        effi =  m_FS_pre_trigger + "_dimuonTP" + "_Turn_On_Curve_wrt_L1_probe_MuidCB";
+        effi =  "EFFSpre_dimuonTP_Turn_On_Curve_wrt_probe_MuidCB";
 
         hist(effi, histdireff)->Divide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom), 1, 1, "B" );
 
 	dynamic_cast<TGraphAsymmErrors*>( graph(effi + "_Fit", histdireff ) )->BayesDivide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom) );
 
-        denom = m_FS_pre_trigger + "_dimuonTP" + "_Turn_On_Curve_wrt_probe_MuidCB" + "_Denominator";
+        denom = "EFFSpre_dimuonTP_Turn_On_Curve_wrt_L1_probe_MuidCB_Denominator";
 
-        numer = m_FS_pre_trigger + "_dimuonTP" + "_Turn_On_Curve_wrt_L1_probe_MuidCB" + "_Denominator";
+        numer = "EFFSpre_dimuonTP_Turn_On_Curve_wrt_L1_probe_MuidCB_Numerator";
 
-        effi =  m_FS_pre_trigger + "_dimuonTP" + "_L1_Turn_On_Curve_wrt_probe_MuidCB";
+        effi =  "EFFSpre_dimuonTP_Turn_On_Curve_wrt_L1_probe_MuidCB";
+
+        hist(effi, histdireff)->Divide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom), 1, 1, "B" );
+
+	dynamic_cast<TGraphAsymmErrors*>( graph(effi + "_Fit", histdireff ) )->BayesDivide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom) );
+
+        denom = "EFFSpre_dimuonTP_Turn_On_Curve_wrt_probe_MuidCB_Denominator";
+
+        numer = "EFFSpre_dimuonTP_Turn_On_Curve_wrt_L1_probe_MuidCB_Denominator";
+
+        effi =  "EFFSpre_dimuonTP_L1_Turn_On_Curve_wrt_probe_MuidCB";
 
         hist(effi, histdireff)->Divide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom), 1, 1, "B" );
  
@@ -3909,19 +3905,60 @@ StatusCode HLTMuonMonTool::procChainDQA_HighPt()
   // std::string monarr[4] = {"_MuonEFCB", "_MuGirlEF", "_MuonEFCB", "_MuonEFSA"};
   // std::string monL2arr[4] = {"_MuFast", "_MuGirlL2", "_MuIso", "_MuFast"};
   // pp_v4
-  const int MAXARR = 3;
-  std::string charr[MAXARR] = {"mu36_tight", "mu24i_tight", "mu50_MSonly_barrel_tight"};
-  std::string monarr[MAXARR] = {"_EFmuon", "_EFmuon", "_MuonEFSA"};
-  std::string monL2arr[MAXARR] = {"_MuFast", "_MuFast", "_MuFast"};
-  bool isBarrelMon[MAXARR] = {false, false, true}; // enable MSonly
-  bool isMSbMon[MAXARR] = {true, false, false}; // Skip isol and MSonly
-  bool monL1[MAXARR] = {true, true, false}; // Skip MSonly
-  bool isefIsolation[MAXARR] = {false, true, false}; // EF isolation  add by Yuan 
+
+  int MAXARR = 0;
+  std::vector<std::string> charr;
+  std::vector<std::string> monarr;
+  std::vector<std::string> monL2arr;
+  std::vector<bool> isBarrelMon;
+  std::vector<bool> isMSbMon;
+  std::vector<bool> monL1;
+  std::vector<bool> isefIsolation;
+  for(unsigned int ich = 0; ich < m_chainsGeneric.size(); ich++){
+	MAXARR++;
+	charr.push_back("muChain"+std::to_string(ich+1));
+	monarr.push_back("_EFmuon");
+	monL2arr.push_back("_MuFast");
+	isBarrelMon.push_back(false);
+	isMSbMon.push_back(false);
+	monL1.push_back(true);
+	isefIsolation.push_back(false);
+  }
+  for(unsigned int ich = 0; ich < m_chainsEFiso.size(); ich++){
+	MAXARR++;
+	charr.push_back("muChainIso"+std::to_string(ich+1));
+	monarr.push_back("_EFmuon");
+	monL2arr.push_back("_MuFast");
+	isBarrelMon.push_back(false);
+	isMSbMon.push_back(false);
+	monL1.push_back(true);
+	isefIsolation.push_back(true);
+  }
+  for(unsigned int ich = 0; ich < m_chainsMSonly.size(); ich++){
+	MAXARR++;
+	charr.push_back("muChainMSonly"+std::to_string(ich+1));
+	monarr.push_back("_MuonEFSA");
+	monL2arr.push_back("_MuFast");
+	isBarrelMon.push_back(true);
+	isMSbMon.push_back(false);
+	monL1.push_back(false);
+	isefIsolation.push_back(false);
+  }
+
+
+//  const int MAXARR = 3;
+//  std::string charr[MAXARR] = {"mu36_tight", "mu24i_tight", "mu50_MSonly_barrel_tight"};
+//  std::string monarr[MAXARR] = {"_EFmuon", "_EFmuon", "_MuonEFSA"};
+//  std::string monL2arr[MAXARR] = {"_MuFast", "_MuFast", "_MuFast"};
+//  bool isBarrelMon[MAXARR] = {false, false, true}; // enable MSonly
+//  bool isMSbMon[MAXARR] = {true, false, false}; // Skip isol and MSonly
+//  bool monL1[MAXARR] = {true, true, false}; // Skip MSonly
+//  bool isefIsolation[MAXARR] = {false, true, false}; // EF isolation  add by Yuan 
 
   // YY: dirty fix, should improve by get configuration from Python, but for M4 ...
-  if (1) {
-    return StatusCode::SUCCESS;
-  }
+//  if (1) {
+//    return StatusCode::SUCCESS;
+//  }
     
   if (endOfRun) {
     for (int ialg = 0; ialg < MAXARR; ialg++) {

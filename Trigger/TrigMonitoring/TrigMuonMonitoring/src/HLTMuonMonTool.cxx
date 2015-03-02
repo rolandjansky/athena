@@ -83,7 +83,7 @@ HLTMuonMonTool::HLTMuonMonTool(const std::string & type,
   //construction of TileMu parameters
 
   //construction of MuonEF parameters
-  declareProperty("DeltaRCut", m_deltaRCut = 10);
+  declareProperty("DeltaRCut", m_deltaRCut = 0.15);
 
   //construction of MuGirl parameters
 
@@ -193,6 +193,7 @@ StatusCode HLTMuonMonTool::init()
   //
   for(unsigned int ich = 0; ich < m_chainsMSonly.size(); ich++){
 	m_histChainMSonly.push_back("muChainMSonly"+std::to_string(ich+1));
+	m_ztp_isomap.insert(std::pair<std::string, int>(m_chainsMSonly[ich], 0));
 	m_ztpmap.insert(std::pair<std::string, std::string>(m_chainsMSonly[ich], "muChainMSonly"+std::to_string(ich+1)));
   }
 
@@ -211,6 +212,12 @@ StatusCode HLTMuonMonTool::init()
   // m_chainsStandard.push_back("mu18_tight_mu8_EFFS");  // YY added 26.06.2011, replaced to _medium on 01 Aug 2011 for 2e33
   // m_FS_pre_trigger = "mu18it_tight";
   // m_FS_pre_trigger_second = "mu24i_tight";
+  //
+  // v5 primary
+  // m_histChainEFFS.push_back("muChainEFFS");
+  // m_chainsEFFS.push_back("mu18_mu8noL1");
+  // m_FS_pre_trigger = "mu18";
+  // m_FS_pre_trigger_second = "mu24_imedium";
   
   // chainAnalysis for MuGirl
   // Warning: corresponding standard chain has to exist!!!!!!!!
@@ -799,7 +806,9 @@ StatusCode HLTMuonMonTool::fill()
 
   int sc = scCommon * scRecMuon * scChain * scMuFast * scMuComb * scMuIso * scTileMu * scMuonEF * scMuGirl * scMuZTP;
 
-  ATH_MSG_DEBUG(" scRecMuon " << scRecMuon
+  ATH_MSG_DEBUG( " scCommon " << scCommon
+		<< " scRecMuon " << scRecMuon 
+		<< " scChain " << scChain
                 << " scMuFast " << scMuFast
                 << " scMuComb " << scMuComb
                 << " scMuIso " << scMuIso

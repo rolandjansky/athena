@@ -112,7 +112,7 @@ class HLTMuonMonTool : public IHLTMonTool
   StatusCode fillCommonDQA();
   StatusCode fillChainDQA();
   StatusCode fillChainDQA_MSonly(const std::string& chainName, const std::string & histcName);
-  StatusCode fillChainDQA_standard(const std::string& chainName);
+  StatusCode fillChainDQA_standard(const std::string& chainName, const std::string & histcName);
   StatusCode fillChainDQA_generic(const std::string& chainName, const std::string & histcName,  bool isIsolOffline);
   StatusCode fillMuFastDQA();
   StatusCode fillMuCombDQA();
@@ -180,10 +180,12 @@ class HLTMuonMonTool : public IHLTMonTool
   std::vector<std::string> m_chainsMG;  // added YY 2 Oct 2010
   std::vector<std::string> m_chainsMI;  // added tomoe
   std::vector<std::string> m_chainsGeneric;  // added YY 21 Feb 2012
-  std::vector<std::string> m_histChainGeneric;  // added YY 21 Feb 2012
-  std::vector<std::string> m_histChainEFiso;  // added YY 21 Feb 2012
-  std::vector<std::string> m_histChainMSonly;  // added YY 21 Feb 2012
-  std::vector<std::string> m_chainsEFiso;  // added YY 21 Feb 2012
+  std::vector<std::string> m_chainsEFFS;  
+  std::vector<std::string> m_histChainGeneric;  
+  std::vector<std::string> m_histChainEFiso;  
+  std::vector<std::string> m_histChainMSonly;  
+  std::vector<std::string> m_histChainEFFS ;  
+  std::vector<std::string> m_chainsEFiso;  
   std::vector<std::string> m_chainsL2Standard;
   std::vector<std::string> m_chainsL2passHLT;
   std::map<std::string, std::string> m_ztpmap; // added marx
