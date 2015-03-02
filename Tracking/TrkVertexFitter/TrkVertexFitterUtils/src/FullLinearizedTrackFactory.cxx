@@ -105,7 +105,7 @@ namespace Trk
 
     if (parsAtVertex && parsAtVertex->covariance() && parsAtVertex->covariance()->determinant()<=0)
     {
-      ATH_MSG_WARNING ("The track covariance matrix after extrapolation is: " << parsAtVertex->covariance()->determinant() << 
+      ATH_MSG_DEBUG ("The track covariance matrix det after extrapolation is: " << parsAtVertex->covariance()->determinant() << 
                        " --> Using non extrapolated track parameters");
       delete parsAtVertex;
       parsAtVertex=trackPars->clone();
