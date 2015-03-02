@@ -119,4 +119,5 @@ def MuonCaloTagTool( name='MuonCaloTagTool', **kwargs ):
     kwargs.setdefault("CaloMuonLikelihoodTool", getPublicTool("CaloMuonLikelihoodTool") )
     kwargs.setdefault("TrackDepositInCaloTool", getPublicTool("TrackDepositInCaloTool") )
     kwargs.setdefault("TrackSelectorTool",      getPublicTool("CaloTrkMuIdAlgTrackSelectorTool") )
+    kwargs.setdefault("doCaloLR",               False )
     return CfgMgr.MuonCombined__MuonCaloTagTool(name,**kwargs )
