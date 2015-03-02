@@ -89,7 +89,8 @@ StatusCode TauTestDump::execute(TauCandidateData *data) {
     
     //stop here
     return StatusCode::SUCCESS;
-    
+
+    /* Unreachable due to the above return statement. Disabled to shut coverity up.
     if (pTau->nTracks() != 1) {
       // Pi0 calculated only for 1p taus --> leave test case
       ATH_MSG_INFO("Pi0 calculated only for 1p taus --> leave test case");
@@ -115,6 +116,7 @@ StatusCode TauTestDump::execute(TauCandidateData *data) {
     ATH_MSG_INFO("=== TAU TEST DUMP END ==================== ");
 
     return StatusCode::SUCCESS;
+    */
 }
 
 

@@ -48,6 +48,7 @@ namespace TauShotVariableHelpers {
         }
         if(seedCell==NULL){
           std::cout << "WARNING: Couldn't find seed cell in shot cluster. Return empty cell block." << std::endl;
+          return cellVector;
         }
         
         // get merged cell in phi. Keep NULL if shot is not merged across phi
