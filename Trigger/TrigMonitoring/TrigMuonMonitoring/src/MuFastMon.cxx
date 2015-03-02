@@ -222,12 +222,9 @@ StatusCode HLTMuonMonTool::fillMuFastDQA()
   const float PTRESOL_OVFL    =  1.95;
 
   // -----------------------------
-  // Retrieve MuonFeatureContainer
+  // Retrieve L2StandAloneMuonContainer 
   // -----------------------------
 
-  //const DataHandle<MuonFeatureContainer> mfContainer;  //attention
-  //const DataHandle<MuonFeatureContainer> lastmfContainer;  //attention
-  //
   const DataHandle<xAOD::L2StandAloneMuonContainer> mfContainer;
   const DataHandle<xAOD::L2StandAloneMuonContainer> lastmfContainer;
   StatusCode sc_mf = m_storeGate->retrieve(mfContainer,lastmfContainer);
@@ -269,7 +266,7 @@ StatusCode HLTMuonMonTool::fillMuFastDQA()
     int   saddr  = (*itMf)->sAddress();
     int   roiId  = (*itMf)->roiId();
     //ATH_MSG_DEBUG( " nmf  " << nmf );
-    ATH_MSG_DEBUG( " id  " << id );
+    ATH_MSG_DEBUG( " id  " << id );  // attention
     ATH_MSG_DEBUG( " pt  " << pt );
     ATH_MSG_DEBUG( " eta " << eta );
     ATH_MSG_DEBUG( " phi " << phi );
@@ -340,59 +337,25 @@ StatusCode HLTMuonMonTool::fillMuFastDQA()
 
   } // loop over vecMuonFeatures
 
-  // ------------------------------------
-  // Retrieve MuonFeatureDetailsContainer
-  // ------------------------------------
 
+  int nMuFastD = vec_muonFeatures.size();
 
-  const DataHandle<MuonFeatureDetailsContainer> mfdContainer;
-  const DataHandle<MuonFeatureDetailsContainer> lastmfdContainer;
-  StatusCode sc_mfd = m_storeGate->retrieve(mfdContainer,lastmfdContainer);
-  if ( sc_mfd.isFailure() ) {
-    //ATH_MSG_VERBOSE( "Failed to retrieve HLT muFast details container" );  // attention
-    ATH_MSG_INFO( "Failed to retrieve HLT muFast details container" );  // attention
-    return StatusCode::SUCCESS;    
-  }
-  
-  if ( !mfdContainer ) {
-    ATH_MSG_INFO( "MuonFeatureDetailsContainer not found. Truncated?" );
-  }
-
-  ATH_MSG_DEBUG( " ====== START HLTMuon muFast details MonTool ====== " );
-
-  // -----------------------------
-  // Dump muonFeatureDetails info
-  // -----------------------------
-
-  std::vector<const MuonFeatureDetails*> vec_muonFeatureDetails;
-
-  for(; mfdContainer != lastmfdContainer; mfdContainer++) {
-    MuonFeatureDetailsContainer::const_iterator mfd     = mfdContainer->begin();
-    MuonFeatureDetailsContainer::const_iterator lastmfd = mfdContainer->end();
-    for(; mfd != lastmfd; mfd++) {
-      if( (*mfd) == 0 ) continue;
-      vec_muonFeatureDetails.push_back( *mfd );
-    }
-  }
-
-  int nMuFastD = vec_muonFeatureDetails.size();
-
-  std::vector<const MuonFeatureDetails*>::const_iterator itMfd;
+  std::vector<const xAOD::L2StandAloneMuon*>::const_iterator itMfd;
 
   //int nmfd=0;
   //int nmfd10=0;
   const float DR_CUT = 0.4;
-  for(itMfd=vec_muonFeatureDetails.begin(); itMfd != vec_muonFeatureDetails.end(); itMfd++) {
+  for(itMfd=vec_muonFeatures.begin(); itMfd != vec_muonFeatures.end(); itMfd++) {
     bool off_match = false;
     //nmfd++;
-    int id = (*itMfd)->id();
-    if( id != 0 ) continue;//muFast_900GeV    
+    int id = (*itMfd)->algoId();
+    //if( id != 0 ) continue;//muFast_900GeV   //attention 
     //if( id != 1 ) continue;//muFast_Muon   
     //if( id < 10 ) nmfd10++; 
-    int systemID = (*itMfd)->roi_system();//0:barrel,1:endcap,2:forward
+    int systemID = (*itMfd)->roiSystem();//0:barrel,1:endcap,2:forward
     // (YY commented out for suppressing warning) float pt = (*itMfd)->Pt();
-    float eta = (*itMfd)->Eta();
-    float phi = (*itMfd)->Phi();
+    float eta = (*itMfd)->eta();
+    float phi = (*itMfd)->phi();
 
     //std::cout<< "nMFD " << nmfd << " id " << id << " pt " << pt << " eta " << eta << " phi " << phi << std::endl;
     for(int i_rec=0;i_rec<(int)m_RecMuonCB_pt.size();i_rec++){
@@ -411,49 +374,49 @@ StatusCode HLTMuonMonTool::fillMuFastDQA()
     bool isL1hitThere               = false;
     bool isL1emuOkForTriggerPlane   = false;
 
-    int nRPC = (*itMfd)->pad_hit_onlineId().size();
+    int nRPC = (*itMfd)->padHitOnlineId().size();
 
-    int nTGCMidRho = (*itMfd)->tgc_Mid_rho_N();
-    int nTGCMidPhi = (*itMfd)->tgc_Mid_phi_N();
-    int nTGCInnRho = (*itMfd)->tgc_Inn_rho_N();
-    int nTGCInnPhi = (*itMfd)->tgc_Inn_phi_N();
-    float TGCMidRhoChi2 = (*itMfd)->tgc_Mid_rho_chi2();
-    float TGCMidPhiChi2 = (*itMfd)->tgc_Mid_phi_chi2();
+    int nTGCMidRho = (*itMfd)->tgcMidRhoN();
+    int nTGCMidPhi = (*itMfd)->tgcMidPhiN();
+    int nTGCInnRho = (*itMfd)->tgcInnRhoN();
+    int nTGCInnPhi = (*itMfd)->tgcInnPhiN();
+    float TGCMidRhoChi2 = (*itMfd)->tgcMidRhoChi2();
+    float TGCMidPhiChi2 = (*itMfd)->tgcMidPhiChi2();
 
     if( systemID==0 ) { // RPC
-      float rpc1_z = (*itMfd)->rpc1_z();
-      float rpc2_z = (*itMfd)->rpc2_z();
+      float rpc1_z = (*itMfd)->rpc1z();
+      float rpc2_z = (*itMfd)->rpc2z();
       const float NO_VALUE = 99999;
       if( nRPC!=0 ) isL1hitThere = true;
       if( fabs(rpc1_z-NO_VALUE) > ZERO_LIMIT && fabs(rpc1_z) > ZERO_LIMIT && fabs(rpc2_z-NO_VALUE) > ZERO_LIMIT && fabs(rpc2_z) > ZERO_LIMIT ) isL1emuOkForTriggerPlane = true;
-      ATH_MSG_DEBUG("RPC nHits=" << nRPC);
+      ATH_MSG_DEBUG("RPC nHits=" << nRPC);  
       ATH_MSG_DEBUG("RPC 1/2 Z=" << rpc1_z << " / " << rpc2_z);
     }
     else { // TGC
       const float NO_VALUE = -99999;
       if( nTGCMidRho!=0 && nTGCMidPhi!=0 ) isL1hitThere = true;
       if( fabs(TGCMidRhoChi2 - NO_VALUE) > ZERO_LIMIT && fabs(TGCMidPhiChi2 - NO_VALUE) > ZERO_LIMIT ) isL1emuOkForTriggerPlane = true;
-      ATH_MSG_DEBUG("TGC Mid nHits: Rho/Phi=" << nTGCMidRho << " / " << nTGCMidPhi);
+      ATH_MSG_DEBUG("TGC Mid nHits: Rho/Phi=" << nTGCMidRho << " / " << nTGCMidPhi); 
       ATH_MSG_DEBUG("TGC Mid Chi2 : Rho/Phi=" << TGCMidRhoChi2 << " / " << TGCMidPhiChi2);
     }
 
 
     // loop each MDT tube
-    std::vector<float> mdt_tube_residual = (*itMfd)->mdt_tube_residual();
-    std::vector<float> mdt_tube_r        = (*itMfd)->mdt_tube_r();
-    std::vector<float> mdt_tube_z        = (*itMfd)->mdt_tube_z();
+
+    int n_mdt_hits = (*itMfd)->nMdtHits();
 
     int n_mdt_hits_inner  = 0;
     int n_mdt_hits_middle = 0;
     int n_mdt_hits_outer  = 0;
 
+
     // if muFast succeeded segment reconstruction.
     //std::cout << "L1_MBTS_2 " << getTDT()->isPassed( "L1_MBTS_2" ) << " L1_MU0 " << getTDT()->isPassed( "L1_MU0" ) << std::endl;;
       if( systemID==0 ){//barrel
-        for(int i_tube=0; i_tube<(int)mdt_tube_residual.size(); i_tube++) {
+        for(int i_tube=0; i_tube<n_mdt_hits; i_tube++) {
           
-          float res = mdt_tube_residual[i_tube];
-          float r   = mdt_tube_r[i_tube];
+          float res = (*itMfd)->mdtHitResidual(i_tube);
+          float r   = (*itMfd)->mdtHitR(i_tube);
           int imr = 2;
           if     ( r < 650 ) { imr=0; }
           else if( r < 850 ) { imr=1; }
@@ -490,10 +453,10 @@ StatusCode HLTMuonMonTool::fillMuFastDQA()
         }
       } 
       else{ //endcap
-        for(int i_tube=0; i_tube<(int)mdt_tube_residual.size(); i_tube++) {
+        for(int i_tube=0; i_tube<n_mdt_hits; i_tube++) {
 
-          float res = mdt_tube_residual[i_tube] / 10 ; // to cm
-          float z   = mdt_tube_z[i_tube];
+          float res = (*itMfd)->mdtHitResidual(i_tube) / 10 ; // to cm
+          float z   = (*itMfd)->mdtHitR(i_tube);
           int imr = 2;
           if     ( fabs(z) < 10000 ) { imr=0; }
           else if( fabs(z) < 15000 ) { imr=1; }
@@ -531,43 +494,44 @@ StatusCode HLTMuonMonTool::fillMuFastDQA()
 
     //MDT flow
     bool isMDThitThereForTriggerPlane = false;
-    bool isMDTFitOkForTriggerPlane    = false;
-    bool isMDTFitOkFor2Plane          = false;
+//*    bool isMDTFitOkForTriggerPlane    = false;
+//*    bool isMDTFitOkFor2Plane          = false;
 
-    int nMDT = (*itMfd)->mdt_onlineId().size();
-
-    float MDTInnChi2 = (*itMfd)->mdt_Inner_fit_chi();
-    float MDTMidChi2 = (*itMfd)->mdt_Middle_fit_chi();
-    float MDTOutChi2 = (*itMfd)->mdt_Outer_fit_chi();
-
-    const float MDT_CHI2_NO_VALUE = -99999;
+//*    int nMDT = (*itMfd)->mdt_onlineId().size();
+//*
+//*    float MDTInnChi2 = (*itMfd)->mdt_Inner_fit_chi();
+//*    float MDTMidChi2 = (*itMfd)->mdt_Middle_fit_chi();
+//*    float MDTOutChi2 = (*itMfd)->mdt_Outer_fit_chi();
+//*
+//*    const float MDT_CHI2_NO_VALUE = -99999;
 
     if( n_mdt_hits_middle != 0 ) isMDThitThereForTriggerPlane = true;
-    if( fabs(MDTMidChi2-MDT_CHI2_NO_VALUE) > ZERO_LIMIT ) isMDTFitOkForTriggerPlane = true;
-    if( isMDTFitOkForTriggerPlane && (fabs(MDTInnChi2 - MDT_CHI2_NO_VALUE) > ZERO_LIMIT || fabs(MDTOutChi2 - MDT_CHI2_NO_VALUE) > ZERO_LIMIT) ) isMDTFitOkFor2Plane  = true;
+//*    if( fabs(MDTMidChi2-MDT_CHI2_NO_VALUE) > ZERO_LIMIT ) isMDTFitOkForTriggerPlane = true;
+//*    if( isMDTFitOkForTriggerPlane && (fabs(MDTInnChi2 - MDT_CHI2_NO_VALUE) > ZERO_LIMIT || fabs(MDTOutChi2 - MDT_CHI2_NO_VALUE) > ZERO_LIMIT) ) isMDTFitOkFor2Plane  = true;
 
     ATH_MSG_DEBUG("isL1hitThere/emuOkForTriggerPlane=" << isL1hitThere << " / " << isL1emuOkForTriggerPlane);
 
-    ATH_MSG_DEBUG("isMDThitThere/FitOkForTriggerPlane/FitOkFor2Plane=" << isMDThitThereForTriggerPlane << " / "
-                  << isMDTFitOkForTriggerPlane << " / " << isMDTFitOkFor2Plane);
+//*    ATH_MSG_DEBUG("isMDThitThere/FitOkForTriggerPlane/FitOkFor2Plane=" << isMDThitThereForTriggerPlane << " / "
+//*                  << isMDTFitOkForTriggerPlane << " / " << isMDTFitOkFor2Plane);
 
     hist("muFast_proc_flow",histdirmufast)->Fill(1+0.01);
     if( isL1hitThere )                 hist("muFast_proc_flow",histdirmufast)->Fill(2+0.01);
     if( isL1emuOkForTriggerPlane )     hist("muFast_proc_flow",histdirmufast)->Fill(3+0.01);
     if( isMDThitThereForTriggerPlane ) hist("muFast_proc_flow",histdirmufast)->Fill(4+0.01);
-    if( isMDTFitOkForTriggerPlane )    hist("muFast_proc_flow",histdirmufast)->Fill(5+0.01);
-    if( isMDTFitOkFor2Plane )          hist("muFast_proc_flow",histdirmufast)->Fill(6+0.01);
+//*    if( isMDTFitOkForTriggerPlane )    hist("muFast_proc_flow",histdirmufast)->Fill(5+0.01);
+//*    if( isMDTFitOkFor2Plane )          hist("muFast_proc_flow",histdirmufast)->Fill(6+0.01);
 
     // fill
 
     if( systemID==0 ){//barrel
       hist("muFast_RPC_Pad_N", histdirmufast)->Fill(nRPC);
 
-      hist("muFast_MDT_Inn_fit_chi2_barrel", histdirmufast)->Fill(MDTInnChi2);
-      hist("muFast_MDT_Mid_fit_chi2_barrel", histdirmufast)->Fill(MDTMidChi2);
-      hist("muFast_MDT_Out_fit_chi2_barrel", histdirmufast)->Fill(MDTOutChi2);
+//*      hist("muFast_MDT_Inn_fit_chi2_barrel", histdirmufast)->Fill(MDTInnChi2);
+//*      hist("muFast_MDT_Mid_fit_chi2_barrel", histdirmufast)->Fill(MDTMidChi2);
+//*      hist("muFast_MDT_Out_fit_chi2_barrel", histdirmufast)->Fill(MDTOutChi2);
 
-      hist("muFast_MDT_N_barrel", histdirmufast)->Fill(nMDT+0.01);
+//*      hist("muFast_MDT_N_barrel", histdirmufast)->Fill(nMDT+0.01);
+      hist("muFast_MDT_N_barrel", histdirmufast)->Fill(n_mdt_hits+0.01);
 
       hist("muFast_MDT_Inn_N_barrel", histdirmufast)->Fill(n_mdt_hits_inner+0.01);
       hist("muFast_MDT_Mid_N_barrel", histdirmufast)->Fill(n_mdt_hits_middle+0.01);
@@ -582,17 +546,19 @@ StatusCode HLTMuonMonTool::fillMuFastDQA()
       hist("muFast_TGC_Mid_rho_chi2", histdirmufast)->Fill(TGCMidRhoChi2);
       hist("muFast_TGC_Mid_phi_chi2", histdirmufast)->Fill(TGCMidPhiChi2);
 
-      hist("muFast_MDT_Inn_fit_chi2_endcap", histdirmufast)->Fill(MDTInnChi2);
-      hist("muFast_MDT_Mid_fit_chi2_endcap", histdirmufast)->Fill(MDTMidChi2);
-      hist("muFast_MDT_Out_fit_chi2_endcap", histdirmufast)->Fill(MDTOutChi2);
+//*      hist("muFast_MDT_Inn_fit_chi2_endcap", histdirmufast)->Fill(MDTInnChi2);
+//*      hist("muFast_MDT_Mid_fit_chi2_endcap", histdirmufast)->Fill(MDTMidChi2);
+//*      hist("muFast_MDT_Out_fit_chi2_endcap", histdirmufast)->Fill(MDTOutChi2);
 
-      hist("muFast_MDT_N_endcap", histdirmufast)->Fill(nMDT);
+//*      hist("muFast_MDT_N_endcap", histdirmufast)->Fill(nMDT);
+      hist("muFast_MDT_N_endcap", histdirmufast)->Fill(n_mdt_hits);
+
       hist("muFast_MDT_Inn_N_endcap", histdirmufast)->Fill(n_mdt_hits_inner+0.01);
       hist("muFast_MDT_Mid_N_endcap", histdirmufast)->Fill(n_mdt_hits_middle+0.01);
       hist("muFast_MDT_Out_N_endcap", histdirmufast)->Fill(n_mdt_hits_outer+0.01);
     }
     
-  } // end of loop MuonFetureDetails
+  } // end of loop MuonFeture
 
   //std:: cout << " nMF " << nmf << " nMFD "<< nmfd << " nMFD10 " << nmfd10 << " matching nMF==nMFD10 " << (nmf==nmfd10) << std::endl;
 

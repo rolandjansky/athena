@@ -307,7 +307,7 @@ StatusCode HLTMuonMonTool::fillMuonEFDQA()
   StatusCode sc_muonEFi = m_storeGate->retrieve(muonEFcontainer, "HLT_xAOD__MuonContainer_MuonEFInfo");
   // ATH_MSG_INFO ( "EF muon xAOD: " << sc_muonEFi );
   
-  if (!sc_muonEFi.isFailure()) { // xAOD for offline muon found
+  if (!sc_muonEFi.isFailure()) { // xAOD for EF muon found
     for (auto muon : *muonEFcontainer) {
       ATH_MSG_DEBUG( "Muon found, " << muon->pt() );
 
@@ -356,10 +356,10 @@ StatusCode HLTMuonMonTool::fillMuonEFDQA()
 	  const xAOD::TrackParticle* mooreMuon = 0;
 	  mooreMuon = *(muon->muonSpectrometerTrackParticleLink());
 	  float pt = mooreMuon->pt()/CLHEP::GeV;
-	  float signed_pt  = float(std::abs(muon->pt())/CLHEP::GeV * mooreMuon->charge())  ;
+	  float charge = mooreMuon->charge();
+	  float signed_pt  = float(std::abs(muon->pt())/CLHEP::GeV * charge)  ;
 	  float eta = mooreMuon->eta();
 	  float phi = mooreMuon->phi();
-	  float charge = mooreMuon->charge();
 
 	  float pt_hist = pt;
 	  if( fabs(pt_hist) > PT_HISTMAX ){ pt_hist =  PT_OVFL; }
@@ -381,7 +381,6 @@ StatusCode HLTMuonMonTool::fillMuonEFDQA()
 
 	}
 
-	// attention: there seems no SA link from CB (according to LY code)
 	if (xAOD::Muon::MuonType::MuonStandAlone == muontype) {
 	  nMuonEFSA++;
 
@@ -398,7 +397,9 @@ StatusCode HLTMuonMonTool::fillMuonEFDQA()
 	}
 	
       }
-    }
+    } // end loop on EF muon
+    if(nMuonEFMS) nmethod=1;
+
   } else {
     ATH_MSG_DEBUG( "Failed to retrieve xAOD Muon" );
     // Retrieve Muon from TrigMuonEFInfoContainer
@@ -658,8 +659,6 @@ StatusCode HLTMuonMonTool::fillMuonEFDQA()
   if(nMuonEFiCB)hist("Common_Counter", histdir)->Fill((float)MUONEFCBFOUND);
   ATH_MSG_DEBUG(  "filled numbers of MuonEF muons" );
 
-  //  return StatusCode::SUCCESS;
-  //}
 
   //StatusCode HLTMuonMonTool::fillMuonEFOffDQA(){
   int n_RecMSmuon=0;  
@@ -683,7 +682,6 @@ StatusCode HLTMuonMonTool::fillMuonEFDQA()
     
     for (; contItr != contItrE; contItr++){
 
-      const xAOD::Muon* recMuon = *contItr;
       float pt  = - 999999.;
       float eta = -999.;
       float phi = -999.;
@@ -691,8 +689,6 @@ StatusCode HLTMuonMonTool::fillMuonEFDQA()
  
       ATH_MSG_DEBUG(  "check MS muon " );
       if ((*contItr)->muonSpectrometerTrackParticleLink()!= 0 ){
-        //&& 
-        //(*contItr)->muonSpectrometerTrackParticle()->iPt() != 0){
         ATH_MSG_DEBUG(  "MS muon found" );
 
 	n_RecMSmuon++;
@@ -715,32 +711,9 @@ StatusCode HLTMuonMonTool::fillMuonEFDQA()
 
       } 
       ATH_MSG_DEBUG(  "check SA muon " );
-	/*  // attention
-      if ((*contItr)->muonExtrapolatedTrackParticle()!=0 ){
-        ATH_MSG_DEBUG(  "SA muon found" );
-	  
-	n_RecSAmuon++;
-	const Rec::TrackParticle* muidSAMuon = recMuon->muonExtrapolatedTrackParticle();
-	pt = muidSAMuon->pt()/CLHEP::GeV;
-	eta = muidSAMuon->eta();
-	phi = muidSAMuon->phi();
-	charge = muidSAMuon->charge();
-	  
-	pt_RecSAmuon.push_back(pt);
-	eta_RecSAmuon.push_back(eta);
-	phi_RecSAmuon.push_back(phi);
-	charge_RecSAmuon.push_back(charge);
-	  
-	hist("RecSA_pt", histdirmuonef)->Fill(pt);
-	hist("RecSA_eta", histdirmuonef)->Fill(eta);
-	hist("RecSA_phi", histdirmuonef)->Fill(phi);
-	  	  
-      }
-	*/
+
       ATH_MSG_DEBUG(  "check CB muon " );
       if((*contItr)->combinedTrackParticleLink()!=0 ){
-        //&&
-        //(*contItr)->combinedMuonTrackParticle()->iPt()!=0 ){
         ATH_MSG_DEBUG(  "CB muon found" );
 	n_RecCBmuon++;
 
@@ -761,6 +734,9 @@ StatusCode HLTMuonMonTool::fillMuonEFDQA()
 	hist("RecCB_phi", histdirmuonef)->Fill(phi);
 	  
       }
+    } // end loop on offline muon container
+  } // successfully retrieve offline muon container
+
       // TrigMuonEF TrackBuilder
       for(int i_offl=0;i_offl<(int)pt_RecMSmuon.size();i_offl++) {
 
@@ -782,43 +758,23 @@ StatusCode HLTMuonMonTool::fillMuonEFDQA()
   
         // check whether matching TrigMuonEF TrackBuilder track is there
         float dRmin  = 1000.;
-        float pt_efms  = 0.; 
-        float eta_efms = 0.; 
-        float phi_efms = 0.; 
+        // float pt_efms  = 0.; 
+        // float eta_efms = 0.; 
+        // float phi_efms = 0.; 
 
-	// YY: need to convert to xAOD
-        const DataHandle< TrigMuonEFInfoContainer > trigMuon, lastTrigMuon;
-        StatusCode sc_muonEFiiTB = m_storeGate->retrieve(trigMuon,lastTrigMuon);
-
-        if (!sc_muonEFiiTB.isFailure()) {
-        for (; trigMuon != lastTrigMuon; trigMuon++) {
-          TrigMuonEFInfoContainer::const_iterator MuonItr  = trigMuon->begin();
-          TrigMuonEFInfoContainer::const_iterator MuonItrE = trigMuon->end();
-          for (; MuonItr != MuonItrE; MuonItr++ ) {
-            TrigMuonEFInfo* muonInfo = (*MuonItr);
-	    if (muonInfo->hasTrack()) {
-	      TrigMuonEFInfoTrackContainer *tc = muonInfo->TrackContainer();  // get the TrackContainer
-              for (TrigMuonEFInfoTrackContainer::const_iterator TrackItr = tc->begin()  ; TrackItr!=tc->end() ; TrackItr++) { 
-		TrigMuonEFInfoTrack* muonInfoTr = (*TrackItr);
-		TrigMuonEFTrack* muonTrack =  muonInfoTr->SpectrometerTrack();
-		if (muonTrack && muonTrack->iPt() !=0) {
-		  float pt = float(muonTrack->pt()/CLHEP::GeV);
-		  if( fabs(pt) < ZERO_LIMIT )  continue;
-		  float eta  = muonTrack->eta();
-		  float phi  = muonTrack->phi();        
-		  float dR = calc_dR(eta, phi, eta_offl, phi_offl);        
-		  if( dR < dRmin ) {
-		    dRmin = dR;
-		    pt_efms = pt;
-		    eta_efms = eta;
-		    phi_efms = phi;
-		  }
+	for(unsigned int i_MS=0; i_MS<pt_EFMSmuon.size(); i_MS++){
+		float pt = pt_EFMSmuon[i_MS];
+		if(pt < ZERO_LIMIT) continue;
+		float eta = eta_EFMSmuon[i_MS];
+		float phi = phi_EFMSmuon[i_MS];
+		float dR = calc_dR(eta, phi, eta_offl, phi_offl);        
+		if( dR < dRmin ) {
+			dRmin = dR;
+			// pt_efms = pt;
+			// eta_efms = eta;
+			// phi_efms = phi;
 		}
-	      }
-	    }
-          }
-        }
-        }
+	}
  
         ///hist("EFMS_dR_toOffl", histdirmuonef)->Fill(dRmin);
         if( dRmin > DR_MATCHED ) continue; // not matched to TrigMuonEF Combiner
@@ -850,44 +806,24 @@ StatusCode HLTMuonMonTool::fillMuonEFDQA()
   
         // check whether matching TrigMuonEF Combiner track is there
         float dRmin  = 1000.;
-        float pt_efsa  = 0.; 
-        float eta_efsa = 0.; 
-        float phi_efsa = 0.; 
+        // float pt_efsa  = 0.; 
+        // float eta_efsa = 0.; 
+        // float phi_efsa = 0.; 
 
-	// YY: need to convert to xAOD
-        const DataHandle< TrigMuonEFInfoContainer > trigMuon, lastTrigMuon;
-        StatusCode sc_muonEFiiSA = m_storeGate->retrieve(trigMuon,lastTrigMuon);
-
-        if (!sc_muonEFiiSA.isFailure()) {
-        for (; trigMuon != lastTrigMuon; trigMuon++) {
-          TrigMuonEFInfoContainer::const_iterator MuonItr  = trigMuon->begin();
-          TrigMuonEFInfoContainer::const_iterator MuonItrE = trigMuon->end();
-          for (; MuonItr != MuonItrE; MuonItr++ ) {
-            TrigMuonEFInfo* muonInfo = (*MuonItr);
-	    if (muonInfo->hasTrack()) {
-	      TrigMuonEFInfoTrackContainer *tc = muonInfo->TrackContainer();  // get the TrackContainer
-              for (TrigMuonEFInfoTrackContainer::const_iterator TrackItr = tc->begin(); TrackItr!=tc->end() ; TrackItr++) {  // loop over container content
-                TrigMuonEFInfoTrack* muonInfoTr = (*TrackItr);
-		
-		TrigMuonEFTrack* muonTrack = muonInfoTr->ExtrapolatedTrack();
-		if (muonTrack && muonTrack->iPt() !=0) {
-		  float pt = float(muonTrack->pt()/CLHEP::GeV);
-		  if( fabs(pt) < ZERO_LIMIT )  continue;
-		  float eta  = muonTrack->eta();
-		  float phi  = muonTrack->phi();
-		  float dR = calc_dR(eta, phi, eta_offl, phi_offl);
-		  if( dR < dRmin ) {
-		    dRmin = dR;
-		    pt_efsa = pt;
-		    eta_efsa = eta;
-		    phi_efsa = phi;
-		  }
+	for(unsigned int i_SA=0; i_SA<pt_EFSAmuon.size(); i_SA++){
+		float pt = pt_EFSAmuon[i_SA];
+		if(pt < ZERO_LIMIT) continue; 
+		float eta = eta_EFSAmuon[i_SA];
+		float phi = phi_EFSAmuon[i_SA];
+		float dR = calc_dR(eta, phi, eta_offl, phi_offl);        
+		if( dR < dRmin ) {
+			dRmin = dR;
+			// pt_efsa = pt;
+			// eta_efsa = eta;
+			// phi_efsa = phi;
 		}
-              }
-            }
-          }
-        }
-        }
+	}
+
 	
         ///hist("EFSA_dR_toOffl", histdirmuonef)->Fill(dRmin);
         if( dRmin > DR_MATCHED ) continue; // not matched to TrigMuonEF Combiner
@@ -919,45 +855,24 @@ StatusCode HLTMuonMonTool::fillMuonEFDQA()
   
         // check whether matching TrigMuonEF Combiner track is there
         float dRmin  = 1000.;
-        float pt_efcb  = 0.; 
-        float eta_efcb = 0.; 
-        float phi_efcb = 0.; 
+        // float pt_efcb  = 0.; 
+        // float eta_efcb = 0.; 
+        // float phi_efcb = 0.; 
 
-	// YY: need to convert to xAOD
-        const DataHandle< TrigMuonEFInfoContainer > trigMuon, lastTrigMuon;
-        StatusCode sc_muonEFiiCB = m_storeGate->retrieve(trigMuon,lastTrigMuon);
-
-        if (!sc_muonEFiiCB.isFailure()) {
-        for (; trigMuon != lastTrigMuon; trigMuon++) {
-          TrigMuonEFInfoContainer::const_iterator MuonItr  = trigMuon->begin();
-          TrigMuonEFInfoContainer::const_iterator MuonItrE = trigMuon->end();
-          for (; MuonItr != MuonItrE; MuonItr++ ) {
-            TrigMuonEFInfo* muonInfo = (*MuonItr);
-	    
-	    if (muonInfo->hasTrack()) {
-              TrigMuonEFInfoTrackContainer *tc = muonInfo->TrackContainer();  // get the TrackContainer
-              for (TrigMuonEFInfoTrackContainer::const_iterator TrackItr = tc->begin() ; TrackItr!=tc->end(); TrackItr++) {  // loop over container content
-                TrigMuonEFInfoTrack* muonInfoTr = (*TrackItr);
-		TrigMuonEFCbTrack* muonTrack = muonInfoTr->CombinedTrack();
-		if (muonTrack && muonTrack->iPt() != 0.) {
-		  float pt = float(muonTrack->pt()/CLHEP::GeV);
-		  if( fabs(pt) < ZERO_LIMIT )  continue;
-		  float eta  = muonTrack->eta();
-		  float phi  = muonTrack->phi();
-		  float dR = calc_dR(eta, phi, eta_offl, phi_offl);
-		  if( dR < dRmin ) {
-		    dRmin = dR;
-		    pt_efcb = pt;
-		    eta_efcb = eta;
-		    phi_efcb = phi;
-		  }
+ 	for(unsigned int i_CB=0; i_CB<pt_EFCBmuon.size(); i_CB++){
+		float pt = pt_EFCBmuon[i_CB];
+		if(pt < ZERO_LIMIT) continue; 
+		float eta = eta_EFCBmuon[i_CB];
+		float phi = phi_EFCBmuon[i_CB];
+		float dR = calc_dR(eta, phi, eta_offl, phi_offl);        
+		if( dR < dRmin ) {
+			dRmin = dR;
+			// pt_efcb = pt;
+			// eta_efcb = eta;
+			// phi_efcb = phi;
 		}
-              }
-            }
-          }
-        }
-        }
- 
+	}
+
         ///hist("EFCB_dR_toOffl", histdirmuonef)->Fill(dRmin);
 
         if( dRmin > DR_MATCHED ) continue; // not matched to TrigMuonEF Combiner
@@ -971,24 +886,22 @@ StatusCode HLTMuonMonTool::fillMuonEFDQA()
       // Just in case of tagging muonalgorithms
       /******************************************
 	// if((*contItr)->isLowPtReconstructedMuon()){
-	if((*contItr)->isSegmentTaggedMuon() && (*contItr)->inDetTrackParticle()!=0)){
+	if((*contItr)->isSegmentTaggedMuon() && (*contItr)->inDetTrackParticle()!=0))
           hist("RecLPt_pt")->Fill(pt);
           hist("RecLPt_eta")->Fill(eta);
           hist("RecLPt_phi")->Fill(phi);
         }
       *****************************************/
-    }
 
-  }
 
   const float FAILED_PT_THRES = 0.00001;
 
   // Retrieve MuonFeatureContainer
-  const DataHandle<MuonFeatureContainer> mfContainer;
-  const DataHandle<MuonFeatureContainer> lastmfContainer;
+  const DataHandle<xAOD::L2StandAloneMuonContainer> mfContainer;
+  const DataHandle<xAOD::L2StandAloneMuonContainer> lastmfContainer;
   StatusCode sc_mf = m_storeGate->retrieve(mfContainer,lastmfContainer);
   if ( sc_mf.isFailure() ) {
-    ATH_MSG_DEBUG( "Failed to retrieve HLT muFast container" );
+    ATH_MSG_WARNING( "Failed to retrieve HLT muFast container" );
     return StatusCode::SUCCESS;    
   }
 
@@ -996,8 +909,8 @@ StatusCode HLTMuonMonTool::fillMuonEFDQA()
   int nMuFast=0;
   for(; mfContainer != lastmfContainer; mfContainer++) {
 
-    MuonFeatureContainer::const_iterator mf     = mfContainer->begin();
-    MuonFeatureContainer::const_iterator lastmf = mfContainer->end();
+    xAOD::L2StandAloneMuonContainer::const_iterator mf     = mfContainer->begin();
+    xAOD::L2StandAloneMuonContainer::const_iterator lastmf = mfContainer->end();
 
     for(; mf != lastmf; mf++) {
  
@@ -1133,12 +1046,14 @@ StatusCode HLTMuonMonTool::fillMuonEFDQA()
 
   // **************************************     Efficiency of EF wrt Reco muons which passed LVL2 MuFast  ***************************************
 
-  // Retrieve CombinedMuonFeatureContainer
-  const DataHandle<CombinedMuonFeatureContainer> combContainer;
-  const DataHandle<CombinedMuonFeatureContainer> lastcombContainer;
+  // Retrieve L2CombinedMuonContainer
+
+  const DataHandle<xAOD::L2CombinedMuonContainer> combContainer;
+  const DataHandle<xAOD::L2CombinedMuonContainer> lastcombContainer;
   StatusCode sc_comb = m_storeGate->retrieve(combContainer,lastcombContainer);
+
   if ( sc_comb.isFailure() ) {
-    ATH_MSG_DEBUG( "Failed to retrieve HLT muComb container" );
+    ATH_MSG_WARNING( "Failed to retrieve HLT muComb container" );
     return StatusCode::SUCCESS;    
   }
  
@@ -1147,8 +1062,8 @@ StatusCode HLTMuonMonTool::fillMuonEFDQA()
   int nMuComb=0;
   for(; combContainer != lastcombContainer; combContainer++) {
    
-    CombinedMuonFeatureContainer::const_iterator comb     = combContainer->begin();
-    CombinedMuonFeatureContainer::const_iterator lastcomb = combContainer->end();
+    xAOD::L2CombinedMuonContainer::const_iterator comb     = combContainer->begin();
+    xAOD::L2CombinedMuonContainer::const_iterator lastcomb = combContainer->end();
    
     for(; comb != lastcomb; comb++) {
      

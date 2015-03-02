@@ -30,6 +30,11 @@
 
 #include "TrigMuonMonitoring/HLTMuonMonTool.h"
 
+#include "xAODTrigMuon/L2CombinedMuonContainer.h"
+#include "xAODTrigMuon/L2CombinedMuon.h"
+#include "xAODTrigMuon/L2StandAloneMuonContainer.h"
+#include "xAODTrigMuon/L2StandAloneMuon.h"
+
 //for GetKalmanUpdator
 #include "GaudiKernel/ListItem.h"
 
@@ -158,11 +163,11 @@ StatusCode HLTMuonMonTool::fillMuCombDQA()
   const float DPHI_OVFL          = 0.19;
 
   // -----------------------------
-  // Retrieve CombinedMuonFeatureContainer
+  // Retrieve L2CombinedMuonContainer
   // -----------------------------
 
-  const DataHandle<CombinedMuonFeatureContainer> combContainer;
-  const DataHandle<CombinedMuonFeatureContainer> lastcombContainer;
+  const DataHandle<xAOD::L2CombinedMuonContainer> combContainer;
+  const DataHandle<xAOD::L2CombinedMuonContainer> lastcombContainer;
   StatusCode sc_comb = m_storeGate->retrieve(combContainer,lastcombContainer);
   if ( sc_comb.isFailure() ) {
     ATH_MSG_WARNING( "Failed to retrieve HLT muComb container" );
@@ -179,31 +184,36 @@ StatusCode HLTMuonMonTool::fillMuCombDQA()
   // Dump combinedMuonFeature info
   // -----------------------------
 
-  std::vector<const CombinedMuonFeature*> vec_combinedMuonFeatures;
+  std::vector<const xAOD::L2CombinedMuon*> vec_combinedMuon;
 
   for(; combContainer != lastcombContainer; combContainer++) {
-    CombinedMuonFeatureContainer::const_iterator comb     = combContainer->begin();
-    CombinedMuonFeatureContainer::const_iterator lastcomb = combContainer->end();
+    xAOD::L2CombinedMuonContainer::const_iterator comb     = combContainer->begin();
+    xAOD::L2CombinedMuonContainer::const_iterator lastcomb = combContainer->end();
 	 for(; comb != lastcomb; comb++) {
       if( (*comb)==0 ) continue;
-      vec_combinedMuonFeatures.push_back( *comb );
+      vec_combinedMuon.push_back( *comb );
     }
   }
 
-  int nMuComb = vec_combinedMuonFeatures.size();
+  int nMuComb = vec_combinedMuon.size();
 
-  std::vector<const CombinedMuonFeature*>::const_iterator itComb;
+  std::vector<const xAOD::L2CombinedMuon*>::const_iterator itComb;
 
-  for(itComb=vec_combinedMuonFeatures.begin(); itComb != vec_combinedMuonFeatures.end(); itComb++) {
+  for(itComb=vec_combinedMuon.begin(); itComb != vec_combinedMuon.end(); itComb++) {
 
     float pt  = (*itComb)->pt() / CLHEP::GeV;  // convert to GeV
     float eta = (*itComb)->eta();
     float phi = (*itComb)->phi();
+
+    ATH_MSG_DEBUG( " pt  " << pt ); 
+    ATH_MSG_DEBUG( " eta " << eta );
+    ATH_MSG_DEBUG( " phi " << phi );
+
      
     // get MF
-    const MuonFeature *ptr_mf = 0;
-    if( (*itComb)->muFastTrackLink().isValid() ) {
-      ptr_mf = (*itComb)->muFastTrack();
+    const xAOD::L2StandAloneMuon* ptr_mf = 0;
+    if( (*itComb)->muSATrackLink().isValid() ) {
+      ptr_mf = (*itComb)->muSATrack();
     }
     float mf_pt  = 0.;
     float mf_eta = 0.;
@@ -215,9 +225,9 @@ StatusCode HLTMuonMonTool::fillMuCombDQA()
     }
 
     // get IDTrack
-    const TrigInDetTrack *ptr_trk = 0;
-    if( (*itComb)->IDTrackLink().isValid() ) {
-      ptr_trk = (*itComb)->IDTrack();
+    const xAOD::TrackParticle *ptr_trk = 0;
+    if( (*itComb)->idTrackLink().isValid() ) {
+      ptr_trk = (*itComb)->idTrack();
     }
     float trk_pt   = 0.;
     float trk_eta  = 0;
@@ -225,11 +235,11 @@ StatusCode HLTMuonMonTool::fillMuCombDQA()
     float trk_z0   = 0;
     float trk_chi2 = 0;
     if( ptr_trk != 0 ) {
-      trk_pt   = ptr_trk->param()->pT() / CLHEP::GeV; // convert to GeV
-      trk_eta  = ptr_trk->param()->eta();
-      trk_phi  = ptr_trk->param()->phi0();
-      trk_z0   = ptr_trk->param()->z0();
-      trk_chi2 = ptr_trk->chi2();
+      trk_pt   = ptr_trk->pt() / CLHEP::GeV; // convert to GeV
+      trk_eta  = ptr_trk->eta();
+      trk_phi  = ptr_trk->phi0();
+      trk_z0   = ptr_trk->z0();
+      trk_chi2 = ptr_trk->chiSquared();
     }
      
     // values
@@ -337,7 +347,7 @@ StatusCode HLTMuonMonTool::fillMuCombDQA()
     }
 
      
-  } // loop over vecCombinedMuonFeatures
+  } // loop over vecCombinedMuon
 
 
   // -----------------------------
@@ -351,8 +361,8 @@ StatusCode HLTMuonMonTool::fillMuCombDQA()
 	 for(p_comb=combs.begin();p_comb!=combs.end();++p_comb) {
 	   std::vector< Trig::Feature<xAOD::L2StandAloneMuonContainer> > fs_MF = 
 		  (*p_comb).get<xAOD::L2StandAloneMuonContainer>("MuonL2SAInfo",TrigDefs::alsoDeactivateTEs);
-		std::vector<Trig::Feature<CombinedMuonFeature> > fs_CB = 
-		  p_comb->get<CombinedMuonFeature>("",TrigDefs::alsoDeactivateTEs);
+		std::vector<Trig::Feature<xAOD::L2CombinedMuonContainer> > fs_CB = 
+		  p_comb->get<xAOD::L2CombinedMuonContainer>("MuonL2CBInfo",TrigDefs::alsoDeactivateTEs);
       if(!fs_MF.size() || !fs_CB.size()) continue;
 		
 		//muComb Error
@@ -362,9 +372,10 @@ StatusCode HLTMuonMonTool::fillMuCombDQA()
                 float mf_eta = mf_cont->at(0)->eta();
                 float mf_phi = mf_cont->at(0)->phi();
 
+                const xAOD::L2CombinedMuonContainer* cb_cont = fs_CB[0];
 		bool error = false;
 		if(fs_CB.size() == 1 && fs_MF.size()>0){
-		  if(mf_pt != fs_CB.at(0).cptr()->muFastTrack()->pt()){
+		  if(mf_pt != cb_cont->at(0)->muSATrack()->pt()){
 		     hist("muComb_MF_error", histdirmucomb)->Fill(1);
 		     error = true;
 		  }
@@ -387,9 +398,9 @@ StatusCode HLTMuonMonTool::fillMuCombDQA()
 	   else continue;
     
 	   //Plot muComb eta vs phi for standard chain
-		float mc_pt = fs_CB.at(0).cptr()->pt();
-		float mc_eta = fs_CB.at(0).cptr()->eta();
-		float mc_phi = fs_CB.at(0).cptr()->phi();
+		float mc_pt =  cb_cont->at(0)->pt();
+		float mc_eta = cb_cont->at(0)->eta();
+		float mc_phi = cb_cont->at(0)->phi();
 		bool off_mc_match = false;
 		bool off_mf_match = false;
 		bool mc_success = (fabs(mc_pt) > 0.00001)? true:false;
@@ -429,8 +440,8 @@ StatusCode HLTMuonMonTool::fillMuCombDQA()
 
 	   std::vector< Trig::Feature<xAOD::L2StandAloneMuonContainer> > fs_MF = 
 		(*p_comb).get<xAOD::L2StandAloneMuonContainer>("MuonL2SAInfo",TrigDefs::alsoDeactivateTEs);
-		std::vector<Trig::Feature<CombinedMuonFeature> > fs_CB = 
-		  p_comb->get<CombinedMuonFeature>("",TrigDefs::alsoDeactivateTEs);
+		std::vector<Trig::Feature<xAOD::L2CombinedMuonContainer> > fs_CB = 
+		  p_comb->get<xAOD::L2CombinedMuonContainer>("MuonL2CBInfo",TrigDefs::alsoDeactivateTEs);
 
                 float mf_pt  = 0;
 		if( fs_MF.size()>0){
@@ -440,7 +451,8 @@ StatusCode HLTMuonMonTool::fillMuCombDQA()
    
 		bool error = false;
 		if(fs_CB.size() == 1 && fs_MF.size()>0){
-		  if(mf_pt != fs_CB.at(0).cptr()->muFastTrack()->pt()){
+		  const xAOD::L2CombinedMuonContainer* cb_cont = fs_CB[0];
+		  if(mf_pt != cb_cont->at(0)->muSATrack()->pt()){
 		     hist("muComb_MF_error", histdirmucomb)->Fill(1);
 		     error = true;
 		  }
@@ -489,9 +501,9 @@ StatusCode HLTMuonMonTool::fillMuCombDQA()
     // check whether matching combinedMuonFeature is there
     float dRmin    = 1000.;
     float  pt_comb  = 0.; 
-    float  eta_comb = 0.; 
-    float  phi_comb = 0.; 
-    for(itComb=vec_combinedMuonFeatures.begin(); itComb != vec_combinedMuonFeatures.end(); itComb++) {
+    // float  eta_comb = 0.; 
+    // float  phi_comb = 0.; 
+    for(itComb=vec_combinedMuon.begin(); itComb != vec_combinedMuon.end(); itComb++) {
       float pt  = (*itComb)->pt() / CLHEP::GeV;  // convert to GeV
       if( fabs(pt) < ZERO_LIMIT )  continue;
       float eta  = (*itComb)->eta();
@@ -500,8 +512,8 @@ StatusCode HLTMuonMonTool::fillMuCombDQA()
       if( dR < dRmin ) {
 	dRmin = dR;
 	pt_comb = (*itComb)->pt() / CLHEP::GeV;
-	eta_comb = eta;
-	phi_comb = phi;
+	// eta_comb = eta;
+	// phi_comb = phi;
       }
     }
 

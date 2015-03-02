@@ -36,6 +36,7 @@
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTrigger/MuonRoIContainer.h"
 #include "xAODTrigger/MuonRoI.h"
+#include "xAODTracking/Vertex.h"
 
 #include "TrigDecisionTool/TrigDecisionTool.h"
 #include "TrigDecisionTool/ChainGroup.h"
@@ -288,9 +289,9 @@ StatusCode HLTMuonMonTool::fillMuZTPDQA()
   hist("Common_Counter", histdir )->Fill((float)MUZTP);
 
   //RETRIEVE Vertex Container
-  const VxContainer* VertexContainer=0;
+  const xAOD::VertexContainer* VertexContainer=0;
   //StatusCode sc_ztp = m_storeGate->retrieve(VertexContainer,"VxPrimaryCandidate");
-  StatusCode sc_ztp = m_storeGate->retrieve(VertexContainer,"HLT_VxContainer_PrimVx");
+  StatusCode sc_ztp = m_storeGate->retrieve(VertexContainer,"HLT_xAOD__VertexContainer_xPrimVx");
   if(sc_ztp.isFailure()) {
     ATH_MSG_INFO("VxPrimaryCandidate" << " Container Unavailable");
     return StatusCode::SUCCESS;
@@ -298,20 +299,20 @@ StatusCode HLTMuonMonTool::fillMuZTPDQA()
 
   //REQUIREMENTS FOR GOOD PRIMARY VERTEX   
   bool HasGoodPV = false;
-  VxContainer::const_iterator vertexIter;
+  xAOD::VertexContainer::const_iterator vertexIter;
   for(vertexIter=VertexContainer->begin(); vertexIter!=VertexContainer->end(); ++vertexIter){
-    if ((*vertexIter)->vxTrackAtVertex()->size()>2 && fabs((*vertexIter)->recVertex().position().z()) < 150) HasGoodPV = true;                                             
+    if ((*vertexIter)->nTrackParticles()>2 && fabs((*vertexIter)->z()) < 150) HasGoodPV = true;                                             
+    ////if ((*vertexIter)->vxTrackAtVertex().size()>2 && fabs((*vertexIter)->z()) < 150) HasGoodPV = true;                                             
   }
-  if (HasGoodPV == false){
+  if (HasGoodPV == false){ 
     return StatusCode::SUCCESS;
   }
 
   // ---------------------------------------------------------------
 
-  ATH_MSG_DEBUG(" ===== START HLTMuon muZTP MonTool ===== ");
+  ATH_MSG_DEBUG(" ===== START HLTMuon muZTP MonTool ===== "); 
   
   // ---------------------------------------------------------------
-  
   // load the L1 seeds for the triggers we are studying
   if(m_ztp_newrun) {
     map<string, string> newmap(m_ztpmap); // copy the map
@@ -350,9 +351,9 @@ StatusCode HLTMuonMonTool::fillMuZTPDQA()
   //LOOP OVER ALL TRIGGER CHAINS
   for(std::map<std::string, std::string>::iterator itmap=m_ztpmap.begin();itmap!=m_ztpmap.end();++itmap){
 
-    ATH_MSG_DEBUG("Starting chain " << itmap->first);
+    ATH_MSG_DEBUG("Starting chain " << itmap->first);  
 
-    std::string histdirmuztp="HLT/MuonMon/MuZTP/"+itmap->first;
+    std::string histdirmuztp="HLT/MuonMon/MuZTP/"+itmap->second;
     double m_ptcut=999999.;
     map<std::string, double>::iterator itptcut = m_ztpptcut.find(itmap->first);
     if(itptcut!=m_ztpptcut.end())m_ptcut=itptcut->second;
@@ -369,7 +370,7 @@ StatusCode HLTMuonMonTool::fillMuZTPDQA()
 
     //CHECK IF TRIGGER HAS FIRED EVENT TO START
     bool isTriggered_L1 = false;
-    const Trig::ChainGroup* ChainGroupL1 = getTDT()->getChainGroup(itmap->second);
+    const Trig::ChainGroup* ChainGroupL1 = getTDT()->getChainGroup(m_ztp_l1map[itmap->first]);
     isTriggered_L1 = ChainGroupL1->isPassed();
     //if (isTriggered_L1 == false){
     //  return StatusCode::SUCCESS;
@@ -390,7 +391,7 @@ StatusCode HLTMuonMonTool::fillMuZTPDQA()
 
     ///////////////////////////////////// get ONLINE Objects //////////////////////////////////////////
 
-    Trig::FeatureContainer fL1 = getTDT()->features(itmap->second);
+    Trig::FeatureContainer fL1 = getTDT()->features(m_ztp_l1map[itmap->first]);
     //    Trig::FeatureContainer fL2 = getTDT()->features(L2_chainName);
     Trig::FeatureContainer fHLT = getTDT()->features("HLT_"+itmap->first,TrigDefs::alsoDeactivateTEs);
     
@@ -430,9 +431,9 @@ StatusCode HLTMuonMonTool::fillMuZTPDQA()
 	xAOD::MuonRoIContainer::const_iterator it_end = lvl1Roi->end(); 
 	for ( ; it != it_end ; ++it ) {
 	  if (
-	      ("L1_MU10"==itmap->second && ((*it)->thrName() == "MU10" || (*it)->thrName() == "MU15" || (*it)->thrName() == "MU20")) || 
-	      ("L1_MU15"==itmap->second && ((*it)->thrName() == "MU15" || (*it)->thrName() == "MU20")) || 
-	      ("L1_MU20"==itmap->second && ((*it)->thrName() == "MU20"))
+	      ("L1_MU10"==m_ztp_l1map[itmap->first] && ((*it)->thrName() == "MU10" || (*it)->thrName() == "MU15" || (*it)->thrName() == "MU20")) || 
+	      ("L1_MU15"==m_ztp_l1map[itmap->first] && ((*it)->thrName() == "MU15" || (*it)->thrName() == "MU20")) || 
+	      ("L1_MU20"==m_ztp_l1map[itmap->first] && ((*it)->thrName() == "MU20"))
 	      ) {
 	    L1pt.push_back((*it)->thrValue());
 	    L1eta.push_back((*it)->eta());
@@ -452,21 +453,21 @@ StatusCode HLTMuonMonTool::fillMuZTPDQA()
     for (jL2 = fHLT.getCombinations().begin(); jL2 != fHLT.getCombinations().end(); ++jL2, ++iroiL2) {
       if (!isMSonlychain) {
 	//muComb
-	//	if(!ismuIsochain){
-	std::vector<Trig::Feature<CombinedMuonFeature> >
-	  muCombL2Feature = jL2->get<CombinedMuonFeature>(); 
+	//	if(!ismuIsochain)
+	std::vector<Trig::Feature<xAOD::L2CombinedMuonContainer> >
+	  muCombL2Feature = (*jL2).get<xAOD::L2CombinedMuonContainer>("MuonL2CBInfo",TrigDefs::alsoDeactivateTEs); 
 	if (muCombL2Feature.size()!=1) {
 	  ATH_MSG_DEBUG( "Vector of L2 muComb InfoContainers size is not 1" );	
 	} else {
-	  const CombinedMuonFeature* muCombL2 = muCombL2Feature.at(0).cptr();
+	  const xAOD::L2CombinedMuonContainer* muCombL2 = muCombL2Feature[0];
 	  if (!muCombL2) {
 	    ATH_MSG_DEBUG( "No muComb track found" );
 	  } else {
 	    ATH_MSG_DEBUG( " muComb muon exists " );
 	    //    L2CBActive = muCombL2.te()->getActiveState();
-	    L2Cbpt.push_back(muCombL2->pt());
-	    L2Cbeta.push_back(muCombL2->eta());
-	    L2Cbphi.push_back(muCombL2->phi());
+	    L2Cbpt.push_back(muCombL2->at(0)->pt());
+	    L2Cbeta.push_back(muCombL2->at(0)->eta());
+	    L2Cbphi.push_back(muCombL2->at(0)->phi());
 	  }
 	}
       }//!isMSonlychain
@@ -549,7 +550,7 @@ StatusCode HLTMuonMonTool::fillMuZTPDQA()
 
 		  const xAOD::TrackParticle *ef_sa_trk
 		    = ef_cont->at(iCont)->trackParticle(xAOD::Muon::TrackParticleType::MuonSpectrometerTrackParticle);
-		  if (ef_sa_trk) {
+		  if (ef_sa_trk && ef_cont->at(iCont)->muonType()==xAOD::Muon::MuonType::MuonStandAlone) {
 		    ATH_MSG_DEBUG("ZTP EFSA " << ef_sa_trk->pt() << " eta " << ef_sa_trk->eta() << " phi " << ef_sa_trk->phi());  
 		    EFExpt.push_back(fabs(ef_sa_trk->pt()) / CLHEP::GeV * ef_sa_trk->charge());
 		    EFExeta.push_back(ef_sa_trk->eta());
@@ -752,7 +753,7 @@ StatusCode HLTMuonMonTool::fillMuZTPDQA()
 	    if( !isEndcap ) hist(("muZTP_Phi_B_L2fired_" + itmap->second).c_str(), histdirmuztp)->Fill(probephi);
 	    hist2(("muZTP_EtaPhi_L2_" + itmap->second).c_str(), histdirmuztp)->Fill(probeeta, probephi);
 	  }
-	  //	  if(isTriggered_L2 && !isMSonlychain && !ismuIsochain && passedCBchainL2[probe]) { //muComb
+	  //	  if(isTriggered_L2 && !isMSonlychain && !ismuIsochain && passedCBchainL2[probe])  //muComb
 	  if(isTriggered_L2 && !isMSonlychain && passedCBchainL2[probe]) { //muComb
 	    hist(("muZTP_Pt_L2fired_" + itmap->second).c_str(), histdirmuztp)->Fill(probept);
 	    hist(("muZTP_Pt_4bins_L2fired_" + itmap->second).c_str(), histdirmuztp)->Fill(probept);
@@ -874,7 +875,7 @@ StatusCode HLTMuonMonTool::fillMuZTPDQA()
 	    if( isEndcap ) hist(("muZTP_Phi_EC_EFL2fired_" + itmap->second).c_str(), histdirmuztp)->Fill(probephi);
 	    if( !isEndcap ) hist(("muZTP_Phi_B_EFL2fired_" + itmap->second).c_str(), histdirmuztp)->Fill(probephi);
 	  }
-	  //	  if(isTriggered_EF && !isMSonlychain && !ismuIsochain && passedCBchainEF[probe] && passedCBchainL2[probe]) { // !ismuIsochain
+	  //	  if(isTriggered_EF && !isMSonlychain && !ismuIsochain && passedCBchainEF[probe] && passedCBchainL2[probe])  // !ismuIsochain
 	  if(isTriggered_EF && !isMSonlychain && passedCBchainEF[probe] && passedCBchainL2[probe]) { // !ismuIsochain
 	    if( (!isefIsochain || passedisochainEF[probe]) ) {
 	      hist(("muZTP_Pt_EFL2fired_" + itmap->second).c_str(), histdirmuztp)->Fill(probept);
