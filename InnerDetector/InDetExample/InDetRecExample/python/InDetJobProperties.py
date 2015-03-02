@@ -994,7 +994,13 @@ class doSLHCVeryForward(InDetFlagsJobProperty):
   StoredValue  = False 
 
 class doTRTOccupancyEventInfo(InDetFlagsJobProperty): 
-  """Turn running of Event Info TRT Occupancy Filling Alg on and off""" 
+  """Turn running of Event Info TRT Occupancy Filling Alg on and off (also whether it is used in TRT PID calculation)""" 
+  statusOn     = True 
+  allowedTypes = ['bool']
+  StoredValue  = False
+
+class doNNToTCalibration(InDetFlagsJobProperty): 
+  """USe ToT calibration for NN clustering rather than Charge""" 
   statusOn     = True 
   allowedTypes = ['bool']
   StoredValue  = True
@@ -2333,7 +2339,8 @@ _list_InDetJobProperties = [Enabled,
                             ForceCoraCool,
                             doTrackSegmentsPixelPrdAssociation,
                             doSLHCVeryForward,
-                            doTRTOccupancyEventInfo
+                            doTRTOccupancyEventInfo,
+                            doNNToTCalibration
                            ]
 for j in _list_InDetJobProperties: 
     jobproperties.InDetJobProperties.add_JobProperty(j)
