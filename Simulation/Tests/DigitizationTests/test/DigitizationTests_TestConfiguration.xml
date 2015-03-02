@@ -15,7 +15,6 @@
         <displayProcess>Digi</displayProcess>
         <displayComponent>Det-Combined</displayComponent>
       </classification>
-      <!-- DC14 TEST JOB -->
  
       <!-- BASIC MC15 JOBS -->
       <chain>
@@ -47,7 +46,8 @@
                           </arg>
                           <arg>
                               <argname>refFileName</argname>
-                              <argvalue>root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/ReferenceFiles/dev/CMTCONFIG/mc15_2010_ttbar_no_pileup.RDO.pool.root</argvalue>
+                              <argvalue>root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/ReferenceFiles/dev/CMTCONFIG/mc15_2010_ttbar_no_pileup.RDO.pool.root      <!-- DC14 TEST JOB -->
+</argvalue>
                           </arg>
                           <keepFilePattern>mc15_2010_ttbar.RDO.pool.root_mc15_2010_ttbar_no_pileup.RDO.pool.root.diffPool</keepFilePattern>
                       </test>
@@ -58,7 +58,7 @@
                   <jobTransform userJobId="mc15_2010_ttbar_no_pileup_Reg">
                       <doc>Regression test between releases</doc>
                       <jobTransformJobName>mc15_2010_ttbar_no_pileup_Reg</jobTransformJobName>
-                      <jobTransformCmd>sim_reg_test.py mc15_2010_ttbar_no_pileup mc15_ttbar.RDO.pool.root RDO.pool</jobTransformCmd>
+                      <jobTransformCmd>sim_reg_test.py mc15_2010_ttbar_no_pileup mc15_2010_ttbar.RDO.pool.root RDO.pool</jobTransformCmd>
                       <group>DigitizationTests:DigitizationRegressionTests</group>
                       <queue>short</queue>
                   </jobTransform>
@@ -108,7 +108,7 @@
                   <jobTransform userJobId="mc15_2011_ttbar_no_pileup_Reg">
                       <doc>Regression test between releases</doc>
                       <jobTransformJobName>mc15_2011_ttbar_no_pileup_Reg</jobTransformJobName>
-                      <jobTransformCmd>sim_reg_test.py mc15_2011_ttbar_no_pileup mc15_ttbar.RDO.pool.root RDO.pool</jobTransformCmd>
+                      <jobTransformCmd>sim_reg_test.py mc15_2011_ttbar_no_pileup mc15_2011_ttbar.RDO.pool.root RDO.pool</jobTransformCmd>
                       <group>DigitizationTests:DigitizationRegressionTests</group>
                       <queue>short</queue>
                   </jobTransform>
@@ -158,7 +158,7 @@
                   <jobTransform userJobId="mc15_2012_ttbar_no_pileup_Reg">
                       <doc>Regression test between releases</doc>
                       <jobTransformJobName>mc15_2012_ttbar_no_pileup_Reg</jobTransformJobName>
-                      <jobTransformCmd>sim_reg_test.py mc15_2012_ttbar_no_pileup mc15_ttbar.RDO.pool.root RDO.pool</jobTransformCmd>
+                      <jobTransformCmd>sim_reg_test.py mc15_2012_ttbar_no_pileup mc15_2012_ttbar.RDO.pool.root RDO.pool</jobTransformCmd>
                       <group>DigitizationTests:DigitizationRegressionTests</group>
                       <queue>short</queue>
                   </jobTransform>
@@ -207,7 +207,7 @@
             <jobTransform userJobId="mc15_2015_ttbar_no_pileup_Reg">
                 <doc>Regression test between releases</doc>
                 <jobTransformJobName>mc15_2015_ttbar_no_pileup_Reg</jobTransformJobName>
-                <jobTransformCmd>sim_reg_test.py mc15_2015_ttbar_no_pileup mc15_ttbar.RDO.pool.root RDO.pool</jobTransformCmd>
+                <jobTransformCmd>sim_reg_test.py mc15_2015_ttbar_no_pileup mc15_2015_ttbar.RDO.pool.root RDO.pool</jobTransformCmd>
                 <group>DigitizationTests:DigitizationRegressionTests</group>
                 <queue>short</queue>
             </jobTransform>
@@ -297,7 +297,7 @@
                   <argname>refFileName</argname>
                   <argvalue>root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/ReferenceFiles/dev/CMTCONFIG/mc12_ttbar_with_pileup.RDO.pool.root</argvalue>
                 </arg>
-                <keepFilePattern>mc12_ttbar.RDO.pool.root_mc12_ttbar_with_pileup.RDO.pool.root.diffPool</keepFilePattern>
+                <keepFilePattern>mc12_ttbar.RDO.pool.root_mc12_ttbar_algs_pileup.RDO.pool.root.diffPool</keepFilePattern>
               </test>
             </jobTransform>
           </chainElement>
