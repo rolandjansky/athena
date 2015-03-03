@@ -141,7 +141,7 @@ namespace met {
 
     ATH_MSG_INFO( "METSystematics: Read calo uncertainties" );
     h_calosyst_scale = dynamic_cast<TH1D*>( infile.Get((gsystpath+"/globsyst_scale").c_str()));
-    h_calosyst_reso  = dynamic_cast<TH1D*> (infile.Get((gsystpath+"/globsyst_reso").c_str()));
+    h_calosyst_reso  = dynamic_cast<TH1D*>( infile.Get((gsystpath+"/globsyst_reso").c_str()));
     
     if( !(h_calosyst_scale &&
           h_calosyst_reso
@@ -257,30 +257,45 @@ namespace met {
     return CP::SystematicCode::Ok;
   }
   
-  CP::CorrectionCode METSystematicsTool::applyCorrection(xAOD::MissingET& inputMet, xAOD::MissingETAssociationMap * map) const{//if asking for jet track systematics, the user needs to give a met association map as well
+  CP::CorrectionCode METSystematicsTool::applyCorrection(xAOD::MissingET& inputMet, 
+							 const xAOD::MissingETAssociationMap * map,
+							 const xAOD::JetContainer * jetCont) const{
+
+    //if asking for jet track systematics, the user needs to give a met association map as well
+    //if using a different jetContainer, you can give it as an option to applyCorrection
     ATH_MSG_VERBOSE (__PRETTY_FUNCTION__ );
 
     if( MissingETBase::Source::isSoftTerm(inputMet.source())){
-      if(getDefaultEventInfo() == nullptr){
+      if( getDefaultEventInfo() == nullptr) {
 	ATH_MSG_WARNING("event info is empty, returning without applying correction");
 	return CP::CorrectionCode::Error;
       }
-      xAOD::MissingETContainer const * METcont = static_cast<xAOD::MissingETContainer const*>(inputMet.container());
+      xAOD::MissingETContainer const * METcont = dynamic_cast<xAOD::MissingETContainer const*>(inputMet.container());
       if(METcont == nullptr){
 	ATH_MSG_WARNING("MissingET object not owned by a container. Returning without applying correction" );
 	return CP::CorrectionCode::Error;
       }
-      return internalSoftTermApplyCorrection(inputMet, METcont, *getDefaultEventInfo());
+      if(jetCont == nullptr  &&
+	 evtStore()->retrieve(jetCont, m_jetColl).isFailure()
+	 ){
+        ATH_MSG_WARNING( "retrieval of jet container " << m_jetColl <<  " failed" );
+        return CP::CorrectionCode::Error;
+      }
+
+      return internalSoftTermApplyCorrection(inputMet, METcont, *getDefaultEventInfo(), jetCont);
     }
 
-    if( MissingETBase::Source::isTrackTerm(inputMet.source()) ){//todo other source check? //todo
+    if( MissingETBase::Source::isTrackTerm(inputMet.source()) &&
+	MissingETBase::Source::isJetTerm  (inputMet.source())
+					    ){
       if( map == nullptr) {
 	ATH_MSG_WARNING("To calculate jet track systematics, you must give applyCorrection a MissingETAssociationMap, as applyCorrection(inputMet, map).  Returning without applying correction ");
 	return CP::CorrectionCode::Error;
       }
 
-      xAOD::JetContainer const * jetCont = nullptr;
-      if(evtStore()->retrieve(jetCont, m_jetColl).isFailure()){
+      if(jetCont == nullptr  && //if we get a JetContainer, we will use that one 
+	 evtStore()->retrieve(jetCont, m_jetColl).isFailure()
+	 ){
         ATH_MSG_WARNING( "retrieval of jet container " << m_jetColl <<  " failed" );
         return CP::CorrectionCode::Error;
       }
@@ -288,73 +303,86 @@ namespace met {
       return getCorrectedJetTrackMET(inputMet, map, jetCont);
     }
 
-    ATH_MSG_ERROR("METSystematicsTool received a MissingET object it can't correct");
-    return CP::CorrectionCode::Error;//todo should this be an error?
+    ATH_MSG_ERROR("METSystematicsTool received a MissingET object it can't correct.  You should only pass soft MET terms or jet track MET terms.");
+    return CP::CorrectionCode::Error;
   }
   
   
-  CP::CorrectionCode METSystematicsTool::correctedCopy(const xAOD::MissingET& met, xAOD::MissingET*& outputmet, xAOD::MissingETAssociationMap * map) const  
+  CP::CorrectionCode METSystematicsTool::correctedCopy(const xAOD::MissingET& met, xAOD::MissingET*& outputmet, 
+						       const xAOD::MissingETAssociationMap * map,
+						       const xAOD::JetContainer * jetCont) const  
   { ATH_MSG_VERBOSE (__PRETTY_FUNCTION__ );
-    xAOD::MissingET * copy = new xAOD::MissingET(met);
+    xAOD::MissingET * copy = nullptr;
 
     if( MissingETBase::Source::isSoftTerm(met.source())){
-      if(getDefaultEventInfo() == nullptr){
+      if( getDefaultEventInfo() == nullptr) {
 	ATH_MSG_WARNING("event info is empty, returning empty with unknown source");
-	outputmet = nullptr; delete copy;
+	outputmet = nullptr; 
 	return CP::CorrectionCode::Error;
       }
-
       xAOD::MissingETContainer const * METcont = dynamic_cast<xAOD::MissingETContainer const*>(met.container());
       if(METcont == nullptr){
 	ATH_MSG_WARNING("MissingET object not owned by a container. Unable to apply correction, returning output MET object as null" );
-	outputmet = nullptr; delete copy;
+	outputmet = nullptr; 
 	return CP::CorrectionCode::Error;
       }
-    
-      if(internalSoftTermApplyCorrection(*copy, METcont,  *getDefaultEventInfo()) != CP::CorrectionCode::Ok ){
+      if(jetCont == nullptr &&
+	 evtStore()->retrieve(jetCont, m_jetColl).isFailure()){
+        ATH_MSG_WARNING( "retrieval of jet container " << m_jetColl <<  " failed" );
+	outputmet = nullptr; 
+        return CP::CorrectionCode::Error;
+      }
+      copy = new xAOD::MissingET(met);
+      if(internalSoftTermApplyCorrection(*copy, METcont,  *getDefaultEventInfo(), jetCont) != CP::CorrectionCode::Ok ){
 	outputmet = nullptr; delete copy;
 	return CP::CorrectionCode::Error;
       }
     }//soft term source
-    //todo check this should be if not else if
-    if(MissingETBase::Source::isTrackTerm(met.source()) ){//todo additional source check?
+    if( MissingETBase::Source::isTrackTerm(met.source()) &&
+	MissingETBase::Source::isJetTerm  (met.source())
+	){
       if( map == nullptr) {
 	ATH_MSG_WARNING("To calculate jet track systematics, you must give correctedCopy a MissingETAssociationMap, as correctedCopy(inputMet, map).  "); 
-	outputmet = nullptr; delete copy;
+	outputmet = nullptr; 
 	return CP::CorrectionCode::Error;
       }
 
-
-      xAOD::JetContainer const * jetCont = nullptr;
-
-      if(evtStore()->retrieve(jetCont, m_jetColl).isFailure()){
+      if(jetCont == nullptr &&
+	 evtStore()->retrieve(jetCont, m_jetColl).isFailure()){
         ATH_MSG_WARNING( "retrieval of jet container " << m_jetColl <<  " failed" );
-	outputmet = nullptr; delete copy;
+	outputmet = nullptr; 
         return CP::CorrectionCode::Error;
       }
-
+      copy = new xAOD::MissingET(met);
       if(getCorrectedJetTrackMET(*copy, map, jetCont) != CP::CorrectionCode::Ok){
 	outputmet = nullptr; delete copy;
 	return CP::CorrectionCode::Error;
       }
-    }//track term source
+    }//jet track term source
    
     outputmet = copy;
     return CP::CorrectionCode::Ok;
   }
-  
+
   CP::CorrectionCode METSystematicsTool::internalSoftTermApplyCorrection(xAOD::MissingET                & softMet,
 									 xAOD::MissingETContainer const * METcont,
-									 xAOD::EventInfo          const & eInfo) const{ //this is equivalent of "getSoftTerms"
+									 xAOD::EventInfo          const & eInfo  ,
+									 xAOD::JetContainer       const * jetCont 
+									 ) const{ //this is equivalent of "getSoftTerms"
     
     ATH_MSG_VERBOSE( __PRETTY_FUNCTION__ );
 
 
     if( ! MissingETBase::Source::isSoftTerm(softMet.source()) ){
-      ATH_MSG_WARNING("not soft met, cannot apply soft term correction to this MET"); //todo should this be a warning?
+      ATH_MSG_ERROR("not soft met, cannot apply soft term correction to this MET"); 
       return CP::CorrectionCode::Error;
     }
     
+    if(jetCont == nullptr) {
+      ATH_MSG_WARNING("No jet container, cannot apply soft term correction");
+      return CP::CorrectionCode::Error;
+    }
+
     bool doSyst = false;
     if( MissingETBase::Source::isTrackTerm(softMet.source()) ) {
       doSyst = m_appliedSystEnum>=MET_SOFTTRK_SCALEUP && m_appliedSystEnum<=MET_SOFTTRK_RESOCORR;
@@ -364,14 +392,8 @@ namespace met {
     
     if(doSyst) {
 
-      xAOD::JetContainer const * jetCont = nullptr;
-      
       if(METcont == nullptr){
         ATH_MSG_WARNING("failed to retrieve MET container from passed object");
-        return CP::CorrectionCode::Error;
-      }
-      if(evtStore()->retrieve(jetCont, m_jetColl).isFailure()){
-        ATH_MSG_WARNING( "retrieval of jet container " << m_jetColl <<  " failed" );
         return CP::CorrectionCode::Error;
       }
       
@@ -451,7 +473,8 @@ namespace met {
       return CP::CorrectionCode::Error;
     }
     xAOD::MissingETAssociation const * const assoc = MissingETComposition::getAssociation(map,jet);
-    MissingETBase::Types::constvec_t trkvec = assoc->jetTrkVec();
+    MissingETBase::Types::constvec_t trkvec = assoc->overlapTrkVec();
+    //    MissingETBase::Types::constvec_t trkvec = assoc->jetTrkVec();
 
     int         phbin  = jet_systRpt_pt_eta->GetXaxis()->FindBin(jet->pt()/1e3);
     if(phbin>jet_systRpt_pt_eta->GetNbinsX())  phbin  = jet_systRpt_pt_eta->GetNbinsX();
@@ -484,18 +507,24 @@ namespace met {
  
   CP::CorrectionCode METSystematicsTool::getCorrectedJetTrackMET(xAOD::MissingET& jettrkmet,
   								 const xAOD::MissingETAssociationMap* map,
-  								 const xAOD::JetContainer * vecJets
+  								 const xAOD::JetContainer * jetCont
   								 ) const 
    { 
     ATH_MSG_VERBOSE( __PRETTY_FUNCTION__ );
     if(!map) {
-      ATH_MSG_ERROR("MissingETAssociationMap null, error.");
+      ATH_MSG_ERROR("MissingETAssociationMap null, error calculating jet track systematics.");
       return CP::CorrectionCode::Error;
     }
-    //todo cleanup statuses
+    if(!jetCont) {
+      ATH_MSG_ERROR("JetContainer null, error calculating jet track systematics.");
+      return CP::CorrectionCode::Error;
+    }
 
-    for(xAOD::JetContainer::const_iterator iJet=vecJets->begin(); iJet!=vecJets->end(); ++iJet ){
-      if(calcJetTrackMETWithSyst(jettrkmet, map , *iJet) != CP::CorrectionCode::Ok) return CP::CorrectionCode::Error;
+    for(xAOD::JetContainer::const_iterator iJet=jetCont->begin(); iJet!=jetCont->end(); ++iJet ){
+      if(calcJetTrackMETWithSyst(jettrkmet, map , *iJet) != CP::CorrectionCode::Ok){
+	ATH_MSG_ERROR("Failed to calculate jet track systematics.  There was a problem with the " << iJet - jetCont->begin() << "th jet in your container."); 
+	return CP::CorrectionCode::Error;
+      }
     }
     return CP::CorrectionCode::Ok;
    }
@@ -671,15 +700,13 @@ namespace met {
   
   //stolen from JetUncertainties
   xAOD::EventInfo const * METSystematicsTool::getDefaultEventInfo() const
-  {
-    ATH_MSG_VERBOSE (__PRETTY_FUNCTION__ );
-    
-    const xAOD::EventInfo* eInfoConst = nullptr;
-    if (evtStore()->retrieve(eInfoConst,m_eventInfo).isFailure()){
+  {   ATH_MSG_VERBOSE (__PRETTY_FUNCTION__ );
+    xAOD::EventInfo const * eInfoConst = nullptr;
+ 
+    if (evtStore()->retrieve(eInfoConst ,m_eventInfo).isFailure()){
       ATH_MSG_ERROR("Failed to retrieve default EventInfo object");
-      return nullptr;
     }
-    
+
     return eInfoConst;
   }
   
