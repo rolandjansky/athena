@@ -41,8 +41,6 @@ if athenaCommonFlags.FilesInput()==[]:
 
        ]
 
-rec.RootNtupleOutput="ntupleInDetTauSlice.root"
-
 include("TrigInDetValidation/TrigInDetValidation_RTT_Chains.py")
 
 rMC = False

@@ -118,7 +118,7 @@ from InDetRecExample.InDetJobProperties import InDetFlags
 InDetFlags.doNewTracking=doIDNewTracking
 # disable the pixel neural net clustering
 InDetFlags.doTIDE_Ambi.set_Value_and_Lock(False)
-InDetFlags.doPixelClusterSplitting.set_Value_and_Lock(True)
+InDetFlags.doPixelClusterSplitting.set_Value_and_Lock(False)
 InDetFlags.doBackTracking=False
 InDetFlags.doTRTStandalone=False
 InDetFlags.doiPatRec=False
