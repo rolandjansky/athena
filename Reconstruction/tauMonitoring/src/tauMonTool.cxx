@@ -26,7 +26,7 @@ using CLHEP::GeV;
 tauMonTool::tauMonTool( const std::string & type,
 		const std::string & name,
 		const IInterface* parent ) :ManagedMonitorToolBase( type, name, parent ),
-		m_tauJetKey("TauRecContainer"),
+		m_tauJetKey("TauJets"),
 		m_doTrigger(false),
 		m_maxNLB(1000),
 		m_trigDec("Trig::TrigDecisionTool/TrigDecisionTool")
