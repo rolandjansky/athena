@@ -55,11 +55,11 @@ StatusCode TRT_PAI_Process::initialize() {
   using namespace TRT_PAI_gasdata;
   using namespace TRT_PAI_physicsConstants;
 
-  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Initializing TRT_PAI_Process." << endreq;
+  ATH_MSG_VERBOSE ( "Initializing TRT_PAI_Process." );
 
   // Get the Rndm number service
   if ( !m_pAtRndmGenSvc.retrieve().isSuccess() ) {
-    if (msgLvl(MSG::FATAL)) msg(MSG::FATAL) << "Problems retrieving random number service" << endreq;
+    ATH_MSG_FATAL ( "Problems retrieving random number service" );
     return StatusCode::FAILURE;
   }
   m_pHRengine = m_pAtRndmGenSvc->GetEngine("TRT_PAI");
@@ -76,42 +76,42 @@ StatusCode TRT_PAI_Process::initialize() {
   /// Sasha: looks like 'Auto' work only for Xenon based mixtures
   if ( m_gasType == "Auto" ) {
 
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Autodetecting gas type via TRT_DetectorManager" << endreq;
+    ATH_MSG_DEBUG ( "Autodetecting gas type via TRT_DetectorManager" );
 
     // Get the TRT Detector Manager
     const InDetDD::TRT_DetectorManager * manager;
     if ( StatusCode::SUCCESS != detStore()->retrieve(manager,"TRT") ) {
-      if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Can't get TRT_DetectorManager." << endreq;
+      ATH_MSG_ERROR ( "Can't get TRT_DetectorManager." );
       return StatusCode::FAILURE;
     } else {
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieved TRT_DetectorManager with version "
-                                              << manager->getVersion().majorNum() << endreq;
+      ATH_MSG_DEBUG ( "Retrieved TRT_DetectorManager with version "
+                      << manager->getVersion().majorNum() );
     }
 
     if ( manager->gasType() == InDetDD::TRT_DetectorManager::newgas )      { gasType = "XenonNew"; }
     else if ( manager->gasType() == InDetDD::TRT_DetectorManager::oldgas ) { gasType = "XenonOld"; }
     else if ( manager->gasType() == InDetDD::TRT_DetectorManager::unknown ) {
-      if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "GasType info not set in TRT_DetectorManager. Using new gas." << endreq;
+      ATH_MSG_WARNING ( "GasType info not set in TRT_DetectorManager. Using new gas." );
       gasType = "XenonNew";
     } else {
-      if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Unrecognized GasType info set in TRT_DetectorManager. Using new gas." << endreq;
+      ATH_MSG_WARNING ( "Unrecognized GasType info set in TRT_DetectorManager. Using new gas." );
       gasType = "XenonNew";
     }
 
   } else if ( m_gasType == "XenonNew" || m_gasType == "XenonOld" || m_gasType == "Argon" ) {
-    if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Gastype is overriden from joboptions to be " << m_gasType << endreq;
+    ATH_MSG_DEBUG ( "Gastype is overriden from joboptions to be " << m_gasType );
     gasType = m_gasType;
   }
   else {
-    if (msgLvl(MSG::FATAL)) msg(MSG::FATAL) << "GasType property set to '" << m_gasType
-         << "'. Must be one of 'Auto', 'XenonNew', 'XenonOld' or 'Argon'." << endreq;
+    ATH_MSG_FATAL ( "GasType property set to '" << m_gasType
+                    << "'. Must be one of 'Auto', 'XenonNew', 'XenonOld' or 'Argon'." );
     return StatusCode::FAILURE;
   };
-
+  ATH_MSG_INFO ( name() << " will use gas type = " << gasType );
   // Done with "trivial" initialization.
   // Finally we can start to construct gas
 
-  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Constructing gas mixture." << endreq;
+  ATH_MSG_VERBOSE ( "Constructing gas mixture." );
 
   // Need the gas temperature
 
@@ -130,13 +130,12 @@ StatusCode TRT_PAI_Process::initialize() {
   // Print out elements
   {
     for (element_type::iterator ei=elements.begin(); ei!=elements.end(); ei++) {
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)
-	<< ". Element " << (*ei).second.getName()
-	<< ", A= "    << (*ei).second.getAtomicA()
-	<< ", Z= "    << (*ei).second.getAtomicZ()
-	<< ", rho="   << (*ei).second.getDensity(tempK)
-	<< " (" << tempK << " Kelvin)"
-	<< endreq;
+      ATH_MSG_DEBUG ( ". Element " << (*ei).second.getName()
+                      << ", A= "    << (*ei).second.getAtomicA()
+                      << ", Z= "    << (*ei).second.getAtomicZ()
+                      << ", rho="   << (*ei).second.getDensity(tempK)
+                      << " (" << tempK << " Kelvin)"
+                      );
     }
   }
 
@@ -172,40 +171,39 @@ StatusCode TRT_PAI_Process::initialize() {
     int n;
     for ( int ic=0; ic<5; ++ic ) {
       n = components[cnam[ic]].getNElementTypes();
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)
-	<< ". Gas component " << components[cnam[ic]].getName() << " contains"<< endreq;
+      ATH_MSG_DEBUG ( ". Gas component " << components[cnam[ic]].getName() << " contains");
       for ( int ie=0; ie<n; ++ie ) {
-	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)
-	  << "   - "     <<  components[cnam[ic]].getElementMultiplicity(ie)
-	  << " atoms "   << (components[cnam[ic]].getElement(ie))->getName()
-	  << " with Z= " << (components[cnam[ic]].getElement(ie))->getAtomicZ()
-	  << " and A= "  << (components[cnam[ic]].getElement(ie))->getAtomicA()
-	  << endreq;
+        ATH_MSG_DEBUG ( "   - "     <<  components[cnam[ic]].getElementMultiplicity(ie)
+                        << " atoms "   << (components[cnam[ic]].getElement(ie))->getName()
+                        << " with Z= " << (components[cnam[ic]].getElement(ie))->getAtomicZ()
+                        << " and A= "  << (components[cnam[ic]].getElement(ie))->getAtomicA()
+                        );
       }
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "   > density: " << components[cnam[ic]].getDensity(tempK) << " (" << tempK << " Kelvin)" << endreq;
+      ATH_MSG_DEBUG ( "   > density: " << components[cnam[ic]].getDensity(tempK) << " (" << tempK << " Kelvin)" );
     }
   }
 
   // Construct TRT gas mixture
-
-  m_trtgas = new TRT_PAI_gasMixture("TRT Gas Mixture");
+  std::string mixtureName="TRT  Gas Mixture";
+  mixtureName.insert(4, gasType);
+  m_trtgas = new TRT_PAI_gasMixture(mixtureName);
 
   if ( gasType == "XenonNew" ) {
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Using new Xenon gas mixture (Xe/CO2/O2 - 70/27/3)." << endreq;
+    ATH_MSG_DEBUG ( "Using new Xenon gas mixture (Xe/CO2/O2 - 70/27/3)." );
     m_trtgas->addComponent( &components["Xe"] , 0.70);
     m_trtgas->addComponent( &components["CO2"], 0.27);
     m_trtgas->addComponent( &components["O2"] , 0.03);
   }
 
   if (( gasType == "XenonOld" )){
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Using old Xenon gas mixture (Xe/CO2/CF4 - 70/10/20)." << endreq;
+    ATH_MSG_DEBUG ( "Using old Xenon gas mixture (Xe/CO2/CF4 - 70/10/20)." );
     m_trtgas->addComponent( &components["Xe"] , 0.70);
     m_trtgas->addComponent( &components["CO2"], 0.10);
     m_trtgas->addComponent( &components["CF4"], 0.20);
   }
 
   if ( gasType == "Argon" ) {
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Using Argon gas mixture (Ar/CO2/O2 - 70/27/3)." << endreq;
+    ATH_MSG_DEBUG ( "Using Argon gas mixture (Ar/CO2/O2 - 70/27/3)." );
     m_trtgas->addComponent( &components["Ar"] , 0.70);
     m_trtgas->addComponent( &components["CO2"], 0.27);
     m_trtgas->addComponent( &components["O2"] , 0.03);
@@ -230,7 +228,7 @@ StatusCode TRT_PAI_Process::initialize() {
 
   // Now tabulate...
 
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Making tables for various gamma factors." << endreq;
+  ATH_MSG_DEBUG ( "Making tables for various gamma factors." );
 
   std::vector<float> gamvec(m_nTabulatedGammaValues);
   std::vector<float> lnE;
@@ -245,7 +243,7 @@ StatusCode TRT_PAI_Process::initialize() {
 
   effectiveGas.GasTab(gamvec, m_en_array, m_fn_array, m_dndx );
 
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Initialization completed." << endreq;
+  ATH_MSG_DEBUG ( "Initialization completed." );
 
   return StatusCode::SUCCESS;
 }
@@ -265,7 +263,7 @@ inline double TRT_PAI_Process::ScaledEkin2GamVarTab(double scaledKineticEnergy)
 
 //__________________________________________________________________________
 double TRT_PAI_Process::GetMeanFreePath(double scaledKineticEnergy,
-					double squaredCharge) const {
+                                        double squaredCharge) const {
 
   if ( squaredCharge == 0. ) return 99999.0 * CLHEP::km;
 
@@ -284,9 +282,8 @@ double TRT_PAI_Process::GetMeanFreePath(double scaledKineticEnergy,
   double freepath = 1./(d*squaredCharge);
 
 #ifndef NDEBUG
-  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)
-    << "Mean free path for scaledKineticEnergy = " << scaledKineticEnergy
-    << " is " << freepath/CLHEP::mm << " mm " << endreq;
+  ATH_MSG_VERBOSE ( "Mean free path for scaledKineticEnergy = " << scaledKineticEnergy
+                    << " is " << freepath/CLHEP::mm << " mm " );
 #endif
 
   // All internal calculations are performed without initialization with
@@ -322,10 +319,9 @@ double TRT_PAI_Process::GetEnergyTransfer(double scaledKineticEnergy) const {
   Etransf = exp(Etransf);
 
 #ifndef NDEBUG
-  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)
-    << "Energy transfer for scaledKineticEnergy = "
-    << scaledKineticEnergy << " is " << Etransf << " eV"
-    << endreq;
+  ATH_MSG_VERBOSE ( "Energy transfer for scaledKineticEnergy = "
+                    << scaledKineticEnergy << " is " << Etransf << " eV"
+                    );
 #endif
 
   return Etransf * CLHEP::eV;
