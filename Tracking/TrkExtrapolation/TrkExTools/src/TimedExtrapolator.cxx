@@ -279,31 +279,19 @@ StatusCode Trk::TimedExtrapolator::initialize()
              }
             ATH_MSG_DEBUG( " subMEUpdator:" << isign << " pointing to updator: "<< m_updators[index]->name() );
             m_subUpdators[isign] =  ( index < validmeuts ) ? &(*m_updators[index]) : &(*m_updators[Trk::Global]);     
-     }
-   } else {
+      }
+    } else {
       ATH_MSG_FATAL( "Configuration Problem of Extrapolator: "                        
-          << "  -- At least one IPropagator and IMaterialUpdator instance have to be given.! " );
-   
-   }
-            
-    /*
-    // Get the DynamicLayerCreator
-    if(m_doMuonDynamic && m_dynamicLayerCreator){
-      if ( m_dynamicLayerCreator.retrieve().isFailure() ) {
-        ATH_MSG_ERROR( "Failed to retrieve tool " << m_dynamicLayerCreator 
-            << "No multiple scattering and energy loss material update will be done." );
-        return StatusCode::SUCCESS;
-      } else 
-        ATH_MSG_DEBUG( "Retrieved tool " << m_dynamicLayerCreator );      
+		     << "  -- At least one IPropagator and IMaterialUpdator instance have to be given.! " );
+      
     }
-    */
 
     m_maxNavigSurf = 1000;
     m_navigSurfs.reserve(m_maxNavigSurf); 
     m_maxNavigVol = 50;
     m_navigVols.reserve(m_maxNavigVol); 
     m_navigVolsInt.reserve(m_maxNavigVol); 
-
+    
        
     ATH_MSG_INFO("initialize() successful" );    
     return StatusCode::SUCCESS;
@@ -800,7 +788,7 @@ const Trk::TrackParameters*  Trk::TimedExtrapolator::extrapolateToVolumeWithPath
      // check missing volume boundary
      if (nextPar && !(m_currentDense->inside(nextPar->position(),m_tolerance) 
 		      || m_navigator->atVolumeBoundary(nextPar,m_currentDense,dir,assocVol,m_tolerance) ) ) {
-       ATH_MSG_DEBUG( "  [!] ERROR: missing volume boundary for volume"<< m_currentDense->volumeName() );
+       ATH_MSG_DEBUG( "  [!] WARNING: missing volume boundary for volume"<< m_currentDense->volumeName() );
      }
      //  if ( m_currentDense->zOverAtimesRho() != 0.) {     
      //    ATH_MSG_DEBUG( "  [!] ERROR: trying to recover: repeat the propagation step in"<< m_highestVolume->volumeName() );
@@ -1249,6 +1237,9 @@ const Trk::TrackParameters*  Trk::TimedExtrapolator::transportNeutralsWithPathLi
   // initialize hit vector
   m_hitVector = hitInfo;
  
+  // new call : reset boundary info ( should be done on exit! )
+  m_parametersAtBoundary.resetBoundaryInformation(); 
+
   // if no input volume, define as highest volume
   //const Trk::TrackingVolume* destVolume = boundaryVol ? boundaryVol : m_navigator->highestVolume();
   m_currentStatic = 0;
@@ -1722,7 +1713,7 @@ const Trk::TrackParameters*  Trk::TimedExtrapolator::transportToVolumeWithPathLi
 
      // check missing volume boundary 
      if ( !(m_currentDense->inside(nextPos,m_tolerance) ) ) {
-       ATH_MSG_DEBUG( "  [!] ERROR: missing volume boundary for volume"<< m_currentDense->volumeName() );
+       ATH_MSG_DEBUG( "  [!] WARNING: missing volume boundary for volume"<< m_currentDense->volumeName() );
        // new search
        m_currentDense =  m_highestVolume;
        for (unsigned int i=0;i<m_denseVols.size(); i++) {
@@ -1915,7 +1906,7 @@ Trk::BoundaryTrackParameters Trk::TimedExtrapolator::transportInAlignableTV(cons
 								       const Trk::AlignableTrackingVolume* aliTV) const
 
 {
-  ATH_MSG_DEBUG( "  [0] starting transport of neutral particle in alignable volume "<< m_currentStatic->volumeName() );
+  ATH_MSG_DEBUG( "  [0] starting transport of neutral particle in alignable volume "<< aliTV->volumeName() );
  
   // material loop in sensitive Calo volumes 
   // returns: boundary parameters (static volume boundary)
@@ -2048,7 +2039,7 @@ Trk::BoundaryTrackParameters Trk::TimedExtrapolator::transportInAlignableTV(cons
 
   if (!m_trStaticBounds.size()) {
 
-    ATH_MSG_ERROR("exit from alignable volume "<<aliTV->volumeName()<<" not resolved, aborting");
+    ATH_MSG_WARNING("exit from alignable volume "<<aliTV->volumeName()<<" not resolved, aborting");
     return Trk::BoundaryTrackParameters(0,0,0); 
 
   } else if (m_trStaticBounds.size()>1) {  // hit edge ?
