@@ -26,7 +26,8 @@ if digitizationFlags.dataRunNumber.get_Value():
     ServiceMgr.ToolSvc.IOVDbMetaDataTool.MinMaxRunNumbers = [myRunNumber, myRunNumber+1]#2147483647]
     myInitialTimeStamp=ServiceMgr.EvtIdModifierSvc.Modifiers[2]
 
-    ServiceMgr.EventSelector.OverrideRunNumberFromInput=True
+    #ServiceMgr.EventSelector.OverrideRunNumberFromInput=True
+    ServiceMgr.EventSelector.OverrideRunNumber=True
     ServiceMgr.EventSelector.RunNumber=myRunNumber
     ServiceMgr.EventSelector.FirstLB = myFirstLB
     ServiceMgr.EventSelector.InitialTimeStamp = myInitialTimeStamp
