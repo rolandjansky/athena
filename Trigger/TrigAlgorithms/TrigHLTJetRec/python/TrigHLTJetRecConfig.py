@@ -44,8 +44,12 @@ from JetRec.JetRecCalibrationFinder import jrcf
 
 from EventShapeTools.EventShapeToolsConf import EventDensityTool
 
-# quasi cut and past of configEventDensityTool in EventDensityConfig.py
+# quasi cut and paste of configEventDensityTool in EventDensityConfig.py
 # that creates the name in the format expected by the pileup calibration tool.
+
+def _getEventShapeSGKey(radius, pseudoJetGetterLabel):
+    return  "HLTKt"+str(int(10*radius))+pseudoJetGetterLabel + "EventShape"
+
 def configHLTEventDensityTool( name, pjGetter, radius, **options ):
     """ options can be used to pass any EventDensityTool properties 
     """
@@ -58,7 +62,8 @@ def configHLTEventDensityTool( name, pjGetter, radius, **options ):
         AbsRapidityMax      = 2.0,
         AreaDefinition      = "Voronoi",
         VoronoiRfact        = 0.9,
-        OutputContainer     = "HLTKt"+str(int(10*radius))+pjGetter.Label + "EventShape",
+        # OutputContainer     = "HLTKt"+str(int(10*radius))+pjGetter.Label + "EventShape",
+        OutputContainer     = _getEventShapeSGKey(radius,pjGetter.Label)
     )
     # Override properties with user-supplied options.
     toolProperties.update( options)
@@ -475,6 +480,46 @@ class TrigHLTJetRecFromJet(TrigHLTJetRecConf.TrigHLTJetRecFromJet):
         self.pseudojet_labelindex_arg = pseudojet_labelindex_arg
 
 
+class TrigHLTJetRecFromTriggerTower(TrigHLTJetRecConf.TrigHLTJetRecFromJet):
+    """Jets from trigger towers"""
+    def __init__(self,
+                 name,
+                 alg='AntiKt',
+                 merge_param='10',
+                 ptmin=7.0 * GeV,
+                 ptminFilter=7.0 * GeV,
+                 jet_calib='nojcalib',  # no calibration to be done
+                 cluster_calib='EM',
+                 do_minimalist_setup=True,
+                 output_collection_label='triggerTowerjets',  # do not use this
+                 pseudojet_labelindex_arg='PseudoJetLabelMapTriggerFromTriggerTower',
+                 ptMinCut=15000.,
+                 etaMaxCut=3.2,
+                 ):
+        TrigHLTJetRecConf.TrigHLTJetRecFromJet.__init__(self, name=name)
+
+        self.cluster_calib = cluster_calib
+        self.pseudoJetGetter = _getTriggerPseudoJetGetter(cluster_calib)
+
+        self.iParticleSelector = _getIParticleSelectorEtaPt(
+            'iParticleSelectorEtaPt_%d_%d' % (int(10 * etaMaxCut),
+                                              int(ptMinCut)),
+            **{'etaMax': etaMaxCut, 'ptMin': ptMinCut})
+
+
+        self.jetBuildTool = _getJetBuildTool(
+            float(int(merge_param))/10.,
+            ptmin=ptMinCut,
+            ptminFilter=ptminFilter,
+            jet_calib=jet_calib,
+            cluster_calib=cluster_calib,
+            do_minimalist_setup=do_minimalist_setup,
+            )
+
+        self.output_collection_label = output_collection_label
+        self.pseudojet_labelindex_arg = pseudojet_labelindex_arg
+
+
 #  class TrigHLTJetRec_AntiKt04 is maintained only for the HT configuration
 class TrigHLTJetRec_AntiKt04(TrigHLTJetRecConf.TrigHLTJetRec):
     """Supply a specific merge parameter for the anti-kt algorithm"""
@@ -566,6 +611,25 @@ class TrigHLTPSvsFSDiagnostics_named(TrigHLTJetRecConf.TrigHLTPSvsFSDiagnostics)
     def __init__(self,  chain_name, name="TrigHLTPSvsFSDiagnostics_named"):
         TrigHLTJetRecConf.TrigHLTPSvsFSDiagnostics.__init__(self, name)
         self.chainName = chain_name
+
+
+class TrigHLTJetDebug(TrigHLTJetRecConf.TrigHLTJetDebug):
+    """Dump various values for debugging purposes"""
+    def __init__(self,
+                 chain_name,
+                 cluster_calib,
+                 ed_merge_param,
+                 name="TrigHLTJetDebug"):
+
+        TrigHLTJetRecConf.TrigHLTJetDebug.__init__(self, name)
+        self.chainName = chain_name
+        pseudoJetGetter = _getTriggerPseudoJetGetter(cluster_calib)
+
+        # allow the debug Alg to access the EventShape object
+        # by a direct StoreGate retireve. TtigHLTEnergyDensity writes
+        # this object directly to SG without passing via navigation.
+        self.eventshape_key = _getEventShapeSGKey(ed_merge_param,
+                                                  pseudoJetGetter.Label) 
 
 
 class TrigHLTEnergyDensity(TrigHLTJetRecConf.TrigHLTEnergyDensity):
