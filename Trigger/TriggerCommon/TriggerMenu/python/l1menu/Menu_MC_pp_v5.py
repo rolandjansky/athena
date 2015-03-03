@@ -34,8 +34,8 @@ def defineMenu():
         'MU4', 'MU6', 'MU10', 'MU11', 'MU15', 'MU20',
 
         # 16 x EM
-        ##'EM3','EM10', 'EM7', 'EM8VH', 'EM8I',  'EM10VH', 'EM12',  'EM15', 'EM15VH', 'EM15I', 'EM15HI', 'EM18VH', 'EM13VH', 'EM22VHI', 'EM20VH', 'EM20VHI',         
-        'EM3', 'EM7', 'EM8VH', 'EM8I', 'EM10', 'EM10VH', 'EM12', 'EM13VH', 'EM15', 'EM15VH', 'EM15I', 'EM15HI', 'EM18VH', 'EM20VH', 'EM20VHI', 'EM22VHI', 
+        'EM3','EM10', 'EM7', 'EM8VH', 'EM8I',  'EM10VH', 'EM12',  'EM15', 'EM15VH', 'EM15I', 'EM15HI', 'EM18VH', 'EM13VH', 'EM22VHI', 'EM20VH', 'EM20VHI',         
+        #'EM3', 'EM7', 'EM8VH', 'EM8I', 'EM10', 'EM10VH', 'EM12', 'EM13VH', 'EM15', 'EM15VH', 'EM15I', 'EM15HI', 'EM18VH', 'EM20VH', 'EM20VHI', 'EM22VHI', 
 
 
         # 9 x TAU

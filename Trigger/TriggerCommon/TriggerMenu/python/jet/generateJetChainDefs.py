@@ -112,7 +112,6 @@ def _addTopoInfo(theChainDef,chainDict, topoAlgs, doAtL2AndEF=True):
     elif ('llp' in topoAlgs):
         theChainDef = generateLLPchain(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoAlgs)
     elif b_any(('invm' or 'deta') in x for x in topoAlgs):
-        print "MEOW found"
         theChainDef = addDetaInvmTopo(theChainDef,chainDict,inputTEsL2, inputTEsEF, topoAlgs)
     else:
         logJet.error('Your favourite topo configuration is missing.')
@@ -194,7 +193,6 @@ def generateLLPchain(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoAlgs):
 
 ##########################################################################################
 def addDetaInvmTopo(theChainDef,chainDicts,inputTEsL2, inputTEsEF,topoAlgs):
-    print "MEOW found 2"
         
     algoName = "EFJetMassDEta"
     for topo_item in topoAlgs:
@@ -202,13 +200,13 @@ def addDetaInvmTopo(theChainDef,chainDicts,inputTEsL2, inputTEsEF,topoAlgs):
         if 'deta' in topo_item:
             detaCut=float(topo_item.split('deta')[1]) 
         else:
-            logJet.warning("No deta threshold in topo definition, using default deta=99.")
+            logJet.info("No deta threshold in topo definition, using default deta=99.")
             detaCut = 99.
 
         if 'invm' in topo_item:
             invmCut=float(topo_item.split('invm')[1]) 
         else:
-            logJet.warning("No invm threshold in topo definition, using default invm = 0.")
+            logJet.info("No invm threshold in topo definition, using default invm = 0.")
             invmCut = 0.
 
     from TrigJetHypo.TrigEFJetMassDEtaConfig import EFJetMassDEta

@@ -56,8 +56,6 @@ def generateChainDefs(chainDict):
     #----------------------------------------------------------------------------
 
 
-    print 'MEOW getMultThreshBtagInfo(cDict):', getMultThreshBtagInfo(chainDict)
-
     #----------------------------------------------------------------------------
     # --- build the jet chain, then pass JetChainDef and bjetchainDictionaries to build bjet chains ---
     theAllJetChainDef =  genJetChainDefs(jetchainDict)

@@ -28,7 +28,7 @@ def lumi(triggerPythonConfig):
     log.info( 'Menu name: '+ menu_name)
 
     if menu_name.startswith('Physics_pp_v4') :
-        log.info('MEOW in physics pp v4 menu setup')
+        log.info('in physics pp v4 menu setup')
         from TriggerMenu.menu.Physics_pp_v4 import setupMenu, Prescales#, StreamConfig
         setupMenu()
         if 'cosmics_prescale' in menu_name:
