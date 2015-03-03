@@ -45,7 +45,7 @@
              </arg>
              <arg> 
                <argname>exeParamString</argname>
-               <argvalue>data-tau-IBL.root data-tau-IBL-pu46-run2-reference-newchains.root HLT_tau29_idperf_TrigFastTrackFinder_Tau HLT_tau29_idperf_InDetTrigTrackingxAODCnv_Tau_EFID  -d HLTEF-plots </argvalue>
+               <argvalue>data-tau-merge.root data-tau-merge.root HLT_tau29_idperf_TrigFastTrackFinder_Tau HLT_tau29_idperf_InDetTrigTrackingxAODCnv_Tau_IDTrig HLT_tau29_tracktwo_idperf_TrigFastTrackFinder_TauCore HLT_tau29_tracktwo_idperf_TrigFastTrackFinder_TauIso HLT_tau29_tracktwo_idperf_InDetTrigTrackingxAODCnv_Tau_IDTrig -d HLTEF-plots </argvalue>
              </arg>
            </action> 
 	   
