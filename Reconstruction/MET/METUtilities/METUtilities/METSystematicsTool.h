@@ -71,15 +71,13 @@ namespace met {
   };
 
   class METSystematicsTool : public virtual IMETSystematicsTool, 
-			     public virtual CP::SystematicsTool,
-			     public virtual asg::AsgTool 
+			     public virtual asg::AsgTool,
+			     public virtual CP::SystematicsTool
   {
     // This macro defines the constructor with the interface declaration                                                                              
     ASG_TOOL_CLASS(METSystematicsTool, IMETSystematicsTool)
 
     public:
-
-    xAOD::EventInfo const * getDefaultEventInfo() const;
 
     //Constructor
     METSystematicsTool(const std::string& name);
@@ -98,14 +96,17 @@ namespace met {
 
     //required correction tool functions
     //we don't inherit from CorrectionTool directly, since we don't want to implement applyContainerCorrection
-    CP::CorrectionCode applyCorrection(xAOD::MissingET& inputMet, xAOD::MissingETAssociationMap * map = nullptr ) const;
-    CP::CorrectionCode correctedCopy(const xAOD::MissingET& met, xAOD::MissingET*& outputmet,xAOD::MissingETAssociationMap * map = nullptr) const;
+    CP::CorrectionCode applyCorrection(xAOD::MissingET& inputMet, 
+				       const xAOD::MissingETAssociationMap * map = nullptr,
+				       const xAOD::JetContainer *        jetCont = nullptr ) const;
+    CP::CorrectionCode correctedCopy(const xAOD::MissingET& met, xAOD::MissingET*& outputmet,
+				     const xAOD::MissingETAssociationMap * map = nullptr,
+				     const xAOD::JetContainer * jetCont        = nullptr) const;
     //We don't want these for MET since we only apply systematics to the soft term, and this may be unclear
     //virtual CP::CorrectionCode applyContainerCorrection(xAOD::MissingETContainer& inputs, const CP::xAOD::EventInfo& eInfo) const;
     //virtual CP::CorrectionCode applyContainerCorrection(xAOD::MissingETContainer& inputs, const CP::xAOD::EventInfo& eInfo) const;
 
-
-    //required systematic tool functions
+    //required ISystematicTool functions
     bool               isAffectedBySystematic  (const CP::SystematicVariation& var) const{return CP::SystematicsTool::isAffectedBySystematic(var)   ;}
     CP::SystematicSet  affectingSystematics    () const{		       		  return CP::SystematicsTool::affectingSystematics  ()      ;}
     CP::SystematicSet  recommendedSystematics  () const{		       		  return CP::SystematicsTool::recommendedSystematics()      ;}
@@ -115,14 +116,21 @@ namespace met {
     void setRandomSeed(int seed);
 
   private:
+
+    //default constructor
+    METSystematicsTool();
+
+    //this saves the the currently applied systematic as an enum for faster lookup
     SystApplied m_appliedSystEnum;
 
-    CP::CorrectionCode internalSoftTermApplyCorrection(xAOD::MissingET& softMet, xAOD::MissingETContainer const * METcont , xAOD::EventInfo const& eInfo
-) const;
+    //these are the internal computation functions
+    CP::CorrectionCode internalSoftTermApplyCorrection(xAOD::MissingET& softMet,   
+						       xAOD::MissingETContainer const * METcont,
+						       xAOD::EventInfo          const & eInfo,
+						       xAOD::JetContainer       const * jetCont
+						       ) const;
     CP::CorrectionCode calcJetTrackMETWithSyst(xAOD::MissingET& jettrkmet, const xAOD::MissingETAssociationMap* map, const xAOD::Jet* jet) const;
-    CP::CorrectionCode getCorrectedJetTrackMET(xAOD::MissingET& jettrkmet, const xAOD::MissingETAssociationMap* map, const xAOD::JetContainer* vecJets) const;
-
-
+    CP::CorrectionCode getCorrectedJetTrackMET(xAOD::MissingET& jettrkmet, const xAOD::MissingETAssociationMap* map, const xAOD::JetContainer* jetCont) const;
 
     //declared properties 
     std::string m_jetColl;
@@ -146,6 +154,7 @@ namespace met {
     mutable TRandom3 m_rand;//so that we can call this from applyCorrection
 
     int getNPV() const;
+    xAOD::EventInfo const * getDefaultEventInfo() const;
 
     StatusCode addMETAffectingSystematics();
     StatusCode extractHistoPath(std::string & histfile, std::string & systpath, std::string & configdir, std::string & suffix, SystType const & type);

@@ -9,10 +9,10 @@ PACKAGE          = METUtilities
 PACKAGE_PRELOAD  = 
 PACKAGE_CXXFLAGS = 
 PACKAGE_OBJFLAGS = 
-PACKAGE_LDFLAGS  = 
+PACKAGE_LDFLAGS  = -lboost_unit_test_framework
 PACKAGE_BINFLAGS = 
 PACKAGE_LIBFLAGS = 
-PACKAGE_DEP      = AsgTools xAODBase xAODTracking xAODMissingET xAODEgamma xAODTruth xAODJet xAODMuon xAODTau xAODPFlow METInterface xAODEventInfo PATInterfaces PathResolver InDetTrackSelectionTool
+PACKAGE_DEP      = AsgTools xAODBase xAODTracking xAODMissingET xAODEgamma xAODTruth xAODJet xAODMuon xAODTau xAODPFlow METInterface xAODEventInfo PATInterfaces PathResolver InDetTrackSelectionTool JetCalibTools JetInterface xAODEventShape
 
 PACKAGE_TRYDEP   = 
 PACKAGE_CLEAN    = 
@@ -20,7 +20,6 @@ PACKAGE_NOGRID   =
 PACKAGE_PEDANTIC = 1
 PACKAGE_NOOPT    = 0
 PACKAGE_NOCC     = 0
-# Temporarily disable reflex dicts to work with IInDetTrackSelectionTool "enum class"
-PACKAGE_REFLEX   = 0
+PACKAGE_REFLEX   = 1
 
 include $(ROOTCOREDIR)/Makefile-common
