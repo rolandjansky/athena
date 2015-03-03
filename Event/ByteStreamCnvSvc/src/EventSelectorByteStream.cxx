@@ -991,6 +991,7 @@ StatusCode EventSelectorByteStream::io_reinit() {
       }
    }
    // all good... copy over.
+   m_beginFileFired = false;
    
    return(this->reinit());
 }
