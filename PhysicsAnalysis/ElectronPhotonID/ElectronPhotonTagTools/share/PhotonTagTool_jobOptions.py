@@ -5,7 +5,7 @@ include.block ("ElectronPhotonTagTools/PhotonTagTool_jobOptions.py")
 from ElectronPhotonTagTools.ElectronPhotonTagToolsConf import \
   PhotonTagTool as ConfiguredPhotonTagTool
 PhotonTagTool = ConfiguredPhotonTagTool(
-     Container         = "PhotonCollection",
+     Container         = "Photons",
      EtCut             = 10.0*GeV,
      CaloIsoCutValues  = [ 0.15, 0.30, 3.0*GeV, 5.0*GeV ],
      TrackIsoCutValues = [ 0.15, 0.30, 3.0*GeV, 5.0*GeV ] )

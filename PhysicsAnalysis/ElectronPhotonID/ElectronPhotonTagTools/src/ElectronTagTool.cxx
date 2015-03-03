@@ -126,7 +126,7 @@ StatusCode ElectronTagTool::execute(TagFragmentCollection& eTagColl, const int& 
       ATH_MSG_WARNING( "No AOD Electron container found in SG" );
       return StatusCode::SUCCESS;
     }
-    ATH_MSG_INFO( "AOD Electron container successfully retrieved = " << m_containerNames[cont] );
+    ATH_MSG_DEBUG( "AOD Electron container successfully retrieved = " << m_containerNames[cont] );
     
     xAOD::ElectronContainer userContainer( SG::VIEW_ELEMENTS );
     userContainer = *electronContainer;
@@ -142,13 +142,13 @@ StatusCode ElectronTagTool::execute(TagFragmentCollection& eTagColl, const int& 
     
     for (; elecItr != elecItrE; ++elecItr) { 
       
-      ATH_MSG_INFO( "Electron " << k << ", pt = " << (*elecItr)->pt() );
+      ATH_MSG_DEBUG( "Electron " << k << ", pt = " << (*elecItr)->pt() );
       k++;  
       
       bool value_loose=0;
       
       if(!((*elecItr)->passSelection(value_loose,"Loose"))){
-	ATH_MSG_INFO( "No loose selection exits" );
+	ATH_MSG_DEBUG( "No loose selection exits" );
 	// ATH_MSG_ERROR( "No loose selection exits" );
       }
       
@@ -167,7 +167,7 @@ StatusCode ElectronTagTool::execute(TagFragmentCollection& eTagColl, const int& 
   }
   
   if ( unique_electrons.size() > 1) {
-    ATH_MSG_INFO( "sorting electron file" );
+    ATH_MSG_DEBUG( "sorting electron file" );
     AnalysisUtils::Sort::pT( &unique_electrons );
   }      
   
@@ -175,7 +175,7 @@ StatusCode ElectronTagTool::execute(TagFragmentCollection& eTagColl, const int& 
   std::vector<const xAOD::Electron*>::const_iterator EleItr  = unique_electrons.begin();
   for (; EleItr != unique_electrons.end() && i < max; ++EleItr, ++i) {
     
-    ATH_MSG_INFO( "Electron " << i << ", pt = " << (*EleItr)->pt() );
+    ATH_MSG_DEBUG( "Electron " << i << ", pt = " << (*EleItr)->pt() );
    
     /** pt */
     if ( (*EleItr)->charge() < 0 ) eTagColl.insert( m_ptStr[i], (*EleItr)->pt() * (*EleItr)->charge() );
@@ -193,17 +193,17 @@ StatusCode ElectronTagTool::execute(TagFragmentCollection& eTagColl, const int& 
     bool val_tight=0;
     
     if(!((*EleItr)->passSelection(val_loose,"Loose"))){
-      ATH_MSG_INFO( "No loose selection exits" );
+      ATH_MSG_DEBUG( "No loose selection exits" );
       // ATH_MSG_ERROR( "No loose selection exits" );
     }
 
     if(!((*EleItr)->passSelection(val_medium,"Medium"))){
-      ATH_MSG_INFO( "No medium selection exits" );
+      ATH_MSG_DEBUG( "No medium selection exits" );
       // ATH_MSG_ERROR( "No medium selection exits" );
     }
     
     if(!((*EleItr)->passSelection(val_tight,"Tight"))){
-      ATH_MSG_INFO( "No tight selection exits" );
+      ATH_MSG_DEBUG( "No tight selection exits" );
       // ATH_MSG_ERROR( "No tightse lection exits" );
     }
     
@@ -236,7 +236,7 @@ StatusCode ElectronTagTool::execute(TagFragmentCollection& eTagColl, const int& 
     
     // bool iso_20_ptcorr = 
     if(!((*EleItr)->isolationValue(etcone,xAOD::Iso::etcone20))){
-      ATH_MSG_INFO( "No isolation etcone20pt defined" );
+      ATH_MSG_DEBUG( "No isolation etcone20pt defined" );
     }
     else{
       for (unsigned int j=0; j<m_caloisocutvalues.size(); j++)
@@ -252,7 +252,7 @@ StatusCode ElectronTagTool::execute(TagFragmentCollection& eTagColl, const int& 
     }
     //            etcone = shower->parameter(xAOD::EgammaParameters::topoetcone20);
     if(!((*EleItr)->isolationValue(etcone,xAOD::Iso::IsolationType::topoetcone20))){
-      ATH_MSG_INFO( "No isolation topoetcone20 defined" );
+      ATH_MSG_DEBUG( "No isolation topoetcone20 defined" );
     }
     else{
       for (unsigned int j=0; j<m_caloisocutvalues.size(); j++)
@@ -267,7 +267,7 @@ StatusCode ElectronTagTool::execute(TagFragmentCollection& eTagColl, const int& 
 	}
     }
     if(!((*EleItr)->isolationValue(etcone,xAOD::Iso::IsolationType::topoetcone40))){	
-      ATH_MSG_INFO( "No isolation topoetcone40 defined" );
+      ATH_MSG_DEBUG( "No isolation topoetcone40 defined" );
     }
     else{
       for (unsigned int j=0; j<m_caloisocutvalues.size(); j++)
@@ -284,7 +284,7 @@ StatusCode ElectronTagTool::execute(TagFragmentCollection& eTagColl, const int& 
     /* Track Isolation in bits from 16 to 31 */ 
     float ptcone = 0;
     if(!((*EleItr)->isolationValue(ptcone,xAOD::Iso::IsolationType::ptcone20))){
-      ATH_MSG_INFO( "No isolation ptcone20 defined" );
+      ATH_MSG_DEBUG( "No isolation ptcone20 defined" );
     }
     else{
       for (unsigned int j=0; j<m_trackisocutvalues.size(); j++)
@@ -311,7 +311,7 @@ StatusCode ElectronTagTool::execute(TagFragmentCollection& eTagColl, const int& 
     /** insert the number of loose electrons */
 // mLog << MSG::INFO << "Number of Loose Electron for Container " << m_containerNames[cont] << " = " << i << endreq;  
 //}
-  ATH_MSG_INFO( "Number of Total Loose Electron " << i );
+  ATH_MSG_DEBUG( "Number of Total Loose Electron " << i );
   eTagColl.insert(ElectronAttributeNames[ElectronID::NElectron], i);
   
   return StatusCode::SUCCESS;

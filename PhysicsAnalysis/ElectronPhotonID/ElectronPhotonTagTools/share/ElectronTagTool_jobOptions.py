@@ -5,10 +5,8 @@ include.block ("ElectronPhotonTagTools/ElectronTagTool_jobOptions.py")
 from ElectronPhotonTagTools.ElectronPhotonTagToolsConf import \
      ElectronTagTool as ConfiguredElectronTagTool
 ElectronTagTool = ConfiguredElectronTagTool(
-     Container         = ["ElectronCollection","FwdElectrons"],
+     Container         = ["Electrons"]
      EtCut             = 7.0*GeV,
-     # CaloIsoCutValues  = [ 0.15, 0.30, 3.0*GeV, 5.0*GeV ],
-     # TrackIsoCutValues = [ 0.15, 0.30, 3.0*GeV, 5.0*GeV ] )
-     CaloIsoCutValues  = [ ],
-     TrackIsoCutValues = [ ] )
+     CaloIsoCutValues  = [ 0.15, 0.30, 3.0*GeV, 5.0*GeV ],
+     TrackIsoCutValues = [ 0.15, 0.30, 3.0*GeV, 5.0*GeV ] )
 ToolSvc += ElectronTagTool
