@@ -32,11 +32,11 @@ TauJetTagTool::TauJetTagTool (const std::string& type, const std::string& name,
   AthAlgTool( type, name, parent ) {
 
   /** TauJet AOD Container Name */
-  declareProperty("Container",     m_containerName = "TauJetCollection");
+  declareProperty("Container",     m_containerName);
 
   /** selection cut of Pt */
   declareProperty("EtCut",              m_tauJetPtCut = 15.0*CLHEP::GeV);
-  declareProperty("TauDetailContainer", m_tauDetailContainer = "TauRecDetailsContainer");
+  //  declareProperty("TauDetailContainer", m_tauDetailContainer = "TauRecDetailsContainer");
  
   declareInterface<TauJetTagTool>( this );
 }
@@ -136,7 +136,7 @@ StatusCode TauJetTagTool::execute(TagFragmentCollection& tauJetTagColl, const in
  
     //    if ( !theDetails ) continue; 
     
-    ATH_MSG_INFO( "Before the tau selection" );
+    ATH_MSG_DEBUG( "Before the tau selection" );
 
     bool select =  ( (*tauJetItr)->pt() > m_tauJetPtCut ) && 
       //      ( (*tauJetItr)->numTrack()==1 ||  (*tauJetItr)->numTrack()==3 ) &&
@@ -149,7 +149,7 @@ StatusCode TauJetTagTool::execute(TagFragmentCollection& tauJetTagColl, const in
   
        if ( i<max ) {
 	 
-	 ATH_MSG_INFO( "While doing the tau selection" );
+	 ATH_MSG_DEBUG( "While doing the tau selection" );
     
           /** pt */
           tauJetTagColl.insert( m_ptStr[i], (*tauJetItr)->pt() * (*tauJetItr)->charge() );

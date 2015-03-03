@@ -5,7 +5,7 @@ include.block ("TauTagTools/TauIdentificationTagTool_jobOptions.py")
 from TauTagTools.TauTagToolsConf import \
 TauIdentificationTagTool as ConfiguredTauIdTagTool
 TauIdentificationTagTool=ConfiguredTauIdTagTool(
-     Container     = "TauRecContainer",
+     Container     = "TauJets",
      EtCut         = 15.0*GeV,
      Likelihood    = -6.0,
      HadEnergyFrac = 0.9)
