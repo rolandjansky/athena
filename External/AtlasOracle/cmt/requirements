@@ -15,10 +15,17 @@ set ORA_FPU_PRECISION 'EXTENDED'
 path_remove DYLD_LIBRARY_PATH "" host-darwin "/oracle/"
 path_append DYLD_LIBRARY_PATH "" host-darwin "$(oracle_home)/lib"
 
+macro AtlasOracle_home "${SITEROOT}/atlas/offline/external/oracle" 
+macro AtlasOracle_native_version "11.2.0.3.0"
+set TNS_ADMIN $(AtlasOracle_home)/$(AtlasOracle_native_version)/admin 
+
 # This was added for releases that no longer include
 # DBRelease in the distribution kit (releases of 19 series)
 # and should be dropped when/if this part is again exported via
 # oracle v* LCG_Interfaces from LCGCMT project
-macro AtlasOracle_native_version "$(oracle_native_version)"
-macro AtlasOracle_export_paths "" ATLAS "$(TNS_ADMIN)"
+
+macro AtlasOracle_export_paths "$(TNS_ADMIN)"
 macro AtlasOracle_follow_symlinks yes
+# the macro below is defined due to $(AtlasOracle_export_paths)
+# not containig any architecture specific paths
+macro AtlasOracle_platform "" PACK noarch
