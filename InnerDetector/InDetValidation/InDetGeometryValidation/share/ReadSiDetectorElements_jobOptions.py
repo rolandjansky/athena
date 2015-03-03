@@ -30,7 +30,7 @@ from AtlasGeoModel import GeoModelInit
 from AtlasGeoModel import SetGeometryVersion
 
 # Use MagneticFieldSvc
-include( "BFieldAth/BFieldAth_jobOptions.py" )
+import MagFieldServices.SetupField
 
 # Set up the job.
 from AthenaCommon.AlgSequence import AlgSequence
