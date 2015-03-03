@@ -732,46 +732,45 @@ class TrigCaloClusterMaker_topo (TrigCaloClusterMakerBase):
  
           # correction tools not using tools
           TrigTopoMoments = CaloClusterMomentsMaker ("TrigTopoMoments")
-          TrigTopoMoments.MaxAxisAngle = 30*deg
           TrigTopoMoments.OutputLevel = INFO
-          TrigTopoMoments.MomentsNames = ["FIRST_PHI"
-                                     ,"FIRST_ETA"
-                                     ,"SECOND_R"
-                                     ,"SECOND_LAMBDA"
-                                     ,"DELTA_PHI"
-                                     ,"DELTA_THETA"
-                                     ,"DELTA_ALPHA"
-                                     ,"CENTER_X"
-                                     ,"CENTER_Y"
-                                     ,"CENTER_Z"
-                                     ,"CENTER_MAG"
-                                     ,"CENTER_LAMBDA"
-                                     ,"LATERAL"
-                                     ,"LONGITUDINAL"
-                                     ,"FIRST_ENG_DENS"
-                                     ,"ENG_FRAC_EM"
-                                     ,"ENG_FRAC_MAX"
-                                     ,"ENG_FRAC_CORE"
-                                     ,"FIRST_ENG_DENS"
-                                     ,"SECOND_ENG_DENS"
-                                     ,"ISOLATION"
-                                     ,"ENG_BAD_CELLS"
-                                     ,"N_BAD_CELLS"
-                                     ,"N_BAD_CELLS_CORR"
-                                     ,"BAD_CELLS_CORR_E"
-                                     ]
-          #TrigTopoMoments.AODMomentsNames = ["LATERAL"
-          #                              ,"LONGITUDINAL"
-          #                              ,"SECOND_R"
-          #                              ,"SECOND_LAMBDA"
-          #                              ,"CENTER_MAG"
-          #                              ,"CENTER_LAMBDA"
-          #                              ,"FIRST_ENG_DENS"
-          #                              ,"ENG_FRAC_MAX"
-          #                              ,"ISOLATION"
-          #                              ,"ENG_BAD_CELLS"
-          #                              ,"N_BAD_CELLS"]   
-
+          TrigTopoMoments.MaxAxisAngle = 20*deg
+          TrigTopoMoments.CaloNoiseTool = theCaloNoiseTool
+          TrigTopoMoments.TwoGaussianNoise = jobproperties.CaloTopoClusterFlags.doTwoGaussianNoise()
+          TrigTopoMoments.UsePileUpNoise = True
+          TrigTopoMoments.MinBadLArQuality = 4000
+          TrigTopoMoments.MomentsNames = ["FIRST_PHI" 
+                                          ,"FIRST_ETA"
+                                          ,"SECOND_R" 
+                                          ,"SECOND_LAMBDA"
+                                          ,"DELTA_PHI"
+                                          ,"DELTA_THETA"
+                                          ,"DELTA_ALPHA" 
+                                          ,"CENTER_X"
+                                          ,"CENTER_Y"
+                                          ,"CENTER_Z"
+                                          ,"CENTER_MAG"
+                                          ,"CENTER_LAMBDA"
+                                          ,"LATERAL"
+                                          ,"LONGITUDINAL"
+                                          ,"FIRST_ENG_DENS" 
+                                          ,"ENG_FRAC_EM" 
+                                          ,"ENG_FRAC_MAX" 
+                                          ,"ENG_FRAC_CORE" 
+                                          ,"FIRST_ENG_DENS" 
+                                          ,"SECOND_ENG_DENS" 
+                                          ,"ISOLATION"
+                                          ,"ENG_BAD_CELLS"
+                                          ,"N_BAD_CELLS"
+                                          ,"N_BAD_CELLS_CORR"
+                                          ,"BAD_CELLS_CORR_E"
+                                          ,"BADLARQ_FRAC"
+                                          ,"ENG_POS"
+                                          ,"SIGNIFICANCE"
+                                          ,"CELL_SIGNIFICANCE"
+                                          ,"CELL_SIG_SAMPLING"
+                                          ,"AVG_LAR_Q"
+                                          ,"AVG_TILE_Q"
+                                          ]          
         #TrigLockVariables = CaloClusterLockVars("TrigLockVariables")
         #TrigLockVariables.FixBasicEnergy = True
         #TrigLockVariables.LockedSamplingVariables = []
@@ -1021,29 +1020,45 @@ class TrigCaloClusterMaker_EMtopo (TrigCaloClusterMakerBase):
             print traceback.format_exc()
             return False
         
-        
-        emtopomoments.MaxAxisAngle = 30*deg
-        emtopomoments.OutputLevel = VERBOSE
-        emtopomoments.MomentsNames = [
-            "FIRST_PHI"
-            ,"FIRST_ETA"
-            ,"SECOND_R"
-            ,"SECOND_LAMBDA"
-            ,"DELTA_PHI"
-            ,"DELTA_THETA"
-            ,"DELTA_ALPHA"
-            ,"CENTER_X"
-            ,"CENTER_Y"
-            ,"CENTER_Z"
-            ,"CENTER_LAMBDA"
-            ,"LATERAL"
-            ,"LONGITUDINAL"
-            ,"FIRST_ENG_DENS"
-            ,"ENG_FRAC_EM"
-            ,"ENG_FRAC_MAX"
-            ,"ENG_FRAC_CORE"
-            ,"FIRST_ENG_DENS"
-            ,"SECOND_ENG_DENS"]
+        emtopomoments.OutputLevel = INFO
+        emtopomoments.MaxAxisAngle = 20*deg
+        emtopomoments.CaloNoiseTool = theCaloNoiseTool
+        emtopomoments.TwoGaussianNoise = jobproperties.CaloTopoClusterFlags.doTwoGaussianNoise()
+        emtopomoments.UsePileUpNoise = True
+        emtopomoments.MinBadLArQuality = 4000
+        emtopomoments.MomentsNames = ["FIRST_PHI" 
+                                      ,"FIRST_ETA"
+                                      ,"SECOND_R" 
+                                      ,"SECOND_LAMBDA"
+                                      ,"DELTA_PHI"
+                                      ,"DELTA_THETA"
+                                      ,"DELTA_ALPHA" 
+                                      ,"CENTER_X"
+                                      ,"CENTER_Y"
+                                      ,"CENTER_Z"
+                                      ,"CENTER_MAG"
+                                      ,"CENTER_LAMBDA"
+                                      ,"LATERAL"
+                                      ,"LONGITUDINAL"
+                                      ,"FIRST_ENG_DENS" 
+                                      ,"ENG_FRAC_EM" 
+                                      ,"ENG_FRAC_MAX" 
+                                      ,"ENG_FRAC_CORE" 
+                                      ,"FIRST_ENG_DENS" 
+                                      ,"SECOND_ENG_DENS" 
+                                      ,"ISOLATION"
+                                      ,"ENG_BAD_CELLS"
+                                      ,"N_BAD_CELLS"
+                                      ,"N_BAD_CELLS_CORR"
+                                      ,"BAD_CELLS_CORR_E"
+                                      ,"BADLARQ_FRAC"
+                                      ,"ENG_POS"
+                                      ,"SIGNIFICANCE"
+                                      ,"CELL_SIGNIFICANCE"
+                                      ,"CELL_SIG_SAMPLING"
+                                      ,"AVG_LAR_Q"
+                                      ,"AVG_TILE_Q"
+                                      ]          
         
         self.ClusterMakerTools = [emtopocluster.getFullName(), emtoposplitter.getFullName(), emtopomoments.getFullName()]
         #self.ClusterMakerTools = [emtopocluster.getFullName(), emtoposplitter.getFullName()]
