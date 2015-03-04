@@ -23,6 +23,8 @@ use     MuonTrigCoinData        MuonTrigCoinData-*              MuonSpectrometer
 
 private
 use     xAODEventInfo           xAODEventInfo-*                 Event/xAOD
+use     xAODTrigger             xAODTrigger-*                   Event/xAOD
+use     xAODMuon                xAODMuon-*                      Event/xAOD
 use	AnalysisTriggerEvent	AnalysisTriggerEvent-*		PhysicsAnalysis/AnalysisTrigger 
 use     Identifier              Identifier-*                    DetectorDescription
 use     MuonDigitContainer      MuonDigitContainer-*            MuonSpectrometer
@@ -31,6 +33,8 @@ use 	muonEvent            	muonEvent-*             	Reconstruction/MuonIdentific
 use     TrigSteeringEvent       TrigSteeringEvent-*             Trigger/TrigEvent
 end_private
 
+# Specify the required ROOT components for cmake (transparent to CMT)
+apply_pattern cmake_add_command command="find_package(ROOT COMPONENTS Graf Hist)"
 
 # build a component library
 library TgcRawDataMonitoring *.cxx components/*.cxx

@@ -39,7 +39,13 @@
 #include "AnalysisTriggerEvent/LVL1_ROI.h"
 
 //offline 
-#include "muonEvent/MuonContainer.h"
+#include "xAODMuon/MuonContainer.h"
+
+#include "xAODTrigger/MuonRoIContainer.h"
+#include "xAODTrigger/EmTauRoIContainer.h"
+#include "xAODTrigger/JetRoIContainer.h"
+#include "xAODTrigger/JetEtRoI.h"
+#include "xAODTrigger/EnergySumRoI.h"
 
 //for express menu
 #include "TrigSteeringEvent/TrigOperationalInfo.h"
@@ -269,7 +275,7 @@ TgcLv1RawDataValAlg::readOfflineMuonContainer(std::string key,
   const float etamin = 1.05;
   const float etamax = 2.4;
 
-  const Analysis::MuonContainer* muonCont;
+  const xAOD::MuonContainer* muonCont;
 
   StatusCode sc = (*m_activeStore)->retrieve(muonCont, key);
   if(sc.isFailure()){
@@ -277,8 +283,8 @@ TgcLv1RawDataValAlg::readOfflineMuonContainer(std::string key,
     return StatusCode::SUCCESS;
   }
   
-  Analysis::MuonContainer::const_iterator it  = muonCont->begin();
-  Analysis::MuonContainer::const_iterator ite = muonCont->end();
+  xAOD::MuonContainer::const_iterator it  = muonCont->begin();
+  xAOD::MuonContainer::const_iterator ite = muonCont->end();
 
   for( ; it != ite; it++ ){
     float pt = (*it)->pt();
@@ -287,14 +293,31 @@ TgcLv1RawDataValAlg::readOfflineMuonContainer(std::string key,
         fabs(eta) < etamin ||
         fabs(eta) > etamax ) continue;
 
-    int pixHits = (*it)->numberOfPixelHits();
-    int sctHits = (*it)->numberOfSCTHits();
-    int trtHits = (*it)->numberOfTRTHits();
+    bool getvalue = true;
 
-    int pixHoles = (*it)->numberOfPixelHoles();
-    int sctHoles = (*it)->numberOfSCTHoles();
+    uint8_t pixHits = 0; 
+    getvalue = (*it)->summaryValue( pixHits,  xAOD::SummaryType::numberOfPixelHits);
+    if(!getvalue) pixHits = 0;
 
-    int trtOL = (*it)->numberOfTRTOutliers();
+    uint8_t sctHits = 0;
+    getvalue = (*it)->summaryValue( sctHits,  xAOD::SummaryType::numberOfSCTHits);
+    if(!getvalue) sctHits = 0;
+
+    uint8_t trtHits = 0;
+    getvalue = (*it)->summaryValue( trtHits, xAOD::SummaryType::numberOfTRTHits);
+    if(!getvalue) trtHits = 0;
+
+    uint8_t pixHoles = 0;
+    getvalue = (*it)->summaryValue( pixHoles, xAOD::SummaryType::numberOfPixelHoles);
+    if(!getvalue) pixHoles = 0;
+
+    uint8_t sctHoles = 0;
+    getvalue = (*it)->summaryValue( sctHoles, xAOD::SummaryType::numberOfSCTHoles);
+    if(!getvalue) sctHoles = 0;
+
+    uint8_t trtOL = 0;
+    getvalue = (*it)->summaryValue( trtOL, xAOD::SummaryType::numberOfTRTOutliers);
+    if(!getvalue) trtOL = 0;
 
     int trtOLfrac = 0;
     if( trtHits + trtOL > 0 )
@@ -318,7 +341,7 @@ TgcLv1RawDataValAlg::readOfflineMuonContainer(std::string key,
 
     //Muid MCP except phi hits
     if( key == "Muons" &&
-        !( (*it)->combinedMuonTrackParticle() &&
+        !( (*it)->combinedTrackParticleLink() &&
            sctHits >= 6 &&
            pixHits >= 2 &&
            pixHoles+sctHoles <=1 &&
@@ -363,91 +386,99 @@ TgcLv1RawDataValAlg::readL1TriggerType(){
   m_L1Caloetas.clear();
   m_L1Calophis.clear();
 
-  //get L1 RoI
-  const LVL1_ROI* L1RoI = 0;
-  StatusCode sc = (*m_activeStore)->retrieve(L1RoI, m_L1RoIName);
-
-  if (sc != StatusCode::SUCCESS ) {
-    m_log << MSG::WARNING << " Cannot get LVL1_ROI " << endreq;
-    return sc ;
-  }
-
-  //get RoIs
-  LVL1_ROI::muons_type      muonRoIs  = L1RoI->getMuonROIs();
-  LVL1_ROI::emtaus_type     emtauRoIs = L1RoI->getEmTauROIs();
-  LVL1_ROI::jets_type       jetRoIs   = L1RoI->getJetROIs();
-  LVL1_ROI::jetets_type     jetetRoIs = L1RoI->getJetEtROIs();
-  LVL1_ROI::energysums_type esumRoIs  = L1RoI->getEnergySumROIs();
-
   ///////////////////////////////////////////////////
   //fill number of RPC or TGC RoI and position of RoI
-  LVL1_ROI::muons_type::const_iterator ite = muonRoIs.end();
-  for( LVL1_ROI::muons_type::const_iterator it= muonRoIs.begin();
-       it != ite;
-       it++){
+  const xAOD::MuonRoIContainer* muonRoIs; 
+  StatusCode sc = (*m_activeStore)->retrieve(muonRoIs, m_L1muonRoIName);
+  if (sc != StatusCode::SUCCESS ) {
+    m_log << MSG::WARNING << " Cannot get LVL1 muon ROI " << endreq;
+    return sc ;
+  }
+  xAOD::MuonRoIContainer::const_iterator mu_it = muonRoIs->begin(); 
+  xAOD::MuonRoIContainer::const_iterator mu_ite= muonRoIs->end(); 
+  for( ;
+       mu_it != mu_ite;
+       mu_it++){
     //RPC
-    if( it->getSource() == Muon_ROI::Barrel ){
+    if( (*mu_it)->getSource() == xAOD::MuonRoI::RoISource::Barrel ){
 
-      if( it->getThrNumber() <= 3 ){
+      if( (*mu_it)->getThrNumber() <= 3 ){
         m_L1TriggerType[1]++;//low PT
       }
       else{
         m_L1TriggerType[2]++;//high PT
       }
-      m_L1RPCetas.push_back(it->eta());
-      m_L1RPCphis.push_back(it->phi());
+      m_L1RPCetas.push_back((*mu_it)->eta());
+      m_L1RPCphis.push_back((*mu_it)->phi());
 
       //TGC
     }
-    else if ( it->getSource() == Muon_ROI::Endcap ||
-              it->getSource() == Muon_ROI::Forward ){
+    else if ( (*mu_it)->getSource() == xAOD::MuonRoI::RoISource::Endcap ||
+              (*mu_it)->getSource() == xAOD::MuonRoI::RoISource::Forward ){
       m_L1TriggerType[0]++;
-      m_L1TGCetas.push_back(it->eta());
-      m_L1TGCphis.push_back(it->phi());
+      m_L1TGCetas.push_back((*mu_it)->eta());
+      m_L1TGCphis.push_back((*mu_it)->phi());
     }
   }
 
   ///////////////////////////////////////////////////
   //fill number of L1Calo RoI
-  LVL1_ROI::emtaus_type::const_iterator ite1 = emtauRoIs.end();
-  for( LVL1_ROI::emtaus_type::const_iterator it= emtauRoIs.begin();
-       it != ite1;
-       it++){
+  const xAOD::EmTauRoIContainer* emtauRoIs; 
+  sc = (*m_activeStore)->retrieve(emtauRoIs, m_L1emtauRoIName);
+  if (sc != StatusCode::SUCCESS ) {
+    m_log << MSG::WARNING << " Cannot get LVL1 emtau ROI " << endreq;
+    return sc ;
+  }
+  xAOD::EmTauRoIContainer::const_iterator em_it = emtauRoIs->begin(); 
+  xAOD::EmTauRoIContainer::const_iterator em_ite= emtauRoIs->end(); 
+  for( ;
+       em_it != em_ite;
+       em_it++){
 
     m_L1TriggerType[3]++;
-    m_L1Caloetas.push_back(it->eta());
-    m_L1Calophis.push_back(it->phi());
+    m_L1Caloetas.push_back((*em_it)->eta());
+    m_L1Calophis.push_back((*em_it)->phi());
   }
 
-  LVL1_ROI::jets_type::const_iterator ite2 = jetRoIs.end();
-  for( LVL1_ROI::jets_type::const_iterator it= jetRoIs.begin();
-       it != ite2;
-       it++){
+
+  const xAOD::JetRoIContainer* jetRoIs; 
+  sc = (*m_activeStore)->retrieve(jetRoIs, m_L1jetRoIName);
+  if (sc != StatusCode::SUCCESS ) {
+    m_log << MSG::WARNING << " Cannot get LVL1 jet ROI " << endreq;
+    return sc ;
+  }
+  xAOD::JetRoIContainer::const_iterator j_it = jetRoIs->begin(); 
+  xAOD::JetRoIContainer::const_iterator j_ite= jetRoIs->end(); 
+  for( ;
+       j_it != j_ite;
+       j_it++){
 
     m_L1TriggerType[3]++;
-    m_L1Caloetas.push_back(it->eta());
-    m_L1Calophis.push_back(it->phi());
+    m_L1Caloetas.push_back((*j_it)->eta());
+    m_L1Calophis.push_back((*j_it)->phi());
   }
 
-  LVL1_ROI::jetets_type::const_iterator ite3 = jetetRoIs.end();
-  for( LVL1_ROI::jetets_type::const_iterator it= jetetRoIs.begin();
-       it != ite3;
-       it++){
 
-    m_L1TriggerType[3]++;
-    m_L1Caloetas.push_back(50.);//no position of RoI for JetEt trigger
-    m_L1Calophis.push_back(50.);//no position of RoI for JetEt trigger
+//*  const xAOD::JetEtRoI* jetetRoIs; 
+//*  sc = (*m_activeStore)->retrieve(jetetRoIs);
+//*  if (sc != StatusCode::SUCCESS ) {
+//*    m_log << MSG::WARNING << " Cannot get LVL1 jetet ROI " << endreq;
+//*    return sc ;
+//*  }
+//*  m_L1TriggerType[3]++;
+//*  m_L1Caloetas.push_back(50.);//no position of RoI for JetEt trigger
+//*  m_L1Calophis.push_back(50.);//no position of RoI for JetEt trigger
+
+  const xAOD::EnergySumRoI* esumRoIs; 
+  sc = (*m_activeStore)->retrieve(esumRoIs);
+  if (sc != StatusCode::SUCCESS ) {
+    m_log << MSG::WARNING << " Cannot get LVL1 jetet ROI " << endreq;
+    return sc ;
   }
+  m_L1TriggerType[3]++;
+  m_L1Caloetas.push_back(100.);//no position of RoI for Esum trigger
+  m_L1Calophis.push_back(100.);//no position of RoI for Esum trigger
 
-  LVL1_ROI::energysums_type::const_iterator ite4 = esumRoIs.end();
-  for( LVL1_ROI::energysums_type::const_iterator it= esumRoIs.begin();
-       it != ite4;
-       it++){
-
-    m_L1TriggerType[3]++;
-    m_L1Caloetas.push_back(100.);//no position of RoI for Esum trigger
-    m_L1Calophis.push_back(100.);//no position of RoI for Esum trigger
-  }
   return StatusCode::SUCCESS;
 }
 
