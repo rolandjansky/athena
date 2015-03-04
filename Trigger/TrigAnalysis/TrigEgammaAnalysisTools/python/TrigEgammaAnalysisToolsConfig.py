@@ -139,6 +139,24 @@ TrigEgammaNavZeeTPIneff = ToolFactory(TrigEgammaAnalysisToolsConf.TrigEgammaNavZ
         TagTrigger="e28_tight_iloose",
         ProbeTriggerList=['e28_tight_iloose'],
         )
+TrigEgammaNavZeeTPPerf = ToolFactory(TrigEgammaAnalysisToolsConf.TrigEgammaNavZeeTPPerf, name = "TrigEgammaNavZeeTPPerf",
+        DirectoryPath='NavZeeTPPerf',
+        ElectronKey = 'Electrons',
+        ElectronOnlPPSelector=[ ToolSvc.AsgElectronIsEMTightSelector,ToolSvc.AsgElectronIsEMMediumSelector,ToolSvc.AsgElectronIsEMLooseSelector ],
+        MVACalibTool=mvatool,
+        ApplyMVACalib=False,
+        ElectronIsEMSelector =[TightElectronSelector,MediumElectronSelector,LooseElectronSelector],
+        ElectronLikelihoodTool =[TightLHSelector,MediumLHSelector,LooseLHSelector], 
+        MinimumTriggerList=["e28_tight","e28_tight_iloose"],
+        ZeeLowerMass=80,
+        ZeeUpperMass=100,
+        OfflineTagIsEM=egammaPID.ElectronTightPPIso,
+        OfflineTagSelector='Tight', # 1=tight, 2=medium, 3=loose 
+        OppositeCharge=True,
+        OfflineTagMinEt=25,
+        TagTrigger="e24_tight_iloose",
+        ProbeTriggerList=['e24_tight_iloose'],
+        )
 
 # Function to return default tools
 def getAllTools():
