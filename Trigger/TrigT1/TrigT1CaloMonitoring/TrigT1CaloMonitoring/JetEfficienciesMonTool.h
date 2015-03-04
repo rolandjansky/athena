@@ -33,7 +33,7 @@ class TH1F_LW;
 class TH2F_LW;
 class StatusCode;
 class TrigT1CaloMonErrorTool;
-class TrigT1CaloLWHistogramTool;
+class TrigT1CaloLWHistogramToolV1;
 class EventInfo;
 class CondAttrListCollection;
 class LVL1_ROI;
@@ -141,7 +141,7 @@ namespace Trig {
  *  <table>
  *  <tr><th> Tool                           </th><th> Description          </th></tr>
  *  <tr><td> @c TrigT1CaloMonErrorTool      </td><td> @copydoc m_errorTool </td></tr>
- *  <tr><td> @c TrigT1CaloLWHistogramTool   </td><td> @copydoc m_histTool  </td></tr>
+ *  <tr><td> @c TrigT1CaloLWHistogramToolV1   </td><td> @copydoc m_histTool  </td></tr>
  *  <tr><td> @c LVL1::IL1TriggerTowerTool   </td><td> @copydoc m_ttTool    </td></tr>
  *  <tr><td> @c LVL1::IL1CaloLArTowerEnergy </td><td> @copydoc m_larEnergy </td></tr>
  *  <tr><td> @c Trig::TrigDecisionTool      </td><td> @copydoc m_trigger   </td></tr>
@@ -250,7 +250,7 @@ private:
   /// Corrupt event veto tool
   ToolHandle<TrigT1CaloMonErrorTool>    m_errorTool;
   /// Histogram helper tool
-  ToolHandle<TrigT1CaloLWHistogramTool> m_histTool;
+  ToolHandle<TrigT1CaloLWHistogramToolV1> m_histTool;
   /// TT simulation tool for Identifiers. Used first event only
   ToolHandle<LVL1::IL1TriggerTowerTool> m_ttTool;
   /// Tool for Missing FEB. Used first event only
