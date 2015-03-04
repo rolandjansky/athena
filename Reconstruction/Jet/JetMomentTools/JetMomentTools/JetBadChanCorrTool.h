@@ -32,7 +32,7 @@
 
 #include "JetRec/JetModifierBase.h"
 
-#include "JetRecTools/MissingCellListTool.h"
+#include "JetRecCalo/MissingCellListTool.h"
 
 #include "CaloIdentifier/CaloCell_ID.h"
 
