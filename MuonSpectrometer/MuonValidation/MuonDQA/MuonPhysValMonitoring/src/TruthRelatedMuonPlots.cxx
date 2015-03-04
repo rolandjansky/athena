@@ -8,22 +8,33 @@
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODTracking/TrackParticleAuxContainer.h"
 
-TruthRelatedMuonPlots::TruthRelatedMuonPlots(PlotBase* pParent, std::string sDir,bool doBinnedResolutionPlots):
+TruthRelatedMuonPlots::TruthRelatedMuonPlots(PlotBase* pParent, std::string sDir,bool doBinnedResolutionPlots, bool doMuonTree):
     PlotBase(pParent, sDir),
     // truth related information
-    m_oMatchedPlots(this, "/", "Matched Muons"),
-    m_oMSHitDiffPlots(this,"/"),
-    m_oMuonHitDiffSummaryPlots(this, "/"),
+    m_doMuonTree(doMuonTree),
 
-    m_oMuonResolutionPlots(this, "/resolution/",doBinnedResolutionPlots),
-    m_oMuonMSResolutionPlots(this, "/resolutionMS/",doBinnedResolutionPlots),
-    m_oMuonIDResolutionPlots(this, "/resolutionID/",doBinnedResolutionPlots),
-    m_oDefParamPullPlots(this, "/Pulls/"),
-    m_oMSDefParamPullPlots(this, "/PullsMS/"),
-    m_oIDDefParamPullPlots(this, "/PullsID/"),
+    m_oMatchedPlots(this, "/kinematics/", "Matched Muons"),
+    
+    m_oMSHitDiffPlots(this,"/hits/"),
+    m_oMuonHitDiffSummaryPlots(this, "/hits/"),
 
-    m_oMomentumDiffPlots(this,"/resolution/")
-{}
+    m_oMuonResolutionPlots(this, "/resolution/","",doBinnedResolutionPlots),
+    m_oMuonMSResolutionPlots(this, "/resolution/","MS",doBinnedResolutionPlots),
+    m_oMuonIDResolutionPlots(this, "/resolution/","ID",doBinnedResolutionPlots),
+    
+    m_oDefParamPullPlots(this, "/Pulls/",""),
+    m_oMSDefParamPullPlots(this, "/Pulls/","MS"),
+    m_oIDDefParamPullPlots(this, "/Pulls/","ID"),
+
+    m_oMomentumTruthPullPlots_Tail(this,"/momentumPulls/","Tail"),
+    m_oMomentumTruthPullPlots_NoTail(this,"/momentumPulls/","NoTail"),
+
+    m_oMuonTree(NULL)
+{
+  if (m_doMuonTree) {
+    m_oMuonTree = new Muon::MuonTree(this,"/");
+  }
+}
 
 TruthRelatedMuonPlots::~TruthRelatedMuonPlots() {}
 
@@ -76,7 +87,19 @@ void TruthRelatedMuonPlots::fill(const xAOD::TruthParticle& truthMu, const xAOD:
 	}
       }
     }
-    // }  
-    m_oMomentumDiffPlots.fill(mu, msTrkIP, truthMu);
-    
+    // }
+
+    float eloss=0;
+    if (mu.parameter(eloss,xAOD::Muon::EnergyLoss)) {
+      if ( mu.energyLossType()!=xAOD::Muon::Tail ) { //to test MEASURED energy loss
+    	m_oMomentumTruthPullPlots_NoTail.fill(mu, msTrkIP, truthMu);
+      }
+      else {
+    	m_oMomentumTruthPullPlots_Tail.fill(mu, msTrkIP, truthMu); //to test PARAMETRIZED energy loss
+      }
+    }
+
+    if (m_doMuonTree && m_oMuonTree) {
+      m_oMuonTree->fillTree(mu, msTrkIP, truthMu);
+    }
 }

@@ -20,15 +20,21 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "xAODTruth/TruthParticleContainer.h"
 #include "xAODTruth/TruthParticleAuxContainer.h"
+#include "xAODTrigMuon/L2StandAloneMuonContainer.h"
+#include "xAODTrigMuon/L2StandAloneMuon.h"
+#include "xAODTrigMuon/L2CombinedMuonContainer.h"
+#include "xAODTrigMuon/L2CombinedMuon.h"
 
 // Tools
 #include "MuonSelectorTools/IMuonSelectionTool.h"
+#include "TrigDecisionTool/TrigDecisionTool.h"
 
 // Local includes
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
 
 // Root includes
 #include "MuonValidationPlots.h"
+#include "TriggerMuonValidationPlots.h"
 #include "MuonTrackValidationPlots.h"
 #include "MuonSegmentValidationPlots.h"
 #include "TruthMuonPlots.h"
@@ -80,18 +86,22 @@ class MuonPhysValMonitoringTool
 
   /// Default constructor: 
   MuonPhysValMonitoringTool();
+  
   void handleMuon(const xAOD::Muon* mu);
   void handleTruthMuon(const xAOD::TruthParticle* truthMu);
   void handleMuonTrack(const xAOD::TrackParticle* muTP);
   void handleMuonSegment(const xAOD::MuonSegment* muSeg);
   void handleTruthMuonSegment(const xAOD::MuonSegment* truthMuSeg, const xAOD::TruthParticleContainer* muonTruthContainer);
-  void handleMuonTrigger(const xAOD::Muon* Trigmu);
+  void handleMuonTrigger(const xAOD::Muon* Trigmu, std::vector<const xAOD::Muon*> m_vRecoMuons);
   void handleMuonL1Trigger(const xAOD::MuonRoI* TrigL1mu);
-
+  void handleMuonL2Trigger(const xAOD::L2StandAloneMuon* L2SAmu);
+  void handleMuonL2Trigger(const xAOD::L2CombinedMuon* L2CBmu);
+  StatusCode checkMuonEDM(std::string trigItem);
+  
   void printMuonDebug(const xAOD::Muon* mu);
   void printMuonL1TriggerDebug(const xAOD::MuonRoI* TrigL1mu);
-
   void printTruthMuonDebug(const xAOD::TruthParticle* truthMu, const xAOD::Muon* mu);
+  
   StatusCode bookValidationPlots(PlotBase& valPlots);
   const xAOD::Muon* findRecoMuon(const xAOD::TruthParticle* truthMu);
   const xAOD::MuonSegment* findRecoMuonSegment(const xAOD::MuonSegment* truthMuSeg);
@@ -103,15 +113,24 @@ class MuonPhysValMonitoringTool
   void modifyHistogram(TH1* hist);
 
   bool m_isData;
-  
+
+
+  // Muon triggers to test output for
+  std::vector<std::string> m_muonItems;
+
+
   // Containers
   std::string m_muonsName;
   std::string m_muonsTruthName;
   std::string m_muonTracksName;
   std::string m_muonSegmentsName;
   std::string m_muonSegmentsTruthName;
+  std::string m_muonL2SAName;
+  std::string m_muonL2CBName;
+  std::string m_trigDecisionKey;
 
   // Configurable properties
+  std::map<std::string,int> m_counterBits;
   std::vector<unsigned int> m_selectMuonAuthors;
   std::vector<unsigned int> m_selectMuonCategories;  
   bool m_doMuonSegmentValidation;
@@ -123,11 +142,14 @@ class MuonPhysValMonitoringTool
   bool m_doTrigMuonL2Validation;
   bool m_doTrigMuonEFValidation;
 
+  bool m_doMuonTree;
+
   std::string m_muonL1TrigName;
   std::string m_muonEFCombTrigName;
   
   // Tools
   ToolHandle<CP::IMuonSelectionTool> m_muonSelectionTool;
+  ToolHandle<Trig::TrigDecisionTool> m_trigDec;
  
   enum MUCATEGORY{ALL=0, PROMPT, INFLIGHT, NONISO, REST};
   std::vector<std::string> m_selectMuonCategoriesStr;
@@ -136,6 +158,7 @@ class MuonPhysValMonitoringTool
 
   // Hists
   std::vector<MuonValidationPlots*> m_muonValidationPlots;
+  std::vector<TriggerMuonValidationPlots*> m_TriggerMuonValidationPlots;
   std::vector<MuonTrackValidationPlots*> m_muonTrackValidationPlots;
   std::vector<MuonSegmentValidationPlots*> m_muonSegmentValidationPlots;
   RecoMuonPlots*       m_oUnmatchedRecoMuonPlots;
@@ -153,6 +176,12 @@ class MuonPhysValMonitoringTool
   std::vector<const xAOD::MuonSegment*> m_vMatchedMuonSegments;
   std::vector<const xAOD::Muon*> m_vEFMuons;
   std::vector<const xAOD::Muon*> m_vEFMuonsSelected;
+  std::vector<const xAOD::Muon*> m_vEFMuonsSelected_phi;
+  std::vector<const xAOD::L2StandAloneMuon*> m_vL2SAMuons;
+  std::vector<const xAOD::L2StandAloneMuon*> m_vL2SAMuonsSelected;
+  std::vector<const xAOD::L2CombinedMuon*> m_vL2CBMuons;
+  std::vector<const xAOD::L2CombinedMuon*> m_vL2CBMuonsSelected;
+  std::vector<const xAOD::Muon*> m_vRecoMuons;
 }; 
 
 

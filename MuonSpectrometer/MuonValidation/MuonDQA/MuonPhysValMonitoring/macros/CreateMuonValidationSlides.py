@@ -89,8 +89,13 @@ def MakeComparisonPlot( refHist, testHist, plotName, path, doNorm = False, doRat
     testHist.GetYaxis().SetTitleSize( labelsize*0.4 )
     testHist.SetLabelSize( labelsize*0.4, 'Y' )
 
+    for i in testHist.GetListOfFunctions():
+        testHist.GetFunction(i.GetName()).SetBit(ROOT.TF1.kNotDraw)
     testHist.Draw("PE")
     if refint > 0:
+        for i in refHist.GetListOfFunctions():
+            refHist.GetFunction(i.GetName()).SetBit(ROOT.TF1.kNotDraw)
+
         refHist.SetMarkerColor(ROOT.kBlack)
         refHist.SetLineColor(ROOT.kBlack)
         leg.AddEntry(refHist, "ref", 'P')
@@ -146,7 +151,7 @@ def MakeComparisonPlot( refHist, testHist, plotName, path, doNorm = False, doRat
 
     canvas.cd()
     canvas.SaveAs( path + '/' + plotName + '.png' )
-    canvas.Close()
+    del canvas, padRatio, padMain
 
 #############################################################################
 
@@ -187,6 +192,8 @@ def main():
             #doRatio = not (plot.__contains__('PtRes') or plot.__contains__('PtScale'))
             MakeComparisonPlot( refhist, testhist, HistName, outdir, doNorm = doNorm, doRatio = True )
 
+    testfile.Close()
+    reffile.Close()
     ##### create Beamer file #####
 
     endl = '\n'
@@ -281,8 +288,11 @@ def main():
     with open( args.directory + '/' + texfile, 'w' ) as f:
         f.write( output )
 
+    badEnvVars = [ 'TEXMFCNF', 'TEXINPUTS', 'TEXMFHOME' ] #Athena sets these vars but LaTeX doesn't like them
+    for i in badEnvVars:
+       os.unsetenv(i)
     if args.compile:
-        stat, out = getstatusoutput( 'cd %s; pdflatex -halt-on-error %s'%( args.directory, texfile ) )
+        stat, out = getstatusoutput( 'cd %s; pdflatex -halt-on-error %s; pdflatex -halt-on-error %s; cd %s'%( args.directory, texfile, texfile, os.environ['OLDPWD'] ) )
         if stat != 0:
             print out
 

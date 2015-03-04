@@ -8,8 +8,8 @@
 typedef ElementLink< xAOD::TrackParticleContainer > TrackLink;
 typedef ElementLink< xAOD::MuonContainer > MuonLink;
 
-MuonValidationPlots::MuonValidationPlots(PlotBase* pParent, std::string sDir,std::vector<unsigned int> authors, bool isData, bool doBinnedResolutionPlots, bool doTrigMuonL1Validation, bool doTrigMuonL2Validation, bool doTrigMuonEFValidation):
-  PlotBase(pParent, sDir),  m_selectedAuthors(authors), m_truthSelections(2,""), m_isData(isData), m_doTrigMuonL1Validation(doTrigMuonL1Validation), m_doTrigMuonL2Validation(doTrigMuonL2Validation), m_doTrigMuonEFValidation(doTrigMuonEFValidation)
+MuonValidationPlots::MuonValidationPlots(PlotBase* pParent, std::string sDir,std::vector<unsigned int> authors, bool isData, bool doBinnedResolutionPlots, bool doMuonTree):
+  PlotBase(pParent, sDir),  m_selectedAuthors(authors), m_truthSelections(2,""), m_isData(isData)
 
 {
   if (!m_isData) {
@@ -20,7 +20,7 @@ MuonValidationPlots::MuonValidationPlots(PlotBase* pParent, std::string sDir,std
     for(const auto truthSelection : m_truthSelections) {
       m_oTruthMuonPlots.push_back(new TruthMuonPlots(this,"truth/"+truthSelection));
     }
-    m_oTruthRelatedMuonPlots = new TruthRelatedMuonPlots(this, "matched/AllMuons", doBinnedResolutionPlots);
+    m_oTruthRelatedMuonPlots = new TruthRelatedMuonPlots(this, "matched/AllMuons", doBinnedResolutionPlots, doMuonTree);
   }
   //histogram classes for all muons
   m_oRecoMuonPlots = new RecoMuonPlots(this, "reco/AllMuons");
@@ -38,9 +38,8 @@ MuonValidationPlots::MuonValidationPlots(PlotBase* pParent, std::string sDir,std
     std::string sAuthor = Muon::EnumDefs::toString( (xAOD::Muon::Author) m_selectedAuthors[i] );
     m_oRecoMuonPlots_perAuthor.push_back(new RecoMuonPlots(this, "reco/"+sAuthor));
     if (!m_isData) m_oTruthRelatedMuonPlots_perAuthor.push_back(new TruthRelatedMuonPlots(this, "matched/"+sAuthor, doBinnedResolutionPlots));
-    if (m_doTrigMuonEFValidation) m_oEFTriggerMuonPlots.push_back(new EFTriggerMuonPlots(this,"trigger/EF/"+sAuthor));
+
   }
-  if (m_doTrigMuonL1Validation) m_oL1TriggerMuonPlots = new L1TriggerMuonPlots(this,"trigger/L1");
 }
 
 MuonValidationPlots::~MuonValidationPlots()
@@ -69,11 +68,8 @@ MuonValidationPlots::~MuonValidationPlots()
     }
   }
   
-  if (m_doTrigMuonL1Validation) {
-    delete m_oL1TriggerMuonPlots;
-    m_oL1TriggerMuonPlots=0;
-  }
-  
+
+
   for (unsigned int i=0; i<m_oRecoMuonPlots_perQuality.size(); i++) {    
     RecoMuonPlots *recoMuonPlots = m_oRecoMuonPlots_perQuality[i];    
     delete recoMuonPlots;
@@ -83,12 +79,6 @@ MuonValidationPlots::~MuonValidationPlots()
     RecoMuonPlots *recoMuonPlots = m_oRecoMuonPlots_perAuthor[i];
     delete recoMuonPlots;
     recoMuonPlots = 0;
-
-    if (m_doTrigMuonEFValidation) {
-      EFTriggerMuonPlots *trigMuonPlots = m_oEFTriggerMuonPlots[i];
-      delete trigMuonPlots;
-      trigMuonPlots=0;
-    }
   }        
 }
 
@@ -121,28 +111,6 @@ void MuonValidationPlots::fillTruthMuonPlots(const xAOD::TruthParticle &truthMu)
   }
 
 }
-
-void MuonValidationPlots::fillTriggerMuonPlots(const xAOD::MuonRoI &TrigL1mu) {
-  m_oL1TriggerMuonPlots->fill(TrigL1mu);  
-}
-
-void MuonValidationPlots::fillTriggerMuonPlots(const xAOD::Muon &mu,const xAOD::Muon &Trigmu) {
-  for (unsigned int i=0; i<m_selectedAuthors.size(); i++) {
-    if (mu.isAuthor( (xAOD::Muon::Author)m_selectedAuthors[i] )) {
-      //if (Trigmu.isAuthor( (xAOD::Muon::Author)m_selectedAuthors[i] ) || m_selectedAuthors[i]==xAOD::Muon::NumberOfMuonAuthors) {
-      m_oEFTriggerMuonPlots[i]->fill(Trigmu,Trigmu);
-    }
-  }
-}
-
-void MuonValidationPlots::fill(const xAOD::Muon& /* mu */,const xAOD::Muon& Trigmu) {
-  fillTriggerMuonPlots(Trigmu,Trigmu);
-}
-
-void MuonValidationPlots::fill(const xAOD::MuonRoI& TrigL1mu) {
-  fillTriggerMuonPlots(TrigL1mu);
-}
-
 
 void MuonValidationPlots::fill(const xAOD::Muon& mu) {
   fillRecoMuonPlots(mu);
