@@ -29,7 +29,7 @@ class TH2F_LW;
 class TH2I_LW;
 class StatusCode;
 class TrigT1CaloMonErrorTool;
-class TrigT1CaloLWHistogramTool;
+class TrigT1CaloLWHistogramToolV1;
 
 namespace LVL1 {
   class CPAlgorithm;
@@ -125,7 +125,7 @@ namespace LVL1 {
  *  <tr><td> @c LVL1::IL1EmTauTools       </td><td> @copydoc m_emTauTool  </td></tr>
  *  <tr><td> @c LVL1::IL1CPHitsTools      </td><td> @copydoc m_cpHitsTool </td></tr>
  *  <tr><td> @c TrigT1CaloMonErrorTool    </td><td> @copydoc m_errorTool  </td></tr>
- *  <tr><td> @c TrigT1CaloLWHistogramTool </td><td> @copydoc m_histTool   </td></tr>
+ *  <tr><td> @c TrigT1CaloLWHistogramToolV1 </td><td> @copydoc m_histTool   </td></tr>
  *  </table>
  *
  *  <b>JobOption Properties:</b>
@@ -250,7 +250,7 @@ private:
   /// Event veto error tool
   ToolHandle<TrigT1CaloMonErrorTool>    m_errorTool;
   /// Histogram helper tool
-  ToolHandle<TrigT1CaloLWHistogramTool> m_histTool;
+  ToolHandle<TrigT1CaloLWHistogramToolV1> m_histTool;
   // Debug printout flag
   bool m_debug;
 

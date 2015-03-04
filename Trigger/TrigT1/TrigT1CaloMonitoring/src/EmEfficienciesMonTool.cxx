@@ -53,14 +53,14 @@
 
 #include "TrigT1CaloMonitoring/EmEfficienciesMonTool.h"
 #include "TrigT1CaloMonitoringTools/TrigT1CaloMonErrorTool.h"
-#include "TrigT1CaloMonitoringTools/TrigT1CaloLWHistogramTool.h"
+#include "TrigT1CaloMonitoringTools/TrigT1CaloLWHistogramToolV1.h"
 
 /*---------------------------------------------------------*/
 EmEfficienciesMonTool::EmEfficienciesMonTool(const std::string & type,
 		const std::string & name, const IInterface* parent) 
 		  : ManagedMonitorToolBase(type, name, parent),
                         m_errorTool("TrigT1CaloMonErrorTool"),
-			m_histTool("TrigT1CaloLWHistogramTool"),
+			m_histTool("TrigT1CaloLWHistogramToolV1"),
 			m_ttTool("LVL1::L1TriggerTowerTool/L1TriggerTowerTool"),
 			m_larEnergy("LVL1::L1CaloLArTowerEnergy/L1CaloLArTowerEnergy"),
 			m_trigger("Trig::TrigDecisionTool/TrigDecisionTool"),

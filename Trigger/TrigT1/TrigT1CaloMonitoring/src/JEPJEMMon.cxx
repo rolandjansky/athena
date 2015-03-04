@@ -2,24 +2,18 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// ===========================================================================
-// $Id$
-// ===========================================================================
-// @file
-// Monitoring of the JEP on JEM level
+// ********************************************************************
 //
-// @author Johanna Fleckner (Johanna.Fleckner@uni-mainz.de)
-// @author Sasha Mazurov (alexander.mazurov@cern.ch)
+// NAME:        JEPJEMMon.cxx
+// PACKAGE:     TrigT1CaloMonitoring  
 //
-//  
-// $Revision$
-// Last modification $Date$
-// by  $Author$
-// ============================================================================
-
+// AUTHOR:      Johanna Fleckner (Johanna.Fleckner@uni-mainz.de)
+//           
+// DESCRIPTION: Monitoring of the JEP on JEM level
+//
+// ********************************************************************
 
 #include <cmath>
-#include <set>
 #include <sstream>
 
 #include "LWHists/LWHist.h"
@@ -33,29 +27,33 @@
 
 #include "AthenaMonitoring/AthenaMonManager.h"
 
-#include "TrigT1CaloMonitoring/JEMMon.h"
 #include "TrigT1CaloMonitoringTools/TrigT1CaloMonErrorTool.h"
-#include "TrigT1CaloMonitoringTools/TrigT1CaloLWHistogramToolV1.h"
+#include "TrigT1CaloMonitoringTools/TrigT1CaloLWHistogramTool.h"
 
-#include "TrigT1CaloEvent/JEMHits.h"
 #include "TrigT1CaloEvent/JEMEtSums.h"
 #include "TrigT1CaloEvent/JetElement.h"
-#include "TrigT1CaloEvent/JEMRoI.h"
-#include "TrigT1CaloUtils/QuadLinear.h"
+#include "TrigT1CaloEvent/JEMTobRoI.h"
 #include "TrigT1CaloUtils/DataError.h"
 #include "TrigT1CaloUtils/CoordToHardware.h"
+#include "TrigT1Interfaces/CoordinateRange.h"
 #include "TrigT1Interfaces/Coordinate.h"
-#include "TrigT1Interfaces/JEPRoIDecoder.h"
-#include "TrigT1Interfaces/TrigT1CaloDefs.h"
-#include "TrigT1Interfaces/Coordinate.h"
-#include "TrigConfL1Data/L1DataDef.h"
+#include "TrigT1Interfaces/JEPRoIDecoder.h"                               // <<== Will change
+#include "TrigT1Interfaces/TrigT1CaloDefs.h"                              // Ditto
+
+#include "TrigT1CaloMonitoring/JEPJEMMon.h"
+
+namespace LVL1 {
+
+const int JEPJEMMon::s_crates;
+const int JEPJEMMon::s_modules;
+const int JEPJEMMon::s_tobsPerJEM;
 
 /*---------------------------------------------------------*/
-JEMMon::JEMMon( const std::string & type, const std::string & name,
-		const IInterface* parent )
+JEPJEMMon::JEPJEMMon( const std::string & type, const std::string & name,
+		      const IInterface* parent )
   : ManagedMonitorToolBase( type, name, parent ),
     m_errorTool("TrigT1CaloMonErrorTool"),
-    m_histTool("TrigT1CaloLWHistogramToolV1"),
+    m_histTool("TrigT1CaloLWHistogramTool"),
     m_histBooked(false),
     m_h_jem_em_1d_jetEl_Eta(0),
     m_h_jem_had_1d_jetEl_Eta(0),
@@ -73,20 +71,14 @@ JEMMon::JEMMon( const std::string & type, const std::string & name,
     m_h_jem_em_2d_etaPhi_jetEl_LinkDown(0),
     m_h_jem_had_2d_etaPhi_jetEl_LinkDown(0),
     m_h_jem_1d_TriggeredSlice(0),
-    m_h_jem_1d_thresh_MainHits(0),
-    m_h_jem_1d_thresh_FwdHitsRight(0),
-    m_h_jem_1d_thresh_FwdHitsLeft(0),
-    m_h_jem_2d_thresh_HitsPerJem(0),
     m_h_jem_1d_energy_SubSumsEx(0),
     m_h_jem_1d_energy_SubSumsEy(0),
     m_h_jem_1d_energy_SubSumsEt(0),
-    m_h_jem_1d_roi_MainHits(0),
-    m_h_jem_1d_roi_FwdHitsRight(0),
-    m_h_jem_1d_roi_FwdHitsLeft(0),
-    m_v_jem_2d_etaPhi_roi_MainThresh(0),
-    m_v_jem_2d_etaPhi_roi_FwdThresh(0),
-    m_h_jem_2d_etaPhi_roi_Parity(0),
-    m_h_jem_2d_etaPhi_roi_Saturation(0),
+    m_h_jem_1d_roi_EnergyLg(0),
+    m_h_jem_1d_roi_EnergySm(0),
+    m_h_jem_1d_roi_TOBsPerJEM(0),
+    m_h_jem_2d_etaPhi_roi_Hitmap(0),
+    m_h_jem_2d_etaPhi_roi_EtWeighted(0),
     m_h_jem_1d_ErrorSummary(0),
     m_h_jem_2d_ErrorEventNumbers(0)
 /*---------------------------------------------------------*/
@@ -94,29 +86,30 @@ JEMMon::JEMMon( const std::string & type, const std::string & name,
   // This is how you declare the parameters to Gaudi so that
   // they can be over-written via the job options file
 
+  declareProperty( "ErrorTool", m_errorTool);
+  declareProperty( "HistogramTool", m_histTool);
+
   declareProperty( "JetElementLocation",
          m_JetElementLocation = LVL1::TrigT1CaloDefs::JetElementLocation); 
-  declareProperty( "JEMHitsLocation",
-         m_JEMHitsLocation    = LVL1::TrigT1CaloDefs::JEMHitsLocation) ;
   declareProperty( "JEMEtSumsLocation",
          m_JEMEtSumsLocation  = LVL1::TrigT1CaloDefs::JEMEtSumsLocation) ;
-  declareProperty( "JEMRoILocation",
-         m_JEMRoILocation     = LVL1::TrigT1CaloDefs::JEMRoILocation) ;
+  declareProperty( "JEMTobRoILocation",
+         m_JEMRoILocation     = LVL1::TrigT1CaloDefs::JEMTobRoILocation) ;
+  declareProperty( "ErrorLocation",
+         m_errorLocation      = "L1CaloJEMErrorVector");
 
   declareProperty( "NumberOfSlices", m_SliceNo = 5,
                    "Maximum possible number of slices");
   declareProperty( "MaxEnergyRange", m_MaxEnergyRange = 1024,
                    "Maximum energy in JetElement energy plots") ;
 
-  declareProperty( "PathInRootFile", m_PathInRootFile = "L1Calo/JEM") ;
-  declareProperty( "ErrorPathInRootFile",
-                   m_ErrorPathInRootFile = "L1Calo/JEM/Errors/Hardware") ;
+  declareProperty( "RootDirectory", m_rootDir = "L1Calo/JEM") ;
 
 }
 
 
 /*---------------------------------------------------------*/
-JEMMon::~JEMMon()
+JEPJEMMon::~JEPJEMMon()
 /*---------------------------------------------------------*/
 {
 }
@@ -126,7 +119,7 @@ JEMMon::~JEMMon()
 #endif
 
 /*---------------------------------------------------------*/
-StatusCode JEMMon::initialize()
+StatusCode JEPJEMMon::initialize()
 /*---------------------------------------------------------*/
 {
   msg(MSG::INFO) << "Initializing " << name() << " - package version "
@@ -146,7 +139,7 @@ StatusCode JEMMon::initialize()
 
   sc = m_histTool.retrieve();
   if( sc.isFailure() ) {
-    msg(MSG::ERROR) << "Unable to locate Tool TrigT1CaloLWHistogramToolV1"
+    msg(MSG::ERROR) << "Unable to locate Tool TrigT1CaloLWHistogramTool"
                     << endreq;
     return sc;
   }
@@ -155,10 +148,10 @@ StatusCode JEMMon::initialize()
 }
 
 /*---------------------------------------------------------*/
-StatusCode JEMMon::bookHistogramsRecurrent()
+StatusCode JEPJEMMon::bookHistogramsRecurrent()
 /*---------------------------------------------------------*/
 {
-  msg(MSG::DEBUG) << "in JEMMon::bookHistograms" << endreq;
+  msg(MSG::DEBUG) << "in JEPJEMMon::bookHistogramsRecurrent" << endreq;
  
   if( m_environment == AthenaMonManager::online ) {
     // book histograms that are only made in the online environment...
@@ -168,22 +161,19 @@ StatusCode JEMMon::bookHistogramsRecurrent()
     // book histograms that are only relevant for cosmics data...
   }
 
-  if ( newLumiBlock) { }
+  if( newEventsBlock|| newLumiBlock) { }
 
-  if ( newRun ) {	
+  if( newRun ) {	
 
     MgmtAttr_t attr = ATTRIB_UNMANAGED;
-    MonGroup JetElements_expert(this, m_PathInRootFile+"/Input", run, attr);
-    MonGroup JetElements_shift(this, m_PathInRootFile+"/Input", run, attr);
-    MonGroup JEM_Thresholds(this, m_PathInRootFile+"/Output/Thresholds",
-                                                                run, attr);
-    MonGroup JEM_EnergySums(this, m_PathInRootFile+"/Output/EnergySums",
-                                                                run, attr);
-    MonGroup JEM_RoI(this, m_PathInRootFile+"/Output/RoI", run, attr);
-    MonGroup JEM_Error(this, m_ErrorPathInRootFile, run, attr );
-    MonGroup JEM_ErrorDetail(this, m_ErrorPathInRootFile, run, attr );
-    MonGroup JEM_ErrorEvents(this, m_ErrorPathInRootFile, run, attr, "",
-                                                           "eventSample" );
+    MonGroup JetElements_expert(this, m_rootDir + "/Input", run, attr);
+    MonGroup JetElements_shift(this, m_rootDir + "/Input", run, attr);
+    MonGroup JEM_EnergySums(this, m_rootDir + "/Output/EnergySums", run, attr);
+    MonGroup JEM_RoI(this, m_rootDir + "/Output/RoI", run, attr);
+    std::string errorDir(m_rootDir + "/Errors/Hardware");
+    MonGroup JEM_Error(this, errorDir, run, attr );
+    MonGroup JEM_ErrorDetail(this, errorDir, run, attr );
+    MonGroup JEM_ErrorEvents(this, errorDir, run, attr, "", "eventSample" );
 
     //-------------------------- JetElements histos --------------------------
 
@@ -246,81 +236,38 @@ StatusCode JEMMon::bookHistogramsRecurrent()
       
     //---------------------------- DAQ histos -----------------------------
 
-    m_histTool->setMonGroup(&JEM_Thresholds);
-
-    m_h_jem_1d_thresh_MainHits = m_histTool->bookMainJetThresholds(
-      "jem_1d_thresh_MainHits",
-      "Main Jet Hit Multiplicity per Threshold  --  JEM DAQ");
-    m_h_jem_1d_thresh_FwdHitsRight = m_histTool->bookForwardJetThresholds(
-      "jem_1d_thresh_FwdHitsRight",
-      "Fwd Right Jet Hit Multiplicity per Threshold  --  JEM DAQ");
-    m_h_jem_1d_thresh_FwdHitsLeft = m_histTool->bookBackwardJetThresholds(
-      "jem_1d_thresh_FwdHitsLeft",
-      "Fwd Left Jet Hit Multiplicity per Threshold  --  JEM DAQ");
-      
-    m_h_jem_2d_thresh_HitsPerJem = m_histTool->bookJEMCrateModuleVsThresholds(
-      "jem_2d_thresh_HitsPerJem", "HitMap of Hits per JEM");
-
     m_histTool->setMonGroup(&JEM_EnergySums);
       
-    m_h_jem_1d_energy_SubSumsEx = m_histTool->bookJEMQuadLinear(
-      "jem_1d_energy_SubSumsEx", "JEM E_{x}^{JEM}  --  JEM DAQ;Ex [GeV]");
-    m_h_jem_1d_energy_SubSumsEy = m_histTool->bookJEMQuadLinear(
-      "jem_1d_energy_SubSumsEy", "JEM E_{y}^{JEM}  --  JEM DAQ;Ey [GeV]");
-    m_h_jem_1d_energy_SubSumsEt = m_histTool->bookJEMQuadLinear(
-      "jem_1d_energy_SubSumsEt", "JEM E_{t}^{JEM}  --  JEM DAQ;Et [GeV]");
+    const double maxSum = 16384.;
+    const int nbins = 256;
+    m_h_jem_1d_energy_SubSumsEx = m_histTool->book1F(
+      "jem_1d_energy_SubSumsEx", "JEM E_{x}^{JEM}  --  JEM DAQ;Ex [GeV]",
+      nbins, 0., maxSum);
+    m_h_jem_1d_energy_SubSumsEy = m_histTool->book1F(
+      "jem_1d_energy_SubSumsEy", "JEM E_{y}^{JEM}  --  JEM DAQ;Ey [GeV]",
+      nbins, 0., maxSum);
+    m_h_jem_1d_energy_SubSumsEt = m_histTool->book1F(
+      "jem_1d_energy_SubSumsEt", "JEM E_{t}^{JEM}  --  JEM DAQ;Et [GeV]",
+      nbins, 0., maxSum);
       
     //---------------------------- RoI histos -----------------------------
 
     m_histTool->setMonGroup(&JEM_RoI);
 
-    m_h_jem_1d_roi_MainHits = m_histTool->bookMainJetThresholds(
-      "jem_1d_roi_MainHits",
-      "Main Jet Hit Multiplicity per Threshold  --  JEM RoI");
-    m_h_jem_1d_roi_FwdHitsRight = m_histTool->bookForwardJetThresholds(
-      "jem_1d_roi_FwdHitsRight",
-      "Forward Right Jet Hit Multiplicity per Threshold  --  JEM RoI");
-    m_h_jem_1d_roi_FwdHitsLeft = m_histTool->bookBackwardJetThresholds(
-      "jem_1d_roi_FwdHitsLeft",
-      "Forward Left Jet Hit Multiplicity per Threshold  --  JEM RoI");
-    m_h_jem_2d_etaPhi_roi_Saturation = m_histTool->bookJEMRoIEtaVsPhi(
-      "jem_2d_etaPhi_roi_Saturation", "JEM RoI Saturation");
-
-    //----------------------- HitThreshold per Eta-Phi -----------------------
-
-    m_v_jem_2d_etaPhi_roi_MainThresh.clear();
-    m_v_jem_2d_etaPhi_roi_FwdThresh.clear();
-    std::vector<std::string> jetNames;
-    std::vector<std::string> jfNames;
-    std::vector<std::string> jbNames;
-    m_histTool->thresholdNames(TrigConf::L1DataDef::jetType(), jetNames);
-    m_histTool->thresholdNames(TrigConf::L1DataDef::jfType(),  jfNames);
-    m_histTool->thresholdNames(TrigConf::L1DataDef::jbType(),  jbNames);
-    
-
-    // Fix ATLASRECTS-781 bug https://its.cern.ch/jira/browse/ATLASRECTS-781
-    // L1 theresholds for RUN2 (l1version==1) have 0  threshholds for JET, FJ and JB
-    // This code is back compativle with RUN1 (l1version==0)
-    // More on theresholds configuration see:
-    //    TrigConf::L1DataDef::setMaxThresholdsFromL1Versionl1version
-    for (size_t i = 0; i < jetNames.size(); i++) {
-      buffer.str("");
-      buffer << i;
-      name  = "jem_2d_etaPhi_roi_MainThresh" + buffer.str();
-      title = "#eta - #phi Map of Main Hits passing Threshold "+ jetNames[i]
-                                                               +"  --  JEM RoI";
-      m_v_jem_2d_etaPhi_roi_MainThresh.push_back(
-            m_histTool->bookJEMRoIEtaVsPhi(name.c_str(), title.c_str()));
-      
-      if ((i >= jfNames.size()) || (i >= jbNames.size())) continue;
-      
-      name  = "jem_2d_etaPhi_roi_FwdThresh" + buffer.str();
-      title = "#eta - #phi Map of Fwd Hits passing Threshold "+ jfNames[i];
-      if (jfNames[i] != jbNames[i]) title += "/" + jbNames[i];
-      title +="  --  JEM RoI";
-      m_v_jem_2d_etaPhi_roi_FwdThresh.push_back(
-            m_histTool->bookJEMRoIEtaVsPhi(name.c_str(), title.c_str()));
-    }
+    const double maxLarge = 1024.;
+    const double maxSmall = 512.;
+    m_h_jem_1d_roi_EnergyLg = m_histTool->book1F("jem_1d_roi_EnergyLg",
+      "JEM TOB RoI Energy Large Window Size", nbins, 0., maxLarge);
+    m_h_jem_1d_roi_EnergySm = m_histTool->book1F("jem_1d_roi_EnergySm",
+      "JEM TOB RoI Energy Small Window Size", nbins, 0., maxSmall);
+    m_h_jem_1d_roi_TOBsPerJEM = m_histTool->book1F("jem_1d_roi_TOBsPerJEM",
+      "JEM TOB RoI TOBs per JEM;Number of TOBs", s_tobsPerJEM+1, 1, s_tobsPerJEM+2);
+    m_histTool->numbers(m_h_jem_1d_roi_TOBsPerJEM, 1, s_tobsPerJEM);
+    m_h_jem_1d_roi_TOBsPerJEM->GetXaxis()->SetBinLabel(s_tobsPerJEM+1, "More");
+    m_h_jem_2d_etaPhi_roi_Hitmap = m_histTool->bookJEMRoIEtaVsPhi(
+      "jem_2d_etaPhi_roi_Hitmap", "JEM TOB RoIs Hit Map");
+    m_h_jem_2d_etaPhi_roi_EtWeighted = m_histTool->bookJEMRoIEtaVsPhi(
+      "jem_2d_etaPhi_roi_EtWeighted", "JEM TOB RoIs Hit Map Weighted by Energy");
 
     //--------------------------- Error Histos -------------------------------
 
@@ -337,9 +284,6 @@ StatusCode JEMMon::bookHistogramsRecurrent()
     m_h_jem_had_2d_etaPhi_jetEl_LinkDown = m_histTool->bookJEMEtaVsPhi(
       "jem_had_2d_etaPhi_jetEl_LinkDown", "Jet Element Had Link Down Errors");
 
-    m_h_jem_2d_etaPhi_roi_Parity = m_histTool->bookJEMRoIEtaVsPhi(
-      "jem_2d_etaPhi_roi_Parity", "JEM RoI Parity Errors");
-	
     m_histTool->setMonGroup(&JEM_Error);
 
     m_h_jem_1d_ErrorSummary = m_histTool->book1F(
@@ -359,7 +303,6 @@ StatusCode JEMMon::bookHistogramsRecurrent()
       axis->SetBinLabel(1+EMLink,    "EM link");
       axis->SetBinLabel(1+HadLink,   "Had link");
       axis->SetBinLabel(1+JEMStatus, "JEM status");
-      axis->SetBinLabel(1+RoIParity, "RoI parity");
       axis = m_h_jem_2d_ErrorEventNumbers->GetYaxis();
     }
        
@@ -373,7 +316,7 @@ StatusCode JEMMon::bookHistogramsRecurrent()
 
 
 /*---------------------------------------------------------*/
-StatusCode JEMMon::fillHistograms()
+StatusCode JEPJEMMon::fillHistograms()
 /*---------------------------------------------------------*/
 {
   const bool debug = msgLvl(MSG::DEBUG);
@@ -508,55 +451,6 @@ StatusCode JEMMon::fillHistograms()
       overview[crate] |= (1 << JEMStatus);
     }
   }
-
-  // =========================================================================
-  // ================= Container: JEM Hits ===================================
-  // =========================================================================
-
-  // retrieve JEMHits collection from storegate
-  const JEMHitsCollection* JEMHits = 0;
-  sc = evtStore()->retrieve(JEMHits, m_JEMHitsLocation);
-  if (sc == StatusCode::FAILURE || !JEMHits) {
-    msg(MSG::INFO) << "No JEMHits found in TES at " << m_JEMHitsLocation
-                   << endreq ;
-    return StatusCode::SUCCESS;
-  }
-  
-  if (debug) {
-    msg(MSG::DEBUG) << "-------------- JEM Hits ---------------" << endreq;
-  }
-  
-  // Step over all cells and process
-  JEMHitsCollection::const_iterator it_JEMHits ;
-  for (it_JEMHits = JEMHits->begin(); it_JEMHits != JEMHits->end();
-                                                              ++it_JEMHits ) {	  
-    const int crate  = (*it_JEMHits)->crate();
-    const int module = (*it_JEMHits)->module();
-    const int xpos   = crate*16 + module;
-    const bool forward = (*it_JEMHits)->forward();
-    const unsigned int jetHits = (*it_JEMHits)->JetHits();
-
-    const int nBits = (forward) ? 2 : 3;
-    m_histTool->fillThresholds(m_h_jem_1d_thresh_MainHits, jetHits, 8, nBits);
-    m_histTool->fillXVsThresholds(m_h_jem_2d_thresh_HitsPerJem,
-                                                     xpos, jetHits, 8, nBits);
-    if (forward) {
-      const int fwdHits = jetHits >> 16;
-      const int offset  = (module%8 == 0) ? 8 : 12;
-      TH1F_LW* fwdHist  = (module%8 == 0) ? m_h_jem_1d_thresh_FwdHitsLeft
-                                          : m_h_jem_1d_thresh_FwdHitsRight;
-      m_histTool->fillThresholds(fwdHist, fwdHits, 4, nBits);
-      m_histTool->fillXVsThresholds(m_h_jem_2d_thresh_HitsPerJem,
-                                             xpos, fwdHits, 4, nBits, offset);
-    }
-
-    if (debug) {
-      msg(MSG::DEBUG) << "Crate: "<< crate << "  Module: " << module
- 	  << "  JetHits: "
-	  << m_histTool->thresholdString(jetHits, (forward) ? 12 : 8, nBits)
-	  << endreq;
-    }
-  }   
   
   // =========================================================================
   // ================= Container: JEM Et Sums ================================
@@ -579,10 +473,9 @@ StatusCode JEMMon::fillHistograms()
 
   for (it_JEMEtSums = JEMEtSums->begin(); it_JEMEtSums != JEMEtSums->end();
                                                              ++it_JEMEtSums) {	       
-    // note: the energy values are compressed -> expand!
-    const int ex = LVL1::QuadLinear::Expand((*it_JEMEtSums)->Ex());
-    const int ey = LVL1::QuadLinear::Expand((*it_JEMEtSums)->Ey());
-    const int et = LVL1::QuadLinear::Expand((*it_JEMEtSums)->Et());
+    const int ex = (*it_JEMEtSums)->Ex();
+    const int ey = (*it_JEMEtSums)->Ey();
+    const int et = (*it_JEMEtSums)->Et();
 
     if (ex != 0) m_h_jem_1d_energy_SubSumsEx->Fill(ex, 1.); 
     if (ey != 0) m_h_jem_1d_energy_SubSumsEy->Fill(ey, 1.); 
@@ -594,7 +487,6 @@ StatusCode JEMMon::fillHistograms()
                       << "   Ex: "            <<  ex
 	              << "   Ey: "            <<  ey 
 	              << "   Et: "            <<  et
-		      << "   Et compressed: " << (*it_JEMEtSums)-> Et()
 		      << endreq;
     }
   }
@@ -618,63 +510,45 @@ StatusCode JEMMon::fillHistograms()
   // Step over all cells
   JemRoiCollection::const_iterator it_JEMRoIs ;
 
+  const int vecSize = s_crates*s_modules;
+  std::vector<int> tobCount(vecSize);
   for (it_JEMRoIs = JEMRoIs->begin(); it_JEMRoIs != JEMRoIs->end();
                                                           ++it_JEMRoIs) {	  
-    const int crate   = (*it_JEMRoIs)->crate();
-    const int module  = (*it_JEMRoIs)->jem();
-    const int forward = (*it_JEMRoIs)->forward();
-    const int roiHits = (*it_JEMRoIs)->hits();
+    const int crate    = (*it_JEMRoIs)->crate();
+    const int module   = (*it_JEMRoIs)->jem();
+    const int energyLg = (*it_JEMRoIs)->energyLarge();
+    const int energySm = (*it_JEMRoIs)->energySmall();
     LVL1::JEPRoIDecoder decoder;
     const LVL1::CoordinateRange coordRange =
-                                  decoder.coordinate((*it_JEMRoIs)->roiWord());
+                                  decoder.coordinate((*it_JEMRoIs)->roiWord());        //<<== CHECK
     const double eta = coordRange.eta();
     const double phi = coordRange.phi();
       
-    int nHits = 8;
-    TH1F_LW* hist = m_h_jem_1d_roi_MainHits;
-    if (forward) {
-      nHits = 4;
-      hist = (module%8 == 0) ? m_h_jem_1d_roi_FwdHitsLeft
-                             : m_h_jem_1d_roi_FwdHitsRight;
+    if (energyLg) {
+      m_h_jem_1d_roi_EnergyLg->Fill(energyLg);
+      m_histTool->fillJEMRoIEtaVsPhi(m_h_jem_2d_etaPhi_roi_Hitmap, eta, phi);
+      m_histTool->fillJEMRoIEtaVsPhi(m_h_jem_2d_etaPhi_roi_EtWeighted,
+                                     eta, phi, energyLg);
     }
-    m_histTool->fillThresholds(hist, roiHits, nHits, 1);
+    if (energySm) {
+      m_h_jem_1d_roi_EnergySm->Fill(energySm);
+    }
+    ++tobCount[crate*s_modules + module];
+  }
 
-    for (int thr = 0; thr < nHits; ++thr) {
-      const int hit = (roiHits >> thr) & 0x1;
-      if (hit) {
-        TH2F_LW* hist2 = (forward) ? m_v_jem_2d_etaPhi_roi_FwdThresh[thr]
-	                           : m_v_jem_2d_etaPhi_roi_MainThresh[thr];
-        m_histTool->fillJEMRoIEtaVsPhi(hist2, eta, phi, 1.);
+  for (int crate = 0; crate < s_crates; ++crate) {
+    for (int jem = 0; jem < s_modules; ++jem) {
+      int val = tobCount[crate*s_modules + jem];
+      if (val) {
+        if (val > s_tobsPerJEM) val = s_tobsPerJEM+1;
+        m_h_jem_1d_roi_TOBsPerJEM->Fill(val);
       }
-    }
-
-    if (debug) {
-      msg(MSG::DEBUG) << "JEMRoI Word: "
-                      << MSG::hex << (*it_JEMRoIs)->roiWord() << MSG::dec
-	              << "; Crate: "   << crate   << "; JEM: " << module
-	              << "; forward: " << forward << "; Hits: "
-	              << m_histTool->thresholdString(roiHits, nHits)
-	              << endreq;
-    }
-      
-    const DataError err((*it_JEMRoIs)->error());
-
-    if (err.get(DataError::Parity)) {
-      m_histTool->fillJEMRoIEtaVsPhi(m_h_jem_2d_etaPhi_roi_Parity, eta, phi);
-      m_histTool->fillEventNumber(m_h_jem_2d_ErrorEventNumbers, RoIParity);
-      m_h_jem_1d_ErrorSummary->Fill(RoIParity);
-      overview[crate] |= (1 << RoIParity);
-    }
-    // saturation
-    if (err.get(DataError::Overflow)) {
-      m_histTool->fillJEMRoIEtaVsPhi(m_h_jem_2d_etaPhi_roi_Saturation,
-                                                                   eta, phi);
     }
   }
 
   // Write overview vector to StoreGate
   std::vector<int>* save = new std::vector<int>(overview);
-  sc = evtStore()->record(save, "L1CaloJEMErrorVector");
+  sc = evtStore()->record(save, m_errorLocation);
   if (sc != StatusCode::SUCCESS) {
     msg(MSG::ERROR) << "Error recording JEM error vector in TES " << endreq;
     return sc;
@@ -688,12 +562,14 @@ StatusCode JEMMon::fillHistograms()
 }
 
 /*---------------------------------------------------------*/
-StatusCode JEMMon::procHistograms()
+StatusCode JEPJEMMon::procHistograms()
 /*---------------------------------------------------------*/
 {
   msg(MSG::DEBUG) << "in procHistograms" << endreq ;
 
-  if( endOfLumiBlock || endOfRun ) { }
+  if( endOfEventsBlock || endOfLumiBlock || endOfRun ) { }
 	
   return StatusCode::SUCCESS;
 }
+
+} // end namespace

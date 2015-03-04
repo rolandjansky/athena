@@ -4,15 +4,15 @@
 
 // ********************************************************************
 //
-// NAME:     JEPSimBSMon.h
+// NAME:     JEPSimMon.h
 // PACKAGE:  TrigT1CaloMonitoring
 //
 // AUTHOR:   Peter Faulkner
 //	     
 //
 // ********************************************************************
-#ifndef JEPSIMBSMON_H
-#define JEPSIMBSMON_H
+#ifndef TRIGT1CALOMONITORING_JEPSIMMON_H
+#define TRIGT1CALOMONITORING_JEPSIMMON_H
 
 #include <map>
 #include <string>
@@ -29,26 +29,27 @@ class TH2F_LW;
 class TH2I_LW;
 class StatusCode;
 class TrigT1CaloMonErrorTool;
-class TrigT1CaloLWHistogramToolV1;
+class TrigT1CaloLWHistogramTool;
 
 namespace LVL1 {
-  class CMMEtSums;
-  class CMMJetHits;
-  class CMMRoI;
-  class JEMEtSums;
-  class JEMHits;
-  class JEMRoI;
-  class JetAlgorithm;
-  class JetElement;
-  class RODHeader;
-  class TriggerTower;
-  class IL1JEPHitsTools;
-  class IL1JetElementTools;
-  class IL1JetTools;
-  class IL1JEPEtSumsTools;
-}
 
-/** Cross-check of JEM and JEM-CMM data with simulation.
+class CMXEtSums;
+class CMXJetTob;
+class CMXJetHits;
+class CMXRoI;
+class JEMEtSums;
+class JEMTobRoI;
+class JetAlgorithm;
+class JetElement;
+class RODHeader;
+class TriggerTower;
+class IL1JetCMXTools;
+class IL1JetElementTools;
+class IL1JetTools;
+class IL1EnergyCMXTools;
+
+
+/** Cross-check of JEM and JEM-CMX data with simulation.
  *
  *  Compares data step-by-step with data simulated from the previous step.
  *
@@ -64,28 +65,27 @@ namespace LVL1 {
  *                 Jet element core/overlap data/simulation matches and mismatches </td></tr>
  *  <tr><td> @c L1Calo/JEM/Errors/Transmission_Simulation/Elements2RoIs            </td><td>
  *                 RoI data/simulation matches and mismatches eta/phi              <br>
- *                 Ditto by crate/module/frame/local coordinate                    <br>
- *                 Ditto by threshold                                              </td></tr>
- *  <tr><td> @c L1Calo/JEM/Errors/Transmission_Simulation/RoIs2Hits                </td><td>
- *                 JEM hits data/simulation matches and mismatches                 <br>
- *                 Ditto by threshold                                              </td></tr>
+ *                 Ditto by crate/module/frame/local coordinate                    </td></tr>
  *  <tr><td> @c L1Calo/JEM/Errors/Transmission_Simulation/Elements2Energy          </td><td>
  *                 JEM Energy sums data/simulation matches and mismatches          </td></tr>
  *  <tr><td> @c L1Calo/JEM/Errors/Transmission_Simulation/MismatchEventNumbers     </td><td>
  *                 JEM mismatch event numbers                                      </td></tr>
- *  <tr><td> @c L1Calo/JEM_CMM/Errors/Transmission_Simulation/JEM2CMMHits          </td><td>
- *                 JEM/CMM hits matches and mismatches                             <br>
- *                 Ditto by threshold                                              </td></tr>
- *  <tr><td> @c L1Calo/JEM_CMM/Errors/Transmission_Simulation/Hits2Sums            </td><td>
+ *  <tr><td> @c L1Calo/JEM_CMX/Errors/Transmission_Simulation/RoIs2TOBs            </td><td>
+ *                 JEM RoI/CMX TOBs matches and mismatches eta/phi                     <br>
+ *                 Ditto by crate/module frame/local coord                         </td></tr>
+ *  <tr><td> @c L1Calo/JEM_CMX/Errors/Transmission_Simulation/TOBs2HitSums         </td><td>
  *                 Hit sums data/simulation matches and mismatches                 <br>
- *                 Ditto by threshold                                              </td></tr>
- *  <tr><td> @c L1Calo/JEM_CMM/Errors/Transmission_Simulation/JEM2CMMEnergy        </td><td>
- *                 JEM/CMM Energy sums matches and mismatches                      </td></tr>
- *  <tr><td> @c L1Calo/JEM_CMM/Errors/Transmission_Simulation/Energy2Sums          </td><td>
+ *                 Ditto by threshold                                              <br>
+ *                 RoI overflow matches and mismatches                             </td></tr>
+ *  <tr><td> @c L1Calo/JEM_CMX/Errors/Transmission_Simulation/TOBs2Topo            </td><td>
+ *                 Topo info matches and mismatches                                </td></tr>
+ *  <tr><td> @c L1Calo/JEM_CMX/Errors/Transmission_Simulation/JEM2CMXEnergy        </td><td>
+ *                 JEM/CMX Energy sums matches and mismatches                      </td></tr>
+ *  <tr><td> @c L1Calo/JEM_CMX/Errors/Transmission_Simulation/Energy2Sums          </td><td>
  *                 Energy totals data/simulation matches and mismatches            <br>
  *                 Ditto for Et maps by threshold                                  </td></tr>
- *  <tr><td> @c L1Calo/JEM_CMM/Errors/Transmission_Simulation/MismatchEventNumbers </td><td>
- *                 JEM CMM mismatch event numbers                                  </td></tr>
+ *  <tr><td> @c L1Calo/JEM_CMX/Errors/Transmission_Simulation/MismatchEventNumbers </td><td>
+ *                 JEM CMX mismatch event numbers                                  </td></tr>
  *  </table>
  *
  *  <b>Notes on Particular Histograms:</b>
@@ -115,16 +115,16 @@ namespace LVL1 {
  *  <tr><td> @c DataVector
  *           @c <LVL1::JetElement>        </td><td> Jet element overlap data                    </td></tr>
  *  <tr><td> @c DataVector
- *           @c <LVL1::JEMRoI>            </td><td> Jet RoI data                                </td></tr>
- *  <tr><td> @c DataVector
- *           @c <LVL1::JEMHits>           </td><td> Jet hits data                               </td></tr>
+ *           @c <LVL1::JEMTobRoI>         </td><td> Jet RoI data                                </td></tr>
  *  <tr><td> @c DataVector
  *           @c <LVL1::JEMEtSums>         </td><td> Energy sums data                            </td></tr>
  *  <tr><td> @c DataVector
- *           @c <LVL1::CMMJetHits>        </td><td> CMM Jet hits data                           </td></tr>
+ *           @c <LVL1::CMXJetTob>         </td><td> CMX Jet TOBs data                           </td></tr>
  *  <tr><td> @c DataVector
- *           @c <LVL1::CMMEtSums>         </td><td> CMM Energy sums data                        </td></tr>
- *  <tr><td> @c LVL1::CMMRoI              </td><td> CMM RoI data                                </td></tr>
+ *           @c <LVL1::CMXJetHits>        </td><td> CMX Jet hits data and Topo info             </td></tr>
+ *  <tr><td> @c DataVector
+ *           @c <LVL1::CMXEtSums>         </td><td> CMX Energy sums data                        </td></tr>
+ *  <tr><td> @c LVL1::CMXRoI              </td><td> CMX RoI data                                </td></tr>
  *  <tr><td> @c DataVector
  *           @c <LVL1::RODHeader>         </td><td> ROD header data for LimitedRoISet bit
  *                                                  and MinorVersion number                     </td></tr>
@@ -136,42 +136,47 @@ namespace LVL1 {
  *  <b>Tools Used:</b>
  *
  *  <table>
- *  <tr><th> Tool                         </th><th> Description               </th></tr>
- *  <tr><td> @c LVL1::IL1JEPHitsTools     </td><td> @copydoc m_jepHitsTool    </td></tr>
- *  <tr><td> @c LVL1::IL1JetTools         </td><td> @copydoc m_jetTool        </td></tr>
- *  <tr><td> @c LVL1::IL1JetElementTools  </td><td> @copydoc m_jetElementTool </td></tr>
- *  <tr><td> @c LVL1::IL1JEPEtSumsTools   </td><td> @copydoc m_etSumsTool     </td></tr>
- *  <tr><td> @c TrigT1CaloMonErrorTool    </td><td> @copydoc m_errorTool      </td></tr>
- *  <tr><td> @c TrigT1CaloLWHistogramToolV1 </td><td> @copydoc m_histTool       </td></tr>
+ *  <tr><th> Tool                               </th><th> Description               </th></tr>
+ *  <tr><td> @c LVL1::IL1JetCMXTools            </td><td> @copydoc m_jetCmxTool     </td></tr>
+ *  <tr><td> @c LVL1::IL1JetTools               </td><td> @copydoc m_jetTool        </td></tr>
+ *  <tr><td> @c LVL1::IL1JetElementTools        </td><td> @copydoc m_jetElementTool </td></tr>
+ *  <tr><td> @c LVL1::IL1EnergyCMXTools         </td><td> @copydoc m_energyCmxTool  </td></tr>
+ *  <tr><td> @c LVL1::ITrigT1CaloMonErrorTool   </td><td> @copydoc m_errorTool      </td></tr>
+ *  <tr><td> @c LVL1::TrigT1CaloLWHistogramTool </td><td> @copydoc m_histTool       </td></tr>
  *  </table>
  *
  *  <b>JobOption Properties:</b>
  *
  *  <table>
  *  <tr><th> Property                     </th><th> Description                          </th></tr>
- *  <tr><td> @c JEPHitsTool               </td><td> @copydoc m_jepHitsTool               </td></tr>
+ *  <tr><td> @c JetCMXTool                </td><td> @copydoc m_jetCmxTool                </td></tr>
  *  <tr><td> @c JetTool                   </td><td> @copydoc m_jetTool                   </td></tr>
  *  <tr><td> @c JetElementTool            </td><td> @copydoc m_jetElementTool            </td></tr>
- *  <tr><td> @c JEPEtSumsTool             </td><td> @copydoc m_etSumsTool                </td></tr>
+ *  <tr><td> @c EnergyCMXTool             </td><td> @copydoc m_energyCmxTool             </td></tr>
+ *  <tr><td> @c ErrorTool                 </td><td> @copydoc m_errorTool                 </td></tr>
+ *  <tr><td> @c HistogramTool             </td><td> @copydoc m_histTool                  </td></tr>
  *  <tr><td> @c JetElementLocation        </td><td> @copydoc m_jetElementLocation        </td></tr>
  *  <tr><td> @c JetElementLocationOverlap </td><td> @copydoc m_jetElementLocationOverlap </td></tr>
- *  <tr><td> @c JEMHitsLocation           </td><td> @copydoc m_jemHitsLocation           </td></tr>
- *  <tr><td> @c CMMJetHitsLocation        </td><td> @copydoc m_cmmJetHitsLocation        </td></tr>
- *  <tr><td> @c JEMRoILocation            </td><td> @copydoc m_jemRoiLocation            </td></tr>
- *  <tr><td> @c CMMRoILocation            </td><td> @copydoc m_cmmRoiLocation            </td></tr>
+ *  <tr><td> @c CMXJetTobLocation         </td><td> @copydoc m_cmxJetTobLocation         </td></tr>
+ *  <tr><td> @c CMXJetHitsLocation        </td><td> @copydoc m_cmxJetHitsLocation        </td></tr>
+ *  <tr><td> @c JEMTobRoILocation         </td><td> @copydoc m_jemRoiLocation            </td></tr>
+ *  <tr><td> @c CMXRoILocation            </td><td> @copydoc m_cmxRoiLocation            </td></tr>
  *  <tr><td> @c JEMEtSumsLocation         </td><td> @copydoc m_jemEtSumsLocation         </td></tr>
- *  <tr><td> @c CMMEtSumsLocation         </td><td> @copydoc m_cmmEtSumsLocation         </td></tr>
+ *  <tr><td> @c CMXEtSumsLocation         </td><td> @copydoc m_cmxEtSumsLocation         </td></tr>
  *  <tr><td> @c TriggerTowerLocation      </td><td> @copydoc m_triggerTowerLocation      </td></tr>
  *  <tr><td> @c RodHeaderLocation         </td><td> @copydoc m_rodHeaderLocation         </td></tr>
+ *  <tr><td> @c ErrorLocation             </td><td> @copydoc m_errorLocation             </td></tr>
  *  <tr><td> @c RootDirectory             </td><td> @copydoc m_rootDir                   </td></tr>
  *  </table>
  *
- *  <b>Related Documentation:</b>
+ *  <b>Related Documentation:</b>                        <!-- UPDATE!! -->
  *
  *  <a href="http://hepwww.rl.ac.uk/Atlas-L1/Modules/JEM/JEMspec12d.pdf">
  *  ATLAS Level-1 Calorimeter Trigger Jet / Energy Processor Module</a><br>
+ *  <!--
  *  <a href="http://hepwww.rl.ac.uk/Atlas-L1/Modules/CMM/CMM_V1_8.pdf">
  *  ATLAS Calorimeter First Level Trigger - Common Merger Module</a><br>
+ *  -->
  *  <a href="http://hepwww.rl.ac.uk/Atlas-L1/Modules/ROD/ROD-spec-version1_2_2.pdf">
  *  ATLAS Level-1 Calorimeter Trigger - Read-out Driver</a>
  *
@@ -179,16 +184,18 @@ namespace LVL1 {
  *
  */
 
-class JEPSimBSMon: public ManagedMonitorToolBase
+class JEPSimMon: public ManagedMonitorToolBase
 {
 
 public:
   
-  JEPSimBSMon(const std::string & type, const std::string & name,
+  JEPSimMon(const std::string & type, const std::string & name,
 		       const IInterface* parent);
     
 
-  virtual ~JEPSimBSMon();
+  static const InterfaceID& interfaceID();
+
+  virtual ~JEPSimMon();
 
   virtual StatusCode initialize();
     
@@ -199,33 +206,39 @@ public:
 private:
 
   // Error summary bins
-  enum SummaryErrors { EMElementMismatch, HadElementMismatch, RoIMismatch,
-                       JEMHitsMismatch, CMMJetHitsMismatch, LocalJetMismatch,
-		       RemoteJetMismatch, TotalJetMismatch, JetEtMismatch,
-		       JetEtRoIMismatch, JEMEtSumsMismatch, CMMEtSumsMismatch,
+  enum SummaryErrors { EMElementMismatch,   HadElementMismatch,
+                       RoIMismatch,         CMXJetTobMismatch,
+		       LocalJetMismatch,    RemoteJetMismatch,
+		       TotalJetMismatch,    CMXJetTopoMismatch,
+		       JEMEtSumsMismatch,   CMXEtSumsMismatch,
 		       LocalEnergyMismatch, RemoteEnergyMismatch,
-		       TotalEnergyMismatch, SumEtMismatch, MissingEtMismatch,
-		       MissingEtSigMismatch, EnergyRoIMismatch,
-		       NumberOfSummaryBins };
+		       TotalEnergyMismatch, SumEtMismatch,
+		       MissingEtMismatch,   MissingEtSigMismatch,
+		       EnergyRoIMismatch,   NumberOfSummaryBins };
 
   typedef DataVector<LVL1::JetElement>   JetElementCollection;
-  typedef DataVector<LVL1::JEMHits>      JemHitsCollection;
-  typedef DataVector<LVL1::CMMJetHits>   CmmJetHitsCollection;
-  typedef DataVector<LVL1::JEMRoI>       JemRoiCollection;
+  typedef DataVector<LVL1::CMXJetTob>    CmxJetTobCollection;
+  typedef DataVector<LVL1::CMXJetHits>   CmxJetHitsCollection;
+  typedef DataVector<LVL1::JEMTobRoI>    JemRoiCollection;
   typedef DataVector<LVL1::TriggerTower> TriggerTowerCollection;
   typedef DataVector<LVL1::JetAlgorithm> InternalRoiCollection;
   typedef DataVector<LVL1::JEMEtSums>    JemEtSumsCollection;
-  typedef DataVector<LVL1::CMMEtSums>    CmmEtSumsCollection;
+  typedef DataVector<LVL1::CMXEtSums>    CmxEtSumsCollection;
   typedef DataVector<LVL1::RODHeader>    RodHeaderCollection;
   
   typedef std::vector<int> ErrorVector;
 
   typedef std::map<int, LVL1::JetElement*>   JetElementMap;
-  typedef std::map<int, LVL1::JEMRoI*>       JemRoiMap;
-  typedef std::map<int, LVL1::JEMHits*>      JemHitsMap;
-  typedef std::map<int, LVL1::CMMJetHits*>   CmmJetHitsMap;
+  typedef std::map<int, LVL1::JEMTobRoI*>    JemRoiMap;
+  typedef std::map<int, LVL1::CMXJetTob*>    CmxJetTobMap;
+  typedef std::map<int, LVL1::CMXJetHits*>   CmxJetHitsMap;
   typedef std::map<int, LVL1::JEMEtSums*>    JemEtSumsMap;
-  typedef std::map<int, LVL1::CMMEtSums*>    CmmEtSumsMap;
+  typedef std::map<int, LVL1::CMXEtSums*>    CmxEtSumsMap;
+
+  static const int s_crates    = 2;
+  static const int s_modules   = 16;
+  static const int s_cmxs      = 2;
+  static const int s_locCoords = 4;
   
   /// Compare Simulated JetElements with data
   bool  compare(const JetElementMap& jeSimMap, const JetElementMap& jeMap,
@@ -233,29 +246,23 @@ private:
   /// Compare Simulated RoIs with data
   void  compare(const JemRoiMap& roiSimMap, const JemRoiMap& roiMap,
                                                  ErrorVector& errors);
-  /// Compare simulated JEM Hits with data
-  void  compare(const JemHitsMap& jemSimMap, const JemHitsMap& jemMap,
-                                             ErrorVector& errors);
-  /// Compare JEM Hits and CMM Hits
-  void  compare(const JemHitsMap& jemMap, const CmmJetHitsMap& cmmMap,
-                      ErrorVector& errorsJEM, ErrorVector& errorsCMM);
-  /// Compare Simulated CMM Hit Sums and Data CMM Hit Sums
-  void  compare(const CmmJetHitsMap& cmmSimMap, const CmmJetHitsMap& cmmMap,
+  /// Compare simulated CMX TOBs with data
+  void  compare(const CmxJetTobMap& tobSimMap, const CmxJetTobMap& tobMap,
+                      ErrorVector& errorsJEM, ErrorVector& errorsCMX);
+  /// Compare Simulated CMX Hit Sums and Data CMX Hit Sums
+  void  compare(const CmxJetHitsMap& cmxSimMap, const CmxJetHitsMap& cmxMap,
                                           ErrorVector& errors, int selection);
-  /// Compare JetEt Map with JetEt RoI from data
-  void  compare(const CmmJetHitsMap& cmmMap, const LVL1::CMMRoI* cmmRoi,
-                                             ErrorVector& errors);
   /// Compare simulated JEM Et Sums with data
   void  compare(const JemEtSumsMap& jemSimMap, const JemEtSumsMap& jemMap,
                                                ErrorVector& errors);
-  /// Compare JEM EtSums and CMM EtSums
-  void  compare(const JemEtSumsMap& jemMap, const CmmEtSumsMap& cmmMap,
-                      ErrorVector& errorsJEM, ErrorVector& errorsCMM);
-  /// Compare Simulated CMM EtSums and Data CMM EtSums
-  void  compare(const CmmEtSumsMap& cmmSimMap, const CmmEtSumsMap& cmmMap,
+  /// Compare JEM EtSums and CMX EtSums
+  void  compare(const JemEtSumsMap& jemMap, const CmxEtSumsMap& cmxMap,
+                      ErrorVector& errorsJEM, ErrorVector& errorsCMX);
+  /// Compare Simulated CMX EtSums and Data CMX EtSums
+  void  compare(const CmxEtSumsMap& cmxSimMap, const CmxEtSumsMap& cmxMap,
                                           ErrorVector& errors, int selection);
   /// Compare Et Maps and Energy Totals with Energy RoIs from data
-  void  compare(const CmmEtSumsMap& cmmMap, const LVL1::CMMRoI* cmmRoi,
+  void  compare(const CmxEtSumsMap& cmxMap, const LVL1::CMXRoI* cmxRoi,
                                               ErrorVector& errors);
   /// Fill error event number histogram
   void  fillEventSample(int err, int loc, bool isJem);
@@ -265,62 +272,65 @@ private:
   void  setLabelsSH(LWHist* hist);
   /// Set hit threshold names histogram labels
   void  setLabelsSHF(LWHist* hist);
+  /// Set Topo Info histogram labels
+  void  setLabelsTopo(TH2F_LW* hist);
   /// Set energy sums histogram labels
   void  setLabelsEnTot(LWHist* hist);
   /// Set energy threshold names histogram labels
   void  setLabelsEnTotThr(LWHist* hist);
   /// Set up JetElement map
   void  setupMap(const JetElementCollection* coll, JetElementMap& map);
-  /// Set up JemRoi map
+  /// Set up JemTobRoi map
   void  setupMap(const JemRoiCollection* coll, JemRoiMap& map);
-  /// Set up JemHits map
-  void  setupMap(const JemHitsCollection* coll, JemHitsMap& map);
-  /// Set up CmmJetHits map
-  void  setupMap(const CmmJetHitsCollection* coll, CmmJetHitsMap& map);
+  /// Set up CmxJetTob map
+  void  setupMap(const CmxJetTobCollection* coll, CmxJetTobMap& map);
+  /// Set up CmxJetHits map
+  void  setupMap(const CmxJetHitsCollection* coll, CmxJetHitsMap& map);
   /// Set up JemEtSums map
   void  setupMap(const JemEtSumsCollection* coll, JemEtSumsMap& map);
-  /// Set up CmmEtSums map
-  void  setupMap(const CmmEtSumsCollection* coll, CmmEtSumsMap& map);
+  /// Set up CmxEtSums map
+  void  setupMap(const CmxEtSumsCollection* coll, CmxEtSumsMap& map);
   /// Simulate Jet Elements from Trigger Towers
   void  simulate(const TriggerTowerCollection* towers,
                        JetElementCollection* elements);
-  /// Simulate JEM RoIs from Jet Elements
+  /// Simulate JEM TOB RoIs from Jet Elements
   void  simulate(const JetElementCollection* elements,
                  const JetElementCollection* elementsOv,
 		       JemRoiCollection* rois);
   /// Simulate JEM RoIs from Jet Elements quick version
   void  simulate(const JetElementCollection* elements,
 		       JemRoiCollection* rois);
-  /// Simulate JEM Hits from JEM RoIs
-  void  simulate(const JemRoiCollection* rois, JemHitsCollection* hits);
-  /// Simulate CMM-Jet Hit sums from CMM-Jet Hits
-  void  simulate(const CmmJetHitsCollection* hitsIn,
-                       CmmJetHitsCollection* hitsOut, int selection);
+  /// Simulate CMX TOBs from JEM RoIs
+  void  simulate(const JemRoiCollection* rois, CmxJetTobCollection* hits);
+  /// Simulate CMX-Jet Hit sums from CMX-Jet TOBs
+  void  simulate(const CmxJetTobCollection* tobs,
+                       CmxJetHitsCollection* hits, int selection);
+  /// Simulate CMX Total Hit sums from Remote/Local
+  void  simulate(const CmxJetHitsCollection* hitsIn,
+                       CmxJetHitsCollection* hitsOut);
   /// Simulate JEM EtSums from JetElements
   void  simulate(const JetElementCollection* elements,
                        JemEtSumsCollection* sums);
-  /// Simulate CMM-Energy Total sums from CMM-Energy Sums
-  void  simulate(const CmmEtSumsCollection* sumsIn,
-                       CmmEtSumsCollection* sumsOut, int selection);
+  /// Simulate CMX-Energy Total sums from CMX-Energy Sums
+  void  simulate(const CmxEtSumsCollection* sumsIn,
+                       CmxEtSumsCollection* sumsOut, int selection);
   /// Check if LimitedRoISet bit set
   bool  limitedRoiSet(int crate);
-  /// Return true if version with Missing-Et-Sig
-  bool  hasMissingEtSig();
   /// Load ROD Headers
   void  loadRodHeaders();
 
-  /// JEP hits simulation tool
-  ToolHandle<LVL1::IL1JEPHitsTools>      m_jepHitsTool;
+  /// CMX-Jet simulation tool
+  ToolHandle<LVL1::IL1JetCMXTools>            m_jetCmxTool;
   /// JEM RoI simulation tool
-  ToolHandle<LVL1::IL1JetTools>          m_jetTool;
+  ToolHandle<LVL1::IL1JetTools>               m_jetTool;
   /// Jet element simulation tool
-  ToolHandle<LVL1::IL1JetElementTools>   m_jetElementTool;
-  /// JEP Et sums simulation tool
-  ToolHandle<LVL1::IL1JEPEtSumsTools>    m_etSumsTool;
+  ToolHandle<LVL1::IL1JetElementTools>        m_jetElementTool;
+  /// CMX-Energy simulation tool
+  ToolHandle<LVL1::IL1EnergyCMXTools>         m_energyCmxTool;
   /// Event veto tool
-  ToolHandle<TrigT1CaloMonErrorTool>     m_errorTool;
+  ToolHandle<TrigT1CaloMonErrorTool>   m_errorTool;
   /// Histogram helper tool
-  ToolHandle<TrigT1CaloLWHistogramToolV1>  m_histTool;
+  ToolHandle<TrigT1CaloLWHistogramTool> m_histTool;
 
   /// Debug printout flag
   bool m_debug;
@@ -331,28 +341,28 @@ private:
   std::string m_jetElementLocation;
   /// Overlap Jet Element container StoreGate key
   std::string m_jetElementLocationOverlap;
-  /// JEM hits container StoreGate key
-  std::string m_jemHitsLocation;
-  /// CMM-Jet hits container StoreGate key
-  std::string m_cmmJetHitsLocation;
+  /// CMX-Jet TOBs container StoreGate key
+  std::string m_cmxJetTobLocation;
+  /// CMX-Jet hits container StoreGate key
+  std::string m_cmxJetHitsLocation;
   /// JEM RoI container StoreGate key
   std::string m_jemRoiLocation;
-  /// CMM RoI container StoreGate key
-  std::string m_cmmRoiLocation;
+  /// CMX RoI container StoreGate key
+  std::string m_cmxRoiLocation;
   /// JEM Et sums container StoreGate key
   std::string m_jemEtSumsLocation;
-  /// CMM Et sums container StoreGate key
-  std::string m_cmmEtSumsLocation;
+  /// CMX Et sums container StoreGate key
+  std::string m_cmxEtSumsLocation;
   /// Trigger Tower container StoreGate key
   std::string m_triggerTowerLocation;
   /// ROD header container StoreGate key
   std::string m_rodHeaderLocation;
+  /// Error vector StoreGate key
+  std::string m_errorLocation;
   /// Pointer to ROD header container
   const RodHeaderCollection* m_rodTES;
   /// LimitedRoISet flags
   int m_limitedRoi;
-  /// Version with Missimg-Et-Sig flag
-  bool m_versionSig;
   /// Histograms booked flag
   bool m_histBooked;
 
@@ -379,40 +389,48 @@ private:
   TH2F_LW* m_h_jem_had_2d_etaPhi_jetEl_OverlapNoSim; ///< Overlap Jet Elements HAD Data but no Simulation
 
   // RoIs
-  TH2F_LW* m_h_jem_2d_roi_SimEqData;                 ///< JEM RoI Data/Simulation Non-zero Matches
-  TH2F_LW* m_h_jem_2d_roi_SimNeData;                 ///< JEM RoI Data/Simulation Non-zero Mismatches
-  TH2F_LW* m_h_jem_2d_roi_SimNoData;                 ///< JEM RoI Simulation but no Data
-  TH2F_LW* m_h_jem_2d_roi_DataNoSim;                 ///< JEM RoI Data but no Simulation
-  TH2F_LW* m_h_jem_2d_roi_ThreshSimEqData;           ///< JEM RoI Data/Simulation Threshold Matches
-  TH2F_LW* m_h_jem_2d_roi_ThreshSimNeData;           ///< JEM RoI Data/Simulation Threshold Mismatches
+  TH2F_LW* m_h_jem_2d_roi_EnergyLgSimEqData;         ///< JEM RoI Energy Large Data/Simulation Non-zero Matches
+  TH2F_LW* m_h_jem_2d_roi_EnergyLgSimNeData;         ///< JEM RoI Energy Large Data/Simulation Non-zero Mismatches
+  TH2F_LW* m_h_jem_2d_roi_EnergyLgSimNoData;         ///< JEM RoI Energy Large Simulation but no Data
+  TH2F_LW* m_h_jem_2d_roi_EnergyLgDataNoSim;         ///< JEM RoI Energy Large Data but no Simulation
+  TH2F_LW* m_h_jem_2d_roi_EnergySmSimEqData;         ///< JEM RoI Energy Small Data/Simulation Non-zero Matches
+  TH2F_LW* m_h_jem_2d_roi_EnergySmSimNeData;         ///< JEM RoI Energy Small Data/Simulation Non-zero Mismatches
+  TH2F_LW* m_h_jem_2d_roi_EnergySmSimNoData;         ///< JEM RoI Energy Small Simulation but no Data
+  TH2F_LW* m_h_jem_2d_roi_EnergySmDataNoSim;         ///< JEM RoI Energy Small Data but no Simulation
   TH2F_LW* m_h_jem_2d_etaPhi_roi_SimEqData;          ///< JEM RoI Data/Simulation Non-zero Matches
   TH2F_LW* m_h_jem_2d_etaPhi_roi_SimNeData;          ///< JEM RoI Data/Simulation Non-zero Mismatches
   TH2F_LW* m_h_jem_2d_etaPhi_roi_SimNoData;          ///< JEM RoI Simulation but no Data
   TH2F_LW* m_h_jem_2d_etaPhi_roi_DataNoSim;          ///< JEM RoI Data but no Simulation
 
-  // JEM Hits
-  TH2F_LW* m_h_jem_2d_thresh_SimEqData;              ///< JEM Hits Data/Simulation Non-zero Matches
-  TH2F_LW* m_h_jem_2d_thresh_SimNeData;              ///< JEM Hits Data/Simulation Non-zero Mismatches
-  TH2F_LW* m_h_jem_2d_thresh_SimNoData;              ///< JEM Hits Simulation but no Data
-  TH2F_LW* m_h_jem_2d_thresh_DataNoSim;              ///< JEM Hits Data but no Simulation
-  TH2F_LW* m_h_jem_2d_thresh_ThreshSimEqData;        ///< JEM Hits Data/Simulation Threshold Matches
-  TH2F_LW* m_h_jem_2d_thresh_ThreshSimNeData;        ///< JEM Hits Data/Simulation Threshold Mismatches
+  // CMX-Jet TOBs
+  TH2F_LW* m_h_cmx_2d_tob_EnergyLgSimEqData;         ///< CMX TOB Energy Large Data/Simulation Non-zero Matches
+  TH2F_LW* m_h_cmx_2d_tob_EnergyLgSimNeData;         ///< CMX TOB Energy Large Data/Simulation Non-zero Mismatches
+  TH2F_LW* m_h_cmx_2d_tob_EnergyLgSimNoData;         ///< CMX TOB Energy Large Simulation but no Data
+  TH2F_LW* m_h_cmx_2d_tob_EnergyLgDataNoSim;         ///< CMX TOB Energy Large Data but no Simulation
+  TH2F_LW* m_h_cmx_2d_tob_EnergySmSimEqData;         ///< CMX TOB Energy Small Data/Simulation Non-zero Matches
+  TH2F_LW* m_h_cmx_2d_tob_EnergySmSimNeData;         ///< CMX TOB Energy Small Data/Simulation Non-zero Mismatches
+  TH2F_LW* m_h_cmx_2d_tob_EnergySmSimNoData;         ///< CMX TOB Energy Small Simulation but no Data
+  TH2F_LW* m_h_cmx_2d_tob_EnergySmDataNoSim;         ///< CMX TOB Energy Small Data but no Simulation
+  TH2F_LW* m_h_cmx_2d_etaPhi_tob_SimEqData;          ///< CMX TOB Data/Simulation Non-zero Matches
+  TH2F_LW* m_h_cmx_2d_etaPhi_tob_SimNeData;          ///< CMX TOB Data/Simulation Non-zero Mismatches
+  TH2F_LW* m_h_cmx_2d_etaPhi_tob_SimNoData;          ///< CMX TOB Simulation but no Data
+  TH2F_LW* m_h_cmx_2d_etaPhi_tob_DataNoSim;          ///< CMX TOB Data but no Simulation
 
-  // CMM-Jet Hits
-  TH2F_LW* m_h_cmm_2d_thresh_JemEqCmm;               ///< CMM Hits/JEM Hits Non-zero Matches
-  TH2F_LW* m_h_cmm_2d_thresh_JemNeCmm;               ///< CMM Hits/JEM Hits Non-zero Mismatches
-  TH2F_LW* m_h_cmm_2d_thresh_JemNoCmm;               ///< JEM Hits but no CMM Hits
-  TH2F_LW* m_h_cmm_2d_thresh_CmmNoJem;               ///< CMM Hits but no JEM Hits
-  TH2F_LW* m_h_cmm_2d_thresh_ThreshJemEqCmm;         ///< CMM Hits/JEM Hits Threshold Matches
-  TH2F_LW* m_h_cmm_2d_thresh_ThreshJemNeCmm;         ///< CMM Hits/JEM Hits Threshold Mismatches
+  // CMX-Jet Hit Sums
+  TH1F_LW* m_h_cmx_1d_thresh_SumsSimEqData;          ///< CMX Hit Sums Data/Simulation Non-zero Matches
+  TH1F_LW* m_h_cmx_1d_thresh_SumsSimNeData;          ///< CMX Hit Sums Data/Simulation Non-zero Mismatches
+  TH1F_LW* m_h_cmx_1d_thresh_SumsSimNoData;          ///< CMX Hit Sums Simulation but no Data
+  TH1F_LW* m_h_cmx_1d_thresh_SumsDataNoSim;          ///< CMX Hit Sums Data but no Simulation
+  TH1F_LW* m_h_cmx_1d_thresh_SumsOvfSimEqData;       ///< CMX Hit Sums RoI Overflow Bit Data/Simulation Matches
+  TH1F_LW* m_h_cmx_1d_thresh_SumsOvfSimNeData;       ///< CMX Hit Sums RoI Overflow Bit Data/Simulation Mismatches
+  TH2F_LW* m_h_cmx_2d_thresh_SumsThreshSimEqData;    ///< CMX Hit Sums Data/Simulation Threshold Matches
+  TH2F_LW* m_h_cmx_2d_thresh_SumsThreshSimNeData;    ///< CMX Hit Sums Data/Simulation Threshold Mismatches
 
-  // CMM-Jet Hit Sums
-  TH1F_LW* m_h_cmm_1d_thresh_SumsSimEqData;          ///< CMM Hit Sums Data/Simulation Non-zero Matches
-  TH1F_LW* m_h_cmm_1d_thresh_SumsSimNeData;          ///< CMM Hit Sums Data/Simulation Non-zero Mismatches
-  TH1F_LW* m_h_cmm_1d_thresh_SumsSimNoData;          ///< CMM Hit Sums Simulation but no Data
-  TH1F_LW* m_h_cmm_1d_thresh_SumsDataNoSim;          ///< CMM Hit Sums Data but no Simulation
-  TH2F_LW* m_h_cmm_2d_thresh_SumsThreshSimEqData;    ///< CMM Hit Sums Data/Simulation Threshold Matches
-  TH2F_LW* m_h_cmm_2d_thresh_SumsThreshSimNeData;    ///< CMM Hit Sums Data/Simulation Threshold Mismatches
+  // Topo output information
+  TH2F_LW* m_h_cmx_2d_topo_SimEqData;                ///< CMX Topo Output Data/Simulation Non-zero Matches
+  TH2F_LW* m_h_cmx_2d_topo_SimNeData;                ///< CMX Topo Output Data/Simulation Non-zero Mismatches
+  TH2F_LW* m_h_cmx_2d_topo_SimNoData;                ///< CMX Topo Output Simulation but no Data
+  TH2F_LW* m_h_cmx_2d_topo_DataNoSim;                ///< CMX Topo Output Data but no Simulation
 
   // JEMEtSums
   TH2F_LW* m_h_jem_2d_energy_SimEqData;              ///< JEM EtSums Data/Simulation Non-zero Matches
@@ -420,19 +438,19 @@ private:
   TH2F_LW* m_h_jem_2d_energy_SimNoData;              ///< JEM EtSums Simulation but no Data
   TH2F_LW* m_h_jem_2d_energy_DataNoSim;              ///< JEM EtSums Data but no Simulation
 
-  // CMMEtSums
-  TH2F_LW* m_h_cmm_2d_energy_JemEqCmm;               ///< CMM EtSums/JEM EtSums Non-zero Matches
-  TH2F_LW* m_h_cmm_2d_energy_JemNeCmm;               ///< CMM EtSums/JEM EtSums Non-zero Mismatches
-  TH2F_LW* m_h_cmm_2d_energy_JemNoCmm;               ///< JEM EtSums but no CMM EtSums
-  TH2F_LW* m_h_cmm_2d_energy_CmmNoJem;               ///< CMM EtSums but no JEM EtSums
+  // CMXEtSums
+  TH2F_LW* m_h_cmx_2d_energy_JemEqCmx;               ///< CMX EtSums/JEM EtSums Non-zero Matches
+  TH2F_LW* m_h_cmx_2d_energy_JemNeCmx;               ///< CMX EtSums/JEM EtSums Non-zero Mismatches
+  TH2F_LW* m_h_cmx_2d_energy_JemNoCmx;               ///< JEM EtSums but no CMX EtSums
+  TH2F_LW* m_h_cmx_2d_energy_CmxNoJem;               ///< CMX EtSums but no JEM EtSums
 
   // Energy Crate/System sums
-  TH2F_LW* m_h_cmm_2d_energy_SumsSimEqData;          ///< Energy Totals Data/Simulation Non-zero Matches
-  TH2F_LW* m_h_cmm_2d_energy_SumsSimNeData;          ///< Energy Totals Data/Simulation Non-zero Mismatches
-  TH2F_LW* m_h_cmm_2d_energy_SumsSimNoData;          ///< Energy Totals Simulation but no Data
-  TH2F_LW* m_h_cmm_2d_energy_SumsDataNoSim;          ///< Energy Totals Data but no Simulation
-  TH2F_LW* m_h_cmm_2d_energy_EtMapsThreshSimEqData;  ///< Et Maps Data/Simulation Threshold Matches
-  TH2F_LW* m_h_cmm_2d_energy_EtMapsThreshSimNeData;  ///< Et Maps Data/Simulation Threshold Mismatches
+  TH2F_LW* m_h_cmx_2d_energy_SumsSimEqData;          ///< Energy Totals Data/Simulation Non-zero Matches
+  TH2F_LW* m_h_cmx_2d_energy_SumsSimNeData;          ///< Energy Totals Data/Simulation Non-zero Mismatches
+  TH2F_LW* m_h_cmx_2d_energy_SumsSimNoData;          ///< Energy Totals Simulation but no Data
+  TH2F_LW* m_h_cmx_2d_energy_SumsDataNoSim;          ///< Energy Totals Data but no Simulation
+  TH2F_LW* m_h_cmx_2d_energy_EtMapsThreshSimEqData;  ///< Et Maps Data/Simulation Threshold Matches
+  TH2F_LW* m_h_cmx_2d_energy_EtMapsThreshSimNeData;  ///< Et Maps Data/Simulation Threshold Mismatches
 
   // Summary
   TH2F_LW* m_h_jem_2d_SimEqDataOverview;             ///< JEP Transmission/Comparison with Simulation Overview - Events with Matches
@@ -442,5 +460,7 @@ private:
   std::vector<TH2I_LW*> m_v_2d_MismatchEvents;       ///< Mismatch Event Number Samples
 
 };
+
+} // end namespace
 
 #endif
