@@ -289,20 +289,53 @@ OutwardsCombinedMuonTrackBuilder::standaloneRefit (const Trk::Track& combinedTra
         }
       }
     }
-    for ( ; t != combinedTrack.trackStateOnSurfaces()->end(); ++t) {
-      itsos++;
-      if((**t).trackParameters()) {
-          if((**t).measurementOnTrack()) {
-            if(m_indetVolume->inside((**t).trackParameters()->position())) {
-              ATH_MSG_DEBUG( " skip ID measurement " << itsos );
-              continue;
-            }
-          } 
+//
+// add ID Eloss
+//
+      double Eloss = 0.;
+      for ( ; t != combinedTrack.trackStateOnSurfaces()->end(); ++t) {
+        itsos++;
+        if(!(**t).trackParameters()) continue;
+        if((**t).materialEffectsOnTrack()) {
+          if(!m_indetVolume->inside((**t).trackParameters()->position())) break;
+          double X0 = (**t).materialEffectsOnTrack()->thicknessInX0();
+          const Trk::MaterialEffectsOnTrack* meot = dynamic_cast<const Trk::MaterialEffectsOnTrack*>((**t).materialEffectsOnTrack());
+          if(meot) {
+            const Trk::EnergyLoss* energyLoss = meot->energyLoss();
+            if (energyLoss) {
+              Eloss += fabs(energyLoss->deltaE());
+              ATH_MSG_DEBUG("OutwardsCombinedMuonFit ID Eloss found r " << ((**t).trackParameters())->position().perp() << " z " << ((**t).trackParameters())->position().z() << " value " << energyLoss->deltaE() << " Eloss " << Eloss);
+	      const Trk::ScatteringAngles* scat = meot->scatteringAngles();
+	      if(scat) {
+		double sigmaDeltaPhi = scat->sigmaDeltaPhi();     
+		double sigmaDeltaTheta = scat->sigmaDeltaTheta();     
+		const Trk::EnergyLoss* energyLossNew = new Trk::EnergyLoss(energyLoss->deltaE(),energyLoss->sigmaDeltaE(),energyLoss->sigmaDeltaE(),energyLoss->sigmaDeltaE());
+		const Trk::ScatteringAngles* scatNew = new Trk::ScatteringAngles(0.,0.,sigmaDeltaPhi,sigmaDeltaTheta);
+		const Trk::Surface& surfNew = (**t).trackParameters()->associatedSurface();
+		std::bitset<Trk::MaterialEffectsBase::NumberOfMaterialEffectsTypes> meotPattern(0);
+		meotPattern.set(Trk::MaterialEffectsBase::EnergyLossEffects);
+		meotPattern.set(Trk::MaterialEffectsBase::ScatteringEffects);
+		const Trk::MaterialEffectsOnTrack*  meotNew = new Trk::MaterialEffectsOnTrack(X0, scatNew, energyLossNew, surfNew, meotPattern);
+		const Trk::TrackParameters* parsNew = ((**t).trackParameters())->clone();
+		std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePatternScat(0);
+		typePatternScat.set(Trk::TrackStateOnSurface::Scatterer);
+		const Trk::TrackStateOnSurface* newTSOS  = new Trk::TrackStateOnSurface(0, parsNew, 0, meotNew, typePatternScat);
+		trackStateOnSurfaces->push_back(newTSOS); 
+	      }
+	    }
+          }
+        }
       }
-      const Trk::TrackStateOnSurface* TSOS = const_cast<const Trk::TrackStateOnSurface*>((**t).clone());
-      trackStateOnSurfaces->push_back(TSOS);
-    }   
-    ATH_MSG_DEBUG( " trackStateOnSurfaces found " << trackStateOnSurfaces <<  " from total " << itsos );
+      ATH_MSG_DEBUG("OutwardsCombinedMuonFit Total ID Eloss " << Eloss << " nr of states " << itsos);
+
+// add Calo and MS TSOSs 
+
+      for ( ; t != combinedTrack.trackStateOnSurfaces()->end(); ++t) {
+        itsos++;
+        const Trk::TrackStateOnSurface* TSOS = const_cast<const Trk::TrackStateOnSurface*>((**t).clone());
+        trackStateOnSurfaces->push_back(TSOS);
+       }   
+       ATH_MSG_DEBUG( " trackStateOnSurfaces found " << trackStateOnSurfaces->size() <<  " from total " << itsos );
 
     Trk::Track* standaloneTrack = new Trk::Track(combinedTrack.info(), trackStateOnSurfaces, 0);
     standaloneTrack->info().setPatternRecognitionInfo(Trk::TrackInfo::MuidStandaloneRefit);
