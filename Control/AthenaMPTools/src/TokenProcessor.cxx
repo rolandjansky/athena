@@ -50,6 +50,7 @@ TokenProcessor::TokenProcessor(const std::string& type
   , m_channel2Scatterer("")
   , m_channel2EvtSel("")
   , m_sharedRankQueue(0)
+  , m_sharedFailedPidQueue(0)
   , m_socketFactory(0)
   , m_socket2Scatterer(0)
 {
@@ -151,15 +152,34 @@ StatusCode TokenProcessor::exec()
   return StatusCode::SUCCESS;
 }
 
-StatusCode TokenProcessor::wait_once(int& numFinishedProc)
+StatusCode TokenProcessor::wait_once(pid_t& pid)
 {
-  StatusCode sc = AthenaMPToolBase::wait_once(numFinishedProc);
+  if(m_sharedFailedPidQueue==0) {
+    if(detStore()->retrieve(m_sharedFailedPidQueue,"AthenaMPFailedPidQueue_"+m_randStr).isFailure()) {
+      msg(MSG::ERROR) << "Unable to retrieve the pointer to Shared Failed PID Queue" << endreq;
+      return StatusCode::FAILURE;
+    }
+  }
+
+  StatusCode sc = AthenaMPToolBase::wait_once(pid);
   AthenaInterprocess::ProcessResult* presult(0);
   if(sc.isFailure()) {
-    // Try to start a new process
+    // If we failed to wait on the group, then exit immediately
+    if(pid<0) {
+      msg(MSG::ERROR) << "Failed to wait on the process group!" << endreq;
+      return sc;
+    }
+
+    // Send the pid to Token Scatterer
+    if(!m_sharedFailedPidQueue->send_basic<pid_t>(pid)) {
+      msg(MSG::ERROR) << "Failed to send the failed PID to Token Scatterer" << endreq;
+      return sc;
+    }
+
+    // Otherwise try to start a new process
     if(startProcess().isSuccess()) {
       msg(MSG::INFO) << "Successfully started new process" << endreq;
-      numFinishedProc--;
+      pid=0;
     }
     else
       msg(MSG::WARNING) << "Failed to start new process" << endreq;
@@ -350,7 +370,7 @@ AthenaInterprocess::ScheduledWork* TokenProcessor::exec_func()
 
   // Get the yampl connection channels
   m_socketFactory = new yampl::SocketFactory();
-  m_socket2Scatterer = m_socketFactory->createClientSocket(yampl::Channel(m_channel2Scatterer.value(),yampl::LOCAL_PIPE),yampl::MOVE_DATA);
+  m_socket2Scatterer = m_socketFactory->createClientSocket(yampl::Channel(m_channel2Scatterer.value(),yampl::LOCAL),yampl::MOVE_DATA);
   msg(MSG::DEBUG) << "Created CLIENT socket to the Scatterer: " << m_channel2Scatterer.value() << endreq;
   std::ostringstream pidstr;
   pidstr << getpid();
