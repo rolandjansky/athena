@@ -61,9 +61,10 @@ TrigEgammaNavZeeTPBaseTool( const std::string& myname )
   (void)a; (void)b;
   (void)a1; (void)b1;
 
-  m_PidMap["Tight"]=0;
-  m_PidMap["Medium"]=1;
-  m_PidMap["Loose"]=2;
+  m_PidToolMap["Tight"]=0;
+  m_PidToolMap["Medium"]=1;
+  m_PidToolMap["Loose"]=2;
+
 }
 
 //**********************************************************************
@@ -111,6 +112,11 @@ TrigEgammaNavZeeTPBaseTool::childInitialize() {
 }
 bool TrigEgammaNavZeeTPBaseTool::EventWiseSelection(){
 
+    ATH_MSG_DEBUG("Sanity check of TDT");
+    ATH_MSG_DEBUG( "L1: " << m_trigdec->isPassed( "L1_.*" )
+            << ", L2: " << m_trigdec->isPassed( "L2_.*" )
+            << ", EF: " << m_trigdec->isPassed( "EF_.*" )
+            << ", HLT: " << m_trigdec->isPassed( "HLT_.*" ) );
     ATH_MSG_DEBUG("Apply EventWise selection");
     // Check Size of Electron Container
     m_offElectrons = 0;
@@ -148,9 +154,31 @@ bool TrigEgammaNavZeeTPBaseTool::MinimalTriggerRequirement(){
     return false; // nothing passed
 }
 void TrigEgammaNavZeeTPBaseTool::setProbePid(const std::string probeTrigItem){
-    if(contains(probeTrigItem,"tight")) m_offProbeTightness = "Tight"; 
+    if(contains(probeTrigItem,"lhtight")) m_offProbeTightness = "LHTight"; 
+    else if(contains(probeTrigItem,"lhmedium")) m_offProbeTightness = "LHMedium"; 
+    else if(contains(probeTrigItem,"lhloose")) m_offProbeTightness = "LHLoose"; 
+    else if(contains(probeTrigItem,"lhvloose")) m_offProbeTightness = "LHLoose"; 
+    else if(contains(probeTrigItem,"tight")) m_offProbeTightness = "Tight"; 
     else if(contains(probeTrigItem,"medium")) m_offProbeTightness = "Medium"; 
     else if(contains(probeTrigItem,"loose")) m_offProbeTightness = "Loose"; 
+    else if(contains(probeTrigItem,"vloose")) m_offProbeTightness = "Loose"; 
+
+    ATH_MSG_INFO(probeTrigItem << m_offProbeTightness);
+
+}
+//This is stupid find solution with map
+std::string TrigEgammaNavZeeTPBaseTool::getPid(const std::string probeTrigItem){
+    std::string pid = "";
+    if(contains(probeTrigItem,"lhtight")) pid= "LHTight"; 
+    else if(contains(probeTrigItem,"lhmedium")) pid= "LHMedium"; 
+    else if(contains(probeTrigItem,"lhloose")) pid = "LHLoose"; 
+    else if(contains(probeTrigItem,"lhvloose")) pid = "LHLoose"; 
+    else if(contains(probeTrigItem,"tight")) pid = "Tight"; 
+    else if(contains(probeTrigItem,"medium")) pid = "Medium"; 
+    else if(contains(probeTrigItem,"loose")) pid = "Loose"; 
+    else if(contains(probeTrigItem,"vloose")) pid = "Loose"; 
+
+    return pid;
 
 }
 StatusCode TrigEgammaNavZeeTPBaseTool::executeTandP(const std::string probeTrigItem){
@@ -209,28 +237,35 @@ bool TrigEgammaNavZeeTPBaseTool::isTagElectron(const xAOD::Electron *el){
     double GeV = 1000.;
 
     //Check constituents
+    const xAOD::TrackParticle *trk = el->trackParticle();
     if(!el->trackParticle()){
         ATH_MSG_DEBUG("No track Particle");
         return false;
     }
+    ATH_MSG_DEBUG("Track pt " << trk->pt());
+    const xAOD::CaloCluster *clus = el->caloCluster();
     if(!el->caloCluster()){
         ATH_MSG_DEBUG("No caloCluster");
         return false;
     }
+    ATH_MSG_DEBUG("Cluster E "<<clus->e());
     ATH_MSG_DEBUG("Selecting Tag Electron isEM");
     //Require offline Tight++
     //unsigned int isEMobtained = m_electronPPCutIDTool[TagTightness-1]->execute(el,1000.,false);
     //(void)isEMobtained;
-    bool passPid = false; 
+    /*bool passPid = false; 
     if(contains(m_tagTrigItem,"lh")){
-        const Root::TAccept& acc = m_electronLHTool[m_PidMap[m_offTagTightness]]->accept(el);
-        passPid = (bool) (acc);
+        //const Root::TAccept& acc = m_electronLHTool[m_PidMap[m_offTagTightness]]->accept(el);
+        //passPid = (bool) (acc);
+        passPid = el->passSelection("LHLoose");
     }
     else{
-        const Root::TAccept& acc = m_electronPPCutIDTool[m_PidMap[m_offTagTightness]]->accept(el);
-        passPid = (bool) (acc);
+        //const Root::TAccept& acc = m_electronPPCutIDTool[m_PidMap[m_offTagTightness]]->accept(el);
+        //passPid = (bool) (acc);
+        passPid = el->passSelection("Loose");
     }
-    if(!passPid) return false;
+    if(!passPid) return false;*/
+    if(!el->passSelection(m_offTagTightness)) return false;
     //ATH_MSG_DEBUG("Selecting Tag Electron isEM Passes " << isEM << " " << isEMobtained); 
     ATH_MSG_DEBUG("Selecting Tag Electron Et");
     //Require Et > 25 GeV
@@ -252,7 +287,10 @@ bool TrigEgammaNavZeeTPBaseTool::isTagElectron(const xAOD::Electron *el){
     ATH_MSG_DEBUG("Selecting Tag Electron FC");
     // Get the container of online electrons associated to passed items
     Trig::FeatureContainer fc = m_trigdec->features("HLT_"+m_tagTrigItem);
+    //auto fc = m_trigdec->features("HLT_"+m_tagTrigItem);
     const std::vector< Trig::Feature<xAOD::ElectronContainer> > vec_el = fc.get<xAOD::ElectronContainer>();
+    //auto vec_el = fc.containerFeature<xAOD::ElectronContainer>(); // Not available
+    //auto vec_el = fc.get<xAOD::ElectronContainer>();
 
     TLorentzVector eloffLV;
     eloffLV.SetPtEtaPhiE(el->pt(), el->trackParticle()->eta(), el->trackParticle()->phi(), el->e());
@@ -289,16 +327,21 @@ bool TrigEgammaNavZeeTPBaseTool::isGoodProbeElectron(const xAOD::Electron *el, c
         return false;
     }
 
-    bool passPid = false; 
+    /*bool passPid = false; 
     if(contains(trigItem,"lh")){
-        const Root::TAccept& acc = m_electronLHTool[m_PidMap[m_offProbeTightness]]->accept(el);
-        passPid = (bool) (acc);
+        //const Root::TAccept& acc = m_electronLHTool[m_PidMap[m_offProbeTightness]]->accept(el);
+        //passPid = (bool) (acc);
+        passPid = el->passSelection("LHLoose");
     }
     else{
-        const Root::TAccept& acc = m_electronPPCutIDTool[m_PidMap[m_offProbeTightness]]->accept(el);
-        passPid = (bool) (acc);
+        //const Root::TAccept& acc = m_electronPPCutIDTool[m_PidMap[m_offProbeTightness]]->accept(el);
+        //passPid = (bool) (acc);
+        passPid = el->passSelection("Loose");
     }
-    if(!passPid) return false;
+    if(!passPid) return false;*/
+
+    setProbePid(trigItem);
+    if(!el->passSelection(m_offProbeTightness)) return false;
     TLorentzVector probeCandidate;
     probeCandidate.SetPtEtaPhiE(el->pt(), el->trackParticle()->eta(), el->trackParticle()->phi(), el->e());
     Int_t jetsAroundProbeElectron = 0; 
@@ -324,13 +367,16 @@ bool TrigEgammaNavZeeTPBaseTool::isProbeElectron(const xAOD::Electron *el,
 
     // Get the container of online electrons associated to passed items
     Trig::FeatureContainer fc = (m_trigdec->features("HLT_"+trigItem,TrigDefs::alsoDeactivateTEs));
+    //auto fc = (m_trigdec->features("HLT_"+trigItem,TrigDefs::alsoDeactivateTEs));
 
-    const std::vector< Trig::Feature<xAOD::ElectronContainer> > vec_el = fc.get<xAOD::ElectronContainer>("",TrigDefs::alsoDeactivateTEs);
-
+    //const std::vector< Trig::Feature<xAOD::ElectronContainer> > vec_el = fc.get<xAOD::ElectronContainer>("",TrigDefs::alsoDeactivateTEs);
+    auto vec_el = fc.get<xAOD::ElectronContainer>("",TrigDefs::alsoDeactivateTEs);
     bool matched=false;
     for(auto elfeat : vec_el){
         const xAOD::ElectronContainer *elCont = elfeat.cptr();
         for(const auto& eg : *elCont){
+            ATH_MSG_DEBUG("Online track eta " << eg->trackParticle()->eta());
+            ATH_MSG_DEBUG("Online track phi " << eg->trackParticle()->phi());
             TLorentzVector elLV;
             elLV.SetPtEtaPhiE(eg->pt(), eg->trackParticle()->eta(), eg->trackParticle()->phi(), eg->e());
             if(elLV.DeltaR(eloffLV) < 0.07){
@@ -340,8 +386,21 @@ bool TrigEgammaNavZeeTPBaseTool::isProbeElectron(const xAOD::Electron *el,
         }
     }
 
-    const std::vector< Trig::Feature<xAOD::TrigElectronContainer> > vec_l2el = fc.get<xAOD::TrigElectronContainer>("",TrigDefs::alsoDeactivateTEs);
-
+    auto vec_efcalo = fc.get<xAOD::CaloClusterContainer>("",TrigDefs::alsoDeactivateTEs);
+    matched=false;
+    for(auto elfeat : vec_efcalo){
+        const xAOD::CaloClusterContainer *elCont = elfeat.cptr();
+        for(const auto& eg : *elCont){
+            TLorentzVector elLV;
+            elLV.SetPtEtaPhiE(eg->et(), eg->eta(), eg->phi(), eg->e());
+            if(elLV.DeltaR(eloffLV) < 0.07){
+                finalFC = (elfeat.te());
+                return true;
+            }
+        }
+    }
+    //const std::vector< Trig::Feature<xAOD::TrigElectronContainer> > vec_l2el = fc.get<xAOD::TrigElectronContainer>("",TrigDefs::alsoDeactivateTEs);
+    auto vec_l2el = fc.get<xAOD::TrigElectronContainer>("",TrigDefs::alsoDeactivateTEs);
     matched=false;
     for(auto elfeat : vec_l2el){
         const xAOD::TrigElectronContainer *elCont = elfeat.cptr();
@@ -354,11 +413,27 @@ bool TrigEgammaNavZeeTPBaseTool::isProbeElectron(const xAOD::Electron *el,
             }
         }
     }
+    
+   // auto vec_l2calo = fc.get<xAOD::TrigEMClusterContainer>("",TrigDefs::alsoDeactivateTEs);
+    const std::vector< Trig::Feature<xAOD::TrigEMCluster> > vec_l2caloel = fc.get<xAOD::TrigEMCluster>("",TrigDefs::alsoDeactivateTEs);
+    ATH_MSG_DEBUG("L2CaloCont size " << vec_l2caloel.size());
+
+    for(auto elfeat : vec_l2caloel){
+        const xAOD::TrigEMCluster *eg = elfeat.cptr();
+        ATH_MSG_DEBUG("TrigEMCluster << " << eg->et() );
+        TLorentzVector elLV;
+        elLV.SetPtEtaPhiE(eg->et(), eg->eta(), eg->phi(), 0.51);
+        if(elLV.DeltaR(eloffLV) < 0.07){
+            finalFC = (elfeat.te());
+            return true;
+        }
+    }
 
     const std::vector< Trig::Feature<TrigRoiDescriptor> > initRois = fc.get<TrigRoiDescriptor>();
+    //auto initRois = fc.get<TrigRoiDescriptor>();
     if ( initRois.size() < 1 ) return false;
-    Trig::Feature<xAOD::EmTauRoI> itEmTau = m_trigdec->ancestor<xAOD::EmTauRoI>(initRois[0]);
-
+    //Trig::Feature<xAOD::EmTauRoI> itEmTau = m_trigdec->ancestor<xAOD::EmTauRoI>(initRois[0]);
+    auto itEmTau = m_trigdec->ancestor<xAOD::EmTauRoI>(initRois[0]);
     const xAOD::EmTauRoI *l1 = itEmTau.cptr();
     TLorentzVector elLV;
     elLV.SetPtEtaPhiM(l1->emClus(), l1->eta(), l1->phi(), 0);

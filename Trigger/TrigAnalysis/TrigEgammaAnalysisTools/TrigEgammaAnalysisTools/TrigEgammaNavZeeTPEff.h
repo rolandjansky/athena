@@ -7,7 +7,7 @@
 
 
 #include "TrigEgammaAnalysisTools/TrigEgammaNavZeeTPBaseTool.h"
-
+//#include "TrigEgammaAnalysisTools/TrigEgammaAnalysisHelpers.h"
 class TrigEgammaNavZeeTPEff
 : public TrigEgammaNavZeeTPBaseTool,
     virtual public ITrigEgammaAnalysisBaseTool {

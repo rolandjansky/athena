@@ -6,7 +6,7 @@
 #define TrigEgammaNavZeeTPPerf_H
 
 #include "TrigEgammaAnalysisTools/TrigEgammaNavZeeTPBaseTool.h"
-
+//#include "TrigEgammaAnalysisTools/TrigEgammaAnalysisHelpers.h"
 class TrigEgammaNavZeeTPPerf
 : public TrigEgammaNavZeeTPBaseTool,
     virtual public ITrigEgammaAnalysisBaseTool {
@@ -20,13 +20,21 @@ public:
   StatusCode childInitialize();
   StatusCode childExecute();
   StatusCode childFinalize();
+  StatusCode TDCounts();
+  StatusCode Distributions(const xAOD::Electron*, const xAOD::Electron*);
+  StatusCode SimpleEfficiency();
+  bool isMatchHLT(const xAOD::Electron *eloff);
 
 private:
-
-  unsigned int m_eventCounter;
-  unsigned int m_nProbes[3];
-  unsigned int m_nProbesPassed[3];
-
+  std::map<std::string,int> m_counterBits;
+  int m_eventCounter;
+  const xAOD::ElectronContainer *m_offElectrons;
+  const xAOD::ElectronContainer *m_onlElectrons;
+  const xAOD::TrigElectronContainer *m_trigElectrons;
+  const xAOD::CaloClusterContainer *m_caloClusters;
+  const xAOD::TrigEMClusterContainer *m_trigEMClusters;
+  const xAOD::EmTauRoIContainer *m_emTauRoI;
+  ToolHandleArray<IAsgElectronIsEMSelector> m_electronOnlPPCutIDTool;
 };
 
 #endif
