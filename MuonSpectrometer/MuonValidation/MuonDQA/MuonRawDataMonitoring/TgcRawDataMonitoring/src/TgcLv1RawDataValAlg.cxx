@@ -63,7 +63,7 @@ using namespace std;
 TgcLv1RawDataValAlg::TgcLv1RawDataValAlg(const std::string &type, const std::string &name, const IInterface* parent)
   :ManagedMonitorToolBase(type, name, parent),
    m_log(msgSvc(), name),
-   m_debuglevel(false){
+   m_debuglevel(true){
   // Declare the properties
   declareProperty("TgcPrepDataContainer",         m_hitContainerLocation="TGC_Measurements");
   declareProperty("TgcPrepDataPreviousContainer", m_hitContainerLocationPrevious="TGC_MeasurementsPriorBC");
@@ -71,7 +71,9 @@ TgcLv1RawDataValAlg::TgcLv1RawDataValAlg(const std::string &type, const std::str
   declareProperty("OutputCoinCollection",         m_coinCollectionLocation = "TrigT1CoinDataCollection" );
   declareProperty("OutputCoinCollectionPrevious", m_coinCollectionLocationPrevious = "TrigT1CoinDataCollectionPriorBC" );
   declareProperty("OutputCoinCollectionNext",     m_coinCollectionLocationNext = "TrigT1CoinDataCollectionNextBC" );
-  declareProperty("L1RoIName",                    m_L1RoIName = "LVL1_ROI" );
+  declareProperty("L1muonRoIName",                m_L1muonRoIName = "LVL1MuonRoIs" );
+  declareProperty("L1emtauRoIName",               m_L1emtauRoIName = "LVL1EmTauRoIs" );
+  declareProperty("L1jetRoIName",                 m_L1jetRoIName = "LVL1JetRoIs" );
 } 
 
 

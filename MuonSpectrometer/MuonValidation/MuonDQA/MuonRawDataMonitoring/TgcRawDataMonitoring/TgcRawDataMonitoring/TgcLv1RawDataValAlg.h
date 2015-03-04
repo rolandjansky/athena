@@ -97,7 +97,9 @@ class TgcLv1RawDataValAlg: public ManagedMonitorToolBase {
   std::string m_coinCollectionLocation;
   std::string m_coinCollectionLocationPrevious;
   std::string m_coinCollectionLocationNext;
-  std::string m_L1RoIName;
+  std::string m_L1muonRoIName;
+  std::string m_L1emtauRoIName;
+  std::string m_L1jetRoIName;
   
   // Number of Muon Algorithms to use
   int m_nMuonAlgorithms;
