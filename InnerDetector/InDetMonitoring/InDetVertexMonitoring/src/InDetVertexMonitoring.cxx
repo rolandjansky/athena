@@ -21,8 +21,10 @@
 
 #include "xAODEventInfo/EventInfo.h"
 
-#include "VxVertex/VxContainer.h"
-#include "VxVertex/VxTrackAtVertex.h"
+#include "xAODTracking/Vertex.h"
+#include "xAODTracking/VertexContainer.h"
+#include "xAODTracking/TrackParticle.h"
+#include "xAODTracking/TrackParticleContainer.h"
 
 #include "InDetVertexMonitoring/InDetVertexMonitoring.h"
 
@@ -31,7 +33,7 @@
 InDetVertexMonitoring::InDetVertexMonitoring( const std::string & type, const std::string & name, const IInterface* parent ) : ManagedMonitorToolBase( type, name, parent ),
   m_doControlPlots(false), m_histFolder("InDetGlobal/PrimaryVertexMultiplicity")
 {
-  declareProperty( "VertexContainer", m_VxContainerName = "VxPrimaryCandidate" );
+  declareProperty( "VertexContainer", m_VxContainerName = "PrimaryVertices" );
     /** sumpt ntrack etc **/
   declareProperty("DoControlPlots", m_doControlPlots, "enable control plots");
   declareProperty("histFolder", m_histFolder);
@@ -101,10 +103,10 @@ StatusCode InDetVertexMonitoring::fillHistograms()
 
 //  std::map<long int,TH1F*>::iterator it;
   
-  const VxContainer* Vertexes = 0;
+  const xAOD::VertexContainer* Vertexes = 0;
   StatusCode sc=m_storeGate->retrieve( Vertexes, m_VxContainerName);
   if( sc.isFailure()  ||  !Vertexes ) {
-    ATH_MSG_WARNING ("No AOD vertex container found");
+    ATH_MSG_WARNING ("No xAOD::VertexContainer found");
     return StatusCode::FAILURE;
   }  
   
@@ -120,36 +122,30 @@ StatusCode InDetVertexMonitoring::fillHistograms()
   lumiBlock = p_evt->lumiBlock(); 
   int n_vtx = Vertexes->size()-1;
 
-  for (VxContainer::const_iterator vxIter = Vertexes->begin(); vxIter != Vertexes->end(); ++vxIter){
-    if ((*vxIter)->vertexType() == Trk::NoVtx) continue;
-    std::vector<Trk::VxTrackAtVertex*>* vxTrackAtVertex = (*vxIter)->vxTrackAtVertex();  
+  for (const xAOD::Vertex* vtx : (*Vertexes) ) {
+    if (vtx->vertexType() == xAOD::VxType::NoVtx) continue;
   
-    int ntrk;
-    if(vxTrackAtVertex->size()!=0) ntrk = vxTrackAtVertex->size();
-    else ntrk = -1;
+    int ntrk(-1);
+    ntrk = vtx->nTrackParticles();
   
     if(m_doControlPlots){
       m_h_Ntracks->Fill(ntrk);
       double spt = 0.;
       if(ntrk>0){
-        for (std::vector<Trk::VxTrackAtVertex*>::iterator trkIter  = vxTrackAtVertex->begin(); trkIter != vxTrackAtVertex->end()  ; ++trkIter){
-        // pT at initial and perigeeAtVertex should be similar if not equal.
-        // measured perigee is stored in vertex (the other has to be retrieved from the linked Trk::Track(Particle))
-        const Trk::Perigee* measuredPerigee = dynamic_cast<const Trk::Perigee*>((*trkIter)->perigeeAtVertex());
-	if (measuredPerigee == 0) measuredPerigee = dynamic_cast<const Trk::Perigee*>((*trkIter)->initialPerigee());
-        if (measuredPerigee!=0) spt += (measuredPerigee->pT()*measuredPerigee->pT())/1e6;
+	for (const ElementLink<xAOD::TrackParticleContainer>& trk : vtx->trackParticleLinks()) {
+	  spt += (*trk)->pt()/1e6;
         }
       }
-    spt = TMath::Sqrt(spt);
-    m_h_sumpt->Fill(spt);
-    double chi2 = (*vxIter)->recVertex().fitQuality().chiSquared();
-    m_h_pvChiSq->Fill(chi2);
-    double dof = (*vxIter)->recVertex().fitQuality().numberDoF();
-    m_h_pvDof->Fill(dof);
-    double chi2ovdof = chi2/dof;
-    m_h_pvChiSqovDof->Fill(chi2ovdof);
-    double chi2prob = TMath::Prob(chi2,dof);
-    m_h_pvChiSqProb->Fill(chi2prob);
+      spt = TMath::Sqrt(spt);
+      m_h_sumpt->Fill(spt);
+      double chi2 = vtx->chiSquared();
+      m_h_pvChiSq->Fill(chi2);
+      double dof = vtx->numberDoF();
+      m_h_pvDof->Fill(dof);
+      double chi2ovdof = chi2/dof;
+      m_h_pvChiSqovDof->Fill(chi2ovdof);
+      double chi2prob = TMath::Prob(chi2,dof);
+      m_h_pvChiSqProb->Fill(chi2prob);
     } 
   }
 
@@ -159,17 +155,17 @@ StatusCode InDetVertexMonitoring::fillHistograms()
    double deltaZ = 0.;
    double zit1 = 0.;
    double zit2 = 0.;
-   for(VxContainer::const_iterator vxIter = Vertexes->begin(); vxIter != Vertexes->end(); ++vxIter){
+   for (const xAOD::Vertex *vtx : (*Vertexes) ) {
      //Check vertex type (e.g. no dummy vertex)
-     if ( ! ( (*vxIter)->vertexType() == Trk::PriVtx or (*vxIter)->vertexType() == Trk::PileUp ) )
+     if ( ! ( vtx->vertexType() == xAOD::VxType::PriVtx or vtx->vertexType() == xAOD::VxType::PileUp ) )
        continue;
-     zit1 = (*vxIter)->recVertex().position().z();
+     zit1 = vtx->z();
      // Loop over vertices again (starting from vxIter + 1) to get all distinct pairs
-     for(VxContainer::const_iterator vxIter2 = vxIter+1; vxIter2 != Vertexes->end(); ++vxIter2){
+     for (const xAOD::Vertex *vtx2 : (*Vertexes) ) {
        //Check vertex type (e.g. no dummy vertex)
-       if ( ! ( (*vxIter2)->vertexType() == Trk::PriVtx or (*vxIter2)->vertexType() == Trk::PileUp ) )
+       if ( ! ( vtx2->vertexType() == xAOD::VxType::PriVtx or vtx->vertexType() == xAOD::VxType::PileUp ) )
 	 continue;
-       zit2 = (*vxIter2)->recVertex().position().z();
+       zit2 = vtx2->z();
        deltaZ = (zit1-zit2);
        //Weight events with the total number of pairs (no compare distributions from different n_vtx bins)
        m_h_deltaZpairs->Fill(n_vtx,deltaZ, 1./TMath::Binomial(n_vtx,2));

@@ -10,7 +10,6 @@
 
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
 #include "GaudiKernel/StatusCode.h"
-#include "TrigDecisionTool/TrigDecisionTool.h"
 
 #include "LWHists/TH1F_LW.h"
 #include "LWHists/TH2F_LW.h"
