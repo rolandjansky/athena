@@ -1,13 +1,13 @@
-Mon Jan 26 16:54:17 CET 2015
+Tue Feb 24 16:25:48 CET 2015
 Preloading tcmalloc_minimal.so
 Py:Athena            INFO including file "AthenaCommon/Preparation.py"
-Py:Athena            INFO using release [AtlasProduction-20.1.0.2] [x86_64-slc6-gcc48-opt] [20.1.0.Y-VAL-Prod/rel_0] -- built on [2015-01-24 23:30]
+Py:Athena            INFO using release [AtlasOffline-20.1.3] [x86_64-slc6-gcc48-opt] [20.1.X-VAL/rel_2] -- built on [2015-02-23 22:35]
 Py:Athena            INFO including file "AthenaCommon/Bootstrap.py"
 Py:Athena            INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
 Py:Athena            INFO including file "AthenaCommon/Execution.py"
 Py:Athena            INFO including file "reclusterjets.py"
-Py:ConfigurableDb    INFO Read module info for 4663 configurables from 11 genConfDb files
-Py:ConfigurableDb WARNING Found 2 duplicates among the 11 genConfDb files :
+Py:ConfigurableDb    INFO Read module info for 4697 configurables from 10 genConfDb files
+Py:ConfigurableDb WARNING Found 2 duplicates among the 10 genConfDb files :
 Py:ConfigurableDb WARNING --------------------------------------------------
 Py:ConfigurableDb WARNING   -<component name>: <module> - [ <duplicates> ]
 Py:ConfigurableDb WARNING --------------------------------------------------
@@ -21,8 +21,8 @@ JetRecStandardToolManager.py: Defining standard tools
 <class 'TrackVertexAssociationTool.TrackVertexAssociationToolConf.CP__TightTrackVertexAssociationTool'>
 <class 'JetRecTools.JetRecToolsConf.TrackVertexAssociationTool'>
 <class 'JetRecTools.JetRecToolsConf.TrackVertexAssociationTool'>
-<class 'JetSimTools.JetSimToolsConf.JetTruthParticleSelectorTool'>
-<class 'JetSimTools.JetSimToolsConf.JetTruthParticleSelectorTool'>
+<class 'ParticleJetTools.ParticleJetToolsConf.CopyTruthJetParticles'>
+<class 'ParticleJetTools.ParticleJetToolsConf.CopyTruthJetParticles'>
 <class 'JetRec.JetRecConf.JetPseudojetRetriever'>
 <class 'JetRec.JetRecConf.JetConstituentsRetriever'>
 <class 'JetRec.JetRecConf.PseudoJetGetter'>
@@ -36,9 +36,9 @@ JetRecStandardToolManager.py: Defining standard tools
 <class 'JetRecTools.JetRecToolsConf.PFlowPseudoJetGetter'>
 <class 'JetRec.JetRecConf.PseudoJetGetter'>
 <class 'JetRec.JetRecConf.PseudoJetGetter'>
-<class 'JetSimTools.JetSimToolsConf.TruthPseudoJetGetter'>
-<class 'JetSimTools.JetSimToolsConf.TruthPseudoJetGetter'>
-<class 'JetSimTools.JetSimToolsConf.TruthPseudoJetGetter'>
+<class 'JetRec.JetRecConf.PseudoJetGetter'>
+<class 'JetRec.JetRecConf.PseudoJetGetter'>
+<class 'JetRec.JetRecConf.PseudoJetGetter'>
 <class 'JetRec.JetRecConf.PseudoJetGetter'>
 <class 'JetRec.JetRecConf.PseudoJetGetter'>
 <class 'JetRec.JetRecConf.PseudoJetGetter'>
@@ -60,9 +60,6 @@ JetRecStandardToolManager.py: Defining standard tools
 <class 'JetMomentTools.JetMomentToolsConf.JetCaloCellQualityTool'>
 <class 'JetMomentTools.JetMomentToolsConf.JetWidthTool'>
 <class 'JetMomentTools.JetMomentToolsConf.JetCaloEnergies'>
-<class 'JetRecTools.JetRecToolsConf.MissingCellListTool'>
-<class 'JetMomentTools.JetMomentToolsConf.JetBadChanCorrTool'>
-<class 'JetMomentTools.JetMomentToolsConf.JetBadChanCorrTool'>
 <class 'JetMomentTools.JetMomentToolsConf.JetVertexFractionTool'>
 <class 'JetMomentTools.JetMomentToolsConf.JetVertexFractionTool'>
 <class 'JetMomentTools.JetMomentToolsConf.JetVertexTaggerTool'>
@@ -165,27 +162,6 @@ JetToolManager: Adding modifier /***** Public AlgTool JetCaloQualityTool/caloqua
 |-TimingCuts      = (5, 10)  (default: [])
 |-UserStore       = ServiceHandle('UserDataSvc/UserDataSvc')
 \----- (End of Public AlgTool JetCaloQualityTool/caloqual_cluster) ---------------------------------
-JetToolManager: Adding modifier /***** Public AlgTool JetBadChanCorrTool/bchcorrclus ***********************************************
-|-AuditFinalize         = False
-|-AuditInitialize       = False
-|-AuditStart            = False
-|-AuditStop             = False
-|-AuditTools            = False
-|-DetStore              = ServiceHandle('StoreGateSvc/DetectorStore')
-|-EvtStore              = ServiceHandle('StoreGateSvc')
-|-ForceMissingCellCheck = False  (default: False)
-|-MissingCellMap        = ''  (default: 'MissingCaloCellsMap')
-|-MonitorService        = 'MonitorSvc'
-|-NBadCellLimit         = 0  (default: 10000)
-|-OutputLevel           = 7
-|-ProfileName           = ''  (default: 'JetBadChanCorrTool.root')
-|-ProfileTag            = ''  (default: '')
-|-StreamName            = ''  (default: '/JetBadChanCorrTool/')
-|-UseCalibScale         = False  (default: False)
-|-UseClusters           = True  (default: False)
-|-UseCone               = True  (default: True)
-|-UserStore             = ServiceHandle('UserDataSvc/UserDataSvc')
-\----- (End of Public AlgTool JetBadChanCorrTool/bchcorrclus) --------------------------------------
 JetToolManager: Adding modifier /***** Public AlgTool JetWidthTool/width ***********************************************************
 |-AuditFinalize   = False
 |-AuditInitialize = False
@@ -208,6 +184,7 @@ JetToolManager: Adding modifier /***** Public AlgTool JetWidthTool/width *******
 <class 'JetRec.JetRecConf.JetFinder'>
 <class 'JetRec.JetRecConf.JetReclusterer'>
 <class 'JetRec.JetRecConf.JetRecTool'>
+JetAlgorithm: Event shape tools: []
 ['BHadronsInitial', 'BHadronsFinal', 'BQuarksFinal', 'CHadronsInitial', 'CHadronsFinal', 'CQuarksFinal', 'TausFinal', 'WBosons', 'ZBosons', 'HBosons', 'TQuarksFinal', 'Partons']
 scheduleCopyTruthParticles: Scheduling CopyTruthTagBHadronsInitial
 <class 'ParticleJetTools.ParticleJetToolsConf.CopyFlavorLabelTruthParticles'>
@@ -412,14 +389,13 @@ scheduleCopyTruthParticles: Scheduling CopyTruthTagPartons
 |-PtMin           = 5000  (default: 0.0)
 |-UserStore       = ServiceHandle('UserDataSvc/UserDataSvc')
 \----- (End of Public AlgTool CopyTruthPartons/CopyTruthTagPartons) --------------------------------
-JetAlgorithm: Event shape tools: []
 <class 'JetRec.JetRecConf.JetToolRunner'>
 Py:Athena            INFO including file "AthenaCommon/runbatch.py"
 [?1034hApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level=0
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
                                                    Welcome to ApplicationMgr (GaudiCoreSvc v3r1)
-                                          running on lxplus0060.cern.ch on Mon Jan 26 16:54:20 2015
+                                          running on lxplus0019.cern.ch on Tue Feb 24 16:25:50 2015
 ====================================================================================================================================
 ApplicationMgr       INFO Successfully loaded modules : AthenaServices
 ApplicationMgr       INFO Application Manager Configured successfully
@@ -427,39 +403,14 @@ ApplicationMgr                                       INFO Updating Gaudi::Plugin
 StatusCodeSvc                                        INFO initialize
 AthDictLoaderSvc                                     INFO in initialize...
 AthDictLoaderSvc                                     INFO acquired Dso-registry
-ClassIDSvc                                           INFO Initializing ClassIDSvc - package version CLIDComps-00-06-16
-ClassIDSvc                                           INFO  getRegistryEntries: read 2071 CLIDRegistry entries for module ALL
+ClassIDSvc                                           INFO Initializing ClassIDSvc - package version CLIDComps-00-06-18
+ClassIDSvc                                           INFO  getRegistryEntries: read 2069 CLIDRegistry entries for module ALL
 ChronoStatSvc                                        INFO  Number of skipped events for MemStat-1
 CoreDumpSvc                                          INFO install f-a-t-a-l handler... (flag = -1)
 CoreDumpSvc                                          INFO Handling signals: 11(Segmentation fault) 7(Bus error) 4(Illegal instruction) 8(Floating point exception) 
-AthenaEventLoopMgr                                   INFO Initializing AthenaEventLoopMgr - package version AthenaServices-01-59-01
+AthenaEventLoopMgr                                   INFO Initializing AthenaEventLoopMgr - package version AthenaServices-01-59-05
 AthMasterSeq                                         INFO Member list: AthSequencer/AthAlgSeq, AthSequencer/AthOutSeq, AthSequencer/AthRegSeq
-AthAlgSeq                                            INFO Member list: PyAthena::Alg/CopyTruthTagBHadronsInitialAlg, PyAthena::Alg/CopyTruthTagBHadronsFinalAlg, PyAthena::Alg/CopyTruthTagBQuarksFinalAlg, PyAthena::Alg/CopyTruthTagCHadronsInitialAlg, PyAthena::Alg/CopyTruthTagCHadronsFinalAlg, PyAthena::Alg/CopyTruthTagCQuarksFinalAlg, PyAthena::Alg/CopyTruthTagTausFinalAlg, PyAthena::Alg/CopyTruthTagWBosonsAlg, PyAthena::Alg/CopyTruthTagZBosonsAlg, PyAthena::Alg/CopyTruthTagHBosonsAlg, PyAthena::Alg/CopyTruthTagTQuarksFinalAlg, PyAthena::Alg/CopyTruthTagPartonsAlg, JetAlgorithm/jetalg
-PyComponentMgr                                       INFO Initializing PyComponentMgr...
-CopyTruthTagBHadronsInitialAlg                       INFO Initializing CopyTruthTagBHadronsInitialAlg...
-Py:CopyTruthTagBHadronsInitialAlg    INFO ==> initialize...
-CopyTruthTagBHadronsFinalAlg                         INFO Initializing CopyTruthTagBHadronsFinalAlg...
-Py:CopyTruthTagBHadronsFinalAlg    INFO ==> initialize...
-CopyTruthTagBQuarksFinalAlg                          INFO Initializing CopyTruthTagBQuarksFinalAlg...
-Py:CopyTruthTagBQuarksFinalAlg    INFO ==> initialize...
-CopyTruthTagCHadronsInitialAlg                       INFO Initializing CopyTruthTagCHadronsInitialAlg...
-Py:CopyTruthTagCHadronsInitialAlg    INFO ==> initialize...
-CopyTruthTagCHadronsFinalAlg                         INFO Initializing CopyTruthTagCHadronsFinalAlg...
-Py:CopyTruthTagCHadronsFinalAlg    INFO ==> initialize...
-CopyTruthTagCQuarksFinalAlg                          INFO Initializing CopyTruthTagCQuarksFinalAlg...
-Py:CopyTruthTagCQuarksFinalAlg    INFO ==> initialize...
-CopyTruthTagTausFinalAlg                             INFO Initializing CopyTruthTagTausFinalAlg...
-Py:CopyTruthTagTausFinalAlg    INFO ==> initialize...
-CopyTruthTagWBosonsAlg                               INFO Initializing CopyTruthTagWBosonsAlg...
-Py:CopyTruthTagWBosonsAlg    INFO ==> initialize...
-CopyTruthTagZBosonsAlg                               INFO Initializing CopyTruthTagZBosonsAlg...
-Py:CopyTruthTagZBosonsAlg    INFO ==> initialize...
-CopyTruthTagHBosonsAlg                               INFO Initializing CopyTruthTagHBosonsAlg...
-Py:CopyTruthTagHBosonsAlg    INFO ==> initialize...
-CopyTruthTagTQuarksFinalAlg                          INFO Initializing CopyTruthTagTQuarksFinalAlg...
-Py:CopyTruthTagTQuarksFinalAlg    INFO ==> initialize...
-CopyTruthTagPartonsAlg                               INFO Initializing CopyTruthTagPartonsAlg...
-Py:CopyTruthTagPartonsAlg    INFO ==> initialize...
+AthAlgSeq                                            INFO Member list: JetAlgorithm/jetalg
 jetalg                                               INFO Initializing jetalg...
 jetalg                                               INFO Retrieving tools...
 ToolSvc.jetrun                                       INFO Initializing ToolSvc.jetrun...
@@ -477,7 +428,7 @@ ToolSvc.MyAntiKt4LCTopoJets                          INFO --- Retrieved ToolSvc.
 ToolSvc.MyAntiKt4LCTopoJets                          INFO --- Extracting input type from primary getter.
 ToolSvc.MyAntiKt4LCTopoJets                          INFO --- Input label: LCTopo
 ToolSvc.MyAntiKt4LCTopoJets                          INFO --- Input type: 0
-ToolSvc.MyAntiKt4LCTopoJets                          INFO --- JetRecTool ToolSvc.MyAntiKt4LCTopoJets has 7 jet modifiers.
+ToolSvc.MyAntiKt4LCTopoJets                          INFO --- JetRecTool ToolSvc.MyAntiKt4LCTopoJets has 6 jet modifiers.
 ToolSvc.calib_AntiKt4LCTopo_reco_arj                 INFO Initializing ToolSvc.calib_AntiKt4LCTopo_reco_arj...
 ToolSvc.calib_AntiKt4LCTopo_reco_arj                 INFO ===================================
 
@@ -487,12 +438,12 @@ ToolSvc.calib_AntiKt4LCTopo_reco_arj                 INFO   Initializing the xAO
 ToolSvc.calib_AntiKt4LCTopo_reco_arj                 INFO   for AntiKt4LCTopo jets
 
 
-PathResolver    INFO   Trying to locate JetCalibTools/CalibrationConfigs/JES_Full2012dataset_Preliminary_Jan13.config
+PathResolver                                         INFO Trying to locate JetCalibTools/CalibrationConfigs/JES_Full2012dataset_Preliminary_Jan13.config
 ToolSvc.calib_AntiKt4LCTopo_reco_arj                 INFO   Reading global JES settings from:
     JES_Full2012dataset_Preliminary_Jan13.config
 
 ToolSvc.calib_AntiKt4LCTopo_reco_arj                 INFO                      resolved in  :
-    /cvmfs/atlas.cern.ch/repo/sw/software/x86_64-slc6-gcc48-opt/20.1.0/AtlasReconstruction/20.1.0/InstallArea/share/JetCalibTools/CalibrationConfigs/JES_Full2012dataset_Preliminary_Jan13.config
+    /afs/cern.ch/atlas/software/builds/nightlies/20.1.X-VAL/AtlasReconstruction/rel_2/InstallArea/share/JetCalibTools/CalibrationConfigs/JES_Full2012dataset_Preliminary_Jan13.config
 
 
 ToolSvc.calib_AntiKt4LCTopo_reco_arj                 INFO Initializing sub tools.
@@ -502,9 +453,9 @@ ToolSvc.calib_AntiKt4LCTopo_reco_arj_Pileup          INFO   Jet area pile up cor
 
 ToolSvc.calib_AntiKt4LCTopo_reco_arj_Pileup          INFO  
 
-PathResolver    INFO   Trying to locate JetCalibTools/CalibrationFactors/MCBasedOffset_Nov2012.config
+PathResolver                                         INFO Trying to locate JetCalibTools/CalibrationFactors/MCBasedOffset_Nov2012.config
 ToolSvc.calib_AntiKt4LCTopo_reco_arj_Pileup          INFO   Reading residual jet-area pile-up correction factors from:
-    /cvmfs/atlas.cern.ch/repo/sw/software/x86_64-slc6-gcc48-opt/20.1.0/AtlasReconstruction/20.1.0/InstallArea/share/JetCalibTools/CalibrationFactors/MCBasedOffset_Nov2012.config
+    /afs/cern.ch/atlas/software/builds/nightlies/20.1.X-VAL/AtlasReconstruction/rel_2/InstallArea/share/JetCalibTools/CalibrationFactors/MCBasedOffset_Nov2012.config
 
 ToolSvc.calib_AntiKt4LCTopo_reco_arj_Pileup          INFO   Description:
     Residual 2012 mu- and N_{PV}-dependent jet pileup corrections
@@ -517,11 +468,11 @@ ToolSvc.calib_AntiKt4LCTopo_reco_arj_Pileup          INFO
 
 ToolSvc.calib_AntiKt4LCTopo_reco_arj                 INFO Initializing sub tools.
 ToolSvc.calib_AntiKt4LCTopo_reco_arj                 INFO   Initializing JES correction.
-PathResolver    INFO   Trying to locate JetCalibTools/CalibrationFactors/AbsoluteJES_Rel17.2_AreaSubtracted_0.config
+PathResolver                                         INFO Trying to locate JetCalibTools/CalibrationFactors/AbsoluteJES_Rel17.2_AreaSubtracted_0.config
 ToolSvc.calib_AntiKt4LCTopo_reco_arj_EtaJES          INFO   
 
 Reading absolute calibration factors from:
-    /cvmfs/atlas.cern.ch/repo/sw/software/x86_64-slc6-gcc48-opt/20.1.0/AtlasReconstruction/20.1.0/InstallArea/share/JetCalibTools/CalibrationFactors/AbsoluteJES_Rel17.2_AreaSubtracted_0.config
+    /afs/cern.ch/atlas/software/builds/nightlies/20.1.X-VAL/AtlasReconstruction/rel_2/InstallArea/share/JetCalibTools/CalibrationFactors/AbsoluteJES_Rel17.2_AreaSubtracted_0.config
 
 ToolSvc.calib_AntiKt4LCTopo_reco_arj_EtaJES          INFO   Description:
     JES for release 17.2, derived November 2012 with Jet Areas, for application to Data12 and MC12
@@ -535,7 +486,6 @@ ToolSvc.MyAntiKt4LCTopoJets                          INFO --- Retrieved ToolSvc.
 ToolSvc.MyAntiKt4LCTopoJets                          INFO --- Retrieved ToolSvc.nsubjettiness
 ToolSvc.MyAntiKt4LCTopoJets                          INFO --- Retrieved ToolSvc.jetens
 ToolSvc.MyAntiKt4LCTopoJets                          INFO --- Retrieved ToolSvc.caloqual_cluster
-ToolSvc.MyAntiKt4LCTopoJets                          INFO --- Retrieved ToolSvc.bchcorrclus
 ToolSvc.MyAntiKt4LCTopoJets                          INFO --- Retrieved ToolSvc.width
 ToolSvc.MyAntiKt4LCTopoJets                          INFO --- JetRecTool ToolSvc.MyAntiKt4LCTopoJets has 0 jet consumers.
 ToolSvc.MyAntiKt4LCTopoJets                          INFO --- Input collection names:
@@ -578,7 +528,35 @@ ToolSvc.MyAntiKt4LCTopoCamKt6Jets                    INFO ---   MyAntiKt4LCTopoJ
 ToolSvc.MyAntiKt4LCTopoCamKt6Jets                    INFO --- Output collection names:
 ToolSvc.MyAntiKt4LCTopoCamKt6Jets                    INFO ---   MyAntiKt4LCTopoCamKt6Jets
 ToolSvc.jetrun                                       INFO Tool retrieval completed.
-ToolSvc.jetrun                                       INFO   Tool count: 6
+ToolSvc.jetrun                                       INFO   Tool count: 20
+ToolSvc.jetrun                                       INFO     ToolSvc.CopyTruthTagBHadronsInitial
+ToolSvc.CopyTruthTagBHadronsInitial                  INFO AsgTool ToolSvc.CopyTruthTagBHadronsInitial @ address
+ToolSvc.jetrun                                       INFO     ToolSvc.CopyTruthTagBHadronsFinal
+ToolSvc.CopyTruthTagBHadronsFinal                    INFO AsgTool ToolSvc.CopyTruthTagBHadronsFinal @ address
+ToolSvc.jetrun                                       INFO     ToolSvc.CopyTruthTagBQuarksFinal
+ToolSvc.CopyTruthTagBQuarksFinal                     INFO AsgTool ToolSvc.CopyTruthTagBQuarksFinal @ address
+ToolSvc.jetrun                                       INFO     ToolSvc.CopyTruthTagCHadronsInitial
+ToolSvc.CopyTruthTagCHadronsInitial                  INFO AsgTool ToolSvc.CopyTruthTagCHadronsInitial @ address
+ToolSvc.jetrun                                       INFO     ToolSvc.CopyTruthTagCHadronsFinal
+ToolSvc.CopyTruthTagCHadronsFinal                    INFO AsgTool ToolSvc.CopyTruthTagCHadronsFinal @ address
+ToolSvc.jetrun                                       INFO     ToolSvc.CopyTruthTagCQuarksFinal
+ToolSvc.CopyTruthTagCQuarksFinal                     INFO AsgTool ToolSvc.CopyTruthTagCQuarksFinal @ address
+ToolSvc.jetrun                                       INFO     ToolSvc.CopyTruthTagTausFinal
+ToolSvc.CopyTruthTagTausFinal                        INFO AsgTool ToolSvc.CopyTruthTagTausFinal @ address
+ToolSvc.jetrun                                       INFO     ToolSvc.CopyTruthTagWBosons
+ToolSvc.CopyTruthTagWBosons                          INFO AsgTool ToolSvc.CopyTruthTagWBosons @ address
+ToolSvc.jetrun                                       INFO     ToolSvc.CopyTruthTagZBosons
+ToolSvc.CopyTruthTagZBosons                          INFO AsgTool ToolSvc.CopyTruthTagZBosons @ address
+ToolSvc.jetrun                                       INFO     ToolSvc.CopyTruthTagHBosons
+ToolSvc.CopyTruthTagHBosons                          INFO AsgTool ToolSvc.CopyTruthTagHBosons @ address
+ToolSvc.jetrun                                       INFO     ToolSvc.CopyTruthTagTQuarksFinal
+ToolSvc.CopyTruthTagTQuarksFinal                     INFO AsgTool ToolSvc.CopyTruthTagTQuarksFinal @ address
+ToolSvc.jetrun                                       INFO     ToolSvc.CopyTruthTagPartons
+ToolSvc.CopyTruthTagPartons                          INFO AsgTool ToolSvc.CopyTruthTagPartons @ address
+ToolSvc.jetrun                                       INFO     ToolSvc.truthpartcopy
+ToolSvc.truthpartcopy                                INFO AsgTool ToolSvc.truthpartcopy @ address
+ToolSvc.jetrun                                       INFO     ToolSvc.truthpartcopywz
+ToolSvc.truthpartcopywz                              INFO AsgTool ToolSvc.truthpartcopywz @ address
 ToolSvc.jetrun                                       INFO     ToolSvc.tracksel
 ToolSvc.tracksel                                     INFO AsgTool ToolSvc.tracksel @ address
 ToolSvc.jetrun                                       INFO     ToolSvc.tvassoc
@@ -612,13 +590,12 @@ ToolSvc.MyAntiKt4LCTopoJetsFinder                    INFO        Output level: I
 ToolSvc.MyAntiKt4LCTopoJets                          INFO     Input type: 0
 ToolSvc.MyAntiKt4LCTopoJets                          INFO     There are 0 ghost labels:
 ToolSvc.MyAntiKt4LCTopoJets                          INFO   Jet groomer is not defined
-ToolSvc.MyAntiKt4LCTopoJets                          INFO   Modifier count is 7
+ToolSvc.MyAntiKt4LCTopoJets                          INFO   Modifier count is 6
 ToolSvc.MyAntiKt4LCTopoJets                          INFO     Modifier calib_AntiKt4LCTopo_reco_arj
 ToolSvc.MyAntiKt4LCTopoJets                          INFO     Modifier jetpt7000
 ToolSvc.MyAntiKt4LCTopoJets                          INFO     Modifier nsubjettiness
 ToolSvc.MyAntiKt4LCTopoJets                          INFO     Modifier jetens
 ToolSvc.MyAntiKt4LCTopoJets                          INFO     Modifier caloqual_cluster
-ToolSvc.MyAntiKt4LCTopoJets                          INFO     Modifier bchcorrclus
 ToolSvc.MyAntiKt4LCTopoJets                          INFO     Modifier width
 ToolSvc.jetrun                                       INFO     ToolSvc.MyAntiKt4LCTopoAntiKt4Jets
 ToolSvc.MyAntiKt4LCTopoAntiKt4Jets                   INFO Properties for JetRecTool ToolSvc.MyAntiKt4LCTopoAntiKt4Jets
@@ -661,7 +638,21 @@ jetalg                                               INFO   Tool count: 6
 jetalg                                               INFO     ToolSvc.jetrun
 ToolSvc.jetrun                                       INFO Properties for JetToolRunner ToolSvc.jetrun
 ToolSvc.jetrun                                       INFO   Event Shape tool list has 0 entries:
-ToolSvc.jetrun                                       INFO   Execute tool list has 6 entries:
+ToolSvc.jetrun                                       INFO   Execute tool list has 20 entries:
+ToolSvc.jetrun                                       INFO     ToolSvc.CopyTruthTagBHadronsInitial
+ToolSvc.jetrun                                       INFO     ToolSvc.CopyTruthTagBHadronsFinal
+ToolSvc.jetrun                                       INFO     ToolSvc.CopyTruthTagBQuarksFinal
+ToolSvc.jetrun                                       INFO     ToolSvc.CopyTruthTagCHadronsInitial
+ToolSvc.jetrun                                       INFO     ToolSvc.CopyTruthTagCHadronsFinal
+ToolSvc.jetrun                                       INFO     ToolSvc.CopyTruthTagCQuarksFinal
+ToolSvc.jetrun                                       INFO     ToolSvc.CopyTruthTagTausFinal
+ToolSvc.jetrun                                       INFO     ToolSvc.CopyTruthTagWBosons
+ToolSvc.jetrun                                       INFO     ToolSvc.CopyTruthTagZBosons
+ToolSvc.jetrun                                       INFO     ToolSvc.CopyTruthTagHBosons
+ToolSvc.jetrun                                       INFO     ToolSvc.CopyTruthTagTQuarksFinal
+ToolSvc.jetrun                                       INFO     ToolSvc.CopyTruthTagPartons
+ToolSvc.jetrun                                       INFO     ToolSvc.truthpartcopy
+ToolSvc.jetrun                                       INFO     ToolSvc.truthpartcopywz
 ToolSvc.jetrun                                       INFO     ToolSvc.tracksel
 ToolSvc.jetrun                                       INFO     ToolSvc.tvassoc
 ToolSvc.jetrun                                       INFO     ToolSvc.MyAntiKt4LCTopoJets
@@ -699,11 +690,11 @@ ToolSvc.jetdumper2CamKt6                             INFO       Container: MyAnt
 ToolSvc.jetdumper2CamKt6                             INFO          Detail: 1
 ToolSvc.jetdumper2CamKt6                             INFO      LineDetail: 4
 ToolSvc.jetdumper2CamKt6                             INFO   Max # objects: 500
-StoreGateSvc                                         INFO Initializing StoreGateSvc - package version StoreGate-02-45-01-01
-MetaDataSvc                                          INFO Initializing MetaDataSvc - package version AthenaServices-01-59-01
-InputMetaDataStore                                   INFO Initializing InputMetaDataStore - package version StoreGate-02-45-01-01
-MetaDataStore                                        INFO Initializing MetaDataStore - package version StoreGate-02-45-01-01
-AthenaPoolCnvSvc                                     INFO Initializing AthenaPoolCnvSvc - package version AthenaPoolCnvSvc-00-26-18
+StoreGateSvc                                         INFO Initializing StoreGateSvc - package version StoreGate-02-45-01-10
+MetaDataSvc                                          INFO Initializing MetaDataSvc - package version AthenaServices-01-59-05
+InputMetaDataStore                                   INFO Initializing InputMetaDataStore - package version StoreGate-02-45-01-10
+MetaDataStore                                        INFO Initializing MetaDataStore - package version StoreGate-02-45-01-10
+AthenaPoolCnvSvc                                     INFO Initializing AthenaPoolCnvSvc - package version AthenaPoolCnvSvc-00-26-19
 Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.vector<bool>=vector.dll vectorbool.dll> for level 0; ignored
 Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.vector<char>=vector.dll vectorbool.dll> for level 0; ignored
 Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.vector<double>=vector.dll vectorbool.dll> for level 0; ignored
@@ -763,19 +754,19 @@ PoolSvc                                              INFO io_register[PoolSvc](x
 PoolSvc                                              INFO Set connectionsvc retry/timeout/IDLE timeout to  'ConnectionRetrialPeriod':300/ 'ConnectionRetrialTimeOut':3600/ 'ConnectionTimeOut':5 seconds with connection cleanup disabled
 PoolSvc                                              INFO Frontier compression level set to 5
 DBReplicaSvc                                         INFO Frontier server at (serverurl=http://atlasfrontier-ai.cern.ch:8000/atlr)(serverurl=http://aiatlas036.cern.ch:8000/atlr)(serverurl=http://aiatlas034.cern.ch:8000/atlr)(serverurl=http://ccfrontier.in2p3.fr:23128/ccin2p3-AtlasFrontier)(serverurl=http://ccsqfatlasli02.in2p3.fr:23128/ccin2p3-AtlasFrontier)(serverurl=http://ccsqfatlasli01.in2p3.fr:23128/ccin2p3-AtlasFrontier)(proxyurl=http://ca-proxy.cern.ch:3128)(proxyurl=http://ca18.cern.ch:3128)(proxyurl=http://ca17.cern.ch:3128)(proxyurl=http://atlast0fsquid.cern.ch:3128)(proxyurl=http://atlassquid1.cern.ch:3128)(proxyurl=http://atlassquid2.cern.ch:3128)(proxyurl=http://atlassquid4.cern.ch:3128) will be considered for COOL data
-DBReplicaSvc                                         INFO Read replica configuration from /cvmfs/atlas.cern.ch/repo/sw/software/x86_64-slc6-gcc48-opt/20.1.0/AtlasCore/20.1.0/InstallArea/share/dbreplica.config
-DBReplicaSvc                                         INFO Total of 5 servers found for host lxplus0060.cern.ch [ATLF ATLAS_COOLPROD atlas_dd ATLAS_CONFIG ATLF ]
+DBReplicaSvc                                         INFO Read replica configuration from /afs/cern.ch/atlas/software/builds/nightlies/20.1.X-VAL/AtlasCore/rel_2/InstallArea/share/dbreplica.config
+DBReplicaSvc                                         INFO Total of 10 servers found for host lxplus0019.cern.ch [ATLF ATLAS_COOLPROD atlas_dd ATLAS_CONFIG INT8R INTR ATONR_COOL ATONR_CONF DEVDB11 ATLF ]
 PoolSvc                                              INFO Successfully setup replica sorting algorithm
 PoolSvc                                              INFO Re-initializing PoolSvc
 PoolSvc                                              INFO POOL WriteCatalog is xmlcatalog_file:PoolFileCatalog.xml
 XMLFileCatalog Info Connecting to the catalog
 PoolXMLFileCatalog Info Xerces-c initialization Number 0
-EventSelector                                        INFO Initializing EventSelector - package version EventSelectorAthenaPool-00-18-35
-TagMetaDataStore                                     INFO Initializing TagMetaDataStore - package version StoreGate-02-45-01-01
+EventSelector                                        INFO Initializing EventSelector - package version EventSelectorAthenaPool-00-18-36
+TagMetaDataStore                                     INFO Initializing TagMetaDataStore - package version StoreGate-02-45-01-10
 EventSelector                                        INFO reinitialization...
 EventSelector                                        INFO EventSelection with query 
 RootCollection Info Opening Collection File /afs/cern.ch/user/d/dadams/pubdata/r20test_AOD.pool.root in mode: READ
-JobIDSvc                                             INFO Initializing JobIDSvc - package version AthenaServices-01-59-01
+JobIDSvc                                             INFO Initializing JobIDSvc - package version AthenaServices-01-59-05
 RootCollection Info File /afs/cern.ch/user/d/dadams/pubdata/r20test_AOD.pool.root opened
 RootCollectionSchemaEditor Warning  Collection Description not found in file, reconstructing 
 RootCollection Info Root collection opened, size = 5
@@ -786,11 +777,11 @@ Domain[ROOT_All] Info                           /afs/cern.ch/user/d/dadams/pubda
 RootDatabase.open Success /afs/cern.ch/user/d/dadams/pubdata/r20test_AOD.pool.root File version:53413
 PoolSvc                                              INFO Failed to find container MetaDataHdrDataHeader to get Token.
 EventPersistencySvc                                  INFO Added successfully Conversion service:AthenaPoolCnvSvc
-AthenaPoolAddressProviderSvc                         INFO Initializing AthenaPoolAddressProviderSvc - package version EventSelectorAthenaPool-00-18-35
-ProxyProviderSvc                                     INFO Initializing ProxyProviderSvc - package version SGComps-00-01-09
+AthenaPoolAddressProviderSvc                         INFO Initializing AthenaPoolAddressProviderSvc - package version EventSelectorAthenaPool-00-18-36
+ProxyProviderSvc                                     INFO Initializing ProxyProviderSvc - package version SGComps-00-01-10
 HistogramPersistencySvc                           WARNING Histograms saving not required.
 AthenaEventLoopMgr                                   INFO Setup EventSelector service EventSelector
-ActiveStoreSvc                                       INFO Initializing ActiveStoreSvc - package version StoreGate-02-45-01-01
+ActiveStoreSvc                                       INFO Initializing ActiveStoreSvc - package version StoreGate-02-45-01-10
 ApplicationMgr                                       INFO Application Manager Initialized successfully
 InputMetaDataStore                                   INFO Start InputMetaDataStore
 MetaDataStore                                        INFO Start MetaDataStore
@@ -805,7 +796,7 @@ ApplicationMgr                                       INFO Application Manager St
 PoolSvc                                              INFO Failed to find container MetaDataHdrDataHeader to get Token.
 AthenaEventLoopMgr                                   INFO   ===>>>  start of run 189751    <<<===
 AthenaEventLoopMgr                                   INFO   ===>>>  start processing event #35002, run #189751 0 events processed so far  <<<===
-ClassIDSvc                                           INFO  getRegistryEntries: read 14491 CLIDRegistry entries for module ALL
+ClassIDSvc                                           INFO  getRegistryEntries: read 13906 CLIDRegistry entries for module ALL
 ClassIDSvc                                           INFO  getRegistryEntries: read 107 CLIDRegistry entries for module ALL
 ToolSvc.xAODClusterCompressor                        INFO Compression of ClusterMoments to 16 bits enabled
 AthenaPoolConverter                                  INFO Retrieved compression tool
@@ -992,43 +983,18 @@ Domain[ROOT_All] Info >   Deaccess DbDomain     READ      [ROOT_All]
 MetaDataStore                                        INFO Stop MetaDataStore
 InputMetaDataStore                                   INFO Stop InputMetaDataStore
 ApplicationMgr                                       INFO Application Manager Stopped successfully
-CopyTruthTagBHadronsInitialAlg                       INFO Finalizing CopyTruthTagBHadronsInitialAlg...
-Py:CopyTruthTagBHadronsInitialAlg    INFO ==> finalize...
-CopyTruthTagBHadronsFinalAlg                         INFO Finalizing CopyTruthTagBHadronsFinalAlg...
-Py:CopyTruthTagBHadronsFinalAlg    INFO ==> finalize...
-CopyTruthTagBQuarksFinalAlg                          INFO Finalizing CopyTruthTagBQuarksFinalAlg...
-Py:CopyTruthTagBQuarksFinalAlg    INFO ==> finalize...
-CopyTruthTagCHadronsInitialAlg                       INFO Finalizing CopyTruthTagCHadronsInitialAlg...
-Py:CopyTruthTagCHadronsInitialAlg    INFO ==> finalize...
-CopyTruthTagCHadronsFinalAlg                         INFO Finalizing CopyTruthTagCHadronsFinalAlg...
-Py:CopyTruthTagCHadronsFinalAlg    INFO ==> finalize...
-CopyTruthTagCQuarksFinalAlg                          INFO Finalizing CopyTruthTagCQuarksFinalAlg...
-Py:CopyTruthTagCQuarksFinalAlg    INFO ==> finalize...
-CopyTruthTagTausFinalAlg                             INFO Finalizing CopyTruthTagTausFinalAlg...
-Py:CopyTruthTagTausFinalAlg    INFO ==> finalize...
-CopyTruthTagWBosonsAlg                               INFO Finalizing CopyTruthTagWBosonsAlg...
-Py:CopyTruthTagWBosonsAlg    INFO ==> finalize...
-CopyTruthTagZBosonsAlg                               INFO Finalizing CopyTruthTagZBosonsAlg...
-Py:CopyTruthTagZBosonsAlg    INFO ==> finalize...
-CopyTruthTagHBosonsAlg                               INFO Finalizing CopyTruthTagHBosonsAlg...
-Py:CopyTruthTagHBosonsAlg    INFO ==> finalize...
-CopyTruthTagTQuarksFinalAlg                          INFO Finalizing CopyTruthTagTQuarksFinalAlg...
-Py:CopyTruthTagTQuarksFinalAlg    INFO ==> finalize...
-CopyTruthTagPartonsAlg                               INFO Finalizing CopyTruthTagPartonsAlg...
-Py:CopyTruthTagPartonsAlg    INFO ==> finalize...
 jetalg                                               INFO Finalizing jetalg...
 AthAlgSeq                                            INFO Finalizing AthAlgSeq...
 AthOutSeq                                            INFO Finalizing AthOutSeq...
 AthRegSeq                                            INFO Finalizing AthRegSeq...
 AthMasterSeq                                         INFO Finalizing AthMasterSeq...
-StoreGateSvc                                         INFO Finalizing StoreGateSvc - package version StoreGate-02-45-01-01
+StoreGateSvc                                         INFO Finalizing StoreGateSvc - package version StoreGate-02-45-01-10
 RootCollection Info Closing open collection '/afs/cern.ch/user/d/dadams/pubdata/r20test_AOD.pool.root'
-TagMetaDataStore                                     INFO Finalizing TagMetaDataStore - package version StoreGate-02-45-01-01
+TagMetaDataStore                                     INFO Finalizing TagMetaDataStore - package version StoreGate-02-45-01-10
 PoolSvc                                              INFO I/O finalization...
 PoolXMLFileCatalog Info XercesC termination number 0
-MetaDataStore                                        INFO Finalizing MetaDataStore - package version StoreGate-02-45-01-01
-InputMetaDataStore                                   INFO Finalizing InputMetaDataStore - package version StoreGate-02-45-01-01
-PyComponentMgr                                       INFO Finalizing PyComponentMgr...
+MetaDataStore                                        INFO Finalizing MetaDataStore - package version StoreGate-02-45-01-10
+InputMetaDataStore                                   INFO Finalizing InputMetaDataStore - package version StoreGate-02-45-01-10
 AthDictLoaderSvc                                     INFO in finalize...
 ToolSvc                                              INFO Removing all tools created by ToolSvc
 ToolSvc.calib_AntiKt4LCTopo_reco_arj                 INFO Finalizing ToolSvc.calib_AntiKt4LCTopo_reco_arj...

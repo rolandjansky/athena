@@ -252,6 +252,7 @@ class JetToolManager:
       elif ncalib > 1:
         print self.prefix + "Calibration option (" + calibOpt + ") provided with multiple calibration modifiers."
         raise Exception
+
         
     return outmods
 
@@ -276,6 +277,7 @@ class JetToolManager:
   def addJetFinderTool(self, toolname, alg, radius, ivtx =None,
                        ghostArea =0.0, ptmin =0.0, rndseed =1,
                        variableRMinRadius =-1.0, variableRMassScale =-1.0):
+    myname = "JetToolManager:addJetFinderTool: "
     if toolname in self.tools:
       self.msg(0, "Tool " + myname + " is already registered")
       raise LookupError
@@ -389,7 +391,7 @@ class JetToolManager:
   #   doArea = whether to write jet areas (default false because work is needed to 
   #            recover this for reclustered jets).
   def addJetSplitter(self, output, mumax, ymin, input, modifiersin ="groomed",
-                     isTrigger =False, useTriggerStore =False, doArea =False):
+                     isTrigger =False, useTriggerStore =False, doArea =True):
     from JetRec.JetRecConf import JetSplitter
     from JetRec.JetRecConf import JetRecTool
     groomer = JetSplitter(output + "Groomer")

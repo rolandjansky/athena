@@ -17,6 +17,7 @@
 #   useTruth - Truth jets and association are enabled (for MC)
 #   useTopo  - Topocluster jets are enabled
 #   useTracks - Track jets and association are enabled
+#   useVertices - Toggles whether PFlow jet reconstruction makes use of vertex information.
 #   useMuonSegmentss - Muon segemnt association is enabled
 #   usePFlow - PFlow jets and associations are enabled
 #   useInDetTrackSelection - The inner detector track selection
@@ -25,7 +26,6 @@
 
 from AthenaCommon.JobProperties import JobProperty, JobPropertyContainer
 from AthenaCommon.JobProperties import jobproperties
-
 
 
 class JetRecFlags(JobPropertyContainer):
@@ -63,12 +63,14 @@ class useTruth(JobProperty):
   StoredValue  = True # this irrelevant  
 
   def get_Value(self):
-      if self.statusOn:
-          return JobProperty.get_Value(self)
-      else:
-          from RecExConfig.RecFlags import rec
-          return rec.doTruth()
-  
+    if self.statusOn:
+      return JobProperty.get_Value(self)
+    else:
+      try:
+        from RecExConfig.RecFlags import rec
+        return rec.doTruth()
+      except ImportError:
+        return self.StoredValue
 
 class truthFlavorTags(JobProperty):
   """ List of flavor tags for truth tagging jets.

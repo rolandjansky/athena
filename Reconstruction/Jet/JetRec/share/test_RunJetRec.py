@@ -125,6 +125,10 @@ if 0:
   print myname + "Setting output level to VERBOSE for muon segment builder"
   jtm.setOutputLevel("gmusegget", VERBOSE)
 
+if 0:
+  print myname + "Setting output level to VERBOSE for jet isolation"
+  jtm.setOutputLevel("jetisol", VERBOSE)
+
 verbosetools = []
 if 0:
   verbosetools += ["jvf"]
@@ -145,8 +149,8 @@ for toolname in verbosetools:
 #--------------------------------------------------------------
 
 # Allow message service more than default 500 lines.
-ServiceMgr.MessageSvc.infoLimit = 100000
-ServiceMgr.MessageSvc.verboseLimit = 100000
+ServiceMgr.MessageSvc.infoLimit = 1000000
+ServiceMgr.MessageSvc.verboseLimit = 1000000
 ServiceMgr.MessageSvc.Format = "% F%50W%S%7W%R%T %0W%M"
 
 #jtm.lcget.OutputLevel = DEBUG
@@ -286,7 +290,8 @@ for name in names:
     jdmp.FloatMoments += ["BchCorrCell"]
     #jdmp.FloatMoments += ["BchCorrDotxc", "BchCorrJet", "BchCorrJetForCell"]
     jdmp.FloatMoments += ["PullMag", "PullPhi", "Pull_C00", "Pull_C01", "Pull_C10", "Pull_C11"]
-    jdmp.FloatMoments += ["IsoDelta2SumPt"]
+  jdmp.FloatMoments += ["IsoDelta2SumPt"]
+  jdmp.FloatMoments += ["IsoDelta3SumPt"]
   jdmp.FloatMoments += ["Width"]
   jdmp.FloatMoments += ["KtDR"]
   if useLArHVCorr:
@@ -321,6 +326,10 @@ for name in names:
     jdmp.FloatVectorMoments += ["SumPtTrkPt1000"]
     jdmp.FloatVectorMoments += ["TrackWidthPt500"]
     jdmp.FloatVectorMoments += ["TrackWidthPt1000"]
+  if isTopo:  # Jet cluster moments
+    jdmp.FloatMoments += ["LeadingClusterSecondLambda"]
+    jdmp.FloatMoments += ["LeadingClusterCenterLambda"]
+    jdmp.FloatMoments += ["LeadingClusterSecondR"]
   if isTopo:  # Fix this when energy sampling is working again
     jdmp.FloatVectorMoments += ["EnergyPerSampling"]
   if isTopo and jetFlags.useTracks():
@@ -363,7 +372,7 @@ if dumpGroomed:
   gdmp1.FloatMoments = ["MuMax", "YMin", "RClus", 
                         "SizeParameter",
                         "DRFilt", "MuFilt", "YFilt"]
-  hasActiveArea = False
+  hasActiveArea = True
   if hasActiveArea:
     gdmp1.FloatMoments += ["JetGhostArea", "ActiveArea"]
     gdmp1.FourVectorMoments = ["ActiveArea4vec"]
