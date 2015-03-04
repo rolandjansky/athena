@@ -18,6 +18,11 @@
 from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 from AthenaCommon.Constants import *
 
+LHCFillStateAvailable=False
+UsedFillStateCoolFolderName="/LHC/DCS/FILLSTATE"
+if LHCFillStateAvailable:
+    UsedFillStateCoolFolderName="Unavailable"
+
 if not hasattr( svcMgr, "ByteStreamAddressProviderSvc" ):
     from ByteStreamCnvSvcBase.ByteStreamCnvSvcBaseConf import ByteStreamAddressProviderSvc 
     svcMgr += ByteStreamAddressProviderSvc()
@@ -160,7 +165,7 @@ if isOnline:
     svcMgr.ToolSvc += BSMon( ProcessCTPData=True )
     svcMgr.ToolSvc += BSMon( ProcessRoIBResult=True )
     svcMgr.ToolSvc += BSMon( InclusiveTriggerThresholds=True )
-    
+    svcMgr.ToolSvc += BSMon( FillStateCoolFolderName=UsedFillStateCoolFolderName)
     RecMuCTPIByteStreamTool.OutputLevel = INFO #DEBUG
     
     print topSequence
@@ -212,7 +217,8 @@ if not isOnline:
                                  InclusiveTriggerThresholds = False,
                                  ProcessMuctpiData = False,
                                  ProcessMuctpiDataRIO = False,
-                                 CompareRerun = True)
+                                 CompareRerun = True,
+                                 FillStateCoolFolderName=UsedFillStateCoolFolderName)
         
         if 'IS_SIMULATION' in inputFileSummary['evt_type']:
             CTBSMonTool = BSMon( ProcessCTPData = True,
@@ -221,7 +227,8 @@ if not isOnline:
                                  ProcessMuctpiData = False,
                                  ProcessMuctpiDataRIO = False,
                                  RunOnESD = True,
-                                 CompareRerun = False)
+                                 CompareRerun = False,
+                                 FillStateCoolFolderName=UsedFillStateCoolFolderName)
         
     if rec.doMuon:
         if not 'IS_SIMULATION' in inputFileSummary['evt_type']:
@@ -237,7 +244,8 @@ if not isOnline:
                                  ProcessMuctpiData = True,
                                  ProcessMuctpiDataRIO = False,
                                  RunOnESD = True,
-                                 CompareRerun = False)
+                                 CompareRerun = False,
+                                 FillStateCoolFolderName=UsedFillStateCoolFolderName)
         # Needed to decode the RoI information
         from TrigT1RPCRecRoiSvc.TrigT1RPCRecRoiConfig import RPCRecRoiConfig
         from TrigT1TGCRecRoiSvc.TrigT1TGCRecRoiConfig import TGCRecRoiConfig
@@ -249,9 +257,11 @@ if not isOnline:
         from IOVDbSvc.CondDB import conddb
         conddb.addFolder('TRIGGER', '/TRIGGER/LUMI/LBLB') 
         #conddb.addFolder('TRIGGER', "/TRIGGER/LVL1/BunchGroupContent") # already added by some other alg
-        #conddb.addFolder('DCS_OFL', "/LHC/DCS/FILLSTATE")
+        if LHCFillStateAvailable:
+            conddb.addFolder('DCS_OFL', "/LHC/DCS/FILLSTATE")
         conddb.addFolder('TDAQ', "/TDAQ/RunCtrl/DataTakingMode")
         conddb.addFolder('TRIGGER', "/TRIGGER/LVL1/RFPhase")
+        conddb.addFolder('TRIGGER', '/TRIGGER/LVL1/CTPCoreInputMapping')
 
     # monMan.AthenaMonTools += [ "TrigT1CTMonitoring__BSMonitoring/BSMon" ]
     ToolSvc += CTBSMonTool

@@ -1841,104 +1841,114 @@ getCoolData(unsigned int runNumber) {
   }
   // get DB pointer
   cool::IDatabasePtr cooldb2 = coradb->coolDatabase();
-  cool::IFolderPtr fillStateFolder;
-  try {
-    ATH_MSG(DEBUG) << "Will now try to retrieve LHC fill state info in folder " << m_fillStateCoolFolderName << endreq;
-    fillStateFolder = cooldb2->getFolder(m_fillStateCoolFolderName);
-  }
-  catch (cool::Exception& e) {
-    ATH_MSG(WARNING) << "Exception from cool::IDatabasePtr::getFolder(): " << e.what() << endreq;
+  if(m_fillStateCoolFolderName!="Unavailable"){
+    cool::IFolderPtr fillStateFolder;
+    try {
+      ATH_MSG(DEBUG) << "Will now try to retrieve LHC fill state info in folder " << m_fillStateCoolFolderName << endreq;
+      fillStateFolder = cooldb2->getFolder(m_fillStateCoolFolderName);
+    }
+    catch (cool::Exception& e) {
+      ATH_MSG(WARNING) << "Exception from cool::IDatabasePtr::getFolder(): " << e.what() << endreq;
     return;
-  }
-
-  cool::ValidityKey sinceTime(m_lbStartTimes[m_lumiBlocks[0]]);
-  cool::ValidityKey untilTime(m_lbStartTimes[m_lbStartTimes.size()-1]);
-  cool::IObjectIteratorPtr fillStateObjects = fillStateFolder->browseObjects( sinceTime, untilTime, 1 );
-  uint64_t endTime = 0;
-  std::string currentBeamMode;
-
-  if ( fillStateObjects->size() != 0 ) {
-    while ( fillStateObjects->goToNext() ) {
-      const cool::IObject& obj = fillStateObjects->currentRef();
-      const cool::IRecord & payload = obj.payload();
-      currentBeamMode = payload["BeamMode"].data<cool::String4k>();
-      startTime = obj.since();
-      endTime = obj.until();
-      ATH_MSG(DEBUG) << "BEAM MODE: " << currentBeamMode << ", start time: " 
-		       << startTime << ", stop time: " << endTime << endreq;
-
-      // fill the beam mode map, cases ordered by how often they appear
-      if (!strcmp(currentBeamMode.c_str(), "RAMP"))
-	m_beamMode[startTime] = RAMP;
-      else if (!strcmp(currentBeamMode.c_str(), "RAMP DOWN"))
-	m_beamMode[startTime] = RAMPDOWN;
-      else if (!strcmp(currentBeamMode.c_str(), "CYCLING"))
-	m_beamMode[startTime] = CYCLING;
-      else if (!strcmp(currentBeamMode.c_str(), "SETUP"))
-	m_beamMode[startTime] = SETUP;
-      else if (!strcmp(currentBeamMode.c_str(), "STABLE BEAMS"))
-	m_beamMode[startTime] = STABLEBEAMS;
-      else if (!strcmp(currentBeamMode.c_str(), "INJECTION PHYSICS BEAM"))
-	m_beamMode[startTime] = INJECTIONPHYSICSBEAM;
-      else if (!strcmp(currentBeamMode.c_str(), "ABORT"))
-	m_beamMode[startTime] = ABORT;
-      else if (!strcmp(currentBeamMode.c_str(), "INJECTION PROBE BEAM"))
-	m_beamMode[startTime] = INJECTIONPROBEBEAM;
-      else if (!strcmp(currentBeamMode.c_str(), "INJECTION SETUP BEAM"))
-	m_beamMode[startTime] = INJECTIONSETUPBEAM;
-      else if (!strcmp(currentBeamMode.c_str(), "PREPARE RAMP"))
-	m_beamMode[startTime] = PREPARERAMP;
-      else if (!strcmp(currentBeamMode.c_str(), "FLAT TOP"))
-	m_beamMode[startTime] = FLATTOP;
-      else if (!strcmp(currentBeamMode.c_str(), "SQUEEZE"))
-	m_beamMode[startTime] = SQUEEZE;
-      else if (!strcmp(currentBeamMode.c_str(), "ADJUST"))
-	m_beamMode[startTime] = ADJUST;
-      else if (!strcmp(currentBeamMode.c_str(), "UNSTABLE BEAMS"))
-	m_beamMode[startTime] = UNSTABLEBEAMS;
-      else if (!strcmp(currentBeamMode.c_str(), "BEAM DUMP"))
-	m_beamMode[startTime] = BEAMDUMP;
-      else if (!strcmp(currentBeamMode.c_str(), "RECOVERY"))
-	m_beamMode[startTime] = RECOVERY;
-      else if (!strcmp(currentBeamMode.c_str(), "INJECT AND DUMP"))
-	m_beamMode[startTime] = INJECTANDDUMP;
-      else if (!strcmp(currentBeamMode.c_str(), "CIRCULATE AND DUMP"))
-	m_beamMode[startTime] = CIRCULATEANDDUMP;
-      else if (!strcmp(currentBeamMode.c_str(), "NO BEAM"))
-	m_beamMode[startTime] = NOBEAM;
-      else {
-	m_beamMode[startTime] = UNKNOWN;
-	ATH_MSG(WARNING) << "Unknown LHC beam mode read from COOL: " << payload["BeamMode"] 
-			 << " (will treat as unstable)" << endreq;
-      }
-      // fill an entry with unknown after the validity of the last real entry is over
-      m_beamMode[endTime] = UNKNOWN;
     }
-
-    // now clean out all the entries that repeat the previous beam mode and only keep the ones where the beam mode changes
-    BeamMode previousBeamMode = UNKNOWN;
-    BeamMode currentBeamMode = UNKNOWN;
-    // loop over the time-ordered beam mode entries and remove unnecessary entries
-    std::map<uint64_t,BeamMode>::iterator bm = m_beamMode.begin();
-    std::map<uint64_t,BeamMode>::iterator previousbm;
-
-    while (bm != m_beamMode.end()) {
-      currentBeamMode = bm->second;
-      ATH_MSG(DEBUG) << "Beam mode at time " << bm->first << ": " << currentBeamMode << endreq;
-      if (currentBeamMode == previousBeamMode) {
-	previousbm = bm;
-	++bm;
-	m_beamMode.erase(previousbm);
-	ATH_MSG(DEBUG) << " => Removing!" << endreq;
+    
+    if(m_lumiBlocks.size() > 0){
+      cool::ValidityKey sinceTime(m_lbStartTimes[m_lumiBlocks[0]]);
+      cool::ValidityKey untilTime(m_lbStartTimes[m_lbStartTimes.size()-1]);
+      cool::IObjectIteratorPtr fillStateObjects = fillStateFolder->browseObjects( sinceTime, untilTime, 1 );
+      uint64_t endTime = 0;
+      std::string currentBeamMode;
+    
+      if ( fillStateObjects->size() != 0 ) {
+	while ( fillStateObjects->goToNext() ) {
+	  const cool::IObject& obj = fillStateObjects->currentRef();
+	  const cool::IRecord & payload = obj.payload();
+	  currentBeamMode = payload["BeamMode"].data<cool::String4k>();
+	  startTime = obj.since();
+	  endTime = obj.until();
+	  ATH_MSG(DEBUG) << "BEAM MODE: " << currentBeamMode << ", start time: " 
+			 << startTime << ", stop time: " << endTime << endreq;
+	  
+	  // fill the beam mode map, cases ordered by how often they appear
+	  if (!strcmp(currentBeamMode.c_str(), "RAMP"))
+	    m_beamMode[startTime] = RAMP;
+	  else if (!strcmp(currentBeamMode.c_str(), "RAMP DOWN"))
+	    m_beamMode[startTime] = RAMPDOWN;
+	  else if (!strcmp(currentBeamMode.c_str(), "CYCLING"))
+	    m_beamMode[startTime] = CYCLING;
+	  else if (!strcmp(currentBeamMode.c_str(), "SETUP"))
+	    m_beamMode[startTime] = SETUP;
+	  else if (!strcmp(currentBeamMode.c_str(), "STABLE BEAMS"))
+	    m_beamMode[startTime] = STABLEBEAMS;
+	  else if (!strcmp(currentBeamMode.c_str(), "INJECTION PHYSICS BEAM"))
+	    m_beamMode[startTime] = INJECTIONPHYSICSBEAM;
+	  else if (!strcmp(currentBeamMode.c_str(), "ABORT"))
+	    m_beamMode[startTime] = ABORT;
+	  else if (!strcmp(currentBeamMode.c_str(), "INJECTION PROBE BEAM"))
+	    m_beamMode[startTime] = INJECTIONPROBEBEAM;
+	  else if (!strcmp(currentBeamMode.c_str(), "INJECTION SETUP BEAM"))
+	    m_beamMode[startTime] = INJECTIONSETUPBEAM;
+	  else if (!strcmp(currentBeamMode.c_str(), "PREPARE RAMP"))
+	    m_beamMode[startTime] = PREPARERAMP;
+	  else if (!strcmp(currentBeamMode.c_str(), "FLAT TOP"))
+	    m_beamMode[startTime] = FLATTOP;
+	  else if (!strcmp(currentBeamMode.c_str(), "SQUEEZE"))
+	    m_beamMode[startTime] = SQUEEZE;
+	  else if (!strcmp(currentBeamMode.c_str(), "ADJUST"))
+	    m_beamMode[startTime] = ADJUST;
+	  else if (!strcmp(currentBeamMode.c_str(), "UNSTABLE BEAMS"))
+	    m_beamMode[startTime] = UNSTABLEBEAMS;
+	  else if (!strcmp(currentBeamMode.c_str(), "BEAM DUMP"))
+	    m_beamMode[startTime] = BEAMDUMP;
+	  else if (!strcmp(currentBeamMode.c_str(), "RECOVERY"))
+	    m_beamMode[startTime] = RECOVERY;
+	  else if (!strcmp(currentBeamMode.c_str(), "INJECT AND DUMP"))
+	    m_beamMode[startTime] = INJECTANDDUMP;
+	  else if (!strcmp(currentBeamMode.c_str(), "CIRCULATE AND DUMP"))
+	    m_beamMode[startTime] = CIRCULATEANDDUMP;
+	  else if (!strcmp(currentBeamMode.c_str(), "NO BEAM"))
+	    m_beamMode[startTime] = NOBEAM;
+	  else {
+	    m_beamMode[startTime] = UNKNOWN;
+	    ATH_MSG(WARNING) << "Unknown LHC beam mode read from COOL: " << payload["BeamMode"] 
+			     << " (will treat as unstable)" << endreq;
+	  }
+	  // fill an entry with unknown after the validity of the last real entry is over
+	  m_beamMode[endTime] = UNKNOWN;
+	}
+	
+	// now clean out all the entries that repeat the previous beam mode and only keep the ones where the beam mode changes
+	BeamMode previousBeamMode = UNKNOWN;
+	BeamMode currentBeamMode = UNKNOWN;
+	// loop over the time-ordered beam mode entries and remove unnecessary entries
+	std::map<uint64_t,BeamMode>::iterator bm = m_beamMode.begin();
+	std::map<uint64_t,BeamMode>::iterator previousbm;
+	
+	while (bm != m_beamMode.end()) {
+	  currentBeamMode = bm->second;
+	  ATH_MSG(DEBUG) << "Beam mode at time " << bm->first << ": " << currentBeamMode << endreq;
+	  if (currentBeamMode == previousBeamMode) {
+	    previousbm = bm;
+	    ++bm;
+	    m_beamMode.erase(previousbm);
+	    ATH_MSG(DEBUG) << " => Removing!" << endreq;
+	  }
+	  else {
+	    ++bm;
+	  }
+	  previousBeamMode = currentBeamMode;
+	}
       }
       else {
-	++bm;
+	ATH_MSG(DEBUG) << "No Beam Mode info found in COOL for this run!" << endreq;
       }
-      previousBeamMode = currentBeamMode;
+    }
+    else{ //cool publication is not available
+      ATH_MSG(DEBUG) << "No Beam Mode info found in COOL for this run as folder is unavailable!" << endreq;
     }
   }
-  else {
-    ATH_MSG(DEBUG) << "No Beam Mode info found in COOL for this run!" << endreq;
+  else{ //no lumi block available
+    ATH_MSG(DEBUG) << "No lumi block available for this run!" << endreq;
   }
 
   //-----------------------------------------------//
