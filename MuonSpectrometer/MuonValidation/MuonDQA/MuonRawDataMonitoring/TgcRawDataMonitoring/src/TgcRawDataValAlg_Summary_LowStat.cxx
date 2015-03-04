@@ -140,8 +140,8 @@ TgcRawDataValAlg::bookHistogramsLowStat(){
   m_log << MSG::INFO << "bookHistogramsLowStat" << endreq;
   StatusCode sc=StatusCode::SUCCESS;
 
-  MonGroup tgcprd_lowstat_a( this, generic_path_tgcmonitoring + "/TGCEA", lowStat ); 
-  MonGroup tgcprd_lowstat_c( this, generic_path_tgcmonitoring + "/TGCEC", lowStat ); 
+  MonGroup tgcprd_lowstat_a( this, generic_path_tgcmonitoring + "/TGCEA", lowStat, ATTRIB_UNMANAGED ); 
+  MonGroup tgcprd_lowstat_c( this, generic_path_tgcmonitoring + "/TGCEC", lowStat, ATTRIB_UNMANAGED ); 
   MonGroup* tgcprd_lowstat_ac[2]={ &tgcprd_lowstat_a, &tgcprd_lowstat_c};
 
   std::stringstream ss;
