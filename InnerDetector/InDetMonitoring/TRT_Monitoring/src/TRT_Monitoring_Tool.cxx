@@ -35,6 +35,7 @@
 #include "LWHists/TH2F_LW.h"
 #include "LWHists/TProfile_LW.h"
 #include "LWHists/TH1D_LW.h"
+#include "LWHists/LWHist1D.h"
 
 #include <sstream>
 #include <iomanip>
@@ -641,11 +642,9 @@ StatusCode TRT_Monitoring_Tool::initialize()
 
   if (m_lumiTool.retrieve().isFailure()) {                                     
     ATH_MSG_ERROR("Unable to retrieve Luminosity Tool");                   
-    std::cout<<"Unable to retrieve Luminosity Tool"<<std::endl;
     return StatusCode::FAILURE;                                      
   } else {                                                                    
     ATH_MSG_DEBUG("Successfully retrieved Luminosity Tool");              
-    std::cout<<"Successfully retrieved  Luminosity Tool"<<std::endl;
   }
 
   ATH_MSG_INFO("My TRT_DAQ_ConditionsSvc is " << m_DAQSvc);
@@ -677,11 +676,9 @@ StatusCode TRT_Monitoring_Tool::bookHistogramsRecurrent()
 
   if (m_lumiTool.retrieve().isFailure()) {                                    
     ATH_MSG_ERROR("Unable to retrieve Luminosity Tool");                  
-    std::cout<<"Unable to retrieve Luminosity Tool"<<std::endl;
     return StatusCode::FAILURE;                                      
   } else {                                                                    
     ATH_MSG_DEBUG("Successfully retrieved Luminosity Tool");               
-    std::cout<<"Successfully retrieved  Luminosity Tool"<<std::endl;
   }
 
   //Book_TRT_RDOs registers all raw data histograms
@@ -1093,7 +1090,7 @@ StatusCode TRT_Monitoring_Tool::Book_TRT_Shift_Tracks(bool newLumiBlock, bool ne
 
         m_hHLhitOnTrack_B       = bookTH1F_LW(trackShiftTH1, "hHLhitOnTrack", "Number of HL Hits per Reconstructed Track" + regionTag, 50, 0, 50, "Number of HL Hits per Track", "Norm. Entries", scode);
         m_hHtoLRatioOnTrack_B   = bookTH1F_LW(trackShiftTH1, "hHtoLRatioOnTrack", "HL/LL Ratio per Reconstructed Track" + regionTag, 50, 0, 1, "HL/LL Ratio", "Norm. Entries", scode);
-        m_hHitWonTMap_B         = bookTH1F_LW(trackShiftTH1, "hHitWonTMap", "Leading Edge in Time Window per Reconstructed Track" + regionTag, 1642, 0, 1642, "Straw Number", "Norm. Entries", scode);
+        m_hHitWonTMap_B         = bookTH1F_LW(trackShiftTH1, "hHitWonTMap", "Leading Edge in Time Window per Reconstructed Track" + regionTag, s_Straw_max[0], 0, s_Straw_max[0], "Straw Number", "Norm. Entries", scode);
 	m_hStrawEffDetPhi_B     = bookTProfile_LW(trackShift, "hStrawEffDetPhi", "Straw Efficiency on Track with " + distance + " mm Cut vs #phi(2D)" + regionTag, 32, 0, 32, 0, 1.2, "Stack", "Avg. Straw Efficiency", scode);
 
       } else if (ibe==1) {
@@ -1127,7 +1124,7 @@ StatusCode TRT_Monitoring_Tool::Book_TRT_Shift_Tracks(bool newLumiBlock, bool ne
 
           m_hHLhitOnTrack_E[iside]       = bookTH1F_LW(trackShiftTH1, "hHLhitOnTrack_"+side_id[iside], "Number of HL Hits per Reconstructed Track" + regionTag, 50, 0, 50, "Number of HL Hits per Track", "Norm. Entries", scode);
           m_hHtoLRatioOnTrack_E[iside]   = bookTH1F_LW(trackShiftTH1, "hHtoLRatioOnTrack_"+side_id[iside], "HL/LL Ratio per Reconstructed Track" + regionTag, 50, 0, 1.0, "HL/LL Ratio", "Norm. Entries", scode);
-          m_hHitWonTMap_E[iside]         = bookTH1F_LW(trackShiftTH1, "hHitWonTMap_"+side_id[iside], "Leading Edge in Time Window per Reconstructed Track" + regionTag, 3840, 0, 3840, "Straw Number", "Norm. Entries", scode);
+          m_hHitWonTMap_E[iside]         = bookTH1F_LW(trackShiftTH1, "hHitWonTMap_"+side_id[iside], "Leading Edge in Time Window per Reconstructed Track" + regionTag, s_Straw_max[1], 0, s_Straw_max[1], "Straw Number", "Norm. Entries", scode);
 	  m_hStrawEffDetPhi_E[iside]     = bookTProfile_LW(trackShift, "hStrawEffDetPhi_" + side_id[iside], "Straw Efficiency on Track with " + distance + " mm Cut vs #phi(2D)" + regionTag, 32, 0, 32, 0, 1.2, "Stack", "Avg. Straw Efficiency", scode);
         } //for (int iside=0; iside<2; iside++)
       } //else if (ibe==1)
@@ -1194,9 +1191,10 @@ StatusCode TRT_Monitoring_Tool::fillHistograms()
   ATH_MSG_VERBOSE("Monitoring Histograms being filled");
   StatusCode sc;
 
+  m_initScaleVectors(); //a fix for  hitW
+
   const EventInfo* eventInfo0;
   sc = evtStore()->retrieve(eventInfo0);
-  m_initScaleArrays();//a fix for  hitW
   if (m_doRDOsMon) {
     sc = Retrieve_TRT_RDOs();
     if (sc == StatusCode::FAILURE) return sc;
@@ -1312,28 +1310,33 @@ StatusCode TRT_Monitoring_Tool::procHistograms()
         }//Loop over A side and C side Stacks: for (int i=0; i<64; i++)
       }//if DoChips && DoExpert && endOfRun
       
-      //fix for leading edge in time window probability vs straw number(Barrel) histograms
-      //
-      float scalearray[1642];
-      float scalearray_Ar[1642];
-      for(int k =0;k<1642;k++){
-	if (m_scale_hHitWMap_B[k]==0)
-	  scalearray[k]=0;
-	else
-	  scalearray[k]=1./(m_nEvents*m_scale_hHitWMap_B[k]);
-	//for argon
-	if (m_scale_hHitWMap_B_Ar[k]==0)
-	  scalearray_Ar[k]=0;
-	else
-	  scalearray_Ar[k]=1./(m_nEvents*m_scale_hHitWMap_B_Ar[k]);
-      }//for(int k =0;k<1642;k++){
-      //now we have scaling arrays for hHitWMap_B*
       if (DoStraws && endOfRun) {
         if (m_doRDOsMon && m_nEvents > 0) {
           if (ibe==0) {
-            scale_LWHistWithScaleArray(m_hHitWMap_B,scalearray);
+	    //fix for leading edge in time window probability vs straw number(Barrel) histograms
+	    //
+	    m_initScaleVectors();
+	    vector<float> scalevector;
+	    vector<float> scalevector_Ar;
+	    for(int k =0;k<s_Straw_max[0];k++){
+	      try {
+		if (m_scale_hHitWMap_B.at(k)==0.)
+		  scalevector.push_back(0.);
+		else
+		  scalevector.push_back(1./(m_nEvents*m_scale_hHitWMap_B.at(k)));
+		//for argon
+		if (m_scale_hHitWMap_B_Ar.at(k)==0.)
+		  scalevector_Ar.push_back(0.);
+		else
+		  scalevector_Ar.push_back(1./(m_nEvents*m_scale_hHitWMap_B_Ar.at(k)));
+	      } catch (out_of_range& e) {
+		ATH_MSG_ERROR("Index " << k << " out of range in scaling for hHitWMap");
+	      }
+	    }//for(int k =0;k<s_Straw_max[0];k++){
+	    //now we have scaling arrays for hHitWMap_B*
+            scale_LWHistWithScaleVector(m_hHitWMap_B, scalevector);
             if (m_ArgonXenonSplitter) {
-              scale_LWHistWithScaleArray(m_hHitWMap_B_Ar,scalearray_Ar);
+              scale_LWHistWithScaleVector(m_hHitWMap_B_Ar, scalevector_Ar);
             }
           } else if (ibe==1) {
             scale_LWHist(m_hHitWMap_E[0], 1. / (m_nEvents * 32));
@@ -1760,26 +1763,31 @@ StatusCode TRT_Monitoring_Tool::Fill_TRT_RDOs()
           scale_LWHist(m_hHitHMapC[ibe][i],  scale);
         }//Loop over A side and C side Stacks: for (int i=0; i<64; i++)
       }//if DoChips && DoExpert
-      //scale array for HitWMap_B*
-      float scalearray[1642];
-      float scalearray_Ar[1642];
-      for(int k =0;k<1642;k++){
-	if (m_scale_hHitWMap_B[k]==0)
-	  scalearray[k]=0;
-	else
-	  scalearray[k]=(nEvents-1)*m_scale_hHitWMap_B[k];
-	//for argon
-	if (m_scale_hHitWMap_B_Ar[k]==0)
-	  scalearray_Ar[k]=0;
-	else
-	  scalearray_Ar[k]=(nEvents-1)*m_scale_hHitWMap_B_Ar[k];
-      }
 
       if (DoStraws) {
-        if (ibe == 0) {
-          scale_LWHistWithScaleArray(m_hHitWMap_B,scalearray);
+	if (ibe == 0) {
+	  //scale array for HitWMap_B*
+	  m_initScaleVectors();
+	  vector<float> scalevector;
+	  vector<float> scalevector_Ar;
+	  for(int k =0;k<s_Straw_max[0];k++){
+	    try {
+	      if (m_scale_hHitWMap_B.at(k)==0.)
+		scalevector.push_back(0.);
+	      else
+		scalevector.push_back((nEvents-1)*m_scale_hHitWMap_B.at(k));
+	      //for argon
+	      if (m_scale_hHitWMap_B_Ar.at(k)==0.)
+		scalevector_Ar.push_back(0.);
+	      else
+		scalevector_Ar.push_back((nEvents-1)*m_scale_hHitWMap_B_Ar.at(k));
+	    } catch (out_of_range& e) {
+	      ATH_MSG_ERROR("Index " << k << " out of range in scaling for hHitWMap");
+	    }
+	  }
+	  scale_LWHistWithScaleVector(m_hHitWMap_B, scalevector);
           if (m_ArgonXenonSplitter) {
-            scale_LWHistWithScaleArray(m_hHitWMap_B_Ar,scalearray_Ar);
+            scale_LWHistWithScaleVector(m_hHitWMap_B_Ar, scalevector_Ar);
           }
         } else if (ibe==1) {
           scale_LWHist(m_hHitWMap_E[0], (nEvents-1) * 32);
@@ -2130,25 +2138,31 @@ StatusCode TRT_Monitoring_Tool::Fill_TRT_RDOs()
           }
         }//Loop over A side and C side Stacks
       }//if DoChips && DoExpert
-      float scalearray[1642];
-      float scalearray_Ar[1642];
-      for(int k =0;k<1642;k++){
-	if (m_scale_hHitWMap_B[k]==0)
-	  scalearray[k]=0;
-	else
-	  scalearray[k]=1./(nEvents*m_scale_hHitWMap_B[k]);
-	//for argon
-	if (m_scale_hHitWMap_B_Ar[k]==0)
-	  scalearray_Ar[k]=0;
-	else
-	  scalearray_Ar[k]=1./(nEvents*m_scale_hHitWMap_B_Ar[k]);
-      }
+      
       if (DoStraws) {
         if (DoShift && nEvents > 0) {
           if (ibe==0) {
-            scale_LWHistWithScaleArray(m_hHitWMap_B,scalearray);
+	    m_initScaleVectors();
+	    vector<float> scalevector;
+	    vector<float> scalevector_Ar;
+	    for(int k =0;k<s_Straw_max[0];k++){
+	      try {
+		if (m_scale_hHitWMap_B.at(k)==0.)
+		  scalevector.push_back(0.);
+		else
+		  scalevector.push_back(1./(nEvents*m_scale_hHitWMap_B.at(k)));
+		//for argon
+		if (m_scale_hHitWMap_B_Ar.at(k)==0.)
+		  scalevector_Ar.push_back(0.);
+		else
+		  scalevector_Ar.push_back(1./(nEvents*m_scale_hHitWMap_B_Ar.at(k)));
+	      } catch (out_of_range& e) {
+		ATH_MSG_ERROR("Index " << k << " out of range in scaling for hHitWMap");
+	      }
+	    }
+            scale_LWHistWithScaleVector(m_hHitWMap_B, scalevector);
             if (m_ArgonXenonSplitter) {
-              scale_LWHistWithScaleArray(m_hHitWMap_B_Ar,scalearray_Ar);
+              scale_LWHistWithScaleVector(m_hHitWMap_B_Ar, scalevector_Ar);
 	    }
 	  } else if (ibe==1) {
 	    scale_LWHist(m_hHitWMap_E[0], 1./(32*nEvents));
@@ -3681,7 +3695,7 @@ int TRT_Monitoring_Tool::strawNumber(int strawNumber, int strawlayerNumber, int 
     strawNumber = addToStrawNumberNext - strawNumber-1;
     }*/
   strawNumber = addToStrawNumberNext - strawNumber-1;
-  if (strawNumber < 0 || strawNumber > 1641) {
+  if (strawNumber < 0 || strawNumber > s_Straw_max[0]-1) {
     ATH_MSG_WARNING("strawNumber = " << strawNumber << " out of range. Will set to 0.");
     strawNumber = 0;
   }
@@ -3791,7 +3805,7 @@ int TRT_Monitoring_Tool::strawNumberEndCap(int strawNumber, int strawLayerNumber
 
   strawNumber=strawNumberNew;
 
-  if (strawNumber < 0 || strawNumber > 3839) {
+  if (strawNumber < 0 || strawNumber > s_Straw_max[1]-1) {
     ATH_MSG_WARNING("strawNumber = " << strawNumber << " out of range. Will set to 0.");
     strawNumber = 0;
   }
@@ -3815,7 +3829,7 @@ int TRT_Monitoring_Tool::strawLayerNumber(int strawLayerNumber, int LayerNumber)
 int TRT_Monitoring_Tool::strawLayerNumber_reverse(int strawLayerNumInp,int* strawLayerNumber, int* LayerNumber)
 //---------------------------------------------------------------------//
 {
-  //Dabger? There are no checks on input
+  //Danger? There are no checks on input
   //use with care
   if (strawLayerNumInp<19){
     *strawLayerNumber = strawLayerNumInp;
@@ -3879,7 +3893,7 @@ int TRT_Monitoring_Tool::chipToBoard_EndCap(int chip)
 
 // Code to normalize a LW histogram. For now does it only of TH1F_LW.
 // Return whether we could do it (ie integral was non-zero)
-void TRT_Monitoring_Tool::scale_LWHist(TH1F_LW* hist, float scale)
+void TRT_Monitoring_Tool::scale_LWHist(LWHist1D* hist, float scale)
 {
   if (!hist) return;
   const unsigned int entries = hist->GetEntries();
@@ -3891,17 +3905,23 @@ void TRT_Monitoring_Tool::scale_LWHist(TH1F_LW* hist, float scale)
   }
   hist->SetEntries(entries);
 }
-//function for scaling a histogram with an array
-// no checks on array size can do some harm
-void TRT_Monitoring_Tool::scale_LWHistWithScaleArray (TH1F_LW* hist, float scale [] )
+//function for scaling a histogram with an vector
+// checks that number of bins matches vector length
+void TRT_Monitoring_Tool::scale_LWHistWithScaleVector(LWHist1D* hist, const vector<float>& scale)
 {
   if (!hist) return;
+  if (hist->GetNbinsX() != scale.size()) return; // Could add an error message here
   const unsigned int entries = hist->GetEntries();
   unsigned int index;
   double content, error;
   hist->resetActiveBinLoop();
   while (hist->getNextActiveBin(index, content, error)) {
-    hist->SetBinContentAndError(index, scale[index] * content, scale[index] * error);
+    // histogram bins run from 1 to n while array runs from 0 ro n-1
+    try {
+      hist->SetBinContentAndError(index, scale.at(index-1) * content, scale.at(index-1) * error);
+    } catch (out_of_range& e) {
+      ATH_MSG_ERROR("Index " << index << " out of range in scale_LWHistWithScaleVector");
+    }
   }
   hist->SetEntries(entries);
 }
@@ -4035,9 +4055,11 @@ TH2F_LW *TRT_Monitoring_Tool::bookTH2F_LW(MonGroup& mongroup, const std::string 
 }
 
 
-int TRT_Monitoring_Tool::m_initScaleArrays(){
+int TRT_Monitoring_Tool::m_initScaleVectors(){
   if(m_flagforscale == 0 ) return 0;
-  for (int i=0;i<1642;i++){
+  m_scale_hHitWMap_B.clear();
+  m_scale_hHitWMap_B_Ar.clear();
+  for (int i=0;i<s_Straw_max[0];i++){
     float countAr = 0;
     float countXe = 0;
     int sN,sLN,lN;
@@ -4053,11 +4075,11 @@ int TRT_Monitoring_Tool::m_initScaleArrays(){
 	  countXe +=1.0; 
       }
     } 
-    m_scale_hHitWMap_B[i] = countXe;   
-    m_scale_hHitWMap_B_Ar[i] = countAr;
+    m_scale_hHitWMap_B.push_back(countXe);
+    m_scale_hHitWMap_B_Ar.push_back(countAr);
   }
   m_flagforscale=0;
       
 
   return 0;
-}// TRT_Monitoring_Tool::m_initScaleArrays()
+}// TRT_Monitoring_Tool::m_initScaleVectors()
