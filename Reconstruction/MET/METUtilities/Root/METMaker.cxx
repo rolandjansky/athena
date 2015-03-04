@@ -182,6 +182,10 @@ namespace met {
                       << " or map (" << map << ").");
       return StatusCode::SUCCESS;
     }
+    if(map->empty()) {
+      ATH_MSG_WARNING("Incomplete association map received. Abort.");
+      return StatusCode::SUCCESS;
+    }
     ATH_MSG_VERBOSE("Building MET term " << met->name());
     uniques.clear();
     if(!collection->empty()) {
@@ -290,7 +294,7 @@ namespace met {
   {    
     ATH_MSG_VERBOSE("Rebuild jet term: " << metJetKey << " and soft term: " << softKey);
 
-    MissingET* metJet = new MissingET(metJetKey,MissingETBase::Source::jet());
+    MissingET* metJet = new MissingET(metJetKey,MissingETBase::Source::jet() | MissingETBase::Source::track() );//jet track met
     metCont->push_back(metJet);
 
     const MissingET *coreSoftTrk(0);
@@ -321,7 +325,7 @@ namespace met {
   {
     std::vector<const xAOD::IParticle*> uniques;
     return rebuildJetMET(metJetKey,softClusKey,softTrkKey,metCont,
-                         jets,metCoreCont,map,doJetJVF);
+                         jets,metCoreCont,map,doJetJVF,uniques);
   }
   
   StatusCode METMaker::rebuildJetMET(const std::string& metJetKey,
@@ -377,6 +381,10 @@ namespace met {
                       << " or map (" << map << ")." );
       return StatusCode::SUCCESS;
     }
+    if(map->empty()) {
+      ATH_MSG_WARNING("Incomplete association map received. Abort.");
+      return StatusCode::SUCCESS;
+    }
     ATH_MSG_VERBOSE("Building MET jet term " << metJet->name());
     if(!metSoftClus && !metSoftTrk) {
       ATH_MSG_WARNING("Neither soft cluster nor soft track term has been supplied!");
@@ -410,7 +418,7 @@ namespace met {
         const IParticle* orig = *m_objLinkAcc(*jet);
         assoc = MissingETComposition::getAssociation(map,static_cast<const xAOD::Jet*>(orig));
       }
-      if(assoc) {
+      if(assoc && !assoc->isMisc()) {
         ATH_MSG_VERBOSE( "Jet calib pt = " << jet->pt());
         bool selected = jet->pt()>m_jetMinPt;
         if(doJetJVF) {
