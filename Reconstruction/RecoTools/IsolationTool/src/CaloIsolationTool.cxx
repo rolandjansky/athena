@@ -565,7 +565,7 @@ namespace xAOD {
         if( !selector.select(*aCell) ) continue;
         if (m_ExcludeTG3 && CaloCell_ID::TileGap3 == aCell->caloDDE()->getSampling()) continue;
 //         if(noEM && aCell->caloDDE()->getSampling()<fistTile) continue;
-        totE += aCell->energy();
+        totE += aCell->et();
       }
       result.etcones[i] = totE;
       ATH_MSG_DEBUG("etcone raw: coneSize = " << conesf[i] << "; etcone = " << result.etcones[i]);
@@ -581,7 +581,7 @@ namespace xAOD {
         if( !selector.select(*aCell) ) continue;
         if (m_ExcludeTG3 && CaloCell_ID::TileGap3 == aCell->caloDDE()->getSampling()) continue;
 //         if(noEM && aCell->caloDDE()->getSampling()<fistTile) continue;
-        totE += aCell->energy();
+        totE += aCell->et();
       }
       std::map<Iso::IsolationCorrectionParameter,float> corecorr;
       corecorr[Iso::coreEnergy] = totE;
