@@ -165,9 +165,9 @@ StatusCode SharedEvtQueueConsumer::exec()
   return StatusCode::SUCCESS;
 }
 
-StatusCode SharedEvtQueueConsumer::wait_once(int& numFinishedProc)
+StatusCode SharedEvtQueueConsumer::wait_once(pid_t& pid)
 {
-  StatusCode sc = AthenaMPToolBase::wait_once(numFinishedProc);
+  StatusCode sc = AthenaMPToolBase::wait_once(pid);
   AthenaInterprocess::ProcessResult* presult(0);
   if(sc.isFailure()) {
     // We are to stop waiting. Pull all available ProcessResults from the queue

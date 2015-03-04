@@ -29,7 +29,7 @@ class SharedEvtQueueConsumer : public AthenaMPToolBase
   // _________IAthenaMPTool_________   
   int makePool(int maxevt, int nprocs, const std::string& topdir);
   StatusCode exec();
-  StatusCode wait_once(int& numFinishedProc);
+  StatusCode wait_once(pid_t& pid);
 
   void reportSubprocessStatuses();
   void subProcessLogs(std::vector<std::string>&);

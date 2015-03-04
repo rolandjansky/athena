@@ -4,6 +4,7 @@
 
 #include "TokenScatterer.h"
 #include "AthenaInterprocess/ProcessGroup.h"
+#include "AthenaInterprocess/SharedQueue.h"
 
 #include "AthenaKernel/IEventShare.h"
 #include "GaudiKernel/IEvtSelector.h"
@@ -193,7 +194,7 @@ AthenaInterprocess::ScheduledWork* TokenScatterer::exec_func()
   yampl::ISocket* socket2Pilot = socketFactory->createClientSocket(yampl::Channel(m_eventRangeChannel.value(),yampl::LOCAL),yampl::MOVE_DATA);
   msg(MSG::DEBUG) << "Created CLIENT socket for communicating Event Ranges with the Pilot" << endreq;
   // Create a socket to communicate with TokenProcessors
-  yampl::ISocket* socket2Processor = socketFactory->createServerSocket(yampl::Channel(m_processorChannel.value(),yampl::LOCAL_PIPE),yampl::MOVE_DATA);
+  yampl::ISocket* socket2Processor = socketFactory->createServerSocket(yampl::Channel(m_processorChannel.value(),yampl::LOCAL),yampl::MOVE_DATA);
   msg(MSG::DEBUG)<< "Created SERVER socket to token processors: " << m_processorChannel.value() << endreq;
   // Create a socket to communicate with the token extractor
   yampl::ISocket* socket2Extractor = socketFactory->createClientSocket(yampl::Channel("TokenExtractorChannel",yampl::LOCAL_PIPE),yampl::MOVE_DATA);
@@ -202,15 +203,24 @@ AthenaInterprocess::ScheduledWork* TokenScatterer::exec_func()
   bool all_ok=true;
   int procReportPending(0);  // Keep track of how many output files are yet to be reported by Token Processors
 
+  AthenaInterprocess::SharedQueue*  sharedFailedPidQueue(0);
+  if(detStore()->retrieve(sharedFailedPidQueue,"AthenaMPFailedPidQueue_"+m_randStr).isFailure()) {
+    msg(MSG::ERROR) << "Unable to retrieve the pointer to Shared Failed PID Queue" << endreq;
+    all_ok=false;
+  }
+
   // Communication protocol with the Pilot
   std::string strReady("Ready for events");
   std::string strStopProcessing("No more events");
 
-  while(true) {
+  while(all_ok) {
     // NO CACHING MODE: first get a request from one of the processors and only after that request the next event range from the pilot
     if(!m_doCaching) {
       msg(MSG::DEBUG) << "Start waiting for event range request from one of the processors" << endreq;
-      while(getNewRangeRequest(socket2Processor,socket2Pilot,procReportPending).empty()) {}
+      while(getNewRangeRequest(socket2Processor,socket2Pilot,procReportPending).empty()) {
+	pollFailedPidQueue(sharedFailedPidQueue,procReportPending);
+	usleep(1000);
+      }
       msg(MSG::DEBUG) << "One of the processors is ready for the next range" << endreq;
     }    
 
@@ -320,7 +330,10 @@ AthenaInterprocess::ScheduledWork* TokenScatterer::exec_func()
     // and only after that wait for a new range request by one of the processors
     if(m_doCaching) {
       msg(MSG::DEBUG) << "Start waiting for event range request from one of the processors" << endreq;
-      while(getNewRangeRequest(socket2Processor,socket2Pilot,procReportPending).empty()) {}
+      while(getNewRangeRequest(socket2Processor,socket2Pilot,procReportPending).empty()) {
+	pollFailedPidQueue(sharedFailedPidQueue,procReportPending);
+	usleep(1000);
+      }
       msg(MSG::DEBUG) << "One of the processors is ready for the next range" << endreq;
     }
     
@@ -353,7 +366,10 @@ AthenaInterprocess::ScheduledWork* TokenScatterer::exec_func()
       socket2Processor->send(emptyMess4Processor,1);
     }
     for(int i(0); i<(m_doCaching?m_nprocs:m_nprocs-1); ++i) {
-      while(getNewRangeRequest(socket2Processor,socket2Pilot,procReportPending).empty()) {}
+      while(getNewRangeRequest(socket2Processor,socket2Pilot,procReportPending).empty()) {
+	pollFailedPidQueue(sharedFailedPidQueue,procReportPending);
+	usleep(1000);
+      }
       emptyMess4Processor = malloc(1);
       socket2Processor->send(emptyMess4Processor,1);
     }
@@ -366,6 +382,8 @@ AthenaInterprocess::ScheduledWork* TokenScatterer::exec_func()
 	all_ok = false;
 	break;
       }
+      pollFailedPidQueue(sharedFailedPidQueue,procReportPending);
+      usleep(1000);
     }
   }
 
@@ -445,10 +463,12 @@ std::string TokenScatterer::getNewRangeRequest(yampl::ISocket* socket2Processor
 {
   msg(MSG::DEBUG) << "In getNewRangeRequest ..."  << endreq;
   void* processor_request(0);
-  ssize_t processorRequestSize = socket2Processor->recv(processor_request);
+  ssize_t processorRequestSize = socket2Processor->tryRecv(processor_request);
+
+  if(processorRequestSize==-1) return std::string("");
   std::string strProcessorRequest((const char*)processor_request,processorRequestSize);
   msg(MSG::DEBUG) << "Received request from a processor: " << strProcessorRequest << endreq;
-  // Decode the request. If it contains output file name then pass it over to the pilot and keep waiting
+  // Decode the request. If it contains output file name then pass it over to the pilot and return empty string
   if(strProcessorRequest.find('/')==0) {
     void* outpFileNameMessage = malloc(strProcessorRequest.size());
     memcpy(outpFileNameMessage,strProcessorRequest.data(),strProcessorRequest.size());
@@ -457,4 +477,14 @@ std::string TokenScatterer::getNewRangeRequest(yampl::ISocket* socket2Processor
     return std::string("");
   }
   return strProcessorRequest;
+}
+
+void TokenScatterer::pollFailedPidQueue(AthenaInterprocess::SharedQueue*  sharedFailedPidQueue
+					, int& procReportPending)
+{
+  pid_t pid;
+  if(sharedFailedPidQueue->try_receive_basic<pid_t>(pid)) {
+    msg(MSG::INFO) << "Procesor with PID=" << pid << " has failed!" << endreq;
+    procReportPending--;
+  } 
 }

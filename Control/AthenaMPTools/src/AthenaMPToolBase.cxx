@@ -95,26 +95,23 @@ StatusCode AthenaMPToolBase::finalize()
   return StatusCode::SUCCESS;
 }
 
-StatusCode AthenaMPToolBase::wait_once(int& numFinishedProc)
+StatusCode AthenaMPToolBase::wait_once(pid_t& pid)
 {
-  numFinishedProc = 0;
-  bool processSuccessfull(true);
-  pid_t pid = m_processGroup->wait_once(processSuccessfull);
-  if(pid<0) {// wait failed
-    msg(MSG::ERROR) << "Wait failed on the Process Group!" << endreq;
+  bool flag(true);
+  pid = m_processGroup->wait_once(flag);
+
+  if(flag) { // Either none of the processes changed its status or one of the processes finished successfully
+    return StatusCode::SUCCESS;
+  }
+  else {
+    if(pid<0) { // Wait failed on the group
+      msg(MSG::ERROR) << "Wait failed on the Process Group!" << endreq;
+    }
+    else {
+      msg(MSG::WARNING) << "Abnormal termination of the process PID=" << pid << endreq; 
+    }
     return StatusCode::FAILURE;
   }
-  else if(pid==0) // none of the processes changed it status
-    return StatusCode::SUCCESS;
-
-  // One of the processes actually finished
-  // TODO: Attempt to restart? 
-  numFinishedProc = 1;
-  if(processSuccessfull)
-    return StatusCode::SUCCESS;
-
-  msg(MSG::INFO) << "Abnormal termination of the process PID=" << pid << endreq; 
-  return StatusCode::FAILURE;
 }
 
 void AthenaMPToolBase::reportSubprocessStatuses()
