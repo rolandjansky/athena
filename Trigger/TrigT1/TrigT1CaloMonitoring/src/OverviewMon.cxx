@@ -4,7 +4,7 @@
 
 // ********************************************************************
 //
-// NAME:     TrigT1CaloGlobalMonTool.cxx
+// NAME:     OverviewMon.cxx
 // PACKAGE:  TrigT1CaloMonitoring  
 //
 // AUTHOR:   Peter Faulkner
@@ -31,17 +31,25 @@
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
 
-#include "TrigT1CaloMonitoring/TrigT1CaloGlobalMonTool.h"
-#include "TrigT1CaloMonitoringTools/TrigT1CaloMonErrorTool.h"
-#include "TrigT1CaloMonitoringTools/TrigT1CaloLWHistogramToolV1.h"
+#include "TrigT1CaloMonitoringTools/TrigT1CaloMonErrorTool.h" 
+#include "TrigT1CaloMonitoringTools/TrigT1CaloLWHistogramTool.h"
+
+#include "TrigT1CaloMonitoring/OverviewMon.h"
+
+namespace LVL1 {
+  
+  // Interface ID
+  //static const InterfaceID IID_IOverviewMon("LVL1::OverviewMon", 1, 1);
+  //const InterfaceID& OverviewMon::interfaceID() {
+  //return IID_IOverviewMon;
+  //}
 
 /*---------------------------------------------------------*/
-TrigT1CaloGlobalMonTool::TrigT1CaloGlobalMonTool(const std::string & type, 
-				                 const std::string & name,
-				                 const IInterface* parent)
+OverviewMon::OverviewMon(const std::string & type, const std::string & name,
+				                   const IInterface* parent)
   : ManagedMonitorToolBase(type, name, parent),
     m_errorTool("TrigT1CaloMonErrorTool"),
-    m_histTool("TrigT1CaloLWHistogramToolV1"),
+    m_histTool("TrigT1CaloLWHistogramTool"),
     m_lumiNo(0),
     m_lumipos(0),
     m_h_l1calo_2d_GlobalOverview(0),
@@ -55,7 +63,28 @@ TrigT1CaloGlobalMonTool::TrigT1CaloGlobalMonTool(const std::string & type,
 /*---------------------------------------------------------*/
 {
 
-  declareProperty("RootDirectory", m_rootDir = "L1Calo");
+  declareProperty("ErrorTool", m_errorTool);
+  declareProperty("HistogramTool", m_histTool);
+
+  declareProperty("PPMErrorLocation",
+                  m_ppmErrorLocation = "L1CaloPPMErrorVector");
+  declareProperty("PPMSpareErrorLocation",
+                  m_ppmSpareErrorLocation = "L1CaloPPMSpareErrorVector");
+  declareProperty("CPMErrorLocation",
+                  m_cpmErrorLocation = "L1CaloCPMErrorVector");
+  declareProperty("JEMErrorLocation",
+                  m_jemErrorLocation = "L1CaloJEMErrorVector");
+  declareProperty("JEMCMXErrorLocation",
+                  m_jemCmxErrorLocation = "L1CaloJEMCMXErrorVector");
+  declareProperty("RODErrorLocation",
+                  m_rodErrorLocation = "L1CaloRODErrorVector");
+  declareProperty("PPMMismatchLocation",
+                  m_ppmMismatchLocation = "L1CaloPPMMismatchVector");
+  declareProperty("CPMMismatchLocation",
+                  m_cpmMismatchLocation = "L1CaloCPMMismatchVector");
+  declareProperty("JEMMismatchLocation",
+                  m_jemMismatchLocation = "L1CaloJEMMismatchVector");
+  declareProperty("RootDirectory", m_rootDir = "L1Calo/Overview");
   declareProperty("RecentLumiBlocks", m_recentLumi = 10,
                   "Number of lumiblocks in recent lumiblocks plot");
   declareProperty("OnlineTest", m_onlineTest = false,
@@ -64,7 +93,7 @@ TrigT1CaloGlobalMonTool::TrigT1CaloGlobalMonTool(const std::string & type,
 }
 
 /*---------------------------------------------------------*/
-TrigT1CaloGlobalMonTool::~TrigT1CaloGlobalMonTool()
+OverviewMon::~OverviewMon()
 /*---------------------------------------------------------*/
 {
 }
@@ -74,7 +103,7 @@ TrigT1CaloGlobalMonTool::~TrigT1CaloGlobalMonTool()
 #endif
 
 /*---------------------------------------------------------*/
-StatusCode TrigT1CaloGlobalMonTool::initialize()
+StatusCode OverviewMon::initialize()
 /*---------------------------------------------------------*/
 {
   msg(MSG::INFO) << "Initializing " << name() << " - package version "
@@ -102,7 +131,7 @@ StatusCode TrigT1CaloGlobalMonTool::initialize()
 }
 
 /*---------------------------------------------------------*/
-StatusCode TrigT1CaloGlobalMonTool::finalize()
+StatusCode OverviewMon::finalize()
 /*---------------------------------------------------------*/
 {
   delete m_h_l1calo_2d_CurrentEventOverview;
@@ -116,10 +145,10 @@ StatusCode TrigT1CaloGlobalMonTool::finalize()
 }
 
 /*---------------------------------------------------------*/
-StatusCode TrigT1CaloGlobalMonTool::bookHistogramsRecurrent()
+StatusCode OverviewMon::bookHistogramsRecurrent() 
 /*---------------------------------------------------------*/
 {
-  msg(MSG::DEBUG) << "bookHistograms entered" << endreq;
+  msg(MSG::DEBUG) << "bookHistogramsRecurrent entered" << endreq;
 
   if( m_environment == AthenaMonManager::online ) {
     // book histograms that are only made in the online environment...
@@ -129,8 +158,9 @@ StatusCode TrigT1CaloGlobalMonTool::bookHistogramsRecurrent()
     // book histograms that are only relevant for cosmics data...
   }
 
+  if ( newEventsBlock || newLumiBlock ) { }
+
   bool online = (m_onlineTest || m_environment == AthenaMonManager::online);
-  MgmtAttr_t attr = ATTRIB_UNMANAGED;
  
   if ( newRun || newLumiBlock ) {
 
@@ -146,9 +176,8 @@ StatusCode TrigT1CaloGlobalMonTool::bookHistogramsRecurrent()
 
   if ((newLumiBlock && !online) || newRun ) {
 
-    std::string dir(m_rootDir + "/Overview/Errors");
-    MonGroup monGlobal( this, dir,
-             ((newLumiBlock && !online) ? lumiBlock : run), attr );
+    std::string dir(m_rootDir + "/Errors");
+    MonGroup monGlobal( this, dir, (newLumiBlock && !online) ? lumiBlock : run, ATTRIB_UNMANAGED );
 
     // Global Error Overview
 
@@ -232,8 +261,8 @@ StatusCode TrigT1CaloGlobalMonTool::bookHistogramsRecurrent()
 
     if( m_lumiNo ) {
       if (newRun) {
-        std::string dir(m_rootDir + "/Overview/Errors");
-	MonGroup monLumi( this, dir, run, attr);
+        std::string dir(m_rootDir + "/Errors");
+	MonGroup monLumi( this, dir, run, ATTRIB_UNMANAGED);
         if (online) m_histTool->setMonGroup(&monLumi);
 	else        m_histTool->unsetMonGroup();
         m_h_l1calo_1d_ErrorsByLumiblock = m_histTool->bookTH1F(
@@ -305,8 +334,7 @@ StatusCode TrigT1CaloGlobalMonTool::bookHistogramsRecurrent()
   // Total events processed and total rejected as corrupt
 
   if ( newRun ) {
-    std::string dir(m_rootDir + "/Overview");
-    MonGroup monEvents( this, dir, run, attr);
+    MonGroup monEvents( this, m_rootDir, run, ATTRIB_UNMANAGED);
     m_histTool->setMonGroup(&monEvents);
     int bins = (m_errorTool->flagCorruptEvents() == "None") ? 1 : 2;
     m_h_l1calo_1d_NumberOfEvents = m_histTool->bookTH1F("l1calo_1d_NumberOfEvents",
@@ -319,13 +347,13 @@ StatusCode TrigT1CaloGlobalMonTool::bookHistogramsRecurrent()
 
   m_histTool->unsetMonGroup();
 
-  msg(MSG::DEBUG) << "Leaving bookHistograms" << endreq;
+  msg(MSG::DEBUG) << "Leaving bookHistogramsRecurrent" << endreq;
 
   return StatusCode::SUCCESS;
 }
 
 /*---------------------------------------------------------*/
-StatusCode TrigT1CaloGlobalMonTool::fillHistograms()
+StatusCode OverviewMon::fillHistograms()
 /*---------------------------------------------------------*/
 {
   const bool debug = msgLvl(MSG::DEBUG);
@@ -337,7 +365,6 @@ StatusCode TrigT1CaloGlobalMonTool::fillHistograms()
   }
 
   const bool online = (m_onlineTest || m_environment == AthenaMonManager::online);
-  MgmtAttr_t attr = ATTRIB_UNMANAGED;
 
   // Total events and corrupt event by lumiblock plots
 
@@ -345,8 +372,8 @@ StatusCode TrigT1CaloGlobalMonTool::fillHistograms()
     m_h_l1calo_1d_NumberOfEvents->Fill(1.);
     if (m_lumiNo && m_h_l1calo_1d_RejectedEvents) {
       if (!online && m_h_l1calo_1d_RejectedEvents->GetEntries() == 0.) {
-        std::string dir(m_rootDir + "/Overview/Errors");
-        MonGroup monLumi( this, dir, run, attr, "", "mergeRebinned");
+        std::string dir(m_rootDir + "/Errors");
+        MonGroup monLumi( this, dir, run, ATTRIB_UNMANAGED, "", "mergeRebinned");
         m_histTool->setMonGroup(&monLumi);
         m_histTool->registerHist(m_h_l1calo_1d_RejectedEvents);
       }
@@ -366,8 +393,8 @@ StatusCode TrigT1CaloGlobalMonTool::fillHistograms()
 
   // PPM Error data
   const ErrorVector* errTES = 0; 
-  if (evtStore()->contains<ErrorVector>("L1CaloPPMErrorVector")) {
-    sc = evtStore()->retrieve(errTES, "L1CaloPPMErrorVector"); 
+  if (evtStore()->contains<ErrorVector>(m_ppmErrorLocation)) {
+    sc = evtStore()->retrieve(errTES, m_ppmErrorLocation);
   } else sc = StatusCode::FAILURE;
   if (sc.isFailure() || !errTES || errTES->size() != size_t(ppmCrates)) {
     if (debug) msg(MSG::DEBUG) << "No PPM error vector of expected size"
@@ -390,8 +417,8 @@ StatusCode TrigT1CaloGlobalMonTool::fillHistograms()
 
   // Spare PPM Channels Error data
   errTES = 0;
-  if (evtStore()->contains<ErrorVector>("L1CaloPPMSpareErrorVector")) {
-    sc = evtStore()->retrieve(errTES, "L1CaloPPMSpareErrorVector"); 
+  if (evtStore()->contains<ErrorVector>(m_ppmSpareErrorLocation)) {
+    sc = evtStore()->retrieve(errTES, m_ppmSpareErrorLocation);
   } else sc = StatusCode::FAILURE;
   if (sc.isFailure() || !errTES || errTES->size() != size_t(ppmCrates)) {
     if (debug) msg(MSG::DEBUG) << "No PPMSpare error vector of expected size"
@@ -412,10 +439,10 @@ StatusCode TrigT1CaloGlobalMonTool::fillHistograms()
     }
   }
 
-  // CPM and CPM CMM Error data
+  // CPM and CPM CMX Error data
   errTES = 0; 
-  if (evtStore()->contains<ErrorVector>("L1CaloCPMErrorVector")) {
-    sc = evtStore()->retrieve(errTES, "L1CaloCPMErrorVector"); 
+  if (evtStore()->contains<ErrorVector>(m_cpmErrorLocation)) {
+    sc = evtStore()->retrieve(errTES, m_cpmErrorLocation);
   } else sc = StatusCode::FAILURE;
   if (sc.isFailure() || !errTES || errTES->size() != size_t(cpmCrates)) {
     if (debug) msg(MSG::DEBUG) << "No CPM error vector of expected size"
@@ -430,16 +457,16 @@ StatusCode TrigT1CaloGlobalMonTool::fillHistograms()
                                              m_h_l1calo_2d_CurrentEventOverview->Fill(Parity, cr);
       if (((err >> CPMEMLink) & 0x1) || ((err >> CPMHadLink) & 0x1))
                                              m_h_l1calo_2d_CurrentEventOverview->Fill(LinkDown, cr);
-      if ((err >> CPMRoIParity) & 0x1) m_h_l1calo_2d_CurrentEventOverview->Fill(RoIParity, cr);
-      if ((err >> CMMCPStatus) & 0x1)  m_h_l1calo_2d_CurrentEventOverview->Fill(CMMSubStatus, cr);
-      if ((err >> CMMCPParity) & 0x1)  m_h_l1calo_2d_CurrentEventOverview->Fill(GbCMMParity, cr);
+      if ((err >> CMXCPTobParity) & 0x1) m_h_l1calo_2d_CurrentEventOverview->Fill(GbCMXParity, cr);
+      if ((err >> CMXCPSumParity) & 0x1) m_h_l1calo_2d_CurrentEventOverview->Fill(GbCMXParity, cr);
+      if ((err >> CMXCPStatus) & 0x1)    m_h_l1calo_2d_CurrentEventOverview->Fill(CMXSubStatus, cr);
     }
   }
 
   // JEM Error data
   errTES = 0; 
-  if (evtStore()->contains<ErrorVector>("L1CaloJEMErrorVector")) {
-    sc = evtStore()->retrieve(errTES, "L1CaloJEMErrorVector"); 
+  if (evtStore()->contains<ErrorVector>(m_jemErrorLocation)) {
+    sc = evtStore()->retrieve(errTES, m_jemErrorLocation);
   } else sc = StatusCode::FAILURE;
   if (sc.isFailure() || !errTES || errTES->size() != size_t(jemCrates)) {
     if (debug) msg(MSG::DEBUG) << "No JEM error vector of expected size"
@@ -454,39 +481,37 @@ StatusCode TrigT1CaloGlobalMonTool::fillHistograms()
                                              m_h_l1calo_2d_CurrentEventOverview->Fill(Parity, cr);
       if (((err >> JEMEMLink) & 0x1) || ((err >> JEMHadLink) & 0x1))
                                              m_h_l1calo_2d_CurrentEventOverview->Fill(LinkDown, cr);
-      if ((err >> JEMRoIParity) & 0x1) m_h_l1calo_2d_CurrentEventOverview->Fill(RoIParity, cr);
     }
   }
 
-  // JEM CMM Error data
+  // JEM CMX Error data
   errTES = 0; 
-  if (evtStore()->contains<ErrorVector>("L1CaloJEMCMMErrorVector")) {
-    sc = evtStore()->retrieve(errTES, "L1CaloJEMCMMErrorVector"); 
+  if (evtStore()->contains<ErrorVector>(m_jemCmxErrorLocation)) {
+    sc = evtStore()->retrieve(errTES, m_jemCmxErrorLocation);
   } else sc = StatusCode::FAILURE;
   if (sc.isFailure() || !errTES || errTES->size() != size_t(jemCrates)) {
-    if (debug) msg(MSG::DEBUG) << "No JEM CMM error vector of expected size"
+    if (debug) msg(MSG::DEBUG) << "No JEM CMX error vector of expected size"
                                << endreq;
   } else {
     for (int crate = 0; crate < jemCrates; ++crate) {
       const int err = (*errTES)[crate];
       if (err == 0) continue;
       const int cr = crate + ppmCrates + cpmCrates;
-      if (((err >> JEMCMMJetStatus) & 0x1) ||
-          ((err >> JEMCMMEnergyStatus) & 0x1)) {
-        m_h_l1calo_2d_CurrentEventOverview->Fill(CMMSubStatus, cr);
+      if (((err >> JEMCMXJetStatus) & 0x1) ||
+          ((err >> JEMCMXEnergyStatus) & 0x1)) {
+        m_h_l1calo_2d_CurrentEventOverview->Fill(CMXSubStatus, cr);
       }
-      if (((err >> JEMCMMJetParity) & 0x1) ||
-          ((err >> JEMCMMEnergyParity) & 0x1)) {
-        m_h_l1calo_2d_CurrentEventOverview->Fill(GbCMMParity, cr);
+      if (((err >> JEMCMXJetParity) & 0x1) ||
+          ((err >> JEMCMXEnergyParity) & 0x1)) {
+        m_h_l1calo_2d_CurrentEventOverview->Fill(GbCMXParity, cr);
       }
-      if ((err >> JEMCMMRoIParity) & 0x1) m_h_l1calo_2d_CurrentEventOverview->Fill(RoIParity, cr);
     }
   }
 
   // ROD Error data
   errTES = 0; 
-  if (evtStore()->contains<ErrorVector>("L1CaloRODErrorVector")) {
-    sc = evtStore()->retrieve(errTES, "L1CaloRODErrorVector"); 
+  if (evtStore()->contains<ErrorVector>(m_rodErrorLocation)) {
+    sc = evtStore()->retrieve(errTES, m_rodErrorLocation);
   } else sc = StatusCode::FAILURE;
   if (sc.isFailure() || !errTES || 
                 errTES->size() != size_t(ppmCrates + cpmCrates + jemCrates)) {
@@ -507,8 +532,8 @@ StatusCode TrigT1CaloGlobalMonTool::fillHistograms()
 
   // PPM Mismatch data
   errTES = 0; 
-  if (evtStore()->contains<ErrorVector>("L1CaloPPMMismatchVector")) {
-    sc = evtStore()->retrieve(errTES, "L1CaloPPMMismatchVector"); 
+  if (evtStore()->contains<ErrorVector>(m_ppmMismatchLocation)) {
+    sc = evtStore()->retrieve(errTES, m_ppmMismatchLocation);
   } else sc = StatusCode::FAILURE;
   if (sc.isFailure() || !errTES || errTES->size() != size_t(ppmCrates)) {
     if (debug) msg(MSG::DEBUG) << "No PPM mismatch vector of expected size"
@@ -523,8 +548,8 @@ StatusCode TrigT1CaloGlobalMonTool::fillHistograms()
 
   // CPM Mismatch data
   errTES = 0; 
-  if (evtStore()->contains<ErrorVector>("L1CaloCPMMismatchVector")) {
-    sc = evtStore()->retrieve(errTES, "L1CaloCPMMismatchVector"); 
+  if (evtStore()->contains<ErrorVector>(m_cpmMismatchLocation)) {
+    sc = evtStore()->retrieve(errTES, m_cpmMismatchLocation);
   } else sc = StatusCode::FAILURE;
   if (sc.isFailure() || !errTES || errTES->size() != size_t(cpmCrates)) {
     if (debug) msg(MSG::DEBUG) << "No CPM mismatch vector of expected size"
@@ -536,19 +561,21 @@ StatusCode TrigT1CaloGlobalMonTool::fillHistograms()
       const int cr = crate + ppmCrates;
       if (((err >> EMTowerMismatch) & 0x1) || ((err >> HadTowerMismatch) & 0x1))
                                         m_h_l1calo_2d_CurrentEventOverview->Fill(Transmission, cr);
-      if (((err >> CPMRoIMismatch) & 0x1) || ((err >> CPMHitsMismatch) & 0x1))
+      if (((err >> EMRoIMismatch) & 0x1) || ((err >> TauRoIMismatch) & 0x1))
                                         m_h_l1calo_2d_CurrentEventOverview->Fill(Simulation, cr);
-      if (((err >> CMMHitsMismatch) & 0x1) || ((err >> RemoteSumMismatch) & 0x1))
-                                        m_h_l1calo_2d_CurrentEventOverview->Fill(CMMTransmission, cr);
-      if (((err >> LocalSumMismatch) & 0x1) || ((err >> TotalSumMismatch) & 0x1))
-                                        m_h_l1calo_2d_CurrentEventOverview->Fill(CMMSimulation, cr);
+      if (((err >> LeftCMXTobMismatch) & 0x1) || ((err >> RightCMXTobMismatch) & 0x1)
+                                              || ((err >> RemoteSumMismatch) & 0x1))
+                                        m_h_l1calo_2d_CurrentEventOverview->Fill(CMXTransmission, cr);
+      if (((err >> LocalSumMismatch) & 0x1) || ((err >> TotalSumMismatch) & 0x1)
+                                            || ((err >> TopoMismatch) & 0x1))
+                                        m_h_l1calo_2d_CurrentEventOverview->Fill(CMXSimulation, cr);
     }
   }
 
   // JEM Mismatch data
   errTES = 0; 
-  if (evtStore()->contains<ErrorVector>("L1CaloJEMMismatchVector")) {
-    sc = evtStore()->retrieve(errTES, "L1CaloJEMMismatchVector"); 
+  if (evtStore()->contains<ErrorVector>(m_jemMismatchLocation)) {
+    sc = evtStore()->retrieve(errTES, m_jemMismatchLocation);
   } else sc = StatusCode::FAILURE;
   if (sc.isFailure() || !errTES || errTES->size() != size_t(jemCrates)) {
     if (debug) msg(MSG::DEBUG) << "No JEM mismatch vector of expected size"
@@ -561,24 +588,22 @@ StatusCode TrigT1CaloGlobalMonTool::fillHistograms()
       if (((err >> EMElementMismatch) & 0x1)  ||
           ((err >> HadElementMismatch) & 0x1) ||
           ((err >> JEMRoIMismatch) & 0x1)     ||
-          ((err >> JEMHitsMismatch) & 0x1)    ||
           ((err >> JEMEtSumsMismatch) & 0x1)) m_h_l1calo_2d_CurrentEventOverview->Fill(Simulation, cr);
-      if (((err >> CMMJetHitsMismatch) & 0x1)   ||
-          ((err >> RemoteJetMismatch) & 0x1)    ||
-	  ((err >> JetEtRoIMismatch) & 0x1)     ||
-	  ((err >> CMMEtSumsMismatch) & 0x1)    ||
+      if (((err >> RemoteJetMismatch) & 0x1)    ||
+	  ((err >> CMXEtSumsMismatch) & 0x1)    ||
 	  ((err >> RemoteEnergyMismatch) & 0x1) ||
 	  ((err >> EnergyRoIMismatch) & 0x1))
-	                              m_h_l1calo_2d_CurrentEventOverview->Fill(CMMTransmission, cr);
-      if (((err >> LocalJetMismatch) & 0x1)    ||
+	                              m_h_l1calo_2d_CurrentEventOverview->Fill(CMXTransmission, cr);
+      if (((err >> CMXJetTobMismatch) & 0x1)   ||
+          ((err >> LocalJetMismatch) & 0x1)    ||
           ((err >> TotalJetMismatch) & 0x1)    ||
-	  ((err >> JetEtMismatch) & 0x1)       ||
           ((err >> LocalEnergyMismatch) & 0x1) ||
           ((err >> TotalEnergyMismatch) & 0x1) ||
+	  ((err >> CMXJetTopoMismatch) & 0x1)  ||
 	  ((err >> SumEtMismatch) & 0x1)       ||
 	  ((err >> MissingEtMismatch) & 0x1)   ||
 	  ((err >> MissingEtSigMismatch) & 0x1))
-	                                m_h_l1calo_2d_CurrentEventOverview->Fill(CMMSimulation, cr);
+	                                m_h_l1calo_2d_CurrentEventOverview->Fill(CMXSimulation, cr);
     }
   }
 
@@ -590,8 +615,8 @@ StatusCode TrigT1CaloGlobalMonTool::fillHistograms()
     }
     if (m_lumiNo && m_h_l1calo_1d_ErrorsByLumiblock) {
       if (!online && m_h_l1calo_1d_ErrorsByLumiblock->GetEntries() == 0.) {
-        std::string dir(m_rootDir + "/Overview/Errors");
-	MonGroup monLumi( this, dir, run, attr, "", "mergeRebinned");
+        std::string dir(m_rootDir + "/Errors");
+	MonGroup monLumi( this, dir, run, ATTRIB_UNMANAGED, "", "mergeRebinned");
         m_histTool->setMonGroup(&monLumi);
 	m_histTool->registerHist(m_h_l1calo_1d_ErrorsByLumiblock);
       }
@@ -613,8 +638,8 @@ StatusCode TrigT1CaloGlobalMonTool::fillHistograms()
 	  }
         } else {
           if (m_h_l1calo_1d_ErrorsByTime->GetEntries() == 0.) {
-            std::string dir(m_rootDir + "/Overview/Errors");
-	    MonGroup monLumi( this, dir, run, attr);
+            std::string dir(m_rootDir + "/Errors");
+	    MonGroup monLumi( this, dir, run, ATTRIB_UNMANAGED);
             m_histTool->setMonGroup(&monLumi);
 	    m_histTool->registerHist(m_h_l1calo_1d_ErrorsByTime);
           }
@@ -631,12 +656,12 @@ StatusCode TrigT1CaloGlobalMonTool::fillHistograms()
 }
 
 /*---------------------------------------------------------*/
-StatusCode TrigT1CaloGlobalMonTool::procHistograms()
+StatusCode OverviewMon::procHistograms()
 /*---------------------------------------------------------*/
 {
   msg(MSG::DEBUG) << "procHistograms entered" << endreq;
 
-  if (endOfLumiBlock) {
+  if (endOfEventsBlock || endOfLumiBlock) {
   }
 
   bool online = (m_onlineTest || m_environment == AthenaMonManager::online);
@@ -657,8 +682,7 @@ StatusCode TrigT1CaloGlobalMonTool::procHistograms()
 }
 
 /*---------------------------------------------------------*/
-TH2F* TrigT1CaloGlobalMonTool::bookOverview(const std::string& name,
-                                            const std::string& title)
+TH2F* OverviewMon::bookOverview(const std::string& name, const std::string& title)
 /*---------------------------------------------------------*/
 {
   TH2F* hist = m_histTool->bookTH2F(name, title,
@@ -670,13 +694,12 @@ TH2F* TrigT1CaloGlobalMonTool::bookOverview(const std::string& name,
   axis->SetBinLabel(1+SubStatus,       "SubStatus");
   axis->SetBinLabel(1+Parity,          "Parity");
   axis->SetBinLabel(1+LinkDown,        "LinkDown");
-  axis->SetBinLabel(1+RoIParity,       "RoIParity");
   axis->SetBinLabel(1+Transmission,    "Transmission");
   axis->SetBinLabel(1+Simulation,      "Simulation");
-  axis->SetBinLabel(1+CMMSubStatus,    "CMMSubStatus");
-  axis->SetBinLabel(1+GbCMMParity,     "CMMParity");
-  axis->SetBinLabel(1+CMMTransmission, "CMMTransmission");
-  axis->SetBinLabel(1+CMMSimulation,   "CMMSimulation");
+  axis->SetBinLabel(1+CMXSubStatus,    "CMXSubStatus");
+  axis->SetBinLabel(1+GbCMXParity,     "CMXParity");
+  axis->SetBinLabel(1+CMXTransmission, "CMXTransmission");
+  axis->SetBinLabel(1+CMXSimulation,   "CMXSimulation");
   axis->SetBinLabel(1+RODStatus,       "RODStatus");
   axis->SetBinLabel(1+RODMissing,      "RODMissing");
   axis->SetBinLabel(1+ROBStatus,       "ROBStatus");
@@ -695,3 +718,5 @@ TH2F* TrigT1CaloGlobalMonTool::bookOverview(const std::string& name,
 
   return hist;
 }
+
+} // end namespace

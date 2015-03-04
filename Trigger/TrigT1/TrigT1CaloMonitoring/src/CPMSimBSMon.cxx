@@ -45,7 +45,7 @@
 
 #include "TrigT1CaloMonitoring/CPMSimBSMon.h"
 #include "TrigT1CaloMonitoringTools/TrigT1CaloMonErrorTool.h"
-#include "TrigT1CaloMonitoringTools/TrigT1CaloLWHistogramTool.h"
+#include "TrigT1CaloMonitoringTools/TrigT1CaloLWHistogramToolV1.h"
 
 /*---------------------------------------------------------*/
 CPMSimBSMon::CPMSimBSMon(const std::string & type, 
@@ -55,7 +55,7 @@ CPMSimBSMon::CPMSimBSMon(const std::string & type,
     m_emTauTool("LVL1::L1EmTauTools/L1EmTauTools"),
     m_cpHitsTool("LVL1::L1CPHitsTools/L1CPHitsTools"),
     m_errorTool("TrigT1CaloMonErrorTool"),
-    m_histTool("TrigT1CaloLWHistogramTool"),
+    m_histTool("TrigT1CaloLWHistogramToolV1"),
     m_debug(false), m_rodTES(0), m_overlapPresent(false), m_limitedRoi(0),
     m_histBooked(false),
     m_h_cpm_em_2d_etaPhi_tt_PpmEqCore(0),
@@ -180,7 +180,7 @@ StatusCode CPMSimBSMon::initialize()
 
   sc = m_histTool.retrieve();
   if( sc.isFailure() ) {
-    msg(MSG::ERROR) << "Unable to locate Tool TrigT1CaloLWHistogramTool"
+    msg(MSG::ERROR) << "Unable to locate Tool TrigT1CaloLWHistogramToolV1"
                     << endreq;
     return sc;
   }

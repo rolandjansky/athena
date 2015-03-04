@@ -37,7 +37,7 @@ namespace LVL1 {
 }
 
 class TrigT1CaloMonErrorTool;
-class TrigT1CaloLWHistogramTool;
+class TrigT1CaloLWHistogramToolV1;
 
 /** Monitoring of the JEP on CMM level.
  *
@@ -97,7 +97,7 @@ class TrigT1CaloLWHistogramTool;
  *  <table>
  *  <tr><th> Tool                         </th><th> Description          </th></tr>
  *  <tr><td> @c TrigT1CaloMonErrorTool    </td><td> @copydoc m_errorTool </td></tr>
- *  <tr><td> @c TrigT1CaloLWHistogramTool </td><td> @copydoc m_histTool  </td></tr>
+ *  <tr><td> @c TrigT1CaloLWHistogramToolV1 </td><td> @copydoc m_histTool  </td></tr>
  *  </table>
  *
  *  <b>JobOption Properties:</b>
@@ -149,7 +149,7 @@ private:
    /// Tool to retrieve bytestream errors
    ToolHandle<TrigT1CaloMonErrorTool>    m_errorTool;
    /// Histogram helper tool
-   ToolHandle<TrigT1CaloLWHistogramTool> m_histTool;
+   ToolHandle<TrigT1CaloLWHistogramToolV1> m_histTool;
 
    /** location of data */
    /// CMMJetHits collection StoreGate key

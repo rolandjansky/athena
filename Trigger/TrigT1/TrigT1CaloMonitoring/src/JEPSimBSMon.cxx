@@ -46,7 +46,7 @@
 
 #include "TrigT1CaloMonitoring/JEPSimBSMon.h"
 #include "TrigT1CaloMonitoringTools/TrigT1CaloMonErrorTool.h"
-#include "TrigT1CaloMonitoringTools/TrigT1CaloLWHistogramTool.h"
+#include "TrigT1CaloMonitoringTools/TrigT1CaloLWHistogramToolV1.h"
 
 
 /*---------------------------------------------------------*/
@@ -59,7 +59,7 @@ JEPSimBSMon::JEPSimBSMon(const std::string & type,
     m_jetElementTool("LVL1::L1JetElementTools/L1JetElementTools"),
     m_etSumsTool("LVL1::L1JEPEtSumsTools/L1JEPEtSumsTools"),
     m_errorTool("TrigT1CaloMonErrorTool"),
-    m_histTool("TrigT1CaloLWHistogramTool"),
+    m_histTool("TrigT1CaloLWHistogramToolV1"),
     m_debug(false), m_rodTES(0), m_limitedRoi(0), m_versionSig(true),
     m_histBooked(false),
     m_h_jem_em_2d_etaPhi_jetEl_SimEqCore(0),
@@ -216,7 +216,7 @@ StatusCode JEPSimBSMon:: initialize()
 
   sc = m_histTool.retrieve();
   if( sc.isFailure() ) {
-    msg(MSG::ERROR) << "Unable to locate Tool TrigT1CaloLWHistogramTool"
+    msg(MSG::ERROR) << "Unable to locate Tool TrigT1CaloLWHistogramToolV1"
                     << endreq;
     return sc;
   }

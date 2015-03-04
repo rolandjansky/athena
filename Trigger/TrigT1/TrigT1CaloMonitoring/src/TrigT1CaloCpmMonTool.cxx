@@ -40,7 +40,7 @@
 
 #include "TrigT1CaloMonitoring/TrigT1CaloCpmMonTool.h"
 #include "TrigT1CaloMonitoringTools/TrigT1CaloMonErrorTool.h"
-#include "TrigT1CaloMonitoringTools/TrigT1CaloLWHistogramTool.h"
+#include "TrigT1CaloMonitoringTools/TrigT1CaloLWHistogramToolV1.h"
 
 const int TrigT1CaloCpmMonTool::s_crates;
 const int TrigT1CaloCpmMonTool::s_modules;
@@ -55,7 +55,7 @@ TrigT1CaloCpmMonTool::TrigT1CaloCpmMonTool(const std::string & type,
 				           const IInterface* parent)
   : ManagedMonitorToolBase(type, name, parent),
     m_errorTool("TrigT1CaloMonErrorTool"),
-    m_histTool("TrigT1CaloLWHistogramTool"),
+    m_histTool("TrigT1CaloLWHistogramToolV1"),
     m_events(0),
     m_emBitMask(0),
     m_tauBitMask(0),
@@ -153,7 +153,7 @@ StatusCode TrigT1CaloCpmMonTool:: initialize()
 
   sc = m_histTool.retrieve();
   if( sc.isFailure() ) {
-    msg(MSG::ERROR) << "Unable to locate Tool TrigT1CaloLWHistogramTool"
+    msg(MSG::ERROR) << "Unable to locate Tool TrigT1CaloLWHistogramToolV1"
                     << endreq;
     return sc;
   }

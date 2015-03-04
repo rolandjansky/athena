@@ -30,7 +30,7 @@
 
 #include "TrigT1CaloMonitoring/CMMMon.h"
 #include "TrigT1CaloMonitoringTools/TrigT1CaloMonErrorTool.h"
-#include "TrigT1CaloMonitoringTools/TrigT1CaloLWHistogramTool.h"
+#include "TrigT1CaloMonitoringTools/TrigT1CaloLWHistogramToolV1.h"
 
 #include "TrigT1CaloEvent/CMMJetHits.h"
 #include "TrigT1CaloEvent/CMMEtSums.h"
@@ -51,7 +51,7 @@ CMMMon::CMMMon( const std::string & type, const std::string & name,
 		const IInterface* parent )
   : ManagedMonitorToolBase( type, name, parent ),
     m_errorTool("TrigT1CaloMonErrorTool"),
-    m_histTool("TrigT1CaloLWHistogramTool"),
+    m_histTool("TrigT1CaloLWHistogramToolV1"),
     m_histBooked(false),
     m_h_cmm_1d_thresh_TotalMainHits(0),
     m_h_cmm_1d_thresh_TotalFwdHitsRight(0),
@@ -133,7 +133,7 @@ StatusCode CMMMon::initialize()
 
   sc = m_histTool.retrieve();
   if( sc.isFailure() ) {
-    msg(MSG::ERROR) << "Unable to locate Tool TrigT1CaloLWHistogramTool"
+    msg(MSG::ERROR) << "Unable to locate Tool TrigT1CaloLWHistogramToolV1"
                     << endreq;
     return sc;
   }
