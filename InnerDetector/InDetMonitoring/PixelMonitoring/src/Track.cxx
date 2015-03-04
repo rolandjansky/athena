@@ -184,9 +184,8 @@ StatusCode PixelMainMon::FillTrackMon(void)
          if (msgLvl(MSG::ERROR) ) msg(MSG::ERROR) << "no pointer to track!!!" << endreq;
          break;
       }
-      
-      std::auto_ptr<const Trk::Track> track(m_holeSearchTool->getTrackWithHoles(*track0));
-      const  Trk::Perigee *measPerigee = dynamic_cast< const Trk::Perigee *>(track->perigeeParameters());
+
+      const  Trk::Perigee *measPerigee = dynamic_cast< const Trk::Perigee *>(track0->perigeeParameters());
 
       double mass = 0;
       double dedx = 0;
@@ -221,7 +220,16 @@ StatusCode PixelMainMon::FillTrackMon(void)
       int nbadclus=0;
       int ngoodclus=0;
 
+      const Trk::Track* track; 
       //get the track state on surfaces (a vector, on element per surface) and loop over it
+
+      if(m_doHoleSearch && !m_doOnline){
+	track = m_holeSearchTool->getTrackWithHoles(*track0);
+      }
+      else{
+	track = new Trk::Track(*track0);
+      }
+
       const DataVector< const Trk::TrackStateOnSurface>* trackStates=track->trackStateOnSurfaces();
       for (DataVector< const Trk::TrackStateOnSurface>::const_iterator trackStateOnSurfaceIterator=trackStates->begin(); trackStateOnSurfaceIterator!=trackStates->end(); trackStateOnSurfaceIterator++)
 	{
@@ -233,11 +241,11 @@ StatusCode PixelMainMon::FillTrackMon(void)
 	  Identifier surfaceID;
 	  
 	  const Trk::RIO_OnTrack* hit = mesb ? dynamic_cast<const Trk::RIO_OnTrack*>(mesb) : 0;
-	  if (mesb && !hit) continue;  // skip pseudomeasurements etc.                                                                                                              
+	  if (mesb && !hit) continue;  // skip pseudomeasurements etc.                                                         
 	  if (mesb && mesb->associatedSurface().associatedDetectorElement()) {
 	    surfaceID = mesb->associatedSurface().associatedDetectorElement()->identify();
 	    
-	  } else { // holes, perigee                                                                                                                                                
+	  } else { // holes, perigee                                                                                                    
 	    if (not (*trackStateOnSurfaceIterator)->trackParameters() ) {
 	      msg(MSG::INFO) << "pointer of TSOS to track parameters or associated surface is null" << endreq;
 	      continue;
@@ -363,30 +371,30 @@ StatusCode PixelMainMon::FillTrackMon(void)
       if(!m_doOnline && m_doModules){
 	float pt = measPerigee->pT()/1000.0;
 	if(nbadclus==1){
-	  m_track_chi2_bcl1->Fill(track->fitQuality()->chiSquared()/track->fitQuality()->numberDoF());
+	  m_track_chi2_bcl1->Fill(track0->fitQuality()->chiSquared()/track0->fitQuality()->numberDoF());
 	}
 	if(nbadclus==0){
-	  m_track_chi2_bcl0->Fill(track->fitQuality()->chiSquared()/track->fitQuality()->numberDoF());
+	  m_track_chi2_bcl0->Fill(track0->fitQuality()->chiSquared()/track0->fitQuality()->numberDoF());
 	} 
 	if(nbadclus>1){
-	  m_track_chi2_bclgt1->Fill(track->fitQuality()->chiSquared()/track->fitQuality()->numberDoF());
+	  m_track_chi2_bclgt1->Fill(track0->fitQuality()->chiSquared()/track0->fitQuality()->numberDoF());
 	} 
 	if(pt>=10){
 	  if(nbadclus==1){
-	    m_track_chi2_bcl1_highpt->Fill(track->fitQuality()->chiSquared()/track->fitQuality()->numberDoF());
+	    m_track_chi2_bcl1_highpt->Fill(track0->fitQuality()->chiSquared()/track0->fitQuality()->numberDoF());
 	  }
 	  if(nbadclus==0){
-	    m_track_chi2_bcl0_highpt->Fill(track->fitQuality()->chiSquared()/track->fitQuality()->numberDoF());
+	    m_track_chi2_bcl0_highpt->Fill(track0->fitQuality()->chiSquared()/track0->fitQuality()->numberDoF());
 	  } 
 	  if(nbadclus>1){
-	    m_track_chi2_bclgt1_highpt->Fill(track->fitQuality()->chiSquared()/track->fitQuality()->numberDoF());
+	    m_track_chi2_bclgt1_highpt->Fill(track0->fitQuality()->chiSquared()/track0->fitQuality()->numberDoF());
 	  } 
 	}
       }
             
       if(nPixelHits>0)//track properties for tracks through the pixel detector
       {
-         const  Trk::Perigee *measPerigee = dynamic_cast< const Trk::Perigee *>(track->perigeeParameters());
+         const  Trk::Perigee *measPerigee = dynamic_cast< const Trk::Perigee *>(track0->perigeeParameters());
          if (measPerigee != NULL){
          m_track_qOverP->Fill((measPerigee->parameters()[Trk::qOverP]*1000.0));
 	 if (measPerigee->parameters()[Trk::qOverP] != 0) { 
@@ -400,9 +408,9 @@ StatusCode PixelMainMon::FillTrackMon(void)
          m_track_phi0->Fill(measPerigee->parameters()[Trk::phi0]);
          m_track_theta->Fill(measPerigee->parameters()[Trk::theta]);
          m_track_eta->Fill(measPerigee->eta());
-         if (track->fitQuality()->numberDoF() > 0){ 
-	   m_track_chi2->Fill(track->fitQuality()->chiSquared()/track->fitQuality()->numberDoF());
-	   if(m_track_chi2_LB) m_track_chi2_LB->Fill(track->fitQuality()->chiSquared()/track->fitQuality()->numberDoF());
+         if (track0->fitQuality()->numberDoF() > 0){ 
+	   m_track_chi2->Fill(track0->fitQuality()->chiSquared()/track0->fitQuality()->numberDoF());
+	   if(m_track_chi2_LB) m_track_chi2_LB->Fill(track0->fitQuality()->chiSquared()/track0->fitQuality()->numberDoF());
 	 }
 	 else{ 
 	   m_track_chi2->Fill(-1);
@@ -412,10 +420,9 @@ StatusCode PixelMainMon::FillTrackMon(void)
 	 nTracks++;
 	 }
       }
-   }
+      }
 
    if(m_tracksPerEvt_per_lumi) m_tracksPerEvt_per_lumi->Fill(m_lumiBlockNum,nTracks);
-
    if(m_doOnTrack || m_doOnPixelTrack)sort (m_RDOIDs.begin(), m_RDOIDs.end());
    if(m_doOnTrack || m_doOnPixelTrack)sort (m_ClusterIDs.begin(), m_ClusterIDs.end());
 

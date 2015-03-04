@@ -166,6 +166,7 @@ class PixelMainMon:public ManagedMonitorToolBase
       bool m_doTrack; 
       bool m_doStatus; 
 
+      bool m_doHoleSearch; 
       bool m_doESD;
       bool m_do2DMaps;
       bool m_doModules;
