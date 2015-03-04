@@ -394,8 +394,9 @@ bool MuGirlRecoTool::RunFromID(MuGirlNS::CandidateSummaryList& summaryList)
             summary->saveAnn = 1;
 
             if (m_doGlobalFit && (pTrackParticle->trackLink().isValid())&&
-                    (m_pCandidate->vectorMuonSegments()).size() > 0) {
-                ATH_MSG_DEBUG("RunFromID: performing the global track fit.  muonSegemnts.size=" << (m_pCandidate->vectorMuonSegments()).size());
+                    (m_pCandidate->vectorMuonSegments()).size() > 0 && summary->numMdtHitsInSeg > 0 ) {
+                ATH_MSG_DEBUG("RunFromID: performing the global track fit.  muonSegemnts.size=" << (m_pCandidate->vectorMuonSegments()).size()
+                              << " nmdts " << summary->numMdtHits << " nmdtSegs " << summary->numMdtSegs << " nmdtHitsInSeg " << summary->numMdtHitsInSeg);
                 const Trk::Track* originalTrack = *pTrackParticle->trackLink();
 
                 //// does it call backextrap ??
