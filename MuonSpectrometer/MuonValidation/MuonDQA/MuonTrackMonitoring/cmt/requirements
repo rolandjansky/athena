@@ -10,55 +10,43 @@ use     AtlasPolicy             AtlasPolicy-*
 # Athena Control Dependencies 
 use     AtlasROOT               AtlasROOT-*                     External
 use     GaudiInterface          GaudiInterface-*                External
-use     StoreGate               StoreGate-*                     Control
-use     DataModel               DataModel-*                     Control 
-
-# Detector Description dependencies
-use     MuonReadoutGeometry     MuonReadoutGeometry-*	        MuonSpectrometer/MuonDetDescr
-use     MuonPrepRawData         MuonPrepRawData-*               MuonSpectrometer/MuonReconstruction/MuonRecEvent
-use     MuonTrigCoinData        MuonTrigCoinData-*              MuonSpectrometer/MuonReconstruction/MuonRecEvent
-
-## For RPCStandaloneTracksMon
-use     RPCcablingInterface     RPCcablingInterface-*           MuonSpectrometer/MuonCablings
 
 # MuonTrackSummaryHelperTool
 #use     MuonTrackSummaryHelperTool MuonTrackSummaryHelperTool-* MuonSpectrometer/MuonReconstruction/MuonRecTools 
 
 # Athena Monitoring Dependencies 
-use     AthenaMonitoring        AthenaMonitoring-*              Control
-use     MuonDQAUtils            MuonDQAUtils-*                  MuonSpectrometer/MuonValidation/MuonDQA
+#use     MuonDQAUtils            MuonDQAUtils-*                  MuonSpectrometer/MuonValidation/MuonDQA
  
-# EDM dependencies
-use     TrkParameters            TrkParameters-*                Tracking/TrkEvent
-use     TrkTrack                 TrkTrack-*                     Tracking/TrkEvent 
 
-# Track fitter
-use     TrkToolInterfaces        TrkToolInterfaces-*            Tracking/TrkTools
+private
+use     AthenaMonitoring        AthenaMonitoring-*              Control
+use     StoreGate               StoreGate-*                     Control
 
 # Trigger Decision
 use     TrigDecisionInterface    TrigDecisionInterface-*        Trigger/TrigEvent
-use     TrigConfL1Data           TrigConfL1Data-*               Trigger/TrigConfiguration
-use     TrkTrackSummary          TrkTrackSummary-*              Tracking/TrkEvent      
 
-private
 use     EventPrimitives         EventPrimitives-*               Event
-use     Identifier              Identifier-*                    DetectorDescription
-use     xAODEventInfo           xAODEventInfo-*                 Event/xAOD 
-use     AtlasCLHEP              AtlasCLHEP-*                    External
+#use     xAODEventInfo           xAODEventInfo-*                 Event/xAOD 
 use     MuonRecHelperTools      MuonRecHelperTools-*            MuonSpectrometer/MuonReconstruction/MuonRecTools
-use     MuonCalibIdentifier     MuonCalibIdentifier-*           MuonSpectrometer/MuonCalib
-use     MdtCalibSvc             MdtCalibSvc-*                   MuonSpectrometer/MuonCalib/MdtCalib
-use     MuonDigitContainer      MuonDigitContainer-*            MuonSpectrometer
-use     MuonRDO                 MuonRDO-*                	MuonSpectrometer
-use     MuonRIO_OnTrack         MuonRIO_OnTrack-*               MuonSpectrometer/MuonReconstruction/MuonRecEvent  
-use     Particle                Particle-*                      Reconstruction
 use     TrkEventPrimitives      TrkEventPrimitives-*            Tracking/TrkEvent
-use     TrkMaterialOnTrack      TrkMaterialOnTrack-*            Tracking/TrkEvent
-use     TrkMeasurementBase      TrkMeasurementBase-*            Tracking/TrkEvent 
+use     TrkMeasurementBase      TrkMeasurementBase-*            Tracking/TrkEvent
+# EDM dependencies
+#use     TrkParameters            TrkParameters-*                Tracking/TrkEvent
+use     TrkTrack                 TrkTrack-*                     Tracking/TrkEvent 
+
 use     TrkMultiComponentStateOnSurface     TrkMultiComponentStateOnSurface-*         Tracking/TrkEvent
-use     MuonRecToolInterfaces   MuonRecToolInterfaces-*         MuonSpectrometer/MuonReconstruction/MuonRecTools
 use     MuonIdHelpers           MuonIdHelpers-*                 MuonSpectrometer
+use 	xAODMuon            	xAODMuon-*             		Event/xAOD
+use 	xAODTracking        	xAODTracking-*         		Event/xAOD
+use	TrkValHistUtils		TrkValHistUtils-*      		Tracking/TrkValidation
+use     MuonHistUtils           MuonHistUtils-*                 MuonSpectrometer/MuonValidation/MuonHistogramming
+
+use     TrkToolInterfaces        TrkToolInterfaces-*            Tracking/TrkTools
+use     TrigConfL1Data           TrigConfL1Data-*               Trigger/TrigConfiguration
+
 end_private
+
+
 
 
 # build a component library
