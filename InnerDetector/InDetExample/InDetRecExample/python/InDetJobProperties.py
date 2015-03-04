@@ -859,13 +859,25 @@ class pixelClusterSplitProb1 (InDetFlagsJobProperty):
    """ Cut value for splitting clusters into two parts """
    statusOn = True
    allowedTypes = ['float']
-   StoredValue = 0.35
+   StoredValue = 0.6
 
 class pixelClusterSplitProb2 (InDetFlagsJobProperty):
    """ Cut value for splitting clusters into three parts """
    statusOn = True
    allowedTypes = ['float']
-   StoredValue = 0.4
+   StoredValue = 0.2
+
+class pixelClusterSplitProb1_run1 (InDetFlagsJobProperty):
+   """ Cut value for splitting clusters into two parts """
+   statusOn = True
+   allowedTypes = ['float']
+   StoredValue = 0.5
+
+class pixelClusterSplitProb2_run1 (InDetFlagsJobProperty):
+   """ Cut value for splitting clusters into three parts """
+   statusOn = True
+   allowedTypes = ['float']
+   StoredValue = 0.5
 
 class pixelClusterSplitMinPt (InDetFlagsJobProperty):
    """ Min pt for tracks to try and split hits """
@@ -1003,7 +1015,7 @@ class doNNToTCalibration(InDetFlagsJobProperty):
   """USe ToT calibration for NN clustering rather than Charge""" 
   statusOn     = True 
   allowedTypes = ['bool']
-  StoredValue  = True
+  StoredValue  = False
 
 ##-----------------------------------------------------------------------------
 ## 2nd step
@@ -1309,14 +1321,14 @@ class InDetJobProperties(JobPropertyContainer):
        # --- new setup for MinBias tracking
        if self.doMinBias():
           # --- run soft tracking
-          self.checkThenSet(self.doLowPt             , True )    
-          self.checkThenSet(self.doVeryLowPt         , True )
+          #self.checkThenSet(self.doLowPt             , False )    
+          #self.checkThenSet(self.doVeryLowPt         , False )
           # --- disable forward tracklets
           self.checkThenSet(self.doForwardTracks     , False )
           # --- run tracklets
-          self.checkThenSet(self.doTrackSegmentsPixel, True )
-          self.checkThenSet(self.doTrackSegmentsSCT  , True )
-          self.checkThenSet(self.doTrackSegmentsTRT  , True )
+          #self.checkThenSet(self.doTrackSegmentsPixel, False )
+          #self.checkThenSet(self.doTrackSegmentsSCT  , False )
+          #self.checkThenSet(self.doTrackSegmentsTRT  , False )
           # --- turn off brem
           self.checkThenSet(self.doBremRecovery  , False)
           self.checkThenSet(self.doCaloSeededBrem, False)
@@ -2318,6 +2330,8 @@ _list_InDetJobProperties = [Enabled,
                             pixelClusterSplittingType,
                             pixelClusterSplitProb1,
                             pixelClusterSplitProb2,
+                            pixelClusterSplitProb1_run1,
+                            pixelClusterSplitProb2_run1,
                             pixelClusterSplitMinPt,
                             useBroadClusterErrors,
                             useBroadPixClusterErrors,

@@ -298,12 +298,13 @@ class ConfiguredNewTrackingCuts :
     # --- mode for min bias, commissioning or doRobustReco
     if mode == 'MinBias' or self.__indetflags.doRobustReco(): 
       self.__minPT                 = 0.100 * Units.GeV 
+      self.__minClusters           = 6
 
     # --- change defaults for low pt tracking  
     if mode == "LowPt": 
       self.__extension        = "LowPt" # this runs parallel to NewTracking
       self.__maxPT            = self.__minPT + 0.3 * Units.GeV # some overlap
-      self.__minPT            = 0.100 * Units.GeV
+      self.__minPT            = 0.050 * Units.GeV
       self.__minClusters      = 5
       self.__minSiNotShared   = 4
       self.__maxShared        = 1   # cut is now on number of shared modules
@@ -317,7 +318,7 @@ class ConfiguredNewTrackingCuts :
       self.__nHolesGapMax     = self.__maxHoles # not as tight as 2*maxDoubleHoles
 
       if self.__indetflags.doMinBias():
-        self.__maxPT            = 100000 * Units.GeV # Won't accept None *NEEDS FIXING*
+        self.__maxPT            = 1000000 * Units.GeV # Won't accept None *NEEDS FIXING*
         self.__maxPrimaryImpact = 100.0 * Units.mm
 
     # --- change defaults for very low pt tracking  
