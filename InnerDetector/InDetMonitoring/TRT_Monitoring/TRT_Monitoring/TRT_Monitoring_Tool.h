@@ -21,6 +21,7 @@ class TH1F_LW;
 class TH2F_LW;
 class TProfile_LW;
 class TH1D_LW;
+class LWHist1D;
 
 namespace Trk
 {
@@ -422,9 +423,9 @@ class TRT_Monitoring_Tool : public ManagedMonitorToolBase
   TH2F_LW* m_hLLOcc_Scatter[2];
   TH2F_LW* m_hHightoLowRatioOnTrack_Scatter[2];
   TH1F_LW* m_hOccAll;
-  //Arrays for normalizing probabilities of hHitWmap histograms (Leading Edge in Time Window probability per straw number)
-  float  m_scale_hHitWMap_B[1642];
-  float  m_scale_hHitWMap_B_Ar[1642];
+  //Vector for normalizing probabilities of hHitWmap histograms (Leading Edge in Time Window probability per straw number)
+  std::vector<float>  m_scale_hHitWMap_B;
+  std::vector<float>  m_scale_hHitWMap_B_Ar;
   /* Helpers for the scatter histograms - 32 stacks (do same for both side for now) */
   float m_LLOcc[2][64]; // easy to keep occupancy separately for sides A&C, so let's do that
 
@@ -535,9 +536,9 @@ class TRT_Monitoring_Tool : public ManagedMonitorToolBase
   bool m_isCosmics;
   int m_minTRThits;
   float m_minP;
-  void scale_LWHist(TH1F_LW* hist, float scale);
-  void scale_LWHistWithScaleArray (TH1F_LW* hist,float scale []);
-  int m_initScaleArrays();
+  void scale_LWHist(LWHist1D* hist, float scale);
+  void scale_LWHistWithScaleVector(LWHist1D* hist, const std::vector<float>& scale);
+  int m_initScaleVectors();
   int m_flagforscale;
   void divide_LWHist(TH1F_LW* result, TH1F_LW* a, TH1F_LW* b);
 
