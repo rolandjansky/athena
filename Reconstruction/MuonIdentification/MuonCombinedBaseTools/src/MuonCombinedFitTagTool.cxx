@@ -299,7 +299,7 @@ namespace MuonCombined {
 	  combinedPerigee->momentum().mag2();
 	if (dpOverP2 < 1.E-6) {
 	  // fail with unphysical momentum covariance
-	  ATH_MSG_WARNING( "combinedTrackQualityCheck: fail with unphysical momentum covariance");
+	  ATH_MSG_DEBUG( "combinedTrackQualityCheck: fail with unphysical momentum covariance");
 	  return false;
 	}
 	double sigma = sqrt((*indetPerigee->covariance())(4,4));
@@ -308,8 +308,8 @@ namespace MuonCombined {
 	
 	if (fabs(pull) > m_indetPullCut) {
 	  // fail with too high momentum pull
-	  ATH_MSG_WARNING("combinedTrackQualityCheck: fail with momentum pull above cut: " << pull << " pid " << 1./indetPerigee->parameters()[Trk::qOverP]
-                          << " pcb " << 1./combinedPerigee->parameters()[Trk::qOverP] << " 1./sigma " << 1./sigma );
+	  ATH_MSG_DEBUG("combinedTrackQualityCheck: fail with momentum pull above cut: " << pull << " pid " << 1./indetPerigee->parameters()[Trk::qOverP]
+			<< " pcb " << 1./combinedPerigee->parameters()[Trk::qOverP] << " 1./sigma " << 1./sigma );
 	  return false;
 	}
       }
@@ -325,7 +325,7 @@ namespace MuonCombined {
     tag.momentumBalanceSignificance(m_momentumBalanceTool->momentumBalanceSignificance(tag.combinedTrack()));
     
     // keep original SA fit if no change to MS or Calo TSOS
-    bool alwaysRefit = true;
+    /*bool alwaysRefit = true;
     if(!alwaysRefit) {
       if (! extrapolatedNeedsRefit(tag.combinedTrack(), tag.muonCandidate().extrapolatedTrack()) ) {
 
@@ -341,6 +341,16 @@ namespace MuonCombined {
         }
       }
     }
+    */
+
+    if(tag.muonCandidate().extrapolatedTrack()) {
+    	double matchChi2 = m_matchQuality->innerMatchChi2(idTrack, *tag.muonCandidate().extrapolatedTrack());
+	int matchDoF     = m_matchQuality->innerMatchDOF(idTrack, *tag.muonCandidate().extrapolatedTrack());
+	double matchProb = m_matchQuality->innerMatchProbability(idTrack, *tag.muonCandidate().extrapolatedTrack());      
+	// store the inner matching quality in the tag object
+	tag.innerMatch(matchChi2, matchDoF, matchProb);
+        ATH_MSG_DEBUG( " extrapolatedTrack innerMatch " << matchChi2);
+    }	
     
     // refit extrapolated from combined track (i.e. after cleaning)
     const Trk::Track*  refittedExtrapolatedTrack = 0;
@@ -363,6 +373,7 @@ namespace MuonCombined {
       
       // store the inner matching quality in the tag object
       tag.innerMatch(matchChi2, matchDoF, matchProb);
+      ATH_MSG_DEBUG( " refittedExtrapolatedTrack innerMatch " << matchChi2);
       
       // print comparison with original track
       if(tag.muonCandidate().extrapolatedTrack()) {

@@ -868,7 +868,7 @@ namespace MuonCombined {
         // check if a track is available
         if(primaryTag->primaryTrack()) {
           if( alreadyIncluded.count(primaryTag->primaryTrack()) ){
-            ATH_MSG_WARNING("Duplicate canidate " << candidate->toString() );
+            ATH_MSG_DEBUG("Duplicated ID candidate " << candidate->toString() );
             continue;
           }
           alreadyIncluded.insert(primaryTag->primaryTrack());
@@ -936,7 +936,7 @@ namespace MuonCombined {
       for(auto candidate : *muonCandidates) {
         const Trk::Track* track = candidate->extrapolatedTrack() ? candidate->extrapolatedTrack() : &candidate->muonSpectrometerTrack();
         if( alreadyIncluded.count(track) ){
-          ATH_MSG_WARNING("Duplicate track " << m_printer->print(*track));
+          ATH_MSG_DEBUG("Duplicate MS track " << m_printer->print(*track));
           continue;
         }
         alreadyIncluded.insert(track);
