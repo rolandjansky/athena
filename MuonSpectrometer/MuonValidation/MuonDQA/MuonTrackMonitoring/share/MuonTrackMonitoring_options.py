@@ -50,6 +50,11 @@ if MuonDQAFlags.doMuonTrackMon:
    monMan.AthenaMonTools += [ MuonSelectedTracksMon ]
    monMan.AthenaMonTools += [ MuonGenericTracksMon ]
    monMan.AthenaMonTools += [ TGCStandaloneTracksMon ]
+   ###enable lumi tool
+   MuonSelectedTracksMon.EnableLumi = True
+   MuonGenericTracksMon.EnableLumi = True
+   TGCStandaloneTracksMon.EnableLumi = True
+ 
 #############TriggerAware Trk Monitoring#######################
 ## set to true in case you would like to use trigger-aware monitoring
 ## only do trigger-aware monitoring if monTrigDecTool known by ToolSvc
