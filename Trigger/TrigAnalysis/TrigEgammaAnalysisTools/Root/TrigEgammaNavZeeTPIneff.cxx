@@ -73,7 +73,7 @@ StatusCode TrigEgammaNavZeeTPIneff::childExecute()
 
                 passedEF = ancestorPassed<xAOD::ElectronContainer>(feat);
 
-                const xAOD::ElectronContainer* EFEl = getFeature<xAOD::ElectronContainer>(feat);
+                const auto* EFEl = getFeature<xAOD::ElectronContainer>(feat);
                 if ( EFEl != NULL )
                     for(unsigned int j=0;j<EFEl->size();j++){
                         float deltaEta = TMath::Abs(denOffEl_eta- EFEl->at(j)->eta() );

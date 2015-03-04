@@ -75,7 +75,7 @@ StatusCode TrigEgammaNavZeeTPRes::childExecute()
             if ( feat ) {
 
                 passedL2 = ancestorPassed<xAOD::TrigElectronContainer>(feat);
-                const xAOD::TrigElectronContainer* L2El = getFeature<xAOD::TrigElectronContainer>(feat);
+                const auto* L2El = getFeature<xAOD::TrigElectronContainer>(feat);
                 if (passedL2 && (L2El!=NULL) )
                     for(unsigned int j=0;j<L2El->size();j++){
                         float deltaEta = TMath::Abs(denOffEl_eta- L2El->at(j)->eta() );
@@ -91,7 +91,7 @@ StatusCode TrigEgammaNavZeeTPRes::childExecute()
 
 
                 passedEF = ancestorPassed<xAOD::ElectronContainer>(feat);
-                const xAOD::ElectronContainer* EFEl = getFeature<xAOD::ElectronContainer>(feat);
+                const auto* EFEl = getFeature<xAOD::ElectronContainer>(feat);
                 if (passedEF && (EFEl!=NULL) )
                     for(unsigned int j=0;j<EFEl->size();j++){
                         float deltaEta = TMath::Abs(denOffEl_eta- EFEl->at(j)->eta() );
@@ -110,7 +110,7 @@ StatusCode TrigEgammaNavZeeTPRes::childExecute()
                 float offET = offEl->e()/TMath::CosH(offEl->trackParticle()->eta());
                 float onlET = selEF->e()/TMath::CosH(selEF->trackParticle()->eta());
                 float resEF = 100.0*(offET - onlET)/offET;
-                cd(m_dir+"/"+probeTrigger+"/L2Resolutions");
+                cd(m_dir+"/"+probeTrigger+"/HLTResolutions");
                 hist1("EtRes")->Fill(resEF);
                 hist2("EtRes_eta")->Fill(offEl->eta(),resEF);
                 hist2("EtRes_et")->Fill(offET/1e3,resEF);

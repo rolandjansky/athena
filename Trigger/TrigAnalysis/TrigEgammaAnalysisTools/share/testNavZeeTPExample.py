@@ -16,7 +16,7 @@ from AthenaCommon.AppMgr import ToolSvc
 import os
 
 if not 'DIR' in dir():
-     dirtouse='/afs/cern.ch/user/r/rwhite/workspace/xAOD/DC14/19.1.1.5/valid1.147806.PowhegPythia8_AU2CT10_Zee.recon.AOD.e2658_s1967_s1964_r5787_tid01572823_00'
+     dirtouse='/afs/cern.ch/user/r/rwhite/workspace/public/validation/mc/DC14/valid1.147806.PowhegPythia8_AU2CT10_Zee.recon.AOD.e2658_s1967_s1964_r5787_tid01572823_00'
 else :
      dirtouse=DIR
 
@@ -30,8 +30,8 @@ for ll in listfiles:
 #print finallist
 
 athenaCommonFlags.FilesInput=finallist
-athenaCommonFlags.EvtMax=1000
-#athenaCommonFlags.EvtMax=-1
+#athenaCommonFlags.EvtMax=500
+athenaCommonFlags.EvtMax=-1
 rec.readAOD=True
 # switch off detectors
 rec.doForwardDet=False
@@ -57,15 +57,89 @@ rec.doWriteTAG.set_Value_and_Lock(False) # uncomment if do not write TAG
 
 # main jobOption
 include ("RecExCommon/RecExCommon_topOptions.py")
-
+ToolSvc.TrigDecisionTool.TrigDecisionKey='xTrigDecision'
+#ToolSvc.TrigDecisionTool.OutputLevel = VERBOSE
 # Here we configure the output histogram
 # And the athena algorithm, simply a loop over tools
 from GaudiSvc.GaudiSvcConf import THistSvc
 ServiceMgr += THistSvc()
 ServiceMgr.THistSvc.Output += ["Validation_Zee DATAFILE='Validation_Zee.root' OPT='RECREATE'"]
-
+#from TrigEgammaAnalysisTools.TrigEgammaAnalysisToolsConf import TrigEgammaTDToolTest
+#topSequence+=TrigEgammaTDToolTest("TrigEgammaTDToolTest")
 from TrigEgammaAnalysisTools.TrigEgammaAnalysisToolsConfig import TrigEgammaAnalysisAlg
-from TrigEgammaAnalysisTools.TrigEgammaAnalysisToolsConfig import TrigEgammaNavZeeTPCounts
-Counts = TrigEgammaNavZeeTPCounts(name="NavZeeTPCounts",ElectronKey="ElectronCollection",ProbeTriggerList=['e28_tight_iloose','e0_perf_L1EM3'],)
-Alg = TrigEgammaAnalysisAlg(name="MyAlg",Tools=[Counts])
+from TrigEgammaAnalysisTools.TrigEgammaAnalysisToolsConfig import TrigEgammaNavZeeTPCounts,TrigEgammaNavZeeTPPerf,TrigEgammaNavZeeTPEff,TrigEgammaNavZeeTPRes
+Res = TrigEgammaNavZeeTPRes(name="NavZeeTPRes",
+        ElectronKey="Electrons",
+        ProbeTriggerList=['e26_tight_iloose',
+            'e24_tight_iloose',
+            'e26_lhtight_iloose',
+            'e24_tight_iloose_L1EM20VH',
+            'e24_medium_iloose_L1EM20VH',
+            'e24_lhmedium_iloose_L1EM20VH',
+            'e24_tight_iloose_HLTCalo_L1EM20VH',
+            'e24_tight_iloose_L2EFCalo_L1EM20VH',
+            'e24_lhtight_iloose_L1EM20V',
+            'e24_lhtight_iloose_HLTCalo_L1EM20VH',
+            'e24_lhtight_iloose_L2EFCalo_L1EM20VH',
+            ],
+        MinimumTriggerList=["e24_tight","e24_tight_iloose","e26_tight_iloose"],
+        TagTrigger="e26_lhtight_iloose",
+        OutputLevel=2,
+        )
+Eff = TrigEgammaNavZeeTPEff(name="NavZeeTPEff",
+        ElectronKey="Electrons",
+        ProbeTriggerList=['e26_tight_iloose',
+            'e24_tight_iloose',
+            'e26_lhtight_iloose',
+            'e24_tight_iloose_L1EM20VH',
+            'e24_medium_iloose_L1EM20VH',
+            'e24_lhmedium_iloose_L1EM20VH',
+            'e24_tight_iloose_HLTCalo_L1EM20VH',
+            'e24_tight_iloose_L2EFCalo_L1EM20VH',
+            'e24_lhtight_iloose_L1EM20V',
+            'e24_lhtight_iloose_HLTCalo_L1EM20VH',
+            'e24_lhtight_iloose_L2EFCalo_L1EM20VH',
+            ],
+        
+        MinimumTriggerList=["e24_tight","e24_tight_iloose","e26_tight_iloose"],
+        TagTrigger="e26_lhtight_iloose",
+        )
+Counts = TrigEgammaNavZeeTPCounts(name="NavZeeTPCounts",
+        ElectronKey="Electrons",
+        ProbeTriggerList=['e26_tight_iloose',
+            'e24_tight_iloose',
+            'e26_lhtight_iloose',
+            'e24_tight_iloose_L1EM20VH',
+            'e24_medium_iloose_L1EM20VH',
+            'e24_lhmedium_iloose_L1EM20VH',
+            'e24_tight_iloose_HLTCalo_L1EM20VH',
+            'e24_tight_iloose_L2EFCalo_L1EM20VH',
+            'e24_lhtight_iloose_L1EM20V',
+            'e24_lhtight_iloose_HLTCalo_L1EM20VH',
+            'e24_lhtight_iloose_L2EFCalo_L1EM20VH',
+            ],
+        MinimumTriggerList=["e24_tight","e24_tight_iloose","e26_tight_iloose"],
+        TagTrigger="e26_lhtight_iloose",
+        )
+
+Perf = TrigEgammaNavZeeTPPerf(name="NavZeeTPPerf",
+        ElectronKey="Electrons",
+        ProbeTriggerList=['e26_tight_iloose',
+            'e24_tight_iloose',
+            'e26_lhtight_iloose',
+            'e24_tight_iloose_L1EM20VH',
+            'e24_medium_iloose_L1EM20VH',
+            'e24_lhmedium_iloose_L1EM20VH',
+            'e24_tight_iloose_HLTCalo_L1EM20VH',
+            'e24_tight_iloose_L2EFCalo_L1EM20VH',
+            'e24_lhtight_iloose_L1EM20V',
+            'e24_lhtight_iloose_HLTCalo_L1EM20VH',
+            'e24_lhtight_iloose_L2EFCalo_L1EM20VH',
+            ],
+        MinimumTriggerList=["e24_tight","e24_tight_iloose","e26_tight_iloose"],
+        TagTrigger="e26_lhtight_iloose",
+        )
+
+Alg = TrigEgammaAnalysisAlg(name="MyAlg",Tools=[Counts,Perf,Res,Eff])
+#Alg = TrigEgammaAnalysisAlg(name="MyAlg",Tools=[Res])
 
