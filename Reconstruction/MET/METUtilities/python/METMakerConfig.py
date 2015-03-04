@@ -19,5 +19,6 @@ def getMETMakerAlg(suffix):
                                        METMapName='METAssoc_'+suffix,
                                        METCoreName='MET_Core_'+suffix,
                                        METName='MET_Reference_'+suffix,
+                                       InputJets=suffix+'Jets',
                                        Maker=metMaker)
     return makerAlg
