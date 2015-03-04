@@ -10,6 +10,8 @@
 #include "TrkValHistUtils/MSHitDiffPlots.h"
 #include "MuonHistUtils/MuonHitDiffSummaryPlots.h"
 #include "MuonHistUtils/MuonResolutionPlots.h"
+#include "MuonHistUtils/MomentumTruthPullPlots.h"
+#include "MuonHistUtils/MuonTree.h"
 #include "TrkValHistUtils/DefParamPullPlots.h"
 
 #include "xAODMuon/Muon.h"
@@ -17,9 +19,11 @@
 
 class TruthRelatedMuonPlots:public PlotBase {
  public:
-  TruthRelatedMuonPlots(PlotBase* pParent, std::string sDir,bool doBinnedResolutionPlots);
+  TruthRelatedMuonPlots(PlotBase* pParent, std::string sDir,bool doBinnedResolutionPlots, bool doMuonTree=false);
   ~TruthRelatedMuonPlots();
   void fill(const xAOD::TruthParticle& truthMu, const xAOD::Muon& mu, const xAOD::TrackParticleContainer* MSTrack);
+
+  bool m_doMuonTree;
     
   // Truth related plots
   Trk::ParamPlots                 m_oMatchedPlots;
@@ -32,7 +36,10 @@ class TruthRelatedMuonPlots:public PlotBase {
   Trk::DefParamPullPlots          m_oMSDefParamPullPlots;
   Trk::DefParamPullPlots          m_oIDDefParamPullPlots;
 
-  Muon::MomentumDiffPlots         m_oMomentumDiffPlots;
+  Muon::MomentumTruthPullPlots     m_oMomentumTruthPullPlots_Tail;
+  Muon::MomentumTruthPullPlots     m_oMomentumTruthPullPlots_NoTail;
+
+  Muon::MuonTree*                 m_oMuonTree;
 };
 
 #endif

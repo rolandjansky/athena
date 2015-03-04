@@ -16,6 +16,9 @@ CreateEffAndRecoFracPlots.py $tmpfile
 ## Creates pt resolution and pt scale plots 
 CreateResolutionPlots.py $tmpfile
 
+## Creates profiles of pull plots over pt
+CreatePullProfiles.py $tmpfile
+
 ## Normalizes all plots to unity (for comparisons). MUST RUN AFTER EFFICIENCY MACROS!!! OTHERWISE EFFICIENCY WILL BE WRONG!!!!
 #normalizator.py $tmpfile
 
