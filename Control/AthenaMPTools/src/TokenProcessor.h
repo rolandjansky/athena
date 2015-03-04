@@ -35,7 +35,7 @@ class TokenProcessor : public AthenaMPToolBase
   // _________IAthenaMPTool_________   
   int makePool(int maxevt, int nprocs, const std::string& topdir);
   StatusCode exec();
-  StatusCode wait_once(int& numFinishedProc);
+  StatusCode wait_once(pid_t& pid);
 
   void reportSubprocessStatuses();
   void subProcessLogs(std::vector<std::string>&);
@@ -68,6 +68,7 @@ class TokenProcessor : public AthenaMPToolBase
   StringProperty                    m_channel2EvtSel;
 
   AthenaInterprocess::SharedQueue*  m_sharedRankQueue;          
+  AthenaInterprocess::SharedQueue*  m_sharedFailedPidQueue;          
 
   std::map<pid_t,int>               m_nProcessedEvents; // Number of processed events by PID
   std::queue<pid_t>                 m_finQueue;         // PIDs of processes queued for finalization

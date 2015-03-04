@@ -36,7 +36,7 @@ SharedEvtQueueProvider::SharedEvtQueueProvider(const std::string& type
   , m_skipEvents(0)
   , m_nEvtCounted(0)
   , m_nEvtAddPending(0)
-  , m_needCountEvents(false)
+  , m_needCountEvents(true)
   , m_nEventsInInpFiles(0)
   , m_sharedEventQueue(0)
 {
@@ -211,11 +211,32 @@ AthenaInterprocess::ScheduledWork* SharedEvtQueueProvider::bootstrap_func()
   if(handleSavedPfc(abs_counter_rundir))
     return outwork;
 
-  // ________________________  reopen descriptors ____________________________
+  // ________________________ reopen descriptors ____________________________
   if(reopenFds())
     return outwork;
 
   msg(MSG::INFO) << "File descriptors re-opened in the AthenaMP event event counter PID=" << getpid() << endreq;
+
+  // _______________________ event counting ________________________________
+  if(m_preCountedEvents>-1) {
+    m_nEvtAddPending = m_preCountedEvents;
+    if(addEventsToQueue()) {
+      msg(MSG::ERROR) << "Failed to insert event numbers to the shared queue" << endreq;
+      return outwork;
+    }
+  }
+  else {
+    // Use incident service for registering a BeginInputFile handler 
+    IIncidentSvc* incsvc(0);
+    StatusCode sc = serviceLocator()->service("IncidentSvc",incsvc);
+    if(sc.isFailure() || incsvc==0) {
+      msg(MSG::ERROR) << "Error retrieving IncidentSvc" << endreq;
+      return outwork;
+    }
+
+    incsvc->addListener(this,"BeginInputFile");
+    msg(MSG::DEBUG) << "Added self as listener to BeginInputFile" << endreq;
+  }
 
   // ________________________ I/O reinit ________________________
   if(!m_ioMgr->io_reinitialize().isSuccess()) {
@@ -254,66 +275,31 @@ AthenaInterprocess::ScheduledWork* SharedEvtQueueProvider::exec_func()
   msg(MSG::INFO) << "Exec function in the AthenaMP Event Counter PID=" << getpid() << endreq;
   bool all_ok(true);
 
-  if(m_preCountedEvents>-1) {
-    m_nEvtAddPending = m_preCountedEvents;
-  }
-  else {
-    if(nEventsInFile()) {
-      msg(MSG::ERROR) << "Failed to get number of events in the input file" << endreq;
-      all_ok=false;
-    }
-  }
-
-  // Send first block of events to the shared queue
-  if(all_ok) {
-    if(addEventsToQueue()) {
-      msg(MSG::ERROR) << "Failed to insert event numbers to the shared queue" << endreq;
+  if(m_needCountEvents) {
+    unsigned evtNum(0);
+    IEvtSelector::Context* evtContext(0);
+    StatusCode sc = m_evtSelector->createContext(evtContext);
+    if(sc.isFailure()) {
+      msg(MSG::ERROR) << "Failed to create the event selector context" << endreq;
       all_ok=false;
     }
     else {
-      msg(MSG::DEBUG) << "need to count more events " << (m_needCountEvents?"YES":"NO") << endreq;
-      
-      // Count more events if necessary
-      if(m_needCountEvents) {
-	// Use incident service for registering a BeginInputFile handler 
-	IIncidentSvc* incsvc(0);
-	StatusCode sc = serviceLocator()->service("IncidentSvc",incsvc);
-	if(sc.isFailure() || incsvc==0) {
-	  msg(MSG::ERROR) << "Error retrieving IncidentSvc" << endreq;
-	  all_ok=false;
-	}
-	else {
-	  incsvc->addListener(this,"BeginInputFile");
-	  msg(MSG::DEBUG) << "Added self as listener to BeginInputFile" << endreq;
-	  
-	  unsigned evtNum(0);
-	  IEvtSelector::Context* evtContext(0);
-	  sc = m_evtSelector->createContext(evtContext);
-	  if(sc.isFailure()) {
-	    msg(MSG::ERROR) << "Failed to create the event selector context" << endreq;
-	    all_ok=false;
-	  }
-	  else {
-	    
-	    // Now read all input events in order to count them and add entries to the shared event queue
-	    // Events are added to the queue in chunks when new input file gets opened and BeginInputFile incident is thrown
-	    while(sc.isSuccess() && m_needCountEvents) {
-	      sc = m_evtSelector->next(*evtContext);
-	      msg(MSG::DEBUG) << "Evt num=" << ++evtNum << endreq;
-	    }
-	    
-	    // We are done counting events. Set the Final flag to True
-	    updateShmem(m_nEvtCounted,true);
-	  }
-	}
+      // Now read all input events in order to count them and add entries to the shared event queue
+      // Events are added to the queue in chunks when new input file gets opened and BeginInputFile incident is thrown
+      while(sc.isSuccess() && m_needCountEvents) {
+	sc = m_evtSelector->next(*evtContext);
+	msg(MSG::DEBUG) << "Evt num=" << ++evtNum << endreq;
       }
+      
+      // We are done counting events. Set the Final flag to True
+      updateShmem(m_nEvtCounted,true);
     }
-
-    msg(MSG::INFO) << "Done counting events and populating shared queue. Total number of events to be processed: " << std::max(m_nEvtCounted - m_nEventsBeforeFork,0) 
-		   << ", Event Chunk size in the queue is " << m_chunkSize << endreq;
   }
 
   if(all_ok) {
+    msg(MSG::INFO) << "Done counting events and populating shared queue. Total number of events to be processed: " << std::max(m_nEvtCounted - m_nEventsBeforeFork,0) 
+		   << ", Event Chunk size in the queue is " << m_chunkSize << endreq;
+
     if(m_appMgr->stop().isFailure()) {
       msg(MSG::ERROR) << "Unable to stop AppMgr" << endreq; 
       all_ok=false;

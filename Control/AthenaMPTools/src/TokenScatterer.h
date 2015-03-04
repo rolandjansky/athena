@@ -52,6 +52,10 @@ class TokenScatterer : public AthenaMPToolBase
 				 , yampl::ISocket* socket2Pilot
 				 , int& procReportPending);
 
+  // Poll the failed PID queue to see if any of the Processors has failed
+  void pollFailedPidQueue(AthenaInterprocess::SharedQueue*  sharedFailedPidQueue
+			  , int& procReportPending);
+
   StringProperty           m_processorChannel;
   StringProperty           m_eventRangeChannel;
   bool                     m_doCaching;
