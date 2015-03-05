@@ -48,7 +48,7 @@
 #include <iostream>
 #include <string>
 
-static const double tanPi64=0.049126849769467254105343321271314;
+//static const double tanPi64=0.049126849769467254105343321271314;
 static const double M_PI32 = M_PI/32;
 
 #ifdef HITSINFO    //added by Sergey
@@ -165,9 +165,13 @@ bool TileGeoG4CalibSD::FindTileCalibSection()
             _is_extended = true;
             _detector = 3;
             dm_region = 2;
-            G4String namePlug = _StepTouchable->GetVolume(level-3)->GetName();
-            if (namePlug.find("Plug1") != G4String::npos) {
-                _c_section = m_lookupDM->GetSection(TileCalibDddbManager::TILE_PLUG1);
+            if (level>2) {
+                G4String namePlug = _StepTouchable->GetVolume(level-3)->GetName();
+                if (namePlug.find("Plug1") != G4String::npos) {
+                    _c_section = m_lookupDM->GetSection(TileCalibDddbManager::TILE_PLUG1);
+                } else {
+                    _c_section = m_lookupDM->GetSection(TileCalibDddbManager::TILE_PLUG2);
+                }
             } else {
                 _c_section = m_lookupDM->GetSection(TileCalibDddbManager::TILE_PLUG2);
             }
@@ -205,11 +209,12 @@ bool TileGeoG4CalibSD::FindTileCalibSection()
 
         //determine a module
         if (level>1) {
-            if((namePhysSection.find("EBarrel") != G4String::npos  ||
-                namePhysSection.find("ITC")     != G4String::npos) &&
-                level>2) {  //not IrUp,IrDw, IrBox, Iron1, ...
+            if(namePhysSection.find("EBarrel") != G4String::npos  ||
+               namePhysSection.find("ITC")     != G4String::npos) {
+                if (level>2) {  //not IrUp,IrDw, IrBox, Iron1, ...
                     _module = _StepTouchable->GetVolume(level-2)->GetCopyNo() - 1;
                     dm_nphi = _module;
+                }
             } else {
                 _module = _StepTouchable->GetVolume(level-2)->GetCopyNo() - 1;
                 dm_nphi = _module;
