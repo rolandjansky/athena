@@ -130,26 +130,29 @@ void DataHeaderElementCnv_p5::transToPers(const DataHeaderElement* trans,
          }
          pers->m_token = pers->m_token.substr(delim + 1);
 // Get TypeName
-         std::string::size_type delim = pers->m_token.find_first_of("/()");
-         if (delim != std::string::npos) {
-            const std::string persComp2 = pers->m_token.substr(0, delim + 1);
-            for (std::vector<std::string>::const_iterator iter = form.map().begin(), last = form.map().end();
-	            iter != last; iter++, typeIdx++) {
-               if (*iter == persComp2) break;
+// Check whether Key only is used for placement
+         if (pers->m_token.find(trans->m_key) != 0) {
+            std::string::size_type delim = pers->m_token.find_first_of("/()");
+            if (delim != std::string::npos) {
+               const std::string persComp2 = pers->m_token.substr(0, delim + 1);
+               for (std::vector<std::string>::const_iterator iter = form.map().begin(), last = form.map().end();
+	               iter != last; iter++, typeIdx++) {
+                  if (*iter == persComp2) break;
+               }
+               if (typeIdx == form.map().size()) {
+                  form.insertMap(persComp2);
+               }
+               pers->m_token = pers->m_token.substr(delim + 1);
+            } else if (pers->m_token == "DataHeader") {
+               for (std::vector<std::string>::const_iterator iter = form.map().begin(), last = form.map().end();
+	               iter != last; iter++, typeIdx++) {
+                  if (*iter == "DataHeader") break;
+               }
+               if (typeIdx == form.map().size()) {
+                  form.insertMap("DataHeader");
+               }
+               pers->m_token.clear();
             }
-            if (typeIdx == form.map().size()) {
-               form.insertMap(persComp2);
-            }
-            pers->m_token = pers->m_token.substr(delim + 1);
-         } else if (pers->m_token == "DataHeader") {
-            for (std::vector<std::string>::const_iterator iter = form.map().begin(), last = form.map().end();
-	            iter != last; iter++, typeIdx++) {
-               if (*iter == "DataHeader") break;
-            }
-            if (typeIdx == form.map().size()) {
-               form.insertMap("DataHeader");
-            }
-            pers->m_token.clear();
          }
       }
       delim = pers->m_token.rfind(trans->m_key);
