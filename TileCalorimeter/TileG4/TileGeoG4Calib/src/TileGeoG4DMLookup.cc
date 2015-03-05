@@ -87,7 +87,7 @@ void TileGeoG4CalibSection::DMToCell(bool gap_crack, TileGeoG4Section* tile_sect
           }
         else     
 	  {
-          if( !(((samples[samp-1])->cells[1])->nrOfPeriodsInCell[1])==0 )                      //we ARE in the C subsample in Barrel
+          if( samples[samp-1]->cells[1]->nrOfPeriodsInCell[1] != 0 )                      //we ARE in the C subsample in Barrel
 	    {
              l_indCurrentCell[samp] = 0;
              l_currentBoundary[samp] = ((samples[samp-1])->cells[0])->nrOfPeriodsInCell[1] ;   // C-Barrel 
@@ -116,7 +116,7 @@ void TileGeoG4CalibSection::DMToCell(bool gap_crack, TileGeoG4Section* tile_sect
 	            }    
                   else
 	            {                                                                                     // passed==true
-                      if( !(((samples[samp-1])->cells[1])->nrOfPeriodsInCell[1]) == 0 )                   // C-cell of Barrel
+                      if( samples[samp-1]->cells[1]->nrOfPeriodsInCell[1] != 0 )                   // C-cell of Barrel
 		        {    
 		          if(++l_indCurrentCell[samp] < static_cast<int>((samples[samp-1])->cells.size()))
 	                    { l_currentBoundary[samp] += ((samples[samp-1])->cells[l_indCurrentCell[samp]])->nrOfPeriodsInCell[1] ; }  // C subsample == 2 sample
