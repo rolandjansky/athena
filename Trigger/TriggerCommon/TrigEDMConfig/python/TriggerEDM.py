@@ -665,13 +665,13 @@ TriggerHLTList = [
 ]
 
 TriggerResultsList=[
-    ('TrigDec::TrigDecision#TrigDecision' ,           'ESD AODFULL AODSLIM', 'Steer'),#still needed for Run2?
+    ('TrigDec::TrigDecision#TrigDecision' ,           '', 'Steer'),#still needed for Run2?
     ('xAOD::TrigDecision#xTrigDecision' ,             'ESD AODFULL AODSLIM', 'Steer'),
     ('xAOD::TrigDecisionAuxInfo#xTrigDecisionAux.',   'ESD AODFULL AODSLIM', 'Steer'),
     ('xAOD::TrigConfKeys#TrigConfKeys' ,              'ESD AODFULL AODSLIM', 'Steer'),
     #    ('HLT::HLTResult#HLTResult_L2',                    'ESD AODFULL AODSLIM', 'Steer'),#still needed for Run2?
     #    ('HLT::HLTResult#HLTResult_EF' ,                   'ESD AODFULL AODSLIM', 'Steer'),#still needed for Run2?
-    ('HLT::HLTResult#HLTResult_HLT',                  'ESD AODFULL AODSLIM', 'Steer'),
+    ('HLT::HLTResult#HLTResult_HLT',                  'ESD', 'Steer'),
     ('xAOD::TrigNavigation#TrigNavigation' ,          'ESD AODFULL AODSLIM', 'Steer'),
     ('xAOD::TrigNavigationAuxInfo#TrigNavigationAux.','ESD AODFULL AODSLIM', 'Steer')
     ]
@@ -950,32 +950,33 @@ EDMLibraries = [ 'TrigSteeringEvent', 'TrigMuonEvent',
                  'TrigCosmicEvent',   'TrigInDetEvent',
                  'TrigParticle',      'TrigMissingEtEvent',
                  'TrigDecisionEvent', 'TrigMonitoringEvent',
-                 'TrigCaloEventTPCnv',      'TrigCosmicEventTPCnv',
-                 'TrigDecisionEventTPCnv',  'TrigInDetEventTPCnv',
-                 'TrigMissingEtEventTPCnv', 'TrigMuonEventTPCnv',
-                 'TrigParticleTPCnv',       'TrigSteeringEventTPCnv',
-                 'TrigTopoEvent' , 'TrigTopoEventTPCnv',
-		 'TrigCombinedEvent', 'TrigCombinedEventTPCnv', 'TrigCombinedEventTPCnv1Dict',
-		 'RecTPCnv', 'tauEventTPCnvDict',
-                 'TrigCaloEventTPCnv1Dict',          
-		 #'TrigCosmicEventTPCnv1Dict',
-                 'TrigDecisionEventTPCnv1Dict',      'TrigInDetEventTPCnv1Dict',
-                 'TrigMissingEtEventTPCnv1Dict',     'TrigMuonEventTPCnv1Dict',
-                 'TrigParticleTPCnv1Dict',           'TrigSteeringEventTPCnv1Dict',
-		 'RecTPCnvDict',
-                 #'OLD_TrigCosmicEventTPCnv1Dict',
-	         'TrigMonitoringEventTPCnv',
-                 'OLD_TrigDecisionEventTPCnv1Dict',  'TrigMonitoringEventTPCnvDict',
-                 'OLD_TrigMuonEventTPCnv1Dict',
-	         #'ARA_TrigMonitoringEventTPCnvDict',
-                 'OLD_TrigParticleTPCnv1Dict',       'OLD_TrigSteeringEventTPCnv1Dict',
+		 'TrigTopoEvent' , 'TrigCombinedEvent', 
+	         'TrigMonitoringEventTPCnv',   'RecTPCnv',
+                 'TrigCaloEventTPCnv',         'TrigCosmicEventTPCnv',
+                 'TrigDecisionEventTPCnv',     'TrigInDetEventTPCnv',
+                 'TrigMissingEtEventTPCnv',    'TrigMuonEventTPCnv',
+                 'TrigParticleTPCnv',          'TrigSteeringEventTPCnv',
+		 'TrigTopoEventTPCnv',         'TrigCombinedEventTPCnv', 
+		 'tauEventTPCnvDict',          'RecTPCnvDict',
+		 'TrigMonitoringEventTPCnvDict',
 		 'OLD_RecTPCnvDict',
+#
+		 #'TrigCosmicEventTPCnv1Dict',
+                 #'OLD_TrigCosmicEventTPCnv1Dict',
+		 #'TrigCombinedEventTPCnv1Dict',     'TrigCaloEventTPCnv1Dict',          
+                 #'TrigDecisionEventTPCnv1Dict',     'TrigInDetEventTPCnv1Dict',
+                 #'TrigMissingEtEventTPCnv1Dict',    'TrigMuonEventTPCnv1Dict',
+                 #'TrigParticleTPCnv1Dict',          'TrigSteeringEventTPCnv1Dict',
+                 #'OLD_TrigDecisionEventTPCnv1Dict', 'OLD_TrigMuonEventTPCnv1Dict',
+                 #'OLD_TrigParticleTPCnv1Dict',      'OLD_TrigSteeringEventTPCnv1Dict',
+#
                  'xAODCaloEvent', 'xAODEgamma', 'xAODTracking', 'xAODMuon', 'xAODTau', 'xAODJet',
                  'xAODTrigBphys', 'xAODTrigMissingET', 'xAODTrigEgamma', 'xAODTrigMuon', 'xAODTrigCalo',
                  'xAODTrigMinBias', 'xAODBTagging', 'xAODTrigRinger', 
                  'xAODCaloEventDict', 'xAODEgammaDict', 'xAODTrackingDict', 'xAODMuonDict', 'xAODTauDict', 'xAODJetDict',
                  'xAODTrigBphysDict', 'xAODTrigMissingETDict', 'xAODTrigEgammaDict', 'xAODTrigMuonDict', 'xAODTrigCaloDict',
                  'xAODTrigMinBiasDict', 'xAODBTaggingDict'
+	         #'ARA_TrigMonitoringEventTPCnvDict',
                  #'ARA_TrigCaloEventTPCnv1Dict',      'ARA_TrigCosmicEventTPCnv1Dict',
                  #'ARA_TrigDecisionEventTPCnv1Dict',  #'ARA_TrigInDetEventTPCnv1Dict',
                  #'ARA_TrigMissingEtEventTPCnv1Dict', 'ARA_TrigMuonEventTPCnv1Dict',
