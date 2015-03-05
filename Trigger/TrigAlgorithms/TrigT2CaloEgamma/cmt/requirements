@@ -23,7 +23,7 @@ use TrigT1Interfaces    TrigT1Interfaces-*           Trigger/TrigT1
 use TrigInterfaces      TrigInterfaces-*             Trigger/TrigSteer
 use TrigSteeringEvent   TrigSteeringEvent-*          Trigger/TrigEvent
 use TrigTimeAlgs        TrigTimeAlgs-*               Trigger/TrigTools
-use egammaInterfaces	egammaInterfaces-*	     Reconstruction/egamma
+use egammaInterfaces	  egammaInterfaces-*	         Reconstruction/egamma
 use DataModel           DataModel-*                  Control
 use CLIDSvc             CLIDSvc-*                    Control
 

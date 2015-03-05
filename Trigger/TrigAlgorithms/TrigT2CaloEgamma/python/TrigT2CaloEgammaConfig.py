@@ -1,7 +1,7 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-from TrigT2CaloEgamma.TrigT2CaloEgammaConf import T2CaloSwSeed, T2CaloSwCluster
 
+#from TrigT2CaloEgamma.TrigT2CaloEgammaConf import T2CaloSwCluster
 from TrigT2CaloEgamma.TrigT2CaloEgammaConf import EgammaSamp1Fex,EgammaSamp2Fex
 from TrigT2CaloEgamma.TrigT2CaloEgammaConf import EgammaEmEnFex, EgammaHadEnFex
 from TrigT2CaloEgamma.TrigT2CaloEgammaConf import RingerFex
@@ -185,8 +185,8 @@ class T2CaloEgamma_eGamma_NoHad (T2CaloEgamma):
        self.PhiWidthForID = 0.1
        #self.TimerNtuple="T2CaloEgamma.T2CaEgtTot"
        self.TrigEMClusterKey="TrigT2CaloEgamma"
-#       self.Monitoring=False
-#       self.OutputLevel = DEBUG
+       #self.Monitoring=False
+       #self.OutputLevel = DEBUG
        #self.AthenaMonTools += [t2catime]
        self.AthenaMonTools = [ TrigT2CaloEgammaValMonitoring(),
                          TrigT2CaloEgammaCosmicMonitoring(),
@@ -246,56 +246,56 @@ class T2CaloEgamma_MBTSC (T2CaloEgamma):
 			 TrigT2CaloEgammaOnMonitoring()]
 
 
-class T2CaloEgamma_SwSeed (T2CaloSwSeed):
-   __slots__ = []
-   def __init__ (self, name="T2CaloEgamma_SwSeed"):
-       super(T2CaloEgamma_SwSeed, self).__init__(name)
-       self.NoCut = False
-       self.EtaWidth = 0.2
-       self.PhiWidth = 0.2
-       self.EtaWidthForID = 0.1
-       self.PhiWidthForID = 0.1
-       self.NoiseThreshold = 0
-       self.WindowThreshold = 1500
-       self.OverlapDistance = 0.1
-       self.TrigEMClusterKey="T2CaloTrigEMSwCluster"
-       #self.AthenaMonTools += [t2catime]
-       self.AthenaMonTools += [
-         TrigT2CaloEgammaSwValMonitoring(),
-         TrigT2CaloEgammaSwOnMonitoring(),
-         TrigT2CaloEgammaSwCosMonitoring()]
-       self.CalibList=[EgammaSshapeCalibrationEndcapConfig(),
-                       EgammaSshapeCalibrationBarrelConfig()]
+#class T2CaloEgamma_SwSeed (T2CaloSwSeed):
+#   __slots__ = []
+#   def __init__ (self, name="T2CaloEgamma_SwSeed"):
+#       super(T2CaloEgamma_SwSeed, self).__init__(name)
+#       self.NoCut = False
+#       self.EtaWidth = 0.2
+#       self.PhiWidth = 0.2
+#       self.EtaWidthForID = 0.1
+#       self.PhiWidthForID = 0.1
+#       self.NoiseThreshold = 0
+#       self.WindowThreshold = 1500
+#       self.OverlapDistance = 0.1
+#       self.TrigEMClusterKey="T2CaloTrigEMSwCluster"
+#       #self.AthenaMonTools += [t2catime]
+#       self.AthenaMonTools += [
+#         TrigT2CaloEgammaSwValMonitoring(),
+#         TrigT2CaloEgammaSwOnMonitoring(),
+#         TrigT2CaloEgammaSwCosMonitoring()]
+#       self.CalibList=[EgammaSshapeCalibrationEndcapConfig(),
+#                       EgammaSshapeCalibrationBarrelConfig()]
+#
+#class T2CaloEgamma_SwSeed_NoCut (T2CaloEgamma_SwSeed):
+#    __slots__ = []
+#    def __init__(self, name = "T2CaloEgamma_SwSeed_NoCut"):
+#        super( T2CaloEgamma_SwSeed_NoCut, self ).__init__( name )
+#        self.NoCut = True
+#
 
-class T2CaloEgamma_SwSeed_NoCut (T2CaloEgamma_SwSeed):
-    __slots__ = []
-    def __init__(self, name = "T2CaloEgamma_SwSeed_NoCut"):
-        super( T2CaloEgamma_SwSeed_NoCut, self ).__init__( name )
-        self.NoCut = True
-
-
-class T2CaloEgamma_SwCluster (T2CaloSwCluster):
-   __slots__ = []
-   def __init__ (self, name="T2CaloEgamma_SwCluster"):
-       super(T2CaloEgamma_SwCluster, self).__init__(name)
-       self.IAlgToolList= [
-			   EgammaSamp1Fex(),
-			   EgammaEmEnFex(),
-			   EgammaHadEnFex()]
-       self.EtaWidth = 0.2
-       self.PhiWidth = 0.2
-       self.EtaWidthForID = 0.1
-       self.PhiWidthForID = 0.1
-       #self.TimerNtuple="T2CaloEgamma.T2CaSwCluster"
-       self.TrigEMClusterKey="T2CaloTrigEMSwCluster"
-       #self.AthenaMonTools += [t2catime]
-       self.AthenaMonTools += [
-         TrigT2CaloEgammaValMonitoring(),
-         TrigT2CaloEgammaCosmicMonitoring(),
-			   TrigT2CaloEgammaOnMonitoring()]
-       self.CalibList = [EgammaHitsCalibrationBarrelConfig(),
-                         EgammaGapCalibrationConfig()]
-       self.doTiming=True
+#class T2CaloEgamma_SwCluster (T2CaloSwCluster):
+#   __slots__ = []
+#   def __init__ (self, name="T2CaloEgamma_SwCluster"):
+#       super(T2CaloEgamma_SwCluster, self).__init__(name)
+#       self.IAlgToolList= [
+#			   EgammaSamp1Fex(),
+#			   EgammaEmEnFex(),
+#			   EgammaHadEnFex()]
+#       self.EtaWidth = 0.2
+#       self.PhiWidth = 0.2
+#       self.EtaWidthForID = 0.1
+#       self.PhiWidthForID = 0.1
+#       #self.TimerNtuple="T2CaloEgamma.T2CaSwCluster"
+#       self.TrigEMClusterKey="T2CaloTrigEMSwCluster"
+#       #self.AthenaMonTools += [t2catime]
+#       self.AthenaMonTools += [
+#         TrigT2CaloEgammaValMonitoring(),
+#         TrigT2CaloEgammaCosmicMonitoring(),
+#			   TrigT2CaloEgammaOnMonitoring()]
+#       self.CalibList = [EgammaHitsCalibrationBarrelConfig(),
+#                         EgammaGapCalibrationConfig()]
+#       self.doTiming=True
 
 class RingerFexConfig( RingerFex ):
   __slots__ = []
@@ -318,12 +318,12 @@ class RingerFexConfig( RingerFex ):
 
    # Warning: Do not change the lines above, unless you really know what you are doing!!!
     self.LayersRings = [Layer.PreSamplerB,Layer.PreSamplerE,
-                        Layer.EMB1,Layer.EME1,
-                        Layer.EMB2,Layer.EME2,
-                        Layer.EMB3,Layer.EME3,
-                        Layer.HEC0,Layer.TileBar0,Layer.TileGap2,Layer.TileExt0,
-                        Layer.HEC1,Layer.HEC2,Layer.TileBar1,Layer.TileGap0,Layer.TileExt1,
-                        Layer.HEC3,Layer.TileBar2,Layer.TileGap1,Layer.TileExt2];
+                        Layer.EMB1,       Layer.EME1,
+                        Layer.EMB2,       Layer.EME2,
+                        Layer.EMB3,       Layer.EME3,
+                        Layer.HEC0,       Layer.TileBar0, Layer.TileGap2, Layer.TileExt0,
+                        Layer.HEC1,       Layer.HEC2,     Layer.TileBar1, Layer.TileGap0, Layer.TileExt1,
+                        Layer.HEC3,       Layer.TileBar2, Layer.TileGap1, Layer.TileExt2];
     self.NLayersRings = [2, 2, 2, 2, 4, 5, 4];
     self.NMaxCells = [320, 512, 272, 128, 128, 128, 128];
 

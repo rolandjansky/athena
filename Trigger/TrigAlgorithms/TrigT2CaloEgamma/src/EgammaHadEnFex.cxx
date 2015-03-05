@@ -52,8 +52,8 @@ StatusCode EgammaHadEnFex::execute(xAOD::TrigEMCluster &rtrigEmCluster,
 	m_error=0x0;
 
 #ifndef NDEBUG
-  if ( (*m_log).level() <= MSG::DEBUG ) 
-        (*m_log) << MSG::INFO << "in execute(TrigEMCluster &)" << endreq;
+  if ( msg().level() <= MSG::DEBUG ) 
+        msg() << MSG::INFO << "in execute(TrigEMCluster &)" << endreq;
 #endif
 
   double deta = 0.;           // eta difference current cell - seed
@@ -150,10 +150,10 @@ StatusCode EgammaHadEnFex::execute(xAOD::TrigEMCluster &rtrigEmCluster,
  
   } // End sampling loop     
 #ifndef NDEBUG
-  if ( (*m_log).level() <= MSG::DEBUG ) {
+  if ( msg().level() <= MSG::DEBUG ) {
 	for (int sampling=0; sampling<3;sampling++)
           if (m_geometryTool->EtaPhiRange(1,sampling,energyEta, energyPhi))
-                (*m_log) << MSG::ERROR << "problems with EtaPhiRange" << endreq;
+                msg() << MSG::ERROR << "problems with EtaPhiRange" << endreq;
         PrintCluster(rtrigEmCluster.energy(CaloSampling::HEC0),1,0
 		,CaloSampling::HEC0,CaloSampling::HEC0);
         PrintCluster(rtrigEmCluster.energy(CaloSampling::HEC1),1,1
@@ -240,7 +240,7 @@ StatusCode EgammaHadEnFex::execute(xAOD::TrigEMCluster &rtrigEmCluster,
   m_timer[0]->propVal(rtrigEmCluster.nCells() );
 
 #ifndef NDEBUG
-  if ( (*m_log).level() <= MSG::DEBUG ) {
+  if ( msg().level() <= MSG::DEBUG ) {
         PrintCluster(rtrigEmCluster.energy(CaloSampling::TileBar0)
 		+rtrigEmCluster.energy(CaloSampling::TileExt0),1,0
 		,CaloSampling::TileBar0,CaloSampling::TileExt0);

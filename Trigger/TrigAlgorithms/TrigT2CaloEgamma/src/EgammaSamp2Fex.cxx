@@ -23,6 +23,10 @@
 
 #include "IRegionSelector/IRoiDescriptor.h"
 
+//#include <iostream>
+using namespace std;
+
+
 EgammaSamp2Fex::EgammaSamp2Fex(const std::string & type, const std::string & name, 
                    const IInterface* parent): IAlgToolCalo(type, name, parent)
 		   {
@@ -48,8 +52,8 @@ StatusCode EgammaSamp2Fex::execute(xAOD::TrigEMCluster &rtrigEmCluster,
 	m_error=0x0;
 
 #ifndef NDEBUG
-  if ( (*m_log).level() <= MSG::DEBUG ) 
-	(*m_log) << MSG::INFO << "in execute(TrigEMCluster&)" << endreq;
+  if ( msg().level() <= MSG::DEBUG ) 
+	  msg() << MSG::INFO << "in execute(TrigEMCluster&)" << endreq;
 #endif
 
 	// Time to access RegionSelector
@@ -112,11 +116,11 @@ StatusCode EgammaSamp2Fex::execute(xAOD::TrigEMCluster &rtrigEmCluster,
   // LVL1 positions
   float etaL1=rtrigEmCluster.eta();
   float phiL1=rtrigEmCluster.phi();
-  
   const LArEM_ID*   emID  = m_larMgr->getEM_ID();
   const LArCell* larcell;
   const LArCell* seedCell = NULL;
   const LArCell* hotCell = NULL;
+  
   for(m_it = m_iBegin;m_it != m_iEnd; ++m_it) {
       larcell=(*m_it);
       if (larcell->energy() > seedEnergy) { // Hottest cell seach
@@ -503,10 +507,10 @@ StatusCode EgammaSamp2Fex::execute(xAOD::TrigEMCluster &rtrigEmCluster,
 
 #ifndef NDEBUG
   // This will internaly define normal, narrow and large clusters
- if ( (*m_log).level() <= MSG::DEBUG ) {
+ if ( msg().level() <= MSG::DEBUG ) {
   if ( m_geometryTool->EtaPhiRange(0,2,energyEta, energyPhi))
-        (*m_log) << MSG::ERROR << "problems with EtaPhiRange" << endreq;
-        (*m_log) << MSG::DEBUG << "totalEnergy" << totalEnergy << endreq;
+        msg() << MSG::ERROR << "problems with EtaPhiRange" << endreq;
+        msg() << MSG::DEBUG << "totalEnergy" << totalEnergy << endreq;
 	PrintCluster(totalEnergy,0,2, CaloSampling::EMB2,CaloSampling::EME2);
  }
 #endif
