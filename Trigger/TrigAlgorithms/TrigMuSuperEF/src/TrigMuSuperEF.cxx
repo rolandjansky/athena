@@ -415,12 +415,12 @@ TrigMuSuperEF::hltExecute(const HLT::TriggerElement* inputTE, HLT::TriggerElemen
   HLT::ErrorCode ec = HLT::OK;
   if( m_combinerOnly) {
     //@todo need to implement mode to run only the combiner
-    ec = runCombinerOnly(inputTE, TEout,std::move(muonContainerOwn));
+    ec = runCombinerOnly(inputTE, TEout,muonContainerOwn);
   } else if (m_caloTagOnly) {
     // run calotag mode
     ec = runCaloTagOnly(inputTE, TEout);
   } else { // not in combiner only mode
-    ec = runStandardChain(inputTE, TEout,std::move(muonContainerOwn));
+    ec = runStandardChain(inputTE, TEout,muonContainerOwn);
   }
   if(ec!=HLT::OK && ec!=HLT::MISSING_FEATURE) { // allow processing to finish for missing feature (e.g. when no muon found)
     ATH_MSG_ERROR("Problem in running TrigMuSuperEF");
@@ -457,6 +457,8 @@ TrigMuSuperEF::hltExecute(const HLT::TriggerElement* inputTE, HLT::TriggerElemen
   // always fill monitoring histograms, even if no muon found
   if(!m_caloTagOnly) {
     fillMonitoringVars( );
+    fillCBMonitoringVars( );
+
   } else {
     fillCTMonitoringVars( *m_ctTrackParticleContainer );
   }
@@ -513,7 +515,7 @@ TrigMuSuperEF::hltFinalize()
   return  hltStatus;
 }
 
-HLT::ErrorCode TrigMuSuperEF::runCombinerOnly(const HLT::TriggerElement* inputTE, HLT::TriggerElement* TEout,std::unique_ptr<xAOD::MuonContainer> muonContainerOwn) {
+HLT::ErrorCode TrigMuSuperEF::runCombinerOnly(const HLT::TriggerElement* inputTE, HLT::TriggerElement* TEout,std::unique_ptr<xAOD::MuonContainer> &muonContainerOwn) {
     // get xAOD ID tracks
     ElementLinkVector<xAOD::TrackParticleContainer> elv_xaodidtrks;
     HLT::ErrorCode hltStatus = getIDTrackParticleLinks(inputTE, elv_xaodidtrks);
@@ -786,7 +788,7 @@ HLT::ErrorCode TrigMuSuperEF::runMSReconstruction(const IRoiDescriptor* muonRoI,
 }//runMSReconstruction
 
 HLT::ErrorCode
-TrigMuSuperEF::runStandardChain(const HLT::TriggerElement* inputTE, HLT::TriggerElement* TEout, std::unique_ptr<xAOD::MuonContainer> muonContainerOwn) 
+TrigMuSuperEF::runStandardChain(const HLT::TriggerElement* inputTE, HLT::TriggerElement* TEout, std::unique_ptr<xAOD::MuonContainer> &muonContainerOwn) 
 {
 
   HLT::ErrorCode hltStatus = HLT::OK;
@@ -953,7 +955,7 @@ HLT::ErrorCode TrigMuSuperEF::runMSCBReconstruction(const IRoiDescriptor* muonRo
 /// Function to build combined tracks
 HLT::ErrorCode TrigMuSuperEF::buildCombinedTracks(const MuonCandidateCollection* muonCandidates,
 						  InDetCandidateCollection& inDetCandidates,
-						  TrigMuonEFCBMonVars& /*monVars*/,
+						  TrigMuonEFCBMonVars& ,
 						  std::vector<TrigTimer*>& timers) {
 
   TrigTimer* trackFinderTime  = 0;
@@ -970,7 +972,6 @@ HLT::ErrorCode TrigMuSuperEF::buildCombinedTracks(const MuonCandidateCollection*
 
   if(trackFinderTime) trackFinderTime->stop();
   if(dataOutputTime) dataOutputTime->start();
-  
   for(auto candidate : inDetCandidates) {
     std::vector<const MuonCombined::TagBase*> tags = candidate->combinedDataTags();
     for(auto tag : tags) {
@@ -1025,7 +1026,7 @@ HLT::ErrorCode TrigMuSuperEF::attachOutput(HLT::TriggerElement* TEout,
 
   // now pull back element links to the track particles and assign to the muons
   std::vector< std::pair< std::string, xAOD::Muon::TrackParticleType > > tpReassignVec;
-  if(extrapolatedTrackParticles) tpReassignVec.push_back( std::make_pair(m_saTrackParticleContName, xAOD::Muon::MuonSpectrometerTrackParticle) );
+  if(extrapolatedTrackParticles) tpReassignVec.push_back( std::make_pair(m_saTrackParticleContName, xAOD::Muon::ExtrapolatedMuonSpectrometerTrackParticle) );
   if(combinedTrackParticles) tpReassignVec.push_back( std::make_pair(m_cbTrackParticleContName, xAOD::Muon::CombinedTrackParticle) );
 
   // loop on the containers we need to do this for
@@ -1210,7 +1211,9 @@ void TrigMuSuperEF::fillMonitoringVars(  ) {
     m_monVars.charge.push_back( trkpart->charge() );
     m_monVars.chi2.push_back( trkpart->chiSquared() );
     if(trkpart->numberDoF()>0) m_monVars.chi2Prob.push_back( trkpart->chiSquared()/trkpart->numberDoF() );
-    //    m_monVars.matchChi2.push_back( trkpart->matchChi2() );
+    float matchchi2 = 0.0;
+    muon->parameter(matchchi2,xAOD::Muon::msOuterMatchChi2);
+    m_monVars.matchChi2.push_back( matchchi2 );
     m_monVars.pt.push_back( muon->pt() / CLHEP::GeV );
     m_monVars.phi.push_back( muon->phi() );
     m_monVars.eta.push_back( muon->eta() );
@@ -1239,6 +1242,76 @@ void TrigMuSuperEF::fillMonitoringVars(  ) {
     */
   }//loop over muons
   m_monVars.numberOfTracks.push_back(nTracks);
+  
+}
+
+
+void TrigMuSuperEF::fillCBMonitoringVars() {
+
+
+  //To be fixed: Still need to get some hit information.
+
+  unsigned int nTracks = 0;
+  for(auto muon : *m_muonContainer) {
+    if(muon->muonType()!=0) continue;
+    const xAOD::TrackParticle *trkpart = muon->primaryTrackParticle();
+
+
+    ATH_MSG_DEBUG("muon type " << muon->muonType() << " muon pt " << muon->pt() << " trk d0 " << trkpart->d0() << " trk z0 " << trkpart->z0() << " trk chi2 " <<trkpart->chiSquared() << " trk charge "<<trkpart->charge());
+    ++nTracks;
+    if(m_debug) {
+      if(muon->isAvailable< ElementLink<xAOD::TrackParticleContainer> >("msTrackLink")) {
+	const ElementLink<xAOD::TrackParticleContainer> msTrackLink = muon->auxdata< ElementLink<xAOD::TrackParticleContainer> >("msTrackLink");
+	if(msTrackLink.isValid()) ATH_MSG_DEBUG(" muon MS track before extrapolation pt = " << (*msTrackLink)->pt());
+	else ATH_MSG_DEBUG(" muon MS track before extrapolation is not valid");
+      } else ATH_MSG_DEBUG( " no MS track link available for this muon");
+    }
+
+    uint8_t numberOfPixelHits=0;
+    uint8_t numberOfSCTHits=0;
+    uint8_t numberOfTRTHits=0;
+    if( trkpart->summaryValue(numberOfPixelHits,xAOD::numberOfPixelHits) ){
+      ATH_MSG_DEBUG("Successfully retrieved the integer value, numberOfPixelHits");
+    }
+    if( trkpart->summaryValue(numberOfSCTHits,xAOD::numberOfSCTHits) ){
+      ATH_MSG_DEBUG("Successfully retrieved the integer value, numberOfSCTHits");
+    }
+    if( trkpart->summaryValue(numberOfTRTHits,xAOD::numberOfTRTHits) ){
+      ATH_MSG_DEBUG("Successfully retrieved the integer value, numberOfTRTHits");
+    }
+
+     m_TMEF_monVars.CB.chi2.push_back( trkpart->chiSquared() );
+    float matchchi2 = 0.0;
+    muon->parameter(matchchi2,xAOD::Muon::msOuterMatchChi2);
+     m_TMEF_monVars.CB.matchChi2.push_back( matchchi2 );
+     m_TMEF_monVars.CB.pt.push_back( muon->pt() / CLHEP::GeV );
+     m_TMEF_monVars.CB.phi.push_back( muon->phi() );
+     m_TMEF_monVars.CB.eta.push_back( muon->eta() );
+     m_TMEF_monVars.CB.d0.push_back( trkpart->d0() );
+     m_TMEF_monVars.CB.z0.push_back( trkpart->z0() );
+    /* m_TMEF_monVars.CB.nMdt.push_back( trkpart->NMdtHits() );
+     m_TMEF_monVars.CB.nRpcEta.push_back( trkpart->NRpcHitsEta() );
+     m_TMEF_monVars.CB.nRpcPhi.push_back( trkpart->NRpcHitsPhi() );
+     m_TMEF_monVars.CB.nCscEta.push_back( trkpart->NCscHitsEta() );
+     m_TMEF_monVars.CB.nCscPhi.push_back( trkpart->NCscHitsPhi() );
+     m_TMEF_monVars.CB.nTgcEta.push_back( trkpart->NTgcHitsEta() );
+     m_TMEF_monVars.CB.nTgcPhi.push_back( trkpart->NTgcHitsPhi() );*/
+     m_TMEF_monVars.CB.nSct.push_back( numberOfSCTHits );
+     m_TMEF_monVars.CB.nPixel.push_back( numberOfPixelHits );
+     m_TMEF_monVars.CB.nTrt.push_back( numberOfTRTHits );
+    /* m_TMEF_monVars.CB.nHit.push_back( trkpart->NMdtHits() +
+			      trkpart->NRpcHitsEta() +
+			      trkpart->NRpcHitsPhi() +
+			      trkpart->NCscHitsEta() +
+			      trkpart->NCscHitsPhi() +
+			      trkpart->NTgcHitsEta() +
+			      trkpart->NTgcHitsPhi() +
+			      trkpart->NIdSctHits() +
+			      trkpart->NIdPixelHits() +
+			      trkpart->NTrtHits() );
+    */
+  }//loop over muons
+   m_TMEF_monVars.CB.numberOfTracks.push_back(nTracks);
   
 }
 
