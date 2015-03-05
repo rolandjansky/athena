@@ -19,7 +19,6 @@
  */
 
 class MsgStream;
-class RecVertexCnv_p1;
 
 namespace Trk 
 {
@@ -49,8 +48,6 @@ namespace Trk
     static unsigned int numberOfInstantiations() ;
 
   private:
-    friend class ::RecVertexCnv_p1;
-
     Amg::Vector3D m_position; //!< vertex position
 
     /** number of objects of this type in memory */

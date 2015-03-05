@@ -239,7 +239,7 @@ namespace Trk {
   }
 
 
-//assignment operator changed
+//assignement operator changed
   VxTrackAtVertex & VxTrackAtVertex::operator= (const VxTrackAtVertex& rhs)
   {
     if (this!=&rhs)
@@ -266,44 +266,6 @@ namespace Trk {
     return *this;
   }
 
-  VxTrackAtVertex & VxTrackAtVertex::operator= (VxTrackAtVertex&& rhs)
-  {
-    if (this!=&rhs)
-    {
-      m_fitQuality = rhs.m_fitQuality;
-      m_trkWeight = rhs.m_trkWeight;
-
-      delete m_perigeeAtVertex;
-      m_perigeeAtVertex = rhs.m_perigeeAtVertex;
-      rhs.m_perigeeAtVertex = nullptr;
-
-      delete m_neutralPerigeeAtVertex;
-      m_neutralPerigeeAtVertex = rhs.m_neutralPerigeeAtVertex;
-      rhs.m_neutralPerigeeAtVertex = nullptr;
-
-      delete m_linState;
-      m_linState = rhs.m_linState;
-      rhs.m_linState = nullptr;
-
-      m_initialPerigee = rhs.m_initialPerigee;
-      m_initialNeutralPerigee = rhs.m_initialNeutralPerigee;
-      m_VertexCompatibility=rhs.m_VertexCompatibility;
-
-      delete m_ImpactPoint3dAtaPlane;
-      m_ImpactPoint3dAtaPlane = rhs.m_ImpactPoint3dAtaPlane;
-      rhs.m_ImpactPoint3dAtaPlane = nullptr;
-
-      delete m_ImpactPoint3dNeutralAtaPlane;
-      m_ImpactPoint3dNeutralAtaPlane = rhs.m_ImpactPoint3dNeutralAtaPlane;
-      rhs.m_ImpactPoint3dNeutralAtaPlane = nullptr;
-
-      delete m_trackOrParticleLink;
-      m_trackOrParticleLink = rhs.m_trackOrParticleLink;
-      rhs.m_trackOrParticleLink = nullptr;
-    }
-    return *this;
-  }
-
   bool VxTrackAtVertex::operator==(const VxTrackAtVertex & data) const  
   {  
 
@@ -313,13 +275,13 @@ namespace Trk {
   }
      
   MsgStream& VxTrackAtVertex::dump(MsgStream& sl) const {
-    sl << "Printing VxTrackAtVertex:" << endmsg;
+    sl << "Printing VxTrackAtVertex:" << endreq;
     const Trk::TrackParameters * inPerigee = this->initialPerigee();
-    if(inPerigee) sl << "Original Perigee: " << *(inPerigee) << endmsg;
-    else sl<<"This VxTrackAtVertex was not created using initial perigee"<<endmsg;
-    if (this->perigeeAtVertex() != 0) sl << "Refitted Perigee: " << *(this->perigeeAtVertex()) << endmsg;
-    else sl << "Refitted Perigee was not stored in pool file." << endmsg;
-    sl << m_fitQuality << "\tWeight: " << m_trkWeight << endmsg;
+    if(inPerigee) sl << "Original Perigee: " << *(inPerigee) << endreq;
+    else sl<<"This VxTrackAtVertex was not created using initial perigee"<<endreq;
+    if (this->perigeeAtVertex() != 0) sl << "Refitted Perigee: " << *(this->perigeeAtVertex()) << endreq;
+    else sl << "Refitted Perigee was not stored in pool file." << endreq;
+    sl << m_fitQuality << "\tWeight: " << m_trkWeight << endreq;
     return sl;
   }
 

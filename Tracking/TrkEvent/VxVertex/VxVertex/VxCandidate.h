@@ -37,9 +37,6 @@ class VxCandidate
  */   
     VxCandidate(const Trk::RecVertex& recVertex,
                 const std::vector<Trk::VxTrackAtVertex*>& vxTrackAtVertex);
-
-    VxCandidate(Trk::RecVertex&& recVertex,
-                std::vector<Trk::VxTrackAtVertex*>&& vxTrackAtVertex);
 				
 /**
  * Virtual destructor, copy-constructor and assignement operator
@@ -47,7 +44,6 @@ class VxCandidate
     virtual ~VxCandidate();
     VxCandidate(const VxCandidate& rhs);
     VxCandidate &operator= (const VxCandidate &); 
-    VxCandidate &operator= (VxCandidate &&); 
     virtual VxCandidate* clone() const;                
 
 /** Output Method for MsgStream, to be overloaded by child classes */
@@ -156,3 +152,17 @@ std::ostream& operator << ( std::ostream& sl, const VxCandidate& sf);
 
 }//end of namespace definitions
 #endif
+
+
+
+
+
+
+
+
+
+
+
+
+
+

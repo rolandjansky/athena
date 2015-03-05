@@ -35,16 +35,6 @@ namespace Trk {
 #endif
   }
 
-  VxCandidate::VxCandidate(
-    Trk::RecVertex&& recVertex,
-    std::vector<Trk::VxTrackAtVertex*>&& vxTrackAtVertex)
-    : m_vertexType(Trk::NotSpecified), m_recVertex(std::move(recVertex)), m_vxTrackAtVertex(std::move(vxTrackAtVertex))
-  {
-#ifndef NDEBUG
-    s_numberOfInstantiations++;
-#endif
-  }
-
   VxCandidate::VxCandidate(const VxCandidate& rhs) :
       m_vertexType(rhs.m_vertexType),
       m_recVertex(rhs.m_recVertex),
@@ -84,19 +74,6 @@ namespace Trk {
     return *this;
   }
 
-  VxCandidate &VxCandidate::operator= (VxCandidate&& rhs)
-  {
-    if (this!=&rhs)
-    {
-      m_recVertex = std::move(rhs.m_recVertex);
-      m_vertexType = rhs.m_vertexType;
-      for (Trk::VxTrackAtVertex* tav : m_vxTrackAtVertex)
-        delete tav;
-      m_vxTrackAtVertex = std::move(rhs.m_vxTrackAtVertex);
-    }
-    return *this;
-  }
-
   VxCandidate::~VxCandidate() { 
     for (std::vector<Trk::VxTrackAtVertex*>::iterator i = m_vxTrackAtVertex.begin();
 	 i != m_vxTrackAtVertex.end() ; ++i) {
@@ -111,9 +88,9 @@ namespace Trk {
   }
 
   MsgStream& VxCandidate::dump(MsgStream& sl) const {
-    sl << "Printing Trk::VxCandidate of type: " << m_vertexType << endmsg;
-    sl << m_recVertex << endmsg;
-    sl << "Tracks used in the vertex fit: " << m_vxTrackAtVertex.size() << endmsg;
+    sl << "Printing Trk::VxCandidate of type: " << m_vertexType << endreq;
+    sl << m_recVertex << endreq;
+    sl << "Tracks used in the vertex fit: " << m_vxTrackAtVertex.size() << endreq;
     for (unsigned i = 0 ; i < m_vxTrackAtVertex.size() ; i++)
     {
       sl << "Track " << i+1 << " " << *(m_vxTrackAtVertex[i]);
