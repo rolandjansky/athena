@@ -50,8 +50,8 @@ StatusCode EgammaEmEnFex::execute(xAOD::TrigEMCluster &rtrigEmCluster,
 
         // MsgStream log(msgSvc(), name());
 #ifndef NDEBUG
-  if ( (*m_log).level() <= MSG::DEBUG ) 
-        (*m_log) << MSG::INFO << "in execute(TrigEMCluster &)" << endreq;
+  if ( msg().level() <= MSG::DEBUG ) 
+       msg() << MSG::INFO << "in execute(TrigEMCluster &)" << endreq;
 #endif
 
         // Time to access RegionSelector
@@ -140,11 +140,10 @@ StatusCode EgammaEmEnFex::execute(xAOD::TrigEMCluster &rtrigEmCluster,
 
 #ifndef NDEBUG
 	// This will internaly define normal, narrow and large clusters
-  if ( (*m_log).level() <= MSG::DEBUG ) {
+  if ( msg().level() <= MSG::DEBUG ) {
         if ( m_geometryTool->EtaPhiRange(0,0,energyEta, energyPhi))
-                (*m_log) << MSG::ERROR << "problems with EtaPhiRange" << endreq;
-        PrintCluster(totalEnergy,0,0,CaloSampling::PreSamplerB
-		,CaloSampling::PreSamplerE);
+               msg() << MSG::ERROR << "problems with EtaPhiRange" << endreq;
+        PrintCluster(totalEnergy,0,0,CaloSampling::PreSamplerB ,CaloSampling::PreSamplerE);
   }
 #endif
         // Pause save EMShowerMinimal time
@@ -164,11 +163,10 @@ StatusCode EgammaEmEnFex::execute(xAOD::TrigEMCluster &rtrigEmCluster,
 
 	// One does not want to prepare the collection again
 	// That is why LoadCollections is called with false
-        if ( m_data->LoadCollections(m_iBegin,m_iEnd,sampling,false)
-			.isFailure() ){
+        if ( m_data->LoadCollections(m_iBegin,m_iEnd,sampling,false).isFailure() ){
                 if (!m_timersvc.empty()) m_timer[2]->stop();
                 return StatusCode::SUCCESS;
-	}
+      	}
         m_error|=m_data->report_error();
 /*
         if ( m_error ) {
@@ -229,9 +227,9 @@ StatusCode EgammaEmEnFex::execute(xAOD::TrigEMCluster &rtrigEmCluster,
 
 #ifndef NDEBUG
         // This will internaly define normal, narrow and large clusters
-  if ( (*m_log).level() <= MSG::DEBUG ) {
+  if ( msg().level() <= MSG::DEBUG ) {
         if ( m_geometryTool->EtaPhiRange(0,3,energyEta, energyPhi))
-              (*m_log) << MSG::ERROR << "problems with EtaPhiRange" << endreq;
+             msg() << MSG::ERROR << "problems with EtaPhiRange" << endreq;
 
         PrintCluster(totalEnergy,0,3,CaloSampling::EMB3,CaloSampling::EME3);
   }

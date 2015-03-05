@@ -51,8 +51,8 @@ StatusCode EgammaSamp1Fex::execute(xAOD::TrigEMCluster &rtrigEmCluster,
           cluster_in_barrel = m_caloDDE->is_lar_em_barrel();
 
 #ifndef NDEBUG
-  if ( (*m_log).level() <= MSG::DEBUG ) 
-	(*m_log) << MSG::INFO << "in execute(TrigEMCluster &)" << endreq;
+  if ( msg().level() <= MSG::DEBUG ) 
+	  msg() << MSG::INFO << "in execute(TrigEMCluster &)" << endreq;
 #endif
 
 
@@ -413,9 +413,9 @@ StatusCode EgammaSamp1Fex::execute(xAOD::TrigEMCluster &rtrigEmCluster,
   rtrigEmCluster.setRawEnergy( rtrigEmCluster.rawEnergy() + totalEnergy);
 
 #ifndef NDEBUG
-  if ( (*m_log).level() <= MSG::DEBUG ) {
+  if ( msg().level() <= MSG::DEBUG ) {
         if ( m_geometryTool->EtaPhiRange(0,1,energyEta, energyPhi))
-                (*m_log) << MSG::ERROR << "problems with EtaPhiRange" << endreq;
+                msg() << MSG::ERROR << "problems with EtaPhiRange" << endreq;
         PrintCluster(totalEnergy,0,1,CaloSampling::EMB1,CaloSampling::EME1);
   }
 #endif

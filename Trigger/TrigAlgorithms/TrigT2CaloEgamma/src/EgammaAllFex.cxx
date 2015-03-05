@@ -62,8 +62,8 @@ StatusCode EgammaAllFex::execute(xAOD::TrigEMCluster &rtrigEmCluster,
   CaloSampling::CaloSample samp;
 
 #ifndef NDEBUG
-  if ( (*m_log).level() <= MSG::DEBUG ) 
-	(*m_log) << MSG::INFO << "in execute(TrigEMCluster&)" << endreq;
+  if ( msg().level() <= MSG::DEBUG ) 
+	  msg() << MSG::INFO << "in execute(TrigEMCluster&)" << endreq;
 #endif
 
 	// Time to access RegionSelector

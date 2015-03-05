@@ -64,7 +64,7 @@ StatusCode RingerFex::initialize() {
   }
 
   if ((m_nRings.size() != m_dphiRings.size()) || (m_nRings.size() != m_detaRings.size()) || (m_nRings.size() != m_nlayersRings.size())) {
-    (*m_log) << MSG::FATAL << "Wrong configuration parameters for ring building." << endreq;
+    msg() << MSG::FATAL << "Wrong configuration parameters for ring building." << endreq;
     return StatusCode::FAILURE;
   }
 
@@ -82,7 +82,7 @@ StatusCode RingerFex::initialize() {
 
   m_parent = dynamic_cast<T2CaloEgamma *>(const_cast<IInterface*>(this->parent()));
   if (!m_parent) {
-    (*m_log) << MSG::ERROR << "Failed to get T2CaloEgamma parent algorithm instance." << endreq;
+    msg() << MSG::ERROR << "Failed to get T2CaloEgamma parent algorithm instance." << endreq;
     return StatusCode::FAILURE;
   }
   if (m_timersvc){
@@ -92,12 +92,12 @@ StatusCode RingerFex::initialize() {
     m_RingerRegSelTimer = m_parent->addTimer("Time_RingerFexRegSel");
   }
 
-  if ( (*m_log).level() <= MSG::DEBUG ) {
-    (*m_log) << MSG::DEBUG << "RingerAlgorithm initialization completed successfully." << endreq;
-    (*m_log) << MSG::DEBUG << "User parameters are:" << endreq;
-    (*m_log) << MSG::DEBUG << "Using Global Center               : " << m_global_center << endreq;
-    (*m_log) << MSG::DEBUG << "Search Window in Eta              : " << m_etaSearchWindowSize << endreq;
-    (*m_log) << MSG::DEBUG << "Search Window in Phi              : " << m_phiSearchWindowSize << endreq;
+  if ( msg().level() <= MSG::DEBUG ) {
+    msg() << MSG::DEBUG << "RingerAlgorithm initialization completed successfully." << endreq;
+    msg() << MSG::DEBUG << "User parameters are:" << endreq;
+    msg() << MSG::DEBUG << "Using Global Center               : " << m_global_center << endreq;
+    msg() << MSG::DEBUG << "Search Window in Eta              : " << m_etaSearchWindowSize << endreq;
+    msg() << MSG::DEBUG << "Search Window in Phi              : " << m_phiSearchWindowSize << endreq;
   }
 
   // reserve space for cells, better do it now than later
@@ -178,30 +178,25 @@ StatusCode RingerFex::execute(xAOD::TrigEMCluster &rtrigEmCluster, const IRoiDes
   m_error = 0x0;
 
   if (m_timersvc) m_RingerFexExecuteTimer->start();
-
   if (m_timersvc) m_getRingsTimer->start();
-
   if ((getCells(roi.etaMinus(), roi.etaPlus(), roi.phiMinus(), roi.phiPlus(), m_ringsSet, m_global_center,/*
              */ rtrigEmCluster.eta(), rtrigEmCluster.phi(), m_etaSearchWindowSize, m_phiSearchWindowSize)).isFailure()) {
 
-    (*m_log) << MSG::ERROR << "Failed to get cells from Region Selector." << endreq;
+    msg() << MSG::ERROR << "Failed to get cells from Region Selector." << endreq;
     return StatusCode::FAILURE;
   }
-
   // RingSets to xAOD::TrigRingerRings
   xAOD::TrigRingerRings *rings = getRings();
 
   if (!rings) {
-    (*m_log) << MSG::ERROR << "Error generating the rings!" << endreq;
+    msg() << MSG::ERROR << "Error generating the rings!" << endreq;
     return StatusCode::FAILURE;
   }
 
   if (m_timersvc) m_getRingsTimer->stop();
 
-
   // parse between RingerFex and T2CaloEgamma (m_parent)
   rings->setRoIword( rtrigEmCluster.RoIword() );
-
   if (m_parent) {
     m_parent->setRingsFeature(rings,m_key,m_feature);
   }
@@ -245,7 +240,7 @@ StatusCode RingerFex::getCells(double etamin, double etamax, double phimin, doub
       if (m_timersvc) m_RingerRegSelTimer->resume();
       m_data->RegionSelector(sampling,etamin,etamax,phimin,phimax, static_cast<const DETID> (det));
       if ( m_data->LoadCollections(m_iBegin, m_iEnd).isFailure() ) {
-        (*m_log) << MSG::ERROR << "Failure while trying to retrieve cell information for the "<< det <<" calorimeter." << endreq;
+        msg() << MSG::ERROR << "Failure while trying to retrieve cell information for the "<< det <<" calorimeter." << endreq;
         return StatusCode::FAILURE;
       }
       if (m_timersvc) m_RingerRegSelTimer->pause();
@@ -315,7 +310,7 @@ StatusCode RingerFex::getCells(double etamin, double etamax, double phimin, doub
   m_cell.clear();
   for (unsigned int iR=0;iR<m_data->TileContSize();++iR) {
     if ( m_data->LoadCollections(m_itBegin, m_itEnd,iR,!iR).isFailure() ) {
-      (*m_log) << MSG::ERROR << "Error retrieving TileCalorimeter cells!" << endreq;
+      msg() << MSG::ERROR << "Error retrieving TileCalorimeter cells!" << endreq;
       return StatusCode::FAILURE;
     }
     for(m_itt = m_itBegin; m_itt != m_itEnd; ++m_itt) { //loop over cells
@@ -374,13 +369,13 @@ void RingerFex::storeDebugRoI(const std::string &hltFeatureLabel, const xAOD::Tr
   DataVector<RingerDebugRoI> *vecRoI = 0;
   if (m_storeGate->contains< DataVector<RingerDebugRoI> >(hltFeatureLabel)) {
     if (m_storeGate->retrieve(vecRoI, hltFeatureLabel).isFailure()) {
-    (*m_log) << MSG::ERROR << "Failed to get DataVector<RingerDebugRoI>." << endreq;
+    msg() << MSG::ERROR << "Failed to get DataVector<RingerDebugRoI>." << endreq;
       delete roi;
     }
   } else {
     vecRoI = new DataVector<RingerDebugRoI>;
     if (m_storeGate->record(vecRoI, hltFeatureLabel).isFailure()) {
-       (*m_log) << MSG::ERROR << "Failed to store DataVector<RingerDebugRoI> with key " << hltFeatureLabel << "." << endreq;
+       msg() << MSG::ERROR << "Failed to store DataVector<RingerDebugRoI> with key " << hltFeatureLabel << "." << endreq;
       delete roi;
     }
   }

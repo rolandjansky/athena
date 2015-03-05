@@ -205,10 +205,10 @@ HLT::ErrorCode T2CaloEgamma::hltExecute(const HLT::TriggerElement* inputTE, HLT:
 
 #ifndef NDEBUG
   if ( (*m_log).level() <= MSG::DEBUG ) {
-  (*m_log) << MSG::DEBUG  << " etamin = "<< etamin << endreq;
-  (*m_log) << MSG::DEBUG  << " etamax = "<< etamax << endreq;
-  (*m_log) << MSG::DEBUG  << " phimin = "<< phimin << endreq;
-  (*m_log) << MSG::DEBUG  << " phimax = "<< phimax << endreq;
+    (*m_log) << MSG::DEBUG  << " etamin = "<< etamin << endreq;
+    (*m_log) << MSG::DEBUG  << " etamax = "<< etamax << endreq;
+    (*m_log) << MSG::DEBUG  << " phimin = "<< phimin << endreq;
+    (*m_log) << MSG::DEBUG  << " phimax = "<< phimax << endreq;
   }
 #endif
 
