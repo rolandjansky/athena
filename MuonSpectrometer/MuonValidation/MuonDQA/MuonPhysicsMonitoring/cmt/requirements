@@ -1,0 +1,80 @@
+package MuonPhysicsMonitoring 
+
+manager Nectarios Ch. Benekos	<Nectarios.Benekos@cern.ch> 
+manager Arely Cortes Gonzalez   <acortes2@uiuc.edu>
+manager Ioannis Nomidis         <inomi@physics.auth.gr>  
+
+author Nectarios Ch. Benekos    <Nectarios.Benekos@cern.ch>
+author Arely Cortes Gonzalez    <acortes2@uiuc.edu> 
+author Ioannis Nomidis          <inomi@physics.auth.gr>  
+  
+branches src cmt doc
+branches run
+
+
+public
+
+use    AtlasPolicy		AtlasPolicy-*
+use    AtlasAnalysisRunTime    	AtlasAnalysisRunTime-*
+use    StoreGate               	StoreGate-*			Control 
+use    AthenaMonitoring	    	AthenaMonitoring-*		Control
+use    AtlasCLHEP              	AtlasCLHEP-*                    External
+use    AtlasROOT               	AtlasROOT-*     		External
+use    GaudiInterface          	GaudiInterface-*        	External
+use    EventInfo               	EventInfo-*                     Event
+use    FourMomUtils             FourMomUtils-*                  Event
+
+### Tracking
+use    TrkParticleBase          TrkParticleBase-*               Tracking/TrkEvent
+use    VxVertex                 VxVertex-*                      Tracking/TrkEvent
+
+### Trigger
+use    TrigCaloEvent            TrigCaloEvent-*                  Trigger/TrigEvent
+use    TrigInDetEvent           TrigInDetEvent-*                 Trigger/TrigEvent
+use    TrigParticle             TrigParticle-*                   Trigger/TrigEvent
+use    TrigMuonEvent            TrigMuonEvent-*                  Trigger/TrigEvent
+
+use    AnalysisTools            AnalysisTools-*                 PhysicsAnalysis/AnalysisCommon
+use    egammaEvent		egammaEvent-*			Reconstruction/egamma
+use    muonEvent            	muonEvent-*			Reconstruction/MuonIdentification 
+use    InDetConversionFinderTools  InDetConversionFinderTools-* 	InnerDetector/InDetRecTools
+###use    InsituRepresentation	InsituRepresentation-*		PhysicsAnalysis/AnalysisCommon/InsituPerformance 
+use    JetEvent             	JetEvent-*			Reconstruction/Jet
+use    McParticleEvent		McParticleEvent-*		PhysicsAnalysis/TruthParticleID
+use    Particle                 Particle-*			Reconstruction  
+use    MuonDQAUtils		MuonDQAUtils-*			MuonSpectrometer/MuonValidation/MuonDQA
+###use    TrackIsolationTools	TrackIsolationTools-*           Reconstruction/RecoTools
+use    TrigDecisionTool         TrigDecisionTool-*              Trigger/TrigAnalysis
+use    TrigEffJpsiTools 	TrigEffJpsiTools-*              Trigger/TrigAnalysis
+use    TrkToolInterfaces        TrkToolInterfaces-*             Tracking/TrkTools
+use    TrkVertexAnalysisUtils	TrkVertexAnalysisUtils-* 	Tracking/TrkVertexFitter
+use    TrkVKalVrtFitter         TrkVKalVrtFitter-*              Tracking/TrkVertexFitter
+use    TrkVertexFitterInterfaces TrkVertexFitterInterfaces-*     Tracking/TrkVertexFitter
+end_public
+
+private
+use    LWHists                  LWHists-*                       Tools
+end_private
+    
+# build a component library
+#include_dirs "$(MuonPhysicsMonitoring_root)"
+
+#library MuonPhysicsMonitoring *.cxx components/*.cxx
+
+library MuonPhysicsMonitoring MuonInsituResolution.cxx \
+                              MuTrackPhysMonTool.cxx \ 
+			      JpsiMuonInsituPerformance.cxx \ 
+			      MuTrackInsituPerformance.cxx \ 
+			      JpsimumuPhysMonTool.cxx \ 
+			      ZmumuPhysMonTool.cxx \ 
+			      MuonPhysicsAnalysisMonitoring.cxx \ 
+			      MuonInsituPerformance.cxx \
+			      MuonInsituMonitoring.cxx \
+			      components/*.cxx
+
+apply_pattern declare_joboptions files="-s=../share *.py" 
+apply_pattern component_library
+#apply_pattern declare_runtime
+  
+apply_tag ROOTGraphicsLibs
+ 
