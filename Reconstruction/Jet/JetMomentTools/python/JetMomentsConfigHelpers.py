@@ -110,6 +110,7 @@ defaultMoments = {
     'jvf'          : lambda jetcollname,*l : getJetVertexAssociationTool(toolName=jetcollname+'JVAtool')    ,
     'jvt'          : lambda jetcollname,*l : getJetVertexAssociationTool(toolName=jetcollname+'JVAtool')    ,
     'trackMoments' : lambda *l : getJetTracksMomentTool(),
+    'clusMoments'  : lambda *l : getJetClusterMomentTool(),
     'truthMF'      : lambda *l : scheduleMFTool("Truth",*l) ,
     'trackMF'      : lambda *l : scheduleMFTool("Track",*l) ,
     'larHV'        : lambda *l : getJetLArHVMomentTool(),
