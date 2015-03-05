@@ -4,7 +4,7 @@
 
 /**********************************************************************************
  *
- * @version: $Id: T2Vertex.h 497716 2012-04-25 15:57:49Z bartoldu $
+ * @version: $Id: T2Vertex.h 648108 2015-02-19 13:15:50Z smh $
  *
  * @project: HLT, PESA algorithms
  * @package: TrigT2BeamSpot
@@ -27,7 +27,7 @@
 /// External classes
 #include "TrigInDetEvent/TrigVertex.h"
 #include "TrigInterfaces/IMonitoredAlgo.h"
-#include "CLHEP/GenericFunctions/CumulativeChiSquare.hh"
+#include "TMath.h"
 
 #include <string>
 #include <vector>

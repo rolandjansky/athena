@@ -4,7 +4,7 @@
 
 /**********************************************************************************
  *
- * @version: $Id: T2Track.h 527425 2012-11-23 14:23:00Z bartoldu $
+ * @version: $Id: T2Track.h 648108 2015-02-19 13:15:50Z smh $
  *
  * @project: HLT, PESA algorithms
  * @package: TrigT2BeamSpot
@@ -23,9 +23,13 @@
 
 /// Externals
 #include "TrigInDetEvent/TrigInDetTrack.h"
+#include "TrkTrack/Track.h" 
 #include "TrigInterfaces/IMonitoredAlgo.h"
-#include "CLHEP/Units/SystemOfUnits.h"
-using CLHEP::GeV;
+#include "GaudiKernel/SystemOfUnits.h"
+using Gaudi::Units::GeV;
+
+// Amg::error
+#include "EventPrimitives/EventPrimitivesHelpers.h"
 
 #include <string>
 #include <vector>
@@ -61,6 +65,52 @@ namespace PESA {
       , m_SCTHits ( track.NSCT_SpacePoints()      )
       , m_TRTHits ( track.NStrawHits()            )
       {}
+
+    T2Track( const Trk::Track& track )
+      {
+        
+        const Trk::TrackParameters* trackPars = track.perigeeParameters();
+        if (trackPars) {
+          m_D0 = trackPars->parameters()[Trk::d0]; 
+          m_Z0 = trackPars->parameters()[Trk::z0]; 
+          if (trackPars->covariance()) {
+            m_D0err = Amg::error(*(trackPars->covariance()),Trk::d0);
+            m_Z0err = Amg::error(*(trackPars->covariance()),Trk::z0);
+          }
+          m_Phi = trackPars->parameters()[Trk::phi0]; 
+          float theta = trackPars->parameters()[Trk::theta]; 
+          m_Eta = -log(tan(0.5*theta)); 
+          float qOverP = trackPars->parameters()[Trk::qOverP]; 
+          m_Pt = std::sin(theta)/qOverP;
+
+          const Trk::FitQuality* fq = track.fitQuality();
+          m_Qual = 1e8;
+          m_NDF = 0;
+          if (fq) {
+            if(fq->numberDoF()!=0) {
+              m_Qual = fq->chiSquared();
+              m_NDF = fq->numberDoF();
+            }
+          }
+          int nPix=0;
+          int nSct=0;
+
+          for(auto tSOS = track.trackStateOnSurfaces()->begin();  
+              tSOS!=track.trackStateOnSurfaces()->end(); ++tSOS) { 
+            if ((*tSOS)->type(Trk::TrackStateOnSurface::Perigee) == false) {
+              const Trk::FitQualityOnSurface* fq =  (*tSOS)->fitQualityOnSurface(); 
+              if(!fq) continue; 
+              int nd = fq->numberDoF(); 
+              if(nd==2) nPix++;
+              if(nd==1) nSct++;
+            }
+          }
+          m_PIXHits = nPix; 
+          m_SCTHits = nSct/2; 
+          m_SiHits = m_PIXHits + m_SCTHits; 
+          m_TRTHits = 0; //for now: FTF tracks have no TRT extension in any case
+        }
+      }
 
     // Accessors
     double Pt      () const { return m_Pt     ; }

@@ -3,11 +3,11 @@
 */
 
 //
-// $Id: T2Track.cxx 361213 2011-04-23 18:26:44Z bartoldu $
+// $Id: T2Track.cxx 648108 2015-02-19 13:15:50Z smh $
 //
 
 #include "T2Track.h"
-#include "CLHEP/GenericFunctions/CumulativeChiSquare.hh"
+#include "TMath.h"
 
 
 namespace PESA
@@ -28,7 +28,7 @@ namespace PESA
     const double chi2 = track.Qual() * track.NDF();
     if ( ndf  > 0  &&  chi2 > 0. && ! std::isinf( chi2 ) )
       {
-        chi2Prob = 1.0 - Genfun::CumulativeChiSquare( ndf )( chi2 );
+        chi2Prob = TMath::Prob(chi2,ndf);
       }
     return chi2Prob;
   }

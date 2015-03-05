@@ -4,7 +4,7 @@
 
 ///============================================================
 ///
-/// $Id: T2TrackManager.h 361213 2011-04-23 18:26:44Z bartoldu $
+/// $Id: T2TrackManager.h 648108 2015-02-19 13:15:50Z smh $
 ///
 /// T2TrackManager.h, (c) ATLAS Detector software
 /// Trigger/TrigAlgorithms/TrigT2BeamSpot/T2VertexBeamSpot
@@ -22,8 +22,6 @@
 #define TRIGT2BEAMSPOT_T2TRACKMANAGER_H
 
 #include "TrigInDetEvent/TrigInDetTrackCollection.h"
-
-#include "CLHEP/Units/SystemOfUnits.h"
 
 #include <vector>
 #include <cmath>

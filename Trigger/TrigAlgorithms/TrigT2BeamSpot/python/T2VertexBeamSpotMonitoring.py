@@ -1,7 +1,7 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 #
-# $Id: T2VertexBeamSpotMonitoring.py 643531 2015-02-02 12:40:50Z smh $
+# $Id: T2VertexBeamSpotMonitoring.py 648108 2015-02-19 13:15:50Z smh $
 #
 
 ################# Validation, DQ checks
@@ -344,9 +344,6 @@ class T2VertexBeamSpotValidationMonitoring( TrigGenericMonitoringToolConfig ):
         self.defineTarget("Validation")
 
         # All Track algorithms
-        #self.defineAlgoSpecificHistograms( 'L2StarA' )
-        self.defineAlgoSpecificHistograms( 'L2StarB' )
-        #self.defineAlgoSpecificHistograms( 'L2StarF' )
 
         # ACCEPTED Tracks
         self.Histograms += [ defineHistogram('TrackSiHitsPass', type='TH1I',

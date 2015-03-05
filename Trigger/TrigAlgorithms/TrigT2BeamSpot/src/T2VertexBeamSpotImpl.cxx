@@ -4,7 +4,7 @@
 
 //============================================================
 //
-// $Id: T2VertexBeamSpotImpl.cxx 641309 2015-01-23 15:45:50Z smh $
+// $Id: T2VertexBeamSpotImpl.cxx 648108 2015-02-19 13:15:50Z smh $
 //
 // T2VertexBeamSpot.cxx, (c) ATLAS Detector software
 // Trigger/TrigAlgorithms/TrigT2BeamSpot/T2VertexBeamSpot
@@ -37,8 +37,8 @@
 #include "TrigTimeAlgs/TrigTimer.h"
 
 // Generic tools
-#include "CLHEP/Units/SystemOfUnits.h"
-using CLHEP::GeV;
+#include "GaudiKernel/SystemOfUnits.h"
+using Gaudi::Units::GeV;
 
 #include <string>
 #include <sstream>
@@ -265,36 +265,6 @@ T2VertexBeamSpotImpl::selectTracks( const vector<const TrigInDetTrackCollection*
           //    Algorithm ID's: SiTrack = 1, IdScan = 2, L2StarA = 5, L2StarB = 6
           //    (from /offline/Trigger/TrigEvent/TrigInDetEvent/TrigInDetEvent/TrigInDetTrack.h)
                
-          // Only fill histograms for the individual algorithms separately if it's requested (saves time) 
-          if ( m_saveTrackAlgs )
-            {
-              if      ( track.algorithmId() == TrigInDetTrack::STRATEGY_B_ID )
-                {
-                  if (msgLvl()<=MSG::DEBUG) msg() << MSG::DEBUG << "Looking at L2StarB track: " << track << endreq;
-                  m_L2StarB.push_back( track );
-                }
-              else if ( track.algorithmId() == TrigInDetTrack::STRATEGY_A_ID )
-                {
-                  if (msgLvl()<=MSG::DEBUG) msg() << MSG::DEBUG << "Looking at L2StarA track: " << track << endreq;
-                  m_L2StarA.push_back( track );
-                }
-              else if ( track.algorithmId() == TrigInDetTrack::STRATEGY_F_ID )
-                {
-                  if (msgLvl()<=MSG::DEBUG) msg() << MSG::DEBUG << "Looking at L2StarF track: " << track << endreq;
-                  m_L2StarF.push_back( track );
-                }
-              else if ( track.algorithmId() == TrigInDetTrack::SITRACKID )
-                {
-                  if (msgLvl()<=MSG::DEBUG) msg() << MSG::DEBUG << "Looking at SiTrack track: " << track << endreq;
-                  m_SiTrack.push_back( track );
-                }
-              else if ( track.algorithmId() == TrigInDetTrack::IDSCANID )
-                {
-                  if (msgLvl()<=MSG::DEBUG) msg() << MSG::DEBUG << "Looking at IDScan track: " << track << endreq;
-                  m_IdScan.push_back( track );
-                }
-            }
-          
           // Save Track parameters for the tracks we actually want to use
           if ( track.algorithmId() == m_TrackAlgoId )
             {

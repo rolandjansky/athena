@@ -3,7 +3,7 @@
 */
 
 //
-// $Id: T2Vertex.cxx 527425 2012-11-23 14:23:00Z bartoldu $
+// $Id: T2Vertex.cxx 648108 2015-02-19 13:15:50Z smh $
 //
 
 // This class
@@ -11,10 +11,9 @@
 
 // Externals
 #include "TrigInDetEvent/TrigInDetTrack.h"
-#include "CLHEP/GenericFunctions/CumulativeChiSquare.hh"
-#include "CLHEP/GenericFunctions/CumulativeChiSquare.hh"
-#include "CLHEP/Units/SystemOfUnits.h"
-using CLHEP::GeV;
+#include "GaudiKernel/SystemOfUnits.h"
+#include "TMath.h"
+using Gaudi::Units::GeV;
 
 #include <functional>
 #include <numeric>
@@ -33,7 +32,7 @@ namespace PESA
     const double chi2 = vertex.Qual() * vertex.NDF();
     if ( ndf  > 0  &&  chi2 > 0. && ! std::isinf( chi2 ) )
       {
-        chi2Prob = 1.0 - Genfun::CumulativeChiSquare( ndf )( chi2 );
+        chi2Prob = TMath::Prob(chi2,ndf);
       }
     return chi2Prob;
   }

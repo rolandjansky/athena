@@ -27,7 +27,7 @@
  * @author David W. Miller    <David.W.Miller@cern.ch>     - SLAC, Stanford University
  *
  * File and Version Information:
- * $Id: T2VertexBeamSpot.h 643531 2015-02-02 12:40:50Z smh $
+ * $Id: T2VertexBeamSpot.h 648108 2015-02-19 13:15:50Z smh $
  **********************************************************************************/
 
 #ifndef TRIGT2BEAMSPOT_T2VERTEXBEAMSPOT_H
@@ -81,7 +81,7 @@ namespace PESA {
     private:
 
       /// Implementation class
-      class T2VertexBeamSpotImpl* d;
+      class T2VertexBeamSpotImpl* impl;
 
       // Need this to get access to protected msg() and msgLvl()
       friend class T2VertexBeamSpotImpl;
