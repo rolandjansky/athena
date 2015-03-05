@@ -18,7 +18,6 @@ xAODEmTauRoIAuxContainerCnv( ISvcLocator* svcLoc )
 xAOD::EmTauRoIAuxContainer*
 xAODEmTauRoIAuxContainerCnv::
 createPersistent( xAOD::EmTauRoIAuxContainer* trans ) {
-   std::cout << "xAODEmTauRoIAuxContainerCnv: createPersistent called" << std::endl;
    // Create a copy of the container:
    xAOD::EmTauRoIAuxContainer* result =
       new xAOD::EmTauRoIAuxContainer( *trans );
