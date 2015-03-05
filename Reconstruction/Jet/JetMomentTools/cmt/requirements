@@ -3,29 +3,30 @@ package JetMomentTools
 author P-A Delsart <delsart at in2p3 fr>
 
 private
-use xAODCaloEvent       xAODCaloEvent-*         Event/xAOD
 use xAODPFlow           xAODPFlow-*             Event/xAOD
 
-use CaloDetDescr        CaloDetDescr-*          Calorimeter
-use CaloEvent           CaloEvent-*             Calorimeter
+use_unless tag=AthAnalysisBase pkg=CaloDetDescr   ver="*" root=Calorimeter
+use_unless tag=AthAnalysisBase pkg=CaloEvent      ver="*" root=Calorimeter
 use PathResolver        PathResolver-*          Tools
-use AthenaKernel        AthenaKernel-*          Control
+use_unless tag=AthAnalysisBase pkg=AthenaKernel   ver="*" root=Control
 
 public
 use AtlasPolicy		AtlasPolicy-*
 use AtlasROOT           AtlasROOT-*             External
-use GaudiInterface	    GaudiInterface-* 	    External
+use GaudiInterface      GaudiInterface-*        External
 use AsgTools            AsgTools-*              Control/AthToolSupport
 
+use xAODCaloEvent       xAODCaloEvent-*         Event/xAOD
 use xAODJet             xAODJet-*               Event/xAOD
 use xAODTracking        xAODTracking-*          Event/xAOD
 
 use CaloIdentifier      CaloIdentifier-*        Calorimeter
-use LArElecCalib        LArElecCalib-*          LArCalorimeter
+use_unless tag=AthAnalysisBase pkg=LArElecCalib   ver="*" root=LArCalorimeter
 
 use JetEDM              JetEDM-*                Reconstruction/Jet
 use JetRec              JetRec-*                Reconstruction/Jet
 use JetUtils            JetUtils-*              Reconstruction/Jet
+use JetRecCalo          JetRecCalo-*            Reconstruction/Jet
 use JetRecTools         JetRecTools-*           Reconstruction/Jet
 use JetInterface        JetInterface-*          Reconstruction/Jet
 

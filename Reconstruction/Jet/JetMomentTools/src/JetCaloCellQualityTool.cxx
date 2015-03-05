@@ -2,6 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+#ifndef XAOD_ANALYSIS
+
 #include "JetCaloCellQualityTool.h"
 #include "xAODJet/JetAccessorMap.h"
 #include <iostream>
@@ -85,3 +87,4 @@ StatusCode JetCaloCellQualityTool::initialize(){
   return StatusCode::SUCCESS;
 
 }
+#endif

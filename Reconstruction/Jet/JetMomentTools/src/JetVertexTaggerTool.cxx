@@ -110,7 +110,6 @@ int JetVertexTaggerTool::modify(xAOD::JetContainer& jetCont) const {
 
       // Get the tracks associated to the jet
       // Note that there may be no tracks - this is both normal and an error case
-      // In this case, just fill a vector with zero and don't set the highest vtx moment
       std::vector<const xAOD::TrackParticle*> tracks;
       if ( ! jet->getAssociatedObjects(m_assocTracksName, tracks) ) {
 	ATH_MSG_WARNING("Associated tracks not found.");
@@ -118,14 +117,18 @@ int JetVertexTaggerTool::modify(xAOD::JetContainer& jetCont) const {
 
       // Retrieve the Vertex associated to the jet.
       const xAOD::Vertex* jetorigin;
+      jetorigin = vertices->at(0);  // Calculate sums w.r.t. PV always.
+
+      /* // For retrieving the origin from the jet
       if( ! jet->getAssociatedObject<xAOD::Vertex>("OriginVertex", jetorigin) )
       	{ ATH_MSG_VERBOSE("Jet has no vertex associated. Using leading vertex" ); 
      	  jetorigin = vertices->at(0); 
       	} 
       else
       	{
-	  ATH_MSG_VERBOSE("Jet has associated vertex. Using this vertex." ); 
+	  ATH_MSG_VERBOSE("Jet has associated vertex. Using this vertex, number: " << jetorigin->index() ); 
       	}
+      */
       
       // Get the track pTs sums associated to the primary (first key of pair) and PU (second key) vertices.
       const std::pair<float,float> tracksums = getJetVertexTrackSums(jetorigin, tracks, tva);
@@ -134,7 +137,7 @@ int JetVertexTaggerTool::modify(xAOD::JetContainer& jetCont) const {
       // Default JVFcorr to -1 when no tracks are associated.
       float jvfcorr = -999.;
       if(tracksums.first + tracksums.second > 0) {
-	jvfcorr = tracksums.first / (tracksums.first + ( tracksums.second  * m_kcorrJVF) / std::max(n_putracks, 1) );
+	jvfcorr = tracksums.first / (tracksums.first + ( tracksums.second / (m_kcorrJVF * std::max(n_putracks, 1) ) ) );
       } 
       else { jvfcorr = -1; }
       

@@ -6,6 +6,7 @@
 #include "JetMomentTools/JetTrackMomentsTool.h"
 #include <sstream>
 #include "JetUtils/JetDistances.h"
+#include "xAODPFlow/PFO.h"
 
 JetTrackMomentsTool::JetTrackMomentsTool(const std::string& name)
     : JetModifierBase(name)
@@ -69,7 +70,23 @@ int JetTrackMomentsTool::modifyJet(xAOD::Jet& jet) const {
   bool havetracks = jet.getAssociatedObjects(m_assocTracksName, tracks);
   if ( ! havetracks ) ATH_MSG_WARNING("Associated tracks not found");
   ATH_MSG_DEBUG("Successfully retrieved track particles");
-    
+  
+  //For PFlow jets we will also calculate the same moments, using charged PFO                                                                                                                                                                                                        
+  xAOD::Type::ObjectType ctype = jet.rawConstituent( 0 )->type();
+  std::vector<const xAOD::TrackParticle*> pflowTracks;
+  bool isPFlowJet = false;
+  if (ctype  == xAOD::Type::ParticleFlow) {
+    isPFlowJet = true;
+    size_t numConstit = jet.numConstituents();
+    for ( size_t i=0; i<numConstit; i++ ) {
+      const xAOD::PFO* constit = dynamic_cast<const xAOD::PFO*>(jet.rawConstituent(i));
+      if (0.0 != constit->charge()){
+        const xAOD::TrackParticle *thisTrack = constit->track(0);//by construction xAOD::PFO can only have one track, in eflowRec usage                                                                                                                                             
+        pflowTracks.push_back(thisTrack);
+      }//we have a charged PFO                                                                                                                                                                                                                                                      
+    }//loop on jet constituents         
+  }//yes this jet is made form xAOD::PFO, so we do calculate the pflow moments           
+
   // For each track cut, get the associated moments
   for (size_t iCut = 0; iCut < m_minTrackPt.size(); ++iCut) {
     // Get info
@@ -90,6 +107,24 @@ int JetTrackMomentsTool::modifyJet(xAOD::Jet& jet) const {
     jet.setAttribute("NumTrk"+baseName,numTrkVec);
     jet.setAttribute("SumPtTrk"+baseName,sumPtTrkVec);
     jet.setAttribute("TrackWidth"+baseName,trackWidthVec);
+
+    if (true == isPFlowJet){
+      const std::vector<TrackMomentStruct> pflowMoments = getTrackMoments(jet,vertexContainer,minPt,pflowTracks,tva);
+
+      std::vector<int>   pflowNumTrkVec;       pflowNumTrkVec.resize(pflowMoments.size());
+      std::vector<float> pflowSumPtTrkVec;     pflowSumPtTrkVec.resize(pflowMoments.size());
+      std::vector<float> pflowTrackWidthVec;   pflowTrackWidthVec.resize(pflowMoments.size());
+      for ( size_t iVertex = 0; iVertex < pflowMoments.size(); ++iVertex ) {
+	pflowNumTrkVec[iVertex]     = pflowMoments.at(iVertex).numTrk;
+	pflowSumPtTrkVec[iVertex]   = pflowMoments.at(iVertex).sumPtTrk;
+	pflowTrackWidthVec[iVertex] = pflowMoments.at(iVertex).trackWidth;
+      }
+      // Set info                                                                                                                                                                                                                                                                      
+      jet.setAttribute("NumChargedPFO"+baseName,pflowNumTrkVec);
+      jet.setAttribute("SumPtChargedPFO"+baseName,pflowSumPtTrkVec);
+      jet.setAttribute("ChargedPFOWidth"+baseName,pflowTrackWidthVec);
+
+    }//yes this is a pflow jet, and so we calculate the additional pflow specific  moments
   }
 
   return 0;

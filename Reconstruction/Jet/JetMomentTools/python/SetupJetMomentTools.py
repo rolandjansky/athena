@@ -81,6 +81,10 @@ def getJetTracksMomentTool(**options):
         )
     return trkTool
 
+def getJetClusterMomentTool(toolName="JetClusterMoments")
+    from JetMomentTools.JetMomentToolsConf import JetClusterMomentsTool
+    return JetClusterMomentsTool(toolName)
+
 
 def getORIGINMoments(jetcollname):
     from JetCalibTools.MakeCalibSequences import alternateCalibSequence 
