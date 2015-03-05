@@ -210,10 +210,11 @@ GeoVPhysVol* GeoPixelEnvelope::Build( ) {
   xMat.add(envelopePhys,"Pixel");
 
   // DBM
+  // Z-positon is Hardcoded, 
+  // so if change then change in DBM_module too
 
   if (gmt_mgr->dbm()) {
-    std::cout << "PixelGeoModel is starting to build DBM." << std::endl;
-    HepGeom::Translate3D dbmTransform1( 0, 0, 887.002*CLHEP::mm + ( gmt_mgr->DBMTelescopeZ() )/2.); //0.002mm for safety
+    HepGeom::Translate3D dbmTransform1( 0, 0, 887.002*CLHEP::mm + ( gmt_mgr->DBMTelescopeZ() )/2.); //Add 0.002mm to 887mm for safety
 
     //DDmgr->numerology().addEndcap(4);
     gmt_mgr->SetPartsDBM();
@@ -235,7 +236,6 @@ GeoVPhysVol* GeoPixelEnvelope::Build( ) {
     envelopePhys->add(dbmTransform2);
     envelopePhys->add(theDBM.Build());
   } else {
-    std::cout << "PixelGeoModel did not build DBM." << std::endl;
     DDmgr->numerology().setNumDisksDBM(0);
     DDmgr->numerology().setNumBarrelDBM(0);
   }

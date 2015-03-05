@@ -18,6 +18,9 @@
 DBM_Det::DBM_Det() {
 
   double Trans_Y = 0.;
+  
+  // Radius to beamline
+  // Hardcoded, so if change then change in DBM_module too
   double trans_rad = 46.678*CLHEP::mm + (gmt_mgr->DBMTelescopeY()) / 2.; // 10-CLHEP::degree version
 
   //                 TRANS_X                        TRANS_Y                        TRANS_Z                          ROT_X                       ROT_Y                      ROT_Z        
@@ -59,6 +62,10 @@ GeoVPhysVol* DBM_Det::Build()
     {
       gmt_mgr->SetEta(0);
       gmt_mgr->SetPhi(i);
+      // Fixing swaping of module 0 and 2 on side C (-4)
+      // sinceDBM side C is 180deg rotation around global Y
+      if ((gmt_mgr->GetSide() < 0) && (i == 0)) gmt_mgr->SetPhi(2);
+      else if ((gmt_mgr->GetSide() < 0) && (i == 2)) gmt_mgr->SetPhi(0);
 
       //setting transformation
       CLHEP::HepRotation rm;
