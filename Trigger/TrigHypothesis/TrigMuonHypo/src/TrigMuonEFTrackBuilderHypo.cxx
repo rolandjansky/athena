@@ -128,7 +128,7 @@ HLT::ErrorCode TrigMuonEFTrackBuilderHypo::hltExecute(const HLT::TriggerElement*
 
       if (muon->primaryTrackParticle()) { // was there a muon in this RoI ?
 
-	const xAOD::TrackParticle* tr = muon->trackParticle(xAOD::Muon::MuonSpectrometerTrackParticle);
+	const xAOD::TrackParticle* tr = muon->trackParticle(xAOD::Muon::ExtrapolatedMuonSpectrometerTrackParticle);
 	if (!tr) {
 	  if (debug) msg() << MSG::DEBUG << "No TrigMuonEFTrack found." << endreq;
 	  continue;

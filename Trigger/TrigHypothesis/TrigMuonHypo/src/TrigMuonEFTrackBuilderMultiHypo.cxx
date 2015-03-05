@@ -155,13 +155,13 @@ HLT::ErrorCode TrigMuonEFTrackBuilderMultiHypo::hltExecute(const HLT::TriggerEle
       if (muon->primaryTrackParticle()) { // was there a muon in this RoI ?
 
 
-	const xAOD::TrackParticle* tr = muon->trackParticle(xAOD::Muon::MuonSpectrometerTrackParticle);
+	const xAOD::TrackParticle* tr = muon->trackParticle(xAOD::Muon::ExtrapolatedMuonSpectrometerTrackParticle);
 	if (!tr) {
-	  if (debug) msg() << MSG::DEBUG << "No MuonSpectrometerTrackParticle found." << endreq;
+	  if (debug) msg() << MSG::DEBUG << "No ExtrapolatedMuonSpectrometerTrackParticle found." << endreq;
 	  continue;
 	} else {
 	  if (debug) msg() << MSG::DEBUG
-			   << "Retrieved MuonSpectrometerTrackParticle track with abs pt "
+			   << "Retrieved ExtrapolatedMuonSpectrometerTrackParticle track with abs pt "
 			   << (*tr).pt()/CLHEP::GeV << " GeV. Charge=" << tr->charge() << endreq;
 
 	  m_fex_pt.push_back(tr->pt()/CLHEP::GeV*tr->charge());
