@@ -1272,10 +1272,8 @@ if ( rec.doAOD() or rec.doWriteAOD()) and not rec.readAOD() :
 
             from egammaRec.egammaRecFlags import jobproperties
             if ( rec.readESD() or jobproperties.egammaRecFlags.Enabled ) and not rec.ScopingLevel()==4  :
-                addClusterToCaloCellAOD("egClusterCollection")
-                if objKeyStore.isInInput("CaloClusterContainer","AllPhotonsClusters"):
-                    addClusterToCaloCellAOD("AllPhotonsClusters")
-
+                from egammaRec import egammaKeys
+                addClusterToCaloCellAOD(egammaKeys.outputClusterKey())
 
             from MuonCombinedRecExample.MuonCombinedRecFlags import muonCombinedRecFlags
             if rec.readESD() or muonCombinedRecFlags.doMuonClusters():

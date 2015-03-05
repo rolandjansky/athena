@@ -51,7 +51,8 @@ def main():
 
     msg.info("run-time auxiliary files...")
     from subprocess import check_call
-    check_call("setupLocalDBReplica_CERN.sh")
+    # no longer set up a replica
+    # check_call("setupLocalDBReplica_CERN.sh")
     #
 
     msg.info("now build [%s] file", pfc)
