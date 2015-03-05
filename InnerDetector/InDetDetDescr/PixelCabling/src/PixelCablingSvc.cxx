@@ -561,11 +561,10 @@ Identifier PixelCablingSvc::getPixelId(Identifier offlineId, uint32_t FE, uint32
     switch (thisModule) {
 
     case DBM:
+        eta_index = rowsPerFE - 1 - row;
         if (m_idHelper->barrel_ec(offlineId) > 0) {     // A side (pos. eta)
-            eta_index = row;
             phi_index = column;
         } else {                                        // C side
-            eta_index = rowsPerFE - 1 - row;
             phi_index = columnsPerFE - 1 - column;
         }
         break;
@@ -843,8 +842,7 @@ uint32_t PixelCablingSvc::getRow(Identifier *pixelId, Identifier offlineId)
 
     case DBM:
         // Row <-> eta_index
-        if (m_idHelper->barrel_ec(offlineId) > 0) row = m_idHelper->eta_index(*pixelId);  // A side
-        else row = rowsPerFE - m_idHelper->eta_index(*pixelId) - 1;                       // C side
+        row = rowsPerFE - m_idHelper->eta_index(*pixelId) - 1;
         break;
 
     case IBL:
