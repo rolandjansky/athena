@@ -36,6 +36,7 @@ namespace Trk
    if (this!=&rhs)
    {
      this->VxCandidate::operator=(rhs);
+     delete m_fullCovariance;
      m_fullCovariance = rhs.m_fullCovariance ? new Amg::MatrixX(*rhs.m_fullCovariance) : 0;
    }
    return *this;
