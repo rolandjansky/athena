@@ -246,17 +246,22 @@ namespace Trk {
     {
       m_fitQuality = rhs.m_fitQuality;
       m_trkWeight = rhs.m_trkWeight;
+      delete m_perigeeAtVertex;
       m_perigeeAtVertex = rhs.m_perigeeAtVertex ? rhs.m_perigeeAtVertex->clone() : 0;
+      delete m_neutralPerigeeAtVertex;
       m_neutralPerigeeAtVertex = rhs.m_neutralPerigeeAtVertex ? rhs.m_neutralPerigeeAtVertex->clone() : 0;
+      delete m_linState;
       m_linState = rhs.m_linState ? rhs.m_linState->clone() : 0;
 //       m_initialPerigee = rhs.m_initialPerigee ? rhs.m_initialPerigee->clone() : 0;
       m_initialPerigee = rhs.m_initialPerigee;
       m_initialNeutralPerigee = rhs.m_initialNeutralPerigee;
-      m_trackOrParticleLink = rhs.m_trackOrParticleLink;
+      delete m_ImpactPoint3dAtaPlane;
       m_ImpactPoint3dAtaPlane=rhs.m_ImpactPoint3dAtaPlane ? new AtaPlane(*rhs.m_ImpactPoint3dAtaPlane) : 0;
+      delete m_ImpactPoint3dNeutralAtaPlane;
       m_ImpactPoint3dNeutralAtaPlane=rhs.m_ImpactPoint3dNeutralAtaPlane ? new NeutralAtaPlane(*rhs.m_ImpactPoint3dNeutralAtaPlane) : 0;
       m_VertexCompatibility=rhs.m_VertexCompatibility;
-      m_trackOrParticleLink=rhs.m_trackOrParticleLink;
+      delete m_trackOrParticleLink;
+      m_trackOrParticleLink = (rhs.m_trackOrParticleLink ? rhs.m_trackOrParticleLink->clone() : 0);
     }
     return *this;
   }
