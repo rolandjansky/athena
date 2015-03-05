@@ -4,7 +4,6 @@
 
 #include "EvgenProdTools/TestHepMC.h"
 #include "GaudiKernel/DataSvc.h"
-#include <cmath>
 
 using namespace std;
 
@@ -144,6 +143,46 @@ StatusCode TestHepMC::initialize() {
   CHECK(m_thistSvc->regHist("/TestHepMCname/h_beamparticle1_Energy", m_h_beamparticle1_Energy));
   CHECK(m_thistSvc->regHist("/TestHepMCname/h_beamparticle2_Energy", m_h_beamparticle2_Energy));
   CHECK(m_thistSvc->regHist("/TestHepMCname/h_cmEnergyDiff", m_h_cmEnergyDiff));
+
+  //open the files and read G4particle_whitelist.txt
+  G4file.open("G4particle_whitelist.txt");
+         std::string line;
+         int G4pdgID;
+        
+         if (!G4file.fail()){
+       
+            while(std::getline(G4file,line)){
+                 std::stringstream ss(line);
+                 ss >> G4pdgID;
+
+                 m_G4pdgID_tab.push_back(G4pdgID);
+                 
+            }
+            G4file.close();
+         }
+         else{
+          ATH_MSG_WARNING("Failed to open G4particle_whitelist.txt, checking that all particles are known by Genat4 cannot be performed");
+         }
+
+ //open the files and read susyParticlePdgid.txt
+  susyFile.open("susyParticlePdgid.txt");
+         string line1;
+         int susyPdgID;
+        
+         if (!susyFile.fail()){
+       
+            while(getline(susyFile,line1)){
+                 stringstream ss1(line1);
+                 ss1 >> susyPdgID;
+
+                 m_SusyPdgID_tab.push_back(susyPdgID);
+                 
+            }
+            susyFile.close();
+         }
+         else{
+          ATH_MSG_WARNING("Failed to open susyParticlePdgid.txt, listing particles not present in PDTTable");
+         }
 
   return StatusCode::SUCCESS;
 }
@@ -331,32 +370,41 @@ StatusCode TestHepMC::execute() {
           }
         }
         else{
-          ATH_MSG_WARNING("Stable particle not found in PDT, no lifetime check done");
-          (*pitr)->print();
+          int susyPart = 0;
+          vector<int>::size_type count = 0;
+          while (susyPart==0 && (count < m_SusyPdgID_tab.size() )){
+	    // no warning for SUSY particles from the list susyParticlePdgid.txt
+            if (m_SusyPdgID_tab[count] == ppdgid) {
+	      //  cout << "susy particle " << ppdgid << endl;
+              susyPart=1;
+	    }
+            count++;
+	  }
+	  if (susyPart==0){
+            ATH_MSG_WARNING("Stable particle not found in PDT, no lifetime check done");
+            (*pitr)->print();
+	  }
         }
       }
+
       //Check that stable particles are known by G4 or they are non-interacting
       HepPDT::ParticleID pid(ppdgid);         
       if ((pstatus == 1 ) && (!(*pitr)->end_vertex()) && (!nonint.operator()(*pitr)) && (!pid.isNucleus())) {
-         G4file.open("G4particle_whitelist.txt");
-         std::string line;
-         int G4pdgID;
-         if (!G4file.fail()){
-            int known_byG4 = 0;
-            while(std::getline(G4file,line)){
-                 std::stringstream ss(line);
-                 if(ss >> G4pdgID){if(ppdgid == G4pdgID) known_byG4=1;}
+
+           int known_byG4 = 0;
+           vector<int>::size_type count =0;
+
+	     while (known_byG4==0 && count < m_G4pdgID_tab.size()){
+
+                 if(ppdgid == m_G4pdgID_tab[count]) known_byG4=1;
+                 count++;
             }
             if(known_byG4==0){
               nonG4_energy += pmom.e();
               ATH_MSG_WARNING("Interacting particle not known by Geant4 with ID " << ppdgid);
             }
-            G4file.close();
-         }
-         else{
-          ATH_MSG_WARNING("Failed to open G4particle_whitelist.txt, checking that all particles are known by Genat4 cannot be performed");
-         }
-      }   
+      }
+
       // Check for unstables with no end vertex, such as undecayed gluons, Ws, Zs, and h [not status 3 to avoid probles with photos]
       if (!(*pitr)->end_vertex() &&
           ((pstatus != 1 && pstatus != 3 && pstatus != 4) || ((abs(ppdgid) == 23 || ppdgid == 24 || ppdgid == 25) && pstatus != 3))) {
@@ -555,13 +603,13 @@ StatusCode TestHepMC::execute() {
       return StatusCode::SUCCESS;
     }
 
-  }
+    }
 
   // End of execution for each event
   ++m_nPass;
 
   return StatusCode::SUCCESS;
-}
+  }
 
 
 StatusCode TestHepMC::finalize() {
