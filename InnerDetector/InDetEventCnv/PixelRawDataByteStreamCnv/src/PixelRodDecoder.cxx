@@ -862,7 +862,7 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, PixelRDO
                     m_errors->addInvalidIdentifier();
 
                 // Write the error word to the service
-//                if (offlineIdHash != 0xffffffff) m_errors->setModuleErrors(offlineIdHash, errorcode);
+                if (offlineIdHash != 0xffffffff) m_errors->setModuleErrors(offlineIdHash, errorcode);
 
 
                 //At least temporarily removed because the data format is not clear (Franconi, 17.06.2014)
