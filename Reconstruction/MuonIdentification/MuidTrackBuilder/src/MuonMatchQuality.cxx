@@ -25,8 +25,8 @@ MuonMatchQuality::MuonMatchQuality (const std::string&	type,
     :	AthAlgTool		(type, name, parent),
 	m_tagTool		(""),
 	m_trackQuery		("Rec::MuonTrackQuery/MuonTrackQuery"),
-	m_directionUncertainty	(0.0002),	// default 0.2 mrad rotation between ID and MS
-	m_positionUncertainty	(2.*Gaudi::Units::mm),	// default 2mm offset between ID and MS
+	m_directionUncertainty	(0.000001),	                // not used anymore angle ID and MS: done by m_addIDMSerrors
+	m_positionUncertainty	(0.01*Gaudi::Units::mm),	// not used anymore shift ID and MS: done by m_addIDMSerrors
 	m_track1		(0),
 	m_track2		(0)
 {

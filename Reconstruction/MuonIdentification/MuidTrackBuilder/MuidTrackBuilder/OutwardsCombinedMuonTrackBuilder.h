@@ -137,7 +137,7 @@ namespace Rec
         Trk::Track* addIDMSerrors(Trk::Track* track) const;
         Trk::PseudoMeasurementOnTrack*                  vertexOnTrack(
             		const Trk::TrackParameters*                 parameters,
-            		const Trk::RecVertex*                           vertex) const;
+            		const Trk::RecVertex&                           vertex) const;
 
 	
 	// helpers, managers, tools

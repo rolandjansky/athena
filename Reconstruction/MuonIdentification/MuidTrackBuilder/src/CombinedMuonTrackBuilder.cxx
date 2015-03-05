@@ -668,8 +668,8 @@ CombinedMuonTrackBuilder::combinedFit (const Trk::Track& indetTrack,
 	        std::vector<const Trk::TrackStateOnSurface*>::const_iterator it = caloTSOS->begin()+1;
 	        std::vector<const Trk::TrackStateOnSurface*>::const_iterator itEnd = caloTSOS->end();
 	        for (; it != itEnd; ++it) delete *it;
-	        delete caloTSOS; 
 	      }
+	      delete caloTSOS; 		
 	    }
 	  }
 	else
@@ -920,11 +920,12 @@ CombinedMuonTrackBuilder::combinedFit (const Trk::Track& indetTrack,
       // Don't run the outliers anymore at this stage
       if(newTrack) { 
         Trk::Track* refittedTrack = fit(*newTrack, false, Trk::muon);      
-        delete newTrack;
+	if(newTrack != combinedTrack)
+	  delete newTrack;
         if(refittedTrack && refittedTrack->fitQuality()) {
 	  delete combinedTrack;
 	  combinedTrack = refittedTrack;
-        }else {
+        }else{
 	  if(refittedTrack) delete refittedTrack;
         }
       }
@@ -999,39 +1000,55 @@ CombinedMuonTrackBuilder::indetExtension (const Trk::Track&		indetTrack,
     const Trk::TrackParameters* backParameters		= 0;
     if (innerParameters)
     {
+      if (innerParameters->associatedSurface()==spectrometerMeasurements.front()->associatedSurface()) {
+        frontParameters = innerParameters->clone();
+      } else { 
 	frontParameters	= m_propagator->propagate(*innerParameters,
 						  spectrometerMeasurements.front()->associatedSurface(),
 						  Trk::anyDirection,
 						  false,
 						  m_magFieldProperties,
 						  Trk::muon);
+      }
     }
     else if (middleParameters)
     {
+      if (middleParameters->associatedSurface()==spectrometerMeasurements.front()->associatedSurface()) {
+        frontParameters = middleParameters->clone();
+      } else {
 	frontParameters	= m_propagator->propagate(*middleParameters,
 						  spectrometerMeasurements.front()->associatedSurface(),
 						  Trk::anyDirection,
 						  false,
 						  m_magFieldProperties,
 						  Trk::muon);
+      }
     }
     if (outerParameters)
     {
+      if (outerParameters->associatedSurface()==spectrometerMeasurements.back()->associatedSurface()) {
+        backParameters = outerParameters->clone();
+      } else {
 	backParameters	= m_propagator->propagate(*outerParameters,
 						  spectrometerMeasurements.back()->associatedSurface(),
 						  Trk::anyDirection,
 						  false,
 						  m_magFieldProperties,
 						  Trk::muon);
+      }
     }
     else if (middleParameters)
     {
+      if (middleParameters->associatedSurface()==spectrometerMeasurements.back()->associatedSurface()) {
+        backParameters = middleParameters->clone();
+      } else {
 	backParameters	= m_propagator->propagate(*middleParameters,
 						  spectrometerMeasurements.back()->associatedSurface(),
 						  Trk::anyDirection,
 						  false,
 						  m_magFieldProperties,
 						  Trk::muon);
+      }
     }
 
     // find middle measurement
@@ -1121,6 +1138,7 @@ CombinedMuonTrackBuilder::indetExtension (const Trk::Track&		indetTrack,
     }
 
     Trk::TrackInfo trackInfo(Trk::TrackInfo::Unknown,Trk::muon);
+
     Trk::Track muonTrack(trackInfo,trackStateOnSurfaces,0);
 
     // perform combined fit
@@ -1150,7 +1168,7 @@ CombinedMuonTrackBuilder::indetExtension (const Trk::Track&		indetTrack,
 	    combinedTrack = 0;
 	}
     }
-    
+   
     return combinedTrack;
 }
     
@@ -1796,7 +1814,8 @@ CombinedMuonTrackBuilder::standaloneFit	(const Trk::Track&	inputSpectrometerTrac
       // Don't run the outliers anymore at this stage
       if(newTrack) { 
         Trk::Track* refittedTrack = fit(*newTrack, false, Trk::muon);      
-        delete newTrack;
+	if(newTrack != track)
+	  delete newTrack;
         if(refittedTrack && refittedTrack->fitQuality()) {
 	  delete track;
 	  track = refittedTrack;
@@ -2237,21 +2256,40 @@ CombinedMuonTrackBuilder::standaloneRefit (const Trk::Track&	combinedTrack) cons
 	}
     }	    
 
+
     DataVector<const Trk::TrackStateOnSurface>::const_iterator t = combinedTrack.trackStateOnSurfaces()->begin();
     if(m_addElossID) {
       double Eloss = 0.;
       for ( ; t != combinedTrack.trackStateOnSurfaces()->end(); ++t) {
+
+        if(!(**t).trackParameters()) continue;
         if((**t).materialEffectsOnTrack()) {
-  	  const Trk::TrackStateOnSurface* TSOS =
-	  const_cast<const Trk::TrackStateOnSurface*>((**t).clone());
- 	  trackStateOnSurfaces->push_back(TSOS);
+
+          double X0 = (**t).materialEffectsOnTrack()->thicknessInX0();
           const Trk::MaterialEffectsOnTrack* meot = dynamic_cast<const Trk::MaterialEffectsOnTrack*>((**t).materialEffectsOnTrack());
           if(meot) {
             const Trk::EnergyLoss* energyLoss = meot->energyLoss();
             if (energyLoss) {
               Eloss += fabs(energyLoss->deltaE());
               ATH_MSG_DEBUG("CombinedMuonFit ID Eloss found r " << ((**t).trackParameters())->position().perp() << " z " << ((**t).trackParameters())->position().z() << " value " << energyLoss->deltaE() << " Eloss " << Eloss);
-            } 
+	      const Trk::ScatteringAngles* scat = meot->scatteringAngles();
+	      if(scat) {
+		double sigmaDeltaPhi = scat->sigmaDeltaPhi();     
+		double sigmaDeltaTheta = scat->sigmaDeltaTheta();     
+		const Trk::EnergyLoss* energyLossNew = new Trk::EnergyLoss(energyLoss->deltaE(),energyLoss->sigmaDeltaE(),energyLoss->sigmaDeltaE(),energyLoss->sigmaDeltaE());
+		const Trk::ScatteringAngles* scatNew = new Trk::ScatteringAngles(0.,0.,sigmaDeltaPhi,sigmaDeltaTheta);
+		const Trk::Surface& surfNew = (**t).trackParameters()->associatedSurface();
+		std::bitset<Trk::MaterialEffectsBase::NumberOfMaterialEffectsTypes> meotPattern(0);
+		meotPattern.set(Trk::MaterialEffectsBase::EnergyLossEffects);
+		meotPattern.set(Trk::MaterialEffectsBase::ScatteringEffects);
+		const Trk::MaterialEffectsOnTrack*  meotNew = new Trk::MaterialEffectsOnTrack(X0, scatNew, energyLossNew, surfNew, meotPattern);
+		const Trk::TrackParameters* parsNew = ((**t).trackParameters())->clone();
+		std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePatternScat(0);
+		typePatternScat.set(Trk::TrackStateOnSurface::Scatterer);
+		const Trk::TrackStateOnSurface* newTSOS  = new Trk::TrackStateOnSurface(0, parsNew, 0, meotNew, typePatternScat);
+		trackStateOnSurfaces->push_back(newTSOS); 
+	      }
+	    }
           }
         }
         if((**t).trackParameters()) {
@@ -2260,6 +2298,7 @@ CombinedMuonTrackBuilder::standaloneRefit (const Trk::Track&	combinedTrack) cons
       }
       ATH_MSG_DEBUG("CombinedMuonFit Total ID Eloss " << Eloss);
     }   
+
 
     // add the 3 surface calo model
     trackStateOnSurfaces->push_back(innerTSOS);
@@ -2303,6 +2342,8 @@ CombinedMuonTrackBuilder::standaloneRefit (const Trk::Track&	combinedTrack) cons
     // create track for refit
     Trk::Track* standaloneTrack	= new Trk::Track(combinedTrack.info(), trackStateOnSurfaces, 0);
     standaloneTrack->info().setPatternRecognitionInfo(Trk::TrackInfo::MuidStandaloneRefit);
+    if(m_trackQuery->isCombined(*standaloneTrack)) ATH_MSG_WARNING(" This should not happen standalone Track has ID hits ") ;
+
     Trk::Track* refittedTrack	= fit(*standaloneTrack,false,Trk::muon);
     delete standaloneTrack;
     if (refittedTrack)
@@ -2705,7 +2746,7 @@ Trk::Track* CombinedMuonTrackBuilder::addIDMSerrors(Trk::Track* track) const
 //
 // returns a new Track
 //   
-    if(!m_addIDMSerrors) return 0;
+    if(!m_addIDMSerrors) return track;
 
     ATH_MSG_DEBUG( " CombinedMuonTrackBuilder addIDMSerrors to track ");
     Amg::Vector3D positionMS(0,0,0);
@@ -2757,7 +2798,7 @@ Trk::Track* CombinedMuonTrackBuilder::addIDMSerrors(Trk::Track* track) const
 
    if(itsosCaloFirst<0||itsosCaloLast<0) { 
      ATH_MSG_DEBUG( " addIDMSerrors keep original track ");
-     return 0;
+     return track;
    }
 // If no Calorimeter no IDMS uncertainties have to be propagated 
    positionCaloFirst = positionCaloFirst - positionMS;
@@ -2785,11 +2826,11 @@ Trk::Track* CombinedMuonTrackBuilder::addIDMSerrors(Trk::Track* track) const
               double sigmaDeltaTheta = sqrt((scat->sigmaDeltaTheta())*(scat->sigmaDeltaTheta()) + sigmaDeltaThetaIDMS2);     
               const Trk::EnergyLoss* energyLossNew = new Trk::EnergyLoss(0.,0.,0.,0.);
               const Trk::ScatteringAngles* scatNew = new Trk::ScatteringAngles(0.,0.,sigmaDeltaPhi,sigmaDeltaTheta);
-              Trk::Surface* surfNew = (**t).trackParameters()->associatedSurface().clone();
+              const Trk::Surface& surfNew = (**t).trackParameters()->associatedSurface();
               std::bitset<Trk::MaterialEffectsBase::NumberOfMaterialEffectsTypes> meotPattern(0);
               meotPattern.set(Trk::MaterialEffectsBase::EnergyLossEffects);
               meotPattern.set(Trk::MaterialEffectsBase::ScatteringEffects);
-              const Trk::MaterialEffectsOnTrack*  meotNew = new Trk::MaterialEffectsOnTrack(X0, scatNew, energyLossNew, *surfNew, meotPattern);
+              const Trk::MaterialEffectsOnTrack*  meotNew = new Trk::MaterialEffectsOnTrack(X0, scatNew, energyLossNew, surfNew, meotPattern);
               const Trk::TrackParameters* parsNew = ((**t).trackParameters())->clone();
               std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePatternScat(0);
               typePatternScat.set(Trk::TrackStateOnSurface::Scatterer);
@@ -3133,7 +3174,7 @@ CombinedMuonTrackBuilder::createExtrapolatedTrack(
 	// failure in calo association and/or extrapolation to indet
 	if (! trackParameters || ! caloTSOS)
 	{
-	    delete trackParameters;
+	    if(trackParameters) delete trackParameters;
 	
 	    // delete spectrometer TSOS
 	    for (s = spectrometerTSOS.begin(); s != spectrometerTSOS.end(); ++s) delete *s;
