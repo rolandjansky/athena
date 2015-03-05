@@ -252,12 +252,12 @@ OutwardsCombinedMuonTrackBuilder::standaloneRefit (const Trk::Track& combinedTra
  
    bool addVertexRegion = true;  
     Amg::Vector3D		origin(0.,0.,0.);
-    AmgSymMatrix(3) * vertexRegionCovariance = new AmgSymMatrix(3);
-     vertexRegionCovariance->setZero();
-    (*vertexRegionCovariance)(0,0)		= vertex3DSigmaRPhi*vertex3DSigmaRPhi;
-    (*vertexRegionCovariance)(1,1)		= vertex3DSigmaRPhi*vertex3DSigmaRPhi;
-    (*vertexRegionCovariance)(2,2)		= vertex3DSigmaZ*vertex3DSigmaZ;
-    Trk::RecVertex* vertex			= new Trk::RecVertex(origin,*vertexRegionCovariance);
+    AmgSymMatrix(3)  vertexRegionCovariance;
+    vertexRegionCovariance.setZero();
+    vertexRegionCovariance(0,0)		= vertex3DSigmaRPhi*vertex3DSigmaRPhi;
+    vertexRegionCovariance(1,1)		= vertex3DSigmaRPhi*vertex3DSigmaRPhi;
+    vertexRegionCovariance(2,2)		= vertex3DSigmaZ*vertex3DSigmaZ;
+    Trk::RecVertex vertex(origin, vertexRegionCovariance);
     
 //    if(!combinedTrack.perigeeParameters()) return 0;
     int itsos = 0;
@@ -680,10 +680,10 @@ Trk::Track*  OutwardsCombinedMuonTrackBuilder::addIDMSerrors(Trk::Track* track) 
 
 Trk::PseudoMeasurementOnTrack*
 OutwardsCombinedMuonTrackBuilder::vertexOnTrack(const Trk::TrackParameters*	parameters,
-      					        const Trk::RecVertex*		vertex) const
+      					        const Trk::RecVertex&		vertex) const
 {
     // create the corresponding PerigeeSurface, localParameters and covarianceMatrix
-    const Trk::PerigeeSurface surface(vertex->position());
+    const Trk::PerigeeSurface surface(vertex.position());
     Trk::LocalParameters localParameters;
     Amg::MatrixX covarianceMatrix;
     covarianceMatrix.setZero();
@@ -696,7 +696,7 @@ OutwardsCombinedMuonTrackBuilder::vertexOnTrack(const Trk::TrackParameters*	para
     jacobian(0,0)			= -ptInv*parameters->momentum().y();
     jacobian(0,1)			=  ptInv*parameters->momentum().x();
     jacobian(1,2)			=  1.0;
-    const Amg::MatrixX& cov         =  vertex->covariancePosition();
+    const Amg::MatrixX& cov         =  vertex.covariancePosition();
     covarianceMatrix		=  cov.similarity(jacobian);
     
     
