@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: Muon_v1.cxx 647346 2015-02-17 10:24:03Z emoyse $
+// $Id: Muon_v1.cxx 651817 2015-03-05 12:18:42Z emoyse $
 // Misc includes
 #include <vector>
 
@@ -380,18 +380,19 @@ bool Muon_v1::isolationCaloCorrection(  float& value, const Iso::IsolationFlavou
     MuonType type = muonType();
     switch ( type ) {
       case Combined :
-      return combinedTrackParticleLink();
-      break;
+        return combinedTrackParticleLink();
+        break;
       case SegmentTagged :
       case CaloTagged :
       case SiliconAssociatedForwardMuon :
-      return inDetTrackParticleLink();
-      break;
+        return inDetTrackParticleLink();
+        break;
       case MuonStandAlone :
-      return muonSpectrometerTrackParticleLink();
-      break;
+        if (extrapolatedMuonSpectrometerTrackParticleLink().isValid()) return extrapolatedMuonSpectrometerTrackParticleLink();
+        else return muonSpectrometerTrackParticleLink();
+        break;
       default:
-      throw std::runtime_error("Unknown primary type - not sure which track particle to return!");
+        throw std::runtime_error("Unknown primary type - not sure which track particle to return!");
     }
     // static ElementLink< TrackParticleContainer > dummy;
     // return dummy;
@@ -424,7 +425,7 @@ bool Muon_v1::isolationCaloCorrection(  float& value, const Iso::IsolationFlavou
         return muonSpectrometerTrackParticleLink();
         break;
       case ExtrapolatedMuonSpectrometerTrackParticle :
-        return muonSpectrometerTrackParticleLink();
+        return extrapolatedMuonSpectrometerTrackParticleLink();
         break;
       default:
         throw std::runtime_error("Unknown TrackParticleType - not sure which track particle to return!");
