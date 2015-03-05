@@ -1,5 +1,5 @@
 #
-# $Id: requirements 641309 2015-01-23 15:45:50Z smh $
+# $Id: requirements 648108 2015-02-19 13:15:50Z smh $
 #
 
 package TrigT2BeamSpot
@@ -18,7 +18,6 @@ use AtlasPolicy             AtlasPolicy-*
 
 use TrigInterfaces          TrigInterfaces-*          Trigger/TrigSteer
 use TrigSteeringEvent       TrigSteeringEvent-*       Trigger/TrigEvent
-use TrigInDetEvent          TrigInDetEvent-*          Trigger/TrigEvent
 
 #------------------------------
 # Private Requirements
@@ -26,8 +25,11 @@ use TrigInDetEvent          TrigInDetEvent-*          Trigger/TrigEvent
 
 private
 
+use TrigInDetEvent          TrigInDetEvent-*          Trigger/TrigEvent
+use TrkTrack		            TrkTrack-* 		            Tracking/TrkEvent
+use EventPrimitives         EventPrimitives-*         Event
 use GaudiInterface          GaudiInterface-*          External
-use AtlasCLHEP              AtlasCLHEP-*              External
+use AtlasROOT               AtlasROOT-*               External
 use EventInfo               EventInfo-*               Event
 use InDetBeamSpotService    InDetBeamSpotService-*    InnerDetector/InDetConditions
 use TrigNavigation          TrigNavigation-*          Trigger/TrigEvent

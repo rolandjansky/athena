@@ -1,7 +1,7 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 #
-# $Id: T2VertexBeamSpotConfig.py 645251 2015-02-09 17:06:50Z smh $
+# $Id: T2VertexBeamSpotConfig.py 648108 2015-02-19 13:15:50Z smh $
 #
 
 from TrigT2BeamSpot.TrigT2BeamSpotConf import PESA__T2VertexBeamSpot
@@ -35,7 +35,6 @@ class T2VertexBeamSpot_Fex ( PESA__T2VertexBeamSpot ) :
         # Setup the self algorithm parameters
         # Algorithm IDs: SiTrack = 1, IDScan = 2, TrtXK = 4 
         # (from /offline/Trigger/TrigEvent/TrigInDetEvent/TrigInDetEvent/TrigInDetTrack.h)
-        self.HistoTrackAlgs      = False    # Save histograms for all the track algortithms      
         self.SaveAllVertices     = False    # Save histograms for all vertices
         self.WeightClusterZ      = True     # Use the track Z0 weighted cluster Z position as seed            
         self.ReclusterSplit      = False    # Recluster split track collections before vertex fitting

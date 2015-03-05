@@ -4,7 +4,7 @@
 
 ///============================================================
 ///
-/// $Id: T2VertexBeamSpotImpl.h 529164 2012-12-06 12:47:21Z bartoldu $
+/// $Id: T2VertexBeamSpotImpl.h 651766 2015-03-05 10:12:11Z smh $
 ///
 /// Trigger/TrigAlgorithms/TrigT2BeamSpot/T2VertexBeamSpot
 ///
@@ -29,7 +29,7 @@
  * @author David W. Miller    <David.W.Miller@cern.ch>     - SLAC, Stanford University
  *
  * File and Version Information:
- * $Id: T2VertexBeamSpotImpl.h 529164 2012-12-06 12:47:21Z bartoldu $
+ * $Id: T2VertexBeamSpotImpl.h 651766 2015-03-05 10:12:11Z smh $
  **********************************************************************************/
 
 #ifndef TRIGT2BEAMSPOT_T2VERTEXBEAMSPOTIMPL_H
@@ -196,9 +196,6 @@ namespace PESA {
     /* Track clusterer */
     std::auto_ptr< T2TrackClusterer > m_trackClusterer;
     
-    /* Choose to save SiTrack and IdScan separately */
-    bool         m_saveTrackAlgs;
-    
     /* Choose to save all track params */
     bool         m_saveAllVertices;
     
@@ -252,7 +249,7 @@ namespace PESA {
     unsigned int m_vtxBCIDNTrkMin;
 
     /// Counters
-    unsigned int m_TotalEvents;
+    unsigned int m_TotalEvents = 0;
     
     bool         m_doVertexFit;
     bool         m_AcceptAll;
@@ -282,17 +279,17 @@ namespace PESA {
     /* --------------------- */
     
      /* monitored run & event variables*/
-    unsigned int m_RunID; 
-    unsigned int m_EventID; 
-    unsigned int m_LumiBlock;
-    unsigned int m_bcid;
+    unsigned int m_RunID = 0;
+    unsigned int m_EventID = 0;
+    unsigned int m_LumiBlock = 0;
+    unsigned int m_bcid = 0;
 
     /* monitoried event-level variables */
-    unsigned int m_TotalTracks;
-    unsigned int m_TotalTracksPass;
-    unsigned int m_TotalHiPTTracks;
-    unsigned int m_TotalROIs;
-    unsigned int m_TotalTEs;  
+    unsigned int m_TotalTracks = 0;
+    unsigned int m_TotalTracksPass = 0;
+    unsigned int m_TotalHiPTTracks = 0;
+    unsigned int m_TotalROIs = 0;
+    unsigned int m_TotalTEs = 0;  
 
     // FIXME: these should be encapsulated with the eventStage method
     // and declareStdContainer be extended to take member function pointers
@@ -313,12 +310,6 @@ namespace PESA {
     std::vector<double> m_RoIPhi; 
     std::vector<double> m_RoIID; 
     
-    /* monitored track variables*/
-    MonitoredTrack m_L2StarB;
-    MonitoredTrack m_L2StarA;
-    MonitoredTrack m_L2StarF;
-    MonitoredTrack m_SiTrack;
-    MonitoredTrack m_IdScan;
     MonitoredTrack m_trackPass;
     
     /* monitored cluster variables*/

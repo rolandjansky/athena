@@ -4,7 +4,7 @@
 
 /**********************************************************************************
  *
- * @version: $Id: T2TrackClusterer.h 527425 2012-11-23 14:23:00Z bartoldu $
+ * @version: $Id: T2TrackClusterer.h 648108 2015-02-19 13:15:50Z smh $
  *
  * @project: HLT, PESA algorithms
  * @package: TrigT2BeamSpot
@@ -24,9 +24,9 @@
 /// Externals
 #include "TrigInDetEvent/TrigInDetTrack.h"
 #include "TrigInDetEvent/TrigInDetTrackCollection.h"
-#include "CLHEP/Units/SystemOfUnits.h"
-using CLHEP::GeV;
-using CLHEP::mm;
+#include "GaudiKernel/SystemOfUnits.h"
+using Gaudi::Units::GeV;
+using Gaudi::Units::mm;
 
 #include <string>
 #include <vector>
