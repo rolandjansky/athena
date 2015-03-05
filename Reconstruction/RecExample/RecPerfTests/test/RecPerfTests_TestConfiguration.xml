@@ -20,75 +20,17 @@
         <displayComponent>Det-Combined</displayComponent>
       </classification>
 
+      <jobTransform userJobId="mc12_8TeV_quick_perf">
+	<doc>Reco_tf runs on 8TeV collision mc</doc>
+	<jobTransformJobName>RecoTrf_8TeV_mc_quick_perf</jobTransformJobName>
+	<jobTransformCmd>
+	  Reco_tf.py --inputRDOFile root://eosatlas//eos/atlas/atlascerngroupdisk/phys-rig/pileupSamples/mc12_8TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.digit.RDO.e1513_s1499_s1504_d700/RDO.01177879._000001.pool.root.1 --maxEvents 50 --outputESDFile myESD.pool.root --preExec='rec.doTrigger=False;from PerfMonComps.PerfMonFlags import jobproperties as pmjp;pmjp.PerfMonFlags.doPostProcessing=True;pmjp.PerfMonFlags.doSemiDetailedMonitoringFullPrint=True;'
+	</jobTransformCmd>
+	<group>TrfRecPerf_CheckFile_PerfMon</group>
+	<queue>atlasrttperf</queue>
+      </jobTransform>
 
-      <jobTransform userJobId="data12_8TeV_long_tcmalloc">
-	<doc>Reco_tf runs on 8TeV collision data</doc>
-	<jobTransformJobName>RecoTrf_8TeV_data_long_tcmalloc</jobTransformJobName>
-	<jobTransformCmd>
-	  Reco_tf.py --inputBSFile=/afs/cern.ch/atlas/project/rig/referencefiles/dataStreams_high_mu/data12_8TeV/data12_8TeV.00209109.physics_JetTauEtmiss.merge.RAW._lb0186._SFO-1._0001.1 --maxEvents=500 --autoConfiguration=everything --outputESDFile=myESD.pool.root --outputAODFile=myAOD.pool.root --outputHISTFile=myHist.root --preExec='from PerfMonComps.PerfMonFlags import jobproperties as pmjp;pmjp.PerfMonFlags.doMallocMonitoring=True;pmjp.PerfMonFlags.doPostProcessing=True;pmjp.PerfMonFlags.doSemiDetailedMonitoringFullPrint=True;pmjp.PerfMonFlags.doExtraPrintouts=True'
-	</jobTransformCmd>
-	<group>TrfRecPerf_CheckFile_PerfMon</group>
-	<queue>short</queue>
-      </jobTransform>
-      
-      
-      <jobTransform userJobId="data12_8TeV_long_stdcmalloc">
-	<doc>Reco_tf runs on 8TeV collision data</doc>
-	<jobTransformJobName>RecoTrf_8TeV_data_long_stdcmalloc</jobTransformJobName>
-	<jobTransformCmd>
-	  Reco_tf.py --inputBSFile=/afs/cern.ch/atlas/project/rig/referencefiles/dataStreams_high_mu/data12_8TeV/data12_8TeV.00209109.physics_JetTauEtmiss.merge.RAW._lb0186._SFO-1._0001.1 --maxEvents=500 --autoConfiguration=everything --outputESDFile=myESD.pool.root --outputAODFile=myAOD.pool.root --outputTAGFile=myTAG.root --outputHISTFile=myHist.root --athenaopts='--stdcmalloc'  --preExec='from PerfMonComps.PerfMonFlags import jobproperties as pmjp;pmjp.PerfMonFlags.doMallocMonitoring=True;pmjp.PerfMonFlags.doPostProcessing=True;pmjp.PerfMonFlags.doSemiDetailedMonitoringFullPrint=True;pmjp.PerfMonFlags.doExtraPrintouts=True'
-	</jobTransformCmd>
-	<group>TrfRecPerf_CheckFile_PerfMon</group>
-	<queue>long</queue>
-      </jobTransform>
-      
-      
-      
-      <jobTransform userJobId="data12_8TeV_detailprintout">
-	<doc>Reco_tf runs on 8TeV collision data</doc>
-	<jobTransformJobName>RecoTrf_8TeV_data_detailprintout</jobTransformJobName>
-	<jobTransformCmd>
-	  Reco_tf.py --inputBSFile=/afs/cern.ch/atlas/project/rig/referencefiles/dataStreams_high_mu/data12_8TeV/data12_8TeV.00209109.physics_JetTauEtmiss.merge.RAW._lb0186._SFO-1._0001.1 --maxEvents=300 --autoConfiguration=everything --outputESDFile=myESD.pool.root --outputAODFile=myAOD.pool.root --outputTAGFile=myTAG.root --outputHISTFile=myHist.root --preExec='from PerfMonComps.PerfMonFlags import jobproperties as pmjp;pmjp.PerfMonFlags.doMallocMonitoring=True;pmjp.PerfMonFlags.doPostProcessing=True;pmjp.PerfMonFlags.doSemiDetailedMonitoringFullPrint=True;pmjp.PerfMonFlags.doExtraPrintouts=True'
-	</jobTransformCmd>
-	<group>TrfRecPerf_CheckFile_PerfMon</group>
-	<queue>long</queue>
-      </jobTransform>
-      
 
-      
-      
-      
-      <jobTransform userJobId="mc12_long_tcmalloc">
-	<doc>Reco_tf runs on mc12</doc>
-	<jobTransformJobName>RecoTrf_mc12_long_tcmalloc</jobTransformJobName>
-	<jobTransformCmd>
-	  Reco_tf.py --inputRDOFile=root://eosatlas//eos/atlas/atlascerngroupdisk/phys-rig/pileupSamples/mc12_8TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.digit.RDO.e1513_s1499_s1504_d700/RDO.01177879._000001.pool.root.1 --maxEvents=500 --autoConfiguration=everything --outputESDFile=myESD.pool.root --outputAODFile=myAOD.pool.root --outputTAGFile=myTAG.root --outputHISTFile=myHist.root  --preExec='from PerfMonComps.PerfMonFlags import jobproperties as pmjp;pmjp.PerfMonFlags.doMallocMonitoring=True;pmjp.PerfMonFlags.doPostProcessing=True;pmjp.PerfMonFlags.doSemiDetailedMonitoringFullPrint=True;pmjp.PerfMonFlags.doExtraPrintouts=True'
-	</jobTransformCmd>
-	<group>TrfRecPerf_CheckFile_PerfMon</group>
-	<queue>long</queue>
-      </jobTransform>
-      
-      
-
-      <jobTransform userJobId="mc12_long_stdcmalloc">
-	<doc>Reco_tf runs on mc12</doc>
-	<jobTransformJobName>RecoTrf_mc12_long_stdcmalloc</jobTransformJobName>
-	<jobTransformCmd>
-	  Reco_tf.py --inputRDOFile=root://eosatlas//eos/atlas/atlascerngroupdisk/phys-rig/pileupSamples/mc12_8TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.digit.RDO.e1513_s1499_s1504_d700/RDO.01177879._000001.pool.root.1 --maxEvents=500 --autoConfiguration=everything --outputESDFile=myESD.pool.root --outputAODFile=myAOD.pool.root --outputTAGFile=myTAG.root --outputHISTFile=myHist.root --athenaopts='--stdcmalloc'  --preExec='from PerfMonComps.PerfMonFlags import jobproperties as pmjp;pmjp.PerfMonFlags.doMallocMonitoring=True;pmjp.PerfMonFlags.doPostProcessing=True;pmjp.PerfMonFlags.doSemiDetailedMonitoringFullPrint=True;pmjp.PerfMonFlags.doExtraPrintouts=True'
-	</jobTransformCmd>
-	<group>TrfRecPerf_CheckFile_PerfMon</group>
-	<queue>long</queue>
-      </jobTransform>
-      
-      <jobTransform userJobId="mc12_detailprintout">
-	<doc>Reco_tf runs on mc12</doc>
-	<jobTransformJobName>RecoTrf_mc12_detailprintout</jobTransformJobName>
-	<jobTransformCmd>
-	  Reco_tf.py --inputRDOFile=root://eosatlas//eos/atlas/atlascerngroupdisk/phys-rig/pileupSamples/mc12_8TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.digit.RDO.e1513_s1499_s1504_d700/RDO.01177879._000001.pool.root.1 --maxEvents=500 --autoConfiguration=everything --outputESDFile=myESD.pool.root --outputAODFile=myAOD.pool.root --outputTAGFile=myTAG.root --outputHISTFile=myHist.root --preExec='from PerfMonComps.PerfMonFlags import jobproperties as pmjp;pmjp.PerfMonFlags.doMallocMonitoring=True;pmjp.PerfMonFlags.doPostProcessing=True;pmjp.PerfMonFlags.doSemiDetailedMonitoringFullPrint=True;pmjp.PerfMonFlags.doExtraPrintouts=True'
-	</jobTransformCmd>
-	<group>TrfRecPerf_CheckFile_PerfMon</group>
-	<queue>long</queue>
-      </jobTransform>
     </jobList>
     
     <jobGroups>
@@ -111,7 +53,7 @@
         <keepFilePattern>ntuple*perfmon*</keepFilePattern>
         <keepFilePattern>pmb-callgrind*log</keepFilePattern>
         <keepFilePattern>callgrind*bz2</keepFilePattern>
-
+	<keepFilePattern>log.RAWtoESD</keepFilePattern>
       </jobGroup>
 
 
