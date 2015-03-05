@@ -5,7 +5,7 @@
       <package>Tools/LWHists</package>
       <timelimit>30</timelimit>
       <author>Thomas Kittelmann</author>
-      <mailto>thomas.kittelmann@cern.ch</mailto>
+      <mailto>atlas-srl-core-tools@cern.ch</mailto>
       <expectations>
          <successMessage>All enabled tests succesfully completed</successMessage>
          <errorMessage>ERROR</errorMessage>
@@ -17,7 +17,7 @@
       <package>Tools/LWHists</package>
       <timelimit>30</timelimit>
       <author>Thomas Kittelmann</author>
-      <mailto>thomas.kittelmann@cern.ch</mailto>
+      <mailto>atlas-srl-core-tools@cern.ch</mailto>
       <expectations>
          <successMessage>All enabled tests succesfully completed</successMessage>
          <errorMessage>ERROR</errorMessage>
@@ -29,7 +29,7 @@
       <package>Tools/LWHists</package>
       <timelimit>30</timelimit>
       <author>Thomas Kittelmann</author>
-      <mailto>thomas.kittelmann@cern.ch</mailto>
+      <mailto>atlas-srl-core-tools@cern.ch</mailto>
       <expectations>
          <successMessage>All enabled tests succesfully completed</successMessage>
          <errorMessage>ERROR</errorMessage>
