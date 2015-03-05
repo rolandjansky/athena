@@ -76,10 +76,10 @@ class TrigMuSuperEF: public virtual HLT::FexAlgo {
   void clearRoiCache();
 
   // run the standard chain of MS (possible stopping at that point), then CB
-  HLT::ErrorCode runStandardChain(const HLT::TriggerElement*, HLT::TriggerElement*, std::unique_ptr<xAOD::MuonContainer> muonContainerOwn);
+  HLT::ErrorCode runStandardChain(const HLT::TriggerElement*, HLT::TriggerElement*, std::unique_ptr<xAOD::MuonContainer>& muonContainerOwn);
   
   // run in combiner only mode
-  HLT::ErrorCode runCombinerOnly(const HLT::TriggerElement* inputTE, HLT::TriggerElement* TEout, std::unique_ptr<xAOD::MuonContainer> muonContainerOwn);
+  HLT::ErrorCode runCombinerOnly(const HLT::TriggerElement* inputTE, HLT::TriggerElement* TEout, std::unique_ptr<xAOD::MuonContainer>& muonContainerOwn);
 
   // run in caloTag mode
   HLT::ErrorCode runCaloTagOnly(const HLT::TriggerElement* inputTE, HLT::TriggerElement* TEout);
@@ -138,7 +138,8 @@ class TrigMuSuperEF: public virtual HLT::FexAlgo {
   void fillMonitoringVars( );
   void fillIDMonitoringVars( const ElementLinkVector<xAOD::TrackParticleContainer>& elv_idtrks );
   void fillCTMonitoringVars( const xAOD::TrackParticleContainer& idTrks );
-  
+  void fillCBMonitoringVars();
+
   void ResetTimers(std::vector<TrigTimer*>& timers);
 
   ToolHandle<ITrigMuonStandaloneTrackTool> m_TrigMuonEF_saTrackTool;
