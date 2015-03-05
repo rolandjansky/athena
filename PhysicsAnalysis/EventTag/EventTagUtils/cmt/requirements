@@ -28,12 +28,14 @@ use AthenaKernel                AthenaKernel-*                  Control
 use AtlasCLHEP                  AtlasCLHEP-*                    External
 
 use RecEvent                    RecEvent-*                      Reconstruction
-use Particle                    Particle-*                      Reconstruction
-use VxVertex                    VxVertex-*                      Tracking/TrkEvent
-use CaloEvent                   CaloEvent-*                     Calorimeter
 
-use LumiCalc              LumiCalc-*                LumiBlock 
-use LumiBlockData   	           LumiBlockData-*                 LumiBlock 
+use xAODTracking		xAODTracking-*                  Event/xAOD
+
+use xAODCaloEvent               xAODCaloEvent-*                 Event/xAOD
+
+
+use LumiCalc                    LumiCalc-*                      LumiBlock 
+use LumiBlockData   	        LumiBlockData-*                 LumiBlock 
 
 use TrigConfInterfaces         TrigConfInterfaces-*             Trigger/TrigConfiguration
 end_private
