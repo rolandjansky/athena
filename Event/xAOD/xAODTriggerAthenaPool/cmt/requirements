@@ -52,8 +52,8 @@ apply_pattern poolcnv typesWithNamespace="xAOD::MuonRoIContainer \
                              JetEtRoIAuxInfo.h \
                              EnergySumRoI.h \
                              EnergySumRoIAuxInfo.h \
-			     TrigCompositeContainer.h \
-			     TrigCompositeAuxContainer.h \
+                             TrigCompositeContainer.h \
+                             TrigCompositeAuxContainer.h \
                              TriggerMenuContainer.h \
                              TriggerMenuAuxContainer.h \
                              TrigConfKeys.h \

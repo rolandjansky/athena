@@ -18,7 +18,6 @@ xAODJetRoIAuxContainerCnv( ISvcLocator* svcLoc )
 xAOD::JetRoIAuxContainer*
 xAODJetRoIAuxContainerCnv::
 createPersistent( xAOD::JetRoIAuxContainer* trans ) {
-   std::cout << "xAODJetRoIAuxContainerCnv: createPersistent called" << std::endl;
    // Create a copy of the container:
    xAOD::JetRoIAuxContainer* result =
       new xAOD::JetRoIAuxContainer( *trans );
