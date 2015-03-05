@@ -11,8 +11,11 @@
 #include "TFile.h"
 #include "TH1.h"
 #include "HepMC/GenEvent.h"
+#include<cmath>
 
 #include<fstream>
+
+using namespace std;
 
 /// Filtering algorithm to sanity check HepMC event features.
 ///
@@ -74,6 +77,10 @@ public:
   int m_nonG4_energyCheckRate;
 
   std::ifstream G4file;
+  std::ifstream susyFile;
+  vector<int> m_G4pdgID_tab;
+  vector<int> m_SusyPdgID_tab;
+
   TruthHelper::IsGenNonInteracting nonint;
 
   /// @todo Can we use the GenAnalysis / AthHistoAlg methods for histo management?
