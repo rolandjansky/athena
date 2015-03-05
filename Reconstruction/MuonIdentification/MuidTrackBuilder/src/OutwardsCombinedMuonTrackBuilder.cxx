@@ -252,12 +252,12 @@ OutwardsCombinedMuonTrackBuilder::standaloneRefit (const Trk::Track& combinedTra
  
    bool addVertexRegion = true;  
     Amg::Vector3D		origin(0.,0.,0.);
-    AmgSymMatrix(3) * vertexRegionCovariance = new AmgSymMatrix(3);
-     vertexRegionCovariance->setZero();
-    (*vertexRegionCovariance)(0,0)		= vertex3DSigmaRPhi*vertex3DSigmaRPhi;
-    (*vertexRegionCovariance)(1,1)		= vertex3DSigmaRPhi*vertex3DSigmaRPhi;
-    (*vertexRegionCovariance)(2,2)		= vertex3DSigmaZ*vertex3DSigmaZ;
-    Trk::RecVertex* vertex			= new Trk::RecVertex(origin,*vertexRegionCovariance);
+    AmgSymMatrix(3)  vertexRegionCovariance;
+    vertexRegionCovariance.setZero();
+    vertexRegionCovariance(0,0)		= vertex3DSigmaRPhi*vertex3DSigmaRPhi;
+    vertexRegionCovariance(1,1)		= vertex3DSigmaRPhi*vertex3DSigmaRPhi;
+    vertexRegionCovariance(2,2)		= vertex3DSigmaZ*vertex3DSigmaZ;
+    Trk::RecVertex vertex(origin, vertexRegionCovariance);
     
 //    if(!combinedTrack.perigeeParameters()) return 0;
     int itsos = 0;
@@ -289,20 +289,53 @@ OutwardsCombinedMuonTrackBuilder::standaloneRefit (const Trk::Track& combinedTra
         }
       }
     }
-    for ( ; t != combinedTrack.trackStateOnSurfaces()->end(); ++t) {
-      itsos++;
-      if((**t).trackParameters()) {
-          if((**t).measurementOnTrack()) {
-            if(m_indetVolume->inside((**t).trackParameters()->position())) {
-              ATH_MSG_DEBUG( " skip ID measurement " << itsos );
-              continue;
-            }
-          } 
+//
+// add ID Eloss
+//
+      double Eloss = 0.;
+      for ( ; t != combinedTrack.trackStateOnSurfaces()->end(); ++t) {
+        itsos++;
+        if(!(**t).trackParameters()) continue;
+        if((**t).materialEffectsOnTrack()) {
+          if(!m_indetVolume->inside((**t).trackParameters()->position())) break;
+          double X0 = (**t).materialEffectsOnTrack()->thicknessInX0();
+          const Trk::MaterialEffectsOnTrack* meot = dynamic_cast<const Trk::MaterialEffectsOnTrack*>((**t).materialEffectsOnTrack());
+          if(meot) {
+            const Trk::EnergyLoss* energyLoss = meot->energyLoss();
+            if (energyLoss) {
+              Eloss += fabs(energyLoss->deltaE());
+              ATH_MSG_DEBUG("OutwardsCombinedMuonFit ID Eloss found r " << ((**t).trackParameters())->position().perp() << " z " << ((**t).trackParameters())->position().z() << " value " << energyLoss->deltaE() << " Eloss " << Eloss);
+	      const Trk::ScatteringAngles* scat = meot->scatteringAngles();
+	      if(scat) {
+		double sigmaDeltaPhi = scat->sigmaDeltaPhi();     
+		double sigmaDeltaTheta = scat->sigmaDeltaTheta();     
+		const Trk::EnergyLoss* energyLossNew = new Trk::EnergyLoss(energyLoss->deltaE(),energyLoss->sigmaDeltaE(),energyLoss->sigmaDeltaE(),energyLoss->sigmaDeltaE());
+		const Trk::ScatteringAngles* scatNew = new Trk::ScatteringAngles(0.,0.,sigmaDeltaPhi,sigmaDeltaTheta);
+		const Trk::Surface& surfNew = (**t).trackParameters()->associatedSurface();
+		std::bitset<Trk::MaterialEffectsBase::NumberOfMaterialEffectsTypes> meotPattern(0);
+		meotPattern.set(Trk::MaterialEffectsBase::EnergyLossEffects);
+		meotPattern.set(Trk::MaterialEffectsBase::ScatteringEffects);
+		const Trk::MaterialEffectsOnTrack*  meotNew = new Trk::MaterialEffectsOnTrack(X0, scatNew, energyLossNew, surfNew, meotPattern);
+		const Trk::TrackParameters* parsNew = ((**t).trackParameters())->clone();
+		std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePatternScat(0);
+		typePatternScat.set(Trk::TrackStateOnSurface::Scatterer);
+		const Trk::TrackStateOnSurface* newTSOS  = new Trk::TrackStateOnSurface(0, parsNew, 0, meotNew, typePatternScat);
+		trackStateOnSurfaces->push_back(newTSOS); 
+	      }
+	    }
+          }
+        }
       }
-      const Trk::TrackStateOnSurface* TSOS = const_cast<const Trk::TrackStateOnSurface*>((**t).clone());
-      trackStateOnSurfaces->push_back(TSOS);
-    }   
-    ATH_MSG_DEBUG( " trackStateOnSurfaces found " << trackStateOnSurfaces <<  " from total " << itsos );
+      ATH_MSG_DEBUG("OutwardsCombinedMuonFit Total ID Eloss " << Eloss << " nr of states " << itsos);
+
+// add Calo and MS TSOSs 
+
+      for ( ; t != combinedTrack.trackStateOnSurfaces()->end(); ++t) {
+        itsos++;
+        const Trk::TrackStateOnSurface* TSOS = const_cast<const Trk::TrackStateOnSurface*>((**t).clone());
+        trackStateOnSurfaces->push_back(TSOS);
+       }   
+       ATH_MSG_DEBUG( " trackStateOnSurfaces found " << trackStateOnSurfaces->size() <<  " from total " << itsos );
 
     Trk::Track* standaloneTrack = new Trk::Track(combinedTrack.info(), trackStateOnSurfaces, 0);
     standaloneTrack->info().setPatternRecognitionInfo(Trk::TrackInfo::MuidStandaloneRefit);
@@ -440,7 +473,8 @@ OutwardsCombinedMuonTrackBuilder::fit (const Trk::Track&		indetTrack,
        Trk::Track* newTrack = addIDMSerrors(fittedTrack);  
        if(newTrack) {
          Trk::Track* refittedTrack   = fit(*newTrack,false,Trk::muon);
-         delete newTrack;
+	 if(newTrack != fittedTrack)
+	   delete newTrack;
          if(refittedTrack) {
            if(refittedTrack->fitQuality()) {
              delete fittedTrack;
@@ -534,7 +568,7 @@ Trk::Track*  OutwardsCombinedMuonTrackBuilder::addIDMSerrors(Trk::Track* track) 
 //
 // returns a new Track
 //   
-    if(!m_addIDMSerrors) return 0;
+    if(!m_addIDMSerrors) return track;
 
     ATH_MSG_VERBOSE( " OutwardsCombinedMuonTrackBuilder addIDMSerrors to track ");
     Amg::Vector3D positionMS(0,0,0);
@@ -586,7 +620,7 @@ Trk::Track*  OutwardsCombinedMuonTrackBuilder::addIDMSerrors(Trk::Track* track) 
 
    if(itsosCaloFirst<0||itsosCaloLast<0) { 
      ATH_MSG_DEBUG( " addIDMSerrors keep original track ");
-     return 0;
+     return track;
    }
 // If no Calorimeter no IDMS uncertainties have to be propagated 
    positionCaloFirst = positionCaloFirst - positionMS;
@@ -614,11 +648,11 @@ Trk::Track*  OutwardsCombinedMuonTrackBuilder::addIDMSerrors(Trk::Track* track) 
               double sigmaDeltaTheta = sqrt((scat->sigmaDeltaTheta())*(scat->sigmaDeltaTheta()) + sigmaDeltaThetaIDMS2);     
               const Trk::EnergyLoss* energyLossNew = new Trk::EnergyLoss(0.,0.,0.,0.);
               const Trk::ScatteringAngles* scatNew = new Trk::ScatteringAngles(0.,0.,sigmaDeltaPhi,sigmaDeltaTheta);
-              Trk::Surface* surfNew = (**t).trackParameters()->associatedSurface().clone();
+              const Trk::Surface& surfNew = (**t).trackParameters()->associatedSurface();
               std::bitset<Trk::MaterialEffectsBase::NumberOfMaterialEffectsTypes> meotPattern(0);
               meotPattern.set(Trk::MaterialEffectsBase::EnergyLossEffects);
               meotPattern.set(Trk::MaterialEffectsBase::ScatteringEffects);
-              const Trk::MaterialEffectsOnTrack*  meotNew = new Trk::MaterialEffectsOnTrack(X0, scatNew, energyLossNew, *surfNew, meotPattern);
+              const Trk::MaterialEffectsOnTrack*  meotNew = new Trk::MaterialEffectsOnTrack(X0, scatNew, energyLossNew, surfNew, meotPattern);
               const Trk::TrackParameters* parsNew = ((**t).trackParameters())->clone();
               std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePatternScat(0);
               typePatternScat.set(Trk::TrackStateOnSurface::Scatterer);
@@ -646,10 +680,10 @@ Trk::Track*  OutwardsCombinedMuonTrackBuilder::addIDMSerrors(Trk::Track* track) 
 
 Trk::PseudoMeasurementOnTrack*
 OutwardsCombinedMuonTrackBuilder::vertexOnTrack(const Trk::TrackParameters*	parameters,
-      					        const Trk::RecVertex*		vertex) const
+      					        const Trk::RecVertex&		vertex) const
 {
     // create the corresponding PerigeeSurface, localParameters and covarianceMatrix
-    const Trk::PerigeeSurface surface(vertex->position());
+    const Trk::PerigeeSurface surface(vertex.position());
     Trk::LocalParameters localParameters;
     Amg::MatrixX covarianceMatrix;
     covarianceMatrix.setZero();
@@ -662,7 +696,7 @@ OutwardsCombinedMuonTrackBuilder::vertexOnTrack(const Trk::TrackParameters*	para
     jacobian(0,0)			= -ptInv*parameters->momentum().y();
     jacobian(0,1)			=  ptInv*parameters->momentum().x();
     jacobian(1,2)			=  1.0;
-    const Amg::MatrixX& cov         =  vertex->covariancePosition();
+    const Amg::MatrixX& cov         =  vertex.covariancePosition();
     covarianceMatrix		=  cov.similarity(jacobian);
     
     
