@@ -889,7 +889,7 @@ HLT::ErrorCode TrigEgammaRec::hltExecute( const HLT::TriggerElement* inputTE,
                 }
             }
             electron->setTrackParticleLinks( el_trackLinks);
-
+            electron->setCharge(electron->trackParticle()->charge());
             //Set DeltaEta, DeltaPhi , DeltaPhiRescaled
             float deltaEta = static_cast<float>(egRec->deltaEta(0));
             float deltaPhi = static_cast<float>(egRec->deltaPhi(0));
@@ -1107,31 +1107,6 @@ HLT::ErrorCode TrigEgammaRec::hltExecute( const HLT::TriggerElement* inputTE,
             ATH_MSG_DEBUG(" REGTEST: etcone40   =  " << getIsolation_etcone40(eg));
             if (timerSvc()) m_timerIsoTool2->stop(); //timer
         }
-        if(m_doTrackIsolation){
-            ATH_MSG_DEBUG("Running TrackIsolationTool for Photons");
-            if (timerSvc()) m_timerIsoTool1->start(); //timer
-            if(m_egTrackIso.size() != 0) {
-                // Track Isolation types
-                std::map<std::string,TrackIsoHelp>::iterator itt = m_egTrackIso.begin(), ittE = m_egTrackIso.end();
-                for (; itt != ittE; itt++) {
-                    TrackIsoHelp isoH = itt->second;
-                    std::string flav  = itt->first;
-                    const std::set<const xAOD::TrackParticle*> tracksToExclude = xAOD::EgammaHelpers::getTrackParticles(eg, m_useBremAssoc); // For GSF this may need to be property
-                    xAOD::Vertex *vx = 0;
-
-                    // Need the decorate methods from IsolationTool
-                    bool bsc = m_trackIsolationTool->decorateParticle(*eg, isoH.help.isoTypes, isoH.CorrList, vx, &tracksToExclude,pTrackParticleContainer);
-                    if (!bsc) 
-                        ATH_MSG_WARNING("Call to TrackIsolationTool failed for flavour " << flav);
-                }
-                ATH_MSG_DEBUG(" REGTEST: ptcone20   =  " << getIsolation_ptcone20(eg));
-                ATH_MSG_DEBUG(" REGTEST: ptcone30   =  " << getIsolation_ptcone30(eg));
-                ATH_MSG_DEBUG(" REGTEST: ptcone40   =  " << getIsolation_ptcone40(eg));
-
-            }
-            if (timerSvc()) m_timerIsoTool1->stop(); //timer     
-        }
-       
     
         // Particle ID
         if (timerSvc()) m_timerPIDTool3->start(); //timer
@@ -1210,26 +1185,27 @@ void TrigEgammaRec::PrintElectron(xAOD::Electron *eg){
     //Cluster and ShowerShape info
     //REGTEST printout
     if (eg) {
-        msg() << MSG::DEBUG << " REGTEST: egamma energy: " << eg->e() << endreq;
-        msg() << MSG::DEBUG << " REGTEST: egamma eta: " << eg->eta() << endreq;
-        msg() << MSG::DEBUG << " REGTEST: egamma phi: " << eg->phi() << endreq;
+        msg() << MSG::DEBUG << " REGTEST: electron energy: " << eg->e() << endreq;
+        msg() << MSG::DEBUG << " REGTEST: electron eta: " << eg->eta() << endreq;
+        msg() << MSG::DEBUG << " REGTEST: electron phi: " << eg->phi() << endreq;
+        ATH_MSG_DEBUG(" REGTEST: electron charge " << eg->charge());
     } else{
-        msg() << MSG::DEBUG << " REGTEST: problems with egamma pointer" << endreq;
+        msg() << MSG::DEBUG << " REGTEST: problems with electron pointer" << endreq;
     }
 
     ATH_MSG_DEBUG(" REGTEST: cluster variables");
     if (eg->caloCluster()) {
-        msg() << MSG::DEBUG << " REGTEST: egamma cluster transverse energy: " << eg->caloCluster()->et() << endreq;
-        msg() << MSG::DEBUG << " REGTEST: egamma cluster eta: " << eg->caloCluster()->eta() << endreq;
-        msg() << MSG::DEBUG << " REGTEST: egamma cluster phi: " << eg->caloCluster()->phi() << endreq;
+        msg() << MSG::DEBUG << " REGTEST: electron cluster transverse energy: " << eg->caloCluster()->et() << endreq;
+        msg() << MSG::DEBUG << " REGTEST: electron cluster eta: " << eg->caloCluster()->eta() << endreq;
+        msg() << MSG::DEBUG << " REGTEST: electron cluster phi: " << eg->caloCluster()->phi() << endreq;
         double tmpeta = -999.;
         double tmpphi = -999.;
         eg->caloCluster()->retrieveMoment(xAOD::CaloCluster::ETACALOFRAME,tmpeta);
         eg->caloCluster()->retrieveMoment(xAOD::CaloCluster::PHICALOFRAME,tmpphi); 
-        ATH_MSG_DEBUG(" REGTEST: egamma Calo-frame coords. etaCalo = " << tmpeta); 
-        ATH_MSG_DEBUG(" REGTEST: egamma Calo-frame coords. phiCalo = " << tmpphi);
+        ATH_MSG_DEBUG(" REGTEST: electron Calo-frame coords. etaCalo = " << tmpeta); 
+        ATH_MSG_DEBUG(" REGTEST: electron Calo-frame coords. phiCalo = " << tmpphi);
     } else{
-        msg() << MSG::DEBUG << " REGTEST: problems with egamma cluster pointer" << endreq;
+        msg() << MSG::DEBUG << " REGTEST: problems with electron cluster pointer" << endreq;
     }
 
     ATH_MSG_DEBUG(" REGTEST: EMShower variables");
@@ -1284,26 +1260,26 @@ void TrigEgammaRec::PrintPhoton(xAOD::Photon *eg){
     //Cluster and ShowerShape info
     //REGTEST printout
     if (eg) {
-        msg() << MSG::DEBUG << " REGTEST: egamma energy: " << eg->e() << endreq;
-        msg() << MSG::DEBUG << " REGTEST: egamma eta: " << eg->eta() << endreq;
-        msg() << MSG::DEBUG << " REGTEST: egamma phi: " << eg->phi() << endreq;
+        msg() << MSG::DEBUG << " REGTEST: photon energy: " << eg->e() << endreq;
+        msg() << MSG::DEBUG << " REGTEST: photon eta: " << eg->eta() << endreq;
+        msg() << MSG::DEBUG << " REGTEST: photon phi: " << eg->phi() << endreq;
     } else{
-        msg() << MSG::DEBUG << " REGTEST: problems with egamma pointer" << endreq;
+        msg() << MSG::DEBUG << " REGTEST: problems with photon pointer" << endreq;
     }
 
     ATH_MSG_DEBUG(" REGTEST: cluster variables");
     if (eg->caloCluster()) {
-        msg() << MSG::DEBUG << " REGTEST: egamma cluster transverse energy: " << eg->caloCluster()->et() << endreq;
-        msg() << MSG::DEBUG << " REGTEST: egamma cluster eta: " << eg->caloCluster()->eta() << endreq;
-        msg() << MSG::DEBUG << " REGTEST: egamma cluster phi: " << eg->caloCluster()->phi() << endreq;
+        msg() << MSG::DEBUG << " REGTEST: photon cluster transverse energy: " << eg->caloCluster()->et() << endreq;
+        msg() << MSG::DEBUG << " REGTEST: photon cluster eta: " << eg->caloCluster()->eta() << endreq;
+        msg() << MSG::DEBUG << " REGTEST: photon cluster phi: " << eg->caloCluster()->phi() << endreq;
         double tmpeta = -999.;
         double tmpphi = -999.;
         eg->caloCluster()->retrieveMoment(xAOD::CaloCluster::ETACALOFRAME,tmpeta);
         eg->caloCluster()->retrieveMoment(xAOD::CaloCluster::PHICALOFRAME,tmpphi); 
-        ATH_MSG_DEBUG(" REGTEST: egamma Calo-frame coords. etaCalo = " << tmpeta); 
-        ATH_MSG_DEBUG(" REGTEST: egamma Calo-frame coords. phiCalo = " << tmpphi); 
+        ATH_MSG_DEBUG(" REGTEST: photon Calo-frame coords. etaCalo = " << tmpeta); 
+        ATH_MSG_DEBUG(" REGTEST: photon Calo-frame coords. phiCalo = " << tmpphi); 
     } else{
-        msg() << MSG::DEBUG << " REGTEST: problems with egamma cluster pointer" << endreq;
+        msg() << MSG::DEBUG << " REGTEST: problems with photon cluster pointer" << endreq;
     }
 
     ATH_MSG_DEBUG(" REGTEST: EMShower variables");
