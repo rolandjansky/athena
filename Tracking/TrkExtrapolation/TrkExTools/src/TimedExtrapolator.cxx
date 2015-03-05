@@ -99,7 +99,6 @@ Trk::TimedExtrapolator::TimedExtrapolator(const std::string& t, const std::strin
   m_highestVolume(0),
   m_resolveActive(false),
   m_resolveMultilayers(true),
-  m_muonEntrance(0),
   m_returnPassiveLayers(false),
   m_robustSampling(true),
   m_path(PathLimit(0.,0)),
@@ -909,7 +908,7 @@ const Trk::TrackParameters*  Trk::TimedExtrapolator::extrapolateToVolumeWithPath
 	 } // ------------------------------------------------- Fatras mode off -----------------------------------
 
          // TODO : debug the retrieval of next layer
-	 if ( !m_robustSampling && !m_currentStatic->geometrySignature()==Trk::MS ) { 
+	 if ( !m_robustSampling && m_currentStatic->geometrySignature()!=Trk::MS ) { 
 	   if (m_navigLays[index].first && m_navigLays[index].first->confinedLayers()) {
 	     const Trk::Layer* newLayer = nextLayer->nextLayer(nextPar->position(),dir*nextPar->momentum().normalized());
 	     if (newLayer && newLayer!=nextLayer) {
@@ -1240,6 +1239,8 @@ const Trk::TrackParameters*  Trk::TimedExtrapolator::transportNeutralsWithPathLi
 
   // initialize hit vector
   m_hitVector = hitInfo;
+
+  m_parametersAtBoundary.resetBoundaryInformation();
  
   // if no input volume, define as highest volume
   //const Trk::TrackingVolume* destVolume = boundaryVol ? boundaryVol : m_navigator->highestVolume();
@@ -2026,7 +2027,7 @@ Trk::BoundaryTrackParameters Trk::TimedExtrapolator::transportInAlignableTV(cons
     // boundary check
     Amg::Vector3D gp = currPar->position()+dist*dir*currPar->momentum().normalized();
     //std::cout<<"alignable volume boundary:"<< ib<<","<<dist<<","<< surf.isOnSurface(gp,true,m_tolerance,m_tolerance)<<std::endl;    
-    if ( surf.isOnSurface(gp,true,m_tolerance,m_tolerance) ) {
+    if ( dist>m_tolerance && surf.isOnSurface(gp,true,m_tolerance,m_tolerance) ) {
       const Trk::TrackingVolume* attachedVol =  (bounds[ib].getPtr())->attachedVolume(gp,currPar->momentum(),dir);
 
       if ( attachedVol && !(attachedVol->inside(gp+0.01*dir*currPar->momentum().normalized(),m_tolerance) ) ) {
@@ -2051,6 +2052,8 @@ Trk::BoundaryTrackParameters Trk::TimedExtrapolator::transportInAlignableTV(cons
     }
   } // end loop over boundaries
 
+  //if (nextVol) std::cout <<"nextVol, number of exit solutions:"<< nextVol->volumeName()<<","<<m_trStaticBounds.size()<< std::endl;
+
   if (!m_trStaticBounds.size()) {
 
     ATH_MSG_ERROR("exit from alignable volume "<<aliTV->volumeName()<<" not resolved, aborting");
@@ -2059,6 +2062,7 @@ Trk::BoundaryTrackParameters Trk::TimedExtrapolator::transportInAlignableTV(cons
   } else if (m_trStaticBounds.size()>1) {  // hit edge ?
     Amg::Vector3D gp = currPar->position()+(m_trStaticBounds[0].distance+1.)*dir*currPar->momentum().normalized();
     nextVol =  m_navigator->trackingGeometry()->lowestStaticTrackingVolume(gp); 
+    //std::cout <<"nextVol resolved by test position:"<< nextVol->volumeName()<< std::endl;
   }
 
   // exit from the volume may coincide with the last bin boundary - leave 10 microns marge  
