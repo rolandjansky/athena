@@ -97,7 +97,7 @@ HLT::ErrorCode TrigMuonEFFSRoiMaker::hltExecute(std::vector<std::vector<HLT::Tri
   // Loop on container & create ROIs.
   for(auto muon : *muonContainer) {
 
-    const xAOD::TrackParticle* saTrack = muon->trackParticle(xAOD::Muon::TrackParticleType::MuonSpectrometerTrackParticle);
+    const xAOD::TrackParticle* saTrack = muon->trackParticle(xAOD::Muon::TrackParticleType::ExtrapolatedMuonSpectrometerTrackParticle);
     if(!saTrack) {
       ATH_MSG_WARNING("No extrapolated track, skip this muon");
       continue;
