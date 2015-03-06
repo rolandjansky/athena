@@ -151,10 +151,13 @@ class trigRecoExecutor(athenaExecutor):
                     msg.info('Renaming %s to %s' % (fileNameDbg[0], oldOutputFileNameDbg) )                    
                     os.rename(fileNameDbg[0], oldOutputFileNameDbg)
 
-                #do debug_stream preRun step
-                dbgStream.dbgPreRun(inputFiles['BS_RDO'],fileNameDbg)
-                
-
+                #do debug_stream preRun step and get asetup string from debug_stream input files
+                dbgAsetupString  = dbgStream.dbgPreRun(inputFiles['BS_RDO'],fileNameDbg)
+                # setup asetup from debug_stream if no --asetup r2b:string was given and is not running with tzero/software/patches as TestArea
+                if asetupString == None and dbgAsetupString != None : 
+                    asetupString = dbgAsetupString
+                    msg.info('Will use asetup string for debug_stream analsys %s' % dbgAsetupString)
+                    
         #call athenaExecutor parent as the above overrides what athenaExecutor would have done 
         super(athenaExecutor, self).preExecute(input, output)
         

@@ -164,7 +164,7 @@ def addTriggerArgs(parser):
                         help='Trigger Configuration String.', group='Trigger')
     parser.add_argument('--dumpOptions', type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=True),
                         help='For testing dump the options athenaHLT has loaded', group='Trigger')
-    parser.add_argument('--precommand', nargs='+', type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True),
+    parser.add_argument('--precommand', nargs='+', type=trfArgClasses.argFactory(trfArgClasses.argList, runarg=True),
                         help='precommand for athenaHLT aka -c', group='Trigger')
     
 
@@ -182,9 +182,9 @@ def addTriggerDBArgs(parser):
                         help='db-type', group='TriggerDB')
     parser.add_argument('--db-server', type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True),
                         help='db-server', group='TriggerDB')
-    parser.add_argument('--db-smkey', type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True),
+    parser.add_argument('--db-smkey', type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True),
                         help='db-smkey', group='TriggerDB')
-    parser.add_argument('--db-hltpskey', type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True),
+    parser.add_argument('--db-hltpskey', type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True),
                         help='db-hltpskey', group='TriggerDB')
     parser.add_argument('--db-extra', type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True),
                         help='db-extra', group='TriggerDB')
