@@ -3,7 +3,7 @@
 ## @package PyJobTransforms.trfArgClasses
 # @brief Transform argument class definitions
 # @author atlas-comp-transforms-dev@cern.ch
-# @version $Id: trfArgClasses.py 648278 2015-02-19 18:31:02Z graemes $
+# @version $Id: trfArgClasses.py 652369 2015-03-06 21:56:11Z graemes $
 
 import argparse
 import bz2
@@ -1330,7 +1330,7 @@ class argHITSFile(argPOOLFile):
         
         ## @note Modify argdict
         mySubstepName = 'HITSMerge_AthenaMP'
-        myargdict = self._mergeArgs(argdict, copyArgs=['geometryVersion', 'conditionsTag', 'preExec', 'postExec', 'preInclude', 'postInclude'])
+        myargdict = self._mergeArgs(argdict)
         
         from PyJobTransforms.trfExe import athenaExecutor, executorConfig
         myDataDictionary = {'HITS' : argHITSFile(inputs, type=self.type, io='input'),
