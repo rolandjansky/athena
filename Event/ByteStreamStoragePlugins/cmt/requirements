@@ -19,6 +19,9 @@ apply_pattern cmake_add_command command="find_package(CASTOR COMPONENTS rfio)"
 # Specify to cmake that this package depends on Xrootd. Transparent to CMT
 apply_pattern cmake_add_command command="find_package(Xrootd COMPONENTS Posix)"
 
+# Specify to cmake that it should ignore the -import=AtlasDCACHE for the fReaddCache library
+apply_pattern cmake_ignore_import library=fReaddCache import=AtlasDCACHE
+
 include_path none
 
 # Castor plugin
@@ -42,9 +45,6 @@ macro fReadXRootD_shlibflags  "$(xrootd_linkopts) -lXrdPosixPreload -rdynamic $(
 
 # dCache plugin
 
-# Specify to cmake that the AtlasDCACHE import should be ignored. Transparent to CMT
-apply_pattern cmake_ignore_import library=fReaddCache import=AtlasDCACHE
-
 macro dCacheLibFiles "fReaddCache.cxx"
 library fReaddCache $(dCacheLibFiles)  -import=AtlasDCACHE
 apply_pattern named_linked_library library="fReaddCache"
@@ -53,6 +53,8 @@ macro fReaddCache_shlibflags  "$(dcache_client_linkopts) -rdynamic $(tdaqc_linko
 
 
 private
+
+macro_append includes " -I/usr/include/shift "
 
 apply_tag allowUndefined
 
