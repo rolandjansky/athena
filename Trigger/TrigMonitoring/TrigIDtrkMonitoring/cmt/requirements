@@ -40,8 +40,6 @@ use RecoToolInterfaces     	RecoToolInterfaces-*    	Reconstruction/RecoTools
 use egammaEvent           	egammaEvent-*           	Reconstruction/egamma
 use egammaInterfaces      	egammaInterfaces-*      	Reconstruction/egamma
 
-use InDetBeamSpotService    	InDetBeamSpotService-*          InnerDetector/InDetConditions
-
 # =======================================================================
 
 private
@@ -54,6 +52,8 @@ apply_tag ROOTTableLibs
 
 use EventInfo             	EventInfo-*             	Event
 use TrkTrack              	TrkTrack-*              	Tracking/TrkEvent
+
+use InDetBeamSpotService      InDetBeamSpotService-*          InnerDetector/InDetConditions
 
 # =====================================================================
 

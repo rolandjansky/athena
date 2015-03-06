@@ -10,30 +10,7 @@ def TrigIDtrkMonitoringTool():
 
 	from AthenaCommon.AppMgr import ToolSvc
 
-       
-	# Primary Vertex Tool
-	from TrigIDtrkMonitoring.TrigIDtrkMonitoringConf import HLTIDpvtxTool
-	HLTIDpvtx = HLTIDpvtxTool(name               = 'HLTIDpvtx',
-				  histoPathBase      = "/Trigger/HLT");
-
-	#HLTIDpvtx.ChainName                        = "InDetMon_???"
-	#HLTIDpvtx.ChainName                        = "L2_b10_IDTrkNoCut"
-	#HLTIDpvtx.ChainName                        = "L2_b10_j30_a4tc_EFFS_IDTrkNoCut"
-	#HLTIDpvtx.ChainName                        = "L2_b50_NoCut_j50_c4cchad"
-	#HLTIDpvtx.ChainName                        = "EF_b10_IDTrkNoCut"
-	#HLTIDpvtx.ChainName                        = "EF_b10_j30_a4tc_EFFS_IDTrkNoCut"
-	HLTIDpvtx.ChainName                        = "EF_b55_NoCut_j55_a4tchad"
-	#HLTIDpvtx.OnlinePrimaryVertexContainerName = "L2BjetFex"
-	HLTIDpvtx.OnlinePrimaryVertexContainerName = "PrimVx"
-	HLTIDpvtx.OnlineEfficiancyRangeCutX         = 0.01 # cut in mm
-	HLTIDpvtx.OnlineEfficiancyRangeCutY         = 0.01
-	HLTIDpvtx.OnlineEfficiancyRangeCutZ         = 0.01
-
-	ToolSvc += HLTIDpvtx;
-	list = [ "HLTIDpvtxTool/HLTIDpvtx" ];
-
-
-
+	list = []
 
 	if not 'rec' in dir():
 		from RecExConfig.RecFlags  import rec
@@ -69,7 +46,7 @@ def TrigIDtrkMonitoringTool():
 		tidacos = TrigTestBase(name = "IDCosmicMonTool",
 					histoPathBase = "/Trigger/HLT")
 		tidacos.AnalysisConfig = "Tier0"
-		tidacos.SliceTag = "HLT/IDMonCosmic"
+		tidacos.SliceTag = "HLT/TRIDCosmic"
 		# tidacos.OutputLevel = DEBUG
 		tidacos.ntupleChainNames += [
 			"Offline",
@@ -86,7 +63,7 @@ def TrigIDtrkMonitoringTool():
 		tidabase = TrigTestBase(name = "IDMonTool",
 					histoPathBase = "/Trigger/HLT")
 		tidabase.AnalysisConfig = "Tier0"
-		tidabase.SliceTag = "HLT/IDMon"
+		tidabase.SliceTag = "HLT/TRIDMon"
 		# tidabase.OutputLevel = DEBUG
 		tidabase.ntupleChainNames += [
 			"Offline",
@@ -106,7 +83,7 @@ def TrigIDtrkMonitoringTool():
 		tidatool = TrigTestBase(name = "TIDATool",
 					histoPathBase = "/Trigger/HLT")
 		tidatool.AnalysisConfig = "Tier0"
-		tidatool.SliceTag = "HLT/IDMonTest"
+		tidatool.SliceTag = "HLT/TRIDMonTest"
 		# tidatool.OutputLevel = DEBUG
 		tidatool.ntupleChainNames += [
 			"Offline",
