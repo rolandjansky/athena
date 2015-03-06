@@ -61,7 +61,10 @@ StatusCode EgammaAllFex::execute(xAOD::TrigEMCluster &rtrigEmCluster,
   double totalEnergyEM = 0;
   CaloSampling::CaloSample samp;
 
-  ATH_MSG_DEBUG( "in execute(TrigEMCluster&)" );
+#ifndef NDEBUG
+  if ( msg().level() <= MSG::DEBUG ) 
+	  msg() << MSG::INFO << "in execute(TrigEMCluster&)" << endreq;
+#endif
 
 	// Time to access RegionSelector
 

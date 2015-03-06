@@ -22,7 +22,7 @@
 
 #include "IRegionSelector/IRoiDescriptor.h"
 
-inline double proxim(double b,double a){ return b+2.*M_PI*round((a-b)*(1./(2.*M_PI))) ;}
+inline double proxim(double b,double a){ return b+2.*M_PI*round((a-b)/(2.*M_PI)) ;}
 
 
 EgammaSamp1Fex::EgammaSamp1Fex(const std::string & type, const std::string & name, 
@@ -50,7 +50,11 @@ StatusCode EgammaSamp1Fex::execute(xAOD::TrigEMCluster &rtrigEmCluster,
         if ( m_caloDDE )
           cluster_in_barrel = m_caloDDE->is_lar_em_barrel();
 
-        ATH_MSG_DEBUG( "in execute(TrigEMCluster &)" );
+#ifndef NDEBUG
+  if ( msg().level() <= MSG::DEBUG ) 
+	  msg() << MSG::INFO << "in execute(TrigEMCluster &)" << endreq;
+#endif
+
 
         // Time to access RegionSelector
         if (!m_timersvc.empty()) m_timer[1]->start();
@@ -113,8 +117,8 @@ StatusCode EgammaSamp1Fex::execute(xAOD::TrigEMCluster &rtrigEmCluster,
    z_phimax = energyPhi+(5.0*0.09817477/4.0)/2.0;
   }
   
-  double z_eta = z_etamin + (z_etamax - z_etamin)*0.5;
-  double z_phi = z_phimin + (z_phimax - z_phimin)*0.5;
+  double z_eta = z_etamin + (z_etamax - z_etamin)/2.0;
+  double z_phi = z_phimin + (z_phimax - z_phimin)/2.0;
 
   // Make sure these boundaries are valid
   
@@ -144,7 +148,6 @@ StatusCode EgammaSamp1Fex::execute(xAOD::TrigEMCluster &rtrigEmCluster,
       if(z_etamin>=etareg[ir] && z_etamax<=etareg[ir+1]) icrk=0; 
     }
   }
-  const double inv_dgra = dgra != 0 ? 1. / dgra : 1;
 
   // end SRA modification
 
@@ -154,7 +157,7 @@ StatusCode EgammaSamp1Fex::execute(xAOD::TrigEMCluster &rtrigEmCluster,
   double etanew;
   double aeta = fabs(z_eta); 
   if (aeta <= 1.4) {
-    strip_border = (int)rint(aeta*inv_dgra);
+    strip_border = (int)rint(aeta/dgra);
     // this is -0.5 in atrecon: qgcshap.F ..   Makes more sense to be +0.5
     etanew = ((double)strip_border - 0.5)*dgra;
   }
@@ -162,16 +165,16 @@ StatusCode EgammaSamp1Fex::execute(xAOD::TrigEMCluster &rtrigEmCluster,
     etanew = -99.;
   }
   if (aeta <= 1.8) {
-    strip_border = (int)rint(aeta*inv_dgra);
+    strip_border = (int)rint(aeta/dgra);
     // this is -0.5 in atrecon: qgcshap.F ..   Makes more sense to be +0.5
     etanew = ((double)strip_border - 0.5)*dgra;
   }
   else if (aeta <= 2.0) {
-    strip_border = (int)rint((aeta-1.8)*inv_dgra);
+    strip_border = (int)rint((aeta-1.8)/dgra);
     etanew = 1.8 + ((double)strip_border - 0.5)*dgra;
   }
   else if (aeta <= 2.4) {
-    strip_border = (int)rint((aeta-2.0)*inv_dgra);
+    strip_border = (int)rint((aeta-2.0)/dgra);
     etanew = 2.0 + ((double)strip_border - 0.5)*dgra;
   }
   else {
@@ -188,27 +191,26 @@ StatusCode EgammaSamp1Fex::execute(xAOD::TrigEMCluster &rtrigEmCluster,
   if((icrk==1) && (imax!=-9)){
     if(imax>0 && z_etamin>etareg[imax-1] && z_etamin<=etareg[imax]){
       dgra1 = etagra[imax-1]; 
-      ibin=(int)rint((etareg[imax]+0.5*dgra-etanew)*inv_dgra)+20; 
+      ibin=(int)rint((etareg[imax]+0.5*dgra-etanew)/dgra)+20; 
       iadd=0; 
     } else{
       if(imax<4 && z_etamax>etareg[imax+1] && z_etamax<=etareg[imax+2]) {
 	dgra1 = etagra[imax+1]; 
-	ibin = (int)rint((etareg[imax+1]-0.5*dgra-etanew)*inv_dgra)+20; 
+	ibin = (int)rint((etareg[imax+1]-0.5*dgra-etanew)/dgra)+20; 
 	iadd=1; 
       }
     }
     if ( imax==0 ) {
 		dgra1 = etagra[0];
-		ibin=(int)rint((etareg[0]+0.5*dgra-etanew)*inv_dgra)+20;
+		ibin=(int)rint((etareg[0]+0.5*dgra-etanew)/dgra)+20;
 		iadd=1;
     }
     if ( imax==4 ) {
 		 dgra1 = etagra[4];
-		 ibin = (int)rint((etareg[5]-0.5*dgra-etanew)*inv_dgra)+20; 
+		 ibin = (int)rint((etareg[5]-0.5*dgra-etanew)/dgra)+20; 
 		 iadd=0;
     }
   }
-  const double inv_dgra1 = dgra1 != 0 ? 1. / dgra1 : 1;
   
   // end SRA mod
 
@@ -248,19 +250,19 @@ StatusCode EgammaSamp1Fex::execute(xAOD::TrigEMCluster &rtrigEmCluster,
 	  if (phi_cell >= z_phimin && phi_cell <= z_phimax) {
 	    if(icrk == 0){
 	      // single region
-	      ieta = (int)rint((eta_cell-etanew)*inv_dgra)+20; 
+	      ieta = (int)rint((eta_cell-etanew)/dgra)+20; 
 	      // correction for eta=0 spacing
               if ( signals && eta_cell < 0 ) 
-		ieta=(int)rint((eta_cell-etanew+0.007)*inv_dgra)+20;
+		ieta=(int)rint((eta_cell-etanew+0.007)/dgra)+20;
 	    } else {
 	      if(eta_cell>etareg[imax] && eta_cell<etareg[imax+1])
 		{ 
 		  // same region 
-		  ieta = (int)rint((eta_cell-etanew)*inv_dgra)+20; 
+		  ieta = (int)rint((eta_cell-etanew)/dgra)+20; 
 		} else{
 		  // different region 
 		  ieta =
-		    (int)rint((eta_cell-etareg[imax+iadd]-(0.5-iadd)*dgra1)*inv_dgra1)+ibin;
+		    (int)rint((eta_cell-etareg[imax+iadd]-(0.5-iadd)*dgra1)/dgra1)+ibin;
 		}
 	    } //  icrk==0 
 	    
@@ -319,7 +321,7 @@ StatusCode EgammaSamp1Fex::execute(xAOD::TrigEMCluster &rtrigEmCluster,
   double wtot = 0.;
   double etot = 0.;
   double wstot = -9999.;
-  double wstot_deta = (z_etamax-z_etamin)*0.5;
+  double wstot_deta = (z_etamax-z_etamin)/2.0;
   double eta_center = z_etacell[z_ncmax];
   if ( getCaloDetDescrElement() != 0 ) {
     eta_center = getCaloDetDescrElement()->eta();
@@ -356,7 +358,7 @@ StatusCode EgammaSamp1Fex::execute(xAOD::TrigEMCluster &rtrigEmCluster,
   }
 
 
-  if ((z_emax + z_esec1) < 0.) z_emax = -(100./98.)* z_esec1;
+  if ((z_emax + z_esec1) < 0.) z_emax = -100.* z_esec1 / 98.;
 
   // do frac73 calculation: sum energies +-3 strips
   // and +-1 strip around highest energy strip
