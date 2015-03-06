@@ -5,7 +5,7 @@
 ## @Package test_trfArgClasses.py
 #  @brief Unittests for test_trfArgClasses.py
 #  @author graeme.andrew.stewart@cern.ch
-#  @version $Id: test_trfArgClasses.py 630256 2014-11-21 18:04:42Z graemes $
+#  @version $Id: test_trfArgClasses.py 648355 2015-02-20 08:52:51Z graemes $
 #  @note Tests of ATLAS specific file formats moved to test_trfArgClassesATLAS.py
 
 import unittest
@@ -370,7 +370,7 @@ class argSteeringTests(unittest.TestCase):
     def test_steeringAlias(self):
         steer = argSubstepSteering('doRDO_TRIG')
         self.assertEqual(len(steer.value), 1)
-        self.assertEqual(steer.value, {'RAWtoESD': [('in', '-', 'RDO'), ('in', '+', 'RDO_TRIG')]})
+        self.assertEqual(steer.value, {'RAWtoESD': [('in', '-', 'RDO'), ('in', '+', 'RDO_TRIG'), ('in', '-', 'BS')]})
 
 
 class argFileTests(unittest.TestCase):

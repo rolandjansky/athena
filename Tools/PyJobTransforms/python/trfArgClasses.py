@@ -3,7 +3,7 @@
 ## @package PyJobTransforms.trfArgClasses
 # @brief Transform argument class definitions
 # @author atlas-comp-transforms-dev@cern.ch
-# @version $Id: trfArgClasses.py 634461 2014-12-08 15:00:36Z graemes $
+# @version $Id: trfArgClasses.py 652369 2015-03-06 21:56:11Z graemes $
 
 import argparse
 import bz2
@@ -1330,7 +1330,7 @@ class argHITSFile(argPOOLFile):
         
         ## @note Modify argdict
         mySubstepName = 'HITSMerge_AthenaMP'
-        myargdict = self._mergeArgs(argdict, copyArgs=['geometryVersion', 'conditionsTag', 'preExec', 'postExec', 'preInclude', 'postInclude'])
+        myargdict = self._mergeArgs(argdict)
         
         from PyJobTransforms.trfExe import athenaExecutor, executorConfig
         myDataDictionary = {'HITS' : argHITSFile(inputs, type=self.type, io='input'),
@@ -1975,7 +1975,16 @@ class argSubstepFloat(argSubstep):
 
 ## @brief Special argument class to hold steering information
 class argSubstepSteering(argSubstep):
-    steeringAlises = {'doRDO_TRIG': {'RAWtoESD': [('in', '-', 'RDO'), ('in', '+', 'RDO_TRIG')]}}
+    # This singleton is where we define some aliases for common production
+    # usecases of steering. 
+    # "no" - a convenience null option for production managers, does nothing
+    # "doRDO_TRIG" - run split trigger for Reco_tf and friends
+    # "afterburn" - run the B decay afterburner for event generation
+    steeringAlises = {
+                      'no': {},
+                      'doRDO_TRIG': {'RAWtoESD': [('in', '-', 'RDO'), ('in', '+', 'RDO_TRIG'), ('in', '-', 'BS')]},
+                      'afterburn': {'generate': [('out', '-', 'EVNT')]}, 
+                      }
     
     # Reset getter
     @property
