@@ -55,13 +55,14 @@ if EventTagFlags.doTrigger():
     except Exception:
         print traceback.format_exc() 
         print "ERROR could not load GlobalTriggerTagBuilder_jobOptions.py"
-"""if EventTagFlags.doRawSummary():
+
+if EventTagFlags.doRawSummary():
     try:
         include( "EventTagAlgs/RawInfoSummaryTagBuilder_jobOptions.py" )
     except Exception:
         print traceback.format_exc() 
         print "ERROR could not load RawInfoSummaryTagBuilder_jobOptions.py"
-"""
+
 """
 if EventTagFlags.doAnalysis():
     try:
