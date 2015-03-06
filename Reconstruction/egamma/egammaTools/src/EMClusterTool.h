@@ -3,7 +3,7 @@
 */
 
 #ifndef EGAMMATOOLS_EMCLUSTERTOOL_H
-#define EGAMMATOOLs_EMCLUSTERTOOL_H
+#define EGAMMATOOLS_EMCLUSTERTOOL_H
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
@@ -77,6 +77,9 @@ class EMClusterTool : public egammaBaseTool, virtual public IEMClusterTool {
   /** @brief Name of the output cluster container **/
   std::string m_outputClusterContainerName;
 
+  /** @brief Name of the output cluster container for topo-seeded clusters **/
+  std::string m_outputTopoSeededClusterContainerName;
+
   /** Handle to the MVA calibration Tool **/
   ToolHandle<IegammaMVATool>  m_MVACalibTool;  
 
@@ -103,4 +106,4 @@ class EMClusterTool : public egammaBaseTool, virtual public IEMClusterTool {
   CaloCellDetPos *m_caloCellDetPos;
 };
 
-#endif // EGAMMATOOLS_EMCLUSTERTOOL_H 
+#endif // EGAMMATOOLS_EMCLUSTERTOOL_H

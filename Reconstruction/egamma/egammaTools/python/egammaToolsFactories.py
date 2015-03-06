@@ -40,6 +40,7 @@ egammaMVATool =  ToolFactory(egammaMVACalibConf.egammaMVATool,
 
 EMClusterTool = ToolFactory(egammaToolsConf.EMClusterTool,
                             OutputClusterContainerName = egammaKeys.outputClusterKey(),
+                            OutputTopoSeededClusterContainerName = egammaKeys.outputTopoSeededClusterKey(),
                             ElectronContainerName = egammaKeys.outputElectronKey(),
                             PhotonContainerName = egammaKeys.outputPhotonKey(),
                             ClusterCorrectionToolName = FullNameWrapper(egammaSwTool),
