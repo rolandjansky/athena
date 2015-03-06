@@ -3,28 +3,27 @@
 */
 
 #include "egammaSuperClusterBuilder.h"
-#include "GaudiKernel/IChronoStatSvc.h"
 #include "StoreGate/StoreGateSvc.h"
 
-#include "InDetBeamSpotService/IBeamCondSvc.h"
-#include "egammaTopoClusterMap.h"
 #include "xAODEgamma/Egamma.h"
-
-#include "CandidateMatchHelpers.h"
 #include "xAODEgamma/EgammaxAODHelpers.h"
-
-#include "CaloUtils/CaloCellList.h"
-#include "xAODCaloEvent/CaloCluster.h"
-#include "xAODCaloEvent/CaloClusterKineHelper.h"
-#include "xAODTracking/TrackParticle.h" 
-#include "xAODTracking/TrackParticleContainer.h" 
 #include "xAODEgamma/EgammaxAODHelpers.h"
 
 #include "CaloUtils/CaloClusterStoreHelper.h"
 #include "CaloUtils/CaloCellDetPos.h"
+#include "CaloUtils/CaloCellList.h"
 
 #include "CaloEvent/CaloClusterCellLink.h"
 #include "xAODCaloEvent/CaloClusterAuxContainer.h"
+
+#include "xAODCaloEvent/CaloCluster.h"
+#include "xAODCaloEvent/CaloClusterKineHelper.h"
+
+#include "xAODTracking/TrackParticle.h" 
+#include "xAODTracking/TrackParticleContainer.h" 
+
+#include "egammaTopoClusterMap.h"
+#include "CandidateMatchHelpers.h"
 
 // INCLUDE GAUDI HEADER FILES:
 #include "GaudiKernel/MsgStream.h"
@@ -112,24 +111,24 @@ StatusCode egammaSuperClusterBuilder::execute()
   EgammaRecContainer *egammaRecs = 0;
   StatusCode sc=evtStore()->retrieve(egammaRecs, "TopoTrackClusterMatches" );
   if(sc.isFailure()) {
-    ATH_MSG_INFO("Failed to retrieve TopoTrackClusterMatches!");
+    ATH_MSG_ERROR("Failed to retrieve TopoTrackClusterMatches!");
     return StatusCode::FAILURE;
   }
 
   //Retrieve input clusters.
   const xAOD::CaloClusterContainer* clusters = 0;
-  sc = evtStore()->retrieve(clusters, m_inputClusterContainerName);
+  sc = evtStore()->retrieve(clusters, "EMTopoCluster430");
   if( sc.isFailure() ) {
     ATH_MSG_ERROR("No input EM Cluster container found " << m_inputClusterContainerName);
-    return StatusCode::SUCCESS;
+    return StatusCode::FAILURE;
   }
   
   //Retrieve calo cell container.
   if( evtStore()->contains<CaloCellContainer>("AllCalo")) {  
     sc = evtStore()->retrieve(m_cellcoll, "AllCalo") ; 
     if(sc.isFailure() || !m_cellcoll) {
-      ATH_MSG_WARNING("No Calo Cell Container?");
-      return StatusCode::SUCCESS;
+      ATH_MSG_ERROR("No Calo Cell Container?");
+      return StatusCode::FAILURE;
     }
   }
 
@@ -139,7 +138,7 @@ StatusCode egammaSuperClusterBuilder::execute()
   sc=evtStore()->retrieve(refittedTracks, "GSFTrackParticles" );
   //sc=evtStore()->retrieve(refittedTracks, "InDetTrackParticles" );
   if(sc.isFailure()) {
-    ATH_MSG_INFO("Failed to retrieve GSFTrackParticles!");
+    ATH_MSG_ERROR("Failed to retrieve GSFTrackParticles!");
     return StatusCode::FAILURE;
   }
   
@@ -190,20 +189,27 @@ StatusCode egammaSuperClusterBuilder::execute()
     //Merge tracks together for clusters matched to tracks.
     std::vector<const xAOD::CaloCluster*>::iterator secIter = secondaryClusters.begin();
 
+    ATH_MSG_INFO("Looking for matching egammaRec");
     for (; secIter != secondaryClusters.end(); secIter++) {
 
       EgammaRecContainer::const_iterator     loc = std::find_if(egammaRecs->begin(), egammaRecs->end(), ClusCheck((*secIter)));
-
+      
       //First check to see if a topocluster is track-matched.
       //If so, keep the tracks.
-      for (unsigned int i = 0; i < (*loc)->getNumberOfTrackParticles(); i++)
-	secondaryTracks.insert(secondaryTracks.end(), (*loc)->trackParticle(i));
+      if (loc != egammaRecs->end()) {
+	for (unsigned int i = 0; i < (*loc)->getNumberOfTrackParticles(); i++)
+	  secondaryTracks.insert(secondaryTracks.end(), (*loc)->trackParticle(i));
+      }
 
     }
+    ATH_MSG_INFO("Went through matching egammaRecs");
 
     //Take the list of secondaries and make a super cluster.
     //secondaryClusters.push_back((*iter).first);
     if (secondaryTracks.size()>0) {
+
+      ATH_MSG_INFO("Creating supercluster egammaRec object");
+
       secondaryClusters.insert(secondaryClusters.begin(), egRec->caloCluster());
 
       std::vector< ElementLink<xAOD::TrackParticleContainer> > elTracks;

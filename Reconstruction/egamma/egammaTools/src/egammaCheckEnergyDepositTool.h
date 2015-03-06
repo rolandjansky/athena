@@ -3,7 +3,7 @@
 */
 
 #ifndef EGAMMATOOLS_EGAMMACHECKENERGYDEPOSITTOOL_H
-#define EGAMMATOOLs_EGAMMACHECKENERGYDEPOSITTOOL_H
+#define EGAMMATOOLS_EGAMMACHECKENERGYDEPOSITTOOL_H
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
@@ -54,4 +54,4 @@ class egammaCheckEnergyDepositTool : virtual public IegammaCheckEnergyDepositToo
 
 };
 
-#endif // EGAMMATOOLS_EGAMMACHECKENERGYDEPOSITTOOL_H 
+#endif // EGAMMATOOLS_EGAMMACHECKENERGYDEPOSITTOOL_H

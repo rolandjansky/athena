@@ -111,8 +111,8 @@ private:
   ToolHandle<IEMExtrapolationTools> m_extrapolationTool;
   /** @brief */
   bool                  m_isCosmics;
-  int                   m_nSi;
-  int                   m_nTrt;
+  //int                   m_nSi;
+  //int                   m_nTrt;
 };
 
 #endif

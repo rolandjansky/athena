@@ -13,23 +13,11 @@
 #include "GaudiKernel/IChronoStatSvc.h"
 
 #include "egammaInterfaces/IegammaClusterOverlapMarker.h"
-#include "egammaInterfaces/IegammaShowerShape.h"
-
-#include "CaloGeoHelpers/CaloPhiRange.h"
 #include "GaudiKernel/ToolHandle.h" 
 #include "xAODCaloEvent/CaloClusterFwd.h"
-#include "xAODTracking/TrackParticleContainerFwd.h"
 #include "egammaRecEvent/egammaRecContainer.h"
 
 class StoreGateSvc;
-class IBeamCondSvc;
-class IEMExtrapolationTools;
-class IegammaTopoClusterMap;
-class egammaTopoClusterMap;
-class IChronoStatSvc;
-class CaloCellContainer;
-class CaloCellDetPos;
-class CaloClusterCellLinkContainer;
 
 class egammaClusterOverlapMarker : public AthAlgTool,  virtual public IegammaClusterOverlapMarker {
 

@@ -22,11 +22,8 @@
 #include "egammaRecEvent/egammaRecContainer.h"
 
 class StoreGateSvc;
-class IBeamCondSvc;
-class IEMExtrapolationTools;
 class IegammaTopoClusterMap;
 class egammaTopoClusterMap;
-class IChronoStatSvc;
 class CaloCellContainer;
 class CaloCellDetPos;
 class CaloClusterCellLinkContainer;

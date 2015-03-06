@@ -28,6 +28,9 @@ EMClusterTool::EMClusterTool(const std::string& type, const std::string& name, c
   declareProperty("MVACalibTool", m_MVACalibTool);
   declareProperty("OutputClusterContainerName", m_outputClusterContainerName, 
     "Name of the output cluster container");
+  declareProperty("OutputTopoSeededClusterContainerName",
+    m_outputTopoSeededClusterContainerName, 
+    "Name of the output cluster container for topo-seeded clusters (can be the same as the other clusters)");
   declareProperty("ElectronContainerName", m_electronContainerName, 
     "Name of the input electron container");
   declareProperty("PhotonContainerName", m_photonContainerName, 
@@ -102,6 +105,22 @@ StatusCode EMClusterTool::contExecute()
 		  << m_outputClusterContainerName);
     return StatusCode::FAILURE;
   }
+
+  // Create output cluster container for topo-seeded clusters and register in StoreGate
+  // Only if they differ from the main output cluster container
+  xAOD::CaloClusterContainer* outputTopoSeededClusterContainer = outputClusterContainer;
+  if (m_outputTopoSeededClusterContainerName != m_outputClusterContainerName)
+  {
+    outputTopoSeededClusterContainer = \
+      CaloClusterStoreHelper::makeContainer(m_storeGate, 
+                                            m_outputTopoSeededClusterContainerName, 
+                                            msg());
+    if (!outputTopoSeededClusterContainer){
+      ATH_MSG_ERROR("Failed to record Output Topo-seeded Cluster Container " 
+        << m_outputTopoSeededClusterContainerName);
+      return StatusCode::FAILURE;
+    }
+  }
   
   // Retrieve electron and photon containers
   xAOD::ElectronContainer *electronContainer;
@@ -129,8 +148,11 @@ StatusCode EMClusterTool::contExecute()
      egType = (xAOD::EgammaHelpers::isConvertedPhoton(photon) ? 
                xAOD::EgammaParameters::convertedPhoton :
                xAOD::EgammaParameters::unconvertedPhoton);
-
-    setNewCluster(photon, outputClusterContainer, egType);
+    
+    if ( !photon->author(xAOD::EgammaParameters::AuthorCaloTopo35) )
+      setNewCluster(photon, outputClusterContainer, egType);
+    else
+      setNewCluster(photon, outputTopoSeededClusterContainer, egType);
   }    
   
   if (m_finalizeClusters)

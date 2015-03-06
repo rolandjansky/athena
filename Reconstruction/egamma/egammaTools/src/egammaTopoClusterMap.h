@@ -88,7 +88,7 @@ class egammaTopoClusterMap : public AthAlgTool, virtual public IegammaTopoCluste
   TopoCluster2DMap _map;
 
   //Function to set TopoClusters.
-  void SetTopoClusters(const xAOD::CaloClusterContainer*);
+  StatusCode SetTopoClusters(const xAOD::CaloClusterContainer*);
 
   //Map granularity and range.
   double _minEta, _minPhi, _maxEta, _maxPhi;
