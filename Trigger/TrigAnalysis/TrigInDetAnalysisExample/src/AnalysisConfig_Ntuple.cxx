@@ -351,6 +351,7 @@ void AnalysisConfig_Ntuple::loop() {
 		  passed_chains++;
 		}
 
+#if 0
 		//if ( (*m_tdt)->getPrescale(chainName) ) analyse = true; 
 		const DataHandle<TrigDec::TrigDecision> td;
 		StatusCode sc = m_provider->evtStore()->retrieve(td);
@@ -369,6 +370,8 @@ void AnalysisConfig_Ntuple::loop() {
 		    return;
 		  }
 		}
+
+#endif
 		
 	}/// finished loop over chains
 

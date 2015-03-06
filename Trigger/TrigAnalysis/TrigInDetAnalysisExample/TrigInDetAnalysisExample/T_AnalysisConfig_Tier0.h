@@ -314,6 +314,7 @@ protected:
         chainname.find("EF")  == std::string::npos &&
         chainname.find("HLT") == std::string::npos ) continue;
 
+#if 0
       const DataHandle<TrigDec::TrigDecision> td;
       StatusCode sc = m_provider->evtStore()->retrieve(td);
       if (sc.isFailure()) {
@@ -321,6 +322,7 @@ protected:
             m_provider->msg(MSG::FATAL) << "Could not find TrigDecision object" << endreq;
         return;
       }
+#endif
 
       if ( m_provider->msg().level() <= MSG::DEBUG ) {
         m_provider->msg(MSG::DEBUG) << "Chain "  << chainname
