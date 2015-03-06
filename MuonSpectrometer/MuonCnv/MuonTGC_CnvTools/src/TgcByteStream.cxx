@@ -415,7 +415,7 @@ void Muon::TgcByteStream::byteStream2Rdo(const ByteStream& bs, TgcRdo& rdo, uint
 		  log << MSG::DEBUG << "WORD"
 		      << iFrag << ":" << MSG::hex << bs[iBs] << endreq;
 		}
-		fromBS32(bs[iBs++], hpttile);
+		fromBS32(bs[iBs], hpttile);
 		if(hpttile.strip == 1 &&  hpttile.sector & 4 ){
                   TgcRawData* raw = new TgcRawData(bcTag(hpt.bcBitmap),
                                                    rdo.subDetectorId(),
@@ -434,7 +434,7 @@ void Muon::TgcByteStream::byteStream2Rdo(const ByteStream& bs, TgcRdo& rdo, uint
                                                    hpttile.tile);
                   rdo.push_back(raw);
                 }else{
-                  fromBS32(bs[iBs++], hpt);
+                  fromBS32(bs[iBs], hpt);
                   TgcRawData* raw = new TgcRawData(bcTag(hpt.bcBitmap),
                                                    rdo.subDetectorId(),
                                                    rdo.rodId(),
@@ -452,6 +452,7 @@ void Muon::TgcByteStream::byteStream2Rdo(const ByteStream& bs, TgcRdo& rdo, uint
                                                    0);
                   rdo.push_back(raw);
                 }
+                iBs++;
               }
             break;
 	  }
