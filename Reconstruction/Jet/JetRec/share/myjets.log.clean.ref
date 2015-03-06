@@ -1,17 +1,18 @@
-Tue Feb 24 16:21:31 CET 2015
+Fri Mar  6 18:05:28 CET 2015
 Preloading tcmalloc_minimal.so
 Py:Athena            INFO including file "AthenaCommon/Preparation.py"
-Py:Athena            INFO using release [AtlasOffline-20.1.3] [x86_64-slc6-gcc48-opt] [20.1.X-VAL/rel_2] -- built on [2015-02-23 22:35]
+Py:Athena            INFO using release [AtlasProduction-20.1.3.2] [x86_64-slc6-gcc48-opt] [20.1.3.Y-VAL-Prod/rel_4] -- built on [2015-03-04 21:41]
 Py:Athena            INFO including file "AthenaCommon/Bootstrap.py"
 Py:Athena            INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
 Py:Athena            INFO including file "AthenaCommon/Execution.py"
 Py:Athena            INFO including file "myjets.py"
-Py:ConfigurableDb    INFO Read module info for 4697 configurables from 10 genConfDb files
-Py:ConfigurableDb WARNING Found 2 duplicates among the 10 genConfDb files :
+Py:ConfigurableDb    INFO Read module info for 4691 configurables from 11 genConfDb files
+Py:ConfigurableDb WARNING Found 3 duplicates among the 11 genConfDb files :
 Py:ConfigurableDb WARNING --------------------------------------------------
 Py:ConfigurableDb WARNING   -<component name>: <module> - [ <duplicates> ]
 Py:ConfigurableDb WARNING --------------------------------------------------
 Py:ConfigurableDb WARNING   -RPCStandaloneTracksMon: MuonTrackMonitoring.MuonTrackMonitoringConf - ['RpcRawDataMonitoring.RpcRawDataMonitoringConf']
+Py:ConfigurableDb WARNING   -MissingCellListTool: JetRecCalo.JetRecCaloConf - ['JetRecTools.JetRecToolsConf']
 Py:ConfigurableDb WARNING   -LArDigits2Ntuple: LArCalibTools.LArCalibToolsConf - ['LArEventTest.LArEventTestConf']
 Py:ConfigurableDb WARNING Fix your cmt/requirements file !!
 JetRecStandardToolManager.py: Defining standard tools
@@ -64,6 +65,7 @@ JetRecStandardToolManager.py: Defining standard tools
 <class 'JetMomentTools.JetMomentToolsConf.JetVertexFractionTool'>
 <class 'JetMomentTools.JetMomentToolsConf.JetVertexTaggerTool'>
 <class 'JetMomentTools.JetMomentToolsConf.JetTrackMomentsTool'>
+<class 'JetMomentTools.JetMomentToolsConf.JetClusterMomentsTool'>
 <class 'JetMomentTools.JetMomentToolsConf.JetIsolationTool'>
 <class 'JetMomentTools.JetMomentToolsConf.JetIsolationTool'>
 <class 'JetMomentTools.JetMomentToolsConf.JetLArHVTool'>
@@ -81,6 +83,7 @@ JetRecStandardToolManager.py: Defining standard tools
 <class 'JetSubStructureMomentTools.JetSubStructureMomentToolsConf.JetChargeTool'>
 <class 'JetSubStructureMomentTools.JetSubStructureMomentToolsConf.ShowerDeconstructionTool'>
 <class 'JetRec.JetRecConf.JetConstitRemover'>
+<class 'JetRec.JetRecConf.JetSorter'>
 JetRecStandardToolManager.py: jetFlags.useTruth: True
 JetRecStandardToolManager.py: jetFlags.useMuonSegments: True
 JetRecStandardToolManager.py: End.
@@ -174,6 +177,19 @@ JetToolManager: Adding modifier /***** Public AlgTool JetWidthTool/width *******
 |-OutputLevel     = 7
 |-UserStore       = ServiceHandle('UserDataSvc/UserDataSvc')
 \----- (End of Public AlgTool JetWidthTool/width) --------------------------------------------------
+JetToolManager: Adding modifier /***** Public AlgTool JetSorter/jetsorter **********************************************************
+|-AuditFinalize   = False
+|-AuditInitialize = False
+|-AuditStart      = False
+|-AuditStop       = False
+|-AuditTools      = False
+|-DetStore        = ServiceHandle('StoreGateSvc/DetectorStore')
+|-EvtStore        = ServiceHandle('StoreGateSvc')
+|-MonitorService  = 'MonitorSvc'
+|-OutputLevel     = 7
+|-SortingType     = 'ByPtDown'
+|-UserStore       = ServiceHandle('UserDataSvc/UserDataSvc')
+\----- (End of Public AlgTool JetSorter/jetsorter) -------------------------------------------------
 <class 'JetRec.JetRecConf.JetRecTool'>
 JetAlgorithm: Event shape tools: []
 ['BHadronsInitial', 'BHadronsFinal', 'BQuarksFinal', 'CHadronsInitial', 'CHadronsFinal', 'CQuarksFinal', 'TausFinal', 'WBosons', 'ZBosons', 'HBosons', 'TQuarksFinal', 'Partons']
@@ -386,7 +402,7 @@ Py:Athena            INFO including file "AthenaCommon/runbatch.py"
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
                                                    Welcome to ApplicationMgr (GaudiCoreSvc v3r1)
-                                          running on lxplus0019.cern.ch on Tue Feb 24 16:21:35 2015
+                                          running on lxplus0045.cern.ch on Fri Mar  6 18:05:31 2015
 ====================================================================================================================================
 ApplicationMgr       INFO Successfully loaded modules : AthenaServices
 ApplicationMgr       INFO Application Manager Configured successfully
@@ -419,7 +435,7 @@ ToolSvc.MyAntiKt4LCTopoJets                          INFO --- Retrieved ToolSvc.
 ToolSvc.MyAntiKt4LCTopoJets                          INFO --- Extracting input type from primary getter.
 ToolSvc.MyAntiKt4LCTopoJets                          INFO --- Input label: LCTopo
 ToolSvc.MyAntiKt4LCTopoJets                          INFO --- Input type: 0
-ToolSvc.MyAntiKt4LCTopoJets                          INFO --- JetRecTool ToolSvc.MyAntiKt4LCTopoJets has 6 jet modifiers.
+ToolSvc.MyAntiKt4LCTopoJets                          INFO --- JetRecTool ToolSvc.MyAntiKt4LCTopoJets has 7 jet modifiers.
 ToolSvc.calib_AntiKt4LCTopo_reco_arj                 INFO Initializing ToolSvc.calib_AntiKt4LCTopo_reco_arj...
 ToolSvc.calib_AntiKt4LCTopo_reco_arj                 INFO ===================================
 
@@ -434,7 +450,7 @@ ToolSvc.calib_AntiKt4LCTopo_reco_arj                 INFO   Reading global JES s
     JES_Full2012dataset_Preliminary_Jan13.config
 
 ToolSvc.calib_AntiKt4LCTopo_reco_arj                 INFO                      resolved in  :
-    /afs/cern.ch/atlas/software/builds/nightlies/20.1.X-VAL/AtlasReconstruction/rel_2/InstallArea/share/JetCalibTools/CalibrationConfigs/JES_Full2012dataset_Preliminary_Jan13.config
+    /cvmfs/atlas.cern.ch/repo/sw/software/x86_64-slc6-gcc48-opt/20.1.3/AtlasReconstruction/20.1.3/InstallArea/share/JetCalibTools/CalibrationConfigs/JES_Full2012dataset_Preliminary_Jan13.config
 
 
 ToolSvc.calib_AntiKt4LCTopo_reco_arj                 INFO Initializing sub tools.
@@ -446,7 +462,7 @@ ToolSvc.calib_AntiKt4LCTopo_reco_arj_Pileup          INFO
 
 PathResolver                                         INFO Trying to locate JetCalibTools/CalibrationFactors/MCBasedOffset_Nov2012.config
 ToolSvc.calib_AntiKt4LCTopo_reco_arj_Pileup          INFO   Reading residual jet-area pile-up correction factors from:
-    /afs/cern.ch/atlas/software/builds/nightlies/20.1.X-VAL/AtlasReconstruction/rel_2/InstallArea/share/JetCalibTools/CalibrationFactors/MCBasedOffset_Nov2012.config
+    /cvmfs/atlas.cern.ch/repo/sw/software/x86_64-slc6-gcc48-opt/20.1.3/AtlasReconstruction/20.1.3/InstallArea/share/JetCalibTools/CalibrationFactors/MCBasedOffset_Nov2012.config
 
 ToolSvc.calib_AntiKt4LCTopo_reco_arj_Pileup          INFO   Description:
     Residual 2012 mu- and N_{PV}-dependent jet pileup corrections
@@ -463,7 +479,7 @@ PathResolver                                         INFO Trying to locate JetCa
 ToolSvc.calib_AntiKt4LCTopo_reco_arj_EtaJES          INFO   
 
 Reading absolute calibration factors from:
-    /afs/cern.ch/atlas/software/builds/nightlies/20.1.X-VAL/AtlasReconstruction/rel_2/InstallArea/share/JetCalibTools/CalibrationFactors/AbsoluteJES_Rel17.2_AreaSubtracted_0.config
+    /cvmfs/atlas.cern.ch/repo/sw/software/x86_64-slc6-gcc48-opt/20.1.3/AtlasReconstruction/20.1.3/InstallArea/share/JetCalibTools/CalibrationFactors/AbsoluteJES_Rel17.2_AreaSubtracted_0.config
 
 ToolSvc.calib_AntiKt4LCTopo_reco_arj_EtaJES          INFO   Description:
     JES for release 17.2, derived November 2012 with Jet Areas, for application to Data12 and MC12
@@ -478,6 +494,7 @@ ToolSvc.MyAntiKt4LCTopoJets                          INFO --- Retrieved ToolSvc.
 ToolSvc.MyAntiKt4LCTopoJets                          INFO --- Retrieved ToolSvc.jetens
 ToolSvc.MyAntiKt4LCTopoJets                          INFO --- Retrieved ToolSvc.caloqual_cluster
 ToolSvc.MyAntiKt4LCTopoJets                          INFO --- Retrieved ToolSvc.width
+ToolSvc.MyAntiKt4LCTopoJets                          INFO --- Retrieved ToolSvc.jetsorter
 ToolSvc.MyAntiKt4LCTopoJets                          INFO --- JetRecTool ToolSvc.MyAntiKt4LCTopoJets has 0 jet consumers.
 ToolSvc.MyAntiKt4LCTopoJets                          INFO --- Input collection names:
 ToolSvc.MyAntiKt4LCTopoJets                          INFO ---   PseudoJetLCTopo
@@ -548,13 +565,14 @@ ToolSvc.MyAntiKt4LCTopoJetsFinder                    INFO        Output level: I
 ToolSvc.MyAntiKt4LCTopoJets                          INFO     Input type: 0
 ToolSvc.MyAntiKt4LCTopoJets                          INFO     There are 0 ghost labels:
 ToolSvc.MyAntiKt4LCTopoJets                          INFO   Jet groomer is not defined
-ToolSvc.MyAntiKt4LCTopoJets                          INFO   Modifier count is 6
+ToolSvc.MyAntiKt4LCTopoJets                          INFO   Modifier count is 7
 ToolSvc.MyAntiKt4LCTopoJets                          INFO     Modifier calib_AntiKt4LCTopo_reco_arj
 ToolSvc.MyAntiKt4LCTopoJets                          INFO     Modifier jetpt7000
 ToolSvc.MyAntiKt4LCTopoJets                          INFO     Modifier nsubjettiness
 ToolSvc.MyAntiKt4LCTopoJets                          INFO     Modifier jetens
 ToolSvc.MyAntiKt4LCTopoJets                          INFO     Modifier caloqual_cluster
 ToolSvc.MyAntiKt4LCTopoJets                          INFO     Modifier width
+ToolSvc.MyAntiKt4LCTopoJets                          INFO     Modifier jetsorter
 ToolSvc.jetrun                                       INFO   Tool count: 0
 ToolSvc.jetdumper                                    INFO JetDumper::ctor: Declaring properties.
 jetalg                                               INFO Tool retrieval completed.
@@ -651,32 +669,22 @@ PoolSvc                                              INFO io_register[PoolSvc](x
 PoolSvc                                              INFO Set connectionsvc retry/timeout/IDLE timeout to  'ConnectionRetrialPeriod':300/ 'ConnectionRetrialTimeOut':3600/ 'ConnectionTimeOut':5 seconds with connection cleanup disabled
 PoolSvc                                              INFO Frontier compression level set to 5
 DBReplicaSvc                                         INFO Frontier server at (serverurl=http://atlasfrontier-ai.cern.ch:8000/atlr)(serverurl=http://aiatlas036.cern.ch:8000/atlr)(serverurl=http://aiatlas034.cern.ch:8000/atlr)(serverurl=http://ccfrontier.in2p3.fr:23128/ccin2p3-AtlasFrontier)(serverurl=http://ccsqfatlasli02.in2p3.fr:23128/ccin2p3-AtlasFrontier)(serverurl=http://ccsqfatlasli01.in2p3.fr:23128/ccin2p3-AtlasFrontier)(proxyurl=http://ca-proxy.cern.ch:3128)(proxyurl=http://ca18.cern.ch:3128)(proxyurl=http://ca17.cern.ch:3128)(proxyurl=http://atlast0fsquid.cern.ch:3128)(proxyurl=http://atlassquid1.cern.ch:3128)(proxyurl=http://atlassquid2.cern.ch:3128)(proxyurl=http://atlassquid4.cern.ch:3128) will be considered for COOL data
-DBReplicaSvc                                         INFO Read replica configuration from /afs/cern.ch/atlas/software/builds/nightlies/20.1.X-VAL/AtlasCore/rel_2/InstallArea/share/dbreplica.config
-DBReplicaSvc                                         INFO Total of 10 servers found for host lxplus0019.cern.ch [ATLF ATLAS_COOLPROD atlas_dd ATLAS_CONFIG INT8R INTR ATONR_COOL ATONR_CONF DEVDB11 ATLF ]
+DBReplicaSvc                                         INFO Read replica configuration from /cvmfs/atlas.cern.ch/repo/sw/software/x86_64-slc6-gcc48-opt/20.1.3/AtlasCore/20.1.3/InstallArea/share/dbreplica.config
+DBReplicaSvc                                         INFO Total of 10 servers found for host lxplus0045.cern.ch [ATLF ATLAS_COOLPROD atlas_dd ATLAS_CONFIG INT8R INTR ATONR_COOL ATONR_CONF DEVDB11 ATLF ]
 PoolSvc                                              INFO Successfully setup replica sorting algorithm
 PoolSvc                                              INFO Re-initializing PoolSvc
 PoolSvc                                              INFO POOL WriteCatalog is xmlcatalog_file:PoolFileCatalog.xml
 XMLFileCatalog Info Connecting to the catalog
 PoolXMLFileCatalog Info Xerces-c initialization Number 0
-PoolXMLFileCatalog Info File PoolFileCatalog.xml does not exist, a new one is created
 EventSelector                                        INFO Initializing EventSelector - package version EventSelectorAthenaPool-00-18-36
 TagMetaDataStore                                     INFO Initializing TagMetaDataStore - package version StoreGate-02-45-01-10
 EventSelector                                        INFO reinitialization...
 EventSelector                                        INFO EventSelection with query 
-PoolSvc                                              INFO File is not in Catalog! Attempt to open it anyway.
 RootCollection Info Opening Collection File /afs/cern.ch/user/d/dadams/pubdata/r20test_AOD.pool.root in mode: READ
 JobIDSvc                                             INFO Initializing JobIDSvc - package version AthenaServices-01-59-05
 RootCollection Info File /afs/cern.ch/user/d/dadams/pubdata/r20test_AOD.pool.root opened
 RootCollectionSchemaEditor Warning  Collection Description not found in file, reconstructing 
 RootCollection Info Root collection opened, size = 5
-DbSession Info     Open     DbSession    
-Domain[ROOT_All] Info >   Access   DbDomain     READ      [ROOT_All] 
-Domain[ROOT_All] Info ->  Access   DbDatabase   READ      [ROOT_All] 5B486AFC-1045-F42C-4BFD-B362A0289C58
-Domain[ROOT_All] Info                           /afs/cern.ch/user/d/dadams/pubdata/r20test_AOD.pool.root
-RootDatabase.open Success /afs/cern.ch/user/d/dadams/pubdata/r20test_AOD.pool.root File version:53413
-/afs/cern.ch/user/d/dadams/pubdata/r20test_AOD.pool.root Info Database being retired...
-Domain[ROOT_All] Info ->  Deaccess DbDatabase   READ      [ROOT_All] 5B486AFC-1045-F42C-4BFD-B362A0289C58
-Domain[ROOT_All] Info >   Deaccess DbDomain     READ      [ROOT_All] 
 DbSession Info     Open     DbSession    
 Domain[ROOT_All] Info >   Access   DbDomain     READ      [ROOT_All] 
 Domain[ROOT_All] Info ->  Access   DbDatabase   READ      [ROOT_All] 5032031B-70FB-2C41-B310-446CC6E53326
@@ -703,7 +711,7 @@ ApplicationMgr                                       INFO Application Manager St
 PoolSvc                                              INFO Failed to find container MetaDataHdrDataHeader to get Token.
 AthenaEventLoopMgr                                   INFO   ===>>>  start of run 189751    <<<===
 AthenaEventLoopMgr                                   INFO   ===>>>  start processing event #35002, run #189751 0 events processed so far  <<<===
-ClassIDSvc                                           INFO  getRegistryEntries: read 13906 CLIDRegistry entries for module ALL
+ClassIDSvc                                           INFO  getRegistryEntries: read 13931 CLIDRegistry entries for module ALL
 ClassIDSvc                                           INFO  getRegistryEntries: read 107 CLIDRegistry entries for module ALL
 ToolSvc.xAODClusterCompressor                        INFO Compression of ClusterMoments to 16 bits enabled
 AthenaPoolConverter                                  INFO Retrieved compression tool
@@ -720,9 +728,9 @@ ToolSvc.jetdumper                                    INFO     Jet 3: pT =  49.8 
 ToolSvc.jetdumper                                    INFO     Jet 4: pT =  17.1 GeV, m =   1.7 GeV, eta = 2.66, phi =-1.52
 ToolSvc.jetdumper                                    INFO     Jet 5: pT =  11.6 GeV, m =   2.4 GeV, eta = 1.08, phi = 1.90
 ToolSvc.jetdumper                                    INFO     Jet 6: pT =   8.0 GeV, m =   2.1 GeV, eta =-2.27, phi =-2.65
-ToolSvc.jetdumper                                    INFO     Jet 7: pT =   7.6 GeV, m =   1.5 GeV, eta =-1.18, phi = 2.15
-ToolSvc.jetdumper                                    INFO     Jet 8: pT =   7.9 GeV, m =   1.9 GeV, eta =-1.61, phi = 3.01
-ToolSvc.jetdumper                                    INFO     Jet 9: pT =   7.9 GeV, m =   1.7 GeV, eta =-3.13, phi =-2.80
+ToolSvc.jetdumper                                    INFO     Jet 7: pT =   7.9 GeV, m =   1.9 GeV, eta =-1.61, phi = 3.01
+ToolSvc.jetdumper                                    INFO     Jet 8: pT =   7.9 GeV, m =   1.7 GeV, eta =-3.13, phi =-2.80
+ToolSvc.jetdumper                                    INFO     Jet 9: pT =   7.6 GeV, m =   1.5 GeV, eta =-1.18, phi = 2.15
 AthenaEventLoopMgr                                   INFO   ===>>>  done processing event #35002, run #189751 1 events processed so far  <<<===
 AthenaEventLoopMgr                                   INFO   ===>>>  start processing event #35003, run #189751 1 events processed so far  <<<===
 ToolSvc.jetdumper                                    INFO   Jet multiplicity: 19 [MyAntiKt4LCTopoJets]
@@ -732,19 +740,19 @@ ToolSvc.jetdumper                                    INFO     Jet  2: pT =  68.7
 ToolSvc.jetdumper                                    INFO     Jet  3: pT =  41.5 GeV, m =   7.6 GeV, eta =-1.69, phi =-2.86
 ToolSvc.jetdumper                                    INFO     Jet  4: pT =  21.7 GeV, m =   5.4 GeV, eta =-1.66, phi =-1.46
 ToolSvc.jetdumper                                    INFO     Jet  5: pT =  21.5 GeV, m =   4.7 GeV, eta =-2.89, phi =-2.20
-ToolSvc.jetdumper                                    INFO     Jet  6: pT =  11.7 GeV, m =   3.1 GeV, eta =-0.19, phi = 1.34
+ToolSvc.jetdumper                                    INFO     Jet  6: pT =  13.0 GeV, m =   3.1 GeV, eta = 0.06, phi = 0.81
 ToolSvc.jetdumper                                    INFO     Jet  7: pT =  12.9 GeV, m =   3.0 GeV, eta =-1.16, phi =-2.94
-ToolSvc.jetdumper                                    INFO     Jet  8: pT =  13.0 GeV, m =   3.1 GeV, eta = 0.06, phi = 0.81
-ToolSvc.jetdumper                                    INFO     Jet  9: pT =  10.1 GeV, m =   2.1 GeV, eta =-0.10, phi =-0.34
-ToolSvc.jetdumper                                    INFO     Jet 10: pT =   7.1 GeV, m =   1.8 GeV, eta = 1.71, phi = 1.62
-ToolSvc.jetdumper                                    INFO     Jet 11: pT =  12.0 GeV, m =   2.4 GeV, eta = 2.95, phi = 2.65
-ToolSvc.jetdumper                                    INFO     Jet 12: pT =   9.7 GeV, m =   2.0 GeV, eta =-2.54, phi = 1.14
+ToolSvc.jetdumper                                    INFO     Jet  8: pT =  12.0 GeV, m =   2.4 GeV, eta = 2.95, phi = 2.65
+ToolSvc.jetdumper                                    INFO     Jet  9: pT =  11.7 GeV, m =   3.1 GeV, eta =-0.19, phi = 1.34
+ToolSvc.jetdumper                                    INFO     Jet 10: pT =  11.1 GeV, m =   1.2 GeV, eta =-2.84, phi = 0.87
+ToolSvc.jetdumper                                    INFO     Jet 11: pT =  10.4 GeV, m =   1.4 GeV, eta =-3.24, phi = 0.88
+ToolSvc.jetdumper                                    INFO     Jet 12: pT =  10.1 GeV, m =   2.1 GeV, eta =-0.10, phi =-0.34
 ToolSvc.jetdumper                                    INFO     Jet 13: pT =   9.9 GeV, m =   1.9 GeV, eta =-2.41, phi =-2.24
-ToolSvc.jetdumper                                    INFO     Jet 14: pT =   9.0 GeV, m =   2.0 GeV, eta =-2.39, phi =-2.86
-ToolSvc.jetdumper                                    INFO     Jet 15: pT =   8.5 GeV, m =   1.6 GeV, eta =-1.71, phi =-2.40
-ToolSvc.jetdumper                                    INFO     Jet 16: pT =   7.6 GeV, m =   1.5 GeV, eta =-2.68, phi =-0.55
-ToolSvc.jetdumper                                    INFO     Jet 17: pT =  10.4 GeV, m =   1.4 GeV, eta =-3.24, phi = 0.88
-ToolSvc.jetdumper                                    INFO     Jet 18: pT =  11.1 GeV, m =   1.2 GeV, eta =-2.84, phi = 0.87
+ToolSvc.jetdumper                                    INFO     Jet 14: pT =   9.7 GeV, m =   2.0 GeV, eta =-2.54, phi = 1.14
+ToolSvc.jetdumper                                    INFO     Jet 15: pT =   9.0 GeV, m =   2.0 GeV, eta =-2.39, phi =-2.86
+ToolSvc.jetdumper                                    INFO     Jet 16: pT =   8.5 GeV, m =   1.6 GeV, eta =-1.71, phi =-2.40
+ToolSvc.jetdumper                                    INFO     Jet 17: pT =   7.6 GeV, m =   1.5 GeV, eta =-2.68, phi =-0.55
+ToolSvc.jetdumper                                    INFO     Jet 18: pT =   7.1 GeV, m =   1.8 GeV, eta = 1.71, phi = 1.62
 AthenaEventLoopMgr                                   INFO   ===>>>  done processing event #35003, run #189751 2 events processed so far  <<<===
 AthenaEventLoopMgr                                   INFO   ===>>>  start processing event #35004, run #189751 2 events processed so far  <<<===
 ToolSvc.jetdumper                                    INFO   Jet multiplicity: 18 [MyAntiKt4LCTopoJets]
@@ -752,55 +760,55 @@ ToolSvc.jetdumper                                    INFO     Jet  0: pT =  73.4
 ToolSvc.jetdumper                                    INFO     Jet  1: pT =  65.8 GeV, m =   8.6 GeV, eta = 0.17, phi = 0.39
 ToolSvc.jetdumper                                    INFO     Jet  2: pT =  25.6 GeV, m =   4.7 GeV, eta =-0.14, phi =-0.68
 ToolSvc.jetdumper                                    INFO     Jet  3: pT =  22.2 GeV, m =   5.5 GeV, eta = 0.84, phi =-0.17
-ToolSvc.jetdumper                                    INFO     Jet  4: pT =  19.9 GeV, m =   4.5 GeV, eta =-0.94, phi = 2.31
-ToolSvc.jetdumper                                    INFO     Jet  5: pT =  20.0 GeV, m =   4.2 GeV, eta =-0.96, phi =-0.57
+ToolSvc.jetdumper                                    INFO     Jet  4: pT =  20.0 GeV, m =   4.2 GeV, eta =-0.96, phi =-0.57
+ToolSvc.jetdumper                                    INFO     Jet  5: pT =  19.9 GeV, m =   4.5 GeV, eta =-0.94, phi = 2.31
 ToolSvc.jetdumper                                    INFO     Jet  6: pT =  18.7 GeV, m =   3.3 GeV, eta =-1.80, phi = 2.11
 ToolSvc.jetdumper                                    INFO     Jet  7: pT =  16.1 GeV, m =   3.8 GeV, eta =-1.42, phi = 2.97
 ToolSvc.jetdumper                                    INFO     Jet  8: pT =  14.1 GeV, m =   3.4 GeV, eta =-1.13, phi =-2.08
-ToolSvc.jetdumper                                    INFO     Jet  9: pT =  11.7 GeV, m =   2.7 GeV, eta =-0.82, phi = 1.39
-ToolSvc.jetdumper                                    INFO     Jet 10: pT =  12.4 GeV, m =   3.1 GeV, eta =-2.32, phi =-1.68
+ToolSvc.jetdumper                                    INFO     Jet  9: pT =  12.4 GeV, m =   3.1 GeV, eta =-2.32, phi =-1.68
+ToolSvc.jetdumper                                    INFO     Jet 10: pT =  11.7 GeV, m =   2.7 GeV, eta =-0.82, phi = 1.39
 ToolSvc.jetdumper                                    INFO     Jet 11: pT =  11.4 GeV, m =   2.5 GeV, eta =-1.74, phi = 0.11
-ToolSvc.jetdumper                                    INFO     Jet 12: pT =   9.1 GeV, m =   2.3 GeV, eta =-0.42, phi =-3.12
-ToolSvc.jetdumper                                    INFO     Jet 13: pT =  11.0 GeV, m =   2.8 GeV, eta =-2.38, phi =-0.19
-ToolSvc.jetdumper                                    INFO     Jet 14: pT =   9.9 GeV, m =   2.3 GeV, eta = 0.03, phi =-2.76
-ToolSvc.jetdumper                                    INFO     Jet 15: pT =   7.1 GeV, m =   1.5 GeV, eta = 1.80, phi = 2.90
-ToolSvc.jetdumper                                    INFO     Jet 16: pT =   7.8 GeV, m =   1.9 GeV, eta =-2.97, phi =-0.80
-ToolSvc.jetdumper                                    INFO     Jet 17: pT =   7.3 GeV, m =   1.6 GeV, eta =-2.75, phi =-2.34
+ToolSvc.jetdumper                                    INFO     Jet 12: pT =  11.0 GeV, m =   2.8 GeV, eta =-2.38, phi =-0.19
+ToolSvc.jetdumper                                    INFO     Jet 13: pT =   9.9 GeV, m =   2.3 GeV, eta = 0.03, phi =-2.76
+ToolSvc.jetdumper                                    INFO     Jet 14: pT =   9.1 GeV, m =   2.3 GeV, eta =-0.42, phi =-3.12
+ToolSvc.jetdumper                                    INFO     Jet 15: pT =   7.8 GeV, m =   1.9 GeV, eta =-2.97, phi =-0.80
+ToolSvc.jetdumper                                    INFO     Jet 16: pT =   7.3 GeV, m =   1.6 GeV, eta =-2.75, phi =-2.34
+ToolSvc.jetdumper                                    INFO     Jet 17: pT =   7.1 GeV, m =   1.5 GeV, eta = 1.80, phi = 2.90
 AthenaEventLoopMgr                                   INFO   ===>>>  done processing event #35004, run #189751 3 events processed so far  <<<===
 AthenaEventLoopMgr                                   INFO   ===>>>  start processing event #35005, run #189751 3 events processed so far  <<<===
 ToolSvc.jetdumper                                    INFO   Jet multiplicity: 13 [MyAntiKt4LCTopoJets]
 ToolSvc.jetdumper                                    INFO     Jet  0: pT =  69.1 GeV, m =   8.3 GeV, eta = 0.57, phi = 1.51
-ToolSvc.jetdumper                                    INFO     Jet  1: pT =  63.7 GeV, m =  11.3 GeV, eta = 0.28, phi = 0.87
-ToolSvc.jetdumper                                    INFO     Jet  2: pT =  65.1 GeV, m =   8.4 GeV, eta =-3.08, phi =-2.61
+ToolSvc.jetdumper                                    INFO     Jet  1: pT =  65.1 GeV, m =   8.4 GeV, eta =-3.08, phi =-2.61
+ToolSvc.jetdumper                                    INFO     Jet  2: pT =  63.7 GeV, m =  11.3 GeV, eta = 0.28, phi = 0.87
 ToolSvc.jetdumper                                    INFO     Jet  3: pT =  25.7 GeV, m =   6.4 GeV, eta =-0.88, phi =-2.03
 ToolSvc.jetdumper                                    INFO     Jet  4: pT =  23.6 GeV, m =   4.3 GeV, eta =-1.04, phi =-2.80
 ToolSvc.jetdumper                                    INFO     Jet  5: pT =  19.9 GeV, m =   3.2 GeV, eta = 0.66, phi =-1.51
 ToolSvc.jetdumper                                    INFO     Jet  6: pT =  16.6 GeV, m =   3.4 GeV, eta =-0.35, phi =-2.54
 ToolSvc.jetdumper                                    INFO     Jet  7: pT =  14.9 GeV, m =   3.8 GeV, eta =-1.04, phi =-0.96
 ToolSvc.jetdumper                                    INFO     Jet  8: pT =   9.9 GeV, m =   2.0 GeV, eta = 1.37, phi = 2.47
-ToolSvc.jetdumper                                    INFO     Jet  9: pT =   7.1 GeV, m =   1.6 GeV, eta =-1.89, phi =-1.11
-ToolSvc.jetdumper                                    INFO     Jet 10: pT =   7.1 GeV, m =   1.4 GeV, eta = 1.34, phi = 1.34
-ToolSvc.jetdumper                                    INFO     Jet 11: pT =   8.1 GeV, m =   2.1 GeV, eta = 2.70, phi = 0.77
-ToolSvc.jetdumper                                    INFO     Jet 12: pT =   7.3 GeV, m =   1.9 GeV, eta =-2.54, phi =-2.91
+ToolSvc.jetdumper                                    INFO     Jet  9: pT =   8.1 GeV, m =   2.1 GeV, eta = 2.70, phi = 0.77
+ToolSvc.jetdumper                                    INFO     Jet 10: pT =   7.3 GeV, m =   1.9 GeV, eta =-2.54, phi =-2.91
+ToolSvc.jetdumper                                    INFO     Jet 11: pT =   7.1 GeV, m =   1.6 GeV, eta =-1.89, phi =-1.11
+ToolSvc.jetdumper                                    INFO     Jet 12: pT =   7.1 GeV, m =   1.4 GeV, eta = 1.34, phi = 1.34
 AthenaEventLoopMgr                                   INFO   ===>>>  done processing event #35005, run #189751 4 events processed so far  <<<===
 AthenaEventLoopMgr                                   INFO   ===>>>  start processing event #35006, run #189751 4 events processed so far  <<<===
 ToolSvc.jetdumper                                    INFO   Jet multiplicity: 17 [MyAntiKt4LCTopoJets]
 ToolSvc.jetdumper                                    INFO     Jet  0: pT = 130.0 GeV, m =  11.7 GeV, eta = 1.50, phi = 0.95
 ToolSvc.jetdumper                                    INFO     Jet  1: pT =  56.6 GeV, m =   9.3 GeV, eta = 0.76, phi =-1.16
 ToolSvc.jetdumper                                    INFO     Jet  2: pT =  38.4 GeV, m =   7.0 GeV, eta =-1.42, phi =-2.04
-ToolSvc.jetdumper                                    INFO     Jet  3: pT =  27.1 GeV, m =   5.0 GeV, eta = 0.30, phi = 0.91
-ToolSvc.jetdumper                                    INFO     Jet  4: pT =  27.5 GeV, m =   4.5 GeV, eta =-0.74, phi = 1.55
-ToolSvc.jetdumper                                    INFO     Jet  5: pT =  14.9 GeV, m =   2.8 GeV, eta = 0.62, phi =-3.11
-ToolSvc.jetdumper                                    INFO     Jet  6: pT =  16.9 GeV, m =   3.4 GeV, eta = 1.02, phi =-2.29
-ToolSvc.jetdumper                                    INFO     Jet  7: pT =  11.9 GeV, m =   2.0 GeV, eta = 0.47, phi =-2.00
-ToolSvc.jetdumper                                    INFO     Jet  8: pT =  11.4 GeV, m =   2.7 GeV, eta = 2.21, phi =-0.60
-ToolSvc.jetdumper                                    INFO     Jet  9: pT =  11.8 GeV, m =   2.1 GeV, eta =-0.05, phi =-1.04
-ToolSvc.jetdumper                                    INFO     Jet 10: pT =  11.5 GeV, m =   2.7 GeV, eta = 3.58, phi =-1.13
-ToolSvc.jetdumper                                    INFO     Jet 11: pT =   8.3 GeV, m =   1.9 GeV, eta =-2.29, phi =-2.64
-ToolSvc.jetdumper                                    INFO     Jet 12: pT =  12.7 GeV, m =   2.4 GeV, eta =-3.55, phi =-1.85
-ToolSvc.jetdumper                                    INFO     Jet 13: pT =  12.2 GeV, m =   1.8 GeV, eta = 0.20, phi =-1.44
-ToolSvc.jetdumper                                    INFO     Jet 14: pT =   8.2 GeV, m =   1.4 GeV, eta =-0.71, phi =-1.09
-ToolSvc.jetdumper                                    INFO     Jet 15: pT =   8.7 GeV, m =   1.2 GeV, eta =-3.87, phi =-0.27
+ToolSvc.jetdumper                                    INFO     Jet  3: pT =  27.5 GeV, m =   4.5 GeV, eta =-0.74, phi = 1.55
+ToolSvc.jetdumper                                    INFO     Jet  4: pT =  27.1 GeV, m =   5.0 GeV, eta = 0.30, phi = 0.91
+ToolSvc.jetdumper                                    INFO     Jet  5: pT =  16.9 GeV, m =   3.4 GeV, eta = 1.02, phi =-2.29
+ToolSvc.jetdumper                                    INFO     Jet  6: pT =  14.9 GeV, m =   2.8 GeV, eta = 0.62, phi =-3.11
+ToolSvc.jetdumper                                    INFO     Jet  7: pT =  12.7 GeV, m =   2.4 GeV, eta =-3.55, phi =-1.85
+ToolSvc.jetdumper                                    INFO     Jet  8: pT =  12.2 GeV, m =   1.8 GeV, eta = 0.20, phi =-1.44
+ToolSvc.jetdumper                                    INFO     Jet  9: pT =  11.9 GeV, m =   2.0 GeV, eta = 0.47, phi =-2.00
+ToolSvc.jetdumper                                    INFO     Jet 10: pT =  11.8 GeV, m =   2.1 GeV, eta =-0.05, phi =-1.04
+ToolSvc.jetdumper                                    INFO     Jet 11: pT =  11.5 GeV, m =   2.7 GeV, eta = 3.58, phi =-1.13
+ToolSvc.jetdumper                                    INFO     Jet 12: pT =  11.4 GeV, m =   2.7 GeV, eta = 2.21, phi =-0.60
+ToolSvc.jetdumper                                    INFO     Jet 13: pT =   8.7 GeV, m =   1.2 GeV, eta =-3.87, phi =-0.27
+ToolSvc.jetdumper                                    INFO     Jet 14: pT =   8.3 GeV, m =   1.9 GeV, eta =-2.29, phi =-2.64
+ToolSvc.jetdumper                                    INFO     Jet 15: pT =   8.2 GeV, m =   1.4 GeV, eta =-0.71, phi =-1.09
 ToolSvc.jetdumper                                    INFO     Jet 16: pT =   8.0 GeV, m =   1.4 GeV, eta = 0.56, phi =-2.59
 AthenaEventLoopMgr                                   INFO   ===>>>  done processing event #35006, run #189751 5 events processed so far  <<<===
 StoreGateSvc                                         INFO Stop StoreGateSvc
@@ -821,7 +829,6 @@ StoreGateSvc                                         INFO Finalizing StoreGateSv
 RootCollection Info Closing open collection '/afs/cern.ch/user/d/dadams/pubdata/r20test_AOD.pool.root'
 TagMetaDataStore                                     INFO Finalizing TagMetaDataStore - package version StoreGate-02-45-01-10
 PoolSvc                                              INFO I/O finalization...
-XMLFileCatalog Info Updating the catalog
 PoolXMLFileCatalog Info XercesC termination number 0
 MetaDataStore                                        INFO Finalizing MetaDataStore - package version StoreGate-02-45-01-10
 InputMetaDataStore                                   INFO Finalizing InputMetaDataStore - package version StoreGate-02-45-01-10

@@ -1,0 +1,5 @@
+#!/bin/sh
+
+INFILE=/afs/cern.ch/work/j/jcatmore/public/valid1.110910.Pythia8_AU2MSTW2008LO_zprime3000_tt.recon.AOD.e3099_s1982_s1964_r6006_tid04628693_00/AOD.04628693._000030.pool.root.1
+
+Reco_tf.py --inputAODFile=$INFILE --outputDAODFile=test.pool.root --reductionConf JETM3 --maxEvents=100 2>&1 | tee athena.log

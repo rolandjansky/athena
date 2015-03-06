@@ -44,6 +44,7 @@ from JetRec.JetRecConf import PseudoJetGetter
 from JetRec.JetRecConf import MuonSegmentPseudoJetGetter
 from JetRec.JetRecConf import JetFromPseudojet
 from JetRec.JetRecConf import JetConstitRemover
+from JetRec.JetRecConf import JetSorter
 from JetMomentTools.JetMomentToolsConf import JetCaloQualityTool
 try:
   from JetMomentTools.JetMomentToolsConf import JetCaloCellQualityTool
@@ -586,3 +587,7 @@ if jtm.haveShowerDeconstructionTool:
 
 # Remove constituents (useful for truth jets in evgen pile-up file)
 jtm += JetConstitRemover("removeconstit")
+
+# Sort jets by pT
+# May be deisred after calibration or grooming.
+jtm += JetSorter("jetsorter")

@@ -163,7 +163,12 @@ class JetToolManager:
           calargs = modarr[1:]
         if len(calargs) == 0:
           copt = jetFlags.defaultCalibOpt
-          calargs = copt.split(":")
+          if type(copt)==str and len(copt):
+            calargs = copt.split(":")
+          else:
+            print self.prefix + 'ERROR: If the modifier "calib" is used, then calibOpt or jetFlags.CalibOpt must be a non-blank string.'
+            print self.prefix + 'ERROR: Another alternative is to use the modifier string format "calib:<OPT>", e.g. "calib:a"'
+            raise Exception
         if len(calargs) == 0 or calargs[0]=="":
           print self.prefix + "ERROR: Calibration requested without option."
           print self.prefix + "       Add calibOpt to tool string, jet build command or to jetFlags.defaultCalibOpt"
