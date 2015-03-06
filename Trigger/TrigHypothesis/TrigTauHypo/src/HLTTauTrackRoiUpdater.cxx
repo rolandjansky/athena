@@ -78,16 +78,16 @@ HLT::ErrorCode HLTTauTrackRoiUpdater::hltExecute(const HLT::TriggerElement*, HLT
   std::vector<const TrackCollection*> vectorFoundTracks;
   const TrackCollection* foundTracks = 0;
 
-  status = getFeatures(outputTE,vectorFoundTracks);
+  status = getFeatures(outputTE, vectorFoundTracks);
 
   if (status !=HLT::OK) {
     msg() << MSG::ERROR << "No FastTrackFinder container was found.  Aborting pre-selection." << endreq;
-    return status;
+    return HLT::NAV_ERROR;
   }
   else {
     if (vectorFoundTracks.size()<1) {
       msg() << MSG::ERROR << "FastTrackFinder vector was empty.  Aborting pre-selection." << endreq;
-      return HLT::ERROR;
+      return HLT::NAV_ERROR;
     }
   }
 
