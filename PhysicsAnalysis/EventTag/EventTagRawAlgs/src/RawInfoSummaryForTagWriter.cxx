@@ -18,32 +18,24 @@
 
 #include "TrkTrack/Track.h"
 #include "TrkTrack/TrackCollection.h"
-#include "Particle/TrackParticle.h"
-#include "Particle/TrackParticleContainer.h"
-#include "TrkSegment/SegmentCollection.h"
+#include "TrkTrackSummary/TrackSummary.h"
 #include "CommissionEvent/ComTime.h" 
-#include "TileEvent/TileContainer.h"
 #include "CaloEvent/CaloCellContainer.h"
-#include "CaloEvent/CaloClusterContainer.h"
+#include "xAODCaloEvent/CaloClusterContainer.h"
 #include "InDetPrepRawData/TRT_DriftCircleContainer.h"
 #include "InDetPrepRawData/TRT_DriftCircle.h"
 #include "TrkSpacePoint/SpacePointContainer.h" 
-#include "TrkTrack/TrackStateOnSurface.h"
-#include "TrkMeasurementBase/MeasurementBase.h"
 #include "InDetBCM_RawData/BCM_RDO_Container.h"
 
-#include "TileIdentifier/TileTBID.h"
-#include "TileEvent/TileContainer.h"
+#include "TileEvent/TileCellContainer.h"
 #include "TileEvent/MBTSCollisionTime.h"
 
 #include "EventTagRawAlgs/RawInfoSummaryForTagWriter.h"
+#include "TileIdentifier/TileTBID.h"
 
 #include <algorithm>
 
 #include "LArRecEvent/LArCollisionTime.h"
-
-#include "VxVertex/VxContainer.h"
-#include "VxVertex/VxCandidate.h"
 
 //----------------------------------------------------------------
 
@@ -53,11 +45,10 @@ RawInfoSummaryForTagWriter::RawInfoSummaryForTagWriter(const std::string& name,
   m_doTileMuonFitter(true),
   m_fieldServiceHandle("AtlasFieldSvc",name)
 {
-  declareProperty("IDTrackKey",m_sgKeyIDtrack);  
+  declareProperty("IDTrackKey",m_sgKeyIDtrack);
   declareProperty("doClusterSums",m_doClusterSums=true);
   declareProperty("TRT_DriftCircleContainerName", m_TRT_DriftCircleName="TRT_DriftCircles");
   declareProperty("MBTS_Threshold",  m_mbts_threshold = 40.0/222.0 );  // Value in pC
-  declareProperty("vertexCollectionName", m_vertexCollectionName="VxPrimaryCandidate");
   declareProperty("MagFieldSvc"        , m_fieldServiceHandle);
 }
 
@@ -115,7 +106,7 @@ StatusCode RawInfoSummaryForTagWriter::execute()
  
 
   ATH_MSG_DEBUG("making RawInfoSummaryForTag object ");
-   RawInfoSummaryForTag* RISFTobject = new RawInfoSummaryForTag();
+  RawInfoSummaryForTag* RISFTobject = new RawInfoSummaryForTag();
 
 
    ///////////////////////////////////////////////////////////////
@@ -299,7 +290,7 @@ StatusCode RawInfoSummaryForTagWriter::execute()
         CellEx += energy*(cell->cosPhi())*(cell->sinTh());
         CellEy += energy*(cell->sinPhi())*(cell->sinTh());
 
-        // sum per subcalo
+       // sum per subcalo
        unsigned int iCaloNum = static_cast<unsigned int>(cell->caloDDE()->getSubCalo()); 
        if (iCaloNum==CaloCell_ID::LAREM) {
           int inum = cell->caloDDE()->getSampling();
@@ -319,21 +310,21 @@ StatusCode RawInfoSummaryForTagWriter::execute()
 
     // clusters crashes if Tile=False so protect with a JO switch
     if(m_doClusterSums){
-      const CaloClusterContainer* cluster_container;
+      const xAOD::CaloClusterContainer* cluster_container;
       std::string m_clustersContName="CaloTopoCluster";
       //Retrieve Cluster collection from SG
-      if ( m_storeGate->contains<CaloClusterContainer>(m_clustersContName)){
+      if ( m_storeGate->contains<xAOD::CaloClusterContainer>(m_clustersContName)){
         sc = m_storeGate->retrieve(cluster_container, m_clustersContName);
-	CaloClusterContainer::const_iterator iCluster = cluster_container->begin();
-	CaloClusterContainer::const_iterator lastCluster  = cluster_container->end();
+        xAOD::CaloClusterContainer::const_iterator iCluster = cluster_container->begin();
+        xAOD::CaloClusterContainer::const_iterator lastCluster  = cluster_container->end();
         for( ; iCluster != lastCluster; ++iCluster) {
-          float energy = (*iCluster)->energy();
+          float energy = (*iCluster)->e();
           totClusterEne += energy;
           if (std::fabs(energy) > clusE1) {
-	    clusE1=energy;
-	    clusEta1=(*iCluster)->eta();
-	    clusPhi1=(*iCluster)->phi();
-	    clusEt1 = (*iCluster)->et();
+            clusE1=energy;
+            clusEta1=(*iCluster)->eta();
+            clusPhi1=(*iCluster)->phi();
+            clusEt1 = (*iCluster)->et();
           }
         }
       }
