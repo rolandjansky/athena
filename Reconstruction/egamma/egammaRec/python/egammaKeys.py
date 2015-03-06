@@ -17,6 +17,7 @@ class egammaKeysDict:
   outputs = dict(
     Conversion =    [ 'xAOD::VertexContainer', 'GSFConversionVertices','-vxTrackAtVertex' ],
     Cluster  =      [ 'xAOD::CaloClusterContainer', 'egammaClusters', '' ],
+    TopoSeededCluster  =      [ 'xAOD::CaloClusterContainer', 'egammaTopoSeededClusters', '-CellLink' ],
     Electron =      [ 'xAOD::ElectronContainer', 'Electrons', '' ],
     EgammaRec =     [ 'egammaRecContainer', 'egammaRecCollection', '' ],
     FwdElectron =   [ 'xAOD::ElectronContainer', 'ForwardElectrons', '' ],
@@ -28,7 +29,9 @@ class egammaKeysDict:
     )  
   inputs['TrackParticle'][1] = InDetKeys.xAODTrackParticleContainer()
   outputs['CellLink'] = ['CaloClusterCellLinkContainer', outputs['Cluster'][1] + '_links', '']
-  
+  outputs['TopoSeededCellLink'] = ['CaloClusterCellLinkContainer', outputs['TopoSeededCluster'][1] + '_links', '']
+  # NB: Cell links for topo-seeded clusters will written in ESD but not in AOD
+  # (see egammaOutputItemList_jobOptions.py)
 
 # Create methods to return the types and keys in inputs and outputs
 # e.g. egammaKeys.outputElectronKey()

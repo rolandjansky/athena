@@ -10,32 +10,34 @@ from egammaTools.InDetTools import egammaExtrapolator
 from MCTruthClassifier import MCTruthClassifierConf
 import AthenaCommon.CfgMgr as CfgMgr
 
+EMClassifierParticleCaloExtensionTool =  ToolFactory (CfgMgr.Trk__ParticleCaloExtensionTool, 
+                                                      name="EMClassifierParticleCaloExtensionTool",
+                                                      Extrapolator = egammaExtrapolator,
+                                                      OutputContainerName="EGClassifierCaloExtension"
+                                                      )
+
+EMMCTruthClassifier = ToolFactory( MCTruthClassifierConf.MCTruthClassifier, name = 'EMMCTruthClassifier',
+                                   ParticleCaloExtensionTool=EMClassifierParticleCaloExtensionTool)
+
+
+egammaTruthAssociationAlg = AlgFactory( egammaRecConf.egammaTruthAssociationAlg,
+                                        ClusterContainerName = egammaKeys.outputClusterKey(),
+                                        ElectronContainerName = egammaKeys.outputElectronKey(),
+                                        PhotonContainerName = egammaKeys.outputPhotonKey(),
+                                        FwdElectronContainerName = egammaKeys.outputFwdElectronKey(),
+                                        TruthEventContainerName = egammaKeys.truthEventKey(),
+                                        TruthParticleContainerName = egammaKeys.truthParticleKey(),                                                
+                                        EgammaTruthContainerName = egammaKeys.outputTruthKey(),
+                                        MCTruthClassifier = EMMCTruthClassifier,
+                                        MatchForwardElectrons = egammaRecFlags.doEgammaForwardSeeded(),
+                                        MatchClusters = False
+                                        )
+
+
 class egammaTruthAssociationGetter ( Configured ) :
 
     def configure(self):
 
-        EMClassifierParticleCaloExtensionTool =  ToolFactory (CfgMgr.Trk__ParticleCaloExtensionTool, 
-                                                              name="EMClassifierParticleCaloExtensionTool",
-                                                              Extrapolator = egammaExtrapolator,
-                                                              OutputContainerName="EGClassifierCaloExtension"
-                                                              )
-        
-        EMMCTruthClassifier = ToolFactory( MCTruthClassifierConf.MCTruthClassifier, name = 'EMMCTruthClassifier',
-                                           ParticleCaloExtensionTool=EMClassifierParticleCaloExtensionTool)
-    
-
-        egammaTruthAssociationAlg = AlgFactory( egammaRecConf.egammaTruthAssociationAlg,
-                                                ClusterContainerName = egammaKeys.outputClusterKey(),
-                                                ElectronContainerName = egammaKeys.outputElectronKey(),
-                                                PhotonContainerName = egammaKeys.outputPhotonKey(),
-                                                FwdElectronContainerName = egammaKeys.outputFwdElectronKey(),
-                                                TruthEventContainerName = egammaKeys.truthEventKey(),
-                                                TruthParticleContainerName = egammaKeys.truthParticleKey(),                                                
-                                                EgammaTruthContainerName = egammaKeys.outputTruthKey(),
-                                                MCTruthClassifier = EMMCTruthClassifier,
-                                                MatchForwardElectrons = egammaRecFlags.doEgammaForwardSeeded(),
-                                                MatchClusters = False
-                                                )
         # configure egammaTruthAssociation here:
         try:
             self._egammaTruthAssociationHandle = egammaTruthAssociationAlg()
