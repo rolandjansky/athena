@@ -194,7 +194,8 @@ include ("MuonRecExample/MuonRecLoadTools.py")
 
 
 from TriggerMenuPython.GenerateMenu import GenerateMenu
-GenerateMenu().generate()
+g=GenerateMenu()
+g.generate()
 
 
 
@@ -281,7 +282,7 @@ from TriggerJobOpts.Lvl1TriggerGetter import Lvl1SimulationGetter
 lvl1 = Lvl1SimulationGetter()
 
 from TriggerJobOpts.HLTTriggerGetter import HLTSimulationGetter
-hlt = HLTSimulationGetter()
+hlt = HLTSimulationGetter(g)
 
 
 
