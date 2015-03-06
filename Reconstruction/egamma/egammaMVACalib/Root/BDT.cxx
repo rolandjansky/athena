@@ -29,6 +29,9 @@ BDT::BDT(TTree *tree)
 	int j = 0;
 	m_forest.push_back( Node::newNode(*vars, *values, j) );
     }
+    
+    delete vars;
+    delete values;
 }
 
 /** c-tor from TMVA::MethodBDT **/

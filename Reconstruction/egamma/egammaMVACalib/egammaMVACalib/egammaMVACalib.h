@@ -9,9 +9,12 @@
 #include <map>
 #include <vector>
 #include <iostream>
+#include <memory>
+#include <string>
 
 #include <TString.h>
 #include <TObject.h>
+#include <TFile.h>
 #include "AsgTools/AsgMessaging.h"
 
 class TTreeFormula;
@@ -401,6 +404,13 @@ class egammaMVACalib : public TObject,public asg::AsgMessaging
     
     /** Create an internal TTree when InitTree(0) is called **/
     TTree* createInternalTree(egammaType, TTree *tree);
+    
+    
+    template<typename T> static std::unique_ptr<T> loadFromFile(TFile* f, std::string key)
+    {
+      return std::unique_ptr<T>( dynamic_cast<T*>(f->Get(key.c_str())));
+    }
+
     
     //////////////////////////////////////////////////////////////
     

@@ -22,6 +22,7 @@ use xAODTracking     xAODTracking-*    Event/xAOD
 apply_pattern cmake_add_command command="find_package(ROOT COMPONENTS Tree TreePlayer TMVA XMLIO)"
 
 private
+use CxxUtils            CxxUtils-*              Control
 use PathResolver        PathResolver-*          Tools
 use AtlasReflex         AtlasReflex-*           External
 end_private
@@ -30,6 +31,7 @@ end_private
 
 apply_pattern dual_use_library files="../Root/*.cxx components/*.cxx"
 apply_pattern declare_joboptions files=*.py
+apply_pattern declare_python_modules files="../python/*.py"
 
 ## install the ROOT files (in the data/ directory)
 apply_pattern declare_calib files="../share/*.root " 

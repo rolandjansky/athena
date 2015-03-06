@@ -4,6 +4,7 @@
 
 #ifndef EGAMMAMVACALIB_EGAMMAMVACALIBDICT_H
 
+#include "egammaMVACalib/egammaMVACalib.h"
 #include "egammaMVACalib/IegammaMVATool.h"
 #include "egammaMVACalib/Node.h"
 #include "egammaMVACalib/BDT.h"
