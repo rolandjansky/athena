@@ -30,17 +30,51 @@ class TestEgammaMVACalib(unittest.TestCase):
         cls.photon_tool.InitTree(0)
         cls.electron_tool.InitTree(0)
 
-    def test_energy_single(self):
+    def test_energy_v1_weights(self):
+        """
+        test for some fixed case if using run1 weights (v1) the tool reproduces
+        the same outputs +/- 1 MeV
+        """
+        photon_tool = ROOT.egammaMVACalib(ROOT.egammaMVACalib.egPHOTON, True, "egammaMVACalib/v1")
+        electron_tool = ROOT.egammaMVACalib(ROOT.egammaMVACalib.egELECTRON, True, "egammaMVACalib/v1")
+        photon_tool.InitTree(0)
+        electron_tool.InitTree(0)
+        # first example
         Etrue, Ecluster, Emva = 163944.71875, 160612.73, 169953.875
-        inputs = (12222.08, 49425.33, 89170.18, 655.61, 1.663827, 160612.73, 1.6522,
-                  2.060981035232544, 71608.8984375, 49311.08984375, 22297.919921875,
-                  2, 10, 0, 10, 117.15968322753906)
-        self.assertAlmostEqual(self.photon_tool.getMVAEnergyPhoton(*inputs), Emva, delta=1)
+        example_inputs = (12222.08, 49425.33, 89170.18, 655.61, 1.663827, 160612.73, 1.6522,
+                          2.060981035232544, 71608.8984375, 49311.08984375, 22297.919921875,
+                          2, 10, 0, 10, 117.15968322753906)
+        self.assertAlmostEqual(photon_tool.getMVAEnergyPhoton(*example_inputs), Emva, delta=1)
 
         Etrue, Ecluster, Emva = 51110.449624549736, 48970.80859375, 49346.90625
-        inputs = (2943.845703125, 20473.12109375, 22390.435546875, 275.47125244140625,
-                  0.5844721794128418, 48970.80859375, 0.5835072994232178, 2.843465566635132)
-        self.assertAlmostEqual(self.electron_tool.getMVAEnergyElectron(*inputs), Emva, delta=1)
+        example_inputs = (2943.845703125, 20473.12109375, 22390.435546875, 275.47125244140625,
+                          0.5844721794128418, 48970.80859375, 0.5835072994232178, 2.843465566635132)
+
+        self.assertAlmostEqual(electron_tool.getMVAEnergyElectron(*example_inputs), Emva, delta=1.)
+
+    def test_extensive_v1_electron(self):
+        electron_tool = ROOT.egammaMVACalib(ROOT.egammaMVACalib.egELECTRON, True, "egammaMVACalib/v1")
+        electron_tool.InitTree(0)
+        self.do_test_file(electron_tool.getMVAEnergyElectron, "electron_response.txt")
+
+    def test_extensive_v1_photon(self):
+        photon_tool = ROOT.egammaMVACalib(ROOT.egammaMVACalib.egPHOTON, True, "egammaMVACalib/v1")
+        photon_tool.InitTree(0)
+        self.do_test_file(photon_tool.getMVAEnergyPhoton, "photon_response.txt")
+
+    def do_test_file(self, function, filename):
+        with open(filename) as f:
+            for line in f:
+                left, right = line.split("->")
+                left = left.rstrip(' ]').lstrip(' [')
+                right = right.strip()
+
+                expected_output = float(right)
+                left = left.split(',')
+                example_input = [float(r) if "." in r else int(r) for r in left]
+                output = function(*example_input)
+
+                self.assertAlmostEqual(output, expected_output, delta=1.)
 
     def test_coverage(self):
         for rconv in (0, 117):

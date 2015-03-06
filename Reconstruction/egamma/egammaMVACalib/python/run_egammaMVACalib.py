@@ -16,9 +16,15 @@ def doInteract(**kw):
   print "\nEntering interactive mode, MVACalib object is called 'm'\n"
 
 def loadLibs():
+  "Setup for both ROOTCORE and athena"
   import ROOT
-  tmp = ROOT.gROOT.ProcessLine('gSystem->Load("libCint")')
-  tmp = ROOT.gROOT.ProcessLine(".x $ROOTCOREDIR/scripts/load_packages.C");
+  if 'AtlasVersion' in os.environ: # athena
+    import PyCintex
+    PyCintex.loadDictionary('egammaMVACalib')
+  else: # ROOTCORE / AnalysisRelease
+    if ROOT.gROOT.GetVersion()[0] == '5': # only for ROOT 5, not 6
+      tmp = ROOT.gROOT.ProcessLine('gSystem->Load("libCint")')
+    tmp = ROOT.gROOT.ProcessLine(".x $ROOTCOREDIR/scripts/load_packages.C");
 
 def make_list(x, N=1):
   "Return an iterable object, i.e. the object itself or a list with N (=1) elements"
@@ -72,16 +78,18 @@ def getTChain(inputfiles, treename, readFromFile=False, dataset=False):
   return chain
 
 
-def run_egammaMVACalib(outputfile, inputTree, inputPath, useTMVA, particleType,
-  method, calibrationType, nEvents=-1, 
+def run_egammaMVACalib(outputfile, inputTree, 
+  inputPath='egammaMVACalib/v2', useTMVA='', particleType=0,
+  method='BDTG', calibrationType=1, nEvents=-1, 
   debug=False, printBranches=False, branchName="", copyBranches="input", shift=0,
   fudge=None, etaBinDef='', energyBinDef='', particleTypeVar= '',
   filePattern="", ignoreSpectators = True,
   interact=False, first_event=0, friend=False, defs=None):
-  """run_egammaMVACalib(outputfile, inputTree, inputPath, method, 
-  particleType, calibrationType, nEvents=-1, 
+  """run_egammaMVACalib(outputfile, inputTree, 
+  inputPath='egammaMVACalib/v2', useTMVA='', particleType=0,
+  method='BDTG', calibrationType=1, nEvents=-1, 
   debug=False, printBranches=False, branchName="", copyBranches="input", shift=0,
-  fudge=None, etaBinDef='', energyBinDef='', particleTypeVar='',
+  fudge=None, etaBinDef='', energyBinDef='', particleTypeVar= '',
   filePattern="", ignoreSpectators = True,
   interact=False, first_event=0, friend=False, defs=None)"""
 
@@ -96,9 +104,8 @@ def run_egammaMVACalib(outputfile, inputTree, inputPath, useTMVA, particleType,
   else: # Make sure we do not have lists
     inputPath, useTMVA, method, calibrationType, shift, branchName, defs = \
       (i[0] if isinstance(i, (list,tuple)) else i for i in iter_options)
-  
   import ROOT
-#   loadLibs()
+  loadLibs()
 
   
   params = particleType, not useTMVA, inputPath, method, calibrationType, debug, \
@@ -156,7 +163,7 @@ def run_egammaMVACalibMulti(outputfile, inputTree, inputPath, useTMVA, method,
     raise ValueError("Repeated values for branchName: %s" % branchName)
   
   import ROOT
-#   loadLibs()
+  loadLibs()
   M = ROOT.egammaMVACalibMulti(particleType, inputTree, copyBranches)
   for i,j in enumerate(loop):
     inputPath, useTMVA, method, calibrationType, shift, defs = j
@@ -207,8 +214,9 @@ def getParser(doc):
   io_group.add_option("-d", "--dataset", help="Name of the dataset used. With this options the <inputfiles> must be a ROOT file containing a TFileCollection", type=str)
   io_group.add_option("-n", "--treename", 
     help="Name of input tree (default: %default)", default="egamma")
-  io_group.add_option('-i', '--inputPath', 
-    help="Path containing the xml files", type=str, action='append')
+  io_group.add_option('-i', '--inputPath',
+    help="Path containing the xml/ROOT files (default: %default)", 
+    type=str, action='append')
   parser.add_option_group(io_group)
   
   group1 = OptionGroup(parser, "Parameters of the optimization")
@@ -266,7 +274,7 @@ if __name__ == "__main__":
   if not options.branchName:
     options.branchName = ''
   if not options.inputPath:
-    options.inputPath = ''
+    options.inputPath = 'egammaMVACalib/v2'
   
   try:
     outputfile = inputfiles.pop(0)
