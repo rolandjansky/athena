@@ -202,8 +202,11 @@ StatusCode PixelMainMon::FillTrackMon(void)
       //	delete summary; 
       //}
 
+      int nholes=-1;
       const Trk::TrackSummary* summary = track0->trackSummary();
       if (summary) {
+	nholes = summary->get(Trk::numberOfPixelHoles);
+
       	if (summary->get(Trk::numberOfPixelHits)==0) {
 	  continue;
 	}
@@ -220,14 +223,11 @@ StatusCode PixelMainMon::FillTrackMon(void)
       int nbadclus=0;
       int ngoodclus=0;
 
-      const Trk::Track* track; 
+      const Trk::Track* track = track0;
       //get the track state on surfaces (a vector, on element per surface) and loop over it
 
-      if(m_doHoleSearch && !m_doOnline){
+      if(m_doHoleSearch && !m_doOnline && nholes>0){
 	track = m_holeSearchTool->getTrackWithHoles(*track0);
-      }
-      else{
-	track = new Trk::Track(*track0);
       }
 
       const DataVector< const Trk::TrackStateOnSurface>* trackStates=track->trackStateOnSurfaces();
@@ -241,11 +241,11 @@ StatusCode PixelMainMon::FillTrackMon(void)
 	  Identifier surfaceID;
 	  
 	  const Trk::RIO_OnTrack* hit = mesb ? dynamic_cast<const Trk::RIO_OnTrack*>(mesb) : 0;
-	  if (mesb && !hit) continue;  // skip pseudomeasurements etc.                                                         
+	  if (mesb && !hit) continue;  // skip pseudomeasurements etc.                                         
 	  if (mesb && mesb->associatedSurface().associatedDetectorElement()) {
 	    surfaceID = mesb->associatedSurface().associatedDetectorElement()->identify();
 	    
-	  } else { // holes, perigee                                                                                                    
+	  } else { // holes, perigee                                                                              
 	    if (not (*trackStateOnSurfaceIterator)->trackParameters() ) {
 	      msg(MSG::INFO) << "pointer of TSOS to track parameters or associated surface is null" << endreq;
 	      continue;
@@ -420,6 +420,7 @@ StatusCode PixelMainMon::FillTrackMon(void)
 	 nTracks++;
 	 }
       }
+      if(m_doHoleSearch && !m_doOnline && nholes>0){delete (track);}
       }
 
    if(m_tracksPerEvt_per_lumi) m_tracksPerEvt_per_lumi->Fill(m_lumiBlockNum,nTracks);
