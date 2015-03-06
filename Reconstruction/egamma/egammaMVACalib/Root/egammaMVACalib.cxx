@@ -10,6 +10,7 @@
 #include <memory>
 #include <vector>
 #include <stdexcept>
+#include "CxxUtils/make_unique.h"
 
 #include <TPRegexp.h>
 #include <TObjArray.h>
@@ -35,13 +36,21 @@
 #include "egammaMVACalib/egammaMVACalib.h"
 #include "egammaMVACalib/BDT.h"
 #include "PathResolver/PathResolver.h"
+#include <memory>
 
 #ifdef ROOTCORE
 ClassImp(egammaMVACalib)
 #endif
 
-using namespace std;
 using namespace egammaMVACalibNmsp;
+
+#define CHECK_SETUPBDT(EXP) { \
+  if (!EXP) { \
+	 	ATH_MSG_WARNING( #EXP << " returned false (not present?), skipping " << f->GetName() ); \
+    f->Close(); \
+    return; \
+  } \
+}
 
 // TODO:
 // - DOCUMENTATION
@@ -184,9 +193,11 @@ egammaMVACalib::egammaMVACalib(int particle,
     ATH_MSG_FATAL("No reader defined");
     throw std::runtime_error("No reader defined");
   }
+  
+  printReadersInfo();
   ATH_MSG_INFO("Number of variables:" << m_formulae.size());
   if (m_debug) {
-    for (map<TString, egammaMVACalib::VarFormula>::const_iterator it = m_formulae.begin(); it != m_formulae.end(); ++it)
+    for (std::map<TString, egammaMVACalib::VarFormula>::const_iterator it = m_formulae.begin(); it != m_formulae.end(); ++it)
       ATH_MSG_DEBUG("formula: " << it->second.expression);
   }
   // Define the formulae to retrieve the reader corresponding to each particle
@@ -280,7 +291,7 @@ egammaMVACalib::getUserInfo(const TString & xmlfilename)
 
   // loop to find <UserInfo>
   XMLNodePointer_t user_infos_node = xml.GetChild(mainnode);
-  while (string(xml.GetNodeName(user_infos_node)) != "UserInfo")
+  while (std::string(xml.GetNodeName(user_infos_node)) != "UserInfo")
   {
     user_infos_node = xml.GetNext(user_infos_node);
     if (user_infos_node == 0) break;
@@ -380,7 +391,6 @@ void egammaMVACalib::getReaders(const TString & folder)
   }
 
   delete list_of_files;
-  printReadersInfo();
 }
 
 void egammaMVACalib::getBDTs(const std::string & folder)
@@ -395,7 +405,6 @@ void egammaMVACalib::getBDTs(const std::string & folder)
     setupBDT(PathResolverFindCalibFile(folder + "/MVACalib_electron.weights.root"));
 
   m_binMultiplicity = 2; // just to print...
-  printReadersInfo();
 }
 
 void egammaMVACalib::setupBDT(const TString& fileName)
@@ -405,76 +414,64 @@ void egammaMVACalib::setupBDT(const TString& fileName)
   if (m_debug) ATH_MSG_DEBUG("Setup BDT for particle " << key.particleType);
 
   TString filePath = PathResolverFindCalibFile(fileName.Data());
-  unique_ptr<TFile> f(TFile::Open(filePath));
-  if (!f.get() || f->IsZombie()){
-    ATH_MSG_WARNING("setupBDT " << "Invalid file, skipping " << filePath.Data());
-    return;
-  }
-
-  TH2Poly* hPoly = dynamic_cast<TH2Poly*> (f->Get("hPoly"));
-  if (!hPoly)
-  {
-    ATH_MSG_WARNING("setupBDT " << "File does not contain hPoly, skipping " <<filePath.Data());
-    return;
-  }
-  if (!m_hPoly) m_hPoly = (TH2Poly*) hPoly->Clone();
+  std::unique_ptr<TFile> f(TFile::Open(filePath));
+  CHECK_SETUPBDT( f.get() && f->IsZombie() );
+  
+  // Load hPoly
+  auto hPoly = loadFromFile<TH2Poly>(f.get(), "hPoly");
+  CHECK_SETUPBDT( hPoly );
+  
+  if (!m_hPoly) m_hPoly = (TH2Poly*) hPoly.get()->Clone();
   m_hPoly->SetDirectory(0);
-  assert(m_hPoly);
+  CHECK_SETUPBDT( m_hPoly );
+  
+  // Load formulae
+  auto formulae = loadFromFile<TObjArray>(f.get(), "formulae");
+  CHECK_SETUPBDT( formulae );
+  formulae->SetOwner(); // to delete the objects when d-tor is called
 
-  TObjArray *formulae = dynamic_cast<TObjArray*>(f->Get("formulae"));
-  if (!formulae)
-  {
-    ATH_MSG_WARNING("setupBDT " << "File does not contain formulae, skipping " <<filePath.Data());
-    return;
+  // Load variables
+  auto variables = loadFromFile<TObjArray>(f.get(), "variables");
+  CHECK_SETUPBDT( variables );
+  variables->SetOwner(); // to delete the objects when d-tor is called
+  
+  // Load shifts
+  auto shifts = loadFromFile<TObjArray>(f.get(), "shifts");
+  CHECK_SETUPBDT( shifts );
+  shifts->SetOwner(); // to delete the objects when d-tor is called
+  
+  // Load trees
+  auto trees = loadFromFile<TObjArray>(f.get(), "trees");
+  if (trees.get()) { 
+    trees->SetOwner(); // to delete the objects when d-tor is called
+    ATH_MSG_DEBUG("setupBDT " << "BDTs read from TObjArray");
+  }  
+  else{
+    ATH_MSG_DEBUG("setupBDT " << "Reading trees individually");
+    trees = CxxUtils::make_unique<TObjArray>();
+    trees->SetOwner(); // to delete the objects when d-tor is called
+    for (int i = 0; i < variables->GetEntries(); ++i)
+      trees->AddAtAndExpand(f->Get(Form("BDT%d", i)), i);
   }
-
+  
+  // Ensure the objects have (the same number of) entries
+  CHECK_SETUPBDT( trees->GetEntries() );
+  CHECK_SETUPBDT( (trees->GetEntries() == variables->GetEntries()) );
+  
+  // (pre) define formulae
   TNamed *formula;
-  TIter nextFormula(formulae);
+  TIter nextFormula(formulae.get());
   while ((formula = (TNamed*) nextFormula())){
     predefineFormula(formula->GetName(), formula->GetTitle(), "variable");
   }
-
-  TObjArray *variables = dynamic_cast<TObjArray*>(f->Get("variables"));
-  if (!variables){
-    ATH_MSG_WARNING("setupBDT " << "File does not contain variables, skipping " <<filePath.Data());
-    formulae->Delete();
-    delete formulae;
-    return;
-  }
-
-  TObjArray *trees = dynamic_cast<TObjArray*>(f->Get("trees"));
-  if (trees){
-    ATH_MSG_INFO("setupBDT" << "BDTs read from TObjArray");
-  }
-  else{
-    ATH_MSG_INFO("setupBDT" << "Reading trees individually");
-    trees = new TObjArray();
-    for (int i = 0; i < variables->GetEntries(); ++i)
-      trees->AddAtAndExpand(f->Get(Form("BDT%d", i)), i);
-
-    if (!trees->GetEntries()){
-      ATH_MSG_WARNING("setupBDT " << "File does not contain BDTs, skipping " <<filePath.Data());
-      f->Close();
-      formulae->Delete();
-      variables->Delete();
-      trees->Delete();
-      delete formulae;
-      delete variables;
-      delete trees;
-      return;
-    }
-  }
   
-  assert(trees->GetEntries() == variables->GetEntries());
-
   // Loop simultaneously over trees, variables and shifts
   // Define the BDTs, the list of variables and the shift for each BDT
   TObjString *str2, *shift;
   TTree *tree;
-  TIter nextTree(trees);
-  TIter nextVariables(variables);
-  TObjArray *shifts = dynamic_cast<TObjArray*>(f->Get("shifts"));
-  TIter nextShift(shifts);
+  TIter nextTree(trees.get());
+  TIter nextVariables(variables.get());
+  TIter nextShift(shifts.get());
   for (int i=0; (tree = (TTree*) nextTree()) && ((TObjString*) nextVariables()); ++i)
   {
     key.bin = i+1; // bin has an offset
@@ -483,7 +480,7 @@ void egammaMVACalib::setupBDT(const TString& fileName)
     std::vector<float*> pointers;
 
     // Loop over variables, which are separated by comma
-    auto_ptr<TObjArray> tokens(getString(variables->At(i)).Tokenize(","));
+    std::unique_ptr<TObjArray> tokens(getString(variables->At(i)).Tokenize(","));
     TIter nextVar(tokens.get());
     while ((str2 = (TObjString*) nextVar()))
     {
@@ -502,21 +499,13 @@ void egammaMVACalib::setupBDT(const TString& fileName)
     if (shift) m_additional_infos[key]["Mean10"] = getString(shift);
   }
 
-  //Cleanup memory
-  f->Close();
-  formulae->Delete();
-  variables->Delete();
-  trees->Delete();
-  delete formulae;
-  delete variables;
-  delete trees; // should be NULL if trees taken from TFile
 }
 
 
 bool egammaMVACalib::parseFileName(const TString & fileName, egammaMVACalib::ReaderID &key)
 {
   // Check if the fileName matches the expected pattern for readers
-  auto_ptr<TObjArray> match(m_fileNamePattern->MatchS(fileName));
+  std::unique_ptr<TObjArray> match(m_fileNamePattern->MatchS(fileName));
   if (!match.get() or match->GetEntries() != 3) {
     return false;
   }
@@ -531,7 +520,7 @@ bool egammaMVACalib::parseFileName(const TString & fileName, egammaMVACalib::Rea
   TString binDef = getString(match->At(2));   // e.g. Et20-40_eta1.55-1.74
   //   delete match;
 
-  auto_ptr<TObjArray> binArray(binDef.Tokenize("_"));
+  std::unique_ptr<TObjArray> binArray(binDef.Tokenize("_"));
   if (!binArray.get()) return false;
 
   TIter next(binArray.get());
@@ -580,7 +569,7 @@ bool egammaMVACalib::parseFileName(const TString & fileName, egammaMVACalib::Par
 {
   // Check if the fileName matches the expected pattern for readers
   TPRegexp fileNamePattern("MVACalib_(.*?).weights.root");
-  auto_ptr<TObjArray> match(fileNamePattern.MatchS(fileName));
+  std::unique_ptr<TObjArray> match(fileNamePattern.MatchS(fileName));
   if (!match.get() or match->GetEntries() != 2) {
     return false;
   }
@@ -645,11 +634,11 @@ int egammaMVACalib::getBin(float etaMin, float etaMax, float energyMin, float en
 void egammaMVACalib::setupReader(TMVA::Reader *reader, const TString & xml_filename)
 {
   //ATH_MSG_DEBUG("In setupReader: " <<  xml_filename);
-  vector<egammaMVACalib::XmlVariableInfo> variable_infos = parseXml(xml_filename);
+  std::vector<egammaMVACalib::XmlVariableInfo> variable_infos = parseXml(xml_filename);
 
   // Add variables and spectators using the floats from m_formulae
   // Each TTreeFormula is defined later in InitTree
-  for (vector<egammaMVACalib::XmlVariableInfo>::const_iterator itvar = variable_infos.begin();
+  for (std::vector<egammaMVACalib::XmlVariableInfo>::const_iterator itvar = variable_infos.begin();
        itvar != variable_infos.end(); ++itvar)
   {
     // Define the variable / spectator name and expression
@@ -1045,7 +1034,7 @@ float egammaMVACalib::getMVAOutput(int index /* = 0 */)
   TMVA::Reader *reader = getReader(getReaderID());
   if (m_debug)
   {
-    stringstream ss;
+    std::stringstream ss;
     ss << "index = " << index << " / particle = " << getParticleType();
     if (m_eta) ss << " / eta = " << *m_eta;
     if (m_energy) ss << " / energy = " << *m_energy;
@@ -1208,10 +1197,10 @@ void egammaMVACalib::defineInitialEnergyFormula()
 }
 
 
-vector<egammaMVACalib::XmlVariableInfo>
+std::vector<egammaMVACalib::XmlVariableInfo>
 egammaMVACalib::parseXml(const TString & xml_filename)
 {
-  vector<egammaMVACalib::XmlVariableInfo> result;
+  std::vector<egammaMVACalib::XmlVariableInfo> result;
 
   TXMLEngine xml;
   XMLDocPointer_t xmldoc = xml.ParseFile(xml_filename);
@@ -1229,7 +1218,7 @@ egammaMVACalib::parseXml(const TString & xml_filename)
     node = xml.GetNext(node);
     TString nodeName = xml.GetNodeName(node);
     if (nodeName == "Variables" || nodeName == "Spectators") {
-      vector<egammaMVACalib::XmlVariableInfo> r = parseVariables(&xml, node, nodeName);
+      std::vector<egammaMVACalib::XmlVariableInfo> r = parseVariables(&xml, node, nodeName);
       result.insert(result.end(), r.begin(), r.end());
     }
   }
@@ -1237,10 +1226,10 @@ egammaMVACalib::parseXml(const TString & xml_filename)
   return result;
 }
 
-vector<egammaMVACalib::XmlVariableInfo>
+std::vector<egammaMVACalib::XmlVariableInfo>
 egammaMVACalib::parseVariables(TXMLEngine *xml, void* node, const TString & nodeName)
 {
-  vector<egammaMVACalib::XmlVariableInfo> result;
+  std::vector<egammaMVACalib::XmlVariableInfo> result;
   if (!xml || !node) return result;
 
   // loop over all children inside <Variables> or <Spectators>
@@ -1555,7 +1544,7 @@ void egammaMVACalib::checkShowerDepth(TTree *tree)
 
 void egammaMVACalib::writeROOTfile(const TString& directory, int particle)
 {
-  if (!m_readers.size())
+  if (m_useNewBDTs ? !m_BDTs.size() : !m_readers.size())
   {
     ATH_MSG_WARNING("writeROOTfile " << "No reader defined, not dumping ROOT file");
     return;
@@ -1574,7 +1563,13 @@ void egammaMVACalib::writeROOTfile(const TString& directory, int particle)
       return;
     }
   }
-
+  
+  if (m_useNewBDTs)
+  {
+    ATH_MSG_WARNING("writeROOTfile " << "not implemented when reading ROOT files");
+    return;
+  }
+  
   TString particleName("electron");
   if (particle == UNCONVERTED)
     particleName = "unconvertedPhoton";
@@ -1584,7 +1579,9 @@ void egammaMVACalib::writeROOTfile(const TString& directory, int particle)
   TString fileName = directory + TString("/MVACalib_") + particleName + TString(".weights.root");
   TFile *f = TFile::Open(fileName, "UPDATE");
   TObjArray trees, variables, formulae, shifts;
-
+  
+  // Convert readers to TTrees and fill variables
+  // The index of each object in the array is determined by the binning
   std::map< egammaMVACalib::ReaderID, TMVA::Reader* >::const_iterator itReader;
   for (itReader = m_readers.begin(); itReader != m_readers.end(); ++itReader)
   {
@@ -1594,7 +1591,7 @@ void egammaMVACalib::writeROOTfile(const TString& directory, int particle)
   }
 
   // Expressions (formulae)
-  map<TString, egammaMVACalib::VarFormula>::const_iterator it;
+  std::map<TString, egammaMVACalib::VarFormula>::const_iterator it;
   for (it = m_formulae.begin(); it != m_formulae.end(); ++it)
     formulae.Add(new TNamed(it->first, it->second.expression));
 
@@ -1649,7 +1646,7 @@ void egammaMVACalib::addReaderInfoToArrays(TMVA::Reader *reader,
 std::vector<double> egammaMVACalib::get_radius(double eta)
 {
   eta = fabs(eta);
-  vector<double> radius(4);
+  std::vector<double> radius(4);
   if (eta / 0.025 < 57)
   {
     static const float
@@ -1769,7 +1766,7 @@ double egammaMVACalib::get_shower_depth(double eta,
                                         double raw_cl_2,
                                         double raw_cl_3)
 {
-  vector<double> radius = get_radius(eta);
+  std::vector<double> radius = get_radius(eta);
 
   const double denominator = raw_cl_0 + raw_cl_1 + raw_cl_2 + raw_cl_3;
   if (denominator == 0) return 0.;
@@ -1786,8 +1783,8 @@ TMVA::Reader* egammaMVACalib::getDummyReader(const TString &xmlFileName)
   float dummyFloat;
   TMVA::Reader *reader = new TMVA::Reader("Silent");
 
-  vector<egammaMVACalib::XmlVariableInfo> variable_infos = parseXml(xmlFileName);
-  for (vector<egammaMVACalib::XmlVariableInfo>::const_iterator itvar = variable_infos.begin();
+  std::vector<egammaMVACalib::XmlVariableInfo> variable_infos = parseXml(xmlFileName);
+  for (std::vector<egammaMVACalib::XmlVariableInfo>::const_iterator itvar = variable_infos.begin();
        itvar != variable_infos.end(); ++itvar)
   {
     // Define the variable / spectator name and expression
@@ -1829,13 +1826,6 @@ bool egammaMVACalib::Notify()
     checkFormula(formulaIt->second.formula);
   }
 
-  // Update the formulae defined in m_shiftMap
-  //     if (m_debug) ATH_MSG_DEBUG("Updating shifts");
-  //     ShiftMap::iterator shiftIt;
-  //     for (shiftIt = m_shiftMap.begin(); shiftIt != m_shiftMap.end(); ++shiftIt) {
-  //    checkFormula(shiftIt->second);
-  //     }
-
   // Update cluster formula
   if (m_clusterFormula)
     checkFormula(m_clusterFormula);
@@ -1843,3 +1833,5 @@ bool egammaMVACalib::Notify()
   if (m_debug) ATH_MSG_DEBUG("Notify done");
   return true;
 }
+
+//  LocalWords:  TObjArray

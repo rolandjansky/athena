@@ -59,7 +59,6 @@ private:
   
   // here will go variables and stuff
   std::string m_folder; /// string with folder for weight files
-  int m_egammaType; /// whether this will be for photon or electron
   
   double m_mvaCalibratedEnergy; /// Output energy
   
@@ -80,7 +79,6 @@ private:
   int m_convtrk1nSCTHits;
   int m_convtrk2nPixHits;
   int m_convtrk2nSCTHits;
-  double m_rawcl_calibHitsShowerDepth;
   double m_Rconv;
 
   ////////////////////////////////////////////////////////////
