@@ -100,6 +100,7 @@ PixelMainMon::PixelMainMon(const std::string & type,
    declareProperty("doSpacePoint",    m_doSpacePoint = false);
    declareProperty("doCluster",       m_doCluster    = false);
    declareProperty("doTrack",         m_doTrack      = false);
+   declareProperty("doHoleSearch",    m_doHoleSearch   = false);
    declareProperty("doStatus",        m_doStatus     = false);
 
    declareProperty("doHeavyIonMon",   m_doHeavyIonMon = false);
@@ -754,11 +755,13 @@ StatusCode PixelMainMon::initialize()
      msg(MSG::WARNING)<<"Assuming hybrid 2D/3D IBL module composition, but geometry is all-planar"<<endreq;
    }
 
-   if ( m_holeSearchTool.retrieve().isFailure() ) {
-     msg(MSG::FATAL) << "Failed to retrieve tool " << m_holeSearchTool << endreq;
-     return StatusCode::FAILURE;
-   } else {
-     msg(MSG::INFO) << "Retrieved tool " << m_holeSearchTool << endreq;
+   if(m_doHoleSearch){
+     if ( m_holeSearchTool.retrieve().isFailure() ) {
+       msg(MSG::FATAL) << "Failed to retrieve tool " << m_holeSearchTool << endreq;
+       return StatusCode::FAILURE;
+     } else {
+       msg(MSG::INFO) << "Retrieved tool " << m_holeSearchTool << endreq;
+     }
    }
 
    if ( m_lumiTool.retrieve().isFailure() ) {
