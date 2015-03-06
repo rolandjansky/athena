@@ -55,12 +55,14 @@ if EventTagFlags.doTrigger():
     except Exception:
         print traceback.format_exc() 
         print "ERROR could not load GlobalTriggerTagBuilder_jobOptions.py"
+
 if EventTagFlags.doRawSummary():
     try:
         include( "EventTagAlgs/RawInfoSummaryTagBuilder_jobOptions.py" )
     except Exception:
         print traceback.format_exc() 
         print "ERROR could not load RawInfoSummaryTagBuilder_jobOptions.py"
+
 """
 if EventTagFlags.doAnalysis():
     try:
@@ -75,4 +77,4 @@ tagmetadatalist = [ "TagAthenaAttributeList#"+EventTagGlobal.AttributeList ]
 tagmetadatalist += ["CollectionMetadataContainer#GlobalTriggerTagBuilder.GlobalTriggerTagTool"]
 tagmetadatalist += ["CollectionMetadataContainer#GlobalEventTagBuilder.GlobalEventTagTool"]
 tagmetadatalist += ["CollectionMetadataContainer#RegistrationStreamLumiTrig"]
-tagmetadatalist += ["CollectionMetadataContainer#DPDTagTool"]
+#tagmetadatalist += ["CollectionMetadataContainer#DPDTagTool"]
