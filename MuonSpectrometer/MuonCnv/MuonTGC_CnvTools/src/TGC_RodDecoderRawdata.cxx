@@ -342,7 +342,7 @@ void Muon::TGC_RodDecoderRawdata::byteStream2Rdo(OFFLINE_FRAGMENTS_NAMESPACE::Po
 	    for(unsigned iFrag = 0; iFrag < counters[iCnt].count; iFrag++)
 	      {
 		ATH_MSG_VERBOSE( "WORD" << iFrag << ":" << MSG::hex << bs[iBs] );
-		fromBS32(bs[iBs++], hpttile);
+		fromBS32(bs[iBs], hpttile);
 
 		if(hpttile.strip == 1 &&  hpttile.sector & 4 ){
                   TgcRawData* raw = new TgcRawData(bcTag(hpt.bcBitmap),
@@ -362,7 +362,7 @@ void Muon::TGC_RodDecoderRawdata::byteStream2Rdo(OFFLINE_FRAGMENTS_NAMESPACE::Po
                                                    hpttile.tile);
                   rdo.push_back(raw);
                 }else{
-                  fromBS32(bs[iBs++], hpt);
+                  fromBS32(bs[iBs], hpt);
                   TgcRawData* raw = new TgcRawData(bcTag(hpt.bcBitmap),
                                                    rdo.subDetectorId(),
                                                    rdo.rodId(),
@@ -380,6 +380,7 @@ void Muon::TGC_RodDecoderRawdata::byteStream2Rdo(OFFLINE_FRAGMENTS_NAMESPACE::Po
                                                    0);
                   rdo.push_back(raw);
                 }
+                iBs++;
               }
 	    break;
 	  }
