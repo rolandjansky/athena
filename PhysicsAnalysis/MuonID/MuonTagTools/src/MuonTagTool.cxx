@@ -241,7 +241,7 @@ StatusCode MuonTagTool::execute(TagFragmentCollection & muonTagCol, const int ma
 	  getMuonImpactParameter (*cm_it, d0, z0, dd0, dz0, theta); 
 	  
 	  if ( abs(d0) > m_maxD0preselection ) {
-	    ATH_MSG_DEBUG ("-> Muon fails impact veto, has d0 = " << d0 << " mm, for cosmics, reject it");
+	    ATH_MSG_DEBUG ("-> Muon fails impact veto, ha d0 = " << d0 << " mm, for cosmics, reject it");
 	    continue;
 	  } else {
 	    ATH_MSG_DEBUG ("-> Muon passes impact veto, has d0 = " << d0 << " mm");	    
@@ -366,14 +366,16 @@ StatusCode MuonTagTool::execute(TagFragmentCollection & muonTagCol, const int ma
     if ( muon.muonType() == xAOD::Muon::SegmentTagged )            tightness = tightness | bit2int(3);
     if ( muon.quality() == xAOD::Muon::Medium ||  muon.quality() == xAOD::Muon::Tight )                       tightness = tightness | bit2int(4);
     
-    /** add the impact parameter bits for cosmic veto */
+    /** Add the impact parameter bits for cosmic veto */
     
     double d0=0,z0=0,dd0=0,dz0=0,theta=0;
     getMuonImpactParameter ((*muonItr), d0, z0, dd0, dz0, theta);
     double d0sig = dd0 != 0 ? fabs(d0/dd0) : 9999.;
     if ( d0sig < m_maxD0signLoose) tightness = tightness | bit2int(5);
     if ( d0sig < m_maxD0signTight) tightness = tightness | bit2int(6);
-   
+    if ( fabs(d0) < m_maxD0tight)  tightness = tightness | bit2int(9);
+    if ( fabs(z0) < m_maxZ0tight)  tightness = tightness | bit2int(10);
+
     /** ID track quality cuts */
    
     const ElementLink<xAOD::TrackParticleContainer> &  tp_p = muon.primaryTrackParticleLink();
@@ -384,7 +386,7 @@ StatusCode MuonTagTool::execute(TagFragmentCollection & muonTagCol, const int ma
       ATH_MSG_DEBUG("primary track particle retrieved");
     }
    
-    const xAOD::TrackParticle* tp = 0;
+   const xAOD::TrackParticle* tp = 0;
     if( tp_p.isValid() ) {
       tp = *tp_p;
       ATH_MSG_DEBUG("tp_p IS VALID");
@@ -459,12 +461,12 @@ StatusCode MuonTagTool::execute(TagFragmentCollection & muonTagCol, const int ma
       if( muon.passesIDCuts() == 1 )   tightness = tightness | bit2int(16);
       if( muon.passesHighPtCuts() == 1  )   tightness = tightness | bit2int(21);
       
-      //const uint8_t m_segChi2OverDoF = 0.0;
-      //if(! tp->parameter(m_segChi2OverDoF, xAOD::Muon::segmentChi2OverDoF)){
-      //	ATH_MSG_ERROR("segmentChi2OverDoF not retrieved!");
-      //}
-      // if( muon.fitChi2OverDoF() < 5 ) tightness = tightness | bit2int(22);
-      // if( muon.fitChi2OverDoF() < 3 ) tightness = tightness | bit2int(23);
+      float m_segChi2OverDoF = 0.0;
+      if(! muon.parameter(m_segChi2OverDoF, xAOD::Muon::segmentChi2OverDoF)){
+      	ATH_MSG_ERROR("segmentChi2OverDoF not retrieved!");
+      }
+      if( m_segChi2OverDoF < 5 ) tightness = tightness | bit2int(22);
+      if( m_segChi2OverDoF < 3 ) tightness = tightness | bit2int(23);
       
       if( msgLvl(MSG::DEBUG) ){
 	std::bitset<32> bits(tightness);
