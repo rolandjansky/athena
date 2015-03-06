@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-monitoring_egamma = ['e0_perf_L1EM3','g0_perf_L1EM3','e5_loose1','e24_medium_iloose','e28_tight_iloose','e28_tight_iloose_L2StarA','e24_medium_L1EM20V']
+monitoring_egamma = ['e3_etcut','g3_etcut','e5_loose1','e24_medium_iloose','e28_tight_iloose','e28_tight_iloose_L2StarA','e24_medium_L1EM20V']
 
 def HLTEgammaMonitoringTool():
 
