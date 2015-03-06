@@ -44,15 +44,12 @@ if hasattr(runArgs,"inputRDO_TRIGFile"):
     TriggerFlags.doTriggerConfigOnly.set_Value_and_Lock( True )
     rec.doTrigger.set_Value_and_Lock(True)
     recAlgs.doTrigger.set_Value_and_Lock(False)
-    from TrigDecisionMaker.TrigDecisionMakerConfig import TrigDecisionMaker
-    trigDecMaker = TrigDecisionMaker()
+    from TrigDecisionTool.TrigDecisionToolConf import Trig__TrigDecisionTool
+    ToolSvc += Trig__TrigDecisionTool( "TrigDecisionTool" )
     from TriggerJobOpts.HLTTriggerResultGetter import HLTTriggerResultGetter
     hltoutput = HLTTriggerResultGetter()
     from TriggerJobOpts.Lvl1ResultBuilderGetter import Lvl1ResultBuilderGetter
     l1output = Lvl1ResultBuilderGetter()
-    from RecExConfig.ObjKeyStore import cfgKeyStore
-    if cfgKeyStore.isInInput("HLT::HLTResult","HLTResult_HLT"):
-       cfgKeyStore['inputFile'].removeItem(["HLT::HLTResult#HLTResult_HLT"])
 if hasattr(runArgs,"inputRDO_FILTFile"):
     rec.readRDO.set_Value_and_Lock( True )
     globalflags.InputFormat.set_Value_and_Lock('pool')
