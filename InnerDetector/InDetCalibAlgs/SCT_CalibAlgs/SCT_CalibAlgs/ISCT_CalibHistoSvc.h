@@ -19,7 +19,6 @@
 #include <string>
 #include <utility>
 class TH1F;
-class TH2F;
 class TH1I;
 class ITHistSvc;
 class SCT_ID;
@@ -47,18 +46,12 @@ class ISCT_CalibHistoSvc: virtual public IInterface{
     double getBinForHistogramIndex(const int bin, const int histogramIndex);
     /// get the number of entries in a given histogram
     int size(const int histogramIndex);
-    void binHistograms(const int nLbMerged);
     /// set number of lumiblocks
     static void setNumberOfLb(const int nLb);
     /// get number of lumiblocks
     static int numberOfLb();
-    /// set number of lumiblocks
-    static void setLbToMerge(const int nLbMerge);
-    /// get number of lumiblocks
-    static int LbToMerge();
   protected:
     std::vector<TH1F *> m_phistoVector;
-    std::vector<TH2F *> m_phistoVector2D;
     TH1I * m_numberOfEventsHisto;
     ITHistSvc * m_thistSvc;
     //need to implement retrieval for these
@@ -66,7 +59,6 @@ class ISCT_CalibHistoSvc: virtual public IInterface{
     //ServiceHandle<StoreGateSvc> m_evtStore;
     const SCT_ID* m_pSCTHelper;
     static int m_nLb;
-    static int m_nLbMerge;
     //
     bool init();
     template<class S>

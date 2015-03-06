@@ -20,23 +20,23 @@ SCT_CalibModuleListSvc::~SCT_CalibModuleListSvc(){
    
    
 StatusCode SCT_CalibModuleListSvc::initialize(){
-  if (msgLvl(MSG::DEBUG)) msg(MSG:: DEBUG) << "Initializing SCT_CalibModuleListSvc "  << endmsg;
+  if (msgLvl(MSG::DEBUG)) msg(MSG:: DEBUG) << "Initializing SCT_CalibModuleListSvc "  << endreq;
   
   StatusCode sc = m_detStore->retrieve( m_pSCTHelper, "SCT_ID" );
    if ( sc.isFailure() ) {
-     msg( MSG::ERROR ) << "Unable to retrieve SCTHelper" << endmsg;
+     msg( MSG::ERROR ) << "Unable to retrieve SCTHelper" << endreq;
      return sc;
    }
 
   sc = m_MonitorConditionsSvc.retrieve();
   if ( sc.isFailure() ) {
-    msg( MSG::ERROR ) << "Unable to retrieve MonitorConditionsSvc" << endmsg;
+    msg( MSG::ERROR ) << "Unable to retrieve MonitorConditionsSvc" << endreq;
     return sc;
   }
   
   sc = m_IOVDbSvc.retrieve();
    if ( sc.isFailure() ) {
-     msg( MSG::ERROR ) << "Unable to retrieve IOVDbSvc" << endmsg;
+     msg( MSG::ERROR ) << "Unable to retrieve IOVDbSvc" << endreq;
      return sc;
    }
   
@@ -74,7 +74,7 @@ StatusCode SCT_CalibModuleListSvc::readModuleList( std::map< Identifier, std::se
   }
 
   //--- Drop the folder to avoid conflict with SCTCalibWriteSvc
-  if ( !( m_IOVDbSvc->dropObject( "/SCT/Derived/Monitoring", true ) ) ) msg( MSG::ERROR ) << "Unable to drop /SCT/Derived/Monitoring" << endmsg;
+  if ( !( m_IOVDbSvc->dropObject( "/SCT/Derived/Monitoring", true ) ) ) msg( MSG::ERROR ) << "Unable to drop /SCT/Derived/Monitoring" << endreq;
 
   return StatusCode::SUCCESS;
 }

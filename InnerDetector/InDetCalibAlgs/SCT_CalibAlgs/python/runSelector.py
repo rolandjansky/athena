@@ -5,11 +5,10 @@
 import os
 import sys
 import time
-import subprocess
 
 import PyJobTransforms.trfArgClasses as trfArgClasses
 
-def main( runNum = None, procType = None, forceSkipQueue = 0, Stream = None ):
+def main( runNum = None, procType = None, forceSkipQueue = 0 ):
 #def main( runNum = None, procType = None, forceSkipQueue = 0 ):
     #===== Run number =====
     if runNum == None:
@@ -18,10 +17,8 @@ def main( runNum = None, procType = None, forceSkipQueue = 0, Stream = None ):
     Run0 = runNum
     #===== procType =====
     if procType == None:
+        #    if procType == trfArgClasses.argList():
         print 'ERROR no process type given'
-        return False
-    if Stream == None:
-        print 'ERROR no stream given'
         return False
     for iType in procType:
         if not iType in ['doNoisyStrip','doNoiseOccupancy','doDeadChip','doDeadStrip','doHV','doBSErrorDB','doRawOccupancy','doEfficiency','doLorentzAngle']:
@@ -30,76 +27,43 @@ def main( runNum = None, procType = None, forceSkipQueue = 0, Stream = None ):
         else :
             pType = iType
 
-    #run RunQuery only if the stream _is not_ cosmics
-    
-    print 'STREAM'
-    print Stream
     #===== Check the stable beam flag in Run0 =====
     #--- RunQuery
     runQuery  = 'AtlRunQuery.py '
     runQuery += '--run \"' + str(Run0) + '\" '
-
-    if 'cos' not in Stream:
-        runQuery += '--lhc \"stablebeams TRUE\" '
-
+#    runQuery += '--lhc \"stablebeams TRUE\" '
     runQuery += '--partition \"ATLAS\" '
     runQuery += '--detmaskin \"240A\" '
-
-
-    if 'eV' in Stream:
-        runQuery += '--projecttag \"data*_*eV\" '
-    elif 'hi' in Stream:
-        runQuery += '--projecttag \"data*_hi\" '
-    else:
-        runQuery += '--projecttag \"data*_cos\" '
-    # if 'cos' not in Stream:
-    #     runQuery += '--projecttag \"data*_*eV\" '
-    # else:
-    #     runQuery += '--projecttag \"data*_cos\" '
-
+    runQuery += '--projecttag \"data*_cos\" '
+#    runQuery += '--projecttag \"data*_*eV\" '
     if pType == 'doNoisyStrip':
-        runQuery += '--streams \"*calibration_SCTNoise 10000+\" '
-        runQuery += '--show \"streams *calibration_SCTNoise\" '
-
+        runQuery += '--streams \"*SCTNoise 10000+\" '
+        runQuery += '--show \"streams *SCTNoise\" '
     if pType == 'doDeadChip' or pType == 'doDeadStrip':
+        runQuery += '--streams \"*express 200000+\" '
+        runQuery += '--show \"streams *express\" '
 
-        if 'cos' not in Stream:
-            runQuery += '--streams \"*express 200000+\" '
-            runQuery += '--show \"streams *express\" '
-        else:
-            runQuery += '--streams \"*IDCosmic 200000+\" '
-            runQuery += '--show \"streams *IDCosmic\" '
-
-
-    runQuery += '--show run --show projecttag --show events --show time --show \"lhc\" '
+    runQuery += '--show run --show events --show time --show \"lhc\" '
     runQuery += '--noroot --nohtml --verbose'
     print runQuery
     os.system(runQuery)
     
-
     print Run0
-
-#    --- Check stable beam flag if stream _is not_ cosmics
-    if 'cos' not in Stream:
-    
-        StableBeam = False
-        if os.path.exists('./data/MyLBCollection.xml'):
-            f = open('./data/MyLBCollection.xml')
+    #--- Check stable beam flag
+    StableBeam = False
+    if os.path.exists('./data/MyLBCollection.xml'):
+        f = open('./data/MyLBCollection.xml')
+        line = f.readline()
+        while line:
+            if "Metadata" in line and "RunList" in line and str(Run0) in line:
+                StableBeam = True
+                print "Run %s : run selection passed ---> job will be launched" %(Run0)
             line = f.readline()
-            while line:
-                if "Metadata" in line and "RunList" in line and str(Run0) in line:
-                    StableBeam = True
-                    print "Run %s : run selection passed ---> job will be launched" %(Run0)
-                line = f.readline()
-            f.close()
+        f.close()
 
-        else: 
-            print "ERROR problem in access to /data/MyLBCollection.xml file produced by AtlRunQuery.py --- probably due to AtlRunQuery crash..."
-            sys.exit( -1 )
-            
-        if not StableBeam:
-            print "Run %s : run selection didn't pass Stable Beam check--- job will be finished" %(Run0)
-            return False
+    if not StableBeam:
+        print "Run %s : run selection didn't pass Stable Beam check--- job will be finished" %(Run0)
+        return False
     
     #===== Read last run uploaded : only for NoisyStrip =====
     #--- Only for NoisyStrip
@@ -128,85 +92,37 @@ def main( runNum = None, procType = None, forceSkipQueue = 0, Stream = None ):
         #--- RunQuery
         runQuery  = 'AtlRunQuery.py '
         runQuery += '--run \"' + str(RunLast[:-1]) + '+\" '
-
-#        if 'cos' not in Stream:
-        if 'cos' not in Stream:
-            runQuery += '--lhc \"stablebeams TRUE\" '
+#        runQuery += '--lhc \"stablebeams TRUE\" '
         runQuery += '--partition \"ATLAS\" '
         runQuery += '--detmaskin \"240A\" '
-
-        if 'eV' in Stream:
-            runQuery += '--projecttag \"data*_*eV\" '
-        elif 'hi' in Stream:
-            runQuery += '--projecttag \"data*_hi\" '
-        else:
-            runQuery += '--projecttag \"data*_cos\" '
-        # if 'cos' not in Stream:
-        #     runQuery += '--projecttag \"data*_*eV\" '
-        # else:
-        #     runQuery += '--projecttag \"data*_cos\" '
-
-        runQuery += '--streams \"*calibration_SCTNoise 10000+\" '
-        runQuery += '--show \"streams *calibration_SCTNoise\" '
-        runQuery += '--show run --show projecttag --show events --show time --show \"lhc\" '
+#        runQuery += '--projecttag \"data*_*eV\" '
+        runQuery += '--projecttag \"data*_cos\" '
+        runQuery += '--streams \"*SCTNoise 10000+\" '
+        runQuery += '--show \"streams *SCTNoise\" '
+        runQuery += '--show run --show events --show time --show \"lhc\" '
         runQuery += '--noroot --nohtml --verbose'
         print runQuery
         os.system(runQuery)
-
+        
         #--- Check Run0 and RunLast
-        runList=[]
-        runDict={}
-        runNum=''
-        runPro=''
-        if os.path.exists("./data/QueryResult.txt") :
-            f = open('./data/QueryResult.txt')
+        if os.path.exists("./data/MyLBCollection.xml") :
+            f = open('./data/MyLBCollection.xml')
             line = f.readline()
             while line:
-                if 'Run:' in line and runNum=='':
-                    runNum = line.split(':')[1]
-                    runNum = runNum.replace("\n",'').replace(' ','')
-                if 'Project tag:' in line and runPro=='':
-                    runPro = line.split('\'')[1]
-                if runNum!='' and runPro!='':
-                    if 'data15_cos' in runPro or 'data15_13TeV' in runPro or 'data15_hi' in runPro or 'data15_5TeV' in runPro:
-                        runList.append(runNum)
-                        runDict[runNum] = runPro
-                    runNum=''
-                    runPro=''
+                if "Metadata" in line and "RunList" in line :
+                    #--- Check if there are runs waiting for processing/upload
+                    RunWait = 0
+                    for iRun in range( int(RunLast)+1, int(Run0) ):
+                        if str(iRun) in line:
+                            RunWait += 1
+                            print "Run %s : this run has to be processed/uploaded ---> job in pending state " %(iRun)
+
+                    if RunWait == 0:
+                        Wait = False
+                        print "Run %s : checked the last run uploaded ---> job will be launched" %(Run0)
+
                 line = f.readline()
-                
             f.close()
-
-
-            RunWait = 0
-            for iRun in range( int(RunLast)+1, int(Run0) ):
-                if str(iRun) in runList:
-                    RunWait += 1
-                    print "Run %s: this run has to be processed/uploaded ---> job in pending state " %(iRun)
-
-
-            if RunWait == 0:
-                Wait = False
-                print "Run %s : checked the last run uploaded ---> job will be launched" %(Run0)
-
-        # if os.path.exists("./data/MyLBCollection.xml") :
-        #     f = open('./data/MyLBCollection.xml')
-        #     line = f.readline()
-        #     while line:
-        #         if "Metadata" in line and "RunList" in line :
-        #             #--- Check if there are runs waiting for processing/upload
-        #             RunWait = 0
-        #             for iRun in range( int(RunLast)+1, int(Run0) ):
-        #                 if str(iRun) in line:
-        #                     RunWait += 1
-        #                     print "Run %s : this run has to be processed/uploaded ---> job in pending state " %(iRun)
-
-        #             if RunWait == 0:
-        #                 Wait = False
-        #                 print "Run %s : checked the last run uploaded ---> job will be launched" %(Run0)
-
-        #         line = f.readline()
-        #     f.close()
 
         #--- Wait for RunLast update
         if Wait:

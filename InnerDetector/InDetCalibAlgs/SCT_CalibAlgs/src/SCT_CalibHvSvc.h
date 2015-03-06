@@ -92,7 +92,7 @@ private:
   int m_phvtripFirstTime;
   double          m_absolutetriplimit;
   double          m_relativetriplimit;
-   int m_tq[100];
+   int tq[100];
 
   std::vector< std::vector< std::pair<int, int> > > m_summarytrips;
   std::vector< std::vector< std::pair<int, int> > > m_summarytripslb;
@@ -102,7 +102,7 @@ private:
  ///retrieve a service and report if it failed
  template<class S>
  bool retrievedService(S & service, const std::string & serviceName){
-   if (service.retrieve().isFailure() ) return msg(MSG::ERROR)<<"Unable to retrieve "<<serviceName<<endmsg, false;
+   if (service.retrieve().isFailure() ) return msg(MSG::ERROR)<<"Unable to retrieve "<<serviceName<<endreq, false;
    return true;
  }
 

@@ -50,7 +50,6 @@ public:
   virtual bool read(const std::string & fileName);
   virtual bool fill(const bool fromData=false);
   virtual bool fillFromData();
-  //  virtual bool binHistograms(const int eventsPerWindow);
   //@}
 private:
   ServiceHandle<StoreGateSvc> m_detStore;

@@ -83,7 +83,6 @@ NoisyChipFraction      = 0.500
 NoisyUploadTest        = True
 NoisyModuleAverageInDB = -1.
 NoisyStripLastRunInDB  = -999
-NoisyStripAverageInDB  = -999.
 NoisyModuleList        = 200
 NoisyModuleDiff        = 0.200
 NoisyStripDiff         = 128

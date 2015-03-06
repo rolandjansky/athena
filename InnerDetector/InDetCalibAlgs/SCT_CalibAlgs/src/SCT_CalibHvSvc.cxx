@@ -21,8 +21,8 @@
 using namespace std;
 using namespace SCT_CalibAlgs;
 
-//const static int n_chipsPerSide(6);
-//const static int n_stripsPerChip(128);
+const static int n_chipsPerSide(6);
+const static int n_stripsPerChip(128);
 const static string detectorNames[] = { "negativeEndcap", "barrel", "positiveEndcap" };
 
 
@@ -51,7 +51,6 @@ SCT_CalibHvSvc::SCT_CalibHvSvc(const std::string &name, ISvcLocator * svc):
   m_phvtripFirstTime(0),
   m_absolutetriplimit(0),
   m_relativetriplimit(0),
-  m_tq{0},
   m_evt(0),
   m_outputLowHits(false),m_lowHitCut(100)
 {
@@ -86,7 +85,7 @@ SCT_CalibHvSvc::queryInterface(const InterfaceID & riid, void** ppvInterface ){
 bool
 SCT_CalibHvSvc::book(){
   bool result(true);
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Book HVTrips" <<endmsg;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Book HVTrips" <<endreq;
    //now initialize the queues (fill 100 spots with 0):
   queue<int> qtemp;
   initQueue(qtemp, m_maxq,0);
@@ -119,7 +118,7 @@ SCT_CalibHvSvc::fill(const bool fromData){
   int dtime = curr_time - m_phvtripPrevTime;
   int totalHits = 0;
   if (curr_time<m_phvtripPrevTime){ 
-    msg(MSG::ERROR) << "Events not sorted properly (time is going backwards!) " << endmsg;
+    msg(MSG::ERROR) << "Events not sorted properly (time is going backwards!) " << endreq;
     return false;
   }
   // for first event
@@ -127,10 +126,10 @@ SCT_CalibHvSvc::fill(const bool fromData){
   bool newbin = false;
   // check if we have a new time bin, if we do pop off the back (oldest) part 
   // of the queue and enqueue 0 for every wafer
-  int maxtbins(5);
-  if (dtime > maxtbins) {
+  int m_maxtbins(5);
+  if (dtime > m_maxtbins) {
     newbin = true;
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " new t bin " << dtime <<" since start "<< (curr_time-(m_phvtripFirstTime-1.01)) << endmsg;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " new t bin " << dtime <<" since start "<< (curr_time-(m_phvtripFirstTime-1.01)) << endreq;
     m_phvtripHasItTripped_prev = m_phvtripHasItTripped;
     for (int iwaf = 0; iwaf!=n_elements; ++iwaf){
       m_phvtripQueue[iwaf].pop();
@@ -138,16 +137,16 @@ SCT_CalibHvSvc::fill(const bool fromData){
       m_phvtripHasItTripped[iwaf]=0;
     }
   }
-    //if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "time stamp "<<time_stamp <<" event number "<< Event_number<<endmsg;
+    //if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "time stamp "<<time_stamp <<" event number "<< Event_number<<endreq;
   // Loop over all hits in the event 
   bool isgoodnow;
   for( int itrk=0; itrk!=wafersize; ++itrk){
     int waferhash = (*m_sct_waferHash)[itrk];
-    Identifier waferId = m_pSCTHelper->wafer_id(waferhash);
-    Identifier moduleId = m_pSCTHelper->module_id(waferId);
+    Identifier m_waferId = m_pSCTHelper->wafer_id(waferhash);
+    Identifier m_moduleId = m_pSCTHelper->module_id(m_waferId);
     //step one is to make sure this one isn't already know to be messed up:
-    isgoodnow = m_DCSConditionsSvc->isGood(moduleId,InDetConditions::SCT_MODULE);
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "checked is good "<< isgoodnow <<endmsg;
+    isgoodnow = m_DCSConditionsSvc->isGood(m_moduleId,InDetConditions::SCT_MODULE);
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "checked is good "<< isgoodnow <<endreq;
     if (isgoodnow){
       int numhits = (*m_sct_numHitsInWafer)[itrk];
       totalHits += numhits;
@@ -159,30 +158,30 @@ SCT_CalibHvSvc::fill(const bool fromData){
 
   if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "waferhash "<<waferhash<<" itrk "<<itrk <<" run tot "<< m_phvtripRunningTotalInt[waferhash] 
     <<" num hits "<<numhits<<" evnts processed "<<  m_phvtripProcessedEventsInt[waferhash] <<" limit "<<limit
-    <<" abs limit, rel limit "<<m_absolutetriplimit<<","<< m_relativetriplimit<<" max bins "<<maxtbins
-    <<endmsg;
+    <<" abs limit, rel limit "<<m_absolutetriplimit<<","<< m_relativetriplimit<<" max bins "<<m_maxtbins
+    <<endreq;
 
-  if ( ((numhits + m_phvtripQueue[waferhash].back() )/ (double)maxtbins ) > m_absolutetriplimit 
-  and ((numhits + m_phvtripQueue[waferhash].back() )/ (double)maxtbins ) > limit) {
+  if ( ((numhits + m_phvtripQueue[waferhash].back() )/ m_maxtbins ) > m_absolutetriplimit 
+  and ((numhits + m_phvtripQueue[waferhash].back() )/ m_maxtbins ) > limit) {
         //read back queue and see if the high hit rate is persistant for 3 previous bins (a bin is 5 seconds by default)
     for (int iq = 0; iq<m_maxq; ++iq){
-      m_tq[iq]=m_phvtripQueue[waferhash].front();
+      tq[iq]=m_phvtripQueue[waferhash].front();
       m_phvtripQueue[waferhash].pop();
     }
-    if (m_tq[m_maxq-2]/(double)maxtbins > limit && m_tq[m_maxq-3]/(double)maxtbins > limit && m_tq[m_maxq-4]/(double)maxtbins > limit){
+    if (tq[m_maxq-2]/m_maxtbins > limit && tq[m_maxq-3]/m_maxtbins > limit && tq[m_maxq-4]/m_maxtbins > limit){
         // found a persistent trip/thing
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Found a potential trip in SCT wafer "<< waferhash<<endmsg;
-            //if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "TRIP: "<< waferhash<<" "<<time_stamp <<" "<< Event_number <<" "<< (numhits + m_tq[m_maxq-1] ) <<endmsg;
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Found a potential trip in SCT wafer "<< waferhash<<endreq;
+            //if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "TRIP: "<< waferhash<<" "<<time_stamp <<" "<< Event_number <<" "<< (numhits + tq[m_maxq-1] ) <<endreq;
       if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "TRIP more info: limit = "<< limit <<" abslimit = "<<  m_absolutetriplimit 
-        <<" hits/secs now = "<< ((numhits + m_tq[m_maxq-1])/ maxtbins ) 
+        <<" hits/secs now = "<< ((numhits + tq[m_maxq-1])/ m_maxtbins ) 
         <<" running total = "<< m_phvtripRunningTotalInt[waferhash]
-        <<" running average =  "<<  m_phvtripRunningTotalInt[waferhash] / (curr_time-(m_phvtripFirstTime-1.01)) << endmsg;
-      m_phvtripHasItTripped[waferhash] =  (numhits + m_tq[m_maxq-1] );
+        <<" running average =  "<<  m_phvtripRunningTotalInt[waferhash] / (curr_time-(m_phvtripFirstTime-1.01)) << endreq;
+      m_phvtripHasItTripped[waferhash] =  (numhits + tq[m_maxq-1] );
     } // end trip found
 
         //put queue back the way we found it:
     for (int iq = 0; iq < m_maxq; ++iq) {
-      m_phvtripQueue[waferhash].push(m_tq[iq]);
+      m_phvtripQueue[waferhash].push(tq[iq]);
     }
   } // end potential trip id
       //incriment event counter
@@ -192,7 +191,7 @@ SCT_CalibHvSvc::fill(const bool fromData){
   m_phvtripQueue[waferhash].back() += numhits;
 } //end is good check   
 else { 
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Was a bad module already: "<< waferhash <<endmsg; 
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Was a bad module already: "<< waferhash <<endreq; 
 }
 } //end loop over tracks
 
@@ -207,8 +206,8 @@ if (newbin) {
 //    SCT_SerialNumber sn        = m_cablingSvc->getSerialNumberFromHash( waferHash );
     if (m_phvtripHasItTripped_prev[waferHash]>0) {
       pair<int,int> wp;
-      wp.first = (m_phvtripPrevTime - 3*maxtbins);
-      wp.second = (m_phvtripPrevTime + maxtbins);
+      wp.first = (m_phvtripPrevTime - 3*m_maxtbins);
+      wp.second = (m_phvtripPrevTime + m_maxtbins);
       m_summarytrips[waferHash].push_back(wp);
       pair<int,int> lbn;
       lbn.first = m_prevLBN.front();
@@ -222,18 +221,18 @@ if (newbin) {
 }
 
 for (int iwaf(0); iwaf!=n_elements; ++iwaf){
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "mod "<< iwaf <<" events with that waf " <<m_phvtripProcessedEventsInt[iwaf] << " numhits "<<m_phvtripRunningTotalInt[iwaf] <<endmsg;
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "did it trip "<<m_phvtripHasItTripped[iwaf] << endmsg;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "mod "<< iwaf <<" events with that waf " <<m_phvtripProcessedEventsInt[iwaf] << " numhits "<<m_phvtripRunningTotalInt[iwaf] <<endreq;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "did it trip "<<m_phvtripHasItTripped[iwaf] << endreq;
   if (m_phvtripHasItTripped[iwaf]) {
-        //if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "TRIP: "<< iwaf <<" "<<time_stamp <<" "<< Event_number <<" "<<  m_phvtripQueue[iwaf].back() <<endmsg;
+        //if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "TRIP: "<< iwaf <<" "<<time_stamp <<" "<< Event_number <<" "<<  m_phvtripQueue[iwaf].back() <<endreq;
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "TRIP more info: abslimit = "<<  m_absolutetriplimit 
-      <<" hits/secs now = "<< ( m_phvtripQueue[iwaf].back() / maxtbins ) 
+      <<" hits/secs now = "<< ( m_phvtripQueue[iwaf].back() / m_maxtbins ) 
       <<" running total = "<< m_phvtripRunningTotalInt[iwaf]
-      <<" running average =  "<<  m_phvtripRunningTotalInt[iwaf] / (curr_time-(m_phvtripFirstTime-1.01)) << endmsg;
+      <<" running average =  "<<  m_phvtripRunningTotalInt[iwaf] / (curr_time-(m_phvtripFirstTime-1.01)) << endreq;
   }
 }
 if (m_outputLowHits && (totalHits < m_lowHitCut) ){
-  //msg(MSG::WARNING) <<"Event: " << Event_number << " Total hits: " << totalHits << endmsg;
+  //msg(MSG::WARNING) <<"Event: " << Event_number << " Total hits: " << totalHits << endreq;
 }
 return result;
 }

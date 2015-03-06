@@ -73,7 +73,6 @@ private:
   
   //private use in this class
   int                m_LbRange;
-  int                m_LbsToMerge;
   
   void
   fillLbForWafer(const IdentifierHash &waferHash, const int theFirstStrip, const int groupSize );
