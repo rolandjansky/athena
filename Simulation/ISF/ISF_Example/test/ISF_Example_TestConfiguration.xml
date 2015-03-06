@@ -1,0 +1,3093 @@
+<?xml version="1.0"?>
+<!DOCTYPE unifiedTestConfiguration SYSTEM "http://www.hep.ucl.ac.uk/atlas/AtlasTesting/DTD/unifiedTestConfiguration.dtd">
+
+<unifiedTestConfiguration>
+  <atn>
+    <TEST name="MultiSimTest_ttbar_2evts" type="script" >
+      <options_atn>export TRF_ECHO=True; Sim_tf.py --simulator 'MultiSimTest' --useISF True --randomSeed 0 --enableLooperKiller True --maxEvents 2 --skipEvents 0 --geometryVersion ATLAS-GEO-20-00-01 --conditionsTag OFLCOND-MC12-SIM-00 --inputEvgenFile /afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/ttbar_muplusjets-pythia6-7000.evgen.pool.root --outputHitsFile "Hits.pool.root"</options_atn>
+      <timelimit>30</timelimit>
+      <author> Elmar Ritsch (elmar.ritsch@cern.ch)</author>
+      <mailto>atlas-simulation-testreports@cern.ch</mailto>
+      <expectations>
+        <errorMessage>FAILURE</errorMessage>
+        <successMessage>leaving with code 0</successMessage>
+        <returnValue>0</returnValue>
+      </expectations>
+    </TEST>
+  </atn>
+
+  <rtt xmlns="http://www.hep.ucl.ac.uk/atlas/AtlasTesting/rtt">
+    <rttContactPerson>Robert Harrington (roberth@cern.ch)</rttContactPerson>
+    <rttContactPerson>Andreas Schaelicke (andreas.schaelicke@cern.ch)</rttContactPerson>
+    <rttContactPerson>Elmar Ritsch (elmar.ritsch@cern.ch)</rttContactPerson>
+    <mailto>atlas-simulation-testreports@cern.ch</mailto>
+
+    <!--
+        don't forget to check the xml file with
+        python /afs/cern.ch/user/r/rtt/public/validateXML.py ISF_Example_TestConfiguration.xml
+    -->  
+
+    <jobList>
+      <classification>
+        <displayClass>OfflineValidation</displayClass>
+        <displayProcess>Simul</displayProcess>
+        <displayComponent>Athena-Core</displayComponent>
+      </classification>
+
+
+      <!--%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+          %%                          G4 muons
+          %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+      -->
+
+      <chain>
+        <chainName>RegressionTest_ISF_G4_muons</chainName>
+        <sequential>
+          <chainElement>
+
+            <jobTransform userJobId="ISF_G4_muons">
+              <doc>Tests detector functionality for ISF G4 using single muons</doc>
+              <jobTransformJobName>ISF_G4_muons</jobTransformJobName>
+              <jobTransformCmd>Sim_tf.py --simulator MC12G4 --useISF True --randomSeed 0 --enableLooperKiller True --maxEvents 2000 --skipEvents 0 --geometryVersion ATLAS-GEO-20-00-01 --conditionsTag OFLCOND-MC12-SIM-00 --preExec 'from ISF_Config.ISF_jobProperties import ISF_Flags;ISF_Flags.Input="muons"' --outputHitsFile "Hits.pool.root" --postInclude=G4AtlasTests/postInclude.DCubeTest.py</jobTransformCmd>
+              <group>ISF_SimTests</group>
+              <queue>medium</queue>
+
+              <test position="1">
+                <modulename>RttLibraryTools</modulename>
+                <testname>DCubeRunner</testname>
+                <arg>
+                  <argname>DCubeCfg</argname>
+                  <argvalue>18.X.0/dcube-ISF_G4_muons.xml</argvalue>
+                </arg>
+                <arg>
+                  <argname>DCubeRef</argname>
+                  <argvalue>18.X.0/ISF_G4_muons.truth.root</argvalue>
+                </arg>
+                <arg>
+                  <argname>DCubeMon</argname>
+                  <argvalue>truth.root</argvalue>
+                </arg>
+                <keepFilePattern>DCube-18.X.0/ISF_G4_muons.truth.root/truth.root.dcube.xml.php</keepFilePattern>
+              </test>
+
+            </jobTransform>
+
+
+          </chainElement>
+          <parallel>
+            <chainElement>
+              <jobTransform userJobId="ISF_G4_muons_Reg">
+                <doc>Regression test between releases</doc>
+                <jobTransformJobName>ISF_G4_muons_Reg</jobTransformJobName>
+                <jobTransformCmd>sim_reg_test.py ISF_G4_muons</jobTransformCmd>
+
+                <group>ISF_FullChainTests</group>
+                <queue>short</queue>
+
+                <test>
+                  <modulename>RttLibraryTools</modulename>
+                  <testname>DCubeRunner</testname>
+                  <arg>
+                    <argname>DCubeCfg</argname>
+                    <argvalue>18.X.0/dcube-ISF_G4_muons.xml</argvalue>
+                  </arg>
+                  <arg>
+                    <argname>DCubeRef</argname>
+                    <argvalue>yesterday.root</argvalue>
+                  </arg>
+                  <arg>
+                    <argname>localRefFile</argname>
+                    <argvalue>True</argvalue>
+                  </arg>
+                  <arg>
+                    <argname>DCubeMon</argname>
+                    <argvalue>today.root</argvalue>
+                  </arg>
+                  <keepFilePattern>DCube-yesterday.root/today.root.dcube.xml.php</keepFilePattern>
+                </test>
+
+              </jobTransform>
+            </chainElement>
+
+            <chainElement>
+              <jobTransform userJobId="ISF_G4_muons_MC12">
+                <doc>comparison to ISF references</doc>
+                <jobTransformJobName>ISF_G4_muons_MC12</jobTransformJobName>
+                <jobTransformCmd>sim_reg_test.py ISF_G4_muons</jobTransformCmd>
+
+                <group>ISF_FullChainTests</group>
+                <queue>short</queue>
+
+                <test position="1">
+                  <modulename>RttLibraryTools</modulename>
+                  <testname>DCubeRunner</testname>
+                  <arg>
+                    <argname>DCubeCfg</argname>
+                    <argvalue>MC12/dcube-AtlasG4_muons.xml</argvalue>
+                  </arg>
+                  <arg>
+                    <argname>DCubeRef</argname>
+                    <argvalue>MC12/AtlasG4_muons.truth.root</argvalue>
+                  </arg>
+                  <arg>
+                    <argname>DCubeMon</argname>
+                    <argvalue>today.root</argvalue>
+                  </arg>
+                  <keepFilePattern>DCube-MC12/AtlasG4_muons.truth.root/today.root.dcube.xml.php</keepFilePattern>
+                </test>
+
+              </jobTransform>
+            </chainElement>
+          </parallel>
+        </sequential>
+      </chain>
+
+      <!--%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+          %%                           G4 pions
+          %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+      -->
+
+      <chain>
+        <chainName>RegressionTest_ISF_G4_pions</chainName>
+        <sequential>
+          <chainElement>
+
+            <jobTransform userJobId="ISF_G4_pions">
+              <doc>Tests detector functionality for ISF G4 using single pions</doc>
+              <jobTransformJobName>gathena_ISF_G4_pions</jobTransformJobName>
+              <jobTransformCmd>Sim_tf.py --simulator MC12G4 --useISF True --randomSeed 0 --enableLooperKiller True --maxEvents 150 --skipEvents 0 --geometryVersion ATLAS-GEO-20-00-01 --conditionsTag OFLCOND-MC12-SIM-00 --preExec 'from ISF_Config.ISF_jobProperties import ISF_Flags;ISF_Flags.Input="pions"' --outputHitsFile "Hits.pool.root" --postInclude=G4AtlasTests/postInclude.DCubeTest.py</jobTransformCmd>
+              <group>ISF_SimTests</group>
+              <queue>medium</queue>
+
+              <test position="1">
+                <modulename>RttLibraryTools</modulename>
+                <testname>DCubeRunner</testname>
+                <arg>
+                  <argname>DCubeCfg</argname>
+                  <argvalue>18.X.0/dcube-ISF_G4_pions.xml</argvalue>
+                </arg>
+                <arg>
+                  <argname>DCubeRef</argname>
+                  <argvalue>18.X.0/ISF_G4_pions.truth.root</argvalue>
+                </arg>
+                <arg>
+                  <argname>DCubeMon</argname>
+                  <argvalue>truth.root</argvalue>
+                </arg>
+                <keepFilePattern>DCube-18.X.0/ISF_G4_pions.truth.root/truth.root.dcube.xml.php</keepFilePattern>
+              </test>
+
+              <testToRemove>
+                <jobGroupName>Top</jobGroupName>
+                <testidentifier>CheckFileRunner0</testidentifier>
+              </testToRemove>
+
+            </jobTransform>
+
+          </chainElement>
+          <parallel>
+            <chainElement>
+              <jobTransform userJobId="ISF_G4_pions_Reg">
+                <doc>Regression test between releases</doc>
+                <jobTransformJobName>ISF_G4_pions_Reg</jobTransformJobName>
+                <jobTransformCmd>sim_reg_test.py ISF_G4_pions</jobTransformCmd>
+
+                <group>ISF_FullChainTests</group>
+                <queue>short</queue>
+
+                <test>
+                  <modulename>RttLibraryTools</modulename>
+                  <testname>DCubeRunner</testname>
+                  <arg>
+                    <argname>DCubeCfg</argname>
+                    <argvalue>18.X.0/dcube-ISF_G4_pions.xml</argvalue>
+                  </arg>
+                  <arg>
+                    <argname>DCubeRef</argname>
+                    <argvalue>yesterday.root</argvalue>
+                  </arg>
+                  <arg>
+                    <argname>localRefFile</argname>
+                    <argvalue>True</argvalue>
+                  </arg>
+                  <arg>
+                    <argname>DCubeMon</argname>
+                    <argvalue>today.root</argvalue>
+                  </arg>
+                  <keepFilePattern>DCube-yesterday.root/today.root.dcube.xml.php</keepFilePattern>
+
+                </test>       
+              </jobTransform>
+            </chainElement>
+
+            <chainElement>
+              <jobTransform userJobId="ISF_G4_pions_MC12">
+                <doc>comparison to ISF references</doc>
+                <jobTransformJobName>ISF_G4_pions_MC12</jobTransformJobName>
+                <jobTransformCmd>sim_reg_test.py ISF_G4_pions</jobTransformCmd>
+
+                <group>ISF_FullChainTests</group>
+                <queue>short</queue>
+
+                <test position="1">
+                  <modulename>RttLibraryTools</modulename>
+                  <testname>DCubeRunner</testname>
+                  <arg>
+                    <argname>DCubeCfg</argname>
+                    <argvalue>MC12/dcube-AtlasG4_pions.xml</argvalue>
+                  </arg>
+                  <arg>
+                    <argname>DCubeRef</argname>
+                    <argvalue>MC12/AtlasG4_pions.truth.root</argvalue>
+                  </arg>
+                  <arg>
+                    <argname>DCubeMon</argname>
+                    <argvalue>today.root</argvalue>
+                  </arg>
+                  <keepFilePattern>DCube-MC12/AtlasG4_pions.truth.root/today.root.dcube.xml.php</keepFilePattern>
+                </test>       
+              </jobTransform>
+            </chainElement>
+          </parallel>
+        </sequential>
+      </chain>
+
+
+      <!--%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+          %%                           G4 electrons
+          %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+      -->
+
+      <chain>
+        <chainName>RegressionTest_ISF_G4_electrons</chainName>
+        <sequential>
+          <chainElement>
+
+            <jobTransform userJobId="ISF_G4_electrons">
+              <doc>Tests detector functionality for ISF G4 using single electrons</doc>
+              <jobTransformJobName>gathena_ISF_G4_electrons</jobTransformJobName>
+              <jobTransformCmd>Sim_tf.py --simulator MC12G4 --useISF True --randomSeed 0 --enableLooperKiller True --maxEvents 1000 --skipEvents 0 --geometryVersion ATLAS-GEO-20-20-01_VALIDATION --conditionsTag OFLCOND-MC12-SIM-00 --preExec 'from ISF_Config.ISF_jobProperties import ISF_Flags;ISF_Flags.Input="electrons"' --outputHitsFile "Hits.pool.root" --postInclude=G4AtlasTests/postInclude.DCubeTest.py</jobTransformCmd>
+              <group>ISF_SimTests</group>
+              <queue>long</queue>
+
+              <test position="1">
+                <modulename>RttLibraryTools</modulename>
+                <testname>DCubeRunner</testname>
+                <arg>
+                  <argname>DCubeCfg</argname>
+                  <argvalue>18.X.0/dcube-ISF_G4_electrons.xml</argvalue>
+                </arg>
+                <arg>
+                  <argname>DCubeRef</argname>
+                  <argvalue>18.X.0/ISF_G4_electrons.truth.root</argvalue>
+                </arg>
+                <arg>
+                  <argname>DCubeMon</argname>
+                  <argvalue>truth.root</argvalue>
+                </arg>
+                <keepFilePattern>DCube-18.X.0/ISF_G4_electrons.truth.root/truth.root.dcube.xml.php</keepFilePattern>
+              </test>         
+            </jobTransform>
+
+          </chainElement>
+          <parallel>
+            <chainElement>
+              <jobTransform userJobId="ISF_G4_electrons_Reg">
+                <doc>Regression test between releases</doc>
+                <jobTransformJobName>ISF_G4_electrons_Reg</jobTransformJobName>
+                <jobTransformCmd>sim_reg_test.py ISF_G4_electrons</jobTransformCmd>
+
+                <group>ISF_FullChainTests</group>
+                <queue>short</queue>
+
+                <test>
+                  <modulename>RttLibraryTools</modulename>
+                  <testname>DCubeRunner</testname>
+                  <arg>
+                    <argname>DCubeCfg</argname>
+                    <argvalue>18.X.0/dcube-ISF_G4_electrons.xml</argvalue>
+                  </arg>
+                  <arg>
+                    <argname>DCubeRef</argname>
+                    <argvalue>yesterday.root</argvalue>
+                  </arg>
+                  <arg>
+                    <argname>localRefFile</argname>
+                    <argvalue>True</argvalue>
+                  </arg>
+                  <arg>
+                    <argname>DCubeMon</argname>
+                    <argvalue>today.root</argvalue>
+                  </arg>
+                  <keepFilePattern>DCube-yesterday.root/today.root.dcube.xml.php</keepFilePattern>
+
+                </test>       
+              </jobTransform>
+            </chainElement>
+
+            <chainElement>
+              <jobTransform userJobId="ISF_G4_electrons_MC12">
+                <doc>comparison to ISF references</doc>
+                <jobTransformJobName>ISF_G4_electrons_MC12</jobTransformJobName>
+                <jobTransformCmd>sim_reg_test.py ISF_G4_electrons</jobTransformCmd>
+
+                <group>ISF_FullChainTests</group>
+                <queue>short</queue>
+
+                <test position="1">
+                  <modulename>RttLibraryTools</modulename>
+                  <testname>DCubeRunner</testname>
+                  <arg>
+                    <argname>DCubeCfg</argname>
+                    <argvalue>MC12/dcube-AtlasG4_electrons.xml</argvalue>
+                  </arg>
+                  <arg>
+                    <argname>DCubeRef</argname>
+                    <argvalue>MC12/AtlasG4_electrons.truth.root</argvalue>
+                  </arg>
+                  <arg>
+                    <argname>DCubeMon</argname>
+                    <argvalue>today.root</argvalue>
+                  </arg>
+                  <keepFilePattern>DCube-MC12/AtlasG4_electrons.truth.root/today.root.dcube.xml.php</keepFilePattern>
+                </test>       
+              </jobTransform>
+            </chainElement>
+          </parallel>
+        </sequential>
+      </chain>
+
+      <!--%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+          %%                           G4 COSMICS
+          %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+      -->
+  <jobTransform userJobId="ISF_CosmicSim">
+    <doc>Running cosmic simulation transform</doc>
+    <jobTransformJobName>CosmicSim</jobTransformJobName>
+    <jobTransformCmd>AtlasG4_trf.py outputHitsFile=testCosmics.HITS.pool.root maxEvents=1500 randomSeed=1234 runNumber=10 physicsList=QGSP_BERT CosmicFilterVolume=Calo preInclude=SimulationJobOptions/preInclude.Cosmics.py geometryVersion=ATLAS-GEO-20-00-01_VALIDATION conditionsTag=OFLCOND-MC12-SIM-00 useISF=True outputEvgenFile=testCosmics.TR.pool.root beamType=cosmics --athenaopts=--preloadlib=${ATLASMKLLIBDIR_PRELOAD}/libimf.so
+    </jobTransformCmd>
+    <group>ISF_FullChainTests</group>
+    <queue>short</queue>
+    <!-- add in some tests later -->
+  </jobTransform>
+  <jobTransform userJobId="ISF_CosmicSimTR">
+    <doc>Running cosmic simulation transform from track records</doc>
+    <jobTransformJobName>CosmicSimTR</jobTransformJobName>
+    <jobTransformCmd>AtlasG4_trf.py inputEvgenFile=/afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/Cosmics.TR.pool.root outputHitsFile=testCosmics.HITS.pool.root maxEvents=-1 randomSeed=1234 geometryVersion=ATLAS-GEO-20-00-01 conditionsTag=OFLCOND-MC12-SIM-00 runNumber=10 firstEvent=0 physicsList=QGSP_BERT preInclude=SimulationJobOptions/preInclude.Cosmics.py useISF=True beamType=cosmics --athenaopts=--preloadlib=${ATLASMKLLIBDIR_PRELOAD}/libimf.so
+    </jobTransformCmd>
+    <group>ISF_FullChainTests</group>
+    <queue>short</queue>
+    <!-- add in some tests later -->
+  </jobTransform>
+
+
+  <!--These jobs are running with new script but not complete.Just for ATLFASTII_ttbar running right now.Welcome to change them -->
+
+  <chain>
+    <chainName>ISF_ATLFASTII_ttbar_sameVersion</chainName>
+    <sequential>
+      <parallel>
+        <chainElement>
+          <jobTransform userJobId="ATLFASTII_sim_ttbar">
+            <doc>Standard ATLFASTII simulation for ttbar event</doc>
+            <jobTransformJobName>ATLFASTII_sim_ttbar</jobTransformJobName>
+            <jobTransformCmd>isf_simu.py --jobtype=ATLFASTII --EvtMax=50 --Histfile=ATLFASTII_ttbar.root</jobTransformCmd>
+            <group>ISF_FullChainTests</group>
+            <queue>medium</queue>
+          </jobTransform>
+          <chainfileout>ATLFASTII_ttbar.root</chainfileout>
+        </chainElement>
+        <chainElement>
+          <jobTransform userJobId="ISF_ATLFASTII_sim_ttbar">
+            <doc>ISF ATLFASTII simulation for ttbar event</doc>
+            <jobTransformJobName>ISF_ATLFASTII_sim_ttbar</jobTransformJobName>
+            <jobTransformCmd>isf_simu.py --jobtype=ISF --EvtMax=50 --Histfile=ISF_ttbar.root</jobTransformCmd>
+            <group>ISF_FullChainTests</group>
+            <queue>medium</queue>
+          </jobTransform>
+          <chainfileout>ISF_ttbar.root</chainfileout>
+        </chainElement>
+      </parallel>
+      <parallel>
+        <chainElement>
+          <jobTransform userJobId="ISF_ATLFASTII_ttbar_Hit_level">
+            <doc>comparison of ISF and ATLFASTII using ttbar event in Hits level</doc>
+            <jobTransformJobName>ISF_ATLFASTII_ttbar_Hit_level</jobTransformJobName>
+            <jobTransformCmd>isf_test.py --jobs=ATLFASTII_sim_ttbar,ISF_ATLFASTII_sim_ttbar --referencefile=ATLFASTII_sim_ttbar.truth.root,truth.root --chain=ISF_ATLFASTII_ttbar_sameVersion</jobTransformCmd>
+            <group>ISF_FullChainTests</group>
+            <queue>extrashort</queue>
+            <test>
+              <modulename>RttLibraryTools</modulename>
+              <testname>DCubeRunner</testname>
+              <arg>
+                <argname>DCubeCfg</argname>
+                <argvalue>18.X.0/dcube-ISF_ATLFASTII_ttbar_MC12.xml</argvalue>
+              </arg>
+              <arg>
+                <argname>DCubeRef</argname>
+                <argvalue>ATLFASTII_sim_ttbar.truth.root</argvalue>
+              </arg>
+              <arg>
+                <argname>localRefFile</argname>
+                <argvalue>True</argvalue>
+              </arg>
+              <arg>
+                <argname>DCubeMon</argname>
+                <argvalue>truth.root</argvalue>
+              </arg>
+              <keepFilePattern>DCube-ATLFASTII_sim_ttbar.truth.root/truth.root.dcube.xml.php</keepFilePattern>
+            </test>
+            <testToRemove>
+              <jobGroupName>Top</jobGroupName>
+              <testidentifier>CheckFileRunner0</testidentifier>
+            </testToRemove>      
+          </jobTransform>
+        </chainElement>
+        <chainElement>
+          <jobTransform userJobId="ISF_ATLFASTII_ttbar_Reco_level">
+            <doc>comparison of ISF and ATLFASTII using ttbar event in Reconstruction level</doc>
+            <jobTransformJobName>ISF_ATLFASTII_ttbar_Reco_level</jobTransformJobName>
+            <jobTransformCmd>isf_test.py --jobs=ATLFASTII_sim_ttbar,ISF_ATLFASTII_sim_ttbar --referencefile=ATLFASTII_ttbar.root,ISF_ttbar.root --chain=ISF_ATLFASTII_ttbar_sameVersion</jobTransformCmd>
+            <group>ISF_FullChainTests</group>
+            <queue>extrashort</queue>
+            <test>
+              <modulename>RttLibraryTools</modulename>
+              <testname>DCubeRunner</testname>
+              <arg>
+                <argname>DCubeCfg</argname>
+                <argvalue>18.X.0/dcube-ISF_ATLFASTII_ttbar_Reco.xml</argvalue>
+              </arg>
+              <arg>
+                <argname>DCubeRef</argname>
+                <argvalue>ATLFASTII_ttbar.root</argvalue>
+              </arg>
+              <arg>
+                <argname>localRefFile</argname>
+                <argvalue>True</argvalue>
+              </arg>
+              <arg>
+                <argname>DCubeMon</argname>
+                <argvalue>ISF_ttbar.root</argvalue>
+              </arg>
+              <keepFilePattern>DCube-ATLFASTII_ttbar.root/ISF_ttbar.root.dcube.xml.php</keepFilePattern>
+            </test>
+            <testToRemove>
+              <jobGroupName>Top</jobGroupName>
+              <testidentifier>CheckFileRunner0</testidentifier>
+            </testToRemove>      
+          </jobTransform>
+        </chainElement>
+      </parallel>
+
+    </sequential>
+
+  </chain>
+
+  <!--%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+          %%                    ATLFASTII muons    (full chain test)
+          %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+      -->
+      <chain>
+        <chainName>FullChainTest_ISF_ATLFASTII_muons</chainName>
+        <sequential>
+          <chainElement>
+            <jobTransform userJobId="ISF_ATLFASTII_muons">
+              <doc>Tests detector functionality for ISF ATLFASTII using muons</doc>
+              <jobTransformJobName>ISF_ATLFASTII_muons</jobTransformJobName>
+              <jobTransformCmd>Sim_tf.py --simulator ATLFASTII --useISF True --randomSeed 0 --enableLooperKiller True --maxEvents 5000 --skipEvents 0 --geometryVersion ATLAS-GEO-20-00-01 --conditionsTag OFLCOND-MC12-SIM-00 --preExec 'from ISF_Config.ISF_jobProperties import ISF_Flags;ISF_Flags.Input="muons"' --outputHitsFile "Hits.pool.root" --postInclude=G4AtlasTests/postInclude.DCubeTest.py</jobTransformCmd>
+              <group>ISF_SimTests</group>
+              <queue>medium</queue>
+              <!--
+              <test position="1">
+                <modulename>RttLibraryTools</modulename>
+                <testname>DCubeRunner</testname>
+                <arg>
+                  <argname>DCubeCfg</argname>
+                  <argvalue>18.X.0/dcube-ISF_ATLFASTII_muons.xml</argvalue>
+                </arg>
+                <arg>
+                  <argname>DCubeRef</argname>
+                  <argvalue>18.X.0/ISF_ATLFASTII_muons.truth.root</argvalue>
+                </arg>
+                <arg>
+                  <argname>DCubeMon</argname>
+                  <argvalue>truth.root</argvalue>
+                </arg>
+              </test>
+              -->
+            </jobTransform>
+            <chainfileout>Hits.pool.root</chainfileout>
+          </chainElement>
+          <parallel>
+            <chainElement>
+              <jobTransform userJobId="ISF_ATLFASTII_muons_Reg">
+                <doc>Regression test between releases</doc>
+                <jobTransformJobName>ISF_ATLFASTII_muons_Reg</jobTransformJobName>
+                <jobTransformCmd>sim_reg_test.py ISF_ATLFASTII_muons</jobTransformCmd>
+                <group>ISF_FullChainTests</group>
+                <queue>extrashort</queue>
+                <test>
+                  <modulename>RttLibraryTools</modulename>
+                  <testname>DCubeRunner</testname>
+                  <arg>
+                    <argname>DCubeCfg</argname>
+                    <argvalue>18.X.0/dcube-ISF_ATLFASTII_muons.xml</argvalue>
+                  </arg>
+                  <arg>             
+                    <argname>DCubeRef</argname>
+                    <argvalue>yesterday.root</argvalue>
+                  </arg>
+                  <arg>
+                    <argname>localRefFile</argname>
+                    <argvalue>True</argvalue>
+                  </arg>
+                  <arg>
+                    <argname>DCubeMon</argname>
+                    <argvalue>today.root</argvalue>
+                  </arg>
+                  <keepFilePattern>DCube-yesterday.root/today.root.dcube.xml.php</keepFilePattern>
+                </test>
+                <testToRemove>
+                  <jobGroupName>Top</jobGroupName>
+                  <testidentifier>CheckFileRunner0</testidentifier>
+                </testToRemove>
+              </jobTransform>
+            </chainElement>
+            <chainElement>
+              <jobTransform userJobId="ISF_ATLFASTII_muons_MC12G4">
+                <doc>comparison to ISF references</doc>
+                <jobTransformJobName>ISF_ATLFASTII_muons_MC12G4</jobTransformJobName>
+                <jobTransformCmd>sim_reg_test.py ISF_ATLFASTII_muons</jobTransformCmd>
+                <group>ISF_FullChainTests</group>
+                <queue>extrashort</queue>
+                <test position="1">
+                  <modulename>RttLibraryTools</modulename>
+                  <testname>DCubeRunner</testname>
+                  <arg>
+                    <argname>DCubeCfg</argname>
+                    <argvalue>MC12/dcube-AtlasG4_muons_5000evts.xml</argvalue>
+                  </arg>
+                  <arg>
+                    <argname>DCubeRef</argname>
+                    <argvalue>MC12/AtlasG4_muons_5000evts.truth.root</argvalue>
+                  </arg>
+                  <arg>
+                    <argname>DCubeMon</argname>
+                    <argvalue>today.root</argvalue>
+                  </arg>
+                  <keepFilePattern>DCube-MC12/AtlasG4_muons_5000evts.truth.root/today.root.dcube.xml.php</keepFilePattern>
+                </test>       
+                <testToRemove>
+                  <jobGroupName>Top</jobGroupName>
+                  <testidentifier>CheckFileRunner0</testidentifier>
+                </testToRemove>
+              </jobTransform>
+            </chainElement>
+            <sequential>
+              <!-- Run Digitisation -->
+              <chainElement>
+                <jobTransform userJobId="ISF_digi_ATLFASTII_muons">
+                  <doc>Digitiziation without pile-up, with additional modifications for AFII inputs.</doc>
+                  <jobTransformJobName>ISF_digi_ATLFASTII_muons</jobTransformJobName>
+                  <jobTransformCmd>
+                    Digi_trf.py inputHitsFile=Hits.pool.root outputRDOFile=RDO.pool.root maxEvents=-1 skipEvents=0 geometryVersion=ATLAS-GEO-20-00-01 digiSeedOffset1=123456 digiSeedOffset2=2345678 DBRelease=/afs/cern.ch/atlas/www/GROUPS/DATABASE/pacman4/DBRelease/DBRelease-pcache-current.tar.gz samplingFractionDbTag=QGSP_BERT AddCaloDigi=False conditionsTag=OFLCOND-MC12-SDR-06 IgnoreConfigError=False postInclude=FastSimulationJobTransforms/postInclude.AF2DigiSetContainerNames.py postExec='svcMgr.AddressRemappingSvc.TypeKeyOverwriteMaps += [ "LArHitContainer#LArHitEMB_Fast->LArHitFloatContainer#LArHitEMB_Fast", "LArHitContainer#LArHitEMEC_Fast->LArHitFloatContainer#LArHitEMEC_Fast", "LArHitContainer#LArHitHEC_Fast->LArHitFloatContainer#LArHitHEC_Fast", "LArHitContainer#LArHitFCAL_Fast->LArHitFloatContainer#LArHitFCAL_Fast"]'
+                  </jobTransformCmd>
+                  <group>ISF_FullChainTests</group>
+                  <chaindataset_info>
+                    <jobTransformData/>
+                    <chaindatasetName>Hits.pool.root</chaindatasetName>
+                    <dataset_info>
+                      <jobTransformData/>
+                      <datasetName>/afs/cern.ch/atlas/offline/external/FullChainTest/long/rtt.fallback/MC12/MC12.108351.pythia_minbias.8TeV.HITS.pool.root</datasetName> <!-- TODO: change this to muons dataset -->
+                    </dataset_info>
+                  </chaindataset_info>
+                  <queue>medium</queue>
+                </jobTransform>
+                <chainfileout>RDO.pool.root</chainfileout>
+              </chainElement>
+              <!-- Run Reconstruction -->
+              <chainElement>
+                <jobTransform userJobId="ISF_reco_ATLFASTII_muons">
+                  <doc>reco</doc>
+                  <jobTransformJobName>ISF_reco_ATLFASTII_muons</jobTransformJobName>
+                  <jobTransformCmd>
+                    Reco_trf.py inputRDOFile=RDO.pool.root outputESDFile=ESD.pool.root outputAODFile=AOD.pool.root maxEvents=-1 skipEvents=0 autoConfiguration='everything' preExec='InDetFlags.doStandardPlots.set_Value_and_Lock(True)' outputHIST_PHYSVALMONFile=PhysValMon.root
+                  </jobTransformCmd>
+                  <group>ISF_FullChainTests</group>
+                  <chaindataset_info>
+                    <jobTransformData/>
+                    <chaindatasetName>RDO.pool.root</chaindatasetName>
+                    <dataset_info>
+                      <jobTransformData/>
+                      <datasetName>/afs/cern.ch/atlas/offline/external/FullChainTest/long/rtt.fallback/MC12/MC12.108351.pythia_minbias.8TeV.RDO.pool.root</datasetName> <!-- TODO: change this to muons dataset -->
+                    </dataset_info>
+                  </chaindataset_info>
+                  <queue>medium</queue>
+                </jobTransform>
+                <!-- not required to be on chainstore at the moment
+                <chainfileout>ESD.pool.root</chainfileout>
+                <chainfileout>AOD.pool.root</chainfileout>
+                <chainfileout>RecoValHists.root</chainfileout>
+                <chainfileout>PhysValMon.root</chainfileout>-->
+              </chainElement>
+              <parallel>
+                <chainElement>
+                  <jobTransform userJobId="ISF_reco_ATLFASTII_muons_Reg">
+                    <doc>Regression test between builds</doc>
+                    <jobTransformJobName>ISF_reco_ATLFASTII_muons_Reg</jobTransformJobName>
+                    <jobTransformCmd>sim_reg_test.py ISF_reco_ATLFASTII_muons InDetStandardPlots.root PhysValMon.root</jobTransformCmd>
+                    <group>ISF_FullChainTests</group>
+                    <queue>medium</queue>
+                    <test>
+                      <modulename>RttLibraryTools</modulename>
+                      <testname>DCubeRunner</testname>
+                      <arg>
+                        <argname>DCubeCfg</argname>
+                        <argvalue>MC12/dcube-minbias-InDetStandardPlots.xml</argvalue> <!-- TODO: create muons XML file one day -->
+                      </arg>
+                      <arg>             
+                        <argname>DCubeRef</argname>
+                        <argvalue>yesterday.InDetStandardPlots.root</argvalue>
+                      </arg>
+                      <arg>
+                        <argname>localRefFile</argname>
+                        <argvalue>True</argvalue>
+                      </arg>
+                      <arg>
+                        <argname>DCubeMon</argname>
+                        <argvalue>today.InDetStandardPlots.root</argvalue>
+                      </arg>
+                      <keepFilePattern>DCube-yesterday.InDetStandardPlots.root/today.InDetStandardPlots.root.dcube.xml.php</keepFilePattern>
+                    </test>
+                    <test>
+                      <modulename>RttLibraryTools</modulename>
+                      <testname>DCubeRunner</testname>
+                      <arg>
+                        <argname>DCubeCfg</argname>
+                        <argvalue>MC12/dcube-AtlasG4_muons_5000evts.PhysValMon.xml</argvalue>
+                      </arg>
+                      <arg>             
+                        <argname>DCubeRef</argname>
+                        <argvalue>yesterday.PhysValMon.root</argvalue>
+                      </arg>
+                      <arg>
+                        <argname>localRefFile</argname>
+                        <argvalue>True</argvalue>
+                      </arg>
+                      <arg>
+                        <argname>DCubeMon</argname>
+                        <argvalue>today.PhysValMon.root</argvalue>
+                      </arg>
+                      <keepFilePattern>DCube-yesterday.PhysValMon.root/today.PhysValMon.root.dcube.xml.php</keepFilePattern>
+                    </test>
+                    <testToRemove>
+                      <jobGroupName>Top</jobGroupName>
+                      <testidentifier>CheckFileRunner0</testidentifier>
+                    </testToRemove>
+                  </jobTransform>
+                </chainElement>
+                <chainElement>
+                  <jobTransform userJobId="ISF_reco_ATLFASTII_muons_MC12G4">
+                    <doc>comparison to MC12 Geant4 references</doc>
+                    <jobTransformJobName>ISF_reco_ATLFASTII_muons_MC12G4</jobTransformJobName>
+                    <jobTransformCmd>sim_reg_test.py ISF_reco_ATLFASTII_muons InDetStandardPlots.root PhysValMon.root</jobTransformCmd>
+                    <group>ISF_FullChainTests</group>
+                    <queue>medium</queue>
+                    <test position="1">
+                      <modulename>RttLibraryTools</modulename>
+                      <testname>DCubeRunner</testname>
+                      <arg>
+                        <argname>DCubeCfg</argname>
+                        <argvalue>MC12/dcube-minbias-InDetStandardPlots.xml</argvalue> <!-- TODO: create muons XML file one day -->
+                      </arg>
+                      <arg>
+                        <argname>DCubeRef</argname>
+                        <argvalue>MC12/AtlasG4_muons_5000evts.InDetStandardPlots.root</argvalue>
+                      </arg>
+                      <arg>
+                        <argname>DCubeMon</argname>
+                        <argvalue>today.InDetStandardPlots.root</argvalue>
+                      </arg>
+                      <keepFilePattern>DCube-MC12/AtlasG4_muons_5000evts.InDetStandardPlots.root/today.InDetStandardPlots.root.dcube.xml.php</keepFilePattern>
+                    </test>
+                    <test>
+                      <modulename>RttLibraryTools</modulename>
+                      <testname>DCubeRunner</testname>
+                      <arg>
+                        <argname>DCubeCfg</argname>
+                        <argvalue>MC12/dcube-AtlasG4_muons_5000evts.PhysValMon.xml</argvalue>
+                      </arg>
+                      <arg>
+                        <argname>DCubeRef</argname>
+                        <argvalue>MC12/AtlasG4_muons_5000evts.PhysValMon.root</argvalue>
+                      </arg>
+                      <arg>
+                        <argname>DCubeMon</argname>
+                        <argvalue>today.PhysValMon.root</argvalue>
+                      </arg>
+                      <keepFilePattern>DCube-MC12/AtlasG4_muons_5000evts.PhysValMon.root/today.PhysValMon.root.dcube.xml.php</keepFilePattern>
+                    </test>
+                    <testToRemove>
+                      <jobGroupName>Top</jobGroupName>
+                      <testidentifier>CheckFileRunner0</testidentifier>
+                    </testToRemove>
+                  </jobTransform>
+                </chainElement>
+
+                <chainElement>
+                  <jobTransform userJobId="ISF_reco_ATLFASTII_muons_MC12AFII">
+                    <doc>comparison to MC12 ATLFASTII references</doc>
+                    <jobTransformJobName>ISF_reco_ATLFASTII_muons_MC12AFII</jobTransformJobName>
+                    <jobTransformCmd>sim_reg_test.py ISF_reco_ATLFASTII_muons InDetStandardPlots.root PhysValMon.root</jobTransformCmd>
+                    <group>ISF_FullChainTests</group>
+                    <queue>medium</queue>
+                    <test position="1">
+                      <modulename>RttLibraryTools</modulename>
+                      <testname>DCubeRunner</testname>
+                      <arg>
+                        <argname>DCubeCfg</argname>
+                        <argvalue>MC12/dcube-muons-InDetStandardPlots.xml</argvalue>
+                      </arg>
+                      <arg>
+                        <argname>DCubeRef</argname>
+                        <argvalue>MC12/AFII_muons_5000evts.InDetStandardPlots.root</argvalue>
+                      </arg>
+                      <arg>
+                        <argname>DCubeMon</argname>
+                        <argvalue>today.InDetStandardPlots.root</argvalue>
+                      </arg>
+                      <keepFilePattern>DCube-MC12/AFII_muons_5000evts.InDetStandardPlots.root/today.InDetStandardPlots.root.dcube.xml.php</keepFilePattern>
+                    </test>
+                    <test>
+                      <modulename>RttLibraryTools</modulename>
+                      <testname>DCubeRunner</testname>
+                      <arg>
+                        <argname>DCubeCfg</argname>
+                        <argvalue>MC12/dcube-AFII_muons_5000evts.PhysValMon.xml</argvalue>
+                      </arg>
+                      <arg>
+                        <argname>DCubeRef</argname>
+                        <argvalue>MC12/AFII_muons_5000evts.PhysValMon.root</argvalue>
+                      </arg>
+                      <arg>
+                        <argname>DCubeMon</argname>
+                        <argvalue>today.PhysValMon.root</argvalue>
+                      </arg>
+                      <keepFilePattern>DCube-MC12/AFII_muons_5000evts.PhysValMon.root/today.PhysValMon.root.dcube.xml.php</keepFilePattern>
+                    </test>
+
+                    <testToRemove>
+                      <jobGroupName>Top</jobGroupName>
+                      <testidentifier>CheckFileRunner0</testidentifier>
+                    </testToRemove>
+                  </jobTransform>
+                </chainElement>
+
+              </parallel>
+            </sequential>
+          </parallel>
+        </sequential>
+      </chain>
+
+      <!--%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+          %%                    ATLFASTII pions    (full chain test)
+          %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+      -->
+      <chain>
+        <chainName>FullChainTest_ISF_ATLFASTII_pions</chainName>
+        <sequential>
+          <chainElement>
+            <jobTransform userJobId="ISF_ATLFASTII_pions">
+              <doc>Tests detector functionality for ISF ATLFASTII using pions</doc>
+              <jobTransformJobName>ISF_ATLFASTII_pions</jobTransformJobName>
+              <jobTransformCmd>Sim_tf.py --simulator ATLFASTII --useISF True --randomSeed 0 --enableLooperKiller True --maxEvents 5000 --skipEvents 0 --geometryVersion ATLAS-GEO-20-00-01 --conditionsTag OFLCOND-MC12-SIM-00 --preExec 'from ISF_Config.ISF_jobProperties import ISF_Flags;ISF_Flags.Input="pions"' --outputHitsFile "Hits.pool.root" --postInclude=G4AtlasTests/postInclude.DCubeTest.py</jobTransformCmd>
+              <group>ISF_SimTests</group>
+              <queue>medium</queue>
+              <!--
+              <test position="1">
+                <modulename>RttLibraryTools</modulename>
+                <testname>DCubeRunner</testname>
+                <arg>
+                  <argname>DCubeCfg</argname>
+                  <argvalue>18.X.0/dcube-ISF_ATLFASTII_pions.xml</argvalue>
+                </arg>
+                <arg>
+                  <argname>DCubeRef</argname>
+                  <argvalue>18.X.0/ISF_ATLFASTII_pions.truth.root</argvalue>
+                </arg>
+                <arg>
+                  <argname>DCubeMon</argname>
+                  <argvalue>truth.root</argvalue>
+                </arg>
+              </test>
+              -->
+            </jobTransform>
+            <chainfileout>Hits.pool.root</chainfileout>
+          </chainElement>
+          <parallel>
+            <chainElement>
+              <jobTransform userJobId="ISF_ATLFASTII_pions_Reg">
+                <doc>Regression test between releases</doc>
+                <jobTransformJobName>ISF_ATLFASTII_pions_Reg</jobTransformJobName>
+                <jobTransformCmd>sim_reg_test.py ISF_ATLFASTII_pions</jobTransformCmd>
+                <group>ISF_FullChainTests</group>
+                <queue>extrashort</queue>
+                <test>
+                  <modulename>RttLibraryTools</modulename>
+                  <testname>DCubeRunner</testname>
+                  <arg>
+                    <argname>DCubeCfg</argname>
+                    <argvalue>18.X.0/dcube-ISF_ATLFASTII_pions.xml</argvalue>
+                  </arg>
+                  <arg>             
+                    <argname>DCubeRef</argname>
+                    <argvalue>yesterday.root</argvalue>
+                  </arg>
+                  <arg>
+                    <argname>localRefFile</argname>
+                    <argvalue>True</argvalue>
+                  </arg>
+                  <arg>
+                    <argname>DCubeMon</argname>
+                    <argvalue>today.root</argvalue>
+                  </arg>
+                  <keepFilePattern>DCube-yesterday.root/today.root.dcube.xml.php</keepFilePattern>
+                </test>
+                <testToRemove>
+                  <jobGroupName>Top</jobGroupName>
+                  <testidentifier>CheckFileRunner0</testidentifier>
+                </testToRemove>
+              </jobTransform>
+            </chainElement>
+            <chainElement>
+              <jobTransform userJobId="ISF_ATLFASTII_pions_MC12G4">
+                <doc>comparison to ISF references</doc>
+                <jobTransformJobName>ISF_ATLFASTII_pions_MC12G4</jobTransformJobName>
+                <jobTransformCmd>sim_reg_test.py ISF_ATLFASTII_pions</jobTransformCmd>
+                <group>ISF_FullChainTests</group>
+                <queue>extrashort</queue>
+                <test position="1">
+                  <modulename>RttLibraryTools</modulename>
+                  <testname>DCubeRunner</testname>
+                  <arg>
+                    <argname>DCubeCfg</argname>
+                    <argvalue>MC12/dcube-AtlasG4_pions_5000evts.xml</argvalue>
+                  </arg>
+                  <arg>
+                    <argname>DCubeRef</argname>
+                    <argvalue>MC12/AtlasG4_pions_5000evts.truth.root</argvalue>
+                  </arg>
+                  <arg>
+                    <argname>DCubeMon</argname>
+                    <argvalue>today.root</argvalue>
+                  </arg>
+                  <keepFilePattern>DCube-MC12/AtlasG4_pions_5000evts.truth.root/today.root.dcube.xml.php</keepFilePattern>
+                </test>       
+                <testToRemove>
+                  <jobGroupName>Top</jobGroupName>
+                  <testidentifier>CheckFileRunner0</testidentifier>
+                </testToRemove>
+              </jobTransform>
+            </chainElement>
+            <sequential>
+              <!-- Run Digitisation -->
+              <chainElement>
+                <jobTransform userJobId="ISF_digi_ATLFASTII_pions">
+                  <doc>Digitiziation without pile-up, with additional modifications for AFII inputs.</doc>
+                  <jobTransformJobName>ISF_digi_ATLFASTII_pions</jobTransformJobName>
+                  <jobTransformCmd>
+                    Digi_trf.py inputHitsFile=Hits.pool.root outputRDOFile=RDO.pool.root maxEvents=-1 skipEvents=0 geometryVersion=ATLAS-GEO-20-00-01 digiSeedOffset1=123456 digiSeedOffset2=2345678 DBRelease=/afs/cern.ch/atlas/www/GROUPS/DATABASE/pacman4/DBRelease/DBRelease-pcache-current.tar.gz samplingFractionDbTag=QGSP_BERT AddCaloDigi=False conditionsTag=OFLCOND-MC12-SDR-06 IgnoreConfigError=False postInclude=FastSimulationJobTransforms/postInclude.AF2DigiSetContainerNames.py postExec='svcMgr.AddressRemappingSvc.TypeKeyOverwriteMaps += [ "LArHitContainer#LArHitEMB_Fast->LArHitFloatContainer#LArHitEMB_Fast", "LArHitContainer#LArHitEMEC_Fast->LArHitFloatContainer#LArHitEMEC_Fast", "LArHitContainer#LArHitHEC_Fast->LArHitFloatContainer#LArHitHEC_Fast", "LArHitContainer#LArHitFCAL_Fast->LArHitFloatContainer#LArHitFCAL_Fast"]'
+                  </jobTransformCmd>
+                  <group>ISF_FullChainTests</group>
+                  <chaindataset_info>
+                    <jobTransformData/>
+                    <chaindatasetName>Hits.pool.root</chaindatasetName>
+                    <dataset_info>
+                      <jobTransformData/>
+                      <datasetName>/afs/cern.ch/atlas/offline/external/FullChainTest/long/rtt.fallback/MC12/MC12.108351.pythia_minbias.8TeV.HITS.pool.root</datasetName> <!-- TODO: change this to pions dataset -->
+                    </dataset_info>
+                  </chaindataset_info>
+                  <queue>medium</queue>
+                </jobTransform>
+                <chainfileout>RDO.pool.root</chainfileout>
+              </chainElement>
+              <!-- Run Reconstruction -->
+              <chainElement>
+                <jobTransform userJobId="ISF_reco_ATLFASTII_pions">
+                  <doc>reco</doc>
+                  <jobTransformJobName>ISF_reco_ATLFASTII_pions</jobTransformJobName>
+                  <jobTransformCmd>
+                    Reco_trf.py inputRDOFile=RDO.pool.root outputESDFile=ESD.pool.root outputAODFile=AOD.pool.root maxEvents=-1 skipEvents=0 autoConfiguration='everything' preExec='InDetFlags.doStandardPlots.set_Value_and_Lock(True)' outputHIST_PHYSVALMONFile=PhysValMon.root
+                  </jobTransformCmd>
+                  <group>ISF_FullChainTests</group>
+                  <chaindataset_info>
+                    <jobTransformData/>
+                    <chaindatasetName>RDO.pool.root</chaindatasetName>
+                    <dataset_info>
+                      <jobTransformData/>
+                      <datasetName>/afs/cern.ch/atlas/offline/external/FullChainTest/long/rtt.fallback/MC12/MC12.108351.pythia_minbias.8TeV.RDO.pool.root</datasetName> <!-- TODO: change this to pions dataset -->
+                    </dataset_info>
+                  </chaindataset_info>
+                  <queue>medium</queue>
+                </jobTransform>
+                <!-- not required to be on chainstore at the moment
+                <chainfileout>ESD.pool.root</chainfileout>
+                <chainfileout>AOD.pool.root</chainfileout>
+                <chainfileout>RecoValHists.root</chainfileout>
+                <chainfileout>PhysValMon.root</chainfileout>-->
+              </chainElement>
+              <parallel>
+                <chainElement>
+                  <jobTransform userJobId="ISF_reco_ATLFASTII_pions_Reg">
+                    <doc>Regression test between builds</doc>
+                    <jobTransformJobName>ISF_reco_ATLFASTII_pions_Reg</jobTransformJobName>
+                    <jobTransformCmd>sim_reg_test.py ISF_reco_ATLFASTII_pions InDetStandardPlots.root PhysValMon.root</jobTransformCmd>
+                    <group>ISF_FullChainTests</group>
+                    <queue>medium</queue>
+                    <test>
+                      <modulename>RttLibraryTools</modulename>
+                      <testname>DCubeRunner</testname>
+                      <arg>
+                        <argname>DCubeCfg</argname>
+                        <argvalue>MC12/dcube-minbias-InDetStandardPlots.xml</argvalue> <!-- TODO: create pions XML file one day -->
+                      </arg>
+                      <arg>             
+                        <argname>DCubeRef</argname>
+                        <argvalue>yesterday.InDetStandardPlots.root</argvalue>
+                      </arg>
+                      <arg>
+                        <argname>localRefFile</argname>
+                        <argvalue>True</argvalue>
+                      </arg>
+                      <arg>
+                        <argname>DCubeMon</argname>
+                        <argvalue>today.InDetStandardPlots.root</argvalue>
+                      </arg>
+                      <keepFilePattern>DCube-yesterday.InDetStandardPlots.root/today.InDetStandardPlots.root.dcube.xml.php</keepFilePattern>
+                    </test>
+                    <test>
+                      <modulename>RttLibraryTools</modulename>
+                      <testname>DCubeRunner</testname>
+                      <arg>
+                        <argname>DCubeCfg</argname>
+                        <argvalue>MC12/dcube-AtlasG4_pions_5000evts.PhysValMon.xml</argvalue>
+                      </arg>
+                      <arg>             
+                        <argname>DCubeRef</argname>
+                        <argvalue>yesterday.PhysValMon.root</argvalue>
+                      </arg>
+                      <arg>
+                        <argname>localRefFile</argname>
+                        <argvalue>True</argvalue>
+                      </arg>
+                      <arg>
+                        <argname>DCubeMon</argname>
+                        <argvalue>today.PhysValMon.root</argvalue>
+                      </arg>
+                      <keepFilePattern>DCube-yesterday.PhysValMon.root/today.PhysValMon.root.dcube.xml.php</keepFilePattern>
+                    </test>
+                    <testToRemove>
+                      <jobGroupName>Top</jobGroupName>
+                      <testidentifier>CheckFileRunner0</testidentifier>
+                    </testToRemove>
+                  </jobTransform>
+                </chainElement>
+                <chainElement>
+                  <jobTransform userJobId="ISF_reco_ATLFASTII_pions_MC12G4">
+                    <doc>comparison to MC12 Geant4 references</doc>
+                    <jobTransformJobName>ISF_reco_ATLFASTII_pions_MC12G4</jobTransformJobName>
+                    <jobTransformCmd>sim_reg_test.py ISF_reco_ATLFASTII_pions InDetStandardPlots.root PhysValMon.root</jobTransformCmd>
+                    <group>ISF_FullChainTests</group>
+                    <queue>medium</queue>
+                    <test position="1">
+                      <modulename>RttLibraryTools</modulename>
+                      <testname>DCubeRunner</testname>
+                      <arg>
+                        <argname>DCubeCfg</argname>
+                        <argvalue>MC12/dcube-minbias-InDetStandardPlots.xml</argvalue> <!-- TODO: create pions XML file one day -->
+                      </arg>
+                      <arg>
+                        <argname>DCubeRef</argname>
+                        <argvalue>MC12/AtlasG4_pions_5000evts.InDetStandardPlots.root</argvalue>
+                      </arg>
+                      <arg>
+                        <argname>DCubeMon</argname>
+                        <argvalue>today.InDetStandardPlots.root</argvalue>
+                      </arg>
+                      <keepFilePattern>DCube-MC12/AtlasG4_pions_5000evts.InDetStandardPlots.root/today.InDetStandardPlots.root.dcube.xml.php</keepFilePattern>
+                    </test>
+                    <test>
+                      <modulename>RttLibraryTools</modulename>
+                      <testname>DCubeRunner</testname>
+                      <arg>
+                        <argname>DCubeCfg</argname>
+                        <argvalue>MC12/dcube-AtlasG4_pions_5000evts.PhysValMon.xml</argvalue>
+                      </arg>
+                      <arg>
+                        <argname>DCubeRef</argname>
+                        <argvalue>MC12/AtlasG4_pions_5000evts.PhysValMon.root</argvalue>
+                      </arg>
+                      <arg>
+                        <argname>DCubeMon</argname>
+                        <argvalue>today.PhysValMon.root</argvalue>
+                      </arg>
+                      <keepFilePattern>DCube-MC12/AtlasG4_pions_5000evts.PhysValMon.root/today.PhysValMon.root.dcube.xml.php</keepFilePattern>
+                    </test>
+                    <testToRemove>
+                      <jobGroupName>Top</jobGroupName>
+                      <testidentifier>CheckFileRunner0</testidentifier>
+                    </testToRemove>
+                  </jobTransform>
+                </chainElement>
+
+                <chainElement>
+                  <jobTransform userJobId="ISF_reco_ATLFASTII_pions_MC12AFII">
+                    <doc>comparison to MC12 ATLFASTII references</doc>
+                    <jobTransformJobName>ISF_reco_ATLFASTII_pions_MC12AFII</jobTransformJobName>
+                    <jobTransformCmd>sim_reg_test.py ISF_reco_ATLFASTII_pions InDetStandardPlots.root PhysValMon.root</jobTransformCmd>
+                    <group>ISF_FullChainTests</group>
+                    <queue>medium</queue>
+                    <test position="1">
+                      <modulename>RttLibraryTools</modulename>
+                      <testname>DCubeRunner</testname>
+                      <arg>
+                        <argname>DCubeCfg</argname>
+                        <argvalue>MC12/dcube-pions-InDetStandardPlots.xml</argvalue>
+                      </arg>
+                      <arg>
+                        <argname>DCubeRef</argname>
+                        <argvalue>MC12/AFII_pions_5000evts.InDetStandardPlots.root</argvalue>
+                      </arg>
+                      <arg>
+                        <argname>DCubeMon</argname>
+                        <argvalue>today.InDetStandardPlots.root</argvalue>
+                      </arg>
+                      <keepFilePattern>DCube-MC12/AFII_pions_5000evts.InDetStandardPlots.root/today.InDetStandardPlots.root.dcube.xml.php</keepFilePattern>
+                    </test>
+                    <test>
+                      <modulename>RttLibraryTools</modulename>
+                      <testname>DCubeRunner</testname>
+                      <arg>
+                        <argname>DCubeCfg</argname>
+                        <argvalue>MC12/dcube-AFII_pions_5000evts.PhysValMon.xml</argvalue>
+                      </arg>
+                      <arg>
+                        <argname>DCubeRef</argname>
+                        <argvalue>MC12/AFII_pions_5000evts.PhysValMon.root</argvalue>
+                      </arg>
+                      <arg>
+                        <argname>DCubeMon</argname>
+                        <argvalue>today.PhysValMon.root</argvalue>
+                      </arg>
+                      <keepFilePattern>DCube-MC12/AFII_pions_5000evts.PhysValMon.root/today.PhysValMon.root.dcube.xml.php</keepFilePattern>
+                    </test>
+
+                    <testToRemove>
+                      <jobGroupName>Top</jobGroupName>
+                      <testidentifier>CheckFileRunner0</testidentifier>
+                    </testToRemove>
+                  </jobTransform>
+                </chainElement>
+
+              </parallel>
+            </sequential>
+          </parallel>
+        </sequential>
+      </chain>
+
+      <!--%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+          %%                    ATLFASTII photons  (full chain test)
+          %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+      -->
+      <chain>
+        <chainName>FullChainTest_ISF_ATLFASTII_photons</chainName>
+        <sequential>
+          <chainElement>
+
+            <jobTransform userJobId="ISF_ATLFASTII_photons">
+              <doc>Tests detector functionality for ISF ATLFASTII using photons</doc>
+              <jobTransformJobName>ISF_ATLFASTII_photons</jobTransformJobName>
+              <jobTransformCmd>Sim_tf.py --simulator ATLFASTII --useISF True --randomSeed 0 --enableLooperKiller True --maxEvents 5000 --skipEvents 0 --geometryVersion ATLAS-GEO-20-00-01 --conditionsTag OFLCOND-MC12-SIM-00 --preExec 'from ISF_Config.ISF_jobProperties import ISF_Flags;ISF_Flags.Input="photons"' --outputHitsFile "Hits.pool.root" --postInclude=G4AtlasTests/postInclude.DCubeTest.py</jobTransformCmd>
+              <group>ISF_SimTests</group>
+              <queue>medium</queue>
+              <!--
+              <test position="1">
+                <modulename>RttLibraryTools</modulename>
+                <testname>DCubeRunner</testname>
+                <arg>
+                  <argname>DCubeCfg</argname>
+                  <argvalue>18.X.0/dcube-ISF_ATLFASTII_photons.xml</argvalue>
+                </arg>
+                <arg>
+                  <argname>DCubeRef</argname>
+                  <argvalue>18.X.0/ISF_ATLFASTII_photons.truth.root</argvalue>
+                </arg>
+                <arg>
+                  <argname>DCubeMon</argname>
+                  <argvalue>truth.root</argvalue>
+                </arg>
+              </test>
+              -->
+            </jobTransform>
+            <chainfileout>Hits.pool.root</chainfileout>
+          </chainElement>
+          <parallel>
+            <chainElement>
+              <jobTransform userJobId="ISF_ATLFASTII_photons_Reg">
+                <doc>Regression test between releases</doc>
+                <jobTransformJobName>ISF_ATLFASTII_photons_Reg</jobTransformJobName>
+                <jobTransformCmd>sim_reg_test.py ISF_ATLFASTII_photons</jobTransformCmd>
+                <group>ISF_FullChainTests</group>
+                <queue>extrashort</queue>
+                <test>
+                  <modulename>RttLibraryTools</modulename>
+                  <testname>DCubeRunner</testname>
+                  <arg>
+                    <argname>DCubeCfg</argname>
+                    <argvalue>18.X.0/dcube-ISF_ATLFASTII_photons.xml</argvalue>
+                  </arg>
+                  <arg>             
+                    <argname>DCubeRef</argname>
+                    <argvalue>yesterday.root</argvalue>
+                  </arg>
+                  <arg>
+                    <argname>localRefFile</argname>
+                    <argvalue>True</argvalue>
+                  </arg>
+                  <arg>
+                    <argname>DCubeMon</argname>
+                    <argvalue>today.root</argvalue>
+                  </arg>
+                  <keepFilePattern>DCube-yesterday.root/today.root.dcube.xml.php</keepFilePattern>
+                </test>       
+              </jobTransform>
+            </chainElement>
+            <chainElement>
+              <jobTransform userJobId="ISF_ATLFASTII_photons_MC12G4">
+                <doc>comparison to ISF references</doc>
+                <jobTransformJobName>ISF_ATLFASTII_photons_MC12G4</jobTransformJobName>
+                <jobTransformCmd>sim_reg_test.py ISF_ATLFASTII_photons</jobTransformCmd>
+                <group>ISF_FullChainTests</group>
+                <queue>extrashort</queue>
+                <test position="1">
+                  <modulename>RttLibraryTools</modulename>
+                  <testname>DCubeRunner</testname>
+                  <arg>
+                    <argname>DCubeCfg</argname>
+                    <argvalue>MC12/dcube-AtlasG4_photons_5000evts.xml</argvalue>
+                  </arg>
+                  <arg>
+                    <argname>DCubeRef</argname>
+                    <argvalue>MC12/AtlasG4_photons_5000evts.truth.root</argvalue>
+                  </arg>
+                  <arg>
+                    <argname>DCubeMon</argname>
+                    <argvalue>today.root</argvalue>
+                  </arg>
+                  <keepFilePattern>DCube-MC12/AtlasG4_photons_5000evts.truth.root/today.root.dcube.xml.php</keepFilePattern>
+                </test>       
+              </jobTransform>
+            </chainElement>
+            <sequential>
+              <!-- Run Digitisation -->
+              <chainElement>
+                <jobTransform userJobId="ISF_digi_ATLFASTII_photons">
+                  <doc>Digitiziation without pile-up, with additional modifications for AFII inputs.</doc>
+                  <jobTransformJobName>ISF_digi_ATLFASTII_photons</jobTransformJobName>
+                  <jobTransformCmd>
+                    Digi_trf.py inputHitsFile=Hits.pool.root outputRDOFile=RDO.pool.root maxEvents=-1 skipEvents=0 geometryVersion=ATLAS-GEO-20-00-01 digiSeedOffset1=123456 digiSeedOffset2=2345678 DBRelease=/afs/cern.ch/atlas/www/GROUPS/DATABASE/pacman4/DBRelease/DBRelease-pcache-current.tar.gz samplingFractionDbTag=QGSP_BERT AddCaloDigi=False conditionsTag=OFLCOND-MC12-SDR-06 IgnoreConfigError=False postInclude=FastSimulationJobTransforms/postInclude.AF2DigiSetContainerNames.py postExec='svcMgr.AddressRemappingSvc.TypeKeyOverwriteMaps += [ "LArHitContainer#LArHitEMB_Fast->LArHitFloatContainer#LArHitEMB_Fast", "LArHitContainer#LArHitEMEC_Fast->LArHitFloatContainer#LArHitEMEC_Fast", "LArHitContainer#LArHitHEC_Fast->LArHitFloatContainer#LArHitHEC_Fast", "LArHitContainer#LArHitFCAL_Fast->LArHitFloatContainer#LArHitFCAL_Fast"]'
+                  </jobTransformCmd>
+                  <group>ISF_FullChainTests</group>
+                  <chaindataset_info>
+                    <jobTransformData/>
+                    <chaindatasetName>Hits.pool.root</chaindatasetName>
+                    <dataset_info>
+                      <jobTransformData/>
+                      <datasetName>/afs/cern.ch/atlas/offline/external/FullChainTest/long/rtt.fallback/MC12/MC12.108351.pythia_minbias.8TeV.HITS.pool.root</datasetName> <!-- TODO: change this to photons dataset -->
+                    </dataset_info>
+                  </chaindataset_info>
+                  <queue>medium</queue>
+                </jobTransform>
+                <chainfileout>RDO.pool.root</chainfileout>
+              </chainElement>
+              <!-- Run Reconstruction -->
+              <chainElement>
+                <jobTransform userJobId="ISF_reco_ATLFASTII_photons">
+                  <doc>reco</doc>
+                  <jobTransformJobName>ISF_reco_ATLFASTII_photons</jobTransformJobName>
+                  <jobTransformCmd>
+                    Reco_trf.py inputRDOFile=RDO.pool.root outputESDFile=ESD.pool.root outputAODFile=AOD.pool.root maxEvents=-1 skipEvents=0 autoConfiguration='everything' preExec='InDetFlags.doStandardPlots.set_Value_and_Lock(True)' outputHIST_PHYSVALMONFile=PhysValMon.root
+                  </jobTransformCmd>
+                  <group>ISF_FullChainTests</group>
+                  <chaindataset_info>
+                    <jobTransformData/>
+                    <chaindatasetName>RDO.pool.root</chaindatasetName>
+                    <dataset_info>
+                      <jobTransformData/>
+                      <datasetName>/afs/cern.ch/atlas/offline/external/FullChainTest/long/rtt.fallback/MC12/MC12.108351.pythia_minbias.8TeV.RDO.pool.root</datasetName> <!-- TODO: change this to photons dataset -->
+                    </dataset_info>
+                  </chaindataset_info>
+                  <queue>medium</queue>
+                </jobTransform>
+                <!-- not required to be on chainstore at the moment
+                <chainfileout>ESD.pool.root</chainfileout>
+                <chainfileout>AOD.pool.root</chainfileout>
+                <chainfileout>RecoValHists.root</chainfileout>
+                <chainfileout>PhysValMon.root</chainfileout>-->
+              </chainElement>
+              <parallel>
+                <chainElement>
+                  <jobTransform userJobId="ISF_reco_ATLFASTII_photons_Reg">
+                    <doc>Regression test between builds</doc>
+                    <jobTransformJobName>ISF_reco_ATLFASTII_photons_Reg</jobTransformJobName>
+                    <jobTransformCmd>sim_reg_test.py ISF_reco_ATLFASTII_photons InDetStandardPlots.root PhysValMon.root</jobTransformCmd>
+                    <group>ISF_FullChainTests</group>
+                    <queue>medium</queue>
+                    <test>
+                      <modulename>RttLibraryTools</modulename>
+                      <testname>DCubeRunner</testname>
+                      <arg>
+                        <argname>DCubeCfg</argname>
+                        <argvalue>MC12/dcube-minbias-InDetStandardPlots.xml</argvalue> <!-- TODO: create photons XML file one day -->
+                      </arg>
+                      <arg>             
+                        <argname>DCubeRef</argname>
+                        <argvalue>yesterday.InDetStandardPlots.root</argvalue>
+                      </arg>
+                      <arg>
+                        <argname>localRefFile</argname>
+                        <argvalue>True</argvalue>
+                      </arg>
+                      <arg>
+                        <argname>DCubeMon</argname>
+                        <argvalue>today.InDetStandardPlots.root</argvalue>
+                      </arg>
+                      <keepFilePattern>DCube-yesterday.InDetStandardPlots.root/today.InDetStandardPlots.root.dcube.xml.php</keepFilePattern>
+                    </test>
+                    <test>
+                      <modulename>RttLibraryTools</modulename>
+                      <testname>DCubeRunner</testname>
+                      <arg>
+                        <argname>DCubeCfg</argname>
+                        <argvalue>MC12/dcube-AtlasG4_photons_5000evts.PhysValMon.xml</argvalue>
+                      </arg>
+                      <arg>             
+                        <argname>DCubeRef</argname>
+                        <argvalue>yesterday.PhysValMon.root</argvalue>
+                      </arg>
+                      <arg>
+                        <argname>localRefFile</argname>
+                        <argvalue>True</argvalue>
+                      </arg>
+                      <arg>
+                        <argname>DCubeMon</argname>
+                        <argvalue>today.PhysValMon.root</argvalue>
+                      </arg>
+                      <keepFilePattern>DCube-yesterday.PhysValMon.root/today.PhysValMon.root.dcube.xml.php</keepFilePattern>
+                    </test>
+                    <testToRemove>
+                      <jobGroupName>Top</jobGroupName>
+                      <testidentifier>CheckFileRunner0</testidentifier>
+                    </testToRemove>
+                  </jobTransform>
+                </chainElement>
+                <chainElement>
+                  <jobTransform userJobId="ISF_reco_ATLFASTII_photons_MC12G4">
+                    <doc>comparison to MC12 Geant4 references</doc>
+                    <jobTransformJobName>ISF_reco_ATLFASTII_photons_MC12G4</jobTransformJobName>
+                    <jobTransformCmd>sim_reg_test.py ISF_reco_ATLFASTII_photons InDetStandardPlots.root PhysValMon.root</jobTransformCmd>
+                    <group>ISF_FullChainTests</group>
+                    <queue>medium</queue>
+                    <test position="1">
+                      <modulename>RttLibraryTools</modulename>
+                      <testname>DCubeRunner</testname>
+                      <arg>
+                        <argname>DCubeCfg</argname>
+                        <argvalue>MC12/dcube-minbias-InDetStandardPlots.xml</argvalue> <!-- TODO: create photons XML file one day -->
+                      </arg>
+                      <arg>
+                        <argname>DCubeRef</argname>
+                        <argvalue>MC12/AtlasG4_photons_5000evts.InDetStandardPlots.root</argvalue>
+                      </arg>
+                      <arg>
+                        <argname>DCubeMon</argname>
+                        <argvalue>today.InDetStandardPlots.root</argvalue>
+                      </arg>
+                      <keepFilePattern>DCube-MC12/AtlasG4_photons_5000evts.InDetStandardPlots.root/today.InDetStandardPlots.root.dcube.xml.php</keepFilePattern>
+                    </test>
+                    <test>
+                      <modulename>RttLibraryTools</modulename>
+                      <testname>DCubeRunner</testname>
+                      <arg>
+                        <argname>DCubeCfg</argname>
+                        <argvalue>MC12/dcube-AtlasG4_photons_5000evts.PhysValMon.xml</argvalue>
+                      </arg>
+                      <arg>
+                        <argname>DCubeRef</argname>
+                        <argvalue>MC12/AtlasG4_photons_5000evts.PhysValMon.root</argvalue>
+                      </arg>
+                      <arg>
+                        <argname>DCubeMon</argname>
+                        <argvalue>today.PhysValMon.root</argvalue>
+                      </arg>
+                      <keepFilePattern>DCube-MC12/AtlasG4_photons_5000evts.PhysValMon.root/today.PhysValMon.root.dcube.xml.php</keepFilePattern>
+                    </test>
+                    <testToRemove>
+                      <jobGroupName>Top</jobGroupName>
+                      <testidentifier>CheckFileRunner0</testidentifier>
+                    </testToRemove>
+                  </jobTransform>
+                </chainElement>
+
+                <chainElement>
+                  <jobTransform userJobId="ISF_reco_ATLFASTII_photons_MC12AFII">
+                    <doc>comparison to MC12 ATLFASTII references</doc>
+                    <jobTransformJobName>ISF_reco_ATLFASTII_photons_MC12AFII</jobTransformJobName>
+                    <jobTransformCmd>sim_reg_test.py ISF_reco_ATLFASTII_photons InDetStandardPlots.root PhysValMon.root</jobTransformCmd>
+                    <group>ISF_FullChainTests</group>
+                    <queue>medium</queue>
+                    <test position="1">
+                      <modulename>RttLibraryTools</modulename>
+                      <testname>DCubeRunner</testname>
+                      <arg>
+                        <argname>DCubeCfg</argname>
+                        <argvalue>MC12/dcube-photons-InDetStandardPlots.xml</argvalue>
+                      </arg>
+                      <arg>
+                        <argname>DCubeRef</argname>
+                        <argvalue>MC12/AFII_photons_5000evts.InDetStandardPlots.root</argvalue>
+                      </arg>
+                      <arg>
+                        <argname>DCubeMon</argname>
+                        <argvalue>today.InDetStandardPlots.root</argvalue>
+                      </arg>
+                      <keepFilePattern>DCube-MC12/AFII_photons_5000evts.InDetStandardPlots.root/today.InDetStandardPlots.root.dcube.xml.php</keepFilePattern>
+                    </test>
+                    <test>
+                      <modulename>RttLibraryTools</modulename>
+                      <testname>DCubeRunner</testname>
+                      <arg>
+                        <argname>DCubeCfg</argname>
+                        <argvalue>MC12/dcube-AFII_photons_5000evts.PhysValMon.xml</argvalue>
+                      </arg>
+                      <arg>
+                        <argname>DCubeRef</argname>
+                        <argvalue>MC12/AFII_photons_5000evts.PhysValMon.root</argvalue>
+                      </arg>
+                      <arg>
+                        <argname>DCubeMon</argname>
+                        <argvalue>today.PhysValMon.root</argvalue>
+                      </arg>
+                      <keepFilePattern>DCube-MC12/AFII_photons_5000evts.PhysValMon.root/today.PhysValMon.root.dcube.xml.php</keepFilePattern>
+                    </test>
+
+                    <testToRemove>
+                      <jobGroupName>Top</jobGroupName>
+                      <testidentifier>CheckFileRunner0</testidentifier>
+                    </testToRemove>
+                  </jobTransform>
+                </chainElement>
+
+              </parallel>
+            </sequential>
+          </parallel>
+        </sequential>
+      </chain>
+
+      <!--%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+          %%                    ATLFASTII electrons    (full chain test)
+          %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+      -->
+      <chain>
+        <chainName>FullChainTest_ISF_ATLFASTII_electrons</chainName>
+        <sequential>
+          <chainElement>
+            <jobTransform userJobId="ISF_ATLFASTII_electrons">
+              <doc>Tests detector functionality for ISF ATLFASTII using electrons</doc>
+              <jobTransformJobName>ISF_ATLFASTII_electrons</jobTransformJobName>
+              <jobTransformCmd>Sim_tf.py --simulator ATLFASTII --useISF True --randomSeed 0 --enableLooperKiller True --maxEvents 5000 --skipEvents 0 --geometryVersion ATLAS-GEO-20-00-01 --conditionsTag OFLCOND-MC12-SIM-00 --preExec 'from ISF_Config.ISF_jobProperties import ISF_Flags;ISF_Flags.Input="electrons"' --outputHitsFile "Hits.pool.root" --postInclude=G4AtlasTests/postInclude.DCubeTest.py</jobTransformCmd>
+              <group>ISF_SimTests</group>
+              <queue>medium</queue>
+              <!--
+              <test position="1">
+                <modulename>RttLibraryTools</modulename>
+                <testname>DCubeRunner</testname>
+                <arg>
+                  <argname>DCubeCfg</argname>
+                  <argvalue>18.X.0/dcube-ISF_ATLFASTII_electrons.xml</argvalue>
+                </arg>
+                <arg>
+                  <argname>DCubeRef</argname>
+                  <argvalue>18.X.0/ISF_ATLFASTII_electrons.truth.root</argvalue>
+                </arg>
+                <arg>
+                  <argname>DCubeMon</argname>
+                  <argvalue>truth.root</argvalue>
+                </arg>
+              </test>
+              -->
+            </jobTransform>
+            <chainfileout>Hits.pool.root</chainfileout>
+          </chainElement>
+          <parallel>
+            <chainElement>
+              <jobTransform userJobId="ISF_ATLFASTII_electrons_Reg">
+                <doc>Regression test between releases</doc>
+                <jobTransformJobName>ISF_ATLFASTII_electrons_Reg</jobTransformJobName>
+                <jobTransformCmd>sim_reg_test.py ISF_ATLFASTII_electrons</jobTransformCmd>
+                <group>ISF_FullChainTests</group>
+                <queue>extrashort</queue>
+                <test>
+                  <modulename>RttLibraryTools</modulename>
+                  <testname>DCubeRunner</testname>
+                  <arg>
+                    <argname>DCubeCfg</argname>
+                    <argvalue>18.X.0/dcube-ISF_ATLFASTII_electrons.xml</argvalue>
+                  </arg>
+                  <arg>             
+                    <argname>DCubeRef</argname>
+                    <argvalue>yesterday.root</argvalue>
+                  </arg>
+                  <arg>
+                    <argname>localRefFile</argname>
+                    <argvalue>True</argvalue>
+                  </arg>
+                  <arg>
+                    <argname>DCubeMon</argname>
+                    <argvalue>today.root</argvalue>
+                  </arg>
+                  <keepFilePattern>DCube-yesterday.root/today.root.dcube.xml.php</keepFilePattern>
+                </test>
+                <testToRemove>
+                  <jobGroupName>Top</jobGroupName>
+                  <testidentifier>CheckFileRunner0</testidentifier>
+                </testToRemove>
+              </jobTransform>
+            </chainElement>
+            <chainElement>
+              <jobTransform userJobId="ISF_ATLFASTII_electrons_MC12G4">
+                <doc>comparison to ISF references</doc>
+                <jobTransformJobName>ISF_ATLFASTII_electrons_MC12G4</jobTransformJobName>
+                <jobTransformCmd>sim_reg_test.py ISF_ATLFASTII_electrons</jobTransformCmd>
+                <group>ISF_FullChainTests</group>
+                <queue>extrashort</queue>
+                <test position="1">
+                  <modulename>RttLibraryTools</modulename>
+                  <testname>DCubeRunner</testname>
+                  <arg>
+                    <argname>DCubeCfg</argname>
+                    <argvalue>MC12/dcube-AtlasG4_electrons_5000evts.xml</argvalue>
+                  </arg>
+                  <arg>
+                    <argname>DCubeRef</argname>
+                    <argvalue>MC12/AtlasG4_electrons_5000evts.truth.root</argvalue>
+                  </arg>
+                  <arg>
+                    <argname>DCubeMon</argname>
+                    <argvalue>today.root</argvalue>
+                  </arg>
+                  <keepFilePattern>DCube-MC12/AtlasG4_electrons_5000evts.truth.root/today.root.dcube.xml.php</keepFilePattern>
+                </test>       
+                <testToRemove>
+                  <jobGroupName>Top</jobGroupName>
+                  <testidentifier>CheckFileRunner0</testidentifier>
+                </testToRemove>
+              </jobTransform>
+            </chainElement>
+            <sequential>
+              <!-- Run Digitisation -->
+              <chainElement>
+                <jobTransform userJobId="ISF_digi_ATLFASTII_electrons">
+                  <doc>Digitiziation without pile-up, with additional modifications for AFII inputs.</doc>
+                  <jobTransformJobName>ISF_digi_ATLFASTII_electrons</jobTransformJobName>
+                  <jobTransformCmd>
+                    Digi_trf.py inputHitsFile=Hits.pool.root outputRDOFile=RDO.pool.root maxEvents=-1 skipEvents=0 geometryVersion=ATLAS-GEO-20-00-01 digiSeedOffset1=123456 digiSeedOffset2=2345678 DBRelease=/afs/cern.ch/atlas/www/GROUPS/DATABASE/pacman4/DBRelease/DBRelease-pcache-current.tar.gz samplingFractionDbTag=QGSP_BERT AddCaloDigi=False conditionsTag=OFLCOND-MC12-SDR-06 IgnoreConfigError=False postInclude=FastSimulationJobTransforms/postInclude.AF2DigiSetContainerNames.py postExec='svcMgr.AddressRemappingSvc.TypeKeyOverwriteMaps += [ "LArHitContainer#LArHitEMB_Fast->LArHitFloatContainer#LArHitEMB_Fast", "LArHitContainer#LArHitEMEC_Fast->LArHitFloatContainer#LArHitEMEC_Fast", "LArHitContainer#LArHitHEC_Fast->LArHitFloatContainer#LArHitHEC_Fast", "LArHitContainer#LArHitFCAL_Fast->LArHitFloatContainer#LArHitFCAL_Fast"]'
+                  </jobTransformCmd>
+                  <group>ISF_FullChainTests</group>
+                  <chaindataset_info>
+                    <jobTransformData/>
+                    <chaindatasetName>Hits.pool.root</chaindatasetName>
+                    <dataset_info>
+                      <jobTransformData/>
+                      <datasetName>/afs/cern.ch/atlas/offline/external/FullChainTest/long/rtt.fallback/MC12/MC12.108351.pythia_minbias.8TeV.HITS.pool.root</datasetName> <!-- TODO: change this to electrons dataset -->
+                    </dataset_info>
+                  </chaindataset_info>
+                  <queue>medium</queue>
+                </jobTransform>
+                <chainfileout>RDO.pool.root</chainfileout>
+              </chainElement>
+              <!-- Run Reconstruction -->
+              <chainElement>
+                <jobTransform userJobId="ISF_reco_ATLFASTII_electrons">
+                  <doc>reco</doc>
+                  <jobTransformJobName>ISF_reco_ATLFASTII_electrons</jobTransformJobName>
+                  <jobTransformCmd>
+                    Reco_trf.py inputRDOFile=RDO.pool.root outputESDFile=ESD.pool.root outputAODFile=AOD.pool.root maxEvents=-1 skipEvents=0 autoConfiguration='everything' preExec='InDetFlags.doStandardPlots.set_Value_and_Lock(True)' outputHIST_PHYSVALMONFile=PhysValMon.root
+                  </jobTransformCmd>
+                  <group>ISF_FullChainTests</group>
+                  <chaindataset_info>
+                    <jobTransformData/>
+                    <chaindatasetName>RDO.pool.root</chaindatasetName>
+                    <dataset_info>
+                      <jobTransformData/>
+                      <datasetName>/afs/cern.ch/atlas/offline/external/FullChainTest/long/rtt.fallback/MC12/MC12.108351.pythia_minbias.8TeV.RDO.pool.root</datasetName> <!-- TODO: change this to electrons dataset -->
+                    </dataset_info>
+                  </chaindataset_info>
+                  <queue>medium</queue>
+                </jobTransform>
+                <!-- not required to be on chainstore at the moment
+                <chainfileout>ESD.pool.root</chainfileout>
+                <chainfileout>AOD.pool.root</chainfileout>
+                <chainfileout>RecoValHists.root</chainfileout>
+                <chainfileout>PhysValMon.root</chainfileout>-->
+              </chainElement>
+              <parallel>
+                <chainElement>
+                  <jobTransform userJobId="ISF_reco_ATLFASTII_electrons_Reg">
+                    <doc>Regression test between builds</doc>
+                    <jobTransformJobName>ISF_reco_ATLFASTII_electrons_Reg</jobTransformJobName>
+                    <jobTransformCmd>sim_reg_test.py ISF_reco_ATLFASTII_electrons InDetStandardPlots.root PhysValMon.root</jobTransformCmd>
+                    <group>ISF_FullChainTests</group>
+                    <queue>medium</queue>
+                    <test>
+                      <modulename>RttLibraryTools</modulename>
+                      <testname>DCubeRunner</testname>
+                      <arg>
+                        <argname>DCubeCfg</argname>
+                        <argvalue>MC12/dcube-minbias-InDetStandardPlots.xml</argvalue> <!-- TODO: create electrons XML file one day -->
+                      </arg>
+                      <arg>             
+                        <argname>DCubeRef</argname>
+                        <argvalue>yesterday.InDetStandardPlots.root</argvalue>
+                      </arg>
+                      <arg>
+                        <argname>localRefFile</argname>
+                        <argvalue>True</argvalue>
+                      </arg>
+                      <arg>
+                        <argname>DCubeMon</argname>
+                        <argvalue>today.InDetStandardPlots.root</argvalue>
+                      </arg>
+                      <keepFilePattern>DCube-yesterday.InDetStandardPlots.root/today.InDetStandardPlots.root.dcube.xml.php</keepFilePattern>
+                    </test>
+                    <test>
+                      <modulename>RttLibraryTools</modulename>
+                      <testname>DCubeRunner</testname>
+                      <arg>
+                        <argname>DCubeCfg</argname>
+                        <argvalue>MC12/dcube-AtlasG4_electrons_5000evts.PhysValMon.xml</argvalue>
+                      </arg>
+                      <arg>             
+                        <argname>DCubeRef</argname>
+                        <argvalue>yesterday.PhysValMon.root</argvalue>
+                      </arg>
+                      <arg>
+                        <argname>localRefFile</argname>
+                        <argvalue>True</argvalue>
+                      </arg>
+                      <arg>
+                        <argname>DCubeMon</argname>
+                        <argvalue>today.PhysValMon.root</argvalue>
+                      </arg>
+                      <keepFilePattern>DCube-yesterday.PhysValMon.root/today.PhysValMon.root.dcube.xml.php</keepFilePattern>
+                    </test>
+                    <testToRemove>
+                      <jobGroupName>Top</jobGroupName>
+                      <testidentifier>CheckFileRunner0</testidentifier>
+                    </testToRemove>
+                  </jobTransform>
+                </chainElement>
+                <chainElement>
+                  <jobTransform userJobId="ISF_reco_ATLFASTII_electrons_MC12G4">
+                    <doc>comparison to MC12 Geant4 references</doc>
+                    <jobTransformJobName>ISF_reco_ATLFASTII_electrons_MC12G4</jobTransformJobName>
+                    <jobTransformCmd>sim_reg_test.py ISF_reco_ATLFASTII_electrons InDetStandardPlots.root PhysValMon.root</jobTransformCmd>
+                    <group>ISF_FullChainTests</group>
+                    <queue>medium</queue>
+                    <test position="1">
+                      <modulename>RttLibraryTools</modulename>
+                      <testname>DCubeRunner</testname>
+                      <arg>
+                        <argname>DCubeCfg</argname>
+                        <argvalue>MC12/dcube-minbias-InDetStandardPlots.xml</argvalue> <!-- TODO: create electrons XML file one day -->
+                      </arg>
+                      <arg>
+                        <argname>DCubeRef</argname>
+                        <argvalue>MC12/AtlasG4_electrons_5000evts.InDetStandardPlots.root</argvalue>
+                      </arg>
+                      <arg>
+                        <argname>DCubeMon</argname>
+                        <argvalue>today.InDetStandardPlots.root</argvalue>
+                      </arg>
+                      <keepFilePattern>DCube-MC12/AtlasG4_electrons_5000evts.InDetStandardPlots.root/today.InDetStandardPlots.root.dcube.xml.php</keepFilePattern>
+                    </test>
+                    <test>
+                      <modulename>RttLibraryTools</modulename>
+                      <testname>DCubeRunner</testname>
+                      <arg>
+                        <argname>DCubeCfg</argname>
+                        <argvalue>MC12/dcube-AtlasG4_electrons_5000evts.PhysValMon.xml</argvalue>
+                      </arg>
+                      <arg>
+                        <argname>DCubeRef</argname>
+                        <argvalue>MC12/AtlasG4_electrons_5000evts.PhysValMon.root</argvalue>
+                      </arg>
+                      <arg>
+                        <argname>DCubeMon</argname>
+                        <argvalue>today.PhysValMon.root</argvalue>
+                      </arg>
+                      <keepFilePattern>DCube-MC12/AtlasG4_electrons_5000evts.PhysValMon.root/today.PhysValMon.root.dcube.xml.php</keepFilePattern>
+                    </test>
+                    <testToRemove>
+                      <jobGroupName>Top</jobGroupName>
+                      <testidentifier>CheckFileRunner0</testidentifier>
+                    </testToRemove>
+                  </jobTransform>
+                </chainElement>
+
+                <chainElement>
+                  <jobTransform userJobId="ISF_reco_ATLFASTII_electrons_MC12AFII">
+                    <doc>comparison to MC12 ATLFASTII references</doc>
+                    <jobTransformJobName>ISF_reco_ATLFASTII_electrons_MC12AFII</jobTransformJobName>
+                    <jobTransformCmd>sim_reg_test.py ISF_reco_ATLFASTII_electrons InDetStandardPlots.root PhysValMon.root</jobTransformCmd>
+                    <group>ISF_FullChainTests</group>
+                    <queue>medium</queue>
+                    <test position="1">
+                      <modulename>RttLibraryTools</modulename>
+                      <testname>DCubeRunner</testname>
+                      <arg>
+                        <argname>DCubeCfg</argname>
+                        <argvalue>MC12/dcube-electrons-InDetStandardPlots.xml</argvalue>
+                      </arg>
+                      <arg>
+                        <argname>DCubeRef</argname>
+                        <argvalue>MC12/AFII_electrons_5000evts.InDetStandardPlots.root</argvalue>
+                      </arg>
+                      <arg>
+                        <argname>DCubeMon</argname>
+                        <argvalue>today.InDetStandardPlots.root</argvalue>
+                      </arg>
+                      <keepFilePattern>DCube-MC12/AFII_electrons_5000evts.InDetStandardPlots.root/today.InDetStandardPlots.root.dcube.xml.php</keepFilePattern>
+                    </test>
+                    <test>
+                      <modulename>RttLibraryTools</modulename>
+                      <testname>DCubeRunner</testname>
+                      <arg>
+                        <argname>DCubeCfg</argname>
+                        <argvalue>MC12/dcube-AFII_electrons_5000evts.PhysValMon.xml</argvalue>
+                      </arg>
+                      <arg>
+                        <argname>DCubeRef</argname>
+                        <argvalue>MC12/AFII_electrons_5000evts.PhysValMon.root</argvalue>
+                      </arg>
+                      <arg>
+                        <argname>DCubeMon</argname>
+                        <argvalue>today.PhysValMon.root</argvalue>
+                      </arg>
+                      <keepFilePattern>DCube-MC12/AFII_electrons_5000evts.PhysValMon.root/today.PhysValMon.root.dcube.xml.php</keepFilePattern>
+                    </test>
+
+                    <testToRemove>
+                      <jobGroupName>Top</jobGroupName>
+                      <testidentifier>CheckFileRunner0</testidentifier>
+                    </testToRemove>
+                  </jobTransform>
+                </chainElement>
+
+              </parallel>
+            </sequential>
+          </parallel>
+        </sequential>
+      </chain>
+
+      <!--%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+         %%              Fatras + FastCaloSim + Geant4 Test
+         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+      -->
+      <jobTransform userJobId="ISF_Fatras_FCS_G4_ttbar">
+        <doc>Tests detector functionality for ISF multi-simulator setup using ttbar events</doc>
+        <jobTransformJobName>ISF_Fatras_FCS_G4_ttbar</jobTransformJobName>
+        <jobTransformCmd>Sim_tf.py --simulator MultiSimTest --useISF True --randomSeed 0 --enableLooperKiller True --maxEvents 15 --skipEvents 0 --geometryVersion ATLAS-GEO-20-00-01 --conditionsTag OFLCOND-MC12-SIM-00 --preExec 'from ISF_Config.ISF_jobProperties import ISF_Flags;ISF_Flags.Input="ttbar"' --outputHitsFile "Hits.pool.root" --postInclude=G4AtlasTests/postInclude.DCubeTest.py</jobTransformCmd>
+        <group>ISF_SimTests</group>
+        <queue>short</queue>
+      </jobTransform>
+
+
+      <!--%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+          %%                    ATLFASTIIF muons    (full chain test)
+          %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+      -->
+      <chain>
+        <chainName>FullChainTest_ISF_ATLFASTIIF_muons</chainName>
+        <sequential>
+          <chainElement>
+            <jobTransform userJobId="ISF_ATLFASTIIF_muons">
+              <doc>Tests detector functionality for ISF ATLFASTIIF using muons</doc>
+              <jobTransformJobName>ISF_ATLFASTIIF_muons</jobTransformJobName>
+              <jobTransformCmd>Sim_tf.py --simulator ATLFASTIIF --useISF True --randomSeed 0 --enableLooperKiller True --maxEvents 5000 --skipEvents 0 --geometryVersion ATLAS-GEO-20-00-01 --conditionsTag OFLCOND-MC12-SIM-00 --preExec 'from ISF_Config.ISF_jobProperties import ISF_Flags;ISF_Flags.Input="muons"' --outputHitsFile "Hits.pool.root" --postInclude=G4AtlasTests/postInclude.DCubeTest.py</jobTransformCmd>
+              <group>ISF_SimTests</group>
+              <queue>short</queue>
+              <!--
+              <test position="1">
+                <modulename>RttLibraryTools</modulename>
+                <testname>DCubeRunner</testname>
+                <arg>
+                  <argname>DCubeCfg</argname>
+                  <argvalue>18.X.0/dcube-ISF_ATLFASTIIF_muons.xml</argvalue>
+                </arg>
+                <arg>
+                  <argname>DCubeRef</argname>
+                  <argvalue>18.X.0/ISF_ATLFASTIIF_muons.truth.root</argvalue>
+                </arg>
+                <arg>
+                  <argname>DCubeMon</argname>
+                  <argvalue>truth.root</argvalue>
+                </arg>
+              </test>
+              -->
+            </jobTransform>
+            <chainfileout>Hits.pool.root</chainfileout>
+          </chainElement>
+          <parallel>
+            <chainElement>
+              <jobTransform userJobId="ISF_ATLFASTIIF_muons_Reg">
+                <doc>Regression test between releases</doc>
+                <jobTransformJobName>ISF_ATLFASTIIF_muons_Reg</jobTransformJobName>
+                <jobTransformCmd>sim_reg_test.py ISF_ATLFASTIIF_muons</jobTransformCmd>
+                <group>ISF_FullChainTests</group>
+                <queue>extrashort</queue>
+                <test>
+                  <modulename>RttLibraryTools</modulename>
+                  <testname>DCubeRunner</testname>
+                  <arg>
+                    <argname>DCubeCfg</argname>
+                    <argvalue>18.X.0/dcube-ISF_ATLFASTIIF_muons.xml</argvalue>
+                  </arg>
+                  <arg>             
+                    <argname>DCubeRef</argname>
+                    <argvalue>yesterday.root</argvalue>
+                  </arg>
+                  <arg>
+                    <argname>localRefFile</argname>
+                    <argvalue>True</argvalue>
+                  </arg>
+                  <arg>
+                    <argname>DCubeMon</argname>
+                    <argvalue>today.root</argvalue>
+                  </arg>
+                  <keepFilePattern>DCube-yesterday.root/today.root.dcube.xml.php</keepFilePattern>
+                </test>
+                <testToRemove>
+                  <jobGroupName>Top</jobGroupName>
+                  <testidentifier>CheckFileRunner0</testidentifier>
+                </testToRemove>
+              </jobTransform>
+            </chainElement>
+            <chainElement>
+              <jobTransform userJobId="ISF_ATLFASTIIF_muons_MC12G4">
+                <doc>comparison to ISF references</doc>
+                <jobTransformJobName>ISF_ATLFASTIIF_muons_MC12G4</jobTransformJobName>
+                <jobTransformCmd>sim_reg_test.py ISF_ATLFASTIIF_muons</jobTransformCmd>
+                <group>ISF_FullChainTests</group>
+                <queue>extrashort</queue>
+                <test position="1">
+                  <modulename>RttLibraryTools</modulename>
+                  <testname>DCubeRunner</testname>
+                  <arg>
+                    <argname>DCubeCfg</argname>
+                    <argvalue>MC12/dcube-AtlasG4_muons_5000evts.xml</argvalue>
+                  </arg>
+                  <arg>
+                    <argname>DCubeRef</argname>
+                    <argvalue>MC12/AtlasG4_muons_5000evts.truth.root</argvalue>
+                  </arg>
+                  <arg>
+                    <argname>DCubeMon</argname>
+                    <argvalue>today.root</argvalue>
+                  </arg>
+                  <keepFilePattern>DCube-MC12/AtlasG4_muons_5000evts.truth.root/today.root.dcube.xml.php</keepFilePattern>
+                </test>       
+                <testToRemove>
+                  <jobGroupName>Top</jobGroupName>
+                  <testidentifier>CheckFileRunner0</testidentifier>
+                </testToRemove>
+              </jobTransform>
+            </chainElement>
+            <sequential>
+              <!-- Run Digitisation -->
+              <chainElement>
+                <jobTransform userJobId="ISF_digi_ATLFASTIIF_muons">
+                  <doc>Digitiziation without pile-up, with additional modifications for AFII inputs.</doc>
+                  <jobTransformJobName>ISF_digi_ATLFASTIIF_muons</jobTransformJobName>
+                  <jobTransformCmd>
+                    Digi_trf.py inputHitsFile=Hits.pool.root outputRDOFile=RDO.pool.root maxEvents=-1 skipEvents=0 geometryVersion=ATLAS-GEO-20-00-01 digiSeedOffset1=123456 digiSeedOffset2=2345678 DBRelease=/afs/cern.ch/atlas/www/GROUPS/DATABASE/pacman4/DBRelease/DBRelease-pcache-current.tar.gz samplingFractionDbTag=QGSP_BERT AddCaloDigi=False conditionsTag=OFLCOND-MC12-SDR-06 IgnoreConfigError=False postInclude=FastSimulationJobTransforms/postInclude.AF2DigiSetContainerNames.py postExec='svcMgr.AddressRemappingSvc.TypeKeyOverwriteMaps += [ "LArHitContainer#LArHitEMB_Fast->LArHitFloatContainer#LArHitEMB_Fast", "LArHitContainer#LArHitEMEC_Fast->LArHitFloatContainer#LArHitEMEC_Fast", "LArHitContainer#LArHitHEC_Fast->LArHitFloatContainer#LArHitHEC_Fast", "LArHitContainer#LArHitFCAL_Fast->LArHitFloatContainer#LArHitFCAL_Fast"]'
+                  </jobTransformCmd>
+                  <group>ISF_FullChainTests</group>
+                  <chaindataset_info>
+                    <jobTransformData/>
+                    <chaindatasetName>Hits.pool.root</chaindatasetName>
+                    <dataset_info>
+                      <jobTransformData/>
+                      <datasetName>/afs/cern.ch/atlas/offline/external/FullChainTest/long/rtt.fallback/MC12/MC12.108351.pythia_minbias.8TeV.HITS.pool.root</datasetName> <!-- TODO: change this to muons dataset -->
+                    </dataset_info>
+                  </chaindataset_info>
+                  <queue>medium</queue>
+                </jobTransform>
+                <chainfileout>RDO.pool.root</chainfileout>
+              </chainElement>
+              <!-- Run Reconstruction -->
+              <chainElement>
+                <jobTransform userJobId="ISF_reco_ATLFASTIIF_muons">
+                  <doc>reco</doc>
+                  <jobTransformJobName>ISF_reco_ATLFASTIIF_muons</jobTransformJobName>
+                  <jobTransformCmd>
+                    Reco_trf.py inputRDOFile=RDO.pool.root outputESDFile=ESD.pool.root outputAODFile=AOD.pool.root maxEvents=-1 skipEvents=0 autoConfiguration='everything' preExec='InDetFlags.doStandardPlots.set_Value_and_Lock(True)' outputHIST_PHYSVALMONFile=PhysValMon.root
+                  </jobTransformCmd>
+                  <group>ISF_FullChainTests</group>
+                  <chaindataset_info>
+                    <jobTransformData/>
+                    <chaindatasetName>RDO.pool.root</chaindatasetName>
+                    <dataset_info>
+                      <jobTransformData/>
+                      <datasetName>/afs/cern.ch/atlas/offline/external/FullChainTest/long/rtt.fallback/MC12/MC12.108351.pythia_minbias.8TeV.RDO.pool.root</datasetName> <!-- TODO: change this to muons dataset -->
+                    </dataset_info>
+                  </chaindataset_info>
+                  <queue>medium</queue>
+                </jobTransform>
+                <!-- not required to be on chainstore at the moment
+                <chainfileout>ESD.pool.root</chainfileout>
+                <chainfileout>AOD.pool.root</chainfileout>
+                <chainfileout>RecoValHists.root</chainfileout>
+                <chainfileout>PhysValMon.root</chainfileout>-->
+              </chainElement>
+              <parallel>
+                <chainElement>
+                  <jobTransform userJobId="ISF_reco_ATLFASTIIF_muons_Reg">
+                    <doc>Regression test between builds</doc>
+                    <jobTransformJobName>ISF_reco_ATLFASTIIF_muons_Reg</jobTransformJobName>
+                    <jobTransformCmd>sim_reg_test.py ISF_reco_ATLFASTIIF_muons InDetStandardPlots.root PhysValMon.root</jobTransformCmd>
+                    <group>ISF_FullChainTests</group>
+                    <queue>medium</queue>
+                    <test>
+                      <modulename>RttLibraryTools</modulename>
+                      <testname>DCubeRunner</testname>
+                      <arg>
+                        <argname>DCubeCfg</argname>
+                        <argvalue>MC12/dcube-minbias-InDetStandardPlots.xml</argvalue> <!-- TODO: create muons XML file one day -->
+                      </arg>
+                      <arg>             
+                        <argname>DCubeRef</argname>
+                        <argvalue>yesterday.InDetStandardPlots.root</argvalue>
+                      </arg>
+                      <arg>
+                        <argname>localRefFile</argname>
+                        <argvalue>True</argvalue>
+                      </arg>
+                      <arg>
+                        <argname>DCubeMon</argname>
+                        <argvalue>today.InDetStandardPlots.root</argvalue>
+                      </arg>
+                      <keepFilePattern>DCube-yesterday.InDetStandardPlots.root/today.InDetStandardPlots.root.dcube.xml.php</keepFilePattern>
+                    </test>
+                    <test>
+                      <modulename>RttLibraryTools</modulename>
+                      <testname>DCubeRunner</testname>
+                      <arg>
+                        <argname>DCubeCfg</argname>
+                        <argvalue>MC12/dcube-AtlasG4_muons_5000evts.PhysValMon.xml</argvalue>
+                      </arg>
+                      <arg>             
+                        <argname>DCubeRef</argname>
+                        <argvalue>yesterday.PhysValMon.root</argvalue>
+                      </arg>
+                      <arg>
+                        <argname>localRefFile</argname>
+                        <argvalue>True</argvalue>
+                      </arg>
+                      <arg>
+                        <argname>DCubeMon</argname>
+                        <argvalue>today.PhysValMon.root</argvalue>
+                      </arg>
+                      <keepFilePattern>DCube-yesterday.PhysValMon.root/today.PhysValMon.root.dcube.xml.php</keepFilePattern>
+                    </test>
+                    <testToRemove>
+                      <jobGroupName>Top</jobGroupName>
+                      <testidentifier>CheckFileRunner0</testidentifier>
+                    </testToRemove>
+                  </jobTransform>
+                </chainElement>
+                <chainElement>
+                  <jobTransform userJobId="ISF_reco_ATLFASTIIF_muons_MC12G4">
+                    <doc>comparison to MC12 Geant4 references</doc>
+                    <jobTransformJobName>ISF_reco_ATLFASTIIF_muons_MC12G4</jobTransformJobName>
+                    <jobTransformCmd>sim_reg_test.py ISF_reco_ATLFASTIIF_muons InDetStandardPlots.root PhysValMon.root</jobTransformCmd>
+                    <group>ISF_FullChainTests</group>
+                    <queue>medium</queue>
+                    <test position="1">
+                      <modulename>RttLibraryTools</modulename>
+                      <testname>DCubeRunner</testname>
+                      <arg>
+                        <argname>DCubeCfg</argname>
+                        <argvalue>MC12/dcube-minbias-InDetStandardPlots.xml</argvalue> <!-- TODO: create muons XML file one day -->
+                      </arg>
+                      <arg>
+                        <argname>DCubeRef</argname>
+                        <argvalue>MC12/AtlasG4_muons_5000evts.InDetStandardPlots.root</argvalue>
+                      </arg>
+                      <arg>
+                        <argname>DCubeMon</argname>
+                        <argvalue>today.InDetStandardPlots.root</argvalue>
+                      </arg>
+                      <keepFilePattern>DCube-MC12/AtlasG4_muons_5000evts.InDetStandardPlots.root/today.InDetStandardPlots.root.dcube.xml.php</keepFilePattern>
+                    </test>
+                    <test>
+                      <modulename>RttLibraryTools</modulename>
+                      <testname>DCubeRunner</testname>
+                      <arg>
+                        <argname>DCubeCfg</argname>
+                        <argvalue>MC12/dcube-AtlasG4_muons_5000evts.PhysValMon.xml</argvalue>
+                      </arg>
+                      <arg>
+                        <argname>DCubeRef</argname>
+                        <argvalue>MC12/AtlasG4_muons_5000evts.PhysValMon.root</argvalue>
+                      </arg>
+                      <arg>
+                        <argname>DCubeMon</argname>
+                        <argvalue>today.PhysValMon.root</argvalue>
+                      </arg>
+                      <keepFilePattern>DCube-MC12/AtlasG4_muons_5000evts.PhysValMon.root/today.PhysValMon.root.dcube.xml.php</keepFilePattern>
+                    </test>
+                    <testToRemove>
+                      <jobGroupName>Top</jobGroupName>
+                      <testidentifier>CheckFileRunner0</testidentifier>
+                    </testToRemove>
+                  </jobTransform>
+                </chainElement>
+
+                <chainElement>
+                  <jobTransform userJobId="ISF_reco_ATLFASTIIF_muons_MC12AFII">
+                    <doc>comparison to MC12 ATLFASTII references</doc>
+                    <jobTransformJobName>ISF_reco_ATLFASTIIF_muons_MC12AFII</jobTransformJobName>
+                    <jobTransformCmd>sim_reg_test.py ISF_reco_ATLFASTIIF_muons InDetStandardPlots.root PhysValMon.root</jobTransformCmd>
+                    <group>ISF_FullChainTests</group>
+                    <queue>short</queue>
+                    <test position="1">
+                      <modulename>RttLibraryTools</modulename>
+                      <testname>DCubeRunner</testname>
+                      <arg>
+                        <argname>DCubeCfg</argname>
+                        <argvalue>MC12/dcube-muons-InDetStandardPlots.xml</argvalue>
+                      </arg>
+                      <arg>
+                        <argname>DCubeRef</argname>
+                        <argvalue>MC12/AFII_muons_5000evts.InDetStandardPlots.root</argvalue>
+                      </arg>
+                      <arg>
+                        <argname>DCubeMon</argname>
+                        <argvalue>today.InDetStandardPlots.root</argvalue>
+                      </arg>
+                      <keepFilePattern>DCube-MC12/AFII_muons_5000evts.InDetStandardPlots.root/today.InDetStandardPlots.root.dcube.xml.php</keepFilePattern>
+                    </test>
+                    <test>
+                      <modulename>RttLibraryTools</modulename>
+                      <testname>DCubeRunner</testname>
+                      <arg>
+                        <argname>DCubeCfg</argname>
+                        <argvalue>MC12/dcube-AFII_muons_5000evts.PhysValMon.xml</argvalue>
+                      </arg>
+                      <arg>
+                        <argname>DCubeRef</argname>
+                        <argvalue>MC12/AFII_muons_5000evts.PhysValMon.root</argvalue>
+                      </arg>
+                      <arg>
+                        <argname>DCubeMon</argname>
+                        <argvalue>today.PhysValMon.root</argvalue>
+                      </arg>
+                      <keepFilePattern>DCube-MC12/AFII_muons_5000evts.PhysValMon.root/today.PhysValMon.root.dcube.xml.php</keepFilePattern>
+                    </test>
+
+                    <testToRemove>
+                      <jobGroupName>Top</jobGroupName>
+                      <testidentifier>CheckFileRunner0</testidentifier>
+                    </testToRemove>
+                  </jobTransform>
+                </chainElement>
+
+              </parallel>
+            </sequential>
+          </parallel>
+        </sequential>
+      </chain>
+
+
+      <!--%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+          %%                    ATLFASTIIF photons  (full chain test)
+          %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+      -->
+      <chain>
+        <chainName>FullChainTest_ISF_ATLFASTIIF_photons</chainName>
+        <sequential>
+          <chainElement>
+
+            <jobTransform userJobId="ISF_ATLFASTIIF_photons">
+              <doc>Tests detector functionality for ISF ATLFASTIIF using photons</doc>
+              <jobTransformJobName>ISF_ATLFASTIIF_photons</jobTransformJobName>
+              <jobTransformCmd>Sim_tf.py --simulator ATLFASTIIF --useISF True --randomSeed 0 --enableLooperKiller True --maxEvents 5000 --skipEvents 0 --geometryVersion ATLAS-GEO-20-00-01 --conditionsTag OFLCOND-MC12-SIM-00 --preExec 'from ISF_Config.ISF_jobProperties import ISF_Flags;ISF_Flags.Input="photons"' --outputHitsFile "Hits.pool.root" --postInclude=G4AtlasTests/postInclude.DCubeTest.py</jobTransformCmd>
+              <group>ISF_SimTests</group>
+              <queue>medium</queue>
+              <!--
+              <test position="1">
+                <modulename>RttLibraryTools</modulename>
+                <testname>DCubeRunner</testname>
+                <arg>
+                  <argname>DCubeCfg</argname>
+                  <argvalue>18.X.0/dcube-ISF_ATLFASTIIF_photons.xml</argvalue>
+                </arg>
+                <arg>
+                  <argname>DCubeRef</argname>
+                  <argvalue>18.X.0/ISF_ATLFASTIIF_photons.truth.root</argvalue>
+                </arg>
+                <arg>
+                  <argname>DCubeMon</argname>
+                  <argvalue>truth.root</argvalue>
+                </arg>
+              </test>
+              -->
+            </jobTransform>
+            <chainfileout>Hits.pool.root</chainfileout>
+          </chainElement>
+          <parallel>
+            <chainElement>
+              <jobTransform userJobId="ISF_ATLFASTIIF_photons_Reg">
+                <doc>Regression test between releases</doc>
+                <jobTransformJobName>ISF_ATLFASTIIF_photons_Reg</jobTransformJobName>
+                <jobTransformCmd>sim_reg_test.py ISF_ATLFASTIIF_photons</jobTransformCmd>
+                <group>ISF_FullChainTests</group>
+                <queue>extrashort</queue>
+                <test>
+                  <modulename>RttLibraryTools</modulename>
+                  <testname>DCubeRunner</testname>
+                  <arg>
+                    <argname>DCubeCfg</argname>
+                    <argvalue>18.X.0/dcube-ISF_ATLFASTIIF_photons.xml</argvalue>
+                  </arg>
+                  <arg>             
+                    <argname>DCubeRef</argname>
+                    <argvalue>yesterday.root</argvalue>
+                  </arg>
+                  <arg>
+                    <argname>localRefFile</argname>
+                    <argvalue>True</argvalue>
+                  </arg>
+                  <arg>
+                    <argname>DCubeMon</argname>
+                    <argvalue>today.root</argvalue>
+                  </arg>
+                  <keepFilePattern>DCube-yesterday.root/today.root.dcube.xml.php</keepFilePattern>
+                </test>       
+              </jobTransform>
+            </chainElement>
+            <chainElement>
+              <jobTransform userJobId="ISF_ATLFASTIIF_photons_MC12G4">
+                <doc>comparison to ISF references</doc>
+                <jobTransformJobName>ISF_ATLFASTIIF_photons_MC12G4</jobTransformJobName>
+                <jobTransformCmd>sim_reg_test.py ISF_ATLFASTIIF_photons</jobTransformCmd>
+                <group>ISF_FullChainTests</group>
+                <queue>extrashort</queue>
+                <test position="1">
+                  <modulename>RttLibraryTools</modulename>
+                  <testname>DCubeRunner</testname>
+                  <arg>
+                    <argname>DCubeCfg</argname>
+                    <argvalue>MC12/dcube-AtlasG4_photons_5000evts.xml</argvalue>
+                  </arg>
+                  <arg>
+                    <argname>DCubeRef</argname>
+                    <argvalue>MC12/AtlasG4_photons_5000evts.truth.root</argvalue>
+                  </arg>
+                  <arg>
+                    <argname>DCubeMon</argname>
+                    <argvalue>today.root</argvalue>
+                  </arg>
+                  <keepFilePattern>DCube-MC12/AtlasG4_photons_5000evts.truth.root/today.root.dcube.xml.php</keepFilePattern>
+                </test>       
+              </jobTransform>
+            </chainElement>
+            <sequential>
+              <!-- Run Digitisation -->
+              <chainElement>
+                <jobTransform userJobId="ISF_digi_ATLFASTIIF_photons">
+                  <doc>Digitiziation without pile-up, with additional modifications for AFII inputs.</doc>
+                  <jobTransformJobName>ISF_digi_ATLFASTIIF_photons</jobTransformJobName>
+                  <jobTransformCmd>
+                    Digi_trf.py inputHitsFile=Hits.pool.root outputRDOFile=RDO.pool.root maxEvents=-1 skipEvents=0 geometryVersion=ATLAS-GEO-20-00-01 digiSeedOffset1=123456 digiSeedOffset2=2345678 DBRelease=/afs/cern.ch/atlas/www/GROUPS/DATABASE/pacman4/DBRelease/DBRelease-pcache-current.tar.gz samplingFractionDbTag=QGSP_BERT AddCaloDigi=False conditionsTag=OFLCOND-MC12-SDR-06 IgnoreConfigError=False postInclude=FastSimulationJobTransforms/postInclude.AF2DigiSetContainerNames.py postExec='svcMgr.AddressRemappingSvc.TypeKeyOverwriteMaps += [ "LArHitContainer#LArHitEMB_Fast->LArHitFloatContainer#LArHitEMB_Fast", "LArHitContainer#LArHitEMEC_Fast->LArHitFloatContainer#LArHitEMEC_Fast", "LArHitContainer#LArHitHEC_Fast->LArHitFloatContainer#LArHitHEC_Fast", "LArHitContainer#LArHitFCAL_Fast->LArHitFloatContainer#LArHitFCAL_Fast"]'
+                  </jobTransformCmd>
+                  <group>ISF_FullChainTests</group>
+                  <chaindataset_info>
+                    <jobTransformData/>
+                    <chaindatasetName>Hits.pool.root</chaindatasetName>
+                    <dataset_info>
+                      <jobTransformData/>
+                      <datasetName>/afs/cern.ch/atlas/offline/external/FullChainTest/long/rtt.fallback/MC12/MC12.108351.pythia_minbias.8TeV.HITS.pool.root</datasetName> <!-- TODO: change this to photons dataset -->
+                    </dataset_info>
+                  </chaindataset_info>
+                  <queue>medium</queue>
+                </jobTransform>
+                <chainfileout>RDO.pool.root</chainfileout>
+              </chainElement>
+              <!-- Run Reconstruction -->
+              <chainElement>
+                <jobTransform userJobId="ISF_reco_ATLFASTIIF_photons">
+                  <doc>reco</doc>
+                  <jobTransformJobName>ISF_reco_ATLFASTIIF_photons</jobTransformJobName>
+                  <jobTransformCmd>
+                    Reco_trf.py inputRDOFile=RDO.pool.root outputESDFile=ESD.pool.root outputAODFile=AOD.pool.root maxEvents=-1 skipEvents=0 autoConfiguration='everything' preExec='InDetFlags.doStandardPlots.set_Value_and_Lock(True)' outputHIST_PHYSVALMONFile=PhysValMon.root
+                  </jobTransformCmd>
+                  <group>ISF_FullChainTests</group>
+                  <chaindataset_info>
+                    <jobTransformData/>
+                    <chaindatasetName>RDO.pool.root</chaindatasetName>
+                    <dataset_info>
+                      <jobTransformData/>
+                      <datasetName>/afs/cern.ch/atlas/offline/external/FullChainTest/long/rtt.fallback/MC12/MC12.108351.pythia_minbias.8TeV.RDO.pool.root</datasetName> <!-- TODO: change this to photons dataset -->
+                    </dataset_info>
+                  </chaindataset_info>
+                  <queue>medium</queue>
+                </jobTransform>
+                <!-- not required to be on chainstore at the moment
+                <chainfileout>ESD.pool.root</chainfileout>
+                <chainfileout>AOD.pool.root</chainfileout>
+                <chainfileout>RecoValHists.root</chainfileout>
+                <chainfileout>PhysValMon.root</chainfileout>-->
+              </chainElement>
+              <parallel>
+                <chainElement>
+                  <jobTransform userJobId="ISF_reco_ATLFASTIIF_photons_Reg">
+                    <doc>Regression test between builds</doc>
+                    <jobTransformJobName>ISF_reco_ATLFASTIIF_photons_Reg</jobTransformJobName>
+                    <jobTransformCmd>sim_reg_test.py ISF_reco_ATLFASTIIF_photons InDetStandardPlots.root PhysValMon.root</jobTransformCmd>
+                    <group>ISF_FullChainTests</group>
+                    <queue>medium</queue>
+                    <test>
+                      <modulename>RttLibraryTools</modulename>
+                      <testname>DCubeRunner</testname>
+                      <arg>
+                        <argname>DCubeCfg</argname>
+                        <argvalue>MC12/dcube-minbias-InDetStandardPlots.xml</argvalue> <!-- TODO: create photons XML file one day -->
+                      </arg>
+                      <arg>             
+                        <argname>DCubeRef</argname>
+                        <argvalue>yesterday.InDetStandardPlots.root</argvalue>
+                      </arg>
+                      <arg>
+                        <argname>localRefFile</argname>
+                        <argvalue>True</argvalue>
+                      </arg>
+                      <arg>
+                        <argname>DCubeMon</argname>
+                        <argvalue>today.InDetStandardPlots.root</argvalue>
+                      </arg>
+                      <keepFilePattern>DCube-yesterday.InDetStandardPlots.root/today.InDetStandardPlots.root.dcube.xml.php</keepFilePattern>
+                    </test>
+                    <test>
+                      <modulename>RttLibraryTools</modulename>
+                      <testname>DCubeRunner</testname>
+                      <arg>
+                        <argname>DCubeCfg</argname>
+                        <argvalue>MC12/dcube-AtlasG4_photons_5000evts.PhysValMon.xml</argvalue>
+                      </arg>
+                      <arg>             
+                        <argname>DCubeRef</argname>
+                        <argvalue>yesterday.PhysValMon.root</argvalue>
+                      </arg>
+                      <arg>
+                        <argname>localRefFile</argname>
+                        <argvalue>True</argvalue>
+                      </arg>
+                      <arg>
+                        <argname>DCubeMon</argname>
+                        <argvalue>today.PhysValMon.root</argvalue>
+                      </arg>
+                      <keepFilePattern>DCube-yesterday.PhysValMon.root/today.PhysValMon.root.dcube.xml.php</keepFilePattern>
+                    </test>
+                    <testToRemove>
+                      <jobGroupName>Top</jobGroupName>
+                      <testidentifier>CheckFileRunner0</testidentifier>
+                    </testToRemove>
+                  </jobTransform>
+                </chainElement>
+                <chainElement>
+                  <jobTransform userJobId="ISF_reco_ATLFASTIIF_photons_MC12G4">
+                    <doc>comparison to MC12 Geant4 references</doc>
+                    <jobTransformJobName>ISF_reco_ATLFASTIIF_photons_MC12G4</jobTransformJobName>
+                    <jobTransformCmd>sim_reg_test.py ISF_reco_ATLFASTIIF_photons InDetStandardPlots.root PhysValMon.root</jobTransformCmd>
+                    <group>ISF_FullChainTests</group>
+                    <queue>medium</queue>
+                    <test position="1">
+                      <modulename>RttLibraryTools</modulename>
+                      <testname>DCubeRunner</testname>
+                      <arg>
+                        <argname>DCubeCfg</argname>
+                        <argvalue>MC12/dcube-minbias-InDetStandardPlots.xml</argvalue> <!-- TODO: create photons XML file one day -->
+                      </arg>
+                      <arg>
+                        <argname>DCubeRef</argname>
+                        <argvalue>MC12/AtlasG4_photons_5000evts.InDetStandardPlots.root</argvalue>
+                      </arg>
+                      <arg>
+                        <argname>DCubeMon</argname>
+                        <argvalue>today.InDetStandardPlots.root</argvalue>
+                      </arg>
+                      <keepFilePattern>DCube-MC12/AtlasG4_photons_5000evts.InDetStandardPlots.root/today.InDetStandardPlots.root.dcube.xml.php</keepFilePattern>
+                    </test>
+                    <test>
+                      <modulename>RttLibraryTools</modulename>
+                      <testname>DCubeRunner</testname>
+                      <arg>
+                        <argname>DCubeCfg</argname>
+                        <argvalue>MC12/dcube-AtlasG4_photons_5000evts.PhysValMon.xml</argvalue>
+                      </arg>
+                      <arg>
+                        <argname>DCubeRef</argname>
+                        <argvalue>MC12/AtlasG4_photons_5000evts.PhysValMon.root</argvalue>
+                      </arg>
+                      <arg>
+                        <argname>DCubeMon</argname>
+                        <argvalue>today.PhysValMon.root</argvalue>
+                      </arg>
+                      <keepFilePattern>DCube-MC12/AtlasG4_photons_5000evts.PhysValMon.root/today.PhysValMon.root.dcube.xml.php</keepFilePattern>
+                    </test>
+                    <testToRemove>
+                      <jobGroupName>Top</jobGroupName>
+                      <testidentifier>CheckFileRunner0</testidentifier>
+                    </testToRemove>
+                  </jobTransform>
+                </chainElement>
+
+                <chainElement>
+                  <jobTransform userJobId="ISF_reco_ATLFASTIIF_photons_MC12AFII">
+                    <doc>comparison to MC12 ATLFASTII references</doc>
+                    <jobTransformJobName>ISF_reco_ATLFASTIIF_photons_MC12AFII</jobTransformJobName>
+                    <jobTransformCmd>sim_reg_test.py ISF_reco_ATLFASTIIF_photons InDetStandardPlots.root PhysValMon.root</jobTransformCmd>
+                    <group>ISF_FullChainTests</group>
+                    <queue>short</queue>
+                    <test position="1">
+                      <modulename>RttLibraryTools</modulename>
+                      <testname>DCubeRunner</testname>
+                      <arg>
+                        <argname>DCubeCfg</argname>
+                        <argvalue>MC12/dcube-photons-InDetStandardPlots.xml</argvalue>
+                      </arg>
+                      <arg>
+                        <argname>DCubeRef</argname>
+                        <argvalue>MC12/AFII_photons_5000evts.InDetStandardPlots.root</argvalue>
+                      </arg>
+                      <arg>
+                        <argname>DCubeMon</argname>
+                        <argvalue>today.InDetStandardPlots.root</argvalue>
+                      </arg>
+                      <keepFilePattern>DCube-MC12/AFII_photons_5000evts.InDetStandardPlots.root/today.InDetStandardPlots.root.dcube.xml.php</keepFilePattern>
+                    </test>
+                    <test>
+                      <modulename>RttLibraryTools</modulename>
+                      <testname>DCubeRunner</testname>
+                      <arg>
+                        <argname>DCubeCfg</argname>
+                        <argvalue>MC12/dcube-AFII_photons_5000evts.PhysValMon.xml</argvalue>
+                      </arg>
+                      <arg>
+                        <argname>DCubeRef</argname>
+                        <argvalue>MC12/AFII_photons_5000evts.PhysValMon.root</argvalue>
+                      </arg>
+                      <arg>
+                        <argname>DCubeMon</argname>
+                        <argvalue>today.PhysValMon.root</argvalue>
+                      </arg>
+                      <keepFilePattern>DCube-MC12/AFII_photons_5000evts.PhysValMon.root/today.PhysValMon.root.dcube.xml.php</keepFilePattern>
+                    </test>
+
+                    <testToRemove>
+                      <jobGroupName>Top</jobGroupName>
+                      <testidentifier>CheckFileRunner0</testidentifier>
+                    </testToRemove>
+                  </jobTransform>
+                </chainElement>
+
+              </parallel>
+            </sequential>
+          </parallel>
+        </sequential>
+      </chain>
+
+
+      <!--%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+          %%                    ATLFASTIIF pions    (full chain test)
+          %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+      -->
+      <chain>
+        <chainName>FullChainTest_ISF_ATLFASTIIF_pions</chainName>
+        <sequential>
+          <chainElement>
+            <jobTransform userJobId="ISF_ATLFASTIIF_pions">
+              <doc>Tests detector functionality for ISF ATLFASTIIF using pions</doc>
+              <jobTransformJobName>ISF_ATLFASTIIF_pions</jobTransformJobName>
+              <jobTransformCmd>Sim_tf.py --simulator ATLFASTIIF --useISF True --randomSeed 0 --enableLooperKiller True --maxEvents 5000 --skipEvents 0 --geometryVersion ATLAS-GEO-20-00-01 --conditionsTag OFLCOND-MC12-SIM-00 --preExec 'from ISF_Config.ISF_jobProperties import ISF_Flags;ISF_Flags.Input="pions"' --outputHitsFile "Hits.pool.root" --postInclude=G4AtlasTests/postInclude.DCubeTest.py</jobTransformCmd>
+              <group>ISF_SimTests</group>
+              <queue>medium</queue>
+              <!--
+              <test position="1">
+                <modulename>RttLibraryTools</modulename>
+                <testname>DCubeRunner</testname>
+                <arg>
+                  <argname>DCubeCfg</argname>
+                  <argvalue>18.X.0/dcube-ISF_ATLFASTIIF_pions.xml</argvalue>
+                </arg>
+                <arg>
+                  <argname>DCubeRef</argname>
+                  <argvalue>18.X.0/ISF_ATLFASTIIF_pions.truth.root</argvalue>
+                </arg>
+                <arg>
+                  <argname>DCubeMon</argname>
+                  <argvalue>truth.root</argvalue>
+                </arg>
+              </test>
+              -->
+            </jobTransform>
+            <chainfileout>Hits.pool.root</chainfileout>
+          </chainElement>
+          <parallel>
+            <chainElement>
+              <jobTransform userJobId="ISF_ATLFASTIIF_pions_Reg">
+                <doc>Regression test between releases</doc>
+                <jobTransformJobName>ISF_ATLFASTIIF_pions_Reg</jobTransformJobName>
+                <jobTransformCmd>sim_reg_test.py ISF_ATLFASTIIF_pions</jobTransformCmd>
+                <group>ISF_FullChainTests</group>
+                <queue>extrashort</queue>
+                <test>
+                  <modulename>RttLibraryTools</modulename>
+                  <testname>DCubeRunner</testname>
+                  <arg>
+                    <argname>DCubeCfg</argname>
+                    <argvalue>18.X.0/dcube-ISF_ATLFASTIIF_pions.xml</argvalue>
+                  </arg>
+                  <arg>             
+                    <argname>DCubeRef</argname>
+                    <argvalue>yesterday.root</argvalue>
+                  </arg>
+                  <arg>
+                    <argname>localRefFile</argname>
+                    <argvalue>True</argvalue>
+                  </arg>
+                  <arg>
+                    <argname>DCubeMon</argname>
+                    <argvalue>today.root</argvalue>
+                  </arg>
+                  <keepFilePattern>DCube-yesterday.root/today.root.dcube.xml.php</keepFilePattern>
+                </test>
+                <testToRemove>
+                  <jobGroupName>Top</jobGroupName>
+                  <testidentifier>CheckFileRunner0</testidentifier>
+                </testToRemove>
+              </jobTransform>
+            </chainElement>
+            <chainElement>
+              <jobTransform userJobId="ISF_ATLFASTIIF_pions_MC12G4">
+                <doc>comparison to ISF references</doc>
+                <jobTransformJobName>ISF_ATLFASTIIF_pions_MC12G4</jobTransformJobName>
+                <jobTransformCmd>sim_reg_test.py ISF_ATLFASTIIF_pions</jobTransformCmd>
+                <group>ISF_FullChainTests</group>
+                <queue>extrashort</queue>
+                <test position="1">
+                  <modulename>RttLibraryTools</modulename>
+                  <testname>DCubeRunner</testname>
+                  <arg>
+                    <argname>DCubeCfg</argname>
+                    <argvalue>MC12/dcube-AtlasG4_pions_5000evts.xml</argvalue>
+                  </arg>
+                  <arg>
+                    <argname>DCubeRef</argname>
+                    <argvalue>MC12/AtlasG4_pions_5000evts.truth.root</argvalue>
+                  </arg>
+                  <arg>
+                    <argname>DCubeMon</argname>
+                    <argvalue>today.root</argvalue>
+                  </arg>
+                  <keepFilePattern>DCube-MC12/AtlasG4_pions_5000evts.truth.root/today.root.dcube.xml.php</keepFilePattern>
+                </test>       
+                <testToRemove>
+                  <jobGroupName>Top</jobGroupName>
+                  <testidentifier>CheckFileRunner0</testidentifier>
+                </testToRemove>
+              </jobTransform>
+            </chainElement>
+            <sequential>
+              <!-- Run Digitisation -->
+              <chainElement>
+                <jobTransform userJobId="ISF_digi_ATLFASTIIF_pions">
+                  <doc>Digitiziation without pile-up, with additional modifications for AFII inputs.</doc>
+                  <jobTransformJobName>ISF_digi_ATLFASTIIF_pions</jobTransformJobName>
+                  <jobTransformCmd>
+                    Digi_trf.py inputHitsFile=Hits.pool.root outputRDOFile=RDO.pool.root maxEvents=-1 skipEvents=0 geometryVersion=ATLAS-GEO-20-00-01 digiSeedOffset1=123456 digiSeedOffset2=2345678 DBRelease=/afs/cern.ch/atlas/www/GROUPS/DATABASE/pacman4/DBRelease/DBRelease-pcache-current.tar.gz samplingFractionDbTag=QGSP_BERT AddCaloDigi=False conditionsTag=OFLCOND-MC12-SDR-06 IgnoreConfigError=False postInclude=FastSimulationJobTransforms/postInclude.AF2DigiSetContainerNames.py postExec='svcMgr.AddressRemappingSvc.TypeKeyOverwriteMaps += [ "LArHitContainer#LArHitEMB_Fast->LArHitFloatContainer#LArHitEMB_Fast", "LArHitContainer#LArHitEMEC_Fast->LArHitFloatContainer#LArHitEMEC_Fast", "LArHitContainer#LArHitHEC_Fast->LArHitFloatContainer#LArHitHEC_Fast", "LArHitContainer#LArHitFCAL_Fast->LArHitFloatContainer#LArHitFCAL_Fast"]'
+                  </jobTransformCmd>
+                  <group>ISF_FullChainTests</group>
+                  <chaindataset_info>
+                    <jobTransformData/>
+                    <chaindatasetName>Hits.pool.root</chaindatasetName>
+                    <dataset_info>
+                      <jobTransformData/>
+                      <datasetName>/afs/cern.ch/atlas/offline/external/FullChainTest/long/rtt.fallback/MC12/MC12.108351.pythia_minbias.8TeV.HITS.pool.root</datasetName> <!-- TODO: change this to pions dataset -->
+                    </dataset_info>
+                  </chaindataset_info>
+                  <queue>medium</queue>
+                </jobTransform>
+                <chainfileout>RDO.pool.root</chainfileout>
+              </chainElement>
+              <!-- Run Reconstruction -->
+              <chainElement>
+                <jobTransform userJobId="ISF_reco_ATLFASTIIF_pions">
+                  <doc>reco</doc>
+                  <jobTransformJobName>ISF_reco_ATLFASTIIF_pions</jobTransformJobName>
+                  <jobTransformCmd>
+                    Reco_trf.py inputRDOFile=RDO.pool.root outputESDFile=ESD.pool.root outputAODFile=AOD.pool.root maxEvents=-1 skipEvents=0 autoConfiguration='everything' preExec='InDetFlags.doStandardPlots.set_Value_and_Lock(True)' outputHIST_PHYSVALMONFile=PhysValMon.root
+                  </jobTransformCmd>
+                  <group>ISF_FullChainTests</group>
+                  <chaindataset_info>
+                    <jobTransformData/>
+                    <chaindatasetName>RDO.pool.root</chaindatasetName>
+                    <dataset_info>
+                      <jobTransformData/>
+                      <datasetName>/afs/cern.ch/atlas/offline/external/FullChainTest/long/rtt.fallback/MC12/MC12.108351.pythia_minbias.8TeV.RDO.pool.root</datasetName> <!-- TODO: change this to pions dataset -->
+                    </dataset_info>
+                  </chaindataset_info>
+                  <queue>medium</queue>
+                </jobTransform>
+                <!-- not required to be on chainstore at the moment
+                <chainfileout>ESD.pool.root</chainfileout>
+                <chainfileout>AOD.pool.root</chainfileout>
+                <chainfileout>RecoValHists.root</chainfileout>
+                <chainfileout>PhysValMon.root</chainfileout>-->
+              </chainElement>
+              <parallel>
+                <chainElement>
+                  <jobTransform userJobId="ISF_reco_ATLFASTIIF_pions_Reg">
+                    <doc>Regression test between builds</doc>
+                    <jobTransformJobName>ISF_reco_ATLFASTIIF_pions_Reg</jobTransformJobName>
+                    <jobTransformCmd>sim_reg_test.py ISF_reco_ATLFASTIIF_pions InDetStandardPlots.root PhysValMon.root</jobTransformCmd>
+                    <group>ISF_FullChainTests</group>
+                    <queue>medium</queue>
+                    <test>
+                      <modulename>RttLibraryTools</modulename>
+                      <testname>DCubeRunner</testname>
+                      <arg>
+                        <argname>DCubeCfg</argname>
+                        <argvalue>MC12/dcube-minbias-InDetStandardPlots.xml</argvalue> <!-- TODO: create pions XML file one day -->
+                      </arg>
+                      <arg>             
+                        <argname>DCubeRef</argname>
+                        <argvalue>yesterday.InDetStandardPlots.root</argvalue>
+                      </arg>
+                      <arg>
+                        <argname>localRefFile</argname>
+                        <argvalue>True</argvalue>
+                      </arg>
+                      <arg>
+                        <argname>DCubeMon</argname>
+                        <argvalue>today.InDetStandardPlots.root</argvalue>
+                      </arg>
+                      <keepFilePattern>DCube-yesterday.InDetStandardPlots.root/today.InDetStandardPlots.root.dcube.xml.php</keepFilePattern>
+                    </test>
+                    <test>
+                      <modulename>RttLibraryTools</modulename>
+                      <testname>DCubeRunner</testname>
+                      <arg>
+                        <argname>DCubeCfg</argname>
+                        <argvalue>MC12/dcube-AtlasG4_pions_5000evts.PhysValMon.xml</argvalue>
+                      </arg>
+                      <arg>             
+                        <argname>DCubeRef</argname>
+                        <argvalue>yesterday.PhysValMon.root</argvalue>
+                      </arg>
+                      <arg>
+                        <argname>localRefFile</argname>
+                        <argvalue>True</argvalue>
+                      </arg>
+                      <arg>
+                        <argname>DCubeMon</argname>
+                        <argvalue>today.PhysValMon.root</argvalue>
+                      </arg>
+                      <keepFilePattern>DCube-yesterday.PhysValMon.root/today.PhysValMon.root.dcube.xml.php</keepFilePattern>
+                    </test>
+                    <testToRemove>
+                      <jobGroupName>Top</jobGroupName>
+                      <testidentifier>CheckFileRunner0</testidentifier>
+                    </testToRemove>
+                  </jobTransform>
+                </chainElement>
+                <chainElement>
+                  <jobTransform userJobId="ISF_reco_ATLFASTIIF_pions_MC12G4">
+                    <doc>comparison to MC12 Geant4 references</doc>
+                    <jobTransformJobName>ISF_reco_ATLFASTIIF_pions_MC12G4</jobTransformJobName>
+                    <jobTransformCmd>sim_reg_test.py ISF_reco_ATLFASTIIF_pions InDetStandardPlots.root PhysValMon.root</jobTransformCmd>
+                    <group>ISF_FullChainTests</group>
+                    <queue>medium</queue>
+                    <test position="1">
+                      <modulename>RttLibraryTools</modulename>
+                      <testname>DCubeRunner</testname>
+                      <arg>
+                        <argname>DCubeCfg</argname>
+                        <argvalue>MC12/dcube-minbias-InDetStandardPlots.xml</argvalue> <!-- TODO: create pions XML file one day -->
+                      </arg>
+                      <arg>
+                        <argname>DCubeRef</argname>
+                        <argvalue>MC12/AtlasG4_pions_5000evts.InDetStandardPlots.root</argvalue>
+                      </arg>
+                      <arg>
+                        <argname>DCubeMon</argname>
+                        <argvalue>today.InDetStandardPlots.root</argvalue>
+                      </arg>
+                      <keepFilePattern>DCube-MC12/AtlasG4_pions_5000evts.InDetStandardPlots.root/today.InDetStandardPlots.root.dcube.xml.php</keepFilePattern>
+                    </test>
+                    <test>
+                      <modulename>RttLibraryTools</modulename>
+                      <testname>DCubeRunner</testname>
+                      <arg>
+                        <argname>DCubeCfg</argname>
+                        <argvalue>MC12/dcube-AtlasG4_pions_5000evts.PhysValMon.xml</argvalue>
+                      </arg>
+                      <arg>
+                        <argname>DCubeRef</argname>
+                        <argvalue>MC12/AtlasG4_pions_5000evts.PhysValMon.root</argvalue>
+                      </arg>
+                      <arg>
+                        <argname>DCubeMon</argname>
+                        <argvalue>today.PhysValMon.root</argvalue>
+                      </arg>
+                      <keepFilePattern>DCube-MC12/AtlasG4_pions_5000evts.PhysValMon.root/today.PhysValMon.root.dcube.xml.php</keepFilePattern>
+                    </test>
+                    <testToRemove>
+                      <jobGroupName>Top</jobGroupName>
+                      <testidentifier>CheckFileRunner0</testidentifier>
+                    </testToRemove>
+                  </jobTransform>
+                </chainElement>
+
+                <chainElement>
+                  <jobTransform userJobId="ISF_reco_ATLFASTIIF_pions_MC12AFII">
+                    <doc>comparison to MC12 ATLFASTII references</doc>
+                    <jobTransformJobName>ISF_reco_ATLFASTIIF_pions_MC12AFII</jobTransformJobName>
+                    <jobTransformCmd>sim_reg_test.py ISF_reco_ATLFASTIIF_pions InDetStandardPlots.root PhysValMon.root</jobTransformCmd>
+                    <group>ISF_FullChainTests</group>
+                    <queue>short</queue>
+                    <test position="1">
+                      <modulename>RttLibraryTools</modulename>
+                      <testname>DCubeRunner</testname>
+                      <arg>
+                        <argname>DCubeCfg</argname>
+                        <argvalue>MC12/dcube-pions-InDetStandardPlots.xml</argvalue>
+                      </arg>
+                      <arg>
+                        <argname>DCubeRef</argname>
+                        <argvalue>MC12/AFII_pions_5000evts.InDetStandardPlots.root</argvalue>
+                      </arg>
+                      <arg>
+                        <argname>DCubeMon</argname>
+                        <argvalue>today.InDetStandardPlots.root</argvalue>
+                      </arg>
+                      <keepFilePattern>DCube-MC12/AFII_pions_5000evts.InDetStandardPlots.root/today.InDetStandardPlots.root.dcube.xml.php</keepFilePattern>
+                    </test>
+                    <test>
+                      <modulename>RttLibraryTools</modulename>
+                      <testname>DCubeRunner</testname>
+                      <arg>
+                        <argname>DCubeCfg</argname>
+                        <argvalue>MC12/dcube-AFII_pions_5000evts.PhysValMon.xml</argvalue>
+                      </arg>
+                      <arg>
+                        <argname>DCubeRef</argname>
+                        <argvalue>MC12/AFII_pions_5000evts.PhysValMon.root</argvalue>
+                      </arg>
+                      <arg>
+                        <argname>DCubeMon</argname>
+                        <argvalue>today.PhysValMon.root</argvalue>
+                      </arg>
+                      <keepFilePattern>DCube-MC12/AFII_pions_5000evts.PhysValMon.root/today.PhysValMon.root.dcube.xml.php</keepFilePattern>
+                    </test>
+
+                    <testToRemove>
+                      <jobGroupName>Top</jobGroupName>
+                      <testidentifier>CheckFileRunner0</testidentifier>
+                    </testToRemove>
+                  </jobTransform>
+                </chainElement>
+
+              </parallel>
+            </sequential>
+          </parallel>
+        </sequential>
+      </chain>
+
+
+      <!--%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+          %%                    ATLFASTIIF electrons(full chain test)
+          %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+      -->
+      <chain>
+        <chainName>FullChainTest_ISF_ATLFASTIIF_electrons</chainName>
+        <sequential>
+          <chainElement>
+            <jobTransform userJobId="ISF_ATLFASTIIF_electrons">
+              <doc>Tests detector functionality for ISF ATLFASTIIF using electrons</doc>
+              <jobTransformJobName>ISF_ATLFASTIIF_electrons</jobTransformJobName>
+              <jobTransformCmd>Sim_tf.py --simulator ATLFASTIIF --useISF True --randomSeed 0 --enableLooperKiller True --maxEvents 5000 --skipEvents 0 --geometryVersion ATLAS-GEO-20-00-01 --conditionsTag OFLCOND-MC12-SIM-00 --preExec 'from ISF_Config.ISF_jobProperties import ISF_Flags;ISF_Flags.Input="electrons"' --outputHitsFile "Hits.pool.root" --postInclude=G4AtlasTests/postInclude.DCubeTest.py</jobTransformCmd>
+              <group>ISF_SimTests</group>
+              <queue>medium</queue>
+              <!--
+              <test position="1">
+                <modulename>RttLibraryTools</modulename>
+                <testname>DCubeRunner</testname>
+                <arg>
+                  <argname>DCubeCfg</argname>
+                  <argvalue>18.X.0/dcube-ISF_ATLFASTIIF_electrons.xml</argvalue>
+                </arg>
+                <arg>
+                  <argname>DCubeRef</argname>
+                  <argvalue>18.X.0/ISF_ATLFASTIIF_electrons.truth.root</argvalue>
+                </arg>
+                <arg>
+                  <argname>DCubeMon</argname>
+                  <argvalue>truth.root</argvalue>
+                </arg>
+              </test>
+              -->
+            </jobTransform>
+            <chainfileout>Hits.pool.root</chainfileout>
+          </chainElement>
+          <parallel>
+            <chainElement>
+              <jobTransform userJobId="ISF_ATLFASTIIF_electrons_Reg">
+                <doc>Regression test between releases</doc>
+                <jobTransformJobName>ISF_ATLFASTIIF_electrons_Reg</jobTransformJobName>
+                <jobTransformCmd>sim_reg_test.py ISF_ATLFASTIIF_electrons</jobTransformCmd>
+                <group>ISF_FullChainTests</group>
+                <queue>extrashort</queue>
+                <test>
+                  <modulename>RttLibraryTools</modulename>
+                  <testname>DCubeRunner</testname>
+                  <arg>
+                    <argname>DCubeCfg</argname>
+                    <argvalue>18.X.0/dcube-ISF_ATLFASTIIF_electrons.xml</argvalue>
+                  </arg>
+                  <arg>             
+                    <argname>DCubeRef</argname>
+                    <argvalue>yesterday.root</argvalue>
+                  </arg>
+                  <arg>
+                    <argname>localRefFile</argname>
+                    <argvalue>True</argvalue>
+                  </arg>
+                  <arg>
+                    <argname>DCubeMon</argname>
+                    <argvalue>today.root</argvalue>
+                  </arg>
+                  <keepFilePattern>DCube-yesterday.root/today.root.dcube.xml.php</keepFilePattern>
+                </test>
+                <testToRemove>
+                  <jobGroupName>Top</jobGroupName>
+                  <testidentifier>CheckFileRunner0</testidentifier>
+                </testToRemove>
+              </jobTransform>
+            </chainElement>
+            <chainElement>
+              <jobTransform userJobId="ISF_ATLFASTIIF_electrons_MC12G4">
+                <doc>comparison to ISF references</doc>
+                <jobTransformJobName>ISF_ATLFASTIIF_electrons_MC12G4</jobTransformJobName>
+                <jobTransformCmd>sim_reg_test.py ISF_ATLFASTIIF_electrons</jobTransformCmd>
+                <group>ISF_FullChainTests</group>
+                <queue>extrashort</queue>
+                <test position="1">
+                  <modulename>RttLibraryTools</modulename>
+                  <testname>DCubeRunner</testname>
+                  <arg>
+                    <argname>DCubeCfg</argname>
+                    <argvalue>MC12/dcube-AtlasG4_electrons_5000evts.xml</argvalue>
+                  </arg>
+                  <arg>
+                    <argname>DCubeRef</argname>
+                    <argvalue>MC12/AtlasG4_electrons_5000evts.truth.root</argvalue>
+                  </arg>
+                  <arg>
+                    <argname>DCubeMon</argname>
+                    <argvalue>today.root</argvalue>
+                  </arg>
+                  <keepFilePattern>DCube-MC12/AtlasG4_electrons_5000evts.truth.root/today.root.dcube.xml.php</keepFilePattern>
+                </test>       
+                <testToRemove>
+                  <jobGroupName>Top</jobGroupName>
+                  <testidentifier>CheckFileRunner0</testidentifier>
+                </testToRemove>
+              </jobTransform>
+            </chainElement>
+            <sequential>
+              <!-- Run Digitisation -->
+              <chainElement>
+                <jobTransform userJobId="ISF_digi_ATLFASTIIF_electrons">
+                  <doc>Digitiziation without pile-up, with additional modifications for AFII inputs.</doc>
+                  <jobTransformJobName>ISF_digi_ATLFASTIIF_electrons</jobTransformJobName>
+                  <jobTransformCmd>
+                    Digi_trf.py inputHitsFile=Hits.pool.root outputRDOFile=RDO.pool.root maxEvents=-1 skipEvents=0 geometryVersion=ATLAS-GEO-20-00-01 digiSeedOffset1=123456 digiSeedOffset2=2345678 DBRelease=/afs/cern.ch/atlas/www/GROUPS/DATABASE/pacman4/DBRelease/DBRelease-pcache-current.tar.gz samplingFractionDbTag=QGSP_BERT AddCaloDigi=False conditionsTag=OFLCOND-MC12-SDR-06 IgnoreConfigError=False postInclude=FastSimulationJobTransforms/postInclude.AF2DigiSetContainerNames.py postExec='svcMgr.AddressRemappingSvc.TypeKeyOverwriteMaps += [ "LArHitContainer#LArHitEMB_Fast->LArHitFloatContainer#LArHitEMB_Fast", "LArHitContainer#LArHitEMEC_Fast->LArHitFloatContainer#LArHitEMEC_Fast", "LArHitContainer#LArHitHEC_Fast->LArHitFloatContainer#LArHitHEC_Fast", "LArHitContainer#LArHitFCAL_Fast->LArHitFloatContainer#LArHitFCAL_Fast"]'
+                  </jobTransformCmd>
+                  <group>ISF_FullChainTests</group>
+                  <chaindataset_info>
+                    <jobTransformData/>
+                    <chaindatasetName>Hits.pool.root</chaindatasetName>
+                    <dataset_info>
+                      <jobTransformData/>
+                      <datasetName>/afs/cern.ch/atlas/offline/external/FullChainTest/long/rtt.fallback/MC12/MC12.108351.pythia_minbias.8TeV.HITS.pool.root</datasetName> <!-- TODO: change this to electrons dataset -->
+                    </dataset_info>
+                  </chaindataset_info>
+                  <queue>medium</queue>
+                </jobTransform>
+                <chainfileout>RDO.pool.root</chainfileout>
+              </chainElement>
+              <!-- Run Reconstruction -->
+              <chainElement>
+                <jobTransform userJobId="ISF_reco_ATLFASTIIF_electrons">
+                  <doc>reco</doc>
+                  <jobTransformJobName>ISF_reco_ATLFASTIIF_electrons</jobTransformJobName>
+                  <jobTransformCmd>
+                    Reco_trf.py inputRDOFile=RDO.pool.root outputESDFile=ESD.pool.root outputAODFile=AOD.pool.root maxEvents=-1 skipEvents=0 autoConfiguration='everything' preExec='InDetFlags.doStandardPlots.set_Value_and_Lock(True)' outputHIST_PHYSVALMONFile=PhysValMon.root
+                  </jobTransformCmd>
+                  <group>ISF_FullChainTests</group>
+                  <chaindataset_info>
+                    <jobTransformData/>
+                    <chaindatasetName>RDO.pool.root</chaindatasetName>
+                    <dataset_info>
+                      <jobTransformData/>
+                      <datasetName>/afs/cern.ch/atlas/offline/external/FullChainTest/long/rtt.fallback/MC12/MC12.108351.pythia_minbias.8TeV.RDO.pool.root</datasetName> <!-- TODO: change this to electrons dataset -->
+                    </dataset_info>
+                  </chaindataset_info>
+                  <queue>medium</queue>
+                </jobTransform>
+                <!-- not required to be on chainstore at the moment
+                <chainfileout>ESD.pool.root</chainfileout>
+                <chainfileout>AOD.pool.root</chainfileout>
+                <chainfileout>RecoValHists.root</chainfileout>
+                <chainfileout>PhysValMon.root</chainfileout>-->
+              </chainElement>
+              <parallel>
+                <chainElement>
+                  <jobTransform userJobId="ISF_reco_ATLFASTIIF_electrons_Reg">
+                    <doc>Regression test between builds</doc>
+                    <jobTransformJobName>ISF_reco_ATLFASTIIF_electrons_Reg</jobTransformJobName>
+                    <jobTransformCmd>sim_reg_test.py ISF_reco_ATLFASTIIF_electrons InDetStandardPlots.root PhysValMon.root</jobTransformCmd>
+                    <group>ISF_FullChainTests</group>
+                    <queue>medium</queue>
+                    <test>
+                      <modulename>RttLibraryTools</modulename>
+                      <testname>DCubeRunner</testname>
+                      <arg>
+                        <argname>DCubeCfg</argname>
+                        <argvalue>MC12/dcube-minbias-InDetStandardPlots.xml</argvalue> <!-- TODO: create electrons XML file one day -->
+                      </arg>
+                      <arg>             
+                        <argname>DCubeRef</argname>
+                        <argvalue>yesterday.InDetStandardPlots.root</argvalue>
+                      </arg>
+                      <arg>
+                        <argname>localRefFile</argname>
+                        <argvalue>True</argvalue>
+                      </arg>
+                      <arg>
+                        <argname>DCubeMon</argname>
+                        <argvalue>today.InDetStandardPlots.root</argvalue>
+                      </arg>
+                      <keepFilePattern>DCube-yesterday.InDetStandardPlots.root/today.InDetStandardPlots.root.dcube.xml.php</keepFilePattern>
+                    </test>
+                    <test>
+                      <modulename>RttLibraryTools</modulename>
+                      <testname>DCubeRunner</testname>
+                      <arg>
+                        <argname>DCubeCfg</argname>
+                        <argvalue>MC12/dcube-AtlasG4_electrons_5000evts.PhysValMon.xml</argvalue>
+                      </arg>
+                      <arg>             
+                        <argname>DCubeRef</argname>
+                        <argvalue>yesterday.PhysValMon.root</argvalue>
+                      </arg>
+                      <arg>
+                        <argname>localRefFile</argname>
+                        <argvalue>True</argvalue>
+                      </arg>
+                      <arg>
+                        <argname>DCubeMon</argname>
+                        <argvalue>today.PhysValMon.root</argvalue>
+                      </arg>
+                      <keepFilePattern>DCube-yesterday.PhysValMon.root/today.PhysValMon.root.dcube.xml.php</keepFilePattern>
+                    </test>
+                    <testToRemove>
+                      <jobGroupName>Top</jobGroupName>
+                      <testidentifier>CheckFileRunner0</testidentifier>
+                    </testToRemove>
+                  </jobTransform>
+                </chainElement>
+                <chainElement>
+                  <jobTransform userJobId="ISF_reco_ATLFASTIIF_electrons_MC12G4">
+                    <doc>comparison to MC12 Geant4 references</doc>
+                    <jobTransformJobName>ISF_reco_ATLFASTIIF_electrons_MC12G4</jobTransformJobName>
+                    <jobTransformCmd>sim_reg_test.py ISF_reco_ATLFASTIIF_electrons InDetStandardPlots.root PhysValMon.root</jobTransformCmd>
+                    <group>ISF_FullChainTests</group>
+                    <queue>medium</queue>
+                    <test position="1">
+                      <modulename>RttLibraryTools</modulename>
+                      <testname>DCubeRunner</testname>
+                      <arg>
+                        <argname>DCubeCfg</argname>
+                        <argvalue>MC12/dcube-minbias-InDetStandardPlots.xml</argvalue> <!-- TODO: create electrons XML file one day -->
+                      </arg>
+                      <arg>
+                        <argname>DCubeRef</argname>
+                        <argvalue>MC12/AtlasG4_electrons_5000evts.InDetStandardPlots.root</argvalue>
+                      </arg>
+                      <arg>
+                        <argname>DCubeMon</argname>
+                        <argvalue>today.InDetStandardPlots.root</argvalue>
+                      </arg>
+                      <keepFilePattern>DCube-MC12/AtlasG4_electrons_5000evts.InDetStandardPlots.root/today.InDetStandardPlots.root.dcube.xml.php</keepFilePattern>
+                    </test>
+                    <test>
+                      <modulename>RttLibraryTools</modulename>
+                      <testname>DCubeRunner</testname>
+                      <arg>
+                        <argname>DCubeCfg</argname>
+                        <argvalue>MC12/dcube-AtlasG4_electrons_5000evts.PhysValMon.xml</argvalue>
+                      </arg>
+                      <arg>
+                        <argname>DCubeRef</argname>
+                        <argvalue>MC12/AtlasG4_electrons_5000evts.PhysValMon.root</argvalue>
+                      </arg>
+                      <arg>
+                        <argname>DCubeMon</argname>
+                        <argvalue>today.PhysValMon.root</argvalue>
+                      </arg>
+                      <keepFilePattern>DCube-MC12/AtlasG4_electrons_5000evts.PhysValMon.root/today.PhysValMon.root.dcube.xml.php</keepFilePattern>
+                    </test>
+                    <testToRemove>
+                      <jobGroupName>Top</jobGroupName>
+                      <testidentifier>CheckFileRunner0</testidentifier>
+                    </testToRemove>
+                  </jobTransform>
+                </chainElement>
+
+                <chainElement>
+                  <jobTransform userJobId="ISF_reco_ATLFASTIIF_electrons_MC12AFII">
+                    <doc>comparison to MC12 ATLFASTII references</doc>
+                    <jobTransformJobName>ISF_reco_ATLFASTIIF_electrons_MC12AFII</jobTransformJobName>
+                    <jobTransformCmd>sim_reg_test.py ISF_reco_ATLFASTIIF_electrons InDetStandardPlots.root PhysValMon.root</jobTransformCmd>
+                    <group>ISF_FullChainTests</group>
+                    <queue>short</queue>
+                    <test position="1">
+                      <modulename>RttLibraryTools</modulename>
+                      <testname>DCubeRunner</testname>
+                      <arg>
+                        <argname>DCubeCfg</argname>
+                        <argvalue>MC12/dcube-electrons-InDetStandardPlots.xml</argvalue>
+                      </arg>
+                      <arg>
+                        <argname>DCubeRef</argname>
+                        <argvalue>MC12/AFII_electrons_5000evts.InDetStandardPlots.root</argvalue>
+                      </arg>
+                      <arg>
+                        <argname>DCubeMon</argname>
+                        <argvalue>today.InDetStandardPlots.root</argvalue>
+                      </arg>
+                      <keepFilePattern>DCube-MC12/AFII_electrons_5000evts.InDetStandardPlots.root/today.InDetStandardPlots.root.dcube.xml.php</keepFilePattern>
+                    </test>
+                    <test>
+                      <modulename>RttLibraryTools</modulename>
+                      <testname>DCubeRunner</testname>
+                      <arg>
+                        <argname>DCubeCfg</argname>
+                        <argvalue>MC12/dcube-AFII_electrons_5000evts.PhysValMon.xml</argvalue>
+                      </arg>
+                      <arg>
+                        <argname>DCubeRef</argname>
+                        <argvalue>MC12/AFII_electrons_5000evts.PhysValMon.root</argvalue>
+                      </arg>
+                      <arg>
+                        <argname>DCubeMon</argname>
+                        <argvalue>today.PhysValMon.root</argvalue>
+                      </arg>
+                      <keepFilePattern>DCube-MC12/AFII_electrons_5000evts.PhysValMon.root/today.PhysValMon.root.dcube.xml.php</keepFilePattern>
+                    </test>
+
+                    <testToRemove>
+                      <jobGroupName>Top</jobGroupName>
+                      <testidentifier>CheckFileRunner0</testidentifier>
+                    </testToRemove>
+                  </jobTransform>
+                </chainElement>
+
+              </parallel>
+            </sequential>
+          </parallel>
+        </sequential>
+      </chain>
+
+
+
+    </jobList>
+
+
+    <jobGroups>
+      <jobGroup name="ISF_SimTests" parent="Top">
+        <keepFilePattern>*.root</keepFilePattern>
+        <keepFilePattern>*.txt</keepFilePattern>
+        <keepFilePattern>*.out</keepFilePattern>
+        <keepFilePattern>*.html</keepFilePattern>
+        <keepFilePattern>prof/*.html</keepFilePattern>
+        <keepFilePattern>*.php</keepFilePattern>
+        <keepFilePattern>*log</keepFilePattern>
+        <keepFilePattern>log.Sim_tf</keepFilePattern>
+        <keepFilePattern>*.diffPool</keepFilePattern>
+        <keepFilePattern>test.athena.profile</keepFilePattern>
+        <test>
+
+          <!--
+          <modulename>SimCoreFileGrepper</modulename>
+          <testname>SimCoreFileGrepper</testname>
+          <testidentifier>SimCoreFileGrepperA</testidentifier>
+          <arg>
+            <argname>inputFile</argname>
+            <argvalue>*_log</argvalue>
+          </arg>
+          <arg>
+            <argname>outputFile</argname>
+            <argvalue>fileGrepper_results.txt</argvalue>
+          </arg>
+          <arg>
+            <argname>searchList</argname>
+            <argvalue>leaving with code 0</argvalue>
+          </arg>
+          <arg>
+            <argname>vetoList</argname>
+            <argvalue>G4Exception((?!(PART102)).)*$,segmentation violation,bus error,Event was aborted</argvalue>
+          </arg>
+          <arg>
+            <argname>multipleInstanceList</argname>
+            <argvalue>G4Exception : StuckTrack,10</argvalue>
+          </arg>
+         -->
+
+          <modulename>RttLibraryTools</modulename>
+          <testname>FileGrepper</testname>
+          <outputFile>fileGrepper_results.txt</outputFile>
+          <testidentifier>FileGrepperA</testidentifier>
+
+          <arg>
+            <argname>inputFile</argname>
+            <argvalue>log.Sim_tf</argvalue>
+          </arg>
+
+          <arg>
+            <fileGrepperArgs>
+
+              <!-- search pattern block -->
+              <fileGrepperSearchPattern>
+                <fileGrepperPattern>leaving with code 0</fileGrepperPattern>
+              </fileGrepperSearchPattern>
+
+              <!-- veto pattern block -->
+              <fileGrepperVetoPattern>
+                <fileGrepperPattern>(G4Exception((?!(PART102|StuckTrack)).)*$|segmentation violation|bus error|Event was aborted)</fileGrepperPattern>
+              </fileGrepperVetoPattern>
+
+              <fileGrepperVetoPattern>
+                <!-- This looks for StuckTrack that is not due to a CSCspacer -->
+                <fileGrepperPattern>\*\*\* G4Exception : StuckTrack(?!([^\n]*\n){4}([^\n]*?)CSCspacer)</fileGrepperPattern>
+                <compileFlags>S</compileFlags>
+              </fileGrepperVetoPattern>
+
+            </fileGrepperArgs>
+          </arg>         
+
+          <keepFilePattern>fileGrepper_results.txt</keepFilePattern>
+        </test>
+      </jobGroup>
+      <jobGroup name="ISF_FullChainTests" parent="Top">
+        <keepFilePattern>*.root</keepFilePattern>
+        <keepFilePattern>*.txt</keepFilePattern>
+        <keepFilePattern>*.out</keepFilePattern>
+        <keepFilePattern>*.html</keepFilePattern>
+        <keepFilePattern>prof/*.html</keepFilePattern>
+        <keepFilePattern>*.php</keepFilePattern>
+        <keepFilePattern>*log</keepFilePattern>
+        <keepFilePattern>*.diffPool</keepFilePattern>
+        <keepFilePattern>test.athena.profile</keepFilePattern>
+        <test>
+
+          <!--
+          <modulename>SimCoreFileGrepper</modulename>
+          <testname>SimCoreFileGrepper</testname>
+          <testidentifier>SimCoreFileGrepperA</testidentifier>
+          <arg>
+            <argname>inputFile</argname>
+            <argvalue>*_log</argvalue>
+          </arg>
+          <arg>
+            <argname>outputFile</argname>
+            <argvalue>fileGrepper_results.txt</argvalue>
+          </arg>
+          <arg>
+            <argname>searchList</argname>
+            <argvalue>leaving with code 0</argvalue>
+          </arg>
+          <arg>
+            <argname>vetoList</argname>
+            <argvalue>G4Exception((?!(PART102)).)*$,segmentation violation,bus error,Event was aborted</argvalue>
+          </arg>
+          <arg>
+            <argname>multipleInstanceList</argname>
+            <argvalue>G4Exception : StuckTrack,10</argvalue>
+          </arg>
+         -->
+
+          <modulename>RttLibraryTools</modulename>
+          <testname>FileGrepper</testname>
+          <outputFile>fileGrepper_results.txt</outputFile>
+          <testidentifier>FileGrepperA</testidentifier>
+
+          <arg>
+            <argname>inputFile</argname>
+            <argvalue>*_log</argvalue>
+          </arg>
+
+          <arg>
+            <fileGrepperArgs>
+
+              <!-- search pattern block -->
+              <fileGrepperSearchPattern>
+                <fileGrepperPattern>leaving with code 0</fileGrepperPattern>
+              </fileGrepperSearchPattern>
+
+              <!-- veto pattern block -->
+              <fileGrepperVetoPattern>
+                <fileGrepperPattern>(G4Exception((?!(PART102|StuckTrack)).)*$|segmentation violation|bus error|Event was aborted)</fileGrepperPattern>
+              </fileGrepperVetoPattern>
+
+              <fileGrepperVetoPattern>
+                <!-- This looks for StuckTrack that is not due to a CSCspacer -->
+                <fileGrepperPattern>\*\*\* G4Exception : StuckTrack(?!([^\n]*\n){4}([^\n]*?)CSCspacer)</fileGrepperPattern>
+                <compileFlags>S</compileFlags>
+              </fileGrepperVetoPattern>
+
+            </fileGrepperArgs>
+          </arg>         
+
+          <keepFilePattern>fileGrepper_results.txt</keepFilePattern>
+        </test>
+      </jobGroup>
+    </jobGroups>
+
+  </rtt>
+
+</unifiedTestConfiguration>
