@@ -11,14 +11,14 @@ include ( "JetMissingEtTagTools/JetMissingEtIdentificationTagTool_jobOptions.py"
 include ( "JetTaggingTagTools/JetTaggingTagTool_jobOptions.py" )
 
 # Physics Groups - Tag Fragments
-include ( "BPhysTagTools/BPhysTagTool_jobOptions.py" )
-include ( "ExoticPhysTagTools/ExoticPhysTagTool_jobOptions.py" )
-include ( "HeavyIonPhysTagTools/HeavyIonPhysTagTool_jobOptions.py" )
-include ( "HiggsPhysTagTools/HiggsPhysTagTool_jobOptions.py" )
-include ( "SUSYPhysTagTools/SUSYPhysTagTool_jobOptions.py" )
-include ( "StandardModelPhysTagTools/StandardModelPhysTagTool_jobOptions.py" )
-include ( "TopPhysTagTools/TopPhysTagTool_jobOptions.py" )
-include ( "DPDUtils/DPDTagTool_jobOptions.py" )
+#include ( "BPhysTagTools/BPhysTagTool_jobOptions.py" )
+#include ( "ExoticPhysTagTools/ExoticPhysTagTool_jobOptions.py" )
+#include ( "HeavyIonPhysTagTools/HeavyIonPhysTagTool_jobOptions.py" )
+#include ( "HiggsPhysTagTools/HiggsPhysTagTool_jobOptions.py" )
+#include ( "SUSYPhysTagTools/SUSYPhysTagTool_jobOptions.py" )
+#include ( "StandardModelPhysTagTools/StandardModelPhysTagTool_jobOptions.py" )
+#include ( "TopPhysTagTools/TopPhysTagTool_jobOptions.py" )
+#include ( "DPDUtils/DPDTagTool_jobOptions.py" )
 
 from EventTagAlgs.EventTagAlgsConf import AnalysisTagBuilder
 
@@ -29,6 +29,7 @@ AnalysisTagBuilder = AnalysisTagBuilder(
   TauIdentificationTagTool=TauIdentificationTagTool,
   JetMissingEtIdentificationTagTool=JetMissingEtIdentificationTagTool,
   JetTaggingTagTool=JetTaggingTagTool,
+  """  
   BPhysTagTool=BPhysTagTool,
   ExoticPhysTagTool=ExoticPhysTagTool,
   HeavyIonPhysTagTool=HeavyIonPhysTagTool,
@@ -37,11 +38,13 @@ AnalysisTagBuilder = AnalysisTagBuilder(
   StandardModelPhysTagTool=StandardModelPhysTagTool,
   TopPhysTagTool=TopPhysTagTool,
   DPDTagTool=DPDTagTool,
+  """
   NumEgamma=1,
   NumMuon=1,
   NumTau=1,
   NumJetMissinEt=1,
   NumJetTagging=1,
+  """
   NumBPhys=1,
   NumExoticPhys=1,
   NumHeavyIonPhys=1,
@@ -50,6 +53,7 @@ AnalysisTagBuilder = AnalysisTagBuilder(
   NumSMPhys=1,
   NumTopPhys=1,
   NumDpd=1,
+  """
   CheckAttribute=True)
 
 topSequence += AnalysisTagBuilder
