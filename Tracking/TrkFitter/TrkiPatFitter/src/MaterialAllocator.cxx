@@ -2532,18 +2532,24 @@ MaterialAllocator::spectrometerMaterial (std::list<FitMeasurement*>&	measurement
 	    // insert next to adjacent measurement
 	    material.push_back(measurement);
 	    double distance = startDirection.dot(tsos.trackParameters()->position() - startPosition);
-	    if (distance > endSpectrometerDistance) break;
-
+	    if (distance > endSpectrometerDistance) {
+	      delete measurement;
+	      break;
+	    }
 	    while (m != measurements.end()
 		   && distance > startDirection.dot((**m).intersection(FittedTrajectory).position() - startPosition)) 
-	    {
+	      {
 		++m;
+	      }
+	    if (m == measurements.end()) {
+	      delete measurement;
+	      break;
 	    }
-	    if (m == measurements.end()) break;
 
-	    m = measurements.insert(m,material.back());
+	    m = measurements.insert(m,material.back());	    
 	}
     }
+
 
 //     // check sign and order here
 //     printMeasurements(measurements);
