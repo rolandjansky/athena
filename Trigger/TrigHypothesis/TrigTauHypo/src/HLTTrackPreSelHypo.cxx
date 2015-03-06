@@ -58,12 +58,13 @@ HLTTrackPreSelHypo::HLTTrackPreSelHypo(const std::string& name,
 {
   declareProperty("LowerPtCut",           m_lowerPtCut=20000.0);
   declareProperty("ClusterEnergySumCone", m_clusterCone=0.2);
-  declareProperty("TrackVariableCore",  m_coreSize=0.2);
-  declareProperty("TrackVariableOuter", m_outerSize=0.4);
-  declareProperty("DeltaRLeadTrkRoI",   m_deltaRLeadTrkRoI=0.2);
-  declareProperty("TracksInCoreCut",    m_tracksInCoreCut=3);
-  declareProperty("TracksInIsoCut",     m_tracksInIsoCut=1);
-  declareProperty("DeltaZ0Cut",         m_deltaZ0Cut=2.);
+  declareProperty("TrackVariableCore",    m_coreSize=0.2);
+  declareProperty("TrackVariableOuter",   m_outerSize=0.4);
+  declareProperty("DeltaRLeadTrkRoI",     m_deltaRLeadTrkRoI=0.2);
+  declareProperty("TracksInCoreCut",      m_tracksInCoreCut=3);
+  declareProperty("TracksInIsoCut",       m_tracksInIsoCut=1);
+  declareProperty("DeltaZ0Cut",           m_deltaZ0Cut=2.);
+  declareProperty("rejectNoTracks",       m_rejectNoTracks=false);
 
   declareMonitoredVariable("CutCounter"        , m_cutCounter);
   declareMonitoredVariable("nTracksInCore"   , m_nTracksInCore);
@@ -154,16 +155,26 @@ HLT::ErrorCode HLTTrackPreSelHypo::hltExecute(const HLT::TriggerElement* inputTE
     return status;
   }
   else {
+
     if (vectorFoundTracks.size()<1) {
       msg() << MSG::ERROR << "FastTrackFinder vector was empty.  Aborting pre-selection." << endreq;
       return HLT::ERROR;
     }
+
   }
 
   // Retrieve last container to be appended
   foundTracks = vectorFoundTracks.back();
-  
+
   msg() << MSG::DEBUG << " Input track collection has size " << foundTracks->size() << endreq;
+
+  if(m_rejectNoTracks && foundTracks->size() == 0)
+    {
+      msg() << MSG::DEBUG << "No Tracks in Input Collection: reject TE" << endreq;
+      pass = false;
+      return HLT::OK;
+    }
+  
   
   if(foundTracks){
     const Trk::Track *Ltrack = 0;

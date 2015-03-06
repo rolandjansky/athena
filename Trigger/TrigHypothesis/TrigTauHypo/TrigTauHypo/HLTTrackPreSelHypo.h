@@ -63,6 +63,8 @@ class HLTTrackPreSelHypo : public HLT::HypoAlgo
   int m_tracksInIsoCut;
   float m_deltaZ0Cut;
 
+  bool m_rejectNoTracks;
+
   int  m_cutCounter;
   //Monitoring: number of tracks in core region
   int m_nTracksInCore;
