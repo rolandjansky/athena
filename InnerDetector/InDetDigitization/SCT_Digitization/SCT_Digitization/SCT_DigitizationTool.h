@@ -183,13 +183,14 @@ private:
   std::string                                        m_outputSDOCollName;    //! name of the output SDOs. 
   ServiceHandle <IAtRndmGenSvc>                      m_rndmSvc;             //!< Random number service
   ServiceHandle <PileUpMergeSvc> m_mergeSvc; //!
-  //  ServiceHandle<CalibSvc> m_CalibSvc; //!
-  //  ServiceHandle<TimeSvc> m_TimeSvc; //!
+
   CLHEP::HepRandomEngine*                            m_rndmEngine;          //! Random number engine used - not init in SiDigitization
   const AtlasDetectorID* m_atlasID;  //FIXME should be replaced with m_detID usage
-  std::list<ISiChargedDiodesProcessorTool* >       m_diodeCollectionTools;
+  std::list<ISiChargedDiodesProcessorTool* >         m_diodeCollectionTools;
   TimedHitCollection<SiHit>                          *m_thpcsi;
   SiChargedDiodeCollection                           *chargedDiodes;
+  IntegerProperty                                    m_vetoThisBarcode;
+
   
 };
 

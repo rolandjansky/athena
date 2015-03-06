@@ -10,7 +10,6 @@
 // Mother Package includes
 #include "SiDigitization/SiHelper.h"
 #include "SiDigitization/SiChargedDiodeCollection.h"
-//#include "SiDigitization/ISiSurfaceChargesInserter.h"
 
 // Gaudi
 #include "CLHEP/Random/RandomEngine.h"
@@ -38,6 +37,10 @@
 
 #include <sstream>
 #include <string>
+#include <limits>
+#include <cstdint>
+static constexpr unsigned int crazyParticleBarcode(std::numeric_limits<int32_t>::max());
+//Barcodes at the HepMC level are int
 
 using InDetDD::SiCellId;
 
@@ -51,17 +54,18 @@ SCT_DigitizationTool::SCT_DigitizationTool(const std::string& type,
   m_onlyHitElements(false),
   m_HardScatterSplittingMode(0),
   m_HardScatterSplittingSkipper(false),
-  m_detID(NULL),
-  m_detMgr(NULL),
+  m_detID(nullptr),
+  m_detMgr(nullptr),
   m_sct_FrontEnd("SCT_FrontEnd"),
   m_sct_SurfaceChargesGenerator("SCT_SurfaceChargesGenerator"),
   m_sct_RandomDisabledCellGenerator("SCT_RandomDisabledCellGenerator"),
   m_rndmSvc("AtRndmGenSvc",name),
   m_mergeSvc("PileUpMergeSvc",name),
-  m_rndmEngine(NULL),
-  m_atlasID(NULL),
-  m_thpcsi(0),
-  chargedDiodes(NULL)
+  m_rndmEngine(nullptr),
+  m_atlasID(nullptr),
+  m_thpcsi(nullptr),
+  chargedDiodes(nullptr),
+  m_vetoThisBarcode(crazyParticleBarcode)
 {
   declareInterface<SCT_DigitizationTool>(this);
   declareProperty("FixedTime",            m_tfix,                                "Fixed time for Cosmics run selection");              
@@ -82,7 +86,7 @@ SCT_DigitizationTool::SCT_DigitizationTool(const std::string& type,
   declareProperty("FrontEnd",             m_sct_FrontEnd,                        "Choice of using a development release"); 
   declareProperty("SurfaceChargesGenerator", m_sct_SurfaceChargesGenerator,      "Choice of using a more detailed charge drift model");
   declareProperty("HardScatterSplittingMode", m_HardScatterSplittingMode, "Control pileup & signal splitting" );
-
+  declareProperty("ParticleBarcodeVeto",m_vetoThisBarcode=crazyParticleBarcode, "Barcode of particle to ignore");
   m_WriteSCT1_RawData.declareUpdateHandler(&SCT_DigitizationTool::SetupRdoOutputType, this);
 }
 
@@ -200,10 +204,6 @@ StatusCode SCT_DigitizationTool::initSurfaceChargesGeneratorTool()
   m_sct_SurfaceChargesGenerator->setCosmicsRun(m_cosmicsRun) ;
   m_sct_SurfaceChargesGenerator->setComTimeFlag(m_useComTime) ;
   m_sct_SurfaceChargesGenerator->setRandomEngine(m_rndmEngine) ;
-
-
-  //storeTool(&(*m_sct_SurfaceChargesGenerator)) ;
-//  m_diodeCollectionTools.push_back( &(*m_sct_SurfaceChargesGenerator) );  
 
   ATH_MSG_DEBUG ( "Retrieved and initialised tool " << m_sct_SurfaceChargesGenerator ) ;
 
@@ -869,35 +869,32 @@ void SCT_DigitizationTool::addSDO(SiChargedDiodeCollection* collection) {
   typedef SiTotalCharge::list_t list_t;
   std::vector<InDetSimData::Deposit> deposits;
   deposits.reserve(5); // no idea what a reasonable number for this would be with pileup
-
-//   // loop over the charged diodes
+  // loop over the charged diodes
   SiChargedDiodeIterator EndOfDiodeCollection = collection->end();
   for(SiChargedDiodeIterator i_chargedDiode=collection->begin(); i_chargedDiode!=EndOfDiodeCollection; ++i_chargedDiode) {
     deposits.clear();
     const list_t& charges = (*i_chargedDiode).second.totalCharge().chargeComposition();
 
     bool real_particle_hit = false;
-    //     // loop over the list
+    // loop over the list
     list_t::const_iterator EndOfChargeList =  charges.end();
     for ( list_t::const_iterator i_ListOfCharges = charges.begin(); i_ListOfCharges!=EndOfChargeList; ++i_ListOfCharges) { 
       
       const HepMcParticleLink& trkLink = i_ListOfCharges->particleLink();
-      int barcode = trkLink.barcode();
-      if (barcode == 0 || barcode == 10001){
+      const int barcode = trkLink.barcode();
+      if ((barcode == 0) or (barcode == m_vetoThisBarcode)){
           continue;
       }
       if(!real_particle_hit) { 
-	//Types of SiCharges expected from SCT
-	//Noise:                        barcode==0 && processType()==SiCharge::noise
-	//Delta Rays:                   barcode==0 && processType()==SiCharge::track
-	//Pile Up Tracks With No Truth: barcode!=0 && processType()==SiCharge::cut_track
-	//Tracks With Truth:            barcode!=0 && processType()==SiCharge::track
-	if(barcode!=0 && i_ListOfCharges->processType()==SiCharge::track) 
-	{ 
-	   real_particle_hit = true; 
-	}
+				//Types of SiCharges expected from SCT
+				//Noise:                        barcode==0 && processType()==SiCharge::noise
+				//Delta Rays:                   barcode==0 && processType()==SiCharge::track
+				//Pile Up Tracks With No Truth: barcode!=0 && processType()==SiCharge::cut_track
+				//Tracks With Truth:            barcode!=0 && processType()==SiCharge::track
+				if(barcode!=0 && i_ListOfCharges->processType()==SiCharge::track) { 
+					 real_particle_hit = true; 
+				}
         //real_particle_hit = trkLink.isValid();
-      
       }
       //if(!real_particle_hit) { if(barcode!=0) real_particle_hit = true; }
       // check if this track number has been already used.
@@ -905,22 +902,21 @@ void SCT_DigitizationTool::addSDO(SiChargedDiodeCollection* collection) {
       std::vector<InDetSimData::Deposit>::reverse_iterator depositsR_end = deposits.rend();
       std::vector<InDetSimData::Deposit>::reverse_iterator i_Deposit = deposits.rbegin();
       for ( ; i_Deposit != depositsR_end; ++i_Deposit) {
-	if( (*i_Deposit).first == trkLink ) {theDeposit = i_Deposit; break;}
+	      if( (*i_Deposit).first == trkLink ) {theDeposit = i_Deposit; break;}
       }
       
       // if the charge has already hit the Diode add it to the deposit
       if(theDeposit != depositsR_end ) (*theDeposit).second += i_ListOfCharges->charge();
       else { // create a new deposit
-	InDetSimData::Deposit deposit(trkLink, i_ListOfCharges->charge());
-	deposits.push_back(deposit);
+	      InDetSimData::Deposit deposit(trkLink, i_ListOfCharges->charge());
+	      deposits.push_back(deposit);
       }
     }
     
     // add the simdata object to the map:
-    if(real_particle_hit || m_createNoiseSDO)
-      {
-	m_simDataCollMap->insert(
-				 std::make_pair(collection->getId((*i_chargedDiode).first), InDetSimData( deposits, (*i_chargedDiode).second.flag())));
-      }
+    if(real_particle_hit || m_createNoiseSDO){
+	    m_simDataCollMap->insert(
+			std::make_pair(collection->getId((*i_chargedDiode).first), InDetSimData( deposits, (*i_chargedDiode).second.flag())));
+    }
   }
 }
