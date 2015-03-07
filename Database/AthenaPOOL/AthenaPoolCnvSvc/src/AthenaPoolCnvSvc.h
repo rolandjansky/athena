@@ -14,14 +14,15 @@
 
 #include "GaudiKernel/IIncidentListener.h"
 #include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ToolHandle.h"
 #include "StorageSvc/DbType.h"
 #include "AthenaBaseComps/AthCnvSvc.h"
 
-#include <string>
 #include <vector>
 #include <map>
 
 // Forward declarations
+class IAthenaIPCTool;
 class IChronoStatSvc;
 class IClassIDSvc;
 class IPoolSvc;
@@ -184,6 +185,7 @@ private: // data
    ServiceHandle<IPoolSvc>       m_poolSvc;
    ServiceHandle<IChronoStatSvc> m_chronoStatSvc;
    ServiceHandle<IClassIDSvc>    m_clidSvc;
+   ToolHandle<IAthenaIPCTool>    m_dataStreamingTool;
 
 private: // properties
    /// UseDetailChronoStat, enable detailed output for time and size statistics for AthenaPOOL:

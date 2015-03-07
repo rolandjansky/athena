@@ -16,6 +16,7 @@
 #include "GaudiKernel/IIncidentSvc.h"
 #include "GaudiKernel/Tokenizer.h"
 
+#include "AthenaKernel/IAthenaIPCTool.h"
 #include "AthenaKernel/IClassIDSvc.h"
 #include "AthenaKernel/IAthenaOutputStreamTool.h"
 #include "PersistentDataModel/Token.h"
@@ -48,9 +49,9 @@ StatusCode AthenaPoolCnvSvc::initialize() {
       return(StatusCode::FAILURE);
    }
 #endif
-   // Retrieve ClassIDSvc
-   if (!m_clidSvc.retrieve().isSuccess()) {
-      ATH_MSG_FATAL("Cannot get ClassIDSvc.");
+   // Retrieve PoolSvc
+   if (!m_poolSvc.retrieve().isSuccess()) {
+      ATH_MSG_FATAL("Cannot get PoolSvc.");
       return(StatusCode::FAILURE);
    }
    // Retrieve ChronoStatSvc
@@ -58,9 +59,14 @@ StatusCode AthenaPoolCnvSvc::initialize() {
       ATH_MSG_FATAL("Cannot get ChronoStatSvc.");
       return(StatusCode::FAILURE);
    }
-   // Retrieve PoolSvc
-   if (!m_poolSvc.retrieve().isSuccess()) {
-      ATH_MSG_FATAL("Cannot get PoolSvc.");
+   // Retrieve ClassIDSvc
+   if (!m_clidSvc.retrieve().isSuccess()) {
+      ATH_MSG_FATAL("Cannot get ClassIDSvc.");
+      return(StatusCode::FAILURE);
+   }
+   // Retrieve DataStreamingTool (if configured)
+   if (!m_dataStreamingTool.empty() && !m_dataStreamingTool.retrieve().isSuccess()) {
+      ATH_MSG_FATAL("Cannot get AthenaIPCTool");
       return(StatusCode::FAILURE);
    }
    // Extracting MaxFileSizes for global default and map by Database name.
@@ -107,17 +113,21 @@ StatusCode AthenaPoolCnvSvc::initialize() {
 }
 //______________________________________________________________________________
 StatusCode AthenaPoolCnvSvc::finalize() {
-   // Release PoolSvc
-   if (!m_poolSvc.release().isSuccess()) {
-      ATH_MSG_WARNING("Cannot release PoolSvc.");
+   // Retrieve DataStreamingTool (if configured)
+   if (!m_dataStreamingTool.empty() && !m_dataStreamingTool.release().isSuccess()) {
+      ATH_MSG_WARNING("Cannot release AthenaIPCTool.");
+   }
+   // Release ClassIDSvc
+   if (!m_clidSvc.release().isSuccess()) {
+      ATH_MSG_WARNING("Cannot release ClassIDSvc.");
    }
    // Release ChronoStatSvc
    if (!m_chronoStatSvc.release().isSuccess()) {
       ATH_MSG_WARNING("Cannot release ChronoStatSvc.");
    }
-   // Release ClassIDSvc
-   if (!m_clidSvc.release().isSuccess()) {
-      ATH_MSG_WARNING("Cannot release ClassIDSvc.");
+   // Release PoolSvc
+   if (!m_poolSvc.release().isSuccess()) {
+      ATH_MSG_WARNING("Cannot release PoolSvc.");
    }
 
    m_cnvs.clear();
@@ -542,6 +552,7 @@ AthenaPoolCnvSvc::AthenaPoolCnvSvc(const std::string& name, ISvcLocator* pSvcLoc
 	m_poolSvc("PoolSvc", name),
 	m_chronoStatSvc("ChronoStatSvc", name),
 	m_clidSvc("ClassIDSvc", name),
+	m_dataStreamingTool("", this),
 	m_containerPrefix(),
 	m_containerNameHint(),
 	m_branchNameHint(),
