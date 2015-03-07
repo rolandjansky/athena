@@ -32,12 +32,15 @@ TrigConf::L1TopoConfigSvc::initialize() {
    }
 
    CHECK(initStorageMgr());
+   
+   m_menu->setSMK( m_dbSMKey );
 
+   m_storageMgr->l1topoMenuLoader().setLevel((MSGTC::Level)msgLevel());
    bool loadSuccess = m_storageMgr->l1topoMenuLoader().load( *m_menu );
 
    CHECK(freeStorageMgr());
 
-//   m_menu->print();
+   //   m_menu->print();
 
    return loadSuccess ? StatusCode::SUCCESS : StatusCode::FAILURE;
 }
