@@ -31,6 +31,7 @@ TrigConf::HLTJobOptionsSvc::HLTJobOptionsSvc( const std::string& name, ISvcLocat
 {
    declareProperty( "TYPE", m_sourceType );
    declareProperty( "PATH", m_sourcePath );
+   m_outputLevel = MSG::INFO;
 }
 
 
@@ -109,16 +110,13 @@ TrigConf::HLTJobOptionsSvc::readDbWithMasterKey()
       return StatusCode::FAILURE;
    }
 
-
    CHECK(initStorageMgr());
-
-   int connectionTimeout=5;
 
    SessionMgr & sessionMgr = dynamic_cast<TrigConf::StorageMgr*>(m_storageMgr)->sessionMgr();
 
    sessionMgr.setRetrialPeriod(m_dbconfig->m_retrialPeriod);
-   sessionMgr.setConnectionTimeout(m_dbconfig->m_maxRetrials);
-   sessionMgr.setConnectionTimeout(connectionTimeout);
+   sessionMgr.setRetrialTimeout( m_dbconfig->m_retrialPeriod * (m_dbconfig->m_maxRetrials + 1) );
+   sessionMgr.setConnectionTimeout( 0 );
    sessionMgr.createSession();
    
    TrigConf::JobOptionTable jot;
@@ -346,7 +344,6 @@ TrigConf::HLTJobOptionsSvc::setMyProperties( const std::string& client, IPropert
       // is modified -- we don't want that
       if(client=="ApplicationMgr" && dbprop->name()=="Go") continue;
       if(client=="ApplicationMgr" && dbprop->name()=="Exit") continue;
-
 
       sc = StatusCode::FAILURE;
 

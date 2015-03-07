@@ -789,16 +789,29 @@ def test():
 
 
 def test2():
-    log.setLevel(logging.DEBUG)
+    log.setLevel(logging.WARNING)
 
-    connection = "TRIGGERDB_JOERG"
-    hltpsk = 1
-    
-    #connection = "TRIGGERDBMC"
-    #hltpsk = 1
-    
+    connections = [ "TRIGGERDB",
+                    "TRIGGERDB_RUN1",
+                    "TRIGGERDBV1",
+                    "TRIGGERDBMC_RUN1",
+                    "TRIGGERDBMC",
+                    "TRIGGERDBDEV1",
+                    "TRIGGERDBDEV2",
+                    "TRIGGERDBATN",
+                    "TRIGGERDBREPR",
+                    "TRIGGERDB_JOERG"
+                    ]
 
-    getMenuNameFromDB(connection,hltpsk)
+
+    for c in connections:
+        print "\nConnecting to alias ",c
+        cursor, schema = getTriggerDBCursor(c)
+        if cursor:
+            print "SUCCESS :  %s" % schema
+        else:
+            print "FAILURE"
+
 
 
 if __name__=="__main__":
