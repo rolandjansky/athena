@@ -13,6 +13,7 @@
 
 from PATCore.HelperUtils import *
 from AthenaCommon import CfgMgr
+
 import sys
 import PyCintex
 
@@ -132,9 +133,9 @@ ElectronPidName = {'vloose':egammaPID.ElectronIDLooseHLT,
     'tight1':egammaPID.ElectronIDTight1,}
 
 # Dictionaries for ToolNames
-PhotonToolName = {'loose':'AsgPhotonIsEMSelector/AsgPhotonIsEMLooseSelector',
-    'medium':'AsgPhotonIsEMSelector/AsgPhotonIsEMMediumSelector',
-    'tight':'AsgPhotonIsEMSelector/AsgPhotonIsEMTightSelector',
+PhotonToolName = {'loose':'AsgPhotonIsEMLooseSelector',
+    'medium':'AsgPhotonIsEMMediumSelector',
+    'tight':'AsgPhotonIsEMTightSelector',
     'loose1':'AsgElectronIsEMSelector/AsgPhotonIsEMLoose1Selector',
     'medium1':'AsgElectronIsEMSelector/AsgPhotonIsEMMedium1Selector',
     'tight1':'AsgPhotonIsEMSelector/AsgPhotonIsEMTight1Selector',}
@@ -143,15 +144,15 @@ PhotonToolConfigFile = {'loose':"PhotonIsEMLooseSelectorCutDefs.conf",
     'medium':"PhotonIsEMMediumSelectorCutDefs.conf",
     'tight':"PhotonIsEMTightSelectorCutDefs.conf",}
 
-PhotonIsEMBits = {'loose':SelectionDefPhoton.PhotonLooseEF,
-    'medium':SelectionDefPhoton.PhotonMediumEF,
+PhotonIsEMBits = {'loose':SelectionDefPhoton.PhotonLoose,
+    'medium':SelectionDefPhoton.PhotonMedium,
     'tight':SelectionDefPhoton.PhotonTight,
     'loose1':SelectionDefPhoton.PhotonLooseEF,
     'medium1':SelectionDefPhoton.PhotonMediumEF,
     'tight1':SelectionDefPhoton.PhotonTight,}
 
 def ElectronPidTools():
-    from AthenaCommon.AppMgr import ToolSvc
+    from AthenaCommon.AppMgr import ToolSvc   
     # Run1 selectors -- added directly to ToolSvc from default config via mapping
     #print '=========== Run1 PID ============'
     for key in ElectronToolName:
@@ -281,32 +282,32 @@ def ElectronPidTools():
     
 def PhotonPidTools():
     from AthenaCommon.AppMgr import ToolSvc
-    PhotonLooseSel=ConfiguredAsgPhotonIsEMSelector("AsgPhotonIsEMLooseSelector",egammaPID.PhotonIDLooseEF,photonPIDmenu.menuTrigDC14)
-    PhotonLooseSel.ConfigFile = ConfigFilePath + PhotonToolConfigFile['loose']
-    PhotonLooseSel.ForceConvertedPhotonPID = True
-    PhotonMediumSel=ConfiguredAsgPhotonIsEMSelector("AsgPhotonIsEMMediumSelector",egammaPID.PhotonIDLooseEF,photonPIDmenu.menuTrigDC14)                   
-    PhotonMediumSel.ConfigFile =ConfigFilePath + PhotonToolConfigFile['medium'] 
-    PhotonMediumSel.ForceConvertedPhotonPID = True
+    # Run2 Photon trigger
+    for key in PhotonToolName:
+        if not('1' in key):
+            tool=CfgMgr.AsgPhotonIsEMSelector(PhotonToolName[key])
+            tool.ConfigFile = ConfigFilePath + PhotonToolConfigFile[key]
+            tool.isEMMask = PhotonIsEMBits[key]
+            tool.ForceConvertedPhotonPID = True
+            ToolSvc += tool
+    # Run1 Photon triggers
     PhotonLoose1Sel=ConfiguredAsgElectronIsEMSelector("AsgPhotonIsEMLoose1Selector",egammaPID.PhotonIDLooseEF,electronPIDmenu.menuTrig2012)
     PhotonLoose1Sel.caloOnly = True
-    PhotonMedium1Sel=ConfiguredAsgElectronIsEMSelector("AsgPhotonIsEMMedium1Selector",egammaPID.PhotonIDMediumEF,electronPIDmenu.menuTrig2012)                   
+   
+    PhotonMedium1Sel=ConfiguredAsgElectronIsEMSelector("AsgPhotonIsEMMedium1Selector",egammaPID.PhotonIDMediumEF,electronPIDmenu.menuTrig2012)  
     PhotonMedium1Sel.caloOnly = True
+
     PhotonTight1Sel=ConfiguredAsgPhotonIsEMSelector("AsgPhotonIsEMTight1Selector",egammaPID.PhotonIDTight)                    
-    # Conf file fixed since this is Run1 tune
     PhotonTight1Sel.ConfigFile = 'ElectronPhotonSelectorTools/dc14b_20141031/PhotonIsEMTight8TeVSelectorCutDefs.conf'   
     PhotonTight1Sel.ForceConvertedPhotonPID = True
     
-    PhotonTightSel=ConfiguredAsgPhotonIsEMSelector("AsgPhotonIsEMTightSelector",egammaPID.PhotonIDTight,photonPIDmenu.menuTrigDC14)                    
-    PhotonTightSel.ConfigFile = ConfigFilePath + PhotonToolConfigFile['tight'] 
-    PhotonTightSel.ForceConvertedPhotonPID = True
-    
-    ToolSvc += PhotonTightSel
-    ToolSvc += PhotonLooseSel
-    ToolSvc += PhotonMediumSel
     ToolSvc += PhotonLoose1Sel
     ToolSvc += PhotonMedium1Sel
     ToolSvc += PhotonTight1Sel
-                       
-                
-                
-                
+    print "====  PhotonLooseHLT:                                 0x%08x              =====" % SelectionDefPhoton.PhotonLoose
+    print "====  PhotonLoose:                                 0x%08x              =====" % egammaPID.PhotonLoose
+    print "====  PhotonMediumHLT:                                 0x%08x              =====" % SelectionDefPhoton.PhotonMedium
+    print "====  PhotonMedium:                                 0x%08x              =====" % egammaPID.PhotonMedium
+    print "====  PhotonTightHLT:                                 0x%08x              =====" % SelectionDefPhoton.PhotonTight
+    print "====  PhotonTight:                                 0x%08x              =====" % egammaPID.PhotonTight
+
