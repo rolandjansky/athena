@@ -201,7 +201,10 @@ StatusCode EvtInclusiveDecay::execute() {
 
   if(m_readExisting) {
     if(m_outputKeyName==key) {
-     CHECK(evtStore()->overwrite(m_mcEvtColl,m_outputKeyName));
+     const bool ALLOWMODS(true);
+     const bool NORESET(false);
+     CHECK(evtStore()->overwrite(m_mcEvtColl,m_outputKeyName, ALLOWMODS,NORESET));
+
     }
     else {
      CHECK(evtStore()->record( m_mcEvtColl,m_outputKeyName));
