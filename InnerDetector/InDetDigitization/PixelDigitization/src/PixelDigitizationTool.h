@@ -312,6 +312,8 @@ private:
    
    std::list<ISiChargedDiodesProcessorTool *>	m_diodesProcsTool;
    SiChargedDiodeCollection *chargedDiodes;
+   IntegerProperty  m_vetoThisBarcode;
+
  protected:
   //The following are copied over from SiDigitization.h
   ServiceHandle <IAtRndmGenSvc> m_rndmSvc;

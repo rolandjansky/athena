@@ -52,6 +52,12 @@
 // DataHandle
 #include "StoreGate/DataHandle.h"
 
+//
+#include <limits>
+#include <cstdint>
+static constexpr unsigned int crazyParticleBarcode(std::numeric_limits<int32_t>::max());
+//Barcodes at the HepMC level are int
+
 using namespace InDetDD;
 
 // Constructor with parameters:
@@ -94,6 +100,7 @@ PixelDigitizationTool::PixelDigitizationTool(const std::string &type,
   m_detID(NULL),
   m_thpcsi(NULL),
   m_SurfaceChargesTool("SurfaceChargesTool"),
+  m_vetoThisBarcode(crazyParticleBarcode),
   m_rndmSvc("AtRndmGenSvc",name),
   m_mergeSvc("PileUpMergeSvc",name),
   m_CalibSvc("CalibSvc",name),
@@ -152,6 +159,7 @@ PixelDigitizationTool::PixelDigitizationTool(const std::string &type,
   declareProperty("OnlyHitElements",    m_onlyHitElements,      "Process only elements with hits");
   declareProperty("RDOforSPM",          m_doRDOforSPM,          "Create RDOs for special pixels");
   declareProperty("HardScatterSplittingMode", m_HardScatterSplittingMode, "Control pileup & signal splitting" );
+  declareProperty("ParticleBarcodeVeto",m_vetoThisBarcode=crazyParticleBarcode, "Barcode of particle to ignore");
 }
 
 
@@ -591,7 +599,7 @@ void PixelDigitizationTool::addSDO(SiChargedDiodeCollection* collection) {
      
       const HepMcParticleLink& trkLink = i_ListOfCharges->particleLink();
       int barcode = trkLink.barcode();
-      if (barcode == 0 || barcode == 10001){
+      if ((barcode == 0) || (barcode == m_vetoThisBarcode)){
           continue;
       }
       if(!real_particle_hit) { real_particle_hit = trkLink.isValid(); }
