@@ -42,7 +42,9 @@ class TrigEFDPhiMetJetAllTE: public HLT::AllTEAlgo {
   HLT::ErrorCode hltInitialize();
   HLT::ErrorCode hltFinalize();
 
+  /* PS 9/2/2015 remove as does not appear to do anything useful
   bool reset();
+  */
 
 
  private:

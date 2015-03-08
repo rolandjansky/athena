@@ -46,7 +46,7 @@ class ISvcLocator;
 TrigEFRazorAllTE::TrigEFRazorAllTE(const std::string& name, ISvcLocator* pSvcLocator):
   HLT::AllTEAlgo(name, pSvcLocator) {
 
-  declareProperty("Razorcut",     m_RazorCut        = 300*CLHEP::GeV );   // Default: 300 GeV
+  declareProperty("Razorcut",     m_RazorCut        = 300 );   // Default: 300 GeV
   declareProperty("doMonitoring", m_doMonitoring = true  );
 
   // Monitored variables...
@@ -174,7 +174,7 @@ HLT::ErrorCode TrigEFRazorAllTE::hltExecute(std::vector<std::vector<HLT::Trigger
   // std::vector<const TrigMissingET*> vectorMissingET;
   std::vector<const xAOD::TrigMissingET*> vectorMissingET;
   HLT::ErrorCode statMET = getFeatures(tes_in[0].front(), vectorMissingET );
-  if(statMET != HLT::OK) {
+  if(statMET != HLT::OK ) {
     msg() << MSG::WARNING << " Failed to get vectorMissingETs " << endreq;
     return HLT::OK;
   }
@@ -190,8 +190,8 @@ HLT::ErrorCode TrigEFRazorAllTE::hltExecute(std::vector<std::vector<HLT::Trigger
 
   // Retrieve Hemisphere Jets from tes_in[1]
   const xAOD::JetContainer* outJets(0);
-  HLT::ErrorCode ec = getFeature(tes_in[1].front(), outJets, "TrigHLTJetHemisphereRec");
-  if( outJets == 0 ){
+  HLT::ErrorCode statJets = getFeature(tes_in[1].front(), outJets, "TrigHLTJetHemisphereRec");
+  if( statJets!=HLT::OK || outJets==0 ){
     msg() << MSG::WARNING << " Got no JetCollections associated to the TE! " << endreq;
     m_errors++;
     return HLT::OK;
@@ -203,7 +203,7 @@ HLT::ErrorCode TrigEFRazorAllTE::hltExecute(std::vector<std::vector<HLT::Trigger
 
   // Creation of internal inputs and some sanity checks... ////////////////////////////
 
-  TVector3 MET(efmet->ex()/1000., efmet->ey()/1000., 0.0);
+  // TVector3 MET(efmet->ex()/1000., efmet->ey()/1000., 0.0);
 
   // JetCollection -> jetcollection_t
   std::vector<const xAOD::Jet*> theJets(outJets->begin(), outJets->end());
@@ -257,78 +257,90 @@ HLT::ErrorCode TrigEFRazorAllTE::hltExecute(std::vector<std::vector<HLT::Trigger
   //////////////////////////////////////////////////////////////////////////
   // With update to include massive jets
 
-
   m_nJets = theJets.size();
   
-  TLorentzVector J1,J2;
-  J1.SetPtEtaPhiM(  theJets.at(0)->jetP4().Pt()/1000.,
-                    theJets.at(0)->jetP4().Eta(),
-                    theJets.at(0)->jetP4().Phi(),
-                    theJets.at(0)->jetP4().M()/1000.
-                 );
-  J2.SetPtEtaPhiM(  theJets.at(1)->jetP4().Pt()/1000.,
-                    theJets.at(1)->jetP4().Eta(),
-                    theJets.at(1)->jetP4().Phi(),
-                    theJets.at(1)->jetP4().M()/1000.
-                 );
+  // trying to go for speed here. Switched from TLVs to arrays
+  // Boosting is done now by writing out the analytical result 
+  // in terms of the original four vector components
+
+  m_jet[0][0] = theJets.at(0)->jetP4().Px()/1000.;
+  m_jet[0][1] = theJets.at(0)->jetP4().Py()/1000.;
+  m_jet[0][2] = theJets.at(0)->jetP4().Pz()/1000.;
+  m_jet[0][3] = theJets.at(0)->jetP4().E() /1000.;
+  m_jet[1][0] = theJets.at(1)->jetP4().Px()/1000.;
+  m_jet[1][1] = theJets.at(1)->jetP4().Py()/1000.;
+  m_jet[1][2] = theJets.at(1)->jetP4().Pz()/1000.;
+  m_jet[1][3] = theJets.at(1)->jetP4().E() /1000.;
+
+  m_met[0]    = efmet->ex()/1000.;
+  m_met[1]    = efmet->ey()/1000.;
+
+  // Fill for monitoring
+  m_passedJetCuts_jetphi_0 = theJets.at(0)->jetP4().Phi();
+  m_passedJetCuts_jeteta_0 = theJets.at(0)->jetP4().Eta();
+  m_passedJetCuts_jetet_0  = theJets.at(0)->jetP4().Et()/1000.;
+
+  m_passedJetCuts_jetphi_1 = theJets.at(1)->jetP4().Phi();
+  m_passedJetCuts_jeteta_1 = theJets.at(1)->jetP4().Eta();
+  m_passedJetCuts_jetet_1  = theJets.at(1)->jetP4().Et()/1000.;
 
 
-  m_passedJetCuts_jetphi_0 = J1.Phi();
-  m_passedJetCuts_jeteta_0 = J1.Eta();
-  m_passedJetCuts_jetet_0  = J1.Et();
+  // jet masses squared 
+  m_jet_m2[0] = m_jet[0][3]*m_jet[0][3]-m_jet[0][0]*m_jet[0][0]-m_jet[0][1]*m_jet[0][1]-m_jet[0][2]*m_jet[0][2];
+  m_jet_m2[1] = m_jet[1][3]*m_jet[1][3]-m_jet[1][0]*m_jet[1][0]-m_jet[1][1]*m_jet[1][1]-m_jet[1][2]*m_jet[1][2];
 
-  m_passedJetCuts_jetphi_1 = J2.Phi();
-  m_passedJetCuts_jeteta_1 = J2.Eta();
-  m_passedJetCuts_jetet_1  = J2.Et();
+  // here is the variable calculations - will only explicitly calculate
+  // m_shatR and m_gaminvRp1 for speed
+  
+  // px and py for the di-hemisphere system
+  m_di_hemi_pt[0] = m_jet[0][0]+m_jet[1][0];
+  m_di_hemi_pt[1] = m_jet[0][1]+m_jet[1][1];
+  m_di_hemi_E  = m_jet[0][3]+m_jet[1][3];  // sum E of di-hemisphere system
+  m_di_hemi_pz = m_jet[0][2]+m_jet[1][2];  // sum pZ of di-hemisphere system
+  m_di_hemi_mz = m_di_hemi_E*m_di_hemi_E - m_di_hemi_pz*m_di_hemi_pz;
+  m_di_hemi_m2 = m_di_hemi_mz - m_di_hemi_pt[0]*m_di_hemi_pt[0]-m_di_hemi_pt[1]*m_di_hemi_pt[1];
+  m_di_hemi_mz = sqrt(m_di_hemi_mz);
 
-  J1.SetVectM(J1.Vect(),0.0);
-  J2.SetVectM(J2.Vect(),0.0);
+  // A boosting procedure to get into the R frame
+  m_Ez2 = m_jet[0][3]*m_jet[1][3]-m_jet[0][2]*m_jet[1][2];
+  m_jet[0][2] = (m_jet[1][3]*m_jet[0][2]-m_jet[0][3]*m_jet[1][2])/m_di_hemi_mz;
+  m_jet[1][2] = -m_jet[0][2];
+  m_jet[0][3] = (m_Ez2 + m_jet_m2[0] + m_jet[0][0]*m_jet[0][0] + m_jet[0][1]*m_jet[0][1])/m_di_hemi_mz;
+  m_jet[1][3] = (m_Ez2 + m_jet_m2[1] + m_jet[1][0]*m_jet[1][0] + m_jet[1][1]*m_jet[1][1])/m_di_hemi_mz;
 
-  TVector3 vBETA_z = (1./(J1.E()+J2.E()))*(J1+J2).Vect();
-  vBETA_z.SetX(0.0);
-  vBETA_z.SetY(0.0);
+  m_Etot = m_di_hemi_mz + sqrt(m_met[0]*m_met[0]+m_met[1]*m_met[1]+m_di_hemi_m2-4.*sqrt(m_jet_m2[0]*m_jet_m2[1]));
+  m_di_hemi_pt[0] += m_met[0];
+  m_di_hemi_pt[1] += m_met[1];
+  m_Ptot2 = m_di_hemi_pt[0]*m_di_hemi_pt[0] + m_di_hemi_pt[1]*m_di_hemi_pt[1];
 
-  //transformation from lab frame to approximate rest frame along beam-axis
-  J1.Boost(-vBETA_z);
-  J2.Boost(-vBETA_z);
+  ////////////////////////////////////
+  m_shatR = sqrt(m_Etot*m_Etot - m_Ptot2);
+  ////////////////////////////////////
 
-  TVector3 pT_CM = (J1+J2).Vect() + MET;
-  pT_CM.SetZ(0.0); //should be redundant...
+  m_gamma = 1./sqrt(1. - m_Ptot2/m_Etot/m_Etot);
+  // double beta[2];
+  // double pdotbeta[2];
+  m_beta[0] = m_di_hemi_pt[0]/m_Etot;
+  m_beta[1] = m_di_hemi_pt[1]/m_Etot;
+  m_pdotbeta[0] = (m_beta[0]*m_jet[0][0]+m_beta[1]*m_jet[0][1])*m_gamma/(m_gamma+1) - m_jet[0][3];
+  m_pdotbeta[1] = (m_beta[0]*m_jet[1][0]+m_beta[1]*m_jet[1][1])*m_gamma/(m_gamma+1) - m_jet[1][3];
 
-  m_Minv2 = (J1+J2).M2() - 4.*J1.M()*J2.M();
-  m_Einv = sqrt(MET.Mag2()+m_Minv2);
+  m_jet[0][0] = m_jet[0][0] + m_gamma*m_beta[0]*m_pdotbeta[0];
+  m_jet[0][1] = m_jet[0][1] + m_gamma*m_beta[1]*m_pdotbeta[0];
+  m_jet[1][0] = m_jet[1][0] + m_gamma*m_beta[0]*m_pdotbeta[1];
+  m_jet[1][1] = m_jet[1][1] + m_gamma*m_beta[1]*m_pdotbeta[1];
 
-
-  //////////////////////
-  // definition of m_shatR
-  //////////////////////
-  m_shatR = sqrt( ((J1+J2).E()+m_Einv)*((J1+J2).E()+m_Einv) - pT_CM.Mag2() );
-
-  TVector3 vBETA_R = (1./sqrt(pT_CM.Mag2() + m_shatR*m_shatR))*pT_CM;
-
-  //transformation from lab frame to R frame
-  J1.Boost(-vBETA_R);
-  J2.Boost(-vBETA_R);
-
-  /////////////
-  //
-  // R-frame
-  //
-  /////////////
-
-  TVector3 vBETA_Rp1 = (1./(J1.E()+J2.E()))*(J1.Vect() - J2.Vect());
-
-  ////////////////////////
-  // definition of m_gaminvR
-  ////////////////////////
-
-  m_gaminvRp1 = 1./sqrt(1.-vBETA_Rp1.Mag2());
-
+  // double p[2];
+  m_p[0] = sqrt(m_jet[0][0]*m_jet[0][0]+m_jet[0][1]*m_jet[0][1]+m_jet[0][2]*m_jet[0][2]);
+  m_p[1] = sqrt(m_jet[1][0]*m_jet[1][0]+m_jet[1][1]*m_jet[1][1]+m_jet[1][2]*m_jet[1][2]);
+  m_dot = m_jet[0][0]*m_jet[1][0]+m_jet[0][1]*m_jet[1][1]+m_jet[0][2]*m_jet[1][2];
+  
+  ////////////////////////////////////
+  m_gaminvRp1 = sqrt(2.*(m_p[0]*m_p[1]+m_dot))/(m_p[0]+m_p[1]);
+  ////////////////////////////////////
 
   // Define "razor" cut as m_gaminvRp1 * m_shatR
   // This is "Pi" according to the talks. 
-  // Most versions involve some offsets on the two factors. 
-  // Will need to be put in if those are nonzero.
 
   m_Razor = m_gaminvRp1 * m_shatR;
 
