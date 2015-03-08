@@ -173,7 +173,7 @@ StatusCode AsgElectronLikelihoodTool::initialize()
 
   }  else{  //Do python config if m_configFile is empty.
     std::string filename = PathResolverFindCalibFile( m_pdfFileName );
-	if (filename.empty()){
+    if (filename.empty()){
       ATH_MSG_WARNING ( "Could NOT resolve file name " << m_pdfFileName );
     }  else{
       ATH_MSG_INFO(" Path found = "<<filename);
@@ -511,9 +511,9 @@ const Root::TResult& AsgElectronLikelihoodTool::calculate( const xAOD::Electron*
 
         //Transform the TRT PID output for use in the LH tool.
         double tau = 15.0; 
-        double fEpsilon = 1e-99;
-        if (TRT_PID >= 1.0) TRT_PID = 1.0 - 1.0e-15;
-        else if (TRT_PID <= 0.0) TRT_PID = fEpsilon;
+        double fEpsilon = std::numeric_limits<float>::min();  // to avoid zero division
+        if (TRT_PID >= 1.0) TRT_PID = 1.0 - 1.0e-15;  //this number comes from TMVA
+        else if (TRT_PID <= fEpsilon) TRT_PID = fEpsilon;
         trans_TRT_PID = - log(1.0/TRT_PID - 1.0)/double(tau);
 
         unsigned int index;
