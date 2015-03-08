@@ -3,8 +3,6 @@
 */
 
 #include "G4UserActions/StoppedParticleAction.h"
-#include "FadsSensitiveDetector/SensitiveDetectorCatalog.h"
-#include "FadsSensitiveDetector/FadsSensitiveDetector.h"
 
 #include "TrackWriteFastSim/TrackFastSimSD.h"
 
@@ -14,9 +12,10 @@
 #include "G4ParticleDefinition.hh"
 #include "G4Material.hh"
 #include "G4Element.hh"
+#include "G4SDManager.hh"
+#include "G4VSensitiveDetector.hh"
 
 #include <cmath>
-#include <iostream>
 
 static StoppedParticleAction stoppedparticleaction("StoppedParticleAction");
 
@@ -38,30 +37,24 @@ void StoppedParticleAction::SteppingAction(const G4Step* aStep)
       if (mat->GetElement(i) &&
           minA>mat->GetElement(i)->GetN()){
         minA=mat->GetElement(i)->GetN();
-        //std::cout << "Setting min A !" << std::endl;
-      } //else if (! mat->GetElement(i) ) std::cout << "Had a problem with " << mat->GetElement(i) << std::endl;
-      //else std::cout << "Got an A from the material of: " << mat->GetElement(i)->GetN() << std::endl;
+      }
     }
-    //std::cout << "Material with " << mat->GetNumberOfElements() << " elements... and vector size " << mat->GetElementVector()->size() << std::endl;
-    //std::cout << "Looking at SUSY particle " << id << " with beta " << aStep->GetPostStepPoint()->GetVelocity()/CLHEP::c_light << " and minA " << minA << " for " << 0.15*std::pow(minA,-2./3.) << std::endl;
     if (aStep->GetPostStepPoint()->GetVelocity()>0.15*std::pow(minA,-2./3.)*CLHEP::c_light) return;
 
     if (!m_init){
       m_init = true;
   
-      FADS::SensitiveDetectorCatalog * fsdc = FADS::SensitiveDetectorCatalog::GetSensitiveDetectorCatalog();
-      if (!fsdc) { 
+      G4SDManager * g4sdm = G4SDManager::GetSDMpointer();
+      if (!g4sdm) { 
         ATH_MSG_ERROR( "StoppedParticleFastSim could not get sensitive detector catalog." );
       } else {
-        FADS::FadsSensitiveDetector * fsd = fsdc->GetSensitiveDetector("TrackFastSimSD");
-        if (!fsd) { 
+        G4VSensitiveDetector * g4sd = g4sdm->FindSensitiveDetector("TrackFastSimSD");
+        if (!g4sd) { 
           ATH_MSG_ERROR( "StoppedParticleFastSim could not get TrackFastSimSD sensitive detector." ); 
         } else {
-          m_fsSD = dynamic_cast<TrackFastSimSD*>(fsd);
+          m_fsSD = dynamic_cast<TrackFastSimSD*>(g4sd);
           if (!m_fsSD) {
             ATH_MSG_ERROR( "StoppedParticleFastSim could not cast the SD." ); 
-          } else { // succeeded in cast
-            m_fsSD->SetCollectionName("StoppingPositions");
           }
         } // found the SD
       } // got the catalog

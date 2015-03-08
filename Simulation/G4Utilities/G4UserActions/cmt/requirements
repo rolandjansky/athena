@@ -21,7 +21,6 @@ use AtlasROOT           AtlasROOT-*             External
 use InDetSimEvent       InDetSimEvent-*         InnerDetector
 use MuonSimEvent        MuonSimEvent-*          MuonSpectrometer
 use TrackWriteFastSim   TrackWriteFastSim-*     Simulation/G4Utilities
-use FadsSensitiveDetector FadsSensitiveDetector-* Simulation/G4Sim/FADS
 use AtlasCLHEP			AtlasCLHEP-*			External
 end_private
 

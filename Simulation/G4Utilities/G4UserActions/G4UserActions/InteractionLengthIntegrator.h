@@ -11,6 +11,7 @@
 #include <map>
 
 class TProfile;
+class TProfile2D;
 
 // User action to evaluate the thickness (in %interaction length) of all detectors
 // traversed by outgoing particles
@@ -20,18 +21,18 @@ class TProfile;
 class InteractionLengthIntegrator: public FADS::ActionsBase , public FADS::UserAction {
 
   public:
-    InteractionLengthIntegrator(std::string s): FADS::ActionsBase(s),FADS::UserAction(s),etaPrimary(0),phiPrimary(0) {}
+    InteractionLengthIntegrator(std::string s): FADS::ActionsBase(s),FADS::UserAction(s),m_etaPrimary(0),m_phiPrimary(0),m_rzProf(0) {}
     void BeginOfEventAction(const G4Event*);
     void EndOfEventAction(const G4Event*);
-    void BeginOfRunAction(const G4Run*);
-    void EndOfRunAction(const G4Run*);
     void SteppingAction(const G4Step*);
 
   private:
-    double etaPrimary ;
-    double phiPrimary ;
-    std::map<std::string,double,std::less<std::string> > detThick;
-    std::map<std::string,TProfile*,std::less<std::string> > histoMap;
+    double m_etaPrimary ;
+    double m_phiPrimary ;
+    std::map<std::string,double,std::less<std::string> > m_detThick;
+    std::map<std::string,TProfile*,std::less<std::string> > m_etaMap;
+    std::map<std::string,TProfile*,std::less<std::string> > m_phiMap;
+    TProfile2D* m_rzProf;
 
 };
 

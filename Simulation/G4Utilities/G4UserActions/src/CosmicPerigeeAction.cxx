@@ -95,6 +95,5 @@ void CosmicPerigeeAction::SteppingAction(const G4Step* aStep)
         //create the TimedTrackRecord
         TrackHelper trHelp(aStep->GetTrack());
         int barcode = trHelp.GetBarcode();
-        TrackRecord *rec=new TrackRecord(pdgcode,ener,mom,pos,time,barcode,preVol->GetName());
-        trackRecordCollection->Insert(rec);
+        trackRecordCollection->Emplace(pdgcode,ener,mom,pos,time,barcode,preVol->GetName());
 }
