@@ -39,7 +39,7 @@ class L2CaloMissingET_Fex ( T2CaloMissingET ) :
         self.ReadL2L1=False
         self.doTiming=True
         #self.OneByOne=True;
-        self.METLabel = "L2MissingET_FEB"
+        self.METLabel = "TrigL2MissingET_FEB"
         self.AthenaMonTools = [ online,validation,time ]
         #self.AthenaMonTools = [ online,time ]
 
@@ -60,7 +60,7 @@ class L2CaloMissingET_Fex_ReadL2L1 ( T2CaloMissingET ) :
         self.ReadL2L1=True
         self.doTiming=True
         #self.OneByOne=True
-        self.METLabel = "L2MissingET_FEB"
+        self.METLabel = "TrigL2MissingET_FEB"
         self.AthenaMonTools = [ online,validation,time ]
         #self.AthenaMonTools = [ online,time ]
         
