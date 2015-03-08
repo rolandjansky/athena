@@ -79,7 +79,7 @@ void HyperspaceCatcher::SteppingAction(const G4Step* aStep)
                     aStep->GetPostStepPoint()->GetPhysicalVolume()->GetLogicalVolume() ? 
                     aStep->GetPostStepPoint()->GetPhysicalVolume()->GetLogicalVolume()->GetSolid():0;
   if ( (post && post->Inside( myPos ) == kOutside ) ||
-       ( pre &&  pre->Inside( aStep->GetPreStepPoint()->GetPosition() ) ) ){
+       ( pre &&  pre->Inside( aStep->GetPreStepPoint()->GetPosition() ) == kOutside ) ){
     hs=true;
   } // Check #3 failed
   if (!hs && m_treatmentLevel<=2) return;
