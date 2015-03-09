@@ -31,6 +31,7 @@ namespace D3PD {
       m_incidentSvc( "IncidentSvc", name ),
       m_d3pdSvc( "D3PD::RootD3PDSvc/TrigConfD3PDSvc", name ),
       m_tree( nullptr ),
+      m_onlySaveCostEvents( true ),
       m_doBasic (false),
       m_doExtra (false),
       m_doChain (false),
@@ -172,6 +173,7 @@ namespace D3PD {
     declareProperty( "prefix", m_prefix = "TrigCostHLT_" );
     declareProperty( "keyEvent", m_keyEvent = "HLT_TrigMonEventCollection_OPI_HLT_monitoring_event");
     declareProperty( "mode", m_writeMode = "COST");
+    declareProperty( "onlySaveCostEvents", m_onlySaveCostEvents = true, "Export only events which ran the full suite of Cost tools online"); 
   }
 
   StatusCode TrigCostD3PDMakerTool::initialize() {
@@ -495,6 +497,17 @@ namespace D3PD {
       if(!event) {
         ATH_MSG_WARNING( "Could not resolve TrigMonEvent pointer." );
         continue;
+      }
+
+      // Do we want to save this event?
+      if (m_onlySaveCostEvents == true) {
+        float _result = 0.;
+        event->getVar(47, _result); // 47, is the magic number in this case. These will be converted to an enum soon!!!
+        // Bool stored as float. Test for 0
+        if (_result < 0.5) {
+          ATH_MSG_DEBUG( "Not a Cost Event (scale tools were not run, but L1 result info still there). Skipping event due to m_onlySaveCostEvents == true" );
+          continue;
+        }
       }
 
       // Zero before new event

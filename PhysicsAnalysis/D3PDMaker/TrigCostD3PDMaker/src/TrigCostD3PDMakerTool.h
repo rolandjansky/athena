@@ -82,7 +82,7 @@ namespace D3PD {
         // The configuration variables:
         //
         ID3PD* m_tree; ///< D3PD object holding the configuration description
-
+        bool m_onlySaveCostEvents; //!< Export non cost events?
         std::string m_writeMode; //!< What to export
         bool m_doBasic;
         bool m_doExtra;
