@@ -32,7 +32,7 @@ JetIntervalFilter::JetIntervalFilter(const std::string & name, ISvcLocator * pSv
   : GenFilter (name, pSvcLocator)
 {
   // General Jets
-  declareProperty("JetContainer", m_jetContainer = "Cone4TruthJets");
+  declareProperty("JetContainer", m_jetContainer = "AntiKt4TruthJets");
   declareProperty("JetNumber", m_jetNumber = 2);
   declareProperty("OppositeSideJets", m_jetOppositeSide = false);
 

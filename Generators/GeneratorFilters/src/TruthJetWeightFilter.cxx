@@ -29,7 +29,7 @@ TruthJetWeightFilter::TruthJetWeightFilter(const std::string& name, ISvcLocator*
   declareProperty("deactivateFilter", m_deactivateFilter = false);
   declareProperty("samplingRandomSeed", m_samplingRandomSeed = 0);
 
-  declareProperty("TruthJetContainer", m_TruthJetContainerName = "Cone4TruthJets");
+  declareProperty("TruthJetContainer", m_TruthJetContainerName = "AntiKt4TruthJets");
   m_MLPReader = 0;
   m_rand = 0;
 }

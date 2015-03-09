@@ -31,8 +31,8 @@ private:
   double m_pTminmu;
   double m_pTminhad;
 
-  double m_eventsaccepted;
-  double m_eventsrefused;
+  //double m_eventsaccepted;
+  //double m_eventsrefused;
 
   double m_eventse;
   double m_eventsmu;

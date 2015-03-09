@@ -19,7 +19,7 @@ TruthJetFilter::TruthJetFilter(const std::string& name, ISvcLocator* pSvcLocator
   declareProperty("jet_pt1",m_jet_pt1 = 80.*Gaudi::Units::GeV);
   declareProperty("applyDeltaPhiCut",m_applyDeltaPhiCut = false);
   declareProperty("MinDeltaPhi",m_MinDeltaPhi = 0.2);
-  declareProperty("TruthJetContainer", m_TruthJetContainerName = "Cone4TruthJets");
+  declareProperty("TruthJetContainer", m_TruthJetContainerName = "AntiKt4TruthJets");
 }
 
 
