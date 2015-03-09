@@ -10,7 +10,7 @@
 TTbarPlusJetsFilter::TTbarPlusJetsFilter(const std::string& name, ISvcLocator* pSvcLocator)
   : GenFilter(name, pSvcLocator)
 {
-  declareProperty("InputJetContainer", m_jetContainerLoc = "ConeTruthJets");
+  declareProperty("InputJetContainer", m_jetContainerLoc = "AntiKt4TruthJets");
   declareProperty("PtMinJet",m_ptMinJet = 14000.0);
   declareProperty("EtaMaxJet",m_etaMaxJet = 5.2);
   declareProperty("NbJetMin",m_nbJet = 6);

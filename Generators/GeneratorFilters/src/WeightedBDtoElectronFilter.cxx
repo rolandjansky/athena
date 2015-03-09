@@ -125,7 +125,7 @@ const HepMC::GenParticle* WeightedBDtoElectronFilter::FindBParent( const HepMC::
     }
 
     // get parent
-    if ( !(*parentItr)->production_vertex() != 0 ) { // no production vertex
+    if ( !(*parentItr)->production_vertex() ) { // no production vertex
       ATH_MSG_INFO("No production vertex found => interrupt ");
       break;
     }

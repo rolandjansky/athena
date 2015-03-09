@@ -15,7 +15,7 @@
 BSubstruct::BSubstruct(const std::string &name, ISvcLocator *pSvcLocator)
   : GenFilter(name, pSvcLocator),
     m_nEvents(0), m_nAccepted(0), m_nRejected(0),
-    m_doJetMaxPTCut(false), m_doHeavyHadrons(false), m_drMin(0.),
+    m_doJetMaxPTCut(false), m_doHeavyHadrons(false), /*m_drMin(0.),*/
     m_h_nBPass(0), m_h_nBAll(0), m_h_dRPass(0), m_h_dRAll(0),
     m_h_dPhiPass(0), m_h_dPhiAll(0), m_h_bPhiPass(0)
 {

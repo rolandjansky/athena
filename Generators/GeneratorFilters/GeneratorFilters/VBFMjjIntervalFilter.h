@@ -27,8 +27,8 @@ private:
 
   ServiceHandle<IAtRndmGenSvc> m_rand;     // Random number generator
 
-  long m_total;                            // Total number of events tested
-  long m_passed;                           // Number of events passing all cuts
+  //long m_total;                            // Total number of events tested
+  //long m_passed;                           // Number of events passing all cuts
   //long m_outsideAcceptance;                // Number of events failing rapidity acceptance cuts
 
   double m_norm;                           // Normalization for weights

@@ -33,7 +33,7 @@ HeavyFlavorHadronFilter::HeavyFlavorHadronFilter(const std::string& name, ISvcLo
   declareProperty("RequestSpecificPDGID",m_RequestSpecificPDGID=false);
   declareProperty("RequireTruthJet",m_RequireTruthJet=false);
   declareProperty("DeltaRFromTruth",m_deltaRFromTruth=0.4);
-  declareProperty("TruthContainerName",m_TruthJetContainerName="Cone4TruthJets");
+  declareProperty("TruthContainerName",m_TruthJetContainerName="AntiKt4TruthJets");
 }
 
 
