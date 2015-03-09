@@ -19,8 +19,6 @@
 #include "TrkPrepRawData/PrepRawData.h"
 
 
-using namespace std;
-
 namespace D3PD {
   
   

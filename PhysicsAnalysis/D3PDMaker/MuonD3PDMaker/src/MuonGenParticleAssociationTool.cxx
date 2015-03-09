@@ -75,12 +75,11 @@ StatusCode MuonGenParticleAssociationTool::book ()
 const xAOD::TruthParticle*
 MuonGenParticleAssociationTool::get (const xAOD::Muon& p)
 {
-  IMCTruthClassifier::Info info;
   const xAOD::TruthParticle* out = 0;
-  if (m_classifier->particleTruthClassifier (&p, &info).first !=
+  if (m_classifier->particleTruthClassifier (&p).first !=
       MCTruthPartClassifier::Unknown)
   {
-    out = info.genPart;
+    out = m_classifier->getGenPart();
   }
 
   if (!m_drvar.empty()) {

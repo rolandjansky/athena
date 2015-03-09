@@ -24,7 +24,6 @@
 
 using HepGeom::Point3D;
 using HepGeom::Vector3D;
-using namespace std;
 
 namespace D3PD {
   
