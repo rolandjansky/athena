@@ -1,0 +1,38 @@
+package InDetSLHC_Example
+
+author Markus.Elsing <markus.elsing@cern.ch>
+author Andreas Salzburger <andreas.salzburger@cern.ch>
+
+private
+
+use AtlasPolicy		       AtlasPolicy-*
+use TestPolicy                 TestPolicy-*
+use AthenaCommon               AthenaCommon-*		Control -no_auto_imports
+use AtlasReconstructionRunTime AtlasReconstructionRunTime-*
+
+# --- needed for LCG relational database stuff
+use RDBAccessSvc               RDBAccessSvc-*           Database/AthenaPOOL -no_auto_imports
+
+end_private
+
+
+# ---
+branches run share data data/v3
+apply_pattern declare_joboptions files="*.py"
+apply_pattern declare_python_modules files="../python/*.py"
+
+# --- Install run-time files
+#apply_pattern declare_runtime files="-s=../data/v3 *.pool.root"
+#apply_pattern declare_runtime files="-s=../data/v3 *.db"
+apply_pattern declare_runtime files="-s=../data *.txt *.xml" extras="../test/InDetSLHC_Example_TestConfiguration.xml ../scripts/make*.C ../scripts/IDPerf*.py ../scripts/IDRTT_*.sh ../ExtraFiles/ALL*.html"
+
+apply_pattern install_xmls
+
+# --- automatic testing upon gmake check
+#apply_pattern athenarun_test name="InDetSLHC_Testing" pre_script="../test/script_pre_check.sh" options="../share/jobOptions.py" post_script="../test/script_post_check.sh"
+
+#macro InDetRecExample_libraries "libeformat"
+
+# RTT requirement lines
+macro InDetSLHC_Example_TestConfiguration "../test/InDetSLHC_Example_TestConfiguration.xml"
+
