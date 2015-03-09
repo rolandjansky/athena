@@ -105,6 +105,7 @@ static  int  maxRepWarnings;
 //   m_analysisTools(0) {
 TrigEDMChecker::TrigEDMChecker(const std::string& name, ISvcLocator* pSvcLocator)
   : AthAlgorithm(name, pSvcLocator),
+    m_storeGate(0),
     m_muonPrinter("Rec::MuonPrintingTool/MuonPrintingTool")
 {
 
