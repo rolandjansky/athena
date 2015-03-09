@@ -6,7 +6,7 @@
 #include <exception>
 
 // Local include(s):
-#include "xAODCPMRoIContainerCnv.h"
+#include "xAODL1TopoRawDataContainerCnv.h"
 
 namespace {
   /// Helper function setting up the container's link to its auxiliary store
@@ -23,8 +23,8 @@ namespace {
 } // private namespace
 
 
-xAODCPMRoIContainerCnv::xAODCPMRoIContainerCnv( ISvcLocator* svcLoc )
-   : xAODCPMRoIContainerCnvBase( svcLoc ) {
+xAODL1TopoRawDataContainerCnv::xAODL1TopoRawDataContainerCnv( ISvcLocator* svcLoc )
+   : xAODL1TopoRawDataContainerCnvBase( svcLoc ) {
 }
 
 /**
@@ -33,7 +33,7 @@ xAODCPMRoIContainerCnv::xAODCPMRoIContainerCnv( ISvcLocator* svcLoc )
 * base class do its normal task.
 */
 
-StatusCode xAODCPMRoIContainerCnv::createObj( IOpaqueAddress* pAddr, DataObject*& pObj ) {
+StatusCode xAODL1TopoRawDataContainerCnv::createObj( IOpaqueAddress* pAddr, DataObject*& pObj ) {
 
   // Get the key of the container that we'll be creating:
   m_key = *( pAddr->par() + 1 );
@@ -42,18 +42,18 @@ StatusCode xAODCPMRoIContainerCnv::createObj( IOpaqueAddress* pAddr, DataObject*
   return AthenaPoolConverter::createObj( pAddr, pObj );
 }
 
-xAOD::CPMRoIContainer*
-xAODCPMRoIContainerCnv::
-createPersistent( xAOD::CPMRoIContainer* trans ) {
+xAOD::L1TopoRawDataContainer*
+xAODL1TopoRawDataContainerCnv::
+createPersistent( xAOD::L1TopoRawDataContainer* trans ) {
 
    // Create a view copy of the container:
-   xAOD::CPMRoIContainer* result =
-      new xAOD::CPMRoIContainer( trans->begin(), trans->end(),
+   xAOD::L1TopoRawDataContainer* result =
+      new xAOD::L1TopoRawDataContainer( trans->begin(), trans->end(),
                                       SG::VIEW_ELEMENTS );
 
    // Prepare the objects to be written out:
-   xAOD::CPMRoIContainer::iterator itr = result->begin();
-   xAOD::CPMRoIContainer::iterator end = result->end();
+   xAOD::L1TopoRawDataContainer::iterator itr = result->begin();
+   xAOD::L1TopoRawDataContainer::iterator end = result->end();
    for( ; itr != end; ++itr ) {
       toPersistent( *itr );
    }
@@ -62,25 +62,25 @@ createPersistent( xAOD::CPMRoIContainer* trans ) {
    return result;
 }
 
-xAOD::CPMRoIContainer* xAODCPMRoIContainerCnv::createTransient() {
+xAOD::L1TopoRawDataContainer* xAODL1TopoRawDataContainerCnv::createTransient() {
    // The known ID(s) for this container:
-   static pool::Guid v1_guid( "4B48CC07-6B22-46EC-9BD5-51379664B9BC" );
+   static pool::Guid v1_guid( "59FD769F-86CA-4636-8AB0-61EB3E0482EA" );
 
    // Check if we're reading the most up to date type:
    if( compareClassGuid( v1_guid ) ) {
-     xAOD::CPMRoIContainer* c = poolReadObject< xAOD::CPMRoIContainer >();
+     xAOD::L1TopoRawDataContainer* c = poolReadObject< xAOD::L1TopoRawDataContainer >();
      setStoreLink( c , m_key );
      return c;
    }
 
    // If we didn't recognise the ID, let's complain:
    throw std::runtime_error( "Unsupported version of "
-                             "xAOD::CPMRoIContainer found" );
+                             "xAOD::L1TopoRawDataContainer found" );
    return 0;
 }
 
-void xAODCPMRoIContainerCnv::
-toPersistent( xAOD::CPMRoI* /*cluster*/ ) const {
+void xAODL1TopoRawDataContainerCnv::
+toPersistent( xAOD::L1TopoRawData* /*cluster*/ ) const {
 
    return;
 }

@@ -36,6 +36,8 @@ public:
    /// Converter constructor
    xAODJEMEtSumsContainerCnv( ISvcLocator* svcLoc );
 
+   /// Re-implemented function in order to get access to the SG key
+   virtual StatusCode createObj( IOpaqueAddress* pAddr, DataObject*& pObj );    
    /// Function preparing the container to be written out
    virtual xAOD::JEMEtSumsContainer*
    createPersistent( xAOD::JEMEtSumsContainer* trans );
@@ -45,6 +47,9 @@ public:
 private:
    /// Function preparing a vertex object for persistence
    void toPersistent( xAOD::JEMEtSums* cluster ) const;
+   
+   /// StoreGate key of the container just being created
+   std::string m_key;
 
 }; // class xAODJEMEtSumsContainerCnv
 

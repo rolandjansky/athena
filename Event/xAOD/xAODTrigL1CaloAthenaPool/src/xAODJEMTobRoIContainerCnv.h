@@ -41,6 +41,8 @@ class xAODJEMTobRoIContainerCnv : public xAODJEMTobRoIContainerCnvBase {
     /// Converter constructor
     xAODJEMTobRoIContainerCnv( ISvcLocator* svcLoc );
 
+    /// Re-implemented function in order to get access to the SG key
+    virtual StatusCode createObj( IOpaqueAddress* pAddr, DataObject*& pObj );    
     /// Function preparing the container to be written out
     virtual xAOD::JEMTobRoIContainer* createPersistent( xAOD::JEMTobRoIContainer* trans );
     /// Function reading in the persistent object
@@ -49,6 +51,9 @@ class xAODJEMTobRoIContainerCnv : public xAODJEMTobRoIContainerCnvBase {
   private:
     /// Function preparing a vertex object for persistence
     void toPersistent( xAOD::JEMTobRoI* ) const;
+   
+   /// StoreGate key of the container just being created
+   std::string m_key;
 
 }; // class xAODJEMTobRoIContainerCnv
 #endif

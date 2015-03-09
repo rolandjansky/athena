@@ -41,6 +41,8 @@ class xAODCMXCPTobContainerCnv : public xAODCMXCPTobContainerCnvBase {
     /// Converter constructor
     xAODCMXCPTobContainerCnv( ISvcLocator* svcLoc );
 
+    /// Re-implemented function in order to get access to the SG key
+    virtual StatusCode createObj( IOpaqueAddress* pAddr, DataObject*& pObj ); 
     /// Function preparing the container to be written out
     virtual xAOD::CMXCPTobContainer* createPersistent( xAOD::CMXCPTobContainer* trans );
     /// Function reading in the persistent object
@@ -49,6 +51,9 @@ class xAODCMXCPTobContainerCnv : public xAODCMXCPTobContainerCnvBase {
   private:
     /// Function preparing a vertex object for persistence
     void toPersistent( xAOD::CMXCPTob* ) const;
+   
+    /// StoreGate key of the container just being created
+    std::string m_key;
 
 }; // class xAODCMXCPTobContainerCnv
 #endif

@@ -36,6 +36,8 @@ public:
    /// Converter constructor
    xAODCPMTowerContainerCnv( ISvcLocator* svcLoc );
 
+   /// Re-implemented function in order to get access to the SG key
+   virtual StatusCode createObj( IOpaqueAddress* pAddr, DataObject*& pObj );    
    /// Function preparing the container to be written out
    virtual xAOD::CPMTowerContainer*
    createPersistent( xAOD::CPMTowerContainer* trans );
@@ -45,6 +47,9 @@ public:
 private:
    /// Function preparing a vertex object for persistence
    void toPersistent( xAOD::CPMTower* cluster ) const;
+   
+   /// StoreGate key of the container just being created
+   std::string m_key;
 
 }; // class xAODCPMTowerContainerCnv
 

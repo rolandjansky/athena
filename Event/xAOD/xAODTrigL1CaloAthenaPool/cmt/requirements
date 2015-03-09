@@ -1,6 +1,6 @@
 package xAODTrigL1CaloAthenaPool
+
 author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
-author Edward Moyse <Edward.Moyse@cern.ch>
 author John Morris <john.morris@cern.ch>
 
 public
@@ -9,6 +9,11 @@ public
 use AtlasPolicy         AtlasPolicy-*
 
 private
+
+# Base package(s):
+#use AthenaKernel        AthenaKernel-*        Control
+#use AthContainers       AthContainers-*       Control
+use AtlasROOT           AtlasROOT-*           External
 
 # POOL package(s):
 use AthenaPoolCnvSvc    AthenaPoolCnvSvc-*    Database/AthenaPOOL
@@ -58,7 +63,9 @@ apply_pattern poolcnv typesWithNamespace="xAOD::JEMHitsContainer \
                                           xAOD::CPMTobRoIContainer \
                                           xAOD::CPMTobRoIAuxContainer \   
                                           xAOD::JEMTobRoIContainer \
-                                          xAOD::JEMTobRoIAuxContainer " \                                            
+                                          xAOD::JEMTobRoIAuxContainer \  
+                                          xAOD::L1TopoRawDataContainer \
+                                          xAOD::L1TopoRawDataAuxContainer " \                                           
                       files="-s=${xAODTrigL1Calo_root}/xAODTrigL1Calo \
                              JEMHitsContainer.h \
                              JEMHitsAuxContainer.h \
@@ -99,5 +106,7 @@ apply_pattern poolcnv typesWithNamespace="xAOD::JEMHitsContainer \
                              CPMTobRoIContainer.h \
                              CPMTobRoIAuxContainer.h \ 
                              JEMTobRoIContainer.h \
-                             JEMTobRoIAuxContainer.h " \                               
+                             JEMTobRoIAuxContainer.h \  
+                             L1TopoRawDataContainer.h \
+                             L1TopoRawDataAuxContainer.h " \                              
                       cnv_pfx="xAOD"
