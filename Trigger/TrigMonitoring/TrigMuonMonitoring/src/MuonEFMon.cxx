@@ -311,12 +311,18 @@ StatusCode HLTMuonMonTool::fillMuonEFDQA()
     for (auto muon : *muonEFcontainer) {
       ATH_MSG_DEBUG( "Muon found, " << muon->pt() );
 
+	// Note:  muonSpectrometerTrackParticle() is not available for EF muons
       const xAOD::Muon::MuonType muontype = muon->muonType();
       if (xAOD::Muon::MuonType::Combined == muontype
-	  || xAOD::Muon::MuonType::MuonStandAlone == muontype) {
+	  || xAOD::Muon::MuonType::MuonStandAlone == muontype 
+	  || muon->extrapolatedMuonSpectrometerTrackParticleLink().isValid()) {
 	float pt         = float(muon->pt()/CLHEP::GeV);
 	//float signed_pt  = float(std::abs(muon->pt())/CLHEP::GeV * ((*muon).charge()))  ;
 	const xAOD::TrackParticle* trk = muon->primaryTrackParticle();
+	if(!trk) {
+		ATH_MSG_WARNING("Could not retrieve linked primary track particle");
+		continue;
+	}
 	float signed_pt  = float(std::abs(muon->pt())/CLHEP::GeV *trk->charge());
 	float eta        = float(muon->eta());
 	float phi        = float(muon->phi());
@@ -348,13 +354,13 @@ StatusCode HLTMuonMonTool::fillMuonEFDQA()
 	}
 
 	// fill corresponding MS muon information
-	if (muon->muonSpectrometerTrackParticleLink() != 0) {
+	if (muon->extrapolatedMuonSpectrometerTrackParticleLink().isValid() ) {
 	  ATH_MSG_DEBUG(  "EF MS muon found" );
 
 	  nMuonEFMS++;
 
 	  const xAOD::TrackParticle* mooreMuon = 0;
-	  mooreMuon = *(muon->muonSpectrometerTrackParticleLink());
+	  mooreMuon = *(muon->extrapolatedMuonSpectrometerTrackParticleLink());
 	  float pt = mooreMuon->pt()/CLHEP::GeV;
 	  float charge = mooreMuon->charge();
 	  float signed_pt  = float(std::abs(muon->pt())/CLHEP::GeV * charge)  ;
@@ -381,7 +387,7 @@ StatusCode HLTMuonMonTool::fillMuonEFDQA()
 
 	}
 
-	if (xAOD::Muon::MuonType::MuonStandAlone == muontype) {
+	if ( xAOD::Muon::MuonType::MuonStandAlone == muontype ) {
 	  nMuonEFSA++;
 
 	  pt_EFSAmuon.push_back(pt);

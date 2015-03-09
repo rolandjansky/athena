@@ -204,26 +204,26 @@ StatusCode HLTMuonMonTool::fillMuIsoDQA()
 
     // match
     float  dRmin    = 100000000.;
-    float  pt_iso  = 0.; 
-    float  eta_iso = 0.; 
-    float  phi_iso = 0.; 
+    // float  pt_iso  = 0.; 
+    // float  eta_iso = 0.; 
+    // float  phi_iso = 0.; 
     float  etcone_iso = 0.; 
     float  ptcone_iso = 0.; 
     for(itIso=vec_isoMuonFeatures.begin(); itIso != vec_isoMuonFeatures.end(); itIso++) {
-      float pt         = (*itIso)->getPtMu();
+      // float pt         = (*itIso)->getPtMu();
       float eta        = (*itIso)->getEtaMu();
       float phi        = (*itIso)->getPhiMu();
       float EtOutEC    = (*itIso)->getEtOuterConeEC();
       float EtOutHC    = (*itIso)->getEtOuterConeHC();
-      int   numTrack   = (*itIso)->getNTracksCone();
+      // int   numTrack   = (*itIso)->getNTracksCone();
       float sumPtTrack = (*itIso)->getSumPtTracksCone();
 	  float PtMu       = (*itIso)->getPtMuTracksCone();
       float dR = calc_dR(eta,phi,eta_offl,phi_offl);
       if( dR < dRmin ) {
 	dRmin   = dR;
-	pt_iso  = pt;
-	eta_iso = eta;
-	phi_iso = phi;
+	// pt_iso  = pt;
+	// eta_iso = eta;
+	// phi_iso = phi;
 	etcone_iso = EtOutEC-EtOutEC + EtOutHC-EtOutHC;
 	ptcone_iso = sumPtTrack-PtMu;
       }

@@ -348,7 +348,7 @@ StatusCode HLTMuonMonTool::fillMuFastDQA()
   for(itMfd=vec_muonFeatures.begin(); itMfd != vec_muonFeatures.end(); itMfd++) {
     bool off_match = false;
     //nmfd++;
-    int id = (*itMfd)->algoId();
+    // int id = (*itMfd)->algoId();
     //if( id != 0 ) continue;//muFast_900GeV   //attention 
     //if( id != 1 ) continue;//muFast_Muon   
     //if( id < 10 ) nmfd10++; 
