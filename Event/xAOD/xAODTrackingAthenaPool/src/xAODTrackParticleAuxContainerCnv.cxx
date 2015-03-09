@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: xAODTrackParticleAuxContainerCnv.cxx 635799 2014-12-12 22:08:09Z ssnyder $
+// $Id: xAODTrackParticleAuxContainerCnv.cxx 635798 2014-12-12 22:08:04Z ssnyder $
 
 // System include(s):
 #include <exception>

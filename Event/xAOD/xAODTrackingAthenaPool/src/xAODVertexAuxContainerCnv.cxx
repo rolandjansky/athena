@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: xAODVertexAuxContainerCnv.cxx 635799 2014-12-12 22:08:09Z ssnyder $
+// $Id: xAODVertexAuxContainerCnv.cxx 652739 2015-03-09 17:09:47Z nstyles $
 
 // System include(s):
 #include <exception>
@@ -34,8 +34,25 @@ xAODVertexAuxContainerCnv::createTransient() {
 
    // Check which version of the container we're reading:
    if( compareClassGuid( v1_guid ) ) {
-      // It's the latest version, read it directly:
-      return poolReadObject< xAOD::VertexAuxContainer >();
+    
+
+     xAOD::VertexAuxContainer_v1* aux = poolReadObject< xAOD::VertexAuxContainer >();
+
+     if( aux->neutralParticleLinks.size() != aux->size() ) {
+       
+       aux->neutralParticleLinks.resize( aux->size() );
+       
+     }
+     
+     if( aux->neutralWeights.size() != aux->size() ) {
+       
+       aux->neutralWeights.resize( aux->size() );
+       
+     }
+
+
+  // It's the latest version, read it directly:
+      return aux;
    }
 
    // If we didn't recognise the ID:
