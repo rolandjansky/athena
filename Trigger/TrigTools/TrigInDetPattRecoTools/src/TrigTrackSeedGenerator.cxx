@@ -73,6 +73,9 @@ void TrigTrackSeedGenerator::loadSpacePoints(const std::vector<TrigSiSpacePointB
     if((*it).r()>m_maxRadius || (*it).r() < m_minRadius) continue;
     int rIdx = ((*it).r()-m_minRadius)/m_radBinWidth;
     int phiIdx = ((*it).phi()+M_PI)/m_phiSliceWidth;
+    if (phiIdx >= m_settings.m_nMaxPhiSlice) {
+      phiIdx %= m_settings.m_nMaxPhiSlice;
+    }
     m_pStore->addSpacePoint(phiIdx, rIdx, &(*it));
   }
   m_pStore->sortSpacePoints();
