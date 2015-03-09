@@ -2,7 +2,7 @@
 
 #########################################################################################################################
 #
-#   Script to configure Powheg WZ subprocess
+#   Script to configure Powheg WW subprocesses
 #
 #   Authors: James Robinson  <james.robinson@cern.ch>
 #            Daniel Hayden   <danhayden0@googlemail.com>
@@ -11,23 +11,19 @@
 #########################################################################################################################
 
 #! /usr/bin/env python
-from PowhegConfig_base import PowhegConfig_base
-import PowhegDecorators
+from ..PowhegConfig_base import PowhegConfig_base
+from ..decorators import PowhegDecorators
 
 ###############################################################################
 #
-#  WZ
+#  WW
 #
 ###############################################################################
-class PowhegConfig_WZ(PowhegConfig_base) :
-  # These are process specific - put generic properties in PowhegConfig_base
-  diagCKM          = 0
-  mllmin           = 10
-
+class PowhegConfig_WW(PowhegConfig_base) :
   # Set process-dependent paths in the constructor
-  def __init__(self,runArgs=None) :
-    super(PowhegConfig_WZ, self).__init__(runArgs)
-    self._powheg_executable += '/WZ/pwhg_main'
+  def __init__( self, runArgs=None, opts=None ) :
+    super(PowhegConfig_WW, self).__init__( runArgs, opts )
+    self._powheg_executable += '/WW/pwhg_main'
 
     # Add decorators
     PowhegDecorators.decorate( self, 'diboson' )
@@ -35,21 +31,15 @@ class PowhegConfig_WZ(PowhegConfig_base) :
     PowhegDecorators.decorate( self, 'v2' )
 
     # Set optimised integration parameters
-    self.ncall1   = 40000 #70000
-    self.ncall2   = 70000
-    self.nubound  = 80000
-    self.itmx1    = 4
-    self.itmx2    = 8
-    self.xupbound = 10
+    self.ncall1  = 40000
+    self.ncall2  = 40000
+    self.nubound = 60000
+    self.itmx1   = 3
 
     # Override defaults
-    self.allowed_decay_modes = [ 'only-e', 'e+ee', 'only-mu', 'only-tau', 'emumu', 'e+mumu', 'e-mumu', 'muee', 'etautau', 'mutautau', 'tauee', 'taumumu', 'lhh', 'hll', 'lll' ]
-    self.decay_mode = 'emumu'
+    self.allowed_decay_modes = [ 'WWevev', 'WWmuvmuv', 'WWtauvtauv', 'WWevmuv', 'WWmuvtauv', 'WWevtauv', 'WWlvlv', 'WWqqqq', 'WWlvqq' ]
+    self.decay_mode = 'WWlvlv'
 
   # Implement base-class function
   def generateRunCard(self) :
     self.initialiseRunCard()
-
-    with open( str(self.TestArea)+'/powheg.input', 'a' ) as f :
-      f.write( 'diagCKM '+str(self.diagCKM)+' ! if 1 (true) then diagonal CKM (default 0)\n' )
-      f.write( 'mllmin '+str(self.mllmin)+'                     ! Minimum invariant mass of lepton pairs from Z decay\n' )

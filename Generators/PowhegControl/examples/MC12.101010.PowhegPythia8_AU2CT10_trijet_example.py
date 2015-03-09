@@ -18,6 +18,6 @@ topAlg.Pythia8.UserModes += [ 'Main31:NFinal = 3' ]
 # EVGEN configuration
 #--------------------------------------------------------------
 evgenConfig.description = 'POWHEG+Pythia8 trijet production with AU2 CT10 tune'
-evgenConfig.keywords    = [ 'QCD', 'trijet', 'jets' ]
+evgenConfig.keywords    = [ 'SM', 'QCD', '3jet', 'jets' ]
 evgenConfig.contact     = [ 'james.robinson@cern.ch' ]
 evgenConfig.generators += [ 'Powheg', 'Pythia8' ]
