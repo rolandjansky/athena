@@ -7,8 +7,7 @@
 #include "LArRawConditions/LArGlobalTimeOffset.h"
 
 FakeLArTimeOffset::FakeLArTimeOffset(const std::string & name, ISvcLocator * pSvcLocator)
-  : AthAlgorithm(name, pSvcLocator),
-    m_globalOffset(0)
+  : AthAlgorithm(name, pSvcLocator)
 {
   declareProperty("FEBids",m_FEBids);
   declareProperty("FEbTimeOffsets",m_FEBtimeOffsets);

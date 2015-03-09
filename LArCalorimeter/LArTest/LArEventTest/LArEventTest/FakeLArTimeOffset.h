@@ -19,7 +19,6 @@ class FakeLArTimeOffset : public AthAlgorithm {
   StatusCode execute();
   StatusCode finalize();
  private:
-  float m_globalOffset;
   std::vector<unsigned> m_FEBids;
   std::vector<float> m_FEBtimeOffsets;
   float m_globalTimeOffset;
