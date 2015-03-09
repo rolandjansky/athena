@@ -123,7 +123,8 @@ svcMgr.EventSelector.FirstEvent = runArgs.firstEvent
 theApp.EvtMax = -1
 if not hasattr(postSeq, "CountHepMC"):
     postSeq += CountHepMC()
-postSeq.CountHepMC.RequestedOutput = evgenConfig.minevents if runArgs.maxEvents == -1 else runArgs.maxEvents
+#postSeq.CountHepMC.RequestedOutput = evgenConfig.minevents if runArgs.maxEvents == -1 else runArgs.maxEvents
+
 postSeq.CountHepMC.FirstEvent = runArgs.firstEvent
 postSeq.CountHepMC.CorrectHepMC = False
 postSeq.CountHepMC.CorrectEventID = True
@@ -146,7 +147,6 @@ if hasattr(runArgs, "rivetAnas"):
     anaSeq += Rivet_i()
     anaSeq.Rivet_i.Analyses = runArgs.rivetAnas
     anaSeq.Rivet_i.DoRootHistos = True
-
 
 ##==============================================================
 ## Pre- and main config parsing
@@ -218,7 +218,6 @@ if joparts[0].startswith("MC") and all(c in string.digits for c in joparts[0][2:
 ## Include the JO fragment
 include(jo)
 
-
 ##==============================================================
 ## Config validation and propagation to services, generators, etc.
 ##==============================================================
@@ -275,6 +274,9 @@ else:
     elif evgenConfig.minevents < 1000 and evgenConfig.minevents not in allowed_minevents_lt1000:
         msg += "minevents in range < 1000 must be one of %s" % allowed_minevents_lt1000
         raise RuntimeError(msg)
+    else:
+        postSeq.CountHepMC.RequestedOutput = evgenConfig.minevents if runArgs.maxEvents == -1 else runArgs.maxEvents
+
 
 ## Check that the keywords are in the list of allowed words (and exit if processing an official JO)
 if evgenConfig.keywords:

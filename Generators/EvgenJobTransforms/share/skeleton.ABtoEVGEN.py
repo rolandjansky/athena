@@ -413,16 +413,6 @@ elif "CompHep" in evgenConfig.generators:
 
 ## Events files
 eventsFile = None
-if "Alpgen" in evgenConfig.generators:
-    eventsFile = "alpgen.unw_events"
-elif "Protos" in evgenConfig.generators: # TODO: converting to LHEF
-    eventsFile = "protos.events"
-elif "BeamHaloGenerator" in evgenConfig.generators:
-    eventsFile = "beamhalogen.events"
-elif "HepMCAscii" in evgenConfig.generators:
-    eventsFile = "events.hepmc"
-elif gens_lhef(evgenConfig.generators):
-    eventsFile = "events.lhe"
 
 ## Helper functions for input file handling
 def find_unique_file(pattern):

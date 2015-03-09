@@ -113,7 +113,7 @@ class EvgenConfig(TransformConfig):
     def __init__(self, name="evgenConfig"):
         TransformConfig.__init__(self, name)
         self.contact = ["MC group"]
-        self.auxfiles = ["PDGTABLE.MeV", "pdt.table", "DECAY.DEC", "Bdecays0.dat", "Bs2Jpsiphi.DEC","G4particle_whitelist.txt"]
+        self.auxfiles = ["PDGTABLE.MeV", "pdt.table", "DECAY.DEC", "Bdecays0.dat", "Bs2Jpsiphi.DEC","G4particle_whitelist.txt","susyParticlePdgid.txt"]
         self.minevents = 5000
         self.maxeventsstrategy = "ABORT"
         self.specialConfig = "NONE"

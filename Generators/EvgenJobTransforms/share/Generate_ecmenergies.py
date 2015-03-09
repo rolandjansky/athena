@@ -4,7 +4,10 @@
 eCM = runArgs.ecmEnergy
 eBeam = runArgs.ecmEnergy*0.5
 
-if 'Pythia' in evgenConfig.generators:
+if runArgs.trfSubstepName == 'afterburn':
+    from PyJobTransforms.trfLogger import msg
+    msg.info("Running in Afterburner mode, beam eCM is not set")
+elif 'Pythia' in evgenConfig.generators:
     genSeq.Pythia.PythiaCommand.append("pyinit win %s" % eCM)
 elif 'PythiaB' in evgenConfig.generators:
     genSeq.PythiaB.PythiaCommand.append("pyinit win %s" % eCM)

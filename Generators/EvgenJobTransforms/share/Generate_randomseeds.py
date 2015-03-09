@@ -50,7 +50,11 @@ seedstrs = []
 for gen in evgenConfig.generators:
     if genseeds.has_key(gen):
         for seedtemplate in genseeds[gen]:
-            seedstr = seedtemplate.format(rnd=runArgs.randomSeed)
+            seed = runArgs.randomSeed
+            if runArgs.trfSubstepName == 'afterburn':
+              seed = seed + 140280
+            
+            seedstr = seedtemplate.format(rnd=seed)
             evgenLog.info("Adding %s random seed config: %s" % (gen, seedstr))
             seedstrs.append(seedstr)
 svcMgr.AtRanluxGenSvc.Seeds = seedstrs

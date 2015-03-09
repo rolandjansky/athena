@@ -182,7 +182,8 @@
       <outfile>${T_PREFIX}-EvgenZeePyJT-${T_RELEASE}.pool.root</outfile>
       <logfile>${T_PREFIX}-EvgenZeePyJT-${T_RELEASE}.log</logfile>
       <signature>
-        --ecmEnergy=8000 --runNumber=147800 --maxEvents=1000 --randomSeed=26740107 --jobConfig=EvgenJobTransforms/test_Pythia8_Zee.py --outputEVNTFile="${T_OUTFILE}"
+        --ecmEnergy=8000 --runNumber=147800 --maxEvents=1000 --randomSeed=26740107 --jobConfig=EvgenJobTransforms/test_MC14_Pythia8_Zee.py 
+--outputEVNTFile="${T_OUTFILE}"
       </signature>
       <copyfiles>
         ${T_OUTFILE} ${T_LOGFILE} PoolFileCatalog.xml metadata.xml jobInfo.xml
@@ -204,7 +205,8 @@
       <outfile>${T_PREFIX}-EvgenWtaunuPyJT-${T_RELEASE}.pool.root</outfile>
       <logfile>${T_PREFIX}-EvgenWtaunuPyJT-${T_RELEASE}.log</logfile>
       <signature>
-        --ecmEnergy=8000 --runNumber=147800 --maxEvents=1000 --randomSeed=26740107 --jobConfig=EvgenJobTransforms/test_Pythia6_Wtaunu.py --outputEVNTFile="${T_OUTFILE}"
+        --ecmEnergy=8000 --runNumber=147800 --maxEvents=1000 --randomSeed=26740107 --jobConfig=EvgenJobTransforms/test_MC14_Pythia6_Wtaunu.py 
+--outputEVNTFile="${T_OUTFILE}"
       </signature>
       <copyfiles>
         ${T_OUTFILE} ${T_LOGFILE} PoolFileCatalog.xml metadata.xml jobInfo.xml

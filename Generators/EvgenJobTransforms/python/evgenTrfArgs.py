@@ -20,19 +20,19 @@ def addStdEvgenArgs(parser):
                         help="the number of the first event in the output data file",
                         type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True))
 
-    parser.add_argument("--randomSeed", "--RandomSeed", "--seed", group="Evgen",
-                        default=trfArgClasses.argInt(12345, runarg=True),
+    parser.add_argument("--randomSeed", "--RandomSeed", "--seed", group="Evgen", nargs="+",
+                        default=trfArgClasses.argSubstepInt("all:12345"),
                         help="a seed for the MC generator random number engines",
-                        type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True))
+                        type=trfArgClasses.argFactory(trfArgClasses.argSubstepInt))
 
     parser.add_argument("--printEvts", group="Evgen",
                         default=trfArgClasses.argInt(5, runarg=True),
                         help="number of full event dumps to print out for debugging",
                         type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True))
 
-    parser.add_argument("--jobConfig", "--JobConfig", "--jo", group="Evgen",
+    parser.add_argument("--jobConfig", "--JobConfig", "--jo", group="Evgen", nargs="+",
                         help="a comma-separated list of job configuration script files",
-                        type=trfArgClasses.argFactory(trfArgClasses.argList, runarg=True))
+                        type=trfArgClasses.argFactory(trfArgClasses.argSubstepList, runarg=True))
 
     # TODO: Add "--eventFile"?
     parser.add_argument("--inputGeneratorFile", "--inputGenEventFile", "--inputGenFile", "--InputGeneratorFile", group="Evgen",
