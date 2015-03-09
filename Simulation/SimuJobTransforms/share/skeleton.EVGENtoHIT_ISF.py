@@ -238,11 +238,14 @@ if hasattr(runArgs, 'truthStrategy'):
     ISF_Flags.BarcodeService   = 'Barcode_' + runArgs.truthStrategy + 'BarcodeSvc'
     ISF_Flags.TruthService     = 'ISF_'     + runArgs.truthStrategy + 'TruthService'
     ISF_Flags.EntryLayerFilter = 'ISF_'     + runArgs.truthStrategy + 'EntryLayerFilter'
+    ISF_Flags.TruthStrategy    = runArgs.truthStrategy
+    simFlags.SimBarcodeOffset  = 1000000 #MC15 setting
 else:
     ISF_Flags.BarcodeService   = 'Barcode_MC12BarcodeSvc'
     ISF_Flags.TruthService     = 'ISF_TruthService'
     ISF_Flags.EntryLayerFilter = 'ISF_MC12EntryLayerFilter'
-
+    ISF_Flags.TruthStrategy    = 'MC12'
+    simFlags.SimBarcodeOffset  = 200000 #MC12 setting
 #### *********** import ISF_Example code here **************** ####
 include("ISF_Config/ISF_ConfigJobInclude.py")
 
