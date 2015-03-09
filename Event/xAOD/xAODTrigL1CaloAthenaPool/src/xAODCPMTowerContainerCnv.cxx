@@ -8,8 +8,38 @@
 // Local include(s):
 #include "xAODCPMTowerContainerCnv.h"
 
+namespace {
+  /// Helper function setting up the container's link to its auxiliary store
+  void setStoreLink( SG::AuxVectorBase* cont, const std::string& key ) {
+    
+    // The link to set up:
+    DataLink< SG::IConstAuxStore > link( key + "Aux." );
+    
+    // Give it to the container:
+    cont->setStore( link );
+
+    return;
+  }   
+} // private namespace
+
+
 xAODCPMTowerContainerCnv::xAODCPMTowerContainerCnv( ISvcLocator* svcLoc )
    : xAODCPMTowerContainerCnvBase( svcLoc ) {
+}
+
+/**
+* This function needs to be re-implemented in order to figure out the StoreGate
+* key of the container that's being created. After that's done, it lets the
+* base class do its normal task.
+*/
+
+StatusCode xAODCPMTowerContainerCnv::createObj( IOpaqueAddress* pAddr, DataObject*& pObj ) {
+
+  // Get the key of the container that we'll be creating:
+  m_key = *( pAddr->par() + 1 );
+
+  // Let the base class do its thing now:
+  return AthenaPoolConverter::createObj( pAddr, pObj );
 }
 
 xAOD::CPMTowerContainer*
@@ -39,7 +69,9 @@ xAOD::CPMTowerContainer* xAODCPMTowerContainerCnv::createTransient() {
 
    // Check if we're reading the most up to date type:
    if( compareClassGuid( v2_guid ) ) {
-      return poolReadObject< xAOD::CPMTowerContainer >();
+     xAOD::CPMTowerContainer* c = poolReadObject< xAOD::CPMTowerContainer >();
+     setStoreLink( c , m_key );
+     return c;
    }
    if( compareClassGuid( v1_guid ) ) {
     throw std::runtime_error( "Version 1 of xAOD::CPMTowerContainer found - bail out for now" );
