@@ -1159,7 +1159,7 @@ int   LArHEC_Base_ID::get_prevInEta(const LArHEC_region* hecRegion, const unsign
       short int nPhiMinus = prevHecRegion->phiN();
       float gPhiMinus= prevHecRegion->phiGranularity();
       unsigned int maxHashMinus = prevHecRegion->hashMax();
-      float phiMargin = 0.5*std::min(gPhi,gPhiMinus);
+      float phiMargin = 0.25*std::min(gPhi,gPhiMinus);
       float rPhi = (index-minHash)*gPhi+hecRegion->phiMin();
       int nPhiMinusFirst = int(floor((rPhi     -prevHecRegion->phiMin())
 				     /gPhiMinus+phiMargin))
@@ -1209,7 +1209,7 @@ int   LArHEC_Base_ID::get_nextInEta(const LArHEC_region* hecRegion, const unsign
       LArHEC_region* nextHecRegion = m_vecOfRegions[nNextEtaRegion];
       float gPhiPlus= nextHecRegion->phiGranularity();
       unsigned int minHashPlus = nextHecRegion->hashMin();
-      float phiMargin = 0.5*std::min(gPhi,gPhiPlus);
+      float phiMargin = 0.25*std::min(gPhi,gPhiPlus);
       float rPhi = (index+nPhi-maxHash)*gPhi+hecRegion->phiMin();
       int nPhiPlusFirst = int(floor((rPhi     -nextHecRegion->phiMin())
 				    /gPhiPlus+phiMargin))+minHashPlus;
@@ -1263,7 +1263,7 @@ int   LArHEC_Base_ID::get_prevInSamp(const LArHEC_region* hecRegion, const unsig
       float maxEtaMinus = prevHecRegion->etaMax();
       // eta granularity of previous region
       float granEtaMinus = prevHecRegion->etaGranularity();
-      float margin = 0.5*std::min(gEta,granEtaMinus);
+      float margin = 0.25*std::min(gEta,granEtaMinus);
       if((minEtaMinus < absEta+gEta-margin) && (absEta+margin < maxEtaMinus)) {
 	
 	// max phi of previous region in sampling
@@ -1271,7 +1271,7 @@ int   LArHEC_Base_ID::get_prevInSamp(const LArHEC_region* hecRegion, const unsig
 	// first hash of previous region in sampling
 	unsigned int minHashMinus = prevHecRegion->hashMin(); 
 	float gPhiMinus = prevHecRegion->phiGranularity();
-	float phiMargin = 0.5*std::min(gPhi,gPhiMinus);
+	float phiMargin = 0.25*std::min(gPhi,gPhiMinus);
 	// phi 'coordinate' in initial region
 	float rPhi = ((index-minHash)%nPhi)*gPhi+hecRegion->phiMin();
 	int nPhiMinusFirst = int(floor((rPhi     -prevHecRegion->phiMin())
@@ -1317,13 +1317,13 @@ int   LArHEC_Base_ID::get_nextInSamp(const LArHEC_region* hecRegion, const unsig
       float granEtaPlus = nextHecRegion->etaGranularity();
       float minEtaPlus = nextHecRegion->etaMin();
       float maxEtaPlus = nextHecRegion->etaMax();
-      float margin = 0.5*std::min(gEta,granEtaPlus);
+      float margin = 0.25*std::min(gEta,granEtaPlus);
       if((minEtaPlus < absEta+gEta-margin) && (absEta+margin < maxEtaPlus)) {
 
 	short int nPhiPlus = nextHecRegion->phiN();
 	unsigned int minHashPlus = nextHecRegion->hashMin(); 
 	float gPhiPlus = nextHecRegion->phiGranularity();
-	float phiMargin = 0.5*std::min(gPhi,gPhiPlus);
+	float phiMargin = 0.25*std::min(gPhi,gPhiPlus);
 	// phi 'coordinate' in initial region
 	float rPhi = ((index-minHash)%nPhi)*gPhi+hecRegion->phiMin();
 	int nPhiPlusFirst = int(floor((rPhi     -nextHecRegion->phiMin())

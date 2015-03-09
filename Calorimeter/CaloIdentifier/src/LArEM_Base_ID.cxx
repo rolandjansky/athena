@@ -1164,7 +1164,7 @@ int   LArEM_Base_ID::get_prevInEta(const LArEM_region* emRegion, const unsigned 
 	short int nPhiMinus = prevEmRegion->phiN();
 	float gPhiMinus= prevEmRegion->phiGranularity();
 	unsigned int maxHashMinus = prevEmRegion->hashMax();
-	float phiMargin = 0.5*std::min(gPhi,gPhiMinus);
+	float phiMargin = 0.25*std::min(gPhi,gPhiMinus);
 	float rPhi = (index-minHash)*gPhi+emRegion->phiMin();
 	int nPhiMinusFirst = int(floor((rPhi     -prevEmRegion->phiMin())
 				       /gPhiMinus+phiMargin))
@@ -1216,7 +1216,7 @@ int   LArEM_Base_ID::get_nextInEta(const LArEM_region* emRegion, const unsigned 
       LArEM_region* nextEmRegion = m_vecOfRegions[nNextEtaRegion];
       float gPhiPlus= nextEmRegion->phiGranularity();
       unsigned int minHashPlus = nextEmRegion->hashMin();
-      float phiMargin = 0.5*std::min(gPhi,gPhiPlus);
+      float phiMargin = 0.25*std::min(gPhi,gPhiPlus);
       float rPhi = (index+nPhi-maxHash)*gPhi+emRegion->phiMin();
       int nPhiPlusFirst = int(floor((rPhi     -nextEmRegion->phiMin())
 				    /gPhiPlus+phiMargin))+minHashPlus;
@@ -1270,7 +1270,7 @@ int   LArEM_Base_ID::get_prevInSamp(const LArEM_region* emRegion, const unsigned
       // starting eta of prev region
       double minEtaMinus =  (double)(prevEmRegion->etaMin());
       double maxEtaMinus =  (double)(prevEmRegion->etaMax());
-      double margin = 0.5*std::min(gEta,gEtaMinus);
+      double margin = 0.25*std::min(gEta,gEtaMinus);
       if((minEtaMinus < absEta+gEta-margin) && (absEta+margin < maxEtaMinus)) {
 	
 	// phi granularity of previous region in sampling
@@ -1279,7 +1279,7 @@ int   LArEM_Base_ID::get_prevInSamp(const LArEM_region* emRegion, const unsigned
 	short int nPhiMinus = prevEmRegion->phiN();
 	// first hash of previous region in sampling
 	unsigned int minHashMinus = prevEmRegion->hashMin(); 
-	float phiMargin = 0.5*std::min(gPhi,gPhiMinus);
+	float phiMargin = 0.25*std::min(gPhi,gPhiMinus);
 	// phi 'coordinate' in initial region
 	float rPhi = ((index-minHash)%nPhi)*gPhi+emRegion->phiMin();
 	int nPhiMinusFirst = int(floor((rPhi     -prevEmRegion->phiMin())
@@ -1332,12 +1332,12 @@ int   LArEM_Base_ID::get_nextInSamp(const LArEM_region* emRegion, const unsigned
       float gPhiPlus= nextEmRegion->phiGranularity();
       double minEtaPlus = (double)(nextEmRegion->etaMin());
       double maxEtaPlus = (double)(nextEmRegion->etaMax());
-      double margin = 0.5*std::min(gEta,gEtaPlus);
+      double margin = 0.25*std::min(gEta,gEtaPlus);
       if((minEtaPlus < absEta+gEta-margin) && (absEta+margin < maxEtaPlus)) {
 	
 	short int nPhiPlus = nextEmRegion->phiN();
 	unsigned int minHashPlus = nextEmRegion->hashMin(); 
-	float phiMargin = 0.5*std::min(gPhi,gPhiPlus);
+	float phiMargin = 0.25*std::min(gPhi,gPhiPlus);
 	// phi 'coordinate' in initial region
 	float rPhi = ((index-minHash)%nPhi)*gPhi+emRegion->phiMin();
 	int nPhiPlusFirst = int(floor((rPhi     -nextEmRegion->phiMin())
@@ -1393,7 +1393,7 @@ int   LArEM_Base_ID::get_prevInSubdet(const LArEM_region* emRegion, const unsign
       // starting eta of prev region
       double minEtaMinus =  (double)(prevEmRegion->etaMin());
       double maxEtaMinus =  (double)(prevEmRegion->etaMax());
-      double margin = 0.5*std::min(gEta,gEtaMinus);
+      double margin = 0.25*std::min(gEta,gEtaMinus);
       if((minEtaMinus < absEta+gEta-margin) && (absEta+margin < maxEtaMinus)) {
 	
 	// phi granularity of previous region in sampling
@@ -1402,7 +1402,7 @@ int   LArEM_Base_ID::get_prevInSubdet(const LArEM_region* emRegion, const unsign
 	short int nPhiMinus = prevEmRegion->phiN();
 	// first hash of previous region in sampling
 	unsigned int minHashMinus = prevEmRegion->hashMin(); 
-	float phiMargin = 0.5*std::min(gPhi,gPhiMinus);
+	float phiMargin = 0.25*std::min(gPhi,gPhiMinus);
 	// phi 'coordinate' in initial region
 	float rPhi = ((index-minHash)%nPhi)*gPhi+emRegion->phiMin();
 	int nPhiMinusFirst = int(floor((rPhi     -prevEmRegion->phiMin())
@@ -1455,12 +1455,12 @@ int   LArEM_Base_ID::get_nextInSubdet(const LArEM_region* emRegion, const unsign
       float gPhiPlus= nextEmRegion->phiGranularity();
       double minEtaPlus = (double)(nextEmRegion->etaMin());
       double maxEtaPlus = (double)(nextEmRegion->etaMax());
-      double margin = 0.5*std::min(gEta,gEtaPlus);
+      double margin = 0.25*std::min(gEta,gEtaPlus);
       if((minEtaPlus < absEta+gEta-margin) && (absEta+margin < maxEtaPlus)) {
 	
 	short int nPhiPlus = nextEmRegion->phiN();
 	unsigned int minHashPlus = nextEmRegion->hashMin(); 
-	float phiMargin = 0.5*std::min(gPhi,gPhiPlus);
+	float phiMargin = 0.25*std::min(gPhi,gPhiPlus);
 	// phi 'coordinate' in initial region
 	float rPhi = ((index-minHash)%nPhi)*gPhi+emRegion->phiMin();
 	int nPhiPlusFirst = int(floor((rPhi     -nextEmRegion->phiMin())

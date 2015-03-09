@@ -48,7 +48,7 @@ D-4:	D-5;		D-3;		BC-8, B-9,  C-10;	none;
 D-5:	D-6;		D-4;		C-10, B-11, B-12, B-13;	none;
 D-6:	none;		D-5;		B-13, B-14, B-15;	none;
 #
-E-1:	B-11;		B-9;		E-2;			C-10;
+E-1:	B-11;		B-9;		A-10, E-2;		C-10;
 E-2:	A-12;		A-10;		E-3;			E-1;
 E-3:	none;		none;		E-4;			E-2;
 E-4:	none;		none;		none;			E-3;
