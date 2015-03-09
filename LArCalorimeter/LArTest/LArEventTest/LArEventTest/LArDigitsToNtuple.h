@@ -17,8 +17,8 @@
 
 */
 
-#ifndef LARDIGITS2NTUPLE_H
-#define LARDIGITS2NTUPLE_H
+#ifndef LARDIGITSTONTUPLE_H
+#define LARDIGITSTONTUPLE_H
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "LArIdentifier/LArOnlineID.h"
 //#include <vector>
@@ -37,11 +37,11 @@
 #include "GaudiKernel/INTupleSvc.h"
 #include "GaudiKernel/NTuple.h"
 
-class LArDigits2Ntuple : public AthAlgorithm
+class LArDigitsToNtuple : public AthAlgorithm
 {
  public:
-  LArDigits2Ntuple(const std::string & name, ISvcLocator * pSvcLocator);
-  ~LArDigits2Ntuple();
+  LArDigitsToNtuple(const std::string & name, ISvcLocator * pSvcLocator);
+  ~LArDigitsToNtuple();
 
   //standard algorithm methods
   StatusCode initialize();
