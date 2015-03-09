@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "LArEventTest/LArDigits2Ntuple.h"
+#include "LArEventTest/LArDigitsToNtuple.h"
 #include "CaloIdentifier/CaloGain.h"
 #include "xAODEventInfo/EventInfo.h"
 
@@ -18,7 +18,7 @@
 #include <fstream>
 
 
-LArDigits2Ntuple::LArDigits2Ntuple(const std::string& name, ISvcLocator* pSvcLocator)
+LArDigitsToNtuple::LArDigitsToNtuple(const std::string& name, ISvcLocator* pSvcLocator)
   : AthAlgorithm(name, pSvcLocator),
     m_onlineHelper(0),
     m_larCablingSvc(0),
@@ -49,10 +49,10 @@ LArDigits2Ntuple::LArDigits2Ntuple(const std::string& name, ISvcLocator* pSvcLoc
   declareProperty("ReadPedestal", m_ped=1);
 }
 
-LArDigits2Ntuple::~LArDigits2Ntuple() 
+LArDigitsToNtuple::~LArDigitsToNtuple() 
 {}
 
-StatusCode LArDigits2Ntuple::initialize()
+StatusCode LArDigitsToNtuple::initialize()
 {
   //Use CaloIdManager to access detector info
   const CaloIdManager *caloIdMgr=CaloIdManager::instance() ;
@@ -118,7 +118,7 @@ StatusCode LArDigits2Ntuple::initialize()
   return StatusCode::SUCCESS;
 }  
 
-StatusCode LArDigits2Ntuple::execute()
+StatusCode LArDigitsToNtuple::execute()
 {
   int eventnumber,triggerword;
   double S1Adc,tdcphase;
@@ -215,7 +215,7 @@ StatusCode LArDigits2Ntuple::execute()
   ATH_MSG_INFO ( "Retrieved LArDigitContainer from StoreGate! key=" << m_contKey );
 
   // Retrieve LArFebHeaderContainer
-  const LArFebHeaderContainer *larFebHeaderContainer;
+  const LArFebHeaderContainer *larFebHeaderContainer=0;
   if(m_sca) {
     ATH_CHECK( evtStore()->retrieve(larFebHeaderContainer) );
   }
@@ -318,8 +318,8 @@ StatusCode LArDigits2Ntuple::execute()
   return StatusCode::SUCCESS;
 }
 
-StatusCode LArDigits2Ntuple::finalize()
+StatusCode LArDigitsToNtuple::finalize()
 {
-  ATH_MSG_INFO ( "LArDigits2Ntuple has finished." );
+  ATH_MSG_INFO ( "LArDigitsToNtuple has finished." );
   return StatusCode::SUCCESS;
 }// end finalize-method.

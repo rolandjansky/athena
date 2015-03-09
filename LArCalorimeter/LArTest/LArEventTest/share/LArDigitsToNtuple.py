@@ -80,16 +80,16 @@ if doTBRec:
   include( "TBRec/H8PhaseRec_jobOptions.py" )
   TBPhaseRec.OutputLevel = INFO
 theApp.Dlls += [ "LArEventTest"]
-theApp.topAlg+=["LArDigits2Ntuple"]
-LArDigits2Ntuple=Algorithm("LArDigits2Ntuple")
-LArDigits2Ntuple.ContainerKey = GainKey
-LArDigits2Ntuple.NSamples=6
-LArDigits2Ntuple.accept=14
-LArDigits2Ntuple.reject=1
-LArDigits2Ntuple.ReadPhase=0
-LArDigits2Ntuple.ReadScint=0
-LArDigits2Ntuple.ReadSCA=0
-LArDigits2Ntuple.ReadPedestal=1
+theApp.topAlg+=["LArDigitsToNtuple"]
+LArDigitsToNtuple=Algorithm("LArDigitsToNtuple")
+LArDigitsToNtuple.ContainerKey = GainKey
+LArDigitsToNtuple.NSamples=6
+LArDigitsToNtuple.accept=14
+LArDigitsToNtuple.reject=1
+LArDigitsToNtuple.ReadPhase=0
+LArDigitsToNtuple.ReadScint=0
+LArDigitsToNtuple.ReadSCA=0
+LArDigitsToNtuple.ReadPedestal=1
 #theApp.TopAlg += ["CheckLArFebHeader"]
 
 include("LArCondCnv/LArCondCnv_TB04_jobOptions.py")
