@@ -47,7 +47,8 @@ class TgcDigitMaker {
  public:
 
   TgcDigitMaker(TgcHitIdHelper*                     hitIdHelper, 
-		const MuonGM::MuonDetectorManager * mdManager);
+		const MuonGM::MuonDetectorManager * mdManager,
+		unsigned int                        runperiod);
 
   virtual ~TgcDigitMaker();
 
@@ -172,6 +173,7 @@ class TgcDigitMaker {
   TgcDigitCollection* m_digits;
   CLHEP::HepRandomEngine* m_engine;
   TgcHitIdHelper* m_hitIdHelper;
+  unsigned int m_runperiod;
   const MuonGM::MuonDetectorManager* m_mdManager;
   const TgcIdHelper* m_idHelper;
   float m_efficiencyOfWireGangs;
