@@ -29,7 +29,7 @@ createPersistent( xAOD::TrigT2ZdcSignalsAuxContainer* trans ) {
 xAOD::TrigT2ZdcSignalsAuxContainer* xAODTrigT2ZdcSignalsAuxContainerCnv::createTransient() {
 
    // The known ID(s) for this container:
-   static const pool::Guid v1_guid( "0055818E-1207-11E4-9C7B-02163E00A892" );
+   static const pool::Guid v1_guid( "83B9F174-5E27-11E4-98C2-02163E00A82" );
 
    // Check which version of the container we're reading:
    if( compareClassGuid( v1_guid ) ) {
