@@ -5,13 +5,11 @@
 #   Script to decorate Powheg runcard with common parameter sets
 #
 #   Authors: James Robinson  <james.robinson@cern.ch>
-#            Daniel Hayden   <danhayden0@googlemail.com>
-#            Stephen Bieniek <stephen.paul.bieniek@cern.ch>
 #
 #########################################################################################################################
 
 #! /usr/bin/env python
-import SMParams
+from .. import ATLASCommonParameters
 
 def decorate( powheg_controller, decorator ) :
   if decorator == 'CKM' :
@@ -58,15 +56,15 @@ class CKMDecorator :
 
   def append_to_run_card( self ) :
     with open( str(self.decorated.TestArea)+'/powheg.input', 'a' ) as f :
-      f.write( 'CKM_Vud '+str(SMParams.CKM_Vud)+' ! CKM element \n' )
-      f.write( 'CKM_Vus '+str(SMParams.CKM_Vus)+' ! CKM element \n' )
-      f.write( 'CKM_Vub '+str(SMParams.CKM_Vub)+' ! CKM element \n' )
-      f.write( 'CKM_Vcd '+str(SMParams.CKM_Vcd)+' ! CKM element \n' )
-      f.write( 'CKM_Vcs '+str(SMParams.CKM_Vcs)+' ! CKM element \n' )
-      f.write( 'CKM_Vcb '+str(SMParams.CKM_Vcb)+' ! CKM element \n' )
-      f.write( 'CKM_Vtd '+str(SMParams.CKM_Vtd)+' ! CKM element \n' )
-      f.write( 'CKM_Vts '+str(SMParams.CKM_Vts)+' ! CKM element \n' )
-      f.write( 'CKM_Vtb '+str(SMParams.CKM_Vtb)+' ! CKM element \n' )
+      f.write( 'CKM_Vud '+str(ATLASCommonParameters.CKM_Vud)+' ! CKM element \n' )
+      f.write( 'CKM_Vus '+str(ATLASCommonParameters.CKM_Vus)+' ! CKM element \n' )
+      f.write( 'CKM_Vub '+str(ATLASCommonParameters.CKM_Vub)+' ! CKM element \n' )
+      f.write( 'CKM_Vcd '+str(ATLASCommonParameters.CKM_Vcd)+' ! CKM element \n' )
+      f.write( 'CKM_Vcs '+str(ATLASCommonParameters.CKM_Vcs)+' ! CKM element \n' )
+      f.write( 'CKM_Vcb '+str(ATLASCommonParameters.CKM_Vcb)+' ! CKM element \n' )
+      f.write( 'CKM_Vtd '+str(ATLASCommonParameters.CKM_Vtd)+' ! CKM element \n' )
+      f.write( 'CKM_Vts '+str(ATLASCommonParameters.CKM_Vts)+' ! CKM element \n' )
+      f.write( 'CKM_Vtb '+str(ATLASCommonParameters.CKM_Vtb)+' ! CKM element \n' )
 
 ###############################################################################
 #
@@ -160,8 +158,8 @@ class HeavyQuarkDecorator :
 
   def append_to_run_card( self ) :
     with open( str(self.decorated.TestArea)+'/powheg.input', 'a' ) as f :
-      f.write( 'bmass_lhe '+str(SMParams.mass_b)+'                        ! \n' )
-      f.write( 'cmass_lhe '+str(SMParams.mass_c)+'                        ! \n' )
+      f.write( 'bmass_lhe '+str(ATLASCommonParameters.mass_b)+' ! \n' )
+      f.write( 'cmass_lhe '+str(ATLASCommonParameters.mass_c)+' ! \n' )
 
 ###############################################################################
 #
@@ -173,15 +171,15 @@ class HiggsDecorator :
     decorated.run_card_decorators.append( self )
     self.decorated = decorated
 
-    self.decorated.hdecaymode      = -1
-    self.decorated.higgsfixedwidth = -1
+    self.decorated.hdecaymode      = 0
+    self.decorated.higgsfixedwidth = 0
 
   def append_to_run_card( self ) :
     with open( str(self.decorated.TestArea)+'/powheg.input', 'a' ) as f :
       f.write( 'hdecaymode '+str(self.decorated.hdecaymode)+'           ! Higgs boson decay (-1:no decay; 0:all; 1-6:dd, uu etc.; 7-9:e+e-, etc.; 10:WW; 11:ZZ; 12:gammagamma)\n' )
       f.write( 'higgsfixedwidth '+str(self.decorated.higgsfixedwidth)+' ! 0 = OS, 1 = MSBAR, 2 = DRBAR. (default 0), If 1 uses standard, fixed width Breit-Wigner, if 0 it uses the running width Breit-Wigner\n' )
-      f.write( 'hmass '+str(SMParams.mass_H)+'                          ! mass of Higgs boson in GeV\n' )
-      f.write( 'hwidth '+str(SMParams.width_H)+'                        ! width of Higgs boson in GeV\n' )
+      f.write( 'hmass '+str(ATLASCommonParameters.mass_H)+'             ! mass of Higgs boson in GeV\n' )
+      f.write( 'hwidth '+str(ATLASCommonParameters.width_H)+'           ! width of Higgs boson in GeV\n' )
 
 ###############################################################################
 #
@@ -219,21 +217,36 @@ class HJDecorator :
     decorated.run_card_decorators.append( self )
     self.decorated = decorated
 
-    self.decorated.bwcutoff    = 15
-    self.decorated.ckkwscalup  = 0
-    self.decorated.factsc2min  = -1
-    self.decorated.frensc2min  = -1
-    self.decorated.minlo_nnll  = 1
-    self.decorated.sudscalevar = 1
+    self.decorated.bmass_in_minlo   = 0
+    self.decorated.bwcutoff         = 15
+    self.decorated.ckkwscalup       = 0
+    self.decorated.factsc2min       = -1
+    self.decorated.frensc2min       = -1
+    self.decorated.hdecaywidth      = 0
+    self.decorated.masswindow       = -1
+    self.decorated.minlo_nnll       = 1
+    self.decorated.nnlo             = -1
+    self.decorated.quarkmasseffects = 1
+    self.decorated.sudscalevar      = 1
 
   def append_to_run_card( self ) :
     with open( str(self.decorated.TestArea)+'/powheg.input', 'a' ) as f :
-      f.write( 'bwcutoff '+str(self.decorated.bwcutoff)+'       ! Mass window is hmass +- bwcutoff*hwidth\n' )
-      f.write( 'ckkwscalup '+str(self.decorated.ckkwscalup)+'   ! (default 0) 0:do not use the CKKW scalup, use the normal Powheg one;  1:compute the scalup scale for subsequent shower using the smallest kt in the final state;\n' )
-      f.write( 'factsc2min '+str(self.decorated.factsc2min)+'   ! at this value the factorization scale is frozen (needed with minlo)\n' )
-      f.write( 'frensc2min '+str(self.decorated.frensc2min)+'   ! at this value the renormalisation scale is frozen (neede with minlo)\n' )
-      f.write( 'minlo_nnll '+str(self.decorated.minlo_nnll)+'   ! \n' )
-      f.write( 'sudscalevar '+str(self.decorated.sudscalevar)+' ! (default 1) scale variation also in Sudakov form factors in minlo\n' )
+      f.write( 'bottommass '+str(ATLASCommonParameters.mass_b)+'          ! bottom quark mass\n' )
+      f.write( 'bmass_in_minlo '+str(self.decorated.bmass_in_minlo)+'     ! (default 0) 1: use non-zero b-mass in MiNLO\n' )
+      f.write( 'bwcutoff '+str(self.decorated.bwcutoff)+'                 ! Mass window is hmass +- bwcutoff*hwidth\n' )
+      f.write( 'charmmass '+str(ATLASCommonParameters.mass_c)+'           ! charm quark mass\n' )
+      f.write( 'ckkwscalup '+str(self.decorated.ckkwscalup)+'             ! 0: do not use the CKKW scalup, use the normal Powheg one (default)\n')
+      f.write( '                                                          ! 1: compute the scalup scale for subsequent shower using the smallest kt in the final state\n' )
+      f.write( 'factsc2min '+str(self.decorated.factsc2min)+'             ! at this value the factorization scale is frozen (needed with minlo)\n' )
+      f.write( 'frensc2min '+str(self.decorated.frensc2min)+'             ! at this value the renormalisation scale is frozen (needed with minlo)\n' )
+      f.write( 'hdecaywidth '+str(self.decorated.hdecaywidth)+'           ! 0: the hwidth value is used\n' )
+      f.write( '                                                          ! 1: read total decay width from HDECAY sm.br2 file\n' )
+      f.write( 'masswindow '+str(self.decorated.masswindow)+'             ! \n' )
+      f.write( 'minlo_nnll '+str(self.decorated.minlo_nnll)+'             ! \n' )
+      f.write( 'nnlo '+str(self.decorated.nnlo)+'                         ! \n' )
+      f.write( 'quarkmasseffects '+str(self.decorated.quarkmasseffects)+' ! \n' )
+      f.write( 'sudscalevar '+str(self.decorated.sudscalevar)+'           ! (default 1) scale variation also in Sudakov form factors in minlo\n' )
+      f.write( 'topmass '+str(ATLASCommonParameters.mass_t)+'             ! top quark mass\n' )
 
 ###############################################################################
 #
@@ -248,21 +261,32 @@ class HVDecorator :
     self.decorated = decorated
 
     self.decorated.bornsuppfactV = -1
+    self.decorated.kappa_ghb     = -1
+    self.decorated.kappa_ght     = -1
+    self.decorated.kappa_ghw     = -1
     self.decorated.ptVhigh       = -1
     self.decorated.ptVlow        = -1
     self.decorated.Vstep         = -1
-
+    self.decorated.use_massive_b = True
     self.decorated.use_massive_t = True
-
+    
   def append_to_run_card( self ) :
+    self.massivebottom = 1 if self.decorated.use_massive_b else -1
     self.massivetop = 1 if self.decorated.use_massive_t else -1
     with open( str(self.decorated.TestArea)+'/powheg.input', 'a' ) as f :
+      f.write( 'bmass '+str(ATLASCommonParameters.mass_b)+'         ! \n' )
       f.write( 'bornsuppfactV '+str(self.decorated.bornsuppfactV)+' ! \n' )
-      f.write( 'doublefst 1                                         ! \n' )
+      f.write( 'bornsuppfactW '+str(self.decorated.bornsuppfactV)+' ! \n' )
+      f.write( 'bornsuppfactZ '+str(self.decorated.bornsuppfactV)+' ! \n' )
+      f.write( 'kappa_ghb '+str(self.decorated.kappa_ghb)+'         ! \n' )
+      f.write( 'kappa_ght '+str(self.decorated.kappa_ght)+'         ! \n' )
+      f.write( 'kappa_ghw '+str(self.decorated.kappa_ghw)+'         ! \n' )
+      f.write( 'massivebottom '+str(self.massivebottom)+'           ! \n' )
       f.write( 'massivetop '+str(self.massivetop)+'                 ! \n' )
       f.write( 'nohad 0                                             ! no hadronization and U.E. in pythia\n' )
       f.write( 'ptVhigh '+str(self.decorated.ptVhigh)+'             ! \n' )
       f.write( 'ptVlow '+str(self.decorated.ptVlow)+'               ! \n' )
+      f.write( 'tmass '+str(ATLASCommonParameters.mass_t)+'         ! \n' )
       f.write( 'Vstep '+str(self.decorated.Vstep)+'                 ! \n' )
 
 ###############################################################################
@@ -292,25 +316,23 @@ class SingleBosonDecorator :
     decorated.run_card_decorators.append( self )
     self.decorated = decorated
 
-    self.decorated.masswindow_low  = -1
-    self.decorated.masswindow_high = -1
     self.decorated.mass_low  = -1
     self.decorated.mass_high = -1
     self.decorated.running_width  = -1
 
   def append_to_run_card( self ) :
     with open( str(self.decorated.TestArea)+'/powheg.input', 'a' ) as f :
-      f.write( 'alphaem '+str(SMParams.alphaem)+'                       ! EM coupling\n' )
-      f.write( 'sthw2 '+str(SMParams.sthw2)+'                           ! sin**2 theta w\n' )
-      f.write( 'Wmass '+str(SMParams.mass_W)+'                          ! W mass in GeV\n' )
-      f.write( 'Wwidth '+str(SMParams.width_W)+'                        ! W width in GeV\n')
-      f.write( 'Zmass '+str(SMParams.mass_Z)+'                          ! Z mass in GeV\n' )
-      f.write( 'Zwidth '+str(SMParams.width_Z)+'                        ! Z width in GeV\n' )
-      f.write( 'masswindow_low '+str(self.decorated.masswindow_low)+'   ! M_V > mass low\n' )
-      f.write( 'masswindow_high '+str(self.decorated.masswindow_high)+' ! M_V < mass high\n' )
-      f.write( 'mass_low '+str(self.decorated.masswindow_low)+'         ! M_V > mass low\n' )
-      f.write( 'mass_high '+str(self.decorated.masswindow_high)+'       ! M_V < mass high\n' )
-      f.write( 'running_width '+str(self.decorated.running_width)+'     ! \n' )
+      f.write( 'alphaem '+str(ATLASCommonParameters.alphaem)+'      ! EM coupling\n' )
+      f.write( 'sthw2 '+str(ATLASCommonParameters.sin2thW_eff)+'    ! sin**2 theta w\n' )
+      f.write( 'Wmass '+str(ATLASCommonParameters.mass_W)+'         ! W mass in GeV\n' )
+      f.write( 'Wwidth '+str(ATLASCommonParameters.width_W)+'       ! W width in GeV\n')
+      f.write( 'Zmass '+str(ATLASCommonParameters.mass_Z)+'         ! Z mass in GeV\n' )
+      f.write( 'Zwidth '+str(ATLASCommonParameters.width_Z)+'       ! Z width in GeV\n' )
+      f.write( 'masswindow_low -1                                   ! disabled: use mass low instead\n' )
+      f.write( 'masswindow_high -1                                  ! disabled: use mass high instead\n' )
+      f.write( 'mass_low '+str(self.decorated.mass_low)+'           ! M_V > mass low\n' )
+      f.write( 'mass_high '+str(self.decorated.mass_high)+'         ! M_V < mass high\n' )
+      f.write( 'running_width '+str(self.decorated.running_width)+' ! \n' )
 
 ###############################################################################
 #
@@ -323,19 +345,18 @@ class TopDecorator :
     self.decorated = decorated
 
     self.decorated.topdecaymode     = 10000
-    self.decorated.tdec_elbranching = SMParams.tdec_elbranching
 
   def append_to_run_card( self ) :
     with open( str(self.decorated.TestArea)+'/powheg.input', 'a' ) as f :
-      f.write( 'topdecaymode '+str(self.decorated.topdecaymode)+'         ! an integer of 5 digits that are either 0, 1 or 2, representing\n' )
-      f.write( '                                                          !   the maximum number of the following particles(antiparticles)\n' )
-      f.write( '                                                          !   in the final state: e mu tau up charm\n' )
-      f.write( 'tdec/elbranching '+str(self.decorated.tdec_elbranching)+' ! W electronic branching fraction\n' )
-      f.write( 'tdec/emass '+str(SMParams.mass_e)+'             ! electron mass\n' )
-      f.write( 'tdec/mumass '+str(SMParams.mass_mu)+'           ! mu mass\n' )
-      f.write( 'tdec/taumass '+str(SMParams.mass_tau)+'         ! tau mass\n' )
-      f.write( 'tdec/wmass '+str(SMParams.mass_W)+'             ! W mass for top decay\n' )
-      f.write( 'tdec/wwidth '+str(SMParams.width_W)+'           ! W width\n' )
+      f.write( 'topdecaymode '+str(self.decorated.topdecaymode)+'           ! an integer of 5 digits that are either 0, 1 or 2, representing\n' )
+      f.write( '                                                            !  the maximum number of the following particles(antiparticles)\n' )
+      f.write( '                                                            !  in the final state: e mu tau up charm\n' )
+      f.write( 'tdec/elbranching '+str(ATLASCommonParameters.W_lepton_BR)+' ! W electronic branching fraction\n' )
+      f.write( 'tdec/emass '+str(ATLASCommonParameters.mass_e)+'            ! electron mass\n' )
+      f.write( 'tdec/mumass '+str(ATLASCommonParameters.mass_mu)+'          ! mu mass\n' )
+      f.write( 'tdec/taumass '+str(ATLASCommonParameters.mass_tau)+'        ! tau mass\n' )
+      f.write( 'tdec/wmass '+str(ATLASCommonParameters.mass_W)+'            ! W mass for top decay\n' )
+      f.write( 'tdec/wwidth '+str(ATLASCommonParameters.width_W)+'          ! W width\n' )
 
 ###############################################################################
 #
@@ -346,44 +367,60 @@ class V2Decorator :
   def __init__( self, decorated ) :
     decorated.run_card_decorators.append( self )
     self.decorated = decorated
+    self.decorated._powheg_version_type = 2
 
-    self.decorated.itmx1rm       = -1
-    self.decorated.itmx2rm       = -1
-    self.decorated.minlo         = -1
-    self.decorated.ncall1rm      = -1
-    self.decorated.ncall2rm      = -1
-    self.decorated.olddij        = -1
-    self.decorated.parallelstage = -1
-    self.decorated.stage2init    = -1
+    self.decorated.btildeborn     = -1
+    self.decorated.btildevirt     = -1
+    self.decorated.btildecoll     = -1
+    self.decorated.btildereal     = -1
+    self.decorated.doublefsr      = -1
+    self.decorated.evenmaxrat     = -1
+    self.decorated.fastbtlbound   = 1
+    self.decorated.fixedgrid      = -1 
+    self.decorated.itmx1rm        = -1
+    self.decorated.itmx2rm        = -1
+    self.decorated.minlo          = -1
+    self.decorated.ncall1rm       = -1
+    self.decorated.ncall2rm       = -1
+    self.decorated.novirtual      = -1
+    self.decorated.olddij         = -1
+    self.decorated.parallelstage  = -1
+    self.decorated.stage2init     = -1
+    self.decorated.storemintupb   = 1
+    self.decorated.xgriditeration = -1
 
-    self.decorated.doublefsr     = 1
-    self.decorated.evenmaxrat    = -1
-    self.decorated.fastbtlbound  = 1
-    self.decorated.storemintupb  = 1
 
   def append_to_run_card( self ) :
     with open( str(self.decorated.TestArea)+'/powheg.input', 'a' ) as f :
       # Specialisation of baseclass PDF switch
       if self.decorated.PDF_info_type == 1 :
-        f.write( 'storeinfo_rwgt 1                                  ! enable new-style PDF information: nominal\n' )
-        f.write( 'compute_rwgt 0                                    ! enable new-style PDF information: nominal\n' )
+        f.write( 'storeinfo_rwgt 1                                    ! enable new-style PDF information: nominal\n' )
+        f.write( 'compute_rwgt 0                                      ! enable new-style PDF information: nominal\n' )
       elif self.decorated.PDF_info_type == 2 :
-        f.write( 'storeinfo_rwgt 0                                  ! enable new-style PDF information: reweight to new PDF\n' )
-        f.write( 'compute_rwgt 1                                    ! enable new-style PDF information: reweight to new PDF\n' )
-      f.write( 'doublefsr '+str(self.decorated.doublefsr)+'         ! fix problem with spikes in final observables, see arXiv:1303.3922\n' )
-      f.write( 'evenmaxrat '+str(self.decorated.evenmaxrat)+'       ! \n')
-      # factsc2min 2       ! at this value the factorization scale is frozen (neede with minlo)
-      f.write( 'fastbtlbound '+str(self.decorated.fastbtlbound)+'   ! (default 0) if 1 use fast btilde bound\n')
-      f.write( 'itmx1rm '+str(self.decorated.itmx1rm)+'             ! \n')
-      f.write( 'itmx2rm '+str(self.decorated.itmx2rm)+'             ! \n')
-      f.write( 'LOevents -1                                         ! with LOevents==1 bornonly must be set equal to 1\n' )
-      f.write( 'minlo '+str(self.decorated.minlo)+'                 ! (default 0) set to 1 to use minlo\n' )
-      f.write( 'ncall1rm '+str(self.decorated.ncall1rm)+'           ! \n')
-      f.write( 'ncall2rm '+str(self.decorated.ncall2rm)+'           ! \n')
-      f.write( 'olddij '+str(self.decorated.olddij)+'               ! \n')
-      f.write( 'parallelstage '+str(self.decorated.parallelstage)+' ! \n')
-      f.write( 'stage2init '+str(self.decorated.stage2init)+'       ! \n')
-      f.write( 'storemintupb '+str(self.decorated.storemintupb)+'   ! \n')
+        f.write( 'storeinfo_rwgt 0                                    ! enable new-style PDF information: reweight to new PDF\n' )
+        f.write( 'compute_rwgt 1                                      ! enable new-style PDF information: reweight to new PDF\n' )
+      f.write( 'btildeborn '+str(self.decorated.btildeborn)+'         ! \n' )
+      f.write( 'btildevirt '+str(self.decorated.btildevirt)+'         ! \n' )
+      f.write( 'btildecoll '+str(self.decorated.btildecoll)+'         ! \n' )
+      f.write( 'btildereal '+str(self.decorated.btildereal)+'         ! \n' )
+      f.write( 'doublefsr '+str(self.decorated.doublefsr)+'           ! fix problem with spikes in final observables, see arXiv:1303.3922\n' )
+      f.write( 'evenmaxrat '+str(self.decorated.evenmaxrat)+'         ! \n')
+      f.write( 'fastbtlbound '+str(self.decorated.fastbtlbound)+'     ! (default 0) if 1 use fast btilde bound\n')
+      f.write( 'fixedgrid '+str(self.decorated.fixedgrid)+'           ! \n' )
+      f.write( 'itmx1rm '+str(self.decorated.itmx1rm)+'               ! \n')
+      f.write( 'itmx2rm '+str(self.decorated.itmx2rm)+'               ! \n')
+      f.write( 'LOevents -1                                           ! with LOevents==1 bornonly must be set equal to 1\n' )
+      f.write( 'minlo '+str(self.decorated.minlo)+'                   ! (default 0) set to 1 to use minlo\n' )
+      f.write( 'ncall1rm '+str(self.decorated.ncall1rm)+'             ! \n')
+      f.write( 'ncall2rm '+str(self.decorated.ncall2rm)+'             ! \n')
+      f.write( 'ncallfrominput -1                                     ! \n')
+      f.write( 'noevents -1                                           ! \n' )
+      f.write( 'novirtual '+str(self.decorated.novirtual)+'           ! \n' )
+      f.write( 'olddij '+str(self.decorated.olddij)+'                 ! \n')
+      f.write( 'parallelstage '+str(self.decorated.parallelstage)+'   ! 1...4, which stage to perform in parallel\n')
+      f.write( 'stage2init '+str(self.decorated.stage2init)+'         ! \n')
+      f.write( 'storemintupb '+str(self.decorated.storemintupb)+'     ! \n')
+      f.write( 'xgriditeration '+str(self.decorated.xgriditeration)+' ! iteration level for the calculation of the importance sampling grid (only relevant for parallelstage=1\n')
 
 ###############################################################################
 #

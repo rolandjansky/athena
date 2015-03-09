@@ -1,9 +1,9 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 #--------------------------------------------------------------
-# Powheg HWJ setup starting from ATLAS defaults
+# Powheg HJJ setup starting from ATLAS defaults
 #--------------------------------------------------------------
-include('PowhegControl/PowhegControl_HWJ_Common.py')
+include('PowhegControl/PowhegControl_HJJ_Common.py')
 PowhegConfig.generateRunCard()
 PowhegConfig.generateEvents()
 
@@ -17,7 +17,7 @@ topAlg.Pythia8.UserModes += [ 'Main31:NFinal = 3' ]
 #--------------------------------------------------------------
 # EVGEN configuration
 #--------------------------------------------------------------
-evgenConfig.description = 'POWHEG+Pythia8 H+W+jet production with AU2 CT10 tune'
-evgenConfig.keywords    = [ 'Higgs', 'W', 'jet' ]
+evgenConfig.description = 'POWHEG+Pythia8 H+dijet production with AU2 CT10 tune'
+evgenConfig.keywords    = [ 'Higgs', 'dijet' ]
 evgenConfig.contact     = [ 'james.robinson@cern.ch' ]
 evgenConfig.generators += [ 'Powheg', 'Pythia8' ]
