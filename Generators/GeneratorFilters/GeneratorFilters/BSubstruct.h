@@ -80,7 +80,7 @@ private:
   double m_drMatch;
 
   // The minimum delta R between two b-jets
-  double m_drMin;
+  //double m_drMin;
 
   // Do we store histograms
   bool m_doHistos;
