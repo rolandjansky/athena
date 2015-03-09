@@ -719,88 +719,90 @@ StatusCode TrigDecisionChecker::checkBjetEDM(std::string trigItem){
 
   ATH_MSG_INFO("Chain passed = " << m_trigDec->isPassed(trigItem));
 
+  // Get feature container
   Trig::FeatureContainer fc = m_trigDec->features(trigItem);
 
-  // tracks
-  const std::vector< Trig::Feature<xAOD::TrackParticleContainer> > vec_trkcont = fc.get<xAOD::TrackParticleContainer>();
-  ATH_MSG_INFO("Size of vector< Trig::Feature<xAOD::TrackParticleContainer> > = " << vec_trkcont.size());
-  for( auto trkcont : vec_trkcont ) {
-    ATH_MSG_INFO("REGTEST Got track container, size = " << trkcont.cptr()->size());
-  }// loop over track features
-  
-  // vertexes
-  // TrigT2Histo
-  const std::vector< Trig::Feature<xAOD::VertexContainer> > vec_pvcont1 = fc.get<xAOD::VertexContainer>("EFHistoPrmVtx");
-  ATH_MSG_INFO("Size of EFHistoPrmVtx vector< Trig::Feature<xAOD::VertexContainer> > = " << vec_pvcont1.size());
-  for( auto pvcont1 : vec_pvcont1 ) {
-    if(pvcont1.cptr()->size())
-      ATH_MSG_INFO("REGTEST Got EFHistoPrmVtx vertex container, size/x/y/z = " << pvcont1.cptr()->size()
-		   << "/" << pvcont1.cptr()->front()->x() << "/" << pvcont1.cptr()->front()->y() << "/" << pvcont1.cptr()->front()->z());
-    else
-      ATH_MSG_INFO("REGTEST Got EFHistoPrmVtx vertex container, size = " << pvcont1.cptr()->size());
-  }// loop over primary vertex features
-  // EFID
-  const std::vector< Trig::Feature<xAOD::VertexContainer> > vec_pvcont2 = fc.get<xAOD::VertexContainer>("xPrimVx");
-  ATH_MSG_INFO("Size of xPrimVx vector< Trig::Feature<xAOD::VertexContainer> > = " << vec_pvcont2.size());
-  for( auto pvcont2 : vec_pvcont2 ) {
-    if(pvcont2.cptr()->size())
-      ATH_MSG_INFO("REGTEST Got xPrimVx vertex container, size/x/y/z = " << pvcont2.cptr()->size()
-		   << "/" << pvcont2.cptr()->front()->x() << "/" << pvcont2.cptr()->front()->y() << "/" << pvcont2.cptr()->front()->z());
-    else
-      ATH_MSG_INFO("REGTEST Got xPrimVx vertex container, size = " << pvcont2.cptr()->size());
-  }// loop over primary vertex features
-  // SV
-  const std::vector< Trig::Feature<xAOD::VertexContainer> > vec_pvcont3 = fc.get<xAOD::VertexContainer>("SecondaryVertex");
-  ATH_MSG_INFO("Size of SecondaryVertex vector< Trig::Feature<xAOD::VertexContainer> > = " << vec_pvcont3.size());
-  for( auto pvcont3 : vec_pvcont3 ) {
-    if(pvcont3.cptr()->size())
-      ATH_MSG_INFO("REGTEST Got SecondaryVertex vertex container, size/x/y/z = " << pvcont3.cptr()->size()
-		   << "/" << pvcont3.cptr()->front()->x() << "/" << pvcont3.cptr()->front()->y() << "/" << pvcont3.cptr()->front()->z());
-    else
-      ATH_MSG_INFO("REGTEST Got SecondaryVertex vertex container, size = " << pvcont3.cptr()->size());
-  }// loop over secondary vertex features
+  // Get online combinations
+  const std::vector< Trig::Combination >& bjetCombs = fc.getCombinations();
+  ATH_MSG_INFO("REGTEST - RETRIEVED " << bjetCombs.size() << " COMBINATIONS FOR "  << trigItem);
 
-  
-  // btag vertexes
-  const std::vector< Trig::Feature<xAOD::BTagVertexContainer> > vec_bvcont = fc.get<xAOD::BTagVertexContainer>();
-  ATH_MSG_INFO("Size of vector< Trig::Feature<xAOD::BTagVertexContainer> > = " << vec_bvcont.size());
-  for( auto bvcont : vec_bvcont ) {
-    if(bvcont.cptr()->size())
-      ATH_MSG_INFO("REGTEST Got vertex container, size = " << bvcont.cptr()->size());
-    else
-      ATH_MSG_INFO("REGTEST Got vertex container, size = " << bvcont.cptr()->size());
-  }// loop over btag vertex features
-  
-  // jets
-  const std::vector< Trig::Feature<xAOD::JetContainer> > vec_jetcont = fc.get<xAOD::JetContainer>();
-  ATH_MSG_INFO("Size of vector< Trig::Feature<xAOD::JetContainer> > = " << vec_jetcont.size());
-  for( auto jetcont : vec_jetcont ) {
-    ATH_MSG_INFO("REGTEST Got jet container, size = " << jetcont.cptr()->size());
-    for(unsigned int i=0; i<jetcont.cptr()->size(); i++) {
-      ATH_MSG_INFO("REGTEST Got jet with eta/phi = " << (*(jetcont.cptr()))[i]->eta() << "/" << (*(jetcont.cptr()))[i]->phi());
-    }
-  }// loop over jet features
+  // Loop on combinations
+  std::vector< Trig::Combination >::const_iterator bjetComb;
+  for( bjetComb = bjetCombs.begin(); bjetComb != bjetCombs.end(); ++bjetComb ) {
 
-  // bjets
-  const std::vector< Trig::Feature<xAOD::BTaggingContainer> > vec_btagcont = fc.get<xAOD::BTaggingContainer>();
-  ATH_MSG_INFO("Size of vector< Trig::Feature<xAOD::BTaggingContainer> > = " << vec_btagcont.size());
-  for( auto btagcont : vec_btagcont ) {
-    ATH_MSG_INFO("REGTEST Got btag container, size = " << btagcont.cptr()->size());
-    for(unsigned int i=0; i<btagcont.cptr()->size(); i++) {
-      ATH_MSG_INFO("REGTEST Got btag with IP3D/SV1 P(u) = " << (*(btagcont.cptr()))[i]->IP3D_pu() << "/" << (*(btagcont.cptr()))[i]->SV1_pu());
-      ATH_MSG_INFO("REGTEST Got btag with IP3D/SV1 P(b) = " << (*(btagcont.cptr()))[i]->IP3D_pb() << "/" << (*(btagcont.cptr()))[i]->SV1_pb());
-    }
-  }// loop over bjet features
+    const Trig::Combination& comb = *bjetComb;
+    ATH_MSG_INFO("REGTEST - ------------ NEW COMBINATION ------------");
 
-  // bjets
-  const std::vector< Trig::Feature<TrigEFBjetContainer> > vec_bjetcont = fc.get<TrigEFBjetContainer>();
-  ATH_MSG_INFO("Size of vector< Trig::Feature<TrigEFBjetContainer> > = " << vec_bjetcont.size());
-  for( auto bjetcont : vec_bjetcont ) {
-    ATH_MSG_INFO("REGTEST Got bjet container, size = " << bjetcont.cptr()->size());
-    for(unsigned int i=0; i<bjetcont.cptr()->size(); i++) {
-      ATH_MSG_INFO("REGTEST Got bjet with IP3D/SV/COMB weights = " << (*(bjetcont.cptr()))[i]->xIP3D() << "/" << (*(bjetcont.cptr()))[i]->xSV() << "/" << (*(bjetcont.cptr()))[i]->xComb());
+    // Get online pv - histo
+    const std::vector< Trig::Feature<xAOD::VertexContainer> > onlinepvs_histo = comb.get<xAOD::VertexContainer>("EFHistoPrmVtx");
+    ATH_MSG_INFO("REGTEST - RETRIEVED PV (HISTO) -   size: " << onlinepvs_histo.size());
+    if(onlinepvs_histo.size()) {
+      const xAOD::VertexContainer* onlinepv_histo = onlinepvs_histo[0].cptr();
+      ATH_MSG_INFO("REGTEST -                  -   nVert: " << onlinepv_histo->size());
+      if(onlinepv_histo->size()) {
+	ATH_MSG_INFO("REGTEST -                  -   z[0]: " << (*(onlinepv_histo))[0]->z());
+      }
     }
-  }// loop over bjet features
+
+    // Get online pv - id tracking
+    const std::vector< Trig::Feature<xAOD::VertexContainer> > onlinepvs_id = comb.get<xAOD::VertexContainer>("xPrimVx");
+    ATH_MSG_INFO("REGTEST - RETRIEVED PV (IDTRK) -   size: " << onlinepvs_id.size());
+    if(onlinepvs_id.size()) {
+      const xAOD::VertexContainer* onlinepv_id = onlinepvs_id[0].cptr();
+      ATH_MSG_INFO("REGTEST -                  -   nVert: " << onlinepv_id->size());
+      if(onlinepv_id->size()) {
+	ATH_MSG_INFO("REGTEST -                  -   z[0]: " << (*(onlinepv_id))[0]->z());
+      }
+    }
+
+    // Get online jet
+    const std::vector< Trig::Feature<xAOD::JetContainer> > onlinejets = comb.get<xAOD::JetContainer>();
+    ATH_MSG_INFO("REGTEST - RETRIEVED JETS   -   size: " << onlinejets.size());
+    if(onlinejets.size()) {
+      const xAOD::JetContainer* onlinejet = onlinejets[0].cptr();
+      ATH_MSG_INFO("REGTEST -                  -   nJet: " << onlinejet->size());
+      for(const auto* jet : *onlinejet) {
+	// Dump
+	ATH_MSG_INFO("REGTEST -                  -   eta/phi: " << jet->eta() << " / " << jet->phi());
+      }
+    }
+
+    // Get online track particles
+    const std::vector< Trig::Feature<xAOD::TrackParticleContainer> > onlinetracks = comb.get<xAOD::TrackParticleContainer>();
+    ATH_MSG_INFO("REGTEST - RETRIEVED TRACKS -   size: " << onlinetracks.size());
+    if(onlinetracks.size()) {
+      const xAOD::TrackParticleContainer* onlinetrack = onlinetracks[0].cptr();
+      ATH_MSG_INFO("REGTEST -                  -   nTrack: " << onlinetrack->size());
+      for(const auto* trk : *onlinetrack) {
+	// Dump
+	uint8_t nInn=0, nNext=0, nPix=0, nSCT=0;
+	trk->summaryValue(nInn,  xAOD::numberOfInnermostPixelLayerHits);
+	trk->summaryValue(nNext, xAOD::numberOfNextToInnermostPixelLayerHits);
+	trk->summaryValue(nPix,  xAOD::numberOfPixelHits);
+	trk->summaryValue(nSCT,  xAOD::numberOfSCTHits);
+	ATH_MSG_INFO("REGTEST -                  -   inn/next/pix/sct: " << (int)nInn << " / " << (int)nNext << " / " << (int)nPix << " / " << (int)nSCT);
+      }
+    }
+
+    // Get online bjet
+    const std::vector< Trig::Feature<xAOD::BTaggingContainer> > onlinebjets = comb.get<xAOD::BTaggingContainer>();
+    ATH_MSG_INFO("REGTEST - RETRIEVED BJETS  -   size: " << onlinebjets.size());
+    if(onlinebjets.size()) {
+      const xAOD::BTaggingContainer* onlinebjet = onlinebjets[0].cptr();
+      ATH_MSG_INFO("REGTEST -                  -   nBjet: " << onlinebjet->size());
+      for(const auto* bjet : *onlinebjet) {
+	// Dump
+	double wIP2D, wIP3D, wSV1, wCOMB, wMV1;
+	bjet->loglikelihoodratio("IP2D", wIP2D);
+	bjet->loglikelihoodratio("IP3D", wIP3D);
+	bjet->loglikelihoodratio("SV1", wSV1);
+	wCOMB = wIP3D+wSV1;
+	wMV1 = bjet->MV1_discriminant();
+	ATH_MSG_INFO("REGTEST -                  -   IP2D/IP3D/SV1/IP3D+SV1/MV1: " << wIP2D << " / " << wIP3D << " / " << wSV1 << " / " << wCOMB << " / " << wMV1);
+      }
+    }
+
+  }
 
   msg(MSG::INFO) << "REGTEST ==========END of bjet EDM/Navigation check for chain " << trigItem << " ===========" << endreq;
 
