@@ -9,7 +9,7 @@ include( "ByteStreamCnvSvc/BSEventStorageEventSelector_jobOptions.py" )
 svcMgr.ByteStreamInputSvc.FullFileName = [ "/afs/cern.ch/atlas/maxidisk/d108/cranshaw/nightlies/extractedEvents.data" ]
 
 from AthenaMP.AthenaMPFlags import jobproperties as jps
-jps.AthenaMPFlags.UseSharedReader=True
+jps.AthenaMPFlags.Strategy='SharedReader'
 
 #from AthenaCommon.AppMgr import theApp
 #theApp.EvtMax = 3 

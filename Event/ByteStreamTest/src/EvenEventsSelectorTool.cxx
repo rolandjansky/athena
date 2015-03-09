@@ -20,7 +20,7 @@ EvenEventsSelectorTool::~EvenEventsSelectorTool() {
 }
 
 //__________________________________________________________________________
-StatusCode EvenEventsSelectorTool::postNext() const {
+StatusCode EvenEventsSelectorTool::postNext() {
    ATH_MSG_INFO("EvenEventsSelectorTool::postNext");
    StatusCode retc = StatusCode::SUCCESS;
    const DataHandle<AthenaAttributeList> attrList;
@@ -49,7 +49,7 @@ StatusCode EvenEventsSelectorTool::postNext() const {
    return retc;
 }
 //__________________________________________________________________________
-StatusCode EvenEventsSelectorTool::preNext() const {
+StatusCode EvenEventsSelectorTool::preNext() {
    return(StatusCode::SUCCESS);
 }
 //__________________________________________________________________________
