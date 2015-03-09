@@ -11,33 +11,45 @@
 #########################################################################################################################
 
 #! /usr/bin/env python
+
+# Particle masses
 mass_e           = 0.00051
 mass_mu          = 0.1057
 mass_tau         = 1.777
-mass_d           = 0.320
-mass_u           = 0.320
+mass_d           = 0.32
+mass_u           = 0.32
 mass_s           = 0.5
 mass_c           = 1.55
 mass_b           = 4.95
+mass_g           = 0.75
 mass_t           = 172.5
 mass_W           = 80.399
 mass_Z           = 91.1876
 mass_H           = 125
-width_t          = 1.3200
+
+# Particle widths
+width_t          = 1.32
 width_W          = 2.085
 width_Z          = 2.4952
 width_H          = 0.00407
-sthw2            = 0.23113
-alphaem          = 0.00781653
-sin2cabibbo      = 0.051
+
+# Branching ratios
+W_lepton_BR      = 0.1082
+W_hadron_BR      = 0.338
+
+# CKM matrix
 CKM_Vud          = 0.97428
 CKM_Vus          = 0.2253
 CKM_Vub          = 0.00347
 CKM_Vcd          = 0.2252
 CKM_Vcs          = 0.97345
-CKM_Vcb          = 0.0410
+CKM_Vcb          = 0.041
 CKM_Vtd          = 0.00862
 CKM_Vts          = 0.0403
 CKM_Vtb          = 0.999152
+
+# Others
+sin2thW_eff      = 0.23113
+alphaem          = 1.0/127.934 #0.00781653
+sin2cabibbo      = 0.051
 G_F              = 0.00001166397
-tdec_elbranching = 0.1082
