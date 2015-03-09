@@ -33,12 +33,14 @@
 
 //----- Constructor
 TgcDigitMaker::TgcDigitMaker(TgcHitIdHelper*                    hitIdHelper,
-			     const MuonGM::MuonDetectorManager* mdManager)
+			     const MuonGM::MuonDetectorManager* mdManager,
+			     unsigned int                       runperiod)
 {
   m_digits                  = 0;
   m_engine                  = 0;
   m_hitIdHelper             = hitIdHelper;
   m_mdManager               = mdManager;
+  m_runperiod               = runperiod;
   m_idHelper                = 0;
   m_efficiencyOfWireGangs   = 1.000; // 100% efficiency for TGCSimHit_p1
   m_efficiencyOfStrips      = 1.000; // 100% efficiency for TGCSimHit_p1
@@ -803,8 +805,15 @@ void TgcDigitMaker::readFileOfDeadChamber() {
     }
   }
 
-  // Find path to the TGC_Digitization_deadChamber.dat file 
-  const std::string fileName = "TGC_Digitization_deadChamber.dat";
+  // Find path to the TGC_Digitization_deadChamber.dat file
+  std::string fileName;
+  if(m_runperiod == 1) fileName = "TGC_Digitization_deadChamber.dat";
+  else if(m_runperiod == 2) fileName = "TGC_Digitization_NOdeadChamber.dat";
+  else {
+    msg(MSG::ERROR) << "Run Period " << m_runperiod << " is unexpected in TgcDigitMaker - using NOdeadChamber configuration." << endreq;
+    fileName = "TGC_Digitization_NOdeadChamber.dat";
+    return;
+  }
   std::string fileWithPath = PathResolver::find_file(fileName.c_str(), "DATAPATH");
   if(fileWithPath == "") {
     msg(MSG::FATAL) << "readFileOfDeadChamber(): Could not find file " << fileName.c_str() << endreq;

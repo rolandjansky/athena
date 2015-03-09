@@ -4,6 +4,8 @@
 
 #include "TGC_Digitization/TgcDigitizationTool.h"
 
+#include "AthenaKernel/errorcheck.h"
+
 // Other includes
 #include "Identifier/Identifier.h"
 #include "GeneratorObjects/HepMcParticleLink.h"
@@ -22,6 +24,12 @@
 //#include "GaudiKernel/IToolSvc.h"
 
 #include "PileUpTools/PileUpMergeSvc.h"
+
+//run number from geometry DB
+#include "GeoModelInterfaces/IGeoModelSvc.h"
+#include "RDBAccessSvc/IRDBAccessSvc.h"
+#include "RDBAccessSvc/IRDBRecordset.h"
+#include "RDBAccessSvc/IRDBRecord.h"
 
 TgcDigitizationTool::TgcDigitizationTool(const std::string& type, 
 					 const std::string& name,
@@ -87,9 +95,34 @@ StatusCode TgcDigitizationTool::initialize()
     ATH_MSG_INFO("Output digits: '" << m_outputDigitCollectionName << "'");
   }
   
+  const IGeoModelSvc* geoModel = nullptr;
+  CHECK( service("GeoModelSvc", geoModel) );
+  std::string atlasVersion = geoModel->atlasVersion();
+
+  IRDBAccessSvc* rdbAccess = nullptr;
+  CHECK( service("RDBAccessSvc",rdbAccess) );
+  if(!rdbAccess->connect()) {
+    ATH_MSG_ERROR("Unable to connect to the Geometry DB");
+    return StatusCode::FAILURE;
+  }
+
+  IRDBRecordset_ptr atlasCommonRec = rdbAccess->getRecordsetPtr("AtlasCommon",atlasVersion,"ATLAS");
+  unsigned int runperiod = 1;
+  if(atlasCommonRec->size()==0) runperiod = 1;
+  else {
+    std::string configVal = (*atlasCommonRec)[0]->getString("CONFIG");
+    if(configVal=="RUN1") runperiod = 1;
+    else if(configVal=="RUN2") runperiod = 2;
+    else {
+      ATH_MSG_FATAL("Unexpected value for geometry config read from the database: " << configVal);  
+      return StatusCode::FAILURE;
+    }
+  }
+
   // initialize class to execute digitization 
   m_digitizer = new TgcDigitMaker(m_hitIdHelper, 
-				  m_mdManager);
+				  m_mdManager,
+				  runperiod);
   m_digitizer->setMessageLevel(static_cast<MSG::Level>(outputLevel()));
   if(!m_rndmSvc.retrieve().isSuccess()) {
     ATH_MSG_FATAL(" Could not initialize Random Number Service");
