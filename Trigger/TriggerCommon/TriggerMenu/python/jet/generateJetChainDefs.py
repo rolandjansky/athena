@@ -18,72 +18,28 @@ from TriggerMenu.menu.MenuUtils import *
 
 from  __builtin__ import any as b_any
 
-##########################################################################################
-##########################################################################################
+#############################################################################
+#############################################################################
 
 def generateChainDefs(chainDict):
+    """Delegate the creation of ChainDef instnaces to JetDEf,
+    then add in  the top information."""
     
-    cP = chainDict['chainParts']
-    
-    listOfChainDicts = splitChainDict(chainDict)
-    listOfChainDefs = []
+    theChainDef = generateHLTChainDef(chainDict)
 
-    allTrigTypes = []
+    listOfChainDicts = splitChainDict(chainDict)
+
     topoAlgs = []
     for subCD in listOfChainDicts:  
-        allTrigTypes.append(subCD['chainParts']['trigType'])
         allTopoAlgs = subCD['chainParts']['topo']
         for ta in allTopoAlgs:
             topoAlgs.append(ta)
-
-
-    htchain = False
-    if ('ht' in allTrigTypes): htchain = True
-
-
-    # ATTENTION: This assumes chains of type jXX_htYY but not jXX_jYY_htZZ
-    # In the latter case, the chainDict would have to be split seperately
-
-    if type(cP) == list:
-        trigtype = cP[0]['trigType']
-    else:
-        trigtype = cP['trigType']       
-	
-    if ('ht' in trigtype):
-        HTchains = L2EFChain_HT(chainDict)
-        theChainDef = HTchains.generateHLTChainDef()        
-    else:           
-        theChainDef = generateHLTChainDef(chainDict)
-
-    # if htchain:
-    #     for subChainDict in listOfChainDicts:
-    #         if ('ht' in subChainDict['chainParts']['trigType']):
-    #             HTchain = L2EFChain_HT(subChainDict)
-    #             listOfChainDefs += [HTchain.generateHLTChainDef()]    
-    #         if ('j' in subChainDict['chainParts']['trigType']):
-    #             listOfChainDefs += [generateHLTChainDef(subChainDict)] 
-
-    #     if len(listOfChainDefs)>2:
-    #         logJet.error('Chains of type jXX_jYY_htZZ not implemented yet!! Can only handle chains like jXX_htYY.')
-    #     elif len(listOfChainDefs)>1:
-    #         theChainDef = mergeChainDefs(listOfChainDefs)
-    #     else:
-    #         theChainDef = listOfChainDefs[0]
-    # else:
-    #     theChainDef = generateHLTChainDef(chainDict)
-
 
     if ('muvtx' in topoAlgs) or \
             ('llp' in topoAlgs) or \
             (b_any(('invm' or 'deta') in x for x in topoAlgs)):
         logJet.info("Adding topo to jet chain")
         theChainDef = _addTopoInfo(theChainDef, chainDict, topoAlgs)
-
-    #if ('muvtx' in chainDict["topo"]) or \
-    #        ('llp' in chainDict["topo"]) or \
-    #        (b_any(('invm' or 'deta') in x for x in chainDict["topo"])):
-    #    logJet.info("Adding topo to jet chain")
-    #    theChainDef = _addTopoInfo(theChainDef, chainDict)
 
     return theChainDef
 
@@ -137,9 +93,9 @@ def generateHVchain(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoAlgs):
     hypos_l2_MuonCluster = MuonClusterHypoConfig()
     hypos_l2_MuonCluster_ExtendedEta = MuonClusterAllMSHypoConfig()
      
-    TEmuonIsoB = HLTChainName+'_muonIsoB'
-    TEmuonClusterFex = HLTChainName+'_MuonClusterFex'
-    TEmuonClusterHypo = HLTChainName+'_MuonClusterHypo'
+    TEmuonIsoB = HLTChainName+'_muIsoB'
+    TEmuonClusterFex = HLTChainName+'_muClusFex'
+    TEmuonClusterHypo = HLTChainName+'_muClusHypo'
 
     # adding muonIso sequence
     theChainDef.addSequence([fexes_l2_SiTrackFinder_muonIsoB],l1item, TEmuonIsoB)
@@ -172,7 +128,7 @@ def generateLLPchain(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoAlgs):
     from TrigLongLivedParticlesHypo.TrigLongLivedParticlesHypoConfig import TrigLoFRemovalHypoConfig
     hypo_LoF = TrigLoFRemovalHypoConfig()
 
-    TE_TrackMuonIsoB = HLTChainName+'_TrackMuonIsoB'
+    TE_TrackMuonIsoB = HLTChainName+'_TrkMuIsoB'
     TE_LogRatioCut = HLTChainName+'_LogRatioCut'
     TE_BeamHaloRemoval = HLTChainName+'_BeamHaloRemoval'
 
@@ -194,19 +150,19 @@ def generateLLPchain(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoAlgs):
 ##########################################################################################
 def addDetaInvmTopo(theChainDef,chainDicts,inputTEsL2, inputTEsEF,topoAlgs):
         
-    algoName = "EFJetMassDEta"
+    algoName = "jet"
     for topo_item in topoAlgs:
         algoName = algoName+"_"+topo_item
         if 'deta' in topo_item:
             detaCut=float(topo_item.split('deta')[1]) 
         else:
-            logJet.info("No deta threshold in topo definition, using default deta=99.")
+            logJet.debug("No deta threshold in topo definition, using default deta=99.")
             detaCut = 99.
 
         if 'invm' in topo_item:
             invmCut=float(topo_item.split('invm')[1]) 
         else:
-            logJet.info("No invm threshold in topo definition, using default invm = 0.")
+            logJet.debug("No invm threshold in topo definition, using default invm = 0.")
             invmCut = 0.
 
     from TrigJetHypo.TrigEFJetMassDEtaConfig import EFJetMassDEta

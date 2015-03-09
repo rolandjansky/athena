@@ -3,7 +3,32 @@
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 from AthenaCommon.Logging        import logging
 
+
 log = logging.getLogger('TriggerMenu.menu.MenuUtil.py')
+
+
+def getStreamTagForRerunChains(triggerPythonConfig, HLTPrescale):
+    list=[]
+    for item, prescales in HLTPrescale.iteritems():
+        # prescales is a list of 3 integers [HLT_prescale, HLT_pass_through, rerun_prescale]
+        if item not in triggerPythonConfig.allChains.keys():
+            log.debug('Signature %s not registered to TriggerPythonConfig' % item)
+            continue
+        n = len(prescales)
+        hltchain = None
+        for ch in triggerPythonConfig.allChains[item]:
+            if ch.level == 'HLT': hltchain = ch
+            if n > 3  and hltchain:
+                if hltchain.prescale != "1":
+                    log.warning("chain "+ hltchain.chain_name + " in rerun mode with special strema tag is prescaled out ")
+                if hltchain.rerun_prescale !=  "1":
+                    log.error("chain "+ hltchain.chain_name + " has special stream tag but it's not in rerun mode")
+                list.append( "%s:%s" %(str(hltchain.chain_name),str(prescales[3])) )
+            
+
+    return list
+
+                
 
 
 def applyHLTPrescale(triggerPythonConfig, HLTPrescale):
@@ -22,7 +47,7 @@ def applyHLTPrescale(triggerPythonConfig, HLTPrescale):
             hltchain.pass_through = str(prescales[1])
         if n > 2  and hltchain:
             hltchain.rerun_prescale = str(prescales[2])
-
+       
         log.info('Applied HLTPS to the item '+item+': PS'+ hltchain.prescale+" PT"+hltchain.pass_through+" RerunPS"+hltchain.rerun_prescale)
         
 def checkTriggerGroupAssignment(triggerPythonConfig):

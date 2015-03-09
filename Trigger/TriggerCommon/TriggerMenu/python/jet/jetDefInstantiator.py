@@ -34,19 +34,18 @@ from TrigHLTJetRec.TrigHLTJetRecConfig import (TrigHLTJetDiagnostics_named,
                                                TrigHLTCellDiagnostics_named,
                                                TrigHLTHypoDiagnostics_named,
                                                TrigHLTJetRec_param,
-                                               # TrigHLTJetDebug,
+                                               TrigHLTJetDebug,
                                                TrigHLTEnergyDensity,
                                                TrigHLTJetDSSelector,)
 
 from TrigJetHypo.TrigJetHypoConfig import (EFJetHypo,
-                                           # EFCentJetHypo,
                                            EFCentFullScanMultiJetHypo,
-                                           # EFFwdJetHypo,
                                            EFJetHypoNoiseConfig,
                                            EFFwdJetHypo_doBasicCleaning,
                                            EFJetHypoNoiseConfig,
-                                           EFJetHypo_doBasicCleaning)
+                                           EFJetHypo_doBasicCleaning,)
 
+from TrigJetHypo.TrigEFHTHypoConfig import EFHT
 # from TrigT2CaloJet.TrigT2CaloJetConfig import T2L1Unpacking_TT
 
 from TrigDetCalib.TrigDetCalibConf import ScoutingStreamWriter

@@ -220,6 +220,12 @@ class L2EFChain_g(L2EFChainDef):
                                  [theTrigEgammaFex, theEFPhotonHypo],
                                  'EF_g_step3']]
 
+        if 'larpeb' in self.chainPart['addInfo']:
+            from TrigDetCalib.TrigDetCalibConfig import LArEFROBListWriter
+            self.EFsequenceList += [[['EF_g_step3'], 
+                                     [ LArEFROBListWriter('LArEFROBListWriter_' + self.chainName, addCTPResult = True, addL2Result = True, addEFResult = True) ],
+                                     'EF_g_step4']]
+            
         ########### Signatures ###########
 
         self.L2signatureList += [ [['L2_g_step1']*self.mult] ]
@@ -227,6 +233,9 @@ class L2EFChain_g(L2EFChainDef):
         self.EFsignatureList += [ [['EF_g_step1']*self.mult] ]
         self.EFsignatureList += [ [['EF_g_step2']*self.mult] ]
         self.EFsignatureList += [ [['EF_g_step3']*self.mult] ]
+        
+        if 'larpeb' in self.chainPart['addInfo']:
+            self.EFsignatureList += [ [['EF_g_step4']*self.mult] ]
 
         ########### TE renaming ###########
 
@@ -237,6 +246,10 @@ class L2EFChain_g(L2EFChainDef):
             'EF_g_step2': mergeRemovingOverlap('EF_', self.chainPartNameNoMult+'_calocalib'),
             'EF_g_step3': mergeRemovingOverlap('EF_', self.chainPartNameNoMult),
             }
+
+        if 'larpeb' in self.chainPart['addInfo']:
+            self.TErenamingDict ['EF_g_step4']=  mergeRemovingOverlap('EF_', self.chainPartNameNoMult+'_larpeb')
+
 
     def setup_gXX_ID_heavyIon(self):
         threshold = self.chainPart['threshold']

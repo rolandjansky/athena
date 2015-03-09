@@ -310,20 +310,20 @@ def myBjetConfig1(theChainDef, chainDict, inputTEsEF,numberOfSubChainDicts=1):
 
     #------- 2012 EF Sequences based on j35 intput TE-------
     # TE naming
-    ef2 ='HLT_BjetSeed'
-    ef3 ='HLT_BjetSeed_EtCut%sGeV' % btagthresh
+    ef2 ='HLT_Bj'
+    ef3 ='HLT_Bj_EtCut%s' % btagthresh
     if ('EFID' in chainParts['bTracking']):
-        ef4 ='HLT_BjetSeed_EtCut%sGeV_EFID'  % btagthresh
-        ef5 ='HLT_BjetSeed_EtCut%sGeV_AllTEPrmVtx_EFID'  % btagthresh
-        ef6 ='HLT_BjetSeed_EtCut%sGeV_ComboPrmVtx_EFID'  % btagthresh
+        ef4 ='HLT_Bj_EtCut%s_EFID'  % btagthresh
+        ef5 ='HLT_Bj_EtCut%s_AllTEPrmVtx_EFID'  % btagthresh
+        ef6 ='HLT_Bj_EtCut%s_ComboPrmVtx_EFID'  % btagthresh
     else:
-        ef4 ='HLT_BjetSeed_EtCut%sGeV_IDTrig'  % btagthresh
-        ef5 ='HLT_BjetSeed_EtCut%sGeV_AllTEPrmVtx_IDTrig'  % btagthresh
-        ef6 ='HLT_BjetSeed_EtCut%sGeV_ComboPrmVtx_IDTrig'  % btagthresh
+        ef4 ='HLT_Bj_EtCut%s_IDTrig'  % btagthresh
+        ef5 ='HLT_Bj_EtCut%s_AllTEPrmVtx_IDTrig'  % btagthresh
+        ef6 ='HLT_Bj_EtCut%s_ComboPrmVtx_IDTrig'  % btagthresh
     if (btagmult == '1'):
-        ef7 = 'EF_b%s_%s_%s_VxSecondaryAndBTagHypo' % (btagthresh, btagcut, chainParts['chainPartName'].replace("_"+chainParts['bTracking'],""), )
+        ef7 = 'EF_b%s_%s_%s_SecVxBhypo' % (btagthresh, btagcut, chainParts['chainPartName'].replace("_"+chainParts['bTracking'],""), )
     else:
-        ef7 = 'EF_%sb%s_%s_%s_VxSecondaryAndBTagHypo' % (btagmult, btagthresh, btagcut, chainParts['chainPartName'].replace("_"+chainParts['bTracking'],""))
+        ef7 = 'EF_%sb%s_%s_%s_SecVxBhypo' % (btagmult, btagthresh, btagcut, chainParts['chainPartName'].replace("_"+chainParts['bTracking'],""))
 
     theChainDef.addSequence([ef_bjetSequence], inputTEsEF, ef2)
     theChainDef.addSequence(ef_ethypo_startseq, ef2, ef3)
@@ -332,7 +332,7 @@ def myBjetConfig1(theChainDef, chainDict, inputTEsEF,numberOfSubChainDicts=1):
     theChainDef.addSequence([EFHistoPrmVtxCombo_Jet()], [ef4, ef5], ef6)
     #theChainDef.addSequence([ef_EtHypo_Btagging], ef6, ef7) 
     theChainDef.addSequence([ef_VxSecondary_EF,ef_EtHypo_Btagging], ef6, ef7) 
-    lastTEout = "EF_bjet_"+chainParts['chainPartName'] if numberOfSubChainDicts>1 else EFChainName
+    lastTEout = "EF_bj_"+chainParts['chainPartName'] if numberOfSubChainDicts>1 else EFChainName
     theChainDef.addSequence([ef_bjet, ef_hypo], ef7, lastTEout)
 
     theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [lastTEout]*int(btagmult))

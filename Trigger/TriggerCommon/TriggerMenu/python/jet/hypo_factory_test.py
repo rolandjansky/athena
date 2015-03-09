@@ -5,8 +5,8 @@ import unittest
 from mock import MagicMock
 from hypo_factory import (hypo_factory,
                           HypoAlg,
-                          TriggerTowerHypoAlg,
-                          JetRecHypoAlg)
+                          JetRecHypoAlg,
+                          HTHypoAlg)
 
 class Test_hypo_factory(unittest.TestCase):
 
@@ -23,17 +23,24 @@ class Test_hypo_factory(unittest.TestCase):
             'isCaloFullScan': True,
             'triggertower': False}
 
+                
+        self.ht_hypo_args = {
+            'chain_name': 'chain_name',
+            'eta_str': '',   # '' for now
+            'ht_threshold': 250}
+
     def test_0(self):
         """test factory function"""
 
-        hypo = hypo_factory(self.hypo_args)
+        hypo = hypo_factory('standard', self.hypo_args)
         self.assertTrue(hypo.__class__.__name__ == 'JetRecHypoAlg')
 
     def test_1(self):
         """test HypoAlg construction"""
 
-        hypo = HypoAlg(self.hypo_args)
-        self.assertTrue(hypo.__class__.__name__ == 'HypoAlg')
+        hypo = hypo_factory('standard', self.hypo_args)
+
+        self.assertTrue(hypo.__class__.__name__ == 'JetRecHypoAlg')
         str(hypo)  # exercise string method
         self.assertTrue(hypo.eta_range() == '0eta320')
         
@@ -43,19 +50,19 @@ class Test_hypo_factory(unittest.TestCase):
         """test HypoAlg construction, bad arguments"""
 
         del self.hypo_args['chain_name']
-        self.assertRaises(RuntimeError, HypoAlg, self.hypo_args)
+        self.assertRaises(RuntimeError, JetRecHypoAlg, self.hypo_args)
 
     def test_3(self):
         """test HypoAlg construction, bad arguments"""
 
         self.hypo_args['jet_attributes'] = []
-        self.assertRaises(RuntimeError, HypoAlg, self.hypo_args)
+        self.assertRaises(RuntimeError, JetRecHypoAlg, self.hypo_args)
 
     def test_4(self):
         """test HypoAlg construction, bad arguments"""
 
         self.hypo_args['jet_attributes'][0].threshold = 50.1
-        self.assertRaises(RuntimeError, HypoAlg, self.hypo_args)
+        self.assertRaises(RuntimeError, JetRecHypoAlg, self.hypo_args)
 
     def test_6(self):
         """test HypoAlg construction, > 1 region"""
@@ -65,13 +72,13 @@ class Test_hypo_factory(unittest.TestCase):
         jet_attribute.region = '320eta500'
 
         self.hypo_args['jet_attributes'].append(jet_attribute)
-        self.assertRaises(RuntimeError, HypoAlg, self.hypo_args)
+        self.assertRaises(RuntimeError, JetRecHypoAlg, self.hypo_args)
 
     def test_8(self):
-        """test TriggerTowerHypoAlg construction"""
+        """test  construction HTHypoAlg"""
 
-        hypo = TriggerTowerHypoAlg(self.hypo_args)
-        self.assertTrue(hypo.__class__.__name__ == 'TriggerTowerHypoAlg')
+        hypo = HTHypoAlg(self.ht_hypo_args)
+        self.assertTrue(hypo.__class__.__name__ == 'HTHypoAlg')
         
     def test_9(self):
         """test JetRecHypoAlg construction"""

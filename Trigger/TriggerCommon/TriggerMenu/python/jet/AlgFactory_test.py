@@ -34,6 +34,7 @@ class TestAlgFactory(unittest.TestCase):
         jet_attribute.eta_min = 0.
         menu_data.hypo_params = MagicMock()
         menu_data.hypo_params.jet_attributes = [jet_attribute]
+        menu_data.hypo_params.eta_range = '0eta320'
         
         menu_data.scantype = 'FS'
         chain_config = MagicMock()

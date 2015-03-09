@@ -4,35 +4,35 @@ from collections import defaultdict
 from Sequence import Sequence
 
 def _update_if_diagnostic_sequence(sequence):
-        # diagnostic sequences monitor sequences. Ensure diagnostic
-        # Algorithm names are labled by the sequence they are monitoring.
-        # The 'chain_name attribute' - a misnomer, it is realy part
-        # of the histogram file name is also set here.
-        # This is the earliest this information is known
+    # diagnostic sequences monitor sequences. Ensure diagnostic
+    # Algorithm names are labled by the sequence they are monitoring.
+    # The 'chain_name attribute' - a misnomer, it is realy part
+    # of the histogram file name is also set here.
+    # This is the earliest this information is known
 
-        if 'jetfex_diagnostics' not in sequence.alias:
-            return
+    if 'jetfex_diagnostics' not in sequence.alias:
+        return
         
-        for a in sequence.alg_list:
+    for a in sequence.alg_list:
 
-            def select(k):
-                if k.startswith('name'):
-                    return True
-                if k.startswith('chain_name'):
-                    return True
-                return false
+        def select(k):
+            if k.startswith('name'):
+                return True
+            if k.startswith('chain_name'):
+                return True
+            return False
             
-            new_kargs = [k for k in a.kargs if not select(k)]
-            to_modify = [k for k in a.kargs if select(k)]
+        new_kargs = [k for k in a.kargs if not select(k)]
+        to_modify = [k for k in a.kargs if select(k)]
 
-            def modify(k):
-                t  = k.split('=')
-                return  '%s="%s%s"' % (t[0],
-                                       t[1][1:-1],
-                                       sequence.te_in)
-            new_kargs.extend([modify(k) for k in to_modify])
-            a.kargs = new_kargs
-            
+        def modify(k):
+            t  = k.split('=')
+            return  '%s="%s%s"' % (t[0],
+                                   t[1][1:-1],
+                                   sequence.te_in)
+        new_kargs.extend([modify(k) for k in to_modify])
+        a.kargs = new_kargs
+
 
 class SequenceTree(object):
     """create a list of sequeneces interconnected to for a directed
@@ -66,7 +66,9 @@ class SequenceTree(object):
         # the sequence state (alg parameters).Both are needed to
         # specify what the sequence calculates.
         if te_in:
-            te_out = te_in + '__' + alglist.alias
+            # te_out = te_in + '__' + alglist.alias
+            hash_in = ('%s' % hash(te_in)).replace('-', '_')
+            te_out = '%s_%s' % (hash_in, alglist.alias)
         else:
             te_out = alglist.alias
 

@@ -7,6 +7,7 @@ def defineMenu():
     """
     
     import Menu_MC_pp_v5
+    from TriggerMenu.l1.Lvl1Flags import Lvl1Flags
 
     Menu_MC_pp_v5.defineMenu()
 
@@ -14,37 +15,29 @@ def defineMenu():
     # L1menu in MCppV5 is basis 
     # BeamSplashes: adapt some thresholds and items
     #---------------------------------
-    from TriggerMenu.l1.Lvl1Flags import Lvl1Flags
     #LVL1Flags.CustomThresholdMap = {}
     Lvl1Flags.ThresholdMap = {
-        'EM10'      : 'EM3HI',
-        'EM13VH'     : 'EM20A',
-        'EM22VHI'   : 'EM20C',
+        'EM7'       : 'EM3HI',
+        'EM8VH'     : 'EM7',
+        'EM8I'      : 'EM8VH',
+        'EM10'      : 'EM8I',
+        'EM10VH'    : 'EM10VH',
+        'EM12'      : 'EM12',
+        'EM13VH'    : 'EM15',        
+        'EM15'      : 'EM15VH',
+        'EM15VH'    : 'EM15I',
+        'EM15I'     : 'EM15HI',
+        'EM15HI'    : 'EM18VH',
+        'EM18VH'    : 'EM20A',
+        'EM20VH'    : 'EM20C',
+        'EM20VHI'   : 'EM20VH',
+        'EM22VHI'   : 'EM20VHI',
+
+
         'J75'       : 'J75A',    
-        'J120'      : 'J75C',
-        
-        # 'EM3'       : 'EM3',
-        # 'EM7'       : 'EM3HI',
-        # 'EM8VH'     : 'EM7',
-        # 'EM8I'      : 'EM8VH',
-        # 'EM10VH'    : 'EM10VH',
-        # 'EM12'      : 'EM12',
-        # 'EM15'      : 'EM15VH',
-        # 'EM15VH'    : 'EM15I',
-        # 'EM15I'     : 'EM15HI',
-        # 'EM15HI'    : 'EM18VH',
-        # 'EM18VH'    : 'EM20A',
-        # 'EM20VH'    : 'EM20C',
-        # 'EM20VHI'   : 'EM20VH',
-
-        # 'EM10'      : 'EM8I',
-        # 'EM22VHI'   :'EM20VHI',
-        # 'E13VH'     : 'EM15',
-
-        # 'J75'       : 'J75A',    
-        # 'J85'       : 'J75C',
-        # 'J100'      : 'J85',         
-        # 'J120'      : 'J100',         
+        'J85'       : 'J75C',
+        'J100'      : 'J85',         
+        'J120'      : 'J100',         
 
         'HT190-AJ15all.ETA20': 'HT200-AJ20s5.ETA49',
         'HT190-J15s5.ETA20': 'HT190-AJ20s5.ETA49',
@@ -65,7 +58,7 @@ def defineMenu():
         '05RATIO-XE0-HT0-AJj15all.ETA49': '',
         '08RATIO-XE0-HT0-AJj15all.ETA49': '',
         '90RATIO2-XE0-HT0-AJj15all.ETA49': '',
-        '250RATIO2-XE0-HT0-AJj0all.ETA49': '',
+        '250RATIO2-XE0-HT0-AJj15all.ETA49': '',
         'HT20-AJj15all.ETA49': '',
         'NOT-02MATCH-EM10s1-AJj15all.ETA49': '',
         '05RATIO-XE0-SUM0-EM10s1-HT0-AJj15all.ETA49': '',
@@ -95,20 +88,12 @@ def defineMenu():
         '0DR04-MU6ab-CJ25ab': '',
         '0DR04-MU4ab-CJ17ab': '',
         '0DR04-MU4ab-CJ20ab': '',
-        '2DR15-2MU4ab': '',
-        '2DR15-2MU6ab': '',
         '2INVM999-CMU4ab-MU4ab': '',
         '2INVM999-2CMU4ab': '',
-        '2INVM999-MU6ab-MU4ab': '',
         '2INVM999-ONEBARREL-MU6ab-MU4ab': '',
         '2INVM999-CMU6ab-CMU4ab': '',
-        '2INVM999-2MU4ab': '',
-        '2INVM999-2MU6ab': '',
         '4INVM8-CMU4ab-MU4ab': '',
         '4INVM8-2CMU4ab': '',
-        '4INVM8-2MU4ab': '',
-        '4INVM8-2MU6ab': '',
-        '4INVM8-MU6ab-MU4ab': '',
         '4INVM8-ONEBARREL-MU6ab-MU4ab': '',
         '4INVM8-CMU6ab-CMU4ab': '',
         'MULT-CMU4ab-0':'',
@@ -116,11 +101,6 @@ def defineMenu():
         'MULT-CMU6ab-0':'',
         'MULT-CMU6ab-1':'',
         
-        '2DR99-2MU4ab': '',
-        '5DETA99-5DPHI99-2MU4ab': '',
-        '5DETA99-5DPHI99-MU6ab-MU4ab': '',
-        '5DETA99-5DPHI99-2MU6ab': '',
-        '0DR10-MU10ab-MU6ab': '',
         '0DETA04-0DPHI03-EM8abi-MU10ab': '',
         '0DETA04-0DPHI03-EM15abi-MUab': '',
         '10MINDPHI-Js2-XE50': '',
@@ -141,7 +121,6 @@ def defineMenu():
         '0MATCH-4AJ20.ETA32-4AJj15': '',
         '210RATIO-0MATCH-TAU30si2-EMall': '',
         'NOT-0MATCH-TAU30si2-EMall': '',
-        '0DR28-MU10ab-TAU12abi': '',
         '1DISAMB-TAU12abi-J25ab': '',
         'DISAMB-EM15abhi-TAU40ab': '',
         '1DISAMB-TAU20ab-J20ab': '',
@@ -149,16 +128,34 @@ def defineMenu():
         '1DISAMB-EM15his2-TAU12abi-J25ab': '',
         '1DISAMB-J25ab-0DR28-EM15his2-TAU12abi': '',
         '1DISAMB-TAU20abi-TAU12abi-J25ab': '',
-        '0DR28-TAU20abi-TAU12abi': '',
         '0DETA20-0DPHI20-TAU20abi-TAU12abi': '',
         '1DISAMB-J25ab-0DR28-TAU20abi-TAU12abi': '',
         'LAR-EM50s1': '',
         'LAR-J100s1': '',
         '2DR15-CMU4ab-MU4ab': '',
         '2DR15-2CMU4ab': '',
-        '2DR15-MU6ab-MU4ab': '',
         '2DR15-ONEBARREL-MU6ab-MU4ab': '',
         '2DR15-CMU6ab-CMU4ab': '',
+
+        #M9 thresholds
+        #'2DR99-2MU4ab': '',
+        #'0DR10-MU10ab-MU6ab': '',
+        #'2DR15-MU6ab-MU4ab': '',
+        #'2DR15-2MU4ab': '',
+        #'2DR15-2MU6ab': '',
+        #'2INVM999-2MU4ab': '',
+        #'2INVM999-2MU6ab': '',
+        #'2INVM999-MU6ab-MU4ab': '',
+        #'4INVM8-2MU4ab': '',
+        #'4INVM8-2MU6ab': '',
+        #'4INVM8-MU6ab-MU4ab': '',
+        #'5DETA99-5DPHI99-2MU4ab': '',
+        #'5DETA99-5DPHI99-MU6ab-MU4ab': '',
+        #'5DETA99-5DPHI99-2MU6ab': '',
+        #'0DR28-MU10ab-TAU12abi': '',
+        #'0DR28-TAU20abi-TAU12abi': '',
+
+
         }
 
     Lvl1Flags.ItemMap = {
@@ -209,51 +206,26 @@ def defineMenu():
         'L1_EM10_W-MT25_W-15DPHI-JXE-0_W-15DPHI-EMXE_XS30': '',
         'L1_EM15_W-MT35_W-05DPHI-JXE-0_W-05DPHI-EMXE_W-250RO2-XEHT-0': '',
         'L1_EM15_W-MT35_W-05DPHI-JXE-0_W-15DPHI-EMXE_XS60': '',
-        #'L1_W-10DPHI-JXE-0': '',
-        #'L1_W-20DPHI-JXE-1': '',
-        #'L1_W-20DPHI-JXE-0': '',
-        #'L1_W-10DPHI-EMXE-0': '',
-        #'L1_W-20DPHI-EMXE-1': '',
-        #'L1_W-20DPHI-EMXE-0': '',
-        #'L1_W-05RO-XEHT-0': '',
-        #'L1_W-08RO-XEHT-1': '',
-        #'L1_W-40RO2-XEHT-0': '',
-        #'L1_W-90RO2-XEHT-1': '',
-        #'L1_W-HT20-JJ0.ETA49': '',
-        #'L1_W-NOMATCH': '',
-        #'L1_W-NOMATCH_W-05RO-XEEMHT': '',
-        #'L1_EM3_W-MT20': '',
-        #'L1_EM3_W-MT30': '',
-        #'L1_EM3_W-MT40': '',
-        'L1_BPH-DR-2MU4': '',
-        'L1_BPH-2M-2MU4': '',
-        'L1_BPH-4M8-2MU4': '',
         'L1_BPH-DR-2MU4_BPH-2M-2MU4': '',
         'L1_BPH-DR-2MU4_BPH-4M8-2MU4': '',
-        'L1_BPH-DR-2MU6': '',
-        'L1_BPH-2M-2MU6': '',
-        'L1_BPH-4M8-2MU6': '',
         'L1_BPH-DR-2MU6_BPH-2M-2MU6': '',
         'L1_BPH-DR-2MU6_BPH-4M8-2MU6': '',
         'L1_BPH-2M-2MU4-B': '',
         'L1_BPH-2M-2MU4-BO': '',
-        'L1_BPH-2M-MU6MU4': '',
         'L1_BPH-2M-MU6MU4-B': '',
         'L1_BPH-2M-MU6MU4-BO': '',
         'L1_BPH-4M8-2MU4-B': '',
         'L1_BPH-4M8-2MU4-BO': '',
-        'L1_BPH-4M8-MU6MU4': '',
         'L1_BPH-4M8-MU6MU4-B': '',
         'L1_BPH-4M8-MU6MU4-BO': '',
+        'L1_BPH-DR-2MU4-B_BPH-2M-2MU4-B':'',
+        'L1_BPH-DR-2MU4-B_BPH-4M8-2MU4-B':'',
+        'L1_BPH-DR-2MU4-BO_BPH-2M-2MU4-BO':'',
+        'L1_BPH-DR-2MU4-BO_BPH-4M8-2MU4-BO':'',
         'L1_MULT0-CMU4': '',
         'L1_MULT1-CMU4': '',
         'L1_MULT0-CMU6': '',
         'L1_MULT1-CMU6': '',
-        'L1_DY-DR-2MU4': '',
-        'L1_DY-BOX-2MU4': '',
-        'L1_DY-BOX-MU6MU4': '',
-        'L1_DY-BOX-2MU6': '',
-        'L1_LFV-MU': '',
         'L1_LFV-EM8I': '',
         'L1_LFV-EM15I': '',
         'L1_DPHI-Js2XE50': '',
@@ -274,7 +246,6 @@ def defineMenu():
         'L1_W-05RO-XEEMHT': '',
         'L1_LLP-RO': '',
         'L1_LLP-NOMATCH': '',
-        'L1_DR-MU10TAU12I': '',
         'L1_TAU12I-J25': '',
         'L1_EM15-TAU40': '',
         'L1_TAU20-J20': '',
@@ -282,14 +253,12 @@ def defineMenu():
         'L1_EM15TAU12I-J25': '',
         'L1_DR-EM15TAU12I-J25': '',
         'L1_TAU20ITAU12I-J25': '',
-        'L1_DR-TAU20ITAU12I': '',
         'L1_BOX-TAU20ITAU12I': '',
         'L1_DR-TAU20ITAU12I-J25': '',
         'L1_LAR-EM': '',
         'L1_LAR-J': '',
         'L1_BPH-DR-2MU4-B': '',
         'L1_BPH-DR-2MU4-BO': '',
-        'L1_BPH-DR-MU6MU4': '',
         'L1_BPH-DR-MU6MU4-B': '',
         'L1_BPH-DR-MU6MU4-BO': '',
         'L1_MU6_MJJ-200': '',
@@ -315,6 +284,57 @@ def defineMenu():
         'L1_XE45_TAU20-J20': '',
         'L1_XE35_EM15-TAU12I': '',
         'L1_XE40_EM15-TAU12I': '',
+
+        # M9 items
+        #'L1_LFV-MU': '',
+        #'L1_DY-DR-2MU4': '',
+        #'L1_BPH-DR-2MU4': '',      
+        #'L1_BPH-DR-2MU6': '',
+        #'L1_BPH-DR-MU6MU4': '',
+        #'L1_BPH-2M-2MU4': '',
+        #'L1_BPH-2M-2MU6': '',
+        #'L1_BPH-2M-MU6MU4': '',
+        #'L1_BPH-4M8-2MU4': '',
+        #'L1_BPH-4M8-2MU6': '',
+        #'L1_BPH-4M8-MU6MU4': '',
+        #'L1_DY-BOX-2MU4': '',
+        #'L1_DY-BOX-MU6MU4': '',
+        #'L1_DY-BOX-2MU6': '',
+        #'L1_DR-TAU20ITAU12I': '',
+        #'L1_DR-MU10TAU12I': '',
+
         }
     
 
+
+    #----------------------------------------------
+    def remapThresholds():
+        threshToRemove = []
+        for index, thresholdName in enumerate(Lvl1Flags.thresholds()):
+            if thresholdName in Lvl1Flags.ThresholdMap():
+                if (Lvl1Flags.ThresholdMap()[thresholdName] != ''):
+                    Lvl1Flags.thresholds()[index] = Lvl1Flags.ThresholdMap()[thresholdName]
+                else:
+                    threshToRemove.append(index)
+
+        for t in reversed(threshToRemove):
+            del Lvl1Flags.thresholds()[t]
+    #----------------------------------------------
+                    
+    remapThresholds()
+
+    #----------------------------------------------
+    def remapItems():  
+        itemsToRemove = []
+        for itemIndex, itemName in enumerate(Lvl1Flags.items()):
+            if (itemName in Lvl1Flags.ItemMap()):
+                if (Lvl1Flags.ItemMap()[itemName] != ''):
+                    Lvl1Flags.items()[itemIndex] = Lvl1Flags.ItemMap()[itemName]                                                
+                else: 
+                    itemsToRemove.append(itemIndex)
+
+        for i in reversed(itemsToRemove):
+            del Lvl1Flags.items()[i]
+    #----------------------------------------------
+                                           
+    remapItems()

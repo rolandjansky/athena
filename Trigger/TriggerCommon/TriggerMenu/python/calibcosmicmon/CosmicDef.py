@@ -200,18 +200,18 @@ class L2EFChain_CosmicTemplate(L2EFChainDef):
 
         if 'pixel' in self.chainPart['purpose']:
 
-            if 'noise' in self.chainPart['addInfo']:
-                l2_pixelSubDetListWriter = TrigSubDetListWriter("CosmicPixelNoiseSubDetListWriter")
-                l2_pixelSubDetListWriter.Subdetectors = "Pixel"
-                l2_pixelSubDetListWriter.extraROBs = []
-                theRobWriter = [l2_pixelSubDetListWriter]
+            l2_IDSubDetListWriter = TrigSubDetListWriter("CosmicIDSubDetListWriter")
+            l2_IDSubDetListWriter.Subdetectors = "Pixel,SCT,DBM"
+            l2_IDSubDetListWriter.extraROBs = []
+            theRobWriter = [l2_IDSubDetListWriter]
 
-            elif 'beam' in self.chainPart['addInfo']:
-                l2_pixelSCTSubDetListWriter = TrigSubDetListWriter("CosmicPixelSCTNoiseSubDetListWriter")
-                l2_pixelSCTSubDetListWriter.Subdetectors = "Pixel,SCT"
-                l2_pixelSCTSubDetListWriter.extraROBs = []            
-                theRobWriter = [l2_pixelSCTSubDetListWriter]
-                
+            #if ('noise' in self.chainPart['addInfo']):
+            # elif 'beam' in self.chainPart['addInfo']:
+            #        l2_IDSubDetListWriter = TrigSubDetListWriter("CosmicIDSubDetListWriter")
+            #        l2_IDSubDetListWriter.Subdetectors = "Pixel,SCT,DBM"
+            #        l2_IDSubDetListWriter.extraROBs = []            
+            #        theRobWriter = [l2_IDSubDetListWriter]
+            
         elif ('sct' in self.chainPart['purpose']) \
                 & ('noise' in self.chainPart['addInfo']):
             l2_SCTSubDetListWriter = TrigSubDetListWriter("CosmicSCTNoiseSubDetListWriter")

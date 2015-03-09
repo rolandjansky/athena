@@ -53,6 +53,7 @@ class JetSequencesBuilder(object):
         # cmfs: cell/cluster maker using full scan tools in CellMaker
         # jr: jet rec
         # jh: EFJetHypo
+        # jh_ht: HT hypo
         # ps: partial scan
         # cm: cell/cluster maker using non full scan tools in CellMaker
         # ds: data scouting sequence requested
@@ -75,6 +76,7 @@ class JetSequencesBuilder(object):
                        'jr': self.make_jr_clusters,  # jet rec
                        'rc': self.make_jr_recluster,  # recluster jets
                        'jh': self.make_jh,  # jet hypo
+                       'jh_ht': self.make_jh_ht,  # HT hypo
                        'ps': self.make_ps,  # partial scan Roi maker
                        'cm': self.make_cm,  # cell and cluster maker
                        'tt': self.make_tt,  # trigger towers
@@ -142,11 +144,19 @@ class JetSequencesBuilder(object):
 
         # check that running the hypo has been requested
         if self.chain_config.run_hypo:
-            seq_order.append('jh')
-            if self.chain_config.test:
-                # run the jet hypo doagnostic after the jet hypo - so we can
-                # see which jets are cut.
-                seq_order.append('jhd')
+            if self.chain_config.hypo_type == 'standard':
+                seq_order.append('jh')
+                if self.chain_config.test:
+                    # run the jet hypo doagnostic after the jet hypo - so we can
+                    # see which jets are cut.
+                    seq_order.append('jhd')
+            elif self.chain_config.hypo_type == 'ht':
+                seq_order.append('jh_ht')
+            else:
+                
+                msg = '%s._make_sequence_list: unknown hypo type %s ' % (
+                    self.__class__.__name, str(self.chain_config.hypo_type))
+                raise RuntimeError(msg)
 
         if self.chain_config.data_scouting:
             seq_order.append('ds')
@@ -269,6 +279,19 @@ class JetSequencesBuilder(object):
             return AlgList(self.alg_factory.jr_hypo_multi(), alias)
 
 
+    def make_jh_ht(self):
+        """Create an alg_list for 2015 JetRec hypo sequence"""
+
+        menu_data = self.chain_config.menu_data
+        hypo = menu_data.hypo_params
+        alias = 'hypo_HT_%s' % str(hypo.ht_threshold)
+
+        # keep note of the alias - used to name the diagnostics algorithm
+        self.alg_factory.hypo_sequence_alias = alias
+
+        return AlgList(self.alg_factory.ht_hypo(), alias)
+
+
     def make_tt(self):
         """Create an alg_list for the trigger tower unpacker"""
 
@@ -290,7 +313,7 @@ class JetSequencesBuilder(object):
                                     self.alg_factory.cellDiagnostics,
                                     self.alg_factory.clusterDiagnostics,
                                     self.alg_factory.jetRecDiagnostics,
-                                    # self.alg_factory.jetRecDebug
+                                    self.alg_factory.jetRecDebug
                                 )]
         
         return AlgList(alg_list=algs, alias='jetfex_diagnostics')

@@ -92,17 +92,6 @@ def lumi(triggerPythonConfig):
             L1Prescales = Prescales.L1Prescales
             HLTPrescales = Prescales.HLTPrescales
 
-    elif menu_name.startswith('BeamSplash_v1') :
-        log.info('In BeamSplash_v1 menu setup')
-        from TriggerMenu.menu.BeamSplash_v1 import setupMenu, Prescales#, StreamConfig
-        setupMenu()
-        if 'cosmics_prescale' in menu_name:
-            L1Prescales = Prescales.L1Prescales_cosmics
-            HLTPrescales = Prescales.HLTPrescales_cosmics
-        else:
-            L1Prescales = Prescales.L1Prescales
-            HLTPrescales = Prescales.HLTPrescales
-
     elif  menu_name.startswith('MC_pp_v5'):
         from TriggerMenu.menu.MC_pp_v5 import setupMenu, Prescales#, StreamConfig
         setupMenu()
