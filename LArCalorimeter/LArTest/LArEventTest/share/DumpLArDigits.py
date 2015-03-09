@@ -1,26 +1,48 @@
-#tested setup: asetup 20.1.5.8,here
+# Location & number of raw data file:
+runnumber=3004171
+#RawDataDir="/castor/cern.ch/atlas/testbeam/combined/2004/"
+RawDataDir="/castor/cern.ch/atlas/testbeam/lar/2004/"
+#RawDataDir="/afs/cern.ch/user/l/lafaye/scratch0/data"
+RawDataFilePrefix="daq_ROS-41_LargCalib"
+#Gain, set HIGH,MEDIUM,LOW or FREE
+GainKey="FREE" 
+# Number of events to be processed (default is 10)
+theApp.EvtMax = 2
 
 
-from AthenaCommon.AppMgr import (theApp, ServiceMgr as svcMgr,ToolSvc)
-from AthenaCommon.AlgSequence import AlgSequence
-topSequence = AlgSequence()
+# ***************************************************************
+include( "ByteStreamCnvSvc/TBEventSelector_jobOptions.py" )
+ByteStreamAddressProviderSvc = Service( "ByteStreamAddressProviderSvc" )
+ByteStreamAddressProviderSvc.TypeNames += ["LArRawChannelContainer/LArRawChannels"]
+ByteStreamAddressProviderSvc.TypeNames += ["LArDigitContainer/FREE"] 
+include( "LArDetMgrDetDescrCnv/LArDetMgrDetDescrCnv_H8_joboptions.py" )
 
-include("LArConditionsCommon/LArMinimalSetup.py")
+if GainKey=="FREE":
+  ToolSvc.LArRodDecoder.FirstSample=2
 
-svcMgr.IOVDbSvc.GlobalTag="CONDBR2-ES1PA-2015-05"
 
-#Specify the input file(s)
-svcMgr.ByteStreamInputSvc.FullFileName=["/scratch/wlampl/data15_13TeV/data15_13TeV.00267073.express_express.merge.RAW._lb0706._SFO-ALL._0001.1",]
+# Directory & Prefix & Runnumber 
+ByteStreamInputSvc=Service("ByteStreamInputSvc")
+ByteStreamInputSvc.InputDirectory += [RawDataDir]
+ByteStreamInputSvc.FilePrefix += [RawDataFilePrefix]
+ByteStreamInputSvc.RunNumber = [runnumber]
 
-# Specify the object you want to read from ByteStream
-theByteStreamAddressProviderSvc = svcMgr.ByteStreamAddressProviderSvc
-theByteStreamAddressProviderSvc.TypeNames += ["LArDigitContainer/FREE"]
-theByteStreamAddressProviderSvc.TypeNames += ["LArFebHeaderContainer/LArFebHeader"]
 
-from LArEventTest.LArEventTestConf import DumpLArDigits
-topSequence+=DumpLArDigits(LArDigitContainerName="FREE")
+ToolSvc = Service( "ToolSvc" )
+ToolSvc.LArRoI_Map.Print=FALSE
+# Set output level threshold (2=DEBUG, 3=INFO, 4=WARNING, 5=ERROR, 6=FATAL )
+MessageSvc = Service( "MessageSvc" )
+MessageSvc.OutputLevel =3
+AthenaEventLoopMgr = Service ("AthenaEventLoopMgr")
+AthenaEventLoopMgr.OutputLevel=4
 
-theApp.EvtMax=5
+#Necessary DLL's 
+theApp.Dlls += [ "LArRawUtils","LArTools"]
+theApp.Dlls += [ "LArByteStream"]
+#theApp.Dlls += [ "CaloDetMgrDetDescrCnv" ]
 
-#svcMgr.MessageSvc.OutputLevel=DEBUG
-svcMgr.StoreGateSvc.Dump=True
+theApp.Dlls += [ "LArEventTest"]
+theApp.topAlg+=["DumpLArDigits"]
+DumpLArDigits=Algorithm("DumpLArDigits")
+DumpLArDigits.LArDigitContainerName = "FREE" 
+DumpLArDigits.OutputFileName="LArDigits.txt"
