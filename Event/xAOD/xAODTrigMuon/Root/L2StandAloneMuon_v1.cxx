@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: L2StandAloneMuon_v1.cxx 628331 2014-11-14 09:09:36Z mishitsu $
+// $Id: L2StandAloneMuon_v1.cxx 652609 2015-03-09 11:25:09Z mishitsu $
 
 // System include(s):
 #include <iostream>
@@ -1120,11 +1120,11 @@ namespace xAOD {
    /// Object for accessing RPC pad hits
    static SG::AuxElement::Accessor< std::vector< uint32_t > > padiAcc( "padHitOnlineId" );
    static SG::AuxElement::Accessor< std::vector< uint32_t > > padcAcc( "padHitCode" );
-   static SG::AuxElement::Accessor< std::vector< float > >    padxAcc( " padHitX" );
-   static SG::AuxElement::Accessor< std::vector< float > >    padyAcc( " padHitY" );
-   static SG::AuxElement::Accessor< std::vector< float > >    padzAcc( " padHitZ" );
-   static SG::AuxElement::Accessor< std::vector< float > >    padrAcc( " padHitR" );
-   static SG::AuxElement::Accessor< std::vector< float > >    padpAcc( " padHitP" );
+   static SG::AuxElement::Accessor< std::vector< float > >    padxAcc( "padHitX" );
+   static SG::AuxElement::Accessor< std::vector< float > >    padyAcc( "padHitY" );
+   static SG::AuxElement::Accessor< std::vector< float > >    padzAcc( "padHitZ" );
+   static SG::AuxElement::Accessor< std::vector< float > >    padrAcc( "padHitR" );
+   static SG::AuxElement::Accessor< std::vector< float > >    padpAcc( "padHitP" );
 
    /// Object for accessing TGC hits
    static SG::AuxElement::Accessor< std::vector< float > >    tirpAcc( "tgcInnRhoHitPhi" );
