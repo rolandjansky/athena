@@ -90,7 +90,6 @@ StatusCode AtDSFMTGenSvc::queryInterface(const InterfaceID& riid, void** ppvInte
 
 StatusCode AtDSFMTGenSvc::initialize()
 {
-  ATH_CHECK( AthService::initialize() );
   ATH_MSG_INFO
     ("Initializing " << name()
      << " - package version " << PACKAGE_VERSION 
@@ -143,19 +142,19 @@ StatusCode AtDSFMTGenSvc::initialize()
             // across platforms.
             msg() << ((*i) & 0xffffffffu) << " ";
           }
-          msg() << " read from file " << m_file_to_read << endmsg;
+          msg() << " read from file " << m_file_to_read << endreq;
           if (CreateStream(seeds, stream)) {
             msg(MSG::DEBUG)
-              << stream << " stream initialized succesfully" <<endmsg;
+              << stream << " stream initialized succesfully" <<endreq;
           } else {
             msg(MSG::ERROR)
-              << stream << " stream FAILED to initialize" <<endmsg;
+              << stream << " stream FAILED to initialize" <<endreq;
             return StatusCode::FAILURE;
           }
         } else {                
           msg(MSG::ERROR)
             << "bad line\n" << buffer 
-            << "\n in input file " << m_file_to_read << endmsg;
+            << "\n in input file " << m_file_to_read << endreq;
           return StatusCode::FAILURE;
         }                
       }
@@ -230,7 +229,7 @@ void AtDSFMTGenSvc::handle(const Incident &inc) {
     print();    
   } else if (inc.type() == "BeginEvent") {
     ATH_MSG_DEBUG (" Handle BeginEvent ");
-    const EventID* pei((dynamic_cast<const EventIncident&>(inc)).eventInfo().event_ID());
+    EventID* pei((dynamic_cast<const EventIncident&>(inc)).eventInfo().event_ID());
     //clear static RandGauss cache (generates two numbers per call to shoot()
     CLHEP::RandGauss::setFlag(false);
     //loop over generator streams, combining the stream name to the hash
@@ -395,7 +394,7 @@ void AtDSFMTGenSvc::print(const std::string& StreamName )
         // across platforms.
         msg() << ((*i) & 0xffffffffu) << " ";
       }
-      msg() << endmsg;
+      msg() << endreq;
     }
 }
 

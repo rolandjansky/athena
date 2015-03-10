@@ -96,7 +96,6 @@ AtRndmGenSvc::queryInterface(const InterfaceID& riid, void** ppvInterface)
 StatusCode 
 AtRndmGenSvc::initialize()
 {
-  ATH_CHECK( AthService::initialize() );
   ATH_MSG_INFO
     ("Initializing " << name()
      << " - package version " << PACKAGE_VERSION 
@@ -219,7 +218,7 @@ AtRndmGenSvc::handle(const Incident &inc) {
     print();    
   } else if (inc.type() == "BeginEvent") {
     ATH_MSG_DEBUG (" Handle BeginEvent ");
-    const EventID* pei((dynamic_cast<const EventIncident&>(inc)).eventInfo().event_ID());
+    EventID* pei((dynamic_cast<const EventIncident&>(inc)).eventInfo().event_ID());
     //clear static RandGauss cache (generates two numbers per call to shoot()
     CLHEP::RandGauss::setFlag(false);
     //loop over generator streams, combining the stream name to the hash

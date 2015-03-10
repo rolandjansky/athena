@@ -12,7 +12,7 @@
  *  @author Paolo Calafiura
  *  @author George Stavropoulous
  *  
- *  $Id: AtRndmGenSvc.h 729159 2016-03-11 12:58:15Z krasznaa $
+ *  $Id: AtRndmGenSvc.h 535391 2013-01-30 12:04:52Z binet $
  */
 
 #include <map>
