@@ -326,8 +326,8 @@ StatusCode TBClusterMaker::execute(xAOD::CaloClusterContainer* clusCont) {
       Cluster->eta()<<" "<<Cluster->phi()<<endreq;
     log<<MSG::DEBUG<<"In samplings: #samp E eta(etasize) phi(phisize):"
        <<endreq;
-    std::vector<CaloSampling::CaloSample>::const_iterator
-      it=m_samplings.begin();
+    //std::vector<CaloSampling::CaloSample>::const_iterator
+      //it=m_samplings.begin();
     //for(;it!=m_samplings.end();it++) {
        // CaloSampling::CaloSample smp=*it;
       //      if (!Cluster->is_valid_sampling(smp)) continue;

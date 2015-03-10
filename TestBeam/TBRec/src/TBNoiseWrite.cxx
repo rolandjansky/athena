@@ -41,9 +41,9 @@ TBNoiseWrite::TBNoiseWrite(const std::string& name,
   m_rootfile(0),
   m_header_tree(0),
   m_tree(0),
-  m_calo_id(0),
-  m_calo_dd_man(0),
-  m_larCablingSvc(0),
+  //m_calo_id(0),
+  //m_calo_dd_man(0),
+  //m_larCablingSvc(0),
   m_txtFileWithXY("xcryo_ytable.txt")
 { 
   declareProperty("CellContainer",m_caloCellContainerName);

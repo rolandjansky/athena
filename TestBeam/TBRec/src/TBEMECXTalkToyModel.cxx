@@ -312,11 +312,16 @@ StatusCode TBEMECXTalkToyModel::processOnCellIterators(const CaloCellContainer::
 
 	ATH_MSG_DEBUG ("");
 	ATH_MSG_DEBUG ( "neighbors of cell [" << m_calo_id->show_to_string(theCell  ->ID(),0,'/') << "] : " );
-	ATH_MSG_DEBUG ( "             N1 = [" << m_calo_id->show_to_string(theCellN1->ID(),0,'/') << "]" );
-	ATH_MSG_DEBUG ( "             N2 = [" << m_calo_id->show_to_string(theCellN2->ID(),0,'/') << "]" );
-	ATH_MSG_DEBUG ( "             N3 = [" << m_calo_id->show_to_string(theCellN3->ID(),0,'/') << "]" );
-	ATH_MSG_DEBUG ( "             N4 = [" << m_calo_id->show_to_string(theCellN4->ID(),0,'/') << "]" );
-	ATH_MSG_DEBUG ( "             N5 = [" << m_calo_id->show_to_string(theCellN5->ID(),0,'/') << "]" );
+        if (theCellN1)
+          ATH_MSG_DEBUG ( "             N1 = [" << m_calo_id->show_to_string(theCellN1->ID(),0,'/') << "]" );
+        if (theCellN2)
+          ATH_MSG_DEBUG ( "             N2 = [" << m_calo_id->show_to_string(theCellN2->ID(),0,'/') << "]" );
+        if (theCellN3)
+          ATH_MSG_DEBUG ( "             N3 = [" << m_calo_id->show_to_string(theCellN3->ID(),0,'/') << "]" );
+        if (theCellN4)
+          ATH_MSG_DEBUG ( "             N4 = [" << m_calo_id->show_to_string(theCellN4->ID(),0,'/') << "]" );
+        if (theCellN5)
+          ATH_MSG_DEBUG ( "             N5 = [" << m_calo_id->show_to_string(theCellN5->ID(),0,'/') << "]" );
 	
 	ATH_MSG_DEBUG ( "EMEC2 cell     : energy before = " << e   << " | energy after rescaling = " << rescaled_e   );
 	ATH_MSG_DEBUG ( "                                 "
