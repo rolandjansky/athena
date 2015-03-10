@@ -13,6 +13,8 @@
 
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/TrackParticleContainer.h"    
+#include "xAODTracking/Vertex.h"
+#include "xAODTracking/VertexContainer.h"
 
 #include "TrigDecisionTool/TrigDecisionTool.h"
 #include "TrkParticleBase/LinkToTrackParticleBase.h"
@@ -69,8 +71,9 @@ JetTagMonitoring::JetTagMonitoring(const std::string & type, const std::string &
 {
 
     declareProperty("JetContainer",           m_jetName           = "AntiKt4TopoJets");
-    declareProperty("TrackParticleContainer", m_trackParticleName = "TrackParticleCandidate");
-    declareProperty("PrimaryVertexContainer", m_primaryVertexName = "VxPrimaryCandidate");
+    // declareProperty("TrackParticleContainer", m_trackParticleName = "TrackParticleCandidate");
+    declareProperty("TrackParticleContainer", m_trackParticleName = "InDetTrackParticles");
+    declareProperty("PrimaryVertexContainer", m_primaryVertexName = "PrimaryVertices");
 
     declareProperty("DQcuts", m_do_cuts = true);
 
@@ -108,11 +111,12 @@ JetTagMonitoring::~JetTagMonitoring() {}
 
 StatusCode JetTagMonitoring::registerHist(MonGroup& theGroup, TH1* h1) {
 
-    msg(MSG::VERBOSE) << "in JetTagMonitoring::registerHist " << h1->GetName() << endreq;
+    // msg(MSG::VERBOSE) << "in JetTagMonitoring::registerHist " << h1->GetName() << endreq;
+    ATH_MSG_VERBOSE("in JetTagMonitoring::registerHist " << h1->GetName());
 
     StatusCode sc = theGroup.regHist(h1);
-    if (!sc.isSuccess())
-        msg(MSG::WARNING) << "Could not register histogram " << endreq;
+    if (! sc.isSuccess())
+      ATH_MSG_WARNING("Could not register histogram ");
 
     return sc;
 }
@@ -122,11 +126,11 @@ StatusCode JetTagMonitoring::registerHist(MonGroup& theGroup, TH1* h1) {
 
 StatusCode JetTagMonitoring::registerHist(MonGroup& theGroup, LWHist* h1) {
 
-    msg(MSG::VERBOSE) << "in JetTagMonitoring::registerHist " << h1->GetName() << endreq;
+    ATH_MSG_VERBOSE("in JetTagMonitoring::registerHist " << h1->GetName());
 
     StatusCode sc = theGroup.regHist(h1);
     if (!sc.isSuccess())
-        msg(MSG::WARNING) << "Could not register histogram " << endreq;
+      ATH_MSG_WARNING("Could not register histogram ");
 
     return sc;
 }
@@ -145,31 +149,31 @@ StatusCode JetTagMonitoring::registerHist(MonGroup& theGroup, LWHist* h1) {
 
 StatusCode JetTagMonitoring::initialize() {
 
-    msg(MSG::INFO) << "in JetTagMonitoring::initialize" << endreq;
+    ATH_MSG_INFO("in JetTagMonitoring::initialize");
 
     StatusCode sc = ManagedMonitorToolBase::initialize();
-    if (!sc.isSuccess()) {
-        msg(MSG::WARNING) << "Unable to initialize ManagedMonitorToolBase" << endreq;
-        return sc;
+    if (! sc.isSuccess()) {
+      ATH_MSG_WARNING("Unable to initialize ManagedMonitorToolBase");
+      return sc;
     }
 
     sc = m_storeGate.retrieve();
     if (!sc.isSuccess()) {
-        msg(MSG::WARNING) << "Unable to retrieve StoreGateSvc handle" << endreq;
-        m_switch_off = true;
+      ATH_MSG_WARNING("Unable to retrieve StoreGateSvc handle");
+      m_switch_off = true;
     }
 
     if ( m_use_trackselector ) {
         if ( m_trackSelectorTool.retrieve().isFailure() ) {
-            msg(MSG::WARNING) << "Failed to retrieve tool " << m_trackSelectorTool << endreq;
-            m_switch_off = true;
+	  ATH_MSG_WARNING("Failed to retrieve tool " << m_trackSelectorTool);
+	  m_switch_off = true;
         }
     } else {
-        msg(MSG::INFO) << "Analysis::TrackSelector not used" << endreq;
+        ATH_MSG_INFO("Analysis::TrackSelector not used");
     }
 
     if ( m_switch_off )
-        msg(MSG::WARNING) << "Switching off JetTagMonitoring::fillHistograms()" << endreq;
+      ATH_MSG_WARNING("Switching off JetTagMonitoring::fillHistograms()");
 
     m_lumiBlockNum = 0;
 
@@ -182,7 +186,7 @@ StatusCode JetTagMonitoring::initialize() {
 
 StatusCode JetTagMonitoring::bookHistograms() {
 
-    msg(MSG::DEBUG) << "bookHistograms()" << endreq;
+    ATH_MSG_DEBUG("bookHistograms()");
 
     m_isNewLumiBlock = newLumiBlock;
     if ( !newRun ) {
@@ -195,17 +199,16 @@ StatusCode JetTagMonitoring::bookHistograms() {
             (m_environment != AthenaMonManager::tier0ESD) &&
             (m_environment != AthenaMonManager::online) ) {
         // Only produce histograms from ESD, or from RAW if ESD-only monitoring is not enabled
-        msg(MSG::INFO) << "Monitoring environment is \'" << m_environment << "\', not booking histograms" << endreq;
+        ATH_MSG_INFO("Monitoring environment is \'" << m_environment << "\', not booking histograms");
         return StatusCode::SUCCESS;
     }
 
     if ( m_dataType == AthenaMonManager::cosmics ) {
-        msg(MSG::INFO) << "Cosmic-ray data, not booking histograms" << endreq;
+        ATH_MSG_INFO("Cosmic-ray data, not booking histograms");
         return StatusCode::SUCCESS;
     }
 
-    msg(MSG::INFO) << "Monitoring environment is \'" << m_environment << "\', data type is \'" << m_dataType
-                   << "\', booking histograms now." << endreq;
+    ATH_MSG_INFO("Monitoring environment is \'" << m_environment << "\', data type is \'" << m_dataType << "\', booking histograms now.");
 
 
     m_monGr_shift = new MonGroup( this, "JetTagging", run );
@@ -483,7 +486,7 @@ StatusCode JetTagMonitoring::bookHistograms() {
 
 StatusCode JetTagMonitoring::fillHistograms() {
 
-    msg(MSG::DEBUG)<< "fillHistograms()" << endreq;
+    ATH_MSG_DEBUG("fillHistograms()");
 
     if (!m_histogramsCreated)
         return StatusCode::SUCCESS;
@@ -495,18 +498,18 @@ StatusCode JetTagMonitoring::fillHistograms() {
 
     const xAOD::EventInfo* thisEventInfo;
     if (evtStore()->retrieve(thisEventInfo).isFailure())
-        msg(MSG::WARNING)<< "Cannot retrieve EventInfo" << endreq;
+      ATH_MSG_WARNING("Cannot retrieve EventInfo");
 
     m_lumiBlockNum = thisEventInfo->lumiBlock();
 
-    msg(MSG::DEBUG) << "Lumiblock ID: " << m_lumiBlockNum << endreq;
+    ATH_MSG_DEBUG("Lumiblock ID: " << m_lumiBlockNum);
 
     ////////////////////////////////
     //* skip events with bad LAr *//
     ////////////////////////////////
 
     if ( thisEventInfo->isEventFlagBitSet(xAOD::EventInfo::LAr, LArEventBitInfo::BADFEBS) ) {
-      msg(MSG::DEBUG) << "Bad LAr event: True" << endreq;
+      ATH_MSG_DEBUG("Bad LAr event: True");
       return StatusCode::SUCCESS;    
     }
 
@@ -518,7 +521,7 @@ StatusCode JetTagMonitoring::fillHistograms() {
     //* Trigger container       *//
     ///////////////////////////////
 
-    msg(MSG::DEBUG) << "TrigDecTool: " << m_trigDecTool << endreq;
+    ATH_MSG_DEBUG("TrigDecTool: " << m_trigDecTool);
 
     if (m_use_trigdectool && m_trigDecTool != 0) {
       if (m_trigDecTool->isPassed("L1_J10"))  m_trigPassed->Fill(0.);
@@ -556,52 +559,58 @@ StatusCode JetTagMonitoring::fillHistograms() {
     unsigned int npv = 0, npv_trk = 0, nsv_trk = 0;
     double xpv = 0., ypv = 0., zpv = 0.;
 
-    const DataHandle<VxContainer> vxContainer;
-    bool foundPrimaryVtx = retrieveCollection(m_storeGate, vxContainer, m_primaryVertexName);
+    const xAOD::VertexContainer* vxContainer(0);
+    // const DataHandle<VxContainer> vxContainer;
+    bool foundPrimaryVtx = evtStore()->retrieve(vxContainer, m_primaryVertexName);
 
     if (!foundPrimaryVtx) {
-
-        msg(MSG::WARNING) << "Unable to retrieve \"" << m_primaryVertexName << "\" from StoreGate" << endreq;
-
-        return StatusCode::SUCCESS;
+      ATH_MSG_WARNING("Unable to retrieve \"" << m_primaryVertexName << "\" from StoreGate");
+      return StatusCode::SUCCESS;
     }
 
-    msg(MSG::DEBUG)<< "VxContainer \"" << m_primaryVertexName << "\" found with " << vxContainer->size() << " entries" << endreq;
+    ATH_MSG_DEBUG("VxContainer \"" << m_primaryVertexName << "\" found with " << vxContainer->size() << " entries");
 
     npv = vxContainer->size();
     m_global_nPrimVtx->Fill((float)npv);
 
     if (vxContainer->size() < 1) {
-        msg(MSG::WARNING) << "No primary vertices reconstructed" << endreq;
-        return StatusCode::SUCCESS;
+      ATH_MSG_WARNING("No primary vertices reconstructed");
+      return StatusCode::SUCCESS;
     }
 
     m_cutflow->Fill(2.);
 
+    for (xAOD::VertexContainer::const_iterator vtx = vxContainer->begin(); vtx != vxContainer->end(); ++vtx) {
+      if ((*vtx)->vertexType() == xAOD::VxType::PriVtx) {
+	m_priVtx = *vtx;
+	break;
+      }
+    }
     m_priVtx = vxContainer->at(0);
 
-    npv_trk = m_priVtx->vxTrackAtVertex()->size();
+    if (m_priVtx->vxTrackAtVertexAvailable()) {
+      npv_trk = m_priVtx->vxTrackAtVertex().size();
+      ATH_MSG_DEBUG("PV tracks: " << npv_trk);
+    }
 
-    msg(MSG::DEBUG) << "PV tracks: " << npv_trk << endreq;
+    // const Trk::RecVertex& primaryRecVertex = m_priVtx->recVertex();
 
-    const Trk::RecVertex& primaryRecVertex = m_priVtx->recVertex();
-
-    xpv = primaryRecVertex.position().x();
-    ypv = primaryRecVertex.position().y();
-    zpv = primaryRecVertex.position().z();
+    xpv = m_priVtx->x();
+    ypv = m_priVtx->y();
+    zpv = m_priVtx->z();
 
     m_global_xPrimVtx->Fill(xpv);
     m_global_yPrimVtx->Fill(ypv);
     m_global_zPrimVtx->Fill(zpv);
 
-    msg(MSG::DEBUG)<< "primary vertex: x = " << xpv << ", y = " << ypv << ", z = " << zpv << endreq;
+    ATH_MSG_DEBUG("primary vertex: x = " << xpv << ", y = " << ypv << ", z = " << zpv);
 
     if (xpv == 0 && ypv == 0 && zpv == 0)
-        msg(MSG::WARNING) << "Primary Vertex is (0,0,0)" << endreq;
+      ATH_MSG_WARNING("Primary Vertex is (0,0,0)");
 
     /* store the number of tracks of the second PV candidate, if any */
-    if ( vxContainer->size() > 1 ) {
-        nsv_trk = vxContainer->at(1)->vxTrackAtVertex()->size();
+    if ( vxContainer->size() > 1 && vxContainer->at(1)->vxTrackAtVertexAvailable()) {
+        nsv_trk = vxContainer->at(1)->vxTrackAtVertex().size();
     }
 
     m_priVtx_trks->Fill(npv_trk, nsv_trk);
@@ -630,13 +639,13 @@ StatusCode JetTagMonitoring::fillHistograms() {
 
     if (!foundTrackPartColl)  {
 
-        msg(MSG::WARNING) << "Unable to retrieve \"" << m_trackParticleName << "\" from StoreGate" << endreq;
+      ATH_MSG_WARNING("Unable to retrieve \"" << m_trackParticleName << "\" from StoreGate");
 
         return StatusCode::SUCCESS;
 
     }
 
-    msg(MSG::DEBUG) << "TrackParticleContainer \"" << m_trackParticleName << "\" found with " << trackParticles->size() << " entries" << endreq;
+    ATH_MSG_DEBUG("TrackParticleContainer \"" << m_trackParticleName << "\" found with " << trackParticles->size() << " entries");
 
     xAOD::TrackParticleContainer::const_iterator trackParticleItr = trackParticles->begin();
     xAOD::TrackParticleContainer::const_iterator trackParticleEnd = trackParticles->end();
@@ -664,7 +673,7 @@ StatusCode JetTagMonitoring::fillHistograms() {
 
     m_trackParticle_n->Fill((*trackParticles).size());
 
-    msg(MSG::DEBUG) << "end of fillHistograms()" << endreq;
+    ATH_MSG_DEBUG("end of fillHistograms()");
 
     return StatusCode::SUCCESS;
 }
@@ -672,18 +681,23 @@ StatusCode JetTagMonitoring::fillHistograms() {
 
 bool JetTagMonitoring::applyKinematicCuts(const xAOD::Jet *jet) {
 
-    msg(MSG::DEBUG) << "applyKinematicCuts()" << endreq;
+    // ATH_MSG_DEBUG( << "applyKinematicCuts()" << endreq;
+    ATH_MSG_DEBUG("applyKinematicCuts()");
 
     //* get jet basic kinematics *//
-    CLHEP::HepLorentzVector p4(jet->px(),jet->py(),jet->pz(),jet->e());
+    // CLHEP::HepLorentzVector p4(jet->px(),jet->py(),jet->pz(),jet->e());
 
-    m_jet_eta->Fill(p4.pseudoRapidity());
-    m_jet_phi->Fill(p4.phi());
-    m_jet_et->Fill(p4.et());
+    // m_jet_eta->Fill(p4.pseudoRapidity());
+    // m_jet_phi->Fill(p4.phi());
+    // m_jet_et->Fill(p4.et());
+    m_jet_eta->Fill(jet->eta());
+    m_jet_phi->Fill(jet->phi());
+    m_jet_et->Fill(jet->pt());
 
-    msg(MSG::DEBUG) << "BJet kinematics: eta = " << p4.pseudoRapidity()
-                    << ", phi= " << p4.phi() << ", pT= " << p4.perp()
-                    << endreq;
+    // ATH_MSG_DEBUG( << "BJet kinematics: eta = " << p4.pseudoRapidity()
+    //                 << ", phi= " << p4.phi() << ", pT= " << p4.perp()
+    //                 << endreq;
+    ATH_MSG_DEBUG("BJet kinematics: eta = " << jet->eta() << ", phi= " << jet->phi() << ", pT= " << jet->pt());
 
 
     // kinematic cuts defined as properties
@@ -696,15 +710,15 @@ bool JetTagMonitoring::applyKinematicCuts(const xAOD::Jet *jet) {
 
 JetTagMonitoring::Jet_t JetTagMonitoring::applyQualityCuts(const xAOD::Jet *jet) {
 
-  msg(MSG::DEBUG) << "in applyQualityCuts()" << endreq;
+  ATH_MSG_DEBUG("in applyQualityCuts()");
 
   /* if TrackSelector not used, return true */
   if ( ! m_use_trackselector ) {
-    msg(MSG::DEBUG) << "Not running track selection" << endreq;
+    ATH_MSG_DEBUG("Not running track selection");
     return goodJet;
   }
 
-  msg(MSG::DEBUG) << "Running track selection" << endreq;
+  ATH_MSG_DEBUG("Running track selection");
 
   unsigned int nTrk = 0, nTrk_JetProb = 0;
 
@@ -714,7 +728,7 @@ JetTagMonitoring::Jet_t JetTagMonitoring::applyQualityCuts(const xAOD::Jet *jet)
   //Work around, but compared to _all not needed.
   //   m_track_selector_eff->Fill(jet->eta(), jet->phi(), 1.);
 
-  m_trackSelectorTool->primaryVertex(m_priVtx->recVertex().position());
+  m_trackSelectorTool->primaryVertex(m_priVtx->position());
   m_trackSelectorTool->prepare();
 
   std::vector<const xAOD::IParticle*> trackVector = jet->getAssociatedObjects<xAOD::IParticle>(xAOD::JetAttribute::GhostTrack); 
@@ -753,7 +767,7 @@ JetTagMonitoring::Jet_t JetTagMonitoring::applyQualityCuts(const xAOD::Jet *jet)
   }
 
 
-  msg(MSG::DEBUG) << "Good tracks: " << nTrk << endreq;
+  ATH_MSG_DEBUG("Good tracks: " << nTrk);
 
   if ( nTrk_JetProb > m_trk_n ) {
 
@@ -779,21 +793,21 @@ JetTagMonitoring::Jet_t JetTagMonitoring::applyQualityCuts(const xAOD::Jet *jet)
 
 StatusCode JetTagMonitoring::procHistograms() {
 
-    msg(MSG::DEBUG) << "in procHistograms()" << endreq;
+    ATH_MSG_DEBUG("in procHistograms()");
 
     /* Finalize the histograms */
     if ( endOfRun && m_histogramsCreated ) {
 
       m_track_selector_eff->getROOTHist()->Divide(m_track_selector_all->getROOTHist(),m_tracks_all_2D->getROOTHist());
     }
-    msg(MSG::DEBUG) << "Exiting from procHistograms()" << endreq;
+    ATH_MSG_DEBUG("Exiting from procHistograms()");
     return StatusCode::SUCCESS;
 }
 
 
 void JetTagMonitoring::fillJetHistograms() {
 
-    msg(MSG::DEBUG) << "in fillJetHistograms()" << endreq;
+    ATH_MSG_DEBUG("in fillJetHistograms()");
 
     /////////////////////
     //* Jet container *//
@@ -803,14 +817,11 @@ void JetTagMonitoring::fillJetHistograms() {
     bool foundJetColl = retrieveCollection(m_storeGate, jets, m_jetName);
 
     if (!foundJetColl) {
-
-        msg(MSG::WARNING) << "Unable to retrieve \"" << m_jetName << "\" from StoreGate" << endreq;
-
-        return;
-
+      ATH_MSG_WARNING("Unable to retrieve \"" << m_jetName << "\" from StoreGate");
+      return;
     }
 
-    msg(MSG::DEBUG) << "JetContainer \"" << m_jetName << "\" found with " << jets->size() << " entries" << endreq;
+    ATH_MSG_DEBUG("JetContainer \"" << m_jetName << "\" found with " << jets->size() << " entries");
 
     xAOD::JetContainer::const_iterator jetItr = jets->begin();
     xAOD::JetContainer::const_iterator jetEnd = jets->end();
@@ -888,12 +899,8 @@ void JetTagMonitoring::fillJetHistograms() {
             m_jfcnn_tag_neg_rate_2D->Fill((*jetItr)->eta(), (*jetItr)->phi(), 1.);
         }
 
-        msg(MSG::DEBUG)<< "btagging weights: \n"
-
-                       << " SV0: " << sv0 << " SV1: "  << sv1  << "\n"
-                       << " IP3D: "     << ip3d << "\n"
-                       << " JetFitterCOMBNN: " << combNN << "\n"
-                       << " MV1: "<< mv1 <<endreq;
+        ATH_MSG_DEBUG("btagging weights: \n" << " SV0: " << sv0 << " SV1: "  << sv1  << "\n" << " IP3D: "
+		      << ip3d << "\n" << " JetFitterCOMBNN: " << combNN << "\n" << " MV1: "<< mv1);
 
         Jet_t quality = applyQualityCuts(*jetItr);
 
@@ -926,7 +933,7 @@ void JetTagMonitoring::fillElectronHistograms(const xAOD::Jet *jet) {
 
     // get information about Electron Constituents //
 
-    msg(MSG::DEBUG) << "in fillElectronHistograms()" << endreq;
+    ATH_MSG_DEBUG("in fillElectronHistograms()");
 
     int nElInJet = 0;
 
@@ -951,7 +958,7 @@ void JetTagMonitoring::fillElectronHistograms(const xAOD::Jet *jet) {
 /* Soft Muon tagger no longer maintained
 void JetTagMonitoring::fillMuonHistograms(const xAOD::Jet *jet) {
 
-    msg(MSG::DEBUG) << "in fillMuonHistograms()" << endreq;
+    ATH_MSG_DEBUG("in fillMuonHistograms()");
 
     // get information about Muon Constituents //
     int nMuInJet = 0;
@@ -978,7 +985,7 @@ void JetTagMonitoring::fillMuonHistograms(const xAOD::Jet *jet) {
 
 void JetTagMonitoring::fillTrackInJetHistograms(const xAOD::Jet *jet) {
 
-    msg(MSG::DEBUG) << "in fillInJetTrackHistograms()" << endreq;
+    ATH_MSG_DEBUG("in fillInJetTrackHistograms()");
 
     //* get information about Track Constituents *//
     int nTrkInJet = 0;
@@ -988,7 +995,7 @@ void JetTagMonitoring::fillTrackInJetHistograms(const xAOD::Jet *jet) {
     std::vector<const xAOD::IParticle*>::const_iterator trkItr;
 
     nTrkInJet = trackVector.size();
-    msg(MSG::DEBUG) << "examining " << nTrkInJet << " tracks." << endreq;
+    ATH_MSG_DEBUG("examining " << nTrkInJet << " tracks.");
 
     // loop over tracks in a jet // 
     for ( trkItr = trackVector.begin(); trkItr != trackVector.end() ; trkItr++ ) {
@@ -1016,7 +1023,7 @@ void JetTagMonitoring::fillTrackInJetHistograms(const xAOD::Jet *jet) {
 
 void JetTagMonitoring::fillDetailedHistograms(const xAOD::Jet *jet) {
 
-    msg(MSG::DEBUG) << "in fillDetailedHistograms()" << endreq;
+    ATH_MSG_DEBUG("in fillDetailedHistograms()");
 
     //* get detailed information *//
     const xAOD::BTagging* btag = jet->btagging(); 
@@ -1031,8 +1038,7 @@ void JetTagMonitoring::fillDetailedHistograms(const xAOD::Jet *jet) {
     m_tag_ip3d_b->Fill(pb);
     m_tag_ip3d_u->Fill(pu);
 
-    msg(MSG::VERBOSE) << "InfoBase for IP3D: #tracks = " << ntrk
-		      << ", Pb = " << pb << ", Pu = " << pu << endreq;
+    ATH_MSG_VERBOSE("InfoBase for IP3D: #tracks = " << ntrk << ", Pb = " << pb << ", Pu = " << pu);
            
     return;
 }
@@ -1107,7 +1113,7 @@ void JetTagMonitoring::fillGoodJetHistos(const xAOD::Jet *jet) {
 bool JetTagMonitoring::isGoodJet(const xAOD::Jet *jet){
 
   if (msgLvl(MSG::DEBUG))
-    msg(MSG::DEBUG) << "in dq cleaning cuts JetTagMon" << endreq;
+    ATH_MSG_DEBUG("in dq cleaning cuts JetTagMon");
 
   bool pass_cuts = false;
   	
