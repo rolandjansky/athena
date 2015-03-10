@@ -13,20 +13,22 @@
 using namespace std;
 
 void MuGirlNS::StauCalibration::initialize(
-        const char* mdtCalibFile,
-        const char* rpcCalibFile,
-        const char* caloCalibFile)
+					   std::string &mdtCalibFileName,
+					   std::string &rpcCalibFileName,
+					   std::string &caloCalibFileName)
 {
     m_log << MSG::INFO << "StauCalibration::initialize() - entered" << endreq;
-    loadMdtStauCalibration(mdtCalibFile);
-    loadRpcStauCalibration(rpcCalibFile);
-    loadTileStauCalibration(caloCalibFile);
+    loadMdtStauCalibration(mdtCalibFileName);
+    loadRpcStauCalibration(rpcCalibFileName);
+    loadTileStauCalibration(caloCalibFileName);
     m_log << MSG::INFO << "StauCalibration::initialize() - done" << endreq;
 }
 
-void MuGirlNS::StauCalibration::loadMdtStauCalibration(const char* calibFile)
+void MuGirlNS::StauCalibration::loadMdtStauCalibration(std::string &calibFileName)
 {
-    m_log << MSG::INFO << "StauCalibration::loadMdtStauCalibration() - loading "  << calibFile << endreq;
+  std::string calibFile = PathResolver::find_file (calibFileName, "DATAPATH");
+ 
+    m_log << MSG::INFO << "StauCalibration::loadMdtStauCalibration() - loading "  << calibFileName << endreq;
     ifstream calibrationFile(calibFile); //, ios::in);
     string line;
     int num_records = 0;
@@ -37,6 +39,7 @@ void MuGirlNS::StauCalibration::loadMdtStauCalibration(const char* calibFile)
         double mean = 0, sigma = 0;
         const char* cline = line.c_str();
         sscanf(cline, "%x %lf %lf", &id, &mean, &sigma);
+	m_log<<MSG::DEBUG<<"MDT "<<id<<"  "<<mean<<"  "<<sigma<<endreq;
         StauCalibrationParameters cp(mean, sigma);
         m_calibrationMdt[id] = cp;
         num_records++;
@@ -47,8 +50,10 @@ void MuGirlNS::StauCalibration::loadMdtStauCalibration(const char* calibFile)
 }
 
 // new RPC calibrations
-void MuGirlNS::StauCalibration::loadRpcStauCalibration(const char* calibFile)
+void MuGirlNS::StauCalibration::loadRpcStauCalibration(std::string &calibFileName)
 {
+  std::string calibFile = PathResolver::find_file (calibFileName, "DATAPATH");
+
     m_log << MSG::INFO << "StauCalibration::loadRpcStauCalibration() - loading "  << calibFile << endreq;
     ifstream calibrationFile(calibFile); //, ios::in);
     string line;
@@ -60,6 +65,7 @@ void MuGirlNS::StauCalibration::loadRpcStauCalibration(const char* calibFile)
         double mean = 0, sigma = 0;
         const char* cline = line.c_str();
         sscanf(cline, "%u %lf %lf", &compact_id, &mean, &sigma);
+	m_log<<MSG::DEBUG<<"RPC "<<compact_id<<"  "<<mean<<"  "<<sigma<<endreq;
         StauCalibrationParameters cp(mean, sigma);
         m_calibrationRpc[compact_id] = cp;
         num_records++;
@@ -70,8 +76,10 @@ void MuGirlNS::StauCalibration::loadRpcStauCalibration(const char* calibFile)
 }
 
 ///////////////////////////////
-void MuGirlNS::StauCalibration::loadTileStauCalibration(const char* calibFile)
+void MuGirlNS::StauCalibration::loadTileStauCalibration(std::string &calibFileName)
 {
+  std::string calibFile = PathResolver::find_file (calibFileName, "DATAPATH");
+
     m_log << MSG::INFO << "StauCalibration::loadTileStauCalibration() - loading "  << calibFile << endreq;
     ifstream calibrationFile(calibFile); //, ios::in);
     string line;
@@ -83,7 +91,7 @@ void MuGirlNS::StauCalibration::loadTileStauCalibration(const char* calibFile)
         double mean = 0, sigma = 0;
         const char* cline = line.c_str();
         sscanf(cline, "%d %df %lf %lf", &layer, &bin, &mean, &sigma);
-
+	m_log<<MSG::DEBUG<<"CALO "<<layer<<"  "<<bin<<"  "<<mean<<"  "<<sigma<<endreq;
         StauCalibrationParameters cp(mean, sigma);
         m_calibrationTile[std::make_pair(layer, bin)] = cp;
         num_records++;

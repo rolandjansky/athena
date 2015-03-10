@@ -166,6 +166,7 @@ void MuGirlNS::StauTileCal::initCaloCells(const Rec::ParticleCellAssociation* as
 
 MuGirlNS::StauTileCal::~StauTileCal()
 {
+    this->clear();
 }
 
 void MuGirlNS::StauTileCal::initStepData(TileCalStepData* tileCalStepData, double beta,
@@ -216,6 +217,7 @@ void MuGirlNS::StauTileCal::clear()
             delete cell;
         m_pCaloCells->clear();
         delete m_pCaloCells;
+        m_pCaloCells=nullptr;
     }
     m_beta = StauBetaDefault;
     m_avgBeta = StauBetaDefault;

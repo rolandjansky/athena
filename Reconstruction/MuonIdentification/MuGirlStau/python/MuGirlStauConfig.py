@@ -6,7 +6,7 @@ from AthenaCommon.GlobalFlags import globalflags
 #from MuGirlStau.MuGirlStauFlags import muGirlStauFlags
 from MuonRecExample import MuonRecTools
 from MuonRecExample.MuonRecUtils import mdtCalibWindowNumber 
-
+import os,os.path
 
 class MuGirlNS__StauToolConfig(MuGirlNS__StauTool):
     def __init__(self, name = Configurable.DefaultName):
@@ -72,8 +72,9 @@ class MuGirlNS__StauToolConfig(MuGirlNS__StauTool):
 
         from AthenaCommon.Utils.unixtools import find_datafile
         self.doCalibration = True
-        self.mdtCalibFile = find_datafile("mdt_calibration.data")
-        self.rpcCalibFile = find_datafile("rpc_calibration.data")
-        self.caloCalibFile = find_datafile("calo_calibration.data")
+
+        self.mdtCalibFileName = "mdt_calibration.data";
+        self.rpcCalibFileName = "rpc_calibration.data";
+        self.caloCalibFileName = "calo_calibration.data";
 
 #print MuGirlNS__StauTool
