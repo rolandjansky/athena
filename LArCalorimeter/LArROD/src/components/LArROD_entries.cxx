@@ -60,7 +60,12 @@ DECLARE_TOOL_FACTORY( LArRawChannelBuilderPedestalDataBase )
 DECLARE_TOOL_FACTORY( LArRawChannelBuilderPedestalSampleZero )
 DECLARE_TOOL_FACTORY( LArRawChannelBuilderToolTileInfo )
 
+
+#include "../tests/SuperCellVsCaloCellTestAlg.h"
+DECLARE_ALGORITHM_FACTORY( SuperCellVsCaloCellTestAlg )
+
 DECLARE_FACTORY_ENTRIES(LArROD) {
+  DECLARE_ALGORITHM( SuperCellVsCaloCellTestAlg );
     DECLARE_ALGORITHM(LArRawChannelBuilder )
     DECLARE_ALGORITHM(ReadLArRaw )
     DECLARE_ALGORITHM(ReadLArDigits )

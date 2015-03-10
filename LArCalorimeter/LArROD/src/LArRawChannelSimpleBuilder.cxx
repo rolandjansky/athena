@@ -92,8 +92,6 @@ StatusCode LArRawChannelSimpleBuilder::initialize(){
       return StatusCode::FAILURE;
     }
   }
-  else
-    m_adc2mevTool=NULL; // FIXME !!! RS
   
   if ( m_mode == "PARABOLA"){
     if (m_peakParabolaTool.retrieve().isFailure())
@@ -502,7 +500,7 @@ StatusCode LArRawChannelSimpleBuilder::execute() {
 	    << endreq;
       
 	float energy=-9999;
-	if (m_adc2mevTool) {
+	if (m_useRampDB) {
 	  float ADCPeakPower=ADCPeak;
 	  //ADC2MeV (a.k.a. Ramp)   
 	  const std::vector<float>& ramp=m_adc2mevTool->ADC2MEV(chid,gain);

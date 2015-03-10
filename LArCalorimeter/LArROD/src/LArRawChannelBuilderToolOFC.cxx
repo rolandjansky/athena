@@ -45,16 +45,16 @@ LArRawChannelBuilderToolOFC::LArRawChannelBuilderToolOFC(const std::string& type
 StatusCode LArRawChannelBuilderToolOFC::initTool()
 {
   if (detStore()->retrieve(m_larShape,m_keyShape).isFailure()) {
-    MsgStream log(msgSvc(), name());
-    log << MSG::WARNING << "Can't retrieve LArShape from Conditions Store"
+    //MsgStream log(msgSvc(), name());
+    msg(MSG::WARNING) << "Can't retrieve LArShape from Conditions Store"
 	<< ". Trying later." <<  endreq;
     m_larShape=NULL;
   }
   if(m_OFCTool.retrieve().isFailure())
     {
-      MsgStream log(msgSvc(), name());
-      log << MSG::ERROR << "Could not retrieve OFCTool" << endreq;
-      m_OFCTool=NULL;
+      //MsgStream log(msgSvc(), name());
+      msg(MSG::ERROR) << "Could not retrieve OFCTool" << endreq;
+      return StatusCode::FAILURE;
     }
   
   return StatusCode::SUCCESS;
@@ -253,16 +253,7 @@ const std::vector<float>&
 LArRawChannelBuilderToolOFC::OFC_a()
 {
   m_OFCtmp.clear();
-  if(!bool(m_OFCTool))
-    if(m_OFCTool.retrieve().isFailure())
-      {
-	MsgStream log(msgSvc(), name());
-	log << MSG::ERROR << "Could not retrieve OFCTool" << endreq;
-	m_OFCTool=NULL;
-	return m_OFCtmp;
-      }
-  m_OFCtmp =
-    m_OFCTool->OFC_a(pParent->curr_chid,pParent->curr_gain).asVector();
+  m_OFCtmp = m_OFCTool->OFC_a(pParent->curr_chid,pParent->curr_gain).asVector();
   return m_OFCtmp;
 }
 
@@ -270,16 +261,7 @@ const std::vector<float>&
 LArRawChannelBuilderToolOFC::OFC_b()
 {
   m_OFCtmp.clear();
-  if(!bool(m_OFCTool))
-    if(m_OFCTool.retrieve().isFailure())
-      {
-	MsgStream log(msgSvc(), name());
-	log << MSG::ERROR << "Could not retrieve OFCTool" << endreq;
-	m_OFCTool=NULL;
-	return m_OFCtmp;
-      }
-  m_OFCtmp =
-    m_OFCTool->OFC_b(pParent->curr_chid,pParent->curr_gain).asVector();
+  m_OFCtmp = m_OFCTool->OFC_b(pParent->curr_chid,pParent->curr_gain).asVector();
   return m_OFCtmp;
 }
 
