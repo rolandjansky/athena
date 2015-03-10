@@ -24,6 +24,7 @@
   <class name="DMTest::CInfoAuxContainer_v1" id="7C9CE4FE-2AD8-4DC5-B36E-19B22994951E"/>
 
   <class name="std::vector<ElementLink<DMTest::CVec_v1> >"/>
+  <class name="std::vector<ElementLink<DMTest::BAuxVec> >"/>
   <class name="SG::AuxElement::ConstAccessor<ElementLink<DMTest::CVec_v1> >"/>
 
   <function name="DMTest::setPluginLibrary"/>

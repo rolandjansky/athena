@@ -35,6 +35,7 @@ namespace DataModelTestDataCommonDict {
 
 std::vector<DMTest::B> xa;
 std::vector<ElementLink<DMTest::CVec_v1> > xb;
+std::vector<ElementLink<DMTest::BAuxVec> > xc;
 
 }
 
