@@ -1,10 +1,6 @@
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
-
 #include "GaudiKernel/DeclareFactoryEntries.h"
 
-#include "Geo2G4Svc.h"
+#include "../Geo2G4Svc.h"
 
 DECLARE_SERVICE_FACTORY(Geo2G4Svc)
 

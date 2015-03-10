@@ -32,7 +32,7 @@ apply_pattern cmake_add_command command="include_directories(Geo2G4)"
 # Override the library type for cmake so that it is linkable by clients (transparent to CMT)
 apply_pattern cmake_override_library_type library=Geo2G4 type=installed_library
 
-library Geo2G4 ../src/*.cxx
+library Geo2G4 ../src/*.cxx -s=components *.cxx
 
 apply_pattern component_library
 
