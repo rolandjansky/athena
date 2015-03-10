@@ -27,6 +27,8 @@ namespace Trk
 
    */
 
+  class VertexImage;
+
   class IVertexClusterFinder : virtual public IAlgTool {
 
      public:
@@ -40,7 +42,7 @@ namespace Trk
        //Get a vector of vertices based on input histogram, defined by hist_rs;
        //Will return bin coordinates, which can be coverted to coordinates at a 
        //later stage
-       virtual std::vector<Trk::Vertex> findVertexClusters( const float *hist_rs, const int nbinsx_in, const int nbinsy_in, const int nbinsz_in ) = 0;
+       virtual std::vector<Trk::Vertex> findVertexClusters( const VertexImage & image ) = 0;
   };
 }
 
