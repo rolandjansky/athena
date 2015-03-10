@@ -63,6 +63,7 @@ TriggerL2List = [
     ('TrigElectronContainer#HLT_L2ElectronFex',                           'BS ESD AODFULL AODSLIM', 'Egamma'),
     ('TrigL2BjetContainer#HLT_L2BjetFex',                                 'BS ESD AODFULL AODSLIM', 'Bjet'),
     ('TrigT2MbtsBits#HLT_T2Mbts',                                         'BS ESD AODFULL AODSLIM', 'MinBias'),
+    ('TrigT2ZdcSignals#HLT_zdcsignals',                                   'BS ESD AODFULL AODSLIM', 'MinBias'), #add by AZ
     ('TrigSpacePointCounts#HLT_spacepoints',                              'BS ESD AODFULL AODSLIM', 'MinBias'), # ? do we realy need it!
     ('TrigTrtHitCounts#HLT_TrtHitCount',                                  'BS ESD AODFULL AODSLIM', 'Tracking'),        # category???
     ('TrigMissingET#HLT_T2MissingET',                                     'BS ESD AODFULL AODSLIM', 'MET'),
