@@ -9,6 +9,7 @@
 #include <sstream>
 #include <iomanip>
 #include <string>
+#include "L1TopoRDO/ModuleID.h"
 
 L1TopoRDO::L1TopoRDO():
   m_error(0),
@@ -73,6 +74,15 @@ void L1TopoRDO::setSourceID(const uint32_t id)
   m_sourceID=id;
 }
 
+bool L1TopoRDO::isDAQModule() const
+{
+  return L1Topo::ModuleID(static_cast<uint16_t>(m_sourceID)).isDAQ();
+}
+
+bool L1TopoRDO::isROIModule() const
+{
+  return L1Topo::ModuleID(static_cast<uint16_t>(m_sourceID)).isROI();
+}
 
 const std::string L1TopoRDO::dump() const
 {
