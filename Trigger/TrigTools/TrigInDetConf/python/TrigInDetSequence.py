@@ -173,11 +173,14 @@ class TrigInDetSequence(TrigInDetSequenceBase):
 
     ftfname = ""
     roiupdater = ""
+    cnvname = "InDetTrigTrackingxAODCnv_%s_FTF"
     if sequenceFlavour=="2step":
       ftfname = "TrigFastTrackFinder_%sCore";  ftf2name = "TrigFastTrackFinder_%sIso"; 
+      cnvname = "InDetTrigTrackingxAODCnv_%sCore_FTF";  cnv2name = "InDetTrigTrackingxAODCnv_%sIso_FTF";  
       roiupdater = "IDTrigRoiUpdater_%sCore_IDTrig";  roi2updater="IDTrigRoiUpdater_%sIso_IDTrig"
       if self.__signature__=="bjet":
         ftfname = "TrigFastTrackFinder_%sVtx"; ftf2name = ""; 
+        cnvname = "InDetTrigTrackingxAODCnv_%sPrmVtx_FTF";  cnv2name = ""
         roiupdater = "IDTrigRoiUpdater_%sVtx_IDTrig"; roi2updater="";
         
 
@@ -191,8 +194,12 @@ class TrigInDetSequence(TrigInDetSequenceBase):
 
       algos += dataprep
       algos += [("TrigFastTrackFinder",ftfname),
-                ("InDetTrigTrackingxAODCnv","InDetTrigTrackingxAODCnv_%s_FTF"),
+                ("InDetTrigTrackingxAODCnv",cnvname),
                 ]
+      if sequenceFlavour=="2step" and self.__signature__=="bjet":
+        algos += [("TrigVxPrimary",""),
+                  ("InDetTrigVertexxAODCnv","")]
+
       fullseq.append(algos)
  
 
@@ -200,7 +207,7 @@ class TrigInDetSequence(TrigInDetSequenceBase):
         algos = [("IDTrigRoiUpdater", roi2updater)]
         algos += dataprep
         algos += [("TrigFastTrackFinder",ftf2name),
-                  ("InDetTrigTrackingxAODCnv","InDetTrigTrackingxAODCnv_%s_FTF"),
+                  ("InDetTrigTrackingxAODCnv",cnv2name),
                   ]
         fullseq.append(algos)
 
@@ -214,11 +221,14 @@ class TrigInDetSequence(TrigInDetSequenceBase):
                  ("InDetTrigTrackSlimmer",""),
                  ("InDetTrigTrackingxAODCnv",""),
                  ("InDetTrigDetailedTrackTruthMaker",""),
-                 ("TrigVxPrimary",""),
+                 #("TrigVxPrimary",""),
                  #("InDetTrigParticleCreation",""),
                  #("InDetTrigTrackParticleTruthMaker",""),
-                 ("InDetTrigVertexxAODCnv","")
+                 #("InDetTrigVertexxAODCnv","")
                  ]
+        if self.__signature__ != "bjet":
+          algos += [("TrigVxPrimary",""),
+                    ("InDetTrigVertexxAODCnv","")]
         fullseq.append(algos)
 
       
