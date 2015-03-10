@@ -14,6 +14,8 @@
 #include "TrkVertexSeedFinderUtils/IMode3dFinder.h"
 #include "TrkVertexSeedFinderUtils/ITrkDistanceFinder.h"
 
+#include "VxVertex/RecVertex.h"
+#include "VxVertex/Vertex.h"
 #include "TrkTrack/Track.h"
 
 #include "GeoPrimitives/GeoPrimitives.h"
@@ -79,7 +81,7 @@ namespace Trk
   }
 
 
-  Amg::Vector3D CrossDistancesSeedFinder::findSeed(const std::vector<const Trk::Track*> & VectorTrk,const xAOD::Vertex * constraint) {
+  Vertex CrossDistancesSeedFinder::findSeed(const std::vector<const Trk::Track*> & VectorTrk,const RecVertex * constraint) {
     
 
     //create perigees from track list
@@ -94,7 +96,7 @@ namespace Trk
 
     if (perigeeList.size()<2)
     {
-      return Amg::Vector3D(0.,0.,0.);
+      return Vertex(Amg::Vector3D(0.,0.,0.));
     }
    
     //create seed from perigee list
@@ -102,7 +104,7 @@ namespace Trk
     
   }
 
-  Amg::Vector3D CrossDistancesSeedFinder::findSeed(const std::vector<const Trk::TrackParameters*> & perigeeList,const xAOD::Vertex * constraint) {
+  Vertex CrossDistancesSeedFinder::findSeed(const std::vector<const Trk::TrackParameters*> & perigeeList,const RecVertex * constraint) {
 
     bool useCutOnDistance=false;
     if (perigeeList.size()>m_maximumTracksNoCut)
@@ -191,7 +193,7 @@ namespace Trk
 
 
                 double chi2=DeltaPConv.transpose()*weightMatrixPositionConstraint*DeltaPConv;
-
+		ATH_MSG_ERROR("Check chi2 similarity: " << chi2);
                 if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<< " chi: " << chi2 
                                                       << " beam weight " << 1./(1.+exp((chi2-m_constraintcutoff)/m_constrainttemp)) << endreq;
                 
@@ -224,7 +226,7 @@ namespace Trk
 
     if (CrossingPoints.size()<1 && CrossingPointsAndWeights.size()<1)
     {
-      return Amg::Vector3D(0,0,0);
+      return Vertex(Amg::Vector3D(0,0,0));
     }
    
     Amg::Vector3D myresult;
@@ -245,26 +247,26 @@ namespace Trk
 #endif
     
     
-    return myresult;
+    return Vertex(myresult);
     
     
     
     
   }
 
-  std::vector<Amg::Vector3D> CrossDistancesSeedFinder::findMultiSeeds(const std::vector<const Trk::Track*>& /* vectorTrk */,const xAOD::Vertex * /* constraint */) {
+  std::vector<Vertex> CrossDistancesSeedFinder::findMultiSeeds(const std::vector<const Trk::Track*>& /* vectorTrk */,const RecVertex * /* constraint */) {
  
     //implemented to satisfy inheritance but this algorithm only supports one seed at a time
     msg(MSG::WARNING) << "Multi-seeding requested but seed finder not able to operate in that mode, returning no seeds" << endreq;
-    return std::vector<Amg::Vector3D>(0);
+    return std::vector<Vertex>(0);
 
   }
 
-  std::vector<Amg::Vector3D> CrossDistancesSeedFinder::findMultiSeeds(const std::vector<const Trk::TrackParameters*>& /* perigeeList */,const xAOD::Vertex * /* constraint */) {
+  std::vector<Vertex> CrossDistancesSeedFinder::findMultiSeeds(const std::vector<const Trk::TrackParameters*>& /* perigeeList */,const RecVertex * /* constraint */) {
  
     //implemented to satisfy inheritance but this algorithm only supports one seed at a time
     msg(MSG::WARNING) << "Multi-seeding requested but seed finder not able to operate in that mode, returning no seeds" << endreq;
-    return std::vector<Amg::Vector3D>(0);
+    return std::vector<Vertex>(0);
 
   }
 

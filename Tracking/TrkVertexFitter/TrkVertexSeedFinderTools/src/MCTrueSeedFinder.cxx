@@ -8,6 +8,7 @@
 
 #include "TrkVertexSeedFinderTools/MCTrueSeedFinder.h"
 #include "GeneratorObjects/McEventCollection.h"
+#include "VxVertex/Vertex.h"
 #include "TrkTrack/Track.h"
 #include "TrkEventPrimitives/ParamDefs.h"
 #include "xAODEventInfo/EventInfo.h"
@@ -30,8 +31,8 @@ namespace {
     class Interactions_pair {
     public:
       float first; ///< weight
-      Amg::Vector3D second; ///< vertex position
-      Interactions_pair(float p1, Amg::Vector3D p2)
+      Trk::Vertex second; ///< vertex position
+      Interactions_pair(float p1, Trk::Vertex p2)
 	: first(p1), second(p2) {};
       /// define order: note that we sort inversed in intensity (highest first)
       bool operator> (const Interactions_pair& other) const
@@ -78,21 +79,21 @@ namespace Trk
   }
 
 
-  Amg::Vector3D MCTrueSeedFinder::findSeed(const std::vector<const Trk::Track*>&, const xAOD::Vertex*) {
+  Vertex MCTrueSeedFinder::findSeed(const std::vector<const Trk::Track*>&, const RecVertex*) {
 
     StatusCode sc = retrieveInteractionsInfo();
     if (sc.isFailure())
-      return Amg::Vector3D(0.,0.,0.);
+      return Vertex(Amg::Vector3D(0.,0.,0.));
 
     if (m_currentInteractionIdx >= m_interactions.size()) {
       ATH_MSG_DEBUG("No more interactions. Returning (0,0,0)");
-      return Amg::Vector3D(0.,0.,0.);
+      return Vertex(Amg::Vector3D(0.,0.,0.));
     }
 
     ATH_MSG_DEBUG("Retrieving info for " << m_currentInteractionIdx << " pre-sorted interaction");
-    Amg::Vector3D nextInteractionVertex = m_interactions[m_currentInteractionIdx];
-    ATH_MSG_DEBUG(m_currentInteractionIdx << ": (" << nextInteractionVertex.x() << " , "
-		  << nextInteractionVertex.y() << ", " << nextInteractionVertex.z() << ")");
+    Vertex nextInteractionVertex = m_interactions[m_currentInteractionIdx];
+    ATH_MSG_DEBUG(m_currentInteractionIdx << ": (" << nextInteractionVertex.position().x() << " , "
+		  << nextInteractionVertex.position().y() << ", " << nextInteractionVertex.position().z() << ")");
 
     //move to next interaction and return
     m_currentInteractionIdx++;
@@ -100,21 +101,21 @@ namespace Trk
 
   }
   
-  Amg::Vector3D MCTrueSeedFinder::findSeed(const std::vector<const Trk::TrackParameters*>&, const xAOD::Vertex*) {
+  Vertex MCTrueSeedFinder::findSeed(const std::vector<const Trk::TrackParameters*>&, const RecVertex*) {
 
     StatusCode sc = retrieveInteractionsInfo();
     if (sc.isFailure())
-      return Amg::Vector3D(0.,0.,0.);
+      return Vertex(Amg::Vector3D(0.,0.,0.));
 
     if (m_currentInteractionIdx >= m_interactions.size()) {
       ATH_MSG_DEBUG("No more interactions. Returning (0,0,0)");
-      return Amg::Vector3D(0.,0.,0.);
+      return Vertex(Amg::Vector3D(0.,0.,0.));
     }
 
     ATH_MSG_DEBUG("Retrieving info for " << m_currentInteractionIdx << " pre-sorted interaction");
-    Amg::Vector3D nextInteractionVertex = m_interactions[m_currentInteractionIdx];
-    ATH_MSG_DEBUG(m_currentInteractionIdx << ": (" << nextInteractionVertex.x() << " , "
-		  << nextInteractionVertex.y() << ", " << nextInteractionVertex.z() << ")");
+    Vertex nextInteractionVertex = m_interactions[m_currentInteractionIdx];
+    ATH_MSG_DEBUG(m_currentInteractionIdx << ": (" << nextInteractionVertex.position().x() << " , "
+		  << nextInteractionVertex.position().y() << ", " << nextInteractionVertex.position().z() << ")");
 
     //move to next interaction and return
     m_currentInteractionIdx++;
@@ -122,7 +123,7 @@ namespace Trk
 
   }
 
-  std::vector<Amg::Vector3D> MCTrueSeedFinder::findMultiSeeds(const std::vector<const Trk::TrackParameters*>& /* perigeeList */,const xAOD::Vertex * /* constraint */) {
+  std::vector<Vertex> MCTrueSeedFinder::findMultiSeeds(const std::vector<const Trk::TrackParameters*>& /* perigeeList */,const RecVertex * /* constraint */) {
     StatusCode sc = retrieveInteractionsInfo();
     if (sc.isFailure())
       m_interactions.clear();
@@ -130,7 +131,7 @@ namespace Trk
     return m_interactions;
   }
 
-  std::vector<Amg::Vector3D> MCTrueSeedFinder::findMultiSeeds(const std::vector<const Trk::Track*>& /* vectorTrk */,const xAOD::Vertex * /* constraint */) {
+  std::vector<Vertex> MCTrueSeedFinder::findMultiSeeds(const std::vector<const Trk::Track*>& /* vectorTrk */,const RecVertex * /* constraint */) {
     StatusCode sc = retrieveInteractionsInfo();
     if (sc.isFailure())
       m_interactions.clear();
@@ -185,14 +186,14 @@ namespace Trk
       ATH_MSG_DEBUG("Calculated Sum P_T^2 = " << sum_pt2);
       
       //get position of interaction from first non-zero vertex
-      Amg::Vector3D vtxPosition;
+      Vertex vtxPosition;
       HepMC::GenEvent::vertex_const_iterator Vert = myEvent->vertices_begin();
       msg(MSG::DEBUG) << "Retrieved position  x: " << (*Vert)->position().x()  << 
 	" y: " << (*Vert)->position().y() << 
 	" z: " << (*Vert)->position().z() << endreq;
-      vtxPosition = Amg::Vector3D((*Vert)->position().x(),
-				  (*Vert)->position().y(),
-				  (*Vert)->position().z());
+      vtxPosition = Vertex(Amg::Vector3D((*Vert)->position().x(),
+					 (*Vert)->position().y(),
+					 (*Vert)->position().z()));
       
       //now store info about position and "intensity" (here: scalar sum of p_T^2)
       interactionsColl.push_back( Interactions_pair (sum_pt2, vtxPosition) );
@@ -204,8 +205,8 @@ namespace Trk
     ATH_MSG_DEBUG("Sorted collection:");
     for (; itIp < interactionsColl.end(); ++itIp) {
       m_interactions.push_back(itIp->second);
-      ATH_MSG_DEBUG("(" << itIp->second.x() << ", " << itIp->second.y() << ", " 
-		    << itIp->second.z() << "), SumPt2 = " << itIp->first);
+      ATH_MSG_DEBUG("(" << itIp->second.position().x() << ", " << itIp->second.position().y() << ", " 
+		    << itIp->second.position().z() << "), SumPt2 = " << itIp->first);
     }
 
     ATH_MSG_DEBUG("New interactions info stored successfully: " << m_interactions.size() << " interactions found.");

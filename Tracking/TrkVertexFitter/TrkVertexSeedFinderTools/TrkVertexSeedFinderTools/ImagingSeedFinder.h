@@ -15,6 +15,7 @@
 namespace Trk
 {
 
+  class Vertex;
   class Track;
   class IVertexImageMaker;
   class IVertexClusterFinder;
@@ -24,15 +25,7 @@ namespace Trk
   // This class implements a multiseed finder using a filtering technique inspired by imaging algorithms
   // As a backup, the single findSeed methods are implemented using a cache of the result from findMultiSeed
   // @ATLAS software
-  // 
-  // ----------------------------------------
-  // Changes:
   //
-  // David Shope <david.richard.shope@cern.ch> (2016-04-19)
-  //
-  // EDM Migration to xAOD - from Trk::VxCandidate to xAOD::Vertex, 
-  //                         from Trk::RecVertex   to xAOD::Vertex,
-  //                         from Trk::Vertex      to Amg::Vector3D
 
   class ImagingSeedFinder : public AthAlgTool, virtual public IVertexSeedFinder
   {
@@ -47,16 +40,16 @@ namespace Trk
     virtual ~ImagingSeedFinder();
 
     // Interface for Tracks with starting seed/linearization point
-    virtual Amg::Vector3D findSeed(const std::vector<const Trk::Track*> & vectorTrk,const xAOD::Vertex * constraint=0);
+    virtual Vertex findSeed(const std::vector<const Trk::Track*> & vectorTrk,const RecVertex * constraint=0);
     
     /** Interface for MeasuredPerigee with starting point */
-    virtual Amg::Vector3D findSeed(const std::vector<const Trk::TrackParameters*> &parametersList,const xAOD::Vertex * constraint=0);
+    virtual Vertex findSeed(const std::vector<const Trk::TrackParameters*> &parametersList,const RecVertex * constraint=0);
 
     // Interface for finding vector of seeds from tracks
-    virtual std::vector<Amg::Vector3D> findMultiSeeds(const std::vector<const Trk::Track*>& vectorTrk,const xAOD::Vertex * constraint=0);
+    virtual std::vector<Vertex> findMultiSeeds(const std::vector<const Trk::Track*>& vectorTrk,const RecVertex * constraint=0);
 
     // Interface for finding vector of seeds from track parameters
-    virtual std::vector<Amg::Vector3D> findMultiSeeds(const std::vector<const Trk::TrackParameters*>& parametersList,const xAOD::Vertex * constraint=0);
+    virtual std::vector<Vertex> findMultiSeeds(const std::vector<const Trk::TrackParameters*>& parametersList,const RecVertex * constraint=0);
 
   private:
 
@@ -67,7 +60,7 @@ namespace Trk
     ToolHandle< Trk::IVertexClusterFinder > m_VertexClusterFinder;
     
     //where the seeds to return are stored
-    std::vector<Amg::Vector3D> m_seeds;
+    std::vector<Vertex> m_seeds;
     //cache control variables
     unsigned int m_cacheRunNumber; ///< cached results for given run/event number
     unsigned int m_cacheEventNumber; ///< cached results for given run/event number
