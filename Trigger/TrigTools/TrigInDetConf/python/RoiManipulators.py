@@ -10,3 +10,4 @@ class IDTrigRoiUpdater ( PESA__TrigRoiUpdater ):
     from InDetTrigRecExample.InDetTrigSliceSettings import InDetTrigSliceSettings
     self.EtaHalfWidth = InDetTrigSliceSettings[('etaHalfWidth',type)]
     self.PhiHalfWidth = InDetTrigSliceSettings[('phiHalfWidth',type)]
+
