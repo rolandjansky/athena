@@ -102,7 +102,8 @@ private:
     /* ToolHandle<InDet::IInDetTestBLayerTool> m_blayerTool; */
     bool m_histogramsCreated;
 
-    const Trk::VxCandidate* m_priVtx;
+    /* const Trk::VxCandidate* m_priVtx; */
+    const xAOD::Vertex* m_priVtx;
 
     /** @brief String to retrieve JetContainer from StoreGate. */
     std::string m_jetName;
