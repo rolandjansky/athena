@@ -44,8 +44,7 @@ G4bool TrackRecorderSD::ProcessHits(G4Step* aStep,G4TouchableHistory* )
 	if(pname=="geantino") pdgcode=999;
 	TrackHelper trHelp(aStep->GetTrack());
 	int barcode = trHelp.GetBarcode();
-	TrackRecord *rec=new TrackRecord(pdgcode,ener,mom,pos,time,barcode,preVol->GetName());
-	trackRecordCollection->Insert(rec);
+	trackRecordCollection->Emplace(pdgcode,ener,mom,pos,time,barcode,preVol->GetName());
 
 	return true;
 }
