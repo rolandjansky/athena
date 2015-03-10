@@ -66,10 +66,41 @@ def getParticleSimWhiteList(name="ISF_ParticleSimWhiteList", **kwargs):
 
 def getParticlePositionFilter(name="ISF_ParticlePositionFilter", **kwargs):
     # ParticlePositionFilter
-    kwargs.setdefault('GeoIDService' , 'ISF_GeoIDSvc')
+    kwargs.setdefault('GeoIDService' , 'ISF_GeoIDSvc'    )
 
     from ISF_HepMC_Tools.ISF_HepMC_ToolsConf import ISF__GenParticlePositionFilter
     return ISF__GenParticlePositionFilter(name, **kwargs)
+
+def getParticlePositionFilterID(name="ISF_ParticlePositionFilterID", **kwargs):
+    kwargs.setdefault('CheckRegion'  , [ 1 ] )  # only ID, see AtlasDetDescr/AtlasRegion.h
+    return getParticlePositionFilter(name, **kwargs)
+
+def getParticlePositionFilterCalo(name="ISF_ParticlePositionFilterCalo", **kwargs):
+    kwargs.setdefault('CheckRegion'  , [ 1, 2, 3 ] )  # ID+Fwd+Calo, see AtlasDetDescr/AtlasRegion.h
+    return getParticlePositionFilter(name, **kwargs)
+
+def getParticlePositionFilterMS(name="ISF_ParticlePositionFilterMS", **kwargs):
+    kwargs.setdefault('CheckRegion'  , [ 1, 2, 3, 4  ] )  # ID+Fwd+Calo+MS, see AtlasDetDescr/AtlasRegion.h
+    return getParticlePositionFilter(name, **kwargs)
+
+def getParticlePositionFilterWorld(name="ISF_ParticlePositionFilterWorld", **kwargs):
+    kwargs.setdefault('CheckRegion'  , [ 1, 2, 3, 4, 5 ] ) # ISF+Fwd+Calo+MS+Cavern, see AtlasDetDescr/AtlasRegion.h
+    return getParticlePositionFilter(name, **kwargs)
+
+def getParticlePositionFilterDynamic(name="ISF_ParticlePositionFilterDynamic", **kwargs):
+    # automatically choose the best fitting filter region
+    if DetFlags.Muon_on():
+      return getParticlePositionFilterWorld(name, **kwargs)
+    elif DetFlags.Calo_on():
+      return getParticlePositionFilterCalo(name, **kwargs)
+    elif DetFlags.ID_on():
+      return getParticlePositionFilterID(name, **kwargs)
+    else:
+      return getParticlePositionFilterWorld(name, **kwargs)
+
+def getGenParticleInteractingFilter(name="ISF_GenParticleInteractingFilter", **kwargs):
+    from ISF_HepMC_Tools.ISF_HepMC_ToolsConf import ISF__GenParticleInteractingFilter
+    return ISF__GenParticleInteractingFilter(name, **kwargs)
 
 def getEtaPhiFilter(name="ISF_EtaPhiFilter", **kwargs):
     # EtaPhiFilter
@@ -88,8 +119,9 @@ def getEtaPhiFilter(name="ISF_EtaPhiFilter", **kwargs):
 ## Stack Fillers
 def getLongLivedStackFiller(name="ISF_LongLivedStackFiller", **kwargs):
     kwargs.setdefault("GenParticleFilters"      , [ 'ISF_ParticleSimWhiteList',
-                                                    'ISF_ParticlePositionFilter',
-                                                    'ISF_EtaPhiFilter' ] )
+                                                    'ISF_ParticlePositionFilterDynamic',
+                                                    'ISF_EtaPhiFilter',
+                                                    'ISF_GenParticleInteractingFilter', ] )
     return getStackFiller(name, **kwargs)
 
 
@@ -105,6 +137,7 @@ def getStackFiller(name="ISF_StackFiller", **kwargs):
                                                                           ])
         kwargs.setdefault("GenParticleFilters"                          , [
                                                                            'ISF_ParticleFinalStateFilter',
+                                                                           'ISF_GenParticleInteractingFilter',
                                                                           ])
     else:
         kwargs.setdefault("GenEventManipulators"                        , [
@@ -113,8 +146,9 @@ def getStackFiller(name="ISF_StackFiller", **kwargs):
                                                                           ])
         kwargs.setdefault("GenParticleFilters"                          , [
                                                                            'ISF_ParticleFinalStateFilter',
-                                                                           'ISF_ParticlePositionFilter',
+                                                                           'ISF_ParticlePositionFilterDynamic',
                                                                            'ISF_EtaPhiFilter',
+                                                                           'ISF_GenParticleInteractingFilter',
                                                                           ])
     kwargs.setdefault("BarcodeService"                                  , ISF_Flags.BarcodeService() )
     kwargs.setdefault("PileUpMergeService"                                  , '')
