@@ -222,7 +222,7 @@ public:
             const Trk::PropDirection /*dir*/=Trk::alongMomentum) const {std::cout<<"Not Implemented !!!!"<<std::endl; return 0;}
 
   /** access to the private tool used to define the extrapolation depth, needed to play with delta-eta */
-  ToolHandle<CaloDepthTool> getCaloDepth();
+  CaloDepthTool* getCaloDepth();
 
 
   /** to be used on AOD's or to extrapolate from perigee */

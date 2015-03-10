@@ -27,8 +27,8 @@ TBCellNoiseCorrection::TBCellNoiseCorrection(const std::string& type,
   : CaloCellCorrection(type, name, parent),
     m_noise_correction(false),m_noise_file(),
     m_rndmSvc ("AtRanluxGenSvc", name), m_engine(0), m_log(0), 
-    m_tree(0), m_xcryo(0.), m_ytable(0.), m_energy(-1.), m_cell_id(0), m_cell_energy(0),m_entries(0),
-    m_myevtnum(-1)
+    m_tree(0), m_xcryo(0.), m_ytable(0.), m_energy(-1.), m_cell_id(0), m_cell_energy(0),m_entries(0)
+    //m_myevtnum(-1)
 { 
   declareInterface<CaloCellCorrection>(this);
   declareProperty("NoiseFile", m_noise_file);

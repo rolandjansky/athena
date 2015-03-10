@@ -63,9 +63,9 @@ class TBNoiseWrite: public AthAlgorithm {
   TTree* m_header_tree;                   // Header Tree pointer
   TTree* m_tree;                          // Noise Tree pointer
 
-  const CaloCell_ID* m_calo_id;
-  const CaloDetDescrManager* m_calo_dd_man; 
-  LArCablingService* m_larCablingSvc;
+  //const CaloCell_ID* m_calo_id;
+  //const CaloDetDescrManager* m_calo_dd_man; 
+  //LArCablingService* m_larCablingSvc;
 
   /** Text file containing xCryo and yTable */
   std::string m_txtFileWithXY;

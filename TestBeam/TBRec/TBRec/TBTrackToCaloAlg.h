@@ -127,7 +127,7 @@ private:
   std::string m_ImpactInCalosOutputName;
   //IExtrapolateToCaloTool* m_toCalo;
   TBExtrapolTrackToCaloTool* m_toCalo;
-  ToolHandle<CaloDepthTool> m_calodepth;
+  CaloDepthTool* m_calodepth;
   CaloPhiRange m_phiRange;
 
   // these ones are only here for debugging, not for general use !

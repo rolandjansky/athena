@@ -50,7 +50,8 @@ TBTrackToCaloAlg::TBTrackToCaloAlg(const std::string &name,
                                    ISvcLocator *pSvcLocator) :
   AthAlgorithm(name,pSvcLocator),
   m_TrackName("Tracks"),
-  m_tracks(0)
+  m_tracks(0),
+  m_calodepth(nullptr)
 {  
   // Get parameter values from jobOptions file
   declareProperty("TrackName", m_TrackName);
@@ -63,7 +64,6 @@ TBTrackToCaloAlg::TBTrackToCaloAlg(const std::string &name,
   m_calo_dd = 0;
   m_calo_id = 0;
   m_calo_tb_coord = 0;
-  m_calodepth = 0;
   m_particle = 0;
   m_toCalo = 0;
 }

@@ -422,10 +422,10 @@ TBExtrapolTrackToCaloTool::TrackSeenByCalo (const Trk::Track* trk,
   return success;
 }
 
-ToolHandle<CaloDepthTool> 
+CaloDepthTool*
 TBExtrapolTrackToCaloTool::getCaloDepth()
 {
-  if (m_calosurf==0) return 0;
+  if (m_calosurf==0) return nullptr;
   
   // getCaloDepth from the surface builder
   return m_calosurf->getCaloDepth();

@@ -58,7 +58,7 @@ class TBCellNoiseCorrection : public CaloCellCorrection, virtual public IInciden
   std::vector<float>* m_cell_energy;
   unsigned int m_entries;
   // should check the event number
-  int m_myevtnum;
+  //int m_myevtnum;
 };
 
 #endif     
