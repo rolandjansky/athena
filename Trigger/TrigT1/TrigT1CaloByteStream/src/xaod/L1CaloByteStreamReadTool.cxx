@@ -26,7 +26,7 @@
 
 namespace {
 uint32_t bitFieldSize(uint32_t word, uint8_t offset, uint8_t size) {
-  return (word >> offset) & ((1 << size) - 1);
+  return (word >> offset) & ((1U << size) - 1);
 }
 
 uint32_t coolId(uint8_t crate, uint8_t module, uint8_t channel) {
@@ -692,7 +692,7 @@ StatusCode L1CaloByteStreamReadTool::processPpmCompressedR4V1_() {
       if (present == 1) {
         interpretPpmHeaderR4V1_(numAdc, encoding, minIndex);
         CHECK((encoding != -1) && (minIndex != -1));
-        //ATH_MSG_DEBUG("SASHA: encoding=" << int(encoding) <<" minIndex=" << int(minIndex));
+
         // First get the LIT related quantities
         if (encoding < 3) {
           // Get the peal finder bits
@@ -755,7 +755,6 @@ StatusCode L1CaloByteStreamReadTool::processPpmCompressedR4V1_() {
         }
 
       }
-      CHECK((encoding != -1) && (minIndex != -1));
        // Next get the ADC related quantities (all encodings).
       adcVal = getPpmAdcSamplesR4_(encoding, minIndex);
       // Finally get the pedestal correction.
@@ -794,7 +793,7 @@ StatusCode L1CaloByteStreamReadTool::processPpmCompressedR4V1_() {
 
 void L1CaloByteStreamReadTool::interpretPpmHeaderR4V1_(uint8_t numAdc,
   int8_t& encoding, int8_t& minIndex) {
-  uint8_t minHeader = 0;
+ uint8_t minHeader = 0;
 
   if (numAdc == 5) {
     minHeader = getPpmBytestreamField_(4);
@@ -815,7 +814,7 @@ void L1CaloByteStreamReadTool::interpretPpmHeaderR4V1_(uint8_t numAdc,
         numBits = 2;
       } else if (numAdc == 7) {
         numBits = 3;
-      } else if (numAdc < 15) {
+      } else if (numAdc < 16) {
         numBits = 4;
       }
 
@@ -1169,7 +1168,7 @@ const std::vector<uint32_t>& L1CaloByteStreamReadTool::cpSourceIDs() {
 
 uint32_t L1CaloByteStreamReadTool::getPpmBytestreamField_(const uint8_t numBits) {
   if ((m_ppPointer + numBits) <= m_ppMaxBit) {
-    uint8_t iWord = m_ppPointer / 31;
+    uint32_t iWord = m_ppPointer / 31;
     uint8_t iBit = m_ppPointer % 31;
     m_ppPointer += numBits;
 
