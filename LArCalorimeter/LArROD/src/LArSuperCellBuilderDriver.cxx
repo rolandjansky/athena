@@ -40,7 +40,8 @@ LArSuperCellBuilderDriver::LArSuperCellBuilderDriver (const std::string& name,
   m_adc2eTools(),
   m_pedestalTools(),
   m_oldPedestal(0.),
-  m_larCablingSvc("LArSuperCellCablingTool")
+  m_larCablingSvc("LArSuperCellCablingTool"),
+  m_counter(0)
 {
   declareProperty("LArRawChannelContainerName",   m_ChannelContainerName);
   declareProperty("DataLocation",                 m_DataLocation );
@@ -183,7 +184,7 @@ StatusCode LArSuperCellBuilderDriver::execute() {
         return StatusCode::SUCCESS;
   }
 
-  ToolHandle<LArSuperCellCablingTool> cabling = 0;
+  ToolHandle<LArSuperCellCablingTool> cabling;
   const CaloSuperCellDetDescrManager* m_sem_mgr;
   CHECK( cabling.retrieve() );
   CHECK( detStore()->retrieve (m_sem_mgr, "CaloSuperCellMgr") );

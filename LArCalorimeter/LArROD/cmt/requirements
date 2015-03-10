@@ -25,7 +25,7 @@ use AthenaBaseComps AthenaBaseComps-*      Control
 
 use TBEvent TBEvent-* TestBeam
  
-apply_pattern dual_use_library files=*.cxx
+apply_pattern dual_use_library files="*.cxx tests/*.cxx"
 
 #need dual-use library because LArByteStream (HLT) links against LArROD
 #library LArROD *.cxx components/*.cxx
@@ -41,6 +41,12 @@ use CommissionEvent CommissionEvent-*   Commission
 use CaloEvent	    CaloEvent-*		Calorimeter
 use LArCOOLConditions           LArCOOLConditions-*             LArCalorimeter
 use AthenaPoolUtilities         AthenaPoolUtilities-*           Database/AthenaPOOL
+
+use  CaloTriggerTool            CaloTriggerTool-*               Calorimeter
+
+use AtlasROOT AtlasROOT-* External
+
+end_private
 
 #use GaudiPython v*
 #apply_pattern do_genconf
