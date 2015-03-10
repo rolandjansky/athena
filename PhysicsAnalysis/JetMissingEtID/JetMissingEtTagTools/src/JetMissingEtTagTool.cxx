@@ -50,8 +50,8 @@ JetMetTagTool::JetMetTagTool (const std::string& type, const std::string& name,
 
   /** JetMissingEt AOD Container Name */
   declareProperty("JetContainer",          m_containerName           = "AntiKt4LCTopoJets");
-  declareProperty("METContainer",          m_metContainerName        = "MET_RefFinal");
-  declareProperty("METFinalName",          m_metRefFinalName         = "Final");
+  declareProperty("METContainer",          m_metContainerName        = "MET_Reference_AntiKt4LCTopo");
+  declareProperty("METFinalName",          m_metRefFinalName         = "FinalClus");
   // declareProperty("METSoftJetName",        m_metSoftJetName          = "MET_SoftJets");
   // declareProperty("METRefMuonInName",      m_metRefMuonInName        = "MET_RefMuons");
   declareProperty("METMuonsName",          m_metMuonsName            = "Muons");
@@ -313,7 +313,7 @@ StatusCode JetMetTagTool::execute(TagFragmentCollection& missingEtTagColl) {
   missingEtTagColl.insert(MissingEtAttributeNames[EtMiss::SumET], metfinal->sumet());
 
   const MissingET *metSoftTerm = (*met)[m_metSoftTermName];
-  if ( sc.isFailure() ) {
+  if ( !metSoftTerm ) {
     ATH_MSG_WARNING(  "No soft MissingET found in container with name " << m_metSoftTermName );
     return StatusCode::SUCCESS;
   } 
@@ -322,7 +322,7 @@ StatusCode JetMetTagTool::execute(TagFragmentCollection& missingEtTagColl) {
   missingEtTagColl.insert(MissingEtAttributeNames[EtMiss::MET_CellOutY], metSoftTerm->mpy());
 
   const MissingET *metRefTau = (*met)[m_metRefTauName];
-  if ( sc.isFailure() ) {
+  if ( !metRefTau ) {
     ATH_MSG_WARNING(  "No tau MissingET found in container with name " << m_metRefTauName );
     return StatusCode::SUCCESS;
   } 
