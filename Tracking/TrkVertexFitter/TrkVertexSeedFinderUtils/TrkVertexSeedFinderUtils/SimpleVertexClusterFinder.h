@@ -7,9 +7,7 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "TrkVertexSeedFinderUtils/IVertexClusterFinder.h"
-
-#include "GaudiKernel/ITHistSvc.h"
-#include "TH1F.h"
+#include "TrkVertexSeedFinderUtils/VertexImage.h"
 
 namespace Trk
 {
@@ -39,17 +37,14 @@ namespace Trk
     //destructor
     virtual ~SimpleVertexClusterFinder();
 
-    virtual std::vector<Trk::Vertex> findVertexClusters( const float *hist_rs , const int nbinsx_in, const int nbinsy_in, const int nbinsz_in );
+    virtual std::vector<Trk::Vertex> findVertexClusters( const VertexImage & image );
 
   private:
 
     float m_weightThreshold;
     float m_seedCutScale;
 
-    int m_nbinsx;
-    int m_nbinsy;
-    int m_nbinsz;
-    int m_binstot;
+    VertexImage m_image;
 
     typedef std::pair<int, float> binContent;
     typedef std::vector<binContent> Cluster;
@@ -58,10 +53,6 @@ namespace Trk
     void addBinsToCluster( Cluster *clust, Cluster::size_type oldEdge, std::map<int, float> * binsRemaining );
 
     void getCenter( Cluster * cl, float & xpos, float & ypos, float & zpos);
-    std::vector<int> getAdjacentBins( int index );
-
-    int getRMBin( const int xbin_in, const int ybin_in, const int zbin_in );
-    void getInvRMBin( const int rmbin, int &xbin_out, int &ybin_out, int &zbin_out);
 
   };
 }

@@ -20,11 +20,13 @@ use EventPrimitives        EventPrimitives-*        Event
 use TrkTrack               TrkTrack-*               Tracking/TrkEvent
 use MagFieldInterfaces     MagFieldInterfaces-*     MagneticField
 use TrkParticleBase        TrkParticleBase-*        Tracking/TrkEvent
+use AtlasFFTW                 AtlasFFTW-*                External
 
 public
 
 library TrkVertexSeedFinderUtils *.cxx components/*.cxx
 apply_pattern component_library
+#apply_pattern dual_use_library files="*.cxx"
 
 
 #private
