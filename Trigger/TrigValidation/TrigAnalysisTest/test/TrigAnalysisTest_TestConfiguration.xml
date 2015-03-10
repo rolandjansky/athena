@@ -261,8 +261,8 @@
         
         <!-- EDM backwards compatibility tests -->
         
-        <TEST name= "BackCompAthenaTrigBStoESDAOD_2010" type="script" suite="triganalysis_val"> 
-            <options_atn>trigtest.pl --test BackCompAthenaTrigBStoESDAOD_2010 --run BackCompAthenaTrigBStoESDAOD_2010 --conf TrigAnalysisTest.conf</options_atn> 
+        <!--TEST name= "BackCompAthenaTrigBStoESDAOD_2010" type="script" suite="triganalysis_val"> 
+            <options_atn>trigtest.pl - -test BackCompAthenaTrigBStoESDAOD_2010 - -run BackCompAthenaTrigBStoESDAOD_2010 - -conf TrigAnalysisTest.conf</options_atn> 
             <timelimit>45</timelimit> 
             <author>TrigAnalysis validation</author> 
             <mailto> p.f.salvatore@sussex.ac.uk </mailto> 
@@ -270,7 +270,7 @@
                 <errorMessage>FAILURE </errorMessage> 
                 <returnValue>0</returnValue> 
             </expectations> 
-        </TEST> 
+        </TEST--> 
         
         <TEST name= "BackCompAthenaTrigBStoESDAOD" type="script" suite="triganalysis_val"> 
             <options_atn>trigtest.pl --test BackCompAthenaTrigBStoESDAOD --run BackCompAthenaTrigBStoESDAOD --conf TrigAnalysisTest.conf</options_atn> 
