@@ -13,7 +13,8 @@ namespace PESA
 					   ISvcLocator *pSvcLocator)
     : HLT::FexAlgo (name, pSvcLocator),
       m_etaHalfWidth(0.),
-      m_phiHalfWidth(0.)
+      m_phiHalfWidth(0.),
+      m_zHalfWidth(0.)
   {
     declareProperty("EtaHalfWidth",           m_etaHalfWidth);
     declareProperty("PhiHalfWidth",           m_phiHalfWidth);
@@ -42,7 +43,16 @@ namespace PESA
   // Initialisation
   ///////////////////////////////////////////////////////////////////
   HLT::ErrorCode TrigRoiUpdater::hltInitialize() {
+
+    //signature specific modifications
+    const std::string instanceName = name();
     
+    if (instanceName.find("Cosmics") !=std::string::npos){
+      m_zHalfWidth = 1000.;
+      ATH_MSG_INFO ("Instance " << instanceName << " z range modification: " << m_zHalfWidth);
+    }
+
+
     return HLT::OK;
   }
 
@@ -62,14 +72,18 @@ namespace PESA
     bool forIDfound=false;
     //    bool updateNeeded=false;
 
-    if ( HLT::OK != getFeature(outputTE, roi, "forID") || !roi ) {
-      ATH_MSG_DEBUG("forID roi not found get the most recent");
-      if (HLT::OK != getFeature(outputTE, roi) || !roi) {
-	ATH_MSG_ERROR("Could not retrieve RoI descriptor ");
-	return HLT::NAV_ERROR;
+    std::vector<std::string> roiNames = {"forID3","forID2","forID1", "forID", ""};
+    std::string roiName= "";
+
+    for (size_t k=0; k<roiNames.size(); k++){
+      if (HLT::OK != getFeature(outputTE, roi, roiNames[k]) || !roi){
+	ATH_MSG_DEBUG("|"  << roiNames[k] << "| not found or zero"); 
+      } else {
+	roiName = roiNames[k-1>0 ? k-1 : 0];
+	ATH_MSG_DEBUG("RoI with label |" << roiNames[k] << "| found and use " << roiName << " for an update"); 
+	if (roiName.find("forID1")!=std::string::npos) forIDfound = true;
+	break;
       }
-    } else {
-      forIDfound = true; 
     }
 
     if (roi->composite()){
@@ -77,11 +91,18 @@ namespace PESA
       return HLT::OK;
     }
 
+    //signature specific modifications
+    const std::string instanceName = name();
+
+    if (forIDfound && instanceName.find("IDTrigRoiUpdater_Muon_IDTrig")!=std::string::npos){
+      ATH_MSG_DEBUG("don't update roiDecriptor from muFast");
+      return HLT::OK;
+    }
+
+
     m_inpPhiMinus= roi->phiMinus(); m_inpPhiPlus = roi->phiPlus();  m_inpPhiSize= m_inpPhiPlus - m_inpPhiMinus;
     m_inpEtaMinus= roi->etaMinus(); m_inpEtaPlus = roi->etaPlus();  m_inpEtaSize= m_inpEtaPlus - m_inpEtaMinus;
 
-    //signature specific modifications
-    const std::string instanceName = name();
 
 
     float eta = roi->eta();
@@ -92,16 +113,16 @@ namespace PESA
     float diff_e = oldEtaW/2. - m_etaHalfWidth;
     float diff_p = oldPhiW/2. - m_phiHalfWidth;
 
+    float zedm = roi->zedMinus()-m_zHalfWidth;
+    float zedp = roi->zedPlus()+m_zHalfWidth;
+
 
     TrigRoiDescriptor *outroi =     
 		       new TrigRoiDescriptor(eta, m_inpEtaMinus+diff_e, m_inpEtaPlus-diff_e,
 					     phi, m_inpPhiMinus+diff_p, m_inpPhiPlus-diff_p,
-					     roi->zed(), roi->zedMinus(), roi->zedPlus());
+					     roi->zed(), zedm, zedp);
 
     ATH_MSG_DEBUG("Input RoI " << *roi);
-    ATH_MSG_DEBUG("Output RoI " << *outroi);
-
-    std::string roiName = "";
 
     if ( HLT::OK !=  attachFeature(outputTE, outroi, roiName) ) {
       ATH_MSG_ERROR("Could not attach feature to the TE");

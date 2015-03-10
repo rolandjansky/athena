@@ -41,6 +41,7 @@ namespace PESA
     
     float m_etaHalfWidth;
     float m_phiHalfWidth;
+    float m_zHalfWidth;
 
     //monitoring
     float m_inpPhiMinus,m_inpPhiPlus, m_inpPhiSize;
