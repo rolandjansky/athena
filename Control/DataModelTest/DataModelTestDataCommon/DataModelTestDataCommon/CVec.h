@@ -29,8 +29,4 @@ typedef CVec_v1 CVec;
 } // namespace DMTest
 
 
-#include "xAODCore/CLASS_DEF.h"
-CLASS_DEF (DMTest::CVec, 9721, 1)
-
-
 #endif // not DATAMODELTESTDATACOMMON_CVEC_H

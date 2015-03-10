@@ -20,6 +20,7 @@
 
 
 #include "xAODCore/AuxInfoBase.h"
+#include "SGTools/CLASS_DEF.h"
 #include "SGTools/BaseInfo.h"
 #include <vector>
 
@@ -42,6 +43,7 @@ private:
 } // namespace DMTest
 
 
+CLASS_DEF (DMTest::CInfoAuxContainer_v1, 9723, 1)
 SG_BASE (DMTest::CInfoAuxContainer_v1, xAOD::AuxInfoBase);
 
 

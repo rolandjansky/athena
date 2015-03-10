@@ -13,7 +13,6 @@
 
 #include "DataModelTestDataCommon/setConverterLibrary.h"
 #include "Gaudi/PluginService.h"
-#include "TClass.h"
 
 
 using namespace Gaudi::PluginService;
@@ -61,34 +60,7 @@ void setConverterLibrary (const std::string& lib)
   setConverterLibrary (9741, lib); // DMTest::GVec_v1
   setConverterLibrary (9742, lib); // DMTest::GAuxContainer_v1
   setConverterLibrary (9744, lib); // DMTest::G_v1
-  setConverterLibrary (9779, lib); // DMTest::CView_v1
-  setPluginLibrary ("_PERS_DMTest::HVec_v1", lib);
-  setPluginLibrary ("_PERS_DataVector<DMTest::H_v1>", lib);
-}
-
-
-void setTrigConverterLibrary (CLID clid, const std::string& lib)
-{
-  std::string name = "CNV_81_" + std::to_string (clid);
-  setPluginLibrary (name, lib);
-}
-
-
-void setTrigConverterLibrary (const std::string& lib)
-{
-  setTrigConverterLibrary (9781, lib); // DMTest::HVec
-  setTrigConverterLibrary (9782, lib); // DMTest::HAuxContainer
-  setTrigConverterLibrary (9787, lib); // DMTest::HView
 }
 
 
 } // namespace DMTest
-
-
-TClass* xclass (const char* s)
-{
-  return TClass::GetClass(s);
-}
-
-
-

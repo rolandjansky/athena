@@ -19,6 +19,7 @@
 
 #include "DataModelTestDataCommon/versions/C_v1.h"
 #include "AthContainers/DataVector.h"
+#include "SGTools/CLASS_DEF.h"
 
 
 namespace DMTest {
@@ -29,6 +30,9 @@ typedef DataVector<C_v1> CVec_v1;
 
 } // namespace DMTest
 
+
+
+CLASS_DEF (DMTest::CVec_v1, 9721, 1)
 
 
 #endif // not DATAMODELTESTDATACOMMON_CVEC_V1_H

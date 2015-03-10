@@ -31,8 +31,4 @@ typedef CInfoAuxContainer_v1 CInfoAuxContainer;
 } // namespace DMTest
 
 
-#include "xAODCore/CLASS_DEF.h"
-CLASS_DEF (DMTest::CInfoAuxContainer, 9723, 1)
-
-
 #endif // not DATAMODELTESTDATACOMMON_CINFOAUXCONTAINER_H

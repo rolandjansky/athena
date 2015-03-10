@@ -29,8 +29,4 @@ typedef CTrigAuxContainer_v1 CTrigAuxContainer;
 } // namespace DMTest
 
 
-#include "xAODCore/CLASS_DEF.h"
-CLASS_DEF (DMTest::CTrigAuxContainer, 9725, 1)
-
-
 #endif // not DATAMODELTESTDATACOMMON_CTRIGAUXCONTAINER_H

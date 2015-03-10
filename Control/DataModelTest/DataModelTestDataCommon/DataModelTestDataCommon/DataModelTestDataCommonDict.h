@@ -22,13 +22,11 @@
 #include "DataModelTestDataCommon/BAux.h"
 #include "DataModelTestDataCommon/BAuxStandalone.h"
 #include "DataModelTestDataCommon/BAuxVec.h"
-#include "DataModelTestDataCommon/C.h"
-#include "DataModelTestDataCommon/CVec.h"
-#include "DataModelTestDataCommon/CVecWithData.h"
-#include "DataModelTestDataCommon/CView.h"
-#include "DataModelTestDataCommon/CAuxContainer.h"
-#include "DataModelTestDataCommon/CTrigAuxContainer.h"
-#include "DataModelTestDataCommon/CInfoAuxContainer.h"
+#include "DataModelTestDataCommon/versions/C_v1.h"
+#include "DataModelTestDataCommon/versions/CVec_v1.h"
+#include "DataModelTestDataCommon/versions/CAuxContainer_v1.h"
+#include "DataModelTestDataCommon/versions/CTrigAuxContainer_v1.h"
+#include "DataModelTestDataCommon/versions/CInfoAuxContainer_v1.h"
 #include "DataModelTestDataCommon/setConverterLibrary.h"
 #include "AthLinks/ElementLink.h"
 
@@ -36,11 +34,12 @@
 namespace DataModelTestDataCommonDict {
 
 std::vector<DMTest::B> xa;
-DMTest::CView::Pers_t xb;
+std::vector<ElementLink<DMTest::CVec_v1> > xb;
 std::vector<ElementLink<DMTest::BAuxVec> > xc;
 
 }
 
-template class SG::AuxElement::ConstAccessor<ElementLink<DMTest::CVec> >;
+template class SG::AuxElement::ConstAccessor<ElementLink<DMTest::CVec_v1> >;
+
 
 #endif // not DATAMODELTESTDATACOMMONDICT_H

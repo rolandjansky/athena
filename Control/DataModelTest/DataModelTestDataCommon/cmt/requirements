@@ -20,7 +20,6 @@ use xAODTrigger    xAODTrigger-*   Event/xAOD
 use SGTools        SGTools-*       Control
 
 private
-use AtlasROOT      AtlasROOT-*     External
 use AthLinks       AthLinks-*      Control
 end_private
 
@@ -36,12 +35,3 @@ apply_pattern lcgdict dict=DataModelTestDataCommon selectionfile=selection.xml\
   headerfiles="../DataModelTestDataCommon/DataModelTestDataCommonDict.h" \
   extralibfiles=../src/dict/*.cxx
 
-
-private
-use TrigSerializeUtils  TrigSerializeUtils-*    Trigger/TrigDataAccess
-
-
-apply_pattern sercnv \
- typesWithNamespace="DMTest::CVec DMTest::CView DMTest::CAuxContainer" \
- files=" -s=${DataModelTestDataCommon_root}/DataModelTestDataCommon \
-             CVec.h CView.h CAuxContainer.h "
