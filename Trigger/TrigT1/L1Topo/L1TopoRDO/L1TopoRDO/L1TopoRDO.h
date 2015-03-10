@@ -51,10 +51,15 @@ public:
   //! set a flag to record an error
   void setError(L1Topo::Error);
 
-  //! get the source identifier, i.e. the module ID, of the ROD from which this RDO was filled
+  //! get the source identifier, i.e. the word representing the subdet type and module ID, of the ROD from which this RDO was filled
   uint32_t getSourceID() const;
   //! set the source identifier
   void setSourceID(const uint32_t);
+
+  //! check the module type, derived from the source ID and the L1Topo module numbering convention; DAQ modules contain the full output
+  bool isDAQModule() const;
+  //! check the module type, derived from the source ID and the L1Topo module numbering convention; ROI modules contain only the "L1Topo" TOB words and are intended for the RoIB. They are also unpacked into the RoIBResult
+  bool isROIModule() const;
 
   //! terse printout method used by RoIBResult
   const std::string dump() const;
@@ -63,7 +68,7 @@ public:
   std::vector<uint32_t> m_dataWords;
   std::vector<uint32_t> m_statusWords;
   //unsigned int m_versionNumber;
-  uint32_t  m_error;
+  uint32_t m_error;
   uint32_t m_sourceID;
 };
 

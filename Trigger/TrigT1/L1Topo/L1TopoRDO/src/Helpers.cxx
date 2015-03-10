@@ -27,7 +27,14 @@ std::ostream& operator<<(std::ostream& os, const L1TopoRDO& rdo) {
   // save ostream state; destructor will restore state when it goes out of scope
   boost::io::ios_all_saver ias(os); 
   os << "L1TopoRDO:\n";
-  os << "     SourceID: " << L1Topo::formatHex8(rdo.getSourceID()) << "\n";
+  os << "     SourceID: " << L1Topo::formatHex8(rdo.getSourceID());
+  if (rdo.isDAQModule()){
+    os << " DAQ";
+  } 
+  else if (rdo.isROIModule()){
+    os << " ROI";
+  }
+  os << "\n";
   os << "     Errors: " << rdo.getErrors() << "\n";
   os << "     Status words:\n";
   std::vector<uint32_t> status = rdo.getStatusWords();
