@@ -7,11 +7,8 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/IChronoStatSvc.h"
 #include "TrkVertexFitterInterfaces/IVertexSeedFinder.h"
-
-//External library for fourier transforms
-#include "fftw3.h"
+#include "TrkVertexSeedFinderUtils/VertexImage.h"
 
 //class IBeamCondSvc; //Beam spot constraint from here
 
@@ -20,6 +17,7 @@ namespace Trk
 
   class Vertex;
   class Track;
+  class IVertexImageMaker;
   class IVertexClusterFinder;
   class VertexCluster;
 
@@ -55,68 +53,11 @@ namespace Trk
 
   private:
 
-    //Cluster utils
+    //Tool that actually makes the image to process
+    ToolHandle< Trk::IVertexImageMaker > m_vertexImageMaker;
+
+    //Clustering util
     ToolHandle< Trk::IVertexClusterFinder > m_VertexClusterFinder;
-
-    //Beam condition
-    /* ServiceHandle<IBeamCondSvc> m_iBeamCondSvc; //!< pointer to the beam condition service */
-
-    //Chrono service
-    ServiceHandle<IChronoStatSvc> m_chronoStatSvc;         
-
-
-    //bin numbering utility functions
-    int getRMBin( const int xbin, const int ybin, const int zbin );
-    void getInvRMBin( const int rmbin, int &xbin, int &ybin, int &zbin) ;
-
-    //Method implementing the backprojection into the real space histogram
-    void fillHist( std::vector<const Trk::TrackParameters*> parametersList );
-    
-    //Functions related to histogram backprojection
-    /* float findClosestCenter( const float t_curr ); //Find the nearest bin border */
-    /*                                                  //Given specified x,y,z and direction */
-    /* void incrementBin( const float t_curr );       //Increment bin containing t_curr */
-    /*                                                 //Also uses x,y,z and direction pars. */
-    /* void updateBinAndCoord( const float t_curr );    */
-
-    // Filtering methods   
-    void filterFSHist(); 
-    void initFSFilter();
-
-    int    m_xbins;  //Defining parameters for histogram
-    int    m_ybins;
-    int    m_zbins;
-    
-    float m_xrange; //Range around beam spot examined
-    float m_yrange; 
-    float m_zrange;
-    
-    //Filter parameters
-    float m_a0Window;
-    float m_a1Window;
-    float m_a2Window;
-    float m_a3Window;
-    
-    int    m_cutoffFreqDenominator_xy;
-    int    m_cutoffFreqDenominator_z;
-    
-    float m_x_min, m_x_max; //Histogram ranges
-    float m_y_min, m_y_max; //Derived from beamspot
-    float m_z_min, m_z_max; //and ranges
-    float m_wx;           //Widths of histogram bins
-    float m_wy;          
-    float m_wz;
-    
-    int m_binstot; //Total number of bins
-    int m_filttot; //Total number of filter bins
-    
-    float       *m_histRS; //The 'real' space histogram. Used as input and output to filtering algorithm
-    fftwf_complex *m_histFS; //The frequency space histogram.
-    std::vector<float> m_histFSFilter; //The frequency space filter
-    
-    //the FFTW "plan" -- object that saves how the fourier transform is done
-    fftwf_plan m_plan_r2c;
-    fftwf_plan m_plan_c2r;
     
     //where the seeds to return are stored
     std::vector<Vertex> m_seeds;
