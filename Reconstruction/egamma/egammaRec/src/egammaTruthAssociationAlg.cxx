@@ -51,6 +51,8 @@ egammaTruthAssociationAlg::egammaTruthAssociationAlg(const std::string& name,
     "Match clusters?");    
   declareProperty("MinPtEgammaTruth", m_minPt = 1e3, 
     "Minimum Pt to enter egamma truth particle container");
+  declareProperty("SimBarcodeOffset", m_barcodeOffset = 200e3,
+    "Barcode offset for G4 particles");
       
   declareProperty("MCTruthClassifier", m_mcTruthClassifier, 
     "Handle of MCTruthClassifier");
@@ -152,7 +154,7 @@ bool egammaTruthAssociationAlg::isPromptEgammaParticle(const xAOD::TruthParticle
 {
   if ((truth->pdgId() != 22 && abs(truth->pdgId()) != 11) || 
       truth->status() == 2 || truth->status() == 3 ||
-      truth->barcode() > 200e3 ||
+      truth->barcode() > m_barcodeOffset ||
       truth->pt() < m_minPt) return false;
   
   MCTruthInfo_t type = m_mcTruthClassifier->particleTruthClassifier(truth);

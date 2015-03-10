@@ -12,28 +12,25 @@ from AthenaCommon.GlobalFlags import globalflags
 if  hasattr(ToolSvc, 'InDetRotCreator') :
     egRotCreator=ToolSvc.InDetRotCreator
 else :
-    #Setup special RotCreator if one is not present
+    #Setup e/gamma offline RotCreator if one is not present
   
     if InDetFlags.doPixelClusterSplitting():
         #
-        # --- Neutral Network version ?
+        # --- Neutral Network version 
         #
         if InDetFlags.pixelClusterSplittingType() == 'NeuralNet':
-        
             # --- temp: read calib file 
             from AthenaCommon.AppMgr import ServiceMgr as svcMgr
             if not hasattr(svcMgr, 'THistSvc'):
                 from GaudiSvc.GaudiSvcConf import THistSvc
                 svcMgr += THistSvc()
                 import sys,os    
-
             # --- neutral network tools
             from TrkNeuralNetworkUtils.TrkNeuralNetworkUtilsConf import Trk__NeuralNetworkToHistoTool
             egNeuralNetworkToHistoTool=Trk__NeuralNetworkToHistoTool(name = "egNeuralNetworkToHistoTool")
             print egNeuralNetworkToHistoTool
             ToolSvc += egNeuralNetworkToHistoTool
       
-
             # --- new NN factor   
             # COOL binding
             from IOVDbSvc.CondDB import conddb
@@ -42,7 +39,7 @@ else :
             # --- put in a temporary hack here for 19.1.0, to select the necessary settings when running on run 1 data/MC
             # --- since a correction is needed to fix biases when running on new run 2 compatible calibation
             # --- a better solution is needed...
-       
+      
             from SiClusterizationTool.SiClusterizationToolConf import InDet__NnClusterizationFactory    
             if not "R2" in globalflags.DetDescrVersion() and not "IBL3D25" in globalflags.DetDescrVersion():
                 egNnClusterizationFactory = InDet__NnClusterizationFactory( name                 = "egNnClusterizationFactory",
@@ -62,12 +59,12 @@ else :
                                                                             LoadNoTrackNetwork   = True,
                                                                             LoadWithTrackNetwork = True)               
             ToolSvc += egNnClusterizationFactory
-      
-
-        
+        #End of splitting type Neural net
+    
+    #End of do cluster splitting 
+    
     # ----------- control loading of ROT_creator
     #
-
     #
     # --- configure default ROT creator
     #
@@ -106,24 +103,20 @@ else :
                                            ToolSCT_Cluster  = egSCT_ClusterOnTrackTool,
                                            Mode             = 'indet')
     ToolSvc += egRotCreator
-
     #
     # load error scaling
     #
     from IOVDbSvc.CondDB import conddb
     if not conddb.folderRequested('Indet/TrkErrorScaling'):
         conddb.addFolderSplitOnline('INDET','/Indet/Onl/TrkErrorScaling','/Indet/TrkErrorScaling') 
+#End of e/gamma Rot Creator
 
+##################################################################################
+# The main part 
 
-# The main part , set up 
-###############################################################################
-#######          Trk     Extrapolator Related Packages                 ########
-###############################################################################
-###############################################################################   
-#
+#         Trk     Extrapolator Related Packages                 ########
 # declare the extrapolator
 # set up geometry
-
 if not hasattr(ToolSvc,'AtlasExtrapolator'):
     from TrkExTools.AtlasExtrapolator import AtlasExtrapolator
     ToolSvc += AtlasExtrapolator()
@@ -138,7 +131,6 @@ from TrkExRungeKuttaPropagator.TrkExRungeKuttaPropagatorConf import Trk__RungeKu
 egTrkPropagator = Propagator(name = 'egTrkPropagator')
 egTrkPropagator.AccuracyParameter = 0.0001
 ToolSvc += egTrkPropagator
-#print      egTrkPropagator
 
 from TrkExSTEP_Propagator.TrkExSTEP_PropagatorConf import Trk__STEP_Propagator as StepPropagator
 egTrkStepPropagator = StepPropagator(name = 'egTrkStepPropagator')
@@ -151,14 +143,12 @@ egTrkNavigator = Trk__Navigator(name                 = 'egTrkNavigator',
                                 #TrackingGeometrySvc = AtlasTrackingGeometrySvc
                                 )
 ToolSvc += egTrkNavigator
-#print      egTrkNavigator
 #
 # Setup the MaterialEffectsUpdator
 #
 from TrkExTools.TrkExToolsConf import Trk__MaterialEffectsUpdator
 egTrkMaterialUpdator = Trk__MaterialEffectsUpdator(name = "egTrkMaterialEffectsUpdator")
 ToolSvc += egTrkMaterialUpdator
-#print      egTrkMaterialUpdator
 
 # CONFIGURE PROPAGATORS/UPDATORS ACCORDING TO GEOMETRY SIGNATURE
 
@@ -190,11 +180,10 @@ egTrkExtrapolator = Trk__Extrapolator(name                    = 'egTrkExtrapolat
                                       SubPropagators          = egTrkSubPropagators,
                                       SubMEUpdators           = egTrkSubUpdators)
 ToolSvc += egTrkExtrapolator
+print egTrkExtrapolator
+###############################################################################
+# And finally set up the GSF
 
-###############################################################################
-#######                     GSF Related Packaages                      ########
-###############################################################################
-###############################################################################
 
 from TrkGaussianSumFilter.TrkGaussianSumFilterConf import Trk__GsfMaterialMixtureConvolution
 GsfMaterialUpdator = Trk__GsfMaterialMixtureConvolution (name = 'GsfMaterialUpdator')
@@ -215,6 +204,12 @@ from TrkGaussianSumFilter.TrkGaussianSumFilterConf import Trk__GsfMeasurementUpd
 GsfMeasurementUpdator = Trk__GsfMeasurementUpdator( name    = 'GsfMeasurementUpdator',
                                                     Updator = egTrkUpdator )
 ToolSvc += GsfMeasurementUpdator
+
+#THE FOOLOWING DOES NOT WORK FOR NOW
+#from TrkExTools.TrkExToolsConf import Trk__MultipleScatteringUpdator
+#GSFMultipleScatterUpdator= Trk__MultipleScatteringUpdator(name = "GSFMultipleScatterUpdator",
+#                                                       UseTrkUtils = False)
+#ToolSvc += GSFMultipleScatterUpdator
 
 from TrkGaussianSumFilter.TrkGaussianSumFilterConf import Trk__GsfExtrapolator
 GsfExtrapolator = Trk__GsfExtrapolator(name                          = 'GsfExtrapolator',
@@ -240,34 +235,5 @@ GSFTrackFitter = Trk__GaussianSumFitter(name                    = 'GSFTrackFitte
                                         OutputLevel =5)
 # --- end of fitter loading
 ToolSvc += GSFTrackFitter
-
-###############################################################################
-#######                     GX2 Related Packaages                      ########
-###############################################################################
-###############################################################################
-
-from TrkGlobalChi2Fitter.TrkGlobalChi2FitterConf import Trk__GlobalChi2Fitter
-GX2TrackFitter = Trk__GlobalChi2Fitter(name                  = 'GX2TrackFitter',
-                                         OutputLevel = 4, 
-                                         ExtrapolationTool     = egTrkExtrapolator,
-                                         NavigatorTool         = egTrkNavigator,
-                                         PropagatorTool        = egTrkPropagator,
-                                         RotCreatorTool        = egRotCreator,
-                                         TrackingGeometrySvc   = AtlasTrackingGeometrySvc,
-                                         MaterialUpdateTool    = egTrkMaterialUpdator,
-                                         BroadRotCreatorTool   = None,
-                                         MeasurementUpdateTool = egTrkUpdator,
-                                         StraightLine          = not InDetFlags.solenoidOn(),
-                                         OutlierCut            = 4,
-                                         SignedDriftRadius     = True,
-                                         ReintegrateOutliers   = True,
-                                         RecalibrateSilicon    = False,
-                                         RecalibrateTRT        = False,
-                                         TRTTubeHitCut         = 2.5,
-                                         MaxIterations         = 40,
-                                         Acceleration          = True,
-                                         RecalculateDerivatives= InDetFlags.doCosmics() or InDetFlags.doBeamHalo(),
-                                         TRTExtensionCuts      = True,
-                                         TrackChi2PerNDFCut    = 10)
-
-ToolSvc += GX2TrackFitter
+print GSFTrackFitter
+#################################################################################
