@@ -16,6 +16,7 @@
 #include "MuGirlStau/IStauBetaTofTool.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "xAODTracking/ParticleCaloExtension.h"
+#include "PathResolver/PathResolver.h"
 
 #include "MuGirlStau/StauNTuple.h"
 #include "MuGirlStau/StauFcn.h"
@@ -33,6 +34,7 @@
 #include "EventInfo/TagInfo.h"
 #include "EventInfoMgt/ITagInfoMgr.h"
 #include "MdtCalibSvc/MdtCalibrationDbSvc.h"
+#include "TFile.h"
 
 namespace MuGirlNS
 {
@@ -53,7 +55,10 @@ StauTool::StauTool(const std::string& t, const std::string& n, const IInterface*
                 m_pStauRPC(NULL), m_pStauMDT(NULL), m_pStauGF(NULL), m_pStauTileCal(NULL), m_pStauMDTT(NULL),
                 m_pSegmentManager(NULL), m_skipStation(1000), m_beta(-1.), m_mass(-100.), m_tzero(-100.), m_p(0.),
                 m_pNewMdtSegments(NULL), m_pRefittedTrack(NULL), m_pMuonRefittedTrack(NULL), m_hasSummary(false),
-                m_pFcnSteps(NULL), m_numMdtSegs(-1), m_numMdtHitsInSeg(-1), m_calibration(m_log)
+	         m_pFcnSteps(NULL), m_numMdtSegs(-1), m_numMdtHitsInSeg(-1), m_calibration(m_log),
+	m_mdtCalibFileName(""),
+	m_rpcCalibFileName(""),
+	m_caloCalibFileName("")
 {
     declareInterface < IStauTool > (this);
 
@@ -84,9 +89,9 @@ StauTool::StauTool(const std::string& t, const std::string& n, const IInterface*
     declareProperty("tileEnergyCut", m_tileEnergyCut);
 
     /* calibration */
-    declareProperty("mdtCalibFile", m_mdtCalibFile);
-    declareProperty("rpcCalibFile", m_rpcCalibFile);
-    declareProperty("caloCalibFile", m_caloCalibFile);
+    declareProperty("mdtCalibFileName", m_mdtCalibFileName);
+    declareProperty("rpcCalibFileName", m_rpcCalibFileName);
+    declareProperty("caloCalibFileName", m_caloCalibFileName);
 }
 
 //================ Destructor =================================================
@@ -100,6 +105,13 @@ StauTool::~StauTool()
 StatusCode StauTool::initialize()
 {
     StatusCode sc = AlgTool::initialize();
+
+    ////calibration files
+    if ( m_mdtCalibFileName == "" ) m_log<<MSG::INFO<<"No mdt calib file"<<std::endl;
+    if ( m_rpcCalibFileName == "" ) m_log<<MSG::INFO<<"No rpc calib file"<<std::endl;
+    if ( m_caloCalibFileName == "" ) m_log<<MSG::INFO<<"No calo calib file"<<std::endl;
+
+    /////////
     m_log.setLevel(outputLevel());
     if (sc.isFailure()) return sc;
     /** initialize tool handles */
@@ -147,10 +159,9 @@ StatusCode StauTool::initialize()
     /** calibration */
     if (m_doCalibration)
     {
-        const char* mdtCalibFile = m_mdtCalibFile.c_str();
-        const char* rpcNewCalibFile = m_rpcCalibFile.c_str();
-        const char* caloCalibFile = m_caloCalibFile.c_str();
-        m_calibration.initialize(mdtCalibFile, rpcNewCalibFile, caloCalibFile);
+      LOG_DEBUG<<"Calibration "<<m_mdtCalibFileName<<"  "<<m_rpcCalibFileName<<"  "<<m_caloCalibFileName<<endreq;
+      m_calibration.initialize(m_mdtCalibFileName, m_rpcCalibFileName, m_caloCalibFileName);
+
     }
     return StatusCode::SUCCESS;
 }
@@ -1207,31 +1218,31 @@ bool StauTool::selectRangeTTrack(double& min, double& max)
         double numSegs = pStep->mdtData->numSegs;
         double numHits = pStep->mdtData->hitsInSegments;
         //m_log << MSG::VERBOSE  // tTrack:mdtChi2:mdtSegs:mdtHits:
-        std::cout << "E123:: " << pStep->tTrack << "," << pStep->mdtData->chi2 << ","
-                << pStep->mdtData->totNumHits - 2 * pStep->mdtData->pStationDataList->size() << ","
-                << pStep->mdtData->hitsInSegments << "," << pStep->tileCalData->chi2 << ","
-                << pStep->tileCalData->numOfCells << std::endl;
+        //std::cout << "E123:: " << pStep->tTrack << "," << pStep->mdtData->chi2 << ","
+        //        << pStep->mdtData->totNumHits - 2 * pStep->mdtData->pStationDataList->size() << ","
+        //        << pStep->mdtData->hitsInSegments << "," << pStep->tileCalData->chi2 << ","
+        //        << pStep->tileCalData->numOfCells << std::endl;
         if (numSegs == 0) continue;
         if (currentRange.nHits != numHits) currentRange.clear();
         if (!currentRange.addStepLast(i, numHits, pStep->mdtData->chi2, pStep->tTrack))
-            std::cout << "E123: " << __LINE__ << " sanity check failed" << std::endl;
-        std::cout << "E123: " << __LINE__ << " size " << currentRange.size() << std::endl;
+	  //std::cout << "E123: " << __LINE__ << " sanity check failed" << std::endl;
+	  //std::cout << "E123: " << __LINE__ << " size " << currentRange.size() << std::endl;
         if (currentRange.isBetter(bestRange))
         {
-            std::cout << "E123:  current range is better: " << std::endl;
+	  //std::cout << "E123:  current range is better: " << std::endl;
             bestRange = currentRange;
         }
     }
     if (bestRange.size() < 1)
     {
         return false;
-        std::cout << "E123: didnt find a range" << std::endl;
+        //std::cout << "E123: didnt find a range" << std::endl;
     }
     if (bestRange.size() > 1)
     {
         max = (bestRange.max < (bestRange.minChi2Param + 2.0)) ? bestRange.max : bestRange.minChi2Param + 2.0;
         min = (bestRange.min > (bestRange.minChi2Param - 2.0)) ? bestRange.min : bestRange.minChi2Param - 2.0;
-        std::cout << "E123: " << "range" << max << " " << min << std::endl;
+        //std::cout << "E123: " << "range" << max << " " << min << std::endl;
         return true;
     }
     if (bestRange.size() == 1)

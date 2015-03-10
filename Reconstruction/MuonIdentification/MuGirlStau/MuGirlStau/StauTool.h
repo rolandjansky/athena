@@ -30,7 +30,7 @@
 
 #include <map>
 #include <boost/regex.hpp>
-
+#include "TFile.h"
 inline std::vector<std::string> split(const string& input, const string& delim)
 {
 //    boost::regex re_delim(delim);
@@ -424,9 +424,14 @@ private:
     bool m_doCalibration;
 
     /* calibration */
-    std::string m_mdtCalibFile;
-    std::string m_rpcCalibFile;
-    std::string m_caloCalibFile;
+    std::string m_mdtCalibFileName;
+    std::string m_rpcCalibFileName;
+    std::string m_caloCalibFileName;
+
+    TFile *m_mdtCalibFile;
+    TFile *m_rpcCalibFile;
+    TFile *m_caloCalibFile;
+
     int m_runNumber;
 
     /** Stau collection - save info in store gate */

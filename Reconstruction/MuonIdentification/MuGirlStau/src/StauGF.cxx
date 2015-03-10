@@ -224,8 +224,12 @@ void MuGirlNS::StauGF::processGlobalFitWithTTrack(double /* tTrack */, GlobalFit
         const DataVector<const Trk::TrackStateOnSurface>* pTSoSs = pTrack->trackStateOnSurfaces();
         if (pTSoSs == NULL)
         {
+            pTriggerHitsInSegments->clear();
+            delete pTriggerHitsInSegments; pTriggerHitsInSegments=nullptr;
+            pMdtHits->clear();
+            delete pMdtHits; pMdtHits=nullptr;
             return;
-            std::cout << "E123: " << __FILE__ << " " << __LINE__ << std::endl;
+            //std::cout << "E123: " << __FILE__ << " " << __LINE__ << std::endl;
         } // (false);
         for (auto pTSoS : *pTSoSs)
         {
