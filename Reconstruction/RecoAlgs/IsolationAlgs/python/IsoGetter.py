@@ -150,7 +150,7 @@ def configureEDCorrection(tool):
 
 from CaloIdentifier import SUBCALO 
 from IsolationTool.IsolationToolConf import xAOD__CaloIsolationTool, xAOD__TrackIsolationTool
-CaloIsolationTool = ToolFactory(xAOD__CaloIsolationTool,name = "MyCaloIsolationTool",
+CaloIsolationTool = ToolFactory(xAOD__CaloIsolationTool,name = "CaloIsolationTool",
                                 postInit                        = [configureEDCorrection],
                                 CaloFillRectangularClusterTool  = CaloFillRectangularCluster,
                                 ClustersInConeTool              = CaloClustersInConeTool,
@@ -166,7 +166,7 @@ from AthenaCommon import CfgMgr
 tit = CfgMgr.xAOD__TrackIsolationTool('TrackIsolationTool')
 tit.TrackSelectionTool.maxZ0SinTheta = 3
 tit.TrackSelectionTool.minPt         = 1000
-tit.TrackSelectionTool.CutLevel      = "TightPrimary"
+tit.TrackSelectionTool.CutLevel      = "Loose"
 
 import ROOT, PyCintex
 # Need to be sure base dict is loaded first.
