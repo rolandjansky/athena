@@ -11,7 +11,12 @@ addTool("ISF_HepMC_Tools.ISF_HepMC_ToolsConfig.getGenEventVertexPositioner",    
 ## GenParticle Filters
 addTool("ISF_HepMC_Tools.ISF_HepMC_ToolsConfig.getParticleFinalStateFilter",          "ISF_ParticleFinalStateFilter")
 addTool("ISF_HepMC_Tools.ISF_HepMC_ToolsConfig.getParticleSimWhiteList",              "ISF_ParticleSimWhiteList")
-addTool("ISF_HepMC_Tools.ISF_HepMC_ToolsConfig.getParticlePositionFilter",            "ISF_ParticlePositionFilter")
+addTool("ISF_HepMC_Tools.ISF_HepMC_ToolsConfig.getParticlePositionFilterID",          "ISF_ParticlePositionFilterID")
+addTool("ISF_HepMC_Tools.ISF_HepMC_ToolsConfig.getParticlePositionFilterCalo",        "ISF_ParticlePositionFilterCalo")
+addTool("ISF_HepMC_Tools.ISF_HepMC_ToolsConfig.getParticlePositionFilterMS",          "ISF_ParticlePositionFilterMS")
+addTool("ISF_HepMC_Tools.ISF_HepMC_ToolsConfig.getParticlePositionFilterWorld",       "ISF_ParticlePositionFilterWorld")
+addTool("ISF_HepMC_Tools.ISF_HepMC_ToolsConfig.getParticlePositionFilterDynamic",     "ISF_ParticlePositionFilterDynamic")
+addTool("ISF_HepMC_Tools.ISF_HepMC_ToolsConfig.getGenParticleInteractingFilter",      "ISF_GenParticleInteractingFilter")
 addTool("ISF_HepMC_Tools.ISF_HepMC_ToolsConfig.getEtaPhiFilter",                      "ISF_EtaPhiFilter")
 ## Stack Fillers
 addTool("ISF_HepMC_Tools.ISF_HepMC_ToolsConfig.getStackFiller",                       "ISF_StackFiller")

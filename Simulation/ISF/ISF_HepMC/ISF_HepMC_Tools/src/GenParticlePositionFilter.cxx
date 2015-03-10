@@ -18,12 +18,18 @@ ISF::GenParticlePositionFilter::GenParticlePositionFilter( const std::string& t,
                                                            const std::string& n,
                                                            const IInterface* p )
   : AthAlgTool(t,n,p),
-    m_geoIDSvc("ISF_GeoIDSvc", n)
+    m_geoIDSvc("ISF_GeoIDSvc", n),
+    m_checkRegion()
 {
     declareInterface<ISF::IGenParticleFilter>(this);
 
     // the GeoID indentification service
-    declareProperty("GeoIDService"      ,        m_geoIDSvc);
+    declareProperty("GeoIDService",
+        m_geoIDSvc,
+        "The GeoID Service");
+    declareProperty("CheckRegion",
+        m_checkRegion,
+        "Check if the given particles are within the specified regions");
 }
 
 
@@ -58,20 +64,21 @@ bool ISF::GenParticlePositionFilter::pass(const HepMC::GenParticle& particle) co
   // (x,y,z) position
   HepMC::ThreeVector pos = vtx->point3d();
 
-  // check if the particle position is inside (or on surface)
-  // of any of the ISF Simulation GeoIDs
   bool inside = false;
-  for ( short geoID=AtlasDetDescr::fFirstAtlasRegion;
-        (geoID<AtlasDetDescr::fNumAtlasRegions) && (!inside);
-        ++geoID) {
+  // check if the particle position is inside (or on surface)
+  // of any of the given ISF Simulation GeoIDs
+  std::vector<int>::const_iterator checkRegionIt    = m_checkRegion.begin();
+  std::vector<int>::const_iterator checkRegionItEnd = m_checkRegion.end();
+  for ( ; (checkRegionIt!=checkRegionItEnd) && (!inside); checkRegionIt++) {
     // consult the GeoID identification service
     ISF::InsideType insideCheck = m_geoIDSvc->inside( pos.x(),
                                                       pos.y(),
                                                       pos.z(),
-                                                      AtlasDetDescr::AtlasRegion(geoID) );
+                                                      AtlasDetDescr::AtlasRegion(*checkRegionIt) );
     // is inside only if ==fInside or ==fSurface
     inside |= (insideCheck==ISF::fInside) || (insideCheck==ISF::fSurface);
   }
+
 
   // return whether pos was inside any of the simulation geometries
   if (inside)
