@@ -2,18 +2,12 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "Geo2G4/Geo2G4MatPropTableFactory.h"
-
+#include "Geo2G4MatPropTableFactory.h"
 #include "G4MaterialPropertiesTable.hh"
 #include "G4MaterialPropertyVector.hh"
+
 #include "GeoModelUtilities/GeoMaterialPropertiesTable.h"
 #include "GeoModelUtilities/GeoMaterialPropertyVector.h"
-
-
-#include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/Bootstrap.h"
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/IMessageSvc.h"
 
 Geo2G4MatPropTableFactory* Geo2G4MatPropTableFactory::m_instance = 0;
 
@@ -30,21 +24,10 @@ Geo2G4MatPropTableFactory::Geo2G4MatPropTableFactory()
 
 G4MaterialPropertiesTable* Geo2G4MatPropTableFactory::Build(const GeoMaterialPropertiesTable* thePropTable)
 {
-  ISvcLocator* svcLocator = Gaudi::svcLocator();
-  IMessageSvc* msgSvc;
-  StatusCode sc = svcLocator->service("MessageSvc", msgSvc);
-  if(sc.isFailure())
-  {
-    std::cerr << "Geo2G4MatPropTableFactory unable to get Message Service\n";
-    return 0;
-  }
-
-  MsgStream log(msgSvc,"Geo2G4MatPropTableFactory");
-
   //
   // Check if this material has already been defined.
   //
-  if(definedTables.find(thePropTable) != definedTables.end()) 
+  if(definedTables.find(thePropTable) != definedTables.end())
     return definedTables[thePropTable];
 
   G4MaterialPropertiesTable* newTable = new G4MaterialPropertiesTable();
@@ -63,22 +46,22 @@ G4MaterialPropertiesTable* Geo2G4MatPropTableFactory::Build(const GeoMaterialPro
   GeoMaterialPropertiesTable::GeoMatPVMap_ConstIt it2_last  = thePropTable->endPVMap();
 
   for(;it2_first!=it2_last;it2_first++)
-  {
-    GeoMaterialPropertyVector* geoMPV = it2_first->second;
-    //from G4 9.6 G4MaterialPropertyVector is now a typedef of G4PhysicsOrderedFreeVector
-    G4MaterialPropertyVector* g4MPV = new G4MaterialPropertyVector();
+    {
+      GeoMaterialPropertyVector* geoMPV = it2_first->second;
+      //from G4 9.6 G4MaterialPropertyVector is now a typedef of G4PhysicsOrderedFreeVector
+      G4MaterialPropertyVector* g4MPV = new G4MaterialPropertyVector();
 
-    geoMPV->ResetIterator();
+      geoMPV->ResetIterator();
 
-    while((*geoMPV).operator++())
-      {
-	//g4MPV->AddElement(geoMPV->GetPhotonMomentum(),geoMPV->GetProperty()); // G4 9.4 syntax
-	//assume G4PhysicsOrderedFreeVector::InsertValues is equivalent to G4MaterialPropertyVector::AddElement
-	g4MPV->InsertValues(geoMPV->GetPhotonMomentum(),geoMPV->GetProperty()); // G4 9.6 syntax
-      }
+      while((*geoMPV).operator++())
+        {
+          //g4MPV->AddElement(geoMPV->GetPhotonMomentum(),geoMPV->GetProperty()); // G4 9.4 syntax
+          //assume G4PhysicsOrderedFreeVector::InsertValues is equivalent to G4MaterialPropertyVector::AddElement
+          g4MPV->InsertValues(geoMPV->GetPhotonMomentum(),geoMPV->GetProperty()); // G4 9.6 syntax
+        }
 
-    newTable->AddProperty((it2_first->first).c_str(),g4MPV);
-  }
+      newTable->AddProperty((it2_first->first).c_str(),g4MPV);
+    }
 
   // Save new table to the map
   definedTables[thePropTable]=newTable;

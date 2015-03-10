@@ -2,10 +2,10 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "Geo2G4/GenericVolumeBuilder.h"
-#include "Geo2G4/ParameterisedVolumeBuilder.h"
-#include "Geo2G4/ExtParameterisedVolumeBuilder.h"
-#include "Geo2G4/SingleLVCopyBuilder.h"
+#include "GenericVolumeBuilder.h"
+#include "ParameterisedVolumeBuilder.h"
+#include "ExtParameterisedVolumeBuilder.h"
+#include "SingleLVCopyBuilder.h"
 
 void InitializeBuilders()
 {

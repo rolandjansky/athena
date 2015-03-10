@@ -12,14 +12,14 @@ class GeoMaterialPropertiesTable;
 
 typedef std::map<const GeoMaterialPropertiesTable* , G4MaterialPropertiesTable*, std::less<const GeoMaterialPropertiesTable*> > TableMap;
 
-class Geo2G4MatPropTableFactory 
+class Geo2G4MatPropTableFactory
 {
- public:
+public:
   static Geo2G4MatPropTableFactory* instance();
 
   G4MaterialPropertiesTable* Build(const GeoMaterialPropertiesTable*);
 
- private:
+private:
   Geo2G4MatPropTableFactory();
 
   static Geo2G4MatPropTableFactory* m_instance;

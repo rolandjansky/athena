@@ -2,35 +2,24 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "G4Material.hh"
+#include "Geo2G4/Geo2G4MaterialFactory.h"
+#include "Geo2G4ElementFactory.h"
+#include "Geo2G4MatPropTableFactory.h"
+
 #include "GeoModelKernel/GeoMaterial.h"
 #include "GeoModelUtilities/GeoExtendedMaterial.h"
 #include "GeoModelUtilities/GeoMaterialPropertiesTable.h"
 
-#include "Geo2G4/Geo2G4ElementFactory.h"
-#include "Geo2G4/Geo2G4MaterialFactory.h"
-#include "Geo2G4/Geo2G4MatPropTableFactory.h"
+#include "AthenaBaseComps/AthMsgStreamMacros.h"
 
-#include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/Bootstrap.h"
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/IMessageSvc.h"
+#include "G4Material.hh"
 
-Geo2G4MaterialFactory::Geo2G4MaterialFactory()
+Geo2G4MaterialFactory::Geo2G4MaterialFactory(): m_msg("Geo2G4MaterialFactory")
 {
 }
 
 G4Material* Geo2G4MaterialFactory::Build(const GeoMaterial* theMat)
 {
-  ISvcLocator* svcLocator = Gaudi::svcLocator();
-  IMessageSvc* msgSvc;
-  StatusCode sc = svcLocator->service("MessageSvc", msgSvc);
-  if(sc.isFailure()) {
-    std::cerr << "Geo2G4MaterialFactory unable to get Message Service\n";
-    return 0;
-  }
-
-  MsgStream log(msgSvc,"Geo2G4MaterialFactory");
   static Geo2G4ElementFactory eFactory;
   Geo2G4MatPropTableFactory* tFactory = Geo2G4MatPropTableFactory::instance();
 
@@ -39,7 +28,7 @@ G4Material* Geo2G4MaterialFactory::Build(const GeoMaterial* theMat)
   //
   std::string nam = theMat->getName();
 
-  if(definedMaterials.find(theMat) != definedMaterials.end()) 
+  if(definedMaterials.find(theMat) != definedMaterials.end())
     return definedMaterials[theMat];
 
   int nelements = theMat->getNumElements();
@@ -54,32 +43,32 @@ G4Material* Geo2G4MaterialFactory::Build(const GeoMaterial* theMat)
     G4State state = kStateUndefined;
 
     switch(extMat->getState())
-    {
-    case stateUndefined:
-      state = kStateUndefined;
-      break;
-    case stateSolid:
-      state = kStateSolid;
-      break;
-    case stateLiquid:
-      state = kStateLiquid;
-      break;
-    case stateGas:
-      state = kStateGas;
-      break;
-    default:
-      break;
-    }
+      {
+      case stateUndefined:
+        state = kStateUndefined;
+        break;
+      case stateSolid:
+        state = kStateSolid;
+        break;
+      case stateLiquid:
+        state = kStateLiquid;
+        break;
+      case stateGas:
+        state = kStateGas;
+        break;
+      default:
+        break;
+      }
 
     double temperature = extMat->getTemperature();
     double pressure = extMat->getPressure();
 
-    newmaterial= new G4Material(nam, 
-				extMat->getDensity(),
-				nelements,
-				state,
-				temperature,
-				pressure);
+    newmaterial= new G4Material(nam,
+                                extMat->getDensity(),
+                                nelements,
+                                state,
+                                temperature,
+                                pressure);
 
     // Build G4MaterialPropertiesTable if needed
     GeoMaterialPropertiesTable* geoPropTable = extMat->GetMaterialPropertiesTable();
@@ -87,13 +76,13 @@ G4Material* Geo2G4MaterialFactory::Build(const GeoMaterial* theMat)
     if(geoPropTable) {
       G4MaterialPropertiesTable* g4PropTable = tFactory->Build(geoPropTable);
       if(g4PropTable)
-	newmaterial->SetMaterialPropertiesTable(g4PropTable);
+        newmaterial->SetMaterialPropertiesTable(g4PropTable);
     }
   }
   else
-    newmaterial= new G4Material(nam, 
-				theMat->getDensity(),
-				nelements);
+    newmaterial= new G4Material(nam,
+                                theMat->getDensity(),
+                                nelements);
 
   for (int ii = 0; ii< nelements; ii++)  {
     G4Element* theG4Ele = eFactory.Build(theMat->getElement(ii));
@@ -103,11 +92,11 @@ G4Material* Geo2G4MaterialFactory::Build(const GeoMaterial* theMat)
   definedMaterials[theMat]=newmaterial;
 
   // Check if we have the situation when on GeoModel side two different
-  // materials share the same name. 
+  // materials share the same name.
   // Print an INFO message if so.
   if(definedMatNames.find(nam)==definedMatNames.end())
     definedMatNames[nam] = theMat;
   else if(definedMatNames[nam] != theMat)
-    log<<MSG::INFO<<"!!! On GeoModel side two different materials share the name: " << nam <<endreq; 
+    ATH_MSG_INFO ( "!!! On GeoModel side two different materials share the name: " << nam );
   return newmaterial;
 }
