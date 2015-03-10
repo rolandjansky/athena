@@ -1,0 +1,17 @@
+f
+f
+x solCur=7730;torCur=20500;execfile('setMagFieldCurrents.py')
+f
+f
+b
+x solCur=0;torCur=0;execfile('setMagFieldCurrents.py')
+f
+f
+b
+x solCur=7730;torCur=20500;execfile('setMagFieldCurrents.py')
+f
+f
+b
+b
+b
+e
