@@ -1,6 +1,7 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon import CfgMgr
+from GaudiKernel.Constants import *
 
 #################################################################################
 # Define some default values
@@ -129,9 +130,12 @@ class METAssocConfig:
 
 # Set up a top-level tool with mostly defaults
 def getMETAssocTool(topconfig):
+    tcstate = clusterSigStates['LocHad']
+    if topconfig.suffix == 'AntiKt4EMTopo': tcstate = clusterSigStates['EMScale']
     assocTool = CfgMgr.met__METAssociationTool('MET_AssociationTool_'+topconfig.suffix,
-                                       METAssociators = topconfig.assoclist,
-                                       METSuffix = topconfig.suffix)
+                                               METAssociators = topconfig.assoclist,
+                                               METSuffix = topconfig.suffix,
+                                               TCSignalState=tcstate)
     return assocTool
 
 # Allow user to configure reco tools directly or get more default configurations

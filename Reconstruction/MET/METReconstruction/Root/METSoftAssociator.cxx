@@ -86,13 +86,13 @@ namespace met {
       for(const auto& sig : *uniquePFOs) {
 	const PFO *pfo = static_cast<const PFO*>(sig);
 	if (pfo->charge()!=0) {
-	  if (acceptChargedPFO(pfo->track(0),pv)) {
+	  if (pv && acceptChargedPFO(pfo->track(0),pv)) {
 	    *metCoreTrk += sig;
 	    *metCoreCl += sig;
 	  }
 	} else {
-	  TLorentzVector corrected = pfo->GetVertexCorrectedEMFourVec(*pv);
-	  if (pfo->eEM()>0) metCoreCl->add(corrected.Px(),corrected.Py(),corrected.Pt());
+	  TLorentzVector momentum = pv ? pfo->GetVertexCorrectedEMFourVec(*pv) : pfo->p4();
+	  if (pfo->eEM()>0) metCoreCl->add(momentum.Px(),momentum.Py(),momentum.Pt());
 	}
       }
       delete uniquePFOs;
@@ -102,12 +102,14 @@ namespace met {
 	if (cl->e()>0) *metCoreCl += cl;
       }
       const IParticleContainer* uniqueTracks = metMap->getUniqueSignals(trkCont);
-      for(const auto& trk : *uniqueTracks) {
-	// if(acceptTrack(dynamic_cast<const TrackParticle*>(trk),pv) && isGoodEoverP(dynamic_cast<const TrackParticle*>(trk),tcCont)) {
-	ATH_MSG_VERBOSE("Test core track with pt " << trk->pt());
-	if(acceptTrack(static_cast<const TrackParticle*>(trk),pv)) {
-	  ATH_MSG_VERBOSE("Add core track with pt " << trk->pt());
-	  *metCoreTrk += trk;
+      if(pv) {
+	for(const auto& trk : *uniqueTracks) {
+	  // if(acceptTrack(dynamic_cast<const TrackParticle*>(trk),pv) && isGoodEoverP(dynamic_cast<const TrackParticle*>(trk),tcCont)) {
+	  ATH_MSG_VERBOSE("Test core track with pt " << trk->pt());
+	  if(acceptTrack(static_cast<const TrackParticle*>(trk),pv)) {
+	    ATH_MSG_VERBOSE("Add core track with pt " << trk->pt());
+	    *metCoreTrk += trk;
+	  }
 	}
       }
       delete uniqueClusters;

@@ -126,7 +126,7 @@ namespace met {
         if (swclus->p4().DeltaR(pfo->p4EM())<m_tcMatch_dR && pfo->eEM()>0) {
 	  nearbyPFO.push_back(pfo);
 	}
-      } else {
+      } else if(pv) {
 	for(size_t iTrk=0; iTrk<el->nTrackParticles(); ++iTrk) {
 	  const TrackParticle* eltrk = EgammaHelpers::getOriginalTrackParticleFromGSF(el->trackParticle(iTrk));
 	  if(pfo->track(0) == eltrk) {
@@ -155,7 +155,7 @@ namespace met {
 	pfolist.push_back(pfo);
 	sumE_pfo += pfo_e;
 
-        TLorentzVector momentum = pfo->GetVertexCorrectedEMFourVec(*pv);
+        TLorentzVector momentum = pv ? pfo->GetVertexCorrectedEMFourVec(*pv) : pfo->p4();
 	momenta[pfo] = MissingETBase::Types::constvec_t(momentum.Px(),momentum.Py(),momentum.Pz(),
 							momentum.E(),momentum.Pt());
       } // if we will retain the topocluster

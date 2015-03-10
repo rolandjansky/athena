@@ -118,7 +118,7 @@ namespace met {
   {  
     const xAOD::Muon *mu = static_cast<const xAOD::Muon*>(obj);
     const TrackParticle* idtrack = mu->trackParticle(xAOD::Muon::InnerDetectorTrackParticle);
-    if(idtrack && acceptChargedPFO(idtrack,pv)) {
+    if(pv && idtrack && acceptChargedPFO(idtrack,pv)) {
       for(const auto& pfo : *pfoCont) {
 	if (pfo->charge()!=0 && pfo->track(0) == idtrack) {
 	  pfolist.push_back(pfo);

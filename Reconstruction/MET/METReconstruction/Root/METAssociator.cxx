@@ -97,19 +97,17 @@ namespace met {
     pv = 0;
     if( evtStore()->retrieve(vxCont, m_pvcoll).isFailure() ) {
       ATH_MSG_WARNING("Unable to retrieve primary vertex container " << m_pvcoll);
-      return StatusCode::FAILURE;
     } else if(vxCont->empty()) {
       ATH_MSG_WARNING("Event has no primary vertices!");
-      return StatusCode::FAILURE;
-    }
-    ATH_MSG_DEBUG("Successfully retrieved primary vertex container");
-    for(const auto& vx : *vxCont) {
-      if(vx->vertexType()==VxType::PriVtx)
-	{pv = vx; break;}
+    } else {
+      ATH_MSG_DEBUG("Successfully retrieved primary vertex container");
+      for(const auto& vx : *vxCont) {
+	if(vx->vertexType()==VxType::PriVtx)
+	  {pv = vx; break;}
+      }
     }
     if(!pv) {
-      ATH_MSG_WARNING("Failed to find primary vertex!");
-      return StatusCode::FAILURE;
+      ATH_MSG_DEBUG("Failed to find primary vertex!");
     } else {
       ATH_MSG_VERBOSE("Primary vertex has z = " << pv->z());
     }
@@ -125,7 +123,7 @@ namespace met {
 	ATH_CHECK(evtStore()->retrieve(pfoCont,"EtmissParticleFlowObjects"));
       } else {
 	pfoCont = m_pfotool->retrievePFO(CP::EM, CP::all);
-	ATH_CHECK( evtStore()->record(pfoCont,"EtmissParticleFlowObjects"));
+	ATH_CHECK( evtStore()->record( const_cast<xAOD::PFOContainer*>(pfoCont),"EtmissParticleFlowObjects"));
       }
       if(!pfoCont) {
 	ATH_MSG_WARNING("Unable to retrieve input pfo container");
@@ -177,7 +175,7 @@ namespace met {
         MissingETComposition::insert(metMap,obj,constlist,momentumOverride);
       } else {
         ATH_CHECK( this->extractTopoClusters(obj,constlist,tcCont) );
-        ATH_CHECK( this->extractTracks(obj,constlist,tcCont,pv) );
+        if(pv) { ATH_CHECK( this->extractTracks(obj,constlist,tcCont,pv) ); }
         MissingETComposition::insert(metMap,obj,constlist);
       }
     }

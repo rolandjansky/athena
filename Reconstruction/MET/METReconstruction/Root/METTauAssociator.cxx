@@ -176,7 +176,7 @@ namespace met {
 	if(seedjet->p4().DeltaR(pfo->p4EM())<0.2 && pfo->eEM()>0) {
 	match = true;
 	}
-      } else {
+      } else if(pv) {
 	for(size_t iTrk=0; iTrk<tau->nTracks(); ++iTrk) {
 	  const TrackParticle* tautrk = tau->track(iTrk);
 	  if(tautrk==pfo->track(0)) {
@@ -194,9 +194,9 @@ namespace met {
       if(match) {
 	pfolist.push_back(pfo);
 	if(pfo->charge()==0) {
-	  TLorentzVector momentum = pfo->GetVertexCorrectedEMFourVec(*pv);
+	  TLorentzVector momentum = pv ? pfo->GetVertexCorrectedEMFourVec(*pv) : pfo->p4();
 	  momenta[pfo] = MissingETBase::Types::constvec_t(momentum.Px(),momentum.Py(),momentum.Pz(),
-						     momentum.E(),momentum.Pt());
+							  momentum.E(),momentum.Pt());
 	}
       }
     }
