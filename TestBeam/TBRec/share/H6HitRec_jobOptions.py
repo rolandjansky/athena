@@ -1,0 +1,12 @@
+TBPlaneTrackingAlgo.BPCnames =  ["BPC0","BPC1","BPC2","BPC3","BPC4","BPC5"]
+TBPlaneTrackingAlgo.BPCposX = [0.,0.,0.,0.,0.,0.]
+TBPlaneTrackingAlgo.BPCposY = [0.,0.,0.,0.,0.,0.]
+TBPlaneTrackingAlgo.BPCposZX = [490, 1020, 11880, 12170, 28520, 28620]
+TBPlaneTrackingAlgo.BPCposZY = [521, 1051, 11955, 12245, 28551, 28651]
+TBPlaneTrackingAlgo.BPCerrposX = [0.,0.,0.,0.,0.,0.]
+TBPlaneTrackingAlgo.BPCerrposY = [0.,0.,0.,0.,0.,0.]
+TBPlaneTrackingAlgo.BPCerrposZX = [0.,0.,0.,0.,0.,0.]
+TBPlaneTrackingAlgo.BPCerrposZY = [0.,0.,0.,0.,0.,0.]
+TBPlaneTrackingAlgo.BPCerrmeasX = [0.,0.,0.,0.,0.,0.]
+TBPlaneTrackingAlgo.BPCerrmeasY = [0.,0.,0.,0.,0.,0.]
+
