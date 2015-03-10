@@ -112,6 +112,14 @@ class doSwitchTRTGas (JobProperty):
     allowedTypes=['bool']
     StoredValue=True
 
+#New switch for turning off/on electron supercluster building.
+class doSuperclusters (egammaRecFlagsJobProperty):
+    """ switch for supercluster TopoCalo algorithm
+    """
+    statusOn=False
+    allowedTypes=['bool']
+    StoredValue=False
+
 #
 # 
 # Defines a sub-container for the algorithm switches
@@ -131,7 +139,7 @@ jobproperties.add_Container(egammaRecFlags)
 
 
 # I want always the following flags in the  container  
-_list_Egamma=[Enabled,doEgammaCaloSeeded,doEgammaForwardSeeded,doAODRender,doConversions,doShowerBuilding,doTopoCaloSeeded,useBremTracks,makeNewConvContainer,cellContainerName,doSwitchTRTGas,doEgammaTruthAssociation, clusterCorrectionVersion]
+_list_Egamma=[Enabled,doEgammaCaloSeeded,doEgammaForwardSeeded,doAODRender,doConversions,doShowerBuilding,doTopoCaloSeeded,useBremTracks,makeNewConvContainer,cellContainerName,doSwitchTRTGas,doEgammaTruthAssociation, clusterCorrectionVersion, doSuperclusters]
 
 for j in _list_Egamma: 
     jobproperties.egammaRecFlags.add_JobProperty(j)

@@ -107,6 +107,9 @@ class egammaTruthAssociationAlg : public AthAlgorithm {
   
   /** @brief Minimum Pt to enter egamma truth particle container **/
   float m_minPt;
+
+  /** Barcode offset for G4 particles **/
+  int m_barcodeOffset;
   
   /** @brief MCTruthClassifier **/
   ToolHandle<IMCTruthClassifier>   m_mcTruthClassifier;
