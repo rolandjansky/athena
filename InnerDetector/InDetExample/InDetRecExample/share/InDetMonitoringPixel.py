@@ -41,7 +41,6 @@ if doAllHits:
                                   doCluster           = True,       #Turn on/off histograms with Cluster information
                                   doTrack             = False,      #Turn on/off histograms with Track information                                 
                                   doStatus            = True,       #Turn on/off histograms with Module Status information
-
                                   RDOName             = InDetKeys.PixelRDOs(),                                                                                
                                   RODErrorName        = "pixel_error_summary",                                                                                
                                   SpacePointName      = InDetKeys.PixelSpacePoints(),                                                                         
@@ -88,7 +87,7 @@ if doHitsOnTrack:
                                          doSpectrum          = False,     #Turn on/off histograms displaying pixel occupancy spectrum.  VERY memory heavy! 
                                          doNoiseMap          = False,     #Turn on/off histograms displaying pixel occupancy noise map.  VERY memory heavy!
                                          doLumiBlock         = False if athenaCommonFlags.isOnline() else True,      #Turn on/off histograms stored for each lumi block
-                                         
+                                         doHoleSearch        = True,
                                          doTiming            = False,     #Turn on/off histograms with BCID/timing information                             
                                          doRDO               = False,     #Turn on/off histograms with RDO/Hit  information                                
                                          doErrors            = False,     #Turn on/off histograms with ROD Error information                               
