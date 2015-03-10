@@ -10,6 +10,7 @@
 
 // Trigger include(s):
 #include "L1TopoRDO/L1TopoRDO.h"
+#include "L1TopoRDO/ModuleID.h"
 #include "L1TopoRDO/Helpers.h"
 
 // Local include(s):
@@ -35,7 +36,9 @@ L1TopoByteStreamTool::L1TopoByteStreamTool( const std::string& type, const std::
   : AthAlgTool( type, name, parent ), m_srcIdMap( 0 ) {
   
   declareInterface< L1TopoByteStreamTool >( this );
-  declareProperty("ROBSourceIDs", m_sourceIDs, "ROB fragment source identifiers");
+  declareProperty("ROBSourceIDs", m_sourceIDs, "ROB fragment source identifiers - overrides decodeDAQROBs and decodeROIROBs");
+  declareProperty("decodeDAQROBs",m_doDAQROBs=true,  "add standard DAQ ROBs to list of ROBs to decode; default true");
+  declareProperty("decodeROIROBs",m_doROIROBs=false, "add standard ROI ROBs to list of ROBs to decode; default false");
 }
 
 /**
@@ -53,6 +56,11 @@ StatusCode L1TopoByteStreamTool::initialize() {
 
   m_srcIdMap = new L1TopoSrcIdMap();
   ATH_MSG_DEBUG(m_sourceIDs);
+  if (!m_sourceIDs.empty()){
+    ATH_MSG_INFO( "ROBSourceIDs property is set: this overrides decodeDAQROBs and decodeROIROBs");
+  }
+  ATH_MSG_DEBUG(m_doDAQROBs);
+  ATH_MSG_DEBUG(m_doROIROBs);
   ATH_MSG_DEBUG("using sourceIDs " << std::hex << std::showbase << sourceIDs() <<  std::dec << std::noshowbase);
   return AlgTool::initialize();
 
@@ -69,20 +77,33 @@ StatusCode L1TopoByteStreamTool::finalize() {
 }
 
 /**
- * Return list of L1Topo *DAQ* source IDs to use for conversion.
- * Will generate list according to algorithm herein, if not already provided via properties
- * Used by L1TopoByteStreamCnv and L1TopoByteStreamTool
- * Note that the *ROI* source IDs are not set here; instead see RoIBResultByteStreamTool and ByteStreamAddressProviderSvc.
+ * Return list of L1Topo source IDs to use for conversion.
+ * By default the list of DAQ IDs are generated
+ * Will generate list according to algorithm herein, if not already provided via properties.
+ * Used by L1TopoByteStreamCnv and L1TopoByteStreamTool.
+ * The boolean properties decodeDAQROBs and decodeROIROBs are used to determine which 
+ * ROB source IDs are added to the list.
  */
 const std::vector<uint32_t>& L1TopoByteStreamTool::sourceIDs(){
   if (m_sourceIDs.empty()) {
-    const int daqOrRoi=0; // DAQ
-    const int slink=1; // convention has it that DAQ output is on link 1 of each module
-    for (int module: {0,1}){
-      const uint32_t id = m_srcIdMap->getRodID (slink, module, daqOrRoi);
-      m_sourceIDs.push_back(id);
+    // iterate over link numbers: 0 is DAQ link, 1 is ROIB, 2 for New ROIB
+    for (unsigned int slink: {0,1,2}){ 
+      unsigned int roiOrDaq=0;
+      if (slink>0){ // 0 means DAQ-type link, 1 means ROI-type link
+        roiOrDaq=1;
+      }      
+      if (roiOrDaq==0 && ! m_doDAQROBs){
+        continue; // skip DAQ ROBs
+      }
+      else if (roiOrDaq==1 && ! m_doROIROBs){
+        continue; // skip ROI ROBs
+      }
+      for (unsigned int module: {0,1}){ // could be upgraded to 3 modules eventually?
+        const uint32_t moduleId = L1Topo::ModuleID(slink, module, roiOrDaq).id();
+        eformat::helper::SourceIdentifier sourceId( eformat::TDAQ_CALO_TOPO_PROC, moduleId); 
+        m_sourceIDs.push_back(sourceId.code());
+      }
     }
-
   }
   return m_sourceIDs;
 }

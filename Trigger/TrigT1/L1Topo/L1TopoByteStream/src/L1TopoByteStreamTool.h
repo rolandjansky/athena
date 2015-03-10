@@ -67,6 +67,8 @@ private:
   /// Object used in creating the L1Topo ROB fragment
   FullEventAssembler< L1TopoSrcIdMap > m_fea;
 
+  BooleanProperty m_doDAQROBs;
+  BooleanProperty m_doROIROBs;
 }; // class L1TopoByteStreamTool
 
 #endif // L1TOPOBYTESTREAM_L1TOPOBYTESTREAMTOOL_H
