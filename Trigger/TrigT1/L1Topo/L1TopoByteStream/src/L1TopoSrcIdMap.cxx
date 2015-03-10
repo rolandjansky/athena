@@ -14,14 +14,6 @@ L1TopoSrcIdMap::L1TopoSrcIdMap() {
 
 }
 
-uint32_t L1TopoSrcIdMap::getRodID(int slink, int module, int daqOrRoi)
-{
-  // module ID = rmmmssss
-  uint16_t moduleId = (daqOrRoi << 7) | (module << 4) | slink;
-  SourceIdentifier helpID( eformat::TDAQ_CALO_TOPO_PROC, moduleId);
-  return helpID.code();
-}
-
 uint32_t L1TopoSrcIdMap::getRodID(int moduleId) {
   SourceIdentifier helpID( eformat::TDAQ_CALO_TOPO_PROC, moduleId );
   return helpID.code();

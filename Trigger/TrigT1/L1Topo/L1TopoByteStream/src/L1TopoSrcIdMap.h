@@ -29,10 +29,6 @@ public:
   */
   uint32_t getRodID ( int moduleId );
 
-  /** get a ROD Source ID given slink, module and DAQ/ROI flag
-  */
-  uint32_t getRodID (int slink, int module, int daqOrRoi);
-
   /** Make a ROB Source ID from a ROD source ID; note they are now the same.
   */
   uint32_t getRobID (uint32_t rod_id);
