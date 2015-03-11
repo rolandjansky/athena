@@ -43,7 +43,9 @@ using namespace std;
 #include <vector>
 #include <fstream>
 
+#include "eformat/SourceIdentifier.h" 
 
+using eformat::helper::SourceIdentifier; 
 
 
 
@@ -349,7 +351,11 @@ StatusCode CSC_RegionSelectorTable::createTable() {
 	   if (phi_min < 0) phi_min += 2.*M_PI;
 	 }
 
-	 RegSelModule m( zmin, zmax, rmin, rmax, phi_min, phi_max, layerid, detid, 0, Idhash );
+         uint16_t subDetectorId = (detid == -1) ? eformat::MUON_CSC_ENDCAP_C_SIDE : eformat::MUON_CSC_ENDCAP_A_SIDE ;
+         SourceIdentifier sid (static_cast<eformat::SubDetector>(subDetectorId),
+			static_cast<uint16_t>(Idhash));
+         uint32_t RobId = sid.code();
+	 RegSelModule m( zmin, zmax, rmin, rmax, phi_min, phi_max, layerid, detid, RobId, Idhash );
 	 csclut->addModule( m );
 
  
