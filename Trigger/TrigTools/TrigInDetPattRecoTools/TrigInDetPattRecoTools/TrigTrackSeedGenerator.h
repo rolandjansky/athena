@@ -174,9 +174,6 @@ private:
   int m_nMaxRadBin;
   double m_minDeltaRadius, m_maxDeltaRadius, m_zTol;
 
-  std::vector<std::vector<const TrigSiSpacePointBase*> > m_radLayers;
-  std::vector<std::vector<const TrigSiSpacePointBase*> > m_phiSlices;
-
   PHI_R_STORAGE* m_pStore;
 
   INTERNAL_SOA m_SoA;

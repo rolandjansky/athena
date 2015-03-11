@@ -24,10 +24,7 @@ TrigTrackSeedGenerator::TrigTrackSeedGenerator(const TrigCombinatorialSettings& 
     m_zTol(3.0), 
     m_pStore(NULL)
 {
-  m_radLayers.clear();
-  m_radLayers.resize(1+(int)(m_maxRadius/m_radBinWidth));
   m_phiSliceWidth = 2*M_PI/m_settings.m_nMaxPhiSlice;
-  m_phiSlices.resize(m_settings.m_nMaxPhiSlice);
   m_nMaxRadBin = 1+(int)((m_maxRadius-m_minRadius)/m_radBinWidth);
   m_pStore = new PHI_R_STORAGE(m_settings.m_nMaxPhiSlice, m_nMaxRadBin);
 
@@ -50,29 +47,18 @@ void TrigTrackSeedGenerator::loadSpacePoints(const std::vector<TrigSiSpacePointB
 
   m_pStore->reset();
 
-  for(auto& l : m_radLayers) {
-    l.clear();
-  }
-  for(std::vector<TrigSiSpacePointBase>::const_iterator it = vSP.begin();it != vSP.end();++it) {
-    if((*it).r()>m_maxRadius) continue;
-    unsigned int idx = (*it).r()/m_radBinWidth;
-    m_radLayers[idx].push_back(&(*it));
-  }
-  for(auto& s : m_phiSlices) {
-    s.clear();
-  }
-  for(std::vector<std::vector<const TrigSiSpacePointBase*> >::iterator lIt=m_radLayers.begin();lIt!=m_radLayers.end();++lIt) {
-    if((*lIt).empty()) continue;
-    for(std::vector<const TrigSiSpacePointBase*>::iterator rIt=(*lIt).begin();rIt!=(*lIt).end();++rIt) {
-      int idx = ((*rIt)->phi()+M_PI)/m_phiSliceWidth;
-      if(idx<0 || idx>=m_settings.m_nMaxPhiSlice) continue; 
-      m_phiSlices[idx].push_back(*rIt);
-    }
-  }
   for(std::vector<TrigSiSpacePointBase>::const_iterator it = vSP.begin();it != vSP.end();++it) {
     if((*it).r()>m_maxRadius || (*it).r() < m_minRadius) continue;
     int rIdx = ((*it).r()-m_minRadius)/m_radBinWidth;
     int phiIdx = ((*it).phi()+M_PI)/m_phiSliceWidth;
+    if (phiIdx >= m_settings.m_nMaxPhiSlice) {
+      phiIdx %= m_settings.m_nMaxPhiSlice;
+    }
+    else if (phiIdx < 0) {
+      phiIdx += m_settings.m_nMaxPhiSlice;
+      phiIdx %= m_settings.m_nMaxPhiSlice;
+    }
+      
     m_pStore->addSpacePoint(phiIdx, rIdx, &(*it));
   }
   m_pStore->sortSpacePoints();
@@ -261,10 +247,17 @@ void TrigTrackSeedGenerator::createTriplets(const TrigSiSpacePointBase* pS, int 
 
   int nSP = nInner + nOuter;
 
-  double cosA = pS->x()/pS->r();
-  double sinA = pS->y()/pS->r();
-  double covZ = pS->dz()*pS->dz();
-  double covR = pS->dr()*pS->dr();
+  const double pS_r = pS->r();
+  const double pS_x = pS->x();
+  const double pS_y = pS->y();
+  const double pS_z = pS->z();
+  const double pS_dr = pS->dr();
+  const double pS_dz = pS->dz();
+  const double cosA = pS_x/pS_r;
+  const double sinA = pS_y/pS_r;
+  const double covZ = pS_dz*pS_dz;
+  const double covR = pS_dr*pS_dr;
+  const bool isPixel = pS->isPixel();
 
   m_SoA.resizeComponents();//Resize m_r, mu etc to m_sp size
 
@@ -273,14 +266,15 @@ void TrigTrackSeedGenerator::createTriplets(const TrigSiSpacePointBase* pS, int 
     
     //1. transform in the pS-centric c.s
 
-    double dx = pSP->x() - pS->x();
-    double dy = pSP->y() - pS->y();
-    double R2inv = 1.0/(dx*dx+dy*dy);
-    double Rinv = sqrt(R2inv);
-    double xn = dx*cosA + dy*sinA;
-    double yn =-dx*sinA + dy*cosA;
-    double dz = (idx<nInner) ? pSP->z() - pS->z() : -pSP->z() + pS->z(); 
-    double t = Rinv*dz;
+    const double dx = pSP->x() - pS_x;
+    const double dy = pSP->y() - pS_y;
+    const double R2inv = 1.0/(dx*dx+dy*dy);
+    const double Rinv = sqrt(R2inv);
+    const double xn = dx*cosA + dy*sinA;
+    const double yn =-dx*sinA + dy*cosA;
+    const double dz = ((idx<nInner) - (idx>=nInner)) * (pSP->z() - pS_z);//No-branch version
+    //const double dz = (idx<nInner) ? pSP->z() - pS->z() : -pSP->z() + pS->z(); 
+    const double t = Rinv*dz;
 
     //2. Conformal mapping
 
@@ -290,14 +284,13 @@ void TrigTrackSeedGenerator::createTriplets(const TrigSiSpacePointBase* pS, int 
     
     //3. cot(theta) estimation for the doublet
 
-    double covZP = pSP->dz()*pSP->dz();
-    double covRP = pSP->dr()*pSP->dr();
+    const double covZP = pSP->dz()*pSP->dz();
+    const double covRP = pSP->dr()*pSP->dr();
     
     m_SoA.m_t[idx] = t;
     m_SoA.m_tCov[idx] = R2inv*(covZ + covZP + t*t*(covR+covRP));
   }
 
-  bool isPixel = (pS->isPixel());
 
   //double loop
 
@@ -305,7 +298,12 @@ void TrigTrackSeedGenerator::createTriplets(const TrigSiSpacePointBase* pS, int 
 
     //mult. scatt contribution due to the layer with middle SP
     
-    double dCov = m_CovMS*(1+m_SoA.m_t[innIdx]*m_SoA.m_t[innIdx]);
+    const double r_inn = m_SoA.m_r[innIdx];
+    const double t_inn = m_SoA.m_t[innIdx];
+    const double v_inn = m_SoA.m_v[innIdx];
+    const double u_inn = m_SoA.m_u[innIdx];
+    const double tCov_inn = m_SoA.m_tCov[innIdx];
+    const double dCov = m_CovMS*(1+t_inn*t_inn);
 
     //double z0 = pS->z() - m_SoA.m_t[innIdx]*pS->r();
 
@@ -319,53 +317,67 @@ void TrigTrackSeedGenerator::createTriplets(const TrigSiSpacePointBase* pS, int 
       */
 
       //1. rz doublet matching
+      const double t_out = m_SoA.m_t[outIdx];
 
-      double dt = m_SoA.m_t[innIdx] - m_SoA.m_t[outIdx];
+      const double dt2 = std::pow((t_inn - t_out), 2)/9.0;
 
-      double covdt = m_SoA.m_tCov[innIdx] + m_SoA.m_tCov[outIdx];
-      covdt += 2*m_SoA.m_r[innIdx]*m_SoA.m_r[outIdx]*(m_SoA.m_t[innIdx]*m_SoA.m_t[outIdx]*covR + covZ);
+      //const double covdt = tCov_inn + m_SoA.m_tCov[outIdx]
+      //                   + 2*r_inn*m_SoA.m_r[outIdx]*(t_inn*t_out*covR + covZ);
+      double covdt = (t_inn*t_out*covR + covZ);
+      covdt       *= 2*r_inn*m_SoA.m_r[outIdx];
+      covdt       += tCov_inn + m_SoA.m_tCov[outIdx];
+      //                   + 2*r_inn*m_SoA.m_r[outIdx]*(t_inn*t_out*covR + covZ);
+      //const double covdt_old = tCov_inn + m_SoA.m_tCov[outIdx]
+      //                   + 2*r_inn*m_SoA.m_r[outIdx]*(t_inn*t_out*covR + covZ);
+      //std::cout << std::scientific << "covdt: " << covdt << std::endl;
+      //std::cout << std::scientific << "covdt_old: " << covdt_old << std::endl;
+      //std::cout << std::endl;
+      //double covdt = m_SoA.m_tCov[innIdx] + m_SoA.m_tCov[outIdx];
+      //covdt += 2*m_SoA.m_r[innIdx]*m_SoA.m_r[outIdx]*(m_SoA.m_t[innIdx]*m_SoA.m_t[outIdx]*covR + covZ);
 
-      double dt2 = dt*dt/9.0;//i.e. 3-sigma cut
+      //const double dt2 = dt*dt/9.0;//i.e. 3-sigma cut
 
       if(dt2 > covdt+dCov) continue;
 
       //2. pT estimate
 
-      double du = m_SoA.m_u[outIdx] - m_SoA.m_u[innIdx];
+      const double du = m_SoA.m_u[outIdx] - u_inn;
       if(du==0.0) continue;
-      double A = (m_SoA.m_v[outIdx] - m_SoA.m_v[innIdx])/du;
-      double B = m_SoA.m_v[innIdx] - A*m_SoA.m_u[innIdx];
-      double pT2 = m_ptCoeff*m_ptCoeff*(1+A*A)/(B*B);
+      const double A = (m_SoA.m_v[outIdx] - v_inn)/du;
+      const double B = v_inn - A*u_inn;
+      const double pT2 = m_ptCoeff*m_ptCoeff*(1+A*A)/(B*B);
 
       if(pT2 < m_minPt2) continue;
 
       //3. the 3-sigma cut with estimated pT
 
-      double frac = m_minPt2/pT2;
+      const double frac = m_minPt2/pT2;
       if(dt2 > covdt+frac*dCov) continue;
 
       //4. d0 cut
 
-      double d0 = pS->r()*(B*pS->r()-A);
+      const double fabs_d0 = std::fabs(pS_r*(B*pS_r - A));
 
-      if(fabs(d0) > m_settings.m_tripletD0Max) continue;
+      if(fabs_d0 > m_settings.m_tripletD0Max) continue;
       
       if (m_SoA.m_sp[outIdx]->isSCT() && isPixel) {
-        if(fabs(d0) > m_settings.m_tripletD0_PPS_Max) continue;
+        if(fabs_d0 > m_settings.m_tripletD0_PPS_Max) continue;
       }
 
       //5. phi0 cut
 
-      double uc = 2*B*pS->r() - A;
-      double phi0 = atan2(sinA - uc*cosA, cosA + uc*sinA);
+      if (!m_settings.roiDescriptor->isFullscan()) {
+        const double uc = 2*B*pS_r - A;
+        const double phi0 = atan2(sinA - uc*cosA, cosA + uc*sinA);
 
-      if(!m_settings.roiDescriptor->containsPhi(phi0)) {
-        continue;
+        if(!m_settings.roiDescriptor->containsPhi(phi0)) {
+          continue;
+        }
       }
 
       //6. add new triplet
 
-      double Q = d0*d0;
+      const double Q = fabs_d0*fabs_d0;
       if(output.size()>=m_settings.m_maxTripletBufferLength) {
         INTERNAL_TRIPLET_BUFFER::iterator it = output.begin();
         if( Q >= (*it).first) continue;
