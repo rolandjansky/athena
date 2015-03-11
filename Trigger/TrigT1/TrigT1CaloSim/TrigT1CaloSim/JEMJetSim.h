@@ -99,7 +99,6 @@
    std::string   m_JetCMXDataLocation;
    
    /** The essentials - data access, configuration, tools */
-   ServiceHandle<StoreGateSvc> m_storeGate;
    ServiceHandle<TrigConf::ILVL1ConfigSvc> m_configSvc;
    ToolHandle<LVL1::IL1JEMJetTools> m_JetTool;
 

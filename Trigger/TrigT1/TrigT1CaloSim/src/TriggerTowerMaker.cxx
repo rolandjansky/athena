@@ -52,8 +52,6 @@ namespace LVL1 {
   
 TriggerTowerMaker::TriggerTowerMaker( const std::string& name, ISvcLocator* pSvcLocator ) 
   : AthAlgorithm( name, pSvcLocator ), 
-    m_storeGate("StoreGateSvc", name),
-    m_detStore("DetectorStore", name),
     m_configSvc("TrigConf::LVL1ConfigSvc/LVL1ConfigSvc", name),
     m_rndGenSvc("AtRndmGenSvc", name),
     m_rndmPeds(0),m_rndmADCs(0),
@@ -77,7 +75,6 @@ TriggerTowerMaker::TriggerTowerMaker( const std::string& name, ISvcLocator* pSvc
     m_thistSvc("THistSvc", name) 
 {
  
-  declareProperty("EventStore",m_storeGate,"StoreGate Service");
   declareProperty("RndmSvc", m_rndGenSvc, "Random number service");
   declareProperty("PedEngine",m_pedEngine = "TrigT1CaloSim_Pedestal");
   declareProperty("DigiEngine",m_digiEngine = "TrigT1CaloSim_Digitization");
@@ -610,7 +607,6 @@ TriggerTowerMaker::TriggerTowerMaker( const std::string& name, ISvcLocator* pSvc
 }
   
 TriggerTowerMaker::~TriggerTowerMaker() {
-  
   ATH_MSG_INFO( "Destructor called" );
   
   delete [] m_sinThetaHash;
@@ -628,50 +624,18 @@ StatusCode TriggerTowerMaker::initialize()
   
   ATH_MSG_INFO( "Initialising" );
    
-  StatusCode scInfo = m_detStore.retrieve();
-  if ( scInfo.isFailure() ) {
-    ATH_MSG_ERROR( "Couldn't connect to " << m_detStore.typeAndName() );
-  } else { 
-    StatusCode scID = m_detStore->retrieve(m_caloMgr); 
-    if (scID.isFailure()) { 
-      ATH_MSG_WARNING( "Cannot retrieve m_caloMgr" ); 
-    } else { 
-      m_lvl1Helper = m_caloMgr->getLVL1_ID(); 
-    }
-  }
+  ATH_CHECK( detStore()->retrieve(m_caloMgr) );
+  ATH_CHECK( detStore()->retrieve(m_caloId) );
   
-  /// Retrieve CaloLVL1_ID
-  if ( ! m_detStore->retrieve(m_caloId).isSuccess() ) {
-    ATH_MSG_ERROR(" failed to get CaloLVL1_ID");      
-  }
-   
   // Connect to the LVL1ConfigSvc for the global scale parameter
-  StatusCode sc = m_configSvc.retrieve();
-  if ( sc.isFailure() ) {
-    ATH_MSG_ERROR( "Couldn't connect to " << m_configSvc.typeAndName() );
-    return sc;
-  } else {
-    ATH_MSG_DEBUG( "Connected to " << m_configSvc.typeAndName()  );
-  }
-
-  // Now connect to the StoreGateSvc
-  sc = m_storeGate.retrieve();
-  if ( sc.isFailure() ) {
-    ATH_MSG_ERROR( "Couldn't connect to " << m_storeGate.typeAndName() );
-    return sc;
-  } else {
-    ATH_MSG_DEBUG( "Connected to " << m_storeGate.typeAndName() );
-  }
+  ATH_CHECK( m_configSvc.retrieve() );
 
   /** get the random generator serice */
-  if (m_rndGenSvc.retrieve().isFailure()){
-    ATH_MSG_ERROR( "Could not retrieve " << m_rndGenSvc );
-    return StatusCode::FAILURE;
-  } else {
-    m_rndmPeds = m_rndGenSvc->GetEngine(m_pedEngine);
-    m_rndmADCs = m_rndGenSvc->GetEngine(m_digiEngine);
-    if (m_rndmPeds == 0 || m_rndmADCs == 0) ATH_MSG_ERROR( "Failed to retrieve random engine" );
-  }
+  ATH_CHECK( m_rndGenSvc.retrieve() );
+  m_rndmPeds = m_rndGenSvc->GetEngine(m_pedEngine);
+  m_rndmADCs = m_rndGenSvc->GetEngine(m_digiEngine);
+  if (m_rndmPeds == 0 || m_rndmADCs == 0)
+    ATH_MSG_ERROR ( "Failed to retrieve random engine" );
 
 /// Retrieve tools for Cell->Tower mapping
 //    IToolSvc* toolSvc;
@@ -695,37 +659,13 @@ StatusCode TriggerTowerMaker::initialize()
 //      ATH_MSG_WARNING( "Unable to retrieve ToolSvc" );
 //    }
 
-  sc = m_l1CaloTTIdTools.retrieve();
-  if (sc.isFailure()) {
-    ATH_MSG_ERROR( "Cannot get L1CaloTTIdTools !" );
-    return StatusCode::SUCCESS;
-  }
-
-  sc = m_cells2tt.retrieve();
-  if (sc.isFailure()) {
-    ATH_MSG_ERROR( "Cannot get L1CaloCells2TriggerTowers!" );
-    return StatusCode::SUCCESS;
-  }
-
-  sc = m_mappingTool.retrieve(); 
-  if ( sc.isFailure() ) { 
-    ATH_MSG_ERROR( "Failed to retrieve tool " << m_mappingTool ); 
-    return StatusCode::SUCCESS; 
-  } else ATH_MSG_INFO( "Retrieved tool " << m_mappingTool ); 
-
-  /// Retrieve L1TriggerTowerTool
-  sc = m_TTtool.retrieve();
-  if (sc.isFailure()) {
-    ATH_MSG_ERROR( "Problem retrieving L1TriggerTowerTool. Abort execution" );
-    return StatusCode::SUCCESS;
-  }
+  ATH_CHECK( m_l1CaloTTIdTools.retrieve() );
+  ATH_CHECK( m_cells2tt.retrieve() );
+  ATH_CHECK( m_mappingTool.retrieve() );
+  ATH_CHECK( m_TTtool.retrieve() );
 
   if(m_correctFir && m_elementFir) {
-    sc = m_lumiBlockMuTool.retrieve();
-    if(sc.isFailure()) {
-      ATH_MSG_ERROR( "Problem retrieving LumiBlockMuTool. Abort execution" );
-      return StatusCode::FAILURE;
-    }
+    ATH_CHECK( m_lumiBlockMuTool.retrieve() );
   }
     
   /// Set TT thresholds to global defaults, if not specified by region
@@ -747,18 +687,9 @@ StatusCode TriggerTowerMaker::initialize()
    
     ATH_MSG_INFO( "Pileup and noise added by overlaying digits of random events" );
 
-    //
-    // locate the PileUpMergeSvc and initialize our local ptr
-    //
-    if (!(service("PileUpMergeSvc", m_mergeSvc)).isSuccess() ||
-      0 == m_mergeSvc) {
-      ATH_MSG_ERROR( "Could not find PileUpMergeSvc" );
-      return StatusCode::SUCCESS;
-    } else {
-      ATH_MSG_INFO( "PileUpMergeSvc successfully initialized" );
-    }
+    ATH_CHECK( service("PileUpMergeSvc", m_mergeSvc) );
   }
-   
+
   TriggerTowerKey test(0.,0.);
    
   // Setup bad tower list from bad regions
@@ -856,12 +787,8 @@ StatusCode TriggerTowerMaker::initialize()
   }
   
   // Incident Service: 
-  IIncidentSvc* incSvc;
-  sc = service("IncidentSvc", incSvc);
-  if (sc.isFailure()) {
-    ATH_MSG_ERROR("Unable to retrieve pointer to IncidentSvc ");
-    return StatusCode::FAILURE;
-  }
+  ServiceHandle<IIncidentSvc> incSvc ("IncidentSvc", name());
+  ATH_CHECK( incSvc.retrieve() );
 
   //start listening to "BeginRun"
   incSvc->addListener(this, "BeginRun");
@@ -1056,9 +983,6 @@ void TriggerTowerMaker::handle(const Incident& inc)
 
 std::vector<double> TriggerTowerMaker::initLArEm(std::vector<double>& Pulse)
 {
-  
-  int outputLevel = msgSvc()->outputLevel( name() );
-
   for (int i = 0; i < m_FirLength; i++) {
     ATH_MSG_DEBUG( "Initial pulse shape: Sample " << i 
         << " amp = " << Pulse[i] );
@@ -1076,7 +1000,7 @@ std::vector<double> TriggerTowerMaker::initLArEm(std::vector<double>& Pulse)
     if(!infile) {
       ATH_MSG_ERROR( " cannot open file " << filename );
     } else {
-      if (outputLevel <= MSG::DEBUG) ATH_MSG_DEBUG( filename << " file opened " );
+      ATH_MSG_DEBUG ( filename << " file opened " );
       // first read the pulse shape for all energies 
       // valid for both barrel and endcap (from Xavier de la Broise)
       const int nSamp = 7;
@@ -1112,9 +1036,6 @@ std::vector<double> TriggerTowerMaker::initLArEm(std::vector<double>& Pulse)
 
 std::vector<double> TriggerTowerMaker::initLArHec(std::vector<double>& Pulse)
 {
-  
-  int outputLevel = msgSvc()->outputLevel( name() );
-
   for (int i = 0; i < m_FirLength; i++) {
     ATH_MSG_DEBUG( "Initial pulse shape: Sample " << i 
         << " amp = " << Pulse[i] );
@@ -1132,7 +1053,7 @@ std::vector<double> TriggerTowerMaker::initLArHec(std::vector<double>& Pulse)
     if(!infile) {
       ATH_MSG_ERROR( " cannot open file " << filename );
     } else {
-      if (outputLevel <= MSG::DEBUG)ATH_MSG_DEBUG( filename << " file opened " );
+      ATH_MSG_DEBUG ( filename << " file opened " );
       // first read the pulse shape for all energies 
       // valid for both barrel and endcap (from Xavier de la Broise)
       const int nSamp = 7;
@@ -1167,9 +1088,6 @@ std::vector<double> TriggerTowerMaker::initLArHec(std::vector<double>& Pulse)
 
 std::vector<double> TriggerTowerMaker::initLArFcal(std::vector<double>& Pulse, int Module)
 {
-  
-  int outputLevel = msgSvc()->outputLevel( name() );
-
   for (int i = 0; i < m_FirLength; i++) {
     ATH_MSG_DEBUG( "Initial pulse shape: Sample " << i 
         << " amp = " << Pulse[i] );
@@ -1187,7 +1105,7 @@ std::vector<double> TriggerTowerMaker::initLArFcal(std::vector<double>& Pulse, i
     if(!infile) {
       ATH_MSG_ERROR(" cannot open file " << filename );
     } else {
-      if (outputLevel <= MSG::DEBUG) ATH_MSG_DEBUG( filename << " file opened " );
+      ATH_MSG_DEBUG ( filename << " file opened " );
     
       // first read the pulse shape for all energies 
       // Fcal datafile has all Fcal pulseshapes in it, plus other data
@@ -1283,7 +1201,7 @@ std::vector<double> TriggerTowerMaker::initTile(std::vector<double>& Pulse)
   
   std::string TileInfoName="TileInfo";
   const TileInfo* tileInfo;
-  StatusCode sc = m_detStore->retrieve(tileInfo, TileInfoName);
+  StatusCode sc = detStore()->retrieve(tileInfo, TileInfoName);
   
   if (!sc.isFailure()) {
     
@@ -2186,9 +2104,7 @@ StatusCode TriggerTowerMaker::execute( )
   //................................
   // make a message logging stream 
   
-  
-  int outputLevel = msgSvc()->outputLevel( name() );
-  if (outputLevel <= MSG::VERBOSE) ATH_MSG_VERBOSE( "Executing" );
+  ATH_MSG_VERBOSE( "Executing" );
 
   // Create a map to hold the internal towers
   m_IntTTContainer = new std::map<int, InternalTriggerTower*>;
@@ -2209,7 +2125,7 @@ StatusCode TriggerTowerMaker::execute( )
   switch (m_cellType){
   case CELL :
     {
-      if (outputLevel <= MSG::VERBOSE) ATH_MSG_VERBOSE( "Looking for CaloCells" );
+      ATH_MSG_VERBOSE ( "Looking for CaloCells" );
       StatusCode temp=getCaloCells();
       if (temp==StatusCode::SUCCESS) {
          digitize(); // digitisation
@@ -2219,7 +2135,7 @@ StatusCode TriggerTowerMaker::execute( )
     }
   case TRIGGERTOWERS :
     {
-      if (outputLevel <= MSG::VERBOSE) ATH_MSG_VERBOSE( "Looking for TriggerTower input" );
+      ATH_MSG_VERBOSE ( "Looking for TriggerTower input" );
       StatusCode temp=getTriggerTowers();
       if (temp==StatusCode::SUCCESS) {
          preProcess(); // FIR, BCID etc
@@ -2229,7 +2145,7 @@ StatusCode TriggerTowerMaker::execute( )
     
   case TTL1 :
     {
-      if (outputLevel <= MSG::VERBOSE) ATH_MSG_VERBOSE( "Looking for calo towers" );
+      ATH_MSG_VERBOSE ( "Looking for calo towers" );
       StatusCode temp=getCaloTowers();
       if (temp==StatusCode::SUCCESS) {
         digitize(); // digitisation
@@ -2260,23 +2176,20 @@ StatusCode TriggerTowerMaker::execute( )
 /** fetches LAr & Tile calorimeter cells */
 
 StatusCode LVL1::TriggerTowerMaker::getCaloCells(){
-  
-  int outputLevel = msgSvc()->outputLevel( name() );
-  
   // Find  CaloCells in TES
   
   const CaloCellContainer* AllCells;
   
   // Give up now if the container doesn't exist
-  if (!m_storeGate->contains<CaloCellContainer>(m_CaloCellLocation)) {
+  if (!evtStore()->contains<CaloCellContainer>(m_CaloCellLocation)) {
     ATH_MSG_WARNING( "getGeantCells: no CaloCellContainer found in SG" );
     return StatusCode::FAILURE;
   }
 
-  StatusCode sc0 = m_storeGate->retrieve(AllCells, m_CaloCellLocation);
-  if (outputLevel <= MSG::DEBUG) ATH_MSG_DEBUG( "Retrieve AllCalo, sc = " << sc0 );
+  StatusCode sc0 = evtStore()->retrieve(AllCells, m_CaloCellLocation);
+  ATH_MSG_DEBUG ( "Retrieve AllCalo, sc = " << sc0 );
         
-  if (outputLevel <= MSG::DEBUG) {
+  if (msgLvl(MSG::DEBUG)) {
     if (sc0==StatusCode::FAILURE) {
       ATH_MSG_DEBUG( "Can't find calo cells - stopping processing" );
     }else{
@@ -2297,9 +2210,6 @@ Returns FAILURE if the towers could not be saved.
  */
 StatusCode LVL1::TriggerTowerMaker::store()
 {
-  
-  int outputLevel = msgSvc()->outputLevel( name() );
-
   // The TT map cannot be saved directly: there (currently) no
   // DataObject derived map container in GAUDI/Athena.
   // We must first write the data into an DataVector.
@@ -2308,27 +2218,18 @@ StatusCode LVL1::TriggerTowerMaker::store()
 
   std::map<int, TriggerTower*>::iterator it;
 
-  if (outputLevel <= MSG::DEBUG) ATH_MSG_DEBUG("Storing TTs in DataVector");
+  ATH_MSG_DEBUG("Storing TTs in DataVector");
 
   for( it=m_TTContainer->begin(); it!=m_TTContainer->end(); ++it ){
     VectorOfTTs->push_back(it->second);
-    if (outputLevel <= MSG::DEBUG) ATH_MSG_DEBUG("TT has coords ("<<it->second->phi()<<", "<<it->second->eta()
+    ATH_MSG_DEBUG("TT has coords ("<<it->second->phi()<<", "<<it->second->eta()
         << " and energies : "<<it->second->emEnergy()<<", "<<it->second->hadEnergy()<<" (Em,Had)");
   }
 
-  if (outputLevel <= MSG::VERBOSE) ATH_MSG_VERBOSE( VectorOfTTs->size()<<" TTs have been generated");
-  StatusCode sc = m_storeGate->overwrite(VectorOfTTs, m_outputLocation,true,false,false);
-  if (sc != StatusCode::SUCCESS) {
-    ATH_MSG_ERROR("Error registering trigger tower collection in TDS ");
-    return sc;
-  }
+  ATH_MSG_VERBOSE( VectorOfTTs->size()<<" TTs have been generated");
+  ATH_CHECK( evtStore()->overwrite(VectorOfTTs, m_outputLocation,true,false,false) );
   VectorOfTTs=0;
-  if (sc.isSuccess()) {
-    if (outputLevel <= MSG::DEBUG) ATH_MSG_DEBUG( "Stored TTs in TES at "<< m_outputLocation );
-  } else {
-    ATH_MSG_ERROR( "failed to write TTs to TES at " << m_outputLocation );
-    return StatusCode::FAILURE;
-  }
+  ATH_MSG_DEBUG ( "Stored TTs in TES at "<< m_outputLocation );
 
   // For multi-slice mode save extended ADC digits on first slice
 
@@ -2341,14 +2242,9 @@ StatusCode LVL1::TriggerTowerMaker::store()
                                                     m_ADCContainer->end();
       for (; pos != pose; ++pos) VectorOfFullADCs->push_back(pos->second);
 
-      sc = m_storeGate->overwrite(VectorOfFullADCs, m_fullADCLocation,true,false,false);
-      if (sc.isFailure()) {
-        ATH_MSG_ERROR("Error registering multi-slice ADC digits in TDS ");
-        return sc;
-      } else if (outputLevel <= MSG::DEBUG) {
-        ATH_MSG_DEBUG( "Stored multi-slice ADC digits in TDS, key "
-            << m_fullADCLocation );
-      }
+      ATH_CHECK( evtStore()->overwrite(VectorOfFullADCs, m_fullADCLocation,true,false,false) );
+      ATH_MSG_DEBUG ( "Stored multi-slice ADC digits in TDS, key "
+                      << m_fullADCLocation );
     }
   }
 
@@ -2550,23 +2446,21 @@ void LVL1::TriggerTowerMaker::processCaloCells(const CaloCellContainer * cells)
 
 StatusCode LVL1::TriggerTowerMaker::getTriggerTowers()
 {
-  
-  int outputLevel = msgSvc()->outputLevel( name() );
-
   /// Find  TriggerTowers in TES
   const t_TTCollection* inputTTs;
   
   // Give up now if the container doesn't exist
-  if (!m_storeGate->contains<t_TTCollection>(m_inputTTLocation)) {
-    ATH_MSG_WARNING("getTriggerTowers: no input TriggerTowerContainer found in SG at "
-                    << m_inputTTLocation );
+  if (!evtStore()->contains<t_TTCollection>(m_inputTTLocation)) {
+    ATH_MSG_WARNING
+      ( "getTriggerTowers: no input TriggerTowerContainer found in SG at "
+        << m_inputTTLocation );
     return StatusCode::FAILURE;
   }
 
-  StatusCode sc = m_storeGate->retrieve(inputTTs, m_inputTTLocation);
-  if (outputLevel <= MSG::DEBUG) ATH_MSG_DEBUG( "Retrieve input TriggerTowers, sc = " << sc );
+  StatusCode sc = evtStore()->retrieve(inputTTs, m_inputTTLocation);
+  ATH_MSG_DEBUG ( "Retrieve input TriggerTowers, sc = " << sc );
         
-  if (outputLevel <= MSG::DEBUG) {
+  if (msgLvl(MSG::DEBUG)) {
     if (sc==StatusCode::FAILURE) {
       ATH_MSG_DEBUG( "Can't find input TriggerTowers - stopping processing" );
     }else{
@@ -2595,39 +2489,36 @@ StatusCode LVL1::TriggerTowerMaker::getTriggerTowers()
 
 StatusCode LVL1::TriggerTowerMaker::getCaloTowers()
 {
-  
-  int outputLevel = msgSvc()->outputLevel( name() );
-  
   // Find LAr towers in TES
   StatusCode sc1;
   const DataHandle<LArTTL1Container> EMTowers;
-  if (!m_storeGate->contains<LArTTL1Container>(m_EmTTL1ContainerName)) {
-    ATH_MSG_WARNING( "EM LArTTL1Container not found" );
+  if (!evtStore()->contains<LArTTL1Container>(m_EmTTL1ContainerName)) {
+    ATH_MSG_WARNING ( "EM LArTTL1Container not found" );
     sc1 = StatusCode::FAILURE;
   }
   else {
-    sc1 = m_storeGate->retrieve(EMTowers, m_EmTTL1ContainerName);
+    sc1 = evtStore()->retrieve(EMTowers, m_EmTTL1ContainerName);
   }
     
   StatusCode sc2;
   const DataHandle<LArTTL1Container> HECTowers;
-  if (!m_storeGate->contains<LArTTL1Container>(m_HadTTL1ContainerName)) {
-    ATH_MSG_WARNING( "Had LArTTL1Container not found" );
+  if (!evtStore()->contains<LArTTL1Container>(m_HadTTL1ContainerName)) {
+    ATH_MSG_WARNING ( "Had LArTTL1Container not found" );
     sc2 = StatusCode::FAILURE;
   }
   else {
-    sc2 = m_storeGate->retrieve(HECTowers, m_HadTTL1ContainerName);
+    sc2 = evtStore()->retrieve(HECTowers, m_HadTTL1ContainerName);
   }
 
   // Find Tile towers in TES
   StatusCode sc3;
   const DataHandle<TileTTL1Container> TileTowers;
-  if (!m_storeGate->contains<TileTTL1Container>(m_TileTTL1ContainerName)) {
-    ATH_MSG_WARNING( "Tile TTL1Container not found" );
+  if (!evtStore()->contains<TileTTL1Container>(m_TileTTL1ContainerName)) {
+    ATH_MSG_WARNING ( "Tile TTL1Container not found" );
     sc3 = StatusCode::FAILURE;
   }
   else {
-    sc3 = m_storeGate->retrieve(TileTowers, m_TileTTL1ContainerName);
+    sc3 = evtStore()->retrieve(TileTowers, m_TileTTL1ContainerName);
   }
   
   if ( m_requireAllCalos && ( (sc1==StatusCode::FAILURE) || 
@@ -2643,15 +2534,15 @@ StatusCode LVL1::TriggerTowerMaker::getCaloTowers()
   
     // lets now try to create some trigger towers
     if (sc1 == StatusCode::SUCCESS) {
-       if (outputLevel <= MSG::DEBUG) ATH_MSG_DEBUG( "Found " << EMTowers->size() << " EM towers " );
+       ATH_MSG_DEBUG ( "Found " << EMTowers->size() << " EM towers " );
        processLArTowers( EMTowers );
     }
     if (sc2 == StatusCode::SUCCESS) {
-       if (outputLevel <= MSG::DEBUG) ATH_MSG_DEBUG( "Found "<< HECTowers->size() << " HEC Towers" );
+       ATH_MSG_DEBUG ( "Found "<< HECTowers->size() << " HEC Towers" ) ;
        processLArTowers( HECTowers );
     }
     if (sc3 == StatusCode::SUCCESS) {
-       if (outputLevel <= MSG::DEBUG) ATH_MSG_DEBUG( "Found "<< TileTowers->size() << " Tile Towers" );
+       ATH_MSG_DEBUG ( "Found "<< TileTowers->size() << " Tile Towers" ) ;
        processTileTowers( TileTowers );
     }
         
@@ -2664,9 +2555,6 @@ StatusCode LVL1::TriggerTowerMaker::getCaloTowers()
 
 void LVL1::TriggerTowerMaker::processLArTowers(const LArTTL1Container * towers)
 {
-  
-  int outputLevel = msgSvc()->outputLevel( name() );
-
   // the TriggerTowerKey object provides the key for each trigger tower,
   // depending on its eta,phi coords. The key is an integer number that uniquely
   // identifies each tower.
@@ -2678,8 +2566,8 @@ void LVL1::TriggerTowerMaker::processLArTowers(const LArTTL1Container * towers)
   int towerNumber=0;
   for( tower  = towers->begin(); tower != towers->end(); ++tower ){
     
-    if (outputLevel <= MSG::VERBOSE)
-      ATH_MSG_VERBOSE("Looking at retrieved tower number "<<towerNumber++<<" ***********");
+    ATH_MSG_VERBOSE
+      ( "Looking at retrieved tower number "<<towerNumber++<<" ***********" ) ;
     
     // Obtain identifier 
     Identifier id = (*tower)->ttOfflineID();
@@ -2696,8 +2584,8 @@ void LVL1::TriggerTowerMaker::processLArTowers(const LArTTL1Container * towers)
     int offset = (nsamples - (m_FirLength+2))/2;
     std::vector<double> amps(m_FirLength+2);
     
-    if (outputLevel <= MSG::DEBUG) ATH_MSG_VERBOSE( "nsamples = " 
-                                       << nsamples << " offset = " << offset );
+    ATH_MSG_VERBOSE ( "nsamples = " 
+                      << nsamples << " offset = " << offset );
         
     for (int i = 0; i < m_FirLength+2; i++) {
       int j = i + offset;
@@ -2707,7 +2595,7 @@ void LVL1::TriggerTowerMaker::processLArTowers(const LArTTL1Container * towers)
       else {
         amps[i] = 0.;
       }      
-      if (outputLevel <= MSG::VERBOSE) ATH_MSG_VERBOSE( "amps[" << i << "] = " << amps[i] );
+      ATH_MSG_VERBOSE( "amps[" << i << "] = " << amps[i] );
     }
     
     // Create TriggerTower
@@ -2721,14 +2609,14 @@ void LVL1::TriggerTowerMaker::processLArTowers(const LArTTL1Container * towers)
     // Fill TT amplitude vector
     if (m_caloId->sampling(id)==0) {
        TT->addEMAmps(amps);
-   
-       if (outputLevel <= MSG::VERBOSE) ATH_MSG_VERBOSE( "Add to EM tower at (" << tt_eta 
-           << ", " << tt_phi << "), key = " << key );
+       
+       ATH_MSG_VERBOSE ( "Add to EM tower at (" << tt_eta 
+                         << ", " << tt_phi << "), key = " << key );
     } else {
        TT->addHadAmps(amps);
    
-       if (outputLevel <= MSG::VERBOSE) ATH_MSG_VERBOSE( "Add to HAD tower at (" << tt_eta 
-           << ", " << tt_phi << "), key = " << key );
+       ATH_MSG_VERBOSE ( "Add to HAD tower at (" << tt_eta 
+                         << ", " << tt_phi << "), key = " << key );
     }
         
   } // end for loop
@@ -2738,9 +2626,6 @@ void LVL1::TriggerTowerMaker::processLArTowers(const LArTTL1Container * towers)
     
 void LVL1::TriggerTowerMaker::processTileTowers(const TileTTL1Container * towers)
 {
-  
-  int outputLevel = msgSvc()->outputLevel( name() );
-
   // the TriggerTowerKey object provides the key for each trigger tower,
   // depending on its eta,phi coords. The key is an integer number that uniquely
   // identifies each tower.
@@ -2758,8 +2643,8 @@ void LVL1::TriggerTowerMaker::processTileTowers(const TileTTL1Container * towers
   TileTTL1Container::const_iterator tower ;
   int towerNumber=0;
   for( tower  = towers->begin(); tower != towers->end(); ++tower ){
-    if (outputLevel <= MSG::VERBOSE)
-      ATH_MSG_VERBOSE("Looking at retrieved tower number "<<towerNumber++<<" ***********");
+    ATH_MSG_VERBOSE
+      ( "Looking at retrieved tower number "<<towerNumber++<<" ***********"  ) ;
 
     // Obtain identifier     
     Identifier id = (*tower)->TTL1_ID();
@@ -2782,7 +2667,7 @@ void LVL1::TriggerTowerMaker::processTileTowers(const TileTTL1Container * towers
       std::vector<float> tower_amps = (*tower)->fsamples();
     
       /* Debug message */
-      if (outputLevel <= MSG::VERBOSE) ATH_MSG_VERBOSE( " nsamples = " << nsamples );
+      ATH_MSG_VERBOSE ( " nsamples = " << nsamples );
     
       // Want 7 samples, but this little kludge allows us to accept other 
       // numbers, provided peak is in centre of the pulse
@@ -2798,7 +2683,7 @@ void LVL1::TriggerTowerMaker::processTileTowers(const TileTTL1Container * towers
           amps[i] = 0.;
         } 
       /* Debug message */
-        if (outputLevel <= MSG::VERBOSE) ATH_MSG_VERBOSE( "amps[" << i << "] = " << amps[i] );
+        ATH_MSG_VERBOSE ( "amps[" << i << "] = " << amps[i] );
       }
     
       // Create TriggerTower
@@ -2821,9 +2706,7 @@ void LVL1::TriggerTowerMaker::processTileTowers(const TileTTL1Container * towers
 
 StatusCode LVL1::TriggerTowerMaker::overlay()
 {
-  
-  int outputLevel = msgSvc()->outputLevel( name() );
-  if (outputLevel == MSG::VERBOSE) ATH_MSG_VERBOSE( "LVL1::TriggerTowerMaker::overlay()" );
+  ATH_MSG_VERBOSE ( "LVL1::TriggerTowerMaker::overlay()" ) ;
 
   // Get overlay container
   typedef PileUpMergeSvc::TimedList<t_TTCollection>::type OverlayDigitContList ;
@@ -2833,7 +2716,7 @@ StatusCode LVL1::TriggerTowerMaker::overlay()
        ATH_MSG_ERROR( " Cannot retrieve TriggerTowerContainer for random event overlay" );
        return StatusCode::FAILURE ;
   }
-  if (outputLevel == MSG::DEBUG) ATH_MSG_DEBUG( "Retrieved TriggerTowerContainer for random event overlay." );
+  ATH_MSG_DEBUG ( "Retrieved TriggerTowerContainer for random event overlay." ) ;
   if(0==digitContList.size())
     {
       ATH_MSG_WARNING( "digitContList.size()=" << digitContList.size() << ". Therefore cannot loop over overlay collection. Skipping this method!" );
@@ -2842,9 +2725,9 @@ StatusCode LVL1::TriggerTowerMaker::overlay()
   OverlayDigitContList::iterator iDigitCont(digitContList.begin()) ;
   const t_TTCollection* overlayTowers = (iDigitCont->second);
 
-  if (outputLevel == MSG::VERBOSE) ATH_MSG_VERBOSE( "Found " << overlayTowers->size() << " towers in overlay collection" );
-  if (outputLevel == MSG::VERBOSE) ATH_MSG_VERBOSE( "Initial number of InternalTriggerTowers = "
-                                       << m_IntTTContainer->size() );
+  ATH_MSG_VERBOSE ( "Found " << overlayTowers->size() << " towers in overlay collection" ) ;
+  ATH_MSG_VERBOSE ( "Initial number of InternalTriggerTowers = "
+                    << m_IntTTContainer->size() );
   // Now do the overlay
   TriggerTowerKey testKey(0.0, 0.0);
 
@@ -2856,7 +2739,7 @@ StatusCode LVL1::TriggerTowerMaker::overlay()
     int key = testKey.ttKey(ttPhi,ttEta);
     std::map<int, InternalTriggerTower*>::iterator test=m_IntTTContainer->find( key );
     if (test != m_IntTTContainer->end()) {
-      if (outputLevel == MSG::VERBOSE) ATH_MSG_VERBOSE( "Add overlay to existing tower" );
+      ATH_MSG_VERBOSE ( "Add overlay to existing tower" );
       // Add overlay digits to simulated
       // Start with EM
       std::vector<int> emADC = test->second->EmADC();
@@ -2879,7 +2762,7 @@ StatusCode LVL1::TriggerTowerMaker::overlay()
       test->second->addHadADC(hadADC);
     }
     else {
-      if (outputLevel == MSG::VERBOSE) ATH_MSG_VERBOSE( "New tower from overlay" );
+      ATH_MSG_VERBOSE ( "New tower from overlay" );
       // Create new ITT and add overlay data
       InternalTriggerTower* TT=new InternalTriggerTower(ttPhi,ttEta, key);
       // Fill em amplitude vector from overlay digits
@@ -2905,8 +2788,8 @@ StatusCode LVL1::TriggerTowerMaker::overlay()
       m_IntTTContainer->insert(std::map<int, InternalTriggerTower*>::value_type(key,TT)); 
     }
   }
-  if (outputLevel == MSG::VERBOSE) ATH_MSG_VERBOSE( "Final number of InternalTriggerTowers = "
-                                       << m_IntTTContainer->size() );
+  ATH_MSG_VERBOSE ( "Final number of InternalTriggerTowers = "
+                    << m_IntTTContainer->size() );
   
   return StatusCode::SUCCESS;
 }
@@ -2947,7 +2830,7 @@ void LVL1::TriggerTowerMaker::preProcess()
   const EventInfo* evt;
   unsigned int m_eventBCID=0;
   // unsigned int m_eventNumber=0;
-  if (StatusCode::SUCCESS == m_storeGate->retrieve(evt)){
+  if (StatusCode::SUCCESS == evtStore()->retrieve(evt)){
     m_eventBCID = evt->event_ID()->bunch_crossing_id();
     // m_eventNumber = evt->event_ID()->event_number();
   }else{
@@ -3024,6 +2907,7 @@ void LVL1::TriggerTowerMaker::preProcess()
       if (fabs(shiftedEta) < 0.01) iEta = 0;
       /// Map integer eta bin to element
       element = IetaToElement(iEta, 0); // element range (0-32)
+      if (element == -1) continue;
       element = m_nElement-element-1;
 
       m_nDrop[towerType] = m_nDropElement[0][element];
@@ -3219,21 +3103,16 @@ otherwise create one and return the pointer to that. */
 
 LVL1::InternalTriggerTower* LVL1::TriggerTowerMaker::findTriggerTower(double tt_phi, double tt_eta, unsigned int key)
 {
-  
-  int outputLevel = msgSvc()->outputLevel( name() );
-  
   std::map<int, InternalTriggerTower*>::iterator it=m_IntTTContainer->find( key );
   LVL1::InternalTriggerTower* TT=0;
   if (it == m_IntTTContainer->end()){
     // no TT yet. Create it!
-    if (outputLevel <= MSG::VERBOSE)
-      ATH_MSG_VERBOSE("Creating Internal Trigger Tower at ("
-        << tt_phi << " , " << tt_eta << ")" );
+    ATH_MSG_VERBOSE ( "Creating Internal Trigger Tower at ("
+                      << tt_phi << " , " << tt_eta << ")" ) ;
     TT=new InternalTriggerTower(tt_phi,tt_eta, key);
     m_IntTTContainer->insert(std::map<int, InternalTriggerTower*>::value_type(key,TT)); //and put it in the map.
   }else{
-    if (outputLevel <= MSG::VERBOSE)
-       ATH_MSG_VERBOSE("Internal Trigger Tower already exists! " );
+    ATH_MSG_VERBOSE ( "Internal Trigger Tower already exists! " ) ;
     TT=(it->second);
   } // end else
   return TT;
@@ -3625,28 +3504,20 @@ L1CaloCoolChannelId LVL1::TriggerTowerMaker::channelId(double eta, double phi, i
 
 void LVL1::TriggerTowerMaker::setupADCMap()
 {
-  
-  int outputLevel = msgSvc()->outputLevel( name() );
-
-  if (outputLevel <= MSG::DEBUG) {
-    ATH_MSG_DEBUG( "Processing LUT slice " << m_sliceLUT
-        << " of 0-" << m_timeslicesLUT-1 << " slices"
-        );
-  }
+  ATH_MSG_DEBUG ( "Processing LUT slice " << m_sliceLUT
+        << " of 0-" << m_timeslicesLUT-1 << " slices" );
 
   m_ADCContainer = new std::map<unsigned int, TriggerTower*>;
 
   if (m_sliceLUT) {
     const t_TTCollection* fullTTCol = 0;
-    StatusCode sc = m_storeGate->retrieve(fullTTCol, m_fullADCLocation);
+    StatusCode sc = evtStore()->retrieve(fullTTCol, m_fullADCLocation);
     if ( sc.isFailure() ) {
       ATH_MSG_ERROR("Unable to retrieve multi-slice ADC digits, key "
                     << m_fullADCLocation );
     } else {
-      if (outputLevel <= MSG::DEBUG) {
-        ATH_MSG_DEBUG( "Retrieved multi-slice ADC digits, key "
-            << m_fullADCLocation );
-      }
+      ATH_MSG_DEBUG ( "Retrieved multi-slice ADC digits, key "
+                      << m_fullADCLocation );
       t_TTCollection::const_iterator pos  = fullTTCol->begin();
       t_TTCollection::const_iterator pose = fullTTCol->end();
       for (; pos != pose; ++pos) {

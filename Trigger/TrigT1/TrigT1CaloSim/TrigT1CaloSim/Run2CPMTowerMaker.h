@@ -20,7 +20,6 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "DataModel/DataVector.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "StoreGate/StoreGateSvc.h"
 
 #include "TrigT1CaloToolInterfaces/IL1CPMTowerTools.h"
 
@@ -43,7 +42,7 @@ namespace LVL1 {
   - gets called for each event
   - can get anything it wants out of the Transient Event Store"
   - can put anything it makes into the store
- It must inherit from the  Algorithm base class
+ It must inherit from the  AthAlgorithm base class
  */
 /**
 The Run2CPMTowerMaker class takes Trigger Towers from the TES and
@@ -80,7 +79,6 @@ class Run2CPMTowerMaker : public AthAlgorithm
 
  private:
 
-   ServiceHandle<StoreGateSvc> m_storeGate;
    ToolHandle<LVL1::IL1CPMTowerTools> m_CPMTowerTool;
 
   /** location of TriggerTowers in TES */

@@ -52,7 +52,6 @@ JEMJetSim::JEMJetSim
     : AthAlgorithm( name, pSvcLocator ), 
       m_allTOBs(0),
       m_JetCMXData(0),
-      m_storeGate("StoreGateSvc", name), 
       m_configSvc("TrigConf::LVL1ConfigSvc/LVL1ConfigSvc", name),
       m_JetTool("LVL1::L1JEMJetTools/L1JEMJetTools")
 {
@@ -63,7 +62,6 @@ JEMJetSim::JEMJetSim
     // This is how you declare the paramembers to Gaudi so that
     // they can be over-written via the job options file
     
-    declareProperty( "EventStore",m_storeGate,"StoreGate Service");
     declareProperty( "JEMTOBRoILocation",       m_JEMTobRoILocation );
     declareProperty( "JetCMXDataLocation",       m_JetCMXDataLocation );
     declareProperty( "LVL1ConfigSvc", m_configSvc, "LVL1 Config Service");
@@ -83,43 +81,8 @@ JEMJetSim::~JEMJetSim() {
 
 StatusCode JEMJetSim::initialize()
 {
-
-  // We must here instantiate items which can only be made after
-  // any job options have been set
-  int outputLevel = msgSvc()->outputLevel( name() );
-
-     //
-    // Connect to the LVL1ConfigSvc for the trigger configuration:
-    //
-  StatusCode sc = m_configSvc.retrieve();
-  if ( sc.isFailure() ) {
-    ATH_MSG_ERROR("Couldn't connect to " << m_configSvc.typeAndName() 
-        );
-    return sc;
-  } else if (outputLevel <= MSG::DEBUG) {
-    ATH_MSG_DEBUG("Connected to " << m_configSvc.typeAndName() 
-        );
-  }
-
-  // Now connect to the StoreGateSvc
-
-  sc = m_storeGate.retrieve();
-  if ( sc.isFailure() ) {
-    ATH_MSG_ERROR("Couldn't connect to " << m_storeGate.typeAndName() 
-        );
-    return sc;
-  } else if (outputLevel <= MSG::DEBUG) {
-    ATH_MSG_DEBUG("Connected to " << m_storeGate.typeAndName() 
-        );
-  }
-
-  // Retrieve L1CPMTool
-  sc = m_JetTool.retrieve();
-  if (sc.isFailure()) {
-    ATH_MSG_ERROR("Problem retrieving JetTool. Abort execution" );
-    return StatusCode::SUCCESS;
-  }
-    
+  ATH_CHECK(  m_configSvc.retrieve() );
+  ATH_CHECK( m_JetTool.retrieve() );
   return StatusCode::SUCCESS ;
 }
 
@@ -130,10 +93,7 @@ StatusCode JEMJetSim::initialize()
 
 StatusCode JEMJetSim::beginRun()
 {
-
-  int outputLevel = msgSvc()->outputLevel( name() );
-  if (outputLevel <= MSG::DEBUG) printTriggerMenu();
-
+  if (msgLvl(MSG::DEBUG)) printTriggerMenu();
   return StatusCode::SUCCESS ;
 }
 
@@ -170,17 +130,16 @@ StatusCode JEMJetSim::execute( )
 
   //make a message logging stream
 
-  int outputLevel = msgSvc()->outputLevel( name() );
-  if (outputLevel <= MSG::DEBUG) ATH_MSG_DEBUG("starting JEMJetSim" ); 
+  ATH_MSG_DEBUG ( "starting JEMJetSim" ); 
 
   // Create containers for this event
   m_JetCMXData   = new DataVector<JetCMXData>;  //Container of backplane data objects
   m_allTOBs      = new DataVector<JEMTobRoI>;  // Container to hold all TOB RoIs in event
 
   // Retrieve the JetElementContainer
-  if (m_storeGate->contains<JetElementCollection>(m_JetElementLocation)) {
+  if (evtStore()->contains<JetElementCollection>(m_JetElementLocation)) {
     const DataVector<JetElement>* storedJEs;
-    StatusCode sc = m_storeGate->retrieve(storedJEs,m_JetElementLocation);
+    StatusCode sc = evtStore()->retrieve(storedJEs,m_JetElementLocation);
     if ( sc==StatusCode::SUCCESS ) {
        // Check size of JetElementCollection - zero would indicate a problem
       if (storedJEs->size() == 0)
@@ -231,15 +190,12 @@ StatusCode JEMJetSim::execute( )
 /** place backplane data objects (CPM -> CMX) in StoreGate */
 void LVL1::JEMJetSim::storeBackplaneTOBs() {
 
-  int outputLevel = msgSvc()->outputLevel( name() );
-    
   // Store backplane data objects
-  StatusCode sc = m_storeGate->overwrite(m_JetCMXData, m_JetCMXDataLocation,true,false,false);
+  StatusCode sc = evtStore()->overwrite(m_JetCMXData, m_JetCMXDataLocation,true,false,false);
 
   if (sc.isSuccess()) {
-     if (outputLevel <= MSG::VERBOSE)
-         ATH_MSG_VERBOSE("Stored " << m_JetCMXData->size()
-             << " JetCMXData at " << m_JetCMXDataLocation );
+    ATH_MSG_VERBOSE ( "Stored " << m_JetCMXData->size()
+                      << " JetCMXData at " << m_JetCMXDataLocation );
   }
   else {
      ATH_MSG_ERROR("failed to write JetCMXData to  "
@@ -254,14 +210,11 @@ void LVL1::JEMJetSim::storeBackplaneTOBs() {
 /** place final ROI objects in the TES. */
 void LVL1::JEMJetSim::storeModuleRoIs() {
 
-  int outputLevel = msgSvc()->outputLevel( name() );
-    
-  StatusCode sc = m_storeGate->overwrite(m_allTOBs, m_JEMTobRoILocation,true,false,false);
+  StatusCode sc = evtStore()->overwrite(m_allTOBs, m_JEMTobRoILocation,true,false,false);
 
   if (sc.isSuccess()) {
-     if (outputLevel <= MSG::VERBOSE)
-         ATH_MSG_VERBOSE("Stored " << m_allTOBs->size()
-             << " Jet TOBs at " << m_JEMTobRoILocation );
+    ATH_MSG_VERBOSE ( "Stored " << m_allTOBs->size()
+                      << " Jet TOBs at " << m_JEMTobRoILocation );
   }
   else {
      ATH_MSG_ERROR("failed to write JEMTobRoIs to  "
@@ -278,7 +231,6 @@ void LVL1::JEMJetSim::storeModuleRoIs() {
 
 /** print trigger configuration, for debugging purposes */
 void LVL1::JEMJetSim::printTriggerMenu(){
-  
   /** This is all going to need updating for the new menu structure.
       Comment out in the meanwhile 
   

@@ -47,7 +47,6 @@ namespace LVL1 {
 EnergyTrigger::EnergyTrigger
   ( const std::string& name, ISvcLocator* pSvcLocator )
     : AthAlgorithm( name, pSvcLocator ), 
-      m_storeGate("StoreGateSvc", name),
       m_configSvc("TrigConf::LVL1ConfigSvc/LVL1ConfigSvc", name),
       m_EtTool("LVL1::L1EtTools/L1EtTools"),
       m_jemContainer(0),
@@ -64,7 +63,6 @@ EnergyTrigger::EnergyTrigger
   // This is how you declare the paramembers to Gaudi so that
   // they can be over-written via the job options file
 
-  declareProperty("EventStore",m_storeGate,"StoreGate Service");
   declareProperty( "LVL1ConfigSvc", m_configSvc, "LVL1 Config Service");
   declareProperty( "JetElementLocation",   m_JetElementLocation ) ;
   declareProperty(  "EnergyRoILocation",   m_energyRoILocation );
@@ -86,44 +84,8 @@ EnergyTrigger::~EnergyTrigger() {
 
 StatusCode EnergyTrigger::initialize()
 {
-
-  // We must here instantiate items which can only be made after
-  // any job options have been set
-  
-
-  //
-  // Connect to the LVL1ConfigSvc for the trigger configuration:
-  //
-  StatusCode sc = m_configSvc.retrieve();
-  if ( sc.isFailure() ) {
-    ATH_MSG_ERROR( "Couldn't connect to " << m_configSvc.typeAndName() 
-        );
-    return sc;
-  } else {
-    ATH_MSG_DEBUG( "Connected to " << m_configSvc.typeAndName() 
-        );
-  }
-
-  //
-  // Connect to StoreGate:
-  //
-  sc = m_storeGate.retrieve();
-  if ( sc.isFailure() ) {
-    ATH_MSG_ERROR( "Couldn't connect to " << m_storeGate.typeAndName() 
-        );
-    return sc;
-  } else {
-    ATH_MSG_DEBUG( "Connected to " << m_storeGate.typeAndName() 
-        );
-  }
-
-  // Retrieve L1EtTool tool
-  sc = m_EtTool.retrieve();
-  if (sc.isFailure()) {
-    ATH_MSG_ERROR( "Problem retrieving EtTool. Abort execution" );
-    return StatusCode::SUCCESS;
-  }
-
+  ATH_CHECK( m_configSvc.retrieve() );
+  ATH_CHECK( m_EtTool.retrieve() );
   return StatusCode::SUCCESS ;
 }
 
@@ -162,20 +124,16 @@ StatusCode EnergyTrigger::finalize()
 
 StatusCode EnergyTrigger::execute( )
 {
-  //make a message logging stream
-
-  
-  int outputLevel = msgSvc()->outputLevel( name() );
-  if (outputLevel <= MSG::DEBUG) ATH_MSG_DEBUG( "Executing" );
+  ATH_MSG_DEBUG ( "Executing" );
 
   m_jemEtSumsContainer = new std::map<int, JEMEtSums *>; // all removed in cleanup()
    
   // form module sums
   m_jemContainer = new DataVector<ModuleEnergy>;  
-  if (m_storeGate->contains<JetElementCollection>(m_JetElementLocation)) {
+  if (evtStore()->contains<JetElementCollection>(m_JetElementLocation)) {
     const DataVector<JetElement>* jetelements;
   
-    StatusCode sc = m_storeGate->retrieve(jetelements,m_JetElementLocation);
+    StatusCode sc = evtStore()->retrieve(jetelements,m_JetElementLocation);
     if ( sc==StatusCode::SUCCESS ) {
       // Warn if we find an empty container
       if (jetelements->size() == 0)
@@ -218,9 +176,7 @@ StatusCode EnergyTrigger::execute( )
 
 /** Store JEM energy sums for bytestream simulation */
 void LVL1::EnergyTrigger::formJEMEtSums() {
-
-  int outputLevel = msgSvc()->outputLevel( name() );
-  if (outputLevel <= MSG::DEBUG) ATH_MSG_DEBUG( "formJEMEtSums executing" );
+  ATH_MSG_DEBUG ( "formJEMEtSums executing" );
   
   JetEnergyModuleKey get;
   DataVector<ModuleEnergy>::iterator it;
@@ -229,26 +185,26 @@ void LVL1::EnergyTrigger::formJEMEtSums() {
     unsigned int crate = (*it)->crate();
     unsigned int module = (*it)->module();
     unsigned int key = get.jemKey(crate, module);
-    if (outputLevel <= MSG::DEBUG) ATH_MSG_DEBUG( "Found JEM with key = " << key );
+    ATH_MSG_DEBUG ( "Found JEM with key = " << key );
     JEMEtSums* jemEtSums=0;
    // find whether corresponding JEMEtSums already exists
     std::map<int, JEMEtSums*>::iterator test=m_jemEtSumsContainer->find(key);
     // if not, create it
     if ( test==m_jemEtSumsContainer->end()){
-      if (outputLevel <= MSG::DEBUG) ATH_MSG_DEBUG( "New key. JEM has crate = "
-                                                << crate << ", Module = " 
-						<< module );
-      if (outputLevel <= MSG::DEBUG) ATH_MSG_DEBUG( "Create new JEMEtSums" ); 
+      ATH_MSG_DEBUG ( "New key. JEM has crate = "
+                      << crate << ", Module = " 
+                      << module );
+      ATH_MSG_DEBUG ( "Create new JEMEtSums" ); 
       jemEtSums = new JEMEtSums(crate, module);
-      if (outputLevel <= MSG::DEBUG) ATH_MSG_DEBUG( "and insert..." ); 
+      ATH_MSG_DEBUG ( "and insert..." ); 
       m_jemEtSumsContainer->insert(std::map<int,JEMEtSums*>::value_type(key,jemEtSums));
     }
     else {
-      if (outputLevel <= MSG::DEBUG) ATH_MSG_DEBUG( "Existing JEMEtSums" ); 
+      ATH_MSG_DEBUG ( "Existing JEMEtSums" ); 
       jemEtSums = test->second; // Already exists, so set pointer
     }
     // add energy sums to JEMEtSums
-    if (outputLevel <= MSG::DEBUG) ATH_MSG_DEBUG( "Update content" ); 
+    ATH_MSG_DEBUG ( "Update content" ); 
     std::vector<unsigned int> ExVec; // JEMEtSums store vectors, to allow for multi-slice readout
     std::vector<unsigned int> EyVec;
     std::vector<unsigned int> EtVec;
@@ -258,7 +214,7 @@ void LVL1::EnergyTrigger::formJEMEtSums() {
     jemEtSums->addEx(ExVec);
     jemEtSums->addEy(EyVec);
     jemEtSums->addEt(EtVec);
-    if (outputLevel <= MSG::DEBUG) ATH_MSG_DEBUG( "All done for this one" ); 
+    ATH_MSG_DEBUG ( "All done for this one" ); 
   }
   return;
 }
@@ -273,9 +229,7 @@ void LVL1::EnergyTrigger::cleanup(){
 
 /** retrieves the Calo config put into detectorstore by TrigT1CTP and set up trigger menu */
 void LVL1::EnergyTrigger::setupTriggerMenuFromCTP(){
-  
-  int outputLevel = msgSvc()->outputLevel( name() );
-  if (outputLevel <= MSG::DEBUG) ATH_MSG_DEBUG("Loading Trigger Menu");
+  ATH_MSG_DEBUG("Loading Trigger Menu");
   
   /// Old or new CTP word format?
   bool oldMenu = false;
@@ -308,9 +262,7 @@ void LVL1::EnergyTrigger::setupTriggerMenuFromCTP(){
 
 /** form EnergyRoI & save in SG */
 void LVL1::EnergyTrigger::saveRoIs(){
-  
-  int outputLevel = msgSvc()->outputLevel( name() );
-  if (outputLevel <= MSG::DEBUG) ATH_MSG_DEBUG("saveRoIs");
+  ATH_MSG_DEBUG("saveRoIs");
 
   // set value into roi words
   unsigned int roiWord0 = m_results->roiWord0();
@@ -321,13 +273,13 @@ void LVL1::EnergyTrigger::saveRoIs(){
   m_energyRoI = new EnergyRoI(roiWord0,roiWord1,roiWord2);
 
   // save RoI in SG
-  StatusCode sc = m_storeGate->overwrite(m_energyRoI, m_energyRoILocation,true,false,false);
+  StatusCode sc = evtStore()->overwrite(m_energyRoI, m_energyRoILocation,true,false,false);
   if (sc.isSuccess() ){
-    if (outputLevel <= MSG::DEBUG) ATH_MSG_DEBUG( "Stored energy RoI object with "<<std::endl
-        << "Word 0: "<<std::hex<<(m_energyRoI->roiWord0())<<std::dec<<std::endl
-        << "Word 1: "<<std::hex<<(m_energyRoI->roiWord1())<<std::dec<<std::endl
-        << "Word 2: "<<std::hex<<(m_energyRoI->roiWord2())<<std::dec<<std::endl
-        );
+    ATH_MSG_DEBUG ( "Stored energy RoI object with "<<std::endl
+                    << "Word 0: "<<std::hex<<(m_energyRoI->roiWord0())<<std::dec<<std::endl
+                    << "Word 1: "<<std::hex<<(m_energyRoI->roiWord1())<<std::dec<<std::endl
+                    << "Word 2: "<<std::hex<<(m_energyRoI->roiWord2())<<std::dec<<std::endl
+                    );
   }else{
     ATH_MSG_ERROR( "Failed to store energy RoI object ");
   }
@@ -336,9 +288,7 @@ void LVL1::EnergyTrigger::saveRoIs(){
 
 /** put JEMEtSums into SG */
 void LVL1::EnergyTrigger::saveJEMEtSums(){
-  
-  int outputLevel = msgSvc()->outputLevel( name() );
-  if (outputLevel <= MSG::DEBUG) ATH_MSG_DEBUG("saveJEMEtSums running");
+  ATH_MSG_DEBUG("saveJEMEtSums running");
   
   JEMEtSumsCollection* JEMRvector = new  JEMEtSumsCollection;
 
@@ -347,11 +297,11 @@ void LVL1::EnergyTrigger::saveJEMEtSums(){
      JEMRvector->push_back(it->second);
   }
 
-  if (outputLevel <= MSG::DEBUG) ATH_MSG_DEBUG( m_jemEtSumsContainer->size()<<" JEMEtSums are being saved");
-  StatusCode sc = m_storeGate->overwrite(JEMRvector, m_jemEtSumsLocation,true,false,false);
+  ATH_MSG_DEBUG( m_jemEtSumsContainer->size()<<" JEMEtSums are being saved");
+  StatusCode sc = evtStore()->overwrite(JEMRvector, m_jemEtSumsLocation,true,false,false);
   if (sc == StatusCode::SUCCESS) {
-    StatusCode sc2 = m_storeGate->setConst(JEMRvector);
-    if (sc2 != StatusCode::SUCCESS) ATH_MSG_ERROR( "error setting JEMResult vector constant" );
+    StatusCode sc2 = evtStore()->setConst(JEMRvector);
+    if (sc2 != StatusCode::SUCCESS) ATH_MSG_ERROR ( "error setting JEMResult vector constant" );
   }
   else {
     ATH_MSG_ERROR( "Error registering JEMEtSums collection in TDS ");
@@ -368,9 +318,7 @@ unsigned int LVL1::EnergyTrigger::ctpWord(unsigned int metSigPassed, unsigned in
 
 /** form CTP objects and store them in SG. */
 void LVL1::EnergyTrigger::saveCTPObjects(){
-  
-  int outputLevel = msgSvc()->outputLevel( name() );
-  if (outputLevel <= MSG::DEBUG) ATH_MSG_DEBUG("saveCTPObjects");
+  ATH_MSG_DEBUG("saveCTPObjects");
 
   // get bit words of thresholds passed
   unsigned int etSumPassed = m_results->etSumHits();
@@ -387,11 +335,10 @@ void LVL1::EnergyTrigger::saveCTPObjects(){
   m_energyCTP = new EnergyCTP( temp );
 
   // record in SG
-  StatusCode sc = m_storeGate->overwrite(m_energyCTP, m_energyCTPLocation,true,false,false);
+  StatusCode sc = evtStore()->overwrite(m_energyCTP, m_energyCTPLocation,true,false,false);
   if (sc.isSuccess() ){
-    if (outputLevel <= MSG::DEBUG)
-       ATH_MSG_DEBUG("Stored energy CTP object with word "<< std::hex
-       << (m_energyCTP->cableWord0()) << std::dec );
+    ATH_MSG_DEBUG ( "Stored energy CTP object with word "<< std::hex
+                    << (m_energyCTP->cableWord0()) << std::dec );
   }else{
     ATH_MSG_ERROR( "Failed to store energy CTP object ");
   }

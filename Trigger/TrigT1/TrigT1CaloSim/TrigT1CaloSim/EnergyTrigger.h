@@ -85,8 +85,6 @@
    StatusCode finalize() ;
 
 private: // Private attributes
-  /** Pointer to SG service*/
-  ServiceHandle<StoreGateSvc> m_storeGate;
   ServiceHandle<TrigConf::ILVL1ConfigSvc> m_configSvc;
   ToolHandle<LVL1::IL1EtTools> m_EtTool;
 

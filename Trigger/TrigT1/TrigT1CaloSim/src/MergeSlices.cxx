@@ -7,7 +7,6 @@
 #include <utility>
 #include <vector>
 
-#include "GaudiKernel/MsgStream.h"
 #include "StoreGate/StoreGateSvc.h"
 
 #include "TrigT1CaloEvent/CPMHits.h"
@@ -25,10 +24,8 @@ namespace LVL1 {
 
 
 MergeSlices::MergeSlices(const std::string& name, ISvcLocator* pSvcLocator)
-                       : AthAlgorithm(name, pSvcLocator),
-		         m_storeGate("StoreGateSvc", name)
+                       : AthAlgorithm(name, pSvcLocator)
 {
-  declareProperty("EventStore",m_storeGate,"StoreGate Service");
   declareProperty("TimeslicesLUT", m_slicesLut = 1,
                   "The number of timeslices to be merged");
 
@@ -56,17 +53,6 @@ MergeSlices::~MergeSlices()
 
 StatusCode MergeSlices::initialize()
 {
-  
-
-  StatusCode sc = m_storeGate.retrieve();
-  if (sc.isFailure()) {
-    ATH_MSG_ERROR( "Couldn't connect to " << m_storeGate.typeAndName()
-        );
-    return sc;
-  } else {
-    ATH_MSG_DEBUG( "Connected to " << m_storeGate.typeAndName()
-        );
-  }
   return StatusCode::SUCCESS;
 }
 
@@ -74,8 +60,6 @@ StatusCode MergeSlices::initialize()
 
 StatusCode MergeSlices::execute()
 {
-  
-
   // PPM
 
   StatusCode sc = mergePpm();
@@ -112,8 +96,6 @@ StatusCode MergeSlices::finalize()
 
 StatusCode MergeSlices::mergePpm()
 {
-  
-
   // Create map for output TriggerTowers
 
   TriggerTowerMap ttMap;
@@ -121,11 +103,7 @@ StatusCode MergeSlices::mergePpm()
   // Find full ADC digits
 
   const TriggerTowerCollection* adcCollection = 0;
-  StatusCode sc = m_storeGate->retrieve(adcCollection, m_fullAdcLocation);
-  if (sc.isFailure() || !adcCollection) {
-    ATH_MSG_ERROR( "No ADC digits container found" );
-    return sc;
-  }
+  ATH_CHECK( evtStore()->retrieve(adcCollection, m_fullAdcLocation) );
   
   // Copy and put in map
 
@@ -152,7 +130,7 @@ StatusCode MergeSlices::mergePpm()
   for (int slice = 0; slice < m_slicesLut; ++slice) {
     std::string location = m_triggerTowerLocation + numString(slice);
     const TriggerTowerCollection* ttColl = 0;
-    StatusCode sc = m_storeGate->retrieve(ttColl, location);
+    StatusCode sc = evtStore()->retrieve(ttColl, location);
     if (sc.isFailure() || !ttColl) {
       ATH_MSG_ERROR( "No TriggerTower container found for slice "
           << slice << " key " << location );
@@ -201,7 +179,7 @@ StatusCode MergeSlices::mergePpm()
   mapIter    = ttMap.begin();
   mapIterEnd = ttMap.end();
   for (; mapIter != mapIterEnd; ++mapIter) ttOut->push_back(mapIter->second);
-  sc = m_storeGate->overwrite(ttOut, m_triggerTowerLocation,true,false,false);
+  StatusCode sc = evtStore()->overwrite(ttOut, m_triggerTowerLocation,true,false,false);
   if (sc.isFailure()) {
     ATH_MSG_ERROR( "Error registering trigger tower collection in TDS"
         );
@@ -215,8 +193,6 @@ StatusCode MergeSlices::mergePpm()
 
 StatusCode MergeSlices::mergeCpm()
 {
-  
-
   // Create maps and key provider for output CPM Towers and Hits
 
   CPMTowerMap towerMap;
@@ -231,7 +207,7 @@ StatusCode MergeSlices::mergeCpm()
 
     const CPMTowerCollection* ttCollection = 0;
     std::string location = m_cpmTowerLocation + numString(slice);
-    StatusCode sc = m_storeGate->retrieve(ttCollection, location);
+    StatusCode sc = evtStore()->retrieve(ttCollection, location);
     if (sc.isFailure() || !ttCollection || ttCollection->empty()) {
       ATH_MSG_DEBUG( "No CPM Towers found for slice " << slice );
     } else {
@@ -264,7 +240,7 @@ StatusCode MergeSlices::mergeCpm()
 
     const CPMHitsCollection* hitCollection = 0;
     location = m_cpmHitsLocation + numString(slice);
-    sc = m_storeGate->retrieve(hitCollection, location);
+    sc = evtStore()->retrieve(hitCollection, location);
     if (sc.isFailure() || !hitCollection || hitCollection->empty()) {
       ATH_MSG_DEBUG( "No CPM Hits found for slice " << slice );
     } else {
@@ -298,7 +274,7 @@ StatusCode MergeSlices::mergeCpm()
   mapIter    = towerMap.begin();
   mapIterEnd = towerMap.end();
   for (; mapIter != mapIterEnd; ++mapIter) cpmtOut->push_back(mapIter->second);
-  StatusCode sc1 = m_storeGate->overwrite(cpmtOut, m_cpmTowerLocation,true,false,false);
+  StatusCode sc1 = evtStore()->overwrite(cpmtOut, m_cpmTowerLocation,true,false,false);
   if (sc1.isFailure()) {
     ATH_MSG_ERROR( "Error registering CPM Tower collection in TDS"
         );
@@ -310,7 +286,7 @@ StatusCode MergeSlices::mergeCpm()
   hitIter    = hitsMap.begin();
   hitIterEnd = hitsMap.end();
   for (; hitIter != hitIterEnd; ++hitIter) cpmhOut->push_back(hitIter->second);
-  StatusCode sc2 = m_storeGate->overwrite(cpmhOut, m_cpmHitsLocation,true,false,false);
+  StatusCode sc2 = evtStore()->overwrite(cpmhOut, m_cpmHitsLocation,true,false,false);
   if (sc2.isFailure()) {
     ATH_MSG_ERROR( "Error registering CPM Hits collection in TDS"
         );
@@ -325,8 +301,6 @@ StatusCode MergeSlices::mergeCpm()
 
 StatusCode MergeSlices::mergeJem()
 {
-  
-
   // Create maps and key provider for output JetElements, JEMHits and JEMEtSums
 
   JetElementMap elementMap;
@@ -342,7 +316,7 @@ StatusCode MergeSlices::mergeJem()
 
     const JetElementCollection* jeCollection = 0;
     std::string location = m_jetElementLocation + numString(slice);
-    StatusCode sc = m_storeGate->retrieve(jeCollection, location);
+    StatusCode sc = evtStore()->retrieve(jeCollection, location);
     if (sc.isFailure() || !jeCollection || jeCollection->empty()) {
       ATH_MSG_DEBUG( "No Jet Elements found for slice " << slice
           );
@@ -369,7 +343,7 @@ StatusCode MergeSlices::mergeJem()
 
     const JEMHitsCollection* jhCollection = 0;
     location = m_jemHitsLocation + numString(slice);
-    sc = m_storeGate->retrieve(jhCollection, location);
+    sc = evtStore()->retrieve(jhCollection, location);
     if (sc.isFailure() || !jhCollection || jhCollection->empty()) {
       ATH_MSG_DEBUG( "No JEM Hits found for slice " << slice
           );
@@ -396,7 +370,7 @@ StatusCode MergeSlices::mergeJem()
 
     const JEMEtSumsCollection* jsCollection = 0;
     location = m_jemEtSumsLocation + numString(slice);
-    sc = m_storeGate->retrieve(jsCollection, location);
+    sc = evtStore()->retrieve(jsCollection, location);
     if (sc.isFailure() || !jsCollection || jsCollection->empty()) {
       ATH_MSG_DEBUG( "No JEM EtSums found for slice " << slice
           );
@@ -435,7 +409,7 @@ StatusCode MergeSlices::mergeJem()
   mapIter    = elementMap.begin();
   mapIterEnd = elementMap.end();
   for (; mapIter != mapIterEnd; ++mapIter) jeteOut->push_back(mapIter->second);
-  StatusCode sc1 = m_storeGate->overwrite(jeteOut, m_jetElementLocation,true,false,false);
+  StatusCode sc1 = evtStore()->overwrite(jeteOut, m_jetElementLocation,true,false,false);
   if (sc1.isFailure()) {
     ATH_MSG_ERROR( "Error registering Jet Element collection in TDS"
         );
@@ -447,7 +421,7 @@ StatusCode MergeSlices::mergeJem()
   hitIter    = hitsMap.begin();
   hitIterEnd = hitsMap.end();
   for (; hitIter != hitIterEnd; ++hitIter) jemhOut->push_back(hitIter->second);
-  StatusCode sc2 = m_storeGate->overwrite(jemhOut, m_jemHitsLocation,true,false,false);
+  StatusCode sc2 = evtStore()->overwrite(jemhOut, m_jemHitsLocation,true,false,false);
   if (sc2.isFailure()) {
     ATH_MSG_ERROR( "Error registering JEM Hits collection in TDS"
         );
@@ -459,7 +433,7 @@ StatusCode MergeSlices::mergeJem()
   sumIter    = sumsMap.begin();
   sumIterEnd = sumsMap.end();
   for (; sumIter != sumIterEnd; ++sumIter) jemeOut->push_back(sumIter->second);
-  StatusCode sc3 = m_storeGate->overwrite(jemeOut, m_jemEtSumsLocation,true,false,false);
+  StatusCode sc3 = evtStore()->overwrite(jemeOut, m_jemEtSumsLocation,true,false,false);
   if (sc3.isFailure()) {
     ATH_MSG_ERROR( "Error registering JEM Et Sums collection in TDS"
         );

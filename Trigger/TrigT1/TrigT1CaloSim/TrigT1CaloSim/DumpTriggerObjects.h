@@ -153,7 +153,6 @@ an integer) which uniquely identifies them.  */
     /** pointer to TTs stored in storegate*/
    const TTCollection* m_storedTTs;
    const JECollection* jetElements;
-   ServiceHandle<StoreGateSvc> m_storeGate;
 
    std::string   m_triggerTowerLocation ;
    std::string   m_jetElementLocation ;

@@ -21,8 +21,6 @@
 #include "DataModel/DataVector.h"
 #include "GaudiKernel/ToolHandle.h"
 
-#include "StoreGate/StoreGateSvc.h"
-
 //LVL1 Calo trigger includes
 #include "TrigT1CaloToolInterfaces/IL1JetElementTools.h"
 
@@ -44,7 +42,7 @@ namespace LVL1 {
   - gets called for each event
   - can get anything it wants out of the Transient Event Store"
   - can put anything it makes into the store
- It must inherit from the  Algorithm base class
+ It must inherit from the  AthAlgorithm base class
  */
 /**
 The Run2JetElementMaker class takes Trigger Towers from the TES and
@@ -79,7 +77,6 @@ class Run2JetElementMaker : public AthAlgorithm
 
  private:
 
-   ServiceHandle<StoreGateSvc> m_storeGate;
    ToolHandle<LVL1::IL1JetElementTools> m_JetElementTool;
 
   /** location of TriggerTowers in TES */

@@ -32,7 +32,6 @@ namespace LVL1 {
   
 CPMTowerMaker::CPMTowerMaker( const std::string& name, ISvcLocator* pSvcLocator ) 
   : AthAlgorithm( name, pSvcLocator ), 
-    m_storeGate("StoreGateSvc", name),
     m_CPMTowerTool("LVL1::L1CPMTowerTools/L1CPMTowerTools")
 {
   m_triggerTowerLocation     = TrigT1CaloDefs::TriggerTowerLocation ;
@@ -41,7 +40,6 @@ CPMTowerMaker::CPMTowerMaker( const std::string& name, ISvcLocator* pSvcLocator 
   // This is how you declare the parameters to Gaudi so that
   // they can be over-written via the job options file
 
-  declareProperty("EventStore",m_storeGate,"StoreGate Service");
   declareProperty( "TriggerTowerLocation", m_triggerTowerLocation ) ;
   declareProperty( "CPMTowerLocation", m_cpmTowerLocation ) ;
 }
@@ -56,29 +54,9 @@ CPMTowerMaker::~CPMTowerMaker() {
       etc. here*/
 StatusCode CPMTowerMaker::initialize()
 {
-  // We must here instantiate items which can only be made after
-  // any job options have been set
-
-   
-   ATH_MSG_INFO( "Initialising" );
-
-   StatusCode sc = m_storeGate.retrieve();
-  if ( sc.isFailure() ) {
-    ATH_MSG_ERROR( "Couldn't connect to " << m_storeGate.typeAndName() 
-        );
-    return sc;
-  } else {
-    ATH_MSG_DEBUG( "Connected to " << m_storeGate.typeAndName() 
-        );
-  }
-   
-  // Retrieve L1CPMTowerTool
-  sc = m_CPMTowerTool.retrieve();
-  if (sc.isFailure())
-    ATH_MSG_ERROR( "Problem retrieving CPMTowerTool. There will be trouble." );
-
-   return StatusCode::SUCCESS ;
-   
+  ATH_MSG_INFO ( "Initialising" );
+  ATH_CHECK( m_CPMTowerTool.retrieve() );
+  return StatusCode::SUCCESS ;
 }
 
 
@@ -105,55 +83,44 @@ There is so little to do that this routine does it all itself:
 
 StatusCode CPMTowerMaker::execute( )
 {
+  ATH_MSG_DEBUG ( "Executing" );
 
-  //................................
-  // make a message logging stream
-
-  
-  int outputLevel = msgSvc()->outputLevel( name() );
-  StatusCode sc;
-	
-  if (outputLevel <= MSG::DEBUG) ATH_MSG_DEBUG( "Executing" );
-
-  if (outputLevel <= MSG::DEBUG) ATH_MSG_DEBUG("looking for trigger towers at "
-						<< m_triggerTowerLocation );
+  ATH_MSG_DEBUG ( "looking for trigger towers at "
+                  << m_triggerTowerLocation );
 				      
   // Vector to store CPMTs in
   CPMTCollection* vectorOfCPMTs = new  CPMTCollection;
   
   // Retrieve TriggerTowers from StoreGate 
-  if (m_storeGate->contains<TriggerTowerCollection>(m_triggerTowerLocation)) {
+  if (evtStore()->contains<TriggerTowerCollection>(m_triggerTowerLocation)) {
     const DataVector<TriggerTower>* vectorOfTTs;
-    StatusCode sc = m_storeGate->retrieve(vectorOfTTs, m_triggerTowerLocation);
+    StatusCode sc = evtStore()->retrieve(vectorOfTTs, m_triggerTowerLocation);
     if (sc.isSuccess()) {
       // Fill a DataVector of CPMTowers using L1CPMTowerTools
       m_CPMTowerTool->makeCPMTowers(vectorOfTTs, vectorOfCPMTs, true);
-      if (outputLevel <= MSG::DEBUG)
-         ATH_MSG_DEBUG( vectorOfCPMTs->size()<<" CPMTowers have been generated");
+      ATH_MSG_DEBUG( vectorOfCPMTs->size()<<" CPMTowers have been generated");
     }
     else ATH_MSG_WARNING( "Failed to retrieve TriggerTowers from " << m_triggerTowerLocation );
   }
   else ATH_MSG_WARNING( "No TriggerTowerContainer at " << m_triggerTowerLocation );
 
-  if (outputLevel <= MSG::DEBUG) {
-    ATH_MSG_DEBUG("Formed " << vectorOfCPMTs->size() << " CPM Towers ");
-    
-    CPMTCollection::const_iterator itCPMT;
-    for (itCPMT = vectorOfCPMTs->begin(); itCPMT != vectorOfCPMTs->end(); ++itCPMT)
-      ATH_MSG_DEBUG( "CPMT has coords (" << (*itCPMT)->eta() <<", "<< (*itCPMT)->phi() << ") and energies : "
-          << (*itCPMT)->emEnergy() <<", "<< (*itCPMT)->hadEnergy() <<" (Em,Had)" );
+  if (msgLvl(MSG::DEBUG)) {
+    ATH_MSG_DEBUG ( "Formed " << vectorOfCPMTs->size() << " CPM Towers " ) ;
+    for (const CPMTower* cpmt : *vectorOfCPMTs)
+      ATH_MSG_DEBUG ( "CPMT has coords (" << cpmt->eta() <<", "<< cpmt->phi() << ") and energies : "
+                      << cpmt->emEnergy() <<", "<< cpmt->hadEnergy() <<" (Em,Had)" );
 
   }
       
   // Finally, store CPMTs and we are done
-  sc = m_storeGate->overwrite(vectorOfCPMTs, m_cpmTowerLocation,true,false,false);
+  StatusCode sc = evtStore()->overwrite(vectorOfCPMTs, m_cpmTowerLocation,true,false,false);
   
   // Report success or failure
   if (sc != StatusCode::SUCCESS) {
     ATH_MSG_ERROR( "Error registering CPM Tower collection in TES " );
   }
-  else if (outputLevel <= MSG::DEBUG) {
-    ATH_MSG_DEBUG( "Stored CPM Towers in TES at "<< m_cpmTowerLocation );
+  else {
+    ATH_MSG_DEBUG ( "Stored CPM Towers in TES at "<< m_cpmTowerLocation );
   }
   
   // Report success in any case, or else job will terminate

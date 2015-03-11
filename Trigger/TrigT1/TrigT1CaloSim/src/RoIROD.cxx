@@ -25,7 +25,6 @@
 LVL1::RoIROD::RoIROD
   ( const std::string& name, ISvcLocator* pSvcLocator ) 
     : AthAlgorithm( name, pSvcLocator ),
-    m_storeGate("StoreGateSvc", name), 
     m_eventNumber(0),
     m_emTauRoILocation(TrigT1CaloDefs::CPMTobRoILocation), 
     m_emTauSlinkLocation(TrigT1CaloDefs::EmTauSlinkLocation),
@@ -34,7 +33,6 @@ LVL1::RoIROD::RoIROD
     m_jepSlinkLocation(TrigT1CaloDefs::jepSlinkLocation)
 {
 
-  declareProperty("EventStore",m_storeGate,"StoreGate Service");
   declareProperty(  "EmTauRoILocation",     m_emTauRoILocation );
   declareProperty(  "EmTauSlinkLocation",   m_emTauSlinkLocation );
   declareProperty(  "JEPSlinkLocation",     m_jepSlinkLocation );
@@ -60,23 +58,6 @@ LVL1::RoIROD::~RoIROD() {
 
 StatusCode LVL1::RoIROD::initialize()
 {
-
-  // We must here instantiate items which can only be made after
-  // any job options have been set
-
-  //
-  // Connect to StoreGate:
-  //
-  StatusCode sc = m_storeGate.retrieve();
-  if ( sc.isFailure() ) {
-    ATH_MSG_ERROR("Couldn't connect to " << m_storeGate.typeAndName() 
-        );
-    return sc;
-  } else {
-    ATH_MSG_DEBUG("Connected to " << m_storeGate.typeAndName() 
-        );
-  }
-
   return StatusCode::SUCCESS ;
 }
 
@@ -102,7 +83,7 @@ StatusCode LVL1::RoIROD::execute( )
   ATH_MSG_DEBUG("Executing" );
 
   const EventInfo* evt;
-  if (StatusCode::SUCCESS == m_storeGate->retrieve(evt)){
+  if (StatusCode::SUCCESS == evtStore()->retrieve(evt)){
     m_eventNumber = evt->event_ID()->event_number();
   }else{
     ATH_MSG_ERROR( " Unable to retrieve EventInfo from StoreGate ");
@@ -131,7 +112,7 @@ void LVL1::RoIROD::formSlinkObjects(){
   /** Retrieve CPMTobRoIs and copy data to SLink vectors */
   ATH_MSG_DEBUG("Load and process CPM TOBs");
   const t_cpmTobRoIContainer* EMTaus ;
-  StatusCode sc1 = m_storeGate->retrieve(EMTaus, m_emTauRoILocation);
+  StatusCode sc1 = evtStore()->retrieve(EMTaus, m_emTauRoILocation);
 
   if ( sc1==StatusCode::FAILURE ) {
     ATH_MSG_DEBUG("No CPMTobRoIs found. ");
@@ -150,7 +131,7 @@ void LVL1::RoIROD::formSlinkObjects(){
   /** Retrieve JEMTobRoIs and copy data to SLink vectors */
   ATH_MSG_DEBUG("Load and process Jet TOBs");
   const t_jemTobRoIContainer* Jets ;
-  StatusCode sc2 = m_storeGate->retrieve(Jets, m_JetRoILocation);
+  StatusCode sc2 = evtStore()->retrieve(Jets, m_JetRoILocation);
 
   if ( sc2==StatusCode::FAILURE ) {
     ATH_MSG_DEBUG("No JEMTobRoIs found. ");
@@ -168,7 +149,7 @@ void LVL1::RoIROD::formSlinkObjects(){
   
   /** Retrieve EnergySum RoI(s) and add to SLink record */
   const t_EnergyRoIContainer* energy   ;
-  StatusCode sc3 = m_storeGate->retrieve(energy, m_energyRoILocation);
+  StatusCode sc3 = evtStore()->retrieve(energy, m_energyRoILocation);
 
   if  ( sc3==StatusCode::FAILURE ) {
     ATH_MSG_DEBUG("No EnergySum RoIs found.");
@@ -236,7 +217,7 @@ void LVL1::RoIROD::saveSlinkObjects(){
 
   for (unsigned int i = 0; i<TrigT1CaloDefs::numOfCPRoIRODs;++i){
 
-    StatusCode sc = m_storeGate->overwrite(m_CPRoIROD[i],emTauSlinkLocation[i],true,false,false);
+    StatusCode sc = evtStore()->overwrite(m_CPRoIROD[i],emTauSlinkLocation[i],true,false,false);
 
     if (sc.isSuccess() ){
       ATH_MSG_DEBUG("Stored EmTau Slink object at "<< emTauSlinkLocation[i] <<" with "
@@ -250,7 +231,7 @@ void LVL1::RoIROD::saveSlinkObjects(){
   jepSlinkLocation[0]= m_jepSlinkLocation+"0";
   jepSlinkLocation[1]= m_jepSlinkLocation+"1";
   for (unsigned int i = 0; i<TrigT1CaloDefs::numOfJEPRoIRODs;++i){
-    StatusCode sc = m_storeGate->overwrite(m_jepRoIROD[i],jepSlinkLocation[i],true,false,false);
+    StatusCode sc = evtStore()->overwrite(m_jepRoIROD[i],jepSlinkLocation[i],true,false,false);
     if (sc.isSuccess() ){
       ATH_MSG_DEBUG("Stored JetEnergy Slink object at "<< jepSlinkLocation[i] <<" with "
           <<(m_jepRoIROD[i]->size())<<" words");

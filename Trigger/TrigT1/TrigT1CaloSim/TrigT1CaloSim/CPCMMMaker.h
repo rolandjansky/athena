@@ -60,8 +60,6 @@ class CPCMMMaker : public AthAlgorithm {
    /// Make CP bytestream container
    StatusCode makeCpBsCollection();
 
-   /// StoreGate service
-   ServiceHandle<StoreGateSvc> m_storeGate;
    /// Tool for Hits
    ToolHandle<LVL1::IL1CPHitsTools>   m_cpHitsTool;
    /// CPM towers container StoreGate key

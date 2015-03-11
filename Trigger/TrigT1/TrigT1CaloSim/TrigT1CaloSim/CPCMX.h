@@ -100,7 +100,6 @@
    std::string   m_CPMCMXDataLocation;
    
    /** The essentials - data access, configuration, tools */
-   ServiceHandle<StoreGateSvc> m_storeGate;
    ServiceHandle<TrigConf::ILVL1ConfigSvc> m_configSvc;
    
    /** CTP info*/

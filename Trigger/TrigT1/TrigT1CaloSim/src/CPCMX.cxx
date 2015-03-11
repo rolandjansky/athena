@@ -53,7 +53,6 @@ const int CPCMX::s_SourceTotal;
 CPCMX::CPCMX
   ( const std::string& name, ISvcLocator* pSvcLocator )
     : AthAlgorithm( name, pSvcLocator ), 
-      m_storeGate("StoreGateSvc", name), 
       m_configSvc("TrigConf::LVL1ConfigSvc/LVL1ConfigSvc", name),
       m_emTauCTP(0)
 {
@@ -66,7 +65,6 @@ CPCMX::CPCMX
     // This is how you declare the paramembers to Gaudi so that
     // they can be over-written via the job options file
     
-    declareProperty( "EventStore",m_storeGate,"StoreGate Service");
     declareProperty( "CMXCPHitLocation",        m_CMXCPHitLocation );
     declareProperty( "CMXCPTobLocation",        m_CMXCPTobLocation );
     declareProperty( "CPMCMXDataLocation",      m_CPMCMXDataLocation );
@@ -88,36 +86,7 @@ CPCMX::~CPCMX() {
 
 StatusCode CPCMX::initialize()
 {
-
-  // We must here instantiate items which can only be made after
-  // any job options have been set
-  int outputLevel = msgSvc()->outputLevel( name() );
-
-     //
-    // Connect to the LVL1ConfigSvc for the trigger configuration:
-    //
-  StatusCode sc = m_configSvc.retrieve();
-  if ( sc.isFailure() ) {
-    ATH_MSG_ERROR("Couldn't connect to " << m_configSvc.typeAndName() 
-        );
-    return sc;
-  } else if (outputLevel <= MSG::DEBUG) {
-    ATH_MSG_DEBUG("Connected to " << m_configSvc.typeAndName() 
-        );
-  }
-
-  // Now connect to the StoreGateSvc
-
-  sc = m_storeGate.retrieve();
-  if ( sc.isFailure() ) {
-    ATH_MSG_ERROR("Couldn't connect to " << m_storeGate.typeAndName() 
-        );
-    return sc;
-  } else if (outputLevel <= MSG::DEBUG) {
-    ATH_MSG_DEBUG("Connected to " << m_storeGate.typeAndName() 
-        );
-  }
-    
+  ATH_CHECK( m_configSvc.retrieve() );
   return StatusCode::SUCCESS ;
 }
 
@@ -128,10 +97,7 @@ StatusCode CPCMX::initialize()
 
 StatusCode CPCMX::beginRun()
 {
-
-  int outputLevel = msgSvc()->outputLevel( name() );
-  if (outputLevel <= MSG::DEBUG) printTriggerMenu();
-
+  if (msgLvl(MSG::DEBUG)) printTriggerMenu();
   return StatusCode::SUCCESS ;
 }
 
@@ -167,8 +133,7 @@ StatusCode CPCMX::execute( )
 
   //make a message logging stream
 
-  int outputLevel = msgSvc()->outputLevel( name() );
-  if (outputLevel <= MSG::DEBUG) ATH_MSG_DEBUG("starting CPCMX" );
+  ATH_MSG_DEBUG ( "starting CPCMX" );
   
   /** Initialise pointer */
   m_emTauCTP = 0;
@@ -223,8 +188,8 @@ StatusCode CPCMX::execute( )
 
   /** Retrieve the CPCMXData (backplane data packages) */
   const t_cpmDataContainer* bpData;
-  if (m_storeGate->contains<t_cpmDataContainer>(m_CPMCMXDataLocation)) {
-    StatusCode sc = m_storeGate->retrieve(bpData, m_CPMCMXDataLocation);  
+  if (evtStore()->contains<t_cpmDataContainer>(m_CPMCMXDataLocation)) {
+    StatusCode sc = evtStore()->retrieve(bpData, m_CPMCMXDataLocation);  
     if ( sc==StatusCode::SUCCESS ) {
 	
       // Analyse module results
@@ -347,23 +312,23 @@ StatusCode CPCMX::execute( )
 
 
   // Store output for BS simulation
-  StatusCode sc = m_storeGate->overwrite(CMXTobs, m_CMXCPTobLocation,true,false,false);
-  if (sc != StatusCode::SUCCESS) ATH_MSG_WARNING("Problem writeing CMXTobs to StoreGate" );
+  StatusCode sc = evtStore()->overwrite(CMXTobs, m_CMXCPTobLocation,true,false,false);
+  if (sc != StatusCode::SUCCESS) ATH_MSG_WARNING ( "Problem writeing CMXTobs to StoreGate" );
 
-  sc = m_storeGate->overwrite(CMXHits, m_CMXCPHitLocation,true,false,false);
-  if (sc != StatusCode::SUCCESS) ATH_MSG_WARNING("Problem writeing CMXHits to StoreGate" );
+  sc = evtStore()->overwrite(CMXHits, m_CMXCPHitLocation,true,false,false);
+  if (sc != StatusCode::SUCCESS) ATH_MSG_WARNING ( "Problem writeing CMXHits to StoreGate" );
 
   // Store Topo results
-  sc = m_storeGate->overwrite(topoData, m_TopoOutputLocation,true,false,false);
-  if (sc != StatusCode::SUCCESS) ATH_MSG_WARNING("Problem writeing CPCMXTopoData object to StoreGate" );
+  sc = evtStore()->overwrite(topoData, m_TopoOutputLocation,true,false,false);
+  if (sc != StatusCode::SUCCESS) ATH_MSG_WARNING ( "Problem writeing CPCMXTopoData object to StoreGate" );
 
   // Store CTP results
   if (m_emTauCTP == 0) {
     m_emTauCTP = new EmTauCTP(0,0,0,0);
     ATH_MSG_WARNING("No EmTauCTP found. Creating empty object" );
   }
-  sc = m_storeGate->overwrite(m_emTauCTP, m_CTPOutputLocation,true,false,false);
-  if (sc != StatusCode::SUCCESS) ATH_MSG_WARNING("Problem writeing EmTauCTP object to StoreGate" );
+  sc = evtStore()->overwrite(m_emTauCTP, m_CTPOutputLocation,true,false,false);
+  if (sc != StatusCode::SUCCESS) ATH_MSG_WARNING ( "Problem writeing EmTauCTP object to StoreGate" );
 
   return StatusCode::SUCCESS ;
 }
@@ -372,7 +337,6 @@ StatusCode CPCMX::execute( )
 
 /** print trigger configuration, for debugging purposes */
 void LVL1::CPCMX::printTriggerMenu(){
-  
   /** This is all going to need updating for the new menu structure.
       Comment out in the meanwhile 
   

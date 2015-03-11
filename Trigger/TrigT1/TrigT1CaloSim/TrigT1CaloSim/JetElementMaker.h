@@ -79,7 +79,6 @@ class JetElementMaker : public AthAlgorithm
 
  private:
 
-   ServiceHandle<StoreGateSvc> m_storeGate;
    ToolHandle<LVL1::IL1JetElementTools> m_JetElementTool;
 
   /** location of TriggerTowers in TES */

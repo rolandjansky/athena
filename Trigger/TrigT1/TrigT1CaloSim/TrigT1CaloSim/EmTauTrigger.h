@@ -116,7 +116,6 @@
   std::map<int, CPMHits *> * m_cpmHitsContainer;
   
    /** The essentials - data access, configuration, tools */
-   ServiceHandle<StoreGateSvc> m_storeGate;
    ServiceHandle<TrigConf::ILVL1ConfigSvc> m_configSvc;
    ToolHandle<LVL1::IL1EmTauTools> m_EmTauTool;
 

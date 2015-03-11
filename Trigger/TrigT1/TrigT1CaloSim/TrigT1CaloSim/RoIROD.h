@@ -89,9 +89,6 @@ private: // Private methods
   void dumpSlinks() const;
 
 private: // Private attributes
-  /** Pointer to SG service*/
-  ServiceHandle<StoreGateSvc> m_storeGate;
-
   unsigned int m_eventNumber;
   std::string m_emTauRoILocation ;
   std::string m_emTauSlinkLocation ;

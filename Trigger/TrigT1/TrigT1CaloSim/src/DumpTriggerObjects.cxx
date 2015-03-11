@@ -38,7 +38,6 @@ DumpTriggerObjects::DumpTriggerObjects
     : AthAlgorithm(name, pSvcLocator), 
       m_storedTTs(0),
       jetElements(0),
-      m_storeGate("StoreGateSvc", name),
       EMData(0), HData(0),
       PhiMax(0), EtaMax(0)
 {
@@ -48,7 +47,6 @@ DumpTriggerObjects::DumpTriggerObjects
   m_triggerTowerLocation = TrigT1CaloDefs::TriggerTowerLocation;
   declareProperty("JetElementLocation", m_jetElementLocation);
   declareProperty("TriggerTowerLocation", m_triggerTowerLocation);
-  declareProperty("EventStore",m_storeGate,"StoreGate Service");
 
     m_oFile = new std::ofstream("Lvl1TestVector.dat");
         
@@ -58,7 +56,6 @@ DumpTriggerObjects::DumpTriggerObjects
 // Destructor
 DumpTriggerObjects::~DumpTriggerObjects()
 {
-    
     ATH_MSG_INFO( "Destructor called" );
     
     m_oFile->close();
@@ -72,21 +69,6 @@ DumpTriggerObjects::~DumpTriggerObjects()
 
 StatusCode DumpTriggerObjects::initialize()
 {
-
-  // We must here instantiate items which can only be made after
-  // any job options have been set
-  
-
-  // This isn't good code - very poor error checking!
-  StatusCode sc = m_storeGate.retrieve();
-  if ( sc.isFailure() ) {
-    ATH_MSG_ERROR( "Couldn't connect to " << m_storeGate.typeAndName() 
-        );
-  } else {
-    ATH_MSG_DEBUG( "Connected to " << m_storeGate.typeAndName() 
-        );
-  }
-  
   return StatusCode::SUCCESS ;
 }
 
@@ -150,12 +132,11 @@ StatusCode DumpTriggerObjects::execute( )
 
 StatusCode DumpTriggerObjects::loadTriggerTowers()
 {
-    
     // Find trigger towers in TES
-    StatusCode sc1 = m_storeGate->retrieve(m_storedTTs, m_triggerTowerLocation);
+    StatusCode sc1 = evtStore()->retrieve(m_storedTTs, m_triggerTowerLocation);
 
     // Find jet elements in TES
-    StatusCode sc2 = m_storeGate->retrieve(jetElements, m_jetElementLocation);
+    StatusCode sc2 = evtStore()->retrieve(jetElements, m_jetElementLocation);
 
     if((sc1 == StatusCode::FAILURE))
     {
@@ -243,13 +224,13 @@ void DumpTriggerObjects::JEDumpOutput()
     
     ATH_MSG_INFO( "Dumping Full Jet Element Output to file: JetElementOutput.dat" );
 
-    std::ofstream *output = new std::ofstream("JetElementOuput.dat", std::ios::app|std::ios::out);
+  std::ofstream output("JetElementOuput.dat", std::ios::app|std::ios::out);
     for(int i = 0; i < EtaMax; i+=4){
         for(int j = 0; j < PhiMax; j+=8){
-	    printJEUnit(output, i, j);
+	    printJEUnit(&output, i, j);
         }
     }
-    output->close();
+    output.close();
 }
 
 /**
@@ -400,16 +381,16 @@ void DumpTriggerObjects::TTDumpOutput()
     
     ATH_MSG_INFO( "Dumping Trigger Tower full output to file: TriggerTowerOutput.dat" );
 
-    std::ofstream *output = new std::ofstream("TriggerTowerOutput.dat", std::ios::app|std::ios::out);
+    std::ofstream output("TriggerTowerOutput.dat", std::ios::app|std::ios::out);
     for(int i = 0; i < EtaMax; i+=4)
     {
         for(int j = 0; j < PhiMax; j+=4)
 	{
-	    printTTUnit(output, i, j);
-	    *output << std::endl;
+	    printTTUnit(&output, i, j);
+	    output << std::endl;
 	}
     }
-    output->close();
+    output.close();
 }
 
 /**
@@ -471,7 +452,7 @@ void DumpTriggerObjects::TTHighestOutput()
     
     ATH_MSG_INFO( "Dumping Highest TT values per group to file: HighestTriggerTowers.dat" );
 
-    std::ofstream *output = new std::ofstream("HighestTriggerTowers.dat", std::ios::out|std::ios::app);
+    std::ofstream output ("HighestTriggerTowers.dat", std::ios::out|std::ios::app);
     int highestEnergy = 0;
     int energyTot = 0;
     int phiIndex = -1;
@@ -497,10 +478,10 @@ void DumpTriggerObjects::TTHighestOutput()
 	}
     }
     if (etaIndex >= 0 && phiIndex >= 0) {
-      printTTUnit(output, etaIndex, phiIndex);
-      *output << std::endl;
+      printTTUnit(&output, etaIndex, phiIndex);
+      output << std::endl;
     }
-    output->close();
+    output.close();
 }
 
 /**
@@ -513,7 +494,7 @@ void DumpTriggerObjects::JEHighestOutput()
     
     ATH_MSG_INFO( "Dumping highest JE values per group to file: JemInputMain_Athena.txt" );
 
-    std::ofstream *output = new std::ofstream("JemInputMain_Athena.txt", std::ios::out|std::ios::app);
+    std::ofstream output ("JemInputMain_Athena.txt", std::ios::out|std::ios::app);
     int highestEnergy = 0;
     int energyTot = 0;
     int etaIndex = -1;
@@ -541,9 +522,9 @@ void DumpTriggerObjects::JEHighestOutput()
 	}
     }
     if (etaIndex >= 0 && phiIndex >= 0) {
-      printJEUnit(output, etaIndex, phiIndex);    
+      printJEUnit(&output, etaIndex, phiIndex);    
     }
-    output->close();
+    output.close();
 }
 
 /**
@@ -610,12 +591,12 @@ void DumpTriggerObjects::printJEUnit(std::ofstream *output, int eta, int phi)
  *		str	The name of the file to be created.
  */
 void DumpTriggerObjects::DumpArray(int **data, const char *str){
-    std::ofstream *output = new std::ofstream(str, std::ios::app|std::ios::out);
+    std::ofstream output (str, std::ios::app|std::ios::out);
     for(int i = 0; i < PhiMax; i++){
         for(int j = 0; j < EtaMax; j++){
-	    *output << std::setw(4) << data[i][j];
+          output << std::setw(4) << data[i][j];
 	}
-	*output << std::endl;
+	output << std::endl;
    }
 }
 

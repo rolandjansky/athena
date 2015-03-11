@@ -43,7 +43,7 @@ namespace LVL1 {
   - gets called for each event
   - can get anything it wants out of the Transient Event Store"
   - can put anything it makes into the store
- It must inherit from the  Algorithm base class
+ It must inherit from the  AthAlgorithm base class
  */
 /**
 The CPMTowerMaker class takes Trigger Towers from the TES and
@@ -80,7 +80,6 @@ class CPMTowerMaker : public AthAlgorithm
 
  private:
 
-   ServiceHandle<StoreGateSvc> m_storeGate;
    ToolHandle<LVL1::IL1CPMTowerTools> m_CPMTowerTool;
 
   /** location of TriggerTowers in TES */

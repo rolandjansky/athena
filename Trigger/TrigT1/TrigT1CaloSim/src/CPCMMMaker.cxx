@@ -5,8 +5,6 @@
 
 #include <numeric>
 
-#include "StoreGate/StoreGateSvc.h"
-
 #include "TrigT1CaloEvent/CMMCPHits.h"
 #include "TrigT1CaloEvent/CPMHits.h"
 #include "TrigT1CaloEvent/CPMTower.h"
@@ -22,10 +20,8 @@ namespace LVL1 {
 
 CPCMMMaker::CPCMMMaker(const std::string& name, ISvcLocator* pSvcLocator)
                        : AthAlgorithm(name, pSvcLocator), 
-                         m_storeGate("StoreGateSvc", name),
 			 m_cpHitsTool("LVL1::L1CPHitsTools/L1CPHitsTools")
 {
-  declareProperty("EventStore",m_storeGate,"StoreGate Service");
   declareProperty("CPMTowerLocation",
          m_cpmTowerLocation       = TrigT1CaloDefs::CPMTowerLocation);
   declareProperty("CPMHitsLocation",
@@ -49,27 +45,10 @@ CPCMMMaker::~CPCMMMaker()
 
 StatusCode CPCMMMaker::initialize()
 {
-  
-
-  StatusCode sc = m_storeGate.retrieve();
-  if ( sc.isFailure() ) {
-    ATH_MSG_ERROR( "Couldn't connect to " << m_storeGate.typeAndName() 
-        );
-    return sc;
-  } else {
-    ATH_MSG_DEBUG( "Connected to " << m_storeGate.typeAndName() 
-        );
-  }
-
   if (m_runSimulation) {
 
     // Retrieve Hits tool
-
-    sc = m_cpHitsTool.retrieve();
-    if ( sc.isFailure() ) {
-      ATH_MSG_ERROR( "Couldn't retrieve CPHitsTool" );
-      return sc;
-    }
+    ATH_CHECK( m_cpHitsTool.retrieve() );
   }
 
   return StatusCode::SUCCESS;
@@ -79,15 +58,11 @@ StatusCode CPCMMMaker::initialize()
 
 StatusCode CPCMMMaker::execute()
 {
-  
-
-  StatusCode sc;
-
   if (m_runSimulation) {
 
     // CMM-CP
 
-    sc = makeCmmCp();
+    StatusCode sc = makeCmmCp();
     if (sc.isFailure()) {
       ATH_MSG_ERROR( "Unable to make CMM-CP" );
     }
@@ -108,7 +83,7 @@ StatusCode CPCMMMaker::execute()
 
   // Fill CP bytestream container
 
-  sc = makeCpBsCollection();
+  StatusCode sc = makeCpBsCollection();
   if (sc.isFailure()) {
     ATH_MSG_ERROR( "Unable to make CP bytestream container" );
   }
@@ -120,7 +95,6 @@ StatusCode CPCMMMaker::execute()
 
 StatusCode CPCMMMaker::finalize()
 {
-
   return StatusCode::SUCCESS;
 }
 
@@ -128,14 +102,12 @@ StatusCode CPCMMMaker::finalize()
 
 StatusCode CPCMMMaker::makeCmmCp()
 {
-  
-
   // Find CPM hits
 
   StatusCode sc;
   const CPMHitsCollection* hitCollection = 0;
-  if (m_storeGate->contains<CPMHitsCollection>(m_cpmHitsLocation)) {
-    sc = m_storeGate->retrieve(hitCollection, m_cpmHitsLocation);
+  if (evtStore()->contains<CPMHitsCollection>(m_cpmHitsLocation)) {
+    sc = evtStore()->retrieve(hitCollection, m_cpmHitsLocation);
   } else sc = StatusCode::FAILURE;
   if (sc.isFailure() || !hitCollection) {
     ATH_MSG_DEBUG( "No CPM Hits container found" );
@@ -152,14 +124,7 @@ StatusCode CPCMMMaker::makeCmmCp()
 
   // Save in StoreGate
 
-  sc = m_storeGate->overwrite(cmm, m_cmmHitsLocation,true,false,false);
-  if (sc.isFailure()) {
-    ATH_MSG_ERROR( "Error recording CMM-CP container in TDS " );
-    return sc;
-  }
-  else {
-    ATH_MSG_DEBUG( "Recorded CMM-CP container" );
-  }
+  ATH_CHECK( evtStore()->overwrite(cmm, m_cmmHitsLocation,true,false,false) );
 
   return StatusCode::SUCCESS;
 }
@@ -168,14 +133,12 @@ StatusCode CPCMMMaker::makeCmmCp()
 
 StatusCode CPCMMMaker::makeCpmRoi()
 {
-  
-
   // Find EmTauROIs
 
   StatusCode sc;
   const EmTauROICollection* etrCollection = 0;
-  if (m_storeGate->contains<EmTauROICollection>(m_emTauRoiLocation)) {
-    sc = m_storeGate->retrieve(etrCollection, m_emTauRoiLocation);
+  if (evtStore()->contains<EmTauROICollection>(m_emTauRoiLocation)) {
+    sc = evtStore()->retrieve(etrCollection, m_emTauRoiLocation);
   } else sc = StatusCode::FAILURE;
   if (sc.isFailure() || !etrCollection) {
     ATH_MSG_DEBUG( "No EmTauROIs found" );
@@ -196,14 +159,7 @@ StatusCode CPCMMMaker::makeCpmRoi()
 
   // Save container
 
-  sc = m_storeGate->overwrite(roiCollection, m_cpmRoiLocation,true,false,false);
-  if (sc != StatusCode::SUCCESS) {
-    ATH_MSG_ERROR( "Error recording CPMRoI container in TDS " );
-    return sc;
-  }
-  else {
-    ATH_MSG_DEBUG( "Stored CPMRoI container" );
-  }
+  ATH_CHECK( evtStore()->overwrite(roiCollection, m_cpmRoiLocation,true,false,false) );
 
   return StatusCode::SUCCESS;
 }
@@ -212,14 +168,12 @@ StatusCode CPCMMMaker::makeCpmRoi()
 
 StatusCode CPCMMMaker::makeCpBsCollection()
 {
-  
-
   // Find CPM trigger towers
 
   StatusCode sc;
   const CPMTowerCollection* ttCollection = 0;
-  if (m_storeGate->contains<CPMTowerCollection>(m_cpmTowerLocation)) {
-    sc = m_storeGate->retrieve(ttCollection, m_cpmTowerLocation);
+  if (evtStore()->contains<CPMTowerCollection>(m_cpmTowerLocation)) {
+    sc = evtStore()->retrieve(ttCollection, m_cpmTowerLocation);
   } else sc = StatusCode::FAILURE;
   if (sc.isFailure() || !ttCollection) {
     ATH_MSG_DEBUG( "No CPM Towers found" );
@@ -229,8 +183,8 @@ StatusCode CPCMMMaker::makeCpBsCollection()
   // Find CPM hits
 
   const CPMHitsCollection* hitCollection = 0;
-  if (m_storeGate->contains<CPMHitsCollection>(m_cpmHitsLocation)) {
-    sc = m_storeGate->retrieve(hitCollection, m_cpmHitsLocation);
+  if (evtStore()->contains<CPMHitsCollection>(m_cpmHitsLocation)) {
+    sc = evtStore()->retrieve(hitCollection, m_cpmHitsLocation);
   } else sc = StatusCode::FAILURE;
   if (sc.isFailure() || !hitCollection) {
     ATH_MSG_DEBUG( "No CPM Hits found" );
@@ -240,7 +194,7 @@ StatusCode CPCMMMaker::makeCpBsCollection()
   // Find CMM hits
 
   const CMMHitsCollection* cmmHitCollection = 0;
-  sc = m_storeGate->retrieve(cmmHitCollection, m_cmmHitsLocation);
+  sc = evtStore()->retrieve(cmmHitCollection, m_cmmHitsLocation);
   if (sc.isFailure() || !cmmHitCollection) {
     ATH_MSG_DEBUG( "No CMM Hits found" );
     cmmHitCollection = 0;
@@ -250,11 +204,7 @@ StatusCode CPCMMMaker::makeCpBsCollection()
 
   CPBSCollectionV1* cp = new CPBSCollectionV1(ttCollection, hitCollection,
                                                         cmmHitCollection);
-  sc = m_storeGate->overwrite(cp, m_cpBsCollectionLocation,true,false,false);
-  if (sc != StatusCode::SUCCESS) {
-    ATH_MSG_ERROR( "Error recording CP container in TDS " );
-    return sc;
-  }
+  ATH_CHECK( evtStore()->overwrite(cp, m_cpBsCollectionLocation,true,false,false) );
 
   return StatusCode::SUCCESS;
 }
