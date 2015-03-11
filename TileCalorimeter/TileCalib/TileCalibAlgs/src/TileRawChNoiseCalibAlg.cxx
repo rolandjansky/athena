@@ -822,6 +822,23 @@ void TileRawChNoiseCalibAlg::fillCell(TileRawChannelUnit::UNIT RChUnit, const Ti
     double amp = rch->amplitude();
     amp = m_tileToolEmscale->channelCalib(drawerIdx, channel, gain, amp, RChUnit, TileRawChannelUnit::MegaElectronVolts);
 
+    if ((m_cabling->getCablingType() == TileCablingService::RUN2Cabling)
+        && (channel == E1_CHANNEL)
+        && (ros > 2)) { // Raw channel -> E1 cell.
+         
+      int drawer2 = m_cabling->E1_merged_with_run2(ros, drawer);
+      if (drawer2 != 0) { // Raw channel splitted into two E1 cells for Run 2.
+        amp /= 2.0F;
+        ecell_ene[side][drawer2][sample][tower][gg / 3] += amp;
+        ++cell_nch[side][drawer2][sample][tower][gg / 3];
+        
+        if (TMath::Abs(amp) > 1.e-5) {
+          histCellAmp[side][drawer2][sample][tower][g]->Fill(amp);
+        }
+
+      }
+    }
+
     ecell_ene[side][drawer][sample][tower][gg / 3] += amp;
     ++cell_nch[side][drawer][sample][tower][gg / 3];
 

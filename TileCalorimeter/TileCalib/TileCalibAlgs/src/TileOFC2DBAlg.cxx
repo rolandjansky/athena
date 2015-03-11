@@ -21,27 +21,33 @@
 #include "TileCalibBlobObjs/TileCalibDrawerOfc.h"
 #include "TileCalibBlobObjs/TileCalibDrawerCmt.h"
 
+#include <vector>
 
 TileOFC2DBAlg::TileOFC2DBAlg(const std::string& name, ISvcLocator* pSvcLocator)
     : AthAlgorithm(name, pSvcLocator)
   , m_regSvc(0)
   , m_tileToolTiming("TileCondToolTiming")
   , m_tileCondToolOfc("TileCondToolOfc")
+
 {
   declareProperty("TileCondToolTiming", m_tileToolTiming);
-  declareProperty("TileCondToolOfc",    m_tileCondToolOfc  ,"TileCondToolOfc");
+  declareProperty("TileCondToolOfc",    m_tileCondToolOfc, "TileCondToolOfc");
   declareProperty("OF2",                m_of2            = true,"true => OF2, false => OF1");
   declareProperty("RunIOVSince",        m_runIOVSince    = IOVTime::MINRUN );
   declareProperty("RunIOVUntil",        m_runIOVUntil    = IOVTime::MAXRUN );
   declareProperty("LbnIOVSince",        m_lbnIOVSince    = IOVTime::MINEVENT );
   declareProperty("LbnIOVUntil",        m_lbnIOVUntil    = IOVTime::MAXEVENT );
-  declareProperty("FixedPhases",        m_fixedPhases    = true, "calculate OFCs for 2001 phases" );
+  declareProperty("FixedPhases",        m_fixedPhases    = true, "calculate OFCs for fixed phases" );
   declareProperty("RunType",            m_runType        = "PHY", "PHY or LAS");
+
+  declareProperty("FixedPhasesNumber",   m_nFixedPhases   = 100);
+  declareProperty("PhaseStep",          m_phaseStep      = 0.5);
+  declareProperty("Modules",            m_modules        = {"AUX01"}, "Modules for which OFC should be stored in DB");
+  declareProperty("CreateAllModules",   m_creatAllModules = true, "All missing modules is written to DB with zero size (empty)");
 }
   
 TileOFC2DBAlg::~TileOFC2DBAlg() {
 } 
-
 
 
 //____________________________________________________________________________
@@ -59,6 +65,18 @@ StatusCode TileOFC2DBAlg::initialize() {
   CHECK( service("IOVRegistrationSvc", m_regSvc) );
 
   ATH_MSG_DEBUG( "Found IOVRegistrationSvc " );
+
+
+  std::map<std::string, unsigned int> roses = { {"AUX", 0}, {"LBA", 1}, {"LBC", 2}, {"EBA", 3}, {"EBC", 4} };
+
+  msg(MSG::INFO) << "OFC will be stored in DB for the following modules:";
+  for (std::string module : m_modules) {
+    msg(MSG::INFO) << " " << module;
+    m_drawerIdxs.push_back( TileCalibUtils::getDrawerIdx(roses[module.substr(0, 3)], std::stoi(module.substr(3, 2)) - 1) );
+  }
+  msg(MSG::INFO) << endmsg;
+
+  if (m_creatAllModules) ATH_MSG_INFO("All other missing modules will be stored in DB with zero size");
 
   return StatusCode::SUCCESS;
 }
@@ -108,93 +126,118 @@ StatusCode TileOFC2DBAlg::execute() {
 
   // ---------- create fixed phases
   if (m_fixedPhases) {
-    ATH_MSG_DEBUG( "m_fixedPhases " << m_fixedPhases );
+    ATH_MSG_DEBUG( "Fixed phases: " << m_fixedPhases 
+                   << ", number of fixed phases: " << m_nFixedPhases
+                   << ", phase step: " << m_phaseStep);
 
-    unsigned int channel = 0;
-    std::vector<int> phases(N_FIXED_PHASES * TileCalibUtils::MAX_GAIN + 1);
-    unsigned int drawerIdx = TileCalibUtils::getDrawerIdx(0, 0);
+    std::vector<int> phases(m_nFixedPhases * TileCalibUtils::MAX_GAIN + 1);
 
     //=== create attribute list
     coral::AttributeList ofcList(*spec);
     coral::Blob& blob = ofcList["TileCalibBlobOfc"].data<coral::Blob>();
 
-    //=== create an OFC blob interpreter
-    TileCalibDrawerOfc* drawerOfc = TileCalibDrawerOfc::getInstance(blob, objVersion, ndig, -(N_FIXED_PHASES * TileCalibUtils::MAX_GAIN + 1), 1, TileCalibUtils::MAX_GAIN); // nPhases, nChann, nGains
+    std::vector<bool> coolChannelCreated(TileCalibUtils::MAX_DRAWERIDX, false);
 
     for (unsigned int gain = 0; gain < TileCalibUtils::MAX_GAIN; ++gain) {
-      for (int phase = -N_FIXED_PHASES; phase <= N_FIXED_PHASES; ++phase) {
+      for (int phase = - m_nFixedPhases; phase <= m_nFixedPhases; ++phase) {
         phases.push_back(phase);
       }
     }
 
-    for (unsigned int gain = 0; gain < TileCalibUtils::MAX_GAIN; ++gain) {
-      drawerOfc->setPhases(0, gain, phases);
-      for (int phase = -N_FIXED_PHASES; phase <= N_FIXED_PHASES; ++phase) {
-        float fphase = phase * PHASE_STEP;
-        m_weights = m_tileCondToolOfc->getOfcWeights(drawerIdx, channel, gain, fphase, m_of2);
-        for (int isam = 0; isam < ndig; isam++) {
-          drawerOfc->setOfc(TileCalibDrawerOfc::FieldA, 0, gain, phase, isam, m_weights->w_a[isam]);
-          drawerOfc->setOfc(TileCalibDrawerOfc::FieldB, 0, gain, phase, isam, m_weights->w_b[isam]);
-          drawerOfc->setOfc(TileCalibDrawerOfc::FieldG, 0, gain, phase, isam, m_weights->g[isam]);
-          if (objVersion == 3) {
-            drawerOfc->setOfc(TileCalibDrawerOfc::FieldC, 0, gain, phase, isam, m_weights->w_c[isam]);
-            drawerOfc->setOfc(TileCalibDrawerOfc::FieldDG, 0, gain, phase, isam, m_weights->dg[isam]);
+    unsigned int maxChan(0);
+    int nPhases = m_nFixedPhases * TileCalibUtils::MAX_GAIN + 1;
+    TileCalibDrawerOfc* drawerOfc;
+
+    for (unsigned int drawerIdx : m_drawerIdxs) {
+      coolChannelCreated[drawerIdx] = true;        
+      if (drawerIdx == 0) {
+        maxChan = 1;
+        //=== create an OFC blob interpreter
+        drawerOfc = TileCalibDrawerOfc::getInstance(blob, objVersion, ndig, -nPhases, maxChan, TileCalibUtils::MAX_GAIN); // nPhases, nChann, nGains
+      } else {
+        //=== create an OFC blob interpreter
+        maxChan = TileCalibUtils::MAX_CHAN;
+        drawerOfc = TileCalibDrawerOfc::getInstance(blob, objVersion, ndig, nPhases, maxChan, TileCalibUtils::MAX_GAIN); // nPhases, nChann, nGains
+        
+      }
+      
+      for (unsigned int channel = 0; channel < maxChan; ++channel) {
+        for (unsigned int gain = 0; gain < TileCalibUtils::MAX_GAIN; ++gain) {
+          drawerOfc->setPhases(channel, gain, phases);
+          for (int phase = - m_nFixedPhases; phase <= m_nFixedPhases; ++phase) {
+            float fphase = phase * m_phaseStep;
+            m_weights = m_tileCondToolOfc->getOfcWeights(drawerIdx, channel, gain, fphase, m_of2);
+            for (int isam = 0; isam < ndig; isam++) {
+              drawerOfc->setOfc(TileCalibDrawerOfc::FieldA, channel, gain, phase, isam, m_weights->w_a[isam]);
+              drawerOfc->setOfc(TileCalibDrawerOfc::FieldB, channel, gain, phase, isam, m_weights->w_b[isam]);
+              drawerOfc->setOfc(TileCalibDrawerOfc::FieldG, channel, gain, phase, isam, m_weights->g[isam]);
+              if (objVersion == 3) {
+                drawerOfc->setOfc(TileCalibDrawerOfc::FieldC, channel, gain, phase, isam, m_weights->w_c[isam]);
+                drawerOfc->setOfc(TileCalibDrawerOfc::FieldDG, channel, gain, phase, isam, m_weights->dg[isam]);
+              }
+            }
+            
+            
+            if (msgLvl(MSG::DEBUG)) {
+              
+              msg(MSG::DEBUG) << " N Samples " << ndig
+                              << " channel " << channel
+                              << " drawerIdx " << drawerIdx
+                              << " gain " << gain
+                              << " phase = " << phase << endmsg;
+              
+              msg(MSG::DEBUG) << "gain " << gain << " w_a, phase " << phase << " ";
+              for (int isam = 0; isam < ndig; ++isam)
+                msg(MSG::DEBUG) << " " << m_weights->w_a[isam];
+              msg(MSG::DEBUG) << endmsg;
+              
+              msg(MSG::DEBUG) << "gain " << gain << " w_b, phase " << phase << " ";
+              for (int isam = 0; isam < ndig; isam++)
+                msg(MSG::DEBUG) << " " << m_weights->w_b[isam];
+              msg(MSG::DEBUG) << endmsg;
+              
+              if (m_of2) {
+                msg(MSG::DEBUG) << "gain " << gain << " w_c, phase " << phase << " ";
+                for (int isam = 0; isam < ndig; isam++)
+                  msg(MSG::DEBUG) << " " << m_weights->w_c[isam];
+                msg(MSG::DEBUG) << endmsg;
+              }
+              
+              msg(MSG::DEBUG) << "gain " << gain << " g, phase " << phase << " ";
+              for (int isam = 0; isam < ndig; isam++)
+                msg(MSG::DEBUG) << " " << m_weights->g[isam];
+              msg(MSG::DEBUG) << endmsg;
+              
+            }
+            
           }
         }
-
-
-        if (msgLvl(MSG::DEBUG)) {
-
-          msg(MSG::DEBUG) << " N Samples " << ndig
-                          << " channel " << channel
-                          << " drawerIdx " << drawerIdx
-                          << " gain " << gain
-                          << " phase = " << phase << endmsg;
-
-          msg(MSG::DEBUG) << "gain " << gain << " w_a, phase " << phase << " ";
-          for (int isam = 0; isam < ndig; ++isam)
-            msg(MSG::DEBUG) << " " << m_weights->w_a[isam];
-          msg(MSG::DEBUG) << endmsg;
-
-          msg(MSG::DEBUG) << "gain " << gain << " w_b, phase " << phase << " ";
-          for (int isam = 0; isam < ndig; isam++)
-            msg(MSG::DEBUG) << " " << m_weights->w_b[isam];
-          msg(MSG::DEBUG) << endmsg;
-
-          if (m_of2) {
-            msg(MSG::DEBUG) << "gain " << gain << " w_c, phase " << phase << " ";
-            for (int isam = 0; isam < ndig; isam++)
-              msg(MSG::DEBUG) << " " << m_weights->w_c[isam];
-            msg(MSG::DEBUG) << endmsg;
-          }
-
-          msg(MSG::DEBUG) << "gain " << gain << " g, phase " << phase << " ";
-          for (int isam = 0; isam < ndig; isam++)
-            msg(MSG::DEBUG) << " " << m_weights->g[isam];
-          msg(MSG::DEBUG) << endmsg;
-
-        }
-
+        
+        
+      }
+      
+      //=== use DrawerHash as channel number
+      attrListColl->add(drawerIdx, ofcList);
+      
+      //=== add the IOV range for this collection
+      attrListColl->add(drawerIdx, range);
+      //    drawerOfc->dump();
+      delete drawerOfc;
+      
+    }
+    
+    //=== Create empty blobs for all COOL channels (for missing drawers)
+    if (m_creatAllModules) {
+      for (unsigned int coolChannel = 0; coolChannel < TileCalibUtils::MAX_DRAWERIDX; ++coolChannel) {
+        if (coolChannelCreated[coolChannel]) continue; 
+        //=== create attribute list for this drawer
+        coral::AttributeList ofcList(*spec);
+        //coral::Blob& blob=ofcList["TileCalibBlobOfc"].data<coral::Blob>();
+        attrListColl->add(coolChannel, ofcList);
+        attrListColl->add(coolChannel, range);
       }
     }
-
-    //=== use DrawerHash as channel number
-    attrListColl->add(drawerIdx, ofcList);
-
-    //=== add the IOV range for this collection
-    attrListColl->add(drawerIdx, range);
-    //    drawerOfc->dump();
-    delete drawerOfc;
-
-    //=== Create empty blobs for all COOL channels
-    for (int cchan = 1; cchan < 276; cchan++) {
-      //=== create attribute list for this drawer
-      coral::AttributeList ofcList(*spec);
-      //coral::Blob& blob=ofcList["TileCalibBlobOfc"].data<coral::Blob>();
-      attrListColl->add(cchan, ofcList);
-      attrListColl->add(cchan, range);
-    }
-
+    
   } else { // take best phase from DB and calculate OFCs for each channel
 
     std::vector<int> phases(TileCalibUtils::MAX_CHAN);
@@ -288,7 +331,8 @@ StatusCode TileOFC2DBAlg::execute() {
   //=== add the comment in the comment channel
   coral::AttributeList attrList(*spec);
   coral::Blob& blob = attrList["TileCalibBlobOfc"].data<coral::Blob>();
-  TileCalibDrawerCmt* comment = TileCalibDrawerCmt::getInstance(blob, "tilecomm", "OFC weights calculated by TileCondToolOfc");
+  const char* user = getenv("USER");
+  TileCalibDrawerCmt* comment = TileCalibDrawerCmt::getInstance(blob, (user ? user : "tilecomm"), "OFC weights calculated by TileCondToolOfc");
   delete comment;
   attrListColl->add(TileCalibUtils::getCommentChannel(), attrList);
   attrListColl->add(TileCalibUtils::getCommentChannel(), range);

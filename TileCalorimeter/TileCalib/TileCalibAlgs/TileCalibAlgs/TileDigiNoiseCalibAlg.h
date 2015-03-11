@@ -76,6 +76,10 @@ class TileDigiNoiseCalibAlg: public AthAlgorithm {
     // Toggle usage of average correlation calcualtion or rigorous
     // Default: Rigorous
     bool m_doAvgCorr;
+    
+    // Toggle usage of robust method to calculate covariance matrix or standard method    
+    // Default: use standard                                                              
+    bool m_doRobustCov;
 
     // Tools / storegate info
     ToolHandle<TileBeamInfoProvider> m_beamInfo;
