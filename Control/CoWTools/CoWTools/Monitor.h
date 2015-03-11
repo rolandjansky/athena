@@ -20,6 +20,9 @@ namespace CoWTools{
     Monitor(MsgStream &out);
     Monitor(std::vector<long> &out);
     ~Monitor();
+
+    Monitor (const Monitor&) = delete;
+    Monitor& operator= (const Monitor&) = delete;
   private:
     const CoWTools::CoWRecordStats parseSmaps() const;
     StreamBase *m_out;

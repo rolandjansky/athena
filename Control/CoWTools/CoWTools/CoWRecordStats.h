@@ -52,11 +52,24 @@ namespace CoWTools{
       return *this;
     }
     
-    friend CoWRecordStats operator+(CoWRecordStats lhs, const CoWRecordStats& rhs){
-      return lhs+=rhs;
+    inline CoWRecordStats operator-()const{
+      CoWRecordStats m(m_summary);
+      for(int i=0;i<11;i++){
+	m.vals[i]=-vals[i];
+      }
+      m.vals[11]=vals[11];
+      m.vals[12]=vals[12];
+      m.vals[13]=-vals[13];
+      m.vals[14]=vals[14];
+      //needed only for very detailed
+      //vals[14]|=rhs.vals[14];
+      return m;
     }
-    friend CoWRecordStats operator-(CoWRecordStats lhs, const CoWRecordStats& rhs){
-      return lhs-=rhs;
+    friend CoWRecordStats operator+(const CoWRecordStats& lhs, const CoWRecordStats& rhs){
+      return CoWRecordStats(lhs) += rhs;
+    }
+    friend CoWRecordStats operator-(const CoWRecordStats& lhs, const CoWRecordStats& rhs){
+      return CoWRecordStats(lhs) -= rhs;
     }
     explicit operator bool() const {
       for(int i=0;i<11;i++){
@@ -76,12 +89,6 @@ namespace CoWTools{
 	return false;
       }
       return false;
-    }
-    CoWRecordStats(const CoWRecordStats &ms){
-      m_summary=ms.m_summary;
-      for(int i=0;i<20;i++){
-	vals[i]=ms.vals[i];
-      }
     }
     void parseRecord(std::istream &in);
     long long *  getValueArray(){return vals;}

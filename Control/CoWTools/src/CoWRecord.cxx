@@ -25,5 +25,5 @@ void CoWTools::CoWRecord::parseRecord(std::istream &in){
     perms|=((pbuff[i]!='-')<<(4-i));
   }
   perms |= (pbuff[3]=='p');
-  ms.parseRecord(in);
+  m_ms.parseRecord(in);
 }
