@@ -39,6 +39,7 @@ ${dict_dir}/${dictionary}/${NAME}.xml.stamp :: $(${NAME}_h_dependencies) $(refle
 	@if test ! -z "$(gcc_user_flags)" ; then \
 	    export  GCCXML_USER_FLAGS="$(gcc_user_flags)" ; \
 	fi
-	$(silent) $(athena_genreflex_wrapper_cmd) ${dictionary} $(genreflex_cmd) ${dict_dir}/${dictionary}/${NAME}_gen.h -o ${dict_dir}/${dictionary} $(reflex_dict${dictionary}_options) ${munged_reflex_dict_options} $(${dictionary}_reflex_dict_options)  $(includes) $(use_pp_cppflags) 
+        # using explicit dictionary source file name to work around root5.99 genreflex bug
+	$(silent) $(genreflex_cmd) ${dict_dir}/${dictionary}/${NAME}_gen.h -o ${dict_dir}/${dictionary}/${NAME}_gen.cpp $(reflex_dict${dictionary}_options) ${munged_reflex_dict_options} ${genreflex_options} $(${dictionary}_reflex_dict_options)  $(includes) $(use_pp_cppflags) 
 	@touch ${dict_dir}/${dictionary}/${NAME}.xml.stamp
 

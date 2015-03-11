@@ -2,16 +2,13 @@ package AtlasReflex
 
 author RD Schaffer <R.D.Schaffer@cern.ch>
 author Kyle Cranmer <cranmer@cern.ch>
+author Marcin Nowak <Marcin.Nowak@cern.ch>
 
 use ExternalPolicy ExternalPolicy-* External
-use Reflex         v*               LCG_Interfaces
-use AtlasRELAX     AtlasRELAX-00-*  External -no_auto_imports
+use AtlasRELAX     AtlasRELAX-*     External -no_auto_imports
+use AtlasROOT      AtlasROOT-*      External
+use_unless tag=ROOT_GE_6_00  pkg=Reflex ver="v*" root="LCG_Interfaces"
 
-
-macro athena_genreflex_wrapper_cmd "python $(AtlasReflex_root)/cmt/athena_genreflex_wrapper.py"
-
-# Use local copy of genreflex.
-macro genreflex_cmd "python $(AtlasReflex_root)/genreflex/lib/python/genreflex/genreflex.py"
 
 #-----------------------------------------------------------------------------
 #
@@ -20,6 +17,7 @@ macro genreflex_cmd "python $(AtlasReflex_root)/genreflex/lib/python/genreflex/g
 macro merge_dict_rootmap_cmd ${GaudiPolicy_root}/scripts/merge_files.py
 make_fragment reflex_dict -header=reflex_dict_header -trailer=reflex_dict_trailer -dependencies
 make_fragment merge_dict_rootmap  -header=merge_dict_rootmap_header  -dependencies
+make_fragment install_lcgdict_pcms -header=install_lcgdict_pcms_header
 make_fragment DataLink_selection.xml
 make_fragment ElementLink_selection.xml
 make_fragment ElementLinkVector_selection.xml
@@ -27,6 +25,7 @@ make_fragment Navigable_selection.xml
 make_fragment NavigableDict.h
 make_fragment ElementLinkDict.h
 make_fragment DataLinkDict.h
+
 #-----------------------------------------------------------------------------
 #
 # Pattern for applying the generator
@@ -91,12 +90,19 @@ make_fragment DataLinkDict.h
 #-----------------------------------------------------------------------------
 set GCCXML_USER_FLAGS "" target-darwin&target-x86_64 " -m64"
 
+# MN: this gets rid of the 'register' specification warnings from CLHEP in gcc48
+macro genreflex_options ""   ROOT_GE_6_00 " -Wno-deprecated "
+# MN: and this prevents deprecated hash_map warning (from Gaudi) in gcc48
+macro_append genreflex_options " -D_GLIBCXX_PERMIT_BACKWARD_HASH "
+
 pattern lcgdict \
   private ; \
-  use Reflex         v*               LCG_Interfaces ; \
   macro gcc_user_flags "" target-darwin&target-x86_64 " -m64" ; \
   macro dict_dir "$(bin)dict" ; \
   macro_append <dict>Gen_dependencies " install_includes" ; \
+  macro genreflex_cmd "python $(AtlasReflex_root)/cmt/athena_genreflex_wrapper.py <dict> \
+                     python $(AtlasReflex_root)/genreflex/lib/python/genreflex/genreflex.py" \
+        ROOT_GE_6_00 "genreflex"  #for ROOT v6+ use the default genreflex  ; \
   document reflex_dict <dict>Gen <headerfiles> dictionary=<dict> ; \
   library <dict>Dict -suffix=_<dict> <extralibfiles> -s=$(dict_dir)/<dict> *.cpp ; \
 # Force optimized compilation of the dictionary for minimum disk space
@@ -116,8 +122,9 @@ pattern lcgdict \
   macro reflex_dict<dict>_element_links " <elementLinks> " ; \ 
   macro reflex_dict<dict>_element_link_vectors " <elementLinkVectors> " ; \ 
   macro reflex_dict<dict>_opt_rootmap " --rootmap=<dict>Dict.dsomap --rootmap-lib=$(libprefix)<dict>Dict.$(shlibsuffix) " ; \
-  macro reflex_dict<dict>_options " <options>  --select=$(dict_dir)/<dict>_selection.xml  -DNDEBUG $(reflex_dict<dict>_opt_rootmap) " ; \
-  macro_append reflex_dict<dict>_options " --fail_on_warnings " ; \
+  macro reflex_dict<dict>_opt_pcm ""  \
+         ROOT_GE_6_00 " --multiDict -l$(dict_dir)/<dict>/<dict>Dict.$(shlibsuffix) " ; \
+  macro reflex_dict<dict>_options " <options>  --select=$(dict_dir)/<dict>_selection.xml  -DNDEBUG $(reflex_dict<dict>_opt_rootmap) $(reflex_dict<dict>_opt_pcm) " ; \
 # reflex_dict_options_cppflags comes in from AtlasPolicy
   macro_append reflex_dict<dict>_options " --fail_on_warnings $(reflex_dict_options_cppflags) " ; \
   macro_append reflex_dict<dict>_options "" \
@@ -129,7 +136,22 @@ pattern lcgdict \
   apply_pattern optdebug_library name='<dict>Dict' ; \
   macro_append check_install_<dict>Dict_<dict>dictrootmap_dependencies " <dict>Gen " ; \
   apply_pattern merge_dict_dsomap dict=<dict> headerfiles=<headerfiles> ; \
+  apply_pattern install_pcm       dict=<dict> headerfiles=<headerfiles> ; \
   end_private 
+
+
+# Conditional patterns used by lcgdict:
+
+pattern install_pcm \
+   macro install_pcm_<dict> "empty_install_pcm" \
+        ROOT_GE_6_00 "do_install_pcm" ; \
+   apply_pattern ${install_pcm_<dict>} dict=<dict> headerfiles=<headerfiles>
+
+pattern empty_install_pcm  macro dummy "<dict> <headerfiles>"
+
+pattern do_install_pcm \
+   macro InstallPCM_<dict>_dependencies <dict>Gen ; \
+   document install_lcgdict_pcms InstallPCM_<dict> dict=<dict> <headerfiles> 
 
 
 pattern merge_dict_dsomap \
@@ -150,6 +172,13 @@ pattern do_null_merge_dict_dsomap \
    macro dummy_for_<headerfiles>DictHeaders "<headerfiles>" ; \
   end_private
 
+# helper pattern to execute patterns only for ROOT5
+pattern root5only_pattern \
+   macro root5only_pattern_name "<pattern_name>" \
+         ROOT_GE_6_00 "empty_pattern" ; \
+   apply_pattern ${root5only_pattern_name} 
+
+pattern empty_pattern 
 
 
 private
@@ -181,6 +210,12 @@ macro_remove shlibbuilder "-m32
 macro cc_name "gcc" gcc "$(cc_name)"
 macro cpp_name "g++" gcc "$(cpp_name)"
 
-library gccxml_plugin -s=../gccxml_plugin gccxml_plugin.cxx xml.cxx
+
+
+pattern gccxml_plugin_lib \
+        library gccxml_plugin -s=../gccxml_plugin gccxml_plugin.cxx xml.cxx
+
+# Compile the gxxcml plugin only for ROOT5
+apply_pattern root5only_pattern pattern_name="gccxml_plugin_lib" 
 
 apply_pattern declare_scripts files="../gccxml_plugin/gccxml_plugin"

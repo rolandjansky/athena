@@ -29,7 +29,7 @@ def main():
     #   system headers
     idx=2
     while ( idx < len(genreflex_cmd) ):
-        print "RS---",genreflex_cmd[idx],genreflex_cmd[idx].startswith( '-isystem' );
+        # print "RS---",genreflex_cmd[idx],genreflex_cmd[idx].startswith( '-isystem' );
         if genreflex_cmd[idx].startswith( '-isystem' ):
             if len(genreflex_cmd)>idx+1:
                 del genreflex_cmd[idx+1]

@@ -321,11 +321,13 @@ class genreflex:
     for source in self.files :
       path, fullname = os.path.split(source)
       name = fullname[:fullname.find('.')]
-      xmlfile = os.path.join(self.outputDir,name+'_gccxmlout.xml')
       if( self.outputFile ) :
+        name    = self.outputFile[:self.outputFile.find('.')]
         dicfile = os.path.join(self.outputDir,self.outputFile)
+        xmlfile = os.path.join(self.outputDir,name+'_gccxmlout.xml')
       else :
         dicfile = os.path.join(self.outputDir,name+file_extension)
+        xmlfile = os.path.join(self.outputDir,name+'_gccxmlout.xml')
       if self.gccxmlpost == '' :
         #---------------Parse the header file with GCC_XML
         if sys.platform == 'win32' :

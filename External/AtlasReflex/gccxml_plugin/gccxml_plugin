@@ -24,15 +24,55 @@ if not plugin_path:
           file = sys.stderr)
    sys.exit(1)
 
+# New Code ###################################
 cxxflags = []
-while len(sys.argv) >= 3 and sys.argv[1] == '--gccxml-cxxflags':
-   cxxflags.append (sys.argv[2])
-   del sys.argv[1:3]
+xml_file = ''
+compiler = 'gcc'
+argv     = []
+is_flag  = False
+is_comp  = False
+for arg in sys.argv[1:]:
+    if arg == '--gccxml-cxxflags':
+        is_flag = True
+        is_comp = False
+    elif arg == '--gccxml-compiler':
+        is_comp = True        
+        is_flag = False
+    elif is_flag and arg.startswith('-D'):
+        cxxflags.append(arg)
+    elif is_comp and not arg.startswith('-'):
+        compiler = arg
+        is_comp  = False
+    elif arg.startswith('-fxml='):
+        is_flag  = False
+        is_comp  = False
+        xml_file = arg[6:]        
+    else:
+        is_flag = False
+        is_comp = False
+        argv.append(arg)
+print ("gccxml_plugin: cxxflags:", cxxflags, file = sys.stdout)
+print ("gccxml_plugin: xml_file:", xml_file, file = sys.stdout)
+print ("gccxml_plugin: gcc_compiler:", compiler, file = sys.stdout)
+print ("gccxml_plugin: remaining args:", argv, file = sys.stdout)
 
-if len(sys.argv)<3 or not sys.argv[2].startswith ('-fxml='):
-   print ("Second argument should be -fxml=", file = sys.stderr)
+if len(xml_file) == 0:
+   print ("gccxml_plugin: xml_file not specified", file = sys.stderr)
    sys.exit(1)
-xml_file = sys.argv[2][6:]
+
+# End of New Code ###################################
+
+# Original Code ###################################
+####cxxflags = []
+####while len(sys.argv) >= 3 and sys.argv[1] == '--gccxml-cxxflags':
+####   cxxflags.append (sys.argv[2])
+####   del sys.argv[1:3]
+
+####if len(sys.argv)<3 or not sys.argv[2].startswith ('-fxml='):
+####   print ("Second argument should be -fxml=", file = sys.stderr)
+####   sys.exit(1)
+####xml_file = sys.argv[2][6:]
+# End of Original Code ###################################
 
 args = ['gcc', '-x', 'c++', '--std=c++11', '-S']
 args.append ('-fplugin=' + plugin_path)
@@ -41,14 +81,14 @@ args.append ('-D__REFLEX__')
 args.append ('-Wno-deprecated')
 args.append ('-fplugin-arg-%s-xml=%s' % (plugin_name, xml_file))
 args += cxxflags
-args.append (sys.argv[1])
-args += sys.argv[3:]
+####DRQ args.append (sys.argv[1])
+####DRQ args += sys.argv[3:]
+####DAQ added
+args += argv
 cmd = ' '.join(args)
 cmd = cmd.replace ('"', '\\"')
-if '-v' in sys.argv[3:]:
+print ("gccxml_plugin: cmd:", cmd, file = sys.stdout)
+if '-v' in sys.argv:
    print(cmd)
 ret = os.system (cmd)
 sys.exit (ret)
-
-
-
