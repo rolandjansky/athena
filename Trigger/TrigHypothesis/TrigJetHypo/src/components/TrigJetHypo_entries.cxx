@@ -14,7 +14,6 @@
 #include "TrigJetHypo/TrigL2HTFullScanHypo.h"
 #include "TrigJetHypo/TrigL2HTAllTE.h"
 #include "TrigJetHypo/TrigL2DijetAllTE.h"
-#include "TrigJetHypo/TrigL2CentralJetAllTE.h"
 #include "TrigJetHypo/TrigEFCentralJet.h"
 #include "TrigJetHypo/TrigEFDPhiMetJetAllTE.h"
 #include "TrigJetHypo/TrigEFRazorAllTE.h"
@@ -43,7 +42,6 @@ DECLARE_ALGORITHM_FACTORY( TrigL2MultiJetAllTE )
 DECLARE_ALGORITHM_FACTORY( TrigL2HTFullScanHypo )
 DECLARE_ALGORITHM_FACTORY( TrigL2HTAllTE )
 DECLARE_ALGORITHM_FACTORY( TrigL2DijetAllTE )
-DECLARE_ALGORITHM_FACTORY( TrigL2CentralJetAllTE )
 DECLARE_ALGORITHM_FACTORY( TrigEFDPhiMetJetAllTE )
 DECLARE_ALGORITHM_FACTORY( TrigEFRazorAllTE )
 DECLARE_ALGORITHM_FACTORY( TrigEFJetMctHypo )
@@ -70,7 +68,6 @@ DECLARE_FACTORY_ENTRIES( TrigJetHypo ) {
   DECLARE_ALGORITHM( TrigL2HTFullScanHypo )
   DECLARE_ALGORITHM( TrigL2HTAllTE )
   DECLARE_ALGORITHM( TrigL2DijetAllTE )
-  DECLARE_ALGORITHM( TrigL2CentralJetAllTE )
   DECLARE_ALGORITHM( TrigEFCentralJet )
   DECLARE_ALGORITHM( TrigEFDPhiMetJetAllTE )
   DECLARE_ALGORITHM( TrigEFRazorAllTE )

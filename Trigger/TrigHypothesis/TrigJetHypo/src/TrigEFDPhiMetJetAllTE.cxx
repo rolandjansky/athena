@@ -336,9 +336,11 @@ HLT::ErrorCode TrigEFDPhiMetJetAllTE::hltFinalize()
 }
 
 
-bool TrigEFDPhiMetJetAllTE::reset() {
-  if ( !AllTEAlgo::reset() ) return false;
-  //    m_executedEvent_EFDPhiMetJet = false;
-    AllTEAlgo::reset();   
-    return true;
-  }
+/* PS 9/2/2015 remove as does not appear to do anything useful
+   bool TrigEFDPhiMetJetAllTE::reset() {
+   if ( !AllTEAlgo::reset() ) return false;
+   //    m_executedEvent_EFDPhiMetJet = false;
+   AllTEAlgo::reset();   
+   return true;
+   }
+*/
