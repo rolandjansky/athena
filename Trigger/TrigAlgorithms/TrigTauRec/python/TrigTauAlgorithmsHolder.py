@@ -81,8 +81,8 @@ def getPileUpCorrection():
     from tauRec.tauRecConf import TauIDPileupCorrection
     TauPileUp = TauIDPileupCorrection( name = _name, 
                                        averageEstimator = 20.,
-                                       calibrationFile1Prong = "fitted.pileup_1prong_hlt.root",
-                                       calibrationFile3Prong = "fitted.pileup_multiprongs_hlt.root",
+                                       calibrationFile1Prong = "fitted.pileup_1prong_hlt_2015.root",
+                                       calibrationFile3Prong = "fitted.pileup_multiprongs_hlt_2015.root",
                                        useMu = True)
 
     cached_instances[_name] = TauPileUp
