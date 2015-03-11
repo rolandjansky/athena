@@ -50,6 +50,27 @@ private:
   float m_jetEtaCut;
   float m_nJetPassThrough;
 
+
+  int m_NJets;
+  double m_jetP[20][4];
+  double m_Ptot[4];
+  double m_beta[3];
+  double m_gamma;
+  double m_dot, m_dotgamma;
+
+
+  int m_ip_max[2];
+  int m_jp_max[2];
+  double m_P_max;
+  double m_Pref[3];
+
+  int m_ip[2], m_jp[2], m_Nhem[2];
+  double m_Phem[3];
+  double m_Phem_probe[3];
+
+  double m_Pret[2][4];
+
+
   HLT::ErrorCode attachJetCollection(HLT::TriggerElement*,
                                      const xAOD::JetContainer*);
 

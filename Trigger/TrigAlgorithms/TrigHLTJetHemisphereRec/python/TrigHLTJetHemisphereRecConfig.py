@@ -15,7 +15,7 @@ class TrigHLTJetHemisphereRec_Builder(TrigHLTJetHemisphereRec):
     """Supply a kinematic cuts for the preselection going into hemisphere reco"""
     def __init__(self,
                  name="TrigHLTJetHemisphereRec",
-                 jetPtCut=10.0 * GeV,
+                 jetPtCut=30.0 * GeV,
                  jetEtaCut=3.2 ):
         TrigHLTJetHemisphereRec.__init__(self, name)
 
