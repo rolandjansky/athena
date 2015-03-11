@@ -25,6 +25,7 @@
 
 // class StoreGateSvc;
 class RegSelSiLUT;
+class MuonTGC_CablingSvc;
 
 #include <iostream>
 #include <string>
@@ -50,9 +51,10 @@ private:
   
   StatusCode createTable();
   
-  //  StoreGateSvc*  m_detStore;
-  RegSelSiLUT*   m_regionLUT;
+  // Cabling (new)
+  MuonTGC_CablingSvc* m_tgcCabling; 
 
+  RegSelSiLUT*   m_regionLUT;
 };
 
 

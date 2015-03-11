@@ -4,7 +4,7 @@
 //
 //                   
 // 
-//   Copyright (C) 2007 M.Sutton (sutt@cern.ch)    
+//   Copyright (x1C) 2007 M.Sutton (sutt@cern.ch)    
 //
 //   $Id: TGC_RegionSelectorTable.cxx, v0.0   Tue  4 Aug 2009 16:38:38 BST sutt $
 
@@ -30,14 +30,15 @@ using namespace std;
 
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/MuonReadoutElement.h" 
-#include "MuonReadoutGeometry/MdtReadoutElement.h"
-#include "MuonReadoutGeometry/CscReadoutElement.h"
-#include "MuonReadoutGeometry/RpcReadoutElement.h"
+//#include "MuonReadoutGeometry/MdtReadoutElement.h"
+//#include "MuonReadoutGeometry/CscReadoutElement.h"
+//#include "MuonReadoutGeometry/RpcReadoutElement.h"
 #include "MuonReadoutGeometry/TgcReadoutElement.h"
-#include "MuonReadoutGeometry/RpcReadoutSet.h"
+//#include "MuonReadoutGeometry/RpcReadoutSet.h"
 #include "MuonReadoutGeometry/MuonStation.h"
 
 #include "RegSelLUT/RegSelSiLUT.h"
+#include "MuonTGC_Cabling/MuonTGC_CablingSvc.h"
 
 #include <iostream>
 #include <vector>
@@ -50,19 +51,33 @@ using namespace std;
 TGC_RegionSelectorTable::TGC_RegionSelectorTable(const std::string& type, 
 						 const std::string& name,
 						 const IInterface*  parent)
-  :  AthAlgTool(type,name,parent),  m_regionLUT(NULL)
+  :  AthAlgTool(type,name,parent),  
+     m_tgcCabling(0),
+     m_regionLUT(0) 
 {
   declareInterface<IRegionIDLUT_Creator>(this);
 }
 
 
 TGC_RegionSelectorTable::~TGC_RegionSelectorTable() { 
-  if ( m_regionLUT ) delete m_regionLUT;
+  if ( m_regionLUT ) {
+    delete m_regionLUT;
+    m_regionLUT =0;
+  }
 }
 
 
 StatusCode TGC_RegionSelectorTable::initialize() { 
   msg(MSG::INFO) << "initialize() TGC_RegionSelectorTable" << endreq;
+
+   // locate new cabling service    
+  StatusCode sc = service("MuonTGC_CablingSvc",m_tgcCabling);
+  if (sc.isFailure() ){
+    msg() << MSG::ERROR << "Could not retrieve " << m_tgcCabling << endreq;
+    return sc;
+  }
+  msg() << MSG::DEBUG << "Retrieved service " << m_tgcCabling << endreq;
+  
   return createTable();
 }
 
@@ -94,6 +109,13 @@ StatusCode TGC_RegionSelectorTable::createTable() {
   std::vector<Identifier>::const_iterator idlast  = p_IdHelper->module_end();
 
   const IdContext ModuleContext = p_IdHelper->module_context();
+
+  int maxRodId = 0;
+  int maxSswId = 0;
+  int maxSbloc = 0;
+  int minChannelId = 0;
+  int maxChannelId = 0;
+  m_tgcCabling->getReadoutIDRanges(maxRodId, maxSswId, maxSbloc, minChannelId, maxChannelId);
 
   for (std::vector<Identifier>::const_iterator i = idfirst; i != idlast; i++) {
    
@@ -168,7 +190,17 @@ StatusCode TGC_RegionSelectorTable::createTable() {
       if (phimin < 0) phimin += 2.*M_PI;
       if (phimax < 0) phimax += 2.*M_PI;
 
-      RegSelModule m( zmin, zmax, rmin, rmax, phimin, phimax, layerid, detid, 0, hashId );
+      // get ROB id
+      int subDetectorId = 0; // 0x67 (A side) or 0x68 (C side)
+      int rodId = 0; // 1-12
+      m_tgcCabling->getReadoutIDfromElementID(Id, subDetectorId, rodId);
+      //int isAside = (subDetectorId==0x67) ? 0 : 1;
+      //uint32_t robId = static_cast<uint32_t>(isAside*(maxRodId) + rodId -1); // 0-23
+      // using Source ID :see Muon::TGC_Hid2RESrcID::getRodID()/getRobId()
+      uint32_t robId =  ( ((0x0ff) & subDetectorId)<<16 ) | (rodId);
+      // end part to get ROB id
+
+      RegSelModule m( zmin, zmax, rmin, rmax, phimin, phimax, layerid, detid, robId, hashId );
       tgclut->addModule( m );
 
   }
