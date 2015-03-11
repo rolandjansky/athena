@@ -154,8 +154,8 @@ protected:
 
   int m_roi_nSPs;
 
-  double m_roiPhi, m_roiEta;  
-  double m_roiPhiWidth, m_roiEtaWidth;  
+  double m_roiPhi, m_roiEta, m_roiZ;  
+  double m_roiPhiWidth, m_roiEtaWidth, m_roiZ_Width;  
   double m_timePattReco;
 
   int m_nZvertices; 

@@ -42,6 +42,14 @@ class TrigFastTrackFinder_CommonMonitoring(TrigGenericMonitoringToolConfig):
                                              type='TH1F',
                                              title="Eta width of the input RoI",
                                              xbins = 100, xmin=0, xmax=5)]
+        self.Histograms += [ defineHistogram('roi_z',
+                                             type='TH1F',
+                                             title="z of the input RoI",
+                                             xbins = 200, xmin=-400, xmax=400)]
+        self.Histograms += [ defineHistogram('roi_zWidth',
+                                             type='TH1F',
+                                             title="z width of the input RoI",
+                                             xbins = 100, xmin=0, xmax=500)]
     def addDataErrorHistograms(self):
         self.Histograms += [ defineHistogram('roi_lastStageExecuted',
                                              type='TH1F',
@@ -86,6 +94,10 @@ class TrigFastTrackFinder_CommonMonitoring(TrigGenericMonitoringToolConfig):
                                              type='TH1F',
                                              title="deta",
                                              xbins = 160, xmin=-0.8, xmax=0.8)]
+        self.Histograms += [ defineHistogram('roi_nSeeds',
+                                             type='TH1F',
+                                             title="Number of seeds",
+                                             xbins = 1000, xmin=-0.5, xmax=999.5)]
 
         #self.Histograms += [ defineHistogram('sp_x , sp_y',
         #                                     type='TH2F',
