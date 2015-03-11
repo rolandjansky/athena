@@ -82,6 +82,7 @@ TileDigiNoiseCalibAlg::TileDigiNoiseCalibAlg(const std::string& name, ISvcLocato
   declareProperty("TreeSize", m_treeSize = 16000000000LL);
   declareProperty("NSamples", m_nSamples = 7);
   declareProperty("DoAvgCorr", m_doAvgCorr = false);
+  declareProperty("DoRobustCov", m_doRobustCov = false);
 
   m_run = 0;
   m_evtNr = -1;
@@ -445,7 +446,7 @@ StatusCode TileDigiNoiseCalibAlg::fillDigits() {
         if (m_doAvgCorr)
           m_tileOFCorrelation->RunningCorrelation(vdigits, ros - 1, drawer, chan, gain, msg(), false, m_nSamples, 100);
         else
-          m_tileOFCorrelation->Sum(vdigits, ros - 1, drawer, chan, gain, msg(), false, m_nSamples);
+          m_tileOFCorrelation->Sum(vdigits, ros - 1, drawer, chan, gain, msg(), false, m_nSamples, m_doRobustCov);
 
       } // loop over channels
 
@@ -478,7 +479,7 @@ void TileDigiNoiseCalibAlg::finalDigits() {
     m_tileOFCorrelation->CalcRunningCorrelation(msg(), m_nSamples, 100, false);
   // --Rigorous calculation
   else
-    m_tileOFCorrelation->CalcCorrelation(msg(), m_nSamples, false);
+    m_tileOFCorrelation->CalcCorrelation(msg(), m_nSamples, false, m_doRobustCov);
 
   // Needed to store autoCorrelation matrix
   float tmpCorr[9][9];
@@ -513,14 +514,25 @@ void TileDigiNoiseCalibAlg::finalDigits() {
           m_tileOFCorrelation->GetCorrelation(m_nSamples, tmpCorr, ros - 1, drawer, chan, gain);
           //std::cout << "Printing AutoCorr values: " << std::endl;
           int nVals = 0;
-          for (int i = 0; i < m_nSamples; i++) {
-            for (int j = i + 1; j < m_nSamples; j++) {
-              //std::cout << "Auto Corr [" << i << "][" << j << "]:" << tmpCorr[i][j] << std::endl;
-              //std::cout << "Auto CorrSym [" << j << "][" << i << "]:" << tmpCorr[j][i] << std::endl;
-              auto_corr[ros][drawer][chan][gain][nVals] = tmpCorr[i][j];
-              nVals++;
+ 	  if (m_doRobustCov){ //save 28 elements for robust method
+            for (int i = 0; i < m_nSamples; i++) {
+              for (int j = i; j < m_nSamples; j++) {
+                //std::cout << "Auto Corr [" << i << "][" << j << "]:" << tmpCorr[i][j] << std::endl;
+                //std::cout << "Auto CorrSym [" << j << "][" << i << "]:" << tmpCorr[j][i] << std::endl;
+                auto_corr[ros][drawer][chan][gain][nVals] = tmpCorr[i][j];
+                nVals++;
+              }
             }
-          }
+	  } else {
+            for (int i = 0; i < m_nSamples; i++) {
+              for (int j = i+1; j < m_nSamples; j++) {
+                //std::cout << "Auto Corr [" << i << "][" << j << "]:" << tmpCorr[i][j] << std::endl;
+                //std::cout << "Auto CorrSym [" << j << "][" << i << "]:" << tmpCorr[j][i] << std::endl;
+                auto_corr[ros][drawer][chan][gain][nVals] = tmpCorr[i][j];
+                nVals++;
+              }
+            }
+	  }
 
         } // end chan loop
 

@@ -26,8 +26,8 @@
 #include "TileConditions/ITileCondToolOfc.h"
 #include "TileConditions/TileCondToolTiming.h"
 
-#define N_FIXED_PHASES 1000
-#define PHASE_STEP 0.1
+#define N_FIXED_PHASES 100
+#define PHASE_STEP 0.5
 
 class IIOVRegistrationSvc;
 
@@ -63,6 +63,11 @@ class TileOFC2DBAlg: public AthAlgorithm {
     //=== store all folders to be registered
     std::set<std::string> m_folders;
 
+    int m_nFixedPhases;
+    double m_phaseStep;
+    std::vector<std::string> m_modules;
+    std::vector<unsigned int> m_drawerIdxs;
+    bool m_creatAllModules;
 };
 
 #endif //TileCalibAlgs_TileOFC2DBAlg_h

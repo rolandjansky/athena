@@ -35,12 +35,12 @@ class TileOFCorrelation
   void SetCorrelationDelta(MsgStream & log, int dignum);
 
   void Sum(std::vector<float> &digits, int ros, int drawer, int channel, int gain,
-           MsgStream & log, bool m_debug, int &dignum);
+           MsgStream & log, bool m_debug, int &dignum, bool doRobustCov);
 
   void RunningCorrelation(std::vector<float> &digits, int ros, int drawer, int channel, int gain,
 			  MsgStream & log, bool m_debug, int &dignum, int chthres);
 
-  void CalcCorrelation(MsgStream & log, int dignum, bool m_7to9);
+  void CalcCorrelation(MsgStream & log, int dignum, bool m_7to9, bool doRobustCov);
 
   void CalcRunningCorrelation(MsgStream & log, int dignum, int chthres, bool m_7to9);
 
@@ -90,7 +90,8 @@ class TileOFCorrelation
   double SS[4][64][48][2][9][9];
   double S[4][64][48][2][9];
   double R[4][64][48][2][9][9];
-  //int N_events[4][64][48][2];  
+  //int N_events[4][64][48][2]; 
+  std::vector< std::vector <float> > DataVector[4][64][48][2]; 
 
   double corr[9], corr_sum[4][64][48][2][9], corr_sum_sq[4][64][48][2][9], ncorr;
   float  m_corr[8];

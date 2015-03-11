@@ -4,7 +4,18 @@
 # File: TileConditions/jobOptions_OFC2DBTest.py
 #
 #==============================================================
+db="tileSqlite_CovMatDefault.db"
+RUN2=True
+from AthenaCommon.GlobalFlags import globalflags
+globalflags.DetGeo.set_Value_and_Lock('atlas')
+globalflags.DataSource.set_Value_and_Lock('data')
+globalflags.DatabaseInstance="CONDBR2"
 
+from TileConditions.TileCoolMgr import tileCoolMgr
+
+tileCoolMgr.setFolder("oflNoiseAcr","/TILE/OFL02/NOISE/AUTOCR")
+tileCoolMgr.setTag(   "oflNoiseAcr","RUN2-HLT-UPD1-00")
+tileCoolMgr.setDbConn("oflNoiseAcr",db)
 #=== get user options or set default
 if not 'RUN' in dir():
     RUN = 222222
@@ -52,7 +63,7 @@ if RUN2: conddb.setGlobalTag("CONDBR2-BLKPA-2014-00")
 else:    conddb.setGlobalTag("COMCOND-BLKPA-RUN1-06")
 
 #========================================================
-from TileConditions.TileCoolMgr import tileCoolMgr
+#from TileConditions.TileCoolMgr import tileCoolMgr
 #========================================================
 from TileConditions.TileInfoConfigurator import TileInfoConfigurator
 tileInfoConfigurator = TileInfoConfigurator()
@@ -85,10 +96,17 @@ ToolSvc += getTileCondToolTiming('COOL','CIS')
 from TileCalibAlgs.TileCalibAlgsConf import TileOFC2DBAlg
 tileOFC2DBAlg = TileOFC2DBAlg()
 tileOFC2DBAlg.FixedPhases = True # True - 2001 phases for default channel only
-tileOFC2DBAlg.OF2 = True # True - default
+tileOFC2DBAlg.OF2 = False # True - default
 tileOFC2DBAlg.RunType = "PHY" # PHY (default) or LAS or CIS
 # tileOFC2DBAlg.LbnIOVUntil = 999999999
 tileOFC2DBAlg.OutputLevel = INFO
+
+tileOFC2DBAlg.FixedPhasesNumber = 100
+tileOFC2DBAlg.PhaseStep = 0.5
+tileOFC2DBAlg.Modules = ['AUX01', 'AUX05', 'AUX09', 'AUX13', 'AUX17']
+tileOFC2DBAlg.CreateAllModules = True # In DB will be stored other missing modules with zeros size (empty)
+
+
 
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()

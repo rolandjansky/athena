@@ -21,6 +21,8 @@
 #include <iomanip>
 #include <cmath>
 
+#include <TRobustEstimator.h>
+#include <TMatrix.h>
 
 using namespace std;
 using CLHEP::HepMatrix;
@@ -106,11 +108,15 @@ void TileOFCorrelation::SetCorrelationDelta(MsgStream & log, int dignum)
 
 
 ////////////////////////////////////////
-void TileOFCorrelation::Sum(vector<float> &digits, int ros, int drawer, int channel, int gain, MsgStream & /*log*/, bool m_debug, int &dignum)
+void TileOFCorrelation::Sum(vector<float> &digits, int ros, int drawer, int channel, int gain, MsgStream & /*log*/, bool m_debug, int &dignum, bool doRobustCov)
 {
   
   double N_d=0.;
   dignum=digits.size();
+
+  if (doRobustCov){
+    DataVector[ros][drawer][channel][gain].push_back(digits);
+  }
   
   N[ros][drawer][channel][gain]++;
   N_d=double(N[ros][drawer][channel][gain]);
@@ -141,40 +147,87 @@ void TileOFCorrelation::Sum(vector<float> &digits, int ros, int drawer, int chan
 
 
 ////////////////////////////////////////
-void TileOFCorrelation::CalcCorrelation(MsgStream & log, int dignum, bool m_7to9)
+void TileOFCorrelation::CalcCorrelation(MsgStream & log, int dignum, bool m_7to9, bool doRobustCov)
 {
   log<<MSG::DEBUG<<"TileOFCorrelation::CalcCorrelation"<<endreq;
 
   double denominator=0.;
   
+  TMatrixDSym TempMatrix(dignum);
+  
+  double *Row = new double[dignum];
   for (int ros=0;ros<4;ros++)
     for (int drawer=0;drawer<64;drawer++)
       for (int channel=0;channel<48;channel++)
 	for (int gain=0;gain<2;gain++){
 	  double N_d=double(N[ros][drawer][channel][gain]);
 	  //if (N_d>0.) cout<<" TileOFCorrelation::CalcCorrelation, ros="<<ros<<" drawer="<<drawer<<" channel="<<channel<<" gain="<<gain<<" N_d="<<N_d<<endl;
-	  
-	  if(dignum==7 && m_7to9)
-	    for (int j=0;j<9;j++)
-	      R[ros][drawer][channel][gain][j][j]=1.;
+	   if (doRobustCov){
+             if (N_d>10){
+               TRobustEstimator REstimator(N[ros][drawer][channel][gain],dignum);
+               for (int i=0;i<N[ros][drawer][channel][gain];i++){
+                  for (int j=0; j<dignum;j++){
+                     Row[j]=DataVector[ros][drawer][channel][gain].at(i).at(j);
+                  }
+                  REstimator.AddRow(Row);
+               }
+               REstimator.Evaluate();
+               REstimator.GetCovariance(TempMatrix);
+               for (int i=0;i<dignum;i++)
+                  for (int j=0;j<dignum;j++)
+                     R[ros][drawer][channel][gain][i][j]= TempMatrix(i,j);
 
-	  for (int i=0;i<dignum;i++)    
-	      //	      for (int j=0;j<i+1;j++)
-	    for (int j=0;j<dignum;j++){
-	      if (N_d>0.){
-		denominator= (N_d*SS[ros][drawer][channel][gain][i][i]-S[ros][drawer][channel][gain][i]*S[ros][drawer][channel][gain][i])*
-		  (N_d*SS[ros][drawer][channel][gain][j][j]-S[ros][drawer][channel][gain][j]*S[ros][drawer][channel][gain][j]);
-		if(denominator!=0){
-		  R[ros][drawer][channel][gain][i][j]=
-		    (N_d*SS[ros][drawer][channel][gain][i][j]-S[ros][drawer][channel][gain][i]*S[ros][drawer][channel][gain][j])/sqrt(denominator);
-		}else{
-		  R[ros][drawer][channel][gain][i][j]=0.;
-		}
-	
-	      }
-	      else R[ros][drawer][channel][gain][i][j]=-1234.;
-	    }
-	}
+             } else {
+               if(dignum==7 && m_7to9)
+                 for (int j=0;j<9;j++)
+                   R[ros][drawer][channel][gain][j][j]=1.;
+
+               for (int i=0;i<dignum;i++){
+                 for (int j=0;j<dignum;j++){
+                   if (N_d>0.){
+                      denominator= (N_d*SS[ros][drawer][channel][gain][i][i]-S[ros][drawer][channel][gain][i]*S[ros][drawer][channel][gain][i])*
+                        (N_d*SS[ros][drawer][channel][gain][j][j]-S[ros][drawer][channel][gain][j]*S[ros][drawer][channel][gain][j]);
+                      if(denominator!=0){
+                        R[ros][drawer][channel][gain][i][j]=
+                          (N_d*SS[ros][drawer][channel][gain][i][j]-S[ros][drawer][channel][gain][i]*S[ros][drawer][channel][gain][j])/sqrt(denominator);
+                      }else{
+                        R[ros][drawer][channel][gain][i][j]=0.;
+                      }
+                   }
+                   else R[ros][drawer][channel][gain][i][j]=-1234.;
+                 }
+               }
+             }
+	   } else {
+             if(dignum==7 && m_7to9)
+               for (int j=0;j<9;j++)
+                 R[ros][drawer][channel][gain][j][j]=1.;
+
+	       for (int i=0;i<dignum;i++){
+                 for (int j=0;j<dignum;j++){
+                    if (N_d>0.){
+                       denominator= (N_d*SS[ros][drawer][channel][gain][i][i]-S[ros][drawer][channel][gain][i]*S[ros][drawer][channel][gain][i])*
+                         (N_d*SS[ros][drawer][channel][gain][j][j]-S[ros][drawer][channel][gain][j]*S[ros][drawer][channel][gain][j]);
+                       if(denominator!=0){
+                         R[ros][drawer][channel][gain][i][j]=
+                           (N_d*SS[ros][drawer][channel][gain][i][j]-S[ros][drawer][channel][gain][i]*S[ros][drawer][channel][gain][j])/sqrt(denominator);
+                       }else{
+                         R[ros][drawer][channel][gain][i][j]=0.;
+                       }
+                    }
+                    else R[ros][drawer][channel][gain][i][j]=-1234.;
+                 }
+               }
+	   }
+       }
+  delete [] Row;
+  for (int ros=0;ros<4;ros++)
+     for (int drawer=0;drawer<64;drawer++)
+        for (int channel=0;channel<48;channel++)
+           for (int gain=0;gain<2;gain++){
+	      vector < vector <float> > x;
+              DataVector[ros][drawer][channel][gain].swap(x);
+	   }
 }
 
 

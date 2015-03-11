@@ -200,6 +200,7 @@ class TileRawChNoiseCalibAlg: public AthAlgorithm {
     float gerrnorm[2][64][4][17][6];
     float gcorrsigma1sigma2[2][64][4][17][6];
 
+    enum CELL_CHANNEL {E1_CHANNEL = 12};
 };
 
 #endif // TILENOISECALIBALG_H
