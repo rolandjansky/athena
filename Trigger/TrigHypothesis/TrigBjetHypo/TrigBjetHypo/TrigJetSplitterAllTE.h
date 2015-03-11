@@ -31,6 +31,7 @@ class TrigJetSplitterAllTE : public HLT::AllTEAlgo {
 
   std::string m_jetInputKey;
   std::string m_jetOutputKey;
+  std::string m_priVtxKey;
 
   double m_etaHalfWidth;
   double m_phiHalfWidth;

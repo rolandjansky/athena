@@ -33,6 +33,7 @@ TrigJetSplitterAllTE::TrigJetSplitterAllTE(const std::string & name, ISvcLocator
 {
   declareProperty ("JetInputKey",  m_jetInputKey  = "TrigJetRec");
   declareProperty ("JetOutputKey", m_jetOutputKey = "SplitJet");
+  declareProperty ("PriVtxKey",    m_priVtxKey    = "EFHistoPrmVtx"); 
   declareProperty ("EtaHalfWidth", m_etaHalfWidth = 0.4);
   declareProperty ("PhiHalfWidth", m_phiHalfWidth = 0.4);
   declareProperty ("ZHalfWidth",   m_zHalfWidth   = 20.0);// in mm?
@@ -150,7 +151,7 @@ HLT::ErrorCode TrigJetSplitterAllTE::hltExecute(std::vector<std::vector<HLT::Tri
     use_z_constraint = true;
 
     const xAOD::VertexContainer* vertices = 0;
-    HLT::ErrorCode statusVertices = getFeature(vtxTE.front(), vertices);  
+    HLT::ErrorCode statusVertices = getFeature(vtxTE.front(), vertices, m_priVtxKey);  
     
     if (statusVertices != HLT::OK) {
       if (msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "Failed to retrieve features (PV)" << endreq;
