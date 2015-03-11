@@ -79,6 +79,30 @@ class TrigEFRazorAllTE : public HLT::AllTEAlgo {
   double m_Minv2;
   double m_Einv;
 
+  //Variables to be kept around instead of using TLVs
+
+  double m_jet[2][4];
+  double m_met[2];
+
+  double m_jet_m2[2];
+
+  double m_di_hemi_pt[2];
+  double m_di_hemi_pz;
+  double m_di_hemi_mz;
+  double m_di_hemi_m2;
+  double m_di_hemi_E;
+
+  double m_Ez2;
+  double m_Etot;
+  double m_Ptot2;
+
+  double m_gamma;
+  double m_beta[2];
+  double m_pdotbeta[2];
+
+  double m_p[2];
+  double m_dot;
+
   //IHistogramSvc* m_histsvc;
 
   StoreGateSvc*                           m_storeGate;
