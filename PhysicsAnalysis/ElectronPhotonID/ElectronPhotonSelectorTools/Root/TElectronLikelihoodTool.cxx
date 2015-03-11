@@ -29,7 +29,6 @@ Root::TElectronLikelihoodTool::TElectronLikelihoodTool(const char* name) :
   VariableNames(""),
   OperatingPoint(LikeEnum::VeryLoose),
   PdfFileName(""),
-  m_debug(false),
   m_variableBitMask(0x0),
   m_ipBinning(""),
   m_pdfFile(0),
@@ -84,7 +83,7 @@ Root::TElectronLikelihoodTool::~TElectronLikelihoodTool()
 
 int Root::TElectronLikelihoodTool::initialize()
 {
-  if (m_debug){ ATH_MSG_DEBUG( "TElectronLikelihoodTool initialize."); }
+  ATH_MSG_DEBUG( "TElectronLikelihoodTool initialize.");
 
   // use an int as a StatusCode
   int sc(1);
@@ -162,7 +161,7 @@ int Root::TElectronLikelihoodTool::initialize()
 
   // ----------------------------------
   // Get the correct bit mask for the current likelihood operating point
-  m_variableBitMask = GetLikelihoodBitmask(VariableNames,m_debug);
+  m_variableBitMask = GetLikelihoodBitmask(VariableNames);
   setOperatingPoint(OperatingPoint);
   // ----------------------------------
   
@@ -196,7 +195,6 @@ int Root::TElectronLikelihoodTool::initialize()
   delete m_pdfFile;
   //----------End File/Histo operation------------------------------------
 
-  if (m_debug){ 
     ATH_MSG_DEBUG("Initialization complete for a LH tool with these specs:"
 		  << "\n - PdfFileName                                  : " << PdfFileName
 		  << "\n - OperatingPoint                               : " << (int)OperatingPoint
@@ -222,7 +220,6 @@ int Root::TElectronLikelihoodTool::initialize()
 		    << "\n - (bool)CutDeltaPhiRes (yes/no)                : " << (CutDeltaPhiRes.size() ? "yes" : "no")
 		    );
     }
-  }
   return sc;
 }
 
@@ -305,7 +302,7 @@ const Root::TAccept& Root::TElectronLikelihoodTool::accept( LikeEnum::LHAcceptVa
   // Reset the cut result bits to zero (= fail cut)
   m_accept.clear();
 
-  if (m_debug) 	 ATH_MSG_DEBUG("Likelihood macro: Using operating point " << OperatingPoint);
+  ATH_MSG_DEBUG("Likelihood macro: Using operating point " << OperatingPoint);
 
   // Set up the individual cuts
   bool passKine(true);
@@ -319,7 +316,7 @@ const Root::TAccept& Root::TElectronLikelihoodTool::accept( LikeEnum::LHAcceptVa
   bool passDeltaPhiRes(true);
   
   if (fabs(vars_struct.eta) > 2.47) {
-    if (m_debug) ATH_MSG_DEBUG("This electron is fabs(eta)>2.47 Returning False.");
+    ATH_MSG_DEBUG("This electron is fabs(eta)>2.47 Returning False.");
     passKine = false;
   }
   
@@ -339,14 +336,14 @@ const Root::TAccept& Root::TElectronLikelihoodTool::accept( LikeEnum::LHAcceptVa
 
   // conversion bit
   if (doCutConversion && vars_struct.convBit){
-      if (m_debug) ATH_MSG_DEBUG("Likelihood macro: Conversion Bit Failed." );
+      ATH_MSG_DEBUG("Likelihood macro: Conversion Bit Failed." );
       passConversion = false;
   }
 
   // blayer cut
   if (CutBL.size() && vars_struct.expectBlayer) {
     if(vars_struct.nBlayer + vars_struct.nBlayerOutliers < CutBL[etabin]) {
-      if (m_debug) ATH_MSG_DEBUG("Likelihood macro: Blayer Failed." );
+      ATH_MSG_DEBUG("Likelihood macro: Blayer Failed." );
       passNBlayer = false;
     }
   }
@@ -354,7 +351,7 @@ const Root::TAccept& Root::TElectronLikelihoodTool::accept( LikeEnum::LHAcceptVa
   // pixel cut
   if (CutPi.size()){
     if (vars_struct.nPix+vars_struct.nPixDeadSensors < CutPi[etabin]){
-      if (m_debug)  ATH_MSG_DEBUG("Likelihood macro: Pixels Failed.");
+      ATH_MSG_DEBUG("Likelihood macro: Pixels Failed.");
       passNPixel = false;
     }
   }
@@ -362,7 +359,7 @@ const Root::TAccept& Root::TElectronLikelihoodTool::accept( LikeEnum::LHAcceptVa
   // silicon cut
   if (CutSi.size()){
     if (vars_struct.nSi + vars_struct.nSiDeadSensors < CutSi[etabin]){
-      if (m_debug) ATH_MSG_DEBUG( "Likelihood macro: Silicon Failed.");
+      ATH_MSG_DEBUG( "Likelihood macro: Silicon Failed.");
       passNSilicon = false;
     }
   }
@@ -374,19 +371,17 @@ const Root::TAccept& Root::TElectronLikelihoodTool::accept( LikeEnum::LHAcceptVa
     cutDiscriminant += vars_struct.ip*CutLikelihoodPileupCorrection[ibin_combined];
   
   // Determine if the calculated likelihood value passes the cut
-  if (m_debug){ 
     ATH_MSG_DEBUG("Likelihood macro: Discriminant: ");
-  }
   if ( vars_struct.likelihood < cutDiscriminant )
     {
-      if (m_debug) ATH_MSG_DEBUG("Likelihood macro: Disciminant Cut Failed.");
+      ATH_MSG_DEBUG("Likelihood macro: Disciminant Cut Failed.");
       passLH = false;
     }
 
   // d0 cut
   if (CutA0.size()){
     if (fabs(vars_struct.d0) > CutA0[etabin]){
-      if (m_debug) ATH_MSG_DEBUG("Likelihood macro: D0 Failed.");
+      ATH_MSG_DEBUG("Likelihood macro: D0 Failed.");
       passTrackA0 = false;
     }
   }
@@ -394,7 +389,7 @@ const Root::TAccept& Root::TElectronLikelihoodTool::accept( LikeEnum::LHAcceptVa
   // deltaEta cut
   if (CutDeltaEta.size()){
     if ( fabs(vars_struct.deltaEta) > CutDeltaEta[etabin]){
-      if (m_debug) ATH_MSG_DEBUG("Likelihood macro: deltaEta Failed.");
+      ATH_MSG_DEBUG("Likelihood macro: deltaEta Failed.");
       passDeltaEta = false;
     }
   }
@@ -402,7 +397,7 @@ const Root::TAccept& Root::TElectronLikelihoodTool::accept( LikeEnum::LHAcceptVa
   // deltaPhiRes cut
   if (CutDeltaPhiRes.size()){
     if ( fabs(vars_struct.deltaphires) > CutDeltaPhiRes[etabin]){
-      if (m_debug) ATH_MSG_DEBUG("Likelihood macro: deltaphires Failed.");
+      ATH_MSG_DEBUG("Likelihood macro: deltaphires Failed.");
       passDeltaPhiRes = false;
     }
   }
@@ -505,7 +500,7 @@ double Root::TElectronLikelihoodTool::EvaluateLikelihood(std::vector<double> var
   unsigned int etabin = getLikelihoodEtaBin(eta);
   unsigned int ipbin  = getIpBin(ip);
 
-  if (m_debug) ATH_MSG_DEBUG("et: " << et << " eta: " << eta 
+  ATH_MSG_DEBUG("et: " << et << " eta: " << eta 
 			     << " etbin: " << etbin << " etabin: " << etabin);
   
   if (etbin >= fnFineEtBins) {
@@ -606,7 +601,7 @@ double Root::TElectronLikelihoodTool::TransformLikelihoodOutput(double ps,double
     // pileup values will use this maximum value in the transform.
 
     if( DiscHardCutForPileupTransform.size() == 0 || DiscHardCutSlopeForPileupTransform.size() == 0 || DiscLooseForPileupTransform.size() == 0){
-      std::cout << "Warning: Vectors needed for pileup-dependent transform not correctly filled! Skipping the transform." << std::endl;
+      ATH_MSG_WARNING("Vectors needed for pileup-dependent transform not correctly filled! Skipping the transform.");
       return disc;
     }
 
@@ -636,7 +631,7 @@ double Root::TElectronLikelihoodTool::TransformLikelihoodOutput(double ps,double
     }
   }
 
-  if (m_debug) std::cout << "disc is " << disc << std::endl;
+  ATH_MSG_DEBUG( "disc is " << disc );
   return disc;
 }
 
@@ -717,16 +712,16 @@ void Root::TElectronLikelihoodTool::getBinName(char* buffer, int etbin,int etabi
 
 
 //----------------------------------------------------------------------------------------
-unsigned int Root::TElectronLikelihoodTool::GetLikelihoodBitmask(std::string vars,bool debug) const{
+unsigned int Root::TElectronLikelihoodTool::GetLikelihoodBitmask(std::string vars) const{
   unsigned int mask = 0x0;
-  if (debug) std::cout << "Variables to be used: ";
+  ATH_MSG_DEBUG ("Variables to be used: ");
   for(unsigned int var = 0; var < fnVariables; var++){
     if (vars.find(fVariables[var]) != std::string::npos){
-      if (debug) std::cout << fVariables[var] << " ";
+      ATH_MSG_DEBUG( fVariables[var] );
       mask = mask | 0x1 << var;
     }
   }
-  if (debug) std::cout << "mask: " << mask << std::endl;
+  ATH_MSG_DEBUG("mask: " << mask);
   return mask;
 }
 

@@ -57,7 +57,7 @@ AsgElectronLikelihoodTool::AsgElectronLikelihoodTool(std::string myname) :
   // Configurables in the root tool
   //
   // pdf file name. Managed in the Asg tool.
-  declareProperty("inputPDFFileName",  m_pdfFileName="ElectronPhotonSelectorTools/v1/ElectronLikelihoodPdfs.root", "The input ROOT file name that holds the PDFs" );
+  declareProperty("inputPDFFileName",  m_pdfFileName="", "The input ROOT file name that holds the PDFs" );
   // Operating Point. Managed in the Asg tool.
   declareProperty("OperatingPoint",m_operatingPoint=0,"Likelihood operating point");
   // the variable names, if non-standard - nope, it's done above!
@@ -115,32 +115,38 @@ AsgElectronLikelihoodTool::~AsgElectronLikelihoodTool()
 //=============================================================================
 StatusCode AsgElectronLikelihoodTool::initialize()
 {
-  // Add an input file that holds the PDFs
 
-//---------------start of text config------------------------
 // TODO: Sort out this set operating point stuff.
+  std::string PDFfilename(""); //Default
+
+
   if(!m_configFile.empty()){
     std::string configFile = PathResolverFindCalibFile( m_configFile);
     TEnv env(configFile.c_str());
 
     // Get the input PDFs in the tool.
-    std::string PDFfilename;
-    
-    if (m_configFile.find("dev/") != std::string::npos) {
-      
-      std::string PDFdevval = env.GetValue("inputPDFFileName", "ElectronPhotonSelectorTools/v1/ElectronLikelihoodPdfs.root");
-      PDFfilename = ("dev/"+PDFdevval);
-       ATH_MSG_DEBUG ( "Getting the input PDFs from: " << PDFfilename  );
-    } else {
-      PDFfilename = env.GetValue("inputPDFFileName", "ElectronPhotonSelectorTools/v1/ElectronLikelihoodPdfs.root");
-       ATH_MSG_DEBUG ( "Getting the input PDFs from: " << PDFfilename );
+
+    if(!m_pdfFileName.empty()){  //If the property was set by the user, take that.
+      ATH_MSG_INFO("Setting user specified PDF file " << m_pdfFileName);
+      PDFfilename = m_pdfFileName;
+    }else{
+      if (m_configFile.find("dev/") != std::string::npos) {
+        
+        std::string PDFdevval = env.GetValue("inputPDFFileName", "ElectronPhotonSelectorTools/v1/ElectronLikelihoodPdfs.root");
+        PDFfilename = ("dev/"+PDFdevval);
+        ATH_MSG_DEBUG ( "Getting the input PDFs from: " << PDFfilename  );
+      } else {
+        PDFfilename = env.GetValue("inputPDFFileName", "ElectronPhotonSelectorTools/v1/ElectronLikelihoodPdfs.root");
+        ATH_MSG_DEBUG ( "Getting the input PDFs from: " << PDFfilename );
+      }
     }
-    
     std::string filename = PathResolverFindCalibFile( PDFfilename );
     if (!filename.empty()){
-      m_pdfFileName = filename.c_str();
+      m_rootTool->setPDFFileName( filename.c_str() );
+    }else{
+      ATH_MSG_ERROR ("Could not find PDF file");
+      return StatusCode::FAILURE;
     }
-    m_rootTool->setPDFFileName( m_pdfFileName );
     m_rootTool->VariableNames =  env.GetValue("VariableNames","");
     m_rootTool->CutLikelihood = AsgConfigHelper::HelperDouble("CutLikelihood",env);
     m_rootTool->CutLikelihoodPileupCorrection = AsgConfigHelper::HelperDouble("CutLikelihoodPileupCorrection", env);
@@ -171,18 +177,11 @@ StatusCode AsgElectronLikelihoodTool::initialize()
     m_rootTool->PileupMaxForPileupTransform = env.GetValue("PileupMaxForPileupTransform", 50);
 
 
-  }  else{  //Do python config if m_configFile is empty.
-    std::string filename = PathResolverFindCalibFile( m_pdfFileName );
-	if (filename.empty()){
-      ATH_MSG_WARNING ( "Could NOT resolve file name " << m_pdfFileName );
-    }  else{
-      ATH_MSG_INFO(" Path found = "<<filename);
-    }
-    const char* fname= filename.c_str();
-    m_rootTool->setPDFFileName ( fname );
-
-  // Set the cut value to be used
+  } else{  //Error if it cant find the conf
+      ATH_MSG_ERROR("Could not find configuration file");
+      return StatusCode::FAILURE;
   }
+
 ///-----------End of text config----------------------------
   //First try the PathResolver
 //  std::string filename = PathResolverFindCalibFile( m_pdfFileName );
@@ -200,9 +199,7 @@ StatusCode AsgElectronLikelihoodTool::initialize()
   ATH_MSG_VERBOSE( "Going to massage the labels based on the provided operating point..." );
 
   // Get the message level and set the underlying ROOT tool message level accordingly
-  bool debug(false);
-  if ( this->msgLvl(MSG::VERBOSE) ) debug = true;
-  m_rootTool->setDebug(debug);
+  m_rootTool->msg().setLevel(this->msg().level());
 
   
   // We need to initialize the underlying ROOT TSelectorTool
@@ -511,9 +508,9 @@ const Root::TResult& AsgElectronLikelihoodTool::calculate( const xAOD::Electron*
 
         //Transform the TRT PID output for use in the LH tool.
         double tau = 15.0; 
-        double fEpsilon = 1e-99;
-        if (TRT_PID >= 1.0) TRT_PID = 1.0 - 1.0e-15;
-        else if (TRT_PID <= 0.0) TRT_PID = fEpsilon;
+        double fEpsilon = 1.0e-30;  // to avoid zero division
+        if (TRT_PID >= 1.0) TRT_PID = float(1.0) - float(1.0e-15);  //this number comes from TMVA
+        else if (TRT_PID <= fEpsilon) TRT_PID = fEpsilon;
         trans_TRT_PID = - log(1.0/TRT_PID - 1.0)/double(tau);
 
         unsigned int index;
