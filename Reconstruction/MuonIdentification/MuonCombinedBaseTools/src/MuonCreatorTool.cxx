@@ -868,7 +868,7 @@ namespace MuonCombined {
         // check if a track is available
         if(primaryTag->primaryTrack()) {
           if( alreadyIncluded.count(primaryTag->primaryTrack()) ){
-            ATH_MSG_WARNING("Duplicate canidate " << candidate->toString() );
+            ATH_MSG_DEBUG("Duplicated ID candidate " << candidate->toString() );
             continue;
           }
           alreadyIncluded.insert(primaryTag->primaryTrack());
@@ -936,7 +936,7 @@ namespace MuonCombined {
       for(auto candidate : *muonCandidates) {
         const Trk::Track* track = candidate->extrapolatedTrack() ? candidate->extrapolatedTrack() : &candidate->muonSpectrometerTrack();
         if( alreadyIncluded.count(track) ){
-          ATH_MSG_WARNING("Duplicate track " << m_printer->print(*track));
+          ATH_MSG_DEBUG("Duplicate MS track " << m_printer->print(*track));
           continue;
         }
         alreadyIncluded.insert(track);
@@ -1010,7 +1010,14 @@ namespace MuonCombined {
       // update parameters with primary track particle
       setP4(muon,*muon.primaryTrackParticle());
       float qOverP = muon.primaryTrackParticle()->qOverP();
-      muon.setCharge(qOverP/std::fabs(qOverP));
+      if (qOverP!=0.0){
+        muon.setCharge(qOverP/std::fabs(qOverP));
+        // try/catch didn't work...
+      } else {
+        ATH_MSG_WARNING("MuonCreatorTool::dressMuon - trying to set qOverP, but value from muon.primaryTrackParticle ["<<
+        muon.primaryTrackParticleLink().dataID()<<"] is zero. Setting charge=0.0. The eta/phi of the muon is: "<<muon.eta()<<"/"<<muon.phi());
+        muon.setCharge(0.0);
+      } 
     }else{
       ATH_MSG_WARNING("No primary track particle set, deleting muon");
       return false;
