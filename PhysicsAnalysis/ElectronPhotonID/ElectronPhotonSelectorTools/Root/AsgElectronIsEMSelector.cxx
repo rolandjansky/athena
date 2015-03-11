@@ -232,7 +232,7 @@ StatusCode AsgElectronIsEMSelector::initialize()
     m_rootTool->useSCTOutliers =useSCTOutliers;
     bool  useTRTXenonHits(env.GetValue(" useTRTXenonHits", false));
     m_rootTool->useTRTXenonHits =useTRTXenonHits;
-    bool useBLayerHitPrediction (env.GetValue("useBLayerHitPrediction", false));
+    bool useBLayerHitPrediction (env.GetValue("useBLayerHitPrediction", true));
     m_rootTool->useBLayerHitPrediction =useBLayerHitPrediction;
 
     ///------- Use helpers to read in the cut arrays ------///

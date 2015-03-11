@@ -377,6 +377,20 @@ class CutDefPhoton:
            0x1 << BitDefPhoton.ClusterStripsWeta1c_Photon     | \
            0x1 << BitDefPhoton.ClusterStripsDEmaxs1_Photon
 
+        """ @brief cuts in strips (with ClusterStripsDEmaxs1)"""
+        CALOSTRIPS_PHOTONTIGHT = \
+            0x1 << BitDefPhoton.ClusterStripsEratio_Photon     | \
+            0x1 << BitDefPhoton.ClusterStripsDeltaEmax2_Photon | \
+            0x1 << BitDefPhoton.ClusterStripsDeltaE_Photon     | \
+            0x1 << BitDefPhoton.ClusterStripsWtot_Photon       | \
+            0x1 << BitDefPhoton.ClusterStripsFracm_Photon      | \
+            0x1 << BitDefPhoton.ClusterStripsWeta1c_Photon     | \
+            0x1 << BitDefPhoton.ClusterStripsDEmaxs1_Photon    
+
+        """ @brief cuts in strips (with ClusterStripsDEmaxs1)"""
+        CALOSTRIPS_PHOTONMEDIUM = \
+            0x1 << BitDefPhoton.ClusterStripsDEmaxs1_Photon   
+
         """ @brief calorimeter isolation"""
         CALORIMETRICISOLATION_PHOTON =  0x1 << BitDefPhoton.ClusterIsolation_Photon
         """ @brief "old" all cuts in calorimeter (except isolation) without ClusterStripsDEmaxs1 """
@@ -427,13 +441,13 @@ class SelectionDefPhoton:
         """ @brief Tight photon selection with isolation and Ambiguity resolver"""
         PhotonTightARIso = PhotonTightAR | CutDefPhoton.ISOLATION_PHOTON
         """ @brief Loose photon selection """
-        PhotonLoose =  CutDefPhoton.CALOMIDDLE_PHOTONLOOSE | CutDefPhoton.HADLEAKETA_PHOTONLOOSE
+        PhotonLoose =  CutDefPhoton.CALOMIDDLE_PHOTON | CutDefPhoton.HADLEAKETA_PHOTON
+        """ @brief Medium photon selection """
+        PhotonMedium = CutDefPhoton.HADLEAKETA_PHOTON | CutDefPhoton.CALOMIDDLE_PHOTON | CutDefPhoton.CALOSTRIPS_PHOTONMEDIUM
         """ @brief Tight photon selection """
-        PhotonTight = CutDefPhoton.CALO_PHOTON 
+        PhotonTight = CutDefPhoton.HADLEAKETA_PHOTON | CutDefPhoton.CALOMIDDLE_PHOTON | CutDefPhoton.CALOSTRIPS_PHOTONTIGHT
         """ @brief Tight photon selection with isolation"""
         PhotonTightIso = PhotonTight | CutDefPhoton.ISOLATION_PHOTON
-        """ @brief Tight photon (old definition) """
-        PhotonTightOLD = CutDefPhoton.CALONOISOOLD_PHOTON | CutDefPhoton.CALORIMETRICISOLATION_PHOTON
         
         #############
         ### Added TrigEGamma Definitions
@@ -456,6 +470,7 @@ print "====  ElectronMediumHLT:                           0x%08x              ==
 print "====  ElectronTightHLT:                            0x%08x              =====" % SelectionDefElectron.ElectronTightHLT
 print "====  PhotonLoose:                                 0x%08x              =====" % SelectionDefPhoton.PhotonLoose
 print "====  PhotonLooseEF:                               0x%08x              =====" % SelectionDefPhoton.PhotonLooseEF
+print "====  PhotonMedium:                                0x%08x              =====" % SelectionDefPhoton.PhotonMedium
 print "====  PhotonMediumEF:                              0x%08x              =====" % SelectionDefPhoton.PhotonMediumEF
 print "====  PhotonTight:                                 0x%08x              =====" % SelectionDefPhoton.PhotonTight
 print "==============================================================================="

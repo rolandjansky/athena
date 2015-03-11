@@ -39,8 +39,6 @@
    See below which variables you have to use.
 
 
-   Additional output will be givedn if debug is set, (false by default).
-
    In order to correctly apply the macro, you must use the following (d3pd) variables as inputs:
    eta 		: el_etas2
    eT (in MeV) 	: energy-rescaled (using egammaAnalysisUtils' EnergyRescalerUpgrade) pt, where pt is defined in 
@@ -291,7 +289,7 @@ namespace Root {
       }
       // Custom operating point (user-defined stuff)
       else if (OperatingPoint == LikeEnum::CustomOperatingPoint) {
-	m_variableBitMask = GetLikelihoodBitmask(VariableNames,m_debug);
+	m_variableBitMask = GetLikelihoodBitmask(VariableNames);
       }
     }
 
@@ -300,11 +298,6 @@ namespace Root {
    
     /// The string for the result
     inline void setResultName ( const std::string& val ) { m_resultName = val; }
-
-
-    /// Set printout to debug level
-    inline void setDebug( bool val=true ){ m_debug = val; };
-    
 
     unsigned int getBitmask(void) const { return m_variableBitMask;} 
     inline void setBitmask(unsigned int val) { m_variableBitMask = val; };
@@ -326,21 +319,21 @@ namespace Root {
     // variable names prescribed in fVariables.
     
     /// Description???
-    unsigned int GetLikelihoodBitmask(std::string vars,bool debug=false) const;
-    unsigned int LikelihoodTightBitmask(bool debug=false) const {
+    unsigned int GetLikelihoodBitmask(std::string vars) const;
+    unsigned int LikelihoodTightBitmask() const {
       std::string vars = "el_deltaeta1,el_weta2,el_TRTHighTOutliersRatio,el_f1,el_f3,el_eratio,el_rphi,el_rhad,el_reta,el_DeltaPoverP,el_deltaphiRescaled,el_trackd0pvunbiased,el_d0significance";
-      return GetLikelihoodBitmask(vars,debug);
+      return GetLikelihoodBitmask(vars);
     };
     
     /// Description???
-    unsigned int LikelihoodMediumBitmask(bool debug=false) const{
-      return LikelihoodTightBitmask(debug);
+    unsigned int LikelihoodMediumBitmask() const{
+      return LikelihoodTightBitmask();
     };
 
     /// Description???
-    unsigned int LikelihoodLooseBitmask(bool debug=false) const{
+    unsigned int LikelihoodLooseBitmask() const{
       std::string vars = "el_rhad,el_reta,el_deltaeta1,el_weta2,el_TRTHighTOutliersRatio,el_f1,el_f3,el_eratio,el_rphi,el_DeltaPoverP,el_deltaphiRescaled";
-      return GetLikelihoodBitmask(vars,debug);
+      return GetLikelihoodBitmask(vars);
     };
     
     
@@ -404,8 +397,6 @@ namespace Root {
 
     // Private member variables
   private:
-    /// Option to print out debug statements
-    bool                m_debug;
 
     /// The bitmask corresponding to the variables in the likelihood. For internal use.
     unsigned int        m_variableBitMask;
