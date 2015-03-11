@@ -210,6 +210,7 @@ const Trk::Perigee* GlobalFitTool::calculateTrackParameters(const MuonSegmentLis
     Amg::Vector3D    origin( pEntranceIsect->position());
     Trk::PerigeeSurface* perigeeSurface = new Trk::PerigeeSurface(origin); 
     const Trk::Perigee* trkPerigee = new Trk::Perigee(origin,Track->momentum(),Track->charge(),*perigeeSurface);
+    delete Track;
     return trkPerigee;
 }
 
@@ -538,7 +539,7 @@ const Trk::Track* GlobalFitTool::standAloneRefit(const Trk::Track& cbtrack)
   const Trk::Track* refittedTrack=m_trackFitter->standaloneRefit(cbtrack);
   if (refittedTrack == nullptr){
     ++m_nfailedRefits;
-    if( m_nfailedRefits < 10 ) ATH_MSG_WARNING("standaloneRefit failed ");
+    if( m_nfailedRefits < 10 ) ATH_MSG_DEBUG("standaloneRefit failed ");
     return nullptr;
   }
   return refittedTrack;
