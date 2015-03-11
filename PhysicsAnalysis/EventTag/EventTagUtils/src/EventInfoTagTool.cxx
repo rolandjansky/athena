@@ -21,10 +21,8 @@ Purpose : create a EventInfoTag - The Tag information associated to the event
 
 #include "CLHEP/Random/RandFlat.h"
 
+#include "LumiBlockComps/ILumiBlockMuTool.h"
 #include "xAODEventInfo/EventInfo.h"
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
-#include "EventInfo/EventType.h"
 
 #include "AthenaPoolUtilities/AthenaAttributeSpecification.h"
 
@@ -42,9 +40,11 @@ Purpose : create a EventInfoTag - The Tag information associated to the event
 EventInfoTagTool::EventInfoTagTool (const std::string& type, const
 					std::string& name, const IInterface* parent) : 
   AthAlgTool( type, name, parent ), 
+  m_lumiBlockMuTool("LumiBlockMuTool/LumiBlockMuTool"),
   m_isMC(false),
   m_weightSum(0)
 {
+  declareProperty("LumiBlockMuTool",   m_lumiBlockMuTool);
   /** AOD Object Name */
   declareProperty("IncludeEventFlag",  m_includeEventFlag=true);
   declareProperty("IncludeExtras",     m_includeExtras=true);
@@ -64,6 +64,9 @@ StatusCode  EventInfoTagTool::initialize() {
     ATH_MSG_ERROR("Unable to get the IncidentSvc");
     return(sc);
   }
+
+  // retrieve LumiBlockMuTool
+  CHECK(m_lumiBlockMuTool.retrieve());
 
   return AthAlgTool::initialize();
 }
@@ -142,29 +145,8 @@ StatusCode  EventInfoTagTool::execute(TagFragmentCollection& eventTag) {
   StatusCode sc = evtStore()->retrieve(eventInfo);
   if (sc.isFailure()) 
   {
-    const DataHandle<EventInfo> oeventInfo;
-    sc = evtStore()->retrieve(oeventInfo);
-    if (sc.isFailure()) {
-      ATH_MSG_ERROR("Could not retrieve event info from TDS.");
-    }
-    else {
-      // set monte carlo flag
-      m_isMC  = oeventInfo->event_type()->test(xAOD::EventInfo::IS_SIMULATION);
-
-      sc = this->eventTag (eventTag, oeventInfo);
-      if (sc.isFailure()) ATH_MSG_WARNING("Unable to build Tag Fragments for the Event");
-      if ( m_includeEventFlag )  {
-        StatusCode sc = eventTagFlags (eventTag, oeventInfo);
-        if (sc.isFailure()) ATH_MSG_WARNING("Unable to build Tag Fragments for the Flags");
-      }
-      if ( m_includeExtras )  {
-        StatusCode sc = eventExtrasTag (eventTag, oeventInfo);
-        if (sc.isFailure()) ATH_MSG_WARNING("Unable to build Tag Fragments for the Extras");
-      }
-    }
-  }
-  else {
-
+    ATH_MSG_ERROR("Could not retrieve event info from TDS.");
+  } else {
     // set monte carlo flag
     m_isMC  = eventInfo->eventType(xAOD::EventInfo::IS_SIMULATION);
 
@@ -220,8 +202,8 @@ StatusCode EventInfoTagTool::eventTag(TagFragmentCollection& eventTag,
   eventTag.insert (EventAttributeSpecs[Evt::Weight].name(), evweight );
 
   // interaction counts
-  float actualInt = eventInfo->actualInteractionsPerCrossing();
-  float avgInt    = eventInfo->averageInteractionsPerCrossing();
+  float actualInt = m_lumiBlockMuTool->actualInteractionsPerCrossing();
+  float avgInt    = m_lumiBlockMuTool->averageInteractionsPerCrossing();
   eventTag.insert (EventAttributeSpecs[Evt::ActualInt].name(), actualInt );
   eventTag.insert (EventAttributeSpecs[Evt::AvgInt].name()   , avgInt );
 
@@ -236,7 +218,7 @@ StatusCode EventInfoTagTool::eventTagFlags(TagFragmentCollection& eventTag,
   ATH_MSG_DEBUG("in execute() - eventTag");
 
   //Fill Detector status: Pixel, SCT, TRT, LAr, Tile, Muon, ForwardDet, Core
-  for (unsigned int i = 0; i < EventInfo::nDets; ++i) {
+  for (unsigned int i = 0; i <= xAOD::EventInfo::Core; ++i) {
     unsigned int  result = 0x0;
     result = eventInfo->eventFlags(xAOD::EventInfo::EventFlagSubDet(i));
     xAOD::EventInfo::EventFlagErrorState error = eventInfo->errorState(xAOD::EventInfo::EventFlagSubDet(i));
@@ -260,92 +242,6 @@ StatusCode EventInfoTagTool::eventExtrasTag(TagFragmentCollection& eventTag,
   m_isMC = isSimulation;
   bool isTestBeam    = eventInfo->eventType(xAOD::EventInfo::IS_TESTBEAM);
   bool isCalibration = eventInfo->eventType(xAOD::EventInfo::IS_CALIBRATION);
-  eventTag.insert(EventAttributeSpecs[Evt::Simu].name(), isSimulation );
-  eventTag.insert(EventAttributeSpecs[Evt::Test].name(), isTestBeam );
-  eventTag.insert(EventAttributeSpecs[Evt::Calib].name(), isCalibration );
-
-  double rand = CLHEP::RandFlat::shoot();
-  eventTag.insert(EventAttributeSpecs[Evt::Random].name(), rand);
-
-  return StatusCode::SUCCESS;
-
-}
-
-/** build the tag associate to the event information */
-StatusCode EventInfoTagTool::eventTag(TagFragmentCollection& eventTag, 
-                                      const DataHandle<EventInfo> eventInfo) 
-{
-
-  ATH_MSG_DEBUG("in execute() - eventTag");
-
-  /** run number and Event number */
-  m_runNumber   = eventInfo->event_ID()->run_number();
-  m_condRunNumber = m_runNumber;
-  m_lumiBlock   = eventInfo->event_ID()->lumi_block();
-  m_eventNumber = eventInfo->event_ID()->event_number();
-  eventTag.insert (EventAttributeSpecs[Evt::Run].name(), m_runNumber );
-  eventTag.insert (EventAttributeSpecs[Evt::ConditionsRun].name(), m_condRunNumber );
-  eventTag.insert (EventAttributeSpecs[Evt::NLumiBlock].name(), m_lumiBlock );
-  eventTag.insert (EventAttributeSpecs[Evt::Event].name(), m_eventNumber );
-
-  unsigned long timeStamp   = eventInfo->event_ID()->time_stamp();
-  unsigned long timeStampNS = eventInfo->event_ID()->time_stamp_ns_offset();
-  unsigned long bunchId     = eventInfo->event_ID()->bunch_crossing_id();
-  eventTag.insert (EventAttributeSpecs[Evt::Time].name(), timeStamp );
-  eventTag.insert (EventAttributeSpecs[Evt::TimeNS].name(), timeStampNS );
-  eventTag.insert (EventAttributeSpecs[Evt::BunchId].name(), bunchId );
-
-  
-  // event weight 
-  // used for event weighting in monte carlo or just an event count in data
-  double evweight = 1;
-  bool isSimulation  = eventInfo->event_type()->test(EventType::IS_SIMULATION);
-  if (isSimulation) evweight = eventInfo->event_type()->mc_event_weight();
-  if (isSimulation) m_runNumber = eventInfo->event_type()->mc_channel_number();
-  m_weightSum += evweight;
-  eventTag.insert (EventAttributeSpecs[Evt::Weight].name(), evweight );
-
-  // interaction counts
-  float actualInt = eventInfo->actualInteractionsPerCrossing();
-  float avgInt    = eventInfo->averageInteractionsPerCrossing();
-  eventTag.insert (EventAttributeSpecs[Evt::ActualInt].name(), actualInt );
-  eventTag.insert (EventAttributeSpecs[Evt::AvgInt].name()   , avgInt );
-
-  return StatusCode::SUCCESS;
-
-}
-
-StatusCode EventInfoTagTool::eventTagFlags(TagFragmentCollection& eventTag, 
-                                           const DataHandle<EventInfo> eventInfo) 
-{
-
-  ATH_MSG_DEBUG("in execute() - eventTag");
-
-  //Fill Detector status: Pixel, SCT, TRT, LAr, Tile, Muon, ForwardDet, Core
-  for (unsigned int i = 0; i < EventInfo::nDets; ++i) {
-    unsigned int  result = 0x0;
-    result = eventInfo->eventFlags(EventInfo::EventFlagSubDet(i));
-    EventInfo::EventFlagErrorState error = eventInfo->errorState(EventInfo::EventFlagSubDet(i));
-    result = result | (error << 28);
-    eventTag.insert(EventAttributeSpecs[Evt::Pixel+i].name(), result);
-  }
-   
-  return StatusCode::SUCCESS;
-
-}
-
-/** build the tag associate to the event information */
-StatusCode EventInfoTagTool::eventExtrasTag(TagFragmentCollection& eventTag, 
-                                            const DataHandle<EventInfo> eventInfo) 
-{
-
-  ATH_MSG_DEBUG("in execute() - eventTag");
-
-  /** Event Type */
-  bool isSimulation  = eventInfo->event_type()->test(xAOD::EventInfo::IS_SIMULATION);
-  m_isMC = isSimulation;
-  bool isTestBeam    = eventInfo->event_type()->test(xAOD::EventInfo::IS_TESTBEAM);
-  bool isCalibration = eventInfo->event_type()->test(xAOD::EventInfo::IS_CALIBRATION);
   eventTag.insert(EventAttributeSpecs[Evt::Simu].name(), isSimulation );
   eventTag.insert(EventAttributeSpecs[Evt::Test].name(), isTestBeam );
   eventTag.insert(EventAttributeSpecs[Evt::Calib].name(), isCalibration );

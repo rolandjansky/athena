@@ -17,10 +17,10 @@ Purpose : create a GlobalEventTag - The Tag information associated to the event
 #include "CLHEP/Units/SystemOfUnits.h"
 
 #include "StoreGate/StoreGateSvc.h"
-#include "CaloEvent/CaloClusterContainer.h"
-#include "Particle/TrackParticleContainer.h"
-#include "VxVertex/VxContainer.h"
-#include "VxVertex/VxTrackAtVertex.h"
+#include "xAODCaloEvent/CaloClusterContainer.h"
+#include "xAODTracking/TrackParticleContainer.h"
+#include "xAODTracking/VertexContainer.h"
+//#include "VxVertex/VxTrackAtVertex.h"
 
 #include "EventTagUtils/GlobalEventTagTool.h"
 #include "TagEvent/GlobalEventAttributeNames.h"
@@ -37,9 +37,9 @@ Purpose : create a GlobalEventTag - The Tag information associated to the event
 GlobalEventTagTool::GlobalEventTagTool (const std::string& type, const
                                         std::string& name, const IInterface* parent) :
   EventInfoTagTool( type, name, parent )
-  , m_caloClusterContainerName("CaloCalTopoCluster")
-  , m_trackContainerName("TrackParticleCandidate")
-  , m_vertexContainerName("VxPrimaryCandidate")
+  , m_caloClusterContainerName("CaloCalTopoClusters")
+  , m_trackContainerName("InDetTrackParticles")
+  , m_vertexContainerName("PrimaryVertices")
   , m_mc(false)
   , m_includeVertexFlag(true)
   , m_vertexTrackCut(4)
@@ -263,7 +263,7 @@ StatusCode GlobalEventTagTool::caloTag(TagFragmentCollection& globalEventTag) {
   ATH_MSG_DEBUG("in execute() - caloTag");
 
   // retrieve CaloClusters
-  const CaloClusterContainer* clusterContainer;
+  const xAOD::CaloClusterContainer* clusterContainer;
   StatusCode sc = evtStore()->retrieve( clusterContainer, m_caloClusterContainerName );
   if (sc.isFailure()) {
       ATH_MSG_WARNING("No CaloCluster found in SG");
@@ -284,7 +284,7 @@ StatusCode GlobalEventTagTool::trackTag(TagFragmentCollection& globalEventTag) {
   ATH_MSG_DEBUG("in execute() - trackTag");
 
   // retrieve TrackParticle
-  const Rec::TrackParticleContainer *tpc;
+  const xAOD::TrackParticleContainer *tpc;
   StatusCode sc = evtStore()->retrieve( tpc, m_trackContainerName);
   if (sc.isFailure()) {
       ATH_MSG_WARNING("No TrackParticleContainer found in SG");
@@ -304,45 +304,48 @@ StatusCode GlobalEventTagTool::vertexTag(TagFragmentCollection& globalEventTag) 
 
   ATH_MSG_DEBUG("in execute() - vertexTag");
   
-  const VxContainer *vxc;
+  const xAOD::VertexContainer *vxc;
   StatusCode sc = evtStore()->retrieve( vxc, m_vertexContainerName);
   if (sc.isFailure()) {
-      ATH_MSG_WARNING("No VxContainer found in SG");
+      ATH_MSG_WARNING("No VertexContainer found in SG");
       return StatusCode::SUCCESS;
   }
   ATH_MSG_DEBUG("Primary Vertex Container successfully retrieved");
 
   int NtightVtx=0;
-  if (vxc->size() > 0) {
-    const Trk::RecVertex thisVx = (*vxc)[0]->recVertex();
-    globalEventTag.insert ( EventAttributeSpecs[Evt::VtxX].name(), (thisVx.position()).x() );
-    globalEventTag.insert ( EventAttributeSpecs[Evt::VtxY].name(), (thisVx.position()).y() );
-    globalEventTag.insert ( EventAttributeSpecs[Evt::VtxZ].name(), (thisVx.position()).z() );
-    globalEventTag.insert ( EventAttributeSpecs[Evt::VtxChiSq].name(), (thisVx.fitQuality().chiSquared()) );
-    globalEventTag.insert ( EventAttributeSpecs[Evt::VtxNdof].name(), (thisVx.fitQuality().numberDoF()) );
-
-    VxContainer::const_iterator vtxList_end=vxc->end();
-    //excluding dummy vertex
-    --vtxList_end;
-    for(VxContainer::const_iterator  vtxList=vxc->begin(); vtxList != vtxList_end; ++vtxList) {
-      if((*vtxList)!=0)  {
-        int nGoodTracks=0;
-        std::vector<Trk::VxTrackAtVertex*>::const_iterator begin=(*vtxList)->vxTrackAtVertex()->begin();
-        std::vector<Trk::VxTrackAtVertex*>::const_iterator end=(*vtxList)->vxTrackAtVertex()->end();
-        for (std::vector<Trk::VxTrackAtVertex*>::const_iterator iter=begin;iter!=end;++iter){
-          if ((*iter)->weight()>0.01){
-            nGoodTracks+=1;
-          }
-        }
-        if (nGoodTracks>m_vertexTrackCut) NtightVtx++;
+  xAOD::VertexContainer::const_iterator vtxList=vxc->begin();
+  xAOD::VertexContainer::const_iterator vtxList_end=vxc->end();
+  //excluding dummy vertex
+  --vtxList_end;
+  for(; vtxList != vtxList_end; ++vtxList) {
+    if((*vtxList)!=0)  {
+      
+      if((*vtxList)->vertexType()==xAOD::VxType::PriVtx ){
+	NtightVtx++;
+	// const Trk::RecVertex thisVx = (*vxc)[0]->recVertex();
+	globalEventTag.insert ( EventAttributeSpecs[Evt::VtxX].name(), (*vtxList)->x() );
+	globalEventTag.insert ( EventAttributeSpecs[Evt::VtxY].name(),  (*vtxList)->y() );
+	globalEventTag.insert ( EventAttributeSpecs[Evt::VtxZ].name(),  (*vtxList)->z() );
+	globalEventTag.insert ( EventAttributeSpecs[Evt::VtxChiSq].name(), (*vtxList)->chiSquared() );
+	globalEventTag.insert ( EventAttributeSpecs[Evt::VtxNdof].name(), (*vtxList)->numberDoF());
       }
+      int nGoodTracks=0;
+      //      std::vector<Trk::VxTrackAtVertex*>::const_iterator begin=(*vtxList)->vxTrackAtVertex()->begin();
+      //    std::vector<Trk::VxTrackAtVertex*>::const_iterator end=(*vtxList)->vxTrackAtVertex()->end();
+      //    for (std::vector<Trk::VxTrackAtVertex*>::const_iterator iter=begin;iter!=end;++iter){
+      //       if ((*iter)->weight()>0.01){
+      //        nGoodTracks+=1;
+      //      }
+      //    }
+      if (nGoodTracks>m_vertexTrackCut) NtightVtx++;
     }
   }
+  
   globalEventTag.insert ( EventAttributeSpecs[Evt::NVx].name(), vxc->size()-1 );
   globalEventTag.insert ( EventAttributeSpecs[Evt::NVxTight].name(), NtightVtx );
-
-
-
+  
+  
+  
   return StatusCode::SUCCESS;
 }
 
