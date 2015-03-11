@@ -78,7 +78,8 @@ namespace Trk {
   // Inline methods
   /////////////////////////////////////////////////////////////////////////////////
 
-  inline NoiseOnSurface::NoiseOnSurface()
+  inline NoiseOnSurface::NoiseOnSurface():m_covarianceAzim(0.), m_covariancePola(0.),
+    m_covarianceIMom(0.), m_correctionIMom(0.)
     {
     }
 
@@ -92,10 +93,12 @@ namespace Trk {
   
   inline NoiseOnSurface& NoiseOnSurface::operator = (const NoiseOnSurface& N) 
     {
-      m_covarianceAzim = N.m_covarianceAzim;
-      m_covariancePola = N.m_covariancePola;
-      m_covarianceIMom = N.m_covarianceIMom;
-      m_correctionIMom = N.m_correctionIMom;
+      if (&N != this){
+        m_covarianceAzim = N.m_covarianceAzim;
+        m_covariancePola = N.m_covariancePola;
+        m_covarianceIMom = N.m_covarianceIMom;
+        m_correctionIMom = N.m_correctionIMom;
+      }
       return(*this);
     }
 

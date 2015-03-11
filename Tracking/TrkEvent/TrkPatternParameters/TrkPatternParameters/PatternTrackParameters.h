@@ -123,7 +123,7 @@ namespace Trk {
 
       ///////////////////////////////////////////////////////////////////
       // Comments
-      // m_surface is pointer to accosiated surface
+      // m_surface is pointer to associated surface
       // m_parameters[ 0] - 1 local coordinate
       // m_parameters[ 1] - 2 local coordinate
       // m_parameters[ 2] - Azimuthal angle
@@ -165,7 +165,8 @@ namespace Trk {
 
   inline PatternTrackParameters::PatternTrackParameters()
     {
-      m_surface      =     0;
+      m_surface      =     nullptr;
+      m_iscovariance =     false;
     }
 
   inline PatternTrackParameters::PatternTrackParameters(const PatternTrackParameters& P)
@@ -176,29 +177,31 @@ namespace Trk {
   inline PatternTrackParameters& PatternTrackParameters::operator = 
     (const PatternTrackParameters& P) 
     {
-      m_surface        = P.m_surface       ;
-      m_parameters[ 0] = P.m_parameters[ 0];
-      m_parameters[ 1] = P.m_parameters[ 1];
-      m_parameters[ 2] = P.m_parameters[ 2];
-      m_parameters[ 3] = P.m_parameters[ 3];
-      m_parameters[ 4] = P.m_parameters[ 4];
-      m_covariance[ 0] = P.m_covariance[ 0];
-      m_covariance[ 1] = P.m_covariance[ 1];
-      m_covariance[ 2] = P.m_covariance[ 2];
-      m_covariance[ 3] = P.m_covariance[ 3];
-      m_covariance[ 4] = P.m_covariance[ 4];
-      m_covariance[ 5] = P.m_covariance[ 5];
-      m_covariance[ 6] = P.m_covariance[ 6];
-      m_covariance[ 7] = P.m_covariance[ 7];
-      m_covariance[ 8] = P.m_covariance[ 8];
-      m_covariance[ 9] = P.m_covariance[ 9];
-      m_covariance[10] = P.m_covariance[10];
-      m_covariance[11] = P.m_covariance[11];
-      m_covariance[12] = P.m_covariance[12];
-      m_covariance[13] = P.m_covariance[13];
-      m_covariance[14] = P.m_covariance[14];
-      m_iscovariance   = P.m_iscovariance  ;
-      return(*this);
+      if (&P != this){
+				m_surface        = P.m_surface       ;
+				m_parameters[ 0] = P.m_parameters[ 0];
+				m_parameters[ 1] = P.m_parameters[ 1];
+				m_parameters[ 2] = P.m_parameters[ 2];
+				m_parameters[ 3] = P.m_parameters[ 3];
+				m_parameters[ 4] = P.m_parameters[ 4];
+				m_covariance[ 0] = P.m_covariance[ 0];
+				m_covariance[ 1] = P.m_covariance[ 1];
+				m_covariance[ 2] = P.m_covariance[ 2];
+				m_covariance[ 3] = P.m_covariance[ 3];
+				m_covariance[ 4] = P.m_covariance[ 4];
+				m_covariance[ 5] = P.m_covariance[ 5];
+				m_covariance[ 6] = P.m_covariance[ 6];
+				m_covariance[ 7] = P.m_covariance[ 7];
+				m_covariance[ 8] = P.m_covariance[ 8];
+				m_covariance[ 9] = P.m_covariance[ 9];
+				m_covariance[10] = P.m_covariance[10];
+				m_covariance[11] = P.m_covariance[11];
+				m_covariance[12] = P.m_covariance[12];
+				m_covariance[13] = P.m_covariance[13];
+				m_covariance[14] = P.m_covariance[14];
+				m_iscovariance   = P.m_iscovariance  ;
+      }
+      return (*this);
     }
 
   inline PatternTrackParameters::~PatternTrackParameters() {}
