@@ -202,7 +202,7 @@
 	    <doc>SLHCSimulation</doc>
 	    <jobTransformJobName>chainSimLOIVFSLHCRTT</jobTransformJobName>
 	    <jobTransformCmd>
-	      AtlasG4_tf.py --inputEVNTFile=root://eosatlas//eos/atlas/atlascerngroupdisk/det-slhc/users/oda/EVNTexample/mc12_14TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.evgen.EVNT.e1323_tid00851913_00/EVNT.00851913._001697.pool.root.1 --outputHITSFile=SLHCtest.LOIVF.HITS.pool.root --maxEvents=5 --skipEvents=0 --randomSeed=10 --preInclude='sim:InDetSLHC_Example/preInclude.SLHC.py,InDetSLHC_Example/preInclude.NoTRT.py' --geometryVersion=ATLAS-P2-ITK-02-01-00_VALIDATION --conditionsTag=OFLCOND-MC12-ITK-27-00 --postInclude='sim:InDetSLHC_Example/postInclude.SLHC_Setup.py'
+	      AtlasG4_tf.py --inputEVNTFile=/afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.6/ttbar_muplusjets-pythia6-14000.evgen.pool.root --outputHITSFile=SLHCtest.LOIVF.HITS.pool.root --maxEvents=5 --skipEvents=0 --randomSeed=10 --preInclude='sim:InDetSLHC_Example/preInclude.SLHC.py,InDetSLHC_Example/preInclude.NoTRT.py' --geometryVersion=ATLAS-P2-ITK-02-01-00_VALIDATION --conditionsTag=OFLCOND-MC12-ITK-27-00 --postInclude='sim:InDetSLHC_Example/postInclude.SLHC_Setup.py'
 	    </jobTransformCmd>
 	    <group>SLHCFCTTransform</group>
 	    <queue>long</queue>
@@ -242,7 +242,7 @@
 	    <doc>SLHCSimulation</doc>
 	    <jobTransformJobName>chainSimRingSLHCRTT</jobTransformJobName>
 	    <jobTransformCmd>
-	      Sim_tf.py --inputEVNTFile=root://eosatlas//eos/atlas/atlascerngroupdisk/det-slhc/users/oda/EVNTexample/mc12_14TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.evgen.EVNT.e1323_tid00851913_00/EVNT.00851913._001697.pool.root.1 --outputHITSFile=SLHCtest.Ring.HITS.pool.root --maxEvents=5 --skipEvents=0 --randomSeed=10 --preInclude='sim:InDetSLHC_Example/preInclude.SLHC.py,InDetSLHC_Example/preInclude.NoTRT.py' --geometryVersion=ATLAS-P2-ITK-03-00-00_VALIDATION --conditionsTag=OFLCOND-MC12-ITK-27-00 --postInclude='sim:InDetSLHC_Example/postInclude.SLHC_Setup.py' --postExec 'ToolSvc.ISF_ParticlePositionFilterDynamic.CheckRegion=[1]'
+	      Sim_tf.py --inputEVNTFile=/afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.6/ttbar_muplusjets-pythia6-14000.evgen.pool.root --outputHITSFile=SLHCtest.Ring.HITS.pool.root --maxEvents=5 --skipEvents=0 --randomSeed=10 --preInclude='sim:InDetSLHC_Example/preInclude.SLHC.py,InDetSLHC_Example/preInclude.NoTRT.py' --geometryVersion=ATLAS-P2-ITK-03-00-00_VALIDATION --conditionsTag=OFLCOND-MC12-ITK-27-00 --postInclude='sim:InDetSLHC_Example/postInclude.SLHC_Setup.py' --postExec 'ToolSvc.ISF_ParticlePositionFilterDynamic.CheckRegion=[1]'
 	    </jobTransformCmd>
 	    <group>SLHCFCTTransform</group>
 	    <queue>long</queue>
