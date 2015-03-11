@@ -17,8 +17,8 @@ from AthenaCommon.Logging import logging
 import eformat
 import libpyevent_storage as EventStorage
 
-import PyCintex
-PyCintex.loadDictionary('TrigByteStreamToolsDict')
+import cppyy
+cppyy.loadDictionary('TrigByteStreamToolsDict')
 
 def ints2bits(info):
   if type(info)==int:

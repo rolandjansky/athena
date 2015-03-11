@@ -9,7 +9,7 @@ Dumping HLT chains PS bit vs the chain counter and vs the L1 event number
 import eformat
 import cPickle
 import optparse
-import PyCintex
+import cppyy
 from TrigByteStreamTools.hltResult import hltResult
 
 optparser = optparse.OptionParser(usage = "%prog [options] FILES",
@@ -38,7 +38,7 @@ res = hltResult()
 
 featureSizes={}
 stats = {}
-HLTChain = PyCintex.makeClass('HLT::Chain')
+HLTChain = cppyy.makeClass('HLT::Chain')
 
 def my_dump(bsfile):
   """Runs the dumping routines"""

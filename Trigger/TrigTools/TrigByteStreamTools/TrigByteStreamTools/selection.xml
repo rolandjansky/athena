@@ -1,8 +1,9 @@
 <!-- Maybe eventually this could be provided by the parent packages itself -->
 <lcgdict>
  <class name="CTPfragment::ExtraPayload" />
+ <function name="CTPfragment::ExtraPayload::size" />
  <class name="CTPfragment::FolderEntry" />
- <class name="CTPfragment::FolderIndex" />
+ <!-- class name="CTPfragment::FolderIndex" /-->
  <!-- Need to use the resolved type (unsigned short) instead of FolderIndex here -->
  <class name="std::map<const unsigned short, CTPfragment::FolderEntry>" />
  <class name="std::map<unsigned short, CTPfragment::FolderEntry>" />
@@ -10,4 +11,5 @@
  <class name="std::pair<const unsigned short, CTPfragment::FolderEntry>" />
  <function name="CTPfragment::getFolderUpdates" />
  <variable pattern="CTPdataformat::*" />
+ <class name="CTPdataformat::ROOT6_NamespaceAutoloadHook" />  <!-- Hack for ROOT6 (ATR-10297) -->
 </lcgdict>

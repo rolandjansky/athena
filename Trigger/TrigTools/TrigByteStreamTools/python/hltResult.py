@@ -1,20 +1,16 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-from ROOT import std
-import PyCintex
+import cppyy
 from CLIDComps.clidGenerator import clidGenerator
 
 clidg = clidGenerator("")
+from ROOT import HLT
+stringSerializer = cppyy.gbl.StringSerializer()
 
-PyCintex.makeNamespace('HLT')
-ActualHLTResult = PyCintex.makeClass('HLT::HLTResult')
-
-stringSerializer = PyCintex.makeClass('StringSerializer')()
-
-class hltResult(ActualHLTResult):
+class hltResult(HLT.HLTResult):
   def __init__(self):
     super( hltResult, self ).__init__()
-    self.as_int_v = std.vector('unsigned int')()
+    self.as_int_v = cppyy.gbl.std.vector('unsigned int')()
   
   def load(self, rob):
     self.nav_payload = []
@@ -76,8 +72,8 @@ def get_feature_data_blob(data, index):
 def deserialize_string(lwords):
   """Wrapper for the C++ StringSerializer"""
   
-  v = PyCintex.makeClass('std::vector<unsigned int>')()
-  s = PyCintex.makeClass('std::string')()
+  v = cppyy.gbl.std.vector('unsigned int')()
+  s = cppyy.gbl.std.string()
   v.reserve(len(lwords))
   for w in lwords: v.push_back(w)
   stringSerializer.deserialize(v, s)
@@ -93,7 +89,7 @@ def print_ranges(l):
     print "%-16d%16d" % ( (i+1)*32, i*32)
 
 def print_chain(counter, s):
-  ch = PyCintex.makeClass('HLT::Chain')(s)
+  ch = cppyy.makeClass('HLT::Chain')(s)
   #ch.deserialize(s)
   print ".... chain %-3d Counter:%-4d Passed: %d (Raw:%d Prescaled: %d PassThrough:%d) Rerun: %d LastStep: %d Err: %s"\
         % ( counter, ch.getChainCounter(), ch.chainPassed(), ch.chainPassedRaw(), ch.isPrescaled(), ch.isPassedThrough(),\

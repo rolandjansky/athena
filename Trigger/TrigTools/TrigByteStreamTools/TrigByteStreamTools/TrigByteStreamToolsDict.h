@@ -15,6 +15,11 @@ namespace {
   std::pair<const CTPfragment::FolderIndex, CTPfragment::FolderEntry> my_pair;
 }
 
+// Hack for ROOT6 (see ATR-10297)
+namespace CTPdataformat {
+  struct ROOT6_NamespaceAutoloadHook{};
+}
+
 /* Type conversion. The reference returned by CTPfragment::ExtraPayload::getFolderUpdates
    doesn't work as python iterator. */
 namespace CTPfragment {

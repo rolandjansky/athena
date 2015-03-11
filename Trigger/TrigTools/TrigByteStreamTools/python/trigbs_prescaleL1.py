@@ -4,8 +4,8 @@
 """
 Module for applying L1 prescales to the input data
 
-Used as a "-Z" plugin to athenaMT/PT:
-athenaMT/PT -Z TrigByteStreamTools.trigbs_prescaleL1 ...
+Used as a "-Z" plugin to athenaHLT:
+athenaHLT -Z TrigByteStreamTools.trigbs_prescaleL1 ...
 """
 
 import os
@@ -17,9 +17,9 @@ from AthenaCommon.Logging import logging
 import eformat
 import libpyevent_storage as EventStorage
 
-import PyCintex
-PyCintex.loadDictionary('TrigByteStreamToolsDict')
-CTPdataformat = PyCintex.makeNamespace('CTPdataformat')()
+import cppyy
+cppyy.loadDictionary('TrigByteStreamToolsDict')
+from ROOT import CTPdataformat
 
 def ints2bits(info):
   if type(info)==int:

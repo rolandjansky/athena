@@ -9,12 +9,15 @@ https://svnweb.cern.ch/trac/atlastdaq/browser/DAQ/DataFlow/CTPfragment/trunk/CTP
 
 import sys
 import eformat
-import PyCintex
+import cppyy
 
-PyCintex.loadDictionary('TrigByteStreamToolsDict')
-CTPdataformat = PyCintex.makeNamespace('CTPdataformat')()
-_CTPfragment = PyCintex.makeNamespace('CTPfragment')
-PyCintex.makeNamespace('CTPdataformat::Helper')
+from PyUtils.Helpers import ROOT6Setup
+ROOT6Setup()
+
+cppyy.loadDictionary('TrigByteStreamToolsDict')
+cppyy.loadDictionary('CTPfragment')
+from ROOT import CTPdataformat
+from ROOT import CTPfragment as _CTPfragment
 
 # Import classes from C++ namespace
 FolderEntry = _CTPfragment.FolderEntry
@@ -85,11 +88,11 @@ def hltExtraPayloadWords(rob):
 
 def getExtraPayloadObject(rob):
    """Return CTPfragment::ExtraPayload object created from CTP ROB"""
-   v = PyCintex.gbl.std.vector('unsigned int')()
+   v = cppyy.gbl.std.vector('unsigned int')()
    for p in hltExtraPayloadWords(rob):
       v.push_back(p)
 
-   x = PyCintex.makeClass('CTPfragment::ExtraPayload')(v)
+   x = _CTPfragment.ExtraPayload(v)
    return x
    
 def setHltExtraPayloadWords(rob, extraWords):
@@ -155,11 +158,11 @@ def main():
          continue
 
       rob = ctp_robs[0]
-      fe = PyCintex.makeClass('CTPfragment::FolderEntry')()
+      fe = _CTPfragment.FolderEntry()
       fe.folderIndex = 1
       fe.lumiBlock = 54
 
-      fe2 = PyCintex.makeClass('CTPfragment::FolderEntry')()
+      fe2 = _CTPfragment.FolderEntry()
       fe2.folderIndex = 2
       fe2.lumiBlock = 59
 
