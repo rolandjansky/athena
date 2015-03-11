@@ -10,9 +10,9 @@ include ("EventTagUtils/EventInfoTagTool_jobOptions.py")
 
 from EventTagUtils.EventTagUtilsConf import GlobalEventTagTool as ConfiguredGlobalEventTagTool
 GlobalEventTagTool=ConfiguredGlobalEventTagTool(
-    CaloClusterContainer = "CaloCalTopoCluster",
-    TrackContainer       = "TrackParticleCandidate",
-    VertexContainer      = "VxPrimaryCandidate",
+    CaloClusterContainer = "CaloCalTopoClusters",
+    TrackContainer       = "InDetTrackParticles",
+    VertexContainer      = "PrimaryVertices",
     IncludeEventFlag     = True,
     IncludeVertexFlag    = True,
     UseMC                = False,

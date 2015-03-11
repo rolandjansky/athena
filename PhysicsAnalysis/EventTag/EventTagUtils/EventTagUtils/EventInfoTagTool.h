@@ -22,12 +22,13 @@ Purpose : Tool to buid the Global Event Tags
 #include "TagEvent/TagFragmentCollection.h"
 #include "AthenaPoolUtilities/AthenaAttributeSpecification.h"
 #include "xAODEventInfo/EventInfo.h"
-#include "EventInfo/EventInfo.h"
 
 #include <map>
 #include <vector>
 #include <string>
 
+// forward declarations
+class ILumiBlockMuTool;
 
 /** Interface ID for EventInfoTagTool */  
 static const InterfaceID IID_EventInfoTagTool("EventInfoTagTool", 1, 0);
@@ -63,9 +64,8 @@ protected:
    StatusCode eventTagFlags  (TagFragmentCollection& eventTagCol, const DataHandle<xAOD::EventInfo> eventInfo);
    StatusCode eventExtrasTag (TagFragmentCollection& eventTagCol, const DataHandle<xAOD::EventInfo> eventInfo);
 
-   StatusCode eventTag       (TagFragmentCollection& eventTagCol, const DataHandle<EventInfo> eventInfo);
-   StatusCode eventTagFlags  (TagFragmentCollection& eventTagCol, const DataHandle<EventInfo> eventInfo);
-   StatusCode eventExtrasTag (TagFragmentCollection& eventTagCol, const DataHandle<EventInfo> eventInfo);
+   // LumiBlockMuTool
+   ToolHandle<ILumiBlockMuTool> m_lumiBlockMuTool;
 
    unsigned int m_runNumber,m_condRunNumber,m_lumiBlock;
    unsigned long long m_eventNumber; 
