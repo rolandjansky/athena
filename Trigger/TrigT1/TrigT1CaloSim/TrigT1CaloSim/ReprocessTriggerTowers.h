@@ -91,8 +91,6 @@
  private: // Private attributes
 
   /** Pointers to tools and services */
-  ServiceHandle<StoreGateSvc> m_storeGate;
-  ServiceHandle<StoreGateSvc> m_detStore;
   ToolHandle<IL1TriggerTowerTool> m_TTtool;
   ToolHandle<IL1CaloMappingTool> m_mappingTool; 
   //L1CaloCondSvc* m_l1CondSvc;

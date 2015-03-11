@@ -65,8 +65,6 @@ class MergeSlices : public AthAlgorithm {
    /// Return number as a string
    std::string numString(int num);
 
-   /// StoreGate service
-   ServiceHandle<StoreGateSvc> m_storeGate;
    //  Container StoreGate keys
    std::string m_cpmHitsLocation;
    std::string m_cpmTowerLocation;

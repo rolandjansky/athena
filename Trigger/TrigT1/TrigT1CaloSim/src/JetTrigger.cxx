@@ -49,7 +49,6 @@ namespace LVL1{
 JetTrigger::JetTrigger
   ( const std::string& name, ISvcLocator* pSvcLocator ) 
     : AthAlgorithm( name, pSvcLocator ), 
-      m_storeGate("StoreGateSvc", name),
       m_configSvc("TrigConf::LVL1ConfigSvc/LVL1ConfigSvc", name),
       m_JetTool("LVL1::L1JetTools/L1JetTools"),
       m_vectorOfJetROIs(0),
@@ -64,7 +63,6 @@ JetTrigger::JetTrigger
   // This is how you declare the paramembers to Gaudi so that
   // they can be over-written via the job options file
 
-  declareProperty("EventStore",m_storeGate,"StoreGate Service");
   declareProperty( "LVL1ConfigSvc", m_configSvc, "LVL1 Config Service");
   declareProperty( "JetROIOutputLocation",       m_jetROIOutputLocation );
   declareProperty( "JEMHitsLocation",            m_jemHitsLocation );
@@ -85,43 +83,8 @@ JetTrigger::~JetTrigger() {
 
 StatusCode JetTrigger::initialize()
 {
-
-  // We must here instantiate items which can only be made after
-  // any job options have been set
-  
-  int outputLevel = msgSvc()->outputLevel( name() );
-
-  //
-  // Connect to the LVL1ConfigSvc for the trigger configuration:
-  //
-
-  StatusCode sc = m_configSvc.retrieve();
-  if ( sc.isFailure() ) {
-    ATH_MSG_ERROR( "Couldn't connect to " << m_configSvc.typeAndName() 
-        );
-    return sc;
-  } else if (outputLevel <= MSG::DEBUG) {
-    ATH_MSG_DEBUG( "Connected to " << m_configSvc.typeAndName() 
-        );
-  }
-
-  //
-  // Connect to StoreGate:
-  //
-  sc = m_storeGate.retrieve();
-  if ( sc.isFailure() ) {
-    ATH_MSG_ERROR( "Couldn't connect to " << m_storeGate.typeAndName() 
-        );
-    return sc;
-  }
-
-  // Retrieve L1JetTool
-  sc = m_JetTool.retrieve();
-  if (sc.isFailure()) {
-    ATH_MSG_ERROR( "Problem retrieving JetTool. Abort execution" );
-    return StatusCode::SUCCESS;
-  }
-    
+  ATH_CHECK(  m_configSvc.retrieve() );
+  ATH_CHECK(  m_JetTool.retrieve() );
   return StatusCode::SUCCESS ;
 }
 
@@ -132,10 +95,7 @@ StatusCode JetTrigger::initialize()
 
 StatusCode JetTrigger::beginRun()
 {
-
-  int outputLevel = msgSvc()->outputLevel( name() );
-  if (outputLevel <= MSG::DEBUG) setupTriggerMenuFromCTP();
-
+  if (msgLvl(MSG::DEBUG)) setupTriggerMenuFromCTP();
   return StatusCode::SUCCESS ;
 }
 
@@ -171,9 +131,9 @@ StatusCode JetTrigger::execute( )
   m_jemHitsContainer = new std::map<int, JEMHits *>;    // Map to hold JEM Hits
 
   // Retrieve JetElements
-  if (m_storeGate->contains<JetElementCollection>(m_JetElementLocation)) {
+  if (evtStore()->contains<JetElementCollection>(m_JetElementLocation)) {
     const DataVector<JetElement>* storedJEs;
-    StatusCode sc = m_storeGate->retrieve(storedJEs,m_JetElementLocation);
+    StatusCode sc = evtStore()->retrieve(storedJEs,m_JetElementLocation);
     if ( sc==StatusCode::SUCCESS ) {
       // Warn if the stored collection is empty
       if (storedJEs->size() == 0)
@@ -215,7 +175,7 @@ StatusCode JetTrigger::execute( )
 void LVL1::JetTrigger::saveExternalROIs(){
   
 
-  StatusCode sc = m_storeGate->overwrite(m_vectorOfJetROIs,
+  StatusCode sc = evtStore()->overwrite(m_vectorOfJetROIs,
     m_jetROIOutputLocation,true,false,false);
   if (sc.isSuccess() ){
     ATH_MSG_VERBOSE( "Stored " <<m_vectorOfJetROIs->size()
@@ -296,9 +256,9 @@ void LVL1::JetTrigger::saveJEMHits(){
   }
 
   if (outputLevel <= MSG::DEBUG) ATH_MSG_DEBUG( m_jemHitsContainer->size()<<" JEMHits have been saved");
-  StatusCode sc = m_storeGate->overwrite(JEMHvector, m_jemHitsLocation,true,false,false);
+  StatusCode sc = evtStore()->overwrite(JEMHvector, m_jemHitsLocation,true,false,false);
   if (sc == StatusCode::SUCCESS) {
-    StatusCode sc2 = m_storeGate->setConst(JEMHvector);
+    StatusCode sc2 = evtStore()->setConst(JEMHvector);
     if (sc2 != StatusCode::SUCCESS) ATH_MSG_ERROR( "problem setting JEMHits vector constant" );
   }
   else {

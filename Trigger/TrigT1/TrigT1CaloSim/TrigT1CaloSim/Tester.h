@@ -101,7 +101,6 @@ class Tester : public AthAlgorithm
  typedef DataVector<JetROI>                 t_JetROICollection ;
  typedef DataVector<JEMHits> JEMHitsCollection;
  typedef DataVector<JEMEtSums> JEMEtSumsCollection;
- ServiceHandle<StoreGateSvc> m_storeGate;
 
 private: // Private methods
   /** loads the Trigger Towers from the TES.*/

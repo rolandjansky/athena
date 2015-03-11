@@ -152,8 +152,6 @@ private: // Private methods
   void jetEtTrigger();
 
 private: // Private attributes
-  /** Pointer to SG service*/
-  ServiceHandle<StoreGateSvc> m_storeGate;
   ServiceHandle<TrigConf::ILVL1ConfigSvc> m_configSvc;
 
   unsigned int m_eventNumber;

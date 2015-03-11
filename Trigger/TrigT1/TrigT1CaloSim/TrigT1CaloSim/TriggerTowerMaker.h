@@ -140,8 +140,6 @@ class TriggerTowerMaker : public AthAlgorithm,
     TriggerTowerMaker(const TriggerTowerMaker& rhs);
     TriggerTowerMaker& operator=(const TriggerTowerMaker& rhs);
 
-    ServiceHandle<StoreGateSvc> m_storeGate;
-    ServiceHandle<StoreGateSvc> m_detStore;
     ServiceHandle<TrigConf::ILVL1ConfigSvc> m_configSvc;
     ServiceHandle <IAtRndmGenSvc> m_rndGenSvc;
     CLHEP::HepRandomEngine* m_rndmPeds;

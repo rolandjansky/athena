@@ -122,7 +122,6 @@
    std::string   m_emTauSlinkLocation ;
    
    /** The essentials - data access, configuration, tools */
-   ServiceHandle<StoreGateSvc> m_storeGate;
    ServiceHandle<TrigConf::ILVL1ConfigSvc> m_configSvc;
    ToolHandle<LVL1::IL1CPMTools> m_CPMTool;
    

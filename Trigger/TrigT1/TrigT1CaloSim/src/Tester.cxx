@@ -69,7 +69,6 @@ namespace LVL1{
 Tester::Tester
   ( const std::string& name, ISvcLocator* pSvcLocator ) 
     : AthAlgorithm( name, pSvcLocator ), 
-      m_storeGate("StoreGateSvc", name),
       m_VectorOfEmTauROIs(0),
       m_EmTauSlinkLocation(TrigT1CaloDefs::EmTauSlinkLocation),
       m_EmTauTool("LVL1::L1EmTauTools/L1EmTauTools"),
@@ -99,7 +98,6 @@ Tester::Tester
   m_JetCTPLocation          = TrigT1CaloDefs::JetCTPLocation;
   m_EnergyCTPLocation       = TrigT1CaloDefs::EnergyCTPLocation;
 
-  declareProperty("EventStore",m_storeGate,"StoreGate Service");
   declareProperty( "L1EmTauTools", m_EmTauTool, "Tool for EM/Tau trigger simulation");
   declareProperty( "L1JetTools", m_JetTool, "Tool for Jet trigger simulation");
   declareProperty( "L1EtTools", m_EtTool, "Tool for ET trigger simulation");
@@ -133,19 +131,6 @@ Tester::~Tester() {
 
 StatusCode Tester::initialize()
 {
-
-  // We must here instantiate items which can only be made after
-  // any job options have been set
-
-  StatusCode sc = m_storeGate.retrieve();
-  if ( sc.isFailure() ) {
-    ATH_MSG_ERROR( "Couldn't connect to " << m_storeGate.typeAndName() 
-        );
-  } else {
-    ATH_MSG_DEBUG( "Connected to " << m_storeGate.typeAndName() 
-        );
-  }
-
   return StatusCode::SUCCESS ;
 }
 
@@ -177,10 +162,7 @@ StatusCode Tester::finalize()
 StatusCode Tester::execute( )
 {
 
-  //................................
-  // make a message logging stream
-
-  ATH_MSG_DEBUG( "Executing" );
+  ATH_MSG_DEBUG ( "Executing" );
 
 
 	m_numberOfEvents++;
@@ -216,7 +198,7 @@ void LVL1::Tester::loadTriggerTowers(){
 //  typedef DataVector<LVL1::TriggerTower> t_TTCollection ;
 //  DataHandle<t_TTCollection> TTVector;
 //
-//  if( m_storeGate->retrieve(TTVector, m_TriggerTowerLocation).isFailure() ){
+//  if( evtStore()->retrieve(TTVector, m_TriggerTowerLocation).isFailure() ){
 //    log << MSG::ERROR
 //        << "No TriggerTowers found in TES at "
 //        << m_TriggerTowerLocation
@@ -236,13 +218,12 @@ void LVL1::Tester::loadTriggerTowers(){
 
 /** prints useful TriggerTower values*/
 void LVL1::Tester::printTriggerTowerValues(){
-
 typedef DataVector<LVL1::TriggerTower> t_TTCollection ;
   const t_TTCollection* TTVector;
 
-  if( m_storeGate->retrieve(TTVector, m_TriggerTowerLocation).isFailure() ){
-    ATH_MSG_DEBUG( "No TriggerTowers found in TES at "
-                   << m_TriggerTowerLocation );
+  if( evtStore()->retrieve(TTVector, m_TriggerTowerLocation).isFailure() ){
+    ATH_MSG_DEBUG ( "No TriggerTowers found in TES at "
+                    << m_TriggerTowerLocation ) ;
   return;
   }
 
@@ -262,7 +243,7 @@ typedef DataVector<LVL1::TriggerTower> t_TTCollection ;
 void LVL1::Tester::loadEmTauROIs(){
 
   const t_EmTauROICollection* ROIs;
-  StatusCode sc1 = m_storeGate->retrieve(ROIs, m_EmTauROILocation);
+  StatusCode sc1 = evtStore()->retrieve(ROIs, m_EmTauROILocation);
 
   if( ! ROIs ) {
     ATH_MSG_DEBUG( "No ROIs found in TES at "
@@ -297,7 +278,7 @@ void LVL1::Tester::loadEmTauROIs(){
   }
   else {
     const DataVector<LVL1::TriggerTower>* TTVector;
-    if( m_storeGate->retrieve(TTVector, m_TriggerTowerLocation).isSuccess() ) {  
+    if( evtStore()->retrieve(TTVector, m_TriggerTowerLocation).isSuccess() ) {  
       DataVector<CPAlgorithm>* rois = new DataVector<CPAlgorithm>;
       m_EmTauTool->findRoIs(TTVector,rois);
       DataVector<CPAlgorithm>::iterator cpw = rois->begin();
@@ -333,9 +314,7 @@ void LVL1::Tester::loadActualROIWord(){
     return;
   }else{
   	TriggerTowerKey get(0.0, 0.0);
-
-
-  	ATH_MSG_DEBUG("Event Number : "<<std::ios::dec<<m_eventNumber);
+  	ATH_MSG_DEBUG ( "Event Number : "<<std::ios::dec<<m_eventNumber );
 
   	while ( lineNumber < ((m_eventNumber-1)*3) ){
     	in.getline(line,50);
@@ -353,7 +332,7 @@ void LVL1::Tester::loadActualROIWord(){
 
 			// I'm ignoring the left/right info...
 			input &= 0x0000FFFF;
-
+                        
 			if (input>0){
     		ATH_MSG_DEBUG(
 			   " LineNumber : "<<std::ios::dec<<lineNumber
@@ -385,15 +364,14 @@ void LVL1::Tester::compareROIWords(){
 
 /** loads the EmTauROIs from the TES.*/
 void LVL1::Tester::testJetTool(){
-
   const t_JetROICollection* ROIs;
-  StatusCode sc1 = m_storeGate->retrieve(ROIs, m_JetROILocation);
+  StatusCode sc1 = evtStore()->retrieve(ROIs, m_JetROILocation);
   StatusCode scTool = m_JetTool.retrieve();
 
   const DataVector<JetElement>* storedJEs;
   std::map<int, JetInput*>* jetInputs = new std::map<int, JetInput*>;
   if (scTool.isSuccess()) {
-    StatusCode sc = m_storeGate->retrieve(storedJEs,m_JetElementLocation);
+    StatusCode sc = evtStore()->retrieve(storedJEs,m_JetElementLocation);
     if ( sc==StatusCode::SUCCESS ) m_JetTool->mapJetInputs(storedJEs,jetInputs);
   }
 
@@ -455,13 +433,12 @@ void LVL1::Tester::testJetTool(){
 
 /** prints useful TriggerTower values*/
 void LVL1::Tester::dumpEDM(){
-
   typedef DataVector<LVL1::TriggerTower> t_TTCollection ;
   const t_TTCollection* TTVector;
 
-  if( m_storeGate->retrieve(TTVector, m_TriggerTowerLocation).isFailure() ){
-    ATH_MSG_INFO("No TriggerTowers found in TES at "
-        << m_TriggerTowerLocation);
+  if( evtStore()->retrieve(TTVector, m_TriggerTowerLocation).isFailure() ){
+    ATH_MSG_INFO ( "No TriggerTowers found in TES at "
+                   << m_TriggerTowerLocation ) ;
   }
   else {
 
@@ -481,9 +458,9 @@ void LVL1::Tester::dumpEDM(){
   // Now do the same for CPMTowers
   const DataVector<LVL1::CPMTower>* CPMTVector;
 
-  if( m_storeGate->retrieve(CPMTVector, TrigT1CaloDefs::CPMTowerLocation).isFailure() ){
-    ATH_MSG_INFO( "No CPMTowers found in TES at "
-        << TrigT1CaloDefs::CPMTowerLocation );
+  if( evtStore()->retrieve(CPMTVector, TrigT1CaloDefs::CPMTowerLocation).isFailure() ){
+    ATH_MSG_INFO ( "No CPMTowers found in TES at "
+                   << TrigT1CaloDefs::CPMTowerLocation ) ;
   }
   else {
  
@@ -501,9 +478,9 @@ void LVL1::Tester::dumpEDM(){
   // Now do the same for JetElements
   const DataVector<LVL1::JetElement>* JEVector;
 
-  if( m_storeGate->retrieve(JEVector, TrigT1CaloDefs::JetElementLocation).isFailure() ){
-    ATH_MSG_INFO( "No JetElements found in TES at "
-        << TrigT1CaloDefs::JetElementLocation );
+  if( evtStore()->retrieve(JEVector, TrigT1CaloDefs::JetElementLocation).isFailure() ){
+    ATH_MSG_INFO ( "No JetElements found in TES at "
+                   << TrigT1CaloDefs::JetElementLocation ) ;
   }
   else {
     ATH_MSG_INFO( "Got " << JEVector->size() << " JetElements from TES" );
@@ -520,9 +497,9 @@ void LVL1::Tester::dumpEDM(){
   // Now do the same for CPMHits
   const DataVector<LVL1::CPMHits>* CPMHVector;
 
-  if( m_storeGate->retrieve(CPMHVector, TrigT1CaloDefs::CPMHitsLocation).isFailure() ){
-    ATH_MSG_INFO( "No CPMHits found in TES at "
-        << TrigT1CaloDefs::CPMHitsLocation );
+  if( evtStore()->retrieve(CPMHVector, TrigT1CaloDefs::CPMHitsLocation).isFailure() ){
+    ATH_MSG_INFO ( "No CPMHits found in TES at "
+                   << TrigT1CaloDefs::CPMHitsLocation ) ;
   }
   else {
   
@@ -542,9 +519,9 @@ void LVL1::Tester::dumpEDM(){
   // Now do the same for CPMRoIs
   const DataVector<LVL1::CPMRoI>* CPMRVector;
 
-  if( m_storeGate->retrieve(CPMRVector, TrigT1CaloDefs::CPMRoILocation).isFailure() ){
-    ATH_MSG_INFO( "No CPMRoIs found in TES at "
-        << TrigT1CaloDefs::CPMRoILocation );
+  if( evtStore()->retrieve(CPMRVector, TrigT1CaloDefs::CPMRoILocation).isFailure() ){
+    ATH_MSG_INFO ( "No CPMRoIs found in TES at "
+                   << TrigT1CaloDefs::CPMRoILocation ) ;
   }
   else {
 
@@ -565,9 +542,9 @@ void LVL1::Tester::dumpEDM(){
   // Now do the same for CMMCPHits
   const DataVector<LVL1::CMMCPHits>* CMMCPHVector;
 
-  if( m_storeGate->retrieve(CMMCPHVector, TrigT1CaloDefs::CMMCPHitsLocation).isFailure() ){
-    ATH_MSG_INFO( "No CMMCPHits found in TES at "
-        << TrigT1CaloDefs::CMMCPHitsLocation );
+  if( evtStore()->retrieve(CMMCPHVector, TrigT1CaloDefs::CMMCPHitsLocation).isFailure() ){
+    ATH_MSG_INFO ( "No CMMCPHits found in TES at "
+                   << TrigT1CaloDefs::CMMCPHitsLocation ) ;
   }
   else {
   
@@ -587,9 +564,9 @@ void LVL1::Tester::dumpEDM(){
   // Now do the same for CMMJetHits
   const DataVector<LVL1::CMMJetHits>* CMMJHVector;
 
-  if( m_storeGate->retrieve(CMMJHVector, TrigT1CaloDefs::CMMJetHitsLocation).isFailure() ){
-    ATH_MSG_INFO( "No CMMJetHits found in TES at "
-        << TrigT1CaloDefs::CMMJetHitsLocation );
+  if( evtStore()->retrieve(CMMJHVector, TrigT1CaloDefs::CMMJetHitsLocation).isFailure() ){
+    ATH_MSG_INFO ( "No CMMJetHits found in TES at "
+                   << TrigT1CaloDefs::CMMJetHitsLocation ) ;
   }
   else {
 
@@ -609,9 +586,9 @@ void LVL1::Tester::dumpEDM(){
   // Now do the same for CMMEtSums
   const DataVector<LVL1::CMMEtSums>* CMMESVector;
 
-  if( m_storeGate->retrieve(CMMESVector, TrigT1CaloDefs::CMMEtSumsLocation).isFailure() ){
-    ATH_MSG_INFO( "No CMMEtSums found in TES at "
-        << TrigT1CaloDefs::CMMEtSumsLocation );
+  if( evtStore()->retrieve(CMMESVector, TrigT1CaloDefs::CMMEtSumsLocation).isFailure() ){
+    ATH_MSG_INFO ( "No CMMEtSums found in TES at "
+                   << TrigT1CaloDefs::CMMEtSumsLocation ) ;
   }
   else {
 
@@ -631,9 +608,9 @@ void LVL1::Tester::dumpEDM(){
   // Now do the same for JEMHits
   const DataVector<LVL1::JEMHits>* JEMHVector;
 
-  if( m_storeGate->retrieve(JEMHVector, TrigT1CaloDefs::JEMHitsLocation).isFailure() ){
-    ATH_MSG_INFO( "No JEMHits found in TES at "
-        << TrigT1CaloDefs::JEMHitsLocation );
+  if( evtStore()->retrieve(JEMHVector, TrigT1CaloDefs::JEMHitsLocation).isFailure() ){
+    ATH_MSG_INFO ( "No JEMHits found in TES at "
+                   << TrigT1CaloDefs::JEMHitsLocation ) ;
   }
   else {
 
@@ -653,9 +630,9 @@ void LVL1::Tester::dumpEDM(){
   // Now do the same for JEMEtSums
   const DataVector<LVL1::JEMEtSums>* JEMESVector;
 
-  if( m_storeGate->retrieve(JEMESVector, TrigT1CaloDefs::JEMEtSumsLocation).isFailure() ){
-    ATH_MSG_INFO( "No JEMEtSums found in TES at "
-        << TrigT1CaloDefs::JEMEtSumsLocation );
+  if( evtStore()->retrieve(JEMESVector, TrigT1CaloDefs::JEMEtSumsLocation).isFailure() ){
+    ATH_MSG_INFO ( "No JEMEtSums found in TES at "
+                   << TrigT1CaloDefs::JEMEtSumsLocation ) ;
   }
   else {
 
@@ -675,9 +652,9 @@ void LVL1::Tester::dumpEDM(){
   // Now do the same for JEMRoIs
   const DataVector<LVL1::JEMRoI>* JEMRVector;
 
-  if( m_storeGate->retrieve(JEMRVector, TrigT1CaloDefs::JEMRoILocation).isFailure() ){
-    ATH_MSG_INFO( "No JEMRoIs found in TES at "
-        << TrigT1CaloDefs::JEMRoILocation );
+  if( evtStore()->retrieve(JEMRVector, TrigT1CaloDefs::JEMRoILocation).isFailure() ){
+    ATH_MSG_INFO ( "No JEMRoIs found in TES at "
+                   << TrigT1CaloDefs::JEMRoILocation ) ;
   }
   else {
   
@@ -697,9 +674,9 @@ void LVL1::Tester::dumpEDM(){
   // Now do the same for CPMTobRoI
   const DataVector<CPMTobRoI>* cpmtobrois;
 
-  if( m_storeGate->retrieve(cpmtobrois, m_CPMTobRoILocation).isFailure() ){
-    ATH_MSG_INFO( "No CPMTobRoI found in TES at "
-        << m_CPMTobRoILocation );
+  if( evtStore()->retrieve(cpmtobrois, m_CPMTobRoILocation).isFailure() ){
+    ATH_MSG_INFO ( "No CPMTobRoI found in TES at "
+                   << m_CPMTobRoILocation ) ;
   }
   else {
   
@@ -727,9 +704,9 @@ void LVL1::Tester::dumpEDM(){
   // CPM->CMX Data
   const DataVector<CPMCMXData>* emcmx;
 
-  if( m_storeGate->retrieve(emcmx, m_CPMCMXDataLocation).isFailure() ){
-    ATH_MSG_INFO( "No CPMCMXData found in TES at "
-        << m_CPMCMXDataLocation );
+  if( evtStore()->retrieve(emcmx, m_CPMCMXDataLocation).isFailure() ){
+    ATH_MSG_INFO ( "No CPMCMXData found in TES at "
+                   << m_CPMCMXDataLocation ) ;
   }
   else {
   
@@ -748,14 +725,13 @@ void LVL1::Tester::dumpEDM(){
     
   }
  
-    
+   
     
   // Now do the same for JEMTobRoI
   const DataVector<JEMTobRoI>* jemtobrois;
 
-  if( m_storeGate->retrieve(jemtobrois, m_JEMTobRoILocation).isFailure() ){
-    ATH_MSG_INFO( "No JEMTobRoI found in TES at "
-        << m_JEMTobRoILocation );
+  if( evtStore()->retrieve(jemtobrois, m_JEMTobRoILocation).isFailure() ){
+    ATH_MSG_INFO ( "No JEMTobRoI found in TES at " << m_JEMTobRoILocation ) ;
   }
   else {
   
@@ -782,9 +758,9 @@ void LVL1::Tester::dumpEDM(){
   // Jet JEM->CMX Data
   const DataVector<JetCMXData>* jetcmx;
 
-  if( m_storeGate->retrieve(jetcmx, m_JetCMXDataLocation).isFailure() ){
-    ATH_MSG_INFO( "No JetCMXData found in TES at "
-        << m_JetCMXDataLocation );
+  if( evtStore()->retrieve(jetcmx, m_JetCMXDataLocation).isFailure() ){
+    ATH_MSG_INFO ( "No JetCMXData found in TES at "
+                   << m_JetCMXDataLocation ) ;
   }
   else {
   
@@ -805,9 +781,9 @@ void LVL1::Tester::dumpEDM(){
   // CPCMXTopoData
   const DataVector<CPCMXTopoData>* cpcmxtopo;
 
-  if( m_storeGate->retrieve(cpcmxtopo, m_CPCMXTopoDataLocation).isFailure() ){
-    ATH_MSG_INFO( "No CPCMXTopoData found in TES at "
-        << m_CPCMXTopoDataLocation );
+  if( evtStore()->retrieve(cpcmxtopo, m_CPCMXTopoDataLocation).isFailure() ){
+    ATH_MSG_INFO ( "No CPCMXTopoData found in TES at "
+                   << m_CPCMXTopoDataLocation ) ;
   }
   else {
   
@@ -838,9 +814,9 @@ void LVL1::Tester::dumpEDM(){
   // JetCMXTopoData
   const DataVector<JetCMXTopoData>* jetcmxtopo;
 
-  if( m_storeGate->retrieve(jetcmxtopo, m_JetCMXTopoDataLocation).isFailure() ){
-    ATH_MSG_INFO( "No JetCMXTopoData found in TES at "
-        << m_JetCMXTopoDataLocation );
+  if( evtStore()->retrieve(jetcmxtopo, m_JetCMXTopoDataLocation).isFailure() ){
+    ATH_MSG_INFO ( "No JetCMXTopoData found in TES at "
+                   << m_JetCMXTopoDataLocation ) ;
   }
   else {
   
@@ -871,24 +847,22 @@ void LVL1::Tester::dumpEDM(){
   // EnergyTopoData
   const EnergyTopoData* energytopo;
 
-  if( m_storeGate->retrieve(energytopo, m_EnergyTopoDataLocation).isFailure() ){
-    ATH_MSG_INFO( "No EnergyTopoData found in TES at "
-        << m_EnergyTopoDataLocation );
+  if( evtStore()->retrieve(energytopo, m_EnergyTopoDataLocation).isFailure() ){
+    ATH_MSG_INFO ( "No EnergyTopoData found in TES at "
+                   << m_EnergyTopoDataLocation ) ;
   }
   else {
   
     // print values...
-    ATH_MSG_INFO( " EnergyTopoData:" << endreq
+    ATH_MSG_INFO( " EnergyTopoData:"
                      << "Word 0: " << MSG::hex << energytopo->word0() << ", Word 1:  " << energytopo->word1()
-		     << ", Word 2: " << energytopo->word2() << MSG::dec << endreq
+		     << ", Word 2: " << energytopo->word2() << MSG::dec
 		     << "Ex: Full " << energytopo->Ex(LVL1::EnergyTopoData::Normal)
 		     << ", Restricted " << energytopo->Ex(LVL1::EnergyTopoData::Restricted) 
 		     << ", Overflows " << energytopo->ExOverflow(LVL1::EnergyTopoData::Normal) << ", " << energytopo->ExOverflow(LVL1::EnergyTopoData::Restricted)
-		     << endreq
 		     << "Ey: Full " << energytopo->Ey(LVL1::EnergyTopoData::Normal)
 		     << ", Restricted " << energytopo->Ey(LVL1::EnergyTopoData::Restricted) 
 		     << ", Overflows " << energytopo->ExOverflow(LVL1::EnergyTopoData::Normal) << ", " << energytopo->ExOverflow(LVL1::EnergyTopoData::Restricted)
-		     << endreq
 		     << "ET: Full " << energytopo->Et(LVL1::EnergyTopoData::Normal)
 		     << ", Restricted " << energytopo->Et(LVL1::EnergyTopoData::Restricted) 
 		     << ", Overflows " << energytopo->ExOverflow(LVL1::EnergyTopoData::Normal) << ", " << energytopo->ExOverflow(LVL1::EnergyTopoData::Restricted)
@@ -898,22 +872,22 @@ void LVL1::Tester::dumpEDM(){
 
   
   // CTP Data
-  const EmTauCTP* emtauctp;
-  if( m_storeGate->retrieve(emtauctp, m_EmTauCTPLocation).isFailure() ){
-    ATH_MSG_INFO( "No EmTauCTP found in TES at "
-        << m_EmTauCTPLocation );
+  const EmTauCTP* emtauctp = nullptr;
+  if( evtStore()->retrieve(emtauctp, m_EmTauCTPLocation).isFailure() ){
+    ATH_MSG_INFO ( "No EmTauCTP found in TES at "
+                   << m_EmTauCTPLocation ) ;
   }
   else {
     // print values...
-    ATH_MSG_INFO( " EmTauCTP:" << MSG::hex << endreq
+    ATH_MSG_INFO( " EmTauCTP:" << MSG::hex 
                      << "Word 0: " << emtauctp->cableWord0() << ", Word 1:  " << emtauctp->cableWord1()
 		     << ", Word 2: " << emtauctp->cableWord2() << ", Word 3: " << emtauctp->cableWord3() << MSG::dec );   
   }
    
-  const JetCTP* jetctp;
-  if( m_storeGate->retrieve(jetctp, m_JetCTPLocation).isFailure() ){
-    ATH_MSG_INFO( "No JetCTP found in TES at "
-        << m_JetCTPLocation );
+  const JetCTP* jetctp  = nullptr;
+  if( evtStore()->retrieve(jetctp, m_JetCTPLocation).isFailure() ){
+    ATH_MSG_INFO ( "No JetCTP found in TES at "
+                   << m_JetCTPLocation ) ;
   }
   else {
     // print values...
@@ -921,10 +895,10 @@ void LVL1::Tester::dumpEDM(){
                      << "Word 0: " << jetctp->cableWord0() << ", Word 1:  " << jetctp->cableWord1() << MSG::dec );   
   }
  
-  const EnergyCTP* energyctp;
-  if( m_storeGate->retrieve(energyctp, m_EnergyCTPLocation).isFailure() ){
-    ATH_MSG_INFO( "No EnergyCTP found in TES at "
-        << m_EnergyCTPLocation );
+  const EnergyCTP* energyctp = nullptr;
+  if( evtStore()->retrieve(energyctp, m_EnergyCTPLocation).isFailure() ){
+    ATH_MSG_INFO ( "No EnergyCTP found in TES at "
+                   << m_EnergyCTPLocation ) ;
   }
   else {
     // print values...
@@ -934,11 +908,11 @@ void LVL1::Tester::dumpEDM(){
 
 
   // Now do the same for CMMRoI
-  const CMMRoI* cmmroi;
+  const CMMRoI* cmmroi = nullptr;
 
-  if( m_storeGate->retrieve(cmmroi, TrigT1CaloDefs::CMMRoILocation).isFailure() ){
-    ATH_MSG_INFO( "No CMMRoI found in TES at "
-        << TrigT1CaloDefs::CMMRoILocation );
+  if( evtStore()->retrieve(cmmroi, TrigT1CaloDefs::CMMRoILocation).isFailure() ){
+    ATH_MSG_INFO ( "No CMMRoI found in TES at "
+                   << TrigT1CaloDefs::CMMRoILocation ) ;
   }
   else {
   
@@ -964,7 +938,6 @@ void LVL1::Tester::dumpEDM(){
 
 /** load and lookat SlinkObject. Form lost of EmTauRoIwords from them and check coordinates. */
 void LVL1::Tester::examineSlinkObjects(){
-
   /**\todo There must be a better way of doing this, but CERN doesn't seem to have sstream.h*/
   std::string emTauSlinkLocation[4];
   emTauSlinkLocation[0]= m_EmTauSlinkLocation+"0";
@@ -974,7 +947,7 @@ void LVL1::Tester::examineSlinkObjects(){
 
   for (unsigned int i = 0; i<TrigT1CaloDefs::numOfCPRoIRODs;i++){
       // Here we tell load a CTP object from the transient store.
-    StatusCode sc1 = m_storeGate->retrieve(m_emTauSlink[i],emTauSlinkLocation[i]);
+    StatusCode sc1 = evtStore()->retrieve(m_emTauSlink[i],emTauSlinkLocation[i]);
     if ( sc1.isFailure() ) {
         ATH_MSG_ERROR( "No Slink object found in TES at "
                        << emTauSlinkLocation[i] );
@@ -998,7 +971,6 @@ void LVL1::Tester::compareRoIWordCoords(){
 /** returns a pointer to a vector of RoIwords extracted
 from the Slink fragment. Very much a cludge at the moment */
 std::vector<unsigned int>* LVL1::Tester::extractRoIWords(){
-	
   std::vector<unsigned int>* extractedWords = new std::vector<unsigned int>;
 
   const unsigned int headerLength=10;
@@ -1018,7 +990,7 @@ std::vector<unsigned int>* LVL1::Tester::extractRoIWords(){
 /** dump the cells belonging to an RoI. */
 void LVL1::Tester::dumpROICells(){
   const t_EmTauROICollection* ROIs;
-  StatusCode sc1 = m_storeGate->retrieve(ROIs,
+  StatusCode sc1 = evtStore()->retrieve(ROIs,
 					 m_EmTauROILocation);
 
   if( ! ROIs ) {
@@ -1068,7 +1040,7 @@ void LVL1::Tester::dumpJEMResults(){
   ATH_MSG_INFO( "loadJEMResults" );
 
   const JEMHitsCollection* jemHits;
-  StatusCode sc1 = m_storeGate->retrieve(jemHits, m_jemHitsLocation);
+  StatusCode sc1 = evtStore()->retrieve(jemHits, m_jemHitsLocation);
 
   if( (sc1==StatusCode::FAILURE) ) {
     ATH_MSG_INFO( "No JEMHits found in Storegate at "
@@ -1091,7 +1063,7 @@ void LVL1::Tester::dumpJEMResults(){
   }
 
   const JEMEtSumsCollection* jemEtSums;
-  sc1 = m_storeGate->retrieve(jemEtSums, m_jemEtSumsLocation);
+  sc1 = evtStore()->retrieve(jemEtSums, m_jemEtSumsLocation);
 
   if( (sc1==StatusCode::FAILURE) ) {
     ATH_MSG_INFO("No JEMEtSums found in Storegate at "
@@ -1125,14 +1097,14 @@ void LVL1::Tester::testEtTool(){
    if (sc.isFailure()) ATH_MSG_ERROR( "Problem retrieving EtTool" );
 
    const DataVector<JetElement>* storedJEs;
-   sc = m_storeGate->retrieve(storedJEs,m_JetElementLocation);
-   if (sc.isFailure()) ATH_MSG_ERROR( "Problem retrieving JetElements" );
+   sc = evtStore()->retrieve(storedJEs,m_JetElementLocation);
+   if (sc.isFailure()) ATH_MSG_ERROR ( "Problem retrieving JetElements" );
    
-   DataVector<ModuleEnergy>* modules = new DataVector<ModuleEnergy>;
-   m_EtTool->moduleSums(storedJEs, modules);
-   DataVector<CrateEnergy>*  crates  = new DataVector<CrateEnergy>;
-   m_EtTool->crateSums(modules, crates);
-   SystemEnergy result = m_EtTool->systemSums(crates);
+   DataVector<ModuleEnergy> modules;
+   m_EtTool->moduleSums(storedJEs, &modules);
+   DataVector<CrateEnergy>  crates;
+   m_EtTool->crateSums(&modules, &crates);
+   SystemEnergy result = m_EtTool->systemSums(&crates);
 
    ATH_MSG_INFO( "Final Ex, Ey, ET = " << result.ex() << ", "
        << result.ey() << ", " << result.et() );
@@ -1141,9 +1113,5 @@ void LVL1::Tester::testEtTool(){
        << "   Word 0: " << std::hex <<  result.roiWord0() << std::dec << endreq
        << "   Word 1: " << std::hex <<  result.roiWord1() << std::dec << endreq
        << "   Word 2: " << std::hex <<  result.roiWord2() << std::dec );
-
-   delete modules;
-   delete crates;
-       
 }
 

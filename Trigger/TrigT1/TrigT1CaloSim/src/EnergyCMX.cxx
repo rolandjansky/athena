@@ -40,7 +40,6 @@ namespace LVL1 {
 EnergyCMX::EnergyCMX
   ( const std::string& name, ISvcLocator* pSvcLocator )
     : AthAlgorithm( name, pSvcLocator ), 
-      m_storeGate("StoreGateSvc", name),
       m_configSvc("TrigConf::LVL1ConfigSvc/LVL1ConfigSvc", name),
       m_EtTool("LVL1::L1EtTools/L1EtTools"),
       m_resultsFull(0),
@@ -56,7 +55,6 @@ EnergyCMX::EnergyCMX
   // This is how you declare the paramembers to Gaudi so that
   // they can be over-written via the job options file
 
-  declareProperty("EventStore",m_storeGate,"StoreGate Service");
   declareProperty("EnergyRoILocation",       m_energyRoILocation );
   declareProperty("EnergyCTPLocation",       m_energyCTPLocation );
   declareProperty("EnergyCMXDataLocation",   m_energyCMXDataLocation );
@@ -75,39 +73,8 @@ EnergyCMX::~EnergyCMX() {
 
 StatusCode EnergyCMX::initialize()
 {
-
-  // We must here instantiate items which can only be made after
-  // any job options have been set
-
-  //
-  // Connect to the LVL1ConfigSvc for the trigger configuration:
-  //
-  StatusCode sc = m_configSvc.retrieve();
-  if ( sc.isFailure() ) {
-    ATH_MSG_ERROR( "Couldn't connect to " << m_configSvc.typeAndName() );
-    return sc;
-  } else {
-    ATH_MSG_DEBUG("Connected to " << m_configSvc.typeAndName() );
-  }
-
-  //
-  // Connect to StoreGate:
-  //
-  sc = m_storeGate.retrieve();
-  if ( sc.isFailure() ) {
-    ATH_MSG_ERROR( "Couldn't connect to " << m_storeGate.typeAndName() );
-    return sc;
-  } else {
-    ATH_MSG_DEBUG( "Connected to " << m_storeGate.typeAndName() );
-  }
-
-  // Retrieve L1EtTool tool
-  sc = m_EtTool.retrieve();
-  if (sc.isFailure()) {
-    ATH_MSG_ERROR( "Problem retrieving EtTool. Abort execution" );
-    return StatusCode::SUCCESS;
-  }
-
+  ATH_CHECK( m_configSvc.retrieve() );
+  ATH_CHECK( m_EtTool.retrieve() );
   return StatusCode::SUCCESS ;
 }
 
@@ -151,8 +118,7 @@ StatusCode EnergyCMX::execute( )
    
   // form module sums
   EnergyCMXDataCollection* jemContainer;
-    
-  CHECK(evtStore()->retrieve(jemContainer,m_energyCMXDataLocation));
+  ATH_CHECK(evtStore()->retrieve(jemContainer,m_energyCMXDataLocation));
       
   // form crate sums (full eta range)
   DataVector<CrateEnergy>* cratesFull  = new DataVector<CrateEnergy>;
@@ -277,9 +243,8 @@ StatusCode EnergyCMX::execute( )
   CMXSums->push_back(systemEtSumTrunc); 
   
   // save Sums in SG
-  StatusCode sc1 = m_storeGate->overwrite(CMXSums, m_cmxEtsumsLocation,true,false,false);
-  if (!sc1.isSuccess()) ATH_MSG_ERROR( "Failed to store CMXEtsums" );
-   
+  StatusCode sc1 = evtStore()->overwrite(CMXSums, m_cmxEtsumsLocation,true,false,false);
+  if (!sc1.isSuccess()) ATH_MSG_ERROR ( "Failed to store CMXEtsums" );
   
   // Topo data
   EnergyTopoData* topoData = new EnergyTopoData();
@@ -292,8 +257,8 @@ StatusCode EnergyCMX::execute( )
   topoData->addEy(m_resultsTrunc->eyTC(), m_resultsTrunc->eyOverflow(), LVL1::EnergyTopoData::Restricted);
   topoData->addEt(m_resultsTrunc->et(),   m_resultsTrunc->etOverflow(), LVL1::EnergyTopoData::Restricted);
 
-  StatusCode sc2 = m_storeGate->overwrite(topoData, m_energyTopoLocation,true,false,false);
-  if (!sc2.isSuccess()) ATH_MSG_ERROR( "Failed to store EnergyTopoData" );
+  StatusCode sc2 = evtStore()->overwrite(topoData, m_energyTopoLocation,true,false,false);
+  if (!sc2.isSuccess()) ATH_MSG_ERROR ( "Failed to store EnergyTopoData" );
 
   // tidy up at end of event
   delete cratesFull;
@@ -370,8 +335,8 @@ void LVL1::EnergyCMX::saveRoIs(){
   if (!added) ATH_MSG_WARNING( "Failed to add RoI Word 5: " << MSG::hex << roiWord5 << MSG::dec );
 
   // save RoIs in SG
-  StatusCode sc = m_storeGate->overwrite(daqRoI, m_cmxRoILocation,true,false,false);
-  if (!sc.isSuccess()) ATH_MSG_ERROR( "Failed to store CMXRoI object" );
+  StatusCode sc = evtStore()->overwrite(daqRoI, m_cmxRoILocation,true,false,false);
+  if (!sc.isSuccess()) ATH_MSG_ERROR ( "Failed to store CMXRoI object" );
   
   return;
 }
@@ -405,7 +370,7 @@ void LVL1::EnergyCMX::saveCTPObjects(){
   EnergyCTP* energyCTP = new EnergyCTP( word0, word1 );
 
   // record in SG
-  StatusCode sc = m_storeGate->overwrite(energyCTP, m_energyCTPLocation);
+  StatusCode sc = evtStore()->overwrite(energyCTP, m_energyCTPLocation);
   if (sc.isSuccess() ){
     ATH_MSG_DEBUG( "Stored energy CTP object with words "<< std::hex
        << (energyCTP->cableWord0()) << ", " <<  (energyCTP->cableWord1())<< std::dec);

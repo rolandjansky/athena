@@ -39,7 +39,6 @@ namespace LVL1 {
 JEMEnergySim::JEMEnergySim
   ( const std::string& name, ISvcLocator* pSvcLocator )
     : AthAlgorithm( name, pSvcLocator ), 
-      m_storeGate("StoreGateSvc", name),
       m_EtTool("LVL1::L1EtTools/L1EtTools"),
       m_jemContainer(0)
 {
@@ -50,7 +49,6 @@ JEMEnergySim::JEMEnergySim
   // This is how you declare the paramembers to Gaudi so that
   // they can be over-written via the job options file
 
-  declareProperty("EventStore",m_storeGate,"StoreGate Service");
   declareProperty( "JetElementLocation",    m_JetElementLocation ) ;
   declareProperty( "JEMEtSumsLocation",     m_jemEtSumsLocation );
   declareProperty( "EnergyCMXDataLocation", m_energyCMXDataLocation );
@@ -69,30 +67,7 @@ JEMEnergySim::~JEMEnergySim() {
 
 StatusCode JEMEnergySim::initialize()
 {
-
-  // We must here instantiate items which can only be made after
-  // any job options have been set
-
-  //
-  // Connect to StoreGate:
-  //
-  StatusCode sc = m_storeGate.retrieve();
-  if ( sc.isFailure() ) {
-    ATH_MSG_ERROR("Couldn't connect to " << m_storeGate.typeAndName() 
-        );
-    return sc;
-  } else {
-    ATH_MSG_DEBUG("Connected to " << m_storeGate.typeAndName() 
-        );
-  }
-
-  // Retrieve L1EtTool tool
-  sc = m_EtTool.retrieve();
-  if (sc.isFailure()) {
-    ATH_MSG_ERROR("Problem retrieving EtTool. Abort execution" );
-    return StatusCode::SUCCESS;
-  }
-
+  ATH_CHECK( m_EtTool.retrieve() );
   return StatusCode::SUCCESS ;
 }
 
@@ -126,17 +101,14 @@ StatusCode JEMEnergySim::finalize()
 
 StatusCode JEMEnergySim::execute( )
 {
-  //make a message logging stream
-
-  int outputLevel = msgSvc()->outputLevel( name() );
-  if (outputLevel <= MSG::DEBUG) ATH_MSG_DEBUG("Executing" );
+   ATH_MSG_DEBUG ( "Executing" );
 
   // form module sums
   m_jemContainer = new DataVector<ModuleEnergy>;  
-  if (m_storeGate->contains<JetElementCollection>(m_JetElementLocation)) {
+  if (evtStore()->contains<JetElementCollection>(m_JetElementLocation)) {
     const DataVector<JetElement>* jetelements;
   
-    StatusCode sc = m_storeGate->retrieve(jetelements,m_JetElementLocation);
+    StatusCode sc = evtStore()->retrieve(jetelements,m_JetElementLocation);
     if ( sc==StatusCode::SUCCESS ) {
       // Warn if we find an empty container
       if (jetelements->size() == 0)
@@ -173,8 +145,7 @@ void LVL1::JEMEnergySim::cleanup(){
 /** Form JEMEtSums and put into SG */
 void LVL1::JEMEnergySim::storeJEMEtSums() {
   
-  int outputLevel = msgSvc()->outputLevel( name() );
-  if (outputLevel <= MSG::DEBUG) ATH_MSG_DEBUG("storeJEMEtSums running");
+  ATH_MSG_DEBUG("storeJEMEtSums running");
   
   JEMEtSumsCollection* JEMRvector = new  JEMEtSumsCollection;
 
@@ -190,13 +161,13 @@ void LVL1::JEMEnergySim::storeJEMEtSums() {
     JEMRvector->push_back(jemEtSums);
   }
 
-  if (outputLevel <= MSG::DEBUG) ATH_MSG_DEBUG(JEMRvector->size()<<" JEMEtSums objects are being saved");
+  ATH_MSG_DEBUG( JEMRvector->size()<<" JEMEtSums objects are being saved");
   
-  StatusCode sc = m_storeGate->overwrite(JEMRvector, m_jemEtSumsLocation,true,false,false);
-  if (sc != StatusCode::SUCCESS) ATH_MSG_ERROR("Error registering JEMEtSums collection in TDS " );
+  StatusCode sc = evtStore()->overwrite(JEMRvector, m_jemEtSumsLocation,true,false,false);
+  if (sc != StatusCode::SUCCESS) ATH_MSG_ERROR ( "Error registering JEMEtSums collection in TDS " );
   else {
-    StatusCode sc2 = m_storeGate->setConst(JEMRvector);
-    if (sc2 != StatusCode::SUCCESS) ATH_MSG_ERROR("error setting JEMResult vector constant" );
+    StatusCode sc2 = evtStore()->setConst(JEMRvector);
+    if (sc2 != StatusCode::SUCCESS) ATH_MSG_ERROR ( "error setting JEMResult vector constant" );
   }
   
   return;
@@ -205,8 +176,7 @@ void LVL1::JEMEnergySim::storeJEMEtSums() {
 /** Form EnergyCMXData and put into SG */
 void LVL1::JEMEnergySim::storeBackplaneData() {
   
-  int outputLevel = msgSvc()->outputLevel( name() );
-  if (outputLevel <= MSG::DEBUG) ATH_MSG_DEBUG("storeBackplaneData running");
+  ATH_MSG_DEBUG("storeBackplaneData running");
   
   EnergyCMXDataCollection* bpVector = new  EnergyCMXDataCollection;
 
@@ -217,10 +187,10 @@ void LVL1::JEMEnergySim::storeBackplaneData() {
     bpVector->push_back(bpData);
   }
 
-  if (outputLevel <= MSG::DEBUG) ATH_MSG_DEBUG( bpVector->size()<<" EnergyCMXData objects are being saved");
+  ATH_MSG_DEBUG( bpVector->size()<<" EnergyCMXData objects are being saved");
   
-  StatusCode sc = m_storeGate->overwrite(bpVector, m_energyCMXDataLocation,true,false,false);
-  if (sc != StatusCode::SUCCESS) ATH_MSG_ERROR("Error registering EnergyCMXData collection in TDS " );
+  StatusCode sc = evtStore()->overwrite(bpVector, m_energyCMXDataLocation,true,false,false);
+  if (sc != StatusCode::SUCCESS) ATH_MSG_ERROR ( "Error registering EnergyCMXData collection in TDS " );
   
   return;
 }

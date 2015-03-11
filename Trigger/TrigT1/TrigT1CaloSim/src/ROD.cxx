@@ -44,7 +44,6 @@
 LVL1::ROD::ROD
   ( const std::string& name, ISvcLocator* pSvcLocator ) 
     : AthAlgorithm( name, pSvcLocator ),
-    m_storeGate("StoreGateSvc", name), 
     m_configSvc("TrigConf::LVL1ConfigSvc/LVL1ConfigSvc", name), 
     m_eventNumber(0),
     m_emTauRoILocation(TrigT1CaloDefs::EmTauROILocation), m_emTauCTPLocation(TrigT1CaloDefs::EmTauCTPLocation),
@@ -63,7 +62,6 @@ LVL1::ROD::ROD
   m_emTauOverflow = new std::vector<unsigned int>;
   m_jetOverflow = new std::vector<unsigned int>;
 
-  declareProperty("EventStore",m_storeGate,"StoreGate Service");
   declareProperty( "LVL1ConfigSvc", m_configSvc, "LVL1 Config Service");
   declareProperty(  "EmTauRoILocation",     m_emTauRoILocation );
   declareProperty(  "EmTauCTPLocation",     m_emTauCTPLocation );
@@ -115,28 +113,7 @@ StatusCode LVL1::ROD::initialize()
   //
   // Connect to the LVL1ConfigSvc for the trigger configuration:
   //
-  StatusCode sc = m_configSvc.retrieve();
-  if ( sc.isFailure() ) {
-    ATH_MSG_ERROR( "Couldn't connect to " << m_configSvc.typeAndName() 
-        );
-    return sc;
-  } else {
-    ATH_MSG_DEBUG( "Connected to " << m_configSvc.typeAndName() );
-  }
-
-  //
-  // Connect to StoreGate:
-  //
-  sc = m_storeGate.retrieve();
-  if ( sc.isFailure() ) {
-    ATH_MSG_ERROR( "Couldn't connect to " << m_storeGate.typeAndName() 
-        );
-    return sc;
-  } else {
-    ATH_MSG_DEBUG( "Connected to " << m_storeGate.typeAndName() 
-        );
-  }
-
+  ATH_CHECK(  m_configSvc.retrieve() );
   return StatusCode::SUCCESS ;
 }
 
@@ -176,7 +153,7 @@ StatusCode LVL1::ROD::execute( )
   ATH_MSG_DEBUG( "Executing" );
 
   const EventInfo* evt;
-  if (StatusCode::SUCCESS == m_storeGate->retrieve(evt)){
+  if (StatusCode::SUCCESS == evtStore()->retrieve(evt)){
     m_eventNumber = evt->event_ID()->event_number();
   }else{
     ATH_MSG_ERROR( " Unable to retrieve EventInfo from StoreGate ");
@@ -258,7 +235,7 @@ void LVL1::ROD::saveSlinkObjects(){
 
   for (unsigned int i = 0; i<TrigT1CaloDefs::numOfCPRoIRODs;++i){
 
-    StatusCode sc = m_storeGate->overwrite(m_CPRoIROD[i],emTauSlinkLocation[i],true,false,false);
+    StatusCode sc = evtStore()->overwrite(m_CPRoIROD[i],emTauSlinkLocation[i],true,false,false);
 
     if (sc.isSuccess() ){
       ATH_MSG_DEBUG( "Stored EmTau Slink object at "<< emTauSlinkLocation[i] <<" with "
@@ -272,7 +249,7 @@ void LVL1::ROD::saveSlinkObjects(){
   jepSlinkLocation[0]= m_jepSlinkLocation+"0";
   jepSlinkLocation[1]= m_jepSlinkLocation+"1";
   for (unsigned int i = 0; i<TrigT1CaloDefs::numOfJEPRoIRODs;++i){
-    StatusCode sc = m_storeGate->overwrite(m_jepRoIROD[i],jepSlinkLocation[i],true,false,false);
+    StatusCode sc = evtStore()->overwrite(m_jepRoIROD[i],jepSlinkLocation[i],true,false,false);
     if (sc.isSuccess() ){
       ATH_MSG_DEBUG( "Stored JetEnergy Slink object at "<< jepSlinkLocation[i] <<" with "
           <<(m_jepRoIROD[i]->size())<<" words");
@@ -289,7 +266,7 @@ void LVL1::ROD::saveCTPObjects(){
   
   ATH_MSG_DEBUG( "saveCTPObjects");
 
-  StatusCode sc = m_storeGate->overwrite(m_emTauCTP,m_emTauCTPLocation,true,false,false);
+  StatusCode sc = evtStore()->overwrite(m_emTauCTP,m_emTauCTPLocation,true,false,false);
 
   if (sc.isSuccess() ){
     ATH_MSG_DEBUG( "Stored EmTau CTP object at "<< m_emTauCTPLocation );
@@ -297,7 +274,7 @@ void LVL1::ROD::saveCTPObjects(){
     ATH_MSG_ERROR( "Failed to write EmTau CTP object!");
   } // endif
 
-  sc = m_storeGate->overwrite(m_JetCTP, m_JetCTPLocation,true,false,false);
+  sc = evtStore()->overwrite(m_JetCTP, m_JetCTPLocation,true,false,false);
 
   if (sc.isSuccess() ){
     ATH_MSG_DEBUG( "Stored Jet CTP object, which has cableword 0 = 0x"
@@ -314,7 +291,7 @@ void LVL1::ROD::loadRoIs(){
   
   ATH_MSG_DEBUG( "loadRoIs");
   const t_emTauRoIContainer* EMs ;
-  StatusCode sc1 = m_storeGate->retrieve(EMs, m_emTauRoILocation);
+  StatusCode sc1 = evtStore()->retrieve(EMs, m_emTauRoILocation);
 
   if( sc1==StatusCode::FAILURE ) {
     ATH_MSG_DEBUG( "No EmTauRoIs found. ");
@@ -323,7 +300,7 @@ void LVL1::ROD::loadRoIs(){
   }
 
   const t_jetRoIContainer* Jets   ;
-  sc1 = m_storeGate->retrieve(Jets, m_JetRoILocation);
+  sc1 = evtStore()->retrieve(Jets, m_JetRoILocation);
 
   if( sc1==StatusCode::FAILURE ) {
     ATH_MSG_DEBUG( "No JetRoIs found.");
@@ -332,7 +309,7 @@ void LVL1::ROD::loadRoIs(){
   }
 
   const t_EnergyRoIContainer* energy   ;
-  sc1 = m_storeGate->retrieve(energy, m_energyRoILocation);
+  sc1 = evtStore()->retrieve(energy, m_energyRoILocation);
 
   if( sc1==StatusCode::FAILURE ) {
     ATH_MSG_DEBUG( "No Energy RoI found.");
@@ -533,10 +510,8 @@ unsigned int LVL1::ROD::jetCTPWord1(){
       if (mult>maxMult) {m_jetOverflow->push_back(count);mult=maxMult;}
       multMask=(mult<<(m_bitsPerFwdThresh*(count-first+1)));
       temp=(temp|multMask);
-      ATH_MSG_DEBUG( "Fwd Threshold "<<(count+1)<<" has multiplicity of "<<mult<<" for L and ");
-
       mult=m_rightFwdJetMult[count];
-      ATH_MSG_DEBUG( "Right threshold " << count << " has mult = " << mult );
+      ATH_MSG_DEBUG( "Fwd Threshold "<<(count+1)<<" has multiplicity of "<<mult<<" for L and " << "Right threshold " << count << " has mult = " << mult );
       if (mult>maxMult) {m_jetOverflow->push_back(count);mult=maxMult;}
       multMask=(mult<<(m_bitsPerFwdThresh*(count-first+1)+8));
       //shifted left by 8 to leave space for L thr.
@@ -604,8 +579,6 @@ void LVL1::ROD::formJetCTPObjects(){
 }
 /** dump details of any threshold overflows (i.e. more RoIs pass threshold(s) than can be indicated to CTP) */
 void LVL1::ROD::printOverflows() const{
-  
-
   for (std::vector<unsigned int>::iterator it=m_emTauOverflow->begin();
                                  it!=m_emTauOverflow->end(); it++){
     ATH_MSG_DEBUG( "EM/TAU: Overflow with threshold : "<<*it);
@@ -636,7 +609,6 @@ void LVL1::ROD::finaliseSlinkObjects(){
 
 /** prints out the Slink info. */
 void LVL1::ROD::dumpSlinks() const{
-  
   for (unsigned int slink=0; slink<(TrigT1CaloDefs::numOfCPRoIRODs);slink++){
     ATH_MSG_INFO( "Slink cable  "<<slink
         <<" has "<<(m_CPRoIROD[slink]->size())<<" words");
@@ -651,7 +623,6 @@ void LVL1::ROD::dumpSlinks() const{
     Calculation is simple: JetET = sum(multiplicity*factor).
     You just have to calculate appropriate factors first */
 unsigned int LVL1::ROD::getJetEt() const{
-  
 
   unsigned int jetEt = 0;
   
@@ -707,7 +678,6 @@ void::LVL1::ROD::jetEtFactors() {
 /** estimates Jet ET and does trigger. */
 void LVL1::ROD::jetEtTrigger(){
   
-  
   L1DataDef def;
   
   // Get JetET value and initialise hit vector
@@ -743,8 +713,8 @@ void LVL1::ROD::jetEtTrigger(){
   if (m_jetEtThreshMap > 0) m_jepRoIROD[1]->push_back(getWord( m_jetEtRoI->roiWord() ));
   
   // and add to StoreGate (for later persistency)
-  StatusCode sc = m_storeGate->overwrite(m_jetEtRoI, m_JetEtRoILocation,true,false,false);
+  StatusCode sc = evtStore()->overwrite(m_jetEtRoI, m_JetEtRoILocation,true,false,false);
   if (sc != StatusCode::SUCCESS) ATH_MSG_ERROR( "Failed to record jetEtRoI" ); 
  
-  return;  
+  return;
 }

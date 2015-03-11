@@ -76,8 +76,6 @@ class JEPCMMMaker : public AthAlgorithm {
    /// Make JEP RoI bytestream container
    StatusCode makeJepRoiBsCollection();
 
-   /// StoreGate service
-   ServiceHandle<StoreGateSvc> m_storeGate;
    /// Tool for EtSums
    ToolHandle<LVL1::IL1JEPEtSumsTools> m_jepEtSumsTool;
    /// Tool for Hits

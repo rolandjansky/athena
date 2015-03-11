@@ -50,7 +50,6 @@ CPMSim::CPMSim
     : AthAlgorithm( name, pSvcLocator ), 
       m_allTOBs(0),
       m_CMXData(0),
-      m_storeGate("StoreGateSvc", name), 
       m_configSvc("TrigConf::LVL1ConfigSvc/LVL1ConfigSvc", name),
       m_CPMTool("LVL1::L1CPMTools/L1CPMTools"),
       m_eventNumber(0)
@@ -63,7 +62,6 @@ CPMSim::CPMSim
     // This is how you declare the paramembers to Gaudi so that
     // they can be over-written via the job options file
     
-    declareProperty( "EventStore",m_storeGate,"StoreGate Service");
     declareProperty( "CPMTOBRoILocation",       m_CPMTobRoILocation );
     declareProperty( "CPMCMXDataLocation",      m_CPMCMXDataLocation );
     declareProperty( "LVL1ConfigSvc", m_configSvc, "LVL1 Config Service");
@@ -90,43 +88,8 @@ CPMSim::~CPMSim() {
 
 StatusCode CPMSim::initialize()
 {
-
-  // We must here instantiate items which can only be made after
-  // any job options have been set
-  int outputLevel = msgSvc()->outputLevel( name() );
-
-     //
-    // Connect to the LVL1ConfigSvc for the trigger configuration:
-    //
-  StatusCode sc = m_configSvc.retrieve();
-  if ( sc.isFailure() ) {
-    ATH_MSG_ERROR("Couldn't connect to " << m_configSvc.typeAndName() 
-        );
-    return sc;
-  } else if (outputLevel <= MSG::DEBUG) {
-    ATH_MSG_DEBUG("Connected to " << m_configSvc.typeAndName() 
-        );
-  }
-
-  // Now connect to the StoreGateSvc
-
-  sc = m_storeGate.retrieve();
-  if ( sc.isFailure() ) {
-    ATH_MSG_ERROR("Couldn't connect to " << m_storeGate.typeAndName() 
-        );
-    return sc;
-  } else if (outputLevel <= MSG::DEBUG) {
-    ATH_MSG_DEBUG("Connected to " << m_storeGate.typeAndName() 
-        );
-  }
-
-  // Retrieve L1CPMTool
-  sc = m_CPMTool.retrieve();
-  if (sc.isFailure()) {
-    ATH_MSG_ERROR("Problem retrieving CPMTool. Abort execution" );
-    return StatusCode::SUCCESS;
-  }
-    
+  ATH_CHECK( m_configSvc.retrieve() );
+  ATH_CHECK( m_CPMTool.retrieve() );
   return StatusCode::SUCCESS ;
 }
 
@@ -137,10 +100,7 @@ StatusCode CPMSim::initialize()
 
 StatusCode CPMSim::beginRun()
 {
-
-  int outputLevel = msgSvc()->outputLevel( name() );
-  if (outputLevel <= MSG::DEBUG) printTriggerMenu();
-
+  if (msgLvl (MSG::DEBUG)) printTriggerMenu();
   return StatusCode::SUCCESS ;
 }
 
@@ -175,12 +135,11 @@ StatusCode CPMSim::execute( )
 
   //make a message logging stream
 
-  int outputLevel = msgSvc()->outputLevel( name() );
-  if (outputLevel <= MSG::DEBUG) ATH_MSG_DEBUG("starting CPMSim" ); 
+  ATH_MSG_DEBUG ( "starting CPMSim" ); 
 
   // For RoI output SLink record
   const EventInfo* evt;
-  if (StatusCode::SUCCESS == m_storeGate->retrieve(evt)){
+  if (StatusCode::SUCCESS == evtStore()->retrieve(evt)){
     m_eventNumber = evt->event_ID()->event_number();
   }else{
     ATH_MSG_ERROR(" Unable to retrieve EventInfo from StoreGate ");
@@ -191,9 +150,9 @@ StatusCode CPMSim::execute( )
   m_allTOBs    = new DataVector<CPMTobRoI>;  // Container to hold all TOB RoIs in event
 
   // Retrieve the CPMTowerContainer
-  if (m_storeGate->contains<CPMTowerCollection>(m_CPMTowerLocation)) {
+  if (evtStore()->contains<CPMTowerCollection>(m_CPMTowerLocation)) {
     const DataVector<CPMTower>* storedCPMTs;
-    StatusCode sc = m_storeGate->retrieve(storedCPMTs, m_CPMTowerLocation);  
+    StatusCode sc = evtStore()->retrieve(storedCPMTs, m_CPMTowerLocation);  
     if ( sc==StatusCode::SUCCESS ) {
        // Check size of TriggerTowerCollection - zero would indicate a problem
       if (storedCPMTs->size() == 0)
@@ -245,15 +204,12 @@ StatusCode CPMSim::execute( )
 /** place backplane data objects (CPM -> CMX) in StoreGate */
 void CPMSim::storeBackplaneTOBs() {
 
-  int outputLevel = msgSvc()->outputLevel( name() );
-    
   // Store backplane data objects
-  StatusCode sc = m_storeGate->overwrite(m_CMXData, m_CPMCMXDataLocation,true,false,false);
+  StatusCode sc = evtStore()->overwrite(m_CMXData, m_CPMCMXDataLocation,true,false,false);
 
   if (sc.isSuccess()) {
-     if (outputLevel <= MSG::VERBOSE)
-         ATH_MSG_VERBOSE("Stored " << m_CMXData->size()
-             << " CPMCMXData at " << m_CPMCMXDataLocation );
+    ATH_MSG_VERBOSE ( "Stored " << m_CMXData->size()
+                      << " CPMCMXData at " << m_CPMCMXDataLocation );
   }
   else {
      ATH_MSG_ERROR("failed to write CPMCMXData to  "
@@ -268,14 +224,11 @@ void CPMSim::storeBackplaneTOBs() {
 /** place final ROI objects in the TES. */
 void CPMSim::storeModuleRoIs() {
 
-  int outputLevel = msgSvc()->outputLevel( name() );
-    
-  StatusCode sc = m_storeGate->overwrite(m_allTOBs, m_CPMTobRoILocation,true,false,false);
+  StatusCode sc = evtStore()->overwrite(m_allTOBs, m_CPMTobRoILocation,true,false,false);
 
   if (sc.isSuccess()) {
-     if (outputLevel <= MSG::VERBOSE)
-         ATH_MSG_VERBOSE("Stored " << m_allTOBs->size()
-             << " EM & Tau TOBs at " << m_CPMTobRoILocation );
+    ATH_MSG_VERBOSE ( "Stored " << m_allTOBs->size()
+                      << " EM & Tau TOBs at " << m_CPMTobRoILocation );
   }
   else {
      ATH_MSG_ERROR("failed to write CPMTobRoIs to  "
@@ -332,7 +285,7 @@ void CPMSim::storeSlinkObjects(){
   */
 
   for (unsigned int i = 0; i<TrigT1CaloDefs::numOfCPRoIRODs;++i){
-    StatusCode sc = m_storeGate->overwrite(m_CPRoIROD[i],emTauSlinkLocation[i],true,false,false);
+    StatusCode sc = evtStore()->overwrite(m_CPRoIROD[i],emTauSlinkLocation[i],true,false,false);
     if (sc.isSuccess() ){
       ATH_MSG_DEBUG("Stored EM/Tau Slink object at "<< emTauSlinkLocation[i] <<" with "
           <<(m_CPRoIROD[i]->size())<<" words");

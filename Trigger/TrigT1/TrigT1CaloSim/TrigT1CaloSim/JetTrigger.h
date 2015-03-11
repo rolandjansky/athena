@@ -103,7 +103,6 @@ using namespace TrigConf;
   
   typedef DataVector<JEMHits> JEMHitsCollection;
 
-  ServiceHandle<StoreGateSvc> m_storeGate;
   ServiceHandle<TrigConf::ILVL1ConfigSvc> m_configSvc;
   ToolHandle<LVL1::IL1JetTools> m_JetTool;
 

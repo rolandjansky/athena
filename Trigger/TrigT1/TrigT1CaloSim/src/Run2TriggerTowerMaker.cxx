@@ -209,7 +209,7 @@ Run2TriggerTowerMaker::Run2TriggerTowerMaker(const std::string& name, ISvcLocato
   // BCID thresholds, ranges, decision criteria
   declareProperty("EnergyLow", m_EnergyLow=0);
   declareProperty("EnergyHigh", m_EnergyHigh=255);
-  declareProperty("DecisionSource", m_DecisionSource=1);    // Use FIR for range decision
+  declareProperty("DecisionSource", m_DecisionSource=0);    // Use ADC for range decision
   declareProperty("BcidDecision1", m_BcidDecision[0]=0xF0); // FIR+peakfinder
   declareProperty("BcidDecision2", m_BcidDecision[1]=0xF0); // FIR+peakfinder
   declareProperty("BcidDecision3", m_BcidDecision[2]=0xCC); // Saturated pulse BCID
@@ -738,7 +738,7 @@ void Run2TriggerTowerMaker::initSatBCID(TowerTypes cal, const std::vector<double
                     << "; " << ei.EnergyHigh);
     } else { // Use ADC for decision
       ei.EnergyLow = int(m_EnergyLow*m_digitScale/m_adcStep + m_pedVal);
-      ei.EnergyHigh = int(m_EnergyHigh*m_digitScale/m_adcStep + m_pedVal);
+      ei.EnergyHigh = m_SatLevel;
       ATH_MSG_DEBUG("Decision ranges (ADC counts) = " << ei.EnergyLow
                     << "; " << ei.EnergyHigh);
     }
@@ -1135,6 +1135,11 @@ void LVL1::Run2TriggerTowerMaker::preProcessTower(xAOD::TriggerTower *tower, int
     m_TTtool->lut(lutIn, m_jepLutScale*slope, pedsub, thresh_jep, int(m_pedVal), m_LUTStrategy, false, lutOut_jep);
   }
   m_TTtool->bcid(fir, digits, m_PeakFinderCond, element.SatLow, element.SatHigh, m_SatLevel, BCIDOut);
+
+  //ATH_MSG_VERBOSE("Tower BCID results for (" << tower->eta() << ", " << tower->phi() << "):");
+  //for (unsigned int i = 0; i < digits.size(); ++i) {
+  //  ATH_MSG_VERBOSE("   digit: " << digits[i] << ", BCID " << BCIDOut[i]);
+  //}
 
   unsigned peak = lutOut_jep.size()/2; // both cp & jep have the same length
   std::vector<uint_least8_t> etResultVectorJep { uint_least8_t(lutOut_jep[peak]) };
