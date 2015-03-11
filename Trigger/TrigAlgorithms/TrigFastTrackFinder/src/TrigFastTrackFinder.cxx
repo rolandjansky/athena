@@ -162,6 +162,7 @@ TrigFastTrackFinder::TrigFastTrackFinder(const std::string& name, ISvcLocator* p
   declareMonitoredStdContainer("trk_dPhi0",      m_trk_dPhi0);
   declareMonitoredStdContainer("trk_dEta" ,      m_trk_dEta);
 
+  declareMonitoredVariable("roi_nSeeds",m_nSeeds);
   declareMonitoredVariable("roi_nTracks",m_nTracks);
   declareMonitoredVariable("roi_nSPsPIX",m_nPixSPsInRoI);
   declareMonitoredVariable("roi_nSPsSCT",m_nSCTSPsInRoI);
@@ -170,6 +171,8 @@ TrigFastTrackFinder::TrigFastTrackFinder(const std::string& name, ISvcLocator* p
   declareMonitoredVariable("roi_etaWidth", m_roiEtaWidth);
   declareMonitoredVariable("roi_phi", m_roiPhi);
   declareMonitoredVariable("roi_phiWidth", m_roiPhiWidth);
+  declareMonitoredVariable("roi_z", m_roiZ);
+  declareMonitoredVariable("roi_zWidth", m_roiZ_Width);
   declareMonitoredVariable("roi_nSPs", m_roi_nSPs);
   declareMonitoredVariable("time_PattRecoOnly",m_timePattReco);
 
@@ -885,6 +888,8 @@ HLT::ErrorCode TrigFastTrackFinder::getRoI(const HLT::TriggerElement* outputTE, 
   m_roiEtaWidth = roi->etaPlus() - roi->etaMinus();
   m_roiPhi = roi->phi();
   m_roiPhiWidth = HLT::wrapPhi(roi->phiPlus() - roi->phiMinus());
+  m_roiZ = roi->zed();
+  m_roiZ_Width = roi->zedPlus() - roi->zedMinus();
   ATH_MSG_DEBUG("REGTEST / RoI" << *roi);
 
   return HLT::OK;
@@ -982,6 +987,10 @@ void TrigFastTrackFinder::fillMon(const TrackCollection& tracks) {
     m_trk_dEta.push_back(eta - m_roiEta);
 
     float qOverP = trackPars->parameters()[Trk::qOverP]; 
+    if (qOverP==0) {
+      ATH_MSG_DEBUG("REGTEST / q/p == 0, adjusting to 1e-12");
+      qOverP = 1e-12;
+    }
     float pT=sin(theta)/qOverP;
     m_trk_pt.push_back(pT);
 
@@ -1040,16 +1049,24 @@ void TrigFastTrackFinder::convertToTrigInDetTrack(const TrackCollection& offline
     float z0 = trackPars->parameters()[Trk::z0]; 
     float phi0 = trackPars->parameters()[Trk::phi0]; 
     float theta = trackPars->parameters()[Trk::theta]; 
-    float eta = -log(tan(0.5*theta)); 
+    float tan_05_theta = tan(0.5*theta);
+    float eta = -log(tan_05_theta); 
     
     float qOverP = trackPars->parameters()[Trk::qOverP]; 
+    if (qOverP==0) {
+      ATH_MSG_DEBUG("REGTEST / q/p == 0, adjusting to 1e-12");
+      qOverP = 1e-12;
+    }
     float pT=sin(theta)/qOverP;
 
     //Calculate	covariance matrix in TID track parameter convention
     const AmgSymMatrix(5) cov_off = *(trackPars->covariance());
-    float A = -0.5*((1.0+tan(0.5*theta)*tan(0.5*theta))/(tan(0.5*theta))); //deta_by_dtheta
+    float A = -0.5*(1.0+tan_05_theta*tan_05_theta)/(tan_05_theta); //deta_by_dtheta
     float B = cos(theta)/qOverP; //dpT_by_dtheta
     float C = -sin(theta)/(qOverP*qOverP); //dpT_by_dqOverP
+    ATH_MSG_VERBOSE("A: " << A);
+    ATH_MSG_VERBOSE("B: " << B);
+    ATH_MSG_VERBOSE("C: " << C);
 
     //std::vector<double>* cov = new std::vector<double>(15, 0);
     std::vector<double>* cov = new std::vector<double>
@@ -1057,7 +1074,7 @@ void TrigFastTrackFinder::convertToTrigInDetTrack(const TrackCollection& offline
        cov_off(2,2), cov_off(2,1), A*cov_off(3,2), B*cov_off(3,2) + C*cov_off(4,2),
        cov_off(1,1), A*cov_off(3,1), B*cov_off(3,1) + C*cov_off(4,1),
        A*A*cov_off(3,3), A*(B*cov_off(3,3) + C*cov_off(4,3)),
-       B*(B*cov_off(3,3) + 2*C*cov_off(4,3)) + C*C*cov_off(4,4)};
+       B*(B*cov_off(3,3) + 2*C*cov_off(4,3)) + C*(C*cov_off(4,4))};
 
     if(msgLvl() <= MSG::VERBOSE) {
       ATH_MSG_DEBUG(cov_off);
