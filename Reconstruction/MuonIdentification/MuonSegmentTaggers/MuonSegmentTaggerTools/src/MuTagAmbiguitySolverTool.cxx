@@ -272,7 +272,13 @@ StatusCode MuTagAmbiguitySolverTool::finalize(){
    for( unsigned int ns1 = 0;  ns1 < mtos.size(); ns1++){
      const Trk::Perigee* perigee =  (mtos[ns1].track)->perigeeParameters();
      double sintheta = sin( perigee->parameters()[Trk::theta] );
-     double pT = sintheta/fabs(perigee->parameters()[Trk::qOverP]);
+     double OneOverP = fabs(perigee->parameters()[Trk::qOverP]);
+     double pT = 0.0;
+     if(OneOverP>0.0)
+       pT = sintheta/OneOverP;
+     else
+       pT = sqrt(perigee->momentum()[Amg::px]*perigee->momentum()[Amg::px] +
+		 perigee->momentum()[Amg::py]*perigee->momentum()[Amg::py]);
      if(pT<pTcut) {
        if(mtos[ns1].nsegments==1 && mtos[ns1].singleML==1){
 	 mtos[ns1].selected=0; 

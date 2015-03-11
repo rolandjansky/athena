@@ -54,6 +54,7 @@
 
 namespace {
   // local helper functions
+#if 0
   /** Limit deltaPhi between -pi < dPhi <= +pi */
   inline double limit_deltaPhi(double deltaPhi) {
     while (deltaPhi >  +M_PI) deltaPhi -= 2.*M_PI;
@@ -67,6 +68,7 @@ namespace {
     while (deltaTheta <= -M_PI/2.) deltaTheta += M_PI;
     return deltaTheta;
   }
+#endif
 
   
 }
