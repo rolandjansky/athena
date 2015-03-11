@@ -8,6 +8,7 @@
 #include "TrigHLTJetRec/IParticleSelectorAll.h"
 #include "TrigHLTJetRec/IParticleSelectorEtaPt.h"
 #include "TrigHLTJetRec/TrigHLTJetDiagnostics.h"
+#include "TrigHLTJetRec/TrigHLTJetDebug.h"
 #include "TrigHLTJetRec/TrigHLTClusterDiagnostics.h"
 #include "TrigHLTJetRec/TrigHLTCellDiagnostics.h"
 #include "TrigHLTJetRec/TrigHLTRoIDiagnostics.h"
@@ -22,6 +23,7 @@ DECLARE_ALGORITHM_FACTORY( TrigHLTJetRecFromCluster)
 DECLARE_ALGORITHM_FACTORY( TrigHLTJetRecFromJet)
 DECLARE_ALGORITHM_FACTORY( TrigHLTJetRecFromTriggerTower)
 DECLARE_ALGORITHM_FACTORY( TrigHLTJetDiagnostics)
+DECLARE_ALGORITHM_FACTORY( TrigHLTJetDebug)
 DECLARE_ALGORITHM_FACTORY( TrigHLTClusterDiagnostics)
 DECLARE_ALGORITHM_FACTORY( TrigHLTCellDiagnostics)
 DECLARE_ALGORITHM_FACTORY( TrigHLTRoIDiagnostics)
@@ -42,6 +44,7 @@ DECLARE_FACTORY_ENTRIES(TrigHLTJetRec) {
     DECLARE_ALGORITHM( TrigHLTJetRecFromJet);
     DECLARE_ALGORITHM( TrigHLTJetRecFromTriggerTower);
     DECLARE_ALGORITHM( TrigHLTJetDiagnostics);
+    DECLARE_ALGORITHM( TrigHLTJetDebug);
     DECLARE_ALGORITHM( TrigHLTClusterDiagnostics);
     DECLARE_ALGORITHM( TrigHLTCellDiagnostics);
     DECLARE_ALGORITHM( TrigHLTRoIDiagnostics);

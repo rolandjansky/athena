@@ -1,17 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.SystemOfUnits import GeV
-# from TrigHLTJetRec.TrigHLTJetRecConf import (TrigHLTJetRec,
-#                                             TriggerPseudoJetGetter,
-#                                             TrigHLTCellDiagnostics,
-#                                             TrigHLTClusterDiagnostics,
-#                                             TrigHLTJetDiagnostics,
-#                                             TrigHLTHypoDiagnostics,
-#                                             TrigHLTPSvsFSDiagnostics,
-#                                             TrigHLTEnergyDensity,
-#                                             TrigHLTJetRec_Cluster,
-#                                             TrigHLTJetRec_Jet,
-#                                         )
 
 import TrigHLTJetRecConf
 from JetRec.JetRecConf import JetRecTool
@@ -44,8 +33,12 @@ from JetRec.JetRecCalibrationFinder import jrcf
 
 from EventShapeTools.EventShapeToolsConf import EventDensityTool
 
-# quasi cut and past of configEventDensityTool in EventDensityConfig.py
+# quasi cut and paste of configEventDensityTool in EventDensityConfig.py
 # that creates the name in the format expected by the pileup calibration tool.
+
+def _getEventShapeSGKey(radius, pseudoJetGetterLabel):
+    return  "HLTKt"+str(int(10*radius))+pseudoJetGetterLabel + "EventShape"
+
 def configHLTEventDensityTool( name, pjGetter, radius, **options ):
     """ options can be used to pass any EventDensityTool properties 
     """
@@ -58,7 +51,8 @@ def configHLTEventDensityTool( name, pjGetter, radius, **options ):
         AbsRapidityMax      = 2.0,
         AreaDefinition      = "Voronoi",
         VoronoiRfact        = 0.9,
-        OutputContainer     = "HLTKt"+str(int(10*radius))+pjGetter.Label + "EventShape",
+        # OutputContainer     = "HLTKt"+str(int(10*radius))+pjGetter.Label + "EventShape",
+        OutputContainer     = _getEventShapeSGKey(radius,pjGetter.Label)
     )
     # Override properties with user-supplied options.
     toolProperties.update( options)
@@ -151,7 +145,7 @@ def _getJetBuildTool(merge_param,
                                             # non-zero ghostArea: calcjet area
                                             # for pileup subtraction.
                                             ghostArea=0.01,
-                                            rndseed=0,
+                                            rndseed=1,
                                             isTrigger=True,
                                             ptmin=ptmin,
                                             ptminFilter=ptminFilter
@@ -360,6 +354,8 @@ def _getIParticleSelectorEtaPt(name, **kwds):
 
 class TrigHLTJetRec_param(TrigHLTJetRecConf.TrigHLTJetRec):
     """ DEPRECATED ALGORITHM
+    remove from TriggerMEnu.python.jetDefInstantiator
+    before removing from TrigHLTJetRecConfig.py
     Supply a specific merge parameter for the anti-kt algorithm"""
 
     def __init__(self,
@@ -475,62 +471,102 @@ class TrigHLTJetRecFromJet(TrigHLTJetRecConf.TrigHLTJetRecFromJet):
         self.pseudojet_labelindex_arg = pseudojet_labelindex_arg
 
 
-#  class TrigHLTJetRec_AntiKt04 is maintained only for the HT configuration
-class TrigHLTJetRec_AntiKt04(TrigHLTJetRecConf.TrigHLTJetRec):
-    """Supply a specific merge parameter for the anti-kt algorithm"""
+class TrigHLTJetRecFromTriggerTower(TrigHLTJetRecConf.TrigHLTJetRecFromJet):
+    """Jets from trigger towers"""
     def __init__(self,
-                 name="TrigHLTJetRec_DEPRECATED_AntiKt04",
+                 name,
+                 alg='AntiKt',
+                 merge_param='10',
                  ptmin=7.0 * GeV,
                  ptminFilter=7.0 * GeV,
-                 do_jes=False,
+                 jet_calib='nojcalib',  # no calibration to be done
                  cluster_calib='EM',
-                 do_minimalist_setup=True):
-        TrigHLTJetRecConf.TrigHLTJetRec.__init__(self, name)
+                 do_minimalist_setup=True,
+                 output_collection_label='triggerTowerjets',  # do not use this
+                 pseudojet_labelindex_arg='PseudoJetLabelMapTriggerFromTriggerTower',
+                 ptMinCut=15000.,
+                 etaMaxCut=3.2,
+                 ):
+        TrigHLTJetRecConf.TrigHLTJetRecFromJet.__init__(self, name=name)
 
+        self.cluster_calib = cluster_calib
         self.pseudoJetGetter = _getTriggerPseudoJetGetter(cluster_calib)
 
+        self.iParticleSelector = _getIParticleSelectorEtaPt(
+            'iParticleSelectorEtaPt_%d_%d' % (int(10 * etaMaxCut),
+                                              int(ptMinCut)),
+            **{'etaMax': etaMaxCut, 'ptMin': ptMinCut})
+
+
         self.jetBuildTool = _getJetBuildTool(
-            0.4,
-            ptmin=ptmin,
+            float(int(merge_param))/10.,
+            ptmin=ptMinCut,
             ptminFilter=ptminFilter,
-            do_jes=do_jes,
+            jet_calib=jet_calib,
             cluster_calib=cluster_calib,
             do_minimalist_setup=do_minimalist_setup,
             )
 
-        # if jetFlags.debug > 0:
-        #    self.OutputLevel = DEBUG
-        # else:
-        # self.OutputLevel = INFO
+        self.output_collection_label = output_collection_label
+        self.pseudojet_labelindex_arg = pseudojet_labelindex_arg
 
-        
 
-#  class TrigHLTJetRec_AntiKt10 is maintained only for the HT configuration
-class TrigHLTJetRec_AntiKt10(TrigHLTJetRecConf.TrigHLTJetRec):
-    """Supply a specific merge parameter for the anti-kt algorithm"""
-    def __init__(self,  name="TrigHLTJetRec_DEPRECATED_AntiKt10",
-                 ptmin=7.0 * GeV,
-                 ptminFilter=7.0 * GeV,
-                 do_jes=False,
-                 cluster_calib='EM',
-                 do_minimalist_setup=True):
-        
-        TrigHLTJetRecConf.TrigHLTJetRec.__init__(self, name)
-
-        self.pseudoJetGetter = _getTriggerPseudoJetGetter(cluster_calib)
-
-        self.jetBuildTool  = _getJetBuildTool(
-            1.0,
-            ptmin=ptmin,
-            ptminFilter=ptminFilter,
-            do_jes=do_jes,
-            cluster_calib=cluster_calib,
-            do_minimalist_setup=True)
-        
-        # if jetFlags.debug > 0:
-        #    self.OutputLevel = DEBUG
-        # else:
-        # self.OutputLevel = INFO
+#  class TrigHLTJetRec_AntiKt04 is maintained only for the HT configuration
+# class TrigHLTJetRec_AntiKt04(TrigHLTJetRecConf.TrigHLTJetRec):
+#     """Supply a specific merge parameter for the anti-kt algorithm"""
+#     def __init__(self,
+#                  name="TrigHLTJetRec_DEPRECATED_AntiKt04",
+#                  ptmin=7.0 * GeV,
+#                  ptminFilter=7.0 * GeV,
+#                  do_jes=False,
+#                  cluster_calib='EM',
+#                  do_minimalist_setup=True):
+#         TrigHLTJetRecConf.TrigHLTJetRec.__init__(self, name)
+# 
+#         self.pseudoJetGetter = _getTriggerPseudoJetGetter(cluster_calib)
+# 
+#         self.jetBuildTool = _getJetBuildTool(
+#             0.4,
+#             ptmin=ptmin,
+#             ptminFilter=ptminFilter,
+#             do_jes=do_jes,
+#             cluster_calib=cluster_calib,
+#             do_minimalist_setup=do_minimalist_setup,
+#             )
+# 
+#         # if jetFlags.debug > 0:
+#         #    self.OutputLevel = DEBUG
+#         # else:
+#         # self.OutputLevel = INFO
+# 
+#         
+# 
+# #  class TrigHLTJetRec_AntiKt10 is maintained only for the HT configuration
+# class TrigHLTJetRec_AntiKt10(TrigHLTJetRecConf.TrigHLTJetRec):
+#     """Supply a specific merge parameter for the anti-kt algorithm"""
+#     def __init__(self,  name="TrigHLTJetRec_DEPRECATED_AntiKt10",
+#                  ptmin=7.0 * GeV,
+#                  ptminFilter=7.0 * GeV,
+#                  do_jes=False,
+#                  cluster_calib='EM',
+#                  do_minimalist_setup=True):
+#         
+#         TrigHLTJetRecConf.TrigHLTJetRec.__init__(self, name)
+# 
+#         self.pseudoJetGetter = _getTriggerPseudoJetGetter(cluster_calib)
+# 
+#         self.jetBuildTool  = _getJetBuildTool(
+#             1.0,
+#             ptmin=ptmin,
+#             ptminFilter=ptminFilter,
+#             do_jes=do_jes,
+#             cluster_calib=cluster_calib,
+#             do_minimalist_setup=True)
+#         
+#         # if jetFlags.debug > 0:
+#         #    self.OutputLevel = DEBUG
+#         # else:
+#         # self.OutputLevel = INFO
 
 
 class TrigHLTCellDiagnostics_named(TrigHLTJetRecConf.TrigHLTCellDiagnostics):
@@ -566,6 +602,25 @@ class TrigHLTPSvsFSDiagnostics_named(TrigHLTJetRecConf.TrigHLTPSvsFSDiagnostics)
     def __init__(self,  chain_name, name="TrigHLTPSvsFSDiagnostics_named"):
         TrigHLTJetRecConf.TrigHLTPSvsFSDiagnostics.__init__(self, name)
         self.chainName = chain_name
+
+
+class TrigHLTJetDebug(TrigHLTJetRecConf.TrigHLTJetDebug):
+    """Dump various values for debugging purposes"""
+    def __init__(self,
+                 chain_name,
+                 cluster_calib,
+                 ed_merge_param,
+                 name="TrigHLTJetDebug"):
+
+        TrigHLTJetRecConf.TrigHLTJetDebug.__init__(self, name)
+        self.chainName = chain_name
+        pseudoJetGetter = _getTriggerPseudoJetGetter(cluster_calib)
+
+        # allow the debug Alg to access the EventShape object
+        # by a direct StoreGate retireve. TtigHLTEnergyDensity writes
+        # this object directly to SG without passing via navigation.
+        self.eventshape_key = _getEventShapeSGKey(ed_merge_param,
+                                                  pseudoJetGetter.Label) 
 
 
 class TrigHLTEnergyDensity(TrigHLTJetRecConf.TrigHLTEnergyDensity):

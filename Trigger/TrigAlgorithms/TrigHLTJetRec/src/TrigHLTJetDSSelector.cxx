@@ -59,12 +59,9 @@ HLT::ErrorCode TrigHLTJetDSSelector::hltInitialize() {
 
   ATH_MSG_INFO("Initializing " << name() << "...");
 
-  /*ATH_MSG_DEBUG("Name of output jet collection: " << m_jetCollectionName );
+  ATH_MSG_DEBUG("Name of output jet collection: " << m_jetCollectionName );
   ATH_MSG_DEBUG("pT threshold for output jet collection: " << m_jetCollectionName );
-  ATH_MSG_DEBUG("Maximum number of jets kept " << m_maxNJets );*/
-  ATH_MSG_INFO("Name of output jet collection: " << m_jetCollectionName );
-  ATH_MSG_INFO("pT threshold for output jet collection: " << m_jetCollectionName );
-  ATH_MSG_INFO("Maximum number of jets kept " << m_maxNJets );
+  ATH_MSG_DEBUG("Maximum number of jets kept " << m_maxNJets );
 
 
   return HLT::OK;
@@ -80,10 +77,8 @@ HLT::ErrorCode TrigHLTJetDSSelector::hltExecute(const HLT::TriggerElement* input
     HLT::TriggerElement* outputTE) {  
 
   ATH_MSG_VERBOSE("Executing " << name() << "...");
-  /*ATH_MSG_DEBUG("inputTE->getId(): " << inputTE->getId());
-  ATH_MSG_DEBUG("outputTE->getId(): " << outputTE->getId());*/
-  ATH_MSG_INFO("inputTE->getId(): " << inputTE->getId());
-  ATH_MSG_INFO("outputTE->getId(): " << outputTE->getId());
+  ATH_MSG_DEBUG("inputTE->getId(): " << inputTE->getId());
+  ATH_MSG_DEBUG("outputTE->getId(): " << outputTE->getId());
 
 
   // get JetCollections from the trigger element:
@@ -97,8 +92,7 @@ HLT::ErrorCode TrigHLTJetDSSelector::hltExecute(const HLT::TriggerElement* input
     ATH_MSG_WARNING("Failed to get JetCollection");
     return ec;
   } else {
-    //ATH_MSG_DEBUG("Obtained JetContainer");
-    ATH_MSG_INFO("Obtained JetContainer");
+    ATH_MSG_DEBUG("Obtained JetContainer");
   }
 
   // check the pointer is valid
@@ -114,11 +108,9 @@ HLT::ErrorCode TrigHLTJetDSSelector::hltExecute(const HLT::TriggerElement* input
   std::size_t njets = originalJets.size();
   
   if( njets == 0 ){
-    //ATH_MSG_DEBUG("JetCollection is empty");
-    ATH_MSG_INFO("JetCollection is empty");
+    ATH_MSG_DEBUG("JetCollection is empty");
   } else {
-    //ATH_MSG_DEBUG("JetCollection contains " << njets <<"jets");
-    ATH_MSG_INFO("JetCollection contains " << njets <<"jets");
+    ATH_MSG_DEBUG("JetCollection contains " << njets <<"jets");
   }
 
   /*ATH_MSG_DEBUG("List of original jets, before sorting");
@@ -134,7 +126,7 @@ HLT::ErrorCode TrigHLTJetDSSelector::hltExecute(const HLT::TriggerElement* input
   if (m_maxNJets > 0) it_maxJetBound = m_maxNJets < int(originalJets.size()) ? originalJets.begin()+m_maxNJets : originalJets.end();
   //sanity check
   else if (m_maxNJets == 0) {
-    ATH_MSG_INFO( "This algorithm will keep no jets." );
+    ATH_MSG_DEBUG( "This algorithm will keep no jets, so it should not be running at all." );
     it_maxJetBound=originalJets.begin();
   }
   //check we do have a constraint on a number of jets: -1 means keep all jets
@@ -166,16 +158,13 @@ HLT::ErrorCode TrigHLTJetDSSelector::hltExecute(const HLT::TriggerElement* input
 
   }
   
-  //ATH_MSG_DEBUG("List of output jets");
-  ATH_MSG_INFO("List of output jets");
+  /*ATH_MSG_DEBUG("List of output jets");
   for ( unsigned int iJet=0; iJet < outputJets->size(); iJet++ ) {
     const xAOD::Jet* thisJet = outputJets->at(iJet);
-    //ATH_MSG_DEBUG( "  jet pT = " << thisJet->pt() );
-    ATH_MSG_INFO( "  jet pT = " << thisJet->pt() );
-  }
+    ATH_MSG_DEBUG( "  jet pT = " << thisJet->pt() );
+  }*/
 
-  //ATH_MSG_DEBUG(outputJets->size() << " jets kept");
-  ATH_MSG_INFO(outputJets->size() << " jets kept");
+  ATH_MSG_DEBUG(outputJets->size() << " jets kept");
   ec = attachJetCollection(outputTE, outputJets, m_jetCollectionName);
   
   return ec;
