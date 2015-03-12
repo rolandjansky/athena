@@ -549,7 +549,7 @@ StatusCode HLTMuonMonTool::fillMuZTPDQA()
 		  }
 
 		  const xAOD::TrackParticle *ef_sa_trk
-		    = ef_cont->at(iCont)->trackParticle(xAOD::Muon::TrackParticleType::MuonSpectrometerTrackParticle);
+		    = ef_cont->at(iCont)->trackParticle(xAOD::Muon::TrackParticleType::ExtrapolatedMuonSpectrometerTrackParticle);
 		  if (ef_sa_trk && ef_cont->at(iCont)->muonType()==xAOD::Muon::MuonType::MuonStandAlone) {
 		    ATH_MSG_DEBUG("ZTP EFSA " << ef_sa_trk->pt() << " eta " << ef_sa_trk->eta() << " phi " << ef_sa_trk->phi());  
 		    EFExpt.push_back(fabs(ef_sa_trk->pt()) / CLHEP::GeV * ef_sa_trk->charge());

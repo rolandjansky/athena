@@ -178,7 +178,7 @@ StatusCode HLTMuonMonTool::fillMuCombDQA()
     ATH_MSG_INFO( "CombinedMuonFeatureContainer not found. Truncated?" );
   }
 
-  ATH_MSG_DEBUG( " ====== START HLTMuon muComb MonTool ====== " );
+  ATH_MSG_DEBUG( " ====== START HLTMuon muComb MonTool ====== " ); 
    
   // -----------------------------
   // Dump combinedMuonFeature info
@@ -218,7 +218,7 @@ StatusCode HLTMuonMonTool::fillMuCombDQA()
     float mf_pt  = 0.;
     float mf_eta = 0.;
     float mf_phi = 0.;
-    if( ptr_mf != 0 ) {
+    if( ptr_mf ) {
       mf_pt  = ptr_mf->pt();
       mf_eta = ptr_mf->eta();
       mf_phi = ptr_mf->phi();
@@ -234,7 +234,7 @@ StatusCode HLTMuonMonTool::fillMuCombDQA()
     float trk_phi  = 0;
     float trk_z0   = 0;
     float trk_chi2 = 0;
-    if( ptr_trk != 0 ) {
+    if( ptr_trk ) {
       trk_pt   = ptr_trk->pt() / CLHEP::GeV; // convert to GeV
       trk_eta  = ptr_trk->eta();
       trk_phi  = ptr_trk->phi0();
@@ -357,7 +357,7 @@ StatusCode HLTMuonMonTool::fillMuCombDQA()
   for(unsigned int nchain=0;nchain<m_chainsGeneric.size();nchain++) {
 	 Trig::FeatureContainer fc = getTDT()->features("HLT_" + m_chainsGeneric[nchain]);
 	 std::vector<Trig::Combination> combs = fc.getCombinations();
-    std::vector<Trig::Combination>::const_iterator p_comb;
+	 std::vector<Trig::Combination>::const_iterator p_comb;
 	 for(p_comb=combs.begin();p_comb!=combs.end();++p_comb) {
 	   std::vector< Trig::Feature<xAOD::L2StandAloneMuonContainer> > fs_MF = 
 		  (*p_comb).get<xAOD::L2StandAloneMuonContainer>("MuonL2SAInfo",TrigDefs::alsoDeactivateTEs);
@@ -375,9 +375,14 @@ StatusCode HLTMuonMonTool::fillMuCombDQA()
                 const xAOD::L2CombinedMuonContainer* cb_cont = fs_CB[0];
 		bool error = false;
 		if(fs_CB.size() == 1 && fs_MF.size()>0){
-		  if(mf_pt != cb_cont->at(0)->muSATrack()->pt()){
-		     hist("muComb_MF_error", histdirmucomb)->Fill(1);
-		     error = true;
+		  if(cb_cont->at(0)->muSATrack()){
+			  if(mf_pt != cb_cont->at(0)->muSATrack()->pt()){
+				  hist("muComb_MF_error", histdirmucomb)->Fill(1);
+				  error = true;
+			  }
+		  } else {
+			  hist("muComb_MF_error", histdirmucomb)->Fill(1);
+			  error = true;
 		  }
 		}
 		if(fabs(mf_pt) < ZERO_LIMIT){
@@ -452,9 +457,14 @@ StatusCode HLTMuonMonTool::fillMuCombDQA()
 		bool error = false;
 		if(fs_CB.size() == 1 && fs_MF.size()>0){
 		  const xAOD::L2CombinedMuonContainer* cb_cont = fs_CB[0];
-		  if(mf_pt != cb_cont->at(0)->muSATrack()->pt()){
-		     hist("muComb_MF_error", histdirmucomb)->Fill(1);
-		     error = true;
+		  if(cb_cont->at(0)->muSATrack()){
+		    if(mf_pt != cb_cont->at(0)->muSATrack()->pt()){
+		       hist("muComb_MF_error", histdirmucomb)->Fill(1);
+		       error = true;
+		    }
+		  } else {
+		       hist("muComb_MF_error", histdirmucomb)->Fill(1);
+		       error = true;
 		  }
 		}
 		if(fs_CB.size() > 1){
