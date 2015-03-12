@@ -1,6 +1,4 @@
  <lcgdict>      
-      <namespace name="CP"/>
         <class name="CP::PileupReweightingTool" />
         <class name="CP::IPileupReweightingTool" />
-      <class name="asg::AnaToolHandle<CP::IPileupReweightingTool>" />
 </lcgdict> 
