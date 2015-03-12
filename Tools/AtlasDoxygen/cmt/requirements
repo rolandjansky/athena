@@ -42,9 +42,9 @@ include_path none
 #
 
 macro_append DOXYGEN_HTML_MAPPING "" \
-   Doxygen&local   "/build/atlas/software/builds/@http://cern.ch/atlas-computing/links/buildDirectory" \
-   Doxygen&nightly "/build/atnight/localbuilds/nightlies/projects/@http://cern.ch/atlas-computing/links/buildDirectory/nightlies/dev" \
-   Doxygen&nightlyBUG "/build/atnight/localbuilds/nightlies/projects/@http://cern.ch/atlas-computing/links/buildDirectory/nightlies/bugfix" \
+   Doxygen&local   "$(LOCAL_BUILD_AREA)/atlas/software/builds/@http://cern.ch/atlas-computing/links/buildDirectory" \
+   Doxygen&nightly "$(NICOS_LOCAL_BUILD_AREA)/atnight/localbuilds/nightlies/projects/@http://cern.ch/atlas-computing/links/buildDirectory/nightlies/dev" \
+   Doxygen&nightlyBUG "$(NICOS_LOCAL_BUILD_AREA)/atnight/localbuilds/nightlies/projects/@http://cern.ch/atlas-computing/links/buildDirectory/nightlies/bugfix" \
    Doxygen&nightlyAFS "/afs/cern.ch/atlas/software/builds/nightlies/dev/@http://cern.ch/atlas-computing/links/buildDirectory/nightlies/dev" \
    Doxygen         "/afs/cern.ch/atlas/software/builds/@http://cern.ch/atlas-computing/links/buildDirectory"  
 
