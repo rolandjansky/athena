@@ -55,7 +55,7 @@ def getAthenaFolderType(folderDescr):
 
 #
 #______________________________________________________________________
-def openDb(db, schema, mode="READONLY", schema2="COOLONL_CALO"):
+def openDb(db, schema, mode="READONLY", schema2="COOLONL_CALO", sqlfn="caloSqlite.db"):
     """
     Opens a COOL db connection.
     - connStr: The DB connection string. The following
@@ -76,7 +76,7 @@ def openDb(db, schema, mode="READONLY", schema2="COOLONL_CALO"):
     #=== check for valid instance names
     # USE OF KEYWORD "schema" is retained for backward compatability
     #=== see https://twiki.cern.ch/twiki/bin/view/Atlas/CoolProdAcc
-    validInstance = ["COMP200", "CMCP200", "OFLP200"]
+    validInstance = ["COMP200", "CMCP200", "OFLP200","CONDBR2"]
     if schema not in validInstance:
         log.error( "DB schema not valid: %s" % schema )
         log.error( "Valid schema are: %s" % validInstance )
@@ -93,9 +93,16 @@ def openDb(db, schema, mode="READONLY", schema2="COOLONL_CALO"):
     #=== construct connection string
     connStr = ""
     if db=='SQLITE':
-        connStr="sqlite://;schema=caloSqlite.db;dbname=%s" % schema
+        if mode=="READONLY" and not os.path.exists(sqlfn):
+            raise Exception( "Sqlite file %s does not exist" % (sqlfn) )
+        if (mode=="RECREATE" or mode=="UPDATE") and not os.path.exists(os.path.dirname(sqlfn)):
+            dirn=os.path.dirname(sqlfn)
+            if dirn: os.makedirs(dirn)
+        connStr="sqlite://X;schema=%s;dbname=%s" % (sqlfn,schema)
+#        connStr="sqlite://;schema=caloSqlite.db;dbname=%s" % schema
     elif db=='ORACLE':
-        connStr=schema2+'/'+schema
+        connStr='oracle://%s;schema=ATLAS_%s;dbname=%s' % ('ATLAS_COOLPROD',schema2,schema)
+#        connStr=schema2+'/'+schema
 
     return openDbConn(connStr, mode)
 
@@ -110,12 +117,22 @@ def openDbConn(connStr, mode="READONLY"):
     - mode: Can be READONLY (default), RECREATE or UPDATE
     """
 
+# split the name into schema and dbinstance
+
+    splitname=connStr.split('/')
+    if (len(splitname)!=2):  # string connection ready to be used as it is
+        connStr_new=connStr
+    else:                    # construct connection string
+        schema=splitname[0]
+        instance=splitname[1]
+        connStr_new='oracle://%s;schema=ATLAS_%s;dbname=%s' % ('ATLAS_COOLPROD',schema,instance)
+
     #=== get dbSvc and print header info
     dbSvc = cool.DatabaseSvcFactory.databaseService()
     log.info( "---------------------------------------------------------------------------------" )
-    log.info( "-------------------------- CaloCondTools.openDbConn ----------------------------" )
+    log.info( "-------------------------- CaloCondTools.openDbConn -----------------------------" )
     log.info( "- using COOL version %s" % dbSvc.serviceVersion()                                  )
-    log.info( "- opening CaloDb: %s" %connStr                                                     )
+    log.info( "- opening CaloDb: %s" %connStr_new                                                 )
     log.info( "- mode: %s" %mode                                                                  )
     log.info( "---------------------------------------------------------------------------------" )
 
@@ -123,17 +140,17 @@ def openDbConn(connStr, mode="READONLY"):
     if mode=="READONLY":
         #=== open read only
         try:
-            db=dbSvc.openDatabase(connStr,True)
+            db=dbSvc.openDatabase(connStr_new,True)
         except Exception, e:
             log.debug( e )
-            log.critical("Could not connect to %s" % connStr )
+            log.critical("Could not connect to %s" % connStr_new )
             return None
         return db
     elif mode=="RECREATE":
         #=== recreating database
-        dbSvc.dropDatabase(connStr)
+        dbSvc.dropDatabase(connStr_new)
         try:
-            db = dbSvc.createDatabase(connStr)
+            db = dbSvc.createDatabase(connStr_new)
         except Exception, e:
             log.debug( e )
             log.critical( "Could not create database, giving up..." )
@@ -142,12 +159,12 @@ def openDbConn(connStr, mode="READONLY"):
     elif mode=="UPDATE":
         #=== update database
         try:
-            db=dbSvc.openDatabase(connStr,False)
+            db=dbSvc.openDatabase(connStr_new,False)
         except Exception, e:
             log.debug( e )
-            log.warning( "Could not connect to \'%s\', trying to create it...." % connStr )
+            log.warning( "Could not connect to \'%s\', trying to create it...." % connStr_new )
             try:
-                db=dbSvc.createDatabase(connStr)
+                db=dbSvc.createDatabase(connStr_new)
             except Exception, e:
                 log.debug( e )
                 log.critical( "Could not create database, giving up..." )
