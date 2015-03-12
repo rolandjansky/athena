@@ -9,16 +9,16 @@ def usage():
     print "Usage: ",sys.argv[0]," [OPTION] ... "
     print "Dumps the TileCal status bits from various schemas / folders"
     print ""
-    print "-h, --help     shows this help"
-    print "-f, --folder=  specify status folder to use ONL01 or OFL02 "
-    print "-t, --tag=     specify tag to use, f.i. UPD1 or UPD4 or full suffix like RUN2-HLT-UPD1-00"
-    print "-r, --run=     specify run  number, by default uses latest iov"
-    print "-l, --lumi=    specify lumi block number, default is 0"
-    print "-s, --schema=  specify schema to use, like 'COOLOFL_TILE/CONDBR2' or 'sqlite://;schema=tileSqlite.db;dbname=CONDBR2' or tileSqlite.db"
-    print "-d, --dbname=  specify dbname part of schema if schema only contains file name, default is CONDBR2'"
-    print "-w, --warning  suppress warning messages about missing drawers in DB"
+    print "-h, --help      shows this help"
+    print "-f, --folder=   specify status folder to use ONL01 or OFL02, don't need to specify full path"
+    print "-t, --tag=      specify tag to use, f.i. UPD1 or UPD4 or full suffix like RUN2-HLT-UPD1-00"
+    print "-r, --run=      specify run  number, by default uses latest iov"
+    print "-l, --lumi=     specify lumi block number, default is 0"
+    print "-s, --schema=   specify schema to use, like 'COOLOFL_TILE/CONDBR2' or 'sqlite://;schema=tileSqlite.db;dbname=CONDBR2' or tileSqlite.db"
+    print "-D, --dbname=   specify dbname part of schema if schema only contains file name, default is CONDBR2'"
+    print "-w, --warning   suppress warning messages about missing drawers in DB"
     
-letters = "hr:l:s:t:f:d:w"
+letters = "hr:l:s:t:f:D:w"
 keywords = ["help","run=","lumi=","schema=","tag=","folder=","dbname=","warning"]
 
 try:
@@ -44,7 +44,7 @@ for o, a in opts:
         tag = a
     elif o in ("-s","--schema"):
         schema = a
-    elif o in ("-d","--dbname"):
+    elif o in ("-D","--dbname"):
         dbname = a
     elif o in ("-r","--run"):
         run = int(a) 
@@ -58,8 +58,6 @@ for o, a in opts:
     else:
         assert False, "unhandeled option"
 
-if not 'COOLO' in schema and not 'oracle:' in schema and not 'sqlite:' in schema:
-    schema='sqlite://;schema='+schema+";dbname="+dbname
 
 from TileCalibBlobPython import TileCalibTools
 from TileCalibBlobPython import TileBchTools
@@ -76,6 +74,16 @@ log1.setLevel(logLevel)
 
 
 #=== check parameters
+if len(dbname)<7 and run!=2147483647:
+    dbname = 'COMP200' if run<232000 else 'CONDBR2'
+
+if not 'COOLO' in schema and not ':' in schema and not ';' in schema:
+    schema='sqlite://;schema='+schema+';dbname='+(dbname if len(dbname) else 'CONDBR2')
+
+if not 'sqlite:' in schema and len(dbname):
+    schema=schema.replace('CONDBR2',dbname)
+    schema=schema.replace('COMP200',dbname)
+
 if len(tag)==0:
     folderPath='/TILE/ONL01/STATUS/ADC'
     if 'COOLOFL' in schema:

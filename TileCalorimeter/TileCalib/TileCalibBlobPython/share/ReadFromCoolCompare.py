@@ -204,7 +204,7 @@ while not flt2:
             log.info("ERROR!!! No valid drawers in second database")
             sys.exit()
         d=TileCalibUtils.getMaxDrawer(r)-1
-    flt2 = blobReader2.getDrawer(r, d, (run,lumi), False, False)
+    flt2 = blobReader2.getDrawer(r, d, (run2,lumi2), False, False)
 ot2 = flt2.getObjType()
 os2 = flt2.getObjSizeByte()/4
 
