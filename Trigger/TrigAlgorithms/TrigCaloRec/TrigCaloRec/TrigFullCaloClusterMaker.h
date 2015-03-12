@@ -45,7 +45,7 @@ class TrigFullCaloClusterMaker : public HLT::AllTEAlgo {
   HLT::ErrorCode hltInitialize();
   HLT::ErrorCode hltFinalize();
 
-  HLT::ErrorCode hltEndEvent() { if ( !HLT::AllTEAlgo::reset() ) return false; m_useCachedResult = false; m_roiEtaLimit=4.8; m_cachedTEList.clear(); return true; }
+  HLT::ErrorCode hltEndEvent() { if ( !HLT::AllTEAlgo::reset() ) return false; m_useCachedResult = false; m_roiEtaLimit=4.8; m_cachedTEList.clear(); return HLT::OK; }
   //virtual bool reset() { if ( !HLT::AllTEAlgo::reset() ) return false; m_useCachedResult = false; m_roiEtaLimit=4.8; m_cachedTEList.clear(); return true; }
     
 private:
