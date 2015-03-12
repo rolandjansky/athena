@@ -15,7 +15,7 @@
 
 #include "TRTElectronicsProcessing.h"
 
-#include "CommissionEvent/ComTime.h"
+// #include "CommissionEvent/ComTime.h"
 
 #include "GaudiKernel/ServiceHandle.h"
 #include "CLHEP/Random/RandomEngine.h"
@@ -97,7 +97,7 @@ public:
 		     hitCollConstIter e,
 		     TRTDigit& outdigit,
 		     bool & m_alreadyPrintedPDGcodeWarning,
-		     const ComTime* m_ComTime,
+		     double m_cosmicEventPhase, //const ComTime* m_ComTime,
                      bool UseArgonStraws,
                      unsigned short & m_particleFlag );
 
@@ -140,7 +140,7 @@ private:
   double m_maxCrossingTime;
   double m_minCrossingTime;
   double m_shiftOfZeroPoint;
-  double m_time_y_eq_zero;
+  // double m_time_y_eq_zero;
 
   double m_innerRadiusOfStraw;
   double m_outerRadiusOfWire;
@@ -150,7 +150,7 @@ private:
 
   double m_solenoidFieldStrength;
 
-  const ComTime* m_ComTime;
+  // const ComTime* m_ComTime;
 
   TRTTimeCorrection*        m_pTimeCorrection;
   TRTElectronicsProcessing* m_pElectronicsProcessing;
@@ -227,7 +227,8 @@ private:
 			   const std::vector<cluster>& clusters,
 			   std::vector<TRTElectronicsProcessing::Deposit>& deposits,
 			   Amg::Vector3D TRThitGlobalPos,
-			   const ComTime* m_ComTime, bool UseArgonStraws);
+                           double m_cosmicEventPhase, // const ComTime* m_ComTime,
+                           bool UseArgonStraws);
 
   std::vector<double> m_drifttimes;     // electron drift times
   std::vector<double> m_expattenuation; // tabulation of exp()

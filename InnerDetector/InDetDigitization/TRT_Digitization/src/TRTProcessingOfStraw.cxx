@@ -68,8 +68,8 @@ TRTProcessingOfStraw::TRTProcessingOfStraw(const TRTDigSettings* digset,
     m_pPAItool(paitool),
     m_pPAItool_optional(optionalPaitool), // additional tool for Argon
     m_pSimDriftTimeTool(simdrifttool),
-    m_time_y_eq_zero(0.0),
-    m_ComTime(NULL),
+    // m_time_y_eq_zero(0.0),
+    // m_ComTime(NULL),
     m_pTimeCorrection(NULL),
     m_pElectronicsProcessing(ep),
     m_pNoise(noise),
@@ -293,7 +293,7 @@ void TRTProcessingOfStraw::addClustersFromStep ( const double& scaledKineticEner
 void TRTProcessingOfStraw::ProcessStraw ( hitCollConstIter i, hitCollConstIter e,
 					  TRTDigit& outdigit,
                                           bool & m_alreadyPrintedPDGcodeWarning,
-                                          const ComTime* m_ComTime,
+                                          double m_cosmicEventPhase, // const ComTime* m_ComTime,
                                           bool isArgonStraw,
                                           unsigned short & m_particleFlag )
 
@@ -542,7 +542,8 @@ void TRTProcessingOfStraw::ProcessStraw ( hitCollConstIter i, hitCollConstIter e
   //////////////////////////////////////////////////////////
 
   m_depositList.clear();
-  ClustersToDeposits( hitID, m_clusterlist, m_depositList, TRThitGlobalPos, m_ComTime, isArgonStraw ); // added last argument by Sasha for Argon
+  // ClustersToDeposits( hitID, m_clusterlist, m_depositList, TRThitGlobalPos, m_ComTime, isArgonStraw ); // added last argument by Sasha for Argon
+  ClustersToDeposits( hitID, m_clusterlist, m_depositList, TRThitGlobalPos, m_cosmicEventPhase, isArgonStraw ); // added last argument by Sasha for Argon
 
   //////////////////////////////////////////////////////////
   //======================================================//
@@ -583,7 +584,8 @@ void TRTProcessingOfStraw::ClustersToDeposits (const int& hitID,
 					       const std::vector<cluster>& clusters,
 					       std::vector<TRTElectronicsProcessing::Deposit>& deposits,
 					       Amg::Vector3D TRThitGlobalPos,
-					       const ComTime* m_ComTime, bool isArgonStraw) // last argument was added by Sasha for Argon
+					       double m_cosmicEventPhase, // const ComTime* m_ComTime,
+                                               bool isArgonStraw) // last argument was added by Sasha for Argon
 {
 
   // Some initial work before looping over the cluster
@@ -595,10 +597,10 @@ void TRTProcessingOfStraw::ClustersToDeposits (const int& hitID,
   std::vector<cluster>::const_iterator currentClusterIter(clusters.begin());
   const std::vector<cluster>::const_iterator endOfClusterList(clusters.end());
 
-  if (m_settings->doCosmicTimingPit()) {
-      if (m_ComTime) { m_time_y_eq_zero = m_ComTime->getTime(); }
-      else           { ATH_MSG_WARNING("Configured to use ComTime tool, but did not find tool. All hits will get the same t0"); }
-  }
+  // if (m_settings->doCosmicTimingPit()) {
+  //     if (m_ComTime) { m_time_y_eq_zero = m_ComTime->getTime(); }
+  //     else           { ATH_MSG_WARNING("Configured to use ComTime tool, but did not find tool. All hits will get the same t0"); }
+  // }
 
   // The average drift time is affected by the magnetic field which is not uniform so we need to use the
   // detailed magnetic field map to obtain an effective field for this straw (used in SimDriftTimeTool).
@@ -757,7 +759,8 @@ void TRTProcessingOfStraw::ClustersToDeposits (const int& hitID,
 
       if ( m_settings->doCosmicTimingPit() )
         { // make (x,y) dependent? i.e: + f(x,y).
-          clusterTime = clusterTime - m_time_y_eq_zero + m_settings->jitterTimeOffset()*( CLHEP::RandFlat::shoot(m_pHRengine) );
+          // clusterTime = clusterTime - m_time_y_eq_zero + m_settings->jitterTimeOffset()*( CLHEP::RandFlat::shoot(m_pHRengine) );
+          clusterTime = clusterTime + m_cosmicEventPhase + m_settings->jitterTimeOffset()*( CLHEP::RandFlat::shoot(m_pHRengine) ); // yes it is a '+' now.
         }
 
       // get the wire propagation times (for direct and reflected signals)
