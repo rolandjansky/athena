@@ -973,6 +973,21 @@
                 <alwaysRunPostProc />
             </athena>
             
+            <athena userJobId="MC_pp_v5_toAOD" doMonitoring="True" >
+                <doc>
+                    Runs MC_pp_v5 menu on valid1.117050.PowhegPythia_P2011C_ttbar.merge.HITS.e2658_s1967_s1964 dumping 1k events in an xAOD 
+                </doc>
+                <displayName>MC_pp_v5_toAOD</displayName>
+                <commandLineFlags>
+                    RunningRTT=TRUE;menu='MC_pp_v5';jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(1000);jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;dsName='/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/valid1.117050.PowhegPythia_P2011C_ttbar.merge.HITS.e2658_s1967_s1964';fileRange=[32,32] 
+                </commandLineFlags>
+                <options>testCommonSliceAthenaTrigRDOtoAOD.py</options>
+                <package>Trigger/TrigValidation/TriggerTest</package>
+                <group>TriggerTestMonitorHistos</group>
+                <queue>long</queue>
+                <alwaysRunPostProc />
+            </athena>
+            
             <athena userJobId="MC_pp_v5_tight_mc_prescale" doMonitoring="True">
                 <doc>
                     MC_pp_v5_tight_mc_prescale menu on ttbar RDO only 750 events
@@ -1018,8 +1033,6 @@
                 <alwaysRunPostProc />
             </athena>
             
-            
-            
             <athena  userJobId="Physics_HI_v3" >
                 <doc>
                     Test of Physics_HI_v3 menu on RDO
@@ -1034,7 +1047,6 @@
                 <queue>long</queue>
                 <alwaysRunPostProc />
             </athena>
-            
             
             <athena userJobId="MC_pp_v5_standalone" doMonitoring="True">
                 <doc>
