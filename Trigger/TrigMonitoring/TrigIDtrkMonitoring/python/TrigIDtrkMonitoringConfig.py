@@ -10,30 +10,7 @@ def TrigIDtrkMonitoringTool():
 
 	from AthenaCommon.AppMgr import ToolSvc
 
-       
-	# Primary Vertex Tool
-	from TrigIDtrkMonitoring.TrigIDtrkMonitoringConf import HLTIDpvtxTool
-	HLTIDpvtx = HLTIDpvtxTool(name               = 'HLTIDpvtx',
-				  histoPathBase      = "/Trigger/HLT");
-
-	#HLTIDpvtx.ChainName                        = "InDetMon_???"
-	#HLTIDpvtx.ChainName                        = "L2_b10_IDTrkNoCut"
-	#HLTIDpvtx.ChainName                        = "L2_b10_j30_a4tc_EFFS_IDTrkNoCut"
-	#HLTIDpvtx.ChainName                        = "L2_b50_NoCut_j50_c4cchad"
-	#HLTIDpvtx.ChainName                        = "EF_b10_IDTrkNoCut"
-	#HLTIDpvtx.ChainName                        = "EF_b10_j30_a4tc_EFFS_IDTrkNoCut"
-	HLTIDpvtx.ChainName                        = "EF_b55_NoCut_j55_a4tchad"
-	#HLTIDpvtx.OnlinePrimaryVertexContainerName = "L2BjetFex"
-	HLTIDpvtx.OnlinePrimaryVertexContainerName = "PrimVx"
-	HLTIDpvtx.OnlineEfficiancyRangeCutX         = 0.01 # cut in mm
-	HLTIDpvtx.OnlineEfficiancyRangeCutY         = 0.01
-	HLTIDpvtx.OnlineEfficiancyRangeCutZ         = 0.01
-
-	ToolSvc += HLTIDpvtx;
-	list = [ "HLTIDpvtxTool/HLTIDpvtx" ];
-
-
-
+	list = []
 
 	if not 'rec' in dir():
 		from RecExConfig.RecFlags  import rec
@@ -65,11 +42,18 @@ def TrigIDtrkMonitoringTool():
 
 		from TrigInDetAnalysisExample.TrigInDetAnalysisExampleConf import TrigTestBase
 
-		# Cosmic instance
-		tidacos = TrigTestBase(name = "IDCosmicMonTool",
+
+		##############################################################
+		# Cosmic instances
+		##############################################################
+
+		
+		# Cosmic Expert instance
+		
+		tidacos = TrigTestBase(name = "IDCosmicTool",
 					histoPathBase = "/Trigger/HLT")
 		tidacos.AnalysisConfig = "Tier0"
-		tidacos.SliceTag = "HLT/IDMonCosmic"
+		tidacos.SliceTag = "HLT/TRIDT/Cosmic/Expert"
 		# tidacos.OutputLevel = DEBUG
 		tidacos.ntupleChainNames += [
 			"Offline",
@@ -77,36 +61,131 @@ def TrigIDtrkMonitoringTool():
 			"HLT_id_cosmic.*:InDetTrigTrackingxAODCnvIOTRT_CosmicsN_EFID"
 			]
 		ToolSvc += tidacos;
-		list += [ "TrigTestBase/IDCosmicMonTool" ]
+		list += [ "TrigTestBase/IDCosmicTool" ]
 
 
+		# Cosmic Shifter instance
 
-
-		# test instances 
-		tidabase = TrigTestBase(name = "IDMonTool",
-					histoPathBase = "/Trigger/HLT")
-		tidabase.AnalysisConfig = "Tier0"
-		tidabase.SliceTag = "HLT/IDMon"
-		# tidabase.OutputLevel = DEBUG
-		tidabase.ntupleChainNames += [
+		tidacosshift = TrigTestBase(name = "IDCosmicShifterTool",
+				       histoPathBase = "/Trigger/HLT")
+		tidacosshift.AnalysisConfig = "Tier0"
+		tidacosshift.SliceTag = "HLT/TRIDT/Cosmic/Shifter"
+		# tidacos.OutputLevel = DEBUG
+		tidacosshift.ntupleChainNames += [
 			"Offline",
-			"HLT_e.*idperf.*:InDetTrigTrackingxAODCnv_Electron_EFID",
-			"HLT_mu.*idperf.*:InDetTrigTrackingxAODCnv_Muon_EFID",
-			"HLT_tau.*idperf.*:InDetTrigTrackingxAODCnv_TauN_EFID",
 			"HLT_id_cosmic.*:InDetTrigTrackingxAODCnv_CosmicsN_EFID",
 			"HLT_id_cosmic.*:InDetTrigTrackingxAODCnvIOTRT_CosmicsN_EFID"
 			]
-		ToolSvc += tidabase;
-		list += [ "TrigTestBase/IDMonTool" ]
+		ToolSvc += tidacosshift;
+		list += [ "TrigTestBase/IDCosmicShifterTool" ]
 
 
 
+		##############################################################
+		# Egamma instances
+		##############################################################
+
+		# Expert instances 
+		tidaegamma = TrigTestBase(name = "IDEgammaTool",
+					  histoPathBase = "/Trigger/HLT")
+		tidaegamma.AnalysisConfig = "Tier0"
+		tidaegamma.SliceTag = "HLT/TRIDT/Egamma/Expert"
+		# tidabase.OutputLevel = DEBUG
+		tidaegamma.ntupleChainNames += [
+			"Offline",
+			"HLT_e.*idperf.*:InDetTrigTrackingxAODCnv_Electron_EFID",
+			]
+		ToolSvc += tidaegamma;
+		list += [ "TrigTestBase/IDEgammaTool" ]
+
+
+
+		# Shifter instances 
+		tidaegammashift = TrigTestBase(name = "IDEgammaShifterTool",
+					       histoPathBase = "/Trigger/HLT")
+		tidaegammashift.AnalysisConfig = "Tier0"
+		tidaegammashift.SliceTag = "HLT/TRIDT/Egamma/Shifter"
+		# tidabase.OutputLevel = DEBUG
+		tidaegammashift.ntupleChainNames += [
+			"Offline",
+			"HLT_e.*idperf.*:InDetTrigTrackingxAODCnv_Electron_EFID",
+			]
+		ToolSvc += tidaegammashift;
+		list += [ "TrigTestBase/IDEgammaShifterTool" ]
+		
+
+
+
+		##############################################################
+		# Muon instances
+		##############################################################
+		
+		# Expert instances 
+		tidamuon = TrigTestBase(name = "IDMuonTool",
+					histoPathBase = "/Trigger/HLT")
+		tidamuon.AnalysisConfig = "Tier0"
+		tidamuon.SliceTag = "HLT/TRIDT/Muon/Expert"
+		# tidabase.OutputLevel = DEBUG
+		tidamuon.ntupleChainNames += [
+			"Offline",
+			"HLT_mu.*idperf.*:InDetTrigTrackingxAODCnv_Muon_EFID"
+			]
+		ToolSvc += tidamuon;
+		list += [ "TrigTestBase/IDMuonTool" ]
+
+
+
+
+		##############################################################
+		# Tau instances
+		##############################################################
+
+		# Expert instances 
+
+		tidatau = TrigTestBase(name = "IDTauTool",
+					histoPathBase = "/Trigger/HLT")
+		tidatau.AnalysisConfig = "Tier0"
+		tidatau.SliceTag = "HLT/TRIDT/Tau/Expert"
+		# tidabase.OutputLevel = DEBUG
+		tidatau.ntupleChainNames += [
+			"Offline",
+			"HLT_tau.*idperf.*:InDetTrigTrackingxAODCnv_TauN_EFID"
+			]
+		ToolSvc += tidamuon;
+		list += [ "TrigTestBase/IDTauTool" ]
+
+
+
+		
+		##############################################################                                                                                                                                                     # Bjet instances - check track collection names
+		##############################################################                                                                                                                                     
+
+                # Expert instances
+
+		tidabjet = TrigTestBase(name = "IDBjetTool",
+					histoPathBase = "/Trigger/HLT")
+		tidabjet.AnalysisConfig = "Tier0"
+		tidabjet.SliceTag = "HLT/TRIDT/Bjet/Expert"
+		# tidabase.OutputLevel = DEBUG
+		tidabjet.ntupleChainNames += [
+			"Offline",
+			"HLT_.*bperf.*:InDetTrigTrackingxAOD_Bjet_EFID"
+			]
+		ToolSvc += tidabjet;
+		list += [ "TrigTestBase/IDBjetTool" ]
+
+
+
+
+		##############################################################
+		# Generic test instances
+		##############################################################
 
 		# test instances
 		tidatool = TrigTestBase(name = "TIDATool",
 					histoPathBase = "/Trigger/HLT")
 		tidatool.AnalysisConfig = "Tier0"
-		tidatool.SliceTag = "HLT/IDMonTest"
+		tidatool.SliceTag = "HLT/TRIDT/MonTest"
 		# tidatool.OutputLevel = DEBUG
 		tidatool.ntupleChainNames += [
 			"Offline",
