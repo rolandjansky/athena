@@ -77,13 +77,13 @@ namespace DerivationFramework {
       ATH_MSG_ERROR("Tool is attempting to write a StoreGate key " << m_sgName << " which already exists. Please use a different key");
       return StatusCode::FAILURE;
     }
-    std::vector<float> *deltaRs = new std::vector<float>();
-    CHECK(getDeltaRs(deltaRs));
-    CHECK(evtStore()->record(deltaRs, m_sgName));      
+    std::unique_ptr<std::vector<float> > deltaRs(new std::vector<float>());
+    CHECK(getDeltaRs(deltaRs.get()));
+    CHECK(evtStore()->record(std::move(deltaRs), m_sgName));      
     return StatusCode::SUCCESS;
   }  
 
-  StatusCode DeltaRTool::getDeltaRs(std::vector<float>*& deltaRs) const
+  StatusCode DeltaRTool::getDeltaRs(std::vector<float>* deltaRs) const
   {
 
     // check the relevant information is available

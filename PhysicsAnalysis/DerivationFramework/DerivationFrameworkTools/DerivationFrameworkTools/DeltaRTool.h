@@ -36,7 +36,7 @@ namespace DerivationFramework {
       std::string m_sgName;
       std::string m_containerName;
       std::string m_2ndContainerName;
-      StatusCode getDeltaRs(std::vector<float>*&) const;
+      StatusCode getDeltaRs(std::vector<float>*) const;
       float calculateDeltaR(float,float,float,float) const;
   }; 
 }

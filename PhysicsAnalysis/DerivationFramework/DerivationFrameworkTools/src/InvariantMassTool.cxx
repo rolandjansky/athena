@@ -68,13 +68,13 @@ namespace DerivationFramework {
       ATH_MSG_ERROR("Tool is attempting to write a StoreGate key " << m_sgName << " which already exists. Please use a different key");
       return StatusCode::FAILURE;
     }
-    std::vector<float> *masses = new std::vector<float>();
-    CHECK(getInvariantMasses(masses));
-    CHECK(evtStore()->record(masses, m_sgName));      
+    std::unique_ptr<std::vector<float> > masses(new std::vector<float>());
+    CHECK(getInvariantMasses(masses.get()));
+    CHECK(evtStore()->record(std::move(masses), m_sgName));      
     return StatusCode::SUCCESS;
   }  
 
-  StatusCode InvariantMassTool::getInvariantMasses(std::vector<float>*& masses) const
+  StatusCode InvariantMassTool::getInvariantMasses(std::vector<float>* masses) const
   {
 
     // check the relevant information is available
