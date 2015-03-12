@@ -122,7 +122,7 @@ namespace InDet{
   //----------------------------------------------------------------------------
   HLT::ErrorCode Pixel_TrgClusterization::hltBeginRun()
   {
-
+    
     // Get the messaging service, print where you are
     ATH_MSG_INFO( "Pixel_TrgClusterization::hltBeginRun() configured with:"
 		  << "PhiHalfWidth: " << m_phiHalfWidth << " EtaHalfWidth: "<< m_etaHalfWidth );
@@ -130,8 +130,8 @@ namespace InDet{
     ATH_MSG_INFO( "will be driven by RoI objects" );
 
     /*
-    StatusCode sc = m_rawDataProvider->initContainer();
-    if (sc.isFailure())
+      StatusCode sc = m_rawDataProvider->initContainer();
+      if (sc.isFailure())
       msg() << MSG::WARNING << "RDO container cannot be registered" << endreq;
     */
     return HLT::OK;
@@ -179,7 +179,7 @@ namespace InDet{
 
     const PixelID * IdHelper(0);
     if (detStore()->retrieve(IdHelper, "PixelID").isFailure()) {
-      ATH_MSG_FATAL( "Could not get SCT ID helper" );
+      ATH_MSG_FATAL( "Could not get PixelID helper" );
       return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
     }
 
@@ -222,28 +222,23 @@ namespace InDet{
     sc = store()->symLink(m_clusterContainer,symSiContainer);
     if (sc.isFailure()) {
       ATH_MSG_WARNING( "Pixel clusters could not be symlinked in StoreGate !" );
+    } else {
+      ATH_MSG_DEBUG( "Pixel clusters '" << m_clustersName 
+		     << "' symlinked in StoreGate" );
     }
-    ATH_MSG_DEBUG( "Pixel clusters '" << m_clustersName 
-		   << "' symlinked in StoreGate" );
     
-    
-    if(!m_doFullScan){
-      // Retrieving Region Selector Tool:
-      if ( m_regionSelector.retrieve().isFailure() ) {
-	ATH_MSG_FATAL( m_regionSelector.propertyName()
-		       << " : Unable to retrieve RegionSelector tool "  
-		       << m_regionSelector.type() );
-	return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
-      }
+    // Retrieving Region Selector Tool:
+    if ( m_regionSelector.retrieve().isFailure() ) {
+      ATH_MSG_FATAL( m_regionSelector.propertyName()
+		     << " : Unable to retrieve RegionSelector tool "  
+		     << m_regionSelector.type() );
+      return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
     }
-    else{
-      ATH_MSG_INFO( "RegionSelector tool not needed for FullScan" );
-    }  
 
     //retrieve rob data provider service
     if (m_robDataProvider.retrieve().isFailure()) {
       ATH_MSG_FATAL( "Failed to retrieve " << m_robDataProvider );
-      return StatusCode::FAILURE;
+      return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
     } else
       ATH_MSG_INFO( "Retrieved service " << m_robDataProvider << " in Pixel_trgClusterization. " );
 
@@ -380,13 +375,10 @@ namespace InDet{
 
     if (!roi->isFullscan()){
       if( fabs(RoiEtaWidth/2. - m_etaHalfWidth) > 0.02) {
-	if(msgLvl() <= MSG::DEBUG) {
-	  ATH_MSG_DEBUG( "ROI range is different from configuration: " );
-	  ATH_MSG_DEBUG( "eta width = " << RoiEtaWidth << "; with etaPlus = " << roi->etaPlus() << "; etaMinus = " << roi->etaMinus() );
-	  ATH_MSG_DEBUG( "etaHalfWidth from config: " << m_etaHalfWidth );
-	}
+	ATH_MSG_DEBUG( "ROI range is different from configuration: " );
+	ATH_MSG_DEBUG( "eta width = " << RoiEtaWidth << "; with etaPlus = " << roi->etaPlus() << "; etaMinus = " << roi->etaMinus() );
+	ATH_MSG_DEBUG( "etaHalfWidth from config: " << m_etaHalfWidth );
       }
-
     }
     else {
       if (m_etaHalfWidth<2.5 || m_phiHalfWidth<3.) {
@@ -448,12 +440,11 @@ namespace InDet{
 	  if(msgLvl(MSG::DEBUG))
 	     msg(MSG::DEBUG) << " " << bsErrors[idx];
 	}
-	     
-	ATH_MSG_DEBUG( "" );
+      }	     
+      ATH_MSG_DEBUG( "" );
 
-      } else {
-	ATH_MSG_DEBUG( " m_rawDataProvider->decode failed" );
-      }
+    } else {
+      ATH_MSG_DEBUG( " m_rawDataProvider->decode failed" );
     }
 
     if(doTiming()) m_timerSGate->resume();
@@ -461,12 +452,12 @@ namespace InDet{
     PixelRDO_Container* p_pixelRDOContainer;
     if (store()->retrieve(p_pixelRDOContainer,  m_pixelRDOContainerName).isFailure() ) {
       ATH_MSG_WARNING( "Could not find the PixelRDO_Container " 
-		      << m_pixelRDOContainerName );
-    
+		       << m_pixelRDOContainerName );
+      
       // Activate the TriggerElement anyhow.
       // (FEX algorithms should not cut and it could be that in the SCT/TRT 
       // tracks can anyhow be reconstructed) 
-    
+      
       return HLT::OK;
     } 
     else{
@@ -576,10 +567,11 @@ namespace InDet{
 	  // Use one of the specific clustering AlgTools to make clusters
 	  m_clusterCollection = m_clusteringTool->clusterize(*RDO_Collection,*m_manager,
 							     *m_idHelper);
-	
 	  if (m_clusterCollection){
 	    if (m_clusterCollection->size() != 0) {
 
+	      ATH_MSG_VERBOSE("Going to add colHash " << m_clusterCollection->identifyHash() << " of size "
+			      << m_clusterCollection->size() );
 	    
 	      m_numPixClusters+= m_clusterCollection->size();
 
@@ -664,19 +656,16 @@ namespace InDet{
   //-------------------------------------------------------------------------
   HLT::ErrorCode Pixel_TrgClusterization::prepareRobRequests(const HLT::TriggerElement* inputTE ) {
 
-    ATH_MSG_INFO( "Running prepareRobRequests in Pixel_trgClusterization. " );
+    ATH_MSG_DEBUG( "Running prepareRobRequests in Pixel_trgClusterization. " );
     
     // Calculate ROBs needed  - this code should be shared with hltExecute to avoid slightly different requests
     const TrigRoiDescriptor* roi = 0;
 
-    if (getFeature(inputTE, roi, "forID") != HLT::OK || roi == 0) {
-      getFeature(inputTE, roi);
-    }
- 
-    if ( roi==NULL ) { 
+    if (getFeature(inputTE, roi) != HLT::OK || roi == 0) {
       ATH_MSG_WARNING( "REGTEST / Failed to find RoiDescriptor " );
       return HLT::NAV_ERROR;
     }
+ 
 
     ATH_MSG_DEBUG( "REGTEST prepareROBs / event"
 		   << " RoI id " << roi->roiId()
