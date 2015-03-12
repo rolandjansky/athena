@@ -19,7 +19,7 @@ use StoreGate             	StoreGate-*             	Control
 use AthenaMonitoring      	AthenaMonitoring-*      	Control
 
 use Particle              	Particle-*              	Reconstruction
-use tauEvent              	tauEvent-*              	Reconstruction
+# use tauEvent              	tauEvent-*              	Reconstruction
 
 use TrigHLTMonitoring	  	TrigHLTMonitoring-*	  	Trigger/TrigMonitoring
 use TrigDecisionTool      	TrigDecisionTool-*      	Trigger/TrigAnalysis
@@ -32,15 +32,13 @@ use TrigParticle          	TrigParticle-*          	Trigger/TrigEvent
 use TrigCaloEvent         	TrigCaloEvent-*         	Trigger/TrigEvent
 use TrigInDetToolInterfaces 	TrigInDetToolInterfaces-* 	Trigger/TrigTools
 
-use CaloEvent         	    CaloEvent-*               Calorimeter
+use CaloEvent           	CaloEvent-*                     Calorimeter
 use CaloGeoHelpers         	CaloGeoHelpers-*         	Calorimeter
 
 use RecoToolInterfaces     	RecoToolInterfaces-*    	Reconstruction/RecoTools
 
 use egammaEvent           	egammaEvent-*           	Reconstruction/egamma
 use egammaInterfaces      	egammaInterfaces-*      	Reconstruction/egamma
-
-use InDetBeamSpotService    	InDetBeamSpotService-*          InnerDetector/InDetConditions
 
 # =======================================================================
 
@@ -54,6 +52,8 @@ apply_tag ROOTTableLibs
 
 use EventInfo             	EventInfo-*             	Event
 use TrkTrack              	TrkTrack-*              	Tracking/TrkEvent
+
+# use InDetBeamSpotService      InDetBeamSpotService-*          InnerDetector/InDetConditions
 
 # =====================================================================
 
