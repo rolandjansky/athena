@@ -5,14 +5,16 @@
 # @author: Sebastien Binet <binet@cern.ch>
 
 import shelve,os,tempfile,glob,atexit,shutil
-import PyCintex
+#import PyCintex
+import cppyy
 
 class DataFormatHandler(object):
     pass # class DataFormatHandler
 
 class DataHdlr_v000000(object):
     def __init__(self, fileName):
-        import PyCintex; PyCintex.Cintex.Enable()
+#        import PyCintex; PyCintex.Cintex.Enable()
+        import cppyy
         object.__init__(self)
         self._fileName    = fileName
         self._outFileName = None
@@ -26,7 +28,8 @@ class DataHdlr_v000100(object):
     """Data handler for pure python format. v00.01.00
     """
     def __init__(self, fileName, scratchDir):
-        import PyCintex; PyCintex.Cintex.Enable()
+#        import PyCintex; PyCintex.Cintex.Enable()
+        import cppyy
         object.__init__(self)
         self._fileName    = fileName
         self._tmpdir      = scratchDir
@@ -124,7 +127,8 @@ class DataHdlr_v000200(object):
     """Data handler for mixed ROOT/TTree-python format. v00.02.00
     """
     def __init__(self, fileName, scratchDir):
-        import PyCintex; PyCintex.Cintex.Enable()
+#        import PyCintex; PyCintex.Cintex.Enable()
+        import cppyy
         object.__init__(self)
         self._fileName    = fileName
         self._tmpdir      = scratchDir
