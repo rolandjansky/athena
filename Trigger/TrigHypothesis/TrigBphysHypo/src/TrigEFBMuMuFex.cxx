@@ -356,10 +356,13 @@ HLT::ErrorCode TrigEFBMuMuFex::acceptInputs(HLT::TEConstVec& inputTE, bool& pass
     for (const auto muel: vec_elv_muons[1]){
         // special case if noId set
         if (m_noId) {
+            // no check needed for the noID
+            /*
             if ( (*muel)->muonType() != xAOD::Muon::MuonStandAlone) {
                 if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "noID set and Muon from roi2 is not StandAlone - reject" << endreq;
                 continue;
             }
+             */
         } else {
             if ( (*muel)->muonType() != xAOD::Muon::Combined && (*muel)->muonType() != xAOD::Muon::SegmentTagged) {
                 if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "noID not set and Muon from roi2 is neither Combined or SegmentTagged - reject" << endreq;
@@ -389,7 +392,42 @@ HLT::ErrorCode TrigEFBMuMuFex::acceptInputs(HLT::TEConstVec& inputTE, bool& pass
                 const xAOD::Muon* mu1 = *itmu1;
                 if (!mu1) continue;
                 if (mu0 == mu1) continue; // avoid same pointers (shouldn't happen?)
-                buildCombination(mu0,mu1);
+                //unsightly hack to add the muon element links:
+                auto nresults = m_resultsHolder.size();
+                buildCombination(mu0,mu1);                   //  Main method to build the muons
+                auto nresults_new = m_resultsHolder.size();
+                if (nresults == nresults_new) continue; // no new
+                // if here then append muons to the objects
+                xAOD::TrigBphys * bphys = m_resultsHolder.back();
+                ElementLink<xAOD::IParticleContainer> ptl1EL,ptl2EL;
+                bool foundMu0(false), foundMu1(false);
+                for ( const auto muel: vec_elv_muons[0] ) {
+                    if ( *muel == mu0) {
+                        ptl1EL.resetWithKeyAndIndex(muel.dataID(),muel.index());
+                        foundMu0 = true;
+                    }
+                    if ( *muel == mu1) {
+                        ptl2EL.resetWithKeyAndIndex(muel.dataID(),muel.index());
+                        foundMu1 = true;
+                    }
+                    if (foundMu0 && foundMu1) break; // found both links
+                }
+                for ( const auto muel: vec_elv_muons[1] ) {
+                    if ( *muel == mu0) {
+                        ptl1EL.resetWithKeyAndIndex(muel.dataID(),muel.index());
+                        foundMu0 = true;
+                    }
+                    if ( *muel == mu1) {
+                        ptl2EL.resetWithKeyAndIndex(muel.dataID(),muel.index());
+                        foundMu1 = true;
+                    }
+                    if (foundMu0 && foundMu1) break; // found both links
+                }
+
+                bphys->addParticleLink(ptl1EL); //
+                bphys->addParticleLink(ptl2EL); //
+
+
             } // itmu1
         } // itmu0
     } // noId
@@ -405,7 +443,40 @@ HLT::ErrorCode TrigEFBMuMuFex::acceptInputs(HLT::TEConstVec& inputTE, bool& pass
                 const xAOD::Muon* mu1 = *itmu1;
                 if (!mu1) continue;
                 if (mu0 == mu1) continue; // avoid same pointers (shouldn't happen?)
-                buildCombination(mu0,mu1);
+                                          //unsightly hack to add the muon element links:
+                auto nresults = m_resultsHolder.size();
+                buildCombination(mu0,mu1);                   //  Main method to build the muons
+                auto nresults_new = m_resultsHolder.size();
+                if (nresults == nresults_new) continue; // no new
+                                                        // if here then append muons to the objects
+                xAOD::TrigBphys * bphys = m_resultsHolder.back();
+                ElementLink<xAOD::IParticleContainer> ptl1EL,ptl2EL;
+                bool foundMu0(false), foundMu1(false);
+                for ( const auto muel: vec_elv_muons[0] ) {
+                    if ( *muel == mu0) {
+                        ptl1EL.resetWithKeyAndIndex(muel.dataID(),muel.index());
+                        foundMu0 = true;
+                    }
+                    if ( *muel == mu1) {
+                        ptl2EL.resetWithKeyAndIndex(muel.dataID(),muel.index());
+                        foundMu1 = true;
+                    }
+                    if (foundMu0 && foundMu1) break; // found both links
+                }
+                for ( const auto muel: vec_elv_muons[1] ) {
+                    if ( *muel == mu0) {
+                        ptl1EL.resetWithKeyAndIndex(muel.dataID(),muel.index());
+                        foundMu0 = true;
+                    }
+                    if ( *muel == mu1) {
+                        ptl2EL.resetWithKeyAndIndex(muel.dataID(),muel.index());
+                        foundMu1 = true;
+                    }
+                    if (foundMu0 && foundMu1) break; // found both links
+                }
+                
+                bphys->addParticleLink(ptl1EL); //
+                bphys->addParticleLink(ptl2EL); //
             } // mu1
         } //mu0
     } // !m_noId
@@ -526,6 +597,7 @@ void TrigEFBMuMuFex::buildCombination(const xAOD::Muon *mu0, const xAOD::Muon *m
         if(m_lowerMassCut < massMuMu && ((massMuMu < m_upperMassCut) || (!m_ApplyupperMassCut) ))
             m_PassedBsMass = true;
         
+
         
     } else {
         // no valid output
