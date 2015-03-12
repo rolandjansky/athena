@@ -26,6 +26,8 @@
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
 
+#include "xAODTrigMuon/L2StandAloneMuon.h"
+
 
 /////////////////////////////////////////////////////////////////// 
 // Public methods: 
@@ -472,6 +474,7 @@ double TrigBphysHelperUtilsTool::invariantMassIP(const std::vector<const xAOD::I
         return -1;
     }
     
+    
     double px(0.),py(0.),pz(0.),E(0.);
     const unsigned int nPtls(ptls.size());
     for (unsigned int i =0; i < nPtls; ++i) {
@@ -479,14 +482,25 @@ double TrigBphysHelperUtilsTool::invariantMassIP(const std::vector<const xAOD::I
             if ( msg().level() <= MSG::DEBUG ) msg()  << MSG::DEBUG << "Null ptr in invariantMass; return -1" << endreq;
             return -1.;
         }
+        // mass correction factors (i.e to turn from GeV to MeV
+        // if l2 standalone muon, pt is in GeV, convert to MeV
+        double cFactor(1.);
+        if ( dynamic_cast<const xAOD::L2StandAloneMuon*>(ptls[i]) ) {
+            cFactor = 1000.;
+            if ( msg().level() <= MSG::DEBUG ) {
+                msg()  << MSG::DEBUG << "Found L2StandAlone muon for IParticle: " << i << " Treating as having units of GeV" << endreq;
+            }
+        } // if L2 muon
         
-        px += ptls[i]->p4().Px();
-        py += ptls[i]->p4().Py();
-        pz += ptls[i]->p4().Pz();
+                
+            
+        px += ptls[i]->p4().Px()*cFactor;
+        py += ptls[i]->p4().Py()*cFactor;
+        pz += ptls[i]->p4().Pz()*cFactor;
         E  += sqrt(masses[i]*masses[i] +
-                   ptls[i]->p4().Px()*ptls[i]->p4().Px() +
-                   ptls[i]->p4().Py()*ptls[i]->p4().Py() +
-                   ptls[i]->p4().Pz()*ptls[i]->p4().Pz()
+                   ptls[i]->p4().Px()*ptls[i]->p4().Px()*cFactor*cFactor +
+                   ptls[i]->p4().Py()*ptls[i]->p4().Py()*cFactor*cFactor +
+                   ptls[i]->p4().Pz()*ptls[i]->p4().Pz()*cFactor*cFactor
                    );
         
     } // for

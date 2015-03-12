@@ -397,25 +397,22 @@ HLT::ErrorCode TrigL2BMuMuFex::acceptInputs(HLT::TEConstVec& inputTE, bool& pass
     } // mui
     
     
-    //    JW m_muon1 = m_muon2 = NULL;
-    //  ElementLink<MuonFeatureContainer> muonFeatureEL;
-    //    const MuonFeature*  pMuonFeature(NULL);
-    //  const CombinedMuonFeature *m_muon(NULL);
     m_muon1 = m_muon2 = nullptr;
-    //ElementLink<xAOD::L2StandAloneMuonContainer> muonFeatureEL;
     ELVMuonsSA muonFeatureEL;
     const xAOD::L2StandAloneMuon*  pMuonFeature(nullptr);
-    const xAOD::L2CombinedMuon *m_muon(nullptr);
+    ElementLink<xAOD::L2StandAloneMuonContainer> pMuonFeatureEL; // for m_noId will be set to the SA muon
     
+    const xAOD::L2CombinedMuon *m_muon(nullptr);
+    ElementLink<xAOD::L2CombinedMuonContainer> m_muonEL;
     int i_comb = 0; // for noId chains, index of the RoI with combined muon feature (should be always 0, but better check it)
     
     // Get the muons combined/standalone features
     // const CombinedMuonFeature *muonX[2] = { m_muon1, m_muon2 };
     const xAOD::L2CombinedMuon *muonX[2] = { m_muon1, m_muon2 }; // JW FIXME shouldn't this just initialise to nullptr?
+    ElementLink<xAOD::L2CombinedMuonContainer> muonXEL[2];
     
     //ElementLink<xAOD::L2CombinedMuonContainer> l2combinedMuonEL[2];
     ELVMuons l2combinedMuonEL[2];
-    
     if ( !m_noId ) {
         for ( int i = 0; i < 2; i++ ) {
             //if ( (getFeature(inputTE.at(i), muonX[i]) != HLT::OK) || !muonX[i] ) {
@@ -467,6 +464,7 @@ HLT::ErrorCode TrigL2BMuMuFex::acceptInputs(HLT::TEConstVec& inputTE, bool& pass
                 //muonX[i_comb] = l2combinedMuonEL[i_comb].isValid() ? *l2combinedMuonEL[i_comb]: nullptr;
                 if (l2combinedMuonEL[i_comb].size()) {
                     muonX[i_comb] = (l2combinedMuonEL[i_comb][0]).isValid() ? *(l2combinedMuonEL[i_comb][0]): nullptr;
+                    muonXEL[i_comb]  = l2combinedMuonEL[i_comb][0];
                 }
                 if ( muonX[i_comb]) break;
             }
@@ -517,6 +515,7 @@ HLT::ErrorCode TrigL2BMuMuFex::acceptInputs(HLT::TEConstVec& inputTE, bool& pass
             else           mon_Errors.push_back( ERROR_Mu1_Standalone_Invalid );
             return HLT::NAV_ERROR;
         }
+        pMuonFeatureEL = muonFeatureEL[0]; // for output object
         pMuonFeature = *(muonFeatureEL[0]);
         if ( msgLvl() <= MSG::DEBUG )
             msg() << MSG::DEBUG
@@ -569,6 +568,7 @@ HLT::ErrorCode TrigL2BMuMuFex::acceptInputs(HLT::TEConstVec& inputTE, bool& pass
                 msg() << MSG::DEBUG << "               for TE's " << inputTE.front() << " and " << inputTE.back() << endreq;
             }
             m_muon = muonX[i_comb];
+            m_muonEL = muonXEL[i_comb];
             mon_Acceptance.push_back( ACCEPT_MuMu_Comb_Standalone );
         } else {
             msg() << MSG::ERROR << "NoId version, Can't get all necessary objects rois: " << ((roi[0] && roi[1])?"OK": "MISSING")
@@ -602,7 +602,7 @@ HLT::ErrorCode TrigL2BMuMuFex::acceptInputs(HLT::TEConstVec& inputTE, bool& pass
             else                      msg() << MSG::DEBUG << " trackTrackAddr=0";
             msg() << MSG::DEBUG << endreq;
             msg() << MSG::DEBUG << "StandaloneMuonFeature: addr=" << pMuonFeature
-            << " pt=" << pMuonFeature->pt()
+            << " pt=" << pMuonFeature->pt() << " eta=" << pMuonFeature->eta() << " phi=" << pMuonFeature->phi()
             << endreq;
         }
     } // debug
@@ -679,9 +679,10 @@ HLT::ErrorCode TrigL2BMuMuFex::acceptInputs(HLT::TEConstVec& inputTE, bool& pass
             mon_MucombPt.push_back( m_muon->pt()*m_muon->charge() / CLHEP::GeV );
             // Monitoring of the ID tracks
             mon_MutrkPt_wideRange  .push_back( fabs(m_muon->idTrack()->pt()) / CLHEP::GeV );
-            mon_MustandPt_wideRange.push_back( fabs(pMuonFeature->pt()) / CLHEP::GeV );
+            //mon_MustandPt_wideRange.push_back( fabs(pMuonFeature->pt()) / CLHEP::GeV );
+            mon_MustandPt_wideRange.push_back( fabs(pMuonFeature->pt()) *1000. / CLHEP::GeV );
             mon_MutrkPt  .push_back( fabs(m_muon->idTrack()->pt()) / CLHEP::GeV );
-            mon_MustandPt.push_back( fabs(pMuonFeature->pt()) / CLHEP::GeV );
+            mon_MustandPt.push_back( fabs(pMuonFeature->pt()) *1000. / CLHEP::GeV );
             mon_MutrkEta  .push_back( m_muon->idTrack()->eta() );
             mon_MustandEta.push_back( pMuonFeature->eta() );
             mon_MutrkPhi  .push_back( m_muon->idTrack()->phi() );
@@ -693,7 +694,7 @@ HLT::ErrorCode TrigL2BMuMuFex::acceptInputs(HLT::TEConstVec& inputTE, bool& pass
             mon_MutrkMustanddEta.push_back( fabs(dEtaMuMu) );
             mon_MutrkMustanddPhi.push_back( fabs(dPhiMuMu) );
             mon_MutrkMustanddR  .push_back( sqrt(dEtaMuMu*dEtaMuMu + dPhiMuMu*dPhiMuMu) );
-            mon_SumPtMutrkMustand.push_back( (fabs(m_muon->idTrack()->pt()) + fabs(pMuonFeature->pt())) / CLHEP::GeV );
+            mon_SumPtMutrkMustand.push_back( (fabs(m_muon->idTrack()->pt()) + fabs(pMuonFeature->pt()*1000.)) / CLHEP::GeV );
         }
     }
     
@@ -733,14 +734,14 @@ HLT::ErrorCode TrigL2BMuMuFex::acceptInputs(HLT::TEConstVec& inputTE, bool& pass
     // Check opposite/same charge
     double mu1ptq, mu2ptq;
     if ( !m_noId ) {
-        if ( m_muon1->idTrack() ) mu1ptq = m_muon1->idTrack()->pt() * m_muon1->idTrack()->charge();
-        else                                                     mu1ptq = m_muon1->pt() * m_muon1->charge();
-        if ( m_muon2->idTrack() ) mu2ptq = m_muon2->idTrack()->pt() * m_muon2->idTrack()->charge();
-        else                                                     mu2ptq = m_muon2->pt() * m_muon2->charge();
+        if ( m_muon1->idTrack() ) mu1ptq = fabs(m_muon1->idTrack()->pt()) * m_muon1->idTrack()->charge();
+        else                      mu1ptq = fabs(m_muon1->pt()) * m_muon1->charge();
+        if ( m_muon2->idTrack() ) mu2ptq = fabs(m_muon2->idTrack()->pt()) * m_muon2->idTrack()->charge();
+        else                      mu2ptq = fabs(m_muon2->pt()) * m_muon2->charge();
     } else {
-        if ( m_muon->idTrack() ) mu1ptq = m_muon->idTrack()->pt() * m_muon->idTrack()->charge();
-        else                                                   mu1ptq = m_muon->pt() * m_muon->charge();
-        mu2ptq = pMuonFeature->pt();
+        if ( m_muon->idTrack() ) mu1ptq = fabs(m_muon->idTrack()->pt()) * m_muon->idTrack()->charge();
+        else                     mu1ptq = fabs(m_muon->pt()) * m_muon->charge();
+        mu2ptq = pMuonFeature->pt()*1000.; // convert to MeV
     }
     if ( m_oppositeCharge ) {
         if ( mu1ptq * mu2ptq > 0 ) {
@@ -778,11 +779,20 @@ HLT::ErrorCode TrigL2BMuMuFex::acceptInputs(HLT::TEConstVec& inputTE, bool& pass
         mon_InvMass_comb_wideRange.push_back(mass / CLHEP::GeV);
     } else {
         //mass = invariantMass(m_muon, pMuonFeature);
+        //        msg() << MSG::DEBUG << "Mass determination of noId" << endreq;
+        //        msg() << MSG::DEBUG << "Muon1 Id Track " << m_muon->idTrack()->pt() << " " <<  m_muon->idTrack()->eta() << " " <<  m_muon->idTrack()->phi() << endreq;
+        //        msg() << MSG::DEBUG << "Muon2 Print:  " << pMuonFeature->pt() << " " << pMuonFeature->eta() << " " << pMuonFeature->phi() << endreq;
+        //        auto p = dynamic_cast<const xAOD::IParticle*>(pMuonFeature);
+        //        msg() << MSG::DEBUG << "Muon2 IParticle: " << p->pt() << " " << p->eta() << " " << p->phi() << endreq;
+        //        msg() << MSG::DEBUG << "Muon2 IDtrack " << p->pt() << " " << p->eta() << " " << p->phi() << endreq;
+        //        msg() << MSG::DEBUG << "Muon2 SAtrack: " << p->pt() << " " << p->eta() << " " << p->phi() << endreq;
+        //        msg() << MSG::DEBUG << "Muon2 type: " <<  pMuonFeature->type() << endreq;
         mass  = m_bphysHelperTool->invariantMass( m_muon->idTrack(), pMuonFeature, m_massMuon,m_massMuon );
         mon_InvMass_stand          .push_back(mass / CLHEP::GeV);
         mon_InvMass_stand_wideRange.push_back(mass / CLHEP::GeV);
     }
-    
+    msg() << MSG::DEBUG << "Mass: " << mass << endreq;
+
     // Apply the cut on the mass
     if ( mass < m_lowerMassCut || (mass > m_upperMassCut && m_ApplyupperMassCut) ) {
         if ( msgLvl() <= MSG::DEBUG )
@@ -814,8 +824,6 @@ HLT::ErrorCode TrigL2BMuMuFex::acceptInputs(HLT::TEConstVec& inputTE, bool& pass
     
     // JK Add element-links to tracks
     if ( !m_noId ) {
-        //      ElementLink<TrigInDetTrackCollection> track1EL=m_muon1->IDTrackLink();
-        //      ElementLink<TrigInDetTrackCollection> track2EL=m_muon2->IDTrackLink();
         const ElementLink< xAOD::TrackParticleContainer >& track1EL  = m_muon1->idTrackLink();
         const ElementLink< xAOD::TrackParticleContainer >& track2EL  = m_muon2->idTrackLink();
         
@@ -828,13 +836,21 @@ HLT::ErrorCode TrigL2BMuMuFex::acceptInputs(HLT::TEConstVec& inputTE, bool& pass
             << " eta: " << (*track2EL)->eta()
             << " phi: " << (*track2EL)->phi() << endreq;
         }
-        //    trigPartBmumu->addTrack(track1EL);
-        //    trigPartBmumu->addTrack(track2EL);
         trigPartBmumu->addTrackParticleLink(track1EL);
         trigPartBmumu->addTrackParticleLink(track2EL);
+        ElementLink<xAOD::IParticleContainer> ptl1EL(muonXEL[0].dataID(),muonXEL[0].index());
+        ElementLink<xAOD::IParticleContainer> ptl2EL(muonXEL[1].dataID(),muonXEL[1].index());
+        trigPartBmumu->addParticleLink(ptl1EL); //
+        trigPartBmumu->addParticleLink(ptl2EL); //
+
+        // set the eta and phi based on simple 4-mom
+        // ignore the correction mass of tracks
+        xAOD::IParticle::FourMom_t dimuon = (*track1EL)->p4() + (*track2EL)->p4();
+        trigPartBmumu->setEta(dimuon.Rapidity());
+        trigPartBmumu->setPhi(dimuon.Phi());
+
         
     } else {
-        //ElementLink<TrigInDetTrackCollection> track1EL=m_muon->IDTrackLink();
         const ElementLink< xAOD::TrackParticleContainer >& track1EL  = m_muon->idTrackLink();
         if ( msgLvl() <= MSG::VERBOSE ){
             msg() << MSG::VERBOSE << "Just check track links... " << endreq;
@@ -842,9 +858,23 @@ HLT::ErrorCode TrigL2BMuMuFex::acceptInputs(HLT::TEConstVec& inputTE, bool& pass
             << " eta: " << (*track1EL)->eta()
             << " phi: " << (*track1EL)->phi() << endreq;
         }
-        //    trigPartBmumu->addTrack(track1EL);
-        trigPartBmumu->addTrackParticleLink(track1EL);
+        // set the eta and phi based on simple 4-mom
+        // ignore the correction mass of tracks
+        xAOD::IParticle::FourMom_t saMuon;
+        saMuon.SetPtEtaPhiM(pMuonFeature->pt() * 1000., pMuonFeature->p4().Eta(), pMuonFeature->p4().Phi(),pMuonFeature->p4().M()*1000.);
+        xAOD::IParticle::FourMom_t dimuon = (*track1EL)->p4() + saMuon;
         
+        trigPartBmumu->setEta(dimuon.Eta());
+        trigPartBmumu->setPhi(dimuon.Phi());
+
+        trigPartBmumu->addTrackParticleLink(track1EL);
+        ElementLink<xAOD::IParticleContainer> tEL(m_muonEL.dataID(),m_muonEL.index());
+        trigPartBmumu->addParticleLink(tEL); // use Iparticle container for standalone muon
+
+        ElementLink<xAOD::IParticleContainer> pEL(pMuonFeatureEL.dataID(),pMuonFeatureEL.index());
+        msg() << MSG::DEBUG << "Inseting IParticle EL from L2Muon with:  " << pEL.isValid() << " " << pEL.dataID() << " " << pEL.index()  << endreq;
+        trigPartBmumu->addParticleLink(pEL); // use Iparticle container for standalone muon
+
     }
     
     ///////////// Now do vertexing /////////////////
