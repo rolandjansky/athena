@@ -50,8 +50,8 @@ JetMetTagTool::JetMetTagTool (const std::string& type, const std::string& name,
 
   /** JetMissingEt AOD Container Name */
   declareProperty("JetContainer",          m_containerName           = "AntiKt4LCTopoJets");
-  declareProperty("METContainer",          m_metContainerName        = "MET_RefFinal");
-  declareProperty("METFinalName",          m_metRefFinalName         = "Final");
+  declareProperty("METContainer",          m_metContainerName        = "MET_Reference_AntiKt4LCTopo");
+  declareProperty("METFinalName",          m_metRefFinalName         = "FinalClus");
   // declareProperty("METSoftJetName",        m_metSoftJetName          = "MET_SoftJets");
   // declareProperty("METRefMuonInName",      m_metRefMuonInName        = "MET_RefMuons");
   declareProperty("METMuonsName",          m_metMuonsName            = "Muons");
@@ -216,7 +216,13 @@ StatusCode JetMetTagTool::execute(TagFragmentCollection& jetMissingEtTagColl, co
          if (!mediumBadTool->accept( *jet))                  pid |= 1<<3;
          if (!tightBadTool->accept( *jet))                   pid |= 1<<4;
          
-         
+         /** get JVT */
+         bool hasjvt = jet->isAvailable<float>("Jvt");
+         if (hasjvt) {
+           float jvt = jet->auxdata<float>("Jvt");
+           if (fabs(jvt) > 0.2)  pid |= 1<<6;
+         }
+        
          /** get JVF */
          std::vector<float> jvf_v;
          bool hasjvf = jet->getAttribute<std::vector<float> >(xAOD::JetAttribute::JVF, jvf_v);
@@ -228,16 +234,17 @@ StatusCode JetMetTagTool::execute(TagFragmentCollection& jetMissingEtTagColl, co
            if (jetVertFrac > 0.75) pid |= 1<<10;
            if (jetVertFrac > 0.9)  pid |= 1<<11;
          }
+
          /** B-tagging */
          const xAOD::BTagging* btag =  (*jetItr)->btagging();
          if( bool(btag) )
            {
-             double mv1 = btag->MV1_discriminant();
+             double mvx;
+             btag->MVx_discriminant("MV2c20", mvx);
              
-             if (mv1 >  0.9827)  pid |= 1<< 12; 	 // MV1 @ 60% 
-             if (mv1 >  0.7892)  pid |= 1<< 13; 	 // MV1 @ 70% 
-             if (mv1 >  0.6073)  pid |= 1<< 14; 	 // MV1 @ 75% 
-             if (mv1 >  0.1340)  pid |= 1<< 15; 	 // MV1 @ 85% 
+             if (mvx >  0.473)  pid |= 1<< 12; 	 // MV2c20 @ 60% 
+             if (mvx > -0.046)  pid |= 1<< 13; 	 // MV2c20 @ 70% 
+             if (mvx > -0.819)  pid |= 1<< 14; 	 // MV2c20 @ 85% 
            }
          jetMissingEtTagColl.insert( m_pidStr[i], pid);
          
@@ -254,8 +261,9 @@ StatusCode JetMetTagTool::execute(TagFragmentCollection& jetMissingEtTagColl, co
         const xAOD::BTagging* btag =  (*jetItr)->btagging();
         if( bool(btag) )
           {
-            double mv1 = btag->MV1_discriminant();
-            if (fabs(jetP4.eta()) < 2.5 &&  mv1 >  0.6073){
+            double mvx;
+            btag->MVx_discriminant("MV2c20", mvx);
+            if (fabs(jetP4.eta()) < 2.5 &&  mvx >  -0.046){
               if (jetP4.pt() > 40.0*CLHEP::GeV) iBj40++;
               if (jetP4.pt() > 50.0*CLHEP::GeV) iBj50++;
               if (jetP4.pt() > 55.0*CLHEP::GeV) iBj55++;
@@ -313,7 +321,7 @@ StatusCode JetMetTagTool::execute(TagFragmentCollection& missingEtTagColl) {
   missingEtTagColl.insert(MissingEtAttributeNames[EtMiss::SumET], metfinal->sumet());
 
   const MissingET *metSoftTerm = (*met)[m_metSoftTermName];
-  if ( sc.isFailure() ) {
+  if ( !metSoftTerm ) {
     ATH_MSG_WARNING(  "No soft MissingET found in container with name " << m_metSoftTermName );
     return StatusCode::SUCCESS;
   } 
@@ -322,7 +330,7 @@ StatusCode JetMetTagTool::execute(TagFragmentCollection& missingEtTagColl) {
   missingEtTagColl.insert(MissingEtAttributeNames[EtMiss::MET_CellOutY], metSoftTerm->mpy());
 
   const MissingET *metRefTau = (*met)[m_metRefTauName];
-  if ( sc.isFailure() ) {
+  if ( !metRefTau ) {
     ATH_MSG_WARNING(  "No tau MissingET found in container with name " << m_metRefTauName );
     return StatusCode::SUCCESS;
   } 
