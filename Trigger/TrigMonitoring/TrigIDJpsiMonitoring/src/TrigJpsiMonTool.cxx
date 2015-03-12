@@ -24,7 +24,7 @@ using namespace TrigInDetAnalysis;
 TrigJpsiMonTool::TrigJpsiMonTool(const std::string & type, const std::string & name, const IInterface* parent) 
   :  IHLTMonTool(type, name, parent),
      m_tdt("Trig::TrigDecisionTool/TrigDecisionTool"),
-     m_roiInfo(0,0,0),
+     m_roiInfo(false),
      m_buildNtuple(false),
      m_countBook(true)
 {
@@ -101,9 +101,9 @@ StatusCode TrigJpsiMonTool::init() {
   //  msg(MSG::DEBUG) << " ----- enter init() ----- " << endreq;
 
   // roi width information
-  m_roiInfo.etaHalfWidth(m_etaWidth);
-  m_roiInfo.phiHalfWidth(m_phiWidth);
-  m_roiInfo.zedHalfWidth(m_zedWidth);
+  //  m_roiInfo.etaHalfWidth(m_etaWidth);
+  //  m_roiInfo.phiHalfWidth(m_phiWidth);
+  //  m_roiInfo.zedHalfWidth(m_zedWidth);
   
   // track filters 
   // reference (EF) tracks...
