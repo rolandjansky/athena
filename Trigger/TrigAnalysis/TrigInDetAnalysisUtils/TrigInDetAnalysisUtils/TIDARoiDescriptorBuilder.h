@@ -23,17 +23,20 @@ class TIDARoiDescriptorBuilder : public /*TrigInDetAnalysis::*/TIDARoiDescriptor
   
 public:
 
-  TIDARoiDescriptorBuilder( const TrigRoiDescriptor& r ) : 
-    TIDARoiDescriptor( r.roiWord(), r.l1Id(), r.roiId(), r.eta(), r.phi(), r.zed() ) 
+  TIDARoiDescriptorBuilder( const IRoiDescriptor& r ) : 
+    TIDARoiDescriptor( r.roiWord(), r.l1Id(), r.roiId(), 
+		       r.eta(), r.etaMinus(), r.etaPlus(), 
+		       r.phi(), r.phiMinus(), r.phiPlus(), 
+		       r.zed(), r.zedMinus(), r.zedPlus() )  
   {
-
-    double dphi = r.phiPlus() - r.phiMinus();
-    if ( r.phiPlus() < r.phiMinus() ) dphi += 2*M_PI;
-    m_phiHalfWidth      = std::fabs( HLT::wrapPhi( 0.5*dphi ) );
-    m_etaHalfWidth = 0.5*( r.etaPlus() - r.etaMinus() );
-    m_zedHalfWidth = 0.5*( r.zedPlus() - r.zedMinus() );  
-    m_etaPlus  = r.etaPlus();
-    m_etaMinus = r.etaMinus(); 						
+    if ( r.size()>0 ) { 
+      for ( unsigned i=0 ; i<r.size() ; i++ ) { 
+	const IRoiDescriptor* _r = r.at(i);
+	this->push_back(  TIDARoiDescriptor( _r->eta(), _r->etaMinus(), _r->etaPlus(), 
+					     _r->phi(), _r->phiMinus(), _r->phiPlus(), 
+					     _r->zed(), _r->zedMinus(), _r->zedPlus() ) );  
+      }
+    }
   }
   
   ~TIDARoiDescriptorBuilder() { } 

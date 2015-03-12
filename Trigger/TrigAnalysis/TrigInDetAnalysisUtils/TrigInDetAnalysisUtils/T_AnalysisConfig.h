@@ -309,7 +309,7 @@ protected:
       return true;
     }
     else {
-      m_provider->msg(MSG::DEBUG) << "TDT TrackFeature collection is empty " << endreq;
+      m_provider->msg(MSG::DEBUG) << "TDT TrackFeature collection (" << key << ") is empty " << endreq;
       return false;
     }
   }
@@ -362,7 +362,7 @@ protected:
       return true;
     }
     else {
-      m_provider->msg(MSG::DEBUG) << "TDT TrackFeature collection is empty " << endreq;
+      m_provider->msg(MSG::DEBUG) << "TDT TrackFeature collection (" << key << ") is empty" << endreq;
       return false;
     }
   }
