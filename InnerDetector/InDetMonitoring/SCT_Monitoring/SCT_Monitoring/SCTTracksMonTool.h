@@ -4,15 +4,10 @@
 
 /**    @file SCTTracksMonTool.h
  *   Class declaration for SCTTracksMonTool
- *   
- *                          
- *                          
+ *                         
  *    @author Luca Fiorini, based on code from Shaun Roe, Manuel Diaz Gomez
  *    and Maria Jose Casta.
  *  
- *   
- * 
- *   
  */
 
 #ifndef SCTTRACKSMONTOOL_H
@@ -176,14 +171,7 @@ private:
   //@{
   // Book Track related  Histograms
 
-  // hidetoshi 14.01.22
-  /*        
-  StatusCode bookTrackHistos(const bool isNewRun, const SCT_Monitoring::Bec becVal);
-  StatusCode bookGeneralHistos(bool isNewRun,bool isNewLumiBlock);
-  StatusCode bookPositiveEndCapTrackHistos(bool isNewRun){ return bookTrackHistos(isNewRun, SCT_Monitoring::ENDCAP_A);}
-  StatusCode bookNegativeEndCapTrackHistos(bool isNewRun){ return bookTrackHistos(isNewRun, SCT_Monitoring::ENDCAP_C);}
-  */
-
+ 
   // hidetoshi 14.01.22
   StatusCode bookTrackHistos(const SCT_Monitoring::Bec becVal);
   StatusCode bookGeneralHistos();
@@ -195,7 +183,7 @@ private:
   //@name Service methods
   //@{
   /// Get Kalman Updator for unbiased residuals
-  StatusCode GetKalmanUpdator();
+  //StatusCode GetKalmanUpdator();
   
   /// Calculate Pull value for MeasuredAtPlane TrackStates
   double calculatePull(const double, const double, const double);

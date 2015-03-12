@@ -10,7 +10,6 @@
 #include "SCT_Monitoring/SCTTracksMonTool.h"
 #include "deletePointers.h"
 #include "SCT_NameFormatter.h"
-#include "boost/lexical_cast.hpp"
 #include <cmath>
 #include "AthenaKernel/errorcheck.h"
 #include "GaudiKernel/StatusCode.h"
@@ -27,12 +26,10 @@
 #include "TrkTrack/TrackCollection.h"
 #include "InDetRIO_OnTrack/SiClusterOnTrack.h"
 #include "InDetPrepRawData/SiCluster.h"
-//#include "TrkParameters/MeasuredPerigee.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkTrackSummary/TrackSummary.h"
 
 // for sct residuals
-//#include "TrkParameters/MeasuredAtaPlane.h"
 //for GetKalmanUpdator
 #include "GaudiKernel/ListItem.h"
 
@@ -79,8 +76,8 @@ namespace {
  */
 //====================================================================================================
 SCTTracksMonTool::SCTTracksMonTool(const string & type, 
-				   const string & name,
-				   const IInterface* parent)
+           const string & name,
+           const IInterface* parent)
  :SCTMotherTrigMonTool(type, name, parent),
   m_residualPullCalculator("Trk::ResidualPullCalculator/ResidualPullCalculator"),
   m_updator("Trk::KalmanUpdator/TrkKalmanUpdator")
@@ -114,18 +111,15 @@ StatusCode SCTTracksMonTool::bookHistogramsRecurrent()                          
 {
   ATH_MSG_DEBUG("SCTTracksMonTool::bookHistograms");
   m_path = (m_useIDGlobal) ? ("/InDetGlobal/") : ("");
-  //  if (isNewRun) m_numberOfEvents = 0;                                                                        // hidetoshi 14.01.21 
   if (newRun) m_numberOfEvents = 0;                                                                              // hidetoshi 14.01.21 
   CHECK(detStore()->retrieve(m_pSCTHelper,"SCT_ID"));
   if(m_doUnbiasedCalc)
     CHECK(m_updator.retrieve());
   //Booking  Track related Histograms   
-  //  CHECK(bookGeneralHistos(isNewRun, isNewLumiBlock));                                                       // hidetoshi 14.01.21 
   CHECK(bookGeneralHistos());                                                                                   // hidetoshi 14.01.21 
   const bool doThisSubsystem[N_REGIONS] = {m_doNegativeEndcap, true, m_doPositiveEndcap};
   string names[N_REGIONS] = {"endcap C", "barrel", "endcap A"};  
   for (unsigned int sys(0); sys != N_REGIONS; ++sys){
-    //    if (doThisSubsystem[sys] and bookTrackHistos(isNewRun,index2Bec(sys)).isFailure())                    // hidetoshi 14.01.21 
     if (doThisSubsystem[sys] and bookTrackHistos(index2Bec(sys)).isFailure())                                   // hidetoshi 14.01.22
       ATH_MSG_WARNING("Error in booking track histograms for "<<names[sys]); 
   }  
@@ -142,17 +136,14 @@ StatusCode SCTTracksMonTool::bookHistograms()                                   
   ATH_MSG_DEBUG("SCTTracksMonTool::bookHistograms");
   m_path = (m_useIDGlobal) ? ("/InDetGlobal/") : ("");
   if (newRun) m_numberOfEvents = 0;                                                                            // hidetoshi 14.11.27 
-  //m_numberOfEvents = 0;                                                                                    // hidetoshi 14.01.21 
   CHECK(detStore()->retrieve(m_pSCTHelper,"SCT_ID"));
   if(m_doUnbiasedCalc)
     CHECK(m_updator.retrieve());
   //Booking  Track related Histograms   
-  //  CHECK(bookGeneralHistos(isNewRun, isNewLumiBlock));                                                       // hidetoshi 14.01.21 
   CHECK(bookGeneralHistos());                                                                                   // hidetoshi 14.01.21 
   const bool doThisSubsystem[N_REGIONS] = {m_doNegativeEndcap, true, m_doPositiveEndcap};
   string names[N_REGIONS] = {"endcap C", "barrel", "endcap A"};  
   for (unsigned int sys(0); sys != N_REGIONS; ++sys){
-    //    if (doThisSubsystem[sys] and bookTrackHistos(isNewRun,index2Bec(sys)).isFailure())                  // hidetoshi 14.01.21 
     if (doThisSubsystem[sys] and bookTrackHistos(index2Bec(sys)).isFailure())                                 // hidetoshi 14.01.22
       ATH_MSG_WARNING("Error in booking track histograms for "<<names[sys]); 
   }  
@@ -181,14 +172,14 @@ StatusCode SCTTracksMonTool::fillHistograms(){
     }
     if(m_environment != AthenaMonManager::online){ // 27.11.2014
       for(int mm=0;mm<N_DISKSx2;mm++){
-	m_psctresidualsHistoVectorECm[mm]->GetXaxis()->SetTitle("Index in the derection of #eta");
-	m_psctresidualsHistoVectorECm[mm]->GetYaxis()->SetTitle("Index in the derection of #phi");
-	m_psctresidualsHistoVectorECp[mm]->GetXaxis()->SetTitle("Index in the derection of #eta");
-	m_psctresidualsHistoVectorECp[mm]->GetYaxis()->SetTitle("Index in the derection of #phi");
-	m_psctpullsHistoVectorECm[mm]->GetXaxis()->SetTitle("Index in the derection of #eta");
-	m_psctpullsHistoVectorECm[mm]->GetYaxis()->SetTitle("Index in the derection of #phi");
-	m_psctpullsHistoVectorECp[mm]->GetXaxis()->SetTitle("Index in the derection of #eta");
-	m_psctpullsHistoVectorECp[mm]->GetYaxis()->SetTitle("Index in the derection of #phi");
+        m_psctresidualsHistoVectorECm[mm]->GetXaxis()->SetTitle("Index in the derection of #eta");
+        m_psctresidualsHistoVectorECm[mm]->GetYaxis()->SetTitle("Index in the derection of #phi");
+        m_psctresidualsHistoVectorECp[mm]->GetXaxis()->SetTitle("Index in the derection of #eta");
+        m_psctresidualsHistoVectorECp[mm]->GetYaxis()->SetTitle("Index in the derection of #phi");
+        m_psctpullsHistoVectorECm[mm]->GetXaxis()->SetTitle("Index in the derection of #eta");
+        m_psctpullsHistoVectorECm[mm]->GetYaxis()->SetTitle("Index in the derection of #phi");
+        m_psctpullsHistoVectorECp[mm]->GetXaxis()->SetTitle("Index in the derection of #eta");
+        m_psctpullsHistoVectorECp[mm]->GetYaxis()->SetTitle("Index in the derection of #phi");
         m_psctresidualsRMSHistoVectorECm[mm]->GetXaxis()->SetTitle("Index in the derection of #eta");
         m_psctresidualsRMSHistoVectorECm[mm]->GetYaxis()->SetTitle("Index in the derection of #phi");
         m_psctresidualsRMSHistoVectorECp[mm]->GetXaxis()->SetTitle("Index in the derection of #eta");
@@ -199,10 +190,10 @@ StatusCode SCTTracksMonTool::fillHistograms(){
         m_psctpullsRMSHistoVectorECp[mm]->GetYaxis()->SetTitle("Index in the derection of #phi");
       }
       for(int nn=0;nn<N_BARRELSx2;nn++){
-	m_psctresidualsHistoVector[nn]->GetXaxis()->SetTitle("Index in the derection of #eta");
-	m_psctresidualsHistoVector[nn]->GetYaxis()->SetTitle("Index in the derection of #phi");
-	m_psctpullsHistoVector[nn]->GetXaxis()->SetTitle("Index in the derection of #eta");
-	m_psctpullsHistoVector[nn]->GetYaxis()->SetTitle("Index in the derection of #phi");
+        m_psctresidualsHistoVector[nn]->GetXaxis()->SetTitle("Index in the derection of #eta");
+        m_psctresidualsHistoVector[nn]->GetYaxis()->SetTitle("Index in the derection of #phi");
+        m_psctpullsHistoVector[nn]->GetXaxis()->SetTitle("Index in the derection of #eta");
+        m_psctpullsHistoVector[nn]->GetYaxis()->SetTitle("Index in the derection of #phi");
         m_psctresidualsRMSHistoVector[nn]->GetXaxis()->SetTitle("Index in the derection of #eta");
         m_psctresidualsRMSHistoVector[nn]->GetYaxis()->SetTitle("Index in the derection of #phi");
         m_psctpullsRMSHistoVector[nn]->GetXaxis()->SetTitle("Index in the derection of #eta");
@@ -231,7 +222,7 @@ StatusCode SCTTracksMonTool::fillHistograms(){
   if (trkend == trkbegin) {
     if (m_doTrigger)
       for (int trig(0); trig != N_TRIGGER_TYPES ; ++trig)
-	trackTriggerRate->Fill(trig,0);
+  trackTriggerRate->Fill(trig,0);
     for (int i(0); i != N_REGIONS ; ++i){ m_trackRate->Fill(i,0); }
   }
 
@@ -260,7 +251,7 @@ StatusCode SCTTracksMonTool::fillHistograms(){
     
     if (track->fitQuality()->numberDoF() > 0.)  //Fill Track Chi2/ndf histogram
       m_trk_chi2->Fill(track->fitQuality()->chiSquared()/track->fitQuality()->numberDoF());
-          
+    if(track->perigeeParameters()==0)continue;          
     float trackPerigeeTheta(track->perigeeParameters()->parameters()[Trk::theta]);
     float trackPerigeeEta(-log(tan(0.5*trackPerigeeTheta)));
     m_tracksPerRegion->Fill(etaRegion(trackPerigeeEta));
@@ -275,7 +266,7 @@ StatusCode SCTTracksMonTool::fillHistograms(){
       for (int trig(0); trig!=N_TRIGGER_TYPES ; ++trig)
         if (SCTMotherTrigMonTool::hasTriggerFired(trig)){
           trackTrigger->Fill(trig);
-	  trackTriggerRate->Fill(trig, 1);
+    trackTriggerRate->Fill(trig, 1);
         } else trackTriggerRate->Fill(trig, 0);
     
     bool hasHits[N_REGIONS] = {false, false, false}; //Define bools to check whether the track has barrel, EA/C hits
@@ -303,9 +294,9 @@ StatusCode SCTTracksMonTool::fillHistograms(){
     }    
     
     VecH1_t * residualsSummaryHistogramArray[3] = {&m_psctresiduals_summaryHistoVectorECm, 
-						   &m_psctresiduals_summaryHistoVector, &m_psctresiduals_summaryHistoVectorECp };
+               &m_psctresiduals_summaryHistoVector, &m_psctresiduals_summaryHistoVectorECp };
     VecH1_t * pullsSummaryHistogramArray[3] = {&m_psctpulls_summaryHistoVectorECm, 
-					       &m_psctpulls_summaryHistoVector, &m_psctpulls_summaryHistoVectorECp};
+                 &m_psctpulls_summaryHistoVector, &m_psctpulls_summaryHistoVectorECp};
 
     H1_t residualsSummaryHistogram(0);
     H1_t pullsSummaryHistogram(0);
@@ -316,7 +307,7 @@ StatusCode SCTTracksMonTool::fillHistograms(){
         const InDet::SiClusterOnTrack *clus(dynamic_cast<const InDet::SiClusterOnTrack*>( (*it)->measurementOnTrack()));
         if(clus) { // Is it a SiCluster? If yes...
           const InDet::SiCluster *RawDataClus(dynamic_cast<const InDet::SiCluster*>(clus->prepRawData()));
-	  if (not RawDataClus) continue; // Continue if dynamic_cast returns null
+    if (not RawDataClus) continue; // Continue if dynamic_cast returns null
           if (RawDataClus->detectorElement()->isSCT()) { 
             const Identifier sct_id(clus->identify());
             const int eta(m_pSCTHelper->eta_module(sct_id));
@@ -337,19 +328,18 @@ StatusCode SCTTracksMonTool::fillHistograms(){
               if(m_doUnbiasedCalc){           
                 const Trk::TrackParameters *trkParam((*it)->trackParameters());
                 if(trkParam){
-		  //                  trkParameters = m_updator->removeFromState(*trkParam, rio->localParameters(), rio->localErrorMatrix());
-		  trkParameters = m_updator->removeFromState(*trkParam, rio->localParameters(), rio->localCovariance()); 
+      trkParameters = m_updator->removeFromState(*trkParam, rio->localParameters(), rio->localCovariance()); 
                   updateSucceeds = (trkParameters != 0);
                 }
               }
             }
-	    else ATH_MSG_DEBUG("not rio");
-	    if (!trkParameters) trkParameters = (*it)->trackParameters();
-	    //            const Trk::MeasuredAtaPlane *trackMeasuredAtPlane(dynamic_cast<const Trk::MeasuredAtaPlane*> (trkParameters));
-	    //            if (trackMeasuredAtPlane){
-	    //	    const CLHEP::HepVector LocalTrackParameters(trackMeasuredAtPlane->parameters());
-	    if (trkParameters){  
-	      const AmgVector(5) LocalTrackParameters(trkParameters->parameters()); 
+      else ATH_MSG_DEBUG("not rio");
+      if (!trkParameters) trkParameters = (*it)->trackParameters();
+      //            const Trk::MeasuredAtaPlane *trackMeasuredAtPlane(dynamic_cast<const Trk::MeasuredAtaPlane*> (trkParameters));
+      //            if (trackMeasuredAtPlane){
+      //      const CLHEP::HepVector LocalTrackParameters(trackMeasuredAtPlane->parameters());
+      if (trkParameters){  
+        const AmgVector(5) LocalTrackParameters(trkParameters->parameters()); 
 #ifndef NDEBUG
               ATH_MSG_DEBUG("Track Position Phi= " << LocalTrackParameters[Trk::locX]);
               ATH_MSG_DEBUG("Cluster Position Phi= " << clus->localParameters()[Trk::locX]);
@@ -369,76 +359,76 @@ StatusCode SCTTracksMonTool::fillHistograms(){
 
                     pullsSummaryHistogram = (*pullsSummaryHistogramArray[subsystemIndex])[element];
 
-		    if(m_environment != AthenaMonManager::online){ // 27.11.2014 
-		      residualsHistogram = (*residualsHistogramArray[subsystemIndex])[element]; //27.11.2014
-		      pullsHistogram = (*pullsHistogramArray[subsystemIndex])[element];//27.11.2014
-		      if (residualsHistogram) residualsHistogram->Fill(eta, phi, local_residual);
-		      if (bigPull and pullsHistogram) pullsHistogram->Fill(eta, phi, local_pull);
-		    } //27.11.2014
+        if(m_environment != AthenaMonManager::online){ // 27.11.2014 
+          residualsHistogram = (*residualsHistogramArray[subsystemIndex])[element]; //27.11.2014
+          pullsHistogram = (*pullsHistogramArray[subsystemIndex])[element];//27.11.2014
+          if (residualsHistogram) residualsHistogram->Fill(eta, phi, local_residual);
+          if (bigPull and pullsHistogram) pullsHistogram->Fill(eta, phi, local_pull);
+        } //27.11.2014
 
                     if (residualsSummaryHistogram) residualsSummaryHistogram->Fill(local_residual, 1.);
-		    if(bec == 0) m_totalBarrelResidual->Fill(local_residual, 1.);
-		    else if(bec > 0) m_totalEndCapAResidual->Fill(local_residual, 1.);
-		    else m_totalEndCapCResidual->Fill(local_residual, 1.);
+        if(bec == 0) m_totalBarrelResidual->Fill(local_residual, 1.);
+        else if(bec > 0) m_totalEndCapAResidual->Fill(local_residual, 1.);
+        else m_totalEndCapCResidual->Fill(local_residual, 1.);
                     if (bigPull and pullsSummaryHistogram) pullsSummaryHistogram->Fill(local_pull, 1.);
-		    if(bec == 0) m_totalBarrelPull->Fill(local_pull, 1.);
-		    else if(bec > 0) m_totalEndCapAPull->Fill(local_pull, 1.);
-		    else m_totalEndCapCPull->Fill(local_pull, 1.);
+        if(bec == 0) m_totalBarrelPull->Fill(local_pull, 1.);
+        else if(bec > 0) m_totalEndCapAPull->Fill(local_pull, 1.);
+        else m_totalEndCapCPull->Fill(local_pull, 1.);
                   }
                 }
-		delete residualPull; 
-		residualPull = 0;
-	      }
-	    }
-	    else { // no measured local parameters, pull won't be calculated
-	      ATH_MSG_WARNING("No measured local parameters, pull won't be calculated");
-	      const Trk::AtaPlane * trackAtPlane(dynamic_cast<const Trk::AtaPlane*> (trkParameters));
-	      if (trackAtPlane) {
-		//		const CLHEP::HepVector LocalTrackParameters(trackAtPlane->parameters());
-		const AmgVector(5) LocalTrackParameters(trackAtPlane->parameters()); 
-		if(clus->localParameters().parameterKey() == ONE_D_LOCATION){
-		  double local_residual(LocalTrackParameters[Trk::locX] - clus->localParameters()[Trk::locX]);
-		  if (doThisDetector){
+    delete residualPull; 
+    residualPull = 0;
+        }
+      }
+      else { // no measured local parameters, pull won't be calculated
+        ATH_MSG_WARNING("No measured local parameters, pull won't be calculated");
+        const Trk::AtaPlane * trackAtPlane(dynamic_cast<const Trk::AtaPlane*> (trkParameters));
+        if (trackAtPlane) {
+    //    const CLHEP::HepVector LocalTrackParameters(trackAtPlane->parameters());
+    const AmgVector(5) LocalTrackParameters(trackAtPlane->parameters()); 
+    if(clus->localParameters().parameterKey() == ONE_D_LOCATION){
+      double local_residual(LocalTrackParameters[Trk::locX] - clus->localParameters()[Trk::locX]);
+      if (doThisDetector){
 
-		    residualsSummaryHistogram = (*residualsSummaryHistogramArray[subsystemIndex])[element];
-		    if(m_environment != AthenaMonManager::online){ // 27.11.2014
-		      residualsHistogram = (*residualsHistogramArray[subsystemIndex])[element]; //27.11.2014
-		      if (residualsHistogram) residualsHistogram->Fill(eta, phi, local_residual);
-		    } //27.11.2014
-		    if (residualsSummaryHistogram) residualsSummaryHistogram->Fill(local_residual, 1.);
-		    if(bec == 0) m_totalBarrelResidual->Fill(local_residual, 1.);
-		    else if(bec > 0) m_totalEndCapAResidual->Fill(local_residual, 1.);
-		    else m_totalEndCapCResidual->Fill(local_residual, 1.);
-		  }
-		} else {
-		  if (doThisDetector){
-		    double sinAlpha(RawDataClus->detectorElement()->sinStereoLocal(RawDataClus->localPosition()));
-		    double cosAlpha(sqrt(1. - sinAlpha*sinAlpha));
+        residualsSummaryHistogram = (*residualsSummaryHistogramArray[subsystemIndex])[element];
+        if(m_environment != AthenaMonManager::online){ // 27.11.2014
+          residualsHistogram = (*residualsHistogramArray[subsystemIndex])[element]; //27.11.2014
+          if (residualsHistogram) residualsHistogram->Fill(eta, phi, local_residual);
+        } //27.11.2014
+        if (residualsSummaryHistogram) residualsSummaryHistogram->Fill(local_residual, 1.);
+        if(bec == 0) m_totalBarrelResidual->Fill(local_residual, 1.);
+        else if(bec > 0) m_totalEndCapAResidual->Fill(local_residual, 1.);
+        else m_totalEndCapCResidual->Fill(local_residual, 1.);
+      }
+    } else {
+      if (doThisDetector){
+        double sinAlpha(RawDataClus->detectorElement()->sinStereoLocal(RawDataClus->localPosition()));
+        double cosAlpha(sqrt(1. - sinAlpha*sinAlpha));
                     // Calculate Residual for hit: res = (vec(x_track) - vec(x_hit)) * vec(n_perpendicular)
-		    double local_residual((LocalTrackParameters[Trk::locX] -  clus->localParameters()[Trk::locX]) * cosAlpha
-					  + (LocalTrackParameters[Trk::locY] - clus->localParameters()[Trk::locY]) * sinAlpha);
-		    residualsSummaryHistogram = (bec == BARREL) ? 0 : (*residualsSummaryHistogramArray[subsystemIndex])[element];
-		    if(m_environment != AthenaMonManager::online){ // 27.11.2014
-		      residualsHistogram = (bec == BARREL) ? 0 : (*residualsHistogramArray[subsystemIndex])[layer];//!!! this is 'layer' in the original code, others are elements //27.11.2014
-		      if (residualsHistogram) residualsHistogram->Fill(eta, phi, local_residual);
-		    } //27.11.2014
-		    if (residualsSummaryHistogram) residualsSummaryHistogram->Fill(local_residual, 1.);
-		    if(bec == 0) m_totalBarrelResidual->Fill(local_residual, 1.);
-		    else if(bec > 0) m_totalEndCapAResidual->Fill(local_residual, 1.);
-		    else m_totalEndCapCResidual->Fill(local_residual, 1.);
-		  }
-		}
-	      }
-	    }
-	    ++local_scthits; // TODO This is not correct, change it
-	    ++local_tot_trkhits;
-	    if(m_doUnbiasedCalc and rio and updateSucceeds)
-	      if (trkParameters){
-		delete trkParameters; 
-		trkParameters = 0;
-	      }
-	  } // end if SCT..
-	} // end if(clus)
+        double local_residual((LocalTrackParameters[Trk::locX] -  clus->localParameters()[Trk::locX]) * cosAlpha
+            + (LocalTrackParameters[Trk::locY] - clus->localParameters()[Trk::locY]) * sinAlpha);
+        residualsSummaryHistogram = (bec == BARREL) ? 0 : (*residualsSummaryHistogramArray[subsystemIndex])[element];
+        if(m_environment != AthenaMonManager::online){ // 27.11.2014
+          residualsHistogram = (bec == BARREL) ? 0 : (*residualsHistogramArray[subsystemIndex])[layer];//!!! this is 'layer' in the original code, others are elements //27.11.2014
+          if (residualsHistogram) residualsHistogram->Fill(eta, phi, local_residual);
+        } //27.11.2014
+        if (residualsSummaryHistogram) residualsSummaryHistogram->Fill(local_residual, 1.);
+        if(bec == 0) m_totalBarrelResidual->Fill(local_residual, 1.);
+        else if(bec > 0) m_totalEndCapAResidual->Fill(local_residual, 1.);
+        else m_totalEndCapCResidual->Fill(local_residual, 1.);
+      }
+    }
+        }
+      }
+      ++local_scthits; // TODO This is not correct, change it
+      ++local_tot_trkhits;
+      if(m_doUnbiasedCalc and rio and updateSucceeds)
+        if (trkParameters){
+    delete trkParameters; 
+    trkParameters = 0;
+        }
+    } // end if SCT..
+  } // end if(clus)
       } // if((*it)->type(Trk::TrackStateOnSurface::Measurement)){
     }// end of loop on TrackStatesonSurface (they can be SiClusters, TRTHits,..)
   
@@ -454,12 +444,10 @@ StatusCode SCTTracksMonTool::fillHistograms(){
   m_trk_nclu_totHisto->Fill(local_tot_trkhits, 1.);
 
   if(m_environment == AthenaMonManager::online){ 
-      //if(m_environment == AthenaMonManager::online)m_my_isOnline=true;//Fumiaki Ito
-    //if(m_my_isOnline){ //21.11.2014 Fumiaki Ito
     if(m_numberOfEvents ==1 || (m_numberOfEvents > 1 && m_numberOfEvents % m_checkrate == 0)){//30.11.2014
       ATH_MSG_DEBUG("Calling checkHists(false); false := during run");
       if(checkHists(false).isFailure())
-	ATH_MSG_WARNING("Error in checkHists(false)");
+  ATH_MSG_WARNING("Error in checkHists(false)");
     }
     
     // Time Dependent SP plots only online
@@ -470,17 +458,17 @@ StatusCode SCTTracksMonTool::fillHistograms(){
       m_nTracks->Reset(); 
       Int_t latest_nTracks_pos(nTracks_pos);
       for (Int_t i(1); i != m_evtsbins; ++i) {
-	if (latest_nTracks_pos == m_evtsbins) latest_nTracks_pos = 0;
-	if (m_numberOfEvents < m_evtsbins){
-	  if (i < nTracks_pos)
-	    m_nTracks->SetBinContent(i,nTracks_buf[i]);
-	  else m_nTracks->SetBinContent(i,0);
-	} else {
-	  m_nTracks->SetBinContent(i, nTracks_buf[latest_nTracks_pos]);
-	  m_nTracks->GetXaxis()->Set(m_evtsbins, m_numberOfEvents-m_evtsbins, m_numberOfEvents);
-	}
-	latest_nTracks_pos++; 
-	if (latest_nTracks_pos == m_evtsbins) latest_nTracks_pos = 0;
+  if (latest_nTracks_pos == m_evtsbins) latest_nTracks_pos = 0;
+  if (m_numberOfEvents < m_evtsbins){
+    if (i < nTracks_pos)
+      m_nTracks->SetBinContent(i,nTracks_buf[i]);
+    else m_nTracks->SetBinContent(i,0);
+  } else {
+    m_nTracks->SetBinContent(i, nTracks_buf[latest_nTracks_pos]);
+    m_nTracks->GetXaxis()->Set(m_evtsbins, m_numberOfEvents-m_evtsbins, m_numberOfEvents);
+  }
+  latest_nTracks_pos++; 
+  if (latest_nTracks_pos == m_evtsbins) latest_nTracks_pos = 0;
       }
     }
   } 
@@ -491,9 +479,7 @@ StatusCode SCTTracksMonTool::fillHistograms(){
 //====================================================================================================
 //                             SCTTracksMonTool :: procHistograms
 //====================================================================================================
-//    StatusCode  SCTTracksMonTool::procHistograms(bool /*isEndOfEventsBlock*/, bool /*isEndOfLumiBlock*/, bool isEndOfRun){   //  hidetoshi 14.01.21
 StatusCode  SCTTracksMonTool::procHistograms(){                                                                            //  hidetoshi 14.01.21
-  //    if(isEndOfRun){                                                                                                     //  hidetoshi 14.01.21
   if(endOfRun){                                                                                                               //  hidetoshi 14.01.21
     ATH_MSG_DEBUG("SCTTracksMonTool::procHistograms");
     ATH_MSG_DEBUG("Total Rec Event Number: " << m_numberOfEvents);
@@ -535,18 +521,18 @@ StatusCode  SCTTracksMonTool::checkHists(bool /*fromFinalize*/){
 
     for (int thisDetector(negativeEndCap); thisDetector != N_REGIONS; ++thisDetector){ 
       if (doDetector[thisDetector]){
-	const int lastElement(numberOfHistograms[thisDetector]); 
-	if(not (*residuals[thisDetector]).empty()){  /// added protection if vectors are not filled
-	  for (int element(0); element != lastElement; ++element){ 
-	    const int nXbins((*residuals[thisDetector])[element]->GetNbinsX());
-	    const int nYbins((*residuals[thisDetector])[element]->GetNbinsY()); 
-	    for (int xbin(1); xbin <= nXbins; ++xbin)
-	      for (int ybin(1); ybin<=nYbins;++ybin){
-		(*residualsRms[thisDetector])[element]->SetBinContent(xbin, ybin, (*residuals[thisDetector])[element]->GetBinError(xbin, ybin));
-		(*pullsRms[thisDetector])[element]->SetBinContent(xbin, ybin, (*pulls[thisDetector])[element]->GetBinError(xbin, ybin));
-	      }
-	  }
-	}
+  const int lastElement(numberOfHistograms[thisDetector]); 
+  if(not (*residuals[thisDetector]).empty()){  /// added protection if vectors are not filled
+    for (int element(0); element != lastElement; ++element){ 
+      const int nXbins((*residuals[thisDetector])[element]->GetNbinsX());
+      const int nYbins((*residuals[thisDetector])[element]->GetNbinsY()); 
+      for (int xbin(1); xbin <= nXbins; ++xbin)
+        for (int ybin(1); ybin<=nYbins;++ybin){
+    (*residualsRms[thisDetector])[element]->SetBinContent(xbin, ybin, (*residuals[thisDetector])[element]->GetBinError(xbin, ybin));
+    (*pullsRms[thisDetector])[element]->SetBinContent(xbin, ybin, (*pulls[thisDetector])[element]->GetBinError(xbin, ybin));
+        }
+    }
+  }
       }
     }
     //  (*residualsRms[0])[0]->GetXaxis()->SetTitle("Index in the derection of #eta");
@@ -557,20 +543,20 @@ StatusCode  SCTTracksMonTool::checkHists(bool /*fromFinalize*/){
     VecH1_t::const_iterator endit(m_psctpulls_summaryHistoVector.end());
     for (VecH1_t::const_iterator it(m_psctpulls_summaryHistoVector.begin()); it != endit; ++it){
       if ((*it)->GetEntries() > 2){//only fit if #entries > 1, otherwise root crashes
-	ATH_MSG_DEBUG("GetEntries = "<< (*it)->GetEntries());
-	(*it)->Fit("pullgaus", "Q", "", -2., 2.);	//Fit Pulls with a gaussian, Quiet mode ; adding 'N' would aslo do no drawing of the fitted function: the increase in speed is small, though.
-	double  par[3], epar[3]; 
-	pullgaus.GetParameters(par); 	       	//gaus params : norm, mean, rms
-	for (int i(0); i != 3; ++i) epar[i] = pullgaus.GetParError(i);  	// error on the params
-	if (abs(par[1]) > 5.* epar[1]) (*it)->SetLineColor(2);
-	if ((par[2]- 5.* epar[2]) > 2.) (*it)->SetLineColor(2);
+  ATH_MSG_DEBUG("GetEntries = "<< (*it)->GetEntries());
+  (*it)->Fit("pullgaus", "Q", "", -2., 2.); //Fit Pulls with a gaussian, Quiet mode ; adding 'N' would aslo do no drawing of the fitted function: the increase in speed is small, though.
+  double  par[3], epar[3]; 
+  pullgaus.GetParameters(par);          //gaus params : norm, mean, rms
+  for (int i(0); i != 3; ++i) epar[i] = pullgaus.GetParError(i);    // error on the params
+  if (abs(par[1]) > 5.* epar[1]) (*it)->SetLineColor(2);
+  if ((par[2]- 5.* epar[2]) > 2.) (*it)->SetLineColor(2);
       }
     }
   }
   return StatusCode::SUCCESS;
 }
 
-
+/**
 //====================================================================================================
 //                           SCTTracksMonTool :: GetKalmanUpdator
 //====================================================================================================
@@ -580,13 +566,13 @@ StatusCode SCTTracksMonTool::GetKalmanUpdator(){
   ListItem ltool("Trk::KalmanUpdator/TrkKalmanUpdator");
   CHECK(toolSvc()->retrieveTool(ltool.type(), ltool.name(), algTool));
   m_updator = dynamic_cast<Trk::IUpdator*>(algTool);
-  if (m_updator == 0) {
+  if (not m_updator ) {
     ATH_MSG_FATAL("Could not get KalmanUpdator for unbiased track states");
     return StatusCode::FAILURE;
   }
   return StatusCode::SUCCESS;
 }
-
+**/
 //====================================================================================================
 //                           SCTTracksMonTool :: calculatePull
 //====================================================================================================
@@ -617,9 +603,9 @@ StatusCode SCTTracksMonTool::bookGeneralHistos(){                               
       
     //Book histogram of number of tracks per region
     m_tracksPerRegion = new TH1F("tracksPerRegion", "Number of tracks in eta regions", 3, 0, 3);
-    m_tracksPerRegion->GetXaxis()->SetBinLabel(1,"EndCapA");
+    m_tracksPerRegion->GetXaxis()->SetBinLabel(1,"EndCapC");
     m_tracksPerRegion->GetXaxis()->SetBinLabel(2,"Barrel");
-    m_tracksPerRegion->GetXaxis()->SetBinLabel(3,"EndCapC");
+    m_tracksPerRegion->GetXaxis()->SetBinLabel(3,"EndCapA");
     CHECK(Tracks.regHist(m_tracksPerRegion));
     m_totalBarrelResidual = new TH1F("totalBarrelResidual","Overall Residual Distribution for the Barrel",100,-0.5,0.5);
     m_totalBarrelResidual->GetXaxis()->SetTitle("Residual [mm]");
@@ -644,8 +630,8 @@ StatusCode SCTTracksMonTool::bookGeneralHistos(){                               
       trackTrigger = new TH1I("trackTriggers","Tracks for different trigger types",N_TRIGGER_TYPES,-0.5,7.5);            // first bin, last bin
       trackTriggerRate = new TProfile("trackTriggersRate","Track per event for different trigger types",N_TRIGGER_TYPES,-0.5,7.5);            // first bin, last bin
       for (int trig(0); trig != N_TRIGGER_TYPES; ++trig) {
-	trackTrigger->GetXaxis()->SetBinLabel(trig + 1, SCTMotherTrigMonTool::m_triggerNames[trig].c_str());
-	trackTriggerRate->GetXaxis()->SetBinLabel(trig + 1, SCTMotherTrigMonTool::m_triggerNames[trig].c_str());
+  trackTrigger->GetXaxis()->SetBinLabel(trig + 1, SCTMotherTrigMonTool::m_triggerNames[trig].c_str());
+  trackTriggerRate->GetXaxis()->SetBinLabel(trig + 1, SCTMotherTrigMonTool::m_triggerNames[trig].c_str());
       }
       CHECK(Tracks.regHist(trackTrigger));
       CHECK(Tracks.regHist(trackTriggerRate));
@@ -748,9 +734,6 @@ StatusCode SCTTracksMonTool::bookTrackHistos(const SCT_Monitoring::Bec becVal){ 
 
   string stem(m_stream + pathDelimiter + localPath + pathDelimiter);
   for (unsigned int i(0); i != limit; ++i){
-    //const string layerString(lexical_cast<string>(i/2));
-    //const string sideString(lexical_cast<string>(i%2));
-    //    LayerSideFormatter layerSide(i);//30.11.2014
     LayerSideFormatter layerSide(i,systemIndex);//30.11.2014
     string streamResidual(string("residuals")+abbreviation+streamDelimiter+layerSide.name());
     string streamPull(string("pulls")+abbreviation+streamDelimiter+layerSide.name());
@@ -792,8 +775,8 @@ StatusCode SCTTracksMonTool::bookTrackHistos(const SCT_Monitoring::Bec becVal){ 
 
     for (unsigned int i(0); i != limit; ++i) {
       LayerSideFormatter layerSide(i,systemIndex);
-      const string layerString(lexical_cast<string>(i / 2));
-      const string sideString(lexical_cast<string>(i % 2));
+      const string layerString(std::to_string(i / 2));
+      const string sideString(std::to_string(i % 2));
       string streamResidual("residualsRMS" +abbreviation+streamDelimiter+ layerString + streamDelimiter + sideString);
       string streamPull("pullsRMS"+abbreviation+streamDelimiter + layerString + streamDelimiter + sideString);
       string titleResidual("SCT Residuals RMS for "+polarityString+": " + layerSide.title());
@@ -807,7 +790,7 @@ StatusCode SCTTracksMonTool::bookTrackHistos(const SCT_Monitoring::Bec becVal){ 
 }
 
 StatusCode SCTTracksMonTool::h2Factory(const std::string & name, const std::string & title, 
-				       const SCT_Monitoring::Bec bec, MonGroup & registry, VecH2_t & storageVector){
+               const SCT_Monitoring::Bec bec, MonGroup & registry, VecH2_t & storageVector){
   int firstEta(FIRST_ETA_BIN), lastEta(LAST_ETA_BIN), firstPhi(FIRST_PHI_BIN), lastPhi(LAST_PHI_BIN), nEta(N_ETA_BINS), nPhi(N_PHI_BINS);
   if (bec != BARREL){
     firstEta = FIRST_ETA_BIN_EC;
@@ -824,7 +807,7 @@ StatusCode SCTTracksMonTool::h2Factory(const std::string & name, const std::stri
 }
 
 StatusCode SCTTracksMonTool::p2Factory(const std::string & name, const std::string & title, 
-				       const SCT_Monitoring::Bec bec, MonGroup & registry, VecProf2_t & storageVector){
+               const SCT_Monitoring::Bec bec, MonGroup & registry, VecProf2_t & storageVector){
   int firstEta(FIRST_ETA_BIN), lastEta(LAST_ETA_BIN), firstPhi(FIRST_PHI_BIN), lastPhi(LAST_PHI_BIN), nEta(N_ETA_BINS), nPhi(N_PHI_BINS);
   if (bec != BARREL){
     firstEta = FIRST_ETA_BIN_EC;

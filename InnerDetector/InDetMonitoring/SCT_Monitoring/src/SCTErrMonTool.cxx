@@ -47,7 +47,7 @@ namespace{ //anon. namespace for file-scoped functions
   
   //test offline the online code
   const bool testOffline(false);
-  
+  /** unused
   //print contents of a histo or profile
   void printContents( TH1 * aHisto){
     const int nbins=aHisto->GetNbinsX()+1;
@@ -67,7 +67,7 @@ namespace{ //anon. namespace for file-scoped functions
        }
      }
    }
- 
+   **/
   
   int numberOfInefficientSides( TH2* pHistogramArray[],const int xbin, const int ybin, const float threshold){
     float histogramBinContent0=pHistogramArray[0]->GetBinContent(xbin, ybin);
@@ -202,7 +202,7 @@ SCTErrMonTool::~SCTErrMonTool(){
 //====================================================================================================
 StatusCode SCTErrMonTool::bookHistograms()
 {  
-  msg(MSG::INFO) << " initialize being called " << endreq;
+  ATH_MSG_DEBUG( " initialize being called " );
   if(newRun){
     numberOfEvents=0;
     if(AthenaMonManager::dataType()==AthenaMonManager::cosmics)m_checkrate=100;
@@ -210,20 +210,17 @@ StatusCode SCTErrMonTool::bookHistograms()
   if(ManagedMonitorToolBase::newLumiBlock) numberOfEventsLumi=0;
   m_dataObjectName = "SCT_RDOs";
   const InDetDD::SCT_DetectorManager* mgr; //confusingly this is in a dedicated namespace
-  if (detStore()->retrieve(mgr, "SCT").isFailure()){
-    msg(MSG::ERROR) << "Could not retrieve Detector Manager in SCTErrMonTool::bookHistograms" << endreq;
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK(detStore()->retrieve(mgr, "SCT"));
   detStore()->retrieve(m_pSCTHelper,"SCT_ID");
 
   // Services for Summary Histograms: SCT_ModuleConditionsTool from CondDB and flagged conditions service
-  msg(MSG::INFO) << "Checking for CondDB" << endreq;
-  if (m_ConfigurationSvc.retrieve().isFailure()) msg(MSG::ERROR) << "Conditions summary service NOT found!" << endreq; 
-  msg(MSG::INFO) << "Checking for Flagged Service" << endreq;
-  if (m_flaggedSvc.retrieve().isFailure()) msg(MSG::ERROR) << "Flagged service NOT found!" << endreq;
+  ATH_MSG_INFO( "Checking for CondDB" );
+  ATH_CHECK(m_ConfigurationSvc.retrieve()); 
+  ATH_MSG_INFO( "Checking for Flagged Service" );
+  ATH_CHECK(m_flaggedSvc.retrieve());
 
   // get a handle on the histogramming service //
-  if (m_thistSvc.retrieve().isFailure())  msg(MSG::ERROR) << "Unable to retrieve pointer to THistSvc"  << endreq;
+  ATH_CHECK(m_thistSvc.retrieve());
 
   /// SUMMARY HISTOGRAM
   if ( bookConfMaps().isFailure() )                  msg(MSG::WARNING) << "Error in bookConfMaps()" << endreq;
@@ -241,8 +238,7 @@ StatusCode SCTErrMonTool::bookHistograms()
   if(m_doNegativeEndcap){
     if( bookNegativeEndCapErrHistos().isFailure() )  msg(MSG::WARNING) << "Error in bookNegativeEndCapErrHistos()" << endreq;
   }
-  if (m_byteStreamErrSvc.retrieve().isFailure()) return msg(MSG::FATAL) << "Failed to retrieve service " << m_byteStreamErrSvc << endreq, StatusCode::FAILURE;
-  if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Retrieved service " << m_byteStreamErrSvc << endreq;
+  ATH_CHECK(m_byteStreamErrSvc.retrieve());
 
   m_initialize=true;
   return StatusCode::SUCCESS;
@@ -256,7 +252,7 @@ StatusCode SCTErrMonTool::fillHistograms(){
   typedef SCT_RDORawData SCTRawDataType;
   const EventInfo* pEvent(0);
   if( evtStore()->retrieve(pEvent).isFailure() ) {
-    ATH_MSG_ERROR( "Could not retrieve event info!" );
+    ATH_MSG_WARNING( "Could not retrieve event info!" );
     return StatusCode::RECOVERABLE; 
   }
   m_current_lb = pEvent->event_ID()->lumi_block();
@@ -265,10 +261,7 @@ StatusCode SCTErrMonTool::fillHistograms(){
     return StatusCode::FAILURE;
   }  
   const SCT_RDO_Container* p_rdocontainer;
-  if (evtStore()->retrieve(p_rdocontainer,m_dataObjectName).isFailure()){
-    ATH_MSG_ERROR("Could not get RDO collection in SCTErrMonTool :: fillHistograms " << numberOfEvents);
-    return StatusCode::FAILURE; 
-  }
+  ATH_CHECK(evtStore()->retrieve(p_rdocontainer,m_dataObjectName));
   Identifier SCT_Identifier;
 
   //Define variables for error histograms
@@ -414,12 +407,12 @@ StatusCode  SCTErrMonTool::procHistograms(){
 /** TO BE REPLACED **/
 bool endOfEventsBlock(endOfLumiBlock);
   if(endOfEventsBlock || endOfLumiBlock){
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "finalHists()" << endreq;
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Total Rec Event Number: " << numberOfEvents << endreq;
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Calling checkHists(true); true := end of run" << endreq;
+    ATH_MSG_DEBUG( "finalHists()" );
+    ATH_MSG_DEBUG( "Total Rec Event Number: " << numberOfEvents );
+    ATH_MSG_DEBUG( "Calling checkHists(true); true := end of run" );
     if (checkRateHists().isFailure())
       msg(MSG::WARNING) << "Error in checkRateHists()" << endreq ;
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Exiting finalHists" << endreq;
+    ATH_MSG_DEBUG( "Exiting finalHists" );
   }
   return StatusCode::SUCCESS;
 }
@@ -951,7 +944,7 @@ StatusCode  SCTErrMonTool::bookConfMaps(){
                                       "Num of Problematic Module in EndcapC","Num of Problematic Module in All Region"};//30.11.2014 
         TString confonlinetitle[4]={"SCTOnlineConfBarrel","SCTOnlineConfEndcapA","SCTOnlineConfEndcapC","SCTOnlineConf"};
         TString confefftitle="SCTEffConf";
-
+	TString region[4]={"Barrel","EndcapA","EndcapC","All region"};
         TString confnoisetitle="SCTNoiseConf";
         TString confnoisetitle_recent="SCTNoiseConfRecent";
         TString maskedlinktitle[4]={"SCTMaskedLinkConfBarrel","SCTMaskedLinkConfEndcapA","SCTMaskedLinkConfEndcapC","SCTMaskedLinkConf"};
@@ -966,13 +959,13 @@ StatusCode  SCTErrMonTool::bookConfMaps(){
             m_ConfOnline[reg]=new TH1F(confonlinetitle[reg],conflabel[reg]+" Online",conf_online_bins,-0.5,conf_online_bins-0.5);//30.11.2014 
             for (int bin = 0; bin<conf_online_bins; bin++) m_ConfOnline[reg]->GetXaxis()->SetBinLabel(bin+1,m_ConfigurationOnlineBinNames[bin].c_str());
           }
-          m_MaskedLinksVsLB[reg] = new TProfile(maskedlinktitle[reg],"Average number of masked link errors per event vs. lumiblock",n_lumiBins,0.5,n_lumiBins+0.5);
+          m_MaskedLinksVsLB[reg] = new TProfile(maskedlinktitle[reg],"Average number of masked link errors per event vs. lumiblock in "+ region[reg],n_lumiBins,0.5,n_lumiBins+0.5);
           m_MaskedLinksVsLB[reg]->GetXaxis()->SetTitle("LumiBlock"); 
-          m_ROBFragmentVsLB[reg] = new TProfile(robfragtitle[reg],"Average number of ROB fragment errors per event vs. lumiblock",n_lumiBins,0.5,n_lumiBins+0.5);
+          m_ROBFragmentVsLB[reg] = new TProfile(robfragtitle[reg],"Average number of ROB fragment errors per event vs. lumiblock in "+ region[reg],n_lumiBins,0.5,n_lumiBins+0.5);
           m_ROBFragmentVsLB[reg]->GetXaxis()->SetTitle("LumiBlock"); 
-          m_NumberOfErrorsVsLB[reg] = new TProfile(numerrors[reg],"Average number of errors per event vs. lumiblock",n_lumiBins,0.5,n_lumiBins+0.5);
+          m_NumberOfErrorsVsLB[reg] = new TProfile(numerrors[reg],"Average number of errors per event vs. lumiblock in "+ region[reg],n_lumiBins,0.5,n_lumiBins+0.5);
           m_NumberOfErrorsVsLB[reg]->GetXaxis()->SetTitle("LumiBlock"); 
-          m_ModulesWithErrorsVsLB[reg] = new TProfile(moderrors[reg],"Average number of modules with errors per event vs. lumiblock",n_lumiBins,0.5,n_lumiBins+0.5);
+          m_ModulesWithErrorsVsLB[reg] = new TProfile(moderrors[reg],"Average number of modules with errors per event vs. lumiblock in "+region[reg],n_lumiBins,0.5,n_lumiBins+0.5);
           m_ModulesWithErrorsVsLB[reg]->GetXaxis()->SetTitle("LumiBlock"); 
         }
         const int conf_noise_bins = 4;

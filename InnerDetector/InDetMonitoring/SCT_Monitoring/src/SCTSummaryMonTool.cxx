@@ -9,27 +9,6 @@
 *    Modified by Yuta
 */
 #include "SCT_Monitoring/SCTSummaryMonTool.h"
-#include "deletePointers.h"
-#include "SCT_NameFormatter.h"
-#include "boost/lexical_cast.hpp"
-#include <cmath>
-
-#include "GaudiKernel/StatusCode.h"
-#include "GaudiKernel/IToolSvc.h"
-
-#include "TH1F.h"
-#include "TH2F.h"
-#include "TProfile2D.h"
-#include "TF1.h"
-#include "DataModel/DataVector.h"
-#include "Identifier/Identifier.h"
-#include "InDetIdentifier/SCT_ID.h"
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"
-
-
-using namespace std;
-using namespace Rec;
-using namespace SCT_Monitoring;
 
 
 //====================================================================================================
@@ -40,7 +19,7 @@ using namespace SCT_Monitoring;
 *  numbers to be used, and the timebin.
 */
 //====================================================================================================
-SCTSummaryMonTool::SCTSummaryMonTool(const string & type,const string & name,const IInterface* parent):SCTMotherTrigMonTool(type, name, parent)
+SCTSummaryMonTool::SCTSummaryMonTool(const std::string & type,const std::string & name,const IInterface* parent):SCTMotherTrigMonTool(type, name, parent)
 {
   m_numberOfEvents=0;
 }
@@ -54,7 +33,6 @@ SCTSummaryMonTool::~SCTSummaryMonTool(){
 //====================================================================================================
 //                       SCTSummaryMonTool :: bookHistograms
 //====================================================================================================
-//StatusCode SCTSummaryMonTool::bookHistograms( bool /*isNewEventsBlock*/, bool /*isNewLumiBlock*/, bool /*isNewRun */)//suppress 'unused' compiler warning
 StatusCode SCTSummaryMonTool::bookHistograms()
 { 
   return StatusCode::SUCCESS;
@@ -77,7 +55,6 @@ StatusCode SCTSummaryMonTool::fillHistograms(){
 //====================================================================================================
 //                             SCTSummaryMonTool :: procHistograms
 //====================================================================================================
-//  StatusCode  SCTSummaryMonTool::procHistograms(bool /*isEndOfEventsBlock*/, bool /*isEndOfLumiBlock*/, bool /*isEndOfRun*/){//suppress 'unused' compiler warning
   StatusCode  SCTSummaryMonTool::procHistograms(){
   
   return StatusCode::SUCCESS;

@@ -10,7 +10,6 @@
 #include "SCT_Monitoring/SCTRatioNoiseMonTool.h"
 #include "deletePointers.h"
 #include "SCT_NameFormatter.h"
-#include "boost/lexical_cast.hpp"
 #include <cmath>
 
 #include "GaudiKernel/StatusCode.h"
@@ -126,7 +125,6 @@ SCTRatioNoiseMonTool::SCTRatioNoiseMonTool(const string & type,
   
   eventID = 0;
 
-
   for (int i = 0; i <n_mod[GENERAL_INDEX]  ; i++) {
     nLayer[i]=0;
     nEta[i]=0;
@@ -225,72 +223,39 @@ StatusCode SCTRatioNoiseMonTool::bookHistogramsRecurrent()                      
   //  if(isNewRun) m_numberOfEvents=0;                                                           // hidetoshi 14.01.21
   if(newRun) m_numberOfEvents=0;                                                                 // hidetoshi 14.01.21
   m_dataObjectName = "SCT_RDOs";
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "initialize being called" << endreq;
-  StatusCode sc = detStore()->retrieve(m_pSCTHelper,"SCT_ID");
-  if (sc.isFailure()) {
-    if (msgLvl(MSG::FATAL)) msg(MSG::FATAL)<< "SCT helper class not found !" << endreq;
-    return StatusCode::FAILURE;
-  }
-
+  ATH_MSG_DEBUG( "initialize being called" );
+  ATH_CHECK( detStore()->retrieve(m_pSCTHelper,"SCT_ID"));
   if(m_checkBadModules){
-    msg(MSG::INFO) << "Clusterization has been asked to look at bad module info" << endreq;
-    if (m_pSummarySvc.retrieve().isFailure()){
-      msg(MSG:: ERROR) << "Conditions summary service not found!" << endreq;
-      return StatusCode::FAILURE;}
+    ATH_MSG_INFO( "Clusterization has been asked to look at bad module info" );
+    ATH_CHECK(m_pSummarySvc.retrieve());
   }
-
   //get the SCT detector manager
-  
-  sc = detStore()->retrieve(m_sctmgr,"SCT");
-  if (sc.isFailure()) {
-    if (msgLvl(MSG::FATAL)) msg(MSG::FATAL)<< "SCT detector manager not found !" << endreq;
-    return StatusCode::FAILURE;
-  }
-  if (msgLvl(MSG::INFO)) msg(MSG::INFO)<< "SCT detector manager found: layout is \"" << m_sctmgr->getLayout() << "\"" << endreq;
-
+  ATH_CHECK(detStore()->retrieve(m_sctmgr,"SCT"));
+  ATH_MSG_INFO( "SCT detector manager found: layout is \"" << m_sctmgr->getLayout() << "\"" );
   //Booking  Track related Histograms
-  //  if(bookRatioNoiseHistos(isNewRun,isNewLumiBlock).isFailure() ) msg(MSG::WARNING) << "Error in bookRatioNoiseHistos()" << endreq;       // hidetoshi 14.01.21
   if(bookRatioNoiseHistos().isFailure() ) msg(MSG::WARNING) << "Error in bookRatioNoiseHistos()" << endreq;                                  // hidetoshi 14.01.22
-
   return StatusCode::SUCCESS;
 }
 
 //====================================================================================================
 //                       SCTRatioNoiseMonTool :: bookHistograms
 //====================================================================================================
-//StatusCode SCTRatioNoiseMonTool::bookHistograms( bool /*isNewEventsBlock*/, bool isNewLumiBlock, bool isNewRun )  // hidetoshi 14.01.21
 StatusCode SCTRatioNoiseMonTool::bookHistograms()                                                                   // hidetoshi 14.01.21
 {
   m_path= "";
-  //  if(isNewRun) m_numberOfEvents=0;                                                           // hidetoshi 14.01.21
   m_numberOfEvents=0;                                                                            // hidetoshi 14.01.21
   m_dataObjectName = "SCT_RDOs";
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "initialize being called" << endreq;
-  StatusCode sc = detStore()->retrieve(m_pSCTHelper,"SCT_ID");
-  if (sc.isFailure()) {
-    if (msgLvl(MSG::FATAL)) msg(MSG::FATAL)<< "SCT helper class not found !" << endreq;
-    return StatusCode::FAILURE;
-  }
-
+  ATH_MSG_DEBUG( "initialize being called");
+  ATH_CHECK(detStore()->retrieve(m_pSCTHelper,"SCT_ID"));
   if(m_checkBadModules){
-    msg(MSG::INFO) << "Clusterization has been asked to look at bad module info" << endreq;
-    if (m_pSummarySvc.retrieve().isFailure()){
-      msg(MSG:: ERROR) << "Conditions summary service not found!" << endreq;
-      return StatusCode::FAILURE;}
+    ATH_MSG_INFO( "Clusterization has been asked to look at bad module info" );
+    ATH_CHECK(m_pSummarySvc.retrieve());
   }
-
   //get the SCT detector manager
-  
-  sc = detStore()->retrieve(m_sctmgr,"SCT");
-  if (sc.isFailure()) {
-    if (msgLvl(MSG::FATAL)) msg(MSG::FATAL)<< "SCT detector manager not found !" << endreq;
-    return StatusCode::FAILURE;
-  }
-  if (msgLvl(MSG::INFO)) msg(MSG::INFO)<< "SCT detector manager found: layout is \"" << m_sctmgr->getLayout() << "\"" << endreq;
-
+  ATH_CHECK(detStore()->retrieve(m_sctmgr,"SCT"));
+  ATH_MSG_INFO( "SCT detector manager found: layout is \"" << m_sctmgr->getLayout() << "\"" );
   //Booking  Track related Histograms
-  //  if(bookRatioNoiseHistos(isNewRun,isNewLumiBlock).isFailure() ) msg(MSG::WARNING) << "Error in bookRatioNoiseHistos()" << endreq;       // hidetoshi 14.01.21
-  if(bookRatioNoiseHistos()) msg(MSG::WARNING) << "Error in bookRatioNoiseHistos()" << endreq;                                               // hidetoshi 14.01.22
+  if(bookRatioNoiseHistos().isFailure()) msg(MSG::WARNING) << "Error in bookRatioNoiseHistos()" << endreq;                                               // hidetoshi 14.01.22
 
   return StatusCode::SUCCESS;
 }
@@ -300,8 +265,7 @@ StatusCode SCTRatioNoiseMonTool::bookHistograms()                               
 /// This is the real workhorse, called for each event. It retrieves the data each time
 //====================================================================================================
 StatusCode SCTRatioNoiseMonTool::fillHistograms(){
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<"enters fillHistograms"<< endreq;
-  //msg(MSG::DEBUG) <<"enters fillHistograms"<< endreq;
+  ATH_MSG_DEBUG("enters fillHistograms");
   // lets get the raw hit container
   typedef SCT_RDORawData SCTRawDataType;
   const SCT_RDO_Container* p_rdocontainer; 
@@ -721,19 +685,10 @@ StatusCode  SCTRatioNoiseMonTool::checkHists(bool /*fromFinalize*/){
 //====================================================================================================
 //                              SCTRatioNoiseMonTool :: bookRatioNoiseHistos
 //====================================================================================================
-//  StatusCode SCTRatioNoiseMonTool::bookRatioNoiseHistos(bool isNewRun){       // hidetoshi 14.01.22
 StatusCode SCTRatioNoiseMonTool::bookRatioNoiseHistos(){       // hidetoshi 14.01.22
-  using boost::lexical_cast;
-  //  if(isNewRun){                                          // hidetoshi 14.01.22
   if(newRun){                                          // hidetoshi 14.01.22
-    
-    //     string stem=m_path+"/SCT/NO_Ratio/RatioNoise/";
-    //     MonGroup RatioNoise(this,m_path+"SCT/NO_Ratio/RatioNoise",expert,run);
-    // Priscilla: trying to make the dir structure similar to the rest of the mon Package
-    
-    
+
     string stem=m_path+"/SCT/GENERAL/RatioNoise/";
-    //      MonGroup RatioNoise(this,m_path+"SCT/GENERAL/RatioNoise",expert,run);   // hidetoshi 14.01.22
     MonGroup RatioNoise(this,m_path+"SCT/GENERAL/RatioNoise",run,ATTRIB_UNMANAGED); // hidetoshi 14.01.22
     
     string hNumBarrel[N_BARRELS]={"0","1","2","3"};
@@ -959,12 +914,10 @@ SCTRatioNoiseMonTool::prof2Factory(const std::string & name, const std::string &
 
 
 float SCTRatioNoiseMonTool::calculateNoiseOccupancyUsingRatioMethod(const float numberOneSide, const float numberZeroSide){
-
   float div, rat;
-
+	constexpr int nstrips(768);
   div = numberOneSide/numberZeroSide;
-  rat = (div/(div+2))/768;
-  
+  rat = (div/(div+2))/nstrips;
   return rat;
 }
 
@@ -981,7 +934,6 @@ bool SCTRatioNoiseMonTool::isEndcapC(const int moduleNumber){
 
 bool SCTRatioNoiseMonTool::isBarrel(const int moduleNumber){
   bool moduleinBarrel = false;
-  //if(moduleNumber>=f_mod[BARREL_INDEX] && moduleNumber<f_mod[ENDCAP_A_INDEX])
   if(f_mod[BARREL_INDEX]<=moduleNumber && moduleNumber<f_mod[ENDCAP_A_INDEX]){
     moduleinBarrel = true;}
   return moduleinBarrel;
@@ -989,7 +941,6 @@ bool SCTRatioNoiseMonTool::isBarrel(const int moduleNumber){
 
 bool SCTRatioNoiseMonTool::isEndcapA(const int moduleNumber){
   bool moduleinEndcapA = false;
-  //  if(moduleNumber>=f_mod[ENDCAP_A_INDEX] && moduleNumber<n_mod[GENERAL_INDEX]){
   if(f_mod[ENDCAP_A_INDEX]<=moduleNumber && moduleNumber<n_mod[GENERAL_INDEX]){
     moduleinEndcapA = true;}
   return moduleinEndcapA;
@@ -998,10 +949,8 @@ bool SCTRatioNoiseMonTool::isEndcapA(const int moduleNumber){
 
 bool SCTRatioNoiseMonTool::isEndcap(const int moduleNumber){
   bool moduleinEndcap = false;
-  //  if(moduleNumber>=0 && moduleNumber<f_mod[BARREL_INDEX])
   if(0<=moduleNumber && moduleNumber<f_mod[BARREL_INDEX])
     moduleinEndcap = true;
-  //  if(moduleNumber>=f_mod[ENDCAP_A_INDEX] && moduleNumber<n_mod[GENERAL_INDEX])
   if(f_mod[ENDCAP_A_INDEX]<=moduleNumber && moduleNumber<n_mod[GENERAL_INDEX])
     moduleinEndcap = true;
   return moduleinEndcap;

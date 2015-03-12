@@ -19,16 +19,8 @@
 
 #include <string>
 
-// for Updator
-
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
 #include "SCT_Monitoring/SCTMotherTrigMonTool.h"
-
-#include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/ToolHandle.h"
-
-//for vertexTool
-#include "ITrackToVertex/ITrackToVertex.h" //for  m_trackToVertexTool
 
 // Forward declarations
 class IInterface;
@@ -43,13 +35,11 @@ class SCTSummaryMonTool : public SCTMotherTrigMonTool{
    /**    @name Book, fill & check (reimplemented from baseclass) */
 //@{
   ///Book histograms in initialization
-  //  virtual StatusCode bookHistograms(bool isNewEventsBlock, bool isNewLumiBlock, bool isNewRun);
   virtual StatusCode bookHistograms();
   virtual StatusCode bookHistogramsRecurrent();
   ///Fill histograms in each loop
   virtual StatusCode fillHistograms() ;
   ///process histograms at the end (we only use 'isEndOfRun')
-  //  virtual StatusCode procHistograms( bool isEndOfEventsBlock, bool isEndOfLumiBlock, bool isEndOfRun );
   virtual StatusCode procHistograms();
  
 //@}
