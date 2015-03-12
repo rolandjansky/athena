@@ -145,7 +145,7 @@ namespace InDet{
     ATH_MSG_DEBUG( "SCT_TrgClusterization::initialize()" );
     
     
-    // get the InDet::MergedPixelsTool
+    // get the clusteringTool
     if ( m_clusteringTool.retrieve().isFailure() ) {
       ATH_MSG_FATAL( m_clusteringTool.propertyName() << ": Failed to retrieve tool " << m_clusteringTool.type() );
       return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
@@ -162,16 +162,6 @@ namespace InDet{
       return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
     }
     
-    // get the detector description.
-    /*StoreGateSvc* detStore(0);
-    StatusCode sc = service("DetectorStore", detStore);
-    if (sc.isFailure()){
-      msg() << MSG::FATAL << "Detector service not found !" << endreq;
-      return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
-    } 
-    else{
-      msg() << MSG::VERBOSE << "Detector service found !" << endreq;
-      }*/
     
     StatusCode sc = detStore()->retrieve(m_manager,m_managerName);
     if (sc.isFailure()){
@@ -373,20 +363,6 @@ namespace InDet{
     ATH_MSG_DEBUG( "REGTEST:" << *roi );
 
       
-    if(doTiming()) m_timerDecoder->start();
-    scdec = m_rawDataProvider->decode(roi);
-    if(doTiming()) m_timerDecoder->stop();
-
-    
-
-    ATH_MSG_DEBUG( "REGTEST:" << *roi );
-
-    
-    if(doTiming()) m_timerDecoder->start();
-    scdec = m_rawDataProvider->decode(roi);
-    if(doTiming()) m_timerDecoder->stop();
-    
-    
     //   Get the SCT RDO's:
     //     - First get the SCT ID's using the RegionSelector
     //     - Retrieve from SG the RDOContainer: 
@@ -395,6 +371,9 @@ namespace InDet{
     //     - Retrieve from StoreGate the RDO collections.
     //       (the ByteStreamConvertors are called here).
 
+    if(doTiming()) m_timerDecoder->start();
+    scdec = m_rawDataProvider->decode(roi);
+    if(doTiming()) m_timerDecoder->stop();
 
     if (scdec.isSuccess()){
       //check for recoverable errors
@@ -417,12 +396,11 @@ namespace InDet{
 	  //	  m_SctBSErr.push_back(bsErrors[idx]);
 	  if (bsErrors[idx])
 	    m_SctBSErr.push_back(idx);
-	  if(msgLvl(MSG::DEBUG))
-	     msg(MSG::DEBUG) << " " << bsErrors[idx];
+	  ATH_MSG_DEBUG(" " << bsErrors[idx]);
 	}
+	ATH_MSG_DEBUG( "" );
       }
 
-      ATH_MSG_DEBUG( "" );
 
     } else {
       ATH_MSG_DEBUG( " m_rawDataProvider->decode failed" );
@@ -491,7 +469,7 @@ namespace InDet{
 	if (m_checkBadModules && m_pSummarySvc){
 	  goodModule = m_pSummarySvc->isGood(RDO_Collection->identifyHash());
 	  if (!goodModule)
-	    ATH_MSG_DEBUG( "" );
+	    ATH_MSG_DEBUG( "Module not good: " << RDO_Collection->identifyHash() );
 	}
 	
 	
@@ -570,7 +548,7 @@ namespace InDet{
 	if (m_checkBadModules && m_pSummarySvc){
 	  goodModule = m_pSummarySvc->isGood(rd->identifyHash());
 	  if (!goodModule)
-	    ATH_MSG_DEBUG( "" );
+	    ATH_MSG_DEBUG( "Module not good: " << rd->identifyHash() );
 	}
 	
 	
@@ -681,24 +659,19 @@ namespace InDet{
   //-------------------------------------------------------------------------
   HLT::ErrorCode SCT_TrgClusterization::prepareRobRequests(const HLT::TriggerElement* inputTE ) {
 
-    ATH_MSG_INFO( "Running prepareRobRequests in SCT_trgClusterization. " );
+    ATH_MSG_DEBUG( "Running prepareRobRequests in SCT_trgClusterization. " );
  
     // Calculate ROBs needed  - this code should be shared with hltExecute to avoid slightly different requests
     const TrigRoiDescriptor* roi = 0;
 
-    if (getFeature(inputTE, roi, "forID") != HLT::OK || roi == 0) {
-      getFeature(inputTE, roi);
-    }
- 
-    if ( roi==NULL ) { 
+    if (getFeature(inputTE, roi) != HLT::OK || roi == 0) {
       ATH_MSG_WARNING( "REGTEST / Failed to find RoiDescriptor " );
       return HLT::NAV_ERROR;
     }
+ 
 
     ATH_MSG_DEBUG( "REGTEST prepareROBs / event"
-		   << " RoI id " << roi->roiId()
-		   << " located at   phi = " <<  roi->phi()
-		   << ", eta = " << roi->eta() );
+		   << *roi);
 
     //const TrigRoiDescriptor fs(true);
 
