@@ -205,8 +205,8 @@ HLT::ErrorCode TrigFullCaloCellMaker::hltExecute( std::vector<std::vector<HLT::T
   if (m_useCachedResult) {
   // save (cached) met feature to output TE:
     m_config->getNavigation()->copyAllFeatures( m_cachedTE, outputTE );
-    //outputTE->setActiveState(true);
-    outputTE->setActiveState(false); // We do not want the algorithms on top of this one to run on the Cached RoIs
+    outputTE->setActiveState(true);
+    //outputTE->setActiveState(false); // We do not want the algorithms on top of this one to run on the Cached RoIs
     return HLT::OK;
   }
 
