@@ -56,9 +56,9 @@ class TriggerOnlineGetter(Configured):
         # initialize HLT config svc
         log.info("configuring hlt")
         from TriggerJobOpts.HLTTriggerGetter import HLTSimulationGetter
-        hlt = HLTSimulationGetter()
-        
+        hlt = HLTSimulationGetter(g)
         
         return True
 
 
+ 

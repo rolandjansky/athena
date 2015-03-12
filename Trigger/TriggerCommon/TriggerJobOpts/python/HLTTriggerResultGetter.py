@@ -358,24 +358,8 @@ class HLTTriggerResultGetter(Configured):
             from TrigNavTools.TrigNavToolsConf import HLT__StreamTrigNavSlimming, HLT__TrigNavigationSlimming
             from TrigNavTools.TrigNavToolsConfig import navigationSlimming
 
-            edmlist = list(y for x in edm.values() for y in x) #flatten names
-
-
-            # from AOD navigation drop L2 navigation part
-            slimmerL2 = HLT__StreamTrigNavSlimming('L2NavSlimmer_%s'%stream)
-            slimmerL2.ThinningTool = navigationSlimming({'name':'L2Nav_%s'%stream, 'mode':'drop', 
-                                                         'ThinningSvc':thinningSvc, 'result':'HLTResult_L2'})
-            topSequence += slimmerL2
-
-            # for EF drop the features *not* recorded
-
-            slimmerEF = HLT__StreamTrigNavSlimming('EFNavSlimmer_%s' % stream)
-            slimmerEF.ThinningTool = navigationSlimming({'name':'EFNav_%s'%stream, 'mode':'trigger', 
-                                                         'ThinningSvc':thinningSvc, 'result':'HLTResult_EF',
-                                                         'features':edmlist})
-            topSequence += slimmerEF
-
-
+            edmlist = list(y.split('-')[0] for x in edm.values() for y in x) #flatten names
+          
             # from HLT result drop unrecorded features
             # slimmerHLT = HLT__StreamTrigNavSlimming('HLTNavSlimmer_%s'%stream)
             slimmerHLT = HLT__TrigNavigationSlimming('TrigNavigationSlimmer_%s'%stream)
@@ -384,11 +368,10 @@ class HLTTriggerResultGetter(Configured):
                                                           'features':edmlist})
             #tHLT.SlimmingTool.OutputLevel=DEBUG
             tHLT.ActInPlace=True
-            print "HHHTB"
             slimmerHLT.ThinningTool = tHLT
             print slimmerHLT.ThinningTool
             topSequence += slimmerHLT
-            log.info("Configured slimming of HLT results L2, EF and HLT")
+            log.info("Configured slimming of HLT")
             del edmlist
 
 
@@ -396,13 +379,13 @@ class HLTTriggerResultGetter(Configured):
         from AthenaServices.Configurables import ThinningSvc, createThinningSvc
         
         _doSlimming = True
-        if _doSlimming and rec.doWriteAOD(): #  and not rec.readAOD(): why not to run it when we read AOD??
+        if _doSlimming and rec.doWriteAOD() and not (rec.readAOD() or rec.readESD()): 
             if not hasattr(svcMgr, 'ThinningSvc'): # if the default is there it is configured for AODs
                 svcMgr += ThinningSvc(name='ThinningSvc', Streams=['StreamAOD'])             
             _addSlimming('StreamAOD', svcMgr.ThinningSvc, _TriggerAODList )
             log.info("configured navigation slimming for AOD output")
             
-        if _doSlimming and rec.doWriteESD(): # and not rec.readESD(): why not to run it when ESD is a source            
+        if _doSlimming and rec.doWriteESD() and not rec.readESD(): 
             svcMgr += ThinningSvc(name='ESDThinningSvc', Streams=['StreamESD']) # the default is configured for AODs
             # this was recommended but does not work
             # from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
