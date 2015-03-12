@@ -11,7 +11,6 @@
 #include "SCT_Monitoring/SCTLorentzMonTool.h"
 #include "deletePointers.h"
 #include "SCT_NameFormatter.h"
-#include "boost/lexical_cast.hpp"
 #include <cmath>
 
 #include "GaudiKernel/StatusCode.h"
@@ -73,8 +72,6 @@ m_trackToVertexTool("Reco::TrackToVertex") //for TrackToVertexTool
   clear(m_phiVsNstrips_Side_100);
   clear(m_phiVsNstrips_111);
   clear(m_phiVsNstrips_Side_111);
-
-
 }
 
 //====================================================================================================
@@ -91,54 +88,31 @@ StatusCode SCTLorentzMonTool::bookHistogramsRecurrent( )                        
 {
   m_path= "";
   if(newRun) m_numberOfEvents=0;                                                                                                                        // hidetoshi 14.01.21
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "initialize being called" << endreq;
+  ATH_MSG_DEBUG( "initialize being called" );
   detStore()->retrieve(m_pSCTHelper,"SCT_ID");
-  StatusCode sc = detStore()->retrieve(m_sctmgr,"SCT");
-  if (sc.isFailure()) {
-    if (msgLvl(MSG::FATAL)) msg(MSG::FATAL)<< "SCT detector manager not found !" << endreq;
-    return StatusCode::FAILURE;
-  }
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<< "SCT detector manager found: layout is \"" << m_sctmgr->getLayout() << "\"" << endreq;
-
+  ATH_CHECK(detStore()->retrieve(m_sctmgr,"SCT"));
+  ATH_MSG_DEBUG( "SCT detector manager found: layout is \"" << m_sctmgr->getLayout() << "\"" );
    /* Retrieve TrackToVertex extrapolator tool */
-  if ( m_trackToVertexTool.retrieve().isFailure() ) {
-    msg(MSG::FATAL) << "failed to retrieve tool " << endreq;
-    return StatusCode::FAILURE;
-  }
-
+  ATH_CHECK( m_trackToVertexTool.retrieve());
   //Booking  Track related Histograms
-  //  if(bookLorentzHistos(isNewRun,isNewLumiBlock).isFailure() ) msg(MSG::WARNING) << "Error in bookLorentzHistos()" << endreq;     // hidetoshi 14.01.21
   if(bookLorentzHistos().isFailure() ) msg(MSG::WARNING) << "Error in bookLorentzHistos()" << endreq;                                // hidetoshi 14.01.22
-
   return StatusCode::SUCCESS;
 }
 
 //====================================================================================================
 //                       SCTLorentzMonTool :: bookHistograms
 //====================================================================================================
-//StatusCode SCTLorentzMonTool::bookHistograms( bool /*isNewEventsBlock*/, bool isNewLumiBlock, bool isNewRun )//suppress 'unused' compiler warning    // hidetoshi 14.01.21
 StatusCode SCTLorentzMonTool::bookHistograms( )                                                                                                        // hidetoshi 14.01.21
 {
   m_path= "";
-  //  if(isNewRun) m_numberOfEvents=0;                                                                                                                 // hidetoshi 14.01.21
   m_numberOfEvents=0;                                                                                                                                  // hidetoshi 14.01.21
   if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "initialize being called" << endreq;
   detStore()->retrieve(m_pSCTHelper,"SCT_ID");
-  StatusCode sc = detStore()->retrieve(m_sctmgr,"SCT");
-  if (sc.isFailure()) {
-    if (msgLvl(MSG::FATAL)) msg(MSG::FATAL)<< "SCT detector manager not found !" << endreq;
-    return StatusCode::FAILURE;
-  }
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<< "SCT detector manager found: layout is \"" << m_sctmgr->getLayout() << "\"" << endreq;
-
+  ATH_CHECK( detStore()->retrieve(m_sctmgr,"SCT"));
+  ATH_MSG_DEBUG( "SCT detector manager found: layout is \"" << m_sctmgr->getLayout() << "\"" );
    /* Retrieve TrackToVertex extrapolator tool */
-  if ( m_trackToVertexTool.retrieve().isFailure() ) {
-    msg(MSG::FATAL) << "failed to retrieve tool " << endreq;
-    return StatusCode::FAILURE;
-  }
-
+  ATH_CHECK(m_trackToVertexTool.retrieve());
   //Booking  Track related Histograms
-  //  if(bookLorentzHistos(isNewRun,isNewLumiBlock).isFailure() ) msg(MSG::WARNING) << "Error in bookLorentzHistos()" << endreq;     // hidetoshi 14.01.21
   if(bookLorentzHistos().isFailure() ) msg(MSG::WARNING) << "Error in bookLorentzHistos()" << endreq;                                // hidetoshi 14.01.22
 
   return StatusCode::SUCCESS;
@@ -150,24 +124,12 @@ StatusCode SCTLorentzMonTool::bookHistograms( )                                 
 /// This is the real workhorse, called for each event. It retrieves the data each time
 //====================================================================================================
 StatusCode SCTLorentzMonTool::fillHistograms(){
-  
-
-
-
-
-
-
-
-
-
-
-
 
   int layer100[] = {2,2,3,2,2,2,0,2,3,2,0,2,3,2,3,2,0,2,3,0,2,0,2,3,2,2,2,0,0,0,0,0,0,3,0,3,2,0,2,2,0,3,3,3,0,2,2,2,2,2,2,2,3,2,2,3,3,2,2,2,2,2,3,3,2,3,2,2,2,3,3,3,2,2,2,2,3,3,2,3,2,3,3,2,3,2,2,2,2,2,2,2};
   int phi100[] = {29,29,6,13,23,13,14,29,9,29,14,29,9,29,39,32,21,32,13,22,32,22,32,13,32,32,32,20,20,20,20,20,20,13,21,17,33,5,33,33,31,6,19,47,21,37,37,37,37,33,37,37,24,33,33,47,19,33,33,37,37,37,55,9,38,24,37,38,8,9,9,26,38,38,38,38,39,39,38,11,45,54,54,24,31,14,47,45,47,47,47,47};
   int eta100[] = {3,-4,-6,2,6,3,-5,-1,6,-2,-6,-5,5,-3,2,6,-3,5,5,3,4,2,2,2,-1,-3,-4,1,-1,-2,-3,-4,4,-1,-5,6,2,4,3,1,6,-2,6,3,-6,-1,2,1,3,-5,4,5,-3,-4,-3,-5,-2,-1,-2,-3,-2,-4,-3,2,3,-6,-5,4,6,1,-6,1,1,-5,-4,-3,-3,-5,-2,1,5,5,4,4,5,4,-1,-5,3,4,1,-5};
   
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<"enters fillHistograms"<< endreq;
+  ATH_MSG_DEBUG("enters fillHistograms");
  
   const TrackCollection *tracks (0);  
   if ( evtStore()->contains<TrackCollection> ( m_tracksName) ){
@@ -180,33 +142,29 @@ StatusCode SCTLorentzMonTool::fillHistograms(){
     return StatusCode::SUCCESS;
   }
  
-
   TrackCollection::const_iterator trkitr=tracks->begin();
   TrackCollection::const_iterator trkend=tracks->end();
   
-
   for ( ; trkitr != trkend; ++trkitr) {
     // Get track                                    
     const Trk::Track * track = (*trkitr);
-
-    if (track == NULL) {
+    if (not track) {
       msg(MSG::ERROR) << "no pointer to track!!!" << endreq;
       continue;
     }
 
     // Get pointer to track state on surfaces
     const DataVector<const Trk::TrackStateOnSurface>* trackStates=track->trackStateOnSurfaces();
-    if (trackStates == NULL ) {
+    if (not trackStates ) {
       msg(MSG::WARNING) << "for current track, TrackStateOnSurfaces == Null, no data will be written for this track" << endreq;
       continue;
     }
 
     const Trk::TrackSummary* summary = track->trackSummary();
-    if (summary == NULL) 
+    if (not summary) 
       {
-	msg(MSG::WARNING)<<" null trackSummary"<<endreq;
-	continue;
-	
+	      msg(MSG::WARNING)<<" null trackSummary"<<endreq;
+	      continue;
       }
     
     DataVector<const Trk::TrackStateOnSurface>::const_iterator endit=trackStates->end();
@@ -226,20 +184,19 @@ StatusCode SCTLorentzMonTool::fillHistograms(){
 
             bool in100 = false;
             if(bec!=0) continue; //We only care about the barrel
-            
+            //wtf is this?
             for (int i=0 ; i<184 ; i++){
                 if (layer100[i]==layer && eta100[i]==eta && phi100[i]==phi){ 
                     in100=true;
                     break;
                 }
             }
-            
             // find cluster size
             const std::vector<Identifier>& rdoList = RawDataClus->rdoList();
             int nStrip = rdoList.size();
             const Trk::TrackParameters *trkp = dynamic_cast<const Trk::TrackParameters*>( (*it)->trackParameters() );
 	    //            const Trk::MeasuredTrackParameters *mtrkp = dynamic_cast<const Trk::MeasuredTrackParameters*>( (*it)->trackParameters() );
-	    if (trkp==NULL) {
+	    if (not trkp) {
 	      msg(MSG::WARNING)<<" Null pointer to MeasuredTrackParameters"<<endreq;
 	      continue;
 	    }

@@ -11,7 +11,6 @@
 #define SCT_NameFormatter_H
 
 #include <string>
-#include "boost/lexical_cast.hpp"
 
 namespace SCT_Monitoring{
   ///format an element index (e.g. in looping through barrels, this goes from 0->(2*(nbarrels)) - 1 into layer and side
@@ -24,11 +23,11 @@ namespace SCT_Monitoring{
     unsigned int m_region;//30.11.2014
 
   public:
-  LayerSideFormatter(const unsigned int i): m_element(i),m_layerStr(boost::lexical_cast<std::string>(i/2)), m_sideStr(boost::lexical_cast<std::string>(i%2)),m_region(1){
+  LayerSideFormatter(const unsigned int i): m_element(i),m_layerStr(std::to_string(i/2)), m_sideStr(std::to_string(i%2)),m_region(1){
       //nop
     }
-  LayerSideFormatter(const unsigned int i,const unsigned int m): m_element(i),m_layerStr(boost::lexical_cast<std::string>(i/2)), 
-    m_sideStr(boost::lexical_cast<std::string>(i%2)),m_region(m){//30.11.2014
+  LayerSideFormatter(const unsigned int i,const unsigned int m): m_element(i),m_layerStr(std::to_string(i/2)), 
+    m_sideStr(std::to_string(i%2)),m_region(m){//30.11.2014
       //nop
     }
     std::string layer() const{
@@ -38,7 +37,7 @@ namespace SCT_Monitoring{
       return m_sideStr; 
     }
     std::string layerPlus1() const{
-      return boost::lexical_cast<std::string>((m_element/2) + 1);
+      return std::to_string((m_element/2) + 1);
     }
     std::string title() const{
       if(m_region==1){//30.11.2014

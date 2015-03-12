@@ -7,14 +7,13 @@
 
 //std and STL includes
 #include <cmath>
-#include <ostream>
+//#include <ostream>
 #include <sstream>
 #include <limits>
 #include <algorithm>
 #include <limits>       // std::numeric_limits 
 
-//boost
-#include "boost/lexical_cast.hpp"
+
 
 //Gaudi
 #include "GaudiKernel/IChronoStatSvc.h"
@@ -33,7 +32,6 @@
 #include "EventInfo/EventInfo.h"
 
 #include "SCT_ConditionsServices/ISCT_ConfigurationConditionsSvc.h"
-//#include "BFieldAth/IMagFieldAthenaSvc.h"
 
 //InDet
 #include "InDetIdentifier/PixelID.h"
@@ -49,7 +47,6 @@
 //Track
 #include "TrkSurfaces/Surface.h"
 #include "TrkMeasurementBase/MeasurementBase.h"
-//#include "TrkParameters/Perigee.h"
 #include "TrkParameters/TrackParameters.h"
 
 #include "CommissionEvent/ComTime.h"
@@ -82,7 +79,7 @@ namespace InDetDD{
 
 namespace{//anonymous namespace for functions at file scope
   const bool testOffline(false);
-  
+/**
   void printContents( TH1 * aHisto){
     const int nbins=aHisto->GetNbinsX()+1;
     for(int i(0);i!=nbins;++i){
@@ -101,6 +98,7 @@ namespace{//anonymous namespace for functions at file scope
        }
      }
   }
+  **/
   std::string histogramPath[] = {"SCT/SCTEC/eff", "SCT/SCTB/eff", "SCT/SCTEA/eff", "SCT/GENERAL/eff"};
   std::string histogramPathRe[] = {"SCT/SCTEC/eff/perLumiBlock", "SCT/SCTB/eff/perLumiBlock", "SCT/SCTEA/eff/perLumiBlock"};//23.01.2015
  
@@ -115,7 +113,7 @@ namespace{//anonymous namespace for functions at file scope
     }
     return result;
   }
-  const Double_t radianDegrees(180./3.1415927);
+  constexpr Double_t radianDegrees(180./3.1415927);
 
   double amgPseudoRapidity(const Amg::Vector3D & position){ 
     double pseudo(0.);
@@ -363,7 +361,6 @@ StatusCode SCTHitEffMonTool::initialize(){
 }
 
 
-//StatusCode SCTHitEffMonTool::bookHistograms( bool /*isNewEventsBlock*/, bool /*isNewLumiBlock*/, bool isNewRun )    // hidetoshi 14.01.22
 StatusCode SCTHitEffMonTool::bookHistograms()                                                                         // hidetoshi 14.01.22
 {
   //  if (not isNewRun) return StatusCode::SUCCESS;                                                                   // hidetoshi 14.01.22
@@ -501,7 +498,7 @@ StatusCode SCTHitEffMonTool::bookHistograms()                                   
     }//30.11.2014
     m_Eff_summaryHisto[isub]->GetYaxis()->SetTitle("Efficiency");
 
-    CHECK (bookEffHisto(m_Eff_LumiBlockHisto[isub], histGroupE[isub],"effLumiBlock", "Efficiency v Luminosity block",50,1,1001));//20.01.2015
+    CHECK (bookEffHisto(m_Eff_LumiBlockHisto[isub], histGroupE[isub],"effLumiBlock", "Efficiency vs Luminosity block in " + subDetName[isub],50,1,1001));//20.01.2015
     m_Eff_LumiBlockHisto[isub]->GetXaxis()->SetTitle("Luminosity block");
     m_Eff_LumiBlockHisto[isub]->GetYaxis()->SetTitle("Efficiency");
 
@@ -727,7 +724,7 @@ StatusCode SCTHitEffMonTool::bookHistogramsRecurrent()                          
       m_Eff_summaryHisto[isub]->GetXaxis()->SetBinLabel(i+1,layerSide.title().c_str());
     }//30.11.2014
     m_Eff_summaryHisto[isub]->GetYaxis()->SetTitle("Efficiency");
-    CHECK (bookEffHisto(m_Eff_LumiBlockHisto[isub], histGroupE[isub],"effLumiBlock", "Efficiency v Luminosity block",50,1,1001));//20.01.2015
+    CHECK (bookEffHisto(m_Eff_LumiBlockHisto[isub], histGroupE[isub],"effLumiBlock", "Efficiency vs Luminosity block in " + subDetName[isub],50,1,1001));//20.01.2015
     m_Eff_LumiBlockHisto[isub]->GetXaxis()->SetTitle("Luminosity block");
     m_Eff_LumiBlockHisto[isub]->GetYaxis()->SetTitle("Efficiency");
 
@@ -890,6 +887,7 @@ StatusCode SCTHitEffMonTool::fillHistograms(){
     nTrkPars++;
 
     if (m_insideOutOnly and failCut(pthisTrack->info().patternRecoInfo(Trk::TrackInfo::SiSPSeededFinder), "track cut: inside-out only")) continue;
+    if(pthisTrack->perigeeParameters()==0)continue;
     const Trk::Perigee* perigee = pthisTrack->perigeeParameters();
     const AmgVector(5) & perigeeParameters(perigee->parameters()); 
     const double d0(perigeeParameters[Trk::d0]);
@@ -911,6 +909,7 @@ StatusCode SCTHitEffMonTool::fillHistograms(){
     if (failCut(pthisTrack and pthisTrack->trackParameters() and pthisTrack->trackParameters()->size(), "track cut: presence")) continue;
 
     if (m_insideOutOnly and failCut(pthisTrack->info().patternRecoInfo(Trk::TrackInfo::SiSPSeededFinder), "track cut: inside-out only")) continue;
+    if(pthisTrack->perigeeParameters()==0)continue;
     const Trk::Perigee* perigee = pthisTrack->perigeeParameters();
     const AmgVector(5) & perigeeParameters(perigee->parameters()); 
     const double d0(perigeeParameters[Trk::d0]);

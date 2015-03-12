@@ -367,7 +367,6 @@ private:
 
   //@name Service methods
   //@{
-  //SCT_ModuleConditionsTool* m_ModuleConditions;
   ServiceHandle<ISCT_ConfigurationConditionsSvc> m_ConfigurationSvc;
  
   ///Format the position as a string

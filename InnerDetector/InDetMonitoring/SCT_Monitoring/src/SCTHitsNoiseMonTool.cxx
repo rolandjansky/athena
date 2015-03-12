@@ -17,7 +17,6 @@
 #include <iostream>
 #include <fstream> //for writing an xml summary (debugging)
 #include <algorithm>
-#include "boost/lexical_cast.hpp"
 
 
 #include "GaudiKernel/IJobOptionsSvc.h"
@@ -183,31 +182,17 @@ SCTHitsNoiseMonTool::~SCTHitsNoiseMonTool(){
 //====================================================================================================
 StatusCode 
 SCTHitsNoiseMonTool::bookHistograms(){
-//SCTHitsNoiseMonTool::bookHistograms(bool isNewEventsBlock, bool isNewLumiBlock, bool isNewRun ){
-  if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "initialize being called" << endreq;
+  ATH_MSG_DEBUG( "initialize being called" );
   if (newRun) m_numberOfEvents=0;
   m_dataObjectName = "SCT_RDOs";
   // Get the helper:
-  if ( (detStore()->retrieve(m_pSCTHelper,"SCT_ID")).isFailure() ) {
-    msg(MSG::FATAL) << "Failed to retrieve SCT_ID helper!" << endreq;
-    return StatusCode::FAILURE;
-  }
-  if (m_ConfigurationSvc.retrieve().isFailure()) {
-    msg(MSG::FATAL) << "Conditions summary service NOT found!" << endreq;
-    return StatusCode::FAILURE;
-  } 
+  ATH_CHECK(detStore()->retrieve(m_pSCTHelper,"SCT_ID"));
+  ATH_CHECK(m_ConfigurationSvc.retrieve());
   m_initialize=true;
   
   const bool doSystem[]={m_doNegativeEndcap, true, m_doPositiveEndcap};
   for (unsigned int det(0);det != N_REGIONS;++det){
     if (doSystem[det]){
-      //      if (m_doTrackHits and bookGeneralTrackTimeHistos(isNewRun ,det).isFailure()) msg(MSG::WARNING) << "Error in bookGeneralTrackTimeHistos()" << endreq;
-      //      if (m_doTrackHits and bookGeneralTrackHits(isNewRun , det).isFailure()) msg(MSG::WARNING) << "Error in bookGeneralTrackHits()" << endreq;
-      //      if ( bookGeneralNoiseOccupancyMaps(isNewRun,det).isFailure() ) msg(MSG::WARNING) << "Error in bookGeneralNoiseOccupancyMaps()" << endreq;
-      //      if ( bookGeneralHits(isNewRun,isNewLumiBlock,det).isFailure() )  msg(MSG::WARNING) << "Error in bookGeneralHits()" << endreq;
-      //offline only?
-      //      if ( bookGeneralCluSize(isNewRun,det).isFailure() ) msg(MSG::WARNING) << "Error in bookGeneralSize()" << endreq;
-      //
       if (m_doTrackHits and bookGeneralTrackTimeHistos(det).isFailure()) msg(MSG::WARNING) << "Error in bookGeneralTrackTimeHistos()" << endreq;
       if (m_doTrackHits and bookGeneralTrackHits(det).isFailure()) msg(MSG::WARNING) << "Error in bookGeneralTrackHits()" << endreq;
       if ( bookGeneralNoiseOccupancyMaps(det).isFailure() ) msg(MSG::WARNING) << "Error in bookGeneralNoiseOccupancyMaps()" << endreq;
@@ -218,18 +203,14 @@ SCTHitsNoiseMonTool::bookHistograms(){
     }
   }
 
-  //  if ( bookSPvsEventNumber(isNewRun).isFailure() )     msg(MSG::WARNING) << "Error in bookSPvsEventNumber()" << endreq;
-  //  if ( bookNoiseDistributions(isNewRun).isFailure() )  msg(MSG::WARNING) << "Error in bookNoiseDistributions()"  << endreq;
   if ( bookSPvsEventNumber().isFailure() )     msg(MSG::WARNING) << "Error in bookSPvsEventNumber()" << endreq;
   if ( bookNoiseDistributions().isFailure() )  msg(MSG::WARNING) << "Error in bookNoiseDistributions()"  << endreq;
   
   if (m_boolhitmaps) {
-    //    if ( book1DHitHists(isNewRun).isFailure() ) msg(MSG::WARNING) << "Error in barrel book1DHitHists()" << endreq;
     if ( book1DHitHists().isFailure() ) msg(MSG::WARNING) << "Error in barrel book1DHitHists()" << endreq;
     //Only want these histograms when running the code offline
   }
   
-  //  if ( bookClusterSize(isNewRun).isFailure() ) if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Error in bookClusterSize()" << endreq;
   if ( bookClusterSize().isFailure() ) if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Error in bookClusterSize()" << endreq;
 
   if(newRun){
@@ -260,20 +241,12 @@ SCTHitsNoiseMonTool::bookHistograms(){
 //====================================================================================================
 StatusCode 
 SCTHitsNoiseMonTool::bookHistogramsRecurrent(){
-//SCTHitsNoiseMonTool::bookHistograms(bool isNewEventsBlock, bool isNewLumiBlock, bool isNewRun ){
-  if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "initialize being called" << endreq;
-  //  if (newRun) m_numberOfEvents=0;
+  ATH_MSG_DEBUG( "bookHistogramsRecurrent being called" );
   m_numberOfEvents=0;
   m_dataObjectName = "SCT_RDOs";
   // Get the helper:
-  if ( (detStore()->retrieve(m_pSCTHelper,"SCT_ID")).isFailure() ) {
-    msg(MSG::FATAL) << "Failed to retrieve SCT_ID helper!" << endreq;
-    return StatusCode::FAILURE;
-  }
-  if (m_ConfigurationSvc.retrieve().isFailure()) {
-    msg(MSG::FATAL) << "Conditions summary service NOT found!" << endreq;
-    return StatusCode::FAILURE;
-  } 
+  ATH_CHECK(detStore()->retrieve(m_pSCTHelper,"SCT_ID"));
+  ATH_CHECK(m_ConfigurationSvc.retrieve());
   m_initialize=true;
   
   const bool doSystem[]={m_doNegativeEndcap, true, m_doPositiveEndcap};
@@ -389,7 +362,6 @@ SCTHitsNoiseMonTool::procHistograms(){
 //====================================================================================================
 StatusCode SCTHitsNoiseMonTool::checkHists(bool /*fromFinalize*/){
 
-  //if(checkNoiseMaps(fromFinalize).isFailure())if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Error in checkNoiseMaps(true)" << endreq ;
 
   return StatusCode::SUCCESS;
 }
@@ -491,7 +463,6 @@ SCTHitsNoiseMonTool::generalHistsandNoise(){
         tbin=3;
       }
       SCT_Identifier = (*p_rdo)->identify();
-      //unsigned int SCT_Identifier_Int = (unsigned int)SCT_Identifier;
       const unsigned int firstStrip ((*p_rdo)->getStrip());
       const unsigned int numberOfStrips ((*p_rdo)->getGroupSize());
       int thisBec       = m_pSCTHelper->barrel_ec(SCT_Identifier);
@@ -1597,7 +1568,7 @@ SCTHitsNoiseMonTool::bookGeneralTrackTimeHistos(const unsigned int systemIndex){
       }
     }
     for (unsigned int i(0); i!= limits[systemIndex];++i){
-      const string streamlayer(boost::lexical_cast<string>(i));
+      const string streamlayer(std::to_string(i));
       const string streamhitmap ="TrackTimeBin"+abbreviations[systemIndex]+streamDelimiter+streamlayer;
       const string streamhitmaprecent ="TrackTimeBinRecent"+abbreviations[systemIndex]+streamDelimiter+streamlayer;
       histoName=stem+streamhitmap;
