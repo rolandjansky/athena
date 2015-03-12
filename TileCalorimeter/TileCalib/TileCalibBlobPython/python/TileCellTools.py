@@ -15,8 +15,8 @@ class TileCellHashMgr():
             ["A+1","B+1","D*0","A+2","B+2","A+3","B+3","D+1","A+4","B+4","A+5","B+5","D+2","A+6","B+6","A+7","B+7","D+3","A+8","B+8","A+9","B+9","A+10"],
             ["B-11","D-5","A-12","B-12","A-13","B-13","D-6","A-14","B-14","A-15","B-15","A-16"],
             ["B+11","D+5","A+12","B+12","A+13","B+13","D+6","A+14","B+14","A+15","B+15","A+16"],
-            ["D-4","C-10","E-1","E-2","E-3","E-4","spD-4","spC-10","spD-40"],
-            ["D+4","C+10","E+1","E+2","E+3","E+4","spD+4","spC+10","spD+40"]
+            ["D-4","C-10","E-1","E-2","E-3","E-4","spD-4","spC-10","spD-40","spE-1"],
+            ["D+4","C+10","E+1","E+2","E+3","E+4","spD+4","spC+10","spD+40","spE+1"]
             ]
 
         self.__partNames=["LBC","LBA","EBC","EBA","EBC","EBA"]
@@ -44,6 +44,9 @@ class TileCellHashMgr():
             if index==0 and ((part==4 and module==18) or (part==5 and module==15)): index+=8
             if index==0 and (module>=15 and module<=18): index+=6
             if index==1 and ((module>=39 and module<=42) or (module>=55 and module<=58)): index+=6
+            if index==2 and (module==7 or module==8 or module==25 or module==24 or module==44 or module==43 or module==53 or module==54): index+=7
+            if part==4:
+                if index==2 and (module==28 or module==29 or module==31 or module==32 or module==35 or module==34 or module==38 or module==37): index+=7
 
         return (modName,self.__cellNames[part][index])
 
@@ -62,6 +65,9 @@ class TileCellHashMgr():
             if index==0 and ((part==4 and module==18) or (part==5 and module==15)): index+=8
             if index==0 and (module>=15 and module<=18): index+=6
             if index==1 and ((module>=39 and module<=42) or (module>=55 and module<=58)): index+=6
+            if index==2 and (module==7 or module==8 or module==25 or module==24 or module==44 or module==43 or module==53 or module==54): index+=7
+            if part==4:
+                if index==2 and (module==28 or module==29 or module==31 or module==32 or module==35 or module==34 or module==38 or module==37): index+=7
 
         return self.__cellNames[part][index]
 

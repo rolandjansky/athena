@@ -20,10 +20,11 @@ def usage():
     print "-b, --blob      print additional blob info"
     print "-H, --hex       write frag id instead of module name"
     print "-p, --prefix=   write some prefix on every line "
-    print "-s, --schema=   specify schema to use, like 'COOLONL_TILE/CONDBR2' or 'sqlite://;schema=tileSqlite.db;dbname=CONDBR2'"
+    print "-s, --schema=   specify schema to use, like 'COOLONL_TILE/CONDBR2' or 'sqlite://;schema=tileSqlite.db;dbname=CONDBR2' or tileSqlite.db"
+    print "-D, --dbname=   specify dbname part of schema if schema only contains file name, default is CONDBR2'"
     
-letters = "hr:l:s:t:f:n:a:g:p:dbH"
-keywords = ["help","run=","lumi=","schema=","tag=","folder=","nval=","adc=","gain=","prefix=","default","blob","hex"]
+letters = "hr:l:s:t:f:D:n:a:g:p:dbH"
+keywords = ["help","run=","lumi=","schema=","tag=","folder=","dbname=","nval=","adc=","gain=","prefix=","default","blob","hex"]
 
 try:
     opts, extraparams = getopt.getopt(sys.argv[1:],letters,keywords)
@@ -98,24 +99,24 @@ if not 'COOLO' in schema and not ':' in schema and not ';' in schema:
     schema='sqlite://;schema='+schema+';dbname='+(dbname if len(dbname) else 'CONDBR2')
 
 if schema=='COOLONL_TILE/COMP200':
-    if not '/TILE/ONL01' in folderPath and not '/TILE/OFL01' in folderPath:
+    if not (folderPath.startswith('/TILE/ONL01/') or folderPath.startswith('/TILE/OFL01/')):
         print "Folder %s doesn't exist in schema %s " % (folderPath,schema) 
         sys.exit(2)
         
 if schema=='COOLONL_TILE/CONDBR2':
-    if not '/TILE/ONL01' in folderPath:
-        print "Folder %s doesn't exist in schema %s " % (folderPath,schema) 
+    if not folderPath.startswith('/TILE/ONL01/'):
+        print "Folder %s doesn't exist in schema %s, only /TILE/ONL01 " % (folderPath,schema) 
         sys.exit(2)
         
 if schema=='COOLOFL_TILE/COMP200' or schema=='COOLOFL_TILE/CONDBR2':
-    if not '/TILE/OFL02' in folderPath:
+    if not folderPath.startswith('/TILE/OFL02/'):
         print "Folder %s doesn't exist in schema %s " % (folderPath,schema) 
         sys.exit(2)
 
 
 #=== set database
 db = TileCalibTools.openDbConn(schema,'READONLY')
-folderTag = TileCalibTools.getFolderTag(schema if 'COMP200' in schema else db, folderPath, tag)
+folderTag = TileCalibTools.getFolderTag(schema if 'COMP200' in schema or 'OFLP200' in schema else db, folderPath, tag)
 log.info("Initializing folder %s with tag %s" % (folderPath, folderTag))
 
 #=== initialize blob reader
@@ -170,23 +171,26 @@ for ros in xrange(rosmin,5):
             modName = prefix + " " + modName
         try:
             flt = blobReader.getDrawer(ros, mod,(run,lumi), False, False)
-            if flt is None:
+            if flt is None or isinstance(flt, (int)):
                 miss+=1
                 print "%s is missing in DB" % modName
             else:
                 good+=1
                 if blob:
                     print "%s  Blob type: %d  Version: %d  Nchannels: %d  Ngains: %d  Nval: %d" % (modName, flt.getObjType(), flt.getObjVersion(), flt.getNChans(), flt.getNGains(), flt.getObjSizeUint32())
-                if nval<1:
-                    mval = flt.getObjSizeUint32()
-                else:
+                mval0 = 0
+                mval = flt.getObjSizeUint32()
+                if nval<0 and -nval<=mval:
+                    mval=-nval
+                    mval0=mval-1
+                elif nval!=0 and nval<mval:
                     mval = nval
                 a3=flt.getNGains()
                 a4=(a3 if a3<a2 else a2)
                 for chn in xrange(flt.getNChans()):
                     for adc in xrange(a1,a4):
                         msg = "%s %2i %1i  " % ( modName, chn, adc )
-                        for val in xrange(0,mval):
+                        for val in xrange(mval0,mval):
                             msg += "  %f" % flt.getData(chn, adc, val)
                         print msg
         except Exception, e:

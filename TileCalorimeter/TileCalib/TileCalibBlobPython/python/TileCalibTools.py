@@ -309,8 +309,11 @@ def getFolderTag(db, folderPath, globalTag):
                 log.info("Using Simulation global tag \'%s\'" % globalTag)
             elif 'COMP200' in db or 'RUN1' in db:
                 schema='COOLOFL_TILE/COMP200'
-                globalTag='COMCOND-BLKPA-RUN1-06'
-                log.info("Using RUN1 global tag \'%s\'" % globalTag)
+                if globalTag!='UPD1' and globalTag!='UPD4' and ('UPD1' in globalTag or 'UPD4' in globalTag or 'COND' not in globalTag):
+                   log.info("Using suffix \'%s\' as it is" % globalTag)
+                else:
+                   globalTag='COMCOND-BLKPA-RUN1-06'
+                   log.info("Using RUN1 global tag \'%s\'" % globalTag)
         if schema == 'COOLOFL_TILE/CONDBR2':
             if globalTag=='CURRENT' or globalTag=='UPD4' or globalTag=='':
                 globalTag=resolveAlias.getCurrent()

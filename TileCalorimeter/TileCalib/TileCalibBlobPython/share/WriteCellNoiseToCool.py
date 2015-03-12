@@ -6,7 +6,7 @@
 # 2014-07-14 - Sasha, based on update_noise_bulk.py from Carlos,Gui,Blake,Yuri
 # 2024-12-14 - Yuri Smirnov, change for PyCintex->cppyy for ROOT6
 
-import getopt,sys,os,string,math
+import getopt,sys,os,string,math,re
 os.environ['TERM'] = 'linux'
 
 def usage():
@@ -205,7 +205,8 @@ idb.closeDatabase()
 #=== Open DB connections
 oschema = 'sqlite://;schema='+outFile+';dbname='+dbName
 dbr = CaloCondTools.openDbConn(ischema,'READONLY')
-dbw = CaloCondTools.openDbConn(oschema,'RECREATE')
+#dbw = CaloCondTools.openDbConn(oschema,'RECREATE')
+dbw = CaloCondTools.openDbConn(oschema,'UPDATE')
 reader = CaloCondTools.CaloBlobReader(dbr,folderPath,inTag)
 writer = CaloCondTools.CaloBlobWriter(dbw,folderPath,'Flt',True)
 
@@ -217,9 +218,12 @@ cellData = {}
 ival=0
 igain=0
 icell=0
+useNames=None
+useModuleNames=None
+useGain=None
 
 if len(txtFile):
-  try:
+#  try:
     with open(txtFile,"r") as f:
       cellDataText = f.readlines()
 
@@ -228,19 +232,75 @@ if len(txtFile):
       #=== ignore empty and comment lines
       if not len(fields)          : continue
       if fields[0].startswith("#"): continue 
-    
-      cellHash = int(fields[0])
-      cellGain = int(fields[1])
-      noise    = fields[2:]
-      dictKey  = (cellHash,cellGain)
-      cellData[dictKey] = noise
-      if icell<cellHash: icell=cellHash
-      if igain<cellGain: igain=cellGain
-      if ival<len(noise): ival=len(noise)
-    icell=icell+1
+
+      if fields[0][:1].isalpha():
+          print fields
+          if useNames is not None and not useNames:
+              raise Exception("Mixture of formats in inpyt file %s - useNames" % (txtFile))
+          useNames=True
+          if fields[0]=='Cell':
+              if useModuleNames is not None and useModuleNames:
+                  raise Exception("Mixture of formats in inpyt file %s - useModuleNames" % (txtFile))
+              useModuleNames=False
+              modName=''
+              cellName=fields[1]
+          else:
+              if useModuleNames is not None and not useModuleNames:
+                  raise Exception("Mixture of formats in inpyt file %s - useModuleNames" % (txtFile))
+              useModuleNames=True
+              modName=fields[0]
+              cellName=fields[1]
+          if fields[2].isdigit():
+              if useGain is not None and not useGain:
+                  raise Exception("Mixture of formats in inpyt file %s - useGain" % (txtFile))
+              useGain=True
+              gain=int(fields[2])
+              noise = fields[3:]
+              if ival<len(noise): ival=len(noise)
+              if igain<gain: igain=gain
+          else:
+              if useGain is not None and useGain:
+                  raise Exception("Mixture of formats in inpyt file %s - useGain" % (txtFile))
+              if len(fields)>3:
+                  raise Exception("Too many fields in input file %s" % (txtFile))
+              useGain=False
+              gain=-1
+              noise = [-1]+fields[2:]
+              ival=1
+          if cellName=='D0': cellName='D*0'
+          if cellName.startswith('BC'): cellName='B'+cellName[2:]
+          if not ('+' in cellName or '-' in cellName or '*' in cellName):
+              p = re.search("\d", cellName).start()
+              cellPos = modName+cellName[:p] + '+' + cellName[p:]
+              cellNeg = modName+cellName[:p] + '-' + cellName[p:]
+              dictKey  = (cellPos,gain)
+              cellData[dictKey] = noise
+              dictKey  = (cellNeg,gain)
+              cellData[dictKey] = noise
+          else:
+              cellN = modName+cellName
+              dictKey  = (cellN,gain)
+              cellData[dictKey] = noise
+          icell+=1
+      else:
+          if useNames is not None and useNames:
+              raise Exception("Mixture of formats in inpyt file %s - useNames" % (txtFile))
+          useNames=False
+          cellHash = int(fields[0])
+          cellGain = int(fields[1])
+          noise    = fields[2:]
+          dictKey  = (cellHash,cellGain)
+          cellData[dictKey] = noise
+          if icell<cellHash: icell=cellHash
+          if igain<cellGain: igain=cellGain
+          if ival<len(noise): ival=len(noise)
+    if not useNames:
+        icell=icell+1
+    else:
+        print cellData
     igain=igain+1
-  except:
-    raise Exception("Can not read input file %s" % (txtFile))
+#  except:
+#    raise Exception("Can not read input file %s" % (txtFile))
 else:
   print "No input txt file provided, making copy from input DB to output DB"
 
@@ -251,7 +311,7 @@ ncell=icell
 print "IOV list in input DB:", iovList
 
 #== update only IOVs starting from given run number
-if run>=0 and len(iovList)>1:
+if run>=0 and len(iovList)>0:
   if begin>=0:  print "Updating only one IOV which contains run %d lb %d" % (run,lumi)
   else:         print "Updating only IOVs starting from run %d lumi %d " % (run,lumi)
   start=0
@@ -335,7 +395,17 @@ for iov in iovList:
         fullName="%s %6s" % (modName,cellName)
       for gain in xrange(ngain):
         exist1 = (exist0 and (gain<mgain))
-        dictKey = (cell, gain)
+        if useNames:
+            if useGain:
+                gn=gain
+            else:
+                gn=-1
+            if useModuleNames:
+                dictKey = (modName+cellName,gn)
+            else:
+                dictKey = (cellName,gn)
+        else:
+            dictKey = (cell, gain)
         noise = cellData.get(dictKey,[])
         nF = len(noise)
         for field in xrange(nval):

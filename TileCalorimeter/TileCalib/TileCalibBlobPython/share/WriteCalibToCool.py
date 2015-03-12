@@ -249,10 +249,11 @@ for ros in xrange(rosmin,5):
                     ndef+=1
                     mval-=kval
                 for n in xrange(mval):
-                    nvnew+=1
                     val = float(data[n])
-                    log.debug("%i/%2i/%2i/%i: new data[%i] = %s" % (ros,mod,chn,adc, n, val))
-                    calibDrawer.setData(chn,adc,n,val)
+                    if val>-9999:
+                        nvnew+=1
+                        log.debug("%i/%2i/%2i/%i: new data[%i] = %s" % (ros,mod,chn,adc, n, val))
+                        calibDrawer.setData(chn,adc,n,val)
                 for n in xrange(mval,kval+mval):
                     nvdef+=1
                     val = calibDrawer.getData(chn,adc,n)
