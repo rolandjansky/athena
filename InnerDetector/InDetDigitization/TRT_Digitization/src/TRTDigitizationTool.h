@@ -20,11 +20,13 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "InDetRawData/TRT_RDO_Container.h"
-#include "CommissionEvent/ComTime.h"
+//#include "CommissionEvent/ComTime.h"
 #include "TRT_ConditionsServices/ITRT_StrawNeighbourSvc.h"
 #include "HepPDT/ParticleDataTable.hh"
 
 #include "TRT_ConditionsServices/ITRT_StrawStatusSummarySvc.h" // added by Sasha for Argon - FIXME just predeclare class in header?
+
+#include "CLHEP/Random/RandomEngine.h"
 
 class PileUpMergeSvc;
 class ITRT_PAITool;
@@ -48,9 +50,7 @@ namespace InDetDD {
 
 class TRTDigSettings;
 
-
 static const InterfaceID IID_ITRTDigitizationTool ("TRTDigitizationTool",1,0);
-
 
 class TRTDigitizationTool : virtual public IPileUpTool, public PileUpToolBase {
 public:
@@ -89,6 +89,8 @@ public:
 
 private:
 
+  CLHEP::HepRandomEngine * m_pHRengine;
+
   Identifier getIdentifier( int hitID,
 			    IdentifierHash& hashId,
 			    Identifier& layerID,
@@ -105,6 +107,7 @@ private:
   bool IsArgonStraw(Identifier& TRT_Identifier) const;
   bool particleFlagQueryBit(int bitposition, unsigned short particleFlag) const;
   unsigned int getRegion(int hitID);
+  double getCosmicEventPhase();
 
   std::vector<std::pair<unsigned int, int> > m_seen;
   std::vector<TRTDigit> m_vDigits; /**< Vector of all digits */
@@ -147,7 +150,7 @@ private:
   TRTDigSimpleTimer m_timer_stupidsort;
   // unsigned int m_timer_eventcount;
 
-  const  ComTime* m_ComTime;
+  // const  ComTime* m_ComTime;
 
   const HepPDT::ParticleDataTable* m_particleTable;
   int m_dig_vers_from_condDB;
@@ -160,8 +163,10 @@ private:
 
   bool m_UseArgonStraws; // added by Sasha for Argon
   bool m_useConditionsHTStatus; // added by Sasha for Argon
+  double m_cosmicEventPhase;     // local replacement for the comTime service
   unsigned short m_particleFlag; // 16-bit flag indicating the presence of up to 16 types of particle hitting the straw.
   ServiceHandle<ITRT_StrawStatusSummarySvc> m_sumSvc; // added by Sasha for Argon
+  IntegerProperty                                    m_vetoThisBarcode;
 
 };
 

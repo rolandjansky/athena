@@ -21,7 +21,7 @@ use AthenaKernel                  AthenaKernel-*                  Control
 use AthenaPoolUtilities           AthenaPoolUtilities-*           Database/AthenaPOOL
 use AtlasCLHEP                    AtlasCLHEP-*                    External
 use AtlasCLHEP_RandomGenerators   AtlasCLHEP_RandomGenerators-*   Simulation/Tools
-use CommissionEvent               CommissionEvent-*               Commission
+#use CommissionEvent               CommissionEvent-*               Commission
 use EventInfo                     EventInfo-*                     Event
 use GeneratorObjects              GeneratorObjects-*              Generators
 use GeoModelInterfaces            GeoModelInterfaces-*            DetectorDescription/GeoModel

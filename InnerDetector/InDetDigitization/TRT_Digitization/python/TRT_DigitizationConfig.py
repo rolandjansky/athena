@@ -71,6 +71,7 @@ def BasicTRTDigitizationTool(name, **kwargs):
 def GenericTRTDigitizationTool(name,**kwargs):
     #configure random generator streams
     from Digitization.DigitizationFlags import digitizationFlags
+    digitizationFlags.rndmSeedList.addSeed( "TRT_DigitizationTool", 123456, 345123 )
     digitizationFlags.rndmSeedList.addSeed( "TRT_ElectronicsNoise", 123, 345 )
     digitizationFlags.rndmSeedList.addSeed( "TRT_Noise", 1234, 3456 )
     digitizationFlags.rndmSeedList.addSeed( "TRT_ThresholdFluctuations", 12345, 34567 )

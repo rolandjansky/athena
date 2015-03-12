@@ -65,6 +65,12 @@
 //CondDB
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
 #include "TRT_ConditionsData/StrawStatusMultChanContainer.h"
+#include <limits>
+#include <cstdint>
+static constexpr unsigned int crazyParticleBarcode(std::numeric_limits<int32_t>::max());
+//Barcodes at the HepMC level are int
+
+#include "AtlasCLHEP_RandomGenerators/RandGaussZiggurat.h"
 
 //AJB Temporary for debugging and development
 //#include "driftCircle.h"
@@ -95,7 +101,7 @@ TRTDigitizationTool::TRTDigitizationTool(const std::string& type,
     m_maxCrossingTimeSDO(0.0),
     m_minpileuptruthEkin(0.0),
     m_override_deadStrawFraction(0.0),
-    m_ComTime(NULL),
+    //m_ComTime(NULL),
     m_particleTable(NULL),
     m_dig_vers_from_condDB(-1),
     m_digverscontainerkey("/TRT/Cond/DigVers"),
@@ -105,6 +111,7 @@ TRTDigitizationTool::TRTDigitizationTool(const std::string& type,
     m_HardScatterSplittingSkipper(false),
     m_UseArgonStraws(false),         // Can use a postExec to set all straws to Argon
     m_useConditionsHTStatus(true),   // We expect TRT/Cond/StatusHT to define the Xenon/Argon geometry.
+    m_cosmicEventPhase(0.0),
     m_particleFlag(0),
     m_sumSvc("TRT_StrawStatusSummarySvc","TRT_StrawStatusSummarySvc") // added by Sasha for Argon
 
@@ -130,6 +137,7 @@ TRTDigitizationTool::TRTDigitizationTool(const std::string& type,
   declareProperty("UseArgonStraws",                m_UseArgonStraws); // need for Argon
   declareProperty("UseConditionsHTStatus",         m_useConditionsHTStatus); // need for Argon
   declareProperty("HardScatterSplittingMode",      m_HardScatterSplittingMode);
+  declareProperty("ParticleBarcodeVeto",m_vetoThisBarcode=crazyParticleBarcode, "Barcode of particle to ignore");
 
 }
 
@@ -213,6 +221,8 @@ StatusCode TRTDigitizationTool::initialize()
     ATH_MSG_FATAL ( "Could not initialize Random Number Service." );
     return StatusCode::FAILURE;
   }
+
+  m_pHRengine = m_atRndmGenSvc->GetEngine("TRT_DigitizationTool"); // For cosmic event phase
 
   // Get the Particle Properties Service
   IPartPropSvc* p_PartPropSvc = 0;
@@ -459,6 +469,12 @@ StatusCode TRTDigitizationTool::processStraws(std::set<int>& sim_hitids, std::se
     ATH_MSG_DEBUG ( "InDetSimData map " << m_outputSDOCollName << " registered in StoreGate" );
   }
 
+  m_cosmicEventPhase = 0.0;
+  if (m_settings->doCosmicTimingPit()) {
+    m_cosmicEventPhase = getCosmicEventPhase();
+     //std::cout << "AJB " << m_cosmicEventPhase << std::endl;
+  };
+
   // loop over all straws
   TimedHitCollection<TRTUncompressedHit>::const_iterator i, e;
   while (m_thpctrt->nextDetectorElement(i, e)) {
@@ -504,7 +520,7 @@ StatusCode TRTDigitizationTool::processStraws(std::set<int>& sim_hitids, std::se
 
       // create a new deposit
       InDetSimData::Deposit deposit( HepMcParticleLink((*hit_iter)->GetTrackID(), hit_iter->eventId()), (*hit_iter)->GetEnergyDeposit() );
-      if(deposit.first.barcode()==0 || deposit.first.barcode() == 10001){
+      if(deposit.first.barcode()==0 || deposit.first.barcode() == m_vetoThisBarcode){
           continue;
       }
       ATH_MSG_VERBOSE ( "Deposit: trackID " << deposit.first << " energyDeposit " << deposit.second );
@@ -529,14 +545,14 @@ StatusCode TRTDigitizationTool::processStraws(std::set<int>& sim_hitids, std::se
     // Digitization for the given straw
     TRTDigit digit_straw;
 
-    // Get the ComTime tool
-    if (m_settings->doCosmicTimingPit()) {
-      if ( StatusCode::SUCCESS == evtStore()->retrieve(m_ComTime,"ComTime")) {
-	ATH_MSG_VERBOSE ( "Found tool for cosmic timing: ComTime" );
-      } else {
-        ATH_MSG_ERROR ( "Did not find tool needed for cosmic timing: ComTime" );
-      }
-    }
+    //// Get the ComTime tool
+    //if (m_settings->doCosmicTimingPit()) {
+    //  if ( StatusCode::SUCCESS == evtStore()->retrieve(m_ComTime,"ComTime")) {
+    //	ATH_MSG_VERBOSE ( "Found tool for cosmic timing: ComTime" );
+    //  } else {
+    //    ATH_MSG_ERROR ( "Did not find tool needed for cosmic timing: ComTime" );
+    //  }
+    //}
 
     // This will be set in TRTProcessingOfStraw::ProcessStraw
     // according to what types of particles hit the straw.
@@ -547,7 +563,7 @@ StatusCode TRTDigitizationTool::processStraws(std::set<int>& sim_hitids, std::se
     //        steps as in function TRTDigitization::getIdentifier(...) to extract strawID from hitID -> more CPU time
     m_pProcessingOfStraw->ProcessStraw(i, e, digit_straw,
                                        m_alreadyPrintedPDGcodeWarning,
-                                       m_ComTime,
+                                       m_cosmicEventPhase, //m_ComTime,
                                        IsArgonStraw(idStraw),
                                        m_particleFlag);
 
@@ -1092,4 +1108,11 @@ unsigned int TRTDigitizationTool::getRegion(int hitID) {
 
   return region;
 
+}
+
+double TRTDigitizationTool::getCosmicEventPhase() {
+  // 13th February 2015: replace ComTime with a hack (fixme) based on an
+  // event phase distribution from Alex (alejandro.alonso@cern.ch) that
+  // is modelled as a Guassian of mean 5.48 ns and sigma 8.91 ns.
+  return CLHEP::RandGaussZiggurat::shoot(m_pHRengine, 5.48, 8.91);
 }
