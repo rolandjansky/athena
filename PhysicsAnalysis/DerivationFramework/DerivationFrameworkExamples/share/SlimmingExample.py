@@ -1,8 +1,7 @@
 #====================================================================
-# SlimmingExample.py
-# This an example job options script showing how to set up slimming 
-# in the derivation framework. For trigger content see the 
-# TriggerContentExample.py (TEST10) 
+# SkimmingExample.py
+# This an example job options script showing how to set up a 
+# derivation of the data using the derivation framework.  
 # It requires the reductionConf flag TEST4 in Reco_tf.py   
 #====================================================================
 
@@ -33,23 +32,21 @@ TEST4Stream.AcceptAlgs(["TEST4Kernel"])
 #====================================================================
 # CONTENT LIST  
 #====================================================================
-# This demonstrates the use of smart slimming
-# For trigger information see TriggerContentExample.py 
+# This might be the kind of set-up one would have for a muon based analysis
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 TEST4SlimmingHelper = SlimmingHelper("TEST4SlimmingHelper")
 TEST4SlimmingHelper.SmartCollections = ["Electrons",
 					"Photons",
 					"Muons",
 					"TauJets",
-					"MET_Reference_AntiKt4EMTopo",
+					"MET_Reference_AntiKt4LCTopo",
+                                        "AntiKt4LCTopoJets",
                                         "AntiKt4EMTopoJets",
+                                        "BTagging_AntiKt4LCTopo",
                                         "BTagging_AntiKt4EMTopo",
-                                        "BTagging_AntiKt2Track",
-                                        "BTagging_AntiKt3Track",
-                                        "BTagging_AntiKt4Track", 
                                         "InDetTrackParticles",
 					"PrimaryVertices" ]
 #TEST4SlimmingHelper.ExtraVariables = ["PhotonCollection.weta2.f1.phi.weta1.emaxs1"]
 #TEST4SlimmingHelper.AllVariables = ["Muons"]
-#TEST4SlimmingHelper.StaticContent = ["CaloCellContainer#AODCellContainer"]
+#TEST4SlimmingHelper.StaticContent = ["CaloCellContainer#AODCellContainer"] 
 TEST4SlimmingHelper.AppendContentToStream(TEST4Stream)
