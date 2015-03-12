@@ -122,6 +122,10 @@ class HLTSimulationGetter(Configured):
 
     log = logging.getLogger("HLTTriggergetter.py")
 
+    def __init__(self, menu):
+        Configured.__init__(self)
+        self.postConfigure(menu)
+
     def configure(self):
         
         log = logging.getLogger("HLTTriggergetter.py")
@@ -241,12 +245,12 @@ class HLTSimulationGetter(Configured):
 
                 ### merged system
             if TriggerFlags.doHLT():
-                from TrigEDMConfig.TriggerEDM import  getHLTBSList #FPP getL2BSList, getEFBSList,
-                TrigSteer_HLT.Navigation.ClassesToPayload = getHLTBSList() #list(set(getL2BSList() + getEFBSList() + getHLTBSList())) 
+                from TrigEDMConfig.TriggerEDM import  getHLTBSList 
+                TrigSteer_HLT.Navigation.ClassesToPayload = getHLTBSList() 
                 TrigSteer_HLT.Navigation.ClassesToPreregister = []
                 try:
-                    from TrigEDMConfig.TriggerEDM import getHLTDSList #FPP getEFDSList,
-                    TrigSteer_HLT.Navigation.ClassesToPayload_DSonly = getHLTDSList() #FPP getEFDSList() + 
+                    from TrigEDMConfig.TriggerEDM import getHLTDSList 
+                    TrigSteer_HLT.Navigation.ClassesToPayload_DSonly = getHLTDSList()
                 except ImportError:
                     log.warning("DataScouting not available in this release")
                 
@@ -255,7 +259,7 @@ class HLTSimulationGetter(Configured):
             from TrigSerializeTP.TrigSerializeTPConf import TrigSerTPTool
             TrigSerToolTP = TrigSerTPTool('TrigSerTPTool')
             from TrigEDMConfig.TriggerEDM import getTPList
-            TrigSerToolTP.TPMap = getTPList(TriggerFlags.doHLT()) #FPP
+            TrigSerToolTP.TPMap = getTPList(TriggerFlags.doHLT()) 
             from AthenaCommon.AppMgr import ToolSvc
             ToolSvc += TrigSerToolTP
 
@@ -273,12 +277,27 @@ class HLTSimulationGetter(Configured):
 
             ### merged system
             if TriggerFlags.doHLT():
-                from TrigEDMConfig.TriggerEDM import getHLTBSTypeList #FPP  getL2BSTypeList, getEFBSTypeList,
-                TrigSerToolTP.ActiveClasses = getHLTBSTypeList() #FPP list(set(getL2BSTypeList() + getEFBSTypeList() + getHLTBSTypeList())) 
+                from TrigEDMConfig.TriggerEDM import getHLTBSTypeList 
+                TrigSerToolTP.ActiveClasses = getHLTBSTypeList()
 
         from TriggerJobOpts.HLTTriggerResultGetter import HLTTriggerResultGetter
         result = HLTTriggerResultGetter()
         return True
 
+    def postConfigure(self, menu):
+        log = logging.getLogger("HLTTriggergetter.py")
+        log.info("postConfigure: update steering configuration from the menu")
+
+        from TriggerMenu.menu.GenerateMenu import GenerateMenu
+        from AthenaCommon.AlgSequence import AlgSequence
+        topSequence = AlgSequence()            
+        if not hasattr( topSequence, 'TrigSteer_HLT' ):
+            log.error("TrigSteer not found, postConfigure is not executed")
+            return False
+        
+        # define the chains that can add streamtags in Rerun:
+        topSequence.TrigSteer_HLT.EventInfoAccessTool.ListOfChainsAddingStreamTag=menu.GetStreamTagForRerunChains()
+
+        return True
 
          

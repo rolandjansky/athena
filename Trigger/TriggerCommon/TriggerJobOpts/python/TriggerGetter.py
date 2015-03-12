@@ -1,6 +1,5 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-
 from AthenaCommon.GlobalFlags import jobproperties
 #from AthenaCommon.GlobalFlags import GlobalFlags
 from AthenaCommon.AthenaCommonFlags import jobproperties
@@ -163,14 +162,14 @@ class TriggerGetter(Configured):
             if TriggerFlags.doLVL2()==True or TriggerFlags.doEF()==True or TriggerFlags.doHLT()==True:
                 log.info("configuring hlt")
                 from TriggerJobOpts.HLTTriggerGetter import HLTSimulationGetter
-                hlt = HLTSimulationGetter()
+                hlt = HLTSimulationGetter(g)
             else:
                 from RegionSelector.RegSelSvcDefault import RegSelSvcDefault
                 from AthenaCommon.AppMgr import ServiceMgr
                 ServiceMgr += RegSelSvcDefault()
                 ServiceMgr.RegSelSvc.enablePixel=False
                 ServiceMgr.RegSelSvc.enableSCT=False        
-                            
+
         # prepare result making of L1
         from TriggerJobOpts.Lvl1ResultBuilderGetter import Lvl1ResultBuilderGetter
         hltouput = Lvl1ResultBuilderGetter()
@@ -229,5 +228,4 @@ class TriggerGetter(Configured):
         hltConfOffline.load()
               
         return True
-
 
