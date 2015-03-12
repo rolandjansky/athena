@@ -23,6 +23,22 @@
 
 //#define PIXEL_DEBUG ;
 
+#define generalwarning(x) \
+    if (this->m_numGenWarnings < this->m_maxNumGenWarnings) \
+        {ATH_MSG_WARNING(x); ++this->m_numGenWarnings;} \
+    else if (this->m_numGenWarnings == this->m_maxNumGenWarnings) \
+        {ATH_MSG_INFO("PixelRodDecoder: suppressing further general warnings"); ++this->m_numGenWarnings;} \
+    else {/* No warning */}
+
+#define lvl1id_bcid_warning(x) \
+    if (this->m_numBCIDWarnings < this->m_maxNumBCIDWarnings) \
+        {ATH_MSG_WARNING(x); ++this->m_numBCIDWarnings;} \
+    else if (this->m_numBCIDWarnings == this->m_maxNumBCIDWarnings) \
+        {ATH_MSG_INFO("PixelRodDecoder: suppressing further BCID/LVL1ID warnings"); ++this->m_numBCIDWarnings;} \
+    else {/* No warning */}
+
+
+
 //--------------------------------------------------------------------------- constructor
 PixelRodDecoder::PixelRodDecoder
 ( const std::string& type, const std::string& name,const IInterface* parent )
@@ -94,6 +110,11 @@ StatusCode PixelRodDecoder::initialize() {
 
     masked_errors = 0;
 
+    m_numGenWarnings = 0;
+    m_maxNumGenWarnings = 200;
+    m_numBCIDWarnings = 0;
+    m_maxNumBCIDWarnings = 50;
+
     return StatusCode::SUCCESS;
 }
 
@@ -129,7 +150,7 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, PixelRDO
     uint32_t robId = robFrag->rob_source_id(); // get source ID => returns the Identifier of the ROB fragment. More correct to use w.r.t. rodId.
     uint32_t robBCID = robFrag->rod_bc_id();
     if (m_pixelCabling->isIBL(robId) && (robId != rodId)) {
-        ATH_MSG_WARNING("Discrepancy in IBL SourceId: ROBID 0x" << std::hex << robId << " unequal to RODID 0x" << rodId);
+        generalwarning("Discrepancy in IBL SourceId: ROBID 0x" << std::hex << robId << " unequal to RODID 0x" << rodId);
     }
 
     // check the ROD status for truncation
@@ -246,7 +267,7 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, PixelRDO
             if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Header word found" << endreq;
 
             if (link_start) {    // if header found before last header was closed by a trailer -> error
-                ATH_MSG_WARNING("Unexpected link header found: 0x" << std::hex << rawDataWord
+                generalwarning("Unexpected link header found: 0x" << std::hex << rawDataWord
                                   << ", data corruption - ROBID: 0x" << std::hex << robId << std::dec);
                 m_errors->addDecodingError();
             }
@@ -291,7 +312,7 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, PixelRDO
                 eformat::helper::SourceIdentifier sid_rob(robId);
                 sLinkSourceId = (sid_rob.module_id()) & 0x000F; // retrieve S-Link number from the source Identifier (0xRRRL, L = Slink number)
                 if (sLinkSourceId  > 0x3) { // Check if SLink number for the IBL is correct!
-                    ATH_MSG_WARNING("IBL/DBM SLink number not in correct range (0-3): SLink = " << sLinkSourceId);
+                    generalwarning("IBL/DBM SLink number not in correct range (0-3): SLink = " << sLinkSourceId);
                 }
 
                 fe_IBLheader = extractFefromLinkNum(linkNum_IBLheader);
@@ -300,7 +321,7 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, PixelRDO
 
 
                 if (sLinkHeader != sLinkSourceId) {
-                    ATH_MSG_WARNING("SLink discrepancy: Slink number from SourceId = 0x" << std::hex << sLinkSourceId
+                    generalwarning("SLink discrepancy: Slink number from SourceId = 0x" << std::hex << sLinkSourceId
                                     << ", number from link header = 0x" << sLinkHeader << std::dec);
                 }
 
@@ -309,24 +330,24 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, PixelRDO
 
                     // Check that L1ID is the same for all fragments
                     if (mLVL1ID != prevLVL1ID && prevLVL1ID != 0x3FFF) {
-                        ATH_MSG_WARNING("In ROB 0x" << std::hex << robId << ": got header with LVL1ID unequal to previous one (LVL1ID = 0x"
+                        lvl1id_bcid_warning("In ROB 0x" << std::hex << robId << ": got header with LVL1ID unequal to previous one (LVL1ID = 0x"
                                         << mLVL1ID << ", prevLVL1ID = 0x" << prevLVL1ID << ")" << std::dec);
                     }
                     // Check that BCIDs are consecutive
                     if ((mBCID != prevBCID + 1) && prevBCID != 0x3FFF && prevBCID != mBCID_max_IBL) {
-                        ATH_MSG_WARNING("In ROB 0x" << std::hex << robId << ": got header with non-consecutive BCIDs (BCID = 0x"
+                        lvl1id_bcid_warning("In ROB 0x" << std::hex << robId << ": got header with non-consecutive BCIDs (BCID = 0x"
                                       << mBCID << ", prevBCID = 0x" << prevBCID << ")" << std::dec);
                     }
                 }
                 else {  // If decoding new FE, check BCID offset
                     offsetBCID_ROB_FE = static_cast<int>(mBCID) - robBCID;
                     if (offsetBCID_ROB_FE != prevOffsetBCID_ROB_FE && (offsetBCID_ROB_FE != 0x3FFF && prevOffsetBCID_ROB_FE != 0x3FFF)) {
-                        ATH_MSG_WARNING("In ROB 0x" << std::hex << robId << std::dec << ": got FE header with unexpected BCID offset"
+                        lvl1id_bcid_warning("In ROB 0x" << std::hex << robId << std::dec << ": got FE header with unexpected BCID offset"
                                         << " wrt to ROB header (offset = " << offsetBCID_ROB_FE << ", expected " << prevOffsetBCID_ROB_FE << ")");
                     }
                     // Check that first fragment from each FE starts at the same BCID
                     if (mBCID != prevStartingBCID && prevStartingBCID != 0x3FFF) {
-                        ATH_MSG_WARNING("In ROB 0x" << std::hex << robId << ": BCID starts at different value than in previous FE (BCID = 0x" << mBCID
+                        lvl1id_bcid_warning("In ROB 0x" << std::hex << robId << ": BCID starts at different value than in previous FE (BCID = 0x" << mBCID
                                         << ", prev starting BCID = 0x" << prevStartingBCID << ")" << std::dec);
                     }
                     prevStartingBCID = mBCID;
@@ -346,6 +367,7 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, PixelRDO
                 mLink = decodeModule(rawDataWord);   // decode Pixel link (module): n
                 //mLVL1IDskip = decodeL1IDskip(rawDataWord);   // decode Pixel skipped LVL1ID: M    -- temporarily removed
 
+                /*
                 // If decoding fragment from same FE as previous one, do LVL1ID and BCID checks
                 if (mLink == prevLinkNum) {
 
@@ -373,6 +395,7 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, PixelRDO
                     }
                     prevStartingBCID = mBCID;
                 }
+                */
 
                 headererror = decodeHeaderErrors(rawDataWord);   // get link (module) header errors
                 if (headererror != 0) { // only treatment for header errors now, FIXME
@@ -392,7 +415,9 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, PixelRDO
 
             // Get onlineId
             onlineId = m_pixelCabling->getOnlineIdFromRobId(robId, mLink);
-            if (onlineId == 0) ATH_MSG_WARNING("Got invalid onlineId (= 0), from robID = 0x" << std::hex << robId << ", link = 0x" << mLink);
+            if (onlineId == 0) {
+                generalwarning("Got invalid onlineId (= 0), from robID = 0x" << std::hex << robId << ", link = 0x" << mLink);
+            }
 
 #ifdef PIXEL_DEBUG
             msg(MSG::VERBOSE) << "In decoder: got onlineId 0x" << std::hex << onlineId << endreq;
@@ -416,7 +441,7 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, PixelRDO
 #endif
 
             if (offlineIdHash == 0xffffffff) {   // if link (module) online identifier (ROBID and link number) not found by mapping
-                ATH_MSG_WARNING("Unknown OnlineId identifier - not found by mapping - ROBID: 0x" << std::hex << robId
+                generalwarning("Unknown OnlineId identifier - not found by mapping - ROBID: 0x" << std::hex << robId
                                 << " link: 0x" << mLink << std::dec);
                 m_errors->addDecodingError();
                 link_start = false;   // resetting link (module) header found flag
@@ -505,7 +530,7 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, PixelRDO
 
                     else if ((rawDataWord & PRB_HIT_IBL_MASK) == PRB_HIT_NOTCONDENSED) { // it's a IBL not-condensed hit word
                         if (countHitCondensedWords != 0) { // I received some IBL words, but less than 4, there was an error in the rod transmission
-                            ATH_MSG_WARNING("Unexpected interruption of flow of IBL condensed words - data corruption - hit(s) ignored");
+                            generalwarning("Unexpected interruption of flow of IBL condensed words - data corruption - hit(s) ignored");
                             m_errors->addDecodingError();
                             countHitCondensedWords = 0;
                         }
@@ -520,7 +545,7 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, PixelRDO
 //                        fe_IBLword = extractFefromLinkNum(linkNum_IBLword);
 //                        sLinkWord = extractSLinkfromLinkNum(linkNum_IBLword);
                         if (linkNum_IBLword != linkNum_IBLheader) {
-                          ATH_MSG_WARNING("In ROB 0x" << std::hex << robId << ": Link number mismatch - nnnnn (hit word) = 0x" << linkNum_IBLword
+                          generalwarning("In ROB 0x" << std::hex << robId << ": Link number mismatch - nnnnn (hit word) = 0x" << linkNum_IBLword
                                           << ", nnnnn (header) = 0x" << linkNum_IBLheader << std::dec);
                         }
 
@@ -530,7 +555,7 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, PixelRDO
 #endif
                     }
                     else { // it is an IBL/DBM hit word, but it hasn't been recognised
-                        ATH_MSG_WARNING("IBL/DBM hit word 0x" << std::hex << rawDataWord << " not recognised" << std::dec);
+                        generalwarning("IBL/DBM hit word 0x" << std::hex << rawDataWord << " not recognised" << std::dec);
                         m_errors->addDecodingError();
                     }
 
@@ -548,7 +573,7 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, PixelRDO
 
                         if (countHitCondensedWords != 0)
                         { // I received some IBL words, but less than 4, there was an error in the rod transmission
-                            ATH_MSG_WARNING("Unexpected interruption of flow of IBL condensed words - data corruption - hit(s) ignored");
+                            generalwarning("Unexpected interruption of flow of IBL condensed words - data corruption - hit(s) ignored");
                             m_errors->addDecodingError();
                             countHitCondensedWords = 0;
                         }
@@ -678,9 +703,9 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, PixelRDO
                                           << std::hex << col[i] << std::dec << ",  8-bit TOT[" << i << "] = 0x" << std::hex << tot[i] << std::dec << endreq;
 #endif
                         if ((tot[i] & 0xF0) == 0x00) {  // First 4-bits of tot[i] can not be equal to 1111
-                            msg(MSG::WARNING) << "Illegal IBL TOT code: ToT1 = 0x" << std::hex << (tot[i] >> 4) << " - ROB = 0x" << robId
+                            generalwarning("Illegal IBL TOT code: ToT1 = 0x" << std::hex << (tot[i] >> 4) << " - ROB = 0x" << robId
                                               << ", hit word 0x" << rawDataWord << " decodes to row = " << std::dec << row[i] << " col = " << col[i]
-                                              << "ToT1 = 0x" << std::hex << IBLtot[0] << "ToT2 = 0x" << IBLtot[1] << endreq;
+                                              << "ToT1 = 0x" << std::hex << IBLtot[0] << "ToT2 = 0x" << IBLtot[1]);
                             continue;
                         }
 
@@ -697,7 +722,7 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, PixelRDO
                                 msg(MSG::VERBOSE) << "          eta_i: " << eta_i << ", phi_i: " << phi_i << ",  eta_m: " <<  eta_m << ", phi_m: " << phi_m << endreq;
 #endif
                                 if (pixelId == invalidPixelId) {
-                                    msg(MSG::WARNING) << "Illegal pixelId" << endreq;
+                                    generalwarning("Illegal pixelId");
                                     m_errors->addInvalidIdentifier();
                                     continue;
                                 }
@@ -714,9 +739,9 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, PixelRDO
                                 if ((IBLtot[1] != 0x0) && (IBLtot[1] != 0xF)) {  // Consider both 0x0 and 0xF to indicate no hit
                                     if ((row[i] + 1) > 336) { // FIXME: hardcoded number - but it should still be ok, because it's a feature of the FE-I4!
                                         // this should never happen. If row[i] == 336, (row[i]+1) == 337. This row does not exist, so the TOT(337) should always be 0 (== no hit)
-                                        msg(MSG::WARNING) << "Illegal IBL row number for second ToT field: ROB = 0x" << std::hex << robId
+                                        generalwarning("Illegal IBL row number for second ToT field: ROB = 0x" << std::hex << robId
                                                           << ", hit word 0x"<< rawDataWord << " decodes to row = " << std::dec << row[i]+1 << " col = " << col[i]
-                                                          << " (ToT1 = 0x" << std::hex << IBLtot[0] << " ToT2 = 0x" << IBLtot[1] << ")" << endreq;
+                                                          << " (ToT1 = 0x" << std::hex << IBLtot[0] << " ToT2 = 0x" << IBLtot[1] << ")");
                                         m_errors->addInvalidIdentifier();
                                         continue;
                                     }
@@ -735,7 +760,7 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, PixelRDO
                                         msg(MSG::VERBOSE) << "          eta_i: " << eta_i << ", phi_i: " << phi_i << ",  eta_m: " <<  eta_m << ", phi_m: " << phi_m  << ", eta_i_max: " << eta_i_max << ", phi_i_max: " << phi_i_max << endreq;
 #endif
                                         if (pixelId == invalidPixelId) {
-                                            msg(MSG::WARNING) << "Illegal pixelId" << endreq;
+                                            generalwarning("Illegal pixelId");
                                             m_errors->addInvalidIdentifier();
                                             continue;
                                         }
@@ -748,7 +773,7 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, PixelRDO
                                 }
                             } // end of the if that checks that Row and Column of the IBL have a value > 0 and smaller than the maximum of the FE-I4.
                             else {
-                                msg(MSG::WARNING) << "Illegal IBL/DBM row and/or column number associated with a hit" << endreq;
+                                generalwarning("Illegal IBL/DBM row and/or column number associated with a hit");
                                 m_errors->addInvalidIdentifier();
                                 continue;
                             }
@@ -759,9 +784,8 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, PixelRDO
                 else { // it is a Pixel hit word to be saved into the Collection
                     pixelId = m_pixelCabling->getPixelIdfromHash(offlineIdHash, mFE, mRow, mColumn);
 
-                    if (pixelId == invalidPixelId)
-                    {
-                        msg(MSG::WARNING) << "Illegal pixelId" << endreq;
+                    if (pixelId == invalidPixelId) {
+                        generalwarning("Illegal pixelId");
                         m_errors->addInvalidIdentifier();
                         continue;
                     }
@@ -775,7 +799,7 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, PixelRDO
             } // end of the if (link_start)
 
             else { // no header found before hit -> error
-                msg(MSG::WARNING) << "unexpected hit dataword found - data corruption - hit ignored" << endreq;
+                generalwarning("unexpected hit dataword found - data corruption - hit ignored");
                 m_errors->addDecodingError();
                 continue;
             }
@@ -789,7 +813,7 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, PixelRDO
                 if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "link trailer found" << endreq;   // trailer found debug message
             }
             else {   // no header found before trailer -> error
-                msg(MSG::WARNING) << "unexpected trailer found: 0x" << std::hex << rawDataWord << ", data corruption - ROBID: 0x" << std::hex << robId << std::dec << " link: " << mLink << endreq;
+                generalwarning("Unexpected trailer found: 0x" << std::hex << rawDataWord << ", data corruption - ROBID: 0x" << std::hex << robId << std::dec << " link: " << mLink);
                 m_errors->addDecodingError();
                 continue;
             }
@@ -804,14 +828,22 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, PixelRDO
 
 //                mSkippedTrigTrailer = decodeSkippedTrigTrailer_IBL(rawDataWord); // decode skipped trigger counter bits => M  -- temporarily removed
 
-                trailererror = decodeTrailerErrors_IBL(rawDataWord); // => EWPplbzhv // taking all errors together.
+                trailererror = decodeTrailerErrors_IBL(rawDataWord); // => E cPpl bzhv // taking all errors together.
 
-                // TO BE CHECKED, as Data format is not clear yet (Franconi, 08.07.2014)
+                // Create a copy without the useless 'c' bit
+                uint32_t trailererror_noC = 0;
+                trailererror_noC = (trailererror & 0x7F) | ((trailererror & 0x100) >> 1);
+
+                // Insert trailer errors into errorcode (except the 'c' bit)
+                // CCC CCCC CCCC CCCC CCCC EPpl bzhv
+                errorcode = errorcode | trailererror_noC;
+
+                // Add errors to errorsvc
                 if (trailererror & (1 << 8)) // time out error bit => E
                     m_errors->addTimeOutError();
                 if (trailererror & (1 << 7)) // condensed mode bit => W
                     if (!receivedCondensedWords) {
-                        ATH_MSG_WARNING("In ROB " << std::hex << robId
+                        generalwarning("In ROB " << std::hex << robId
                                         << ": condensed mode bit is set, but no condensed words received" << std::dec);
                     }
                 if (trailererror & (1 << 6)) // link masked by PPC => P
@@ -829,6 +861,9 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, PixelRDO
                 if (trailererror & (1 << 0)) // data overflow error=> v
                     m_errors->addInvalidIdentifier();
 
+                // Write the error word to the service
+//                if (offlineIdHash != 0xffffffff) m_errors->setModuleErrors(offlineIdHash, errorcode);
+
 
                 //At least temporarily removed because the data format is not clear (Franconi, 17.06.2014)
                 linkNum_IBLword = decodeLinkNumTrailer_IBL(rawDataWord); // => n
@@ -837,14 +872,18 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, PixelRDO
                 //	  msg(MSG::WARNING) << "The IBL trailer word has bitflips" << endreq;
 
                 // Do checks on info in trailer vs header
-                if (linkNum_IBLword != linkNum_IBLheader)
-                    msg(MSG::WARNING) << "In ROB 0x" << std::hex << robId << ": Link number mismatch - nnnnn (trailer) = 0x" << linkNum_IBLword
-                                      << ", nnnnn (header) = 0x" << linkNum_IBLheader << std::dec << endreq;
+                if (linkNum_IBLword != linkNum_IBLheader) {
+                    generalwarning("In ROB 0x" << std::hex << robId << ": Link number mismatch - nnnnn (trailer) = 0x" << linkNum_IBLword
+                                      << ", nnnnn (header) = 0x" << linkNum_IBLheader << std::dec);
+                }
 
-                if (decodeBcidTrailer_IBL(rawDataWord) != (mBCID & PRB_BCIDSKIPTRAILERmask_IBL))
-                    msg(MSG::WARNING) << "In ROB 0x" << std::hex << robId << ": Trailer BCID does not match header (trailer BCID = 0x"
+                if (decodeBcidTrailer_IBL(rawDataWord) != (mBCID & PRB_BCIDSKIPTRAILERmask_IBL)) {
+                    generalwarning("In ROB 0x" << std::hex << robId << ": Trailer BCID does not match header (trailer BCID = 0x"
                                       << decodeBcidTrailer_IBL(rawDataWord) << ", 5LSB of header BCID = 0x"
-                                      << (mBCID & PRB_BCIDSKIPTRAILERmask_IBL) << ")" << std::dec << endreq;
+                                      << (mBCID & PRB_BCIDSKIPTRAILERmask_IBL) << ")" << std::dec);
+                }
+
+
             }
 
             else { // decode Pixel trailer word
@@ -887,21 +926,28 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, PixelRDO
 //                fe_IBLword = extractFefromLinkNum(linkNum_IBLword);
 //                sLinkWord = extractSLinkfromLinkNum(linkNum_IBLword);
 //                if ((sLinkWord != sLinkHeader) || (fe_IBLword != fe_IBLheader))
-                if (linkNum_IBLword != linkNum_IBLheader)
-                   ATH_MSG_WARNING("In ROB 0x" << std::hex << robId << ": Link number mismatch - nnnnn (error word) = 0x" << linkNum_IBLword
+                if (linkNum_IBLword != linkNum_IBLheader) {
+                   generalwarning("In ROB 0x" << std::hex << robId << ": Link number mismatch - nnnnn (error word) = 0x" << linkNum_IBLword
                                      << ", nnnnn (header) = 0x" << linkNum_IBLheader << std::dec);
-                   
+                }
 
                 serviceCodeCounter = decodeServiceCodeCounter_IBL(rawDataWord); // frequency of the serviceCode (with the exceptions of serviceCode = 14,15 or 16)
                 serviceCode = decodeServiceCode_IBL(rawDataWord); // is a code. the corresponding meaning is listed in the table in the FE-I4 manual, pag. 105
 
                 // Treatment of the FE flag serviceCode and serviceCodeCounter
-                treatmentFEFlagInfo(serviceCode, serviceCodeCounter);
+                // Returns encoded uint32_t to be added to errorcode
+                uint32_t encodedServiceCodes = treatmentFEFlagInfo(serviceCode, serviceCodeCounter);
+
+                // Insert service codes into errorcode
+                // CCC CCCC CCCC CCCC CCCC EPpl bzhv
+                errorcode = errorcode | (encodedServiceCodes << 8);
+
 
                 // Temporarily removed, as the data format is not clear yet (Franconi, 08.07.2014)
                 //	  mBitFlips = decodeFEFlagBitFlips_IBL(rawDataWord);
                 //	  if (mBitFlips != 0)
                 //	    msg(MSG::WARNING) << "IBL Fe Flag error word has some bitflips: the word is 0x" << std::hex << rawDataWord << std::dec  << endreq;
+
 
             }
             else { // Pixel type2 flag found
@@ -967,7 +1013,7 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, PixelRDO
 
         //-------------------------------------------------------------------------------------------- UNKNOWN WORD
         default:
-            ATH_MSG_WARNING("Unknown word type found, " << std::hex << rawDataWord << std::dec << ", ignoring");
+            generalwarning("Unknown word type found, " << std::hex << rawDataWord << std::dec << ", ignoring");
             m_errors->addDecodingError();
 
         } // end of switch
@@ -993,8 +1039,8 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, PixelRDO
                             errmsg.append(tempstr);
                         }
                     }
-                    ATH_MSG_WARNING("In ROB 0x" << std::hex << robId << ": got unequal number of headers per FE");
-                    ATH_MSG_WARNING("[FE number] : [# headers] - " << errmsg);
+                    generalwarning("In ROB 0x" << std::hex << robId << ": got unequal number of headers per FE");
+                    generalwarning("[FE number] : [# headers] - " << errmsg);
                     break;
                 }
             }
@@ -1536,7 +1582,7 @@ void PixelRodDecoder::addToFlaggedErrorCounter(const unsigned int & serviceCodeC
 }
 */
 
-void PixelRodDecoder::treatmentFEFlagInfo(unsigned int serviceCode, unsigned int serviceCodeCounter) {
+uint32_t PixelRodDecoder::treatmentFEFlagInfo(unsigned int serviceCode, unsigned int serviceCodeCounter) {
 
     unsigned int etc = 0, l1req = 0;
 
@@ -1550,130 +1596,155 @@ void PixelRodDecoder::treatmentFEFlagInfo(unsigned int serviceCode, unsigned int
         m_errors->updateServiceRecords(serviceCode, serviceCodeCounter);
     }
 
-    // Print debug messages
-    if (msgLvl(MSG::DEBUG)) {
+    // Return a 19-bit code to be used for monitoring
+    // Service codes of type 'inf' are excluded, except for codes 15, 16 and 25,
+    // see FE-I4B manual table 39
+    // The bit position of each monitored service code is sequential starting from the
+    // least significant bit, see below
+    uint32_t code = 0;
 
-        switch (serviceCode) {
+    switch (serviceCode) {
 
-        case 0: // BCID counter error, from EOCHL
-            ATH_MSG_DEBUG("BCID counter error (retrieved in IBL FE Flag word)");
-            break;
+    case 0: // BCID counter error, from EOCHL
+        ATH_MSG_DEBUG("BCID counter error (retrieved in IBL FE Flag word)");
+        code = code | (1 << 0);
+        break;
 
-        case 1: // Hamming code error in word 0, from EOCHL
-            ATH_MSG_DEBUG("Hamming code error in word 0 (retrieved in IBL FE Flag word)");
-            break;
+    case 1: // Hamming code error in word 0, from EOCHL
+        ATH_MSG_DEBUG("Hamming code error in word 0 (retrieved in IBL FE Flag word)");
+        code = code | (1 << 1);
+        break;
 
-        case 2: // Hamming code error in word 1, from EOCHL
-            ATH_MSG_DEBUG("Hamming code error in word 1 (retrieved in IBL FE Flag word)");
-            break;
+    case 2: // Hamming code error in word 1, from EOCHL
+        ATH_MSG_DEBUG("Hamming code error in word 1 (retrieved in IBL FE Flag word)");
+        code = code | (1 << 2);
+        break;
 
-        case 3: // Hamming code error in word 2, from EOCHL
-            ATH_MSG_DEBUG("Hamming code error in word 2 (retrieved in IBL FE Flag word)");
-            break;
+    case 3: // Hamming code error in word 2, from EOCHL
+        ATH_MSG_DEBUG("Hamming code error in word 2 (retrieved in IBL FE Flag word)");
+        code = code | (1 << 3);
+        break;
 
-        case 4: // L1_in counter error, from EOCHL
-            ATH_MSG_DEBUG("L1_in counter error (retrieved in IBL FE Flag word)");
-            break;
+    case 4: // L1_in counter error, from EOCHL
+        ATH_MSG_DEBUG("L1_in counter error (retrieved in IBL FE Flag word)");
+        code = code | (1 << 4);
+        break;
 
-        case 5: // L1 request counter error from EOCHL
-            ATH_MSG_DEBUG("L1 request counter error (retrieved in IBL FE Flag word)");
-            break;
+    case 5: // L1 request counter error from EOCHL
+        ATH_MSG_DEBUG("L1 request counter error (retrieved in IBL FE Flag word)");
+        code = code | (1 << 5);
+        break;
 
-        case 6: // L1 register error from EOCHL
-            ATH_MSG_DEBUG("L1 register error (retrieved in IBL FE Flag word)");
-            break;
+    case 6: // L1 register error from EOCHL
+        ATH_MSG_DEBUG("L1 register error (retrieved in IBL FE Flag word)");
+        code = code | (1 << 6);
+        break;
 
-        case 7: // L1 Trigger ID error from EOCHL
-            ATH_MSG_DEBUG("L1 Trigger ID error (retrieved in IBL FE Flag word)");
-            break;
+    case 7: // L1 Trigger ID error from EOCHL
+        ATH_MSG_DEBUG("L1 Trigger ID error (retrieved in IBL FE Flag word)");
+        code = code | (1 << 7);
+        break;
 
-        case 8: // readout processor error from EOCHL
-            ATH_MSG_DEBUG("Readout processor error (retrieved in IBL FE Flag word)");
-            break;
+    case 8: // readout processor error from EOCHL
+        ATH_MSG_DEBUG("Readout processor error (retrieved in IBL FE Flag word)");
+        code = code | (1 << 8);
+        break;
 
-        case 9: // Fifo_Full flag pulsed from EOCHL
-            ATH_MSG_DEBUG("Fifo_Full flag pulsed (retrieved in IBL FE Flag word)");
-            break;
+    case 9: // Fifo_Full flag pulsed from EOCHL
+        ATH_MSG_DEBUG("Fifo_Full flag pulsed (retrieved in IBL FE Flag word)");
+        break;
 
-        case 10: // HitOr bus pulsed from PixelArray
-            ATH_MSG_DEBUG("HitOr bus pulsed (retrieved in IBL FE Flag word)");
-            break;
+    case 10: // HitOr bus pulsed from PixelArray
+        ATH_MSG_DEBUG("HitOr bus pulsed (retrieved in IBL FE Flag word)");
+        break;
 
-            // case 11 to 13 not used
-        case 11:
-        case 12:
-        case 13:
-            ATH_MSG_DEBUG("Received invalid service code: " << serviceCode << " (payload = " << serviceCodeCounter << ")");
-            break;
+        // case 11 to 13 not used
+    case 11:
+    case 12:
+    case 13:
+        ATH_MSG_DEBUG("Received invalid service code: " << serviceCode << " (payload = " << serviceCodeCounter << ")");
+        break;
 
-        case 14: // 3 MSBs of bunch counter and 7 MSBs of L1A counter from EOCHL
-            ATH_MSG_DEBUG("Received service code 14 - ignored");
-            // ATH_MSG_DEBUG("3 MSBs of bunch counter (retrieved in IBL FE Flag word): " << ((serviceCode >> 7) & 0x7));
-            // ATH_MSG_DEBUG("7 MSBs of L1A counter (retrieved in IBL FE Flag word): " << (serviceCode & 0x7F));
-            break;
+    case 14: // 3 MSBs of bunch counter and 7 MSBs of L1A counter from EOCHL
+        ATH_MSG_DEBUG("Received service code 14 - ignored");
+        // ATH_MSG_DEBUG("3 MSBs of bunch counter (retrieved in IBL FE Flag word): " << ((serviceCode >> 7) & 0x7));
+        // ATH_MSG_DEBUG("7 MSBs of L1A counter (retrieved in IBL FE Flag word): " << (serviceCode & 0x7F));
+        break;
 
-        case 15: // Skipped trigger counter
-            ATH_MSG_DEBUG("Skipped trigger counter (retrieved in IBL FE Flag word). There are " << serviceCodeCounter << " skipped triggers.");
-            break;
+    case 15: // Skipped trigger counter
+        ATH_MSG_DEBUG("Skipped trigger counter (retrieved in IBL FE Flag word). There are " << serviceCodeCounter << " skipped triggers.");
+        code = code | (1 << 9);
+        break;
 
-        case 16: // Truncated event flag and counter from EOCHL
-            ATH_MSG_DEBUG("Truncated event flag: ETC = " << etc << ", L1Req = " << l1req);
-            break;
+    case 16: // Truncated event flag and counter from EOCHL
+        ATH_MSG_DEBUG("Truncated event flag: ETC = " << etc << ", L1Req = " << l1req);
+        code = code | (1 << 10);
+        break;
 
-            // case 17 to 20 not used
-        case 17:
-        case 18:
-        case 19:
-        case 20:
-            ATH_MSG_DEBUG("Received invalid service code: " << serviceCode << " (payload = " << serviceCodeCounter << ")");
-            break;
+        // case 17 to 20 not used
+    case 17:
+    case 18:
+    case 19:
+    case 20:
+        ATH_MSG_DEBUG("Received invalid service code: " << serviceCode << " (payload = " << serviceCodeCounter << ")");
+        break;
 
-        case 21: // Reset bar RA2b pulsedd from Pad, PRD
-            ATH_MSG_DEBUG("Reset bar RA2b pulsed (retrieved in IBL FE Flag word)");
-            break;
+    case 21: // Reset bar RA2b pulsedd from Pad, PRD
+        ATH_MSG_DEBUG("Reset bar RA2b pulsed (retrieved in IBL FE Flag word)");
+        break;
 
-        case 22: // PLL generated clock phase faster than reference from CLKGEN
-            ATH_MSG_DEBUG("PLL generated clock phase faster than reference (retrieved in IBL FE Flag word)");
-            break;
+    case 22: // PLL generated clock phase faster than reference from CLKGEN
+        ATH_MSG_DEBUG("PLL generated clock phase faster than reference (retrieved in IBL FE Flag word)");
+        break;
 
-        case 23: // Reference clock phase faster than PLL, from CLKGEN
-            ATH_MSG_DEBUG("Reference clock phase faster than PLL (retrieved in IBL FE Flag word)");
-            break;
+    case 23: // Reference clock phase faster than PLL, from CLKGEN
+        ATH_MSG_DEBUG("Reference clock phase faster than PLL (retrieved in IBL FE Flag word)");
+        break;
 
-        case 24: // Triple redundant mismatchfrom CNFGMEM
-            ATH_MSG_DEBUG("Triple redundant mismatch (retrieved in IBL FE Flag word)");
-            break;
+    case 24: // Triple redundant mismatchfrom CNFGMEM
+        ATH_MSG_DEBUG("Triple redundant mismatch (retrieved in IBL FE Flag word)");
+        code = code | (1 << 11);
+        break;
 
-        case 25: // Write register data error from CMD
-            ATH_MSG_DEBUG("Write register data error (retrieved in IBL FE Flag word)");
-            break;
+    case 25: // Write register data error from CMD
+        ATH_MSG_DEBUG("Write register data error (retrieved in IBL FE Flag word)");
+        code = code | (1 << 12);
+        break;
 
-        case 26: // Address error from CMD
-            ATH_MSG_DEBUG("Address error (retrieved in IBL FE Flag word)");
-            break;
+    case 26: // Address error from CMD
+        ATH_MSG_DEBUG("Address error (retrieved in IBL FE Flag word)");
+        code = code | (1 << 13);
+        break;
 
-        case 27: // Other command decoder error- see CMD section from CMD
-            ATH_MSG_DEBUG("Other command decoder error- see CMD section (retrieved in IBL FE Flag word)");
-            break;
+    case 27: // Other command decoder error- see CMD section from CMD
+        ATH_MSG_DEBUG("Other command decoder error- see CMD section (retrieved in IBL FE Flag word)");
+        code = code | (1 << 14);
+        break;
 
-        case 28: // Bit flip detected in command decoder input stream from CMD
-            ATH_MSG_DEBUG("Bit flip detected in command decoder input stream (retrieved in IBL FE Flag word)");
-            break;
+    case 28: // Bit flip detected in command decoder input stream from CMD
+        ATH_MSG_DEBUG("Bit flip detected in command decoder input stream (retrieved in IBL FE Flag word)");
+        code = code | (1 << 15);
+        break;
 
-        case 29: // SEU upset detected in command decoder (triple redundant mismatch) from CMD
-            ATH_MSG_DEBUG("SEU upset detected in command decoder (triple redundant mismatch) (retrieved in IBL FE Flag word)");
-            break;
+    case 29: // SEU upset detected in command decoder (triple redundant mismatch) from CMD
+        ATH_MSG_DEBUG("SEU upset detected in command decoder (triple redundant mismatch) (retrieved in IBL FE Flag word)");
+        code = code | (1 << 16);
+        break;
 
-        case 30: // Data bus address error from CMD
-            ATH_MSG_DEBUG("Data bus address error (retrieved in IBL FE Flag word)");
-            break;
+    case 30: // Data bus address error from CMD
+        ATH_MSG_DEBUG("Data bus address error (retrieved in IBL FE Flag word)");
+        code = code | (1 << 17);
+        break;
 
-        case 31: // Triple redundant mismatch from CMD
-            ATH_MSG_DEBUG("Triple redundant mismatch (retrieved in IBL FE Flag word)");
-            break;
+    case 31: // Triple redundant mismatch from CMD
+        ATH_MSG_DEBUG("Triple redundant mismatch (retrieved in IBL FE Flag word)");
+        code = code | (1 << 18);
+        break;
 
-        default:
-            ATH_MSG_DEBUG("ServiceCode not used at the moment");
-        }
+    default:
+        ATH_MSG_DEBUG("ServiceCode not used at the moment");
+
     }
+
+    return code;
 }

@@ -125,7 +125,7 @@ void PixelRodEncoder::fillROD(std::vector<uint32_t>& v32rod, MsgStream& log, int
     uint32_t sLink (0);
     uint32_t n5(0);
     uint32_t prev_n5(0);
-    uint32_t prev_FE(0);
+//    uint32_t prev_FE(0);
 
     int last_BCID = 0;  // needed for encoding of timing information
     while (rdo_it != rdo_it_end) {
@@ -574,7 +574,7 @@ void PixelRodEncoder::fillROD(std::vector<uint32_t>& v32rod, MsgStream& log, int
 
         prev_offlineId = offlineId;
 	prev_n5 = n5;
-	prev_FE = FE;
+//	prev_FE = FE;
       } // end of the IBL case
     } // end WHILE cycle " while  (rdo_it!=rdo_it_end) "    
 
