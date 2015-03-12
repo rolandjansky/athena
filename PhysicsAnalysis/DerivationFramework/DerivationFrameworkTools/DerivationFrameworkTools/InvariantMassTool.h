@@ -34,7 +34,7 @@ namespace DerivationFramework {
       std::string m_sgName;
       float m_massHypothesis;
       std::string m_containerName;
-      StatusCode getInvariantMasses(std::vector<float>*&) const;
+      StatusCode getInvariantMasses(std::vector<float>*) const;
       float calculateInvariantMass(float,float,float,float,float,float,float) const;		
   }; 
 }
