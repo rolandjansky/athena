@@ -34,7 +34,7 @@ def main(runArgs):
   if hasattr(runArgs,'db_hltpskey'):
     option['db-hltpskey'] = runArgs.db_hltpskey
   if hasattr(runArgs,'db_extra'):
-    option['db-extra'] = runArgs.db_extra
+    option['db-extra'] = eval(runArgs.db_extra)
   
   return option
   

@@ -30,10 +30,12 @@ def dbgPreRun(inputFileList,outputFileList):
     out_file = outputFileList[0]
     hfile = TFile( out_file , 'UPDATE' )
     #inicialize dbgEventInfo,  this is the main event analysis class
-    eventInfo = dbgEventInfo("_Pre")
+    eventInfo = dbgEventInfo("_Pre",inputFileList.value[0])
     data = []
     l1Info = []
     hltInfo = []
+    relInfo = str()
+    runInfo = []
     for inputFile in inputFileList.value:
         
         bsfile = eformat.istream(inputFile)
@@ -46,8 +48,9 @@ def dbgPreRun(inputFileList,outputFileList):
             # if fist event get l1 and hlt counter and chain info from DB or XML file
             if isFirstEvent:
                 #e = bsfile[0] 
-                l1Info, hltInfo = TriggerDBInfo(event.run_no())        
+                l1Info, hltInfo, relInfo = TriggerDBInfo(event.run_no())        
                 isFirstEvent = False
+                runInfo.append(relInfo)  
             n += 1
             if n < 5:
                 data = [event.run_no(),event.lumi_block(),event.global_id(),event.lvl1_id(),event.bc_time_seconds(),event.bc_time_nanoseconds()]
@@ -58,9 +61,14 @@ def dbgPreRun(inputFileList,outputFileList):
             eventInfo.fillTree()
     #close output TFile
     hfile.Write()
-    hfile.Close()  
+    hfile.Close() 
+    if len(set(runInfo)) != 1 :
+        msg.error('Processing runs files taken with different releases is not allowed : %s' % relInfo )
+
     msg.info('Finished running debug_stream analysis PreRun operations')     
-        
+    #returns the local asetupString from runs in input files and to be used by asetup 
+    return getAsetupString(relInfo)
+    
 def dbgPostRun(inputFileList,outputFileList):
     msg.info('Running debug_stream analysis PostRun operations on files :{0} '.format(inputFileList))
     msg.info('Running debug_stream analysis PostRun, histogram output in :{0} '.format(outputFileList))
@@ -70,10 +78,11 @@ def dbgPostRun(inputFileList,outputFileList):
     out_file = outputFileList[0]
     hfile = TFile( out_file , 'UPDATE' )
     #inicialize dbgEventInfo,  this is the main event analysis class
-    eventInfo = dbgEventInfo("_Pos")
+    eventInfo = dbgEventInfo("_Pos",inputFileList.value[0])
     data = []
     l1Info = []
     hltInfo = []
+    relInfo = str()
     for inputFile in inputFileList.value:
         
         bsfile = eformat.istream(inputFile)
@@ -86,7 +95,7 @@ def dbgPostRun(inputFileList,outputFileList):
             # if fist event get l1 and hlt counter and chain info from DB or XML file
             if isFirstEvent:
                 #e = bsfile[0] 
-                l1Info, hltInfo = TriggerDBInfo(event.run_no())        
+                l1Info, hltInfo, relInfo = TriggerDBInfo(event.run_no())        
                 isFirstEvent = False
             n += 1
             if n < 5:
@@ -101,7 +110,7 @@ def dbgPostRun(inputFileList,outputFileList):
     hfile.Close()  
     msg.info('Finished running debug_stream analysis PostRun operations')
 
-
+    
 def TriggerDBInfo(run):
     #Get the connection to CONDBR2  
     dbconn  = TriggerCoolUtil.GetConnection("CONDBR2")
@@ -160,7 +169,20 @@ def TriggerDBInfo(run):
         hltInfo.pop(channel)
         hltInfo.insert(channel,chainNamesHLT[channel])
 
-    return (l1Info, hltInfo) 
+    # Get HLT Release number
+    f = dbconn.getFolder( "/TRIGGER/HLT/HltConfigKeys" )
+    chansel=cool.ChannelSelection.all()
+    objs = f.browseObjects( limmin,limmax,chansel)
+    relInfo = str()
+    while objs.goToNext():
+        relObj=objs.currentRef()
+        relPayload=relObj.payload()
+        confsrc     = relPayload['ConfigSource'].split(',')
+        relInfo = 'unknown'
+        if len(confsrc)>1: relInfo = confsrc[1]
+        msg.info("release: %s", relInfo)
+
+    return (l1Info, hltInfo, relInfo) 
 
 def getL1InfoXML():
     # Try to find  env var $AtlasPatchArea, then opens LVL1config xml file to extract L1 info.
@@ -169,7 +191,7 @@ def getL1InfoXML():
     if eVar in os.environ:
         AtlasPatchArea = os.environ[eVar].rstrip()
     else:
-        msg.error('failed to find env varriable : $'+eVar)
+        msg.error('failed to find env variable : $'+eVar)
         
     lvl1XML = AtlasPatchArea+'/InstallArea/XML/TriggerMenuXML/LVL1config_Physics_pp_v5.xml'
 
@@ -209,3 +231,40 @@ def getL1InfoXML():
         #print "CTP counter : "+str(c)+"  chain :"+name
 
     return l1Info
+
+    
+def getAsetupString(release):
+    #From release and os.environ, sets asetupString for runwrapper.BSRDOtoRAW.sh
+    asetupString = None
+    AtlasProject = str()
+    AtlasPatchArea = str()
+    TestArea = str()
+    userEnvironment = str()
+    #Environment variables list for dictionary to be filled from os.environ
+    eVarList = ['AtlasProject','AtlasPatchArea','CORAL_AUTH_PATH','CORAL_DBLOOKUP_PATH','TestArea']
+    eVarDic = {}
+    for eVar in eVarList :
+        if eVar in os.environ:
+            eVarDic[eVar] = os.environ[eVar].rstrip() 
+
+    #Sets AtlasProject to AtlasP1HLT by default otherwise it gest is from the enviroment.
+    if eVarDic['AtlasProject'] :
+        AtlasProject = eVarDic['AtlasProject']
+    else:
+        msg.info('failed to find env variable : $'+eVar)
+        AtlasProject='AtlasP1HLT'
+
+    #If TestArea is for tzero (tzero/software/patches), then return None   
+    if eVarDic['TestArea'] :
+        TestArea = eVarDic['TestArea']
+        if  TestArea.find("tzero/software/patches") > 0 :
+            asetupString = None
+            return asetupString
+    #check if CORAL user env DB is different wrt expected asetup, then use "asetup --useenvironment" option 
+    if eVarDic['AtlasPatchArea'] :
+        AtlasPatchArea = eVarDic['AtlasPatchArea']
+    if eVarDic['CORAL_AUTH_PATH'] == eVarDic['CORAL_DBLOOKUP_PATH'] != AtlasPatchArea+'/InstallArea/XML/AtlasAuthentication' :
+        userEnvironment = "--useenvironment "
+        
+    asetupString = userEnvironment + AtlasProject + ',' + release + ',gcc48,here'
+    return asetupString
