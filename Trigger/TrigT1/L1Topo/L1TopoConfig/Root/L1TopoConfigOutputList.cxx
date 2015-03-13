@@ -78,14 +78,13 @@ L1TopoConfigOutputList::sort() {
 std::ostream & operator<<(std::ostream &o, const TXC::L1TopoConfigOutputList &outputlist) {
 
    o << "Trigger lines (sorted by connectors):" << endl;
-   unsigned int modIdx = 999;
    for(const TXC::TriggerLine& trigger: outputlist.getTriggerLines()) {
-      if(trigger.counter() / 100 != modIdx) {
-         modIdx = trigger.counter() / 100;
-         o << "Module=" << trigger.module() << ", FPGA=" << trigger.fpga() << ", Clock=" << trigger.clock() << endl;
+      if(trigger.counter() % 16 == 0) {
+         //modIdx = trigger.counter() / 100;
+         o << endl << "Module=" << trigger.module() << ", FPGA=" << trigger.fpga() << ", Clock=" << trigger.clock() << endl;
          o << "-------------------------" << endl;
       }
-      o << "  " << trigger.name() <<  " (algorithm " << trigger.algoname() << " (id=" << trigger.algoid() << "))" <<  " on bit " << trigger.bit() << endl;
+      o << "  " << trigger.name() <<  "   (algorithm " << trigger.algoname() << " (id=" << trigger.algoid() << "))" <<  " on bit " << trigger.bit() << endl;
    }
    return o;
 }
