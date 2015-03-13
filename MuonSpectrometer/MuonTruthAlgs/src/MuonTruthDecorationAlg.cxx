@@ -305,7 +305,7 @@ namespace Muon {
 	  Amg::Vector3D gpos(0.,0.,0.);
 	  bool ok = false;
 	  if( !isCsc ){
-	    int index = m_idHelper->mdtIdHelper().technology(id);
+	    index = m_idHelper->mdtIdHelper().technology(id);
 	    if( index < (int)sdoCollections.size() && sdoCollections[index] != 0 ) {
 	      auto pos = sdoCollections[index]->find(id);
 	      if( pos != sdoCollections[index]->end() ) {
@@ -325,7 +325,7 @@ namespace Muon {
 	    if( !firstPos ) firstPos  = new Amg::Vector3D(gpos);
 	    else if( !secondPos ){
 	      secondPos = new Amg::Vector3D(gpos);
-	      if( isSmaller(*firstPos,gpos) ) std::swap(firstPos,secondPos);
+	      if( isSmaller(gpos,*firstPos) ) std::swap(firstPos,secondPos);
 	    }else{
 	      // update position if we can increase the distance between the two positions
 	      if( isSmaller(gpos,*firstPos) )       *firstPos  = gpos;
@@ -362,9 +362,9 @@ namespace Muon {
           segment->setPosition(gpos.x(),gpos.y(),gpos.z());
           segment->setDirection(gdir.x(),gdir.y(),gdir.z());
 	}
-	delete firstPos;
-	delete secondPos;
       }
+      delete firstPos;
+      delete secondPos;
     }
   }
 
