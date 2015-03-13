@@ -30,9 +30,9 @@ namespace Rec {
     m_sigmasAboveNoise(4.),
     m_emEtCut(2.5*CLHEP::GeV),
     m_emF1Cut(0.15),
-    m_emipEM(0.42), // 0.47
-    m_emipTile(0.86), // 0.85
-    m_emipHEC(0.65)  // 0.71
+    m_emipEM(0.42), // 0.42
+    m_emipTile(0.86), // 0.86
+    m_emipHEC(0.65)  // 0.65
   {
     declareInterface<IMuonCaloEnergyTool>(this);
     declareProperty("ParticleCaloExtensionTool",      m_caloExtensionTool );
@@ -211,7 +211,7 @@ namespace Rec {
     } else {     
       Eloss = caloExtension.caloEntryLayerIntersection()->momentum().mag() - caloExtension.muonEntryLayerIntersection()->momentum().mag();
       ATH_MSG_DEBUG( " Energy loss from CaloExtension " << Eloss << " R muon Entry " << caloExtension.muonEntryLayerIntersection()->position().perp() << " Z muon Entry " << caloExtension.muonEntryLayerIntersection()->position().z() << " R calo entry " << caloExtension.caloEntryLayerIntersection()->position().perp() << " Z calo entry " << caloExtension.caloEntryLayerIntersection()->position().z() );
-     if(Eloss>25000.) { 
+     if(Eloss>25000.&&Eloss>0.1*caloExtension.muonEntryLayerIntersection()->momentum().mag()) { 
        ATH_MSG_WARNING( " Crazy Energy loss from CaloExtension " << Eloss << " p at CaloEntry " << caloExtension.caloEntryLayerIntersection()->momentum().mag() << " p at Muon Entry " << caloExtension.muonEntryLayerIntersection()->momentum().mag()); 
        scaleTG = mopIoni/Eloss;
      }
@@ -227,9 +227,9 @@ namespace Rec {
     ATH_MSG_DEBUG("eLossLayerMap " << eLossLayerMap.size() );
 
 
-    double scale_em_expected   = 0.73; // 0.73
-    double scale_tile_expected = 0.89; // 0.88
-    double scale_HEC_expected  = 0.84; // 0.86
+    double scale_em_expected   = 0.97; // 0.73
+    double scale_tile_expected = 1.17; // 0.89
+    double scale_HEC_expected  = 1.11; // 0.84
 //   
 // TG expectations
 //   
@@ -431,11 +431,13 @@ namespace Rec {
 
 //  Eloss in dead material (so everything not accounted for in the measurement)
 
-     if(scale_Ionization*Eloss>E_expected) E_expected = scale_Ionization*Eloss;
+//     if(scale_Ionization*Eloss>E_expected) E_expected = scale_Ionization*Eloss;
+     E_expected = scale_Ionization*Eloss;
 
-// fix dead material in Tile with 0.05*EE_tile term
+// Corrections for dead material 0.15*E_tile_expected + 0.20*E_HEC_expected;
 
-     double E_dead = E_expected - E_em_expected - E_tile_expected - E_HEC_expected - 0.21*EE_tile - 0.12*EE_HEC;
+     double E_dead = E_expected - E_em_expected - E_tile_expected - E_HEC_expected + 0.12*E_tile_expected + 0.27*E_HEC_expected;
+;
 
 //  treatment of FSR
 
@@ -459,8 +461,10 @@ namespace Rec {
        E_measured = E_em + E_em_threshold + E_tile + E_tile_threshold + E_HEC + E_HEC_threshold;
      }
 
+// eta dependent correction
+
      double etaPos = caloExtension.caloEntryLayerIntersection()->position().eta();
-     E = E - etaCorr(etaPos) * E_expected;
+     E = E + etaCorr(etaPos) * E_expected;
 
     ATH_MSG_DEBUG( " Total energy " << E << " sigma " << sigma  << " E calo measured in cells " << E_measured << " E calo expected in cells " << E_measured_expected << " E_expected meanIoni from TG " << E_expected );
 
@@ -483,7 +487,8 @@ namespace Rec {
 //     E_HEC_exp   = E_HEC_expected;
 //     E_dead_exp  = E_dead; 
        
-     double EE_dead = E_expected - EE_emB - EE_emE - EE_tile - EE_HEC - 0.21*EE_tile - 0.12*EE_HEC;
+//     double EE_dead = E_expected - EE_emB - EE_emE - EE_tile - EE_HEC + 0.15*EE_tile + 0.20*EE_HEC;
+     double EE_dead = E_expected - EE_emB - EE_emE - EE_tile - EE_HEC + 0.12*EE_tile + 0.27*EE_HEC;
 //
 //   move expected (to match the TG expected Eloss) and measured energies
 //
@@ -504,11 +509,7 @@ namespace Rec {
       if(eta_index>59) return 0;
 
       double corr[60] = {
-		0.158063 , 0.172255 , 0.0850137 , 0.0838737 , 0.0816429 , 0.0680014 , 0.0748384 , 0.0649393 , 0.0649034 , 0.0697402 , 0.0756272 , 0.0714071 ,
-		0.0900842 , 0.0866779 , 0.111391 , 0.113118 , 0.0787759 , 0.142918 , 0.122331 , 0.0939613 , 0.102196 , 0.0785662 , 0.0613893 , 0.0550364 ,
-		0.0482447 , 0.0508712 , 0.064098 , 0.0552545 , 0.0444848 , 0.0868562 , 0.1287 , 0.0953612 , 0.140896 , 0.142699 , 0.137379 , 0.13432 , 0.128877,
-		0.103863 , 0.111676 , 0.0893027 , 0.090122 , 0.0713052 , 0.0879814 , 0.0614865 , 0.0733585 , 0.0659965 , 0.0665159 , 0.0669487 , 0.0589612 ,
-		0.0589253 , 0.0821995 , 0.0626487 , 0.0443041 , 0.0728687 , 0.0952599 , 0.0566535 , 0.0547298 , 0.0324415 , 0 , 0.02992  
+                        0.00368146 , 0.0419526 , 0.0419322 , 0.0392922 , 0.030304 , 0.0262424 , 0.0156346 , 0.00590235 , 0.00772249 , -0.0141775 , -0.0152247 , -0.0174432 , -0.0319056 , -0.0670813 , -0.128678 , -0.0982326 , -0.0256406 , -0.200244 , -0.178975 , -0.120156 , -0.124606 , -0.0961311 , -0.0163201 , 0.00357829 , 0.0292199 , 0.0110466 , -0.0375598 , 0.0417912 , 0.0386369 , -0.0689454 , -0.21496 , -0.126157 , -0.210573 , -0.215757 , -0.202019 , -0.164546 , -0.168607 , -0.128602 , -0.124629 , -0.0882631 , -0.100869 , -0.0460344 , -0.0709039 , -0.0163041 , -0.0521138 , -0.0125259 , -0.0378681 , 0.00396062 , -0.0636308 , -0.032199 , -0.0588335 , -0.0470752 , -0.0450315 , -0.0301302 , -0.087378 , -0.0115615 , -0.0152037 , 0 , 0 , 0
       }; // corrections
 
       return (corr[eta_index]);
