@@ -35,6 +35,7 @@ def toolMV2c00Tag(name, useBTagFlagsDefaults = True, **options):
     inputIP3DSourceName                 default: "IP3D"
     inputJFSourceName                   default: "JetFitter"
     inputJFProbSourceName               default: "JetFitterCombNN"
+    trainingConfig                      default: BTaggingFlags.MV2cTrainingConfig
 
     input:             name: The name of the tool (should be unique).
       useBTagFlagsDefaults : Whether to use BTaggingFlags defaults for options that are not specified.
@@ -53,6 +54,7 @@ def toolMV2c00Tag(name, useBTagFlagsDefaults = True, **options):
                      'inputIP3DSourceName'              : 'IP3D',
                      'inputJFSourceName'                : 'JetFitter',
                      'inputJFProbSourceName'            : 'JetFitterCombNN',
+                     'trainingConfig'                   : BTaggingFlags.MV2cTrainingConfig,
                      }
         for option in defaults:
             options.setdefault(option, defaults[option])

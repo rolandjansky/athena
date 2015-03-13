@@ -3,6 +3,8 @@
 # Configuration functions for IP2DTag
 # Author: Wouter van den Wollenberg (2013-2014)
 from BTagging.BTaggingFlags import BTaggingFlags
+from AtlasGeoModel.InDetGMJobProperties import GeometryFlags as geoFlags
+btagrun1 = (geoFlags.Run() == "RUN1" or (geoFlags.Run() == "UNDEFINED" and geoFlags.isIBL() == False))
 
 metaIP2DTag = { 'IsATagger'         : True,
                 'xAODBaseName'      : 'IP2D',
@@ -51,17 +53,18 @@ def toolIP2DTag(name, useBTagFlagsDefaults = True, **options):
                   **options: Python dictionary with options for the tool.
     output: The actual tool, which can then by added to ToolSvc via ToolSvc += output."""
     if useBTagFlagsDefaults:
+        grades= [ "0HitIn0HitNInExp2","0HitIn0HitNInExpIn","0HitIn0HitNInExpNIn","0HitIn0HitNIn",
+                  "0HitInExp", "0HitIn",
+                  "0HitNInExp", "0HitNIn",
+                  "InANDNInShared", "PixShared", "SctShared",
+                  "InANDNInSplit", "PixSplit",
+                  "Good"]
+        if btagrun1: grades=[ "Good", "BlaShared", "PixShared", "SctShared", "0HitBLayer" ]
         defaults = { 'OutputLevel'                      : BTaggingFlags.OutputLevel,
                      'Runmodus'                         : BTaggingFlags.Runmodus,
                      'referenceType'                    : BTaggingFlags.ReferenceType,
                      'impactParameterView'              : '2D',
-                     #'trackGradePartitions'             : [ "0HitIn0HitNInExp2","0HitIn0HitNInExpIn","0HitIn0HitNInExpNIn","0HitIn0HitNIn",
-                     #                                       "0HitInExp", "0HitIn",
-                     #                                       "0HitNInExp", "0HitNIn",
-                     #                                       "InANDNInShared", "PixShared", "SctShared",
-                     #                                       "InANDNInSplit", "PixSplit",
-                     #                                       "Good"],
-                     'trackGradePartitions'             : [ "Good", "BlaShared", "PixShared", "SctShared", "0HitBLayer" ],
+                     'trackGradePartitions'             : grades,
                      'RejectBadTracks'                  : False,
                      'originalTPCollectionName'         : BTaggingFlags.TrackParticleCollectionName,
                      'jetCollectionList'                : BTaggingFlags.Jets,
@@ -100,8 +103,9 @@ def toolIP2DDetailedTrackGradeFactory(name, useBTagFlagsDefaults = True, **optio
 #                     'TrackSummaryTool'       : None,
                      'useSharedHitInfo'       : True,
                      'useDetailSharedHitInfo' : True,
-                     #'useRun2TrackGrading'    : False,
-                     #'hitInnerLayersGrade'    : True,
+                     'useRun2TrackGrading'    : (btagrun1 == False),
+                     'useInnerLayers0HitInfo' : (btagrun1 == False),
+                     'useDetailSplitHitInfo'  : (btagrun1 == False),
                      'hitBLayerGrade'         : True }
         for option in defaults:
             options.setdefault(option, defaults[option])
