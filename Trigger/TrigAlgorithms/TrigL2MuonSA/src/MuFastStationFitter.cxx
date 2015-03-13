@@ -34,10 +34,11 @@ TrigL2MuonSA::MuFastStationFitter::MuFastStationFitter(const std::string& type,
                                                        const IInterface*  parent): 
   AthAlgTool(type,name,parent),
   m_msg(0),
-  m_storeGateSvc( "StoreGateSvc", name ),
   m_backExtrapolator("TrigMuonBackExtrapolator")
 {
    declareInterface<TrigL2MuonSA::MuFastStationFitter>(this);
+
+   declareProperty("BackExtrapolator", m_backExtrapolator, "public tool for back extrapolating the muon tracks to the IV");
 
    declareProperty("ENDCAPINN_MDT_CHI2_LIMIT", m_endcapinn_mdt_chi2_limit = 1000000);
    declareProperty("ENDCAPMID_MDT_CHI2_LIMIT", m_endcapmid_mdt_chi2_limit = 1000000);
@@ -81,12 +82,12 @@ StatusCode TrigL2MuonSA::MuFastStationFitter::initialize()
       return sc;
    }
    
-   // Locate the StoreGateSvc
-   sc =  m_storeGateSvc.retrieve();
-   if (!sc.isSuccess()) {
-      msg() << MSG::ERROR << "Could not find StoreGateSvc" << endreq;
-      return sc;
-   }
+  // BackExtrapolator services
+   sc = m_backExtrapolator.retrieve();
+   if ( !sc.isSuccess() ) {
+    msg() << MSG::ERROR << "Could not retrieve " << m_backExtrapolator << endreq;
+    return sc;
+  } 
 
    // 
    return StatusCode::SUCCESS; 

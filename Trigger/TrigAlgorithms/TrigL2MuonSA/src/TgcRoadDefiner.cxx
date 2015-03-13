@@ -369,6 +369,8 @@ bool TrigL2MuonSA::TgcRoadDefiner::defineRoad(const LVL1::RecMuonRoI*      p_roi
       msg() << MSG::ERROR << "problem converting hash list to id" << endreq;
     muonRoad.stationList.push_back(id);
     std::string name = m_mdtIdHelper->stationNameString(m_mdtIdHelper->stationName(id));
+    if ( name.substr(0, 1) == 'B' ) continue;
+    if ( name.substr(1, 1) != 'M' ) continue;
     int stationPhi = m_mdtIdHelper->stationPhi(id);
     float floatPhi = (stationPhi-1)*CLHEP::pi/4;
     if (name[2]=='S') floatPhi = floatPhi + CLHEP::pi/8;

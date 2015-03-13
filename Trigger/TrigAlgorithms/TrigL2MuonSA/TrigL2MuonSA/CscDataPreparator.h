@@ -69,6 +69,8 @@ namespace TrigL2MuonSA {
 			   TrigL2MuonSA::MuonRoad&  muonRoad,
 			   TrigL2MuonSA::CscHits&   cscHits);
 
+    void setRoIBasedDataAccess(bool use_RoIBasedDataAccess);
+
   private:
     
     MsgStream* m_msg;
@@ -106,6 +108,7 @@ namespace TrigL2MuonSA {
     ToolHandle<Muon::IMuonRdoToPrepDataTool> m_cscPrepDataProvider;
     ToolHandle<ICscClusterBuilder>           m_cscClusterProvider;
 
+    bool m_use_RoIBasedDataAccess;
   };
   
 } // namespace TrigL2MuonSA

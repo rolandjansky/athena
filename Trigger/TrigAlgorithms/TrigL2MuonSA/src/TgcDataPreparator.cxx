@@ -91,14 +91,6 @@ StatusCode TrigL2MuonSA::TgcDataPreparator::initialize()
    }
    msg() << MSG::DEBUG << "Retrieved tool " << m_tgcRawDataProvider << endreq;
 
-   // locate new cabling service
-   sc = service("MuonTGC_CablingSvc",m_tgcCabling);
-   if (sc.isFailure() ){
-      msg() << MSG::ERROR << "Could not retrieve " << m_tgcCabling << endreq;
-      return sc;
-   }
-   msg() << MSG::DEBUG << "Retrieved service " << m_tgcCabling << endreq;
-
    // Locate RegionSelector
    sc = service("RegSelSvc", m_regionSelector);
    if(sc.isFailure()) {
@@ -154,6 +146,15 @@ StatusCode TrigL2MuonSA::TgcDataPreparator::initialize()
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
+void TrigL2MuonSA::TgcDataPreparator::setRoIBasedDataAccess(bool use_RoIBasedDataAccess)
+{
+  m_use_RoIBasedDataAccess = use_RoIBasedDataAccess;
+  return;
+}
+
+// --------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------
+
 StatusCode TrigL2MuonSA::TgcDataPreparator::prepareData(const LVL1::RecMuonRoI*  p_roi,
 							TrigL2MuonSA::TgcHits&  tgcHits)
 {
@@ -188,60 +189,10 @@ StatusCode TrigL2MuonSA::TgcDataPreparator::prepareData(const LVL1::RecMuonRoI* 
    double inn_phi_test = m_options.roadParameters().deltaPhiAtInner();
    
    // start conversion from RAW to RDO
-   std::vector<uint32_t> v_robIds;
    std::vector<IdentifierHash> tgcHashList;
-   IdContext tgcContext = m_tgcIdHelper->module_context();
-   int maxRodId = 0;
-   int maxSswId = 0;
-   int maxSbloc = 0;
-   int minChannelId = 0;
-   int maxChannelId = 0;
-   m_tgcCabling->getReadoutIDRanges(maxRodId, maxSswId, maxSbloc, minChannelId, maxChannelId);
-   bool isAtlas = (maxRodId==12); // should be true
-   int offset = (isAtlas)? -1 : 0; // should be -1
    
    m_regionSelector->DetHashIDList(TGC, *iroi, tgcHashList);
    if(roi) delete roi;
-   bool redundant;
-   for(int hash_iter=0; hash_iter<(int)tgcHashList.size(); hash_iter++){
-     redundant = false;
-     // get ROB id
-     Identifier rdoId;
-     m_tgcIdHelper->get_id(tgcHashList[hash_iter], rdoId, &tgcContext);
-     int subDetectorId = 0; // 0x67 (A side) or 0x68 (C side)
-     int rodId = 0; // 1-12
-     m_tgcCabling->getReadoutIDfromElementID(rdoId, subDetectorId, rodId);
-     int isAside = (subDetectorId==0x67) ? 0 : 1;
-     uint32_t newROBId = static_cast<uint32_t>(isAside*(maxRodId+1+offset) + rodId + offset); // 0-23
-     // end part to get ROB id
-     for (int rob_iter=0; rob_iter<(int)v_robIds.size(); rob_iter++){
-       if(newROBId == v_robIds[rob_iter])
-	 redundant = true;
-     }
-     if(!redundant)
-       v_robIds.push_back(newROBId);
-   }
-   
-   m_robDataProvider->addROBData(v_robIds);
-   std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*> v_robFragments;
-   
-   const TgcRdoContainer* pRdoContainer = Muon::MuonRdoContainerAccess::retrieveTgcRdo("TGCRDO");
-   if( pRdoContainer==0 ) {
-     msg() << MSG::DEBUG << "Tgc RDO container not registered by MuonRdoContainerManager" << endreq;
-     msg() << MSG::DEBUG << "-> Retrieving it from the StoreGate" << endreq;
-     StatusCode sc = m_storeGateSvc->retrieve(pRdoContainer, "TGCRDO");
-     if( sc.isFailure() ) {
-       msg() << MSG::ERROR << "Retrieval of TgcRdoContainer failed" << endreq;
-       return sc;
-     }
-   }
-   
-   m_robDataProvider->getROBData(v_robIds,v_robFragments);
-   
-   if( m_tgcRawDataProvider->convert(v_robFragments).isFailure() ) {
-     msg() << MSG::ERROR << "Failed to convert v_robIds" << endreq;
-     return StatusCode::FAILURE;
-   }
    
    // now convert from RDO to PRD
    std::vector<IdentifierHash> inhash, outhash;
@@ -315,6 +266,9 @@ StatusCode TrigL2MuonSA::TgcDataPreparator::prepareData(const LVL1::RecMuonRoI* 
        lutDigit.bcTag = 2;
        lutDigit.inRoad = false;
        
+       msg() << MSG::DEBUG << "TGC hits extracted eta/phi/r/z="
+	     << lutDigit.eta << "/" << lutDigit.phi << "/" << lutDigit.r << "/" << lutDigit.z << endreq;
+
        tgcHits.push_back(lutDigit);
        
      }

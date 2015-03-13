@@ -92,6 +92,8 @@ class MuFastSteering : public HLT::FexAlgo,
 		      const TrigRoiDescriptor*                 roids,
 		      const MuonRoad&                          muonRoad,
 		      const MdtRegion&                         mdtRegion,
+		      const TrigL2MuonSA::RpcHits&             rpcHits,
+		      const TrigL2MuonSA::TgcHits&             /*tgcHits*/,
 		      const RpcFitResult&                      rpcFitResult,
 		      const TgcFitResult&                      tgcFitResult,
 		      const MdtHits&                           mdtHits,
@@ -111,11 +113,11 @@ class MuFastSteering : public HLT::FexAlgo,
   /** A service handle to StoreGate */
   ServiceHandle<StoreGateSvc> m_storeGate;
   
-  IRegSelSvc*        m_regionSelector;
-
   /** Timers */
   ITrigTimerSvc* m_timerSvc;
   std::vector<TrigTimer*> m_timers;
+
+  IRegSelSvc*        m_regionSelector;
   
   // Tools
   ToolHandle<MuFastDataPreparator>     m_dataPreparator;

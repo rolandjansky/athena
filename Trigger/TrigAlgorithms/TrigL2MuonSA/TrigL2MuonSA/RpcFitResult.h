@@ -20,13 +20,6 @@ namespace TrigL2MuonSA {
     void Clear()
     {
       isSuccess  = false;
-      SectorId   = 0;
-      type       = 0;
-      threshold  = 0;
-      triggerNum = 0;
-      slope      = 0;
-      intercept  = 0;
-      beta       = 0;
       phiDir     = 0;
       isPhiDir   = false;
       phi        = 0;
@@ -35,22 +28,10 @@ namespace TrigL2MuonSA {
       ZoverR_outer  = 0;
       phi_middle    = 0;
       phi_outer     = 0;
-      for(int i=0; i<4; i++) { rpc1[i]=0; rpc2[i]=0; rpc3[i]=0; }
     };
     
   public:
     bool  isSuccess;
-    int   SectorId;
-    int   type;
-    int   threshold;
-    int   triggerNum;
-    float slope;
-    float intercept;
-    float rpc1[4];
-    float rpc2[4];
-    float rpc3[4];
-    float beta;
-    
     double phiDir;
     bool   isPhiDir;
     double phi;

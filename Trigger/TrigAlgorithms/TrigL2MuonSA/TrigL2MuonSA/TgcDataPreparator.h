@@ -71,6 +71,8 @@ class TgcDataPreparator: public AthAlgTool
       inline void setMsgLvl(const MSG::Level& level) { if(m_msg != 0) m_msg->setLevel(level); }
       void setOptions(const TrigL2MuonSA::TgcDataPreparatorOptions& options) { m_options = options; };
 
+      void setRoIBasedDataAccess(bool use_RoIBasedDataAccess);
+
    private:
 
       MsgStream* m_msg;
@@ -113,6 +115,8 @@ class TgcDataPreparator: public AthAlgTool
 
       // utils
       TrigL2MuonSA::RecMuonRoIUtils m_recMuonRoIUtils;
+
+      bool m_use_RoIBasedDataAccess;
 };
 
 } // namespace TrigL2MuonSA

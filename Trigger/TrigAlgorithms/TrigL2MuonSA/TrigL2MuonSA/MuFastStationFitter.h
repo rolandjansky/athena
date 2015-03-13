@@ -22,8 +22,6 @@
 #include "TrigL2MuonSA/AlphaBetaEstimate.h"
 #include "TrigL2MuonSA/PtFromAlphaBeta.h"
 
-class StoreGateSvc;
-
 namespace TrigL2MuonSA {
 
 class MuFastStationFitter: public AthAlgTool
@@ -80,8 +78,6 @@ class MuFastStationFitter: public AthAlgTool
        */
       inline MSG::Level msgLvl() const { return  (m_msg != 0) ? m_msg->level() : MSG::NIL; }
 
-      // Reference to StoreGateSvc;
-      ServiceHandle<StoreGateSvc>    m_storeGateSvc;
       BooleanProperty m_use_mcLUT;
 		
       DoubleProperty m_endcapinn_mdt_chi2_limit;    

@@ -201,7 +201,17 @@ void TrigL2MuonSA::MdtDataPreparator::setMdtDataCollection(bool use_mdtcsm)
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
+void TrigL2MuonSA::MdtDataPreparator::setRoIBasedDataAccess(bool use_RoIBasedDataAccess)
+{
+  m_use_RoIBasedDataAccess = use_RoIBasedDataAccess;
+  return;
+}
+
+// --------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------
+
 StatusCode TrigL2MuonSA::MdtDataPreparator::prepareData(const LVL1::RecMuonRoI*  p_roi,
+							const TrigRoiDescriptor*    p_roids,
 							const TrigL2MuonSA::RpcFitResult& rpcFitResult,
 							TrigL2MuonSA::MuonRoad&  muonRoad,
 							TrigL2MuonSA::MdtRegion& mdtRegion,
@@ -219,7 +229,7 @@ StatusCode TrigL2MuonSA::MdtDataPreparator::prepareData(const LVL1::RecMuonRoI* 
     return sc;
   }
 
-  sc = getMdtHits(p_roi, mdtRegion, muonRoad, mdtHits_normal, mdtHits_overlap);
+  sc = getMdtHits(p_roi, p_roids, mdtRegion, muonRoad, mdtHits_normal, mdtHits_overlap);
   if( sc!= StatusCode::SUCCESS ) {
     msg() << MSG::WARNING << "Error in getting MDT hits" << endreq;
     return sc;
@@ -233,6 +243,7 @@ StatusCode TrigL2MuonSA::MdtDataPreparator::prepareData(const LVL1::RecMuonRoI* 
 // --------------------------------------------------------------------------------
 
 StatusCode TrigL2MuonSA::MdtDataPreparator::prepareData(const LVL1::RecMuonRoI*           p_roi,
+							const TrigRoiDescriptor*          p_roids,
 							const TrigL2MuonSA::TgcFitResult& tgcFitResult,
 							TrigL2MuonSA::MuonRoad&           muonRoad,
 							TrigL2MuonSA::MdtRegion&          mdtRegion,
@@ -250,7 +261,7 @@ StatusCode TrigL2MuonSA::MdtDataPreparator::prepareData(const LVL1::RecMuonRoI* 
     return sc;
   }
 
-  sc = getMdtHits(p_roi, mdtRegion, muonRoad, mdtHits_normal, mdtHits_overlap);
+  sc = getMdtHits(p_roi, p_roids, mdtRegion, muonRoad, mdtHits_normal, mdtHits_overlap);
   if( sc!= StatusCode::SUCCESS ) {
     msg() << MSG::WARNING << "Error in getting MDT hits" << endreq;
     return sc;
@@ -263,53 +274,56 @@ StatusCode TrigL2MuonSA::MdtDataPreparator::prepareData(const LVL1::RecMuonRoI* 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-StatusCode TrigL2MuonSA::MdtDataPreparator::getMdtHits(const LVL1::RecMuonRoI* p_roi,
+StatusCode TrigL2MuonSA::MdtDataPreparator::getMdtHits(const LVL1::RecMuonRoI*  p_roi,
+						       const TrigRoiDescriptor* p_roids, 
 						       const TrigL2MuonSA::MdtRegion& mdtRegion,
 						       TrigL2MuonSA::MuonRoad& muonRoad,
 						       TrigL2MuonSA::MdtHits& mdtHits_normal,
 						       TrigL2MuonSA::MdtHits& mdtHits_overlap)
 {
-  // preload ROBs
-  std::vector<uint32_t> v_robIds;
-  double etaMin = p_roi->eta() - 0.2;
-  double etaMax = p_roi->eta() + 0.2;
-  double phi = p_roi->phi();
-  double phiMin = p_roi->phi() - 0.1;
-  double phiMax = p_roi->phi() + 0.1;
-  if( phi < 0 ) phi += 2*CLHEP::pi;
-  if( phiMin < 0 ) phiMin += 2*CLHEP::pi;
-  if( phiMax < 0 ) phiMax += 2*CLHEP::pi;
-
-  TrigRoiDescriptor* roi = new TrigRoiDescriptor( p_roi->eta(), etaMin, etaMax, phi, phiMin, phiMax ); 
-  
-  const IRoiDescriptor* iroi = (IRoiDescriptor*) roi;
-  
-  std::vector<IdentifierHash> mdtHashList;
-  m_regionSelector->DetHashIDList(MDT, *iroi, mdtHashList);
-  msg() << MSG::DEBUG << "size of the hashids in getMdtHits " << mdtHashList.size() << endreq;
-  
-  if (roi) delete roi;
-  
-  bool redundant;
-  for(int hash_iter=0; hash_iter<(int)mdtHashList.size(); hash_iter++){
-    redundant = false;
-    
-    uint32_t newROBId = m_mdtCabling->getROBId(mdtHashList[hash_iter]);
-    
-    for (int rob_iter=0; rob_iter<(int)v_robIds.size(); rob_iter++){
-      if(newROBId == v_robIds[rob_iter])
-	redundant = true;
-    }
-    if(!redundant)
-      v_robIds.push_back(newROBId);
-  }
-  
-  msg() << MSG::DEBUG << "size of the rob Ids " << v_robIds.size() << endreq;
-    
-  mdtHits_normal.clear();
-  mdtHits_overlap.clear();
-
   if (m_use_mdtcsm) {
+
+    // preload ROBs
+    std::vector<uint32_t> v_robIds;
+    double etaMin = p_roi->eta() - 0.2;
+    double etaMax = p_roi->eta() + 0.2;
+    double phi = p_roi->phi();
+    double phiMin = p_roi->phi() - 0.1;
+    double phiMax = p_roi->phi() + 0.1;
+    if( phi < 0 ) phi += 2*CLHEP::pi;
+    if( phiMin < 0 ) phiMin += 2*CLHEP::pi;
+    if( phiMax < 0 ) phiMax += 2*CLHEP::pi;
+    
+    TrigRoiDescriptor* roi = new TrigRoiDescriptor( p_roi->eta(), etaMin, etaMax, phi, phiMin, phiMax ); 
+    
+    const IRoiDescriptor* iroi = (IRoiDescriptor*) roi;
+    
+    std::vector<IdentifierHash> mdtHashList;
+    mdtHashList.clear();
+    m_regionSelector->DetHashIDList(MDT, *iroi, mdtHashList);
+    msg() << MSG::DEBUG << "size of the hashids in getMdtHits " << mdtHashList.size() << endreq;
+    
+    if (roi) delete roi;
+    
+    bool redundant;
+    for(int hash_iter=0; hash_iter<(int)mdtHashList.size(); hash_iter++){
+      redundant = false;
+      
+      uint32_t newROBId = m_mdtCabling->getROBId(mdtHashList[hash_iter]);
+      
+      for (int rob_iter=0; rob_iter<(int)v_robIds.size(); rob_iter++){
+	if(newROBId == v_robIds[rob_iter])
+	  redundant = true;
+      }
+      if(!redundant)
+	v_robIds.push_back(newROBId);
+    }
+    
+    msg() << MSG::DEBUG << "size of the rob Ids " << v_robIds.size() << endreq;
+    
+    mdtHits_normal.clear();
+    mdtHits_overlap.clear();
+    
     // get MdtCsmContainer
     const MdtCsmContainer* pMdtCsmContainer =
       Muon::MuonRdoContainerAccess::retrieveMdtCsm("MDTCSM");
@@ -377,6 +391,31 @@ StatusCode TrigL2MuonSA::MdtDataPreparator::getMdtHits(const LVL1::RecMuonRoI* p
     }
 
   } else { // use MdtPrepData
+
+   // preload ROBs
+    std::vector<uint32_t> v_robIds;
+    std::vector<IdentifierHash> mdtHashList;
+
+    if (m_use_RoIBasedDataAccess) {
+      
+      msg() << MSG::DEBUG << "Use RoI based data access" << endreq;
+
+      const IRoiDescriptor* iroi = (IRoiDescriptor*) p_roids;
+      
+      m_regionSelector->DetHashIDList(MDT, *iroi, mdtHashList);
+      msg() << MSG::DEBUG << "mdtHashList.size()=" << mdtHashList.size() << endreq;
+      
+      m_regionSelector->DetROBIDListUint(MDT, *iroi, v_robIds);
+      
+    } else {
+      
+      msg() << MSG::DEBUG << "Use full data access" << endreq;
+      
+      m_regionSelector->DetHashIDList(MDT, mdtHashList);
+      msg() << MSG::DEBUG << "mdtHashList.size()=" << mdtHashList.size() << endreq;
+     
+      m_regionSelector->DetROBIDListUint(MDT, v_robIds);
+    }
 
     StatusCode sc = collectMdtHitsFromPrepData(mdtHashList, v_robIds, mdtHits_normal, muonRoad);
     if( sc!= StatusCode::SUCCESS ) {
@@ -452,22 +491,6 @@ StatusCode TrigL2MuonSA::MdtDataPreparator::getMdtCsm(const MdtCsmContainer* pMd
     
     if(processingDetEl == 1) ++i;
   }
-
-  /* old code kept for the moment
-  for(unsigned int i=0; i < v_idHash.size(); i++) {
-    MdtCsmContainer::const_iterator pCsmIt = pMdtCsmContainer->indexFind(v_idHash[i]);
-    if( pCsmIt!=pMdtCsmContainer->end() ) {
-      v_mdtCsms.push_back(*pCsmIt);
-      msg() << MSG::DEBUG << "MDT Collection hash " << v_idHash[i]
-	    << " associated to:  SubDet 0x" << MSG::hex
-	    << (*pCsmIt)->SubDetId() << " MRod 0x"
-	    << (*pCsmIt)->MrodId() << " Link 0x"
-	    << (*pCsmIt)->CsmId() << MSG::dec << endreq;
-      msg() << MSG::DEBUG << "Number of digit in  MDT Collection "
-	    << v_idHash[i] << ": " << (*pCsmIt)->size() << endreq;
-    }
-  }
-  */
 
   return StatusCode::SUCCESS;
 }

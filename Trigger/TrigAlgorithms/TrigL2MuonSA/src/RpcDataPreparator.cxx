@@ -131,6 +131,15 @@ StatusCode TrigL2MuonSA::RpcDataPreparator::initialize()
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
+void TrigL2MuonSA::RpcDataPreparator::setRoIBasedDataAccess(bool use_RoIBasedDataAccess)
+{
+  m_use_RoIBasedDataAccess = use_RoIBasedDataAccess;
+  return;
+}
+
+// --------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------
+
 StatusCode TrigL2MuonSA::RpcDataPreparator::prepareData(const TrigRoiDescriptor*    p_roids,
                                                         TrigL2MuonSA::RpcHits&      rpcHits,
                                                         TrigL2MuonSA::RpcPatFinder* rpcPatFinder)
@@ -144,17 +153,36 @@ StatusCode TrigL2MuonSA::RpcDataPreparator::prepareData(const TrigRoiDescriptor*
    std::vector<IdentifierHash> rpcHashList;
    std::vector<IdentifierHash>  rpcHashList_cache;
 
-   m_regionSelector->DetHashIDList(RPC, *iroi, rpcHashList);
-   msg() << MSG::DEBUG << "rpcHashList.size()=" << rpcHashList.size() << endreq;
+   if (m_use_RoIBasedDataAccess) {
 
-   std::vector<IdentifierHash> rpcHashList_withData;
-
-   if ( m_rpcPrepDataProvider->decode(rpcHashList, rpcHashList_withData).isFailure() ) {
-     msg() << MSG::WARNING << "Problems when preparing RPC PrepData " << endreq;
+     msg() << MSG::DEBUG << "Use RoI based data access" << endreq;
+     
+     m_regionSelector->DetHashIDList(RPC, *iroi, rpcHashList);
+     msg() << MSG::DEBUG << "rpcHashList.size()=" << rpcHashList.size() << endreq;
+     
+     std::vector<uint32_t> rpcRobList;
+     m_regionSelector->DetROBIDListUint(RPC, *iroi, rpcRobList);
+     if ( m_rpcPrepDataProvider->decode(rpcRobList).isFailure() ) {
+       msg() << MSG::WARNING << "Problems when preparing RPC PrepData " << endreq;
+     }
+     
+   } else {
+     
+     msg() << MSG::DEBUG << "Use full data access" << endreq;
+     
+     m_regionSelector->DetHashIDList(RPC, rpcHashList);
+     msg() << MSG::DEBUG << "rpcHashList.size()=" << rpcHashList.size() << endreq;
+     
+     std::vector<uint32_t> rpcRobList;
+     m_regionSelector->DetROBIDListUint(RPC, rpcRobList);
+     if ( m_rpcPrepDataProvider->decode(rpcRobList).isFailure() ) {
+       msg() << MSG::WARNING << "Problems when preparing RPC PrepData " << endreq;
+     }
+     
    }
-
+   
    if (!rpcHashList.empty()) {
-
+     
      // Get RPC container
      const RpcPrepDataContainer* rpcPrds = 0;
      std::string rpcKey = "RPC_Measurements";
@@ -255,11 +283,25 @@ StatusCode TrigL2MuonSA::RpcDataPreparator::prepareData(const TrigRoiDescriptor*
        
        rpcHits.push_back(lutDigit);
        
-       rpcPatFinder->addHit(stationName, measuresPhi, gasGap, doubletR, hitx, hity, hitz);
+       if (m_use_RoIBasedDataAccess) 
+         rpcPatFinder->addHit(stationName, measuresPhi, gasGap, doubletR, hitx, hity, hitz);
+       else {
+         float r = sqrt(hitx*hitx+hity*hity);
+         float phi = atan(hity/hitx);
+         if (hitx<0 && hity>0) phi = phi + CLHEP::pi;
+         if (hitx<0 && hity<0) phi = phi - CLHEP::pi;
+         float l = sqrt(hitz*hitz+r*r);
+         float tan = sqrt( (l-hitz)/(l+hitz) );
+         float eta = -log(tan);
+         float deta = p_roids->eta() - eta;
+         float dphi = p_roids->phi() - phi;
+         if ( fabs(deta)<0.15 && fabs(dphi)<0.1) 
+           rpcPatFinder->addHit(stationName, measuresPhi, gasGap, doubletR, hitx, hity, hitz);
+       }
      }
    }
-
-   return StatusCode::SUCCESS; 
+     
+     return StatusCode::SUCCESS; 
 }
 
 // --------------------------------------------------------------------------------

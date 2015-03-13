@@ -71,7 +71,7 @@ namespace TrigL2MuonSA {
     void setBufferName(std::string buffName) {m_calBufferName=buffName;}
     void setBufferSize(int buffSize) {m_calBufferSize=buffSize;}
 
-    void setMaxLocalBufferSize(int size) {m_maxLocalBufferSize=size;}
+    //    void setMaxLocalBufferSize(int size) {m_maxLocalBufferSize=size;}
 
     bool doDataScouting() {return m_doDataScouting;} 
     void setDoDataScouting(bool doDataScouting) {m_doDataScouting = doDataScouting;}
@@ -81,7 +81,7 @@ namespace TrigL2MuonSA {
     void clearLocalBuffer();
 
     // access methods
-    int maxLocalBufferSize() { return m_maxLocalBufferSize; }
+    //    int maxLocalBufferSize() { return m_maxLocalBufferSize; }
 
     //
     // initialize the stream
@@ -126,7 +126,7 @@ namespace TrigL2MuonSA {
 
     // local buffer for the TrigComposite object
     int m_localBufferSize;
-    int m_maxLocalBufferSize;
+    //    int m_maxLocalBufferSize;
     std::vector<int>* m_localBuffer;
 
     // pointer to the muon roi
