@@ -68,6 +68,7 @@ Muon::RpcRdoToPrepDataTool::RpcRdoToPrepDataTool( const std::string& type, const
     m_rSummarySvc("RPCCondSummarySvc", name),
     m_fullEventDone(false)
 {
+  declareInterface<Muon::IMuonRdoToPrepDataTool>(this);
 
   // declare any properties here
   declareProperty("etaphi_coincidenceTime",    m_etaphi_coincidenceTime     = 20.);//!< 15 ns should be the max.diff. in prop.time in phi and eta strips
@@ -86,10 +87,6 @@ Muon::RpcRdoToPrepDataTool::RpcRdoToPrepDataTool( const std::string& type, const
   declareProperty ("RdoDecoderTool",           m_rpcRdoDecoderTool);
   
   declareProperty("RPCInfoFromDb",             m_RPCInfoFromDb  = false );
-
-  //this is a deprecated property, but cannot be removed until it's deleted from all setup scripts
-  bool writeMapToFile = false;
-  declareProperty("dumpOffToOnlineMapToFile",  writeMapToFile = false);
 
 }
 
