@@ -279,6 +279,15 @@ StatusCode EventSelectorAthenaPool::reinit() {
    m_poolCollectionConverter = getCollectionCnv();
    if (m_poolCollectionConverter == 0) {
       ATH_MSG_INFO("No Events found in any Input Collections");
+      if (m_processMetadata.value()) {
+         m_inputCollectionsIterator = m_inputCollectionsProp.value().begin();
+         bool isPayload = m_collectionType.value() == "SeekableROOT" || m_collectionType.value() == "ImplicitROOT";
+         if (isPayload && !m_firedIncident) {
+            FileIncident firstInputFileIncident(name(), "FirstInputFile", *m_inputCollectionsIterator);
+            m_incidentSvc->fireIncident(firstInputFileIncident);
+            m_firedIncident = true;
+         }
+      }
       return(StatusCode::SUCCESS);
    }
    // Check for valid header name
@@ -815,7 +824,7 @@ StatusCode EventSelectorAthenaPool::seek(int evtNum) {
       return(StatusCode::FAILURE);
    }
    long newColl = findEvent(evtNum);
-   if (newColl == -1 && evtNum >= m_firstEvt[m_curCollection] && evtNum < m_evtCount) {
+   if (newColl == -1 && evtNum >= m_firstEvt[m_curCollection] && evtNum < m_evtCount - 1) {
       newColl = m_curCollection;
    }
    if (newColl == -1) {
