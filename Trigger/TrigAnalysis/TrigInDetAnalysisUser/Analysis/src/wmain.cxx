@@ -19,15 +19,17 @@ int main()
   {
     TrackEvent* h = new TrackEvent();
     
-    std::cout << "\n\nwriting ..." << std::endl;
+    std::cout << "\n\nconstructing ..." << std::endl;
 
     TFile f("tree.root", "recreate");
     TTree *tree = new TTree("tree","tree");
-    
+
     //  tree->Branch("Track","Int",&t,6400);
     tree->Branch("TrackEvent", "TrackEvent",&h,6400, 1);
-    
+
     std::string ars[3] = { "ars0", "ars1", "ars2" };
+
+    std::cout << "\n\nfilling ..." << std::endl;
     
     for ( int i=0; i<3 ; i++ ) {
       
@@ -35,27 +37,49 @@ int main()
       
       h->run_number(10);
       h->event_number(i);
-      
+
+      std::cout << "\n\nEvent " << i << std::endl;
+
       for ( int j=0 ; j<2 ; j++ ) { 
+
+	std::cout << "\n\tRoi " << j << std::endl;
+
 	h->addChain( ars[j] );
+
 	TrackChain& tc = h->back();
 	//	tc.addCombination();
 
 	//	TrackCombination& c = h->back().back();
 
-	tc.addRoi( TIDARoiDescriptor( j+1., j+2., j+3., j+1.1, j+2.1, j+3.1) );
-	tc.addRoi( TIDARoiDescriptor( i+j+2., i+j+3., i+j+4., i+j+1.2, i+j+2.2, i+j+3.2) );
+	TIDARoiDescriptor roi1( j+1.,  j+1-2.,  j+1+2.,
+				j+3.,  j+3-1.1, j+3+1.1, 
+				j+2.1, j+2.1-100, j+2.1+100 ); 
+
+	for ( int ij=0 ; ij<j+1 ; ij++ ) roi1.push_back( TIDARoiDescriptor( ij, ij-0.2, ij+0.2,
+									    ij, ij-0.2, ij+0.2,
+									    ij, ij-0.2, ij+0.2 ) );
+	
+	std::cout << "Roi " << roi1 << std::endl;
+
+	TIDARoiDescriptor roi2( j+1.,  j+1-2.,  j+1+2.,
+				j+3.,  j+3-1.1, j+3+1.1, 
+				j+2.1, j+2.1-100, j+2.1+100 ); 
+
+	tc.addRoi( roi1 );
+ 
+	tc.addRoi( roi2 );
 	
       }
 
-      //    cout << "TrackEvent " << *h << endl;
+      cout << "TrackEvent " << *h << endl;
 
       tree->Fill();
       
-      cout << "TrackEvent " << *h << endl;
-    
     }
     
+    std::cout << "\n\nwriting ..." << std::endl;
+
+
     f.Write();
     f.Close();
 

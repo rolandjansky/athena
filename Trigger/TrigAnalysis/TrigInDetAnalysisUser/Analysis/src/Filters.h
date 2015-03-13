@@ -7,7 +7,7 @@
 //  
 //   Copyright (C) 2012 M.Sutton (sutt@cern.ch)    
 //
-//   $Id: Filters.h 629270 2014-11-18 19:38:16Z sutt $
+//   $Id: Filters.h 654038 2015-03-13 18:43:22Z sutt $
 
 
 #ifndef  FILTERS_H
@@ -214,6 +214,8 @@ public:
 	std::cout << "\tFilter::filter1 " << mf1->select(t,m_roi) << "\tfilter2 " << mf2->select(t,m_roi) << "\troi " << *m_roi << std::endl; 
       }
 
+#if 0
+ 
       double deta = t->eta() - m_roi->eta();
       double dphi = t->phi() - m_roi->phi();
 
@@ -227,6 +229,21 @@ public:
 
       if ( std::fabs(deta)<m_roi->etaHalfWidth() && 
 	   std::fabs(dphi)<m_roi->phiHalfWidth() ) { 
+	if ( m_debugPrintout ) std::cout << "\tFilter::inside roi" << std::endl;
+	return ( mf1->select(t,m_roi) && mf2->select(t,m_roi) );
+      }
+      else  return false;
+
+#endif
+
+      bool contained_phi = false;
+
+      if ( m_roi->phiMinus()<m_roi->phiPlus() )  contained_phi = ( t->phi()>m_roi->phiMinus() &&  t->phi()<m_roi->phiPlus() );
+      else                                       contained_phi = ( t->phi()>m_roi->phiMinus() ||  t->phi()<m_roi->phiPlus() );
+
+      if ( ( t->eta()>m_roi->etaMinus() &&  t->eta()<m_roi->etaPlus() ) && 
+	   ( contained_phi ) &&
+	   ( t->z0()>m_roi->zedMinus() &&  t->z0()<m_roi->zedPlus() ) ) { 
 	if ( m_debugPrintout ) std::cout << "\tFilter::inside roi" << std::endl;
 	return ( mf1->select(t,m_roi) && mf2->select(t,m_roi) );
       }
