@@ -7,7 +7,7 @@ ntuple, store them in a standalone ntuple for use in RooFit, and run
 different RooFit beam spot fits.
 """
 __author__  = 'Juerg Beringer'
-__version__ = '$Id: fitman.py 585191 2014-02-26 06:20:19Z beringer $'
+__version__ = '$Id: fitman.py 654065 2015-03-13 20:50:56Z btamadio $'
 __usage__   = """%prog [options] [cmd ...]
 
 Commands are:
@@ -19,7 +19,7 @@ Commands are:
   mypdf            Similar to stdfit, but uses dedicated BeamSpotPdf class
                    (fast, but doesn't implement all integrals for plotting yet)
   2gauss           Double Gaussian fit - NOT YET WORKING
-  plot             Plot data and fit of x, y, z
+  plot[xyz]        Plot data and fit of x, y, and z, or single plot
   data             Histograms of x, y, z
   cov              Histograms of vertex error covariance
   vtxerr           Histograms of vertex errors in x, y, z
@@ -29,6 +29,7 @@ Commands are:
 import os, sys, re
 from array import array
 from math import sqrt, floor
+import random
 
 
 #
@@ -52,13 +53,17 @@ qcmd = ' '.join(qargv)
 from optparse import OptionParser
 parser = OptionParser(usage=__usage__, version=__version__)
 parser.add_option('-e', '--srcnt', dest='srcNtName', default=None, help='extract: file name of source beam spot fitter ntuple')
+parser.add_option('', '--srctree', dest='srcTreeName', default='Beamspot/Vertices', help='extract: tree name of vertex ntuple (default: Beamspot/Vertices)')
 parser.add_option('-l', '--lbl', dest='lbMin', type='int', default=0, help='extract: minimum LB number (inclusive)')
 parser.add_option('-u', '--lbu', dest='lbMax', type='int', default=9999, help='extract: maximum LB number (inclusive)')
 parser.add_option('', '--bcid', dest='bcid', type='int', default=None, help='extract: BCID')
 parser.add_option('-t', '--vtype', dest='vType', type='int', default=None, help='extract: vertex type (1=PriVtx, 3=PileUp)')
 parser.add_option('-n', '--ntracks', dest='nTracks', type='int', default=None, help='extract: min number of tracks per vertex')
 parser.add_option('-p', '--passed', dest='passed', type='int', default=None, help='extract: passed flag (use only vertices passing InDetBeamSpotFinder selection)')
+parser.add_option('', '--rndfrac', dest='rndFrac', type='float', default=None, help='extract: pick given fraction of random vertices after all other selections')
 parser.add_option('', '--prescale', dest='prescale', type='int', default=None, help='extract: prescale selected vertices')
+parser.add_option('', '--nblk', dest='nblk', type='int', default=None, help='extract: number of selected vertices per block (default: not used)')
+parser.add_option('', '--iblk', dest='iblk', type='int', default=0, help='extract: block number to use (default: 0)')
 parser.add_option('', '--chi2ndf', dest='chi2ndf', type='float', default=None, help='extract: max chi2/ndf')
 parser.add_option('', '--chi2prob', dest='chi2prob', type='float', default=None, help='extract: min chi2 probability')
 parser.add_option('', '--maxvtxerr', dest='maxvtxerr', type='float', default=None, help='extract: max allowed transverse vertex error')
@@ -70,16 +75,18 @@ parser.add_option('', '--ymax', dest='ymax', type='float', default=None, help='e
 parser.add_option('', '--zmin', dest='zmin', type='float', default=None, help='extract: lower cut on z')
 parser.add_option('', '--zmax', dest='zmax', type='float', default=None, help='extract: upper cut on z')
 parser.add_option('-f', '--nt', dest='ntName', default='vtx.root', help='file name vertex ntuple (default: vtx.root)')
-parser.add_option('-g', '--ntKey', dest='ntKey', default="Vertices", help='name of TTree with vertices')
+parser.add_option('-g', '--nttree', dest='ntTree', default="Vertices", help='name of TTree with vertices')
 parser.add_option('', '--plot', dest='plot', default='ALL', help='what to plot (default: ALL)')
 parser.add_option('', '--canvas', dest='canvas', default='default', help='canvas size: default, page, wide, extrawide or square')
 parser.add_option('', '--hnbins', dest='hnbins', type='int', default=None, help='number of histogram bins')
 parser.add_option('', '--hmin', dest='hmin', type='float', default=None, help='histogram x axis minimum')
 parser.add_option('', '--hmax', dest='hmax', type='float', default=None, help='histogram x axis maximum')
+parser.add_option('', '--hrange', dest='hrange', type='float', default=None, help='histogram x axis range')
 parser.add_option('', '--fixK', dest='fixK', type='float', default=None, help='stdfit: fix k factor in fit')
 parser.add_option('', '--minrange', dest='minrange', type='float', default=0.1, help='min range of x-axis on plots')
 parser.add_option('', '--logy', dest='logy', action='store_true', default=False, help='log scale')
 parser.add_option('-s', '--stats', dest='stats', action='store_true', default=False, help='show statistics box on plot')
+parser.add_option('', '--optstat', dest='optstat', default='emruo', help='default OptStat value (Default: emruo)')
 parser.add_option('', '--prelim', dest='prelim', action='store_true', default=False, help='add ATLAS Preliminary to figure')
 parser.add_option('', '--approval', dest='approval', action='store_true', default=False, help='Label figure ATLAS for approval')
 parser.add_option('', '--published', dest='published', action='store_true', default=False, help='add ATLAS to figure')
@@ -111,6 +118,141 @@ if options.batch:
 import ROOT
 import ROOTUtils
 ROOTUtils.setStyle()
+ROOT.gStyle.SetOptStat(options.optstat)
+
+
+#
+# Utilities
+#
+def logresult(cmd='',fitresult=None):
+    log = open('%s.txt' % options.name,'w')
+    if cmd:
+        log.write(cmd)
+        log.write('\n')
+    if fitresult:
+        out = ROOT.std.stringstream()
+        fitresult.printStream(out,fitresult.defaultPrintContents(''),fitresult.defaultPrintStyle(''))
+        log.write(out.str())
+        del out
+    log.close()
+
+
+def tmpHist(what,wmin=-1e10,wmax=+1e10):
+    vtxData.Draw(what,'%s > %s && %s < %s' % (what,wmin,what,wmax),'goff')
+    h = ROOT.gROOT.FindObject('htemp')
+    print 'Histogram for %s: mean = %7.4f  rms = %1.4f' % (what,h.GetMean(),h.GetRMS())
+    return h.Clone('tmp-'+what)
+
+
+#
+# Definition of plots
+#
+class Plots(ROOTUtils.PlotLibrary):
+
+    def __init__(self, name = options.name, whatList = []):
+        ROOTUtils.PlotLibrary.__init__(self,name)
+        self.whatList = whatList
+        self.allCanvasSize = 'landscape'
+        self.allCanvasDivs = (2,2)
+        self.singleCanvasSize = options.canvas
+
+    def hist(self,what):
+        if not what:
+            return
+        if options.hmin is not None or options.hmax is not None or options.hnbins is not None:
+            options.hmin = options.hmin if options.hmin is not None else 0.
+            options.hmax = options.hmax if options.hmax is not None else 1.
+            options.hnbins = options.hnbins if options.hnbins is not None else 40
+            h = ROOTUtils.protect( ROOT.TH1F('tmp','%s;%s' % (what,what),
+                                             options.hnbins,options.hmin,options.hmax))
+            vtxData.Draw('%s >> tmp' % what)
+        else:
+            vtxData.Draw(what)
+        if options.logy:
+            ROOT.gPad.SetLogy(options.logy)
+
+    def x(self):
+        dx = options.hrange/2 if options.hrange else max(options.minrange/2.,8.*sx.getVal())
+        hmin = options.hmin if options.hmin is not None else mx.getVal()-dx
+        hmax = options.hmax if options.hmax is not None else mx.getVal()+dx
+        xframe = self.protect( x.frame(hmin,hmax) )
+        if options.hnbins is not None:
+            binning = ROOT.RooBinning(hmin, hmax)
+            binning.addUniform(options.hnbins, hmin, hmax)
+            data.plotOn(xframe,RooFit.Binning(binning))
+            xbinWidth = (hmax-hmin)/float(options.hnbins)
+        else:
+            data.plotOn(xframe)
+            xbinWidth = xframe.GetXaxis().GetBinWidth(1)
+        xframe.GetYaxis().SetTitle("Number of primary vertices per %3.1f #mum" % round(1000.*xbinWidth,1))
+        if options.stats:
+            data.statOn(xframe)
+        cov = RooArgSet(vxx,vyy,vxy)
+        fitmodel.plotOn(xframe,RooFit.ProjWData(cov,data),
+                        RooFit.NumCPU(options.nCpu))
+        xframe.Draw()
+        if options.logy:
+            ROOT.gPad.SetLogy(options.logy)
+        self.labels()
+
+    def y(self):
+        dy = options.hrange/2 if options.hrange else max(options.minrange/2.,8.*sy.getVal())
+        hmin = options.hmin if options.hmin is not None else my.getVal()-dy
+        hmax = options.hmax if options.hmax is not None else my.getVal()+dy
+        yframe = self.protect( y.frame(hmin,hmax) )
+        if options.hnbins is not None:
+            binning = ROOT.RooBinning(hmin, hmax)
+            binning.addUniform(options.hnbins, hmin, hmax)
+            data.plotOn(yframe,RooFit.Binning(binning))
+            ybinWidth = (hmax-hmin)/float(options.hnbins)
+        else:
+            data.plotOn(yframe)
+            ybinWidth = yframe.GetXaxis().GetBinWidth(1)
+        yframe.GetYaxis().SetTitle("Number of primary vertices per %3.1f #mum" % round(1000.*ybinWidth,1))
+        if options.stats:
+            data.statOn(yframe)
+        cov = RooArgSet(vxx,vyy,vxy)
+        fitmodel.plotOn(yframe,RooFit.ProjWData(cov,data),
+                        RooFit.NumCPU(options.nCpu))
+        yframe.Draw()
+        if options.logy:
+            ROOT.gPad.SetLogy(options.logy)
+        self.labels()
+
+    def z(self):
+        dz = options.hrange/2 if options.hrange else max(options.minrange/2.,8.*sz.getVal())
+        hmin = options.hmin if options.hmin is not None else mz.getVal()-dz
+        hmax = options.hmax if options.hmax is not None else mz.getVal()+dz
+        zframe = self.protect( z.frame(mz.getVal()-dz,mz.getVal()+dz) )
+        if options.hnbins is not None:
+            binning = ROOT.RooBinning(hmin, hmax)
+            binning.addUniform(options.hnbins, hmin, hmax)
+            data.plotOn(zframe,RooFit.Binning(binning))
+            zbinWidth = (hmax-hmin)/float(options.hnbins)
+        else:
+            data.plotOn(zframe)
+            zbinWidth = zframe.GetXaxis().GetBinWidth(1)
+        zframe.GetYaxis().SetTitle("Number of primary vertices per %3.1f mm" % round(zbinWidth,1))
+        if options.stats:
+            data.statOn(zframe)
+        cov = RooArgSet(vxx,vyy,vxy)
+        fitmodel.plotOn(zframe,RooFit.ProjWData(cov,data),
+                        RooFit.NumCPU(options.nCpu))   # could also use e.g. RooFit.Range(-100.,100.)
+        zframe.Draw()
+        if options.logy:
+            ROOT.gPad.SetLogy(options.logy)
+        self.labels()
+
+    def labels(self):
+        # ATLAS labels and other text
+        if options.prelim:
+            ROOTUtils.atlasLabel(options.atlasx,options.atlasy,True,offset=options.atlasdx,energy=8)
+        if options.approval:
+            ROOTUtils.atlasLabel(options.atlasx,options.atlasy,False,offset=options.atlasdx,isForApproval=True,energy=8)
+        if options.published:
+            ROOTUtils.atlasLabel(options.atlasx,options.atlasy,False,offset=options.atlasdx,energy=8)
+        if options.comment:
+            self.protect( ROOTUtils.drawText(options.commentx,options.atlasy,0.06,options.comment,font=42) )
 
 
 #
@@ -124,9 +266,8 @@ if cmdList[0] == 'extract':
     if not os.path.exists(options.srcNtName):
         sys.exit('ERROR: source ROOT file %s not found' % options.srcNtName)
     srcFile = ROOT.TFile(options.srcNtName)
-    srcNt = srcFile.Get('Beamspot/Vertices')
+    srcNt = srcFile.Get(options.srcTreeName)
     nEntries = srcNt.GetEntries()
-
     print '\nCuts for extracting vertices from:   %s:' % options.srcNtName
     print '  %i <= LB <= %i' % (options.lbMin, options.lbMax)
     if options.bcid:
@@ -145,6 +286,10 @@ if cmdList[0] == 'extract':
         print '  transverse vertex errors >= %s' % options.minvtxerr
     if options.maxvtxerr:
         print '  transverse vertex errors  < %s' % options.maxvtxerr
+    if options.rndFrac is not None:
+        print '  using fraction %1.3f of selected vertices' % options.rndFrac
+    if options.nblk is not None:
+        print '  using block %i of blocks of %i selected vertices' % (options.iblk,options.nblk)
     if options.prescale:
         print '  prescaling selected vertices by factor %i' % options.prescale
     if options.xmin is not None or options.xmax is not None:
@@ -156,7 +301,7 @@ if cmdList[0] == 'extract':
 
     print '\nProcessing %i entries found in source ntuple ...' % nEntries
     dstFile = ROOT.TFile(options.ntName,'recreate')
-    dstNt = ROOT.TTree('Vertices','Vertices')
+    dstNt = ROOT.TTree(options.ntTree,'Vertices')
     bx = array('d',[0]); dstNt.Branch('x',bx,'x/D')
     by = array('d',[0]); dstNt.Branch('y',by,'y/D')
     bz = array('d',[0]); dstNt.Branch('z',bz,'z/D')
@@ -167,7 +312,7 @@ if cmdList[0] == 'extract':
     bvyz = array('d',[0]); dstNt.Branch('vyz',bvyz,'vyz/D')
     bvzz = array('d',[0]); dstNt.Branch('vzz',bvzz,'vzz/D')
     nSelected = 0
-    nPrescaled = 0
+    nWritten = 0
     if options.maxvtxerr:
         maxVtxErr2 = options.maxvtxerr*options.maxvtxerr
     if options.minvtxerr:
@@ -212,9 +357,14 @@ if cmdList[0] == 'extract':
 
         # No explicit Chi2/ndf cut - implicit in passed flag
         nSelected += 1
+        if options.rndFrac is not None:
+            if random.random() > options.rndFrac:
+                continue
         if options.prescale and (nSelected % options.prescale):
             continue
-        nPrescaled += 1
+        if options.nblk is not None and not (options.iblk*options.nblk <= nSelected < (options.iblk+1)*options.nblk):
+            continue
+        nWritten += 1
 
         bx[0] = srcNt.x
         by[0] = srcNt.y
@@ -229,9 +379,7 @@ if cmdList[0] == 'extract':
     dstFile.Write()
     dstFile.Close()
     srcFile.Close()
-    print '%i vertices selected, %i vertices after prescale written to %s\n' % (nSelected,nPrescaled,options.ntName)
-    if not cmdList:
-        sys.exit(0)
+    print '%i vertices selected, %i vertices after prescales and block selection written to %s\n' % (nSelected,nWritten,options.ntName)
 
 
 #
@@ -253,20 +401,23 @@ vyz = RooRealVar("vyz","vyz",-3,3)
 vzz = RooRealVar("vzz","vzz",-3,3)
 
 vtxDataFile = ROOT.TFile(options.ntName)
-vtxData = vtxDataFile.Get(options.ntKey)
+vtxData = vtxDataFile.Get(options.ntTree)
 print '\nUsing %i input vertices from ntuple %s ...\n' % (vtxData.GetEntries(),options.ntName)
+hx = tmpHist('x',-3.,3.)
+hy = tmpHist('y',-3.,3.)
+hz = tmpHist('z',-300.,300.)
 data = RooDataSet("data","data", vtxData, RooArgSet(x,y,z,vxx,vyy,vxy,vzz))
 
 # Model (parameters and PDF)
-mx = RooRealVar("mx","Mean x",   -0.3,     -2,     2)
-sx = RooRealVar("sx","Sigma x",  0.03,      0,     1)
-ax = RooRealVar("ax","Tilt x",      0,  -1e-3,  1e-3)
-my = RooRealVar("my","Mean y",    0.6,     -2,     2)
-sy = RooRealVar("sy","Sigma y",  0.03,      0,     1)
-ay = RooRealVar("ay","Tilt y",      0,  -1e-3,  1e-3)
-mz = RooRealVar("mz","Mean z",      0,   -300,   300)
-sz = RooRealVar("sz","Sigma z",    45,      0,   100)
-k  = RooRealVar("k","Error scale factor",  1, 0.5, 3)
+mx = RooRealVar("mx","Mean x",   hx.GetMean(),     -2,     2)
+sx = RooRealVar("sx","Sigma x",   hx.GetRMS(),      0,     1)
+ax = RooRealVar("ax","Tilt x",              0,  -1e-3,  1e-3)
+my = RooRealVar("my","Mean y",   hy.GetMean(),     -2,     2)
+sy = RooRealVar("sy","Sigma y",   hy.GetRMS(),      0,     1)
+ay = RooRealVar("ay","Tilt y",              0,  -1e-3,  1e-3)
+mz = RooRealVar("mz","Mean z",   hz.GetMean(),   -300,   300)
+sz = RooRealVar("sz","Sigma z",   hz.GetRMS(),      0,   100)
+k  = RooRealVar("k","Error scale factor",   1,    0.5,     3)
 if options.fixK:
     k.setVal(options.fixK)
     k.setConstant(kTRUE)
@@ -307,130 +458,6 @@ dummyMatrix = ROOT.TMatrixDSym(3)
 dummyMatrix[0][0] = 1
 dummyMatrix[1][1] = 1
 dummyMatrix[2][2] = 1
-
-
-#
-# Library of plots
-#
-class Plots(ROOTUtils.PlotLibrary):
-
-    def __init__(self, name = options.name, whatList = []):
-        ROOTUtils.PlotLibrary.__init__(self,name)
-        self.whatList = whatList
-        self.allCanvasSize = 'landscape'
-        self.allCanvasDivs = (2,2)
-        self.singleCanvasSize = options.canvas
-
-    def hist(self,what):
-        if not what:
-            return
-        if options.hmin is not None or options.hmax is not None or options.hnbins is not None:
-            options.hmin = options.hmin if options.hmin is not None else 0.
-            options.hmax = options.hmax if options.hmax is not None else 1.
-            options.hnbins = options.hnbins if options.hnbins is not None else 40
-            h = ROOTUtils.protect( ROOT.TH1F('tmp','%s;%s' % (what,what),
-                                             options.hnbins,options.hmin,options.hmax))
-            vtxData.Draw('%s >> tmp' % what)
-        else:
-            vtxData.Draw(what)
-        if options.logy:
-            ROOT.gPad.SetLogy(options.logy)
-
-    def x(self):
-        dx = max(options.minrange/2.,8.*sx.getVal())
-        hmin = options.hmin if options.hmin is not None else mx.getVal()-dx
-        hmax = options.hmax if options.hmax is not None else mx.getVal()+dx
-        xframe = self.protect( x.frame(hmin,hmax) )
-        if options.hnbins is not None:
-            binning = ROOT.RooBinning(hmin, hmax)
-            binning.addUniform(options.hnbins, hmin, hmax)
-            data.plotOn(xframe,RooFit.Binning(binning))
-            xbinWidth = (hmax-hmin)/float(options.hnbins)
-        else:
-            data.plotOn(xframe)
-            xbinWidth = xframe.GetXaxis().GetBinWidth(1)
-        xframe.GetYaxis().SetTitle("Number of primary vertices per %3.1f #mum" % round(1000.*xbinWidth,1))
-        if options.stats:
-            data.statOn(xframe)
-        cov = RooArgSet(vxx,vyy,vxy)
-        fitmodel.plotOn(xframe,RooFit.ProjWData(cov,data),
-                        RooFit.NumCPU(options.nCpu))
-        xframe.Draw()
-        if options.logy:
-            ROOT.gPad.SetLogy(options.logy)
-        self.labels()
-
-    def y(self):
-        dy = max(options.minrange/2.,8.*sy.getVal())
-        hmin = options.hmin if options.hmin is not None else my.getVal()-dy
-        hmax = options.hmax if options.hmax is not None else my.getVal()+dy
-        yframe = self.protect( y.frame(hmin,hmax) )
-        if options.hnbins is not None:
-            binning = ROOT.RooBinning(hmin, hmax)
-            binning.addUniform(options.hnbins, hmin, hmax)
-            data.plotOn(yframe,RooFit.Binning(binning))
-            ybinWidth = (hmax-hmin)/float(options.hnbins)
-        else:
-            data.plotOn(yframe)
-            ybinWidth = yframe.GetXaxis().GetBinWidth(1)
-        yframe.GetYaxis().SetTitle("Number of primary vertices per %3.1f #mum" % round(1000.*ybinWidth,1))
-        if options.stats:
-            data.statOn(yframe)
-        cov = RooArgSet(vxx,vyy,vxy)
-        fitmodel.plotOn(yframe,RooFit.ProjWData(cov,data),
-                        RooFit.NumCPU(options.nCpu))
-        yframe.Draw()
-        if options.logy:
-            ROOT.gPad.SetLogy(options.logy)
-        self.labels()
-
-    def z(self):
-        dz = max(options.minrange/2.,8.*sz.getVal())
-        hmin = options.hmin if options.hmin is not None else mz.getVal()-dz
-        hmax = options.hmax if options.hmax is not None else mz.getVal()+dz
-        zframe = self.protect( z.frame(mz.getVal()-dz,mz.getVal()+dz) )
-        if options.hnbins is not None:
-            binning = ROOT.RooBinning(hmin, hmax)
-            binning.addUniform(options.hnbins, hmin, hmax)
-            data.plotOn(zframe,RooFit.Binning(binning))
-            zbinWidth = (hmax-hmin)/float(options.hnbins)
-        else:
-            data.plotOn(zframe)
-            zbinWidth = zframe.GetXaxis().GetBinWidth(1)
-        zframe.GetYaxis().SetTitle("Number of primary vertices per %3.1f mm" % round(zbinWidth,1))
-        if options.stats:
-            data.statOn(zframe)
-        cov = RooArgSet(vxx,vyy,vxy)
-        fitmodel.plotOn(zframe,RooFit.ProjWData(cov,data),
-                        RooFit.NumCPU(options.nCpu))   # could also use e.g. RooFit.Range(-100.,100.)
-        zframe.Draw()
-        if options.logy:
-            ROOT.gPad.SetLogy(options.logy)
-        self.labels()
-
-    def labels(self):
-        # ATLAS labels and other text
-        if options.prelim:
-            ROOTUtils.atlasLabel(options.atlasx,options.atlasy,True,offset=options.atlasdx,energy=8)
-        if options.approval:
-            ROOTUtils.atlasLabel(options.atlasx,options.atlasy,False,offset=options.atlasdx,isForApproval=True,energy=8)
-        if options.published:
-            ROOTUtils.atlasLabel(options.atlasx,options.atlasy,False,offset=options.atlasdx,energy=8)
-        if options.comment:
-            self.protect( ROOTUtils.drawText(options.commentx,options.atlasy,0.06,options.comment,font=42) )
-
-
-def logresult(cmd='',fitresult=None):
-    log = open('%s.txt' % options.name,'w')
-    if cmd:
-        log.write(cmd)
-        log.write('\n')
-    if fitresult:
-        out = ROOT.std.stringstream()
-        fitresult.printStream(out,fitresult.defaultPrintContents(''),fitresult.defaultPrintStyle(''))
-        log.write(out.str())
-        del out
-    log.close()
 
 
 #
@@ -505,6 +532,12 @@ for cmd in args:
         plots.gPadSaveAsList = options.output.split(',')
         plots.genPlot(options.plot)
 
+    if cmd=='plotx' or cmd=='ploty' or cmd=='plotz':
+        cmdOk = True
+        plots = Plots()
+        plots.saveAsList = options.output.split(',')
+        plots.genPlot(cmd[-1])
+
     if cmd == 'data':
         cmdOk = True
         plots = Plots(whatList = ['x','y','z'])
@@ -537,6 +570,9 @@ for cmd in args:
         plots.saveAsList = ['%s-vtxerr%s' % (options.name,ext) for ext in options.output.split(',')]
         #plots.gPadSaveAsList = options.output.split(',')
         plots.genPlot(options.plot,'hist')
+
+    if cmd == 'debug':
+        cmdOk = True
 
     if not cmdOk:
         print 'ERROR: unknown command: %s' % cmd

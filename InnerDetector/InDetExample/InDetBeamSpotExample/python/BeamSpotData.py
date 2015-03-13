@@ -9,7 +9,7 @@ Frontier outside of CERN. For example:
 setenv FRONTIER_SERVER "(serverurl=http://squid-frontier.usatlas.bnl.gov:23128/frontieratbnl)"
 """
 __author__  = 'Juerg Beringer'
-__version__ = '$Id: BeamSpotData.py 610461 2014-08-05 18:42:15Z beringer $'
+__version__ = '$Id: BeamSpotData.py 654065 2015-03-13 20:50:56Z btamadio $'
 
 import time
 import copy
@@ -113,8 +113,110 @@ varDefsRun1['tiltX']['max'] = +0.4
 varDefsRun1['tiltY']['min'] = -0.4
 varDefsRun1['tiltY']['max'] = +0.4
 
+# Version where default values are tailored for MC14 validation plots
+varDefsMC14 = copy.deepcopy(varDefsGen)
+varDefsMC14['posX']['min'] = -0.297
+varDefsMC14['posX']['max'] = -0.287
+varDefsMC14['posX']['ndivs'] = 502
+varDefsMC14['posY']['min'] = 0.698
+varDefsMC14['posY']['max'] = 0.708
+varDefsMC14['posY']['ndivs'] = 502
+varDefsMC14['posZ']['min'] = -14
+varDefsMC14['posZ']['max'] = -4
+varDefsMC14['posZ']['ndivs'] = 502
+varDefsMC14['sigmaX']['min'] = 0.00
+varDefsMC14['sigmaX']['max'] = 0.02
+varDefsMC14['sigmaX']['ndivs'] = 502
+varDefsMC14['sigmaY']['min'] = 0.00
+varDefsMC14['sigmaY']['max'] = 0.02
+varDefsMC14['sigmaY']['ndivs'] = 502
+varDefsMC14['sigmaZ']['min'] = 40
+varDefsMC14['sigmaZ']['max'] = 50
+varDefsMC14['sigmaZ']['ndivs'] = 502
+varDefsMC14['tiltX']['min'] = -0.1 #mrad
+varDefsMC14['tiltX']['max'] = -0.0
+varDefsMC14['tiltX']['ndivs'] = 502
+varDefsMC14['tiltY']['min'] = -0.1 #mrad
+varDefsMC14['tiltY']['max'] = -0.0
+varDefsMC14['tiltY']['ndivs'] = 502
+varDefsMC14['k']['min'] = 0.6
+varDefsMC14['k']['max'] = 1.6
+varDefsMC14['k']['ndivs'] = 510
+
+# Version where default values are tailored for MC14 validation plots vs pileup profile plots
+varDefsMC14Profile = copy.deepcopy(varDefsGen)
+varDefsMC14Profile['posX']['min'] = -0.297
+varDefsMC14Profile['posX']['max'] = -0.287
+varDefsMC14Profile['posX']['ndivs'] = 502
+varDefsMC14Profile['posY']['min'] = 0.698
+varDefsMC14Profile['posY']['max'] = 0.708
+varDefsMC14Profile['posY']['ndivs'] = 502
+varDefsMC14Profile['posZ']['min'] = -14
+varDefsMC14Profile['posZ']['max'] = -4
+varDefsMC14Profile['posZ']['ndivs'] = 502
+varDefsMC14Profile['sigmaX']['min'] = 0.013
+varDefsMC14Profile['sigmaX']['max'] = 0.018
+varDefsMC14Profile['sigmaX']['ndivs'] = 505
+varDefsMC14Profile['sigmaY']['min'] = 0.013
+varDefsMC14Profile['sigmaY']['max'] = 0.018
+varDefsMC14Profile['sigmaY']['ndivs'] = 505
+varDefsMC14Profile['sigmaZ']['min'] = 45
+varDefsMC14Profile['sigmaZ']['max'] = 50
+varDefsMC14Profile['sigmaZ']['ndivs'] = 505
+varDefsMC14Profile['tiltX']['min'] = -0.1 #mrad
+varDefsMC14Profile['tiltX']['max'] = -0.0
+varDefsMC14Profile['tiltX']['ndivs'] = 502
+varDefsMC14Profile['tiltY']['min'] = -0.1 #mrad
+varDefsMC14Profile['tiltY']['max'] = -0.0
+varDefsMC14Profile['tiltY']['ndivs'] = 502
+varDefsMC14Profile['k']['min'] = 0.9
+varDefsMC14Profile['k']['max'] = 1.2
+varDefsMC14Profile['k']['ndivs'] = 503
+
+# Version where default values are tailored for truth-subtracted validation plots
+varDefsTruthCorr = copy.deepcopy(varDefsGen)
+varDefsTruthCorr['posX']['atit'] = 'Luminous centroid x - generated value [mm]'
+varDefsTruthCorr['posX']['min'] = -0.005
+varDefsTruthCorr['posX']['max'] =  0.005
+varDefsTruthCorr['posX']['ndivs'] = 502
+varDefsTruthCorr['posY']['atit'] = 'Luminous centroid y - generated value [mm]'
+varDefsTruthCorr['posY']['min'] = -0.005
+varDefsTruthCorr['posY']['max'] =  0.005
+varDefsTruthCorr['posY']['ndivs'] = 502
+varDefsTruthCorr['posZ']['atit'] = 'Luminous centroid z - generated value [mm]'
+varDefsTruthCorr['posZ']['min'] = -5.
+varDefsTruthCorr['posZ']['max'] =  5.
+varDefsTruthCorr['posZ']['ndivs'] = 502
+varDefsTruthCorr['sigmaX']['atit'] = 'Luminous size #sigma_{x} - generated value [mm]'
+varDefsTruthCorr['sigmaX']['min'] = -0.005
+varDefsTruthCorr['sigmaX']['max'] =  0.005
+varDefsTruthCorr['sigmaX']['ndivs'] = 502
+varDefsTruthCorr['sigmaY']['atit'] = 'Luminous size #sigma_{y} - generated value [mm]'
+varDefsTruthCorr['sigmaY']['min'] = -0.005
+varDefsTruthCorr['sigmaY']['max'] =  0.005
+varDefsTruthCorr['sigmaY']['ndivs'] = 502
+varDefsTruthCorr['sigmaZ']['atit'] = 'Luminous size #sigma_{z} - generated value [mm]'
+varDefsTruthCorr['sigmaZ']['min'] = -5.
+varDefsTruthCorr['sigmaZ']['max'] =  5.
+varDefsTruthCorr['sigmaZ']['ndivs'] = 502
+varDefsTruthCorr['tiltX']['atit'] = 'Luminous region tilt in x-z - generated value [mrad]'
+varDefsTruthCorr['tiltX']['min'] = -0.05
+varDefsTruthCorr['tiltX']['max'] =  0.05
+varDefsTruthCorr['tiltX']['ndivs'] = 502
+varDefsTruthCorr['tiltY']['atit'] = 'Luminous region tilt in y-z - generated value [mrad]'
+varDefsTruthCorr['tiltY']['min'] = -0.05
+varDefsTruthCorr['tiltY']['max'] =  0.05
+varDefsTruthCorr['tiltY']['ndivs'] = 502
+varDefsTruthCorr['sigmaXY']['atit'] = '#sigma_{xy} - generated value'
+varDefsTruthCorr['sigmaXY']['min'] = -0.05e-3
+varDefsTruthCorr['sigmaXY']['max'] =  0.05e-3
+varDefsTruthCorr['sigmaXY']['ndivs'] = 502
+
+
 varDefs = varDefsGen # generic settings are default
-def varDef(var,property,default='',useAlternate=False):
+def varDef(var,property,default='',useAlternate=False,override=None):
+    if override:
+        return override
     try:
         v = varDefs[var].get(property,default)
         if useAlternate:
@@ -252,6 +354,9 @@ class BeamSpotValue:
 
         # Data quality info
         self.defectWord = 0
+
+        # Pileup
+        self.pileup = 0
 
         # Scan info
         self.separation = 0.
