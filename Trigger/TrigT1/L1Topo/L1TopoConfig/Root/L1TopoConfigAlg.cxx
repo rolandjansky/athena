@@ -14,33 +14,30 @@
 using namespace std;
 using namespace TXC;
 
-namespace TXC {
-
 ostream&
-operator<<(ostream& o, const InputElement& ie) {
+operator<<(ostream& o, const TXC::InputElement& ie) {
    o << "name: " << ie.name << ", value: " << ie.value << ", pos: " << ie.position;
    return o;
 }
 
-ostream& operator<<(ostream& o, const OutputElement& oe) {
+ostream& operator<<(ostream& o, const TXC::OutputElement& oe) {
    o << "name: " << oe.name << ", value: " << oe.value << ", nbits: " << oe.nbits << ", outname: " << oe.outname << ", position: " << oe.position;
    return o;
 }
 
 ostream&
-operator<<(ostream& o, const FixedParameter& ge) {
+operator<<(ostream& o, const TXC::FixedParameter& ge) {
    o << "name: " << ge.name << ", value: " << ge.value;
    return o;
 }
 
 ostream&
-operator<<(ostream& o, const RegisterParameter& pe) {
+operator<<(ostream& o, const TXC::RegisterParameter& pe) {
    o << "name: " << pe.name << ", value: " << pe.value << ", pos: " << pe.position << ", sel: " << pe.selection;
    return o;
 }
 
 
-} // namespace TXC
 
 
 /**
@@ -101,9 +98,8 @@ void TXC::L1TopoConfigAlg::addParameter(const std::string &name, const std::stri
 }
 
 
-namespace TXC {
 
-std::ostream & operator<<(std::ostream &o, const L1TopoConfigAlg &alg) {
+std::ostream & operator<<(std::ostream &o, const TXC::L1TopoConfigAlg &alg) {
 
   if(alg.isSortAlg()) {
      o << "Sorting algorithm " << alg.algoID() << " : " << alg.type() << "/" << alg.name() << endl;
@@ -124,6 +120,3 @@ std::ostream & operator<<(std::ostream &o, const L1TopoConfigAlg &alg) {
      o << "     " << setw(15) << left << pe.name << " : " << pe.value << endl;
   return o;
 }
-
-
-} // namespace TXC

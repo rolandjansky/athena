@@ -119,11 +119,10 @@ namespace TXC {
       
    };
 
-std::ostream & operator<<(std::ostream &, const L1TopoConfigOutputList &);
-
-std::ostream & operator<<(std::ostream &, const TriggerLine &);
-
 } // end of namespace TXC
 
+std::ostream & operator<<(std::ostream &, const TXC::L1TopoConfigOutputList &);
+
+std::ostream & operator<<(std::ostream &, const TXC::TriggerLine &);
 
 #endif 

@@ -13,10 +13,10 @@ namespace TXC {
   class L1TopoConfigAlg;
 }
 
-namespace TXC {
-  
 std::ostream & operator<<(std::ostream &, const TXC::L1TopoConfigAlg &);
 
+namespace TXC {
+  
    struct InputElement {
       InputElement(const std::string & name, const std::string & value, unsigned int position) : 
          name(name), value(value), position(position) {}
@@ -106,7 +106,7 @@ std::ostream & operator<<(std::ostream &, const TXC::L1TopoConfigAlg &);
 
       L1TopoConfigAlg() {};
     
-      friend std::ostream & operator<<(std::ostream &, const TXC::L1TopoConfigAlg &);
+      friend std::ostream & ::operator<<(std::ostream &, const TXC::L1TopoConfigAlg &);
     
       // algorithm attributes
       std::string m_name {""};
@@ -123,12 +123,11 @@ std::ostream & operator<<(std::ostream &, const TXC::L1TopoConfigAlg &);
     
    };
 
-std::ostream & operator<<(std::ostream &, const InputElement&);
-std::ostream & operator<<(std::ostream &, const OutputElement&);
-std::ostream & operator<<(std::ostream &, const FixedParameter&);
-std::ostream & operator<<(std::ostream &, const RegisterParameter&);
-
 }
 
+std::ostream & operator<<(std::ostream &, const TXC::InputElement&);
+std::ostream & operator<<(std::ostream &, const TXC::OutputElement&);
+std::ostream & operator<<(std::ostream &, const TXC::FixedParameter&);
+std::ostream & operator<<(std::ostream &, const TXC::RegisterParameter&);
 
 #endif /* defined(__TopoCore__TopoAlg__) */
