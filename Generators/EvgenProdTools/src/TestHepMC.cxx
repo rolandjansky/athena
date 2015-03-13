@@ -27,6 +27,8 @@ TestHepMC::TestHepMC(const string& name, ISvcLocator* pSvcLocator)
 
   declareProperty("THistSvc", m_thistSvc);
 
+  declareProperty("DoHist", m_doHist=true); //histograming yes/no true/false
+
   m_nPass = 0;
   m_nFail = 0;
 
@@ -90,6 +92,8 @@ TestHepMC::TestHepMC(const string& name, ISvcLocator* pSvcLocator)
 
 StatusCode TestHepMC::initialize() {
   CHECK(GenBase::initialize());
+
+  if (m_doHist){
   CHECK(m_thistSvc.retrieve());
 
   m_h_energy_dispVtxCheck = new TH1F("h_energy_dispVtxCheck", "h_energy_dispVtxCheck", 2000, 0., 2000.);
@@ -143,6 +147,8 @@ StatusCode TestHepMC::initialize() {
   CHECK(m_thistSvc->regHist("/TestHepMCname/h_beamparticle1_Energy", m_h_beamparticle1_Energy));
   CHECK(m_thistSvc->regHist("/TestHepMCname/h_beamparticle2_Energy", m_h_beamparticle2_Energy));
   CHECK(m_thistSvc->regHist("/TestHepMCname/h_cmEnergyDiff", m_h_cmEnergyDiff));
+
+  }
 
   //open the files and read G4particle_whitelist.txt
   G4file.open("G4particle_whitelist.txt");
@@ -231,9 +237,11 @@ StatusCode TestHepMC::execute() {
       if (m_cm_energy > 0 && fabs(cmenergy - m_cm_energy) > 1) {
         ATH_MSG_FATAL("Beam particles have incorrect energy: " << m_cm_energy/1000. << " GeV expected, vs. " << cmenergy/1000. << " GeV found");
         setFilterPassed(false);
+       if (m_doHist){
         m_h_beamparticle1_Energy->Fill(beams.first->momentum().e()*1.E-03);
         m_h_beamparticle2_Energy->Fill(beams.second->momentum().e()*1.E-03);
         m_h_cmEnergyDiff->Fill((cmenergy-m_cm_energy)*1.E-03);
+       }
         ++m_beamEnergyCheckRate;
         //return StatusCode::SUCCESS;
         return StatusCode::FAILURE;
@@ -296,6 +304,8 @@ StatusCode TestHepMC::execute() {
           else
             m_vtxDisplacedstatuscodenot12CheckRateCnt += 1;
 
+
+       if (m_doHist){
           m_h_energy_dispVtxCheck->Fill((*par)->momentum().e()*1e-3);
           if ((*par)->momentum().e()*1e-3 < 10.) {
             m_h_energy_dispVtxCheck_lt10->Fill((*par)->momentum().e()*1e-3);}
@@ -320,6 +330,7 @@ StatusCode TestHepMC::execute() {
           double proddis = sqrt(prodvx*prodvx + prodvy*prodvy + prodvz*prodvz);
           m_h_vtxend_dispVtxCheck->Fill(enddis);
           m_h_vtxprod_dispVtxCheck->Fill(proddis);
+       }
         }
       }
     }
@@ -511,7 +522,9 @@ StatusCode TestHepMC::execute() {
     if (lostE > m_energy_diff) {
       ATH_MSG_WARNING("ENERGY BALANCE FAILED : E-difference = " << lostE << " MeV");
       //if (m_dumpEvent || lostE > m_max_energy_diff) (*itr)->print();
+     if (m_doHist){
       m_h_energyImbalance->Fill(lostE*1.E-03);
+     }
       if (m_dumpEvent) (*itr)->print();
       setFilterPassed(false);
       ++m_energyBalanceCheckRate;
@@ -523,9 +536,11 @@ StatusCode TestHepMC::execute() {
     if ( fabs(totalPx) > m_energy_diff || fabs(totalPy) > m_energy_diff || fabs(totalPz) > m_energy_diff ) {
       ATH_MSG_WARNING("MOMENTUM BALANCE FAILED : SumPx = " << totalPx << " SumPy = " <<  totalPy << " SumPz = " <<  totalPz << " MeV");
       //if (m_dumpEvent || fabs(totalPx) > m_max_energy_diff || fabs(totalPy) > m_max_energy_diff || fabs(totalPz) > m_max_energy_diff) (*itr)->print();
+    if (m_doHist){
       m_h_momentumImbalance_px->Fill(fabs(totalPx)*1.E-03);
       m_h_momentumImbalance_py->Fill(fabs(totalPy)*1.E-03);
       m_h_momentumImbalance_pz->Fill(fabs(totalPz)*1.E-03);
+    }
       if (m_dumpEvent) (*itr)->print();
       setFilterPassed(false);
       ++m_momentumBalanceCheckRate;
@@ -640,7 +655,7 @@ StatusCode TestHepMC::finalize() {
   ATH_MSG_INFO(" Event rate with undisplaced decay daughters of displaced vertices = " << m_undisplacedDecayDaughtersOfDisplacedVtxCheckRate*100.0/double(m_nPass + m_nFail) << "%");
   ATH_MSG_INFO(" Event rate with particles with status 1 but lifetime < " << m_min_tau << "~ns = " << m_Status1ShortLifetime*100.0/double(m_nPass + m_nFail) << "%");
   ATH_MSG_INFO(" Event rate with energy sum of interacting particles non known by Geant4 above " << m_nonG4_energy_threshold << " MeV = " << m_nonG4_energyCheckRate*100.0/double(m_nPass + m_nFail) << "%");
-
+ 
   const double tau_fastDrate = double(m_FastDecayedTau) / double(m_TotalTaus);
   if(tau_fastDrate > m_tau_eff_threshold){
     ATH_MSG_FATAL("MORE THAN " << 100.*m_tau_eff_threshold << "% OF TAUS DECAYING IMMEDIATELY! " << m_FastDecayedTau << " found, out of: " << m_TotalTaus);
