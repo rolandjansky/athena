@@ -591,6 +591,7 @@ int main(int argc, char** argv)
   //  NtupleTrackSelector  offlineTracks(&filter_offline);
   // NtupleTrackSelector  refTracks(&filter_off); 
   TrackFilter* refFilter;
+  TrackFilter* truthFilter;
   if      ( refChain=="Offline" )           refFilter = &filter_off;
   else if ( refChain=="Electrons" )         refFilter = &filter_off;
   else if ( refChain=="ElectronsMedium" )   refFilter = &filter_off;
@@ -603,6 +604,9 @@ int main(int argc, char** argv)
     std::cerr << "unknown reference chain defined" << std::endl;
     return (-1);
   }
+
+  if (pdgId==0) truthFilter = &filter_off;
+  else truthFilter = &filter_truth;
   
   TrackFilter* testFilter = &filter_passthrough;
 
@@ -676,7 +680,7 @@ int main(int argc, char** argv)
   NtupleTrackSelector  offTracks( testFilter );
   NtupleTrackSelector testTracks( testFilter);
 
-  NtupleTrackSelector truthTracks( &filter_truth );
+  NtupleTrackSelector truthTracks( truthFilter );
 
   //  	NtupleTrackSelector  refTracks( &filter_passthrough );
   //  	NtupleTrackSelector  testTracks( refFilter );
@@ -721,7 +725,31 @@ int main(int argc, char** argv)
   /// extra matcher for additionally matching reference to truth 
   TrackAssociator* truth_matcher = 0;
   if ( truthMatch ) { 
-    truth_matcher = new Associator_BestDeltaRMatcher("deltaR_truth", Rmatch); 
+    if      ( useMatcher == "Sigma" )    truth_matcher = new Associator_BestSigmaMatcher("sigma_truth", Rmatch); 
+    else if ( useMatcher == "DeltaRZ" || useMatcher == "DeltaRZSinTheta" )  { 
+      double deta = 0.05;
+      double dphi = 0.05;
+      double dzed = 25;
+      if ( inputdata.isTagDefined("Matcher_deta" ) ) deta = inputdata.GetValue("Matcher_deta"); 
+      if ( inputdata.isTagDefined("Matcher_dphi" ) ) dphi = inputdata.GetValue("Matcher_dphi"); 
+      if ( inputdata.isTagDefined("Matcher_dzed" ) ) dzed = inputdata.GetValue("Matcher_dzed"); 
+  
+      if ( useMatcher == "DeltaRZ" ) truth_matcher = new Associator_BestDeltaRZMatcher(         "deltaRZ_truth", deta, dphi, dzed ); 
+      else                           truth_matcher = new Associator_BestDeltaRZSinThetaMatcher( "deltaRZ_truth", deta, dphi, dzed ); 
+    }
+    else if ( useMatcher == "pT_2" ) { 
+      double pTmatchLim_2 = 1.0;
+      if ( inputdata.isTagDefined("Matcher_pTLim_2") ) pTmatchLim_2 = inputdata.GetValue("Matcher_pTLim_2");
+      truth_matcher = new Associator_SecondBestpTMatcher("SecpT_truth", pTmatchLim_2);
+    }
+    else if ( useMatcher == "Truth" ) {  
+      truth_matcher = new Associator_TruthMatcher();
+    }
+    else { 
+      /// default to deltaR matcher
+      /// track matcher for best fit deltaR matcher
+      truth_matcher = new Associator_BestDeltaRMatcher("deltaR_truth", Rmatch); 
+    }
   }
   
 
@@ -932,6 +960,7 @@ int main(int argc, char** argv)
 
     offTracks.clear();
     refTracks.clear();
+    truthTracks.clear();
     refPurityTracks.clear();
     //    offlineTracks.clear();
 
@@ -947,6 +976,7 @@ int main(int argc, char** argv)
 
 
 
+    dynamic_cast<Filter_Combined*>(truthFilter)->setRoi(0);
     //// get the truth tracks if required
     if ( truthMatch ) { 
       for (unsigned int ic=0 ; ic<chains.size() ; ic++ ) {
@@ -1136,7 +1166,8 @@ int main(int argc, char** argv)
 	if ( truthMatch ) { 
 	  
 	  /// get the truth particles ...
-	  const std::vector<TrigInDetAnalysis::Track*>&  truth = truthTracks.tracks();
+	  if ( select_roi ) dynamic_cast<Filter_Combined*>(truthFilter)->setRoi(&roi);
+	  const std::vector<TrigInDetAnalysis::Track*>&  truth = truthTracks.tracks(truthFilter);
 
 	  /// dr match against current reference selection 
 	  truth_matcher->match( refp, truth );

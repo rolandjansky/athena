@@ -6,7 +6,7 @@
 // 
 //   Copyright (C) 2007 M.Sutton (sutt@cern.ch)    
 //
-//   $Id: ConfAnalysis.cxx 639317 2015-01-13 21:17:13Z sutt $
+//   $Id: ConfAnalysis.cxx 651747 2015-03-05 09:21:24Z sutt $
 
 
 #include "ConfAnalysis.h"
@@ -776,19 +776,22 @@ void ConfAnalysis::finalise() {
 
   //  std::cout << "DBG >" << eff_pt->Hist()->GetName() << "< DBG" << std::endl;
 
-  std::vector<Efficiency*> heff = { eff_pt,
-                                    eff_eta,
-                                    eff_phi,
-                                    eff_z0,
-                                    eff_d0,
-                                    eff_a0,
-                                    eff_ptm,
-                                    eff_ptp,
-                                    eff_roi_deta,
-                                    eff_roi_dphi,
-                                    eff_roi_dR
-                                  };
-  for (unsigned int i=0; i < heff.size(); i++) {
+  //  std::vector<Efficiency*> heff = { eff_pt,
+
+  const unsigned Neff = 11;
+  Efficiency*  heff[Neff] = { eff_pt,
+			      eff_eta,
+			      eff_phi,
+			      eff_z0,
+			      eff_d0,
+			      eff_a0,
+			      eff_ptm,
+			      eff_ptp,
+			      eff_roi_deta,
+			      eff_roi_dphi,
+			      eff_roi_dR };
+  
+  for ( unsigned i=0 ; i<Neff ; i++ ) {
     heff[i]->finalise();  
     heff[i]->Bayes()->Write( ( heff[i]->name()+"_tg" ).c_str() );
   } // heff[i]->Hist()->Write(); } 
@@ -817,10 +820,21 @@ void ConfAnalysis::finalise() {
   eff_vs_nvtx->finalise();
   eff_vs_mu->finalise();
 
-  std::vector<Efficiency*> hpurity = { purity_pt, purity_eta, purity_phi, purity_z0, purity_d0, purity_a0 };
-  for ( unsigned int i = 0; i <hpurity.size(); i++) { hpurity[i]->finalise(); }
+  const unsigned Npurity = 6;
+  Efficiency* hpurity[Npurity] = {
+    purity_pt, 
+    purity_eta, 
+    purity_phi,
+    purity_z0, 
+    purity_d0,
+    purity_a0 };
 
-  for ( int i=mres.size() ; i-- ; ) { mres[i]->Finalise(Resplot::FitNull) ; mres[i]->Write();}
+  for ( unsigned i = 0 ; i<Npurity ; i++ ) hpurity[i]->finalise();
+
+  for ( int i=mres.size() ; i-- ; ) { 
+    mres[i]->Finalise(Resplot::FitNull95); 
+    mres[i]->Write();
+  }
 
   mdeltaR_v_eta->Finalise();   mdeltaR_v_eta->Write(); 
   mdeltaR_v_pt->Finalise();    mdeltaR_v_pt->Write(); 

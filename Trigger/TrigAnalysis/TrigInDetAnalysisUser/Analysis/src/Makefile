@@ -23,6 +23,7 @@ ATLAS_ARCH = $(CMTCONFIG)
 
 ifeq ($(CMTCONFIG),)
 
+
      ATLAS_ARCH = $(shell uname)
 #    ATLAS_ARCH = $(shell ./setarch.sh)
 #    ATLAS_ARCH = x86
@@ -31,7 +32,7 @@ ifeq ($(CMTCONFIG),)
     # "PUT YOUR BASE DIRECTORY HERE"
     # ATLASBASE = $(TestArea)/Trigger/TrigAnalysis/
     # ATLASBASE = /tmp/sutt/new/Trigger/TrigAnalysis
-    ATLASBASE = $(HOME)/atlas/Trigger/TrigAnalysis
+    ATLASBASE = $(ATLAS_TEST_AREA)/Trigger/TrigAnalysis
     # ATLASBASE = /tmp/sutt/duff/Trigger/TrigAnalysis
     # ATLASBASE = /tmp/sutt/tida/Trigger/TrigAnalysis/
 
@@ -39,9 +40,9 @@ ifeq ($(CMTCONFIG),)
 
     ifeq ($(USER),sutt)
        # sutt uses with_version_directory so need the versions
-       TID   = $(ATLASBASE)/TrigInDetAnalysis/TrigInDetAnalysis-01-01-22
-       TIDU  = $(ATLASBASE)/TrigInDetAnalysisUtils/TrigInDetAnalysisUtils-00-01-40
-       TIDE  = $(ATLASBASE)/TrigInDetAnalysisExample/TrigInDetAnalysisExample-00-02-79
+       TID   = $(ATLASBASE)/TrigInDetAnalysis/TrigInDetAnalysis-01-01-27
+       TIDU  = $(ATLASBASE)/TrigInDetAnalysisUtils/TrigInDetAnalysisUtils-00-01-57
+       TIDE  = $(ATLASBASE)/TrigInDetAnalysisExample/TrigInDetAnalysisExample-00-03-07
 #      TIDUB = $(ATLASBASE)/TrigInDetAnalysisUser/TrigInDetAnalysisUser-00-01-11
        TIDUB = ../..
     else
@@ -157,6 +158,7 @@ LOBJECTS  = $(OBJDIR)/TrackEvent.o \
 	$(OBJDIR)/TrackVertex.o   \
 	$(OBJDIR)/TrackChain.o   \
 	$(OBJDIR)/TrackRoi.o   \
+	$(OBJDIR)/TIDARoiParameters.o  \
 	$(OBJDIR)/TIDARoiDescriptor.o  \
         $(OBJDIR)/TrackTrigObject.o \
         $(OBJDIR)/TrigInDetAnalysisDict.o
@@ -167,6 +169,7 @@ DICTHEADERS = $(TID)/TrigInDetAnalysis/TrackEvent.h \
 	$(TID)/TrigInDetAnalysis/TrackChain.h \
         $(TID)/TrigInDetAnalysis/TrackRoi.h \
         $(TID)/TrigInDetAnalysis/TFileString.h \
+        $(TID)/TrigInDetAnalysis/TIDARoiParameters.h \
         $(TID)/TrigInDetAnalysis/TIDARoiDescriptor.h \
         $(TID)/TrigInDetAnalysis/Track.h \
         $(TID)/TrigInDetAnalysis/TrackTrigObject.h \
