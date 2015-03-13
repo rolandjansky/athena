@@ -314,14 +314,6 @@ protected:
         chainname.find("EF")  == std::string::npos &&
         chainname.find("HLT") == std::string::npos ) continue;
 
-      const DataHandle<TrigDec::TrigDecision> td;
-      StatusCode sc = m_provider->evtStore()->retrieve(td);
-      if (sc.isFailure()) {
-        if(m_provider->msg().level() <= MSG::FATAL)
-            m_provider->msg(MSG::FATAL) << "Could not find TrigDecision object" << endreq;
-        return;
-      }
-
       if ( m_provider->msg().level() <= MSG::DEBUG ) {
         m_provider->msg(MSG::DEBUG) << "Chain "  << chainname
                                     << "\tpass " << (*m_tdt)->isPassed(chainname)
@@ -967,71 +959,97 @@ protected:
     // m_chainNames.insert( m_chainNames.end(), chains.begin(), chains.end() );
     m_chainNames = chains;
 
-    for ( unsigned ic=0 ; ic<m_chainNames.size() ; ic++ ) m_provider->msg(MSG::VERBOSE) << "Analyse chain " << m_chainNames[ic] << endreq;
+    for ( unsigned ic=0 ; ic<m_chainNames.size() ; ic++ ) { 
+      
+
+      if ( ic>0 ) { 
+	m_provider->msg(MSG::WARNING) << "more than one chain configured for this analysis - skipping " << m_chainNames[ic] << endreq;
+	continue;
+      }
+
+      m_provider->msg(MSG::VERBOSE) << "Analyse chain " << m_chainNames[ic] << endreq;
 
 
-    // m_provider->msg(MSG::VERBOSE)  << "--------------------------------------------------" << endreq;
+      // m_provider->msg(MSG::VERBOSE)  << "--------------------------------------------------" << endreq;
+      
+      
+      std::string folder_name = "";
+      
+      if ( name()!="" )  folder_name = name() + "/";
+      else               folder_name = "HLT/TRIDT/IDMon/";
+      
+      // unsigned decisiontype;
+      // if ( m_chainNames.at(0).passed() ) decisiontype = TrigDefs::Physics;
+      // else                               decisiontype = TrigDefs::alsoDeactivateTEs;
+      
+      /// folder_name.erase(0,3); // erase "L2_" or "EF_" so histograms all go in same chain folder - NO!!!! this means 
+      /// they will over write, unless eg L2_, EF_, HLT_ etc is include in the histogram name 
+      
+      /// don't use test_type now ? 
+      if( m_testType != "" ) folder_name = folder_name + "/" + m_testType;
+      
+      std::string mongroup;
+      
+      if ( name().find("Shifter")!=std::string::npos ) {
+	/// shifter histograms - do not encode chain names
+	if      ( m_chainNames.at(ic).tail().find("FastTrackFinder")   != std::string::npos ) mongroup = folder_name + "/FTF";
+	else if ( m_chainNames.at(ic).tail().find("InDetTrigTracking") != std::string::npos ) mongroup = folder_name + "/EFID";
+	else if ( m_chainNames.at(ic).tail().find("L2SiTrackFinder")   != std::string::npos ) mongroup = folder_name + "/L2STAR"+m_chainNames.at(ic).extra();
+	else if ( m_chainNames.at(ic).tail().find("InDetTrigParticle") != std::string::npos ) mongroup = folder_name + "/EFID_RUN1";
+	else                                                                                  mongroup = folder_name + "/Unknown";
+     }
+      else { 
+	/// these are the Expert / non-Shifter histograms - encode the full chain names
 
-    
-    std::string folder_name = "";
+	mongroup = folder_name += m_chainNames[ic].head() + "/" + m_chainNames.at(ic).tail() + "/" + m_chainNames.at(ic).extra() + "/";
 
-    if ( name()!="" )  folder_name = name() + "/";
+	if ( m_chainNames.at(ic).element()!="" )  mongroup += m_chainNames[ic].element() + "/";
+	if ( !m_chainNames.at(ic).passed() )      mongroup += "DTE/";
+	
+	
+      }
 
-    folder_name += m_chainNames.at(0).head();
-
-    // unsigned decisiontype;
-    // if ( m_chainNames.at(0).passed() ) decisiontype = TrigDefs::Physics;
-    // else                               decisiontype = TrigDefs::alsoDeactivateTEs;
-
-    /// folder_name.erase(0,3); // erase "L2_" or "EF_" so histograms all go in same chain folder - NO!!!! this means 
-    /// they will over write, unless eg L2_, EF_, HLT_ etc is include in the histogram name 
-
-    /// don't use this now
-    if(m_testType != "") folder_name = folder_name + "/" + m_testType;
-    //   else                 folder_name = folder_name + "/offline_tracks";
-
-    std::string mongroup = folder_name +"/" + m_chainNames.at(0).tail() + "/" + m_chainNames.at(0).extra() + "/";
-
-    if ( m_chainNames.at(0).element()!="" )  mongroup += m_chainNames.at(0).element() + "/";
-    if ( !m_chainNames.at(0).passed() )      mongroup += "DTE/";
-
-    m_provider->msg(MSG::VERBOSE) << " booking mongroup " << mongroup << endreq;
-
-#   ifdef ManagedMonitorToolBase_Uses_API_201401
-    m_provider->addMonGroup( new ManagedMonitorToolBase::MonGroup( m_provider, mongroup, ManagedMonitorToolBase::run ) );
-#   else
-    m_provider->addMonGroup( new ManagedMonitorToolBase::MonGroup( m_provider, mongroup, 
-								   ManagedMonitorToolBase::shift, 
-								   ManagedMonitorToolBase::run ) );
+      
+      
+      m_provider->msg(MSG::VERBOSE) << " booking mongroup " << mongroup << endreq;
+      
+#     ifdef ManagedMonitorToolBase_Uses_API_201401
+      m_provider->addMonGroup( new ManagedMonitorToolBase::MonGroup( m_provider, mongroup, ManagedMonitorToolBase::run ) );
+#     else
+      m_provider->addMonGroup( new ManagedMonitorToolBase::MonGroup( m_provider, mongroup, 
+								     ManagedMonitorToolBase::shift, 
+								     ManagedMonitorToolBase::run ) );
 #   endif
-
-    m_analysis->initialise();
-
-    _analysis = dynamic_cast<Analysis_Tier0*>(m_analysis);
-
-    std::map<std::string, TH1*>::const_iterator hitr = _analysis->THbegin();
-    std::map<std::string, TH1*>::const_iterator hend = _analysis->THend();
-
-    //    std::cout << "\tsutt adding to mongroup   " << mongroup << std::endl;
-
-    while ( hitr!=hend ) {
-      //  std::cout << "\tsutt addHisto " << hitr->second->GetName() << std::endl;
-      m_provider->addHistogram( hitr->second, mongroup );
-      hitr++;
+      
+      m_analysis->initialise();
+      
+      _analysis = dynamic_cast<Analysis_Tier0*>(m_analysis);
+      
+      std::map<std::string, TH1*>::const_iterator hitr = _analysis->THbegin();
+      std::map<std::string, TH1*>::const_iterator hend = _analysis->THend();
+      
+      //    std::cout << "\tsutt adding to mongroup   " << mongroup << std::endl;
+      
+      while ( hitr!=hend ) {
+	//  std::cout << "\tsutt addHisto " << hitr->second->GetName() << std::endl;
+	m_provider->addHistogram( hitr->second, mongroup );
+	hitr++;
+      }
+      
+      
+      std::map<std::string, TProfile*>::const_iterator effitr = _analysis->TEffbegin();
+      std::map<std::string, TProfile*>::const_iterator effend = _analysis->TEffend();
+      
+      while ( effitr!=effend ) {
+	// std::cout << "\tsutt addProfile " << effitr->second->GetName() << std::endl;
+	m_provider->addHistogram( effitr->second, mongroup );
+	effitr++;
+      }
+      
+      if(m_provider->msg().level() <= MSG::VERBOSE)
+	m_provider->msg(MSG::VERBOSE) << "AnalysisConfig_Tier0::book() done" << endreq;
+      
     }
-
-
-    std::map<std::string, TProfile*>::const_iterator effitr = _analysis->TEffbegin();
-    std::map<std::string, TProfile*>::const_iterator effend = _analysis->TEffend();
-
-    while ( effitr!=effend ) {
-      // std::cout << "\tsutt addProfile " << effitr->second->GetName() << std::endl;
-      m_provider->addHistogram( effitr->second, mongroup );
-      effitr++;
-    }
-
-    if(m_provider->msg().level() <= MSG::VERBOSE)
-      m_provider->msg(MSG::VERBOSE) << "AnalysisConfig_Tier0::book() done" << endreq;
 
   }
 

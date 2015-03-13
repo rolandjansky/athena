@@ -29,7 +29,7 @@
 TrigTestMonToolAC::TrigTestMonToolAC(const std::string & type, const std::string & name, const IInterface* parent) 
   :  IHLTMonTool(type, name, parent),
      m_tdt("Trig::TrigDecisionTool/TrigDecisionTool"),
-     m_roiInfo(0,0,0),
+     m_roiInfo(false),
      m_buildNtuple(false), 
      m_initialisePerRun(true),
      m_firstRun(true),
@@ -116,9 +116,9 @@ StatusCode TrigTestMonToolAC::init() {
   //  std::cout << "TrigTestMonToolAC::init() SUTT buildNtuple " << m_buildNtuple << std::endl;
   
   // roi width information
-  m_roiInfo.etaHalfWidth(m_etaWidth);
-  m_roiInfo.phiHalfWidth(m_phiWidth);
-  m_roiInfo.zedHalfWidth(m_zedWidth);
+  //  m_roiInfo.etaHalfWidth(m_etaWidth);
+  //  m_roiInfo.phiHalfWidth(m_phiWidth);
+  //  m_roiInfo.zedHalfWidth(m_zedWidth);
   
   //  if ( m_buildNtuple && m_analysis_config != "Tier0") { 
   if ( m_buildNtuple ) { 
