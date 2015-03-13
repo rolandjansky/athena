@@ -15,7 +15,11 @@ TrigDecisionChecker based on TrigDecisionMaker/TrigDecisionTest */
 #include "TrigParticle/TrigTauContainer.h"
 #include "TrigCaloEvent/TrigTauClusterContainer.h"
 #include "TrigInDetEvent/TrigTauTracksInfoCollection.h"
-#include "TrigMuonEvent/CombinedMuonFeature.h"
+
+// Muon includes
+#include "xAODMuon/MuonContainer.h"
+#include "xAODTrigMuon/L2CombinedMuonContainer.h"
+#include "xAODTrigMuon/L2StandAloneMuonContainer.h"
 
 // include these tau navigation check
 #include "TrigParticle/TrigTau.h"
@@ -26,7 +30,6 @@ TrigDecisionChecker based on TrigDecisionMaker/TrigDecisionTest */
 #include "tauEvent/Tau1P3PDetails.h"
 #include "tauEvent/TauRecDetails.h"
 
-#include "xAODMuon/MuonContainer.h"
 #include "xAODTau/TauJetContainer.h"
 #include "xAODTrigBphys/TrigBphysContainer.h"
 #include "xAODEgamma/ElectronContainer.h"
@@ -86,8 +89,8 @@ TrigDecisionChecker::TrigDecisionChecker(const std::string &name, ISvcLocator *p
     m_dsSvc( "TrigConf::DSConfigSvc/DSConfigSvc", name ),
     m_muonPrinter("Rec::MuonPrintingTool/MuonPrintingTool")
 {
-  // default for muon chains
-  m_muonItems.push_back("HLT_mu26_imedium");
+    // default for muon chains
+    m_muonItems.push_back("HLT_mu26_imedium");
 
     // dc14 bphysics menu items - can be moved into JobOptions if required
     m_bphysItems.push_back("HLT_2mu10_bBmumu");
@@ -109,51 +112,6 @@ TrigDecisionChecker::TrigDecisionChecker(const std::string &name, ISvcLocator *p
     m_bphysItems.push_back("HLT_mu4_iloose_mu4_7invm9_noos");
     m_bphysItems.push_back("HLT_mu4_mu4_idperf_bJpsimumu_noid");
     m_bphysItems.push_back("HLT_mu6_bJpsi_Trkloose");
-
-    // dc14 tau menu items - can be moved into JobOptions if required      
-    m_TauItems.push_back("HLT_e18_loose1_tau25_medium1_calo");
-    m_TauItems.push_back("HLT_tau25_medium1_mvonly");
-    m_TauItems.push_back("HLT_tau125_r1perf");
-    m_TauItems.push_back("HLT_tau80_medium1_calo");
-    m_TauItems.push_back("HLT_tau20_r1perf_idperf");
-    m_TauItems.push_back("HLT_e18_loose1_tau80_medium1_ptonly");
-    m_TauItems.push_back("HLT_e18_loose1_tau80_medium1_calo");
-    m_TauItems.push_back("HLT_e18_lhloose_tau25_medium1_ptonly");
-    m_TauItems.push_back("HLT_mu14_tau25_medium1_ptonly");
-    m_TauItems.push_back("HLT_tau25_medium1_mvonly_L1TAU6");
-    m_TauItems.push_back("HLT_tau80_medium1_track");
-    m_TauItems.push_back("HLT_tau125_medium1_track");
-    m_TauItems.push_back("HLT_tau25_medium1_trackonly");
-    m_TauItems.push_back("HLT_tau29_r1perf");
-    m_TauItems.push_back("HLT_mu14_tau35_medium1_ptonly");
-    m_TauItems.push_back("HLT_tau25_medium1_ptonly");
-    m_TauItems.push_back("HLT_tau35_r1perf");
-    m_TauItems.push_back("HLT_mu14_tau25_medium1_calo");
-    m_TauItems.push_back("HLT_tau125_r1medium1");
-    m_TauItems.push_back("HLT_tau35_medium1_calo_tau25_medium1_calo");
-    m_TauItems.push_back("HLT_e18_lhloose_tau80_medium1_calo");
-    m_TauItems.push_back("HLT_tau25_medium1_track");
-    m_TauItems.push_back("HLT_tau35_medium1_ptonly");
-    m_TauItems.push_back("HLT_tau25_r1perf_L1TAU6");
-    m_TauItems.push_back("HLT_e18_lhloose_tau80_medium1_ptonly");
-    m_TauItems.push_back("HLT_tau125_medium1_calo");
-    m_TauItems.push_back("HLT_tau35_medium1_ptonly_tau25_medium1_ptonly_xe50");
-    m_TauItems.push_back("HLT_e18_loose1_tau25_medium1_ptonly");
-    m_TauItems.push_back("HLT_mu14_tau35_medium1_calo");
-    m_TauItems.push_back("HLT_tau35_medium1_calo_tau25_medium1_calo_xe50");
-    m_TauItems.push_back("HLT_tau25_medium1_caloonly");
-    m_TauItems.push_back("HLT_tau25_medium1_calo");
-    m_TauItems.push_back("HLT_tau35_medium1_ptonly_tau25_medium1_ptonly");
-    m_TauItems.push_back("HLT_tau20_r1medium1");
-    m_TauItems.push_back("HLT_e18_lhloose_tau25_medium1_calo");
-    m_TauItems.push_back("HLT_tau35_medium1_calo");
-    m_TauItems.push_back("HLT_tau35_medium1_ptonly_xe70_L1XE45");
-    m_TauItems.push_back("HLT_tau25_r1perf");
-    m_TauItems.push_back("HLT_tau20_r1perf");
-    m_TauItems.push_back("HLT_tau29_r1medium1");
-    m_TauItems.push_back("HLT_tau35_medium1_track");
-    m_TauItems.push_back("HLT_tau35_medium1_calo_xe70_L1XE45");
-
 
   declareProperty("TrigDecisionKey",   m_trigDecisionKey = "TrigDecision");
   declareProperty("TrigDecisionTool",  m_trigDec, "The tool to access TrigDecision");
@@ -822,16 +780,30 @@ StatusCode TrigDecisionChecker::checkMuonEDM(std::string trigItem){
 
   for( auto mufeat : vec_muons ) {
     ATH_MSG_INFO("REGTEST Got muon container, size = " << mufeat.cptr()->size());
-    std::string output = m_muonPrinter->print( *(mufeat.cptr()) );
-    ATH_MSG_INFO(output);
+    for(auto muItr : *(mufeat.cptr())) {      
+      ATH_MSG_INFO("REGTEST MuonFeature with pt, eta, phi = " << muItr->pt() << ", " << muItr->eta() << ", " << muItr->phi());
+    }
   }// loop over muon features
 
-  const std::vector< Trig::Feature<CombinedMuonFeature> > vec_cbmufeats = fc.get<CombinedMuonFeature>();
-  ATH_MSG_INFO("Size of vector< Trig::Feature<CombinedMuonFeature> > = " << vec_cbmufeats.size());
+  const std::vector< Trig::Feature<xAOD::L2CombinedMuonContainer> > vec_L2CBmuons = fc.get<xAOD::L2CombinedMuonContainer>();
+  ATH_MSG_INFO("Size of vector< Trig::Feature<xAOD::L2CombinedMuonContainer> > = " << vec_L2CBmuons.size());
 
-  for( auto cbmufeat : vec_cbmufeats) {
-    ATH_MSG_INFO("REGTEST CombinedMuonFeature with pt, eta, phi = " << cbmufeat.cptr()->pt() << ", " << cbmufeat.cptr()->eta() << ", " << cbmufeat.cptr()->phi());
-  }
+  for( auto l2cbmufeat : vec_L2CBmuons) {
+    ATH_MSG_INFO("REGTEST Got muon container, size = " << l2cbmufeat.cptr()->size());
+    for(auto l2cbmuItr : *(l2cbmufeat.cptr())) {      
+      ATH_MSG_INFO("REGTEST MuonFeature with pt, eta, phi = " << l2cbmuItr->pt() << ", " << l2cbmuItr->eta() << ", " << l2cbmuItr->phi());
+    }
+  }// loop over muon L2 CB features
+
+  const std::vector< Trig::Feature<xAOD::L2StandAloneMuonContainer> > vec_L2SAmuons = fc.get<xAOD::L2StandAloneMuonContainer>();
+  ATH_MSG_INFO("Size of vector< Trig::Feature<xAOD::L2StandAloneMuonContainer> > = " << vec_L2SAmuons.size());
+
+  for( auto l2samufeat : vec_L2SAmuons) {
+    ATH_MSG_INFO("REGTEST Got muon container, size = " << l2samufeat.cptr()->size());
+    for(auto l2samuItr : *(l2samufeat.cptr())) {      
+      ATH_MSG_INFO("REGTEST MuonFeature with pt, eta, phi = " << l2samuItr->pt() << ", " << l2samuItr->eta() << ", " << l2samuItr->phi());
+    }
+  }// loop over muon L2 SA features
 
   msg(MSG::INFO) << "REGTEST ==========END of muon EDM/Navigation check for chain " << trigItem << " ===========" << endreq;
 
