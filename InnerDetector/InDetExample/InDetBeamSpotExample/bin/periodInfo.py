@@ -16,13 +16,9 @@ __version__ = ''
 __usage__   = '''%prog [options]'''
  
 import os,sys
-import setup_pyAMI
  # the above line needed to ensure correct python environment since pyAMI 4.0.3
-from pyAMI.client import AMIClient
+import pyAMI.client
 
-from pyAMI.auth import AMI_CONFIG, create_auth_config
-from pyAMI.exceptions import AMI_Error
- 
 from optparse import OptionParser
 parser = OptionParser(usage=__usage__, version=__version__)
 parser.add_option('-c', '--config', dest='config', default='', help='AMI authentication file')
@@ -31,11 +27,7 @@ parser.add_option('-c', '--config', dest='config', default='', help='AMI authent
 class AMIWrapper:
      def __init__(self):
          "Initalise AMI"
-         #self.ami = AMI()
-         self.ami=AMIClient()
-         if not os.path.exists(AMI_CONFIG):
-            create_auth_config()
-         self.ami.read_config(AMI_CONFIG)
+         self.ami=pyAMI.client.Client('atlas')
          #if options.config:
              #self.configFileName = os.path.expanduser(options.config)
          #else:
@@ -51,15 +43,9 @@ class AMIWrapper:
          if isinstance(cmd, basestring):
              cmd = cmd.split()
          
-         results = self.ami.execute(cmd).to_dict()
- 
-         #return [v for _,v in results['Element_Info'].items()]
- 
-         topName = 'rowset_1'
-         if not topName in results.keys():
-             topName = results.keys()[0]
-         
-         return [v for _,v in results[topName].items()]
+         results = self.ami.execute(cmd,format='dict_object')
+
+         return results.get_rows()
              
      def periods(self, period=None, level=None, project=None, status=None):
          "Get list of periods.  By default return all periods"
@@ -78,7 +64,7 @@ class AMIWrapper:
          cmd += ' projectName='+project
          return self.run(cmd)
  
-     def runListsPerPeriod(self, location='/afs/cern.ch/user/g/gwilliam/scratch0/test/' ): #'/afs/cern.ch/user/a/atlidbs/nt/DataPeriods/'):
+     def runListsPerPeriod(self, location='/afs/cern.ch/user/a/atlidbs/nt/DataPeriods/'):
          """
          Generate files containing run lists for periods if they don't already exist
          """
@@ -87,7 +73,7 @@ class AMIWrapper:
          periods = self.periods() #status='unlocked') 
          path = os.path
          num = 0
-         
+
          for p in periods:
              projectDir =path.normpath(location + '/' + p['projectName'])
  

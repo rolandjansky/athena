@@ -1,11 +1,11 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-# $Id: ROOTUtils.py 609674 2014-07-31 22:38:05Z beringer $
+# $Id: ROOTUtils.py 654065 2015-03-13 20:50:56Z btamadio $
 """
 Miscellaneous utilities for PyROOT.
 """
 __author__  = 'Juerg Beringer'
-__version__ = '$Id: ROOTUtils.py 609674 2014-07-31 22:38:05Z beringer $'
+__version__ = '$Id: ROOTUtils.py 654065 2015-03-13 20:50:56Z btamadio $'
 
 
 import ROOT
@@ -130,6 +130,7 @@ class PlotLibrary:
                 except:
                     self.__class__.__bases__[0].__dict__[code](self,w,*args)
                 ROOT.gPad.Update()
+                # For some strange reason, this works only for .eps, but not e.g. for gif files...???
                 for o in self.gPadSaveAsList:
                     if o[0]=='.':
                         ROOT.gPad.SaveAs('%s-%s-%s%s' % (self.name,code,w,o))

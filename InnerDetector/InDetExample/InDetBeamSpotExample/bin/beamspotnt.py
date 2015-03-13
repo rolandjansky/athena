@@ -5,7 +5,7 @@
 beamspotnt is a command line utility for beam spot ntuples.
 """
 __author__  = 'Juerg Beringer'
-__version__ = '$Id: beamspotnt.py 622207 2014-10-16 17:54:05Z mhance $'
+__version__ = '$Id: beamspotnt.py 654065 2015-03-13 20:50:56Z btamadio $'
 __usage__   = '''%prog [options] command [args ...]
 
 Commands are:
@@ -16,6 +16,8 @@ merge SRCNT           Merge source beam spot ntuple into master ntuple
                       (use --srcnt to specify type if not BeamSpotFinderNt)
 ave                   Calculate average of beam spot parameters
 hist var              Histogram of var
+histvspileup var      Profile histogram of var vs pileup
+pull var:value        Pull of var with respect to true value
 plot var              History of var
 summary               Summary history plots
 ascii filename        Write ASCII file with data in Massi\'s format
@@ -68,6 +70,7 @@ parser.add_option('', '--status', dest='status', default='59', help='comma-separ
 parser.add_option('-p', '--period', dest='period', default=None, help='comma-separated list of accepted run periods (e.g. data10_7TeV.G)')
 parser.add_option('', '--perioddef', dest='periodDef', default=periodDef, help='location of run period definition files (default: %s)' % periodDef)
 parser.add_option('-g', '--grl', dest='grl', default=None, help='GRL to select runs/Lbs')
+parser.add_option('', '--mc', dest='mc', action='store_true', default=False, help='flag to indicate beam spot results are from MC')
 parser.add_option('', '--fillCOOL', dest='fillcooldata', action='store_true', default=False, help='fill data from COOL (time, fill#)')
 parser.add_option('', '--fillDQ', dest='filldqdata', action='store_true', default=False, help='fill data from DataQualtiy')
 parser.add_option('', '--pLbFile', dest='pseudoLbFile', default=None, help='File for pseudo LB info from scan')
@@ -97,11 +100,16 @@ parser.add_option('', '--ydef', dest='ydef', action='store_true', default=False,
 parser.add_option('', '--defaults', dest='defaults', default='Gen', help='choose varDef defauls (default: Gen')
 parser.add_option('', '--logy', dest='logy', action='store_true', default=False, help='log scale')
 parser.add_option('', '--fit', dest='fit', default='', help='fit function (e.g. pol1)')
+parser.add_option('', '--optfit', dest='optfit', default='', help="fit options (default: '')")
 parser.add_option('-c', '--canvas', dest='canvas', default='', help='canvas size: default, page, wide, extrawide or square')
+parser.add_option('', '--xdivs', dest='xdivs', type='int', default=1, help='number of pads on canvas in x (needs -c, default: 1)')
+parser.add_option('', '--ydivs', dest='ydivs', type='int', default=1, help='number of pads on canvas in y (needs -c, default: 1)')
+parser.add_option('', '--optstat', dest='optstat', default='emruo', help='default OptStat value (Default: emruo)')
 parser.add_option('', '--ave', dest='ave', action='store_true', default=False, help='show average on plot')
 parser.add_option('', '--title', dest='title', default='', help='title text on plots')
 parser.add_option('', '--comment', dest='comment', default='', help='additional text (use semicolon to indicate line breaks)')
 parser.add_option('', '--datefmt', dest='datefmt', default='', help='date format')
+parser.add_option('', '--adatefmt', dest='adatefmt', default='', help='axis date format')
 parser.add_option('', '--plegend', dest='plegend', default='fit to groups of LBs', help='legend text for points')
 parser.add_option('', '--alegend', dest='alegend', default='average of data shown:', help='legend text for average')
 parser.add_option('', '--maxlegends', dest='maxlegends', type='int', default=10, help='maximum number of legend entries')
@@ -307,23 +315,125 @@ class Plots(ROOTUtils.PlotLibrary):
             self.protect( ROOTUtils.drawLegend(legendX,legendMinY,0.92,0.91,legendList) )
 
     def hist(self,what):
-        """Histogram of variable what."""
-        ROOT.gStyle.SetOptStat('emruo')
+        """Histogram of variable what.
+
+        If what is of the form NAME:VALUE, VALUE will be subtracted
+        from each entry in order to produce plots of measured minus
+        true value."""
+        shift = 0.
+        try:
+            (what,shift) = what.split(':')
+            shift = float(shift)
+        except:
+            pass
+        ROOT.gStyle.SetOptStat(options.optstat) # emruo to add underflow, overflow
         title = varDef(what,'title',what)+';'+varDef(what,'atit',what)
         nBins = options.nbins if options.nbins else varDef(what,'nBins',100)
         xmin = float(options.xmin) if options.xmin!=None else varDef(what,'min',-100)
         xmax = float(options.xmax) if options.xmax!=None else varDef(what,'max',+100)
         h = self.protect( ROOT.TH1F(what,title,nBins,xmin,xmax) )
+        if options.fit:
+            h.Sumw2()
+        h.GetYaxis().SetTitle('Number of fit results')
         arescale = varDef(what,'arescale',1.0)
-        for b in nt:
-            h.Fill(arescale*getattr(b,what))
+        try:
+            for b in nt:
+                h.Fill(arescale*(getattr(b,what)-shift))
+        except Exception, e:
+            print 'ERROR filling histogram:',str(e)
         h.Draw()
         if options.fit:
             ROOT.gStyle.SetOptFit(1111)
-            h.Fit(options.fit)
+            h.Fit(options.fit,options.optfit)
         if options.logy:
             ROOT.gPad.SetLogy(options.logy)
-        self.writeText(what,[],not options.public,options.public)
+        ndivs = varDef(what,'ndivs',override=options.ndivs)
+        if ndivs:
+            h.GetXaxis().SetNdivisions(ndivs,0)
+        if options.mc:
+            self.writeText(what,[],False,False,False)
+        else:
+            self.writeText(what,[],not options.public,options.public)
+
+    def histvspileup(self,what):
+        """Profile histogram of variable what vs pileup.
+
+        If what is of the form NAME:VALUE, VALUE will be subtracted
+        from each entry in order to produce plots of measured minus
+        true value."""
+        shift = 0.
+        try:
+            (what,shift) = what.split(':')
+            shift = float(shift)
+        except:
+            pass
+        ROOT.gStyle.SetOptStat(options.optstat) # emruo to add underflow, overflow
+        title = varDef(what,'title',what)+';Number of pileup vertices;'+varDef(what,'atit',what)
+        nBins = options.nbins if options.nbins else varDef(what,'nBins',100)
+        xmin = float(options.xmin) if options.xmin!=None else varDef(what,'min',-100)
+        xmax = float(options.xmax) if options.xmax!=None else varDef(what,'max',+100)
+        h = self.protect( ROOT.TProfile(what,title,nBins,0,nBins) )
+        if options.fit:
+            h.Sumw2()
+        h.GetYaxis().SetRangeUser(xmin,xmax)
+        arescale = varDef(what,'arescale',1.0)
+        try:
+            for b in nt:
+                h.Fill(getattr(b,'pileup'),arescale*(getattr(b,what)-shift))
+        except Exception, e:
+            print 'ERROR filling histogram:',str(e)
+        h.Draw()
+        if options.fit:
+            ROOT.gStyle.SetOptFit(1111)
+            h.Fit(options.fit,options.optfit)
+        if options.logy:
+            ROOT.gPad.SetLogy(options.logy)
+        ndivs = varDef(what,'ndivs',override=options.ndivs)
+        if ndivs:
+            h.GetYaxis().SetNdivisions(ndivs,0)
+        if options.mc:
+            self.writeText(what,[],False,False,False)
+        else:
+            self.writeText(what,[],not options.public,options.public)
+
+    def pull(self,what):
+        """Pull histogram of variable what.
+
+        what must be of the form name:value, where value is the
+        correct value of variable name."""
+        try:
+            (what,value) = what.split(':')
+            value = float(value)
+        except:
+            print('ERROR: Illegal input %s for pull variable - must be of the form NAME:VALUE' % what)
+            return
+        ROOT.gStyle.SetOptStat(options.optstat)
+        title = ';Pull'
+        nBins = options.nbins if options.nbins else varDef(what,'nBins',100)
+        xmin = float(options.xmin) if options.xmin!=None else -4.
+        xmax = float(options.xmax) if options.xmax!=None else +4.
+        h = self.protect( ROOT.TH1F(what,title,nBins,xmin,xmax) )
+        if options.fit:
+            h.Sumw2()
+        h.GetYaxis().SetTitle('Number of fit results')
+        whatErr = what+'Err'
+        try:
+            for b in nt:
+                h.Fill((getattr(b,what)-value)/getattr(b,whatErr))
+        except Exception, e:
+            print 'ERROR filling histogram:',str(e)
+        h.Draw()
+        if options.fit:
+            ROOT.gStyle.SetOptFit(1111)
+            h.Fit(options.fit,options.optfit)
+        if options.logy:
+            ROOT.gPad.SetLogy(options.logy)
+        if options.ndivs:
+            h.GetXaxis().SetNdivisions(options.ndivs,0)
+        if options.mc:
+            self.writeText(what,[],False,False,False)
+        else:
+            self.writeText(what,[],not options.public,options.public)
 
     def plot(self,what):
         """History of variable what vs LB or time."""
@@ -413,8 +523,10 @@ class Plots(ROOTUtils.PlotLibrary):
                 xAxis.SetLabelOffset(0.025)
                 xAxis.SetTitleOffset(1.6)
                 xAxis.SetLabelSize(0.044)
+            if options.adatefmt:
+                xAxis.SetTimeFormat(options.adatefmt)
             if options.ndivs:
-                xAxis.SetNdivisions(options.ndivs)
+                xAxis.SetNdivisions(options.ndivs,0)
             frame.LabelsOption('d','X')   # Doesn't seem to work
 
         if options.ytitoffset:
@@ -711,8 +823,10 @@ class Plots(ROOTUtils.PlotLibrary):
                 xAxis.SetTimeFormat('#splitline{%b %d}{%H:%M}')
                 xAxis.SetLabelOffset(0.025)
                 xAxis.SetTitleOffset(1.6)
+            if options.adatefmt:
+                xAxis.SetTimeFormat(options.adatefmt)
             if options.ndivs:
-                xAxis.SetNdivisions(options.ndivs)
+                xAxis.SetNdivisions(options.ndivs,0)
             frame.LabelsOption('d','X')   # Doesn't seem to work
 
         legendList = []
@@ -958,9 +1072,9 @@ if cmd=='ave' and len(args)==1:
 
 
 #
-# Histogram of beam spot variables
+# Different histograms of beam spot variables
 #
-if cmd=='hist' and len(args)==2:
+if (cmd=='hist' or cmd=='histvspileup' or cmd=='pull') and len(args)==2:
     var = args[1]
     nt = getNt()
     plots = Plots(nt)
@@ -968,7 +1082,12 @@ if cmd=='hist' and len(args)==2:
     if options.canvas:
         plots.singleCanvasSize = options.canvas
         plots.allCanvasSize = options.canvas
-    plots.genPlot(var,'hist')
+        plots.allCanvasDivs = (options.xdivs,options.ydivs)
+    if ',' in var:
+        plots.whatList = var.split(',')
+        plots.genPlot('all',cmd)
+    else:
+        plots.genPlot(var,cmd)
     cmdOk = True
 
 
@@ -983,12 +1102,18 @@ if cmd=='plot' and len(args)==2:
     if options.canvas:
         plots.singleCanvasSize = options.canvas
         plots.allCanvasSize = options.canvas
+        plots.allCanvasDivs = (options.xdivs,options.ydivs)
     if options.perbcid:
-        plots.genPlot(var,'perbcid')
+        plotType = 'perbcid'
     elif options.vsbunchpos:
-        plots.genPlot(var,'vsBunchPos')
+        plotType = 'vsBunchPos'
     else:
-        plots.genPlot(var,'plot')
+        plotType = 'plot'
+    if ',' in var:
+        plots.whatList = var.split(',')
+        plots.genPlot('all',plotType)
+    else:
+        plots.genPlot(var,plotType)
     cmdOk = True
 
 
