@@ -80,7 +80,8 @@ topSequence += testAlgo
 
 from MuonRPC_CnvTools.MuonRPC_CnvToolsConf import Muon__RpcRdoToPrepDataTool
 RpcRdoToPrepDataTool = Muon__RpcRdoToPrepDataTool("RpcPrepDataProviderTool")
-RpcRdoToPrepDataTool.dumpOffToOnlineMapToFile = False
+# property had to be removed for technical reasons
+# RpcRdoToPrepDataTool.dumpOffToOnlineMapToFile = False
 ToolSvc += RpcRdoToPrepDataTool
 #
 from MuonRdoToPrepData.MuonRdoToPrepDataConf import RpcRdoToRpcPrepData
