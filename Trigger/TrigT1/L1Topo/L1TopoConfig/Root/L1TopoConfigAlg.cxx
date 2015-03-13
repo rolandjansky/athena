@@ -78,12 +78,14 @@ L1TopoConfigAlg::getOutputNames() const {
 
 void
 TXC::L1TopoConfigAlg::addInput(const string &name, const string &value, unsigned int position) {
-   m_inputElements.push_back(InputElement( name, value, position));
+   m_inputElements.push_back( InputElement( name, value, position) );
+   std::sort( m_inputElements.begin(), m_inputElements.end(),[](TXC::InputElement i, TXC::InputElement i2){ return (i.position < i2.position);});
 }
 
 
 void TXC::L1TopoConfigAlg::addOutput(const string &name, const string &value, unsigned int bits, const string & outname, unsigned int position) {
   m_outputElements.push_back(OutputElement( name, value, bits, outname, position));
+  std::sort( m_outputElements.begin(), m_outputElements.end(),[](TXC::OutputElement o, TXC::OutputElement o2){ return (o.position < o2.position);});
 }
 
 void TXC::L1TopoConfigAlg::addFixedParameter(const std::string &name, const std::string &value) {
