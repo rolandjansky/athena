@@ -65,6 +65,7 @@ namespace ISF {
       CLHEP::HepRandomEngine*         m_randomEngine;
 
       std::string                     m_randomEngineName;         //!< Name of the random number stream
+      bool                            m_timeSmearing;             //!< Do time smearing
   };
 
 }
