@@ -25,7 +25,7 @@
 TrigTestBase::TrigTestBase(const std::string & type, const std::string & name, const IInterface* parent)
   :  IHLTMonTool(type, name, parent),
      m_tdt("Trig::TrigDecisionTool/TrigDecisionTool"),
-     m_roiInfo(0,0,0),
+     m_roiInfo(false),
      m_buildNtuple(false),
      m_initialisePerRun(true),
      m_firstRun(true),
@@ -113,11 +113,6 @@ StatusCode TrigTestBase::init() {
 
   msg(MSG::INFO) << "TrigTestBase::init() " << gDirectory->GetName() << endreq;
 
-  // roi width information
-  m_roiInfo.etaHalfWidth(m_etaWidth);
-  m_roiInfo.phiHalfWidth(m_phiWidth);
-  m_roiInfo.zedHalfWidth(m_zedWidth);
-
   /// NB: Do NOT create the sequences here - leave it until the book() method, since
   ///     we need to be automatically determine which chains to process, and so need
   ///     the TrigDecisionTool which is niot configured until we have an iov
@@ -197,6 +192,14 @@ StatusCode TrigTestBase::book(bool newEventsBlock, bool newLumiBlock, bool newRu
 
     msg(MSG::DEBUG) << "configuring chains: " << m_ntupleChainNames.size() << endreq;
 
+    
+    /// keep counters of how many efid or ftf chains have been created
+    /// for shifter histograms, only want one chain of each
+    int shifter_efid = 0;
+    int shifter_ftf  = 0;
+    int shifter_l2star    = 0;
+    int shifter_efid_run1 = 0;
+
     // if (m_analysis_config == "Tier0") {
     {
       std::vector<std::string> chains;
@@ -207,7 +210,10 @@ StatusCode TrigTestBase::book(bool newEventsBlock, bool newLumiBlock, bool newRu
 
 
       while ( chainitr!=m_ntupleChainNames.end() ) {
-        /// get chain
+  
+       	//	if ( shifter_ftf>1 && shifter_efid>1 ) break;
+
+	/// get chain
         ChainString chainName = (*chainitr);
 
 	msg(MSG::DEBUG) << "\tconfiguring chain: " << chainName.head() << "\t: " << chainName.tail() << endreq;
@@ -239,6 +245,43 @@ StatusCode TrigTestBase::book(bool newEventsBlock, bool newLumiBlock, bool newRu
             if ( chainName.element()!="" ) selectChains[iselected] += ":"+chainName.element();
             if ( !chainName.passed() )     selectChains[iselected] += ";DTE";
 
+
+	    if ( m_sliceTag.find("Shifter")!=std::string::npos ) { 
+	      /// shifter histograms 
+	      if ( chainName.tail().find("FastTrackFinder")!=std::string::npos ) { 
+		/// FTF chain
+		shifter_ftf++;
+		if ( shifter_ftf>1 ) {
+		  msg(MSG::WARNING) << "^[[91;1m" << "Matching chain " << selectChains[iselected] << " excluded - Shifter chain already definied^[[m" << endreq;
+		  continue;
+		}
+	      }
+	      else if ( chainName.tail().find("InDetTrigTracking")!=std::string::npos ) { 
+		/// EFID chain
+		shifter_efid++;
+		if ( shifter_efid>1 ) {
+		  msg(MSG::WARNING) << "^[[91;1m" << "Matching chain " << selectChains[iselected] << " excluded - Shifter chain already definied^[[m" << endreq;
+		  continue;
+		}
+	      }
+	      else if ( chainName.tail().find("InDetTrigParticle")!=std::string::npos ) { 
+		/// EFID chain
+		shifter_efid_run1++;
+		if ( shifter_efid_run1>1 ) {
+		  msg(MSG::WARNING) << "^[[91;1m" << "Matching chain " << selectChains[iselected] << " excluded - Shifter chain already definied^[[m" << endreq;
+		  continue;
+		}
+	      }
+	      else if ( chainName.tail().find("L2SiTrackFinder")!=std::string::npos ) { 
+		/// EFID chain
+		shifter_l2star++;
+		if ( shifter_l2star>1 ) {
+		  msg(MSG::WARNING) << "^[[91;1m" << "Matching chain " << selectChains[iselected] << " excluded - Shifter chain already definied^[[m" << endreq;
+		  continue;
+		}
+	      }
+	    }
+	    
             /// replace wildcard with actual matching chains ...
             chains.push_back( selectChains[iselected] );
 

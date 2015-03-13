@@ -351,25 +351,6 @@ void AnalysisConfig_Ntuple::loop() {
 		  passed_chains++;
 		}
 
-		//if ( (*m_tdt)->getPrescale(chainName) ) analyse = true; 
-		const DataHandle<TrigDec::TrigDecision> td;
-		StatusCode sc = m_provider->evtStore()->retrieve(td);
-		if (sc.isFailure()) {
-			m_provider->msg(MSG::FATAL) << "\tCould not find TrigDecision object" << endreq;
-			analyse = false;
-			return;
-		}
-
-		if ( chainName.find("HLT") == std::string::npos ) { 
-		  /// only check for corrupted L2 result in L2 or EF chains, not HLT chains
-		  const HLT::HLTResult* r = (&(td->getL2Result()));
-		  if (r->isHLTResultTruncated()){
-		    m_provider->msg(MSG::WARNING) << "\tHLTResult Header: Truncated L2 result for event " << event_number << " in run " << run_number << endreq;
-		    analyse = false;
-		    return;
-		  }
-		}
-		
 	}/// finished loop over chains
 
 
@@ -665,7 +646,7 @@ void AnalysisConfig_Ntuple::loop() {
 	
 	if ( m_mcTruth ) {
 	  m_event->addChain( "Truth" ); 
-	  m_event->back().addRoi(TIDARoiDescriptor());
+	  m_event->back().addRoi(TIDARoiDescriptor(true));
 	  m_event->back().back().addTracks(selectorTruth.tracks());
 	}
 
@@ -691,7 +672,7 @@ void AnalysisConfig_Ntuple::loop() {
 
 	if ( m_doOffline || m_doVertices ) { 	  
 	  m_event->addChain( "Vertex" );
-	  m_event->back().addRoi(TIDARoiDescriptor());
+	  m_event->back().addRoi(TIDARoiDescriptor(true));
 	  m_event->back().back().addVertices( vertices );
 	}	 
 
@@ -701,7 +682,7 @@ void AnalysisConfig_Ntuple::loop() {
 	if ( m_doOffline ) { 
 	  
 	  m_event->addChain( "Offline" );
-	  m_event->back().addRoi(TIDARoiDescriptor());
+	  m_event->back().addRoi(TIDARoiDescriptor(true));
 	  m_event->back().back().addTracks(selectorRef.tracks());
 	  
 	  Noff = selectorRef.tracks().size();
@@ -715,17 +696,17 @@ void AnalysisConfig_Ntuple::loop() {
 	
 	for ( unsigned ichain=0 ; ichain<m_chainNames.size() ; ichain++ ) {  
 
-	  //	  m_provider->msg(MSG::INFO)<< "chain:\t" << m_chainNames[ichain] << endreq;
-	  std::cout << "chain:\t" << m_chainNames[ichain]; 
+	  m_provider->msg(MSG::INFO)<< "chain:\t" << m_chainNames[ichain] << endreq;
+	  //std::cout << "chain:\t" << m_chainNames[ichain]; 
 
 	  /// get the chain, collection and TE names and track index 
 
 	  const std::string& chainname      = m_chainNames[ichain].head();
 	  const std::string& collectionname = m_chainNames[ichain].tail();
-	  const std::string& index          = m_chainNames[ichain].extra();
-	  const std::string& element        = m_chainNames[ichain].element();
+	  //	  const std::string& index          = m_chainNames[ichain].extra();
+	  //	  const std::string& element        = m_chainNames[ichain].element();
 
-	  std::cout << "\tchain: " << chainname << "\tcollection: " << collectionname << "\tindex: " << index << "\tte: " << element << std::endl;  
+	  //	  std::cout << "\tchain: " << chainname << "\tcollection: " << collectionname << "\tindex: " << index << "\tte: " << element << std::endl;  
 
 	  /// here we *only* want collections with no specified chain
 	  /// name, then we look in storegate for the collections directly
@@ -756,7 +737,7 @@ void AnalysisConfig_Ntuple::loop() {
 	  
 	  if ( found ) { 
 	    m_event->addChain( collectionname );
-	    m_event->back().addRoi(TIDARoiDescriptor());
+	    m_event->back().addRoi(TIDARoiDescriptor(true));
 	    m_event->back().back().addTracks(selectorTest.tracks());
 	    
 	    int Ntest = selectorTest.tracks().size();
@@ -772,7 +753,7 @@ void AnalysisConfig_Ntuple::loop() {
 	if (m_doElectrons)  { 
 	  Nel = processElectrons( selectorRef );
 	  m_event->addChain( "Electrons");
-	  m_event->back().addRoi(TIDARoiDescriptor());
+	  m_event->back().addRoi(TIDARoiDescriptor(true));
 	  m_event->back().back().addTracks(selectorRef.tracks());
 	}
 
@@ -780,7 +761,7 @@ void AnalysisConfig_Ntuple::loop() {
 	if ( m_doMuons ) { 
 	  Nmu   = processMuons( selectorRef );
 	  m_event->addChain("Muons");
-	  m_event->back().addRoi(TIDARoiDescriptor());
+	  m_event->back().addRoi(TIDARoiDescriptor(true));
 	  m_event->back().back().addTracks(selectorRef.tracks());
 	  
 	  m_provider->msg(MSG::DEBUG) << "ref muon tracks.size() " << selectorRef.tracks().size() << endreq; 
@@ -792,7 +773,7 @@ void AnalysisConfig_Ntuple::loop() {
 	if ( m_doTaus ) {
 	  Ntau = processTaus( selectorRef,false);
 	  m_event->addChain( "Taus" );
-	  m_event->back().addRoi(TIDARoiDescriptor());
+	  m_event->back().addRoi(TIDARoiDescriptor(true));
 	  m_event->back().back().addTracks(selectorRef.tracks());
 	  for ( int ii=selectorRef.tracks().size() ; ii-- ; ) m_provider->msg(MSG::INFO) << "  one prong ref tau track " << ii << " " << *selectorRef.tracks()[ii] << endreq;  
 	}
@@ -801,7 +782,7 @@ void AnalysisConfig_Ntuple::loop() {
 	if ( m_doTauThreeProng ) { 
 	  Ntau3 = processTaus( selectorRef, true);
  	  m_event->addChain( "Taus3" );
-	  m_event->back().addRoi(TIDARoiDescriptor());
+	  m_event->back().addRoi(TIDARoiDescriptor(true));
 	  m_event->back().back().addTracks(selectorRef.tracks());
     	  for ( int ii=selectorRef.tracks().size() ; ii-- ; ) m_provider->msg(MSG::INFO) << " 3 prong ref tau track " << ii << " " << *selectorRef.tracks()[ii] << endreq;  
     	}	  
@@ -897,14 +878,40 @@ void AnalysisConfig_Ntuple::loop() {
 
 		for( ; comb!=combEnd ; ++comb) {
 
-  		        m_provider->msg(MSG::INFO) << "\tcombination " << icomb << "\t" << chainName << endreq;
+		        m_provider->msg(MSG::INFO) << "Chain " << chainName << "\tcombination " << icomb << endreq;
+			//		std::cout << "Chain " << chainName << "\tcombination " << icomb << std::endl;;
+
 		        icomb++;
 		  
+
 			//   now add rois to this ntuple chain
 
 			// Get seeding RoI
 			// std::vector< Trig::Feature<TrigRoiDescriptor> > initRois = c->get<TrigRoiDescriptor>("initialRoI", TrigDefs::alsoDeactivateTEs);
 			// std::vector< Trig::Feature<TrigRoiDescriptor> > initRois = c->get<TrigRoiDescriptor>("forID", TrigDefs::alsoDeactivateTEs);
+
+#if 0
+			/// check bjet roidescriptors ...
+			{
+			  std::string keys[5] = { "TrigJetRec", "TrigSplitJet", "TrigSuperRoi", "forID", "" };
+
+			  for ( unsigned iroi=0 ; iroi<5 ; iroi++ ) {  
+			    std::vector< Trig::Feature<TrigRoiDescriptor> > rois = comb->get<TrigRoiDescriptor>(keys[iroi]);
+			    
+			    m_provider->msg(MSG::INFO) << "\trois: " << keys[iroi] << "\tsize " << rois.size() << endreq; 
+
+			    for ( unsigned ij=0 ; ij<rois.size() ; ij++ ) { 
+			      m_provider->msg(MSG::INFO) << "\tRoi  " <<keys[iroi] << "\t" << *rois[ij].cptr() << endreq;
+			    } 
+
+			    for ( unsigned ij=0 ; ij<rois.size() ; ij++ ) { 
+			      m_provider->msg(MSG::INFO) << "\t\tRoi  " <<keys[iroi] << "\t" << *rois[ij].cptr() << endreq; 
+			    } 
+			  }
+			}
+#endif
+
+			/// need some way to specify which RoiDescriptor we are really interested in ...
 
 			std::vector< Trig::Feature<TrigRoiDescriptor> > initRois = comb->get<TrigRoiDescriptor>("forID");
 
@@ -913,6 +920,8 @@ void AnalysisConfig_Ntuple::loop() {
 			  //  TrigDefs::alsoDeactivateTEs);
 			}
 			if ( initRois.empty() ) initRois = comb->get<TrigRoiDescriptor>("initialRoI"); //TrigDefs::alsoDeactivateTEs);
+
+			if ( initRois.empty() ) continue;
 
 			// notify if have multiple RoIs (get this for FS chains)
 			if(initRois.size()>1) {
@@ -929,26 +938,21 @@ void AnalysisConfig_Ntuple::loop() {
    
 			    m_provider->msg(MSG::INFO) << "\tchain " << chainName << " RoI descriptor " << itmp << " " << *roid << endreq;
 			    
-			    TIDARoiDescriptor* roi_tmp = new TIDARoiDescriptor(TIDARoiDescriptorBuilder(*roid));
-			    
-			    //   m_provider->msg(MSG::INFO) << "using chain roi " << *roid << endreq;
-			    //   m_provider->msg(MSG::INFO) << *roi_tmp << endreq;
-			    
 			    if ( itmp==0 ){
+			      TIDARoiDescriptor* roi_tmp = new TIDARoiDescriptor(TIDARoiDescriptorBuilder(*roid));
+			      
+			      //   m_provider->msg(MSG::INFO) << "using chain roi " << *roid << endreq;
+			      //   m_provider->msg(MSG::INFO) << *roi_tmp << endreq;
+			      
 			      roiInfo = roi_tmp;
-			      if( chainName.find("_FS")!=std::string::npos && roiInfo->eta()==0 && roiInfo->phi()==0 ) {
-				roiInfo->phiHalfWidth(M_PI);
-				roiInfo->etaHalfWidth(3);
-			      }
+			      //		if( chainName.find("_FS")!=std::string::npos && roiInfo->eta()==0 && roiInfo->phi()==0 ) {
+			      //		roiInfo->phiHalfWidth(M_PI);
+			      //		roiInfo->etaHalfWidth(3);
 			    }
-			    else   delete roi_tmp;
-
-
 			  }
  
-			} 
 
-			
+			}
 			else { 
 				m_provider->msg(MSG::INFO) << "\troi not found" <<  endreq;
 			}
@@ -961,7 +965,7 @@ void AnalysisConfig_Ntuple::loop() {
 			m_provider->msg(MSG::INFO) <<  "AC Ntple [91;1m" << endreq;
 
 
-			//EF track EDM
+			//EF and HLT track EDM
 			if (collectionName.find("InDetTrigParticleCreation")!=std::string::npos || 
 			    chainName.find("EF_")!=std::string::npos ||
 			    chainName.find("HLT_")!=std::string::npos ) {
@@ -971,7 +975,7 @@ void AnalysisConfig_Ntuple::loop() {
 #ifdef XAODTRACKING_TRACKPARTICLE_H
 			  else {
 			    m_provider->msg(MSG::INFO) << "\tsearch for xAOD::TrackParticle " << collectionName << endreq;  
-			    if ( selectTracks<xAOD::TrackParticleContainer>( &selectorTest, comb, collectionName ) ) m_provider->msg(MSG::WARNING) << "\tFound collection " << collectionName << " (Ntple)"  << endreq;  
+			    if ( selectTracks<xAOD::TrackParticleContainer>( &selectorTest, comb, collectionName ) ) m_provider->msg(MSG::WARNING) << "\tFound xAOD collection " << collectionName << " (Ntple)"  << endreq;  
 			    else m_provider->msg(MSG::WARNING) << "\tNo track collection " << collectionName << " found"  << endreq;  
 			  }
 #else
@@ -998,7 +1002,8 @@ void AnalysisConfig_Ntuple::loop() {
 
 			std::vector<TrackVertex> tidavertices;	
 
-			comb->get<TrigRoiDescriptor>("forID");
+			/// what is this doing? Why is it just fetching but not assigning to anything ????? who write this?
+			// comb->get<TrigRoiDescriptor>("forID");
 
 			std::vector< Trig::Feature<VxContainer> > trigvertices = comb->get<VxContainer>();
 
@@ -1102,9 +1107,9 @@ void AnalysisConfig_Ntuple::loop() {
 			  //			}      
 			  //		else {
 			  if ( testTracks.size()>0 ) m_provider->msg(MSG::WARNING) << "\ttest tracks.size() " << testTracks.size() << "found but no roi!!!" << endreq; 
-			  roiInfo = new TIDARoiDescriptor();
-			  roiInfo->phiHalfWidth(M_PI);
-			  roiInfo->etaHalfWidth(3);
+			  roiInfo = new TIDARoiDescriptor(true);
+			  //		  roiInfo->phiHalfWidth(M_PI);
+			  //		  roiInfo->etaHalfWidth(3);
 			}
 			
 			chain.addRoi( *roiInfo );
@@ -1217,7 +1222,10 @@ void AnalysisConfig_Ntuple::book() {
 
 	first_open = false;
 
-	std::cout << "change directory " << name() << "  " << dir->GetName() << std::endl;
+
+	m_provider->msg(MSG::DEBUG) << "change directory " << name() << "  " << dir->GetName() << endreq;
+
+	//	std::cout << "change directory " << name() << "  " << dir->GetName() << std::endl;
 	/// go back to original directory
 	dir->cd();
 
@@ -1251,7 +1259,10 @@ void AnalysisConfig_Ntuple::finalize() {
 
 	TDirectory* directory = gDirectory; 
 
-	std::cout << "change directory " << name() << "  " << mDir->GetName() << std::endl;
+	//	std::cout << "change directory " << name() << "  " << mDir->GetName() << std::endl;
+
+	m_provider->msg(MSG::DEBUG) << "change directory " << name() << "  " << mDir->GetName() << endreq;
+
 
 	mDir->cd();
 
@@ -1276,7 +1287,7 @@ void AnalysisConfig_Ntuple::finalize() {
 	//  f.Write();
 	//  f.Close();
 
-	std::cout << "change directory " << name() << "  " << directory->GetName() << std::endl;
+	//	std::cout << "change directory " << name() << "  " << directory->GetName() << std::endl;
 
 	directory->cd();
 
