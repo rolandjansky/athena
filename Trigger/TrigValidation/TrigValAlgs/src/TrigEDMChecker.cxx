@@ -365,7 +365,7 @@ StatusCode TrigEDMChecker::execute() {
                 }
         }
 
-	if(doDumpAll || doDumpTrigTauClusterContainer){
+	if(doDumpTrigTauClusterContainer){
 		StatusCode sc = dumpTrigTauClusterContainer();
 		if (sc.isFailure()) {
 			mLog << MSG::ERROR << "The method dumpTrigTauClusterContainer() failed" << endreq;
@@ -505,7 +505,7 @@ StatusCode TrigEDMChecker::execute() {
 		}
 	}
 
-        if(doDumpAll || doDumpTrigTauContainer){
+        if(doDumpTrigTauContainer){
 		StatusCode sc = dumpTrigTauContainer();
 		if (sc.isFailure()) {
 			mLog << MSG::ERROR << "The method dumpTrigTauContainer() failed" << endreq;
@@ -514,7 +514,7 @@ StatusCode TrigEDMChecker::execute() {
 		}
 	}
 
-	if(doDumpAll || doDumpTrigTauTracksInfo){
+	if(doDumpTrigTauTracksInfo){
 		StatusCode sc = dumpTrigTauTracksInfo();
 		if (sc.isFailure()) {
 			mLog << MSG::ERROR << "The method dumpTrigTauTracksInfo() failed" << endreq;
@@ -562,7 +562,7 @@ StatusCode TrigEDMChecker::execute() {
 
 
 
-	if(doDumpAll || doDumpTauJetContainer){
+	if(doDumpTauJetContainer){
 		StatusCode sc = dumpTauJetContainer();
 		if (sc.isFailure()) {
 			mLog << MSG::ERROR << "The method dumpTauJetContainer() failed" << endreq;

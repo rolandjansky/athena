@@ -56,6 +56,7 @@ use  TrigConfigSvc              TrigConfigSvc-*                 Trigger/TrigConf
 
 use MuonCombinedToolInterfaces	MuonCombinedToolInterfaces-*	Reconstruction/MuonIdentification
 use xAODMuon			xAODMuon-*		Event/xAOD
+use xAODTrigMuon		xAODTrigMuon-*		Event/xAOD
 use xAODTrigBphys               xAODTrigBphys-*         Event/xAOD
 use xAODTracking			xAODTracking-*		Event/xAOD
 use xAODTrigEgamma              xAODTrigEgamma-*        Event/xAOD
