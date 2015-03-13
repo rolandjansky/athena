@@ -5,6 +5,7 @@
 # Note: This tool has its own file because it is common to many different taggers
 #       so deletion of the one tagger that has this function won't break the others.
 from BTagging.BTaggingFlags import BTaggingFlags
+from AtlasGeoModel.InDetGMJobProperties import GeometryFlags as geoFlags
 
 metaInDetVKalVxNegativeTagInJetTool = { 'IsAVertexFinder' : True,
                                         'VertexFinderxAODBaseName' : 'SV1Flip',
@@ -30,7 +31,7 @@ def toolInDetVKalVxNegativeTagInJetTool(name, useBTagFlagsDefaults = True, **opt
     that this tool also needs to be added to the main B-tagging tool."""
     if useBTagFlagsDefaults:
         defaults = { 'OutputLevel'      : BTaggingFlags.OutputLevel,
-                     'ExistIBL'         : True,
+                     'ExistIBL'         : geoFlags.isIBL(),
 #                     'TrackSummaryTool' : None,
                      'getNegativeTag'   : True,
                      'CutA0'            : 2.0,

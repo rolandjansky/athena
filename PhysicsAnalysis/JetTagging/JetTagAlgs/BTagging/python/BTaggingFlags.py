@@ -27,10 +27,10 @@ class _BTaggingFlags:
               'TrackCounting', 'TrackCountingFlip',
               'GbbNNTag', 'QGTag', 'NewGbbNNTag',
               'MV1', 'MV1c', 'MV2',
-              'MV2c00','MV2c10','MV2c20',
+              'MV2c00','MV2c10','MV2c20','MV2c100','MV2m',
               'MV3_bVSu', 'MV3_bVSc', 'MV3_cVSu',
               'MV1Flip', 'MV1cFlip', 'MV2Flip',
-              'MV2c00Flip','MV2c10Flip','MV2c20Flip',
+              'MV2c00Flip','MV2c10Flip','MV2c20Flip','MV2c100Flip','MV2mFlip',
               'MV3_bVSuFlip', 'MV3_bVScFlip', 'MV3_cVSuFlip',
               'MVb','MVbFlip','MVbPrime','MVbPrimeFlip']
 
@@ -85,6 +85,10 @@ class _BTaggingFlags:
     _ForceMV2CalibrationAlias = [ 'ForceMV2CalibrationAlias' ]
 
     _MV2CalibAlias = [ 'MV2CalibAlias' ]
+
+    _MV2cTrainingConfig = [ 'MV2cTrainingConfig' ]
+
+    _MV2mTrainingConfig = [ 'MV2mTrainingConfig' ]
 
     _ForceMV3CalibrationAlias = [ 'ForceMV3CalibrationAlias' ]
 
@@ -190,7 +194,7 @@ class _BTaggingFlags:
         if attr == 'SV1Flip':
           setattr(self, attr, False)
         if attr == 'SV2':
-          setattr(self, attr, True)
+          setattr(self, attr, False)
         if attr == 'SV2Flip':
           setattr(self, attr, False)
         if attr == 'JetProb':
@@ -208,7 +212,7 @@ class _BTaggingFlags:
         if attr == 'JetFitterTag':
           setattr(self, attr, True)
         if attr == 'JetFitterNN':
-          setattr(self, attr, True)
+          setattr(self, attr, False)
         if attr == 'JetFitterTagFlip':
           setattr(self, attr, False)
         if attr == 'JetFitterNNFlip':
@@ -236,14 +240,18 @@ class _BTaggingFlags:
         if attr == 'QGTag':
           setattr(self, attr, False)
         if attr == 'MV1':
-          setattr(self, attr, True)
+          setattr(self, attr, False)
         if attr == 'MV1c':
-          setattr(self, attr, True)
+          setattr(self, attr, False)
         if attr == 'MV2c00':
           setattr(self, attr, True)
         if attr == 'MV2c10':
           setattr(self, attr, True)
         if attr == 'MV2c20':
+          setattr(self, attr, True)
+        if attr == 'MV2c100':
+          setattr(self, attr, True)
+        if attr == 'MV2m':
           setattr(self, attr, True)
         if attr == 'MV2c00Flip':
           setattr(self, attr, False)
@@ -251,8 +259,12 @@ class _BTaggingFlags:
           setattr(self, attr, False)
         if attr == 'MV2c20Flip':
           setattr(self, attr, False)
+        if attr == 'MV2c100Flip':
+          setattr(self, attr, False)
+        if attr == 'MV2mFlip':
+          setattr(self, attr, False)
         if attr == 'MV2':
-          setattr(self, attr, True)
+          setattr(self, attr, False)
         if attr == 'MV3_bVSu':
           setattr(self, attr, False)
         if attr == 'MV3_bVSc':
@@ -272,7 +284,7 @@ class _BTaggingFlags:
         if attr == 'MV3_cVSuFlip':
           setattr(self, attr, False)
         if attr == 'MVb':
-          setattr(self, attr, True)
+          setattr(self, attr, False)
         if attr == 'MVbFlip':
           setattr(self, attr, False)
         if attr == 'MVbPrime':
@@ -285,7 +297,7 @@ class _BTaggingFlags:
           setattr(self, attr, 'MV1')
 
       for attr in self._HighPriorityTaggers:
-        setattr(self, attr, ['IP3D','SV1','BasicJetFitter','JetFitterTag','JetFitterNN','MV1','MV1c','MV2c00','MV2c10','MV2c20','IP3DFlip','IP3DPos','IP3DNeg','IP3DSpc','IP3DSpcPos','IP3DSpcNeg','SV1Flip','JetFitterTagFlip','JetFitterNNFlip','MV1Flip','MV1cFlip','MV2c00Flip','MV2c10Flip','MV2c20Flip'])
+        setattr(self, attr, ['IP3D','SV1','BasicJetFitter','JetFitterTag','JetFitterNN','MV1','MV1c','MV2c00','MV2c10','MV2c20','MV2c100','MV2m','IP3DFlip','IP3DPos','IP3DNeg','IP3DSpc','IP3DSpcPos','IP3DSpcNeg','SV1Flip','JetFitterTagFlip','JetFitterNNFlip','MV1Flip','MV1cFlip','MV2c00Flip','MV2c10Flip','MV2c20Flip','MV2c100Flip','MV2mFlip'])
       for attr in self._MediumPriorityTaggers:
         setattr(self, attr, ['SV0','IP2D','IP2DFlip','IP2DPos','IP2DNeg','IP2DSpc','IP2DSpcPos','IP2DSpcNeg','SoftEl','SoftMu','SoftMuChi2','MV2','MV2Flip'])
       for attr in self._LowPriorityTaggers:
@@ -330,6 +342,12 @@ class _BTaggingFlags:
       for attr in self._MV2CalibAlias:
         setattr(self, attr, 'AntiKt4TopoEM')
 
+      for attr in self._MV2cTrainingConfig:
+        setattr(self, attr, 'NoJF_NoSV0NoSv1_V3')
+
+      for attr in self._MV2mTrainingConfig:
+        setattr(self, attr, 'NoJF_NoSV0NoSv1_V3')
+
       for attr in self._ForceMV3CalibrationAlias:
         setattr(self, attr, True)
 
@@ -344,8 +362,8 @@ class _BTaggingFlags:
         setattr(self, attr, False)
 
 
-      defaultJetCollections = ['AntiKt4LCTopo','AntiKt6LCTopo','AntiKt4TopoEM','AntiKt6TopoEM']
-
+      #defaultJetCollections = ['AntiKt4LCTopo','AntiKt6LCTopo','AntiKt4TopoEM','AntiKt6TopoEM']
+      defaultJetCollections = ['AntiKt4LCTopo','AntiKt4TopoEM']
 
       for attr in self._Jets:
         setattr(self, attr, defaultJetCollections[:])
@@ -371,25 +389,25 @@ class _BTaggingFlags:
       for attr in self._CalibrationChannelAliases:
 
         setattr(self, attr, [ "myOwnCollection->Cone4H1Tower",
-                              "AntiKt4Tower->AntiKt4Tower,AntiKt4H1Tower",
-                              "AntiKt4Topo->AntiKt4Topo,AntiKt4TopoEM,AntiKt4H1Topo",
-                              "AntiKt4LCTopo->AntiKt4LCTopo,AntiKt4TopoEM,AntiKt4Topo,AntiKt4H1Topo",
-                              "AntiKt6Tower->AntiKt6Tower,AntiKt6H1Tower",
-                              "AntiKt6Topo->AntiKt6Topo,AntiKt6TopoEM,AntiKt6H1Topo,AntiKt6H1Tower",
-                              "AntiKt6LCTopo->AntiKt6LCTopo,AntiKt6TopoEM,AntiKt6Topo,AntiKt6H1Topo,AntiKt6H1Tower",
-                              "AntiKt4TopoEM->AntiKt4TopoEM,AntiKt4EMTopo,AntiKt4H1Topo",
-                              "AntiKt6TopoEM->AntiKt6TopoEM,AntiKt6H1Topo,AntiKt6H1Tower",
+                              "AntiKt4Tower->AntiKt4Tower,AntiKt4H1Tower,AntiKt4EMTopo",
+                              "AntiKt4Topo->AntiKt4Topo,AntiKt4TopoEM,AntiKt4EMTopo,AntiKt4H1Topo",
+                              "AntiKt4LCTopo->AntiKt4LCTopo,AntiKt4TopoEM,AntiKt4EMTopo,AntiKt4Topo,AntiKt4H1Topo",
+                              "AntiKt6Tower->AntiKt6Tower,AntiKt6H1Tower,AntiKt4EMTopo",
+                              "AntiKt6Topo->AntiKt6Topo,AntiKt6TopoEM,AntiKt6H1Topo,AntiKt6H1Tower,AntiKt4EMTopo",
+                              "AntiKt6LCTopo->AntiKt6LCTopo,AntiKt6TopoEM,AntiKt6Topo,AntiKt6H1Topo,AntiKt6H1Tower,AntiKt4EMTopo",
+                              "AntiKt4TopoEM->AntiKt4TopoEM,AntiKt4EMTopo,AntiKt4H1Topo,AntiKt4LCTopo",
+                              "AntiKt6TopoEM->AntiKt6TopoEM,AntiKt6H1Topo,AntiKt6H1Tower,AntiKt4EMTopo",
                               #WOUTER: I added some more aliases here that were previously set up at ./python/BTagging_jobOptions.py. But it cannot
                               #stay there if we want support for JetRec to setup b-tagging from their end.
-                              "AntiKt4EMTopo->AntiKt4TopoEM",
-                              "AntiKt4LCTopo->AntiKt4LCTopo,AntiKt4TopoEM",
-                              "AntiKt10LCTopo->AntiKt10LCTopo,AntiKt6LCTopo,AntiKt6TopoEM,AntiKt4TopoEM",
-                              "AntiKt10Truth->AntiKt6TopoEM,AntiKt4TopoEM",
-                              "AntiKt10TruthWZ->AntiKt10TruthWZ,AntiKt6TopoEM,AntiKt4TopoEM",
-                              "AntiKt4Truth->AntiKt4TopoEM",
-			      "AntiKt4TruthWZ->AntiKt4TruthWZ,AntiKt4TopoEM",
-                              "AntiKt4Track->AntiKt4Track,AntiKt4TopoEM",
-                              "AntiKt3Track->AntiKt3Track,AntiKt4TopoEM"])
+                              "AntiKt4EMTopo->AntiKt4EMTopo,AntiKt4TopoEM,AntiKt4LCTopo",
+                              "AntiKt4LCTopo->AntiKt4LCTopo,AntiKt4TopoEM,AntiKt4EMTopo",
+                              "AntiKt10LCTopo->AntiKt10LCTopo,AntiKt6LCTopo,AntiKt6TopoEM,AntiKt4LCTopo,AntiKt4TopoEM,AntiKt4EMTopo",
+                              "AntiKt10Truth->AntiKt6TopoEM,AntiKt4TopoEM,AntiKt4EMTopo,AntiKt4LCTopo",
+                              "AntiKt10TruthWZ->AntiKt10TruthWZ,AntiKt6TopoEM,AntiKt4TopoEM,AntiKt4EMTopo,AntiKt4LCTopo",
+                              "AntiKt4Truth->AntiKt4TopoEM,AntiKt4EMTopo,AntiKt4LCTopo",
+			      "AntiKt4TruthWZ->AntiKt4TruthWZ,AntiKt4TopoEM,AntiKt4EMTopo,AntiKt4LCTopo",
+                              "AntiKt4Track->AntiKt4Track,AntiKt4TopoEM,AntiKt4EMTopo,AntiKt4LCTopo",
+                              "AntiKt3Track->AntiKt3Track,AntiKt4TopoEM,AntiKt4EMTopo,AntiKt4LCTopo"])
 
       for attr in self._CalibrationSingleFolder:
         setattr(self, attr, True)

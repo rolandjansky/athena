@@ -1,32 +1,32 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-# Configuration functions for MV2c10Tag
+# Configuration functions for MV2c100Tag
 # Author: Wouter van den Wollenberg (2013-2014)
 from BTagging.BTaggingFlags import BTaggingFlags
 
-metaMV2c10Tag = { 'IsATagger'          : True,
-                  'xAODBaseName'       : 'MV2c10',
-                  'DependsOn'          : ['AtlasExtrapolator',
-                                          'BTagTrackToVertexTool',
-                                          'BTagCalibrationBrokerTool',
-                                          'IP2DTag',
-                                          'IP3DTag',
-                                          'JetFitterTagCOMBNN',
-                                          'SV0Tag',
-                                          'SV1Tag'],
-                  'CalibrationFolders' : ['MV2c10',],
-                  'PassByPointer'      : {'calibrationTool' : 'BTagCalibrationBrokerTool'},
-                  'ToolCollection'     : 'MV2c10Tag' }
+metaMV2c100Tag = { 'IsATagger'          : True,
+                   'xAODBaseName'       : 'MV2c100',
+                   'DependsOn'          : ['AtlasExtrapolator',
+                                           'BTagTrackToVertexTool',
+                                           'BTagCalibrationBrokerTool',
+                                           'IP2DTag',
+                                           'IP3DTag',
+                                           'JetFitterTagCOMBNN',
+                                           'SV0Tag',
+                                           'SV1Tag'],
+                   'CalibrationFolders' : ['MV2c100',],
+                   'PassByPointer'      : {'calibrationTool' : 'BTagCalibrationBrokerTool'},
+                   'ToolCollection'     : 'MV2c100Tag' }
 
-def toolMV2c10Tag(name, useBTagFlagsDefaults = True, **options):
-    """Sets up a MV2c10Tag tool and returns it.
+def toolMV2c100Tag(name, useBTagFlagsDefaults = True, **options):
+    """Sets up a MV2c100Tag tool and returns it.
 
     The following options have BTaggingFlags defaults:
 
     OutputLevel                         default: BTaggingFlags.OutputLevel
     Runmodus                            default: BTaggingFlags.Runmodus
-    taggerName                          default: "MV2c10"
-    taggerNameBase                      default: "MV2c10"
+    taggerName                          default: "MV2c100"
+    taggerNameBase                      default: "MV2c100"
     forceMV2CalibrationAlias            default: BTaggingFlags.ForceMV2CalibrationAlias
     MV2CalibAlias                       default: BTaggingFlags.MV2CalibAlias
     inputSV0SourceName                  default: "SV0"
@@ -44,8 +44,8 @@ def toolMV2c10Tag(name, useBTagFlagsDefaults = True, **options):
     if useBTagFlagsDefaults:
         defaults = { 'OutputLevel'                      : BTaggingFlags.OutputLevel,
                      'Runmodus'                         : BTaggingFlags.Runmodus,
-                     'taggerName'                       : 'MV2c10',
-                     'taggerNameBase'                   : 'MV2c10',
+                     'taggerName'                       : 'MV2c100',
+                     'taggerNameBase'                   : 'MV2c100',
                      'forceMV2CalibrationAlias'         : BTaggingFlags.ForceMV2CalibrationAlias,
                      'MV2CalibAlias'                    : BTaggingFlags.MV2CalibAlias,
                      'inputSV0SourceName'               : 'SV0',

@@ -5,6 +5,7 @@
 # Note: This tool has its own file because it is common to many different taggers
 # so deletion of the one tagger that has this function won't break the others.
 from BTagging.BTaggingFlags import BTaggingFlags
+from AtlasGeoModel.InDetGMJobProperties import GeometryFlags as geoFlags
 
 metaInDetVKalMultiVxInJetTool = { 'IsAVertexFinder' : True,
                                   'VertexFinderxAODBaseName' : 'MSV',
@@ -32,6 +33,7 @@ def toolInDetVKalMultiVxInJetTool(name, useBTagFlagsDefaults = True, **options):
     if useBTagFlagsDefaults:
         defaults = { 'OutputLevel'     : BTaggingFlags.OutputLevel,
                      'getNegativeTail' : False,
+                     'ExistIBL'        : geoFlags.isIBL(),
                      'ConeForTag'      : 1.0,
                      'MultiVertex'     : True }
         for option in defaults:
