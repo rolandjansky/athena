@@ -21,8 +21,6 @@
 #include "AtlasCLHEP_RandomGenerators/RandGaussZiggurat.h"
 #include "CLHEP/Random/RandFlat.h"
 
-#include "TF1.h"
-
 /** Constructor */
 ISF::LongBeamspotVertexPositioner::LongBeamspotVertexPositioner( const std::string& t,
                                                      const std::string& n,
@@ -163,19 +161,23 @@ CLHEP::HepLorentzVector *ISF::LongBeamspotVertexPositioner::generate()
 
   // See if we were asked to do time smearing as well
   if (m_timeSmearing){
-    /* This is ballpark code courtesy of Brian Amadeo.  He provided some functions based on beam parameters.
+    /* This is ballpark code courtesy of Brian Amadio.  He provided some functions based on beam parameters.
       He provided a little trick for pulling out the beam bunch width as well.  Hard coding the crossing angle
       parameter for the time being, as the beam spot service doesn't really provide that yet.  */
     // Assumes that to make these funny beam spots we have a normal-looking bunch
-    double bunch_length_z = (std::sqrt(2)*this->getZpos())/0.9; // 0.9 is the crossing angle reduction factor
-    double tLimit = 2.*(bunch_length_z+bunch_length_z)/Gaudi::Units::c_light;
-    TF1 func = TF1("func","[0]*exp((-([3]-299792458*x)^2*[2]^2-([3]+299792458*x)^2*[1]^2)/(2*[1]^2*[2]^2))",-1*tLimit,tLimit);
-    func.SetParameter(0,Gaudi::Units::c_light/(M_PI*bunch_length_z*bunch_length_z));
-    func.SetParameter(1,bunch_length_z);
-    func.SetParameter(2,bunch_length_z);
-    func.SetParameter(3,vertexSmearing->z());
-    double time_offset = func.GetRandom();
-    vertexSmearing->setT( vertexSmearing->t() + time_offset );
+    double bunch_length_z = (std::sqrt(2)*vertexZ)/0.9; // 0.9 is the crossing angle reduction factor
+//    double tLimit = 2.*(bunch_length_z+bunch_length_z)/Gaudi::Units::c_light;
+//    TF1 func = TF1("func","[0]*exp((-([3]-299792458*x)^2*[2]^2-([3]+299792458*x)^2*[1]^2)/(2*[1]^2*[2]^2))",-1*tLimit,tLimit);
+//    func.SetParameter(0,Gaudi::Units::c_light/(M_PI*bunch_length_z*bunch_length_z));
+//    func.SetParameter(1,bunch_length_z);
+//    func.SetParameter(2,bunch_length_z);
+//    func.SetParameter(3,vertexSmearing->z());
+//    double time_offset = func.GetRandom();
+
+    // Time should be set in units of distance, which is a little funny
+    double time_offset = CLHEP::RandGaussZiggurat::shoot( m_randomEngine , vertexSmearing->z()/Gaudi::Units::c_light , bunch_length_z/Gaudi::Units::c_light );
+
+    vertexSmearing->setT( vertexSmearing->t() + time_offset*Gaudi::Units::c_light );
   }
 
   // and return it
