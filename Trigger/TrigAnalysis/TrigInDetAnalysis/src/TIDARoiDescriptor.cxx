@@ -16,56 +16,88 @@
 ClassImp( TIDARoiDescriptor )
 
 
-TIDARoiDescriptor::TIDARoiDescriptor()
-  : m_phi0(phicheck(0)), m_eta0(etacheck(0)), m_zed0(zedcheck(0)), 
-    m_phiHalfWidth(M_PI), m_etaHalfWidth(5), m_zedHalfWidth(225), 
-    m_etaPlus(0), m_etaMinus(0), m_l1Id(0), m_roiId(0), m_roiWord(0)
+#ifndef M_2PI
+#define M_2PI 6.283185307179586476925286766559005768394
+#endif
+
+#ifndef M_PIF
+static const float  M_PIF = float(M_PI);
+#endif
+
+TIDARoiDescriptor::TIDARoiDescriptor( bool fullscan ) 
+  :  m_fullscan(fullscan), 
+     m_l1Id(0), m_roiId(0), m_roiWord(0) 
+{
+  if ( m_fullscan ) m_params = TIDARoiParameters( 0, -5, 5, 0, -M_PI, M_PI, 0, -225, 225 );
+}
+
+
+TIDARoiDescriptor::TIDARoiDescriptor( double eta,  double etaMinus,   double etaPlus,
+				      double phi,  double phiMinus,   double phiPlus,
+				      double zed,  double zedMinus,   double zedPlus )
+  :  m_params( eta, etaMinus, etaPlus, 
+	       phi, phiMinus, phiPlus,
+	       zed, zedMinus, zedPlus ), 
+     m_fullscan(false),
+     m_l1Id(0), m_roiId(0), m_roiWord(0)
 { }
 
 
-TIDARoiDescriptor::TIDARoiDescriptor(double eta,  double phi,  double zed, 
-			     double etaw, double phiw, double zedw)
-  : m_phi0(phicheck(phi)), m_eta0(etacheck(eta)), m_zed0(zedcheck(zed)), 
-    m_phiHalfWidth(phiw),  m_etaHalfWidth(etaw),  m_zedHalfWidth(zedw), 
-    m_etaPlus(eta), m_etaMinus(eta), m_l1Id(0), m_roiId(0), m_roiWord(0)
-{ }
-
-
-TIDARoiDescriptor::TIDARoiDescriptor(unsigned int l1id, int id, 
-			     double eta,  double phi,  double zed, 
-			     double etaw, double phiw, double zedw)
-  : m_phi0(phicheck(phi)), m_eta0(etacheck(eta)), m_zed0(zedcheck(zed)), 
-    m_phiHalfWidth(phiw),  m_etaHalfWidth(etaw),  m_zedHalfWidth(zedw), 
-    m_etaPlus(eta), m_etaMinus(eta), m_l1Id(l1id), m_roiId(id), m_roiWord(0)
+TIDARoiDescriptor::TIDARoiDescriptor( unsigned int l1id, int id, 
+				      double eta,  double etaMinus,   double etaPlus,
+				      double phi,  double phiMinus,   double phiPlus,
+				      double zed,  double zedMinus,   double zedPlus )
+  :  m_params( eta, etaMinus, etaPlus, 
+	       phi, phiMinus, phiPlus,
+	       zed, zedMinus, zedPlus ), 
+     m_fullscan(false),
+     m_l1Id(l1id), m_roiId(id), m_roiWord(0)
 { }
 
 
 TIDARoiDescriptor::TIDARoiDescriptor(unsigned int roiword, unsigned int l1id, int id, 
-			     double eta,  double phi,  double zed, 
-			     double etaw, double phiw, double zedw)
-  : m_phi0(phicheck(phi)), m_eta0(etacheck(eta)), m_zed0(zedcheck(zed)), 
-    m_phiHalfWidth(phiw),  m_etaHalfWidth(etaw),  m_zedHalfWidth(zedw), 
-    m_etaPlus(eta), m_etaMinus(eta), m_l1Id(l1id), m_roiId(id), m_roiWord(roiword)
+				     double eta,  double etaMinus,   double etaPlus,
+				     double phi,  double phiMinus,   double phiPlus,
+				     double zed,  double zedMinus,   double zedPlus )
+  :  m_params( eta, etaMinus, etaPlus, 
+	       phi, phiMinus, phiPlus,
+	       zed, zedMinus, zedPlus ), 
+     m_fullscan(false),
+     m_l1Id(l1id), m_roiId(id), m_roiWord(roiword)
 { }
 
 
-TIDARoiDescriptor::TIDARoiDescriptor(const TIDARoiDescriptor& a) : TObject(*this) {
-   *this = a;
+TIDARoiDescriptor::TIDARoiDescriptor(const TIDARoiDescriptor& a) : 
+  TObject(*this), 
+  m_params(a.m_params),
+  m_fullscan(a.m_fullscan),
+  m_l1Id(a.m_l1Id), m_roiId(a.m_roiId), m_roiWord(a.m_roiWord),  
+  m_rois(a.m_rois)
+{ }
+
+
+
+TIDARoiDescriptor::~TIDARoiDescriptor() { }
+
+
+TIDARoiDescriptor::operator std::string() const {
+  std::stringstream s;
+  s << " z: "   << zed() << " (" << zedMinus() << " - " << zedPlus() << ")"
+    << " eta: " << eta() << " (" << etaMinus() << " - " << etaPlus() << ")"
+    << " phi: " << phi() << " (" << phiMinus() << " - " << phiPlus() << ")"
+    << " RoIid: " << roiId() << " RoIword: " << roiWord() << " (size " << size() << ")";
+  for ( unsigned i=0 ; i<size() ; i++ ) s << "\n\t\t" << i << ": " << (std::string)*at(i);
+  return s.str();
 }
 
 
 
-TIDARoiDescriptor::~TIDARoiDescriptor(){}
-
-
-
-
 double TIDARoiDescriptor::phicheck(double phi) {
-  if ( !(phi > -M_PI && phi < M_PI ) ) { // use ! of range rather than range to also catch nan etc
-    if ( phi < -M_PI ) 
-      std::cerr << "TIDARoiDescriptor constructed with phi smaller than -PI (allowed range -PI / +PI) PhiRange" << std::endl;
-    else
-      std::cerr << "TIDARoiDescriptor constructed with phi greater than PI (allowed range -PI / +PI) PhiRange" << std::endl;
+  if ( !(phi > -M_PIF && phi < M_PIF ) ) { // use ! of range rather than range to also catch nan etc
+    if ( phi < -M_PIF )  phi += M_2PI;
+    else                 phi -= M_2PI;
+    //       std::cerr << "TIDARoiDescriptor constructed with phi smaller than -PI (allowed range -PI / +PI) PhiRange" << std::endl;
+    //       std::cerr << "TIDARoiDescriptor constructed with phi greater than PI (allowed range -PI / +PI) PhiRange" << std::endl;
   } 
   return phi;
 }
@@ -88,4 +120,3 @@ double TIDARoiDescriptor::zedcheck(double zed) {
 
 
 
- 

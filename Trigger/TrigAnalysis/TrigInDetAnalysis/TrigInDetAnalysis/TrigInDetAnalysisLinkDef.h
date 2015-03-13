@@ -5,6 +5,7 @@
 #pragma link C++ class TrackVertex+;
 #pragma link C++ class TrackEvent+;
 #pragma link C++ class TIDARoiDescriptor+;
+#pragma link C++ class TIDARoiParameters+;
 #pragma link C++ class TFileString+;
 #pragma link C++ class TrackTrigObject+;
 #pragma link C++ namespace TrigInDetAnalysis;
