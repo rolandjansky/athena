@@ -16,6 +16,7 @@
 #include "RegionSelector/IRegSelSvc.h"
 #include "Identifier/IdentifierHash.h"
 #include "MuonRDO/MdtCsmContainer.h"
+#include "TrigSteeringEvent/TrigRoiDescriptor.h"
 
 #include "MuonIdHelpers/MuonIdHelperTool.h"
 #include "MuonIdHelpers/MdtIdHelper.h"
@@ -63,6 +64,7 @@ namespace TrigL2MuonSA {
   public:
     
     StatusCode prepareData(const LVL1::RecMuonRoI*           p_roi,
+			   const TrigRoiDescriptor*          p_roids,
 			   const TrigL2MuonSA::RpcFitResult& rpcFitResult,
 			   TrigL2MuonSA::MuonRoad&           muonRoad,
 			   TrigL2MuonSA::MdtRegion&          mdtRegion,
@@ -70,6 +72,7 @@ namespace TrigL2MuonSA {
 			   TrigL2MuonSA::MdtHits&            mdtHits_overlap);
 
     StatusCode prepareData(const LVL1::RecMuonRoI*           p_roi,
+			   const TrigRoiDescriptor*          p_roids,
 			   const TrigL2MuonSA::TgcFitResult& tgcFitResult,
 			   TrigL2MuonSA::MuonRoad&           muonRoad,
 			   TrigL2MuonSA::MdtRegion&          mdtRegion,
@@ -78,6 +81,7 @@ namespace TrigL2MuonSA {
 
     void setRpcGeometry(bool use_rpc);
     void setMdtDataCollection(bool use_mdtcsm);
+    void setRoIBasedDataAccess(bool use_RoIBasedDataAccess);
 
   private:
     
@@ -85,6 +89,7 @@ namespace TrigL2MuonSA {
     inline MsgStream& msg() const { return *m_msg; }
     
     StatusCode getMdtHits(const LVL1::RecMuonRoI* p_roi,
+			  const TrigRoiDescriptor* p_roids, 
 			  const TrigL2MuonSA::MdtRegion& mdtRegion,
 			  TrigL2MuonSA::MuonRoad& muonRoad,
 			  TrigL2MuonSA::MdtHits& mdtHits_normal,
@@ -150,8 +155,10 @@ namespace TrigL2MuonSA {
     ToolHandle<Muon::IMuonRdoToPrepDataTool> m_mdtPrepDataProvider;
 
     bool m_use_mdtcsm;
+    bool m_use_RoIBasedDataAccess;
+
   };
-  
+
 } // namespace TrigL2MuonSA
 
 #endif  // 

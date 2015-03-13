@@ -138,6 +138,15 @@ StatusCode TrigL2MuonSA::CscDataPreparator::initialize()
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
+void TrigL2MuonSA::CscDataPreparator::setRoIBasedDataAccess(bool use_RoIBasedDataAccess)
+{
+  m_use_RoIBasedDataAccess = use_RoIBasedDataAccess;
+  return;
+}
+
+// --------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------
+
 StatusCode TrigL2MuonSA::CscDataPreparator::prepareData(const LVL1::RecMuonRoI* p_roi,
 							TrigL2MuonSA::MuonRoad& muonRoad,
 							TrigL2MuonSA::CscHits&  cscHits)

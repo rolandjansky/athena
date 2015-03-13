@@ -187,8 +187,14 @@ StatusCode TrigL2MuonSA::MuCalStreamerTool::closeStream()
 
 void TrigL2MuonSA::MuCalStreamerTool::clearLocalBuffer()
 {
+  
+  msg() << MSG::DEBUG << "Local buffer size before clear: " << m_localBuffer->size() << endreq;
+
   m_localBuffer->clear();
   m_localBufferSize = 0;
+
+  msg() << MSG::DEBUG << "Local buffer size after clear: " << m_localBuffer->size() << endreq;
+
   return;
 }
 
@@ -304,7 +310,7 @@ StatusCode TrigL2MuonSA::MuCalStreamerTool::createRoiFragment(const LVL1::RecMuo
     event.dumpWords(buff_ds,evSize);                                                                                       
     // fill the local buffer 
     // dump the words also in the local buffer 
-    if ( m_localBufferSize+eventSize_ds < m_maxLocalBufferSize ) { 
+    if ( m_localBufferSize+eventSize_ds < m_calBufferSize ) { 
       msg() << MSG::DEBUG << "Updating the muon calibration buffer" << endreq; 
       updateTriggerElement = false; 
 

@@ -69,6 +69,7 @@ class MuFastDataPreparator: public AthAlgTool
 			 TrigL2MuonSA::MdtHits&      mdtHits_overlap);
   
   StatusCode prepareData(const LVL1::RecMuonRoI*     p_roi,
+			 const TrigRoiDescriptor*    p_roids,
 			 TrigL2MuonSA::TgcHits&      tgcHits,
 			 TrigL2MuonSA::MuonRoad&     muonRoad,
 			 TrigL2MuonSA::MdtRegion&    mdtRegion,
@@ -103,6 +104,10 @@ class MuFastDataPreparator: public AthAlgTool
   void setMdtDataCollection(bool use_mdtcsm);
 
   StatusCode setMCFlag(BooleanProperty  use_mcLUT);
+  void setRoIBasedDataAccess(bool use_RoIBasedDataAccess_MDT,
+			     bool use_RoIBasedDataAccess_RPC,
+			     bool use_RoIBasedDataAccess_TGC,
+			     bool use_RoIBasedDataAccess_CSC);
 
   void setExtrapolatorTool(ToolHandle<ITrigMuonBackExtrapolator>* backExtrapolator);
 
