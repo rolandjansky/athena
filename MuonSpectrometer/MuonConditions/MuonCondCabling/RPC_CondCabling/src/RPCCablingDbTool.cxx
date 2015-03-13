@@ -49,8 +49,8 @@ RPCCablingDbTool::RPCCablingDbTool (const std::string& type,
 
   m_DataLocation="keyRPC";
   
-  declareProperty("MapConfigurationFolder",  m_mapFolder="/RPC/CABLING/MAP_SCHEMA_NEW");
-  declareProperty("MapCorrectionFolder",     m_corrFolder="/RPC/CABLING/MAP_SCHEMA_CORR_2");
+  declareProperty("MapConfigurationFolder",  m_mapFolder="/RPC/CABLING/MAP_SCHEMA");
+  declareProperty("MapCorrectionFolder",     m_corrFolder="/RPC/CABLING/MAP_SCHEMA_CORR");
   m_map ="";
   m_corr="";
   
