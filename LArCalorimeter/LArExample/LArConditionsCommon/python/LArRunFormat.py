@@ -5,6 +5,8 @@
 from PyCool import cool
 from CoolConvUtilities.AtlCoolLib import indirectOpen
 
+from IOVDbSvc.CondDB import conddb
+
 class LArRunInfo:
     "Wrapper class to hold LAr run configuration information"
     def __init__(self,nSamples,gainType,latency,firstSample,format,runType):
@@ -60,8 +62,9 @@ def getLArFormatForRun(run,readOracle=True,quiet=False):
     from AthenaCommon.Logging import logging
     mlog_LRF = logging.getLogger( 'getLArRunFormatForRun' )
 
-    # connstring = "sqlite://;schema=rundb.db;dbname=COMP200"
-    connstring = "COOLONL_LAR/COMP200"
+    # connstring = "sqlite://;schema=rundb.db;dbname=CONDBR2"
+    connstring = "COOLONL_LAR/"+conddb.dbdata
+    mlog_LRF.info("Connecting to database " + connstring)
     runDB=indirectOpen(connstring,oracle=readOracle)
     if (runDB is None):
         mlog_LRF.error("Cannot connect to database %s",connstring)
