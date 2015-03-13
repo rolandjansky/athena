@@ -29,6 +29,7 @@ parser.add_option('', '--cuts', dest='cuts', default='', help='additional cuts (
 parser.add_option('', '--bins', dest='nbins', type='int', default=200, help='number of bins')
 parser.add_option('', '--fit', dest='fit', default='', help='fit histogram with function (e.g. gaus) (default: no fit)')
 parser.add_option('', '--logy', dest='logy', action='store_true', default=False, help='log scale')
+parser.add_option('', '--optstat', dest='optstat', default='emruo', help='default OptStat value (Default: emruo)')
 parser.add_option('', '--energy', dest='energy', action='store_true', default=False, help='add energy label')
 parser.add_option('', '--public', dest='public', action='store_true', default=False, help='use labelling for public plots')
 parser.add_option('', '--prelim', dest='prelim', action='store_true', default=False, help='Add ATLAS Preliminary to figure')
@@ -53,12 +54,13 @@ plotDef = {
     'y': {'code': 'hist', 'var': 'y', 'hname': 'pvY', 'xmin': -2, 'xmax': 2, 'units': '[mm]'},
     'z': {'code': 'hist', 'var': 'z', 'hname': 'pvZ', 'xmin': -500, 'xmax': 500, 'units': '[mm]'},
     'errX': {'code': 'histErr', 'var': 'vxx', 'hname': 'errX', 'xmin': 0, 'xmax': 500, 'units': '[mm]'},
+    'errXComp': {'code': 'histErrComp', 'var': 'vxx', 'hname': 'errX', 'xmin': 0, 'xmax': 100, 'units': '[mm]'},
     'errY': {'code': 'histErr', 'var': 'vyy', 'hname': 'errY', 'xmin': 0, 'xmax': 500, 'units': '[mm]'},
     'errZ': {'code': 'histErr', 'var': 'vzz', 'hname': 'errZ', 'xmin': 0, 'xmax': 500, 'units': '[mm]'},
     'ntracks': {'code': 'hist', 'var': 'nTracks', 'hname': 'pvNTracks', 'xmin': 0, 'xmax': 200, 'nbins': 200},
     'xz': {'xmin': -250, 'xmax': 250, 'ymin': -1.5, 'ymax': 2.5},
     'yz': {'xmin': -250, 'xmax': 250, 'ymin': -0.5, 'ymax': 3.5},
-    'yx': {'xmin': -1.4, 'xmax': 0.6, 'ymin': 0, 'ymax': 2},
+    'yx': {'xmin': -1.4, 'xmax': 0.6, 'ymin': 0, 'ymax': 2}
 }
 def getPlotDef(what,property,default=''):
     try:
@@ -144,7 +146,7 @@ class Plots(ROOTUtils.PlotLibrary):
         hname = getPlotDef(options.plot,'hname','h')
         var = getPlotDef(options.plot,'var')
         units = getPlotDef(options.plot,'units','')
-        ROOT.gStyle.SetOptStat(2222)
+        ROOT.gStyle.SetOptStat(options.optstat)
         if options.fit:
             ROOT.gStyle.SetOptFit(1111)
         c = ROOTUtils.protect(ROOTUtils.MyCanvas(var,options.canvas))
@@ -163,15 +165,53 @@ class Plots(ROOTUtils.PlotLibrary):
     def histErr(self):
         hname = getPlotDef(options.plot,'hname','h')
         var = getPlotDef(options.plot,'var')
-        ROOT.gStyle.SetOptStat(2222)
+        vName = var[1:] # Ugly - should take from plotDef
+        ROOT.gStyle.SetOptStat(options.optstat)
         ROOT.gStyle.SetOptFit(0)
         c = ROOTUtils.protect(ROOTUtils.MyCanvas(var,options.canvas))
         c.SetRightMargin(0.14)
-        h = ROOTUtils.protect(ROOT.TH1F(hname,'Primary vertex error: %s;Primary vertex error (#mum)' % (hname),nbins,xmin,xmax))
+        h = ROOTUtils.protect(ROOT.TH1F(hname,'Primary vertex error: %s;Primary vertex error #sqrt{V_{%s}} (#mum);Number of vertices' % (hname,vName),
+                                        nbins,xmin,xmax))
         nt.Draw('1e3*sqrt(%s) >> %s' % (var,hname),cuts)
-        #ROOTUtils.drawText(0.4,0.47,0.06,runFillInfo,font=42)
+        ROOTUtils.drawText(0.45,0.86,0.06,'Primary Vertex Error #sqrt{V_{%s}}' % vName)
         comment = options.comment if options.comment is not None else '#geq %i tracks/vertex;%s' % (options.ntracks,options.cuts)
-        ROOTUtils.drawText(0.4,0.4,0.06,lhcEnergyInfo+comment,font=42)
+        ROOTUtils.drawText(0.45,0.8,0.06,lhcEnergyInfo+comment,font=42)
+        ROOT.gPad.SetLogy(options.logy)
+        ROOT.gPad.Update()
+        c.save()
+
+    def histErrComp(self):
+        hname = getPlotDef(options.plot,'hname','h')
+        var = getPlotDef(options.plot,'var')
+        vName = var[1:] # Ugly - should take from plotDef
+        ROOT.gStyle.SetOptStat(0)
+        ROOT.gStyle.SetOptFit(0)
+        c = ROOTUtils.protect(ROOTUtils.MyCanvas(var,options.canvas))
+        c.SetRightMargin(0.14)
+        h = ROOTUtils.protect(ROOT.TH1F(hname,'Vertex Error: %s;Vertex error #sqrt{V_{%s}} [#mum];Fraction of entries' % (hname,vName),
+                                        nbins,xmin,xmax))
+        nt.Draw('1e3*sqrt(%s) >> %s' % (var,hname),cuts)
+        norm = h.Integral()
+        h.Scale(1./norm)
+        pname = hname+'_pileup'
+        p = ROOTUtils.protect(ROOT.TH1F(pname,'Vertex Error: %s;Vertex error #sqrt{V_{%s}} [#mum];Fraction of entries' % (hname,vName),
+                                        nbins,xmin,xmax))
+        pcuts = cuts.replace('vType==1','vType==3')
+        print pcuts
+        nt.Draw('1e3*sqrt(%s) >> %s' % (var,pname),pcuts,"SAME")
+        pnorm = p.Integral()
+        p.Scale(1./pnorm)
+        p.SetLineColor(4)
+        p.SetLineStyle(2)
+        ROOTUtils.drawText(0.51,0.86,0.06,'Vertex error #sqrt{V_{%s}}' % vName)
+        comment = options.comment if options.comment is not None else '#geq %i tracks/vertex;%s' % (options.ntracks,options.cuts)
+        ROOTUtils.drawText(0.51,0.8,0.06,lhcEnergyInfo+comment,font=42)
+        legend = ROOT.TLegend(.50,.6,.85,.72)
+        legend.AddEntry(h,'Primary vertices','L')
+        legend.AddEntry(p,'Pileup vertices','L')
+        legend.SetFillColor(0)
+        legend.SetBorderSize(0)
+        legend.Draw()
         ROOT.gPad.SetLogy(options.logy)
         ROOT.gPad.Update()
         c.save()
