@@ -12,14 +12,15 @@
  * @brief Describes the Region of Ineterest geometry
  *  It has basically 8 parameters
  *
- * -# zed0 : z position of RoI
- * -# zed half-width
- * -# phi0 : azimuthal angle (radians) of centre of RoI at origin in range from [-pi, pi]
- * -# phi half-width
- * -# eta0 : pseudo-rapidity of centre of RoI at origin
- * -# eta half-width
- * -# etaPlus  : pseudo-rapidity at zed0 + zed half-width
- * -# etaMinus : pseudo-rapidity at zed0 - zed half-width
+ * -# zed      : z position at beamline of RoI
+ * -# zedMinus : z position at beamline as rear of RoI 
+ * -# zedPlus  : z position at beamline as front of RoI 
+ * -# phi      : azimuthal angle (radians) of centre of RoI at origin in range from [-pi, pi]
+ * -# phiMinus : most negative phi angle of RoI
+ * -# phiPlus  : most positive phi angle of RoI
+ * -# eta      : pseudo-rapidity of centre of RoI at origin
+ * -# etaPlus  : pseudo-rapidity at zed + zed half-width
+ * -# etaMinus : pseudo-rapidity at zed - zed half-width
  * \warning An attempt to cnstruct the objects of this calss with phi0 out of allowed range reasults in throwing exception
  */
 
@@ -28,20 +29,23 @@
 #define __TIDAROIDESCRIPTOR_H
 
 #include <iostream>
+#include <sstream>
 #include <cmath>
 
 #include "TObject.h"
 
+// #include "TrigInDetAnalysis/IRoiDescriptor.h"
+#include "TrigInDetAnalysis/TIDARoiParameters.h"
 
 
-class TIDARoiDescriptor : public TObject {
+class TIDARoiDescriptor : public TObject { //, public IRoiDescriptor {
 
 public:
 
   /**
    * @brief default constructor
    */
-  TIDARoiDescriptor();
+  TIDARoiDescriptor(bool fullscan=false);
 
 
   /**
@@ -49,10 +53,13 @@ public:
    * @param eta eta of RoI
    * @param phi phi of RoI
    * @param zed zed of RoI
+   * and limits fir each
+   */
 
-  */
-  TIDARoiDescriptor(double eta,      double phi,      double zed,
-		double etaw=0.1, double phiw=0.1, double zedw=168);
+  TIDARoiDescriptor( double eta,  double etaMinus,   double etaPlus,
+		     double phi,  double phiMinus,   double phiPlus,
+		     double zed,  double zedMinus,   double zedPlus );
+
 
  /**
    * @brief constructor
@@ -61,12 +68,13 @@ public:
    * @param eta eta of RoI
    * @param phi phi of RoI
    * @param zed zed of RoI
+   * and limits fir each
    */
-  TIDARoiDescriptor(unsigned int l1id, int id, 
-		double eta, double phi, double zed,
-		double etaw=0.1, double phiw=0.1, double zedw=168);
-
-
+  TIDARoiDescriptor(unsigned l1id, int id, 
+		    double eta,  double etaMinus,   double etaPlus,
+		    double phi,  double phiMinus,   double phiPlus,
+		    double zed,  double zedMinus,   double zedPlus );
+  
  /**
    * @brief constructor
    * @param roiWord LVL1 trigger decision word
@@ -75,11 +83,13 @@ public:
    * @param eta eta of RoI
    * @param phi phi of RoI
    * @param zed zed of RoI
+   * and limits fir each
    */
-  TIDARoiDescriptor(unsigned int roiWord, unsigned int l1id, int id, 
-		double eta,      double phi,      double zed, 
-		double etaw=0.1, double phiw=0.1, double zedw=168);
-
+  TIDARoiDescriptor(unsigned roiWord, unsigned l1id, int id, 
+		    double eta,  double etaMinus,   double etaPlus,
+		    double phi,  double phiMinus,   double phiPlus,
+		    double zed,  double zedMinus,   double zedPlus );
+  
   /**
    * @brief copy constructor
    * @param TIDARoiDescriptor
@@ -91,58 +101,82 @@ public:
   virtual ~TIDARoiDescriptor();
   
   // Methods to set data members
-  void phi0(const double phi) { m_phi0 = phi; } //!< set phi0 of RoI
-  void eta0(const double eta) { m_eta0 = eta; } //!< set eta0 of RoI
-  void zed0(const double zed) { m_zed0 = zed; } //!< set eta0 of RoI
+  //  void phi(const double phi) { m_phi = phi; } //!< set phi of RoI
+  //  void eta(const double eta) { m_eta = eta; } //!< set eta of RoI
+  //  void zed(const double zed) { m_zed = zed; } //!< set eta of RoI
+
   void set_roiId(const unsigned int id) { m_roiId=id; }     //!< set roiId
   void set_l1Id(const unsigned int l1id) { m_l1Id=l1id; }             //!< set event number
   void set_roiWord(const unsigned int roiWord) { m_roiWord=roiWord; } //!< sets RoI word
 
-  void phiHalfWidth(double x) { m_phiHalfWidth=x; }       //!< sets phi half-width
-  void etaHalfWidth(double x) { m_etaHalfWidth=x; }       //!< sets eta half-width
-  void zedHalfWidth(double x) { m_zedHalfWidth=x; }       //!< sets zed half-width
+  //  void phiHalfWidth(double x) { m_phiHalfWidth=x; }       //!< sets phi half-width
+  //  void etaHalfWidth(double x) { m_etaHalfWidth=x; }       //!< sets eta half-width
+  //  void zedHalfWidth(double x) { m_zedHalfWidth=x; }       //!< sets zed half-width
 
-  void  etaPlus(double x)  { m_etaPlus  = x; }       //!< sets eta at z+zwidth
-  void  etaMinus(double x) { m_etaMinus = x; }     //!< sets eta at z-zwidth
+  //  void  etaPlus(double x)  { m_etaPlus  = x; }       //!< sets eta at z+zwidth
+  //  void  etaMinus(double x) { m_etaMinus = x; }     //!< sets eta at z-zwidth
 
   // Methods to retrieve data members
 
-  double phi0() const { return m_phi0; }
-  double phi()  const { return m_phi0; }
-  double eta0() const { return m_eta0; }
-  double eta()  const { return m_eta0; }
-  double zed0() const { return m_zed0; }
-  double zed()  const { return m_zed0; }
+  //  double phi0() const { return m_params.phi(); }
+  //  double eta0() const { return m_params.eta(); }
+  //  double zed0() const { return m_params.zed(); }
 
-  unsigned int roiId() const { return m_roiId; }
-  unsigned int l1Id() const { return m_l1Id; }
-  unsigned int roiWord() const { return m_roiWord; }
+  double phi()  const { return m_params.phi(); }
+  double eta()  const { return m_params.eta(); }
+  double zed()  const { return m_params.zed(); }
 
-  double phiHalfWidth() const { return m_phiHalfWidth; } //!< gets phi half-width
-  double etaHalfWidth() const { return m_etaHalfWidth; } //!< gets eta half-width
-  double zedHalfWidth() const { return m_zedHalfWidth; } //!< gets zed half-width
+  double etaMinus() const { return m_params.etaMinus(); }
+  double etaPlus()  const { return m_params.etaPlus(); }
 
-  double zedPlus()  const { return m_zed0+m_zedHalfWidth; } //!< gets phi half-width
-  double zedMinus() const { return m_zed0-m_zedHalfWidth; } //!< gets phi half-width
+  double phiMinus() const { return m_params.phiMinus(); }
+  double phiPlus()  const { return m_params.phiPlus(); }
 
-  double etaPlus()  const { return m_etaPlus; }    //!< gets eta at z+zwidth
-  double etaMinus() const { return m_etaMinus; }   //!< gets eta at z-zwidth
+  double zedMinus() const { return m_params.zedMinus(); }
+  double zedPlus()  const { return m_params.zedPlus(); }
 
+
+  unsigned roiId()   const { return m_roiId; }
+  unsigned l1Id()    const { return m_l1Id; }
+  unsigned roiWord() const { return m_roiWord; }
+
+  int      version() const { return 4; }  
+
+  operator std::string() const;
+
+  bool isFullscan() const { return m_fullscan; } 
+
+  /// composite RoI methods  
+
+  bool composite() const { return !m_rois.empty(); }
+
+  size_t size() const { return m_rois.size(); }
+
+  const TIDARoiDescriptor* operator[](int i) const { return &m_rois.at(i); }
+  const TIDARoiDescriptor* at(int i)         const { return &m_rois.at(i); }
+
+  //!< gets phi half-width
+  double phiHalfWidth() const { 
+    double dphi = 0.5*(params().phiPlus()-params().phiMinus());
+    if ( params().phiMinus()>params().phiPlus() ) dphi += M_PI;
+    return dphi;
+  }
+
+  double etaHalfWidth() const { return 0.5*(params().etaPlus()-params().etaMinus()); } //!< gets eta half-width
+  double zedHalfWidth() const { return 0.5*(params().zedPlus()-params().zedMinus()); } //!< gets eta half-width
+
+  //  double zedPlus()  const { return m_zed+m_zedHalfWidth; } //!< gets phi half-width
+  //  double zedMinus() const { return m_zed-m_zedHalfWidth; } //!< gets phi half-width
+
+  //  double etaPlus()  const { return m_etaPlus; }    //!< gets eta at z+zwidth
+  //  double etaMinus() const { return m_etaMinus; }   //!< gets eta at z-zwidth
 
   /// operators
   TIDARoiDescriptor& operator=(const TIDARoiDescriptor& a) {
     if (this != &a) {
-      m_phi0 = a.m_phi0;
-      m_eta0 = a.m_eta0;
-      m_zed0 = a.m_zed0;
-      m_phiHalfWidth = a.m_phiHalfWidth;
-      m_etaHalfWidth = a.m_etaHalfWidth;
-      m_zedHalfWidth = a.m_zedHalfWidth;
-      m_etaPlus  = a.m_etaPlus;
-      m_etaMinus = a.m_etaMinus; 
-      m_l1Id    = a.m_l1Id;
-      m_roiId   = a.m_roiId;
-      m_roiWord = a.m_roiWord;
+      *this = a;   // ???
+      m_params = a.params();
+      m_rois   = a.m_rois;
     }
     return *this;
   }
@@ -151,69 +185,92 @@ public:
   bool operator==( const TIDARoiDescriptor& b ) {
     if ( roiWord() != b.roiWord() ) return false;
     double epsilon=0.001; // arbitrary , but seems to be reasnable
-    if ( std::fabs( phi0() - b.phi0()) > epsilon ) return false;
-    if ( std::fabs( eta0() - b.eta0()) > epsilon ) return false;
-    if ( std::fabs( zed0() - b.zed0()) > epsilon ) return false;
+    if ( std::fabs( phi() - b.phi()) > epsilon ) return false;
+    if ( std::fabs( eta() - b.eta()) > epsilon ) return false;
+    if ( std::fabs( zed() - b.zed()) > epsilon ) return false;
     return true;
   }
 
   bool operator!=( const TIDARoiDescriptor& b ) { return !((*this)==b); }
 
 
+  void push_back( const TIDARoiDescriptor& roi ) { m_rois.push_back( roi ); }
+  void push_back( const TIDARoiDescriptor* roi ) { m_rois.push_back( *roi ); }
+
+
+
+#if 0
+
+  /// these are all set to 0 or false and not saved - will be fixed eventually
+
+  virtual double zedMin(double r) const { return 0; } //! don't store 
+  virtual double zedMax(double r) const { return 0; } //! don't store 
+
+  virtual double rhoMin(double z) const { return 0; } //! don't store 
+  virtual double rhoMax(double z) const { return 0; } //! don't store 
+
+   /// return the gradients 
+  virtual double dzdrMinus() const { return 0; } //! don't store 
+  virtual double dzdrPlus()  const { return 0; } //! don't store 
+
+  virtual double drdzMinus() const { return 0; } //! don't store 
+  virtual double drdzPlus()  const { return 0; } //! don't store 
+
+  virtual bool contains( double z0, double dzdr )            const { return false; }  //! don't store 
+  virtual bool contains_internal( double z0, double zouter ) const { return false; }  //! don't store 
+  
+  /// see whether a point is contained within the roi (in phi and r-z)
+  virtual bool contains( double _z, double _r, double _phi ) const { return false; } //! don't store 
+  virtual bool containsPhi( double _phi )                    const { return false; } //! don't store 
+  virtual bool containsZed( double _z, double _r )           const { return false; } //! don't store 
+
+#endif
+
 protected:
+
+  /// access the internal parameter class
+  const TIDARoiParameters&  params() const { return m_params; };  //!< internal parameters
 
   /**
    * @brief resets all varaibles of RoI
    */
   void reset() {
-    m_phi0=0.0;         m_eta0=0.0;         m_zed0=0.0;
-    m_phiHalfWidth=0.1; m_etaHalfWidth=0.1; m_zedHalfWidth=168;
-    m_etaPlus=m_eta0;   m_etaMinus=m_eta0;
-    m_l1Id=0;           m_roiId=0;          m_roiWord=0;
+    m_params = TIDARoiParameters();
+    //    m_phi=0.0;          m_eta=0.0;          m_zed=0.0;
+    //    m_phiHalfWidth=0.1; m_etaHalfWidth=0.1; m_zedHalfWidth=168;
+    //    m_etaPlus=m_eta;    m_etaMinus=m_eta;
+    m_l1Id=0; 
+    m_roiId=0;  
+    m_roiWord=0;
+    m_rois.clear();
   }
-  
+
   double phicheck(double phi);  //!< helper function to check if phi range was violated
   double etacheck(double eta);  //!< helper function to check if eta range was violated
   double zedcheck(double zed);  //!< helper function to check if zed range was violated
 
 protected:
 
-  float m_phi0; 
-  float m_eta0; 
-  float m_zed0; 
+  TIDARoiParameters m_params;   //  actual roi values
 
-  float m_phiHalfWidth;         //< half-width of RoI in azimuthal
-  float m_etaHalfWidth;         //< half-width of RoI in pseudo-rapidity
-  float m_zedHalfWidth;         //< half-width of RoI in zed
-  float m_etaPlus;              //< eta of RoI at zed0+zedHalfWidth
-  float m_etaMinus;             //< eta of RoI at zed0-zedHalfWidth
+  bool         m_fullscan;
 
   unsigned int m_l1Id;          //< lvl1 event number
   unsigned int m_roiId;         //< RoI number
   unsigned int m_roiWord;       //< lvl1 RoI word from which this RoI was initially constructed
 
-  ClassDef( TIDARoiDescriptor, 1 ) 
+  std::vector<TIDARoiDescriptor>  m_rois;   //<  actual roi descriptors - mot pointers as online
+
+  bool    m_cached;  //! cache flag   - these should be mutable
+  double  m_dphi;    //! cached value -  
+
+  ClassDef( TIDARoiDescriptor, 2 ) 
 
 }; 
 
 
-//<! printing helper
 inline std::ostream& operator<<( std::ostream& s, const TIDARoiDescriptor& d ) { 
-  s << " z: "   << d.zed0() << " +/- " <<  d.zedHalfWidth() 
-    << " eta: " << d.eta0() << " +/- " <<  d.etaHalfWidth() << " [ eta(z+) " << d.etaPlus() << "  eta(z-) " << d.etaMinus() << " ] " 
-    << " phi: " << d.phi0() << " +/- " << d.phiHalfWidth() 
-    << " RoIid: " << d.roiId() << " RoIword: " << d.roiWord();
-  return s;
+  return s << (std::string)d; 
 }
-
-#if 0
-inline std::ostream& operator<<(std::ostream& s, const TIDARoiDescriptor& a) { 
-  return s << "[ " 
-	   << "\t" << a.phi0() 
-	   << "\t" << a.eta0() 
-	   << "\t" << a.zed0() 
-	   << " ]";
-} 
-#endif
 
 #endif // __ROIDESCRIPTOR_H
