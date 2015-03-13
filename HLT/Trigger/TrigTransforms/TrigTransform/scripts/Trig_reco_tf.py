@@ -159,12 +159,13 @@ def addTriggerArgs(parser):
     parser.add_argument('--outputNTUP_TRIGFile', nargs='+', 
                         type=trfArgClasses.argFactory(trfArgClasses.argHISTFile, io='output', runarg=True, countable=False), 
                         help='D3PD output NTUP_TRIG file (can be made in substeps e2d,a2d)', group='Trigger')
-    parser.add_argument('--triggerConfig', nargs='+', metavar='substep:TRIGGERCONFIG',
-                        type=trfArgClasses.argFactory(trfArgClasses.argSubstep, runarg=True),
-                        help='Trigger Configuration String.', group='Trigger')
+    parser.add_argument('--triggerConfig', nargs='+', metavar='substep=TRIGGERCONFIG',
+                        type=trfArgClasses.argFactory(trfArgClasses.argSubstep, runarg=True, separator='='),
+                        help='Trigger Configuration String.'
+			'N.B. This argument uses EQUALS (=) to separate the substep name from the value.', group='Trigger')
     parser.add_argument('--dumpOptions', type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=True),
                         help='For testing dump the options athenaHLT has loaded', group='Trigger')
-    parser.add_argument('--precommand', nargs='+', type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True),
+    parser.add_argument('--precommand', nargs='+', type=trfArgClasses.argFactory(trfArgClasses.argList, runarg=True),
                         help='precommand for athenaHLT aka -c', group='Trigger')
     
 
@@ -182,9 +183,9 @@ def addTriggerDBArgs(parser):
                         help='db-type', group='TriggerDB')
     parser.add_argument('--db-server', type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True),
                         help='db-server', group='TriggerDB')
-    parser.add_argument('--db-smkey', type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True),
+    parser.add_argument('--db-smkey', type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True),
                         help='db-smkey', group='TriggerDB')
-    parser.add_argument('--db-hltpskey', type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True),
+    parser.add_argument('--db-hltpskey', type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True),
                         help='db-hltpskey', group='TriggerDB')
     parser.add_argument('--db-extra', type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True),
                         help='db-extra', group='TriggerDB')

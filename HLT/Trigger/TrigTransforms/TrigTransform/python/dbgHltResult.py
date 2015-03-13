@@ -117,9 +117,9 @@ def print_all_navigation(result):
   return
 
 
-def print_HLTResult(result, opt):    
-  if opt.sizes:
-    print "... Payload size: ", result.as_int_v.size(), " ", (4.0*result.as_int_v.size())/(1024), "kB"
+def print_HLTResult(result):    
+#  if opt.sizes:
+  print "... Payload size: ", result.as_int_v.size(), " ", (4.0*result.as_int_v.size())/(1024), "kB"
 
   if result.as_int_v.size() == 0:
     print "... Payload size is 0"
@@ -148,30 +148,30 @@ def print_HLTResult(result, opt):
   nnav = len(nav_data)
   nver = nav_data[0] if nav_data else 0
   
-  if opt.sizes:
-    print '... tot:', result.as_int_v.size(), ' chains:', nchains, ' chains (expected):', len(chains_data)-1, \
+#  if opt.sizes:
+  print '... tot:', result.as_int_v.size(), ' chains:', nchains, ' chains (expected):', len(chains_data)-1, \
           ' navigation:', nnav, ' navigation (expected):',result.getNavigationResult()[1] if nnav > 1 else "0 or 1"
     
-  if opt.conf:
-    try:
-      print "... SMkey: ", result.getConfigSuperMasterKey(), " Prescalers key ", result.getConfigPrescalesKey()
-    except:
-      print "... No config info "
+#  if opt.conf:
+  try:
+    print "... SMkey: ", result.getConfigSuperMasterKey(), " Prescalers key ", result.getConfigPrescalesKey()
+  except:
+    print "... No config info "
 
-  if opt.chains:
-    print_all_chains(chains_data[1:])
+#  if opt.chains:
+  print_all_chains(chains_data[1:])
     
     
   print "... Navigation version: ", nver
-  if opt.tes:
-    if nnav > 3:
-      tessize  = result.getNavigationResult()[2]
-      tescount = result.getNavigationResult()[3]
-      print "... Number of TEs: ",  tescount, " and size: ", tessize, " ", 4.0*tessize/(1024), "kB"
-    else:
-      print "... Cannot print TriggerElement details (not enough navigation data)"
+ # if opt.tes:
+  if nnav > 3:
+    tessize  = result.getNavigationResult()[2]
+    tescount = result.getNavigationResult()[3]
+    print "... Number of TEs: ",  tescount, " and size: ", tessize, " ", 4.0*tessize/(1024), "kB"
+  else:
+    print "... Cannot print TriggerElement details (not enough navigation data)"
 
-  if opt.features:
+#  if opt.features:
     print_all_navigation(result)
 
     
