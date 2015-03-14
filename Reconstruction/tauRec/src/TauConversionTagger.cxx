@@ -132,6 +132,7 @@ StatusCode TauConversionTagger::execute(TauCandidateData *data) {
     double Rconv = sqrt(fabs(d0)*pt/(0.15*2.));
     double auxprod= d0 * perigee->parameters()[Trk::qOverP];
     double rconvii= auxprod > 0 ? Rconv : -Rconv;
+    delete perigee; //cleanup necessary to prevent mem leak
 
     if ( m_ConvTaggerVer==0 ) {
 
@@ -169,9 +170,6 @@ StatusCode TauConversionTagger::execute(TauCandidateData *data) {
     ATH_MSG_VERBOSE("Is tau track a conversion? : " << m_TrkIsConv);
     if (m_TrkIsConv && !pTau->trackFlag(TauJetTrack, xAOD::TauJetParameters::isConversion))
       pTau->setTrackFlag(TauJetTrack, xAOD::TauJetParameters::isConversion, true);
-
-    delete perigee; //cleanup necessary to prevent mem leak
-	
   }
 
   return StatusCode::SUCCESS;

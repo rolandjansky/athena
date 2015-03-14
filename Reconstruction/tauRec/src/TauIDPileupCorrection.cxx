@@ -19,6 +19,8 @@
 #include "tauRec/TauCandidateData.h"
 #include "tauRec/TauIDPileupCorrection.h"
 
+#include "xAODEventInfo/EventInfo.h"
+
 using CLHEP::GeV;
 
 /********************************************************************/
@@ -142,7 +144,7 @@ StatusCode TauIDPileupCorrection::execute(TauCandidateData *data)
     //TODO read the input root file to decide if we should use mu
     bool useMu = m_useMu;
 
-    int nVertex = 0;
+    double nVertex = 0;
     
     // Only retrieve the container if we are not in trigger
     if ((sc.isFailure() || !inTrigger) && !useMu) {
@@ -172,11 +174,22 @@ StatusCode TauIDPileupCorrection::execute(TauCandidateData *data)
       double muTemp = 0.0;
       
       if (data->hasObject("AvgInteractions")) scMu = data->getObject("AvgInteractions", muTemp);
+      else if (!inTrigger) {
+        // Get mu from EventInfo
+        const xAOD::EventInfo *eventInfo;
+        StatusCode scEI = StatusCode::FAILURE;
+        scEI = evtStore()->retrieve(eventInfo, "EventInfo");
+        if (scEI.isFailure() || !eventInfo) {
+          ATH_MSG_ERROR("Could not retrieve EventInfo");
+          return StatusCode::FAILURE;
+        }
+        muTemp = eventInfo->averageInteractionsPerCrossing();
+      }
       
       if(scMu.isSuccess()){
 	ATH_MSG_DEBUG("AvgInteractions object in tau candidate = " << muTemp);
       } else {
-	ATH_MSG_DEBUG("No AvgInteractions object in tau candidate");
+	ATH_MSG_DEBUG("No AvgInteractions object in tau candidate or averageInteractionsPerCrossing in EventInfo");
       }
     
       nVertex = muTemp;

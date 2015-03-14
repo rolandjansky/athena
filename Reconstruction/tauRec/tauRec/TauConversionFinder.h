@@ -40,7 +40,6 @@ private:
     double m_eProb_cut;
     bool m_adjust_tau_charge;
 
-    int m_numLooseProng;
     int m_numProng;
 
 };

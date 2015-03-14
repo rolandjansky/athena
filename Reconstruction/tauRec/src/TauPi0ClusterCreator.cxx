@@ -509,6 +509,7 @@ bool TauPi0ClusterCreator::setHadronicClusterPFOs(
 
         // Get xAOD::CaloClusters from jet constituent
         const xAOD::CaloCluster* cluster = dynamic_cast<const xAOD::CaloCluster*>( (*clusterItr)->rawConstituent() );
+        if (!cluster) continue;
 
         // Don't create PFOs for clusters with overall (Ecal+Hcal) negative energy (noise)
         if(cluster->e()<=0.) continue;

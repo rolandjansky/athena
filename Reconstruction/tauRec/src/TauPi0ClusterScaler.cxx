@@ -169,7 +169,7 @@ StatusCode TauPi0ClusterScaler::execute(TauCandidateData *data)
     for(unsigned int iNeutPFO=0; iNeutPFO<nNeutPFO; iNeutPFO++, thisCluster++) {
         const xAOD::PFO* curNeutPFO_const = pTau->protoNeutralPFO( iNeutPFO );
         int maxESample = 2;
-        if (fabs(curNeutPFO_const->eta() > 1.45)) maxESample = 6;
+        if (fabs(curNeutPFO_const->eta()) > 1.45) maxESample = 6;
         // check if tracks have been extrapolated to this sampling. Do so if this is not the case
         if(m_extrapolatedSamplings.at(maxESample)==false){
            this->getExtrapolatedPositions(tracks,maxESample);

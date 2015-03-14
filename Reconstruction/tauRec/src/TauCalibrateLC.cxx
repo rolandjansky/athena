@@ -54,8 +54,11 @@ StatusCode TauCalibrateLC::initialize() {
     // get the histogram defining eta binning
     std::string key = "etaBinning";
     TObject * obj = file->Get(key.c_str());
+    etaBinHist = NULL;
     if (obj) {
         etaBinHist = dynamic_cast<TH1 *> (obj);
+    }
+    if (etaBinHist) {
         TH1 * tmp = const_cast<TH1*> (etaBinHist);
         tmp->SetDirectory(0);
     } else {
@@ -77,8 +80,11 @@ StatusCode TauCalibrateLC::initialize() {
     // get the histogram with eta corrections
     key = "etaCorrection";
     obj = file->Get(key.c_str());
+    etaCorrectionHist = NULL;
     if (obj) {
         etaCorrectionHist = dynamic_cast<TH1 *> (obj);
+    }
+    if (etaCorrectionHist) {
         TH1 * tmp = const_cast<TH1*> (etaCorrectionHist);
         tmp->SetDirectory(0);
     } else {
@@ -91,8 +97,11 @@ StatusCode TauCalibrateLC::initialize() {
 
     for (int i = 0; i < nProngBins; i++) {
         obj = file->Get(tmpSlopKey[i]); // get pile-up slope histograms
+        slopeNPVHist[i] = NULL;
         if (obj) {
             slopeNPVHist[i] = dynamic_cast<TH1 *> (obj);
+        }
+        if (slopeNPVHist[i]) {
             TH1 * tmp = const_cast<TH1*> (slopeNPVHist[i]);
             tmp->SetDirectory(0);
         } else {
@@ -104,8 +113,12 @@ StatusCode TauCalibrateLC::initialize() {
             TString key = tmpFuncBase[i];
             key += j;
             TObject * obj = file->Get(key);
+            calibFunc[i][j] = NULL;
             if (obj) {
                 calibFunc[i][j] = dynamic_cast<TF1*> (obj);
+            }
+            if (calibFunc[i][j]) {
+              // The cast succeeded.
             } else {
                 ATH_MSG_FATAL("Failed to get an object with  key " << key);
                 return StatusCode::FAILURE;
