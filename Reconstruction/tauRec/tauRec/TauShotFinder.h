@@ -61,7 +61,6 @@ private:
     /** @brief new shot cluster container and name */ 
     xAOD::CaloClusterContainer* m_shotClusterContainer;
     std::string m_shotClusterContainerName;
-    xAOD::CaloClusterAuxContainer* m_shotClusterAuxStore;
 
     /** @brief new shot PFO container and name */
     xAOD::PFOContainer* m_PFOShotContainer;

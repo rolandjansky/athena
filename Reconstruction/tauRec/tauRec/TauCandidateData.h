@@ -39,8 +39,9 @@
  * @authors    Lukasz Janyst
  */
 
-struct TauCandidateData
+class TauCandidateData
 {
+public:
     //-----------------------------------------------------------------
     //! Associate some object to a key - this is meant to be used by
     //! TrigTauRec to pass container pointers to tauRec tools
