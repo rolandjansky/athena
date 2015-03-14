@@ -216,7 +216,8 @@ namespace Analysis
     //retrieving the secondary vertices
     bool status = true;
     std::vector< ElementLink< xAOD::VertexContainer > > myVertices;
-    status &= BTag->variable<std::vector<ElementLink<xAOD::VertexContainer> > >(m_secVxFinderName, "vertices", myVertices);
+    // don't check the following status
+    BTag->variable<std::vector<ElementLink<xAOD::VertexContainer> > >(m_secVxFinderName, "vertices", myVertices);
       // BTag->auxdata<std::vector<ElementLink<xAOD::VertexContainer> > >(m_secVxFinderName+"_vertices");
         
     if (myVertices.size()>0) {

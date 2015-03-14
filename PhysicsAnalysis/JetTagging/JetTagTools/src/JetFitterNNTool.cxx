@@ -358,9 +358,9 @@ StatusCode JetFitterNNTool::finalize() {
     }
     status &= BTag->variable<float>(inputbasename, "significance3d", significance3d);
     status &= BTag->variable<float>(inputbasename, "energyFraction", energyFraction);
-    status &= BTag->variable<>(inputbasename, "nVTX", nVTX);
-    status &= BTag->variable<>(inputbasename, "nTracksAtVtx", nTracksAtVtx);
-    status &= BTag->variable<>(inputbasename, "nSingleTracks", nSingleTracks);
+    status &= BTag->variable<int>(inputbasename, "nVTX", nVTX);
+    status &= BTag->variable<int>(inputbasename, "nTracksAtVtx", nTracksAtVtx);
+    status &= BTag->variable<int>(inputbasename, "nSingleTracks", nSingleTracks);
   }
 
   if (!status) {

@@ -79,14 +79,28 @@ StatusCode JetFitterVariablesFactory::finalize() {
   StatusCode JetFitterVariablesFactory::fillJetFitterVariables(const xAOD::Jet &myJet, xAOD::BTagging* BTag, const Trk::VxJetFitterVertexInfo* myJetFitterInfo, std::string basename) const{
 
 
+    int nVTX(0);
+    int nTracksAtVtx(0);
+    int nSingleTracks(0);
+    float energyFraction(0);
+    float mass(0);
+    float mass_uncorr(0);
+    float significance3d(0);
+    float deltaphi(0.);
+    float deltaeta(0.);
+    float chi2(0.);
+    int ndof(0);
+
     const std::vector<Trk::VxCandidate*>& myVertices = myJetFitterInfo->verticesJF();
     if(myVertices.size() == 0){
       ATH_MSG_WARNING("#BTAG# Trk::VxCandidate not found for jet fitter ");
+      fill(BTag, basename, mass_uncorr, nVTX, nSingleTracks, nTracksAtVtx, mass, energyFraction, significance3d, deltaeta, deltaphi, chi2, ndof);
       return StatusCode::SUCCESS;
     }
     const Trk::VxJetCandidate* myVxJetCandidate=dynamic_cast<Trk::VxJetCandidate*>(myVertices[0]);
     if (myVxJetCandidate==0) {
       ATH_MSG_WARNING("#BTAG# No correct VxJetCandidate could be retrieved." );
+      fill(BTag, basename, mass_uncorr, nVTX, nSingleTracks, nTracksAtVtx, mass, energyFraction, significance3d, deltaeta, deltaphi, chi2, ndof);
       return StatusCode::SUCCESS;
     }
 
@@ -104,21 +118,11 @@ StatusCode JetFitterVariablesFactory::finalize() {
     double energyFromPrimary=0.;
     double energyFromSecondary=0.;
 
-    int nVTX(0);
-    int nTracksAtVtx(0);
-    int nSingleTracks(0);
-    float energyFraction(0);
-    float mass(0);
-    float mass_uncorr(0);
-    float significance3d(0);
-    float deltaphi(0.);
-    float deltaeta(0.);
-
     // get fit quality variables for the PV of jetfitter
     const Trk::VxVertexOnJetAxis* pvtxjet = myVxJetCandidate->getPrimaryVertex();
     const Trk::FitQuality& fitquality = pvtxjet->fitQuality();
-    float chi2 = fitquality.chiSquared();
-    int   ndof = fitquality.numberDoF();
+    chi2 = fitquality.chiSquared();
+    ndof = fitquality.numberDoF();
 
     if (mySelectedTracksInJet!=0) 
     {
@@ -386,36 +390,41 @@ StatusCode JetFitterVariablesFactory::finalize() {
     }
 
 
-    BTag->setVariable<float>(basename, "massUncorr", mass_uncorr);
-
-    if (basename == "JetFitter"){
-	  BTag->setTaggerInfo(nVTX, xAOD::BTagInfo::JetFitter_nVTX);
-	  BTag->setTaggerInfo(nSingleTracks, xAOD::BTagInfo::JetFitter_nSingleTracks);
-	  BTag->setTaggerInfo(nTracksAtVtx, xAOD::BTagInfo::JetFitter_nTracksAtVtx);
-	  BTag->setTaggerInfo(mass, xAOD::BTagInfo::JetFitter_mass);
-	  BTag->setTaggerInfo(energyFraction, xAOD::BTagInfo::JetFitter_energyFraction);
-	  BTag->setTaggerInfo(significance3d, xAOD::BTagInfo::JetFitter_significance3d);
-	  BTag->setTaggerInfo(deltaeta, xAOD::BTagInfo::JetFitter_deltaeta);
-	  BTag->setTaggerInfo(deltaphi, xAOD::BTagInfo::JetFitter_deltaphi);
-    } 
-    else{
-      BTag->setVariable<int>(basename, "nVTX", nVTX);
-      BTag->setVariable<int>(basename, "nSingleTracks", nSingleTracks);
-      BTag->setVariable<int>(basename, "nTracksAtVtx", nTracksAtVtx);
-      BTag->setVariable<float>(basename, "mass", mass);
-      BTag->setVariable<float>(basename, "energyFraction", energyFraction);
-      BTag->setVariable<float>(basename, "significance3d", significance3d);
-      BTag->setVariable<float>(basename, "deltaeta", deltaeta);
-      BTag->setVariable<float>(basename, "deltaphi", deltaphi);
-      BTag->setVariable<float>(basename, "chi2", chi2);
-      BTag->setVariable<int>(basename, "ndof", ndof);
-    }
-
-
+    fill(BTag, basename, mass_uncorr, nVTX, nSingleTracks, nTracksAtVtx, mass, energyFraction, significance3d, deltaeta, deltaphi, chi2, ndof);
 
     return StatusCode::SUCCESS;
 
   
   }
+
+void
+JetFitterVariablesFactory::fill(xAOD::BTagging* BTag, const std::string& basename, float mass_uncorr,
+                                int nVTX, int nSingleTracks, int nTracksAtVtx, float mass, float energyFraction,
+                                float significance3d, float deltaeta, float deltaphi, float chi2, int ndof) const {
+
+  BTag->setVariable<float>(basename, "massUncorr", mass_uncorr);
+  BTag->setVariable<float>(basename, "chi2", chi2);
+  BTag->setVariable<int>(basename, "ndof", ndof);
+
+  if (basename == "JetFitter"){
+     BTag->setTaggerInfo(nVTX, xAOD::BTagInfo::JetFitter_nVTX);
+     BTag->setTaggerInfo(nSingleTracks, xAOD::BTagInfo::JetFitter_nSingleTracks);
+     BTag->setTaggerInfo(nTracksAtVtx, xAOD::BTagInfo::JetFitter_nTracksAtVtx);
+     BTag->setTaggerInfo(mass, xAOD::BTagInfo::JetFitter_mass);
+     BTag->setTaggerInfo(energyFraction, xAOD::BTagInfo::JetFitter_energyFraction);
+     BTag->setTaggerInfo(significance3d, xAOD::BTagInfo::JetFitter_significance3d);
+     BTag->setTaggerInfo(deltaeta, xAOD::BTagInfo::JetFitter_deltaeta);
+     BTag->setTaggerInfo(deltaphi, xAOD::BTagInfo::JetFitter_deltaphi);
+  } else {
+     BTag->setVariable<int>(basename, "nVTX", nVTX);
+     BTag->setVariable<int>(basename, "nSingleTracks", nSingleTracks);
+     BTag->setVariable<int>(basename, "nTracksAtVtx", nTracksAtVtx);
+     BTag->setVariable<float>(basename, "mass", mass);
+     BTag->setVariable<float>(basename, "energyFraction", energyFraction);
+     BTag->setVariable<float>(basename, "significance3d", significance3d);
+     BTag->setVariable<float>(basename, "deltaeta", deltaeta);
+     BTag->setVariable<float>(basename, "deltaphi", deltaphi);
+  }
+}
 
 }//end Analysis namespace
