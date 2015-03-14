@@ -58,6 +58,9 @@ namespace Analysis {
     std::string m_MV2CalibAlias;
     std::string m_MV2cXX;
     std::string m_xAODBaseName;
+    
+    bool m_disableAlgo;
+    int  m_warnCounter;
 
     /** This switch is needed to indicate what to do. The algorithm can be run to produce
 	reference histograms from the given MC files (m_runModus=0) or to work in analysis mode

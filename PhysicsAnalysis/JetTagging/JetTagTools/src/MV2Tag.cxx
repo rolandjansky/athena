@@ -65,15 +65,18 @@ namespace Analysis {
       // m_jftNN_infosource = "JetFitterTagNNFlip";
       // m_jfcNN_infosource = "JetFitterCOMBNNIP3DNeg";
 
-
+    
   }
 
-
+  
   MV2Tag::~MV2Tag() {
   }
-
-
+  
+  
   StatusCode MV2Tag::initialize() {
+    m_disableAlgo=false;
+    m_warnCounter=0;
+
     // prepare calibration tool:
     StatusCode sc = m_calibrationTool.retrieve();
     if ( sc.isFailure() ) {
@@ -103,6 +106,14 @@ namespace Analysis {
     // VD: make sure that we initialize all variables
     ClearInputs();
     
+    if ( m_disableAlgo ) {
+      if (m_warnCounter<20) {
+	ATH_MSG_WARNING("#BTAG# .... algorithm was disabled due to mis-configuration problems: no output will be written ... PLEASE WATCH OUT" );
+	m_warnCounter++;
+      }
+      return StatusCode::SUCCESS;
+    }
+    
     /* jet author: */
     std::string author ;
     if (m_forceMV2CalibrationAlias) {
@@ -111,7 +122,7 @@ namespace Analysis {
     else {
       author = JetTagUtils::getJetAuthor(myJet);
     }
-
+    
     std::string alias = m_calibrationTool->channelAlias(author);//why this gives always the same?
 
     TMVA::Reader* tmvaReader;
@@ -133,10 +144,12 @@ namespace Analysis {
       ATH_MSG_DEBUG("#BTAG# " << m_taggerNameBase << " calib updated -> try to retrieve");
       if(!calib.first) {
 	ATH_MSG_WARNING("#BTAG# Tlist can't be retrieved -> no calibration for"<< m_taggerNameBase );
+	m_disableAlgo=true;
 	return StatusCode::SUCCESS;
       }
       m_calibrationTool->updateHistogramStatus(m_taggerNameBase, alias, m_taggerNameBase+"Calib", false);
       
+      int calibNvars=0;
       //now the new part istringstream
       TList* list = calib.first;
       for(int i=0; i<list->GetSize(); ++i) {
@@ -147,6 +160,14 @@ namespace Analysis {
 	std::string tmp = sss.erase(0,posi);
 	//std::cout<<tmp<<std::endl;
 	iss << tmp.data();      //iss << sss.Data();
+	if ( sss.find("Variables NVar")!=std::string::npos ) {
+	  //std::cout << " VALERIOVALERIO: " << sss << std::endl;
+	  std::string newString=sss.substr(17,2); //VD this a bit sloppy but c++ is not python
+	  //sss.find("\""),2); //VD: this does not work
+	  calibNvars=stoi(newString);
+	  //std::cout << " VALERIOVALERIO2: " << newString << std::endl;
+	  //std::cout << " VALERIOVALERIO3: " << calibNvars << std::endl;
+	}
       }
 
       // now configure the TMVAReaders:
@@ -154,214 +175,248 @@ namespace Analysis {
       tmvaReader = new TMVA::Reader();
       
       // VD: I know it could be done in a more elegant way but I prefer to keep the blocks completely separated
-      
+      int nConfgVar=0;
       if ( m_trainingConfig=="Default") {
 	// IP2D posteriors
-	tmvaReader->AddVariable("ip2_pu",&m_ip2_pu);
-	tmvaReader->AddVariable("ip2_pb",&m_ip2_pb);
-	tmvaReader->AddVariable("ip2_pc",&m_ip2_pc);
+	tmvaReader->AddVariable("ip2_pu",&m_ip2_pu);  nConfgVar++;
+	tmvaReader->AddVariable("ip2_pb",&m_ip2_pb);  nConfgVar++;
+	tmvaReader->AddVariable("ip2_pc",&m_ip2_pc);  nConfgVar++;
 	// IP3D posteriors
-	tmvaReader->AddVariable("ip3_pu",&m_ip3_pu);
-	tmvaReader->AddVariable("ip3_pb",&m_ip3_pb);
-	tmvaReader->AddVariable("ip3_pc",&m_ip3_pc);
+	tmvaReader->AddVariable("ip3_pu",&m_ip3_pu);  nConfgVar++;
+	tmvaReader->AddVariable("ip3_pb",&m_ip3_pb);  nConfgVar++;
+	tmvaReader->AddVariable("ip3_pc",&m_ip3_pc);  nConfgVar++;
 	//SV1 posteriors
-	tmvaReader->AddVariable("sv1_pu",&m_sv1_pu);
-	tmvaReader->AddVariable("sv1_pb",&m_sv1_pb);
-	tmvaReader->AddVariable("sv1_pc",&m_sv1_pc);
+	tmvaReader->AddVariable("sv1_pu",&m_sv1_pu);  nConfgVar++;
+	tmvaReader->AddVariable("sv1_pb",&m_sv1_pb);  nConfgVar++;
+	tmvaReader->AddVariable("sv1_pc",&m_sv1_pc);  nConfgVar++;
 	//JetFitterCombNN posteriors
-	tmvaReader->AddVariable("jfc_pu",&m_jfc_pu);
-	tmvaReader->AddVariable("jfc_pb",&m_jfc_pb);
-	tmvaReader->AddVariable("jfc_pc",&m_jfc_pc);
+	tmvaReader->AddVariable("jfc_pu",&m_jfc_pu);  nConfgVar++;
+	tmvaReader->AddVariable("jfc_pb",&m_jfc_pb);  nConfgVar++;
+	tmvaReader->AddVariable("jfc_pc",&m_jfc_pc);  nConfgVar++;
 	//SV0 informations
-	tmvaReader->AddVariable("sv0",&m_sv0);
-	tmvaReader->AddVariable("sv0_ntkv",&m_sv0_ntkv);
-	tmvaReader->AddVariable("sv0mass" ,&m_sv0_mass);
-	tmvaReader->AddVariable("sv0_efrc",&m_sv0_efrc);
-	tmvaReader->AddVariable("sv0_n2t" ,&m_sv0_n2t);
+	tmvaReader->AddVariable("sv0",&m_sv0);  nConfgVar++;
+	tmvaReader->AddVariable("sv0_ntkv",&m_sv0_ntkv);  nConfgVar++;
+	tmvaReader->AddVariable("sv0mass" ,&m_sv0_mass);  nConfgVar++;
+	tmvaReader->AddVariable("sv0_efrc",&m_sv0_efrc);  nConfgVar++;
+	tmvaReader->AddVariable("sv0_n2t" ,&m_sv0_n2t);  nConfgVar++;
 	//JetFitter informations
-	tmvaReader->AddVariable("jf_mass",&m_jf_mass);
-	tmvaReader->AddVariable("jf_efrc",&m_jf_efrc);
-	tmvaReader->AddVariable("jf_n2tv",&m_jf_n2tv);
-	tmvaReader->AddVariable("jf_ntrkv",&m_jf_ntrkv);
-	tmvaReader->AddVariable("jf_nvtx",&m_jf_nvtx);
-	tmvaReader->AddVariable("jf_nvtx1t",&m_jf_nvtx1t);
-	tmvaReader->AddVariable("jf_dphi",&m_jf_dphi);
-	tmvaReader->AddVariable("jf_deta",&m_jf_deta);	  //tmvaReader->AddVariable("jfitvx_chi2/jfitvx_ndof",&m_chi2Ondof);
-	tmvaReader->AddVariable("jf_sig3",&m_jf_sig3);
+	tmvaReader->AddVariable("jf_mass",&m_jf_mass);  nConfgVar++;
+	tmvaReader->AddVariable("jf_efrc",&m_jf_efrc);  nConfgVar++;
+	tmvaReader->AddVariable("jf_n2tv",&m_jf_n2tv);  nConfgVar++;
+	tmvaReader->AddVariable("jf_ntrkv",&m_jf_ntrkv);  nConfgVar++;
+	tmvaReader->AddVariable("jf_nvtx",&m_jf_nvtx);  nConfgVar++;
+	tmvaReader->AddVariable("jf_nvtx1t",&m_jf_nvtx1t);  nConfgVar++;
+	tmvaReader->AddVariable("jf_dphi",&m_jf_dphi);  nConfgVar++;
+	tmvaReader->AddVariable("jf_deta",&m_jf_deta);  nConfgVar++;	  //tmvaReader->AddVariable("jfitvx_chi2/jfitvx_ndof",&m_chi2Ondof);
+	tmvaReader->AddVariable("jf_sig3",&m_jf_sig3);  nConfgVar++;
 
       } else if (m_trainingConfig=="NoJetFitterCombNN" ) {
 	// IP2D posteriors
-	tmvaReader->AddVariable("ip2",&m_ip2);
-	tmvaReader->AddVariable("ip2_c",&m_ip2_c);
-	tmvaReader->AddVariable("ip2_cu",&m_ip2_cu);
+	tmvaReader->AddVariable("ip2",&m_ip2);  nConfgVar++;
+	tmvaReader->AddVariable("ip2_c",&m_ip2_c);  nConfgVar++;
+	tmvaReader->AddVariable("ip2_cu",&m_ip2_cu);  nConfgVar++;
 	// IP3D posteriors
-	tmvaReader->AddVariable("ip3",&m_ip3);
-	tmvaReader->AddVariable("ip3_c",&m_ip3_c);
-	tmvaReader->AddVariable("ip3_cu",&m_ip3_cu);
+	tmvaReader->AddVariable("ip3",&m_ip3);  nConfgVar++;
+	tmvaReader->AddVariable("ip3_c",&m_ip3_c);  nConfgVar++;
+	tmvaReader->AddVariable("ip3_cu",&m_ip3_cu);  nConfgVar++;
 	//SV1 posteriors
-	tmvaReader->AddVariable("sv1",&m_sv1);
-	tmvaReader->AddVariable("sv1_c",&m_sv1_c);
-	tmvaReader->AddVariable("sv1_cu",&m_sv1_cu);
+	tmvaReader->AddVariable("sv1",&m_sv1);  nConfgVar++;
+	tmvaReader->AddVariable("sv1_c",&m_sv1_c);  nConfgVar++;
+	tmvaReader->AddVariable("sv1_cu",&m_sv1_cu);  nConfgVar++;
 	//SV0 informations
-	tmvaReader->AddVariable("sv0",&m_sv0);
-	tmvaReader->AddVariable("sv0_ntkv",&m_sv0_ntkv);
-	tmvaReader->AddVariable("sv0mass" ,&m_sv0_mass);
-	tmvaReader->AddVariable("sv0_efrc",&m_sv0_efrc);
-	tmvaReader->AddVariable("sv0_n2t" ,&m_sv0_n2t);
+	tmvaReader->AddVariable("sv0",&m_sv0);  nConfgVar++;
+	tmvaReader->AddVariable("sv0_ntkv",&m_sv0_ntkv);  nConfgVar++;
+	tmvaReader->AddVariable("sv0mass" ,&m_sv0_mass);  nConfgVar++;
+	tmvaReader->AddVariable("sv0_efrc",&m_sv0_efrc);  nConfgVar++;
+	tmvaReader->AddVariable("sv0_n2t" ,&m_sv0_n2t);  nConfgVar++;
 	//JetFitter informations
-	tmvaReader->AddVariable("jf_n2tv",&m_jf_n2tv);
-	tmvaReader->AddVariable("jf_ntrkv",&m_jf_ntrkv);
-	tmvaReader->AddVariable("jf_nvtx",&m_jf_nvtx);
-	tmvaReader->AddVariable("jf_nvtx1t",&m_jf_nvtx1t);
-	tmvaReader->AddVariable("jf_mass",&m_jf_mass);
-	tmvaReader->AddVariable("jf_efrc",&m_jf_efrc);
-	tmvaReader->AddVariable("jf_dR",&m_jf_dR);
-	tmvaReader->AddVariable("jf_sig3",&m_jf_sig3);
+	tmvaReader->AddVariable("jf_n2tv",&m_jf_n2tv);  nConfgVar++;
+	tmvaReader->AddVariable("jf_ntrkv",&m_jf_ntrkv);  nConfgVar++;
+	tmvaReader->AddVariable("jf_nvtx",&m_jf_nvtx);  nConfgVar++;
+	tmvaReader->AddVariable("jf_nvtx1t",&m_jf_nvtx1t);  nConfgVar++;
+	tmvaReader->AddVariable("jf_mass",&m_jf_mass);  nConfgVar++;
+	tmvaReader->AddVariable("jf_efrc",&m_jf_efrc);  nConfgVar++;
+	tmvaReader->AddVariable("jf_dR",&m_jf_dR);  nConfgVar++;
+	tmvaReader->AddVariable("jf_sig3",&m_jf_sig3);  nConfgVar++;
 	
       } else if (m_trainingConfig=="NoJF_NoSV0" ) {
 	// IP2D posteriors
-	tmvaReader->AddVariable("ip2",&m_ip2);
-	tmvaReader->AddVariable("ip2_c",&m_ip2_c);
-	tmvaReader->AddVariable("ip2_cu",&m_ip2_cu);
+	tmvaReader->AddVariable("ip2",&m_ip2);  nConfgVar++;
+	tmvaReader->AddVariable("ip2_c",&m_ip2_c);  nConfgVar++;
+	tmvaReader->AddVariable("ip2_cu",&m_ip2_cu);  nConfgVar++;
 	// IP3D posteriors
-	tmvaReader->AddVariable("ip3",&m_ip3);
-	tmvaReader->AddVariable("ip3_c",&m_ip3_c);
-	tmvaReader->AddVariable("ip3_cu",&m_ip3_cu);
+	tmvaReader->AddVariable("ip3",&m_ip3);  nConfgVar++;
+	tmvaReader->AddVariable("ip3_c",&m_ip3_c);  nConfgVar++;
+	tmvaReader->AddVariable("ip3_cu",&m_ip3_cu);  nConfgVar++;
 	//SV1 posteriors
-	tmvaReader->AddVariable("sv1",&m_sv1);
-	tmvaReader->AddVariable("sv1_c",&m_sv1_c);
-	tmvaReader->AddVariable("sv1_cu",&m_sv1_cu);
+	tmvaReader->AddVariable("sv1",&m_sv1);  nConfgVar++;
+	tmvaReader->AddVariable("sv1_c",&m_sv1_c);  nConfgVar++;
+	tmvaReader->AddVariable("sv1_cu",&m_sv1_cu);  nConfgVar++;
 	//more sv1 informations
-	tmvaReader->AddVariable("sv1_ntkv" ,&m_sv1_ntkv);
-	tmvaReader->AddVariable("sv1_mass" ,&m_sv1_mass);
-	tmvaReader->AddVariable("sv1_efrc" ,&m_sv1_efrc);
-	tmvaReader->AddVariable("sv1_n2t"  ,&m_sv1_n2t);
-	tmvaReader->AddVariable("sv1_Lxy"  ,&m_sv1_Lxy);
-	tmvaReader->AddVariable("sv1_L3d"  ,&m_sv1_L3d);
+	tmvaReader->AddVariable("sv1_ntkv" ,&m_sv1_ntkv);  nConfgVar++;
+	tmvaReader->AddVariable("sv1_mass" ,&m_sv1_mass);  nConfgVar++;
+	tmvaReader->AddVariable("sv1_efrc" ,&m_sv1_efrc);  nConfgVar++;
+	tmvaReader->AddVariable("sv1_n2t"  ,&m_sv1_n2t);  nConfgVar++;
+	tmvaReader->AddVariable("sv1_Lxy"  ,&m_sv1_Lxy);  nConfgVar++;
+	tmvaReader->AddVariable("sv1_L3d"  ,&m_sv1_L3d);  nConfgVar++;
 	//JetFitter informations
-	tmvaReader->AddVariable("jf_n2tv",&m_jf_n2tv);
-	tmvaReader->AddVariable("jf_ntrkv",&m_jf_ntrkv);
-	tmvaReader->AddVariable("jf_nvtx",&m_jf_nvtx);
-	tmvaReader->AddVariable("jf_nvtx1t",&m_jf_nvtx1t);
-	tmvaReader->AddVariable("jf_mass",&m_jf_mass);
-	tmvaReader->AddVariable("jf_efrc",&m_jf_efrc);
-	tmvaReader->AddVariable("jf_dR",&m_jf_dR);
-	tmvaReader->AddVariable("jf_sig3",&m_jf_sig3);
+	tmvaReader->AddVariable("jf_n2tv",&m_jf_n2tv);  nConfgVar++;
+	tmvaReader->AddVariable("jf_ntrkv",&m_jf_ntrkv);  nConfgVar++;
+	tmvaReader->AddVariable("jf_nvtx",&m_jf_nvtx);  nConfgVar++;
+	tmvaReader->AddVariable("jf_nvtx1t",&m_jf_nvtx1t);  nConfgVar++;
+	tmvaReader->AddVariable("jf_mass",&m_jf_mass);  nConfgVar++;
+	tmvaReader->AddVariable("jf_efrc",&m_jf_efrc);  nConfgVar++;
+	tmvaReader->AddVariable("jf_dR",&m_jf_dR);  nConfgVar++;
+	tmvaReader->AddVariable("jf_sig3",&m_jf_sig3);  nConfgVar++;
       } else if (m_trainingConfig=="NoJF_NoSV0_V2" ) {
 	// IP2D posteriors
-	tmvaReader->AddVariable("ip2",&m_ip2);
-	tmvaReader->AddVariable("ip2_c",&m_ip2_c);
-	tmvaReader->AddVariable("ip2_cu",&m_ip2_cu);
+	tmvaReader->AddVariable("ip2",&m_ip2);  nConfgVar++;
+	tmvaReader->AddVariable("ip2_c",&m_ip2_c);  nConfgVar++;
+	tmvaReader->AddVariable("ip2_cu",&m_ip2_cu);  nConfgVar++;
 	// IP3D posteriors
-	tmvaReader->AddVariable("ip3",&m_ip3);
-	tmvaReader->AddVariable("ip3_c",&m_ip3_c);
-	tmvaReader->AddVariable("ip3_cu",&m_ip3_cu);
+	tmvaReader->AddVariable("ip3",&m_ip3);  nConfgVar++;
+	tmvaReader->AddVariable("ip3_c",&m_ip3_c);  nConfgVar++;
+	tmvaReader->AddVariable("ip3_cu",&m_ip3_cu);  nConfgVar++;
 	//SV1 posteriors
-	tmvaReader->AddVariable("sv1",&m_sv1);
-	tmvaReader->AddVariable("sv1_c",&m_sv1_c);
-	tmvaReader->AddVariable("sv1_cu",&m_sv1_cu);
+	tmvaReader->AddVariable("sv1",&m_sv1);  nConfgVar++;
+	tmvaReader->AddVariable("sv1_c",&m_sv1_c);  nConfgVar++;
+	tmvaReader->AddVariable("sv1_cu",&m_sv1_cu);  nConfgVar++;
 	//more sv1 informations
-	tmvaReader->AddVariable("sv1_ntkv" ,&m_sv1_ntkv);
-	tmvaReader->AddVariable("sv1_mass" ,&m_sv1_mass);
-	tmvaReader->AddVariable("sv1_efrc" ,&m_sv1_efrc);
-	tmvaReader->AddVariable("sv1_n2t"  ,&m_sv1_n2t);
-	tmvaReader->AddVariable("sv1_Lxy"  ,&m_sv1_Lxy);
-	tmvaReader->AddVariable("sv1_L3d"  ,&m_sv1_L3d);
-	tmvaReader->AddVariable("sv1_sig3" ,&m_sv1_sig3);
+	tmvaReader->AddVariable("sv1_ntkv" ,&m_sv1_ntkv);  nConfgVar++;
+	tmvaReader->AddVariable("sv1_mass" ,&m_sv1_mass);  nConfgVar++;
+	tmvaReader->AddVariable("sv1_efrc" ,&m_sv1_efrc);  nConfgVar++;
+	tmvaReader->AddVariable("sv1_n2t"  ,&m_sv1_n2t);  nConfgVar++;
+	tmvaReader->AddVariable("sv1_Lxy"  ,&m_sv1_Lxy);  nConfgVar++;
+	tmvaReader->AddVariable("sv1_L3d"  ,&m_sv1_L3d);  nConfgVar++;
+	tmvaReader->AddVariable("sv1_sig3" ,&m_sv1_sig3);  nConfgVar++;
 	//JetFitter informations
-	tmvaReader->AddVariable("jf_n2tv",&m_jf_n2tv);
-	tmvaReader->AddVariable("jf_ntrkv",&m_jf_ntrkv);
-	tmvaReader->AddVariable("jf_nvtx",&m_jf_nvtx);
-	tmvaReader->AddVariable("jf_nvtx1t",&m_jf_nvtx1t);
-	tmvaReader->AddVariable("jf_mass",&m_jf_mass);
-	tmvaReader->AddVariable("jf_efrc",&m_jf_efrc);
-	tmvaReader->AddVariable("jf_dR",&m_jf_dR);
-	tmvaReader->AddVariable("jf_sig3",&m_jf_sig3);
+	tmvaReader->AddVariable("jf_n2tv",&m_jf_n2tv);  nConfgVar++;
+	tmvaReader->AddVariable("jf_ntrkv",&m_jf_ntrkv);  nConfgVar++;
+	tmvaReader->AddVariable("jf_nvtx",&m_jf_nvtx);  nConfgVar++;
+	tmvaReader->AddVariable("jf_nvtx1t",&m_jf_nvtx1t);  nConfgVar++;
+	tmvaReader->AddVariable("jf_mass",&m_jf_mass);  nConfgVar++;
+	tmvaReader->AddVariable("jf_efrc",&m_jf_efrc);  nConfgVar++;
+	tmvaReader->AddVariable("jf_dR",&m_jf_dR);  nConfgVar++;
+	tmvaReader->AddVariable("jf_sig3",&m_jf_sig3);  nConfgVar++;
       } else if (m_trainingConfig=="NoJF_NoSV0NoSv1" ) {
 	// IP2D posteriors
-	tmvaReader->AddVariable("ip2",&m_ip2);
-	tmvaReader->AddVariable("ip2_c",&m_ip2_c);
-	tmvaReader->AddVariable("ip2_cu",&m_ip2_cu);
+	tmvaReader->AddVariable("ip2",&m_ip2);  nConfgVar++;
+	tmvaReader->AddVariable("ip2_c",&m_ip2_c);  nConfgVar++;
+	tmvaReader->AddVariable("ip2_cu",&m_ip2_cu);  nConfgVar++;
 	// IP3D posteriors
-	tmvaReader->AddVariable("ip3",&m_ip3);
-	tmvaReader->AddVariable("ip3_c",&m_ip3_c);
-	tmvaReader->AddVariable("ip3_cu",&m_ip3_cu);
+	tmvaReader->AddVariable("ip3",&m_ip3);  nConfgVar++;
+	tmvaReader->AddVariable("ip3_c",&m_ip3_c);  nConfgVar++;
+	tmvaReader->AddVariable("ip3_cu",&m_ip3_cu);  nConfgVar++;
 	//more sv1 informations
-	tmvaReader->AddVariable("sv1_ntkv" ,&m_sv1_ntkv);
-	tmvaReader->AddVariable("sv1_mass" ,&m_sv1_mass);
-	tmvaReader->AddVariable("sv1_efrc" ,&m_sv1_efrc);
-	tmvaReader->AddVariable("sv1_n2t"  ,&m_sv1_n2t);
-	tmvaReader->AddVariable("sv1_Lxy"  ,&m_sv1_Lxy);
-	tmvaReader->AddVariable("sv1_L3d"  ,&m_sv1_L3d);
-	tmvaReader->AddVariable("sv1_sig3" ,&m_sv1_sig3);
+	tmvaReader->AddVariable("sv1_ntkv" ,&m_sv1_ntkv);  nConfgVar++;
+	tmvaReader->AddVariable("sv1_mass" ,&m_sv1_mass);  nConfgVar++;
+	tmvaReader->AddVariable("sv1_efrc" ,&m_sv1_efrc);  nConfgVar++;
+	tmvaReader->AddVariable("sv1_n2t"  ,&m_sv1_n2t);  nConfgVar++;
+	tmvaReader->AddVariable("sv1_Lxy"  ,&m_sv1_Lxy);  nConfgVar++;
+	tmvaReader->AddVariable("sv1_L3d"  ,&m_sv1_L3d);  nConfgVar++;
+	tmvaReader->AddVariable("sv1_sig3" ,&m_sv1_sig3);  nConfgVar++;
 	//JetFitter informations
-	tmvaReader->AddVariable("jf_n2tv",&m_jf_n2tv);
-	tmvaReader->AddVariable("jf_ntrkv",&m_jf_ntrkv);
-	tmvaReader->AddVariable("jf_nvtx",&m_jf_nvtx);
-	tmvaReader->AddVariable("jf_nvtx1t",&m_jf_nvtx1t);
-	tmvaReader->AddVariable("jf_mass",&m_jf_mass);
-	tmvaReader->AddVariable("jf_efrc",&m_jf_efrc);
-	tmvaReader->AddVariable("jf_dR",&m_jf_dR);
-	tmvaReader->AddVariable("jf_sig3",&m_jf_sig3);
+	tmvaReader->AddVariable("jf_n2tv",&m_jf_n2tv);  nConfgVar++;
+	tmvaReader->AddVariable("jf_ntrkv",&m_jf_ntrkv);  nConfgVar++;
+	tmvaReader->AddVariable("jf_nvtx",&m_jf_nvtx);  nConfgVar++;
+	tmvaReader->AddVariable("jf_nvtx1t",&m_jf_nvtx1t);  nConfgVar++;
+	tmvaReader->AddVariable("jf_mass",&m_jf_mass);  nConfgVar++;
+	tmvaReader->AddVariable("jf_efrc",&m_jf_efrc);  nConfgVar++;
+	tmvaReader->AddVariable("jf_dR",&m_jf_dR);  nConfgVar++;
+	tmvaReader->AddVariable("jf_sig3",&m_jf_sig3);  nConfgVar++;
+      } else if (m_trainingConfig=="NoJF_NoSV0NoSv1_V1" ) {
+	tmvaReader->AddVariable("pt",&m_pt);	  nConfgVar++;
+	tmvaReader->AddVariable("abs(eta)",&m_absEta);	  nConfgVar++;
+	// IP2D posteriors
+	tmvaReader->AddVariable("ip2",&m_ip2);  nConfgVar++;
+	tmvaReader->AddVariable("ip2_c",&m_ip2_c);  nConfgVar++;
+	tmvaReader->AddVariable("ip2_cu",&m_ip2_cu);  nConfgVar++;
+	// IP3D posteriors
+	tmvaReader->AddVariable("ip3",&m_ip3);  nConfgVar++;
+	tmvaReader->AddVariable("ip3_c",&m_ip3_c);  nConfgVar++;
+	tmvaReader->AddVariable("ip3_cu",&m_ip3_cu);  nConfgVar++;
+	//more sv1 informations
+	tmvaReader->AddVariable("sv1_ntkv" ,&m_sv1_ntkv);  nConfgVar++;
+	tmvaReader->AddVariable("sv1_mass" ,&m_sv1_mass);  nConfgVar++;
+	tmvaReader->AddVariable("sv1_efrc" ,&m_sv1_efrc);  nConfgVar++;
+	tmvaReader->AddVariable("sv1_n2t"  ,&m_sv1_n2t);  nConfgVar++;
+	tmvaReader->AddVariable("sv1_Lxy"  ,&m_sv1_Lxy);  nConfgVar++;
+	tmvaReader->AddVariable("sv1_L3d"  ,&m_sv1_L3d);  nConfgVar++;
+	tmvaReader->AddVariable("sv1_sig3" ,&m_sv1_sig3);  nConfgVar++;
+	//JetFitter informations
+	tmvaReader->AddVariable("jf_n2tv",&m_jf_n2tv);  nConfgVar++;
+	tmvaReader->AddVariable("jf_ntrkv",&m_jf_ntrkv);  nConfgVar++;
+	tmvaReader->AddVariable("jf_nvtx",&m_jf_nvtx);  nConfgVar++;
+	tmvaReader->AddVariable("jf_nvtx1t",&m_jf_nvtx1t);  nConfgVar++;
+	tmvaReader->AddVariable("jf_mass",&m_jf_mass);  nConfgVar++;
+	tmvaReader->AddVariable("jf_efrc",&m_jf_efrc);  nConfgVar++;
+	tmvaReader->AddVariable("jf_dR",&m_jf_dR);  nConfgVar++;
+	tmvaReader->AddVariable("jf_sig3",&m_jf_sig3);  nConfgVar++;
       } else if (m_trainingConfig=="NoJF_NoSV0NoSv1_V2" ) {
 	// IP2D posteriors
-	tmvaReader->AddVariable("ip2",&m_ip2);
-	tmvaReader->AddVariable("ip2_c",&m_ip2_c);
-	tmvaReader->AddVariable("ip2_cu",&m_ip2_cu);
+	tmvaReader->AddVariable("ip2",&m_ip2);  nConfgVar++;
+	tmvaReader->AddVariable("ip2_c",&m_ip2_c);  nConfgVar++;
+	tmvaReader->AddVariable("ip2_cu",&m_ip2_cu);  nConfgVar++;
 	// IP3D posteriors
-	tmvaReader->AddVariable("ip3",&m_ip3);
-	tmvaReader->AddVariable("ip3_c",&m_ip3_c);
-	tmvaReader->AddVariable("ip3_cu",&m_ip3_cu);
+	tmvaReader->AddVariable("ip3",&m_ip3);  nConfgVar++;
+	tmvaReader->AddVariable("ip3_c",&m_ip3_c);  nConfgVar++;
+	tmvaReader->AddVariable("ip3_cu",&m_ip3_cu);  nConfgVar++;
 	//more sv1 informations
-	tmvaReader->AddVariable("sv1_ntkv" ,&m_sv1_ntkv);
-	tmvaReader->AddVariable("sv1_mass" ,&m_sv1_mass);
-	tmvaReader->AddVariable("sv1_efrc" ,&m_sv1_efrc);
-	tmvaReader->AddVariable("sv1_n2t"  ,&m_sv1_n2t);
-	tmvaReader->AddVariable("sv1_Lxy"  ,&m_sv1_Lxy);
-	tmvaReader->AddVariable("sv1_L3d"  ,&m_sv1_L3d);
-	tmvaReader->AddVariable("sv1_sig3" ,&m_sv1_sig3);
-	tmvaReader->AddVariable("sv1_dR"   ,&m_sv1_dR);
+	tmvaReader->AddVariable("sv1_ntkv" ,&m_sv1_ntkv);  nConfgVar++;
+	tmvaReader->AddVariable("sv1_mass" ,&m_sv1_mass);  nConfgVar++;
+	tmvaReader->AddVariable("sv1_efrc" ,&m_sv1_efrc);  nConfgVar++;
+	tmvaReader->AddVariable("sv1_n2t"  ,&m_sv1_n2t);  nConfgVar++;
+	tmvaReader->AddVariable("sv1_Lxy"  ,&m_sv1_Lxy);  nConfgVar++;
+	tmvaReader->AddVariable("sv1_L3d"  ,&m_sv1_L3d);  nConfgVar++;
+	tmvaReader->AddVariable("sv1_sig3" ,&m_sv1_sig3);  nConfgVar++;
+	tmvaReader->AddVariable("sv1_dR"   ,&m_sv1_dR);  nConfgVar++;
 	//JetFitter informations
-	tmvaReader->AddVariable("jf_n2tv",&m_jf_n2tv);
-	tmvaReader->AddVariable("jf_ntrkv",&m_jf_ntrkv);
-	tmvaReader->AddVariable("jf_nvtx",&m_jf_nvtx);
-	tmvaReader->AddVariable("jf_nvtx1t",&m_jf_nvtx1t);
-	tmvaReader->AddVariable("jf_mass",&m_jf_mass);
-	tmvaReader->AddVariable("jf_efrc",&m_jf_efrc);
-	tmvaReader->AddVariable("jf_dR",&m_jf_dR);
-	tmvaReader->AddVariable("jf_sig3",&m_jf_sig3);
+	tmvaReader->AddVariable("jf_n2tv",&m_jf_n2tv);  nConfgVar++;
+	tmvaReader->AddVariable("jf_ntrkv",&m_jf_ntrkv);  nConfgVar++;
+	tmvaReader->AddVariable("jf_nvtx",&m_jf_nvtx);  nConfgVar++;
+	tmvaReader->AddVariable("jf_nvtx1t",&m_jf_nvtx1t);  nConfgVar++;
+	tmvaReader->AddVariable("jf_mass",&m_jf_mass);  nConfgVar++;
+	tmvaReader->AddVariable("jf_efrc",&m_jf_efrc);  nConfgVar++;
+	tmvaReader->AddVariable("jf_dR",&m_jf_dR);  nConfgVar++;
+	tmvaReader->AddVariable("jf_sig3",&m_jf_sig3);  nConfgVar++;
       } else if (m_trainingConfig=="NoJF_NoSV0NoSv1_V3" ) {
-	tmvaReader->AddVariable("pt",&m_pt);	
-	tmvaReader->AddVariable("abs(eta)",&m_absEta);	
+	tmvaReader->AddVariable("pt",&m_pt);	  nConfgVar++;
+	tmvaReader->AddVariable("abs(eta)",&m_absEta);  nConfgVar++;	
 	// IP2D posteriors
-	tmvaReader->AddVariable("ip2",&m_ip2);
-	tmvaReader->AddVariable("ip2_c",&m_ip2_c);
-	tmvaReader->AddVariable("ip2_cu",&m_ip2_cu);
+	tmvaReader->AddVariable("ip2",&m_ip2);  nConfgVar++;
+	tmvaReader->AddVariable("ip2_c",&m_ip2_c);  nConfgVar++;
+	tmvaReader->AddVariable("ip2_cu",&m_ip2_cu);  nConfgVar++;
 	// IP3D posteriors
-	tmvaReader->AddVariable("ip3",&m_ip3);
-	tmvaReader->AddVariable("ip3_c",&m_ip3_c);
-	tmvaReader->AddVariable("ip3_cu",&m_ip3_cu);
+	tmvaReader->AddVariable("ip3",&m_ip3);  nConfgVar++;
+	tmvaReader->AddVariable("ip3_c",&m_ip3_c);  nConfgVar++;
+	tmvaReader->AddVariable("ip3_cu",&m_ip3_cu);  nConfgVar++;
 	//more sv1 informations
-	tmvaReader->AddVariable("sv1_ntkv" ,&m_sv1_ntkv);
-	tmvaReader->AddVariable("sv1_mass" ,&m_sv1_mass);
-	tmvaReader->AddVariable("sv1_efrc" ,&m_sv1_efrc);
-	tmvaReader->AddVariable("sv1_n2t"  ,&m_sv1_n2t);
-	tmvaReader->AddVariable("sv1_Lxy"  ,&m_sv1_Lxy);
-	tmvaReader->AddVariable("sv1_L3d"  ,&m_sv1_L3d);
-	tmvaReader->AddVariable("sv1_sig3" ,&m_sv1_sig3);
-	tmvaReader->AddVariable("sv1_dR"   ,&m_sv1_dR);
+	tmvaReader->AddVariable("sv1_ntkv" ,&m_sv1_ntkv);  nConfgVar++;
+	tmvaReader->AddVariable("sv1_mass" ,&m_sv1_mass);  nConfgVar++;
+	tmvaReader->AddVariable("sv1_efrc" ,&m_sv1_efrc);  nConfgVar++;
+	tmvaReader->AddVariable("sv1_n2t"  ,&m_sv1_n2t);  nConfgVar++;
+	tmvaReader->AddVariable("sv1_Lxy"  ,&m_sv1_Lxy);  nConfgVar++;
+	tmvaReader->AddVariable("sv1_L3d"  ,&m_sv1_L3d);  nConfgVar++;
+	tmvaReader->AddVariable("sv1_sig3" ,&m_sv1_sig3);  nConfgVar++;
+	tmvaReader->AddVariable("sv1_dR"   ,&m_sv1_dR);  nConfgVar++;
 	//JetFitter informations
-	tmvaReader->AddVariable("jf_n2tv",&m_jf_n2tv);
-	tmvaReader->AddVariable("jf_ntrkv",&m_jf_ntrkv);
-	tmvaReader->AddVariable("jf_nvtx",&m_jf_nvtx);
-	tmvaReader->AddVariable("jf_nvtx1t",&m_jf_nvtx1t);
-	tmvaReader->AddVariable("jf_mass",&m_jf_mass);
-	tmvaReader->AddVariable("jf_efrc",&m_jf_efrc);
-	tmvaReader->AddVariable("jf_dR",&m_jf_dR);
-	tmvaReader->AddVariable("jf_sig3",&m_jf_sig3);
+	tmvaReader->AddVariable("jf_n2tv",&m_jf_n2tv);  nConfgVar++;
+	tmvaReader->AddVariable("jf_ntrkv",&m_jf_ntrkv);  nConfgVar++;
+	tmvaReader->AddVariable("jf_nvtx",&m_jf_nvtx);  nConfgVar++;
+	tmvaReader->AddVariable("jf_nvtx1t",&m_jf_nvtx1t);  nConfgVar++;
+	tmvaReader->AddVariable("jf_mass",&m_jf_mass);  nConfgVar++;
+	tmvaReader->AddVariable("jf_efrc",&m_jf_efrc);  nConfgVar++;
+	tmvaReader->AddVariable("jf_dR",&m_jf_dR);  nConfgVar++;
+	tmvaReader->AddVariable("jf_sig3",&m_jf_sig3);  nConfgVar++;
       } else {
-	ATH_MSG_ERROR( " configString: "+m_trainingConfig+" not recognized .... returning failure");
+	ATH_MSG_ERROR( "#BTAG# configString: "+m_trainingConfig+" not recognized .... returning failure");
 	return StatusCode::FAILURE;
+      }
+
+      if ( calibNvars!=nConfgVar ) {
+	ATH_MSG_WARNING( "#BTAG# Number of expected variables for MVA: "<< nConfgVar << "  does not match the number of variables found in the calibration file: " << calibNvars << " ... the algorithm will be 'disabled' ");
+	m_disableAlgo=true;
+	return StatusCode::SUCCESS;	
       }
 
       //tmvaReader->BookMVA("BDT", xmlFileName);
@@ -468,11 +523,12 @@ namespace Analysis {
     }
    
     status &= BTag->variable<double>(m_sv0_infosource, "significance3D", sv0);
-    if (!status) ATH_MSG_WARNING("error after reading SV0 significance information");
+    if (!status) ATH_MSG_WARNING("#BTAG# error after reading SV0 significance information");
 
     bool sv0OK=false;
     std::vector< ElementLink< xAOD::VertexContainer > > myVertices;
-    status &= BTag->variable<std::vector<ElementLink<xAOD::VertexContainer> > >(m_sv0_infosource, "vertices", myVertices);
+    // don't check the following status
+    BTag->variable<std::vector<ElementLink<xAOD::VertexContainer> > >(m_sv0_infosource, "vertices", myVertices);
     if (myVertices.size()>0 && myVertices[0].isValid()){
       const xAOD::Vertex* firstVertex = *(myVertices[0]);
       sv0OK=true;
@@ -507,7 +563,8 @@ namespace Analysis {
     
     bool sv1OK=false;
     std::vector< ElementLink< xAOD::VertexContainer > > myVertices1;
-    status &= BTag->variable<std::vector<ElementLink<xAOD::VertexContainer> > >(m_sv1_infosource, "vertices", myVertices1);
+    // don't check the following status
+    BTag->variable<std::vector<ElementLink<xAOD::VertexContainer> > >(m_sv1_infosource, "vertices", myVertices1);
     if (myVertices1.size()>0 && myVertices1[0].isValid()){
       const xAOD::Vertex* firstVertex = *(myVertices1[0]);
 
@@ -562,7 +619,8 @@ namespace Analysis {
 	status &= BTag->taggerInfo(m_jf_sig3, xAOD::BTagInfo::JetFitter_significance3d);
 	status &= BTag->taggerInfo(m_jf_dphi, xAOD::BTagInfo::JetFitter_deltaphi);
 	status &= BTag->taggerInfo(m_jf_deta, xAOD::BTagInfo::JetFitter_deltaeta);
-	status &= BTag->taggerInfo(jf_n2tv, xAOD::BTagInfo::JetFitter_N2Tpair);
+        // don't check the following status
+	BTag->taggerInfo(jf_n2tv, xAOD::BTagInfo::JetFitter_N2Tpair);
       }
       else{
 	status &= BTag->variable<int>(m_jftNN_infosource, "nVTX", jf_nvtx);
@@ -573,12 +631,13 @@ namespace Analysis {
 	status &= BTag->variable<float>(m_jftNN_infosource, "significance3d", m_jf_sig3);
 	status &= BTag->variable<float>(m_jftNN_infosource, "deltaphi", m_jf_dphi);
 	status &= BTag->variable<float>(m_jftNN_infosource, "deltaeta", m_jf_deta);
-	status &= BTag->variable<int>(m_jftNN_infosource, "N2Tpair", jf_n2tv);
+        // don't check the following status
+	BTag->variable<int>(m_jftNN_infosource, "N2Tpair", jf_n2tv);
       }
     }
     
     if (!status) {
-      ATH_MSG_WARNING(" Missing input data: cannot compute desired results");
+      ATH_MSG_WARNING("#BTAG# Missing input data: cannot compute desired results");
       // return StatusCode::SUCCESS;
     }
 
@@ -682,7 +741,7 @@ namespace Analysis {
 		  );
     
     /* compute MV2: */
-    double mv2 = -10.;
+    double mv2 = -10.;  double mv2m_pb=-10., mv2m_pu=-10., mv2m_pc=-10. ;
     pos = m_tmvaReaders.find(alias);
     if(pos==m_tmvaReaders.end()) {
       int alreadyWarned = std::count(m_undefinedReaders.begin(),m_undefinedReaders.end(),alias);
@@ -694,15 +753,31 @@ namespace Analysis {
     else {
       std::map<std::string, TMVA::MethodBase*>::iterator itmap2 = m_tmvaMethod.find(alias);
       if((itmap2->second)!=0) {
-	mv2 = pos->second->EvaluateMVA( itmap2->second );
+	if (m_taggerNameBase.find("MV2c")!=-1) mv2 = pos->second->EvaluateMVA( itmap2->second );
+	else {
+	  std::vector<float> outputs= pos->second->EvaluateMulticlass( itmap2->second );
+	  if (outputs.size()==3) {
+	    mv2m_pb=outputs[0]; mv2m_pu=outputs[1]; mv2m_pc=outputs[2] ;
+	  }
+	  else {
+	    ATH_MSG_WARNING("#BTAG# Unkown error, outputs vector size not 3!!!" );
+	    //return StatusCode::SUCCESS;
+	  }
+	}
       }
       else ATH_MSG_WARNING("#BTAG#  kl==0");
     }
-    ATH_MSG_DEBUG("#BTAG# MV2 weight: " << mv2);
+    if (m_taggerNameBase.find("MV2c")!=-1) ATH_MSG_DEBUG("#BTAG# MV2 weight: " << mv2<<", "<<alias);
+    else ATH_MSG_DEBUG("#BTAG# MV2 pb, pu, pc= " << mv2m_pb<<"\t"<<mv2m_pu<<"\t"<<mv2m_pc<<", "<<alias);
     
     /** give information to the info class. */
     if(m_runModus=="analysis") {
-      BTag->setVariable<double>(m_xAODBaseName, "discriminant", mv2);
+      if (m_taggerNameBase.find("MV2c")!=-1) BTag->setVariable<double>(m_xAODBaseName, "discriminant", mv2);
+      else {
+	BTag->setVariable<double>(m_xAODBaseName, "pb", mv2m_pb);
+	BTag->setVariable<double>(m_xAODBaseName, "pu", mv2m_pu);
+	BTag->setVariable<double>(m_xAODBaseName, "pc", mv2m_pc);
+      }
     }
 
 
