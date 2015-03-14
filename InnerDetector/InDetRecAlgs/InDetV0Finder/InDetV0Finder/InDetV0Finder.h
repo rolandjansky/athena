@@ -57,7 +57,7 @@ namespace InDet
     ToolHandle < Trk::V0Tools >          m_V0Tools;
     const HepPDT::ParticleDataTable *m_particleDataTable;
 
-    bool          m_decorate;
+    bool          m_decorate;                 //!< decorate V0 containers
     int           m_masses;                   //!< = 1 if using PDG values, = 2 if user set (1)
     double        m_masspi;                   //!< pion mass (139.57 MeV)
     double        m_massp;                    //!< proton mass (938.272 MeV)

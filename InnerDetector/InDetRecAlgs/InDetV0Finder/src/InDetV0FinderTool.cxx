@@ -461,7 +461,7 @@ StatusCode InDetV0FinderTool::performSearch(xAOD::VertexContainer*& v0Container,
         Amg::Vector3D startingPoint = m_vertexEstimator->getCirclesIntersectionPoint(&aPerigee1,&aPerigee2,sflag,errorcode);
         if (errorcode != 0) {startingPoint(0) = 0.0; startingPoint(1) = 0.0; startingPoint(2) = 0.0;}
         bool errorCode = false;
-        if (errorcode == 0 || errorcode == 5) errorCode = true;
+        if (errorcode == 0 || errorcode == 5 || errorcode == 6 || errorcode == 8) errorCode = true;
         if (errorCode)
         {
 
@@ -714,6 +714,7 @@ bool InDetV0FinderTool::d0Pass(const xAOD::TrackParticle* track1, const xAOD::Tr
     const xAOD::Vertex* PV = (*vItr);
     const Trk::Perigee* per1 = m_trackToVertexTool->perigeeAtVertex( *track1, PV->position() );
     const Trk::Perigee* per2 = m_trackToVertexTool->perigeeAtVertex( *track2, PV->position() );
+    if (per1 == 0 || per2 == 0) return pass;
     double d0_1 = per1->parameters()[Trk::d0];
     double sig_d0_1 = sqrt((*per1->covariance())(0,0));
     double d0_2 = per2->parameters()[Trk::d0];
@@ -730,6 +731,7 @@ bool InDetV0FinderTool::d0Pass(const xAOD::TrackParticle* track1, const xAOD::Tr
   bool pass = false;
   const Trk::Perigee* per1 = m_trackToVertexTool->perigeeAtVertex( *track1, PV->position() );
   const Trk::Perigee* per2 = m_trackToVertexTool->perigeeAtVertex( *track2, PV->position() );
+  if (per1 == 0 || per2 == 0) return pass;
   double d0_1 = per1->parameters()[Trk::d0];
   double sig_d0_1 = sqrt((*per1->covariance())(0,0));
   double d0_2 = per2->parameters()[Trk::d0];
@@ -745,6 +747,7 @@ bool InDetV0FinderTool::d0Pass(const xAOD::TrackParticle* track1, const xAOD::Tr
   bool pass = false;
   const Trk::Perigee* per1 = m_trackToVertexTool->perigeeAtVertex( *track1, PV );
   const Trk::Perigee* per2 = m_trackToVertexTool->perigeeAtVertex( *track2, PV );
+  if (per1 == 0 || per2 == 0) return pass;
   double d0_1 = per1->parameters()[Trk::d0];
   double sig_d0_1 = sqrt((*per1->covariance())(0,0));
   double d0_2 = per2->parameters()[Trk::d0];
