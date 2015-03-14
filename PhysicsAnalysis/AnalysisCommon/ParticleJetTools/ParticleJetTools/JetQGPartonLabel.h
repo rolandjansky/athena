@@ -16,7 +16,7 @@
 #ifndef PARTICLEJETTOOLS_JETQGPARTONLABEL_H
 #define PARTICLEJETTOOLS_JETQGPARTONLABEL_H
 
-#include "AthenaBaseComps/AthAlgTool.h"
+#include "AsgTools/AsgTool.h"
 #include "ParticleJetTools/IJetTruthMatching.h"
 #include <string>
 #include <map>
@@ -27,65 +27,68 @@ class Jet;
 namespace Analysis
 {
 
-  class JetQGPartonLabel : public AthAlgTool,
-                       virtual public IJetTruthMatching {
-     public:
-       JetQGPartonLabel(const std::string&,const std::string&,const IInterface*);
-       virtual ~JetQGPartonLabel();
-       StatusCode initialize();
-       StatusCode finalize();
-         
-       /** Method to truth tag a jet.
-	   NB: for this particular algorithm, matchJet is TRUE if the jet is matched 
-	   to a b-quark OR a c-quark. The jetLabel is set accordingly and is no 
-	   longer a job option. */
-       virtual bool matchJet(const Jet& myJet);
+class JetQGPartonLabel : public asg::AsgTool, virtual public IJetTruthMatching {
 
-       virtual void m_printParameterSettings();
-       
-       /** NEXT METHODS ARE ONLY ACCESSIBLE AFTER CASTING!! */
-       
-       /** Return barcode */
-       int barcode() const;
-       
-       /** Return pdg to match */
-       int pdgCode() const;
-       
-       /** Return the predefined name to label the jets passing the matching: */
-       inline const std::string& jetLabel() const { return m_jetLabel; }
+    ASG_TOOL_CLASS(JetQGPartonLabel, IJetTruthMatching)
+    public:
+        JetQGPartonLabel(const std::string& name);
+        virtual ~JetQGPartonLabel();
+        StatusCode initialize();
+        StatusCode finalize();
 
-       double deltaRToParton() const;
+        /* Method to truth tag a jet.
+         * NB: for this particular algorithm, matchJet is TRUE if the jet is matched 
+         * to a b-quark OR a c-quark. The jetLabel is set accordingly and is no 
+         * longer a job option.
+         */
 
-       /** Get the number of MC Events in the McEventCollection: */
-       inline int NEventInCollection() const { return m_NEventInCollection; }
-       inline void EventSelection(short s) { m_inTime = s; }
-       inline short EventSelection() const { return m_inTime; }
+        virtual bool matchJet(const Jet& myJet);
 
-  private:
-      std::string m_mcEventCollection; 
-      double m_deltaRCut; //!< deltaR cut value of the cone matching (max distance between Jet axis and momentum of truth particel)
-      double m_ptCut;     //!< pT cut for partons
-      bool   m_noDoc;
-      short  m_inTime;
-      int    m_pdg;       //!< pdg code of the parton/baryon the jet has been matched to (which was closest)
-      int    m_barcode;   //!< barcode of the matched parton (to be able to find the parton in the McEventColl)
-      bool m_testJet(const Jet&, const McEventCollection*);
-      std::string m_jetLabel; //!< label to use for matching jets
-      int m_NEventInCollection;
+        virtual void m_printParameterSettings();
 
-      double m_maxEnergy;
-      double m_matchPdgId;
-      double m_matchBarcode;
-      double m_matchDeltaR;
+        /** NEXT METHODS ARE ONLY ACCESSIBLE AFTER CASTING!! */
 
-  };
+        /** Return barcode */
+        int barcode() const;
 
-  /** Return barcode */
-  inline int JetQGPartonLabel::barcode()  const { return m_barcode; }
-       
-  /** Return pdg to match */
-  inline int JetQGPartonLabel::pdgCode()  const { return m_pdg; }
-       
+        /** Return pdg to match */
+        int pdgCode() const;
+
+        /** Return the predefined name to label the jets passing the matching: */
+        inline const std::string& jetLabel() const { return m_jetLabel; }
+
+        double deltaRToParton() const;
+
+        /** Get the number of MC Events in the McEventCollection: */
+        inline int NEventInCollection() const { return m_NEventInCollection; }
+        inline void EventSelection(short s) { m_inTime = s; }
+        inline short EventSelection() const { return m_inTime; }
+
+    private:
+        std::string m_mcEventCollection; 
+        double m_deltaRCut; //!< deltaR cut value of the cone matching (max distance between Jet axis and momentum of truth particel)
+        double m_ptCut;     //!< pT cut for partons
+        bool   m_noDoc;
+        short  m_inTime;
+        int    m_pdg;       //!< pdg code of the parton/baryon the jet has been matched to (which was closest)
+        int    m_barcode;   //!< barcode of the matched parton (to be able to find the parton in the McEventColl)
+        bool m_testJet(const Jet&, const McEventCollection*);
+        std::string m_jetLabel; //!< label to use for matching jets
+        int m_NEventInCollection;
+
+        double m_maxEnergy;
+        double m_matchPdgId;
+        double m_matchBarcode;
+        double m_matchDeltaR;
+
+};
+
+/** Return barcode */
+inline int JetQGPartonLabel::barcode()  const { return m_barcode; }
+
+/** Return pdg to match */
+inline int JetQGPartonLabel::pdgCode()  const { return m_pdg; }
+
 }
 #endif // TRUTHMATCHTOOLS_JETQGPARTONLABEL_H
 

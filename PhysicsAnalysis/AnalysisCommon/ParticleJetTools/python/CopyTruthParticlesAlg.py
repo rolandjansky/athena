@@ -21,7 +21,10 @@ class CopyTruthParticlesAlg (PyAthena.Alg):
 
     def execute(self):
         self.msg.debug('==> executing ...')
-        return self.ctptool.execute()
+        if self.ctptool.execute() != 0:
+            return StatusCode.Failure
+        else:
+            return StatusCode.Success
 
 
     def finalize(self):

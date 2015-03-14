@@ -5,7 +5,6 @@
 #include "ParticleJetTools/FindLeptonTruth.h"
 #include "ParticleJetTools/HadronUtils.h"
 
-#include "GaudiKernel/SystemOfUnits.h"
 #include "GeneratorObjects/McEventCollection.h"
 
 #include "HepMC/GenEvent.h"
@@ -21,8 +20,8 @@ namespace Analysis {
 
 static const InterfaceID IID_IFindLeptonTruth("Analysis::FindLeptonTruth", 1, 0);
  
-FindLeptonTruth::FindLeptonTruth(const std::string& t, const std::string& n, const IInterface* p) :
-        AthAlgTool(t,n,p)
+FindLeptonTruth::FindLeptonTruth(const std::string& name)
+        : AsgTool(name)
 {  
   declareInterface<FindLeptonTruth>(this);
   declareProperty("McEventCollection", m_mcEventCollection = "TruthEvents");

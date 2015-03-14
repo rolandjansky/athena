@@ -30,8 +30,8 @@
 
 namespace Analysis {
 
-JetQGPartonLabel::JetQGPartonLabel(const std::string& t, const std::string& n, const IInterface* p) :
-        AthAlgTool(t,n,p),
+JetQGPartonLabel::JetQGPartonLabel(const std::string& name)
+        : AsgTool(name),
         m_mcEventCollection("TruthEvents"),
         m_deltaRCut(0.4),
 	m_noDoc(true),

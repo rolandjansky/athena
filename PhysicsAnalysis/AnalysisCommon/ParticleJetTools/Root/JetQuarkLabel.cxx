@@ -14,7 +14,6 @@
  */
 #include "ParticleJetTools/JetQuarkLabel.h"
 #include "ParticleJetTools/HadronUtils.h"
-#include "GaudiKernel/SystemOfUnits.h"
 
 //#include "GeneratorObjects/McEventCollection.h"
 //#include "HepMC/GenEvent.h"
@@ -23,21 +22,21 @@
 #include <algorithm>
 
 // new
-#include "JetEvent/Jet.h"
 //#include "TruthHelper/PileUpType.h"
+
+#define GeVtoMeV 1000.0
 
 namespace Analysis {
 
-JetQuarkLabel::JetQuarkLabel(const std::string& t, const std::string& n, const IInterface* p) :
-        AthAlgTool(t,n,p),
-        m_mcEventCollection("TruthEvents"),
-        m_deltaRCut(0.3),
-        m_ptCut(5.*Gaudi::Units::GeV),
-	m_noDoc(true),
-	m_inTime(-1),
-	m_jetLabel(0)
+JetQuarkLabel::JetQuarkLabel(const std::string& name)
+    : AsgTool(name),
+      m_mcEventCollection("TruthEvents"),
+      m_deltaRCut(0.3),
+      m_ptCut(5.*GeVtoMeV),
+      m_noDoc(true),
+      m_inTime(-1),
+      m_jetLabel(0)
 {
-    declareInterface<IJetTruthMatching>(this);  
     declareProperty("McEventCollection", m_mcEventCollection);
     declareProperty("deltaRCut",    m_deltaRCut);
     declareProperty("pTmin",        m_ptCut);
@@ -87,10 +86,7 @@ StatusCode JetQuarkLabel::finalize() {
 				const xAOD::TruthEventContainer* truthEventContainer) 
 {
 
-  CLHEP::HepLorentzVector jet_hlv(myJet.px(),
-				  myJet.py(),
-				  myJet.pz(),
-				  myJet.e());
+  TLorentzVector jet_hlv = myJet.p4();
   
   ATH_MSG_DEBUG("Truth matching for jet " << myJet.pt() << " " << myJet.eta() << " " << myJet.phi() << " using pile-up event selection " << m_inTime);
 
@@ -152,22 +148,19 @@ StatusCode JetQuarkLabel::finalize() {
       // We want to use some special functions from HepLorentzVector
       // HepMC::Fourvector does not have these functions. 
       // => transform to HepLorentzVector
-      CLHEP::HepLorentzVector part_momentum_lv((*pitr)->px(),
-					       (*pitr)->py(),
-					       (*pitr)->pz(),
-					       (*pitr)->e());
+      TLorentzVector part_momentum_lv = (*pitr)->p4();
       
       // label b, c and light jets
       if (abs(pdg) == 5 || abs(pdg) == 4) {
-	double pt = part_momentum_lv.perp();
+	double pt = part_momentum_lv.Pt();
 	if (pt > m_ptCut) {
 	  // Herwig ! Do not use quark from Hadron decay !
 	  //bool fromHadron = false; // put this back in later
 	  ATH_MSG_VERBOSE( "MCTruth: part " << (*pitr)->barcode() << " PDG= " << pdg
-			   << " pT= "  <<part_momentum_lv.perp()
-			   << " eta= " <<part_momentum_lv.pseudoRapidity()
-			   << " phi= " <<part_momentum_lv.phi()
-			   << " dR= "  <<part_momentum_lv.deltaR(jet_hlv));
+			   << " pT= "  <<part_momentum_lv.Pt()
+			   << " eta= " <<part_momentum_lv.Eta()
+			   << " phi= " <<part_momentum_lv.Phi()
+			   << " dR= "  <<part_momentum_lv.DeltaR(jet_hlv));
 /*	  if ((*pitr)->prodVtx() != NULL) {
 	    HepMC::GenVertex::particle_iterator firstParent =
 	      (*pitr)->prodVtx()->particles_begin(HepMC::ancestors);
@@ -202,21 +195,21 @@ StatusCode JetQuarkLabel::finalize() {
 	  }
 	  if (afterFSR) {
 	  //if (afterFSR && !fromHadron) {
-	    deltaR=part_momentum_lv.deltaR(jet_hlv);
+	    deltaR=part_momentum_lv.DeltaR(jet_hlv);
 	    if (abs(pdg) == 4 && deltaR < deltaRC) {deltaRC = deltaR; barcc = (*pitr)->barcode(); }
 	    if (abs(pdg) == 5 && deltaR < deltaRB) {deltaRB = deltaR; barcb = (*pitr)->barcode(); LabellingParticle=(*pitr);}
 	  }
 	}
       }
       if (abs(pdg) == 15) {
-	double pt = part_momentum_lv.perp();
+	double pt = part_momentum_lv.Pt();
 	if (pt > m_ptCut) {
 	  ATH_MSG_VERBOSE( "MCTruth: part " << (*pitr)->barcode() << " PDG= " << pdg
-			   << " pT= "  <<part_momentum_lv.perp()
-			   << " eta= " <<part_momentum_lv.pseudoRapidity()
-			   << " phi= " <<part_momentum_lv.phi()
-			   << " dR= "  <<part_momentum_lv.deltaR(jet_hlv) );
-	  deltaR=part_momentum_lv.deltaR(jet_hlv);
+			   << " pT= "  <<part_momentum_lv.Pt()
+			   << " eta= " <<part_momentum_lv.Eta()
+			   << " phi= " <<part_momentum_lv.Phi()
+			   << " dR= "  <<part_momentum_lv.DeltaR(jet_hlv) );
+	  deltaR=part_momentum_lv.DeltaR(jet_hlv);
 	  if (deltaR < deltaRT) {deltaRT = deltaR;}
 	}
       }

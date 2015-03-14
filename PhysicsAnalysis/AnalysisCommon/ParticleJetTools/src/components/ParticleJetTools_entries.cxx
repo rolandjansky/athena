@@ -10,6 +10,7 @@
 #include "ParticleJetTools/CopyTruthPartons.h"
 #include "ParticleJetTools/JetPartonTruthLabel.h"
 #include "ParticleJetTools/CopyTruthJetParticles.h"
+#include "ParticleJetTools/ParticleJetDeltaRLabelTool.h"
 
 using namespace Analysis;
 
@@ -25,6 +26,7 @@ DECLARE_TOOL_FACTORY( CopyFlavorLabelTruthParticles )
 DECLARE_TOOL_FACTORY( CopyBosonTopLabelTruthParticles )
 DECLARE_TOOL_FACTORY( CopyTruthPartons )
 DECLARE_TOOL_FACTORY( CopyTruthJetParticles )
+DECLARE_TOOL_FACTORY( ParticleJetDeltaRLabelTool )
 
 /** factory entries need to have the name of the package */
 DECLARE_FACTORY_ENTRIES( ParticleJetTools ) {
@@ -40,4 +42,5 @@ DECLARE_FACTORY_ENTRIES( ParticleJetTools ) {
     DECLARE_TOOL( CopyBosonTopLabelTruthParticles )
     DECLARE_TOOL( CopyTruthPartons )
     DECLARE_TOOL( CopyTruthJetParticles )
+    DECLARE_TOOL( ParticleJetDeltaRLabelTool )
 }
