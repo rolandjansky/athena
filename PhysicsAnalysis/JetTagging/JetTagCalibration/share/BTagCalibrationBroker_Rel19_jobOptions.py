@@ -37,7 +37,7 @@ from IOVDbSvc.CondDB import conddb
 # with new scheme, only one actual COOL folder:
 if BTaggingFlags.CalibrationSingleFolder:
   theFolders = []
-  theFolders.append(BTaggingFlags.CalibrationFolderRoot+'ALL')
+  theFolders.append(BTaggingFlags.CalibrationFolderRoot+'RUN12')
 
 for folder in theFolders:
   if BTaggingFlags.CalibrationFromLocalReplica:

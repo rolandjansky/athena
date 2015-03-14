@@ -43,7 +43,7 @@ namespace Analysis {
     declareProperty("channels", m_originalChannels);
     declareProperty("channelAliases", m_channelAliases);
     declareProperty("shadowFoldersAndChannels", m_shadowFoldersAndChannels = true);
-    declareProperty("singleFolderName", m_singleFolderName = "ALL");
+    declareProperty("singleFolderName", m_singleFolderName = "RUN12");
     declareProperty("recreateHistoMap", m_recreateHistoMap = false);
   }
 
@@ -548,8 +548,8 @@ namespace Analysis {
 	      ATH_MSG_DEBUG( "#BTAG#     histo name in physical file= " << hFullName );
 	      TObject* hPointer = 0;
 
-	      //if(p_coolhistsvc->objectExists(folder, m_singleFolderName, hFullName)){
-	      if(p_coolhistsvc->getTObject(folder, m_singleFolderName, hFullName, hPointer).isSuccess()){
+	      if(p_coolhistsvc->objectExists(folder, m_singleFolderName, hFullName)){
+		if(p_coolhistsvc->getTObject(folder, m_singleFolderName, hFullName, hPointer).isSuccess()){
 		  //StatusCode sc = p_coolhistsvc->getTObject(folder, m_singleFolderName, hFullName, hPointer);
 		  //if(sc.isSuccess()) {
 		    if(hPointer) {
@@ -562,14 +562,13 @@ namespace Analysis {
 		      ATH_MSG_ERROR( "#BTAG# Could not cache pointer to histogram " 
 				     << fname );
 		    }
-		  //} else {
-		  //  ATH_MSG_WARNING( "#BTAG# Problem getting histogram " << hFullName << " from COOL");
-		  //}
+		} else {
+		  ATH_MSG_WARNING( "#BTAG# Problem getting histogram " << hFullName << " from COOL");
 		}
-		else{
-		  ATH_MSG_WARNING("#BTAG# error: histogram "<<hFullName
-				  <<" does not exist - you are probably using an old database tag");
-		}
+	      }else{
+		ATH_MSG_WARNING("#BTAG# error: histogram "<<hFullName
+				<<" does not exist - you are probably using an old database tag");
+	      }
 	    }
 	  }
         }
