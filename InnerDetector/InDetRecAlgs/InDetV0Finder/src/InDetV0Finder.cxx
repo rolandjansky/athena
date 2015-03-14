@@ -182,6 +182,10 @@ StatusCode InDetV0Finder::execute()
     SG::AuxElement::Decorator<float> mDecor_ptError("pTError");
     SG::AuxElement::Decorator<float> mDecor_rxy("Rxy");
     SG::AuxElement::Decorator<float> mDecor_rxyError("RxyError");
+    SG::AuxElement::Decorator<float> mDecor_px("px");
+    SG::AuxElement::Decorator<float> mDecor_py("py");
+    SG::AuxElement::Decorator<float> mDecor_pz("pz");
+
     xAOD::VertexContainer::const_iterator v0Itr = v0Container->begin();
     for ( v0Itr=v0Container->begin(); v0Itr!=v0Container->end(); ++v0Itr )
     {
@@ -196,6 +200,7 @@ StatusCode InDetV0Finder::execute()
       double ptError = m_V0Tools->pTError(unconstrV0);
       double rxy = m_V0Tools->rxy(unconstrV0);
       double rxyError = m_V0Tools->rxyError(unconstrV0);
+      Amg::Vector3D momentum = m_V0Tools->V0Momentum(unconstrV0);
       mDecor_Ksmass( *unconstrV0 ) = mass_ks;
       mDecor_Ksmasse( *unconstrV0 ) = mass_error_ks;
       mDecor_Lamass( *unconstrV0 ) = mass_la;
@@ -206,6 +211,9 @@ StatusCode InDetV0Finder::execute()
       mDecor_ptError( *unconstrV0 ) = ptError;
       mDecor_rxy( *unconstrV0 ) = rxy;
       mDecor_rxyError( *unconstrV0 ) = rxyError;
+      mDecor_px( *unconstrV0 ) = momentum.x();
+      mDecor_py( *unconstrV0 ) = momentum.y();
+      mDecor_pz( *unconstrV0 ) = momentum.z();
     }
     xAOD::VertexContainer::const_iterator ksItr = ksContainer->begin();
     for ( ksItr=ksContainer->begin(); ksItr!=ksContainer->end(); ++ksItr )
@@ -217,12 +225,16 @@ StatusCode InDetV0Finder::execute()
       double ptError = m_V0Tools->pTError(ksV0);
       double rxy = m_V0Tools->rxy(ksV0);
       double rxyError = m_V0Tools->rxyError(ksV0);
+      Amg::Vector3D momentum = m_V0Tools->V0Momentum(ksV0);
       mDecor_mass( *ksV0 ) = mass_ks;
       mDecor_massError( *ksV0 ) = mass_error_ks;
       mDecor_pt( *ksV0 ) = pt;
       mDecor_ptError( *ksV0 ) = ptError;
       mDecor_rxy( *ksV0 ) = rxy;
       mDecor_rxyError( *ksV0 ) = rxyError;
+      mDecor_px( *ksV0 ) = momentum.x();
+      mDecor_py( *ksV0 ) = momentum.y();
+      mDecor_pz( *ksV0 ) = momentum.z();
     }
     xAOD::VertexContainer::const_iterator laItr = laContainer->begin();
     for ( laItr=laContainer->begin(); laItr!=laContainer->end(); ++laItr )
@@ -234,12 +246,16 @@ StatusCode InDetV0Finder::execute()
       double ptError = m_V0Tools->pTError(laV0);
       double rxy = m_V0Tools->rxy(laV0);
       double rxyError = m_V0Tools->rxyError(laV0);
+      Amg::Vector3D momentum = m_V0Tools->V0Momentum(laV0);
       mDecor_mass( *laV0 ) = mass_la;
       mDecor_massError( *laV0 ) = mass_error_la;
       mDecor_pt( *laV0 ) = pt;
       mDecor_ptError( *laV0 ) = ptError;
       mDecor_rxy( *laV0 ) = rxy;
       mDecor_rxyError( *laV0 ) = rxyError;
+      mDecor_px( *laV0 ) = momentum.x();
+      mDecor_py( *laV0 ) = momentum.y();
+      mDecor_pz( *laV0 ) = momentum.z();
     }
     xAOD::VertexContainer::const_iterator lbItr = lbContainer->begin();
     for ( lbItr=lbContainer->begin(); lbItr!=lbContainer->end(); ++lbItr )
@@ -251,12 +267,16 @@ StatusCode InDetV0Finder::execute()
       double ptError = m_V0Tools->pTError(lbV0);
       double rxy = m_V0Tools->rxy(lbV0);
       double rxyError = m_V0Tools->rxyError(lbV0);
+      Amg::Vector3D momentum = m_V0Tools->V0Momentum(lbV0);
       mDecor_mass( *lbV0 ) = mass_lb;
       mDecor_massError( *lbV0 ) = mass_error_lb;
       mDecor_pt( *lbV0 ) = pt;
       mDecor_ptError( *lbV0 ) = ptError;
       mDecor_rxy( *lbV0 ) = rxy;
       mDecor_rxyError( *lbV0 ) = rxyError;
+      mDecor_px( *lbV0 ) = momentum.x();
+      mDecor_py( *lbV0 ) = momentum.y();
+      mDecor_pz( *lbV0 ) = momentum.z();
     }
   }
 
