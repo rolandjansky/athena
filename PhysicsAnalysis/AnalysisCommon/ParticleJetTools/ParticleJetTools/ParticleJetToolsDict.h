@@ -10,5 +10,6 @@
 #include "ParticleJetTools/CopyTruthPartons.h"
 #include "ParticleJetTools/CopyFlavorLabelTruthParticles.h"
 #include "ParticleJetTools/CopyTruthJetParticles.h"
+#include "ParticleJetTools/ParticleJetDeltaRLabelTool.h"
 
 #endif

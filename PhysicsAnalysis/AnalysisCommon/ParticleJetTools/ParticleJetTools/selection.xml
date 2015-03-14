@@ -4,4 +4,5 @@
     <class name="CopyTruthPartons" />  
     <class name="CopyFlavorLabelTruthParticles" />  
     <class name="CopyTruthJetParticles" />  
+    <class name="ParticleJetDeltaRLabelTool" />  
 </lcgdict>

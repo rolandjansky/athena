@@ -18,7 +18,7 @@
 #ifndef PARTICLEJETTOOLS_JETQUARKLABEL_H
 #define PARTICLEJETTOOLS_JETQUARKLABEL_H
 
-#include "AthenaBaseComps/AthAlgTool.h"
+#include "AsgTools/AsgTool.h"
 #include "ParticleJetTools/IJetTruthMatching.h"
 #include "EventPrimitives/EventPrimitives.h"
 #include <string>
@@ -34,68 +34,70 @@ class Jet;
 namespace Analysis
 {
 
-  class JetQuarkLabel : public AthAlgTool,
-                       virtual public IJetTruthMatching {
-     public:
-       JetQuarkLabel(const std::string&,const std::string&,const IInterface*);
-       virtual ~JetQuarkLabel();
-       StatusCode initialize();
-       StatusCode finalize();
-         
-       /** Method to truth tag a jet.
-	   NB: for this particular algorithm, matchJet is TRUE if the jet is matched 
-	   to a b-quark OR a c-quark. The jetLabel is set accordingly and is no 
-	   longer a job option. */
-    virtual bool matchJet(const xAOD::Jet& myJet);
+class JetQuarkLabel : public asg::AsgTool, virtual public IJetTruthMatching {
+    ASG_TOOL_CLASS(JetQuarkLabel, IJetTruthMatching)
+    public:
+        JetQuarkLabel(const std::string& name);
+        virtual ~JetQuarkLabel();
+        StatusCode initialize();
+        StatusCode finalize();
 
-       virtual void m_printParameterSettings();
-       
-       /** NEXT METHODS ARE ONLY ACCESSIBLE AFTER CASTING!! */
-       
-       /** Return barcode */
-       int barcode() const;
-       
-       /** Return pdg to match */
-       int pdgCode() const;
-       
-       /** Return the predefined name to label the jets passing the matching: */
-       inline const int& jetLabel() const { return m_jetLabel; }
+        /* Method to truth tag a jet.
+         * NB: for this particular algorithm, matchJet is TRUE if the jet is matched 
+         * to a b-quark OR a c-quark. The jetLabel is set accordingly and is no 
+         * longer a job option.
+         */
 
-       /** Return the min distance to quarks: */
-       double deltaRMinTo(const std::string&) const;
-       inline const std::map<std::string, double>& distanceToQuarks() const { return m_distanceToQuarks; }
+        virtual bool matchJet(const xAOD::Jet& myJet);
 
-       /** Return the B decay vertex position: */
-       inline const Eigen::Vector3d& BDecVtx() const { return m_BDecVtx; }
-       int Bpdg() const { return m_Bpdg; }
+        virtual void m_printParameterSettings();
 
-       /** Get the number of MC Events in the McEventCollection: */
-       inline int NEventInCollection() const { return m_NEventInCollection; }
-       inline void EventSelection(short s) { m_inTime = s; }
-       inline short EventSelection() const { return m_inTime; }
+        /** NEXT METHODS ARE ONLY ACCESSIBLE AFTER CASTING!! */
 
-  private:
-      std::string m_mcEventCollection; 
-      double m_deltaRCut; //!< deltaR cut value of the cone matching (max distance between Jet axis and momentum of truth particel)
-      double m_ptCut;     //!< pT cut for partons
-      bool   m_noDoc;
-      short  m_inTime;
-      int    m_pdg;       //!< pdg code of the parton/baryon the jet has been matched to (which was closest)
-      int    m_barcode;   //!< barcode of the matched parton (to be able to find the parton in the McEventColl)
-    bool m_testJet(const xAOD::Jet&, const xAOD::TruthEventContainer*);
-      int m_jetLabel; //!< label to use for matching jets
-      std::map<std::string, double> m_distanceToQuarks; //!< keep track of distances to quarks
-      Eigen::Vector3d m_BDecVtx; //!< positon of the lowest lying B hadron vertex decay
-      int m_Bpdg;
-      int m_NEventInCollection;
-  };
+        /** Return barcode */
+        int barcode() const;
 
-  /** Return barcode */
-  inline int JetQuarkLabel::barcode()  const { return m_barcode; }
-       
-  /** Return pdg to match */
-  inline int JetQuarkLabel::pdgCode()  const { return m_pdg; }
-       
+        /** Return pdg to match */
+        int pdgCode() const;
+
+        /** Return the predefined name to label the jets passing the matching: */
+        inline const int& jetLabel() const { return m_jetLabel; }
+
+        /** Return the min distance to quarks: */
+        double deltaRMinTo(const std::string&) const;
+        inline const std::map<std::string, double>& distanceToQuarks() const { return m_distanceToQuarks; }
+
+        /** Return the B decay vertex position: */
+        inline const Eigen::Vector3d& BDecVtx() const { return m_BDecVtx; }
+        int Bpdg() const { return m_Bpdg; }
+
+        /** Get the number of MC Events in the McEventCollection: */
+        inline int NEventInCollection() const { return m_NEventInCollection; }
+        inline void EventSelection(short s) { m_inTime = s; }
+        inline short EventSelection() const { return m_inTime; }
+
+    private:
+        std::string m_mcEventCollection; 
+        double m_deltaRCut; //!< deltaR cut value of the cone matching (max distance between Jet axis and momentum of truth particel)
+        double m_ptCut;     //!< pT cut for partons
+        bool   m_noDoc;
+        short  m_inTime;
+        int    m_pdg;       //!< pdg code of the parton/baryon the jet has been matched to (which was closest)
+        int    m_barcode;   //!< barcode of the matched parton (to be able to find the parton in the McEventColl)
+        bool m_testJet(const xAOD::Jet&, const xAOD::TruthEventContainer*);
+        int m_jetLabel; //!< label to use for matching jets
+        std::map<std::string, double> m_distanceToQuarks; //!< keep track of distances to quarks
+        Eigen::Vector3d m_BDecVtx; //!< positon of the lowest lying B hadron vertex decay
+        int m_Bpdg;
+        int m_NEventInCollection;
+};
+
+/** Return barcode */
+inline int JetQuarkLabel::barcode()  const { return m_barcode; }
+
+/** Return pdg to match */
+inline int JetQuarkLabel::pdgCode()  const { return m_pdg; }
+
 }
 #endif // TRUTHMATCHTOOLS_JETQUARKLABEL_H
 

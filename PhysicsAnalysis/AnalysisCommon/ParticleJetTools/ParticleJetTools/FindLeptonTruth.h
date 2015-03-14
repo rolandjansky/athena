@@ -5,7 +5,7 @@
 #ifndef PARTICLEJETTOOLS_FINDLEPTONTRUTH_H
 #define PARTICLEJETTOOLS_FINDLEPTONTRUTH_H
 
-#include "AthenaBaseComps/AthAlgTool.h"
+#include "AsgTools/AsgTool.h"
 #include <string>
 
 #include "JetTagInfo/SoftLeptonTruthInfo.h"
@@ -16,32 +16,33 @@ class Jet;
 namespace Analysis
 {
 
-class FindLeptonTruth : public AthAlgTool {
+class FindLeptonTruth : public asg::AsgTool {
+    ASG_TOOL_CLASS0(FindLeptonTruth)
 
- public:
-  FindLeptonTruth(const std::string&,const std::string&,const IInterface*);
-  virtual ~FindLeptonTruth();
-  static const InterfaceID& interfaceID();
-  StatusCode initialize();
-  StatusCode finalize();
+    public:
+        FindLeptonTruth(const std::string& name);
+        virtual ~FindLeptonTruth();
+        static const InterfaceID& interfaceID();
+        StatusCode initialize();
+        StatusCode finalize();
 
-  std::vector<SLTrueInfo> FindTruth(const Jet& myJet);
+        std::vector<SLTrueInfo> FindTruth(const Jet& myJet);
 
- private:
-  std::string m_mcEventCollection; 
-  double m_deltaRCutMu, m_deltaRCutEl;
-  double m_ptCutMu,     m_ptCutEl;
-  double m_pCutMu,      m_pCutEl;
-  double m_rProdmax;
-  unsigned int m_NSLTmax;
+    private:
+        std::string m_mcEventCollection; 
+        double m_deltaRCutMu, m_deltaRCutEl;
+        double m_ptCutMu,     m_ptCutEl;
+        double m_pCutMu,      m_pCutEl;
+        double m_rProdmax;
+        unsigned int m_NSLTmax;
 
 };
 
 class SLTrueInfoSortCriterion {
- public:
-  bool operator() (const SLTrueInfo& slt1, const SLTrueInfo& slt2) {
-    return slt2.momentum().perp() < slt1.momentum().perp();
-  }
+    public:
+        bool operator() (const SLTrueInfo& slt1, const SLTrueInfo& slt2) {
+            return slt2.momentum().perp() < slt1.momentum().perp();
+        }
 };
 
 }

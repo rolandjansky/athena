@@ -50,5 +50,5 @@ int CopyTruthParticles::execute() const {
 
   ATH_MSG_DEBUG("Copied " << numCopied << " truth particles into " << m_outputname << " TruthParticle container");
 
-  return StatusCode::SUCCESS;
+  return 0;
 }
