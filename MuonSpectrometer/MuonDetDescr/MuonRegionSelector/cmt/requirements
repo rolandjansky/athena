@@ -16,7 +16,8 @@ use Identifier		 Identifier-*		DetectorDescription
 use MuonMDT_Cabling      MuonMDT_Cabling-*      MuonSpectrometer/MuonCablings
 use RPCcablingInterface      RPCcablingInterface-*      MuonSpectrometer/MuonCablings
 use MuonTGC_Cabling      MuonTGC_Cabling-*      MuonSpectrometer/MuonCablings
-use  DataCollection           DataCollection-*              External
+#use  DataCollection           DataCollection-*  
+use CSCcabling CSCcabling-*	MuonSpectrometer/MuonCablings
 
 use MuonReadoutGeometry   MuonReadoutGeometry-*   MuonSpectrometer/MuonDetDescr
 # use MuonSimEvent          MuonSimEvent-*          MuonSpectrometer

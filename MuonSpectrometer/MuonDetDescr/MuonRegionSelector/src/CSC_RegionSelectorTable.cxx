@@ -36,16 +36,13 @@ using namespace std;
 #include "MuonReadoutGeometry/TgcReadoutElement.h"
 #include "MuonReadoutGeometry/RpcReadoutSet.h"
 #include "MuonReadoutGeometry/MuonStation.h"
+#include "CSCcabling/CSCcablingSvc.h"
 
 #include "RegSelLUT/RegSelSiLUT.h"
 
 #include <iostream>
 #include <vector>
 #include <fstream>
-
-#include "eformat/SourceIdentifier.h" 
-
-using eformat::helper::SourceIdentifier; 
 
 
 
@@ -89,6 +86,13 @@ StatusCode CSC_RegionSelectorTable::createTable() {
   StatusCode status = detStore()->retrieve( p_MuonMgr );
   
   const CscIdHelper*  p_IdHelper = p_MuonMgr->cscIdHelper();
+
+  const CSCcablingSvc * p_cabling;
+
+  if (StatusCode::SUCCESS != serviceLocator()->service("CSCcablingSvc", p_cabling)) {
+     ATH_MSG_ERROR ( "Can't get CSCcablingSvc " );
+     return StatusCode::FAILURE;
+  }
   
   RegSelSiLUT* csclut = new RegSelSiLUT();
 
@@ -351,11 +355,11 @@ StatusCode CSC_RegionSelectorTable::createTable() {
 	   if (phi_min < 0) phi_min += 2.*M_PI;
 	 }
 
-         uint16_t subDetectorId = (detid == -1) ? eformat::MUON_CSC_ENDCAP_C_SIDE : eformat::MUON_CSC_ENDCAP_A_SIDE ;
-         SourceIdentifier sid (static_cast<eformat::SubDetector>(subDetectorId),
-			static_cast<uint16_t>(Idhash));
-         uint32_t RobId = sid.code();
-	 RegSelModule m( zmin, zmax, rmin, rmax, phi_min, phi_max, layerid, detid, RobId, Idhash );
+         uint16_t subDetectorId = (detid == -1) ? 0x6a : 0x69;
+         uint32_t cscrob = 0x0;
+         p_cabling->hash2Rob(Idhash.value(),cscrob);
+         cscrob = ((subDetectorId << 16) | cscrob);
+	 RegSelModule m( zmin, zmax, rmin, rmax, phi_min, phi_max, layerid, detid, cscrob, Idhash );
 	 csclut->addModule( m );
 
  
