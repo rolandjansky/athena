@@ -67,16 +67,16 @@ if "AntiKt4TopoEM" not in JetCollectionForCalib:
   JetCollectionForCalib+=["AntiKt4TopoEM"]
 
 from JetTagCalibration.JetTagCalibrationConf import Analysis__CalibrationBroker
-BTagCalibrationBrokerTool = Analysis__CalibrationBroker(
-                                                          name = "BTagCalibrationBrokerTool",
-                                                          folderRoot = BTaggingFlags.CalibrationFolderRoot,
-                                                          folders = theFolders,
-                                                          channels = JetCollectionForCalib,
-                                                          channelAliases = BTaggingFlags.CalibrationChannelAliases,
-                                                          shadowFoldersAndChannels = BTaggingFlags.CalibrationSingleFolder,   
-                                                          OutputLevel = BTaggingFlags.OutputLevel
-                                                       )
-ToolSvc += BTagCalibrationBrokerTool
+BTagCalibrationBrokerTool_OnlineTriggerConfiguration = Analysis__CalibrationBroker(
+  name = "BTagCalibrationBrokerTool_Trig",
+  folderRoot = BTaggingFlags.CalibrationFolderRoot,
+  folders = theFolders,
+  channels = JetCollectionForCalib,
+  channelAliases = BTaggingFlags.CalibrationChannelAliases,
+  shadowFoldersAndChannels = BTaggingFlags.CalibrationSingleFolder,   
+  OutputLevel = BTaggingFlags.OutputLevel
+  )
+ToolSvc += BTagCalibrationBrokerTool_OnlineTriggerConfiguration
 theApp.Dlls+=['DetDescrCondExample','DetDescrCondTools']
 
 from IOVDbSvc.CondDB import conddb 
@@ -99,5 +99,5 @@ for folder in theFolders:
         conddb.addFolder(connSchema,folder+" <tag>"+BTaggingFlags.CalibrationTag+"</tag>") 
 
 if BTaggingFlags.OutputLevel < 3: 
-  print BTagCalibrationBrokerTool
+  print BTagCalibrationBrokerTool_OnlineTriggerConfiguration
 
