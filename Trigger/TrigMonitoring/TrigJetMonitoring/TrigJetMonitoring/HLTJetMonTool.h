@@ -25,6 +25,7 @@
 #include "xAODTrigger/JetRoI.h"
 #include "xAODTrigger/JetRoIContainer.h"
 
+
 #include "xAODJet/Jet.h"
 #include "xAODJet/JetContainer.h"
 #include "xAODJet/JetConstituentVector.h"
@@ -53,6 +54,9 @@ class HLTJetMonTool : public IHLTMonTool {
 
   typedef std::map<std::string, std::string> JetSigtype;
   typedef std::map<std::string, std::string>::const_iterator JetSigIter;
+
+  typedef std::map<std::string, std::string> JetContainertype;
+  typedef std::map<std::string, std::string>::const_iterator JetContainerIter;
   
   typedef std::map<std::string, double> JetThrestype;
   typedef std::map<std::string, double>::const_iterator JetThresIter;
@@ -76,10 +80,10 @@ class HLTJetMonTool : public IHLTMonTool {
     // data members
 
     // binning for basic histograms
-    std::vector<int>   m_njnbins,  m_jEtnbins,  m_jetanbins,  m_jphinbins,  m_jDEtnbins,  m_jDepnbins;
-    std::vector<float> m_njperbin, m_jEtperbin, m_jetaperbin, m_jphiperbin, m_jDEtperbin, m_jDepperbin;
-    std::vector<float> m_njbinlo,  m_jEtbinlo,  m_jetabinlo,  m_jphibinlo,  m_jDEtbinlo,  m_jDepbinlo;
-    std::vector<float> m_njbinhi,  m_jEtbinhi,  m_jetabinhi,  m_jphibinhi,  m_jDEtbinhi,  m_jDepbinhi;
+    std::vector<int>   m_njnbins,  m_jEtnbins,  m_jetanbins,  m_jphinbins,  m_jemfracnbins,  m_jhecfracnbins, m_jDEtnbins,  m_jDepnbins;
+    std::vector<float> m_njperbin, m_jEtperbin, m_jetaperbin, m_jphiperbin, m_jemfracperbin, m_jhecfracperbin, m_jDEtperbin, m_jDepperbin;
+    std::vector<float> m_njbinlo,  m_jEtbinlo,  m_jetabinlo,  m_jphibinlo,  m_jemfracbinlo,  m_jhecfracbinlo, m_jDEtbinlo,  m_jDepbinlo;
+    std::vector<float> m_njbinhi,  m_jEtbinhi,  m_jetabinhi,  m_jphibinhi,  m_jemfracbinhi,  m_jhecfracbinhi, m_jDEtbinhi,  m_jDepbinhi;
 
     // binning for trigger efficiency 
     std::vector<float> m_l1binloEt, m_l1binhiEt, m_l1nperbinEt,       // for L1 trigger eff vs. Et
@@ -93,6 +97,9 @@ class HLTJetMonTool : public IHLTMonTool {
 
     // keep track of monitoring groups
     JetSigtype m_monGroups;
+
+    // keep track of hlt containers
+    JetContainertype m_hltContainers;
 
     std::string m_monBase, m_L1dir, m_HLTdir, m_HLTpfx, m_OFpfx, m_Effdir;
     std::string m_L1xAODJetKey; 
@@ -124,6 +131,10 @@ class HLTJetMonTool : public IHLTMonTool {
 
     std::string m_p4State;
 
+   
+    /// Handle to the TDT
+    //ToolHandle< Trig::TrigDecisionTool > m_tdt;
+
     ToolHandle<TrigMatchTool> m_trigMatchTool;
     //const Trig::ChainGroup *m_trjetL1Items, *m_trjetL2Chain, *m_trjetEFChain;
 
@@ -143,8 +154,8 @@ class HLTJetMonTool : public IHLTMonTool {
     StatusCode fillOfflineHists();    // offline jet + trigger efficiency hists
 
     // helpers for fill method
-    void fillBasicL1forChain(const std::string& theChain, double L1thr ); // No need to pass JetRoI - it is known Khaleesi
-    void fillBasicHLTforChain(const std::string& theChain, double HLTthr );
+    void fillBasicL1forChain(const std::string& theChain, double L1thr); // No need to pass JetRoI - it is known Khaleesi
+    void fillBasicHLTforChain(const std::string& theChain, double HLTthr, const std::string& theContainer);
 
     // SG retrieval method
     StatusCode retrieveContainers();

@@ -26,17 +26,9 @@ hlt_offlineJetKeys = { "AntiKt4LCTopoJets" : "AntiKt4LCTopoJets",
                        "AntiKt4EMTopoJets" : "AntiKt4EMTopoJets", 
                        "AntiKt10LCTopoJets" : "AntiKt10LCTopoJets"}
 
-## sample selection (orthogonal) triggers
-##hlt_eventSelectionTriggers = [ "L1_MU10", "L1RD0_EMPTY" ]
-
-## Triggers for basic plots
-## "Internal:Physical"
-
 ## Monitoring triggers
 ## Modify to the default naming scheme for menu-aware montioring.  
-##hlt_basicL1Triggers = { 'L1SingleJetLow':'L1_J10','L1Random':'L1RD0_EMPTY' }
 hlt_monitoring_l1jet = ["L1J12", "L1RD0"]
-##hlt_basicHLTTriggers  = { 'HLT_j0_perf_prescld':'HLT_j0_perf_L1J10_prescaled','HLT_j0_perf_raw':'HLT_j0_perf_L1J10_raw','HLT_j0_perf_out':'HLT_j0_perf_L1J10_output' } 
 hlt_monitoring_jet = ["j0_L1J12", "j15_L1J12", "ht0_L1J12"] 
 
 # Binning for NJets
@@ -61,6 +53,11 @@ hlt_jetphibins = [ 35 ]
 hlt_jetphibinlo = [ -1.115*math.pi ]
 hlt_jetphibinhi = [ 1.115*math.pi ]
 
+# Binning for EMFrac
+hlt_jetemfracbins = [ 52]
+hlt_jetemfracbinlo = [ -0.02]
+hlt_jetemfracbinhi = [ 1.02 ]
+
 # Binning for DEt
 hlt_jetDEtbins = [ 42 ]
 hlt_jetDEtbinlo = [ -70. ]
@@ -72,34 +69,26 @@ hlt_jetDepbinlo = [ -6.0 ]
 hlt_jetDepbinhi = [ 6.0 ]
 
 ## Items/Chains for Trigger Efficiency 
-# NB1: ordered-pair: internal name:chain/item name
+# NB1: ordered-pair: internal name:chain/item name used iternally
 # NB2: ordered-pair: internal name:threshold value
 # NB3: python lists are alphabetically ordered
 # 4-Feb-2015 Modified to match default naming scheme for menu-aware monitoring
 
 ## L1 items   
-##hlt_level1ItemNames           = { 'L1SingleJetLow':'L1_J10', 'L1Random':'L1RD0_EMPTY' }
-hlt_primary_l1jet                 = ['L1J12']
+hlt_primary_l1jet             = ['L1J12']
 hlt_level1EtThresholds        = { 'L1J12':10. }
+hlt_hltContainers             = {'L1J12':'a4tcemsubjesFS'}
 hlt_level1EtNBins             = [ 40 ]
 hlt_level1EtBinsLow           = [ 0. ]
 hlt_level1EtBinsHigh          = [ 100. ]
 
 
-## HLT item
-
-# M-week chains
-##hlt_hltChainNames            = { 'HLT_j0_perf_prescld':'HLT_j0_perf_L1J10_prescaled','HLT_j0_perf_raw':'HLT_j0_perf_L1J10_raw','HLT_j0_perf_out':'HLT_j0_perf_L1J10_output' } 
-##hlt_hltEtThresholds            = { 'HLT_j0_perf_prescld':0.0, 'HLT_j0_perf_raw':0.0, 'HLT_j0_perf_out':0.0 }
-##hlt_hltEtNBins                 = [ 100, 100, 100 ]
-##hlt_hltEtBinsLow               = [ 0., 0., 0. ]
-##hlt_hltEtBinsHigh              = [ 50., 50., 50.]
-hlt_primary_jet                   = ['j15_L1J12'] 
-hlt_hltEtThresholds            = { 'j15':0.0 }
+## HLT chains
+hlt_primary_jet                = ['j15_L1J12'] 
+hlt_hltEtThresholds            = {'j15_L1J12':0.0}
 hlt_hltEtNBins                 = [ 100 ]
 hlt_hltEtBinsLow               = [ 0. ]
 hlt_hltEtBinsHigh              = [ 50.]
-
 
 hlt_offlineEtThresholds        = { 'L1J12':1., 'j15':1.}
             
@@ -145,10 +134,6 @@ def TrigJetMonitoringTool():
             OFJetDirPrefix       = "OF",
            
             # Define basic L1/EF chains
-            ##BasicL1Chains        = hlt_basicL1Triggers,
-            ##BasicHLTChains       = hlt_basicHLTTriggers,
-            ##BasicL1Chains        = monitoring_l1jet,
-            ##BasicHLTChains       = monitoring_jet,
             monitoring_l1jet       = hlt_monitoring_l1jet,
             monitoring_jet         = hlt_monitoring_jet,
 
@@ -176,6 +161,11 @@ def TrigJetMonitoringTool():
             JetphiBinLo               = hlt_jetphibinlo,
             JetphiBinHi               = hlt_jetphibinhi,
 
+            # Binning for emfrac
+            JetemfracNBins            = hlt_jetemfracbins,
+            JetemfracBinLo            = hlt_jetemfracbinlo,
+            JetemfracBinHi            = hlt_jetemfracbinhi,
+
             # Binning for DEt
             JetDEtNBins               = hlt_jetDEtbins,
             JetDEtBinLo               = hlt_jetDEtbinlo,
@@ -190,8 +180,6 @@ def TrigJetMonitoringTool():
             HLTEtThresGeV           = hlt_hltEtThresholds,
 
             # L1 Items for trigger efficiency
-            ##L1ItemNames             = hlt_level1ItemNames,
-            ##L1ItemNames             = primary_l1jet,
             primary_l1jet           = hlt_primary_l1jet,
             L1EffNBinsEt            = hlt_level1EtNBins,
             L1EffBinLoEtGeV         = hlt_level1EtBinsLow,
@@ -199,8 +187,6 @@ def TrigJetMonitoringTool():
             #L1EffEtThresGeV         = hlt_level1EtThresholds,
             
             # HLT Chains for trigger efficiency
-            ##HLTChainNames            = hlt_hltChainNames,
-            ##HLTChainNames            = primary_jet,
             primary_jet              = hlt_primary_jet,
             HLTEffNBinsEt            = hlt_hltEtNBins,
             HLTEffBinLoEtGeV         = hlt_hltEtBinsLow,
