@@ -249,3 +249,131 @@ uint16_t CSCcablingSvc::collectionId(const uint16_t subDetectorId, const uint16_
   
   return onlineColId;
 }
+
+void CSCcablingSvc::hash2Rob(const unsigned int& hashid, uint32_t& robid) const {
+   if(m_run1){
+     switch (hashid){
+        case 0:
+        case 16:
+        case 8:
+        case 24:
+           robid = 0x05;
+	   break;
+        case 1:
+        case 17:
+        case 9:
+        case 25:
+           robid = 0x07;
+	   break;
+        case 2:
+        case 18:
+        case 10:
+        case 26:
+           robid = 0x09;
+	   break;
+        case 3:
+        case 19:
+        case 11:
+        case 27:
+           robid = 0x11;
+	   break;
+        case 4:
+        case 20:
+        case 12:
+        case 28:
+           robid = 0x15;
+	   break;
+        case 5:
+        case 21:
+        case 13:
+        case 29:
+           robid = 0x17;
+	   break;
+        case 6:
+        case 22:
+        case 14:
+        case 30:
+           robid = 0x19;
+	   break;
+        case 7:
+        case 23:
+        case 15:
+        case 31:
+           robid = 0x21;
+	   break;
+        default:
+           robid = 0xffff;
+           break;
+    }
+  } else {
+     switch (hashid){
+        case 16:
+        case 24:
+           robid = 0x80;
+	   break;
+        case 17:
+        case 25:
+           robid = 0x82;
+	   break;
+        case 18:
+        case 26:
+           robid = 0x84;
+	   break;
+        case 19:
+        case 27:
+           robid = 0x86;
+	   break;
+        case 20:
+        case 28:
+           robid = 0x88;
+	   break;
+        case 21:
+        case 29:
+           robid = 0x8a;
+	   break;
+        case 22:
+        case 30:
+           robid = 0x8c;
+	   break;
+        case 23:
+        case 31:
+           robid = 0x8e;
+	   break;
+        case 0:
+        case 8:
+           robid = 0x81;
+	   break;
+        case 1:
+        case 9:
+           robid = 0x83;
+	   break;
+        case 2:
+        case 10:
+           robid = 0x85;
+	   break;
+        case 3:
+        case 11:
+           robid = 0x87;
+	   break;
+        case 4:
+        case 12:
+           robid = 0x89;
+	   break;
+        case 5:
+        case 13:
+           robid = 0x8b;
+	   break;
+        case 6:
+        case 14:
+           robid = 0x8d;
+	   break;
+        case 7:
+        case 15:
+           robid = 0x8f;
+	   break;
+        default:
+           robid = 0xffff;
+           break;
+    }
+  }
+}

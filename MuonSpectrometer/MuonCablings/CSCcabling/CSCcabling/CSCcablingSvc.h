@@ -52,6 +52,7 @@ public:
   unsigned int nROD ()  const { return m_rod; }
   unsigned int maxId()  const { return m_max; }
 
+  void hash2Rob(const unsigned int&, uint32_t&) const;
  private:
 
   mutable unsigned int m_side;
