@@ -5,7 +5,8 @@
 #ifndef ZDCCONDITIONS_ZDCCABLINGSVC_H
 #define ZDCCONDITIONS_ZDCCABLINGSVC_H
 
-#include "GaudiKernel/Service.h"
+//#include "GaudiKernel/Service.h"
+#include "AthenaBaseComps/AthService.h"
 #include "ZdcConditions/ZdcCablingService.h"
 #include "AthenaKernel/IOVSvcDefs.h"
 #include "GaudiKernel/ServiceHandle.h"
@@ -17,7 +18,7 @@ template <class TYPE> class SvcFactory;
 //NGO At some point ZdcCablingService should be made a tool, but this will introduce
 //NGO many upstream code changes.
 
-class ZdcCablingSvc : public Service
+class ZdcCablingSvc : public AthService
 {
   friend class SvcFactory<ZdcCablingSvc>;
   

@@ -21,7 +21,7 @@ const InterfaceID&  ZdcCablingSvc::interfaceID()
 //
 //_____________________________________________________________________________
 ZdcCablingSvc::ZdcCablingSvc(const std::string& name, ISvcLocator* pSvcLocator) :
-  Service(name, pSvcLocator),
+  AthService(name, pSvcLocator),
   m_cablingService(0),
   m_detStore("DetectorStore", name)
 {
