@@ -27,11 +27,11 @@ class TrigMonL1Item
   
   enum Decision {
     kReset            = 0x0,
-    kPassed           = 0x1000, // not stored
-    kPrescaled        = 0x0800, // not stored
-    kL1AfterVeto      = 0x0400,
-    kL1BeforePrescale = 0x0200,
-    kL1AfterPrescale  = 0x0100
+    kPassed           = 0x6000, // not stored
+    kPrescaled        = 0x5000, // not stored
+    kL1AfterVeto      = 0x4000,
+    kL1BeforePrescale = 0x2000,
+    kL1AfterPrescale  = 0x1000
   };
   
   TrigMonL1Item();
@@ -67,11 +67,11 @@ std::string str(const TrigMonL1Item &);
 //
 // m_encoded stores encoded ctp id and decisions
 //
-// m_encoded = aaaaadddcccccccc
+// m_encoded = adddcccccccccccc
 //
-// ctp id     [c]  low 8 bits
+// ctp id     [c]  low 12 bits
 // decision   [d]  mid 3 bits
-// available  [a]  top 5 bits
+// available  [a]  top 1 bit
 //
 
 //
