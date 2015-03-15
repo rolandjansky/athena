@@ -9,14 +9,8 @@
 // Local
 #include "TrigMonitoringEvent/TrigMonSeq.h"
 #include "TrigMonitoringEvent/TrigConfChain.h"
-#include "TrigMonMSG.h"
 
 using namespace std;
-
-namespace MSGService
-{
-  static TrigMonMSG msg("TrigConfChain");
-}
 
 //--------------------------------------------------------------------------------------      
 uint16_t Trig::getEncodedId(int level,
@@ -26,11 +20,11 @@ uint16_t Trig::getEncodedId(int level,
   uint16_t word = 0x0;
   
   if(level < 1 || level > 3) {
-    MSGService::msg.Log("Trig::getEncoded error! Bad level",MSG::ERROR);
+    cerr << "Trig::getEncoded error! Bad level: " << level << endl;
     return word;
   }
   if(counter < 0 || counter >= 16384) {
-    MSGService::msg.Log("Trig::getEncoded error! Bad counter",MSG::ERROR);
+    cerr << "Trig::getEncoded error! Bad counter: " << counter << endl;
     return word;
   }
 
@@ -90,7 +84,7 @@ TrigConfChain::TrigConfChain(const string &chain_name,
     m_chain_counter = static_cast<unsigned int>(chain_counter);
   }
   else {
-    MSGService::msg.Log("TrigConfChain ctor error! Bad chain counter",MSG::ERROR);
+    cerr << "TrigConfChain ctor error! Bad chain counter: " << chain_counter<< endl;
   }
 
   if(0 <= lower_chain_counter && lower_chain_counter < 16384) {
@@ -103,9 +97,7 @@ TrigConfChain::TrigConfChain(const string &chain_name,
   else if(level == "HLT") m_level = 2;
   else if(level == "EF")  m_level = 3;
   else {
-    std::stringstream ss;
-    ss << "TrigConfChain ctor error! " << chain_name << ": bad level " << level ;
-    MSGService::msg.Log(ss.str(),MSG::ERROR);
+    cerr << "TrigConfChain ctor error! " << chain_name << ": bad level " << level << endl;
   }
 }
 
@@ -129,7 +121,7 @@ TrigConfChain::TrigConfChain(const string &chain_name,
     m_chain_counter = static_cast<unsigned int>(chain_counter);
   }
   else {
-    MSGService::msg.Log("TrigConfChain ctor error! Bad chain counter", MSG::ERROR);
+    cerr << "TrigConfChain ctor error! Bad chain counter: " << chain_counter<< endl;
   }
 }
 
@@ -208,7 +200,7 @@ float TrigConfChain::getSignaturePrescale(const std::string &name) const
   // Find stream prescale
   //
   if(m_stream_prescale.size() != m_stream_name.size()) {
-    MSGService::msg.Log("TrigConfChain::getSignaturePrescale - logic error!",MSG::ERROR);
+    cerr << "TrigConfChain::getSignaturePrescale - logic error!" << endl;
     return 0.0;
   }
 
