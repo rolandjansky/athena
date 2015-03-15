@@ -17,8 +17,13 @@ UPDATED:
 
 #include "egammaEvent/egPID.h"
 #include "GaudiKernel/GaudiException.h"
-#include <iomanip>
-#include <iostream>
+#ifdef HAVE_NEW_IOSTREAMS
+  #include <iomanip>
+  #include <iostream>
+#else
+  #include <iomanip.h>
+  #include <iostream.h>
+#endif
 
 //  END OF HEADER FILES INCLUDE
 
@@ -55,7 +60,7 @@ egPID::~egPID()
 }
 
 // =========================================================
-double egPID::egammaID(egammaPIDObs::PID key, bool *found) const 
+double egPID::egammaID(egammaPID::PID key, bool *found) const 
 {
   //
   // interface method to retrieve value of pid IsEM or weight
@@ -64,15 +69,15 @@ double egPID::egammaID(egammaPIDObs::PID key, bool *found) const
   // retrieve key for cut-based identification for non-isolated objects
   switch(key) {
     
-  case egammaPIDObs::SofteIsEM:
-  case egammaPIDObs::IsEM:
-  case egammaPIDObs::IsEMLoose:
-  case egammaPIDObs::IsEMMedium:
-  case egammaPIDObs::IsEMTight:
-  case egammaPIDObs::IsGoodOQ:
+  case egammaPID::SofteIsEM:
+  case egammaPID::IsEM:
+  case egammaPID::IsEMLoose:
+  case egammaPID::IsEMMedium:
+  case egammaPID::IsEMTight:
+  case egammaPID::IsGoodOQ:
     return (double)egammaIDint(key, found);
   default:
-    typedef std::pair<egammaPIDObs::PID,double> elParams;
+    typedef std::pair<egammaPID::PID,double> elParams;
 
     std::vector<elParams>::const_iterator p = m_egammaID.begin();
     
@@ -89,26 +94,26 @@ double egPID::egammaID(egammaPIDObs::PID key, bool *found) const
     if (found != NULL) {
       *found = false;
     }
-    return egammaPIDObs::EgPidUndefined;
+    return egammaPID::EgPidUndefined;
   }
 }
 
 // =================================================================
-bool egPID::set_egammaID(egammaPIDObs::PID key, double value) 
+bool egPID::set_egammaID(egammaPID::PID key, double value) 
 {
   //
   // set value of PID for IsEM or weight
   //
   switch(key) {
-  case egammaPIDObs::SofteIsEM:
-  case egammaPIDObs::IsEM:
-  case egammaPIDObs::IsEMLoose:
-  case egammaPIDObs::IsEMMedium:
-  case egammaPIDObs::IsEMTight:
-  case egammaPIDObs::IsGoodOQ:
+  case egammaPID::SofteIsEM:
+  case egammaPID::IsEM:
+  case egammaPID::IsEMLoose:
+  case egammaPID::IsEMMedium:
+  case egammaPID::IsEMTight:
+  case egammaPID::IsGoodOQ:
     return set_egammaIDint( key, (unsigned int) value);
   default:
-    typedef std::pair<egammaPIDObs::PID,double> elParams;
+    typedef std::pair<egammaPID::PID,double> elParams;
     
     std::vector<elParams>::iterator p = m_egammaID.begin();
     
@@ -128,13 +133,13 @@ bool egPID::set_egammaID(egammaPIDObs::PID key, double value)
 }
 
 // ============================================================
-bool egPID::set_egammaIDint(egammaPIDObs::PID key, unsigned int value) 
+bool egPID::set_egammaIDint(egammaPID::PID key, unsigned int value) 
 {
   //
   // method to set value
   //
 
-  typedef std::pair<egammaPIDObs::PID,unsigned int> elParams;
+  typedef std::pair<egammaPID::PID,unsigned int> elParams;
 
   std::vector<elParams>::iterator p = m_egammaIDint.begin();
  
@@ -154,7 +159,7 @@ bool egPID::set_egammaIDint(egammaPIDObs::PID key, unsigned int value)
 
 // ==================================================
 unsigned int egPID::isEM(const unsigned int mask, 
-			 egammaPIDObs::PID pid,
+			 egammaPID::PID pid,
 			 bool *found) const 
 {
   //
@@ -171,7 +176,7 @@ unsigned int egPID::isEMsofte(const unsigned int mask, bool *found) const
   // apply mask to the SofteIsEM value
   //
 
-  return (egammaIDint(egammaPIDObs::SofteIsEM, found) & mask);
+  return (egammaIDint(egammaPID::SofteIsEM, found) & mask);
 }
 
 // ==================================================
@@ -181,18 +186,18 @@ unsigned int egPID::IsGoodOQ(const unsigned int mask, bool *found) const
   // apply mask to the IsGoodOQ value
   //
 
-  return (egammaIDint(egammaPIDObs::IsGoodOQ, found) & mask);
+  return (egammaIDint(egammaPID::IsGoodOQ, found) & mask);
 }
 
 
 // ==================================================
-unsigned int egPID::egammaIDint(egammaPIDObs::PID key, bool *found) const 
+unsigned int egPID::egammaIDint(egammaPID::PID key, bool *found) const 
 {
   //
   // method to retrieve value
   //
   
-  typedef std::pair<egammaPIDObs::PID,unsigned int> elParams;
+  typedef std::pair<egammaPID::PID,unsigned int> elParams;
 
   std::vector<elParams>::const_iterator p = m_egammaIDint.begin();
  
@@ -208,6 +213,6 @@ unsigned int egPID::egammaIDint(egammaPIDObs::PID key, bool *found) const
   if (found != NULL) {
     *found = false;
   }
-  return egammaPIDObs::EgPidUndefined;
+  return egammaPID::EgPidUndefined;
 }
 

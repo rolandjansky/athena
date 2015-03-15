@@ -18,8 +18,13 @@ PURPOSE:  This is the Container Class for EMShowerMinimal Objects.
 
 #include "egammaEvent/EMShowerMinimalContainer.h"
 #include "egammaEvent/EMShowerMinimal.h"
-#include <iomanip>
-#include <iostream>
+#ifdef HAVE_NEW_IOSTREAMS
+  #include <iomanip>
+  #include <iostream>
+#else
+  #include <iomanip.h>
+  #include <iostream.h>
+#endif
 
 //  END OF HEADER FILES INCLUDE
 

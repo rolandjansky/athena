@@ -10,7 +10,7 @@
 #include "egammaEvent/EMConvert.h"
 #include "CaloEvent/CaloCluster.h"
 #include "egammaEvent/EMErrorDetail.h"
-#include "egammaEvent/egammaPIDdefsObs.h"
+#include "egammaEvent/egammaPIDdefs.h"
 #include "SGTools/BaseInfo.h"
 
 #include <iomanip>
@@ -309,7 +309,7 @@ void egamma::fillToken(INavigationToken& theToken,
 // ==========================================================
 // Don't use a default for the found parameter because PyROOT has
 // problems passing bool* arguments.
-double egamma::egammaID(egammaPIDObs::PID idflag, bool *found) const 
+double egamma::egammaID(egammaPID::PID idflag, bool *found) const 
 {
   //
   // method to retrieve the PID
@@ -319,7 +319,7 @@ double egamma::egammaID(egammaPIDObs::PID idflag, bool *found) const
   return m_egPID->egammaID(idflag, found);
 }
 
-double egamma::egammaID(egammaPIDObs::PID idflag) const 
+double egamma::egammaID(egammaPID::PID idflag) const 
 {
   //
   // method to retrieve the PID
@@ -330,7 +330,7 @@ double egamma::egammaID(egammaPIDObs::PID idflag) const
 }
 
 // ==========================================================
-bool egamma::set_egammaID(egammaPIDObs::PID idflag, double result)
+bool egamma::set_egammaID(egammaPID::PID idflag, double result)
 {
   //
   // method to set the PID
@@ -341,7 +341,7 @@ bool egamma::set_egammaID(egammaPIDObs::PID idflag, double result)
 }
 
 // ==========================================================
-bool egamma::set_egammaIDint(egammaPIDObs::PID idflag, unsigned int result)
+bool egamma::set_egammaIDint(egammaPID::PID idflag, unsigned int result)
 {
   //
   // method to set the PID for ints directly
@@ -383,7 +383,7 @@ const CaloRings*  egamma::rings() const
   return (m_rings.isValid()) ? *m_rings : 0;
 }
 
-const ElementLink<CaloRingsContainer>& egamma::ringsElementLink() const 
+ElementLink<CaloRingsContainer> egamma::ringsElementLink() const 
 { 
   //
   // methods to access RingerRings ElementLink
@@ -431,7 +431,7 @@ unsigned int egamma::nConversions() const
 }
 
 // ==========================================================
-const ElementLink<CaloClusterContainer>& egamma::clusterElementLink() const 
+ElementLink<CaloClusterContainer> egamma::clusterElementLink() const 
 { 
   return m_cluster;
 }
@@ -447,13 +447,6 @@ ElementLink<Rec::TrackParticleContainer> egamma::trackParticleElementLink(unsign
 }
 
 // ==========================================================
-const ElementLinkVector<Rec::TrackParticleContainer>&
-egamma::trackParticleElementLinkVector() const 
-{ 
-  return m_trackParticle;
-}
-
-// ==========================================================
 ElementLink<VxContainer> egamma::conversionElementLink(unsigned int index) const 
 { 
   if(index < m_conversion.size()){
@@ -461,13 +454,6 @@ ElementLink<VxContainer> egamma::conversionElementLink(unsigned int index) const
   }else{
     return ElementLink<VxContainer>();
   }
-}
-
-// ==========================================================
-const ElementLinkVector<VxContainer>&
-egamma::conversionElementLinkVector() const 
-{ 
-  return m_conversion;
 }
 
 // ==========================================================
@@ -553,20 +539,6 @@ egamma::setTrackParticleElementLink (const ElementLink<Rec::TrackParticleContain
 }
 
 // ==========================================================
-void 
-egamma::setTrackParticleElementLinkVector (const ElementLinkVector<Rec::TrackParticleContainer>& v) 
-{ 
-  m_trackParticle = v;
-}
-
-// ==========================================================
-void 
-egamma::setTrackParticleElementLinkVector (ElementLinkVector<Rec::TrackParticleContainer>&& v) 
-{ 
-  m_trackParticle = std::move(v);
-}
-
-// ==========================================================
 void egamma::resetConversion(unsigned int index)
 {
   if(index < m_conversion.size()){
@@ -598,20 +570,6 @@ egamma::setConversionElementLink (const ElementLink<VxContainer>& link)
 }
 
 // ==========================================================
-void
-egamma::setConversionElementLinkVector (const ElementLinkVector<VxContainer>& v) 
-{ 
-  m_conversion = v;
-}
-
-// ==========================================================
-void
-egamma::setConversionElementLinkVector (ElementLinkVector<VxContainer>&& v) 
-{ 
-  m_conversion = std::move(v);
-}
-
-// ==========================================================
 // methods to save the pointer to the different data objects in e/g data class
 void egamma::setDetail(const egDetailContainer* cont, 
 			      const egDetail* ptr) 
@@ -630,22 +588,6 @@ egamma::setDetailElementLink(const ElementLink<egDetailContainer>& link)
 
 
 // ==========================================================
-void
-egamma::setDetailElementLinkVector(const ElementLinkVector<egDetailContainer>& v) 
-{ 
-  m_egDetails = v;
-} 
-
-
-// ==========================================================
-void
-egamma::setDetailElementLinkVector(ElementLinkVector<egDetailContainer>&& v) 
-{ 
-  m_egDetails = std::move(v);
-} 
-
-
-// ==========================================================
 const egPID* egamma::pid() const 
 { 
   return m_egPID; 
@@ -660,7 +602,7 @@ void egamma::set_pid(egPID* ptr)
 
 // ==========================================================
 bool egamma::isElectron(unsigned int mask, 
-			egammaPIDObs::PID pid, 
+			egammaPID::PID pid, 
 			bool *found) const
 { 
   //
@@ -673,7 +615,7 @@ bool egamma::isElectron(unsigned int mask,
 
 // ==========================================================
 bool egamma::isPhoton(unsigned int mask, 
-		      egammaPIDObs::PID pid,
+		      egammaPID::PID pid,
 		      bool *found) const
 { 
   //
@@ -696,7 +638,7 @@ bool egamma::isSofte(unsigned int mask, bool *found) const
 } 
 
 // ==========================================================
-bool egamma::passID(egammaPIDObs::egammaIDQuality id) const
+bool egamma::passID(egammaPID::egammaIDQuality id) const
 { 
   //
   // boolean method to define if egamma object is identified 
@@ -704,63 +646,63 @@ bool egamma::passID(egammaPIDObs::egammaIDQuality id) const
   //
 
   switch(id) {
-  case egammaPIDObs::ElectronIDLoose:
-    return isElectron(egammaPIDObs::ElectronLoose, egammaPIDObs::IsEM);
-  case egammaPIDObs::ElectronIDMedium:
-    return isElectron(egammaPIDObs::ElectronMedium, egammaPIDObs::IsEM);
-  case egammaPIDObs::ElectronIDTight:
-    return isElectron(egammaPIDObs::ElectronTight, egammaPIDObs::IsEM);
+  case egammaPID::ElectronIDLoose:
+    return isElectron(egammaPID::ElectronLoose, egammaPID::IsEM);
+  case egammaPID::ElectronIDMedium:
+    return isElectron(egammaPID::ElectronMedium, egammaPID::IsEM);
+  case egammaPID::ElectronIDTight:
+    return isElectron(egammaPID::ElectronTight, egammaPID::IsEM);
 
-  case egammaPIDObs::ElectronIDLoosePP:
-    return isElectron(egammaPIDObs::ElectronLoosePP, egammaPIDObs::IsEMLoose);
-  case egammaPIDObs::ElectronIDMediumPP:
-    return isElectron(egammaPIDObs::ElectronMediumPP, egammaPIDObs::IsEMMedium);
-  case egammaPIDObs::ElectronIDTightPP:
-    return isElectron(egammaPIDObs::ElectronTightPP, egammaPIDObs::IsEMTight);
+  case egammaPID::ElectronIDLoosePP:
+    return isElectron(egammaPID::ElectronLoosePP, egammaPID::IsEMLoose);
+  case egammaPID::ElectronIDMediumPP:
+    return isElectron(egammaPID::ElectronMediumPP, egammaPID::IsEMMedium);
+  case egammaPID::ElectronIDTightPP:
+    return isElectron(egammaPID::ElectronTightPP, egammaPID::IsEMTight);
 
-  case egammaPIDObs::PhotonIDLoose:
-    return isPhoton(egammaPIDObs::PhotonLoose, egammaPIDObs::IsEM);
-  case egammaPIDObs::PhotonIDMedium:
-    return isPhoton(egammaPIDObs::PhotonMedium, egammaPIDObs::IsEMMedium);
-  case egammaPIDObs::PhotonIDTight:
-    return isPhoton(egammaPIDObs::PhotonTight, egammaPIDObs::IsEM);
+  case egammaPID::PhotonIDLoose:
+    return isPhoton(egammaPID::PhotonLoose, egammaPID::IsEM);
+  case egammaPID::PhotonIDMedium:
+    return isPhoton(egammaPID::PhotonMedium, egammaPID::IsEMMedium);
+  case egammaPID::PhotonIDTight:
+    return isPhoton(egammaPID::PhotonTight, egammaPID::IsEM);
 
-  case egammaPIDObs::PhotonIDLooseAR:
-    return isPhoton(egammaPIDObs::PhotonLooseAR, egammaPIDObs::IsEM);
-  case egammaPIDObs::PhotonIDMediumAR:
-    return isPhoton(egammaPIDObs::PhotonMediumAR, egammaPIDObs::IsEMMedium);
-  case egammaPIDObs::PhotonIDTightAR:
-    return isPhoton(egammaPIDObs::PhotonTightAR, egammaPIDObs::IsEM);
+  case egammaPID::PhotonIDLooseAR:
+    return isPhoton(egammaPID::PhotonLooseAR, egammaPID::IsEM);
+  case egammaPID::PhotonIDMediumAR:
+    return isPhoton(egammaPID::PhotonMediumAR, egammaPID::IsEMMedium);
+  case egammaPID::PhotonIDTightAR:
+    return isPhoton(egammaPID::PhotonTightAR, egammaPID::IsEM);
 
-   case egammaPIDObs::ElectronIDLooseIso:
-     return isElectron(egammaPIDObs::ElectronLooseIso, egammaPIDObs::IsEM);
-  case egammaPIDObs::ElectronIDMediumIso:
-    return isElectron(egammaPIDObs::ElectronMediumIso, egammaPIDObs::IsEM);
-  case egammaPIDObs::ElectronIDTightIso:
-    return isElectron(egammaPIDObs::ElectronTightIso, egammaPIDObs::IsEM);
+   case egammaPID::ElectronIDLooseIso:
+     return isElectron(egammaPID::ElectronLooseIso, egammaPID::IsEM);
+  case egammaPID::ElectronIDMediumIso:
+    return isElectron(egammaPID::ElectronMediumIso, egammaPID::IsEM);
+  case egammaPID::ElectronIDTightIso:
+    return isElectron(egammaPID::ElectronTightIso, egammaPID::IsEM);
 
-  case egammaPIDObs::ElectronIDLoosePPIso:
-    return isElectron(egammaPIDObs::ElectronLooseIso, egammaPIDObs::IsEMLoose);
-  case egammaPIDObs::ElectronIDMediumPPIso:
-    return isElectron(egammaPIDObs::ElectronMediumPPIso, egammaPIDObs::IsEMMedium);
-  case egammaPIDObs::ElectronIDTightPPIso:
-    return isElectron(egammaPIDObs::ElectronTightPPIso, egammaPIDObs::IsEMTight);
+  case egammaPID::ElectronIDLoosePPIso:
+    return isElectron(egammaPID::ElectronLooseIso, egammaPID::IsEMLoose);
+  case egammaPID::ElectronIDMediumPPIso:
+    return isElectron(egammaPID::ElectronMediumPPIso, egammaPID::IsEMMedium);
+  case egammaPID::ElectronIDTightPPIso:
+    return isElectron(egammaPID::ElectronTightPPIso, egammaPID::IsEMTight);
 
-  case egammaPIDObs::PhotonIDLooseIso:
-    return isPhoton(egammaPIDObs::PhotonLooseIso, egammaPIDObs::IsEM);
-  case egammaPIDObs::PhotonIDTightIso:
-    return isPhoton(egammaPIDObs::PhotonTightIso, egammaPIDObs::IsEM);
-  case egammaPIDObs::PhotonIDLooseARIso:
-    return isPhoton(egammaPIDObs::PhotonLooseARIso, egammaPIDObs::IsEM);
-  case egammaPIDObs::PhotonIDTightARIso:
-    return isPhoton(egammaPIDObs::PhotonTightARIso, egammaPIDObs::IsEM);
+  case egammaPID::PhotonIDLooseIso:
+    return isPhoton(egammaPID::PhotonLooseIso, egammaPID::IsEM);
+  case egammaPID::PhotonIDTightIso:
+    return isPhoton(egammaPID::PhotonTightIso, egammaPID::IsEM);
+  case egammaPID::PhotonIDLooseARIso:
+    return isPhoton(egammaPID::PhotonLooseARIso, egammaPID::IsEM);
+  case egammaPID::PhotonIDTightARIso:
+    return isPhoton(egammaPID::PhotonTightARIso, egammaPID::IsEM);
 
-  case egammaPIDObs::frwdElectronIDLoose:
-    return isElectron(egammaPIDObs::frwdElectronLoose, egammaPIDObs::IsEM);
-  case egammaPIDObs::frwdElectronIDTight:
-    return isElectron(egammaPIDObs::frwdElectronTight, egammaPIDObs::IsEM);
+  case egammaPID::frwdElectronIDLoose:
+    return isElectron(egammaPID::frwdElectronLoose, egammaPID::IsEM);
+  case egammaPID::frwdElectronIDTight:
+    return isElectron(egammaPID::frwdElectronTight, egammaPID::IsEM);
 
-  case egammaPIDObs::NoIDCut:
+  case egammaPID::NoIDCut:
     return true;
 
   default:
@@ -774,7 +716,7 @@ bool egamma::passID(egammaPIDObs::egammaIDQuality id) const
 // than using a default for `found' because PyROOT complains about
 // passing bool* arguments.
 unsigned int egamma::isem(unsigned int mask, 
-			  egammaPIDObs::PID pid) const
+			  egammaPID::PID pid) const
 { 
   //
   // method which applies a mask to the isEM variable
@@ -786,7 +728,7 @@ unsigned int egamma::isem(unsigned int mask,
 
 
 unsigned int egamma::isem(unsigned int mask, 
-			  egammaPIDObs::PID pid,
+			  egammaPID::PID pid,
 			  bool *found) const
 { 
   //
@@ -878,12 +820,6 @@ ElementLink<egDetailContainer> egamma::detailElementLink (int i) const
   if (i < 0 || i >= (int)m_egDetails.size())
     return ElementLink<egDetailContainer>();
   return m_egDetails[i];
-}
-
-// ==========================================================
-const ElementLinkVector<egDetailContainer>& egamma::detailElementLinkVector () const
-{
-  return m_egDetails;
 }
 
 // ==========================================================

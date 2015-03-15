@@ -20,8 +20,13 @@ Updated:  Moved to egammaEvent
 
 #include "egammaEvent/egammaContainer.h"
 #include "egammaEvent/egamma.h"
-#include <iomanip>
-#include <iostream>
+#ifdef HAVE_NEW_IOSTREAMS
+  #include <iomanip>
+  #include <iostream>
+#else
+  #include <iomanip.h>
+  #include <iostream.h>
+#endif
 
 //  END OF HEADER FILES INCLUDE
 
