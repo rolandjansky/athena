@@ -4,6 +4,7 @@ author Peter Steinberg <peter.steinberg@bnl.gov>
 
 use     AtlasPolicy         AtlasPolicy-*
 use 	AthenaKernel	    AthenaKernel-*		    Control
+use 	AthenaBaseComps	    AthenaBaseComps-*		    Control
 use     StoreGate           StoreGate-*          	Control
 use     Identifier          Identifier-*         	DetectorDescription
 use     ZdcIdentifier		ZdcIdentifier-*			ForwardDetectors/ZDC
