@@ -8,9 +8,9 @@
 #include "PlotBase.h"
 #include "xAODMuon/Muon.h"
 
-class OccupancyPlots: public PlotBase {
+class OccupancyPlots: public TrkPhys::PlotBase {
   public:
-    OccupancyPlots(PlotBase *pParent):PlotBase(pParent),m_all_trk_eta_phi(0),m_good_id_trk_eta_phi(0),m_good_cb_trk_eta_phi(0),
+    OccupancyPlots(TrkPhys::PlotBase *pParent):TrkPhys::PlotBase(pParent),m_all_trk_eta_phi(0),m_good_id_trk_eta_phi(0),m_good_cb_trk_eta_phi(0),
                                       m_good_me_trk_eta_phi(0),m_all_trk_pt(0),m_good_id_trk_pt(0),m_good_cb_trk_pt(0),m_good_me_trk_pt(0){;}
     void fill( const xAOD::Muon* muon, bool bPassIDTrackQuality, bool bPassMSTrackQuality );
 

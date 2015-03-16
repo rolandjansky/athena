@@ -175,7 +175,8 @@ bool MuonTrkPhysMonitoring::matchSegmentTrk(const Trk::Track* origTrk, const xAO
      if( (measurement == nullptr) || (*tsit)->type(Trk::TrackStateOnSurface::Outlier) ) continue;
            
      Identifier id = m_helperTool->getIdentifier(*measurement);            
-     if(!m_idHelperTool->isMdt(id) && !m_idHelperTool->isCsc(id)) continue;
+     if( !id.is_valid() || 
+         (!m_idHelperTool->isMdt(id) && !m_idHelperTool->isCsc(id)) ) continue;
      //Check if the fixed ids from segment and track match
      if(seg->sector() == m_idHelperTool->sector(id) &&
         seg->chamberIndex() == m_idHelperTool->chamberIndex(id) &&

@@ -7,9 +7,9 @@
 
 #include "PlotBase.h"
 
-class ResidualPlots: public PlotBase {
+class ResidualPlots: public TrkPhys::PlotBase {
   public:
-    ResidualPlots(PlotBase *pParent, std::string sector):PlotBase(pParent),m_A_EE_Residuals(0),m_C_EE_Residuals(0),
+    ResidualPlots(TrkPhys::PlotBase *pParent, std::string sector):TrkPhys::PlotBase(pParent),m_A_EE_Residuals(0),m_C_EE_Residuals(0),
                                                          m_A_BEE_Residuals(0),m_C_BEE_Residuals(0),m_A_CSC_Residuals(0),
                                                          m_C_CSC_Residuals(0),m_HR_Eta_I(0),m_HR_Eta_M(0),m_HR_Eta_O(0),m_sSector(sector){;}
 

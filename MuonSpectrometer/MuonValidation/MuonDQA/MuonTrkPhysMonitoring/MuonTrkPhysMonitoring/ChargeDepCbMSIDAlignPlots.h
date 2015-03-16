@@ -11,9 +11,9 @@
 #include "xAODMuon/Muon.h"
 #include "MuonTrkPhysMonUtils.h"
 
-class ChargeDepCbMSIDAlignPlots: public PlotBase {
+class ChargeDepCbMSIDAlignPlots: public TrkPhys::PlotBase {
   public:
-    ChargeDepCbMSIDAlignPlots(PlotBase *pParent, const std::string& sChargeInfo);
+    ChargeDepCbMSIDAlignPlots(TrkPhys::PlotBase *pParent, const std::string& sChargeInfo);
     void fill(const xAOD::Muon* Muon, const Trk::Perigee* measPerigeeID, const Trk::Perigee* measPerigeeME);
 
     // <q/pT_MSEXT - q/pT_ID> vs Eta Region

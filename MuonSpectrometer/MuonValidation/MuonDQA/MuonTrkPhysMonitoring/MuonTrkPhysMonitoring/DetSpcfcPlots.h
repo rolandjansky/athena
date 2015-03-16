@@ -10,9 +10,9 @@
 #include "TrkParameters/TrackParameters.h"
 #include "MuonTrkPhysMonUtils.h"
 
-class DetSpcfcPlots: public PlotBase {
+class DetSpcfcPlots: public TrkPhys::PlotBase {
   public:
-    DetSpcfcPlots(PlotBase *pParent);
+    DetSpcfcPlots(TrkPhys::PlotBase *pParent);
 		void fill(const Trk::Perigee* measPerigee, int imdtstationName, bool isMDT, bool isCSC, bool Fill_HR_Histograms, float residual);
 
 	  TH1F* m_A_EE_UHitRes;

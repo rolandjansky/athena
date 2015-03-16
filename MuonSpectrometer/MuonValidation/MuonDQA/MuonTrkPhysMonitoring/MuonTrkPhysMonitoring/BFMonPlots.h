@@ -8,9 +8,9 @@
 #include "PlotBase.h"
 #include "xAODMuon/Muon.h"
 
-class BFMonPlots: public PlotBase {
+class BFMonPlots: public TrkPhys::PlotBase {
   public:
-    BFMonPlots(PlotBase *pParent):PlotBase(pParent),m_LSag(0),m_LSag_weights(0),m_LSag_entries(0),
+    BFMonPlots(TrkPhys::PlotBase *pParent):TrkPhys::PlotBase(pParent),m_LSag(0),m_LSag_weights(0),m_LSag_entries(0),
                                   m_LSag_mean(0),m_LSag_eta_phi_weights(0),m_LSag_eta_phi_entries(0),m_LSag_eta_phi_mean(0){;}
     void fill(const xAOD::Muon *Muon, float fSagitta );
     

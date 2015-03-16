@@ -13,9 +13,9 @@
 #include "xAODMuon/Muon.h"
 
 
-class CbMSIDAlignPlots: public PlotBase {
+class CbMSIDAlignPlots: public TrkPhys::PlotBase {
   public:
-    CbMSIDAlignPlots(PlotBase *pParent);
+    CbMSIDAlignPlots(TrkPhys::PlotBase *pParent);
     void fill(const xAOD::Muon* Muon, const Trk::Perigee* measPerigeeID, const Trk::Perigee* measPerigeeME);
 
     TH1F* m_oPt_Diff;
