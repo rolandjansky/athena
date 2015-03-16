@@ -48,13 +48,13 @@ MuonInputProvider::~MuonInputProvider()
 StatusCode
 MuonInputProvider::initialize() {
 
-   ATH_MSG_INFO("Retrieving LVL1ConfigSvc " << m_configSvc);
+   ATH_MSG_DEBUG("Retrieving LVL1ConfigSvc " << m_configSvc);
    CHECK( m_configSvc.retrieve() );
 
-   ATH_MSG_INFO("Retrieving RPC RoI Service " << m_recRPCRoiSvc);
+   ATH_MSG_DEBUG("Retrieving RPC RoI Service " << m_recRPCRoiSvc);
    CHECK( m_recRPCRoiSvc.retrieve() );
 
-   ATH_MSG_INFO("Retrieving TGC RoI Service " << m_recTGCRoiSvc);
+   ATH_MSG_DEBUG("Retrieving TGC RoI Service " << m_recTGCRoiSvc);
    CHECK( m_recTGCRoiSvc.retrieve() );
 
    m_MuonThresholds = m_configSvc->ctpConfig()->menu().thresholdConfig().getThresholdVector(TrigConf::L1DataDef::MUON);

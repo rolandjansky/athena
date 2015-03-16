@@ -88,13 +88,27 @@ L1TopoSimulation::~L1TopoSimulation()
 
 StatusCode
 L1TopoSimulation::initialize() {
-   ATH_MSG_DEBUG("initialize");
+   ATH_MSG_INFO("initialize");
 
    m_topoSteering->setMsgLevel( TrigConf::MSGTC::Level(m_topoSteeringOutputLevel) );
 
+   ATH_MSG_DEBUG("retrieving " << m_monitors);
    CHECK( m_monitors.retrieve() );
 
+   ATH_MSG_DEBUG("retrieving " << m_l1topoConfigSvc);
    CHECK( m_l1topoConfigSvc.retrieve() );
+
+   ATH_MSG_DEBUG("retrieving " << m_emtauInputProvider);
+   CHECK( m_emtauInputProvider.retrieve() );
+
+   ATH_MSG_DEBUG("retrieving " << m_jetInputProvider);
+   CHECK( m_jetInputProvider.retrieve() );
+
+   ATH_MSG_DEBUG("retrieving " << m_energyInputProvider);
+   CHECK( m_energyInputProvider.retrieve() );
+
+   ATH_MSG_DEBUG("retrieving " << m_muonInputProvider);
+   CHECK( m_muonInputProvider.retrieve() );
 
    return StatusCode::SUCCESS;
 }
