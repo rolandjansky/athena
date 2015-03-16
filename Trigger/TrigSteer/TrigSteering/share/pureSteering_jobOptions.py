@@ -24,6 +24,11 @@ theApp.EvtMax = 7*repeat
 from AthenaCommon.AlgSequence import AlgSequence
 job = AlgSequence()
 
+
+### Add xAOD::EventInfo
+from xAODEventInfoCnv.xAODEventInfoCreator import xAODMaker__EventInfoCnvAlg
+job+=xAODMaker__EventInfoCnvAlg()
+
 ### Create the Menu ###
 #######################
 
@@ -192,6 +197,9 @@ if runMergedSteering:
     hltSteer.enableCoherentPrescaling     = True
     hltSteer.enableRobRequestPreparation  = True
     hltSteer.ExecutionOrderStrategy.order =['th:J50', 'th:J90', 'th:J200', 'name:.*mu.*', 'name:RobRequest.*']
+    hltSteer.doL1TopoSimulation=False
+
+
 
     if useBusyEventSetup:
         hltSteer.LvlConverterTool.overallRoIsLimit=1
@@ -221,6 +229,7 @@ else:
     hltSteer_L2.enableRobRequestPreparation=True
     hltSteer_L2.ExecutionOrderStrategy.OutputLevel=VERBOSE
     hltSteer_L2.OutputLevel=VERBOSE
+    hltSteer_L2.doL1TopoSimulation=False
     hltSteer_L2.ExecutionOrderStrategy.order=['th:J50', 'th:J90', 'th:J200', 'name:.*mu.*', 'name:RobRequest.*']
 
 
@@ -260,6 +269,7 @@ else:
     from TrigSteering.TestingTrigSteeringConfig import TestingTrigSteer_EF
     log.info("setting up TestingTrigSteer_EF configurable:")
     hltSteer_EF = TestingTrigSteer_EF('TrigSteer_EF')
+    hltSteer_EF.doL1TopoSimulation=False
     hltSteer_EF.Navigation.OutputLevel=WARNING
     if (useErrorHandlingMenu):
         hltSteer_EF.softEventTimeout = 400 * Units.ms

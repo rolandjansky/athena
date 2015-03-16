@@ -20,7 +20,7 @@
 #ifndef TRIGSTEERING_RESULTBUILDER_H
 #define TRIGSTEERING_RESULTBUILDER_H
 
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include <inttypes.h>
 #include "TrigSteeringEvent/Enums.h"
 #include "EventInfo/TriggerInfo.h"
@@ -51,7 +51,7 @@ namespace HLT {
      @author Tomasz Bold     <Tomasz.Bold@cern.ch>     - UC Irvine
 */
 
-  class ResultBuilder: public AlgTool
+  class ResultBuilder: public AthAlgTool
   {
   public:
     ResultBuilder(const std::string& name, const std::string& type,
@@ -89,10 +89,6 @@ namespace HLT {
  private:
 
     AlgoConfig* m_config;  //!< global config object
-    MsgStream* m_log;      //!< message stream level
-    unsigned int m_logLvl; //!< MsgStream level
-
-    ServiceHandle< StoreGateSvc > m_storeGate; //!< pointer to StoreGate
 
     ToolHandle<IStreamingStrategy> m_streamingStrategy; //!< tool which implements streaming policies
 

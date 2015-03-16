@@ -18,6 +18,7 @@
 #include "TrigSteering/Lvl1ResultAccessTool.h"
 
 #include "TrigT1Result/RoIBResult.h"
+#include "CTPfragment/CTPdataformatVersion.h"
 
 #include "TrigT1Interfaces/TriggerTypeWord.h"
 #include "TrigT1Interfaces/TrigT1Interfaces_ClassDEF.h"
@@ -540,10 +541,12 @@ StatusCode Lvl1ResultAccessTool::updateResult(const LVL1CTP::Lvl1Result& result)
 // 29, 30 and 31 from word 7				  
 bool Lvl1ResultAccessTool::isCalibrationEvent(const ROIB::RoIBResult& result) {
 
-   return false; // in the RUN 2 menu there is currently no such restriction and all kinds of items are on these ctp IDs
-
+   ///return false; // in the RUN 2 menu there is currently no such restriction and all kinds of items are on these ctp IDs
+  int ctpVersion = result.cTPResult().header().formatVersion() & 0xf ;
+  CTPdataformatVersion v(ctpVersion);
   std::vector<ROIB::CTPRoI> ctpRoIVec(result.cTPResult().TAV());
-  if ( ctpRoIVec.size() >= 8 && (ctpRoIVec[7].roIWord() &  0xE0000000) )
+//  if ( ctpRoIVec.size() >= 8 && (ctpRoIVec[7].roIWord() &  0xE0000000) )
+  if ( ctpRoIVec.size()==v.getTAVwords() && ( ctpRoIVec[ctpRoIVec.size()-1].roIWord() & 0xE0000000 ) )
     return true;
   else
     return false;
@@ -581,8 +584,11 @@ const std::vector< const LVL1CTP::Lvl1Item* >& Lvl1ResultAccessTool::createL1Ite
   
   
   // loop over all configured items if no calibration, else only 3 last // Needs fixing
-  unsigned first_item = calib_flag ? 253: 0;
-  
+  int ctpVersion = result.cTPResult().header().formatVersion() & 0xf ;
+  CTPdataformatVersion v(ctpVersion);
+ 
+  unsigned first_item = calib_flag ? v.getMaxTrigItems()-3 : 0; // last three items are calib items, only those should be activated
+
   for ( unsigned i = first_item; i < m_lvl1ItemConfig.size(); i++ ) {
     if ( !m_lvl1ItemConfig[ i ] ) continue; // empty slot
 
@@ -602,6 +608,7 @@ const std::vector< const LVL1CTP::Lvl1Item* >& Lvl1ResultAccessTool::createL1Ite
   // Fill TBP, TAP in case we're creating the Lvl1Result
   if (makeLvl1Result) {
     m_lvl1Result = new LVL1CTP::Lvl1Result(true);
+
     // 1.) TAV
     const std::vector<ROIB::CTPRoI> ctpRoIVecAV = result.cTPResult().TAV();
     for (unsigned int iWord = 0; iWord < ctpRoIVecAV.size(); ++iWord) {

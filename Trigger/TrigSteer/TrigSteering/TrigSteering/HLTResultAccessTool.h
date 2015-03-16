@@ -18,7 +18,7 @@
 #ifndef TRIGSTEERING_HLT_HLTResultAccessTool_H
 #define TRIGSTEERING_HLT_HLTResultAccessTool_H
 
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 
 #include "TrigSteeringEvent/Enums.h"
 #include "TrigSteeringEvent/Chain.h"
@@ -60,7 +60,7 @@ namespace HLT {
       @class HLTResultAccessTool Tool to extract HLT chain information from HLTResult
       @author Nicolas Berger  <Nicolas.Berger@cern.ch>
    */
-   class HLTResultAccessTool : virtual public AlgTool, public virtual IHLTResultAccessTool
+   class HLTResultAccessTool : virtual public AthAlgTool, public virtual IHLTResultAccessTool
    {
    public:
 
@@ -83,22 +83,8 @@ namespace HLT {
 
    protected:
 
-      MsgStream& msg(const MSG::Level lvl) { return (*m_log) << lvl; }
-      bool msgLvl (const MSG::Level lvl) const;
-
       std::vector<Chain> m_chains;  //!< deserialized HLT::Chain objects
-      MsgStream* m_log;             //!< MsgStream used within all none Gaudi classes of this package
    };
-
-   inline bool
-   HLTResultAccessTool::msgLvl(const MSG::Level lvl) const {
-      if (m_log->level() <= lvl) {
-         (*m_log) << lvl;
-         return true;
-      } else {
-         return false;
-      }
-   }
 
 } // end namespace
 
