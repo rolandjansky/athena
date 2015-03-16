@@ -16,6 +16,7 @@
 #include "MuonTrkPhysMonitoring/PlotBase.h"
 #include <algorithm>
 
+namespace TrkPhys {
 PlotBase::PlotBase(PlotBase* pParent){
   if (pParent != 0) pParent->RegisterSubPlot(this);
 	m_sTrackCollectionName = "";
@@ -65,3 +66,4 @@ void PlotBase::Book2D(TH2F* &hist, std::string sName, std::string sLabels, int n
 	m_vBooked2DHistograms.push_back(hist);
 }
 
+}

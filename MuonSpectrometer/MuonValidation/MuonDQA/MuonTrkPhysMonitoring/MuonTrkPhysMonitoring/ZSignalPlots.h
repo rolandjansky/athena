@@ -7,9 +7,9 @@
 
 #include "PlotBase.h"
 
-class ZSignalPlots: public PlotBase {
+class ZSignalPlots: public TrkPhys::PlotBase {
   public:
-    ZSignalPlots(PlotBase *pParent):PlotBase(pParent),m_Z_Mass(0),m_Z_occupancy(0),m_Z_Efficiency(0),m_Z_EffNumerator(0),
+    ZSignalPlots(TrkPhys::PlotBase *pParent):TrkPhys::PlotBase(pParent),m_Z_Mass(0),m_Z_occupancy(0),m_Z_Efficiency(0),m_Z_EffNumerator(0),
                                     m_Z_EffDenominator(0),m_Z_Efficiency_eta(0),m_Z_EffNumerator_eta(0),m_Z_EffDenominator_eta(0),
                                     m_M_Z_Mean(0),m_M_Z_Sigma(0),m_N_Z_Lumi(0),m_M_Z_EA_EA(0),m_M_Z_EA_BA(0),m_M_Z_EA_BC(0),
                                     m_M_Z_EA_EC(0),m_M_Z_BA_EA(0),m_M_Z_BA_BA(0),m_M_Z_BA_BC(0),m_M_Z_BA_EC(0),

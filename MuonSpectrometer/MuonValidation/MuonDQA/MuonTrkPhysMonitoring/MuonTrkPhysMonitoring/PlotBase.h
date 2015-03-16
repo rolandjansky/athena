@@ -16,6 +16,7 @@
 #include "TH1F.h"
 #include "TH2F.h"
 
+namespace TrkPhys {
 class PlotBase {
 public:
   PlotBase(PlotBase *parent);
@@ -40,5 +41,5 @@ protected:
   std::vector<TH2F*> m_vBooked2DHistograms;
   std::string m_sTrackCollectionName;
 };
-
+}
 #endif

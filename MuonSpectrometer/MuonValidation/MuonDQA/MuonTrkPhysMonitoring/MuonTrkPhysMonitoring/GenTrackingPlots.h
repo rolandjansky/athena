@@ -9,9 +9,9 @@
 #include "ResidualPlots.h"
 #include "TrkParameters/TrackParameters.h"
 
-class GenTrackingPlots: public PlotBase {
+class GenTrackingPlots: public TrkPhys::PlotBase {
   public:
-    GenTrackingPlots(PlotBase *pParent);
+    GenTrackingPlots(TrkPhys::PlotBase *pParent);
 
     //N_MU/lumi v eta
     TH2F* m_N_Mu_LB_per_DRegion;
