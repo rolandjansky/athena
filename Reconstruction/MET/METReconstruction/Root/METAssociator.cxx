@@ -97,19 +97,17 @@ namespace met {
     pv = 0;
     if( evtStore()->retrieve(vxCont, m_pvcoll).isFailure() ) {
       ATH_MSG_WARNING("Unable to retrieve primary vertex container " << m_pvcoll);
-      return StatusCode::FAILURE;
     } else if(vxCont->empty()) {
       ATH_MSG_WARNING("Event has no primary vertices!");
-      return StatusCode::FAILURE;
-    }
-    ATH_MSG_DEBUG("Successfully retrieved primary vertex container");
-    for(const auto& vx : *vxCont) {
-      if(vx->vertexType()==VxType::PriVtx)
-	{pv = vx; break;}
+    } else {
+      ATH_MSG_DEBUG("Successfully retrieved primary vertex container");
+      for(const auto& vx : *vxCont) {
+	if(vx->vertexType()==VxType::PriVtx)
+	  {pv = vx; break;}
+      }
     }
     if(!pv) {
-      ATH_MSG_WARNING("Failed to find primary vertex!");
-      return StatusCode::FAILURE;
+      ATH_MSG_DEBUG("Failed to find primary vertex!");
     } else {
       ATH_MSG_VERBOSE("Primary vertex has z = " << pv->z());
     }
@@ -117,7 +115,7 @@ namespace met {
     trkCont=0;
     ATH_CHECK( evtStore()->retrieve(trkCont, m_trkcoll) );
 
-    // filterTracks(trkCont,pv);
+    filterTracks(trkCont,pv);
 
     if(m_pflow) {
       pfoCont = 0;
@@ -125,7 +123,7 @@ namespace met {
 	ATH_CHECK(evtStore()->retrieve(pfoCont,"EtmissParticleFlowObjects"));
       } else {
 	pfoCont = m_pfotool->retrievePFO(CP::EM, CP::all);
-	ATH_CHECK( evtStore()->record(pfoCont,"EtmissParticleFlowObjects"));
+	ATH_CHECK( evtStore()->record( const_cast<xAOD::PFOContainer*>(pfoCont),"EtmissParticleFlowObjects"));
       }
       if(!pfoCont) {
 	ATH_MSG_WARNING("Unable to retrieve input pfo container");
@@ -177,7 +175,7 @@ namespace met {
         MissingETComposition::insert(metMap,obj,constlist,momentumOverride);
       } else {
         ATH_CHECK( this->extractTopoClusters(obj,constlist,tcCont) );
-        ATH_CHECK( this->extractTracks(obj,constlist,tcCont,pv) );
+        if(pv) { ATH_CHECK( this->extractTracks(obj,constlist,tcCont,pv) ); }
         MissingETComposition::insert(metMap,obj,constlist);
       }
     }
@@ -196,33 +194,7 @@ namespace met {
   ////////////////
   bool METAssociator::acceptTrack(const xAOD::TrackParticle* trk, const xAOD::Vertex* vx) const
   {
-    //if(fabs(trk->pt())<500/*MeV*/ || fabs(trk->eta())>2.5) return false;
-    // could add some error checking to make sure we successfully read the details
-    //uint8_t nPixHits(0), nSctHits(0);
-    //trk->summaryValue(nPixHits,xAOD::numberOfPixelHits);
-    //if(nPixHits<1) return false;
-    //trk->summaryValue(nSctHits,xAOD::numberOfSCTHits);
-    //if(nSctHits<6) return false;
-    //if(fabs(trk->d0())>1.5) return false;
-    //if(fabs(trk->z0() + trk->vz() - vx->z()) > 1.5) return false;
-    //return true;
-
     const Root::TAccept& accept = m_trkseltool->accept( *trk, vx );
-    // uint8_t nBLHits(0), expectBLHit(false);
-    // if(trk->summaryValue(nBLHits,xAOD::numberOfBLayerHits)) {
-    //   ATH_MSG_VERBOSE("Track has " << (int) nBLHits << " b-layer hits");
-    // }
-    // if(trk->summaryValue(expectBLHit,xAOD::expectBLayerHit)) {
-    //   ATH_MSG_VERBOSE("Track expected b-layer hit: " << (bool) expectBLHit);
-    // }
-    // ATH_MSG_VERBOSE("From auxdata: expect hit ? " << (bool) trk->auxdata<uint8_t>("expectBLayerHit")
-    // 		    << " Nhits = " << (int) trk->auxdata<uint8_t>("numberOfBLayerHits"));
-    
-    // if(!accept && fabs(trk->z0() + trk->vz() - vx->z())*sin(trk->theta()) < 1.5) {
-    //   for(size_t icut=0; icut<accept.getNCuts(); ++icut) {
-    // 	ATH_MSG_VERBOSE("Cut " << accept.getCutName(icut) << ": result = " << accept.getCutResult(icut));
-    //   }
-    // }
     return accept;
   }
 

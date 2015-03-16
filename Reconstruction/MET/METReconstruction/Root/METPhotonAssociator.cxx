@@ -85,7 +85,7 @@ namespace met {
 
   StatusCode METPhotonAssociator::extractTracks(const xAOD::IParticle* obj,
 						std::vector<const xAOD::IParticle*>& constlist,
-						const xAOD::CaloClusterContainer* /*tcCont*/,
+						const xAOD::CaloClusterContainer* tcCont,
 					        const xAOD::Vertex* pv)
   {
     const xAOD::Photon *ph = static_cast<const xAOD::Photon*>(obj);
@@ -97,8 +97,8 @@ namespace met {
 	//   ATH_MSG_VERBOSE("Invalid photon trackparticle pointer");
 	// }
 	const xAOD::TrackParticle* phtrk = xAOD::EgammaHelpers::getOriginalTrackParticleFromGSF(phvx->trackParticle(iTrk));
-	// if(acceptTrack(phtrk,pv) && isGoodEoverP(phtrk,tcCont)) {
-	if(acceptTrack(phtrk,pv)) {
+	if(acceptTrack(phtrk,pv) && isGoodEoverP(phtrk,tcCont)) {
+	  //if(acceptTrack(phtrk,pv)) {
 	  bool duplicate = false;
 	  for(const auto& gamtrk : phtrks) {
 	    if( (duplicate = (phtrk == gamtrk)) ) {
@@ -142,7 +142,7 @@ namespace met {
         if (swclus->p4().DeltaR(pfo->p4EM())<0.1 && pfo->eEM()>0) {
 	  nearbyPFO.push_back(pfo);
 	}
-      } else {
+      } else if(pv) {
 	for(size_t iVtx=0; iVtx<ph->nVertices(); ++iVtx) {
 	  const xAOD::Vertex* phvx = ph->vertex(iVtx);
 	  for(size_t iTrk=0; iTrk<phvx->nTrackParticles(); ++iTrk) {
@@ -174,7 +174,7 @@ namespace met {
 	pfolist.push_back(pfo);
 	sumE_pfo += pfo_e;
 
-        TLorentzVector momentum = pfo->GetVertexCorrectedEMFourVec(*pv);
+        TLorentzVector momentum = pv ? pfo->GetVertexCorrectedEMFourVec(*pv) : pfo->p4();
 	momenta[pfo] = MissingETBase::Types::constvec_t(momentum.Px(),momentum.Py(),momentum.Pz(),
 						   momentum.E(),momentum.Pt());
       } // if we will retain the topocluster

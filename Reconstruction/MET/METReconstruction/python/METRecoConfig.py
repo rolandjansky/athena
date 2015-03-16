@@ -49,7 +49,7 @@ defaultInputKey = {
 #     'Calo'     :'AllCalo'
 # }
 
-defaultoutputkey = {
+defaultOutputKey = {
     'Ele'      :'RefEle',
     'Gamma'    :'RefGamma',
     'Tau'      :'RefTau',
