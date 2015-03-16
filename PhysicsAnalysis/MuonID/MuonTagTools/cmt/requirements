@@ -8,10 +8,11 @@ use GaudiInterface      GaudiInterface-*       			External
 use AthenaBaseComps	AthenaBaseComps-*	                Control
 # use StoreGate           StoreGate-*            			Control
 use TagEvent		TagEvent-*		  		PhysicsAnalysis/EventTag
+use xAODMuon		xAODMuon-*				Event/xAOD 
 
 private
 #use muonEvent           muonEvent-*                             Reconstruction/MuonIdentification
-use xAODMuon		xAODMuon-*				Event/xAOD 
+use xAODTracking	xAODTracking-*				Event/xAOD
 use AnalysisUtils	AnalysisUtils-*				PhysicsAnalysis/AnalysisCommon
 use ITrackToVertex      ITrackToVertex-*                        Reconstruction/RecoTools
 use TrkVertexFitterInterfaces TrkVertexFitterInterfaces-* Tracking/TrkVertexFitter
