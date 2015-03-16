@@ -116,19 +116,19 @@ TrigMuGirl::TrigMuGirl(const std::string& name, ISvcLocator* pSvcLocator) :
         m_pEventStore("StoreGateSvc", name),
         m_pCandidate("MuGirlNS::CandidateTool"),
         m_pMuLHR("CaloMuonLikelihoodTool"),
-        m_pTruthTool("MuGirlNS::PerformanceTruthTool",0),                 // make this a public tool
+        m_pTruthTool("MuGirlNS::PerformanceTruthTool"),                 // make this a public tool
   //        m_particleCreatorTool("Trk::TrackParticleCreatorTool"),
         //m_runOutlier(false),
         //m_matEffects(Trk::muon),
-        m_pGlobalFitTool("MuGirlNS::GlobalFitTool",0),                    // make this a public tool
-        m_pMuonFeatureGlobalFitTool("MuGirlNS::GlobalFitTool",0),         // make this a public tool
-        m_pANNSelectionTool("MuGirlNS::ANNSelectionTool",0),              // make this a public tool
-        m_pParticleCreatorTool("MuGirlNS::MuGirlParticleCreatorTool",0),  // make this a public tool
+        m_pGlobalFitTool("MuGirlNS::GlobalFitTool"),                    // make this a public tool
+        m_pMuonFeatureGlobalFitTool("MuGirlNS::GlobalFitTool"),         // make this a public tool
+        m_pANNSelectionTool("MuGirlNS::ANNSelectionTool"),              // make this a public tool
+        m_pParticleCreatorTool("MuGirlNS::MuGirlParticleCreatorTool"),  // make this a public tool
         //m_intersector("Trk::RungeKuttaIntersector")
         m_caloExtensionTool("Trk::ParticleCaloExtensionTool/ParticleCaloExtensionTool"),
 
         //<S>
-        m_pStauTool("MuGirlNS::StauTool",0),                              // make this a public tool
+        m_pStauTool("MuGirlNS::StauTool"),                              // make this a public tool
         m_magFieldSvc("MagField::AtlasFieldSvc/AtlasFieldSvc",name),
         m_pSegmentManager(NULL),
   // for perform
@@ -216,7 +216,7 @@ TrigMuGirl::TrigMuGirl(const std::string& name, ISvcLocator* pSvcLocator) :
     declareMonitoredStdContainer ("MuonsRPCHitsTof", muon_RPCHitsTof);
     declareMonitoredStdContainer ("MuonsRPCHitsDist", muon_RPCHitsDis);
     // for perform
-    declareProperty("doNTuplePerformance",  m_doNTuplePerformance  = false);
+    declareProperty("doNTuplePerformance",  m_doNTuplePerformance);
     declareProperty("doTruthPerformance",   m_doTruthPerformance   = false);
     
 }
@@ -277,10 +277,10 @@ HLT::ErrorCode TrigMuGirl::hltInitialize() {
 
   if (m_doLHR)
     {
-      if (retrieve(m_pMuLHR, false).isFailure())
+      if (retrieve(m_pMuLHR).isFailure())
 	{
 	  msg() << MSG::DEBUG << "Failed to get the pMuLHR" << endreq;    
-	  m_pMuLHR = NULL;
+
 	}
     }
   
@@ -299,7 +299,7 @@ HLT::ErrorCode TrigMuGirl::hltInitialize() {
       if (retrieve(m_pGlobalFitTool, false).isFailure())
 	{
 	  msg() << MSG::DEBUG << "Failed to get the GlobalFitTool" << endreq;
-	  m_pGlobalFitTool = NULL;
+
 	}
     }
   if (m_doMuonFeature && m_doSAFit )
@@ -307,7 +307,7 @@ HLT::ErrorCode TrigMuGirl::hltInitialize() {
       if (retrieve(m_pMuonFeatureGlobalFitTool, false).isFailure())
 	{
 	  msg() << MSG::DEBUG << "Failed to get the GlobalFitTool for SA fit" << endreq;
-	  m_pMuonFeatureGlobalFitTool = NULL;
+
 	}
     }
 
@@ -316,7 +316,7 @@ HLT::ErrorCode TrigMuGirl::hltInitialize() {
       if (retrieve(m_pANNSelectionTool, false).isFailure())
 	{
 	  msg() << MSG::DEBUG << "no m_pANNSelection" << endreq;    
-	  m_pANNSelectionTool = NULL;
+
 	}
     }
   
@@ -326,7 +326,7 @@ HLT::ErrorCode TrigMuGirl::hltInitialize() {
       if (retrieve(m_pParticleCreatorTool).isFailure())
 	{
 	  msg()<<MSG::DEBUG<<"no m_pParticleCreatorTool"<<endreq;    
-	  m_pParticleCreatorTool = NULL;
+
 	}
     }
 
@@ -527,7 +527,6 @@ HLT::ErrorCode TrigMuGirl::hltExecute(const HLT::TriggerElement* inputTE, HLT::T
           if (fabs(pMuonFeature->pt())<m_mfPtCut)  //MuonFeature momentum is in GeV
              continue;
 
-          bool has_combined = false;
 
           ElementLink<CombinedMuonFeatureContainer> CombinedMuonFeatureEL;
           if ( HLT::OK == getFeatureLink<CombinedMuonFeatureContainer, 
@@ -550,7 +549,6 @@ HLT::ErrorCode TrigMuGirl::hltExecute(const HLT::TriggerElement* inputTE, HLT::T
                   { 
                     if (msg().level() <= MSG::DEBUG)
                         msg()<<MSG::DEBUG<<"HAS IDTrack! moving to IDTrack processing"<<endreq;
-                    has_combined = true;
                     continue;
                   }
                 }

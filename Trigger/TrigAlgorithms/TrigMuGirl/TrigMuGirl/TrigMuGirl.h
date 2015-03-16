@@ -306,12 +306,14 @@ class TrigMuGirl : public HLT::FexAlgo {
 
     // for perform
     TrigMuGirlNtuple*                   m_pTrigMuGirlNtuple;
-    HLT::ErrorCode doMuTruthPerformance();
-    NTuple::Tuple*                      m_ntuplePerformance;
     StringProperty                      m_ntupleNamePerformance;       /**< The name of the output NTuple */
     StringProperty                      m_ntupleTitlePerformance;      /**< The label of the output NTuple */
-    BooleanProperty                     m_doTruthPerformance;
     BooleanProperty                     m_doNTuplePerformance;
+    BooleanProperty                     m_doTruthPerformance;
+
+    HLT::ErrorCode doMuTruthPerformance();
+    NTuple::Tuple*                      m_ntuplePerformance;
+
 
     int eRunNumber;
     int eEventNumber;
