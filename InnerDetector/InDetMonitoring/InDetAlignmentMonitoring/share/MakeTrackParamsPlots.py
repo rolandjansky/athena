@@ -41,6 +41,16 @@ DrawPlots(TrackPTqdiff, outputDir+"/"+"pTAqdiff.png", "Positive - Negative", "N 
           "p_{T} [GeV]", 0.19, 0.9, "",
           canvasText,makeOutput,0.60,0.91,False)
 
+TrackPT_NQ = MakePlots(genericTracksDir,legendTitles,markerColors,markerStyles,"pT_n","noFit",rootFiles,nFiles,normaliseHistos)
+DrawPlots(TrackPT_NQ, outputDir+"/"+"pT_negativeQ.png", "", "N Tracks",
+          "p_{T} negative charged tracks [GeV]", 0.19, 0.9, "",
+          canvasText,makeOutput,0.60,0.91,False)
+
+TrackPT_PQ = MakePlots(genericTracksDir,legendTitles,markerColors,markerStyles,"pT_p","noFit",rootFiles,nFiles,normaliseHistos)
+DrawPlots(TrackPT_PQ, outputDir+"/"+"pT_positiveQ.png", "", "N Tracks",
+          "p_{T} positive charged tracks [GeV]", 0.19, 0.9, "",
+          canvasText,makeOutput,0.60,0.91,False)
+
 TrackSUMMARY = MakePlots(genericTracksDir,legendTitles,markerColors,markerStyles,"summary","noFit",rootFiles,nFiles,normaliseHistos)
 DrawPlots(TrackSUMMARY, outputDir+"/"+"summary.png", "N Hits Summary", "N Tracks",
           "", 0.19, 0.9, "",

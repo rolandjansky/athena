@@ -187,7 +187,6 @@ def drawCorrEvolution(detector):
 		hCorrectionsEvol[dof].DrawCopy()
 		gPad.SetGridx()
 		gPad.SetGridy()
-
         
         #once the frame is plotted, loop on every structure and fill a histogram and draw it 
 		for struct in range(numOfAlignableStruct):
@@ -206,6 +205,7 @@ def drawCorrEvolution(detector):
 				if (doDebug): print "hCorrectionsEvolStruct[",dof,"][",struct,"].SetBinContent(",iter+1,",", value,")" 
                 # now draw the corrections for this structure
 			hCorrectionsEvolStruct[dof][struct].DrawCopy('same l')
+			gPad.Update()
 			#if (dof == nUsedDofs-1): myLegend.AddEntry(hCorrectionsEvolStruct[dof][struct],detector[0].GetModule(struct).GetName(), "l")
                 #gPad.Update()
                 #if (dof == nUsedDofs-1):

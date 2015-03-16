@@ -61,6 +61,7 @@ def readConstants(file):
 					detector.GetModule(counter).setTx(Tx)
 					ETx = float(line[27:])
 					detector.GetModule(counter).setETx(ETx)
+					# if (counter < 10): print " Tx: ", Tx,"  ETx: ", ETx
 				elif "TransY" in line:
 					Ty = float(line[10:23])
 					detector.GetModule(counter).setTy(Ty)
@@ -107,12 +108,19 @@ def saveConstants(detector,file):
 			Int_t layer;\
 			Int_t sector;\
 			Int_t ring;\
+            Int_t hits;\
 			Double_t tx;\
 			Double_t ty;\
 			Double_t tz;\
 			Double_t rx;\
 			Double_t ry;\
 			Double_t rz;\
+			Double_t etx;\
+			Double_t ety;\
+			Double_t etz;\
+			Double_t erx;\
+			Double_t ery;\
+			Double_t erz;\
 		};")
 	from ROOT import MyStruct
 	# Create branches in the tree
@@ -123,12 +131,19 @@ def saveConstants(detector,file):
 	t.Branch('layer',AddressOf(s,'layer'),'layer/I')
 	t.Branch('sector',AddressOf(s,'sector'),'sector/I')
 	t.Branch('ring',AddressOf(s,'ring'),'ring/I')
+	t.Branch('hits',AddressOf(s,'hits'),'hits/I')
 	t.Branch('tx',AddressOf(s,'tx'),'tx/D')
 	t.Branch('ty',AddressOf(s,'ty'),'ty/D')
 	t.Branch('tz',AddressOf(s,'tz'),'tz/D')
 	t.Branch('rx',AddressOf(s,'rx'),'rx/D')
 	t.Branch('ry',AddressOf(s,'ry'),'ry/D')
 	t.Branch('rz',AddressOf(s,'rz'),'rz/D')
+	t.Branch('etx',AddressOf(s,'etx'),'etx/D')
+	t.Branch('ety',AddressOf(s,'ety'),'ety/D')
+	t.Branch('etz',AddressOf(s,'etz'),'etz/D')
+	t.Branch('erx',AddressOf(s,'erx'),'erx/D')
+	t.Branch('ery',AddressOf(s,'ery'),'ery/D')
+	t.Branch('erz',AddressOf(s,'erz'),'erz/D')
 	t.SetMarkerStyle(20)
 	#print detector
 	for i in range(detector.nModules()):
@@ -156,12 +171,19 @@ def saveConstants(detector,file):
 		s.layer = int(detector.GetModule(i).Layer)
 		s.sector = int(detector.GetModule(i).PhiModule)
 		s.ring = int(detector.GetModule(i).EtaModule)
+		s.hits = int(detector.GetModule(i).Hits)
 		s.tx = detector.GetModule(i).Tx
 		s.ty = detector.GetModule(i).Ty
 		s.tz = detector.GetModule(i).Tz
 		s.rx = detector.GetModule(i).Rx
 		s.ry = detector.GetModule(i).Ry
 		s.rz = detector.GetModule(i).Rz
+		s.etx = detector.GetModule(i).ETx
+		s.ety = detector.GetModule(i).ETy
+		s.etz = detector.GetModule(i).ETz
+		s.erx = detector.GetModule(i).ERx
+		s.ery = detector.GetModule(i).ERy
+		s.erz = detector.GetModule(i).ERz
 		t.Fill()
 	f.Write()
 	f.Close()

@@ -8,6 +8,7 @@
 #include "TCanvas.h"
 #include "TFile.h"
 #include "TGaxis.h"
+#include "TGraphErrors.h"
 #include "TH1F.h"
 #include "TLegend.h"
 #include "TTree.h"
@@ -26,6 +27,8 @@ void StaveDraw(TString nname,Int_t DetType= 1, Int_t layer= 0, Int_t sector= 0, 
   gStyle->SetPadColor(kWhite);
   gStyle->SetFrameFillColor(kWhite);
   gStyle->SetFrameBorderMode(0);
+
+  int rings = 0; //  number of rings
 
 
   char tname[80];
@@ -68,6 +71,10 @@ void StaveDraw(TString nname,Int_t DetType= 1, Int_t layer= 0, Int_t sector= 0, 
   if (DetType == SCT && layer==1 && sector>39) sector = 39;
   if (DetType == SCT && layer==2 && sector>47) sector = 47;
   if (DetType == SCT && layer==3 && sector>51) sector = 51;
+
+  if (DetType == PIX && layer ==0) rings = 20;
+  if (DetType == PIX && layer > 0) rings = 13;
+  if (DetType == SCT) rings = 12;
 
   // colorins
   Int_t RzColor = kAzure-1;
@@ -150,16 +157,20 @@ void StaveDraw(TString nname,Int_t DetType= 1, Int_t layer= 0, Int_t sector= 0, 
   Rotllo->SetFillColor(10);
   char LegendText[80];
 
+  // Points with errors
+  TGraphErrors* dofcor[6];
+
+
   for (Int_t idof=0; idof<6; idof++){
     if (idof == TX) {
-      sprintf(VariablesName,"%f*tx:ComputeTz(%d,%d,ring)",TransScaleFactor,DetType,layer);
-      doPlot = false;
+      sprintf(VariablesName,"%f*tx:ComputeTz(%d,%d,ring):etx",TransScaleFactor,DetType,layer);
+      doPlot = true;
       Corrections->SetMarkerColor(TxColor);
       Corrections->SetMarkerStyle(20);
       sprintf(LegendText,"Tx");
     }
     if (idof == TY) {
-      sprintf(VariablesName,"%f*ty:ring",TransScaleFactor);
+      sprintf(VariablesName,"%f*ty:ComputeTz(%d,%d,ring):ety",TransScaleFactor,DetType,layer);
       doPlot = false;
       Corrections->SetMarkerColor(TyColor);
       Corrections->SetMarkerStyle(28);
@@ -180,13 +191,13 @@ void StaveDraw(TString nname,Int_t DetType= 1, Int_t layer= 0, Int_t sector= 0, 
     }
     if (idof == RY) {
       sprintf(VariablesName,"%f*ry:ComputeTz(%d,%d,ring)",RotScaleFactor,DetType,layer);
-      doPlot = true;
+      doPlot = false;
       Corrections->SetMarkerStyle(kOpenCircle);
       Corrections->SetMarkerColor(RzColor);
       sprintf(LegendText,"Ry");
     }
     if (idof == RZ) {
-      sprintf(VariablesName,"%f*rz:ComputeTz(%d,%d,ring)",RotScaleFactor,DetType,layer);
+      sprintf(VariablesName,"%f*rz:ComputeTz(%d,%d,ring):erz/100",RotScaleFactor,DetType,layer);
       doPlot = true;
       Corrections->SetMarkerColor(RzColor);
       Corrections->SetMarkerStyle(20);
@@ -194,9 +205,17 @@ void StaveDraw(TString nname,Int_t DetType= 1, Int_t layer= 0, Int_t sector= 0, 
     }
     //
     if (doPlot) {
-      Corrections->Draw(VariablesName,SelectionName,"same");
-      // Rotllo->AddEntry(Corrections->Clone(),LegendText,"p");
+      Corrections->Draw(VariablesName,SelectionName,"goff");
       Rotllo->AddEntry(Corrections->Clone(),LegendText,"p");
+      //static TGraphErrors dofcor(rings,Corrections->GetV2(),Corrections->GetV1(),0,Corrections->GetV3());
+      dofcor[idof] = new TGraphErrors(rings,Corrections->GetV2(),Corrections->GetV1(),0,Corrections->GetV3());
+      if (true) {
+	dofcor[idof]->SetMarkerStyle(Corrections->GetMarkerStyle());
+	dofcor[idof]->SetMarkerColor(Corrections->GetMarkerColor());
+	dofcor[idof]->SetLineColor(Corrections->GetMarkerColor());
+	dofcor[idof]->Draw("p same");
+	dofcor[idof]->Print();
+      }
     }
   }
 
