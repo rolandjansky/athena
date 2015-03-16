@@ -38,7 +38,7 @@ use EventInfo               EventInfo-*                 Event
 use AtlasCLHEP              AtlasCLHEP-*                External
 
 use GeneratorObjects        GeneratorObjects-*          Generators
-use TrkParticleBase	    TrkParticleBase-*		Tracking/TrkEvent
+use TrkParticleBase	        TrkParticleBase-*		    Tracking/TrkEvent
 
 apply_tag  ROOTGraphicsLibs
 
