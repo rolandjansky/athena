@@ -185,7 +185,7 @@ namespace ExpressionParsing {
     throw std::runtime_error("Can't handle general case!");
   }
 
-  template <typename T> void StackElement::ensureCompatibleVectors(const T &other) const
+  template <typename T> void StackElement::ensureCompatibleVectors(const T &/*other*/) const
   {
     throw std::runtime_error("Can't compare vector to arbitrary type!");
   }

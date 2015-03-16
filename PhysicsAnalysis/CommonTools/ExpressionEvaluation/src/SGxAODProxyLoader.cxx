@@ -66,6 +66,7 @@
 #include <algorithm>
 #include <boost/algorithm/string.hpp>
 
+#include "xAODEventShape/EventShape.h"
 
 namespace ExpressionParsing {
 
@@ -172,6 +173,7 @@ namespace ExpressionParsing {
     TRY_VECTOR(xAOD::CompositeParticleContainer);
 
     TRY_SCALAR(xAOD::EventInfo); 
+    TRY_SCALAR(xAOD::EventShape);
 
     END_TRY;
   }
