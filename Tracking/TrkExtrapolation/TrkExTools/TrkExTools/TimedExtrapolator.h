@@ -285,8 +285,6 @@ namespace Trk {
 
     // --------------- General steering & Navigation -------------- //
 
-    bool                            m_printPerformanceStatistics;    //!< screen output for validation statistics
-
     unsigned int                    m_meotpIndex;                    //!< if several meotps are available in a volume steer which one to use
     unsigned int                    m_configurationLevel;            //!< see the supported levels of configuration above
     unsigned int                    m_searchLevel;                   //!< see the supported search levels above
@@ -347,7 +345,6 @@ namespace Trk {
     mutable std::vector<DestSurf>                                     m_denseBoundaries;
     mutable std::vector<DestSurf>                                     m_navigBoundaries;
     mutable std::vector<DestSurf>                                     m_layers;
-    mutable const Trk::TrackingVolume*                                m_muonEntrance;
     bool                                                              m_returnPassiveLayers;
     mutable bool                                                      m_robustSampling;
     mutable PathLimit                                                 m_path;    

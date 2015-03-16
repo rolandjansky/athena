@@ -421,11 +421,20 @@ Trk::EnergyLoss* Trk::EnergyLossUpdator::updateEnergyLoss(Trk::EnergyLoss* eLoss
 //
 // Use measured Calorimeter energy
 //
-      deltaE = isign*caloEnergy;
-      sigmaMinusDeltaE = caloEnergyError;  
-      sigmaPlusDeltaE = caloEnergyError;
-      sigmaDeltaE = caloEnergyError;
+//
+// take into account the tail in the Measured Eloss
+//
+      double scale_xc = 2.3;
+      double xc = scale_xc*0.87388*momentumError/(3.59524*sigmaL);
+      double correction = (1.747*xc*xc + 0.97*0.938*xc*xc*xc)/(1+4.346*xc+5.371*xc*xc+0.938*xc*xc*xc); // correction ranges from 0 to 0.97
+      double MOPreso = 1.5*isign*3.59524*sigmaL*correction;
+      
+      deltaE = isign*caloEnergy + MOPreso;
+      sigmaMinusDeltaE = caloEnergyError + 0.08*sigmaDeltaE_rad;  
+      sigmaPlusDeltaE  = caloEnergyError  + 1.16*sigmaDeltaE_rad;
+      sigmaDeltaE = sqrt(0.5*sigmaMinusDeltaE*sigmaMinusDeltaE+0.5*sigmaPlusDeltaE*sigmaPlusDeltaE);
       elossFlag = 1;
+//      std::cout << " updateEnergyLoss caloEnergy " <<  isign*caloEnergy << " shift " << MOPreso << " deltaE " << deltaE << " sigmaMinusDeltaE " << sigmaMinusDeltaE << " sigmaPlusDeltaE " << sigmaPlusDeltaE << std::endl; 
 
     } else {
 

@@ -103,7 +103,6 @@ Trk::Extrapolator::Extrapolator(const std::string& t, const std::string& n, cons
   m_highestVolume(0),
   m_resolveActive(false),
   m_resolveMultilayers(true),
-  m_muonEntrance(0),
   m_returnPassiveLayers(false),
   m_robustSampling(true),
   m_methodSequence(0),

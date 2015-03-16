@@ -126,7 +126,7 @@ double Trk::MultipleScatteringUpdator::sigmaSquare(const MaterialProperties& mat
     double sigma = m_matInt.sigmaMS(t, p, beta);
     sigma2 = sigma*sigma;
 
-    if(m_useTrkUtils) return sigma2;
+    if(m_useTrkUtils && particle != Trk::electron) return sigma2;
 
 // Code below will not be used if the parameterization of TrkUtils is used 
 
