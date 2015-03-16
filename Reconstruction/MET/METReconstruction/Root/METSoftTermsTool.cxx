@@ -127,7 +127,7 @@ namespace met {
     if ( m_st_objtype==0 ) {
       ATH_MSG_VERBOSE("Check if cluster is accepted");
 
-      if(!object->type()==xAOD::Type::CaloCluster) {
+      if(object->type()!=xAOD::Type::CaloCluster) {
 	ATH_MSG_WARNING("Expected CaloCluster, given " << object->type());
 	return false;
       }
@@ -138,7 +138,7 @@ namespace met {
     else if (  m_st_objtype==1 ) {
       ATH_MSG_VERBOSE("Check if track is accepted");
 
-      if(!object->type()==xAOD::Type::TrackParticle) {
+      if(object->type()!=xAOD::Type::TrackParticle) {
 	ATH_MSG_WARNING("Expected TrackParticle, given " << object->type());
 	return false;
       }
@@ -149,7 +149,7 @@ namespace met {
     else if (  m_st_objtype==2 ) {
       ATH_MSG_VERBOSE("Check if PFO is accepted");
 
-      if(!object->type()==xAOD::Type::ParticleFlow) {
+      if(object->type()!=xAOD::Type::ParticleFlow) {
 	ATH_MSG_WARNING("Expected PFlow Object, given " << object->type());
 	return false;
       }

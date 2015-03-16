@@ -106,7 +106,7 @@ namespace met {
     // Apply cuts 
     ATH_MSG_VERBOSE("Check if truth particle is accepted");
 
-    if(!object->type() == xAOD::Type::TruthParticle) { 
+    if(object->type() != xAOD::Type::TruthParticle) { 
       ATH_MSG_WARNING("METTruthTool::accept given an object of type" << object->type());
       return false;
     }

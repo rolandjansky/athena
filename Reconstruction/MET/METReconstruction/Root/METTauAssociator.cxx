@@ -118,15 +118,15 @@ namespace met {
 
   StatusCode METTauAssociator::extractTracks(const xAOD::IParticle *obj,
 					     std::vector<const xAOD::IParticle*>& constlist,
-					     const xAOD::CaloClusterContainer* /*tcCont*/,
+					     const xAOD::CaloClusterContainer* tcCont,
 					     const xAOD::Vertex* pv)
   {
     const TauJet* tau = static_cast<const TauJet*>(obj);
     const Jet* jet = *tau->jetLink();
     for(size_t iTrk=0; iTrk<tau->nTracks(); ++iTrk) {
       const TrackParticle* tautrk = tau->track(iTrk);
-      // if(acceptTrack(tautrk,pv) && isGoodEoverP(tautrk,tcCont)) {
-      if(acceptTrack(tautrk,pv)) {
+      if(acceptTrack(tautrk,pv) && isGoodEoverP(tautrk,tcCont)) {
+	//if(acceptTrack(tautrk,pv)) {
 	// bool matchedmu = false;
 	// for(const auto& mutrk : mutracks) {
 	//   if( (matchedmu = (tautrk == mutrk)) ) {
@@ -143,8 +143,8 @@ namespace met {
     for(size_t iTrk=0; iTrk<tau->nOtherTracks(); ++iTrk) {
       const TrackParticle* tautrk = tau->otherTrack(iTrk);
       double dR = jet->p4().DeltaR(tautrk->p4());
-      //if(dR<0.2 && acceptTrack(tautrk,pv) && isGoodEoverP(tautrk,tcCont)) {
-      if(dR<0.2 && acceptTrack(tautrk,pv)) {
+      if(dR<0.2 && acceptTrack(tautrk,pv) && isGoodEoverP(tautrk,tcCont)) {
+	//if(dR<0.2 && acceptTrack(tautrk,pv)) {
 	// bool matchedmu = false;
 	// for(const auto& mutrk : mutracks) {
 	//   if( (matchedmu = (tautrk == mutrk)) ) {
@@ -176,7 +176,7 @@ namespace met {
 	if(seedjet->p4().DeltaR(pfo->p4EM())<0.2 && pfo->eEM()>0) {
 	match = true;
 	}
-      } else {
+      } else if(pv) {
 	for(size_t iTrk=0; iTrk<tau->nTracks(); ++iTrk) {
 	  const TrackParticle* tautrk = tau->track(iTrk);
 	  if(tautrk==pfo->track(0)) {
@@ -194,9 +194,9 @@ namespace met {
       if(match) {
 	pfolist.push_back(pfo);
 	if(pfo->charge()==0) {
-	  TLorentzVector momentum = pfo->GetVertexCorrectedEMFourVec(*pv);
+	  TLorentzVector momentum = pv ? pfo->GetVertexCorrectedEMFourVec(*pv) : pfo->p4();
 	  momenta[pfo] = MissingETBase::Types::constvec_t(momentum.Px(),momentum.Py(),momentum.Pz(),
-						     momentum.E(),momentum.Pt());
+							  momentum.E(),momentum.Pt());
 	}
       }
     }

@@ -68,7 +68,6 @@ namespace met {
     std::string m_clcoll;
 
     bool m_pflow;    
-    int m_signalstate;
 
     ToolHandle<CP::IRetrievePFOTool> m_pfotool;
     std::vector<const xAOD::TrackParticle*> m_goodtracks;

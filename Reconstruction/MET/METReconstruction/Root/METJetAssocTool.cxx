@@ -82,20 +82,21 @@ namespace met {
     ATH_MSG_DEBUG("Successfully retrieved jet collection");
 
     // Retrieve the vertices
+    const Vertex* pv = 0;
     const VertexContainer* vxCont = 0;
     if( evtStore()->retrieve(vxCont,"PrimaryVertices").isFailure() ) { // configurable
       ATH_MSG_WARNING("Unable to retrieve vertex container");
-      return StatusCode::FAILURE;
-    } 
-    const Vertex* pv = 0;
-    ATH_MSG_DEBUG("Successfully retrieved vertex collection");
-    for(const auto& vx : *vxCont) {
-      if(vx->vertexType()==VxType::PriVtx)
-	{pv = vx; break;}
+    } else {
+      ATH_MSG_DEBUG("Successfully retrieved vertex collection");
+      if(vxCont) {
+	for(const auto& vx : *vxCont) {
+	  if(vx->vertexType()==VxType::PriVtx)
+	    {pv = vx; break;}
+	}
+      }
     }
     if(!pv) {
-      ATH_MSG_WARNING("Failed to find primary vertex!");
-      return StatusCode::FAILURE;
+      ATH_MSG_DEBUG("Failed to find primary vertex!");
     }
 
     // Create jet associations
@@ -111,15 +112,17 @@ namespace met {
 	  }
         }
       } else {
-        std::vector<const IParticle*> jettracks;
-        jet->getAssociatedObjects<IParticle>(JetAttribute::GhostTrack,jettracks);
+	if(pv) {
+	  std::vector<const IParticle*> jettracks;
+	  jet->getAssociatedObjects<IParticle>(JetAttribute::GhostTrack,jettracks);
 
-	selectedTracks.reserve(jettracks.size());
-	for(const auto& trk : jettracks) {
-	  const TrackParticle* pTrk = static_cast<const TrackParticle*>(trk);
-	  if( acceptTrack(pTrk,pv) ) {
-	    selectedTracks.push_back(trk);
-	    ATH_MSG_VERBOSE("Accept track " << trk << " px, py = " << trk->p4().Px() << ", " << trk->p4().Py());
+	  selectedTracks.reserve(jettracks.size());
+	  for(const auto& trk : jettracks) {
+	    const TrackParticle* pTrk = static_cast<const TrackParticle*>(trk);
+	    if( acceptTrack(pTrk,pv) ) {
+	      selectedTracks.push_back(trk);
+	      ATH_MSG_VERBOSE("Accept track " << trk << " px, py = " << trk->p4().Px() << ", " << trk->p4().Py());
+	    }
 	  }
 	}
       }
