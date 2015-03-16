@@ -22,7 +22,7 @@ TrigPrimaryVertexTrack::TrigPrimaryVertexTrack(const TrigInDetTrack* pT)
   m_u[1]=p->z0();
   m_q[0]=p->phi0();
   m_q[1]=2.0*atan(exp(-p->eta()));
-  m_q[2]=p->pT()*1e-3;
+  m_q[2]=p->pT()/1000.0;      
 
 
   Ck[0][0]=(*p->cov())[0];Ck[0][1]=Ck[1][0]=(*p->cov())[2];
@@ -40,9 +40,9 @@ TrigPrimaryVertexTrack::TrigPrimaryVertexTrack(const TrigInDetTrack* pT)
   Ck[3][3]*=a;
   for(i=0;i<5;i++)                    
     {
-      Ck[4][i]=Ck[4][i]*1e-3;   Ck[i][4]=Ck[4][i];
+      Ck[4][i]=Ck[4][i]/1000.0;Ck[i][4]=Ck[4][i];
     }
-  Ck[4][4]*=1e-3;
+  Ck[4][4]/=1000.0; 
 
 
   for(i=0;i<2;i++) for(j=0;j<2;j++) m_Vuu[i][j]=Ck[i][j];
@@ -54,6 +54,8 @@ TrigPrimaryVertexTrack::TrigPrimaryVertexTrack(const TrigInDetTrack* pT)
 
 TrigPrimaryVertexTrack::TrigPrimaryVertexTrack(const Trk::Track* pT)
 {
+  double Ck[5][5];
+
   m_nTrackType=2;m_active=true;
   m_pTrkTrack=pT;m_pTrigTrack=NULL;m_dChi2=-100.0;
 
@@ -65,29 +67,45 @@ TrigPrimaryVertexTrack::TrigPrimaryVertexTrack(const Trk::Track* pT)
     m_q[0]=pP->parameters()[Trk::phi0];
     m_q[1]=pP->parameters()[Trk::theta];
 
-    const double ptC=1000.0*pP->parameters()[Trk::qOverP];
-    const double inv_ptC = 1. / ptC;
+    double ptC=1000.0*pP->parameters()[Trk::qOverP];
 
-    m_q[2]=sin(pP->parameters()[Trk::theta])*inv_ptC;
+    m_q[2]=sin(pP->parameters()[Trk::theta])/ptC;
 
     const AmgSymMatrix(5)& TC= (*pP->covariance());
-
-    const double a=cos(pP->parameters()[Trk::theta])*inv_ptC;
-    const double b=-sin(pP->parameters()[Trk::theta])/(pP->parameters()[Trk::qOverP]*ptC);
-
-         
-    const double Ck[5][5] = {{TC(0,0), TC(1,0), TC(2,0), TC(3,0), a*TC(3,0) + b*TC(4,0)},
-                             {TC(1,0), TC(1,1), TC(2,1), TC(3,1), a*TC(3,1) + b*TC(4,1)},
-                             {TC(2,0), TC(2,1), TC(2,2), TC(3,2), a*TC(3,2) + b*TC(4,2)},
-                             {TC(3,0), TC(3,1), TC(3,2), TC(3,3), a*TC(3,3) + b*TC(4,3)},
-                             {a*TC(3,0) + b*TC(4,0), a*TC(3,1) + b*TC(4,1), a*TC(3,2) + b*TC(4,2), a*TC(3,3) + b*TC(4,3), a*a*TC(3,3) + 2*a*b*TC(4,3) + b*b*TC(4,4)}};
-
+    Ck[0][0]=TC(Trk::d0, Trk::d0);
+    Ck[0][1]=Ck[1][0]=TC(Trk::d0, Trk::z0);
+    Ck[0][2]=Ck[2][0]=TC(Trk::d0, Trk::phi0);
+    Ck[0][3]=Ck[3][0]=TC(Trk::d0, Trk::theta);
+    Ck[0][4]=Ck[4][0]=TC(Trk::d0, Trk::qOverP);
+    Ck[1][1]=TC(Trk::z0, Trk::z0);
+    Ck[1][2]=Ck[2][1]=TC(Trk::z0, Trk::phi0);
+    Ck[1][3]=Ck[3][1]=TC(Trk::z0, Trk::theta);
+    Ck[1][4]=Ck[4][1]=TC(Trk::z0, Trk::qOverP);
+    Ck[2][2]=TC(Trk::phi0, Trk::phi0);
+    Ck[2][3]=Ck[3][2]=TC(Trk::phi0, Trk::theta);
+    Ck[2][4]=Ck[4][2]=TC(Trk::phi0, Trk::qOverP);
+    Ck[3][3]=TC(Trk::theta, Trk::theta);
+    Ck[3][4]=Ck[4][3]=TC(Trk::theta, Trk::qOverP);
+    Ck[4][4]=TC(Trk::qOverP, Trk::qOverP);
+    
+    double a,b;
+    
+    a=cos(pP->parameters()[Trk::theta])/ptC;
+    b=-sin(pP->parameters()[Trk::theta])/(pP->parameters()[Trk::qOverP]*ptC);
+    
+    Ck[3][3]=Ck[3][3]+2.0*a*Ck[3][4]+a*a*Ck[4][4];
+    Ck[3][4]=Ck[4][3]=b*Ck[3][4]+a*b*Ck[4][4];
+    Ck[4][4]=b*b*Ck[4][4];
+    Ck[0][3]=Ck[3][0]=Ck[0][3]+a*Ck[0][4];Ck[0][4]*=b;Ck[4][0]=Ck[0][4];
+    Ck[1][3]=Ck[3][1]=Ck[1][3]+a*Ck[1][4];Ck[1][4]*=b;Ck[4][1]=Ck[1][4];
+    Ck[2][3]=Ck[3][2]=Ck[2][3]+a*Ck[2][4];Ck[2][4]*=b;Ck[4][2]=Ck[2][4];
     for(int i=0;i<2;i++) for(int j=0;j<2;j++) m_Vuu[i][j]=Ck[i][j];
     for(int i=0;i<3;i++) for(int j=0;j<3;j++) m_Vqq[i][j]=Ck[i+2][j+2];
     for(int i=0;i<2;i++) for(int j=0;j<3;j++) m_Vuq[i][j]=Ck[i][j+2];
 
     m_Perigee[0]=m_u[0];m_Perigee[1]=m_u[1];m_Perigee[2]=m_q[0];m_Perigee[3]=m_q[1];m_Perigee[4]=m_q[2];
   }
+
 }
 
 TrigPrimaryVertexTrack::~TrigPrimaryVertexTrack()
@@ -95,43 +113,43 @@ TrigPrimaryVertexTrack::~TrigPrimaryVertexTrack()
 
 }
 
-void TrigPrimaryVertexTrack::mask()
+void TrigPrimaryVertexTrack::m_mask()
 {
   m_active=false;
 }
 
-void TrigPrimaryVertexTrack::activate()
+void TrigPrimaryVertexTrack::m_activate()
 {
   m_active=true;
 }
 
-bool TrigPrimaryVertexTrack::isActive()
+bool TrigPrimaryVertexTrack::m_isActive()
 {
   return m_active;
 }
 
-int TrigPrimaryVertexTrack::getTrackType()
+int TrigPrimaryVertexTrack::m_getTrackType()
 {
   return m_nTrackType;
 }
 
 
-const TrigInDetTrack* TrigPrimaryVertexTrack::getTrigTrack()
+const TrigInDetTrack* TrigPrimaryVertexTrack::m_getTrigTrack()
 {
   return m_pTrigTrack;
 }
 
-const Trk::Track* TrigPrimaryVertexTrack::getTrkTrack()
+const Trk::Track* TrigPrimaryVertexTrack::m_getTrkTrack()
 {
 	return m_pTrkTrack;
 }
 
-void TrigPrimaryVertexTrack::setIndex(int i)
+void TrigPrimaryVertexTrack::m_setIndex(int i)
 {
   m_index=i;
 }
  
-int TrigPrimaryVertexTrack::getIndex() const
+int TrigPrimaryVertexTrack::m_getIndex() const
 {
   return m_index;
 }
@@ -154,10 +172,8 @@ double TrigPrimaryVertexTrack::m_getChi2Distance(class TrigL2Vertex* pV)
   double Sk[2][2],detr,chi2;
   double AC[2][3],BV[2][3],h[2];
   int i,j,k;
-  double psi,sinPsi,xv,yv,zv,
+  double psi,sinPsi,cosPsi,alpha=C*B/1000.0,xv,yv,zv,
     cosPhi0,sinPhi0,ctt,sint,phi0,theta0,P0;
-  const double alpha = C*B*1e-3;
-  const double inv_alpha = 1. / alpha;
 
   xv=pV->m_getParametersVector()[0];
   yv=pV->m_getParametersVector()[1];
@@ -170,30 +186,29 @@ double TrigPrimaryVertexTrack::m_getChi2Distance(class TrigL2Vertex* pV)
   cosPhi0=cos(phi0);sinPhi0=sin(phi0);
   sinPsi=-alpha*(xv*cosPhi0+yv*sinPhi0)/P0;
   if(fabs(sinPsi)>1.0) return -999.9;
-  const double cosPsi=sqrt(1.0-sinPsi*sinPsi);
-  const double inv_cosPsi = 1. / cosPsi;
+  cosPsi=sqrt(1.0-sinPsi*sinPsi);
   psi=asin(sinPsi);
   sint=sin(theta0);
   ctt=cos(theta0)/sint;
 
-  m_A[0][0]=-sin(phi0+psi)*inv_cosPsi;
-  m_A[0][1]= cos(phi0+psi)*inv_cosPsi;
+  m_A[0][0]=-sin(phi0+psi)/cosPsi;
+  m_A[0][1]= cos(phi0+psi)/cosPsi;
   m_A[0][2]=0.0;
 
-  m_A[1][0]=-ctt*cosPhi0*inv_cosPsi;
-  m_A[1][1]=-ctt*sinPhi0*inv_cosPsi;
+  m_A[1][0]=-ctt*cosPhi0/cosPsi;
+  m_A[1][1]=-ctt*sinPhi0/cosPsi;
   m_A[1][2]=1.0;
 
   m_B[0][0]=-xv*m_A[0][1]+yv*m_A[0][0];
   m_B[0][1]=0.0;
-  m_B[0][2]=(1.0-inv_cosPsi)*inv_alpha;
+  m_B[0][2]=(1.0-1.0/cosPsi)/alpha;
 
   m_B[1][0]=-xv*m_A[1][1]+yv*m_A[1][0];
   m_B[1][1]=-P0*psi/(alpha*sint*sint);
-  m_B[1][2]=ctt*(psi-sinPsi*inv_cosPsi)*inv_alpha;
+  m_B[1][2]=ctt*(psi-sinPsi/cosPsi)/alpha;
 
-  h[0]=yv*cosPhi0-xv*sinPhi0+P0*(1-cosPsi)*inv_alpha;
-  h[1]=zv+P0*ctt*psi*inv_alpha;
+  h[0]=yv*cosPhi0-xv*sinPhi0+P0*(1-cosPsi)/alpha;
+  h[1]=zv+P0*ctt*psi/alpha;
 
   m_resid[0]=m_u[0]-h[0];
   m_resid[1]=m_u[1]-h[1];
@@ -240,7 +255,7 @@ double TrigPrimaryVertexTrack::m_getChi2Distance(class TrigL2Vertex* pV)
   return chi2;
 }
 
-double TrigPrimaryVertexTrack::getChi2Contribution()
+double TrigPrimaryVertexTrack::m_getChi2Contribution()
 {
   return m_dChi2;
 }
@@ -274,14 +289,14 @@ MsgStream& TrigPrimaryVertexTrack::m_report( MsgStream& out ) const
 {
   int i;
 
-  out<<"Primary track "<<m_index<<endmsg;
+  out<<"Primary track "<<m_index<<endreq;
   for(i=0;i<2;i++)
     {
-      out<<"  u"<<i<<" = "<<m_u[i]<<"      "<<m_Vuu[i][0]<<"   "<<m_Vuu[i][1]<<endmsg;
+      out<<"  u"<<i<<" = "<<m_u[i]<<"      "<<m_Vuu[i][0]<<"   "<<m_Vuu[i][1]<<endreq;
     }
   for(i=0;i<3;i++)
     {
-      out<<"  q"<<i<<" = "<<m_q[i]<<"      "<<m_Vqq[i][0]<<"   "<<m_Vqq[i][1]<<"   "<<m_Vqq[i][2]<<endmsg;
+      out<<"  q"<<i<<" = "<<m_q[i]<<"      "<<m_Vqq[i][0]<<"   "<<m_Vqq[i][1]<<"   "<<m_Vqq[i][2]<<endreq;
     }
   return out;
 }
