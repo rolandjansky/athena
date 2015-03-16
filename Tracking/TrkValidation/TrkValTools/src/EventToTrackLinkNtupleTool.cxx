@@ -23,10 +23,10 @@
 #include "EventInfo/EventID.h"
 #include "EventInfo/TriggerInfo.h"
 
-  const std::string Trk::EventToTrackLinkNtupleTool::s_trackTypeName = "Trk::Track";
-  const std::string Trk::EventToTrackLinkNtupleTool::s_trkParticleTypeName = "Rec::TrackParticle";
-  const std::string Trk::EventToTrackLinkNtupleTool::s_trkParticleTrigTypeName= "Rec::TrackParticle_Trig";
-  const std::string Trk::EventToTrackLinkNtupleTool::s_inDetTrackTrigTypeName= "InDetTrack_Trig";
+  const std::string Trk::EventToTrackLinkNtupleTool::trackTypeName = "Trk::Track";
+  const std::string Trk::EventToTrackLinkNtupleTool::trkParticleTypeName = "Rec::TrackParticle";
+  const std::string Trk::EventToTrackLinkNtupleTool::trkParticleTrigTypeName= "Rec::TrackParticle_Trig";
+  const std::string Trk::EventToTrackLinkNtupleTool::inDetTrackTrigTypeName= "InDetTrack_Trig";
 
 // constructor
 Trk::EventToTrackLinkNtupleTool::EventToTrackLinkNtupleTool(
@@ -35,9 +35,8 @@ Trk::EventToTrackLinkNtupleTool::EventToTrackLinkNtupleTool(
     const IInterface*  p )
   :
   AthAlgTool(t,n,p),
-  m_collectionType(s_trackTypeName),
-  m_eventLinkTree(nullptr),
-  m_doTruth{},
+  m_collectionType(trackTypeName),
+  m_eventLinkTree(0),
   m_trackIndexBegin(std::vector<int>()),
   m_nTracksPerEvent(std::vector<int>()),
   m_genParticleIndexBegin(0),
@@ -45,7 +44,7 @@ Trk::EventToTrackLinkNtupleTool::EventToTrackLinkNtupleTool(
 {
   declareInterface<IEventPropertyNtupleTool>(this);
   declareProperty("CollectionType",m_collectionType, "Type of collection which associated with this instance ["
-		  +s_trackTypeName+", "+s_trkParticleTypeName+", "+s_trkParticleTrigTypeName+", "+s_inDetTrackTrigTypeName+"]");
+		  +trackTypeName+", "+trkParticleTypeName+", "+trkParticleTrigTypeName+", "+inDetTrackTrigTypeName+"]");
 }
 
 // destructor
@@ -115,11 +114,11 @@ StatusCode Trk::EventToTrackLinkNtupleTool::resetVariables( ) const {
 }
 
 StatusCode Trk::EventToTrackLinkNtupleTool::checkCollectionType() const {
-  if(( m_collectionType != s_trackTypeName) && (m_collectionType != s_trkParticleTypeName) && (m_collectionType != s_trkParticleTrigTypeName) && (m_collectionType != s_inDetTrackTrigTypeName)) {
+  if(( m_collectionType != trackTypeName) && (m_collectionType != trkParticleTypeName) && (m_collectionType != trkParticleTrigTypeName) && (m_collectionType != inDetTrackTrigTypeName)) {
                     ATH_MSG_ERROR ("Recieved collection type: "<< m_collectionType 
-				   <<"does not correspond to any of following types:"<< s_trackTypeName 
-				   <<", "<<s_trkParticleTypeName <<", "<<s_trkParticleTrigTypeName
-				   <<", "<<s_inDetTrackTrigTypeName);
+				   <<"does not correspond to any of following types:"<< trackTypeName 
+				   <<", "<<trkParticleTypeName <<", "<<trkParticleTrigTypeName
+				   <<", "<<inDetTrackTrigTypeName);
 				   
 		    return StatusCode::FAILURE;
                                                                                                       }

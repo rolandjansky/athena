@@ -42,27 +42,10 @@ Trk::TruthNtupleTool::TruthNtupleTool(
         :
         AthAlgTool(t,n,p),
         m_fillJets(false),
-        m_nt(nullptr),
         m_numberOfTreeEntries(0),
-        m_runNumber{},
-        m_eventNumber{},        
-        m_TrackLinkIndex{},
-        m_mc_prob{},
-        m_classifications{},
-         m_mc_d0{},           
-         m_mc_z0{},           
-         m_mc_phi0{},         
-         m_mc_theta{},        
-         m_mc_qOverP{},       
-         m_mc_qOverPt{},      
-         m_mc_eta{},          
+        m_TrackLinkIndex(0),
+        m_mc_prob(0)
 
-         m_mc_particleID{},   
-         m_mc_barcode{},      
-         m_mc_energy{},       
-         m_mc_jetLinkIndex{}, 
-         m_mc_prodR{}, 
-         m_mc_prodz{}
 {
     declareInterface<ITruthNtupleTool>(this);
 
@@ -173,6 +156,22 @@ StatusCode Trk::TruthNtupleTool::initBranches(const std::vector<const Trk::ITrac
                 etaBins
             ) );
         }
+//         m_recoTrackCounts.push_back( TH2I(
+//             ("reco"+classifierName).c_str(),
+//             ("reco"+classifierName).c_str(),
+//             classifiers[classIndex]->numberOfClassifiers(),
+//             0,
+//             classifiers[classIndex]->numberOfClassifiers(),
+//             m_etaBins
+//             ) );
+//         m_truthTrackCounts.push_back( TH2I(
+//             ("true"+classifierName).c_str(),
+//             ("true"+classifierName).c_str(),
+//             classifiers[classIndex]->numberOfClassifiers(),
+//             0,
+//             classifiers[classIndex]->numberOfClassifiers(),
+//             m_etaBins
+//             ) );
     }
 
     // add branches with links to the reconstructed tracks:
@@ -208,13 +207,17 @@ StatusCode Trk::TruthNtupleTool::finalize() {
       return sc;
     }
 
-    ATH_MSG_INFO ( "Efficiencies:" );
+    msg(MSG::INFO) << "Efficiencies:" << endreq;
+    msg(MSG::INFO) << std::endl;
 
     //Double_t* efficiencyValues;
     for (unsigned int classifierIndex = 0; classifierIndex < m_trackTruthClassifiers.size(); ++classifierIndex ) {
         for (unsigned int clIndex = 0; clIndex < m_trackTruthClassifiers[classifierIndex]->numberOfClassifiers(); clIndex++) {
             // output:
-
+/*            m_log << "true " << m_trackTruthClassifiers[classifierIndex]->classificationAsString(clIndex) << "\t";
+            for (int etaBin = 0; etaBin < m_truthTrackCounts[classifierIndex][clIndex]->GetNbinsX(); etaBin++) {
+                m_log << m_truthTrackCounts[classifierIndex][clIndex]->GetBinContent(etaBin+1) << "\t";
+            }*/
           msg() << std::resetiosflags(std::ios::right) << std::setiosflags(std::ios::left) << std::setw(15) << m_trackTruthClassifiers[classifierIndex]->classificationAsString(clIndex);
           msg() << std::resetiosflags(std::ios::left)  << std::setiosflags(std::ios::right);
           for (int etaBin = 0; etaBin < m_recoTrackCounts[classifierIndex][clIndex]->GetNbinsX(); etaBin++) {
@@ -234,14 +237,18 @@ StatusCode Trk::TruthNtupleTool::finalize() {
               ATH_MSG_ERROR ("ROOT Graph registration failed");
               return sc;
             }
-            msg() << "\n";
+//             efficiencyValues = effPlot->GetY();
+//             for (int etaBin = 0; etaBin < effPlot->GetN(); etaBin++) {
+//                 m_log << m_recoTrackCounts[classifierIndex][clIndex]->GetBinContent(etaBin+1) << " (" << efficiencyValues[etaBin] << ")" << "\t";
+//             }
+            msg() << std::endl;
             delete m_recoTrackCounts[classifierIndex][clIndex];
             m_recoTrackCounts[classifierIndex][clIndex] = 0;
             delete m_truthTrackCounts[classifierIndex][clIndex];
             m_truthTrackCounts[classifierIndex][clIndex] = 0;
         }
     }
-    msg() << endmsg;
+    msg() << endreq;
 
     // delete track links and probs
     for (unsigned int trackColIndex = 0; trackColIndex < m_TrackLinkIndex.size(); ++trackColIndex ) {
@@ -267,7 +274,7 @@ StatusCode Trk::TruthNtupleTool::writeTruthData (
     if (sc.isFailure()) {
       ATH_MSG_WARNING ("Could not retrieve event info");
     }
-    const EventID* myEventID=eventInfo->event_ID();
+    EventID* myEventID=eventInfo->event_ID();
 
     m_runNumber=myEventID->run_number();
     m_eventNumber=myEventID->event_number();
@@ -326,12 +333,16 @@ StatusCode Trk::TruthNtupleTool::writeTruthData (
 
             // do statistics:
             for (unsigned int classIndex = 0; classIndex < m_classifications.size(); ++classIndex ) {
+                //m_truthTrackCounts[classIndex].fill(m_classifications[classIndex], m_mc_eta);
+                //m_log << MSG::INFO << "classifier " << classIndex << " class: " << m_classifications[classIndex] << " eta=" << m_mc_eta << " no. matched=" << truthToTrackIndices[index].size() << endreq;
                 m_truthTrackCounts[classIndex][m_classifications[classIndex]]->Fill(fabs(m_mc_eta));
                 if (truthData[index].truthToTrackIndices[0].size() > 0) {
                     // TODO: do statistics for each input track collection
                     m_recoTrackCounts[classIndex][m_classifications[classIndex]]->Fill(fabs(m_mc_eta));
                 }
-               
+                //for (int etaBin = 0; etaBin < m_recoTrackCounts[classIndex][m_classifications[classIndex]]->GetNbinsX(); etaBin++) {
+                //    m_log << m_recoTrackCounts[classIndex][m_classifications[classIndex]]->GetBinContent(etaBin+1) << "\t";
+                //}
             }
 
         }

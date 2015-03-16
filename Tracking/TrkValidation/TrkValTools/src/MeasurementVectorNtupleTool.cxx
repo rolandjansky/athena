@@ -24,7 +24,6 @@
 #include "TrkCompetingRIOsOnTrack/CompetingRIOsOnTrack.h"
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
 #include "AtlasDetDescr/AtlasDetectorID.h"
-#include <cmath>
 
 // constructor
 Trk::MeasurementVectorNtupleTool::MeasurementVectorNtupleTool(
@@ -33,10 +32,9 @@ Trk::MeasurementVectorNtupleTool::MeasurementVectorNtupleTool(
     const IInterface*  p )
         :
         AthAlgTool(t,n,p),
-        m_idHelper(nullptr),
-        m_detTypeHelper(nullptr),
+        m_idHelper(0),
+        m_detTypeHelper(0),
         m_updatorHandle("Trk::KalmanUpdator/TrkKalmanUpdator"),
-        m_updator(nullptr),
         m_residualPullCalculator("Trk::ResidualPullCalculator/ResidualPullCalculator"),
         m_holeSearchTool("InDet::InDetTrackHoleSearchTool/InDetHoleSearchTool"),
         m_PixelNtupleHelperToolHandles(this), // retrieve as private tools
@@ -47,45 +45,26 @@ Trk::MeasurementVectorNtupleTool::MeasurementVectorNtupleTool(
         m_RPCNtupleHelperToolHandles(this),
         m_TGCNtupleHelperToolHandles(this),
         m_GeneralNtupleHelperToolHandles(this),
-        //m_useROTwithMaxAssgnProb
-        //m_ignoreMissTrkCov
-        //vectors could be initialised here
-        m_pullWarning{},
-        m_UpdatorWarning{},
-        m_trkParametersWarning{},
-        m_doTruth{},
         m_doHoleSearch(true),
-        //map could be initialised here
-        m_isUnbiased{},
-        m_residualLocX(nullptr),
-        m_residualLocY(nullptr),
-        m_pullLocX(nullptr),
-        m_pullLocY(nullptr),
-        m_DetectorType(nullptr),
-        m_isOutlier(nullptr),
-        m_nPixelHits{},
-        m_nSCTHits{},
-        m_nTRTHits{},
-        m_nMDTHits{},
-        m_nCSCHits{},
-        m_nRPCHits{},
-        m_nTGCHits{},
-        m_pixelHitIndex(nullptr),
-        m_sctHitIndex(nullptr),
-        m_trtHitIndex(nullptr),
-        m_mdtHitIndex(nullptr),
-        m_cscHitIndex(nullptr),
-        m_rpcHitIndex(nullptr),
-        m_tgcHitIndex(nullptr),
-        m_nHoles{},
-        m_nPixelHoles{},
-        m_nSctHoles{},
-        m_HoleDetectorType(nullptr)
+        m_residualLocX(0),
+        m_residualLocY(0),
+        m_pullLocX(0),
+        m_pullLocY(0),
+        m_DetectorType(0),
+        m_isOutlier(0),
+        m_pixelHitIndex(0),
+        m_sctHitIndex(0),
+        m_trtHitIndex(0),
+        m_mdtHitIndex(0),
+        m_cscHitIndex(0),
+        m_rpcHitIndex(0),
+        m_tgcHitIndex(0),
+        m_HoleDetectorType(0)
 {
   declareInterface<ITrackValidationNtupleTool>(this);
 
   declareProperty("UseROTwithMaxAssgnProb",       m_useROTwithMaxAssgnProb = true,        "In case of CompetingRIOsOnTrack: Use the ROT with maximum assignment probabilty to calculate residuals, etc or use mean measurement?");
-  declareProperty("IgnoreMissingTrackCovarianceForPulls", m_ignoreMissTrkCov = false,   "Do not warn, if track states do not have covariance matries when calculating pulls");
+  declareProperty("IgnoreMissingTrackCovarianceForPulls", mjo_ignoreMissTrkCov = false,   "Do not warn, if track states do not have covariance matries when calculating pulls");
   declareProperty("UpdatorTool",                  m_updatorHandle,                        "Measurement updator to calculate unbiased track states");
   declareProperty("ResidualPullCalculatorTool",   m_residualPullCalculator,               "Tool to calculate residuals and pulls");
   declareProperty("HoleSearchTool",               m_holeSearchTool,                       "Tool to search for holes on track");
@@ -150,7 +129,7 @@ StatusCode Trk::MeasurementVectorNtupleTool::initialize() {
   if ( ! m_updatorHandle.empty() ) {
     sc = m_updatorHandle.retrieve();
     if (sc.isFailure()) {
-      msg(MSG::FATAL) << "Could not retrieve measurement updator tool: "<< m_updatorHandle << endmsg;
+      msg(MSG::FATAL) << "Could not retrieve measurement updator tool: "<< m_updatorHandle << endreq;
       return sc;
     }
     m_updator = &(*m_updatorHandle);
@@ -170,9 +149,9 @@ StatusCode Trk::MeasurementVectorNtupleTool::initialize() {
   ToolHandleArray< Trk::IValidationNtupleHelperTool >::iterator itTools;
   // get all the given ntuple helper tools for Pixel
   if ( m_PixelNtupleHelperToolHandles.retrieve().isFailure() ) {
-    msg(MSG::ERROR) << "Failed to retreive " << m_PixelNtupleHelperToolHandles << endmsg;
+    msg(MSG::ERROR) << "Failed to retreive " << m_PixelNtupleHelperToolHandles << endreq;
   } else {
-    msg(MSG::INFO) << "Retrieved " << m_PixelNtupleHelperToolHandles << endmsg;
+    msg(MSG::INFO) << "Retrieved " << m_PixelNtupleHelperToolHandles << endreq;
   }
   itTools = m_PixelNtupleHelperToolHandles.begin();
   for (  ; itTools != m_PixelNtupleHelperToolHandles.end(); ++itTools ) {
@@ -182,9 +161,9 @@ StatusCode Trk::MeasurementVectorNtupleTool::initialize() {
   }
   // get all the given ntuple helper tools for SCT
   if ( m_SCTNtupleHelperToolHandles.retrieve().isFailure() ) {
-    msg(MSG::ERROR) << "Failed to retreive " << m_SCTNtupleHelperToolHandles << endmsg;
+    msg(MSG::ERROR) << "Failed to retreive " << m_SCTNtupleHelperToolHandles << endreq;
   } else {
-    msg(MSG::INFO) << "Retrieved " << m_SCTNtupleHelperToolHandles << endmsg;
+    msg(MSG::INFO) << "Retrieved " << m_SCTNtupleHelperToolHandles << endreq;
   }
   itTools = m_SCTNtupleHelperToolHandles.begin();
   for (  ; itTools != m_SCTNtupleHelperToolHandles.end(); ++itTools ) {
@@ -194,9 +173,9 @@ StatusCode Trk::MeasurementVectorNtupleTool::initialize() {
   }
   // get all the given ntuple helper tools for TRT
   if ( m_TRTNtupleHelperToolHandles.retrieve().isFailure() ) {
-    msg(MSG::ERROR) << "Failed to retreive " << m_TRTNtupleHelperToolHandles << endmsg;
+    msg(MSG::ERROR) << "Failed to retreive " << m_TRTNtupleHelperToolHandles << endreq;
   } else {
-    msg(MSG::INFO) << "Retrieved " << m_TRTNtupleHelperToolHandles << endmsg;
+    msg(MSG::INFO) << "Retrieved " << m_TRTNtupleHelperToolHandles << endreq;
   }
   itTools = m_TRTNtupleHelperToolHandles.begin();
   for (  ; itTools != m_TRTNtupleHelperToolHandles.end(); ++itTools ) {
@@ -206,9 +185,9 @@ StatusCode Trk::MeasurementVectorNtupleTool::initialize() {
   }
   // get all the given ntuple helper tools for MDT
   if ( m_MDTNtupleHelperToolHandles.retrieve().isFailure() ) {
-    msg(MSG::ERROR) << "Failed to retreive " << m_MDTNtupleHelperToolHandles << endmsg;
+    msg(MSG::ERROR) << "Failed to retreive " << m_MDTNtupleHelperToolHandles << endreq;
   } else {
-    msg(MSG::INFO) << "Retrieved " << m_MDTNtupleHelperToolHandles << endmsg;
+    msg(MSG::INFO) << "Retrieved " << m_MDTNtupleHelperToolHandles << endreq;
   }
   itTools = m_MDTNtupleHelperToolHandles.begin();
   for (  ; itTools != m_MDTNtupleHelperToolHandles.end(); ++itTools ) {
@@ -218,9 +197,9 @@ StatusCode Trk::MeasurementVectorNtupleTool::initialize() {
   }
   // get all the given ntuple helper tools for CSC
   if ( m_CSCNtupleHelperToolHandles.retrieve().isFailure() ) {
-    msg(MSG::ERROR) << "Failed to retreive " << m_CSCNtupleHelperToolHandles << endmsg;
+    msg(MSG::ERROR) << "Failed to retreive " << m_CSCNtupleHelperToolHandles << endreq;
   } else {
-    msg(MSG::INFO) << "Retrieved " << m_CSCNtupleHelperToolHandles << endmsg;
+    msg(MSG::INFO) << "Retrieved " << m_CSCNtupleHelperToolHandles << endreq;
   }
   itTools = m_CSCNtupleHelperToolHandles.begin();
   for (  ; itTools != m_CSCNtupleHelperToolHandles.end(); ++itTools ) {
@@ -230,9 +209,9 @@ StatusCode Trk::MeasurementVectorNtupleTool::initialize() {
   }
   // get all the given ntuple helper tools for RPC
   if ( m_RPCNtupleHelperToolHandles.retrieve().isFailure() ) {
-    msg(MSG::ERROR) << "Failed to retreive " << m_RPCNtupleHelperToolHandles << endmsg;
+    msg(MSG::ERROR) << "Failed to retreive " << m_RPCNtupleHelperToolHandles << endreq;
   } else {
-    msg(MSG::INFO) << "Retrieved " << m_RPCNtupleHelperToolHandles << endmsg;
+    msg(MSG::INFO) << "Retrieved " << m_RPCNtupleHelperToolHandles << endreq;
   }
   itTools = m_RPCNtupleHelperToolHandles.begin();
   for (  ; itTools != m_RPCNtupleHelperToolHandles.end(); ++itTools ) {
@@ -242,9 +221,9 @@ StatusCode Trk::MeasurementVectorNtupleTool::initialize() {
   }
   // get all the given ntuple helper tools for TGC
   if ( m_TGCNtupleHelperToolHandles.retrieve().isFailure() ) {
-    msg(MSG::ERROR) << "Failed to retreive " << m_TGCNtupleHelperToolHandles << endmsg;
+    msg(MSG::ERROR) << "Failed to retreive " << m_TGCNtupleHelperToolHandles << endreq;
   } else {
-    msg(MSG::INFO) << "Retrieved " << m_TGCNtupleHelperToolHandles << endmsg;
+    msg(MSG::INFO) << "Retrieved " << m_TGCNtupleHelperToolHandles << endreq;
   }
   itTools = m_TGCNtupleHelperToolHandles.begin();
   for (  ; itTools != m_TGCNtupleHelperToolHandles.end(); ++itTools ) {
@@ -254,9 +233,9 @@ StatusCode Trk::MeasurementVectorNtupleTool::initialize() {
   }
   // get all the given ntuple helper tools independent from detector tech
   if ( m_GeneralNtupleHelperToolHandles.retrieve().isFailure() ) {
-    msg(MSG::ERROR) << "Failed to retreive " << m_GeneralNtupleHelperToolHandles << endmsg;
+    msg(MSG::ERROR) << "Failed to retreive " << m_GeneralNtupleHelperToolHandles << endreq;
   } else {
-    msg(MSG::INFO) << "Retrieved " << m_GeneralNtupleHelperToolHandles << endmsg;
+    msg(MSG::INFO) << "Retrieved " << m_GeneralNtupleHelperToolHandles << endreq;
   }
   itTools = m_GeneralNtupleHelperToolHandles.begin();
   for (  ; itTools != m_GeneralNtupleHelperToolHandles.end(); ++itTools ) {
@@ -268,24 +247,24 @@ StatusCode Trk::MeasurementVectorNtupleTool::initialize() {
   // get the ResidualPullCalculator
   if (m_residualPullCalculator.empty()) {
     msg(MSG::INFO) << "No residual/pull calculator for general hit residuals configured."
-                   << endmsg;
+                   << endreq;
     msg(MSG::INFO) << "It is recommended to give R/P calculators to the det-specific tool"
-                   << " handle lists then." << endmsg;
+                   << " handle lists then." << endreq;
   } else {
     sc = m_residualPullCalculator.retrieve();
     if (sc.isFailure()) {
-      msg(MSG::FATAL) << "Could not retrieve "<< m_residualPullCalculator <<" (to calculate residuals and pulls) "<< endmsg;
+      msg(MSG::FATAL) << "Could not retrieve "<< m_residualPullCalculator <<" (to calculate residuals and pulls) "<< endreq;
       return sc;
     } else {
       msg(MSG::INFO) << "Generic hit residuals&pulls will be calculated in one or both "
-                     << "available local coordinates" << endmsg;
+                     << "available local coordinates" << endreq;
     }
   }
   // get the hole search tool if needed
   if (m_doHoleSearch) {
     sc = m_holeSearchTool.retrieve();
     if (sc.isFailure()) {
-      msg(MSG::FATAL) << "Could not retrieve "<< m_holeSearchTool <<" (needed for hole search) "<< endmsg;
+      msg(MSG::FATAL) << "Could not retrieve "<< m_holeSearchTool <<" (needed for hole search) "<< endreq;
       return sc;
     }
   }
@@ -367,7 +346,7 @@ StatusCode Trk::MeasurementVectorNtupleTool::addNtupleItems( TTree* tree ) const
       // let tool add its items
       sc = (*itTools)->addNtupleItems (tree, TrackState::Pixel);
       if(sc.isFailure())   {
-        msg(MSG::ERROR)<<"The helper " << (*itTools) << " could not add its items" << endmsg;
+        msg(MSG::ERROR)<<"The helper " << (*itTools) << " could not add its items" << endreq;
         return sc;
       }
     }
@@ -377,7 +356,7 @@ StatusCode Trk::MeasurementVectorNtupleTool::addNtupleItems( TTree* tree ) const
       // let tool add its items
       sc = (*itTools)->addNtupleItems (tree, TrackState::SCT);
       if(sc.isFailure())   {
-        msg(MSG::ERROR)<<"The helper " << (*itTools) << " could not add its items" << endmsg;
+        msg(MSG::ERROR)<<"The helper " << (*itTools) << " could not add its items" << endreq;
         return sc;
       }
     }
@@ -387,7 +366,7 @@ StatusCode Trk::MeasurementVectorNtupleTool::addNtupleItems( TTree* tree ) const
       // let tool add its items
       sc = (*itTools)->addNtupleItems (tree, TrackState::TRT);
       if(sc.isFailure())   {
-        msg(MSG::ERROR)<<"The helper " << (*itTools) << " could not add its items" << endmsg;
+        msg(MSG::ERROR)<<"The helper " << (*itTools) << " could not add its items" << endreq;
         return sc;
       }
     }
@@ -397,7 +376,7 @@ StatusCode Trk::MeasurementVectorNtupleTool::addNtupleItems( TTree* tree ) const
       // let tool add its items
       sc = (*itTools)->addNtupleItems (tree, TrackState::MDT);
       if(sc.isFailure())   {
-        msg(MSG::ERROR)<<"The helper " << (*itTools) << " could not add its items" << endmsg;
+        msg(MSG::ERROR)<<"The helper " << (*itTools) << " could not add its items" << endreq;
         return sc;
       }
     }
@@ -407,7 +386,7 @@ StatusCode Trk::MeasurementVectorNtupleTool::addNtupleItems( TTree* tree ) const
       // let tool add its items
       sc = (*itTools)->addNtupleItems (tree, TrackState::CSC);
       if(sc.isFailure())   {
-        msg(MSG::ERROR)<<"The helper " << (*itTools) << " could not add its items" << endmsg;
+        msg(MSG::ERROR)<<"The helper " << (*itTools) << " could not add its items" << endreq;
         return sc;
       }
     }
@@ -417,7 +396,7 @@ StatusCode Trk::MeasurementVectorNtupleTool::addNtupleItems( TTree* tree ) const
       // let tool add its items
       sc = (*itTools)->addNtupleItems (tree, TrackState::RPC);
       if(sc.isFailure())   {
-        msg(MSG::ERROR)<<"The helper " << (*itTools) << " could not add its items" << endmsg;
+        msg(MSG::ERROR)<<"The helper " << (*itTools) << " could not add its items" << endreq;
         return sc;
       }
     }
@@ -427,7 +406,7 @@ StatusCode Trk::MeasurementVectorNtupleTool::addNtupleItems( TTree* tree ) const
       // let tool add its items
       sc = (*itTools)->addNtupleItems (tree, TrackState::TGC);
       if(sc.isFailure())   {
-        msg(MSG::ERROR)<<"The helper " << (*itTools) << " could not add its items" << endmsg;
+        msg(MSG::ERROR)<<"The helper " << (*itTools) << " could not add its items" << endreq;
         return sc;
       }
     }
@@ -436,7 +415,7 @@ StatusCode Trk::MeasurementVectorNtupleTool::addNtupleItems( TTree* tree ) const
       // let tool add its items
       sc = (*itTools)->addNtupleItems (tree, TrackState::unidentified);
       if(sc.isFailure())   {
-        msg(MSG::ERROR)<<"The helper " << (*itTools) << " could not add its items" << endmsg;
+        msg(MSG::ERROR)<<"The helper " << (*itTools) << " could not add its items" << endreq;
         return sc;
       }
     }
@@ -449,8 +428,7 @@ StatusCode Trk::MeasurementVectorNtupleTool::addNtupleItems( TTree* tree ) const
 StatusCode Trk::MeasurementVectorNtupleTool::fillTrackData (
     const Trk::Track& track,
     const int  /*iterationIndex*/,
-    const unsigned int /*fitStatCode*/ )  const {
-   // const Trk::FitterStatusCode /*fitStatCode*/ ) const {
+    const Trk::FitterStatusCode /*fitStatCode*/ ) const {
 
   ATH_MSG_VERBOSE ("in fillTrackData(trk, indx) filling info about track states");
 
@@ -465,7 +443,7 @@ StatusCode Trk::MeasurementVectorNtupleTool::fillTrackData (
   // fill info about trackstates in ntuple
   const DataVector<const Trk::TrackStateOnSurface>* trackStates=track.trackStateOnSurfaces();
   if (trackStates == 0) {
-    msg(MSG::WARNING) << "current track does not have any TrackStateOnSurface vector, no data will be written for this track" << endmsg;
+    msg(MSG::WARNING) << "current track does not have any TrackStateOnSurface vector, no data will be written for this track" << endreq;
     return StatusCode::FAILURE;
   }
 
@@ -478,7 +456,7 @@ StatusCode Trk::MeasurementVectorNtupleTool::fillTrackData (
 
     
     if (!(*it)) {
-      msg(MSG::WARNING) << "TrackStateOnSurface == Null" << endmsg;
+      msg(MSG::WARNING) << "TrackStateOnSurface == Null" << endreq;
       continue;
     }
     if ((*it)->type(Trk::TrackStateOnSurface::Measurement) ||
@@ -490,7 +468,7 @@ StatusCode Trk::MeasurementVectorNtupleTool::fillTrackData (
       const Trk::MeasurementBase *measurement = (*it)->measurementOnTrack();
       if (!measurement) {
         msg(MSG::ERROR) << "measurementOnTrack == Null for a TrackStateOnSurface "
-                        << "of type Measurement or Outlier" << endmsg;
+                        << "of type Measurement or Outlier" << endreq;
         return StatusCode::FAILURE;
       } // end if (!measurement)
       TrackState::MeasurementType detectorType = m_detTypeHelper->defineType(measurement);
@@ -519,7 +497,7 @@ StatusCode Trk::MeasurementVectorNtupleTool::fillTrackData (
             if (measurement->localParameters().contains(Trk::locX)) {
               double covTrk = (*theParameters->covariance())(Trk::locX,Trk::locX);
               double covRot = measurement->localCovariance()(Trk::locX,Trk::locX);
-              if (std::abs(covTrk-covRot)<0.001*covRot) {
+              if (abs(covTrk-covRot)<0.001*covRot) {
                 ATH_MSG_DEBUG("Track not overconstrained in local X (track_cov_x = "<<covTrk<<" vs. meas_cov_x="<<covRot<<" => do not calculate unbiased residual.");
               } else ATH_MSG_INFO ("Could not get unbiased track parameters, use normal parameters");
             } else ATH_MSG_INFO ("Could not get unbiased track parameters, use normal parameters");
@@ -527,7 +505,7 @@ StatusCode Trk::MeasurementVectorNtupleTool::fillTrackData (
           } // end if no unbiased track parameters
         } else if(!m_UpdatorWarning) {
           // warn only once!
-          msg(MSG::WARNING) << "TrackParameters contain no covariance: Unbiased track states can not be calculated (ie. pulls and residuals will be too small)" << endmsg;
+          msg(MSG::WARNING) << "TrackParameters contain no covariance: Unbiased track states can not be calculated (ie. pulls and residuals will be too small)" << endreq;
           m_UpdatorWarning = true;
           m_isUnbiased = 0;
         } else {
@@ -543,13 +521,13 @@ StatusCode Trk::MeasurementVectorNtupleTool::fillTrackData (
                                theParameters,
                                ((*it)->type(Trk::TrackStateOnSurface::Outlier)),
                                detectorType)).isFailure())
-        msg(MSG::WARNING) << "info about TrackState could not be written to ntuple" << endmsg;
+        msg(MSG::WARNING) << "info about TrackState could not be written to ntuple" << endreq;
       if ((callHelperTools(measurement,
                            theParameters,
                            ((*it)->type(Trk::TrackStateOnSurface::Outlier)),
                            detectorType,
                            stateIndexCounter)).isFailure())
-        msg(MSG::WARNING) << "Could not call helper Tool! " << endmsg;
+        msg(MSG::WARNING) << "Could not call helper Tool! " << endreq;
 
       delete unbiasedParameters;
     } // end if(TSoS is measurement)
@@ -562,18 +540,18 @@ StatusCode Trk::MeasurementVectorNtupleTool::fillTrackData (
     const DataVector<const Trk::TrackStateOnSurface>* holesOnTrack = m_holeSearchTool->getHolesOnTrack(track, track.info().particleHypothesis());
     // loop over holes
     if (!holesOnTrack) {
-      msg(MSG::WARNING) << "Got no holes on track" << endmsg;
+      msg(MSG::WARNING) << "Got no holes on track" << endreq;
       return StatusCode::SUCCESS;
     }
     for (DataVector<const Trk::TrackStateOnSurface>::const_iterator it=holesOnTrack->begin();
          it!=holesOnTrack->end();
          it++) {
       if (!(*it)) {
-        msg(MSG::WARNING) << "TrackStateOnSurface from hole search tool == Null" << endmsg;
+        msg(MSG::WARNING) << "TrackStateOnSurface from hole search tool == Null" << endreq;
         continue;
       }
       if (fillHoleData(*(*it)).isFailure()) {
-        msg(MSG::WARNING) << "info about TrackState (hole) could not be written to ntuple" << endmsg;
+        msg(MSG::WARNING) << "info about TrackState (hole) could not be written to ntuple" << endreq;
       }
     } // end loop on holes
     delete holesOnTrack;
@@ -602,8 +580,7 @@ StatusCode Trk::MeasurementVectorNtupleTool::fillProtoTrajectoryData
 (  const Trk::ProtoTrajectory&,
    const int,
    const Trk::Perigee*,
-   const unsigned int ) const
-   //const Trk::FitterStatusCode) const
+   const Trk::FitterStatusCode) const
 {
   ATH_MSG_WARNING ("MeasurementVectorNtupleTool not meant to be used with TrackParticles.");
   return StatusCode::SUCCESS;
@@ -654,7 +631,7 @@ void Trk::MeasurementVectorNtupleTool::resetVariables() const {
     // let tool reset its variables
     StatusCode sc = (*toolIter)->resetVariables (TrackState::Pixel);
     if(sc.isFailure())   {
-      msg(MSG::ERROR)<<"The helper could not reset its ntuple variables" << endmsg;
+      msg(MSG::ERROR)<<"The helper could not reset its ntuple variables" << endreq;
       return;
     }
   }
@@ -663,7 +640,7 @@ void Trk::MeasurementVectorNtupleTool::resetVariables() const {
     // let tool reset its variables
     StatusCode sc = (*toolIter)->resetVariables (TrackState::SCT);
     if(sc.isFailure())   {
-      msg(MSG::ERROR)<<"The helper could not reset its ntuple variables" << endmsg;
+      msg(MSG::ERROR)<<"The helper could not reset its ntuple variables" << endreq;
       return;
     }
   }
@@ -672,7 +649,7 @@ void Trk::MeasurementVectorNtupleTool::resetVariables() const {
     // let tool reset its variables
     StatusCode sc = (*toolIter)->resetVariables (TrackState::TRT);
     if(sc.isFailure())   {
-      msg(MSG::ERROR)<<"The helper could not reset its ntuple variables" << endmsg;
+      msg(MSG::ERROR)<<"The helper could not reset its ntuple variables" << endreq;
       return;
     }
   }
@@ -681,7 +658,7 @@ void Trk::MeasurementVectorNtupleTool::resetVariables() const {
     // let tool reset its variables
     StatusCode sc = (*toolIter)->resetVariables (TrackState::MDT);
     if(sc.isFailure())   {
-      msg(MSG::ERROR)<<"The helper could not reset its ntuple variables" << endmsg;
+      msg(MSG::ERROR)<<"The helper could not reset its ntuple variables" << endreq;
       return;
     }
   }
@@ -690,7 +667,7 @@ void Trk::MeasurementVectorNtupleTool::resetVariables() const {
     // let tool reset its variables
     StatusCode sc = (*toolIter)->resetVariables (TrackState::CSC);
     if(sc.isFailure())   {
-      msg(MSG::ERROR)<<"The helper could not reset its ntuple variables" << endmsg;
+      msg(MSG::ERROR)<<"The helper could not reset its ntuple variables" << endreq;
       return;
     }
   }
@@ -699,7 +676,7 @@ void Trk::MeasurementVectorNtupleTool::resetVariables() const {
     // let tool reset its variables
     StatusCode sc = (*toolIter)->resetVariables (TrackState::RPC);
     if(sc.isFailure())   {
-      msg(MSG::ERROR)<<"The helper could not reset its ntuple variables" << endmsg;
+      msg(MSG::ERROR)<<"The helper could not reset its ntuple variables" << endreq;
       return;
     }
   }
@@ -708,7 +685,7 @@ void Trk::MeasurementVectorNtupleTool::resetVariables() const {
     // let tool reset its variables
     StatusCode sc = (*toolIter)->resetVariables (TrackState::TGC);
     if(sc.isFailure())   {
-      msg(MSG::ERROR)<<"The helper could not reset its ntuple variables" << endmsg;
+      msg(MSG::ERROR)<<"The helper could not reset its ntuple variables" << endreq;
       return;
     }
   }
@@ -717,7 +694,7 @@ void Trk::MeasurementVectorNtupleTool::resetVariables() const {
     // let tool reset its variables
     StatusCode sc = (*toolIter)->resetVariables (TrackState::unidentified);
     if(sc.isFailure())   {
-      msg(MSG::ERROR)<<"The helper could not reset its ntuple variables" << endmsg;
+      msg(MSG::ERROR)<<"The helper could not reset its ntuple variables" << endreq;
             return;
     }
   }
@@ -746,9 +723,9 @@ StatusCode Trk::MeasurementVectorNtupleTool::fillMeasurementData(
       ATH_MSG_VERBOSE ("Given TrackParameters == NULL");
       if(!m_trkParametersWarning) {
         // warn once only!
-        msg(MSG::WARNING) << "TSoS (type: measurement) contains no TrackParameters: Residuals, etc. cannot be calculated" << endmsg;
-        msg(MSG::WARNING) << "   This is possible for slimmed tracks; if residuals are needed choose another track collection" << endmsg;
-        msg(MSG::WARNING) << "   (further warnings will be suppressed)" << endmsg;
+        msg(MSG::WARNING) << "TSoS (type: measurement) contains no TrackParameters: Residuals, etc. cannot be calculated" << endreq;
+        msg(MSG::WARNING) << "   This is possible for slimmed tracks; if residuals are needed choose another track collection" << endreq;
+        msg(MSG::WARNING) << "   (further warnings will be suppressed)" << endreq;
         m_trkParametersWarning = true;
       }
     }
@@ -772,18 +749,18 @@ StatusCode Trk::MeasurementVectorNtupleTool::fillMeasurementData(
           residualLocX = residualPull->residual()[Trk::loc1];
           if (residualPull->dimension() >= 2)
             residualLocY = residualPull->residual()[Trk::loc2];
-          if ((residualPull->isPullValid()) || m_ignoreMissTrkCov ) {
+          if ((residualPull->isPullValid()) || mjo_ignoreMissTrkCov ) {
             pullLocX = residualPull->pull()[Trk::loc1];
             if (residualPull->dimension() >= 2)
               pullLocY = residualPull->pull()[Trk::loc2];
           } else {
             if (!m_pullWarning && !isOutlier) {  // warn only once!!!
               m_pullWarning = true;
-              msg(MSG::WARNING) << "no covariance of the track parameters given, can not compute pull!" << endmsg;
+              msg(MSG::WARNING) << "no covariance of the track parameters given, can not compute pull!" << endreq;
               msg(MSG::INFO) << "Detector type "<< detectorType 
-			     << (isOutlier? " (flagged as outlier)" : "(not an outlier)") << endmsg;
-              msg(MSG::INFO) << "you may want to use the jobOption 'IgnoreMissingTrackCovarianceForPulls' to calculate it anyhow." << endmsg;
-              msg(MSG::INFO) << "No further warnings will be given for this type of situation." << endmsg;
+			     << (isOutlier? " (flagged as outlier)" : "(not an outlier)") << endreq;
+              msg(MSG::INFO) << "you may want to use the jobOption 'IgnoreMissingTrackCovarianceForPulls' to calculate it anyhow." << endreq;
+              msg(MSG::INFO) << "No further warnings will be given for this type of situation." << endreq;
             } else {
               ATH_MSG_DEBUG ("invalid pull due to missing COV at detector type " << detectorType
                              << (isOutlier? " (flagged as outlier)." : "."));
@@ -791,7 +768,7 @@ StatusCode Trk::MeasurementVectorNtupleTool::fillMeasurementData(
           }
           delete residualPull;
         } else {
-          msg(MSG::WARNING) << "ResidualPullCalculator failed!" << endmsg;
+          msg(MSG::WARNING) << "ResidualPullCalculator failed!" << endreq;
         }
       }
       m_residualLocX->push_back(residualLocX);
@@ -886,7 +863,7 @@ StatusCode Trk::MeasurementVectorNtupleTool::callHelperTools(
       for (; toolIter!=toolIterEnd; ++toolIter) {
         if (((*toolIter)->fillMeasurementData(measurementBaseOrROT, trkPar, detectorType, isOutlier)).isFailure()) {
           if (!m_helperToolWarning[(*toolIter)]) {
-            msg(MSG::WARNING) << "sub-det helper tool did not succeed to fill data (further warnings for this tool will be suppressed)"  << endmsg;
+            msg(MSG::WARNING) << "sub-det helper tool did not succeed to fill data (further warnings for this tool will be suppressed)"  << endreq;
             m_helperToolWarning[(*toolIter)] = true;
           }
         }
@@ -899,7 +876,7 @@ StatusCode Trk::MeasurementVectorNtupleTool::callHelperTools(
       for (; toolIter!=m_GeneralHelperTools.end(); ++toolIter) {
         if (((*toolIter)->fillMeasurementData(measurement, trkPar, detectorType, isOutlier)).isFailure()) {
           if (!m_helperToolWarning[(*toolIter)]) {
-            msg(MSG::WARNING) << "general helper tool did not succeed to fill general data"  << endmsg;
+            msg(MSG::WARNING) << "general helper tool did not succeed to fill general data"  << endreq;
             m_helperToolWarning[(*toolIter)] = true;
           }
         }
@@ -983,7 +960,7 @@ StatusCode Trk::MeasurementVectorNtupleTool::fillHoleData (
         // now run the detector specific helper tools
         for (; toolIter!=toolIterEnd; ++toolIter) {
             if (((*toolIter)->fillHoleData(tsos, detectorType)).isFailure()) {
-                msg(MSG::WARNING) << "sub-det helper tool did not succeed to fill hole data"  << endmsg;
+                msg(MSG::WARNING) << "sub-det helper tool did not succeed to fill hole data"  << endreq;
             }
         }
     } //end if (detectorType!=TrackState::unidentified)
@@ -993,7 +970,7 @@ StatusCode Trk::MeasurementVectorNtupleTool::fillHoleData (
         std::vector< const Trk::IValidationNtupleHelperTool* >::const_iterator toolIter = m_GeneralHelperTools.begin();
         for (; toolIter!=m_GeneralHelperTools.end(); ++toolIter) {
             if (((*toolIter)->fillHoleData(tsos, detectorType)).isFailure()) {
-                msg(MSG::WARNING) << "general helper tool did not succeed to fill general hole data"  << endmsg;
+                msg(MSG::WARNING) << "general helper tool did not succeed to fill general hole data"  << endreq;
             }
         }
     }

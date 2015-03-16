@@ -32,18 +32,7 @@ Trk::TrackInformationNtupleTool::TrackInformationNtupleTool(
         :
         AthAlgTool(t,n,p),
         m_TrackIDcounter(0),
-        m_lastEventNumber(0),
-         m_runNumber{},  
-         m_eventNumber{}, 
-         m_TrackID{},     
-         m_iterIndex{},   
-         m_fitStatusCode{},   
-         m_trackFitAuthor{},  
-         m_trackSeedAuthor{}, 
-         m_particleHypothesis{},
-         m_Rec_chi2overNdof{}, 
-         m_ndof{},        
-         m_nHits{}     
+        m_lastEventNumber(0)
 {
   declareInterface<ITrackValidationNtupleTool>(this);
 }
@@ -98,18 +87,18 @@ StatusCode Trk::TrackInformationNtupleTool::addNtupleItems( TTree* tree ) const 
 StatusCode Trk::TrackInformationNtupleTool::fillTrackData (
     const Trk::Track& track,
     const int iterationIndex,
-    const unsigned int fitStatCode ) const {
+    const Trk::FitterStatusCode fitStatCode ) const {
 
   ATH_MSG_VERBOSE ("in fillTrackData(trk, indx)");
   // ---------------------------------------
   // detect new event, reset Track counter if new event
   const EventInfo* eventInfo;
   if ((evtStore()->retrieve(eventInfo)).isFailure()) {
-    msg(MSG::WARNING) << "Could not retrieve event info" << endmsg;
+    msg(MSG::WARNING) << "Could not retrieve event info" << endreq;
     m_runNumber   = (int)s_errorEntry;
     m_eventNumber = (int)s_errorEntry;
   } else {
-    const EventID* myEventID=eventInfo->event_ID();
+    EventID* myEventID=eventInfo->event_ID();
     if (m_lastEventNumber!=myEventID->event_number()) {
       // we have a new event, reset TrackID:
       m_TrackIDcounter = 0;
@@ -127,7 +116,7 @@ StatusCode Trk::TrackInformationNtupleTool::fillTrackData (
                    << m_runNumber  << " TrackID: " << m_TrackID 
                    << " iteration index: " << m_iterIndex);
   
-  m_fitStatusCode = int(fitStatCode);
+  m_fitStatusCode = int(fitStatCode.getCode());
   m_trackFitAuthor = track.info().trackFitter() ;
   m_trackSeedAuthor = getSeed(track.info());
   m_particleHypothesis = int(track.info().particleHypothesis());
@@ -150,7 +139,7 @@ StatusCode Trk::TrackInformationNtupleTool::fillTrackData (
          it++) {
 
       if (!(*it)) {
-        msg(MSG::WARNING) << "TrackStateOnSurface == Null" << endmsg;
+        msg(MSG::WARNING) << "TrackStateOnSurface == Null" << endreq;
         continue;
       }
       if ((*it)->type(Trk::TrackStateOnSurface::Measurement) ||
@@ -159,7 +148,7 @@ StatusCode Trk::TrackInformationNtupleTool::fillTrackData (
         const Trk::MeasurementBase *measurement = (*it)->measurementOnTrack();
         if (!measurement) {
           msg(MSG::WARNING) << "measurementOnTrack == Null for a TrackStateOnSurface "
-                            << "of type Measurement or Outlier" << endmsg;
+                            << "of type Measurement or Outlier" << endreq;
           return StatusCode::FAILURE;
         } else ++m_nHits;
 
@@ -180,11 +169,11 @@ StatusCode Trk::TrackInformationNtupleTool::fillTrackParticleData
   // detect new event, reset Track counter if new event
   const EventInfo* eventInfo;
   if ((evtStore()->retrieve(eventInfo)).isFailure()) {
-    msg(MSG::WARNING) << "Could not retrieve event info" << endmsg;
+    msg(MSG::WARNING) << "Could not retrieve event info" << endreq;
     m_runNumber   = (int)s_errorEntry;
     m_eventNumber = (int)s_errorEntry;
   } else {
-    const EventID* myEventID=eventInfo->event_ID();
+    EventID* myEventID=eventInfo->event_ID();
     if (m_lastEventNumber!=myEventID->event_number()) {
       // we have a new event, reset TrackID:
       m_TrackIDcounter = 0;
@@ -234,15 +223,14 @@ StatusCode Trk::TrackInformationNtupleTool::fillProtoTrajectoryData
 (  const Trk::ProtoTrajectory& trajectory,
    const int iterationIndex,
    const Trk::Perigee*,
-   const unsigned int fitStatCode) const
-   //const Trk::FitterStatusCode fitStatCode) const
+   const Trk::FitterStatusCode fitStatCode) const
 {
   ATH_MSG_VERBOSE ("in fillProtoTrajectoryData(protoTraj, indx)");
   const EventInfo* eventInfo;
   if ((evtStore()->retrieve(eventInfo)).isFailure()) {
-    msg(MSG::ERROR) << "Could not retrieve event info" << endmsg;
+    msg(MSG::ERROR) << "Could not retrieve event info" << endreq;
   }
-  const EventID* myEventID=eventInfo->event_ID();
+  EventID* myEventID=eventInfo->event_ID();
   
   if (m_lastEventNumber!=myEventID->event_number()) {
     // we have a new event!
@@ -261,7 +249,7 @@ StatusCode Trk::TrackInformationNtupleTool::fillProtoTrajectoryData
   m_runNumber   = myEventID->run_number();
 
   ATH_MSG_VERBOSE ("Event: " << m_eventNumber << MSG::VERBOSE << " TrackID: " << m_TrackID << " iteration index: " << m_iterIndex);
-  m_fitStatusCode = fitStatCode;
+  m_fitStatusCode = fitStatCode.getCode();
 
   // Loop over all proto track states on surfaces
   Trk::ProtoTrajectory::const_iterator it = trajectory.begin();
@@ -269,7 +257,7 @@ StatusCode Trk::TrackInformationNtupleTool::fillProtoTrajectoryData
     // get the measurement            
     const Trk::MeasurementBase *measurement = it->measurement();
     if (!measurement) {
-      msg(MSG::WARNING) << "ProtoTrackStateOnSurface with no measurement on proto trajectory, ignore it" << endmsg;
+      msg(MSG::WARNING) << "ProtoTrackStateOnSurface with no measurement on proto trajectory, ignore it" << endreq;
       continue;
     } else ++m_nHits;
   }

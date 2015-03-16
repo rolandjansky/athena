@@ -37,17 +37,10 @@ Trk::JetTruthNtupleTool::JetTruthNtupleTool(
     const IInterface*  p )
         :
         AthAlgTool(t,n,p),
-        m_nt(nullptr),
         m_numberOfTreeEntries(0),
-        m_runNumber{},
-        m_eventNumber{},
-        m_genParticleLinkIndex(nullptr),
-        m_mc_trackToJetAngle(nullptr),
-        m_mc_jetMultiplicity{},
-        m_mc_jetSphericity{},
-        m_mc_jetThrust{},
-        m_mc_jetEnergy{},
-        m_mc_jetMomentum{}
+        m_genParticleLinkIndex(0),
+        m_mc_trackToJetAngle(0)
+
 {
     declareInterface<IJetTruthNtupleTool>(this);
 
@@ -137,7 +130,7 @@ StatusCode Trk::JetTruthNtupleTool::writeJetTruthData (
   if (sc.isFailure()) {
     ATH_MSG_WARNING ( "Could not retrieve event info" );
   }
-  const EventID* myEventID=eventInfo->event_ID();
+  EventID* myEventID=eventInfo->event_ID();
 
   m_runNumber=myEventID->run_number();
   m_eventNumber=myEventID->event_number();

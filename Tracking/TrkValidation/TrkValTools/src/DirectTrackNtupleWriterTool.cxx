@@ -112,8 +112,7 @@ StatusCode Trk::DirectTrackNtupleWriterTool::finalize() {
 StatusCode Trk::DirectTrackNtupleWriterTool::writeTrackData (
      const Trk::Track& track,
      const int iterationIndex,
-     const unsigned int fitStatCode )  const {
-//     const Trk::FitterStatusCode fitStatCode )  const {
+     const Trk::FitterStatusCode fitStatCode )  const {
     
   ATH_MSG_VERBOSE ("in writeTrackData(trk, indx)");
 
@@ -160,10 +159,9 @@ StatusCode Trk::DirectTrackNtupleWriterTool::writeProtoTrajectoryData (
         const Trk::ProtoTrajectory& trajectory,
         const int iterationIndex,
         const Trk::Perigee* perigee,
-        const unsigned int fitStatCode )  const {
-       // const Trk::FitterStatusCode fitStatCode ) const{
+        const Trk::FitterStatusCode fitStatCode ) const{
     if (!m_nt) {
-        msg(MSG::ERROR) << "writeProtoTrajectoryData(protoTraj, indx) can only be used, if property BookNewNtuple is set to true"  << endmsg;
+        msg(MSG::ERROR) << "writeProtoTrajectoryData(protoTraj, indx) can only be used, if property BookNewNtuple is set to true"  << endreq;
         return StatusCode::FAILURE;
     }
     ATH_MSG_VERBOSE ("in writeProtoTrajectoryData(protoTraj, indx)");

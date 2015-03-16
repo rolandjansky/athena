@@ -19,8 +19,7 @@
 
 Trk::InDetHaloSelector::InDetHaloSelector(const std::string& type, const std::string& name,
                                               const IInterface* parent)
-  : AthAlgTool (type,name,parent),
-  m_particleDataTable{}
+  : AthAlgTool (type,name,parent)
 
 {
   declareInterface<IGenParticleSelector>(this);
@@ -41,12 +40,12 @@ StatusCode Trk::InDetHaloSelector::initialize() {
   }
   m_particleDataTable = partPropSvc->PDT();
 
-  ATH_MSG_DEBUG ("initialise in " << name());
+  ATH_MSG_INFO ("initialise in " << name());
   return StatusCode::SUCCESS;
 }
 
 StatusCode Trk::InDetHaloSelector::finalize() {
-  ATH_MSG_DEBUG ("starting finalize() in " << name());
+  ATH_MSG_INFO ("starting finalize() in " << name());
   return StatusCode::SUCCESS;
 }
 
@@ -59,7 +58,7 @@ Trk::InDetHaloSelector::selectGenSignal (const McEventCollection* SimTracks) con
     new std::vector<const HepMC::GenParticle *>;
 
   // pile-up: vector of MCEC has more than one entry
-  DataVector<HepMC::GenEvent>::const_iterator itCollision = SimTracks->begin();
+  std::vector<HepMC::GenEvent *>::const_iterator itCollision = SimTracks->begin();
   
   for( ; itCollision != SimTracks->end(); ++itCollision ) {
     const HepMC::GenEvent*    genEvent = *itCollision;
