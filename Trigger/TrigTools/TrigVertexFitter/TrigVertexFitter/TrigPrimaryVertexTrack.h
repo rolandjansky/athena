@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef __TRIG_PRIM_VERTEX_TRACK_H__
-#define __TRIG_PRIM_VERTEX_TRACK_H__
+#ifndef TRIGVERTEXFITTER_TRIGPRIMARYVERTEXTRACK_H
+#define TRIGVERTEXFITTER_TRIGPRIMARYVERTEXTRACK_H
 
 class TrigL2Vertex;
 class TrigInDetTrack;
@@ -37,7 +37,6 @@ class TrigPrimaryVertexTrack : public TrigVertexFittingNode
   const Trk::Track* m_pTrkTrack;
   int m_nTrackType;
   int m_index;
-  double m_mass;
   double m_Vqq[3][3];
   double m_Vuq[2][3];
   double m_Vuu[2][2];
