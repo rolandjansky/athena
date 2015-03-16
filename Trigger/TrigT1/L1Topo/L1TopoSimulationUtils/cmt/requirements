@@ -1,0 +1,10 @@
+package L1TopoSimulationUtils
+
+
+# General dependencies
+use  DetCommonPolicy    *
+use  Boost              *      LCG_Interfaces
+
+
+# CMT package configuration
+apply_pattern detcommon_shared_generic_library files=../Root/*.cxx
