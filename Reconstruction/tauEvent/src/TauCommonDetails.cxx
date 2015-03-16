@@ -19,8 +19,8 @@
 #include "tauEvent/TauCmp.h"
 #include "tauEvent/TauCommonDetails.h"
 //Other includes
-#include "AthLinks/ElementLink.h"
-#include "SGTools/ClassName.h"
+#include "DataModel/ElementLink.h"
+#include "DataModel/ClassName.h"
 #include "VxVertex/RecVertex.h"
 //C/C++ includes
 #include <string>

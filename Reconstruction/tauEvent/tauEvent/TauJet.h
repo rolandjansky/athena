@@ -26,7 +26,7 @@
 
 #include "CLHEP/Vector/LorentzVector.h"
 #include "ParticleEvent/ParticleImpl.h"
-#include "AthLinks/ElementLinkVector.h"
+#include "DataModel/ElementLinkVector.h"
 #include "FourMom/Lib/P4ImplEEtaPhiM.h"
 #include "Particle/TrackParticleContainer.h"
 #include "CaloEvent/CaloClusterContainer.h"
@@ -448,11 +448,8 @@ namespace Analysis
             /// Removes extra details and any invalid elementlinks from details list
             void CleanDetailsForAOD();
 
-            ElementLinkVector<TauDetailsContainer>& tauDetailLinkVector();
-            const ElementLinkVector<TauDetailsContainer>& tauDetailLinkVector() const;
-
             //@} ---------------------------------------------------------------
-            ///@name Author functions
+            ///@name Athour functions
             //@{ ---------------------------------------------------------------
 
             /// Author of this object (DO NOT USE! only for backward compatibility)
@@ -563,7 +560,6 @@ namespace Analysis
             //@{ ---------------------------------------------------------------
             void storeHLV( TauJetParameters :: TauCalibType type, CLHEP :: HepLorentzVector hlv );
             CLHEP::HepLorentzVector getHLV( TauJetParameters :: TauCalibType type ) const;
-            void clearHLV();
 
             ///Get the list of links to PanTauSeed objects that were created for this tauJet      
             std::vector<PanTau::PanTauSeed*> getListOfPanTauSeeds() const;                        

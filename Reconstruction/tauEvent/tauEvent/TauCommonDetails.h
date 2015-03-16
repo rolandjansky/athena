@@ -12,16 +12,16 @@
 ///
 /// Created by Thomas Burgess on 2008-10-20.
 
-#ifndef TAUEVENT_TAUCOMMONDETAILS_H
-#define TAUEVENT_TAUCOMMONDETAILS_H
+#ifndef __TAU_COMMON_DETAILS_ANALYSIS_H__
+#define __TAU_COMMON_DETAILS_ANALYSIS_H__
 
 //TauEvent includes
 #include "TauDetails.h"
 //Other inlcudes
 #include "CLHEP/Vector/LorentzVector.h"
 #include "CaloEvent/CaloClusterContainer.h"
-#include "AthLinks/ElementLink.h"
-#include "AthLinks/ElementLinkVector.h"
+#include "DataModel/ElementLink.h"
+#include "DataModel/ElementLinkVector.h"
 #include "Particle/TrackParticleContainer.h"
 //Standard C/C++ includes
 #include <string>
@@ -1034,19 +1034,12 @@ namespace Analysis {
         double seedTrk_etChrgEM01Trk(
                 unsigned int i ) const;
 
-        const std::vector<double>& seedTrk_etChrgEM01TrkVector() const;
-
         /// Set transverse energy around track
         /// @param i track id
         /// @param et E_T
         void setSeedTrk_etChrgEM01Trk(
                 unsigned int i,
                 double et );
-
-        template <class ITERATOR>
-        void setSeedTrk_etChrgEM01Trk(
-                ITERATOR beg,
-                ITERATOR end);
 
         /// Add transverse energy around track
         /// @param i track id
@@ -1065,19 +1058,12 @@ namespace Analysis {
         double seedTrk_etResChrgEMTrk(
                 unsigned int i ) const;
 
-        const std::vector<double>& seedTrk_etResChrgEMTrkVector() const;
-
         /// Set correction term for eflow calculations per track
         /// @param i track id
         /// @param et correction term
         void setSeedTrk_etResChrgEMTrk(
                 unsigned int i,
                 double et );
-
-        template <class ITERATOR>
-        void setSeedTrk_etResChrgEMTrk(
-                ITERATOR beg,
-                ITERATOR end);
 
         /// Add correction term for eflow calculations per track
         /// @param i track id
@@ -1757,4 +1743,4 @@ namespace Analysis {
     // inline member function declarations
 #include "TauCommonDetails.icc"
 
-#endif //TAUEVENT_TAUCOMMONDETAILS_H
+#endif //__TAU_COMMON_DETAILS_ANALYSIS_H__

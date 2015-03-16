@@ -589,9 +589,4 @@ namespace Analysis
             tauRecExtraDetails->m_sumPTTracks;
     }
 
-    void TauJet::clearHLV()
-    {
-      m_tauHLVStorage.clear();
-    }
-
 } //Namespace

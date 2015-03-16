@@ -4,7 +4,7 @@
 
 // implementation of TauPi0Details
 
-#include "SGTools/ClassName.h"
+#include "DataModel/ClassName.h"
 #include "tauEvent/TauPi0Details.h"
 #include "tauEvent/TauPi0Candidate.h"
 #include "tauEvent/TauPi0Cluster.h"

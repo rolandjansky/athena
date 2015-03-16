@@ -22,8 +22,8 @@
 #include "Particle/TrackParticle.h"
 #include "Particle/TrackParticleContainer.h"
 
-#include "AthLinks/ElementLink.h"
-#include "AthLinks/ElementLinkVector.h"
+#include "DataModel/ElementLink.h"
+#include "DataModel/ElementLinkVector.h"
 
 #include "CaloEvent/CaloCell.h"
 #include "CaloEvent/CaloCellContainer.h"
@@ -40,7 +40,7 @@
 /// tau analysis helper object data class
 ///
 /// object containing additional information (mostly mc truth) 
-/// useful for performance analysis, should be superceded by the trueTauObject
+/// useful for performance analysis, should be superseeded by the trueTauObject
 /// Package: Reconstruction/TauEvent
 class tauAnalysisHelperObject
 {
@@ -301,11 +301,6 @@ class tauAnalysisHelperObject
         void setD0sumnontaupt( double  val ) { m_d0sumnontaupt = val; };
         void setD0sumpt( double  val ) { m_d0sumpt = val; };
 
-        void clearD0towers() {
-          m_towere.clear();
-          m_towereta.clear();
-          m_towerphi.clear();
-        }
         void addD0tower( const double e, const double eta, const double phi ) { m_towere.push_back( e ); m_towereta.push_back( eta ); m_towerphi.push_back( phi ); };
         void addD0tower( const I4Momentum *mom ) { m_towere.push_back( mom->e() ); m_towereta.push_back( mom->eta() ); m_towerphi.push_back( mom->phi() ); };
 
@@ -317,8 +312,6 @@ class tauAnalysisHelperObject
          *  set by tauD0Helper::execute()
          */
         //@{
-        tauCellColl_type&  d0_emcluster() { return m_d0_emcluster; }
-        const tauCellColl_type&  d0_emcluster() const { return m_d0_emcluster; }
         int d0_emcluster_nCells() const			           { return m_d0_emcluster.size(); }
         tauCellColl_iterator d0_emcluster_begin()      { return m_d0_emcluster.begin(); }
         tauCellColl_iterator d0_emcluste_end()         { return m_d0_emcluster.end(); }
@@ -338,8 +331,6 @@ class tauAnalysisHelperObject
          */
         //@{
         int d0_05_nTracks() const			                         { return m_d0_05_Tracks.size(); }
-        tauTrackColl_type&  d0_05_tracks() { return m_d0_05_Tracks; }
-        const tauTrackColl_type&  d0_05_tracks() const { return m_d0_05_Tracks; }
         tauTrackColl_iterator d0_05_track_begin()              { return m_d0_05_Tracks.begin(); }
         tauTrackColl_iterator d0_05_track_end()                { return m_d0_05_Tracks.end(); }
 
@@ -358,8 +349,6 @@ class tauAnalysisHelperObject
          */
         //@{
         int d0_tau_nTracks() const			                         { return m_d0_tau_Tracks.size(); }
-        tauTrackColl_type&  d0_tau_tracks() { return m_d0_tau_Tracks; }
-        const tauTrackColl_type&  d0_tau_tracks() const { return m_d0_tau_Tracks; }
         tauTrackColl_iterator d0_tau_track_begin()              { return m_d0_tau_Tracks.begin(); }
         tauTrackColl_iterator d0_tau_track_end()                { return m_d0_tau_Tracks.end(); }
 
@@ -378,8 +367,6 @@ class tauAnalysisHelperObject
          */
         //@{
         int d0_nontau_nTracks() const			                         { return m_d0_nontau_Tracks.size(); }
-        tauTrackColl_type&  d0_nontau_tracks() { return m_d0_nontau_Tracks; }
-        const tauTrackColl_type&  d0_nontau_tracks() const { return m_d0_nontau_Tracks; }
         tauTrackColl_iterator d0_nontau_track_begin()              { return m_d0_nontau_Tracks.begin(); }
         tauTrackColl_iterator d0_nontau_track_end()                { return m_d0_tau_Tracks.end(); }
 
@@ -394,69 +381,69 @@ class tauAnalysisHelperObject
         //@}
 
     protected:
-        int    m_decmode=-1;
-        int    m_jettype=-1;
+        int    m_decmode;
+        int    m_jettype;
 
-        double m_emradii[6]={0};
-        double m_hadradii[6]={0};
-        double m_TowEMRadius=-1111;
-        double m_TowET12Frac=-1111;
+        double m_emradii[6];
+        double m_hadradii[6];
+        double m_TowEMRadius;
+        double m_TowET12Frac;
 
-        double m_ImpactParameter[10]={0};
-        double m_RawImpactParameter[10]={0};
-        double m_SignedImpactParameter[10]={0};
-        double m_ImpactParameterSignificance[10]={0};
-        double m_SignedImpactParameterSignificance[10]={0};
+        double m_ImpactParameter[10];
+        double m_RawImpactParameter[10];
+        double m_SignedImpactParameter[10];
+        double m_ImpactParameterSignificance[10];
+        double m_SignedImpactParameterSignificance[10];
 
         // d0 variables
-        double m_d0prf=-1111;
-        double m_d0iso=-1111;
-        double m_d0isoet=-1111;
-        double m_d0ettr=-1111;
-        double m_d0etem=-1111;
-        double m_d0etem2=-1111;
-        double m_d0emclet=-1111;
-        double m_d0emcleta=-1111;
-        double m_d0emclphi=-1111;
-        double m_d0et05=-1111;
-        double m_d0eta05=-1111;
-        double m_d0phi05=-1111;
+        double m_d0prf;
+        double m_d0iso;
+        double m_d0isoet;
+        double m_d0ettr;
+        double m_d0etem;
+        double m_d0etem2;
+        double m_d0emclet;
+        double m_d0emcleta;
+        double m_d0emclphi;
+        double m_d0et05;
+        double m_d0eta05;
+        double m_d0phi05;
 
-        double m_d0hadet=-1111;
-        double m_d0hadeta=-1111;
-        double m_d0hadphi=-1111;
+        double m_d0hadet;
+        double m_d0hadeta;
+        double m_d0hadphi;
 
-        double m_d0type=-1111;
-        double m_d0deltaR1=-1111;
-        double m_d0eTosumpT=-1111;
+        double m_d0type;
+        double m_d0deltaR1;
+        double m_d0eTosumpT;
 
-        double m_d0deltaR1had=-1111;
-        double m_d0em3iso=-1111;
-        double m_d0mtrem3=-1111;
+        double m_d0deltaR1had;
+        double m_d0em3iso;
+        double m_d0mtrem3;
 
-        double m_d0deltaR2=-1111;
-        double m_d0ntr1030=-1111;
+        double m_d0deltaR2;
+        double m_d0ntr1030;
 
-        double m_d0EM12isof=-1111;
-        double m_d0e1e2otaupT=-1111;
-        double m_d0ettro123=-1111;
-        double m_d0ett1oEtiso=-1111;
-        double m_d0ett1oEtisoet=-1111;
-        double m_d0dalpha=-1111;
-        double m_d0e1e2=-1111;
+        double m_d0EM12isof;
+        double m_d0e1e2otaupT;
+        double m_d0ettro123;
+        double m_d0ett1oEtiso;
+        double m_d0ett1oEtisoet;
+        double m_d0dalpha;
+        double m_d0e1e2;
 
-        double m_d0mtr1tr2=-1111;
-        double m_d0mtr1tr2tr3=-1111;
+        double m_d0mtr1tr2;
+        double m_d0mtr1tr2tr3;
 
-        double m_d0sumtaupt=-1111;
-        double m_d0sumnontaupt=-1111;
-        double m_d0sumpt=-1111;
+        double m_d0sumtaupt;
+        double m_d0sumnontaupt;
+        double m_d0sumpt;
 
         std::vector<double> m_towere;
         std::vector<double> m_towereta;
         std::vector<double> m_towerphi;
 
-        double m_d0uncaletlayers[25]={0};
+        double m_d0uncaletlayers[25];
 
         tauCellColl_type m_d0_emcluster;
 

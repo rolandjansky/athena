@@ -12,16 +12,16 @@
  * @author Benedict Winter
  */
 
-#ifndef TAUEVENT_TAUPI0CLUSTER_H
-#define TAUEVENT_TAUPI0CLUSTER_H
+#ifndef __TAU_Pi0_CLUSTER_H__
+#define __TAU_Pi0_CLUSTER_H__
 
 #include <iostream>
 
 //#include "CaloEvent/CaloCluster.h"
 #include "CaloEvent/CaloClusterContainer.h"
-#include "AthLinks/ElementLink.h"
+#include "DataModel/ElementLink.h"
 #include "tauEvent/TauShot.h"
-//#include "AthLinks/ElementLinkVector.h"
+//#include "DataModel/ElementLinkVector.h"
 
 namespace Analysis {
 
@@ -341,7 +341,7 @@ namespace Analysis {
 
     /// Get (const) cluster link
     /// @return (const) cluster 
-    const ElementLink<CaloClusterContainer>& clusterLink() const;
+    //const ElementLink<CaloClusterContainer>& clusterLink() const;
     
     /// Get cluster link 
     /// @return pi0 clusters vector
@@ -443,4 +443,4 @@ namespace Analysis {
 /// inline member function declarations
 #include "TauPi0Cluster.icc"
 
-#endif // TAUEVENT_TAUPI0CLUSTER_H
+#endif // __TAU_Pi0_CLUSTER_H__

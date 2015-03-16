@@ -17,8 +17,8 @@
 #include "tauEvent/TauCommonExtraDetails.h"
 //Other includes
 #include "CaloEvent/CaloCellContainer.h"
-#include "SGTools/ClassName.h"
-#include "AthLinks/ElementLink.h"
+#include "DataModel/ClassName.h"
+#include "DataModel/ElementLink.h"
 //C/C++ includes
 #include <string>
 #include <vector>

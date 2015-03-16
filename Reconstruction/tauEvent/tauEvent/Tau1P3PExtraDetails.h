@@ -74,8 +74,6 @@ namespace Analysis
         void setClosestEtaTrkVertCell( const CaloCell *val,
                 const CaloCellContainer *cont,
                 int itrk, int num );
-        void setClosestEtaTrkVertCellLink( const ElementLink<CaloCellContainer>& el,
-                                           int itrk, int num );
 
         //-----------------------------------------------------------------
         //! Closest cell to track position at vertex in phi for
@@ -85,8 +83,6 @@ namespace Analysis
         void setClosestPhiTrkVertCell( const CaloCell *val,
                 const CaloCellContainer *cont,
                 int itrk, int num );
-        void setClosestPhiTrkVertCellLink( const ElementLink<CaloCellContainer>& el,
-                                           int itrk, int num );
 
         //-----------------------------------------------------------------
         //! Closest cell to track position from extrapolation in eta for
@@ -96,8 +92,6 @@ namespace Analysis
         void setClosestEtaTrkCell( const CaloCell *val,
                 const CaloCellContainer *cont,
                 int itrk, int num );
-        void setClosestEtaTrkCellLink( const ElementLink<CaloCellContainer>& el,
-                                       int itrk, int num );
 
         //-----------------------------------------------------------------
         //! Closest cell to track position from extrapolation in phi for
@@ -107,8 +101,6 @@ namespace Analysis
         void setClosestPhiTrkCell( const CaloCell *val,
                 const CaloCellContainer *cont,
                 int itrk, int num );
-        void setClosestPhiTrkCellLink( const ElementLink<CaloCellContainer>& el,
-                                       int itrk, int num );
 
         //-----------------------------------------------------------------
         //! Eta of extrapolation point in EM Calo in "i" sampling for track "itrk"
@@ -194,12 +186,6 @@ namespace Analysis
         m_closestEtaTrkVertCell[itrk][num].toContainedElement( *cont,val );
     }
 
-    inline void Tau1P3PExtraDetails :: setClosestEtaTrkVertCellLink( const ElementLink<CaloCellContainer>& el,
-                                                                     int itrk, int num)
-    {
-      m_closestEtaTrkVertCell[itrk][num] = el;
-    }
-
     inline const CaloCell *Tau1P3PExtraDetails :: closestPhiTrkVertCell( int itrk, int num ) const
     {
         if( m_closestPhiTrkVertCell[itrk][num].isValid() )
@@ -216,12 +202,6 @@ namespace Analysis
     }
 
 
-    inline void Tau1P3PExtraDetails :: setClosestPhiTrkVertCellLink( const ElementLink<CaloCellContainer>& el,
-                                                                     int itrk, int num)
-    {
-      m_closestPhiTrkVertCell[itrk][num] = el;
-    }
-
     inline const CaloCell *Tau1P3PExtraDetails :: closestEtaTrkCell( int itrk, int num ) const
     {
         if( m_closestEtaTrkCell[itrk][num].isValid() )
@@ -237,12 +217,6 @@ namespace Analysis
         m_closestEtaTrkCell[itrk][num].toContainedElement( *cont, val );
     }
 
-    inline void Tau1P3PExtraDetails :: setClosestEtaTrkCellLink( const ElementLink<CaloCellContainer>& el,
-                                                                 int itrk, int num)
-    {
-      m_closestEtaTrkCell[itrk][num] = el;
-    }
-
     inline const CaloCell *Tau1P3PExtraDetails :: closestPhiTrkCell( int itrk, int num ) const
     {
         if( m_closestPhiTrkCell[itrk][num].isValid() )
@@ -256,12 +230,6 @@ namespace Analysis
             int itrk, int num )
     {
         m_closestPhiTrkCell[itrk][num].toContainedElement( *cont, val );
-    }
-
-    inline void Tau1P3PExtraDetails :: setClosestPhiTrkCellLink( const ElementLink<CaloCellContainer>& el,
-                                                                 int itrk, int num)
-    {
-      m_closestPhiTrkCell[itrk][num] = el;
     }
 
     //-------------------------------------------------------------------------

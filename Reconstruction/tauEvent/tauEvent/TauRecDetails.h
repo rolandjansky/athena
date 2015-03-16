@@ -21,7 +21,7 @@
 #include "tauEvent/TauDetails.h"
 #include "CLHEP/Vector/LorentzVector.h"
 #include "VxVertex/RecVertex.h"
-#include "AthLinks/ElementLinkVector.h"
+#include "DataModel/ElementLinkVector.h"
 #include "Particle/TrackParticleContainer.h"
 #include <vector>
 
@@ -235,9 +235,6 @@ namespace Analysis
                 const Rec::TrackParticle          *track );
 
 
-
-        ElementLinkVector<Rec::TrackParticleContainer>& looseTracks();
-        const ElementLinkVector<Rec::TrackParticleContainer>& looseTracks() const;
 
         private:
         static std::string s_className;
@@ -569,18 +566,6 @@ namespace Analysis
     inline unsigned TauRecDetails :: numLooseTrack() const
     {
         return m_looseTracks.size();
-    }
-
-    inline
-    ElementLinkVector<Rec::TrackParticleContainer>& TauRecDetails::looseTracks()
-    {
-      return m_looseTracks;
-    }
-    
-    inline
-    const ElementLinkVector<Rec::TrackParticleContainer>& TauRecDetails::looseTracks() const
-    {
-      return m_looseTracks;
     }
 }
 

@@ -18,13 +18,12 @@
 /// $Id: Tau1P3PExtraDetails.cxx,v 1.8 2009-01-17 01:34:16 tburgess Exp $
 
 #include "tauEvent/Tau1P3PExtraDetails.h"
-#include "SGTools/ClassName.h"
+#include "DataModel/ClassName.h"
 
 namespace Analysis
 {
     Tau1P3PExtraDetails::Tau1P3PExtraDetails()
-      : TauDetails(),
-	m_sumPTTracks(0)
+        : TauDetails()
     {
         allocTracksAndSamplings( 10, 4 );
     }

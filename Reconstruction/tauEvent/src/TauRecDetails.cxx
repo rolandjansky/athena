@@ -16,7 +16,7 @@
 /// $Id: TauRecDetails.cxx,v 1.11 2009-05-20 13:10:37 slai Exp $
 
 #include "tauEvent/TauRecDetails.h"
-#include "SGTools/ClassName.h"
+#include "DataModel/ClassName.h"
 
 namespace Analysis
 {
@@ -35,7 +35,6 @@ namespace Analysis
         m_ipSigLeadTrack( TauDetails::DEFAULT ),
         m_etOverPtLeadTrack( TauDetails::DEFAULT ),
         m_etEMCalib( TauDetails::DEFAULT ),
-	m_etHadCalib( TauDetails::DEFAULT ),
         m_secVertex( 0 ),
         m_leadingTrackPT(TauDetails::DEFAULT),
         m_trFlightPathSig(TauDetails::DEFAULT),

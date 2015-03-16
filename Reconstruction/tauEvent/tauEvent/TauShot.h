@@ -35,7 +35,7 @@
 // includes for datamembers
 #include "CaloEvent/CaloClusterContainer.h"
 #include "CaloEvent/CaloCellContainer.h"
-#include "AthLinks/ElementLink.h"
+#include "DataModel/ElementLink.h"
 
 
 namespace Analysis
@@ -104,15 +104,13 @@ namespace Analysis
     const CaloCluster* cluster() const;
 
     /** @brief element link to cluster */
-    const ElementLink<CaloClusterContainer>& clusterLink() const;
-    ElementLink<CaloClusterContainer>& clusterLink();
+    ElementLink<CaloClusterContainer> clusterLink() const;
 
     /** @brief pointer to seed cell */
     const CaloCell* seedCell() const;
     
     /** @brief element link to seed cell */
-    const ElementLink<CaloCellContainer>& seedCellLink() const;
-    ElementLink<CaloCellContainer>& seedCellLink();
+    ElementLink<CaloCellContainer> seedCellLink() const;
 
     /** @brief other custom variable getters */
     int nCellsInEta() const;
