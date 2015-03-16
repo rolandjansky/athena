@@ -23,7 +23,7 @@ Purpose : create a collection of PhotonTag
 
 #include "ElectronPhotonTagTools/PhotonTagTool.h"
 #include "TagEvent/PhotonAttributeNames.h"
-
+#include "ElectronPhotonSelectorTools/AsgElectronLikelihoodTool.h"
 #include "AnalysisUtils/AnalysisMisc.h"
 #include "AthenaPoolUtilities/AthenaAttributeSpecification.h"
 
@@ -56,6 +56,7 @@ PhotonTagTool::PhotonTagTool (const std::string& type, const std::string& name,
 /** initialization - called once at the begginning */
 StatusCode  PhotonTagTool::initialize() {
   ATH_MSG_DEBUG( "in intialize()" );
+ 
   return StatusCode::SUCCESS;
 }
 
@@ -158,18 +159,19 @@ StatusCode PhotonTagTool::execute(TagFragmentCollection& pTagColl, const int& ma
 	  
 	  bool val_loose=0;
 	  bool val_tight=0;
-	  
+
 	  if(!(*photonItr)->passSelection(val_loose,"Loose")){
 	    ATH_MSG_ERROR( "No loose selection exits" );
 	  }
-	 
-	 
+	  
 	  if(!(*photonItr)->passSelection(val_tight,"Tight")){
 	    ATH_MSG_ERROR( "No Tight selection exits" );
 	  }
 	 
-	  if (val_loose == 1 ) tightness |= (1<<0);//loose
-	  if (val_tight == 1 ) tightness |= (1<<2);//tight
+
+	  if (val_loose  == 1 ) tightness |= (1<<0);//loose
+
+	  if (val_tight  == 1 ) tightness |= (1<<1);//tight
 	  
           pTagColl.insert( m_tightStr[i], tightness );
 
@@ -177,76 +179,135 @@ StatusCode PhotonTagTool::execute(TagFragmentCollection& pTagColl, const int& ma
           if ((*photonItr)->nVertices() != 0) nConverted++;
 
           /** Isolation of Photons */
-	  //          const EMShower* shower = (*photonItr)->detail<EMShower>("egDetailAOD");
+
           unsigned int iso = 0x0;
-	  // if (shower) {
             /* Calo Isolation in bits from 0 to 23 */
             float elEt = (*photonItr)->pt();
             float etcone = 0;
-            for (unsigned int j=0; j<m_caloisocutvalues.size(); j++)
-              {
-                if ( m_caloisocutvalues[j] < 1.0 ) // relative isolation
-                  {
-                    float relIso = etcone;
-                    if ( elEt != 0.0 ) relIso = relIso/elEt;
-                    if ( relIso < m_caloisocutvalues[j] ) iso |= 1 << j;
-                  }
-                else if ( etcone < m_caloisocutvalues[j] ) iso |= 1 << j; // absolute isolation
-              }
-
-	    for (unsigned int j=0; j<m_caloisocutvalues.size(); j++)
-              {
-                if ( m_caloisocutvalues[j] < 1.0 ) // relative isolation
-                  {
-                    float relIso = etcone;
-                    if ( elEt != 0.0 ) relIso = relIso/elEt;
-                    if ( relIso < m_caloisocutvalues[j] ) iso |= 1 << (8+j);
-                  }
-                else if ( etcone < m_caloisocutvalues[j] ) iso |= 1 << (8+j); // absolute isolation
-              }
-
-            for (unsigned int j=0; j<m_caloisocutvalues.size(); j++)
-              {
-                if ( m_caloisocutvalues[j] < 1.0 ) // relative isolation
-                  {
-                    float relIso = etcone;
-                    if ( elEt != 0.0 ) relIso = relIso/elEt;
-                    if ( relIso < m_caloisocutvalues[j] ) iso |= 1 << (16+j);
-                  }
-                else if ( etcone < m_caloisocutvalues[j] ) iso |= 1 << (16+j); // absolute isolation
-              }
-            
+	    if(!((*photonItr)->isolationValue(etcone,xAOD::Iso::IsolationType::etcone20))){
+	      ATH_MSG_DEBUG( "No isolation etcone20pt defined" );
+	    }
+	    else{
+	      for (unsigned int j=0; j<m_caloisocutvalues.size(); j++)
+		{
+		  if ( m_caloisocutvalues[j] < 1.0 ) // relative isolation
+		    {
+		      float relIso = etcone;
+		      if ( elEt != 0.0 ) relIso = relIso/elEt;
+		      if ( relIso < m_caloisocutvalues[j] ) iso |= 1 << j;
+		    }
+		  else if ( etcone < m_caloisocutvalues[j] ) iso |= 1 << j; // absolute isolation
+		}
+	    }
+	    
+	    if(!((*photonItr)->isolationValue(etcone,xAOD::Iso::IsolationType::topoetcone20))){
+	      ATH_MSG_DEBUG( "No isolation topoetcone20 defined" );
+	    }
+	    else{
+	      for (unsigned int j=0; j<m_caloisocutvalues.size(); j++)
+		{
+		  if ( m_caloisocutvalues[j] < 1.0 ) // relative isolation
+		    {
+		      float relIso = etcone;
+		      if ( elEt != 0.0 ) relIso = relIso/elEt;
+		      if ( relIso < m_caloisocutvalues[j] ) iso |= 1 << (8+j);
+		    }
+		  else if ( etcone < m_caloisocutvalues[j] ) iso |= 1 << (8+j); // absolute isolation
+		}
+	    }
+	    if(!((*photonItr)->isolationValue(etcone,xAOD::Iso::IsolationType::topoetcone40))){
+	      ATH_MSG_DEBUG( "No isolation topoetcone40 defined" );
+	    }
+	    else{
+	      for (unsigned int j=0; j<m_caloisocutvalues.size(); j++)
+		{
+		  if ( m_caloisocutvalues[j] < 1.0 ) // relative isolation
+		    {
+		      float relIso = etcone;
+		      if ( elEt != 0.0 ) relIso = relIso/elEt;
+		      if ( relIso < m_caloisocutvalues[j] ) iso |= 1 << (16+j);
+		    }
+		  else if ( etcone < m_caloisocutvalues[j] ) iso |= 1 << (16+j); // absolute isolation
+		}
+            }
             /* Track Isolation in bits from 24 to 29 (note only 6 bits!)*/
             float ptcone =0;
-	    for (unsigned int j=0; j<m_trackisocutvalues.size(); j++)
-              {
-                if ( m_caloisocutvalues[j] < 1.0 ) // relative isolation
-                  {
-                    float relIso = ptcone;
-                    if ( elEt != 0.0 ) relIso = relIso/elEt;
-                    if ( relIso < m_caloisocutvalues[j] ) iso |= 1 << (24+j);
-                  }
-                else if ( ptcone < m_trackisocutvalues[j] ) iso |= 1 << (24+j);
-              }
+	    if(!((*photonItr)->isolationValue(ptcone,xAOD::Iso::IsolationType::ptcone20))){
+	      ATH_MSG_DEBUG( "No isolation ptcone20 defined" );
+	    }
+	    else{
+	      for (unsigned int j=0; j<m_trackisocutvalues.size(); j++)
+		{
+		  if ( m_caloisocutvalues[j] < 1.0 ) // relative isolation
+		    {
+		      float relIso = ptcone;
+		      if ( elEt != 0.0 ) relIso = relIso/elEt;
+		      if ( relIso < m_caloisocutvalues[j] ) iso |= 1 << (24+j);
+		    }
+		  else if ( ptcone < m_trackisocutvalues[j] ) iso |= 1 << (24+j);
+		}
+	    }
+	    if(!((*photonItr)->isolationValue(etcone,xAOD::Iso::IsolationType::topoetcone30))){	
+	      ATH_MSG_DEBUG( "No isolation topoetcone30 defined" );
+	    }
+	    else{
+	      for (unsigned int j=0; j<m_caloisocutvalues.size(); j++)
+		{
+		  if ( m_caloisocutvalues[j] < 1.0 ) // relative isolation
+		    {
+		      float relIso = etcone;
+		      if ( elEt != 0.0 ) relIso = relIso/elEt;
+		      if ( relIso < m_caloisocutvalues[j] ) iso |= 1 << (12+j);
+		    }
+		  else if ( etcone < m_caloisocutvalues[j] ) iso |= 1 << (12+j); // absolute isolation
+		}
+	    }
 	    
-	    if (etcone < 4000. ) iso |= 1 << 30;
-	    if (etcone < 5000. ) iso |= 1 << 31;
-
-
-	    // }
-          pTagColl.insert( m_isoStr[i], iso );
-
+	    if(!((*photonItr)->isolationValue(ptcone,xAOD::Iso::IsolationType::ptcone30))){
+	      ATH_MSG_DEBUG( "No isolation ptcone30 defined" );
+	    }
+	    else{
+	      for (unsigned int j=0; j<m_trackisocutvalues.size(); j++)
+		{ 
+		  if ( m_caloisocutvalues[j] < 1.0 ) // relative isolation
+		    {
+		      float relIso = ptcone;
+		      if ( elEt != 0.0 ) relIso = relIso/elEt;
+		      if ( relIso < m_caloisocutvalues[j] ) iso |= 1 << (20+j);
+		    }
+		  else if ( ptcone < m_trackisocutvalues[j] ) iso |= 1 << (20+j);
+		}
+	    }
+	    
+	    if(!((*photonItr)->isolationValue(ptcone,xAOD::Iso::IsolationType::ptcone40))){
+	      ATH_MSG_DEBUG( "No isolation ptcone40 defined" );
+	    }
+	    else{
+	      for (unsigned int j=0; j<m_trackisocutvalues.size(); j++)
+		{ 
+		  if ( m_caloisocutvalues[j] < 1.0 ) // relative isolation
+		    {
+		      float relIso = ptcone;
+		      if ( elEt != 0.0 ) relIso = relIso/elEt;
+		      if ( relIso < m_caloisocutvalues[j] ) iso |= 1 << (28+j);
+		    }
+		  else if ( ptcone < m_trackisocutvalues[j] ) iso |= 1 << (28+j);
+		}
+	    }
+	    
+	    pTagColl.insert( m_isoStr[i], iso );
+	    
        }
-
+       
        /** counter total number of accepted loose photons */
        i++;
      }
   }
-
+  
   /** insert the number of loose photons */
   pTagColl.insert(PhotonAttributeNames[PhotonID::NPhoton], i);
   pTagColl.insert(PhotonAttributeNames[PhotonID::NConverted], nConverted);
-
+  
   return StatusCode::SUCCESS;
 }
 

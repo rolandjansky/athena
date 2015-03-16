@@ -17,6 +17,8 @@ Purpose : build the Electron Tag objects - ElectronTagCollection.h.
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "TagEvent/TagFragmentCollection.h"
 #include "AthenaPoolUtilities/AthenaAttributeSpecification.h"
+#include "ElectronPhotonSelectorTools/AsgElectronLikelihoodTool.h"
+
 
 #include <map>
 
@@ -24,6 +26,7 @@ class ElectronTagCollection;
 
 /** Interface ID for ElectronTagTool*/  
 static const InterfaceID IID_ElectronTagTool("ElectronTagTool", 1, 0);
+
 
 class ElectronTagTool : public AthAlgTool {
 
@@ -61,6 +64,11 @@ private:
   std::vector<std::string> m_tightStr;
   std::vector<std::string> m_fwdStr;
   std::vector<std::string> m_isoStr;
+  
+
+  AsgElectronLikelihoodTool* m_loose_Likelihood;//!
+  AsgElectronLikelihoodTool* m_medium_Likelihood;//!
+  AsgElectronLikelihoodTool* m_tight_Likelihood;//!
  };
 
 #endif // ELECTRONTAGTOOL_H

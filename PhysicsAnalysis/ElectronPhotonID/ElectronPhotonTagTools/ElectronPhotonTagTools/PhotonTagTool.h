@@ -17,6 +17,7 @@ Purpose : build the Photon Tag objects - PhotonTagCollection.h.
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "TagEvent/TagFragmentCollection.h"
 #include "AthenaPoolUtilities/AthenaAttributeSpecification.h"
+#include "ElectronPhotonSelectorTools/AsgElectronLikelihoodTool.h"
 
 #include <map>
 
@@ -60,6 +61,10 @@ private:
   std::vector<std::string> m_phiStr;
   std::vector<std::string> m_tightStr;
   std::vector<std::string> m_isoStr;
+
+  AsgElectronLikelihoodTool* m_loose_Likelihood;//!
+  AsgElectronLikelihoodTool* m_medium_Likelihood;//!
+  AsgElectronLikelihoodTool* m_tight_Likelihood;//!
  };
 
 #endif // PHOTONTAGTOOL_H

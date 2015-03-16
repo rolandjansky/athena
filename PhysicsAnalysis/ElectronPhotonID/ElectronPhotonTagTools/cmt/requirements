@@ -13,9 +13,12 @@ use EventInfo              EventInfo-*             Event
 use TagEvent               TagEvent-*              PhysicsAnalysis/EventTag
 use xAODEgamma		   xAODEgamma-*	 	   Event/xAOD 
 use xAODMissingET	   xAODMissingET-*	   Event/xAOD 
+use ElectronPhotonSelectorTools ElectronPhotonSelectorTools-*  PhysicsAnalysis/ElectronPhotonID
+
 
 private
 use AnalysisUtils          AnalysisUtils-*         PhysicsAnalysis/AnalysisCommon
+
 end_private
 
 private

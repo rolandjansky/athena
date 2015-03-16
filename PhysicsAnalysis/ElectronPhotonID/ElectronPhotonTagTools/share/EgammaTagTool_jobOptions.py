@@ -5,8 +5,8 @@ include.block ("ElectronPhotonTagTools/EgammaTagTool_jobOptions.py")
 from ElectronPhotonTagTools.ElectronPhotonTagToolsConf import \
      EgammaTagTool as ConfiguredEgammaTagTool
 EgammaTagTool = ConfiguredEgammaTagTool(
-     ElectronContainer = "ElectronCollection",
-     PhotonContainer   = "PhotonCollection",
+     ElectronContainer = "Electrons",
+     PhotonContainer   = "Photons",
      ElectronPtCut     = 20.0*GeV,
      PhotonPtCut       = 10.0*GeV,
      MassZLow          = 45.*GeV,
