@@ -40,7 +40,10 @@ def DrawPlots(inputTuple, outputName, plotTitle, yAxisTitle, xAxisTitle, legendL
     if(plotCosmetics=="Default"):
         legendTextSize = 0.035
         legendMarkerSize = 1.5
+        legendTextSize = 0.030
+        legendMarkerSize = 1.25
         legendYLineSpacing = 0.05 # determines how spaced out in y the legend entries are (may want to increase/decrease depending on legend text size)
+        legendYLineSpacing = 0.035 # determines how spaced out in y the legend entries are (may want to increase/decrease depending on legend text size)
         legendMarkerYPosMod = [0.0,0.0,0.0,0.0] #for some reason the marker doesn't appear next to legend text in Y without some modification
         meanWidthOnSeparateLine = False# if true mean and width are displayed in legend on separate lines, if false they are on the same line
         showMean = True
@@ -644,6 +647,83 @@ def MakeProfPlotsFrom3D(histogramDir,legendTitles,markerColors,markerStyles,hist
             returnHistogram[i].GetYaxis().SetRangeUser(0,maxval)
         
 
+    if nFiles==1:
+        totalTuple = Tuples[0]
+    if nFiles==2:
+        if max_hist==0 or forceDrawOrder:
+            totalTuple = Tuples[0] + Tuples[1]
+        elif max_hist==1:
+            totalTuple = Tuples[1] + Tuples[0]
+    if nFiles==3:
+        if max_hist==0 or forceDrawOrder:
+            totalTuple = Tuples[0] + Tuples[1] + Tuples[2]
+        elif max_hist==1:
+            totalTuple = Tuples[1] + Tuples[0] + Tuples[2]
+        elif max_hist==2:
+            totalTuple = Tuples[2] + Tuples[0] + Tuples[1]
+
+    if nFiles==4:
+        if max_hist==0 or forceDrawOrder:
+            totalTuple = Tuples[0] + Tuples[1] + Tuples[2] + Tuples[3]
+        elif max_hist==1:
+            totalTuple = Tuples[1] + Tuples[0] + Tuples[2] + Tuples[3]
+        elif max_hist==2:
+            totalTuple = Tuples[2] + Tuples[0] + Tuples[1] + Tuples[3]
+        elif max_hist==3:
+            totalTuple = Tuples[3] + Tuples[0] + Tuples[1] + Tuples[2]
+
+
+
+    if (debug): print "  <MakeProfPlots> for ",histogramName, " **  COMPLETED  ** "
+    return totalTuple #returning histograms and fits
+
+###########################################################################################################################################        
+def MakeModuleResPlotsFrom3D(histogramDir,legendTitles,markerColors,markerStyles,histogramName, fitType, rootFiles, nFiles,  symmetricRange=False, sector=0, ring=0):
+
+    # this function takes as argument a TH3 and obtains the profile in one of its axis. 
+    debug = False
+    normaliseHistos = False # not normalization
+    unitArea = False # not unit area
+
+    # in case we limit the range of bins
+    if (sector > 13): sector = 13
+    if (sector <  0): sector = 0
+    if (ring  > 9): ring = 9
+    if (ring < -10): ring = -10
+    logicalRing = ring+11     
+    #gets histograms from the files, normalises if desired and makes fits
+    #returns histograms and fits
+    maxval = 0.0
+    max_hist = 0
+    
+    histoGram = [TH3,TH3,TH3,TH3,TH3]
+    returnHistogram = [TH1, TH1, TH1, TH1]
+    Tuples = [tuple,tuple,tuple,tuple,tuple]
+
+    #first have to get all the histograms because they may be used to normalise each other etc 
+    for i in range(nFiles):
+        print " <MakeProfPlotsFrom3D> ===  ",histogramName,"  ==="
+        if (debug): print " <MakeProfPlotsFrom3D> retriveing ",histogramName," from file ",i," --> ",rootFiles[i]
+        histoGram[i] =GetHistogram3D(rootFiles[i],histogramDir[i],histogramName)
+
+    for i in range(nFiles):
+        # make the profile
+        histName = "LocalXRes_sector_" + str(sector) + "_ring_" + str(ring) + "_File_" + str(i)
+        if (ring<0): histName = "LocalXRes_sector_" + str(sector) + "_ring__" + str(-ring) + "_File_" + str(i)
+        returnHistogram[i] = histoGram[i].ProjectionZ(histName,logicalRing,logicalRing,sector,sector)
+        
+        # perform the deired fit to the histogram
+        fit = MakeFit(returnHistogram[i],fitType,markerColors[i])
+
+        # make a tuple object that can be passed to draw method
+        Tuples[i] = returnTuple(fit,returnHistogram[i],legendTitles[i])
+
+        # find which histogram has largest y-value - this will be drawn first
+        if returnHistogram[i].GetMaximum() > maxval:
+            max_hist = i
+            maxval = returnHistogram[i].GetMaximum()
+
+        
     if nFiles==1:
         totalTuple = Tuples[0]
     if nFiles==2:
@@ -1340,7 +1420,7 @@ def GetHistogram(rootFile,histogramDir,histogramName,markerColor,markerStyle, fi
         histoGram.GetYaxis().SetRangeUser(-.4,.4)
 
     if histogramName=="measurements_eff_vs_layer_ecc" or histogramName=="measurements_eff_vs_layer_eca" or histogramName=="measurements_eff_vs_layer_barrel":
-        histoGram.GetYaxis().SetRangeUser(0.9,1.05)
+        histoGram.GetYaxis().SetRangeUser(0.7,1.01)
     if  histogramName=="hits_eff_vs_phiSector_trt_b0"  or histogramName=="hits_eff_vs_phiSector_trt_b1" or histogramName=="hits_eff_vs_phiSector_trt_b2":
         histoGram.GetYaxis().SetRangeUser(0.7,1.02)
 
@@ -1588,6 +1668,7 @@ def defineLegendTextMarker(units, histoGram, funcTion, legendLeftX, legendUpperY
 #                    text += str(int(round(newRMS*1000, 1)))
 #                else: ####b priscilla!!!!!!!!!!!!
 #                    text += str(round(newRMS*1000, 1))
+            if ("mu" in units): text += "  "
             text += " "+units
         
         else: #have requested mean width on separate line, so fill separate text object
@@ -2593,7 +2674,7 @@ def PrintHitMapExtraAxis (i, inputHis, detecName = "PIX", barrelEndCap = "BAR"):
         ATLZaxis.SetTitleSize(inputHis.GetZaxis().GetTitleSize());
         ATLZaxis.SetTitleFont(inputHis.GetZaxis().GetTitleFont());
         ATLZaxis.SetTitle(" z [mm]");
-        ATLZaxis.Draw();
+        if (not (detecName == "PIX" and i == 0)):ATLZaxis.Draw();
     return
             
 ###########################################################################################################################
@@ -2811,6 +2892,31 @@ def DrawPixelECMap(inputHisto):
 
     return
 
+###########################################################################################################################
+def DrawResPerStave(inputTuple, outputName, nFiles):
+    can = TCanvas(outputName,outputName,900,750)
+    can.Divide(4,5)
+
+    for i in range(len(inputTuple)):
+        # print " -- DrawResPerStave -- File =",i," 3*i+1=",3*i+1,"  Tuple size:", len(inputTuple)
+        mytuple = inputTuple[i]
+        can.cd(i+1)
+        maxval = 0
+        for file in range (nFiles):
+            hist = mytuple[3*file+1]
+            if (hist.GetMaximum() > maxval):
+                firstHisto = hist
+                maxval = hist.GetMaximum()
+        firstHisto.Draw()
+        for file in range (nFiles):         
+            hist = mytuple[3*file+1]
+            if (file>0): 
+                hist.SetLineColor(2)
+            hist.Draw("same")
+                
+    can.SaveAs(outputName)
+
+    return
 ###########################################################################################################################
 def locateColor(inputHisto, xbin, ybin=1):
 

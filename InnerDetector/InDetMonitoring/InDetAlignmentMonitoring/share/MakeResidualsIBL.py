@@ -7,7 +7,7 @@ DrawPlots(IBL_xRESvsETA, outputDir+"/"+"IBL_xRESvsETA."+oFext, "IBL", "Average l
 
 IBL_yRESvsETA =  MakeProfPlotsFrom3D(residualsDir,legendTitles,markerColors,markerStyles, "pix_b0_yresvsmodetaphi_3d", "noFit", rootFiles, nFiles, True)
 DrawPlots(IBL_yRESvsETA, outputDir+"/"+"IBL_yRESvsETA."+oFext, "IBL", "Average local y residual [mm]",
-          "ring along stave [#eta]", 0.17, 0.30, "#mum",canvasText,makeOutput,0.65,0.89, False)
+          "ring along stave [#eta]", 0.17, 0.37, "#mum",canvasText,makeOutput,0.65,0.89, False)
 
 PIX1_xRESvsETA =  MakeProfPlotsFrom3D(residualsDir,legendTitles,markerColors,markerStyles, "pix_b1_xresvsmodetaphi_3d", "noFit", rootFiles, nFiles, True)
 DrawPlots(PIX1_xRESvsETA, outputDir+"/"+"PIX1_xRESvsETA."+oFext, "Pixel layer 1", "Average local x residual [mm]",

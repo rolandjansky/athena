@@ -22,6 +22,9 @@ import AtlasStyle
 gStyle.SetOptStat(0)
 nMAXFiles = 3
 
+gROOT.SetBatch()
+
+
 ##########################################################
 #             Inline Options Definition                  #
 ##########################################################
@@ -135,7 +138,6 @@ for thisfile in rootFileNames:
 #nFiles is used in the drawing of the plots
 print " -- MakeMajorAlignMonPlots -- Using in total ",nFiles, " input files "
 
-
 # Drawing and saving of the plots....
 # Plots are first "made" using MakePlots - that is, the plots are fetched from the input 
 # files and any fits that should be done are made. MakePlots returns a tuple object which 
@@ -171,6 +173,10 @@ if (doHitErrors): execfile("MakeHitErrorPlots.py")
 if (doBeamSpot): execfile("MakeBeamSpotPlots.py") 
 
 # More distribution maker python scripts should follow.
+if (False): execfile("MakeResidualsPerModule.py") # Set to False --> developping stages
 
+# extract statistics:
+execfile("MakeStatisticsTable.py")
 
+print " -- MakeMajorAlignMonPlots -- Game over. Insert coin. -- "
 

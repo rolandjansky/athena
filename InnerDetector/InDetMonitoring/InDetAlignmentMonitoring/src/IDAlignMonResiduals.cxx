@@ -1445,8 +1445,8 @@ StatusCode IDAlignMonResiduals::fillHistograms()
 				
 	if(barrelEC==0){//filling pixel barrel histograms
 	  m_si_b_residualx -> Fill(residualX, hweight);
-	  int m_layerModEtaShift[3] = {6,24,42};
-	  int m_layerModPhiShift[3] = {0,27,70};
+	  int m_layerModEtaShift[4] = {10,30,48,65};       //HARDCODED!
+	  int m_layerModPhiShift[4] = {0,18,44,86};
 	  m_si_barrel_pullX -> Fill(layerDisk,pullX   , hweight);
 	  m_si_barrel_pullY -> Fill(layerDisk,pullY   , hweight);					
 	  m_si_barrel_resX -> Fill(layerDisk,residualX, hweight);
@@ -1464,6 +1464,8 @@ StatusCode IDAlignMonResiduals::fillHistograms()
 	  if (foundXOverlap) {
 	    m_pix_bec_Oxresx_mean -> Fill(layerDisk+1.1,overlapXResidualX, hweight);
 	    m_pix_bec_Oxresy_mean -> Fill(layerDisk+1.1,overlapXResidualY, hweight);
+	    //std::cout<<"PBUTTI: CHECK ==14823== Conditional jump or move depends on uninitialised value(s). modEta: "   <<modEta<<std::endl;
+	    //std::cout<<"PBUTTI: CHECK ==14823== Conditional jump or move depends on uninitialised value(s). LayerDisk: "<<layerDisk<<" m_layerModEtaShift[layerDisk]: "<<m_layerModEtaShift[layerDisk]<<std::endl;
 	    m_pix_b_Oxresxvsmodeta-> Fill(modEta+m_layerModEtaShift[layerDisk],overlapXResidualX,     hweight);
 	    m_pix_b_Oxresxvsmodphi-> Fill(modPhi+m_layerModPhiShift[layerDisk],overlapXResidualX, hweight);
 	    if (m_do3DOverlapHistos){
@@ -2256,7 +2258,10 @@ std::pair<const Trk::TrackStateOnSurface*, const Trk::TrackStateOnSurface*> IDAl
   //   otherwise the computation of the overlap residual is using two different coordinate frames and will be distorted
   // returns two Trk::TrackStateOnSurface, one for a potential x overlaps and one for a potential y overlap
   // if no overlap is found the corresponding Trk::TrackStateOnSurface will be null
-	
+  //For IBL there is noOverlap. So If detType==0 and layerDisk==0 return null xOverlap and yOverlap
+  
+
+  
   const Trk::TrackStateOnSurface* xOverlap = NULL;
   const Trk::TrackStateOnSurface* yOverlap = NULL;
   if (isEdge(hit))
@@ -2294,9 +2299,9 @@ std::pair<const Trk::TrackStateOnSurface*, const Trk::TrackStateOnSurface*> IDAl
 	modEta = m_pixelID->eta_module(id);
 	modPhi = m_pixelID->phi_module(id);
       }
-      if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "**************looking for overlaps for new hit detType = " << detType 
-						 << ", modEta = " << modEta << ", modPhi = " << modPhi << endreq;
-      
+      if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "******** looking for overlaps for new hit detType = " << detType 
+					   << ", modEta = " << modEta << ", modPhi = " << modPhi << " , layerDisk= "<<layerDisk
+					   << ", barrelEC= "<<barrelEC<< endreq;
       
       int nHits = 0;
       for (std::vector<const Trk::TrackStateOnSurface*>::const_iterator tsos2=trk->trackStateOnSurfaces()->begin();tsos2!=trk->trackStateOnSurfaces()->end(); ++tsos2) {
@@ -2312,8 +2317,13 @@ std::pair<const Trk::TrackStateOnSurface*, const Trk::TrackStateOnSurface*> IDAl
 			
 	//const Identifier& hitId2 = (dynamic_cast <const Trk::RIO_OnTrack*>((*tsos2)->measurementOnTrack()))->identify();
 	const Identifier& hitId2 = hit2->identify();
-	if (m_idHelper->is_sct(hitId2)) detType2 = 1;		
-	else detType2 = 0;
+	
+	if (m_idHelper->is_sct(hitId2)) 
+	  detType2 = 1;	    
+	else if (m_idHelper->is_pixel(hitId2)) 
+	  detType2 = 0;
+	else
+	  detType2 = 2;
 			
 	//determining Si module physical position
 	if (detType2==1){//sct
@@ -2323,17 +2333,23 @@ std::pair<const Trk::TrackStateOnSurface*, const Trk::TrackStateOnSurface*> IDAl
 	  modEta2 = m_sctID->eta_module(id);
 	  modPhi2 = m_sctID->phi_module(id);
 	}
-	else {//pixel
+	else if (detType2==0) {//pixel
 	  const Identifier& id = m_pixelID->wafer_id(hitId2);
 	  barrelEC2 = m_pixelID->barrel_ec(id);
 	  layerDisk2 = m_pixelID->layer_disk(id);
 	  modEta2 = m_pixelID->eta_module(id);
 	  modPhi2 = m_pixelID->phi_module(id);
 	}
-	if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "testing hit " << nHits << " for overlap, detType2 = " << detType2 
-						   << ", modEta2 = " << modEta2 << ", modPhi2 = " << modPhi2 << endreq;
-			
-			
+	else { //hit in the trt so I skip it
+	  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) <<"Skipping hit in the trt? "<< m_idHelper->is_trt(hitId2)<<endreq;
+	  continue;
+	}
+	  
+	if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "testing hit2 " << nHits << " for overlap detType = " << detType2 
+					   << ", modEta = " << modEta2 << ", modPhi = " << modPhi2 << " , layerDisk= "<<layerDisk2
+					   << ", barrelEC= "<<barrelEC2<< endreq;
+	
+       
 	if (isEdge(hit2))
 	  {
 	    if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "overlap rejected because hit is an edge hit (2nd hit)" << endreq;
@@ -2402,20 +2418,25 @@ std::pair<const Trk::TrackStateOnSurface*, const Trk::TrackStateOnSurface*> IDAl
 	bool close = false; //added by LT
 			
 	if(modEta==modEta2 && modPhi!=modPhi2){
-				
-	  // begin added by TG
+			
+	  //BAD HARDCODING
+
+	  
+	  //IBL Overlap has to be disabled.
+
+	  // begin added by TG 
 	  // Pixel barrel #phi: 22, 38, 52
 	  // Pixel EC #phi: 48
 	  // SCT barrel #phi: 32, 40, 48, 56
 	  // SCT EC #phi: 52 ???
 	  if(modPhi-modPhi2 == 1){
 	    close = true;
-	    // Pix barrel special cases
-	  } else if( (detType==0 && barrelEC==0 && layerDisk==2) && modPhi-modPhi2 == -51){
+	    // Pix barrel special cases 
+	  } else if( (detType==0 && barrelEC==0 && layerDisk==3) && modPhi-modPhi2 == -51){
 	    close = true;
-	  } else if ( (detType==0 && barrelEC==0 && layerDisk==1) && modPhi-modPhi2 == -37){
+	  } else if ( (detType==0 && barrelEC==0 && layerDisk==2) && modPhi-modPhi2 == -37){
 	    close = true;    
-	  } else if ( (detType==0 && barrelEC==0 && layerDisk==0) && modPhi-modPhi2 == -21){
+	  } else if ( (detType==0 && barrelEC==0 && layerDisk==1) && modPhi-modPhi2 == -21){
 	    close = true;
 	    // SCT barrel special cases
 	  } else if( (detType==1 && barrelEC==0 && layerDisk==3) && modPhi-modPhi2 == -55){
@@ -2434,23 +2455,23 @@ std::pair<const Trk::TrackStateOnSurface*, const Trk::TrackStateOnSurface*> IDAl
 	    close = true;
 	  }
 	  if(close){  //end add by TG
-	    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<  "***** identified local X overlap" << endreq;
 	    //	if(msgLvl(MSG::DEBUG)) msg() <<  "original module radius = " << radius << endreq;
-	    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<  "original module phi, eta  = " << modEta <<", "<<modPhi<< endreq;
+	    if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) <<  "***** identified local X overlap in the IBL" << endreq;
+	    if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) <<  "original module phi, eta,layerDisk,barrelEC  = " << modEta <<", "<<modPhi<<",  "<< layerDisk <<" , "<< barrelEC  << endreq;
 	    //if(msgLvl(MSG::DEBUG)) msg() <<  "overlap module radius = " << radius2 << endreq;
-	    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<  "second module phi, eta  = " << modEta2 <<", "<<modPhi2<< endreq;
+	    if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) <<  "second module phi, eta,layerDisk,barrelEC  = " << modEta2 <<", "<<modPhi2<<layerDisk<<barrelEC<< endreq;
 	    xOverlap = (*tsos2);
 	  } //added by LT
 				
 	}
-	if(modEta-modEta2 == 1 && modPhi==modPhi2){				
-	  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<  "***** identified local Y overlap" << endreq;
+	if(modEta-modEta2 == 1 && modPhi==modPhi2){
+	  if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) <<  "***** identified local Y overlap" << endreq;
+	  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "modEta2 = " << modEta2 << endreq;
+	  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "modPhi2 = " << modPhi2 << endreq;
 	  //if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<  "original module radius = " << radius << endreq;
 	  //if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<  "overlap module radius = " << radius2 << endreq;
-	  yOverlap = (*tsos2);
+	  yOverlap = (*tsos2);	  
 	}
-	if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "modEta2 = " << modEta2 << endreq;
-	if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "modPhi2 = " << modPhi2 << endreq;
       }		
     }
   //std::pair <const Trk::TrackStateOnSurface*, const Trk::TrackStateOnSurface*> result(xOverlap, yOverlap);

@@ -21,7 +21,7 @@ DrawPlots(DELTAETA,outputDir+"/"+"DELTAETA.png","#Delta(Up-Down) Tracks","number
 
 DELTAQOPT = MakePlots(splitTracksDir,legendTitles,markerColors,markerStyles,"delta_qOverPt","noFitWithStats",rootFiles,nFiles,normaliseHistos)
 DrawPlots(DELTAQOPT,outputDir+"/"+"DELTAQOPT.png","#Delta(Up-Down) Tracks","number of tracks",
-          "#Delta q/p_{T}  [GeV^{-1}]",xLabels,yLabels,"TeV^{-1}",
+          "#Delta q/p_{T}  [GeV^{-1}]",xLabels,yLabels,"TeV^{    -1}",
           canvasText,makeOutput);
 
 DELTAPT = MakePlots(splitTracksDir,legendTitles,markerColors,markerStyles,"delta_pt","noFitWithStats",rootFiles,nFiles,normaliseHistos)
