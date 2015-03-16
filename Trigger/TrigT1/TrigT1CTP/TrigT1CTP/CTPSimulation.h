@@ -23,7 +23,7 @@
 
 
 // For handling different CTP versions:
-#include "L1CommonCore/CTPdataformatVersion.h"
+#include "CTPfragment/CTPdataformatVersion.h"
 
 // Forward includes:
 class StoreGateSvc;

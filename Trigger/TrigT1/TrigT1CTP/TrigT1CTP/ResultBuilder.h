@@ -13,7 +13,7 @@
 #include <stdint.h>
 
 // For handling different CTP versions:
-#include "L1CommonCore/CTPdataformatVersion.h"
+#include "CTPfragment/CTPdataformatVersion.h"
 
 // Forward declaration(s):
 //class CTPdataformatVersion;

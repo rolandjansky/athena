@@ -12,7 +12,7 @@
 #include "TrigConfL1Data/TIP.h"
 #include "TrigT1CTP/ThresholdMap.h"
 #include "TrigT1CTP/CTPTriggerThreshold.h"
-#include "L1CommonCore/CTPdataformatVersion.h"
+#include "CTPfragment/CTPdataformatVersion.h"
 
 using namespace std;
 
