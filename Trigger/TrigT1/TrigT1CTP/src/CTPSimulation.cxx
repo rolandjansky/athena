@@ -111,7 +111,7 @@ LVL1CTP::CTPSimulation::CTPSimulation( const std::string& name, ISvcLocator* pSv
 	declareProperty( "RndmSvc", m_rndmSvc, "Random Number Service used in CTP simulation" );
 	declareProperty( "RndmEngine", m_rndmEngineName, "Random engine name");
 	// Property setting general behaviour:
-	declareProperty( "CtpVersion",  m_ctpVersion  = 0, "Version of the CTP to be used: 3 - latest version of run-I, 4 - initial version for run-II. For explanation of the other version see L1CommonCore/schema/L1CoreSpecifications.xml." );
+	declareProperty( "CtpVersion",  m_ctpVersion  = 0, "Version of the CTP to be used: 3 - latest version of run-I, 4 - initial version for run-II. For explanation of the other version see CTPfragment/schema/L1CoreSpecifications.xml." );
 	declareProperty( "DoL1Topo",  m_doL1Topo  = true, "Use inputs from L1Topo system" );
 	declareProperty( "DoCalo",  m_doCalo  = true, "Use inputs (multiplicities) from Calo system" );
 	declareProperty( "DoMBTS",  m_doMBTS  = true, "Use inputs from MBTS system" );

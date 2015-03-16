@@ -10,7 +10,7 @@
 
 // LVL1 include(s):
 #include "TrigConfL1Data/L1DataDef.h"
-#include "L1CommonCore/CTPdataformatVersion.h"
+#include "CTPfragment/CTPdataformatVersion.h"
 
 
 namespace LVL1CTP {

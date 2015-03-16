@@ -19,8 +19,8 @@ use TrigInterfaces         TrigInterfaces-*         Trigger/TrigSteer
 use TrigConfL1Data         TrigConfL1Data-*         Trigger/TrigConfiguration
 use TrigConfInterfaces     TrigConfInterfaces-*     Trigger/TrigConfiguration
 
-
-use L1CommonCore		   L1CommonCore-*			Trigger/TrigT1
+#use L1CommonCore		   L1CommonCore-*			Trigger/TrigT1
+use CTPfragment      v*
 
 private
 
