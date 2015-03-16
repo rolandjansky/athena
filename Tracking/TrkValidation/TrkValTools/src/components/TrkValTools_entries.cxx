@@ -9,6 +9,7 @@
 #include "TrkValTools/TrackPositionNtupleHelper.h"
 #include "TrkValTools/DAF_ValidationNtupleHelper.h"
 #include "TrkValTools/EnergyLossMonitor.h"
+#include "TrkValTools/PositionMomentumWriter.h"
 #include "TrkValTools/TrackDiff.h"
 #include "TrkValTools/PrimaryTruthClassifier.h"
 #include "TrkValTools/InDetReconstructableSelector.h"
@@ -34,6 +35,7 @@ DECLARE_NAMESPACE_TOOL_FACTORY( Trk, HitPositionNtupleHelper )
 DECLARE_NAMESPACE_TOOL_FACTORY( Trk, TrackPositionNtupleHelper )
 DECLARE_NAMESPACE_TOOL_FACTORY( Trk, DAF_ValidationNtupleHelper )
 DECLARE_NAMESPACE_TOOL_FACTORY( Trk, EnergyLossMonitor )
+DECLARE_NAMESPACE_TOOL_FACTORY( Trk, PositionMomentumWriter )
 DECLARE_NAMESPACE_TOOL_FACTORY( Trk, TrackDiff )
 DECLARE_NAMESPACE_TOOL_FACTORY( Trk, PrimaryTruthClassifier )
 DECLARE_NAMESPACE_TOOL_FACTORY( Trk, InDetReconstructableSelector )
@@ -58,6 +60,7 @@ DECLARE_FACTORY_ENTRIES(TrkValTools)
   DECLARE_NAMESPACE_TOOL(Trk, TrackPositionNtupleHelper)
   DECLARE_NAMESPACE_TOOL(Trk, DAF_ValidationNtupleHelper)
   DECLARE_NAMESPACE_TOOL(Trk, EnergyLossMonitor)
+  DECLARE_NAMESPACE_TOOL(Trk, PositionMomentumWriter)
   DECLARE_NAMESPACE_TOOL(Trk, TrackDiff)
   DECLARE_NAMESPACE_TOOL(Trk, PrimaryTruthClassifier )
   DECLARE_NAMESPACE_TOOL(Trk, InDetReconstructableSelector )

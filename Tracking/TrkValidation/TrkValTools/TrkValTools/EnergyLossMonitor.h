@@ -17,9 +17,10 @@
 class INTupleSvc;
 
 namespace Trk {
+
 /** @class EnergyLossMonitor
 
-    This validation tool Energy states of particles.
+    This validation tool Energy states of partlices.
 
     @author Sebastian.Fleischmann@cern.ch
 */
@@ -27,7 +28,7 @@ namespace Trk {
   class EnergyLossMonitor : virtual public Trk::IEnergyLossMonitor, public AthAlgTool {
     public:
 
-    /** standard AthAlgTool constructor / destructor */
+    /** standard AlgTool constructor / destructor */
     EnergyLossMonitor(const std::string&,const std::string&,const IInterface*);
     ~EnergyLossMonitor(){}
 
