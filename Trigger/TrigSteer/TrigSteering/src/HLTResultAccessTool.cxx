@@ -16,8 +16,6 @@
  * $Id: HLTResultAccessTool.cxx,v 1.11 2009-02-10 17:36:45 fwinkl Exp $
  **********************************************************************************/
 
-#include "AthenaBaseComps/AthMsgStreamMacros.h"
-#include "AthenaBaseComps/AthCheckMacros.h"
 #include "TrigSteering/HLTResultAccessTool.h"
 
 #include "TrigSteeringEvent/Chain.h"
@@ -31,23 +29,19 @@ using namespace HLT;
 
 HLTResultAccessTool::HLTResultAccessTool(const std::string& name, const std::string& type,
                                          const IInterface* parent)
-  : AlgTool(name, type, parent),
-    m_log(0)
+  : AthAlgTool(name, type, parent)
 {
   declareInterface<HLT::IHLTResultAccessTool>( this );
 }
 
 StatusCode HLTResultAccessTool::initialize()
 {
-   m_log = new MsgStream( msgSvc(), name());
-
    ATH_MSG_DEBUG("initialized " << name());
    return StatusCode::SUCCESS;
 }
 
 StatusCode HLTResultAccessTool::finalize()
 {
-   delete m_log; m_log=0;
    return StatusCode::SUCCESS;
 }
 

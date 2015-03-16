@@ -70,6 +70,13 @@ StatusCode HLT::EventInfoAccessTool::updateStreamTag(const std::vector<SteeringC
   (*m_log) << MSG::DEBUG <<" updateStreamTag, list has size " <<m_listOfChainsAddingStreamTag.value().size() << endreq;
   if (m_listOfChainsAddingStreamTag.value().size() == 0) return StatusCode::SUCCESS;
 
+  // const std::vector<std::string>& incol2 = m_listOfChainsAddingStreamTag.value();
+  // for (unsigned int i=0; i< m_listOfChainsAddingStreamTag.value().size(); i++){
+  //   (*m_log) << MSG::DEBUG << incol2[i] <<endreq;
+  // }
+
+
+
   //get EventInfo
   const xAOD::EventInfo* constxEventInfo(0);
   StatusCode sc = m_storeGate->retrieve(constxEventInfo);  
@@ -83,12 +90,13 @@ StatusCode HLT::EventInfoAccessTool::updateStreamTag(const std::vector<SteeringC
   if(streams.empty()) {
     (*m_log) << MSG::DEBUG << "[xAOD::EventInfo] Event has no trigger streams" << endreq;
   } else {
-    (*m_log) << MSG::DEBUG <<"[xAOD::EventInfo] Event has " << streams.size() << " stream(s)" << endreq;
+    (*m_log) << MSG::DEBUG << "[xAOD::EventInfo] Event has " << streams.size() << " stream(s)" << endreq;
     BOOST_FOREACH(const xAOD::EventInfo::StreamTag st, streams ) {
       (*m_log) << MSG::DEBUG <<"stream = "<<st.name()<<" type = "<< st.type() << endreq;
     }
   }
 
+  (*m_log) << MSG::DEBUG <<"Found "<<activeChains.size() <<" active chains" <<endreq;
 
   std::vector< xAOD::EventInfo::StreamTag > new_streams;
 
@@ -124,23 +132,23 @@ StatusCode HLT::EventInfoAccessTool::updateStreamTag(const std::vector<SteeringC
     }
 
     if (already_in) continue;
-    (*m_log) << MSG::DEBUG <<"This chain wants to add its streamtag: "<< chain_to_add <<" stream="<< stream_to_add  <<endreq;
+    (*m_log) << MSG::DEBUG <<"This chain wants to add its streamtag: "<< chain_to_add <<" stream = "<< stream_to_add  <<endreq;
+   
 
-    bool addChain=false;
     bool addStream=false;
     BOOST_FOREACH( const HLT::SteeringChain* chain, activeChains ) {
-      // take only those that passed:     
-      if (! chain->chainPassed() ) continue;
-      //take only those in rerun
-      if (! chain->isResurrected()) continue;
-
-      if (chain->getChainName() == chain_to_add){
-	addChain=true;
+      if (chain->getChainName() != chain_to_add){
+	continue;
       }
 
-      if (! addChain) continue;
-      // (*m_log) << MSG::DEBUG<<"This chain will be added: passed="<<chain->chainPassed() <<" resurrected=" << chain->isResurrected() <<" already_in ="<<already_in<<std::endl;
-      // (*m_log) << MSG::DEBUG<<" print ---> " << (*chain) << endreq;
+      //take only those in rerun
+      if (! chain->isResurrected()) {
+	(*m_log) << MSG::DEBUG<<"Chain did not passed in rerun" <<endreq;
+	continue;
+      }
+
+       (*m_log) << MSG::DEBUG<<"This chain is good candidate to add streamtag: passed="<<chain->chainPassed() <<" resurrected=" << chain->isResurrected() <<" already_in ="<<already_in<<std::endl;
+       (*m_log) << MSG::DEBUG<<" print ---> " << (*chain) << endreq;
 
       // check that the requested streamtag is defined for this chain      
       BOOST_FOREACH ( const HLT::StreamTag& chain_stream, chain->getStreamTags() ) {
@@ -162,10 +170,11 @@ StatusCode HLT::EventInfoAccessTool::updateStreamTag(const std::vector<SteeringC
 
 	  break;
 	}
+	//else (*m_log) << MSG::DEBUG << "StreamTag "<< chain_stream.getStream() << " did not match" <<endreq;
       }
-      if ( addChain  && addStream) break;
-      
+      if ( addStream) break;
     }
+    if (!addStream) (*m_log) << MSG::DEBUG <<"Stream tag "<< stream_to_add <<" not added" <<endreq;
   }
  
 
@@ -174,7 +183,7 @@ StatusCode HLT::EventInfoAccessTool::updateStreamTag(const std::vector<SteeringC
     return StatusCode::SUCCESS;
   }
 
-  (*m_log) << MSG::DEBUG <<"Adding "<<new_streams.size()<<" streams " <<endreq;
+  (*m_log) << MSG::DEBUG <<"Adding "<<new_streams.size()<<" streams to EventInfo:" <<endreq;
 
   // merge new and old
   std::vector< xAOD::EventInfo::StreamTag > xAODStreamTags;

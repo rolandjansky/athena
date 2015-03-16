@@ -194,7 +194,7 @@ ErrorCode Lvl1Converter::hltExecute(std::vector<HLT::SteeringChain*>& chainsToRu
    }
 
    if ( !result->cTPResult().isComplete() ) {
-      ATH_MSG_WARNING("Incomplete CTP result");
+      ATH_MSG_WARNING("Incomplete CTP result");       
       return HLT::ErrorCode(HLT::Action::ABORT_EVENT, HLT::Reason::USERDEF_1, HLT::SteeringInternalReason::NO_LVL1_RESULT);
    }
 

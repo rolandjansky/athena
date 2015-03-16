@@ -117,13 +117,19 @@ bool Sequence::reset() {
    if ( m_firstAlgo ) {
       if (m_config->getMsgLvl() <= MSG::VERBOSE)
          m_config->getMsgStream() << MSG::VERBOSE << "Sequence about to do reset() of 1st algo: " << m_firstAlgo->name()<< endreq;
-      if ( !m_firstAlgo->reset() ) return false;
+      if ( !m_firstAlgo->reset() ) {
+	m_config->getMsgStream() << MSG::WARNING << "Sequence reset() of 1st algo problematic " << m_firstAlgo->name()<< endreq;
+	return false;
+      }
    }
 
    for (unsigned int i = 0; i < m_nextAlgos.size(); i++) {
       if (m_config->getMsgLvl() <=MSG::VERBOSE)
          m_config->getMsgStream() << MSG::VERBOSE << "Sequence about to do reset() of next algo: " << m_nextAlgos[i]->name() << endreq;
-      if ( !m_nextAlgos[i]->reset() ) return false;
+      if ( !m_nextAlgos[i]->reset() ) {
+	m_config->getMsgStream() << MSG::WARNING << "Sequence reset() of next algo problematic " << m_nextAlgos[i]->name() << endreq;
+	return false;
+      }
    }
 
    // check previous Sequences:

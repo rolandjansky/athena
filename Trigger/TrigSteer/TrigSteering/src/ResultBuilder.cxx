@@ -24,11 +24,8 @@ using namespace HLT;
 
 ResultBuilder::ResultBuilder(const std::string& name, const std::string& type,
                              const IInterface* parent) :
-   AlgTool(name, type, parent),
+   AthAlgTool(name, type, parent),
    m_config(0),
-   m_log(0),
-   m_logLvl(0),
-   m_storeGate("StoreGateSvc", name),
    m_streamingStrategy("HLT__DefaultStreamingStrategy", this),
    m_highestTriggerTypeBit(0),
    m_infoSize(0)
@@ -53,13 +50,8 @@ ResultBuilder::~ResultBuilder()
 
 StatusCode ResultBuilder::initialize()
 {
-  m_log = new MsgStream( msgSvc(), name());
-  m_logLvl = m_log->level();
+  ATH_MSG_DEBUG("initializing " << name());
 
-  (*m_log) << MSG::DEBUG << "initializing " << name() << endreq;
-
-
-  CHECK(m_storeGate.retrieve());
   CHECK(decodeErrorStreamaTagsProperty());
   CHECK(m_streamingStrategy.retrieve());
 
@@ -78,7 +70,7 @@ ErrorCode ResultBuilder::setConfiguredChains(const std::vector<HLT::SteeringChai
     }
   }
 
-  (*m_log) << MSG::DEBUG << "Highest TriggerType bit: " <<  m_highestTriggerTypeBit << endreq;
+  ATH_MSG_DEBUG("Highest TriggerType bit: " <<  m_highestTriggerTypeBit);
 
   m_infoSize = int(std::floor( m_highestTriggerTypeBit/(sizeof(uint32_t)*8) + 1. ));
 
@@ -94,9 +86,6 @@ ErrorCode ResultBuilder::setConfigurationKeys(uint32_t supermaster, uint32_t pre
 
 StatusCode ResultBuilder::finalize()
 {
-
-  delete m_log; m_log=0;
-
   return StatusCode::SUCCESS;
 }
 
@@ -119,17 +108,17 @@ ErrorCode ResultBuilder::hltExecute(const std::vector<HLT::SteeringChain*>& acti
    const HLTResult* constHltResult(0);
    HLTResult* hltResult(0);
    std::string resultKey = "HLTResult"+m_config->getInstance();
-   if (m_storeGate->transientContains<HLTResult>(resultKey) ) {
-      if ( m_storeGate->retrieve(constHltResult, resultKey).isFailure() ) {
-         (*m_log) << MSG::FATAL << "Retrieval of precreated HLTResult failed" << endreq;
+   if (evtStore()->transientContains<HLTResult>(resultKey) ) {
+      if ( evtStore()->retrieve(constHltResult, resultKey).isFailure() ) {
+         ATH_MSG_FATAL("Retrieval of precreated HLTResult failed");
          retCode = HLT::FATAL;
       }
       hltResult = const_cast<HLTResult*>(constHltResult);
    } else {
       hltResult = new HLTResult();
-      StatusCode sc = m_storeGate->overwrite(hltResult,resultKey, true, false);
+      StatusCode sc = evtStore()->overwrite(hltResult,resultKey, true, false);
       if(sc.isFailure()){
-         (*m_log) << MSG::FATAL << "Store of HLTResult failed" << endreq;
+         ATH_MSG_FATAL("Store of HLTResult failed");
          retCode = HLT::FATAL;
       }
    }
@@ -137,8 +126,8 @@ ErrorCode ResultBuilder::hltExecute(const std::vector<HLT::SteeringChain*>& acti
    // if there is no config -> we write
    if (!m_config) {
       // Debug output
-     (*m_log) << MSG::ERROR << "AlgoConfig pointers not set !!!"
-              << " Creating dummy HLTResult only."<< endreq;
+     ATH_MSG_ERROR("AlgoConfig pointers not set !!!"
+                << " Creating dummy HLTResult only.");
 
       hltResult->setHLTStatus( HLT::FATAL );
       hltResult->setAccepted( false );
@@ -170,12 +159,10 @@ ErrorCode ResultBuilder::hltExecute(const std::vector<HLT::SteeringChain*>& acti
          }
       }
       // Debug output
-      if (m_logLvl <= MSG::DEBUG) {
-         if (eventPassed)
-            (*m_log) << MSG::DEBUG << "Event passed."<< endreq;
-         else
-            (*m_log) << MSG::DEBUG << "Event not passed."<< endreq;
-      }
+      if (eventPassed)
+        ATH_MSG_DEBUG("Event passed.");
+      else
+        ATH_MSG_DEBUG("Event not passed.");
 
       // generic stats
       // fixed fields in HLTResult
@@ -206,9 +193,7 @@ ErrorCode ResultBuilder::hltExecute(const std::vector<HLT::SteeringChain*>& acti
       // if the event is rejected we have collected sufficient information for DF
       //if (hltResult->isAccepted()) {
       if ( m_uniqueStreams.empty() && hltResult->isAccepted()  ){
-         if (m_logLvl <= MSG::WARNING) {
-            (*m_log) << MSG::WARNING << "overall decision for event is positive while set of streams is empty"  << endreq;
-         }
+         ATH_MSG_WARNING("overall decision for event is positive while set of streams is empty");
       }
 
       if (!m_uniqueStreams.empty() || hltResult->isAccepted() || m_buildAlways ) { // this is redundant
@@ -238,13 +223,13 @@ ErrorCode ResultBuilder::hltExecute(const std::vector<HLT::SteeringChain*>& acti
          chainData.at(0) = nChains;
 
          // some debug output:
-         if (m_logLvl <= MSG::DEBUG) {
-            (*m_log) << MSG::DEBUG << nChains << " Chains that go into the HLTResult of " << m_config->getInstance().substr(1,3) << endreq;
-            (*m_log) << MSG::DEBUG << "REGTEST New Event ---------------" << endreq;
+         if (msgLvl(MSG::DEBUG)) {
+            ATH_MSG_DEBUG(nChains << " Chains that go into the HLTResult of " << m_config->getInstance().substr(1,3));
+            ATH_MSG_DEBUG("REGTEST New Event ---------------");
             for (std::vector<SteeringChain*>::const_iterator it = activeChains.begin();
                  it != activeChains.end(); ++it) {
-               (*m_log) << MSG::DEBUG << "REGTEST " <<  (**it) << endreq;
-               //          (*m_log) << MSG::DEBUG << "EXTREG  " << (**it) << " error code: " <<  strErrorCode((*it)->getErrorCode()) << " resurrected: " << (*it)->isResurrected() << endreq;
+               ATH_MSG_DEBUG("REGTEST " <<  (**it));
+               //          ATH_MSG_DEBUG("EXTREG  " << (**it) << " error code: " <<  strErrorCode((*it)->getErrorCode()) << " resurrected: " << (*it)->isResurrected());
             }
          }
 
@@ -282,9 +267,7 @@ ErrorCode ResultBuilder::hltExecute(const std::vector<HLT::SteeringChain*>& acti
             hltResult->setScoutingMap(m_modId_clid_name); //The map is filled into fillTriggerInfo. Now it is needed to copy it into the ScoutingInfo map in HLTResult.
 
             // some navigation debug output:
-            if (m_logLvl <= MSG::DEBUG) {
-               (*m_log) << MSG::DEBUG << "\n" << *(m_config->getNavigation()) << endreq;
-            }
+            ATH_MSG_DEBUG("\n" << *(m_config->getNavigation()));
 
         
          } else retCode =  HLT::FATAL;
@@ -398,8 +381,7 @@ ErrorCode ResultBuilder::fillTriggerInfo(const std::vector<SteeringChain*>& acti
                      if(streamOPI && chain_stream.getType() == "express") {
                         streamOPI->set(chain->getChainName(), chain_stream.prescaleFactor());
                         
-                        if(m_logLvl <= MSG::VERBOSE)
-                           (*m_log) << MSG::VERBOSE << "Set expressOPI to 1 for: " << chain->getChainName() << endreq;
+                        ATH_MSG_VERBOSE("Set expressOPI to 1 for: " << chain->getChainName());
                      }
                   }
                }
@@ -451,26 +433,22 @@ ErrorCode ResultBuilder::fillTriggerInfo(const std::vector<SteeringChain*>& acti
 
 
    // Debug output: print streams
-   if (m_logLvl <= MSG::DEBUG) {
-      (*m_log) << MSG::DEBUG << m_uniqueStreams.size() << " StreamTags of this event: "
-               << m_config->getInstance().substr(1,3) << endreq;
+   if (msgLvl(MSG::DEBUG)) {
+      ATH_MSG_DEBUG(m_uniqueStreams.size() << " StreamTags of this event: "
+               << m_config->getInstance().substr(1,3));
       BOOST_FOREACH(const TriggerInfo::StreamTag& st, m_uniqueStreams ) {
 
-         if(m_logLvl <= MSG::DEBUG) {
-            (*m_log) << MSG::DEBUG << "REGTEST " << "Stream name = " << st.name() << " type = " << st.type() << " obeyLB = "
-                     << st.obeysLumiblock() << endreq;
+         ATH_MSG_DEBUG("REGTEST " << "Stream name = " << st.name() << " type = " << st.type() << " obeyLB = "
+                    << st.obeysLumiblock());
 
-            if (!st.robs().empty()) {
-               std::set<unsigned int> robs(st.robs());
-               (*m_log) << MSG::DEBUG << "PEB ROBs " << std::vector<unsigned int>(robs.begin(), robs.end()) << endreq; // uff, MsgStream supprts vector but not set
-            }
+         if (!st.robs().empty()) {
+            std::set<unsigned int> robs(st.robs());
+            ATH_MSG_DEBUG("PEB ROBs " << std::vector<unsigned int>(robs.begin(), robs.end())); // uff, MsgStream supprts vector but not set
+         }
 
-
-            if (!st.dets().empty()) {
-               std::set<unsigned int> dets(st.dets());
-               (*m_log) << MSG::DEBUG << "PEB Dets " << std::vector<unsigned int>(dets.begin(), dets.end()) << endreq;
-            }
-
+         if (!st.dets().empty()) {
+            std::set<unsigned int> dets(st.dets());
+            ATH_MSG_DEBUG("PEB Dets " << std::vector<unsigned int>(dets.begin(), dets.end()));
          }
       }
    }
@@ -481,9 +459,8 @@ ErrorCode ResultBuilder::fillTriggerInfo(const std::vector<SteeringChain*>& acti
    std::vector<uint32_t> triggerTypeBits;
    triggerTypeBits.resize( m_infoSize );
 
-   if(m_logLvl <= MSG::VERBOSE)
-      (*m_log) << MSG::VERBOSE << "Bit array to hold TriggerInfo bits resized to: " << triggerTypeBits.size()
-               << " words, highest chain_counter: " <<  m_highestTriggerTypeBit << endreq;
+   ATH_MSG_VERBOSE("Bit array to hold TriggerInfo bits resized to: " << triggerTypeBits.size()
+                << " words, highest chain_counter: " <<  m_highestTriggerTypeBit);
 
 
    // Collect all TriggerTypes for this event,
@@ -494,8 +471,7 @@ ErrorCode ResultBuilder::fillTriggerInfo(const std::vector<SteeringChain*>& acti
         chain != activeChains.end(); ++chain) {
       // take only those that passed:
       if ( (*chain)->chainPassed() ) {
-         if(m_logLvl <= MSG::VERBOSE)
-            (*m_log) << MSG::VERBOSE << "setting bit: " << (*chain)->getChainCounter() << " in TriggerInfo"  << endreq;
+         ATH_MSG_VERBOSE("setting bit: " << (*chain)->getChainCounter() << " in TriggerInfo");
          setTriggerTypeBit((*chain)->getChainCounter(), triggerTypeBits);
       }
    }
@@ -503,13 +479,13 @@ ErrorCode ResultBuilder::fillTriggerInfo(const std::vector<SteeringChain*>& acti
    //  hltResult->setTriggerTypeBits(triggerTypeBits);
 
    // Debug output: print streams
-   if (m_logLvl <= MSG::DEBUG) {
-      (*m_log) << MSG::DEBUG << "TriggerType bits of " << m_config->getInstance().substr(1,3 ) << " words: " << triggerTypeBits.size() << " content" ;
+   if (msgLvl(MSG::DEBUG)) {
+      msg() << MSG::DEBUG << "TriggerType bits of " << m_config->getInstance().substr(1,3 ) << " words: " << triggerTypeBits.size() << " content" ;
       for (  std::vector<uint32_t>::const_iterator it = triggerTypeBits.begin();
              it != triggerTypeBits.end(); ++it ) {
-         (*m_log) << MSG::DEBUG << " 0x" << MSG::hex  << *it;
+         msg() << MSG::DEBUG << " 0x" << MSG::hex  << *it;
       }
-      (*m_log) << MSG::DEBUG << MSG::dec << endreq;
+      msg() << MSG::DEBUG << MSG::dec << endreq;
    }
 
 
@@ -522,15 +498,13 @@ ErrorCode ResultBuilder::fillTriggerInfo(const std::vector<SteeringChain*>& acti
    // put it all to SG EventInfo object
    // get EventInfo
    const EventInfo* constEventInfo(0);
-   StatusCode sc = m_storeGate->retrieve(constEventInfo);
+   StatusCode sc = evtStore()->retrieve(constEventInfo);
    if(sc.isFailure()){
-      if(m_logLvl <= MSG::FATAL)
-         (*m_log) << MSG::FATAL << "Can't get EventInfo object for update of the StreamTag and TriggerInfo" << endreq;
+      ATH_MSG_FATAL("Can't get EventInfo object for update of the StreamTag and TriggerInfo");
       return HLT::FATAL;
    }
 
-   if(m_logLvl <= MSG::VERBOSE)
-      (*m_log) << MSG::VERBOSE << "Updating TriggerInfo" << endreq;
+   ATH_MSG_VERBOSE("Updating TriggerInfo");
 
    EventInfo* eventInfo = const_cast<EventInfo*>(constEventInfo);
    TriggerInfo* oldtriggerInfo = eventInfo->trigger_info();
@@ -556,8 +530,7 @@ ErrorCode ResultBuilder::fillTriggerInfo(const std::vector<SteeringChain*>& acti
      status   = triggerInfo->statusElement();
      lvl2Info = triggerInfo->level2TriggerInfo();
      efInfo   = triggerInfo->eventFilterInfo();
-     if(m_logLvl <= MSG::VERBOSE)
-     (*m_log) << MSG::VERBOSE << "Saved old TriggerInfo" << endreq;
+     ATH_MSG_VERBOSE("Saved old TriggerInfo");
      //delete triggerInfo;    // delete old TriggerInfo if ptr was not null
      }
    */
@@ -566,27 +539,23 @@ ErrorCode ResultBuilder::fillTriggerInfo(const std::vector<SteeringChain*>& acti
    if ( m_config->getHLTLevel() == HLT::L2 ) {
       //lvl2Info = triggerTypeBits; // lvl2 stuff is replaced
       triggerInfo->setLevel2TriggerInfo(triggerTypeBits);
-      if(m_logLvl <= MSG::VERBOSE)
-         (*m_log) << MSG::VERBOSE << "Updated TriggerInfo for L2" << endreq;
+      ATH_MSG_VERBOSE("Updated TriggerInfo for L2");
    } 
    else if ( m_config->getHLTLevel() == HLT::EF ){   
       //efInfo   = triggerTypeBits; // ef stuff is replaced
       triggerInfo->setEventFilterInfo(triggerTypeBits);
-      if(m_logLvl <= MSG::VERBOSE)
-         (*m_log) << MSG::VERBOSE << "Updated TriggerInfo for EF" << endreq;
+      ATH_MSG_VERBOSE("Updated TriggerInfo for EF");
 
 
       if(oldtriggerInfo!= 0){
-         if(m_logLvl <= MSG::VERBOSE)
-            (*m_log) << MSG::VERBOSE << "Saving previous level calibration Stream Tags" << endreq;
+         ATH_MSG_VERBOSE("Saving previous level calibration Stream Tags");
          
          std::vector<TriggerInfo::StreamTag> oldstream = oldtriggerInfo->streamTags();
          std::vector<TriggerInfo::StreamTag>::const_iterator oldstreamI = oldstream.begin();
          std::vector<TriggerInfo::StreamTag>::const_iterator oldstreamE = oldstream.end();
          for(;oldstreamI!=oldstreamE; ++oldstreamI){
             if(oldstreamI->type()=="calibration"){
-               if(m_logLvl <= MSG::DEBUG)
-                  (*m_log) << MSG::DEBUG << "Keeping calibration Stream Tag: " << oldstreamI->name()  << endreq;
+               ATH_MSG_DEBUG("Keeping calibration Stream Tag: " << oldstreamI->name());
                m_uniqueStreams.push_back(*oldstreamI);
             }
          }
@@ -601,18 +570,15 @@ ErrorCode ResultBuilder::fillTriggerInfo(const std::vector<SteeringChain*>& acti
       std::vector<unsigned int> zeroL2(1); zeroL2[0]=0x0;
       triggerInfo->setLevel2TriggerInfo(zeroL2); // set L2 result to 0
       triggerInfo->setEventFilterInfo(triggerTypeBits);
-      if(m_logLvl <= MSG::VERBOSE)
-         (*m_log) << MSG::VERBOSE << "Updated TriggerInfo for HLT" << endreq;
+      ATH_MSG_VERBOSE("Updated TriggerInfo for HLT");
    }
   
  
    //triggerInfo = new TriggerInfo( status, lvl1Id, lvl1Info, lvl2Info, efInfo, uniqueStreams );
    triggerInfo->setStreamTags(m_uniqueStreams);
    eventInfo->setTriggerInfo(triggerInfo);
-   if(m_logLvl <= MSG::VERBOSE){
-      (*m_log) << MSG::VERBOSE << "Updated TriggerInfo attached to EventInfo:" << endreq;
-      (*m_log) << MSG::VERBOSE << (*triggerInfo) << endreq;
-   }
+   ATH_MSG_VERBOSE("Updated TriggerInfo attached to EventInfo:");
+   ATH_MSG_VERBOSE(*triggerInfo);
 
   
   
@@ -622,11 +588,10 @@ ErrorCode ResultBuilder::fillTriggerInfo(const std::vector<SteeringChain*>& acti
   // put it all to SG xAOD::EventInfo object
  
   const xAOD::EventInfo* constxEventInfo(0);
-  sc = m_storeGate->retrieve(constxEventInfo);
+  sc = evtStore()->retrieve(constxEventInfo);
   
   if (sc.isFailure()) {   
-    if(m_logLvl <= MSG::FATAL)
-      (*m_log) << MSG::FATAL << "Can't get xAOD::EventInfo object for update of the StreamTag" << endreq;
+    ATH_MSG_FATAL("Can't get xAOD::EventInfo object for update of the StreamTag");
     return HLT::FATAL;
   }
   
@@ -641,9 +606,7 @@ ErrorCode ResultBuilder::fillTriggerInfo(const std::vector<SteeringChain*>& acti
 
   xAOD::EventInfo* xeventInfo = const_cast<xAOD::EventInfo*>(constxEventInfo);
   xeventInfo->setStreamTags(xAODStreamTags);
-  if(m_logLvl <= MSG::VERBOSE){
-    (*m_log) << MSG::VERBOSE << "Updated xAOD::StreamTags into xAOD::EventInfo:" << endreq;
-  }
+  ATH_MSG_VERBOSE("Updated xAOD::StreamTags into xAOD::EventInfo:");
   
   
    return HLT::OK;
@@ -659,10 +622,9 @@ ErrorCode ResultBuilder::getPEBInfo() {
   PartialEventBuildingInfo* pebinfo = 0;
   pebinfo = new PartialEventBuildingInfo();
   const DataHandle<PartialEventBuildingInfo> it, end;
-  (m_storeGate->retrieve(it,end)).ignore();
+  (evtStore()->retrieve(it,end)).ignore();
   if(it==end){
-    if(m_logLvl <= MSG::DEBUG)
-      (*m_log) << MSG::DEBUG << "No partialEventBuildingInfo object for update of the StreamTag and TriggerInfo" << endreq;
+    ATH_MSG_DEBUG("No partialEventBuildingInfo object for update of the StreamTag and TriggerInfo");
       //return StatusCode::SUCCESS;
   } else {
     int pebsize = distance(it,end);
@@ -708,8 +670,8 @@ StatusCode ResultBuilder::decodeErrorStreamaTagsProperty() {
 
       int code = getErrorCodePosFromStr(errorName);
       if ( code < 0 ) {
-         (*m_log) << MSG::FATAL << "While setting streams for errorus events: ErrorCode: "
-                  << errorName << " unrecognized"  << endreq;
+         ATH_MSG_FATAL("While setting streams for errorus events: ErrorCode: "
+                       << errorName << " unrecognized");
          return StatusCode::FAILURE;
       } else {
          ErrorCode ec = static_cast<HLT::ErrorCode>(code);
@@ -725,14 +687,12 @@ StatusCode ResultBuilder::decodeErrorStreamaTagsProperty() {
                streamType = "debug";
             m_errorStreamTags[ec] = TriggerInfo::StreamTag (streamName, streamType, false);
 
-            if(m_logLvl <= MSG::DEBUG)
-               (*m_log) << MSG::DEBUG << "StreamTag for erroneous events with error code: "
-                        << errorName << " is " << streamType << ":" << streamName << endreq;
+            ATH_MSG_DEBUG("StreamTag for erroneous events with error code: "
+                          << errorName << " is " << streamType << ":" << streamName);
          } else {
             m_errorStreamTags[ec] = TriggerInfo::StreamTag ("", "debug", false);
-            if(m_logLvl <= MSG::DEBUG)
-               (*m_log) << MSG::DEBUG << "StreamTag for erroneous events with error code: "
-                        << errorName << " is disabled" << endreq;
+            ATH_MSG_DEBUG("StreamTag for erroneous events with error code: "
+                          << errorName << " is disabled");
          }
 
       }

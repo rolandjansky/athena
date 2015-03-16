@@ -483,7 +483,7 @@ class TrigSteer_HLT( TrigSteer_baseClass ):
         if not hasattr( handle, 'EventInfoAccessTool' ):
             handle.EventInfoAccessTool= EventInfoAccessTool()
             #FPP
-            #handle.EventInfoAccessTool.ListOfChainsAddingStreamTag=["HLT_id_cosmicid:CosmicID"]
+            #handle.EventInfoAccessTool.ListOfChainsAddingStreamTag=["HLT_id_cosmicid_trtxk_central:IDCosmic","HLT_larnoiseburst_L1All:LArNoiseBurst"]
             
 #specific instcenes of the configuration
 class ReruningTrigSteer_L2(TrigSteer_L2):

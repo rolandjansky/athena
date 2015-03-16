@@ -52,6 +52,7 @@ use  L1TopoCommon               L1TopoCommon-*                  Trigger/TrigT1/L
 use  L1TopoConfig               L1TopoConfig-*                  Trigger/TrigT1/L1Topo
 use  TrigStorageDefinitions     TrigStorageDefinitions-*        Trigger/TrigEvent
 use  xAODTrigger                xAODTrigger-*                   Event/xAOD
+use  CTPfragment                *  
 end_private
 
 

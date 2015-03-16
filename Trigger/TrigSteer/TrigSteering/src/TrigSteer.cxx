@@ -656,7 +656,13 @@ StatusCode TrigSteer::execute()
    if ( ec2 != HLT::OK ) {
       (*m_log) << MSG::ERROR << "failed to fill trigger info: " << strErrorCode(ec2) << endreq;
    }
-  
+
+   //called after the TriggerInfo is filled
+   if ( m_EventInfoTool->updateStreamTag(m_activeChains) != StatusCode::SUCCESS){
+     (*m_log) << MSG::FATAL << "Failed to update the EventInfo" << endreq;
+     return StatusCode::FAILURE;
+   }  
+
    ToolHandleArray< IMonitorToolBase >::iterator itOPI = m_opiTools.begin();
    ToolHandleArray< IMonitorToolBase >::iterator itOPIEnd = m_opiTools.end();
    for (  ; itOPI != itOPIEnd; ++itOPI ) {
@@ -674,11 +680,7 @@ StatusCode TrigSteer::execute()
       (*m_log) << MSG::ERROR << "ResultBuilder algorithm failed with: " << strErrorCode(ec2) << endreq;
    }
 
-   //called after the TriggerInfo is filled
-   if ( m_EventInfoTool->updateStreamTag(m_activeChains) != StatusCode::SUCCESS){
-     (*m_log) << MSG::FATAL << "Failed to update the EventInfo" << endreq;
-     return StatusCode::FAILURE;
-   }
+  
 
    if (m_doTiming) {
       if ( eventPassed )
@@ -966,8 +968,12 @@ bool TrigSteer::resetChains(std::vector<HLT::SteeringChain*>& chains)
 {
   for (std::vector<HLT::SteeringChain*>::iterator iterChain = chains.begin();
        iterChain != chains.end(); ++iterChain) {
-    if ( !(*iterChain)->resetChain() ) return false;
+    if ( !(*iterChain)->resetChain() ) {
+      (*m_log) << MSG::WARNING << "Failed to reset chain" << (*iterChain)->getConfigChain()->chain_name() << endreq; 
+      return false;
+    }
   }
+  (*m_log) << MSG::DEBUG << "Chains reset went ok"  << endreq; 
   return true;
 }
 
