@@ -21,7 +21,7 @@ use CTPfragment      v*
 
 private
 
-use L1CommonCore     L1CommonCore-*     Trigger/TrigT1
+# use L1CommonCore     L1CommonCore-*     Trigger/TrigT1
 
 author Hong Ma <hma@bnl.gov> 
 author Tadashi Maeno <Tadashi.Maeno@cern.ch>

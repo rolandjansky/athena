@@ -2,6 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+#include <sstream>
+#include "L1TopoRDO/Helpers.h"
 
 // Gaudi/Athena include(s):
 #include "GaudiKernel/MsgStream.h"
@@ -53,9 +55,7 @@ RoIBResultByteStreamTool::RoIBResultByteStreamTool( const std::string& type, con
   m_emModuleID.push_back(0xaa) ;
   m_emModuleID.push_back(0xab) ;
 
-  m_l1TopoModuleID.reserve(2);
-  m_l1TopoModuleID.push_back(0x80);
-  m_l1TopoModuleID.push_back(0x90);
+  // default for L1Topo is an empty list
 }
 
 /**
@@ -144,7 +144,13 @@ StatusCode RoIBResultByteStreamTool::initialize() {
      << ", 0x" << m_emModuleID[1] << ", 0x" << m_emModuleID[2] << ", 0x" << m_emModuleID[3] <<MSG::dec<<endreq;
   log<<MSG::DEBUG << "    Calorimeter Jet/Energy Processor RoI = 0x" <<MSG::hex<< m_jetModuleID[0]
      << ", 0x" << m_jetModuleID[1] <<MSG::dec<<endreq;
-  log<<MSG::DEBUG << "    L1Topo                               = 0x" <<MSG::hex<< m_l1TopoModuleID[0]     << ", 0x" <<  m_l1TopoModuleID[1] <<MSG::dec<<endreq;
+
+  //  log<<MSG::DEBUG << "    L1Topo                               = 0x" <<MSG::hex<< m_l1TopoModuleID[0]     << ", 0x" <<  m_l1TopoModuleID[1] <<MSG::dec<<endreq;
+  std::ostringstream topoModulesString;
+  for (unsigned int mid: m_l1TopoModuleID){ 
+    topoModulesString << L1Topo::formatHex4(mid) << " ";
+  }
+  ATH_MSG_DEBUG( "    L1Topo                               = " << topoModulesString);
 
   return StatusCode::SUCCESS;
 }
@@ -232,14 +238,17 @@ StatusCode RoIBResultByteStreamTool::convert( ROIB::RoIBResult* result, RawEvent
   log << MSG::VERBOSE << "   Dumping L1Topo RoI words for " << l1TopoResultVector.size() << " RODs:" << endreq;
   unsigned int slink(0);
   for (auto & l1tr : l1TopoResultVector){
-    uint32_t sourceID = l1tr.rdo().getSourceID();
-    log << MSG::VERBOSE << "  for L1Topo source ID "  << MSG::hex << std::setw(8) << std::showbase << sourceID << std::noshowbase << std::dec << endreq;
-    if (sourceID == 0){
-      sourceID = m_l1TopoModuleID[slink];
-      log << MSG::DEBUG << "  (source ID in L1TopoRDO was zero so using Property for slink " << std::dec << slink << ": " <<  MSG::hex << std::setw(8) << std::showbase << sourceID << std::noshowbase << std::dec << ")" << endreq;
+    uint32_t sourceID = l1tr.rdo().getSourceID(); // needs to be a 16-bit module ID
+    log << MSG::VERBOSE << "  for L1Topo source ID from RDO "  << L1Topo::formatHex8(sourceID) << endreq;
+    if (sourceID == 0 && slink < m_l1TopoModuleID.size()){
+      sourceID = eformat::helper::SourceIdentifier( eformat::TDAQ_CALO_TOPO_PROC, m_l1TopoModuleID.at(slink) ).code();
+      log << MSG::DEBUG << "  (source ID in L1TopoRDO was zero so using Property for slink " << slink << ": " << L1Topo::formatHex8(sourceID) << ")" << endreq;
+    } 
+    else if (sourceID == 0){
+      sourceID=eformat::helper::SourceIdentifier( eformat::TDAQ_CALO_TOPO_PROC, 0 ).code();
+      log << MSG::WARNING << "  (source ID in L1TopoRDO was zero, no properties available for slink counter " << slink << ", so as a fall back, constructed module 0 with source ID " << L1Topo::formatHex8(sourceID) << ")" << endreq;
     }
-    eformat::helper::SourceIdentifier helpL1TopoID( eformat::TDAQ_CALO_TOPO_PROC, sourceID );
-    theROD = m_fea.getRodData( helpL1TopoID.code() );
+    theROD = m_fea.getRodData( sourceID );
     for ( auto & word : l1tr.rdo().getDataWords()){
       log << MSG::VERBOSE << "     " << MSG::hex << std::setw(8) << std::showbase << word << std::noshowbase << std::dec << endreq;
       theROD->push_back(word);
