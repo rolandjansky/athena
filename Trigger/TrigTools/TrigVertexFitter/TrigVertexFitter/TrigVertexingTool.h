@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef __TRIG_VERTEXING_TOOL__
-#define __TRIG_VERTEXING_TOOL__
+#ifndef TRIGVERTEXFITTER_TRIGVERTEXINGTOOL_H
+#define TRIGVERTEXFITTER_TRIGVERTEXINGTOOL_H
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "TrkEventPrimitives/ParticleHypothesis.h"

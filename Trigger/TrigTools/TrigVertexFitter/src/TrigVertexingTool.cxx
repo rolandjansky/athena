@@ -611,8 +611,8 @@ StatusCode TrigVertexingTool::calculateInvariantMass(TrigL2Vertex* pV)
       double p=pT/sin(Rk[offset+1]);
 
       double sinPsi = alpha*(Rk[0]*cos(Rk[offset])+Rk[1]*sin(Rk[offset]))/Rk[offset+2];
-      if(fabs(sinPsi>1.0)) {
-	return StatusCode::FAILURE;
+      if(fabs(sinPsi) > 1.0) {
+        return StatusCode::FAILURE;
       }
 
       double psi=-asin(sinPsi);
@@ -647,7 +647,7 @@ StatusCode TrigVertexingTool::calculateInvariantMass(TrigL2Vertex* pV)
       double cosF=cos(Rk[offset]);
 
       double sinPsi=-alpha*(Rk[0]*cosF+Rk[1]*sinF)/Rk[offset+2];
-      if(fabs(sinPsi>1.0)) {
+      if(fabs(sinPsi) > 1.0) {
 	return StatusCode::FAILURE;
       }
       double psi=asin(sinPsi);

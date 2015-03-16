@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef __TRIG_VERTEX_FITTER__
-#define __TRIG_VERTEX_FITTER__
+#ifndef TRIGVERTEXFITTER_TRIGVERTEXFITTER_H
+#define TRIGVERTEXFITTER_TRIGVERTEXFITTER_H
 
 #include "TrigInDetToolInterfaces/ITrigVertexFitter.h"
 #include "AthenaBaseComps/AthAlgTool.h"
