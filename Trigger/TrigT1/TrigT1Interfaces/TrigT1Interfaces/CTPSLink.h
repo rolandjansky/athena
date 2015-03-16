@@ -11,7 +11,7 @@
 
 
 // tdaq-common includes for CTP format definition
-#include "L1CommonCore/CTPdataformatVersion.h"
+#include "CTPfragment/CTPdataformatVersion.h"
 
 namespace LVL1CTP {
 
@@ -34,8 +34,8 @@ namespace LVL1CTP {
     *  @author Thomas Schoerner-Sadenius <thomas.schoerner@cern.ch>
     *  @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
     *
-    * $Revision: 621285 $
-    * $Date: 2014-10-11 16:51:48 +0200 (Sat, 11 Oct 2014) $
+    * $Revision: 654427 $
+    * $Date: 2015-03-16 17:01:35 +0100 (Mon, 16 Mar 2015) $
     */
    class CTPSLink {
 
