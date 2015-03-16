@@ -19,13 +19,16 @@ Purpose : build the Muon Tag objects - MuonTagCollection.h.
 #include "AthenaPoolUtilities/AthenaAttributeSpecification.h"
 #include "GaudiKernel/ToolHandle.h"
 #include <inttypes.h>
-
+#include "xAODMuon/MuonContainer.h"
 #include <map>
 
-namespace Analysis {
+/*namespace Analysis {
   class MuonContainer;
   class Muon;
 }
+*/
+
+
 namespace Reco {
   class ITrackToVertex;
 }
@@ -65,16 +68,14 @@ protected:
 private:
 
    inline int bit2int(int b) const { return 1<<b; };
-
-  /** private function to get impact parameter */
-   /*     void getMuonImpactParameter (const xAOD::Muon*,
-				//const Analysis::Muon*,
-				double& d0, double& z0, double& dd0, double& dz0, double& theta, bool biased);
-   */
-
-
-  /** Properties */
-  std::vector<std::string> m_containerNames;
+   
+   /** private function to get impact parameter */
+   void getMuonImpactParameter (const xAOD::Muon*,double& d0, double& z0, double& dd0, double& dz0, double& theta);
+   
+   
+   
+   /** Properties */
+   std::vector<std::string> m_containerNames;
   double m_cut_Et;
   double m_DRcut;
   std::vector<float> m_caloisocutvalues;
