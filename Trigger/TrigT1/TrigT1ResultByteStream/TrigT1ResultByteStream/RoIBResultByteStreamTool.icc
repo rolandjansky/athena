@@ -278,19 +278,22 @@ StatusCode RoIBResultByteStreamTool::convert( const std::vector< ROBF >& robs,
 
     } /* end of EMTau ROBs */
 
-    /* L1Topo ROB */
-    eformat::helper::SourceIdentifier helpL1TopoID_0( eformat::TDAQ_CALO_TOPO_PROC, m_l1TopoModuleID[0] );
-    eformat::helper::SourceIdentifier helpL1TopoID_1( eformat::TDAQ_CALO_TOPO_PROC, m_l1TopoModuleID[1] );
+    /* L1Topo ROI ROB */
+    bool matchedTopoCode(false);
+    for (unsigned int mid: m_l1TopoModuleID){ 
+      eformat::helper::SourceIdentifier helpL1TopoID( eformat::TDAQ_CALO_TOPO_PROC, mid );
+      ATH_MSG_DEBUG( "Check ROD ID 0x" << MSG::hex << rodId 
+                     << " against L1Topo 0x" << MSG::hex 
+                     << helpL1TopoID.code() << MSG::dec );
+      if( rodId == helpL1TopoID.code() ){
+        matchedTopoCode=true;
+        break;
+      }
+    } // loop over m_l1TopoModuleID
 
-    log << MSG::DEBUG << "Check ROD ID 0x" << MSG::hex << rodId 
-	<< " against L1Topo 0x" << MSG::hex 
-	<< helpL1TopoID_0.code() << " 0x" << helpL1TopoID_1.code() 
-	<< MSG::dec << endreq;
-
-    if( rodId == helpL1TopoID_0.code() || rodId == helpL1TopoID_1.code() ) {
-
-      log << MSG::DEBUG << "   Found L1Topo ROB." << endreq;
-
+    if (matchedTopoCode) {
+      ATH_MSG_DEBUG( "   Found L1Topo ROB with source Id " 
+                     << MSG::hex << rodId << MSG::dec );
       /* Create header */
       ROIB::Header l1TopoHead( rodId, evtNum, formatVersion );
       /* Create content body */

@@ -9,7 +9,7 @@
 // CTP data format include(s):
 #include "CTPfragment/CTPfragment.h"
 #include "CTPfragment/CTPdataformat.h"
-#include "L1CommonCore/CTPdataformatVersion.h"
+#include "CTPfragment/CTPdataformatVersion.h"
 
 // Trigger include(s):
 #include "TrigT1Result/CTP_RDO.h"
