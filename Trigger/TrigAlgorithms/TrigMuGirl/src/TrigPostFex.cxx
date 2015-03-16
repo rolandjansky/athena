@@ -27,8 +27,8 @@
 
 TrigPostFex::TrigPostFex(const std::string& name, ISvcLocator* pSvcLocator) :
   HLT::FexAlgo(name, pSvcLocator),
-    m_pStoreGate        (NULL),
-    m_pTrigPostFexNtuple (NULL)
+    m_pStoreGate        (),
+    m_pTrigPostFexNtuple ()
 {
 
     declareProperty("MuMuMassMin", m_MassMin = 2800.);

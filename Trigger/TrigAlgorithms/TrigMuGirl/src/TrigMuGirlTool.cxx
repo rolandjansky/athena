@@ -94,9 +94,9 @@ TrigMuGirlTool::TrigMuGirlTool(const std::string& type,
     m_doStau(false),
     m_stauPtCut(20000.0),
     m_mfPtCut(20000.0),
-    m_pSegmentCollection(NULL),
-    m_pRefittedTrkContainer(NULL),
-    m_applyLHR("On"),
+    //    m_pSegmentCollection(NULL),
+    //    m_pRefittedTrkContainer(NULL),
+    //    m_applyLHR("On"),
     m_idR(0.3),
     m_lhr(0.8),
     m_eOverP(0.3),
@@ -125,14 +125,11 @@ TrigMuGirlTool::TrigMuGirlTool(const std::string& type,
     m_pTrigMuGirlNtuple(NULL),
     m_ntupleNamePerformance("/NTUPLES/TRIGMUGIRL/TRIGMUGIRL"),
     m_ntupleTitlePerformance("TrigMuGirlPer"),
-    m_doNTuplePerformance(false),
+    m_doNTuplePerformance(),
     m_caloExtensionTool("Trk::ParticleCaloExtensionTool/ParticleCaloExtensionTool"),
     m_roi(0) 
-
 {
-
   declareInterface<ITrigMuGirlTool>(this);
-
   declareProperty("PtLowerLimit",                 m_ptLowerLimit);
   declareProperty("NtupleName",                   m_ntupleName);
   declareProperty("NtupleTitle",                  m_ntupleTitle);
@@ -146,45 +143,36 @@ TrigMuGirlTool::TrigMuGirlTool(const std::string& type,
   declareProperty("RefittedTrkCollection",        m_sRefittedTrkCollection);
   declareProperty("RefittedTrkLocation",          m_RefittedTrkLocation);
   declareProperty("InDetTrackParticlesLocation",  m_inDetParticlesLocation);
+  declareProperty("InCaloCollection",             m_CaloCollection);
   declareProperty("doStau",                       m_doStau);
   declareProperty("StauPtCut",                    m_stauPtCut);
   declareProperty("MFPtCut",                    m_mfPtCut);
   declareProperty("IdConeR",                      m_idR);
   declareProperty("LHRValue",                     m_lhr);
   declareProperty("eCaloOverPCut",                m_eOverP);
-  declareProperty("InCaloCollection",             m_CaloCollection);
   declareProperty("doTruth",                      m_doTruth);
   declareProperty("doGlobalFit",                  m_doGlobalFit);
   declareProperty("doSAFit",                      m_doSAFit);
+  declareProperty("doMuonFeature",                m_doMuonFeature);
   declareProperty("doANNSelection",               m_doANNSelection);
   declareProperty("doParticleCreator",            m_doParticleCreator);
   // Tools
   // in the old ver there was no
   declareProperty("StoreGateSvc",                 m_pEventStore);
   declareProperty("MuGirlCandidate",              m_pCandidate);
-  declareProperty("MuGirlGlobalFIT",              m_pGlobalFitTool);
-  declareProperty("MuGirlGlobalStauFIT",          m_pStauGlobalFitTool);
-  declareProperty("MuGirlGlobalMuonFeatureFIT",   m_pMuonFeatureGlobalFitTool);
   declareProperty("CaloMuonLikelihoodTool",       m_pMuLHR);
-  //    declareProperty("TrackParticleCreatorTool", m_particleCreatorTool);
-  declareProperty("ParticleCaloExtensionTool",m_caloExtensionTool );    
-  //<S>
-  declareProperty("MuGirlStauTool",               m_pStauTool);
   declareProperty("PerformanceTruthTool",         m_pTruthTool);
+  declareProperty("MuGirlGlobalFIT",              m_pGlobalFitTool);
+  declareProperty("MuGirlGlobalMuonFeatureFIT",   m_pMuonFeatureGlobalFitTool);
   declareProperty("ANNSelectionTool",             m_pANNSelectionTool);
   declareProperty("MuGirlParticleCreatorTool",             m_pParticleCreatorTool);
-  // varibles for monitor
-  //    declareMonitoredStdContainer ("MuonsPt", pt);
-  //    declareMonitoredStdContainer ("MuonsCosTh", cotTh);
-  //    declareMonitoredStdContainer ("MuonsPhi", phi);
-
+  declareProperty("MuGirlStauTool",               m_pStauTool);
+  //<S>
 
   // for perform
-  declareProperty("doNTuplePerformance",  m_doNTuplePerformance  = false);
+  declareProperty("doNTuplePerformance",  m_doNTuplePerformance);
+  declareProperty("ParticleCaloExtensionTool",m_caloExtensionTool );    
   declareProperty("doTruthPerformance",   m_doTruthPerformance   = false);
-
-  declareProperty("doMuonFeature",                m_doMuonFeature);
-
 } 
 
 //________________________________________________________________________
@@ -230,7 +218,7 @@ StatusCode TrigMuGirlTool::initialize()
       if (retrieve(m_pMuLHR, false).isFailure())
 	{
 	  msg() << MSG::DEBUG << "Failed to get the pMuLHR" << endreq;    
-	  m_pMuLHR = NULL;
+
 	}
     }
   
@@ -248,7 +236,7 @@ StatusCode TrigMuGirlTool::initialize()
       if (retrieve(m_pGlobalFitTool, false).isFailure())
 	{
 	  msg() << MSG::DEBUG << "Failed to get the GlobalFitTool" << endreq;
-	  m_pGlobalFitTool = NULL;
+
 	}
     }
   if (m_doMuonFeature && m_doSAFit )
@@ -256,7 +244,7 @@ StatusCode TrigMuGirlTool::initialize()
       if (retrieve(m_pMuonFeatureGlobalFitTool, false).isFailure())
 	{
 	  msg() << MSG::DEBUG << "Failed to get the GlobalFitTool for SA fit" << endreq;
-	  m_pMuonFeatureGlobalFitTool = NULL;
+
 	}
     }
 
@@ -265,7 +253,7 @@ StatusCode TrigMuGirlTool::initialize()
       if (retrieve(m_pANNSelectionTool, false).isFailure())
 	{
 	  msg() << MSG::DEBUG << "no m_pANNSelection" << endreq;    
-	  m_pANNSelectionTool = NULL;
+
 	}
     }
   
@@ -274,7 +262,7 @@ StatusCode TrigMuGirlTool::initialize()
     if (retrieve(m_pParticleCreatorTool).isFailure())
       {
 	msg()<<MSG::DEBUG<<"no m_pParticleCreatorTool"<<endreq;    
-	m_pParticleCreatorTool = NULL;
+
       }
   }
 
@@ -458,8 +446,6 @@ HLT::ErrorCode TrigMuGirlTool::processMuonFeatures(const std::vector<const MuonF
           if (fabs(pMuonFeature->pt())<m_mfPtCut)  //MuonFeature momentum is in GeV
 	    continue;
 	  
-          bool has_combined = false;
-
  
 	  if ( CombinedMuonFeatureEL.isValid() )     
 	    { 
@@ -478,7 +464,6 @@ HLT::ErrorCode TrigMuGirlTool::processMuonFeatures(const std::vector<const MuonF
 		    { 
 		      if (msg().level() <= MSG::DEBUG)
 			msg()<<MSG::DEBUG<<"HAS IDTrack! moving to IDTrack processing"<<endreq;
-		      has_combined = true;
 		      continue;
 		    }
 		}

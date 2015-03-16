@@ -5,6 +5,9 @@
 #ifndef TRIGMUGIRL_TRIGMUGIRLTOOL_H
 #define TRIGMUGIRL_TRIGMUGIRLTOOL_H
 
+#include "GaudiKernel/Algorithm.h"
+#include "GaudiKernel/ToolHandle.h"
+
 #include "AthenaBaseComps/AthAlgTool.h"
 
 //* Trigger includes *//
@@ -217,11 +220,6 @@ class TrigMuGirlTool : public AthAlgTool, public ITrigMuGirlTool
     FloatProperty                           m_stauPtCut;
     FloatProperty                           m_mfPtCut;
 
-    Trk::SegmentCollection*                 m_pSegmentCollection;
-    TrackCollection*                        m_pRefittedTrkCollection;
-    Rec::TrackParticleContainer*            m_pRefittedTrkContainer;
-    std::vector<CaloCell_ID::CaloSample>    m_caloLayers;
-    std::string                             m_applyLHR;
     double                                  m_idR;
     double                                  m_lhr;
     double                                  m_eOverP;
@@ -232,33 +230,45 @@ class TrigMuGirlTool : public AthAlgTool, public ITrigMuGirlTool
     BooleanProperty                         m_doMuonFeature;
     BooleanProperty                         m_doANNSelection;
     BooleanProperty                         m_doParticleCreator;
-
-    ElementLinkVector<xAOD::TrackParticleContainer>  m_inDetTrackParticleLinks;
-    CaloParticleList                        m_caloParticles;
     const xAOD::CaloClusterContainer*       m_pClusCollection;
     NTuple::Tuple*                          m_pCandNTuple;
 
     const EventInfo*                        m_pEventInfo;
-    
+
     // Tool Handles
     ServiceHandle<StoreGateSvc>                         m_pEventStore;      //< The event store  
     ToolHandle<MuGirlNS::ICandidateTool>                m_pCandidate;       //< The Muon candidate  
     ToolHandle<ICaloMuonLikelihoodTool>                 m_pMuLHR;
     ToolHandle<MuGirlNS::IPerformanceTruthTool>         m_pTruthTool;
-    ToolHandle<MuGirlNS::IGlobalFitTool>                m_pStauGlobalFitTool;
     ToolHandle<MuGirlNS::IGlobalFitTool>                m_pGlobalFitTool;
     ToolHandle<MuGirlNS::IGlobalFitTool>                m_pMuonFeatureGlobalFitTool;
     ToolHandle<MuGirlNS::IANNSelectionTool>             m_pANNSelectionTool;
     ToolHandle<MuGirlNS::IMuGirlParticleCreatorTool>    m_pParticleCreatorTool;
-    ToolHandle<Trk::IParticleCaloExtensionTool>         m_caloExtensionTool; //!< Tool to make the step-wise extrapolation
     //<S>
     ToolHandle<MuGirlNS::IStauTool>                     m_pStauTool;        //< The Stau tool  
     ServiceHandle<MagField::IMagFieldSvc>               m_magFieldSvc;
     MuGirlNS::SegmentManager*                           m_pSegmentManager;
 
+    // for perform
+    TrigMuGirlNtuple*                   m_pTrigMuGirlNtuple;
+    StringProperty                      m_ntupleNamePerformance;       /**< The name of the output NTuple */
+    StringProperty                      m_ntupleTitlePerformance;      /**< The label of the output NTuple */
+    BooleanProperty                     m_doNTuplePerformance;
+    ToolHandle<Trk::IParticleCaloExtensionTool>         m_caloExtensionTool; //!< Tool to make the step-wise extrapolation
+    BooleanProperty                     m_doTruthPerformance;
+
+
+
+
+    //    ToolHandle<MuGirlNS::IGlobalFitTool>                m_pStauGlobalFitTool;
     TrigTimer* m_timerExecTotal;
 
     MuGirlNS::CandidateSummaryList      m_summaryList;
+
+    std::vector<CaloCell_ID::CaloSample>    m_caloLayers;
+    ElementLinkVector<xAOD::TrackParticleContainer>  m_inDetTrackParticleLinks;
+    CaloParticleList                        m_caloParticles;
+
  
     std::vector<float> muon_pT;
     std::vector<float> muon_phi;
@@ -289,14 +299,9 @@ class TrigMuGirlTool : public AthAlgTool, public ITrigMuGirlTool
     std::vector<float> muon_RPCHitsTof;
     std::vector<float> muon_RPCHitsDis;
 
-    // for perform
-    TrigMuGirlNtuple*                   m_pTrigMuGirlNtuple;
+
     HLT::ErrorCode doMuTruthPerformance();
     NTuple::Tuple*                      m_ntuplePerformance;
-    StringProperty                      m_ntupleNamePerformance;       /**< The name of the output NTuple */
-    StringProperty                      m_ntupleTitlePerformance;      /**< The label of the output NTuple */
-    BooleanProperty                     m_doTruthPerformance;
-    BooleanProperty                     m_doNTuplePerformance;
 
     int eRunNumber;
     int eEventNumber;
