@@ -27,6 +27,7 @@ private
   use xAODBTagging         xAODBTagging-*         Event/xAOD
   use xAODPFlow            xAODPFlow-*            Event/xAOD
   use xAODParticleEvent    xAODParticleEvent-*    Event/xAOD
+  use xAODEventShape	   xAODEventShape-*	  Event/xAOD
 end_private
 
 public
