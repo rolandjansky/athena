@@ -3,7 +3,7 @@
 
 // tdaq-common includes for CTP format definition
 //#include "CTPfragment/CTPdataformat.h"
-#include "L1CommonCore/CTPdataformatVersion.h"
+#include "CTPfragment/CTPdataformatVersion.h"
 
 namespace LVL1CTP {
 

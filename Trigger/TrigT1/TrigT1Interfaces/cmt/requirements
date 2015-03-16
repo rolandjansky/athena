@@ -8,7 +8,8 @@ use AthenaBaseComps AthenaBaseComps-* Control
 use AtlasXercesC    AtlasXercesC-*    External
 use CLIDSvc         CLIDSvc-*         Control
 use DataModel       DataModel-*       Control
-use L1CommonCore    L1CommonCore-*    Trigger/TrigT1
+#use L1CommonCore    L1CommonCore-*    Trigger/TrigT1
+use CTPfragment      v*
 use AtlasReflex     AtlasReflex-*     External -no_auto_imports
 
 library TrigT1Interfaces *.cxx
