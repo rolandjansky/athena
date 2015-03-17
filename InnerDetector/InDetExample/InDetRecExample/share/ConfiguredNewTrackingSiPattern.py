@@ -280,7 +280,15 @@ class  ConfiguredNewTrackingSiPattern:
          #
          # --- load InnerDetector TrackSelectionTool
          #
+         
+         prob1 = InDetFlags.pixelClusterSplitProb1()
+         prob2 = InDetFlags.pixelClusterSplitProb2()
+         nhitsToAllowSplitting = 9
 
+         if geoFlags.Run() == 1:
+            prob1 = InDetFlags.pixelClusterSplitProb1_run1()
+            prob2 = InDetFlags.pixelClusterSplitProb2_run1() 
+            nhitsToAllowSplitting = 8
 
          if InDetFlags.doTIDE_Ambi() and not (NewTrackingCuts.mode() == "ForwardSLHCTracks" or NewTrackingCuts.mode() == "ForwardTracks" or NewTrackingCuts.mode() == "PixelPrdAssociation"):
            from InDetAmbiTrackSelectionTool.InDetAmbiTrackSelectionToolConf import InDet__InDetDenseEnvAmbiTrackSelectionTool as AmbiTrackSelectionTool
@@ -299,9 +307,9 @@ class  ConfiguredNewTrackingSiPattern:
                                                               doPixelSplitting    = InDetFlags.doPixelClusterSplitting())
 
          if InDetFlags.doTIDE_Ambi() and not (NewTrackingCuts.mode() == "ForwardSLHCTracks" or NewTrackingCuts.mode() == "ForwardTracks" or NewTrackingCuts.mode() == "PixelPrdAssociation"):
-           InDetAmbiTrackSelectionTool.sharedProbCut             = InDetFlags.pixelClusterSplitProb1()
-           InDetAmbiTrackSelectionTool.sharedProbCut2            = InDetFlags.pixelClusterSplitProb2()
-           InDetAmbiTrackSelectionTool.minSiHitsToAllowSplitting = 9       #For run 1 layouts this should 8 hits not 9
+           InDetAmbiTrackSelectionTool.sharedProbCut             = prob1
+           InDetAmbiTrackSelectionTool.sharedProbCut2            = prob2
+           InDetAmbiTrackSelectionTool.minSiHitsToAllowSplitting = nhitsToAllowSplitting
            InDetAmbiTrackSelectionTool.minUniqueSCTHits          = 4
            InDetAmbiTrackSelectionTool.minTrackChi2ForSharedHits = 3
            InDetAmbiTrackSelectionTool.InputHadClusterContainerName = InDetKeys.HadCaloClusterROIContainer()

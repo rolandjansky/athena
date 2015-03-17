@@ -123,6 +123,7 @@ if InDetFlags.doPRDFormation():
                                                       MinimalSplitSize        = 0,
                                                       MaximalSplitSize        = 49,
                                                       MinimalSplitProbability = 0,
+                                                      DoIBLSplitting = True,
                                                       SplitClusterAmbiguityMap= InDetKeys.SplitClusterAmbiguityMap())
       # assign the tools if there are any                                                
       if not InDetFlags.doTIDE_Ambi() and clusterSplitProbTool is not None : InDetMergedPixelsTool.SplitProbTool   = clusterSplitProbTool

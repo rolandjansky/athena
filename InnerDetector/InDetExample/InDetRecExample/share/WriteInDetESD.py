@@ -99,6 +99,8 @@ if globalflags.InputFormat()=='bytestream':
 
 if InDetFlags.doxAOD():
   excludedAuxData = "-caloExtension.-cellAssociation.-clusterAssociation.-trackParameterCovarianceMatrices.-parameterX.-parameterY.-parameterZ.-parameterPX.-parameterPY.-parameterPZ.-parameterPosition"
+  if InDetFlags.keepAdditionalHitsOnTrackParticle():
+   excludedAuxData = "-caloExtension.-cellAssociation.-clusterAssociation"
   InDetESDList+=['xAOD::TrackParticleContainer#'+InDetKeys.xAODTrackParticleContainer()]
   InDetESDList+=['xAOD::TrackParticleAuxContainer#'+InDetKeys.xAODTrackParticleContainer()+'Aux.' + excludedAuxData]
   if not InDetFlags.doSLHC():

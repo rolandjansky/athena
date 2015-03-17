@@ -74,6 +74,7 @@ if InDetFlags.doPixelClusterSplitting():
             NnClusterizationFactory = InDet__NnClusterizationFactory( name                 = "NnClusterizationFactory",
                                                                       NetworkToHistoTool   = NeuralNetworkToHistoTool,
                                                                       LoadNoTrackNetwork   = True,
+                                                                      useToT = InDetFlags.doNNToTCalibration(),
                                                                       LoadWithTrackNetwork = True)
                
         ToolSvc += NnClusterizationFactory
@@ -764,15 +765,22 @@ if InDetFlags.loadSummaryTool():
     InDetTRT_ElectronPidTool = None
     if DetFlags.haveRIO.TRT_on() and not InDetFlags.doSLHC() and not InDetFlags.doHighPileup() :
 
-        from TRT_ElectronPidTools.TRT_ElectronPidToolsConf import InDet__TRT_LocalOccupancy
-        InDetTRT_LocalOccupancy = InDet__TRT_LocalOccupancy(name ="InDet_TRT_LocalOccupancy")
-        ToolSvc += InDetTRT_LocalOccupancy
-        print InDetTRT_LocalOccupancy
+        if InDetFlags.doTRTOccupancyEventInfo():
+         from TRT_ElectronPidTools.TRT_ElectronPidToolsConf import InDet__TRT_LocalOccupancy
+         InDetTRT_LocalOccupancy = InDet__TRT_LocalOccupancy(name ="InDet_TRT_LocalOccupancy")
+         ToolSvc += InDetTRT_LocalOccupancy
+         print InDetTRT_LocalOccupancy
 
-        from TRT_ElectronPidTools.TRT_ElectronPidToolsConf import InDet__TRT_ElectronPidToolRun2
-        InDetTRT_ElectronPidTool = InDet__TRT_ElectronPidToolRun2(name   = "InDetTRT_ElectronPidTool",
+         from TRT_ElectronPidTools.TRT_ElectronPidToolsConf import InDet__TRT_ElectronPidToolRun2
+         InDetTRT_ElectronPidTool = InDet__TRT_ElectronPidToolRun2(name   = "InDetTRT_ElectronPidTool",
                                                                   TRT_LocalOccupancyTool = InDetTRT_LocalOccupancy,
                                                                   OccupancyUsedInPID = True,
+                                                                  isData = (globalflags.DataSource == 'data'))
+
+        else:
+         from TRT_ElectronPidTools.TRT_ElectronPidToolsConf import InDet__TRT_ElectronPidToolRun2
+         InDetTRT_ElectronPidTool = InDet__TRT_ElectronPidToolRun2(name   = "InDetTRT_ElectronPidTool",
+                                                                  OccupancyUsedInPID = False,
                                                                   isData = (globalflags.DataSource == 'data'))
 
         ToolSvc += InDetTRT_ElectronPidTool

@@ -859,13 +859,25 @@ class pixelClusterSplitProb1 (InDetFlagsJobProperty):
    """ Cut value for splitting clusters into two parts """
    statusOn = True
    allowedTypes = ['float']
-   StoredValue = 0.35
+   StoredValue = 0.6
 
 class pixelClusterSplitProb2 (InDetFlagsJobProperty):
    """ Cut value for splitting clusters into three parts """
    statusOn = True
    allowedTypes = ['float']
-   StoredValue = 0.4
+   StoredValue = 0.2
+
+class pixelClusterSplitProb1_run1 (InDetFlagsJobProperty):
+   """ Cut value for splitting clusters into two parts """
+   statusOn = True
+   allowedTypes = ['float']
+   StoredValue = 0.5
+
+class pixelClusterSplitProb2_run1 (InDetFlagsJobProperty):
+   """ Cut value for splitting clusters into three parts """
+   statusOn = True
+   allowedTypes = ['float']
+   StoredValue = 0.5
 
 class pixelClusterSplitMinPt (InDetFlagsJobProperty):
    """ Min pt for tracks to try and split hits """
@@ -994,10 +1006,22 @@ class doSLHCVeryForward(InDetFlagsJobProperty):
   StoredValue  = False 
 
 class doTRTOccupancyEventInfo(InDetFlagsJobProperty): 
-  """Turn running of Event Info TRT Occupancy Filling Alg on and off""" 
+  """Turn running of Event Info TRT Occupancy Filling Alg on and off (also whether it is used in TRT PID calculation)""" 
   statusOn     = True 
   allowedTypes = ['bool']
-  StoredValue  = True
+  StoredValue  = False
+
+class doNNToTCalibration(InDetFlagsJobProperty): 
+  """USe ToT calibration for NN clustering rather than Charge""" 
+  statusOn     = True 
+  allowedTypes = ['bool']
+  StoredValue  = False
+
+class keepAdditionalHitsOnTrackParticle(InDetFlagsJobProperty): 
+  """Do not drop first/last hits on track (only for special cases - will blow up TrackParticle szie!!!)""" 
+  statusOn     = True 
+  allowedTypes = ['bool']
+  StoredValue  = False
 
 ##-----------------------------------------------------------------------------
 ## 2nd step
@@ -1303,14 +1327,14 @@ class InDetJobProperties(JobPropertyContainer):
        # --- new setup for MinBias tracking
        if self.doMinBias():
           # --- run soft tracking
-          self.checkThenSet(self.doLowPt             , True )    
-          self.checkThenSet(self.doVeryLowPt         , True )
+          #self.checkThenSet(self.doLowPt             , False )    
+          #self.checkThenSet(self.doVeryLowPt         , False )
           # --- disable forward tracklets
           self.checkThenSet(self.doForwardTracks     , False )
           # --- run tracklets
-          self.checkThenSet(self.doTrackSegmentsPixel, True )
-          self.checkThenSet(self.doTrackSegmentsSCT  , True )
-          self.checkThenSet(self.doTrackSegmentsTRT  , True )
+          #self.checkThenSet(self.doTrackSegmentsPixel, False )
+          #self.checkThenSet(self.doTrackSegmentsSCT  , False )
+          #self.checkThenSet(self.doTrackSegmentsTRT  , False )
           # --- turn off brem
           self.checkThenSet(self.doBremRecovery  , False)
           self.checkThenSet(self.doCaloSeededBrem, False)
@@ -1490,7 +1514,7 @@ class InDetJobProperties(JobPropertyContainer):
       self.doV0Finder               = self.postProcessing() and self.doV0Finder()
       #
       # control to run InDetSimpleV0Finder
-      self.doSimpleV0Finder         = self.postProcessing() and self.doSimpleV0Finder()
+      #self.doSimpleV0Finder         = self.postProcessing() and self.doSimpleV0Finder()
       #
       # control to run alternative InDetV0Finder
       self.doSecVertexFinder        = self.postProcessing() and self.doSecVertexFinder()
@@ -1985,15 +2009,20 @@ class InDetJobProperties(JobPropertyContainer):
        else:
           print '* - use VkalVrt'
           pass
-       pass
-    if self.doSimpleV0Finder() :
-       print '* run simple V0 finder'
-       if self.useV0Fitter() :
-          print '* - use V0 fitter'
+       if self.doSimpleV0Finder() :
+          print '* - running with simple V0Finder cuts'
        else:
-          print '* - use VkalVrt'
+          print '* - running with full V0Finder cuts'
           pass
        pass
+    #if self.doSimpleV0Finder() :
+    #   print '* run simple V0 finder'
+    #   if self.useV0Fitter() :
+    #      print '* - use V0 fitter'
+    #   else:
+    #      print '* - use VkalVrt'
+    #      pass
+    #   pass
     if self.doSecVertexFinder() :
        print '* run V0 search using conversion finder with vertexing cut setup : ',self.secondaryVertexCutSetup()
     if self.doConversions() :
@@ -2312,6 +2341,8 @@ _list_InDetJobProperties = [Enabled,
                             pixelClusterSplittingType,
                             pixelClusterSplitProb1,
                             pixelClusterSplitProb2,
+                            pixelClusterSplitProb1_run1,
+                            pixelClusterSplitProb2_run1,
                             pixelClusterSplitMinPt,
                             useBroadClusterErrors,
                             useBroadPixClusterErrors,
@@ -2333,7 +2364,9 @@ _list_InDetJobProperties = [Enabled,
                             ForceCoraCool,
                             doTrackSegmentsPixelPrdAssociation,
                             doSLHCVeryForward,
-                            doTRTOccupancyEventInfo
+                            doTRTOccupancyEventInfo,
+                            doNNToTCalibration,
+                            keepAdditionalHitsOnTrackParticle
                            ]
 for j in _list_InDetJobProperties: 
     jobproperties.InDetJobProperties.add_JobProperty(j)
