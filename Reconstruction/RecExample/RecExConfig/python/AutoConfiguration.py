@@ -836,7 +836,7 @@ def ConfigureDoTruth():
         # if no truth in input file, switch doTruth to False
         itemsHaveTruth=False
         for item in itemsList:
-            if item.startswith('McEventCollection#'):
+            if item.startswith('McEventCollection#') or item.startswith("xAOD::TruthEventContainer#"):
                 itemsHaveTruth=True
 
         rec.doTruth.set_Value_and_Lock(itemsHaveTruth)
