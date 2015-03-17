@@ -153,7 +153,7 @@ TCS::DisambiguationIncl3::process( const std::vector<TCS::TOBArray const *> & in
 
                   bool accept[3];
                   for(unsigned int i=0; i<numberOutputBits(); ++i) {
-                     accept[i] = deltaR13 > p_DisambDR[i]*p_DisambDR[i] && deltaR23 > p_DisambDR[i]*p_DisambDR[i] ;
+                     accept[i] = deltaR13 > p_DisambDR[i] && deltaR23 > p_DisambDR[i] ;
                      if( accept[i] ) {
                         decision.setBit(i, true);
                         output[i]->push_back(TCS::CompositeTOB(*tob1, *tob2));

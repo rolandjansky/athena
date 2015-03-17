@@ -1,0 +1,141 @@
+/*********************************
+ * KalmanMETCorrection.cpp
+ * Created by Joerg Stelzer on 11/16/12.
+ * Copyright (c) 2012 Joerg Stelzer. All rights reserved.
+ *
+ * @brief algorithm calculates the KF correction per jet , get new XE and apply cut 
+ *
+ * @param NumberLeading
+**********************************/
+
+#include <cmath>
+
+#include "L1TopoAlgorithms/KalmanMETCorrection.h"
+#include "L1TopoCommon/Exception.h"
+#include "L1TopoInterfaces/Decision.h"
+#include "L1TopoSimulationUtils/KFLUT.h"
+
+REGISTER_ALG_TCS(KalmanMETCorrection)
+
+using namespace std;
+
+TCS::KalmanMETCorrection::KalmanMETCorrection(const std::string & name) : DecisionAlg(name)
+{
+   defineParameter("InputWidth1", 9);
+   defineParameter("InputWidth2", 9);
+   defineParameter("MaxTob1", 0); 
+   defineParameter("MaxTob2", 0); 
+   defineParameter("NumResultBits", 6);
+   defineParameter("MinEt", 0,0);
+   defineParameter("MinEt", 0,1);
+   defineParameter("MinEt", 0,2);
+   defineParameter("MinEt", 0,3); 
+   defineParameter("MinEt", 0,4);
+   defineParameter("MinEt", 0,5);
+   defineParameter("KFXE",0,0);
+   defineParameter("KFXE",0,1);
+   defineParameter("KFXE",0,2);
+   defineParameter("KFXE",0,3);
+   defineParameter("KFXE",0,4);
+   defineParameter("KFXE",0,5);
+   setNumberOutputBits(6);
+}
+
+TCS::KalmanMETCorrection::~KalmanMETCorrection(){}
+
+
+TCS::StatusCode
+TCS::KalmanMETCorrection::initialize() {
+   
+   p_NumberLeading1 = parameter("InputWidth1").value();
+   p_NumberLeading2 = parameter("InputWidth2").value();
+   if(parameter("MaxTob1").value() > 0) p_NumberLeading1 = parameter("MaxTob1").value();
+   if(parameter("MaxTob2").value() > 0) p_NumberLeading2 = parameter("MaxTob2").value();
+
+   for(unsigned int i=0; i<numberOutputBits(); ++i) {
+      p_XE[i] = parameter("KFXE",i).value();
+
+      p_MinEt[i] = parameter("MinEt",i).value();
+   }
+   TRG_MSG_INFO("NumberLeading1 : " << p_NumberLeading1);
+   TRG_MSG_INFO("NumberLeading2 : " << p_NumberLeading2);  
+   for(unsigned int i=0; i<numberOutputBits(); ++i) {
+    TRG_MSG_INFO("KFXE   : " << p_XE[i]);
+    TRG_MSG_INFO("MinET          : " << p_MinEt[i]);
+
+   }
+
+   TRG_MSG_INFO("number output : " << numberOutputBits());
+   
+   
+   return StatusCode::SUCCESS;
+}
+
+
+
+TCS::StatusCode
+TCS::KalmanMETCorrection::process( const std::vector<TCS::TOBArray const *> & input,
+                      const std::vector<TCS::TOBArray *> & output,
+                      Decision & decision )
+
+{
+
+   if(input.size()!=2) {
+      TCS_EXCEPTION("KalmanMETCorrection alg must have exactly two input list (jets and MET list), but got " << input.size());
+      return TCS::StatusCode::FAILURE;
+   }
+
+
+   const TCS::GenericTOB & met = (*input[0])[0];
+
+   double  KFmet = 0;
+   double KFmetphi = 0;
+   double summetx = met.Et()*cos(met.phiDouble());
+   double summety = met.Et()*sin(met.phiDouble());
+   double corrfactor = 0;
+  
+   TRG_MSG_DEBUG("metsumx " << summetx << "metsumy " << summety );
+ 
+   KFLUT  LUTobj;
+
+   // loop over  jets
+   for( TOBArray::const_iterator tob = input[1]->begin(); 
+           tob != input[1]->end() && distance( input[1]->begin(), tob) < p_NumberLeading2;
+           ++tob) 
+         {
+
+       if( (*tob)->Et() <= p_MinEt[0] ) continue; // E_T cut
+       int ipt = LUTobj.getetbin((*tob)->Et());
+       int jeta = LUTobj.getetabin(abs((*tob)->etaDouble()));
+
+       corrfactor = LUTobj.getcorrKF(ipt,jeta);   
+       
+       summetx += (-1.)*(*tob)->Et()*cos(parType_t((*tob)->phiDouble()))*corrfactor ;
+       summety += (-1.)*(*tob)->Et()*sin(parType_t((*tob)->phiDouble()))*corrfactor ;
+
+        TRG_MSG_DEBUG("corr  " << corrfactor);
+         TRG_MSG_DEBUG("metsumx " << summetx << "metsumy " << summety );
+
+       corrfactor = 0;
+  }
+   
+   
+   KFmet = sqrt(summetx*summetx + summety*summety);
+   if (KFmet > 0 ) KFmetphi= 10*atan2(summety,summetx);
+
+   for(unsigned int i=0; i<numberOutputBits(); ++i) {
+
+      bool accept = KFmet > p_XE[i];
+
+      decision.setBit( i, accept );
+
+      if(accept)
+         output[i]->push_back( CompositeTOB( GenericTOB::createOnHeap( GenericTOB(KFmet,0,KFmetphi) ) ));
+      
+      TRG_MSG_DEBUG("Old met " << met << ". Comparing new MET (phi)" << KFmet << "(" << KFmetphi << ")" << " with cut " << p_XE[i] << ". " << (KFmet > p_XE[i]?"Pass":"Fail"));
+
+   }
+
+
+   return TCS::StatusCode::SUCCESS;
+}

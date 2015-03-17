@@ -1,20 +1,21 @@
 /*********************************
- * DeltaRApproxBoxCutIncl2.cpp
+ * DeltaEtaPhiIncl1.cpp
  * Created by Joerg Stelzer on 11/16/12.
+ * Modified by V Sorin 
  * Copyright (c) 2012 Joerg Stelzer. All rights reserved.
- * Modified by V SOrin 2014
- * @brief algorithm calculates the eta and  phi-distance between  two lists and applies box cut  criteria
+ *
+ * @brief algorithm calculates the eta and  phi-distance between one lists and applies box cut criteria
  *
  * @param NumberLeading
 **********************************/
 
 #include <cmath>
 
-#include "L1TopoAlgorithms/DeltaRApproxBoxCutIncl2.h"
+#include "L1TopoAlgorithms/DeltaEtaPhiIncl1.h"
 #include "L1TopoCommon/Exception.h"
 #include "L1TopoInterfaces/Decision.h"
 
-REGISTER_ALG_TCS(DeltaRApproxBoxCutIncl2)
+REGISTER_ALG_TCS(DeltaEtaPhiIncl1)
 
 using namespace std;
 
@@ -36,45 +37,51 @@ namespace {
 }
 
 
-TCS::DeltaRApproxBoxCutIncl2::DeltaRApproxBoxCutIncl2(const std::string & name) : DecisionAlg(name)
+TCS::DeltaEtaPhiIncl1::DeltaEtaPhiIncl1(const std::string & name) : DecisionAlg(name)
 {
-   defineParameter("InputWidth1", 5);
-   defineParameter("InputWidth2", 3); 
+   defineParameter("InputWidth", 3);
+   defineParameter("MaxTob", 0);
    defineParameter("NumResultBits", 3);
-   defineParameter("DeltaPhiMin",  0, 0);
-   defineParameter("DeltaPhiMax", 63, 0);
-   defineParameter("DeltaPhiMin",  0, 1);
-   defineParameter("DeltaPhiMax",  5, 1);
-   defineParameter("DeltaPhiMin", 25, 2);
-   defineParameter("DeltaPhiMax", 32, 2);
-   defineParameter("DeltaEtaMin",  0, 0);
-   defineParameter("DeltaEtaMax", 63, 0);
-   defineParameter("DeltaEtaMin",  0, 1);
-   defineParameter("DeltaEtaMax",  5, 1);
-   defineParameter("DeltaEtaMin", 25, 2);
-   defineParameter("DeltaEtaMax", 32, 2);
-   defineParameter("MinET1",1);
-   defineParameter("MinET2",1);
+   defineParameter("MinEt1",1);
+   defineParameter("MinEt2",1);
+   defineParameter("MinDeltaEta",  0, 0);
+   defineParameter("MaxDeltaEta", 49, 0);
+   defineParameter("MinDeltaPhi",  0, 0);
+   defineParameter("MaxDeltaPhi", 63, 0);
+   defineParameter("MinDeltaEta",  0, 1);
+   defineParameter("MaxDeltaEta", 49, 1);
+   defineParameter("MinDeltaPhi",  0, 1);
+   defineParameter("MaxDeltaPhi", 63, 1);
+   defineParameter("MinDeltaEta",  0, 2);
+   defineParameter("MaxDeltaEta", 49, 2);
+   defineParameter("MinDeltaPhi",  0, 2);
+   defineParameter("MaxDeltaPhi", 63, 2);
    setNumberOutputBits(3);
 }
 
-TCS::DeltaRApproxBoxCutIncl2::~DeltaRApproxBoxCutIncl2(){}
+TCS::DeltaEtaPhiIncl1::~DeltaEtaPhiIncl1(){}
 
 
 TCS::StatusCode
-TCS::DeltaRApproxBoxCutIncl2::initialize() {
-   p_NumberLeading1 = parameter("InputWidth1").value();
-   p_NumberLeading2 = parameter("InputWidth2").value();
+TCS::DeltaEtaPhiIncl1::initialize() {
+
+   if(parameter("MaxTob").value() > 0) {
+    p_NumberLeading1 = parameter("MaxTob").value();
+    p_NumberLeading2 = parameter("MaxTob").value();
+   } else {
+    p_NumberLeading1 = parameter("InputWidth").value();
+    p_NumberLeading2 = parameter("InputWidth").value();
+   }
+
    for(int i=0; i<3; ++i) {
-      p_DeltaPhiMin[i] = parameter("DeltaPhiMin", i).value();
-      p_DeltaPhiMax[i] = parameter("DeltaPhiMax", i).value();
-      p_DeltaEtaMin[i] = parameter("DeltaEtaMin", i).value();
-      p_DeltaEtaMax[i] = parameter("DeltaEtaMax", i).value();
+      p_DeltaPhiMin[i] = parameter("MinDeltaPhi", i).value();
+      p_DeltaPhiMax[i] = parameter("MaxDeltaPhi", i).value();
+      p_DeltaEtaMin[i] = parameter("MinDeltaEta", i).value();
+      p_DeltaEtaMax[i] = parameter("MaxDeltaEta", i).value();
 
    }
-   p_MinET1 = parameter("MinET1").value();
-   p_MinET2 = parameter("MinET2").value();
-
+   p_MinET1 = parameter("MinEt1").value();
+   p_MinET2 = parameter("MinEt2").value();
 
    TRG_MSG_INFO("NumberLeading1 : " << p_NumberLeading1);  // note that the reading of generic parameters doesn't work yet
    TRG_MSG_INFO("NumberLeading2 : " << p_NumberLeading2);
@@ -92,7 +99,6 @@ TCS::DeltaRApproxBoxCutIncl2::initialize() {
    TRG_MSG_INFO("DeltaEtaMax2   : " << p_DeltaEtaMax[2]);
    TRG_MSG_INFO("MinET1          : " << p_MinET1);
    TRG_MSG_INFO("MinET2          : " << p_MinET2);
-
    TRG_MSG_INFO("number output : " << numberOutputBits());
    
    return StatusCode::SUCCESS;
@@ -101,12 +107,12 @@ TCS::DeltaRApproxBoxCutIncl2::initialize() {
 
 
 TCS::StatusCode
-TCS::DeltaRApproxBoxCutIncl2::process( const std::vector<TCS::TOBArray const *> & input,
+TCS::DeltaEtaPhiIncl1::process( const std::vector<TCS::TOBArray const *> & input,
                              const std::vector<TCS::TOBArray *> & output,
                              Decision & decison )
 {
 
-   if(input.size() == 2) {
+   if(input.size() == 1) {
 
       TRG_MSG_DEBUG("input size     : " << input[0]->size());
 
@@ -117,14 +123,15 @@ TCS::DeltaRApproxBoxCutIncl2::process( const std::vector<TCS::TOBArray const *> 
            ++tob1) 
          {
             
-            if( parType_t((*tob1)->Et()) <= p_MinET1 ) continue; // ET cut
-            
-      
-            for( TOBArray::const_iterator tob2 = input[1]->begin();
-                 tob2 != input[1]->end() && distance( input[1]->begin(), tob2) < p_NumberLeading2;
+            if( parType_t((*tob1)->Et()) <= min(p_MinET1,p_MinET2)) continue; // ET cut
+
+            TCS::TOBArray::const_iterator tob2 = tob1; ++tob2;      
+            for( ;
+                 tob2 != input[0]->end() && distance( input[0]->begin(), tob2) < p_NumberLeading2;
                  ++tob2) {
 
-               if( parType_t((*tob2)->Et()) <= p_MinET2) continue; // ET cut
+               if( parType_t((*tob2)->Et()) <= min(p_MinET1,p_MinET2)) continue; // ET cut
+               if( (parType_t((*tob1)->Et()) <= max(p_MinET1,p_MinET2)) && (parType_t((*tob2)->Et()) <= max(p_MinET1,p_MinET2))) continue;
 
                // DeltaPhi cuts
                unsigned int deltaPhi = calcDeltaPhi( *tob1, *tob2 );
@@ -134,12 +141,12 @@ TCS::DeltaRApproxBoxCutIncl2::process( const std::vector<TCS::TOBArray const *> 
 	       // to-do change message output
 
                std::stringstream msgss;
-               msgss << "    Combination : " << distance( input[0]->begin(), tob1) << " x " << distance( input[1]->begin(), tob2) << "  phi1=" << (*tob1)->phi() << " , phi2=" << (*tob2)->phi()
-                     << ", DeltaPhi = " << deltaPhi << ", DeltaEta = " << deltaEta <<" -> ";
+               msgss << "    Combination : " << distance( input[0]->begin(), tob1) << " x " << distance( input[0]->begin(), tob2) << "  phi1=" << (*tob1)->phi() << " , phi2=" << (*tob2)->phi()
+                     << ", DeltaPhi = " << deltaPhi << ", DeltaEta = " << deltaEta << " -> ";
 
                bool accept[3];
                for(unsigned int i=0; i<numberOutputBits(); ++i) {
-                  accept[i] = ( deltaEta >= p_DeltaEtaMin[i] ||  deltaPhi >= p_DeltaPhiMin[i] ) && deltaPhi <= p_DeltaPhiMax[i] && deltaEta <= p_DeltaEtaMax[i]; 
+                  accept[i] = ( deltaEta >= p_DeltaEtaMin[i] ||  deltaPhi >= p_DeltaPhiMin[i] ) && deltaPhi <= p_DeltaPhiMax[i] && deltaEta <= p_DeltaEtaMax[i];
                   if( accept[i] ) {
                      decison.setBit(i, true);  
                      output[i]->push_back( TCS::CompositeTOB(*tob1, *tob2) );
@@ -154,7 +161,7 @@ TCS::DeltaRApproxBoxCutIncl2::process( const std::vector<TCS::TOBArray const *> 
 
    } else {
 
-      TCS_EXCEPTION("DeltaRApproxBoxCutIncl2 alg must have  2 inputs, but got " << input.size());
+      TCS_EXCEPTION("DeltaEtaPhiIncl1 alg must have  1 input, but got " << input.size());
 
    }
    return TCS::StatusCode::SUCCESS;

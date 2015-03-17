@@ -146,8 +146,8 @@ TCS::DisambiguationDRIncl3::process( const std::vector<TCS::TOBArray const *> & 
 
                // test DeltaR2Min, DeltaR2Max
                unsigned int deltaR2Cut = calcDeltaR2( *tob1, *tob2 );
-               if (deltaR2Cut > p_DRCutMax*p_DRCutMax) continue;
-               if (deltaR2Cut <= p_DRCutMin*p_DRCutMin) continue;
+               if (deltaR2Cut > p_DRCutMax) continue;
+               if (deltaR2Cut <= p_DRCutMin) continue;
                
 	       for( TCS::TOBArray::const_iterator tob3 = input[2]->begin();
                  tob3 != input[2]->end() ;
@@ -162,7 +162,7 @@ TCS::DisambiguationDRIncl3::process( const std::vector<TCS::TOBArray const *> & 
 
                     bool accept[3];
                     for(unsigned int i=0; i<numberOutputBits(); ++i) {
-                       accept[i] = deltaR13 > p_DisambDR[i]*p_DisambDR[i] && deltaR23 > p_DisambDR[i]*p_DisambDR[i] ;
+                       accept[i] = deltaR13 > p_DisambDR[i] && deltaR23 > p_DisambDR[i] ;
                        if( accept[i] ) {
                          decision.setBit(i, true);
                          output[i]->push_back(TCS::CompositeTOB(*tob1, *tob2));
