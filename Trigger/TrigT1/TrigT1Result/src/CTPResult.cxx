@@ -28,7 +28,8 @@ namespace ROIB {
       m_CTPResultTrailer(),
       m_CTPResultRoIVec(),
       m_ctpVersionNumber(0),
-      m_ctpDataformat(0)
+      m_ctpDataformat(0),
+      m_useRoIB(false)
    {}
 
 
@@ -37,16 +38,21 @@ namespace ROIB {
       m_CTPResultTrailer( trail ),
       m_CTPResultRoIVec( rois ),
       m_ctpVersionNumber( ctpVersion ),
-      m_ctpDataformat( ctpVersion )
-   {}
+      m_ctpDataformat( ctpVersion ),
+      m_useRoIB(false)
+   {
+      m_useRoIB = (head.sourceID() == 0x770001);
+   }
 
 
    CTPResult::CTPResult(unsigned int ctpVersion, const Header& head, const Trailer& trail, const std::vector<uint32_t>& v ) :
       m_CTPResultHeader( head ),
       m_CTPResultTrailer( trail ),
       m_ctpVersionNumber( ctpVersion ),
-      m_ctpDataformat( ctpVersion )
+      m_ctpDataformat( ctpVersion ),
+      m_useRoIB(false)
    {
+      m_useRoIB = (head.sourceID() == 0x770001);
       std::copy(v.begin(), v.end(), back_inserter(m_CTPResultRoIVec));
    }
 
@@ -97,7 +103,7 @@ namespace ROIB {
 
       // TIP
       for (size_t i(0), p(m_ctpDataformat.getTIPpos());
-           (i < m_ctpDataformat.getTIPwords()) && (p < data.size()); 
+           (i < ((m_useRoIB) ? m_ctpDataformat.getRoIBTIPwords():m_ctpDataformat.getTIPwords())) && (p < data.size()); 
            ++i, ++p) {
          if (longFormat) s << "\n";
          if (i == 0 || longFormat) s << " TIP";
@@ -118,7 +124,7 @@ namespace ROIB {
       //    }
 
       // TBP
-      for (size_t i(0), p(m_ctpDataformat.getTBPpos());
+      for (size_t i(0), p(((m_useRoIB) ? m_ctpDataformat.getRoIBTBPpos():m_ctpDataformat.getTBPpos()));
            (i < m_ctpDataformat.getTBPwords()) && (p < data.size()); 
            ++i, ++p) {
          if (longFormat) s << "\n";
@@ -130,7 +136,7 @@ namespace ROIB {
 
       // TAP
       for (size_t i(0), p(m_ctpDataformat.getTAPpos());
-           (i < m_ctpDataformat.getTAPwords()) && (p < data.size()); 
+           (i < ((m_useRoIB) ? m_ctpDataformat.getRoIBTAPwords():m_ctpDataformat.getTAPwords())) && (p < data.size()); 
            ++i, ++p) {
          if (longFormat) s << "\n";
          if (i == 0 || longFormat) s << " TAP";
@@ -140,7 +146,7 @@ namespace ROIB {
       }
 
       // TAV
-      for (size_t i(0), p(m_ctpDataformat.getTAVpos());
+      for (size_t i(0), p(((m_useRoIB) ? m_ctpDataformat.getRoIBTAVpos():m_ctpDataformat.getTAVpos()));
            (i < m_ctpDataformat.getTAVwords()) && (p < data.size()); 
            ++i, ++p) {
          if (longFormat) s << "\n";
