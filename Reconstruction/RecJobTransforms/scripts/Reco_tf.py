@@ -3,7 +3,7 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 ## Reco_tf.py - New transform re-implementation of the beast that is Reco_trf.
-# @version $Id: Reco_tf.py 627717 2014-11-11 18:55:17Z graemes $ 
+# @version $Id: Reco_tf.py 654717 2015-03-17 13:39:36Z graemes $ 
 
 import sys
 import time
@@ -32,6 +32,11 @@ def main():
 
     trf = getTransform()
     trf.parseCmdLineArgs(sys.argv[1:])
+
+    # Just add a note here that this is the place to insert extra checks or manipulations
+    # after the arguments are known, but before the transform tries to trace the graph
+    # path or actually execute (e.g., one can add some steering based on defined arguments) 
+
     trf.execute()
     trf.generateReport()
 
@@ -42,8 +47,8 @@ def getTransform():
     executorSet = set()
     addRecoSubsteps(executorSet)
 
-    trf = transform(executor = executorSet, description = 'General purpose ATLAS reconstruction transform, which also supports'
-                    ' digitisation. Inputs can be HITS, RDO, BS, ESD or AOD, with outputs of RDO, ESD, AOD or DPDs.'
+    trf = transform(executor = executorSet, description = 'General purpose ATLAS digitisation and reconstruction transform'
+                    ' Inputs can be HITS, RDO, BS, ESD or AOD, with outputs of RDO, ESD, AOD or DAODs.'
                     ' See https://twiki.cern.ch/twiki/bin/view/AtlasComputing/RecoTf for more details.')
     
     addAthenaArguments(trf.parser)

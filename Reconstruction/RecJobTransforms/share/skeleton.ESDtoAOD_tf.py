@@ -5,12 +5,12 @@
 #
 # New version for revamped job transforms
 #
-# $Id: skeleton.ESDtoAOD_tf.py 565408 2013-10-15 10:30:33Z graemes $
+# $Id: skeleton.ESDtoAOD_tf.py 654717 2015-03-17 13:39:36Z graemes $
 #
 #==============================================================
 
 # Common job options disable most RecExCommon by default. Re-enable below on demand.
-include("PATJobTransforms/CommonSkeletonJobOptions.py")
+include("RecJobTransforms/CommonRecoSkeletonJobOptions.py")
 rec.doAOD=True
 
 #from AthenaCommon.Logging import logging
