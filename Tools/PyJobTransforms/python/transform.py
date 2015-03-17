@@ -5,7 +5,7 @@
 # @brief Main package for new style ATLAS job transforms
 # @details Core class for ATLAS job transforms
 # @author atlas-comp-transforms-dev@cern.ch
-# @version $Id: transform.py 649424 2015-02-24 22:06:20Z graemes $
+# @version $Id: transform.py 654738 2015-03-17 14:43:07Z graemes $
 # 
 
 __version__ = '$Revision'
@@ -456,11 +456,12 @@ class transform(object):
 
     ## @brief Setup steering, which manipulates the graph before we trace the path
     #  for this transform
-    def _doSteering(self):
-        steeringAliases = {'doRDO_TRIG': {'RAWtoESD' : [('in', '-', 'RDO'), ('in', '+', 'RDO_TRIG')]},
-                           }
-        
-        for substep, steeringValues in self._argdict['steering'].value.iteritems():
+    #  @param steeringDict Manual steering dictionary (if specified, used instead of the 
+    #  steering from the @c steering argument - pay attention to the input structure!
+    def _doSteering(self, steeringDict = None):
+        if not steeringDict:
+            steeringDict = self._argdict['steering'].value
+        for substep, steeringValues in steeringDict.iteritems():
             foundSubstep = False
             for executor in self._executors:
                 if executor.name == substep or executor.substep == substep:

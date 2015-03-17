@@ -5,7 +5,7 @@
 ## @Package test_trfAMI.py
 #  @brief Unittests for trfAMI.py
 #  @author bjorn.sarrazin@cern.ch
-#  @version $Id: test_trfAMI.py 649424 2015-02-24 22:06:20Z graemes $
+#  @version $Id: test_trfAMI.py 654738 2015-03-17 14:43:07Z graemes $
 
 import unittest
 
@@ -21,8 +21,7 @@ class trfAMIUnitTests(unittest.TestCase):
 
     # test T0 tag
     def test_info_q120(self):
-        physics = {'AMIConfig': 'q120', 'maxEvents': '-1', 'AMITag': 'q120', 'autoConfiguration': ['everything'], 'preExec': {'all': ['rec.doTrigger=False;BTaggingFlags.CalibrationTag="BTagCalibALL-07-09";rec.doFloatingPointException.set_Value_and_Lock(True)']}}
-        
+        physics = {'maxEvents': '25', 'AMITag': 'q120', 'autoConfiguration': ['everything'], 'preExec': {'all': ['rec.doTrigger=False;rec.doFloatingPointException.set_Value_and_Lock(True)']}}
         tag=TagInfo('q120')
         self.assertTrue(isinstance(tag.trfs[0], TrfConfig))
         self.assertEqual(tag.isProdSys, False)
@@ -51,14 +50,14 @@ class trfAMIUnitTests(unittest.TestCase):
         self.assertEqual(tag.trfs[1].release, '17.2.1.4.2,TrigMC')
         
     # test a new transform tag from AMI
-    def test_info_q220(self):
+    def test_info_x306(self):
         self.maxDiff = None
-        physics = {'conditionsTag': {'all': 'CONDBR2-ES1PA-2014-01'}, 'beamType': 'cosmics', 'ignoreErrors': True, 'autoConfiguration': ['everything'], 'maxEvents': '-1', 'AMITag': 'q220', 'preExec': {'all': ['from CaloRec.CaloCellFlags import jobproperties;jobproperties.CaloCellFlags.doLArHVCorr=False;jobproperties.CaloCellFlags.doPileupOffsetBCIDCorr.set_Value_and_Lock(False);from InDetRecExample.InDetJobProperties import InDetFlags;InDetFlags.doInnerDetectorCommissioning.set_Value_and_Lock(True);InDetFlags.useBroadClusterErrors.set_Value_and_Lock(False);DQMonFlags.doStreamAwareMon=False;DQMonFlags.enableLumiAccess=False;from JetRec.JetRecFlags import jetFlags;jetFlags.useTracks=False;DQMonFlags.doLVL1CaloMon=False;DQMonFlags.doCTPMon=False;']}, 'geometryVersion': {'all': 'ATLAS-R2-2015-02-00-00'}}
-        tag=TagInfo("q220")
+        physics = {'conditionsTag': {'all': 'CONDBR2-ES1PA-2014-03'}, 'beamType': 'cosmics', 'ignoreErrors': True, 'autoConfiguration': ['everything'], 'maxEvents': '-1', 'AMITag': 'x306', 'preExec': {'all': ['from CaloRec.CaloCellFlags import jobproperties;jobproperties.CaloCellFlags.doLArHVCorr=False;jobproperties.CaloCellFlags.doPileupOffsetBCIDCorr.set_Value_and_Lock(False);from InDetRecExample.InDetJobProperties import InDetFlags;InDetFlags.doInnerDetectorCommissioning.set_Value_and_Lock(True);InDetFlags.useBroadClusterErrors.set_Value_and_Lock(False);DQMonFlags.doStreamAwareMon=False;DQMonFlags.enableLumiAccess=False;from JetRec.JetRecFlags import jetFlags;jetFlags.useTracks=False;DQMonFlags.doCTPMon=False;']}, 'geometryVersion': {'all': 'ATLAS-R2-2015-02-00-00'}}
+        tag=TagInfo("x306")
         self.assertTrue(isinstance(tag.trfs[0], TrfConfig))
         self.assertEqual(tag.isProdSys, False)
         self.assertEqual(tag.trfs[0].name, 'Reco_tf.py')
-        self.assertEqual(tag.trfs[0].release, 'AtlasProduction,19.1.3.7')
+        self.assertEqual(tag.trfs[0].release, 'AtlasProduction,20.1.3.3')
         self.assertEqual(tag.trfs[0].physics, physics)
         
 
