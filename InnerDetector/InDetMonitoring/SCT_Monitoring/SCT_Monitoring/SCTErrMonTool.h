@@ -180,6 +180,18 @@ class SCTErrMonTool : public ManagedMonitorToolBase
   TH1F     * m_ConfOnline[4];
   TProfile * m_MaskedLinksVsLB[4];
   TProfile * m_ROBFragmentVsLB[4];
+
+  TProfile * m_ABCDVsLB[4];
+  TProfile * m_RawErrsVsLB[4];
+  TProfile * m_TimeOutVsLB[4];
+  TProfile * m_LVL1IDVsLB[4];
+  TProfile * m_BCIDVsLB[4];
+  TProfile * m_PreambleVsLB[4];
+  TProfile * m_FormatterVsLB[4];
+  TProfile * m_RODClockVsLB[4];
+  TProfile * m_TruncRODVsLB[4];
+  TProfile * m_BSParseVsLB[4];
+
   TProfile * m_NumberOfErrorsVsLB[4];
   TProfile * m_ModulesWithErrorsVsLB[4];
   TProfile * m_ConfEffOnline;

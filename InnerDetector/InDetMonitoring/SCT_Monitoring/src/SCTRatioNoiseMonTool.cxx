@@ -915,10 +915,13 @@ SCTRatioNoiseMonTool::prof2Factory(const std::string & name, const std::string &
 
 float SCTRatioNoiseMonTool::calculateNoiseOccupancyUsingRatioMethod(const float numberOneSide, const float numberZeroSide){
   float div, rat;
-	constexpr int nstrips(768);
-  div = numberOneSide/numberZeroSide;
-  rat = (div/(div+2))/nstrips;
-  return rat;
+  constexpr int nstrips(768);
+  if(numberZeroSide!=0){
+    div = numberOneSide/numberZeroSide;
+    rat = (div/(div+2))/nstrips;
+    return rat;
+  }
+  else return -1;
 }
 
 
