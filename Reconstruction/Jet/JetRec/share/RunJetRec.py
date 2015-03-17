@@ -40,7 +40,9 @@ if useLArHVCorr:
   jtm.modifiersMap["calib"] += [jtm.larhvcorr]
 if useJVFLoose:
   jtm.modifiersMap["calib"] += [jtm.jvfloose]
-jtm.modifiersMap["mycalib"] = jtm.modifiersMap["calib"] + [jtm.pull, jtm.charge, jtm.showerdec]
+jtm.modifiersMap["mycalib"] = jtm.modifiersMap["calib"] + [jtm.pull, jtm.charge]
+if jtm.haveShowerDeconstructionTool:
+  jtm.modifiersMap["mycalib"] += [jtm.showerdec]
 
 # Finders.
 # Calibration for topo jets: calibOpt =

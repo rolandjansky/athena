@@ -2,6 +2,9 @@
 
 # JetRecFlags.py
 #
+# David Adams
+# Updated March 2015
+#
 # These are flags for controlling the behavior of jet reconstruction
 # in RecExCommon (which includes JetRec/JetRec_jobOptions.py) and in
 # the example jet reconstruction options RunJetRec.py.
@@ -17,16 +20,16 @@
 #   useTruth - Truth jets and association are enabled (for MC)
 #   useTopo  - Topocluster jets are enabled
 #   useTracks - Track jets and association are enabled
+#   useVertices - Toggles whether PFlow jet reconstruction makes use of vertex information.
 #   useMuonSegmentss - Muon segemnt association is enabled
 #   usePFlow - PFlow jets and associations are enabled
 #   useInDetTrackSelection - The inner detector track selection
 #     tool is used. This requires track propagator exist.
 #   jetAODList - The list of jet collections to be written out
+#   And much more--see below.
 
 from AthenaCommon.JobProperties import JobProperty, JobPropertyContainer
 from AthenaCommon.JobProperties import jobproperties
-
-
 
 class JetRecFlags(JobPropertyContainer):
   """ The Jet making flag property container
@@ -49,26 +52,11 @@ class debug(JobProperty):
 
 class useTruth(JobProperty):
   """ If true, truth is present and used in jet reconstruction.
-  This flag is special : it's off by default. In this state it just forwards
-  the rec.doTruth() flags.
-  When it's set it stays to the corresponding value.
-
-  This behaviour avoids problem arising when JetRecFlags module is imported
-  or used before useTruth = rec.doTruth() is set. (and setting
-  StoredValue = rec.doTruth() isn't enough since the module can be imported
-  *before* rec.doTruth is set to the correct value)
+      The status is set on in JetRecStandardToolManager.
   """
-  statusOn     = False     
+  statusOn     = False    
   allowedTypes = ['bool']  # type
-  StoredValue  = True # this irrelevant  
-
-  def get_Value(self):
-      if self.statusOn:
-          return JobProperty.get_Value(self)
-      else:
-          from RecExConfig.RecFlags import rec
-          return rec.doTruth()
-  
+  StoredValue  = True      # default value
 
 class truthFlavorTags(JobProperty):
   """ List of flavor tags for truth tagging jets.
@@ -84,15 +72,17 @@ class truthFlavorTags(JobProperty):
   
 class useTopo(JobProperty):
   """ If true, topoclusters are present and used in jet reconstruction.
+      The status is set on in JetRecStandardToolManager.
   """
-  statusOn     = True     
+  statusOn     = False    
   allowedTypes = ['bool']  # type
   StoredValue  = True      # default value
 
 class useTracks(JobProperty):
   """ If true, tracks and vertices are present and used in jet reconstruction.
+      The status is set on in JetRecStandardToolManager.
   """
-  statusOn     = True     
+  statusOn     = False    
   allowedTypes = ['bool']  # type
   StoredValue  = True      # default value
 
@@ -105,13 +95,15 @@ class useVertices(JobProperty):
 
 class useMuonSegments(JobProperty):
   """ If true, muon segments are present and used in jet reconstruction.
+      The status is set on in JetRecStandardToolManager.
   """
-  statusOn     = True     
+  statusOn     = False    
   allowedTypes = ['bool']  # type
   StoredValue  = True      # default value
 
 class usePFlow(JobProperty):
   """ If true, pflow objects are present and used in jet reconstruction.
+      The status is set on in JetRecStandardToolManager.
   """
   statusOn     = True     
   allowedTypes = ['bool']  # type
