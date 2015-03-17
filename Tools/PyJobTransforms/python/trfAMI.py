@@ -79,10 +79,20 @@ class TrfConfig:
                         string += " " + k
                         for vk, vv in v.iteritems():
                             string += " " + _parseExecDict(vk, vv)
-                    if 'Include' in k: # preInclude, postInclude
+                    elif 'Include' in k: # preInclude, postInclude
                         string += " " + k
                         for vk, vv in v.iteritems():
                             string += " " + _parseIncludeDict(vk, vv)
+                    else:
+                        # Misc substep string/number argument...?
+                        # Be careful with the triggerConfig, which is a bit special in the separator
+                        if 'triggerConfig' in k:
+                            separator='='
+                        else:
+                            separator=':'
+                        string += " " + k
+                        for vk, vv in v.iteritems():
+                            string += " " + vk + separator + vv
                 elif isinstance(v, (list, tuple)):
                     # athenaopts are special - space separated
                     if "athenaopts" in k:

@@ -3,7 +3,7 @@
 ## @Package PyJobTransforms.trfArgs
 #  @brief Standard arguments supported by trf infrastructure
 #  @author atlas-comp-transforms-dev@cern.ch
-#  @version $Id: trfArgs.py 648491 2015-02-20 14:31:23Z graemes $
+#  @version $Id: trfArgs.py 652372 2015-03-06 22:13:05Z graemes $
 
 import logging
 msg = logging.getLogger(__name__)
@@ -159,8 +159,8 @@ def addDetectorArguments(parser):
 #  @param parser trfArgParser object
 def addMetadataArguments(parser):
     parser.defineArgGroup('Metadata', 'Metadata arguments that will be passed into the transform')
-    parser.add_argument('--AMIConfig', '--amiConfig', '--AMI', type=argFactory(trfArgClasses.argString, runarg=False), help='Configure transform with AMI tag', group="Metadata")
-    parser.add_argument('--AMITag', '--amiConfigTag', '--AMIConfigTag', type=argFactory(trfArgClasses.argString), metavar='TAG', group="Metadata",
+    parser.add_argument('--AMIConfig', '--AMI', type=argFactory(trfArgClasses.argString, runarg=False), help='Configure transform with AMI tag parameters', group="Metadata")
+    parser.add_argument('--AMITag',  type=argFactory(trfArgClasses.argString), metavar='TAG', group="Metadata",
                         help='AMI tag from which this job was defined - this option simply writes the '
                         'relevant AMI tag value into the output metadata, it does not configure the job (use --AMIConfig for that)')
     parser.add_argument('--taskid', type=argFactory(trfArgClasses.argString, runarg=False), help="Task identification number", group="Metadata")
@@ -386,14 +386,12 @@ class dpdType(object):
 def getExtraDPDList(NTUPOnly = False):
     extraDPDs = []
     extraDPDs.append(dpdType('NTUP_SCT', substeps=['r2e']))
-    extraDPDs.append(dpdType('NTUP_MUFAST', substeps=['r2e']))
     extraDPDs.append(dpdType('NTUP_MUONCALIB', substeps=['r2e'], treeNames=['PatternNtupleMaker/Segments']))
     extraDPDs.append(dpdType('NTUP_TRKVALID', substeps=['r2e']))
     extraDPDs.append(dpdType('NTUP_FASTMON', substeps=['a2t','a2d','e2a']))
     extraDPDs.append(dpdType('NTUP_LARNOISE', substeps=['e2d'], treeNames=['CollectionTree']))
     extraDPDs.append(dpdType('NTUP_WZ', substeps=['e2d'], treeNames=['physics']))
     extraDPDs.append(dpdType('NTUP_TRT', substeps=['e2d'], treeNames=['MyCollectionTree']))
-    extraDPDs.append(dpdType('NTUP_MCP', substeps=['e2d'], treeNames=['CollectionTree']))
     extraDPDs.append(dpdType('NTUP_HECNOISE', substeps=['e2d'], treeNames=['HECNoise']))
     extraDPDs.append(dpdType('NTUP_ENHBIAS', substeps=['e2d','e2a'], treeNames=['vertices']))
     extraDPDs.append(dpdType('NTUP_TRUTH', substeps=['a2d'], treeNames=['truth']))
@@ -402,8 +400,8 @@ def getExtraDPDList(NTUPOnly = False):
     extraDPDs.append(dpdType('NTUP_PROMPTPHOT', substeps=['e2d', 'a2d'], treeNames=["PAUReco","HggUserData"]))
     
     if not NTUPOnly:
-        extraDPDs.append(dpdType('DESDM_BEAMSPOT'))
         extraDPDs.append(dpdType('DAOD_HSG2'))
+        extraDPDs.append(dpdType('DESDM_ZMUMU'))
 
     return extraDPDs
 

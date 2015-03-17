@@ -4,7 +4,7 @@
 # @brief Transform utilities to deal with files.
 # @details Mainly used by argFile class.
 # @author atlas-comp-transforms-dev@cern.ch
-# @version $Id: trfFileUtils.py 641956 2015-01-27 10:07:00Z graemes $
+# @version $Id: trfFileUtils.py 652372 2015-03-06 22:13:05Z graemes $
 # @todo make functions timelimited
 
 import logging
@@ -176,7 +176,7 @@ def AthenaLiteFileInfo(filename, filetype, retrieveKeys = athFileInterestingKeys
                     metaDict[filename][key] = meta[key]
             except KeyError:
                 msg.warning('Missing key in athFile info: {0}'.format(key))
-    except (CalledProcessError, ValueError) as e:
+    except (CalledProcessError, ValueError, AssertionError) as e:
         msg.error('Problem in getting AthFile metadata for {0}'.format(filename))
         return None
     msg.debug('Returning {0}'.format(metaDict))
