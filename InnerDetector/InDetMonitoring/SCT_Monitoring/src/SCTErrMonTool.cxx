@@ -187,6 +187,16 @@ SCTErrMonTool::SCTErrMonTool(const std::string & type,const std::string & name,c
 
   clear1D(m_MaskedLinksVsLB);
   clear1D(m_ROBFragmentVsLB);
+  clear1D(m_ABCDVsLB);
+  clear1D(m_RawErrsVsLB);
+  clear1D(m_TimeOutVsLB);
+  clear1D(m_LVL1IDVsLB);
+  clear1D(m_BCIDVsLB);
+  clear1D(m_PreambleVsLB);
+  clear1D(m_FormatterVsLB);
+  clear1D(m_RODClockVsLB);
+  clear1D(m_TruncRODVsLB);
+  clear1D(m_BSParseVsLB);
   clear1D(m_NumberOfErrorsVsLB);
   clear1D(m_ModulesWithErrorsVsLB); 
 }
@@ -499,16 +509,53 @@ StatusCode SCTErrMonTool::fillByteStreamErrors() {
     return StatusCode::FAILURE; 
   }
   unsigned int current_lb = pEvent->event_ID()->lumi_block();
-  int maskedlink_err[4]={0,0,0,0};
-  int robfragment_err[4]={0,0,0,0};
+  int maskedlink_errs[4]={0,0,0,0};
+  int robfragment_errs[4]={0,0,0,0};
+  int abcd_errs[4]={0,0,0,0};//to avoid crash
+  int raw_errs[4]={0,0,0,0};
+  int timeout_errs[4]={0,0,0,0};
+  int lvl1id_errs[4]={0,0,0,0};
+  int bcid_errs[4]={0,0,0,0};
+  int preamble_errs[4]={0,0,0,0};
+  int formatter_errs[4]={0,0,0,0};
+  int rodclock_errs[4]={0,0,0,0};
+  int truncrod_errs[4]={0,0,0,0};
+  int bsparse_errs[4]={0,0,0,0};
+
   int tot_err[4]={0,0,0,0};
   int tot_mod_err[4]={0,0,0,0};
 
-  numByteStreamErrors(m_byteStreamErrSvc->getErrorSet(SCT_ByteStreamErrors::MaskedLink), maskedlink_err[3],maskedlink_err[0],maskedlink_err[1],maskedlink_err[2]);
-  numByteStreamErrors(m_byteStreamErrSvc->getErrorSet(SCT_ByteStreamErrors::ROBFragmentError), robfragment_err[3],robfragment_err[0],robfragment_err[1],robfragment_err[2]);
+  numByteStreamErrors(m_byteStreamErrSvc->getErrorSet(SCT_ByteStreamErrors::MaskedLink), maskedlink_errs[3],maskedlink_errs[0],maskedlink_errs[1],maskedlink_errs[2]);
+  numByteStreamErrors(m_byteStreamErrSvc->getErrorSet(SCT_ByteStreamErrors::ROBFragmentError), robfragment_errs[3],robfragment_errs[0],robfragment_errs[1],robfragment_errs[2]);
+  
+  numByteStreamErrors(m_byteStreamErrSvc->getErrorSet(SCT_ByteStreamErrors::ABCDError), abcd_errs[3],abcd_errs[0],abcd_errs[1],abcd_errs[2]);
+  numByteStreamErrors(m_byteStreamErrSvc->getErrorSet(SCT_ByteStreamErrors::RawError), raw_errs[3],raw_errs[0],raw_errs[1],raw_errs[2]);
+  numByteStreamErrors(m_byteStreamErrSvc->getErrorSet(SCT_ByteStreamErrors::TimeOutError), timeout_errs[3],timeout_errs[0],timeout_errs[1],timeout_errs[2]);
+  numByteStreamErrors(m_byteStreamErrSvc->getErrorSet(SCT_ByteStreamErrors::LVL1IDError), lvl1id_errs[3],lvl1id_errs[0],lvl1id_errs[1],lvl1id_errs[2]);
+  numByteStreamErrors(m_byteStreamErrSvc->getErrorSet(SCT_ByteStreamErrors::BCIDError), bcid_errs[3],bcid_errs[0],bcid_errs[1],bcid_errs[2]);
+  numByteStreamErrors(m_byteStreamErrSvc->getErrorSet(SCT_ByteStreamErrors::PreambleError), preamble_errs[3],preamble_errs[0],preamble_errs[1],preamble_errs[2]);
+  numByteStreamErrors(m_byteStreamErrSvc->getErrorSet(SCT_ByteStreamErrors::FormatterError), formatter_errs[3],formatter_errs[0],formatter_errs[1],formatter_errs[2]);
+  numByteStreamErrors(m_byteStreamErrSvc->getErrorSet(SCT_ByteStreamErrors::RODClockError), rodclock_errs[3],rodclock_errs[0],rodclock_errs[1],rodclock_errs[2]);
+  numByteStreamErrors(m_byteStreamErrSvc->getErrorSet(SCT_ByteStreamErrors::TruncatedROD), truncrod_errs[3],truncrod_errs[0],truncrod_errs[1],truncrod_errs[2]);
+  numByteStreamErrors(m_byteStreamErrSvc->getErrorSet(SCT_ByteStreamErrors::ByteStreamParseError), bsparse_errs[3],bsparse_errs[0],bsparse_errs[1],bsparse_errs[2]);
+  
   for (int reg=0; reg<4;++reg) {
-    m_MaskedLinksVsLB[reg]->Fill(current_lb,double (maskedlink_err[reg]));
-    m_ROBFragmentVsLB[reg]->Fill(current_lb,double (robfragment_err[reg]));
+    m_MaskedLinksVsLB[reg]->Fill(current_lb,double (maskedlink_errs[reg]));
+    m_ROBFragmentVsLB[reg]->Fill(current_lb,double (robfragment_errs[reg]));
+
+    m_ABCDVsLB[reg]->Fill(current_lb,double (abcd_errs[reg]));
+    
+    m_RawErrsVsLB[reg]->Fill(current_lb,double (raw_errs[reg]));
+    m_TimeOutVsLB[reg]->Fill(current_lb,double (timeout_errs[reg]));
+    m_LVL1IDVsLB[reg]->Fill(current_lb,double (lvl1id_errs[reg]));
+    m_BCIDVsLB[reg]->Fill(current_lb,double (bcid_errs[reg]));
+    m_PreambleVsLB[reg]->Fill(current_lb,double (preamble_errs[reg]));
+    m_FormatterVsLB[reg]->Fill(current_lb,double (formatter_errs[reg]));
+    m_RODClockVsLB[reg]->Fill(current_lb,double (rodclock_errs[reg]));
+    m_TruncRODVsLB[reg]->Fill(current_lb,double (truncrod_errs[reg]));
+    
+    m_BSParseVsLB[reg]->Fill(current_lb,double (bsparse_errs[reg]));
+    
   }
 
   m_MaskedLinks->Reset();
@@ -949,6 +996,17 @@ StatusCode  SCTErrMonTool::bookConfMaps(){
         TString confnoisetitle_recent="SCTNoiseConfRecent";
         TString maskedlinktitle[4]={"SCTMaskedLinkConfBarrel","SCTMaskedLinkConfEndcapA","SCTMaskedLinkConfEndcapC","SCTMaskedLinkConf"};
         TString robfragtitle[4]={"SCTROBFragmentConfBarrel","SCTROBFragmentConfEndcapA","SCTROBFragmentConfEndcapC","SCTROBFragmentConf"};
+        TString abcdtitle[4]={"SCTABCDerrsVsLbsBarrel","SCTABCDerrsVsLbsEndcapA","SCTABCDerrsVsLbsEndcapC","SCTABCDerrsVsLbs"};
+        TString rawerrstitle[4]={"SCTRawerrsVsLbsBarrel","SCTRawerrsVsLbsEndcapA","SCTRawerrsVsLbsEndcapC","SCTRawerrsVsLbs"};
+        TString timeouttitle[4]={"SCTTimeOutVsLbsBarrel","SCTTimeOutVsLbsEndcapA","SCTTimeOutVsLbsEndcapC","SCTTimeOutVsLbs"};
+        TString lvl1idtitle[4]={"SCTLVL1IDerrsVsLbsBarrel","SCTLVL1IDerrsVsLbsEndcapA","SCTLVL1IDerrsVsLbsEndcapC","SCTLVL1IDerrsVsLbs"};
+        TString bcidtitle[4]={"SCTBCIDerrsVsLbsBarrel","SCTBCIDerrsVsLbsEndcapA","SCTBCIDerrsVsLbsEndcapC","SCTBCIDerrsVsLbs"};
+        TString preambletitle[4]={"SCTPreambleVsLbsBarrel","SCTPreambleVsLbsEndcapA","SCTPreambleVsLbsEndcapC","SCTPreambleVsLbs"};
+        TString formattertitle[4]={"SCTFormattererrsVsLbsBarrel","SCTFormattererrsVsLbsEndcapA","SCTFormattererrsVsLbsEndcapC","SCTFormattersVsLbs"};
+        TString rodclocktitle[4]={"SCTRODClockerrsVsLbsBarrel","SCTRODClockerrsVsLbsEndcapA","SCTRODClockerrsVsLbsEndcapC","SCTRODClockerrsVsLbs"};
+        TString truncrodtitle[4]={"SCTTruncatedRODVsLbsBarrel","SCTTruncatedRODVsLbsEndcapA","SCTTruncatedRODVsLbsEndcapC","SCTTruncatedRODVsLbs"};
+	TString bsparsetitle[4]={"SCTBSParseerrsVsLbsBarrel","SCTBSParseerrsVsLbsEndcapA","SCTBSParseerrsVsLbsEndcapC","SCTBSParseerrsVsLbs"};
+
         TString numerrors[4]={"SCTNumberOfErrorsBarrel","SCTNumberOfErrorsEndcapA","SCTNumberOfErrorsEndcapC","SCTNumberOfErrors"};
         TString moderrors[4]={"SCTModulesWithErrorsBarrel","SCTModulesWithErrorsEndcapA","SCTModulesWithErrorsEndcapC","SCTModulesWithErrors"};
         for(int reg=0; reg<4; reg++){
@@ -961,8 +1019,41 @@ StatusCode  SCTErrMonTool::bookConfMaps(){
           }
           m_MaskedLinksVsLB[reg] = new TProfile(maskedlinktitle[reg],"Average number of masked link errors per event vs. lumiblock in "+ region[reg],n_lumiBins,0.5,n_lumiBins+0.5);
           m_MaskedLinksVsLB[reg]->GetXaxis()->SetTitle("LumiBlock"); 
+          m_MaskedLinksVsLB[reg]->GetYaxis()->SetTitle("Num of masked link errors"); 
           m_ROBFragmentVsLB[reg] = new TProfile(robfragtitle[reg],"Average number of ROB fragment errors per event vs. lumiblock in "+ region[reg],n_lumiBins,0.5,n_lumiBins+0.5);
-          m_ROBFragmentVsLB[reg]->GetXaxis()->SetTitle("LumiBlock"); 
+          m_ROBFragmentVsLB[reg]->GetXaxis()->SetTitle("LumiBlock");
+          m_ROBFragmentVsLB[reg]->GetYaxis()->SetTitle("Num of ROB fragment errors");
+          m_ABCDVsLB[reg] = new TProfile(abcdtitle[reg],"Average number of ABCD errors per event vs. lumiblock in "+ region[reg],n_lumiBins,0.5,n_lumiBins+0.5);
+          m_ABCDVsLB[reg]->GetXaxis()->SetTitle("LumiBlock");
+          m_ABCDVsLB[reg]->GetYaxis()->SetTitle("Num of ABCD errors");
+          m_RawErrsVsLB[reg] = new TProfile(rawerrstitle[reg],"Average number of Raw errors per event vs. lumiblock in "+ region[reg],n_lumiBins,0.5,n_lumiBins+0.5);
+          m_RawErrsVsLB[reg]->GetXaxis()->SetTitle("LumiBlock");
+          m_RawErrsVsLB[reg]->GetYaxis()->SetTitle("Num of raw errors");
+          m_TimeOutVsLB[reg] = new TProfile(timeouttitle[reg],"Average number of Time Out errors per event vs. lumiblock in "+ region[reg],n_lumiBins,0.5,n_lumiBins+0.5);
+          m_TimeOutVsLB[reg]->GetXaxis()->SetTitle("LumiBlock");
+          m_TimeOutVsLB[reg]->GetYaxis()->SetTitle("Num of time out errors");
+          m_LVL1IDVsLB[reg] = new TProfile(lvl1idtitle[reg],"Average number of LVL1ID errors per event vs. lumiblock in "+ region[reg],n_lumiBins,0.5,n_lumiBins+0.5);
+          m_LVL1IDVsLB[reg]->GetXaxis()->SetTitle("LumiBlock");
+          m_LVL1IDVsLB[reg]->GetYaxis()->SetTitle("Num of LVL1ID errors");
+          m_BCIDVsLB[reg] = new TProfile(bcidtitle[reg],"Average number of BCID errors per event vs. lumiblock in "+ region[reg],n_lumiBins,0.5,n_lumiBins+0.5);
+          m_BCIDVsLB[reg]->GetXaxis()->SetTitle("LumiBlock");
+          m_BCIDVsLB[reg]->GetYaxis()->SetTitle("Num of BCID errors");
+          m_PreambleVsLB[reg] = new TProfile(preambletitle[reg],"Average number of Preamble errors per event vs. lumiblock in "+ region[reg],n_lumiBins,0.5,n_lumiBins+0.5);
+          m_PreambleVsLB[reg]->GetXaxis()->SetTitle("LumiBlock");
+          m_PreambleVsLB[reg]->GetYaxis()->SetTitle("Num of preamble errors");
+          m_FormatterVsLB[reg] = new TProfile(formattertitle[reg],"Average number of Formatter errors per event vs. lumiblock in "+ region[reg],n_lumiBins,0.5,n_lumiBins+0.5);
+          m_FormatterVsLB[reg]->GetXaxis()->SetTitle("LumiBlock");
+          m_FormatterVsLB[reg]->GetYaxis()->SetTitle("Num of formatter errors");
+          m_RODClockVsLB[reg] = new TProfile(rodclocktitle[reg],"Average number of ROD Clock errors per event vs. lumiblock in "+ region[reg],n_lumiBins,0.5,n_lumiBins+0.5);
+          m_RODClockVsLB[reg]->GetXaxis()->SetTitle("LumiBlock");
+          m_RODClockVsLB[reg]->GetYaxis()->SetTitle("Num of ROD clock errors");
+          m_TruncRODVsLB[reg] = new TProfile(truncrodtitle[reg],"Average number of Truncated RODs per event vs. lumiblock in "+ region[reg],n_lumiBins,0.5,n_lumiBins+0.5);
+          m_TruncRODVsLB[reg]->GetXaxis()->SetTitle("LumiBlock");
+          m_TruncRODVsLB[reg]->GetYaxis()->SetTitle("Num of truncated RODs");
+          m_BSParseVsLB[reg] = new TProfile(bsparsetitle[reg],"Average number of BS Parse errors per event vs. lumiblock in "+ region[reg],n_lumiBins,0.5,n_lumiBins+0.5);
+          m_BSParseVsLB[reg]->GetXaxis()->SetTitle("LumiBlock");
+          m_BSParseVsLB[reg]->GetYaxis()->SetTitle("Num of BS parse errors");
+ 
           m_NumberOfErrorsVsLB[reg] = new TProfile(numerrors[reg],"Average number of errors per event vs. lumiblock in "+ region[reg],n_lumiBins,0.5,n_lumiBins+0.5);
           m_NumberOfErrorsVsLB[reg]->GetXaxis()->SetTitle("LumiBlock"); 
           m_ModulesWithErrorsVsLB[reg] = new TProfile(moderrors[reg],"Average number of modules with errors per event vs. lumiblock in "+region[reg],n_lumiBins,0.5,n_lumiBins+0.5);
@@ -999,6 +1090,47 @@ StatusCode  SCTErrMonTool::bookConfMaps(){
       if ( ConfMaps.regHist(m_ROBFragmentVsLB[0]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTROBFragmentConf" << endreq;
       if ( ConfHistECA.regHist(m_ROBFragmentVsLB[1]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTROBFragmentConf" << endreq;
       if ( ConfHistECC.regHist(m_ROBFragmentVsLB[2]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTROBFragmentConf" << endreq;
+      if ( ConfHist.regHist(m_ABCDVsLB[3]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTABCDConf" << endreq;
+      if ( ConfMaps.regHist(m_ABCDVsLB[0]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTABCDConf" << endreq;
+      if ( ConfHistECA.regHist(m_ABCDVsLB[1]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTABCDConf" << endreq;
+      if ( ConfHistECC.regHist(m_ABCDVsLB[2]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTABCDConf" << endreq;
+      if ( ConfHist.regHist(m_RawErrsVsLB[3]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTRawErrsConf" << endreq;
+      if ( ConfMaps.regHist(m_RawErrsVsLB[0]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTRawErrsConf" << endreq;
+      if ( ConfHistECA.regHist(m_RawErrsVsLB[1]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTRawErrsConf" << endreq;
+      if ( ConfHistECC.regHist(m_RawErrsVsLB[2]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTRawErrsConf" << endreq;
+      if ( ConfHist.regHist(m_TimeOutVsLB[3]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTTimeOutConf" << endreq;
+      if ( ConfMaps.regHist(m_TimeOutVsLB[0]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTTimeOutConf" << endreq;
+      if ( ConfHistECA.regHist(m_TimeOutVsLB[1]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTTimeOutConf" << endreq;
+      if ( ConfHistECC.regHist(m_TimeOutVsLB[2]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTTimeOutConf" << endreq;
+      if ( ConfHist.regHist(m_LVL1IDVsLB[3]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTLVL1IDConf" << endreq;
+      if ( ConfMaps.regHist(m_LVL1IDVsLB[0]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTLVL1IDConf" << endreq;
+      if ( ConfHistECA.regHist(m_LVL1IDVsLB[1]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTLVL1IDConf" << endreq;
+      if ( ConfHistECC.regHist(m_LVL1IDVsLB[2]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTLVL1IDConf" << endreq;
+      if ( ConfHist.regHist(m_BCIDVsLB[3]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTBCIDConf" << endreq;
+      if ( ConfMaps.regHist(m_BCIDVsLB[0]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTBCIDConf" << endreq;
+      if ( ConfHistECA.regHist(m_BCIDVsLB[1]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTBCIDConf" << endreq;
+      if ( ConfHistECC.regHist(m_BCIDVsLB[2]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTBCIDConf" << endreq;
+      if ( ConfHist.regHist(m_PreambleVsLB[3]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTPreambleConf" << endreq;
+      if ( ConfMaps.regHist(m_PreambleVsLB[0]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTPreambleConf" << endreq;
+      if ( ConfHistECA.regHist(m_PreambleVsLB[1]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTPreambleConf" << endreq;
+      if ( ConfHistECC.regHist(m_PreambleVsLB[2]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTPreambleConf" << endreq;
+      if ( ConfHist.regHist(m_FormatterVsLB[3]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTFormatterConf" << endreq;
+      if ( ConfMaps.regHist(m_FormatterVsLB[0]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTFormatterConf" << endreq;
+      if ( ConfHistECA.regHist(m_FormatterVsLB[1]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTFormatterConf" << endreq;
+      if ( ConfHistECC.regHist(m_FormatterVsLB[2]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTFormatterConf" << endreq;
+      if ( ConfHist.regHist(m_RODClockVsLB[3]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTRODClockConf" << endreq;
+      if ( ConfMaps.regHist(m_RODClockVsLB[0]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTRODClockConf" << endreq;
+      if ( ConfHistECA.regHist(m_RODClockVsLB[1]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTRODClockConf" << endreq;
+      if ( ConfHistECC.regHist(m_RODClockVsLB[2]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTRODClockConf" << endreq;
+      if ( ConfHist.regHist(m_TruncRODVsLB[3]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTTruncRODConf" << endreq;
+      if ( ConfMaps.regHist(m_TruncRODVsLB[0]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTTruncRODConf" << endreq;
+      if ( ConfHistECA.regHist(m_TruncRODVsLB[1]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTTruncRODConf" << endreq;
+      if ( ConfHistECC.regHist(m_TruncRODVsLB[2]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTTruncRODConf" << endreq;
+      if ( ConfHist.regHist(m_BSParseVsLB[3]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTBSParseConf" << endreq;
+      if ( ConfMaps.regHist(m_BSParseVsLB[0]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTBSParseConf" << endreq;
+      if ( ConfHistECA.regHist(m_BSParseVsLB[1]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTBSParseConf" << endreq;
+      if ( ConfHistECC.regHist(m_BSParseVsLB[2]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTBSParseConf" << endreq;
+
       if ( ConfHist.regHist(m_NumberOfErrorsVsLB[3]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTNumberOfErrors" << endreq;
       if ( ConfMaps.regHist(m_NumberOfErrorsVsLB[0]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTNumberOfErrors" << endreq;
       if ( ConfHistECA.regHist(m_NumberOfErrorsVsLB[1]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTNumberOfErrors" << endreq;
