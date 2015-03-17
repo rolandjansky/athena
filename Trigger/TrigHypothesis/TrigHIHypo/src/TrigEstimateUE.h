@@ -22,14 +22,16 @@ class TrigEstimateUE : public HLT::AllTEAlgo{
   HLT::ErrorCode hltExecute(VecVecTE& tes_in, unsigned int type_out);
   HLT::ErrorCode hltRest();
  private:
+
   HLT::ErrorCode verifyInput(VecVecTE&);
   const CaloCellContainer* getCells(VecVecTE& );
   
   bool m_hasRun;
-  size_t m_nEtaSlices;
+
   const CaloCellContainer* m_cells;
   double m_EtaMin;
   double m_EtaMax;
+  size_t m_nEtaSlices;
 
   struct etaBin {
     double etaMin;
@@ -48,7 +50,7 @@ class TrigEstimateUE : public HLT::AllTEAlgo{
   };
   
   Averages m_avg;
-  
+
 };
 
  
