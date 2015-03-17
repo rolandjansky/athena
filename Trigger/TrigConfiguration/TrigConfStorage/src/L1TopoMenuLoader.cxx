@@ -31,14 +31,20 @@ bool TrigConf::L1TopoMenuLoader::load( TXC::L1TopoMenu& tcaTarget ) {
         TRG_MSG_INFO("Not loading L1 TopoMenu from a run 1 database");
         return true;
      }
-     TRG_MSG_INFO("Loading L1 TopoMenu");
+     TRG_MSG_INFO("Loading L1 TopoMenu with SMK " << tcaTarget.getSMK());
      startSession();
      loadTopoAlgos(tcaTarget);
      commitSession();
+     if(msg().level() <= TrigConf::MSGTC::INFO)
+       tcaTarget.print();
    } catch( const std::exception& e ) {
       TRG_MSG_ERROR("L1TopoMenuLoader::load >> Standard C++ exception: " << e.what());
+   } catch( ... ) {
+      TRG_MSG_ERROR("L1TopoMenuLoader::load >> ... caught ");
    }
-   return 1;
+   TRG_MSG_INFO( "Loaded L1 TopoMenu with " << tcaTarget.getL1TopoConfigAlgs().size() << " algorithms and " 
+                 << tcaTarget.getL1TopoConfigOutputList().getTriggerLines().size() << " trigger lines");
+   return true;
 }
 
 bool TrigConf::L1TopoMenuLoader::loadTopoAlgos( TXC::L1TopoMenu& tcaTarget) {
@@ -121,7 +127,7 @@ bool TrigConf::L1TopoMenuLoader::loadTopoAlgos( TXC::L1TopoMenu& tcaTarget) {
    } catch( const std::exception& e ) {
       TRG_MSG_ERROR("loadTopoAlgos >> Standard C++ exception: " << e.what());
       commitSession();
-      return false; 
+      throw;
    }
    return true;
 }
@@ -158,11 +164,12 @@ bool TrigConf::L1TopoMenuLoader::loadAlgInput( TXC::L1TopoConfigAlg& tcaTarget, 
          string tai_name = row0["TAI.TAI_NAME"].data<string>();
          string tai_value = row0["TAI.TAI_VALUE"].data<string>();
          int tai_pos = row0["TAI.TAI_POSITION"].data<int>();
+         if(tai_pos<0) tai_pos=0; // when position is missing in XML, currently the TT uploads -1 instead of 0
          tcaTarget.addInput(tai_name,tai_value,tai_pos);
      }
    } catch (const exception& e){
       TRG_MSG_ERROR("loadAlgInput >> Standard C++ exception: " << e.what());
-     return false;
+      throw;
    }
    return true;
 }
@@ -201,11 +208,13 @@ bool TrigConf::L1TopoMenuLoader::loadAlgRegister( TXC::L1TopoConfigAlg& tcaTarge
          long tp_value = row0["TP.TP_VALUE"].data<long>();
          int tp_pos = row0["TP.TP_POSITION"].data<int>();
          int tp_sel = row0["TP.TP_SELECTION"].data<int>();
+         if(tp_pos<0) tp_pos=0;
+         if(tp_sel<0) tp_sel=0;
          tcaTarget.addParameter(tp_name,to_string(tp_value),tp_pos, tp_sel);
      }
    } catch (const exception& e){
-     TRG_MSG_ERROR("loadAlgRegister >> Standard C++ exception: " << e.what());
-     return false;
+      TRG_MSG_ERROR("loadAlgRegister >> Standard C++ exception: " << e.what());
+      throw;
    }
    return true;
 }
@@ -246,8 +255,8 @@ bool TrigConf::L1TopoMenuLoader::loadAlgOutput( TXC::L1TopoConfigAlg& tcaTarget,
          tcaTarget.addOutput(tao_name,tao_value,ta_bits,tao_bitname, tao_sel);
      }
    } catch (const exception& e){
-     TRG_MSG_ERROR("loadAlgOutput >> Standard C++ exception: " << e.what());
-     return false;
+      TRG_MSG_ERROR("loadAlgOutput >> Standard C++ exception: " << e.what());
+      throw;
    }
    return true;
 }
@@ -333,12 +342,12 @@ bool TrigConf::L1TopoMenuLoader::loadOutputList( TXC::L1TopoMenu& tcaTarget, con
          unsigned int tol_fpga = row0["TOLINE.TOL_FPGA"].data<unsigned int>();
          unsigned int tol_clock = row0["TOLINE.TOL_CLOCK"].data<unsigned int>();
          unsigned int tol_firstbit = row0["TOLINE.TOL_FIRST_BIT"].data<unsigned int>();
-         tcaTarget.addL1TopoXMLOutput(TXC::OutputListElement(tol_name,tol_algoId,tol_module,tol_fpga,tol_clock,tol_firstbit));
+         tcaTarget.addL1TopoXMLOutput(TXC::OutputListElement( tol_name, tol_algoId, tol_module, tol_fpga, tol_clock, tol_firstbit));
      }
      tcaTarget.setTriggerList();
    } catch (const exception& e){
      TRG_MSG_ERROR("loadOutputList >> Standard C++ exception: " << e.what());
-     return false;
+     throw;
    }
    return true;
 }
@@ -392,7 +401,7 @@ bool TrigConf::L1TopoMenuLoader::loadTopoConfig( TXC::L1TopoMenu& tcaTarget) {
    } catch( const std::exception& e ) {
       TRG_MSG_ERROR("loadTopoConfig >> Standard C++ exception: " << e.what());
       commitSession();
-      return false; 
+      throw;
    }
    return true;
 }

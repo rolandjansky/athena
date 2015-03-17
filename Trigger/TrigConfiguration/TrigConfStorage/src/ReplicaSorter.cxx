@@ -74,10 +74,10 @@ TrigConf::ReplicaSorter::readConfig() {
       // check if the returned host has a .
       if (m_hostname.find(".")==std::string::npos) {
          m_hostname="unknown";
-	 char cstr_host[HOST_NAME_MAX];
-	 if (gethostname(cstr_host, sizeof(cstr_host))==0) {
-	   m_hostname=std::string(cstr_host);
-	 }
+         char cstr_host[HOST_NAME_MAX];
+         if (gethostname(cstr_host, sizeof(cstr_host))==0) {
+            m_hostname=std::string(cstr_host);
+         }
       }
    }
    std::cout << "Using machine hostname " << m_hostname << " for DB replica resolution" << std::endl;

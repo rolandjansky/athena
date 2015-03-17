@@ -55,18 +55,30 @@ class CompareMenuXML(object):
 
 
     def diff(self, doc1, doc2):
-        return self.comp(doc1, doc2, "")
+        self.uniqID.update({'document' : 'single'})
+        self.addContextToNode(doc1, "")
+        self.addContextToNode(doc2, "")
+        return self.comp(doc1, doc2)
+
+    def addContextToNode(self,node,parentContext):
+        node.context = parentContext + "." + node.nodeName
+        #print >> self, "Node %s with context %s" % (node.nodeName,node.context)
+        node.compfield = self.getCompFieldFromContext(node)
+        for c in node.childNodes:
+            self.addContextToNode(c, node.context)
 
 
-    def comp(self, node1, node2, context):
-
+    def comp(self, node1, node2):
         if self.isOneMissing(node1, node2): return False
-
-        self.context = context + "." + node1.nodeName
 
         equal = True
         if self.verboseLevel>0:
-            print >> self, "compare %s with %s" % (node1.nodeName,node2.nodeName)
+            if node1.compfield == 'single':
+                print >> self, "compare single %s with %s in context %s" % (node1.nodeName,node2.nodeName, node1.context)
+            else:
+                val1 = node1.attributes[node1.compfield].value
+                val2 = node1.attributes[node2.compfield].value
+                print >> self, "compare %s (%s) with %s (%s) in context %s" % (node1.nodeName, val1, node2.nodeName, val2, node1.context)
         # first compare the node itself
         if node1.nodeType==minidom.Node.TEXT_NODE:
             # CDATA
@@ -83,40 +95,42 @@ class CompareMenuXML(object):
             
         pairedElems = self.orderChildren(node1.childNodes, node2.childNodes, childrenType)
         for (l,r) in pairedElems:
-            equal &= self.comp( l, r, self.context )
+            equal &= self.comp( l, r )
         return equal
+
+
+    def getCompFieldFromContext(self, node):
+        if node.nodeName == "#text" or node.nodeName == "#comment":
+            return "text"
+        compField = None
+        lookfor = node.context
+        for k,f in self.uniqID.items():
+            if lookfor.endswith(k):
+                compField = f
+                break
+
+        if not compField:
+            print >>self, "Don't know how to compare a node of type %s in context %s (was looking for a rule about %s), will abort" % ( node.nodeName, node.context, lookfor )
+            sys.exit(0)
+
+        return compField
 
 
 
     def cmpNode(self, node1, node2, reqUniq=False):
-
         res = cmp(node1.nodeName,node2.nodeName)
         if res!=0: return res
 
         if node1.nodeType==minidom.Node.TEXT_NODE:
             return cmp(node1.data,node2.data)
 
-        # will check for comparison rule (the field to be used) in uniqID
-        compField = None
-
-        lookfor = self.context + "." + node1.nodeName
-        for k,f in self.uniqID.items():
-            if lookfor.endswith(k):
-                compField = f
-                break
-
-
-        if not compField:
-            print >>self, "Don't know how to compare two items of type %s in context %s, will abort" % ( node1.nodeName, self.context )
-            sys.exit(0)
-
-        if compField=='single': return 0
-        val1 = node1.attributes[compField].value
-        val2 = node2.attributes[compField].value
+        if node1.compfield=='single': return 0
+        val1 = node1.attributes[node1.compfield].value
+        val2 = node2.attributes[node2.compfield].value
         if val1<val2: return -1
         if val1>val2: return 1
         if reqUniq:
-            raise RuntimeError, "Two equal nodes %s found with %s = %s" % (node1.nodeName, compField, val1)
+            raise RuntimeError, "Two equal nodes %s found with %s = %s and  %s = %s" % (node1.nodeName, node1.compfield, val1, node2.compfield, val2 )
         else:
             return 0
 
@@ -167,6 +181,9 @@ class CompareMenuXML(object):
     def compAttr(self, node1, node2):
         if node1.nodeName!=node2.nodeName:
             raise RuntimeError, "Comparing attributes of two different element classes %s and  %s" % (node1.nodeName, node2.nodeName)
+        if self.verboseLevel>2:
+            if node1.attributes: print "Attribute 1",node1.attributes.items()
+            if node2.attributes: print "Attribute 2",node2.attributes.items()
         nodeName = node1.nodeName
         equal = True
         allAttr = []
@@ -185,11 +202,13 @@ class CompareMenuXML(object):
                 print >> self, "DIFF ATTR: %s: attribute '%s' exists only in document file 1 (%s)" % (nodeName, str(a), node1.attributes[a].value)
                 equal=False
                 continue
+            if self.verboseLevel>2:
+                print "Attribute %s : %s  vs. %s" % (a, node1.attributes[a].value, node2.attributes[a].value)
             if node1.attributes[a].value != node2.attributes[a].value:
-                if self.uniqID[node1.nodeName] == 'single':
+                if node1.compfield == 'single':
                     print >> self, "DIFF ATTR: %s: different '%s' (%s != %s)" % (nodeName,str(a), node1.attributes[a].value, node2.attributes[a].value)
                 else:
-                    print >> self, "DIFF ATTR: %s %s: different '%s' (%s != %s)" % (nodeName, node1.attributes[self.uniqID[node1.nodeName]].value, str(a), node1.attributes[a].value, node2.attributes[a].value)
+                    print >> self, "DIFF ATTR: %s %s: different '%s' (%s != %s)" % (nodeName, node1.attributes[node1.compfield].value, str(a), node1.attributes[a].value, node2.attributes[a].value)
                 equal=False
                 
         return equal
