@@ -15,7 +15,7 @@
 #include <string>
 
 
-#include "L1CommonCore/CTPdataformatVersion.h"
+#include "CTPfragment/CTPdataformatVersion.h"
 
 class CTP_RDO {
   

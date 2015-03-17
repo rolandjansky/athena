@@ -19,7 +19,7 @@
 #include "TrigT1Result/Trailer.h"
 #include "TrigT1Result/CTPRoI.h"
 
-#include "L1CommonCore/CTPdataformatVersion.h"
+#include "CTPfragment/CTPdataformatVersion.h"
 
 // Forward declaration(s):
 class MsgStream;
@@ -129,6 +129,8 @@ namespace ROIB {
      //! convert data content into string (used by dump and print)
      const std::string convert(std::vector<CTPRoI> data, const bool longFormat = false) const;
 
+     // flag to tell if this is a RoIB result or a DAQ result
+     bool m_useRoIB;
   }; // class CTPResult
 
   // converter functions
