@@ -170,8 +170,7 @@ if InDetFlags.doLowBetaFinder():
 #
 # -------------------------------------------------------------------------
 
-if InDetFlags.doV0Finder() or InDetFlags.doSimpleV0Finder():
-  import MagFieldServices.SetupField
+if InDetFlags.doV0Finder():
   #
   if InDetFlags.useV0Fitter():
     from TrkV0Fitter.TrkV0FitterConf import Trk__TrkV0VertexFitter
@@ -195,8 +194,10 @@ if InDetFlags.doV0Finder() or InDetFlags.doSimpleV0Finder():
     InDetVKVertexFitter = Trk__TrkVKalVrtFitter(name                = "InDetVKVFitter",
                                                 Extrapolator        = "Trk::Extrapolator/InDetExtrapolator",
                                                 IterationNumber     = 30,
+                                                MakeExtendedVertex  = True,
                                                 FirstMeasuredPoint  = True)
     ToolSvc += InDetVKVertexFitter
+    #InDetVKVertexFitter.OutputLevel = DEBUG
     if (InDetFlags.doPrintConfigurables()):
       print InDetVKVertexFitter
       #
@@ -204,6 +205,7 @@ if InDetFlags.doV0Finder() or InDetFlags.doSimpleV0Finder():
     InDetKshortFitter = Trk__TrkVKalVrtFitter(name                = "InDetVKKVFitter",
                                               Extrapolator        = "Trk::Extrapolator/InDetExtrapolator",
                                               IterationNumber     = 30,
+                                              MakeExtendedVertex  = True,
                                               FirstMeasuredPoint  = True,
                                               InputParticleMasses = [139.57,139.57],
                                               MassForConstraint   = 497.672)
@@ -215,6 +217,7 @@ if InDetFlags.doV0Finder() or InDetFlags.doSimpleV0Finder():
     InDetLambdaFitter = Trk__TrkVKalVrtFitter(name                = "InDetVKLFitter",
                                               Extrapolator        = "Trk::Extrapolator/InDetExtrapolator",
                                               IterationNumber     = 30,
+                                              MakeExtendedVertex  = True,
                                               FirstMeasuredPoint  = True,
                                               InputParticleMasses = [938.272,139.57],
                                               MassForConstraint   = 1115.68)
@@ -226,6 +229,7 @@ if InDetFlags.doV0Finder() or InDetFlags.doSimpleV0Finder():
     InDetLambdabarFitter = Trk__TrkVKalVrtFitter(name                = "InDetVKLbFitter",
                                                  Extrapolator        = "Trk::Extrapolator/InDetExtrapolator",
                                                  IterationNumber     = 30,
+                                                 MakeExtendedVertex  = True,
                                                  FirstMeasuredPoint  = True,
                                                  InputParticleMasses = [139.57,938.272],
                                                  MassForConstraint   = 1115.68)
@@ -240,6 +244,7 @@ if InDetFlags.doV0Finder() or InDetFlags.doSimpleV0Finder():
                                            Extrapolator        = "Trk::Extrapolator/InDetExtrapolator",
                                            IterationNumber     = 30,
                                            Robustness          = 6,
+                                           MakeExtendedVertex  = True,
                                            FirstMeasuredPoint  = True,
                                            usePhiCnst          = True,
                                            useThetaCnst        = True,
@@ -251,41 +256,33 @@ if InDetFlags.doV0Finder() or InDetFlags.doSimpleV0Finder():
   # Track selector tool
   #
   if InDetFlags.doV0Finder() :  
-    from InDetTrackSelectorTool.InDetTrackSelectorToolConf import InDet__InDetConversionTrackSelectorTool
-    InDetV0VxTrackSelector = InDet__InDetConversionTrackSelectorTool(name                = "InDetV0VxTrackSelector",
-                                                                     TrackSummaryTool    = InDetTrackSummaryTool,
-                                                                     Extrapolator        = "Trk::Extrapolator/InDetExtrapolator",
-                                                                     maxTrtD0            = 20.,
-                                                                     maxSiZ0             = 250.,
-                                                                     significanceD0_Si   = 1.,
-                                                                     significanceD0_Trt  = 0.,
-                                                                     significanceZ0_Trt  = 3.,
-                                                                     minPt               = 500.0,
-                                                                     IsConversion        = False)
-    
+    if InDetFlags.doSimpleV0Finder() :  
+      from InDetTrackSelectorTool.InDetTrackSelectorToolConf import InDet__InDetConversionTrackSelectorTool
+      InDetV0VxTrackSelector = InDet__InDetConversionTrackSelectorTool(name                = "InDetV0VxTrackSelector",
+                                                                       TrackSummaryTool    = InDetTrackSummaryTool,
+                                                                       Extrapolator        = "Trk::Extrapolator/InDetExtrapolator",
+                                                                       maxTrtD0            = 50.,
+                                                                       maxSiZ0             = 250.,
+                                                                       significanceD0_Si   = 0.,
+                                                                       significanceD0_Trt  = 1.,
+                                                                       significanceZ0_Trt  = 3.,
+                                                                       minPt               = 50.0,
+                                                                       IsConversion        = False)
+    else:
+      from InDetTrackSelectorTool.InDetTrackSelectorToolConf import InDet__InDetConversionTrackSelectorTool
+      InDetV0VxTrackSelector = InDet__InDetConversionTrackSelectorTool(name                = "InDetV0VxTrackSelector",
+                                                                       TrackSummaryTool    = InDetTrackSummaryTool,
+                                                                       Extrapolator        = "Trk::Extrapolator/InDetExtrapolator",
+                                                                       maxTrtD0            = 50.,
+                                                                       maxSiZ0             = 250.,
+                                                                       significanceD0_Si   = 1.,
+                                                                       significanceD0_Trt  = 1.,
+                                                                       significanceZ0_Trt  = 3.,
+                                                                       minPt               = 400.0,
+                                                                       IsConversion        = False)
     ToolSvc += InDetV0VxTrackSelector
     if (InDetFlags.doPrintConfigurables()):
       print InDetV0VxTrackSelector
-      pass
-    pass
-  if InDetFlags.doSimpleV0Finder() or InDetFlags.doV0Finder() :
-    from InDetTrackSelectorTool.InDetTrackSelectorToolConf import InDet__InDetConversionTrackSelectorTool
-    InDetSimpleV0VxTrackSelector = InDet__InDetConversionTrackSelectorTool(name                = "InDetSimpleV0VxTrackSelector",
-                                                                           TrackSummaryTool    = InDetTrackSummaryTool,
-                                                                           Extrapolator        = "Trk::Extrapolator/InDetExtrapolator",
-                                                                           maxSiD0             = 100.,
-                                                                           maxTrtD0            = 100.,
-                                                                           maxSiZ0             = 450.,
-                                                                           maxTrtZ0            = 1200.,
-                                                                           significanceD0_Si   = 0.,
-                                                                           significanceD0_Trt  = 0.,
-                                                                           significanceZ0_Trt  = 10.,
-                                                                           minPt               = 50.0,
-                                                                           IsConversion        = False)
-
-    ToolSvc += InDetSimpleV0VxTrackSelector
-    if (InDetFlags.doPrintConfigurables()):
-      print InDetSimpleV0VxTrackSelector
       pass
     pass
   
@@ -310,23 +307,52 @@ if InDetFlags.doV0Finder() or InDetFlags.doSimpleV0Finder():
   #
   # InDetV0FinderTool
   #
-  from InDetV0Finder.InDetV0FinderConf import InDet__InDetV0FinderTool
-  V0FinderTool = InDet__InDetV0FinderTool(name                    = 'InDetV0FinderTool',
-                                          TrackParticleCollection = InDetKeys.xAODTrackParticleContainer(),
-                                          useV0Fitter             = InDetFlags.useV0Fitter(),
-                                          VertexFitterTool        = InDetV0Fitter,
-                                          VKVertexFitterTool      = InDetVKVertexFitter,
-                                          KshortFitterTool        = InDetKshortFitter,
-                                          LambdaFitterTool        = InDetLambdaFitter,
-                                          LambdabarFitterTool     = InDetLambdabarFitter,
-                                          GammaFitterTool         = InDetGammaFitter,
-                                          TrackSelectorTool       = InDetV0VxTrackSelector,
-                                          VertexPointEstimator    = InDetV0VtxPointEstimator,
-                                          Extrapolator            = "Trk::Extrapolator/InDetExtrapolator")
+  if InDetFlags.doSimpleV0Finder() :  
+    from InDetV0Finder.InDetV0FinderConf import InDet__InDetV0FinderTool
+    V0FinderTool = InDet__InDetV0FinderTool(name                    = 'InDetV0FinderTool',
+                                            TrackParticleCollection = InDetKeys.xAODTrackParticleContainer(),
+                                            useV0Fitter             = InDetFlags.useV0Fitter(),
+                                            VertexFitterTool        = InDetV0Fitter,
+                                            VKVertexFitterTool      = InDetVKVertexFitter,
+                                            KshortFitterTool        = InDetKshortFitter,
+                                            LambdaFitterTool        = InDetLambdaFitter,
+                                            LambdabarFitterTool     = InDetLambdabarFitter,
+                                            GammaFitterTool         = InDetGammaFitter,
+                                            TrackSelectorTool       = InDetV0VxTrackSelector,
+                                            VertexPointEstimator    = InDetV0VtxPointEstimator,
+                                            doSimpleV0              = True,
+                                            #useorigin               = False,
+                                            #useTRTplusTRT           = True,
+                                            #useTRTplusSi            = True,
+                                            uksmin                  = 0.,
+                                            uksmax                  = 2000.,
+                                            ulamin                  = 0.,
+                                            ulamax                  = 2000.,
+                                            d0_cut                  = 0.,
+                                            Extrapolator            = "Trk::Extrapolator/InDetExtrapolator")
+  else:
+    from InDetV0Finder.InDetV0FinderConf import InDet__InDetV0FinderTool
+    V0FinderTool = InDet__InDetV0FinderTool(name                    = 'InDetV0FinderTool',
+                                            TrackParticleCollection = InDetKeys.xAODTrackParticleContainer(),
+                                            useV0Fitter             = InDetFlags.useV0Fitter(),
+                                            VertexFitterTool        = InDetV0Fitter,
+                                            VKVertexFitterTool      = InDetVKVertexFitter,
+                                            KshortFitterTool        = InDetKshortFitter,
+                                            LambdaFitterTool        = InDetLambdaFitter,
+                                            LambdabarFitterTool     = InDetLambdabarFitter,
+                                            GammaFitterTool         = InDetGammaFitter,
+                                            TrackSelectorTool       = InDetV0VxTrackSelector,
+                                            VertexPointEstimator    = InDetV0VtxPointEstimator,
+                                            doSimpleV0              = False,
+                                            #useorigin               = False,
+                                            #useTRTplusTRT           = True,
+                                            #useTRTplusSi            = True,
+                                            useVertexCollection     = True,
+                                            #trkSelPV                = True,
+                                            Extrapolator            = "Trk::Extrapolator/InDetExtrapolator")
   ToolSvc += V0FinderTool
   if (InDetFlags.doPrintConfigurables()):
     print V0FinderTool
-
 
   #
   # --- now configure the algorithm 
@@ -334,6 +360,7 @@ if InDetFlags.doV0Finder() or InDetFlags.doSimpleV0Finder():
   if InDetFlags.doV0Finder() :  
     from InDetV0Finder.InDetV0FinderConf import InDet__InDetV0Finder
     InDetV0Finder = InDet__InDetV0Finder(name                    = 'InDetV0Finder',
+                                         #decorateV0              = False,
                                          InDetV0FinderToolName   = V0FinderTool,
                                          V0ContainerName         = InDetKeys.xAODV0VertexContainer(),
                                          KshortContainerName     = InDetKeys.xAODKshortVertexContainer(),
@@ -346,25 +373,7 @@ if InDetFlags.doV0Finder() or InDetFlags.doSimpleV0Finder():
       pass
     pass
   
-  if InDetFlags.doSimpleV0Finder() :
-    from InDetV0Finder.InDetV0FinderConf import InDet__InDetSimpleV0Finder
-    InDetSimpleV0Finder = InDet__InDetSimpleV0Finder(name                    = 'InDetSimpleV0Finder',
-                                                     TrackParticleCollection = InDetKeys.TrackParticles(),
-                                                     V0CandidatesOutputName  = InDetKeys.SimpleV0Candidates(),
-                                                     useV0Fitter             = InDetFlags.useV0Fitter(),
-                                                     VertexFitterTool        = InDetV0Fitter,
-                                                     VKVertexFitterTool      = InDetVKVertexFitter,
-                                                     TrackSelectorTool       = InDetSimpleV0VxTrackSelector,
-                                                     VertexPointEstimator    = InDetV0VtxPointEstimator,
-                                                     Extrapolator            = "Trk::Extrapolator/InDetExtrapolator")
-    
-    topSequence += InDetSimpleV0Finder
-    if (InDetFlags.doPrintConfigurables()):
-      print InDetSimpleV0Finder
-      pass
-    pass
-  
-  pass # end if (doV0Finder or doSimpleV0Finder)
+  pass # end if (doV0Finder)
 
 # ----------------------------------------------------------------------
 #

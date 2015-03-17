@@ -37,6 +37,8 @@ InDetAODList = []
 
 if InDetFlags.doxAOD():
   excludedAuxData = "-caloExtension.-cellAssociation.-clusterAssociation.-trackParameterCovarianceMatrices.-parameterX.-parameterY.-parameterZ.-parameterPX.-parameterPY.-parameterPZ.-parameterPosition"
+  if InDetFlags.keepAdditionalHitsOnTrackParticle():
+   excludedAuxData = "-caloExtension.-cellAssociation.-clusterAssociation"  
   InDetAODList+=['xAOD::TrackParticleContainer#'+InDetKeys.xAODTrackParticleContainer()]
   InDetAODList+=['xAOD::TrackParticleAuxContainer#'+InDetKeys.xAODTrackParticleContainer()+'Aux.' + excludedAuxData]
   if not InDetFlags.doSLHC():

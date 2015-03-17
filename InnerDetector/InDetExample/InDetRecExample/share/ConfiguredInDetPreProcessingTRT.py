@@ -61,19 +61,18 @@ class ConfiguredInDetPreProcessingTRT:
 
          #
          # set gating values for MC/DATA
-         # for now, no values for argon. This is OK (?) for 50 ns. What about 25ns?
-         MinTrailingEdge = 17.0*ns
-         MaxDriftTime    = 66.0*ns
-         LowGate         = 26.0*ns
-         HighGate        = 54.125*ns
+         MinTrailingEdge = 11.0*ns
+         MaxDriftTime    = 60.0*ns
+         LowGate         = 14.0625*ns # 4.5*3.125 ns
+         HighGate        = 42.1875*ns # LowGate + 9*3.125 ns
          if InDetFlags.doCosmics():
             LowGate         = 19.0*ns
             HighGate        = 44.0*ns
          if globalflags.DataSource == 'data':
             MinTrailingEdge = 11.0*ns
             MaxDriftTime    = 60.0*ns
-            LowGate         = 18.0*ns
-            HighGate        = 46.125*ns
+            LowGate         = 14.0625*ns # 4.5*3.125 ns
+            HighGate        = 42.1875*ns # LowGate + 9*3.125 ns
             if InDetFlags.doCosmics():
                LowGate         = 19.0*ns
                HighGate        = 44.0*ns
@@ -95,13 +94,13 @@ class ConfiguredInDetPreProcessingTRT:
                                                                MaskFirstHTBit                  = False,
                                                                MaskMiddleHTBit                 = False,
                                                                MaskLastHTBit                   = False,
-                                                               SimpleOutOfTimePileupSupressionArgon = False,# no OOT rejection for argon
-                                                               RejectIfFirstBitArgon                = False, # no OOT rejection for argon
-                                                               MinTrailingEdgeArgon                 = 0, # no OOT rejection for argon
-                                                               MaxDriftTimeArgon                    = 99*ns,# no OOT rejection for argon
-                                                               ValidityGateSuppressionArgon         = False,# no OOT rejection for argon
-                                                               LowGateArgon                         = 0,# no OOT rejection for argon
-                                                               HighGateArgon                        = 75*ns,# no OOT rejection for argon
+                                                               SimpleOutOfTimePileupSupressionArgon = InDetFlags.doCosmics(),
+                                                               RejectIfFirstBitArgon                = False, # fixes 50 nsec issue 
+                                                               MinTrailingEdgeArgon                 = MinTrailingEdge,
+                                                               MaxDriftTimeArgon                    = MaxDriftTime,
+                                                               ValidityGateSuppressionArgon         = not InDetFlags.doCosmics(),
+                                                               LowGateArgon                         = LowGate,
+                                                               HighGateArgon                        = HighGate,
                                                                MaskFirstHTBitArgon                  = False,
                                                                MaskMiddleHTBitArgon                 = False,
                                                                MaskLastHTBitArgon                   = False,

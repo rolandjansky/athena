@@ -160,6 +160,7 @@ InDetFlags.doParticleCreation = reDoParticleCreation
 InDetFlags.doConversions      = reDoConversions
 InDetFlags.doSecVertexFinder  = False
 InDetFlags.doV0Finder         = reDoV0Finder
+InDetFlags.doSimpleV0Finder   = False
 InDetFlags.doTrkNtuple        = False
 InDetFlags.doPixelTrkNtuple   = False
 InDetFlags.doSctTrkNtuple     = False
