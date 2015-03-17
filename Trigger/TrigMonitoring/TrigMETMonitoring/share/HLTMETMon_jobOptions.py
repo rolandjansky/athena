@@ -7,38 +7,17 @@ doLocal = True
 
 import sys
 
-##############################
-# helper gets input collection
-##############################
-def getInputFiles(dir, AODHLTP):
-
-  import fnmatch, os, glob
-  if len(AODHLTP) > 0:
-    del AODHLTP[:]
-
-  if len(dir) == 2:
-    all_dirs = glob.glob(dir[0])
-    for thedir in all_dirs:
-      print 'i am in', thedir
-      for fileName in os.listdir(thedir):
-        if fnmatch.fnmatch(fileName, dir[1] ):
-          fullpath = os.path.join(thedir,fileName)
-          print 'file ', fullpath
-          AODHLTP.append(fullpath)
-
-
-
 ##############
 # Input files
 ##############
-InputFiles = ['AOD_new.root',]
+InputFiles = ['AOD.SampleA.ttbar.root',] ##AOD_new.root',]
 
 
 ############################
 # Auto configure everything
 ############################
 import AthenaPoolCnvSvc.ReadAthenaPool
-ServiceMgr.EventSelector.InputCollections=HLTMETInputFiles
+ServiceMgr.EventSelector.InputCollections=InputFiles
 ServiceMgr.PoolSvc.AttemptCatalogPatch = True;
 ServiceMgr.OutputLevel=ERROR
 
@@ -81,7 +60,7 @@ for i in ServiceMgr:  i.OutputLevel=INFO
 ##############################
 # Output file
 ##############################
-OutputFile = 'Output_HLTMetMon.root'
+OutputFile = 'Output_HLT_MetMon.root'
 
 from GaudiSvc.GaudiSvcConf import THistSvc
 svcMgr += THistSvc()
@@ -116,9 +95,9 @@ from AthenaMonitoring.AthenaMonitoringConf import AthenaMonManager
 if not 'DQMonFlags' in dir():
   from AthenaMonitoring.DQMonFlags import DQMonFlags
 
-HLTmetOutputLevel = DEBUG
+HLTmetOutputLevel = INFO
 myTrigDecisionTool = ""
-if(DQMonFlags.useTrigger() and hasattr(ToolSvc, DQMonFlags.nameTrigDecTool())):
+if (DQMonFlags.useTrigger() and hasattr(ToolSvc, DQMonFlags.nameTrigDecTool())):
   myTrigDecisionTool = getattr(ToolSvc, DQMonFlags.nameTrigDecTool())
 else:
   from TrigDecisionTool.TrigDecisionToolConf import Trig__TrigDecisionTool

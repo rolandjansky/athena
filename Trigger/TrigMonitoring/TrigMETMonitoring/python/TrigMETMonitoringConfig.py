@@ -59,28 +59,27 @@ bitNames_allHLT= [
 
 
 
-
+# l1 trigger to monitor: 
+# the first one is the denominator for all efficiencies
 met_triggers_l1 = [
-        "L1_XE35",
+        "L1_XE35", 
+        "L1_XE60",
         "L1_XE70",
 ]
 
+# hlt triggers to monitor
+# 
 met_triggers_hlt = [
-        "HLT_xeNOcut",
-        "HLT_xe35_tclcw",
-        "HLT_xe35_tcem"
-        "HLT_xe35_mht",
-        "HLT_xe35_pueta",
-        "HLT_xe100_tclcw",
-        "HLT_xe100_tcem",
-        "HLT_xe100_mht",
-        "HLT_xe100_pueta",
-        "HLT_xe100_wEFMu",
-        "HLT_xe100_tclcw_wEFMu",
-        "HLT_xe100_tcem_wEFMu",
-        "HLT_xe100_mht_wEFMu",
-        "HLT_xe100_pueta_wEFMu",
+        ##      "HLT_mu30",
+        "HLT_xe80",    
+        "HLT_xe80_tc_lcw",
+        "HLT_xe80_tc_em",
+        "HLT_xe80_pueta",
+        "HLT_xe80_pufit",
+        "HLT_xe80_mht",
 ] 
+
+met_triggers = met_triggers_l1 + met_triggers_hlt
 
 def HLTMETMonitoringTool():
         from TrigMETMonitoring.TrigMETMonitoringConf import HLTMETMonTool
@@ -88,13 +87,11 @@ def HLTMETMonitoringTool():
         HLTMETMon = HLTMETMonTool(name          = 'HLTMETMon',
                                   histoPathBase = "/Trigger/HLT", 
                                   MonPathBase   = "/HLT/METMon",
-                                  CompNames   = compNames_all,
-                                  BitNames    = bitNames_allHLT,
-                                  METTriggersL1 = met_triggers_l1,
-                                  METTriggersHLT = met_triggers_hlt,
-                                  # SampleSelectionTriggers = ["HLT_J10",     # jet trigger
-                                  #                            "HLT_MbSp",    # minbias trigger
-                                  #                            "HLT_mu6_rpc"] # other physics trigger
+                                  comp_names   = compNames_all,
+                                  bit_names    = bitNames_allHLT,
+                                  monitoring_met         = met_triggers,
+                                  primary_met            = [],
+                                  prescaled_met          = [],
                                   );
         from AthenaCommon.AppMgr import ToolSvc
         ToolSvc += HLTMETMon;
