@@ -20,6 +20,8 @@ def addCommonRecTrfArgs(parser):
     parser.add_argument('--topOptions', group='Common Reco', type=trfArgClasses.argFactory(trfArgClasses.argSubstep), 
                         nargs="+", help='Alternative top options file for reconstruction (can be substep specific)', 
                         metavar="substep:TOPOPTIONS")
+    parser.add_argument('--valid', group='Common Reco', type=trfArgClasses.argFactory(trfArgClasses.argBool), 
+                        help='Enable decorations for AOD that allow for enhanced physics validation', metavar='BOOL')
 
 
 def addStandardRecoFiles(parser):
@@ -27,6 +29,15 @@ def addStandardRecoFiles(parser):
     parser.add_argument('--inputBSFile', nargs='+', 
                         type=trfArgClasses.argFactory(trfArgClasses.argBSFile, io='input'),
                         help='Input bytestream file', group='Reco Files')
+    parser.add_argument('--inputDRAW_ZMUMUFile', nargs='+', 
+                        type=trfArgClasses.argFactory(trfArgClasses.argBSFile, io='input'),
+                        help='Input skimmed Z->mumu bytestream', group='Reco Files')
+    parser.add_argument('--inputDRAW_ZEEFile', nargs='+', 
+                        type=trfArgClasses.argFactory(trfArgClasses.argBSFile, io='input'),
+                        help='Input skimmed Z->ee bytestream', group='Reco Files')
+    parser.add_argument('--inputDRAW_EMUFile', nargs='+', 
+                        type=trfArgClasses.argFactory(trfArgClasses.argBSFile, io='input'),
+                        help='Input skimmed e+mu bytestream', group='Reco Files')
     parser.add_argument('--outputBSFile', 
                         type=trfArgClasses.argFactory(trfArgClasses.argBSFile, io='output'),
                         help='Output bytestream file', group='Reco Files')
@@ -83,7 +94,7 @@ def addRecoSubsteps(executorSet):
     executorSet.add(athenaExecutor(name = 'RDOtoRDOTrigger', skeletonFile = 'RecJobTransforms/skeleton.RDOtoRDOtrigger.py',
                                    substep = 'r2t', inData = ['RDO'], outData = ['RDO_TRIG']))
     executorSet.add(athenaExecutor(name = 'RAWtoESD', skeletonFile = 'RecJobTransforms/skeleton.RAWtoESD_tf.py',
-                                   substep = 'r2e', inData = ['BS', 'RDO'], outData = ['ESD', 'HIST_ESD_INT', 'TXT_JIVEXMLTGZ'],
+                                   substep = 'r2e', inData = ['BS', 'RDO', 'DRAW_ZMUMU', 'DRAW_ZEE', 'DRAW_EMU'], outData = ['ESD', 'HIST_ESD_INT', 'TXT_JIVEXMLTGZ'],
                                    perfMonFile = 'ntuple_RAWtoESD.pmon.gz'))
     executorSet.add(athenaExecutor(name = 'ESDtoAOD', skeletonFile = 'RecJobTransforms/skeleton.ESDtoAOD_tf.py',
                                    substep = 'e2a', inData = ['ESD'], outData = ['AOD', 'HIST_AOD_INT'], 

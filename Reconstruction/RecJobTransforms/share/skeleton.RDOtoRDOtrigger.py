@@ -95,6 +95,7 @@ def preplist(input):
    return triglist
 
 StreamRDO.ItemList += ["HLT::HLTResult#HLTResult_HLT"]
+StreamRDO.ItemList += ["TrigDec::TrigDecision#TrigDecision"]
 StreamRDO.ItemList += preplist(_TriggerESDList)
 StreamRDO.ItemList += preplist(_TriggerAODList)
 from TrigEDMConfig.TriggerEDM import getLvl1ESDList

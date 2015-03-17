@@ -29,10 +29,22 @@ rec.DPDMakerScripts.append(SetupOutputDPDs(runArgs,listOfFlags))
 
 
 ## Input
+# BS
+DRAWInputs = [ prop for prop in dir(runArgs) if prop.startswith('inputDRAW') and prop.endswith('File')]
 if hasattr(runArgs,"inputBSFile"):
+    if len(DRAWInputs) > 0:
+        raise RuntimeError('Impossible to run RAWtoESD with input BS and DRAW files (one input type only!)')
     rec.readRDO.set_Value_and_Lock( True )
     globalflags.InputFormat.set_Value_and_Lock('bytestream')
     athenaCommonFlags.BSRDOInput.set_Value_and_Lock( runArgs.inputBSFile )
+if len(DRAWInputs) == 1:
+    rec.readRDO.set_Value_and_Lock( True )
+    globalflags.InputFormat.set_Value_and_Lock('bytestream')
+    athenaCommonFlags.BSRDOInput.set_Value_and_Lock( getattr(runArgs, DRAWInputs[0]) )
+elif len(DRAWInputs) > 1:
+    raise RuntimeError('Impossible to run RAWtoESD with multiple input DRAW files (viz.: {0})'.format(DRAWInputs))
+
+# RDO
 if hasattr(runArgs,"inputRDOFile"):
     rec.readRDO.set_Value_and_Lock( True )
     globalflags.InputFormat.set_Value_and_Lock('pool')
@@ -44,19 +56,20 @@ if hasattr(runArgs,"inputRDO_TRIGFile"):
     TriggerFlags.doTriggerConfigOnly.set_Value_and_Lock( True )
     rec.doTrigger.set_Value_and_Lock(True)
     recAlgs.doTrigger.set_Value_and_Lock(False)
-    from TrigDecisionMaker.TrigDecisionMakerConfig import TrigDecisionMaker
-    trigDecMaker = TrigDecisionMaker()
+    from TrigDecisionTool.TrigDecisionToolConf import Trig__TrigDecisionTool
+    ToolSvc += Trig__TrigDecisionTool( "TrigDecisionTool" )
     from TriggerJobOpts.HLTTriggerResultGetter import HLTTriggerResultGetter
     hltoutput = HLTTriggerResultGetter()
     from TriggerJobOpts.Lvl1ResultBuilderGetter import Lvl1ResultBuilderGetter
     l1output = Lvl1ResultBuilderGetter()
-    from RecExConfig.ObjKeyStore import cfgKeyStore
-    if cfgKeyStore.isInInput("HLT::HLTResult","HLTResult_HLT"):
-       cfgKeyStore['inputFile'].removeItem(["HLT::HLTResult#HLTResult_HLT"])
+    from TrigHLTMonitoring.HLTMonFlags import HLTMonFlags
+    HLTMonFlags.doMonTier0 = False
 if hasattr(runArgs,"inputRDO_FILTFile"):
     rec.readRDO.set_Value_and_Lock( True )
     globalflags.InputFormat.set_Value_and_Lock('pool')
     athenaCommonFlags.PoolRDOInput.set_Value_and_Lock( runArgs.inputRDO_FILTFile )
+    
+# EVNT (?)
 if hasattr(runArgs,"inputEVNTFile"):
     #specific settings for AtlfastIIF
     rec.readRDO.set_Value_and_Lock( True )
@@ -85,10 +98,6 @@ if hasattr(runArgs,"outputESDFile"):
     rec.doESD.set_Value_and_Lock( True )
     rec.doWriteESD.set_Value_and_Lock( True )
     athenaCommonFlags.PoolESDOutput.set_Value_and_Lock( runArgs.outputESDFile )
-if hasattr(runArgs,"tmpESD"):
-    rec.doESD.set_Value_and_Lock( True )
-    rec.doWriteESD.set_Value_and_Lock( True )
-    athenaCommonFlags.PoolESDOutput.set_Value_and_Lock( runArgs.tmpESD )
     
 if hasattr(runArgs,"outputAODFile"):
     rec.doAOD.set_Value_and_Lock( True )
