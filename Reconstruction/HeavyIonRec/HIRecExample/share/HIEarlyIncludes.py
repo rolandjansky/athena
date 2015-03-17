@@ -1,4 +1,16 @@
-#os.system('get_files -data HIFlowWeight.root')
+os.system('get_files -data HIFlowWeight.root')
+
+# temporary until RUN2 configuration is ready
+from RecExConfig.RecFlags import rec
+rec.doTrigger=False
+
+rec.doTau = False
+rec.doJetMissingETTag = False
+
+from HIRecExample.HIRecExampleFlags import jobproperties
+jobproperties.HIRecExampleFlags.doHIJetRec = False
+jobproperties.HIRecExampleFlags.doHIGlobal = False
+jobproperties.HIRecExampleFlags.ppMode = True
 
 # turn off pp pilup noise suppression
 from CaloTools.CaloNoiseFlags import jobproperties
