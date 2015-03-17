@@ -61,7 +61,7 @@ HLT::ErrorCode TrigEstimateUE::hltExecute(VecVecTE& tes_in, unsigned int type_ou
   for( auto el: collectedAvg){
     ATH_MSG_DEBUG("cell avg: " << el );
   }
-  TriggerElement* out_te = config()->getNavigation()->addNode(tes_in[0][0], type_out);
+  /*TriggerElement* out_te =*/ config()->getNavigation()->addNode(tes_in[0][0], type_out);
 
   return HLT::OK;
 }
