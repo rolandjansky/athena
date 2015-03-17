@@ -14,6 +14,9 @@ use AthLinks       AthLinks-*       Control
 use AtlasBoost     AtlasBoost-*     External
 use GaudiInterface GaudiInterface-* External 
 
+private
+use AtlasROOT      AtlasROOT-*         External
+end_private
 
 apply_pattern installed_library
 library AthContainers *.cxx ../Root/*.cxx
@@ -64,4 +67,6 @@ macro_append DOXYGEN_INPUT " ../doc"
 
 private
 use AtlasReflex      AtlasReflex-*         External
-apply_pattern lcgdict dict=AthContainers selectionfile=selection.xml headerfiles="../AthContainers/AthContainersDict.h"
+apply_pattern lcgdict dict=AthContainers selectionfile=selection.xml \
+                      headerfiles="../AthContainers/AthContainersDict.h" \
+                      extralibfiles=../Root/dict/*.cxx

@@ -38,7 +38,8 @@ void fill_cont (size_t nbits, std::vector<T>& cont, size_t n, bool is_signed)
     if (is_signed) {
       int max = CxxUtils::ones<uint32_t> (nbits-1);
       if (nbits < 30) max *= 2;
-      cont.push_back (static_cast<T> ((int)Athena_test::randi (max*4) - max*2));
+      if (nbits < 29) max *= 2;
+      cont.push_back (static_cast<T> (Athena_test::randi (max, -max-1)));
     }
     else
       cont.push_back (static_cast<T> (Athena_test::rng()));
