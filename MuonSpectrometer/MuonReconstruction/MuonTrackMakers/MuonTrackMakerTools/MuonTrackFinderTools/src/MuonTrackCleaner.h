@@ -239,7 +239,7 @@ namespace Muon {
     double m_mdtResiCut;
     double m_pullCutPhi;
     double m_avePullSumPerChamberCut;
-    bool   m_associationScaleFactor;
+    double m_associationScaleFactor;
     unsigned int m_ncycles;
     bool m_recoverOutliers;
     bool m_flipMdtDriftRadii;
