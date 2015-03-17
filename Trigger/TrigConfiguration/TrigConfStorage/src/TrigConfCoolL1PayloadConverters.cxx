@@ -10,7 +10,7 @@
 #include "CoralBase/Attribute.h"
 #include "CoralBase/AttributeList.h"
 
-#include "L1CommonCore/CTPdataformatVersion.h"
+#include "CTPfragment/CTPdataformatVersion.h"
 
 #include "TrigConfL1Data/HelperFunctions.h"
 #include "TrigConfL1Data/PIT.h"

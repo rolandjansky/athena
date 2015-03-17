@@ -10,6 +10,8 @@
 #include <stdexcept>
 #include <typeinfo>
 
+#include <boost/lexical_cast.hpp>
+
 using namespace std;
 
 bool TrigConf::RandomLoader::load( Random& rdTarget ) {
@@ -36,10 +38,10 @@ bool TrigConf::RandomLoader::load( Random& rdTarget ) {
          attList.extend<long>( "L1R_RATE1" ); 
          attList.extend<long>( "L1R_RATE2" ); 
       } else {
-         attList.extend<int>( "L1R_CUT0" );
-         attList.extend<int>( "L1R_CUT1" );
-         attList.extend<int>( "L1R_CUT2" );
-         attList.extend<int>( "L1R_CUT3" );
+         attList.extend<string>( "L1R_CUT0" );
+         attList.extend<string>( "L1R_CUT1" );
+         attList.extend<string>( "L1R_CUT2" );
+         attList.extend<string>( "L1R_CUT3" );
       }
       fillQuery(q.get(), attList);
 
@@ -63,15 +65,15 @@ bool TrigConf::RandomLoader::load( Random& rdTarget ) {
          rdTarget.setRate1( rate1 );
          rdTarget.setRate2( rate2 );
       } else {
-         int cut0        = row["L1R_CUT0"].data<int>();
-         int cut1        = row["L1R_CUT1"].data<int>();
-         int cut2        = row["L1R_CUT2"].data<int>();
-         int cut3        = row["L1R_CUT3"].data<int>();
+         string cut0        = row["L1R_CUT0"].data<string>();
+         string cut1        = row["L1R_CUT1"].data<string>();
+         string cut2        = row["L1R_CUT2"].data<string>();
+         string cut3        = row["L1R_CUT3"].data<string>();
          // Fill the object with data
-         rdTarget.setCut( 0, (uint32_t) cut0 );
-         rdTarget.setCut( 1, (uint32_t) cut1 );
-         rdTarget.setCut( 2, (uint32_t) cut2 );
-         rdTarget.setCut( 3, (uint32_t) cut3 );
+         rdTarget.setCut( 0, boost::lexical_cast<uint32_t,string>( cut0 ) );
+         rdTarget.setCut( 1, boost::lexical_cast<uint32_t,string>( cut1 ) );
+         rdTarget.setCut( 2, boost::lexical_cast<uint32_t,string>( cut2 ) );
+         rdTarget.setCut( 3, boost::lexical_cast<uint32_t,string>( cut3 ) );
       }
 
       if ( cursor.next() ) {

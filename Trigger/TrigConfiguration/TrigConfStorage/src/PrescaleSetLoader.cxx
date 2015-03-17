@@ -17,7 +17,7 @@
 //////////////////////////////////////////////////////////////////////
 
 
-#include "L1CommonCore/CTPdataformatVersion.h"
+#include "CTPfragment/CTPdataformatVersion.h"
 
 #include "./PrescaleSetLoader.h"
 #include "./DBHelper.h"

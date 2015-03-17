@@ -703,7 +703,7 @@ private:
 class L1CaloThrDef : public TrigConfTest {
 public:
    L1CaloThrDef() 
-      : TrigConfTest("L1CaloDefined", "Check if all L1 calo thresholds are defined", WARNING),
+      : TrigConfTest("L1CaloDefined", "Check if all L1 calo thresholds are defined", INFO),
         m_missingThresholds("")
    {}
 
@@ -711,27 +711,32 @@ public:
    virtual void execute(const Exc_t&) {
       if ( !m_ctp ) return;
 
-      unsigned int em_max  = L1DataDef::typeConfig(L1DataDef::EM).max;  // this is actually em+tau
-      unsigned int tau_max = L1DataDef::max_TH_Threshold_Number();
+      int m_l1Version = m_ctp->menu().thresholdConfig().l1Version();
+      
+      L1DataDef::setMaxThresholdsFromL1Version(m_l1Version);
+      //L1DataDef::printMaxThresholds();
+      
+      unsigned int em_max  = L1DataDef::typeConfig(L1DataDef::EM).max;  
+      unsigned int tau_max = L1DataDef::typeConfig(L1DataDef::TAU).max;
       unsigned int jet_max = L1DataDef::typeConfig(L1DataDef::JET).max;
-      unsigned int jf_max  = L1DataDef::max_JF_Threshold_Number();
-      unsigned int jb_max  = L1DataDef::max_JB_Threshold_Number();
-      unsigned int te_max  = L1DataDef::max_TE_Threshold_Number();
-      unsigned int xe_max  = L1DataDef::max_XE_Threshold_Number();
-      unsigned int je_max  = L1DataDef::max_JE_Threshold_Number();
-      unsigned int xs_max  = L1DataDef::max_XS_Threshold_Number();
+      unsigned int jf_max  = L1DataDef::typeConfig(L1DataDef::JF).max; //max_JF_Threshold_Number();
+      unsigned int jb_max  = L1DataDef::typeConfig(L1DataDef::JB).max; //ymax_JB_Threshold_Number();
+      unsigned int te_max  = L1DataDef::typeConfig(L1DataDef::TE).max; //max_TE_Threshold_Number();
+      unsigned int xe_max  = L1DataDef::typeConfig(L1DataDef::XE).max; //max_XE_Threshold_Number();
+      unsigned int je_max  = L1DataDef::typeConfig(L1DataDef::JE).max; //max_JE_Threshold_Number();
+      unsigned int xs_max  = L1DataDef::typeConfig(L1DataDef::XS).max; //max_XS_Threshold_Number();
       INITTHR(em)
          INITTHR(tau)
          INITTHR(jet)
          INITTHR(jf)
          INITTHR(jb)
-         INITTHR(te)
+	INITTHR(te)
          INITTHR(xe)
          INITTHR(je)
          INITTHR(xs)
         
-         for(const TrigConf::TriggerThreshold* thr : m_ctp->menu().thresholdConfig().thresholdVector() ) {
-         SUBTHR(em)
+	for(const TrigConf::TriggerThreshold* thr : m_ctp->menu().thresholdConfig().thresholdVector() ) {
+	  SUBTHR(em)
             SUBTHR(tau)
             SUBTHR(jet)
             SUBTHR(jf)
@@ -740,13 +745,8 @@ public:
             SUBTHR(xe)
             SUBTHR(je)
             SUBTHR(xs) {};
-         if(thr->type()==L1DataDef::tauType()) {
-            em--;
-            emList += thr->name() + ", ";
-         }
       }
-
-      if(tau>0) tau=0; // it is OK if there are less than tau_max tau-thresholds, as long as tau+em == em_max
+      
 
       CHECKTHR(em);
       CHECKTHR(tau);
@@ -765,7 +765,7 @@ public:
          ERRORTHR(jet);
          ERRORTHR(jf);
          ERRORTHR(jb);
-         ERRORTHR(te);
+	 ERRORTHR(te); //for now disabled
          ERRORTHR(xe);
          ERRORTHR(je);
          ERRORTHR(xs);

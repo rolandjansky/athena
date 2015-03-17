@@ -34,40 +34,6 @@ class CompareL1TopoXML(CompareMenuXML):
 
         if self.exlusionset=='default':
             pass
-
-        elif self.exlusionset=='cool':
-            # these things are not stored in COOL
-            self.exclFromCmpList = ['Deadtime','MuctpiInfo','Random','PrescaledClock','Cable','PrioritySet', 'TriggerCounterList']
-            self.ignoreAttr['LVL1Config'] = ['id', 'name', 'version']
-            self.ignoreAttr['PrescaleSet'] = ['name', 'version']
-            self.ignoreAttr['Prescale'] = ['n', 'm', 'd', 'N', 'M', 'D']
-            self.ignoreAttr['TriggerMenu'] = ['name']
-            self.ignoreAttr['TriggerItem'] = ['id', 'trigger_type', 'definition', 'comment']
-            self.ignoreAttr['TriggerThreshold'] = ['id', 'bitnum']
-            self.ignoreAttr['TriggerThresholdValue'] = ['version']
-            self.ignoreAttr['BunchGroupSet'] = ['version', 'name']
-            self.ignoreAttr['BunchGroup'] = ['version']
-            self.ignoreAttr['CaloInfo'] = ['name', 'version', 'global_scale']
-
-        elif self.exlusionset=='rtt':
-            # these things are not stored in COOL
-            self.exclFromCmpList = ['BunchGroupSet', 'CaloInfo', 'MuctpiInfo', 'PrescaledClock', 'Random', 'Cable', 'TriggerCounterList']
-            self.ignoreAttr['TriggerItem'] = ['id', 'definition']
-            self.ignoreAttr['TriggerThreshold'] = ['id', 'active']
-            self.ignoreAttr['TriggerThresholdValue'] = ['version']
-            self.ignoreAttr['PrioritySet'] = ['version']
-            self.ignoreAttr['LVL1Config'] = ['version']
-
-        elif self.exlusionset=='tt':
-            # these things change when uploading with the TT and downloading with 2XMLApp
-            self.exclFromCmpList = ['BunchGroupSet', 'PrioritySet']
-            self.ignoreAttr['LVL1Config'] = ['id']
-            self.ignoreAttr['CaloInfo'] = ['version']
-            self.ignoreAttr['Deadtime'] = ['version']
-            self.ignoreAttr['MuctpiInfo'] = ['version']
-            self.ignoreAttr['TriggerItem'] = ['definition', 'trigger_type']
-            self.ignoreAttr['PrescaledClock'] = ['version']
-
         else:
             print >>self, "Don't know about comparison environment %s. Should be nothing, 'cool' or 'rtt'" % self.exlusionset
             sys.exit(0)

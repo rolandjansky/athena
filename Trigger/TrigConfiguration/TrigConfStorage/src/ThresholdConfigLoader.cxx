@@ -44,9 +44,7 @@ bool TrigConf::ThresholdConfigLoader::load( ThresholdConfig& thrConfig ) {
 
    const unsigned int schema_version_with_zb_fields = 9;
 
-   if(verbose())
-      msg() << "ThresholdConfigLoader:            Loading ThresholdConfig object attached to Lvl1 master ID "
-            << thrConfig.lvl1MasterTableId() << std::endl;
+   TRG_MSG_VERBOSE("Loading ThresholdConfig object attached to Lvl1 master ID " << thrConfig.lvl1MasterTableId());
 
    long caloinfoid = 0;
 
@@ -129,6 +127,7 @@ bool TrigConf::ThresholdConfigLoader::load( ThresholdConfig& thrConfig ) {
       attList.extend<std::string>( "TM2TT.L1TM2TT_CABLE_CONNECTOR" );
       attList.extend<int>        ( "TM2TT.L1TM2TT_CABLE_START"     );
       attList.extend<int>        ( "TM2TT.L1TM2TT_CABLE_END"       );
+      attList.extend<int>        ( "TM2TT.L1TM2TT_CABLE_CLOCK"     );
       attList.extend<int>        ( "TT.L1TT_ID"                    );
       attList.extend<std::string>( "TT.L1TT_NAME"                  );
       attList.extend<int>        ( "TT.L1TT_VERSION"               );
@@ -196,8 +195,10 @@ bool TrigConf::ThresholdConfigLoader::load( ThresholdConfig& thrConfig ) {
             tt->setCableConnector(row["TM2TT.L1TM2TT_CABLE_CONNECTOR"].data<std::string>());
             tt->setCableStart    (row["TM2TT.L1TM2TT_CABLE_START"].data<int>());
             tt->setCableEnd      (row["TM2TT.L1TM2TT_CABLE_END"].data<int>());
-
-
+            int clock = row["TM2TT.L1TM2TT_CABLE_CLOCK"].data<int>();
+            if(clock >= 0) {
+               tt->setClock(clock);
+            }
             tt->setId     (row["TT.L1TT_ID"].data<int>());
             tt->setName   (row["TT.L1TT_NAME"].data<std::string>());
             tt->setVersion(row["TT.L1TT_VERSION"].data<int>());
@@ -208,7 +209,7 @@ bool TrigConf::ThresholdConfigLoader::load( ThresholdConfig& thrConfig ) {
             tt->setBitnum(row["TT.L1TT_BITNUM"].data<int>());
             tt->setInput  ( (thrtype=="TOPO" || thrtype=="ALFA") ? "ctpcore" : "ctpin" );
 
-            TRG_MSG_DEBUG("ThresholdConfigLoader loading threshold with ID = " << tt->id() << " for MenuId = " << menuid << ": ");
+            TRG_MSG_VERBOSE("ThresholdConfigLoader loading threshold with ID = " << tt->id() << " for MenuId = " << menuid << ": ");
          }
   
          if(tt->type() == L1DataDef::rndmType() ||
@@ -330,6 +331,7 @@ bool TrigConf::ThresholdConfigLoader::load( ThresholdConfig& thrConfig ) {
       attList1.extend<std::string>( "TM2TT.L1TM2TT_CABLE_CONNECTOR" );
       attList1.extend<int>        ( "TM2TT.L1TM2TT_CABLE_START"     );
       attList1.extend<int>        ( "TM2TT.L1TM2TT_CABLE_END"       );
+      attList1.extend<int>        ( "TM2TT.L1TM2TT_CABLE_CLOCK"     );
       attList1.extend<int>        ( "TT.L1TT_ID"                    );
       attList1.extend<std::string>( "TT.L1TT_NAME"                  );
       attList1.extend<int>        ( "TT.L1TT_VERSION"               );
@@ -389,6 +391,11 @@ bool TrigConf::ThresholdConfigLoader::load( ThresholdConfig& thrConfig ) {
             tt->setCableConnector(row["TM2TT.L1TM2TT_CABLE_CONNECTOR"].data<std::string>());
             tt->setCableStart    (row["TM2TT.L1TM2TT_CABLE_START"].data<int>());
             tt->setCableEnd      (row["TM2TT.L1TM2TT_CABLE_END"].data<int>());
+
+            int clock = row["TM2TT.L1TM2TT_CABLE_CLOCK"].data<int>();
+            if(clock >= 0) {
+               tt->setClock(clock);
+            }
             tt->setId     (row["TT.L1TT_ID"].data<int>());
             tt->setName   (row["TT.L1TT_NAME"].data<std::string>());
             tt->setVersion(row["TT.L1TT_VERSION"].data<int>());
@@ -411,8 +418,7 @@ bool TrigConf::ThresholdConfigLoader::load( ThresholdConfig& thrConfig ) {
             tt->setZBSeedingThresholdName (seed);
             tt->setZBSeedingThresholdMulti(seed_multi);
 
-            TRG_MSG_DEBUG("ThresholdConfigLoader loading threshold with ID = "
-                          << tt->id() << " for MenuId = " << menuid << ": ");
+            TRG_MSG_VERBOSE("ThresholdConfigLoader loading threshold with ID = " << tt->id() << " for MenuId = " << menuid << ": ");
             //tt->setNumberofValues(numberofvalues);
             // trigger thresholds sorted by type
             thrConfig.addTriggerThreshold(tt);
