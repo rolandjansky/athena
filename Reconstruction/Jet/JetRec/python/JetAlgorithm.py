@@ -84,8 +84,8 @@ def addJetRecoToAlgSequence(job =None, useTruth =None, eventShapeTools =None,
     # build truth jet input :
     rtools += [ jtm.truthpartcopy, jtm.truthpartcopywz ]
 
-  if jetFlags.useCells():
-    rtools += [jtm.missingcells]
+  ## if jetFlags.useCells():
+  ##   rtools += [jtm.missingcells] commented out : incompatible with trigger : ATR-9696
   if jetFlags.useTracks:
     rtools += [jtm.tracksel]
     rtools += [jtm.tvassoc]

@@ -79,7 +79,7 @@ StatusCode JetToolRunner::finalize() {
     ATH_MSG_INFO("   Avg. CPU/wall time: " << actime << "/" << awtime << " sec");
   }
   if ( m_timer > 1 && m_nevt > 0 ) {
-    unsigned int nevstool = m_exetools.size();
+    unsigned int nevstool = m_evstools.size();
     ATH_MSG_INFO("  CPU/wall time [s] for " << nevstool << " event shape tools:");
     for ( unsigned int itool=0; itool<nevstool+1; ++itool ) {
       string tname = "TOTAL";

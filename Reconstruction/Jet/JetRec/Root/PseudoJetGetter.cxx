@@ -6,6 +6,7 @@
 
 #include "JetRec/PseudoJetGetter.h"
 #include "JetEDM/PseudoJetVector.h"
+#include "JetRec/PseudoJetGetterRegistry.h"
 
 using std::string;
 using jet::LabelIndex;
@@ -27,6 +28,7 @@ PseudoJetGetter::PseudoJetGetter(const std::string& name)
 StatusCode PseudoJetGetter::initialize() {
   ATH_MSG_DEBUG("Initializing...");
   if ( m_label.substr(0,2) == "EM" ) m_emtopo = true;
+  PseudoJetGetterRegistry::add(this);
   print();
   return StatusCode::SUCCESS;
 }

@@ -1,0 +1,43 @@
+#!/bin/sh
+
+NUM=$1
+ACT=$2
+if [ -z "$ACT" ]; then
+  ACT=run
+fi
+HELP=
+
+if [ -z "$NUM" ]; then
+  HELP=true
+else if [ $NUM -ne 220 -a $NUM -ne 221 -a $NUM -ne 222 ]; then
+  HELP=true
+fi; fi
+
+if [ -n "$HELP" ]; then
+  echo Usage $0 NUM
+  echo "  NUM = 220, 221 or 222"
+  echo Use "ami auth" to axquire the AMI credentials.
+  exit 0
+fi
+
+COM="Reco_tf.py --AMI q$NUM"
+DIR=qtest$NUM
+if [ "$ACT" == run ]; then
+  rm -rf $DIR
+  mkdir $DIR
+  cd $DIR
+  echo Running $COM
+  $COM
+  cd ..
+fi
+ls -s1 $DIR > $DIR.log
+for BAD in ERROR FATAL FPE; do
+  echo
+  echo
+  echo Checking for $BAD
+  grep $BAD $DIR/log*
+done
+echo
+echo
+echo Output files:
+ls -ls $DIR/*.pool.root

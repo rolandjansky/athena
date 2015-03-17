@@ -80,8 +80,8 @@ jtm.modifiersMap["mymods"] = [
   jtm.nsubjettiness,
   jtm.jetens,
   jtm.caloqual_cluster,
-  jtm.bchcorrclus,
-  jtm.width
+  jtm.width,
+  jtm.jetsorter
 ]
 
 # Add tools to find or groom jets.

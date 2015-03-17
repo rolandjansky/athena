@@ -39,7 +39,7 @@ theApp.EvtMax = 5
 # Exclude modifiers that cause problems.
 # B/c they require cells?
 from JetRec.JetRecFlags import jetFlags
-jetFlags.skipTools += ["jetens", "bchcorrclus", "caloqual_cluster"]
+jetFlags.skipTools += ["jetens", "caloqual_cluster"]
 
 # Import the jet tool manager.
 from JetRec.JetRecStandardToolManager import jtm
