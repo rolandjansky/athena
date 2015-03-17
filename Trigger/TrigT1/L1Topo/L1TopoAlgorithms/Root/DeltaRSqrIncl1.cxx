@@ -44,14 +44,14 @@ TCS::DeltaRSqrIncl1::DeltaRSqrIncl1(const std::string & name) : DecisionAlg(name
    defineParameter("MaxTob", 0); 
    defineParameter("NumResultBits", 3);
    defineParameter("RequireOneBarrel", 0);
+   defineParameter("MinET1",1);
+   defineParameter("MinET2",1);
    defineParameter("DeltaRMin",  0, 0);
    defineParameter("DeltaRMax",  0, 0);
    defineParameter("DeltaRMin",  0, 1);
    defineParameter("DeltaRMax",  0, 1);
    defineParameter("DeltaRMin",  0, 2);
    defineParameter("DeltaRMax",  0, 2);
-   defineParameter("MinET1",1);
-   defineParameter("MinET2",1);
    setNumberOutputBits(3);
 }
 
@@ -128,7 +128,7 @@ TCS::DeltaRSqrIncl1::process( const std::vector<TCS::TOBArray const *> & input,
 
                bool accept[3];
                for(unsigned int i=0; i<numberOutputBits(); ++i) {
-                  accept[i] = deltaR2 >= (p_DeltaRMin[i]*p_DeltaRMin[i]) && deltaR2 <= (p_DeltaRMax[i]*p_DeltaRMax[i]);
+                  accept[i] = deltaR2 >= p_DeltaRMin[i] && deltaR2 <= p_DeltaRMax[i];
                   if( accept[i] ) {
                      decison.setBit(i, true);  
                      output[i]->push_back( TCS::CompositeTOB(*tob1, *tob2) );

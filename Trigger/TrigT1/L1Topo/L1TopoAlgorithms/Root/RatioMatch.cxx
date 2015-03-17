@@ -123,7 +123,7 @@ TCS::RatioMatch::process( const std::vector<TCS::TOBArray const *> & input,
                //
                bool accept[3];
                for(unsigned int i=0; i<numberOutputBits(); ++i) {
-                   accept[i] = deltaR2 <=  (p_DeltaR*p_DeltaR) && 10*parType_t((*tob1)->Et()) >= p_Ratio[i]*parType_t((*tob2)->Et());
+                   accept[i] = deltaR2 <= p_DeltaR && 10*parType_t((*tob1)->Et()) >= p_Ratio[i]*parType_t((*tob2)->Et());
                    if( accept[i] ) {
                        decision.setBit(i, true);
                        output[i]->push_back(TCS::CompositeTOB(*tob1, *tob2));

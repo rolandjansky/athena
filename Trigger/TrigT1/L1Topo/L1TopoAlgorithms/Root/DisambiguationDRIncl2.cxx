@@ -134,7 +134,7 @@ TCS::DisambiguationDRIncl2::process( const std::vector<TCS::TOBArray const *> & 
 
                bool accept[3];
                for(unsigned int i=0; i<numberOutputBits(); ++i) {
-                     accept[i] = deltaR2Cut > p_DRCutMin*p_DRCutMin && deltaR2Cut <= p_DRCutMax*p_DRCutMax ;
+                     accept[i] = deltaR2Cut > p_DRCutMin && deltaR2Cut <= p_DRCutMax ;
                
                      if( accept[i] ) {
                        decision.setBit(i, true);

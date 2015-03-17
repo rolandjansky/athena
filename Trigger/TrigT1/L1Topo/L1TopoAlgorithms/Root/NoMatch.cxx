@@ -123,7 +123,7 @@ TCS::NoMatch::process( const std::vector<TCS::TOBArray const *> & input,
 
                // test DeltaR2Min, DeltaR2Max
                deltaR2 = calcDeltaR2( *tob1, *tob2 );
-               if (deltaR2 <= p_DRCut*p_DRCut) matched = true; 
+               if (deltaR2 <= p_DRCut) matched = true; 
 	       
             }
         
