@@ -5,7 +5,8 @@ include.block ('HIRecExample/heavyion_flagsESD.py')
 from RecExConfig.RecFlags import rec
 from RecExConfig.RecAlgsFlags import recAlgs
 from HIRecExample.HIRecExampleFlags import jobproperties
-from HIJetRec.HIJetRecFlags import jobproperties
+#tmp 112014
+#from HIJetRec.HIJetRecFlags import jobproperties
 
 rec.doDPD.set_Value_and_Lock(False)
 
@@ -24,7 +25,7 @@ if not jobproperties.HIRecExampleFlags.ppMode :
       # AO (standard JetRec turned off)
       from JetRec.JetRecFlags import jetFlags
       jetFlags.Enabled =                  False
-      jetFlags.noStandardConfig =         True
+      #jetFlags.noStandardConfig =         True
 
       rec.doRestrictedESD =               False
 
@@ -41,12 +42,13 @@ if not jobproperties.HIRecExampleFlags.ppMode :
       # turning off TopoCaloSeeded
       jobproperties.egammaRecFlags.doTopoCaloSeeded = False
       # turning off not used softe
-      jobproperties.egammaRecFlags.doEgammaTrackSeeded = False 
+      #tmp 112014
+      #jobproperties.egammaRecFlags.doEgammaTrackSeeded = False 
 
-      from JetRec.JetRecFlags import jobproperties
-      jobproperties.JetRecFlags.doBTagging = False
-      from tauRec.tauRecFlags import jobproperties
-      jobproperties.tauRecFlags.doTauRec = False 
+      #from JetRec.JetRecFlags import jobproperties
+      #jobproperties.JetRecFlags.doBTagging = False
+      #from tauRec.tauRecFlags import jobproperties
+      #jobproperties.tauRecFlags.doTauRec = False 
 
       recAlgs.doMuidLowPt = False
       recAlgs.doEFlow = False
