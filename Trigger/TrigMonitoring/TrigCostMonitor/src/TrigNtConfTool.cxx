@@ -208,7 +208,7 @@ bool Trig::TrigNtConfTool::GetKeysChangedFromSv(TrigMonConfig &confg) {
    if ( m_configSvc->masterKey() != confg.getMasterKey() ) {
      ATH_MSG_DEBUG("Master key has changed from " << confg.getMasterKey() << " to " << m_configSvc->masterKey() << " - (re)fill " );
      return true;
-   } else if ( ctp_confg->prescaleSetId() != confg.getLV1PrescaleKey() ) {
+   } else if ( (int)ctp_confg->prescaleSetId() != (int)confg.getLV1PrescaleKey() ) {
      ATH_MSG_DEBUG("L1 key has changed from " << confg.getMasterKey() << " to " << ctp_confg->prescaleSetId() << " - (re)fill " );
      return true;
    } else  if ( m_configSvc->hltPrescaleKey() != confg.getHLTPrescaleKey() ) {

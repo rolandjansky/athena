@@ -110,6 +110,7 @@ private:
      unsigned                     countInvalid; // Count wrong     HLT results
      unsigned                     countValid;   // Count valid     HLT results 
 
+     unsigned                     countCostEvent;//Count all extracted TrigMonEvent objects where the scale tools were run
      unsigned                     countEvent;   // Count all extracted TrigMonEvent  objects
      unsigned                     countConfig;  // Count all extracted TrigMonConfig 
      unsigned                     resultPrint;  // Count all fully printed results

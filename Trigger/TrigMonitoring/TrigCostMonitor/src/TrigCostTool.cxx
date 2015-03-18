@@ -14,12 +14,10 @@
 // Framework
 #include "AthenaKernel/errorcheck.h"
 #include "StoreGate/DataHandle.h"
-#include "EventInfo/EventInfo.h" // OLD
-#include "EventInfo/EventID.h" // OLD
-#include "EventInfo/EventType.h" // OLD
-#include "EventInfo/TriggerInfo.h" // OLD
 #include "xAODEventInfo/EventInfo.h"
 // #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h" // Get CTP ROB 
+#include "EventInfo/EventInfo.h" // Legacy
+#include "EventInfo/TriggerInfo.h" // Legacy
 
 // Trigger
 #include "TrigNavigation/Navigation.h"
@@ -91,7 +89,9 @@ TrigCostTool::TrigCostTool(const std::string& type,
   declareProperty("saveEventTimers",  m_saveEventTimers  = false, "Save event timers");
   declareProperty("writeAlways",      m_writeAlways      = false);
   declareProperty("writeConfig",      m_writeConfig      = true);
-  declareProperty("writeConfigDB",    m_writeConfigDB    = false);
+  declareProperty("writeConfigDB",    m_writeConfigDB    = false);  
+  declareProperty("onlySaveCostEvent",m_onlySaveCostEvent= true, "Only save events which have passed the OPI prescale which run all scale tools");
+
 
   declareProperty("stopAfterNEvent",  m_stopAfterNEvent  = 1000);
   declareProperty("execPrescale",     m_execPrescale     = 1.0);
@@ -307,6 +307,20 @@ StatusCode TrigCostTool::fillHists()
   const bool monitoringEvent = IsMonitoringEvent(eventInfo); // Have I passed the CostMon chain and no other chains?
   const unsigned opiLevel = m_parentAlg->getAlgoConfig()->getSteeringOPILevel(); // Have I passed the OPI "prescale"?
 
+  // Decide if we run the scale tools
+  bool _prescaleDecision = true;
+  if (m_execPrescale) {
+    _prescaleDecision = m_scalerTool->decision(m_execPrescale);
+  } 
+
+  // We now provide the option to bail out here if we have not passed the OPI `prescale'
+  if (m_onlySaveCostEvent == true && m_writeAlways == false) {
+    if (opiLevel == 0 || m_execPrescale == 0 || _prescaleDecision == 0) {
+      ATH_MSG_DEBUG("Not a full monitoring event, return now. To save basic info for all events set onlySaveCostEvent=0");
+      return StatusCode::SUCCESS;
+    }
+  }
+
   if(m_stopAfterNEvent > 0 && m_bufferEvents.size() >= m_stopAfterNEvent) { // Have we filled up the buffer? This is bad!
     delete m_bufferEvents.front();
     m_bufferEvents.erase(m_bufferEvents.begin());
@@ -330,13 +344,8 @@ StatusCode TrigCostTool::fillHists()
     m_eventTools[i]->Fill(*event); 
   }
   
-  // Decide if we run the scale tools
-  bool _prescaleDecision = true;
   int _ranSacleTools = 0;
-  if (m_execPrescale) {
-    _prescaleDecision = m_scalerTool->decision(m_execPrescale);
-  } 
-  ATH_MSG_DEBUG( "Deciding if we run the ScaleTools on this event:"
+  ATH_MSG_DEBUG( "Deciding if we run the ScaleTools on this event (full monitorng event):"
        << " doOperationalInfo=" << m_doOperationalInfo
        << " [descision=" << opiLevel << "]"
        << ". execPrescale=" << m_execPrescale 
@@ -350,7 +359,7 @@ StatusCode TrigCostTool::fillHists()
     if (m_doEBWeight) m_toolEBWeight->Fill(*event);
     _ranSacleTools = 1;
   } else {
-    ATH_MSG_DEBUG( "NOT Running ScaleTools on this event" );
+    ATH_MSG_DEBUG( "NOT Running ScaleTools on this event. Not a full monitoring event." );
   }
   event->addVar(47, _ranSacleTools);
 
@@ -783,19 +792,7 @@ void TrigCostTool::SavePrevLumi(TrigMonEvent &event)
 }
 
 //---------------------------------------------------------------------------------------
-namespace Cost
-{
-  void PrintStreams(const TriggerInfo &trig, MsgStream &msg, MSG::Level level)
-  {    
-    const std::vector<TriggerInfo::StreamTag> &streams = trig.streamTags();
-    for(unsigned i = 0; i < streams.size(); ++i) {
-      const TriggerInfo::StreamTag &stag = streams[i];      
-      msg << level << "   stream " << i << ": " << stag.name() << "/" << stag.type() << endreq;
-    }
-  }
-}
 
-// NEW
 namespace Cost
 {
   void PrintStreams(xAOD::EventInfo* trig, MsgStream &msg, MSG::Level level)
@@ -814,38 +811,14 @@ bool TrigCostTool::IsMonitoringEvent(xAOD::EventInfo* info)
   //
   // Check if this event has monitoring stream
   // 
-
-  // TIMM DO NOT MIGRATE TO xAOD HERE YET - NEEDS FIXING
-
   const std::vector< xAOD::EventInfo::StreamTag > &streams = info->streamTags(); //New
 
-  // OLD METHOD
-  const DataHandle<EventInfo> event_handle_old;
-  if (evtStore() -> retrieve(event_handle_old).isFailure()) {
-    ATH_MSG_ERROR("Cannot fetch old-style EventInfo. Maybe need to upgrade to xAOD now?");
-    return false;
-  }
-  TriggerInfo* info_OLD = event_handle_old->trigger_info();
-  const std::vector<TriggerInfo::StreamTag> &streams_OLD = info_OLD->streamTags();
-  // OLD METHOD
-
-  // LOOK @ NEW METHOD
   if(streams.empty()) {
     ATH_MSG_DEBUG("[xAOD::EventInfo] Event has no trigger streams");
   } else {
     if(outputLevel() <= MSG::DEBUG) {
       ATH_MSG_DEBUG("[xAOD::EventInfo] Event has " << streams.size() << " stream(s)");
       Cost::PrintStreams(info, msg(), MSG::DEBUG);
-    }
-  }
-
-  if(streams_OLD.empty()) {
-    ATH_MSG_DEBUG("[EventInfo] Event has no trigger streams");
-    return false;
-  } else {
-    if(outputLevel() <= MSG::DEBUG) {
-      ATH_MSG_DEBUG("[EventInfo] Event has " << streams_OLD.size() << " stream(s)");
-      Cost::PrintStreams(*info_OLD, msg(), MSG::DEBUG);
     }
   }
 
@@ -858,11 +831,11 @@ bool TrigCostTool::IsMonitoringEvent(xAOD::EventInfo* info)
   bool costEvent = false;
   bool passLogic = true;
 
-  //std::vector< xAOD::EventInfo::StreamTag > new_streams; //New
-  std::vector<TriggerInfo::StreamTag> new_streams;
+  std::vector< xAOD::EventInfo::StreamTag > new_streams;
+  std::vector<TriggerInfo::StreamTag>       new_streams_legacy;
 
-  for(unsigned i = 0; i < streams_OLD.size(); ++i) {
-    const TriggerInfo::StreamTag &stag = streams_OLD.at(i);
+  for(unsigned i = 0; i < streams.size(); ++i) {
+    const xAOD::EventInfo::StreamTag &stag = streams.at(i);
 
     if(noCalib && stag.type() == "calibration" && stag.name() != m_monitoringStream) {
       passLogic = false;
@@ -887,30 +860,40 @@ bool TrigCostTool::IsMonitoringEvent(xAOD::EventInfo* info)
     if(stag.name() == m_monitoringStream) {
       costEvent = true;
       ATH_MSG_DEBUG("Event has monitoring stream: " << m_monitoringStream);
-    }
-    else {
+    } else {
       new_streams.push_back(stag);
+      new_streams_legacy.push_back( 
+        TriggerInfo::StreamTag(stag.name(), stag.type(), stag.obeysLumiblock(), stag.robs(), stag.dets())
+      );
     }
   }
 
-  if(oneStream && streams_OLD.size() != 1) {
+  if(oneStream && streams.size() != 1) {
     passLogic = false;
-    ATH_MSG_DEBUG("Case 4 - ignoring event because of stream size=: " << streams_OLD.size());
+    ATH_MSG_DEBUG("Case 4 - ignoring event because of stream size=: " << streams.size());
   }
 
   ATH_MSG_DEBUG("  passLogic = " << passLogic);
   ATH_MSG_DEBUG("  costEvent = " << costEvent);
 
   if(m_purgeCostStream && costEvent && !passLogic) {
+    ATH_MSG_DEBUG("Failed Pass Logic, purge the Cost stream tag from the event to save writing out empty RAW event to SFO");
     
-    info_OLD->setStreamTags(new_streams);
+    const std::vector< xAOD::EventInfo::StreamTag > new_streams_const(new_streams); 
+    info->setStreamTags(new_streams_const); 
 
-    //const std::vector< xAOD::EventInfo::StreamTag > new_streams_const(new_streams); // New
-    //info->setStreamTags(new_streams_const); // New
+    // Also update the legacy non-xAOD object
+    const DataHandle<EventInfo> event_handle_legacy;
+    if (evtStore()->retrieve(event_handle_legacy).isFailure()) {
+      ATH_MSG_DEBUG("Can no longer access old EventInfo - remove this legacy code block");
+    } else {
+      TriggerInfo* info_legacy = event_handle_legacy->trigger_info();
+      info_legacy->setStreamTags(new_streams_legacy);
+    }
 
     if(outputLevel() <= MSG::DEBUG) {
-      ATH_MSG_DEBUG("After stream purge event has " << info_OLD->streamTags().size() << " stream(s)");
-      Cost::PrintStreams(*info_OLD, msg(), MSG::DEBUG);
+      ATH_MSG_DEBUG("After stream purge event has " << info->streamTags().size() << " stream(s)");
+      Cost::PrintStreams(info, msg(), MSG::DEBUG);
     }
   }
 
