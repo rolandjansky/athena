@@ -29,10 +29,8 @@ use SGTools              SGTools-*                      Control
 use PixelConditionsData  PixelConditionsData-*       InnerDetector/InDetConditions
 use PixelCoralClientUtils PixelCoralClientUtils-*	InnerDetector/InDetConditions
 use TestPolicy           TestPolicy-*
+use AtlasConditionsRunTime AtlasConditionsRunTime-*
 use AtlasCLHEP_RandomGenerators AtlasCLHEP_RandomGenerators-* Simulation/Tools
-
-use GeoModelUtilities    GeoModelUtilities-*             DetectorDescription/GeoModel
-use GeoModelInterfaces   GeoModelInterfaces-*            DetectorDescription/GeoModel
 
 public
 #apply_pattern dual_use_library files ="*.cxx"

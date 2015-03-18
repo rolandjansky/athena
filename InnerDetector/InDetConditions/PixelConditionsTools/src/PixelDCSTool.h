@@ -72,16 +72,16 @@ class PixelDCSTool: virtual public AthAlgTool,
   virtual StatusCode IOVCallBack(IOVSVC_CALLBACK_ARGS); 
 
   virtual StatusCode createDCSData();
-  virtual StatusCode recordDCSData();
-  virtual StatusCode writeDataToDB();
+  virtual StatusCode recordDCSData() const;
+  virtual StatusCode writeDataToDB() const;
 
   virtual StatusCode printData() const;
 
  private:
 
-  virtual StatusCode connectOutput();
+  virtual StatusCode connectOutput() const;
   virtual StatusCode commitDataToDetectorStore(CondAttrListCollection* attrListColl, std::string dataKey) const;
-  virtual StatusCode registerIOVData(std::string dataKey, std::string dataTag);
+  virtual StatusCode registerIOVData(std::string dataKey, std::string dataTag) const;
 
 
   //mutable MsgStream m_log;

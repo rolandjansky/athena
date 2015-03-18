@@ -67,24 +67,24 @@ PixelDistortionsTool::initialize()
     
   // Get the Pixel helper
   if (detStore()->retrieve(m_pixelid, "PixelID").isFailure()) {
-    if(msgLvl(MSG::FATAL))msg(MSG::FATAL) << "Could not get Pixel ID helper" << endmsg;
+    if(msgLvl(MSG::FATAL))msg(MSG::FATAL) << "Could not get Pixel ID helper" << endreq;
     return StatusCode::FAILURE;
   }
 
   if (m_overrideVersion >= 0) {
-    if(msgLvl(MSG::INFO))msg(MSG::INFO) << "Distortion data version number overriden to " << m_overrideVersion << endmsg;
+    if(msgLvl(MSG::INFO))msg(MSG::INFO) << "Distortion data version number overriden to " << m_overrideVersion << endreq;
     m_version = m_overrideVersion; 
   }
 
   m_doCorrections = initializeDistortions();
 
   if (!m_doCorrections) {
-    if(msgLvl(MSG::INFO))msg(MSG::INFO) << "Distortion corrections are disabled" << endmsg;
+    if(msgLvl(MSG::INFO))msg(MSG::INFO) << "Distortion corrections are disabled" << endreq;
   }
 
   //if (m_log.level() <=  MSG::VERBOSE) {
   if(msgLvl(MSG::VERBOSE)){
-    msg(MSG::VERBOSE) << "Dump of DetCondCFloat contents (if using DB, dump will appear during callback): " << endmsg;
+    msg(MSG::VERBOSE) << "Dump of DetCondCFloat contents (if using DB, dump will appear during callback): " << endreq;
     dumpData();
   }
 
@@ -132,7 +132,7 @@ PixelDistortionsTool::initializeDistortions()
     break;
   default: // any other case: do not apply bow correction
     if(msgLvl(MSG::WARNING))msg(MSG::WARNING) << "Input source option " << m_inputSource 
-	  << " is not implemented: no bow correction is applied" << endmsg;
+	  << " is not implemented: no bow correction is applied" << endreq;
     return false;
     break;
   }
@@ -146,7 +146,7 @@ PixelDistortionsTool::initializeDistortions()
 const DetCondCFloat *
 PixelDistortionsTool::generateConstantBow()
 {
-  if(msgLvl(MSG::INFO))msg(MSG::INFO) << "Using constant pixel distortions " << endmsg;
+  if(msgLvl(MSG::INFO))msg(MSG::INFO) << "Using constant pixel distortions " << endreq;
   const int distosize=3; // dimension of distortion vector
   std::vector<float> data(distosize);
   DetCondCFloat *disto=0;
@@ -166,18 +166,18 @@ PixelDistortionsTool::generateConstantBow()
 const DetCondCFloat * 
 PixelDistortionsTool::generateRandomBow()
 {
-  if(msgLvl(MSG::INFO))msg(MSG::INFO) << "Using random pixel distortions" << endmsg;
+  if(msgLvl(MSG::INFO))msg(MSG::INFO) << "Using random pixel distortions" << endreq;
   StatusCode sc = service("AtRndmGenSvc", m_rndmSvc);
   if (!sc.isSuccess() || 0 == m_rndmSvc) {
-    if(msgLvl(MSG::ERROR))msg(MSG::ERROR) << "Could not find AtRndmGenSvc" << endmsg;
+    if(msgLvl(MSG::ERROR))msg(MSG::ERROR) << "Could not find AtRndmGenSvc" << endreq;
     return 0;
   }
   // get the PixelDigitization random stream
-  if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "Getting random number engine : <" << m_rndmEngineName << ">" << endmsg;
+  if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "Getting random number engine : <" << m_rndmEngineName << ">" << endreq;
   m_rndmEngine = m_rndmSvc->GetEngine(m_rndmEngineName);
-  //msg(MSG::ERROR) << "STEP 2 " << endmsg;
+  //msg(MSG::ERROR) << "STEP 2 " << endreq;
   if (m_rndmEngine==0) {
-    if(msgLvl(MSG::ERROR))msg(MSG::ERROR) << "Could not find RndmEngine : " << m_rndmEngineName << endmsg;
+    if(msgLvl(MSG::ERROR))msg(MSG::ERROR) << "Could not find RndmEngine : " << m_rndmEngineName << endreq;
     return 0;
   }
 
@@ -188,22 +188,22 @@ PixelDistortionsTool::generateRandomBow()
   PixelID::const_id_iterator end=m_pixelid->wafer_end();
 
   // get random number generator
-  if(msgLvl(MSG::INFO))msg(MSG::INFO) << "RndmEngine" << m_rndmEngine << endmsg;
+  if(msgLvl(MSG::INFO))msg(MSG::INFO) << "RndmEngine" << m_rndmEngine << endreq;
   disto=new DetCondCFloat(distosize,getVersionName());
   for ( PixelID::const_id_iterator id=(begin+1); id!=end; id++) {
     data[0]=CLHEP::RandGaussZiggurat::shoot(m_rndmEngine,m_mean_R,m_RMS_R);
     if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "DATA[0] " << data[0] << " " << m_mean_R << " " <<
-      m_RMS_R <<endmsg;
+      m_RMS_R <<endreq;
     data[1]=CLHEP::RandGaussZiggurat::shoot(m_rndmEngine,data[0],m_RMS_R/10.);//to implement a correlation between distortions on 2 sides of the module
       if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "DATA[1] " << data[1] << " " << data[0]
-	  <<  " " << m_RMS_R/10. <<endmsg;
+	  <<  " " << m_RMS_R/10. <<endreq;
       data[2]=CLHEP::RandGaussZiggurat::shoot(m_rndmEngine,m_mean_twist,m_RMS_twist);
       if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "DATA[2] " << data[2] << " " << m_mean_twist 
-	  << " " << m_RMS_twist <<endmsg;
+	  << " " << m_RMS_twist <<endreq;
       data[0] *= CLHEP::meter; // convert to 1/mm
       data[1] *= CLHEP::meter; // convert to 1/mm
       data[2] = 2.0*atan(data[2]) / CLHEP::degree; // convert to degree
-      if(msgLvl(MSG::VERBOSE))msg(MSG::VERBOSE) << "DATA0 = " << data[0] << " DATA1 = " << data[1] << " DATA2 = " << data[2] << endmsg;	
+      if(msgLvl(MSG::VERBOSE))msg(MSG::VERBOSE) << "DATA0 = " << data[0] << " DATA1 = " << data[1] << " DATA2 = " << data[2] << endreq;	
       disto->add(*id,data.data());
  }
   return disto;
@@ -213,7 +213,7 @@ PixelDistortionsTool::generateRandomBow()
 const DetCondCFloat * 
 PixelDistortionsTool::readFromTextFile() 
 {
-  if(msgLvl(MSG::INFO))msg(MSG::INFO) << "Reading pixel distortions from file: " << m_textFileName << endmsg;
+  if(msgLvl(MSG::INFO))msg(MSG::INFO) << "Reading pixel distortions from file: " << m_textFileName << endreq;
   const int distosize=3; // dimension of distortion vector
   std::vector<float> data(distosize);
   DetCondCFloat *disto=0;
@@ -222,12 +222,12 @@ PixelDistortionsTool::readFromTextFile()
   std::string file_name = 
     PathResolver::find_file (m_textFileName, "DATAPATH");
   if (file_name.size()==0) {
-    if(msgLvl(MSG::WARNING))msg(MSG::WARNING) << "Distortion file " << m_textFileName   << " not found! No pixel distortion will be applied." << endmsg;
+    if(msgLvl(MSG::WARNING))msg(MSG::WARNING) << "Distortion file " << m_textFileName   << " not found! No pixel distortion will be applied." << endreq;
     return 0;
   }
   std::ifstream input(file_name.c_str());
   if ( !input.good() ) {
-    if(msgLvl(MSG::WARNING))msg(MSG::WARNING) << "Cannot open " << file_name   << " not found! No pixel distortion will be applied." << endmsg;
+    if(msgLvl(MSG::WARNING))msg(MSG::WARNING) << "Cannot open " << file_name   << " not found! No pixel distortion will be applied." << endreq;
     return 0;
   }
   disto=new DetCondCFloat(distosize,getVersionName()); // create distortion container
@@ -238,7 +238,7 @@ PixelDistortionsTool::readFromTextFile()
     //data[0]/=CLHEP::meter;                    // curvature is in m-1
     //data[1]/=CLHEP::meter;                    // curvature is in m-1
     //data[2]=tan(0.5*data[2]*CLHEP::degree);   // twist angle in degree
-    if(msgLvl(MSG::VERBOSE))msg(MSG::VERBOSE) << "DATA0 = " << data[0] << " DATA1 = " << data[1] << " DATA2 = " << data[2] << endmsg;	
+    if(msgLvl(MSG::VERBOSE))msg(MSG::VERBOSE) << "DATA0 = " << data[0] << " DATA1 = " << data[1] << " DATA2 = " << data[2] << endreq;	
     if ( input.bad() || input.eof() ) break;
     disto->add(Identifier(idmod),data.data());
   }
@@ -251,16 +251,16 @@ PixelDistortionsTool::readFromTextFile()
 
 StatusCode PixelDistortionsTool::registerCallBack()
 {
-  if(msgLvl(MSG::INFO))msg(MSG::INFO) << "Reading pixel distortions from database" << endmsg;
+  if(msgLvl(MSG::INFO))msg(MSG::INFO) << "Reading pixel distortions from database" << endreq;
   if (detStore()->contains<DetCondCFloat>(m_folderName)) {
-    if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "Registering callback on DetCondCFloat with folder " << m_folderName << endmsg;
+    if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "Registering callback on DetCondCFloat with folder " << m_folderName << endreq;
     const DataHandle<DetCondCFloat> data;
     StatusCode sc = detStore()->regFcn(&IModuleDistortionsTool::fillDataCallBack, 
 				       dynamic_cast<IModuleDistortionsTool *>(this), 
 				       data, m_folderName);
     return sc;
   } else {
-    if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "Unable to register callback on DetCondCFloat with folder " << m_folderName <<endmsg;
+    if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "Unable to register callback on DetCondCFloat with folder " << m_folderName <<endreq;
     return StatusCode::FAILURE;
   }
 }
@@ -269,7 +269,7 @@ StatusCode PixelDistortionsTool::fillDataCallBack(IOVSVC_CALLBACK_ARGS_P(I,keys)
 { 
   StatusCode sc = StatusCode::SUCCESS;
   (void) I; // avoid warning about unused parameter 
-  if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "Callback for PixelDistortions" << endmsg;
+  if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "Callback for PixelDistortions" << endreq;
   // Do not expect any other keys but check anyway.
   for (std::list<std::string>::const_iterator itr=keys.begin(); itr!=keys.end(); ++itr) {    
     if (*itr == m_folderName) {
@@ -287,14 +287,14 @@ StatusCode PixelDistortionsTool::fillData() {
   StatusCode sc = detStore()->retrieve(m_distortions, m_folderName);      
   if (sc.isFailure()) {
     m_distortions = 0;
-    if(msgLvl(MSG::ERROR))msg(MSG::ERROR) << "Unable to retrieve DetCondCFloat from " << m_folderName << endmsg;
+    if(msgLvl(MSG::ERROR))msg(MSG::ERROR) << "Unable to retrieve DetCondCFloat from " << m_folderName << endreq;
   } else {
-    if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "Retrieved DetCondCFloat from " << m_folderName << endmsg;
+    if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "Retrieved DetCondCFloat from " << m_folderName << endreq;
 
     // Determine version number from tag
     if (m_distortions->tag() == "/Indet/PixelDist") {
       m_version = 0; // For reproducing bug in earlier versions for backward compatibility 
-      if(msgLvl(MSG::INFO))msg(MSG::INFO) << "Detected old version of pixel distortions data." << endmsg;
+      if(msgLvl(MSG::INFO))msg(MSG::INFO) << "Detected old version of pixel distortions data." << endreq;
     } else {
       bool gotVersion = false;
       // Get version number, expecting string to have the form /Indet/PixelDist_v#
@@ -311,21 +311,21 @@ StatusCode PixelDistortionsTool::fillData() {
       }
       if (!gotVersion) {
 	if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Unable to determine version number of pixel distortions data. Version string:  " 
-						   << m_distortions->tag() << endmsg;
+						   << m_distortions->tag() << endreq;
       }
     }
   }
   
   if (m_overrideVersion >= 0) {
-    if(msgLvl(MSG::INFO))msg(MSG::INFO) << "Overriding version number. Version number from db was : " << m_version << endmsg;
+    if(msgLvl(MSG::INFO))msg(MSG::INFO) << "Overriding version number. Version number from db was : " << m_version << endreq;
     m_version = m_overrideVersion; 
   }
-  if(msgLvl(MSG::INFO))msg(MSG::INFO) << "Version number of pixel distortions data: " << m_version << endmsg;
+  if(msgLvl(MSG::INFO))msg(MSG::INFO) << "Version number of pixel distortions data: " << m_version << endreq;
   
 
   //if (m_log.level() <=  MSG::VERBOSE) {
   if (msgLvl(MSG::VERBOSE)) {
-    msg(MSG::VERBOSE) << "Dump of DetCondCFloat contents: " << endmsg;
+    msg(MSG::VERBOSE) << "Dump of DetCondCFloat contents: " << endreq;
     dumpData();
   }
   return sc;
@@ -337,9 +337,9 @@ StatusCode PixelDistortionsTool::writeData() {
   if (m_distortions) {
     sc = detStore()->record(m_distortions,m_folderName);
     if (sc.isFailure()) {
-      if(msgLvl(MSG::ERROR))msg(MSG::ERROR) << "Unable to record DetCondCFloat with name " << m_folderName << endmsg;
+      if(msgLvl(MSG::ERROR))msg(MSG::ERROR) << "Unable to record DetCondCFloat with name " << m_folderName << endreq;
     } else {
-      if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "Successfully recorded DetCondCFloat with name " << m_folderName << endmsg;  
+      if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "Successfully recorded DetCondCFloat with name " << m_folderName << endreq;  
       m_ownDistortions = false;
     }
   }
@@ -351,7 +351,7 @@ void PixelDistortionsTool::dumpData() const {
   if (m_distortions) {
     m_distortions->print2();
   } else {
-    if(msgLvl(MSG::INFO))msg(MSG::INFO) << "No Distortions " << endmsg;
+    if(msgLvl(MSG::INFO))msg(MSG::INFO) << "No Distortions " << endreq;
   }
 }
 
@@ -421,7 +421,7 @@ PixelDistortionsTool::correction(Identifier id, const Amg::Vector2D & locpos, co
   if ( !disto ) {
     if (msgLvl(MSG::VERBOSE)) {
       msg(MSG::VERBOSE) << "Distortions array empty for id = " 
-	    << m_pixelid->show_to_string(id) << "(" << id.getString() << ")" << endmsg;
+	    << m_pixelid->show_to_string(id) << "(" << id.getString() << ")" << endreq;
     }
     return nullCorrection;
   }
@@ -457,7 +457,7 @@ PixelDistortionsTool::correction(Identifier id, const Amg::Vector2D & locpos, co
 	 << "Local pos = " <<  "(" << locpos[0] << ", " <<  locpos[1] << ")"
 	 << ", Direction = " << direction
 	 << ", Correction = " << "(" << localphiCor << "," << localetaCor << ")";
-      msg(MSG::VERBOSE) << mstr.str() << endmsg;
+      msg(MSG::VERBOSE) << mstr.str() << endreq;
   }
   return Amg::Vector2D(localphiCor, localetaCor); 
 

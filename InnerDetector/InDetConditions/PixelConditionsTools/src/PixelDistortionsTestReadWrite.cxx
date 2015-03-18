@@ -37,7 +37,7 @@ PixelDistortionsTestReadWrite::~PixelDistortionsTestReadWrite()
 StatusCode PixelDistortionsTestReadWrite::initialize()
 {
   //m_log.setLevel(outputLevel());
-  if (msgLvl(MSG::INFO))msg(MSG::INFO) << "Entering PixelDistortionsTestReadWrite::initialize()" << endmsg;
+  if (msgLvl(MSG::INFO))msg(MSG::INFO) << "Entering PixelDistortionsTestReadWrite::initialize()" << endreq;
 
   StatusCode sc;
 
@@ -45,10 +45,10 @@ StatusCode PixelDistortionsTestReadWrite::initialize()
   sc=detStore()->retrieve(m_detManager,managerName);
   if (sc.isFailure() || !m_detManager) {
     if (msgLvl(MSG::FATAL))msg(MSG::FATAL) << "Could not find the Detector Manager: "
-	<< managerName << " !" << endmsg;
+	<< managerName << " !" << endreq;
     return StatusCode::FAILURE;
   } else {
-    if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "Detector Manager found" << endmsg;
+    if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "Detector Manager found" << endreq;
   }
 
   
@@ -56,13 +56,13 @@ StatusCode PixelDistortionsTestReadWrite::initialize()
   if (!m_pixelDistoTool.empty()) {
     sc = m_pixelDistoTool.retrieve();
     if(sc.isFailure()){
-      if (msgLvl(MSG::FATAL))msg(MSG::FATAL) << "Unable to retrieve PixelDistortionsTool" << endmsg;
+      if (msgLvl(MSG::FATAL))msg(MSG::FATAL) << "Unable to retrieve PixelDistortionsTool" << endreq;
       return StatusCode::FAILURE;
     }
 
-    if (msgLvl(MSG::INFO))msg(MSG::INFO) << "PixelDistortionsTool retrieved" << endmsg;
+    if (msgLvl(MSG::INFO))msg(MSG::INFO) << "PixelDistortionsTool retrieved" << endreq;
   } else {
-    if (msgLvl(MSG::INFO))msg(MSG::INFO) << "No PixelDistortionsTool requested." << endmsg;
+    if (msgLvl(MSG::INFO))msg(MSG::INFO) << "No PixelDistortionsTool requested." << endreq;
   }
 
 
@@ -72,7 +72,7 @@ StatusCode PixelDistortionsTestReadWrite::initialize()
 
 
 StatusCode PixelDistortionsTestReadWrite::execute(){
-  if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << " in PixelDistortionsTestReadWrite::execute()" << endmsg;
+  if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << " in PixelDistortionsTestReadWrite::execute()" << endreq;
   if (!m_pixelDistoTool.empty()) {
     if (!m_fullTest) {
       // Do nothing
@@ -80,7 +80,7 @@ StatusCode PixelDistortionsTestReadWrite::execute(){
     } else {
       const PixelID * pixelIdHelper;
       if (detStore()->retrieve(pixelIdHelper, "PixelID").isFailure()) {
-	  msg(MSG::FATAL) << "Could not get Pixel ID helper" << endmsg;
+	  msg(MSG::FATAL) << "Could not get Pixel ID helper" << endreq;
 	  return StatusCode::FAILURE;
     }
     // Exercise the tool.
@@ -100,19 +100,19 @@ StatusCode PixelDistortionsTestReadWrite::execute(){
 		  //dir.rotateX(10*CLHEP::deg);
 		  //dir.rotateY(5*CLHEP::deg);
 		  Amg::Vector2D corr;
-		  if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << pixelIdHelper->show_to_string(id) << endmsg;
+		  if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << pixelIdHelper->show_to_string(id) << endreq;
 		  corr = m_pixelDistoTool->correction(id, point1, dir); 
 		  if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << " Point 1: " << "(" << point1[0] << ", " <<  point1[1] << ")"
-			<< ", correction: " << "(" << corr.x() << ", " << corr.y() << ")" <<endmsg;
+			<< ", correction: " << "(" << corr.x() << ", " << corr.y() << ")" <<endreq;
 		  corr = m_pixelDistoTool->correction(id, point2, dir);
 		  if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << " Point 2: " << "(" << point2[0] << ", " <<  point2[1] << ")" 
-			<< ", correction: " << "(" << corr.x() << ", " << corr.y() << ")" <<endmsg;
+			<< ", correction: " << "(" << corr.x() << ", " << corr.y() << ")" <<endreq;
 		  Amg::Vector2D newPoint2sim = m_pixelDistoTool->correctSimulation(id, point2, dir);
 		  if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << " Point 2 after correction in simul: " 
-			<<  "(" << newPoint2sim[0] << ", " <<  newPoint2sim[1] << ")" << endmsg;
+			<<  "(" << newPoint2sim[0] << ", " <<  newPoint2sim[1] << ")" << endreq;
 		  Amg::Vector2D newPoint2rec = m_pixelDistoTool->correctReconstruction(id, newPoint2sim, dir);
 		  if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << " Point 2 after correction in recon: " 
-			<<  "(" << newPoint2rec[0] << ", " <<  newPoint2rec[1] << ")" << endmsg;
+			<<  "(" << newPoint2rec[0] << ", " <<  newPoint2rec[1] << ")" << endreq;
 	  
 		}
       }
@@ -124,7 +124,7 @@ StatusCode PixelDistortionsTestReadWrite::execute(){
 
 StatusCode PixelDistortionsTestReadWrite::finalize(){
 
-  if (msgLvl(MSG::INFO))msg(MSG::INFO) << "in PixelDistortionsTestReadWrite::finalize()" << endmsg;
+  if (msgLvl(MSG::INFO))msg(MSG::INFO) << "in PixelDistortionsTestReadWrite::finalize()" << endreq;
   
   return StatusCode::SUCCESS;
 }  
