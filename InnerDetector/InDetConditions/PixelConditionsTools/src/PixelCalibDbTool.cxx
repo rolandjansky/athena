@@ -440,10 +440,7 @@ StatusCode PixelCalibDbTool::writePixelCalibTextFiletoDB(std::string file) const
     return StatusCode::FAILURE; 
   }
   atrc = const_cast<CondAttrListCollection*>(catrc); 
-  if(atrc==0){ 
-    if(msgLvl(MSG::ERROR))msg(MSG::ERROR)<<" Could not retrieve non-const pointer to atrc"<<endreq; 
-    return StatusCode::FAILURE; 
-  }
+
   if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< " About to create AttributeListSpecification "<<endreq; 
   
   coral::AttributeListSpecification* aspec = new coral::AttributeListSpecification();
@@ -459,7 +456,7 @@ StatusCode PixelCalibDbTool::writePixelCalibTextFiletoDB(std::string file) const
   bool lprint(0);
 
   FILE* f = fopen(file.c_str(), "rb"); 
-  if(f){
+  if(!f){
     if(msgLvl(MSG::INFO))msg(MSG::INFO)<< "Cannot open file "<< file<<endreq;
     return StatusCode::FAILURE;
   }
