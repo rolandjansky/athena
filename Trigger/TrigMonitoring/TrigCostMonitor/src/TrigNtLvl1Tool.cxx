@@ -199,6 +199,11 @@ bool Trig::TrigNtLvl1Tool::Fill(const LVL1CTP::Lvl1Result &l1Result, TrigMonEven
       mon_item.addDecision(*dit);
     }
 
+    ATH_MSG_DEBUG("Saving L1 item CTPID:" << i 
+      << " TBP:" << l1Result.isPassedBeforePrescale(i)
+      << " TAP:" << l1Result.isPassedAfterPrescale(i) 
+      << " TAV:" << l1Result.isPassedAfterVeto(i) );
+
     event.add<TrigMonL1Item>(mon_item);
   }
 

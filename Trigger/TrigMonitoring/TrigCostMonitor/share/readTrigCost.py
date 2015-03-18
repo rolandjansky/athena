@@ -106,8 +106,8 @@ if ("EB" in costOutput):
 # Message service and loop manager options
 #
 ServiceMgr.MessageSvc.OutputLevel = 3
-ServiceMgr.MessageSvc.defaultLimit = 0
-ServiceMgr.MessageSvc.enableSuppression = False
+#ServiceMgr.MessageSvc.defaultLimit = 0
+#ServiceMgr.MessageSvc.enableSuppression = False
 ServiceMgr.MessageSvc.Format = "% F%35W%S%7W%R%T %0W%M"
 ServiceMgr.MessageSvc.showStats = True
 ServiceMgr.MessageSvc.statLevel = WARNING
