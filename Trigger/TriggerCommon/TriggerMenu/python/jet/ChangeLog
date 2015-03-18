@@ -1,3 +1,87 @@
+2015-03-12   Peter Sherwood  <peter@pb-d-128-141-171-232.cern.ch>
+
+	* AlgFactory.py (AlgFactory.__init__): remove attribute
+	hypo_sequence_alias
+	(AlgFactory.roiDiagnostics): add chain name back into the instance name
+	Add chain name back into the alg instance names for diagnositcs
+	algorithms
+
+	* jetDefInstantiator.py: remove import of obsolete
+	TrigHLTJetRec_param
+
+2015-03-08   Peter Sherwood  <peter@localhost>
+
+	* generateJetChainDefs.py: route HT chain processing to JetDef.py
+
+	* JetSequencesBuilder.py: add HT hypo support
+
+	* JetDef.py: remame function _debug to dump_chaindef (allows import
+	from outside the module).
+	* add HT hypo support.
+
+	* jetDefInstantiator.py: remove some dead (commented out) code, 
+	add import fo EFHT.
+
+	* ChainConfigMaker.py (ChainConfigMaker.process_part): add
+	support for the HT hypo.
+
+	* eta_string_conversions.py: new module. Helper fucntions
+	to decode the eta string (eg 0eta320)
+
+	* ChainConfig.py (ChainConfig): add new variable hypo_type. Now
+	there are two possible hypo Algs (standard, HT), need a way 
+	to distinguish them.
+
+	* hypo_factory.py (HTHypoAlg): new class
+	some code restructing.
+
+	* hypo_factory_test.py: rationlize code. add in test for the HT
+	hypo.
+
+	* AlgFactory.py (AlgFactory.ht_hypo): add method to produce a
+	hypo alg proxy.
+
+	* AlgFactory_test.py (TestAlgFactory.make_algfactory_singlejet): 
+	add in an eta range to the hypo test variables.
+
+2015-03-05   Peter Sherwood  <peter@localhost>
+
+	* SequenceTree.py (SequenceTree._make_sequences): 
+	Shorten the te_out name by replacing the sequence
+	history part of the name by a hash.
+
+	* JetDef.py (_make_start_te): handle the special case of
+	deteriming first input te name then the lower chain name is
+	of the form L1_TAUXXX
+
+	* add support for TrigHLTJetDebug
+
+	* JetSequencesBuilder.py (JetSequencesBuilder.make_fexd): 
+	add TrigHLTJetDebug to the diagnostics sequence.
+
+	* jetDefInstantiator.py: add in import of TrigHLTJetDebug
+
+	* AlgFactory.py (AlgFactory.jetRecDebug): new config function
+	for Debug Algorithm
+
+	* SequenceTree.py (_update_if_diagnostic_sequence.select): 
+	bug fix to seting the te_out for diagnositics sequences
+
+	M       SequenceTree.py
+	M       AlgFactory.py
+	M       ChangeLog
+	M       jetDefInstantiator.py
+	M       JetSequencesBuilder.py
+
+2015-03-04   Peter Sherwood  <peter@localhost>
+
+	* JetDef.py: rename function _debug to dump_chain_def
+
+2015-03-03   Peter Sherwood  <peter@localhost>
+
+	* AlgFactory.py (AlgFactory.__init__): bug fix:
+	attribute self.hypo_sequence_alias was plced in the wrong class.
+
 2015-02-23   Peter Sherwood  <peter@localhost>
 
 	* JetDef.py (_check_chainpart_consistency.remove_hypodata): 

@@ -148,6 +148,8 @@ class L2EFChain_tau(L2EFChainDef):
         # Strategies which need Run-II final hypo
         needsRun2Hypo = ['calo', 'ptonly', 'mvonly', 'caloonly',
                          'trackonly', 'track', 'tracktwo', 'tracktwocalo', 'trackcalo']
+        fastTrackingUsed = needsTrackPre + needsTrackTwoPre
+        
 
         # Temporary hack to handle naming scheme
         if 'r1' in selection:
@@ -189,7 +191,7 @@ class L2EFChain_tau(L2EFChainDef):
                                      self.continueChain('EF', 'calopre')]]
                 
         # Two step fast-tracking
-        if preselection in needsTrackTwoPre or (preselection != 'r1' and idperf):
+        if preselection in needsTrackTwoPre:
 
             theHLTTrackPre   = self.hypoProvider.GetHypo('L2', threshold, selection, 'id', preselection)
 
@@ -197,6 +199,18 @@ class L2EFChain_tau(L2EFChainDef):
             from TrigInDetConf.TrigInDetSequence import TrigInDetSequence
 
             [trkcore, trkiso, trkprec] = TrigInDetSequence("Tau", "tau", "IDTrig", "2step").getSequence()
+
+            # Get the TrackPreSelHypo
+            from TrigTauHypo.TrigTauHypoConf import HLTTrackPreSelHypo
+            tauRejectEmpty = HLTTrackPreSelHypo("TauRejectEmpty")
+            # Set up the nTrack preselection: only reject empty RoIs
+            # Ugly set-up here, apologies, but for the sake of speeding up the algorithm
+            tauRejectEmpty.rejectNoTracks = True
+            tauRejectEmpty.TracksInCoreCut = 999
+            tauRejectEmpty.TracksInIsoCut = 999
+            tauRejectEmpty.DeltaRLeadTrkRoI = 0.0
+            tauRejectEmpty.TrackVariableOuter = 0.0
+            tauRejectEmpty.TrackVariableCore = 0.0
 
             # Here we load our new tau-specific RoI Updater
             from TrigTauHypo.TrigTauHypoConf import HLTTauTrackRoiUpdater
@@ -207,7 +221,8 @@ class L2EFChain_tau(L2EFChainDef):
             # Cut in GeV
             tauRoiUpdater.minTrackPt = 1.0
 
-            ftracks = trkcore+[tauRoiUpdater]+trkiso
+            #ftracks = trkcore+[tauRoiUpdater]+trkiso
+            ftracks = trkcore+[tauRejectEmpty, tauRoiUpdater]+trkiso
 
             # Run fast-tracking
             self.EFsequenceList += [[[ self.currentItem ],
@@ -289,7 +304,7 @@ class L2EFChain_tau(L2EFChainDef):
 
             # Only run the fast-tracking if it wasn't run at pre-selection
             # Is two-step preselection good enough?
-            if preselection != 'track' and preselection != 'trackonly' and preselection != 'trackcalo':
+            if preselection not in fastTrackingUsed:
                 efidinsideout = trkcore+trkprec
 
             efmv              = TrigTauDiscriGetter2015()

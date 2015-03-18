@@ -8,6 +8,7 @@ import TriggerMenu.met.METSliceFlags
 import TriggerMenu.tau.TauSliceFlags
 import TriggerMenu.bphysics.BphysicsSliceFlags
 import TriggerMenu.minbias.MinBiasSliceFlags
+import TriggerMenu.heavyion.HeavyIonSliceFlags
 import TriggerMenu.combined.CombinedSliceFlags
 import TriggerMenu.calibcosmicmon.CosmicSliceFlags
 import TriggerMenu.calibcosmicmon.CalibSliceFlags

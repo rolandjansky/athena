@@ -104,20 +104,19 @@ class DecisionAlgo(TopoAlgo):
                 _emscale_for_decision=1
                 log.info("Changed mscale_for_decision %s for Run1CaloEnergyScale" % _emscale_for_decision)  
         
-        s='  <DecisionAlgo type="%s" name="%s" algoId="%i">\n' % (self.classtype, self.name, self.algoId)
+        s='  <DecisionAlgo type="%s" name="%s" algoId="%i">\n' % (self.classtype, self.name, self.algoId )
         s+='    <Fixed>\n'
 
         input_woovlp = []
         for (tobid, _input) in enumerate(self.inputs):
-            
             if len(self.inputs)>1:
                 if _input not in input_woovlp:
-                    s+='      <Input name="Tob%s" value="%s" position="%s"/>\n' % (str(tobid+1), _input, "0")
+                    s+='      <Input name="Tob%s" value="%s" position="%s"/>\n' % (str(tobid+1), _input, str(tobid))
                     input_woovlp += [_input]
                 else:
                     s+='      <Input name="Tob%s" value="%s" position="%s"/>\n' % (str(tobid+1), _input, str(tobid))
             else:
-                s+='      <Input name="Tob" value="%s"/>\n' % (_input)
+                s+='      <Input name="Tob" value="%s" position="%s"/>\n' % (_input, str(tobid))
         s+='      <Output name="Results" bits="%s">\n' % str(len(self.outputs))
         for (bitid, _output) in enumerate(self.outputs):
             s+='        <Bit selection="%s" name="%s"/>\n' % (str(bitid), _output)

@@ -140,6 +140,8 @@ class L2EFChain_g(L2EFChainDef):
         theTrigCaloTowerMaker_eGamma       = TrigCaloTowerMaker_eGamma()
         theTrigCaloClusterMaker_slw        = TrigCaloClusterMaker_slw()
 
+
+
         from TrigEgammaHypo.TrigEFCaloCalibFexConfig import TrigEFCaloCalibFex_Photon
         theTrigEFCaloCalibFex = TrigEFCaloCalibFex_Photon()
     
@@ -220,6 +222,12 @@ class L2EFChain_g(L2EFChainDef):
                                  [theTrigEgammaFex, theEFPhotonHypo],
                                  'EF_g_step3']]
 
+        if 'larpeb' in self.chainPart['addInfo']:
+            from TrigDetCalib.TrigDetCalibConfig import LArEFROBListWriter
+            self.EFsequenceList += [[['EF_g_step3'], 
+                                     [ LArEFROBListWriter('LArEFROBListWriter_' + self.chainName, addCTPResult = True, addL2Result = True, addEFResult = True) ],
+                                     'EF_g_step4']]
+            
         ########### Signatures ###########
 
         self.L2signatureList += [ [['L2_g_step1']*self.mult] ]
@@ -227,6 +235,9 @@ class L2EFChain_g(L2EFChainDef):
         self.EFsignatureList += [ [['EF_g_step1']*self.mult] ]
         self.EFsignatureList += [ [['EF_g_step2']*self.mult] ]
         self.EFsignatureList += [ [['EF_g_step3']*self.mult] ]
+        
+        if 'larpeb' in self.chainPart['addInfo']:
+            self.EFsignatureList += [ [['EF_g_step4']*self.mult] ]
 
         ########### TE renaming ###########
 
@@ -237,6 +248,10 @@ class L2EFChain_g(L2EFChainDef):
             'EF_g_step2': mergeRemovingOverlap('EF_', self.chainPartNameNoMult+'_calocalib'),
             'EF_g_step3': mergeRemovingOverlap('EF_', self.chainPartNameNoMult),
             }
+
+        if 'larpeb' in self.chainPart['addInfo']:
+            self.TErenamingDict ['EF_g_step4']=  mergeRemovingOverlap('EF_', self.chainPartNameNoMult+'_larpeb')
+
 
     def setup_gXX_ID_heavyIon(self):
         threshold = self.chainPart['threshold']
@@ -263,11 +278,10 @@ class L2EFChain_g(L2EFChainDef):
         from TrigEgammaHypo.TrigL2PhotonFexConfig import L2PhotonFex_1
         theL2PhotonFex = L2PhotonFex_1()
 
-        from TrigCaloRec.TrigCaloRecConfig import TrigCaloCellMaker_fullcalo
-        theFSCellMaker                   = TrigCaloCellMaker_fullcalo("TrigCaloCellMakerFullCalo_eGamma_heavyIon")
+        from TrigHIHypo.UE import theUEMaker, theFSCellMaker, theTrigCaloCellMaker_eGamma
 
         from TrigCaloRec.TrigCaloRecConfig import  TrigCaloCellMaker_eGamma, TrigCaloTowerMaker_eGamma, TrigCaloClusterMaker_slw
-        theTrigCaloCellMaker_eGamma      = TrigCaloCellMaker_eGamma("TrigCaloCellMaker_eGamma_heavyIon")
+        #theTrigCaloCellMaker_eGamma      = TrigCaloCellMaker_eGamma("TrigCaloCellMaker_eGamma_heavyIon")
         theTrigCaloTowerMaker_eGamma     = TrigCaloTowerMaker_eGamma("TrigCaloTowerMaker_eGamma_heavyIon")
         theTrigCaloClusterMaker_slw      = TrigCaloClusterMaker_slw("TrigCaloClusterMaker_slw_heavyIon")
 
@@ -343,6 +357,9 @@ class L2EFChain_g(L2EFChainDef):
         self.EFsequenceList += [[['L2_g_step2'], 
                                  [theFSCellMaker], 'EF_g_step1_fs']]
 
+        self.EFsequenceList += [[['EF_g_step1_fs'], 
+                                 [theUEMaker], 'EF_g_step1_ue']]
+
         self.EFsequenceList += [[['L2_g_step2'], 
                                  [theTrigCaloCellMaker_eGamma, theTrigCaloTowerMaker_eGamma, theTrigCaloClusterMaker_slw], 
                                  'EF_g_step1']]
@@ -359,7 +376,8 @@ class L2EFChain_g(L2EFChainDef):
 
         self.L2signatureList += [ [['L2_g_step1']*self.mult] ]
         self.L2signatureList += [ [['L2_g_step2']*self.mult] ]
-        self.EFsignatureList += [ [['EF_g_step1_fs']*self.mult] ]
+        self.EFsignatureList += [ [['EF_g_step1_fs']] ]
+        self.EFsignatureList += [ [['EF_g_step1_ue']] ]
         self.EFsignatureList += [ [['EF_g_step1']*self.mult] ]
         self.EFsignatureList += [ [['EF_g_step2']*self.mult] ]
         self.EFsignatureList += [ [['EF_g_step3']*self.mult] ]
@@ -370,6 +388,7 @@ class L2EFChain_g(L2EFChainDef):
             'L2_g_step1': mergeRemovingOverlap('L2_', self.chainPartNameNoMult+'_calo'),
             'L2_g_step2': mergeRemovingOverlap('L2_', self.chainPartNameNoMult),
             'EF_g_step1_fs': mergeRemovingOverlap('EF_', self.chainPartNameNoMult+'_fs'),
+            'EF_g_step1_ue': mergeRemovingOverlap('EF_', self.chainPartNameNoMult+'_ue'),
             'EF_g_step1': mergeRemovingOverlap('EF_', self.chainPartNameNoMult+'_calo'),
             'EF_g_step2': mergeRemovingOverlap('EF_', self.chainPartNameNoMult+'_calocalib'),
             'EF_g_step3': mergeRemovingOverlap('EF_', self.chainPartNameNoMult),
@@ -459,7 +478,12 @@ class L2EFChain_g(L2EFChainDef):
         theTrigCaloCellMaker_eGamma        = TrigCaloCellMaker_eGamma()
         theTrigCaloTowerMaker_eGamma       = TrigCaloTowerMaker_eGamma()
         theTrigCaloClusterMaker_slw        = TrigCaloClusterMaker_slw()
-
+        from TrigEgammaHypo.TrigEFCaloCalibFexConfig import TrigEFCaloCalibFex_Photon
+        theTrigEFCaloCalibFex = TrigEFCaloCalibFex_Photon()
+ 
+        from TrigEgammaHypo.TrigEFCaloHypoConfig import TrigEFCaloHypo_All
+        # EF Calo
+        theTrigEFCaloHypo = TrigEFCaloHypo_All("TrigEFCaloHypo_g_hiptrt_NoCut",0);
     
      #   if 'hiptrt' in self.chainPart['addInfo']:
         from TrigEgammaHypo.TrigL2CaloHypoConfig import L2CaloHypo_g_nocut
@@ -487,8 +511,14 @@ class L2EFChain_g(L2EFChainDef):
                                  'EF_g_step1']]
         
         self.EFsequenceList += [[['EF_g_step1'], 
-                                 [theTrigEgammaRec_NoIDEF_eGamma, theEFPhotonHypo],
+#                                 [theTrigEgammaRec_NoIDEF_eGamma, theEFPhotonHypo],
+                                 [theTrigEFCaloCalibFex,theTrigEFCaloHypo], 
                                  'EF_g_step2']]
+
+        self.EFsequenceList += [[['EF_g_step2'],
+                                 [theTrigEgammaRec_NoIDEF_eGamma, theEFPhotonHypo],
+                                 'EF_g_step3']]
+
 
         ########### Signatures ###########
 
@@ -496,12 +526,14 @@ class L2EFChain_g(L2EFChainDef):
         self.L2signatureList += [ [['L2_g_step2']*self.mult] ]
         self.EFsignatureList += [ [['EF_g_step1']*self.mult] ]
         self.EFsignatureList += [ [['EF_g_step2']*self.mult] ]
-
+        self.EFsignatureList += [ [['EF_g_step3']*self.mult] ]
         ########### TE renaming ###########
 
         self.TErenamingDict = {
             'L2_g_step1': mergeRemovingOverlap('L2_', self.chainPartNameNoMult+'_calo'),
             'L2_g_step2': mergeRemovingOverlap('L2_', self.chainPartNameNoMult),
             'EF_g_step1': mergeRemovingOverlap('EF_', self.chainPartNameNoMult+'_calo'),
-            'EF_g_step2': mergeRemovingOverlap('EF_', self.chainPartNameNoMult),
+#            'EF_g_step2': mergeRemovingOverlap('EF_', self.chainPartNameNoMult),
+            'EF_g_step2': mergeRemovingOverlap('EF_', self.chainPartNameNoMult+'_calocalib'),
+            'EF_g_step3': mergeRemovingOverlap('EF_', self.chainPartNameNoMult),
             }

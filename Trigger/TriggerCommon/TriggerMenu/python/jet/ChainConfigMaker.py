@@ -11,39 +11,16 @@ from hypo_factory import hypo_factory
 from clusterparams_factory import clusterparams_factory
 from MenuData import MenuData
 from ChainConfig import ChainConfig
+from eta_string_conversions import eta_string_to_floats
 
 class JetAttributes(object):
     """Per jet attributes. Used by  hypo algorithms."""
-    eta_range_re = re.compile(
-        r'(?P<eta_min>\d{1,3})eta(?P<eta_max>\d{1,3})')
 
     def __init__(self, threshold, eta_range):
         self.threshold = threshold
         self.eta_range = eta_range  # string like '0eta320'
         # eta_min, eta_max are floats
-        self.eta_min, self.eta_max = self._etaFromString(eta_range)
-
-    def _etaFromString(self, eta_range):
-        match = self.eta_range_re.search(eta_range)
-        if not match:
-            msg = '%s.process_part() unknown eta range: %s does not match %s'
-            msg = msg % (self.__class__.__name__,
-                         eta_range,
-                         self.eta_range_re.pattern)
-            raise RuntimeError(msg)
-
-        eta_min = float(match.group('eta_min'))/100.
-        eta_max = float(match.group('eta_max'))/100.
-        
-        if eta_min > eta_max:
-            msg = '%s.process_part()  eta range inverted: [%s,%s]' % (
-                self.__class__.__name__,
-                str(eta_min),
-                str(eta_max)
-                )
-            raise RuntimeError(msg)
-
-        return eta_min, eta_max
+        self.eta_min, self.eta_max = eta_string_to_floats(eta_range)
 
     def __str__(self):
         return 'thresh: %s eta_min: %s eta_max: %s' % (str(self.threshold),
@@ -221,11 +198,7 @@ class ChainConfigMaker(object):
 
         self.check_and_set('data_scouting', ds1 + ds2)
 
-        # check whether to run the hypo
-        run_hypo =  'perf' not in part['addInfo'] and not self.data_scouting
-        self.check_and_set('run_hypo', run_hypo)
-
-        # --------  hypo parameters ----------------
+        # --------  check scan type consistency ----------------
         scan_type = part['scan']
         scan_types = ('', 'PS', 'FS')
         if scan_type not in scan_types:
@@ -243,14 +216,41 @@ class ChainConfigMaker(object):
 
         self.check_and_set('scan_type', scan_type)
 
-        mult = int(part['multiplicity'])
-        threshold = int(part['threshold'])
-        eta_range = part['etaRange']
+        # check whether to run the hypo
+        run_hypo =  'perf' not in part['addInfo'] and not self.data_scouting
+        self.check_and_set('run_hypo', run_hypo)
 
-        self.check_and_set('eta_range', eta_range)
+        # --------  hypo parameters ----------------
+        hypo_type = {'j': 'standard', 'ht':'ht'}.get(part['trigType'], '')
+        if not hypo_type:
+            msg = '%s: cannot determine hypo type from trigger type ' % (
+                self.err_hdr, part['trigType'])
+            raise RuntimeError(msg)
+        self.check_and_set('hypo_type', hypo_type)
 
-        self.jet_attributes.extend(
-            [(JetAttributes(threshold, eta_range)) for i in range(mult)])
+        if self.hypo_type == 'standard':
+            mult = int(part['multiplicity'])
+            threshold = int(part['threshold'])
+            eta_range = part['etaRange']
+
+            self.check_and_set('eta_range', eta_range)
+
+            self.jet_attributes.extend(
+                [(JetAttributes(threshold, eta_range)) for i in range(mult)])
+
+        elif self.hypo_type == 'ht':
+
+            eta_range = part['etaRange']
+            self.check_and_set('eta_range', eta_range)
+            ht_threshold = int(part['threshold'])
+            self.check_and_set('ht_threshold',  ht_threshold)
+
+        else:
+            msg = '%s: unknown hypo type (JetDef bug) %s' % (
+                self.err_hdr,
+                str(self.hypo_type))
+            raise RuntimeError(msg)
+            
         self.n_parts += 1
 
     def check_and_set(self, attr, val):
@@ -292,14 +292,23 @@ class ChainConfigMaker(object):
 
         fex_params = fexparams_factory(self.fex_name, fex_args)
 
-        hypo_args = {
-            'chain_name': self.chain_name,
-            'eta_str': '',   # '' for now
-            'jet_attributes': self.jet_attributes,
-            'isCaloFullScan': self.scan_type == 'FS',
-            'triggertower': self.data_type == 'TT'}
+        if self.hypo_type == 'standard':
+            hypo_args = {
+                'chain_name': self.chain_name,
+                'eta_str': '',   # '' for now
+                'jet_attributes': self.jet_attributes,
+                'isCaloFullScan': self.scan_type == 'FS',
+                'triggertower': self.data_type == 'TT'}
 
-        hypo_params = hypo_factory(hypo_args)
+        elif self.hypo_type == 'ht':
+            hypo_args = {
+                'chain_name': self.chain_name,
+                'eta_range': self.eta_range,   # '' for now
+                'ht_threshold': self.ht_threshold}
+        else:
+            hypo_args = {}
+
+        hypo_params = hypo_factory(self.hypo_type, hypo_args)
 
         recluster_params = None
         if self.do_recluster:
@@ -325,6 +334,7 @@ class ChainConfigMaker(object):
         return ChainConfig(chain_name=self.chain_name,
                            seed=self.seed,
                            run_hypo=self.run_hypo,
+                           hypo_type = self.hypo_type,
                            test=self.test,
                            data_scouting=self.data_scouting,
                            menu_data=menu_data)

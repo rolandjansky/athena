@@ -27,6 +27,7 @@ apply_pattern declare_python_submodule files="*.py" submodule=bjet
 apply_pattern declare_python_submodule files="*.py" submodule=met
 apply_pattern declare_python_submodule files="*.py" submodule=tau
 apply_pattern declare_python_submodule files="*.py" submodule=minbias
+apply_pattern declare_python_submodule files="*.py" submodule=heavyion
 apply_pattern declare_python_submodule files="*.py" submodule=bphysics
 apply_pattern declare_python_submodule files="*.py" submodule=calibcosmicmon
 apply_pattern declare_python_submodule files="*.py" submodule=test
@@ -38,7 +39,7 @@ apply_pattern declare_python_submodule files="*.py" submodule=combined
 
 apply_pattern declare_xmls
 
-apply_pattern declare_scripts files="-s=../scripts generate*Menu.py"
+apply_pattern declare_scripts files="-s=../scripts generate*Menu.py menuTestTMC.sh"
 
 ## at the moment these scripts conflict with those in the old TMP and are not useful anyway with the new TM (JS)
 #apply_pattern declare_scripts \

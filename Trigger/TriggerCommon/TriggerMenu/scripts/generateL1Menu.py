@@ -29,9 +29,11 @@ def generateL1Menu(menu, useTopoMenu="MATCH"):
     # consistency checker
     checkResult = os.system("get_files -xmls -symlink LVL1config.dtd")
     checkResult = os.system("xmllint --noout --dtdvalid LVL1config.dtd %s" % outfilename)
-    if checkResult != 0:
+    if checkResult == 0:
+        log.info("XML file %s is conform with LVL1config.dtd" % outfilename)
+    else:
         log.error("the XML does not follow the document type definition LVL1config.dtd")
-
+        
     return tpcl1.menu
 
 def readL1MenuFromXML(menu="LVL1config_Physics_pp_v5.xml"):
@@ -145,6 +147,7 @@ def main():
         generateL1Menu(menu="MC_pp_v5_loose_mc_prescale")
         generateL1Menu(menu="MC_pp_v5_tight_mc_prescale")
         generateL1Menu(menu="Physics_HI_v3")  # currently disabled since not defined in JobProp
+        generateL1Menu(menu="MC_HI_v3")  # currently disabled since not defined in JobProp
         return 0
 
     printCabling = False

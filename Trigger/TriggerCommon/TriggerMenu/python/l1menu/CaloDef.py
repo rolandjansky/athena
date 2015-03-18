@@ -42,12 +42,12 @@ class CaloDef:
         E.g: with offset=-52 slope=35 means isolation <= ET/3.5 - 5.2
         """
 
-        caloInfo.isolation["EMIsoForEMthr"] .addIsolation( isobit=2, slope=0, offset=20, upperlimit=50)\
-                                            .addIsolation( isobit=3, slope=0, offset=20, upperlimit=50)\
+        caloInfo.isolation["EMIsoForEMthr"] .addIsolation( isobit=2, slope=80, offset=-18,  mincut=10, upperlimit=50)\
+                                            .addIsolation( isobit=3, slope=80, offset=-18,  mincut=10, upperlimit=50)\
                                             .addIsolation( isobit=4, slope=80, offset=-18, mincut=10, upperlimit=50)
                                             
-        caloInfo.isolation["HAIsoForEMthr"] .addIsolation( isobit=1, slope=0,   offset=10, upperlimit=50)\
-                                            .addIsolation( isobit=3, slope=0,   offset=10, upperlimit=50)\
+        caloInfo.isolation["HAIsoForEMthr"] .addIsolation( isobit=1, slope=230, offset=-2, mincut=10,upperlimit=50)\
+                                            .addIsolation( isobit=3, slope=230, offset=-2, mincut=10,upperlimit=50)\
                                             .addIsolation( isobit=4, slope=230, offset=-2, mincut=10, upperlimit=50)\
 
         caloInfo.isolation["EMIsoForTAUthr"] .addIsolation( isobit=1, slope=100, offset=30, upperlimit=60 )\

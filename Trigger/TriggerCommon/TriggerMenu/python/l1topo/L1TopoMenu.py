@@ -41,7 +41,7 @@ class L1TopoMenu:
         from collections import namedtuple
         TriggerLine = namedtuple("TriggerLine","trigger cable bit clock fpga ordinal firstbit")
         outputLines = {}
-        #print "Topo trigger defines %i output algorithms" % len(self.topoOutput)
+
         for output in self.topoOutput:
 
             for (idx,line) in enumerate(output.algo.outputs):
@@ -108,7 +108,7 @@ class L1TopoMenu:
             idlist.sort()
             from itertools import groupby
             partition = [list(g) for k,g in groupby(enumerate(idlist), lambda (x,y) : y-x)]
-            print "Algorithm IDs must start at 0 and be consecutive, but algorithm IDs are %s" % ','.join(["%i-%i" % (x[0][1],x[-1][1]) for x in partition])
+            log.error("Algorithm IDs must start at 0 and be consecutive, but algorithm IDs are %s" % ','.join(["%i-%i" % (x[0][1],x[-1][1]) for x in partition]))
             #for x in self.topoOutput: # for debugging               
             #    print x.algo.algoId, x.algo.name 
             #return False

@@ -10,6 +10,7 @@ from TriggerMenu.bjet.BjetSliceFlags                   import BjetSliceFlags
 from TriggerMenu.met.METSliceFlags                     import METSliceFlags
 from TriggerMenu.tau.TauSliceFlags                     import TauSliceFlags
 from TriggerMenu.minbias.MinBiasSliceFlags             import MinBiasSliceFlags
+from TriggerMenu.heavyion.HeavyIonSliceFlags           import HeavyIonSliceFlags
 from TriggerMenu.combined.CombinedSliceFlags           import CombinedSliceFlags
 from TriggerMenu.calibcosmicmon.CosmicSliceFlags       import CosmicSliceFlags
 from TriggerMenu.calibcosmicmon.CalibSliceFlags        import CalibSliceFlags
@@ -25,7 +26,7 @@ from TriggerMenu.menu.TriggerPythonConfig  import TriggerPythonConfig
 from TriggerMenu.menu.CPS  import addCPS
 
 from TriggerMenu.menu.Lumi                 import lumi, applyPrescales
-from TriggerMenu.menu.MenuUtil             import checkTriggerGroupAssignment, checkStreamConsistency 
+from TriggerMenu.menu.MenuUtil             import checkTriggerGroupAssignment, checkStreamConsistency, getStreamTagForRerunChains
 import TriggerMenu.menu.MenuUtils       
 import traceback
 import operator
@@ -51,6 +52,7 @@ _func_to_modify_signatures = None
 
 
 class GenerateMenu:
+    
     
     def overwriteSignaturesWith(f):
         log.info('GenerateMenu: In overwriteSignaturesWith ')
@@ -86,6 +88,7 @@ class GenerateMenu:
         self.doMETChains         = True
         self.doTauChains         = True
         self.doMinBiasChains     = True
+        self.doHeavyIonChains     = True
         self.doCosmicChains      = True
         self.doCalibrationChains = True
         self.doStreamingChains   = True
@@ -163,6 +166,12 @@ class GenerateMenu:
             log.debug('GenerateMenu : MinBias : '+str(chains))
         else:
             self.doMinBiasChains = False
+
+        if (CombinedSliceFlags.signatures() or HeavyIonSliceFlags.signatures()) and self.doHeavyIonChains:
+            chains += HeavyIonSliceFlags.signatures()
+            log.debug('GenerateMenu : HeavyIon : '+str(chains))
+        else:
+            self.doHeavyIonChains = False
 
         if CosmicSliceFlags.signatures() and self.doCosmicChains:
             chains += CosmicSliceFlags.signatures()
@@ -322,6 +331,14 @@ class GenerateMenu:
                 log.info(traceback.print_exc())
                 self.doMinBiasChains = False
 
+        if self.doHeavyIonChains:
+            try:
+                import TriggerMenu.heavyion.generateHeavyIonChainDefs
+            except:
+                log.error('GenerateMenu: Problems when importing HeavyIonDef.py, disabling HeavyIon chains.')
+                log.info(traceback.print_exc())
+                self.doHeavyIonChains = False
+
         if self.doCosmicChains:
             try:
                 import TriggerMenu.calibcosmicmon.generateCosmicChainDefs 
@@ -391,7 +408,7 @@ class GenerateMenu:
 
 
         allowedSignatures = ["jet","egamma","muon", "electron", "photon","met","tau", 
-                             "minbias", "cosmic", "calibration", "streaming", "monitoring", "ht", 'bjet','eb']
+                             "minbias", "heavyion", "cosmic", "calibration", "streaming", "monitoring", "ht", 'bjet','eb']
         
         listOfChainDefs = []
 
@@ -480,6 +497,14 @@ class GenerateMenu:
             elif chainDict["signature"] == "MinBias" and self.doMinBiasChains:
                 try:
                     chainDef = TriggerMenu.minbias.generateMinBiasChainDefs.generateChainDefs(chainDict)
+                except:
+                    log.error('GenerateMenu: Problems creating ChainDef for chain %s ' % (chainDict['chainName']))
+                    log.info(traceback.print_exc())
+                    continue
+
+            elif chainDict["signature"] == "HeavyIon" and self.doHeavyIonChains:
+                try:
+                    chainDef = TriggerMenu.heavyion.generateHeavyIonChainDefs.generateChainDefs(chainDict)
                 except:
                     log.error('GenerateMenu: Problems creating ChainDef for chain %s ' % (chainDict['chainName']))
                     log.info(traceback.print_exc())
@@ -579,7 +604,7 @@ class GenerateMenu:
     def setupMenu(self):
         log.info('GenerateMenu: setupMenu ')
         # go over the slices and put together big list of signatures requested
-        log.info('GenerateMenu: setupMenu: modifying menu according to the luminosity and prescaling setup')
+        #log.info('GenerateMenu: setupMenu: modifying menu according to the luminosity and prescaling setup')
      
         #(L1Prescales, HLTPrescales, streamConfig) = lumi(self.triggerPythonConfig)
         (L1Prescales, HLTPrescales) = lumi(self.triggerPythonConfig)
@@ -587,12 +612,12 @@ class GenerateMenu:
         if _func_to_modify_signatures != None:
             log.info('GenerateMenu: setupMenu:  Modifying trigger signatures in TriggerFlags with %s' % \
                      _func_to_modify_signatures.__name__)
-            log.info('GenerateMenu: setupMenu:  start')
+            #log.info('GenerateMenu: setupMenu:  start')
             _func_to_modify_signatures()
-            log.info('GenerateMenu: setupMenu:  stop')
+            #log.info('GenerateMenu: setupMenu:  stop')
 
         #log.info('GenerateMenu: setupMenu: Enabled signatures: '+str(sigs) )
-        log.info('GenerateMenu: setupMenu END ')
+        #log.info('GenerateMenu: setupMenu END ')
         #return (HLTPrescales, streamConfig)
         return (HLTPrescales)
 
@@ -677,9 +702,9 @@ class GenerateMenu:
         return True
 
     def dumpSignatureList(self, l1_items, fname):
-        log.info('GenerateMenu: dumpSignatureList ')
+        #log.info('GenerateMenu: dumpSignatureList ')
         def dumpIt(fp, sigs, slicename):
-            log.info("sigs %s" % sigs)
+            log.info("SignatureList %s" % sigs)
             fp.write('%sSliceFlags.signatures = [\n' % slicename)
             for s in sigs:
                 fp.write("    '%s', \n" % s)
@@ -697,6 +722,7 @@ class GenerateMenu:
         dumpIt(f, METSliceFlags.signatures(), 'MET')
         dumpIt(f, TauSliceFlags.signatures(), 'Tau')
         dumpIt(f, MinBiasSliceFlags.signatures(), 'MinBias')
+        dumpIt(f, HeavyIonFlagsFlags.signatures(), 'HeavyIon')
         dumpIt(f, CosmicSliceFlags.signatures(), 'Cosmic')
         dumpIt(f, CalibSliceFlags.signatures(), 'Calibration')
         dumpIt(f, StreamingSliceFlags.signatures(), 'Streaming')
@@ -704,28 +730,11 @@ class GenerateMenu:
         dumpIt(f, BeamspotSliceFlags.signatures(), 'Beamspot')
         dumpIt(f, EnhancedBiasSliceFlags.signatures(), 'EnhancedBias')
         dumpIt(f, TestSliceFlags.signatures(), 'Test')
-
-
         pass
-    
-    def chainCounterAvailability(self, clist):
-        log.info('GenerateMenu: chainCounterAvailability ')
-        s = ''
-        clist.sort()
-        line = ''
-        for i in range(1024):
-            tmp = '----'
-            if i not in clist: tmp = '%4d' % i
-            line = '%s %s' % (line, tmp)
-            if ( (i+1) % 16) == 0:
-                s += line + '\n'
-                line = ''
-        return s
 
-        
+            
     def generate(self):
         log.info('GenerateMenu.py:generate ')
-
 
         ###########################
         # L1 Topo menu generation #
@@ -969,31 +978,6 @@ class GenerateMenu:
                 log.error('%s -> add the threshold explicitly' % line.split()[-1])
 
 
-        # # PRINT available chain chounters
-        # physics_menu = ['Physics_pp_v4', 'MC_pp_v4', ]
-        # for ppmenu in physics_menu:
-        #     countersL2_physics = []
-        #     countersEF_physics = []
-        #     if TriggerFlags.triggerMenuSetup() in ppmenu:
-        #         for c in self.triggerPythonConfig.theL2HLTChains:
-        #             countersL2_physics.append(int(c.chain_counter))
-        #         for c in self.triggerPythonConfig.theEFHLTChains:
-        #             countersEF_physics.append(int(c.chain_counter))
-        #             countersL2_physics.sort()
-        #             countersEF_physics.sort()
-        #             maxL2_physics = max(countersL2_physics)
-        #             maxEF_physics = max(countersEF_physics)
-                
-        #         if not TriggerFlags.readHLTconfigFromXML() and not TriggerFlags.readMenuFromTriggerDb():
-        #             log.info("L2 available chain counters for " +\
-        #                      ppmenu +\
-        #                      " \n" +\
-        #                      self.chainCounterAvailability(countersL2_physics))
-        #             log.info("EF available chain counters for " +\
-        #                      ppmenu +\
-        #                      " \n" +\
-        #                      self.chainCounterAvailability(countersEF_physics))
-
 
         for name, chains in self.triggerPythonConfig.allChains.iteritems():
             for c in chains:
@@ -1008,6 +992,27 @@ class GenerateMenu:
             for chain in self.listOfErrorChainDefs:
                 log.error('              chain: %s   ' %chain)
             
-
+        log.info ('Check the List of chains in rerun with a special stream tag')
+        self.GetStreamTagForRerunChains()
 
         log.info('GenerateMenu: generate END')
+
+
+    def GetHLTPrescales(self) :
+        (L1Prescales, HLTPrescales) = lumi(self.triggerPythonConfig)
+        return HLTPrescales
+
+        
+    ##Note, when doing modification for this function, please, test with run_HLTstandalone
+    ##as this function is not called during simple XML generation
+    def GetStreamTagForRerunChains(self):
+        log.info('GenerateMenu.py:retrieve list of stream tags for rerun chain ')        
+        ##Fill the list of streams to be assigned to rerun chains
+        (HLTPrescales) = self.GetHLTPrescales()
+        list= getStreamTagForRerunChains(self.triggerPythonConfig, HLTPrescales)
+        if not list:
+            log.warning('no rerun chain with special stream')
+
+        return list
+        
+
