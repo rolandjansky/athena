@@ -6,6 +6,7 @@
 // C/C+
 #include <cmath>
 #include <sys/time.h>
+#include <cstdlib>
 
 // HLT trigger
 #include "TrigConfHLTData/HLTChain.h"
@@ -604,6 +605,11 @@ bool Trig::FillConf::FillVar(TrigMonConfig &confg,
   // Save time, hostname and pid of this process
   // 
   
+  // 
+  // Get my CPU speed. We may have many CPUs, but we'll assume we've been assinged just one core.
+  //
+  std::system("export COSTMONCPUINFO=`cat /proc/cpuinfo | grep 'cpu MHz' | head -n 1`");
+
   //
   // Get current time
   //
@@ -628,7 +634,10 @@ bool Trig::FillConf::FillVar(TrigMonConfig &confg,
     Trig::AddOneVar(confg, "host", my_host);
     Trig::AddOneVar(confg, "pid",  pid_str.str());
   }
-  
+
+
+
+  Trig::AddOneVar(confg, "hostCPUSpeed", ReadVar("COSTMONCPUINFO"));
   Trig::AddOneVar(confg, "triggerMenuSetup", menu);
   Trig::AddOneVar(confg, "L1PrescaleSet",    lv1_ps_name);
   Trig::AddOneVar(confg, "HLTPrescaleSet",   hlt_ps_name);
@@ -637,12 +646,13 @@ bool Trig::FillConf::FillVar(TrigMonConfig &confg,
   Trig::AddOneVar(confg, "CMTPATH",          ReadVar("CMTPATH"));
 
   m_debug
-	<< "triggerMenuSetup=" << menu << endl
-	<< "L1PrescaleSe="     << lv1_ps_name << endl
-	<< "HLTPrescaleSet="   << hlt_ps_name << endl
-	<< "AtlasVersion="     << ReadVar("AtlasVersion") << endl
-	<< "AtlasProject="     << ReadVar("AtlasProject") << endl
-	<< "CMTPATH="          << ReadVar("CMTPATH") << endl;
+  << "triggerMenuSetup=" << menu << endl
+  << "L1PrescaleSe="     << lv1_ps_name << endl
+  << "HLTPrescaleSet="   << hlt_ps_name << endl
+  << "AtlasVersion="     << ReadVar("AtlasVersion") << endl
+  << "AtlasProject="     << ReadVar("AtlasProject") << endl
+  << "CMTPATH="          << ReadVar("CMTPATH") << endl
+  << "hostCPUSpeed="     << ReadVar("COSTMONCPUINFO") << endl;
 
   return true;
 }

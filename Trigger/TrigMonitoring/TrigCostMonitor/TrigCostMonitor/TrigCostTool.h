@@ -91,6 +91,7 @@ class TrigCostTool : public AthAlgTool, virtual public IMonitorToolBase {
   bool         m_writeAlways;      // Always write out data for every event
   bool         m_writeConfig;      // Write out configuration data
   bool         m_writeConfigDB;    // Write out configuration data loaded from the DB
+  bool         m_onlySaveCostEvent;// Only save events which pass the OPI `prescale'
 
   unsigned int m_stopAfterNEvent;  // Stop collecting data after nevents
   float        m_execPrescale;     // Prescale for collecting extended data

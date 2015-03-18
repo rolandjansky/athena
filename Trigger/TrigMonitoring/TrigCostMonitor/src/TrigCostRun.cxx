@@ -282,9 +282,9 @@ StatusCode TrigCostRun::execute()
       (*it)->Fill(m_readHLT.vecEvent.at(i));
     }
     for(ToolHandleArray<Trig::ITrigNtTool>::iterator it = m_toolsSave.begin(); it != m_toolsSave.end(); ++it) {
-  	  (*it)->Fill(m_readHLT.vecEvent.at(i));
-  	}
-	}
+      (*it)->Fill(m_readHLT.vecEvent.at(i));
+    }
+  }
 
   return StatusCode::SUCCESS;
 }
@@ -295,7 +295,7 @@ StatusCode TrigCostRun::finalize()
   //
   // Finalize state
   //
- ATH_MSG_INFO("finalize()");
+  ATH_MSG_INFO("finalize()");
 
   for(ToolHandleArray<Trig::ITrigNtTool>::iterator it = m_toolsSave.begin(); it != m_toolsSave.end(); ++it) {
     (*it)->Fill(&m_config);
@@ -311,8 +311,8 @@ StatusCode TrigCostRun::finalize()
     m_timerTotal->stop();
 
     ATH_MSG_INFO(m_timerExec ->name() << ": " << m_timerExec ->elapsed()/1000.0 << "s");
-	  ATH_MSG_INFO(m_timerNavig->name() << ": " << m_timerNavig->elapsed()/1000.0 << "s");
-	  ATH_MSG_INFO(m_timerTotal->name() << ": " << m_timerTotal->elapsed()/1000.0 << "s");
+    ATH_MSG_INFO(m_timerNavig->name() << ": " << m_timerNavig->elapsed()/1000.0 << "s");
+    ATH_MSG_INFO(m_timerTotal->name() << ": " << m_timerTotal->elapsed()/1000.0 << "s");
   }
 
   return StatusCode::SUCCESS;
@@ -347,6 +347,7 @@ TrigCostRun::ReadHLTResult::ReadHLTResult()
    countTrunc(0),
    countInvalid(0),
    countValid(0),
+   countCostEvent(0),
    countEvent(0),
    countConfig(0),
    resultPrint(0)
@@ -630,6 +631,10 @@ bool TrigCostRun::ReadHLTResult::ReadEvent(ServiceHandle<StoreGateSvc> &storeGat
     // Save events: so that later L2 and EF events can be merged
     //
     vecEvent.push_back(*ptr);
+
+    float _isCostEvent = 0.;
+    ptr->getVar(47, _isCostEvent);
+    if (_isCostEvent > 0.5) ++countCostEvent;
   }
 
   //
@@ -665,11 +670,13 @@ void TrigCostRun::ReadHLTResult::PrintEvent()
   log() << MSG::INFO << "Extracted TrigMonEventCollection: " << keyEvent 
 	<< " with: " << vecEvent.size() << " event(s)" << endreq; 
 
+  static unsigned _nPrinted = 0;
   for(unsigned i = 0; i < vecEvent.size(); ++i) {
     const TrigMonEvent &event = vecEvent.at(i);
-    int verbosity = 6;
-    if (resultPrint++ > 10) verbosity = 0;
-    Trig::Print(event, *globalConfig, log(), MSG::INFO, verbosity);
+    ++_nPrinted;
+    if (_nPrinted < 10 || _nPrinted % 10 == 0) {
+     Trig::Print(event, *globalConfig, log(), MSG::INFO, /*verbosity=*/ 0);
+    }
   }
 }
 
@@ -687,5 +694,6 @@ void TrigCostRun::ReadHLTResult::PrintSummary()
 	<< "  " << hltLevel << ": POST_HLT: # of invalid   HLT results = " << countInvalid << endreq
 	<< "  " << hltLevel << ": POST_HLT: # of truncated HLT results = " << countTrunc   << endreq
 	<< "  " << hltLevel << ": POST_HLT: # of read TrigMonEvent     = " << countEvent   << endreq
+        << "  " << hltLevel << ": POST_HLT: # of read TrigMonCostEvent = " << countCostEvent << "(In which scale tools were run)" << endreq
 	<< "  " << hltLevel << ": POST_HLT: # of read TrigMonConfig    = " << countConfig  << endreq;
 }
