@@ -342,8 +342,16 @@ if evgenConfig.saveJets:
 svcMgr.EventSelector.RunNumber = runArgs.runNumber
 # TODO: set EventType::mc_channel_number = runArgs.runNumber
 
-## Handle beam info
+## Include information about generators in metadata
 import EventInfoMgt.EventInfoMgtInit
+svcMgr.TagInfoMgr.ExtraTagValuePairs += ["lhefGenerator", '+'.join( filter( gens_lhef, gennames ) ) ]
+svcMgr.TagInfoMgr.ExtraTagValuePairs += ["generators", '+'.join(gennames)]
+svcMgr.TagInfoMgr.ExtraTagValuePairs += ["evgenProcess", evgenConfig.process]
+svcMgr.TagInfoMgr.ExtraTagValuePairs += ["evgenTune", evgenConfig.tune]
+if hasattr( evgenConfig, "hardPDF" ) : svcMgr.TagInfoMgr.ExtraTagValuePairs += ["hardPDF", evgenConfig.hardPDF]
+if hasattr( evgenConfig, "softPDF" ) : svcMgr.TagInfoMgr.ExtraTagValuePairs += ["softPDF", evgenConfig.softPDF]
+
+## Handle beam info
 svcMgr.TagInfoMgr.ExtraTagValuePairs += ["beam_energy", str(int(runArgs.ecmEnergy*Units.GeV/2.0))]
 svcMgr.TagInfoMgr.ExtraTagValuePairs += ["beam_type", 'collisions']
 

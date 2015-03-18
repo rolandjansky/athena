@@ -48,6 +48,10 @@ def addStdEvgenArgs(parser):
     #                     help="optional fully showered HepMC input event file",
     #                     type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True))
 
+    parser.add_argument("--inputEVNTFile", group="Evgen",
+                        help="input EVNT file (for use with e.g. Rivet)",
+                        type=trfArgClasses.argFactory(trfArgClasses.argPOOLFile, runarg=True))
+
     parser.add_argument("--inputEVNT_PreFile", group="Evgen",
                         help="input evgen file for processing with afterburner, e.g. EvtGen",
                         type=trfArgClasses.argFactory(trfArgClasses.argPOOLFile, runarg=True))
@@ -68,6 +72,10 @@ def addStdEvgenArgs(parser):
     parser.add_argument('--outputNTUP_TRUTHFile',
                         type=trfArgClasses.argFactory(trfArgClasses.argNTUPFile, treeNames=['truth']),
                         help='Output NTUP_TRUTH file', group='Evgen')
+
+    parser.add_argument("--outputYODAFile", group="Evgen",
+                        help="Name of YODA file for Rivet histo output",
+                        type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True))
 
     parser.add_argument("--rivetAnas", group="Evgen",
                         help="a comma-separated list of Rivet analyses to run on the resulting events",
