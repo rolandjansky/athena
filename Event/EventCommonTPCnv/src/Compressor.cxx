@@ -94,6 +94,8 @@ void Compressor::reduce(const std::vector<float> &vf, std::vector<unsigned int> 
 				CUR|=(IN>>D);
 				vi.push_back(CUR);
 				CUR=0; F=32-D;
+                                // Avoid int overflow in shift.
+                                IN &= (1U<<D)-1;
 				CUR|=(IN<<F);
 				}
 		}
@@ -144,7 +146,13 @@ void Compressor::expandToFloat(const std::vector<unsigned int> & vi, std::vector
 			R <<= bshift;
 			m.u=R;
 			vf.push_back(m.f); 
-			CP=FP;
+                        if (FP < 32)
+                          CP=FP;
+                        else {
+                          CP = 0;
+                          i++;
+                          ui = (*i); // take next integer
+                        }
 		}
 		else{			// part of the float is in the next integer
 			REM = FP - 32;	// Remainder = Future point - 32
