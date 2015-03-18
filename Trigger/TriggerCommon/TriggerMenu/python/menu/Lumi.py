@@ -28,7 +28,7 @@ def lumi(triggerPythonConfig):
     log.info( 'Menu name: '+ menu_name)
 
     if menu_name.startswith('Physics_pp_v4') :
-        log.info('MEOW in physics pp v4 menu setup')
+        log.info('in physics pp v4 menu setup')
         from TriggerMenu.menu.Physics_pp_v4 import setupMenu, Prescales#, StreamConfig
         setupMenu()
         if 'cosmics_prescale' in menu_name:
@@ -92,17 +92,6 @@ def lumi(triggerPythonConfig):
             L1Prescales = Prescales.L1Prescales
             HLTPrescales = Prescales.HLTPrescales
 
-    elif menu_name.startswith('BeamSplash_v1') :
-        log.info('In BeamSplash_v1 menu setup')
-        from TriggerMenu.menu.BeamSplash_v1 import setupMenu, Prescales#, StreamConfig
-        setupMenu()
-        if 'cosmics_prescale' in menu_name:
-            L1Prescales = Prescales.L1Prescales_cosmics
-            HLTPrescales = Prescales.HLTPrescales_cosmics
-        else:
-            L1Prescales = Prescales.L1Prescales
-            HLTPrescales = Prescales.HLTPrescales
-
     elif  menu_name.startswith('MC_pp_v5'):
         from TriggerMenu.menu.MC_pp_v5 import setupMenu, Prescales#, StreamConfig
         setupMenu()
@@ -131,6 +120,18 @@ def lumi(triggerPythonConfig):
 
     elif menu_name.startswith('Physics_HI_v3') :
         log.info('Physics_HI_v3 menu setup')
+        from TriggerMenu.menu.Physics_HI_v3 import setupMenu, Prescales#, StreamConfig
+        setupMenu()
+        if 'cosmics_prescale' in menu_name:
+            L1Prescales = Prescales.L1Prescales_cosmics
+            HLTPrescales = Prescales.HLTPrescales_cosmics
+        else:
+            L1Prescales = Prescales.L1Prescales
+            HLTPrescales = Prescales.HLTPrescales
+            
+
+    elif menu_name.startswith('MC_HI_v3') :
+        log.info('MC_HI_v3 menu setup')
         from TriggerMenu.menu.Physics_HI_v3 import setupMenu, Prescales#, StreamConfig
         setupMenu()
         if 'cosmics_prescale' in menu_name:

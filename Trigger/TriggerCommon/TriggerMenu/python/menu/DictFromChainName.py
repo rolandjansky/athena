@@ -106,7 +106,7 @@ class DictFromChainName(object):
         L1topoitemFromChainName = ''; L1topoitem = ''; L1topoindex   = -5
         L1topoindex = [n for n in xrange(len(chainName)) if chainName.find('L1', n) == n]
         if (L1topoindex): 
-            logDict.debug('MEOW L1topindex: '+ str(L1topoindex))
+            logDict.debug('L1topindex: '+ str(L1topoindex))
 
         if (len(L1topoindex) == 1):
             L1topoitemfromChainName = chainName[L1topoindex[0]:]
@@ -211,7 +211,15 @@ class DictFromChainName(object):
                                'trigType': 'mb', 'extra': ''}
                 if 'MinBias' not in signatureNames:  signatureNames.append('MinBias')
                 mdicts.append(m_groupdict)
-                
+
+            elif cpart=='hi':
+                logDict.debug('Doing HI')
+                multichainindex.append(chainName.index(cpart))
+                m_groupdict = {'signature': 'HeavyIon', 'threshold': '', 'multiplicity': '',
+                               'trigType': 'mb', 'extra': ''}
+                if 'HeavyIon' not in signatureNames:  signatureNames.append('HeavyIon')
+                mdicts.append(m_groupdict)
+
             elif cpart in AllowedCosmicChainIdentifiers:
                 logDict.debug('COSMIC CHAIN from CosmicDef.py')
                 multichainindex.append(chainName.index(cpart)) 
@@ -272,7 +280,7 @@ class DictFromChainName(object):
                 cN = cN[0:i-1]
             else:
                 multichainparts.append(cN)
-        logDict.debug("MEOW multichainparts: "+ str(multichainparts))
+        logDict.debug("multichainparts: "+ str(multichainparts))
 
         # ---- build the chainProperties dictionary for each part of the chain ----
         # ---- add it to a allChainProperties ----
@@ -321,7 +329,7 @@ class DictFromChainName(object):
                 logDict.debug('No L1 item specified in the name')
 
 
-            #print 'MEOW chainpartsNoL1', chainpartsNoL1
+            #print 'chainpartsNoL1', chainpartsNoL1
             parts=chainpartsNoL1.split('_')
             parts = filter(None,parts)
 

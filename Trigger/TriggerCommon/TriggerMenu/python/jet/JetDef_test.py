@@ -17,11 +17,12 @@ class TestJetDef(unittest.TestCase):
 
     def setUp(self):
         self.from_central =  copy.deepcopy(MC_pp_V5_dicts[0])
-        self.old_stdout = sys.stdout
-        sys.stdout = StringIO()
+        # self.old_stdout = sys.stdout
+        # sys.stdout = StringIO()
 
     def tearDown(self):
-        sys.stdout = self.old_stdout
+        #sys.stdout = self.old_stdout
+        pass
         
     def test_0(self):
         """Create ChainDef instances with full instantiation"""

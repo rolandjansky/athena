@@ -9,6 +9,7 @@ from AthenaCommon.Logging import logging
 log = logging.getLogger( 'TriggerMenu.egamma.generateElectronChainDefs' )
 log.info("Importing %s",__name__)
 
+import traceback
 
 from TriggerMenu.egamma.ElectronDef import L2EFChain_e as L2EFChain_e
 try:

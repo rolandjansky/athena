@@ -17,6 +17,9 @@ except ImportError:
     GeV = 1000.
 
 
+from eta_string_conversions import eta_string_to_strings
+
+
 class Alg(object):
     """Proxy class for ATLAS python configuration class (APCC). Can
     by converted to an APCC using an instantiator."""
@@ -70,10 +73,6 @@ class Alg(object):
 
         self.manual_attrs = manual_attrs
 
-        # set from JobSequencesBuilder when knowm
-        self.hypo_sequence_alias = None  
-
-
     def getName(self):
         return self.factory
 
@@ -122,6 +121,8 @@ class AlgFactory(object):
         self.recluster_params = self.menu_data.recluster_params
         self.hypo_params = self.menu_data.hypo_params
 
+        self.chain_name_esc = self.chain_config.chain_name.replace('.', '_')
+ 
     def tt_unpacker(self):
         return [Alg('T2L1Unpacking_TT', (), {})]
 
@@ -284,6 +285,31 @@ class AlgFactory(object):
             (name,),
             kargs)]
 
+
+    def ht_hypo(self):
+        """set up a HT hypo"""
+    
+        eta_range = self.hypo_params.eta_range
+        name_extension = '_'.join([str(e) for  e in (
+            self.hypo_params.ht_threshold,
+            eta_range)])
+
+        name = '"EFHTHypo_%s"' % name_extension
+
+        etaMin, etaMax = eta_string_to_strings(eta_range)
+
+        args = ()
+    
+        kargs = {'name': name,
+                 # 'eta_min': eta_min,
+                 # 'eta_max': eta_max,
+                 'HT_cut': str(self.hypo_params.ht_threshold),
+                 # 'ET_cut': str(30*GeV),
+                 }
+                 
+        return [Alg('EFHT', args, kargs)]
+
+
     def superRoIMaker(self):
         factory = 'SeededAlgo'
         return [Alg(factory,
@@ -338,7 +364,9 @@ class AlgFactory(object):
         
     def roiDiagnostics(self):
         factory = 'TrigHLTRoIDiagnostics'
-        return [Alg(factory, (), {'name': "'TrigHLTRoIDiagnostics_'"})]
+
+        instance_name = "'TrigHLTRoIDiagnostics_%s'" % self.chain_name_esc
+        return [Alg(factory, (), {'name': instance_name})]
 
     def jetRecDiagnostics(self):
         factory = 'TrigHLTJetDiagnostics_named'
@@ -346,20 +374,23 @@ class AlgFactory(object):
         # sequence being monitored at the time the sequences are built
         # see SequenceTree.py. The same applies to 'chain_name',
         # which is a misnomer - it is really a histogram file label.
-        kwds = {'name': "'TrigHLTJetDiagnostics_'",
-                'chain_name': "''"}
+
+        instance_name = "'TrigHLTJetDiagnostics_%s'" % self.chain_name_esc
+
+        kwds = {'name': instance_name,
+                'chain_name': "'%s'" % self.chain_name_esc}
         return [Alg(factory, (), kwds)]
 
     def jetHypoDiagnostics(self):
         # label the output histograms with the hain name for hypo diagnostics
         
         factory = 'TrigHLTHypoDiagnostics_named'
-        # chain_name = self.chain_config.chain_name.replace('.', '_')
-        # kwds = {'name': '"TrigHLTHypoDiagnostics_%s"' % chain_name,
-        #        'chain_name': '"%s"' % chain_name}
-        kwds = {
-            'name': '"TrigHLTHypoDiagnostics_%s"' % self.hypo_sequence_alias,
-            'chain_name': '"%s"' % self.hypo_sequence_alias}
+
+        kwds = {'name': '"TrigHLTHypoDiagnostics_%s"' % self.chain_name_esc,
+                'chain_name': '"%s"' % self.chain_name_esc}
+        # kwds = {
+        #    'name': '"TrigHLTHypoDiagnostics_%s"' % self.hypo_sequence_alias,
+        #    'chain_name': '"%s"' % self.hypo_sequence_alias}
 
         return [Alg(factory, (), kwds)]
 
@@ -370,8 +401,23 @@ class AlgFactory(object):
         # see SequenceTree.py. The same applies to 'chain_name',
         # which is a misnomer - it is really a histogram file label.
         factory = 'TrigHLTClusterDiagnostics_named'
-        kwds = {'name': "'TrigHLTClusterDiagnostics_'",
-                'chain_name': "''"}
+
+
+        kwds = {'name': '"TrigHLTClusterDiagnostics_%s"' % self.chain_name_esc,
+                'chain_name': '"%s"' % self.chain_name_esc}
+        return [Alg(factory, (), kwds)]
+
+
+    def jetRecDebug(self):
+        factory = 'TrigHLTJetDebug'
+        name = '"TrigHLTJetRecDebug_%s"' % (self.fex_params.fex_label)
+        ed_merge_param = _get_energy_density_radius()
+
+        kwds = {'name': name,
+                'chain_name': '"%s"' % self.chain_name_esc,
+                'cluster_calib': self.cluster_calib,
+                'ed_merge_param': ed_merge_param,
+            }
         return [Alg(factory, (), kwds)]
 
 
@@ -380,10 +426,12 @@ class AlgFactory(object):
         # sequence being monitored at the time the sequences are built
         # see SequenceTree.py. The same applies to 'chain_name',
         # which is a misnomer - it is really a histogram file label.
-        factory = 'TrigHLTClusterDiagnostics_named'
+
         factory = 'TrigHLTCellDiagnostics_named'
-        kwds = {'name': '"TrigHLTCellDiagnostics_"',
-                'chain_name': '""'}
+
+        kwds = {'name': '"TrigHLTCellDiagnostics_%s"' % self.chain_name_esc,
+                'chain_name': '"%s"' % self.chain_name_esc}
+
         return [Alg(factory, (), kwds)]
 
 

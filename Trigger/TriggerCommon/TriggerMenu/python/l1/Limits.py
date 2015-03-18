@@ -49,7 +49,7 @@ class Limits:
     
     @staticmethod
     def getCTPdataformat(version):
-        module = __import__('L1CommonCore.CTPdataformat_v%i' % version, globals(), locals(), ['CTPdataformat_v%i' % version], -1)
+        module = __import__('CTPfragment.CTPdataformat_v%i' % version, globals(), locals(), ['CTPdataformat_v%i' % version], -1)
         exec("CTPdataformat = module.CTPdataformat_v%i" % version)
         return CTPdataformat
 

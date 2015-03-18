@@ -63,7 +63,7 @@ def setupMenu():
     TriggerFlags.EgammaSlice.signatures = [
 	['e15_etcut',                  'L1_EM10', [], ['Egamma'], ['RATE:SingleElectron', 'BW:Egamma'], -1],
        	['g15_etcut',                  'L1_EM10', [], ['Egamma'], ['RATE:SingleElectron', 'BW:Egamma'], -1],
-	['g20_etcut',                  'L1_EM14', [], ['Egamma'], ['RATE:SingleElectron', 'BW:Egamma'], -1],
+	['g20_etcut',                  'L1_EM12', [], ['Egamma'], ['RATE:SingleElectron', 'BW:Egamma'], -1],
 
 	#Run 1 PID
 	['e15_loose1',                 'L1_EM10', [], ['Egamma'], ['RATE:SingleElectron', 'BW:Egamma'], -1],
@@ -87,13 +87,13 @@ def setupMenu():
  
 	['g15_loose',                  'L1_EM10', [], ['Egamma'], ['RATE:SingleElectron', 'BW:Egamma'], -1],
 	['g15_medium',                 'L1_EM10', [], ['Egamma'], ['RATE:SingleElectron', 'BW:Egamma'], -1],
-	['g20_loose',                  'L1_EM14', [], ['Egamma'], ['RATE:SingleElectron', 'BW:Egamma'], -1],
-        ['g20_medium',                 'L1_EM14', [], ['Egamma'], ['RATE:SingleElectron', 'BW:Egamma'], -1],
+	['g20_loose',                  'L1_EM12', [], ['Egamma'], ['RATE:SingleElectron', 'BW:Egamma'], -1],
+        ['g20_medium',                 'L1_EM12', [], ['Egamma'], ['RATE:SingleElectron', 'BW:Egamma'], -1],
 
 	['g15_loose_ion',              'L1_EM10', [], ['Egamma'], ['RATE:SingleElectron', 'BW:Egamma'], -1],
         ['g15_medium_ion',             'L1_EM10', [], ['Egamma'], ['RATE:SingleElectron', 'BW:Egamma'], -1],
-        ['g20_loose_ion',              'L1_EM14', [], ['Egamma'], ['RATE:SingleElectron', 'BW:Egamma'], -1],
-        ['g20_medium_ion',             'L1_EM14', [], ['Egamma'], ['RATE:SingleElectron', 'BW:Egamma'], -1],
+        ['g20_loose_ion',              'L1_EM12', [], ['Egamma'], ['RATE:SingleElectron', 'BW:Egamma'], -1],
+        ['g20_medium_ion',             'L1_EM12', [], ['Egamma'], ['RATE:SingleElectron', 'BW:Egamma'], -1],
 
         ]
 
@@ -103,6 +103,17 @@ def setupMenu():
     TriggerFlags.CombinedSlice.signatures = [
         ]
    
+    TriggerFlags.HeavyIonSlice.signatures = [
+        ['hi_v2_th5_L1TE50',    'L1_TE50',   [], ['MinBias'],["BW:HeavyIon", "RATE:HeavyIon"], 1],
+        ['hi_v3_th5_L1TE50',    'L1_TE50',   [], ['MinBias'],["BW:HeavyIon", "RATE:HeavyIon"], 1],
+        ['hi_v2_th10_L1TE50',    'L1_TE50',   [], ['MinBias'],["BW:HeavyIon", "RATE:HeavyIon"], 1],
+        ['hi_v3_th10_L1TE50',    'L1_TE50',   [], ['MinBias'],["BW:HeavyIon", "RATE:HeavyIon"], 1],
+        ['hi_v2_th14_L1TE50',    'L1_TE50',   [], ['MinBias'],["BW:HeavyIon", "RATE:HeavyIon"], 1],
+        ['hi_v3_th14_L1TE50',    'L1_TE50',   [], ['MinBias'],["BW:HeavyIon", "RATE:HeavyIon"], 1],
+        ['hi_v2_th15_L1TE50',    'L1_TE50',   [], ['MinBias'],["BW:HeavyIon", "RATE:HeavyIon"], 1],
+        ['hi_v3_th15_L1TE50',    'L1_TE50',   [], ['MinBias'],["BW:HeavyIon", "RATE:HeavyIon"], 1],
+        ]
+    
     TriggerFlags.MinBiasSlice.signatures = [
         ['mb_mbts_L1MBTS_2',    'L1_MBTS_2',   [], ['MinBias'],["BW:MinBias", "RATE:MinBias"], 1],
         ['mb_mbts_L1MBTS_1_1',  'L1_MBTS_1_1', [], ['MinBias'],["BW:MinBias", "RATE:MinBias"], 1], 

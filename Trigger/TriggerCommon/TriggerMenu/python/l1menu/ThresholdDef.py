@@ -298,6 +298,7 @@ class ThresholdDef:
 
         tc.registerThr('LUCID_A', 'LUCID').addThrValue(650)
         tc.registerThr('LUCID_C', 'LUCID').addThrValue(650)
+        #tc.registerThr('LUCID_COMM', 'LUCID').addThrValue(650)
 
 
         ## BPTX

@@ -231,24 +231,7 @@ class TriggerConfigLVL1:
         # build list of items for the menu from the list of requested names
         itemsForMenu = []
                 
-        itemsToRemove =[]
-        for index, itemName in enumerate(Lvl1Flags.items()):
-            for olditem in Lvl1Flags.ItemMap():
-                if (olditem == itemName) and (Lvl1Flags.ItemMap()[olditem] == ''):
-                    itemsToRemove.append(index)
-        
-        for i in reversed(itemsToRemove):
-            del Lvl1Flags.items()[i]
-
         for item_index, itemName in enumerate(Lvl1Flags.items()):
-            #Beam splash: add here the remapping list!
-            for olditem in Lvl1Flags.ItemMap():
-                if (olditem == itemName) and (Lvl1Flags.ItemMap()[olditem] != ''):
-                    #log.info("Remapping item %s as defined in the menu" %(itemName, str(Lvl1Flags.ItemMap()[olditem])))
-                    Lvl1Flags.items()[item_index] = Lvl1Flags.ItemMap()[olditem]
-                                                
-                    itemName = Lvl1Flags.ItemMap()[olditem]
-
             registeredItem = self.getRegisteredItem(itemName)
             if registeredItem == None:
                 log.fatal("LVL1 item '%s' has not been registered" % itemName)
@@ -288,13 +271,6 @@ class TriggerConfigLVL1:
         undefined_thr = False
 
         for index, thresholdName in enumerate(Lvl1Flags.thresholds()):
-            #Beam splash: add here the remapping list!
-            if (Lvl1Flags.ThresholdMap() != {}):
-                for  olditem in (Lvl1Flags.ThresholdMap()):
-                    if olditem == thresholdName:
-                        #log.info("Remapping thresholds as defined in the menu")
-                        Lvl1Flags.thresholds()[index] = Lvl1Flags.ThresholdMap()[olditem]
-                        thresholdName = Lvl1Flags.ThresholdMap()[olditem]
                         
             if thresholdName in self.menu.thresholds:
                 continue

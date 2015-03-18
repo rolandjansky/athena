@@ -278,11 +278,11 @@ def _addMatching(theChainDef,chainDicts,listOfChainDefs):
     superTE = inputTEsEF[0]+'_sRoi'
     superTrackingTE = superTE+'_sTrk'
     prmVertexTE = superTrackingTE+'_prmVtx'
-    comboPrmVtxTE = inputTEsEF[0]+'_sRoisTrkVtx'
-    jetSplitTE=comboPrmVtxTE+'_jetSplit'
-    jetEtHypoTE=jetSplitTE+'_bjetHypo'+hypoThresh
-    jetTrackTE=jetEtHypoTE+'bjettrk'
-    secVtxTE=comboPrmVtxTE+'bj'+hypoThresh+'Vxsec'
+    comboPrmVtxTE = inputTEsEF[0]+'_sRoiTrkVtx'
+    jetSplitTE=comboPrmVtxTE+'_jSplit'
+    jetEtHypoTE=jetSplitTE+'_hypo'+hypoThresh
+    jetTrackTE=jetEtHypoTE+'bjtrk'
+    secVtxTE=comboPrmVtxTE+hypoThresh+'SecVtx'
     
 
     # Vertexing part of the chain

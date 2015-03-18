@@ -1,12 +1,17 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 from collections import defaultdict
+from eta_string_conversions import eta_string_to_floats
 
 
-def hypo_factory(args):
+def hypo_factory(key, args):
 
     # no choice yet
-    return JetRecHypoAlg(args)
+    if key == 'standard':
+        return JetRecHypoAlg(args)
+    if key == 'ht':
+        return HTHypoAlg(args)
+    
 
 class HypoAlg(object):
     """ Argument checking class that holds the  parameters for an
@@ -18,17 +23,7 @@ class HypoAlg(object):
         self._check_args(ddict)
         self.__dict__.update(ddict)
 
-    def __str__(self):
-        s = ['%s: %s' % (k, str(v)) for k, v in self.__dict__.items()]
-        return '\n'.join(s)
-
-    def _check_args(self, ddict):
-        """check the constructor args"""
-
-        must_have = ('chain_name',
-                     'eta_str',
-                     'jet_attributes',
-                     'isCaloFullScan')
+    def check_missing_args(self, must_have, ddict):
 
         missing = [k for k in must_have if k not in ddict]
         if missing:
@@ -38,6 +33,35 @@ class HypoAlg(object):
                 ' '.join(must_have))
 
             raise RuntimeError(m)
+
+    def __str__(self):
+        s = ['%s: %s' % (k, str(v)) for k, v in self.__dict__.items()]
+        return '\n'.join(s)
+
+
+
+class JetRecHypoAlg(HypoAlg):
+    """ Argument checking class that holds the  parameters for an
+    Hypo (decision taking) python alg. Derives from HypoAlg, adds
+    the information as to whether the trigger tower sequences are
+    present in the chain."""
+
+    hypo_type = 'standard'
+
+    def __init__(self, ddict):
+        HypoAlg.__init__(self, ddict)
+
+    def _check_args(self, ddict):
+        """check the constructor args"""
+
+        must_have = ('chain_name',
+                     'eta_str',
+                     'jet_attributes',
+                     'isCaloFullScan',
+                     'triggertower')
+
+
+        HypoAlg.check_missing_args(self, must_have, ddict)
 
         jet_attributes = ddict['jet_attributes']
         if not jet_attributes:
@@ -87,24 +111,18 @@ class HypoAlg(object):
         return '_'.join(l)
 
 
-class TriggerTowerHypoAlg(HypoAlg):
+class HTHypoAlg(HypoAlg):
+    """ Store paramters for the HT hypoAlg"""
+
+    hypo_type = 'HT'
+    
     def __init__(self, ddict):
         HypoAlg.__init__(self, ddict)
 
-
-class JetRecHypoAlg(HypoAlg):
-    """ Argument checking class that holds the  parameters for an
-    Hypo (decision taking) python alg. Derives from HypoAlg, adds
-    the information as to whether the trigger tower sequences are
-    present in the chain."""
-
-    def __init__(self, ddict):
-        HypoAlg.__init__(self, ddict)
 
     def _check_args(self, ddict):
         """check the constructor args"""
 
-        HypoAlg._check_args(self, ddict)
-        if 'triggertower' not in ddict:
-            m = '%s._check_args: missing triggertower flag'
-            raise RuntimeError(m)
+        must_have = ('chain_name', 'eta_range', 'ht_threshold',)
+        HypoAlg.check_missing_args(self, must_have, ddict)
+

@@ -27,6 +27,7 @@ class ChainConfig(object):
                  chain_name,
                  seed,
                  run_hypo,
+                 hypo_type,
                  test,
                  data_scouting,
                  menu_data,):
@@ -34,6 +35,7 @@ class ChainConfig(object):
         self.chain_name = chain_name
         self.seed = seed
         self.run_hypo = run_hypo
+        self.hypo_type = hypo_type
         self.data_scouting = data_scouting
 
         # menu_data: data acquired from chainParts of menu dict

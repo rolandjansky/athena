@@ -19,6 +19,7 @@ SliceIDDict = {
     'XS'      : 'xs',
     'TE'      : 'te',
     'MinBias' : 'mb',
+    'HeavyIon' : 'hi',
     'Cosmic'  : 'cosmic',
     'Calibration'   : 'calib',
     'Streaming'     : 'streamer',
@@ -129,32 +130,18 @@ JetChainParts_Default = {
     }
 
 #==========================================================
-# Bjet
-#==========================================================
-# # ---- Bjet Dictinary of all allowed Values ----
-# BjetChainParts = deepcopy(JetChainParts)
-# AllowedBtaggingCuts = ['bloose', 'bmedium', 'btight']
-# BjetChainParts['signature']    = ['Bjet']
-# BjetChainParts['etaRange']    = ['0eta250']
-# BjetChainParts['bTag'] = AllowedBtaggingCuts
-
-# # ---- Bjet Dictinary of default Values ----
-# BjetChainParts_Default = deepcopy(JetChainParts_Default)
-# BjetChainParts_Default['signature']=['Bjet']
-# BjetChainParts_Default['etaRange']    = '0eta250'
-# BjetChainParts_Default['bTag'] = ''
-
-#==========================================================
 # HT chains
 #==========================================================
 # ---- HT Dictinary of all allowed Values ----
 HTChainParts = deepcopy(JetChainParts)
 HTChainParts['signature']    = ['HT']
 HTChainParts['trigType']     = ['ht']
+HTChainParts['extra']     = ['j20', 'j25', 'j30',]
 # ---- HTDictinary of default Values ----
 HTChainParts_Default = deepcopy(JetChainParts_Default)
 HTChainParts_Default['signature']    = ['HT']
 HTChainParts_Default['trigType']     = 'ht'
+HTChainParts_Default['extra']     = ''
 
 #==========================================================
 # Muon 
@@ -384,7 +371,7 @@ PhotonChainParts = {
     'hypoInfo'       : '',
     'recoAlg'        : [],
     'FSinfo'         : ['ftkFS',],
-    'addInfo'        : ['etcut', 'jetcalibdelayed', 'cosmic', 'perf', 'hiptrt','ringer','conv'],
+    'addInfo'        : ['etcut', 'jetcalibdelayed', 'cosmic', 'perf', 'hiptrt','ringer','conv','larpeb',],
     }
 
 # ---- Photon Dictinary of default Values ----
@@ -488,8 +475,48 @@ MinBiasChainParts_Default = {
     'addInfo'        : [],
     }
 
+#==========================================================
+# HeavyIon chains
+#==========================================================
+# ---- HeavyIon Dictionary of all allowed Values ----
+HeavyIonChainParts = {
+    'signature'      : ['HeavyIon'],
+    'L1item'         : '',
+    'chainPartName'  : '',
+    'multiplicity'   : '',
+    'trigType'       : ['hi'],
+    'threshold'      : '',
+    'extra'          : ['th1', 'th2', 'th3', 'th4', 'th5', 'th6', 'th7', 'th8', 'th9', 'th10', 'th11', 'th12', 'th13', 'th14', 'th15'],
+    'IDinfo'         : [],
+    'trkInfo'        : [],
+    'eventShape'     : ['v2', 'v3'],
+    'hypoL2Info'     : [],
+    'pileupInfo'     : [],
+    'hypoEFInfo'     : [],
+    'hypoEFsumEtInfo': [],
+    'recoAlg'        : [],
+    'addInfo'        : [ ],
+    }
 
-
+# ---- HeavyIonDictinary of default Values ----
+HeavyIonChainParts_Default = { 
+    'signature'      : ['HeavyIon'],
+    'L1item'         : '',
+    'chainPartName'  : '',
+    'multiplicity'   : '',
+    'trigType'       : ['hi'],
+    'threshold'      : '',
+    'extra'          : '',
+    'IDinfo'         : '',
+    'trkInfo'        : '',
+    'eventShape'     : '',
+    'hypoL2Info'       : '',
+    'pileupInfo'       : '',
+    'hypoEFInfo'       : '',
+    'hypoEFsumEtInfo': '',    
+    'recoAlg'        : [],
+    'addInfo'        : [],
+    }
 
 
 #==========================================================
@@ -592,7 +619,7 @@ CalibChainParts = {
     'threshold'      : '',
     'multiplicity'   : '',
     'trigType'       : ['trk'], 
-    'extra'          : '',
+    'extra'          : ['rerun',''],
     }
 
 # ---- Calib Chain Default Dictinary of all allowed Values ----
@@ -765,6 +792,8 @@ def getSignatureInformation(signature):
         return [TEChainParts_Default, TEChainParts]
     if signature == "MinBias":
         return [MinBiasChainParts_Default, MinBiasChainParts]
+    if signature == "HeavyIon":
+        return [HeavyIonChainParts_Default, HeavyIonChainParts]
     if signature == "Cosmic":
         return [CosmicChainParts_Default, CosmicChainParts]
     if signature == "Calibration":

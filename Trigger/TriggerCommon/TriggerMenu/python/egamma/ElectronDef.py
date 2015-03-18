@@ -475,11 +475,11 @@ class L2EFChain_e(L2EFChainDef):
         theTrigL2SiTrackFinder_eGammaC=TrigL2SiTrackFinder_eGammaC()
 
         # EF Calo
-        from TrigCaloRec.TrigCaloRecConfig import TrigCaloCellMaker_fullcalo
-        theFSCellMaker                   = TrigCaloCellMaker_fullcalo("TrigCaloCellMakerFullCalo_eGamma_heavyIon")
+        from TrigHIHypo.UE import theUEMaker, theFSCellMaker, theTrigCaloCellMaker_eGamma
+
 
         from TrigCaloRec.TrigCaloRecConfig import  TrigCaloCellMaker_eGamma, TrigCaloTowerMaker_eGamma, TrigCaloClusterMaker_slw
-        theTrigCaloCellMaker_eGamma      = TrigCaloCellMaker_eGamma("TrigCaloCellMaker_eGamma_heavyIon")
+        #theTrigCaloCellMaker_eGamma      = TrigCaloCellMaker_eGamma("TrigCaloCellMaker_eGamma_heavyIon")
         theTrigCaloTowerMaker_eGamma     = TrigCaloTowerMaker_eGamma("TrigCaloTowerMaker_eGamma_heavyIon")
         theTrigCaloClusterMaker_slw      = TrigCaloClusterMaker_slw("TrigCaloClusterMaker_slw_heavyIon")
         
@@ -507,14 +507,14 @@ class L2EFChain_e(L2EFChainDef):
             from TrigEgammaHypo.TrigEFElectronHypoConfig import TrigEFElectronHypo_e_EtCut
             from TrigEgammaHypo.TrigEFCaloHypoConfig import TrigEFCaloHypo_EtCut
             theL2CaloHypo      = L2CaloHypo_NoCut("L2CaloHypo_e"+str(threshold)+"_NoCut",threshold ) 
-            theTrigEFCaloHypo = TrigEFCaloHypo_EtCut("TrigEFCaloHypo_e"+str(threshold)+"_EtCut_heavyIon",threshold);
+            theTrigEFCaloHypo = TrigEFCaloHypo_All("TrigEFCaloHypo_e"+str(threshold)+"_EtCut_heavyIon",threshold);
             theEFElectronHypo  = TrigEFElectronHypo_e_EtCut("TrigEFElectronHypo_e"+str(threshold)+"_EtCut_heavyIon",threshold)
         elif self.chainPart['IDinfo']:
-            from TrigEgammaHypo.TrigL2CaloHypoConfig import L2CaloHypo_e_ID
-            theL2CaloHypo = L2CaloHypo_e_ID("TrigL2CaloHypo_e"+str(threshold)+"_"+str(IDinfo),threshold,IDinfo)
+            from TrigEgammaHypo.TrigL2CaloHypoConfig import L2CaloHypo_NoCut
+            theL2CaloHypo = L2CaloHypo_NoCut("L2CaloHypo_e"+str(threshold)+"_NoCut",threshold )
             from TrigEgammaHypo.TrigEFCaloHypoConfig import TrigEFCaloHypo_e_ID
             # EF Calo
-            theTrigEFCaloHypo = TrigEFCaloHypo_e_ID("TrigEFCaloHypo_e"+str(threshold)+"_"+str(IDinfo)+"_heavyIon",threshold,IDinfo);
+            theTrigEFCaloHypo = TrigEFCaloHypo_All("TrigEFCaloHypo_e"+str(threshold)+"_"+str(IDinfo)+"_heavyIon",threshold,IDinfo);
             from TrigEgammaHypo.TrigEFElectronHypoConfig import TrigEFElectronHypo_e_ID_CaloOnly
             theEFElectronHypo  = \
                 TrigEFElectronHypo_e_ID_CaloOnly("TrigEFElectronHypo_e"+str(threshold)+"_"+str(IDinfo)+"_CaloOnly_heavyIon",threshold,IDinfo)
@@ -537,6 +537,9 @@ class L2EFChain_e(L2EFChainDef):
                                  'L2_e_step1']]
         self.EFsequenceList += [[['L2_e_step1'], 
                                      [theFSCellMaker], 'EF_e_step1_fs']]
+
+        self.EFsequenceList += [[['EF_e_step1_fs'], 
+                                 [theUEMaker], 'EF_e_step1_ue']]
 
         self.EFsequenceList += [[['L2_e_step1'], 
                                  [theTrigCaloCellMaker_eGamma, theTrigCaloTowerMaker_eGamma, theTrigCaloClusterMaker_slw], 
@@ -569,7 +572,8 @@ class L2EFChain_e(L2EFChainDef):
         ########### Signatures ###########
 
         self.L2signatureList += [ [['L2_e_step1']*self.mult] ]
-        self.L2signatureList += [ [['EF_e_step1_fs']*self.mult] ]
+        self.L2signatureList += [ [['EF_e_step1_fs']] ]
+        self.L2signatureList += [ [['EF_e_step1_ue']] ]
         #self.L2signatureList += [ [['L2_e_step2']*self.mult] ]
         #self.L2signatureList += [ [['L2_e_step3']*self.mult] ]
         self.EFsignatureList += [ [['EF_e_step1']*self.mult] ]
@@ -582,6 +586,7 @@ class L2EFChain_e(L2EFChainDef):
         self.TErenamingDict = {
             'L2_e_step1': mergeRemovingOverlap('L2_', self.chainPartNameNoMult+'cl'),
             'EF_e_step1_fs': mergeRemovingOverlap('EF_', self.chainPartNameNoMult+'fs'),
+            'EF_e_step1_ue': mergeRemovingOverlap('EF_', self.chainPartNameNoMult+'ue'),
             'EF_e_step1': mergeRemovingOverlap('EF_', self.chainPartNameNoMult+'cl'),
             'EF_e_step2': mergeRemovingOverlap('EF_', self.chainPartNameNoMult+'calocalib'),
             'EF_e_step3': mergeRemovingOverlap('EF_', self.chainPartNameNoMult+'trk'),
@@ -1088,11 +1093,10 @@ class L2EFChain_e(L2EFChainDef):
         theL2ElectronFex = L2ElectronFex_1()
  
         # EF Calo
-        from TrigCaloRec.TrigCaloRecConfig import TrigCaloCellMaker_fullcalo
-        theFSCellMaker                   = TrigCaloCellMaker_fullcalo("TrigCaloCellMakerFullCalo_eGamma_heavyIon")
+        from TrigHIHypo.UE import theUEMaker, theFSCellMaker, theTrigCaloCellMaker_eGamma
 
         from TrigCaloRec.TrigCaloRecConfig import  TrigCaloCellMaker_eGamma, TrigCaloTowerMaker_eGamma, TrigCaloClusterMaker_slw
-        theTrigCaloCellMaker_eGamma      = TrigCaloCellMaker_eGamma("TrigCaloCellMaker_eGamma_heavyIon")
+        #theTrigCaloCellMaker_eGamma      = TrigCaloCellMaker_eGamma("TrigCaloCellMaker_eGamma_heavyIon")
         theTrigCaloTowerMaker_eGamma     = TrigCaloTowerMaker_eGamma("TrigCaloTowerMaker_eGamma_heavyIon")
         theTrigCaloClusterMaker_slw      = TrigCaloClusterMaker_slw("TrigCaloClusterMaker_slw_heavyIon")
        
@@ -1116,10 +1120,10 @@ class L2EFChain_e(L2EFChainDef):
             from TrigEgammaHypo.TrigL2ElectronHypoConfig import L2ElectronHypo_e_NoCut
             from TrigEgammaHypo.TrigEFTrackHypoConfig import EFTrackHypo_e_NoCut
             from TrigEgammaHypo.TrigEFElectronHypoConfig import TrigEFElectronHypo_e_EtCut
-            from TrigEgammaHypo.TrigEFCaloHypoConfig import TrigEFCaloHypo_EtCut
+            from TrigEgammaHypo.TrigEFCaloHypoConfig import TrigEFCaloHypo_All
             theL2CaloHypo      = L2CaloHypo_NoCut("L2CaloHypo_e"+str(threshold)+"_NoCut",threshold ) 
             theL2ElectronHypo  = L2ElectronHypo_e_NoCut("L2ElectronHypo_e"+str(threshold)+"_NoCut",threshold ) 
-            theTrigEFCaloHypo = TrigEFCaloHypo_EtCut("TrigEFCaloHypo_e"+str(threshold)+"_EtCut_heavyIon",threshold);
+            theTrigEFCaloHypo = TrigEFCaloHypo_All("TrigEFCaloHypo_e"+str(threshold)+"_All_heavyIon",threshold);
             theEFTrackHypo     = EFTrackHypo_e_NoCut("EFTrackHypo_e"+str(threshold)+"_NoCut_heavyIon",threshold) 
             theEFElectronHypo  = TrigEFElectronHypo_e_EtCut("TrigEFElectronHypo_e"+str(threshold)+"_EtCut_heavyIon",threshold)
         elif 'perf' in self.chainPart['addInfo']:
@@ -1140,7 +1144,7 @@ class L2EFChain_e(L2EFChainDef):
             logElectronDef.debug('chain suffix: %s', algoSuffix)
             #if 'mvt' in algoSuffix: 
             #    algoSuffix = algoSuffix.replace('mvt','')
-            from TrigEgammaHypo.TrigL2CaloHypoConfig import L2CaloHypo_e_ID
+            from TrigEgammaHypo.TrigL2CaloHypoConfig import L2CaloHypo_NoCut
             from TrigEgammaHypo.TrigL2ElectronHypoConfig import L2ElectronHypo_e_ID
             from TrigEgammaHypo.TrigEFElectronHypoConfig import TrigEFElectronHypo_e_ID
             from TrigEgammaHypo.TrigEFElectronHypoConfig import TrigEFElectronHypo_e_Iso
@@ -1149,19 +1153,19 @@ class L2EFChain_e(L2EFChainDef):
             from TrigEgammaHypo.TrigEFElectronHypoConfig import TrigEFElectronHypo_e_LH_Iso
             from TrigEgammaHypo.TrigEFElectronHypoConfig import TrigEFElectronHypo_e_ID_EtIsEM_Iso
             from TrigEgammaHypo.TrigEFTrackHypoConfig import EFTrackHypo_e
-            from TrigEgammaHypo.TrigEFCaloHypoConfig import TrigEFCaloHypo_e_ID
+            from TrigEgammaHypo.TrigEFCaloHypoConfig import TrigEFCaloHypo_All
             # L2 Calo
             if 'ringer' in self.chainPart['addInfo']:
                 theL2CaloHypo           = TrigRingerNeuralHypoConfig("TrigRingerNeuralHypo_e"+str(threshold)  )
                 theL2ElectronFex        = L2ElectronFex_Ringer("L2ElectronFex_Ringer_e"+str(threshold)  )
             else:
-                theL2CaloHypo = L2CaloHypo_e_ID("TrigL2CaloHypo_e"+str(threshold)+"_"+str(IDinfo),threshold,IDinfo)
+                theL2CaloHypo =  L2CaloHypo_NoCut("L2CaloHypo_e"+str(threshold)+"_NoCut",threshold )
             
             # L2 Electron
             theL2ElectronHypo  = L2ElectronHypo_e_ID("TrigL2ElectronHypo_e"+str(threshold)+"_"+str(IDinfo),threshold,IDinfo)
             
             # EF Calo
-            theTrigEFCaloHypo = TrigEFCaloHypo_e_ID("TrigEFCaloHypo_e"+str(threshold)+"_"+str(IDinfo)+"_heavyIon",threshold,IDinfo);
+            theTrigEFCaloHypo = TrigEFCaloHypo_All("TrigEFCaloHypo_e"+str(threshold)+"_heavyIon",threshold);
            
             # EF Track
             theEFTrackHypo     = EFTrackHypo_e("EFTrackHypo_e"+str(threshold)+"_"+str(IDinfo),threshold)
@@ -1225,6 +1229,9 @@ class L2EFChain_e(L2EFChainDef):
         self.EFsequenceList += [[['L2_e_step3'], 
                                  [theFSCellMaker], 'EF_e_step1_fs']]
 
+        self.EFsequenceList += [[['EF_e_step1_fs'], 
+                                 [theUEMaker], 'EF_e_step1_ue']]
+
         self.EFsequenceList += [[['L2_e_step3'], 
                                  [theTrigCaloCellMaker_eGamma, theTrigCaloTowerMaker_eGamma, theTrigCaloClusterMaker_slw],
                                  'EF_e_step1']]
@@ -1252,7 +1259,8 @@ class L2EFChain_e(L2EFChainDef):
         self.L2signatureList += [ [['L2_e_step1']*self.mult] ]
         self.L2signatureList += [ [['L2_e_step2']*self.mult] ]
         self.L2signatureList += [ [['L2_e_step3']*self.mult] ]
-        self.EFsignatureList += [ [['EF_e_step1_fs']*self.mult] ]
+        self.EFsignatureList += [ [['EF_e_step1_fs']] ]
+        self.EFsignatureList += [ [['EF_e_step1_ue']] ]
         self.EFsignatureList += [ [['EF_e_step1']*self.mult] ]
         self.EFsignatureList += [ [['EF_e_step2']*self.mult] ]
         self.EFsignatureList += [ [['EF_e_step3']*self.mult] ]
@@ -1264,6 +1272,7 @@ class L2EFChain_e(L2EFChainDef):
             'L2_e_step2': mergeRemovingOverlap('L2_', self.chainPartNameNoMult+'id'),
             'L2_e_step3': mergeRemovingOverlap('L2_', self.chainPartNameNoMult),
             'EF_e_step1_fs': mergeRemovingOverlap('EF_', self.chainPartNameNoMult+'fs'),
+            'EF_e_step1_ue': mergeRemovingOverlap('EF_', self.chainPartNameNoMult+'ue'),
             'EF_e_step1': mergeRemovingOverlap('EF_', self.chainPartNameNoMult+'calo'),
             'EF_e_step2': mergeRemovingOverlap('EF_', self.chainPartNameNoMult+'calocalib'),
             'EF_e_step3': mergeRemovingOverlap('EF_', self.chainPartNameNoMult+'id'),

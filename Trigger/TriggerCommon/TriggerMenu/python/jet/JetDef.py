@@ -62,7 +62,9 @@ def _check_values(chain_parts):
 
     err_hdr = '_check_values: '
 
-    bad = [p['signature'] for p in chain_parts if p['signature'] != 'Jet']
+    # jet chains and "HT" chains are processed
+    bad = [p['signature'] for p in chain_parts if p['signature'] not in  ('Jet',
+                                                                          'HT')]
     if bad:
         msg = '%s unknown chain part(s): %s' % (err_hdr, ' '.join(bad))
         raise RuntimeError(msg)
@@ -202,7 +204,12 @@ def _make_start_te(chain_config):
     if len(start_te) != 2:
         msg = '_make_chain_def, L1 seed %s does not match %s' % (seed, pat)
         raise RuntimeError(msg)
-    return start_te[1]
+
+    #chandle special case: for L1_TAU the start te should be HA
+    result = start_te[1]
+    result = result.replace('TAU', 'HA')
+    return result
+
 
 def generateHLTChainDef(caller_data):
     """Entrance point to the jet slice configuration code.
@@ -235,7 +242,7 @@ def generateHLTChainDef(caller_data):
         cd = ErrorChainDef(msg, chain_name)
         if debug:
             # for debugging, output the original incoming dictionary
-            _debug(caller_data, cd, no_instantiation_flag)
+            dump_chaindef(caller_data, cd, no_instantiation_flag)
 
         return cd
             
@@ -251,10 +258,10 @@ def generateHLTChainDef(caller_data):
 
     if debug:
         # for debugging, output the original incoming dictionary
-        _debug(caller_data, cd, no_instantiation_flag)
+        dump_chaindef(caller_data, cd, no_instantiation_flag)
     return cd
 
-def _debug(caller_data, cd, no_instantiation_flag):
+def dump_chaindef(caller_data, cd, no_instantiation_flag):
     """Dump incoming dictionaly and outfgoing(Error)ChainDef to a file."""
 
     chain_name = caller_data['chainName']
