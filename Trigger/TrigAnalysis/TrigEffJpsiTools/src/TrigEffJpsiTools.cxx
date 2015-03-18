@@ -3,8 +3,8 @@
 */
 
 /**
- * @date      $Date: 2015-01-29 16:12:13 +0100 (Thu, 29 Jan 2015) $
- * @version   $Revision: 642732 $
+ * @date      $Date: 2015-03-18 09:56:28 +0100 (Wed, 18 Mar 2015) $
+ * @version   $Revision: 654956 $
  */
 
 /** @todo */
@@ -1165,8 +1165,8 @@ TrigEffJpsiTools::getEFMSTriggerObjects(const std::string& chain,
 			  double dphi = getPhiDistance(eTrack1->phi(), eTrack2->phi());
 
 			  if( muoninfo1->RoINum() != muoninfo2->RoINum() && ((std::fabs(deta) < 0.08) && (std::fabs(dphi) < 0.08)) ){
-			    double deltarT1Roi1 = getEtaPhiDistance(eTrack1->eta(), roiInfo1.eta0(), eTrack1->phi(), roiInfo1.phi0() );
-			    double deltarT2Roi2 = getEtaPhiDistance(eTrack2->eta(), roiInfo2.eta0(), eTrack2->phi(), roiInfo2.phi0() );
+			    double deltarT1Roi1 = getEtaPhiDistance(eTrack1->eta(), roiInfo1.eta(), eTrack1->phi(), roiInfo1.phi() );
+			    double deltarT2Roi2 = getEtaPhiDistance(eTrack2->eta(), roiInfo2.eta(), eTrack2->phi(), roiInfo2.phi() );
 
 			    if( deltarT1Roi1 > deltarT2Roi2 ){
 			      eTrack1 = eTrack2;
