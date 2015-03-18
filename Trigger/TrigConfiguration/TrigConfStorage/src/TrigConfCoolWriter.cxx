@@ -740,8 +740,7 @@ TrigConf::TrigConfCoolWriter::writeL1MenuPayload( ValidityRange vr,
          lvl1ThresholdFolder->setupStorageBuffer();
 
          // go through the thresholds, channels assigned in the order (0..#thr-1)
-         // JOERG set back to 0 when done with the fixing
-         cool::ChannelId thrChannel = 2;
+         cool::ChannelId thrChannel = 0;
          for(;thrIt != lvl1Thrs.end(); thrIt++) {
             Record payloadThr = TrigConfCoolL1PayloadConverters::createLvl1ThresholdPayload( lvl1ThresholdFolder, **thrIt );
             m_ostream << "Writing (to buffer) LVL1 threshold " << (*thrIt)->name() 
@@ -1421,18 +1420,12 @@ TrigConfCoolWriter::readL1Thresholds(unsigned int run,
    AutoDBOpen db(this, READ_ONLY);
    ValidityRange vr(run, 1);
    thrs.clear();
-   IObjectIteratorPtr objects;
-   ChannelId thrChannel(0);
    IFolderPtr L1thrFolder = TrigConfCoolFolderSpec::getLvl1ThresholdFolder(m_dbPtr);
-   for(;;) {
-      objects = L1thrFolder->browseObjects( vr.since(), vr.until()-1, thrChannel );
-      if(objects->size()==0) break;
-      while ( objects->goToNext() ) {
-         const IObject& obj = objects->currentRef();
-         const IRecord & payload = obj.payload();
-         thrs.push_back( createLvl1Threshold( payload.attributeList() ) );
-      }
-      thrChannel++;
+   IObjectIteratorPtr objects = L1thrFolder->browseObjects( vr.since(), vr.until()-1, cool::ChannelSelection() );
+   while ( objects->goToNext() ) {
+      const IObject& obj = objects->currentRef();
+      const IRecord & payload = obj.payload();
+      thrs.push_back( createLvl1Threshold( payload.attributeList() ) );
    }
 }
 
