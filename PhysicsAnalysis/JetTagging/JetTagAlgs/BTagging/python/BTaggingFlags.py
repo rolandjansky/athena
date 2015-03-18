@@ -337,7 +337,7 @@ class _BTaggingFlags:
         setattr(self, attr, 'JetFitterCalibrationCoefficientsRel13')
 
       for attr in self._ForceMV2CalibrationAlias:
-        setattr(self, attr, False)
+        setattr(self, attr, True)
 
       for attr in self._MV2CalibAlias:
         setattr(self, attr, 'AntiKt4TopoEM')
@@ -407,7 +407,8 @@ class _BTaggingFlags:
                               "AntiKt4Truth->AntiKt4TopoEM,AntiKt4EMTopo,AntiKt4LCTopo",
 			      "AntiKt4TruthWZ->AntiKt4TruthWZ,AntiKt4TopoEM,AntiKt4EMTopo,AntiKt4LCTopo",
                               "AntiKt4Track->AntiKt4Track,AntiKt4TopoEM,AntiKt4EMTopo,AntiKt4LCTopo",
-                              "AntiKt3Track->AntiKt3Track,AntiKt4TopoEM,AntiKt4EMTopo,AntiKt4LCTopo"])
+                              "AntiKt3Track->AntiKt3Track,AntiKt4TopoEM,AntiKt4EMTopo,AntiKt4LCTopo",
+			      "AntiKt2Track->AntiKt2Track,AntiKt3Track,AntiKt4Track,AntiKt4TopoEM,AntiKt4EMTopo,AntiKt4LCTopo"])
 
       for attr in self._CalibrationSingleFolder:
         setattr(self, attr, True)
