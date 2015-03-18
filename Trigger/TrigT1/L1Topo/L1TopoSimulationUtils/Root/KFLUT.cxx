@@ -24,7 +24,7 @@ TCS::KFLUT::~KFLUT(){
 
 int TCS::KFLUT::getetabin(double eta){
 
-   int bin = 999;
+   int bin = 0;
    if (eta >= etalimits.back()) return (etalimits.size()-1);
    if (eta < etalimits[0]) return 0;
 
@@ -43,7 +43,7 @@ int TCS::KFLUT::getetabin(double eta){
 
 int TCS::KFLUT::getetbin(unsigned int et){
 
-    int binet = 999;
+    int binet = 0;
     if (et >= etlimits.back()) return (etlimits.size()-1);
     if (et < etlimits[0]) return 0;
 
@@ -74,7 +74,7 @@ void TCS::KFLUT::fillLUT(){
     vector<double> v0 {-0.12,-0.09,-0.09,-0.05,0.03,0.08,0.14,0.36,0.29,0.04,0.06,0.04,-0.02,-0.09,-0.18,-0.31};
     vector<double> v1 {0.08,0.09,0.09,0.12,0.2,0.27,0.32,0.46,0.39,0.2,0.16,0.13,0.08,-0.09,-0.16,-0.39};
     vector<double> v2 {0.11,0.11,0.12,0.13,0.18,0.21,0.25,0.38,0.28,0.15,0.11,0.1,0.12,-0.03,-0.09,-0.37}; 
-    vector<double> v3 {0.04,0.03,0.09,0.11,0.14,0.23,0.15,0.06,0.03,0.04,0.02,-0.05,-0.07,-0.4};
+    vector<double> v3 {0.04,0.03,0.04,0.03,0.09,0.11,0.14,0.23,0.15,0.06,0.03,0.04,0.02,-0.05,-0.07,-0.4};
     vector<double> v4 {-0.05,-0.07,-0.06,-0.07,0,0.01,0.01,0.12,0.02,-0.06,-0.05,-0.06,-0.05,-0.09,-0.12,-0.47};
 
     LUTKF.push_back(v0);
