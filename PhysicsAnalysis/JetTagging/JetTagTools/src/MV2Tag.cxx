@@ -39,7 +39,7 @@ namespace Analysis {
     // access to XML configuration files for TMVA from COOL:
     declareProperty("calibrationTool", m_calibrationTool);
     // force MV2 to always use a calibration derived from MV2CalibAlias jet collection
-    declareProperty("forceMV2CalibrationAlias", m_forceMV2CalibrationAlias = false);
+    declareProperty("forceMV2CalibrationAlias", m_forceMV2CalibrationAlias = true);
     declareProperty("MV2CalibAlias", m_MV2CalibAlias = "AntiKt4TopoEM");
     // global configuration:
     declareProperty("Runmodus", m_runModus);
@@ -159,14 +159,12 @@ namespace Analysis {
 	int posi = sss.find('<')!=-1 ? sss.find('<') : sss.find_first_not_of(" ");
 	std::string tmp = sss.erase(0,posi);
 	//std::cout<<tmp<<std::endl;
-	iss << tmp.data();      //iss << sss.Data();
-	if ( sss.find("Variables NVar")!=std::string::npos ) {
-	  //std::cout << " VALERIOVALERIO: " << sss << std::endl;
-	  std::string newString=sss.substr(17,2); //VD this a bit sloppy but c++ is not python
-	  //sss.find("\""),2); //VD: this does not work
-	  calibNvars=stoi(newString);
-	  //std::cout << " VALERIOVALERIO2: " << newString << std::endl;
-	  //std::cout << " VALERIOVALERIO3: " << calibNvars << std::endl;
+	iss << tmp.data();
+	if (i<100) {
+	  if ( tmp.find("Variables NVar")!=std::string::npos ) {
+	    std::string newString=tmp.substr(tmp.find("\"")+1,tmp.find("\" ")-(tmp.find("\"")+1));
+	    calibNvars=stoi(newString);
+	  }
 	}
       }
 
@@ -663,17 +661,18 @@ namespace Analysis {
     m_sv0_n2t   = sv0_n2t;
     m_sv0_ntkv  = sv0_ntkv;
     
-    // VD: new variables from Kazuya
     if      (m_jf_dphi==-10 and m_jf_deta==-10) m_jf_dR = -1;
     else if (m_jf_dphi==-11 and m_jf_deta==-11) m_jf_dR = -1;
     else                                        m_jf_dR = hypot(m_jf_dphi,m_jf_deta) ;
 					     
-    if(m_ip2==-30) m_ip2==-20;
-    m_ip2_c  = (m_ip2_pb>0 && m_ip2_pc>0) ? log(m_ip2_pb/m_ip2_pc) : -20;
-    m_ip2_cu = (m_ip2_pc>0 && m_ip2_pu>0) ? log(m_ip2_pc/m_ip2_pu) : -20;
-    if(m_ip3==-30) m_ip3==-20;
-    m_ip3_c  = (m_ip3_pb>0 && m_ip3_pc>0) ? log(m_ip3_pb/m_ip3_pc) : -20;
-    m_ip3_cu = (m_ip3_pc>0 && m_ip3_pu>0) ? log(m_ip3_pc/m_ip3_pu) : -20;
+    if      (m_ip2==-30) m_ip2=-20;
+    else if (m_ip2_pu>1) m_ip2=-20;
+    m_ip2_c  = (m_ip2_pb>0 && m_ip2_pc>0 && m_ip2_pc<1) ? log(m_ip2_pb/m_ip2_pc) : -20;
+    m_ip2_cu = (m_ip2_pc>0 && m_ip2_pu>0 && m_ip2_pu<1) ? log(m_ip2_pc/m_ip2_pu) : -20;
+    if      (m_ip3==-30) m_ip3=-20;
+    else if (m_ip3_pu>1) m_ip3=-20;
+    m_ip3_c  = (m_ip3_pb>0 && m_ip3_pc>0 && m_ip3_pc<1) ? log(m_ip3_pb/m_ip3_pc) : -20;
+    m_ip3_cu = (m_ip3_pc>0 && m_ip3_pu>0 && m_ip3_pu<1) ? log(m_ip3_pc/m_ip3_pu) : -20;
 
     m_sv1_c  = (m_sv1_pb>0 && m_sv1_pc>0) ? log(m_sv1_pb/m_sv1_pc) : -20;
     m_sv1_cu = (m_sv1_pc>0 && m_sv1_pu>0) ? log(m_sv1_pc/m_sv1_pu) : -20;
@@ -687,14 +686,16 @@ namespace Analysis {
     ATH_MSG_DEBUG("#BTAG# ip2d inputs: " <<
 		  "  ip2_pu= "     << m_ip2_pu     <<
 		  ", ip2_pb= "     << m_ip2_pb     <<
-		  ", ip2_pc= "     << m_ip2_pc     <<
+		  ", ip2_pc= "     << m_ip2_pc);
+    ATH_MSG_DEBUG("#BTAG# ip2d llr inputs: " <<
 		  ", ip2= "        << m_ip2        <<
 		  ", ip2_c= "      << m_ip2_c      <<
 		  ", ip2_cu= "     << m_ip2_cu);
     ATH_MSG_DEBUG("#BTAG# ip3d inputs: " <<
 		  ", ip3_pu= "     << m_ip3_pu     <<
 		  ", ip3_pb= "     << m_ip3_pb     <<
-		  ", ip3_pc= "     << m_ip3_pc     <<
+		  ", ip3_pc= "     << m_ip3_pc);
+    ATH_MSG_DEBUG("#BTAG# ip3d llr inputs: " <<
 		  ", ip3= "        << m_ip3        <<
 		  ", ip3_c= "      << m_ip3_c      <<
 		  ", ip3_cu= "     << m_ip3_cu);
