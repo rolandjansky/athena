@@ -958,19 +958,10 @@ IdDictDictionary::integrate_bits ()
     // For each region, loop over its levels and set the bit offset
     // for each FieldImplementation
 
-    IdDictDictionary::regions_it it; 
-
-    for (it = m_regions.begin (); it != m_regions.end (); ++it) { 
-	IdDictRegion& region = *(*it);
-
+    for (IdDictRegion* region : m_regions) {
 	size_t bits_offset = 0; 
 
-	std::vector <IdDictFieldImplementation>::iterator fit; 
-	for (fit = region.m_implementation.begin ();  
-	     fit != region.m_implementation.end (); 
-	     ++fit) { 
-	    IdDictFieldImplementation& impl = *fit; 
-
+        for (IdDictFieldImplementation& impl : region->m_implementation) {
 	    impl.optimize(); // optimize for decoding
 	    impl.set_bits_offset(bits_offset);
 	    bits_offset += impl.bits();
@@ -978,7 +969,8 @@ IdDictDictionary::integrate_bits ()
 	    // Set whether or not to decode index
 	    Range::field field = impl.ored_field();
 	    if (Range::field::both_bounded != field.get_mode() ||
-		0 != field.get_minimum()) {
+		0 != field.get_minimum())
+            {
 		impl.set_decode_index(true); 
 	    }
 	}
