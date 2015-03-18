@@ -63,6 +63,7 @@ SpecialPixelMapSvc::SpecialPixelMapSvc(const std::string& name, ISvcLocator* sl)
   m_aliasTag("PIT-ALL-V39"),
   m_fileListFileName("filelist"),
   m_fileListFileDir("filelistdir"),
+  m_killingModule(0.),
   m_pixelID(0),
   m_pixman(0)
 {
