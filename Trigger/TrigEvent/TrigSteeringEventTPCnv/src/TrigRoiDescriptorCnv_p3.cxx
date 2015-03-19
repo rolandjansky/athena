@@ -14,8 +14,8 @@
 
 
 void TrigRoiDescriptorCnv_p3::persToTrans(const TrigRoiDescriptor_p3* persObj, 
-				       TrigRoiDescriptor* transObj, 
-				       MsgStream &log)
+					  TrigRoiDescriptor* transObj, 
+					  MsgStream &log)
 {
    log << MSG::DEBUG << "TrigRoiDescriptorCnv_p3::persToTrans called " << endreq;
 
@@ -54,6 +54,20 @@ void TrigRoiDescriptorCnv_p3::persToTrans(const TrigRoiDescriptor_p3* persObj,
 
    /// now set up the variables
    transObj->construct( _eta, _etaMinus, _etaPlus, _phi, _phiMinus, _phiPlus, _zed, _zedMinus, _zedPlus ); 
+   
+   if ( persObj->rois.size()>0 ) {
+     
+     transObj->m_manageConstituents = true;
+     
+     for ( unsigned i=0 ; i<persObj->rois.size() ; i++ ) { 
+
+       const std::vector<float>& _roi = persObj->rois[i];
+
+       transObj->m_roiDescriptors.push_back( new TrigRoiDescriptor( _roi[eta], _roi[etaminus], _roi[etaplus],
+								    _roi[phi], _roi[phiminus], _roi[phiplus],
+								    _roi[zed], _roi[zedminus], _roi[zedplus] ) );
+     } 
+   } 
 
 }
 
@@ -78,6 +92,35 @@ void TrigRoiDescriptorCnv_p3::transToPers(const TrigRoiDescriptor* transObj,
    persObj->ids[roiword]   = transObj->m_roiWord    ;
 
    persObj->fullscan       = transObj->m_fullscan   ;
+   
+   
+
+   if ( transObj->m_roiDescriptors.size()>0 ) {
+
+     persObj->rois.reserve(transObj->m_roiDescriptors.size());
+
+     for ( unsigned i=0 ; i<transObj->m_roiDescriptors.size() ; i++ ) {
+ 
+       std::vector<float> _roi(9);
+
+       const IRoiDescriptor* _iroi = transObj->m_roiDescriptors[i]; 
+ 
+       _roi[phi] = _iroi->phi();
+       _roi[eta] = _iroi->eta();
+       _roi[zed] = _iroi->zed();
+
+       _roi[phiminus] = _iroi->phiMinus();
+       _roi[phiplus]  = _iroi->phiPlus();
+
+       _roi[etaminus] = _iroi->etaMinus();
+       _roi[etaplus]  = _iroi->etaPlus();
+
+       _roi[zedminus] = _iroi->zedMinus();
+       _roi[zedplus]  = _iroi->zedPlus();
+
+       persObj->rois.push_back( _roi );
+     } 
+   } 
 
 }
 

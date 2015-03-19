@@ -48,11 +48,15 @@ void TrigRoiDescriptorCnv_p2::transToPers(const TrigRoiDescriptor* transObj,
 				       MsgStream &log)
 {
    log << MSG::DEBUG << "TrigRoiDescriptorCnv_p2::transToPers called " << endreq;
+   //   log << MSG::FATAL << "TrigRoiDescriptorCnv_p1::transToPers called - do not use this converter, use more recent converter" << endreq;  
 
    persObj->geom[phi]      = transObj->m_phi        ;                 
    persObj->geom[eta]      = transObj->m_eta        ;                 
-   persObj->geom[zed]      = transObj->m_zed        ;                 
-   persObj->geom[wphi]     = 0.5*std::fabs( HLT::wrapPhi(transObj->m_phiPlus - transObj->m_phiMinus) );         
+   persObj->geom[zed]      = transObj->m_zed        ;  
+               
+   if ( transObj->m_phiPlus > transObj->m_phiMinus ) persObj->geom[wphi] = 0.5*(transObj->m_phiPlus - transObj->m_phiMinus);         
+   else                                              persObj->geom[wphi] = 0.5*(transObj->m_phiPlus - transObj->m_phiMinus) + M_PI;
+
    persObj->geom[weta]     = 0.5*std::fabs( transObj->m_etaPlus - transObj->m_etaMinus );         
    persObj->geom[wzed]     = 0.5*std::fabs( transObj->m_zedPlus - transObj->m_zedMinus );         
    persObj->geom[etaplus]  = transObj->m_etaPlus     ;
