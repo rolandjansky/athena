@@ -8,6 +8,8 @@
 #ifndef MVA_CALIB_TOOL_H_
 #define MVA_CALIB_TOOL_H_
 
+#include <string>
+
 #include "AsgTools/AsgTool.h"
 #include "egammaMVACalib/IegammaMVATool.h"
 #include "xAODTracking/TrackParticleFwd.h"
@@ -38,14 +40,14 @@ public:
   */
 
   StatusCode execute(xAOD::CaloCluster* cluster,const xAOD::Egamma* eg);
-  StatusCode hltexecute(xAOD::CaloCluster* cluster,std::string egType);
+  StatusCode hltexecute(xAOD::CaloCluster* cluster, const std::string& egType);
 
-private:
   float getEnergy(xAOD::CaloCluster* cluster, const xAOD::Egamma*);
   float getEnergy(xAOD::CaloCluster* cluster,const xAOD::Electron*);
   float getEnergy(xAOD::CaloCluster* cluster,const xAOD::Photon*);
-  float getEnergy(xAOD::CaloCluster* cluster,std::string);
+  float getEnergy(xAOD::CaloCluster* cluster, const std::string&);
 
+private:
   bool getClusterVariables(const xAOD::CaloCluster*);
   bool getConversionVariables(const xAOD::Vertex*);
   

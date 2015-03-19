@@ -56,6 +56,12 @@ using namespace egammaMVACalibNmsp;
 // - DOCUMENTATION
 // - Print "empty" bins ?
 
+template<typename T>
+std::unique_ptr<T> loadFromFile(TFile* f, std::string key)
+{
+  return std::unique_ptr<T>( dynamic_cast<T*>(f->Get(key.c_str())));
+}
+
 egammaMVACalib::egammaMVACalib(int particle,
                                bool useNewBDTs,
                                TString folder,
@@ -899,9 +905,9 @@ float* egammaMVACalib::getAddress(const TString & input_name)
   std::map< TString, egammaMVACalib::VarFormula >::iterator it = m_formulae.find(input_name);
   if (it == m_formulae.end()) {
     std::string formulae_string = "";
-    for (std::map< TString, egammaMVACalib::VarFormula >::iterator it = m_formulae.begin();
-         it != m_formulae.end(); ++it) {
-      formulae_string += std::string(" ") + it->first + std::string(" ");
+    for (std::map< TString, egammaMVACalib::VarFormula >::iterator it2 = m_formulae.begin();
+         it2 != m_formulae.end(); ++it2) {
+      formulae_string += std::string(" ") + it2->first + std::string(" ");
     }
     ATH_MSG_FATAL("getAddress , formula not found. "  << input_name.Data() <<" Should be one of "<< formulae_string.c_str());
     throw std::runtime_error("formula not found");
@@ -914,9 +920,9 @@ void egammaMVACalib::setExternal(const TString & input_name)
   std::map< TString, egammaMVACalib::VarFormula >::iterator it = m_formulae.find(input_name);
   if (it == m_formulae.end()) {
     std::string formulae_string = "";
-    for (std::map< TString, egammaMVACalib::VarFormula >::iterator it = m_formulae.begin();
-         it != m_formulae.end(); ++it) {
-      formulae_string += std::string(" ") + it->first + std::string(" ");
+    for (std::map< TString, egammaMVACalib::VarFormula >::iterator it2 = m_formulae.begin();
+         it2 != m_formulae.end(); ++it2) {
+      formulae_string += std::string(" ") + it2->first + std::string(" ");
     }
     ATH_MSG_FATAL("setExternal , formula not found. "  << input_name.Data() <<" Should be one of "<< formulae_string.c_str());
     throw std::runtime_error("formula not found");

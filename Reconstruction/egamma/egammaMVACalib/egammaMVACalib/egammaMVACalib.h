@@ -404,14 +404,7 @@ class egammaMVACalib : public TObject,public asg::AsgMessaging
     
     /** Create an internal TTree when InitTree(0) is called **/
     TTree* createInternalTree(egammaType, TTree *tree);
-    
-    
-    template<typename T> static std::unique_ptr<T> loadFromFile(TFile* f, std::string key)
-    {
-      return std::unique_ptr<T>( dynamic_cast<T*>(f->Get(key.c_str())));
-    }
-
-    
+        
     //////////////////////////////////////////////////////////////
     
     // Parameters defined in the constructor
@@ -511,6 +504,11 @@ class egammaMVACalib : public TObject,public asg::AsgMessaging
     
 #ifdef ROOTCORE
     ClassDef(egammaMVACalib, 0)
+#else
+    // MN:  this prevents ROOT6 dict generator from complaining about lack of ClassDef()
+    // Note: inheriting from TObject and not having ClassDef makes this class unsuitable for I/O
+   public:
+      static Version_t Class_Version() { return 0; }
 #endif
 };
 
