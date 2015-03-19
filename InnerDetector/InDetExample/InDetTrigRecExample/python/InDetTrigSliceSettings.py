@@ -71,6 +71,8 @@ class InDetTrigSliceSettingsDB:
       d0seedmax[i] = 4.0
       d0seedppsmax[i] = 1.7
       d0trackinitialmax[i] = 20.0
+    d0seedmax['bphysics'] = 10.0
+    d0seedmax['muon'] = 10.0
 
     d0seedmax['cosmics'] = 1000.0
     d0seedppsmax['cosmics'] = 1000.0
