@@ -122,16 +122,22 @@ StatusCode AsgElectronLikelihoodTool::initialize()
 
   if(!m_configFile.empty()){
     std::string configFile = PathResolverFindCalibFile( m_configFile);
+     if(configFile=="")
+      { 
+	ATH_MSG_ERROR("Could not locate " << m_configFile );
+      } 
     TEnv env(configFile.c_str());
 
     // Get the input PDFs in the tool.
-
-    if(!m_pdfFileName.empty()){  //If the property was set by the user, take that.
-      ATH_MSG_INFO("Setting user specified PDF file " << m_pdfFileName);
-      PDFfilename = m_pdfFileName;
-    }else{
+    ATH_MSG_DEBUG("Get the input PDFs in the tool ");
+    
+    if(!m_pdfFileName.empty())
+      {  //If the property was set by the user, take that.
+	ATH_MSG_INFO("Setting user specified PDF file " << m_pdfFileName);
+	PDFfilename = m_pdfFileName;
+      } else {
       if (m_configFile.find("dev/") != std::string::npos) {
-        
+	
         std::string PDFdevval = env.GetValue("inputPDFFileName", "ElectronPhotonSelectorTools/v1/ElectronLikelihoodPdfs.root");
         PDFfilename = ("dev/"+PDFdevval);
         ATH_MSG_DEBUG ( "Getting the input PDFs from: " << PDFfilename  );
@@ -147,6 +153,9 @@ StatusCode AsgElectronLikelihoodTool::initialize()
       ATH_MSG_ERROR ("Could not find PDF file");
       return StatusCode::FAILURE;
     }
+
+    ATH_MSG_DEBUG("Read in the TEnv config ");
+
     m_rootTool->VariableNames =  env.GetValue("VariableNames","");
     m_rootTool->CutLikelihood = AsgConfigHelper::HelperDouble("CutLikelihood",env);
     m_rootTool->CutLikelihoodPileupCorrection = AsgConfigHelper::HelperDouble("CutLikelihoodPileupCorrection", env);

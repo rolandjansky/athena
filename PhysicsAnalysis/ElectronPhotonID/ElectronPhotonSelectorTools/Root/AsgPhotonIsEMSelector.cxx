@@ -251,9 +251,15 @@ StatusCode AsgPhotonIsEMSelector::initialize()
     //find the file and read it in
 
     std::string filename = PathResolverFindCalibFile( m_configFile);
+    if(filename=="")
+      { 
+	ATH_MSG_ERROR("Could not locate " << m_configFile );
+      } 
+    
     TEnv env(filename.c_str());
    
     ///------- Read in the TEnv config ------///
+    ATH_MSG_DEBUG("Read in the TEnv config ");
     //Override the mask via the config only if it is not set     
     if(m_rootTool->isEMMask==egammaPID::EgPidUndefined){ 
       unsigned int mask(env.GetValue("isEMMask",static_cast<int>(egammaPID::EgPidUndefined)));
@@ -295,10 +301,12 @@ StatusCode AsgPhotonIsEMSelector::initialize()
     m_rootTool->CutminEp_photonsConverted                 =AsgConfigHelper::HelperFloat("CutminEp_photonsConverted",env);
     m_rootTool->CutmaxEp_photonsConverted                 =AsgConfigHelper::HelperFloat("CutmaxEp_photonsConverted",env);
     m_rootTool->CutF3_photonsConverted                    =AsgConfigHelper::HelperFloat("CutF3_photonsConverted",env);
+  } else {
+    ATH_MSG_INFO("Conf file empty. Just user Input");
   }
-
+  
   ATH_MSG_INFO("operating point : " << this->getOperatingPointName());
-
+  
   // We need to initialize the underlying ROOT TSelectorTool
   if ( 0 == m_rootTool->initialize() )
     {

@@ -205,10 +205,14 @@ StatusCode AsgElectronIsEMSelector::initialize()
   // The standard status code
   StatusCode sc = StatusCode::SUCCESS ;
 
-  if(!m_configFile.empty()){
+  if(!m_configFile.empty()) {
     
     //find the file and read it in
     std::string filename = PathResolverFindCalibFile( m_configFile);
+    if(filename=="")
+      { 
+	ATH_MSG_ERROR("Could not locate " << m_configFile );
+      } 
     TEnv env(filename.c_str());
     
     ///------- Read in the TEnv config ------///
@@ -219,6 +223,7 @@ StatusCode AsgElectronIsEMSelector::initialize()
       m_rootTool->isEMMask=mask;
     }
     //
+    ATH_MSG_DEBUG("Read in the TEnv config ");
     //From here on the conf ovverides all other properties
     bool useTRTOutliers(env.GetValue("useTRTOutliers", true));
     m_rootTool->useTRTOutliers =useTRTOutliers;
