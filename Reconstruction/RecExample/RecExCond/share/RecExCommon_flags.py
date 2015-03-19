@@ -92,7 +92,7 @@ AthenaCommonFlags = {
 
 #FIXME testing isDefault is non standard. People should lock it if they want to set their value.
 if athenaCommonFlags.PoolRDOInput.isDefault():
-   athenaCommonFlags.PoolRDOInput=["LFN:top_GEO-20-00-01.pool.root"]
+   athenaCommonFlags.PoolRDOInput=["LFN:top_default.pool.root"]
 if athenaCommonFlags.BSRDOInput.isDefault():
    athenaCommonFlags.BSRDOInput=["./dc2_mixing_all_phys_0003621_file100002.data"]
 
@@ -101,7 +101,7 @@ if athenaCommonFlags.BSRDOInput.isDefault():
 # be careful that default value are in fact overriden by new flags
 RecExCommonFlags = {
       'BSRDOInput' :      ["./dc2_mixing_all_phys_0003621_file100002.data"],
-      'PoolRDOInput' :  ["LFN:top_GEO-20-00-01.pool.root"], # input RDO file 
+      'PoolRDOInput' :  ["LFN:top_default.pool.root"], # input RDO file 
       'BSRDOOutput' : "", # BS output file name
       # (LFN for logical file name, otherwise specify full path (preceded by rfio: for castor files)
       # see RecExCommon_links_zc.sh for a few more test files
