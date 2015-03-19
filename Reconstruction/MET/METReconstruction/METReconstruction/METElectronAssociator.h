@@ -61,6 +61,7 @@ namespace met{
     StatusCode extractTracks(const xAOD::IParticle* obj,
 			     std::vector<const xAOD::IParticle*>& constlist,
 			     const xAOD::CaloClusterContainer* tcCont,
+			     const xAOD::TrackParticleContainer* trkCont,
 			     const xAOD::Vertex* pv) final;
 
     private:

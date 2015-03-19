@@ -105,7 +105,7 @@ namespace met {
       if(pv) {
 	for(const auto& trk : *uniqueTracks) {
 	  ATH_MSG_VERBOSE("Test core track with pt " << trk->pt());
-	  if(acceptTrack(static_cast<const TrackParticle*>(trk),pv) && isGoodEoverP(static_cast<const TrackParticle*>(trk),tcCont)) {
+	  if(acceptTrack(static_cast<const TrackParticle*>(trk),pv) && isGoodEoverP(static_cast<const TrackParticle*>(trk),tcCont,pv,trkCont)) {
 	  //if(acceptTrack(static_cast<const TrackParticle*>(trk),pv)) {
 	    ATH_MSG_VERBOSE("Add core track with pt " << trk->pt());
 	    *metCoreTrk += trk;

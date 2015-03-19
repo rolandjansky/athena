@@ -61,6 +61,7 @@ namespace met{
     StatusCode extractTracks(const xAOD::IParticle*,
 			     std::vector<const xAOD::IParticle*>&,
 			     const xAOD::CaloClusterContainer*,
+			     const xAOD::TrackParticleContainer*,
 			     const xAOD::Vertex*){return StatusCode::FAILURE;} // should not be called
     StatusCode extractTopoClusters(const xAOD::IParticle*,
 				   std::vector<const xAOD::IParticle*>&,

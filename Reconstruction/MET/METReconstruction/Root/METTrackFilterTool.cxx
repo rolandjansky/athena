@@ -57,7 +57,7 @@ namespace met {
     // declareProperty( "TrackD0Max",      m_trk_d0Max = 1.5                    );
     // declareProperty( "TrackZ0Max",      m_trk_z0Max = 1.5                    );
     declareProperty( "InputPVKey",        m_pv_inputkey = "PrimaryVertices" );
-    declareProperty( "DoEoverPSel",       m_trk_doEoverPsel = false             );
+    declareProperty( "DoEoverPSel",       m_trk_doEoverPsel = true             );
     declareProperty( "InputClusterKey",   m_cl_inputkey = "CaloCalTopoClusters" );
     declareProperty( "InputElectronKey",  m_el_inputkey = "Electrons"       );
     declareProperty( "InputMuonKey",      m_mu_inputkey = "Muons"           );
@@ -116,12 +116,15 @@ namespace met {
   // }
 
   bool METTrackFilterTool::isGoodEoverP(const xAOD::TrackParticle* trk,
-					const std::vector<const xAOD::IParticle*>& trkList,
-					const xAOD::CaloClusterContainer* clusters) const {
+					const std::vector<const xAOD::TrackParticle*>& trkList) const {
 
     if( (fabs(trk->eta())<1.5 && trk->pt()>200e3) ||
     	(fabs(trk->eta())>=1.5 && trk->pt()>120e3) ) {
-
+      const xAOD::CaloClusterContainer* clusters(0);
+      if(evtStore()->retrieve(clusters,m_cl_inputkey).isFailure()) { 
+	  ATH_MSG_WARNING("Failed to retrieve cluster container"); 
+	  return true;
+      }
       // Get relative error on qoverp
       float Rerr = Amg::error(trk->definingParametersCovMatrix(),4)/fabs(trk->qOverP());
       ATH_MSG_VERBOSE( "Track momentum error (%): " << Rerr*100 );
@@ -293,7 +296,7 @@ namespace met {
       // Could/should use common implementation of addToMET here -- derive builder and refiner from a common base tool?
       bool passFilters = true;
       //      if(m_trk_doPVsel && !isPVTrack(trk,(*vxCont)[0])) passFilters = false;
-      //      if(m_trk_doEoverPsel && !isGoodEoverP(trk,softTracks,cl_cont)) passFilters = false;
+      if(m_trk_doEoverPsel && !isGoodEoverP(trk,softTracks)) passFilters = false;
       if(m_trk_doPVsel) {
 	if(!(m_trkseltool->accept( *trk, pv ))) passFilters=false;
       } else {

@@ -86,6 +86,7 @@ namespace met {
   StatusCode METPhotonAssociator::extractTracks(const xAOD::IParticle* obj,
 						std::vector<const xAOD::IParticle*>& constlist,
 						const xAOD::CaloClusterContainer* tcCont,
+						const xAOD::TrackParticleContainer* trkCont,
 					        const xAOD::Vertex* pv)
   {
     const xAOD::Photon *ph = static_cast<const xAOD::Photon*>(obj);
@@ -97,7 +98,7 @@ namespace met {
 	//   ATH_MSG_VERBOSE("Invalid photon trackparticle pointer");
 	// }
 	const xAOD::TrackParticle* phtrk = xAOD::EgammaHelpers::getOriginalTrackParticleFromGSF(phvx->trackParticle(iTrk));
-	if(acceptTrack(phtrk,pv) && isGoodEoverP(phtrk,tcCont)) {
+	if(acceptTrack(phtrk,pv) && isGoodEoverP(phtrk,tcCont,pv,trkCont)) {
 	  //if(acceptTrack(phtrk,pv)) {
 	  bool duplicate = false;
 	  for(const auto& gamtrk : phtrks) {
