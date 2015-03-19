@@ -466,6 +466,7 @@ TriggerHLTList = [
     ('TrigRoiDescriptor#HLT_forID',                                       'BS ESD AODFULL AODSLIM', 'Tracking'),
     ('TrigRoiDescriptor#HLT_forID1',                                      'BS ESD AODFULL AODSLIM', 'Tracking'),
     ('TrigRoiDescriptor#HLT_forID2',                                      'BS ESD AODFULL AODSLIM', 'Tracking'),
+    ('TrigRoiDescriptor#HLT_forID3',                                      'BS ESD AODFULL AODSLIM', 'Tracking'),
     ('TrigRoiDescriptor#HLT_forMS',                                       'BS ESD AODFULL AODSLIM', 'Muon'),
     ('TrigRoiDescriptor#HLT_initialRoI',                                  'BS ESD AODFULL AODSLIM', 'Steer'),
     ('TrigRoiDescriptor#HLT_secondaryRoI_L2',                             'BS ESD AODFULL AODSLIM', 'Steer'),
@@ -734,7 +735,7 @@ TriggerIDTruth= [
 
 EDMDetails = {}
 
-EDMDetails[ "TrigRoiDescriptor" ]         = {'persistent':"TrigRoiDescriptorCollection_p2",     'typealias':'Roi', 'collection':'TrigRoiDescriptorCollection' }
+EDMDetails[ "TrigRoiDescriptor" ]         = {'persistent':"TrigRoiDescriptorCollection_p3",     'typealias':'Roi', 'collection':'TrigRoiDescriptorCollection' }
 #EDMDetails[ "TrigRoiDescriptor" ]         = {'persistent':"TrigRoiDescriptorCollection_tlp1",     'typealias':'Roi', 'collection':'TrigRoiDescriptorCollection' }
 EDMDetails[ "TrigOperationalInfo" ]       = {'persistent':"TrigOperationalInfoCollection_tlp1",   'typealias':'', 'collection':'TrigOperationalInfoCollection' }    
 EDMDetails[ "TrigMonConfig" ]             = {'persistent':"TrigMonConfigCollection_tlp1",         'typealias':'', 'collection':'TrigMonConfigCollection' }
