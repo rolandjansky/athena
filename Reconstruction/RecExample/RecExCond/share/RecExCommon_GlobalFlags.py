@@ -99,8 +99,15 @@ if 'DetDescrVersion' in dir() and rec.oldFlagTopSteering:
    globalflags.DetDescrVersion=DetDescrVersion
 else:
    if globalflags.DetDescrVersion.isDefault():
-      globalflags.DetDescrVersion="ATLAS-GEO-20-00-01"
-      globalflags.ConditionsTag="OFLCOND-SDR-BS7T-04-13"
+      import os
+      import os.path as osp
+      newfile = '/afs/cern.ch/atlas/project/rig/referencefiles/MC/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.e3099_s2578/RDO.04919495._000958_10evt.pool.root'
+      if osp.isfile(newfile):
+         # new file exists
+         globalflags.DetDescrVersion="ATLAS-R2-2015-03-01-00"
+      else:
+         globalflags.DetDescrVersion="ATLAS-GEO-20-00-01"
+      globalflags.ConditionsTag="OFLCOND-RUN12-SDR-25"
 
 # delee DetDescrVersion if required
 if 'DetDescrVersion' in dir():
