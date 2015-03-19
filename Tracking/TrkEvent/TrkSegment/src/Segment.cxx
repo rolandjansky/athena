@@ -15,12 +15,12 @@ unsigned int Trk::Segment::s_numberOfInstantiations=0;
 Trk::Segment::Segment()
     :
     Trk::MeasurementBase(),
-    m_fitQuality(0),
-     m_containedMeasBases(0),
+    m_fitQuality(nullptr),
+     m_containedMeasBases(nullptr),
      m_author(AuthorUnknown)
 {
 #ifndef NDEBUG
-  s_numberOfInstantiations++; // new Segement, so increment total count
+  s_numberOfInstantiations++; // new Segment, so increment total count
 #endif
 }
 
@@ -28,7 +28,7 @@ Trk::Segment::Segment()
 Trk::Segment::Segment(const Trk::Segment& seg)
     :
     Trk::MeasurementBase(seg),
-    m_fitQuality(seg.m_fitQuality ? seg.m_fitQuality->clone() : 0),
+    m_fitQuality(seg.m_fitQuality ? seg.m_fitQuality->clone() : nullptr),
     m_author( seg.m_author)
 {
     m_containedMeasBases = new DataVector<const Trk::MeasurementBase>;
@@ -37,7 +37,7 @@ Trk::Segment::Segment(const Trk::Segment& seg)
     for (; rotIter!=rotEnd; ++rotIter)
        m_containedMeasBases->push_back((*rotIter)->clone());
 #ifndef NDEBUG
-  s_numberOfInstantiations++; // new Segement, so increment total count
+  s_numberOfInstantiations++; // new Segment, so increment total count
 #endif
 }
 
@@ -55,37 +55,38 @@ Trk::Segment::Segment(const Trk::LocalParameters& locpars,
     m_author(author)
 {
 #ifndef NDEBUG
-  s_numberOfInstantiations++; // new Segement, so increment total count
+  s_numberOfInstantiations++; // new Segment, so increment total count
 #endif
 }
 
 // destructor - child save
 Trk::Segment::~Segment()
 {
-   delete m_fitQuality; m_fitQuality                = 0;
-   delete m_containedMeasBases; m_containedMeasBases= 0;
+   delete m_fitQuality; m_fitQuality                = nullptr;
+   delete m_containedMeasBases; m_containedMeasBases= nullptr;
 #ifndef NDEBUG
-   s_numberOfInstantiations--; // delete Segement, so decrement total count
+   s_numberOfInstantiations--; // delete Segment, so decrement total count
 #endif
 }
 
 
-// assignmnet operator
+// assignment operator
 Trk::Segment& Trk::Segment::operator=(const Trk::Segment& seg)
 {
   if (this!=&seg){
     delete m_fitQuality;
     delete m_containedMeasBases;
     Trk::MeasurementBase::operator=(seg);
-    m_fitQuality         = seg.m_fitQuality ? seg.m_fitQuality->clone() : 0;
+    m_fitQuality         = seg.m_fitQuality ? seg.m_fitQuality->clone() : nullptr;
     
     m_containedMeasBases = new DataVector<const Trk::MeasurementBase>;
     DataVector<const Trk::MeasurementBase>::const_iterator rotIter = seg.m_containedMeasBases->begin();
     DataVector<const Trk::MeasurementBase>::const_iterator rotEnd  = seg.m_containedMeasBases->end();
-    for (; rotIter!=rotEnd; ++rotIter)
+    for (; rotIter!=rotEnd; ++rotIter){
       m_containedMeasBases->push_back((*rotIter)->clone());
-      m_author = seg.m_author;
     }
+    m_author = seg.m_author;
+  }
   return (*this);
 }
 
@@ -130,7 +131,7 @@ std::string Trk::Segment::dumpAuthor() const
     author = "TRT_SegmentMaker";
     break;
   default:
-    author = "Unrecognised author, enum = " +  m_author;
+    author = "Unrecognised author, enum = " +  std::to_string(m_author);
     break;
   }
   return author;
