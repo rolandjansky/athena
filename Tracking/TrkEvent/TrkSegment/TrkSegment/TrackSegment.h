@@ -20,7 +20,6 @@
 
 #include "DataModel/DataVector.h"
 class MsgStream;
-class TrackSegmentCnv_p1;
 
 namespace Trk{
 
@@ -88,8 +87,6 @@ class FitQuality;
      std::ostream& dump( std::ostream& out ) const;
     
   private:
-    friend class ::TrackSegmentCnv_p1;
-
     /** The surface to which the segment parameters are expressed to */
     mutable const Surface*                  m_associatedSurface;
     /** The surface to which the segment parameters are expressed to */
