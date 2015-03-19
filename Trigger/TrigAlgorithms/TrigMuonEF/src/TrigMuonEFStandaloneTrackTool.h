@@ -192,6 +192,11 @@ class TrigMuonEFStandaloneTrackTool : public AthAlgTool,
   virtual const std::vector<uint32_t>& getTgcRobList( const IRoiDescriptor* muonRoI);
   virtual const std::vector<uint32_t>& getCscRobList( const IRoiDescriptor* muonRoI);
   virtual void clearRoiCache();
+
+  virtual bool useMdtSeededDecoding() {return m_useMdtSeededDecoding;}
+  virtual bool useRpcSeededDecoding() {return m_useRpcSeededDecoding;}
+  virtual bool useTgcSeededDecoding() {return m_useTgcSeededDecoding;}
+  virtual bool useCscSeededDecoding() {return m_useCscSeededDecoding;}
   
  private:
 
@@ -296,8 +301,17 @@ class TrigMuonEFStandaloneTrackTool : public AthAlgTool,
   bool m_useTGCInPriorNextBC;
   unsigned int m_useMdtData;
 
-  bool   m_useRoIDrivenDataAccess;
-  bool   m_RobBasedRoiDecoding;
+
+  // decoding options
+  bool m_useMdtSeededDecoding;
+  bool m_useRpcSeededDecoding;
+  bool m_useTgcSeededDecoding;
+  bool m_useCscSeededDecoding;
+  bool m_useMdtRobDecoding;
+  bool m_useRpcRobDecoding;
+  bool m_useTgcRobDecoding;
+  bool m_useCscRobDecoding;
+  
   //  timeout awareness
   bool m_doTimeOutChecks;
 

@@ -362,8 +362,19 @@ class TrigMuonEFSegmentFinderCosmicConfig (TrigMuonEFSegmentFinder):
         self.SegmentsFinderTool = MooSegmentCombinationFinder("SegmentsFinderToolCosmic",
                                                              WriteIntermediateResults = False
                                                              )
+        
+        # use seeded decoding
         if (TriggerFlags.MuonSlice.doEFRoIDrivenAccess()):
-            self.useRoIDrivenDataAccess  = True
+            self.useMdtSeededDecoding = True
+            self.useRpcSeededDecoding = True
+            self.useTgcSeededDecoding = True
+            self.useCscSeededDecoding = False # turned off for now, see ATR-10235
+            
+            # use ROB based seeded decoding instead of PRD based
+            self.useMdtRobDecoding = True
+            self.useRpcRobDecoding = True
+            self.useTgcRobDecoding = False # neither available nor needed
+            self.useCscRobDecoding = False # not available, see ATR-10235
             
 
         self.SegmentsFinderTool.HoughPatternFinder.RecordAll = False

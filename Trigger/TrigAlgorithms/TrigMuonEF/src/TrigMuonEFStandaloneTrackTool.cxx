@@ -102,8 +102,14 @@ TrigMuonEFStandaloneTrackTool::TrigMuonEFStandaloneTrackTool(const std::string& 
     m_useTgcData(true), 
     m_useTGCInPriorNextBC(false),
     m_useMdtData(1),    //0=NO, 1=ALL(default), 2=BarrelOnly, 3=EndCapsOnly
-    m_useRoIDrivenDataAccess(false),
-    m_RobBasedRoiDecoding(false),
+    m_useMdtSeededDecoding(false),
+    m_useRpcSeededDecoding(false),
+    m_useTgcSeededDecoding(false),
+    m_useCscSeededDecoding(false),
+    m_useMdtRobDecoding(false),
+    m_useRpcRobDecoding(false),
+    m_useTgcRobDecoding(false),
+    m_useCscRobDecoding(false),
     m_doTimeOutChecks(false),
     m_doTimeOutGuard(false),
     m_maxCscHits(0),
@@ -155,8 +161,15 @@ TrigMuonEFStandaloneTrackTool::TrigMuonEFStandaloneTrackTool(const std::string& 
   declareProperty("useTGCInPriorNextBC", m_useTGCInPriorNextBC);
   declareProperty("useCscData",          m_useCscData );
     
-  declareProperty("useRoIDrivenDataAccess",  m_useRoIDrivenDataAccess);
-  declareProperty("useRobBasedRoiDecoding",  m_RobBasedRoiDecoding);
+    
+  declareProperty("useMdtSeededDecoding",    m_useMdtSeededDecoding );
+  declareProperty("useRpcSeededDecoding",    m_useRpcSeededDecoding );
+  declareProperty("useTgcSeededDecoding",    m_useTgcSeededDecoding );
+  declareProperty("useCscSeededDecoding",    m_useCscSeededDecoding );
+  declareProperty("useMdtRobDecoding",       m_useMdtRobDecoding );
+  declareProperty("useRpcRobDecoding",       m_useRpcRobDecoding );
+  declareProperty("useTgcRobDecoding",       m_useTgcRobDecoding );
+  declareProperty("useCscRobDecoding",       m_useCscRobDecoding );
 
   declareProperty("doTimeOutChecks",m_doTimeOutChecks);    
   declareProperty("doTimeOutGuard",m_doTimeOutGuard);
@@ -226,9 +239,21 @@ StatusCode TrigMuonEFStandaloneTrackTool::initialize()
     msg() << MSG::DEBUG
 	  << "useCscData                     " << m_useCscData << endreq;
     msg() << MSG::DEBUG
-	  << "useRoIDrivenDataAccess         " << m_useRoIDrivenDataAccess << endreq;
+	  << "useMdtSeededDecoding           " << m_useMdtSeededDecoding << endreq;
     msg() << MSG::DEBUG
-	  << "useRobBasedRoiDecoding         " << m_RobBasedRoiDecoding << endreq;
+	  << "useRpcSeededDecoding           " << m_useRpcSeededDecoding << endreq;
+    msg() << MSG::DEBUG
+	  << "useTgcSeededDecoding           " << m_useTgcSeededDecoding << endreq;
+    msg() << MSG::DEBUG
+	  << "useCscSeededDecoding           " << m_useCscSeededDecoding << endreq;
+    msg() << MSG::DEBUG
+	  << "useMdtRobDecoding           " << m_useMdtRobDecoding << endreq;
+    msg() << MSG::DEBUG
+	  << "useRpcRobDecoding           " << m_useRpcRobDecoding << endreq;
+    msg() << MSG::DEBUG
+	  << "useTgcRobDecoding           " << m_useTgcRobDecoding << endreq;
+    msg() << MSG::DEBUG
+	  << "useCscRobDecoding           " << m_useCscRobDecoding << endreq;
 
     msg() << MSG::DEBUG
 	  << "doTimeOutChecks                " << m_doTimeOutChecks << endreq;
@@ -708,9 +733,7 @@ HLT::ErrorCode TrigMuonEFStandaloneTrackTool::findSegments(const IRoiDescriptor*
     if ( muonRoI ) m_regionSelector->DetHashIDList(RPC, *muonRoI, rpc_hash_ids);
     else           m_regionSelector->DetHashIDList(RPC, rpc_hash_ids);
   }
-
-
-  ATH_MSG_DEBUG("rpc hash_ids size: "<<rpc_hash_ids.size());
+  
   
   std::vector<IdentifierHash>  tgc_hash_ids;
   std::vector<IdentifierHash>  tgc_hash_ids_cache;
@@ -792,21 +815,25 @@ if (m_useMdtData>0) {
     }
   
   
-  // prepare the data if PrepDataProviders have to be used
+  // perform the data decoding
+  
   std::vector<IdentifierHash> hash_ids_withData;
-  if (m_useRoIDrivenDataAccess) {
-    if (m_useRpcData && !rpc_hash_ids.empty()) {
-      if(m_RobBasedRoiDecoding) { // if ROB based decoding
+  
+  if (m_useRpcData && !rpc_hash_ids.empty()) {// RPC decoding
+    if (m_useRpcSeededDecoding) {// seeded decoding of RPC
+      if (m_useRpcRobDecoding) {// ROB-based seeded decoding of RPC
+        
         if (m_rpcPrepDataProvider->decode( getRpcRobList(muonRoI) ).isSuccess()) {
-          ATH_MSG_DEBUG("ROB based decoding of RPC done successfully");
+          ATH_MSG_DEBUG("ROB-based seeded decoding of RPC done successfully");
         } else {
-          ATH_MSG_WARNING("ROB based decoding of RPC failed");
+          ATH_MSG_WARNING("ROB-based seeded decoding of RPC failed");
         }
-      } // end if ROB based decoding
-      else { // if PRD hashId based decoding
-
+        
+      }
+      else {// PRD-based seeded decoding of RPC
+        
         if(m_rpcPrepDataProvider->decode(rpc_hash_ids, hash_ids_withData).isSuccess()) {
-          ATH_MSG_DEBUG("PRD HashId based decoding of RPC done successfully");
+          ATH_MSG_DEBUG("PRD-based seeded decoding of RPC done successfully");
 #if DEBUG_ROI_VS_FULL
           sanity_check(rpc_hash_ids, hash_ids_withData, m_fileWithHashIds_rpc);
 #endif
@@ -816,22 +843,43 @@ if (m_useMdtData>0) {
           //rpc_hash_ids = hash_ids_withData;
           //if (msgLvl(MSG::DEBUG)) msg() << MSG::DEBUG << "RpcHashId vector resized to " << rpc_hash_ids.size() << endreq;
         } else {
-          ATH_MSG_WARNING("PRD HashId based decoding of RPC failed");
+          ATH_MSG_WARNING("PRD-based seeded decoding of RPC failed");
         }
-      } // end if PRD hashId based decoding
+        
+      }
     }
-    
-    if (m_useMdtData && !mdt_hash_ids.empty()) {
-      if(m_RobBasedRoiDecoding) { // if ROB based decoding
+    else {// full decoding of RPC
+      
+      std::vector<IdentifierHash> input_hash_ids;
+      input_hash_ids.reserve(0);
+      if(m_rpcPrepDataProvider->decode(input_hash_ids, hash_ids_withData).isSuccess()) {
+        ATH_MSG_DEBUG("PRD-based full decoding of RPC done successfully");
+#if DEBUG_ROI_VS_FULL
+        sanity_check(input_hash_ids, hash_ids_withData, m_fileWithHashIds_rpc);
+#endif
+      } else {
+        ATH_MSG_WARNING("PRD-based full decoding of RPC failed");
+      }
+      
+    }
+  }// end of RPC decoding
+  
+  
+  if (m_useMdtData && !mdt_hash_ids.empty()) {// MDT decoding
+    if (m_useMdtSeededDecoding) {// seeded decoding of MDT
+      if (m_useMdtRobDecoding) {// ROB-based seeded decoding of MDT
+        
         if (m_mdtPrepDataProvider->decode( getMdtRobList(muonRoI) ).isSuccess()) {
-          ATH_MSG_DEBUG("ROB based decoding of MDT done successfully");
+          ATH_MSG_DEBUG("ROB-based seeded decoding of MDT done successfully");
         } else {
-          ATH_MSG_WARNING("ROB based decoding of MDT failed");
+          ATH_MSG_WARNING("ROB-based seeded decoding of MDT failed");
         }
-      } // end if ROB based decoding
-      else { // if PRD hashId based decoding
-        if (m_mdtPrepDataProvider->decode(mdt_hash_ids, hash_ids_withData).isSuccess()) {
-          ATH_MSG_DEBUG("PRD HashId based decoding of MDT done successfully");
+        
+      }
+      else {// PRD-based seeded decoding of MDT
+        
+        if(m_mdtPrepDataProvider->decode(mdt_hash_ids, hash_ids_withData).isSuccess()) {
+          ATH_MSG_DEBUG("PRD-based seeded decoding of MDT done successfully");
 #if DEBUG_ROI_VS_FULL
           sanity_check(mdt_hash_ids, hash_ids_withData, m_fileWithHashIds_mdt);
 #endif
@@ -840,15 +888,37 @@ if (m_useMdtData>0) {
           mdt_hash_ids = hash_ids_withData;
           ATH_MSG_DEBUG("MdtHashId vector resized to " << mdt_hash_ids.size());
         } else {
-          ATH_MSG_WARNING("PRD HashId based decoding of MDT failed");
+          ATH_MSG_WARNING("PRD-based seeded decoding of RPC failed");
         }
-      } // end if PRD hashId based decoding
+        
+      }
     }
-    
-    if (m_useTgcData && !tgc_hash_ids.empty()) {
-      if (m_RobBasedRoiDecoding) ATH_MSG_DEBUG("ROB based decoding of TGC is not implemented. Calling PRD hashId based decoding.");
+    else {// full decoding of MDT
+      
+      std::vector<IdentifierHash> input_hash_ids;
+      input_hash_ids.reserve(0);
+      if(m_mdtPrepDataProvider->decode(input_hash_ids, hash_ids_withData).isSuccess()) {
+        ATH_MSG_DEBUG("PRD-based full decoding of MDT done successfully");
+#if DEBUG_ROI_VS_FULL
+        sanity_check(input_hash_ids, hash_ids_withData, m_fileWithHashIds_mdt);
+#endif
+      } else {
+        ATH_MSG_WARNING("PRD-based full decoding of MDT failed");
+      }
+      
+    }
+  }// end of MDT decoding
+  
+  
+  if (m_useTgcData && !tgc_hash_ids.empty()) {// TGC decoding
+    if (m_useTgcSeededDecoding) {// seeded decoding of TGC
+      
+      if (m_useTgcRobDecoding) {// ROB-based seeded decoding of TGC is neither available nor needed
+        ATH_MSG_DEBUG("ROB-based seeded decoding of TGC requested, which is neither available nor needed. Calling the PRD-based seeded decoding.");
+      }
+      
       if (m_tgcPrepDataProvider->decode(tgc_hash_ids, hash_ids_withData).isSuccess()) {
-        ATH_MSG_DEBUG("PRD HashId based decoding of TGC done successfully");
+        ATH_MSG_DEBUG("PRD-based seeded decoding of TGC done successfully");
 #if DEBUG_ROI_VS_FULL
         sanity_check(tgc_hash_ids, hash_ids_withData, m_fileWithHashIds_tgc);
 #endif
@@ -857,15 +927,37 @@ if (m_useMdtData>0) {
         tgc_hash_ids = hash_ids_withData;
         ATH_MSG_DEBUG("TgcHashId vector resized to " << tgc_hash_ids.size());
       } else {
-        ATH_MSG_WARNING("PRD HashId based decoding of TGC failed");
+        ATH_MSG_WARNING("PRD-based seeded decoding of TGC failed");
       }
+      
     }
-    
-    if (m_useCscData && !csc_hash_ids.empty()) {
-      if (m_RobBasedRoiDecoding) ATH_MSG_DEBUG("ROB based decoding of CSC is not implemented. Calling PRD hashId based decoding.");
-      // get prd
+    else {// full decoding of TGC
+      
+      std::vector<IdentifierHash> input_hash_ids;
+      input_hash_ids.reserve(0);
+      if(m_tgcPrepDataProvider->decode(input_hash_ids, hash_ids_withData).isSuccess()) {
+        ATH_MSG_DEBUG("PRD-based full decoding of TGC done successfully");
+#if DEBUG_ROI_VS_FULL
+        sanity_check(input_hash_ids, hash_ids_withData, m_fileWithHashIds_tgc);
+#endif
+      } else {
+        ATH_MSG_WARNING("PRD-based full decoding of TGC failed");
+      }
+      
+    }
+  }// end of TGC decoding
+  
+  
+  if (m_useCscData && !csc_hash_ids.empty()) {// CSC decoding
+    if (m_useCscSeededDecoding) {// seeded decoding of CSC
+      
+      if (m_useCscRobDecoding) {// ROB-based seeded decoding of CSC is not available
+        ATH_MSG_DEBUG("ROB-based seeded decoding of CSC requested, which is not available. Calling the PRD-based seeded decoding.");
+      }
+      
+      // get PRD
       if (m_cscPrepDataProvider->decode(csc_hash_ids, hash_ids_withData).isSuccess()) {
-        ATH_MSG_DEBUG("PRD HashId based decoding of CSC done successfully");
+        ATH_MSG_DEBUG("PRD-based seeded decoding of CSC done successfully");
 #if DEBUG_ROI_VS_FULL
         sanity_check(csc_hash_ids, hash_ids_withData, m_fileWithHashIds_csc);
 #endif
@@ -874,9 +966,9 @@ if (m_useMdtData>0) {
         csc_hash_ids = hash_ids_withData;
         ATH_MSG_DEBUG("CscHashId vector resized to " << csc_hash_ids.size());
       } else {
-        ATH_MSG_WARNING("PRD HashId based decoding of CSC failed");
+        ATH_MSG_WARNING("PRD-based seeded decoding of CSC failed");
       }
-      // get now clusters out of prd
+      // get clusters out of PRD
       if (m_cscClusterProvider->getClusters(csc_hash_ids, hash_ids_withData).isSuccess()) {
         ATH_MSG_DEBUG("CSC clusters obtained successfully");
         csc_hash_ids.clear();
@@ -885,52 +977,34 @@ if (m_useMdtData>0) {
       } else {
         ATH_MSG_WARNING("Preparing CSC clusters failed");
       }
+      
     }
-  }
-  else
-    {
-      // not RoiDriven - still use the prepdatatools but decode entire event
+    else {// full decoding of CSC
+      
       std::vector<IdentifierHash> input_hash_ids;
       input_hash_ids.reserve(0);
-      if (m_useRpcData && !rpc_hash_ids.empty())
-	{
-	  if (!m_rpcPrepDataProvider->decode(input_hash_ids, hash_ids_withData).isSuccess())
-	    msg() << MSG::WARNING << "Problems when preparing RPC PrepData " << endreq;
-	  ATH_MSG_DEBUG("rpc hash_ids_withData.size(): "<<hash_ids_withData.size());
+      //get PRD
+      if(m_cscPrepDataProvider->decode(input_hash_ids, hash_ids_withData).isSuccess()) {
+        ATH_MSG_DEBUG("PRD-based full decoding of CSC done successfully");
 #if DEBUG_ROI_VS_FULL
-	  sanity_check(rpc_hash_ids, hash_ids_withData, m_fileWithHashIds_rpc);
+        sanity_check(input_hash_ids, hash_ids_withData, m_fileWithHashIds_tgc);
 #endif
-	}
-      if (m_useMdtData && !mdt_hash_ids.empty())
-	{
-	  if (!m_mdtPrepDataProvider->decode(input_hash_ids, hash_ids_withData).isSuccess())
-	    msg() << MSG::WARNING << "Problems when preparing MDT PrepData " << endreq;
-	  ATH_MSG_DEBUG("mdt hash_ids_withData.size(): "<<hash_ids_withData.size());
-#if DEBUG_ROI_VS_FULL
-	  sanity_check(mdt_hash_ids, hash_ids_withData, m_fileWithHashIds_mdt);
-#endif
-	}
-      if (m_useTgcData && !tgc_hash_ids.empty())
-	{
-	  if (!m_tgcPrepDataProvider->decode(input_hash_ids, hash_ids_withData).isSuccess())
-	    msg() << MSG::WARNING << "Problems when preparing TGC PrepData " << endreq;
-	  ATH_MSG_DEBUG("tgc hash_ids_withData.size(): "<<hash_ids_withData.size());
-#if DEBUG_ROI_VS_FULL
-	  sanity_check(tgc_hash_ids, hash_ids_withData, m_fileWithHashIds_tgc);
-#endif
-	}
-      if (m_useCscData && !csc_hash_ids.empty())
-	{
-	  if (!m_cscPrepDataProvider->decode(input_hash_ids, hash_ids_withData).isSuccess())
-	    msg() << MSG::WARNING << "Problems when preparing CSC PrepData " << endreq;
-	  if (!m_cscClusterProvider->getClusters(input_hash_ids, hash_ids_withData).isSuccess())
-	    msg() << MSG::WARNING << "Problems when preparing CSC Clusters " << endreq;
-	  ATH_MSG_DEBUG("csc hash_ids_withData.size(): "<<hash_ids_withData.size());
-#if DEBUG_ROI_VS_FULL
-	  sanity_check(csc_hash_ids, hash_ids_withData, m_fileWithHashIds_csc);
-#endif
-	}
+      } else {
+        ATH_MSG_WARNING("PRD-based full decoding of CSC failed");
+      }
+      //get clusters out of PRD
+      if(m_cscClusterProvider->getClusters(input_hash_ids, hash_ids_withData).isSuccess()) {
+        ATH_MSG_DEBUG("CSC clusters obtained successfully");
+      } else {
+        ATH_MSG_WARNING("Preparing CSC clusters failed");
+      }
+      
     }
+  }// end of CSC decoding
+  
+  // end of data decoding
+  
+  // select non-empty PRD collections for segment finding
   
   // Get RPC container
   if (m_useRpcData>0 && !rpc_hash_ids.empty()) {
