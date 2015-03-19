@@ -8107,6 +8107,7 @@
             <keepFilePattern displayColor="blue">expert-monitoring.root</keepFilePattern>
             <keepFilePattern maxsize="100" displayColor="blue">data*.root</keepFilePattern>
             <keepFilePattern maxsize="100" displayColor="blue">trig_cost*.root</keepFilePattern>
+            <keepFilePattern maxsize="100" displayColor="blue">costMon/TrigCostRoot_Results.root</keepFilePattern>
             <keepFilePattern displayColor="blue">*.root</keepFilePattern>
             <keepFilePattern maxsize="150">TrigInDet*.log</keepFilePattern>
             <keepFilePattern>*.log</keepFilePattern>
