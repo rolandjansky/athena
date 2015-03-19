@@ -144,6 +144,12 @@ class ITrigMuonStandaloneTrackTool : virtual public IAlgTool {
   virtual const std::vector<uint32_t>& getTgcRobList(const IRoiDescriptor*) = 0;
   virtual void clearRoiCache() = 0;
 
+  /** return decoding modes - also used for prepareRobRequests */
+  virtual bool useMdtSeededDecoding() = 0;
+  virtual bool useRpcSeededDecoding() = 0;
+  virtual bool useTgcSeededDecoding() = 0;
+  virtual bool useCscSeededDecoding() = 0;
+
 }; // end class definition
 
 inline const InterfaceID& ITrigMuonStandaloneTrackTool::interfaceID() {
