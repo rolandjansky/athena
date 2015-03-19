@@ -19,7 +19,9 @@
 void MuonTrkPhysMonitoring::bookHistograms_CbMSIDAlign(std::string sPath)
 {
   ATH_MSG_DEBUG("Booking Histograms for bookHistograms_CombinedMSIDAlignement");
-  InitializePlots(m_oCbMSIDAlignPlots, MonGroup(this, sPath, run, ATTRIB_UNMANAGED));
+  MonGroup thePlots = MonGroup(this, sPath, run, ATTRIB_UNMANAGED);
+  InitializePlots(m_oCbMSIDAlignPlots, thePlots);
+//  InitializePlots(m_oCbMSIDAlignPlots, MonGroup(this, sPath, run, ATTRIB_UNMANAGED));
 }
 
 //---------------------------------------------------------------------------------------

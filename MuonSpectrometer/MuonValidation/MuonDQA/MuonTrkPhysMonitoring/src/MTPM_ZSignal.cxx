@@ -18,7 +18,9 @@ using namespace std;
 void MuonTrkPhysMonitoring::bookHistograms_ZSignal(std::string sPath)
 {
   ATH_MSG_DEBUG("Booking Histograms for bookHistograms_ZSignal");
-  InitializePlots(m_oZSignalPlots, MonGroup(this, sPath, run, ATTRIB_UNMANAGED));
+  MonGroup thePlots = MonGroup(this, sPath, run, ATTRIB_UNMANAGED);
+  InitializePlots(m_oZSignalPlots, thePlots);
+//  InitializePlots(m_oZSignalPlots, MonGroup(this, sPath, run, ATTRIB_UNMANAGED));
 }
 
 //---------------------------------------------------------------------------------------

@@ -101,17 +101,21 @@ StatusCode MuonTrkPhysMonitoring::bookHistogramsRecurrent()
 
 			m_log << MSG::DEBUG << "MuonTrkPhysMonitoring::bookHistogramsRecurrent(): New Run" << endreq;
 
-			InitializePlots(m_oOccupancyPlots, MonGroup(this,Form(muonMon_path.c_str(), "TrackingPerformance/General/"),run,ATTRIB_UNMANAGED));
+                        MonGroup forNewRun = MonGroup(this, Form(muonMon_path.c_str(), "TrackingPerformance/General/"), run, ATTRIB_UNMANAGED);
+			InitializePlots(m_oOccupancyPlots, forNewRun);
+			//InitializePlots(m_oOccupancyPlots, MonGroup(this,Form(muonMon_path.c_str(), "TrackingPerformance/General/"),run,ATTRIB_UNMANAGED));
 
 			if ( AthenaMonManager::environment() == AthenaMonManager::online ) { // book histograms that are only made in the online environment...
 
 				m_log << MSG::DEBUG << "MuonTrkPhysMonitoring::bookHistogramsRecurrent(): Initializing Online Plots" << endreq;
 
-				InitializePlots(m_oOnlinePlots, MonGroup(this,Form(muonMon_path.c_str(), "TrackingPerformance/General/"),run,ATTRIB_UNMANAGED));
+				MonGroup forOnline = MonGroup(this, Form(muonMon_path.c_str(), "TrackingPerformance/General/"), run, ATTRIB_UNMANAGED);
+				InitializePlots(m_oOnlinePlots, forOnline);
+			
+				//InitializePlots(m_oOnlinePlots, MonGroup(this,Form(muonMon_path.c_str(), "TrackingPerformance/General/"),run,ATTRIB_UNMANAGED));
 			}
 			else {
 
-				m_log << MSG::DEBUG << "MuonTrkPhysMonitoring::bookHistogramsRecurrent(): Booking Offline Plots" << endreq;
 				m_log << MSG::DEBUG << "MuonTrkPhysMonitoring::bookHistogramsRecurrent(): Booking Offline Plots" << endreq;
 
 				m_log << MSG::DEBUG << "MuonTrkPhysMonitoring::bookHistogramsRecurrent(): Booking MS_ID_Alignment Plots" << endreq;

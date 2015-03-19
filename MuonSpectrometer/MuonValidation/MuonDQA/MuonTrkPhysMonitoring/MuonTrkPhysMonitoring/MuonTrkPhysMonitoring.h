@@ -265,7 +265,7 @@ void Book(TH1* hist, MonGroup& monGroup){
   if(monGroup.regHist(hist).isFailure()) ATH_MSG_ERROR(" Failed to register histogram " << hist->GetName());
 }
 
-void InitializePlots(TrkPhys::PlotBase& oPlots, MonGroup oMonGroup){
+void InitializePlots(TrkPhys::PlotBase& oPlots, MonGroup& oMonGroup){
   oPlots.setTrackCollectionName(m_trackCollectionName);
   oPlots.initialize();
   for (auto histVec : oPlots.retrieveBooked1DHistograms()) Book(histVec, oMonGroup);

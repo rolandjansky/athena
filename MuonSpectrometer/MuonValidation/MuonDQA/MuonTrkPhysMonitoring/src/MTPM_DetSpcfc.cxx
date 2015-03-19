@@ -19,7 +19,9 @@ using namespace std;
 void MuonTrkPhysMonitoring::bookHistograms_DetSpcfc(std::string sPath)
 {
   ATH_MSG_DEBUG("Booking Histograms for bookHistograms_DetSpcfc");
-  InitializePlots(m_oDetSpcfcPlots, MonGroup(this, sPath, run, ATTRIB_UNMANAGED));
+  MonGroup thePlots = MonGroup(this, sPath, run, ATTRIB_UNMANAGED);
+  InitializePlots(m_oDetSpcfcPlots, thePlots);
+//  InitializePlots(m_oDetSpcfcPlots, MonGroup(this, sPath, run, ATTRIB_UNMANAGED));
 }
 
 //---------------------------------------------------------------------------------------

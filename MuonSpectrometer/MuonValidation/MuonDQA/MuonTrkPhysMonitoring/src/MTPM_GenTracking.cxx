@@ -19,7 +19,9 @@ using namespace MuonTrkPhysMonUtils;
 void MuonTrkPhysMonitoring::bookHistograms_GenTracking(std::string sPath)
 {
   ATH_MSG_DEBUG("Booking Histograms for bookHistograms_GenTracking");
-  InitializePlots(m_oGenTrackingPlots, MonGroup(this, sPath, run, ATTRIB_UNMANAGED));
+  MonGroup thePlots = MonGroup(this, sPath, run, ATTRIB_UNMANAGED);
+  InitializePlots(m_oGenTrackingPlots, thePlots);
+//  InitializePlots(m_oGenTrackingPlots, MonGroup(this, sPath, run, ATTRIB_UNMANAGED));
 }
 
 /** fillHistograms */

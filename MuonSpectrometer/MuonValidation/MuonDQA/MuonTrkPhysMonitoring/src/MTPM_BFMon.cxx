@@ -18,7 +18,9 @@ using namespace std;
 void MuonTrkPhysMonitoring::bookHistograms_BFMon(std::string sPath)
 {
   ATH_MSG_DEBUG("MuonTrkPhysMonitoring : Booking: B-Field Mapping");
-  InitializePlots(m_oBFMonPlots, MonGroup(this, sPath, run, ATTRIB_UNMANAGED));
+  MonGroup thePlots = MonGroup(this, sPath, run, ATTRIB_UNMANAGED);
+  InitializePlots(m_oBFMonPlots, thePlots);
+//  InitializePlots(m_oBFMonPlots, MonGroup(this, sPath, run, ATTRIB_UNMANAGED));
 }
 
 //---------------------------------------------------------------------------------------
