@@ -213,6 +213,7 @@ if dumpUngroomed:
   if jetFlags.useTracks():
     names += ["Run2AntiKt4TrackJets"]
     names += ["Run2AntiKt4ZTrackJets"]
+    names += ["Run2AntiKt2PV0TrackJets"]
     names += ["Run2AntiKt3PV0TrackJets"]
     names += ["Run2AntiKt4PV0TrackJets"]
   names += ["Run2AntiKt4EMTopoJets"]

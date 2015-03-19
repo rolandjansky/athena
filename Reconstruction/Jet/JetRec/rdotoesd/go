@@ -34,5 +34,9 @@ ls -ls AOD.pool.root*
 echo
 echo
 echo AOD Jet contents
+echo
+echo Old:
 cat jetcollections.log.ref
+echo
+echo New:
 cat jetcollections.log

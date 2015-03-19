@@ -1,12 +1,12 @@
-Thu Mar 12 16:43:36 CET 2015
+Thu Mar 19 16:13:42 CET 2015
 Preloading tcmalloc_minimal.so
 Py:Athena            INFO including file "AthenaCommon/Preparation.py"
-Py:Athena            INFO using release [AtlasProduction-20.1.3.4] [x86_64-slc6-gcc48-opt] [20.1.3.Y-VAL-Prod/rel_4] -- built on [2015-03-11 21:43]
+Py:Athena            INFO using release [AtlasProduction-20.1.3.4] [x86_64-slc6-gcc48-opt] [20.1.3.Y-VAL-Prod/rel_3] -- built on [2015-03-17 21:41]
 Py:Athena            INFO including file "AthenaCommon/Bootstrap.py"
 Py:Athena            INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
 Py:Athena            INFO including file "AthenaCommon/Execution.py"
 Py:Athena            INFO including file "cpjets.py"
-Py:ConfigurableDb    INFO Read module info for 4699 configurables from 11 genConfDb files
+Py:ConfigurableDb    INFO Read module info for 4714 configurables from 11 genConfDb files
 Py:ConfigurableDb WARNING Found 3 duplicates among the 11 genConfDb files :
 Py:ConfigurableDb WARNING --------------------------------------------------
 Py:ConfigurableDb WARNING   -<component name>: <module> - [ <duplicates> ]
@@ -64,6 +64,8 @@ JetRecStandardToolManager.py: jetFlags.skipTools: []
 <class 'ParticleJetTools.ParticleJetToolsConf.Analysis__JetQuarkLabel'>
 <class 'ParticleJetTools.ParticleJetToolsConf.Analysis__JetConeLabeling'>
 <class 'ParticleJetTools.ParticleJetToolsConf.Analysis__JetPartonTruthLabel'>
+<class 'ParticleJetTools.ParticleJetToolsConf.ParticleJetDeltaRLabelTool'>
+<class 'ParticleJetTools.ParticleJetToolsConf.ParticleJetDeltaRLabelTool'>
 <class 'JetRec.JetRecConf.JetFromPseudojet'>
 <class 'JetRec.JetRecConf.JetFromPseudojet'>
 <class 'JetMomentTools.JetMomentToolsConf.JetCaloQualityTool'>
@@ -343,7 +345,7 @@ Py:Athena            INFO including file "AthenaCommon/runbatch.py"
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
                                                    Welcome to ApplicationMgr (GaudiCoreSvc v3r1)
-                                          running on lxplus0142.cern.ch on Thu Mar 12 16:43:40 2015
+                                          running on lxplus0008.cern.ch on Thu Mar 19 16:13:58 2015
 ====================================================================================================================================
 ApplicationMgr       INFO Successfully loaded modules : AthenaServices
 ApplicationMgr       INFO Application Manager Configured successfully
@@ -576,13 +578,13 @@ PoolSvc                                              INFO Set connectionsvc retr
 PoolSvc                                              INFO Frontier compression level set to 5
 DBReplicaSvc                                         INFO Frontier server at (serverurl=http://atlasfrontier-ai.cern.ch:8000/atlr)(serverurl=http://aiatlas036.cern.ch:8000/atlr)(serverurl=http://aiatlas034.cern.ch:8000/atlr)(serverurl=http://ccfrontier.in2p3.fr:23128/ccin2p3-AtlasFrontier)(serverurl=http://ccsqfatlasli02.in2p3.fr:23128/ccin2p3-AtlasFrontier)(serverurl=http://ccsqfatlasli01.in2p3.fr:23128/ccin2p3-AtlasFrontier)(proxyurl=http://ca-proxy.cern.ch:3128)(proxyurl=http://ca18.cern.ch:3128)(proxyurl=http://ca17.cern.ch:3128)(proxyurl=http://atlast0fsquid.cern.ch:3128)(proxyurl=http://atlassquid1.cern.ch:3128)(proxyurl=http://atlassquid2.cern.ch:3128)(proxyurl=http://atlassquid4.cern.ch:3128) will be considered for COOL data
 DBReplicaSvc                                         INFO Read replica configuration from /cvmfs/atlas.cern.ch/repo/sw/software/x86_64-slc6-gcc48-opt/20.1.3/AtlasCore/20.1.3/InstallArea/share/dbreplica.config
-DBReplicaSvc                                         INFO Total of 10 servers found for host lxplus0142.cern.ch [ATLF ATLAS_COOLPROD atlas_dd ATLAS_CONFIG INT8R INTR ATONR_COOL ATONR_CONF DEVDB11 ATLF ]
+DBReplicaSvc                                         INFO Total of 10 servers found for host lxplus0008.cern.ch [ATLF ATLAS_COOLPROD atlas_dd ATLAS_CONFIG INT8R INTR ATONR_COOL ATONR_CONF DEVDB11 ATLF ]
 PoolSvc                                              INFO Successfully setup replica sorting algorithm
 PoolSvc                                              INFO Re-initializing PoolSvc
 PoolSvc                                              INFO POOL WriteCatalog is xmlcatalog_file:PoolFileCatalog.xml
 XMLFileCatalog Info Connecting to the catalog
 PoolXMLFileCatalog Info Xerces-c initialization Number 0
-EventSelector                                        INFO Initializing EventSelector - package version EventSelectorAthenaPool-00-18-36
+EventSelector                                        INFO Initializing EventSelector - package version EventSelectorAthenaPool-00-18-36-03
 TagMetaDataStore                                     INFO Initializing TagMetaDataStore - package version StoreGate-02-45-01-10
 EventSelector                                        INFO reinitialization...
 EventSelector                                        INFO EventSelection with query 
@@ -598,7 +600,7 @@ Domain[ROOT_All] Info                           /afs/cern.ch/user/d/dadams/pubda
 RootDatabase.open Success /afs/cern.ch/user/d/dadams/pubdata/r20test_AOD.pool.root File version:53413
 PoolSvc                                              INFO Failed to find container MetaDataHdrDataHeader to get Token.
 EventPersistencySvc                                  INFO Added successfully Conversion service:AthenaPoolCnvSvc
-AthenaPoolAddressProviderSvc                         INFO Initializing AthenaPoolAddressProviderSvc - package version EventSelectorAthenaPool-00-18-36
+AthenaPoolAddressProviderSvc                         INFO Initializing AthenaPoolAddressProviderSvc - package version EventSelectorAthenaPool-00-18-36-03
 ProxyProviderSvc                                     INFO Initializing ProxyProviderSvc - package version SGComps-00-01-10
 HistogramPersistencySvc                           WARNING Histograms saving not required.
 AthenaEventLoopMgr                                   INFO Setup EventSelector service EventSelector
@@ -617,7 +619,7 @@ ApplicationMgr                                       INFO Application Manager St
 PoolSvc                                              INFO Failed to find container MetaDataHdrDataHeader to get Token.
 AthenaEventLoopMgr                                   INFO   ===>>>  start of run 189751    <<<===
 AthenaEventLoopMgr                                   INFO   ===>>>  start processing event #35002, run #189751 0 events processed so far  <<<===
-ClassIDSvc                                           INFO  getRegistryEntries: read 11252 CLIDRegistry entries for module ALL
+ClassIDSvc                                           INFO  getRegistryEntries: read 11314 CLIDRegistry entries for module ALL
 ClassIDSvc                                           INFO  getRegistryEntries: read 107 CLIDRegistry entries for module ALL
 ClassIDSvc                                           INFO  getRegistryEntries: read 44 CLIDRegistry entries for module ALL
 ClassIDSvc                                           INFO  getRegistryEntries: read 40 CLIDRegistry entries for module ALL

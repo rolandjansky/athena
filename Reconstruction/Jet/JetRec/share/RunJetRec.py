@@ -40,7 +40,7 @@ if useLArHVCorr:
   jtm.modifiersMap["calib"] += [jtm.larhvcorr]
 if useJVFLoose:
   jtm.modifiersMap["calib"] += [jtm.jvfloose]
-jtm.modifiersMap["mycalib"] = jtm.modifiersMap["calib"] + [jtm.pull, jtm.charge]
+jtm.modifiersMap["mycalib"] = jtm.modifiersMap["calib"] + [jtm.pull]
 if jtm.haveShowerDeconstructionTool:
   jtm.modifiersMap["mycalib"] += [jtm.showerdec]
 
@@ -62,6 +62,7 @@ if jetFlags.useTruth:
   jtm.addJetFinder("Run2CamKt12TruthJets",     "CamKt", 1.2,    "truth", ghostArea=gatruth, ptmin=40000)
   jtm.addJetFinder("Run2CamKt12TruthWZJets",   "CamKt", 1.2,    "truth", ghostArea=gatruth, ptmin=40000)
 if jetFlags.useTracks:
+  jtm.addJetFinder("Run2AntiKt2PV0TrackJets", "AntiKt", 0.2, "pv0track", ghostArea=gatrack, ptmin= 2000)
   jtm.addJetFinder("Run2AntiKt3PV0TrackJets", "AntiKt", 0.3, "pv0track", ghostArea=gatrack, ptmin= 2000)
   jtm.addJetFinder("Run2AntiKt4TrackJets",    "AntiKt", 0.4,    "track", ghostArea=gatrack, ptmin= 2000)
   jtm.addJetFinder("Run2AntiKt4ZTrackJets",   "AntiKt", 0.4,   "ztrack", ghostArea=gatrack, ptmin= 2000)

@@ -33,7 +33,7 @@ else:
 #athenaCommonFlags.jp.AthenaCommonFlags.EvtMax=-1   # number of events to process run on all file
 
 from BTagging.BTaggingFlags import BTaggingFlags
-BTaggingFlags.CalibrationTag = 'BTagCalibALL-08-00'
+BTaggingFlags.CalibrationTag = 'BTagCalibRUN12-08-03'
 
 # switch off detectors
 # rec.doForwardDet=False
