@@ -19,6 +19,8 @@
 #include "SubBlockStatus.h"
 #include "WordDecoder.h"
 #include "CpmWord.h"
+
+#include "../L1CaloSubBlock.h" // Only for error codes
 #include "../L1CaloSrcIdMap.h"
 
 #include "L1CaloByteStreamReadTool.h"
@@ -201,10 +203,11 @@ StatusCode L1CaloByteStreamReadTool::processRobFragment_(
       "Treating ROB fragment source id #" << MSG::hex << rob.rob_source_id());
 
 
-  const auto robSourceID = rob.rod_source_id();
-  const auto sourceID = (robSourceID >> 16) & 0xff;
-  const auto rodCrate = m_srcIdMap->crate(sourceID);
-  const auto rodSlink = m_srcIdMap->slink(sourceID);
+  m_rodSourceId = rob.rod_source_id();
+  m_robSourceId = rob.source_id();
+  const auto sourceID = (m_rodSourceId >> 16) & 0xff;
+  const auto rodCrate = m_srcIdMap->crate(m_rodSourceId);
+  const auto rodSlink = m_srcIdMap->slink(m_rodSourceId);
   // -------------------------------------------------------------------------
   // Check Rob status
   if (rob.nstatus() > 0) {
@@ -212,7 +215,7 @@ StatusCode L1CaloByteStreamReadTool::processRobFragment_(
     rob.status(robData);
     if (*robData != 0) {
       ATH_MSG_WARNING("ROB status error - skipping fragment");
-      m_errorTool->robError(robSourceID, *robData);
+      m_errorTool->robError(m_rodSourceId, *robData);
       return StatusCode::FAILURE;
     }
   }
@@ -238,7 +241,7 @@ StatusCode L1CaloByteStreamReadTool::processRobFragment_(
 
 
   if (sourceID != m_subDetectorID) {
-    ATH_MSG_ERROR("Wrong subdetector source id for requested objects: " << sourceID);
+    ATH_MSG_ERROR("Wrong subdetector source id for requested objects: " << m_rodSourceId);
     return StatusCode::FAILURE;
   }
 
@@ -554,8 +557,8 @@ StatusCode L1CaloByteStreamReadTool::processPpmCompressedR3V1_() {
       chan++;
     }
   }catch (const std::out_of_range& ex) {
-      ATH_MSG_ERROR("Failed to decode ppm block " << ex.what());
-      return StatusCode::FAILURE;
+      ATH_MSG_WARNING("Excess Data in Sub-block");
+      m_errorTool->rodError(m_rodSourceId, L1CaloSubBlock::UNPACK_EXCESS_DATA);
   } 
   return StatusCode::SUCCESS;
 }
@@ -784,8 +787,8 @@ StatusCode L1CaloByteStreamReadTool::processPpmCompressedR4V1_() {
       pedEn));
     }
   } catch (const std::out_of_range& ex) {
-      ATH_MSG_ERROR("Failed to decode ppm block " << ex.what());
-      return StatusCode::FAILURE;
+      ATH_MSG_WARNING("Excess Data in Sub-block");
+      m_errorTool->rodError(m_rodSourceId, L1CaloSubBlock::UNPACK_EXCESS_DATA);
   }
   return StatusCode::SUCCESS;
 
@@ -929,8 +932,8 @@ StatusCode L1CaloByteStreamReadTool::processPpmStandardR4V1_() {
         pedEn.push_back(getPpmBytestreamField_(1));
       }
     } catch (const std::out_of_range& ex) {
-      ATH_MSG_ERROR("Failed to decode ppm block " << ex.what());
-      return StatusCode::FAILURE;
+      ATH_MSG_WARNING("Excess Data in Sub-block");
+      m_errorTool->rodError(m_rodSourceId, L1CaloSubBlock::UNPACK_EXCESS_DATA);
     }
     CHECK(
         addTriggerTowerV2_(crate, module, chan, lcpVal, lcpBcidVec,

@@ -186,6 +186,8 @@ private:
   std::vector<uint32_t> m_cpSourceIDs;
   L1CaloSrcIdMap* m_srcIdMap;
 
+  uint32_t m_rodSourceId;
+  uint32_t m_robSourceId;
   uint32_t m_rodRunNumber;
   uint16_t m_rodVer;
   uint8_t m_verCode;
