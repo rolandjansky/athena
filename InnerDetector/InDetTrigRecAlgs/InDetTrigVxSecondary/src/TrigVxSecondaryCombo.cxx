@@ -494,7 +494,7 @@ namespace InDet {
       msg() << MSG::ERROR << "Could not attach T2PrimaryVertex feature to the TE" << endreq;
       return HLT::NAV_ERROR;
     } 
-
+/*
     // Create new ViewContainer of the jet tracks to attach to the TE
     // Actually, probably this isn't necessary...  
     // at least it doesn't solve the problem I was having before... rubbishness squared
@@ -511,7 +511,7 @@ namespace InDet {
       msg() << MSG::ERROR << "Could not attach bjetTracks feature to the TE" << endreq;
       return HLT::NAV_ERROR;
     } 
-
+*/
     // Create dummy xAOD SV output and attach as feature 
     xAOD::VertexAuxContainer trigSecondaryVertexAuxContainer;
     xAOD::VertexContainer* trigSecondaryVertexContainer = new xAOD::VertexContainer();
