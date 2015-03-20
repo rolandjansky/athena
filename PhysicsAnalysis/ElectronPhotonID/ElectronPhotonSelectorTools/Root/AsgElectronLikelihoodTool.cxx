@@ -66,6 +66,10 @@ AsgElectronLikelihoodTool::AsgElectronLikelihoodTool(std::string myname) :
   declareProperty("CutLikelihood",m_rootTool->CutLikelihood,"Cut on likelihood discriminant");
   // The pileup-correction part of the likelihood cut values
   declareProperty("CutLikelihoodPileupCorrection",m_rootTool->CutLikelihoodPileupCorrection,"Pileup correction for LH discriminant");
+  // The likelihood cut values - 4 GeV
+  declareProperty("CutLikelihood4GeV",m_rootTool->CutLikelihood4GeV,"Cut on likelihood discriminant, 4 GeV special bin");
+  // The pileup-correction part of the likelihood cut values - 4 GeV
+  declareProperty("CutLikelihoodPileupCorrection4GeV",m_rootTool->CutLikelihoodPileupCorrection4GeV,"Pileup correction for LH discriminant, 4 GeV special bin");
   // do the conversion cut
   declareProperty("doCutConversion",m_rootTool->doCutConversion,"Apply the conversion bit cut");
   // cut on b-layer
@@ -90,6 +94,12 @@ AsgElectronLikelihoodTool::AsgElectronLikelihoodTool(std::string myname) :
   declareProperty("DiscHardCutSlopeForPileupTransform",m_rootTool->DiscHardCutSlopeForPileupTransform,"Reference slope on disc for very hard cut; used by pileup transform");
   // reference disc for a pileup independent loose menu; used by pileup transform
   declareProperty("DiscLooseForPileupTransform",m_rootTool->DiscLooseForPileupTransform,"Reference disc for pileup indepdendent loose menu; used by pileup transform");
+  // reference disc for very hard cut; used by pileup transform - 4-7 GeV bin
+  declareProperty("DiscHardCutForPileupTransform4GeV",m_rootTool->DiscHardCutForPileupTransform4GeV,"Reference disc for very hard cut; used by pileup transform. 4-7 GeV bin");
+  // reference slope on disc for very hard cut; used by pileup transform - 4-7 GeV bin
+  declareProperty("DiscHardCutSlopeForPileupTransform4GeV",m_rootTool->DiscHardCutSlopeForPileupTransform4GeV,"Reference slope on disc for very hard cut; used by pileup transform. 4-7 GeV bin");
+  // reference disc for a pileup independent loose menu; used by pileup transform - 4-7 GeV bin
+  declareProperty("DiscLooseForPileupTransform4GeV",m_rootTool->DiscLooseForPileupTransform4GeV,"Reference disc for pileup indepdendent loose menu; used by pileup transform. 4-7 GeV bin");
   // max discriminant for which pileup transform is to be used
   declareProperty("DiscMaxForPileupTransform",m_rootTool->DiscMaxForPileupTransform,"Max discriminant for which pileup transform is to be used");
   // max nvtx or mu to be used in pileup transform
@@ -159,6 +169,8 @@ StatusCode AsgElectronLikelihoodTool::initialize()
     m_rootTool->VariableNames =  env.GetValue("VariableNames","");
     m_rootTool->CutLikelihood = AsgConfigHelper::HelperDouble("CutLikelihood",env);
     m_rootTool->CutLikelihoodPileupCorrection = AsgConfigHelper::HelperDouble("CutLikelihoodPileupCorrection", env);
+    m_rootTool->CutLikelihood4GeV = AsgConfigHelper::HelperDouble("CutLikelihood4GeV",env);
+    m_rootTool->CutLikelihoodPileupCorrection4GeV = AsgConfigHelper::HelperDouble("CutLikelihoodPileupCorrection4GeV", env);
     // do the conversion cut
     m_rootTool->doCutConversion = env.GetValue("doCutConversion", false);
     // cut on b-layer
@@ -182,6 +194,9 @@ StatusCode AsgElectronLikelihoodTool::initialize()
     m_rootTool->DiscHardCutForPileupTransform = AsgConfigHelper::HelperDouble("DiscHardCutForPileupTransform",env);
     m_rootTool->DiscHardCutSlopeForPileupTransform = AsgConfigHelper::HelperDouble("DiscHardCutSlopeForPileupTransform",env);
     m_rootTool->DiscLooseForPileupTransform = AsgConfigHelper::HelperDouble("DiscLooseForPileupTransform",env);
+    m_rootTool->DiscHardCutForPileupTransform4GeV = AsgConfigHelper::HelperDouble("DiscHardCutForPileupTransform4GeV",env);
+    m_rootTool->DiscHardCutSlopeForPileupTransform4GeV = AsgConfigHelper::HelperDouble("DiscHardCutSlopeForPileupTransform4GeV",env);
+    m_rootTool->DiscLooseForPileupTransform4GeV = AsgConfigHelper::HelperDouble("DiscLooseForPileupTransform4GeV",env);
     m_rootTool->DiscMaxForPileupTransform = env.GetValue("DiscMaxForPileupTransform", 2.0);
     m_rootTool->PileupMaxForPileupTransform = env.GetValue("PileupMaxForPileupTransform", 50);
 
@@ -490,7 +505,7 @@ const Root::TResult& AsgElectronLikelihoodTool::calculate( const xAOD::Electron*
   float d0sigma(0.0);
   double dpOverp(0.0);
   float TRT_PID(0.0);
-  float trans_TRT_PID(0.0);
+  double trans_TRT_PID(0.0);
   float deltaEta=0, deltaPhiRescaled2=0;
   double rTRT(0.0);
 
@@ -518,9 +533,10 @@ const Root::TResult& AsgElectronLikelihoodTool::calculate( const xAOD::Electron*
         //Transform the TRT PID output for use in the LH tool.
         double tau = 15.0; 
         double fEpsilon = 1.0e-30;  // to avoid zero division
-        if (TRT_PID >= 1.0) TRT_PID = float(1.0) - float(1.0e-15);  //this number comes from TMVA
-        else if (TRT_PID <= fEpsilon) TRT_PID = fEpsilon;
-        trans_TRT_PID = - log(1.0/TRT_PID - 1.0)/double(tau);
+	double pid_tmp = TRT_PID;
+        if (pid_tmp >= 1.0) pid_tmp = 1.0 - 1.0e-15;  //this number comes from TMVA
+        else if (pid_tmp <= fEpsilon) pid_tmp = fEpsilon;
+        trans_TRT_PID = - log(1.0/pid_tmp - 1.0)/double(tau);
 
         unsigned int index;
         if( t->indexOfParameterAtPosition(index, xAOD::LastMeasurement) ) {
