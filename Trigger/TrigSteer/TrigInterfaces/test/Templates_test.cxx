@@ -69,26 +69,6 @@ public:
 
     reAttachFeature(output, t, s, "duno3");
     
-    TrigFeatureLink roifl1;
-    object2FeatureLink(output, "duno3", t, roifl1);
-
-    TrigFeatureLink roifl2;
-    TrigRoiDescriptorCollection* roicol = new TrigRoiDescriptorCollection();    
-    TrigRoiDescriptor* special = new TrigRoiDescriptor();
-    roicol->push_back(new TrigRoiDescriptor());
-    roicol->push_back(special);
-    roicol->push_back(new TrigRoiDescriptor());
-    attachFeature(output, roicol, "collection");
-    
-
-    object2FeatureLink(output, "collection", special, roicol,  roifl2);
-
-    const TrigRoiDescriptor* back;
-    featureLink2Object(roifl2, back);
-    featureLink2Object(roifl1, back);
-
-
-
 
 
     return HLT::OK;
