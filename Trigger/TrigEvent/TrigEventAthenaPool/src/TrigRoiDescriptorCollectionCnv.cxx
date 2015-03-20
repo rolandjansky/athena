@@ -7,6 +7,8 @@
 #include "TrigSteeringEventTPCnv/TrigRoiDescriptorCollectionCnv_p1.h"
 #include "TrigSteeringEventTPCnv/TrigRoiDescriptorCollection_p2.h"
 #include "TrigSteeringEventTPCnv/TrigRoiDescriptorCollectionCnv_p2.h"
+#include "TrigSteeringEventTPCnv/TrigRoiDescriptorCollection_p3.h"
+#include "TrigSteeringEventTPCnv/TrigRoiDescriptorCollectionCnv_p3.h"
 #include "TrigSteeringEventTPCnv/TrigRoiDescriptorCollection_tlp1.h"
 #include "TrigSteeringEventTPCnv/TrigRoiDescriptorCollectionCnv_tlp1.h"
 
@@ -16,6 +18,7 @@ struct TrigRoiDescriptorCollectionCnv_impl
   TrigRoiDescriptorCollectionCnv_tlp1 m_TPConverter_tlp1;
 
   TrigRoiDescriptorCollectionCnv_p2 m_TPConverter_p2;
+  TrigRoiDescriptorCollectionCnv_p3 m_TPConverter_p3;
 
 
 
@@ -37,7 +40,7 @@ TrigRoiDescriptorCollection_PERS* TrigRoiDescriptorCollectionCnv::createPersiste
   MsgStream mlog(messageService(), "TrigRoiDescriptorCollectionConverter" );
   mlog << MSG::DEBUG << "TrigRoiDescriptorCollectionCnv::createPersistent" << endreq;
 
-  TrigRoiDescriptorCollection_PERS *persObj = m_impl->m_TPConverter_p2.createPersistent( transObj, mlog );
+  TrigRoiDescriptorCollection_PERS *persObj = m_impl->m_TPConverter_p3.createPersistent( transObj, mlog );
   
   return persObj;
 }
@@ -48,14 +51,20 @@ TrigRoiDescriptorCollection* TrigRoiDescriptorCollectionCnv::createTransient()
   MsgStream mlog(messageService(), "TrigRoiDescriptorCollectionConverter" );
   mlog << MSG::DEBUG << "TrigRoiDescriptorCollectionCnv::createTransient " << endreq;
   
+  static pool::Guid p3_guid("615418EF-EEFB-4E87-A396-7313E67C547E");
   static pool::Guid p2_guid("D1A44F23-416C-4AB6-BFFA-2EA280565D4E");
   static pool::Guid p1_guid("D0A0B6E7-9E0C-484E-AE8C-AC57B5111EA0");
   static pool::Guid tlp1_guid("CE80FC4E-B16B-40B2-9D9E-EB4916B663B0");
   
   TrigRoiDescriptorCollection *trans_obj(0);
-  
 
-  if( compareClassGuid(p2_guid) ) {
+  if( compareClassGuid(p3_guid) ) {
+
+    mlog << MSG::DEBUG << "TrigRoiDescriptorCollectionCnv::reading p3 persistent object" << endreq;
+    std::auto_ptr< TrigRoiDescriptorCollection_p3 >   col_vect( this->poolReadObject< TrigRoiDescriptorCollection_p3 >() );
+    trans_obj = m_impl->m_TPConverter_p3.createTransient( col_vect.get(), mlog );    
+  }
+  else if( compareClassGuid(p2_guid) ) {
     
     mlog << MSG::DEBUG << "TrigRoiDescriptorCollectionCnv::reading p2 persistent object" << endreq;
     std::auto_ptr< TrigRoiDescriptorCollection_p2 >   col_vect( this->poolReadObject< TrigRoiDescriptorCollection_p2 >() );
