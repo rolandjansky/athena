@@ -21,6 +21,9 @@
 #include <TRandom3.h>
 
 namespace TrigCostRootAnalysis {
+
+  //Forward declaration
+  class CounterBaseRates;
   
   /**
    * @class RatesChainItem
@@ -35,13 +38,14 @@ namespace TrigCostRootAnalysis {
     RatesChainItem(std::string _name, Int_t _level, Double_t _PS);
 
     void addLower(RatesChainItem* _lower);
+    void addCounter(CounterBaseRates* _client);
     ChainItemSetIt_t getLowerStart();
     ChainItemSetIt_t getLowerEnd();
     ChainItemSet_t& getLower();
     Bool_t getLowerContains(RatesChainItem* _find);
     Bool_t getLowerContainsAll( std::set<RatesChainItem*>& _set );
 
-    void beginEvent(Bool_t _passRaw);
+    void beginEvent(Bool_t _passRaw, CounterBaseRatesSet_t& _counterSet);
     void endEvent();
     void newRandomPS();
 
@@ -74,8 +78,11 @@ namespace TrigCostRootAnalysis {
     Bool_t        m_inEvent; //!< If this chain item was at least run in this event.
     Bool_t        m_forcePassRaw; //!< A debug setting, when true all chains will always accept. Allow investigation of PS weighting.
     Bool_t        m_doEBWeighting; //!< If enhanced bias weights are to be applied
+    Bool_t        m_doDirectPS; //<! True if calculating the direct application of prescales
 
-    ChainItemSet_t m_lower; // Pointers to seeding chains from lower levels
+    ChainItemSet_t m_lower; //!< Pointers to seeding chains from lower levels
+
+    CounterBaseRatesSet_t m_clients; //!< Set of pointers to client rates counters which use this chain item.
 
 
   }; // Class RatesChainItem

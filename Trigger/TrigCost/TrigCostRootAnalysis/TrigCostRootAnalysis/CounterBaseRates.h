@@ -41,7 +41,7 @@ namespace TrigCostRootAnalysis {
 
     void startEvent();
     void processEventCounter(UInt_t _e, UInt_t _f, Float_t _weight = 1.);
-    void endEvent();
+    void endEvent(Float_t _weight = 1);
 
     void   addL1Item  ( RatesChainItem* _toAdd );
     void   addHLTItem ( RatesChainItem* _toAdd );
@@ -64,12 +64,15 @@ namespace TrigCostRootAnalysis {
 
   protected:
 
+    Double_t getPrescaleFactor(UInt_t _e = INT_MAX); // Unused here
+
     CounterSet_t       m_ovelapCounters; //!< List of all counters to be queried at end of run to get my overlap with them 
     ChainItemSet_t     m_L2s;            //!< List of all L2 chains in this combination
     ChainItemSet_t     m_L1s;            //!< List of all L1 items which seed L2 chains in this combination (not always used)
     Bool_t             m_cannotCompute;  //!< Chain rate cannot be computed for whatever reason. Will always return weight 0;
     CounterBaseRates*  m_myUniqueCounter;//!< For L1 and HLT chains, this pointer is set to the counter responsible for getting the unique rate for the chain.
     CounterBaseRates*  m_globalRates;    //!< Pointer to the global rates counter. Used currently by Unique CounterRatesUnion derived counters. 
+    Bool_t             m_doSacleByPS;    //!< If we are configured to scale all rates by their PS 
    
   }; //class CounterBaseRates
   

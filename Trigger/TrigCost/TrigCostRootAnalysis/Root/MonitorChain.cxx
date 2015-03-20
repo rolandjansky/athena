@@ -74,8 +74,23 @@ namespace TrigCostRootAnalysis {
         _counter->processEventCounter( _c, 0, _weight );
       }
       
-      endEvent();
+      endEvent(_weight);
     }
+  }
+
+  /**
+   * Do we use this monitor for this particular mode? Try and keep things managable in terms of output created!
+   * Note these are currently hard-coded. We may want to make them configurable
+   * @return If this monitor should be active for a given mode.
+   */
+  Bool_t MonitorChain::getIfActive(ConfKey_t _mode) {
+    switch(_mode) {
+      case kDoAllSummary:       return kTRUE;
+      case kDoKeySummary:       return kTRUE;
+      case kDoLumiBlockSummary: return kTRUE;
+      default: Error("MonitorChain::getIfActive", "An invalid summary mode was provided (key %s)", Config::config().getName(_mode).c_str() );
+    }
+    return kFALSE;
   }
   
   /**
@@ -91,10 +106,14 @@ namespace TrigCostRootAnalysis {
     
     std::vector<TableColumnFormatter> _toSaveTable;
     const std::string _slowText = "Calls > " + intToString( Config::config().getInt(kSlowEventThreshold) ) + " ms";
+
+    _toSaveTable.push_back( TableColumnFormatter("Raw Active Events", 
+      "Raw (unweighted) statistics on the number of events in which this chain was executed.",
+      kVarEventsActive, kSavePerEvent, 0, kFormatOptionUseEntries) );
     
     _toSaveTable.push_back( TableColumnFormatter("Active Events", 
       "Number of events in which this chain was executed.",
-      kVarEventsPassed, kSavePerEvent, 0, kFormatOptionUseEntries) );
+      kVarEventsActive, kSavePerEvent, 0) );
 
     _toSaveTable.push_back( TableColumnFormatter("Passed Events", 
       "Number of events in which this chain passed the physics requirement.",
@@ -102,11 +121,15 @@ namespace TrigCostRootAnalysis {
 
     _toSaveTable.push_back( TableColumnFormatter("Time Per Event [ms]", 
       "Average execution time per event of this chain.",
-      kVarTime, kSavePerEvent, 2, kFormatOptionNormaliseEntries ) );
+      kVarTime, kSavePerEvent, kVarEventsActive, kSavePerEvent, 2) );
+
+    _toSaveTable.push_back( TableColumnFormatter("Effective PS Weight", 
+      "Weight applied to all events to simulate prescale.",
+      kEffectivePrescale, kSavePerEvent, 4, kFormatOptionUseFloatDecoration ) );
 
     _toSaveTable.push_back( TableColumnFormatter("Chain Rate [Hz]", 
       "Events passed normalised to the wall time for this run range.",
-      kVarEventsPassed, kSavePerEvent, 2, kFormatOptionNormaliseWallTime ) );
+      kVarEventsPassed, kSavePerEvent, 4, kFormatOptionNormaliseWallTime ) );
 
     _toSaveTable.push_back( TableColumnFormatter(_slowText, 
       "Number of algorithm executions which were particularly slow",
@@ -120,13 +143,13 @@ namespace TrigCostRootAnalysis {
       "Total chain time as a percentage of the total time of all chains in this run range.",
       &tableFnChainGetTotalFracTime, 2 ) );
 
-    _toSaveTable.push_back( TableColumnFormatter("Run Agls", 
+    _toSaveTable.push_back( TableColumnFormatter("Run Agls/Event", 
       "Total number of algorithms executed by this chain.",
-      kVarAlgCalls, kSavePerEvent, 2 ) );
+      kVarAlgCalls, kSavePerEvent, kVarEventsActive, kSavePerEvent, 2 ) );
 
-    _toSaveTable.push_back( TableColumnFormatter("Cached Algs", 
+    _toSaveTable.push_back( TableColumnFormatter("Cached Algs/Event", 
       "Total number of algorithms which supplied a cached result to this chain.",
-      kVarAlgCaches, kSavePerEvent, 2 ) );
+      kVarAlgCaches, kSavePerEvent, kVarEventsActive, kSavePerEvent, 2 ) );
 
     _toSaveTable.push_back( TableColumnFormatter("Cached ROB Rate [Hz]", 
       "Number of cached ROBs requested by this chain normalised to the run range.",

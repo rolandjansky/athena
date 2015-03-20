@@ -24,7 +24,7 @@ namespace TrigCostRootAnalysis {
 
   //Forward declaration
   class TrigCostData;
-  
+
   /**
    * @class CounterChain
    * One counter chain is created per monitored chain in the run. It is responsible for
@@ -40,13 +40,16 @@ namespace TrigCostRootAnalysis {
     ~CounterChain();
     void startEvent();
     void processEventCounter(UInt_t _e, UInt_t _f, Float_t _weight = 1.);
-    void endEvent();
-    void debug(UInt_t _e);
-    
+    void endEvent(Float_t _weight = 1.);
+    void debug(UInt_t _e);  
+
    private:
    
+    Double_t getPrescaleFactor(UInt_t _e = INT_MAX);
+
     static Float_t s_eventTimeExecute; //<! Global tabulator of total chain time for all chains in an event
-    
+    Float_t m_prescaleWeight; //<! Chain's effective HLT*L1 prescale, cached
+
   }; //class CounterChain
   
 } // namespace TrigCostRootAnalysis

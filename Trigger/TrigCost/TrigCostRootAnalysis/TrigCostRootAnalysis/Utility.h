@@ -98,7 +98,8 @@ namespace TrigCostRootAnalysis {
     kFormatOptionMiliSecToSec, //!< Convert cell from miliseconds to seconds
     kFormatOptionUseEntries, //!< Use the numer of DataVariable etries rather than the DataVariable value 
     kFormatOptionUseStringDecoration, //!< Output a value not from the counter's DataStore, rather a string decoration instead.
-    kFormatOptionUseFloatDecoration//!< Output a value not from the counter's DataStore, rather a Float_t decoration instead.
+    kFormatOptionUseFloatDecoration,//!< Output a value not from the counter's DataStore, rather a Float_t decoration instead.
+    kFormatOptionUseIntDecoration//!< Output a value not from the counter's DataStore, rather a Int_t decoration instead.
   };
 
   /** 
@@ -126,20 +127,24 @@ namespace TrigCostRootAnalysis {
     kLumiStart,
     kLumiEnd,
     kNLbFullSummary,
+    kNLbFullSkip,
     kFullEventMaxNumToSave,
     kFullEventSaveOnePer,
     kRatesForcePass,
     kRatesOverlapWarning,
     kRatesScaleByPS,
+    kExtrapolate8To13,
     kMaxMultiSeed,
     kWroteProgressFile,
     kBasicEventWeight,
     kEffectivePrescale,
     kEventWeight,
+    kIsRootCore,
     kCurrentEventBunchGroupID,
     // <BEGIN> Monitors - ORDERING IS IMPORTANT HERE
     kMonitorBegin, //!< This entry must be first (used in loops elsewhere)
-    // The rest of the monitors can come in any order, and new ones may be added
+    // The rest of the monitors can technically come in any order, and new ones may be added
+    kDoRatesMonitor, //<! Keep me first, breaks the partitioning (to be fixed :( ) but other monitors can read from this one
     kDoChainMonitor, 
     kDoChainAlgorithmMonitor,
     kDoSequenceMonitor,
@@ -147,10 +152,9 @@ namespace TrigCostRootAnalysis {
     kDoAlgorithmMonitor,
     kDoROSMonitor,
     kDoROIMonitor,
-    kDoL1ChainMapMonitor,
+    //kDoL1ChainMapMonitor, obsolete
     kDoFullEventMonitor,
     kDoGlobalsMonitor,
-    kDoRatesMonitor,
     kDoAllMonitor, //!< This entry must be last
     // <END> Monitors - ORDERING IS IMPORTANT HERE
     kPatternsMonitor,
@@ -166,6 +170,7 @@ namespace TrigCostRootAnalysis {
     kOutputRatesGraph,
     kOutputRatesWarnings,
     kOutputMenus,
+    kOutputRootDirectory, // Note - root as in base directory of program output, not root as in histograms
     kOutputDirectory,
     kOutputTag,
     kOutputImageDirectory,
@@ -186,17 +191,18 @@ namespace TrigCostRootAnalysis {
     kDoAllOverlap,
     kRatesForNonPhysics,
     kDefaultLBLength,
+    kPredictionLumi,
     kDebug,
     kCleanAll,
     kSloppyExit,
     kROSXMLPath,
     kROSXMLName,
-    kMenuXMLPath,
-    kMenuXMLName,
     kPrescaleXMLPath1,
     kPrescaleXMLPath2,
     kPrescaleXMLName1,
     kPrescaleXMLName2,
+    kPrescaleSetName,
+    kMenuName,
     kEBXMLPath,
     kEBXMLName,
     kHLTPrescaleMenuXMLPath,
@@ -205,6 +211,7 @@ namespace TrigCostRootAnalysis {
     kL1PrescaleMenuXMLName,
     kOutputSummaryDirectory,
     kWriteEBWeightXML,
+    kWriteDummyPSXML,
     kHistBins,
     // Inernally used strings
     kDataDir,
@@ -259,7 +266,9 @@ namespace TrigCostRootAnalysis {
     kVarROBRetSize,
     kVarROBOther,
     kVarCalls,
+    kVarCallsRaw,   
     kVarCallsSlow,
+    kVarEventsActive,
     kVarEventsPassed,
     kVarEventsPassedDP,
     kVarEventsPassedNoPS,
@@ -292,6 +301,7 @@ namespace TrigCostRootAnalysis {
     kDecSeqName,
     kDecLbLength,
     kDecType,
+    kDecID,
     kDecRatesGroupName,
     kDecPrescaleStr,
     kDecPrescaleVal,
@@ -303,10 +313,15 @@ namespace TrigCostRootAnalysis {
     kMsgDivZero,
     kMsgRoISize,
     kMsgRoIHack,
+    kMsgCannotFindRoI,
+    kMsgUnknownRoIType,
     kMsgBadROB,
     kMsgHourBoundary,
     kMsgSaveFullEvent,
     kMsgXMLWeight,
+    kMsgXMLPrescale,
+    kMsgUnknownDecoration,
+    kMsgIllegalCharacters,
     kMsgZeroRate,
     // END of config ENUM keys
     kConfKey_SIZE //!< Number of configuration keys - keep me as last entry
@@ -331,6 +346,7 @@ namespace TrigCostRootAnalysis {
   typedef StringFloatMap_t::const_iterator    StringFloatMapIt_t;
   typedef std::map< std::string, Double_t>    StringDoubleMap_t;
   typedef StringDoubleMap_t::const_iterator   StringDoubleMapIt_t;
+  typedef StringDoubleMap_t::iterator         StringDoubleMapNonConstIt_t;
 
   typedef std::map< std::pair<std::string, Float_t>, Int_t > PairStringFloat_Float_Map_t;
   typedef PairStringFloat_Float_Map_t::const_iterator        PairStringFloat_Float_MapIt_t;
@@ -391,7 +407,6 @@ namespace TrigCostRootAnalysis {
   Bool_t isEqual(Float_t _float1, Float_t _float2, Float_t _precision = 0.00000001);
   ConfVariableOptionPair_t makePair(ConfKey_t _name, VariableOption_t _vo);
   Int_t stringToIntHash( std::string );
-  Int_t intIntToIntHash( Int_t _a, Int_t _b );
   const std::string& getLevelString(UInt_t _level);
   
   class JsonExport {
@@ -465,39 +480,6 @@ namespace TrigCostRootAnalysis {
     Bool_t m_minimal;
   };
 
-}
-
-
-
-// Style constants. To be removed
-
-namespace TrigCostStyle {
-  static const UInt_t nBinsTime = 500;
-  static const Float_t xMinTime = 0.;
-  static const Float_t xMaxTime = 1000.;
-  
-  static const UInt_t nBinsAlgCalls = 51;
-  static const Float_t xMinAlgCalls = -0.5;
-  static const Float_t xMaxAlgCalls = 50.5;
-  
-  
-  //This was a bad idea.
-  //static const Float_t xTimeBins[] = {.1,.2,.3,.4,.5,.6,.7,.8,.9,1,2,3,4,5,6,7,8,9,10,20,30,40,50,60,70,80,90,100,200,300,400,500,600,700,800,900,1000,2000,3000,4000,5000,6000,7000,8000,9000,10000};
-  // Precomputed logarithmic binning covering 1e-1 to 1e4 : this is probably redundant
-  static const Float_t xTimeBins[] = {0.1, 0.10685, 0.114584, 0.123317, 0.133179, 0.144313, 0.156886, 0.171083, 0.187114,
-                                      0.205215, 0.225654, 0.248733, 0.274792, 0.304217, 0.337443, 0.374961, 0.417323, 0.465158, 0.51917,
-                                      0.580159, 0.649024, 0.726785, 0.814588, 0.913732, 1.02568, 1.15209, 1.29482, 1.45599, 1.63798,
-                                      1.84347, 2.0755, 2.33751, 2.63335, 2.9674, 3.34459, 3.7705, 4.25143, 4.79447, 5.40764,
-                                      6.10001, 6.88181, 7.76458, 8.76137, 9.8869, 11.1578, 12.5928, 14.2132, 16.0429, 18.1089,
-                                      20.4418, 23.0759, 26.0503, 29.4088, 33.2011, 37.4832, 42.3183, 47.778, 53.9428, 60.9039,
-                                      68.764, 77.6393, 87.661, 98.977, 111.755, 126.182, 142.474, 160.869, 181.641, 205.095,
-                                      231.578, 261.482, 295.249, 333.376, 376.428, 425.04, 479.932, 541.912, 611.898, 690.923,
-                                      780.155, 880.912, 994.683, 1123.15, 1268.2, 1432, 1616.94, 1825.78, 2061.58, 2327.85,
-                                      2628.5, 2967.98, 3351.32, 3784.16, 4272.9, 4824.78, 5447.92, 6151.56, 6946.07, 7843.2,
-                                      8856.21, 10000
-                                     };
-  static const Int_t xTimeBinsN = 100;
-  
 }
 
 #endif //TrigCostRootAnalysis_Utility_H

@@ -36,6 +36,7 @@ namespace TrigCostRootAnalysis {
     _roiTypes.push_back("Energy");
     m_dataStore.setBinLabels(kVarType, kSavePerCall, _roiTypes);
 
+    m_dataStore.newVariable(kVarEventsActive).setSavePerEvent();
     m_dataStore.newVariable(kVarEta).setSavePerCall("ROI #eta Distribution;#eta;Calls");
     m_dataStore.newVariable(kVarPhi).setSavePerCall("ROI #phi Distribution;#phi;Calls");
     m_dataStore.newVariable(kVarArea).setSavePerCall("Area (#eta#times#phi) Of ROIs;Area;Calls");
@@ -87,8 +88,19 @@ namespace TrigCostRootAnalysis {
   /**
    * Perform end-of-event monitoring on the DataStore.
    */
-  void CounterROI::endEvent() {
+  void CounterROI::endEvent(Float_t _weight) {
+    m_dataStore.store(kVarEventsActive, 1., _weight);
     m_dataStore.endEvent();
+  }
+
+  /**
+   * When running with prescales applied. This function returns how the counter should be scaled for the current call.
+   * Not used by ROIs - doesn't make sense. Object not mapped to chain
+   * @return Multiplicative weighting factor
+   */
+  Double_t CounterROI::getPrescaleFactor(UInt_t _e) {
+    UNUSED(_e);
+    return 0.;
   }
   
   /**

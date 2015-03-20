@@ -198,7 +198,7 @@ namespace TrigCostRootAnalysis {
     Bool_t  getIsROBSumRetrieved(UInt_t _n, UInt_t _r) const;
     Bool_t  getIsROBSumUnclassified(UInt_t _n, UInt_t _r) const;
     // Cached
-    const std::pair< Int_t, Int_t >& getROBAlgLocation(UInt_t _n);
+    const std::pair< Int_t, Int_t >& getROBAlgLocation(UInt_t _n) const;
 
     //
     // RoI VARIABLES
@@ -246,11 +246,15 @@ namespace TrigCostRootAnalysis {
     Bool_t getIsTETerminalNode(UInt_t _n) const;
     Bool_t getIsTETopologicalTe(UInt_t _n) const;
 
+    //
+    // RATES ANALYSIS CHAIN PRESCALE WEIGHTS
+    //
+    void     setChainPrescaleWeight(const std::string& _name, Double_t _value) const;
+    Double_t getChainPrescaleWeight(const std::string& _name) const;
 
     // Debug
-    ProcessEvent* getParent() const { return m_parent; }
-    void setParent(ProcessEvent* _parent) const { m_parent = _parent; };
-    
+    ProcessEvent* getParent() const;
+    void setParent(ProcessEvent* _parent) const;
     
    private:
    
@@ -313,7 +317,9 @@ namespace TrigCostRootAnalysis {
     mutable IntFloatMap_t m_seqROBRetSize; //!< Size in kB of ROB retrievals by algs in a seq
     mutable IntFloatMap_t m_seqROBReqSize; //!< Size ib kB of cached ROBs used by algs in a seq
     mutable IntIntMap_t   m_seqROBOther; //<! Number of [unknown, disabled, ignored] ROBs requested by algs in a seq
-    
+
+    mutable StringDoubleMap_t m_chainPSWeight; //!< Holds chain prescale weights for use in other monitors
+  
     const std::set<Int_t> m_emptySet; //!< Returned for cases where an alg has no ROBs
     mutable std::pair< Int_t, Int_t > _recyclablePair; // Re-usable pair object
 

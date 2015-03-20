@@ -25,7 +25,6 @@
 #include "../TrigCostRootAnalysis/Utility.h"
 #include "../TrigCostRootAnalysis/RatesChainItem.h"
 
-
 namespace TrigCostRootAnalysis {
   
   /**
@@ -38,9 +37,11 @@ namespace TrigCostRootAnalysis {
     m_L1s(),
     m_cannotCompute(kFALSE),
     m_myUniqueCounter(0),
-    m_globalRates(0) {
+    m_globalRates(0),
+    m_doSacleByPS(0) {
 
       if (m_detailLevel == 0) m_dataStore.setHistogramming(kFALSE);
+      m_doSacleByPS = Config::config().getInt(kRatesScaleByPS);
 
       if (Config::config().getInt(kDirectlyApplyPrescales) == kTRUE) {
         m_dataStore.newVariable(kVarEventsPassedDP).setSavePerCall();
@@ -84,7 +85,7 @@ namespace TrigCostRootAnalysis {
     // Optional - when not doin EB weighting. We can scale up individual chains by their L1 PS to get the effective PS=1 rates.
     // Does not work on combinations!
     Float_t _scaleByPS = 1.;
-    if ( Config::config().getInt(kRatesScaleByPS) == kTRUE && (getStrDecoration(kDecType) == "Chain" || getStrDecoration(kDecType) == "L1")) {
+    if ( m_doSacleByPS && (getStrDecoration(kDecType) == "Chain" || getStrDecoration(kDecType) == "L1")) {
       _scaleByPS = getDecoration(kDecPrescaleValOnlineL1);
     }
 
@@ -96,6 +97,8 @@ namespace TrigCostRootAnalysis {
 
     // WEIGHTED Prescale
     Float_t _weightPS = runWeight();
+    //m_costData->setChainPrescaleWeight(getName(), _weightPS);
+
     if (!isZero( _weightPS )) {
       m_dataStore.store(kVarEventsPassed, 1., _weightPS * _weight * _scaleByPS); // Chain passes with weight from PS as a float 0-1. All other weights inc.
       m_dataStore.store(kVarEventsPerLumiblock, m_costData->getLumi(), (_weightPS * _weight * _scaleByPS)/((Float_t)m_costData->getLumiLength()) );
@@ -112,9 +115,20 @@ namespace TrigCostRootAnalysis {
   }
 
   /**
+   * The Rates counters have a much more sophisticated prescale treatment and hence do not use this function.
+   * @return 0 for rates counters, prints error
+   */
+  Double_t CounterBaseRates::getPrescaleFactor(UInt_t _e) {
+    UNUSED(_e);
+    Error("CounterBaseRates::getPrescaleFactor","This function is not defined for a Rates Counter, see the Rates base class.");
+    return 0.;
+  }
+
+  /**
    * End of event processing. Unused with Rates counters
    */
-  void CounterBaseRates::endEvent() {
+  void CounterBaseRates::endEvent(Float_t _weight) {
+    UNUSED(_weight);
     Error("CounterBaseRates::endEvent","Not expected to call this for a rates counter");
   }
 
@@ -127,7 +141,7 @@ namespace TrigCostRootAnalysis {
   }
 
   /**
-   * This function will return the prescale of a basic item. It is suppoed to be called on L1 or L2 chains
+   * This function will return the prescale of a basic item. It is supposed to be called on L1 or L2 chains
    * (not combinations of chains) and will return the prescale for just the top level.
    * @return Prescale of top level of basic chain
    */
@@ -153,6 +167,8 @@ namespace TrigCostRootAnalysis {
    */
   void CounterBaseRates::addL1Item( RatesChainItem* _toAdd ) {
     m_L1s.insert( _toAdd );
+    // Add back-link
+    _toAdd->addCounter( this );
   }
 
   /**
@@ -170,8 +186,10 @@ namespace TrigCostRootAnalysis {
       }
     }
     m_L2s.insert( _toAdd );
+    _toAdd->addCounter( this ); // Add back-link
     for (ChainItemSetIt_t _lower = _toAdd->getLowerStart(); _lower != _toAdd->getLowerEnd(); ++_lower) {
       m_L1s.insert( (*_lower) );
+      //TODO do i need to add this counter to the L1s here? Don't think so
     }
   }
 
@@ -192,6 +210,7 @@ namespace TrigCostRootAnalysis {
         }
       }
       m_L2s.insert( _L2 );
+      _L2->addCounter( this ); // Add back-link
       for (ChainItemSetIt_t _lower = _L2->getLowerStart(); _lower != _L2->getLowerEnd(); ++_lower) {
         m_L1s.insert( (*_lower) );
       }

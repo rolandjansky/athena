@@ -26,13 +26,25 @@
 #include <TH1.h>
 #include <TSystem.h>
 #include <TROOT.h>
+#include <TSystem.h>
+#include <TXMLEngine.h>
+#include <TObjString.h>
+#include <TDOMParser.h>
+#include <TXMLNode.h>
+#include <TXMLDocument.h>
+#include <TXMLAttr.h>
+
+// ATHENA Includes
+#ifndef ROOTCORE
+#include "PathResolver/PathResolver.h"
+#endif // not ROOTCORE
 
 namespace TrigCostRootAnalysis {
 
   /**
    * Default lumi collector constructor
    */
-  LumiCollector::LumiCollector() : m_lumiLength(), m_totalLumiLength(0), m_useDefault(kFALSE), m_dataStore() {
+  LumiCollector::LumiCollector() : m_lumiLength(), m_eventsProcessedPerLB(), m_totalEventsPerLB(), m_totalLumiLength(0), m_useDefault(kFALSE), m_dataStore(), m_triedXMLLoad(kFALSE) {
     //m_dataStore = new DataStore();
     m_dataStore.newVariable(kVarEventsPerLumiblock).setSavePerEvent("Events per Lumi Block;Lumi Block;Events");
   }
@@ -65,6 +77,8 @@ namespace TrigCostRootAnalysis {
     assert(_lumiBlock >= 0);
     assert(_length > 0 && _length == _length && _length < HUGE_VAL); //Check -ve, NaN, Inf
 
+    if (m_triedXMLLoad == kFALSE) tryXMLLoad();
+
     m_dataStore.store(kVarEventsPerLumiblock, _lumiBlock, 1.);
 
     // Look to see if we've seen this LB yet
@@ -72,6 +86,8 @@ namespace TrigCostRootAnalysis {
       m_totalLumiLength += _length;
       m_lumiLength[ _lumiBlock ] = _length;
     }
+
+    m_eventsProcessedPerLB[ _lumiBlock ]++;
     
   }
 
@@ -80,6 +96,71 @@ namespace TrigCostRootAnalysis {
    */
   UInt_t LumiCollector::getNLumiBlocks() {
     return m_lumiLength.size();
+  }
+
+  /**
+   * See if we can load how many events to expect for each LB. If we can, then we will know what fraction of events we have actually seen!
+   */
+  void LumiCollector::tryXMLLoad() {
+
+    m_triedXMLLoad = kTRUE;
+
+
+    // Try one. Use the external (AFS) data path
+
+    const std::string _path = std::string("events_per_lb_") + intToString(Config::config().getInt(kRunNumber)) + std::string(".xml");
+  
+    TXMLEngine* _xml = new TXMLEngine();
+    XMLDocPointer_t _xmlDoc = 0;
+
+    if (Config::config().getInt(kIsRootCore) == kTRUE) {
+      _xmlDoc = _xml->ParseFile( std::string( Config::config().getStr(kDataDir) + _path ).c_str() );
+    } else {
+// CAUTION - "ATHENA ONLY" CODE
+#ifndef ROOTCORE
+      std::string _locAthena = PathResolverFindDataFile( _path );
+      if (_locAthena != Config::config().getStr(kBlankString)) {
+        _xmlDoc = _xml->ParseFile( _locAthena.c_str() );
+      }
+#endif // not ROOTCORE
+    }
+
+    if (_xmlDoc == 0) {
+      Warning("LumiCollector::tryXMLLoad","Cannot find lumi block entries %s, hence will not do advanced partial-run rate scaling.", _path.c_str() );
+      return;
+    }
+
+    XMLNodePointer_t _mainNode = _xml->DocGetRootElement(_xmlDoc);
+    assert( _xml->GetNodeName(_mainNode) == std::string("LUMIBLOCK") );
+    XMLNodePointer_t _listNode = _xml->GetChild( _mainNode );
+    Int_t _totalEvents = 0;
+
+    while ( _listNode != 0 ) { // Loop over all menu elements
+      const std::string _listName = _xml->GetNodeName(_listNode);
+
+      if (_listName != "LB_LIST") {
+        _listNode = _xml->GetNext(_listNode);
+        continue;
+      }
+
+      XMLNodePointer_t _lbNode = _xml->GetChild( _listNode );
+      while( _lbNode != 0) {
+        assert( _xml->GetNodeName(_lbNode) == std::string("lb") );
+        Int_t _lb      = stringToInt( _xml->GetAttr(_lbNode, "id") );
+        Int_t _nEvents = stringToInt( _xml->GetNodeContent(_lbNode) );
+        m_totalEventsPerLB[_lb] = _nEvents;
+        _totalEvents += _nEvents;
+        _lbNode = _xml->GetNext(_lbNode);
+      }
+
+      _listNode = _xml->GetNext(_listNode);
+    }
+
+    if (Config::config().debug()) {
+      Info("LumiCollector::tryXMLLoad","Got breakdown of events-per-lumiblock for %i events over %i LB in run %i.", _totalEvents, (Int_t)m_totalEventsPerLB.size(), Config::config().getInt(kRunNumber));
+    }
+
+    delete _xml;
   }
   
   /**
@@ -100,9 +181,26 @@ namespace TrigCostRootAnalysis {
       return 0;
     }
   }
-  
+
   Float_t LumiCollector::getTotalLumiBlockTime() {
-    return m_totalLumiLength;
+    if (m_totalEventsPerLB.size() == 0) {
+      // Basic mode?
+      return m_totalLumiLength;
+    } else {
+      //Advanced mode // TODO CACHE THIS INFO!
+      Float_t _totalTime = 0.;
+      for (IntIntMapIt_t _it = m_eventsProcessedPerLB.begin(); _it != m_eventsProcessedPerLB.end(); ++_it) {
+        Int_t _lb = (*_it).first;
+        Float_t _eventsSeen = m_eventsProcessedPerLB[_lb];
+        Float_t _eventsTotal = m_totalEventsPerLB[_lb];
+        Float_t _fractionSeen = _eventsSeen / _eventsTotal;
+        if (isZero(_eventsTotal) == kTRUE) _fractionSeen = 0.;
+        Float_t _effectiveLBTime = m_lumiLength[_lb] * _fractionSeen;
+        //Info("LumiCollector::getTotalLumiBlockTime", "In LB %i we saw %.0f of %0.f events, %.2f%%, so the effective LB time is %.2f", _lb, _eventsSeen, _eventsTotal, _fractionSeen*100., _effectiveLBTime);
+        _totalTime += _effectiveLBTime;
+      }
+      return _totalTime;
+    }
   }
 
   void LumiCollector::saveOutput() {

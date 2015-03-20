@@ -19,6 +19,9 @@
 //Local include(s):
 #include "Utility.h"
 
+// Forward dec
+class TXMLEngine;
+
 namespace TrigCostRootAnalysis {
 
   /**
@@ -35,16 +38,23 @@ namespace TrigCostRootAnalysis {
 
     Double_t getPrescale( const std::string& _name );
     Float_t  getEventWeight(UInt_t _eventNumber);
+    Double_t getHLTCostWeightingFactor(const std::string& _chainName );
 
     void parseEnhancedBiasXML();
     void exportEnhancedBiasXML(UInt_t _eventNumber, Float_t _weight, UInt_t _bunchGroup);
     void saveExportedEnhancedBiasXML();
+
+    void writePrescaleXML();
+
+    Bool_t getEnabled() { return m_serviceEnabled; }
     
    private:
 
-    void parseMenuXML(); 
-    void parsePrescaleXML(UInt_t _xmlID);
-    void writePrescaleXML();
+    void parseXML(UInt_t _xmlID);
+
+    void parseL1MenuXML(TXMLEngine* _xml, void* _xmlDoc); 
+    void parseMenuXML(TXMLEngine* _xml, void* _xmlDoc); 
+    void parsePrescaleXML(TXMLEngine* _xml, void* _xmlDoc);
 
     /**
      * Private constructor.
@@ -75,7 +85,10 @@ namespace TrigCostRootAnalysis {
     StringDoubleMap_t m_chainPS; //!< Holds chain prescales
     StringIntMap_t    m_chainPT; //!< Holds chain passthrough
     StringDoubleMap_t m_chainRerunPS; //!< Holds chain re-run prescales
-    Bool_t            m_serviceEnabled; //!< True if the XML has been fully parsed
+
+    IntStringMap_t    m_CTPIDToL1Name; //<! Used when decoding a L1 menu XML
+
+    Bool_t            m_serviceEnabled; //!< True if at least one XML has been fully parsed
 
     StringIntMap_t    m_chainEvtPassed; //!< Events passed (TrigCostPython import)
     StringFloatMap_t  m_chainEvtPassedWeighted; //!< Events passed weighted (TrigCostPython import)

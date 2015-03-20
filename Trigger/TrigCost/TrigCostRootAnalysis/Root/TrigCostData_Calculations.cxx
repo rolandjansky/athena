@@ -12,7 +12,8 @@
 #include <map>
 #include <utility> //std::pair
 #include <iostream>
-#include <assert.h>
+#include <assert.h> 
+#include <float.h>
 
 // Local include(s):
 #include "../TrigCostRootAnalysis/ProcessEvent.h"
@@ -36,6 +37,19 @@ namespace TrigCostRootAnalysis {
    * rather they calculate and buffer the quantity for the event such that it can be quickly returned to
    * other clients of the data. There is a performance hit to using any of these calls.
    */
+
+  void TrigCostData::setChainPrescaleWeight(const std::string& _name, Double_t _value) const {
+    checkBuffers();
+    m_chainPSWeight[_name] = _value;
+  }
+  
+
+  Double_t TrigCostData::getChainPrescaleWeight(const std::string& _name) const {
+    checkBuffers();
+    StringDoubleMapIt_t _it = m_chainPSWeight.find( _name );
+    if (_it == m_chainPSWeight.end()) return DBL_MIN;
+    return _it->second;
+  }
 
   /**
    * For times when chain execution time is not stored in the D3PD, this function computes it
@@ -788,7 +802,7 @@ namespace TrigCostRootAnalysis {
    * @param _n ROB index in D3PD.
    * @return D3PD location in this event of associated algorithm, or (-1,-1) if not found.
    */
-  const std::pair< Int_t, Int_t >& TrigCostData::getROBAlgLocation(UInt_t _n) {
+  const std::pair< Int_t, Int_t >& TrigCostData::getROBAlgLocation(UInt_t _n) const {
     checkBuffers();
 
     if ( m_algExecMap.size() == 0) {
@@ -880,7 +894,6 @@ namespace TrigCostRootAnalysis {
       } 
     }
 
-    assert(m_algExecMap.size() > 0);
   }
 
   /**
@@ -994,12 +1007,14 @@ namespace TrigCostRootAnalysis {
         return _i;
       }
     }
-    Warning("TrigCostData::getRoIIndexFromId","No RoI found with ID %i (returning invalid location, -1).", _id);
-    for (UInt_t _i = 0; _i < getNRoIs(); ++_i) {
-      Warning("TrigCostData::getRoIIndexFromId"," -- RoI at location %i (%s) has ID %i",
-       _i, 
-       this->getRoITypeString(_i).c_str(),
-       this->getRoIID(_i));
+    if (Config::config().getDisplayMsg(kMsgCannotFindRoI) == kTRUE) { 
+      Warning("TrigCostData::getRoIIndexFromId","No RoI found with ID %i (going to return an invalid location, -1). The posibilities were:", _id);
+      for (UInt_t _i = 0; _i < getNRoIs(); ++_i) {
+        Warning("TrigCostData::getRoIIndexFromId"," -- RoI at location %i (%s) has ID %i",
+         _i, 
+         this->getRoITypeString(_i).c_str(),
+         this->getRoIID(_i));
+      }
     }
     return -1;
   }
@@ -1018,7 +1033,9 @@ namespace TrigCostRootAnalysis {
       else if (getIsRoIJetEt(_n) == kTRUE) return Config::config().getStr(kJetEtString);
       else if (getIsRoIEnergy(_n) == kTRUE) return Config::config().getStr(kEnergyString);
     }
-    Warning("TrigCostData::getRoITypeString","Encountered an ROI at location:%i with no type.", _n);
+    if (Config::config().getDisplayMsg(kMsgUnknownRoIType) == kTRUE) { 
+      Warning("TrigCostData::getRoITypeString","Encountered an ROI at location:%i with no type.", _n);
+    }
     return Config::config().getStr(kUnknownString);
   }
   
@@ -1077,6 +1094,7 @@ namespace TrigCostRootAnalysis {
       m_seqROBRetSize.clear();
       m_seqROBReqSize.clear();
       m_seqROBOther.clear();
+      m_chainPSWeight.clear();
     }
   }
   
