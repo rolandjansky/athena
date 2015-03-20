@@ -184,9 +184,9 @@ def setupMenu():
         ['mu11_2mu4noL1_nscan03_L1MU11_2MU6', 'L1_MU11_2MU6', ['L1_MU11_2MU6',''], [PhysicsStream], ['RATE:MultiMuon','BW:Muon'], -1,['serial',-1,['mu11','2mu4noL1_nscan03']]],        
         ['mu11_2mu4noL1_nscan03_L1MU10_2MU6', 'L1_MU10_2MU6', ['L1_MU10_2MU6',''], [PhysicsStream], ['RATE:MultiMuon','BW:Muon'], -1,['serial',-1,['mu11','2mu4noL1_nscan03']]],        
         ['mu20_msonly_mu6noL1_msonly_nscan05','L1_MU20',     ['L1_MU20',''], [PhysicsStream], ['RATE:MultiMuon','BW:Muon'], -1,['serial',-1,['mu20_msonly','mu6noL1_msonly_nscan05']]],
-        ['mu11_2mu4noL1_nscan03', 'L1_LFV-MU', ['L1_MU10_2MU6',''], [PhysicsStream], ['RATE:MultiMuon','BW:Muon'], -1,['serial',-1,['mu11','2mu4noL1_nscan03']],False],
+        ['mu11_2mu4noL1_nscan03', 'L1_LFV-MU', ['L1_MU10_2MU6',''], [PhysicsStream], ['RATE:MultiMuon','BW:Muon'], -1,['serial',-1,['mu11','2mu4noL1_nscan03']]],
  
-        ['mu11_2mu4noL1_nscan03_L1MU11_LFV-MU', 'L1_LFV-MU', ['L1_MU11_2MU6',''], [PhysicsStream], ['RATE:MultiMuon','BW:Muon'], -1,['serial',-1,['mu11','2mu4noL1_nscan03']],False],
+        ['mu11_2mu4noL1_nscan03_L1MU11_LFV-MU', 'L1_LFV-MU', ['L1_MU11_2MU6',''], [PhysicsStream], ['RATE:MultiMuon','BW:Muon'], -1,['serial',-1,['mu11','2mu4noL1_nscan03']]],
         ]
 
     TriggerFlags.JetSlice.signatures = TriggerFlags.JetSlice.signatures() + [
@@ -735,18 +735,26 @@ def setupMenu():
         ['tau25_perf_trackcalo',                   'L1_TAU12IM', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
         ['tau25_perf_tracktwocalo',                'L1_TAU12IM', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
         # Run-II - With BDT: main track-based items
+        ['tau25_loose1_tracktwo',                  'L1_TAU12IM', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
         ['tau25_medium1_tracktwo',                 'L1_TAU12IM', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
         ['tau25_medium1_track',                    'L1_TAU12IM', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
         ['tau25_medium1_tracktwo_L1TAU12',         'L1_TAU12', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
         ['tau25_medium1_tracktwo_L1TAU12IL',       'L1_TAU12IL', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
         ['tau25_medium1_tracktwo_L1TAU12IT',       'L1_TAU12IT', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
+        ['tau25_tight1_tracktwo',                  'L1_TAU12IM', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
         # Run-II - With BDT: main calo-based items
         ['tau25_medium1_calo',                     'L1_TAU12IM', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
         ['tau25_medium1_trackcalo',                'L1_TAU12IM', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
         ['tau25_medium1_tracktwocalo',             'L1_TAU12IM', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
+        # Run-II - With BDT: pt only
+        ['tau25_loose1_ptonly',                    'L1_TAU12IM', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
+        ['tau25_medium1_ptonly',                   'L1_TAU12IM', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
+        ['tau25_tight1_ptonly',                    'L1_TAU12IM', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
         # Run-II - With BDT: no pre-selection
         ['tau25_medium1_mvonly',                   'L1_TAU12IM', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
         # Run-II - High-pT variations
+        ['tau35_loose1_tracktwo',                  'L1_TAU20IM', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
+        ['tau35_loose1_ptonly',                    'L1_TAU20IM', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
         ['tau35_medium1_tracktwo',                 'L1_TAU20IM', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
         ['tau35_medium1_tracktwo_L1TAU20',         'L1_TAU20', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
         ['tau35_medium1_tracktwo_L1TAU20IL',       'L1_TAU20IL', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
@@ -755,6 +763,8 @@ def setupMenu():
         ['tau35_medium1_calo',                     'L1_TAU20IM', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
         ['tau35_medium1_ptonly',                   'L1_TAU20IM', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
         ['tau35_medium1_ptonly_L1TAU20',           'L1_TAU20', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
+        ['tau35_tight1_tracktwo',                  'L1_TAU20IM', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
+        ['tau35_tight1_ptonly',                    'L1_TAU20IM', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
         ['tau35_perf_tracktwo',                    'L1_TAU20IM', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
         ['tau35_perf_ptonly',                      'L1_TAU20IM', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
         ['tau80_medium1_calo',                     'L1_TAU40', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
@@ -1524,9 +1534,13 @@ def setupMenu():
         
         # TAU+X
         # Ditau Items
+        ['tau35_loose1_tracktwo_tau25_loose1_tracktwo',   'L1_TAU20IM_2TAU12IM_J25_2J20_3J12',['L1_TAU20IM','L1_TAU12IM'], [PhysicsStream], ['RATE:MultiTau', 'BW:Tau'], -1,['serial',-1,["tau35_loose1_tracktwo","tau25_loose1_tracktwo"]]],
         ['tau35_medium1_tracktwo_tau25_medium1_tracktwo',   'L1_TAU20IM_2TAU12IM_J25_2J20_3J12',['L1_TAU20IM','L1_TAU12IM'], [PhysicsStream], ['RATE:MultiTau', 'BW:Tau'], -1,['serial',-1,["tau35_medium1_tracktwo","tau25_medium1_tracktwo"]]],
+        ['tau35_tight1_tracktwo_tau25_tight1_tracktwo',   'L1_TAU20IM_2TAU12IM_J25_2J20_3J12',['L1_TAU20IM','L1_TAU12IM'], [PhysicsStream], ['RATE:MultiTau', 'BW:Tau'], -1,['serial',-1,["tau35_tight1_tracktwo","tau25_tight1_tracktwo"]]],
 
+        ['tau35_loose1_tracktwo_tau25_loose1_tracktwo_L1TAU20IM_2TAU12IM',   'L1_TAU20IM_2TAU12IM',['L1_TAU20IM','L1_TAU12IM'], [PhysicsStream], ['RATE:MultiTau', 'BW:Tau'], -1,['serial',-1,["tau35_loose1_tracktwo","tau25_loose1_tracktwo"]]],
         ['tau35_medium1_tracktwo_tau25_medium1_tracktwo_L1TAU20IM_2TAU12IM',   'L1_TAU20IM_2TAU12IM',['L1_TAU20IM','L1_TAU12IM'], [PhysicsStream], ['RATE:MultiTau', 'BW:Tau'], -1,['serial',-1,["tau35_medium1_tracktwo","tau25_medium1_tracktwo"]]],
+        ['tau35_tight1_tracktwo_tau25_tight1_tracktwo_L1TAU20IM_2TAU12IM',   'L1_TAU20IM_2TAU12IM',['L1_TAU20IM','L1_TAU12IM'], [PhysicsStream], ['RATE:MultiTau', 'BW:Tau'], -1,['serial',-1,["tau35_tight1_tracktwo","tau25_tight1_tracktwo"]]],
 
         ['tau35_perf_ptonly_tau25_perf_ptonly_L1TAU20IM_2TAU12IM',   'L1_TAU20IM_2TAU12IM',['L1_TAU20IM','L1_TAU12IM'], [PhysicsStream], ['RATE:MultiTau', 'BW:Tau'], -1,['serial',-1,["tau35_perf_ptonly","tau25_perf_ptonly"]]],
 
@@ -1743,8 +1757,7 @@ def setupMenu():
 	#supporting HMT triggers
 	['mb_sp1800_hmtperf_L1TE20', 'L1_TE20', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
         ['mb_sp1800_hmtperf_L1TE30.0ETA24', 'L1_TE30.0ETA24', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
-
-
+	['mb_sp2_hmtperf_L1MBTS_1_1', 'L1_MBTS_1_1', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
 
         ]
 
@@ -1857,7 +1870,7 @@ Prescales.HLTPrescales.update({
     'id_cosmicid_trtxk'                     : [    -1,    0,   -1],
     'id_cosmicid_trtxk_central'             : [    -1,    0,   -1],
     'j0_L1J12'                              : [    -1,    0,   -1],
-    'j0_PS_L1J12'                           : [    -1,    0,   -1],
+    'j0_jes_PS_L1J12'                           : [    -1,    0,   -1],
     'j0_a10_lcw_sub_L1J12'                  : [    -1,    0,   -1],
     'j0_a10_nojcalib_L1J12'                 : [    -1,    0,   -1],
     'j0_a10_nojcalib_L1RD0_EMPTY'           : [    -1,    0,   -1],
@@ -1886,6 +1899,8 @@ Prescales.HLTPrescales.update({
     'larnoiseburst_L1All'                   : [    -1,    0,   -1],
     'larnoiseburst_L1RD0_EMPTY'             : [    -1,    0,   -1],
     'larnoiseburst_rerun'                   : [    -1,    0,   -1],
+    'larnoiseburst_loose_L1All'             : [    -1,    0,   -1],
+    'larnoiseburst_loose_rerun_L1All'       : [    -1,    0,   -1],
     'larps_L1EM3_EMPTY'                     : [    -1,    0,   -1],
     'larps_L1EM7_EMPTY'                     : [    -1,    0,   -1],
     'larps_L1J12_EMPTY'                     : [    -1,    0,   -1],
@@ -2071,8 +2086,10 @@ Prescales.HLTPrescales_tight_mc_prescale.update({
     'mb_perf_L1RD1_FILLED'                  : [    -1,    0,   -1],
     'mb_sptrk'                              : [    -1,    0,   -1],
     'mb_sptrk_noisesup'                     : [    -1,    0,   -1],
+    'mb_sp2_hmtperf_L1MBTS_1_1'             : [    -1,    0,   -1],
 
      # Minbias chains in MC_pp_v5
+    'mb_sp2_hmtperf_L1MBTS_1_1'             : [    -1,    0,   -1],
     'mb_sp1800_hmtperf_L1TE20'              : [    -1,    0,   -1],
     'mb_sp1800_hmtperf_L1TE30.0ETA24'       : [    -1,    0,   -1],
     'mb_sp2000_pusup600_trk70_hmt'          : [    -1,    0,   -1],

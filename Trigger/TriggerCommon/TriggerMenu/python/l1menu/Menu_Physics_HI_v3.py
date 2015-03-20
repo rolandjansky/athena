@@ -79,7 +79,7 @@ def defineMenu():
                        'L1_EM12',
                        'L1_EM14',
                        'L1_EM16',
-                       'L1_2EM3',
+                       'L1_2EM10',
                        'L1_2EM5',
                        # tau beam items
                        #'L1_TAU8',
@@ -284,7 +284,7 @@ def defineMenu():
         'L1_RD0_UNPAIRED_NONISO' : 7,
         'L1_BCM_AC_CA_UNPAIRED_NONISO': 8,
         'L1_FJ10_UNPAIRED_NONISO' :  9,
-        'L1_2EM3' : 10,
+        'L1_2EM10' : 10,
         'L1_2EM5' : 11,
         'L1_MU0_VTE20' : 12,
         'L1_NIM_S8C2B21'            : 13,#DIRNIM

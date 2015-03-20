@@ -732,7 +732,8 @@ class GenerateMenu:
         dumpIt(f, TestSliceFlags.signatures(), 'Test')
         pass
 
-            
+
+
     def generate(self):
         log.info('GenerateMenu.py:generate ')
 
@@ -794,6 +795,7 @@ class GenerateMenu:
         else:
             log.info("Doing nothing with L1 menu configuration...")
 
+
         ##################
         #setup of HLT menu
         ##################
@@ -829,6 +831,17 @@ class GenerateMenu:
             counter += 1 
             chainCounter =  counter
             chainDicts['chainCounter'] = chainCounter
+
+            chainDicts['topoThreshold'] = None
+            if chainDicts['topoStartFrom'] == True:
+                L1item = chainDicts['L1item']
+                for item in self.trigConfL1.menu.items:
+                    if str(item.name) == L1item:
+                        itemThrNames = item.thresholdNames(include_bgrp=False)
+                        if len(itemThrNames) == 1:
+                            chainDicts['topoThreshold'] = itemThrNames[0]                        
+                        else:
+                            log.info("Multiple thresholds found for item, not sure which one to pass")
 
             chainDef = self.getChainDef(chainDicts)
 

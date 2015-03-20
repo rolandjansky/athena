@@ -1,7 +1,7 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 ###########################################################################
-# SliceDef file for Muon chains
+# SliceDef file for Bphysics chains
 ###########################################################################
 __author__  = 'M.Backes, C.Bernius, J.Walder'
 __doc__="Definition of bphysics chains" 
@@ -52,26 +52,15 @@ def _addTopoInfo(theChainDef,chainDict,doAtL2AndEF=True):
     SameConfigTopos = ['bJpsi', 'bDimu', 'bTau', 'bBmumu', 'bJpsimumu', 'bUpsimumu', 'Zmumu','bUpsi']
     ntopos = len(topoAlgs)
 
-    # check if L1 item is L1Topo => then enable topo_start_from 
-    useTopoStartFrom = chainDict['topoStartFrom']
-    topoStartFrom = None
-    if useTopoStartFrom:
-        L1item = chainDict['L1item']
-        L1item = L1item.replace("L1_", "")
-        if ("-" in L1item): 
-            topoStartFrom = L1item
-        else: logBphysDef.error("L1Topo item can't be identified")
-    else:
-        logBphysDef.debug("topoStartFrom set to False in chain properties in the menu.")
         
     if ('bBmumux' in topoAlgs) | ('bBmumuxv2' in topoAlgs):
-        theChainDef = bBmumuxTopos(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoStartFrom)
+        theChainDef = bBmumuxTopos(theChainDef, chainDict, inputTEsL2, inputTEsEF, chainDict['topoThreshold'])
     elif ('Trkloose' in topoAlgs):
-        theChainDef = bMuTrack(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoStartFrom)
+        theChainDef = bMuTrack(theChainDef, chainDict, inputTEsL2, inputTEsEF, chainDict['topoThreshold'])
     elif (ntopos ==1) & (topoAlgs[0] in SameConfigTopos):
-        theChainDef = bSingleOptionTopos(theChainDef,chainDict, inputTEsL2, inputTEsEF, topoStartFrom)
+        theChainDef = bSingleOptionTopos(theChainDef,chainDict, inputTEsL2, inputTEsEF, chainDict['topoThreshold'])
     else:
-        theChainDef = bMultipleOptionTopos(theChainDef,chainDict,inputTEsL2, inputTEsEF, topoStartFrom)
+        theChainDef = bMultipleOptionTopos(theChainDef,chainDict,inputTEsL2, inputTEsEF, chainDict['topoThreshold'])
 
     return theChainDef
 

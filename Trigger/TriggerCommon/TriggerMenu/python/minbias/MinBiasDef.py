@@ -506,7 +506,7 @@ class L2EFChain_MB(L2EFChainDef):
         #print 'igb - l2th1:', l2th1
         ########## L2 algos ##################
         if "hmtperf" in self.chainPart['recoAlg']:
-            chainSuffix = "hmtperf"
+            chainSuffix = "sp"+l2th1+"_hmtperf"
 
             theL2Fex1  = L2MbSpFex_noPix
             theL2Hypo1 = L2MbSpMhNoPixHypo_hip("L2MbSpMhNoPixHypo_hip_"+l2th1, float(l2th1))

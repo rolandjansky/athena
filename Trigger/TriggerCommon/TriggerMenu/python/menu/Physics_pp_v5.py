@@ -63,7 +63,7 @@ def setupMenu():
         ['j0_lcw_jes_L1J12',       'L1_J12', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jets'], -1],
         ['j0_sub_L1J12',           'L1_J12', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jets'], -1],
         ['j0_nojcalib_L1J12',      'L1_J12', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jets'], -1],
-        ['j0_PS_L1J12',            'L1_J12', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jets'], -1],
+        ['j0_jes_PS_L1J12',        'L1_J12', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jets'], -1],
         
         ['j0_a10_nojcalib_L1J12',  'L1_J12', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jets'], -1],
         ['j0_a10_lcw_sub_L1J12',   'L1_J12', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jets'], -1],
@@ -214,9 +214,11 @@ def setupMenu():
         ]
 
     TriggerFlags.CalibSlice.signatures   = [
-        ['larnoiseburst_L1All',       'L1_All',       [], ['LArNoiseBurst','CosmicCalo'], ["RATE:Calibration", "BW:Detector"], -1],
-        ['larnoiseburst_L1RD0_EMPTY', 'L1_RD0_EMPTY', [], ['LArNoiseBurst','CosmicCalo'], ["RATE:Calibration", "BW:Detector"], -1],        
-        ['larnoiseburst_rerun',       '',             [], ['LArNoiseBurst'], ["RATE:Calibration", "BW:Detector"], -1],
+        ['larnoiseburst_L1All',                  'L1_All',       [], ['LArNoiseBurst','CosmicCalo'], ["RATE:Calibration", "BW:Detector"], -1],
+        ['larnoiseburst_loose_L1All',             'L1_All',       [], ['LArNoiseBurst','CosmicCalo'], ["RATE:Calibration", "BW:Detector"], -1],
+        ['larnoiseburst_loose_rerun_L1All',       'L1_All',       [], ['LArNoiseBurst'], ["RATE:Calibration", "BW:Detector"], -1],
+        ['larnoiseburst_L1RD0_EMPTY',            'L1_RD0_EMPTY', [], ['LArNoiseBurst','CosmicCalo'], ["RATE:Calibration", "BW:Detector"], -1],        
+        ['larnoiseburst_rerun',                  '',             [], ['LArNoiseBurst'], ["RATE:Calibration", "BW:Detector"], -1],
 
         ['l1calocalib',             'L1_RD0_FILLED',     [], ['L1CaloCalib'], ["RATE:Calibration", "RATE:L1CaloCalib", "BW:Detector"], -1],
         ['l1calocalib_L1BGRP7',     'L1_BGRP7',          [], ['L1CaloCalib'], ["RATE:Calibration", "RATE:L1CaloCalib", "BW:Detector"], -1], 
@@ -459,6 +461,7 @@ class Prescales:
     #----------------------------------------------------------
     HLTPrescales = {
         'larnoiseburst_rerun' : [ 1, 0 , 1, "LArNoiseBurst"],
+        'larnoiseburst_test_rerun_L1All' : [ 1, 0 , 1, "LArNoiseBurst"],
         }
 
 #StreamConfig = {}
