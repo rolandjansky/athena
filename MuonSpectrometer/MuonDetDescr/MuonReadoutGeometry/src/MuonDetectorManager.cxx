@@ -111,85 +111,87 @@ MuonDetectorManager::MuonDetectorManager() {
   m_msgSvc = Athena::getMessageSvc();  
 }
 
-
 MuonDetectorManager::~MuonDetectorManager() {
 
-  for (unsigned int p=0;p<_envelope.size();p++) {
+
+  for (unsigned int p=0;p<_envelope.size();++p) {
       _envelope[p]->unref();
   }
 
 
-  for (unsigned int i=0; i<NRpcStatType; i++)
-    for (unsigned int j=0; j<NRpcStatEta; j++)
-      for (unsigned int k=0; k<NRpcStatPhi; k++)
-        for (unsigned int l=0; l<NDoubletR; l++)
-          for (unsigned int h=0; h<NDoubletZ; h++) {
-            delete _rpcArray[i][j][k][l][h];
+  for (unsigned int i=0; i<NRpcStatType; ++i)
+    for (unsigned int j=0; j<NRpcStatEta; ++j)
+      for (unsigned int k=0; k<NRpcStatPhi; ++k)
+        for (unsigned int l=0; l<NDoubletR; ++l)
+          for (unsigned int h=0; h<NDoubletZ; ++h) {
+            delete _rpcArray[i][j][k][l][h]; _rpcArray[i][j][k][l][h] = 0;
           }
-  for (unsigned int i=0; i<NMdtStatType; i++)
-    for (unsigned int j=0; j<NMdtStatEta; j++)
-      for (unsigned int k=0; k<NMdtStatPhi; k++)
-        for (unsigned int l=0; l<NMdtMultilayer; l++) {
-          delete _mdtArray[i][j][k][l];
+  for (unsigned int i=0; i<NMdtStatType; ++i)
+    for (unsigned int j=0; j<NMdtStatEta; ++j)
+      for (unsigned int k=0; k<NMdtStatPhi; ++k)
+        for (unsigned int l=0; l<NMdtMultilayer; ++l) {
+          delete _mdtArray[i][j][k][l]; _mdtArray[i][j][k][l] = 0;
         }
-  for (unsigned int i=0; i<NTgcStatType; i++)
-    for (unsigned int j=0; j<NTgcStatEta; j++)
-      for (unsigned int k=0; k<NTgcStatPhi; k++) {
-        delete _tgcArray[i][j][k];
+  for (unsigned int i=0; i<NTgcStatType; ++i)
+    for (unsigned int j=0; j<NTgcStatEta; ++j)
+      for (unsigned int k=0; k<NTgcStatPhi; ++k) {
+        delete _tgcArray[i][j][k]; _tgcArray[i][j][k] = 0;
       }
-  for (unsigned int i=0; i<NCscStatType; i++)
-    for (unsigned int j=0; j<NCscStatEta; j++)
-      for (unsigned int k=0; k<NCscStatPhi; k++)
-        for (unsigned int l=0; l<NCscChamberLayer; l++) {
-          delete _cscArray[i][j][k][l];
+  for (unsigned int i=0; i<NCscStatType; ++i)
+    for (unsigned int j=0; j<NCscStatEta; ++j)
+      for (unsigned int k=0; k<NCscStatPhi; ++k)
+        for (unsigned int l=0; l<NCscChamberLayer; ++l) {
+          delete _cscArray[i][j][k][l]; _cscArray[i][j][k][l] = 0;
         }
 
-  for (unsigned int i=0; i<MdtDetElMaxHash; ++i)
-    if (_mdtDEArray[i]) delete _mdtDEArray[i]; 
-  for (unsigned int i=0; i<RpcDetElMaxHash; ++i)
-    if (_rpcDEArray[i]) delete _rpcDEArray[i];
-  for (unsigned int i=0; i<CscDetElMaxHash; ++i)
-    if (_cscDEArray[i]) delete _cscDEArray[i];
-  for (unsigned int i=0; i<TgcDetElMaxHash; ++i)
-    if (_tgcDEArray[i]) delete _tgcDEArray[i];
-
-
+  for (unsigned int i=0; i<MdtDetElMaxHash; ++i) {
+    if (_mdtDEArray[i]) delete _mdtDEArray[i]; _mdtDEArray[i] = 0;
+  }
+  for (unsigned int i=0; i<RpcDetElMaxHash; ++i) {
+    if (_rpcDEArray[i]) delete _rpcDEArray[i]; _rpcDEArray[i] = 0;
+  }
+  for (unsigned int i=0; i<CscDetElMaxHash; ++i) {
+    if (_cscDEArray[i]) delete _cscDEArray[i]; _cscDEArray[i] = 0;
+  }
+  for (unsigned int i=0; i<TgcDetElMaxHash; ++i) {
+    if (_tgcDEArray[i]) delete _tgcDEArray[i]; _tgcDEArray[i] = 0;
+  }
   for (std::map< std::string, MuonStation * >::iterator i =
            _MuonStationMap.begin(); i != _MuonStationMap.end(); ++i)
   {
-    delete i->second;
+    delete i->second; i->second = 0;
   }
 
-  for (std::vector<TgcReadoutParams*>::const_iterator i=_TgcReadoutParamsVec.begin();
+  for (std::vector<TgcReadoutParams*>::iterator i=_TgcReadoutParamsVec.begin();
          i!=_TgcReadoutParamsVec.end();++i)
   {
-    delete (*i);
+    delete (*i); *i = 0;
   }  
 
-  if (m_cscALineContainer != NULL)
+  if (0 != m_cscALineContainer) 
   {
-      for (ciCscInternalAlignmentMap iter=CscALineMapBegin(); iter!=CscALineMapEnd(); ++iter )
+    for (auto elem: *m_cscALineContainer )
       {
-	  delete (*iter).second;
+	delete elem.second; elem.second = 0;
       }
+    delete m_cscALineContainer; m_cscALineContainer = 0;
   }
-  delete m_cscALineContainer;
 
-  if (m_aLineContainer->size()!=0)
+  if (0 != m_aLineContainer)
   {
-      for (ciALineMap iter=ALineMapBegin(); iter!=ALineMapEnd(); ++iter )
+    for (auto elem: *m_aLineContainer )
       {
-	  delete (*iter).second;
+	delete elem.second; elem.second = 0;
       }
   }
-  if (m_bLineContainer->size()!=0)
+  if (0 != m_bLineContainer)
   {
-      for (ciBLineMap iter=BLineMapBegin(); iter!=BLineMapEnd(); ++iter )
+    for (auto elem: *m_bLineContainer )
       {
-	  delete (*iter).second;
+	delete elem.second; elem.second = 0;
       }
   }
-  
+
 }
 
 
@@ -241,78 +243,78 @@ void MuonDetectorManager::refreshsTgcCache() const
    
 void MuonDetectorManager::clearMdtCache() const
 {
-    for (unsigned int i=0; i<NMdtStatType; i++)
-      for (unsigned int j=0; j<NMdtStatEta; j++)
-        for (unsigned int k=0; k<NMdtStatPhi; k++)
-          for (unsigned int l=0; l<NMdtMultilayer; l++) {
+    for (unsigned int i=0; i<NMdtStatType; ++i)
+      for (unsigned int j=0; j<NMdtStatEta; ++j)
+        for (unsigned int k=0; k<NMdtStatPhi; ++k)
+          for (unsigned int l=0; l<NMdtMultilayer; ++l) {
               if (_mdtArray[i][j][k][l]) _mdtArray[i][j][k][l]->clearCache();
           }
 }   
 void MuonDetectorManager::clearRpcCache() const
 {
-    for (unsigned int i=0; i<NRpcStatType; i++)
-      for (unsigned int j=0; j<NRpcStatEta; j++)
-        for (unsigned int k=0; k<NRpcStatPhi; k++)
-          for (unsigned int l=0; l<NDoubletR; l++)
-            for (unsigned int h=0; h<NDoubletZ; h++) {
+    for (unsigned int i=0; i<NRpcStatType; ++i)
+      for (unsigned int j=0; j<NRpcStatEta; ++j)
+        for (unsigned int k=0; k<NRpcStatPhi; ++k)
+          for (unsigned int l=0; l<NDoubletR; ++l)
+            for (unsigned int h=0; h<NDoubletZ; ++h) {
               if( _rpcArray[i][j][k][l][h] ) _rpcArray[i][j][k][l][h]->clearCache() ;
             }
 }   
 void MuonDetectorManager::clearTgcCache() const
 {
-    for (unsigned int i=0; i<NTgcStatType; i++)
-      for (unsigned int j=0; j<NTgcStatEta; j++)
-        for (unsigned int k=0; k<NTgcStatPhi; k++) {
+    for (unsigned int i=0; i<NTgcStatType; ++i)
+      for (unsigned int j=0; j<NTgcStatEta; ++j)
+        for (unsigned int k=0; k<NTgcStatPhi; ++k) {
           if ( _tgcArray[i][j][k] ) _tgcArray[i][j][k]->clearCache();
         }
 }   
 void MuonDetectorManager::clearCscCache() const
 {
   if (nCscRE()<1) return;
-    for (unsigned int i=0; i<NCscStatType; i++)
-      for (unsigned int j=0; j<NCscStatEta; j++)
-        for (unsigned int k=0; k<NCscStatPhi; k++)
-          for (unsigned int l=0; l<NCscChamberLayer; l++) {
+    for (unsigned int i=0; i<NCscStatType; ++i)
+      for (unsigned int j=0; j<NCscStatEta; ++j)
+        for (unsigned int k=0; k<NCscStatPhi; ++k)
+          for (unsigned int l=0; l<NCscChamberLayer; ++l) {
             if( _cscArray[i][j][k][l] ) _cscArray[i][j][k][l]->clearCache();
           }
 }   
 void MuonDetectorManager::clearMMCache() const
 {
   if (nMMRE()<1) return;
-    for (unsigned int i=0; i<NMMcStatType; i++)
-      for (unsigned int j=0; j<NMMcStatEta; j++)
-        for (unsigned int k=0; k<NMMcStatPhi; k++)
-          for (unsigned int l=0; l<NMMcChamberLayer; l++) {
+    for (unsigned int i=0; i<NMMcStatType; ++i)
+      for (unsigned int j=0; j<NMMcStatEta; ++j)
+        for (unsigned int k=0; k<NMMcStatPhi; ++k)
+          for (unsigned int l=0; l<NMMcChamberLayer; ++l) {
               if (_mmcArray[i][j][k][l]) _mmcArray[i][j][k][l]->clearCache();
           }
 }   
 void MuonDetectorManager::clearsTgcCache() const
 {
   if (nsTgcRE()<1) return;
-    for (unsigned int i=0; i<NsTgStatType; i++)
-      for (unsigned int j=0; j<NsTgStatEta; j++)
-        for (unsigned int k=0; k<NsTgStatPhi; k++)
-          for (unsigned int l=0; l<NsTgChamberLayer; l++) {
+    for (unsigned int i=0; i<NsTgStatType; ++i)
+      for (unsigned int j=0; j<NsTgStatEta; ++j)
+        for (unsigned int k=0; k<NsTgStatPhi; ++k)
+          for (unsigned int l=0; l<NsTgChamberLayer; ++l) {
               if (_stgArray[i][j][k][l]) _stgArray[i][j][k][l]->clearCache();
           }
 }   
 void MuonDetectorManager::fillMMCache() const
 {
   if (nMMRE()<1) return;
-    for (unsigned int i=0; i<NMMcStatType; i++)
-      for (unsigned int j=0; j<NMMcStatEta; j++)
-        for (unsigned int k=0; k<NMMcStatPhi; k++)
-          for (unsigned int l=0; l<NMMcChamberLayer; l++) {
+    for (unsigned int i=0; i<NMMcStatType; ++i)
+      for (unsigned int j=0; j<NMMcStatEta; ++j)
+        for (unsigned int k=0; k<NMMcStatPhi; ++k)
+          for (unsigned int l=0; l<NMMcChamberLayer; ++l) {
               if (_mmcArray[i][j][k][l]) _mmcArray[i][j][k][l]->fillCache();
           }
 }   
 void MuonDetectorManager::fillsTgcCache() const
 {
   if (nsTgcRE()<1) return;
-    for (unsigned int i=0; i<NsTgStatType; i++)
-      for (unsigned int j=0; j<NsTgStatEta; j++)
-        for (unsigned int k=0; k<NsTgStatPhi; k++)
-          for (unsigned int l=0; l<NsTgChamberLayer; l++) {
+    for (unsigned int i=0; i<NsTgStatType; ++i)
+      for (unsigned int j=0; j<NsTgStatEta; ++j)
+        for (unsigned int k=0; k<NsTgStatPhi; ++k)
+          for (unsigned int l=0; l<NsTgChamberLayer; ++l) {
               if (_stgArray[i][j][k][l]) _stgArray[i][j][k][l]->fillCache();
           }
 }   
@@ -327,38 +329,38 @@ void MuonDetectorManager::fillCache() const
 }   
 void MuonDetectorManager::fillMdtCache() const
 {
-    for (unsigned int i=0; i<NMdtStatType; i++)
-      for (unsigned int j=0; j<NMdtStatEta; j++)
-        for (unsigned int k=0; k<NMdtStatPhi; k++)
-          for (unsigned int l=0; l<NMdtMultilayer; l++) {
+    for (unsigned int i=0; i<NMdtStatType; ++i)
+      for (unsigned int j=0; j<NMdtStatEta; ++j)
+        for (unsigned int k=0; k<NMdtStatPhi; ++k)
+          for (unsigned int l=0; l<NMdtMultilayer; ++l) {
               if (_mdtArray[i][j][k][l]) _mdtArray[i][j][k][l]->fillCache();
           }
 }   
 void MuonDetectorManager::fillRpcCache() const
 {
-    for (unsigned int i=0; i<NRpcStatType; i++)
-      for (unsigned int j=0; j<NRpcStatEta; j++)
-        for (unsigned int k=0; k<NRpcStatPhi; k++)
-          for (unsigned int l=0; l<NDoubletR; l++)
-            for (unsigned int h=0; h<NDoubletZ; h++) {
+    for (unsigned int i=0; i<NRpcStatType; ++i)
+      for (unsigned int j=0; j<NRpcStatEta; ++j)
+        for (unsigned int k=0; k<NRpcStatPhi; ++k)
+          for (unsigned int l=0; l<NDoubletR; ++l)
+            for (unsigned int h=0; h<NDoubletZ; ++h) {
               if( _rpcArray[i][j][k][l][h] ) _rpcArray[i][j][k][l][h]->fillCache() ;
             }
 }   
 void MuonDetectorManager::fillTgcCache() const
 {
-    for (unsigned int i=0; i<NTgcStatType; i++)
-      for (unsigned int j=0; j<NTgcStatEta; j++)
-        for (unsigned int k=0; k<NTgcStatPhi; k++) {
+    for (unsigned int i=0; i<NTgcStatType; ++i)
+      for (unsigned int j=0; j<NTgcStatEta; ++j)
+        for (unsigned int k=0; k<NTgcStatPhi; ++k) {
           if ( _tgcArray[i][j][k] ) _tgcArray[i][j][k]->fillCache();
         }
 }   
 void MuonDetectorManager::fillCscCache() const
 {
   if (nCscRE()<1) return;
-    for (unsigned int i=0; i<NCscStatType; i++)
-      for (unsigned int j=0; j<NCscStatEta; j++)
-        for (unsigned int k=0; k<NCscStatPhi; k++)
-          for (unsigned int l=0; l<NCscChamberLayer; l++) {
+    for (unsigned int i=0; i<NCscStatType; ++i)
+      for (unsigned int j=0; j<NCscStatEta; ++j)
+        for (unsigned int k=0; k<NCscStatPhi; ++k)
+          for (unsigned int l=0; l<NCscChamberLayer; ++l) {
             if( _cscArray[i][j][k][l] ) _cscArray[i][j][k][l]->fillCache();
           }
 }   
@@ -1775,7 +1777,7 @@ MuonDetectorManager::updateAlignment(const ALineMapContainer *  m_alineData) con
                     <<stType<<" at Jzz/Jff "<<jzz<<"/"<< jff << endreq;
 		ALinePar * oldALine =  (*ci).second;
                 ALineContainer()->erase(ALineId);
-		delete oldALine;
+		delete oldALine; oldALine=0;
             }
             else 
             {
@@ -1934,7 +1936,7 @@ MuonDetectorManager::updateDeformations(const BLineMapContainer * m_blineData) c
                     <<stType<<" at Jzz/Jff "<<jzz<<"/"<< jff << endreq;
 		BLinePar * oldBLine =  (*ci).second;
                 BLineContainer()->erase(BLineId);
-		delete oldBLine;
+		delete oldBLine; oldBLine=0;
             }
             else 
             {
@@ -2105,7 +2107,7 @@ MuonDetectorManager::updateCSCInternalAlignmentMap(const CscInternalAlignmentMap
 						 <<stType<<" at Jzz/Jff/Jlay "<<jzz<<"/"<< jff <<"/"<< jlay<< endreq;
 		CscInternalAlignmentPar * oldILine =  (*ci).second;
                 CscInternalAlignmentContainer()->erase(ILineId);
-		delete oldILine;
+		delete oldILine; oldILine=0;
             }
             else 
             {
