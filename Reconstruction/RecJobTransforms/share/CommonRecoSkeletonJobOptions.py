@@ -5,7 +5,7 @@
 # RecJobTransforms by Graeme Stewart, February 2014                  #
 #                                                                    #
 ######################################################################
-# $Id: CommonRecoSkeletonJobOptions.py 583915 2014-02-18 14:09:02Z graemes $
+# $Id: CommonRecoSkeletonJobOptions.py 654930 2015-03-18 06:53:24Z graemes $
 ######################################################################
 
 include.block("RecJobTransforms/CommonRecoSkeletonJobOptions.py")
@@ -57,4 +57,8 @@ if hasattr(runArgs,"autoConfiguration"):
     rec.AutoConfiguration=[]
     for key in runArgs.autoConfiguration:
         rec.AutoConfiguration.append(key)
+
+## Physics validation enhancements can happen in a few substeps, so set here
+if hasattr(runArgs, "valid") and runArgs.valid is True:
+    rec.doPhysicsValidationAugmentation = True
 

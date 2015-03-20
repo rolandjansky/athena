@@ -175,7 +175,10 @@ if hasattr(runArgs,"topOptions"): include(runArgs.topOptions)
 else: include( "RecExCommon/RecExCommon_topOptions.py" )
 
 if hasattr(runArgs,"inputRDO_TRIGFile") and hasattr(topSequence,'TrigDecMaker'):
-   topSequence.TrigDecMaker.doL1 = False
+   topSequence.TrigDecMaker.doL1 = True
+   for i in topSequence.getAllChildren():
+       if "TrigDecisionCnvAlg" in i.getName():
+          i.AODKey = "TrigDecisionRdo"
 
 ## Post-include
 if hasattr(runArgs,"postInclude"): 
@@ -188,4 +191,3 @@ if hasattr(runArgs,"postExec"):
     for cmd in runArgs.postExec:
         recoLog.info(cmd)
         exec(cmd)
-        
