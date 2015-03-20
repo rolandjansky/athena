@@ -32,6 +32,9 @@ use     xAODEventInfo           xAODEventInfo-*                 Event/xAOD
 use     MuonReadoutGeometry     MuonReadoutGeometry-*	        MuonSpectrometer/MuonDetDescr
 end_private
 
+# Specify required ROOT components for cmake (transparent to CMT)
+apply_pattern cmake_add_command command="find_package(ROOT COMPONENTS Graf)"
+
 # build a component library
 public
 library MdtRawDataMonitoring *.cxx components/*.cxx

@@ -4,7 +4,7 @@
 #print "   **** https://twiki.cern.ch/twiki/bin/view/Atlas/MDTOfflineMonitoringPlots ***** "  
 
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
-isTier0Flag = athenaCommonFlags.isOnline()
+isTier0Flag = not athenaCommonFlags.isOnline()
 
 #
 #if not isTier0Flag :
@@ -39,7 +39,7 @@ mdtRawDataValAlg_main = MdtRawDataValAlg(name='mdtRawDataValAlg_main',
                                          DoChamber2DHist = True, 
                                          ADCCut = 80.,
                                          ADCCutForBackground = 80.,
-                                         MaxTDCCutForBackground = 300.,
+                                         MaxTDCCutForBackground = 0.,
                                          TGCTrigKey = 136,                                    
                                          RPCTrigKey = 144,
                                          AtlasFilterTool = [ monAtlasReadyFilterTool ],
@@ -87,7 +87,7 @@ if( isTier0Flag ) :
                                                 DoChamber2DHist = True, 
                                                 ADCCut = 80.,
                                                 ADCCutForBackground = 80.,
-                                                MaxTDCCutForBackground = 300.,
+                                                MaxTDCCutForBackground = 0.,
                                                 TGCTrigKey = 136,       
                                                 RPCTrigKey = 144,
                                                 AtlasFilterTool = [ monAtlasReadyFilterTool ],
