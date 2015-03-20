@@ -22,6 +22,7 @@
 
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
 
+#include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h"
 #include "TrkToolInterfaces/ITrackHoleSearchTool.h"
 #include "TrkToolInterfaces/ITrackSummaryTool.h"
 #include "TrkMeasurementBase/MeasurementBase.h"
@@ -41,6 +42,8 @@
 #include <map>
 #include <vector>
 #include "GaudiKernel/ToolHandle.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
+
 //Predeclarations
 class IInterface;
 class StatusCode;
@@ -90,23 +93,27 @@ public:
     void FillHits( const Trk::Track *track, const Trk::TrackSummary* summary );
     void FillHoles( const Trk::Track *track, const Trk::TrackSummary* summary );
     void FillHitMaps( const Trk::Track *track );
+    void FillHoleMaps( const Trk::Track *track );
     ///@} 
  
 private:
+    ToolHandle< InDet::IInDetTrackSelectionTool > m_loosePri_selTool;
+    ToolHandle< InDet::IInDetTrackSelectionTool > m_tight_selTool;
+
     ///Switch if LB accounting should be done
     bool m_doLumiblock;
     /// Switch for hole searching
     bool m_doHolePlots;
+    bool m_DoHoles_Search;
     /// Switch for hitmaps
     bool m_doHitMaps;
-    bool m_DoHoles_Search;
+    bool m_doForwardTracks;
+    bool m_doIBL;
 
     unsigned int m_nBinsEta;
     unsigned int m_nBinsPhi;
     unsigned int m_trackBin;
     unsigned int m_trackMax;
-    float m_d0Max;
-    float m_z0Max;
 
     /// Contants for various histogram properties
     const float c_etaRange;
@@ -114,8 +121,9 @@ private:
     const float c_etaTrackletsMax;
     const float c_etaRangeTRT;
 
-    const float c_EndCapBoundary;
-    const float c_BarrelBoundary;
+    const float c_range_LB;
+
+    const std::array<std::string,4> c_detector_labels;
 
     ToolHandle <Trk::ITrackHoleSearchTool> m_holes_search_tool;
     ToolHandle <Trk::ITrackSummaryTool> m_trkSummaryTool;
@@ -142,69 +150,24 @@ private:
     TH2F *holes_quality;
     TProfile *holes_quality_profile;
     
+    TH1I * m_Trk_nLoose;
     ///Distribution of eta vs phi for combined tracks
-    TH2F  * m_ID_COMB_eta_phi;
-
-    TH2F  * m_ID_COMB_noTRText_eta_phi;
-    TH2F  * m_ID_COMB_noSCThits_eta_phi;
-    TH2F  * m_ID_COMB_noPIXhits_eta_phi;
-    TH2F  * m_ID_COMB_noPIXhitsRatio_eta_phi;
-    TH2F  * m_ID_COMB_btagqual_eta_phi;
-
-    TH2F  * m_ID_COMB_noBLayerHitExpected_eta_phi;
-    TH2F  * m_ID_COMB_noBLayerHitExpectedRatio_eta_phi;
-    TH2F  * m_ID_COMB_noBLayerHit_eta_phi;
-    TH2F  * m_ID_COMB_noBLayerHitRatio_eta_phi;
-
-    ///d0 parameter for combined tracks
-    TH1F  * m_ID_COMB_d0;
-
-    ///z0 parameter for combined tracks
-    TH1F  * m_ID_COMB_z0;
-
-    TH1F  * m_ID_COMB_qoverp;
-    TH1F  * m_ID_COMB_chi2;
-    TH1F  * m_FORW_qoverp;
-    TH1F  * m_FORW_chi2;
-    TH1F  * m_ID_COMB_pt;
-
-    /// Number of combined segments
-    TH1I * m_ID_nCOMBtrks;
-
-    //--- Combined tracks debug histograms-----------------------------------
-    TH2F * m_COMB_goodPixTrk_eta_phi;
-    TH2F * m_COMB_goodPixTrkRatio_eta_phi;
-
-    TH2F * m_FORW_forwardTracklets_pos_eta_phi;
-    TH2F * m_FORW_forwardTracklets_neg_eta_phi;
-
-    TH2F * m_COMB_goodSctTrk_eta_phi;
-    TH2F * m_COMB_goodSctTrkRatio_eta_phi;
-
-    TH2F * m_COMB_goodTrtTrk_eta_phi;
-    TH2F * m_COMB_goodEleMTrk_eta_phi;
+    TH2F  * m_Trk_eta_phi;
+    TProfile2D  * m_Trk_eta_phi_LoosePrimary_ratio;
+    TProfile2D  * m_Trk_eta_phi_Tight_ratio;
+    TProfile2D  * m_Trk_eta_phi_noIBLhit_ratio;
+    TProfile2D  * m_Trk_eta_phi_noBLhit_ratio;
+    TProfile2D  * m_Trk_eta_phi_noTRText_ratio;
 
     // Total number of tracks per LB for each subdetector 
-    TProfile * m_COMB_nCOMBtrks_LB;
+    TProfile * m_Trk_nLoose_LB;
+    TProfile * m_Trk_nLoosePrimary_LB;
+    TProfile * m_Trk_nTight_LB;
 
-    TH1I * m_PIX_ntrk_LB;
-    TH1I * m_PIX_ntrk_noPIXhits_LB;
-    TH1I * m_PIX_ntrk_noBLhits_LB;
-    TH1I * m_SCT_ntrk_LB;
-    TH1I * m_TRT_ntrk_LB;
-
-    // Profile plots of the track rate vs LB number
-    TH1F* m_trk_rate_pix_LB;
-    TH1F* m_trk_rate_sct_LB;
-    TH1F* m_trk_rate_trt_LB;
-
-    // LB parameters
-    unsigned int m_LB_start_time;
-    unsigned int m_LB_current_time;  //Timestamp of current event in the LB
-    unsigned int m_current_LB;       //LB number
-    unsigned int m_range_LB;
-
-    ///@name Detector managesr
+    TProfile * m_Trk_noIBLhits_LB;
+    TProfile * m_Trk_noBLhits_LB;
+    TProfile * m_Trk_noTRText_LB;
+    ///@name Detector managers
     ///{@
 
     /// the TRT ID helper
@@ -228,7 +191,7 @@ private:
     TH2F     *m_holesvshits;
     TH2F     *m_holesvshits_ECA;
     TH2F     *m_holesvshits_ECC;
-    TH2F    *m_holesvshits_BA;
+    TH2F     *m_holesvshits_BA;
 
     TH2F     *m_ID_hitmap_x_y;
     TH2F     *m_ID_hitmap_x_y_eca;
@@ -237,45 +200,23 @@ private:
     TH2F     *m_HolesMAP_ZX;
     TH2F     *m_HolesMAP_ZR;
 
+
+    std::array<TProfile2D *, 4> m_trk_hits_eta_phi;
+    std::array<TProfile2D *, 4> m_trk_disabled_eta_phi;
+    std::array<TProfile *,4> m_trk_hits_LB;
+    
+    //--- Combined tracks debug histograms-----------------------------------
+    TH2F * m_Trk_FORW_FA_eta_phi;
+    TH2F * m_Trk_FORW_FC_eta_phi;
+
+    TH1F * m_Trk_FORW_qoverp;
+    TH1F * m_Trk_FORW_chi2;
+
     ///Number of PIX hits per track
-    TH1I *  m_Trk_nPIXhits;
-    TH1I *  m_Trk_nPIXhits_EA;
-    TH1I *  m_Trk_nPIXhits_TA;
-    TH1I *  m_Trk_nPIXhits_B;
-    TH1I *  m_Trk_nPIXhits_TC;
-    TH1I *  m_Trk_nPIXhits_EC;
-    TH1I *  m_Trk_nPIXhits_FA;
-    TH1I *  m_Trk_nPIXhits_FC;
-    TProfile2D * m_Trk_nPIXhits_eta_phi;
-    TProfile2D * m_Trk_nPIXDeadModules_eta_phi;
+    TH1I * m_Trk_FORW_FA_nPIXhits;
+    TH1I * m_Trk_FORW_FC_nPIXhits;
     
     ///@}
-
-    ///@name SCT histograms
-    ///@{
-
-    ///Number of SCT hits per track
-    TH1I *  m_Trk_nSCThits;
-    TH1I *  m_Trk_nSCThits_EA;
-    TH1I *  m_Trk_nSCThits_TA;
-    TH1I *  m_Trk_nSCThits_B;
-    TH1I *  m_Trk_nSCThits_TC;
-    TH1I *  m_Trk_nSCThits_EC;
-    TProfile2D *  m_Trk_nSCThits_eta_phi;
-    TProfile2D *  m_Trk_nSCTDeadModules_eta_phi;
-    ///@}
-
-    ///@name TRT histograms
-    ///@{
-
-    ///Number of TRT hits per track
-    TH1I *  m_Trk_nTRThits;
-    TH1I *  m_Trk_nTRThits_EA;
-    TH1I *  m_Trk_nTRThits_TA;
-    TH1I *  m_Trk_nTRThits_B;
-    TH1I *  m_Trk_nTRThits_TC;
-    TH1I *  m_Trk_nTRThits_EC;
-    TProfile2D *  m_Trk_nTRThits_eta_phi;
 
     template <class histClass>
     StatusCode registerManHist ( 
