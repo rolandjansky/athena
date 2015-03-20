@@ -21,10 +21,10 @@
 
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 #include "AthenaPoolCnvSvc/T_AthenaPoolCustomCnv.h"
-class TrigRoiDescriptor_p2;
+class TrigRoiDescriptor_p3;
 
 // typedef to the latest persistent version
-typedef TrigRoiDescriptor_p2  TrigRoiDescriptor_PERS;
+typedef TrigRoiDescriptor_p3  TrigRoiDescriptor_PERS;
 
 class MsgStream;
 
