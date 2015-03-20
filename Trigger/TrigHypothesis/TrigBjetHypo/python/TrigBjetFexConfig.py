@@ -2,6 +2,16 @@
 
 from TrigBjetHypo.TrigBjetHypoConf import TrigBjetFex
 from TrigBjetHypo.TrigBjetFexTuning import *
+from TrigBjetHypo.TrigBjetFexTuningGrade1_IP1D import *
+from TrigBjetHypo.TrigBjetFexTuningGrade1_IP2D import *
+from TrigBjetHypo.TrigBjetFexTuningGrade1_IP3D import *
+from TrigBjetHypo.TrigBjetFexTuningGrade2_IP1D import *
+from TrigBjetHypo.TrigBjetFexTuningGrade2_IP2D import *
+from TrigBjetHypo.TrigBjetFexTuningGrade2_IP3D import *
+from TrigBjetHypo.TrigBjetFexTuning_EVTX import *
+from TrigBjetHypo.TrigBjetFexTuning_MVTX import *
+from TrigBjetHypo.TrigBjetFexTuning_NVTX import *
+
 
 from AthenaCommon.Logging import logging
 from AthenaCommon.SystemOfUnits import mm, GeV
@@ -133,20 +143,20 @@ class BjetFex (TrigBjetFex):
             self.TrkSelGrade1_D0              = 1*mm
             self.TrkSelGrade1_Z0              = 2*mm
             self.TrkSelGrade1_Pt              = 1*GeV
-            self.TrkSelGrade1_Eta             = 0.4
-            self.TrkSelGrade1_Phi             = 0.4
-            self.TrkSelGrade1_R               = 0.4
+            self.TrkSelGrade1_Eta             = 0.2
+            self.TrkSelGrade1_Phi             = 0.2
+            self.TrkSelGrade1_R               = 0.2
             self.TrkSelGrade2_Chi2            = 0.0
-            self.TrkSelGrade2_Innermost       = 1
-            self.TrkSelGrade2_NextToInnermost = 0
+            self.TrkSelGrade2_Innermost       = 0
+            self.TrkSelGrade2_NextToInnermost = 1
             self.TrkSelGrade2_PixHits         = 2
             self.TrkSelGrade2_SiHits          = 7
             self.TrkSelGrade2_D0              = 1*mm
             self.TrkSelGrade2_Z0              = 2*mm
             self.TrkSelGrade2_Pt              = 1*GeV
-            self.TrkSelGrade2_Eta             = 0.4
-            self.TrkSelGrade2_Phi             = 0.4
-            self.TrkSelGrade2_R               = 0.4
+            self.TrkSelGrade2_Eta             = 0.2
+            self.TrkSelGrade2_Phi             = 0.2
+            self.TrkSelGrade2_R               = 0.2
 
         if instance=="EF" :
             from TrigBjetHypo.TrigBjetFexMonitoring import TrigEFBjetFexValidationMonitoring, TrigEFBjetFexOnlineMonitoring
@@ -284,8 +294,8 @@ class BjetFexSplit (TrigBjetFex):
             self.TrkSelGrade1_Phi             = 0.4
             self.TrkSelGrade1_R               = 0.4
             self.TrkSelGrade2_Chi2            = 0.0
-            self.TrkSelGrade2_Innermost       = 1
-            self.TrkSelGrade2_NextToInnermost = 0
+            self.TrkSelGrade2_Innermost       = 0
+            self.TrkSelGrade2_NextToInnermost = 1
             self.TrkSelGrade2_PixHits         = 2
             self.TrkSelGrade2_SiHits          = 7
             self.TrkSelGrade2_D0              = 1*mm
