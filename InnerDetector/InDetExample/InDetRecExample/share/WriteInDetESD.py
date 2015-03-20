@@ -103,11 +103,27 @@ if InDetFlags.doxAOD():
    excludedAuxData = "-caloExtension.-cellAssociation.-clusterAssociation"
   InDetESDList+=['xAOD::TrackParticleContainer#'+InDetKeys.xAODTrackParticleContainer()]
   InDetESDList+=['xAOD::TrackParticleAuxContainer#'+InDetKeys.xAODTrackParticleContainer()+'Aux.' + excludedAuxData]
+
   if not InDetFlags.doSLHC():
      InDetESDList+=['xAOD::TrackParticleContainer#'+InDetKeys.xAODForwardTrackParticleContainer()]
      InDetESDList+=['xAOD::TrackParticleAuxContainer#'+InDetKeys.xAODForwardTrackParticleContainer()+'Aux.' + excludedAuxData ]
   InDetESDList+=['xAOD::VertexContainer#'+InDetKeys.xAODVertexContainer()]
   InDetESDList+=['xAOD::VertexAuxContainer#'+InDetKeys.xAODVertexContainer()+'Aux.-vxTrackAtVertex']
+
+  if InDetFlags.doV0Finder() and InDetFlags.doSimpleV0Finder():
+    InDetESDList+=['xAOD::VertexContainer#'+InDetKeys.xAODV0VertexContainer()]
+    InDetESDList+=['xAOD::VertexAuxContainer#'+InDetKeys.xAODV0VertexContainer()+'Aux.-vxTrackAtVertex']
+  elif InDetFlags.doV0Finder(): 
+    InDetESDList+=['xAOD::VertexContainer#'+InDetKeys.xAODKshortVertexContainer()]
+    InDetESDList+=['xAOD::VertexAuxContainer#'+InDetKeys.xAODKshortVertexContainer()+'Aux.-vxTrackAtVertex']
+    InDetESDList+=['xAOD::VertexContainer#'+InDetKeys.xAODLambdaVertexContainer()]
+    InDetESDList+=['xAOD::VertexAuxContainer#'+InDetKeys.xAODLambdaVertexContainer()+'Aux.-vxTrackAtVertex']
+    InDetESDList+=['xAOD::VertexContainer#'+InDetKeys.xAODLambdabarVertexContainer()]
+    InDetESDList+=['xAOD::VertexAuxContainer#'+InDetKeys.xAODLambdabarVertexContainer()+'Aux.-vxTrackAtVertex']
+  if InDetFlags.doConversions():
+    InDetESDList+=['xAOD::VertexContainer#'+InDetKeys.Conversions()]
+    InDetESDList+=['xAOD::VertexAuxContainer#'+InDetKeys.Conversions() +'Aux.-vxTrackAtVertex']
+
   if InDetFlags.doTrackSegmentsPixel():
     InDetESDList+=['xAOD::TrackParticleContainer#'+InDetKeys.xAODPixelTrackParticleContainer()]
     InDetESDList+=['xAOD::TrackParticleAuxContainer#'+InDetKeys.xAODPixelTrackParticleContainer()+'Aux.' + excludedAuxData]

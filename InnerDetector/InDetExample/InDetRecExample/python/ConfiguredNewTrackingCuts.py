@@ -297,8 +297,15 @@ class ConfiguredNewTrackingCuts :
 
     # --- mode for min bias, commissioning or doRobustReco
     if mode == 'MinBias' or self.__indetflags.doRobustReco(): 
-      self.__minPT                 = 0.100 * Units.GeV 
-      self.__minClusters           = 6
+      self.__minPT                     = 0.100 * Units.GeV 
+      self.__minClusters               = 5
+      self.__minSecondaryPt            = 0.4 * Units.GeV  # Pt cut for back tracking + segment finding for these
+      self.__minTRTonlyPt              = 0.4 * Units.GeV  # Pt cut for TRT only
+      self.__TRTSegFinderPtBins        = 50
+      self.__maxdImpactSSSSeeds        = 20.0    # apply cut on SSS seeds
+      self.__excludeUsedTRToutliers    = False   # TRT outliers are added to the exclusion list
+      self.__useTRTonlyOldLogic        = True    # turn off ole overlap logic to reduce number of hits
+      self.__maxSecondaryImpact        = 100.0 * Units.mm # low lumi
 
     # --- change defaults for low pt tracking  
     if mode == "LowPt": 

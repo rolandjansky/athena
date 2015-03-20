@@ -1326,26 +1326,34 @@ class InDetJobProperties(JobPropertyContainer):
 
        # --- new setup for MinBias tracking
        if self.doMinBias():
-          # --- run soft tracking
-          #self.checkThenSet(self.doLowPt             , False )    
-          #self.checkThenSet(self.doVeryLowPt         , False )
+          # --- run TRT only tracking over the entire detector
+          self.checkThenSet(self.cutLevel     , 12)
           # --- disable forward tracklets
           self.checkThenSet(self.doForwardTracks     , False )
           # --- run tracklets
-          #self.checkThenSet(self.doTrackSegmentsPixel, False )
+          self.checkThenSet(self.doTrackSegmentsPixelPrdAssociation, False)
+          self.checkThenSet(self.doTrackSegmentsPixel, True )
           #self.checkThenSet(self.doTrackSegmentsSCT  , False )
           #self.checkThenSet(self.doTrackSegmentsTRT  , False )
           # --- turn off brem
-          self.checkThenSet(self.doBremRecovery  , False)
-          self.checkThenSet(self.doCaloSeededBrem, False)
+          #self.checkThenSet(self.doBremRecovery  , False)
+          #self.checkThenSet(self.doCaloSeededBrem, False)
           self.checkThenSet(self.doHadCaloSeededSSS     , False)
 
           # --- primary vertex setup
           self.checkThenSet(self.primaryVertexSetup      , "IterativeFinding")
           self.checkThenSet(self.primaryVertexCutSetup   , "Offline")          
+          self.checkThenSet(self.priVtxCutLevel          , 1)   
           # --- sec vertexing setup
           self.checkThenSet(self.secondaryVertexCutSetup , "StartUp") 
           self.checkThenSet(self.conversionVertexCutSetup, "ConversionStartUp")
+          # --- enable sec vertexing
+          self.checkThenSet(self.doV0Finder,       True) 
+          self.checkThenSet(self.doSimpleV0Finder, True)
+          self.checkThenSet(self.doConversions,    True)
+          # --- keep 1st and last hit information
+          self.checkThenSet(self.keepAdditionalHitsOnTrackParticle, True)
+         
 
        # --- new setup for d0LowLMuRunSetup tracking
        elif self.doLowMuRunSetup():

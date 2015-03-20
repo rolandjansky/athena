@@ -42,13 +42,26 @@ if InDetFlags.doMonitoringGlobal():
   # TRACK MONITORING                               #
   #                                                #
   ##################################################
+      
   from InDetGlobalMonitoring.InDetGlobalMonitoringConf import InDetGlobalTrackMonTool
   InDetGlobalTrackMonTool=InDetGlobalTrackMonTool( name          = "InDetGlobalTrackMonTool",
                                                   histoPathBase = "/GLOBAL",
+                                                  DoIBL         = InDetFlags.doIBL(),
                                                   trackMax      = 1000)
 
-  InDetGlobalTrackMonTool.TrackCollection = InDetKeys.UnslimmedTracks()
+  TrackCollection = InDetKeys.UnslimmedTracks()
+  InDetGlobalTrackMonTool.LoosePrimary_SelTool.UseTrkTrackTools = True
+  InDetGlobalTrackMonTool.LoosePrimary_SelTool.CutLevel = "LoosePrimary"
+  InDetGlobalTrackMonTool.LoosePrimary_SelTool.OutputLevel = VERBOSE 
+  InDetGlobalTrackMonTool.Tight_SelTool.UseTrkTrackTools = True
+  InDetGlobalTrackMonTool.Tight_SelTool.CutLevel = "TightPrimary"
+  InDetGlobalTrackMonTool.Tight_SelTool.OutputLevel = VERBOSE 
   
+  InDetGlobalTrackMonTool.LoosePrimary_SelTool.TrackSummaryTool = InDetTrackSummaryTool
+  InDetGlobalTrackMonTool.LoosePrimary_SelTool.Extrapolator        = InDetExtrapolator
+  InDetGlobalTrackMonTool.Tight_SelTool.TrackSummaryTool = InDetTrackSummaryTool
+  InDetGlobalTrackMonTool.Tight_SelTool.Extrapolator        = InDetExtrapolator
+
   if DQMonFlags.monManDataType == 'heavyioncollisions' or InDetFlags.doHeavyIon() == True:
     InDetGlobalTrackMonTool.trackMax      = 10000
     InDetGlobalTrackMonTool.trackBin      = 1000
@@ -56,8 +69,6 @@ if InDetFlags.doMonitoringGlobal():
   if jobproperties.Beam.beamType()=='cosmics':
     InDetGlobalTrackMonTool.trackMax = 10
     InDetGlobalTrackMonTool.trackBin = 10
-    InDetGlobalTrackMonTool.d0Max = 500
-    InDetGlobalTrackMonTool.z0Max = 3000
 
   if jobproperties.Beam.beamType()=='collisions' and hasattr(ToolSvc, 'DQFilledBunchFilterTool'):
     InDetGlobalTrackMonTool.FilterTools.append(monFilledBunchFilterTool)
@@ -103,11 +114,11 @@ if InDetFlags.doMonitoringGlobal():
   if jobproperties.Beam.beamType() != 'cosmics':
       from InDetGlobalMonitoring.InDetGlobalMonitoringConf import InDetGlobalBeamSpotMonTool
       InDetGlobalBeamSpotMonTool=InDetGlobalBeamSpotMonTool( name = "InDetGlobalBeamSpotMonTool",
-                                                             extrapolator = InDetExtrapolator,
-                                                             vxContainerName = InDetKeys.PrimaryVertices(),
+                                                             vxContainerName = InDetKeys.xAODVertexContainer(),
                                                              vxContainerWithBeamConstraint = InDetFlags.useBeamConstraint(),
-                                                             useBeamspot = InDetFlags.useBeamConstraint() ) 
-
+                                                             trackContainerName = InDetKeys.xAODTrackParticleContainer(),
+                                                             useBeamspot = InDetFlags.useBeamConstraint()) 
+      
       if jobproperties.Beam.beamType()=='collisions' and hasattr(ToolSvc, 'DQFilledBunchFilterTool'):
         InDetGlobalBeamSpotMonTool.FilterTools.append(monFilledBunchFilterTool)
       ToolSvc += InDetGlobalBeamSpotMonTool
@@ -164,7 +175,7 @@ if InDetFlags.doMonitoringGlobal() or InDetFlags.doMonitoringPrimaryVertexingEnh
 if InDetFlags.doMonitoringGlobal():
   from InDetVertexMonitoring.InDetVertexMonitoringConf import InDetVertexMonitoring
   InDetVertexMonitoring = InDetVertexMonitoring(  name = "InDetVertexMonitoring",
-                                                VertexContainer = InDetKeys.xAODVertexContainer(),
+                                                VertexContainer = InDetKeys.PrimaryVertices(),
                                                 DoControlPlots = False,
                                                 histFolder = "InDetGlobal/PrimaryVertexMultiplicity"
                                                 )
