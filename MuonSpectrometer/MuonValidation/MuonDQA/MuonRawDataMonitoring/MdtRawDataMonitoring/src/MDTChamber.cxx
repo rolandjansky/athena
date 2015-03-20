@@ -104,6 +104,15 @@ void MDTChamber::SetMDTHitsPerChamber_IMO_Bin(TH2F* h){
     if(m_hardware_name == "BML5C13") ecap_layer_IMO = "BC6";
   }
 
+  if(m_hardware_name == "BME1A14"){
+	  ecap_layer_IMO = "BA4";
+	  statphi_s = "13";
+  }
+  if(m_hardware_name == "BME1C14"){
+	  ecap_layer_IMO = "BC4";
+	  statphi_s = "13";
+  }
+
   std::string statphi_IMO_s = m_hardware_name.substr(1,1)+","+statphi_s;
   //Separate pesky BIR/BIM 11,15
   if(m_hardware_name.substr(0,3)=="BIR" || m_hardware_name.substr(0,3)=="BIM")
@@ -118,6 +127,9 @@ void MDTChamber::SetMDTHitsPerChamber_IMO_Bin(TH2F* h){
 
 void MDTChamber::SetMDTHitsPerML_byLayer_Bins(TH2F* h_mdthitspermultilayerLumi, TH2F* h_mdthitsperML_byLayer){
   std::string statphi_s = m_hardware_name.substr(5,2);
+
+  if(m_hardware_name == "BME1A14" || m_hardware_name == "BME1C14") statphi_s = "13";
+
   std::string statphi_ml1_s = statphi_s+",1";
   std::string statphi_ml2_s = statphi_s+",2";
 
@@ -130,6 +142,19 @@ void MDTChamber::SetMDTHitsPerML_byLayer_Bins(TH2F* h_mdthitspermultilayerLumi, 
   std::string stateta_s = m_hardware_name.substr(3,1);
   std::string ecap_layer = m_hardware_name.substr(0,2) + m_hardware_name.at(4) + stateta_s;
   
+  if( m_station_phi == 12 && (m_station_eta == 4 || m_station_eta == 5) ) {//m_station_phi+1==actual phi station
+      if(m_hardware_name == "BML4A13") ecap_layer = "BMA5";
+      if(m_hardware_name == "BML5A13") ecap_layer = "BMA6";
+      if(m_hardware_name == "BML4C13") ecap_layer = "BMC5";
+      if(m_hardware_name == "BML5C13") ecap_layer = "BMC6";
+    }
+    if(m_hardware_name == "BME1A14"){
+  	  ecap_layer = "BMA4";
+    }
+    if(m_hardware_name == "BME1C14"){
+  	  ecap_layer = "BMC4";
+    }
+
 
   int binx = h_mdthitspermultilayerLumi->GetXaxis()->FindBin(ecap_layer.c_str());
   int biny_m1 = h_mdthitspermultilayerLumi->GetYaxis()->FindBin(statphi_ml1_s.c_str());
