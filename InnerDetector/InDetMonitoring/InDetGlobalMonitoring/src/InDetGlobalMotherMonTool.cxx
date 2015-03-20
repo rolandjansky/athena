@@ -58,6 +58,7 @@ InDetGlobalMotherMonTool::InDetGlobalMotherMonTool(
       m_trtID(0),
       m_sctID(0),
       m_pixelID(0),
+      m_BCM_RDO(nullptr),
       m_pixRdoContainer(0),
       m_sctRdoContainer(0),
       m_driftCircleContainer(0),   

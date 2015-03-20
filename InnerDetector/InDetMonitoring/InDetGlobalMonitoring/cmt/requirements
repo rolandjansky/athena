@@ -3,40 +3,45 @@ package InDetGlobalMonitoring
 author Anne-Catherine Le Bihan <Anne-Catherine.Le.Bihan@cern.ch>
 
 private
-use AthenaBaseComps             AthenaBaseComps-*                 Control
-use InDetReadoutGeometry	InDetReadoutGeometry-*	          InnerDetector/InDetDetDescr
-use TrkTruthData		TrkTruthData-*                    Tracking/TrkEvent
-use InDetRIO_OnTrack		InDetRIO_OnTrack-*                InnerDetector/InDetRecEvent
-use TrkTrackSummary		TrkTrackSummary-*                 Tracking/TrkEvent
-use TrkExInterfaces		TrkExInterfaces-*                 Tracking/TrkExtrapolation
 use AtlasCLHEP			AtlasCLHEP-*                      External
 use EventInfo			EventInfo-*                       Event
-use TrkParameters		TrkParameters-*	                  Tracking/TrkEvent
-use VxVertex 			VxVertex-*			  Tracking/TrkEvent
-use InDetBeamSpotService        InDetBeamSpotService-*            InnerDetector/InDetConditions
-use TrkSurfaces                 TrkSurfaces-*			  Tracking/TrkDetDescr
-use TrkParticleBase             TrkParticleBase-*                 Tracking/TrkEvent
-use TrkEventPrimitives		TrkEventPrimitives-*              Tracking/TrkEvent
 use EventPrimitives		EventPrimitives-*		  Event
+use InDetBeamSpotService        InDetBeamSpotService-*            InnerDetector/InDetConditions
+use InDetConditionsSummaryService       InDetConditionsSummaryService-* InnerDetector/InDetConditions
+use InDetRIO_OnTrack		InDetRIO_OnTrack-*                InnerDetector/InDetRecEvent
+use InDetReadoutGeometry	InDetReadoutGeometry-*	          InnerDetector/InDetDetDescr
+use PixelConditionsServices        PixelConditionsServices*        InnerDetector/InDetConditions
+use SCT_ConditionsServices          SCT_ConditionsServices-*           InnerDetector/InDetConditions
+use TrkEventPrimitives		TrkEventPrimitives-*              Tracking/TrkEvent
+use TrkExInterfaces		TrkExInterfaces-*                 Tracking/TrkExtrapolation
+use TrkParameters		TrkParameters-*	                  Tracking/TrkEvent
+use TrkParticleBase             TrkParticleBase-*                 Tracking/TrkEvent
+use TrkSurfaces                 TrkSurfaces-*			  Tracking/TrkDetDescr
+use TrkTrackSummary		TrkTrackSummary-*                 Tracking/TrkEvent
+use TrkTruthData		TrkTruthData-*                    Tracking/TrkEvent
+use VxVertex 			VxVertex-*			  Tracking/TrkEvent
 use xAODTracking		xAODTracking-*			  Event/xAOD
 
 public
-use AtlasROOT			AtlasROOT-*                       External
-use AtlasPolicy			AtlasPolicy-*
+use AthenaBaseComps             AthenaBaseComps-*                 Control
 use AthenaMonitoring		AthenaMonitoring-*                Control
-use GaudiInterface		GaudiInterface-*                  External
-use TrkToolInterfaces		TrkToolInterfaces-*               Tracking/TrkTools
-use CommissionEvent		CommissionEvent-*                 Commission
-use IdDictDetDescr		IdDictDetDescr-*		  DetectorDescription
 use AtlasDetDescr		AtlasDetDescr-*                   DetectorDescription
-use TrkTrack			TrkTrack-*                        Tracking/TrkEvent
-use InDetRawData		InDetRawData-* 	        	  InnerDetector/InDetRawEvent
+use AtlasPolicy			AtlasPolicy-*
+use AtlasROOT			AtlasROOT-*                       External
+use CommissionEvent		CommissionEvent-*                 Commission
+use GaudiInterface		GaudiInterface-*                  External
+use GeneratorObjects		GeneratorObjects-*                Generators
+use IdDictDetDescr		IdDictDetDescr-*		  DetectorDescription
+use Identifier                  Identifier-*                      DetectorDescription
+use InDetBCM_RawData		InDetBCM_RawData-*		  InnerDetector/InDetRawEvent
 use InDetIdentifier		InDetIdentifier-*		  InnerDetector/InDetDetDescr
 use InDetPrepRawData		InDetPrepRawData-*                InnerDetector/InDetRecEvent
-use GeneratorObjects		GeneratorObjects-*                Generators
-use InDetBCM_RawData		InDetBCM_RawData-*		  InnerDetector/InDetRawEvent
-use TrkMeasurementBase		TrkMeasurementBase-*              Tracking/TrkEvent
+use InDetRawData		InDetRawData-* 	        	  InnerDetector/InDetRawEvent
+use InDetTrackSelectionTool 	InDetTrackSelectionTool-* 	  InnerDetector/InDetRecTools
 use LWHists                     LWHists-*                         Tools
+use TrkMeasurementBase		TrkMeasurementBase-*              Tracking/TrkEvent
+use TrkToolInterfaces		TrkToolInterfaces-*               Tracking/TrkTools
+use TrkTrack			TrkTrack-*                        Tracking/TrkEvent
 
 library InDetGlobalMonitoring *.cxx components/*.cxx
 apply_pattern component_library
