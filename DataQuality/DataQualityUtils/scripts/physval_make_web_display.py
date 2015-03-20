@@ -59,6 +59,7 @@ def recurse(rdir, dqregion, ignorepath, refs=None, displaystring='Draw=PE', rege
             if not options.normalize: drawstrs.append('NoNorm')
             if options.logy: drawstrs.append('LogY')
             if cl.startswith('TH1'): drawstrs.append(displaystring)
+            if options.scaleref != 1: drawstrs.append('ScaleRef=%f' % options.scaleref)
             drawstrs.append('DataName=%s' % options.title)
             dqpar.addAnnotation('display', ','.join(drawstrs))
             
@@ -253,6 +254,8 @@ if __name__=="__main__":
                       help='Specify regex to match histograms, e.g. "(Btag|Jets)"')
     parser.add_option('--startpath', default=None,
                       help='Start from this subdirectory of the file')
+    parser.add_option('--scaleref', type=float, default=1,
+                      help='Scale references by this value')
 
 
     options, args = parser.parse_args()

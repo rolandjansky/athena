@@ -38,6 +38,13 @@
 ##     10) 'doWebDisplay': string ('True'/'False', default: 'True')
 ##        ('True': run the web display;
 ##         'False': do not run the web display)
+##     11) 'filepaths': dictionary; keys are 'basename' (top level directory
+##                      of han configurations; 'Collisions', 'Cosmics', and
+##                      'HeavyIons', which are themselves dicts with keys
+##                      'minutes10', 'minutes30', 'run' with values the han
+##                      configuration file paths relative to basename
+##     12) 'productionMode': string ('True'/'False', default: 'True')
+##         ('True': run as if on Tier-0. 'False': Assume testing.)
 ##
 ## (C) N. Boelaert, L. Goossens, A. Nairz, P. Onyisi, S. Schaetzel, M. Wilson 
 ##     (April 2008 - July 2010)
@@ -64,6 +71,36 @@ def getFileMap(fname, dsname, nevts=0) :
   else : 
     map = {}
   return map
+
+def publish_success_to_mq(run, ptag, stream, incr, ami, procpass, hcfg, isprod):
+  import stomp, json, os, ssl
+  from DataQualityUtils import stompconfig
+  dest='/topic/atlas.dqm.progress'
+  #conn=stomp.Connection([('atlas-mb.cern.ch', 61023)], use_ssl=True,
+  #                      ssl_cert_file=os.environ['X509_USER_PROXY'],
+  #                      ssl_version=ssl.PROTOCOL_TLSv1)
+  conn=stomp.Connection([('atlas-mb.cern.ch', 61013)], **stompconfig.config())
+  conn.start()
+  conn.connect(wait=True)
+
+  body = {
+    'run': run,
+    'project_tag': ptag,
+    'stream': stream,
+    'ami': ami,
+    'pass': procpass,
+    'hcfg': hcfg,
+    }
+  headers = {
+    'MsgClass':'DQ', 
+    'MsgType': (('' if isprod else 'Development') +
+                ('WebDisplayRunComplete' if not incr else 'WebDisplayIncremental')),
+    'type':'textMessage', 
+    'persistent': 'true',
+    'destination': dest,
+    }
+  conn.send(message=json.dumps(body), destination=dest,headers=headers,ack='auto')
+  conn.disconnect()
 
 #########################################################################
 
@@ -161,7 +198,9 @@ def dq_combined_trf(picklefile):
     # output file
     histdsname = (parmap['outputHistFile']).split('#')[0]
     histfile = (parmap['outputHistFile']).split('#')[1]
-    
+    amitag = histfile.split('.')[5]
+
+
     # incremental mode on/off
     incr = parmap.get('incrementalMode', 'False') 
     
@@ -173,7 +212,33 @@ def dq_combined_trf(picklefile):
 
     # do web display
     doWebDisplay = parmap.get('doWebDisplay', 'True')
+
+    # production mode
+    productionMode = parmap.get('productionMode', 'True')
+    if productionMode != 'True' and incr == 'True':
+      print("Production mode is not True, turning off incremental mode")
+      incr = 'False'
     
+    # get file paths, put into environment vars
+    filepaths = parmap.get('filepaths', None)
+    if filepaths and isinstance(filepaths, dict):
+      if 'basename' not in filepaths:
+        print("Improperly formed 'filepaths' (no 'basename')")
+      else:
+        for evtclass in ('Collisions', 'Cosmics', 'HeavyIons'):
+          if evtclass not in filepaths:
+            print("Improperly formed 'filepaths' (no '%s')" % evtclass)
+          else:
+            clinfo = filepaths[evtclass]
+            for timeclass in ('run', 'minutes10', 'minutes30'):
+              if timeclass not in clinfo:
+                print("Improperly formed 'filepaths[%s]' (no '%s')" % (evtclass, timeclass))
+              else:
+                dqcenvvar = 'DQC_HCFG_%s_%s' % (evtclass.upper(), timeclass.upper())
+                fpath = os.path.join(filepaths['basename'], clinfo[timeclass])
+                print("Setting %s = %s" % (dqcenvvar, fpath))
+                os.environ[dqcenvvar] = fpath
+
     # extract info from dataset name
     # AMI project name
     # override if tag has been specified in parmap
@@ -226,6 +291,7 @@ def dq_combined_trf(picklefile):
     print "  Incremental mode:", incr
     print "  Post-processing: ", postproc
     print "  COOL uploads:    ", allowCOOLUpload
+    print "  Production mode: ", productionMode
     
 
     print "\n##################################################################"
@@ -233,9 +299,9 @@ def dq_combined_trf(picklefile):
     print   "##################################################################\n"
 
     # environment setting
-    os.environ['DQPRODUCTION'] = '1'
+    os.environ['DQPRODUCTION'] = '1' if productionMode == 'True' else '0'
     print "Setting env variable DQPRODUCTION to %s\n" % os.environ['DQPRODUCTION']
-    os.environ['COOLUPLOADS'] = '1' if allowCOOLUpload == 'True' else '0'
+    os.environ['COOLUPLOADS'] = '1' if allowCOOLUpload == 'True' and productionMode == 'True' else '0'
     print "Setting env variable COOLUPLOADS to %s\n" % os.environ['COOLUPLOADS']
     
     if postproc == 'True' :
@@ -334,6 +400,8 @@ def dq_combined_trf(picklefile):
         histmap = getFileMap(histfile, histdsname, nevts=nevts)
         outfiles = [histmap]
         dt += dt2
+        print 'Publishing to message service'
+        publish_success_to_mq(runnr, dqproject, stream, incr=(incr=='True'), ami=amitag, procpass=procnumber, hcfg=filepaths, isprod=(productionMode=='True'))
       else :
         txt = 'DQWebDisplay.py execution problem'  
         print "ERROR: DQWebDisplay.py execution problem!"

@@ -40,12 +40,12 @@ use AtlasCORAL                AtlasCORAL-*       External
 use AtlasBoost 		      AtlasBoost-* 	 External
 
 # Specify the required ROOT component for cmake (transparent to CMT)
-apply_pattern cmake_add_command command="find_package(ROOT COMPONENTS Cint Graf Gpad MathCore RooFit RooFitCore Minuit)"
+apply_pattern cmake_add_command command="find_package(ROOT COMPONENTS Graf Gpad MathCore RooFit RooFitCore Minuit)"
 
-# Generate the rootcint dictionary for cmake (transparent to CMT)
-apply_pattern cmake_add_command command="athena_add_rootcint_dictionary(DataQualityUtilsDict ROOT_HEADERS DataQualityUtils/HanOutputFile.h DataQualityUtils/MonitoringFile.h DataQualityUtils/StatusFlagCOOL.h DataQualityUtils/StatusFlagCOOLBase.h DataQualityUtils/StatusFlagCommentCOOL.h DataQualityUtils/HistogramDataCOOL.h DataQualityUtils/CoolRpc.h DataQualityUtils/CoolMdt.h DataQualityUtils/CoolTgc.h DataQualityUtils/MdtDeadNoisyUtils.h DataQualityUtils/RootLinkDef.h EXTERNAL_PACKAGES CORAL COOL ROOT Boost)"
+# Generate the ROOT dictionary for cmake (transparent to CMT)
+apply_pattern cmake_add_command command="athena_add_root_dictionary(DataQualityUtilsDict ROOT_HEADERS DataQualityUtils/HanOutputFile.h DataQualityUtils/MonitoringFile.h DataQualityUtils/StatusFlagCOOL.h DataQualityUtils/StatusFlagCOOLBase.h DataQualityUtils/StatusFlagCommentCOOL.h DataQualityUtils/HistogramDataCOOL.h DataQualityUtils/CoolRpc.h DataQualityUtils/CoolMdt.h DataQualityUtils/CoolTgc.h DataQualityUtils/MdtDeadNoisyUtils.h DataQualityUtils/RootLinkDef.h EXTERNAL_PACKAGES CORAL COOL ROOT Boost)"
 
-# Add the generated rootcint file to the library for cmake (transparent to CMT)
+# Add the generated ROOT file to the library for cmake (transparent to CMT)
 apply_pattern cmake_add_generated_files library=DataQualityUtils files=DataQualityUtilsDict.cxx
 
 
@@ -96,27 +96,14 @@ library  DataQualityUtils  $(lib_opts) "\
  ../src/MonitoringFile_BJetTaggingPostProcess.cxx\
  ../src/MonitoringFile_BJetTaggingAdjustRanges.cxx\
  ../src/MonitoringFile_BJetTaggingNormalise.cxx\
- ../src/MonitoringFile_L1CaloPostProcess.cxx\
- $(bin)DataQualityUtilsRootDict.cxx"
+ ../src/MonitoringFile_L1CaloPostProcess.cxx
 
 apply_pattern installed_library
 
-macro_append DataQualityUtils_dependencies  " dqutils_root_dictionary "
-
-macro_append dqutils_root_dictionary_dependencies  " install_includes "
-
-action  dqutils_root_dictionary  "( $(ROOTSYS)/bin/rootcint -f $(bin)DataQualityUtilsRootDict.cxx -c -p $(includes)\ 
- ../DataQualityUtils/HanOutputFile.h\
- ../DataQualityUtils/MonitoringFile.h\
- ../DataQualityUtils/StatusFlagCOOL.h\
- ../DataQualityUtils/StatusFlagCOOLBase.h\
- ../DataQualityUtils/StatusFlagCommentCOOL.h\
- ../DataQualityUtils/HistogramDataCOOL.h\
- ../DataQualityUtils/CoolRpc.h\ 
- ../DataQualityUtils/CoolMdt.h\
- ../DataQualityUtils/CoolTgc.h\
- ../DataQualityUtils/MdtDeadNoisyUtils.h\
- ../DataQualityUtils/RootLinkDef.h )"
+apply_pattern have_root_headers root_headers="HanOutputFile.h MonitoringFile.h StatusFlagCOOL.h \
+  StatusFlagCOOLBase.h StatusFlagCommentCOOL.h HistogramDataCOOL.h CoolRpc.h \
+  CoolMdt.h CoolTgc.h MdtDeadNoisyUtils.h RootLinkDef.h" \
+  extra_includes='-p ${use_includes}'  headers_lib=DataQualityUtils
 
 
 #############################################################################
