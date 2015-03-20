@@ -219,6 +219,10 @@ namespace MuonCombined {
       return 0;
     }
 
+    // check if there is a cluster container, if yes collect the cells around the muon and fill
+    // Etcore variables for muon
+    if( outputData.clusterContainer ) collectCells(*muon,*outputData.clusterContainer);
+
     return muon;
   }
 
