@@ -16,6 +16,8 @@
 #include "../TrigCostRootAnalysis/TrigCostData.h"
 #include "../TrigCostRootAnalysis/Config.h"
 #include "../TrigCostRootAnalysis/Utility.h"
+#include "../TrigCostRootAnalysis/TrigConfInterface.h"
+#include "../TrigCostRootAnalysis/TrigXMLService.h"
 
 namespace TrigCostRootAnalysis {
 
@@ -26,9 +28,11 @@ namespace TrigCostRootAnalysis {
    * @param _name Const ref to sequence's name
    * @param _ID Sequence's index number.
    */
-  CounterSequence::CounterSequence( const TrigCostData* _costData, const std::string& _name, Int_t _ID, UInt_t _detailLevel ) : CounterBase(_costData, _name, _ID, _detailLevel) {
+  CounterSequence::CounterSequence( const TrigCostData* _costData, const std::string& _name, Int_t _ID, UInt_t _detailLevel ) 
+    : CounterBase(_costData, _name, _ID, _detailLevel) {
     
     // Reg. variables to study. 
+    m_dataStore.newVariable(kVarEventsActive).setSavePerEvent();
     m_dataStore.newVariable(kVarCalls).setSavePerEvent();
     m_dataStore.newVariable(kVarCallsSlow).setSavePerEvent();   
 
@@ -99,6 +103,9 @@ namespace TrigCostRootAnalysis {
     ++m_calls;
     UNUSED( _f );
     
+    _weight *= getPrescaleFactor(_e);
+    if (isZero(_weight) == kTRUE) return;
+
     if ( Config::config().debug() ) debug(_e);
 
     m_dataStore.store(kVarCalls, 1., _weight);
@@ -139,12 +146,25 @@ namespace TrigCostRootAnalysis {
     }
 
   }
+
+  /**
+   * When running with prescales applied. This function returns how the counter should be scaled for the current call.
+   * For a sequence, we need to figure out the chain which the sequence belongs to and then check it's enabled and then
+   * scale by its L1 prescale
+   * @return Multiplicative weighting factor
+   */
+  Double_t CounterSequence::getPrescaleFactor(UInt_t _e) {
+    return TrigXMLService::trigXMLService().getHLTCostWeightingFactor( 
+      TrigConfInterface::getHLTNameFromChainID( m_costData->getSequenceChannelCounter(_e), 
+      m_costData->getSequenceLevel(_e) ) );
+  }
   
   /**
    * Perform end-of-event monitoring on the DataStore.
    */
-  void CounterSequence::endEvent() {
-  
+  void CounterSequence::endEvent(Float_t _weight) {
+    m_dataStore.store(kVarEventsActive, 1., _weight);
+
     m_dataStore.setVariableDenominator(kVarTime, s_eventTimeExecute);
     m_dataStore.endEvent();
     
@@ -159,7 +179,7 @@ namespace TrigCostRootAnalysis {
          " isAlreadyExec:%i isExec:%i isInitial:%i isPrev:%i nAlgs:%i nAlgCalls:%i nAlgCaches:%i"
          " ROSCall:%i ROSTime:%.2f ROBRet:%i ROBRetSize:%.2f ROBReq:%i ROBReqSize:%.2f ROBOther:%i",
          m_name.c_str(),
-         m_ID,
+         getID(),
          m_costData->getEventNumber(),
          m_costData->getSequenceLevel(_e),
          m_costData->getSequenceChannelCounter(_e),

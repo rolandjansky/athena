@@ -23,12 +23,8 @@ namespace TrigCostRootAnalysis {
 
   Float_t tableFnChainGetTotalFracTime(CounterMap_t* _map, CounterBase* _TCCB);
 
-  Float_t tableFnRosGetTimePerRet(CounterMap_t* _map, CounterBase* _TCCB);
-
-  Float_t tableFnAlgGetTimePerCall(CounterMap_t* _map, CounterBase* _TCCB);
-
   Float_t tableFnGlobalGetSteeringFarmUse(CounterMap_t* _map, CounterBase* _TCCB);
-
+  
   Float_t tableFnRateGetWeightedRateErr(CounterMap_t* _map, CounterBase* _TCCB);
   Float_t tableFnRateGetDirectRateErr(CounterMap_t* _map, CounterBase* _TCCB);
 

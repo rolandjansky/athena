@@ -72,7 +72,8 @@ namespace TrigCostRootAnalysis {
     }
     // We have one extra one, AlwaysPass - which will be used for HLT chains with no L1 seed
     RatesChainItem* _alwaysPass = new RatesChainItem(Config::config().getStr(kAlwaysPassString), 1 , 1.); // Set level to 1, PS to 1
-    _alwaysPass->beginEvent(kTRUE); // Set pass raw to kTRUE. This will stay fixed like this forever.
+    CounterBaseRatesSet_t _dummy;
+    _alwaysPass->beginEvent(kTRUE, _dummy); // Set pass raw to kTRUE. This will stay fixed like this forever. Second param is ignored
     m_chainItemsL1[ Config::config().getStr(kBlankString) ] = _alwaysPass; // Associate to a blank string
 
     // ##################################################################################################################
@@ -193,7 +194,7 @@ namespace TrigCostRootAnalysis {
       RatesChainItem* _chainItemL1 = _it->second;
 
       // Construct a string displaying the PS for this chain
-      const std::string _prescaleStr = Config::config().getStr(kL1String) + ":" + doubleToString( _chainItemL1->getPS() );
+      const std::string _prescaleStr = Config::config().getStr(kL1String) + ":" + doubleToString( _chainItemL1->getPS(), 2 );
       Double_t _prescaleVal = _chainItemL1->getPS();
 
       // Also get online PS
@@ -301,12 +302,12 @@ namespace TrigCostRootAnalysis {
         _prescaleVal = (*(_chainItemHLT->getLowerStart()))->getPS();
         _prescaleValOnlineL1 = TrigConfInterface::getPrescale( (*(_chainItemHLT->getLowerStart()))->getName() );
 
-        _L1PSString = floatToString( _prescaleVal, 0 );
+        _L1PSString = floatToString( _prescaleVal, 2 );
       } else if (_chainItemHLT->getLower().size() == 0) {
         _L1PSString = Config::config().getStr(kAlwaysPassString); // "UNSEEDED"
       }
       const std::string _prescaleStr = Config::config().getStr(kL1String) + ":" + _L1PSString 
-        + " " + Config::config().getStr(kHLTString) + ":" + floatToString( _chainItemHLT->getPS() );
+        + " " + Config::config().getStr(kHLTString) + ":" + floatToString( _chainItemHLT->getPS(), 2 );
       _prescaleVal *= _chainItemHLT->getPS();
 
 
@@ -437,10 +438,12 @@ namespace TrigCostRootAnalysis {
     
     //Now loop over the counter collections;
     for (CounterMapSetIt_t _cmsIt = m_collectionsToProcess.begin(); _cmsIt != m_collectionsToProcess.end(); ++_cmsIt) {
-      CounterMap_t* _counterMap = *_cmsIt;
+      CounterMap_t* _counterMap = *_cmsIt; // This counter map holds all the counters. But we don't really want to process every one
+      CounterBaseRatesSet_t _inEventCounterMap; // This set contains all the counters we actually do need to iterate over
 
       // If the counter map is empty, then we need to populate it. We will pre-load a counter for every chain.
       if (_counterMap->size() == 0) populateCounterMap(_counterMap);
+
       
       // ##################################################################################################################
       // PASS ONE: Fill the event information into HLT RatesChainItems - this is their only job, to remember this stuff.
@@ -463,7 +466,7 @@ namespace TrigCostRootAnalysis {
         }
 
         RatesChainItem* _chainItem = _it->second;
-        _chainItem->beginEvent( m_costData->getIsChainPassedRaw(_c) );
+        _chainItem->beginEvent( m_costData->getIsChainPassedRaw(_c), _inEventCounterMap );
         _chainItemsInEvent.insert( _chainItem );
 
         if (Config::config().debug()) {
@@ -497,13 +500,15 @@ namespace TrigCostRootAnalysis {
         // However. If *not* doing weights, then we cannot undo the L1 prescale and hence the rate is fixed by what is in the file.
         // We should therefore use TAV.
 
+        //XXX TODO READDRESS THIS - NO LONGER TRUE I THINK
+
         Bool_t _desicison = m_costData->getIsL1PassedBeforePrescale(_c);
-        if ( Config::config().getInt(kDoEBWeighting) == 0) {
-          _desicison = m_costData->getIsL1PassedAfterVeto(_c);
-        }
+        // if ( Config::config().getInt(kDoEBWeighting) == 0) {
+        //   _desicison = m_costData->getIsL1PassedAfterVeto(_c);
+        // }
 
         RatesChainItem* _chainItem = _it->second;
-        _chainItem->beginEvent( _desicison );
+        _chainItem->beginEvent( _desicison,  _inEventCounterMap );
         _chainItemsInEvent.insert( _chainItem );
 
 
@@ -527,10 +532,16 @@ namespace TrigCostRootAnalysis {
 
       // ##################################################################################################################
       // PASS TWO: Now loop over all counters, they will use their pre-linked RatesChainItems to get their weights.
+      // OLD - inefficient, does them all
       CounterMapIt_t _it = _counterMap->begin();
       for (; _it != _counterMap->end(); ++_it) {
         _it->second->processEventCounter(0, 0, _weight);
       }
+      // NEW - better - only does the ones we need to
+      // CounterBaseRatesSetIt_t _cbrsit = _inEventCounterMap.begin();
+      // for (; _cbrsit != _inEventCounterMap.end(); ++_cbrsit) {
+      //   (*_cbrsit)->processEventCounter(0, 0, _weight);
+      // }
       
       // ##################################################################################################################
       // PASS THREE: Now we just need to reset the ChainItems which were included in the event.
@@ -589,6 +600,21 @@ namespace TrigCostRootAnalysis {
     _json.endNode(_fout); // ratesGraphs
     _fout.close();
   }
+
+  /**
+   * Do we use this monitor for this particular mode? Try and keep things managable in terms of output created!
+   * Note these are currently hard-coded. We may want to make them configurable
+   * @return If this monitor should be active for a given mode.
+   */
+  Bool_t MonitorRates::getIfActive(ConfKey_t _mode) {
+    switch(_mode) {
+      case kDoAllSummary:       return kTRUE;
+      case kDoKeySummary:       return kTRUE;
+      case kDoLumiBlockSummary: return kTRUE;
+      default: Error("MonitorRates::getIfActive", "An invalid summary mode was provided (key %s)", Config::config().getName(_mode).c_str() );
+    }
+    return kFALSE;
+  }
   
   /**
    * Save the results from this monitors counters as specified in the configuration.
@@ -645,21 +671,33 @@ namespace TrigCostRootAnalysis {
         kDecPrescaleValOnlineL1, kSavePerCall, 0, kFormatOptionUseFloatDecoration) );
     }
 
+    _toSaveTable.push_back( TableColumnFormatter("ID", 
+      "The CPTID or HLT Chain ID",
+      kDecID, kSavePerCall, 0, kFormatOptionUseIntDecoration) );
+
     _toSaveTable.push_back( TableColumnFormatter("Raw Active Events", 
       "Raw underlying statistics on the number events processed for this chain.",
       kVarEventsRunRawStat, kSavePerCall, 0) );
 
     _toSaveTable.push_back( TableColumnFormatter("Active Events", 
-      "Number of events in which the chain - or at least one chain in the combination - was executed at the HLT.",
+      "Number of events in which the chain - or at least one chain in the combination - was executed.",
       kVarEventsRun, kSavePerCall, 4) );
 
     _toSaveTable.push_back( TableColumnFormatter("Passed Before PS", 
       "Number of events in which this chain or combination passed. Irrespective of prescale.",
       kVarEventsPassedNoPS, kSavePerCall, 4 ) );
 
-    _toSaveTable.push_back( TableColumnFormatter("Pass Weighted PS", 
-      "Number of events this chain or combination passed after applying prescales as weighting factors.",
-      kVarEventsPassed, kSavePerCall, 4 ) );
+    _toSaveTable.push_back( TableColumnFormatter("Pass Fraction before PS", 
+      "Fraction of events which pass this trigger before prescale.",
+      kVarEventsPassedNoPS, kSavePerCall, kVarEventsRun, kSavePerCall, 4) );
+
+    _toSaveTable.push_back( TableColumnFormatter("Pass Fraction after PS", 
+      "Fraction of events which pass this trigger after prescale.",
+      kVarEventsPassed, kSavePerCall, kVarEventsRun, kSavePerCall, 4) );
+
+    // _toSaveTable.push_back( TableColumnFormatter("Pass Weighted PS", 
+    //   "Number of events this chain or combination passed after applying prescales as weighting factors.",
+    //   kVarEventsPassed, kSavePerCall, 4 ) );
 
     _toSaveTable.push_back( TableColumnFormatter("Weighted PS Rate [Hz]", 
       "Rate after applying all prescale(s) as weights.",
@@ -723,6 +761,9 @@ namespace TrigCostRootAnalysis {
     sharedTableOutputRoutine( _toSaveTable );
     sharedHistogramOutputRoutine( _toSavePlots );
 
+    // TODO change this as we currently cannot use this option elsewhere becasue this mon runs first
+    Config::config().clearVec(kPatternsOutput);
+
   }
 
   void MonitorRates::saveRuleBookXML() {
@@ -763,7 +804,7 @@ namespace TrigCostRootAnalysis {
       _xml.addNode(_fout, "Luminosity", intToString(0)); // TODO
       _xml.addNode(_fout, "GenEff", intToString(0)); // TODO
       _xml.addNode(_fout, "n_evts", intToString(Config::config().getInt(kEventsProcessed)) ); 
-      _xml.addNode(_fout, "PredictionLumi", intToString(0)); // TODO 
+      _xml.addNode(_fout, "PredictionLumi", floatToString(Config::config().getFloat(kPredictionLumi)) );  
       for (UInt_t _f = 0; _f < Config::config().getVecSize(kInputFiles); ++_f) {
         _xml.addNode(_fout, "Dataset", Config::config().getVecEntry(kInputFiles, _f));
       }
@@ -777,6 +818,7 @@ namespace TrigCostRootAnalysis {
       // Do Bunch Group info
       StringIntMap_t _bunchGroups = TrigConfInterface::getBunchGroupSetup();
       UInt_t _bgCounter = 0;
+      _xml.addNode(_fout, "bunchgroup");
       for (StringIntMapIt_t _it = _bunchGroups.begin(); _it != _bunchGroups.end(); ++_it) {
         _xml.addNode(_fout, "bunchgrouptype");
         _xml.addNode(_fout, "bunchgroup_keynum", intToString(_bgCounter++) );
@@ -784,6 +826,7 @@ namespace TrigCostRootAnalysis {
         _xml.addNode(_fout, "bunchgroup_size", intToString(_it->second) );
         _xml.endNode(_fout); // bunchgrouptype
       }
+      _xml.endNode(_fout); //bunchgroup
 
       _xml.addNode(_fout, "level");
       //Add L1 data

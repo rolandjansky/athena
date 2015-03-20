@@ -72,10 +72,25 @@ namespace TrigCostRootAnalysis {
         _counter->processEventCounter( _s, 0, _weight );
       }
       
-      endEvent();
+      endEvent(_weight);
     }
   }
   
+  /**
+   * Do we use this monitor for this particular mode? Try and keep things managable in terms of output created!
+   * Note these are currently hard-coded. We may want to make them configurable
+   * @return If this monitor should be active for a given mode.
+   */
+  Bool_t MonitorSequence::getIfActive(ConfKey_t _mode) {
+    switch(_mode) {
+      case kDoAllSummary:       return kTRUE;
+      case kDoKeySummary:       return kTRUE;
+      case kDoLumiBlockSummary: return kTRUE;
+      default: Error("MonitorSequence::getIfActive", "An invalid summary mode was provided (key %s)", Config::config().getName(_mode).c_str() );
+    }
+    return kFALSE;
+  }
+
   /**
    * Save the results from this monitors counters as specified in the configuration.
    */
@@ -89,21 +104,25 @@ namespace TrigCostRootAnalysis {
     std::vector<TableColumnFormatter> _toSaveTable;
     const std::string _slowText = "Calls > " + intToString( Config::config().getInt(kSlowEventThreshold) ) + " ms";
 
-    _toSaveTable.push_back( TableColumnFormatter("Active Events", 
-      "Number of events in which this sequence was executed.",
+    _toSaveTable.push_back( TableColumnFormatter("Raw Active Events", 
+      "Raw underlying statistics on how many events in which this sequence was executed.",
       kVarCalls, kSavePerEvent, 0, kFormatOptionUseEntries) );
 
-    _toSaveTable.push_back( TableColumnFormatter("Calls", 
+    _toSaveTable.push_back( MonitorBase::TableColumnFormatter("Active Events", 
+      "How many events in which this sequence was executed.",
+      kVarEventsActive, kSavePerEvent, 0) );
+
+    _toSaveTable.push_back( TableColumnFormatter("Calls/Event", 
       "Total number of calls made to this sequence.",
-      kVarCalls, kSavePerEvent, 0) );
+      kVarCalls, kSavePerEvent, kVarEventsActive, kSavePerEvent, 2) );
 
     _toSaveTable.push_back( TableColumnFormatter(_slowText, 
       "Number of sequence executions which were particularly slow.",
       kVarCallsSlow, kSavePerEvent, 0 ) );
 
-    _toSaveTable.push_back( TableColumnFormatter("Event Rate [Hz]", 
-      "Rate in this run range of events with at least one execution of this sequence.",
-      kVarCalls, kSavePerEvent, 2, kFormatOptionNormaliseEntriesWallTime) ); // SavePerEvent entires normalised to wall time
+    _toSaveTable.push_back( MonitorBase::TableColumnFormatter("Event Rate [Hz]", 
+      "Rate in this run range of events with at least one execution of this algorithm.",
+      kVarEventsActive, kSavePerEvent, 2, kFormatOptionNormaliseWallTime) );
 
     _toSaveTable.push_back( TableColumnFormatter("Call Rate [Hz]", 
       "Rate in this run range of calls to this sequence.",
@@ -119,23 +138,23 @@ namespace TrigCostRootAnalysis {
 
     _toSaveTable.push_back( TableColumnFormatter("Seq. Total Time/Call [ms]", 
       "Average execution time per sequence call in this run range.",
-      kVarTime, kSavePerCall, 2, kFormatOptionNormaliseEntries) ); // time savePerCall normalised to savePerEvent entries
+      kVarTime, kSavePerCall, kVarCalls, kSavePerEvent, 2) ); 
 
     _toSaveTable.push_back( TableColumnFormatter("Seq. Total Time/Event [ms]", 
       "Average execution time (CPU+ROS) per event for events with at least one execution in this run range.",
-      kVarTime, kSavePerEvent, 2, kFormatOptionNormaliseEntries) );
+      kVarTime, kSavePerEvent, kVarEventsActive, kSavePerEvent, 2) );
 
-    _toSaveTable.push_back( TableColumnFormatter("Run Agls", 
+    _toSaveTable.push_back( TableColumnFormatter("Run Agls/Event", 
       "Total number of algorithms executed by this sequence.",
-      kVarAlgCalls, kSavePerEvent, 2 ) );
+      kVarAlgCalls, kSavePerEvent, kVarEventsActive, kSavePerEvent, 2 ) );
 
-    _toSaveTable.push_back( TableColumnFormatter("Cached Algs", 
+    _toSaveTable.push_back( TableColumnFormatter("Cached Algs/Event", 
       "Total number of algorithms which supplied a cached result to this sequence.",
-      kVarAlgCaches, kSavePerEvent, 2 ) );
+      kVarAlgCaches, kSavePerEvent, kVarEventsActive, kSavePerEvent, 2 ) );
 
     _toSaveTable.push_back( TableColumnFormatter("ROS Time/Event [ms]", 
       "Average time waiting for ROS data per event for  events with at least one execution in this run range.",
-      kVarROSTime, kSavePerEvent, 2, kFormatOptionNormaliseEntries ) );
+      kVarROSTime, kSavePerEvent, kVarEventsActive, kSavePerEvent, 2 ) );
 
     _toSaveTable.push_back( TableColumnFormatter("Data Request Rate [Hz]", 
       "Rate of calls to the ROS from this algorithm in this run range.",
@@ -147,7 +166,7 @@ namespace TrigCostRootAnalysis {
 
     _toSaveTable.push_back( TableColumnFormatter("Cached ROB Rate [kB/s]", 
       "Average size of cached ROB data fetches for this algorithm in this run range.",
-      kVarROBReqSize, kSavePerEvent, 2, kFormatOptionNormaliseEntries ) );
+      kVarROBReqSize, kSavePerEvent, 2, kFormatOptionNormaliseWallTime ) );
 
     _toSaveTable.push_back( TableColumnFormatter("Retrieved ROB Rate [Hz]", 
       "Rate of ROB retrievals from this algorithm in this run range.",
@@ -155,7 +174,7 @@ namespace TrigCostRootAnalysis {
 
     _toSaveTable.push_back( TableColumnFormatter("Retrieved ROB Rate [kB/s]", 
       "Average size of retrieved ROB data fetches for this algorithm in this run range.",
-      kVarROBRetSize, kSavePerEvent, 2, kFormatOptionNormaliseEntries ) );
+      kVarROBRetSize, kSavePerEvent, 2, kFormatOptionNormaliseWallTime ) );
 
     sharedTableOutputRoutine( _toSaveTable );
 

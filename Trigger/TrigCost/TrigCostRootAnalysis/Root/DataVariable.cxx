@@ -27,7 +27,7 @@
 namespace TrigCostRootAnalysis {
 
   /**
-   * DataVariable constructor, takes no arguments.
+   * DataVariable constructor, takes a pointer to its owner
    */
   DataVariable::DataVariable(DataStore* _parent) : m_parentDataStore(_parent) {
     // Initialise pointers to NULL
@@ -50,17 +50,17 @@ namespace TrigCostRootAnalysis {
   /**
    * Data constructor, takes no arguments. Initialises to empty.
    */
-  DataVariable::Data::Data() : m_entries(0), m_data(0), m_buffer(0), m_bufferWeight(0), m_bufferRawWeight(0),
-    m_sumw2(0), m_denominator(0), m_usedInEvent(kFALSE), m_histoTitle(), m_hist(0), m_hist2D(0) {
+  DataVariable::Data::Data() : m_entries(0), m_data(0), m_bufferVal(0), m_bufferValW(0), m_bufferValW2(0),
+    m_sumw2(0), m_denominator(0), m_usedInEvent(kFALSE), m_histoTitle(), m_hist(0) {
     // Nothing here
   }
   
   /**
-   * Data destructor. Deletes internal histograms and map.
+   * Data destructor. Deletes internal histograms and string.
    */
   DataVariable::Data::~Data() {
     delete m_hist;
-    delete m_hist2D;
+    // delete m_hist2D;
     delete m_histoTitle;
   }
   
@@ -74,18 +74,18 @@ namespace TrigCostRootAnalysis {
     // Only create histograms if we are going to output a ROOT file.
     // Actual memory allocation hapens just before first fill - as many declared histos don't actually ever get used
     _data->m_hist = 0;
-    //TODO make use of the TH2F pointer
-    _data->m_hist2D = 0;
+    // //TODO make use of the TH2F pointer
+    // _data->m_hist2D = 0;
     _data->m_entries = 0.;
     _data->m_data = 0.;
     _data->m_sumw2 = 0.;
-    _data->m_buffer = 0.;
-    _data->m_bufferWeight = 0.;
-    _data->m_bufferRawWeight = 0.;
+    _data->m_bufferVal = 0.;
+    _data->m_bufferValW = 0.;
+    _data->m_bufferValW2 = 0.;
     _data->m_denominator = 0;
     _data->m_usedInEvent = kFALSE;
     _data->m_histoTitle = 0;
-    if (_title != "" 
+    if (_title != Config::config().getStr(kBlankString) 
       && m_parentDataStore->getHistogramming() == kTRUE 
       && ( Config::config().getInt(kOutputRoot) || Config::config().getInt(kOutputImage) ) )
     {
@@ -105,8 +105,6 @@ namespace TrigCostRootAnalysis {
     }
     m_dataMap[_vo] = _data;
   }
-
-
 
   /**
    * Set custom X axis bin lables for a histogram.
@@ -242,7 +240,7 @@ namespace TrigCostRootAnalysis {
    * @param _vo Which VariableOption_t to retrieve the stored data from.
    * @param _val The value to use for sumw2.
    */
-  void DataVariable::setError(VariableOption_t _vo, Float_t _val) {
+  void DataVariable::setErrorSquared(VariableOption_t _vo, Float_t _val) {
     if ( checkRegistered(_vo) == kFALSE) return; 
     m_dataMap[_vo]->m_sumw2 = _val;
   }
@@ -284,10 +282,10 @@ namespace TrigCostRootAnalysis {
    * @param _vo Which VariableOption_t to retrieve the stored data from.
    * @return TH2F histogram pointer.
    */
-  TH2F* DataVariable::getHist2D(VariableOption_t _vo) {
-    if ( checkRegistered(_vo) == kFALSE) return 0;
-    return m_dataMap[_vo]->m_hist2D;
-  }
+  // TH2F* DataVariable::getHist2D(VariableOption_t _vo) {
+  //   if ( checkRegistered(_vo) == kFALSE) return 0;
+  //   return m_dataMap[_vo]->m_hist2D;
+  // }
   
   /**
    * Internal call to save a value.
@@ -314,9 +312,19 @@ namespace TrigCostRootAnalysis {
    */
   void DataVariable::dataBuffer(Data* _data, Float_t _value, Float_t _weight) {
     if (_data == 0) return;
-    _data->m_buffer += _value; //TODO check
-    _data->m_bufferWeight += _value * _weight; //TODO check
-    _data->m_bufferRawWeight += _weight; //TODO check
+
+    // Now we need to keep track of the values and their errors
+    //
+    // bufferValW is the sum of weighted value to add to m_data (the total weighted value)
+    // bufferValW2 is the sum of [value times square of weight] to add to m_sumw2 (the error on the total weighted value squared)
+    //
+    // bufferVal is the unweighed sum, it is needed as the raw value to fill the histogram with.
+    // (bufferValW / bufferVal) can be used to get the average weight to use when filling the histogram
+    //
+    _data->m_bufferVal   += _value;
+    _data->m_bufferValW  += _value * _weight;
+    _data->m_bufferValW2 += _value * _weight * _weight;
+
     _data->m_usedInEvent = kTRUE;
   }
   
@@ -327,22 +335,21 @@ namespace TrigCostRootAnalysis {
   void DataVariable::dataSaveBuffer(Data* _data) {
     if (_data == 0 || _data->m_usedInEvent == kFALSE) return;
     _data->m_entries++;
-    Float_t _effectiveWeight = 0;
-    if (!isZero(_data->m_buffer)) {
-      _effectiveWeight = _data->m_bufferWeight / _data->m_buffer;
-    } else {
-      _effectiveWeight = _data->m_bufferRawWeight;
-    }
-    //Info("!","%f %f %f",_data->m_buffer, _data->m_bufferWeight, _effectiveWeight);
-    _data->m_data += _data->m_buffer * _effectiveWeight; //TODO double check
-    _data->m_sumw2 += _data->m_buffer * _effectiveWeight * _effectiveWeight;  //TODO double check
+
+    _data->m_data  += _data->m_bufferValW; 
+    _data->m_sumw2 += _data->m_bufferValW2;  
+
     if (_data->m_hist == 0 && _data->m_histoTitle != 0) makeHist(_data);
     if (_data->m_hist != 0) {
-      _data->m_hist->Fill( _data->m_buffer, _effectiveWeight );  //TODO double check
+      Float_t _effectiveWeight = 0;
+      if (!isZero(_data->m_bufferVal)) _effectiveWeight = _data->m_bufferValW / _data->m_bufferVal;
+      //TODO what if m_bufferVal is zero? Could still have a large weight we want on the histogram?
+      _data->m_hist->Fill( _data->m_bufferVal, _effectiveWeight );  //TODO double check
     }
-    _data->m_buffer = 0.;
-    _data->m_bufferWeight = 0.;
-    _data->m_bufferRawWeight = 0.;
+
+    _data->m_bufferVal = 0.;
+    _data->m_bufferValW = 0.;
+    _data->m_bufferValW2 = 0.;
     _data->m_usedInEvent = kFALSE;
   }
   
@@ -360,22 +367,24 @@ namespace TrigCostRootAnalysis {
       }
     } else {
       _data->m_entries++;
-      Float_t _effectiveWeight = 0;
-      if (!isZero(_data->m_buffer)) {
-        _effectiveWeight = _data->m_bufferWeight / _data->m_buffer;
-      } else {
-        _effectiveWeight = _data->m_bufferRawWeight;
-      }
-      _data->m_data  += (_data->m_buffer * _effectiveWeight) / _data->m_denominator;
-      _data->m_sumw2 += (_data->m_buffer * _effectiveWeight * _effectiveWeight) / _data->m_denominator; // CHECK ME
+
+      _data->m_data  += _data->m_bufferValW  / _data->m_denominator;
+      _data->m_sumw2 += _data->m_bufferValW2 / _data->m_denominator;
+
       if (_data->m_hist == 0 && _data->m_histoTitle != 0) makeHist(_data);
       if (_data->m_hist != 0) {
-        _data->m_hist->Fill( _data->m_buffer * _effectiveWeight / _data->m_denominator, _effectiveWeight); //TODO double check
+        Float_t _effectiveWeight = 0;
+        if (!isZero(_data->m_bufferVal)) _effectiveWeight = _data->m_bufferValW / _data->m_bufferVal;
+        //TODO what if m_bufferVal is zero? Could still have a large weight we want on the histogram?
+        //NOTE We assume here that the demoninator is weighted hence take the weighted numerator too.
+        //If this is ever not the case, may want to put a flag in 
+        _data->m_hist->Fill( _data->m_bufferValW / _data->m_denominator , _effectiveWeight); //TODO check, do we divide effW by denom?
       }
     }
-    _data->m_buffer = 0.;
-    _data->m_bufferWeight = 0.;
-    _data->m_bufferRawWeight = 0.;
+
+    _data->m_bufferVal = 0.;
+    _data->m_bufferValW = 0.;
+    _data->m_bufferValW2 = 0.;
     _data->m_denominator = 0.;
     _data->m_usedInEvent = kFALSE;
   }

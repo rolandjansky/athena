@@ -38,8 +38,12 @@ namespace TrigCostRootAnalysis {
     ~CounterROB();
     void startEvent();
     void processEventCounter(UInt_t _e, UInt_t _f,  Float_t _weight = 1.);
-    void endEvent();
+    void endEvent(Float_t _weight = 1.);
     void debug(UInt_t _e, UInt_t _f);
+
+   private:
+
+    Double_t getPrescaleFactor(UInt_t _e = INT_MAX);
     
   }; //class CounterROB
   

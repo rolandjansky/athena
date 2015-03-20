@@ -18,6 +18,7 @@
 // Local include(s):
 #include "../TrigCostRootAnalysis/CounterChain.h"
 #include "../TrigCostRootAnalysis/TrigConfInterface.h"
+#include "../TrigCostRootAnalysis/TrigXMLService.h"
 #include "../TrigCostRootAnalysis/TrigCostData.h"
 #include "../TrigCostRootAnalysis/Config.h"
 #include "../TrigCostRootAnalysis/Utility.h"
@@ -31,19 +32,20 @@ namespace TrigCostRootAnalysis {
    * @param _name Const ref to chain's name
    * @param _ID Chain's HLT ID number.
    */
-  CounterChain::CounterChain( const TrigCostData* _costData, const std::string& _name, Int_t _ID, UInt_t _detailLevel ) : CounterBase(_costData, _name, _ID, _detailLevel) {
+  CounterChain::CounterChain( const TrigCostData* _costData, const std::string& _name, Int_t _ID, UInt_t _detailLevel ) : CounterBase(_costData, _name, _ID, _detailLevel),
+    m_prescaleWeight(1.) {
    
     // Register variables to study.
     if (m_detailLevel == 0) {
       m_dataStore.setHistogramming( kFALSE );
     }
 
-    m_dataStore.newVariable(kVarEventsPassed)
-      .setSavePerEvent("Chains Passed;Chain Passed;Events");
-    m_dataStore.newVariable(kVarEventsPassedNoPS).setSavePerEvent();
-    m_dataStore.newVariable(kVarEventsPassthrough).setSavePerEvent();
+    m_dataStore.newVariable(kVarEventsActive).setSavePerEvent();
+    m_dataStore.newVariable(kVarEventsPassed).setSavePerEvent();
+    //m_dataStore.newVariable(kVarEventsPassedNoPS).setSavePerEvent(); // Not used
+    //m_dataStore.newVariable(kVarEventsPassthrough).setSavePerEvent(); // Not used
     m_dataStore.newVariable(kVarEventsSlow).setSavePerEvent();
-    m_dataStore.newVariable(kVarTotalPrescale).setSavePerEvent();
+    //m_dataStore.newVariable(kVarTotalPrescale).setSavePerEvent(); // Not used
     m_dataStore.newVariable(kVarAlgCalls)
       .setSavePerEvent("Number Of Algorithm Executions Per Event;Algorithm Executions;Events");
     m_dataStore.newVariable(kVarAlgCaches)
@@ -59,6 +61,12 @@ namespace TrigCostRootAnalysis {
       .setSavePerEvent("Size Of Cached ROBs Per Event;Cached ROBs Size [kB];Events");
     m_dataStore.newVariable(kVarROBRetSize)
       .setSavePerEvent("Size Of Retrieved ROBs Per Event;Retrieved ROBs Size [kB];Events");
+
+    if (getName() == Config::config().getStr(kDummyString)) return;
+
+    // Get my prescale
+    m_prescaleWeight = TrigXMLService::trigXMLService().getHLTCostWeightingFactor( getName() ); 
+    decorate(kEffectivePrescale, m_prescaleWeight);
   }
   
   /**
@@ -86,14 +94,15 @@ namespace TrigCostRootAnalysis {
     UNUSED( _f );
 
     if ( Config::config().debug() ) debug(_e);
-    
-    // TODO Question, do these monitoring quantities want to be based on the event passing?
-    //if ( m_costData->getIsChainPassed(_e) == kTRUE ) {
-    
+
+    _weight *= getPrescaleFactor();
+    if (isZero(_weight) == kTRUE) return;
+
     // Increase total time
     Float_t _chainTime = m_costData->getChainTimerFromSequences(_e);
     
-    m_dataStore.store(kVarTotalPrescale, TrigConfInterface::getPrescale( m_name ), _weight);
+    //m_dataStore.store(kVarTotalPrescale, TrigConfInterface::getPrescale( m_name ), _weight);
+    m_dataStore.store(kVarEventsActive, 1., _weight);
     m_dataStore.store(kVarEventsPassed, m_costData->getIsChainPassed(_e), _weight);
     m_dataStore.store(kVarTime, _chainTime, _weight);
     
@@ -102,11 +111,6 @@ namespace TrigCostRootAnalysis {
     if ( _chainTime > Config::config().getInt(kSlowEventThreshold) ) {
       m_dataStore.store(kVarEventsSlow, 1., _weight);
     }
-    
-    //}
-    
-    m_dataStore.store(kVarEventsPassedNoPS, m_costData->getIsChainPassedRaw(_e), _weight);
-    m_dataStore.store(kVarEventsPassthrough, m_costData->getIsChainPassthrough(_e), _weight);
     
     m_dataStore.store(kVarAlgCalls, m_costData->getChainAlgCalls(_e), _weight);
     m_dataStore.store(kVarAlgCaches, m_costData->getChainAlgCaches(_e), _weight);
@@ -124,11 +128,24 @@ namespace TrigCostRootAnalysis {
     assert( m_costData->getChainAlgs(_e).size() == m_costData->getChainAlgCalls(_e) + m_costData->getChainAlgCaches(_e));
 
   }
+
+  /**
+   * When running with prescales applied. This function returns how the counter should be scaled for the current call.
+   * For a chain, we always scale by 1/L1PS. The HLT PS is applied separatly and only to the ChainsPassed item.
+   * This computes the rate for the chain for this simple case.
+   * Note that this is 0 if either level has PS < 0
+   * @return Multiplicitive weighting factor
+   */
+  Double_t CounterChain::getPrescaleFactor(UInt_t _e) {
+    UNUSED(_e);
+    return m_prescaleWeight;
+  }
   
   /**
    * Perform end-of-event monitoring on the DataStore.
    */
-  void CounterChain::endEvent() {
+  void CounterChain::endEvent(Float_t _weight) {
+    UNUSED(_weight);
     m_dataStore.setVariableDenominator(kVarTime, s_eventTimeExecute);
     m_dataStore.endEvent();
     
@@ -141,7 +158,7 @@ namespace TrigCostRootAnalysis {
     Info("CounterChain::debug", "Counter Name:%s ID:%i Event:%i ChainTime:%.2f ChainTimeFromSeq:%.2f "
          "PS:%.2f LB:%i Pass:%i PassRaw:%i PT:%i SeqCalls:%i AlgCall:%i AlgCache:%i",
          m_name.c_str(),
-         m_ID,
+         getID(),
          m_costData->getEventNumber(),
          m_costData->getChainTimer(_e),
          m_costData->getChainTimerFromSequences(_e),

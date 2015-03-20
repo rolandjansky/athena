@@ -35,6 +35,7 @@ namespace TrigCostRootAnalysis {
     MonitorChain(const TrigCostData* _costData);
     void newEvent(Float_t _weight = 1.);
     CounterBase* newCounter( const std::string &_name, Int_t _ID );
+    Bool_t getIfActive(ConfKey_t _mode);
     void saveOutput();
     
   }; //class MonitorChain

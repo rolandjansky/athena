@@ -180,12 +180,12 @@ namespace TrigCostRootAnalysis {
    * @param _vo Variable option.
    * @param _val The SQUARE of the error to save.
    */
-  void DataStore::setError(ConfKey_t _name, VariableOption_t _vo, Float_t _val) {
+  void DataStore::setErrorSquared(ConfKey_t _name, VariableOption_t _vo, Float_t _val) {
     if ( checkRegistered(_name) == kFALSE )  {
       Error("DataStore::setError", "No such entry '%s' registered with VO %s", Config::config().getStr(_name).c_str(), VariableOptionStr[_vo].c_str());
       return;
     }
-    m_mostRecent->setError(_vo, _val);  // m_mostRecent is set by checkRegistered
+    m_mostRecent->setErrorSquared(_vo, _val);  // m_mostRecent is set by checkRegistered
   }
   
   /**
@@ -209,10 +209,10 @@ namespace TrigCostRootAnalysis {
    * @param _vo Variable option.
    * @return 2D histogram pointer.
    */
-  TH2F* DataStore::getHist2D(ConfKey_t _name, VariableOption_t _vo) {
-    if ( checkRegistered(_name) == kFALSE ) return 0;
-    return m_mostRecent->getHist2D(_vo); // m_mostRecent is set by checkRegistered
-  }
+  // TH2F* DataStore::getHist2D(ConfKey_t _name, VariableOption_t _vo) {
+  //   if ( checkRegistered(_name) == kFALSE ) return 0;
+  //   return m_mostRecent->getHist2D(_vo); // m_mostRecent is set by checkRegistered
+  // }
 
   /**
    * Iterate over the data store, record all entries which have a histogram.

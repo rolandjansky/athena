@@ -15,7 +15,6 @@
 #include <assert.h>
 #include <sstream>
 #include <stdlib.h>
-#include <cstdlib> //std::getenv
 #include <algorithm> //find
 
 // Local include(s):
@@ -23,6 +22,7 @@
 #include "../TrigCostRootAnalysis/Config.h"
 #include "../TrigCostRootAnalysis/Utility.h"
 #include "../TrigCostRootAnalysis/WriteXML_JSON.h"
+#include "../TrigCostRootAnalysis/TrigConfInterface.h"
 
 // ROOT includes
 #include <TSystem.h>
@@ -43,25 +43,21 @@ namespace TrigCostRootAnalysis {
 
   /**
    * Construct singleton, 
+   * This class handles all loading of custom prescale sets to be applied at rate/cost post-processing time
+   * It also handles the distribution of these data around the application
    */
-    TrigXMLService::TrigXMLService() : m_menuName(),
+  TrigXMLService::TrigXMLService() : 
+      m_menuName(),
       m_prescalSetName(),
       m_serviceEnabled(kFALSE),
       m_weightsServiceEnabled(kFALSE) {
 	  
-	  //Only one (or none) should be configured
-	  assert( Config::config().getIsSet(kMenuXMLPath) + Config::config().getIsSet(kPrescaleXMLPath1) <= 1);
-	  assert( Config::config().getIsSet(kMenuXMLPath) + Config::config().getIsSet(kPrescaleXMLPath2) <= 1);
-
-	  if ( Config::config().getIsSet(kMenuXMLPath) == kTRUE  ) {
-      parseMenuXML();
-	  } else if ( Config::config().getIsSet(kPrescaleXMLPath1) == kTRUE || Config::config().getIsSet(kPrescaleXMLPath2) == kTRUE ) {
-      if ( Config::config().getIsSet(kPrescaleXMLPath1) == kTRUE) parsePrescaleXML(1);
-      if ( Config::config().getIsSet(kPrescaleXMLPath2) == kTRUE) parsePrescaleXML(2);
-	  } else {
-     Warning("TrigXMLService::TrigXMLService", "No prescale XML supplied! When running rates then PS=%f will be used throughout for L1 and PS=%f for HLT.",
-      Config::config().getFloat(kRateFallbackPrescaleL1), Config::config().getFloat(kRateFallbackPrescaleHLT));
-   }
+    if ( Config::config().getIsSet(kPrescaleXMLPath1) == kTRUE) parseXML(1);
+    if ( Config::config().getIsSet(kPrescaleXMLPath2) == kTRUE) parseXML(2);
+	  if (m_serviceEnabled == kFALSE) {
+      Warning("TrigXMLService::TrigXMLService", "User did not supply any prescale XML files. L1 PS=%f and HLT PS=%f will be used.",
+        Config::config().getFloat(kRateFallbackPrescaleL1), Config::config().getFloat(kRateFallbackPrescaleHLT));
+    }
   }
 
   /**
@@ -85,14 +81,18 @@ namespace TrigCostRootAnalysis {
     StringDoubleMapIt_t _it = m_chainPS.find( _name );
     if ( _it == m_chainPS.end() ) {
       if (_name.substr(0,3) == "L1_") {
-        Warning("TrigXMLService::getPrescale", "Cannot find rates prescale for chain %s in the supplied XML. Will return fallback L1 PS:%f.",
-          _name.c_str(),
-          Config::config().getFloat(kRateFallbackPrescaleL1));
+        if (Config::config().getDisplayMsg(kMsgXMLPrescale) == kTRUE) {
+          Warning("TrigXMLService::getPrescale", "Cannot find rates prescale for chain %s in the supplied XML. Will return fallback L1 PS:%f.",
+            _name.c_str(),
+            Config::config().getFloat(kRateFallbackPrescaleL1));
+        }
         return (Double_t)Config::config().getFloat(kRateFallbackPrescaleL1);
       } else {
-        Warning("TrigXMLService::getPrescale", "Cannot find rates prescale for chain %s in the supplied XML. Will return fallback HLT PS:%f.",
-          _name.c_str(),
-          Config::config().getFloat(kRateFallbackPrescaleHLT));
+        if (Config::config().getDisplayMsg(kMsgXMLPrescale) == kTRUE) {
+          Warning("TrigXMLService::getPrescale", "Cannot find rates prescale for chain %s in the supplied XML. Will return fallback HLT PS:%f.",
+            _name.c_str(),
+            Config::config().getFloat(kRateFallbackPrescaleHLT));
+        }
         return (Double_t)Config::config().getFloat(kRateFallbackPrescaleHLT);
       }
     }
@@ -101,80 +101,28 @@ namespace TrigCostRootAnalysis {
   }
 
   /**
-   * Read details from a menu XML file. This allows the user to supply their own prescale set.
-   * However this method does not supply L1 prescales so supplying prescale XMLs is recommended.
+   * When running cost analysis in the HLT and looking at the effect of prescales the following should be taken into account:
+   * - All data should be scaled down by 1/PSL1 * 1/PSHLT
+   * - If the HLT trigger or L1 trigger is disabled, the weight should be 0.
+   * @param _chainName Name of the chain to get the weighting factor for. Only makes sense to this fn for HLT chains
+   * @return the calculated multiplicitive weighting factor
    */
-  void TrigXMLService::parseMenuXML() {
-  
-    // Now try to parse xml file
-    // Only file with restricted xml syntax are supported
-    TXMLEngine* _xml = new TXMLEngine();
-    XMLDocPointer_t _xmlDoc = _xml->ParseFile( Config::config().getStr(kMenuXMLPath).c_str() );
-    if (_xmlDoc == 0) {
-      Error("TrigXMLService::parseMenuXML", "Unable to parse trigger menu %s!!! Fallback PS=%i L1, PS=%i HLT will be used for rate calculations.",
-        Config::config().getStr(kMenuXMLPath).c_str(),
-        Config::config().getInt(kRateFallbackPrescaleL1),
-        Config::config().getInt(kRateFallbackPrescaleHLT));
-      delete _xml;
-      return;
-    }
-    
-    // Get access to main node
-    XMLNodePointer_t _mainNode = _xml->DocGetRootElement(_xmlDoc);
-    assert( _xml->GetNodeName(_mainNode) == std::string("HLT_MENU") );
-    XMLNodePointer_t _listNode = _xml->GetChild( _mainNode );
-    m_menuName =  _xml->GetAttr(_mainNode, "menu_name");
-    m_prescalSetName =  _xml->GetAttr(_mainNode, "prescale_set_name");
-
-    while ( _listNode != 0 ) { // Loop over all menu elements
-      const std::string _listName = _xml->GetNodeName(_listNode);
-
-      if (_listName != "CHAIN_LIST") {
-        _listNode = _xml->GetNext(_listNode);
-        continue;
-      }
-
-      XMLNodePointer_t _chainNode = _xml->GetChild( _listNode );
-      while( _chainNode != 0) {
-        assert( _xml->GetNodeName(_chainNode) == std::string("CHAIN"));
-        const std::string _chainName = _xml->GetAttr(_chainNode, "chain_name");
-        m_chainCounter[_chainName]    = stringToInt( _xml->GetAttr(_chainNode, "chain_counter") );
-        m_chainLowerLvl[_chainName]   = _xml->GetAttr(_chainNode, "lower_chain_name");
-        m_chainPS[_chainName]         = stringToDouble( _xml->GetAttr(_chainNode, "prescale") );     
-        m_chainPT[_chainName]         = stringToInt( _xml->GetAttr(_chainNode, "pass_through") );     
-        m_chainRerunPS[_chainName]    = stringToDouble( _xml->GetAttr(_chainNode, "rerun_prescale") );     
-
-        if (Config::config().debug()) {
-          Info("TrigXMLService::parseMenuXML","Parsed Chain:%s, Counter:%i, LowerChain:%s, PS:%f, PT:%i RerunPS:%f",
-            _chainName.c_str(),
-            m_chainCounter[_chainName],
-            m_chainLowerLvl[_chainName].c_str(),
-            m_chainPS[_chainName],
-            m_chainPT[_chainName],    
-            m_chainRerunPS[_chainName]);
-        }
-        _chainNode = _xml->GetNext(_chainNode);
-      }
-
-      _listNode = _xml->GetNext(_listNode);
-    }
-
-    Info("TrigXMLService::parseMenuXML","Parsed prescale set %s of menu %s from %s. Read %i chains.", 
-      m_prescalSetName.c_str(), 
-      m_menuName.c_str(), 
-      Config::config().getStr(kMenuXMLName).c_str(),
-      (Int_t)m_chainCounter.size());
-
-    m_serviceEnabled = kTRUE;
-    delete _xml;
-  }
+  Double_t TrigXMLService::getHLTCostWeightingFactor(const std::string& _chainName ) {
+    Double_t _prescaleHLT = getPrescale( _chainName );
+    if (_prescaleHLT < 0.) return 0.;
+    const std::string _myLowerChain = TrigConfInterface::getLowerChainName( _chainName );
+    // Check we're not multi-seeded
+    if ( _myLowerChain.find(",") != std::string::npos ) return 1./_prescaleHLT; //What else could we do here?
+    Double_t _lowerPS = getPrescale( _myLowerChain );
+    if (_lowerPS < 0.) return 0.;
+    return (1./_prescaleHLT)*(1./_lowerPS);  
+  } 
 
   /**
-   * Alternate parser for prescale XML files, including the output of TrigCostPython
+   * Read XML structure, decide on format using (usually) the head node and pass to parser function
    * @param _xmlID This program can take in two XMLs, if the L1 and HLT PS are split over them. This int says which we want to process.
-   * @see TrigXMLService::parseMenuXML
    */
-  void TrigXMLService::parsePrescaleXML(UInt_t _xmlID) {
+  void TrigXMLService::parseXML(UInt_t _xmlID) {
 
     assert( _xmlID == 1 || _xmlID == 2);
     std::string _psFilePath;
@@ -192,20 +140,176 @@ namespace TrigCostRootAnalysis {
     TXMLEngine* _xml = new TXMLEngine();
     XMLDocPointer_t _xmlDoc = _xml->ParseFile( _psFilePath.c_str() );
     if (_xmlDoc == 0) {
-      Error("TrigXMLService::parsePrescaleXML", "Unable to parse prescale XML %s!!! Fallback PS=%i L1, PS=%i HLT will be used for rate calculations.",
+      Error("TrigXMLService::parseXML", "Unable to parse prescale XML %s!!! Fallback PS=%f L1, PS=%fi HLT will be used for rate calculations.",
         _psFilePath.c_str(),
-        Config::config().getInt(kRateFallbackPrescaleL1),
-        Config::config().getInt(kRateFallbackPrescaleHLT));
+        Config::config().getFloat(kRateFallbackPrescaleL1),
+        Config::config().getFloat(kRateFallbackPrescaleHLT));
       delete _xml;
       return;
     }
     
     // Get access to main node
     XMLNodePointer_t _mainNode = _xml->DocGetRootElement(_xmlDoc);
+    if ( _xml->GetNodeName(_mainNode) == std::string("trigger") ) {
+      parsePrescaleXML(_xml, _xmlDoc);
+    } else if ( _xml->GetNodeName(_mainNode) == std::string("HLT_MENU") ) {
+      parseMenuXML(_xml, _xmlDoc);
+    } else if ( _xml->GetNodeName(_mainNode) == std::string("LVL1Config") ) {
+      parseL1MenuXML(_xml, _xmlDoc);
+    } else {
+      Error("TrigXMLService::parseXML", "Supplied a prescale XML with root node '%s'. I do not know how to decode this!!! Fallback PS=%f L1, PS=%fi HLT will be used for rate calculations.",
+        _xml->GetNodeName(_mainNode),
+        Config::config().getFloat(kRateFallbackPrescaleL1),
+        Config::config().getFloat(kRateFallbackPrescaleHLT));
+    }
+
+    // Check for PS=0
+    for (StringDoubleMapNonConstIt_t _it = m_chainPS.begin(); _it != m_chainPS.end(); ++_it) {
+      if ( isZero(_it->second) == kTRUE ) _it->second = -1.0;
+    }
+  
+    delete _xml;
+  }
+
+  /**
+   * Read details from a menu XML file. This allows the user to supply their own prescale set.
+   * However this method does not supply L1 prescales.
+   */
+  void TrigXMLService::parseMenuXML(TXMLEngine* _xml, XMLDocPointer_t _xmlDoc) {
+      
+    // Get access to main node
+    XMLNodePointer_t _mainNode = _xml->DocGetRootElement(_xmlDoc);
+    assert( _xml->GetNodeName(_mainNode) == std::string("HLT_MENU") );
+    XMLNodePointer_t _listNode = _xml->GetChild( _mainNode );
+    m_menuName =  _xml->GetAttr(_mainNode, "menu_name");
+    m_prescalSetName =  _xml->GetAttr(_mainNode, "prescale_set_name");
+    Int_t _chainsRead = 0;
+
+    while ( _listNode != 0 ) { // Loop over all menu elements
+      const std::string _listName = _xml->GetNodeName(_listNode);
+
+      if (_listName != "CHAIN_LIST") {
+        _listNode = _xml->GetNext(_listNode);
+        continue;
+      }
+
+      XMLNodePointer_t _chainNode = _xml->GetChild( _listNode );
+      while( _chainNode != 0) {
+        assert( _xml->GetNodeName(_chainNode) == std::string("CHAIN"));
+        const std::string _chainName = _xml->GetAttr(_chainNode, "chain_name");
+        if (_xml->GetAttr(_chainNode, "chain_counter"))    m_chainCounter[_chainName]  = stringToInt( _xml->GetAttr(_chainNode, "chain_counter") );
+        if (_xml->GetAttr(_chainNode, "lower_chain_name")) m_chainLowerLvl[_chainName] = _xml->GetAttr(_chainNode, "lower_chain_name");
+        if (_xml->GetAttr(_chainNode, "prescale"))         m_chainPS[_chainName]       = stringToDouble( _xml->GetAttr(_chainNode, "prescale") );     
+        if (_xml->GetAttr(_chainNode, "pass_through"))     m_chainPT[_chainName]       = stringToInt( _xml->GetAttr(_chainNode, "pass_through") );     
+        if (_xml->GetAttr(_chainNode, "rerun_prescale"))   m_chainRerunPS[_chainName]  = stringToDouble( _xml->GetAttr(_chainNode, "rerun_prescale") );    
+        ++_chainsRead; 
+
+        if (Config::config().debug()) {
+          Info("TrigXMLService::parseMenuXML","Parsed Chain:%s, Counter:%i, LowerChain:%s, PS:%f, PT:%i RerunPS:%f",
+            _chainName.c_str(),
+            m_chainCounter[_chainName],
+            m_chainLowerLvl[_chainName].c_str(),
+            m_chainPS[_chainName],
+            m_chainPT[_chainName],    
+            m_chainRerunPS[_chainName]);
+        }
+        _chainNode = _xml->GetNext(_chainNode);
+      }
+
+      _listNode = _xml->GetNext(_listNode);
+    }
+
+    Info("TrigXMLService::parseMenuXML","Parsed prescale set %s of menu %s. Read %i chains.", 
+      m_prescalSetName.c_str(), 
+      m_menuName.c_str(), 
+      _chainsRead);
+
+    Config::config().set(kPrescaleSetName, m_prescalSetName, "PrescaleSetName", kUnlocked);
+    Config::config().set(kMenuName, m_menuName, "MenuName", kUnlocked);
+
+    m_serviceEnabled = kTRUE;
+  }
+
+  /**
+   * Read details from a L1 menu XML file. This allows the user to supply their own prescale set.
+   * We first need to read the name-CTPID mappings, then can read in the PS
+   */
+  void TrigXMLService::parseL1MenuXML(TXMLEngine* _xml, XMLDocPointer_t _xmlDoc) {
+      
+    // Get access to main node
+    XMLNodePointer_t _mainNode = _xml->DocGetRootElement(_xmlDoc);
+    assert( _xml->GetNodeName(_mainNode) == std::string("LVL1Config") );
+    XMLNodePointer_t _listNode = _xml->GetChild( _mainNode );
+    Int_t _chainsRead = 0;
+
+    while ( _listNode != 0 ) { // Loop over all menu elements
+      const std::string _listName = _xml->GetNodeName(_listNode);
+
+      // TriggerMenu contains TriggerItems which hold the CTPID and names
+      if (_listName == "TriggerMenu") { 
+
+        XMLNodePointer_t _chainNode = _xml->GetChild( _listNode );
+        while( _chainNode != 0) {
+          assert( _xml->GetNodeName(_chainNode) == std::string("TriggerItem"));
+          Int_t _ctpid = stringToInt( _xml->GetAttr(_chainNode, "ctpid"));
+          m_CTPIDToL1Name[_ctpid] = _xml->GetAttr(_chainNode, "name");
+          if (Config::config().debug()) {
+            Info("TrigXMLService::parseL1MenuXML","Step 1: CTPID %i = %s", _ctpid, m_CTPIDToL1Name[_ctpid].c_str());
+          }
+          _chainNode = _xml->GetNext(_chainNode);
+        }
+
+      // PrescaleSet contains Prescale items which map these CTPIDs to their PS
+      // The CTPID, and "n", "m" and "d" parameters are attributes, the prescale is content
+      } else if (_listName == "PrescaleSet") {
+
+        XMLNodePointer_t _chainNode = _xml->GetChild( _listNode );
+        while( _chainNode != 0) {
+          assert( _xml->GetNodeName(_chainNode) == std::string("Prescale"));
+          Int_t _ctpid = stringToInt( _xml->GetAttr(_chainNode, "ctpid"));
+          const std::string _L1Name = m_CTPIDToL1Name[ _ctpid ];
+          if (_L1Name == Config::config().getStr(kBlankString)) {
+            Error("TrigXMLService::parseL1MenuXML","XML trying to set PS for CTPID %i, but no chain name was supplied by the file", _ctpid);
+            _chainNode = _xml->GetNext(_chainNode);
+            continue;
+          }
+          if (_xml->GetNodeContent(_chainNode) == NULL) {
+            Error("TrigXMLService::parseL1MenuXML","Unable to extract prescale for %s", _L1Name.c_str());
+            _chainNode = _xml->GetNext(_chainNode);
+            continue;
+          }
+          Double_t _prescale = stringToDouble( _xml->GetNodeContent(_chainNode) );
+          m_chainCounter[_L1Name] = _ctpid;
+          m_chainPS[_L1Name] = _prescale;
+          ++_chainsRead;
+          if (Config::config().debug()) {
+            Info("TrigXMLService::parseL1MenuXML","Step 2: L1 %s = PS %f", _L1Name.c_str(), _prescale);
+          }
+          _chainNode = _xml->GetNext(_chainNode);
+        }
+
+      } else {
+        Error("TrigXMLService::parseL1MenuXML","Found an unknown XML element %s", _listName.c_str());
+      }
+
+      _listNode = _xml->GetNext(_listNode);
+    }
+
+    Info("TrigXMLService::parseL1MenuXML","Parsed L1 prescale set. Read %i chains.", _chainsRead);
+    m_serviceEnabled = kTRUE;
+  }
+
+  /**
+   * Alternate parser for prescale XML files, including the output of TrigCostPython
+   * @param _xml Pointer to XML document
+   * @see TrigXMLService::parseMenuXML
+   */
+  void TrigXMLService::parsePrescaleXML(TXMLEngine* _xml, XMLDocPointer_t _xmlDoc) {
+
+    // Get access to main node
+    XMLNodePointer_t _mainNode = _xml->DocGetRootElement(_xmlDoc);
     assert( _xml->GetNodeName(_mainNode) == std::string("trigger") );
     XMLNodePointer_t _listNode = _xml->GetChild( _mainNode );
-    //m_menuName =  _xml->GetAttr(_mainNode, "menu_name");
-    //m_prescalSetName =  _xml->GetAttr(_mainNode, "prescale_set_name");
 
     while ( _listNode != 0 ) { // Loop over all menu elements
       const std::string _listName = _xml->GetNodeName(_listNode);
@@ -279,7 +383,6 @@ namespace TrigCostRootAnalysis {
             "Nor are you using the --scaleRatesByPS option to weight up chains by their L1 prescale. "
             "In order to simulate changes to the L1 prescale, you should be using EB weighting. Otherwise the correlations between L1 items in the CTP "
             "will have been lost.", m_chainPS[_chainName], _chainName.c_str());
-          Error("TrigXMLService::parsePrescaleXML","RATES FOR %s ITEM WILL NOT BE CORRECT.", _chainName.c_str());
         }  
 
         if (Config::config().debug()) {
@@ -316,12 +419,8 @@ namespace TrigCostRootAnalysis {
       _listNode = _xml->GetNext(_listNode);
     }
 
-    Info("TrigXMLService::parsePrescaleXML","Parsed prescale set %s. Now know PS values for %i chains.", 
-      _psFileName.c_str(),
-      (Int_t)m_chainCounter.size());
-
+    Info("TrigXMLService::parsePrescaleXML","Parsed prescale set from XML. Now know PS values for %i chains.", (Int_t)m_chainPS.size());
     m_serviceEnabled = kTRUE;
-    delete _xml;
   }
 
   /**
@@ -343,8 +442,7 @@ namespace TrigCostRootAnalysis {
 
     if (_xmlDoc == 0) {
       // No - then try loading locally
-      const Char_t* _env = std::getenv("ROOTCOREBIN");
-      if (_env != NULL) {
+      if (Config::config().getInt(kIsRootCore) == kTRUE) {
         Config::config().set(kEBXMLPath, Config::config().getStr(kDataDir) + "/" + Config::config().getStr(kEBXMLName), "EBXMLPath");
       } else {
 // CAUTION - "ATHENA ONLY" CODE
@@ -368,7 +466,7 @@ namespace TrigCostRootAnalysis {
       }
     }
 
-    Info("TrigXMLService::parseEnhancedBiasXML","Loading into memory the Enhanced Bias [un]Weighting factors for run %i", Config::config().getInt(kRunNumber));
+    if (Config::config().debug()) Info("TrigXMLService::parseEnhancedBiasXML","Loading into memory the Enhanced Bias Weighting factors for run %i", Config::config().getInt(kRunNumber));
 
 
     // Navigate XML
@@ -402,8 +500,10 @@ namespace TrigCostRootAnalysis {
       m_idToWeightMap[_id] = _weight;
       m_idToBGMap[_id] = _bunchgroupID;
 
-      Info("TrigXMLService::parseEnhancedBiasXML", "Enhanced bias weight %.4f has ID %i and bunchgroup %s (%i)",
-        _weight, _id, _bunchgroup.c_str(), _bunchgroupID);
+      if (Config::config().debug()) {
+        Info("TrigXMLService::parseEnhancedBiasXML", "Enhanced bias weight %.4f has ID %i and bunchgroup %s (%i)",
+          _weight, _id, _bunchgroup.c_str(), _bunchgroupID);
+      }
 
       _weightNode = _xml->GetNext(_weightNode);
     }
@@ -428,6 +528,7 @@ namespace TrigCostRootAnalysis {
    * @return The event weight from the EnhancedBias XML.
    */
   Float_t TrigXMLService::getEventWeight(UInt_t _eventNumber) {
+    if (Config::config().getInt(kDoEBWeighting) == kFALSE) return 1.;
     if (m_weightsServiceEnabled == kFALSE) parseEnhancedBiasXML();
 
     IntIntMapIt_t _ebIt = m_ebWeightingMap.find( _eventNumber );
@@ -513,12 +614,57 @@ namespace TrigCostRootAnalysis {
     }
   }
 
+  /**
+   * Write a simple dummy file Prescales.xml which contains the structure of the trigger menu, and the default prescales used when
+   * the trigger was run to produce the ntuple.
+   * This file can then be modified by hand etc. by the end user and used to apply a custom prescale set to the trigger in
+   * subsiquent rate prediction campaigns.
+   * 
+   * This is an alternative to getting the initial prescale set using the Rule Book.
+   */ 
   void TrigXMLService::writePrescaleXML() {
 
+    const std::string _xmlName = Config::config().getStr(kOutputRootDirectory) + "/" + "Prescales.xml";
+    std::ofstream _fout;
+    _fout.open( _xmlName.c_str() );
+    _fout << std::fixed; // Use fixed width output
+
+    Info("TrigXMLService::writePrescaleXML","Writing a dummy file Prescales.xml with current menu.");
+
+    XMLExport _xml(_fout);
+    _xml.setSpaces(2);
+    _xml.addNode(_fout, "trigger");
+
+    // Loop over all chains in metadata trigger config folder
+    Int_t _level = -1;
+    for (UInt_t _c = 0; _c < TrigConfInterface::getChainN(); ++_c) {
+
+      if ( TrigConfInterface::getChainLevel(_c) == 1 && _level == -1) {
+        _level = 1;
+        _xml.addNode(_fout, "level");
+        _xml.addNode(_fout, "lvl_name", "L1");
+      } else if ( TrigConfInterface::getChainLevel(_c) == 2 && _level == 1 ) {
+        //switch over to HLT
+        _level = 2;
+        _xml.endNode(_fout); //level
+        _xml.addNode(_fout, "level");
+        _xml.addNode(_fout, "lvl_name", "HLT");
+      }
+
+      _xml.addNode(_fout, "signature");
+      std::string _name = TrigConfInterface::getChainName(_c);
+      _xml.addNode(_fout, "sig_name", _name);
+      _xml.addNode(_fout, "chain_prescale", floatToString( TrigConfInterface::getPrescale(_name) ));
+      _xml.endNode(_fout); //signature
+
+    }
+    _xml.endNode(_fout); //level
+    _xml.endNode(_fout); //Trigger
+    _fout.close();
+
+    Info("TrigXMLService::writePrescaleXML","Exported XML with %i chains.", TrigConfInterface::getChainN());
+
   }
-
-
-
 
 } // namespace TrigCostRootAnalysis
 

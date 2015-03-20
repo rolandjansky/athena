@@ -40,7 +40,7 @@ namespace TrigCostRootAnalysis {
     m_rosCalls(0),
     m_algCalls(0) {
     
-    m_dataStore.newVariable(kVarCalls).setSavePerCall();
+    m_dataStore.newVariable(kVarEventsActive).setSavePerCall();
 
     m_dataStore.newVariable(kVarL1PassEvents).setSavePerCall();
 
@@ -55,6 +55,8 @@ namespace TrigCostRootAnalysis {
     m_dataStore.newVariable(kVarAlgTime)
     .setSavePerCall("Algorithm WallTime Per Algorithm Call;Algorithm Time [ms];Calls")
     .setSavePerEvent("Algorithm WallTime Per Event;Algorithm Time [ms];Events");
+
+    m_dataStore.newVariable(kVarAlgCalls).setSavePerEvent();
 
     m_dataStore.newVariable(kVarROSTime).setSavePerEvent("Readout System Time Per Event;ROS Time [ms];Events");
 
@@ -94,6 +96,8 @@ namespace TrigCostRootAnalysis {
     m_latestTimestamp = FLT_MIN;
     m_steeringTime = 0.;
 
+    m_dataStore.store(kVarEventsActive, 1., _weight);
+
     //Did L1 pass?
     for (UInt_t _i = 0; _i < m_costData->getNL1(); ++_i) {
       if ( m_costData->getIsL1PassedAfterVeto( _i ) == kFALSE ) continue;
@@ -117,6 +121,7 @@ namespace TrigCostRootAnalysis {
       // Loop over all algorithms in sequence
       for (UInt_t _a = 0; _a < m_costData->getNSeqAlgs(_s); ++_a) {
 
+        m_dataStore.store(kVarAlgCalls, 1., _weight);
         m_dataStore.store(kVarROSCalls, m_costData->getSeqAlgROSCalls(_s, _a), _weight);
         m_dataStore.store(kVarAlgTime, m_costData->getSeqAlgTimer(_s, _a), _weight);
         m_dataStore.store(kVarROSTime, m_costData->getSeqAlgROSTime(_s, _a), _weight);
@@ -158,8 +163,6 @@ namespace TrigCostRootAnalysis {
 
     m_dataStore.store(kVarROI, m_costData->getNRoIs());
 
-    m_dataStore.store(kVarCalls, 1., _weight);
-
     // Did we encounter a new processing unit? Count unique PUs
     if (m_processingUnits.count( m_costData->getAppId() ) == 0) m_dataStore.store(kVarHLTPUs, 1.);
     m_processingUnits[ m_costData->getAppId() ] += 1;
@@ -171,7 +174,8 @@ namespace TrigCostRootAnalysis {
   /**
    * Perform end-of-event monitoring on the DataStore.
    */
-  void CounterGlobals::endEvent() {
+  void CounterGlobals::endEvent(Float_t _weight) {
+    UNUSED(_weight);
     m_dataStore.endEvent();
     if (Config::config().debug()) {
       m_algTime = 0;
@@ -180,6 +184,16 @@ namespace TrigCostRootAnalysis {
       m_rosCalls = 0;
       m_algCalls = 0;
     }
+  }
+
+  /**
+   * When running with prescales applied. This function returns how the counter should be scaled for the current call.
+   * Could be used here. Currently is not
+   * @return Multiplicitive weighting factor
+   */
+  Double_t CounterGlobals::getPrescaleFactor(UInt_t _e) {
+    UNUSED(_e);
+    return 0.;
   }
   
   /**

@@ -99,13 +99,17 @@ namespace TrigCostRootAnalysis {
 
     const std::string _slowText = "Calls > " + intToString( Config::config().getInt(kSlowEventThreshold) ) + " ms";
 
-    _toSaveTable.push_back( MonitorBase::TableColumnFormatter("Active Events", 
-      "Number of events in which this algorithm was executed.",
+    _toSaveTable.push_back( MonitorBase::TableColumnFormatter("Raw Active Events", 
+      "Raw underlying statistics on how many events in which this algorithm was executed.",
       kVarCalls, kSavePerEvent, 0, kFormatOptionUseEntries) );
 
-    _toSaveTable.push_back( MonitorBase::TableColumnFormatter("Calls", 
-      "Total number of calls made to this algorithm.",
-      kVarCalls, kSavePerEvent, 0) );
+    _toSaveTable.push_back( MonitorBase::TableColumnFormatter("Active Events", 
+      "How many events in which this algorithm was executed.",
+      kVarEventsActive, kSavePerEvent, 0) );
+
+    _toSaveTable.push_back( MonitorBase::TableColumnFormatter("Calls/Event", 
+      "Average number of calls made to this algorithm per event.",
+      kVarCalls, kSavePerEvent, kVarEventsActive, kSavePerEvent, 2) );
 
     _toSaveTable.push_back( MonitorBase::TableColumnFormatter(_slowText, 
       "Number of algorithm executions which were particularly slow.",
@@ -113,7 +117,7 @@ namespace TrigCostRootAnalysis {
 
     _toSaveTable.push_back( MonitorBase::TableColumnFormatter("Event Rate [Hz]", 
       "Rate in this run range of events with at least one execution of this algorithm.",
-      kVarCalls, kSavePerEvent, 2, kFormatOptionNormaliseEntriesWallTime) ); // SavePerEvent entires normalised to wall time
+      kVarEventsActive, kSavePerEvent, 2, kFormatOptionNormaliseWallTime) );
 
     _toSaveTable.push_back( MonitorBase::TableColumnFormatter("Call Rate [Hz]", 
       "Rate in this run range of calls to this algorithm.",
@@ -129,19 +133,19 @@ namespace TrigCostRootAnalysis {
 
     _toSaveTable.push_back( MonitorBase::TableColumnFormatter("Alg Total Time/Call [ms]", 
       "Average execution time per algorithm call in this run range.",
-      kVarTime, kSavePerCall, 2, kFormatOptionNormaliseEntries) ); // time savePerCall normalised to savePerEvent entries
+      kVarTime, kSavePerCall, kVarCalls, kSavePerEvent, 2) ); // time savePerCall normalised to savePerEvent entries
 
     _toSaveTable.push_back( MonitorBase::TableColumnFormatter("Alg Total Time/Event [ms]", 
       "Average execution time (CPU+ROS) per event for events with at least one execution in this run range.",
-      kVarTime, kSavePerEvent, 2, kFormatOptionNormaliseEntries) );
+      kVarTime, kSavePerEvent, kVarEventsActive, kSavePerEvent, 2) );
 
     _toSaveTable.push_back( MonitorBase::TableColumnFormatter("Alg First Call Time/Event [ms]", 
       "Average execution time (CPU+ROS) for the first algorithm execution in each event with at lease algorithm call in this run range.",
-      kVarFirstTime, kSavePerEvent, 2, kFormatOptionNormaliseEntries) );
+      kVarFirstTime, kSavePerEvent, kVarEventsActive, kSavePerEvent, 2) );
 
     _toSaveTable.push_back( MonitorBase::TableColumnFormatter("ROS Time/Event [ms]", 
       "Average time waiting for ROS data per event for  events with at least one execution in this run range.",
-      kVarROSTime, kSavePerEvent, 2, kFormatOptionNormaliseEntries ) );
+      kVarROSTime, kSavePerEvent, kVarEventsActive, kSavePerEvent, 2) );
 
     _toSaveTable.push_back( MonitorBase::TableColumnFormatter("Data Request Rate [Hz]", 
       "Rate of calls to the ROS from this algorithm in this run range.",
@@ -153,7 +157,7 @@ namespace TrigCostRootAnalysis {
 
     _toSaveTable.push_back( MonitorBase::TableColumnFormatter("Cached ROB Rate [kB/s]", 
       "Average size of cached ROB data fetches for this algorithm in this run range.",
-      kVarROBReqSize, kSavePerEvent, 2, kFormatOptionNormaliseEntries ) );
+      kVarROBReqSize, kSavePerEvent, 2, kFormatOptionNormaliseWallTime ) );
 
     _toSaveTable.push_back( MonitorBase::TableColumnFormatter("Retrieved ROB Rate [Hz]", 
       "Rate of ROB retrievals from this algorithm in this run range.",
@@ -161,7 +165,7 @@ namespace TrigCostRootAnalysis {
 
     _toSaveTable.push_back( MonitorBase::TableColumnFormatter("Retrieved ROB Rate [kB/s]", 
       "Average size of retrieved ROB data fetches for this algorithm in this run range.",
-      kVarROBRetSize, kSavePerEvent, 2, kFormatOptionNormaliseEntries ) );
+      kVarROBRetSize, kSavePerEvent, 2, kFormatOptionNormaliseWallTime ) );
     
   }
   

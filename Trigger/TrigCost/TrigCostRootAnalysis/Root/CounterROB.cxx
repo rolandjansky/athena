@@ -15,6 +15,8 @@
 #include "../TrigCostRootAnalysis/CounterROB.h"
 #include "../TrigCostRootAnalysis/TrigCostData.h"
 #include "../TrigCostRootAnalysis/Config.h"
+#include "../TrigCostRootAnalysis/TrigConfInterface.h"
+#include "../TrigCostRootAnalysis/TrigXMLService.h"
 
 namespace TrigCostRootAnalysis {
 
@@ -25,8 +27,9 @@ namespace TrigCostRootAnalysis {
    */
   CounterROB::CounterROB( const TrigCostData* _costData, const std::string& _name, Int_t _ID, UInt_t _detailLevel ) : CounterBase(_costData, _name, _ID, _detailLevel) {
     
+    m_dataStore.newVariable(kVarEventsActive).setSavePerEvent();
+
     m_dataStore.newVariable(kVarCalls)
-    .setSavePerCall()
     .setSavePerEvent("Number Of ROBs Per Event;Number of ROBs;Events");
     
     m_dataStore.newVariable(kVarTime)
@@ -77,6 +80,9 @@ namespace TrigCostRootAnalysis {
   void CounterROB::processEventCounter(UInt_t _e, UInt_t _f, Float_t _weight) {
     ++m_calls;
 
+    _weight *= getPrescaleFactor( _e );
+    if (isZero(_weight) == kTRUE) return;
+
     if (m_costData->getIsROBDataStatusOK(_e, _f) == kFALSE && Config::config().getDisplayMsg(kMsgBadROB) == kTRUE) { 
       Warning("CounterROB::processEventCounter","ROB data from %s (ID 0x%x) is flagged as NOT OK.", getName().c_str(), m_costData->getROBDataID(_e, _f));  
     }
@@ -109,8 +115,22 @@ namespace TrigCostRootAnalysis {
   /**
    * Perform end-of-event monitoring on the DataStore.
    */
-  void CounterROB::endEvent() {
+  void CounterROB::endEvent(Float_t _weight) {
+    m_dataStore.store(kVarEventsActive, 1., _weight);
     m_dataStore.endEvent();
+  }
+
+  /**
+   * When running with prescales applied. This function returns how the counter should be scaled for the current call.
+   * We associate ROS with Alg, then get the alg's chain, then get the weighting factor for the chain
+   * @return Multiplicative weighting factor
+   */
+  Double_t CounterROB::getPrescaleFactor(UInt_t _e) {
+    Int_t _seqID = m_costData->getROBAlgLocation(_e).first;
+    if (_seqID < 0) return 1.; // Could not find associated alg - no additonal scaling
+    return TrigXMLService::trigXMLService().getHLTCostWeightingFactor( 
+      TrigConfInterface::getHLTNameFromChainID( m_costData->getSequenceChannelCounter(_seqID), 
+      m_costData->getSequenceLevel(_seqID) ) );
   }
   
   /**

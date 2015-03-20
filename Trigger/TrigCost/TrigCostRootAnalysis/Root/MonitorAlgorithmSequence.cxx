@@ -63,8 +63,23 @@ namespace TrigCostRootAnalysis {
       }
       
       // Do end of event
-      endEvent();
+      endEvent(_weight);
     }
+  }
+
+  /**
+   * Do we use this monitor for this particular mode? Try and keep things managable in terms of output created!
+   * Note these are currently hard-coded. We may want to make them configurable
+   * @return If this monitor should be active for a given mode.
+   */
+  Bool_t MonitorAlgorithmSequence::getIfActive(ConfKey_t _mode) {
+    switch(_mode) {
+      case kDoAllSummary:       return kTRUE;
+      case kDoKeySummary:       return kTRUE;
+      case kDoLumiBlockSummary: return kFALSE;
+      default: Error("MonitorAlgorithmSequence::getIfActive", "An invalid summary mode was provided (key %s)", Config::config().getName(_mode).c_str() );
+    }
+    return kFALSE;
   }
   
   /**

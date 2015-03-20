@@ -105,7 +105,16 @@ namespace TrigCostRootAnalysis {
       }
     }
 
-    endEvent();
+    endEvent(_weight);
+  }
+
+  /**
+   * The full event monitor does not care for ranges, this should never be called
+   * @return false
+   */
+  Bool_t MonitorFullEvent::getIfActive(ConfKey_t _mode) {
+    Error("MonitorFullEvent::getIfActive", "Does not make sense to call for the FullEvent monitor (key %s)", Config::config().getName(_mode).c_str() );
+    return kFALSE;
   }
   
   /**

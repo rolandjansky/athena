@@ -10,6 +10,7 @@
 
 // Local include(s):
 #include "../TrigCostRootAnalysis/RatesChainItem.h"
+#include "../TrigCostRootAnalysis/CounterBaseRates.h"
 #include "../TrigCostRootAnalysis/Config.h"
 
 // ROOT includes
@@ -32,13 +33,15 @@ namespace TrigCostRootAnalysis {
     m_bunchGroupType(kBG_UNSET),
     m_passRaw(kFALSE),
     m_passPS(kFALSE),
-    m_inEvent(kFALSE)
+    m_inEvent(kFALSE),
+    m_doDirectPS(kFALSE)
   {
     if (Config::config().debug()) {
       Info("RatesChainItem::RatesChainItem","New ChainItem:%s, Level:%i PS:%f", m_name.c_str(), m_level, m_PS);
     }
 
     m_doEBWeighting = Config::config().getInt(kDoEBWeighting); // Cache for speed
+    m_doDirectPS = Config::config().getInt(kDirectlyApplyPrescales); // Cache for speed
 
     // If L1: then classify my bunchgroup
     if (m_level == 1) classifyBunchGroup();
@@ -75,6 +78,7 @@ namespace TrigCostRootAnalysis {
 
   /**
    * For HLT items, each seeding L1 item should be linked here by passing its pointer.
+   * Note we do not own the lower chainItem
    * @param _lower The pointer to another RatesChainItem which seeds this instance.
    */
   void RatesChainItem::addLower(RatesChainItem* _lower) { 
@@ -82,14 +86,24 @@ namespace TrigCostRootAnalysis {
   } 
 
   /**
-   * @return A const itterator to the start of this counter's set of seeding counters
+   * Registers that a rates counter makes use of this ChainItem. We can use this info to speed up
+   * execution by only processing the counters which we need to. 
+   * Note we do not own the CounterRates object
+   * @param _clinet The pointer to a CounterRates object which makes use of this ChainItem to calculate the event weight.
+   */
+  void RatesChainItem::addCounter(CounterBaseRates* _client) {
+    m_clients.insert( _client );
+  }
+
+  /**
+   * @return A const iterator to the start of this counter's set of seeding counters
    */
   ChainItemSetIt_t RatesChainItem::getLowerStart() { 
     return m_lower.begin(); 
   }
   
   /**
-   * @return A const itterator to the end of this counter's set of seeding counters
+   * @return A const iterator to the end of this counter's set of seeding counters
    */
   ChainItemSetIt_t RatesChainItem::getLowerEnd() { 
     return m_lower.end(); 
@@ -144,11 +158,13 @@ namespace TrigCostRootAnalysis {
 
   /**
    * @param _passRaw If this ChainItem passed raw in this event.
+   * @param _counterSet Set of counters we will process, add to it counters that I influence. This is pass-by-reference and is modified.
    */
-  void RatesChainItem::beginEvent(Bool_t _passRaw) {
+  void RatesChainItem::beginEvent(Bool_t _passRaw,  CounterBaseRatesSet_t& _counterSet) {
     m_passRaw = _passRaw;
     m_inEvent = kTRUE;
-    newRandomPS();
+    if (m_doDirectPS) newRandomPS(); //TODO - check this is only used for DirectPS application. Saves many calls to TRandom3
+    _counterSet.insert( m_clients.begin(), m_clients.end() );
   }
 
   /**
@@ -186,6 +202,7 @@ namespace TrigCostRootAnalysis {
 
     // L1 can only pass raw if this is the correct bunchgroup, only if doing EB weighting
     // TODO - This check is probably not needed as the trigger should have known what chains to run for each BG when it was running
+    // TODO - Try disabling this on a processing with non-physics triggers, see if the result is indeed the same.
     if (m_level == 1 && m_doEBWeighting == kTRUE) {
       if (m_bunchGroupType != Config::config().getInt(kCurrentEventBunchGroupID)) {
         if (Config::config().debug() && Config::config().getInt(kCurrentEventBunchGroupID) >= 0) {

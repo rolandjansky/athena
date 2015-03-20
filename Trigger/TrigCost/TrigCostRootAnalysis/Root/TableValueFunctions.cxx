@@ -72,26 +72,9 @@ namespace TrigCostRootAnalysis {
   /// BEGIN ROS MONITOR FUNCTIONS ///
   /////////////////////////////////// 
 
-  Float_t tableFnRosGetTimePerRet(CounterMap_t* _map, CounterBase* _TCCB) {
-    UNUSED( _map );
-    Float_t _rosTime = _TCCB->getValue(kVarTime, kSavePerCall);
-    Float_t _rosRetrievals = _TCCB->getValue(kVarROBRets, kSavePerCall);
-    if (isZero(_rosRetrievals) == kTRUE) return 0.;
-    return _rosTime / _rosRetrievals;
-  }
-
   ///////////////////////////////////
   /// BEGIN ALG MONITOR FUNCTIONS ///
   /////////////////////////////////// 
-
-  Float_t tableFnAlgGetTimePerCall(CounterMap_t* _map, CounterBase* _TCCB) {
-    UNUSED( _map );
-    // time savePerCall normalised to savePerEvent entries
-    Float_t _value = _TCCB->getValue(kVarTime, kSavePerCall);
-    Float_t _entries = _TCCB->getEntries(kVarTime, kSavePerEvent);
-    if ( isZero(_entries) ) return 0.;
-    return ( _value / _entries );
-  }
 
   //////////////////////////////////////
   /// BEGIN GLOBAL MONITOR FUNCTIONS ///
@@ -106,7 +89,6 @@ namespace TrigCostRootAnalysis {
     return 100. * (_steeringTime / static_cast<Float_t>( _nPUs * _lbTime )); // Convert to %
 
   }
-
 
   /////////////////////////////////////
   /// BEGIN RATES MONITOR FUNCTIONS ///

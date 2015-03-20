@@ -130,7 +130,6 @@ int main(int argc, char* argv[]) {
   _config.set(kEventsInFiles, (Int_t) _chain.GetEntries(), "EventsInFiles");
   Info("D3PD","Events in files: %i", _config.getInt(kEventsInFiles) );
   if (!_config.getInt(kEventsInFiles)) abort();
-  Info("TrigCostD3PD","Entering event loop.");
 
   _tProgress = _tStart;
   for(Long64_t _masterEvent = 0; _masterEvent < _chain.GetEntries(); ++_masterEvent ) {
@@ -190,6 +189,12 @@ int main(int argc, char* argv[]) {
       if ( _config.getInt(kOutputMenus) == kTRUE ) {
         TrigConfInterface::dump();
       }
+      if ( _config.getInt(kWriteDummyPSXML) == kTRUE) {
+        // Here the user has asked us to simple dump out the menu to a prescale XML file
+        TrigXMLService::trigXMLService().writePrescaleXML();
+        Info("TrigCostD3PD","Written dummy XML, program will now terminate.");
+        abort();
+      }
       // Load the effective "prescale" that CostMon was run with online.
       Float_t _doOperationalInfo = 0, _execPrescale = 0.;
       std::string _doOperationalInfoStr = TrigConfInterface::getMetaStringVal("doOperationalInfo");
@@ -203,9 +208,9 @@ int main(int argc, char* argv[]) {
       Float_t _basicWeight = _config.getFloat( kBasicEventWeight );
       Float_t _eventWeight = _basicWeight * _effectivePrescale;
       if ( isZero(_eventWeight - 1.) == kTRUE) { // Info if weight == 1
-        Info("TrigCostD3PD","Will apply weight %f to all events (BasicWeight:%.2f, EffectivePrescale:%.2f)", _eventWeight, _basicWeight, _effectivePrescale);
+        Info("TrigCostD3PD","Will apply global weight %f to all events (BasicWeight:%.2f, EffectiveCostPrescale:%.2f)", _eventWeight, _basicWeight, _effectivePrescale);
       } else { // If weight != 1, this should be bumped up to a warning
-        Warning("TrigCostD3PD","Will apply weight %f to all events (BasicWeight:%.2f, EffectivePrescale:%.2f)", _eventWeight, _basicWeight, _effectivePrescale);
+        Warning("TrigCostD3PD","Will apply global weight %f to all events (BasicWeight:%.2f, EffectiveCostPrescale:%.2f)", _eventWeight, _basicWeight, _effectivePrescale);
       }
       _config.setFloat(kEventWeight, _eventWeight, "EventWeight");
     }
@@ -220,10 +225,7 @@ int main(int argc, char* argv[]) {
     }
     
     // // Get event weight
-    Float_t _weight = _config.getFloat( kEventWeight );
-    if (_config.getInt(kDoEBWeighting) == kTRUE && _config.getInt(kDoHLT)) { // If using EB weighting
-      _weight *= TrigXMLService::trigXMLService().getEventWeight( _HLTData.getEventNumber() );
-    }
+    Float_t _weight = _config.getFloat( kEventWeight ); // This is our base weight that we can apply additional weights on top of
 
     Bool_t _eventAccepted = kFALSE;
         
@@ -323,8 +325,8 @@ int main(int argc, char* argv[]) {
     Info("TrigCostD3PD","Program execution CPU wall time:%.2f s, Per-Event:%.2f ms", _time, ( _time/(Float_t)_config.getInt(kEventsProcessed) ) * 1000. );
   }
   Info("TrigCostD3PD","Program execution final memory footprint: %.2f Mb with %u histograms.",
-   (Float_t)_resources.ru_maxrss / 1024.,
-   DataVariable::s_globalHistId);
+    (Float_t)_resources.ru_maxrss / 1024.,
+    DataVariable::s_globalHistId);
 
   _tStart = clock();
 
@@ -345,7 +347,10 @@ int main(int argc, char* argv[]) {
 
   //LumiService::lumiService().saveOutput();
 
-  if (_config.getInt(kOutputRoot) == kTRUE) _outFile->Close();
+  if (_config.getInt(kOutputRoot) == kTRUE) {
+     Info("TrigCostD3PD","Closing output ROOT file. Now at the mercy of ROOT I/O. Hold tight.");
+    _outFile->Close();
+  }
 
   // Save metadata
   const std::string _outputMetadata = _config.getStr(kOutputDirectory) + "/metadata.json";
@@ -353,10 +358,7 @@ int main(int argc, char* argv[]) {
   JsonExport _json;
   _json.addNode(_fout, "metadata");
   _json.addLeafCustom(_fout, "Date of Processing", _onlineTimeStr );
-  if (_config.getIsSet(kUserDetails) == kTRUE) {
-    _json.addLeafCustom(_fout, "Details", _config.getStr(kUserDetails));
-  }
-  _json.addLeafCustom(_fout, "Version", _config.getStr(kVersionString));
+  Config::config().dumpToMeta(_fout, _json);
   // Get metadata from the last root file
   if (_config.getInt(kWriteEBWeightXML) == kFALSE) {
     for (UInt_t _m = 0; _m < TrigConfInterface::getMetaStringN(); ++_m) {

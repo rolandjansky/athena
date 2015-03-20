@@ -447,7 +447,7 @@ namespace TrigCostRootAnalysis {
     const std::string _fileName = std::string( Config::config().getStr(kOutputDirectory) 
       + "/TriggerConfiguration_" 
       + getCurrentDBKey().name() + ".json" );
-    Info("TrigConfInterface::dump", "Saving trigger configuration to %s", _fileName.c_str() );
+    if (Config::config().debug()) Info("TrigConfInterface::dump", "Saving trigger configuration to %s", _fileName.c_str() );
     
     //std::ofstream _foutHtml( std::string(_fileName + ".htm").c_str() );
     std::ofstream _foutJson( _fileName.c_str() );

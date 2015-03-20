@@ -49,6 +49,8 @@ namespace TrigCostRootAnalysis {
     MonitorBase(const TrigCostData* _costData, std::string _name);
     virtual ~MonitorBase();
     virtual void newEvent(Float_t _weight = 1.) = 0;
+    virtual Bool_t getIfActive(ConfKey_t _mode);
+    virtual void saveOutput();
     const std::string& getName();
     UInt_t getLevel();
     const std::string& getLevelStr();
@@ -56,13 +58,22 @@ namespace TrigCostRootAnalysis {
     void setLevel( UInt_t _l );
     CounterMap_t* getCounterCollection(const std::string& _identifier);
     UInt_t getNCounters();
-    virtual void saveOutput();
+    void setEventProcessTime(Float_t _processTime);
+    Float_t getAverageProcessingTime();
     
     struct TableColumnFormatter {
       TableColumnFormatter(const std::string& _title,
         const std::string& _tooltip,  
         ConfKey_t _dataVarialbe, 
         VariableOption_t _vo, 
+        UInt_t _precision = 4, 
+        FormatterOption_t _fo = kFormatOptionNone);
+      TableColumnFormatter(const std::string& _title,
+        const std::string& _tooltip,  
+        ConfKey_t _dataVarialbeNominator, 
+        VariableOption_t _voNominator, 
+        ConfKey_t _dataVarialbeDenominator, 
+        VariableOption_t _voDenominator, 
         UInt_t _precision = 4, 
         FormatterOption_t _fo = kFormatOptionNone);
       TableColumnFormatter(const std::string& _title, 
@@ -76,6 +87,8 @@ namespace TrigCostRootAnalysis {
       mutable std::string m_tooltip; //!< The hover tooltip for the column, mutable as this may need to be cleaned of illegal characters
       ConfKey_t m_dataVariable; //!< For a direct fetch, the name of the DataVariable to use in this column.
       VariableOption_t m_dataVO; //!< For a direct fetch, the variable option to use for the DataVariable chosen for this column.
+      ConfKey_t m_dataVariableDenominator; //!< For a direct fetch, the name of the DataVariable to use as a denominator.
+      VariableOption_t m_dataVODenominator; //!< For a direct fetch, the variable option to use for the DataVariable chosen as a denominator for this column.
       UInt_t m_precision; //!< How many digits after the decimal place to save.
       Float_t (*m_functionPtr)(CounterMap_t*, CounterBase*); //!< For more complicated quantities, a pointer to a function to return a float  
       std::string (*m_functionPtrStr)(CounterMap_t*, CounterBase*); //!< For more complicated quantities, a pointer to a function to return a string
@@ -98,7 +111,7 @@ namespace TrigCostRootAnalysis {
     void allowSameNamedCounters();
     void allowSameIDCounters();
     void startEvent(CounterMap_t* _counters = 0);
-    void endEvent();
+    void endEvent(Float_t _weight = 1.);
     void enableROOTMsg();
     void disableROOTMsg();
     Bool_t checkPatternNameMonitor( const std::string& _patternName );
@@ -119,6 +132,9 @@ namespace TrigCostRootAnalysis {
     CounterMapSet_t     m_collectionsToProcess; //!< Pointers to the counter maps to be included in a given event.
     std::map< std::string, LumiCollector* > m_collectionLumiCollector; //!< Map of string referenced collections to the lumi counter for that collection
     
+    Float_t m_timeUsed; //!< Holds total time consumed by this monitor
+    Int_t   m_eventsProcessed; //!< Normalisation for m_timeUsed
+
     std::set< CounterBase* > m_countersInEvent; //!< Set of counters processed in an event. We need to run endEvent on these.
 
 
