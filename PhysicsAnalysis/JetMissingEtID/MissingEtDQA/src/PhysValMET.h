@@ -82,7 +82,8 @@ class PhysValMET
   TH1D *m_Resolution_TruthNonInt_RefFinal_METx, *m_Resolution_TruthNonInt_RefFinal_METy;
   TH1D *m_MET_Track, *m_MET_TrackPV, *m_MET_Track_x, *m_MET_TrackPV_x, *m_MET_Track_y, *m_MET_TrackPV_y, *m_MET_Track_phi, *m_MET_TrackPV_phi, *m_SET_Track, *m_SET_TrackPV;
   TH1D *m_MET_RefFinal_TST, *m_MET_RefFinal_TST_x, *m_MET_RefFinal_TST_y;
-  
+  TH1D *m_dPhi_leadJetMET, *m_dPhi_subleadJetMET, *m_dPhi_LepMET;
+  TH1D *m_MET_significance;
 }; 
 
 // I/O operators
