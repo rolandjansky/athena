@@ -15,15 +15,19 @@
 // STL includes
 #include <vector>
 #include <cmath>
+#include <math.h>
 
 // FrameWork includes
 #include "GaudiKernel/IToolSvc.h"
 #include "xAODMissingET/versions/MissingETBase.h" 
 #include "xAODMissingET/MissingET.h" 
 #include "xAODMissingET/MissingETContainer.h" 
-//#include "MissingET/MissingET.h" 
 #include "AthenaBaseComps/AthCheckMacros.h"
 #include "xAODMissingET/MissingETComposition.h"
+
+#include "xAODJet/JetContainer.h"
+#include "xAODMuon/MuonContainer.h"
+#include "xAODEgamma/ElectronContainer.h"
 
 using xAOD::MissingETContainer;
 using xAOD::MissingETComposition;
@@ -49,7 +53,9 @@ namespace MissingEtDQA {
     m_SET_RefFinal(0), m_SET_RefEle(0), m_SET_RefGamma(0), m_SET_RefTau(0), m_SET_RefJet(0), m_SET_Muons(0), m_SET_SoftClus(0), m_SET_PVSoftTrk(0),
     m_Resolution_TruthNonInt_RefFinal_METx(0), m_Resolution_TruthNonInt_RefFinal_METy(0),
     m_MET_Track(0), m_MET_TrackPV(0), m_MET_Track_x(0), m_MET_TrackPV_x(0), m_MET_Track_y(0), m_MET_TrackPV_y(0), m_MET_Track_phi(0), m_MET_TrackPV_phi(0), m_SET_Track(0), m_SET_TrackPV(0),
-    m_MET_RefFinal_TST(0), m_MET_RefFinal_TST_x(0), m_MET_RefFinal_TST_y(0)
+    m_MET_RefFinal_TST(0), m_MET_RefFinal_TST_x(0), m_MET_RefFinal_TST_y(0),
+    m_dPhi_leadJetMET(0), m_dPhi_subleadJetMET(0), m_dPhi_LepMET(0),
+    m_MET_significance(0)
   {
     
     declareProperty( "METContainerName", m_metName = "MET_Reference_AntiKt4LCTopo" );
@@ -185,6 +191,16 @@ namespace MissingEtDQA {
         ATH_CHECK(regHist(m_MET_TrackPV_phi = new TH1D("MET_TrackPV_phi", (name_met + " MET_TrackPV_phi; E_{Tphi}^{miss}; Entries").c_str(), m_nbinphi,-m_binphi,m_binphi), dir_met, all));
         ATH_CHECK(regHist(m_SET_TrackPV = new TH1D("SET_TrackPV", (name_met + " SET_TrackPV; E_{T}^{sum}; Entries").c_str(), m_nbinE, m_lowET, m_suET), dir_met, all));
 
+	name_met = "MET_Significance";
+	dir_met = "MET/" + name_met + "/";
+	ATH_CHECK(regHist(m_MET_significance = new TH1D("MET_Significance", (name_met + " MET_Significance; MET/sqrt(SET); Entries").c_str(), m_nbinp, 0., 200.), dir_met, all));
+
+	name_met = "MET_dPhi";
+	dir_met = "MET/" + name_met + "/";
+	ATH_CHECK(regHist(m_dPhi_leadJetMET = new TH1D("dPhi_leadJetMET", (name_met + " dPhi_leadJetMET; #Delta#Phi(leadJet,MET); Entries").c_str(), m_nbinphi, 0., 3.14), dir_met, all));
+	ATH_CHECK(regHist(m_dPhi_subleadJetMET = new TH1D("dPhi_subleadJetMET", (name_met + " dPhi_subleadJetMET; #Delta#Phi(subleadJet,MET); Entries").c_str(), m_nbinphi, 0., 3.14), dir_met, all));
+	ATH_CHECK(regHist(m_dPhi_LepMET = new TH1D("dPhi_LepMET", (name_met + " dPhi_LepMET; #Delta#Phi(Lep,MET); Entries").c_str(), m_nbinphi, 0., 3.14), dir_met, all));
+	
       }
 
       return StatusCode::SUCCESS;      
@@ -215,9 +231,7 @@ namespace MissingEtDQA {
         
     ATH_MSG_INFO( "  MET magnitude:" );
 
-
     //m_MET_RefFinal_phi->Fill((*met_RefFinal)["Final"]->phi(), 1.);  Types::bitmask_t total
-
     //m_MET_RefFinal->Fill((*met_RefFinal)[MissingETBase::Source::total()]->met()/1000., 1.);
     m_MET_RefFinal->Fill((*met_RefFinal)["FinalClus"]->met()/1000., 1.);
     m_MET_RefEle->Fill((*met_RefFinal)["RefEle"]->met()/1000., 1.);
@@ -228,6 +242,8 @@ namespace MissingEtDQA {
     m_MET_SoftClus->Fill((*met_RefFinal)["SoftClus"]->met()/1000., 1.);
     m_MET_PVSoftTrk->Fill((*met_RefFinal)["PVSoftTrk"]->met()/1000., 1.);
     
+    m_MET_significance->Fill((*met_RefFinal)["FinalClus"]->met()/sqrt((*met_RefFinal)["FinalClus"]->sumet()/sqrt(1000.)), 1.);
+
 
     ATH_MSG_INFO( "  MET x-component:" );
 
@@ -312,6 +328,79 @@ namespace MissingEtDQA {
     //m_MET_TrackPV_phi->Fill((*met_Track)["TrackPV"]->phi(), 1.);
     //m_SET_TrackPV->Fill((*met_Track)["TrackPV"]->sumet()/1000., 1.);
     
+
+
+    ATH_MSG_INFO( "  MET_Angles :" );
+
+    double leadPt = 0., subleadPt = 0., leadPhi = 0., subleadPhi = 0.;
+
+    const xAOD::JetContainer* jets = 0;
+    ATH_CHECK( evtStore()->retrieve(jets,"AntiKt4LCTopoJets") );
+    if (!jets) {
+      ATH_MSG_ERROR ( "Failed to retrieve AntiKt4LCTopoJets container. Exiting." );
+      return StatusCode::FAILURE;
+    }
+
+    xAOD::JetContainer::const_iterator jet_itr = jets->begin();
+    xAOD::JetContainer::const_iterator jet_end = jets->end();
+
+    for( ; jet_itr != jet_end; ++jet_itr ) {
+      if((*jet_itr)->pt() > subleadPt) {
+	subleadPt = (*jet_itr)->pt();
+	subleadPhi = (*jet_itr)->phi();
+      }
+      if((*jet_itr)->pt() > leadPt) {
+	subleadPt = leadPt;
+	subleadPhi = leadPhi;
+	leadPt = (*jet_itr)->pt();
+	leadPhi = (*jet_itr)->phi();
+      }
+    }
+
+    m_dPhi_leadJetMET->Fill( -remainder( leadPhi - (*met_RefFinal)["FinalClus"]->phi(), 2*M_PI ) );
+    m_dPhi_subleadJetMET->Fill( -remainder( subleadPhi - (*met_RefFinal)["FinalClus"]->phi(), 2*M_PI ) );
+    
+
+    leadPt = 0.; leadPhi = 0.;
+
+    const xAOD::MuonContainer* muons = 0;
+    ATH_CHECK( evtStore()->retrieve(muons,"Muons") );
+    if (!muons) {
+      ATH_MSG_ERROR ( "Failed to retrieve Muons container. Exiting." );
+      return StatusCode::FAILURE;
+    }
+
+    xAOD::MuonContainer::const_iterator muon_itr = muons->begin();
+    xAOD::MuonContainer::const_iterator muon_end = muons->end();
+
+    for( ; muon_itr != muon_end; ++muon_itr ) {
+      if((*muon_itr)->pt() > leadPt) {
+	leadPt = (*muon_itr)->pt();
+	leadPhi = (*muon_itr)->phi();
+      }
+    }
+
+    const xAOD::ElectronContainer* electrons = 0;
+    ATH_CHECK( evtStore()->retrieve(electrons,"Electrons") );
+    if (!electrons) {
+      ATH_MSG_ERROR ( "Failed to retrieve ElectronCollection container. Exiting." );
+      return StatusCode::FAILURE;
+    }
+
+    xAOD::ElectronContainer::const_iterator electron_itr = electrons->begin();
+    xAOD::ElectronContainer::const_iterator electron_end = electrons->end();
+
+    for( ; electron_itr != electron_end; ++electron_itr ) {
+      if((*electron_itr)->pt() > leadPt) {
+	leadPt = (*electron_itr)->pt();
+	leadPhi = (*electron_itr)->phi();
+      }
+    }
+
+    m_dPhi_LepMET->Fill( -remainder( leadPhi - (*met_RefFinal)["FinalClus"]->phi(), 2*M_PI ) );
+
+
+
     return StatusCode::SUCCESS;
     //return StatusCode::FAILURE;
   }
