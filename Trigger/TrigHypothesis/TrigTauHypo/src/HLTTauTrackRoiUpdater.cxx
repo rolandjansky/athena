@@ -9,7 +9,6 @@
 #include "GaudiKernel/StatusCode.h"
 #include "StoreGate/StoreGateSvc.h"
 
-#include "TrigSteeringEvent/PhiHelper.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 
 #include "TrkTrack/Track.h"
@@ -19,12 +18,8 @@
 HLTTauTrackRoiUpdater::HLTTauTrackRoiUpdater(const std::string & name, ISvcLocator* pSvcLocator) 
   : HLT::FexAlgo(name, pSvcLocator)
 {
-
-  declareProperty("DeltaRLeadTrkRoI",     m_deltaRLeadTrkRoI = 0.1);
-  declareProperty("InputTrackCollection", m_InputTrackColl = "TrigFastTrackFinder_TrigInDetTrack_TauCore");
+  declareProperty("InputTrackCollection", m_InputTrackColl = "TrigFastTrackFinder_TauCore");
   declareProperty("z0HalfWidth",          m_z0HalfWidth = 0.4);
-  declareProperty("minTrackPt",           m_minTrackPt = 1.0*CLHEP::GeV);
-
 }
 
 HLTTauTrackRoiUpdater::~HLTTauTrackRoiUpdater()
@@ -38,9 +33,7 @@ HLT::ErrorCode HLTTauTrackRoiUpdater::hltInitialize()
   msg() << MSG::DEBUG << "in initialize()" << endreq;
   msg() << MSG::DEBUG << " REGTEST: HLTTauTrackRoiUpdater parameters " << endreq;
   msg() << MSG::DEBUG << " REGTEST: Input Track Collection " << m_InputTrackColl << endreq;
-  msg() << MSG::DEBUG << " REGTEST: dR Lead Track-RoI      " << m_deltaRLeadTrkRoI << endreq;
   msg() << MSG::DEBUG << " REGTEST: z0HalfWidth            " << m_z0HalfWidth << endreq;
-  msg() << MSG::DEBUG << " REGTEST: minTrackPt             " << m_minTrackPt << endreq;
 
   return HLT::OK;
 
@@ -67,9 +60,6 @@ HLT::ErrorCode HLTTauTrackRoiUpdater::hltExecute(const HLT::TriggerElement*, HLT
     msg() <<  MSG::WARNING << " Failed to find RoiDescriptor " << endreq;
     return status;
   }
-
-  float roiEta = roiDescriptor->eta();
-  float roiPhi = roiDescriptor->phi();
 
   float leadTrkZ0 = roiDescriptor->zed();
 
@@ -100,7 +90,7 @@ HLT::ErrorCode HLTTauTrackRoiUpdater::hltExecute(const HLT::TriggerElement*, HLT
 
     const Trk::Track *leadTrack = 0;
     const Trk::Perigee *trackPer = 0;
-    float trkPtMax = m_minTrackPt;
+    float trkPtMax = 0;
     
     TrackCollection::const_iterator it = foundTracks->begin();
     TrackCollection::const_iterator itEnd = foundTracks->end();
@@ -114,12 +104,8 @@ HLT::ErrorCode HLTTauTrackRoiUpdater::hltExecute(const HLT::TriggerElement*, HLT
 
      if(trackPer){
 	
-       float trkEta = trackPer->eta();
-       float trkPhi = trackPer->parameters()[Trk::phi];
-       double dRTrkTau = sqrt((roiEta-trkEta)*(roiEta-trkEta) + HLT::wrapPhi(roiPhi-trkPhi)*HLT::wrapPhi(roiPhi-trkPhi));
-       
        float trackPt = trackPer->pT()/1000.;
-       if ((trackPt > trkPtMax) && dRTrkTau < m_deltaRLeadTrkRoI) {
+       if ( trackPt > trkPtMax ) {
 	 leadTrack = (*it);
 	 trkPtMax = trackPt;
        }
@@ -151,7 +137,7 @@ HLT::ErrorCode HLTTauTrackRoiUpdater::hltExecute(const HLT::TriggerElement*, HLT
   ATH_MSG_DEBUG("Input RoI " << *roiDescriptor);
   ATH_MSG_DEBUG("Output RoI " << *outRoi);
   
-  std::string roiName = "forID";
+  std::string roiName = "forID2";
   
   if ( HLT::OK !=  attachFeature(outputTE, outRoi, roiName) ) {
     ATH_MSG_ERROR("Could not attach feature to the TE");

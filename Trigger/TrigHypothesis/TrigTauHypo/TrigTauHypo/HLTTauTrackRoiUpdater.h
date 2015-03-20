@@ -20,9 +20,7 @@ class HLTTauTrackRoiUpdater : public HLT::FexAlgo
 
  private:
 
-  float m_deltaRLeadTrkRoI;
   float m_z0HalfWidth;
-  float m_minTrackPt;
   std::string m_InputTrackColl;
   
 };
