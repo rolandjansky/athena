@@ -87,14 +87,14 @@ StatusCode MdtRawDataValAlg::binMdtGlobal( TH2* &h, char ecap ) {
     putBox(h, 0, 46, 3, 48);  putLine(h,3,46,3,48); putLine(h,0,46,3,46); putLine(h,2,48,3,48);//15M
     putBox(h, 0, 48, 2, 50);  putLine(h,2,48,2,50); putLine(h,0,50,2,50);//15R
     putBox(h, 0, 52, 2, 106); putLine(h,0,52,2,52); putLine(h,0,106,2,106); //putLine(h,2,48,2,102);  
-    putBox(h, 0, 108, 2, 110); putLine(h,2,108,2,110); putLine(h,0,108,2,108); putLine(h,0,110,2,110);
+    putBox(h, 0, 108, 1, 110); putLine(h,1,108,1,110); putLine(h,0,108,1,108); putLine(h,0,110,1,110);
     putBox(h, 0, 112, 2, 116); putLine(h,2,112,2,116); putLine(h,0,112,2,112); 
 
     putLine(h,2,52,2,74);
     //BML 12,13,14
-    putBox(h, 2, 74, 5, 76); putLine(h,5,74,5,80); putLine(h,2,74,5,74); putLine(h,2,76,4,76);
-    putBox(h, 4, 76, 5, 78); putLine(h,2,76,2,78); putLine(h,4,76,4,78);
-    putBox(h, 2, 78, 5, 80); putLine(h,2,80,5,80); putLine(h,2,78,4,78); //putLine(h,5,74,5,76);
+    putBox(h, 2, 74, 5, 76); putLine(h,5,74,5,76);putLine(h,5,78,5,80); putLine(h,2,74,5,74); putLine(h,2,76,5,76);putLine(h,2,76,2,78);
+    //putBox(h, 4, 76, 5, 78);  //putLine(h,4,76,4,78);
+    putBox(h, 2, 78, 5, 80); putLine(h,2,80,5,80); putLine(h,2,78,5,78); //putLine(h,5,74,5,76);
     putLine(h,2,80,2,106);
 
     //Mid Section
@@ -115,14 +115,15 @@ StatusCode MdtRawDataValAlg::binMdtGlobal( TH2* &h, char ecap ) {
     putBox(h, 14, 46, 17, 48);    putLine(h,14,46,14,48); putLine(h,14,46,17,46); putLine(h,14,48,15,48); //15M
     putBox(h, 15, 48, 17, 50);    putLine(h,15,48,15,50); putLine(h,15,50,17,50);//15R
     putBox(h, 15, 52, 17, 106);	  putLine(h,15,52,17,52); putLine(h,15,106,17,106);	 //putLine(h,2,48,2,102); 
-    putBox(h, 15, 108, 17, 110);   putLine(h,15,108,15,110); putLine(h,15,108,17,108); putLine(h,15,110,17,110); 
+    putBox(h, 16, 108, 17, 110);   putLine(h,16,108,16,110); putLine(h,16,108,17,108); putLine(h,16,110,17,110);
     putBox(h, 15, 112, 17, 116);   putLine(h,15,112,15,116); putLine(h,15,112,17,112); 			 
 
     putLine(h,15,52,15,74);
     //BML 12,13,14
-    putBox(h, 12, 74, 17, 76); putLine(h,12,74,12,76); putLine(h,15,74,12,74); putLine(h,15,76,13,76);
-    putBox(h, 15, 76, 17, 78); putBox(h, 12, 76, 13, 78); putLine(h,15,76,15,78); putLine(h,13,76,13,78); putLine(h,12,76,12,78); 
-    putBox(h, 12, 78, 17, 80); putLine(h,15,78,13,78); putLine(h,15,80,12,80); putLine(h,12,78,12,80);
+    putBox(h, 12, 74, 17, 76); putLine(h,12,74,12,76); putLine(h,15,74,12,74); putLine(h,15,76,12,76);
+    putBox(h, 15, 76, 17, 78); //putBox(h, 12, 76, 13, 78);
+    putLine(h,15,76,15,78); //putLine(h,13,76,13,78); putLine(h,12,76,12,78);
+    putBox(h, 12, 78, 17, 80); putLine(h,15,78,12,78); putLine(h,15,80,12,80); putLine(h,12,78,12,80);
     putLine(h,15,80,15,106);
 
     //Draw TickMarks
@@ -300,46 +301,44 @@ StatusCode  MdtRawDataValAlg::binMdtRegional( TH2* &h, string &xAxis){
   //Make gray boxes
   if(xAxis=="BOA"){
     putBox(h, 0, 0, 1, 44);  putBox(h, 7, 0, 9, 44);
-    putBox(h, 0, 48, 1, 52); putBox(h, 7, 48, 9, 52);
+    putBox(h, 0, 48, 1, 52); putBox(h, 8, 48, 9, 52);
     putBox(h, 0, 56, 1, 64); putBox(h, 7, 56, 9, 64);
-    
+
     putLine(h, 1, 0, 1, 44); putLine(h, 7, 0, 7, 44); putLine(h, 0, 44, 1, 44); putLine(h, 7, 44, 9, 44);
-    putLine(h, 1, 48, 1, 52); putLine(h, 7, 48, 7, 52); putLine(h, 0, 48, 1, 48); putLine(h, 7, 48, 9, 48); putLine(h, 0, 52, 1, 52); putLine(h, 7, 52, 9, 52);
+    putLine(h, 1, 48, 1, 52); putLine(h, 8, 48, 8, 52); putLine(h, 0, 48, 1, 48); putLine(h, 8, 48, 9, 48); putLine(h, 0, 52, 1, 52); putLine(h, 8, 52, 9, 52);
     putLine(h, 1, 56, 1, 64); putLine(h, 7, 56, 7, 64); putLine(h, 0, 56, 1, 56); putLine(h, 7, 56, 9, 56 );
 
   }
   if(xAxis=="BOC"){
     putBox(h, 0, 0, 2, 44);
-    putBox(h, 0, 48, 2, 52);
+    putBox(h, 0, 48, 1, 52);
     putBox(h, 0, 56, 2, 64);
-    
+
     putLine(h, 2, 0, 2, 44); putLine(h, 0, 44, 2, 44);
-    putLine(h, 2, 48, 2, 52); putLine(h, 0, 48, 2, 48); putLine(h, 0, 52, 2, 52);
+    putLine(h, 1, 48, 1, 52); putLine(h, 0, 48, 1, 48); putLine(h, 0, 52, 1, 52);
     putLine(h, 2, 56, 2, 64); putLine(h, 0, 56, 2, 56);
   }
   if(xAxis=="BMA") {
     putBox(h, 3, 44, 6, 48);
-    putBox(h, 5, 48, 6, 52);
+    //putBox(h, 5, 48, 6, 52);
     putBox(h, 3, 52, 6, 56);  
-
     putLine(h, 3, 44, 6, 44);
     putLine(h, 3, 44, 3, 48);
-    putLine(h, 3, 48, 5, 48);
-    putLine(h, 5, 48, 5, 52);
-    putLine(h, 5, 52, 3, 52);
+    putLine(h, 3, 48, 6, 48);
+    //putLine(h, 5, 48, 5, 52);
+    putLine(h, 3, 52, 6, 52);
     putLine(h, 3, 52, 3, 56);
     putLine(h, 3, 56, 6, 56);
   }
   if(xAxis=="BMC") {
     putBox(h, 0, 44, 3, 48);
-    putBox(h, 0, 48, 1, 52);
+    //putBox(h, 0, 48, 1, 52);
     putBox(h, 0, 52, 3, 56);  
-
     putLine(h, 0, 44, 3, 44);
     putLine(h, 3, 44, 3, 48);
-    putLine(h, 1, 48, 3, 48);
-    putLine(h, 1, 48, 1, 52);
-    putLine(h, 1, 52, 3, 52);
+    putLine(h, 0, 48, 3, 48);
+    //putLine(h, 1, 48, 1, 52);
+    putLine(h, 0, 52, 3, 52);
     putLine(h, 3, 52, 3, 56);
     putLine(h, 0, 56, 3, 56);
   }
