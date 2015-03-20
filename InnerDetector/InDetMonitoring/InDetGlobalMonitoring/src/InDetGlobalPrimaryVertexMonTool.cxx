@@ -15,6 +15,7 @@
 #include "VxVertex/VxTrackAtVertex.h"
 
 #include "xAODTracking/VertexContainer.h"
+#include "xAODTracking/TrackParticleContainer.h"
 
 #include "EventPrimitives/EventPrimitivesHelpers.h"
 
@@ -219,25 +220,17 @@ StatusCode InDetGlobalPrimaryVertexMonTool::fillHistograms() {
     m_hPvChiSqDoF->Fill( (*vxIter)->chiSquared() / (*vxIter)->numberDoF() );
 
 
-    if ( (*vxIter)->vxTrackAtVertexAvailable() )
+    auto & trackparticles = (*vxIter)->trackParticleLinks();
+    
+    // fill some track related histos
+    m_hPvNTracks->Fill( trackparticles.size() );
+    
+    // Histograms on original tracks used for primary vertex
+    for (auto trackparticle  : trackparticles )
     {
-	std::vector<Trk::VxTrackAtVertex> vxTrackAtVertex = (*vxIter)->vxTrackAtVertex();
-
-	// fill some track related histos
-	m_hPvNTracks->Fill( vxTrackAtVertex.size() );
-
-	// Histograms on original tracks used for primary vertex
-	for (std::vector<Trk::VxTrackAtVertex>::iterator trkIter  = vxTrackAtVertex.begin();
-	     trkIter != vxTrackAtVertex.end()  ; ++trkIter)
-	{
-	    const Trk::Perigee* measuredPerigee = dynamic_cast<const Trk::Perigee*>((*trkIter).initialPerigee());
-	    m_hPvTrackEta->Fill(measuredPerigee!=0 ? measuredPerigee->eta() : -999.);
-	    m_hPvTrackPt->Fill(measuredPerigee!=0 ? measuredPerigee->pT()/1000. : -999.);   // Histo is in GeV, not MeV
-	}
-    }
-    else
-    {
-	m_hPvNTracks->Fill( -1 );
+	const Trk::Perigee & measuredPerigee = (*trackparticle)->perigeeParameters();
+	m_hPvTrackEta->Fill( measuredPerigee.eta() );
+	m_hPvTrackPt->Fill(measuredPerigee.pT()/1000. );   // Histo is in GeV, not MeV
     }
   }
   m_hPvNPriVtx->Fill(nPriVtx);

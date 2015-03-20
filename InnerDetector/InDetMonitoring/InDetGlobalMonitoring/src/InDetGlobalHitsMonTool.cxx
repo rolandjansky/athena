@@ -56,15 +56,17 @@ InDetGlobalHitsMonTool::InDetGlobalHitsMonTool(const std::string & type,
 				               const std::string & name,
 				               const IInterface* parent)
     : InDetGlobalMotherMonTool(type, name, parent),
-      //!m_geneventname("TruthEvent"),
-      //!m_tracktruthname("TRACK_TRACKT_Map"),
-      m_updator(0),
+      m_updator(nullptr),
       m_iUpdator("Trk::KalmanUpdator"),
-      m_tracks(0),
-      m_ID_hitmap_x_y(0),
-      m_ID_hitmap_z_x(0),
-      m_ID_hitmap_z_r(0),
-      m_ID_holes(0),
+      m_nTracks(0),
+      m_tracks(nullptr),
+      m_ID_hitmap_x_y(nullptr),
+      m_ID_hitmap_x_y_eca(nullptr),
+      m_ID_hitmap_x_y_ecc(nullptr),
+      m_ID_hitmap_z_x(nullptr),
+      m_ID_hitmap_z_r(nullptr),
+      m_ID_holes(nullptr),
+      m_Trk_nSihits_nTRThits(nullptr),m_Trk_nPIXhits_nSCThits(nullptr),m_Trk_nSCThits_nTRThits(nullptr),
       m_Trk_nPIXhits(0),
       m_Trk_nPIXhits_EA(0),
       m_Trk_nPIXhits_TA(0),
@@ -74,6 +76,7 @@ InDetGlobalHitsMonTool::InDetGlobalHitsMonTool(const std::string & type,
       m_Trk_nPIXhits_eta(0),
       m_Trk_nPIXhits_phi(0),
       m_Trk_nPIXhits_eta_phi(0),
+      m_Trk_nPixhits_SCTTRTPixFid(nullptr), 
       m_Trk_nPIXhits_fidusial(0),
       m_Trk_nPIXhits_1trk(0),
       m_Trk_nSCThits_1trk(0),
@@ -98,6 +101,7 @@ InDetGlobalHitsMonTool::InDetGlobalHitsMonTool(const std::string & type,
       m_Trk_nTRThits_eta(0),
       m_Trk_nTRThits_phi(0),
       m_Trk_nTRThits_eta_phi(0),
+      m_Trk_nTRThits_PixSCT(nullptr),
       m_Trk_nTRTHLhits(0),
       m_Trk_nTRTLLhits(0),
       m_Trk_nTRThits_withSi(0),
@@ -117,17 +121,9 @@ InDetGlobalHitsMonTool::InDetGlobalHitsMonTool(const std::string & type,
       m_trt_barrel(0),
       m_trt_eca(0),
       m_trt_ecc(0)
-      //!m_MC_data_available(false),
-      //!m_truth_data_available(false),
-      //!m_simtrackmap(0),
-      //!m_pTMC(0),
-      //!m_doMC(false)
+      
 {
-    //!declareProperty("pTMC",m_pTMC);
-    //!declareProperty("doMC",m_doMC);
-    //!declareProperty("GenEventName",m_geneventname);
-    //!declareProperty("TrackTruthName",m_tracktruthname);
-
+   
 }
 
 StatusCode InDetGlobalHitsMonTool::initialize(){

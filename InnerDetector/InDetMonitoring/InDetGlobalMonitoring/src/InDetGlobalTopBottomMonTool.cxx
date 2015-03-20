@@ -38,6 +38,7 @@ InDetGlobalTopBottomMonTool::InDetGlobalTopBottomMonTool(
     const IInterface* parent)
     :InDetGlobalMotherMonTool(type, name, parent),
      m_detector("ID"),
+     m_tracks_top(nullptr), m_tracks_bottom(nullptr),
      m_nTopTrks(0),
      m_nBottomTrks(0),
      m_top_d0(0), 

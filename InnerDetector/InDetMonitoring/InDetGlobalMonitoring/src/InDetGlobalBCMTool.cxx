@@ -62,7 +62,31 @@ InDetGlobalBCMTool::InDetGlobalBCMTool(
 				       const std::string & name,
 				       const IInterface* parent)
   : InDetGlobalMotherMonTool(type, name, parent),
-    m_detector("ID")
+    m_detector("ID"),
+    pulse_width_all{nullptr,nullptr},
+    hits_lvl1a{nullptr,nullptr},
+    hits_bcid{nullptr, nullptr},
+    hitdistribution{nullptr, nullptr},
+    pulse_position_gen{nullptr, nullptr},
+    pulse_width_gen{nullptr, nullptr},
+    strange_signals{nullptr, nullptr},
+    highocc(nullptr),
+    deltat_vs_hits{nullptr,nullptr},
+    deltat_aligned_vs_hits{nullptr,nullptr},
+    deltat_vs_bcid{nullptr,nullptr},
+    deltat_aligned_vs_bcid{nullptr,nullptr},
+    deltat_vs_lb{nullptr,nullptr},
+    deltat_aligned_vs_lb{nullptr,nullptr},
+    deltat_vs_ecr{nullptr,nullptr},
+    deltat_aligned_vs_ecr{nullptr,nullptr},
+    deltat_vs_PrVertex{nullptr,nullptr},
+    deltat_vs_pixhits{nullptr,nullptr},
+    deltat_vs_pixhitsEC{nullptr,nullptr},
+    deltat_vs_pixhitsBR{nullptr,nullptr},
+    deltat_vs_scthits{nullptr,nullptr},
+    deltat_vs_scthitsBR{nullptr,nullptr},
+    sct_vs_pix_col{nullptr,nullptr},
+    sct_vs_pix_bkg{nullptr,nullptr}
 {
   declareProperty("Detector", m_detector); 
   declareProperty("vxContainerName",m_vxContainerName="VxPrimaryCandidate");

@@ -49,8 +49,6 @@ namespace Trk {
   class Track;
   class TrackStateOnSurface;
 
-  //class TrackParameters;
-  //class MeasuredTrackParameters;
 }
 
 class TrackTruthCollection;
@@ -82,26 +80,14 @@ public:
 
    
 private:    
-    /// Get the MC tracks
-    //! StatusCode getMC();
 
-    ///is MC pT above threshold (ptMC)
-    //! bool pTMCAboveThreshold(
-    //! const Trk::Track& track, 
-    //!	const TrackCollection& tracks) const;
     // Process each hit to determine which detector it belongs to/location and add into hitmap.
     StatusCode  processHit(const Trk::Track *track, const Trk::TrackStateOnSurface* trackState );
     // Process all holes on track and fill the holemap.
     // Determine if track is good w.r.t. each subdetector and if so add to relevant histograms.
 
     //---------- member variables ------------
-      
-    ///Name of genereated events in store gate
-    //! string m_geneventname;
-
-    ///Name of truth tracks in store gate
-    //! string m_tracktruthname;
- 
+   
     /// Updator
     const Trk::IUpdator  *m_updator;  // updator for unbiased states
     ToolHandle<Trk::IUpdator>             m_iUpdator;
@@ -229,26 +215,6 @@ private:
     int m_trt_eca;
     int m_trt_ecc;
     // Monte Carlo parameters (to be removed?)
-
-    ///True if MC data is available
-    //!bool  m_MC_data_available;
-
-    ///True if truth data is available 
-    //!bool  m_truth_data_available; 
-    
-    //!const TrackTruthCollection *m_simtrackmap;
-    
-    ///MC pT threshold energy parameter
-    //!float m_pTMC;
-
-    ///True to do MC
-    //!bool  m_doMC;
-
-    ///Vector of mc track barcodes
-    //!vector<float> m_BarCodeMC;
-
-    ///Vector of mc track pT
-    //!vector<float> m_pT_MC;
 };
 
 #endif

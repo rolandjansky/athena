@@ -32,11 +32,6 @@ class TH2F_LW;
 
 class IBeamCondSvc;
 
-namespace Trk {
-  class IExtrapolator;
-}
-
-
 class InDetGlobalBeamSpotMonTool : public InDetGlobalMotherMonTool {
 
 public:
@@ -50,16 +45,12 @@ public:
 	virtual StatusCode procHistograms();
 
 protected:
-        ToolHandle<Trk::IExtrapolator> m_extrapolator;
-        bool m_hasExtrapolator;
-
         ServiceHandle<IBeamCondSvc> m_beamCondSvc;
         bool m_hasBeamCondSvc;
 
         TH1F_LW* m_hTrNPt;
         TH1F_LW* m_hTrPt;
         TH2F_LW* m_hTrDPhi;
-        TH2F_LW* m_hTrDPhiCorr;
 
 	TH1F_LW* m_hBsX;
 	TH1F_LW* m_hBsY;
