@@ -51,6 +51,8 @@ namespace TrigCostRootAnalysis {
     m_invertFilter(kFALSE),
     m_counterCollections(),
     m_collectionsToProcess(),
+    m_timeUsed(0.),
+    m_eventsProcessed(0),
     m_countersInEvent() {
       //Nothing here
   }
@@ -92,12 +94,12 @@ namespace TrigCostRootAnalysis {
     Float_t _lumiLength = m_costData->getLumiLength(); // TODO - get actual lumi block length here!
     
     // Add the "All" collection. We will usually always run over this.
-    if ( Config::config().getInt(kDoAllSummary) ) {
+    if ( Config::config().getInt(kDoAllSummary) && getIfActive(kDoAllSummary)) {
       addToCollectionsToProcess( Config::config().getStr(kAllString), _lumiBlockNumber, _lumiLength);
     }
     
-
-    if ( Config::config().getInt(kDoLumiBlockSummary) ) {
+    //Active for this monitor?
+    if ( Config::config().getInt(kDoLumiBlockSummary) && getIfActive(kDoLumiBlockSummary) ) {
 
       // Do we look at this lumi block on its own?
       static Int_t _lbSummaryStart = INT_MIN, _lbSummaryEnd = INT_MIN;
@@ -115,22 +117,25 @@ namespace TrigCostRootAnalysis {
 
       if (_lbSummaryStart == INT_MIN) {
         _lbSummaryStart = Config::config().getInt(kFullSummaryStartLb);
-        _lbSummaryEnd = _lbSummaryStart + Config::config().getInt(kNLbFullSummary);
+        _lbSummaryEnd = (_lbSummaryStart + Config::config().getInt(kNLbFullSummary)) * Config::config().getInt(kNLbFullSkip);
         assert(_lbSummaryEnd > _lbSummaryStart);
       } 
 
       // Does the current lumiblock fall in the range?
       if ( (Int_t) _lumiBlockNumber >= _lbSummaryStart && (Int_t) _lumiBlockNumber < _lbSummaryEnd ) {
-        std::string _LBIdentifier;
-        std::stringstream _ss;
-        _ss << Config::config().getStr(kLumiBlockString) << "_" << std::setfill('0') << std::setw(4) << _lumiBlockNumber;
-        _ss >> _LBIdentifier;
-        addToCollectionsToProcess( _LBIdentifier, _lumiBlockNumber, _lumiLength);
+        // Is it a multiple of NLbFullSkip?
+        if ( (_lbSummaryStart - _lumiBlockNumber) % Config::config().getInt(kNLbFullSkip) == 0) {
+          std::string _LBIdentifier;
+          std::stringstream _ss;
+          _ss << Config::config().getStr(kLumiBlockString) << "_" << std::setfill('0') << std::setw(4) << _lumiBlockNumber;
+          _ss >> _LBIdentifier;
+          addToCollectionsToProcess( _LBIdentifier, _lumiBlockNumber, _lumiLength);
+        }
       }
     }
 
     // Are we providing a summary per keyset?
-    if ( Config::config().getInt(kDoKeySummary) ) {
+    if ( Config::config().getInt(kDoKeySummary) && getIfActive(kDoKeySummary) ) {
       addToCollectionsToProcess( _key.name(), _lumiBlockNumber, _lumiLength);
     }
 
@@ -149,6 +154,24 @@ namespace TrigCostRootAnalysis {
       _n += _colIt->second.size();
     }
     return _n;
+  }
+
+  /**
+   * Set the amount of time taken to process current event. Used for bookkeeping. 
+   * Set by the parent ProcessEvent 
+   * @param _processTime Time in ms
+   */
+  void MonitorBase::setEventProcessTime(Float_t _processTime) {
+    m_timeUsed += _processTime;
+    ++m_eventsProcessed;
+  }
+
+  /**
+   * @return Average time in ms taken to run this monitor and all counters contained within
+   */
+  Float_t MonitorBase::getAverageProcessingTime() {
+    if (m_eventsProcessed == 0) return 0.;
+    return m_timeUsed / m_eventsProcessed;
   }
 
   /**
@@ -205,13 +228,23 @@ namespace TrigCostRootAnalysis {
   /**
    * Sends the endEvent call to all counters which have run in the event (denoted by inserting them into the set m_countersInEvent)
    */
-  void MonitorBase::endEvent() {
+  void MonitorBase::endEvent(Float_t _weight) {
     for (CounterSetIt_t _it = m_countersInEvent.begin(); _it != m_countersInEvent.end(); ++_it) {
       // _it is an iterator over a set of pointers to CounterBase objects
-      (**_it).endEvent();
+      (**_it).endEvent(_weight);
     }
     m_countersInEvent.clear();
   }
+
+  /**
+   * This must be inherited to be used
+   */
+  Bool_t MonitorBase::getIfActive(ConfKey_t _mode) {
+    UNUSED(_mode);
+    Error("MonitorBase::getIfActive", "Function called on base class, you must impliment this in the derived class.");
+    return kFALSE;
+  }
+
   
   /**
    * Much of the code for writing histograms (and canvases) is shared between different monitors.
@@ -414,18 +447,24 @@ namespace TrigCostRootAnalysis {
     std::string _before = _toClean;
     if (_checkComma && _toClean.find(",") != std::string::npos) {
       std::replace( _toClean.begin(), _toClean.end(), ',', ' ');
-      Warning("MonitorBase::checkForIllegalCharacters","Titles, tooltips and data are stored in CSV, they cannot contain ',' changing %s[%s -> %s]", 
-        getName().c_str(), _before.c_str(), _toClean.c_str());
+      if (Config::config().getDisplayMsg(kMsgIllegalCharacters) == kTRUE) {
+        Warning("MonitorBase::checkForIllegalCharacters","Titles, tooltips and data are stored in CSV, they cannot contain ',' changing %s[%s -> %s]", 
+          getName().c_str(), _before.c_str(), _toClean.c_str());
+      }
     }
     if (_checkApostrophe && _toClean.find("'") != std::string::npos) {
       std::replace( _toClean.begin(), _toClean.end(), '\'', '-');
-      Warning("MonitorBase::checkForIllegalCharacters","Titles, tooltips and data cannot contain single quotes, messes up latter javascript, changing %s[%s -> %s]", 
-        getName().c_str(), _before.c_str(), _toClean.c_str());
+      if (Config::config().getDisplayMsg(kMsgIllegalCharacters) == kTRUE) {
+        Warning("MonitorBase::checkForIllegalCharacters","Titles, tooltips and data cannot contain single quotes, messes up latter javascript, changing %s[%s -> %s]", 
+          getName().c_str(), _before.c_str(), _toClean.c_str());
+      }
     }
     if (_checkColon && _toClean.find(":") != std::string::npos) {
       std::replace( _toClean.begin(), _toClean.end(), ':', '_');
-      Warning("MonitorBase::checkForIllegalCharacters","TDirectories, cannot contain \":\" changing %s[%s -> %s]", 
-        getName().c_str(), _before.c_str(), _toClean.c_str());
+      if (Config::config().getDisplayMsg(kMsgIllegalCharacters) == kTRUE) {
+        Warning("MonitorBase::checkForIllegalCharacters","TDirectories, cannot contain \":\" changing %s[%s -> %s]", 
+          getName().c_str(), _before.c_str(), _toClean.c_str());
+      }
     }    
   }
 
@@ -491,6 +530,14 @@ namespace TrigCostRootAnalysis {
             Config::config().getStr(_toSave[_i].m_dataVariable).c_str() );
         }
         _value =  _TCCB->getDecoration( _toSave[_i].m_dataVariable );
+      // If using Int_t decoration
+      } else if ( _toSave[_i].m_formatOption == kFormatOptionUseIntDecoration ) { 
+        if (Config::config().debug()) {
+          Info("MonitorBase::outputTableRow","\tDoing table cell %s via Int_t decoration %s", 
+            _toSave[_i].m_columnName.c_str(), 
+            Config::config().getStr(_toSave[_i].m_dataVariable).c_str() );
+        }
+        _value =  _TCCB->getIntDecoration( _toSave[_i].m_dataVariable );
       // Otherwise do a direct fetch of stored data
       } else { 
         if (Config::config().debug()) {
@@ -500,6 +547,16 @@ namespace TrigCostRootAnalysis {
         }
         _value = _TCCB->getValue( _toSave[_i].m_dataVariable, _toSave[_i].m_dataVO );
         _entries = _TCCB->getEntries( _toSave[_i].m_dataVariable, _toSave[_i].m_dataVO );
+
+        // Check if we are supposed to divide through by a denominator
+        if (_toSave[_i].m_dataVariableDenominator != kNoneString) {
+          Float_t _valueDenom = _TCCB->getValue( _toSave[_i].m_dataVariableDenominator, _toSave[_i].m_dataVODenominator );
+          if (isZero(_valueDenom)) {
+            _value = 0.;
+          } else {
+            _value /= _valueDenom;
+          }
+        }
       }
 
       // See if there are any other modifiers requested via enum
@@ -533,7 +590,7 @@ namespace TrigCostRootAnalysis {
             _value = _entries;
             break;
           // Deliberately ignored cases
-          case kFormatOptionUseStringDecoration: case kFormatOptionUseFloatDecoration:
+          case kFormatOptionUseStringDecoration: case kFormatOptionUseFloatDecoration: case kFormatOptionUseIntDecoration:
             break;
           default:
             Error("MonitorBase::outputTableRow", "Table formatting option enum %i was not recognised.", _toSave[_i].m_formatOption);
@@ -584,7 +641,7 @@ namespace TrigCostRootAnalysis {
     // Do we have a counter for this string?
     if ( _it != _counterMap->end() ) {
       // Also check IDs match (unless this has been explicitly disabled due to having many ID's)
-      if ( m_allowSameIDCounters == kFALSE && _it->second->getID() != (UInt_t) _ID) {
+      if ( m_allowSameIDCounters == kFALSE && _it->second->getID() != _ID) {
         // This is technically allowed by the architecture of the program, but we will warn the user anyway as they have
         // not explicitly said that it is OK to have many counters with the same ID
         Warning("MonitorBase::getCounter", "Name clash for %s with IDs %i and %i.", _name.c_str(), _ID, _it->second->getID() );
@@ -746,6 +803,36 @@ namespace TrigCostRootAnalysis {
     m_tooltip(_tooltip),
     m_dataVariable(_variableName),
     m_dataVO(_vo),
+    m_dataVariableDenominator(kNoneString),
+    m_dataVODenominator(),
+    m_precision(_precision),
+    m_functionPtr(0),
+    m_functionPtrStr(0),
+    m_formatOption(_fo) {}
+
+  /**
+   * Construct a TableColumnFormatter to output a column of data from all counters.
+   * This version will directly fetch two variable from the counter's storage and divide one by the other.
+   * @param _title The title of the column in the table.
+   * @param _variableNameNominator The name of the variable saved in the counter to export for this column.
+   * @param _voNominator The corresponding variable option for this variable (saved per call, per event, etc.)
+   * @param _variableNameDenominator The name of the variable saved in the counter to use as denominator.
+   * @param _voDenominator The corresponding variable option for this denominator
+   * @param _precision The number of decimal places to include for this column.
+   */
+  MonitorBase::TableColumnFormatter::TableColumnFormatter(const std::string& _title, 
+      const std::string& _tooltip, 
+      ConfKey_t _dataVarialbeNominator, 
+      VariableOption_t _voNominator, 
+      ConfKey_t _dataVarialbeDenominator, 
+      VariableOption_t _voDenominator, 
+      UInt_t _precision, FormatterOption_t _fo) :
+    m_columnName(_title),
+    m_tooltip(_tooltip),
+    m_dataVariable(_dataVarialbeNominator),
+    m_dataVO(_voNominator),
+    m_dataVariableDenominator(_dataVarialbeDenominator),
+    m_dataVODenominator(_voDenominator),
     m_precision(_precision),
     m_functionPtr(0),
     m_functionPtrStr(0),
@@ -768,6 +855,8 @@ namespace TrigCostRootAnalysis {
     m_tooltip(_tooltip),
     m_dataVariable(),
     m_dataVO(),
+    m_dataVariableDenominator(),
+    m_dataVODenominator(),
     m_precision(_precision),
     m_functionPtr(_functionPtr),
     m_functionPtrStr(0),

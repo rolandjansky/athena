@@ -171,16 +171,6 @@ namespace TrigCostRootAnalysis {
     return std::make_pair(_name, _vo);
   }
   
-
-  /**
-   * Helper function, returns basic hash of two integer values.
-   * @param _a,_b Values to hash
-   * @returns Hash value.
-   */
-  Int_t intIntToIntHash( Int_t _a, Int_t _b ) {
-    return (_a << 16) | (_b && 0xFFFF);
-  }
-  
   /**
    * Helper function, returns basic hash of string.
    * Based on http://stackoverflow.com/questions/2535284/

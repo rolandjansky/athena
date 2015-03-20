@@ -87,6 +87,7 @@ namespace TrigCostRootAnalysis {
     static Int_t _doOutputMenus = kFALSE;
     static Int_t _doOutputCanvas = kFALSE;
     static Int_t _linkOutputDirectory = kFALSE;
+    static Int_t _writeDummyPSXML = kFALSE;
     // Misc
     static Int_t _outputTagFromAthena = kFALSE;
     static Int_t _cleanAll = kFALSE;
@@ -99,6 +100,7 @@ namespace TrigCostRootAnalysis {
     static Int_t _doGroupOverlap = kFALSE;
     static Int_t _doAllOverlap = kFALSE;
     static Int_t _showVersion = kFALSE;
+    static Int_t _extraplolate8To13 = kFALSE;
 
     // User options
     std::vector< std::string > _inputFiles;
@@ -123,12 +125,13 @@ namespace TrigCostRootAnalysis {
     std::string _prescaleXML1 = "";//"cool_208354_366_366.xml"; // This is an old XML for test purposes
     std::string _prescaleXML2 = "";
     std::string _ROSXML = "rob-ros-robin-2012.xml";
-    std::string _version = "TrigCostRootAnalysis-00-05-20";
+    std::string _version = "TrigCostRootAnalysis-00-05-26";
     Int_t _lbBegin = INT_MIN;
     Int_t _lbEnd = INT_MAX;
     UInt_t _nEvents = INT_MAX;
     UInt_t _nSkip = 0;
-    UInt_t _nLbFullSummary = 1;
+    UInt_t _nLbFullSummary = 5;
+    UInt_t _nLbFullSkip = 10;
     UInt_t _defaultLBLength = 30;
     UInt_t _slowThreshold = 500;
     UInt_t _histogramBins = 50;
@@ -139,6 +142,7 @@ namespace TrigCostRootAnalysis {
     Float_t _rateFallbackPrescaleL1 = 1.;
     Float_t _rateFallbackPrescaleHLT = 1.;
     Float_t _basicWeight = 1.;
+    Float_t _predictionLumi = 0.;
     
     // Parse CLI
     Int_t _status = 0;
@@ -156,7 +160,7 @@ namespace TrigCostRootAnalysis {
         {"doOutputPNG",            no_argument,       &_doOutputPng,            1},
         {"doOutputPDF",            no_argument,       &_doOutputPdf,            1},
         {"doOutputCSV",            no_argument,       &_doOutputCsv,            1},
-        {"doOutputXML",            no_argument,       &_doOutputXML,            1},
+        {"doOutputRatesXML",       no_argument,       &_doOutputXML,            1},
         {"doOutputRatesGraph",     no_argument,       &_doOutputRatesGraph,     1},
         {"doOutputMenus",          no_argument,       &_doOutputMenus,          1},
         {"outputTagFromAthena",    no_argument,       &_outputTagFromAthena,    1},
@@ -183,10 +187,11 @@ namespace TrigCostRootAnalysis {
         {"doGroupOverlap",         no_argument,       &_doGroupOverlap,         1},
         {"doAllOverlap",           no_argument,       &_doAllOverlap,           1},
         {"scaleRatesByPS",         no_argument,       &_ratesScaleByPS,         1},
+        {"writeDummyPSXML",        no_argument,       &_writeDummyPSXML,        1},
         {"version",                no_argument,       &_showVersion,            1},
         {"linkOutputDirectory",    no_argument,       &_linkOutputDirectory,    1},
+        {"extrapolate8To13",       no_argument,       &_extraplolate8To13,      1},
         {"treeName",               required_argument, 0,                      't'},
-        {"menuXML",                required_argument, 0,                      'm'},
         {"prescaleXML",            required_argument, 0,                      'M'},
         {"prescaleXML1",           required_argument, 0,                      'g'},
         {"prescaleXML2",           required_argument, 0,                      'G'},
@@ -211,7 +216,9 @@ namespace TrigCostRootAnalysis {
         {"nFullEventSummaries",    required_argument, 0,                      'F'},
         {"slowThreshold",          required_argument, 0,                      'S'},
         {"defaultLBLength",        required_argument, 0,                      'd'},
+        {"predictionLumi",         required_argument, 0,                      'D'},
         {"nLbFullSummary",         required_argument, 0,                      'L'},
+        {"nLbFullSkip",            required_argument, 0,                      'k'},
         {"ratesOverlapWarning",    required_argument, 0,                      'w'},
         {"files",                  required_argument, 0,                      'f'},
         {"patternsMonitor",        required_argument, 0,                      'p'},
@@ -279,22 +286,25 @@ namespace TrigCostRootAnalysis {
           std::cout << "--lbEnd INT_MAX\t\t\t\t\tHighest value luminosity block from input to use." << std::endl;
           std::cout << "--nEvents INT_MAX\t\t\t\tNumber of input events from all files to run over." << std::endl;
           std::cout << "--basicWeight "<< _basicWeight <<"\t\t\t\t\tBase event weight. Can be used to apply global scaling factor to run." << std::endl;
+          std::cout << "--extrapolate8To13\t\t\t\tExperimental parameter! Attempt to evolve 8 TeV data/MC to 13 TeV based on HLT result." << std::endl;
           std::cout << "--nSkip 0\t\t\t\t\tNumber of events to skip." << std::endl;
           std::cout << "--slowThreshold "<< _slowThreshold <<"\t\t\t\tTime in milliseconds. Execution times greater than this are flagged as slow." << std::endl;
           std::cout << "--nLbFullSummary " << _nLbFullSummary << "\t\t\t\tNumber of luminosity blocks, starting from lbBegin, to produce a full summary for." << std::endl;
+          std::cout << "--nLbFullSkip " << _nLbFullSkip << "\t\t\t\tHow many luminosity blocks to skip per full lb summary." << std::endl;
           std::cout << "--nFullEventSummaries " << _maxNumberFullEvents << "\t\t\tMax number of events (picked at random) to save full executions records for." << std::endl;
           std::cout << "--defaultLBLength " << _defaultLBLength << "\t\t\t\tDefault lumi block length in seconds. Used as an approximate fallback for inputs without LB length data." << std::endl;
           std::cout << "--patternsMonitor patt1 patt2 ...\t\tPatterns to match in names when running. Regex currently NOT supported. Partial matched allowed. Only entries which match will be analysed." << std::endl;
           std::cout << "--patternsOutput patt1 patt2 ...\t\tPatterns to match in names when saving results. Regex currently NOT supported. Partial matched allowed. Only entries which match will be included in the output." << std::endl;
           std::cout << "--debug\t\t\t\t\t\tEnable debug output." << std::endl;
           std::cout << "\t~~~~~~~~~~~~~~~ TRIGGER RATES CONFIGURATION ~~~~~~~~~~~~~~~" << std::endl;
-          std::cout << "--menuXML \"" << _menuXML << "\"\t\t\t\t\tMenu XML file from which to read custom prescales for rates calculations (place in /data or current dir for Athena use)." << std::endl;
-          std::cout << "--prescaleXML1 \"" << _prescaleXML1 << "\"\t\t\t\tPrescale XML file from which to read custom prescales for rates calculation (place in /data or current dir for Athena use)." << std::endl;      
-          std::cout << "--prescaleXML2 \"" << _prescaleXML2 << "\"\t\t\t\tSecond Prescale XML file. For if you have L1 and HLT values split over two files. (place in /data or current dir for Athena use)." << std::endl;                
+          std::cout << "--prescaleXML1 \"" << _prescaleXML1 << "\"\t\t\t\tPrescale/Menu XML file from which to read custom prescales for rates calculation (place in /data or current dir for Athena use)." << std::endl;      
+          std::cout << "--prescaleXML2 \"" << _prescaleXML2 << "\"\t\t\t\tSecond Prescale/Menu XML file. For if you have L1 and HLT values split over two files. (place in /data or current dir for Athena use)." << std::endl;                
+          std::cout << "--writeDummyPSXML\t\t\t\tGenerate a file Prescales.xml which contains all chains and can be editied to manually prescale the menu. Use the generated file with --prescaleXML1." << std::endl;                
           std::cout << "--useEBWeight\t\t\t\t\tApply precalculated weights to un-weight EnhancedBias data to MinimumBias data." << std::endl;
+          std::cout << "--predictionLumi\t\t\t\tThe instantaneous luminosity being predicted by this processing." << std::endl;
           std::cout << "--forceAllPass\t\t\t\t\tForce all L1 and HLT chains to pass-raw in every event. Use to isolate the effect of prescales." << std::endl;
           std::cout << "--doUniqueRates\t\t\t\t\tCalculate unique rates for chains. Warning, this is slow." << std::endl;
-          std::cout << "--doGroupOverlap\t\t\t\t\tCalculate overlaps between all chains within each rate group." << std::endl;
+          std::cout << "--doGroupOverlap\t\t\t\tCalculate overlaps between all chains within each rate group." << std::endl;
           std::cout << "--doAllOverlap\t\t\t\t\tCalculate overlaps between all chains. Warning, this is slow." << std::endl;
           std::cout << "--ratesOverlapWarning "<<_ratesOverlapWarning<<"%\t\t\tValue in percent (0-100) above which to warn about chain overlaps within rates groups." << std::endl;
           std::cout << "--rateFallbackPrescaleL1 " << _rateFallbackPrescaleL1 << "\t\t\tIf prescales are not supplied for some or any items, what value to apply to L1 items." << std::endl;
@@ -426,10 +436,20 @@ namespace TrigCostRootAnalysis {
         _ss << optarg;
         _ss >> _nLbFullSummary;
         break;
+      case 'k':
+        // Number of lumi blocks to skip per full summary
+        _ss << optarg;
+        _ss >> _nLbFullSkip;
+        break;
       case 'd':
         // Default lumiblock length
         _ss << optarg;
         _ss >> _defaultLBLength;
+        break;
+      case 'D':
+        // inst L for prediction
+        _ss << optarg;
+        _ss >> _predictionLumi;
         break;
       case 'N':
         // User supplied run number
@@ -448,10 +468,6 @@ namespace TrigCostRootAnalysis {
       case 'T':
         // Different tag name
         _outTag = std::string( optarg );
-        break;
-      case 'm':
-        // Different menu XML
-        _menuXML = std::string( optarg );
         break;
       case 'M':
         // Different prescale menu XML
@@ -578,6 +594,7 @@ namespace TrigCostRootAnalysis {
     set(kLumiStart, _lbBegin, "LumiBlockStart");
     set(kLumiEnd, _lbEnd, "LumiBlockEnd");
     set(kNLbFullSummary, _nLbFullSummary, "NLBFullSummary");
+    set(kNLbFullSkip, _nLbFullSkip, "NLBFullSkip");
 
     // Number of events to save full information for
     set(kFullEventMaxNumToSave, _maxNumberFullEvents, "MaxNumberFullEvents"); 
@@ -626,7 +643,7 @@ namespace TrigCostRootAnalysis {
     set(kDoAlgorithmMonitor,         _monitorAlgs, "AlgorithmMonitor");
     set(kDoROSMonitor,               _monitorROS, "ROSMonitor");
     set(kDoROIMonitor,               _monitorROI, "ROIMonitor");
-    set(kDoL1ChainMapMonitor,        _monitorL1, "L1ChainMapMonitor");
+    // set(kDoL1ChainMapMonitor,        _monitorL1, "L1ChainMapMonitor"); // obsolete
     set(kDoFullEventMonitor,         _monitorFullEvent, "FullEventMonitor");
     set(kDoGlobalsMonitor,           _monitorGlobals, "GlobalsMonitor");
     set(kDoRatesMonitor,             _monitorRates, "RatesMonitor");
@@ -648,7 +665,8 @@ namespace TrigCostRootAnalysis {
       _doOutputXML = 1;
     }
 
-    //Note - outputRootDir is not saved on its own, it is combined here
+    set(kOutputRootDirectory, _outRootDirectory, "OutputRootFileSystemDirectory");
+    // Combine the root output directory with the programs directory name here
     _outDirectory = _outRootDirectory + "/" + _outDirectory;
 
     // See if we have been requested to get the AtlasVersion from Athena and use it in the tag
@@ -683,9 +701,9 @@ namespace TrigCostRootAnalysis {
     set(kOutputRatesWarnings, _outRatesWarningsFilename, "OutputRatesWarningsFilename");
     set(kOutputRootFilename, _outRootFilename, "OutputROOTFileName");
     set(kLinkOutputDir, _linkOutputDirectory, "LinkOutputDirectory");
-    set(kLinkOutputDirName, "costMon");
+    set(kWriteDummyPSXML, _writeDummyPSXML, "WriteDummyPSXML");
     if (_userDetails != "") {
-      set(kUserDetails, _userDetails, "UserMetadata");
+      set(kUserDetails, _userDetails, "Details");
     }
     
     //////////////////////////
@@ -705,6 +723,7 @@ namespace TrigCostRootAnalysis {
     }
 
     setFloat(kBasicEventWeight, _basicWeight, "BasicEventWeight");
+    setFloat(kPredictionLumi, _predictionLumi, "PredictionLumi");
     set(kSlowEventThreshold, _slowThreshold, "SlowThreshold"); 
     set(kDoEBWeighting, _doEBWeighting, "DoEBWeighting");
     set(kWriteEBWeightXML, _writeEBWeightXML, "WriteEBWeightXML");
@@ -720,6 +739,7 @@ namespace TrigCostRootAnalysis {
     setFloat(kRateFallbackPrescaleL1, _rateFallbackPrescaleL1, "RatesFallbackPrescaleL1");
     setFloat(kRateFallbackPrescaleHLT, _rateFallbackPrescaleHLT, "RatesFallbackPrescaleHLT");
     set(kRatesScaleByPS, _ratesScaleByPS, "RatesScaleByPS");
+    set(kExtrapolate8To13, _extraplolate8To13, "Extrapolate8To13TeV");
     if (isZero(_rateFallbackPrescaleL1 - 1.) == kFALSE) {
       Warning("Config::parseCLI", "PLEASE NOTE: Setting fall-back prescale value for L1 items to %f.",_rateFallbackPrescaleL1);
     }
@@ -729,17 +749,9 @@ namespace TrigCostRootAnalysis {
     set(kMaxMultiSeed, _maxMultiSeed, "MaxMultiSeed");
     if (_runNumber != 0) set(kRunNumber, _runNumber, "RunNumber");
 
-    // Check we only have one of these two
-    if (_menuXML != m_blankString && (_prescaleXML1 != m_blankString || _prescaleXML2 != m_blankString)) {
-      Error("Config::parseCLI", "Please supply only one of (prescaleXML [%s] / prescaleXML2 [%s]) OR menuXML [%s].",
-        _prescaleXML1.c_str(), _prescaleXML2.c_str(), _menuXML.c_str());
-      abort();
-    }
-
     // Load files to be accessed
     // File Names
     if (_ROSXML != m_blankString) set(kROSXMLName, _ROSXML, "ROSXML");
-    if (_menuXML != m_blankString) set(kMenuXMLName, _menuXML, "MenuXML");
     if (_prescaleXML1 != m_blankString) set(kPrescaleXMLName1, _prescaleXML1, "PrescaleXML1");
     if (_prescaleXML2 != m_blankString) set(kPrescaleXMLName2, _prescaleXML2, "PrescaleXML2");
 
@@ -767,37 +779,29 @@ namespace TrigCostRootAnalysis {
     //Check if we're in ROOT CORE
     const Char_t* _env = std::getenv("ROOTCOREBIN");
     if (_env != NULL) {
-      set(kDataDir, std::string(_env) + std::string("/data/TrigCostRootAnalysis/") );
+      set(kIsRootCore, 1, "IsRootCore");
+      set(kDataDir, std::string(_env) + std::string("/data/TrigCostRootAnalysis/"), "DataDir" );
       if (getIsSet(kROSXMLName)) set(kROSXMLPath, getStr(kDataDir) + getStr(kROSXMLName));
-      if (getIsSet(kMenuXMLName)) set(kMenuXMLPath, getStr(kDataDir) + getStr(kMenuXMLName));
       if (getIsSet(kPrescaleXMLName1)) set(kPrescaleXMLPath1, getStr(kDataDir) + getStr(kPrescaleXMLName1));     
       if (getIsSet(kPrescaleXMLName2)) set(kPrescaleXMLPath2, getStr(kDataDir) + getStr(kPrescaleXMLName2));   
     } else {
 // CAUTION - "ATHENA ONLY" CODE
 #ifndef ROOTCORE
+      set(kIsRootCore, 0, "IsRootCore");
       if (getIsSet(kROSXMLName)) {
         std::string _locAthena = PathResolverFindDataFile( getStr(kROSXMLName) );
         if (_locAthena == m_blankString) Error("Config::parseCLI","Athena cannot find ROS mapping file %s", getStr(kROSXMLName).c_str());
         else {
-          set(kROSXMLPath, _locAthena);
+          set(kROSXMLPath, _locAthena, "ROSXMLPath");
           Info("Config::parseCLI","Athena has found the file: %s", getStr(kROSXMLPath).c_str());
         }
-      }
-      //
-      if (getIsSet(kMenuXMLName)) {
-        std::string _locAthena  = PathResolverFindDataFile( getStr(kMenuXMLName) );
-        if (_locAthena == m_blankString) Error("Config::parseCLI","Athena cannot find menu XML file %s", getStr(kMenuXMLName).c_str());
-        else {
-          set(kMenuXMLPath, _locAthena);
-          Info("Config::parseCLI","Athena has found the file: %s", getStr(kMenuXMLPath).c_str());
-        } 
       }
       //
       if (getIsSet(kPrescaleXMLName1)) {
         std::string _locAthena  = PathResolverFindDataFile( getStr(kPrescaleXMLName1) );
         if (_locAthena == m_blankString) Error("Config::parseCLI","Athena cannot find prescale XML file #1 %s", getStr(kPrescaleXMLName1).c_str());
         else {
-          set(kPrescaleXMLPath1, _locAthena);
+          set(kPrescaleXMLPath1, _locAthena, "PrescaleXMLPath1");
           Info("Config::parseCLI","Athena has found the file: %s", getStr(kPrescaleXMLPath1).c_str());
         }
       }
@@ -805,28 +809,34 @@ namespace TrigCostRootAnalysis {
         std::string _locAthena  = PathResolverFindDataFile( getStr(kPrescaleXMLName2) );
         if (_locAthena == m_blankString) Error("Config::parseCLI","Athena cannot find prescale XML file #2 %s", getStr(kPrescaleXMLName2).c_str());
         else {
-          set(kPrescaleXMLPath2, _locAthena);
+          set(kPrescaleXMLPath2, _locAthena, "PrescaleXMLPath2");
           Info("Config::parseCLI","Athena has found the file: %s", getStr(kPrescaleXMLPath2).c_str());
         }
       }
 #endif // not ROOTCORE
     }
     
-    // Internally used parameters - do not need to be included in dump (hence do not need to be named either)
+    // Internally used parameters - do not need to be included in dump 
     set(kSloppyExit, 1, "SloppyExit");
     set(kOutputSummaryDirectory, "summary");
     set(kErrorIgnore, (Int_t) gErrorIgnoreLevel, "ErrorIgnoreLevel"); //Cache this internal ROOT variable
     set(kDirectlyApplyPrescales, 1, "DirectlyApplyPrescales");
     set(kNBunchGroups, 16, "NumberOfBunchGroups");
+    set(kLinkOutputDirName, "costMon", "OutputDirLinkName");
 
     // Maximum number of certain messages to show
     set(kMsgDivZero, 5, "Division by zero");
     set(kMsgBadROB, 10, "Bad ROB Data");
-    set(kMsgRoISize, 5, "RoI Container Size Missmatch");
+    set(kMsgRoISize, 2, "RoI Container Size Missmatch");
     set(kMsgRoIHack, 5, "RoI Hack");
+    set(kMsgCannotFindRoI, 2, "Cannot Find RoI");
+    set(kMsgUnknownRoIType, 2, "Unknown RoI Type");
     set(kMsgHourBoundary, 10, "Hour boundary in ROS request association");
     set(kMsgSaveFullEvent, 5, "Saving full event");
     set(kMsgXMLWeight, 50, "Cannot find XML weight");    
+    set(kMsgXMLPrescale, 10, "Cannot find XML prescale");   
+    set(kMsgUnknownDecoration, 25, "Unknown decoration");
+    set(kMsgIllegalCharacters , 10, "Illegal character in output");
     set(kMsgZeroRate, 1, "Chain with positive prescale but zero rate");
 
     // Const strings literals to be referenced throughout
@@ -857,7 +867,7 @@ namespace TrigCostRootAnalysis {
     set(kROBINString, "ROBIN");
     set(kROSString, "ROS");
     set(kAlwaysPassString, "UNSEEDED");
-    set(kVersionString, _version);
+    set(kVersionString, _version, "Version");
 
     set(kVarTime, "Time");
     set(kVarFirstTime, "FirstTime");
@@ -874,13 +884,16 @@ namespace TrigCostRootAnalysis {
     set(kVarROBRetSize, "ROBRetrievalSize");
     set(kVarROBOther, "ROBOther");
     set(kVarCalls, "Calls");
+    set(kVarCallsRaw, "CallsRaw");
     set(kVarCallsSlow, "CallsSlow");
+    set(kVarEventsActive, "EventsActive");
     set(kVarEventsPassed, "EventsPassed");
     set(kVarEventsPassedDP, "EventsPassedDirectPrescale");
     set(kVarEventsPassedNoPS, "EventsPassedNoPS");
     set(kVarEventsPassthrough, "EventsPassthrough");
     set(kVarEventsPassRawStat, "EventsPassedRawStatistics");
     set(kVarEventsRunRawStat, "EventsRunRawStatistics");
+    set(kVarEventsRun, "EventsRun");
     set(kVarEventsSlow, "EventsSlow");
     set(kVarTotalPrescale, "TotalPrescale");
     set(kVarL1PassEvents, "L1PassEvents");
@@ -949,6 +962,23 @@ namespace TrigCostRootAnalysis {
       }
     }
     
+  }
+
+  void Config::dumpToMeta(std::ofstream& _fout, JsonExport& _json) {
+    std::map<ConfKey_t, Int_t>::iterator _itInt;
+    std::map<ConfKey_t, Float_t>::iterator _itFloat;
+    std::map<ConfKey_t, std::string>::iterator _itStr;
+    for (_itInt = m_settingsInt.begin(); _itInt != m_settingsInt.end(); ++_itInt) {
+      const std::string _name = m_settingsName[_itInt->first];
+      _json.addLeafCustom(_fout, _name, intToString(_itInt->second));
+    }
+    for (_itFloat = m_settingsFloat.begin(); _itFloat != m_settingsFloat.end(); ++_itFloat) {
+      _json.addLeafCustom(_fout, m_settingsName[_itFloat->first], floatToString(_itFloat->second));
+    }
+    for (_itStr = m_settingsStr.begin(); _itStr != m_settingsStr.end(); ++_itStr) {
+      if (m_settingsName[_itStr->first] == _itStr->second) continue;
+      _json.addLeafCustom(_fout, m_settingsName[_itStr->first], _itStr->second);
+    }
   }
 
   void Config::messageSuppressionReport() {
@@ -1286,7 +1316,9 @@ namespace TrigCostRootAnalysis {
   Bool_t Config::getIsLocked( ConfKey_t _key, Bool_t _printErrorMsg ) {
     if ( m_settingsLock.count( _key ) == 1 ) {
       if ( m_settingsLock[_key] == kLocked ) {
-        if (_printErrorMsg == kTRUE) Error("Config::getIsLocked", "The configuration key %i is LOCKED and cannot be modified.", _key );
+        std::string _name;
+        if (m_settingsName.count(_key) == 1) _name = m_settingsName[_key];
+        if (_printErrorMsg == kTRUE) Error("Config::getIsLocked", "The configuration key %i (name, if any:%s) is LOCKED and cannot be modified.", _key, _name.c_str());
         return kTRUE;
       }
     }

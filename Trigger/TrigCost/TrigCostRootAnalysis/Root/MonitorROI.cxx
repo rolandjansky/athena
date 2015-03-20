@@ -64,9 +64,24 @@ namespace TrigCostRootAnalysis {
 
       }
 
-      endEvent();
+      endEvent(_weight);
 
     }
+  }
+
+  /**
+   * Do we use this monitor for this particular mode? Try and keep things managable in terms of output created!
+   * Note these are currently hard-coded. We may want to make them configurable
+   * @return If this monitor should be active for a given mode.
+   */
+  Bool_t MonitorROI::getIfActive(ConfKey_t _mode) {
+    switch(_mode) {
+      case kDoAllSummary:       return kTRUE;
+      case kDoKeySummary:       return kTRUE;
+      case kDoLumiBlockSummary: return kTRUE;
+      default: Error("MonitorROI::getIfActive", "An invalid summary mode was provided (key %s)", Config::config().getName(_mode).c_str() );
+    }
+    return kFALSE;
   }
   
   /**
@@ -87,11 +102,11 @@ namespace TrigCostRootAnalysis {
 
     _toSaveTable.push_back( TableColumnFormatter("ROIs/Event", 
       "Average number of ROIs of this type per event.", 
-      kVarCalls, kSavePerEvent, 4, kFormatOptionNormaliseEntries ) );
+      kVarCalls, kSavePerEvent, kVarEventsActive, kSavePerEvent, 2) );
 
     _toSaveTable.push_back( TableColumnFormatter("L1Thresholds/ROI", 
       "Average number of L1 Thresholds per ROI of this type.",
-       kVarL1Thresh, kSavePerCall, 2, kFormatOptionNormaliseEntries ) );  
+       kVarL1Thresh, kSavePerCall, kVarCalls, kSavePerEvent, 2) );  
 
     sharedTableOutputRoutine( _toSaveTable );
   }

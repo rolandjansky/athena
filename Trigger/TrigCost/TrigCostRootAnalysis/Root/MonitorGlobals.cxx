@@ -59,9 +59,24 @@ namespace TrigCostRootAnalysis {
       }
       _counter->processEventCounter( 0, 0, _weight );
 
-      endEvent();
+      endEvent(_weight);
 
     }
+  }
+
+  /**
+   * Do we use this monitor for this particular mode? Try and keep things managable in terms of output created!
+   * Note these are currently hard-coded. We may want to make them configurable
+   * @return If this monitor should be active for a given mode.
+   */
+  Bool_t MonitorGlobals::getIfActive(ConfKey_t _mode) {
+    switch(_mode) {
+      case kDoAllSummary:       return kTRUE;
+      case kDoKeySummary:       return kTRUE;
+      case kDoLumiBlockSummary: return kTRUE;
+      default: Error("MonitorGlobals::getIfActive", "An invalid summary mode was provided (key %s)", Config::config().getName(_mode).c_str() );
+    }
+    return kFALSE;
   }
   
   /**
@@ -103,27 +118,27 @@ namespace TrigCostRootAnalysis {
 
     _toSave.push_back( TableColumnFormatter("Steering Time/Event [ms]", 
       "Average time difference between the start of the first and the end of the last algorithm execution per event.",
-      kVarSteeringTime, kSavePerEvent, 2, kFormatOptionNormaliseEntries) );
+      kVarSteeringTime, kSavePerEvent, kVarEventsActive, kSavePerCall, 2) );
 
     _toSave.push_back( TableColumnFormatter("Alg Walltime Time/Event [ms]", 
       "Average per event of the sum over all algorithms walltimes.",
-      kVarAlgTime, kSavePerEvent, 2, kFormatOptionNormaliseEntries) );
+      kVarAlgTime, kSavePerEvent, kVarEventsActive, kSavePerCall, 2) );
 
     _toSave.push_back( TableColumnFormatter("Alg Walltime Time/Call [ms]", 
       "Average per algorithm call of the sum over all algorithms walltimes.",
-      kVarAlgTime, kSavePerCall, 2, kFormatOptionNormaliseEntries) );
+      kVarAlgTime, kSavePerCall, kVarAlgCalls, kSavePerEvent, 2) );
 
     _toSave.push_back( TableColumnFormatter("ROS Walltime Time/Event [ms]", 
       "Average per event of the sum over all algorithms ROS request times.",
-      kVarROSTime, kSavePerEvent, 2, kFormatOptionNormaliseEntries) );
+      kVarROSTime, kSavePerEvent, kVarEventsActive, kSavePerCall, 2) );
 
     _toSave.push_back( TableColumnFormatter("Data Requests/Event", 
       "Average per event number of calls made to the Readout System by executed algorithms.",
-      kVarROSCalls, kSavePerEvent, 2, kFormatOptionNormaliseEntries) );
+      kVarROSCalls, kSavePerEvent, kVarEventsActive, kSavePerCall, 2) );
 
     _toSave.push_back( TableColumnFormatter("RoIs/Events", 
       "Average per event number of Regions of Interest supplied from the lower trigger level.",
-      kVarROI, kSavePerEvent, 2, kFormatOptionNormaliseEntries) );
+      kVarROI, kSavePerEvent, kVarEventsActive, kSavePerCall, 2) );
 
     _toSave.push_back( TableColumnFormatter("Farm Usage from Steering (%)", 
       "Approximated by Total HLT Steering Time / Lumi Block Length * N HLT PUs)",

@@ -40,11 +40,17 @@ namespace TrigCostRootAnalysis {
     void    print();
     
    private:
+
+    void tryXMLLoad();
    
-    std::map< Int_t, Float_t > m_lumiLength; //!< Map lumi block number to length in seconds.
-    Float_t m_totalLumiLength; //!< Total length (in s) of all lumi blocks encountered during processing
-    Bool_t m_useDefault; //!< Flag  to store default length value if this service is not in use.
-    DataStore m_dataStore; //!< Data store to make lumi histogram(s)
+    IntFloatMap_t m_lumiLength; //!< Map lumi block number to length in seconds.
+    IntIntMap_t   m_eventsProcessedPerLB; //!< Map of how many events have been run over per LB
+    IntIntMap_t   m_totalEventsPerLB; //!< Map of how many events there were online per LB (from COOL, stored in XML)
+    Float_t       m_totalLumiLength; //!< Total length (in s) of all lumi blocks encountered during processing
+    Bool_t        m_useDefault; //!< Flag  to store default length value if this service is not in use.
+    DataStore     m_dataStore; //!< Data store to make lumi histogram(s)
+
+    Bool_t        m_triedXMLLoad; //!< Tried to load number of events per LB from XML
 
   }; //class LumiCollector
   

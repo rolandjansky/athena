@@ -69,9 +69,9 @@ namespace TrigCostRootAnalysis {
       setValue(kVarEventsPassed,    kSavePerCall, _globPasses       - _chainPasses       );
       setValue(kVarEventsPassedDP,  kSavePerCall, _globPassesDP     - _chainPassesDP     );
       setValue(kVarEventsPassedNoPS,kSavePerCall, _globPassesNoPS   - _chainPassesNoPS   );
-      setError(kVarEventsPassed,    kSavePerCall, _globPassesErr    - _chainPassesErr    ); // Note - directly changing m_sumw2
-      setError(kVarEventsPassedDP,  kSavePerCall, _globPassesDPErr  - _chainPassesDPErr  ); // Note - directly changing m_sumw2
-      setError(kVarEventsPassedNoPS,kSavePerCall, _globPassesNoPSErr- _chainPassesNoPSErr); // Note - directly changing m_sumw2
+      setErrorSquared(kVarEventsPassed,    kSavePerCall, _globPassesErr    - _chainPassesErr    ); // Note - directly changing m_sumw2
+      setErrorSquared(kVarEventsPassedDP,  kSavePerCall, _globPassesDPErr  - _chainPassesDPErr  ); // Note - directly changing m_sumw2
+      setErrorSquared(kVarEventsPassedNoPS,kSavePerCall, _globPassesNoPSErr- _chainPassesNoPSErr); // Note - directly changing m_sumw2
 
     }
 

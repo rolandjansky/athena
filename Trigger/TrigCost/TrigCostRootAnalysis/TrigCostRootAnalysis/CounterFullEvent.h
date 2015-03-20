@@ -39,11 +39,13 @@ namespace TrigCostRootAnalysis {
     ~CounterFullEvent();
     void startEvent();
     void processEventCounter(UInt_t _e, UInt_t _f, Float_t _weight = 1.);
-    void endEvent();
+    void endEvent(Float_t _weight = 1.);
     void debug(UInt_t _e);
     const std::vector< CounterAlgorithm* >& getEventCounterAlgorithms() { return m_algCounters; }
 
    private:
+
+    Double_t getPrescaleFactor(UInt_t _e = INT_MAX);
    
     Bool_t m_isRun; //!< Each of these counters is only designed to be run on a single event.
 

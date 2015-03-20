@@ -14,6 +14,7 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <iosfwd>
 
 // ROOT include(s):
 #include <Rtypes.h>
@@ -75,7 +76,8 @@ namespace TrigCostRootAnalysis {
     void               increment( ConfKey_t _key );
     void               decrement( ConfKey_t _key );
     void               dump();
-    
+    void               dumpToMeta(std::ofstream& _fout, JsonExport& _json);
+
    private:
    
     Bool_t getIsLocked( ConfKey_t _key, Bool_t _printErrorMsg = kFALSE );

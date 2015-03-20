@@ -25,6 +25,8 @@
 #include "../TrigCostRootAnalysis/TrigCostData.h"
 #include "../TrigCostRootAnalysis/Config.h"
 #include "../TrigCostRootAnalysis/Utility.h"
+#include "../TrigCostRootAnalysis/TrigConfInterface.h"
+#include "../TrigCostRootAnalysis/TrigXMLService.h"
 
 namespace TrigCostRootAnalysis {
 
@@ -46,6 +48,10 @@ namespace TrigCostRootAnalysis {
       // Used for full-detailed event summary
       m_dataStore.setHistogramming(kFALSE);
     }
+
+    m_dataStore.newVariable(kVarCalls).setSavePerEvent();
+    m_dataStore.newVariable(kVarCallsSlow).setSavePerEvent();
+    m_dataStore.newVariable(kVarEventsActive).setSavePerEvent();
     
     // Time variables
     m_dataStore.newVariable(kVarTime)
@@ -88,8 +94,7 @@ namespace TrigCostRootAnalysis {
 
     m_dataStore.newVariable(kVarROBOther).setSavePerEvent();
 
-    m_dataStore.newVariable(kVarCallsSlow).setSavePerEvent();
-    m_dataStore.newVariable(kVarCalls).setSavePerEvent();
+
   }
   
   /**
@@ -114,6 +119,16 @@ namespace TrigCostRootAnalysis {
    */
   void CounterAlgorithm::processEventCounter(UInt_t _e, UInt_t _f, Float_t _weight) {
     ++m_calls;
+
+    _weight *= getPrescaleFactor(_e);
+
+    // Special case. If we are running as part of the FullEvent monitor, we should keep weight=1 to make the output readable
+    if (m_detailLevel == 0 && m_calls == 1) _weight = 1.;
+
+    if (isZero(_weight) == kTRUE) {
+      return;
+    }
+
     if ( Config::config().debug() ) debug(_e, _f);
     
     m_dataStore.store(kVarCalls, 1., _weight);
@@ -138,7 +153,7 @@ namespace TrigCostRootAnalysis {
       m_dataStore.store(kVarCallsSlow, 1., _weight);
     }
 
-    // We record separatly the the time of the first call in the event
+    // We record separately the the time of the first call in the event
     if ( m_costData->getSeqAlgTimeStart(_e, _f) < m_firstAlgStartTime ) {
       m_firstAlgStartTime = m_costData->getSeqAlgTimeStart(_e, _f);
       m_firstAlgTime = m_costData->getSeqAlgTimer(_e, _f);
@@ -151,17 +166,29 @@ namespace TrigCostRootAnalysis {
       m_dataStore.store(kVarROSTime, m_costData->getSeqAlgROSTime(_e, _f), _weight);
       m_dataStore.store(kVarCPUTime, m_costData->getSeqAlgTimer(_e, _f) - _ROSTime, _weight);
     }
-    // Gather time statistics for this aglorithm call
+    // Gather time statistics for this algorithm call
     s_eventTimeExecute += m_costData->getSeqAlgTimer(_e, _f) * _weight;
 
     // If calling this counter exactly once on a alg single execution - save some extra levels details.
-    // This allows for a fullscale debug of a single event execution.
+    // This allows for a full-scale debug of a single event execution.
     if (m_detailLevel == 0 && m_calls == 1) fullExecutionInformation(_e, _f, _weight);
   }
 
   /**
+   * When running with prescales applied. This function returns how the counter should be scaled for the current call.
+   * For an algorithm, we need to figure out the chain which the alg belongs to and then check it's enabled and then
+   * scale by its L1 prescale
+   * @return Multiplicative weighting factor
+   */
+  Double_t CounterAlgorithm::getPrescaleFactor(UInt_t _e) {
+    return TrigXMLService::trigXMLService().getHLTCostWeightingFactor( 
+      TrigConfInterface::getHLTNameFromChainID( m_costData->getSequenceChannelCounter(_e), 
+      m_costData->getSequenceLevel(_e) ) );
+  }
+
+  /**
    * If this counter is being used by the FullEvent Monitor and hence being called exactly once for a single algorithm execution.
-   * Then we save additonal data and add it as decorations to this counter, these will be retireved by the table plotting code
+   * Then we save additional data and add it as decorations to this counter, these will be retrieved by the table plotting code
    * @param _e Sequence index in D3PD.
    * @param _f Location of algorithm within parent sequence.
    * @param _weight Event weight.
@@ -218,7 +245,8 @@ namespace TrigCostRootAnalysis {
    * Perform end-of-event monitoring for this algorithm.
    * What was determined to be the first execution's time is saved, the total time for the event is used to calculate per-event averages.
    */
-  void CounterAlgorithm::endEvent() {
+  void CounterAlgorithm::endEvent(Float_t _weight) {
+    m_dataStore.store(kVarEventsActive, 1., _weight);
     m_dataStore.store(kVarFirstTime, m_firstAlgTime, m_firstAlgTimeWeight);
     m_firstAlgStartTime = FLT_MAX; // Reset first-exec time
     m_firstAlgTime = 0.;
@@ -236,7 +264,7 @@ namespace TrigCostRootAnalysis {
          "isCalled:%i NRoI:%i Timer:%.2f",
          m_name.c_str(),
          getStrDecoration(kDecAlgClassName).c_str(),
-         m_ID,
+         getID(),
          m_costData->getSeqAlgPosition(_e, _a),
          m_costData->getSeqAlgIsCached(_e, _a),
          m_costData->getSeqAlgIsCalled(_e, _a),

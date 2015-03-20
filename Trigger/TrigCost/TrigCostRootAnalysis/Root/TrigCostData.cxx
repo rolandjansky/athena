@@ -1046,5 +1046,19 @@ namespace TrigCostRootAnalysis {
   Bool_t TrigCostData::getIsTETopologicalTe(UInt_t _n) const {
     return (Bool_t) m_trigCostObject->te_isTopologicalTe()->at(_n);
   }
+
+  /**
+   * Pointer to the process event object, for debug mostly
+   */
+  ProcessEvent* TrigCostData::getParent() const { 
+    return m_parent;
+  }
+  
+  /**
+   * Pointer to the process event object, for debug mostly
+   */
+  void TrigCostData::setParent(ProcessEvent* _parent) const { 
+    m_parent = _parent;
+  }
   
 } // namespace TrigCostRootAnalysis

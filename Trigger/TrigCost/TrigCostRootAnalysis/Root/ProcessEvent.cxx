@@ -13,6 +13,7 @@
 #include <map>
 #include <utility> //std::pair
 #include <assert.h>
+#include <time.h>
 
 //Local include(s):
 #include "../TrigCostRootAnalysis/ProcessEvent.h"
@@ -30,6 +31,8 @@
 #include "../TrigCostRootAnalysis/MonitorRates.h"
 #include "../TrigCostRootAnalysis/TrigCostData.h"
 #include "../TrigCostRootAnalysis/Config.h"
+#include "../TrigCostRootAnalysis/EnergyExtrapolation.h"
+#include "../TrigCostRootAnalysis/TrigXMLService.h"
 
 namespace TrigCostRootAnalysis {
 
@@ -65,10 +68,6 @@ namespace TrigCostRootAnalysis {
     // If setting all, then recurs this function
     if (_type == kDoAllMonitor) {
       for (UInt_t _t = kMonitorBegin+1; _t < kDoAllMonitor; ++_t) { // Avoid hitting kAllMonitors again
-        // Special case, don't enable L1 chain mapping for EF
-        if ((ConfKey_t) _t == kDoL1ChainMapMonitor && getLevel() == 3) {
-          continue;
-        }
         setMonitoringMode((ConfKey_t) _t, _isActive);
       }
       return;
@@ -87,11 +86,6 @@ namespace TrigCostRootAnalysis {
       }
     } else {
       // If enabling, check if present and add if not
-      // Special case, cannot do L1ChainMap for EF processor
-      if ( _type == kDoL1ChainMapMonitor && getLevel() == 3) {
-        Error("ProcessEvent::setMonitoringMode", "Unable to use the L1 Chain Map Monitor in the EF, use this option only for L2 or HLT");
-        return;
-      }
       if ( _type == kDoRatesMonitor 
            && (    getLevelStr() == Config::config().getStr(kL2String)
                 || getLevelStr() == Config::config().getStr(kEFString)) ) {
@@ -120,9 +114,9 @@ namespace TrigCostRootAnalysis {
         case kDoROSMonitor:
           _costMonitor = new MonitorROS( m_costData );
           break;
-        case kDoL1ChainMapMonitor:
-          _costMonitor = new MonitorL1ChainMap( m_costData );
-          break;
+        // case kDoL1ChainMapMonitor:
+        //   _costMonitor = new MonitorL1ChainMap( m_costData );
+        //   break;
         case kDoFullEventMonitor:
           _costMonitor = new MonitorFullEvent( m_costData );
           break;
@@ -139,7 +133,7 @@ namespace TrigCostRootAnalysis {
           Error("ProcessEvent::setMonitoringMode", "Unknown or unimplemented Monitor Type with enum:%i", _type );
           return;
         }
-        Info("ProcessEvent::setMonitoringMode", "Enabling monitoring Level:%i Mode:%s", getLevel(), Config::config().getName(_type).c_str());
+        Info("ProcessEvent::setMonitoringMode", "Enabling monitoring Level:%s Mode:%s", getLevelStr().c_str(), Config::config().getName(_type).c_str());
         _costMonitor->setLevel( getLevel() );
         m_monitorCollections.insert( monitorPair_t(_type, _costMonitor) );
       }
@@ -149,14 +143,26 @@ namespace TrigCostRootAnalysis {
   /**
    * Call once per event, passing the cost data and the event weight. This information is fed down in turn to all
    * registered and active monitors such that they may tabulate the event details.
+   * We also apply here and enhanced bias or energy extrapolation weights which affect the whole event
    * @param _costData Const reference to cost data object.
    * @param _weight Event weight.
    */
   void ProcessEvent::newEvent(Float_t _weight) {
     // For each active monitoring type, process event
     if ( isZero(_weight) == kTRUE) return;
+
+    //Check for weights from energy extrapolation
+    _weight *= EnergyExtrapolation::energyExtrapolation().getEventWeight( m_costData );
+
+    //Check for enhanced bias weights
+    _weight *= TrigXMLService::trigXMLService().getEventWeight( m_costData->getEventNumber() );
+
     for (monitorIt_t _it = m_monitorCollections.begin(); _it != m_monitorCollections.end(); ++_it) {
+      Float_t _tStart = clock();
       _it->second->newEvent( _weight );
+      Float_t _tRun = ((Float_t)clock()-_tStart)/(Float_t)CLOCKS_PER_SEC*1000.;
+      //Info("RUN","%f", _tRun);
+      _it->second->setEventProcessTime( _tRun );
     }
   }
   
@@ -201,9 +207,10 @@ namespace TrigCostRootAnalysis {
           _it->second->getName().c_str());
         continue;
       }
-      Info("ProcessEvent::saveOutput", "Doing end-of-run output for %s %s monitor. Counters:%i",
+      Info("ProcessEvent::saveOutput", "%s %s monitor took on average %.2f ms per event to process %i counters. Writing out counters...",
         getLevelStr().c_str(),  
         _it->second->getName().c_str(),
+        _it->second->getAverageProcessingTime(),
         _nCounters );
       _it->second->saveOutput();
     }

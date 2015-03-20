@@ -86,11 +86,24 @@ namespace TrigCostRootAnalysis {
         }
       }
       
-      endEvent();
+      endEvent(_weight);
     }
   }
   
-
+  /**
+   * Do we use this monitor for this particular mode? Try and keep things managable in terms of output created!
+   * Note these are currently hard-coded. We may want to make them configurable
+   * @return If this monitor should be active for a given mode.
+   */
+  Bool_t MonitorROS::getIfActive(ConfKey_t _mode) {
+    switch(_mode) {
+      case kDoAllSummary:       return kTRUE;
+      case kDoKeySummary:       return kTRUE;
+      case kDoLumiBlockSummary: return kTRUE;
+      default: Error("MonitorROS::getIfActive", "An invalid summary mode was provided (key %s)", Config::config().getName(_mode).c_str() );
+    }
+    return kFALSE;
+  }
     
   /**
    * Save the results from this monitors counters as specified in the configuration.
@@ -102,59 +115,63 @@ namespace TrigCostRootAnalysis {
     VariableOptionVector_t _toSave = m_dummyCounter->getAllHistograms();
 
     std::vector<TableColumnFormatter> _toSaveTable;
-    _toSaveTable.push_back( TableColumnFormatter("Active Events", 
-      "Number of events in which this ROS was queried",
+    _toSaveTable.push_back( TableColumnFormatter("Raw Active Events", 
+      "Raw underlying statistics on the number of events in which this ROS/ROBIN was accessed.",
       kVarCalls, kSavePerEvent, 0, kFormatOptionUseEntries ) );
 
-    _toSaveTable.push_back( TableColumnFormatter("Data Requests",
+    _toSaveTable.push_back( MonitorBase::TableColumnFormatter("Active Events", 
+      "How many events in which this sequence was executed.",
+      kVarEventsActive, kSavePerEvent, 0) );
+
+    _toSaveTable.push_back( TableColumnFormatter("Data Requests/Event",
       "Total number of ROS access requests each may contain many ROB reads.",
-      kVarCalls, kSavePerCall, 0 ) ); //Could also have used savePerEvent
+      kVarCalls, kSavePerEvent, kVarEventsActive, kSavePerEvent, 2 ) ); 
 
-    _toSaveTable.push_back( TableColumnFormatter("Retrieved ROBs", 
+    _toSaveTable.push_back( TableColumnFormatter("Retrieved ROBs/Event", 
       "Total number of fetched ROB calls.",
-      kVarROBRets, kSavePerCall, 0 ) );
+      kVarROBRets, kSavePerEvent, kVarEventsActive, kSavePerEvent, 2 ) );
 
-    _toSaveTable.push_back( TableColumnFormatter("Cached ROBs",
+    _toSaveTable.push_back( TableColumnFormatter("Cached ROBs/Event",
       "Total number of cached ROB calls.",
-      kVarROBReqs, kSavePerCall, 0 ) );
+      kVarROBReqs, kSavePerEvent, kVarEventsActive, kSavePerEvent, 2 ) );
 
-    _toSaveTable.push_back( TableColumnFormatter("Unclassified ROBs", 
+    _toSaveTable.push_back( TableColumnFormatter("Unclassified ROBs/Event", 
       "ROB calls which were marked Unclassified Ignored or Disabled.",
-      kVarROBOther, kSavePerEvent, 0 ) );
+      kVarROBOther, kSavePerEvent, kVarEventsActive, kSavePerEvent, 2 ) );
 
     _toSaveTable.push_back( TableColumnFormatter("Retrieved ROB Rate [Hz]", 
       "Rate of ROB retrievals within the monitored range.",
-      kVarROBRets, kSavePerCall, 4, kFormatOptionNormaliseWallTime ) );
+      kVarROBRets, kSavePerEvent, 2, kFormatOptionNormaliseWallTime ) );
 
     _toSaveTable.push_back( TableColumnFormatter("Cached ROB Rate [Hz]", 
       "Rate of cached ROB requests within the monitored range.",
-      kVarROBReqs, kSavePerCall, 4, kFormatOptionNormaliseWallTime ) );
+      kVarROBReqs, kSavePerEvent, 2, kFormatOptionNormaliseWallTime ) );
 
-    _toSaveTable.push_back( TableColumnFormatter("Retrieved ROB Data [kB]", 
-      "Amount of data fetched from the ROBs in kB.",
-      kVarROBRetSize, kSavePerCall, 4 ) );
+    _toSaveTable.push_back( TableColumnFormatter("Retrieved ROB Data Rate [kB/s]", 
+      "Amount of data fetched from the ROBs in kB/s.",
+      kVarROBRetSize, kSavePerEvent, 2, kFormatOptionNormaliseWallTime ) );
 
-    _toSaveTable.push_back( TableColumnFormatter("Cached ROB Data [kB]",
-      "Amount of cached data requested from the ROBs in kB.",
-      kVarROBReqSize, kSavePerCall, 4 ) );
+    _toSaveTable.push_back( TableColumnFormatter("Cached ROB Data Rate [kB/s]",
+      "Amount of cached data requested from the ROBs in kB/s.",
+      kVarROBReqSize, kSavePerEvent, 2, kFormatOptionNormaliseWallTime ) );
 
-    _toSaveTable.push_back( TableColumnFormatter("Time Per Cached ROB [ms]",
-      "Average time per cached ROS request.",
-      kVarTime, kSavePerCall, 4, kFormatOptionNormaliseEntries ) );
+    // Do these make sense?
+    // _toSaveTable.push_back( TableColumnFormatter("Time Per Cached ROB [ms]",
+    //   "Average time per cached ROS request.",
+    //   kVarTime, kSavePerCall, kVarROBReqs, kSavePerCall, 2) );
 
-    _toSaveTable.push_back( TableColumnFormatter("Time Per Retrieved ROB [ms]", 
-      "Average time per ROB retrieval.",
-      &tableFnRosGetTimePerRet, 4) );
+    // _toSaveTable.push_back( TableColumnFormatter("Time Per Retrieved ROB [ms]", 
+    //   "Average time per ROB retrieval.",
+    //   kVarTime, kSavePerCall, kVarROBRets, kSavePerCall, 2) );
 
     _toSaveTable.push_back( TableColumnFormatter("Time Per Event [ms]", 
       "Average time for all requests and retrievals per event.",
-      kVarTime, kSavePerEvent, 4, kFormatOptionNormaliseEntries ) );
+      kVarTime, kSavePerEvent, kVarEventsActive, kSavePerEvent, 2) );
 
-    _toSaveTable.push_back( TableColumnFormatter("ROBs/Data Rquest",
-      "Average number of ROBs fetched per ROS Request involving this ROBIN/ROS.",
-     // &tableFnRosGetRobsPerRet, 0 ) );
-      kVarROSCalls, kSavePerCall, 2, kFormatOptionNormaliseEntries) );
-
+    // This doesn't make sense in its current form
+    // _toSaveTable.push_back( TableColumnFormatter("ROBs/Data Rquest",
+    //   "Average number of ROBs fetched per ROS Request involving this ROBIN/ROS.",
+    //   kVarROSCalls, kSavePerCall, kVarCalls, kSavePerEvent, 2) );
 
     // Just do ROS first, add a requirement on "ROS" in the counter name
     Config::config().addVecEntry(kPatternsOutput, "ROS-");

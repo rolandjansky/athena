@@ -39,10 +39,13 @@ namespace TrigCostRootAnalysis {
   }
   
   /**
-   * Counter destructor. Nothing currently to delete.
+   * Counter destructor. Delete my vector of counters
    */
   CounterFullEvent::~CounterFullEvent() {
-    //TODO DELETE MY DATA!
+    for (std::vector<CounterAlgorithm*>::iterator _it = m_algCounters.begin(); _it != m_algCounters.end(); ++_it) {
+      delete (*_it);
+    }
+    m_algCounters.clear();
   }
   
   /**
@@ -131,14 +134,24 @@ namespace TrigCostRootAnalysis {
   /**
    * Perform end-of-event monitoring. Does nothing for FullEvent
    */
-  void CounterFullEvent::endEvent() {
+  void CounterFullEvent::endEvent(Float_t _weight) {
+    UNUSED(_weight);
+  }
+
+  /**
+   * When running with prescales applied. This function returns how the counter should be scaled for the current call.
+   * This is an odd case, the FullEvent counter actually runs Alg counters which can pick this up on their own
+   * Hence this function is not used here
+   * @return Multiplicative weighting factor
+   */
+  Double_t CounterFullEvent::getPrescaleFactor(UInt_t _e) {
+    UNUSED(_e);
+    return 0.;
   }
   
   /**
    * Output debug information on this call to the console
    */
-
-
   void CounterFullEvent::debug(UInt_t _e) {
     UNUSED( _e );
     // Loop over TEs
