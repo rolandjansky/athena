@@ -7,7 +7,6 @@ use AtlasPolicy			AtlasPolicy-*
 branches run
 
 use GaudiInterface              GaudiInterface-*     External
-use LumiBlockData               LumiBlockData-*      LumiBlock
 use AthenaPoolKernel            AthenaPoolKernel-*   Database/AthenaPOOL
 use AtlasROOT                   AtlasROOT-*          External
 use AthenaBaseComps             AthenaBaseComps-*       Control
@@ -16,6 +15,7 @@ use AtlasCORAL 			AtlasCORAL-* 	     External
 use StoreGate                   StoreGate-*             Control
 use LumiCalc			LumiCalc-*		LumiBlock
 use CoolLumiUtilities		CoolLumiUtilities-*	Database
+use xAODLuminosity		xAODLuminosity-*     Event/xAOD
 
 private
 use AtlasCOOL  			AtlasCOOL-*  	     External

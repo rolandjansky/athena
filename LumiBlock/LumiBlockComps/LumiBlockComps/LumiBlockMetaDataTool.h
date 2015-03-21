@@ -18,10 +18,12 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "AthenaPoolKernel/IMetaDataTool.h"
 #include "LumiBlockComps/ILumiBlockMetaDataTool.h"
-#include "LumiBlockData/LumiBlockCollection.h"
 #include "GaudiKernel/ITHistSvc.h" 
 #include "TTree.h"
 #include "TString.h"
+
+#include "xAODLuminosity/LumiBlockRangeContainer.h"
+#include "xAODLuminosity/LumiBlockRangeAuxContainer.h"
 
 #include <vector>
 #include <string>
@@ -29,7 +31,7 @@
 class StoreGateSvc;
 class ILumiCalcSvc;
 class IGoodRunsListSelectorTool;
-class LumiBlockCollectionConverter;
+//class LumiBlockCollectionConverter;
 class ITriggerRegistryTool;
 
 namespace Root {
@@ -60,30 +62,31 @@ public:
 private:
 
    /// Fill metaDataStore and ntuples
-   void finishUp();
-
-   /// Functions to filter out LBs with bad DQ flags. Passes new lbc that you own.
-   LumiBlockCollection* FilterOnDQFlags( const LumiBlockCollection& lbc,
-                                         const std::vector<std::string>& grlnameVec=std::vector<std::string>(),
-                                         const std::vector<std::string>& brlnameVec=std::vector<std::string>() ) ;
-   /// record lbc in metadatastore
-   StatusCode RecordInMetaDataStore( LumiBlockCollection* plbc, const TString& lbcname ) ;
-   /// loop over grlselector registrations, and add dq-approved lbc to grlcollection
-   StatusCode AddDQCollections( const LumiBlockCollection& lbc, const TString& lbcprefix, const TString& grlprefix="" ) ;
-   /// make copy of lb collection
-   LumiBlockCollection* GetCopyOfCollection( const LumiBlockCollection& lbc ); 
-
-   StatusCode fillFromXML( LumiBlockCollection* lbc_target, const std::string& xmlString );
+   StatusCode finishUp();
 
    typedef ServiceHandle<StoreGateSvc> StoreGateSvc_t;
    StoreGateSvc_t m_pMetaDataStore;
    StoreGateSvc_t m_pInputStore;
    StoreGateSvc_t m_tagDataStore;
-   LumiBlockCollection*  m_cacheLBColl;
-   LumiBlockCollection*  m_unfinishedLBColl;
-   LumiBlockCollection*  m_tempLBColl;
-   StringProperty  m_LBColl_name;
-   StringProperty  m_unfinishedLBColl_name;
+
+
+   // The m_cacheInputRangeContainer stores the LumiBlockRange info for files that are open
+   //   We need to keep suspect lumiblocks separated from complete and incomplete ones
+   //   since something that comes in as suspect always stays suspect
+   xAOD::LumiBlockRangeContainer* m_cacheInputRangeContainer;
+   xAOD::LumiBlockRangeAuxContainer* m_cacheInputRangeAuxContainer;
+   xAOD::LumiBlockRangeContainer* m_cacheSuspectInputRangeContainer;
+   xAOD::LumiBlockRangeAuxContainer* m_cacheSuspectInputRangeAuxContainer;
+
+   // The m_cacheOutputRangeContainer stores the LumiBlockRange info for files that have been read and closed
+   xAOD::LumiBlockRangeContainer* m_cacheOutputRangeContainer;
+   xAOD::LumiBlockRangeAuxContainer* m_cacheOutputRangeAuxContainer;
+   xAOD::LumiBlockRangeContainer* m_cacheSuspectOutputRangeContainer;
+   xAOD::LumiBlockRangeAuxContainer* m_cacheSuspectOutputRangeAuxContainer;
+
+   std::string  m_LBColl_name;
+   std::string  m_unfinishedLBColl_name;
+   std::string  m_suspectLBColl_name;
    std::string m_version;
    TString m_DQLBColl_name;
    TString m_unfinishedDQLBColl_name;
@@ -94,7 +97,7 @@ private:
    bool m_calcLumi;
    bool m_storexmlfiles;
    bool m_applydqcuts;
-   LumiBlockCollectionConverter* m_converter;
+   //   LumiBlockCollectionConverter* m_converter;
    Root::TGRLCollection* m_grlcollection;
 
    ServiceHandle<ILumiCalcSvc> m_lcSvc;
