@@ -188,34 +188,26 @@ StatusCode EvtInclusiveDecay::execute() {
   std::string   key = m_inputKeyName;
 
   // retrieve event from Transient Store (Storegate)
+  
+  const McEventCollection* oldmcEvtColl=0;
   if(m_readExisting) {
-
-    
-    m_mcEvtColl = new McEventCollection();
+    CHECK(evtStore()->retrieve(oldmcEvtColl, key)); 
     // Fill the new McEventCollection with a copy of the initial HepMC::GenEvent
-    for (McEventCollection::const_iterator evt = events_const()->begin(); evt != events_const()->end(); ++evt) {
-      m_mcEvtColl->push_back(new HepMC::GenEvent(*(*evt)));
-    }
+    m_mcEvtColl = new McEventCollection(*oldmcEvtColl);
   }
   else {CHECK(evtStore()->retrieve(m_mcEvtColl, key));}
 
   if(m_readExisting) {
-    if(m_outputKeyName==key) {
-     const bool ALLOWMODS(true);
-     const bool NORESET(false);
-     CHECK(evtStore()->overwrite(m_mcEvtColl,m_outputKeyName, ALLOWMODS,NORESET));
-
-    }
-    else {
+    if(m_outputKeyName!=key) {
      CHECK(evtStore()->record( m_mcEvtColl,m_outputKeyName));
     }
   }
-
+  
 
   McEventCollection::iterator mcItr;
   for( mcItr = m_mcEvtColl->begin(); mcItr != m_mcEvtColl->end(); mcItr++ )   {
     HepMC::GenEvent* hepMC = *mcItr;
-
+   
     // Search HepMC record for particles to be decayed by EvtGen
     // NOTE: In order to ensure repeatability, we use a std::set of barcodes to obtain
     //       an ordered list of particles to be decayed by EvtGen.
@@ -273,6 +265,15 @@ StatusCode EvtInclusiveDecay::execute() {
 	printHepMC(hepMC,&toBeDecayed);
       else
 	printHepMC(hepMC);
+    }
+  }
+
+  if(m_readExisting && m_outputKeyName==key) {
+    McEventCollection* newmcEvtColl=0;
+    newmcEvtColl = const_cast<McEventCollection*> (oldmcEvtColl);
+    newmcEvtColl->clear();
+    for (McEventCollection::const_iterator evt = m_mcEvtColl->begin(); evt != m_mcEvtColl->end(); ++evt) {
+      newmcEvtColl->push_back(new HepMC::GenEvent(*(*evt)));
     }
   }
   return StatusCode::SUCCESS;
