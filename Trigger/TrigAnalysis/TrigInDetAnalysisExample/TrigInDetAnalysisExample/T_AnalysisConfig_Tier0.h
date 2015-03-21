@@ -798,16 +798,14 @@ protected:
             this->template selectTracks<xAOD::TrackParticleContainer>( m_selectorRef, "InDetTrackParticles" );
           }
 #         endif
-          else if ( m_provider->msg().level() <= MSG::WARNING )
+          else if ( m_provider->msg().level() <= MSG::WARNING ) {
             m_provider->msg(MSG::WARNING) << " Offline tracks not found " << endreq;
-        }
+	  }
 
-        // std::cout << "seeking (more?) offline tracks..." << std::endl;
+	  // std::cout << "seeking (more?) offline tracks..." << std::endl;
 
-
-        if ( m_doOffline ) {
-
-          //Noff = m_selectorRef->tracks().size();
+	  
+	  //Noff = m_selectorRef->tracks().size();
           offline_tracks = m_selectorRef->tracks();
 
           if ( m_provider->msg().level() <= MSG::VERBOSE ) {
@@ -939,6 +937,7 @@ protected:
         if ( chainName.tail()!="" )    selectChains[iselected] += ":"+chainName.tail();
         if ( chainName.extra()!="" )   selectChains[iselected] += ":"+chainName.extra();
         if ( chainName.element()!="" ) selectChains[iselected] += ":"+chainName.element();
+        if ( chainName.roi()!="" )     selectChains[iselected] += ":"+chainName.roi();
         if ( !chainName.passed() )     selectChains[iselected] += ";DTE";
 
         /// replace wildcard with actual matching chains ...
@@ -1003,7 +1002,15 @@ protected:
 
 	mongroup = folder_name += m_chainNames[ic].head() + "/" + m_chainNames.at(ic).tail() + "/" + m_chainNames.at(ic).extra() + "/";
 
-	if ( m_chainNames.at(ic).element()!="" )  mongroup += m_chainNames[ic].element() + "/";
+	/// add trigger element and roi descriptor names
+	if ( m_chainNames.at(ic).element()!="" )  { 
+	  if ( m_chainNames.at(ic).roi()!="" ) mongroup += m_chainNames[ic].element() + "_" + m_chainNames[ic].roi() + "/";
+	  else                                 mongroup += m_chainNames[ic].element() + "/";
+	}
+	else{ 
+	  if ( m_chainNames.at(ic).roi()!="" ) mongroup += m_chainNames[ic].roi() + "/";
+	}	  
+
 	if ( !m_chainNames.at(ic).passed() )      mongroup += "DTE/";
 	
 	

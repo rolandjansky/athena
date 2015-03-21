@@ -203,16 +203,18 @@ StatusCode TrigTestMonToolAC::book(bool newEventsBlock, bool newLumiBlock, bool 
       std::vector<std::string> chains;
       chains.reserve( m_ntupleChainNames.size() );
       
-      /// handle wildcard chain selection - but only the first time                                                                                                                                                                
+      /// handle wildcard chain selection - but only the first time
+
       std::vector<std::string>::iterator chainitr = m_ntupleChainNames.begin();
       
       
       while ( chainitr!=m_ntupleChainNames.end() ) {
 	
-	/// get chain                                                                                                                                                                                                              
+	/// get chain
+
 	ChainString chainName = (*chainitr);
 	
-	/// get matching chains ...                                                                                                                                                                                                  
+	/// get matching chains ...
 	if ( chainName.head().find("HLT_")==std::string::npos && 
 	     chainName.head().find("EF_")==std::string::npos  && 
 	     chainName.head().find("L2_")==std::string::npos ) { 
@@ -222,7 +224,6 @@ StatusCode TrigTestMonToolAC::book(bool newEventsBlock, bool newLumiBlock, bool 
 
 	std::vector<std::string> selectChains  = m_tdt->getListOfTriggers( chainName.head() );
 	
-	//                  std::cout << "selected chains " << selectChains.size() << std::endl;                                                                                                                                 
 	//  "[91;1m" 
 	//  "[m" 
 
@@ -232,10 +233,12 @@ StatusCode TrigTestMonToolAC::book(bool newEventsBlock, bool newLumiBlock, bool 
 	  
 	  if ( chainName.tail()!="" )    selectChains[iselected] += ":"+chainName.tail();
 	  if ( chainName.extra()!="" )   selectChains[iselected] += ":"+chainName.extra();
-	  if ( chainName.element()!="" ) selectChains[iselected] += ":"+chainName.element();
+	  if ( chainName.element()!="" ) selectChains[iselected] += ":"+chainName.element(); 
+	  if ( chainName.roi()!="" )     selectChains[iselected] += ":"+chainName.roi();
 	  if ( !chainName.passed() )     selectChains[iselected] += ";DTE";
 	  
-	  /// replace wildcard with actual matching chains ...                                                                                                                                                                   
+	  /// replace wildcard with actual matching chains ...
+
 	  chains.push_back( selectChains[iselected] );
 	  
 	  msg(MSG::INFO) << "[91;1m"  << "Matching chain " << selectChains[iselected] << "[m" << endreq;

@@ -4,6 +4,10 @@
 #define TrigInDetAnalysisExample_ChainString_H
 
 
+#include <string>
+#include <iostream>
+
+
 class ChainString : public std::string {
 
 public:
@@ -21,14 +25,29 @@ public:
     mextra = chop(_s,":");
     melement = chop(_s,":");
 
+    mroi = chop(_s,":");
+    
+    static const std::string r[4] = { "Roi=", "RoI=", "ROI=", "roi=" };
 
-    /*    std::cout << "ChainString()" 
-	  << "|" << s 
-	  << "|" << mhead 
-	  << "|" << mtail
-	  << "|" << mextra 
-	  << "|" << std::endl; 
-    */
+    for ( unsigned i=0 ; i<4 ; i++ ) { 
+      if ( mroi.find(r[i])!=std::string::npos ) { 
+	/// chop the roi string off the end - what is left in 
+	/// the element is just the bbit before 
+	mroi = chomp( mroi, r[i] );
+	break;
+      }
+    }
+
+
+    //    std::cout << "ChainString()" 
+    //              <<   " s|" << s 
+    //	            <<   "| c|" << mhead 
+    //	            <<   "| t|" << mtail
+    //	            <<   "| e|" << mextra 
+    //	            <<  "| el|" << melement 
+    //	            << "| roi|" << mroi 
+    //	            << "|" << std::endl; 
+    
      
     //     //    std::string::size_type pos = s.find(":");
     //     if ( pos == std::string::npos ) {
@@ -45,12 +64,15 @@ public:
   std::string tail()  { return mtail;  }
   std::string extra() { return mextra; }
   std::string element() { return melement; }
+  std::string roi()     { return mroi; }
+
   bool        passed()  { return mpassed; }
 
   const std::string& head()  const { return mhead;  }
   const std::string& tail()  const { return mtail;  }
   const std::string& extra() const { return mextra; }
   const std::string& element() const { return melement; }
+  const std::string& roi()     const { return mroi; }
   const bool&        passed()  const { return mpassed; }
 
   // chop tokens off the front of a string
@@ -90,6 +112,7 @@ private:
   std::string mtail;
   std::string mextra;
   std::string melement;
+  std::string mroi;
 
   bool        mpassed;
 

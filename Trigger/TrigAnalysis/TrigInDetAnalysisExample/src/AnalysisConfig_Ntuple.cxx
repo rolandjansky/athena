@@ -189,6 +189,7 @@ void AnalysisConfig_Ntuple::loop() {
 		  /// get chain
 		  ChainString chainName = (*chainitr);
 
+
 		  /// check for wildcard ...
 		  //if ( chainName.head().find("*")!=std::string::npos ) { 
 
@@ -204,8 +205,11 @@ void AnalysisConfig_Ntuple::loop() {
  
 		      if ( chainName.tail()!="" )    selectChains[iselected] += ":"+chainName.tail();
 		      if ( chainName.extra()!="" )   selectChains[iselected] += ":"+chainName.extra();
-		      if ( chainName.element()!="" ) selectChains[iselected] += ":"+chainName.element();
-		      if ( !chainName.passed() )     selectChains[iselected] += ";DTE";
+		   
+		      if ( chainName.element()!="" ) selectChains[iselected] += ":"+chainName.element(); 
+		      if ( chainName.roi()!="" )     selectChains[iselected] += ":"+chainName.roi();
+		     
+		      if ( !chainName.passed() )    selectChains[iselected] += ";DTE";
 		     
 		      /// replace wildcard with actual matching chains ...
 		      chainNames.push_back( selectChains[iselected] );
@@ -223,7 +227,6 @@ void AnalysisConfig_Ntuple::loop() {
 		m_chainNames = chainNames;
 	}
 
-	
 
 	Filter_AcceptAll filter;
 	/// FIXME: should really have hardcoded limits encoded as 
@@ -887,8 +890,8 @@ void AnalysisConfig_Ntuple::loop() {
 			//   now add rois to this ntuple chain
 
 			// Get seeding RoI
-			// std::vector< Trig::Feature<TrigRoiDescriptor> > initRois = c->get<TrigRoiDescriptor>("initialRoI", TrigDefs::alsoDeactivateTEs);
-			// std::vector< Trig::Feature<TrigRoiDescriptor> > initRois = c->get<TrigRoiDescriptor>("forID", TrigDefs::alsoDeactivateTEs);
+			// std::vector< Trig::Feature<TrigRoiDescriptor> > _rois = c->get<TrigRoiDescriptor>("initialRoI", TrigDefs::alsoDeactivateTEs);
+			// std::vector< Trig::Feature<TrigRoiDescriptor> > _rois = c->get<TrigRoiDescriptor>("forID", TrigDefs::alsoDeactivateTEs);
 
 #if 0
 			/// check bjet roidescriptors ...
@@ -913,28 +916,30 @@ void AnalysisConfig_Ntuple::loop() {
 
 			/// need some way to specify which RoiDescriptor we are really interested in ...
 
-			std::vector< Trig::Feature<TrigRoiDescriptor> > initRois = comb->get<TrigRoiDescriptor>("forID");
+			std::string roi_name = "forID";
+			
+			if ( m_chainNames[ichain].roi()!="" ) roi_name = m_chainNames[ichain].roi();
 
-			if ( initRois.empty() ) {
-			  initRois =  comb->get<TrigRoiDescriptor>(""); 
-			  //  TrigDefs::alsoDeactivateTEs);
-			}
-			if ( initRois.empty() ) initRois = comb->get<TrigRoiDescriptor>("initialRoI"); //TrigDefs::alsoDeactivateTEs);
+			std::vector< Trig::Feature<TrigRoiDescriptor> > _rois = comb->get<TrigRoiDescriptor>(roi_name);
 
-			if ( initRois.empty() ) continue;
+			if ( _rois.empty() ) _rois = comb->get<TrigRoiDescriptor>("forID"); 
+			if ( _rois.empty() ) _rois = comb->get<TrigRoiDescriptor>(""); 
+			if ( _rois.empty() ) _rois = comb->get<TrigRoiDescriptor>("initialRoI"); 
+
+			if ( _rois.empty() ) continue;
 
 			// notify if have multiple RoIs (get this for FS chains)
-			if(initRois.size()>1) {
+			if( _rois.size()>1) {
 			  m_provider->msg(MSG::INFO) << "\tMore than one initial RoI found for seeded chain " << chainName << ": not yet supported" << endreq;
 			  //continue; 
 			}
 
 			TIDARoiDescriptor* roiInfo = 0;
-			if( !initRois.empty() ) {
+			if( !_rois.empty() ) {
 			  
-			  for (  unsigned itmp=0  ;  itmp<initRois.size()  ;  itmp++ ) {
+			  for (  unsigned itmp=0  ;  itmp<_rois.size()  ;  itmp++ ) {
 			    
-			    const TrigRoiDescriptor* roid = initRois[itmp].cptr();
+			    const TrigRoiDescriptor* roid = _rois[itmp].cptr();
    
 			    m_provider->msg(MSG::INFO) << "\tchain " << chainName << " RoI descriptor " << itmp << " " << *roid << endreq;
 			    
