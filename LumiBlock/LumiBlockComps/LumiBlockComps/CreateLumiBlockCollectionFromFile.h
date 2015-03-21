@@ -21,11 +21,12 @@
 #include <vector>
 #include <map>
 #include <utility>
+#include <string>
 #include <stdint.h>
 
-#include "LumiBlockData/LumiBlockCollection.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/IIncidentListener.h"
+#include "AthenaKernel/IOVSvcDefs.h"
 
 class StoreGateSvc;
 
@@ -39,6 +40,8 @@ public:
 
   /// Incident service handle listening for BeginFile and EndFile.
   void handle(const Incident& incident);
+  ///  Callback for database access
+  virtual StatusCode updateCache(IOVSVC_CALLBACK_ARGS);
 
 protected:
  
@@ -50,20 +53,20 @@ protected:
   typedef std::map<IOVTime,inOut> RLBMap;
   RLBMap m_LumiBlockInfo;
 
-  uint32_t m_lastRun;           // remember run from last event
-  uint32_t m_lastLumiBlock;     // remember lumiBlock from last event
-  IOVTime m_lastIOVTime;        // could remake from the previous 2, but for efficiency save it
-  bool m_checkEventsExpected;   
+  uint32_t m_lastRun;        // remember RunNumber from last event
+  uint32_t m_lastLumiBlock;  // remember LumiBlock from last event
+  uint32_t m_channel;        // database channel holding number of events expected
+  std::string m_streamName;  // Stream name 
+  IOVTime m_lastIOVTime;     // could remake from m_lastRun and m_lastLumiBlock, but for efficiency save it
+  uint32_t m_numExpected;    // number of expected events for this LumiBlock
+  bool m_checkEventsExpected;   // should we read the database?
 
   ServiceHandle<StoreGateSvc> m_metaStore;    //cache the StoreGateSvc ptr for efficiency
  
-  StringProperty  m_LBColl_name;
-  StringProperty  m_unfinishedLBColl_name;
-  StringProperty  m_suspectLBColl_name;
-
-  StringProperty m_evtStoreName;
-  StringProperty m_detStoreName;
-  StringProperty m_userStoreName;
+  std::string m_LBColl_name;
+  std::string m_unfinishedLBColl_name;
+  std::string m_suspectLBColl_name;
+  std::string m_folderName;
 };
 
 
