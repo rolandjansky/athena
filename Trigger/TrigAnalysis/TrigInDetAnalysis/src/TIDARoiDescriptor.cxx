@@ -84,8 +84,9 @@ TIDARoiDescriptor::operator std::string() const {
   std::stringstream s;
   s << " z: "   << zed() << " (" << zedMinus() << " - " << zedPlus() << ")"
     << " eta: " << eta() << " (" << etaMinus() << " - " << etaPlus() << ")"
-    << " phi: " << phi() << " (" << phiMinus() << " - " << phiPlus() << ")"
-    << " RoIid: " << roiId() << " RoIword: " << roiWord() << " (size " << size() << ")";
+    << " phi: " << phi() << " (" << phiMinus() << " - " << phiPlus() << ")";
+  if ( m_fullscan ) s << " (fullscan)";
+  s  << " RoIid: " << roiId() << " RoIword: " << roiWord() << " (size " << size() << ")";
   for ( unsigned i=0 ; i<size() ; i++ ) s << "\n\t\t" << i << ": " << (std::string)*at(i);
   return s.str();
 }
