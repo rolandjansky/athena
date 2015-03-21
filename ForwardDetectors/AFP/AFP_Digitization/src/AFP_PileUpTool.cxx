@@ -17,7 +17,7 @@
 #include "CLHEP/Random/RandFlat.h"
 #include "CLHEP/Random/RandGaussQ.h"
 #include "CLHEP/Random/RandPoissonQ.h"
-#include "AFP_G4_SD/AFP_SensitiveDetector.h" 
+//#include "AFP_G4_SD/AFP_SensitiveDetector.h" 
 
 AFP_PileUpTool::AFP_PileUpTool(const std::string& type,
 			       const std::string& name,
