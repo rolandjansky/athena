@@ -219,20 +219,19 @@ class Filter_Combined : public TrackFilter {
     if ( m_roi==0 ) return ( mf1->select(t,r) && mf2->select(t,r) );
     else {
 
-      //     std::cout << this << "\tfilter1 " << mf1->select(t,r) << "\tfilter2 " << mf2->select(t,r) << "\troi " << m_roi << std::endl; 
+      if ( m_roi->isFullscan() ) return ( mf1->select(t,m_roi) && mf2->select(t,m_roi) );
 
+      bool contained_phi = false;
 
-      double deta = t->eta() - m_roi->eta();
-      double dphi = t->phi() - m_roi->phi();
-      //smh factor of two
-      while ( dphi<-M_PI ) dphi += 2*M_PI; 
-      while ( dphi>M_PI  ) dphi -= 2*M_PI; 
-      //while ( dphi<-M_PI ) dphi += M_PI; 
-      //while ( dphi>M_PI  ) dphi -= M_PI; 
+      if ( m_roi->phiMinus()<m_roi->phiPlus() )  contained_phi = ( t->phi()>m_roi->phiMinus() &&  t->phi()<m_roi->phiPlus() );
+      else                                       contained_phi = ( t->phi()>m_roi->phiMinus() ||  t->phi()<m_roi->phiPlus() );
 
-
-      if ( std::fabs(deta)<m_roi->etaHalfWidth() && 
-	   std::fabs(dphi)<m_roi->phiHalfWidth() ) return ( mf1->select(t,m_roi) && mf2->select(t,m_roi) );
+      if ( ( t->eta()>m_roi->etaMinus() &&  t->eta()<m_roi->etaPlus() ) && 
+	   ( contained_phi ) &&
+	   ( t->z0()>m_roi->zedMinus() &&  t->z0()<m_roi->zedPlus() ) ) { 
+	//	if ( m_debugPrintout ) std::cout << "\tFilter::inside roi" << std::endl;
+	return ( mf1->select(t,m_roi) && mf2->select(t,m_roi) );
+      }
       else  return false;
 
     }
