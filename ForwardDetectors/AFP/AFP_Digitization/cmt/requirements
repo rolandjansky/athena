@@ -25,6 +25,5 @@ private
 
 use Identifier          Identifier-*            DetectorDescription
 use AtlasCLHEP          AtlasCLHEP-*            External
-use AFP_G4_SD           AFP_G4_SD-*             ForwardDetectors/AFP
 
 end_private
