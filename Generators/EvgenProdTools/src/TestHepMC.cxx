@@ -205,7 +205,7 @@ StatusCode TestHepMC::execute() {
 
   // Loop over all events in McEventCollection
   /// @todo Use C++ for(:)
-  for (McEventCollection::const_iterator itr = events()->begin(); itr != events()->end(); ++itr) {
+  for (McEventCollection::const_iterator itr = events_const()->begin(); itr != events_const()->end(); ++itr) {
     const HepMC::GenEvent* evt = *itr;
 
     double totalPx = 0;
