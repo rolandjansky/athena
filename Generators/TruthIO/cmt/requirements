@@ -18,7 +18,7 @@ private
 end_private
 
 public
-library TruthIO files=" *.cxx " -s=components *.cxx
+library TruthIO *.cxx -s=components *.cxx
 apply_pattern component_library
 
 apply_pattern declare_joboptions files="*.py"
