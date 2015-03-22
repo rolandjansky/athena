@@ -13,8 +13,8 @@ from AthenaCommon.AthenaCommonFlags import jobproperties
 theApp = acam.theApp
 acam.athMasterSeq += acas.AlgSequence("EvgenGenSeq")
 genSeq = acam.athMasterSeq.EvgenGenSeq
-acam.athMasterSeq += acas.AlgSequence("EvgenFixSeq")
-fixSeq = acam.athMasterSeq.EvgenFixSeq
+#acam.athMasterSeq += acas.AlgSequence("EvgenFixSeq")
+#fixSeq = acam.athMasterSeq.EvgenFixSeq
 acam.athMasterSeq += acas.AlgSequence("EvgenPreFilterSeq")
 prefiltSeq = acam.athMasterSeq.EvgenPreFilterSeq
 acam.athFilterSeq += acas.AlgSequence("EvgenTestSeq")
@@ -98,9 +98,9 @@ from EvgenJobTransforms.EvgenConfig import evgenConfig
 from EvgenJobTransforms.EvgenConfig import gens_known, gens_lhef, gen_sortkey, gens_testhepmc, gens_notune
 
 ## Fix non-standard event features
-from EvgenProdTools.EvgenProdToolsConf import FixHepMC
-if not hasattr(fixSeq, "FixHepMC"):
-    fixSeq += FixHepMC()
+#from EvgenProdTools.EvgenProdToolsConf import FixHepMC
+#if not hasattr(fixSeq, "FixHepMC"):
+#    fixSeq += FixHepMC()
 
 ## Sanity check the event record (not appropriate for all generators)
 from EvgenProdTools.EvgenProdToolsConf import TestHepMC
