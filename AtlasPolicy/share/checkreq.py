@@ -851,6 +851,7 @@ def inc2pac(c, p, st):
   "compression":"HLTtdaqcommon",
 ##  "hltinterface":"HLTtdaqcommon", # now in transinc2 above
   "AccessManager":"HLTtdaq",
+  "APE":"APEGlue",
   "asyncmsg":"HLTtdaq",
   "BeamSpotUtils":"HLTtdaq",
   "clips":"HLTtdaq",
@@ -2453,7 +2454,10 @@ def do_check_7(c, p, superfluses1, p1=None):
   if p1 == None:
     p1 = p
 
-  superfluses=subtr_list(superfluses1, [p.policy])   #...#
+  superfluses2=subtr_list(superfluses1, [p.policy])   #...#
+
+  # Ignore fortran-only packages.
+  superfluses=subtr_list(superfluses2, ['Lhef_i', 'McAtNlo_i'])
 
 # output for use stmts which are not in those from includes/linkopts
   if len(superfluses) != 0:
