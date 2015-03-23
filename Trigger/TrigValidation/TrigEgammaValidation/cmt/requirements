@@ -11,19 +11,26 @@ author Carlos Chavez Barajas <carlo.chavez.barajas@cern.ch>
 public
 
 use AtlasPolicy AtlasPolicy-*                                 
+use GaudiInterface  GaudiInterface-*    External
 use AtlasTriggerRunTime            AtlasTriggerRunTime-*
+
+#library AthExHelloWorld *.cxx -s=components *.cxx
+#apply_pattern component_library
+#details about the component_library and dual_library patterns
+# at http://www.cern.ch/Atlas/GROUPS/SOFTWARE/OO/architecture/General/Documentation/PackageStructure.txt
+
 
 macro TrigEgammaValidation_TestConfiguration "../test/TrigEgammaValidation_TestConfiguration.xml"
 
 apply_pattern declare_runtime files="*.C *.py *.root *.xml" extras="-s=../test TrigEgammaValidation_TestConfiguration.xml"
 #apply_pattern declare_runtime extras="../test/TrigEgammaValidation_TestConfiguration.xml ../share/TrigEgammaValidation_RTT_*.py" 
 
-apply_pattern declare_joboptions files="TrigInDetValidation_RTT_*.py"
+apply_pattern declare_joboptions files="TrigInDetValidation_RTT_*.py testAthenaTrigRDOtoAOD.py testNavZeeTPExample.py"
 
 apply_pattern declare_docs  files="-s=../doc/Summary-dev *.php *.html content.xml style.css *.gif"
 
 private
-
+use AthenaBaseComps AthenaBaseComps-*   Control
 #add validation of RTT xml file
 use TestPolicy TestPolicy-*
 apply_pattern validate_xml
