@@ -19,6 +19,10 @@
 #include "TileEvent/TileCell.h"
 #include "TileCalibBlobObjs/TileCalibUtils.h"
 #include "TileRecUtils/TileCellNoiseFilter.h"
+#include "TileConditions/TileCondToolEmscale.h"
+#include "TileConditions/TileCondToolNoiseSample.h"
+
+
 
 #include <cmath>
 #include <algorithm>
@@ -40,6 +44,7 @@ TileCellNoiseFilter::TileCellNoiseFilter(const std::string& type,
     , m_tileToolEmscale("TileCondToolEmscale")
     , m_tileToolNoiseSample("TileCondToolNoiseSample")
     , m_noiseTool("CaloNoiseTool")
+    , m_tileBadChanTool("TileBadChanTool")
     , m_truncationThresholdOnAbsEinSigma(4.0) // 4 sigma of ADC HF noise by default
     , m_minimumNumberOfTruncatedChannels(0.6) // at least 60% of channels should be below threshold
     , m_useTwoGaussNoise(false) // do not use 2G - has no sense for ADC HF noise for the moment
@@ -56,6 +61,7 @@ TileCellNoiseFilter::TileCellNoiseFilter(const std::string& type,
   declareProperty("UseTileNoiseDB", m_useTileNoiseDB);
   declareProperty("TruncationThresholdOnAbsEinSigma", m_truncationThresholdOnAbsEinSigma);
   declareProperty("MinimumNumberOfTruncatedChannels", m_minimumNumberOfTruncatedChannels);
+  declareProperty("MaxNoiseSigma", m_maxNoiseSigma = 5.0, "Channels with noise more than that value are igonred in calculation of correction");
 }
 
 //========================================================
@@ -96,6 +102,10 @@ StatusCode TileCellNoiseFilter::geoInit(IOVSVC_CALLBACK_ARGS) {
   if (m_useTileNoiseDB) {
     //=== get TileCondToolNoiseSample
     CHECK( m_tileToolNoiseSample.retrieve());
+
+    //=== get TileBadChanTool
+    CHECK( m_tileBadChanTool.retrieve() );
+
   } else {
     //=== CaloNoiseTool
     CHECK( m_noiseTool.retrieve());
@@ -230,8 +240,8 @@ int TileCellNoiseFilter::calcCM(const CaloCellContainer* cellcoll) {
     if (useCaloNoise) {
       if (m_useTwoGaussNoise) {
         noise_sigma = m_noiseTool->getEffectiveSigma(cell
-            , ICalorimeterNoiseTool::MAXSYMMETRYHANDLING
-            , ICalorimeterNoiseTool::ELECTRONICNOISE);
+                                                     , ICalorimeterNoiseTool::MAXSYMMETRYHANDLING
+                                                     , ICalorimeterNoiseTool::ELECTRONICNOISE);
 
       } else {
         noise_sigma = m_noiseTool->getNoise(cell, ICalorimeterNoiseTool::ELECTRONICNOISE);
@@ -240,9 +250,9 @@ int TileCellNoiseFilter::calcCM(const CaloCellContainer* cellcoll) {
       significance = (noise_sigma != 0.0) ? fabs(cell->energy() / noise_sigma) : 999.999;
 
       ATH_MSG_VERBOSE( "ID " << m_tileID->to_string(tilecell->ID())
-                      << " ene " << cell->energy()
-                      << " noise " << noise_sigma
-                      << " significance " << significance );
+                       << " ene " << cell->energy()
+                       << " noise " << noise_sigma
+                       << " significance " << significance );
     }
 
     //Identifier id  = tilecell->ID(); 
@@ -283,8 +293,15 @@ int TileCellNoiseFilter::calcCM(const CaloCellContainer* cellcoll) {
           } else {
             noise_sigma = m_tileToolNoiseSample->getHfn(drawerIdx, chan, gain1);
           }
+          
+          significance = 999.999;
+          if ((noise_sigma != 0.0) 
+              && (noise_sigma < m_maxNoiseSigma)
+              /* && (!m_tileBadChanTool->getAdcStatus(drawerIdx, chan, gain1).isNoisy()) */) {
+            
+            significance = fabs(amp / noise_sigma); // caluclate signal/noise ratio
+          }
 
-          significance = (noise_sigma != 0.0) ? fabs(amp / noise_sigma) : 999.999;
           ATH_MSG_VERBOSE( "HWID " << m_tileHWID->to_string(adc_id)
                           << " calib " << chanCalMeV
                           << " amp " << amp
@@ -329,8 +346,17 @@ int TileCellNoiseFilter::calcCM(const CaloCellContainer* cellcoll) {
           } else {
             noise_sigma = m_tileToolNoiseSample->getHfn(drawerIdx, chan, gain2);
           }
+
           // use only empty channels with less significance
-          significance = (noise_sigma != 0.0) ? fabs(amp / noise_sigma) : 999.999;
+          significance = 999.999;
+          if ((noise_sigma != 0.0) 
+              && (noise_sigma < m_maxNoiseSigma)
+              /* && (!m_tileBadChanTool->getAdcStatus(drawerIdx, chan, gain2).isNoisy()) */) {
+            
+            significance = fabs(amp / noise_sigma); // caluclate signal/noise ratio
+          }
+
+
           ATH_MSG_VERBOSE( "HWID " << m_tileHWID->to_string(adc_id)
                           << " calib " << chanCalMeV
                           << " amp " << amp
