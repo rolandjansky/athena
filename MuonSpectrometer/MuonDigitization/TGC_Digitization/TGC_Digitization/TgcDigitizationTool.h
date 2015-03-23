@@ -44,21 +44,19 @@ public:
 		      const std::string& name,
 		      const IInterface* parent);
   /** Initialize */
-    virtual StatusCode initialize() override final;
+  virtual StatusCode initialize();
 
-  virtual StatusCode prepareEvent(unsigned int /*nInputEvents*/) override final;
+  virtual StatusCode prepareEvent(unsigned int /*nInputEvents*/);
   
   /** called for each active bunch-crossing to process current SubEvents
       bunchXing is in ns */
-  virtual  StatusCode processBunchXing(
-                                       int bunchXing,
-                                       SubEventIterator bSubEvents,
-                                       SubEventIterator eSubEvents
-                                       ) override final;
-  
+  StatusCode processBunchXing(int bunchXing,
+			      PileUpEventInfo::SubEvent::const_iterator bSubEvents,
+			      PileUpEventInfo::SubEvent::const_iterator eSubEvents); 
+
   /** called at the end of the subevts loop. Not (necessarily) able to access 
       SubEvents (IPileUpTool) */
-  virtual StatusCode mergeEvent() override final;
+  StatusCode mergeEvent();
 
   /** alternative interface which uses the PileUpMergeSvc to obtain
   all the required SubEvents.  Reads GEANT4 hits from StoreGate in
@@ -67,14 +65,14 @@ public:
   double has two. This method calls TgcDigitMaker::executeDigi, which
   digitizes every hit, for every readout element, i.e., a sensitive
   volume of a chamber. */
-  virtual StatusCode processAllSubEvents() override final;
+  virtual StatusCode processAllSubEvents();
 
   /** Used by TGCDigitizer. Just calls processAllSubEvents - leaving
       for back-compatibility (IMuonDigitizationTool) */
-  virtual StatusCode digitize() override final;
+  StatusCode digitize(); 
 
   /** Finalize */
-  virtual StatusCode finalize() override final;
+  StatusCode finalize();
   /** accessors */
   ServiceHandle<IAtRndmGenSvc> getRndmSvc() const { return m_rndmSvc; }    // Random number service
   CLHEP::HepRandomEngine *getRndmEngine() const { return m_rndmEngine; } // Random number engine used 
