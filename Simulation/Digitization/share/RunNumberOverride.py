@@ -17,9 +17,8 @@ if digitizationFlags.dataRunNumber.get_Value():
         getService("EvtIdModifierSvc")
     else:
         digilog.warning('RunNumberOverride.py :: Will override the settings of the EvtIdModifierSvc that was previously set up!')
-        from Digitization.RunDependentConfig import buildListOfModifiers
-        ServiceMgr.EvtIdModifierSvc.Modifiers += buildListOfModifiers()
-
+    from Digitization.RunDependentConfig import buildListOfModifiers
+    ServiceMgr.EvtIdModifierSvc.Modifiers += buildListOfModifiers()
     #fix iov metadata
     if not hasattr(ServiceMgr.ToolSvc, 'IOVDbMetaDataTool'):
         ServiceMgr.ToolSvc += CfgMgr.IOVDbMetaDataTool()
@@ -27,8 +26,16 @@ if digitizationFlags.dataRunNumber.get_Value():
     myInitialTimeStamp=ServiceMgr.EvtIdModifierSvc.Modifiers[2]
 
     ServiceMgr.EventSelector.OverrideRunNumberFromInput=True
+    ServiceMgr.EventSelector.OverrideRunNumber=True
     ServiceMgr.EventSelector.RunNumber=myRunNumber
     ServiceMgr.EventSelector.FirstLB = myFirstLB
+
+    try:
+        from RunDependentSimComps.RunDMCFlags import runDMCFlags
+        myInitialTimeStamp = runDMCFlags.RunToTimestampDict.getTimestampForRun(myRunNumber)
+        #print "FOUND TIMESTAMP ", str(myInitialTimeStamp)
+    except:
+        myInitialTimeStamp = 1
     ServiceMgr.EventSelector.InitialTimeStamp = myInitialTimeStamp
 
     from AthenaCommon.AthenaCommonFlags import athenaCommonFlags

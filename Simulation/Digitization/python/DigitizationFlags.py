@@ -564,6 +564,8 @@ class RunAndLumiOverrideList(JobProperty):
             import pprint
             self._log.info(" %s-> %s = %s ",Indent,
                            self._context_name,pprint.pformat(str(obj_ps)) )
+        elif(mode=='print_v'):
+            return JobProperty.print_JobProperty(self, mode)
         else:
             JobProperty.print_JobProperty(self, mode)
 #
@@ -637,6 +639,8 @@ class BeamIntensityPattern(JobProperty):
             import pprint
             self._log.info(" %s-> %s = %s ",Indent,
                            self._context_name,pprint.pformat(str(obj_ps) ))
+        elif(mode=='print_v'):
+            return JobProperty.print_JobProperty(self, mode)
         else:
             JobProperty.print_JobProperty(self, mode)
 #
@@ -690,6 +694,8 @@ class SignalPatternForSteppingCache(JobProperty):
             import pprint
             self._log.info(" %s-> %s = %s ",Indent,
                            self._context_name,pprint.pformat(str(obj_ps)) )
+        elif(mode=='print_v'):
+            return JobProperty.print_JobProperty(self, mode)
         else:
             JobProperty.print_JobProperty(self, mode)
 #

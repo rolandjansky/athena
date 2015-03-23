@@ -56,7 +56,14 @@ def buildListOfModifiers():
         totalNumber = 1000000
         if athenaCommonFlags.EvtMax() is not None and athenaCommonFlags.EvtMax()>0: totalNumber = athenaCommonFlags.EvtMax()+1
         if athenaCommonFlags.SkipEvents() is not None and athenaCommonFlags.SkipEvents()>0: totalNumber += athenaCommonFlags.SkipEvents()
-        Modifiers += add_modifier(run_nbr=myRunNumber, lbk_nbr=myFirstLB, nevts=totalNumber)
+        try:
+            from RunDependentSimComps.RunDMCFlags import runDMCFlags
+            myInitialTimeStamp = runDMCFlags.RunToTimestampDict.getTimestampForRun(myRunNumber)
+            #print "FOUND TIMESTAMP ", str(myInitialTimeStamp)
+        except:
+            myInitialTimeStamp = 1
+
+        Modifiers += add_modifier(run_nbr=myRunNumber, lbk_nbr=myFirstLB, time_stamp=myInitialTimeStamp, nevts=totalNumber)
     return Modifiers
 
 
