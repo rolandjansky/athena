@@ -15,9 +15,12 @@
 #include "TileEvent/TileRawChannelContainer.h"
 #include "TileCalibBlobObjs/TileCalibUtils.h"
 #include "TileRecUtils/TileRawChannelNoiseFilter.h"
+#include "TileConditions/ITileBadChanTool.h"
+#include "TileConditions/TileCondToolEmscale.h"
+#include "TileConditions/TileCondToolNoiseSample.h"
+#include "TileRecUtils/TileBeamInfoProvider.h"
 
-static const InterfaceID IID_ITileRawChannelNoiseFilter(
-    "TileRawChannelNoiseFilter", 1, 0);
+static const InterfaceID IID_ITileRawChannelNoiseFilter("TileRawChannelNoiseFilter", 1, 0);
 
 const InterfaceID& TileRawChannelNoiseFilter::interfaceID() {
   return IID_ITileRawChannelNoiseFilter;
@@ -50,6 +53,7 @@ TileRawChannelNoiseFilter::TileRawChannelNoiseFilter(const std::string& type,
   declareProperty("MinimumNumberOfTruncatedChannels", m_minimumNumberOfTruncatedChannels);
   declareProperty("UseTwoGaussNoise", m_useTwoGaussNoise);
   declareProperty("UseGapCells", m_useGapCells);
+  declareProperty("MaxNoiseSigma", m_maxNoiseSigma = 5.0, "Channels with noise more than that value are igonred in calculation of correction");
 }
 
 //========================================================
@@ -113,8 +117,7 @@ StatusCode TileRawChannelNoiseFilter::geoInit(IOVSVC_CALLBACK_ARGS) {
 
 // ============================================================================
 // process container
-StatusCode TileRawChannelNoiseFilter::process(
-    const TileRawChannelContainer *rchCont) {
+StatusCode TileRawChannelNoiseFilter::process(const TileRawChannelContainer *rchCont) {
 
   ATH_MSG_DEBUG("in process()");
 
@@ -192,6 +195,7 @@ StatusCode TileRawChannelNoiseFilter::process(
           || m_tileBadChanTool->getAdcStatus(drawerIdx, chan, gain).isBad()
           || (!DQstatus->isAdcDQgood(ros, drawer, chan, gain))) continue;
 
+
       bool usechan = m_useGapCells ||  // always true if we want to use gap cells
                    ( ! ( ( ebNsp && (chan==0 || chan==1  || chan==12 || chan==13)) ||
                          ( ebspC10 && (chan==4 || chan==5)) ||
@@ -211,6 +215,7 @@ StatusCode TileRawChannelNoiseFilter::process(
         calib[chan] = 1.0;
       }
 
+      
       if (usechan) {
 
         float noise_sigma = 1.5; // default value of HFN in high gain channel
@@ -224,9 +229,12 @@ StatusCode TileRawChannelNoiseFilter::process(
           // take single gauss noise sigma from DB (high frequency noise)
           noise_sigma = m_tileToolNoiseSample->getHfn(drawerIdx, chan, gain);
         }
-
+        
         float significance = 999.999;
-        if (noise_sigma != 0.0) {
+        if ((noise_sigma != 0.0) 
+            && (noise_sigma < m_maxNoiseSigma)
+            /* && (!m_tileBadChanTool->getAdcStatus(drawerIdx, chan, gain).isNoisy()) */) {
+
           significance = fabs(amp / noise_sigma); // caluclate signal/noise ratio
         } else {
           --ngoodchan[mob]; // ignore completely channels with zero sigma

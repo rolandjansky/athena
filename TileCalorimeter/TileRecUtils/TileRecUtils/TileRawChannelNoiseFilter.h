@@ -15,10 +15,6 @@
 
 // Tile includes
 #include "TileIdentifier/TileRawChannelUnit.h"
-#include "TileConditions/TileCondToolEmscale.h"
-#include "TileConditions/TileCondToolNoiseSample.h"
-#include "TileConditions/ITileBadChanTool.h"
-#include "TileRecUtils/TileBeamInfoProvider.h"
 #include "TileRecUtils/ITileRawChannelTool.h"
 
 // forward declarations
@@ -26,13 +22,16 @@ class TileHWID;
 class TileRawChannel;
 class TileRawChannelContainer;
 class TileRawChannelCollection;
+class ITileBadChanTool;
+class TileCondToolEmscale;
+class TileCondToolNoiseSample;
+class TileBeamInfoProvider;
 
 /**
  @class TileRawChannelNoiseFilter
  @brief This tool subtracts common-mode noise from all TileRawChannels in one container
  */
-class TileRawChannelNoiseFilter: public AthAlgTool,
-    virtual public ITileRawChannelTool {
+class TileRawChannelNoiseFilter: public AthAlgTool, virtual public ITileRawChannelTool {
   public:
 
     /** AlgTool like constructor */
@@ -40,9 +39,7 @@ class TileRawChannelNoiseFilter: public AthAlgTool,
         const IInterface* parent);
 
     /** Virtual destructor */
-    virtual ~TileRawChannelNoiseFilter() {
-    }
-    ;
+    virtual ~TileRawChannelNoiseFilter() {};
 
     /** AlgTool InterfaceID */
     static const InterfaceID& interfaceID();
@@ -72,6 +69,7 @@ class TileRawChannelNoiseFilter: public AthAlgTool,
     float m_minimumNumberOfTruncatedChannels;
     bool m_useTwoGaussNoise;
     bool m_useGapCells;
+    float m_maxNoiseSigma;
 };
 
 #endif // TILERAWCHANNELNOISEFILTER_H

@@ -19,14 +19,15 @@
 #include "CaloInterface/ICalorimeterNoiseTool.h"
 
 // Tile includes
-#include "TileConditions/TileCondToolEmscale.h"
-#include "TileConditions/TileCondToolNoiseSample.h"
+#include "TileConditions/ITileBadChanTool.h"
 
 // forward declarations
 class TileID;
 class TileHWID;
 class TileCell;
 class CaloCellContainer;
+class TileCondToolEmscale;
+class TileCondToolNoiseSample;
 
 /**
  @class TileCellNoiseFilter
@@ -40,9 +41,7 @@ class TileCellNoiseFilter: public AthAlgTool, virtual public ICaloCellMakerTool 
         const IInterface* parent);
 
     /** Virtual destructor */
-    virtual ~TileCellNoiseFilter() {
-    }
-    ;
+    virtual ~TileCellNoiseFilter() {};
 
     /** AlgTool InterfaceID */
     static const InterfaceID& interfaceID();
@@ -77,6 +76,7 @@ class TileCellNoiseFilter: public AthAlgTool, virtual public ICaloCellMakerTool 
     ToolHandle<TileCondToolEmscale> m_tileToolEmscale; //!< main Tile Calibration tool
     ToolHandle<TileCondToolNoiseSample> m_tileToolNoiseSample; //!< tool which provided noise values
     ToolHandle<ICalorimeterNoiseTool> m_noiseTool;       //!< Calo Noise tool
+    ToolHandle<ITileBadChanTool> m_tileBadChanTool;   //!< Tile Bad Channel tool
 
     // properties
     float m_truncationThresholdOnAbsEinSigma;
@@ -94,6 +94,9 @@ class TileCellNoiseFilter: public AthAlgTool, virtual public ICaloCellMakerTool 
     float m_commonmode[maxPartition][maxDrawer][maxMOB];
     int m_nemptychan[maxPartition][maxDrawer][maxMOB];
     int m_ngoodchan[maxPartition][maxDrawer][maxMOB];
+
+    float m_maxNoiseSigma;
+
 };
 
 #endif // TILECELLNOISEFILTER_H
