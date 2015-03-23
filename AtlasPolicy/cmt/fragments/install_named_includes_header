@@ -10,7 +10,13 @@
 #
 #  (below one level of <package> directory)
 #
-
+# RS
+# adding the exception that if <name> is "include" then the headers will also be
+#  installed into ${CMTINSTALLAREA}/include/<package> such that they can
+#  be included as #include <file> w/o additional directory. This is done by
+#  symlinking everything from the "${CMTINSTALLAREA}/include/<package>/include/"
+#  directory into "${CMTINSTALLAREA}/include/<package>"
+#
 ifeq ($(INSTALLAREA),)
 installarea = $(CMTINSTALLAREA)
 else
@@ -52,6 +58,13 @@ $(install_include_dir) ::
 	      echo $${here} >|$(install_include_dir)/$(name).cmtref; \
 	    else \
 	      echo "Files from non-standard ../${name} already installed"; \
+	    fi; \
+	    if test ${name} = "include" ; then \
+	      echo "special case, detected name==include; install_named_includes" ; \
+	      for f in $(notdir $(wildcard ../${name}/* ) ); do  \
+	        echo "installing $$f for special case name==include; install_named_includes" ; \
+		( cd $(install_include_dir); ln -sf ${name}/$$f ); \
+              done ; \
 	    fi; \
 	  else \
 	    echo "No ${name} include file area"; \
