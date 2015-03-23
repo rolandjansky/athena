@@ -12,25 +12,24 @@ using namespace std;
 bool EtaPhiFilters::EditParticle(G4PrimaryParticle* p) {
   if (!onSwitch) return true;
   const G4ThreeVector& vec(p->GetMomentum());
-  const double phi_tmp(atan2(vec.y(), vec.x()));
-  const double phi(phi_tmp + (phi_tmp < 0) ? 2*M_PI : 0.0);
-  const double theta(acos(vec.z()/vec.mag()));
-  const double eta(-log(tan(theta/2.)));
+  const double phi_tmp(vec.phi());
+  const double phi(phi_tmp + ((phi_tmp < 0) ? 2*M_PI : 0.0));
+  const double eta(vec.eta());
   if (verboseLevel > 0) {
     cout << "EtaPhiFilters::EditParticle: particle with eta,phi: " << eta << " " << phi << endl;
-    cout << "EtaPhiFilters::EditParticle: number of Eta not-default intervals to check " << eLimits.size() << endl;
-    cout << "EtaPhiFilters::EditParticle: number of Phi not-default intervals to check " << pLimits.size() << endl;
+    cout << "EtaPhiFilters::EditParticle: number of Eta not-default intervals to check " << m_eLimits.size() << endl;
+    cout << "EtaPhiFilters::EditParticle: number of Phi not-default intervals to check " << m_pLimits.size() << endl;
   }
 
   // First check eta (if no ranges, always accept)
-  if (eLimits.size()) {
+  if (m_eLimits.size()) {
     bool passedEta(false);
-    for (size_t i(0); i < eLimits.size(); ++i) {
+    for (size_t i(0); i < m_eLimits.size(); ++i) {
       if (verboseLevel > 0) {
         cout << "EtaPhiFilters::EditParticle: check particle with eta " << eta << " vs. limits [" 
-	     << eLimits[i].first << ", " << eLimits[i].second << "]" << endl;
+	     << m_eLimits[i].first << ", " << m_eLimits[i].second << "]" << endl;
       }
-      if (eta > eLimits[i].first && eta < eLimits[i].second) {
+      if (eta > m_eLimits[i].first && eta < m_eLimits[i].second) {
         passedEta = true;
         break;
       }
@@ -42,14 +41,14 @@ bool EtaPhiFilters::EditParticle(G4PrimaryParticle* p) {
   }
 
   // Check phi (default is to always accept)
-  if (pLimits.size()) {
+  if (m_pLimits.size()) {
     bool passedPhi(false);
-    for (size_t i(0); i < pLimits.size(); ++i) {
+    for (size_t i(0); i < m_pLimits.size(); ++i) {
       if (verboseLevel > 0) {
         cout << "EtaPhiFilters::EditParticle: check particle with phi " << phi << " vs. limits [" 
-	     << pLimits[i].first << ", " << pLimits[i].second << "]" << endl;
+	     << m_pLimits[i].first << ", " << m_pLimits[i].second << "]" << endl;
       }
-      if (phi > pLimits[i].first && phi < pLimits[i].second) {
+      if (phi > m_pLimits[i].first && phi < m_pLimits[i].second) {
         passedPhi = true;
         break;
       }
