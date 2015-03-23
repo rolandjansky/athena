@@ -20,28 +20,28 @@ public:
 
 
   void AddEtaInterval(double a, double b) {
-  	eLimits.push_back(std::make_pair(a,b));
+  	m_eLimits.push_back(std::make_pair(a,b));
   }
 
   const std::vector<EtaRange>& GetEtaIntervals() {
-    return eLimits;
+    return m_eLimits;
   }
 
   void ClearEtaIntervals() {
-	eLimits.clear();
+	m_eLimits.clear();
   }
 
 
   void AddPhiInterval(double a, double b) {
-	pLimits.push_back(std::make_pair(a,b));
+	m_pLimits.push_back(std::make_pair(a,b));
   }
 
   const std::vector<PhiRange>& GetPhiIntervals() {
-    return pLimits;
+    return m_pLimits;
   }
 
   void ClearPhiIntervals() {
-	pLimits.clear();
+	m_pLimits.clear();
   }
 
   // For the C++ layer only
@@ -49,8 +49,8 @@ public:
 
 private:
 
-  std::vector<EtaRange> eLimits;
-  std::vector<PhiRange> pLimits;
+  std::vector<EtaRange> m_eLimits;
+  std::vector<PhiRange> m_pLimits;
 
 };
 
