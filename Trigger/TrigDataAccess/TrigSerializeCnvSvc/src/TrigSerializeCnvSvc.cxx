@@ -9,7 +9,7 @@
 
 StatusCode TrigSerializeCnvSvc::initialize(){
   MsgStream log(msgSvc(), "TrigSerializeCnvSvc");
-  log << MSG::INFO << "initialize()" << endmsg;
+  log << MSG::INFO << "initialize()" << endreq;
   /*
   ICnvManager::CnvIterator i, stop;
   for ( i = cnvManager()->cnvBegin(), stop = cnvManager()->cnvEnd(); i != stop; i++ ) {
@@ -28,8 +28,8 @@ StatusCode TrigSerializeCnvSvc::initialize(){
 
 long int
 TrigSerializeCnvSvc::storageType() {
-  static long type(0x51);
-  return type;
+  static long _type(0x51);
+  return _type;
 }
 
 long int TrigSerializeCnvSvc::repSvcType() const {

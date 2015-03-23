@@ -39,35 +39,35 @@ StatusCode TrigSerializeConvHelper::initialize(){
   StatusCode sc = m_serializerTool.retrieve();
 
   if (!sc.isSuccess()){
-    msg(MSG::DEBUG) << "m_serializer not retrieved" << endmsg;
+    msg(MSG::DEBUG) << "m_serializer not retrieved" << endreq;
     return sc;
   } else {
-    msg(MSG::DEBUG) << "m_serializer retrieved" << endmsg;
+    msg(MSG::DEBUG) << "m_serializer retrieved" << endreq;
     /*
       if (m_serializerTool->initialize().isSuccess()){
-      msg(MSG::DEBUG) << "serializer initialized" << endmsg;
+      msg(MSG::DEBUG) << "serializer initialized" << endreq;
       }
     */
   }
   
   StatusCode sctp = m_TPTool.retrieve();
   if (!sctp.isSuccess()){
-    msg(MSG::DEBUG) << "m_TPTool not retrieved" << endmsg;
+    msg(MSG::DEBUG) << "m_TPTool not retrieved" << endreq;
     return sctp;
   } else {
-    msg(MSG::DEBUG) << "m_TPTool retrieved" << endmsg;
+    msg(MSG::DEBUG) << "m_TPTool retrieved" << endreq;
     /*
       if (m_TPTool->initialize().isSuccess())
-      msg(MSG::DEBUG) << "m_TPTool initialized" << endmsg;
+      msg(MSG::DEBUG) << "m_TPTool initialized" << endreq;
       */
   }
 
   StatusCode scg = m_guidTool.retrieve();
   if (!scg.isSuccess()){
-    msg(MSG::DEBUG) << m_guidTool << " not retrieved" << endmsg;
+    msg(MSG::DEBUG) << m_guidTool << " not retrieved" << endreq;
     return scg;
   } else {
-    msg(MSG::DEBUG) << m_guidTool << "retrieved" << endmsg;
+    msg(MSG::DEBUG) << m_guidTool << "retrieved" << endreq;
   }
   
   m_oldEDMmap[ "TrigRoiDescriptor" ]         = "TrigRoiDescriptorCollection_tlp1";
@@ -122,12 +122,12 @@ StatusCode TrigSerializeConvHelper::initialize(){
 StatusCode TrigSerializeConvHelper::createObj(const std::string &clname, IOpaqueAddress* iAddr, void *&ptr, bool isxAOD){
     
   ptr = 0;
-  msg(MSG::DEBUG) << "in TrigSerializeConvHelper::createObj for clname" << clname << " is xAOD? " << (isxAOD?"yes":"no") << endmsg;
+  msg(MSG::DEBUG) << "in TrigSerializeConvHelper::createObj for clname" << clname << " is xAOD? " << (isxAOD?"yes":"no") << endreq;
   
   //could alse get DATA (perhaps as boost::any) from the IOA
   TrigStreamAddress *addr = dynamic_cast<TrigStreamAddress*>(iAddr);
   if (!addr) {
-    msg(MSG::WARNING) << "createObj cast failed" << endmsg;
+    msg(MSG::WARNING) << "createObj cast failed" << endreq;
     return StatusCode::FAILURE;
   }
   
@@ -155,11 +155,11 @@ StatusCode TrigSerializeConvHelper::createObj(const std::string &clname, IOpaque
     if (scid.isFailure()){
       //BS has no hint on the pers class - use the original table
       if (msgLvl(MSG::DEBUG))
-	msg(MSG::DEBUG) << "BS does not hint on payload object " << cl << endmsg;
+	msg(MSG::DEBUG) << "BS does not hint on payload object " << cl << endreq;
       if (m_oldEDMmap.find(clname)!=m_oldEDMmap.end()){
 	if (cl!=m_oldEDMmap[clname]){
 	  msg(MSG::DEBUG) << "Using backward compatibility map with " <<  m_oldEDMmap[clname]
-			  << " instead of " << cl << endmsg;
+			  << " instead of " << cl << endreq;
 	  cl = m_oldEDMmap[clname];
 	}
       }
@@ -175,10 +175,10 @@ StatusCode TrigSerializeConvHelper::createObj(const std::string &clname, IOpaque
 	cl =  nclass;
 	if (msgLvl(MSG::DEBUG))
 	  msg(MSG::DEBUG) << "Got hint of " << cl
-			  << " different persistent class from the BS payload. Name from GUID: " << nclass << endmsg;
+			  << " different persistent class from the BS payload. Name from GUID: " << nclass << endreq;
 
 	if(isxAOD){
-	  msg(MSG::DEBUG) << "This is an xAOD so probably the BS version is an older version of the xAOD type." << endmsg;
+	  msg(MSG::DEBUG) << "This is an xAOD so probably the BS version is an older version of the xAOD type." << endreq;
 	}
 	versionChange = true;
       }
@@ -186,19 +186,18 @@ StatusCode TrigSerializeConvHelper::createObj(const std::string &clname, IOpaque
 
     ptr = serializer->deserialize(cl, v);
 
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << cl << " deserialized to " << ptr << " version change detected: " << (versionChange ? "yes":"no") << endmsg;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << cl << " deserialized to " << ptr << " version change detected: " << (versionChange ? "yes":"no") << endreq;
   }
    
   // T/P separation
-  bool isViewVector = cl.substr(0, 11) == "ViewVector<";
-  if (m_doTP and (!isxAOD or versionChange) and !isViewVector){
+  if (m_doTP and (!isxAOD or versionChange)){
     std::string transclass;
 
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "converting with pername " << cl << endmsg;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "converting with pername " << cl << endreq;
     
     void *transObj = m_TPTool->convertPT(cl,ptr, transclass);
 
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "was converted to " << transclass << " at " << transObj << endmsg;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "was converted to " << transclass << " at " << transObj << endreq;
 
     //persistent object not needed anymore
     TClass *persClObj = gROOT->GetClass(cl.c_str());
@@ -218,7 +217,7 @@ StatusCode TrigSerializeConvHelper::createRep(const std::string &clname,
   
   StatusCode sc(StatusCode::SUCCESS);
 
-  msg(MSG::DEBUG) << "in TrigSerializeConvHelper::createRep for clname" << clname << " is xAOD? " << (isxAOD?"yes":"no") << endmsg;
+  msg(MSG::DEBUG) << "in TrigSerializeConvHelper::createRep for clname" << clname << " is xAOD? " << (isxAOD?"yes":"no") << endreq;
 
   std::string cl = clname;
   void *pObj = ptr;
@@ -231,30 +230,30 @@ StatusCode TrigSerializeConvHelper::createRep(const std::string &clname,
   }
 
   msg(MSG::DEBUG) << "convertTP: " << pObj << " of "
-	 << cl << endmsg;
+	 << cl << endreq;
   
   //void *serptr(0);
   //
   ITrigSerializerToolBase* serializer = m_serializerTool.operator->();
   serializer->reset();
 
-  msg(MSG::VERBOSE) << "About to get GUID for " << cl << endmsg;
+  msg(MSG::VERBOSE) << "About to get GUID for " << cl << endreq;
   
   //opposite from string to class
   uint32_t irep[4];
   StatusCode ai = m_guidTool->ClassNameToInts(cl, irep);
   if (ai.isFailure()){
     msg(MSG::WARNING) << "Cannot store class identification for "
-		      << cl << " to BS" << endmsg;
+		      << cl << " to BS" << endreq;
   }
 
-  msg(MSG::VERBOSE) << "got GUID: " << irep[0] << "-" << irep[1] << "-" << irep[2] << "-" << irep[3] << endmsg;
+  msg(MSG::VERBOSE) << "got GUID: " << irep[0] << "-" << irep[1] << "-" << irep[2] << "-" << irep[3] << endreq;
   
   if (cl != "" && pObj){
     serializer->setCLID(irep);
     serializer->serialize(cl, pObj, out);
   } else {
-    msg(MSG::WARNING) << "did not serialize " << ptr << " of " << clname << endmsg;
+    msg(MSG::WARNING) << "did not serialize " << ptr << " of " << clname << endreq;
   }
 
   if (m_doTP and !isxAOD){
@@ -265,7 +264,7 @@ StatusCode TrigSerializeConvHelper::createRep(const std::string &clname,
   }
 
   if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "pObj: " << pObj << " of " << cl
-	 << " payload: " << out.size() << endmsg;
+	 << " payload: " << out.size() << endreq;
 
   return sc;
 }
