@@ -1,5 +1,5 @@
 package xAODEventFormatCnv
-# $Id: requirements 580655 2014-01-29 14:36:01Z krasznaa $
+# $Id: requirements 655221 2015-03-18 21:27:44Z cranshaw $
 
 author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
 
@@ -13,6 +13,7 @@ use xAODEventFormat xAODEventFormat-* Event/xAOD
 private
 
 use AthenaBaseComps AthenaBaseComps-* Control
+use AthenaPoolKernel    AthenaPoolKernel-*  Database/AthenaPOOL
 use AthenaKernel    AthenaKernel-*    Control
 use StoreGate       StoreGate-*       Control
 use AthContainers   AthContainers-*   Control
