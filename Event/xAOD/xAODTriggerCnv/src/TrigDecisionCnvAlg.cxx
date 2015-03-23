@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TrigDecisionCnvAlg.cxx 688265 2015-08-08 16:31:45Z stelzer $
+// $Id: TrigDecisionCnvAlg.cxx 578517 2014-01-15 13:48:04Z krasznaa $
 
 // Gaudi/Athena include(s):
 #include "AthenaKernel/errorcheck.h"
@@ -11,9 +11,6 @@
 #include "TrigDecisionEvent/TrigDecision.h"
 #include "xAODTrigger/TrigDecision.h"
 #include "xAODTrigger/TrigDecisionAuxInfo.h"
-
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/TriggerInfo.h"
 
 // Local include(s):
 #include "TrigDecisionCnvAlg.h"
@@ -51,18 +48,13 @@ namespace xAODMaker {
       const TrigDec::TrigDecision* aod = 0;
       CHECK( evtStore()->retrieve( aod, m_aodKey ) );
 
-      // trigger Info
-      const EventInfo * evtInfo ( nullptr );
-      CHECK( evtStore()->retrieve( evtInfo ) );
-      const TriggerInfo * trigInfo = evtInfo ? evtInfo->trigger_info() : nullptr ;
-
       // Create the xAOD object and its auxiliary store:
       xAOD::TrigDecisionAuxInfo* aux = new xAOD::TrigDecisionAuxInfo();
       xAOD::TrigDecision* xaod = new xAOD::TrigDecision();
       xaod->setStore( aux );
 
       // Fill the xAOD object:
-      CHECK( m_cnvTool->convert( aod, xaod, trigInfo ) );
+      CHECK( m_cnvTool->convert( aod, xaod ) );
 
       // Record the xAOD objects:
       CHECK( evtStore()->record( aux, m_xaodKey + "Aux." ) );

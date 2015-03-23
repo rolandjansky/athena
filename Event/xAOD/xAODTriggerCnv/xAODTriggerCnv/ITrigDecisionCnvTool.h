@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: ITrigDecisionCnvTool.h 688265 2015-08-08 16:31:45Z stelzer $
+// $Id: ITrigDecisionCnvTool.h 578517 2014-01-15 13:48:04Z krasznaa $
 #ifndef XAODTRIGGERCNV_ITRIGDECISIONCNVTOOL_H
 #define XAODTRIGGERCNV_ITRIGDECISIONCNVTOOL_H
 
@@ -18,8 +18,6 @@
 namespace TrigDec {
    class TrigDecision;
 }
-
-class TriggerInfo;
 
 namespace xAODMaker {
 
@@ -36,16 +34,15 @@ namespace xAODMaker {
     *
     * @author Attila Krasznahorkay@cern.ch>
     *
-    * $Revision: 688265 $
-    * $Date: 2015-08-08 18:31:45 +0200 (Sat, 08 Aug 2015) $
+    * $Revision: 578517 $
+    * $Date: 2014-01-15 14:48:04 +0100 (Wed, 15 Jan 2014) $
     */
    class ITrigDecisionCnvTool : public virtual IAlgTool {
 
    public:
       /// Function filling an xAOD::TrigDecision object with information
       virtual StatusCode convert( const TrigDec::TrigDecision* aod,
-                                  xAOD::TrigDecision* xaod,
-                                  const TriggerInfo* level1TriggerInfo ) = 0;
+                                  xAOD::TrigDecision* xaod ) = 0;
 
       /// Gaudi interface definition
       static const InterfaceID& interfaceID() {

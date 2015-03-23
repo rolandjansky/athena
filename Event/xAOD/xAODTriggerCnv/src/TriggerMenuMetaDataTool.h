@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TriggerMenuMetaDataTool.h 683395 2015-07-16 11:11:56Z krasznaa $
+// $Id: TriggerMenuMetaDataTool.h 651874 2015-03-05 14:16:19Z krasznaa $
 #ifndef XAODTRIGGERCNV_TRIGGERMENUMETADATATOOL_H
 #define XAODTRIGGERCNV_TRIGGERMENUMETADATATOOL_H
 
@@ -13,10 +13,11 @@
 #include <memory>
 
 // Gaudi/Athena include(s):
-#include "AsgTools/AsgMetadataTool.h"
-#ifdef ASGTOOL_ATHENA
-#   include "AthenaPoolKernel/IMetaDataTool.h"
-#endif // ASGTOOL_ATHENA
+#include "GaudiKernel/IIncidentListener.h"
+#include "GaudiKernel/ServiceHandle.h"
+#include "AthenaPoolKernel/IMetaDataTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
+#include "StoreGate/StoreGateSvc.h"
 
 // EDM include(s):
 #include "xAODTrigger/TriggerMenuContainer.h"
@@ -31,43 +32,36 @@ namespace xAODMaker {
    ///
    /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
    ///
-   /// $Revision: 683395 $
-   /// $Date: 2015-07-16 13:11:56 +0200 (Thu, 16 Jul 2015) $
+   /// $Revision: 651874 $
+   /// $Date: 2015-03-05 15:16:19 +0100 (Thu, 05 Mar 2015) $
    ///
-   class TriggerMenuMetaDataTool : public asg::AsgMetadataTool
-#ifdef ASGTOOL_ATHENA
-   , public virtual ::IMetaDataTool
-#endif // ASGTOOL_ATHENA
-   {
-
-      /// Declare the correct constructor for Athena
-      ASG_TOOL_CLASS0( TriggerMenuMetaDataTool )
+   class TriggerMenuMetaDataTool : public virtual ::IMetaDataTool,
+                                   public virtual ::IIncidentListener,
+                                   public ::AthAlgTool {
 
    public:
       /// Regular AlgTool constructor
-      TriggerMenuMetaDataTool( const std::string& name =
-                                  "TriggerMenuMetaDataTool" );
+      TriggerMenuMetaDataTool( const std::string& type, const std::string& name,
+                               const IInterface* parent );
 
       /// Function initialising the tool
       virtual StatusCode initialize();
 
-   protected:
-      /// @name Functions called by the AsgMetadataTool base class
-      /// @{
-
-      /// Function collecting the trigger configuration metadata from the input
-      /// file
-      virtual StatusCode beginInputFile();
-
-      /// Function used to make sure that file openings are not missed
-      virtual StatusCode beginEvent();
-
-      /// Function writing out the collected metadata
-      virtual StatusCode metaDataStop();
-
-      /// @}
+      /// Function called by the incident service
+      virtual void handle( const Incident& inc );
 
    private:
+      /// Function collecting the trigger configuration metadata from the input
+      /// file
+      StatusCode collectMetaData();
+      /// Function writing out the collected metadata
+      StatusCode writeMetaData();
+
+      /// Connection to the input metadata store
+      ServiceHandle< ::StoreGateSvc > m_inputMetaStore;
+      /// Connection to the output metadata store
+      ServiceHandle< ::StoreGateSvc > m_outputMetaStore;
+
       /// The key of the trigger menu in the input file
       std::string m_inputKey;
       /// The key of the trigger menu for the output file
@@ -77,10 +71,6 @@ namespace xAODMaker {
       std::unique_ptr< xAOD::TriggerMenuContainer > m_menu;
       /// The merged trigger menu auxiliary container
       std::unique_ptr< xAOD::TriggerMenuAuxContainer > m_menuAux;
-
-      /// Internal status flag showing whether a BeginInputFile incident was
-      /// seen already
-      bool m_beginFileIncidentSeen;
 
    }; // class TriggerMenuMetaDataTool
 
