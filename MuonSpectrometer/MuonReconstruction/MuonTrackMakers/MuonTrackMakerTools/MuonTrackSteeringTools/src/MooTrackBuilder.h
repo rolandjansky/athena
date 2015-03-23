@@ -288,6 +288,7 @@ namespace Muon {
     bool                                         m_useTrackingHistory; //!< use history of the track finding up to now to avoid creating duplicates
     mutable unsigned int                         m_ncalls;
     mutable unsigned int                         m_nTimedOut;
+    bool                                         m_recalibrateMDTHits;
 
   };
 
