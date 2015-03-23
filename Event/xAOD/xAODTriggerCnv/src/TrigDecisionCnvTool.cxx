@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TrigDecisionCnvTool.cxx 626150 2014-11-04 20:33:29Z lheinric $
+// $Id: TrigDecisionCnvTool.cxx 626742 2014-11-06 20:08:44Z lheinric $
 
 // Gaudi/Athena include(s):
 #include "AthenaKernel/errorcheck.h"
@@ -64,7 +64,7 @@ namespace xAODMaker {
     * Note that the "physics chains" by convention get a chain counter
     * smaller than this value.
     */
-   static const uint32_t MAXIMUM_CHAIN_ID = 1024;
+   static const uint32_t MAXIMUM_CHAIN_ID = 8192;
    /// Size of the bitset vectors
    static const uint32_t BITSET_SIZE = MAXIMUM_CHAIN_ID / 32;
 

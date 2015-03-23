@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: EnergySumRoICnvTool.cxx 575028 2013-12-11 14:30:06Z krasznaa $
+// $Id: EnergySumRoICnvTool.cxx 629847 2014-11-20 15:41:02Z masik $
 
 // Gaudi/Athena include(s):
 #include "AthenaKernel/errorcheck.h"
@@ -49,9 +49,8 @@ namespace xAODMaker {
 
       // If there is no RoI to convert:
       if( ! aod->getEnergySumROIs().size() ) {
-         REPORT_ERROR( MSG::ERROR )
-            << "No EnergySum RoI received on the input";
-         return StatusCode::FAILURE;
+         ATH_MSG_WARNING( "No EnergySum RoI received on the input" );
+         return StatusCode::SUCCESS;
       }
 
       // A sanity check on the input:
