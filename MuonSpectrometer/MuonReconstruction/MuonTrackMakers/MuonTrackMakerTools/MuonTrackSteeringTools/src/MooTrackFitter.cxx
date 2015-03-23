@@ -2406,7 +2406,7 @@ namespace Muon {
       for( TrkDriftCircleMath::DCOnTrackCit dcit = matchedDCs.begin();dcit!=matchedDCs.end();++dcit ){
         
         if( dcit->state() == TrkDriftCircleMath::DCOnTrack::OnTrack ) continue;
-	if(dcit->index()>=indexIdMap.size()) continue;
+	if( (unsigned int) dcit->index() >= indexIdMap.size() ) continue;
         indexIdMap[dcit->index()].second = true;
       }
       

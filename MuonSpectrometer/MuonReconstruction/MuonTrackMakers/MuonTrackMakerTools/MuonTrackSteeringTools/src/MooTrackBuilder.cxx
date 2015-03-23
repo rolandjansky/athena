@@ -96,6 +96,7 @@ namespace Muon {
     declareProperty("UseTimeOutGuard",m_doTimeOutChecks = true );  
     declareProperty("UseExclusionList",m_useExclusionList = true ); 
     declareProperty("UseTrackingHistory", m_useTrackingHistory = true );
+    declareProperty("RecalibrateMDTHitsOnTrack", m_recalibrateMDTHits = true);
   }
     
   MooTrackBuilder::~MooTrackBuilder() {
@@ -268,7 +269,7 @@ namespace Muon {
 		    << m_printer->printStations(*finalTrack) );
     
 
-    bool recalibrateMDTHits = true;
+    bool recalibrateMDTHits = m_recalibrateMDTHits;
     bool recreateCompetingROTs = true;
     Trk::Track* recalibratedTrack = recalibrateHitsOnTrack(*finalTrack,recalibrateMDTHits,
 							   recreateCompetingROTs);
