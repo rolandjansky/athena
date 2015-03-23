@@ -64,6 +64,11 @@ if hasattr(runArgs,"inputRDO_TRIGFile"):
     l1output = Lvl1ResultBuilderGetter()
     from TrigHLTMonitoring.HLTMonFlags import HLTMonFlags
     HLTMonFlags.doMonTier0 = False
+    from AthenaMonitoring.DQMonFlags import DQMonFlags
+    DQMonFlags.doCTPMon = False
+    DQMonFlags.doHLTMon = False
+    DQMonFlags.useTrigger = False
+    DQMonFlags.doLVL1CaloMon = False
 if hasattr(runArgs,"inputRDO_FILTFile"):
     rec.readRDO.set_Value_and_Lock( True )
     globalflags.InputFormat.set_Value_and_Lock('pool')
