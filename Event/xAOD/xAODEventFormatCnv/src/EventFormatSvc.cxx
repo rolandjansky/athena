@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: EventFormatSvc.cxx 641395 2015-01-23 20:07:21Z ssnyder $
+// $Id: EventFormatSvc.cxx 641394 2015-01-23 20:07:16Z ssnyder $
 
 // System include(s):
 #include <fstream>

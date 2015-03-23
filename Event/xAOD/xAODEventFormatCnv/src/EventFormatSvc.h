@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: EventFormatSvc.h 641395 2015-01-23 20:07:21Z ssnyder $
+// $Id: EventFormatSvc.h 641394 2015-01-23 20:07:16Z ssnyder $
 #ifndef XAODEVENTFORMATCNV_EVENTFORMATSVC_H
 #define XAODEVENTFORMATCNV_EVENTFORMATSVC_H
 
@@ -35,8 +35,8 @@ namespace xAODMaker {
     *
     * @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
     *
-    * $Revision: 641395 $
-    * $Date: 2015-01-23 21:07:21 +0100 (Fri, 23 Jan 2015) $
+    * $Revision: 641394 $
+    * $Date: 2015-01-23 21:07:16 +0100 (Fri, 23 Jan 2015) $
     */
    class EventFormatSvc : public AthService,
                           public virtual IEventFormatSvc,
