@@ -10,6 +10,20 @@ from egammaTools.InDetTools import egammaExtrapolator
 from MCTruthClassifier import MCTruthClassifierConf
 import AthenaCommon.CfgMgr as CfgMgr
 
+def getSimBarcodeOffset():
+  "Return the simulation barcode offset for G4 particles from metadata"
+  from RecExConfig.InputFilePeeker import inputFileSummary
+  offset = 200e3
+  try:
+    return int(inputFileSummary['metadata']['/Simulation/Parameters']['SimBarcodeOffset'])
+  except:
+    print 'Could not retrieve SimBarcodeOffset from /Simulation/Parameters, leaving at 200k'
+  return int(offset)
+
+def getSimBarcodeOffset1():
+  "Return the simulation barcode offset for G4 particles from metadata + 1"
+  return getSimBarcodeOffset() + 1
+
 EMClassifierParticleCaloExtensionTool =  ToolFactory (CfgMgr.Trk__ParticleCaloExtensionTool, 
                                                       name="EMClassifierParticleCaloExtensionTool",
                                                       Extrapolator = egammaExtrapolator,
@@ -17,16 +31,9 @@ EMClassifierParticleCaloExtensionTool =  ToolFactory (CfgMgr.Trk__ParticleCaloEx
                                                       )
 
 EMMCTruthClassifier = ToolFactory( MCTruthClassifierConf.MCTruthClassifier, name = 'EMMCTruthClassifier',
-                                   ParticleCaloExtensionTool=EMClassifierParticleCaloExtensionTool)
+                                   ParticleCaloExtensionTool=EMClassifierParticleCaloExtensionTool,
+                                   barcodeG4Shift = FcnWrapper( getSimBarcodeOffset1 )  )
 
-def getSimBarcodeOffset():
-  "Return the simulation barcode offset for G4 particles from metadata"
-  from RecExConfig.InputFilePeeker import inputFileSummary
-  try:
-    return inputFileSummary['metadata']['/Simulation/Parameters']['SimBarcodeOffset']
-  except:
-    print 'Could not retrieve TruthStrategy from /Simulation/Parameters, leaving barcode_offset at 200k'
-    return int(200e3)
 
 egammaTruthAssociationAlg = AlgFactory( egammaRecConf.egammaTruthAssociationAlg,
                                         ClusterContainerName = egammaKeys.outputClusterKey(),
@@ -46,12 +53,17 @@ egammaTruthAssociationAlg = AlgFactory( egammaRecConf.egammaTruthAssociationAlg,
 class egammaTruthAssociationGetter ( Configured ) :
 
     def configure(self):
+        from AthenaCommon.Logging import logging
+        mlog = logging.getLogger ('egammaTruthAssociationGetter::configure:')
+        mlog.info('entering')
+        
 
         # configure egammaTruthAssociation here:
         try:
             self._egammaTruthAssociationHandle = egammaTruthAssociationAlg()
         except Exception:
             mlog.error("could not get handle to egammaTruthAssociation")
+            import traceback
             print traceback.format_exc()
             return False
         return True
