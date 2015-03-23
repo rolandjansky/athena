@@ -299,21 +299,30 @@ def generate(run_card_loc='run_card.dat',param_card_loc='param_card.dat',mode=0,
         LHADATAPATH=os.environ['LHAPATH'].split(':')[1]
     else:
         LHADATAPATH=os.environ['LHAPATH'].split(':')[0]
-
+    os.environ['LHAPDF_DATA_PATH']=LHADATAPATH
         
+    mglog.info('Path to LHAPDF install dir:%s'%LHAPATH)
+    mglog.info('Path to LHAPDF data dir: %s'%LHADATAPATH)
 
     # Dealing with LHAPDF (Only need to edit configuration file for 2.1.1 onwards)
     if int(version.split('.')[0]) >= 2 and ( int(version.split('.')[1]) > 1 or ( int(version.split('.')[1]) == 1 and int(version.split('.')[2]) > 0) ):
-        getlhaconfig = subprocess.Popen(['get_files','-data','lhapdf-config'])
-        getlhaconfig.wait() 
 
-        #Get dummy lhapdf-config 
-        if not os.access(os.getcwd()+'/lhapdf-config',os.X_OK):
-            mglog.error('Failed to get lhapdf-config from MadGraphControl')
-            return 1
-        lhapdfconfig = os.getcwd()+'/lhapdf-config'
-        #lhapdfconfig = LHAPATH.split('share/')[0]+os.environ['CMTCONFIG']+'/bin/lhapdf-config'
-        #lhapdfconfig = '/afs/cern.ch/work/m/mcfayden/mcgen/MadGraphControl/MGCTestFramework/lhapdf-config'
+        if extlhapath:
+            lhapdfconfig=extlhapath
+            if not os.access(lhapdfconfig,os.X_OK):
+                mglog.error('Failed to find valid external lhapdf-config at %s'%lhapdfconfig)
+                return 1
+            LHADATAPATH=subprocess.Popen([lhapdfconfig, '--datadir'],stdout = subprocess.PIPE).stdout.read().strip()
+            mglog.info('Changing LHAPDF_DATA_PATH to %s'%LHADATAPATH)
+            os.environ['LHAPDF_DATA_PATH']=LHADATAPATH
+        else:
+            getlhaconfig = subprocess.Popen(['get_files','-data','lhapdf-config'])
+            getlhaconfig.wait() 
+            #Get custom lhapdf-config 
+            if not os.access(os.getcwd()+'/lhapdf-config',os.X_OK):
+                mglog.error('Failed to get lhapdf-config from MadGraphControl')
+                return 1
+            lhapdfconfig = os.getcwd()+'/lhapdf-config'
 
 
         if not isNLO:
@@ -903,13 +912,13 @@ def arrange_output(run_name='Test',proc_dir='PROC_mssm_0',outputDS='madgraph_OTF
     return outputDS
 
 
-
-def strong_process_dict( njets = 1 , gentype = 'GG' ):
-    header = """
-import model mssm
+def helpful_definitions():
+    return """
 # Define multiparticle labels
 define p = g u c d s u~ c~ d~ s~
 define j = g u c d s u~ c~ d~ s~
+define pb = g u c d s b u~ c~ d~ s~ b~
+define jb = g u c d s b u~ c~ d~ s~ b~
 define l+ = e+ mu+
 define l- = e- mu-
 define vl = ve vm vt
@@ -918,7 +927,22 @@ define fu = u c e+ mu+ ta+
 define fu~ = u~ c~ e- mu- ta-
 define fd = d s ve~ vm~ vt~
 define fd~ = d~ s~ ve vm vt
+define susystrong = go ul ur dl dr cl cr sl sr t1 t2 b1 b2 ul~ ur~ dl~ dr~ cl~ cr~ sl~ sr~ t1~ t2~ b1~ b2~
+define susyweak = el- el+ er- er+ mul- mul+ mur- mur+ ta1- ta1+ ta2- ta2+ n1 n2 n3 n4 x1- x1+ x2- x2+ sve sve~ svm svm~ svt svt~ 
+define susylq = ul ur dl dr cl cr sl sr
+define susylq~ = ul~ ur~ dl~ dr~ cl~ cr~ sl~ sr~
+define susysq = ul ur dl dr cl cr sl sr t1 t2 b1 b2
+define susysq~ = ul~ ur~ dl~ dr~ cl~ cr~ sl~ sr~ t1~ t2~ b1~ b2~
+define susysl = el- el+ er- er+ mul- mul+ mur- mur+ ta1- ta1+ ta2- ta2+
+define susyv = sve svm svt
+define susyv~ = sve~ svm~ svt~
+"""
 
+def strong_process_dict( njets = 1 , gentype = 'GG' ):
+    header = """
+import model mssm"""
+    header += helpful_definitions()
+    header += """
 # Specify process(es) to run
 
 """
@@ -957,13 +981,13 @@ output -f
     for jets in jetloop:
         bb_string += '%s p p > b1 b1~ %s $ go ul ur dl dr cl cr sl sr t1 t2 b2 ul~ ur~ dl~ dr~ cl~ cr~ sl~ sr~ t1~ t2~ b2~ \n'%(starter,jets)
         tt_string += '%s p p > t1 t1~ %s $ go ul ur dl dr cl cr sl sr t2 b1 b2 ul~ ur~ dl~ dr~ cl~ cr~ sl~ sr~ b1~ t2~ b2~ \n'%(starter,jets)
-        n1n1_string += '%s p p > n1 n1 %s $ go ul ur dl dr cl cr sl sr t1 t2 b1 b2 ul~ ur~ dl~ dr~ cl~ cr~ sl~ sr~ t1~ t2~ b1~ b2~ \n'%(starter,jets)
-        n2n3_string += '%s p p > n2 n3 %s $ go ul ur dl dr cl cr sl sr t1 t2 b1 b2 ul~ ur~ dl~ dr~ cl~ cr~ sl~ sr~ t1~ t2~ b1~ b2~ \n'%(starter,jets)
-        gg_string += '%s p p > go go %s $ ul ur dl dr cl cr sl sr t1 t2 b1 b2 ul~ ur~ dl~ dr~ cl~ cr~ sl~ sr~ t1~ t2~ b1~ b2~ \n'%(starter,jets)
+        n1n1_string += '%s p p > n1 n1 %s $ susystrong \n'%(starter,jets)
+        n2n3_string += '%s p p > n2 n3 %s $ susystrong \n'%(starter,jets)
+        gg_string += '%s p p > go go %s $ susysq \n'%(starter,jets)
         for sign1 in ['+','-']:
-            c1n2_string += '%s p p > x1%s n2 %s $ go ul ur dl dr cl cr sl sr t1 t2 b1 b2 ul~ ur~ dl~ dr~ cl~ cr~ sl~ sr~ t1~ t2~ b1~ b2~ \n'%(starter,sign1,jets)
+            c1n2_string += '%s p p > x1%s n2 %s $ susystrong \n'%(starter,sign1,jets)
             for sign2 in ['+','-']:
-                cc_string += '%s p p > x1%s x1%s %s $ go ul ur dl dr cl cr sl sr t1 t2 b1 b2 ul~ ur~ dl~ dr~ cl~ cr~ sl~ sr~ t1~ t2~ b1~ b2~ \n'%(starter,sign1,sign2,jets)
+                cc_string += '%s p p > x1%s x1%s %s $ susystrong \n'%(starter,sign1,sign2,jets)
                 starter = 'add process'
         if first: starter = 'generate'
         for s in ['cl','cr']:
@@ -1014,29 +1038,30 @@ output -f
     return header+processes[gentype]+footer
 
 
-def get_variations( gentype , masses , syst_mod ):
-    xqcut=500 # default
-    if 'Scharm'==gentype:
-        if masses['1000004']<xqcut*4.: xqcut = masses['1000004']*0.25
-    elif 'N2N3'==gentype:
-        if masses['1000025']<xqcut*4.: xqcut = masses['1000025']*0.25
-    elif 'N1N1'==gentype:
-        if masses['1000022']<xqcut*4.: xqcut = masses['1000022']*0.22
-    elif 'C1N2'==gentype:
-        if masses['1000024']<xqcut*4.: xqcut = masses['1000024']*0.25
-    else:
-        if 'G' in gentype or 'ALL' in gentype:
-            if masses['1000021']<xqcut*4.: xqcut = masses['1000021']*0.25
-        if 'S' in gentype or 'ALL' in gentype:
-            if masses['1000002']<xqcut*4.: xqcut = masses['1000002']*0.25
-        if 'T' in gentype:
-            if masses['1000006']<xqcut*4.: xqcut = masses['1000006']*0.25
-        if 'B' in gentype:
-            if masses['1000005']<xqcut*4.: xqcut = masses['1000005']*0.25
-        if 'C' in gentype:
+def get_variations( gentype , masses , syst_mod , xqcut = None ):
+    if xqcut is None:
+        xqcut=500 # default
+        if 'Scharm'==gentype:
+            if masses['1000004']<xqcut*4.: xqcut = masses['1000004']*0.25
+        elif 'N2N3'==gentype:
+            if masses['1000025']<xqcut*4.: xqcut = masses['1000025']*0.25
+        elif 'N1N1'==gentype:
+            if masses['1000022']<xqcut*4.: xqcut = masses['1000022']*0.22
+        elif 'C1N2'==gentype:
             if masses['1000024']<xqcut*4.: xqcut = masses['1000024']*0.25
-    if syst_mod is not None and 'qup' in syst_mod.lower(): xqcut = xqcut*2.
-    elif syst_mod is not None and 'qdown' in syst_mod.lower(): xqcut = xqcut*0.5
+        else:
+            if 'G' in gentype or 'ALL' in gentype:
+                if masses['1000021']<xqcut*4.: xqcut = masses['1000021']*0.25
+            if 'S' in gentype or 'ALL' in gentype:
+                if masses['1000002']<xqcut*4.: xqcut = masses['1000002']*0.25
+            if 'T' in gentype:
+                if masses['1000006']<xqcut*4.: xqcut = masses['1000006']*0.25
+            if 'B' in gentype:
+                if masses['1000005']<xqcut*4.: xqcut = masses['1000005']*0.25
+            if 'C' in gentype:
+                if masses['1000024']<xqcut*4.: xqcut = masses['1000024']*0.25
+        if syst_mod is not None and 'qup' in syst_mod.lower(): xqcut = xqcut*2.
+        elif syst_mod is not None and 'qdown' in syst_mod.lower(): xqcut = xqcut*0.5
     mglog.info('For matching, will use xqcut of '+str(xqcut))
 
     alpsfact = 1.0
@@ -1055,7 +1080,7 @@ def get_variations( gentype , masses , syst_mod ):
 def SUSY_StrongSM_Generation(runArgs = None, gentype='SS',decaytype='direct',masses=None,\
                              nevts=None, njets=1, syst_mod=None,\
                              SLHAonly=False, keepOutput=False, SLHAexactCopy=False,\
-                             writeGridpack=False,gridpackDirName=None,getnewruncard=False,MSSMCalc=False):
+                             writeGridpack=False,gridpackDirName=None,getnewruncard=False,MSSMCalc=False,pdlabel="'cteq6l1'",lhaid=10042):
     # Set beam energy
     beamEnergy = 6500.
     if hasattr(runArgs,'ecmEnergy'): beamEnergy = runArgs.ecmEnergy * 0.5
@@ -1120,7 +1145,7 @@ def SUSY_StrongSM_Generation(runArgs = None, gentype='SS',decaytype='direct',mas
 
     else:
        if getnewruncard==True:
-           extras = { 'ktdurham':xqcut , 'lhe_version':'2.0' , 'cut_decays':'F' , 'pdlabel':"'cteq6l1'" }
+           extras = { 'ktdurham':xqcut , 'lhe_version':'2.0' , 'cut_decays':'F' , 'pdlabel':pdlabel , 'lhaid':lhaid , 'drjj':0.0 }
            build_run_card(run_card_old=get_default_runcard(),run_card_new='run_card.dat',xqcut=0,
                                   nevts=nevts,rand_seed=rand_seed,beamEnergy=beamEnergy, scalefact=scalefact, alpsfact=alpsfact,extras=extras)
        else:
@@ -1157,8 +1182,109 @@ def SUSY_StrongSM_Generation(runArgs = None, gentype='SS',decaytype='direct',mas
     return [xqcut,the_spot]
 
 
+def SUSY_SM_Generation(runArgs = None, process='', gentype='SS',decaytype='direct',masses=None,\
+                       nevts=None, syst_mod=None,xqcut=None, SLHAonly=False, keepOutput=False, SLHAexactCopy=False,\
+                       writeGridpack=False,gridpackDirName=None,MSSMCalc=False,pdlabel="'cteq6l1'",lhaid=10042):
+    # Set beam energy
+    beamEnergy = 6500.
+    if hasattr(runArgs,'ecmEnergy'): beamEnergy = runArgs.ecmEnergy * 0.5
 
-def build_param_card(param_card_old=None,param_card_new='param_card.dat',masses={},decays={}):
+    # Set random seed
+    rand_seed=1234
+    if hasattr(runArgs, "randomSeed"): rand_seed=runArgs.randomSeed
+
+    # Sensible defaults for number of events
+    if nevts is None: nevts = 10000.
+
+    if not os.environ.has_key('MADGRAPH_DATA'):
+        os.environ['MADGRAPH_DATA']=os.getcwd()
+        mglog.warning('Setting your MADGRAPH_DATA environmental variable to the working directory')
+    # Set up production and decay strings
+    if nevts<1000 or nevts>10000000:
+        mglog.error('Bad idea to generate '+str(nevts)+' events.  MadGraph wont complain, but the job will never end.  Bailing out now.')
+        return -1,''
+
+    xqcut , alpsfact , scalefact = get_variations( gentype , masses , syst_mod , xqcut=xqcut )
+
+    if not SLHAonly:
+        # Generate the new process!
+        full_proc = """
+import model mssm
+"""+helpful_definitions()+"""
+# Specify process(es) to run
+
+"""+process+"""
+# Output processes to MadEvent directory
+output -f
+"""
+        thedir = new_process(card_loc=full_proc)
+        if 1==thedir:
+            mglog.error('Error in process generation!')
+            return -1,''
+        mglog.info('Using process directory '+thedir)
+
+    if MSSMCalc:
+        # Grab the param card and move the new masses into place
+        build_param_card(param_card_old='param_card.SM.SG.dat',param_card_new='LH.dat',masses=masses)
+
+        mglog.info('Running MSSMCalc')
+        runMSSMCalc = subprocess.Popen([ os.environ['MADPATH']+'/Calculators/mssm/MSSMCalc'])
+        runMSSMCalc.wait()
+        if not os.access('param_card.dat',os.R_OK):
+            mglog.error('Problem generating param card!!  Will bail out...')
+            return -1,''
+    else:
+        # Grab the param card and move the new masses into place
+        if SLHAexactCopy:
+            str_masses = '_'.join(sorted(masses.values()))
+            str_param_card = 'param_card.SM.%s.%s.dat'%(gentype,decaytype)
+            proc_paramcard = subprocess.Popen(['get_files','-data',str_param_card])
+            proc_paramcard.wait()
+            if not os.access(str_param_card,os.R_OK):
+                mglog.info('Could not get param card '+str_param_card)
+        else:
+            build_param_card(param_card_old='param_card.SM.%s.%s.dat'%(gentype,decaytype),param_card_new='param_card.dat',masses=masses)
+
+    if SLHAonly:
+        mglog.info('Not running generation - only setting up SLHA file')
+        return [xqcut,'dummy']
+
+    # Grab the run card and move it into place
+    extras = { 'ktdurham':xqcut , 'lhe_version':'2.0' , 'cut_decays':'F' , 'pdlabel':pdlabel , 'lhaid':lhaid , 'drjj':0.0 }
+    build_run_card(run_card_old=get_default_runcard(),run_card_new='run_card.dat',xqcut=0,
+                   nevts=nevts,rand_seed=rand_seed,beamEnergy=beamEnergy, scalefact=scalefact, alpsfact=alpsfact,extras=extras)
+
+    # Generate events!
+    if gridpackDirName is not None:
+        if writeGridpack==False:
+            mglog.info('Generateing events from gridpack')
+            if generate_from_gridpack(run_name='Test',gridpack_dir=gridpackDirName,nevents=int(nevts),random_seed=rand_seed):
+                mglog.error('Error generating events!')
+                return -1
+            thedir=gridpackDirName
+        else:
+            mglog.error('Wrong combination of arguments! writeGridpack='+str(writeGridpack)+' gridpackDirName='+str(gridpackDirName))
+            return -1
+    else:
+        if generate(run_card_loc='run_card.dat',param_card_loc='param_card.dat',mode=0,njobs=1,run_name='Test',proc_dir=thedir,grid_pack=writeGridpack):
+            mglog.error('Error generating events!')
+            return -1
+
+    # Move output files into the appropriate place, with the appropriate name
+    the_spot = arrange_output(run_name='Test',proc_dir=thedir,outputDS='madgraph_OTF._00001.events.tar.gz')
+    if the_spot == '':
+        mglog.error('Error arranging output dataset!')
+        return -1
+
+    if not keepOutput:
+        mglog.info('Removing process directory...')
+        shutil.rmtree(thedir,ignore_errors=True)
+
+    mglog.info('All done generating events!!')
+    return [xqcut,the_spot]
+
+
+def build_param_card(param_card_old=None,param_card_new='param_card.dat',masses={},decays={},extras={}):
     """Build a new param_card.dat from an existing one."""
     # Grab the old param card and move it into place
     paramcard = subprocess.Popen(['get_files','-data',param_card_old])
@@ -1173,22 +1299,26 @@ def build_param_card(param_card_old=None,param_card_new='param_card.dat',masses=
     edit = False
     blockName = ""
     for line in oldcard:
-        if (line.strip().startswith('BLOCK') or 
-            line.strip().startswith('DECAY')) and len(line.strip().split()) > 1: 
+        if line.strip().upper().startswith('BLOCK') or line.strip().upper().startswith('DECAY')\
+                    and len(line.strip().split()) > 1: 
             if edit and blockName == 'DECAY': edit = False # Start a new DECAY block
             pos = 0 if line.strip().startswith('DECAY') else 1
-            blockName = line.strip().split()[pos]
-        pdgid = None
-        if blockName == 'MASS' and len(line.strip().split()) > 0:
-            pdgid = line.strip().split()[0]
-        if blockName == 'DECAY' and len(line.strip().split()) > 1:
-            pdgid = line.strip().split()[1]
-        if pdgid != None and blockName == 'MASS' and masses.has_key(pdgid):
-            newcard.write('   %s    %s  # \n'%(pdgid,str(masses[pdgid])))
-            mglog.info('   %s    %s  #'%(pdgid,str(masses[pdgid])))
+            blockName = line.strip().upper().split()[pos]
+        akey = None
+        if blockName in ['MASS','BSM'] and len(line.strip().split()) > 0:
+            akey = line.strip().split()[0]
+        elif blockName == 'DECAY' and len(line.strip().split()) > 1:
+            akey = line.strip().split()[1]
+        if   akey != None and blockName == 'MASS'  and masses.has_key(akey):
+            newcard.write('   %s    %s  # \n'%(akey,str(masses[akey])))
+            mglog.info('   %s    %s  #'%(akey,str(masses[akey])))
             edit = False
-        elif pdgid != None and blockName == 'DECAY' and decays.has_key(pdgid):
-            for newline in decays[pdgid].splitlines():
+        elif akey != None and blockName == 'BSM'   and extras.has_key(akey):
+            newcard.write('   %s    %s  # \n'%(akey,str(extras[akey])))
+            mglog.info('   %s    %s  #'%(akey,str(extras[akey])))
+            edit = False
+        elif akey != None and blockName == 'DECAY' and decays.has_key(akey):
+            for newline in decays[akey].splitlines():
                 newcard.write(newline+'\n')
                 mglog.info(newline)
             edit = True
@@ -1244,13 +1374,19 @@ def build_run_card(run_card_old='run_card.SM.dat',run_card_new='run_card.dat',
     return run_card_new
 
 def print_cards():
-    mglog.info("proc_card_mg5.dat:")
-    procCard = subprocess.Popen(['cat','proc_card_mg5.dat'])
-    procCard.wait()
-    
-    mglog.info("run_card.dat:")
-    runCard = subprocess.Popen(['cat','run_card.dat'])
-    runCard.wait()
+    if os.access('proc_card_mg5.dat',os.R_OK):
+        mglog.info("proc_card_mg5.dat:")
+        procCard = subprocess.Popen(['cat','proc_card_mg5.dat'])
+        procCard.wait()
+    else:
+        mglog.warning('No proc_card_mg5.dat found')
+
+    if os.access('run_card.dat',os.R_OK):
+        mglog.info("run_card.dat:")
+        runCard = subprocess.Popen(['cat','run_card.dat'])
+        runCard.wait()
+    else:
+        mglog.warning('No run_card.dat found')
 
 
 def is_gen_from_gridpack(grid_pack=None):
