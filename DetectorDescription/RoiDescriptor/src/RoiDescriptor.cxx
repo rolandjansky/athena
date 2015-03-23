@@ -122,7 +122,7 @@ void RoiDescriptor::construct(double _eta, double _etaMinus, double _etaPlus,
   // deal with double -> float M_PI conversion 
 
   m_phiPlus  = _phiPlus; 
-  m_phiMinus = _phiMinus;
+  //  m_phiMinus = _phiMinus;
   
   while ( m_phiPlus> M_PIF ) m_phiPlus -= M_2PI;
   while ( m_phiPlus<-M_PIF ) m_phiPlus += M_2PI;
@@ -136,7 +136,7 @@ void RoiDescriptor::construct(double _eta, double _etaMinus, double _etaPlus,
   if ( m_phiPlus> M_PI ) m_phiPlus -= 1e-7; 
   if ( m_phiPlus<-M_PI ) m_phiPlus += 1e-7; 
 
-  m_phiPlus  = _phiPlus; 
+  //  m_phiPlus  = _phiPlus; 
   m_phiMinus = _phiMinus;
 
   while ( m_phiMinus<-M_PIF ) m_phiMinus += M_2PI;
