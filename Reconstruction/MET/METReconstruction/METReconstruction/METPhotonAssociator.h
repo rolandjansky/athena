@@ -16,11 +16,10 @@
 
 // METReconstruction includes
 #include "METReconstruction/METEgammaAssociator.h"
-#include "xAODEgamma/PhotonFwd.h"
 
 namespace met{
   class METPhotonAssociator final
-    : public METEgammaAssociator
+    : virtual public METEgammaAssociator
   { 
     // This macro defines the constructor with the interface declaration
     ASG_TOOL_CLASS(METPhotonAssociator, IMETAssocToolBase)
@@ -52,7 +51,16 @@ namespace met{
     /////////////////////////////////////////////////////////////////// 
     protected: 
 
-    StatusCode executeTool(xAOD::MissingETContainer* metCont, xAOD::MissingETAssociationMap* metMap) const final;
+    StatusCode executeTool(xAOD::MissingETContainer* metCont, xAOD::MissingETAssociationMap* metMap);
+    StatusCode extractPFO(const xAOD::IParticle* obj,
+			  std::vector<const xAOD::IParticle*>& pfolist,
+			  const xAOD::PFOContainer* pfoCont,
+			  std::map<const xAOD::IParticle*,MissingETBase::Types::constvec_t> &momenta,
+			  const xAOD::Vertex* pv) final;
+    StatusCode extractTracks(const xAOD::IParticle* obj,
+			     std::vector<const xAOD::IParticle*>& constlist,
+			     const xAOD::CaloClusterContainer* tcCont,
+			     const xAOD::Vertex* pv) final;
 
     private:
  

@@ -63,7 +63,6 @@ namespace met {
   ////////////////////////////
   StatusCode METJetFilterTool::initialize()
   {
-    ATH_CHECK( METRefinerTool::initialize() );
     ATH_MSG_INFO ("Initializing " << name() << "...");
 
     return StatusCode::SUCCESS;
@@ -109,8 +108,7 @@ namespace met {
     return true;
   }
 
-  StatusCode METJetFilterTool::executeTool(xAOD::MissingET* metTerm, xAOD::MissingETComponentMap* metMap) const
-  {
+  StatusCode METJetFilterTool::executeTool(xAOD::MissingET* metTerm, xAOD::MissingETComponentMap* metMap) {
 
     ATH_MSG_DEBUG ("In execute: " << name() << "...");
 

@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// METAssociator.h
+// METAssociator.h 
 // Header file for class METAssociator
 //
 // This is the base class for tools that construct MET terms
@@ -13,7 +13,7 @@
 //  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 //
 // Author: P Loch, S Resconi, TJ Khoo, AS Mete
-///////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////// 
 #ifndef METRECONSTRUCTION_METASSOCIATOR_H
 #define METRECONSTRUCTION_METASSOCIATOR_H
 
@@ -24,109 +24,80 @@
 #include "AsgTools/AsgTool.h"
 #include "AsgTools/ToolHandle.h"
 
+// Tracking Tool
+#include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h"
+
 // METRecoInterface includes
 #include "METRecoInterface/IMETAssocToolBase.h"
 
-#include "xAODTracking/TrackParticleContainer.h"
+#include "xAODCaloEvent/CaloClusterContainer.h"
+#include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/Vertex.h"
-//#include "xAODCaloEvent/CaloClusterContainer.h"
 #include "xAODPFlow/PFOContainer.h"
 #include "xAODPFlow/PFO.h"
-
-namespace CP {
-  class IWeightPFOTool;
-  class IRetrievePFOTool;
-}
-
-namespace InDet {
-  class IInDetTrackSelectionTool;
-}
- 
-namespace xAOD {
-  class ITrackIsolationTool;
-  class ICaloTopoClusterIsolationTool;
-}
+#include "PFlowUtils/IRetrievePFOTool.h"
 
 namespace met {
   class METAssociator
     : virtual public asg::AsgTool,
       virtual public IMETAssocToolBase
-  {
- 
-    ///////////////////////////////////////////////////////////////////
-    // Public methods:
-    ///////////////////////////////////////////////////////////////////
+  { 
+    /////////////////////////////////////////////////////////////////// 
+    // Public methods: 
+    /////////////////////////////////////////////////////////////////// 
     public:
- 
-    struct ConstitHolder {
-      const xAOD::TrackParticleContainer* trkCont = 0;
-      // Use IParticleContainer for flexibility e.g. if combining clusters & towers
-      const xAOD::IParticleContainer* tcCont = 0;
-      const xAOD::PFOContainer* pfoCont = 0;
-      const xAOD::Vertex* pv = 0;
-    };
 
     // Constructor w/ name
     METAssociator(const std::string& name);
     // Default Destructor
-    virtual ~METAssociator();
+    virtual ~METAssociator(); 
 
     // AsgTool Handles
     virtual StatusCode initialize();
-    virtual StatusCode execute   (xAOD::MissingETContainer* metCont, xAOD::MissingETAssociationMap* metMap) const;
+    virtual StatusCode execute   (xAOD::MissingETContainer* metCont, xAOD::MissingETAssociationMap* metMap);
     virtual StatusCode finalize  ();
 
-    ///////////////////////////////////////////////////////////////////
-    // Protected methods:
-    ///////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////// 
+    // Protected methods: 
+    /////////////////////////////////////////////////////////////////// 
     protected:
 
     std::string m_input_data_key;
     std::string m_pvcoll;
     std::string m_trkcoll;
     std::string m_clcoll;
-    std::string m_goodtracks_coll;
 
-    bool m_pflow;
-    bool m_useTracks;
-    bool m_useRapidity;
-    bool m_useIsolationTools;
-    bool m_useModifiedClus;
-    bool m_weight_charged_pfo;
+    bool m_pflow;    
 
     ToolHandle<CP::IRetrievePFOTool> m_pfotool;
-    ToolHandle<CP::IWeightPFOTool> m_pfoweighttool;
+    std::vector<const xAOD::TrackParticle*> m_goodtracks;
     ToolHandle<InDet::IInDetTrackSelectionTool> m_trkseltool;
-    ToolHandle<xAOD::ITrackIsolationTool> m_trkIsolationTool;
-    ToolHandle<xAOD::ICaloTopoClusterIsolationTool> m_caloIsolationTool;
-    bool m_skipconst;
-    std::string m_forcoll;
-    double m_foreta;
-
-    double m_cenTrackPtThr;
-    double m_forTrackPtThr;
 
     // reconstruction process to be defined in the individual tools
     // pure virtual -- we have no default
-    virtual StatusCode executeTool(xAOD::MissingETContainer* metCont, xAOD::MissingETAssociationMap* metMap) const = 0;
-    StatusCode retrieveConstituents(met::METAssociator::ConstitHolder& constits) const;
+    virtual StatusCode executeTool(xAOD::MissingETContainer* metCont, xAOD::MissingETAssociationMap* metMap) = 0;
+    StatusCode retrieveConstituents(const xAOD::CaloClusterContainer*& tcCont,const xAOD::Vertex*& pv,const xAOD::TrackParticleContainer*& trkCont,const xAOD::PFOContainer*& pfoCont);
 
+    void filterTracks(const xAOD::TrackParticleContainer* tracks,
+		      const xAOD::Vertex* pv);
     bool acceptTrack (const xAOD::TrackParticle* trk, const xAOD::Vertex* pv) const;
     bool acceptChargedPFO(const xAOD::TrackParticle* trk, const xAOD::Vertex* pv) const;
-    bool isGoodEoverP(const xAOD::TrackParticle* trk) const;
+    bool isGoodEoverP(const xAOD::TrackParticle* trk,const xAOD::CaloClusterContainer*& tcCont) const;
 
-    virtual StatusCode fillAssocMap(xAOD::MissingETAssociationMap* metMap,
-				    const xAOD::IParticleContainer* hardObjs) const;
+    StatusCode fillAssocMap(xAOD::MissingETAssociationMap* metMap,
+			    const xAOD::IParticleContainer* hardObjs);
     virtual StatusCode extractPFO(const xAOD::IParticle* obj,
 				  std::vector<const xAOD::IParticle*>& pfolist,
-				  const met::METAssociator::ConstitHolder& constits,
-				  std::map<const xAOD::IParticle*,MissingETBase::Types::constvec_t> &momenta) const = 0;
+				  const xAOD::PFOContainer* pfoCont,
+				  std::map<const xAOD::IParticle*,MissingETBase::Types::constvec_t> &momenta,
+				  const xAOD::Vertex* pv) = 0;
     virtual StatusCode extractTracks(const xAOD::IParticle* obj,
 				     std::vector<const xAOD::IParticle*>& constlist,
-				     const met::METAssociator::ConstitHolder& constits) const = 0;
+				     const xAOD::CaloClusterContainer* tcCont,
+				     const xAOD::Vertex* pv) = 0;
     virtual StatusCode extractTopoClusters(const xAOD::IParticle* obj,
 					   std::vector<const xAOD::IParticle*>& tclist,
-					   const met::METAssociator::ConstitHolder& constits) const = 0;
+				           const xAOD::CaloClusterContainer* tcCont) = 0;
     static inline bool greaterPt(const xAOD::IParticle* part1, const xAOD::IParticle* part2) {
       return part1->pt()>part2->pt();
     }
@@ -136,9 +107,9 @@ namespace met {
       if (part1->charge()==0 && part2->charge()==0) return part1->ptEM()>part2->ptEM();
       return part1->pt()>part2->pt();
     }
-    ///////////////////////////////////////////////////////////////////
-    // Private methods:
-    ///////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////// 
+    // Private methods: 
+    /////////////////////////////////////////////////////////////////// 
     private:
 
     // Default Constructor

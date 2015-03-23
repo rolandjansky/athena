@@ -61,14 +61,10 @@ namespace met {
   ////////////////////////////
   StatusCode METRegionsTool::initialize()
   {
-    ATH_CHECK( METRefinerTool::initialize() );
-    ATH_MSG_VERBOSE ("Initializing " << name() << "...");
-
-    ATH_MSG_INFO("Base MET container: " << m_base_met_containerKey);
-    ATH_MSG_INFO("Base MET key: " << m_base_met_inputKey);
+    ATH_MSG_INFO ("Initializing " << name() << "...");
 
     if( m_base_met_containerKey.size()==0 || m_base_met_inputKey.size()==0 ) {
-      ATH_MSG_FATAL("Both InputMETContainer and InputMETKey must be provided.");
+      ATH_MSG_FATAL("Both InputMETContainer or InputMETKey must be provided.");
       return StatusCode::FAILURE;
     }
 
@@ -131,7 +127,7 @@ namespace met {
   // Protected methods: 
   /////////////////////////////////////////////////////////////////// 
 
-  StatusCode METRegionsTool::executeTool(xAOD::MissingET* metTerm_central, xAOD::MissingETComponentMap* metMap) const
+  StatusCode METRegionsTool::executeTool(xAOD::MissingET* metTerm_central, xAOD::MissingETComponentMap* metMap) 
   {
     ATH_MSG_DEBUG ("In execute: " << name() << "...");
 
@@ -165,12 +161,10 @@ namespace met {
       return StatusCode::SUCCESS;
     }
 
-    if( iterBaseConstit == base_met_map->end() ) {
+    if( iterBaseConstit == metMap->end() ) {
       ATH_MSG_WARNING("Could not find base METComponent in MET Map!");
       return StatusCode::SUCCESS;
     }
-
-    std::map< std::pair<float,float>, xAOD::MissingET* > mapRangeToMET;
 
     // Create MET term, push to container and maps
     for(unsigned int index=0; index<m_region_values.size(); ++index) {
@@ -180,14 +174,13 @@ namespace met {
         currentMetTerm->setName( m_base_met_inputKey + "_" + m_region_names.at(index) );
       } else { 
         currentMetTerm = new MissingET(0.,0.,0.);
-        ATH_MSG_DEBUG("Adding MET Term " << currentMetTerm->name() << " to MET container" );
-        metCont->push_back( currentMetTerm );
-	// Should also set the source
         currentMetTerm->setName( m_base_met_inputKey + "_" + m_region_names.at(index) );
+        ATH_MSG_DEBUG("Adding MET Term " << currentMetTerm->name() << " to MET container" );
+        metCont->push_back( currentMetTerm ); 
         ATH_MSG_DEBUG("Adding MET Term " << currentMetTerm->name() << " to MET map" );
         MissingETComposition::add( metMap, metCont->back() );
       }
-      mapRangeToMET.insert(std::pair<std::pair<float,float>,MissingET*>(m_region_eta_values.at(index),metCont->back()));
+      m_mapRangeToMET.insert(std::pair<std::pair<float,float>,MissingET*>(m_region_eta_values.at(index),metCont->back()));
     }
 
     // Fill the MET terms and maps
@@ -197,8 +190,8 @@ namespace met {
 
       for( vector<const IParticle*>::const_iterator iObj = objectList.begin(); iObj!=objectList.end(); ++iObj ) {
 	MissingETBase::Types::weight_t objWeight = (*iterBaseConstit)->weight(*iObj);
-        for(std::map< std::pair<float,float>, MissingET* >::iterator it=mapRangeToMET.begin();
-            it!=mapRangeToMET.end(); ++it) {
+        for(std::map< std::pair<float,float>, MissingET* >::iterator it=m_mapRangeToMET.begin();
+            it!=m_mapRangeToMET.end(); ++it) {
             if( fabs((*iObj)->eta()) > it->first.first && fabs((*iObj)->eta()) < it->first.second ) {
               it->second->add((*iObj)->pt()*cos((*iObj)->phi())*objWeight.wpx(),
                               (*iObj)->pt()*sin((*iObj)->phi())*objWeight.wpy(),
@@ -208,6 +201,9 @@ namespace met {
         } // end of loop over met terms
       } // end of loop over constituents
     }
+
+    // Clean map for the next event
+    m_mapRangeToMET.clear();
 
     return StatusCode::SUCCESS;
   }

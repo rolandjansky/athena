@@ -18,7 +18,6 @@
 #include "METReconstruction/METSoftAssociator.h"
 // Truth tool
 #include "METReconstruction/METTruthTool.h"
-#include "METReconstruction/METTruthAssociator.h"
 // CaloRegions
 #include "METReconstruction/METCaloRegionsTool.h"
 // Refiners
@@ -29,7 +28,6 @@
 // Algs
 #include "METRecoAlg.h"
 #include "METReaderAlg.h"
-#include "METAssocTestAlg.h"
 
 using namespace met;
 
@@ -49,7 +47,6 @@ DECLARE_TOOL_FACTORY(METMuonAssociator)
 DECLARE_TOOL_FACTORY(METSoftAssociator)
 //
 DECLARE_TOOL_FACTORY(METTruthTool)
-DECLARE_TOOL_FACTORY(METTruthAssociator)
 DECLARE_TOOL_FACTORY(METCaloRegionsTool)
 //
 DECLARE_TOOL_FACTORY(METJetFilterTool)
@@ -59,7 +56,6 @@ DECLARE_TOOL_FACTORY(METRegionsTool)
 //
 DECLARE_ALGORITHM_FACTORY(METRecoAlg)
 DECLARE_ALGORITHM_FACTORY(METReaderAlg)
-DECLARE_ALGORITHM_FACTORY(METAssocTestAlg)
 
 DECLARE_FACTORY_ENTRIES(METReconstruction) {
   DECLARE_TOOL(METRecoTool)
@@ -78,7 +74,6 @@ DECLARE_FACTORY_ENTRIES(METReconstruction) {
   DECLARE_TOOL(METSoftAssociator)
     //
   DECLARE_TOOL(METTruthTool)
-  DECLARE_TOOL(METTruthAssociator)
   DECLARE_TOOL(METCaloRegionsTool)
     //
   DECLARE_TOOL(METJetFilterTool)
@@ -88,5 +83,4 @@ DECLARE_FACTORY_ENTRIES(METReconstruction) {
     //
   DECLARE_ALGORITHM(METRecoAlg)
   DECLARE_ALGORITHM(METReaderAlg)
-  DECLARE_ALGORITHM(METAssocTestAlg)
 }

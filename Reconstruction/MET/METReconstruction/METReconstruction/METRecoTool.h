@@ -53,7 +53,7 @@ namespace met{
    *
    */
   class METRecoTool
-    : public asg::AsgTool,
+    : virtual public asg::AsgTool,
       virtual public IMETRecoTool
   { 
     // This macro defines the constructor with the interface declaration

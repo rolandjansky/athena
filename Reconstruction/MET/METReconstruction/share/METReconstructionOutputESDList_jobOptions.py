@@ -17,7 +17,6 @@ for config in outputlist:
 
 if len(metFlags.METAssocOutputList())==0:
     assocoutput = ['AntiKt4LCTopo','AntiKt4EMTopo','AntiKt4EMPFlow']
-    #assocoutput += ['Truth_AntiKt4LCTopo','Truth_AntiKt4EMTopo','Truth_AntiKt4EMPFlow']
 else:
     assocoutput = metFlags.METAssocOutputList()
 for config in assocoutput:
@@ -26,4 +25,4 @@ for config in assocoutput:
 	MissingETESDList.append( 'xAOD::MissingETContainer#MET_Core_'+config )
 	MissingETESDList.append( 'xAOD::MissingETAuxContainer#MET_Core_'+config+'Aux.' )
 	MissingETESDList.append( 'xAOD::MissingETContainer#MET_Reference_'+config )
-	MissingETESDList.append( 'xAOD::MissingETAuxContainer#MET_Reference_'+config+'Aux.-ConstitObjectLinks' )
+	MissingETESDList.append( 'xAOD::MissingETAuxContainer#MET_Reference_'+config+'Aux.' )

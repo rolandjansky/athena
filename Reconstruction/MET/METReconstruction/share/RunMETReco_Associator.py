@@ -3,87 +3,35 @@ from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 from AthenaCommon.AppMgr import ServiceMgr
 from AthenaCommon import CfgMgr
 
+import METReconstruction.METConfig_Calo
+
 from RecExConfig.RecFlags import rec
+if rec.doTruth:
+    import METReconstruction.METConfig_Truth
 
-from glob import glob
-filelist = glob("/atlas/data1/userdata/khoo/Data16/AOD_r21/valid1.361108.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Ztautau.recon.AOD.e5112_s2887_r8609/*")
-from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
-athenaCommonFlags.FilesInput = filelist
-ServiceMgr.EventSelector.InputCollections = athenaCommonFlags.FilesInput()
+filelist = ["/afs/cern.ch/user/b/boliu/workdir/dataset/mc14_8TeV.117050.PowhegPythia_P2011C_ttbar.merge.AOD.e1727_s1933_s1911_r5591_r5625_tid01507243_00/AOD.01507243._011158.pool.root.1"]
+ServiceMgr.EventSelector.InputCollections = filelist
 
-############################################################################
-# Set up detector description for cell access
+# Set up default configurations
+import METReconstruction.METConfig_Associator
 
-from AthenaCommon.GlobalFlags import globalflags
-globalflags.DetGeo = 'atlas'
-from AthenaCommon.DetFlags import DetFlags
-DetFlags.detdescr.all_setOff()
-DetFlags.detdescr.Calo_setOn()
-if hasattr(DetFlags,'BField_on'): DetFlags.BField_setOn()
-from TrkDetDescrSvc.AtlasTrackingGeometrySvc import AtlasTrackingGeometrySvc
-AtlasTrackingGeometrySvc  = svcMgr.AtlasTrackingGeometrySvc
-
-include('RecExCond/AllDet_detDescr.py')
-
-from RecExConfig.InputFilePeeker import inputFileSummary
-#print inputFileSummary
-if inputFileSummary['evt_type'][0] == 'IS_DATA':
-    globalflags.DataSource = 'data'
-else:
-    globalflags.DataSource = 'geant4'
-
-from AthenaCommon.AlgSequence import AlgSequence
-topSequence = AlgSequence()
-
-############################################################################
-# Set up an extra associator for testing
-from METReconstruction.METRecoFlags import metFlags
-from METReconstruction.METAssocConfig import AssocConfig, METAssocConfig
-
-# associators = [AssocConfig('PFlowJet'),
-#                AssocConfig('Muon'),
-#                AssocConfig('Ele'),
-#                AssocConfig('Gamma'),
-#                AssocConfig('Tau'),
-#                AssocConfig('Soft')]
-# cfg_akt4em = METAssocConfig('NewAntiKt4EMPFlow',
-#                             associators,
-#                             doPFlow=True
-#                             )
-
-# metFlags.METAssocConfigs()[cfg_akt4em.suffix] = cfg_akt4em
-# cfg_akt4em.associators["Tau"].OutputLevel = VERBOSE
-# metFlags.METAssocOutputList().append(cfg_akt4em.suffix)
+#from METReconstruction.METRecoFlags import metFlags
+from METReconstruction.METRecoConfig_Associator import getMETRecoAlg
 
 # Get the configuration directly from METRecoFlags
 # Can also provide a dict of configurations or list of RecoTools or both
-from METReconstruction.METAssocConfig import getMETAssocAlg
-metAlg = getMETAssocAlg('METAssociation')
+metAlg = getMETRecoAlg('METReconstruction')
+from AthenaCommon.AlgSequence import AlgSequence
+topSequence = AlgSequence()
 topSequence += metAlg
 
-from METUtilities.METMakerConfig import getMETMakerAlg
-makerAlgPF = getMETMakerAlg('AntiKt4EMPFlow',jetSelection='Default')
-makerAlgPF.METName = "MET_Reco_AntiKt4EMPFlow"
-#makerAlgPF.OutputLevel=VERBOSE
-#ToolSvc.METMaker_AntiKt4EMPFlow.OutputLevel=VERBOSE
-topSequence += makerAlgPF
-makerAlgEM = getMETMakerAlg('AntiKt4EMTopo',jetSelection='Default')
-makerAlgEM.METName = "MET_Reco_AntiKt4EMTopo"
-topSequence += makerAlgEM
+# The tools are accessible via the configurations in metFlags
+from AthenaCommon.AppMgr import ToolSvc
 
-# topSequence += CfgMgr.met__METAssocTestAlg("TestMETAssocNewEMPFlow",
-#                                            OutputLevel=VERBOSE,
-#                                            FailOnInconsistency=True,
-#                                            METMapSuffix="NewAntiKt4EMPFlow")
-# topSequence += CfgMgr.met__METAssocTestAlg("TestMETAssocEMTopo",
-#                                            OutputLevel=VERBOSE,
-#                                            FailOnInconsistency=True,
-#                                            METMapSuffix="AntiKt4EMTopo")
-
-# from Valkyrie.JobOptCfg import ValgrindSvc
-# svcMgr += ValgrindSvc( OutputLevel = INFO,
-#                       ProfiledAlgs = ["METAssociation"],
-#                       ProfiledIntervals = ["METAssociation.execute"])
+from Valkyrie.JobOptCfg import ValgrindSvc
+svcMgr += ValgrindSvc( OutputLevel = DEBUG,
+                       ProfiledAlgs = ["METReconstruction"],
+                       ProfiledIntervals = ["METReconstruction.execute"])
 
 from PerfMonComps.PerfMonFlags import jobproperties as pmon_properties
 pmon_properties.PerfMonFlags.doSemiDetailedMonitoring=True
@@ -96,51 +44,10 @@ if write_xAOD:
     from AthenaCommon.Resilience import protectedInclude
     protectedInclude("METReconstruction/METReconstructionOutputAODList_jobOptions.py")
 
-    svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DEFAULT_SPLITLEVEL ='99'" ]
     from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
     xaodStream = MSMgr.NewPoolRootStream( "StreamAOD", "xAOD.pool.root" )
-
-    xaodStream.AddItem("xAOD::EventInfo#EventInfo")
-    xaodStream.AddItem("xAOD::EventAuxInfo#EventInfoAux.")
-
-    xaodStream.AddItem("xAOD::ElectronContainer#Electrons")
-    xaodStream.AddItem("xAOD::ElectronAuxContainer#ElectronsAux.")
-
-    xaodStream.AddItem("xAOD::PhotonContainer#Photons")
-    xaodStream.AddItem("xAOD::PhotonAuxContainer#PhotonsAux.")
-
-    xaodStream.AddItem("xAOD::MuonContainer#Muons")
-    xaodStream.AddItem("xAOD::MuonAuxContainer#MuonsAux.")
-
-    xaodStream.AddItem("xAOD::TauJetContainer#TauJets")
-    xaodStream.AddItem("xAOD::TauJetAuxContainer#TauJetsAux.")
-
-    xaodStream.AddItem("xAOD::JetContainer#AntiKt4EMTopoJets")
-    xaodStream.AddItem("xAOD::JetAuxContainer#AntiKt4EMTopoJetsAux.")
-
-    xaodStream.AddItem("xAOD::JetContainer#AntiKt4EMPFlowJets")
-    xaodStream.AddItem("xAOD::JetAuxContainer#AntiKt4EMPFlowJetsAux.")
-
-    xaodStream.AddItem('xAOD::MissingETAssociationMap#METAssoc_AntiKt4EMTopo')
-    xaodStream.AddItem('xAOD::MissingETAuxAssociationMap#METAssoc_AntiKt4EMTopoAux.')
-
-    xaodStream.AddItem('xAOD::MissingETAssociationMap#METAssoc_AntiKt4EMPFlow')
-    xaodStream.AddItem('xAOD::MissingETAuxAssociationMap#METAssoc_AntiKt4EMPFlowAux.')
-
-    xaodStream.AddItem('xAOD::MissingETContainer#MET_Reco_AntiKt4EMTopo')
-    xaodStream.AddItem('xAOD::MissingETAuxContainer#MET_Reco_AntiKt4EMTopoAux.')
-
-    xaodStream.AddItem('xAOD::MissingETContainer#MET_Reco_AntiKt4EMPFlow')
-    xaodStream.AddItem('xAOD::MissingETAuxContainer#MET_Reco_AntiKt4EMPFlowAux.')
-
-    xaodStream.AddItem('xAOD::MissingETContainer#MET_Truth')
-    xaodStream.AddItem('xAOD::MissingETAuxContainer#MET_TruthAux.')
-
-
-#from Valkyrie.JobOptCfg import ValgrindSvc
-#svcMgr += ValgrindSvc( OutputLevel = VERBOSE,
-#                       ProfiledAlgs = ["jetalg","METAssociation"] )
+    for item in MissingETAODList:
+        xaodStream.AddItem(item)
 
 theApp.EvtMax = -1
 ServiceMgr.EventSelector.SkipEvents = 0
-ServiceMgr.MessageSvc.defaultLimit = 9999

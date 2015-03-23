@@ -28,7 +28,7 @@
 namespace met{
 
   class METJetTool
-    : public METBuilderTool
+    : virtual public METBuilderTool
   { 
     // This macro defines the constructor with the interface declaration
     ASG_TOOL_CLASS(METJetTool, IMETToolBase)
@@ -60,12 +60,12 @@ namespace met{
     // Private data: 
     /////////////////////////////////////////////////////////////////// 
   protected: 
-    StatusCode  executeTool(xAOD::MissingET* metTerm, xAOD::MissingETComponentMap* metMap) const;
+    StatusCode  executeTool(xAOD::MissingET* metTerm, xAOD::MissingETComponentMap* metMap);
     bool accept(const xAOD::IParticle* object) const;
     bool resolveOverlap(const xAOD::IParticle* object,
 			xAOD::MissingETComponentMap* metMap,
 			std::vector<const xAOD::IParticle*>& acceptedSignals,
-			MissingETBase::Types::weight_t& objWeight) const;
+			MissingETBase::Types::weight_t& objWeight);
 
   private:
     double m_jet_minPt;

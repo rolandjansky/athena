@@ -34,14 +34,12 @@
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "xAODCaloEvent/CaloClusterFwd.h"
 
-class ICaloNoiseTool;
-
 class CaloCellContainer;
 
 namespace met{
 
   class METCaloRegionsTool
-    : public asg::AsgTool,
+    : virtual public asg::AsgTool,
       virtual public IMETToolBase
   { 
     // This macro defines the constructor with the interface declaration
@@ -61,7 +59,7 @@ namespace met{
     // AsgTool Hooks
     StatusCode  initialize();
     StatusCode  finalize();
-    StatusCode  execute(xAOD::MissingET* metTerm, xAOD::MissingETComponentMap* metMap) const;
+    StatusCode  execute(xAOD::MissingET* metTerm, xAOD::MissingETComponentMap* metMap);
 
     /////////////////////////////////////////////////////////////////// 
     // Const methods: 
@@ -80,23 +78,22 @@ namespace met{
     std::string      m_input_data_key;
     std::string      m_output_met_key;
     bool             m_calo_useCells;
-    bool             m_calo_doTriggerMet;
     // Accept functions
     bool             accept            (const xAOD::IParticle* object) const;
     // Overlap resolver function
     bool             resolveOverlap    (const xAOD::IParticle* object,
                                         xAOD::MissingETComponentMap* metMap,
                                         std::vector<const xAOD::IParticle*>& acceptedSignals,
-                                        MissingETBase::Types::weight_t& objWeight) const;
+                                        MissingETBase::Types::weight_t& objWeight);
     // Fill Cell MET
     StatusCode       fillCellMet       (xAOD::MissingETContainer* metContainer,
-                                        const CaloCellContainer* caloCellContainer ) const;
+                                        const CaloCellContainer* caloCellContainer );
     // Fill Cluster MET
     StatusCode       fillClusterMet    (xAOD::MissingETContainer* metContainer,
-                                        const xAOD::CaloClusterContainer* caloClusContainer) const;
+                                        const xAOD::CaloClusterContainer* caloClusContainer);
     // Find MET term for a given sampling
     xAOD::MissingET* findMetTerm       (xAOD::MissingETContainer* metContainer, 
-                                        CaloSampling::CaloSample sample) const;
+                                        CaloSampling::CaloSample sample);
     // CaloRegions enum - do NOT mess w/ the order
     enum CaloRegions {
       EMB = 0,
@@ -109,18 +106,11 @@ namespace met{
       REGIONS_TOTAL
     };
     // CaloRegions human-readable names for enums
-    const static std::string s_CaloRegionNames[];
+    const static std::string CaloRegionNames[];
     
   private:
     // Default constructor: 
     METCaloRegionsTool();
-
-    // Tool handle for CaloNoiseTool
-    #if defined(XAOD_STANDALONE) || defined(XAOD_ANALYSIS)
-    #else
-    // FIXME: mutable
-    mutable ToolHandle<ICaloNoiseTool> m_caloNoiseTool;
-    #endif
   }; 
 
 }

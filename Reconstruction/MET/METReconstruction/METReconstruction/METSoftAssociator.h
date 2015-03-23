@@ -19,7 +19,7 @@
 
 namespace met{
   class METSoftAssociator final
-    : public METAssociator
+    : virtual public METAssociator
   { 
     // This macro defines the constructor with the interface declaration
     ASG_TOOL_CLASS(METSoftAssociator, IMETAssocToolBase)
@@ -51,30 +51,25 @@ namespace met{
     /////////////////////////////////////////////////////////////////// 
     protected: 
 
-    StatusCode executeTool(xAOD::MissingETContainer* metCont, xAOD::MissingETAssociationMap* metMap) const final;
-
+    StatusCode executeTool(xAOD::MissingETContainer* metCont, xAOD::MissingETAssociationMap* metMap);
     StatusCode extractPFO(const xAOD::IParticle*,
 			  std::vector<const xAOD::IParticle*>&,
-			  const met::METAssociator::ConstitHolder&,
-			  std::map<const xAOD::IParticle*,MissingETBase::Types::constvec_t>&) const final
-    {return StatusCode::FAILURE;} // should not be called
+			  const xAOD::PFOContainer*,
+			  std::map<const xAOD::IParticle*,MissingETBase::Types::constvec_t>&,
+			  const xAOD::Vertex*){return StatusCode::FAILURE;} // should not be called
+
     StatusCode extractTracks(const xAOD::IParticle*,
 			     std::vector<const xAOD::IParticle*>&,
-			     const met::METAssociator::ConstitHolder&) const final
-    {return StatusCode::FAILURE;} // should not be called
+			     const xAOD::CaloClusterContainer*,
+			     const xAOD::Vertex*){return StatusCode::FAILURE;} // should not be called
     StatusCode extractTopoClusters(const xAOD::IParticle*,
 				   std::vector<const xAOD::IParticle*>&,
-				   const met::METAssociator::ConstitHolder&) const final
-    {return StatusCode::FAILURE;} // should not be called
+				   const xAOD::CaloClusterContainer*){return StatusCode::FAILURE;} // should not be called
 
     private:
  
     /// Default constructor: 
     METSoftAssociator();
-
-    bool m_decorateSoftTermConst;
-    std::string m_lcmodclus_key;
-    std::string m_emmodclus_key;
 
   }; 
 

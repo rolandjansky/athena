@@ -16,18 +16,14 @@
 
 // METReconstruction includes
 #include "METReconstruction/METAssociator.h"
-#include "METReconstruction/METRecoCommon.h"
-#include "xAODEgamma/EgammaFwd.h"
-
-#include <set>
 
 namespace met{
-
   class METEgammaAssociator
     : virtual public METAssociator
   { 
     // This macro defines the constructor with the interface declaration
     ASG_TOOL_CLASS(METEgammaAssociator, IMETAssocToolBase)
+
 
     /////////////////////////////////////////////////////////////////// 
     // Public methods: 
@@ -57,30 +53,11 @@ namespace met{
 
     StatusCode extractTopoClusters(const xAOD::IParticle* obj,
 				   std::vector<const xAOD::IParticle*>& tclist,
-				   const met::METAssociator::ConstitHolder& constits) const final;
-
-    StatusCode extractPFO(const xAOD::IParticle* obj,
-			  std::vector<const xAOD::IParticle*>& pfolist,
-			  const met::METAssociator::ConstitHolder& constits,
-			  std::map<const xAOD::IParticle*,MissingETBase::Types::constvec_t> &momenta) const final;
-
-    StatusCode extractTracks(const xAOD::IParticle* obj,
-			     std::vector<const xAOD::IParticle*>& constlist,
-			     const met::METAssociator::ConstitHolder& constits) const final;
-
-    StatusCode selectEgammaClusters(const xAOD::CaloCluster *swclus,
-				    const std::vector<const xAOD::IParticle*>& inputTC,
-				    std::vector<const xAOD::IParticle*>& tclist) const;
-
-    StatusCode selectEgammaTracks(const xAOD::Egamma* el,
-				  const xAOD::TrackParticleContainer* trkCont,
-				  std::set<const xAOD::TrackParticle*>& tracklist) const;
-
+				   const xAOD::CaloClusterContainer* tcCont);
     double m_tcMatch_dR;
     double m_tcMatch_maxRat;
+    double m_tcMatch_tolerance;
     unsigned short m_tcMatch_method;
-
-    double m_extraTrkMatch_dR;
 
     private:
  

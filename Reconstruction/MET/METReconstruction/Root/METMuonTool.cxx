@@ -72,8 +72,7 @@ namespace met {
   ////////////////////////////
   StatusCode METMuonTool::initialize()
   {
-    ATH_CHECK( METBuilderTool::initialize() );
-    ATH_MSG_VERBOSE ("Initializing " << name() << "...");
+    ATH_MSG_INFO ("Initializing " << name() << "...");
 
     // Provide parser of input data string here? 
     // Or take a list of inputs?
@@ -147,7 +146,7 @@ namespace met {
   bool METMuonTool::resolveOverlap(const xAOD::IParticle* object,
 				   xAOD::MissingETComponentMap* metMap,
 				   std::vector<const xAOD::IParticle*>& acceptedSignals,
-				   MissingETBase::Types::weight_t& /*objWeight*/) const
+				   MissingETBase::Types::weight_t& /*objWeight*/)
   {
 
     if(object->type() != xAOD::Type::Muon) {
@@ -167,7 +166,7 @@ namespace met {
     return true;
   }
 
-  StatusCode METMuonTool::executeTool(xAOD::MissingET* metTerm, xAOD::MissingETComponentMap* metMap) const
+  StatusCode METMuonTool::executeTool(xAOD::MissingET* metTerm, xAOD::MissingETComponentMap* metMap)
   {
     ATH_MSG_DEBUG ("In execute: " << name() << "...");
 

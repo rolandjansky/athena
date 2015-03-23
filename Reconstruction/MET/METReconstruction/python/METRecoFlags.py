@@ -16,21 +16,6 @@ class DoPFlow(JobProperty):
     allowedTypes = ['bool'] 
     StoredValue  = True
 
-class UseTracks(JobProperty):
-    statusOn = True
-    allowedTypes = ['bool']
-    StoredValue  = True
-
-class DecorateSoftConst(JobProperty):
-    statusOn = True
-    allowedTypes = ['bool']
-    StoredValue  = False
-
-class AllowOverwrite(JobProperty):
-    statusOn = True
-    allowedTypes = ['bool']
-    StoredValue  = False
-
 class METConfigs(JobProperty):
     statusOn = True
     allowedTypes = ['dict'] 
@@ -65,9 +50,6 @@ jobproperties.add_Container(METRecoFlags)
 
 jobproperties.METRecoFlags.add_JobProperty(DoRegions)
 jobproperties.METRecoFlags.add_JobProperty(DoPFlow)
-jobproperties.METRecoFlags.add_JobProperty(UseTracks)
-jobproperties.METRecoFlags.add_JobProperty(DecorateSoftConst)
-jobproperties.METRecoFlags.add_JobProperty(AllowOverwrite)
 jobproperties.METRecoFlags.add_JobProperty(METConfigs)
 jobproperties.METRecoFlags.add_JobProperty(METOutputList)
 jobproperties.METRecoFlags.add_JobProperty(METRecoTools)

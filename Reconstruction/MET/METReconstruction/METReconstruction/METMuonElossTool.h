@@ -29,7 +29,7 @@
 namespace met{
 
   class METMuonElossTool
-    : public METRefinerTool
+    : virtual public METRefinerTool
   { 
     // This macro defines the constructor with the interface declaration
     ASG_TOOL_CLASS(METMuonElossTool, IMETToolBase)
@@ -61,7 +61,7 @@ namespace met{
     // Private data: 
     /////////////////////////////////////////////////////////////////// 
   protected: 
-    StatusCode  executeTool(xAOD::MissingET* metTerm, xAOD::MissingETComponentMap* metMap) const;
+    StatusCode  executeTool(xAOD::MissingET* metTerm, xAOD::MissingETComponentMap* metMap);
 
   private:
     // Default constructor: 

@@ -29,9 +29,6 @@
 // Tracking EDM
 #include "xAODTracking/TrackParticle.h"
 
-// DeltaR calculation
-#include "FourMomUtils/xAODP4Helpers.h"
-
 namespace met {
 
   using std::vector;
@@ -62,7 +59,8 @@ namespace met {
   ////////////////
   METEgammaTool::METEgammaTool(const std::string& name) : 
     AsgTool(name),
-    METBuilderTool(name)
+    METBuilderTool(name),
+    m_tcCont(NULL)
   {
 
     declareProperty( "PIDSel",            m_eg_pid         = ""     ); // Selection string to be determined
@@ -93,7 +91,6 @@ namespace met {
   ////////////////////////////
   StatusCode METEgammaTool::initialize()
   {
-    ATH_CHECK(  METBuilderTool::initialize() );
     ATH_MSG_INFO ("Initializing " << name() << "...");
 
     return StatusCode::SUCCESS;
@@ -165,7 +162,7 @@ namespace met {
   }
 
   void METEgammaTool::matchTopoClusters(const xAOD::Egamma* eg, std::vector<const xAOD::IParticle*>& tclist,
-					const xAOD::CaloClusterContainer* tcCont) const
+					const xAOD::CaloClusterContainer* tcCont)
   {
     // safe to assume a single SW cluster?
     // will do so for now...
@@ -180,7 +177,8 @@ namespace met {
     for(CaloClusterContainer::const_iterator iClus=tcCont->begin();
 	iClus!=tcCont->end(); ++iClus) {
       // this can probably be done more elegantly
-      if(xAOD::P4Helpers::isInDeltaR(*swclus,**iClus,0.1,m_useRapidity) && (*iClus)->e()>0) {
+      double dR = swclus->p4().DeltaR((*iClus)->p4());
+      if(dR<0.1 && (*iClus)->e()>0) {
 	// could consider also requirements on the EM fraction or depth
 	nearbyTC.push_back(*iClus);
       } // match TC in a cone around SW cluster
@@ -237,7 +235,7 @@ namespace met {
   }
 
   // In case any common treatment is needed for egammas in addition to the electron/photon specialised versions
-  void METEgammaTool::matchExtraTracks(const xAOD::Egamma* /*eg*/, std::vector<const xAOD::IParticle*>& trklist) const
+  void METEgammaTool::matchExtraTracks(const xAOD::Egamma* /*eg*/, std::vector<const xAOD::IParticle*>& trklist)
   {
     ATH_MSG_VERBOSE("Egamma has " << trklist.size() << " linked tracks");
   }

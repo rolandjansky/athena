@@ -26,9 +26,6 @@
 // Calo EDM
 #include "xAODCaloEvent/CaloCluster.h"
 
-// DeltaR calculation
-#include "FourMomUtils/xAODP4Helpers.h"
-
 namespace met {
 
   using std::vector;
@@ -65,7 +62,6 @@ namespace met {
   ////////////////////////////
   StatusCode METMuonElossTool::initialize()
   {
-    ATH_CHECK( METRefinerTool::initialize() );
     ATH_MSG_INFO ("Initializing " << name() << "...");
 
     return StatusCode::SUCCESS;
@@ -90,8 +86,7 @@ namespace met {
   // Protected methods: 
   /////////////////////////////////////////////////////////////////// 
 
-  StatusCode METMuonElossTool::executeTool(xAOD::MissingET* metTerm, xAOD::MissingETComponentMap* metMap) const
-  {
+  StatusCode METMuonElossTool::executeTool(xAOD::MissingET* metTerm, xAOD::MissingETComponentMap* metMap) {
 
     ATH_MSG_DEBUG ("In execute: " << name() << "...");
 
@@ -138,7 +133,7 @@ namespace met {
 	// to place a cap on the correction.
 	if(obj2->type()==xAOD::Type::CaloCluster) {
 	const CaloCluster* cl = static_cast<const CaloCluster*>(obj2);
-	  if(xAOD::P4Helpers::isInDeltaR(*cl,*muon,0.1,m_useRapidity)) {
+	  if(cl->p4().DeltaR(muon->p4())<0.1) {
 	    clusterSum += cl->e();
 	  }
         }

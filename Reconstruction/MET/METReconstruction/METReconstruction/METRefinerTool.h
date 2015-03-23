@@ -52,7 +52,7 @@ namespace met {
 
     // AsgTool Hooks
     virtual StatusCode initialize();
-    virtual StatusCode execute(xAOD::MissingET* metTerm, xAOD::MissingETComponentMap* metMap) const;
+    virtual StatusCode execute(xAOD::MissingET* metTerm, xAOD::MissingETComponentMap* metMap);
     virtual StatusCode finalize();
 
     /////////////////////////////////////////////////////////////////// 
@@ -69,11 +69,10 @@ namespace met {
   protected:
 
     std::string m_output_met_key;
-    bool m_useRapidity;  // by default, use pseudorapidity for matching
 
     // reconstruction process to be defined in the individual tools
     // pure virtual -- we have no default
-    virtual StatusCode  executeTool(xAOD::MissingET* metTerm, xAOD::MissingETComponentMap* metMap) const = 0;
+    virtual StatusCode  executeTool(xAOD::MissingET* metTerm, xAOD::MissingETComponentMap* metMap) = 0;
 
   private:
     /// Default constructor:

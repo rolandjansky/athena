@@ -19,7 +19,6 @@
 #if defined(XAOD_STANDALONE) || defined(XAOD_ANALYSIS)
 #else
 #include "CaloEvent/CaloCellContainer.h"
-#include "CaloInterface/ICaloNoiseTool.h"
 #endif
 
 namespace met {
@@ -34,8 +33,8 @@ namespace met {
   using xAOD::MissingET;
   using xAOD::MissingETContainer;
 
-  // Initialize s_CaloRegionNames
-  const std::string METCaloRegionsTool::s_CaloRegionNames[METCaloRegionsTool::REGIONS_TOTAL] = 
+  // Initialize CaloRegionNames
+  const std::string METCaloRegionsTool::CaloRegionNames[METCaloRegionsTool::REGIONS_TOTAL] = 
   {
     "EMB",
     "EME",
@@ -54,18 +53,9 @@ namespace met {
   ////////////////
   METCaloRegionsTool::METCaloRegionsTool(const std::string& name) : 
     AsgTool(name)
-    #if defined(XAOD_STANDALONE) || defined(XAOD_ANALYSIS)
-    #else
-    ,m_caloNoiseTool("CaloNoiseToolDefault")
-    #endif
   {
-    declareProperty( "InputCollection", m_input_data_key            );
-    declareProperty( "UseCells"       , m_calo_useCells      = true );
-    declareProperty( "DoTriggerMET"   , m_calo_doTriggerMet  = true );
-    #if defined(XAOD_STANDALONE) || defined(XAOD_ANALYSIS)
-    #else
-    declareProperty( "CaloNoiseTool"  , m_caloNoiseTool             );
-    #endif
+    declareProperty( "InputCollection", m_input_data_key       );
+    declareProperty( "UseCells"       , m_calo_useCells = true );
   }
 
   // Destructor
@@ -77,21 +67,9 @@ namespace met {
   ////////////////////////////
   StatusCode METCaloRegionsTool::initialize()
   {
-    ATH_MSG_DEBUG("Initializing " << name() << "...");
+    ATH_MSG_INFO ("Initializing " << name() << "...");
 
-    StatusCode sc = StatusCode::SUCCESS;
-    #if defined(XAOD_STANDALONE) || defined(XAOD_ANALYSIS)
-    #else
-    sc = m_caloNoiseTool.retrieve();
-    if(sc.isFailure()) {
-      ATH_MSG_WARNING("Unable to find tool for CaloNoiseTool");
-    }
-    else {
-      ATH_MSG_INFO("CaloNoiseTool retrieved");
-    }
-    #endif
-
-    return sc;
+    return StatusCode::SUCCESS;
   }
 
   StatusCode METCaloRegionsTool::finalize()
@@ -113,8 +91,7 @@ namespace met {
   // Protected methods: 
   /////////////////////////////////////////////////////////////////// 
 
-  StatusCode METCaloRegionsTool::execute(xAOD::MissingET* metTerm_EMB, xAOD::MissingETComponentMap* /*metMap*/) const
-  {
+  StatusCode METCaloRegionsTool::execute(xAOD::MissingET* metTerm_EMB, xAOD::MissingETComponentMap* /*metMap*/) {
 
     ATH_MSG_DEBUG ("In execute: " << name() << "...");
 
@@ -129,22 +106,8 @@ namespace met {
         metCont->push_back( new MissingET(0.,0.,0.) ); 
       }
       // Set Name and Source
-      metCont->at(i)->setName( s_CaloRegionNames[i] );      
+      metCont->at(i)->setName( CaloRegionNames[i] );      
       metCont->at(i)->setSource( source );      
-    }
-    // The last term is Trigger MET if asked for by the user
-    if( m_calo_useCells && m_calo_doTriggerMet ) {
-      std::string termName = "";
-      for( int i=0; i<3; ++i) {
-        switch(i) {
-          case 0: termName = "AllCells"; break;
-          case 1: termName = "Cells_Abs2S"; break;
-          case 2: termName = "Cells_Abs2S_m5S"; break;
-        }
-        metCont->push_back( new MissingET(0.,0.,0.) ); 
-        metCont->at(REGIONS_TOTAL+i)->setName( termName );      
-        metCont->at(REGIONS_TOTAL+i)->setSource( MissingETBase::Source::Calo );      
-      }
     }
       
     StatusCode sc = StatusCode::SUCCESS;
@@ -196,7 +159,7 @@ namespace met {
   }
 
   // Find MetTerm name for a given sampling
-  MissingET* METCaloRegionsTool::findMetTerm(MissingETContainer* metContainer, CaloSampling::CaloSample sample) const 
+  MissingET* METCaloRegionsTool::findMetTerm(MissingETContainer* metContainer, CaloSampling::CaloSample sample) 
   { 
     switch(sample) {
       case CaloSampling::EMB1:
@@ -243,8 +206,7 @@ namespace met {
 
   // Fill Cell MET
   StatusCode METCaloRegionsTool::fillCellMet(xAOD::MissingETContainer* metContainer,
-                                             const CaloCellContainer* caloCellContainer) const
-  {
+                                             const CaloCellContainer* caloCellContainer) {
     #if defined (XAOD_STANDALONE) || defined(XAOD_ANALYSIS)
     ATH_MSG_WARNING("Cell information is only available in athena framework");
     #else
@@ -255,45 +217,25 @@ namespace met {
       // Retrieve the sampling 
       CaloSampling::CaloSample sample = (CaloSampling::CaloSample) (*iCell)->caloDDE()->getSampling();
 
-      // Calculate Et/phi
-      double e_cell   = (*iCell)->energy();
-      double et_cell  = e_cell/cosh((*iCell)->eta());
-      double phi_cell = (*iCell)->phi();
+      // Eta is only defined if Energy != 0
+      if(fabs((*iCell)->energy())>0) {
+       
+        // Calculate Et/phi
+        double et_cell  = (*iCell)->energy()/cosh((*iCell)->eta());
+        double phi_cell = (*iCell)->phi();
      
-      // Find the associated MET 
-      MissingET* metTerm  = findMetTerm(metContainer, sample); 
-      if(!metTerm) {
-        ATH_MSG_WARNING("Invalid calo sample MET pointer");
-        continue;
-      }
+        // Find the associated MET 
+        MissingET* metTerm  = findMetTerm(metContainer, sample); 
+        if(!metTerm) {
+          ATH_MSG_WARNING("Invalid calo sample MET pointer");
+          continue;
+        }
 
-      // Add to MET for the Calo regions
-      metTerm->add(et_cell*cos(phi_cell),
-                   et_cell*sin(phi_cell),
-                   et_cell);
-
-      // Trigger MET
-      if(m_calo_doTriggerMet) {
-        #if defined(XAOD_STANDALONE) || defined(XAOD_ANALYSIS)
-        double noise_cell = 0;
-        #else
-        double noise_cell = m_caloNoiseTool->totalNoiseRMS((*iCell));
-        #endif
-        // All cells
-        metContainer->at(REGIONS_TOTAL)->add(et_cell*cos(phi_cell),
-                                             et_cell*sin(phi_cell),
-                                             et_cell);
-        // |E| > 2*sigma
-        if( fabs(e_cell) <  2.0*noise_cell ) continue;
-        metContainer->at(REGIONS_TOTAL+1)->add(et_cell*cos(phi_cell),
-                                               et_cell*sin(phi_cell),
-                                               et_cell);
-        // E > -5*sigma
-        if( e_cell       < -5.0*noise_cell ) continue;
-        metContainer->at(REGIONS_TOTAL+2)->add(et_cell*cos(phi_cell),
-                                               et_cell*sin(phi_cell),
-                                               et_cell);
-      }
+        // Add to MET
+        metTerm->add(et_cell*cos(phi_cell),
+                     et_cell*sin(phi_cell),
+                     et_cell);
+      } // end if energy>0 if
     } // end of loop overall cells
     #endif
     return StatusCode::SUCCESS;
@@ -301,8 +243,7 @@ namespace met {
 
   // Fill Cluster MET
   StatusCode METCaloRegionsTool::fillClusterMet(xAOD::MissingETContainer* metContainer, 
-                                                const CaloClusterContainer* caloClusContainer) const
-  {
+                                                const CaloClusterContainer* caloClusContainer) {
 
     // Loop over all clusters
     for( CaloClusterContainer::const_iterator iClus=caloClusContainer->begin();

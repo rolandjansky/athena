@@ -34,23 +34,13 @@
 #include "xAODMuon/Muon.h"
 #include "xAODMuon/MuonContainer.h"
 
-namespace InDet {
-  class IInDetTrackSelectionTool;
-}
- 
-namespace xAOD {
-  class ITrackIsolationTool;
-  class ICaloTopoClusterIsolationTool;
-}
-
-namespace CP {
-  class ITrackVertexAssociationTool;
-}
+#include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h"
+#include "TrackVertexAssociationTool/ITrackVertexAssociationTool.h"
 
 namespace met{
 
   class METTrackFilterTool
-    : public METRefinerTool
+    : virtual public METRefinerTool
   { 
     // This macro defines the constructor with the interface declaration
     ASG_TOOL_CLASS(METTrackFilterTool, IMETToolBase)
@@ -82,11 +72,11 @@ namespace met{
     // Private data: 
     /////////////////////////////////////////////////////////////////// 
   protected: 
-    StatusCode executeTool(xAOD::MissingET* metTerm, xAOD::MissingETComponentMap* metMap) const;
+    StatusCode executeTool(xAOD::MissingET* metTerm, xAOD::MissingETComponentMap* metMap);
     // Accept functions
     // bool isPVTrack(const xAOD::TrackParticle* trk, const xAOD::Vertex* pv) const;
     bool isGoodEoverP(const xAOD::TrackParticle* trk,
-		      const std::vector<const xAOD::TrackParticle*>& trkList,
+		      const std::vector<const xAOD::IParticle*>& trkList,
 		      const xAOD::CaloClusterContainer* clusters) const;
 
   private:
@@ -105,8 +95,6 @@ namespace met{
 
     ToolHandle<InDet::IInDetTrackSelectionTool> m_trkseltool;
     ToolHandle<CP::ITrackVertexAssociationTool> m_trkToVertexTool;
-    ToolHandle<xAOD::ITrackIsolationTool> m_trkIsolationTool;
-    ToolHandle<xAOD::ICaloTopoClusterIsolationTool> m_caloIsolationTool;
 
     void selectElectrons(const xAOD::ElectronContainer &elCont, std::vector<const xAOD::Electron*>& electrons) const;
     void selectMuons(const xAOD::MuonContainer &muCont, std::vector<const xAOD::Muon*>& muons) const;
@@ -120,13 +108,9 @@ namespace met{
 
     bool m_doVxSep;
     bool m_doLepRecovery;
-    bool m_useIsolationTools;
 
     bool m_trk_doEoverPsel;
     std::string m_cl_inputkey;
-
-    double m_cenTrackPtThr;
-    double m_forTrackPtThr;
   }; 
 
 }

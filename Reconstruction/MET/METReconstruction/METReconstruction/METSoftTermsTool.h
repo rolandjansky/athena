@@ -29,15 +29,12 @@
 
 // PFlow EDM and helpers
 #include "xAODPFlow/PFO.h"
-
-namespace CP {
-  class IRetrievePFOTool;
-}
+#include "PFlowUtils/IRetrievePFOTool.h"
 
 namespace met{
 
   class METSoftTermsTool
-    : public METBuilderTool
+    : virtual public METBuilderTool
   { 
     // This macro defines the constructor with the interface declaration
     ASG_TOOL_CLASS(METSoftTermsTool, IMETToolBase)
@@ -69,19 +66,19 @@ namespace met{
     // Private data: 
     /////////////////////////////////////////////////////////////////// 
   protected: 
-    StatusCode  executeTool(xAOD::MissingET* metTerm, xAOD::MissingETComponentMap* metMap) const;
+    StatusCode  executeTool(xAOD::MissingET* metTerm, xAOD::MissingETComponentMap* metMap);
     // Accept functions
     bool accept            (const xAOD::IParticle* object) const;
     bool accept            (const xAOD::CaloCluster* clus) const;
     bool accept            (const xAOD::TrackParticle* trk) const;
-    bool accept            (const xAOD::PFO* pfo, const xAOD::Vertex* pv) const;
+    bool accept            (const xAOD::PFO* pfo) const;
     // Overlap resolver function
     bool resolveOverlap    (const xAOD::IParticle* object,
                             xAOD::MissingETComponentMap* metMap,
                             std::vector<const xAOD::IParticle*>& acceptedSignals,
-                            MissingETBase::Types::weight_t& objWeight) const;
+                            MissingETBase::Types::weight_t& objWeight);
     bool resolveOverlap    (xAOD::MissingETComponentMap* metMap,
-                            std::vector<const xAOD::IParticle*>& acceptedSignals) const;
+                            std::vector<const xAOD::IParticle*>& acceptedSignals);
 
   private:
     // Default constructor: 
@@ -94,6 +91,7 @@ namespace met{
     bool m_cl_onlyNegE;
     // temporary, until a track-vertex association tool is available
     std::string m_pv_inputkey;
+    const xAOD::VertexContainer* m_pv_cont;
 
     ToolHandle<CP::IRetrievePFOTool> m_pfotool;
   }; 

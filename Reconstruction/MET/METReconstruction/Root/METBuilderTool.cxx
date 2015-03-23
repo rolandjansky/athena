@@ -20,9 +20,6 @@
 #include "xAODMissingET/MissingETComposition.h"
 #include "xAODMissingET/MissingETComponentMap.h"
 
-// For DeltaR
-#include "FourMomUtils/xAODP4Helpers.h"
-
 namespace met {
 
   using xAOD::MissingET;
@@ -38,11 +35,9 @@ namespace met {
   METBuilderTool::METBuilderTool(const std::string& name) : 
     AsgTool(name)
   {
-    declareProperty( "InputCollection", m_input_data_key      );
-    declareProperty( "MissingETKey",    m_output_met_key      );
-    declareProperty( "SignalState",     m_signalstate = 0     );
-    declareProperty( "UseRapidity",     m_useRapidity = false );
-    declareProperty( "ModifiedClusKey", m_mod_clus_key = ""   );
+    declareProperty( "InputCollection", m_input_data_key  );
+    declareProperty( "MissingETKey",    m_output_met_key  );
+    declareProperty( "SignalState",     m_signalstate = 0 );
   }
 
   // Destructor
@@ -54,15 +49,12 @@ namespace met {
   ////////////////////////////
   StatusCode METBuilderTool::initialize()
   {
-    ATH_MSG_DEBUG ("Initializing " << name() << "...");
-
-    // Determine if modified clusters are used for jet inputs
-    m_useModClus = !m_mod_clus_key.empty();
+    ATH_MSG_INFO ("Initializing " << name() << "...");
 
     return StatusCode::SUCCESS;
   }
 
-  StatusCode METBuilderTool::execute(xAOD::MissingET* metTerm, xAOD::MissingETComponentMap* metMap) const
+  StatusCode METBuilderTool::execute(xAOD::MissingET* metTerm, xAOD::MissingETComponentMap* metMap)
   {
     ATH_MSG_DEBUG ("In execute: " << name() << "...");
 
@@ -103,7 +95,7 @@ namespace met {
 				xAOD::MissingET* metTerm,
 				xAOD::MissingETComponentMap* metMap,
 				MissingETBase::Types::weight_t& objWeight,
-				MissingETBase::UsageHandler::Policy p) const
+				MissingETBase::UsageHandler::Policy p)
   {
 
     metTerm->add(object->pt()*cos(object->phi())*objWeight.wpx(),

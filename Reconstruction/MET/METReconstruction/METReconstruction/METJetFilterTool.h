@@ -29,7 +29,7 @@
 namespace met{
 
   class METJetFilterTool
-    : public METRefinerTool
+    : virtual public METRefinerTool
   { 
     // This macro defines the constructor with the interface declaration
     ASG_TOOL_CLASS(METJetFilterTool, IMETToolBase)
@@ -61,7 +61,7 @@ namespace met{
     // Private data: 
     /////////////////////////////////////////////////////////////////// 
   protected: 
-    StatusCode  executeTool(xAOD::MissingET* metTerm, xAOD::MissingETComponentMap* metMap) const;
+    StatusCode  executeTool(xAOD::MissingET* metTerm, xAOD::MissingETComponentMap* metMap);
     // Accept functions
     bool isHSJet         (const xAOD::Jet* jet) const;
 

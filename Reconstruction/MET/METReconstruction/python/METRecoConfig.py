@@ -7,8 +7,7 @@ from AthenaCommon import CfgMgr
 
 clusterSigStates = {
     'EMScale':0,
-    'LocHad':1,
-    'Mod':1
+    'LocHad':1
 }
 
 defaultSelection = {
@@ -25,17 +24,30 @@ defaultInputKey = {
    'Ele'      :'Electrons',
    'Gamma'    :'Photons',
    'Tau'      :'TauJets',
-   'Jet'      :'AntiKt4EMTopoJets',
+   'Jet'      :'AntiKt4LCTopoJets',
    'Muon'     :'Muons',
    'SoftTrk'  :'InDetTrackParticles',
    'SoftClus' :'CaloCalTopoClusters',
    'SoftPFlow':'JetETMissNeutralParticleFlowObjects',
    'PrimaryVx':'PrimaryVertices',
-   'Truth'    :'TruthEvents',
-   'Calo'     :'AllCalo',
-   'LCOCSoftClus':'LCOriginTopoClusters',
-   'EMOCSoftClus':'EMOriginTopoClusters',
+   'Truth'    :'TruthParticles',
+   'Calo'     :'AllCalo'
    }
+
+# # old naming scheme
+# defaultInputKey = {
+#     'Ele'      :'ElectronCollection',
+#     'Gamma'    :'PhotonCollection',
+#     'Tau'      :'TauRecContainer',
+#     'Jet'      :'AntiKt4LCTopoJets',
+#     'Muon'     :'Muons',
+#     'SoftTrk'  :'InDetTrackParticles',
+#     'SoftClus' :'CaloCalTopoCluster',
+#     'SoftPFlow':'neutralJetETMissPFO_eflowRec',
+#     'PrimaryVx':'PrimaryVertices',
+#     'Truth'    :'TruthParticle',
+#     'Calo'     :'AllCalo'
+# }
 
 defaultOutputKey = {
     'Ele'      :'RefEle',
@@ -62,7 +74,7 @@ class BuildConfig:
         self.outputKey = outputKey
         self.inputKey = inputKey
 
-def getBuilder(config,suffix,doTracks,doCells,doTriggerMET,doOriginCorrClus):
+def getBuilder(config,suffix,doTracks,doCells):
     tool = None
     # Construct tool and set defaults for case-specific configuration
     if config.objType == 'Ele':
@@ -81,29 +93,21 @@ def getBuilder(config,suffix,doTracks,doCells,doTriggerMET,doOriginCorrClus):
     if config.objType == 'Jet':
         tool = CfgMgr.met__METJetTool('MET_JetTool_'+suffix)
         tool.DoTracks = doTracks
-        if "EMTopo" in suffix:
-            tool.SignalState = clusterSigStates['EMScale']
-        else:
-            tool.SignalState = clusterSigStates['LocHad']
     if config.objType == 'Muon':
         tool = CfgMgr.met__METMuonTool('MET_MuonTool_'+suffix)
     if config.objType == 'SoftTrk':
         tool = CfgMgr.met__METSoftTermsTool('MET_SoftTrkTool_'+suffix)
         tool.InputComposition = 'Tracks'
-    if config.objType.endswith('SoftClus'):
+    if config.objType == 'SoftClus':
         tool = CfgMgr.met__METSoftTermsTool('MET_SoftClusTool_'+suffix)
         tool.InputComposition = 'Clusters'
-        if doOriginCorrClus:
-            tool.SignalState = clusterSigStates['Mod']
-        else:
-            tool.SignalState = clusterSigStates['LocHad']
+        tool.SignalState = clusterSigStates['LocHad']
     if config.objType == 'SoftPFlow':
         tool = CfgMgr.met__METSoftTermsTool('MET_SoftPFlowTool_'+suffix)
         tool.InputComposition = 'PFlow'
         pfotool = CfgMgr.CP__RetrievePFOTool('MET_PFOTool_'+suffix)
         from AthenaCommon.AppMgr import ToolSvc
-        if not hasattr(ToolSvc,pfotool.name()):
-            ToolSvc += pfotool
+        ToolSvc += pfotool
         tool.PFOTool = pfotool
     if suffix == 'Truth':
         tool = CfgMgr.met__METTruthTool('MET_TruthTool_'+config.objType)
@@ -113,13 +117,11 @@ def getBuilder(config,suffix,doTracks,doCells,doTriggerMET,doOriginCorrClus):
     if suffix == 'Calo':
         tool = CfgMgr.met__METCaloRegionsTool('MET_CaloRegionsTool')
         if doCells:
-            tool.UseCells     = True
-            tool.DoTriggerMET = doTriggerMET
-            config.inputKey   = defaultInputKey['Calo'] 
+            tool.UseCells    = True                    
+            config.inputKey  = defaultInputKey['Calo'] 
         else:
-            tool.UseCells     = False                   
-            tool.DoTriggerMET = False
-            config.inputKey   = defaultInputKey['SoftClus']
+            tool.UseCells    = False                   
+            config.inputKey  = defaultInputKey['SoftClus']
         config.outputKey = config.objType
 
     # set input/output key names
@@ -135,8 +137,7 @@ def getBuilder(config,suffix,doTracks,doCells,doTriggerMET,doOriginCorrClus):
         else:
             tool.MissingETKey = config.outputKey
     from AthenaCommon.AppMgr import ToolSvc
-    if not hasattr(ToolSvc,tool.name()):
-       ToolSvc += tool
+    ToolSvc += tool
     return tool
 
 #################################################################################
@@ -147,46 +148,43 @@ class RefConfig:
         self.type = myType
         self.outputKey = outputKey
 
-def getRefiner(config,suffix,trkseltool=None,trkvxtool=None,trkisotool=None,caloisotool=None):
+def getRefiner(config,suffix):
     tool = None
 
     from AthenaCommon.AppMgr import ToolSvc
     if config.type == 'TrackFilter':
         tool = CfgMgr.met__METTrackFilterTool('MET_TrackFilterTool_'+suffix)
         tool.InputPVKey = defaultInputKey['PrimaryVx']
+        trkseltool=CfgMgr.InDet__InDetTrackSelectionTool("IDTrkSel_MET",
+                                                         CutLevel="TightPrimary",
+                                                         maxZ0SinTheta=1.5,
+                                                         maxD0overSigmaD0=3)
+        ToolSvc += trkseltool
+        #
+        trkvxtool=CfgMgr.CP__TightTrackVertexAssociationTool("TightTrackVertexAssociationTool", dzSinTheta_cut=1.5, doPV=False)
+        ToolSvc += trkvxtool
+        #
         tool.TrackSelectorTool=trkseltool
         tool.TrackVxAssocTool=trkvxtool
-        #
-        tool.UseIsolationTools = False #True
-        tool.TrackIsolationTool = trkisotool
-        tool.CaloIsolationTool = caloisotool
-        from METReconstruction.METRecoFlags import metFlags
-        tool.DoPVSel = metFlags.UseTracks()
-        tool.DoVxSep = metFlags.UseTracks()
-
     if config.type == 'JetFilter':
         tool = CfgMgr.met__METJetFilterTool('MET_JetFilterTool_'+suffix)
     if config.type == 'MuonEloss':
         tool = CfgMgr.met__METMuonElossTool('MET_MuonElossTool_'+suffix)
     tool.MissingETKey = config.outputKey
-    if not hasattr(ToolSvc,tool.name()):
-        ToolSvc += tool
+    ToolSvc += tool
     return tool
 
 #################################################################################
 # Region tools are a special case of refiners
 
 def getRegions(config,suffix):
-    if suffix == 'Truth':
-        config.outputKey = config.objType
     tool = CfgMgr.met__METRegionsTool('MET_'+config.outputKey+'Regions_'+suffix)
     tool.InputMETContainer = 'MET_'+suffix
     tool.InputMETMap = 'METMap_'+suffix
     tool.InputMETKey = config.outputKey
     tool.RegionValues = [ 1.5, 3.2, 10 ]
     from AthenaCommon.AppMgr import ToolSvc
-    if not hasattr(ToolSvc,tool.name()):
-        ToolSvc += tool
+    ToolSvc += tool
     return tool
 
 #################################################################################
@@ -206,8 +204,7 @@ class METConfig:
                 print prefix, 'Config '+self.suffix+' already contains a builder of type '+config.objType
                 raise LookupError
             else:
-                builder = getBuilder(config,self.suffix,self.doTracks,self.doCells,
-                                     self.doTriggerMET,self.doOriginCorrClus)
+                builder = getBuilder(config,self.suffix,self.doTracks,self.doCells)
                 self.builders[config.objType] = builder
                 self.buildlist.append(builder)
                 print prefix, '  Added '+config.objType+' tool named '+builder.name()
@@ -220,9 +217,7 @@ class METConfig:
                 print 'Config '+self.suffix+' already contains a refiner of type '+config.type
                 raise LookupError
             else:
-                refiner = getRefiner(config=config,suffix=self.suffix,
-                                     trkseltool=self.trkseltool,trkvxtool=self.trkvxtool,
-                                     trkisotool=self.trkisotool,caloisotool=self.caloisotool)
+                refiner = getRefiner(config,self.suffix)
                 self.refiners[config.type] = refiner
                 self.reflist.append(refiner)
                 print prefix, '  Added '+config.type+' tool named '+refiner.name()
@@ -241,16 +236,13 @@ class METConfig:
     #
     def __init__(self,suffix,buildconfigs=[],refconfigs=[],
                  doTracks=False,doSum=False,doRegions=False,
-                 doCells=False,doTriggerMET=True,duplicateWarning=True,
-                 doOriginCorrClus=False):
+                 doCells=False,duplicateWarning=True):
         print prefix, 'Creating MET config \''+suffix+'\''
         self.suffix = suffix
         self.doSum = doSum
         self.doTracks = doTracks
         self.doRegions = doRegions
-        self.doCells = doCells,
-        self.doOriginCorrClus = doOriginCorrClus
-        self.doTriggerMET = doTriggerMET
+        self.doCells = doCells
         self.duplicateWarning = duplicateWarning
         #
         self.builders = {}
@@ -259,34 +251,13 @@ class METConfig:
         self.refiners = {}
         self.reflist = [] # need an ordered list
         #
+        self.setupBuilders(buildconfigs)
+        self.setupRefiners(refconfigs)
+        #
         self.regions = {}
         self.reglist = [] # need an ordered list
         if doRegions:
             self.setupRegions(buildconfigs)
-        #
-        from AthenaCommon.AppMgr import ToolSvc
-        self.trkseltool=CfgMgr.InDet__InDetTrackSelectionTool("IDTrkSel_MET",
-                                                              CutLevel="TightPrimary",
-                                                              maxZ0SinTheta=3,
-                                                              maxD0=2)
-        if not hasattr(ToolSvc,self.trkseltool.name()):
-            ToolSvc += self.trkseltool
-        #
-        self.trkvxtool=CfgMgr.CP__TightTrackVertexAssociationTool("TightTrackVertexAssociationTool_MET", dzSinTheta_cut=1.5, doPV=False)
-        if not hasattr(ToolSvc,self.trkvxtool.name()):
-            ToolSvc += self.trkvxtool
-        #
-        self.trkisotool = CfgMgr.xAOD__TrackIsolationTool("TrackIsolationTool_MET")
-        self.trkisotool.TrackSelectionTool = self.trkseltool # As configured above
-        if not hasattr(ToolSvc,self.trkisotool.name()):
-            ToolSvc += self.trkisotool
-        #
-        self.caloisotool = CfgMgr.xAOD__CaloIsolationTool("CaloIsolationTool_MET")
-        if not hasattr(ToolSvc,self.caloisotool.name()):
-            ToolSvc += self.caloisotool
-
-        self.setupBuilders(buildconfigs)
-        self.setupRefiners(refconfigs)
 
 # Set up a top-level tool with mostly defaults
 def getMETRecoTool(topconfig):
@@ -295,8 +266,7 @@ def getMETRecoTool(topconfig):
                                        METRefiners = topconfig.reflist,
                                        METContainer = topconfig.outputCollection(),
                                        METComponentMap = topconfig.outputMap(),
-                                       WarnIfDuplicate = topconfig.duplicateWarning,
-                                       TimingDetail=0)
+                                       WarnIfDuplicate = topconfig.duplicateWarning)
     if topconfig.doSum:
         recoTool.METFinalName = defaultOutputKey['Total']    
 

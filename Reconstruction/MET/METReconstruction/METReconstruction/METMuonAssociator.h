@@ -17,13 +17,9 @@
 // METReconstruction includes
 #include "METReconstruction/METAssociator.h"
 
-#include "AsgTools/ToolHandle.h"
-
-class ICaloClusterMatchingTool;
-
 namespace met{
   class METMuonAssociator final
-    : public METAssociator
+    : virtual public METAssociator
   { 
     // This macro defines the constructor with the interface declaration
     ASG_TOOL_CLASS(METMuonAssociator, IMETAssocToolBase)
@@ -54,25 +50,25 @@ namespace met{
     // Private data: 
     /////////////////////////////////////////////////////////////////// 
     protected: 
-    
-    StatusCode executeTool(xAOD::MissingETContainer* metCont, xAOD::MissingETAssociationMap* metMap) const final;
+
+    StatusCode executeTool(xAOD::MissingETContainer* metCont, xAOD::MissingETAssociationMap* metMap);
     StatusCode extractTopoClusters(const xAOD::IParticle* obj,
 				   std::vector<const xAOD::IParticle*>& tclist,
-				   const met::METAssociator::ConstitHolder& constits) const final;
+				   const xAOD::CaloClusterContainer* tcCont);
     StatusCode extractPFO(const xAOD::IParticle* obj,
 			  std::vector<const xAOD::IParticle*>& pfolist,
-			  const met::METAssociator::ConstitHolder& constits,
-			  std::map<const xAOD::IParticle*,MissingETBase::Types::constvec_t> &momenta) const final;
+			  const xAOD::PFOContainer* pfoCont,
+			  std::map<const xAOD::IParticle*,MissingETBase::Types::constvec_t> &momenta,
+			  const xAOD::Vertex* pv) final;
     StatusCode extractTracks(const xAOD::IParticle* obj,
 			     std::vector<const xAOD::IParticle*>& constlist,
-			     const met::METAssociator::ConstitHolder& constits) const final;
+			     const xAOD::CaloClusterContainer* tcCont,
+			     const xAOD::Vertex* pv) final;
 
     private:
-
-    bool m_doMuonClusterMatch;
-
+ 
     /// Default constructor: 
-    METMuonAssociator();    
+    METMuonAssociator();
 
   }; 
 

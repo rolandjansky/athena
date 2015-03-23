@@ -78,8 +78,7 @@ namespace met {
   ////////////////////////////
   StatusCode METJetTool::initialize()
   {
-    ATH_CHECK( METBuilderTool::initialize() );
-    ATH_MSG_VERBOSE ("Initializing " << name() << "...");
+    ATH_MSG_INFO ("Initializing " << name() << "...");
 
     // Provide parser of input data string here? 
     // Or take a list of inputs?
@@ -131,7 +130,7 @@ namespace met {
   bool METJetTool::resolveOverlap(const xAOD::IParticle* object,
 				  xAOD::MissingETComponentMap* metMap,
 				  std::vector<const xAOD::IParticle*>& acceptedSignals,
-				  MissingETBase::Types::weight_t& objWeight) const
+				  MissingETBase::Types::weight_t& objWeight)
   {
 
     if(object->type() != xAOD::Type::Jet) {
@@ -139,7 +138,7 @@ namespace met {
       return false;
     }
     const Jet* jet = static_cast<const Jet*>(object);
-    //m_signalstate = jet->getConstituentsSignalState();
+    m_signalstate = jet->getConstituentsSignalState();
 
     ATH_MSG_VERBOSE("Retrieving jet constituents.");
     // first get the topoclusters
@@ -209,7 +208,7 @@ namespace met {
     return !clustersUsed; // return true if the jet shares no clusters with another object
   }
 
-  StatusCode METJetTool::executeTool(xAOD::MissingET* metTerm, xAOD::MissingETComponentMap* metMap) const
+  StatusCode METJetTool::executeTool(xAOD::MissingET* metTerm, xAOD::MissingETComponentMap* metMap)
   {
     ATH_MSG_DEBUG ("In execute: " << name() << "...");
 

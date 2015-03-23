@@ -1,7 +1,5 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-
-
 from AthenaCommon import CfgMgr
 
 #################################################################################
@@ -9,8 +7,7 @@ from AthenaCommon import CfgMgr
 
 clusterSigStates = {
     'EMScale':0,
-    'LocHad':1,
-    'Mod':1
+    'LocHad':1
 }
 
 defaultInputKey = {
@@ -25,10 +22,24 @@ defaultInputKey = {
    'ClusColl'  :'CaloCalTopoClusters',
    'TrkColl'   :'InDetTrackParticles',
    'PrimVxColl':'PrimaryVertices',
-   'Truth'     :'TruthEvents',
-   'LCOCClusColl':'LCOriginTopoClusters',
-   'EMOCClusColl':'EMOriginTopoClusters',
+   'Truth'     :'TruthParticles',
    }
+
+# # old naming scheme
+# defaultInputKey = {
+#     'Ele'       :'ElectronCollection',
+#     'Gamma'     :'PhotonCollection',
+#     'Tau'       :'TauRecContainer',
+#     'LCJet'     :'AntiKt4LCTopoJets',
+#     'EMJet'     :'AntiKt4EMTopoJets',
+#     'PFlowJet'  :'AntiKt4EMPFlowJets',
+#     'Muon'      :'Muons',
+#     'Soft'      :'',
+#     'ClusColl'  :'CaloCalTopoCluster',
+#     'TrkColl'   :'InDetTrackParticles',
+#     'PrimVxColl':'PrimaryVertices',
+#     'Truth'     :'TruthParticle',
+#     }
 
 prefix = 'METAssocConfig:   '
 
@@ -40,23 +51,15 @@ class AssocConfig:
         self.objType = objType
         self.inputKey = inputKey
 
-def getAssociator(config,suffix,doPFlow=False,
-                  trkseltool=None,trkisotool=None,caloisotool=None,
-                  doOriginCorrClus=True):
+def getAssociator(config,suffix,doPFlow):
     tool = None
-
-    import cppyy
-    try: cppyy.loadDictionary('METReconstructionDict')
-    except: pass
 
     from AthenaCommon.AppMgr import ToolSvc
     # Construct tool and set defaults for case-specific configuration
     if config.objType == 'Ele':
-        from ROOT import met
-        tool = CfgMgr.met__METElectronAssociator('MET_ElectronAssociator_'+suffix,TCMatchMethod=met.ClusterLink)
+        tool = CfgMgr.met__METElectronAssociator('MET_ElectronAssociator_'+suffix)
     if config.objType == 'Gamma':
-        from ROOT import met
-        tool = CfgMgr.met__METPhotonAssociator('MET_PhotonAssociator_'+suffix,TCMatchMethod=met.ClusterLink)
+        tool = CfgMgr.met__METPhotonAssociator('MET_PhotonAssociator_'+suffix)
     if config.objType == 'Tau':
         tool = CfgMgr.met__METTauAssociator('MET_TauAssociator_'+suffix)
     if config.objType == 'LCJet':
@@ -69,44 +72,27 @@ def getAssociator(config,suffix,doPFlow=False,
         tool = CfgMgr.met__METMuonAssociator('MET_MuonAssociator_'+suffix)
     if config.objType == 'Soft':
         tool = CfgMgr.met__METSoftAssociator('MET_SoftAssociator_'+suffix)
-        tool.DecorateSoftConst = True
-        if doOriginCorrClus:
-            tool.LCModClusterKey = defaultInputKey['LCOCClusColl']
-            tool.EMModClusterKey = defaultInputKey['EMOCClusColl']
-    if config.objType == 'Truth':
-        tool = CfgMgr.met__METTruthAssociator('MET_TruthAssociator_'+suffix)
-        tool.RecoJetKey = config.inputKey
     if doPFlow:
         pfotool = CfgMgr.CP__RetrievePFOTool('MET_PFOTool_'+suffix)
         ToolSvc += pfotool
         tool.PFOTool = pfotool
-        pfoweighttool = CfgMgr.CP__WeightPFOTool('MET_PFOWeightTool_'+suffix)
-        ToolSvc += pfoweighttool
-        tool.PFOWeightTool = pfoweighttool
-        tool.PFlow = True
-    else:
-        tool.UseModifiedClus = doOriginCorrClus
+        tool.PFlow=True
     # set input/output key names
     if config.inputKey == '':
         tool.InputCollection = defaultInputKey[config.objType]
         config.inputKey = tool.InputCollection
-        if doOriginCorrClus:
-            tool.ClusColl = defaultInputKey['LCOCClusColl']
-            if 'EMTopo' in suffix: tool.ClusColl = defaultInputKey['EMOCClusColl']
+        tool.ClusColl = defaultInputKey['ClusColl']
         tool.TrkColl = defaultInputKey['TrkColl']
     else:
         tool.InputCollection = config.inputKey
 
-    from METReconstruction.METRecoFlags import metFlags
-    tool.UseTracks = metFlags.UseTracks()
-    #
+    trkseltool=CfgMgr.InDet__InDetTrackSelectionTool("IDTrkSel_METAssoc",
+                                                     CutLevel="TightPrimary",
+                                                     maxZ0SinTheta=1.5,
+                                                     maxD0overSigmaD0=3)
+    ToolSvc += trkseltool
     tool.TrackSelectorTool = trkseltool
-    #
-    tool.TrackIsolationTool = trkisotool
-    tool.CaloIsolationTool = caloisotool
-
-    if not hasattr(ToolSvc,tool.name()):
-       ToolSvc += tool
+    ToolSvc += tool
     return tool
 
 #################################################################################
@@ -114,11 +100,9 @@ def getAssociator(config,suffix,doPFlow=False,
 
 class METAssocConfig:
     def outputCollections(self):
-        if doTruth: return 'MET_Core_'+self.suffix
-        else: return 'MET_Core_'+self.suffix,'MET_Reference_'+self.suffix
+        return 'MET_Core_'+self.suffix,'MET_Reference_'+self.suffix
     #
     def outputMap(self):
-        return 'METAssoc_'+self.suffix
         return 'METAssoc_'+self.suffix
     #
     def setupAssociators(self,buildconfigs):
@@ -128,51 +112,16 @@ class METAssocConfig:
                 print prefix, 'Config '+self.suffix+' already contains a associator of type '+config.objType
                 raise LookupError
             else:
-                associator = getAssociator(config=config,suffix=self.suffix,
-                                           doPFlow=self.doPFlow,
-                                           trkseltool=self.trkseltool,
-                                           trkisotool=self.trkisotool,
-                                           caloisotool=self.caloisotool,
-                                           doOriginCorrClus=self.doOriginCorrClus)
-                from METReconstruction.METRecoFlags import metFlags
-                if config.objType == 'Soft' and metFlags.DecorateSoftConst:
-                    print "activate soft term decoration"
-                    associator.DecorateSoftConst = True
+                associator = getAssociator(config,self.suffix,self.doPFlow)
                 self.associators[config.objType] = associator
                 self.assoclist.append(associator)
                 print prefix, '  Added '+config.objType+' tool named '+associator.name()
     #
     def __init__(self,suffix,buildconfigs=[],
-                 doPFlow=False,doTruth=False,
-                 trksel=None,doOriginCorrClus=False):
-        if doTruth:
-            print prefix, 'Creating MET TruthAssoc config \''+suffix+'\''
-        else:
-            print prefix, 'Creating MET Assoc config \''+suffix+'\''
+                 doPFlow=False):
+        print prefix, 'Creating MET config \''+suffix+'\''
         self.suffix = suffix
         self.doPFlow = doPFlow
-        self.doOriginCorrClus=doOriginCorrClus
-        self.doTruth = doTruth
-        from AthenaCommon.AppMgr import ToolSvc
-        if trksel:
-            self.trkseltool = trksel
-        else:
-            self.trkseltool=CfgMgr.InDet__InDetTrackSelectionTool("IDTrkSel_METAssoc",
-                                                                  CutLevel="TightPrimary",
-                                                                  maxZ0SinTheta=3,
-                                                                  maxD0=2)
-            if not hasattr(ToolSvc,self.trkseltool.name()):
-                ToolSvc += self.trkseltool
-
-        self.trkisotool = CfgMgr.xAOD__TrackIsolationTool("TrackIsolationTool_MET")
-        self.trkisotool.TrackSelectionTool = self.trkseltool # As configured above
-        if not hasattr(ToolSvc,self.trkisotool.name()):
-            ToolSvc += self.trkisotool
-
-        self.caloisotool = CfgMgr.xAOD__CaloIsolationTool("CaloIsolationTool_MET")
-        if not hasattr(ToolSvc,self.caloisotool.name()):
-            ToolSvc += self.caloisotool
-
         self.associators = {}
         self.assoclist = [] # need an ordered list
         #
@@ -180,24 +129,12 @@ class METAssocConfig:
 
 # Set up a top-level tool with mostly defaults
 def getMETAssocTool(topconfig):
-    assocTool = None
-    from METReconstruction.METRecoFlags import metFlags
-    if topconfig.doTruth:
-        assocTool = CfgMgr.met__METAssociationTool('MET_TruthAssociationTool_'+topconfig.suffix,
-                                                   METAssociators = topconfig.assoclist,
-                                                   METSuffix = topconfig.suffix)
-    else:
-        tcstate = clusterSigStates['LocHad']
-        if 'EMTopo' in topconfig.suffix: tcstate = clusterSigStates['EMScale']
-        if topconfig.doOriginCorrClus:
-            tcstate = clusterSigStates['Mod']
-        assocTool = CfgMgr.met__METAssociationTool('MET_AssociationTool_'+topconfig.suffix,
-                                                   METAssociators = topconfig.assoclist,
-                                                   METSuffix = topconfig.suffix,
-                                                   TCSignalState=tcstate,
-                                                   TimingDetail=0)
-        if metFlags.AllowOverwrite:
-            assocTool.AllowOverwrite = True
+    tcstate = clusterSigStates['LocHad']
+    if topconfig.suffix == 'AntiKt4EMTopo': tcstate = clusterSigStates['EMScale']
+    assocTool = CfgMgr.met__METAssociationTool('MET_AssociationTool_'+topconfig.suffix,
+                                               METAssociators = topconfig.assoclist,
+                                               METSuffix = topconfig.suffix,
+                                               TCSignalState=tcstate)
     return assocTool
 
 # Allow user to configure reco tools directly or get more default configurations
@@ -226,3 +163,6 @@ def getMETAssocAlg(algName='METAssociation',configs={},tools=[]):
                                       RecoTools=assocTools)
 #    assocAlg.OutputLevel=DEBUG
     return assocAlg
+
+# Allow user to configure reco tools directly or get more default configurations
+#def getMETMakerAlg(algName='METMaker'):

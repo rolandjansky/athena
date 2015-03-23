@@ -12,7 +12,7 @@
 //
 //  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 //
-// Author: P Loch, S Resconi, TJ Khoo, AS Mete
+// Author: P Loch, S Resconi, TJ Khoo
 /////////////////////////////////////////////////////////////////// 
 #ifndef METRECONSTRUCTION_METTRUTHTOOL_H
 #define METRECONSTRUCTION_METTRUTHTOOL_H 1
@@ -29,7 +29,7 @@
 namespace met{
 
   class METTruthTool
-    : public METBuilderTool
+    : virtual public METBuilderTool
   { 
     // This macro defines the constructor with the interface declaration
     ASG_TOOL_CLASS(METTruthTool, IMETToolBase)
@@ -61,7 +61,7 @@ namespace met{
     // Private data: 
     /////////////////////////////////////////////////////////////////// 
   protected: 
-    StatusCode  executeTool(xAOD::MissingET* metTerm, xAOD::MissingETComponentMap* metMap) const;
+    StatusCode  executeTool(xAOD::MissingET* metTerm, xAOD::MissingETComponentMap* metMap);
     // Accept functions
     bool accept            (const xAOD::IParticle* object) const;
     bool accept_nonint     (const xAOD::TruthParticle* truth) const;
@@ -69,10 +69,10 @@ namespace met{
     bool accept_intout     (const xAOD::TruthParticle* truth) const;
     bool accept_intmuons   (const xAOD::TruthParticle* truth) const;
     // Overlap resolver function
-    bool resolveOverlap    (const xAOD::IParticle*,
-                            xAOD::MissingETComponentMap*,
-                            std::vector<const xAOD::IParticle*>&,
-                            MissingETBase::Types::weight_t&) const { return true;};
+    bool resolveOverlap    (const xAOD::IParticle* object,
+                            xAOD::MissingETComponentMap* metMap,
+                            std::vector<const xAOD::IParticle*>& acceptedSignals,
+                            MissingETBase::Types::weight_t& objWeight);
 
   private:
     // Default constructor: 
@@ -89,6 +89,10 @@ namespace met{
     // We'll have to use this package when they work properly with xAOD.
   };
 
+  bool isStable(const xAOD::TruthParticle* p);
+  bool isInteracting( const xAOD::TruthParticle* const p);
+  bool isNonInteracting( const xAOD::TruthParticle* const p);
+  bool isMuon(const xAOD::TruthParticle* truthPart);
 }
 
 // I/O operators

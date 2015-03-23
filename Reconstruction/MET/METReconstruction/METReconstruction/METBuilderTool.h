@@ -53,7 +53,7 @@ namespace met {
 
     // AsgTool Hooks
     virtual StatusCode initialize();
-    virtual StatusCode execute(xAOD::MissingET* metTerm, xAOD::MissingETComponentMap* metMap) const;
+    virtual StatusCode execute(xAOD::MissingET* metTerm, xAOD::MissingETComponentMap* metMap);
     virtual StatusCode finalize();
 
     /////////////////////////////////////////////////////////////////// 
@@ -71,14 +71,11 @@ namespace met {
 
     std::string m_input_data_key;
     std::string m_output_met_key;
-    std::string m_mod_clus_key;
-    int m_signalstate;  // use an int for now - signal states seem to be defined in the object classes, e.g. CaloCluster and Jet
-    bool m_useRapidity; // by default, use pseudorapidity for matching
-    bool m_useModClus;  // use modified e.g. origin-corrected clusters
+    int m_signalstate; // use an int for now - signal states seem to be defined in the object classes, e.g. CaloCluster and Jet
 
     // reconstruction process to be defined in the individual tools
     // pure virtual -- we have no default
-    virtual StatusCode  executeTool(xAOD::MissingET* metTerm, xAOD::MissingETComponentMap* metMap) const = 0;
+    virtual StatusCode  executeTool(xAOD::MissingET* metTerm, xAOD::MissingETComponentMap* metMap) = 0;
 
     // decision about whether an input object should be considered for inclusion in the MET sum
     virtual bool accept(const xAOD::IParticle* object) const = 0;
@@ -92,7 +89,7 @@ namespace met {
     virtual bool resolveOverlap(const xAOD::IParticle* object,
 				xAOD::MissingETComponentMap* metMap,
 				std::vector<const xAOD::IParticle*>& acceptedSignals,
-				MissingETBase::Types::weight_t& objWeight) const = 0;
+				MissingETBase::Types::weight_t& objWeight) = 0;
 
     // after overlap resolution, add the object with its list of constituents to the composition map
     // weight and status can be set if they need to be different from the default
@@ -101,7 +98,7 @@ namespace met {
 			  xAOD::MissingET* metTerm,
 			  xAOD::MissingETComponentMap* metMap,
 			  MissingETBase::Types::weight_t& objWeight,
-			  MissingETBase::UsageHandler::Policy p=MissingETBase::UsageHandler::TrackCluster) const;
+			  MissingETBase::UsageHandler::Policy p=MissingETBase::UsageHandler::TrackCluster);
     
     // uses metMap->insert(metTerm, particle, weight, status, acceptedSignals)
     //

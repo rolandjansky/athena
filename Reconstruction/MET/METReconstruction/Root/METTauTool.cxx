@@ -22,16 +22,12 @@
 
 // Tau EDM
 #include "xAODTau/TauJetContainer.h"
-#include "xAODTau/TauTrack.h"
 
 // Calo EDM
-#include "xAODCaloEvent/CaloClusterContainer.h"
+#include "xAODCaloEvent/CaloCluster.h"
 
 // Calo helpers
 #include "xAODCaloEvent/CaloClusterChangeSignalState.h"
-
-// DeltaR calculation
-#include "FourMomUtils/xAODP4Helpers.h"
 
 namespace met {
 
@@ -43,11 +39,9 @@ namespace met {
   using xAOD::JetConstituentVector;
   //
   using xAOD::TauJet;
-  using xAOD::TauTrack;
   using xAOD::TauJetContainer;
   //
   using xAOD::CaloCluster;
-  using xAOD::CaloClusterContainer;
   //
   using xAOD::MissingET;
   using xAOD::MissingETComposition;
@@ -85,8 +79,7 @@ namespace met {
   ////////////////////////////
   StatusCode METTauTool::initialize()
   {
-    ATH_CHECK( METBuilderTool::initialize() );
-    ATH_MSG_VERBOSE ("Initializing " << name() << "...");
+    ATH_MSG_INFO ("Initializing " << name() << "...");
 
     // Provide parser of input data string here? 
     // Or take a list of inputs?
@@ -124,8 +117,8 @@ namespace met {
     ATH_MSG_VERBOSE("Testing tau with pt " << tau->pt() << ", eta " << tau->eta());
     ATH_MSG_VERBOSE("Tau ID discriminants:"
 		    << " jet " << tau->discriminant(xAOD::TauJetParameters::BDTJetScore)
-		    << " el " << tau->discriminant(xAOD::TauJetParameters::BDTEleScore));
-		    //<< " mu " << tau->flag(xAOD::TauJetParameters::MuonFlag)); // ASM 18/4/2016 - not in Tau EDM anymore
+		    << " el " << tau->discriminant(xAOD::TauJetParameters::BDTEleScore)
+		    << " mu " << tau->flag(xAOD::TauJetParameters::MuonFlag));
 
     if(tau->pt()<m_tau_minPt || fabs(tau->eta())>m_tau_maxEta) return false;
     // need to accommodate more than one of these?
@@ -142,7 +135,7 @@ namespace met {
   bool METTauTool::resolveOverlap(const xAOD::IParticle* object,
 				  xAOD::MissingETComponentMap* metMap,
 				  std::vector<const xAOD::IParticle*>& acceptedSignals,
-				  MissingETBase::Types::weight_t& objWeight) const
+				  MissingETBase::Types::weight_t& objWeight)
   {
     if(object->type() != xAOD::Type::Tau) {
       ATH_MSG_WARNING("METTauTool::resolveOverlap given an object of type " << object->type());
@@ -151,65 +144,36 @@ namespace met {
     const TauJet* tau = static_cast<const TauJet*>(object);
 
     ATH_MSG_VERBOSE("Retrieving tau constituents.");
-    /////////////////////////////////////////// TO-BE REMOVED!!!
-    /////////////////////////////////////////// TO-BE REMOVED!!!
-    ////// <<<===== OLD TAU EDM : ASM 19/4/2016
-    //const Jet* jet = *tau->jetLink();
-    //JetConstituentVector constit = jet->getConstituents();
-    //ATH_MSG_VERBOSE("Current tau has " << constit.size() << " constituents.");
     // first get the topoclusters
     // for now take them from the linked jet and apply a dR cone of 0.2
+
+    const Jet* jet = *tau->jetLink();
+    JetConstituentVector constit = jet->getConstituents();
+    ATH_MSG_VERBOSE("Current tau has " << constit.size() << " constituents.");
     // test for used topoclusters, and retrieve unused ones (ok until/unless we use PFlow taus)
     // only use clusters for computing the overlap removal relative to other objects
-    //double sumE_allclus = 0.;
-    //std::vector<const IParticle*> constit_vec;
-    //CaloClusterChangeSignalStateList stateHelperList;
-    //for(JetConstituentVector::const_iterator iClus = constit.begin();
-    //	iClus!=constit.end(); ++iClus) {
-    //  // TEMP: use jet seed axis
-    //  //       taus will provide an accessor
-    //  if(!xAOD::P4Helpers::isInDeltaR(*jet,*(*iClus)->rawConstituent(),0.2,m_useRapidity)) continue;
-    //  // skip cluster if dR>0.2
-    //  sumE_allclus += (*iClus)->e();
-    //  if((*iClus)->rawConstituent()->type() != xAOD::Type::CaloCluster) {
-	//ATH_MSG_WARNING("Unexpected jet constituent type " << (*iClus)->rawConstituent()->type() << " received! Skip.");
-	//continue;
-    //  }
-    //  const CaloCluster* pClus = static_cast<const CaloCluster*>( (*iClus)->rawConstituent() );
-    //  // create a helper to change the signal state and retain it until the end of the execute
-    //  // signal state will be reset when it goes out of scope
-    //  //CaloClusterChangeSignalState stateHelper(pClus, CaloCluster::State(m_signalstate));
-    //  stateHelperList.add(pClus, CaloCluster::State(m_signalstate));
-    //  constit_vec.push_back(pClus);
-    //} // loop over jet constituents
-    ////// <<<===== OLD TAU EDM : ASM 19/4/2016
-    /////////////////////////////////////////// TO-BE REMOVED!!!
-    /////////////////////////////////////////// TO-BE REMOVED!!!
-    const CaloClusterContainer* modClusCont(0);
-    if(m_useModClus) {
-      ATH_CHECK( evtStore()->retrieve(modClusCont,m_mod_clus_key) );
-    }
     double sumE_allclus = 0.;
     std::vector<const IParticle*> constit_vec;
     CaloClusterChangeSignalStateList stateHelperList;
-    for( ElementLink< xAOD::IParticleContainer > cluster_link : tau->clusterLinks() ){
-      const xAOD::IParticle* ipart = *cluster_link;
-      sumE_allclus += ipart->e();
-      if(ipart->type() != xAOD::Type::CaloCluster) {
-    	ATH_MSG_WARNING("Unexpected jet constituent type " << ipart->type() << " received! Skip.");
-    	continue;
-      }      
-      // Link set in Reconstruction/tauRecTools/src/TauAxisSetter.cxx
-      // Internal defaults are m_clusterCone = 0.2, m_doCellCorrection = false, m_doAxisCorrection = True
-      const CaloCluster* pClus = static_cast<const CaloCluster*>( ipart );
-      if(m_useModClus && modClusCont) {
-	// replace with modified cluster
-	pClus = (*modClusCont)[pClus->index()];
+    for(JetConstituentVector::const_iterator iClus = constit.begin();
+    	iClus!=constit.end(); ++iClus) {
+      // TEMP: use jet seed axis
+      //       taus will provide an accessor
+      double dR = jet->p4().DeltaR((*iClus)->rawConstituent()->p4());
+      if(dR>0.2) continue;
+      // skip cluster if dR>0.2
+      sumE_allclus += (*iClus)->e();
+      if((*iClus)->rawConstituent()->type() != xAOD::Type::CaloCluster) {
+	ATH_MSG_WARNING("Unexpected jet constituent type " << (*iClus)->rawConstituent()->type() << " received! Skip.");
+	continue;
       }
+      const CaloCluster* pClus = static_cast<const CaloCluster*>( (*iClus)->rawConstituent() );
+      // create a helper to change the signal state and retain it until the end of the execute
+      // signal state will be reset when it goes out of scope
+      //CaloClusterChangeSignalState stateHelper(pClus, CaloCluster::State(m_signalstate));
       stateHelperList.add(pClus, CaloCluster::State(m_signalstate));
       constit_vec.push_back(pClus);
-    }
-
+    } // loop over jet constituents
     ATH_MSG_VERBOSE( "Tau E = " << tau->e() << ", cluster energy sum = " << sumE_allclus );
     bool clustersUsed = metMap->checkUsage(constit_vec,MissingETBase::UsageHandler::OnlyCluster);
     if(clustersUsed) { // true implies some cluster has been used
@@ -239,35 +203,26 @@ namespace met {
       // TEMP: get all tau core tracks 
       //       add other tracks (from seed jet) in 0.2 cone
       vector<const IParticle*> tautracks;
-      /////////////////////////////////////////// TO-BE REMOVED!!!
-      /////////////////////////////////////////// TO-BE REMOVED!!!
-      ////// <<<===== OLD TAU EDM : ASM 18/4/2016
-      //for(size_t iTrk=0; iTrk<tau->nTracks(); ++iTrk) {
-      //  tautracks.push_back(tau->track(iTrk));
-      //}
-      //for(size_t iTrk=0; iTrk<tau->nOtherTracks(); ++iTrk) {
-      //  const xAOD::TrackParticle* trk = tau->otherTrack(iTrk);
-      //  if(xAOD::P4Helpers::isInDeltaR(*jet,*trk,0.2,m_useRapidity)) tautracks.push_back(trk);
-      //}
-      ////// <<<===== OLD TAU EDM : ASM 18/4/2016
-      /////////////////////////////////////////// TO-BE REMOVED!!!
-      /////////////////////////////////////////// TO-BE REMOVED!!!
-      for( const TauTrack* ttrk : tau->tracks(xAOD::TauJetParameters::coreTrack) ){//all tracks dR < 0.2 regardless of quality
-        tautracks.push_back(ttrk->track());
+      for(size_t iTrk=0; iTrk<tau->nTracks(); ++iTrk) {
+	tautracks.push_back(tau->track(iTrk));
+      }
+      for(size_t iTrk=0; iTrk<tau->nOtherTracks(); ++iTrk) {
+	const xAOD::TrackParticle* trk = tau->otherTrack(iTrk);
+	double dR = jet->p4().DeltaR(trk->p4());
+	if(dR<0.2) tautracks.push_back(trk);
       }
       // test for used tracks, and retrieve unused ones
       metMap->checkUsage(tautracks,MissingETBase::UsageHandler::OnlyTrack);
       for(vector<const IParticle*>::const_iterator iTrk = tautracks.begin();
-        iTrk!=tautracks.end(); ++iTrk) {
-        acceptedSignals.push_back(*iTrk);
+    	  iTrk!=tautracks.end(); ++iTrk) {
+    	acceptedSignals.push_back(*iTrk);
       } // loop over tau tracks
     }
 
     return !clustersUsed; // return true if the tau shares no clusters with another object
   }
 
-  StatusCode METTauTool::executeTool(xAOD::MissingET* metTerm, xAOD::MissingETComponentMap* metMap) const
-  {
+  StatusCode METTauTool::executeTool(xAOD::MissingET* metTerm, xAOD::MissingETComponentMap* metMap) {
 
     ATH_MSG_DEBUG ("In execute: " << name() << "...");
 

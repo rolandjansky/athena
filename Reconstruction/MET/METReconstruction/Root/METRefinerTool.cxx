@@ -20,9 +20,6 @@
 #include "xAODMissingET/MissingETComposition.h"
 #include "xAODMissingET/MissingETComponentMap.h"
 
-// For DeltaR
-#include "FourMomUtils/xAODP4Helpers.h"
-
 namespace met {
 
   using xAOD::MissingET;
@@ -39,7 +36,6 @@ namespace met {
     AsgTool(name)
   {
     declareProperty( "MissingETKey",    m_output_met_key  );
-    declareProperty( "UseRapidity",     m_useRapidity = false );
   }
 
   // Destructor
@@ -51,12 +47,12 @@ namespace met {
   ////////////////////////////
   StatusCode METRefinerTool::initialize()
   {
-    ATH_MSG_DEBUG ("Initializing " << name() << "...");
+    ATH_MSG_INFO ("Initializing " << name() << "...");
 
     return StatusCode::SUCCESS;
   }
 
-  StatusCode METRefinerTool::execute(xAOD::MissingET* metTerm, xAOD::MissingETComponentMap* metMap) const
+  StatusCode METRefinerTool::execute(xAOD::MissingET* metTerm, xAOD::MissingETComponentMap* metMap)
   {
     ATH_MSG_DEBUG ("In execute: " << name() << "...");
 

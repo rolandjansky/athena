@@ -199,10 +199,10 @@ namespace met {
       // time builders
       for(ToolHandleArray<IMETToolBase>::const_iterator iBuilder=m_metbuilders.begin();
 	  iBuilder != m_metbuilders.end(); ++iBuilder) {
-	ToolHandle<IMETToolBase> th = *iBuilder;
+	ToolHandle<IMETToolBase> tool = *iBuilder;
 	double tctime = m_toolclocks[itool].CpuTime()/double(m_nevt)*1000;
 	double twtime = m_toolclocks[itool].RealTime()/double(m_nevt)*1000;
-	ATH_MSG_INFO("    " << setw(30) << th.typeAndName()
+	ATH_MSG_INFO("    " << setw(30) << tool->name()
 		     << fixed << setprecision(3) << setw(10) << tctime
 		     << fixed << setprecision(3) << setw(10) << twtime);
 	++itool;
@@ -211,10 +211,10 @@ namespace met {
       // time refiners
       for(ToolHandleArray<IMETToolBase>::const_iterator iRefiner=m_metrefiners.begin();
 	  iRefiner != m_metrefiners.end(); ++iRefiner) {
-	ToolHandle<IMETToolBase> th = *iRefiner;
+	ToolHandle<IMETToolBase> tool = *iRefiner;
 	double tctime = m_toolclocks[itool].CpuTime()/double(m_nevt)*1000;
 	double twtime = m_toolclocks[itool].RealTime()/double(m_nevt)*1000;
-	ATH_MSG_INFO("    " << setw(30) << th.typeAndName()
+	ATH_MSG_INFO("    " << setw(30) << tool->name()
 		     << fixed << setprecision(3) << setw(10) << tctime
 		     << fixed << setprecision(3) << setw(10) << twtime);
 	++itool;
@@ -264,7 +264,7 @@ namespace met {
 	ATH_MSG_WARNING("Failed to execute tool: " << tool->name());
 	if ( m_timedetail > 0 ) m_clock.Stop();
 	if ( m_timedetail > 1 ) m_toolclocks[itool].Stop();
-	// return StatusCode::SUCCESS;
+	return StatusCode::SUCCESS;
       }
       if ( m_timedetail > 1 ) {
 	m_toolclocks[itool].Stop();
@@ -297,9 +297,9 @@ namespace met {
       if ( m_timedetail > 1 ) m_toolclocks[itool].Start(false);
       if( tool->execute(metTerm, metMap).isFailure() ) {
 	ATH_MSG_WARNING("Failed to execute tool: " << tool->name());
-	// if ( m_timedetail > 0 ) m_clock.Stop();
-	// if ( m_timedetail > 1 ) m_toolclocks[itool].Stop();
-	// return StatusCode::SUCCESS;
+	if ( m_timedetail > 0 ) m_clock.Stop();
+	if ( m_timedetail > 1 ) m_toolclocks[itool].Stop();
+	return StatusCode::SUCCESS;
       }
       if ( m_timedetail > 1 ) {
 	m_toolclocks[itool].Stop();
