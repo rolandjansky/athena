@@ -234,6 +234,10 @@ def MooTrackBuilder(name="MooTrackBuilderTemplate",
     
     kwargs.setdefault("Fitter",   "MooTrackFitter")
     kwargs.setdefault("SLFitter", "MooSLTrackFitter")
+    if muonRecFlags.doSegmentT0Fit() and beamFlags.beamType() == 'cosmics' :
+      kwargs.setdefault("RecalibrateMDTHitsOnTrack", False)
+    else:
+      kwargs.setdefault("RecalibrateMDTHitsOnTrack", True)
 
     # hardcode some properties before passing on to base class constructors
     if optimiseMomentumResolutionUsingChi2:
