@@ -59,11 +59,12 @@ if not 'doPerfPostProcessing' in dir():
 class TestConfiguration:
     """Class to manage test configurations"""
     
-    _configurations = ('TilePhysAllTestParamsOnOfaRtt',     \
-                       'TilePhysAllTestParamsOffOfaRtt',    \
-                       'TilePedestalAllTestParamsOnOfaRtt', \
-                       'TileLasAllTestParamsOnOfaRtt',      \
-                       'TileCisAllTestParamsOnOfaRtt',      \
+    _configurations = ('TilePhysAllTestParamsOnOfaRtt',         \
+                       'TilePhysAllTestParamsOffOfaRtt',        \
+                       'TilePhysZeroBiasAllTestParamsOnOfaRtt', \
+                       'TilePedestalAllTestParamsOnOfaRtt',     \
+                       'TileLasAllTestParamsOnOfaRtt',          \
+                       'TileCisAllTestParamsOnOfaRtt',          \
                        'TileMonoCisAllTestParamsOnOfaRtt')
     @classmethod 
     def Initialize(cls):
@@ -114,7 +115,7 @@ if TilePhysAllTestParamsOnOfaRtt:
     # Convert ADC counts to MeV in output ntuple.
     TileCalibrateEnergy = True
     TileCorrectAmplitude = True
-
+    EvtMax = 718
 
 elif TilePhysAllTestParamsOffOfaRtt:
     # Switch on Physcis run.
@@ -126,6 +127,24 @@ elif TilePhysAllTestParamsOffOfaRtt:
     TestParameters.SetAll(False)
     # Do not convert ADC counts to MeV in output ntuple.
     TileCalibrateEnergy = False
+    EvtMax = 718
+
+
+elif TilePhysZeroBiasAllTestParamsOnOfaRtt:
+    # Switch on Physcis run.
+    TilePhysRun = True
+    if not 'RunNumber' in dir():
+        RunNumber = 201555
+
+    FileFilter = "." 
+    doTileOF1 = True
+    doTileMF = True
+    # Switch on all tested parameters.
+    TestParameters.SetAll(True)
+    # Convert ADC counts to MeV in output ntuple.
+    TileCalibrateEnergy = True
+    TileCorrectAmplitude = True
+    EvtMax = 892
 
 
 #------------------------------------------------------------------------------

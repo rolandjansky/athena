@@ -105,7 +105,7 @@
           </arg>
           <arg>
             <argname>DCubeRef</argname>
-            <argvalue>TileCosmicRttReferenceHistograms_20141022.root</argvalue>
+            <argvalue>TileCosmicRttReferenceHistograms_20150228.root</argvalue>
           </arg>
           <arg>
             <argname>DCubeMon</argname>
@@ -150,7 +150,7 @@
           </arg>
           <arg>
             <argname>DCubeRef</argname>
-            <argvalue>TilePhysAllTestParamsOnOfaRttHistograms_20121016.root</argvalue>
+            <argvalue>TilePhysAllTestParamsOnOfaRttHistograms_20150228.root</argvalue>
           </arg>
           <arg>
             <argname>DCubeMon</argname>
@@ -195,7 +195,7 @@
           </arg>
           <arg>
             <argname>DCubeRef</argname>
-            <argvalue>TilePhysAllTestParamsOffOfaRttHistograms_20121016.root</argvalue>
+            <argvalue>TilePhysAllTestParamsOffOfaRttHistograms_20150228.root</argvalue>
           </arg>
           <arg>
             <argname>DCubeMon</argname>
@@ -204,6 +204,52 @@
           <keepFilePattern>DCube-*/*.dcube.xml.php</keepFilePattern>
         </test>
       </athena>
+
+      <athena userJobId="TilePhysZeroBiasAllTestParamsOnOfaRtt" doMonitoring="True">
+        <doc>
+          RTT test of Optimal Filtering Algorithms (Fit, Opt2,
+          OptATLAS, MF, OF1) for Physics runs under the folowing conditions:
+          correct time; use ofc and phase from COOL; calibrate on
+          energy.
+        </doc>
+        <commandLineString>
+          --stdcmalloc -c "TilePhysZeroBiasAllTestParamsOnOfaRtt=True"
+        </commandLineString>
+        <options>jobOptions_TileOptimalFilteringAlgsRtt.py</options>
+        <group>TileRecEx:TileOptimalFilteringAlgs</group>
+        <queue>medium</queue>
+        <test position="1">
+          <modulename>RttLibraryTools</modulename>
+          <testname>ROOTMacroRunner</testname>
+          <arg>
+            <argname>macro</argname>
+            <argvalue>DoTileOptimalFilteringAlgsRttHistograms.C</argvalue>
+          </arg>
+          <arg>
+            <argname>macroArg</argname>
+            <argvalue>"--outputFile=TilePhysZeroBiasAllTestParamsOnOfaRttHistograms.root"</argvalue>
+          </arg>
+          <keepFilePattern>RttLibraryTools_ROOTMacroRunner.postprocessing.log</keepFilePattern>
+        </test>
+        <test position="2">
+          <modulename>RttLibraryTools</modulename>
+          <testname>DCubeRunner</testname>
+          <arg>
+            <argname>DCubeCfg</argname>
+            <argvalue>TilePhysZeroBiasAllTestParamsOnOfaRttDCubeConfiguration.xml</argvalue>
+          </arg>
+          <arg>
+            <argname>DCubeRef</argname>
+            <argvalue>TilePhysZeroBiasAllTestParamsOnOfaRttHistograms_20150302.root</argvalue>
+          </arg>
+          <arg>
+            <argname>DCubeMon</argname>
+            <argvalue>TilePhysZeroBiasAllTestParamsOnOfaRttHistograms.root</argvalue>
+          </arg>
+          <keepFilePattern>DCube-*/*.dcube.xml.php</keepFilePattern>
+        </test>
+      </athena>
+
 
       <athena userJobId="TilePedestalAllTestParamsOnOfaRtt" doMonitoring="True">
         <doc>
@@ -417,6 +463,7 @@
           </arg>
           <keepFilePattern>*perfmon.pdf</keepFilePattern>
           <keepFilePattern>*perfmon.summary.txt</keepFilePattern>
+          <noalarm/>
     	</test>
          <testToRemove>
           <jobGroupName>RTT:Top</jobGroupName>
@@ -447,6 +494,7 @@
           </arg>
           <keepFilePattern>*perfmon.pdf</keepFilePattern>
           <keepFilePattern>*perfmon.summary.txt</keepFilePattern>
+          <noalarm/>
     	</test>
         <testToRemove>
           <jobGroupName>RTT:Top</jobGroupName>
