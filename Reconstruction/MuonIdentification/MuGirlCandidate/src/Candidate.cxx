@@ -784,7 +784,7 @@ void Candidate::selectChambers()
                 if (pStation == NULL)
                 {
                     m_pMuGirl->msg(MSG::WARNING) << "Cannot find station for chamber id "
-                    << id << ":" << TechnologyTypeName(eTech) << endreq;
+                    << idHash << ":" << TechnologyTypeName(eTech) << endreq;
                     continue;
                 }
 
