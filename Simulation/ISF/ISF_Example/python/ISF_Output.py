@@ -286,8 +286,14 @@ class ISF_HITSStream:
       totalNumber = 1000000 # TODO possibly get this from AthFile??
       if athenaCommonFlags.EvtMax() is not None and athenaCommonFlags.EvtMax()>0: totalNumber = athenaCommonFlags.EvtMax()+1
       if athenaCommonFlags.SkipEvents() is not None and athenaCommonFlags.SkipEvents()>0: totalNumber += athenaCommonFlags.SkipEvents()
-      ServiceMgr.EvtIdModifierSvc.add_modifier(run_nbr=myRunNumber, lbk_nbr=myFirstLB, nevts=totalNumber)
-      myInitialTimeStamp = ServiceMgr.EvtIdModifierSvc.Modifiers[2]
+      try:
+        from RunDependentSimComps.RunDMCFlags import runDMCFlags
+        myInitialTimeStamp = runDMCFlags.RunToTimestampDict.getTimestampForRun(myRunNumber)
+        #print "FOUND TIMESTAMP ", str(myInitialTimeStamp)
+      except:
+        myInitialTimeStamp = 1
+      ServiceMgr.EvtIdModifierSvc.add_modifier(run_nbr=myRunNumber, lbk_nbr=myFirstLB, time_stamp=myInitialTimeStamp, nevts=totalNumber)
+      if hasattr(ServiceMgr.EventSelector,'OverrideRunNumberFromInput'): ServiceMgr.EventSelector.OverrideRunNumberFromInput = True
   elif athenaCommonFlags.PoolEvgenInput.statusOn:
       ## Read input file metadata
       import PyUtils.AthFile as af
