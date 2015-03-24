@@ -56,11 +56,16 @@ def main():
     #
 
     msg.info("now build [%s] file", pfc)
-    rdo_fname = osp.join(os.environ['ATLASTESTDATA'],
-                         'mc12_8TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.digit.RDO.e1513_s1499_s1504_d700_10evt.pool.root')
+    newfile = '/afs/cern.ch/atlas/project/rig/referencefiles/MC/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.e3099_s2578/RDO.04919495._000958_10evt.pool.root'
+    if osp.isfile(newfile):
+        # new file exists
+        rdo_fname = newfile
+    else:
+        rdo_fname = osp.join(os.environ['ATLASTESTDATA'],
+                             'mc12_8TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.digit.RDO.e1513_s1499_s1504_d700_10evt.pool.root')
     check_call(["pool_insertFileToCatalog.py", rdo_fname])
 
-    lfn_name = "top_GEO-20-00-01.pool.root"
+    lfn_name = "top_default.pool.root"
     msg.info('registering [lfn:%s]...', lfn_name)
     check_call(["FCregisterLFN",
                 "-p", rdo_fname,
