@@ -75,6 +75,8 @@
 //     j - module number from 0 to 63;
 //     k - channel number from 0 to 47.
 typedef Float_t Quantity_t[4][64][48];
+// For MF
+typedef Float_t QuantityMF_t[4][64][48][7];
 
 // Type of exit result of this ROOT Macro.
 enum ExitResult {
@@ -341,13 +343,13 @@ class TileOFA: public TileOfaInterface {
     // average quantity vis module and channel for particular Optimal Filtering
     // Algorithm and gain. In the case of success the method returns "true"
     // in the other case it returns "false".
-    Bool_t TryBookQuantityVsModuleAndChannel(Quantity_t quantity,
-        TString quantityName, TString quantityBranchName,
+    Bool_t TryBookQuantityVsModuleAndChannel(Quantity_t quantity, TString quantityName, TString quantityBranchName,
+        TProfile2D* quantityVsModuleAndChannel[4]);
+    Bool_t TryBookQuantityVsModuleAndChannel(QuantityMF_t quantity, TString quantityName, TString quantityBranchName,
         TProfile2D* quantityVsModuleAndChannel[4]);
     // Books TProfile2D histogram representing average quantity distribution
     // vis module and channel.
-    TProfile2D* BookQuantityVsModuleAndChannel(TString quantityName,
-        TString partitionName);
+    TProfile2D* BookQuantityVsModuleAndChannel(TString quantityName, TString partitionName);
     // Fills all two dimensional histograms booked earlier successively and
     // representing distribution of average quantities vis module and
     // channel for particular combination of Optimal Filtering Algorithm
@@ -377,8 +379,8 @@ class TileOFA: public TileOfaInterface {
     // representing distribution of average quantity vis module and
     // channel for particular combination of Optimal Filtering Algorithm
     // and gain.
-    void FillQuantityVsModuleAndChannel(
-        TProfile2D* quantityVsModuleAndChannel[4], Quantity_t quantity);
+    void FillQuantityVsModuleAndChannel(TProfile2D* quantityVsModuleAndChannel[4], Quantity_t quantity);
+    void FillQuantityVsModuleAndChannel(TProfile2D* quantityVsModuleAndChannel[4], QuantityMF_t quantity);
     // Return "true" if channel is to be processed;
     // Channels and partitions start from 0. Modules start from 1.
     Bool_t IsChannelToBeProcessed(Int_t partition, Int_t module, Int_t channel);
@@ -464,6 +466,12 @@ class TileOFA: public TileOfaInterface {
     Quantity_t pedestal_;
     // Represents chi2 for particular event.
     Quantity_t chi2_;
+
+    Bool_t isMF;
+    QuantityMF_t energyMF_;
+    // Represents time for particular event.
+    QuantityMF_t timeMF_;
+
     TString gainName_;
     GainCode gainCode_;
     TString energyUnitsName_;
@@ -596,8 +604,7 @@ Bool_t FindInputFileName(TString& inputFileName) {
 }
 
 
-void AddAllGainsOfaToCollection(TileOfaCollection& tileOfaAlgorithms
-    , TileOfaDescription& ofaDescription) {
+void AddAllGainsOfaToCollection(TileOfaCollection& tileOfaAlgorithms, TileOfaDescription& ofaDescription) {
 
   TileOFA* tileOfaUniGain = new TileOFA(ofaDescription.GetForUniGain());
   tileOfaAlgorithms.Add(tileOfaUniGain);
@@ -615,24 +622,25 @@ void AddAllGainsOfaToCollection(TileOfaCollection& tileOfaAlgorithms
 // gains.
 void PrepareTileOfaAlgorithms(TileOfaCollection& tileOfaAlgorithms) {
   // Preparing rtt histograms for TileOptATLAS for all gains.
-  TileOfaDescription tileOptAtlasDescr("TileOptATLAS", "ene", "time", "ped",
-      "chi2");
+  TileOfaDescription tileOptAtlasDescr("TileOptATLAS", "ene", "time", "ped", "chi2");
   AddAllGainsOfaToCollection(tileOfaAlgorithms, tileOptAtlasDescr);
 
   // Preparing rtt histograms for TileOpt2 for all gains.
-  TileOfaDescription tileOpt2Descr("TileOpt2", "eOpt", "tOpt", "pedOpt",
-      "chi2Opt");
+  TileOfaDescription tileOpt2Descr("TileOpt2", "eOpt", "tOpt", "pedOpt", "chi2Opt");
   AddAllGainsOfaToCollection(tileOfaAlgorithms, tileOpt2Descr);
 
   // Preparing rtt histograms for TileFit for all gains..
-  TileOfaDescription tileFitDescr("TileFit", "eFit", "tFit", "pedFit",
-      "chi2Fit");
+  TileOfaDescription tileFitDescr("TileFit", "eFit", "tFit", "pedFit", "chi2Fit");
   AddAllGainsOfaToCollection(tileOfaAlgorithms, tileFitDescr);
 
   // Preparing rtt histograms for TileOF1 for all gains..
-  TileOfaDescription tileOF1Descr("TileOF1", "eOF1", "tOF1", "pedOF1",
-      "chi2OF1");
+  TileOfaDescription tileOF1Descr("TileOF1", "eOF1", "tOF1", "pedOF1", "chi2OF1");
   AddAllGainsOfaToCollection(tileOfaAlgorithms, tileOF1Descr);
+
+  // Preparing rtt histograms for TileMF for all gains..
+  TileOfaDescription tileMFDescr("TileMF", "eMF", "tMF", "pedMF", "chi2MF");
+  AddAllGainsOfaToCollection(tileOfaAlgorithms, tileMFDescr);
+
 }
 
 //-----------------------------------------------------------------------------
@@ -640,8 +648,7 @@ void PrepareTileOfaAlgorithms(TileOfaCollection& tileOfaAlgorithms) {
 //-----------------------------------------------------------------------------
 
 // Initializes energy thresholds for all gains if any are given.
-void InitializeThresholds(TileOfaCollection& allAlgorithmsRttHistograms,
-    TMap& parameters) {
+void InitializeThresholds(TileOfaCollection& allAlgorithmsRttHistograms, TMap& parameters) {
   if (parameters.GetValue("uniGainEThr") != 0) {
     TObjString* uniGainEThr = (TObjString*) parameters.GetValue("uniGainEThr");
     Float_t energyUniGainThreshold = uniGainEThr->String().Atof();
@@ -653,11 +660,9 @@ void InitializeThresholds(TileOfaCollection& allAlgorithmsRttHistograms,
     allAlgorithmsRttHistograms.SetEnergyLowGainThreshold(energyLowGainThreshold);
   }
   if (parameters.GetValue("highGainEThr") != 0) {
-    TObjString* highGainEThr =
-        (TObjString*) parameters.GetValue("highGainEThr");
+    TObjString* highGainEThr = (TObjString*) parameters.GetValue("highGainEThr");
     Float_t energyHighGainThreshold = highGainEThr->String().Atof();
-    allAlgorithmsRttHistograms.SetEnergyHighGainThreshold(
-        energyHighGainThreshold);
+    allAlgorithmsRttHistograms.SetEnergyHighGainThreshold( energyHighGainThreshold);
   }
 }
 
@@ -666,8 +671,7 @@ void InitializeThresholds(TileOfaCollection& allAlgorithmsRttHistograms,
 //-----------------------------------------------------------------------------
 
 // Initializes energy thresholds for all gains if any are given.
-void InitializeBadModules(TileOfaCollection& allAlgorithmsRttHistograms,
-    TMap& parameters) {
+void InitializeBadModules(TileOfaCollection& allAlgorithmsRttHistograms, TMap& parameters) {
   if (parameters.GetValue("badModules") != 0) {
     TObjString* badModules = (TObjString*) parameters.GetValue("badModules");
     TString mod(badModules->GetName());
@@ -682,8 +686,7 @@ void InitializeBadModules(TileOfaCollection& allAlgorithmsRttHistograms,
 //-----------------------------------------------------------------------------
 
 // Initializes property use or don't useBadChannelStatus.
-void InitializeBadChannelStatus(TileOfaCollection& allAlgorithmsRttHistograms,
-    TMap& parameters) {
+void InitializeBadChannelStatus(TileOfaCollection& allAlgorithmsRttHistograms, TMap& parameters) {
   if (parameters.GetValue("useBadChannelStatus") != 0) {
     TObjString* useChStatus = (TObjString*) parameters.GetValue("useBadChannelStatus");
     if (useChStatus->String().EqualTo("False")){
@@ -697,8 +700,7 @@ void InitializeBadChannelStatus(TileOfaCollection& allAlgorithmsRttHistograms,
 //-----------------------------------------------------------------------------
 
 // Initializes property usePedestalToMaskChannels to mask channels.
-void InitializeUsePedestalToMaskChannel(TileOfaCollection& allAlgorithmsRttHistograms,
-    TMap& parameters) {
+void InitializeUsePedestalToMaskChannel(TileOfaCollection& allAlgorithmsRttHistograms, TMap& parameters) {
   if (parameters.GetValue("usePedestalToMaskChannel") != 0) {
     TObjString* useChStatus = (TObjString*) parameters.GetValue("usePedestalToMaskChannel");
     if (useChStatus->String().EqualTo("True")){
@@ -706,6 +708,7 @@ void InitializeUsePedestalToMaskChannel(TileOfaCollection& allAlgorithmsRttHisto
     }
   }
 }
+
 
 //-----------------------------------------------------------------------------
 // Definition and description of "DoTileOptimalFilteringAlgsRttHistograms"
@@ -734,9 +737,7 @@ ExitResult DoTileOptimalFilteringAlgsRttHistograms(TMap& parameters) {
     logger->Info("Found input file name is " + inputFileName);
   }
   TFile* inputFile = new TFile(inputFileName);
-  if (inputFile->IsZombie()) {
-    logger->Error("Input file " + inputFileName
-        + " is incorrect root file or does not exist!");
+  if (inputFile->IsZombie()) { logger->Error("Input file " + inputFileName + " is incorrect root file or does not exist!");
     return FAILLURE;
   }
   TString outputFilename;
@@ -751,17 +752,12 @@ ExitResult DoTileOptimalFilteringAlgsRttHistograms(TMap& parameters) {
   tileOfaAlgorithms.SaveRttHistogramsToFile(outputFile);
   outputFile->Close();
   inputFile->Close();
-  logger->Info(TString("ROOT macro ") + ROOT_MACRO_NAME
-      + " is finished successful.");
+  logger->Info(TString("ROOT macro ") + ROOT_MACRO_NAME + " is finished successful.");
   return SUCCESS;
 }
 
-ExitResult DoTileOptimalFilteringAlgsRttHistograms(void) {
-  TMap parameters;
-  return DoTileOptimalFilteringAlgsRttHistograms(parameters);
-}
 
-ExitResult DoTileOptimalFilteringAlgsRttHistograms(TString& argument) {
+ExitResult DoTileOptimalFilteringAlgsRttHistograms(const TString& argument) {
   SimpleLogger* logger = SimpleLogger::GetLogger();
   TMap parameters;
   parameters.SetOwnerKeyValue(true, true);
@@ -779,6 +775,7 @@ ExitResult DoTileOptimalFilteringAlgsRttHistograms(TString& argument) {
   }
   return DoTileOptimalFilteringAlgsRttHistograms(parameters);
 }
+
 
 //-----------------------------------------------------------------------------
 //               Definition and description of function main
@@ -954,6 +951,7 @@ TileOFA::TileOFA(TileOfaDescription tileOfaDescr)
   , chi2BranchName_(tileOfaDescr.GetChi2BranchName())
   , logger_(SimpleLogger::GetLogger())
   , h2000_tree_(0)
+  , isMF(tileOfaDescr.GetAlgorithmName().EqualTo("TileMF"))
   , gainName_(tileOfaDescr.GetGainName())
   , gainCode_(tileOfaDescr.GetGainCode())
   , runNumber_(-1)
@@ -1032,13 +1030,11 @@ void TileOFA::MakeAndFillRttHistogramsFromFile(TFile* inputFile) {
     if (h2000_tree_) {
       MakeHistogramsForAllQuantities();
     } else {
-      TString errorMessage = TString("Can not get tree h2000 from file ")
-          + inputFile->GetName() + "!";
+      TString errorMessage = TString("Can not get tree h2000 from file ") + inputFile->GetName() + "!";
       LogMessage(ERROR, errorMessage);
     }
   } else {
-    TString errorMessage = TString("Can not get tree h2000_map from file ")
-        + inputFile->GetName() + "!";
+    TString errorMessage = TString("Can not get tree h2000_map from file ") + inputFile->GetName() + "!";
     LogMessage(ERROR, errorMessage);
   }
 }
@@ -1171,8 +1167,7 @@ void TileOFA::SwitchOffAdditionalModules() {
       } else {
         LogMessage(ERROR, "Unknown partition in: " + moduleName);
         LogMessage(ERROR, "Allowed partitions: LBA, LBC, EBA, EBC");
-        LogMessage(ERROR, "Additional module " + moduleName
-            + " will not be marked as bad!");
+        LogMessage(ERROR, "Additional module " + moduleName + " will not be marked as bad!");
         continue;
       }
 
@@ -1183,8 +1178,7 @@ void TileOFA::SwitchOffAdditionalModules() {
         continue;
       }
       TString infoMessage;
-      infoMessage.Form("Module %s%i marked as bad!", partitionsNames_[partition],
-          module);
+      infoMessage.Form("Module %s%i marked as bad!", partitionsNames_[partition], module);
       LogMessage(INFO, infoMessage);
       SwitchOffAllChannelsFor(module, partition);
     }
@@ -1242,8 +1236,7 @@ void TileOFA::InitializeRunNumber(void) {
     infoMessage.Form("%s %d", "Run number is ", runNumber_);
     LogMessage(INFO, infoMessage);
   } else {
-    LogMessage(ERROR, "There no branch: " + runNumberName + " in tree: "
-        + h2000_tree_->GetName());
+    LogMessage(ERROR, "There no branch: " + runNumberName + " in tree: " + h2000_tree_->GetName());
   }
   h2000_tree_->SetBranchStatus(runNumberName, 0);
 }
@@ -1311,29 +1304,27 @@ void TileOFA::MakeHistogramsForAllQuantities(void) {
 
 Bool_t TileOFA::TryBookEnergyVsModuleAndChannel(void) {
   Bool_t energyVsModuleAndChannelIsBooked = false;
-  energyVsModuleAndChannelIsBooked = TryBookQuantityVsModuleAndChannel(energy_,
-      "Energy", energyBranchName_, energyVsModuleAndChannel_);
+  if (isMF)   energyVsModuleAndChannelIsBooked = TryBookQuantityVsModuleAndChannel(energyMF_, "Energy", energyBranchName_, energyVsModuleAndChannel_);
+  else  energyVsModuleAndChannelIsBooked = TryBookQuantityVsModuleAndChannel(energy_, "Energy", energyBranchName_, energyVsModuleAndChannel_);
   return energyVsModuleAndChannelIsBooked;
 }
 
 Bool_t TileOFA::TryBookTimeVsModuleAndChannel(void) {
   Bool_t timeVsModuleAndChannelIsBooked = false;
-  timeVsModuleAndChannelIsBooked = TryBookQuantityVsModuleAndChannel(time_,
-      "Time", timeBranchName_, timeVsModuleAndChannel_);
+  if (isMF) timeVsModuleAndChannelIsBooked = TryBookQuantityVsModuleAndChannel(timeMF_, "Time", timeBranchName_, timeVsModuleAndChannel_);
+  else TryBookQuantityVsModuleAndChannel(time_, "Time", timeBranchName_, timeVsModuleAndChannel_);
   return timeVsModuleAndChannelIsBooked;
 }
 
 Bool_t TileOFA::TryBookPedestalVsModuleAndChannel(void) {
   Bool_t pedestalVsModuleAndChannelIsBooked = false;
-  pedestalVsModuleAndChannelIsBooked = TryBookQuantityVsModuleAndChannel(
-      pedestal_, "Pedestal", pedestalBranchName_, pedestalVsModuleAndChannel_);
+  pedestalVsModuleAndChannelIsBooked = TryBookQuantityVsModuleAndChannel( pedestal_, "Pedestal", pedestalBranchName_, pedestalVsModuleAndChannel_);
   return pedestalVsModuleAndChannelIsBooked;
 }
 
 Bool_t TileOFA::TryBookChi2VsModuleAndChannel(void) {
   Bool_t chi2VsModuleAndChannelIsBooked = false;
-  chi2VsModuleAndChannelIsBooked = TryBookQuantityVsModuleAndChannel(chi2_,
-      "Chi2", chi2BranchName_, chi2VsModuleAndChannel_);
+  chi2VsModuleAndChannelIsBooked = TryBookQuantityVsModuleAndChannel(chi2_, "Chi2", chi2BranchName_, chi2VsModuleAndChannel_);
   return chi2VsModuleAndChannelIsBooked;
 }
 
@@ -1370,11 +1361,43 @@ Bool_t TileOFA::TryBookQuantityVsModuleAndChannel(Quantity_t quantity,
   return quantityVsModuleAndChannelIsBooked;
 }
 
+
+// Checks if exist quantity branch for particular combination of
+// Optimal Filtering Algorithms and gain. In the case of absence
+// of the branch the method returns "false". In the other case
+// the method book two dimensional histogram representing distribution
+// of average quantity vis module and channel and returns "true".
+Bool_t TileOFA::TryBookQuantityVsModuleAndChannel(QuantityMF_t quantity,
+    TString quantityName, TString quantityBranchName,
+    TProfile2D* quantityVsModuleAndChannel[4]) {
+  Bool_t quantityVsModuleAndChannelIsBooked = false;
+  TBranch* quantityBranch = h2000_tree_->GetBranch(quantityBranchName);
+  // Define if exist branch in tree for the given quantity.
+  if (quantityBranch != 0) {
+    if (quantityName.Contains("Energy")) {
+      InitializeRunNumber();
+      InitializeRunType();
+      InitializeEnergyUnits();
+    }
+    TString infoMessage("Found branch for " + quantityName + " is " + quantityBranch->GetName() + ".");
+    LogMessage(INFO, infoMessage);
+    for (Int_t iPartition = LBA; iPartition <= EBC; iPartition++) {
+      TString partitionName = partitionsNames_[iPartition];
+      quantityVsModuleAndChannel[iPartition] = BookQuantityVsModuleAndChannel(quantityName, partitionName);
+      histsProf2D_[iPartition]->Add(quantityVsModuleAndChannel[iPartition]);
+    }
+    h2000_tree_->SetBranchStatus(quantityBranchName, 1);
+    quantityBranch->SetAddress(quantity);
+    quantityVsModuleAndChannelIsBooked = true;
+  }
+  return quantityVsModuleAndChannelIsBooked;
+}
+
+
 // Books two dimensional histogram representing average quantity
 // distribution vis channel and module. Histogram is named after
 // quantity name and gain.
-TProfile2D* TileOFA::BookQuantityVsModuleAndChannel(TString quantityName,
-    TString partitionName) {
+TProfile2D* TileOFA::BookQuantityVsModuleAndChannel(TString quantityName, TString partitionName) {
   TString gainName = gainName_;
   TString quantityNameInTitle(quantityName);
   if (quantityName.Contains("Chi2")) {
@@ -1395,8 +1418,7 @@ TProfile2D* TileOFA::BookQuantityVsModuleAndChannel(TString quantityName,
         energyThreshold_, energyUnitsName_.Data());
     histogramTitle += energyThresholdDescription;
   }
-  TProfile2D* quantityVsModuleAndChannel = new TProfile2D(histogramName,
-      histogramTitle, 64, 0.5, 64.5, 48, -0.5, 47.5);
+  TProfile2D* quantityVsModuleAndChannel = new TProfile2D(histogramName, histogramTitle, 64, 0.5, 64.5, 48, -0.5, 47.5);
   quantityVsModuleAndChannel->SetXTitle("Module");
   quantityVsModuleAndChannel->SetYTitle("Channel");
   quantityVsModuleAndChannel->SetDirectory(0);
@@ -1422,8 +1444,9 @@ void TileOFA::FillAllQuantitiesVsModuleAndChannel(void) {
 
 Bool_t TileOFA::TryFillEnergyVsModuleAndChannel(void) {
   Bool_t energyVsModuleAndChannelIsFilled = false;
-  if (energyVsModuleAndChannel_ != 0) {
-    FillQuantityVsModuleAndChannel(energyVsModuleAndChannel_, energy_);
+  if (energyVsModuleAndChannel_[0]) {
+    if (isMF) FillQuantityVsModuleAndChannel(energyVsModuleAndChannel_, energyMF_);
+    else FillQuantityVsModuleAndChannel(energyVsModuleAndChannel_, energy_);
     energyVsModuleAndChannelIsFilled = true;
   }
   return energyVsModuleAndChannelIsFilled;
@@ -1431,8 +1454,9 @@ Bool_t TileOFA::TryFillEnergyVsModuleAndChannel(void) {
 
 Bool_t TileOFA::TryFillTimeVsModuleAndChannel(void) {
   Bool_t timeVsModuleAndChannelIsFilled = false;
-  if (timeVsModuleAndChannel_ != 0) {
-    FillQuantityVsModuleAndChannel(timeVsModuleAndChannel_, time_);
+  if (timeVsModuleAndChannel_[0]) {
+    if (isMF) FillQuantityVsModuleAndChannel(timeVsModuleAndChannel_, timeMF_);
+    else FillQuantityVsModuleAndChannel(timeVsModuleAndChannel_, time_);
     timeVsModuleAndChannelIsFilled = true;
   }
   return timeVsModuleAndChannelIsFilled;
@@ -1440,7 +1464,7 @@ Bool_t TileOFA::TryFillTimeVsModuleAndChannel(void) {
 
 Bool_t TileOFA::TryFillPedestalVsModuleAndChannel(void) {
   Bool_t pedestalVsModuleAndChannelIsFilled = false;
-  if (pedestalVsModuleAndChannel_ != 0) {
+  if (pedestalVsModuleAndChannel_[0]) {
     FillQuantityVsModuleAndChannel(pedestalVsModuleAndChannel_, pedestal_);
     pedestalVsModuleAndChannelIsFilled = true;
   }
@@ -1449,15 +1473,14 @@ Bool_t TileOFA::TryFillPedestalVsModuleAndChannel(void) {
 
 Bool_t TileOFA::TryFillChi2VsModuleAndChannel(void) {
   Bool_t chi2VsModuleAndChannelIsFilled = false;
-  if (chi2VsModuleAndChannel_ != 0) {
+  if (chi2VsModuleAndChannel_[0]) {
     FillQuantityVsModuleAndChannel(chi2VsModuleAndChannel_, chi2_);
     chi2VsModuleAndChannelIsFilled = true;
   }
   return chi2VsModuleAndChannelIsFilled;
 }
 
-void TileOFA::FillQuantityVsModuleAndChannel(
-    TProfile2D* quantityVsModuleAndChannel[4], Quantity_t quantity) {
+void TileOFA::FillQuantityVsModuleAndChannel( TProfile2D* quantityVsModuleAndChannel[4], Quantity_t quantity) {
   Float_t value;
   // Channels and partitions start from 0. Modules start from 1.
   for (Int_t iPartition = LBA; iPartition <= EBC; iPartition++) {
@@ -1473,6 +1496,22 @@ void TileOFA::FillQuantityVsModuleAndChannel(
     }
   }
 }
+
+void TileOFA::FillQuantityVsModuleAndChannel( TProfile2D* quantityVsModuleAndChannel[4], QuantityMF_t quantity) {
+  Float_t value;
+  // Channels and partitions start from 0. Modules start from 1.
+  for (Int_t iPartition = LBA; iPartition <= EBC; iPartition++) {
+    for (Int_t iModule = 1; iModule <= 64; iModule++) {
+      for (Int_t iChannel = 0; iChannel <= 47; iChannel++) {
+        if (IsChannelToBeProcessed(iPartition, iModule, iChannel)) {
+	  value = quantity[iPartition][iModule - 1][iChannel][0];
+          quantityVsModuleAndChannel[iPartition]->Fill(iModule, iChannel, value);
+        } 
+      }
+    }
+  }
+}
+
 
 // Channels and partitions start from 0. Modules start from 1.
 Bool_t TileOFA::IsChannelToBeProcessed(Int_t partition, Int_t module,
@@ -1582,13 +1621,12 @@ TH1* TileOFA::MakeQuantityVsChannelFrom(
     nEntries = 0;
     sumw2 = 0;
     for (Int_t iModuleBin = 1; iModuleBin <= 64; iModuleBin++) {
-      content = quantityVsModuleAndChannel->GetCellContent(iModuleBin, iChannelBin);
       Int_t bin = quantityVsModuleAndChannel->GetBin(iModuleBin, iChannelBin);
+      content = quantityVsModuleAndChannel->GetBinContent(bin);
       Double_t entries = quantityVsModuleAndChannel->GetBinEntries(bin);
       contentsSum += (content * entries);
       nEntries += entries;
-      contentError = quantityVsModuleAndChannel->GetCellError(iModuleBin,
-            iChannelBin);
+      contentError = quantityVsModuleAndChannel->GetBinError(bin);
       sumw2 += contentError * contentError * entries;
     }
     if (nEntries != 0) {
@@ -1639,13 +1677,12 @@ TH1* TileOFA::MakeQuantityVsModuleFrom(
     nEntries = 0;
     sumw2 = 0;
     for (Int_t iChannelBin = 1; iChannelBin <= 48; iChannelBin++) {
-      content = quantityVsModuleAndChannel->GetCellContent(iModuleBin, iChannelBin);
       Int_t bin = quantityVsModuleAndChannel->GetBin(iModuleBin, iChannelBin);
+      content = quantityVsModuleAndChannel->GetBinContent(bin);
       Double_t entries = quantityVsModuleAndChannel->GetBinEntries(bin);
       contentsSum += (content * entries);
       nEntries += entries;
-      contentError = quantityVsModuleAndChannel->GetCellError(iModuleBin,
-								iChannelBin);
+      contentError = quantityVsModuleAndChannel->GetBinError(bin);
       sumw2 += contentError * contentError * entries;
     }
     if (nEntries != 0) {

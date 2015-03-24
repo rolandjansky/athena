@@ -6,6 +6,7 @@
 
 from os import system
 from subprocess import check_output
+from subprocess import CalledProcessError
 
 from AthenaCommon.AppMgr import theApp
 svcMgr = theApp.serviceMgr()
@@ -69,14 +70,18 @@ if ReadPool:
     if not 'RunStream' in dir():
         RunStream = "physics_MinBias"
     if not 'DataProject' in dir():
-        DataProject = "data11_7TeV"
+        DataProject = "data15_cos"
     if not 'DirectorySuffix' in dir():
         DirectorySuffix = ""
     if not 'InputDirectory' in dir():
         if RunNumber < 171194:
             InputDirectory = ( "/castor/cern.ch/grid/atlas/tzero/prod1/perm/%(project)s/%(stream)s/0%(run)s/%(project)s.00%(run)s.%(stream)s.%(suff)s" % { 'project': DataProject, 'stream': RunStream, 'run': RunNumber, 'suff': DirectorySuffix })
+        elif RunNumber < 254945:
+            InputDirectory = ( "/castor/cern.ch/grid/atlas/tzero/prod1/perm/%(project)s/%(stream)s/00%(run)s/%(project)s.00%(run)s.%(stream)s.merge.RAW" % { 'project': DataProject, 'stream': RunStream, 'run': RunNumber })
         else:
-            InputDirectory = ( "/castor/cern.ch/grid/atlas/tzero/prod1/perm/%(project)s/%(stream)s/00%(run)s/%(project)s.00%(run)s.%(stream)s.%(suff)s" % { 'project': DataProject, 'stream': RunStream, 'run': RunNumber, 'suff': DirectorySuffix })
+            InputDirectory = ( "/eos/atlas/atlastier0/rucio/%(project)s/%(stream)s/00%(run)s/%(project)s.00%(run)s.%(stream)s.merge.RAW" % { 'project': DataProject, 'stream': RunStream, 'run': RunNumber })
+
+
         RunFromLocal=False
     if not 'FileFilter' in dir():
         if 'ReadESD' in dir() and ReadESD:
@@ -124,7 +129,7 @@ else:
         if not 'RunStream' in dir():
            RunStream = "physics_L1Calo"
         if not 'DataProject' in dir():
-           DataProject = "data11_7TeV"
+           DataProject = "data15_cos"
         if not 'InputDirectory' in dir():
            if RunNumber < 10:
                 InputDirectory = "."
@@ -155,8 +160,10 @@ else:
                 InputDirectory = ("/castor/cern.ch/grid/atlas/DAQ/2009/00%(run)s/%(stream)s" % { 'run': RunNumber, 'stream': RunStream })
            elif RunNumber < 171194:
                 InputDirectory = ("/castor/cern.ch/grid/atlas/tzero/prod1/perm/%(project)s/%(stream)s/0%(run)s/%(project)s.00%(run)s.%(stream)s.merge.RAW" % { 'project': DataProject, 'stream': RunStream, 'run': RunNumber })
-           else:
+           elif RunNumber < 254945:
                 InputDirectory = ( "/castor/cern.ch/grid/atlas/tzero/prod1/perm/%(project)s/%(stream)s/00%(run)s/%(project)s.00%(run)s.%(stream)s.merge.RAW" % { 'project': DataProject, 'stream': RunStream, 'run': RunNumber })
+           else:
+               InputDirectory = ( "/eos/atlas/atlastier0/rucio/%(project)s/%(stream)s/00%(run)s/%(project)s.00%(run)s.%(stream)s.merge.RAW" % { 'project': DataProject, 'stream': RunStream, 'run': RunNumber })
 
     if not 'InputDirectory' in dir():
         if RunNumber < 10:
@@ -201,25 +208,28 @@ if not 'RunFromLocal' in dir():
 
 def FindFile(path, runinput, filter):
 
-    run = str(runinput)
-
-    while len(run) < 7:
-        run = '0' + run
+    run = str(runinput).zfill(7)
+    if len(filter)<1: filter='.'
 
     files = []
     fullname = []
 
-    if RunFromLocal:
-        files = check_output('ls %(path)s | grep %(run)s | grep %(filt)s' % {'path': path, 'run':run, 'filt':filter}, shell = True).splitlines()
-    elif (path.startswith('/eos/')):
-        files = check_output('xrd eosatlas dirlist %(path)s | grep %(run)s | grep -v -e "               [ 0-9][ 0-9][0-9] " | grep %(filt)s | sed "s|^.*/||" ' % {'path':path, 'run':run, 'filt':filter}, shell = True).splitlines()
-    else:
-        if (TilePhysRun and RunNumber > 28000 and RunNumber < 40000):
-            files = check_output('nsls -l %(path)s | grep %(run)s | grep -v -e "               [ 0-9][ 0-9][0-9] " -e "hlterror" | grep %(filt)s | grep -e "b0000[01][01][01][01]" -e "physics.cosmics" | cut -c66- ' % {'path': path, 'run':run, 'filt':filter  }, shell = True).splitlines()
-        elif (TilePhysRun and RunNumber > 40000 and RunNumber < 75354):
-            files = check_output('nsls -l %(path)s | grep %(run)s | grep -v -e "               [ 0-9][ 0-9][0-9] " -e "hlterror" | grep %(filt)s | grep -e "NIM0" -e "[pP]hysics" | cut -c66- ' % {'path': path, 'run':run, 'filt':filter}, shell = True).splitlines()
+    try:
+        if RunFromLocal:
+            files = check_output('ls %(path)s | grep %(run)s | grep %(filt)s' % {'path': path, 'run':run, 'filt':filter}, shell = True).splitlines()
+        elif (path.startswith('/eos/')):
+            files = check_output('xrd eosatlas dirlist %(path)s | grep %(run)s | grep -v -e "               [ 0-9][ 0-9][0-9] " | grep %(filt)s | sed "s|^.*/||" ' % {'path':path, 'run':run, 'filt':filter}, shell = True).splitlines()
         else:
-            files = check_output('nsls %(path)s | grep %(run)s | grep -v -e "               [ 0-9][ 0-9][0-9] " | grep %(filt)s ' % {'path': path, 'run':run, 'filt':filter  }, shell = True).splitlines()
+            if (TilePhysRun and RunNumber > 28000 and RunNumber < 40000):
+                files = check_output('nsls -l %(path)s | grep %(run)s | grep -v -e "               [ 0-9][ 0-9][0-9] " -e "hlterror" | grep %(filt)s | grep -e "b0000[01][01][01][01]" -e "physics.cosmics" | cut -c66- ' % {'path': path, 'run':run, 'filt':filter  }, shell = True).splitlines()
+            elif (TilePhysRun and RunNumber > 40000 and RunNumber < 75354):
+                files = check_output('nsls -l %(path)s | grep %(run)s | grep -v -e "               [ 0-9][ 0-9][0-9] " -e "hlterror" | grep %(filt)s | grep -e "NIM0" -e "[pP]hysics" | cut -c66- ' % {'path': path, 'run':run, 'filt':filter}, shell = True).splitlines()
+            else:
+                files = check_output('nsls %(path)s | grep %(run)s | grep -v -e "               [ 0-9][ 0-9][0-9] " | grep %(filt)s ' % {'path': path, 'run':run, 'filt':filter  }, shell = True).splitlines()
+    
+    except CalledProcessError:
+        files = []
+        log.warn('Seems there are no such directory: ' + path)
 
     for file_name in (files):
         if (path.startswith('/eos/')):
@@ -535,6 +545,9 @@ if not 'doCaloCell' in dir():
     else:
         doCaloCell = False
 
+if not 'TileD3PDSavePosition' in dir():
+    TileD3PDSavePosition = False
+
 #---------------
 # end of options
 #---------------
@@ -828,10 +841,16 @@ if doTileOptATLAS:
     print ToolSvc.TileRawChannelBuilderOptATLAS
     
 if doTileMF:
-    ToolSvc.TileRawChannelBuilderMF.TileCondToolOfcCool = tileCondToolOfcCool # always need OFC from COOL
-    ToolSvc.TileRawChannelBuilderMF.TileCondToolTiming = tileInfoConfigurator.TileCondToolTiming # always need best phase
-    ToolSvc.TileRawChannelBuilderMF.correctTime = False; # do not need to correct time with best phase
-        
+    if OfcFromCOOL:
+        ToolSvc.TileRawChannelBuilderMF.TileCondToolOfcCool = tileCondToolOfcCool
+
+    if PhaseFromCOOL:
+        ToolSvc.TileRawChannelBuilderMF.TileCondToolTiming = tileInfoConfigurator.TileCondToolTiming
+        ToolSvc.TileRawChannelBuilderMF.correctTime = False; # do not need to correct time with best phase
+
+    ToolSvc.TileRawChannelBuilderMF.OfcfromCool = OfcFromCOOL;   # OFC from COOL or calculated on the fly
+    ToolSvc.TileRawChannelBuilderMF.BestPhase   = PhaseFromCOOL; # Phase from COOL or assume phase=0
+
     print ToolSvc.TileRawChannelBuilderMF 
 
 if doTileOF1:
@@ -869,6 +888,7 @@ if doCaloCell:
        if doRecoESD:
            topSequence.CaloCellMaker.CaloCellsOutputName = "AllCaloNewReco"
            ToolSvc.TileCellBuilder.MBTSContainer = "MBTSContainerNewReco"
+           ToolSvc.TileCellBuilder.E4prContainer = "E4prContainerNewReco"
            ToolSvc.TileCellBuilder.TileDSPRawChannelContainer=""
 
 if doTileTower:
@@ -947,14 +967,23 @@ if doD3PD:
 
             if doRecoESD:
                 alg += TileDetailsD3PDObject (**_args(1, 'TileDetails',kw, sgkey='AllCaloNewReco', prefix='tile_', \
-                                                      Kinematics_WriteEtaPhi=True))
+                                                              Kinematics_WriteEtaPhi = True, TileDetails_SavePositionInfo = TileD3PDSavePosition))
+                    
                 alg += CaloInfoD3PDObject (**_args(0, 'CaloInfo',kw, sgkey='AllCaloNewReco', prefix='calo_'))
                 alg += MBTSD3PDObject (**_args(1, 'MBTS', kw, prefix='mbts_', sgkey='MBTSContainerNewReco'))
+
+#                if RUN2:
+#                    alg += MBTSD3PDObject (**_args(1, 'MBTS', kw, prefix = 'e4pr_', sgkey = 'E4prContainerNewReco'))
+
             else:
                 alg += TileDetailsD3PDObject (**_args(1, 'TileDetails',kw, sgkey='AllCalo', prefix='tile_', \
-                                                      Kinematics_WriteEtaPhi=True))
+                                                              Kinematics_WriteEtaPhi = True, TileDetails_SavePositionInfo = TileD3PDSavePosition))
+
                 alg += CaloInfoD3PDObject (**_args(0, 'CaloInfo',kw, sgkey='AllCalo', prefix='calo_'))
-                alg += MBTSD3PDObject (**_args(1, 'MBTS', kw, prefix='mbts_', sgkey='MBTSContainer'))
+                alg += MBTSD3PDObject (**_args(1, 'MBTS', kw, prefix = 'mbts_', sgkey = 'MBTSContainer'))
+
+                if RUN2:
+                    alg += MBTSD3PDObject (**_args(1, 'MBTS', kw, prefix = 'e4pr_', sgkey = 'E4prContainer', MBTS_SaveEtaPhiInfo = False))
                 
         if doCaloTopoCluster:
             from CaloD3PDMaker.xAODClusterD3PDObject import xAODClusterD3PDObject

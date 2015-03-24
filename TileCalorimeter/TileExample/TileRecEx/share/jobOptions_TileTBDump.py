@@ -5,9 +5,14 @@
 #==============================================================
 
 from os import system,popen
+from subprocess import check_output
+from subprocess import CalledProcessError
 
 from AthenaCommon.AppMgr import theApp
 svcMgr = theApp.serviceMgr()
+
+from AthenaCommon.Logging import logging
+tbdump_log = logging.getLogger( 'jobOptions_TileTBDump.py' )
 
 #---  Output printout level ----------------------------------- 
 #output threshold (1=VERBOSE, 2=DEBUG, 3=INFO, 4=WARNING, 5=ERROR, 6=FATAL)
@@ -23,7 +28,10 @@ if not 'RunNumber' in dir():
     RunNumber = 0
 
 if not 'RUN2' in dir(): 
-    RUN2 = (RunNumber>232000) or (RunNumber<=0)
+    RUN2 = (RunNumber>232000) or (RunNumber<=0) or (RunNumber==2)
+
+if not 'MC' in dir():
+    MC = (RunNumber>0) and (RunNumber<10)
 
 if 'TilePhysRun' in dir():
     if TilePhysRun:
@@ -31,7 +39,7 @@ if 'TilePhysRun' in dir():
         if not 'RunStream' in dir():
            RunStream = "physics_L1Calo"
         if not 'DataProject' in dir():
-           DataProject = "data11_7TeV"
+           DataProject = "data15_cos"
         if not 'InputDirectory' in dir():
            if RunNumber<10:
                 InputDirectory = "."
@@ -62,8 +70,12 @@ if 'TilePhysRun' in dir():
                 InputDirectory = ( "/castor/cern.ch/grid/atlas/DAQ/2009/00%(run)s/%(stream)s" % { 'run': RunNumber, 'stream': RunStream })
            elif RunNumber<171194:
                 InputDirectory = ( "/castor/cern.ch/grid/atlas/tzero/prod1/perm/%(project)s/%(stream)s/0%(run)s/%(project)s.00%(run)s.%(stream)s.merge.RAW" % { 'project': DataProject, 'stream': RunStream, 'run': RunNumber })
+
+           elif RunNumber < 254945:
+               InputDirectory = ( "/castor/cern.ch/grid/atlas/tzero/prod1/perm/%(project)s/%(stream)s/00%(run)s/%(project)s.00%(run)s.%(stream)s.merge.RAW" % { 'project': DataProject, 'stream': RunStream, 'run': RunNumber })
            else:
-                InputDirectory = ( "/castor/cern.ch/grid/atlas/tzero/prod1/perm/%(project)s/%(stream)s/00%(run)s/%(project)s.00%(run)s.%(stream)s.merge.RAW" % { 'project': DataProject, 'stream': RunStream, 'run': RunNumber })
+               InputDirectory = ( "/eos/atlas/atlastier0/rucio/%(project)s/%(stream)s/00%(run)s/%(project)s.00%(run)s.%(stream)s.merge.RAW" % { 'project': DataProject, 'stream': RunStream, 'run': RunNumber })
+
 else:
     TilePhysRun=False
 
@@ -76,14 +88,21 @@ if not 'InputDirectory' in dir():
     elif RunNumber<100000:
         InputDirectory = "/castor/cern.ch/atlas/testbeam/tilecal/2008/daq"
     else:
-        if RunNumber<142682:
-            Year=2009
-        elif RunNumber<171194:
-            Year=2010
-        elif RunNumber<194688:
-            Year=2011
+        if RunNumber < 142682:
+            Year = 2009
+        elif RunNumber < 171194:
+            Year = 2010
+        elif RunNumber < 194688:
+            Year = 2011
+        elif RunNumber < 216816:
+            Year = 2012            
+        elif RunNumber < 224305:
+            Year = 2013            
+        elif RunNumber < 248584:
+            Year = 2014
         else:
-            Year=2012
+            Year = 2015
+
         if 'RunStream' in dir():
             if RunStream == 'l1calo' or RunStream == 'L1Calo':
                 InputDirectory = ( "/castor/cern.ch/grid/atlas/DAQ/l1calo/00%(run)s" % { 'run': RunNumber })
@@ -101,46 +120,57 @@ if not 'RunFromLocal' in dir():
     else:
         RunFromLocal=False
 
-def FindFile(path,runinput,filter):
 
-    run=str(runinput)
 
-    while len(run)<7:
-        run='0'+run
-        
-    files=[]
-    fullname=[]
+def FindFile(path, runinput, filter):
 
-    if RunFromLocal:
-        for f in popen('ls %(path)s | grep %(run)s | grep %(filt)s' % {'path': path, 'run':run, 'filt':filter }):
-            files.append(f)
+    run = str(runinput).zfill(7)
+    if len(filter)<1: filter='.'
 
-    else:
-        for f in popen('nsls -l %(path)s | grep %(run)s | grep -v "               [ 0-9][ 0-9][0-9] " | grep %(filt)s | cut -c66- | sort -t_ -k4 ' % {'path': path, 'run':run, 'filt':filter }):
-            files.append(f)
+    files = []
+    fullname = []
 
-    for nn in range(len(files)):
-        temp=files[nn].split('\n')
-        fullname.append(path+'/'+temp[0])
+    try:
+        if RunFromLocal:
+            files = check_output('ls %(path)s | grep %(run)s | grep %(filt)s' % {'path': path, 'run':run, 'filt':filter}, shell = True).splitlines()
+        elif (path.startswith('/eos/')):
+            files = check_output('xrd eosatlas dirlist %(path)s | grep %(run)s | grep -v -e "               [ 0-9][ 0-9][0-9] " | grep %(filt)s | sed "s|^.*/||" ' % {'path':path, 'run':run, 'filt':filter}, shell = True).splitlines()
+        else:
+            files = check_output('nsls %(path)s | grep %(run)s | grep -v -e "               [ 0-9][ 0-9][0-9] " | grep %(filt)s ' % {'path': path, 'run':run, 'filt':filter  }, shell = True).splitlines()
 
-    return [fullname,run]
+    except CalledProcessError:
+        files = []
+        log.warn('Seems there are no such directory: ' + path)
+
+
+    for file_name in (files):
+        if (path.startswith('/eos/')):
+            fullname.append('root://eosatlas/' + path + '/' + file_name)
+        else:
+            fullname.append(path + '/' + file_name)
+
+    return [fullname, run]
 
 
 if not 'FileNameVec' in dir():
-    if not 'FileName' in dir() or FileName=="":    
-        tmp= FindFile(InputDirectory,RunNumber,FileFilter)
+    if not 'FileName' in dir() or FileName == "":    
+        tmp = FindFile(InputDirectory, RunNumber, FileFilter)
         FileNameVec = tmp[0]
-        FormattedRunNumber=tmp[1]
+        FormattedRunNumber = tmp[1]
     else:
         FileNameVec = [ FileName ]
-        FormattedRunNumber=RunNumber
+        FormattedRunNumber = RunNumber
 else:
-    FormattedRunNumber=RunNumber
-  	 
-print "InputDirectory is "+str(InputDirectory)
-print "RunNumber was "+str(RunNumber)
-print "RunNumber is "+str(FormattedRunNumber)
-print "FullFileName is "+str(FileNameVec)
+    FormattedRunNumber = RunNumber
+
+tbdump_log.info("InputDirectory is " + str(InputDirectory))
+tbdump_log.info("RunNumber was " + str(RunNumber))
+tbdump_log.info("RunNumber is " + str(FormattedRunNumber))
+tbdump_log.info("FullFileName is " + str(FileNameVec))
+
+if len(FileNameVec) < 1:
+    tbdump_log.fatal("Input file not found")
+    sys.exit(1)
 
 if not 'EvtMin' in dir():
     EvtMin = 0
@@ -180,8 +210,11 @@ TileCisPulse = (TileCisRun or TileMonoRun or TileRampRun or TileL1CaloRun)
 from AthenaCommon.GlobalFlags import globalflags
 globalflags.DetGeo.set_Value_and_Lock('atlas')
 globalflags.Luminosity.set_Value_and_Lock('zero')
-globalflags.DataSource.set_Value_and_Lock('data')
 globalflags.InputFormat.set_Value_and_Lock('bytestream')
+if MC:
+    globalflags.DataSource.set_Value_and_Lock('geant4')
+else:
+     globalflags.DataSource.set_Value_and_Lock('data')
 if RUN2: globalflags.DatabaseInstance="CONDBR2"
 else:    globalflags.DatabaseInstance="COMP200"
 
@@ -204,24 +237,25 @@ DetFlags.readRDOBS.Tile_setOn()
 DetFlags.Print()
 
 from AthenaCommon.GlobalFlags import jobproperties
-if RUN2: jobproperties.Global.DetDescrVersion = "ATLAS-R2-2015-02-00-00"
+if RUN2: jobproperties.Global.DetDescrVersion = "ATLAS-R2-2015-02-01-00"
 else:    jobproperties.Global.DetDescrVersion = "ATLAS-GEO-20-00-02"
-log.info( "DetDescrVersion = %s" % (jobproperties.Global.DetDescrVersion()) )
+tbdump_log.info( "DetDescrVersion = %s" % (jobproperties.Global.DetDescrVersion()) )
 
 from AtlasGeoModel import SetGeometryVersion
 from AtlasGeoModel import GeoModelInit
 from GeoModelSvc.GeoModelSvcConf import GeoModelSvc
 GeoModelSvc = GeoModelSvc()
 GeoModelSvc.IgnoreTagDifference = True
-log.info( "GeoModelSvc.AtlasVersion = %s" % (GeoModelSvc.AtlasVersion) )
+tbdump_log.info( "GeoModelSvc.AtlasVersion = %s" % (GeoModelSvc.AtlasVersion) )
 
 from RecExConfig.RecFlags import rec
 if RUN2: rec.projectName = "data15_tilecomm"
 else:    rec.projectName = "data12_tilecomm"
 
 from IOVDbSvc.CondDB import conddb
-if RUN2: conddb.setGlobalTag("CONDBR2-BLKPA-2014-00")
-else:    conddb.setGlobalTag("COMCOND-BLKPA-RUN1-06")
+if MC:     conddb.setGlobalTag("OFLCOND-RUN12-SDR-25")
+elif RUN2: conddb.setGlobalTag("CONDBR2-BLKPA-2015-01")
+else:      conddb.setGlobalTag("COMCOND-BLKPA-RUN1-06")
 
 #=============================================================
 #=== setup TileConditions

@@ -61,7 +61,8 @@ if doRTT:
     if not 'OutputDirectory' in dir():
         OutputDirectory = "."
     if not 'EvtMax' in dir():
-        EvtMax = 1000
+        #EvtMax = 1000
+        EvtMax = 741
     doTileNtuple = False
     
     if not 'doPerfPostProcessing' in dir():
