@@ -26,5 +26,5 @@ MBTSD3PDObject = \
                                          D3PDMakerFlags.MBTSSGKey(),
                                          'mb_', 'MBTSD3PDObject')
 
-MBTSD3PDObject.defineBlock (0, 'MBTS',
-                            CaloD3PDMaker.MBTSFillerTool)
+MBTSD3PDObject.defineBlock (0, 'MBTS', CaloD3PDMaker.MBTSFillerTool)
+

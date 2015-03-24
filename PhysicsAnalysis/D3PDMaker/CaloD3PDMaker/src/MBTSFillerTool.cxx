@@ -33,6 +33,7 @@ MBTSFillerTool::MBTSFillerTool
      const IInterface* parent)
   : BlockFillerTool<TileCell> (type, name, parent)
 {
+  declareProperty("SaveEtaPhiInfo", m_saveEtaPhi = true );
   book().ignore(); // Avoid coverity warnings
 }
 
@@ -42,23 +43,18 @@ MBTSFillerTool::MBTSFillerTool
  */
 StatusCode MBTSFillerTool::book()
 {
-  CHECK( addVariable ("E",       m_E,
-                      "MBTS counter energy.") );
-  CHECK( addVariable ("eta",     m_eta,
-                      "MBTS counter eta.") );
-  CHECK( addVariable ("phi",     m_phi,
-                      "MBTS counter phi.") );
-  CHECK( addVariable ("time",    m_time,
-                      "MBTS counter time.") );
-  CHECK( addVariable ("quality", m_quality,
-                      "MBTS counter quality.") );
-  CHECK( addVariable ("type", m_type,
-                      "MBTS counter type.  +-1, depending on side.") );
-  CHECK( addVariable ("module", m_module,
-                      "MBTS counter module.  0-7, depending on phi.") );
-  CHECK( addVariable ("channel", m_channel,
-                      "MBTS counter channel.  0-1, depending on eta.  "
-                      "Zero is closer to the beam pipe.") );
+  CHECK( addVariable ("E", m_E, "MBTS counter energy.") );
+  
+  if (m_saveEtaPhi) {
+    CHECK( addVariable ("eta", m_eta, "MBTS counter eta.") );
+    CHECK( addVariable ("phi", m_phi, "MBTS counter phi.") );
+  }
+
+  CHECK( addVariable ("time", m_time, "MBTS counter time.") );
+  CHECK( addVariable ("quality", m_quality, "MBTS counter quality.") );
+  CHECK( addVariable ("type", m_type, "MBTS counter type.  +-1, depending on side.") );
+  CHECK( addVariable ("module", m_module, "MBTS counter module.  0-7, depending on phi.") );
+  CHECK( addVariable ("channel", m_channel, "MBTS counter channel.  0-1, depending on eta.  " "Zero is closer to the beam pipe.") );
  
   return StatusCode::SUCCESS;
 }
@@ -72,14 +68,17 @@ StatusCode MBTSFillerTool::book()
  * is responsible for arranging that all the pointers for booked variables
  * are set appropriately upon entry.
  */
-StatusCode MBTSFillerTool::fill (const TileCell& c)
-{
+StatusCode MBTSFillerTool::fill (const TileCell& c) {
   const TileTBID* tileid = 0;
   CHECK( detStore()->retrieve (tileid) );
 
   *m_E = c.energy();
-  *m_eta = c.eta();
-  *m_phi = c.phi();
+  
+  if (m_saveEtaPhi) {
+    *m_eta = c.eta();
+    *m_phi = c.phi();
+  }
+
   *m_time = c.time();
   *m_quality = c.quality();
 
