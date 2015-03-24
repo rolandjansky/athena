@@ -2311,8 +2311,14 @@ class SimSkeleton(object):
             totalNumber = 1000000
             if athenaCommonFlags.EvtMax() is not None and athenaCommonFlags.EvtMax()>0: totalNumber = athenaCommonFlags.EvtMax()+1
             if athenaCommonFlags.SkipEvents() is not None and athenaCommonFlags.SkipEvents()>0: totalNumber += athenaCommonFlags.SkipEvents()
-            svcMgr.EvtIdModifierSvc.add_modifier(run_nbr=myRunNumber, lbk_nbr=myFirstLB, nevts=totalNumber)
-            myInitialTimeStamp=svcMgr.EvtIdModifierSvc.Modifiers[2]
+            try:
+                from RunDependentSimComps.RunDMCFlags import runDMCFlags
+                myInitialTimeStamp = runDMCFlags.RunToTimestampDict.getTimestampForRun(myRunNumber)
+                #print "FOUND TIMESTAMP ", str(myInitialTimeStamp)
+            except:
+                myInitialTimeStamp = 1
+            svcMgr.EvtIdModifierSvc.add_modifier(run_nbr=myRunNumber, lbk_nbr=myFirstLB, time_stamp=myInitialTimeStamp, nevts=totalNumber)
+            if hasattr(svcMgr.EventSelector,'OverrideRunNumberFromInput'): svcMgr.EventSelector.OverrideRunNumberFromInput = True
         elif 'G4ATLAS_SKIPFILEPEEK' in os.environ and os.environ['G4ATLAS_SKIPFILEPEEK']:
             G4AtlasEngine.log.warning('SimSkeleton.do_run_number_modifications\
             :: Requires simFlags.RunNUmber to be specified in this running mode.\
