@@ -84,14 +84,14 @@ ElectronCaloHypoToolName = {'vloose':'AsgElectronIsEMVLooseCaloHypoSelector',
     'lhtight':'AsgElectronLHTightCaloHypoSelector',}
 
 # Electron LH tools for alignment / commisioning
-ElectronLHToolName = {'cutd0dphi':'AsgElectronLHMediumCutD0DphiSelector',
+ElectronLHToolName = {'cutd0dphideta':'AsgElectronLHMediumCutD0DphiDetaSelector',
         'nod0':'AsgElectronLHMediumNoD0Selector',
-        'nodphi':'AsgElectronLHMediumNoDphiSelector',
+        'nodeta':'AsgElectronLHMediumNoDetaSelector',
         'nodphires':'AsgElectronLHMediumNoDphiResSelector',}
 
-ElectronLHToolConfigFile = {'cutd0dphi':'ElectronLikelihoodMediumTriggerConfig2015_CutD0DphiDeta.conf',
+ElectronLHToolConfigFile = {'cutd0dphideta':'ElectronLikelihoodMediumTriggerConfig2015_CutD0DphiDeta.conf',
         'nod0':'ElectronLikelihoodMediumTriggerConfig2015_NoD0.conf',
-        'nodphi':'ElectronLikelihoodMediumTriggerConfig2015_NoDeta.conf',
+        'nodeta':'ElectronLikelihoodMediumTriggerConfig2015_NoDeta.conf',
         'nodphires':'ElectronLikelihoodMediumTriggerConfig2015_NoDphiRes.conf',}
 
 ElectronToolConfigFile = {'vloose':'ElectronIsEMVLooseSelectorCutDefs.conf', 

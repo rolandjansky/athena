@@ -55,7 +55,7 @@ namespace {
 TrigEFElectronHypo::TrigEFElectronHypo(const std::string& name, 
 				   ISvcLocator* pSvcLocator):
     HLT::HypoAlgo(name, pSvcLocator),
-    m_lumiTool("LuminosityTool"),
+    m_lumiBlockMuTool("LumiBlockMuTool/LumiBlockMuTool"),
     m_primaryVertex(Amg::Vector3D()), 
     m_trackToVertexTool("Reco::TrackToVertex")
   
@@ -79,7 +79,7 @@ TrigEFElectronHypo::TrigEFElectronHypo(const std::string& name,
 		  "Tool for track extrapolation to vertex"); 
 
   /** Luminosity tool */
-  declareProperty("LuminosityTool", m_lumiTool, "Luminosity Tool");
+  declareProperty("LuminosityTool", m_lumiBlockMuTool, "Luminosity Tool");
   
   declareProperty("emEt",m_emEt = -3.*CLHEP::GeV);
 
@@ -269,7 +269,7 @@ HLT::ErrorCode TrigEFElectronHypo::hltInitialize()
       }
   }
   // For now, just try to retrieve the lumi tool
-  if (m_lumiTool.retrieve().isFailure()) {
+  if (m_lumiBlockMuTool.retrieve().isFailure()) {
       ATH_MSG_DEBUG("Unable to retrieve Luminosity Tool");
       // 244            return HLT::ERROR;
   } else {
@@ -473,13 +473,26 @@ HLT::ErrorCode TrigEFElectronHypo::hltExecute(const HLT::TriggerElement* outputT
             //Check the tool
 
             if (m_athElectronLHIDSelectorTool == 0) {
-                msg() << MSG::ERROR << m_athElectronLHIDSelectorTool << " null, hypo continues but no AthenaLHSelector cut applied" << endreq;
+                ATH_MSG_ERROR(m_athElectronLHIDSelectorTool << " null, hypo continues but no AthenaLHSelector cut applied");
             }else{
                 if (timerSvc()) m_timerPIDTool->start(); //timer
-                //xAOD Tool does not accept Egamma object 
-                //Calo-only selection must be configured in tool
-                const Root::TAccept& acc = m_athElectronLHIDSelectorTool->accept(egIt);
-                isLHAcceptTrig = (bool) (acc);
+                double mu = 0.;
+                double avg_mu = 0.;
+                if(m_lumiBlockMuTool){
+                    mu = m_lumiBlockMuTool->actualInteractionsPerCrossing(); // (retrieve mu for the current BCID)
+                    avg_mu = m_lumiBlockMuTool->averageInteractionsPerCrossing();
+                    ATH_MSG_DEBUG("REGTEST: Retrieved Mu Value : " << mu);
+                    ATH_MSG_DEBUG("REGTEST: Average Mu Value   : " << avg_mu);
+                    const Root::TAccept& acc = m_athElectronLHIDSelectorTool->accept(egIt,avg_mu);
+                    ATH_MSG_DEBUG("LHValue with mu " << m_athElectronLHIDSelectorTool->getTResult().getResult(0));
+                    isLHAcceptTrig = (bool) (acc);
+                }
+                else {
+                    ATH_MSG_DEBUG("Lumi tool returns mu = 0, do not pass mu");
+                    const Root::TAccept& acc = m_athElectronLHIDSelectorTool->accept(egIt);
+                    ATH_MSG_DEBUG("LHValue no mu " << m_athElectronLHIDSelectorTool->getTResult().getResult(0));
+                    isLHAcceptTrig = (bool) (acc);
+                }
 
                 ATH_MSG_DEBUG("AthenaLHSelectorTool: TAccept = " << isLHAcceptTrig);
                 ATH_MSG_DEBUG("Stored Result LHVLoose " << egIt->passSelection("LHVLoose"));
