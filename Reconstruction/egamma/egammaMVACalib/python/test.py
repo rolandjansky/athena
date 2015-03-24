@@ -68,14 +68,14 @@ class TestEgammaMVACalib(unittest.TestCase):
     def test_extensive_v1_electron(self):
         electron_tool = ROOT.egammaMVACalib(ROOT.egammaMVACalib.egELECTRON, True, "egammaMVACalib/v1")
         electron_tool.InitTree(0)
-        self.do_test_file(electron_tool.getMVAEnergyElectron, "electron_response.txt")
+        self.do_test_file(electron_tool.getMVAEnergyElectron, "electron_test.root", "electron_test")
 
     def test_extensive_v1_photon(self):
         photon_tool = ROOT.egammaMVACalib(ROOT.egammaMVACalib.egPHOTON, True, "egammaMVACalib/v1")
         photon_tool.InitTree(0)
-        self.do_test_file(photon_tool.getMVAEnergyPhoton, "photon_response.txt")
+        self.do_test_file(photon_tool.getMVAEnergyPhoton, "photon_test.root", "photon_test")
 
-    def do_test_file(self, function, filename):
+    def generator_test_input(self, filename):
         with open(filename) as f:
             for line in f:
                 left, right = line.split("->")
@@ -85,9 +85,78 @@ class TestEgammaMVACalib(unittest.TestCase):
                 expected_output = float(right)
                 left = left.split(',')
                 example_input = [float(r) if "." in r else int(r) for r in left]
-                output = function(*example_input)
+                yield example_input, expected_output
 
-                self.assertAlmostEqual(output, expected_output, delta=1.)
+    def test_chain_electron(self):
+        filename = "electron_test.root"
+        f = ROOT.TFile.Open(filename)
+        tree = f.Get(filename.split('.')[0])
+        assert(tree)
+
+        nevent_per_file = 2
+        for i in xrange(tree.GetEntries() / nevent_per_file):
+            temp_filename = "tmp_electron_%d.root" % i
+            temp_file = ROOT.TFile(temp_filename, "recreate")
+            newtree = tree.CopyTree("1", "", nevent_per_file, i * nevent_per_file)
+            newtree.SetName("electron_test")
+            newtree.Write()
+            temp_file.Close()
+        chain = ROOT.TChain("electron_test", "electron_test")
+        chain.Add("tmp_electron*.root")
+        electron_tool = ROOT.egammaMVACalib(ROOT.egammaMVACalib.egELECTRON, True, "egammaMVACalib/v1")
+        electron_tool.InitTree(chain)
+        for ientry in xrange(chain.GetEntries()):
+            chain.GetEntry(ientry)
+            expected_result = chain.exp_output_v1
+            result = electron_tool.getMVAEnergy()
+            self.assertAlmostEqual(expected_result, result)
+        self.assertGreater(ientry, 20)
+        import glob
+        import os
+        for fl in glob.glob("tmp_electron*.root"):
+            os.remove(fl)
+
+    def test_chain_photon(self):
+        filename = "photon_test.root"
+        f = ROOT.TFile.Open(filename)
+        tree = f.Get(filename.split('.')[0])
+        assert(tree)
+
+        nevent_per_file = 2
+        for i in xrange(tree.GetEntries() / nevent_per_file):
+            temp_filename = "tmp_photon_%d.root" % i
+            temp_file = ROOT.TFile(temp_filename, "recreate")
+            newtree = tree.CopyTree("1", "", nevent_per_file, i * nevent_per_file)
+            newtree.SetName("photon_test")
+            newtree.Write()
+            temp_file.Close()
+        chain = ROOT.TChain("photon_test", "photon_test")
+        chain.Add("tmp_photon*.root")
+        photon_tool = ROOT.egammaMVACalib(ROOT.egammaMVACalib.egPHOTON, True, "egammaMVACalib/v1")
+        photon_tool.InitTree(chain)
+        for ientry in xrange(chain.GetEntries()):
+            chain.GetEntry(ientry)
+            expected_result = chain.exp_output_v1
+            result = photon_tool.getMVAEnergy()
+            self.assertAlmostEqual(expected_result, result)
+        self.assertGreater(ientry, 20)
+        import glob
+        import os
+        for fl in glob.glob("tmp_photon*.root"):
+            os.remove(fl)
+
+    def do_test_file(self, function, filename, treename):
+        f = ROOT.TFile.Open(filename)
+        tree = f.Get(treename)
+        assert(tree)
+        br_names = [br.GetName() for br in list(tree.GetListOfBranches())]
+        for ientry in xrange(tree.GetEntries()):
+            tree.GetEntry(ientry)
+            example_input = [tree.__getattr__(varname) for varname in br_names][:-1]
+            expected_output = tree.exp_output_v1
+            output = function(*example_input)
+            self.assertAlmostEqual(output, expected_output, delta=1.)
+        self.assertGreater(tree.GetEntries(), 0)
 
     def test_coverage(self):
         for rconv in (0, 117):
