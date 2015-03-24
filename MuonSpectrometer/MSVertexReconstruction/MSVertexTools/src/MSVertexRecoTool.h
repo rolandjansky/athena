@@ -75,7 +75,7 @@ namespace Muon {
     float m_VertexMaxRadialPlane;
     float m_VertexMinRadialPlane;
     int m_minHighOccupancyChambers;
-    int m_ChamberOccupancyMin;
+    float m_ChamberOccupancyMin;
     int m_useOldMSVxEndcapMethod;
     unsigned int m_maxGlobalTracklets;
     unsigned int m_maxClusterTracklets;
