@@ -81,6 +81,8 @@ private:
   /// Variable: Counter channel.  0-1, depending on eta.
   /// Zero is closer to the beam pipe.
   int* m_channel;
+
+  bool m_saveEtaPhi;
 };
 
 
