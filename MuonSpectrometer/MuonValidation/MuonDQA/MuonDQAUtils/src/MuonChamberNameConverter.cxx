@@ -42,7 +42,7 @@ std::string convertChamberName(int ChamberName , int ChamberEta , int ChamberPhi
       case 1  : m_Name_string = "BIS"; limits.push_back(8); limits.push_back(0); limits.push_back(1); limits.push_back(8); limits.push_back(-100); limits.push_back(-100); limits.push_back(-1); break;
       case 2  : m_Name_string = "BML"; limits.push_back(6); limits.push_back(0); limits.push_back(1); limits.push_back(8); limits.push_back(-100); limits.push_back(-100); limits.push_back(1); break;
       case 3  : m_Name_string = "BMS"; limits.push_back(6); limits.push_back(0); limits.push_back(1); limits.push_back(5); limits.push_back(8); limits.push_back(-100); limits.push_back(-1); break;
-      case 4  : m_Name_string = "BOL"; limits.push_back(6); limits.push_back(0); limits.push_back(1); limits.push_back(8); limits.push_back(-100); limits.push_back(-100); limits.push_back(1); break;
+      case 4  : m_Name_string = "BOL"; limits.push_back(7); limits.push_back(0); limits.push_back(1); limits.push_back(8); limits.push_back(-100); limits.push_back(-100); limits.push_back(1); break;
       case 5  : m_Name_string = "BOS"; limits.push_back(6); limits.push_back(0); limits.push_back(1); limits.push_back(5); limits.push_back(8); limits.push_back(-100); limits.push_back(-1); break;
       case 6  : m_Name_string = "BEE"; limits.push_back(2); limits.push_back(0); limits.push_back(1); limits.push_back(8); limits.push_back(-100); limits.push_back(-100); limits.push_back(-1); break;
       case 7  : m_Name_string = "BIR"; limits.push_back(6); limits.push_back(0); limits.push_back(100); limits.push_back(-100); limits.push_back(6); limits.push_back(8); limits.push_back(1); break;

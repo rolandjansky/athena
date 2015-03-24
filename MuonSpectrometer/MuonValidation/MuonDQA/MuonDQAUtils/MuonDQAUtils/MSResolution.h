@@ -35,9 +35,6 @@ class MSResolution
   // Copy constructor
   MSResolution(const MSResolution& ob);
 
-  // Overload =
-  void operator = (const MSResolution& ob);
-
   ~MSResolution();
 
   void clear();

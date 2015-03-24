@@ -34,16 +34,6 @@ MSResolution::MSResolution(const MSResolution& ob)
 }
 
 
-// Overload =
-void MSResolution::operator = (const MSResolution& ob)
-{
-  m_1D_StackInfo	= ob.m_1D_StackInfo;
-  vecBins		= ob.vecBins;
-  vecTrue		= ob.vecTrue;
-  vecReco		= ob.vecReco;
-}
-
-
 MSResolution::~MSResolution()
 {
 }
