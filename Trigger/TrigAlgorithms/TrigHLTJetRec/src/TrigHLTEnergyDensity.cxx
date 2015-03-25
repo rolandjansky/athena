@@ -13,6 +13,7 @@
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "JetEDM/LabelIndex.h"
 #include "./ClusterToPseudoJet.h"
+#include "xAODEventShape/EventShape.h"
 
 using jet::LabelIndex;
 
@@ -21,6 +22,10 @@ TrigHLTEnergyDensity::TrigHLTEnergyDensity(const std::string& name,
   HLT::FexAlgo(name, pSvcLocator) {
   declareProperty("energyDensityTool", m_energyDensityTool);
   declareProperty("pseudoJetGetter", m_pseudoJetGetter);
+  declareProperty("eventShapeSGKey", m_eventShapeSGKey);
+
+  declareMonitoredVariable("energyDensity", m_energyDensity);
+
 }
 
 
@@ -112,9 +117,11 @@ TrigHLTEnergyDensity::hltExecute(const HLT::TriggerElement* inputTE,
   ClusterToPseudoJet ctpj(indexMap);
 
   // convert incoming calo clusters to the pseudo jets needed by jetrec
-  std::transform(clusterContainer->begin(),
-                 clusterContainer->end(), 
-                 std::back_inserter(pjv),
+  pjv.resize(clusterContainer -> size());
+  std::transform(clusterContainer -> begin(),
+                 clusterContainer -> end(),
+                 pjv.begin(),
+                 // std::back_inserter(pjv),
                  ctpj);
 
   ATH_MSG_DEBUG("No of pseudojets: " << pjv.size());
@@ -133,7 +140,25 @@ TrigHLTEnergyDensity::hltExecute(const HLT::TriggerElement* inputTE,
     ATH_MSG_ERROR("Unable to fill the event shape object");
     return HLT::ERROR;
   }
-  
+
+  /* Event shape is retrieved directly from storegate, os not 
+     available via navigation (ie via the triggger element) */
+  const xAOD::EventShape* eventShape;
+ if ( evtStore()->retrieve(eventShape, m_eventShapeSGKey).isFailure()) {
+   ATH_MSG_ERROR("Could not recover eventShape with storegate key" <<
+                 m_eventShapeSGKey);
+   return HLT::ERROR;
+  }
+ 
+ // m_energyDensity has been declared to be  monitored variable
+ double energyDensity;
+ if (!eventShape->getDensity(xAOD::EventShape::Density,  energyDensity)) {
+   ATH_MSG_ERROR("  Event density not found in container.");
+   return HLT::ERROR;
+ }
+ m_energyDensity = energyDensity; //  double -> float
+ ATH_MSG_DEBUG("EventDensity " << m_energyDensity);
+ 
   delete indexMap;
   
   return HLT::OK;

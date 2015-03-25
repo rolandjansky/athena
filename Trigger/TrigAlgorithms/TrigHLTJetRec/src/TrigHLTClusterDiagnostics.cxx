@@ -33,12 +33,6 @@ TrigHLTClusterDiagnostics::~TrigHLTClusterDiagnostics() { }
 
 HLT::ErrorCode TrigHLTClusterDiagnostics::hltInitialize() {
   ATH_MSG_INFO("Initializing " << name() << "...");
-  // Open output root file
-  std::string fileName = "clusters_"+m_chainName+"_.root";
-  fOut = TFile::Open(fileName.c_str(), "RECREATE");
-  std::string directory = "clusters_"+m_chainName;
-  TDirectory* dir = fOut->mkdir(directory.c_str());
-  dir->cd();  
   // Add histograms to map
   addHist(hMap1D,"nClusters",  200,   0.0,  2000.0);	 
   addHist(hMap1D,"Eta",        100,  -5.0,  5.0);	
@@ -58,7 +52,19 @@ HLT::ErrorCode TrigHLTClusterDiagnostics::hltInitialize() {
 
 HLT::ErrorCode TrigHLTClusterDiagnostics::hltFinalize(){
   ATH_MSG_INFO ("Finalizing " << name() << "...");
+  // Open output root file
+  std::string fileName = "clusters_"+m_chainName+"_.root";
+  fOut = TFile::Open(fileName.c_str(), "RECREATE");
+  std::string directory = "clusters_"+m_chainName;
+  TDirectory* dir = fOut->mkdir(directory.c_str());
+  dir->cd();  
   // Save histograms and close file 
+  for (auto hist : hMap1D) {
+    hist.second->Write();
+  }
+  for (auto hist : hMap2D) {
+    hist.second->Write();
+  }
   fOut->Write();
   fOut->Close();
   // Clear histogram maps
@@ -107,8 +113,7 @@ HLT::ErrorCode TrigHLTClusterDiagnostics::hltExecute(const HLT::TriggerElement* 
   ATH_MSG_DEBUG("No of clusters in the container: " << clusterContainer->size());
   hMap1D["nClusters"]->Fill(clusterContainer->size());
 
-  for (auto i=clusterContainer->begin(); i!=clusterContainer->end(); ++i) {
-    auto cluster = *i;
+  for (const auto &cluster : *clusterContainer) {
     // Get cluster attributes
     double energy = (cluster->p4()).E();
     double et = (cluster->p4()).Et();

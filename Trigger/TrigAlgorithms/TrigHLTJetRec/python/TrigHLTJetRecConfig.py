@@ -352,47 +352,47 @@ def _getIParticleSelectorEtaPt(name, **kwds):
 
     return selector
 
-class TrigHLTJetRec_param(TrigHLTJetRecConf.TrigHLTJetRec):
-    """ DEPRECATED ALGORITHM
-    remove from TriggerMEnu.python.jetDefInstantiator
-    before removing from TrigHLTJetRecConfig.py
-    Supply a specific merge parameter for the anti-kt algorithm"""
-
-    def __init__(self,
-                 name,
-                 alg="AntiKt",
-                 merge_param="04",
-                 ptmin=7.0 * GeV,
-                 ptminFilter=7.0 * GeV,
-                 jet_calib='subjes',
-                 cluster_calib='EM',
-                 do_minimalist_setup=True,
-                 output_collection_label='defaultJetCollection'
-                 ):
-        # TrigHLTJetRecConf.TrigHLTJetRec.__init__(
-        #    self,
-        #    # name=name + '_DEPRECATED',
-        #    name=name,
-        #    cluster_calib=cluster_calib)
-
-        print 'TrigHLTJetRec_param is DEPRECATED'
-
-        TrigHLTJetRecConf.TrigHLTJetRec.__init__(self, name=name)
-
-        self.cluster_calib = cluster_calib
-
-        self.pseudoJetGetter = _getTriggerPseudoJetGetter(cluster_calib)
-
-        self.jetBuildTool = _getJetBuildTool(
-            float(int(merge_param))/10.,
-            ptmin=ptmin,
-            ptminFilter=ptminFilter,
-            jet_calib=jet_calib,
-            cluster_calib=cluster_calib,
-            do_minimalist_setup=do_minimalist_setup,
-            )
-
-        self.output_collection_label = output_collection_label
+# class TrigHLTJetRec_param(TrigHLTJetRecConf.TrigHLTJetRec):
+#     """ DEPRECATED ALGORITHM
+#     remove from TriggerMEnu.python.jetDefInstantiator
+#     before removing from TrigHLTJetRecConfig.py
+#     Supply a specific merge parameter for the anti-kt algorithm"""
+# 
+#     def __init__(self,
+#                  name,
+#                  alg="AntiKt",
+#                  merge_param="04",
+#                  ptmin=7.0 * GeV,
+#                  ptminFilter=7.0 * GeV,
+#                  jet_calib='subjes',
+#                  cluster_calib='EM',
+#                  do_minimalist_setup=True,
+#                  output_collection_label='defaultJetCollection'
+#                  ):
+#         # TrigHLTJetRecConf.TrigHLTJetRec.__init__(
+#         #    self,
+#         #    # name=name + '_DEPRECATED',
+#         #    name=name,
+#         #    cluster_calib=cluster_calib)
+# 
+#         print 'TrigHLTJetRec_param is DEPRECATED'
+# 
+#         TrigHLTJetRecConf.TrigHLTJetRec.__init__(self, name=name)
+# 
+#         self.cluster_calib = cluster_calib
+# 
+#         self.pseudoJetGetter = _getTriggerPseudoJetGetter(cluster_calib)
+# 
+#         self.jetBuildTool = _getJetBuildTool(
+#             float(int(merge_param))/10.,
+#             ptmin=ptmin,
+#             ptminFilter=ptminFilter,
+#             jet_calib=jet_calib,
+#             cluster_calib=cluster_calib,
+#             do_minimalist_setup=do_minimalist_setup,
+#             )
+# 
+#         self.output_collection_label = output_collection_label
 
 
 class TrigHLTJetRecFromCluster(TrigHLTJetRecConf.TrigHLTJetRecFromCluster):
@@ -511,64 +511,6 @@ class TrigHLTJetRecFromTriggerTower(TrigHLTJetRecConf.TrigHLTJetRecFromJet):
         self.pseudojet_labelindex_arg = pseudojet_labelindex_arg
 
 
-#  class TrigHLTJetRec_AntiKt04 is maintained only for the HT configuration
-# class TrigHLTJetRec_AntiKt04(TrigHLTJetRecConf.TrigHLTJetRec):
-#     """Supply a specific merge parameter for the anti-kt algorithm"""
-#     def __init__(self,
-#                  name="TrigHLTJetRec_DEPRECATED_AntiKt04",
-#                  ptmin=7.0 * GeV,
-#                  ptminFilter=7.0 * GeV,
-#                  do_jes=False,
-#                  cluster_calib='EM',
-#                  do_minimalist_setup=True):
-#         TrigHLTJetRecConf.TrigHLTJetRec.__init__(self, name)
-# 
-#         self.pseudoJetGetter = _getTriggerPseudoJetGetter(cluster_calib)
-# 
-#         self.jetBuildTool = _getJetBuildTool(
-#             0.4,
-#             ptmin=ptmin,
-#             ptminFilter=ptminFilter,
-#             do_jes=do_jes,
-#             cluster_calib=cluster_calib,
-#             do_minimalist_setup=do_minimalist_setup,
-#             )
-# 
-#         # if jetFlags.debug > 0:
-#         #    self.OutputLevel = DEBUG
-#         # else:
-#         # self.OutputLevel = INFO
-# 
-#         
-# 
-# #  class TrigHLTJetRec_AntiKt10 is maintained only for the HT configuration
-# class TrigHLTJetRec_AntiKt10(TrigHLTJetRecConf.TrigHLTJetRec):
-#     """Supply a specific merge parameter for the anti-kt algorithm"""
-#     def __init__(self,  name="TrigHLTJetRec_DEPRECATED_AntiKt10",
-#                  ptmin=7.0 * GeV,
-#                  ptminFilter=7.0 * GeV,
-#                  do_jes=False,
-#                  cluster_calib='EM',
-#                  do_minimalist_setup=True):
-#         
-#         TrigHLTJetRecConf.TrigHLTJetRec.__init__(self, name)
-# 
-#         self.pseudoJetGetter = _getTriggerPseudoJetGetter(cluster_calib)
-# 
-#         self.jetBuildTool  = _getJetBuildTool(
-#             1.0,
-#             ptmin=ptmin,
-#             ptminFilter=ptminFilter,
-#             do_jes=do_jes,
-#             cluster_calib=cluster_calib,
-#             do_minimalist_setup=True)
-#         
-#         # if jetFlags.debug > 0:
-#         #    self.OutputLevel = DEBUG
-#         # else:
-#         # self.OutputLevel = INFO
-
-
 class TrigHLTCellDiagnostics_named(TrigHLTJetRecConf.TrigHLTCellDiagnostics):
     """Supply a chain name used to label output files"""
     def __init__(self,  chain_name, name="TrigHLTCellDiagnostics_named"):
@@ -629,7 +571,16 @@ class TrigHLTEnergyDensity(TrigHLTJetRecConf.TrigHLTEnergyDensity):
     # cluster_calib: EM or LC
     def __init__(self, name, cluster_calib, ed_merge_param): 
         TrigHLTJetRecConf.TrigHLTEnergyDensity.__init__(self, name=name)
-        
+
+        from TrigHLTJetRec.TrigHLTEnergyDensityMonitoring import(
+            TrigHLTEnergyDensityValidationMonitoring,
+            TrigHLTEnergyDensityOnlineMonitoring,
+            TrigHLTEnergyDensityCosmicMonitoring)
+
+        validation = TrigHLTEnergyDensityValidationMonitoring()
+        online = TrigHLTEnergyDensityOnlineMonitoring()
+        cosmic = TrigHLTEnergyDensityCosmicMonitoring()
+        self.AthenaMonTools = [ validation, online, cosmic ]
         # share the pseudojet getter betwen the algorithm an the tool.
         # the alg passes pseudojets to the pseudojetgetter. The
         # energy density tool obtains the oseudojets from the pseudojet getter.
@@ -648,6 +599,9 @@ class TrigHLTEnergyDensity(TrigHLTJetRecConf.TrigHLTEnergyDensity):
             pseudoJetGetter,
             ed_merge_param)
 
+        self.eventShapeSGKey = _getEventShapeSGKey(ed_merge_param,
+                                                   pseudoJetGetter.Label)
+        self.energyDensity = 0
 
 # Data scouting algorithm
 class TrigHLTJetDSSelector(TrigHLTJetRecConf.TrigHLTJetDSSelector):

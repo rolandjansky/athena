@@ -32,13 +32,7 @@ TrigHLTCellDiagnostics::~TrigHLTCellDiagnostics() { }
 
 
 HLT::ErrorCode TrigHLTCellDiagnostics::hltInitialize() {
-  ATH_MSG_INFO("Initializing " << name() << "...");
-  // Open output root file
-  std::string fileName = "cells_"+m_chainName+"_.root";
-  fOut = TFile::Open(fileName.c_str(), "RECREATE");
-  std::string directory = "cells_"+m_chainName;
-  TDirectory* dir = fOut->mkdir(directory.c_str());
-  dir->cd();  
+  ATH_MSG_INFO("Initializing " << name() << "..."); 
   // Add histograms to map
   addHist(hMap1D,"nCells",   200,   0.0,  200000.0);	 
   addHist(hMap1D,"Eta",      100,  -5.0,  5.0);	
@@ -57,7 +51,19 @@ HLT::ErrorCode TrigHLTCellDiagnostics::hltInitialize() {
 
 HLT::ErrorCode TrigHLTCellDiagnostics::hltFinalize(){
   ATH_MSG_INFO ("Finalizing " << name() << "...");
+  // Open output root file
+  std::string fileName = "cells_"+m_chainName+"_.root";
+  fOut = TFile::Open(fileName.c_str(), "RECREATE");
+  std::string directory = "cells_"+m_chainName;
+  TDirectory* dir = fOut->mkdir(directory.c_str());
+  dir->cd(); 
   // Save histograms and close file 
+  for (auto hist : hMap1D) {
+    hist.second->Write();
+  }
+  for (auto hist : hMap2D) {
+    hist.second->Write();
+  }
   fOut->Write();
   fOut->Close();
   // Clear histogram maps
@@ -106,8 +112,7 @@ HLT::ErrorCode TrigHLTCellDiagnostics::hltExecute(const HLT::TriggerElement* inp
   ATH_MSG_DEBUG("No of cells in the container: " << cellContainer->size());
   hMap1D["nCells"]->Fill(cellContainer->size());
 
-  for (auto i=cellContainer->begin(); i!=cellContainer->end(); ++i) {
-    auto cell = *i;
+  for (const auto &cell : *cellContainer) {
     // Get cell attributes
     double energy = cell->e();
     double eta = cell->eta();
