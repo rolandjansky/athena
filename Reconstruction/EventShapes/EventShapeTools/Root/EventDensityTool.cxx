@@ -22,7 +22,7 @@ using fastjet::VoronoiAreaSpec;
 
 EventDensityTool::EventDensityTool(const std::string& name)
 : asg::AsgTool(name),
-  m_useAreaFourMom(false),
+  m_useAreaFourMom(true),
   m_rhoDec(""), 
   m_sigmaDec(""), 
   m_areaDec("") {
@@ -34,6 +34,7 @@ EventDensityTool::EventDensityTool(const std::string& name)
   declareProperty("AreaDefinition",  m_areadef = "Voronoi");
   declareProperty("VoronoiRfact",    m_vrfact  = 1.0);
   declareProperty("OutputContainer", m_outcon  = "GenericEventDensity");
+  declareProperty("UseFourMomArea", m_useAreaFourMom);
 }
 
 //**********************************************************************
@@ -61,7 +62,6 @@ StatusCode EventDensityTool::initialize() {
   m_fjjetdef = JetDefinition(fjalg, m_jetrad);
 
   // Build area definition.
-  m_useAreaFourMom = (m_areadef == "ActiveFourVector");
   if ( m_areadef == "Voronoi" ) {
     m_fjareadef = AreaDefinition(fastjet::voronoi_area, VoronoiAreaSpec(m_vrfact));
   } else if ( m_areadef == "Active" || m_useAreaFourMom ) {
@@ -81,7 +81,20 @@ StatusCode EventDensityTool::initialize() {
                     << m_rapmin << ", " << m_rapmax << ")");
     return StatusCode::FAILURE;
   }
-  ATH_MSG_INFO("Fastjet jet selector: " << m_fjselector.description());
+  ATH_MSG_INFO("Configured properties:");
+  ATH_MSG_INFO("     JetAlgorithm: " << m_jetalg);
+  ATH_MSG_INFO("        JetRadius: " << m_jetrad);
+  ATH_MSG_INFO("         JetInput: " << m_pjgetter);
+  ATH_MSG_INFO("   AbsRapidityMin: " << m_rapmin);
+  ATH_MSG_INFO("   AbsRapidityMax: " << m_rapmax);
+  ATH_MSG_INFO("   AreaDefinition: " << m_areadef);
+  ATH_MSG_INFO("     VoronoiRfact: " << m_vrfact);
+  ATH_MSG_INFO("  OutputContainer: " << m_outcon);
+  ATH_MSG_INFO("Derived properties:");
+  ATH_MSG_INFO("        Fastjet jet defn: " << m_fjjetdef.description());
+  ATH_MSG_INFO("       Fastjet area defn: " << m_fjareadef.description());
+  ATH_MSG_INFO("    Fastjet jet selector: " << m_fjselector.description());
+  ATH_MSG_INFO("  Use area four-momentum: " << m_useAreaFourMom);
 
   // Fill the EventShape object
   m_rhoDec   = SG::AuxElement::Accessor<float>("Density");
@@ -150,6 +163,9 @@ fillEventShape( xAOD::EventShape* pevs, const PseudoJetVector& pjv) const {
   ATH_MSG_DEBUG("Input pseudojet count: " << pjv.size());
   ATH_MSG_DEBUG("Event shape container address: " << pevs);
 
+  for(const auto & pj : pjv) {
+    ATH_MSG_DEBUG(" pj input e="<<pj.e() << " pz="<<pj.pz() << " px="<<pj.px() );
+  }
   // Find jets.
   const ClusterSequenceArea* pcsa = new ClusterSequenceArea(pjv, m_fjjetdef, m_fjareadef);
   if ( pcsa == 0 ) {
@@ -162,8 +178,8 @@ fillEventShape( xAOD::EventShape* pevs, const PseudoJetVector& pjv) const {
   double rho, sigma, area;
   pcsa->get_median_rho_and_sigma(m_fjselector, m_useAreaFourMom, rho, sigma, area);
   ATH_MSG_DEBUG(" calculated rho="<< rho);
-  // Record rho.
 
+  // Record rho.
   m_rhoDec(*pevs) = rho;
   m_sigmaDec(*pevs) = sigma;
   m_areaDec(*pevs) = area;
