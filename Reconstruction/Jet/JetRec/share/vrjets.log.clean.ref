@@ -1,18 +1,16 @@
-Thu Mar 19 16:14:32 CET 2015
+Wed Mar 25 18:05:46 CET 2015
 Preloading tcmalloc_minimal.so
 Py:Athena            INFO including file "AthenaCommon/Preparation.py"
-Py:Athena            INFO using release [AtlasProduction-20.1.3.4] [x86_64-slc6-gcc48-opt] [20.1.3.Y-VAL-Prod/rel_3] -- built on [2015-03-17 21:41]
+Py:Athena            INFO using release [AtlasProduction-20.1.4.2] [x86_64-slc6-gcc48-opt] [20.1.X.Y-VAL-Prod/rel_3] -- built on [2015-03-24 21:30]
 Py:Athena            INFO including file "AthenaCommon/Bootstrap.py"
 Py:Athena            INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
 Py:Athena            INFO including file "AthenaCommon/Execution.py"
 Py:Athena            INFO including file "vrjets.py"
-Py:ConfigurableDb    INFO Read module info for 4714 configurables from 11 genConfDb files
-Py:ConfigurableDb WARNING Found 3 duplicates among the 11 genConfDb files :
+Py:ConfigurableDb    INFO Read module info for 4699 configurables from 11 genConfDb files
+Py:ConfigurableDb WARNING Found 1 duplicates among the 11 genConfDb files :
 Py:ConfigurableDb WARNING --------------------------------------------------
 Py:ConfigurableDb WARNING   -<component name>: <module> - [ <duplicates> ]
 Py:ConfigurableDb WARNING --------------------------------------------------
-Py:ConfigurableDb WARNING   -RPCStandaloneTracksMon: MuonTrackMonitoring.MuonTrackMonitoringConf - ['RpcRawDataMonitoring.RpcRawDataMonitoringConf']
-Py:ConfigurableDb WARNING   -MissingCellListTool: JetRecCalo.JetRecCaloConf - ['JetRecTools.JetRecToolsConf']
 Py:ConfigurableDb WARNING   -LArDigits2Ntuple: LArCalibTools.LArCalibToolsConf - ['LArEventTest.LArEventTestConf']
 Py:ConfigurableDb WARNING Fix your cmt/requirements file !!
 JetRecStandardToolManager.py: Defining standard tools
@@ -398,7 +396,7 @@ Py:Athena            INFO including file "AthenaCommon/runbatch.py"
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
                                                    Welcome to ApplicationMgr (GaudiCoreSvc v3r1)
-                                          running on lxplus0130.cern.ch on Thu Mar 19 16:14:36 2015
+                                          running on lxplus0236.cern.ch on Wed Mar 25 18:05:50 2015
 ====================================================================================================================================
 ApplicationMgr       INFO Successfully loaded modules : AthenaServices
 ApplicationMgr       INFO Application Manager Configured successfully
@@ -446,7 +444,7 @@ ToolSvc.calib_AntiKt4LCTopo_reco_ar                  INFO   Reading global JES s
     JES_Full2012dataset_Preliminary_Jan13.config
 
 ToolSvc.calib_AntiKt4LCTopo_reco_ar                  INFO                      resolved in  :
-    /cvmfs/atlas.cern.ch/repo/sw/software/x86_64-slc6-gcc48-opt/20.1.3/AtlasReconstruction/20.1.3/InstallArea/share/JetCalibTools/CalibrationConfigs/JES_Full2012dataset_Preliminary_Jan13.config
+    /cvmfs/atlas.cern.ch/repo/sw/software/x86_64-slc6-gcc48-opt/20.1.4/AtlasReconstruction/20.1.4/InstallArea/share/JetCalibTools/CalibrationConfigs/JES_Full2012dataset_Preliminary_Jan13.config
 
 
 ToolSvc.calib_AntiKt4LCTopo_reco_ar                  INFO Initializing sub tools.
@@ -458,7 +456,7 @@ ToolSvc.calib_AntiKt4LCTopo_reco_ar_Pileup           INFO
 
 PathResolver                                         INFO Trying to locate JetCalibTools/CalibrationFactors/MCBasedOffset_Nov2012.config
 ToolSvc.calib_AntiKt4LCTopo_reco_ar_Pileup           INFO   Reading residual jet-area pile-up correction factors from:
-    /cvmfs/atlas.cern.ch/repo/sw/software/x86_64-slc6-gcc48-opt/20.1.3/AtlasReconstruction/20.1.3/InstallArea/share/JetCalibTools/CalibrationFactors/MCBasedOffset_Nov2012.config
+    /cvmfs/atlas.cern.ch/repo/sw/software/x86_64-slc6-gcc48-opt/20.1.4/AtlasReconstruction/20.1.4/InstallArea/share/JetCalibTools/CalibrationFactors/MCBasedOffset_Nov2012.config
 
 ToolSvc.calib_AntiKt4LCTopo_reco_ar_Pileup           INFO   Description:
     Residual 2012 mu- and N_{PV}-dependent jet pileup corrections
@@ -662,8 +660,8 @@ PoolSvc                                              INFO io_register[PoolSvc](x
 PoolSvc                                              INFO Set connectionsvc retry/timeout/IDLE timeout to  'ConnectionRetrialPeriod':300/ 'ConnectionRetrialTimeOut':3600/ 'ConnectionTimeOut':5 seconds with connection cleanup disabled
 PoolSvc                                              INFO Frontier compression level set to 5
 DBReplicaSvc                                         INFO Frontier server at (serverurl=http://atlasfrontier-ai.cern.ch:8000/atlr)(serverurl=http://aiatlas036.cern.ch:8000/atlr)(serverurl=http://aiatlas034.cern.ch:8000/atlr)(serverurl=http://ccfrontier.in2p3.fr:23128/ccin2p3-AtlasFrontier)(serverurl=http://ccsqfatlasli02.in2p3.fr:23128/ccin2p3-AtlasFrontier)(serverurl=http://ccsqfatlasli01.in2p3.fr:23128/ccin2p3-AtlasFrontier)(proxyurl=http://ca-proxy.cern.ch:3128)(proxyurl=http://ca18.cern.ch:3128)(proxyurl=http://ca17.cern.ch:3128)(proxyurl=http://atlast0fsquid.cern.ch:3128)(proxyurl=http://atlassquid1.cern.ch:3128)(proxyurl=http://atlassquid2.cern.ch:3128)(proxyurl=http://atlassquid4.cern.ch:3128) will be considered for COOL data
-DBReplicaSvc                                         INFO Read replica configuration from /cvmfs/atlas.cern.ch/repo/sw/software/x86_64-slc6-gcc48-opt/20.1.3/AtlasCore/20.1.3/InstallArea/share/dbreplica.config
-DBReplicaSvc                                         INFO Total of 10 servers found for host lxplus0130.cern.ch [ATLF ATLAS_COOLPROD atlas_dd ATLAS_CONFIG INT8R INTR ATONR_COOL ATONR_CONF DEVDB11 ATLF ]
+DBReplicaSvc                                         INFO Read replica configuration from /cvmfs/atlas.cern.ch/repo/sw/software/x86_64-slc6-gcc48-opt/20.1.4/AtlasCore/20.1.4/InstallArea/share/dbreplica.config
+DBReplicaSvc                                         INFO Total of 10 servers found for host lxplus0236.cern.ch [ATLF ATLAS_COOLPROD atlas_dd ATLAS_CONFIG INT8R INTR ATONR_COOL ATONR_CONF DEVDB11 ATLF ]
 PoolSvc                                              INFO Successfully setup replica sorting algorithm
 PoolSvc                                              INFO Re-initializing PoolSvc
 PoolSvc                                              INFO POOL WriteCatalog is xmlcatalog_file:PoolFileCatalog.xml
@@ -673,11 +671,20 @@ EventSelector                                        INFO Initializing EventSele
 TagMetaDataStore                                     INFO Initializing TagMetaDataStore - package version StoreGate-02-45-01-10
 EventSelector                                        INFO reinitialization...
 EventSelector                                        INFO EventSelection with query 
+PoolSvc                                              INFO File is not in Catalog! Attempt to open it anyway.
 RootCollection Info Opening Collection File /afs/cern.ch/user/d/dadams/pubdata/r20test_AOD.pool.root in mode: READ
 JobIDSvc                                             INFO Initializing JobIDSvc - package version AthenaServices-01-59-05
 RootCollection Info File /afs/cern.ch/user/d/dadams/pubdata/r20test_AOD.pool.root opened
 RootCollectionSchemaEditor Warning  Collection Description not found in file, reconstructing 
 RootCollection Info Root collection opened, size = 5
+DbSession Info     Open     DbSession    
+Domain[ROOT_All] Info >   Access   DbDomain     READ      [ROOT_All] 
+Domain[ROOT_All] Info ->  Access   DbDatabase   READ      [ROOT_All] 5B486AFC-1045-F42C-4BFD-B362A0289C58
+Domain[ROOT_All] Info                           /afs/cern.ch/user/d/dadams/pubdata/r20test_AOD.pool.root
+RootDatabase.open Success /afs/cern.ch/user/d/dadams/pubdata/r20test_AOD.pool.root File version:53413
+/afs/cern.ch/user/d/dadams/pubdata/r20test_AOD.pool.root Info Database being retired...
+Domain[ROOT_All] Info ->  Deaccess DbDatabase   READ      [ROOT_All] 5B486AFC-1045-F42C-4BFD-B362A0289C58
+Domain[ROOT_All] Info >   Deaccess DbDomain     READ      [ROOT_All] 
 DbSession Info     Open     DbSession    
 Domain[ROOT_All] Info >   Access   DbDomain     READ      [ROOT_All] 
 Domain[ROOT_All] Info ->  Access   DbDatabase   READ      [ROOT_All] 5032031B-70FB-2C41-B310-446CC6E53326
@@ -704,7 +711,7 @@ ApplicationMgr                                       INFO Application Manager St
 PoolSvc                                              INFO Failed to find container MetaDataHdrDataHeader to get Token.
 AthenaEventLoopMgr                                   INFO   ===>>>  start of run 189751    <<<===
 AthenaEventLoopMgr                                   INFO   ===>>>  start processing event #35002, run #189751 0 events processed so far  <<<===
-ClassIDSvc                                           INFO  getRegistryEntries: read 13993 CLIDRegistry entries for module ALL
+ClassIDSvc                                           INFO  getRegistryEntries: read 14002 CLIDRegistry entries for module ALL
 ClassIDSvc                                           INFO  getRegistryEntries: read 107 CLIDRegistry entries for module ALL
 ToolSvc.xAODClusterCompressor                        INFO Compression of ClusterMoments to 16 bits enabled
 AthenaPoolConverter                                  INFO Retrieved compression tool
@@ -874,6 +881,7 @@ StoreGateSvc                                         INFO Finalizing StoreGateSv
 RootCollection Info Closing open collection '/afs/cern.ch/user/d/dadams/pubdata/r20test_AOD.pool.root'
 TagMetaDataStore                                     INFO Finalizing TagMetaDataStore - package version StoreGate-02-45-01-10
 PoolSvc                                              INFO I/O finalization...
+XMLFileCatalog Info Updating the catalog
 PoolXMLFileCatalog Info XercesC termination number 0
 MetaDataStore                                        INFO Finalizing MetaDataStore - package version StoreGate-02-45-01-10
 InputMetaDataStore                                   INFO Finalizing InputMetaDataStore - package version StoreGate-02-45-01-10

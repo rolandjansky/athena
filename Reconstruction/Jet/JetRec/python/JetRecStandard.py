@@ -19,6 +19,7 @@ myname = "JetRecStandard: "
 print myname + "Begin."
 
 from RecExConfig.RecFlags import rec 
+from InDetRecExample.InDetJobProperties import InDetFlags
 from JetRec.JetRecFlags import jetFlags
 
 # Function to display flag value and status.
@@ -55,12 +56,15 @@ print myname + "  Final use topoclusters: " + str(jetFlags.useTopo())
 # No action if someone has already set the flag.
 haveTracks = cfgKeyStore.isInTransient('xAOD::TrackParticleContainer','InDetTrackParticles')
 haveVertices = cfgKeyStore.isInTransient("xAOD::VertexContainer","PrimaryVertices")
+recTracks = rec.doInDet()
+recVertices = bool(InDetFlags.doVertexFinding)
 print myname + "Initial useTracks: " + sflagstat(jetFlags.useTracks)
-print myname + "      rec doInDet: " + str(rec.doInDet())
+print myname + "      rec doInDet: " + str(recTracks)
+print myname + "  doVertexFinding: " + str(recVertices)
 print myname + "      have tracks: " + str(haveTracks)
 print myname + "    have vertices: " + str(haveVertices)
 if not jetFlags.useTracks.statusOn:
-  jetFlags.useTracks = rec.doInDet() or (haveTracks and haveVertices)
+  jetFlags.useTracks = (recTracks or haveTracks) and (recVertices or haveVertices)
 print myname + "  Final useTracks: " + sflagstat(jetFlags.useTracks)
 
 # Skip use of muon segments if not built.

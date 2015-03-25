@@ -25,9 +25,6 @@ useLArHVCorr = False
 # Add Delta-R truth flavor tags.
 useDRTruthFlavor = jetFlags.useTruth
 
-# Add JVF with loose track selection.
-useJVFLoose = True
-
 #--------------------------------------------------------------
 # Define the finders and groomers.
 # Each line configures a finder or groomer and its associated jetrec tool.
@@ -38,8 +35,6 @@ useJVFLoose = True
 # Update the modifier lists.
 if useLArHVCorr:
   jtm.modifiersMap["calib"] += [jtm.larhvcorr]
-if useJVFLoose:
-  jtm.modifiersMap["calib"] += [jtm.jvfloose]
 jtm.modifiersMap["mycalib"] = jtm.modifiersMap["calib"] + [jtm.pull]
 if jtm.haveShowerDeconstructionTool:
   jtm.modifiersMap["mycalib"] += [jtm.showerdec]

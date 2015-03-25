@@ -96,7 +96,7 @@ if len(vertexCollectionName):
   jtm.vertexContainer = vertexCollectionName
 
 # Read job options and import the jet algorithm.
-from RunJetRec import runJetGrooming, useLArHVCorr, useJVFLoose, useDRTruthFlavor
+from RunJetRec import runJetGrooming, useLArHVCorr, useDRTruthFlavor
 from JetRec.JetAlgorithm import jetalg
 
 if not runJetGrooming:
@@ -132,7 +132,7 @@ if 0:
 verbosetools = []
 if 0:
   verbosetools += ["jvf"]
-  if useJVFLoose: verbosetools += ["jvfloose"]
+  verbosetools += ["jvfloose"]
 #verbosetools += ["calib_AntiKt4TopoEM_reco_arj"]
 #verbosetools += ["LCTopoEventShape"]
 #verbosetools = ["truthsel"]
@@ -335,8 +335,7 @@ for name in names:
     jdmp.FloatVectorMoments += ["EnergyPerSampling"]
   if isTopo and jetFlags.useTracks():
     jdmp.FloatVectorMoments += ["JVF"]
-    if useJVFLoose:
-      jdmp.FloatVectorMoments += ["JVFLoose"]
+    jdmp.FloatVectorMoments += ["JVFLoose"]
   if isVTrack:
     jdmp.ElementLinkMoments += ["OriginVertex"]
   if isTopo and jetFlags.useTracks():
