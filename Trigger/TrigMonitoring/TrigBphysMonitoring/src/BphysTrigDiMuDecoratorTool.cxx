@@ -95,17 +95,22 @@ StatusCode BphysTrigDiMuDecoratorTool::decorateVertex(const xAOD::Vertex* vtx,
 
 
     const xAOD::VertexContainer* pvContainer(0);
-    ATH_CHECK(evtStore()->retrieve(pvContainer   ,m_pvCandidatesKey  ));
+    // check if PV container - ie. if cosmics // https://its.cern.ch/jira/browse/ATR-10633
+    if (evtStore()->retrieve(pvContainer   ,m_pvCandidatesKey  ).isFailure() || !pvContainer) {
+        ATH_MSG_DEBUG("No PrimaryVertex container of name: " << m_pvCandidatesKey);
+    } // no PV
     
     //vtx->auxdecor<unsigned int>("TestVar") = 10;
     
     const xAOD::Vertex * vtxbs(nullptr), *vtxpv(nullptr);
-    for (auto primvtx: *pvContainer) {
-        if ( primvtx->vertexType() == xAOD::VxType::PriVtx)
-            vtxpv = primvtx;
-        if ( primvtx->vertexType() == xAOD::VxType::NoVtx) // assume bs
-            vtxbs = primvtx;
-    } // vtx
+    if (pvContainer) {
+        for (auto primvtx: *pvContainer) {
+            if ( primvtx->vertexType() == xAOD::VxType::PriVtx)
+                vtxpv = primvtx;
+            if ( primvtx->vertexType() == xAOD::VxType::NoVtx) // assume bs #FIXME check this
+                vtxbs = primvtx;
+        } // vtx
+    } // if pv container is found
     
     if (!vtxbs) {
         ATH_MSG_DEBUG("Expected dummy vertex for BS");
@@ -117,7 +122,7 @@ StatusCode BphysTrigDiMuDecoratorTool::decorateVertex(const xAOD::Vertex* vtx,
     }
     
     if (!vtxpv) {
-        ATH_MSG_WARNING("Expected PV");
+        ATH_MSG_DEBUG("Expected PV");
     }
     
     std::vector<double> masses = {m_trackMass,m_trackMass};

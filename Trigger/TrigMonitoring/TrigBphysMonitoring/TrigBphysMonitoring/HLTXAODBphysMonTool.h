@@ -16,6 +16,9 @@ class TVector3;
 // TrigHLTMonitoring interface
 #include "TrigHLTMonitoring/IHLTMonTool.h"
 
+#include "TrigDecisionTool/TrigDecisionTool.h"
+
+
 namespace Trig { class chainGroup; }
 
 #include "xAODTracking/VertexFwd.h"
@@ -73,6 +76,7 @@ private:
 
     
     // member variables
+    ToolHandle<Trig::TrigDecisionTool> m_tdt;
     const Trig::ChainGroup *m_all;
 
     
