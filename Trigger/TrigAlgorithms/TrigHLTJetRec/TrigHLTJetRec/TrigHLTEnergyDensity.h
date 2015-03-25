@@ -30,5 +30,8 @@ private:
   /* A PseudojetGetter shared by this algorithm and the IEventShapeTool
      The algorithm loads the psg, the iest processes them. */
   ToolHandle<ITriggerPseudoJetGetter>  m_pseudoJetGetter;
+
+  std::string m_eventShapeSGKey;  // allow fetching and monitoring.
+  float m_energyDensity;  // allow monitoring.
 }; 
 #endif
