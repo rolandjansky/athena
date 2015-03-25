@@ -9,7 +9,6 @@
 
 #include "TrigTRTHTHCounter.h"
 #include "GaudiKernel/IssueSeverity.h"
-//#include "TrigTimeAlgs/TrigTimerSvc.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 
 
@@ -20,14 +19,14 @@
 
 //edm
 #include "TrigCaloEvent/TrigEMCluster.h"
-#include "TrigCaloEvent/TrigRNNOutput.h"
-
 #include "xAODTrigRinger/TrigRNNOutput.h"
-
 #include "TMath.h"
 #include "GeoPrimitives/GeoPrimitives.h"
+
+#include<cmath>
+#include<fstream>
+
  
-const unsigned int TrigTRTHTHCounter::c_phibins=5;
 
 const double PI = TMath::Pi();
 const double TWOPI = 2.0*PI;
@@ -47,6 +46,23 @@ bool hth_eta_match(const float& caleta, const float& trteta, const float& etaWin
   return r;
 }
 
+float dist2COR(float R, float phi1, float phi2)
+{
+  float PHI=fabs(phi1-phi2);
+  return fabs(R*sin(PHI));
+}
+
+struct TRT_hit {
+  float phi;
+  float R;
+  bool isHT;
+};
+
+TRT_hit make_hit(float phi, float R, bool isHT){
+  TRT_hit my_hit={phi,R,isHT};
+  return my_hit;
+}
+
 
 //---------------------------------------------------------------------------------
 
@@ -59,7 +75,11 @@ TrigTRTHTHCounter::TrigTRTHTHCounter(const std::string& name, ISvcLocator* pSvcL
     m_phiHalfWidth(0.1),
     m_etaHalfWidth(0.1),
     m_doFullScan(false),
-    m_maxCaloEta(2.)
+    m_maxCaloEta(2.),
+    m_roadWidth(4.),
+    m_nBinCoarse(10.),
+    m_nBinFine(10.),
+    m_wedgeMinEta(0.)
 {
   
   declareProperty( "TRT_DC_ContainerName",   m_trtDCContainerName = "Trig_OfflineDriftCircles" );
@@ -67,10 +87,10 @@ TrigTRTHTHCounter::TrigTRTHTHCounter(const std::string& name, ISvcLocator* pSvcL
   declareProperty("EtaHalfWidth",            m_etaHalfWidth);
   declareProperty("PhiHalfWidth",            m_phiHalfWidth);
   declareProperty("doFullScan",              m_doFullScan);
-
-  for (size_t i=0; i<c_phibins; i++){
-    m_phiWindows.push_back(m_phiHalfWidth*float(i+1)/float(c_phibins));
-  }
+  declareProperty("RoadWidth",              m_roadWidth);
+  declareProperty("nBinCoarse",              m_nBinCoarse);
+  declareProperty("nBinFine",              m_nBinFine);
+  declareProperty("WedgeMinEta",              m_wedgeMinEta);
 
 }
 
@@ -82,45 +102,44 @@ TrigTRTHTHCounter::~TrigTRTHTHCounter() {
 //---------------------------------------------------------------------------------
 
 HLT::ErrorCode TrigTRTHTHCounter::hltInitialize() {
-  msg() << MSG::DEBUG << "Initialising this TrigTRTHTHCounter: " << name() << endreq;
+  ATH_MSG_DEBUG ( "Initialising this TrigTRTHTHCounter: " << name());
   
 
   // Get storegate svc
   if(m_detStore.retrieve().isFailure()) {
-    msg() << MSG::FATAL << "Failed to connect to " << m_detStore.typeAndName() << endreq;
+    ATH_MSG_FATAL ( "Failed to connect to " << m_detStore.typeAndName());
     return StatusCode::FAILURE;
   } else
-    msg() << MSG::INFO << "Retrieved service " << m_detStore.typeAndName() << endreq;
+    ATH_MSG_INFO ( "Retrieved service " << m_detStore.typeAndName());
 
   if(m_storeGate.retrieve().isFailure()) {
-    msg() << MSG::FATAL << "Failed to connect to " << m_storeGate.typeAndName() << endreq;
+    ATH_MSG_FATAL ( "Failed to connect to " << m_storeGate.typeAndName());
     return StatusCode::FAILURE;
   } else
-    msg() << MSG::INFO << "Retrieved service " << m_storeGate.typeAndName() << endreq;
+    ATH_MSG_INFO ( "Retrieved service " << m_storeGate.typeAndName());
 
   // Get a TRT identifier helper
   if( m_detStore->retrieve(m_trtHelper, "TRT_ID").isFailure()) {
-    msg() << MSG::ERROR << "Failed to retrieve " << m_trtHelper << endreq; // fatal?
+    ATH_MSG_ERROR ( "Failed to retrieve " << m_trtHelper); // fatal?
     return StatusCode::FAILURE;
   } else
-    msg() << MSG::INFO << "Retrieved service " << m_trtHelper << endreq;
+    ATH_MSG_INFO ( "Retrieved service " << m_trtHelper);
   
 
   // Get TrigTRT_DriftCircleProviderTool
   if( m_rawDataTool.retrieve().isFailure() ){
-    msg() << MSG::FATAL << "Failed to retrieve " << m_rawDataTool << endreq;
+    ATH_MSG_FATAL ( "Failed to retrieve " << m_rawDataTool);
     return StatusCode::FAILURE;
   } else
-    msg() << MSG::INFO << "Retrieved service " << m_rawDataTool << endreq;
+    ATH_MSG_INFO ( "Retrieved service " << m_rawDataTool);
   
 
-  msg() << MSG::INFO << " TrigTRTHTHCounter initialized successfully" << endreq; 
+  ATH_MSG_INFO ( " TrigTRTHTHCounter initialized successfully"); 
 
   //
-  for (size_t iw=0; iw<c_phibins; iw++){
-    m_trthits.push_back(0.);
-    m_trththits.push_back(0.);
-  }
+
+  m_trththits.assign(2,0.);
+
 
 
   return HLT::OK;  
@@ -128,15 +147,14 @@ HLT::ErrorCode TrigTRTHTHCounter::hltInitialize() {
 
 //---------------------------------------------------------------------------------------------------------------------------------------------
 HLT::ErrorCode TrigTRTHTHCounter::hltBeginRun() {
-  msg() << MSG::DEBUG << "beginning run in this " << name() << endreq;
+  ATH_MSG_DEBUG ( "beginning run in this " << name());
 
-  msg() << MSG::INFO << "Pixel_TrgClusterization::hltBeginRun() ";
+  ATH_MSG_INFO ( "Pixel_TrgClusterization::hltBeginRun() ");
   if (!m_doFullScan){
-    msg() << MSG::INFO << "PhiHalfWidth: " << m_phiHalfWidth << " EtaHalfWidth: "<< m_etaHalfWidth;
+    ATH_MSG_INFO ( "PhiHalfWidth: " << m_phiHalfWidth << " EtaHalfWidth: "<< m_etaHalfWidth);
   } else {
-    msg() << MSG::INFO << "FullScan mode";
+    ATH_MSG_INFO ( "FullScan mode");
   }
-  msg() << MSG::INFO << endreq;
 
   return HLT::OK;
 }
@@ -145,25 +163,28 @@ HLT::ErrorCode TrigTRTHTHCounter::hltBeginRun() {
 HLT::ErrorCode TrigTRTHTHCounter::hltExecute(const HLT::TriggerElement* inputTE,
 					     HLT::TriggerElement* outputTE) {
 
-  if (msgLvl() <= MSG::DEBUG)
-    msg() << MSG::DEBUG << "Executing TrigTRTHTHCounter " << name() << endreq;
+
+  ATH_MSG_DEBUG ( "Executing TrigTRTHTHCounter " << name());
 
   //
   m_listOfTrtIds.clear();
 
-  for (size_t iw=0; iw<c_phibins; iw++){
-    m_trthits[iw] = 0.;
+  for (size_t iw=0; iw<2; iw++){
     m_trththits[iw] = 0.;
   }
+
 //count_httrt and count_tottrt are vectors of size 20, since we have 20 bins of 0.01 around the roi phi. At each bin (vector position) we look at the number of high threshold as well as the total number of TRT hits, which get stored in count_httrt and count_tottrt respectively. These values will be eventually transferred into the trththits arrays. 
-  std::vector<int> count_httrt(20);
-  std::vector<int> count_tottrt(20);
-  count_httrt.assign(20, 0.);
-  count_tottrt.assign(20, 0.);
-  int pos;
-  int result;
-  int dist;
-  pos = result = dist = 0;
+  std::vector<int> count_httrt_c(m_nBinCoarse);
+  std::vector<int> count_tottrt_c(m_nBinCoarse);
+  
+ 
+  std::vector<int> count_httrt(m_nBinFine);
+  std::vector<int> count_tottrt(m_nBinFine);
+
+
+  std::vector<TRT_hit> hit;
+  int pos=0, result=0;
+  unsigned int dist=0;
 
   const TrigRoiDescriptor* roi = 0;
   HLT::ErrorCode stat = getFeature( inputTE, roi, "initialRoI");
@@ -171,39 +192,19 @@ HLT::ErrorCode TrigTRTHTHCounter::hltExecute(const HLT::TriggerElement* inputTE,
     return HLT::NAV_ERROR;
   }
 
-//   ElementLink<TrigEMClusterContainer> el_cluster;
-//   if ( (getFeatureLink<TrigEMClusterContainer, TrigEMCluster>(outputTE, el_cluster) != HLT::OK) || (!el_cluster.isValid()) ) {
-//     msg() << MSG::ERROR << "cannot get an EMCluster" << endreq; 
-//     return HLT::NAV_ERROR;
-//   }
-
-
-  //    
-  TrigRNNOutput *out = new TrigRNNOutput;
-
-  // Adding xAOD information 
-  msg() << MSG::VERBOSE << "Attempting to get xAOD::RNNOutput" << endreq;
+// Adding xAOD information 
+  ATH_MSG_VERBOSE ( "Attempting to get xAOD::RNNOutput");
 
   xAOD::TrigRNNOutput *rnnOutput = new xAOD::TrigRNNOutput();
-  //xAOD::TrigRingerRings *ringsOut = new xAOD::TrigRingerRings();
-  msg() << MSG::VERBOSE << "Successfully got xAOD::RNNOutput " << endreq;
-
+  ATH_MSG_VERBOSE ( "Successfully got xAOD::RNNOutput ");
   rnnOutput->makePrivateStore();
-  rnnOutput->setDecision(m_trththits);
 
-  //  ringsOut->makePrivateStore();
-  msg() << MSG::VERBOSE << "Got makePrivateStore " << name() << endreq;
+  ATH_MSG_VERBOSE ( "Got makePrivateStore " << name());
 
-
-//   msg() << MSG::INFO << "ROI Eta: " << roi->eta0() << endreq;
-//   msg() << MSG::INFO << "ROI Phi: " << roi->phi0() << endreq;
- 
-//   float caleta = (*el_cluster)->eta();
-//   float calphi = (*el_cluster)->phi();
-  //  float calet  = (*el_cluster)->et();
-//   if ( msgLvl() <= MSG::DEBUG ) (*el_cluster)->print(msg());
 
   if ( fabs(roi->eta())<=m_maxCaloEta ){
+
+
 
 //     out->setCluster(*(el_cluster.getStorableObjectPointer()), (unsigned int) el_cluster.index());
 
@@ -233,34 +234,31 @@ HLT::ErrorCode TrigTRTHTHCounter::hltExecute(const HLT::TriggerElement* inputTE,
     if (sc_fc.isRecoverable()){
     }
     else if (sc_fc.isFailure()){
-      msg() << MSG::WARNING << "Failed to prepare TRTDriftCircle collection" << endreq;
+      ATH_MSG_WARNING ( "Failed to prepare TRTDriftCircle collection");
       //return HLT::ErrorCode(HLT::Action::ABORT_CHAIN, HLT::Reason::CORRUPTED_ROD);
     }
   
-    std::vector<double> trtphi;
-    std::vector<double> httrtphi;
-    std::vector<std::pair<double, double> > trthtphieta;
-
-    for (size_t iw=0; iw<c_phibins; iw++){
-      m_trththits[iw] = m_trthits[iw] =0.; 
-    }
 
 
-    const InDet::TRT_DriftCircleContainer* driftCircleContainer;
-    StatusCode sc_sg = m_storeGate->retrieve( driftCircleContainer, m_trtDCContainerName);
 
+    const InDet::TRT_DriftCircleContainer* driftCircleContainer = nullptr;
+    StatusCode sc_sg = evtStore()->retrieve( driftCircleContainer, m_trtDCContainerName) ;
     if( sc_sg.isFailure() ){
-      msg() << MSG::ERROR << " Failed to retrieve trt data from SG. " << endreq; 
+      ATH_MSG_ERROR ( " Failed to retrieve trt data from SG. "); 
       return HLT::TOOL_FAILURE;
     }
+
     else {
-      if (msgLvl() <= MSG::VERBOSE)
-	msg() << MSG::VERBOSE << " Successfully retrieved trt data from SG. " << endreq; 
-    }
+      ATH_MSG_VERBOSE ( " Successfully retrieved trt data from SG. "); 
+    }    
+
+
   
     InDet::TRT_DriftCircleContainer::const_iterator trtdriftContainerItr  = driftCircleContainer->begin();
     InDet::TRT_DriftCircleContainer::const_iterator trtdriftContainerItrE = driftCircleContainer->end();
-  
+
+
+
     for (; trtdriftContainerItr != trtdriftContainerItrE; ++trtdriftContainerItr) {
     
       InDet::TRT_DriftCircleCollection::const_iterator trtItr = (*trtdriftContainerItr)->begin();
@@ -268,144 +266,182 @@ HLT::ErrorCode TrigTRTHTHCounter::hltExecute(const HLT::TriggerElement* inputTE,
     
       for(; trtItr!=trtEnd; trtItr++){
       
-	// find out which detector element the hit belongs to
-	const InDetDD::TRT_BaseElement *det = (*trtItr)->detectorElement();
-	//	  InDetDD::TRT_BaseElement::Type type = det->type();
+        // find out which detector element the hit belongs to
+        const InDetDD::TRT_BaseElement *det = (*trtItr)->detectorElement();
+        // InDetDD::TRT_BaseElement::Type type = det->type();
       
-	Identifier ID = (*trtItr)->identify();
-	// 	  IdentifierHash iH = m_trtHelper->straw_layer_hash(m_trtHelper->layer_id(ID));
+        Identifier ID = (*trtItr)->identify();
+        // IdentifierHash iH = m_trtHelper->straw_layer_hash(m_trtHelper->layer_id(ID));
 
-	const Amg::Vector3D& strawcenter = det->strawCenter(m_trtHelper->straw(ID));
-	trtphi.push_back(strawcenter.phi());
-      
-	bool hth = false;
+        const Amg::Vector3D& strawcenter = det->strawCenter(m_trtHelper->straw(ID));
+
+        bool hth = false;
 	float hphi = strawcenter.phi();
 	float heta = - TMath::Log(strawcenter.theta()/2.);
-	if ((*trtItr)->highLevel()){
-	  hth = true;
-	}
-	int countbin=0;	
-	if(hth_delta_phi(hphi, roi->phi()) < 0.1)
-	   {
-
-	for(float roibincenter=roi->phiMinus()+0.005; roibincenter < roi->phiPlus(); roibincenter+=0.01)
-		{	
-		if (hth_delta_phi(hphi,roibincenter)<=0.005 && hth_eta_match(roi->eta(), heta, m_etaHalfWidth))
+	float R = strawcenter.perp();
 	
-		{
-			if(hth){
-				count_httrt.at(countbin) = count_httrt.at(countbin)+1.;
-				} 
-			count_tottrt.at(countbin) = count_tottrt.at(countbin)+1.;
-			break;							
-			}
-		countbin++;
-		}
-	   }
-	if (msgLvl()<= MSG::VERBOSE) msg() <<  MSG::VERBOSE
-					 << "timeOverThreshold=" << (*trtItr)->timeOverThreshold()
-					 << "  highLevel=" << (*trtItr)->highLevel()
-					 << " rawDriftTime=" << (*trtItr)->rawDriftTime()
-					 << " barrel_ec=" << m_trtHelper->barrel_ec(ID)
-					 << " phi_module=" << m_trtHelper->phi_module(ID)
-					 << " layer_or_wheel=" << m_trtHelper->layer_or_wheel(ID)
-					 << " straw_layer=" << m_trtHelper->straw_layer(ID)
-					 << " straw=" << m_trtHelper->straw(ID)
-					 << " scR=" << det->strawCenter(m_trtHelper->straw(ID)).perp()
-					 << " scPhi=" << hphi
-					 << " scEta=" << heta
-					 <<endreq;		    
+
+        if ((*trtItr)->highLevel()){
+          hth = true;
+        }
+
+        if(hth_eta_match(roi->eta(), heta, m_etaHalfWidth))
+          hit.push_back(make_hit(hphi,R,hth));
+
+        int countbin=0;	
+        if(hth_delta_phi(hphi, roi->phi()) < 0.1)
+	  {
+          for(float roibincenter=roi->phi()-m_phiHalfWidth+m_phiHalfWidth/m_nBinCoarse; roibincenter < roi->phi()+m_phiHalfWidth; roibincenter+=2*m_phiHalfWidth/m_nBinCoarse)
+            {	
+            if (hth_delta_phi(hphi,roibincenter)<=m_phiHalfWidth/m_nBinCoarse && hth_eta_match(roi->eta(), heta, m_etaHalfWidth))
+	      {
+                if(hth){
+                  count_httrt_c.at(countbin) = count_httrt_c.at(countbin)+1.;				
+                } 
+                count_tottrt_c.at(countbin) = count_tottrt_c.at(countbin)+1.;
+                break;							
+              }
+              countbin++;
+            }
+          }
+        ATH_MSG_VERBOSE ( "timeOverThreshold=" << (*trtItr)->timeOverThreshold()
+			<< "  highLevel=" << (*trtItr)->highLevel()
+			<< " rawDriftTime=" << (*trtItr)->rawDriftTime()
+			<< " barrel_ec=" << m_trtHelper->barrel_ec(ID)
+			<< " phi_module=" << m_trtHelper->phi_module(ID)
+			<< " layer_or_wheel=" << m_trtHelper->layer_or_wheel(ID)
+			<< " straw_layer=" << m_trtHelper->straw_layer(ID)
+			<< " straw=" << m_trtHelper->straw(ID)
+			<< " scR=" << det->strawCenter(m_trtHelper->straw(ID)).perp()
+			<< " scPhi=" << hphi
+			<< " scEta=" << heta);		    
       }
-     }
-}
-      for (size_t iw=0; iw< count_httrt.size(); iw++)
-	{
-		if (iw == 0) 
-		{	result = count_httrt[iw];
-			dist = pos;
-		} 
-		if(iw != 0 and result <= count_httrt[iw]) { result = count_httrt[iw]; dist = pos; }
-		pos = pos + 1; 
-	}  
-	for(size_t pbins = 0; pbins<c_phibins; pbins++){
-			if(pbins==0) 
-			{
-				m_trththits[pbins] = count_httrt[dist];
-				m_trthits[pbins] = count_tottrt[dist];
-				if(dist+1<20)
-				{
-					m_trththits[pbins] += count_httrt[dist+1];
-					m_trthits[pbins] += count_tottrt[dist+1];
-				}
-				if(dist-1>-1)
-				{
-					m_trththits[pbins] += count_httrt[dist-1];
-					m_trthits[pbins] += count_tottrt[dist-1];
-				}
-			}
-			else 
-			{
-				int int_pbins = (int) pbins;
-				m_trththits[pbins] += m_trththits[pbins-1];
-				m_trthits[pbins] += m_trthits[pbins-1];
-				if(dist+(pbins+1)<20)
-				{
-					m_trththits[pbins] += count_httrt[dist+(pbins+1)];
-					m_trthits[pbins] += count_tottrt[dist+(pbins+1)];
-				}
-				if(dist-(int_pbins+1)>-1)
-				{
-					m_trththits[pbins] += count_httrt[dist-(pbins+1)];
-					m_trthits[pbins] += count_tottrt[dist-(pbins+1)];
-				}
-			}
-		}
-  
-  
-  for (size_t iw=0; iw<c_phibins; iw++){
-    if (m_trthits[iw])
-      m_trththits[iw] = m_trththits[iw] + (m_trththits[iw]/m_trthits[iw]);
-   
-    if (msgLvl()<= MSG::VERBOSE) msg() <<  MSG::VERBOSE << "trththits at "<< iw << ": " << m_trththits[iw] << endreq;
+    }
   }
-  out->output(m_trththits);
+  for (size_t iw=0; iw< count_httrt_c.size(); iw++)
+    {
+    if (iw == 0) 
+      {	
+      result = count_httrt_c[iw];
+      dist = pos;
+      } 
+    if(iw != 0 and result <= count_httrt_c[iw]) { result = count_httrt_c[iw]; dist = pos; }
+      pos = pos + 1; 
+    }  
+
+  float center_pos_phi=roi->phi()+(2*(int)dist+1-m_nBinCoarse)*m_phiHalfWidth/m_nBinCoarse;
+
+
+  for(size_t v=0;v<hit.size();v++){
+      
+    int countbin=0;	
+    if(hth_delta_phi(hit[v].phi, center_pos_phi) < 0.01)
+      {
+      for(float roibincenter=center_pos_phi-m_phiHalfWidth/m_nBinCoarse+((m_phiHalfWidth/m_nBinCoarse)/m_nBinFine); roibincenter < (center_pos_phi+m_phiHalfWidth/m_nBinCoarse); roibincenter+=2*(m_phiHalfWidth/m_nBinCoarse)/m_nBinFine)
+        {	
+        if (hth_delta_phi(hit[v].phi,roibincenter)<=(m_phiHalfWidth/m_nBinCoarse)/m_nBinFine)
+          {
+          if(hit[v].isHT){
+            count_httrt.at(countbin) = count_httrt.at(countbin)+1.;
+          } 
+          count_tottrt.at(countbin) = count_tottrt.at(countbin)+1.;
+          break;							
+          }
+          countbin++;
+        }
+      }    
+    }
+
+
+  pos=result=dist=0;
+
+  for (size_t iw=0; iw< count_httrt.size(); iw++){
+    if (iw == 0) {
+      result = count_httrt[iw];
+      dist = pos;
+    } 
+    if(iw != 0 and result <= count_httrt[iw]) { result = count_httrt[iw]; dist = pos; }
+    pos = pos + 1; 
+    }
+
+  center_pos_phi+=(2*(int)dist+1-m_nBinFine)*(m_phiHalfWidth/m_nBinCoarse)/m_nBinFine;
+
+
+  int trthit=0, trthit_ht=0;
+  for(size_t v=0;v<hit.size();v++){
+    if (dist2COR(hit[v].R,hit[v].phi,center_pos_phi)<=m_roadWidth){
+      if(hit[v].isHT){
+        trthit_ht+=1;
+      } 
+      trthit+=1;						
+    }
+  }
+
+  if (trthit!=0)
+  m_trththits[0] = trthit + (double)trthit_ht/trthit;
+
+  trthit=trthit_ht=0;
+
+  if (dist>0&&dist<count_httrt.size()-1){
+    for (int k=0;k<3;k++){
+      trthit+= count_tottrt[dist+k-1];
+      trthit_ht+=count_httrt[dist+k-1];
+    }
+  }
+
+
+  if (dist==0){
+    for (int k=1;k<3;k++){
+      trthit+= count_tottrt[dist+k-1];
+      trthit_ht+=count_httrt[dist+k-1];
+    }
+  }
+
+  if (dist==count_httrt.size()-1){
+    for (int k=0;k<2;k++){
+      trthit+= count_tottrt[dist+k-1];
+      trthit_ht+=count_httrt[dist+k-1];
+    }
+  }
+
+  if (trthit!=0&&(fabs(roi->eta())>=m_wedgeMinEta))
+    m_trththits[1] = trthit + (double)trthit_ht/trthit;
+
+
+
+  ATH_MSG_VERBOSE ( "trththits with road algorithm : " << m_trththits[0]);
+  ATH_MSG_VERBOSE ( "trththits with wedge algorithm : " << m_trththits[1]);
+  
   //Writing to xAOD
-  msg() << MSG::VERBOSE << "Before setDecision "<< endreq;
+  rnnOutput->auxdata< std::vector<float>  >("trththits") = m_trththits;// decoration for now.
+  if( msg().level() <= MSG::DEBUG){
+    static SG::AuxElement::Accessor< std::vector<float> >orig("trththits");
+    if( !orig.isAvailable(*rnnOutput)  ){
+      ATH_MSG_WARNING ( "Problem with decorator.");
+    }
+  }  
 
-  // std::vector<float> testVec; 
-  //  testVec.push_back(1.0);
-
-  rnnOutput->setDecision(m_trththits);
-  //rnnOutput->setDecision(testVec);
-  //ringsOut->setRings(m_trththits);
-  msg() << MSG::VERBOSE << " After setDecision"  << endreq;
 
   std::string key="";
   std::string label="TrigTRTHTCounts";
-  if (recordAndAttachFeature<TrigRNNOutput>(outputTE, out, key,label) !=HLT::OK){
-    return HLT::NAV_ERROR;
 
-  }
   //Write and attach for xAOD
   HLT::ErrorCode hitStatus = recordAndAttachFeature<xAOD::TrigRNNOutput>(outputTE, rnnOutput, key, label) ;
-  //HLT::ErrorCode hitStatus = recordAndAttachFeature<xAOD::TrigRingerRings>(outputTE, ringsOut, key, label) ;
+
 
    if (hitStatus != HLT::OK)
    {
-     msg() <<  MSG::ERROR << "Writing to xAODs failed" << endreq;
+    ATH_MSG_ERROR ( "Writing to xAODs failed");
     return HLT::NAV_ERROR;
   }
-  
   return HLT::OK;
-
-  
-
 }
 
 //---------------------------------------------------------------------------------
 
 HLT::ErrorCode TrigTRTHTHCounter::hltFinalize() {
-  msg() << MSG::DEBUG << " finalizing TrigTRTHTHCounter : "<< name() << endreq; 
+  ATH_MSG_DEBUG ( " finalizing TrigTRTHTHCounter : "<< name()); 
   return HLT::OK;  
 }
+
 

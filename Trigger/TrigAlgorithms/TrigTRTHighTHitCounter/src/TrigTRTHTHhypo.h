@@ -32,8 +32,11 @@ class TrigTRTHTHhypo: public HLT::HypoAlgo {
   bool m_acceptAll;
 
   /** actual cut values */
-  unsigned int m_minTRTHTHits;
+  unsigned int m_minTRTHTHitsRoad;
+  float        m_minHTratioRoad;
+  unsigned int m_minTRTHTHitsWedge;
+  float        m_minHTratioWedge;
+  unsigned int m_doWedge;
   float        m_minCaloE;
-  float        m_minHTratio;
 };
 #endif
