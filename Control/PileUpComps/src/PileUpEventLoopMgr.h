@@ -11,7 +11,7 @@
 */
 
 #ifndef _CPP_STRING
- #include <string>
+#include <string>
 #endif
 
 // Framework include files
@@ -39,7 +39,7 @@ class IBkgStreamsCache;
 */
 
 class PileUpEventLoopMgr : virtual public IEventSeek,
-  public MinimalEventLoopMgr   {
+                           public MinimalEventLoopMgr   {
 public:
   typedef IEvtSelector::Context EvtIterator;
 
@@ -65,8 +65,8 @@ public:
   /// Return the current event count
   virtual int curEvent() const;
 
-  virtual StatusCode queryInterface(const InterfaceID& riid, 
-				     void** ppvInterface);
+  virtual StatusCode queryInterface(const InterfaceID& riid,
+                                    void** ppvInterface);
 
   /// Log a message using the Athena controlled logging system
   MsgStream& msg( MSG::Level lvl ) const { return m_msg << lvl; }
@@ -87,7 +87,7 @@ private:
   StatusCode endRunAlgorithms();
 
   ///return the 'fake BCID' corresponding to bunchXing
-  inline unsigned int getBCID(int bunchXing, unsigned int centralBCID) const { 
+  inline unsigned int getBCID(int bunchXing, unsigned int centralBCID) const {
     //FIXME to be completely safe this should should probably depend on the bunch spacing too. Perhaps that concept should be deprecated though?
     return static_cast<unsigned int>((((bunchXing + static_cast<int>(centralBCID)) % static_cast<int>(m_maxBunchCrossingPerOrbit)) + static_cast<int>(m_maxBunchCrossingPerOrbit) )  % static_cast<int>(m_maxBunchCrossingPerOrbit));
   }
@@ -104,7 +104,7 @@ private:
 
 
   /// output store
-  StoreGateSvc* p_SGOver;              // overlaid (output) event store 
+  StoreGateSvc* p_SGOver;              // overlaid (output) event store
 
   //unsigned int m_nInputs;
   //unsigned int m_nStores;
@@ -115,8 +115,8 @@ private:
   ServiceHandle<IEvtSelector> m_origSel;
   /// BkgStreamsCaches managing background events
   ToolHandleArray<IBkgStreamsCache> m_caches;
-  /// (max) minBias interactions per Xing, for setting MC luminosity 
-  FloatProperty m_maxCollPerXing; 
+  /// (max) minBias interactions per Xing, for setting MC luminosity
+  FloatProperty m_maxCollPerXing;
 
   /// Xing frequency(ns);
   FloatProperty m_xingFreq;
@@ -167,12 +167,9 @@ private:
 
   /// property: flag to control extra checks for embedding jobs.
   BooleanProperty m_isEmbedding;
+  /// property: Default true. When set to false, this will allow the
+  /// code to reproduce serial output in an AthenaMP job, albeit with
+  /// a significant performance penalty.
+  BooleanProperty m_allowSerialAndMPToDiffer;
 };
 #endif // PILEUPTOOLS_PILEUPEVENTLOOPMGR_H
-
-
-
-
-
-
-
