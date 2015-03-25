@@ -60,11 +60,11 @@ class TrigTRTHTHCounter: public HLT::FexAlgo {
   bool  m_doFullScan;
 
   float m_maxCaloEta;
-  
-  std::vector<float> m_trthits;
+  float m_roadWidth;
+  int m_nBinCoarse;
+  int m_nBinFine;
+  float m_wedgeMinEta;
   std::vector<float> m_trththits;
-  std::vector<float> m_phiWindows;
-  static const unsigned int c_phibins;
 };
 
 #endif
