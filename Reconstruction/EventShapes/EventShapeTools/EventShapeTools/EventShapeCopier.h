@@ -50,8 +50,12 @@ public:
   StatusCode fillEventShape(xAOD::EventShape* es) const;
   StatusCode fillEventShape(xAOD::EventShape* es, const xAOD::IParticleContainer* input) const;
 
-
-  static void renameEventDensities();
+  /// This function is only a convenience function for use in Standalone Analysis
+  /// it avoids the need of configuring the tool by copying pre-determined EventShape
+  /// written with old convention in early D3PD
+  /// IMPORTANT : This function does nothing in Athena. Instead use the configEventShapeCopierAlg("LCTopo") function
+  /// to schedule an Athena algorithm (see python/EventDensityConfig).
+  void renameEventDensities();
 protected:
   
   std::string m_inputEventShape;
