@@ -124,6 +124,8 @@ if 'StreamNames' in dir():
 if 'TriggerType' in dir():
     ByteStreamEmonInputSvc.TriggerType = TriggerType
     ByteStreamEmonInputSvc.KeyCount = 1000
+else:
+    ByteStreamEmonInputSvc.KeyCount = 50
 
 # #################################################
 # Shall athena exit if the partition is shutdown ?

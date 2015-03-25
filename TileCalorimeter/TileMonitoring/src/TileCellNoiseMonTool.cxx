@@ -60,8 +60,8 @@ std::string to_string(T in){
 TileCellNoiseMonTool::TileCellNoiseMonTool(const std::string & type,  const std::string & name, const IInterface* parent)
   : TileFatherMonTool(type, name, parent)
   , m_tileBadChanTool("TileBadChanTool")
-  , m_TileCellTrig(0U)
-  , m_delta_lumiblock(0U)
+    //, m_TileCellTrig(0U)
+    //, m_delta_lumiblock(0U)
   , h_partition1(0)
   , h_partition2(0)
   , h2_partition0(0)
@@ -503,8 +503,8 @@ StatusCode TileCellNoiseMonTool::fillHistoPerCell() {
 
       short ch1 = -1;
       short ch2 = -1; // channel number, range 0-47 or -1 for unknown
-      int partition1 = -1.9;
-      int partition2 = -1.9;
+      int partition1 = -1;
+      int partition2 = -1;
 
       const CaloDetDescrElement * caloDDE = tile_cell->caloDDE();
 

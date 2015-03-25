@@ -62,14 +62,15 @@ TileCellMonTool::TileCellMonTool(const std::string & type, const std::string & n
 {
   declareInterface<IMonitorToolBase>(this);
 
-  declareProperty("energyThreshold"        , m_Threshold=300.); //Threshold in MeV
-  declareProperty("energyThresholdForTime" , m_ThresholdForTime=500.); //Threshold in MeV
-  declareProperty("negEnergyThreshold"     , m_NegThreshold=-2000.); //Threshold in MeV
-  declareProperty("cellsContainerName"     , m_cellsContName="AllCalo"); //SG Cell Container
-  declareProperty("energyBalanceThreshold" , m_EneBalThreshold=3.); //Threshold is in the energy ratio
-  declareProperty("TimeBalanceThreshold"   , m_TimBalThreshold=25.); //Threshold in ns
-  declareProperty("doOnline"               , m_doOnline=false); //online mode
+  declareProperty("energyThreshold"        , m_Threshold = 300.); //Threshold in MeV
+  declareProperty("energyThresholdForTime" , m_ThresholdForTime = 500.); //Threshold in MeV
+  declareProperty("negEnergyThreshold"     , m_NegThreshold = -2000.); //Threshold in MeV
+  declareProperty("cellsContainerName"     , m_cellsContName = "AllCalo"); //SG Cell Container
+  declareProperty("energyBalanceThreshold" , m_EneBalThreshold = 3.); //Threshold is in the energy ratio
+  declareProperty("TimeBalanceThreshold"   , m_TimBalThreshold = 25.); //Threshold in ns
+  declareProperty("doOnline"               , m_doOnline = false); //online mode
   declareProperty("TileBadChanTool"        , m_tileBadChanTool);
+  declareProperty("FillTimeHistograms"     , m_fillTimeHistograms = false);
   
   m_path = "/Tile/Cell";
 
@@ -84,12 +85,13 @@ TileCellMonTool::TileCellMonTool(const std::string & type, const std::string & n
                             "D2","D2","A6","B6","B6","A7","","","A7","B7","B7","A8",
                             "A9","A9","A8","B8","B8","D3","B9","","D3","A10","A10","B9"};
 
+
   m_PartNames[PartEBA] = "EBA";
   m_PartNames[PartLBA] = "LBA";
   m_PartNames[PartLBC] = "LBC";
   m_PartNames[PartEBC] = "EBC";
 
-  for (int p = 0; p < NumPart; p++) {
+  for (int p = 0; p < NPartHisto; p++) {
     for (int m = 1; m < 65; m++) {
       ss.str("");
       if (m % 2 == 1) {
@@ -98,6 +100,7 @@ TileCellMonTool::TileCellMonTool(const std::string & type, const std::string & n
         ss.str(" ");
       }
       m_moduleLabel[p].push_back(ss.str());
+
     }
 
     for (int ch = 0; ch < 48; ch++) {
@@ -110,6 +113,9 @@ TileCellMonTool::TileCellMonTool(const std::string & type, const std::string & n
       ss << "ch" << ch; //D0_ch1, A1_ch2, .., ch44, ...
       m_cellchLabel[p].push_back(ss.str());
     }
+    
+
+    
   }
   m_old_lumiblock= -1;
   m_isFirstEv = true;
@@ -233,9 +239,19 @@ StatusCode TileCellMonTool::bookHistTrigPart( int trig , int part ) {
 
 
   if (m_doOnline) {
+    
+
+
     m_TilenCellsLB[ part ].push_back( bookProfile(m_TrigNames[trig]+"/"+m_PartNames[part],"tilenCellsLB" + m_PartNames[part] + m_TrigNames[trig],
                                                   "Trigger "+m_TrigNames[trig]+": TileCal Cell number per LumiBlock",100, -99.5, 0.5) );
     m_TilenCellsLB[ part ][ element ]->GetXaxis()->SetTitle("Last LumiBlocks");
+
+    for (int bin = 1; bin < 100; ++bin) {
+      m_TilenCellsLB[ part ][ element ]->SetBinContent(bin, m_cellsInPartition[part]);
+      m_TilenCellsLB[ part ][ element ]->SetBinEntries(bin, 1);
+    }
+    m_TilenCellsLB[ part ][ element ]->SetEntries(0);
+
   } else {
     m_TilenCellsLB[ part ].push_back( bookProfile(m_TrigNames[trig]+"/"+m_PartNames[part],"tilenCellsLB" + m_PartNames[part] + m_TrigNames[trig],
                                                   "Trigger "+m_TrigNames[trig]+": TileCal Cell number per LumiBlock", 1500, -0.5, 1499.5) );
@@ -245,9 +261,15 @@ StatusCode TileCellMonTool::bookHistTrigPart( int trig , int part ) {
   m_TilenCellsLB[ part ][ element ]->GetYaxis()->SetTitle("Number of reconstructed cells");
 
   m_TileCellModuleCorr[ part ].push_back( book2F(m_TrigNames[trig]+"/"+m_PartNames[part],"tileCellModuleCorr" + m_PartNames[part] + m_TrigNames[trig],
-                                                 "Run "+runNumStr+" Trigger "+m_TrigNames[trig]+": TileCal Cell Module correlation",64,-0.5, 63.5,64,-0.5,63.5) );
+                                                 "Run "+runNumStr+" Trigger "+m_TrigNames[trig]+": TileCal Cell Module correlation", 64, 0.5, 64.5, 64, 0.5, 64.5) );
+
   m_TileCellModuleCorr[ part ][ element ]->GetXaxis()->SetTitle("cell Module");
   m_TileCellModuleCorr[ part ][ element ]->GetYaxis()->SetTitle("cell Module");
+
+  SetBinLabel(m_TileCellModuleCorr[ part ][ element ]->GetXaxis(), m_moduleLabel[part]);
+  m_TileCellModuleCorr[ part ][ element ]->GetXaxis()->SetTitleOffset(1.55);
+  SetBinLabel(m_TileCellModuleCorr[ part ][ element ]->GetYaxis(), m_moduleLabel[part]);
+
  
     
   if ( part != NumPart ){ //Don't make AllPart
@@ -928,7 +950,7 @@ StatusCode TileCellMonTool::fillHistograms() {
             //}
     
             // Fill channel timing histograms.
-            if ((m_iscoll || m_eventTrigs[i]==Trig_b7)) {
+            if (m_iscoll || m_eventTrigs[i]==Trig_b7 || m_fillTimeHistograms) {
     
               if (ch1Ok && ene1 > m_ThresholdForTime) {
                 //m_TileChanDetTime [ vecInd ]->Fill(t1,1.);
@@ -971,27 +993,27 @@ StatusCode TileCellMonTool::fillHistograms() {
                 //m_TileChanChTime  [ partition2 ][ drw ][ vecInd ]->Fill(ch2, t2, 1.);
 
                 if(m_doOnline) {
-                  m_delta_lumiblock = current_lumiblock - m_OldLumiArray2[partition][drw][vecInd];
+                  m_delta_lumiblock = current_lumiblock - m_OldLumiArray2[partition2][drw][vecInd];
 
                   if(m_delta_lumiblock != 0) {//move bins
-                    ShiftLumiHist(m_TileDigiEnergyLB[partition][drw][vecInd], m_delta_lumiblock);
-                    m_OldLumiArray2[partition][drw][vecInd] = current_lumiblock;
+                    ShiftLumiHist(m_TileDigiEnergyLB[partition2][drw][vecInd], m_delta_lumiblock);
+                    m_OldLumiArray2[partition2][drw][vecInd] = current_lumiblock;
                   }
 
-                  m_TileDigiEnergyLB[partition][drw][vecInd]->Fill(0,ch2digi[ch2],ene2,1.);
-                  m_delta_lumiblock = current_lumiblock - m_OldLumiArray1[partition][drw][vecInd];
+                  m_TileDigiEnergyLB[partition2][drw][vecInd]->Fill(0,ch2digi[ch2],ene2,1.);
+                  m_delta_lumiblock = current_lumiblock - m_OldLumiArray1[partition2][drw][vecInd];
 
                   if(m_delta_lumiblock != 0) {//move bins
-                    ShiftLumiHist(m_TileDigiTimeLB[partition][drw][vecInd], m_delta_lumiblock);
-                    m_OldLumiArray1[partition][drw][vecInd] = current_lumiblock;
+                    ShiftLumiHist(m_TileDigiTimeLB[partition2][drw][vecInd], m_delta_lumiblock);
+                    m_OldLumiArray1[partition2][drw][vecInd] = current_lumiblock;
                   }
 
-                  m_TileDigiTimeLB[partition][drw][vecInd]->Fill(0,ch2digi[ch2],t2,1.);
+                  m_TileDigiTimeLB[partition2][drw][vecInd]->Fill(0,ch2digi[ch2],t2,1.);
 
                 } else {// End of Online
 
-                  m_TileDigiEnergyLB[partition][drw][vecInd]->Fill(current_lumiblock,ch2digi[ch1],ene2,1.);
-                  m_TileDigiTimeLB[partition][drw][vecInd]->Fill(current_lumiblock,ch2digi[ch1],t2,1.);
+                  m_TileDigiEnergyLB[partition2][drw][vecInd]->Fill(current_lumiblock,ch2digi[ch1],ene2,1.);
+                  m_TileDigiTimeLB[partition2][drw][vecInd]->Fill(current_lumiblock,ch2digi[ch1],t2,1.);
                 }
 
               }
@@ -1014,8 +1036,8 @@ StatusCode TileCellMonTool::fillHistograms() {
               
               if (gn2 == 1) m_TileCellDetailOccMapOvThr[partition2][vecInd]->Fill(drawer, ch2, 1.0);
               else m_TileCellDetailOccMapLowGainOvThr[partition2][vecInd]->Fill(drawer, ch2, 1.0);
-              if (ene2 > 30000.) m_TileCellDetailOccMapOvThr30GeV[partition][vecInd]->Fill(drawer, ch2);
-              if (ene2 > 300000.) m_TileCellDetailOccMapOvThr300GeV[partition][vecInd]->Fill(drawer, ch2);
+              if (ene2 > 30000.) m_TileCellDetailOccMapOvThr30GeV[partition2][vecInd]->Fill(drawer, ch2);
+              if (ene2 > 300000.) m_TileCellDetailOccMapOvThr300GeV[partition2][vecInd]->Fill(drawer, ch2);
             }
             
           } // end loop over TriggerType
@@ -1043,7 +1065,7 @@ StatusCode TileCellMonTool::fillHistograms() {
                 
                 if ((ene1 > m_ThresholdForTime
                      || ene2 > m_ThresholdForTime)
-                    && (m_iscoll || m_eventTrigs[i]==Trig_b7)) {        
+                    && (m_iscoll || m_eventTrigs[i]==Trig_b7 || m_fillTimeHistograms)) {        
                   
                   m_TileCellTimeDiffSamp[ partition ][ samp ][ vecInd ]->Fill(tdiff, 1.);
                   m_TileCellTimeDiffSamp[ NumPart   ][ samp ][ vecInd ]->Fill(tdiff, 1.);
@@ -1057,7 +1079,7 @@ StatusCode TileCellMonTool::fillHistograms() {
               m_TileCellEneBal[ partition ]->Fill(module, eratio);
 
               if ((ene1 > m_ThresholdForTime || ene2 > m_ThresholdForTime)
-                  && m_iscoll ) {
+                  && (m_iscoll || m_fillTimeHistograms)) {
                 
                 m_TileCellTimBal[ partition ]->Fill(module, tdiff);
               }
@@ -1076,7 +1098,7 @@ StatusCode TileCellMonTool::fillHistograms() {
                   // also store the energy ratio diff/energy
                   //m_TileCellEneRatSamp [ NumPart ][ AllSamp ][ vecInd ]->Fill(eratio, 1.);
                   if ((ene1 > m_ThresholdForTime || ene2 > m_ThresholdForTime)
-                      && (m_iscoll || m_eventTrigs[i]==Trig_b7)) {        
+                      && (m_iscoll || m_eventTrigs[i]==Trig_b7 || m_fillTimeHistograms)) {        
                     
                     m_TileCellTimeDiffSamp[ NumPart  ][ AllSamp ][ vecInd ]->Fill(tdiff, 1.);
                     m_TileCellTimeDiffSamp[ partition][ AllSamp ][ vecInd ]->Fill(tdiff, 1.);
@@ -1086,9 +1108,10 @@ StatusCode TileCellMonTool::fillHistograms() {
                 // check if the energy or timing balance is out of range
                 if (TMath::Abs(eratio) > m_EneBalThreshold) 
                   m_TileCellEneBalModPart[ vecInd ]->Fill(module, fpartition, 1.0);
+
                 if (TMath::Abs(tdiff) > m_TimBalThreshold 
                     && (ene1 > m_ThresholdForTime || ene2 > m_ThresholdForTime)
-                    && (m_iscoll || m_eventTrigs[i]==Trig_b7)) {        
+                    && (m_iscoll || m_eventTrigs[i]==Trig_b7 || m_fillTimeHistograms)) {        
                   
                   m_TileCellTimBalModPart[ vecInd ]->Fill(module, fpartition, 1.0);
                 }
@@ -1098,8 +1121,8 @@ StatusCode TileCellMonTool::fillHistograms() {
                 
               }
               
-              modulecorr[partition].inputxy( m_tileID->module(id));
-              modulecorr[NumPart].inputxy( m_tileID->module(id));
+              modulecorr[partition].inputxy(module);
+              modulecorr[NumPart].inputxy(module);
 
             } // end if cell has two pmts and both pmts are good
     
@@ -1218,11 +1241,15 @@ StatusCode TileCellMonTool::fillHistograms() {
             m_TilenCellsLB[ partition ][ vecInd ]->SetBinError(bin, sqrt((error * error * entries + content * content) * entries));
           }
 
-          for (; bin <= 100; bin++) { // set rest to zero
-            m_TilenCellsLB[ partition ][ vecInd ]->SetBinEntries(bin, 0.);
-            m_TilenCellsLB[ partition ][ vecInd ]->SetBinContent(bin, 0.);
-            m_TilenCellsLB[ partition ][ vecInd ]->SetBinError(bin,   0.);
+          for (; bin < 100; ++bin) { // for online monitoring set rest (but not last) to true number of cells
+            m_TilenCellsLB[ partition ][ vecInd ]->SetBinEntries(bin, 1.);
+            m_TilenCellsLB[ partition ][ vecInd ]->SetBinContent(bin, m_cellsInPartition[partition]);
           }
+
+          // set last bin to zero
+          m_TilenCellsLB[ partition ][ vecInd ]->SetBinEntries(100, 0.);
+          m_TilenCellsLB[ partition ][ vecInd ]->SetBinContent(100, 0.);
+          m_TilenCellsLB[ partition ][ vecInd ]->SetBinError(100, 0.);
 
           m_TilenCellsLB[ partition ][ vecInd ]->SetEntries(total_entries);
         } // end of move bins
@@ -1307,6 +1334,7 @@ StatusCode TileCellMonTool::procHistograms() {
 /*---------------------------------------------------------*/
 StatusCode TileCellMonTool::checkHists(bool /* fromFinalize */) {
 /*---------------------------------------------------------*/
+  
 
   ATH_MSG_INFO( "in checkHists()" );
 

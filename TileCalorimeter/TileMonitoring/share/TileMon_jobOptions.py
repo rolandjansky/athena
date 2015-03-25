@@ -45,7 +45,10 @@ if tileESDMon:
                                   doOnline           = athenaCommonFlags.isOnline(),
                                   cellsContainerName = "AllCalo",
                                   histoPathBase      = "/Tile/Cell");
-
+    if (jobproperties.Beam.beamType() == 'cosmics' or jobproperties.Beam.beamType() == 'singlebeam'):
+        TileCellMon.FillTimeHistograms = True
+        TileCellMon.energyThresholdForTime = 150.0
+        
     ToolSvc += TileCellMon;    
     ManagedAthenaTileMon.AthenaMonTools += [ TileCellMon ];
 

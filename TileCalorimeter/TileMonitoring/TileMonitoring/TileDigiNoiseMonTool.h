@@ -59,7 +59,7 @@ class TileDigiNoiseMonTool : public TilePaterMonTool {
 
     bool m_bigain;
     int m_nEvents;
-    int m_nSamples;
+    //int m_nSamples;
     double SumPed1[5][64][48][2];
     double SumPed2[5][64][48][2];
     double SumRms1[5][64][48][2];

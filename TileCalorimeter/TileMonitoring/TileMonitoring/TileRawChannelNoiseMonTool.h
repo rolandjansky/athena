@@ -55,14 +55,15 @@ class TileRawChannelNoiseMonTool: public TileFatherMonTool {
     StatusCode fillHistoPerRawChannel();  // work on the raw channels
 
     // perform the 2G fit at the channel level, optional only if m_do2gfit=true
-    void do2GFit();                         // perform double gaussian fit
-    void do2GFit(TH1F* h, double *, TF1 *); // perform double gaussian fit
+    void doFit();                         // perform  gaussian fit
 
     void cleanHistVec();
 
   private:
 
     void FirstEvInit();
+    void fitGauss(TH1F* h, double*, TF1*); // perform  gaussian fit
+    void fitDoubleGauss(TH1F* h, double*, TF1*); // perform  gaussian fit
 
     ToolHandle<TileBeamInfoProvider> m_beamInfo;
     ToolHandle<ITileBadChanTool> m_tileBadChanTool; //!< Tile Bad Channel tool
@@ -77,13 +78,14 @@ class TileRawChannelNoiseMonTool: public TileFatherMonTool {
     float m_xmin;
     float m_xmax;
 
-    Bool_t m_do2gfit;
+    Bool_t m_do2GFit;
+    Bool_t m_doFit;
     std::string m_RawChannelContainer;
 
     // histograms
     std::vector<TH1F*> m_TileChannelEne[5][64]; // a 2D array of 5x64 partitions X modules, each containing a vector of channels
 
-    TH2F* m_map_sigma1[5];
+    TH2F* m_map_sigma[5];
     TH2F* m_map_sigma2[5];
     TH2F* m_map_R[5];
     TH2F* m_map_chi2[5];
@@ -97,7 +99,7 @@ class TileRawChannelNoiseMonTool: public TileFatherMonTool {
 
     int m_nEventsProcessed;
     std::vector<uint32_t> m_triggerTypes;
-
+    int m_nbins;
 };
 
 #endif

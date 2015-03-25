@@ -71,8 +71,8 @@ class TileCellMonTool: public TileFatherMonTool {
 
     std::vector<const CaloCell*> m_muonCells;
 
-    std::vector<std::string> m_cellchLabel[NumPart]; // array of cell-channels names
-    std::vector<std::string> m_moduleLabel[NumPart]; // array of modules names
+    std::vector<std::string> m_cellchLabel[NPartHisto]; // array of cell-channels names
+    std::vector<std::string> m_moduleLabel[NPartHisto]; // array of modules names
 
     bool m_isFirstEv;
 
@@ -151,6 +151,9 @@ class TileCellMonTool: public TileFatherMonTool {
     std::vector<TProfile2D*> m_TileDigiTimeLB[4][64];
 
     //  TH2D* m_test;
+
+    int m_cellsInPartition[5] = {1151, 1472, 1408, 1151, 5182}; // EBA, LBA, LBC, EBC, ALL
+    bool m_fillTimeHistograms;
 };
 
 #endif

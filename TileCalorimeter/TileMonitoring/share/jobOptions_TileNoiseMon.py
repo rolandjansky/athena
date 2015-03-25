@@ -10,7 +10,7 @@ if not 'doTileRawChannelNoiseMon' in dir():
 
 if not 'TileNoiseUpdateFrequency' in dir():
     if athenaCommonFlags.isOnline():
-        TileNoiseUpdateFrequency = 300
+        TileNoiseUpdateFrequency = 1000
     else:
         TileNoiseUpdateFrequency = 0
 
@@ -67,10 +67,12 @@ if doTileRawChannelNoiseMon:
     toolSvc += CfgMgr.TileRawChannelNoiseMonTool(name               = 'TileRawChannelNoiseMon'
                                                  , OutputLevel        = WARNING
                                                  , TileRawChannelContainer = jobproperties.TileRecFlags.TileRawChannelContainer()
-                                                 , do2GFit = True
+                                                 , doFit = True
+                                                 , do2GFit = False
                                                  , Gain = "HG"
-                                                 , Xmin = -50
-                                                 , Xmax = 50
+                                                 , Xmin = -20.25
+                                                 , Xmax = 20.25
+                                                 , NBins = 81
                                                  , histoPathBase = "/Tile/RawChannelNoise"
                                                  , SummaryUpdateFrequency = TileNoiseUpdateFrequency );
 

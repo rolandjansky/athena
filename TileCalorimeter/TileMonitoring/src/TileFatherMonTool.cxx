@@ -460,7 +460,7 @@ void TileFatherMonTool::collcand() {
 }
 
 //Generic Method to set the bin labels of an axis
-void TileFatherMonTool::SetBinLabel(TAxis* ax, std::vector<std::string>& labelVec) {
+void TileFatherMonTool::SetBinLabel(TAxis* ax, const std::vector<std::string>& labelVec) {
   unsigned int nb = labelVec.size();
   for (unsigned int b = 0; b < nb; b++) {
     ax->SetBinLabel(b + 1, (labelVec.at(b)).c_str());

@@ -40,7 +40,7 @@ TileDigiNoiseMonTool::TileDigiNoiseMonTool(const std::string & type, const std::
   , m_tileBadChanTool("TileBadChanTool")
   , m_DQstatus(0)
   , m_nEvents(0)
-  , m_nSamples(0)
+  //, m_nSamples(0)
   , m_nEventsProcessed(0)
 
 /*---------------------------------------------------------*/
@@ -191,6 +191,7 @@ StatusCode TileDigiNoiseMonTool::fillHists() {
         int chan = m_tileHWID->channel(adc_id);
         int gain = (m_bigain) ? m_tileHWID->adc(adc_id) : 0; // ignore gain in monogain run
 
+        if (isDisconnected(ros, drawer, chan)) continue;
         bool good  = m_DQstatus->isAdcDQgood(ros, drawer, chan, gain) && m_beamInfo->isChanDCSgood(ros, drawer, chan);
 
         if (good) {
