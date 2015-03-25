@@ -624,8 +624,12 @@ HLT::ErrorCode TrigL2BMuMuFex::acceptInputs(HLT::TEConstVec& inputTE, bool& pass
             if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "Missing track(s) from ID or they are the same" << endreq;
             vtxpass    = false;
             mumuIDpass = false;
-            // if ( timerSvc() ) m_BmmHypTot->stop();
-            // return HLT::OK;
+            pass = true; // ST: to actually pass the empty collection to L2BMuMuHypo
+            if ( timerSvc() ) {
+              m_BmmHypTot->stop();
+              mon_TotalRunTime = m_BmmHypTot->elapsed();
+            }
+            return HLT::OK;
         } else {
             mon_Acceptance.push_back( ACCEPT_MuMu_Both_IDTracks );
             // Monitoring of the combined muons w.r.t. ID tracks
@@ -1195,14 +1199,14 @@ HLT::ErrorCode TrigL2BMuMuFex::hltExecute(HLT::TEConstVec& , HLT::TriggerElement
 //  return mass;
 //}
 //
-bool TrigL2BMuMuFex::isUnique(const  xAOD::IParticle* id1, const  xAOD::IParticle* id2) const {
+bool TrigL2BMuMuFex::isUnique(const  xAOD::TrackParticle* id1, const  xAOD::TrackParticle* id2) const {
     if (!id1 || !id2) return false;
     float dEta = fabs( id1->eta() - id2->eta() );
     float dPhi = id1->phi() - id2->phi();
     while  (dPhi >  M_PI) dPhi -= 2*M_PI;
     while  (dPhi < -M_PI) dPhi += 2*M_PI;
     
-    if(dEta < 0.02 && fabs(dPhi) < 0.02 ) return false;
+    if( dEta < 0.02 && fabs(dPhi) < 0.02 && id1->charge() * id2->charge() > 0 ) return false;
     else return true;
     
 }

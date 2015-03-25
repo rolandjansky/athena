@@ -1319,12 +1319,8 @@ HLT::ErrorCode TrigL2BMuMuXFex::hltExecute(HLT::TEConstVec& inputTEs, HLT::Trigg
   if ((m_trigBphysColl_bxAOD!=NULL) && (m_trigBphysColl_bxAOD->size() > 0)) {
     if(msgLvl() <= MSG::DEBUG) msg()  << MSG::DEBUG << "REGTEST: Store Bphys Collection size: " << m_trigBphysColl_bxAOD->size() << endreq;
     mon_nBphys = m_trigBphysColl_bxAOD->size();
-    HLT::ErrorCode sc = attachFeature(outputTE, m_trigBphysColl_bxAOD, "L2BMuMuXFex" );
-    if(sc != HLT::OK) {
-      if(msgLvl() <= MSG::WARNING) msg()  << MSG::WARNING << "Failed to store B+/-, Bd, Bs or Lb (Bar) trigBphys Collection" << endreq;
-      return sc;
-    }
-    sc = attachFeature(outputTE, m_trigBphysColl_lambdaxAOD, "L2BMuMuXFex_Lambda" );
+    
+    HLT::ErrorCode sc = attachFeature(outputTE, m_trigBphysColl_lambdaxAOD, "L2BMuMuXFex_Lambda" );
     if(sc != HLT::OK) {
       if(msgLvl() <= MSG::WARNING) msg()  << MSG::WARNING << "Failed to store Lambda trigBphys Collection" << endreq;
       return sc;
@@ -1342,6 +1338,11 @@ HLT::ErrorCode TrigL2BMuMuXFex::hltExecute(HLT::TEConstVec& inputTEs, HLT::Trigg
     sc = attachFeature(outputTE, m_trigBphysColl_dsxAOD, "L2BMuMuXFex_Ds" );
     if(sc != HLT::OK) {
       if(msgLvl() <= MSG::WARNING) msg()  << MSG::WARNING << "Failed to store Ds trigBphys Collection" << endreq;
+      return sc;
+    }
+    sc = attachFeature(outputTE, m_trigBphysColl_bxAOD, "L2BMuMuXFex" );
+    if(sc != HLT::OK) {
+      if(msgLvl() <= MSG::WARNING) msg()  << MSG::WARNING << "Failed to store B+/-, Bd, Bs or Lb (Bar) trigBphys Collection" << endreq;
       return sc;
     }
   }else{

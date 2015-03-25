@@ -1627,18 +1627,18 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
     
     if(mTrigBphysColl_b!=0 && mTrigBphysColl_b->size()>0) {
         if ( msgLvl() <= MSG::DEBUG ) msg()  << MSG::DEBUG << "REGTEST: Store Bphys Collection " << mTrigBphysColl_b << " size: " << mTrigBphysColl_b->size() << endreq;
-        HLT::ErrorCode sc = attachFeature(outputTE, mTrigBphysColl_b, "EFBMuMuXFex" );
+        HLT::ErrorCode sc = attachFeature(outputTE, mTrigBphysColl_X, "EFBMuMuXFex_X" );
         if(sc != HLT::OK) {
-            msg() << MSG::WARNING << "Failed to store trigBphys Collection in outputTE" << endreq;
+            msg() << MSG::WARNING << "Failed to store trigBphys_X Collection in outputTE" << endreq;
             mon_Errors.push_back(ERROR_BphysCollStore_Fails);
             delete mTrigBphysColl_b;
             delete mTrigBphysColl_X;
             if ( timerSvc() ) m_TotTimer->stop();
             return HLT::ERROR;
         }
-        sc = attachFeature(outputTE, mTrigBphysColl_X, "EFBMuMuXFex_X" );
+        sc = attachFeature(outputTE, mTrigBphysColl_b, "EFBMuMuXFex" );
         if(sc != HLT::OK) {
-            msg() << MSG::WARNING << "Failed to store trigBphys_X Collection in outputTE" << endreq;
+            msg() << MSG::WARNING << "Failed to store trigBphys Collection in outputTE" << endreq;
             mon_Errors.push_back(ERROR_BphysCollStore_Fails);
             delete mTrigBphysColl_b;
             delete mTrigBphysColl_X;

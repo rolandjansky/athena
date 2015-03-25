@@ -363,6 +363,26 @@ class EFBMuMuHypo_DiMu_11invm60_noVtx (TrigEFBMuMuHypo):
         validation = TrigEFBMuMuHypoValidationMonitoring()
         online = TrigEFBMuMuHypoOnlineMonitoring()
         self.AthenaMonTools = [ validation, online, time ]
+        
+class EFBMuMuHypo_DiMu_11invm24_noVtx (EFBMuMuHypo_DiMu_11invm60_noVtx):
+    __slots__ = []
+    def __init__(self, name = "EFBMuMuHypo_DiMu_11invm24_noVtx"):
+        super( EFBMuMuHypo_DiMu_11invm24_noVtx, self ).__init__( name )
+        
+        # EF Bmumu cuts
+        self.LowerMassCut      = 11000.
+        self.UpperMassCut      = 24000.
+        
+
+class EFBMuMuHypo_DiMu_24invm60_noVtx (EFBMuMuHypo_DiMu_11invm60_noVtx):
+    __slots__ = []
+    def __init__(self, name = "EFBMuMuHypo_DiMu_24invm60_noVtx"):
+        super( EFBMuMuHypo_DiMu_24invm60_noVtx, self ).__init__( name )
+        
+        # EF Bmumu cuts
+        self.LowerMassCut      = 24000.
+        self.UpperMassCut      = 60000.
+        
 
 class EFBMuMuHypo_DiMu_18invm60_noVtx (TrigEFBMuMuHypo):
     __slots__ = []

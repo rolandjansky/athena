@@ -11,7 +11,7 @@ class L2BMuMuHypo_1 (TrigL2BMuMuHypo):
         self.AcceptAll = False
 
         # L2 Bmumu cuts
-        self.LowerMassCut      = 500.
+        self.LowerMassCut      = 100.
         self.UpperMassCut      = 13000.
         self.ApplyUpperMassCut = True
         self.Chi2VtxCut        = 20.
@@ -376,7 +376,27 @@ class L2BMuMuHypo_DiMu_11invm60_noVtx (TrigL2BMuMuHypo):
         online = TrigL2BMuMuHypoOnlineMonitoring()
 
         self.AthenaMonTools = [ validation, online, time ]
-
+        
+class L2BMuMuHypo_DiMu_11invm24_noVtx (L2BMuMuHypo_DiMu_11invm60_noVtx):
+    __slots__ = []
+    def __init__(self, name = "L2BMuMuHypo_DiMu_11invm24_noVtx"):
+        super( L2BMuMuHypo_DiMu_11invm24_noVtx, self ).__init__( name )
+        
+        # L2 Bmumu cuts
+        self.LowerMassCut      = 11000.
+        self.UpperMassCut      = 24000.
+        
+        
+class L2BMuMuHypo_DiMu_24invm60_noVtx (L2BMuMuHypo_DiMu_11invm60_noVtx):
+    __slots__ = []
+    def __init__(self, name = "L2BMuMuHypo_DiMu_24invm60_noVtx"):
+        super( L2BMuMuHypo_DiMu_24invm60_noVtx, self ).__init__( name )
+        
+        # L2 Bmumu cuts
+        self.LowerMassCut      = 24000.
+        self.UpperMassCut      = 60000.
+        
+        
 class L2BMuMuHypo_DiMu_18invm60_noVtx (TrigL2BMuMuHypo):
     __slots__ = []
     def __init__(self, name = "L2BMuMuHypo_DiMu_18invm60_noVtx"):
