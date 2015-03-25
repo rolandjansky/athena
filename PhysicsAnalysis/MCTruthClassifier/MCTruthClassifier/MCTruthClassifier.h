@@ -164,8 +164,8 @@ class MCTruthClassifier : public AthAlgTool, virtual public IMCTruthClassifier {
    bool compareTruthParticles(const HepMC::GenParticle *genPart, const xAOD::TruthParticle *truthPart);
 
 
-   const xAOD::TrackParticleContainer  * m_trackTES;
-   const xAOD::TruthParticleContainer  * m_xTruthParticleContainer;
+   //const xAOD::TrackParticleContainer  * m_trackTES;
+   //const xAOD::TruthParticleContainer  * m_xTruthParticleContainer;
  
    const xAOD::TruthParticle* m_thePart;
    const xAOD::TruthParticle* m_Mother;
@@ -198,9 +198,9 @@ class MCTruthClassifier : public AthAlgTool, virtual public IMCTruthClassifier {
    float  m_NumOfSiHits;
    float m_probability;
 
-   float m_phtdRtoTr;
-   bool  m_first;
-   bool  m_useBremRefitTrk;
+   //float m_phtdRtoTr;
+   //bool  m_first;
+   //bool  m_useBremRefitTrk;
 
    
    std::vector<const xAOD::TruthParticle*> m_egPartPtr;
@@ -243,6 +243,7 @@ class MCTruthClassifier : public AthAlgTool, virtual public IMCTruthClassifier {
    float m_phtClasConePhi;
    float m_phtClasConeEta;
    long  m_barcodeShift;
+   long  m_barcodeG4Shift;
 
    float m_FwdElectronTruthExtrEtaCut;
    float m_FwdElectronTruthExtrEtaWindowCut;
@@ -252,7 +253,6 @@ class MCTruthClassifier : public AthAlgTool, virtual public IMCTruthClassifier {
    bool  m_inclEgammaPhoton;
    bool  m_inclEgammaFwrdEle;
    bool  m_LQpatch;
-   bool  m_forceNotUseBremRefitTrk;
    bool  m_useCaching;
 
 };
