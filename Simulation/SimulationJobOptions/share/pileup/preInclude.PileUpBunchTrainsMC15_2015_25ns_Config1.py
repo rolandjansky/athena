@@ -1,6 +1,4 @@
 ####################################################################################
-## Copy of
-## preInclude.PileUpBunchTrains2012ConfigRun208982_DigitConfig.py.
 ## This configuration replicates the beam configuration in the
 ## following file: 25ns_2748b_2736_2452_2524_288bpi12inj.sch. See the
 ## following ticket for more details:
@@ -8,7 +6,7 @@
 ## Any of the filled bunch crossings can be chosen as the central
 ## bunch crossing, so the timing of the out-of-time pile-up will vary
 ## significantly from event to event.  Cavern Background is
-## independent of the bunch pattern. (Compatible with 50ns cavern
+## independent of the bunch pattern. (Compatible with 25ns cavern
 ## background.)
 ####################################################################################
 
@@ -287,7 +285,7 @@ digitizationFlags.BeamIntensityPattern = [0.0, # bunch crossing zero is always e
 0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,
 0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,
 0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,
-0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0] # Staring BCID: 3389 - Abort gap
+0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0] # Staring BCID: 3389 - Abort gap
 
 from AthenaCommon.BeamFlags import jobproperties
 jobproperties.Beam.bunchSpacing = 25 # Set this to the spacing between filled bunch-crossings within the train.
