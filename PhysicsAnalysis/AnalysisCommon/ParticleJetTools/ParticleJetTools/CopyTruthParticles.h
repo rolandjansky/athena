@@ -21,7 +21,7 @@ public:
 
   /// @name Event loop algorithm methods
   //@{
-  int execute() const;
+  virtual int execute() const;
   //@}
 
   /// Classifier function(s)

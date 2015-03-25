@@ -15,8 +15,13 @@ public:
   /// Constructor
   CopyTruthJetParticles(const std::string& name);
 
-  /// Classifier function(s)
-  bool classify(const xAOD::TruthParticle* tp) const;
+  /// redefine execute so we can call our own classify() with the barcode offset for the current event.
+  virtual int execute() const;
+
+  /// Redefine our own Classifier function(s)
+  bool classifyJetInput(const xAOD::TruthParticle* tp, int barcodeOffset) const;
+  /// The base classify() is not used 
+  bool classify(const xAOD::TruthParticle* ) const {return false;}
 
 private:
   // Options for storate
@@ -29,6 +34,14 @@ private:
   bool fromTau( const xAOD::TruthParticle* tp ) const;
 
   float m_maxAbsEta;
+
+  int m_barcodeOffset;
+  
+  /// Determine how the barcode offset is set from metadata
+  ///  0 -> no metdata access, use BarCodeOffset property
+  ///  1 -> from metadata. Fails if not found
+  ///  2 -> from metadata, use BarCodeOffset property if not found (default)
+  int m_barcodeFromMetadata;
 };
 
 
