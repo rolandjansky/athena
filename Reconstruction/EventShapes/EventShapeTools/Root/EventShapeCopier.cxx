@@ -75,21 +75,17 @@ StatusCode EventShapeCopier::fillEventShape(xAOD::EventShape *evs, const xAOD::I
 
 #ifdef XAOD_ANALYSIS
 void EventShapeCopier::renameEventDensities(){
-  static EventShapeCopier kt4copier("Kt4LCTopoEDCopier");
-  static EventShapeCopier kt6copier("Kt6LCTopoEDCopier");
-  static bool needinit = true;
-  if(needinit){
-    kt4copier.setProperty("InputEventShape", "LCTopoEventShape");
-    kt4copier.setProperty("OutputEventShape", "Kt4LCTopoEventShape");
-    kt4copier.setProperty("EventDensityName", "DensityForJetsR4");
+  setProperty("InputEventShape", "LCTopoEventShape").ignore();
+  setProperty("OutputEventShape", "Kt4LCTopoEventShape").ignore();
+  setProperty("EventDensityName", "DensityForJetsR4").ignore();
+  
+  fillEventShape().ignore();
 
-    kt6copier.setProperty("InputEventShape", "LCTopoEventShape");
-    kt6copier.setProperty("OutputEventShape", "Kt6LCTopoEventShape");
-    kt6copier.setProperty("EventDensityName", "DensityForJetsR6");    
-    needinit = false;
-  }
-  kt4copier.fillEventShape();
-  kt6copier.fillEventShape();
+  setProperty("InputEventShape", "LCTopoEventShape").ignore();
+  setProperty("OutputEventShape", "Kt6LCTopoEventShape").ignore();
+  setProperty("EventDensityName", "DensityForJetsR6").ignore();    
+
+  fillEventShape().ignore();
 }
 #else
 // In Athena, do nothing. Use an Athena alg as defined in python/EventDensityConfig.py

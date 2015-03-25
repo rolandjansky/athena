@@ -15,6 +15,7 @@ def configEventDensityTool( name, pjGetter, radius, **options ):
         AreaDefinition      = "Voronoi",
         VoronoiRfact        = 0.9,
         OutputContainer     = "Kt"+str(int(10*radius))+pjGetter.Label + "EventShape",
+        UseFourMomArea      = True,
         )
     # Override properties with user-supplied options.
     toolProperties.update( options)
