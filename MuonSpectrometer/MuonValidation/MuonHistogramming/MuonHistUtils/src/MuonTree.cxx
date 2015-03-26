@@ -10,7 +10,23 @@ namespace Muon{
 
   MuonTree::MuonTree(PlotBase* pParent, std::string sDir):
     PlotBase(pParent, sDir),
-    tree(NULL)
+    tree(NULL),
+    pCB(-999.),
+    pMS(-999.),
+    pMExtrapol(-999.),
+    pTruth(-999.),
+    pTruthMS(-999.),
+    etaCB(-999.),
+    etaMS(-999.),
+    etaMExtrapol(-999.),
+    etaTruth(-999.),
+    etaTruthMS(-999.),
+    phiCB(-999.),
+    phiMS(-999.),
+    phiMExtrapol(-999.),
+    phiTruth(-999.),
+    phiTruthMS(-999.),
+    elossMeasured(-999.)
   {}
   
   void MuonTree::initializePlots()
@@ -37,12 +53,24 @@ namespace Muon{
     tree->Branch("elossMeasured", &elossMeasured, "elossMeasured/F");
   }
 
-  void MuonTree::fillTree(const xAOD::Muon& muon, const xAOD::TrackParticle* muonTrackIP, const xAOD::TruthParticle& truthMu)
+  void MuonTree::fillTree(const xAOD::Muon& muon, const xAOD::TrackParticle* msTrk, const xAOD::TruthParticle& truthMu)
   {
     const xAOD::TrackParticle* muPrimaryTrk = muon.trackParticle(xAOD::Muon::Primary);
     if (!muPrimaryTrk) return;
-    const xAOD::TrackParticle* msTrk = muon.trackParticle(xAOD::Muon::MuonSpectrometerTrackParticle);//muon extrapolated to IP
-    std::cout<<"Calling the fillTree of Mini Tree class"<<std::endl; 
+
+    //muon extrapolated to IP
+    ////////////////// @@@ sorting out the mess with the link to the extrapolated muon
+    //for 20.1.0...
+    /// const xAOD::TrackParticle* msExtrapTrk = mu.trackParticle(xAOD::Muon::MuonSpectrometerTrackParticle); // points to the ExtrapolatedMuonSpectrometerTrackParticle, the ExtrapolatedMuonSpectrometerTrackParticle link doesn't exist
+
+    //for 20.1.3...
+    //const xAOD::TrackParticle* msExtrapTrk = mu.trackParticle(xAOD::Muon::ExtrapolatedMuonSpectrometerTrackParticle);
+
+    //trying to accomodate both in a way that the code compiles in both releases
+    int correctEnum = (int) xAOD::Muon::MuonSpectrometerTrackParticle;
+    if (muon.isAvailable< ElementLink<xAOD::TrackParticleContainer> >("extrapolatedMuonSpectrometerTrackParticleLink") && (muon.auxdata<ElementLink<xAOD::TrackParticleContainer> >("extrapolatedMuonSpectrometerTrackParticleLink")).isValid()) correctEnum+=2; //check correct numbering in Muon.h
+    const xAOD::TrackParticle* msExtrapTrk = muon.trackParticle((xAOD::Muon::TrackParticleType) correctEnum);
+      
     pTruth = truthMu.p4().P();
     pCB = muPrimaryTrk->p4().P();
 
@@ -54,10 +82,10 @@ namespace Muon{
 
 
     pMExtrapol = 0;
-    if (msTrk) {
-      pMExtrapol = msTrk->p4().P();
-      etaMExtrapol = msTrk->p4().Eta();
-      phiMExtrapol = msTrk->p4().Phi();
+    if (msExtrapTrk) {
+      pMExtrapol = msExtrapTrk->p4().P();
+      etaMExtrapol = msExtrapTrk->p4().Eta();
+      phiMExtrapol = msExtrapTrk->p4().Phi();
     }
     else{
       pMExtrapol = -999;
@@ -66,18 +94,21 @@ namespace Muon{
     }
     //muon extrapolated
     pMS = 0;
-    if (muonTrackIP) {
-      pMS = muonTrackIP->p4().P(); //at muon spectrometer entry//@@@
-      etaMS = muonTrackIP->p4().Eta(); //at muon spectrometer entry//@@@
-      phiMS = muonTrackIP->p4().Phi(); //at muon spectrometer entry//@@@
+    if (msTrk) {
+      pMS = msTrk->p4().P(); //at muon spectrometer entry//@@@
+      etaMS = msTrk->p4().Eta(); //at muon spectrometer entry//@@@
+      phiMS = msTrk->p4().Phi(); //at muon spectrometer entry//@@@
     }
     else{
       pMS = -999; //at muon spectrometer entry//@@@
       etaMS = -999; //at muon spectrometer entry//@@@
       phiMS = -999; //at muon spectrometer entry//@@@
     }
-    elossMeasured = 0;
-    muon.parameter(elossMeasured,xAOD::Muon::MeasEnergyLoss);
+
+    // measured E-loss
+    if (!muon.parameter(elossMeasured,xAOD::Muon::MeasEnergyLoss)) {
+      elossMeasured = -999.;
+    }
     
     pTruthMS = 0; //p truth at MS entry
     if (truthMu.isAvailable<float>("MuonEntryLayer_px") &&

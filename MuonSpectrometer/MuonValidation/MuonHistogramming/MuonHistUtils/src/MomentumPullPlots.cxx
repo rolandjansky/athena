@@ -4,7 +4,7 @@
 
 #include "MuonHistUtils/MomentumPullPlots.h"
 #include "xAODTracking/TrackParticle.h"
-//#include "xAODTracking/TrackParticleContainer.h"
+#include "xAODTracking/TrackParticleContainer.h"
 
 namespace Muon{
 
@@ -25,8 +25,19 @@ void MomentumPullPlots::initializePlots(){
 void MomentumPullPlots::fill(const xAOD::Muon& mu) {
   const xAOD::TrackParticle* cb = mu.trackParticle(xAOD::Muon::CombinedTrackParticle);
   const xAOD::TrackParticle* id = mu.trackParticle(xAOD::Muon::InnerDetectorTrackParticle);
-  const xAOD::TrackParticle* me = mu.trackParticle(xAOD::Muon::MuonSpectrometerTrackParticle);
-  
+
+  ////////////////// @@@ sorting out the mess with the link to the extrapolated muon
+  //for 20.1.0...
+  /// const xAOD::TrackParticle* me = mu.trackParticle(xAOD::Muon::MuonSpectrometerTrackParticle); // points to the ExtrapolatedMuonSpectrometerTrackParticle, the ExtrapolatedMuonSpectrometerTrackParticle link doesn't exist
+
+  //for 20.1.3...
+  //const xAOD::TrackParticle* me = mu.trackParticle(xAOD::Muon::ExtrapolatedMuonSpectrometerTrackParticle);
+
+  //trying to accomodate both in a way that the code compiles in both releases
+  int correctEnum = (int) xAOD::Muon::MuonSpectrometerTrackParticle;
+  if (mu.isAvailable< ElementLink<xAOD::TrackParticleContainer> >("extrapolatedMuonSpectrometerTrackParticleLink") && (mu.auxdata<ElementLink<xAOD::TrackParticleContainer> >("extrapolatedMuonSpectrometerTrackParticleLink")).isValid()) correctEnum+=2; //check correct numbering in Muon.h
+  const xAOD::TrackParticle* me = mu.trackParticle( (xAOD::Muon::TrackParticleType) correctEnum );
+    
   if (cb && me){
     dpt_cbme->Fill( (cb->pt() - me->pt())*0.001);
     ddpt_cbme->Fill( (cb->pt() - me->pt())/cb->pt());
