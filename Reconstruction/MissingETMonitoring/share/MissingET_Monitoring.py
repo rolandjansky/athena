@@ -88,7 +88,7 @@ for trigger in triggerList:
     metMonTool.NameSuffix   = "Calo"
     if triggerName != "":
         metMonTool.NameSuffix += "_"+triggerName
-    metMonTool.metKeys      = ["MET_Base0","MET_Base","MET_Topo","MET_LocHadTopo"]
+    metMonTool.metKeys      = ["MET_Topo","MET_LocHadTopo"]
     metMonTool.metFinKey    = ""
     metMonTool.metCalKey    = ""
     metMonTool.jetColKey    = "AntiKt4LCTopoJets"
@@ -107,7 +107,26 @@ for trigger in triggerList:
     metMonTool.NameSuffix   = "Refined"
     if triggerName != "":
         metMonTool.NameSuffix += "_"+triggerName
-    metMonTool.metKeys      = ["MET_RefEle", "MET_RefGamma", "MET_RefTau", "MET_RefJet", "MET_Muon", "MET_RefFinal"]
+    metMonTool.metKeys      = ["MET_RefEle", "MET_RefGamma", "MET_RefTau", "MET_RefJet", "MET_Muon", "MET_PVSoftTrk", "MET_SoftClus", "MET_RefFinal"]
+    metMonTool.metFinKey    = ""
+    metMonTool.metCalKey    = ""
+    metMonTool.jetColKey    = "AntiKt4LCTopoJets"
+    metMonTool.eleColKey    = ""
+    metMonTool.muoColKey    = ""
+    metMonTool.TriggerChain = trigger
+    metMonTool.FilterTools.append(monFilledBunchFilterTool)
+    metMonTool.FilterTools.append(monbadlb)
+    if trigger != "":
+        metMonTool.TrigDecisionTool = monTrigDecTool
+    ToolSvc += metMonTool
+    monManETmiss.AthenaMonTools += [ metMonTool ]
+
+        # Tool for PFlow MET monitoring
+    metMonTool = METMonTool(name = "METMonTool_PFlow_"+triggerName)
+    metMonTool.NameSuffix   = "PFlow"
+    if triggerName != "":
+        metMonTool.NameSuffix += "_"+triggerName
+    metMonTool.metKeys      = ["MET_PFlow_RefEle", "MET_PFlow_RefGamma", "MET_PFlow_RefTau", "MET_PFlow_RefJet", "MET_PFlow_Muon", "MET_PFlow_PVSoftTrk", "MET_PFlow_SoftClus", "MET_PFlow_RefFinal"]
     metMonTool.metFinKey    = ""
     metMonTool.metCalKey    = ""
     metMonTool.jetColKey    = "AntiKt4LCTopoJets"
@@ -127,7 +146,7 @@ if DQMonFlags.useTrigger():
     trigger = "L1_RD0_EMPTY"
 else:
     trigger = ""
-
+#
 # Tool for calorimeter term monitoring (TopoClusters)
 metMonTool = METMonTool(name = "METMonTool_Topo")
 metMonTool.NameSuffix        = "Topo"
@@ -147,21 +166,21 @@ if trigger != "":
 ToolSvc += metMonTool
 monManETmiss.AthenaMonTools += [ metMonTool ]
 
-# Tool for calorimeter term monitoring (2 sigma noise suppression)
-metMonTool = METMonTool(name = "METMonTool_Base")
-metMonTool.NameSuffix        = "Base"
-metMonTool.metKeys           = []
-metMonTool.metFinKey         = "MET_Base"
-metMonTool.metCalKey         = "MET_Base"
-metMonTool.jetColKey         = "AntiKt4LCTopoJets"
-metMonTool.eleColKey         = ""
-metMonTool.muoColKey         = ""
-metMonTool.nEtBins           = 100
-metMonTool.EtRange           = 50.0
-metMonTool.SumEtRangeFactor  = 2.0
-metMonTool.FillNegativeSumEt = True
-metMonTool.TriggerChain      = trigger
-if trigger != "":
-    metMonTool.TrigDecisionTool = monTrigDecTool
-ToolSvc += metMonTool
-monManETmiss.AthenaMonTools += [ metMonTool ]
+## Tool for calorimeter term monitoring (2 sigma noise suppression)
+#metMonTool = METMonTool(name = "METMonTool_Base")
+#metMonTool.NameSuffix        = "Base"
+#metMonTool.metKeys           = []
+#metMonTool.metFinKey         = "MET_Base"
+#metMonTool.metCalKey         = "MET_Base"
+#metMonTool.jetColKey         = "AntiKt4LCTopoJets"
+#metMonTool.eleColKey         = ""
+#metMonTool.muoColKey         = ""
+#metMonTool.nEtBins           = 100
+#metMonTool.EtRange           = 50.0
+#metMonTool.SumEtRangeFactor  = 2.0
+#metMonTool.FillNegativeSumEt = True
+#metMonTool.TriggerChain      = trigger
+#if trigger != "":
+#    metMonTool.TrigDecisionTool = monTrigDecTool
+#ToolSvc += metMonTool
+#monManETmiss.AthenaMonTools += [ metMonTool ]
