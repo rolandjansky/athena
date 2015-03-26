@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: LHCBunchCrossingTool.h 618331 2014-09-24 11:55:26Z krasznaa $
+// $Id: LHCBunchCrossingTool.h 656931 2015-03-26 10:35:21Z krasznaa $
 #ifndef TRIGBUNCHCROSSINGTOOL_LHCBUNCHCROSSINGTOOL_H
 #define TRIGBUNCHCROSSINGTOOL_LHCBUNCHCROSSINGTOOL_H
 
@@ -45,8 +45,8 @@ namespace Trig {
     *
     * @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
     *
-    * $Revision: 618331 $
-    * $Date: 2014-09-24 13:55:26 +0200 (Wed, 24 Sep 2014) $
+    * $Revision: 656931 $
+    * $Date: 2015-03-26 11:35:21 +0100 (Thu, 26 Mar 2015) $
     */
    class LHCBunchCrossingTool : public BunchCrossingToolBase,
                                 public BunchCrossingConfProviderBase {
@@ -107,10 +107,6 @@ namespace Trig {
       std::vector< double > decodeIntV2( const coral::Blob& ints,
                                          const std::vector< int >& bcids ) const;
 
-      /// The maximum bunch spacing that the tool should consider
-      int m_maxBunchSpacing;
-      int m_frontLength; ///< Length of the "front" of a bunch train
-      int m_tailLength; ///< Length of the "tail" of a bunch train
       int m_intChannel; ///< Bunch intensity channel
 
       configid_type m_id; ///< ID of the current configuration
