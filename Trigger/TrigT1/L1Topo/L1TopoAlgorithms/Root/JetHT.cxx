@@ -80,18 +80,19 @@ TCS::JetHT::process( const std::vector<TCS::TOBArray const *> & input,
 
    unsigned int sumET = 0;
 
-   // loop over all jets
-   unsigned int objC(0);
-   for( TCS::GenericTOB * tob : *input[0]) {
-      ++objC;
+   // loop over  jets
+   for( TOBArray::const_iterator tob = input[0]->begin(); 
+           tob != input[0]->end() && distance(input[0]->begin(), tob) < p_NumberLeading1;
+           ++tob)
+         {
 
-      if( parType_t(fabs(tob->eta())) > p_EtaMax ) continue; // Eta cut
-      if( parType_t(fabs(tob->eta())) < p_EtaMin ) continue; // Eta cut
-      if( tob->Et() <= p_MinET ) continue; // E_T cut
+      if( parType_t(fabs((*tob)->eta())) > p_EtaMax ) continue; // Eta cut
+      if( parType_t(fabs((*tob)->eta())) < p_EtaMin ) continue; // Eta cut
+      if( parType_t((*tob)->Et()) <= p_MinET ) continue; // E_T cut
 
-      TRG_MSG_DEBUG("Jet " << objC-1 << ": ET = " << tob->Et());
+      TRG_MSG_DEBUG("Jet : ET = " << (*tob)->Et());
 
-      sumET += tob->Et();
+      sumET += (*tob)->Et();
    }
 
    for(unsigned int i=0; i<numberOutputBits(); ++i) {
