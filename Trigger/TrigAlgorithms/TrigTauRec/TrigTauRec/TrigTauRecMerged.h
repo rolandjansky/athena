@@ -160,12 +160,25 @@ class TrigTauRecMerged: public HLT::FexAlgo {
   /** number of tau candidates */
   int m_Ncand;
 
+  /** Monitoring: average interaction per bunch crossing **/
+  double m_AvgInteractions;
+
+  /** Monitoring: beamspot position */
+  float m_beamspot_x,m_beamspot_y,m_beamspot_z;
+
+
   /** Monitoring: PSSFractionw **/
   float m_PSSFraction;
   /** Monitoring: EMPOverTrkSysP **/
   float m_EMPOverTrkSysP;
   /** Monitoring: ChPiEMEOverCaloEME **/
   float m_ChPiEMEOverCaloEME;
+
+  /** Monitoring: innerTrkAvgDist **/
+  float m_innerTrkAvgDist;
+
+  /** Monitoring: SumPtTrkFrac **/
+  float m_SumPtTrkFrac;
 
   /** Eta of L1 ROI */
   float m_EtaL1;

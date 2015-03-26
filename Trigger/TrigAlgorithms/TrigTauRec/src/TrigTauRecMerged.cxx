@@ -152,10 +152,24 @@ TrigTauRecMerged::TrigTauRecMerged(const std::string& name,ISvcLocator* pSvcLoca
   
   /** EM energy of charged pions over calorimetric EM energy **/
   declareMonitoredVariable("EF_ChPiEMEOverCaloEME",m_ChPiEMEOverCaloEME);
-  
+ 
+  /** Fraction of pt tracks **/
+  declareMonitoredVariable("EF_SumPtTrkFrac",m_SumPtTrkFrac);
+ 
+  /** inner track average distance **/
+  declareMonitoredVariable("EF_innerTrkAvgDist",m_innerTrkAvgDist);
+
   /** Number tau candidates */
   declareMonitoredVariable("EF_nCand",m_Ncand);
-  
+ 
+  /** Average number of interaction per bunch crossing */
+  declareMonitoredVariable("EF_AvgInteractions",m_AvgInteractions); 
+
+  /** Beamspot position */
+  declareMonitoredVariable("EF_beamspot_x",m_beamspot_x);
+  declareMonitoredVariable("EF_beamspot_y",m_beamspot_y);
+  declareMonitoredVariable("EF_beamspot_z",m_beamspot_z);
+
   /** Eta of L1 RoI */
   declareMonitoredVariable("EtaL1",m_EtaL1);
   
@@ -301,6 +315,11 @@ HLT::ErrorCode TrigTauRecMerged::hltExecute(const HLT::TriggerElement* inputTE,
 	m_trkAvgDist = -1.0;
 	m_etovPtLead = -10.0;
 	m_Ncand = 0;
+        m_AvgInteractions = -999.9; 
+
+	m_beamspot_x = -999.9;
+	m_beamspot_y = -999.9;
+	m_beamspot_z = -999.9;
 
 	m_centFrac=-10;
 	m_nWideTrk=0;
@@ -312,6 +331,8 @@ HLT::ErrorCode TrigTauRecMerged::hltExecute(const HLT::TriggerElement* inputTE,
 	m_PSSFraction=-999;
 	m_EMPOverTrkSysP=-999;
 	m_ChPiEMEOverCaloEME=-999;
+	m_innerTrkAvgDist=-999;
+	m_SumPtTrkFrac=-999;
 
 	m_author.clear();
 	m_calo_errors.clear();
@@ -520,6 +541,7 @@ HLT::ErrorCode TrigTauRecMerged::hltExecute(const HLT::TriggerElement* inputTE,
 
 	  mu = m_lumiBlockMuTool->actualInteractionsPerCrossing(); // (retrieve mu for the current BCID)
 	  avg_mu = m_lumiBlockMuTool->averageInteractionsPerCrossing();
+          m_AvgInteractions = avg_mu;
 	  msg() << MSG::DEBUG << "REGTEST: Retrieved Mu Value : " << mu << endreq;
 	  msg() << MSG::DEBUG << "REGTEST: Average Mu Value   : " << avg_mu << endreq;
 	}
@@ -539,6 +561,10 @@ HLT::ErrorCode TrigTauRecMerged::hltExecute(const HLT::TriggerElement* inputTE,
 	  // Alter the position of the vertex
 	  theBeamspot.setPosition(m_beamSpotSvc->beamPos());
 	
+	  m_beamspot_x=theBeamspot.x();
+	  m_beamspot_y=theBeamspot.y();
+	  m_beamspot_z=theBeamspot.z();
+
 	  // Create a AmgSymMatrix to alter the vertex covariance mat.
 	  AmgSymMatrix(3) cov = m_beamSpotSvc->beamVtx().covariancePosition();
 	  theBeamspot.setCovariancePosition(cov);
@@ -792,7 +818,9 @@ HLT::ErrorCode TrigTauRecMerged::hltExecute(const HLT::TriggerElement* inputTE,
 	  rTauData.xAODTau->detail(xAOD::TauJetParameters::PSSFraction, m_PSSFraction);
 	  rTauData.xAODTau->detail(xAOD::TauJetParameters::EMPOverTrkSysP, m_EMPOverTrkSysP);
 	  rTauData.xAODTau->detail(xAOD::TauJetParameters::ChPiEMEOverCaloEME, m_ChPiEMEOverCaloEME);
-	  
+	  rTauData.xAODTau->detail(xAOD::TauJetParameters::innerTrkAvgDist, m_innerTrkAvgDist);	 
+          rTauData.xAODTau->detail(xAOD::TauJetParameters::SumPtTrkFrac, m_SumPtTrkFrac);
+
 	  m_massTrkSys /= 1000.; // make GeV
 	  rTauData.xAODTau->detail(xAOD::TauJetParameters::etEMAtEMScale, m_EtEm);
 	  m_EtEm /= 1000.;  // make GeV
