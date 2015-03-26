@@ -37,16 +37,14 @@
 
 #include "CaloIdentifier/CaloCell_ID.h"
 
-#include "TileConditions/ITileBadChanTool.h"
-#include "TileConditions/TileCondToolEmscale.h"
-#include "TileConditions/TileCondToolTiming.h"
-
-#include "TileRecUtils/TileCellNoiseFilter.h"
-#include "TileRecUtils/TileCellMaskingTool.h"
-
 template<class TYPE> class SvcFactory;
 class TileHWID;
 class TileID;
+class TileCondToolEmscale;
+class TileCondToolTiming;
+class TileCellNoiseFilter;
+class ITileBadChanTool;
+class TileCellMaskingTool;
 
 #include <string>
 #include <vector>

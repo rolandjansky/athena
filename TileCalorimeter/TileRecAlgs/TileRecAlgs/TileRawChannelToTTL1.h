@@ -30,7 +30,6 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
 
-class StoreGateSvc;
 class TileID;
 class TileHWID;
 class TileInfo;

@@ -22,6 +22,8 @@ use TileDetDescr	TileDetDescr-*		TileCalorimeter
 use TileSimEvent	TileSimEvent-*		TileCalorimeter
 use TileEvent		TileEvent-*		TileCalorimeter
 use TileCalibBlobObjs	TileCalibBlobObjs-*	TileCalorimeter/TileCalib
+use TileConditions	TileConditions-*	TileCalorimeter
+use TileRecUtils	TileRecUtils-*		TileCalorimeter
 
 public
 
@@ -32,8 +34,6 @@ use StoreGate		StoreGate-*		Control
 
 use CaloIdentifier	CaloIdentifier-*	Calorimeter
 use TileIdentifier	TileIdentifier-*	TileCalorimeter
-use TileConditions	TileConditions-*	TileCalorimeter
-use TileRecUtils	TileRecUtils-*		TileCalorimeter
 
 
 library TileRecAlgs Tile*.cxx MBTSTimeDiffEventInfoAlg.cxx components/*.cxx

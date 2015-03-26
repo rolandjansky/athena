@@ -34,7 +34,6 @@
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 
-class StoreGateSvc;
 class TileID;
 
 #include <string>
