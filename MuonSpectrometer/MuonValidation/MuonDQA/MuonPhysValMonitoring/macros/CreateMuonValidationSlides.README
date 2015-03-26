@@ -5,8 +5,6 @@ This is how to use the macros in MuonSpectrometer/MuonValidation/MuonDQA/MuonPhy
 eg. REFFILE=19.0.3.3.run1.root
 eg. TESTFILE=19.1.1.1.run1.root
 
-** NOTE ** Beamer is not supported on lxplus, so the .tex file will have to be compiled on a different system. Either copy the tex file and plots directory to another system or access the files through AFS.
-
 Since not all histograms can be created in the validation code, a few macros need to be run first to create them.
 
 ----------------------------------
@@ -47,5 +45,5 @@ python CreateMuonValidationSlides.py -r $REFFILE -t $TESTFILE -d OUTPUT_DIRECTOR
 -t FILE: test file
 -r FILE: reference file
 -d DIR: directory where the LaTeX files, plots and final pdf will be put. This is by default set to './beamer'
--c: compile LaTeX file automatically (does nothing on lxplus)
+-c: compile LaTeX file
 -n: no title page for the slides

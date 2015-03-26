@@ -6,7 +6,7 @@
 #include "MuonHistUtils/MuonEnumDefs.h"
 
 TriggerMuonValidationPlots::TriggerMuonValidationPlots(PlotBase* pParent, std::string sDir,std::vector<unsigned int> authors, bool isData, bool doBinnedResolutionPlots, bool doTrigMuonL1Validation, bool doTrigMuonL2Validation, bool doTrigMuonEFValidation):
-  PlotBase(pParent, sDir),  m_selectedAuthors(authors), m_isData(isData), m_doTrigMuonL1Validation(doTrigMuonL1Validation), m_doTrigMuonL2Validation(doTrigMuonL2Validation), m_doTrigMuonEFValidation(doTrigMuonEFValidation)
+  PlotBase(pParent, sDir),  m_selectedAuthors(authors), m_oL1TriggerMuonPlots(NULL), m_oL1TriggerMuonResolutionPlots(NULL), m_isData(isData), m_doTrigMuonL1Validation(doTrigMuonL1Validation), m_doTrigMuonL2Validation(doTrigMuonL2Validation), m_doTrigMuonEFValidation(doTrigMuonEFValidation)
 
 {
   if (m_doTrigMuonL1Validation) m_oL1TriggerMuonPlots = new L1TriggerMuonPlots(this,"trigger/L1");

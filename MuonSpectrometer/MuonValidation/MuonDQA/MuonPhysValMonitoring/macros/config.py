@@ -6,19 +6,19 @@
 
 from collections import OrderedDict
 
-texfile = 'muon_validation_run2_pileup_vs_nopileup_14TeV.tex' #The output pdf file name will be the same
+texfile = 'muon_validation.tex' #The output pdf file name will be the same
 
 #dataset info
-RefVersion = '19.1.1.4 no pileup'
-TestVersion = '19.1.1.4 pileup'
-RefDataset = r'valid1.*Zmumu.recon.AOD.e2658\_s1967\_s1964\_r5749/'
-TestDataset = r'valid1.*Zmumu.recon.AOD.e2658\_s1967\_s1964\_r5746/'
-RefDescription = 'run 2, no pileup, 14 TeV'
-TestDescription = 'run 2, pileup, 14 TeV'
+RefVersion = 'ttbar'
+TestVersion = 'Zprime'
+RefDataset = 'r6059'
+TestDataset = 'r6059'
+RefDescription = ''
+TestDescription = ''
 
 #titlepage info
 Title = 'Muon Validation of {0}'.format( TestVersion, RefVersion )
-Subtitle = 'Pileup vs No Pileup, Run 2 Config (14 TeV)'
+Subtitle = ''
 Author = 'Me'
 ShortAuthor = 'Me'
 Institute = 'CERN'
@@ -157,20 +157,20 @@ PlotPages[ 'Efficiency' ] = [
 #PlotComments[ 'Efficiency' ] = 'PUT COMMENTS HERE IF YOU WANT'
 
 #Reco fraction
-# PlotPages[ 'Reco Fraction - Inflight Muons' ] = [
-#     'Muons/InFlight/reco/AllMuons/RecoFraction/Muons_InFlight_reco_AllMuons_RecoFraction_pt',
-#     'Muons/InFlight/reco/AllMuons/RecoFraction/Muons_InFlight_reco_AllMuons_RecoFraction_eta',
-#     'Muons/InFlight/reco/AllMuons/RecoFraction/Muons_InFlight_reco_AllMuons_RecoFraction_phi' ]
-# PlotComments[ 'Reco Fraction - Inflight Muons' ] = 'PUT COMMENTS HERE IF YOU WANT'
+PlotPages[ 'Reco Fraction - Inflight Muons' ] = [
+    'Muons/InFlight/reco/AllMuons/RecoFraction/Muons_InFlight_reco_AllMuons_RecoFraction_pt',
+    'Muons/InFlight/reco/AllMuons/RecoFraction/Muons_InFlight_reco_AllMuons_RecoFraction_eta',
+    'Muons/InFlight/reco/AllMuons/RecoFraction/Muons_InFlight_reco_AllMuons_RecoFraction_phi' ]
+#PlotComments[ 'Reco Fraction - Inflight Muons' ] = 'PUT COMMENTS HERE IF YOU WANT'
 
-# PlotPages[ 'Reco Fraction - Rest Muons' ] = [
-#     'Muons/Rest/reco/AllMuons/RecoFraction/Muons_Rest_reco_AllMuons_RecoFraction_pt',
-#     'Muons/Rest/reco/AllMuons/RecoFraction/Muons_Rest_reco_AllMuons_RecoFraction_eta',
-#     'Muons/Rest/reco/AllMuons/RecoFraction/Muons_Rest_reco_AllMuons_RecoFraction_phi' ]
+PlotPages[ 'Reco Fraction - NonIsolated Muons' ] = [
+    'Muons/NonIsolated/reco/AllMuons/RecoFraction/Muons_NonIsolated_reco_AllMuons_RecoFraction_pt',
+    'Muons/NonIsolated/reco/AllMuons/RecoFraction/Muons_NonIsolated_reco_AllMuons_RecoFraction_eta',
+    'Muons/NonIsolated/reco/AllMuons/RecoFraction/Muons_NonIsolated_reco_AllMuons_RecoFraction_phi' ]
 # PlotComments[ 'Reco Fraction - Rest Muons' ] = 'PUT COMMENTS HERE IF YOU WANT'
 
-#PlotPages[ 'Reco Fraction - Unmatched All Authors' ] = [
-#    'Muons/UnmatchedRecoMuons/Muons_UnmatchedRecoMuons_RecoFraction_pt',
-#    'Muons/UnmatchedRecoMuons/Muons_UnmatchedRecoMuons_RecoFraction_eta',
-#    'Muons/UnmatchedRecoMuons/Muons_UnmatchedRecoMuons_RecoFraction_phi' ]
+PlotPages[ 'Reco Fraction - Unmatched All Authors' ] = [
+    'Muons/UnmatchedRecoMuons/RecoFraction/Muons_UnmatchedRecoMuons__RecoFraction_pt',
+    'Muons/UnmatchedRecoMuons/RecoFraction/Muons_UnmatchedRecoMuons__RecoFraction_eta',
+    'Muons/UnmatchedRecoMuons/RecoFraction/Muons_UnmatchedRecoMuons__RecoFraction_phi' ]
 #PlotComments[ 'Reco Fraction - Unmatched All Authors' ] = 'PUT COMMENTS HERE IF YOU WANT'

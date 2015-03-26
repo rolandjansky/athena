@@ -3,6 +3,10 @@
 #Written by Dan Mori
 #Create efficiency plots for each author by dividing matched/author pt by truth/all pt
 
+#Usage: python CreateEffAndRecoFracPlots.py filename [doAverage]
+
+#Added flag doAverage to add TF1 of line showing overall efficiency/reco fraction
+
 import ROOT
 import os
 import sys
@@ -36,14 +40,11 @@ def SetBinomialError( ratio, den ):
 #create histograms that require dividing one histogram by another
 #works for both efficiency and reco fraction plots, set by plottype variable
 
-def CreateRatioPlot( infile, numHist, denHist, var, eta1=None, eta2=None, xtitle = '', plottype = '' ):
+def CreateRatioPlot( infile, numHist, denHist, var, eta1=None, eta2=None, xtitle = '', plottype = '', doAverage = False ):
     #require plottype variable for setting plot title, etc
     #plottype = 'Eff' or 'RecoFrac' to create efficiency or reco fraction histogram
     if plottype == 'Eff':
-        if 'InFlight' in numHist.GetName():
-            typeName = 'Fake Rate'
-        else:
-            typeName = 'Efficiency'
+        typeName = 'Efficiency'
     elif plottype == 'RecoFrac':
         typeName = 'Reco Fraction'
     else:
@@ -120,12 +121,13 @@ def CreateRatioPlot( infile, numHist, denHist, var, eta1=None, eta2=None, xtitle
             xtitle = var
         ratio.GetXaxis().SetTitle( xtitle )
 
-        if den.Integral() > 0:
+        if doAverage and den.Integral() > 0 and num.Integral() > 0:
             tot_eff = ROOT.TF1( 'aveline', "[0]", ratio.GetXaxis().GetBinLowEdge(1), ratio.GetXaxis().GetBinUpEdge( ratio.GetNbinsX() ) )
             ratio.GetListOfFunctions().Add( tot_eff )
             f1 = ratio.GetFunction( "aveline" )
             f1.SetParameter( 0, num.Integral()/den.Integral() )
             f1.SetLineColor( ROOT.kRed )
+            #f1.SetBit(ROOT.TF1.kNotDraw)
 
     PlotDirName = PlotNamePrefix.replace('__','_').split('_')
     if not infile.GetDirectory( '/'.join( PlotDirName ) ):
@@ -133,9 +135,8 @@ def CreateRatioPlot( infile, numHist, denHist, var, eta1=None, eta2=None, xtitle
     else:
         PlotDir = infile.Get( '/'.join( PlotDirName ) )
     PlotDirName = '/'.join( PlotDirName )
-    print( 'Writing histogram to input file: ' + PlotDirName + '/' + ratio.GetName() )
-    infile.GetDirectory(PlotDirName).WriteTObject( ratio, ratio.GetName(), "Overwrite" )
-
+    if not infile.GetDirectory(PlotDirName).WriteTObject( ratio, PlotName, "Overwrite" ):
+        print('WARNING failed to write histogram to file: ' + PlotDirName + '/' + PlotName )
     del ratio, num, den
 
 #--------------------------------------------------------------------------
@@ -146,13 +147,18 @@ def main( argv ):
 
     if len( argv ) < 2:
         print( 'No filename given' )
-        print( 'Usage: python '+argv[0]+' physval_filename' )
+        print( 'Usage: python '+argv[0]+' physval_filename [doAverage]' )
         exit(1)
 
     filename = argv[1]
     if not os.path.exists( filename ):
         print ( 'File not found: ' + filename )
         exit(1)
+
+    if len(argv) > 2 and argv[2] == 'doAverage':
+        doAverage = True
+    else:
+        doAverage = False
 
     infile = ROOT.TFile.Open( filename, 'update' )
 
@@ -199,12 +205,12 @@ def main( argv ):
                 if not matchHist:
                     print( 'WARNING histogram not found: '+matchHistName )
                     continue
-                CreateRatioPlot( infile, matchHist, truthHist, var, xtitle = muType+' Muon '+Xtitles[var], plottype = 'Eff' )
+                CreateRatioPlot( infile, matchHist, truthHist, var, xtitle = muType+' Muon '+Xtitles[var], plottype = 'Eff', doAverage = doAverage )
                 if var == 'eta_phi' or var == 'eta_pt':
-                    CreateRatioPlot( infile, matchHist, truthHist, var, -0.1, 0.1, muType+' Muon '+Xtitles[var], 'Eff' )
-                    CreateRatioPlot( infile, matchHist, truthHist, var, 0.1, 1.05, muType+' Muon '+Xtitles[var], 'Eff' )
-                    CreateRatioPlot( infile, matchHist, truthHist, var, 1.05, 2.0, muType+' Muon '+Xtitles[var], 'Eff' )
-                    CreateRatioPlot( infile, matchHist, truthHist, var,  2.0, 2.5, muType+' Muon '+Xtitles[var], 'Eff' )
+                    CreateRatioPlot( infile, matchHist, truthHist, var, -0.1, 0.1, muType+' Muon '+Xtitles[var], plottype = 'Eff', doAverage = doAverage )
+                    CreateRatioPlot( infile, matchHist, truthHist, var, 0.1, 1.05, muType+' Muon '+Xtitles[var], plottype = 'Eff', doAverage = doAverage )
+                    CreateRatioPlot( infile, matchHist, truthHist, var, 1.05, 2.0, muType+' Muon '+Xtitles[var], plottype = 'Eff', doAverage = doAverage )
+                    CreateRatioPlot( infile, matchHist, truthHist, var,  2.0, 2.5, muType+' Muon '+Xtitles[var], plottype = 'Eff', doAverage = doAverage )
 
     #Reco Fraction plots
     for muType in muonTypesReco:
@@ -237,7 +243,7 @@ def main( argv ):
                 if not allRecoHist:
                     print( 'WARNING plot not found: ' + allplot )
                     continue
-                CreateRatioPlot( infile, typeRecoHist, allRecoHist, var, xtitle = muType + ' Muon ' + Xtitles[var], plottype = 'RecoFrac' )
+                CreateRatioPlot( infile, typeRecoHist, allRecoHist, var, xtitle = muType + ' Muon ' + Xtitles[var], plottype = 'RecoFrac', doAverage = doAverage )
 
     #unmatched muon reco fraction
     muType = 'UnmatchedRecoMuons'
@@ -258,7 +264,7 @@ def main( argv ):
             typeRecoHist = infile.GetDirectory( typedir ).Get( typeplot )
             allRecoHist = infile.GetDirectory( alldir ).Get( allplot )
             if typeRecoHist and allRecoHist:
-                CreateRatioPlot( infile, typeRecoHist, allRecoHist, var, xtitle = 'Unmatched Reco Muon '+Xtitles[var], plottype = 'RecoFrac' )
+                CreateRatioPlot( infile, typeRecoHist, allRecoHist, var, xtitle = 'Unmatched Reco Muon '+Xtitles[var], plottype = 'RecoFrac', doAverage = doAverage )
     infile.Close()
 
 #===============================================================================

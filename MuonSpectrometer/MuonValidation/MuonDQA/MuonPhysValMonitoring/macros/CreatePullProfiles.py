@@ -5,38 +5,41 @@ import os
 from array import array
 import itertools
 import ROOT
-from CreateResolutionPlots import GetProfilesFromTH2
+from CreateResolutionProfiles import *
 
 #---------------------------------------------------------------------------
 
 #create profile plots for pull parameters vs pt from 2D histograms
-def CreateProfile( infile, HistDir, HistName, Var ):
+def CreateProfile( infile, HistDir, HistName, Var, TrackType, doAverage = False ):
     hist = infile.Get(HistDir).Get(HistName)
-    prof_ave, prof_std = GetProfilesFromTH2( hist )
+    prof_ave, prof_std, projHists = GetProfilesFromTH2( hist, doAverage = doAverage )
 
     prof_ave.SetName( hist.GetName().replace( '_vs_', '_ProfMean_vs_' ) )
-    prof_ave.SetTitle( Var + ' Pull Profile (Mean)' )
+    prof_ave.SetTitle( Var + ' Pull{0} vs pt (Mean)'.format('' if TrackType=='' else ' '+TrackType) )
     prof_ave.SetXTitle( 'Transverse Momentum [GeV]' )
     prof_ave.SetYTitle( Var + ' Pull Mean' )
 
     prof_std.SetName( hist.GetName().replace( '_vs_', '_ProfStDev_vs_' ) )
-    prof_std.SetTitle( Var + ' Pull Profile (Std Dev)' )
+    prof_std.SetTitle( Var + ' Pull{0} vs pt (StDev)'.format('' if TrackType=='' else ' '+TrackType) )
     prof_std.SetXTitle( 'Transverse Momentum [GeV]' )
     prof_std.SetYTitle( Var + ' Pull StdDev' )
 
-    if infile.Get( HistDir ).WriteTObject( prof_ave, prof_ave.GetName(), "Overwrite" ):
-        print( 'INFO Writing histogram to file: ' + HistDir + '/' + prof_ave.GetName() )
-    if infile.Get( HistDir ).WriteTObject( prof_std, prof_std.GetName(), "Overwrite" ):
-        print( 'INFO Writing histogram to file: ' + HistDir + '/' + prof_std.GetName() )
+    if not infile.Get( HistDir ).WriteTObject( prof_ave, prof_ave.GetName(), "Overwrite" ):
+        print( 'WARNING Failed to write histogram to file: ' + HistDir + '/' + prof_ave.GetName() )
+    if not infile.Get( HistDir ).WriteTObject( prof_std, prof_std.GetName(), "Overwrite" ):
+        print( 'WARNING Failed to write histogram to file: ' + HistDir + '/' + prof_std.GetName() )
     del prof_ave, prof_std
 
 #---------------------------------------------------------------------------
 
 def main( args ):
+    doAverage = False
     if len( args ) > 1:
         filename = args[1]
+        if len(args) > 2 and args[2] == 'doAverage':
+            doAverage = True
     else:
-        print( 'Usage: python {0} filename'.format( args[0] ) )
+        print( 'Usage: python {0} filename [doAverage]'.format( args[0] ) )
         return
 
     if not os.path.exists( filename ):
@@ -46,7 +49,7 @@ def main( args ):
     infile = ROOT.TFile.Open( filename, 'update' )
 
     MuonTypes = [ 'All', 'Prompt', 'InFlight', 'NonIsolated' ]
-    PullTypes = [ '', 'ID', 'MS' ]
+    TrackTypes = [ '', 'ID', 'MS' ]
     Variables = [ 'phi', 'theta', 'qOverP', 'd0', 'z0' ]
 
     for MuonType in MuonTypes:
@@ -61,12 +64,12 @@ def main( args ):
             if not Dir:
                 print( 'INFO TDirectory not found: ' + DirName )
                 continue
-            for PullType, var in itertools.product( PullTypes, Variables ):
-                HistName = '_'.join( DirName.split('/') ) + '_Pull{0}_'.format(PullType) + var + '_vs_pt'
+            for TrackType, var in itertools.product( TrackTypes, Variables ):
+                HistName = '_'.join( DirName.split('/') ) + '_Pull{0}_'.format(TrackType) + var + '_vs_pt'
                 if not Dir.Get( HistName ):
                     print( 'INFO Histogram not found: ' + HistName )
                     continue
-                CreateProfile( infile, DirName, HistName, var )
+                CreateProfile( infile, DirName, HistName, var, TrackType, doAverage = doAverage )
     infile.Close()
 
 #---------------------------------------------------------------------------
