@@ -42,7 +42,7 @@ int main(int argc, char *argv[])
       for (Int_t i=3; i<argc; i++)
 	{
 	  TString parameter = argv[i];
-	  if (! parameter.Contains("tc") || parameter.Contains("debug"))
+	  if (! (parameter.Contains("tc") || parameter.Contains("debug")))
 	    {
 	      Int_t pari = parameter.Atoi();
 	      settings.push_back(pari);
@@ -56,6 +56,7 @@ int main(int argc, char *argv[])
 	    {
 	      parameter.ReplaceAll("debug=","");
 	      Debug = parameter.Atoi();
+	      std::cout <<Debug<<std::endl;
 	    }
 	}
     }
