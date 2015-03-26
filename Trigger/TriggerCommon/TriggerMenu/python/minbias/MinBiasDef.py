@@ -289,38 +289,35 @@ class L2EFChain_MB(L2EFChainDef):
 
         ########## L2 algos ##################
         if "zdcperf" in self.chainPart['recoAlg']:
-            chainSuffix = "zdcperf"
-            theL2Fex1  = L2MbSpFex_noPix
-            theL2Hypo1 = L2MbSpHypo_PT
-            theL2Fex2  = L2MbZdcFex
-            theL2Hypo2 = L2MbZdcHypo_PT
+            if "lg" in self.chainPart['ZDCinfo']:
+                chainSuffix = "lg_zdcperf"
+                theL2Fex1  = L2MbZdcFex_LG
+                theL2Hypo1 = L2MbZdcHypo_PT
+            elif "hg" in self.chainPart['ZDCinfo']:
+                chainSuffix = "hg_zdcperf"
+                theL2Fex1  = L2MbZdcFex_HG
+                theL2Hypo1 = L2MbZdcHypo_PT
 
         ########## EF algos ##################
 
         ########### Sequence List ##############
 
         self.L2sequenceList += [["",
-                                 [dummyRoI]+ efiddataprep,
-                                 'L2_mb_iddataprep']] 
+                                 [dummyRoI],
+                                 'L2_mb_step0']] 
         
-        self.L2sequenceList += [[['L2_mb_iddataprep'],
+        self.L2sequenceList += [[['L2_mb_step0'],
                                  [theL2Fex1, theL2Hypo1],
                                  'L2_mb_step1']]
 
-        self.L2sequenceList += [[['L2_mb_step1'],
-                                 [theL2Fex2, theL2Hypo2],
-                                 'L2_mb_step2']]
-
         ########### Signatures ###########
-        self.L2signatureList += [ [['L2_mb_iddataprep']] ]
+        self.L2signatureList += [ [['L2_mb_step0']] ]
         self.L2signatureList += [ [['L2_mb_step1']] ]
-        self.L2signatureList += [ [['L2_mb_step2']] ]
-
+ 
 
         self.TErenamingDict = {
-            'L2_mb_step1': mergeRemovingOverlap('L2_', 'sp_iddataprep_'+chainSuffix),
-            'L2_mb_step1': mergeRemovingOverlap('L2_', 'sp_'+chainSuffix),
-            'L2_mb_step2': mergeRemovingOverlap('L2_', 'zdc_'+chainSuffix),
+            'L2_mb_step0': mergeRemovingOverlap('L2_', 'dummyroi_'+chainSuffix),
+            'L2_mb_step1': mergeRemovingOverlap('L2_', 'zdc_'+chainSuffix),
             }
 
 ###########################

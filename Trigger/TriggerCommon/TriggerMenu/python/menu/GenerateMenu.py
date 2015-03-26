@@ -82,7 +82,7 @@ class GenerateMenu:
         # flags
         self.doEgammaChains      = True
         self.doJetChains         = True
-        self.doBjetChains         = True
+        self.doBjetChains        = True
         self.doMuonChains        = True
         self.doBphysicsChains    = True
         self.doMETChains         = True
@@ -838,10 +838,19 @@ class GenerateMenu:
                 for item in self.trigConfL1.menu.items:
                     if str(item.name) == L1item:
                         itemThrNames = item.thresholdNames(include_bgrp=False)
-                        if len(itemThrNames) == 1:
-                            chainDicts['topoThreshold'] = itemThrNames[0]                        
-                        else:
-                            log.info("Multiple thresholds found for item, not sure which one to pass")
+                        myTEstring = None
+                        for itemThr in itemThrNames:
+                            if myTEstring == None:
+                                myTEstring = itemThr
+                            else:
+                                myTEstring += " "+itemThr
+                            
+                        #if len(itemThrNames) == 1:
+                        #chainDicts['topoThreshold'] = itemThrNames
+                        chainDicts['topoThreshold'] = myTEstring
+                        #chainDicts['topoThreshold'] = itemThrNames
+                        #else:
+                        #    log.info("Multiple thresholds found for item, not sure which one to pass")
 
             chainDef = self.getChainDef(chainDicts)
 

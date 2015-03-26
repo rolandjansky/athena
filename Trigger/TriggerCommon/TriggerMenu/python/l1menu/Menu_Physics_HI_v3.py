@@ -310,7 +310,7 @@ def defineMenu():
         #'L1_2MU0_MV' : 33,
         'L1_MU0_MV_VTE50' : 34,
         'L1_MU0_VTE50' : 35,
-        'L1_ZDC_C_VTE20' : 36,
+        'L1_ZDC_A_C_VTE50' : 36,
         'L1_ZDC_A_C_UNPAIRED_NONISO' : 37,
         'L1_MU4_VTE50' : 38,
         'L1_MU4_MV_VTE50' : 39,

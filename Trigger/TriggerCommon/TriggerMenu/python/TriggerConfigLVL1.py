@@ -1,6 +1,8 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 from sys import settrace
+import re
+from collections import defaultdict
 
 from .TriggerConfigL1Topo import TriggerConfigL1Topo
 from l1.Lvl1Menu import Lvl1Menu
@@ -42,7 +44,7 @@ class TriggerConfigLVL1:
 
         # menu
         self.menu = Lvl1Menu(self.menuName)
-        
+
         if self.inputFile != None:
             """Read menu from XML"""
             self.l1menuFromXML = True
@@ -72,9 +74,10 @@ class TriggerConfigLVL1:
                 tpcl1 = TriggerConfigL1Topo( menuName = TriggerConfigL1Topo.getMenuBaseName(menu) )
                 tpcl1.generateMenu()
                 triggerLines = tpcl1.menu.getTriggerLines()
+
             except Exception, ex:
                 print "Topo menu generation inside L1 menu failed, but will be ignored for the time being",ex 
-                
+
             # restore the triggerMenuSetup for the LVL1 generation
             from TriggerJobOpts.TriggerFlags import TriggerFlags
             TriggerFlags.triggerMenuSetup = self.menuName
@@ -115,11 +118,29 @@ class TriggerConfigLVL1:
         """
         if not self.topotriggers:
             return
+        
         from l1.Lvl1Thresholds import LVL1Threshold, LVL1TopoInput
+
+
+        multibitTopoTriggers = defaultdict(list)
+        multibitPattern = re.compile("(?P<line>.*)\[(?P<bit>\d+)\]")
         for triggerline in self.topotriggers:
-            thr = LVL1TopoInput( triggerline )
+            m = multibitPattern.match(triggerline.trigger) # tries to match "trigger[bit]"
+            if m:
+                multibitTopoTriggers[m.groupdict()['line']] += [triggerline]  # multibit triggerlines are temporarilty stored in multibitTopoTriggers
+            else:
+                thr = LVL1TopoInput( triggerline )
+                thr.setCableInput()
+                self.registeredThresholds[thr.name] = thr
+
+        # create thresholds from topo-multibit 
+        for multibitTriggerlines in multibitTopoTriggers.values():
+            thr = LVL1TopoInput( multibitTriggerlines )
             thr.setCableInput()
             self.registeredThresholds[thr.name] = thr
+
+
+
             
     def getRegisteredThreshold(self, name):
         if name in self.registeredThresholds:
@@ -151,7 +172,10 @@ class TriggerConfigLVL1:
 
 
     def writeXML(self):
-        """ Writes L1 XML file"""
+        """
+        Writes L1 XML file
+        returns the file name
+        """
         log = logging.getLogger("TriggerConfigLVL1")
         if self.outputFile is None:
             log.warning("Can't write xml file since no name was provided")
@@ -190,6 +214,7 @@ class TriggerConfigLVL1:
         log.info("menu %s contains %i items and %i thresholds" % ( menuName, len(Lvl1Flags.items()), len(Lvl1Flags.thresholds()) ) )
 
 
+
     def registerMenu(self):
         """
         Registers the list if items and thresholds that could be used in the menu of Run1
@@ -204,14 +229,10 @@ class TriggerConfigLVL1:
 
         itemdefmodule = __import__('l1menu.ItemDef%s' % ('Run1' if run1 else ''), globals(), locals(), ['ItemDef'], -1)
 
-        #if (self.menuName == 'DC14'):             
-        #    itemdefmodule = __import__('l1menu.ItemDefDC14', globals(), locals(), ['ItemDef'], -1)
-        #else:
-        #    itemdefmodule = __import__('l1menu.ItemDef%s' % ('Run1' if run1 else ''), globals(), locals(), ['ItemDef'], -1)
-
         log = logging.getLogger('TriggerConfigLVL1.registerMenu')
         itemdefmodule.ItemDef.registerItems(self)
         log.info("registered %i items and %i thresholds (%s)" % ( len(self.registeredItems), len(self.registeredThresholds), ('Run 1' if run1 else 'Run 2') ) )
+
 
 
     def generateMenu(self):
@@ -230,15 +251,15 @@ class TriggerConfigLVL1:
 
         # build list of items for the menu from the list of requested names
         itemsForMenu = []
-                
-        for item_index, itemName in enumerate(Lvl1Flags.items()):
+
+        for itemName in Lvl1Flags.items():
             registeredItem = self.getRegisteredItem(itemName)
             if registeredItem == None:
-                log.fatal("LVL1 item '%s' has not been registered" % itemName)
-                raise RuntimeError("LVL1 item %s has not been registered" % itemName)
+                log.fatal("LVL1 item '%s' has not been registered in l1menu/ItemDef.py" % itemName)
+                raise RuntimeError("LVL1 item %s has not been registered in l1menu/ItemDef.py" % itemName)
 
-            if registeredItem.name in Lvl1Flags.CtpIdMap():
-                newCTPID = Lvl1Flags.CtpIdMap()[registeredItem.name]
+            if itemName in Lvl1Flags.CtpIdMap():
+                newCTPID = Lvl1Flags.CtpIdMap()[itemName]
                 registeredItem.setCtpid(newCTPID)
 
             itemsForMenu += [ registeredItem ]
@@ -269,7 +290,7 @@ class TriggerConfigLVL1:
 
         # add the thresholds to the menu
         undefined_thr = False
-
+        list_of_undefined_thresholds = []
         for index, thresholdName in enumerate(Lvl1Flags.thresholds()):
                         
             if thresholdName in self.menu.thresholds:
@@ -278,10 +299,11 @@ class TriggerConfigLVL1:
             if threshold is None and not thresholdName=="":
                 log.error('Threshold %s is listed in menu but not defined' % thresholdName )
                 undefined_thr = True
+                list_of_undefined_thresholds += [ thresholdName ]
             else:
                 self.menu.addThreshold( threshold )
         if undefined_thr:
-            raise RuntimeError("Found undefined threshold in menu %s, must be fixed" % self.menu.menuName )
+            raise RuntimeError("Found undefined threshold in menu %s, please add these thresholds to l1menu/ThresholdDef.py: %s" % (self.menu.menuName, ', '.join(list_of_undefined_thresholds)) )
                 
         # threshold mapping
         self.mapThresholds()

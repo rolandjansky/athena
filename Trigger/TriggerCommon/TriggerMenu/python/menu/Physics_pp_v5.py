@@ -88,8 +88,8 @@ def setupMenu():
     TriggerFlags.METSlice.signatures = [
         ['xe0_L1All',                              'L1_All' ,[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
         ['xe0_L1XE35',                             'L1_XE35',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
-        ['xe0_tc_lcw_L1All',                       'L1_All' ,[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
-        ['xe0_tc_lcw_L1XE35',                      'L1_XE35',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
+        #['xe0_tc_lcw_L1All',                       'L1_All' ,[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
+        #['xe0_tc_lcw_L1XE35',                      'L1_XE35',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
         ['xe0_tc_em_L1All',                        'L1_All' ,[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
         ['xe0_tc_em_L1XE35',                       'L1_XE35',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
         ['xe0_tc_pueta_L1All',                     'L1_All' ,[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
@@ -104,7 +104,7 @@ def setupMenu():
         ['xe0_l2fsperf_wEFMuFEB_wEFMu_L1XE35',     'L1_XE35',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
 
         ['xe35',                                   'L1_XE35',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
-        ['xe35_tc_lcw',                            'L1_XE35',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
+        #['xe35_tc_lcw',                            'L1_XE35',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
         ['xe35_tc_em',                             'L1_XE35',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
         ['xe35_pueta',                             'L1_XE35',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
         ['xe35_pufit',                             'L1_XE35',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
@@ -156,6 +156,7 @@ def setupMenu():
 
 
         ##Calibration chains
+        ['g3_loose_larpeb',                     'L1_EM3',[], ['LArCells'], ['RATE:SinglePhoton', 'BW:Egamma'],-1],
         ['g40_loose_larpeb',                    'L1_EM20VHI',[], ['LArCells'], ['RATE:SinglePhoton', 'BW:Egamma'],-1],
         ['g60_loose_larpeb',                    'L1_EM20VHI',[], ['LArCells'], ['RATE:SinglePhoton', 'BW:Egamma'],-1],
         ['g80_loose_larpeb',                    'L1_EM20VHI',[], ['LArCells'], ['RATE:SinglePhoton', 'BW:Egamma'],-1],
@@ -284,6 +285,9 @@ def setupMenu():
         ['noalg_L1J75A',   'L1_J75A',          [], ['MinBias', 'express'], ["RATE:MinBias", "BW:MinBias"], -1],
         ['noalg_L1J75C',   'L1_J75C',          [], ['MinBias', 'express'], ["RATE:MinBias", "BW:MinBias"], -1],
         
+        ['noalg_L1TAU20A',   'L1_TAU20A',      [], ['MinBias', 'express'], ["RATE:MinBias", "BW:MinBias"], -1], 
+        ['noalg_L1TAU20C',   'L1_TAU20C',      [], ['MinBias', 'express'], ["RATE:MinBias", "BW:MinBias"], -1], 
+
         # ALFA_ANY streamer
         ['noalg_L1ALFA_ANY',   'L1_ALFA_ANY',          [], ['ALFACalib'], ["RATE:SeededStreamers", "BW:Other"], -1], 
 

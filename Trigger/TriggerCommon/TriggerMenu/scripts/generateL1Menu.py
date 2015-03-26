@@ -27,7 +27,7 @@ def generateL1Menu(menu, useTopoMenu="MATCH"):
     outfilename = tpcl1.writeXML()
 
     # consistency checker
-    checkResult = os.system("get_files -xmls -symlink LVL1config.dtd")
+    checkResult = os.system("get_files -xmls -symlink LVL1config.dtd > /dev/null")
     checkResult = os.system("xmllint --noout --dtdvalid LVL1config.dtd %s" % outfilename)
     if checkResult == 0:
         log.info("XML file %s is conform with LVL1config.dtd" % outfilename)

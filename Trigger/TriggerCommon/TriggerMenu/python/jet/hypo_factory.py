@@ -55,7 +55,6 @@ class JetRecHypoAlg(HypoAlg):
         """check the constructor args"""
 
         must_have = ('chain_name',
-                     'eta_str',
                      'jet_attributes',
                      'isCaloFullScan',
                      'triggertower')
@@ -91,7 +90,8 @@ class JetRecHypoAlg(HypoAlg):
     def jet_attributes_tostring(self):
         """Return a string of form '%d+_%s_%d+' where the digits preceeding the
         string are multiplicy, the string is the eta range and the digits
-        after the string is the threshold. Used for trigger element"""
+        after the string is the threshold. Used for trigger element and
+        standard jet hypo names."""
 
         counter = defaultdict(lambda: defaultdict(int))
 
@@ -123,6 +123,16 @@ class HTHypoAlg(HypoAlg):
     def _check_args(self, ddict):
         """check the constructor args"""
 
-        must_have = ('chain_name', 'eta_range', 'ht_threshold',)
+        must_have = ('chain_name',
+                     'eta_range',
+                     'ht_threshold',
+                     'jet_et_threshold')
+
         HypoAlg.check_missing_args(self, must_have, ddict)
+
+    def attributes_to_string(self):
+        return '_'.join(['ht' + str(int(self.ht_threshold)),
+                         self.eta_range,
+                         'j' + str(int(self.jet_et_threshold))])
+        
 

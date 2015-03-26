@@ -11,11 +11,80 @@ def defineMenu():
 
     Menu_MC_pp_v5.defineMenu()
 
+    # the ALFA items are in the physics menu only
+    Lvl1Flags.thresholds += [
+        # ALFA (the replication is needed to build all the combinations in the CTPCore)
+        'ALFA_B7R1L', 'ALFA_B7R1U', 'ALFA_A7R1L', 'ALFA_A7R1U', 'ALFA_A7L1L', 'ALFA_A7L1U', 'ALFA_B7L1L', 'ALFA_B7L1U',
+        'ALFA2_B7R1L', 'ALFA2_B7R1U', 'ALFA2_A7R1L', 'ALFA2_A7R1U', 'ALFA2_A7L1L', 'ALFA2_A7L1U', 'ALFA2_B7L1L', 'ALFA2_B7L1U',
+        'ALFA3_B7R1L', 'ALFA3_B7R1U', 'ALFA3_A7R1L', 'ALFA3_A7R1U', 'ALFA3_A7L1L', 'ALFA3_A7L1U', 'ALFA3_B7L1L', 'ALFA3_B7L1U',
+        'ALFA4_B7R1L', 'ALFA4_B7R1U', 'ALFA4_A7R1L', 'ALFA4_A7R1U', 'ALFA4_A7L1L', 'ALFA4_A7L1U', 'ALFA4_B7L1L', 'ALFA4_B7L1U',
+        'ALFA_B7R1L_OD', 'ALFA_B7R1U_OD', 'ALFA_A7R1L_OD', 'ALFA_A7R1U_OD', 'ALFA_A7L1L_OD', 'ALFA_A7L1U_OD', 'ALFA_B7L1L_OD', 'ALFA_B7L1U_OD', 
+        ]
+
+
+    Lvl1Flags.items += [
+        #ALFA
+        'L1_ALFA_ELAST1',
+        'L1_ALFA_ELAST2',
+        'L1_ALFA_ELAST11','L1_ALFA_ELAST12',
+        'L1_ALFA_ELAST13','L1_ALFA_ELAST14','L1_ALFA_ELAST15','L1_ALFA_ELAST15_Calib',
+        'L1_ALFA_ELAST16','L1_ALFA_ELAST17','L1_ALFA_ELAST18','L1_ALFA_ELAST18_Calib',
+        'L1_ALFA_SDIFF1','L1_ALFA_SDIFF2','L1_ALFA_SDIFF3','L1_ALFA_SDIFF4','L1_ALFA_SDIFF5','L1_ALFA_SDIFF6','L1_ALFA_SDIFF7','L1_ALFA_SDIFF8',      
+        'L1_MBTS_1_A_ALFA_C','L1_MBTS_1_C_ALFA_A','L1_MBTS_1_A_ALFA_C_UNPAIRED_ISO','L1_MBTS_1_C_ALFA_A_UNPAIRED_ISO',
+        'L1_MBTS_1_ALFA_ANY',
+        'L1_MBTS_2_A_ALFA_C','L1_MBTS_2_C_ALFA_A','L1_MBTS_2_A_ALFA_C_UNPAIRED_ISO','L1_MBTS_2_C_ALFA_A_UNPAIRED_ISO','L1_MBTS_2_ALFA',
+        'L1_LUCID_A_ALFA_C','L1_LUCID_C_ALFA_A','L1_LUCID_A_ALFA_C_UNPAIRED_ISO','L1_LUCID_C_ALFA_A_UNPAIRED_ISO','L1_LUCID_ALFA',                                 
+        'L1_ZDC_A_ALFA_C','L1_ZDC_C_ALFA_A','L1_ZDC_ALFA',
+        'L1_EM3_ALFA_ANY',
+        'L1_EM3_ALFA_ANY_UNPAIRED_ISO',
+
+        # VETO MBTS currently not possible with TMC
+        'L1_EM3_ALFA_ANY_VETO_MBTS',
+        'L1_EM3_ALFA_EINE_VETO_MBTS',
+        'L1_TRT_ALFA_ANY_VETO_MBTS',
+        'L1_TRT_ALFA_ANY_VETO_MBTS_mbSpTrk',                                   
+        'L1_TRT_ALFA_EINE_VETO_MBTS',
+        'L1_ALFA_ELASTIC_VETO_MBTS',
+        'L1_ALFA_ELASTIC_VETO_MBTS_UNPAIRED_ISO',
+        'L1_ALFA_ANTI_ELASTIC_VETO_MBTS',
+        'L1_ALFA_ANTI_ELASTIC_VETO_MBTS_UNPAIRED_ISO',
+        'L1_ALFA_ANY_VETO_MBTS',
+        'L1_ALFA_ANY_VETO_MBTS_UNPAIRED_ISO',        
+
+
+        'L1_EM3_ALFA_EINE',
+        'L1_EM3_ALFA_MBTS_A','L1_EM3_ALFA_MBTS_C','L1_EM3_ALFA_MBTS_A_UNPAIRED_ISO','L1_EM3_ALFA_MBTS_C_UNPAIRED_ISO',
+        'L1_J12_ALFA_ANY','L1_J12_ALFA_ANY_UNPAIRED_ISO',                              
+        'L1_TE5_ALFA_ANY','L1_TE5_ALFA_ANY_UNPAIRED_ISO','L1_TE5_ALFA_EINE',
+        'L1_TRT_ALFA_ANY','L1_TRT_ALFA_ANY_UNPAIRED_ISO',
+        'L1_TRT_ALFA_ANY_mbSpTrk','L1_TRT_ALFA_ANY_mbSpTrk_UNPAIRED_ISO',
+        'L1_TRT_ALFA_EINE','L1_TRT_ALFA_EINE_mbSpTrk',
+        'L1_LHCF_ALFA_ANY_A','L1_LHCF_ALFA_ANY_C','L1_LHCF_ALFA_ANY_A_UNPAIRED_ISO','L1_LHCF_ALFA_ANY_C_UNPAIRED_ISO',
+        'L1_BGRP1_ALFA_BGT','L1_BGRP4_ALFA_BGT','L1_BGRP10_ALFA_BGT',
+        'L1_ALFA_SHOW1', 'L1_ALFA_SHOW2', 'L1_ALFA_SHOW3','L1_ALFA_SHOW4',
+        'L1_ALFA_SHOWSYST1','L1_ALFA_SHOWSYST2','L1_ALFA_SHOWSYST3','L1_ALFA_SHOWSYST4','L1_ALFA_SHOWSYST5',
+        'L1_ALFA_SYST1' ,'L1_ALFA_SYST2' ,'L1_ALFA_SYST3' ,'L1_ALFA_SYST4' ,
+        'L1_ALFA_SYST9' ,'L1_ALFA_SYST10','L1_ALFA_SYST11','L1_ALFA_SYST12',
+        'L1_ALFA_SYST17','L1_ALFA_SYST18',
+        'L1_ALFA_ANY', 'L1_ALFA_ANY_JET','L1_ALFA_ANY_mbSpTrk',                             
+        'L1_ALFA_ANY_EMPTY','L1_ALFA_ANY_FIRSTEMPTY','L1_ALFA_ANY_UNPAIRED_ISO','L1_ALFA_ANY_UNPAIRED_NONISO',
+        'L1_ALFA_ANY_BGRP10','L1_ALFA_ANY_ABORTGAPNOTCALIB','L1_ALFA_ANY_CALIB',
+        'L1_ALFA_B7L1U','L1_ALFA_B7L1L','L1_ALFA_A7L1U','L1_ALFA_A7L1L','L1_ALFA_A7R1U','L1_ALFA_A7R1L','L1_ALFA_B7R1U','L1_ALFA_B7R1L',
+        'L1_ALFA_ANY_A_EMPTY','L1_ALFA_ANY_C_EMPTY',
+        'L1_ALFA_B7L1U_OD','L1_ALFA_B7L1L_OD','L1_ALFA_A7L1U_OD','L1_ALFA_A7L1L_OD','L1_ALFA_A7R1U_OD','L1_ALFA_A7R1L_OD','L1_ALFA_B7R1U_OD','L1_ALFA_B7R1L_OD',
+        'L1_ALFA_B7L1_OD','L1_ALFA_A7L1_OD','L1_ALFA_B7R1_OD','L1_ALFA_A7R1_OD',
+        ]
+
+
+
+
+
+
+
     #---------------------------------
     # L1menu in MCppV5 is basis 
     # BeamSplashes: adapt some thresholds and items
     #---------------------------------
-    #LVL1Flags.CustomThresholdMap = {}
     Lvl1Flags.ThresholdMap = {
         'EM7'       : 'EM3HI',
         'EM8VH'     : 'EM7',
@@ -38,6 +107,16 @@ def defineMenu():
         'J85'       : 'J75C',
         'J100'      : 'J85',         
         'J120'      : 'J100',         
+        
+        'HA20'      : 'HA20A', 
+        'HA20IL'    : 'HA20C', 
+        'HA20IM'    : 'HA20', 
+        'HA20IT'    : 'HA20IL', 
+        'HA25'      : 'HA20IM', 
+        'HA25IT'    : 'HA20IT', 
+        'HA30'      : 'HA25', 
+        'HA40'      : 'HA25IT', 
+        'HA60'      : 'HA40', 
 
         'HT190-AJ15all.ETA20': 'HT200-AJ20s5.ETA49',
         'HT190-J15s5.ETA20': 'HT190-AJ20s5.ETA49',
@@ -66,23 +145,6 @@ def defineMenu():
         '30MT-EM10s6-XE0': '',
         '35MT-EM15s6-XE0': '',
         
-        #'10MINDPHI-AJj15s2-XE0': '',
-        #'20MINDPHI-AJjs6-XE0': '',
-        #'20MINDPHI-AJj15s2-XE0': '',
-        #'10MINDPHI-EM6s1-XE0': '',
-        #'20MINDPHI-EM9s6-XE0': '',
-        #'20MINDPHI-EM6s1-XE0': '',
-        #'05RATIO-XE0-HT0-AJj15all.ETA49': '',
-        #'08RATIO-XE0-HT0-AJj0all.ETA49': '',
-        #'40RATIO2-XE0-HT0-AJj15all.ETA49': '',
-        #'90RATIO2-XE0-HT0-AJj0all.ETA49': '',
-        #'HT20-AJj0all.ETA49': '',
-        #'NOT-02MATCH-EM9s1-AJj15all.ETA49': '',
-        #'05RATIO-XE0-SUM0-EM9s1-HT0-AJj15all.ETA49': '',
-        #'20MT-EM6s6-XE0': '',
-        #'30MT-EM6s6-XE0': '',
-        #'40MT-EM6s6-XE0': '',
-
         '0DR04-MU4ab-CJ15ab': '',
         '0DR04-MU4ab-CJ30ab': '',
         '0DR04-MU6ab-CJ25ab': '',
@@ -160,8 +222,6 @@ def defineMenu():
         #'5DETA99-5DPHI99-2MU6ab': '',
         #'0DR28-MU10ab-TAU12abi': '',
         #'0DR28-TAU20abi-TAU12abi': '',
-
-
         }
 
     Lvl1Flags.ItemMap = {
@@ -170,6 +230,9 @@ def defineMenu():
         'L1_J75'       : 'L1_J75A',         #[1.6,2.4]
         'L1_J120'      : 'L1_J75C',         #[-2.4,-1.6]  
         'L1_EM10'      : 'L1_EM3HI',
+        'L1_TAU30'     : 'L1_TAU20A', 
+        'L1_TAU60'     : 'L1_TAU20C', 
+        
         'L1_2EM13VH' : '',
         'L1_3J75' : '',
         'L1_J75_3J20' : '',
@@ -317,8 +380,6 @@ def defineMenu():
 
         }
     
-
-
     #----------------------------------------------
     def remapThresholds():
         threshToRemove = []

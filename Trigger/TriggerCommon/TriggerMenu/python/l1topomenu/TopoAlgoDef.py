@@ -1137,7 +1137,7 @@ class TopoAlgoDef:
                 exec("%s = x[k]" % k)
                 
             toponame = "MULT-%s%s%s" % (otype1, str(ocut1), olist1)
-            toponames = [toponame+"-0", toponame+"-1"]
+            toponames = [toponame+"[0]", toponame+"[1]"]
             log.info("Define %s" % toponames)
             
             inputList = [otype1 + olist1] 
@@ -1146,7 +1146,7 @@ class TopoAlgoDef:
             alg.addgeneric('InputWidth', inputwidth1)
             alg.addgeneric('MaxTob', nleading1)
             alg.addgeneric('NumResultBits', 2)
-            alg.addgeneric('MinET', ocut1)
+            alg.addgeneric('MinET', ocut1-1) # for MU threshol -1 
             tm.registerAlgo(alg)        
             
         

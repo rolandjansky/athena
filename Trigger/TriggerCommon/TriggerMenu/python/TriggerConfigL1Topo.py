@@ -42,7 +42,6 @@ class TriggerConfigL1Topo:
             self.registerMenu()
 
 
-
     # remove prescale suffixes
     @staticmethod
     def getMenuBaseName(menuName):
