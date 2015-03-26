@@ -12,8 +12,8 @@ MuonHitResidualPlots::MuonHitResidualPlots(PlotBase *pParent, std::string sDir,s
 , pullsRMS_vs_sectorPhi(NULL)
 {
   if (sType!="") sType=sType+"_";
-  pulls_vs_sectorPhi = Book2D(sType+"pulls_vs_sectorPhi",sType+" pulls vs sectorPhi",16,1,16,50,-20,20);
-  pullsRMS_vs_sectorPhi = BookTProfile(sType+"pullsRMS_sectorPhi",sType+" pullsRMS vs sectorPhi",16,1,16,-20,20); 
+  pulls_vs_sectorPhi = Book2D(sType+"pulls_vs_sectorPhi",sType+" pulls vs sectorPhi",16,1,17,50,-20,20);
+  pullsRMS_vs_sectorPhi = BookTProfile(sType+"pullsRMS_sectorPhi",sType+" pullsRMS vs sectorPhi",16,1,17,-20,20); 
 }
 
 void MuonHitResidualPlots::fill(const Trk::ResidualPull& resPull, int stationPhi )

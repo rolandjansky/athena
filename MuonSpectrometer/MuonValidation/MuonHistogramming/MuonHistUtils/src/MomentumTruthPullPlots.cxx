@@ -53,13 +53,25 @@ void MomentumTruthPullPlots::initializePlots()
 
 }
   
-void MomentumTruthPullPlots::fill(const xAOD::Muon& muon, const xAOD::TrackParticle* muonTrackIP, const xAOD::TruthParticle& truthMu)
+void MomentumTruthPullPlots::fill(const xAOD::Muon& muon, const xAOD::TrackParticle* msTrk, const xAOD::TruthParticle& truthMu)
 {
   if (!(muon.muonType()==xAOD::Muon::Combined || muon.muonType()==xAOD::Muon::SegmentTagged || muon.muonType()==xAOD::Muon::MuonStandAlone)) return;
 
   const xAOD::TrackParticle* muPrimaryTrk = muon.trackParticle(xAOD::Muon::Primary);
   if (!muPrimaryTrk) return;
-  const xAOD::TrackParticle* msTrk = muon.trackParticle(xAOD::Muon::MuonSpectrometerTrackParticle);//muon extrapolated to IP
+
+  //muon extrapolated to IP
+  ////////////////// @@@ sorting out the mess with the link to the extrapolated muon
+  //for 20.1.0...
+  /// const xAOD::TrackParticle* me = mu.trackParticle(xAOD::Muon::MuonSpectrometerTrackParticle); // points to the ExtrapolatedMuonSpectrometerTrackParticle, the ExtrapolatedMuonSpectrometerTrackParticle link doesn't exist
+
+  //for 20.1.3...
+  //const xAOD::TrackParticle* me = mu.trackParticle(xAOD::Muon::ExtrapolatedMuonSpectrometerTrackParticle);
+
+  //trying to accomodate both in a way that the code compiles in both releases
+  int correctEnum = (int) xAOD::Muon::MuonSpectrometerTrackParticle;
+  if (muon.isAvailable< ElementLink<xAOD::TrackParticleContainer> >("extrapolatedMuonSpectrometerTrackParticleLink") && (muon.auxdata<ElementLink<xAOD::TrackParticleContainer> >("extrapolatedMuonSpectrometerTrackParticleLink")).isValid()) correctEnum+=2; //check correct numbering in Muon.h
+  const xAOD::TrackParticle* msExtrapTrk = muon.trackParticle((xAOD::Muon::TrackParticleType) correctEnum);
   
   float eta = truthMu.p4().Eta();
   float pt = 0.001*truthMu.p4().Pt();
@@ -67,9 +79,9 @@ void MomentumTruthPullPlots::fill(const xAOD::Muon& muon, const xAOD::TrackParti
   float pTruth = truthMu.p4().P();
   float pCB = muPrimaryTrk->p4().P();
   float pME = 0;
-  if (msTrk) pME = msTrk->p4().P(); //muon extrapolated
+  if (msExtrapTrk) pME = msExtrapTrk->p4().P(); //muon extrapolated
   float pMS = 0;
-  if (muonTrackIP) pMS = muonTrackIP->p4().P(); //at muon spectrometer entry//@@@
+  if (msTrk) pMS = msTrk->p4().P(); //at muon spectrometer entry//@@@
   
   float eloss = 0;
   if (muon.parameter(eloss,xAOD::Muon::MeasEnergyLoss)) {;}

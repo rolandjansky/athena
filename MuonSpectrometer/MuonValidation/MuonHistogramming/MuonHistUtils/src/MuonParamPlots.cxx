@@ -42,7 +42,10 @@ void MuonParamPlots::fill(const xAOD::Muon& mu)
 void MuonParamPlots::FillPlot(TH1* hist, const xAOD::Muon& mu,const xAOD::Muon::ParamDef paramDef,float scale) {
   if (mu.author()==xAOD::Muon::CaloTag || mu.author()==xAOD::Muon::CaloLikelihood || mu.author()==xAOD::Muon::ExtrapolateMuonToIP) return; //protection
   float fpar = 0;
-  if (mu.parameter(fpar, paramDef)) hist->Fill(scale*fpar);
+  if (mu.isAvailable<float>("EnergyLoss")) {
+     if (mu.parameter(fpar, paramDef)) 
+       hist->Fill(scale*fpar); //scale to GeV, if needed
+  }
   return;
 }
 
