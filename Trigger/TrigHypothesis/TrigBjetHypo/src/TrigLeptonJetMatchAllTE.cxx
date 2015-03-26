@@ -39,7 +39,7 @@ TrigLeptonJetMatchAllTE::TrigLeptonJetMatchAllTE(const std::string& name, ISvcLo
   declareProperty("DeltaRCut",   m_deltaRCut   = 0.4);
   declareProperty("DeltaZCut",   m_deltaZCut   = 2);
   declareProperty("JetKey",      m_jetKey      = "SplitJet");
-  declareProperty ("PriVtxKey",  m_priVtxKey   = "EFHistoPrmVtx"); // xPrimVx for PV provided by ID
+  declareProperty("PriVtxKey",  m_priVtxKey    = "xPrimVx"); // EFHistoPrmVtx for PV from T2HistoPrmVtx
 
   declareMonitoredVariable("CutCounter",   m_cutCounter);
   declareMonitoredVariable("DeltaEtaPass", m_deltaEtaPass);
@@ -62,7 +62,7 @@ TrigLeptonJetMatchAllTE::~TrigLeptonJetMatchAllTE() {}
 HLT::ErrorCode TrigLeptonJetMatchAllTE::hltInitialize() {
 
   if (msgLvl() <= MSG::INFO)
-    msg() << MSG::INFO << "Lidija Initializing TrigLeptonJetMatchAllTE" << endreq;
+    msg() << MSG::INFO << "Initializing TrigLeptonJetMatchAllTE" << endreq;
 
   //* declareProperty overview *//
       if (msgLvl() <= MSG::DEBUG) {
@@ -160,8 +160,16 @@ HLT::ErrorCode TrigLeptonJetMatchAllTE::hltExecute(std::vector<std::vector<HLT::
   
   const xAOD::VertexContainer*  pointerToPrmVtxCollections(0);
   
-    if (getPrmVtxCollection(pointerToPrmVtxCollections, inputTE[1].front()) != HLT::OK) {
+  if (getPrmVtxCollection(pointerToPrmVtxCollections, inputTE[1].front(), m_priVtxKey) != HLT::OK) {
     msg() << MSG::DEBUG << "No primary vertex collection retrieved" << endreq;
+    // If the ID PV-finding fails then use the PV from T2HistoPrmVtx instead
+    // This is not ideal... investigate why ID PV finding fails
+    if (m_priVtxKey == "xPrimVx" && getPrmVtxCollection(pointerToPrmVtxCollections, inputTE[1].front(), "EFHistoPrmVtx") != HLT::OK) {
+      msg() << MSG::WARNING << "No primary vertex collection retrieved with name EFHistoPrmVtx either..." << endreq;
+    }
+    else if (msgLvl() <= MSG::DEBUG) {
+      msg() << MSG::DEBUG << "Didn't manage to find " << m_priVtxKey << " PV, so using EFHistoPrmVtx instead." << endreq;
+    }
   } 
   else if (msgLvl() <= MSG::DEBUG) {
     msg() << MSG::DEBUG << "Primary vertex collection retrieved" << endreq;
@@ -268,6 +276,9 @@ HLT::ErrorCode TrigLeptonJetMatchAllTE::hltExecute(std::vector<std::vector<HLT::
  
   for(auto Muon : *m_muons) {
     j++;
+
+      const xAOD::Muon::MuonType muontype = Muon->muonType();
+	          if(!muontype == xAOD::Muon::MuonType::Combined ) continue;
 
     muonEta = Muon->eta();
     muonPhi = Muon->phi();
@@ -400,11 +411,14 @@ HLT::ErrorCode TrigLeptonJetMatchAllTE::getTrackCollection(const xAOD::TrackPart
 
 // -----------------------------------------------------------------------------------------------------------------
 
-HLT::ErrorCode TrigLeptonJetMatchAllTE::getPrmVtxCollection(const xAOD::VertexContainer*& pointerToEFPrmVtxCollections, const HLT::TriggerElement* outputTE) {
+HLT::ErrorCode TrigLeptonJetMatchAllTE::getPrmVtxCollection(const xAOD::VertexContainer*& pointerToEFPrmVtxCollections, const HLT::TriggerElement* outputTE, std::string priVtxKey) {
+
+  if (msgLvl() <= MSG::DEBUG) 
+    msg() << MSG::DEBUG << "Retrieving PV with key = " << priVtxKey << std::endl;
 
   std::vector<const xAOD::VertexContainer*> vectorOfEFPrmVtxCollections;
   
-  HLT::ErrorCode status = getFeatures(outputTE, vectorOfEFPrmVtxCollections, m_priVtxKey);
+  HLT::ErrorCode status = getFeatures(outputTE, vectorOfEFPrmVtxCollections, priVtxKey);
   if (status != HLT::OK) {
     msg() << MSG::ERROR << "Failed to get xAOD::VertexContainer from the trigger element" << endreq;
   } 
@@ -446,7 +460,7 @@ HLT::ErrorCode TrigLeptonJetMatchAllTE::getPrmVtxCollection(const xAOD::VertexCo
   
   if (pPrmVtxColl == lastPrmVtxColl) {
     pointerToEFPrmVtxCollections = 0;
-    msg() << MSG::ERROR << "No primary vertex collection found" << endreq;
+    msg() << MSG::WARNING << "No primary vertex collection found" << endreq;
     return HLT::ERROR;
   } 
   else {

@@ -79,7 +79,7 @@ TrigBjetFex::TrigBjetFex(const std::string& name, ISvcLocator* pSvcLocator) :
   declareProperty ("Instance",           m_instance);
   declareProperty ("Taggers",            m_taggers);
   declareProperty ("JetKey",             m_jetKey     = ""); //"" needed for default config, SplitJet for new config
-  declareProperty ("PriVtxKey",          m_priVtxKey  = "EFHistoPrmVtx"); //Does this still work with default config?
+  declareProperty ("PriVtxKey",          m_priVtxKey  = "EFHistoPrmVtx");
 
   declareProperty ("par_0_MC",           m_par_0_MC);
   declareProperty ("par_1_MC",           m_par_1_MC);
@@ -390,11 +390,14 @@ HLT::ErrorCode TrigBjetFex::getCollection(const xAOD::TrackParticleContainer*& p
 //** ----------------------------------------------------------------------------------------------------------------- **//
 
 
-HLT::ErrorCode TrigBjetFex::getPrmVtxCollection(const xAOD::VertexContainer*& pointerToEFPrmVtxCollections, const HLT::TriggerElement* outputTE) {
+HLT::ErrorCode TrigBjetFex::getPrmVtxCollection(const xAOD::VertexContainer*& pointerToEFPrmVtxCollections, const HLT::TriggerElement* outputTE, std::string priVtxKey) {
 
   std::vector<const xAOD::VertexContainer*> vectorOfEFPrmVtxCollections;
+
+  if (msgLvl() <= MSG::DEBUG) 
+    msg() << MSG::DEBUG << "Retrieving PV with key = " << priVtxKey << std::endl;
   
-  HLT::ErrorCode status = getFeatures(outputTE, vectorOfEFPrmVtxCollections, m_priVtxKey);
+  HLT::ErrorCode status = getFeatures(outputTE, vectorOfEFPrmVtxCollections, priVtxKey);
   if (status != HLT::OK) {
     msg() << MSG::ERROR << "Failed to get xAOD::VertexContainer from the trigger element" << endreq;
   } 
@@ -436,7 +439,7 @@ HLT::ErrorCode TrigBjetFex::getPrmVtxCollection(const xAOD::VertexContainer*& po
   
   if (pPrmVtxColl == lastPrmVtxColl) {
     pointerToEFPrmVtxCollections = 0;
-    msg() << MSG::ERROR << "No primary vertex collection found" << endreq;
+    msg() << MSG::WARNING << "No primary vertex collection found" << endreq;
     return HLT::ERROR;
   } 
   else {
@@ -1017,8 +1020,16 @@ HLT::ErrorCode TrigBjetFex::hltExecute(const HLT::TriggerElement* /*inputTE*/, H
 
   if (m_histoPrmVtxAtEF) {   // PV from TrigT2HistoPrmVtx
 
-    if (getPrmVtxCollection(pointerToEFPrmVtxCollections, outputTE) != HLT::OK) {
-      msg() << MSG::DEBUG << "No primary vertex collection retrieved" << endreq;
+    if (getPrmVtxCollection(pointerToEFPrmVtxCollections, outputTE, m_priVtxKey) != HLT::OK) {
+      msg() << MSG::WARNING << "No primary vertex collection retrieved with name " << m_priVtxKey << endreq;
+      // If the ID PV-finding fails then use the PV from T2HistoPrmVtx instead
+      // This is not ideal... investigate why ID PV finding fails
+      if (m_priVtxKey == "xPrimVx" && getPrmVtxCollection(pointerToEFPrmVtxCollections, outputTE, "EFHistoPrmVtx") != HLT::OK) {
+	msg() << MSG::WARNING << "No primary vertex collection retrieved with name EFHistoPrmVtx either..." << endreq;
+      }
+      else if (msgLvl() <= MSG::DEBUG) {
+	msg() << MSG::DEBUG << "Didn't manage to find " << m_priVtxKey << " PV, so using EFHistoPrmVtx instead." << endreq;
+      }
     } 
     else if (msgLvl() <= MSG::DEBUG) {
       msg() << MSG::DEBUG << "Primary vertex collection retrieved" << endreq;

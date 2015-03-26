@@ -19,3 +19,4 @@ class JetSplitterAllTE (TrigJetSplitterAllTE):
         self.JetOutputKey = "SplitJet"
         self.EtaHalfWidth = 0.4
         self.PhiHalfWidth = 0.4
+        self.PriVtxKey    = "xPrimVx"
