@@ -11,9 +11,11 @@ apply_tag  ROOTTableLibs
 public
 use  AtlasBoost                 AtlasBoost-*                    External                   
 use  AtlasPolicy                AtlasPolicy-*                   
+use  AtlasCLHEP                 AtlasCLHEP-*                    External
 use  AthenaKernel               AthenaKernel-*                  Control
 use  AtlasROOT                  AtlasROOT-*                     External
 use  CLIDSvc                    CLIDSvc-*                       Control
+use  AthenaBaseComps            AthenaBaseComps-*               Control
 use  CaloEvent                  CaloEvent-*                     Calorimeter
 use  DataModel                  DataModel-*                     Control
 use  GaudiInterface             GaudiInterface-*                External
@@ -21,7 +23,6 @@ use  MuGirlInterfaces           MuGirlInterfaces-*              Reconstruction/M
 use  MuonRecToolInterfaces      MuonRecToolInterfaces-*         MuonSpectrometer/MuonReconstruction/MuonRecTools
 use  MuonRIO_OnTrack            MuonRIO_OnTrack-*               MuonSpectrometer/MuonReconstruction/MuonRecEvent
 use  MuonSegment                MuonSegment-*                   MuonSpectrometer/MuonReconstruction/MuonRecEvent
-use  StoreGate                  StoreGate-*                     Control
 use  SGTools			SGTools-*			Control
 use  GeoPrimitives              GeoPrimitives-*                 DetectorDescription
 use  TrkToolInterfaces          TrkToolInterfaces-*             Tracking/TrkTools
@@ -32,6 +33,8 @@ use  EventInfo                  EventInfo-*                     Event
 
 private
 use  CxxUtils                   CxxUtils-*                      Control
+use  StoreGate                  StoreGate-*                     Control
+use  AtlasCLHEP_RandomGenerators AtlasCLHEP_RandomGenerators-*  Simulation/Tools
 use  EventInfoMgt               EventInfoMgt-*                  Event
 use  Identifier                 Identifier-*                    DetectorDescription
 use  MdtCalibData               MdtCalibData-*                  MuonSpectrometer/MuonCalib/MdtCalib

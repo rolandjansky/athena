@@ -41,7 +41,8 @@ namespace MuGirlNS
 //================ Constructor =================================================
 
 StauTool::StauTool(const std::string& t, const std::string& n, const IInterface* p) :
-        AlgTool(t, n, p), m_log(msgSvc(), n), m_addMuToF(true), m_rpcBugFix(false), m_rpcTimeShift(5.),
+  base_class(t, n, p), 
+  m_addMuToF(true), m_rpcBugFix(false), m_rpcTimeShift(5.),
                 m_tileEnergyCut(0.5), m_doGlobalFit(true), m_doMdt(true), m_doRpc(false), m_doTileCal(true),
                 m_isData(true), m_mdtSmearFactor(0.9), //default mid smear
                 m_rpcSmearFactor(-1), m_tileSmearFactor(-1), m_doCalibration(false), m_runNumber(0),
@@ -49,16 +50,15 @@ StauTool::StauTool(const std::string& t, const std::string& n, const IInterface*
                 m_pMdtDriftCircleCreator("Muon::MdtDriftCircleOnTrackCreator"), m_pTofTool("MuGirlNS::StauBetaTofTool"),
                 m_pGlobalFitTool("MuGirlNS::GlobalFitTool", 0),    // make this a public tool
                 m_caloCellAssociationTool("Rec::ParticleCaloCellAssociationTool/ParticleCaloCellAssociationTool"),
-                m_pMdtCalibDbSvc("MdtCalibrationDbSvc", n), m_pMuonMgr(NULL), m_lowerBetaLimit(0.2),
+                m_pMdtCalibDbSvc("MdtCalibrationDbSvc", n),
+                m_randSvc ("AtRanluxGenSvc", n),
+                m_pMuonMgr(NULL), m_lowerBetaLimit(0.2),
                 m_upperBetaLimit(1.5), m_betaTolerance(0.001), m_gfBetaTolerance(0.001), m_minBeta(0.1), m_maxBeta(1.5),
                 m_lowerTTrackLimit(-50), m_upperTTrackLimit(50), m_doMuGirlNtuple(false), m_doStauNtuple(false),
                 m_pStauRPC(NULL), m_pStauMDT(NULL), m_pStauGF(NULL), m_pStauTileCal(NULL), m_pStauMDTT(NULL),
                 m_pSegmentManager(NULL), m_skipStation(1000), m_beta(-1.), m_mass(-100.), m_tzero(-100.), m_p(0.),
                 m_pNewMdtSegments(NULL), m_pRefittedTrack(NULL), m_pMuonRefittedTrack(NULL), m_hasSummary(false),
-	         m_pFcnSteps(NULL), m_numMdtSegs(-1), m_numMdtHitsInSeg(-1), m_calibration(m_log),
-	m_mdtCalibFileName(""),
-	m_rpcCalibFileName(""),
-	m_caloCalibFileName("")
+                m_pFcnSteps(NULL), m_numMdtSegs(-1), m_numMdtHitsInSeg(-1), m_calibration(msg())
 {
     declareInterface < IStauTool > (this);
 
@@ -70,6 +70,7 @@ StauTool::StauTool(const std::string& t, const std::string& n, const IInterface*
     declareProperty("StauGlobalFitTool", m_pGlobalFitTool);
     declareProperty("ParticleCaloCellAssociationTool", m_caloCellAssociationTool);
     declareProperty("MdtCalibrationDbSvc", m_pMdtCalibDbSvc);
+    declareProperty("RandSvc", m_randSvc);
 
     //  other properties
     declareProperty("MinBeta", m_lowerBetaLimit);
@@ -87,11 +88,17 @@ StauTool::StauTool(const std::string& t, const std::string& n, const IInterface*
     declareProperty("tileSmearFactor", m_tileSmearFactor);
     declareProperty("rpcTimeShift", m_rpcTimeShift);
     declareProperty("tileEnergyCut", m_tileEnergyCut);
+    declareProperty("RandStreamName", m_randStreamName = "StauTool");
 
     /* calibration */
     declareProperty("mdtCalibFileName", m_mdtCalibFileName);
     declareProperty("rpcCalibFileName", m_rpcCalibFileName);
     declareProperty("caloCalibFileName", m_caloCalibFileName);
+
+    // Dummies
+    declareProperty("UserStore", m_userStoreDummy);
+    declareProperty("DetStore", m_detStoreDummy);
+    declareProperty("EvtStore", m_evtStoreDummy);
 }
 
 //================ Destructor =================================================
@@ -104,62 +111,40 @@ StauTool::~StauTool()
 
 StatusCode StauTool::initialize()
 {
-    StatusCode sc = AlgTool::initialize();
+    ATH_CHECK( AthAlgTool::initialize() );
 
     ////calibration files
-    if ( m_mdtCalibFileName == "" ) m_log<<MSG::INFO<<"No mdt calib file"<<std::endl;
-    if ( m_rpcCalibFileName == "" ) m_log<<MSG::INFO<<"No rpc calib file"<<std::endl;
-    if ( m_caloCalibFileName == "" ) m_log<<MSG::INFO<<"No calo calib file"<<std::endl;
+    if ( m_mdtCalibFileName == "" ) ATH_MSG_INFO( "No mdt calib file" );
+    if ( m_rpcCalibFileName == "" ) ATH_MSG_INFO( "No rpc calib file" );
+    if ( m_caloCalibFileName == "" ) ATH_MSG_INFO( "No calo calib file" );
 
-    /////////
-    m_log.setLevel(outputLevel());
-    if (sc.isFailure()) return sc;
     /** initialize tool handles */
-    if (retrieve(m_pMdtSegmentMaker).isFailure()) return StatusCode::RECOVERABLE;
-    if (retrieve(m_pMdtDriftCircleCreator).isFailure()) return StatusCode::RECOVERABLE;
-    if (retrieve(m_pTofTool).isFailure()) return StatusCode::RECOVERABLE;
-    if (retrieve(m_pGlobalFitTool).isFailure()) return StatusCode::RECOVERABLE;
+    ATH_CHECK( m_pMdtSegmentMaker.retrieve() );
+    ATH_CHECK( m_pMdtDriftCircleCreator.retrieve() );
+    ATH_CHECK( m_pTofTool.retrieve() );
+    ATH_CHECK( m_pGlobalFitTool.retrieve() );
 //    if (!m_caloCellAssociationTool.empty()) ATH_CHECK(m_caloCellAssociationTool.retrieve());
-    if (retrieve(m_pMdtCalibDbSvc).isFailure()) return StatusCode::RECOVERABLE;
-    if (retrieve(m_caloCellAssociationTool).isFailure()) return StatusCode::RECOVERABLE;
+    ATH_CHECK( m_pMdtCalibDbSvc.retrieve() );
+    ATH_CHECK( m_randSvc.retrieve() );
+    ATH_CHECK( m_caloCellAssociationTool.retrieve() );
     /** initialize MuonDetectorManager */
-    ServiceHandle<StoreGateSvc> pDetStore("DetectorStore", name());
-    if (retrieve(pDetStore).isFailure()) return StatusCode::RECOVERABLE;
-    sc = pDetStore->retrieve(m_pMuonMgr);
-    if (sc.isFailure() || m_pMuonMgr == NULL)
-    {
-        m_log << MSG::ERROR << " Cannot retrieve MuonDetectorManager" << endreq;
-        return StatusCode::RECOVERABLE;
-    }
-    /** Event store*/
-    sc = service("StoreGateSvc", m_storeGate);
-    if (sc.isFailure())
-    {
-        m_log << MSG::ERROR << "Unable to retrieve pointer to StoreGateSvc" << endreq;
-        return sc;
-    }
+    ATH_CHECK( detStore()->retrieve(m_pMuonMgr) );
     // **** **** **** TagInfo **** **** ****
     const DataHandle<TagInfo> tagInfoH;
     std::string tagInfoKey = "";
-    ITagInfoMgr* pTagInfoMgr = NULL;
-    sc = service("TagInfoMgr", pTagInfoMgr);
-    if (sc.isFailure() || pTagInfoMgr == NULL)
-        m_log << MSG::WARNING << " Unable to locate TagInfoMgr service" << endreq;
-    else
-        tagInfoKey = pTagInfoMgr->tagInfoKey();
+    ServiceHandle<ITagInfoMgr> pTagInfoMgr ("TagInfoMgr", name());
+    ATH_CHECK( pTagInfoMgr.retrieve() );
+    tagInfoKey = pTagInfoMgr->tagInfoKey();
     //register the call-back to matchTagInfo
-    sc = pDetStore->regFcn(&StauTool::readTagInfo, this, tagInfoH, tagInfoKey);
-    if (sc.isFailure())
-        m_log << MSG::WARNING << "Cannot register readTagInfo function for key " << tagInfoKey << endreq;
-    else
-        LOG_DEBUG << "registered matchTagInfo callback for key: " << tagInfoKey << endreq;
-    LOG_DEBUG << "initialize() successful in " << name() << endreq;
-    LOG_DEBUG << "addMuToF flag is " << m_addMuToF << endreq;
-    LOG_DEBUG << "rpcBugFix flag is " << m_rpcBugFix << endreq;
+    ATH_CHECK( detStore()->regFcn(&StauTool::readTagInfo, this, tagInfoH, tagInfoKey) );
+    ATH_MSG_DEBUG( "registered matchTagInfo callback for key: " << tagInfoKey );
+    ATH_MSG_DEBUG( "initialize() successful in " << name() );
+    ATH_MSG_DEBUG( "addMuToF flag is " << m_addMuToF );
+    ATH_MSG_DEBUG( "rpcBugFix flag is " << m_rpcBugFix );
     /** calibration */
     if (m_doCalibration)
     {
-      LOG_DEBUG<<"Calibration "<<m_mdtCalibFileName<<"  "<<m_rpcCalibFileName<<"  "<<m_caloCalibFileName<<endreq;
+      ATH_MSG_DEBUG( "Calibration "<<m_mdtCalibFileName<<"  "<<m_rpcCalibFileName<<"  "<<m_caloCalibFileName );
       m_calibration.initialize(m_mdtCalibFileName, m_rpcCalibFileName, m_caloCalibFileName);
 
     }
@@ -191,12 +176,11 @@ StatusCode StauTool::processStau(const xAOD::TrackParticle* trkParticle,
         const Trk::Perigee* trk0,
         bool isMuonBetaRefit)
 {
-    m_log.setLevel(outputLevel());
-    //if(NULL!=trkParticle->originalTrack()) m_log << MSG::VERBOSE << "processStau()" << endreq;
+  //if(NULL!=trkParticle->originalTrack()) ATH_MSG_VERBOSE(  "processStau()" );
     if (trkParticle != NULL)
-        LOG_DEBUG << "entered" << endreq;
+      ATH_MSG_DEBUG( "entered" );
     else
-        LOG_DEBUG << "no ID track" << endreq;
+      ATH_MSG_DEBUG( "no ID track" );
     //return processStauCosmic(trkParticle, muonSegments , mdtSegmentMakerInfoList,
     //rpcHitsInSegments, tgcHitsInSegments, trigMomentum );
     //clear the candidate
@@ -204,14 +188,14 @@ StatusCode StauTool::processStau(const xAOD::TrackParticle* trkParticle,
     //initialize the candidate
     if (mdtSegmentMakerInfoList.empty() && rpcHitsInSegments.empty() && tgcHitsInSegments.empty())
     {
-        LOG_DEBUG "candidate with no MS info - done" << endreq;
+        ATH_MSG_DEBUG( "candidate with no MS info - done" );
         return StatusCode::SUCCESS;
     }
     //if (isMuonBetaRefit) m_doGlobalFit = false;
     initializeCandidate(trkParticle, muonSegments, mdtSegmentMakerInfoList, rpcHitsInSegments, tgcHitsInSegments,
             pMuonRefittedTrack, pMuonTrackParticle, trigMomentum);
     //call the minimization functions
-    StauFcn stauFcn(this, m_log);
+    StauFcn stauFcn(this, msg());
     m_minBeta = m_lowerBetaLimit;
     m_maxBeta = m_upperBetaLimit;
     if (m_doRpc || m_doMdt)
@@ -219,7 +203,7 @@ StatusCode StauTool::processStau(const xAOD::TrackParticle* trkParticle,
         if (!stauFcn.selectRange(m_minBeta, m_maxBeta))
         {
             m_beta = StauBetaDefault;
-            LOG_DEBUG << "beta out of range" << endreq;
+            ATH_MSG_DEBUG( "beta out of range" );
             if (!isMuonBetaRefit) return StatusCode::SUCCESS;
         }
 
@@ -231,7 +215,7 @@ StatusCode StauTool::processStau(const xAOD::TrackParticle* trkParticle,
         double mina = minim.minimize(stauFcn, ALL_TECHS, m_minBeta, m_maxBeta, m_betaTolerance).first;
         if (fabs(m_minBeta - mina) < 0.0005 || fabs(m_maxBeta - mina) < 0.0005)
         {
-            LOG_DEBUG << "min is on the edge" << endreq;
+            ATH_MSG_DEBUG( "min is on the edge" );
             if (m_doRpc && m_pStauRPC->hasHits())
                 m_beta = m_pStauRPC->avgBeta();
             else
@@ -278,7 +262,7 @@ StatusCode StauTool::processStau(const xAOD::TrackParticle* trkParticle,
     printTechBetaChi2();
     printTechContribution2Chi2();
     printFcnSteps();
-    LOG_DEBUG << "done" << endreq;
+    ATH_MSG_DEBUG( "done" );
     return StatusCode::SUCCESS;
 }
 
@@ -342,11 +326,10 @@ void StauTool::printTechContribution2Chi2()
     {
         StauTechnology eTech = techBetaChi2.first;
         BetaChi2 betaChi2 = techBetaChi2.second;
-        LOG_VERBOSE << "contribution to chi2:: tech " << technologyName(eTech)
-                    << " beta=" << betaChi2.beta
-                    << " chi2=" << betaChi2.chi2
-                    << " dof=" << betaChi2.dof
-                    << endreq;
+        ATH_MSG_VERBOSE( "contribution to chi2:: tech " << technologyName(eTech)
+                         << " beta=" << betaChi2.beta
+                         << " chi2=" << betaChi2.chi2
+                         << " dof=" << betaChi2.dof );
     }
 }
 
@@ -356,11 +339,10 @@ void StauTool::printTechBetaChi2()
     {
         StauTechnology eTech = techBetaChi2.first;
         BetaChi2 betaChi2 = techBetaChi2.second;
-        LOG_VERBOSE << "tech " << technologyName(eTech)
-                    << " beta=" << betaChi2.beta
-                    << " chi2=" << betaChi2.chi2
-                    << " dof=" << betaChi2.dof
-                    << endreq;
+        ATH_MSG_VERBOSE( "tech " << technologyName(eTech)
+                         << " beta=" << betaChi2.beta
+                         << " chi2=" << betaChi2.chi2
+                         << " dof=" << betaChi2.dof );
     }
 }
 
@@ -371,7 +353,7 @@ void StauTool::setCandidateAnn(double ann)
         unsigned int nCol = m_pCollection->size();
         if (!m_pCollection || nCol == 0)
         {
-            m_log << MSG::ERROR << "setCandidateAnn() is called when there is no stau collection" << endreq;
+          ATH_MSG_ERROR(  "setCandidateAnn() is called when there is no stau collection" );
             return;
         }
         //set the ann value to the last entry in the collection
@@ -384,9 +366,9 @@ void StauTool::setCandidateAnn(double ann)
 void StauTool::fillStauContainer()
 {
     //return;
-    LOG_DEBUG << "entered" << endreq;
+    ATH_MSG_DEBUG( "entered" );
     if (m_pCollection == NULL)
-      //m_log << MSG::ERROR << "StauTool::fillStauContainer - m_pCollection == NULL !!!" << endreq;
+      //ATH_MSG_ERROR(  "StauTool::fillStauContainer - m_pCollection == NULL !!!" );
       recordCollection();
     //add a container for this candidate
     auto cont = new StauContainer();
@@ -403,13 +385,17 @@ void StauTool::fillStauContainer()
     }
     else if (m_pRefittedTrack != NULL)
     {
-        m_pStauTileCal = new StauTileCal(this, m_log, m_pRefittedTrack);
+        m_pStauTileCal = new StauTileCal(this, msg(),
+                                         *m_randSvc->GetEngine(m_randStreamName),
+                                         m_pRefittedTrack);
         cont->setHasTileCells(m_pStauTileCal->hasCells());
         cont->setTileCells(m_pStauTileCal->caloCells());
     }
     else if (m_pMuonRefittedTrack != NULL)
     {
-        m_pStauTileCal = new StauTileCal(this, m_log, m_pMuonRefittedTrack);
+        m_pStauTileCal = new StauTileCal(this, msg(),
+                                         *m_randSvc->GetEngine(m_randStreamName),
+                                         m_pMuonRefittedTrack);
         cont->setHasTileCells(m_pStauTileCal->hasCells());
         cont->setTileCells(m_pStauTileCal->caloCells());
     }
@@ -459,7 +445,7 @@ void StauTool::fillStauContainer()
         m_techBetaAvg[TILECAL_TECH].beta = m_pStauTileCal->avgBeta();
         m_techBetaAvg[TILECAL_TECH].rms = m_pStauTileCal->rmsBeta();
         if (m_trigP != Amg::Vector3D(0., 0., 0.))
-            LOG_DEBUG << "StauTile: hits " << (m_pStauTileCal->getHits()).size() << endreq;
+          ATH_MSG_DEBUG( "StauTile: hits " << (m_pStauTileCal->getHits()).size() );
     }
     auto consistency = new StauContainer::Consistency();
     cont->consistencyList().push_back(consistency);
@@ -472,15 +458,15 @@ void StauTool::fillStauContainer()
     cont->setTechBetaAvg(m_techBetaAvg);
     cont->setTechBetaChi2(m_techBetaChi2);
     cont->setTechContribution2Chi2(m_techContribution2Chi2);
-    LOG_DEBUG << cont->toString() << endreq;
+    ATH_MSG_DEBUG( cont->toString() );
     delete cont;
-    LOG_DEBUG << "done" << endreq;
+    ATH_MSG_DEBUG( "done" );
 }
 
 double StauTool::computeTechnologyBeta(StauTechnology eTech, double minBeta, double maxBeta)
 {
     Minimizer minim;
-    StauFcn stauFcn(this, m_log);
+    StauFcn stauFcn(this, msg());
     m_techBetaChi2[eTech] = BetaChi2();
     double beta = StauBetaOnEdge;
     double tmpBeta = minim.minimize(stauFcn, eTech, minBeta, maxBeta, m_betaTolerance).first;
@@ -520,12 +506,12 @@ void StauTool::setRefittedTrack(const Trk::Track* pTrack)
 
 void StauTool::recordCollection()
 {
-    LOG_DEBUG << "entered" << endreq;
+    ATH_MSG_DEBUG( "entered" );
     m_pCollection = new StauCollection();
 //    delete m_pCollection;
     ServiceHandle<StoreGateSvc> pEvtStore("StoreGateSvc", name());
     StatusCode sc = pEvtStore->record(m_pCollection, "StauCandidateCollection", false);
-    if (sc.isFailure()) LOG_VERBOSE << "failed recording StauCandidateCollection" << endreq;
+    if (sc.isFailure()) ATH_MSG_VERBOSE( "failed recording StauCandidateCollection" );
 }
 
 //============================== NTuple functions =======================================
@@ -534,7 +520,7 @@ StatusCode StauTool::bookNTuple(NTuple::Tuple* pNTuple)
     m_doMuGirlNtuple = true; //this funtion is called form MuGirl.cxx if and only if muGirl ntuple is required
     if (!m_doStauNtuple) return StatusCode::SUCCESS;
     if (!m_pGlobalFitTool->bookNTuple(pNTuple, "STAU")) return StatusCode::RECOVERABLE;
-    m_pStauNtuple = new StauNTuple(m_log);
+    m_pStauNtuple = new StauNTuple(msg());
     return m_pStauNtuple->book(pNTuple);
 }
 
@@ -557,7 +543,7 @@ void StauTool::initializeCandidate(const xAOD::TrackParticle* trkParticle,
         const xAOD::TrackParticle* pMuonTrackParticle,
         Amg::Vector3D trigMomentum)
 {
-    LOG_DEBUG << "entered" << endreq;
+    ATH_MSG_DEBUG( "entered" );
     //The data from MuGirl candidate
     m_pMdtSegmentMakerInfoList = &mdtSegmentMakerInfoList;
     m_pRpcHitsInSegments = &rpcHitsInSegments;
@@ -571,25 +557,34 @@ void StauTool::initializeCandidate(const xAOD::TrackParticle* trkParticle,
     m_pMuonRefittedTrack = pMuonRefittedTrack;
     if (m_doCalibration)
     {
-        StatusCode sc = m_storeGate->retrieve(m_pEventInfo);
-        if (sc.isFailure()) m_log << MSG::ERROR << "Unable to retrieve pointer to event store" << endreq;
+        StatusCode sc = evtStore()->retrieve(m_pEventInfo);
+        if (sc.isFailure()) ATH_MSG_ERROR(  "Unable to retrieve pointer to event store" );
         const EventID* myEventID = m_pEventInfo->event_ID();
         m_runNumber = myEventID->run_number();
     }
     //initiate the 'technologies'
-    m_pStauRPC = new StauRPC(this, m_log, rpcHitsInSegments);
-    m_pStauMDT = new StauMDT(this, m_log, mdtSegmentMakerInfoList);
+    m_pStauRPC = new StauRPC(this, msg(),
+                             *m_randSvc->GetEngine(m_randStreamName),
+                             rpcHitsInSegments);
+    m_pStauMDT = new StauMDT(this, msg(),
+                             *m_randSvc->GetEngine(m_randStreamName),
+                             mdtSegmentMakerInfoList);
     if (m_doGlobalFit)
-        m_pStauGF = new StauGF(this, m_log, muonSegments);
+      m_pStauGF = new StauGF(this, msg(), muonSegments);
     else
         m_pStauGF = NULL;
     if (m_pTrkParticle != NULL)
-        m_pStauTileCal = new StauTileCal(this, m_log, m_pTrkParticle);
+      m_pStauTileCal = new StauTileCal(this, msg(),
+                                       *m_randSvc->GetEngine(m_randStreamName),
+                                       m_pTrkParticle);
     else if (pMuonTrackParticle != NULL)
-        m_pStauTileCal = new StauTileCal(this, m_log, pMuonTrackParticle);
+      m_pStauTileCal = new StauTileCal(this, msg(),
+                                       *m_randSvc->GetEngine(m_randStreamName),
+                                       pMuonTrackParticle);
     else
         m_pStauTileCal = NULL;
-    m_pStauMDTT = new StauMDTT(this, m_log);
+    m_pStauMDTT = new StauMDTT(this, msg(),
+                               *m_randSvc->GetEngine(m_randStreamName));
     if (m_pIdTrack != NULL)
     {
         double px = m_pIdTrack->perigeeParameters()->momentum()[Trk::px];
@@ -612,7 +607,7 @@ void StauTool::initializeCandidate(const xAOD::TrackParticle* trkParticle,
     m_pNewMdtSegments = new MdtSegments;
     //mark that thiws candidate does not have (yet) a summary
     m_hasSummary = false;
-    LOG_DEBUG << "done" << endreq;
+    ATH_MSG_DEBUG( "done" );
 }
 
 //================= clearCandidate ==========================================
@@ -622,7 +617,7 @@ void StauTool::initializeCandidate(const xAOD::TrackParticle* trkParticle,
 void StauTool::clearCandidate()
 
 {
-    LOG_VERBOSE << "entered" << endreq;
+    ATH_MSG_VERBOSE( "entered" );
     m_beta = StauBetaDefault;
     m_mass = -100.;
     m_tzero = -100.;
@@ -633,13 +628,13 @@ void StauTool::clearCandidate()
     m_pRefittedTrack = NULL;
     //clear the vector of new mdt segments.
     // the segments are handles by theSegmentManager
-    LOG_VERBOSE << "clearing new segments" << endreq;
+    ATH_MSG_VERBOSE( "clearing new segments" );
     if (m_pNewMdtSegments != NULL)
     {
         m_pNewMdtSegments->clear();
         delete m_pNewMdtSegments;
     }
-    LOG_VERBOSE << "new segments cleared" << endreq;
+    ATH_MSG_VERBOSE( "new segments cleared" );
     if (m_pFcnSteps != NULL) clearFcnSteps();
     {
         delete m_pFcnSteps;
@@ -650,31 +645,31 @@ void StauTool::clearCandidate()
         m_pStauRPC->clear();
         delete m_pStauRPC;
     }
-    LOG_VERBOSE << "clearing MDT" << endreq;
+    ATH_MSG_VERBOSE( "clearing MDT" );
     if (m_pStauMDT != NULL)
     {
         m_pStauMDT->clear();
         delete m_pStauMDT;
     }
-    LOG_VERBOSE << "MDT cleared" << endreq;
+    ATH_MSG_VERBOSE( "MDT cleared" );
     if (m_pStauGF != NULL)
     {
         m_pStauGF->clear();
         delete m_pStauGF;
     }
-    LOG_VERBOSE << "GF cleared" << endreq;
+    ATH_MSG_VERBOSE( "GF cleared" );
     if (m_pStauTileCal != NULL)
     {
         m_pStauTileCal->clear();
         delete m_pStauTileCal;
     }
-    LOG_VERBOSE << "clearing MDTT" << endreq;
+    ATH_MSG_VERBOSE( "clearing MDTT" );
     if (m_pStauMDTT != NULL)
     {
         m_pStauMDTT->clear();
         delete m_pStauMDTT;
     }
-    LOG_VERBOSE << "done" << endreq;
+    ATH_MSG_VERBOSE( "done" );
 }
 
 void StauTool::clearNewMdtSegments()
@@ -720,8 +715,7 @@ void StauTool::printFcnSteps()
 
 StatusCode StauTool::fillStauSummary(const CandidateSummary* summary, CandidateSummary* stauSummary)
 {
-    m_log.setLevel(outputLevel());
-    LOG_DEBUG << "entered" << endreq;
+    ATH_MSG_DEBUG( "entered" );
     //Mark this candidate with hasSummary flag
     m_hasSummary = true;
     //paarmeters identical to the muon summary
@@ -782,7 +776,7 @@ StatusCode StauTool::fillStauSummary(const CandidateSummary* summary, CandidateS
     stauSummary->pMSRefittedTrack.reset();
     stauSummary->pTrkMSRefitted.reset();
     
-    LOG_DEBUG << "done" << endreq;
+    ATH_MSG_DEBUG( "done" );
     return StatusCode::SUCCESS;
 }
 
@@ -810,7 +804,7 @@ static std::string dumpStauExtras(const StauExtras& stauExtras)
 
 StatusCode StauTool::fillStauExtras(const CandidateSummary* stauSummary, StauExtras* stauExtras)
 {
-    LOG_DEBUG << "entered" << endreq;
+    ATH_MSG_DEBUG( "entered" );
     stauExtras->ann = stauSummary->nnBarrel > 0 ? stauSummary->nnBarrel : stauSummary->nnEndCap;
     stauExtras->betaAll = m_techBetaChi2[ALL_TECHS].beta;
     stauExtras->betaAllt = m_techBetaChi2[ALLT_TECHS].beta;
@@ -835,8 +829,8 @@ StatusCode StauTool::fillStauExtras(const CandidateSummary* stauSummary, StauExt
     if (m_pStauTileCal != NULL && m_pStauTileCal->hasCells())
         stauExtras->addHits(m_pStauTileCal->getHits());
     
-    LOG_DEBUG << "stauExtras:\n" << dumpStauExtras(*stauExtras) << endreq;
-    LOG_DEBUG << "done" << endreq;
+    ATH_MSG_DEBUG( "stauExtras:\n" << dumpStauExtras(*stauExtras) );
+    ATH_MSG_DEBUG( "done" );
     return StatusCode::SUCCESS;
 }
 static std::string dumpRHExtras(const RHExtras& rhExtras)
@@ -850,21 +844,23 @@ static std::string dumpRHExtras(const RHExtras& rhExtras)
 
 StatusCode StauTool::fillRHExtras(RHExtras* rhExtras)
 {
-    LOG_DEBUG << "entered" << endreq;
+    ATH_MSG_DEBUG( "entered" );
     if (m_pStauTileCal == nullptr)
     {
         if (m_pIdTrack == nullptr)
             return StatusCode::FAILURE;
         else
-            m_pStauTileCal = new StauTileCal(this, m_log, m_pIdTrack);
+          m_pStauTileCal = new StauTileCal(this, msg(),
+                                           *m_randSvc->GetEngine(m_randStreamName),
+                                           m_pIdTrack);
     }
     rhExtras->numCaloCells = m_pStauTileCal->caloCells()->size();
     rhExtras->caloBetaAvg = m_pStauTileCal->avgBeta();
     rhExtras->caloBetaRms = m_pStauTileCal->rmsBeta();
     if (m_pStauTileCal->hasCells())
         rhExtras->addHits(m_pStauTileCal->getHits());
-    LOG_DEBUG << "rhExtras:\n" << dumpRHExtras(*rhExtras) << endreq;
-    LOG_DEBUG << "done" << endreq;
+    ATH_MSG_DEBUG( "rhExtras:\n" << dumpRHExtras(*rhExtras) );
+    ATH_MSG_DEBUG( "done" );
     return StatusCode::SUCCESS;
 }
 //=============== functions related to the minimization process================
@@ -875,10 +871,10 @@ StatusCode StauTool::fillRHExtras(RHExtras* rhExtras)
  */
 bool StauTool::recalculateFirstSteps()
 {
-    LOG_VERBOSE << "entered" << endreq;
+    ATH_MSG_VERBOSE( "entered" );
     if (m_pFcnSteps->size() != 4)
     {
-        m_log << MSG::ERROR << "recalculateFirstSteps()::size of m_pFsnSteps != 4  --> BUG" << endreq;
+        ATH_MSG_ERROR(  "recalculateFirstSteps()::size of m_pFsnSteps != 4  --> BUG" );
         return false;
     }
     auto& firstSteps = *m_pFcnSteps;
@@ -891,7 +887,7 @@ bool StauTool::recalculateFirstSteps()
             || (pStep0->mdtData->pStationDataList->size() != pStep2->mdtData->pStationDataList->size())
             || (pStep0->mdtData->pStationDataList->size() != pStep3->mdtData->pStationDataList->size()))
     {
-        m_log << MSG::ERROR << "recalculateFirstSteps()::different number of stations  --> BUG" << endreq;
+        ATH_MSG_ERROR(  "recalculateFirstSteps()::different number of stations  --> BUG" );
         return false;
     }
     for (unsigned int i = 0; i < pStep0->mdtData->pStationDataList->size(); i++)
@@ -903,19 +899,19 @@ bool StauTool::recalculateFirstSteps()
         double chi2ratio = step0ratio + step1ratio + step2ratio + step3ratio;
         if (chi2ratio < 3) continue;
         //remove the station
-        LOG_VERBOSE << "removing station #" << i << endreq;
+        ATH_MSG_VERBOSE( "removing station #" << i );
         m_skipStation = i;
         clearFcnSteps();
         return true;
     }
-    LOG_VERBOSE << "done" << endreq;
+    ATH_MSG_VERBOSE( "done" );
     return false;
 }
 
 bool StauTool::selectRange(double& min, double& max)
 {
     //return true;
-    LOG_VERBOSE << "entered" << endreq;
+    ATH_MSG_VERBOSE( "entered" );
     m_lowerLimitNoMdt = min;
     m_upperLimitNoMdt = max;
     auto& firstSteps = *m_pFcnSteps;
@@ -933,11 +929,10 @@ bool StauTool::selectRange(double& min, double& max)
         max = m_upperLimitNoMdt = firstSteps[iLastStep]->beta; //  + 0.1;
         if (!m_doMdt) return true;
     }
-    LOG_VERBOSE << "minRpcLoc " << minRpcLoc
-                << " minTileLoc " << minTileLoc
-                << " minRpcTileLoc " << minRpcTileLoc
-                << endreq;
-    LOG_VERBOSE << "before mdt selection: min=" << min << " max=" << max << endreq;
+    ATH_MSG_VERBOSE( "minRpcLoc " << minRpcLoc
+                     << " minTileLoc " << minTileLoc
+                     << " minRpcTileLoc " << minRpcTileLoc );
+    ATH_MSG_VERBOSE( "before mdt selection: min=" << min << " max=" << max );
 //    return true;
     double maxHits = 0;
     bool decrease = false;
@@ -948,14 +943,13 @@ bool StauTool::selectRange(double& min, double& max)
         auto pStep = firstSteps[i];
         double numSegs = pStep->mdtData->numSegs;
         double numHits = pStep->mdtData->hitsInSegments;
-        LOG_VERBOSE << "beta=" << pStep->beta
-                    << " chi2=" << pStep->chi2
-                    << " numHits=" << pStep->mdtData->hitsInSegments
-                    << " maxHits=" << maxHits
-                    << " min=" << min
-                    << " max=" << max
-                    << " numSegs=" << numSegs
-                    << endreq;
+        ATH_MSG_VERBOSE( "beta=" << pStep->beta
+                         << " chi2=" << pStep->chi2
+                         << " numHits=" << pStep->mdtData->hitsInSegments
+                         << " maxHits=" << maxHits
+                         << " min=" << min
+                         << " max=" << max
+                         << " numSegs=" << numSegs );
         if (numSegs == 0) continue;
         if (maxHits < numHits)
         {
@@ -989,7 +983,7 @@ bool StauTool::selectRange(double& min, double& max)
             decrease = true;
         }
     }
-    LOG_VERBOSE << "done: min=" << min << " max=" << max << endreq;
+    ATH_MSG_VERBOSE( "done: min=" << min << " max=" << max );
     if (min == max)
     {
         if (loc == 0 || (int) firstSteps.size() - 1 == loc) return false;
@@ -1006,20 +1000,18 @@ bool StauTool::selectRange(double& min, double& max)
 StatusCode StauTool::readTagInfo(IOVSVC_CALLBACK_ARGS)
 {
     // Get TagInfo and retrieve tags
-    m_log.setLevel(outputLevel());
-    LOG_DEBUG << "entered" << endreq;
+    ATH_MSG_DEBUG( "entered" );
     if (m_isData)
     {
-        LOG_DEBUG << "This is data: exiting, use default configuration:"
-                  << " addMuToF is set to " << m_addMuToF
-                  << " timeShift is " << m_rpcTimeShift
-                  << " rpcBugFix is " << m_rpcBugFix
-                  << endreq;
+        ATH_MSG_DEBUG( "This is data: exiting, use default configuration:"
+                       << " addMuToF is set to " << m_addMuToF
+                       << " timeShift is " << m_rpcTimeShift
+                       << " rpcBugFix is " << m_rpcBugFix );
         return StatusCode::SUCCESS;
     }
     const TagInfo* tagInfo = 0;
     ServiceHandle<StoreGateSvc> pDetStore("DetectorStore", name());
-    if (retrieve(pDetStore).isFailure()) return StatusCode::RECOVERABLE;
+    ATH_CHECK( pDetStore.retrieve() );
     StatusCode sc = pDetStore->retrieve(tagInfo);
     std::string rpcDigit = "";
     std::string atlasRel = "";
@@ -1027,11 +1019,11 @@ StatusCode StauTool::readTagInfo(IOVSVC_CALLBACK_ARGS)
     std::string atlasRel_main = "";
     if (sc.isFailure() || tagInfo == 0)
     {
-        LOG_DEBUG << "no TagInfo in DetectorStore" << endreq;
+        ATH_MSG_DEBUG( "no TagInfo in DetectorStore" );
         m_addMuToF = true;
         return StatusCode::RECOVERABLE;
     }
-    LOG_DEBUG << "found TagInfo in DetectorStore" << endreq;
+    ATH_MSG_DEBUG( "found TagInfo in DetectorStore" );
     TagInfo::NameTagPairVec aNameTagPairVec;
     tagInfo->getInputTags(aNameTagPairVec);
     for (unsigned int Item = 0; Item < aNameTagPairVec.size(); Item++)
@@ -1039,12 +1031,12 @@ StatusCode StauTool::readTagInfo(IOVSVC_CALLBACK_ARGS)
         if (aNameTagPairVec[Item].first == "RPC_TimeSchema")
         {
             rpcDigit = aNameTagPairVec[Item].second;
-            LOG_DEBUG << "RPC_Digitization from TagInfoVector is " << rpcDigit << endreq;
+            ATH_MSG_DEBUG( "RPC_Digitization from TagInfoVector is " << rpcDigit );
         }
         if (aNameTagPairVec[Item].first == "AtlasRelease")
         {
             atlasRel = aNameTagPairVec[Item].second;
-            LOG_DEBUG << "AtlasRelease from TagInfoVector is " << atlasRel << endreq;
+            ATH_MSG_DEBUG( "AtlasRelease from TagInfoVector is " << atlasRel );
         }
     }
     if (rpcDigit == "")
@@ -1054,7 +1046,7 @@ StatusCode StauTool::readTagInfo(IOVSVC_CALLBACK_ARGS)
             m_addMuToF = true;
             m_rpcTimeShift = 0;
             m_rpcBugFix = false;
-            LOG_DEBUG << "this is Data: addMuToF is set to " << m_addMuToF << endreq;
+            ATH_MSG_DEBUG( "this is Data: addMuToF is set to " << m_addMuToF );
         }
         else
         {
@@ -1088,7 +1080,7 @@ StatusCode StauTool::readTagInfo(IOVSVC_CALLBACK_ARGS)
                 m_addMuToF = false;
                 m_rpcTimeShift = 0;
                 m_rpcBugFix = true;
-                LOG_DEBUG << "release " << atlRel_main << ": addMuToF is set to  " << m_addMuToF << endreq;
+                ATH_MSG_DEBUG( "release " << atlRel_main << ": addMuToF is set to  " << m_addMuToF );
             }
         }
     }
@@ -1109,10 +1101,9 @@ StatusCode StauTool::readTagInfo(IOVSVC_CALLBACK_ARGS)
             m_rpcBugFix = false;
         }
     }
-    LOG_DEBUG << "addMuToF is set to  " << m_addMuToF
-              << " timeShift is " << m_rpcTimeShift
-              << " rpcBugFix is " << m_rpcBugFix
-              << endreq;
+    ATH_MSG_DEBUG( "addMuToF is set to  " << m_addMuToF
+                   << " timeShift is " << m_rpcTimeShift
+                   << " rpcBugFix is " << m_rpcBugFix );
     return StatusCode::SUCCESS;
 }
 
@@ -1123,9 +1114,8 @@ StatusCode StauTool::processStauCosmic(const xAOD::TrackParticle* trkParticle,
         const RIO_OnTrackLists& tgcHitsInSegments,
         Amg::Vector3D trigMomentum)
 {
-    m_log.setLevel(outputLevel());
-    //if(NULL!=trkParticle->originalTrack()) m_log << MSG::VERBOSE << "processStau()" << endreq;
-    LOG_VERBOSE << (trkParticle != NULL ? "entered" : "no ID track") << endreq;
+    //if(NULL!=trkParticle->originalTrack()) ATH_MSG_VERBOSE(  "processStau()" );
+    ATH_MSG_VERBOSE( (trkParticle != NULL ? "entered" : "no ID track") );
     //clear the candidate
     clearCandidate();
     //double trigMomentum;
@@ -1133,13 +1123,13 @@ StatusCode StauTool::processStauCosmic(const xAOD::TrackParticle* trkParticle,
     //initialize the candidate
     if (mdtSegmentMakerInfoList.empty() && rpcHitsInSegments.empty() && tgcHitsInSegments.empty())
     {
-        LOG_VERBOSE << "candidate with no MS info -  done" << endreq;
+        ATH_MSG_VERBOSE( "candidate with no MS info -  done" );
         return StatusCode::SUCCESS;
     }
     initializeCandidate(trkParticle, muonSegments, mdtSegmentMakerInfoList, rpcHitsInSegments, tgcHitsInSegments, NULL,
             NULL, trigMomentum);
     //call the minimization functions
-    StauCosmicFcn stauCosmicFcn(this, m_log, beta);
+    StauCosmicFcn stauCosmicFcn(this, msg(), beta);
     m_minTTrack = m_lowerTTrackLimit;
     m_maxTTrack = m_upperTTrackLimit;
     if (m_doRpc || m_doMdt)
@@ -1168,7 +1158,7 @@ StatusCode StauTool::processStauCosmic(const xAOD::TrackParticle* trkParticle,
                 << trkParticle->perigeeParameters().parameters()[Trk::z0] << std::endl;
         if (fabs(m_minTTrack - mina) < 0.0005 || fabs(m_maxTTrack - mina) < 0.0005)
         {
-            LOG_VERBOSE << "min is on the edge" << endreq;
+            ATH_MSG_VERBOSE( "min is on the edge" );
             m_tTrack = StauTTrackOnEdge;
         }
         else
@@ -1184,14 +1174,14 @@ StatusCode StauTool::processStauCosmic(const xAOD::TrackParticle* trkParticle,
                 //recalculate and store the mdt segments with the new beta
     // printFcnSteps();
     //std::cout << "All betas:  AOD = " << m_beta << " ALL = " << m_betaAll << " MS = " << m_betaMS << " noRpc = " << m_betaNoRpc << " MDT = " << m_pStauMDT->beta() << " RPC = " << m_pStauRPC->beta() << " Tile = " << m_pStauTileCal->beta() << std::endl;
-    LOG_VERBOSE << "done" << endreq;
+    ATH_MSG_VERBOSE( "done" );
     return StatusCode::SUCCESS;
 }
 
 bool StauTool::selectRangeTTrack(double& min, double& max)
 {
     //return true;
-    LOG_VERBOSE << "entered" << endreq;
+    ATH_MSG_VERBOSE( "entered" );
     if (noIDTrack()) return false;
     auto& firstSteps = *m_pFcnSteps;
     unsigned int iFirstStep = 0;
@@ -1257,7 +1247,7 @@ bool StauTool::selectRangeTTrack(double& min, double& max)
         max = bestRange.max + 2.0;
         return true;
     }
-    LOG_VERBOSE << "done: min=" << min << " max=" << max << endreq;
+    ATH_MSG_VERBOSE( "done: min=" << min << " max=" << max );
     return false;
 }
 } // end of namespace

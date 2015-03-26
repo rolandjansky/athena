@@ -13,8 +13,8 @@
 #include "MuGirlStau/StauToolDefinitions.h"
 #include "MuGirlStau/StauTool.h"
 #include "MuGirlStau/StauCalibration.h"
+#include "CLHEP/Random/RandomEngine.h"
 
-#include "TRandom3.h"
 
 namespace MuGirlNS
 {
@@ -22,7 +22,9 @@ namespace MuGirlNS
     class StauMDT
     {
     public:
-        StauMDT(StauTool* pStau, MsgStream& log,
+        StauMDT(StauTool* pStau,
+                MsgStream& log,
+                CLHEP::HepRandomEngine& randEngine,
                 const MuGirlNS::MdtSegmentMakerInfoList& mdtSegmentMakerInfoList);
 
         /** default destructor */
@@ -61,6 +63,7 @@ namespace MuGirlNS
         void initCalibrationParameters();
         int m_segmentNumber;
         int m_chamberNumber;
+        CLHEP::HepRandomEngine& m_randEngine;
     };
 
 } // end of namespace

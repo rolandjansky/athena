@@ -141,8 +141,9 @@ namespace MuGirlNS
         double tTrack;
     };
 
-    struct MdttStepData
+    class MdttStepData
     {
+    public:
         double beta;
         double chi2;
         double dof;

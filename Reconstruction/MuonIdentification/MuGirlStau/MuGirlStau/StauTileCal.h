@@ -11,6 +11,7 @@
 #include "CaloEvent/CaloCell.h"
 #include "TrkToolInterfaces/ITrackParticleCreatorTool.h"
 #include "MuGirlStau/StauCalibration.h"
+#include "CLHEP/Random/RandomEngine.h"
 
 namespace Rec
 {
@@ -22,8 +23,12 @@ namespace MuGirlNS
     class StauTileCal
     {
     public:
-        StauTileCal(StauTool* pStau, MsgStream& log, const xAOD::TrackParticle* trkParticle);
-        StauTileCal(StauTool* pStau, MsgStream& log, const Trk::Track* trk);
+        StauTileCal(StauTool* pStau, MsgStream& log,
+                    CLHEP::HepRandomEngine& randEngine,
+                    const xAOD::TrackParticle* trkParticle);
+        StauTileCal(StauTool* pStau, MsgStream& log,
+                    CLHEP::HepRandomEngine& randEngine,
+                    const Trk::Track* trk);
 
         /** default destructor */
         virtual ~StauTileCal();
@@ -80,6 +85,8 @@ namespace MuGirlNS
         bool m_hasCells;
         StauHits m_hits;
         StauCalibration::layer_bin_calibration_map* m_pCalibration;
+
+        CLHEP::HepRandomEngine& m_randEngine;
     };
 
 } // end of namespace
