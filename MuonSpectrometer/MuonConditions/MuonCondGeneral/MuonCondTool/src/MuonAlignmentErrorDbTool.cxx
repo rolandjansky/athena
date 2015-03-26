@@ -50,7 +50,7 @@ MuonAlignmentErrorDbTool::MuonAlignmentErrorDbTool (const std::string& type,
   
   declareInterface< IMuonAlignmentErrorDbTool >(this);
   
-  declareProperty("ErrorFolder",     m_errorFolder="/MUONALIGN/ERRORS");
+  declareProperty("ErrorFolder",     m_errorFolder="/MUONALIGN/ERRS");
 
   }
 
