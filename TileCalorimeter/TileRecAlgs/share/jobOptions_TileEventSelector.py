@@ -1,3 +1,27 @@
+if not 'RUN2' in dir():
+    RUN2=True
+if RUN2:
+    from AthenaCommon.GlobalFlags import globalflags
+    globalflags.DetGeo.set_Value_and_Lock('atlas')
+    globalflags.DataSource.set_Value_and_Lock('data')
+    globalflags.DatabaseInstance="CONDBR2"
+
+    from IOVDbSvc.CondDB import conddb
+    from AthenaCommon.GlobalFlags import jobproperties
+
+    if not 'CondDbTag' in dir():
+        CondDbTag = 'CONDBR2-BLKPA-2014-00'
+
+    jobproperties.Global.ConditionsTag = CondDbTag
+    conddb.setGlobalTag(CondDbTag)
+    globalflags.ConditionsTag.set_Value_and_Lock(CondDbTag)
+
+    if not 'DetDescrVersion' in dir():
+        DetDescrVersion = 'ATLAS-R2-2015-02-00-00'
+
+    jobproperties.Global.DetDescrVersion = DetDescrVersion
+    globalflags.DetDescrVersion.set_Value_and_Lock(DetDescrVersion)
+
 if not 'EvtMax' in dir():
     EvtMax = -1
 
@@ -27,6 +51,8 @@ svcMgr.MessageSvc.defaultLimit = 5000000
 svcMgr.MessageSvc.Format = "% F%30W%S%7W%R%T %0W%M"
 svcMgr.MessageSvc.useColors = False
 
+if 'FileNameVec' in dir():
+    InputFile=FileNameVec
 
 if not 'InputFile' in dir():
     from os import system,popen
@@ -65,7 +91,8 @@ if not 'InputFile' in dir():
     if ReadESD:
         InputFile=["dummy.ESD.pool.root"]
     else:
-        InputFile=["dummy.RAW.data"]
+        #InputFile=["dummy.RAW.data"]
+        InputFile=[]
     for nn in range(len(files)):
         temp=files[nn].split('\n')
         if RunFromLocal or not ReadESD:
@@ -162,6 +189,7 @@ if 'ForceTimeStamp' in dir():
     include.block("LumiBlockComps/LumiBlockMuWriter_jobOptions.py")
     include.block("RecBackgroundAlgs/RecBackground_jobOptions.py")
 
+
 # main jobOption - must always be included
 ##############################
 include ("RecExCommon/RecExCommon_topOptions.py")
@@ -199,6 +227,11 @@ seq = acas.AthSequencer("AthFilterSeq")
 #                     (191513, 20422820),
 #                     (191920, 34336488) ]
 
+if RUN2:
+    from xAODEventInfoCnv.xAODEventInfoCreator import xAODMaker__EventInfoCnvAlg
+    #topSequence+=xAODMaker__EventInfoCnvAlg()
+    seq+=xAODMaker__EventInfoCnvAlg()
+
 from TileRecAlgs.TileRecAlgsConf import TileCellSelector
 seq += TileCellSelector('TileSelector')
 if ReadESD:
@@ -223,8 +256,8 @@ seq.TileSelector.PedDetlaHG=4.1
 seq.TileSelector.PedDetlaLG=4.1
 seq.TileSelector.ConstLength=7
 seq.TileSelector.MinBadMB=4
-seq.TileSelector.MinBadDMU=5
-seq.TileSelector.MaxBadDMU=15
+seq.TileSelector.MinBadDMU=4
+seq.TileSelector.MaxBadDMU=16
 seq.TileSelector.SkipMasked=True
 seq.TileSelector.CheckDCS=True
 seq.TileSelector.SkipMBTS=True
@@ -232,6 +265,7 @@ seq.TileSelector.CheckDMUs=True
 seq.TileSelector.CheckJumps=True
 seq.TileSelector.CheckOverLG=True
 seq.TileSelector.CheckOverHG=False
+seq.TileSelector.MaxVerboseCnt=99999999
 seq.TileSelector.OutputLevel=1
 
 # get a handle on the job main sequence                                         

@@ -15,6 +15,7 @@
 #include "TileConditions/ITileBadChanTool.h"
 #include "TileConditions/TileDCSSvc.h"
 #include "TileRecUtils/TileRawChannelBuilder.h"
+#include "TileRecUtils/TileBeamInfoProvider.h"
 
 #include "xAODEventInfo/EventInfo.h"
 
