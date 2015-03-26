@@ -1,5 +1,3 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-
 
 from AthenaCommon.AppMgr import ServiceMgr
 import AthenaPoolCnvSvc.ReadAthenaPool
@@ -32,7 +30,7 @@ from AthenaCommon.DetFlags import DetFlags
 DetFlags.ID_setOn()
 DetFlags.Calo_setOn()
 DetFlags.Muon_setOff()
-include ('TrkDetDescrSvc/AtlasTrackingGeometrySvc.py')
+#include ('TrkDetDescrSvc/AtlasTrackingGeometrySvc.py')
 
 from ISF_FastCaloSimParametrization.ISF_FastCaloSimParametrizationConf import ISF_HitAnalysis
 topSequence += ISF_HitAnalysis() 
@@ -55,15 +53,15 @@ ISF_HitAnalysis.CaloBoundaryZ = 3550.0 #before: 3475.0
 ISF_HitAnalysis.CaloMargin=100 #=10cm
 ISF_HitAnalysis.NTruthParticles = 1 # Copy only one truth particle to the ntuples for now
 
-from TrackToCalo.ExtrapolTrackToCaloToolBase import ExtrapolTrackToCaloToolFactory
+#from TrackToCalo.ExtrapolTrackToCaloToolBase import ExtrapolTrackToCaloToolFactory
 	   
-theFSElectronExtrapolTrackToCaloTool        =ExtrapolTrackToCaloToolFactory(depth="middle",straightLine=False)
-ISF_HitAnalysis.electronExtrapolTool=theFSElectronExtrapolTrackToCaloTool.getFullName()
-ToolSvc+=theFSElectronExtrapolTrackToCaloTool
+#theFSElectronExtrapolTrackToCaloTool        =ExtrapolTrackToCaloToolFactory(depth="middle",straightLine=False)
+#ISF_HitAnalysis.electronExtrapolTool=theFSElectronExtrapolTrackToCaloTool.getFullName()
+#ToolSvc+=theFSElectronExtrapolTrackToCaloTool
 
-theFSElectronExtrapolTrackToCaloToolEntrance=ExtrapolTrackToCaloToolFactory(depth="entrance",straightLine=False)
-ISF_HitAnalysis.electronExtrapolToolEntrance=theFSElectronExtrapolTrackToCaloToolEntrance.getFullName()
-ToolSvc+=theFSElectronExtrapolTrackToCaloToolEntrance
+#theFSElectronExtrapolTrackToCaloToolEntrance=ExtrapolTrackToCaloToolFactory(depth="entrance",straightLine=False)
+#ISF_HitAnalysis.electronExtrapolToolEntrance=theFSElectronExtrapolTrackToCaloToolEntrance.getFullName()
+#ToolSvc+=theFSElectronExtrapolTrackToCaloToolEntrance
 
 from TrkExTools.AtlasExtrapolator import AtlasExtrapolator
 theExtrapolator=AtlasExtrapolator()

@@ -193,10 +193,10 @@ void PCA(TString InputFile="output1"){
     if (!gSystem->AccessPathName( InputFileName ))
         input = TFile::Open( InputFileName ); // check if file in local directory exists
     if (!input) {
-        cout << "ERROR: could not open data file" << std::endl;
+        std::cout << "ERROR: could not open data file" << std::endl;
         exit(1);
     }
-    std::cout << " Using input file: " << input->GetName() << endl;
+    std::cout << " Using input file: " << input->GetName() << std::endl;
     
     //Input Tree Reader
     TTree *InputTree = (TTree*)input->Get("FCS_ParametrizationInput");
@@ -233,47 +233,65 @@ void PCA(TString InputFile="output1"){
     for (int i=0; i<25 ; i++) {
         if(Tampon[i]/NEntries >= 0.01){
             
-            
-            
             Relevant_Layers.push_back(i);
             
             std::cout<<"Layer "  <<i <<" is relevant !" <<std::endl;
         }
     }
-    
-    
-    
-    
-    
+
     
     //-----------------------------------------------------------------------------------------------
     //    (2) Fill Input Histograms and Compute Cumulative Distributions
     //-----------------------------------------------------------------------------------------------
     
-    TH1F** hdata = new TH1F*[Relevant_Layers.size()];
-    TH1F** hCumulative = new TH1F*[Relevant_Layers.size()];
+    TH1F** hdata = new TH1F*[Relevant_Layers.size()+1];
+    TH1F** hCumulative = new TH1F*[Relevant_Layers.size()+1];
     
-    for (unsigned int k= 0; k < Relevant_Layers.size(); k++) {
-        hdata[k] = new TH1F(Form("hdata%i",Relevant_Layers[k]), Form("hdata%i",Relevant_Layers[k]),5000,0,MaxInputs[Relevant_Layers[k]]);
+    for (unsigned int k= 0; k < Relevant_Layers.size()+1; k++) {
+        
+        if (k==Relevant_Layers.size()) {
+            hdata[Relevant_Layers.size()] = new TH1F("hdata_Total_Cell_Energy", "hdata_Total_Cell_Energy",5000,InputTree->GetMinimum("total_cell_energy"),InputTree->GetMaximum("total_cell_energy"));
+            
+            for ( int ientry=0;ientry<NEntries;ientry++ ){
+                nr->GetEntry(ientry);
+                hdata[k]->Fill(nr->GetVariable("total_cell_energy"));
+            }
+            //Get Cumulative
+            hCumulative[k] = new TH1F("hCumulative_Total_Cell_Energy", "hCumulative_Total_Cell_Energy", 5000,InputTree->GetMinimum("total_cell_energy"),InputTree->GetMaximum("total_cell_energy"));
+            
+            }
+        
+        else{
+            hdata[k] = new TH1F(Form("hdata%i",Relevant_Layers[k]), Form("hdata%i",Relevant_Layers[k]),5000,0,MaxInputs[Relevant_Layers[k]]);
         
         
-        for ( int ientry=0;ientry<NEntries;ientry++ ){
-            nr->GetEntry(ientry);
-            hdata[k]->Fill( nr->GetVariable(Form("cell_energy[%d]",Relevant_Layers[k]))/nr->GetVariable("total_cell_energy") );
+            for ( int ientry=0;ientry<NEntries;ientry++ ){
+                nr->GetEntry(ientry);
+                hdata[k]->Fill( nr->GetVariable(Form("cell_energy[%d]",Relevant_Layers[k]))/nr->GetVariable("total_cell_energy") );
+            }
+
+        
+            //Get Cumulative
+            hCumulative[k] = new TH1F(Form("hCumulative_Id_%i",Relevant_Layers[k]), Form("hCumulative_Id_%i",Relevant_Layers[k]), 5000, 0,MaxInputs[Relevant_Layers[k]] );
+    
         }
         
         
+    
+        
         hdata[k]->Sumw2();
         hdata[k]->Scale(1/hdata[k]->Integral());
-        
-        //Get Cumulative
-        hCumulative[k] = new TH1F(Form("hCumulative_Id_%i",Relevant_Layers[k]), Form("hCumulative_Id_%i",Relevant_Layers[k]), 5000, 0,MaxInputs[Relevant_Layers[k]] );
         
         for (int i=1; i<=hdata[k]->GetNbinsX(); i++) {
             hCumulative[k]->SetBinContent(i,hdata[k]->Integral(1,i));
         }
         
+
+        
+        
+        
     }
+    
     
    
     //-----------------------------------------------------------------------------------------------
@@ -282,10 +300,9 @@ void PCA(TString InputFile="output1"){
     
     
     //Get Data
-    Double_t Total_cell_energy;
-    Double_t* data = new Double_t[Relevant_Layers.size()];
-    Double_t* data_Uniform = new Double_t[Relevant_Layers.size()];
-    Double_t* data_Gauss = new Double_t[Relevant_Layers.size()];
+    Double_t* data = new Double_t[Relevant_Layers.size()+1];
+    Double_t* data_Uniform = new Double_t[Relevant_Layers.size()+1];
+    Double_t* data_Gauss = new Double_t[Relevant_Layers.size()+1];
     
     //Output file
     TFile f("PCAOutput.root","recreate");
@@ -294,17 +311,27 @@ void PCA(TString InputFile="output1"){
     TTree *T_Uniform = new TTree("Uniform","Uniform");
     TTree *T_Gauss = new TTree("Gauss","gauss");
     
-    for (unsigned int k= 0; k<Relevant_Layers.size(); k++) {
-        T->Branch(Form("data_%i",Relevant_Layers[k]),&data[k],Form("data_%i/D",Relevant_Layers[k]));
-        T_Uniform->Branch(Form("data_Uniform_%i",Relevant_Layers[k]),&data_Uniform[k],Form("data_Uniform_%i/D",Relevant_Layers[k]));
-        T_Gauss->Branch(Form("data_Gauss_%i",Relevant_Layers[k]),&data_Gauss[k],Form("data_Gauss_%i/D",Relevant_Layers[k]));
+    for (unsigned int k= 0; k<Relevant_Layers.size()+1; k++) {
+        
+        if(k==Relevant_Layers.size()){
+            T->Branch("data_Total_Cell_Energy",&data[k],"data_Total_Cell_Energy/D");
+            T_Uniform->Branch("data_Uniform_Total_Cell_Energy",&data_Uniform[k],"data_Uniform_Total_Cell_Energy/D");
+            T_Gauss->Branch("data_Gauss_Total_Cell_Energy",&data_Gauss[k],"data_Gauss_Total_Cell_Energy/D");
+            }
+        else{
+            T->Branch(Form("data_%i",Relevant_Layers[k]),&data[k],Form("data_%i/D",Relevant_Layers[k]));
+            T_Uniform->Branch(Form("data_Uniform_%i",Relevant_Layers[k]),&data_Uniform[k],Form("data_Uniform_%i/D",Relevant_Layers[k]));
+            T_Gauss->Branch(Form("data_Gauss_%i",Relevant_Layers[k]),&data_Gauss[k],Form("data_Gauss_%i/D",Relevant_Layers[k]));
 
+        }
+        
+       
         //Store Cumulative Distributions
         hCumulative[k]->Write();
     }
     
     //PCA via TPrincipal
-    TPrincipal* principal = new TPrincipal(Relevant_Layers.size(),"ND");
+    TPrincipal* principal = new TPrincipal(Relevant_Layers.size()+1,"ND");
     
     
     //Uniformization/Gaussianization - Loop on Events
@@ -313,16 +340,17 @@ void PCA(TString InputFile="output1"){
         nr->GetEntry(ientry);
         
         
-        //Store total energy fraction deposited
-        double Tampon_total_energy = 0;
-        for (int j=0 ; j<25 ; j++) {
-            Tampon_total_energy = Tampon_total_energy + nr->GetVariable(Form("cell_energy[%d]",j));
-        }
-        Total_cell_energy = Tampon_total_energy /nr->GetVariable("total_cell_energy") ;
+    //    //Store total energy fraction deposited
+    //    double Tampon_total_energy = 0;
+    //    for (int j=0 ; j<25 ; j++) {
+    ////        Tampon_total_energy = Tampon_total_energy + nr->GetVariable(Form("cell_energy[%d]",j));
+    //    }
+    //    Total_cell_energy = Tampon_total_energy /nr->GetVariable("total_cell_energy") ;
 
-        for (unsigned int k= 0; k<Relevant_Layers.size(); k++) {
-                
-            data[k] = nr->GetVariable(Form("cell_energy[%d]",Relevant_Layers[k]))/nr->GetVariable("total_cell_energy");
+        for (unsigned int k= 0; k<Relevant_Layers.size()+1; k++) {
+            
+            if(k==Relevant_Layers.size()){data[k] = nr->GetVariable("total_cell_energy");}
+            else{data[k] = nr->GetVariable(Form("cell_energy[%d]",Relevant_Layers[k]))/nr->GetVariable("total_cell_energy");}
             
             //Uniformization
             double cumulant = Cumulant(data[k],hCumulative[k]);
@@ -402,15 +430,15 @@ void PCA(TString InputFile="output1"){
 	nr_Gauss->SetTree(T_Gauss);
 	int NEntries_Gauss = nr_Gauss->GetEntries();
     
-    Double_t* data_PCA = new Double_t[Relevant_Layers.size()];
-    Double_t* input_data = new Double_t[Relevant_Layers.size()];
+    Double_t* data_PCA = new Double_t[Relevant_Layers.size()+1];
+    Double_t* input_data = new Double_t[Relevant_Layers.size()+1];
     
     TTree *T_PCA = new TTree("PCA","PCA");
     int Bin_1stPC;
     TH1F* hPCA_first_composant = new TH1F("hPCA_first_component","hPCA_first_component",5000,-10,10);
     
     T_PCA->Branch("Bin_1stPC",&Bin_1stPC,"Bin_1stPC/I");
-    for (unsigned int k= 0; k<Relevant_Layers.size(); k++) {
+    for (unsigned int k= 0; k<Relevant_Layers.size()+1; k++) {
         T_PCA->Branch(Form("PCA_%i",k+1),&data_PCA[k],Form("PCA_%i/D",k+1));
         }
     
@@ -418,8 +446,9 @@ void PCA(TString InputFile="output1"){
 
     for ( int ientry=0;ientry<NEntries_Gauss;ientry++ ){
         nr_Gauss->GetEntry(ientry);
-        for (unsigned int k= 0; k<Relevant_Layers.size(); k++) {
-            input_data[k] = nr_Gauss->GetVariable(Form("data_Gauss_%i",Relevant_Layers[k]));
+        for (unsigned int k= 0; k<Relevant_Layers.size()+1; k++) {
+            if(k==Relevant_Layers.size()){input_data[k] = nr_Gauss->GetVariable("data_Gauss_Total_Cell_Energy");}
+            else{input_data[k] = nr_Gauss->GetVariable(Form("data_Gauss_%i",Relevant_Layers[k]));}
         }
         
         principal->X2P(input_data,data_PCA);
@@ -441,8 +470,9 @@ void PCA(TString InputFile="output1"){
     for ( int ientry=0;ientry<NEntries_Gauss;ientry++ ){
         nr_Gauss->GetEntry(ientry);
         
-        for (unsigned int k= 0; k<Relevant_Layers.size(); k++) {
-            input_data[k] = nr_Gauss->GetVariable(Form("data_Gauss_%i",Relevant_Layers[k]));
+        for (unsigned int k= 0; k<Relevant_Layers.size()+1; k++) {
+            if(k==Relevant_Layers.size()){input_data[k] = nr_Gauss->GetVariable("data_Gauss_Total_Cell_Energy");}
+            else{input_data[k] = nr_Gauss->GetVariable(Form("data_Gauss_%i",Relevant_Layers[k]));}
         }
         
         //PCA Application
@@ -475,88 +505,89 @@ void PCA(TString InputFile="output1"){
     //-----------------------------------------------------------------------------------------------
 
     
-    TH1F** hdata_PCA = new TH1F*[Relevant_Layers.size()];
-    TH1F** hCumulative_PCA = new TH1F*[Relevant_Layers.size()];
+    TH1F** hdata_PCA = new TH1F*[Relevant_Layers.size()+1];
+    TH1F** hCumulative_PCA = new TH1F*[Relevant_Layers.size()+1];
    
-   /* std::vector<TH1F**> hCumulative_PCA_Bin(Relevant_Layers.size());
-    std::vector<TH1F**> hdata_PCA_Bin(Relevant_Layers.size());
-    for(unsigned int i=0;i<Relevant_Layers.size();i++){
+    std::vector<TH1F**> hCumulative_PCA_Bin(Relevant_Layers.size()+1);
+    std::vector<TH1F**> hdata_PCA_Bin(Relevant_Layers.size()+1);
+    for(unsigned int i=0;i<Relevant_Layers.size()+1;i++){
         hCumulative_PCA_Bin[i] = new TH1F*[Ratio2_1stPC];
         hdata_PCA_Bin[i] = new TH1F*[Ratio2_1stPC];
-    }*/
+    }
     
     TreeReader* nr_PCA = new TreeReader;
 	nr_PCA->SetTree(T_PCA);
 	int NEntries_PCA = nr_PCA->GetEntries();
     
     
-    for (unsigned int k= 0; k < Relevant_Layers.size() ; k++) {
+    for (unsigned int k= 0; k < Relevant_Layers.size()+1 ; k++) {
         
         //Declare cumulatives for principal component
         hdata_PCA[k] = new TH1F(Form("hdata_PCA%i",k+1), Form("hdata_PCA%i",k+1),5000,T_PCA->GetMinimum(Form("PCA_%i",k+1)),T_PCA->GetMaximum(Form("PCA_%i",k+1)));
        
         //Declare cumulatives for binned principal components
-       /* for (int i = 0; i<Ratio2_1stPC; i++) {
-            if (i==0) {
+        for (int i = 0; i<Ratio2_1stPC; i++) {
+           /* if (i==0) {
                 hdata_PCA_Bin[k][i] = new TH1F(Form("hdata_PCA%i_bin1st_%i",k+1,i), Form("hdata_PCA%i_bin1st_%i",k+1,i),5000,T_PCA->GetMinimum(Form("PCA_%i",k+1)),yq[i]);
             }
-            else{hdata_PCA_Bin[k][i] = new TH1F(Form("hdata_PCA%i_bin1st_%i",k+1,i), Form("hdata_PCA%i_bin1st_%i",k+1,i),5000,yq[i-1],yq[i]);}
-        }*/
+            else{hdata_PCA_Bin[k][i] = new TH1F(Form("hdata_PCA%i_bin1st_%i",k+1,i), Form("hdata_PCA%i_bin1st_%i",k+1,i),5000,yq[i-1],yq[i]);}*/
+            
+            hdata_PCA_Bin[k][i] = new TH1F(Form("hdata_PCA%i_bin1st_%i",k+1,i+1), Form("hdata_PCA%i_bin1st_%i",k+1,i+1), 5000, T_PCA->GetMinimum(Form("PCA_%i",k+1)),T_PCA->GetMaximum(Form("PCA_%i",k+1)));
+        }
         
         //Fill hitograms with principal component data
         for ( int ientry=0;ientry<NEntries_PCA;ientry++ ){
             nr_PCA->GetEntry(ientry);
             hdata_PCA[k]->Fill(nr_PCA->GetVariable(Form("PCA_%i",k+1)));
             
-       /*     for (int i = 0; i<Ratio2_1stPC; i++) {
+            for (int i = 0; i<Ratio2_1stPC; i++) {
+               // std::cout<< nr_PCA->GetVariable("Bin_1stPC") <<std::endl;
                 if (nr_PCA->GetVariable("Bin_1stPC") == i+1) {
-                    //std::cout<< nr_PCA->GetVariable("Bin_1stPC") <<std::endl;
                     hdata_PCA_Bin[k][i]->Fill(nr_PCA->GetVariable(Form("PCA_%i",k+1)));
                     //std::cout<<"Integral : " <<hdata_PCA_Bin[k][i]->Integral()  <<std::endl;
                 }
-            }*/
+              
+            }
+            
         }
-        
         
         //Normalization
         hdata_PCA[k]->Sumw2();
         hdata_PCA[k]->Scale(1/hdata_PCA[k]->Integral());
         
-       /* for (int i = 0; i<Ratio2_1stPC; i++) {
+        for (int i = 0; i<Ratio2_1stPC; i++) {
             hdata_PCA_Bin[k][i]->Sumw2();
             hdata_PCA_Bin[k][i]->Scale(1/hdata_PCA_Bin[k][i]->Integral());
-            //hdata_PCA_Bin[k][i]->Write();
-        }*/
+            //std::cout<<hdata_PCA_Bin[k][i]->Integral() <<"\t";
+            
+            hdata_PCA_Bin[k][i]->Write();
+        }
+        
         
         //Get Cumulatives
         hCumulative_PCA[k] = new TH1F(Form("hCumulative_PCA_%i",k+1), Form("hCumulative_PCA_%i",k+1), 5000, T_PCA->GetMinimum(Form("PCA_%i",k+1)),T_PCA->GetMaximum(Form("PCA_%i",k+1)));
-     
-
-        
-       /*
-        //Declare cumulatives for binned principal components
-        for (int i = 0; i<Ratio2_1stPC; i++) {
-                hCumulative_PCA_Bin[k][i] = new TH1F(Form("hCumulative_PCA%i_bin1st_%i",k+1,i+1), Form("hCumulative_PCA%i_bin1st_%i",k+1,i+1),5000,T_PCA->GetMinimum(Form("PCA_%i",k+1)),T_PCA->GetMaximum(Form("PCA_%i",k+1)));
-        }
-        */
         
         for (int i=1; i<=hdata_PCA[k]->GetNbinsX(); i++) {
             hCumulative_PCA[k]->SetBinContent(i,hdata_PCA[k]->Integral(1,i));
         }
-        
-       /* for (int i = 0; i<Ratio2_1stPC; i++) {
+        hCumulative_PCA[k]->Write();
+     
+        //Getcumulatives for binned principal components
+        for (int i = 0; i<Ratio2_1stPC; i++) {
+                hCumulative_PCA_Bin[k][i] = new TH1F(Form("hCumulative_PCA%i_bin1st_%i",k+1,i+1), Form("hCumulative_PCA%i_bin1st_%i",k+1,i+1),5000,T_PCA->GetMinimum(Form("PCA_%i",k+1)),T_PCA->GetMaximum(Form("PCA_%i",k+1)));
+            
             for (int j=1; j<=hdata_PCA_Bin[k][i]->GetNbinsX(); j++) {
                 hCumulative_PCA_Bin[k][i]->SetBinContent(j,hdata_PCA_Bin[k][i]->Integral(1,j));
             }
             
-           hCumulative_PCA_Bin[k][i]->Write();
-        }*/
+            if (hCumulative_PCA_Bin[k][i]->Integral() > 0) {
+                hCumulative_PCA_Bin[k][i]->Write();
+            }
+        }
         
-        //Store Cumulative Distributions
-        hCumulative_PCA[k]->Write();
+      //  std::cout<<std::endl;
       
     }
-    
     
     delete nr;
     delete nr_Gauss;
@@ -576,8 +607,6 @@ void PCA(TString InputFile="output1"){
    
     
     f.Close();
-                               
-                               
                                
     
     //-----------------------------------------------------------------------------------------------

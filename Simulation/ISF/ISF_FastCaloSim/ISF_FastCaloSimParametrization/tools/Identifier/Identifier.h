@@ -10,14 +10,14 @@ class Identifier
   public:
   typedef Long64_t value_type;
   
-  typedef enum
+  typedef enum bit_defs_enum
   {
     NBITS = sizeof(value_type) * 8, // bits per byte
     MAX_BIT = (static_cast<value_type>(1) << (NBITS - 1)),
     ALL_BITS = ~(static_cast<value_type>(0))
   } bit_defs;
   
-  typedef enum {
+  typedef enum max_value_type_enum {
     //max_value = 0xFFFFFFFFFFFFFFFFULL
     max_value = ~(static_cast<value_type>(0))
   } max_value_type;

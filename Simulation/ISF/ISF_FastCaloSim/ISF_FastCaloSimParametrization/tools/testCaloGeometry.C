@@ -11,7 +11,7 @@
 
   // Warning: cell lookup in the FCal is not working yet!
   CaloGeometryFromFile* geo=new CaloGeometryFromFile();
-  geo->LoadGeometryFromFile("ATLAS-GEO-20-00-01.root","ATLAS-GEO-20-00-01");
+  geo->LoadGeometryFromFile("/afs/cern.ch/atlas/groups/Simulation/FastCaloSim/ATLAS-GEO-20-00-01.root","ATLAS-GEO-20-00-01");
   //CaloGeometry::m_debug_identity=3179554531063103488;
   //geo->Validate();
   
