@@ -37,7 +37,6 @@ class TileID;
 class TileHWID;
 class TileHit;
 class TileInfo;
-class StoreGateSvc;
 class TileCablingService;
 class TileCondToolEmscale;
 

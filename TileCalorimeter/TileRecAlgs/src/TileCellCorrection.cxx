@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TileRecAlgs/TileCellCorrection.h"
+
 
 // Gaudi includes
 #include "GaudiKernel/Property.h"
@@ -23,6 +23,13 @@
 #include "TileIdentifier/TileHWID.h"
 #include "TileCalibBlobObjs/TileCalibUtils.h"
 #include "TileEvent/TileCell.h"
+#include "TileConditions/TileCondToolEmscale.h"
+#include "TileConditions/TileCondToolTiming.h"
+#include "TileConditions/TileBadChanTool.h"
+#include "TileConditions/TileCondToolNoiseSample.h"
+#include "TileRecUtils/TileCellNoiseFilter.h"
+#include "TileRecUtils/TileCellMaskingTool.h"
+#include "TileRecAlgs/TileCellCorrection.h"
 
 CaloCell_ID::SUBCALO TileCellCorrection::m_caloIndex = CaloCell_ID::TILE;
 

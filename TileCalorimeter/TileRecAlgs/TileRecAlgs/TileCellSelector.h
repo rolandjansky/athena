@@ -16,8 +16,7 @@ class TileCell;
 class TileCablingService;
 class ITileBadChanTool;
 class TileDCSSvc;
-
-#include "TileRecUtils/TileBeamInfoProvider.h"
+class TileBeamInfoProvider;
 
 #include <string>
 #include <vector>

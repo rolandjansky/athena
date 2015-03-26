@@ -1,5 +1,9 @@
 #include "GaudiKernel/DeclareFactoryEntries.h"
 
+#include "TileConditions/TileCondToolEmscale.h"
+#include "TileConditions/TileCondToolNoiseSample.h"
+#include "TileRecUtils/TileCellMaskingTool.h"
+
 #include "TileRecAlgs/TileCellCorrection.h"
 #include "TileRecAlgs/TileCellSelector.h"
 #include "TileRecAlgs/TileCellIDCToCell.h"
