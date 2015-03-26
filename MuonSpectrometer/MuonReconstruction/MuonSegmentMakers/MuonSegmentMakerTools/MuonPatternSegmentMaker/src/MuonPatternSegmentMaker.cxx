@@ -559,9 +559,16 @@ namespace Muon {
 	    chFlag = 2;
 	  }
 	}
+	else if( chIndex == MuonStationIndex::BOL ){
+	  if( abs( m_idHelper->stationEta(id) ) == 7 ){
+	    ATH_MSG_VERBOSE(" BOE chamber " << m_idHelper->toString( elId ));
+	    chFlag = 4;
+	  }
+	}
       }
+      
       int phi = m_idHelper->stationPhi(id);
-	    
+      
       chFlag += 10*phi;
     }
     // use center tube for region assignment
