@@ -1841,6 +1841,17 @@ void HLTEgammaFEXNavSigTEBaseTool::fillOfflineEgamma(const xAOD::Electron* eg, b
   else fillEFeg(eg, path, phot_cut);
   if(!isPhoton){ fillEFID(eg, path); }
 }
+void HLTEgammaFEXNavSigTEBaseTool::fillOfflineEgamma(const xAOD::Photon* eg, bool isPhoton, string path="", const double phot_cut=0.)
+{
+  //set path if none was supplied
+  if(path==""){path = m_histoBasePath + "/" + (isPhoton ? m_offPhoPath : m_offElePath); }
+  //otherwise append match foldername
+  else{ path += "/" + (isPhoton ? m_matchedOffPhoPath : m_matchedOffElePath); }
+  ATH_MSG_DEBUG("Filling offline "<<(isPhoton ? "photon" : "electron")<<" histograms to path "<<path);
+
+  //call event filter filling functions
+  fillEFeg(eg, path, phot_cut);
+}
 
 
 void HLTEgammaFEXNavSigTEBaseTool::fillOfflineMatches(const egamma* eg, bool isPhoton, string path="", const double elec_cut=0., const double phot_cut=0.)

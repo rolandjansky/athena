@@ -72,6 +72,8 @@ HLTEgammaNavSigTEMonTool::HLTEgammaNavSigTEMonTool(const string & type, const st
   declareProperty("DoOffline", m_doOfflineComparisons=true);
   declareProperty("OfflineEleMinPTCut", m_offEle_minptcut= 2.);//GeV
   declareProperty("OfflinePhoMinPTCut", m_offPho_minptcut= 2.);//GeV
+  declareProperty("OfflineEleQualityCut", m_offEle_qcut = "Loose");
+  declareProperty("OfflinePhoQualityCut", m_offPho_qcut = "Loose");
   declareProperty("DRmatchToOffline", m_dR_off= 0.15);//GeV
   declareProperty("DoLumiCalc", m_doLumiCalc = false);//Lumi  
   declareProperty("PayloadName",m_payload = "LBAvInstLumi");//Lumi
@@ -363,7 +365,11 @@ StatusCode HLTEgammaNavSigTEMonTool::fill()
 
     //first check that Electron and Photon Container exist in Storegate, if not quit
     if(!m_storeGate->contains<xAOD::ElectronContainer>(m_electronContainerName) ){
-      ATH_MSG_WARNING("Electron containers not found in TDS.");
+      ATH_MSG_WARNING("Electron container not found in TDS.");
+      return(StatusCode::SUCCESS);
+    }
+    if(!m_storeGate->contains<xAOD::PhotonContainer>(m_photonContainerName) ){
+      ATH_MSG_WARNING("Photon container not found in TDS.");
       return(StatusCode::SUCCESS);
     }
 
@@ -374,18 +380,16 @@ StatusCode HLTEgammaNavSigTEMonTool::fill()
       ATH_MSG_WARNING("Couldn't retrieve offline electron container.");
     }     
 
-#ifdef PHOTON
     //retrieve offline photon container
     if (m_storeGate->retrieve( m_photTES, m_photonContainerName).isSuccess()  &&  m_photTES ) {
       ATH_MSG_DEBUG("Successfully retrieved offline photon container."); 
     }else{
       ATH_MSG_WARNING("Couldn't retrieve offline photon container.");
     }
-#endif
 
     //fill from containers
     fillOfflineEgammas(m_elecTES);
-    //fillOfflineEgammas(m_photTES);
+    fillOfflineEgammas(m_photTES);
 
   }//done filling offline egamma info
 
@@ -898,10 +902,10 @@ void HLTEgammaNavSigTEMonTool::fillOfflineEgammas(const egammaContainer* egCont)
 
 void HLTEgammaNavSigTEMonTool::fillOfflineEgammas(const xAOD::ElectronContainer* egCont)
 {
-  ATH_MSG_DEBUG("Filling offline egamma histograms.");
+  ATH_MSG_DEBUG("Filling offline electron histograms.");
 
   //loop over container
-  ATH_MSG_VERBOSE("Looping over offline egamma container.");
+  ATH_MSG_VERBOSE("Looping over offline electron container.");
   xAOD::ElectronContainer::const_iterator egIt = egCont->begin();
   for (; egIt != egCont->end() ; ++egIt) {
 
@@ -915,12 +919,12 @@ void HLTEgammaNavSigTEMonTool::fillOfflineEgammas(const xAOD::ElectronContainer*
       (*egIt)->author(egammaParameters::AuthorRConv);
 */
 
-    bool isMediumPPElectron(false);
-    (*egIt)->passSelection(isMediumPPElectron,"Medium");
+    bool passedEleSelection(false);
+    (*egIt)->passSelection(passedEleSelection,m_offEle_qcut);
     //bool isTightPhoton = (*egIt)->passID(egammaPID::PhotonIDTight);
 
     //now apply appropriate pt cut and call egamma filling function
-    if(isElectron && isMediumPPElectron){
+    if(isElectron && passedEleSelection){
       fillOfflineEgamma((*egIt), isPhoton, "", m_offEle_minptcut, m_offPho_minptcut);
     }
 /*
@@ -933,7 +937,30 @@ void HLTEgammaNavSigTEMonTool::fillOfflineEgammas(const xAOD::ElectronContainer*
   ATH_MSG_DEBUG("Finished filling offline egamma histograms.");
 }
 
+void HLTEgammaNavSigTEMonTool::fillOfflineEgammas(const xAOD::PhotonContainer* egCont)
+{
+  ATH_MSG_DEBUG("Filling offline photon histograms.");
 
+  //loop over container
+  ATH_MSG_VERBOSE("Looping over offline photon container.");
+  xAOD::PhotonContainer::const_iterator egIt = egCont->begin();
+  for (; egIt != egCont->end() ; ++egIt) {
+    
+    bool isPhoton(false);
+    isPhoton = (*egIt)->author(egammaParameters::AuthorPhoton) ||
+      (*egIt)->author(egammaParameters::AuthorRConv);
+
+    bool passedPhoSelection(false);
+    (*egIt)->passSelection(passedPhoSelection,m_offPho_qcut);
+
+    if(isPhoton && passedPhoSelection){
+      fillOfflineEgamma((*egIt), isPhoton, "", m_offPho_minptcut);
+    }
+
+  }//done looping over container
+  //all done
+  ATH_MSG_DEBUG("Finished filling offline egamma histograms.");
+}
 
 /*  FILL COMBINATIONS
  */
