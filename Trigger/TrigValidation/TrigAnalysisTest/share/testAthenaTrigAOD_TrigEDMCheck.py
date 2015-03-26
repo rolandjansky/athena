@@ -97,6 +97,12 @@ topSequence = AlgSequence()
 topSequence += TrigEDMChecker
 TrigEDMChecker.doDumpAll = True
 
+
+
+from TrigEDMConfig.TriggerEDM import EDMLibraries 
+ToolSvc.TrigDecisionTool.Navigation.Dlls = EDMLibraries 
+
+
 include("TriggerTest/TriggerTestCommon.py")
 
 
