@@ -32,7 +32,7 @@ ${CONSTITUENT}_output = $(dict_dir)/
 
 # Basic dependency that forces cint to be run in root_cint_trailer
 # PCM_make_target is defined for ROOT6 as ${CONSTITUENT}.pcm in root_cint_trailer and should trigger PCM installation
-${CONSTITUENT} :: $(dict)${CONSTITUENT}.cxx ${PCM_make_target}
+${CONSTITUENT} :: $(dict)${CONSTITUENT}.cxx ${PCM_make_target_for_$(CONSTITUENT)}
 	@echo "------> ${CONSTITUENT} ok"
 
 # Target to run "mkdir" before copying the files in root_cint
@@ -45,7 +45,7 @@ build_dir ::
 
 
 # MN:  prepare place for ROOT PCM installation
-installDir := "${CMTINSTALLAREA}/$(tag)/lib/"
+installDir := ${CMTINSTALLAREA}/$(tag)/lib/
 
 ${installDir} :: 
 	mkdir -p ${installDir}

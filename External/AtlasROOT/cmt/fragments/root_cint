@@ -14,4 +14,4 @@ ${dict_dir}/${NAME}.h :: ${FULLNAME}
 ifneq "$(NAME)" "LinkDef"
 	@echo "root_cint: File $(RELNAME) will be added to dictionary ${CONSTITUENT}";
 endif
-	echo $(RELNAME) > $@;
+	@echo $(RELNAME) > $@;
