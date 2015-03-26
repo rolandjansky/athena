@@ -292,7 +292,7 @@ namespace met {
     }
     // Loop over the tracks and select only good ones
     for( const auto& trk : softTracks ) {
-      MissingETBase::Types::weight_t trackWeight = metComp->weight(trk);
+
       // Could/should use common implementation of addToMET here -- derive builder and refiner from a common base tool?
       bool passFilters = true;
       //      if(m_trk_doPVsel && !isPVTrack(trk,(*vxCont)[0])) passFilters = false;
@@ -314,21 +314,22 @@ namespace met {
 
       bool isLepton=(isMuon||isElectron);
 
+      MissingETBase::Types::weight_t dummyWeight(1.,1.,1.);
       if(passFilters || (m_doLepRecovery && isLepton)) {
         if(!passFilters && isElectron && m_doLepRecovery) {
 	  //electron track fails, replace with electron pt
           const Electron* el = selElectrons[el_index];
 
-          metTerm->add(el->pt()*cos(trk->phi())*trackWeight.wpx(),
-              el->pt()*sin(trk->phi())*trackWeight.wpy(),
-              el->pt()*trackWeight.wet());
-          MissingETComposition::insert(metMap,metTerm,el,dummyList,trackWeight);
+          metTerm->add(el->pt()*cos(trk->phi()),
+		       el->pt()*sin(trk->phi()),
+		       el->pt());
+          MissingETComposition::insert(metMap,metTerm,el,dummyList,dummyWeight);
         } else {
 	  ATH_MSG_VERBOSE("Add track with pt " << trk->pt() <<" to MET.");
-	  metTerm->add(trk->pt()*cos(trk->phi())*trackWeight.wpx(),
-		       trk->pt()*sin(trk->phi())*trackWeight.wpy(),
-		       trk->pt()*trackWeight.wet());
-	  MissingETComposition::insert(metMap,metTerm,trk,dummyList,trackWeight);
+	  metTerm->add(trk->pt()*cos(trk->phi()),
+		       trk->pt()*sin(trk->phi()),
+		       trk->pt());
+	  MissingETComposition::insert(metMap,metTerm,trk,dummyList,dummyWeight);
         }
       }
     }
