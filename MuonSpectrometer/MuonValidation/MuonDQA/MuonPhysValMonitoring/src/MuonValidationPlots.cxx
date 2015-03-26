@@ -9,7 +9,7 @@ typedef ElementLink< xAOD::TrackParticleContainer > TrackLink;
 typedef ElementLink< xAOD::MuonContainer > MuonLink;
 
 MuonValidationPlots::MuonValidationPlots(PlotBase* pParent, std::string sDir,std::vector<unsigned int> authors, bool isData, bool doBinnedResolutionPlots, bool doMuonTree):
-  PlotBase(pParent, sDir),  m_selectedAuthors(authors), m_truthSelections(2,""), m_isData(isData)
+  PlotBase(pParent, sDir),  m_selectedAuthors(authors), m_truthSelections(2,""), m_oTruthRelatedMuonPlots(NULL), m_isData(isData)
 
 {
   if (!m_isData) {

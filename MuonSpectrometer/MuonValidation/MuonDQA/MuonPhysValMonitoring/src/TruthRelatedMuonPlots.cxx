@@ -8,6 +8,8 @@
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODTracking/TrackParticleAuxContainer.h"
 
+typedef ElementLink< xAOD::TruthParticleContainer > TruthLink;
+
 TruthRelatedMuonPlots::TruthRelatedMuonPlots(PlotBase* pParent, std::string sDir,bool doBinnedResolutionPlots, bool doMuonTree):
     PlotBase(pParent, sDir),
     // truth related information
@@ -55,51 +57,67 @@ void TruthRelatedMuonPlots::fill(const xAOD::TruthParticle& truthMu, const xAOD:
         m_oIDDefParamPullPlots.fill(*inDetTrk, truthMu);
     }
 
-    const xAOD::TrackParticle* msTrk = mu.trackParticle(xAOD::Muon::MuonSpectrometerTrackParticle);
-    if (msTrk) {
-        m_oMuonMSResolutionPlots.fill(*msTrk,truthMu);
-        m_oMSDefParamPullPlots.fill(*msTrk, truthMu);
+    //muon spectrometer track at MS entry (not extrapolated)
+    const xAOD::TrackParticle *msTrk(0);  
+    //muon extrapolated to IP
+    const xAOD::TrackParticle* msExtrapTrk(0);
+    
+    ////////////////// @@@ sorting out the mess with the link to the extrapolated muon
+    //for 20.1.0...
+    /// const xAOD::TrackParticle* msExtrapTrk = mu.trackParticle(xAOD::Muon::MuonSpectrometerTrackParticle); // points to the ExtrapolatedMuonSpectrometerTrackParticle, the ExtrapolatedMuonSpectrometerTrackParticle link doesn't exist
+    //for 20.1.3...
+    //const xAOD::TrackParticle* msExtrapTrk = mu.trackParticle(xAOD::Muon::ExtrapolatedMuonSpectrometerTrackParticle);
+
+    //trying to accomodate both in a way that the code compiles in both releases
+    if (mu.isAvailable< ElementLink<xAOD::TrackParticleContainer> >("extrapolatedMuonSpectrometerTrackParticleLink") && (mu.auxdata<ElementLink<xAOD::TrackParticleContainer> >("extrapolatedMuonSpectrometerTrackParticleLink")).isValid() ) {
+      //cool, we got both links:
+      int correctEnumForExtrap = ((int)xAOD::Muon::MuonSpectrometerTrackParticle)+2;
+      msExtrapTrk = mu.trackParticle((xAOD::Muon::TrackParticleType) correctEnumForExtrap);
+      msTrk = mu.trackParticle( xAOD::Muon::MuonSpectrometerTrackParticle );
     }
-
-
-    const xAOD::TrackParticle *msTrkIP(0);    
-    //if (mu) {
-    typedef ElementLink< xAOD::TruthParticleContainer > TruthLink;
-
-    ElementLink<xAOD::TrackParticleContainer> muTrk = mu.muonSpectrometerTrackParticleLink();
-    if (muTrk.isValid()) {
-      TruthLink truthLink_muTrk;
-      if( (*muTrk)->isAvailable<TruthLink>("truthParticleLink") ) {
-	truthLink_muTrk = (*muTrk)->auxdata<TruthLink>("truthParticleLink");
-      }
-      if (truthLink_muTrk.isValid()) {
-	for (const auto trk: *MSTracks) {
-	  TruthLink truthLink_msTrk;
-	  if( trk->isAvailable<TruthLink>("truthParticleLink") ) {
-	    truthLink_msTrk = trk->auxdata<TruthLink>("truthParticleLink");
-	    if (truthLink_msTrk.isValid()) {
-	      if (truthLink_msTrk == truthLink_muTrk) {
-		msTrkIP = trk;
-		break;
+    else {
+      // gymnastics to get msTrk...
+      ElementLink<xAOD::TrackParticleContainer> msExtrapTrkLink = mu.trackParticleLink(xAOD::Muon::MuonSpectrometerTrackParticle);      
+      if (msExtrapTrkLink.isValid()) {
+	msExtrapTrk = mu.trackParticle( xAOD::Muon::MuonSpectrometerTrackParticle );
+	TruthLink truthLink_muTrk;
+	if( (*msExtrapTrkLink)->isAvailable<TruthLink>("truthParticleLink") ) {
+	  truthLink_muTrk = (*msExtrapTrkLink)->auxdata<TruthLink>("truthParticleLink");
+	}
+	if (truthLink_muTrk.isValid()) {
+	  for (const auto trk: *MSTracks) {
+	    TruthLink truthLink_msTrk;
+	    if( trk->isAvailable<TruthLink>("truthParticleLink") ) {
+	      truthLink_msTrk = trk->auxdata<TruthLink>("truthParticleLink");
+	      if (truthLink_msTrk.isValid()) {
+		if (truthLink_msTrk == truthLink_muTrk) {
+		  msTrk = trk; //got it!
+		  break;
+		}
 	      }
 	    }
 	  }
 	}
       }
     }
-    // }
-
-    float eloss=0;
-    if (mu.parameter(eloss,xAOD::Muon::EnergyLoss)) {
-      if ( mu.energyLossType()!=xAOD::Muon::Tail ) { //to test MEASURED energy loss
-    	m_oMomentumTruthPullPlots_NoTail.fill(mu, msTrkIP, truthMu);
-      }
-      else {
-    	m_oMomentumTruthPullPlots_Tail.fill(mu, msTrkIP, truthMu); //to test PARAMETRIZED energy loss
-      }
+    
+    if (msExtrapTrk) {
+      m_oMuonMSResolutionPlots.fill( *msExtrapTrk, truthMu);
+      m_oMSDefParamPullPlots.fill( *msExtrapTrk, truthMu);
     }
 
-    if (m_doMuonTree && m_oMuonTree) {
-      m_oMuonTree->fillTree(mu, msTrkIP, truthMu);
-    }
+ 
+    float eloss=0; 
+    if (mu.parameter(eloss,xAOD::Muon::EnergyLoss)) { 
+      if ( mu.energyLossType()!=xAOD::Muon::Tail ) { //to test MEASURED energy loss 
+        m_oMomentumTruthPullPlots_NoTail.fill(mu, msTrk, truthMu); 
+      } 
+      else { 
+        m_oMomentumTruthPullPlots_Tail.fill(mu, msTrk, truthMu); //to test PARAMETRIZED energy loss 
+      } 
+    } 
+ 
+    if (m_doMuonTree && m_oMuonTree) { 
+      m_oMuonTree->fillTree(mu, msTrk, truthMu); 
+    } 
 }

@@ -42,7 +42,9 @@
 #include "RecoMuonTrackPlots.h"
 #include "TruthRelatedMuonTrackPlots.h"
 // Forward declaration
-
+namespace Rec {
+   class IMuonPrintingTool;
+ }
 namespace MuonPhysValMonitoring {
 
 class MuonPhysValMonitoringTool
@@ -92,11 +94,10 @@ class MuonPhysValMonitoringTool
   void handleMuonTrack(const xAOD::TrackParticle* muTP);
   void handleMuonSegment(const xAOD::MuonSegment* muSeg);
   void handleTruthMuonSegment(const xAOD::MuonSegment* truthMuSeg, const xAOD::TruthParticleContainer* muonTruthContainer);
-  void handleMuonTrigger(const xAOD::Muon* Trigmu, std::vector<const xAOD::Muon*> m_vRecoMuons);
+  void handleMuonTrigger(  std::vector<const xAOD::Muon*> m_vEFMuonsSelected, std::vector<const xAOD::Muon*> m_vRecoMuons);
   void handleMuonL1Trigger(const xAOD::MuonRoI* TrigL1mu);
   void handleMuonL2Trigger(const xAOD::L2StandAloneMuon* L2SAmu);
   void handleMuonL2Trigger(const xAOD::L2CombinedMuon* L2CBmu);
-  StatusCode checkMuonEDM(std::string trigItem);
   
   void printMuonDebug(const xAOD::Muon* mu);
   void printMuonL1TriggerDebug(const xAOD::MuonRoI* TrigL1mu);
@@ -105,8 +106,8 @@ class MuonPhysValMonitoringTool
   StatusCode bookValidationPlots(PlotBase& valPlots);
   const xAOD::Muon* findRecoMuon(const xAOD::TruthParticle* truthMu);
   const xAOD::MuonSegment* findRecoMuonSegment(const xAOD::MuonSegment* truthMuSeg);
-
-  void decorateMuon(xAOD::Muon*& mu);
+  xAOD::Muon* getCorrectedMuon(const xAOD::Muon &mu);
+  
   const xAOD::TrackParticleContainer* MSTracks;
   
   TH1F* findHistogram(std::vector<HistData> hists,std::string hnameTag,std::string hdirTag,std::string hNewName);
@@ -115,8 +116,6 @@ class MuonPhysValMonitoringTool
   bool m_isData;
 
 
-  // Muon triggers to test output for
-  std::vector<std::string> m_muonItems;
 
 
   // Containers
@@ -125,9 +124,12 @@ class MuonPhysValMonitoringTool
   std::string m_muonTracksName;
   std::string m_muonSegmentsName;
   std::string m_muonSegmentsTruthName;
+  std::string m_muonL1TrigName;
   std::string m_muonL2SAName;
   std::string m_muonL2CBName;
+  std::string m_muonEFCombTrigName;
   std::string m_trigDecisionKey;
+  std::vector<std::string> m_muonItems;
 
   // Configurable properties
   std::map<std::string,int> m_counterBits;
@@ -144,12 +146,13 @@ class MuonPhysValMonitoringTool
 
   bool m_doMuonTree;
 
-  std::string m_muonL1TrigName;
-  std::string m_muonEFCombTrigName;
+
   
   // Tools
   ToolHandle<CP::IMuonSelectionTool> m_muonSelectionTool;
+  ToolHandle<Rec::IMuonPrintingTool> m_muonPrinter;
   ToolHandle<Trig::TrigDecisionTool> m_trigDec;
+
  
   enum MUCATEGORY{ALL=0, PROMPT, INFLIGHT, NONISO, REST};
   std::vector<std::string> m_selectMuonCategoriesStr;
@@ -176,12 +179,13 @@ class MuonPhysValMonitoringTool
   std::vector<const xAOD::MuonSegment*> m_vMatchedMuonSegments;
   std::vector<const xAOD::Muon*> m_vEFMuons;
   std::vector<const xAOD::Muon*> m_vEFMuonsSelected;
-  std::vector<const xAOD::Muon*> m_vEFMuonsSelected_phi;
   std::vector<const xAOD::L2StandAloneMuon*> m_vL2SAMuons;
   std::vector<const xAOD::L2StandAloneMuon*> m_vL2SAMuonsSelected;
   std::vector<const xAOD::L2CombinedMuon*> m_vL2CBMuons;
   std::vector<const xAOD::L2CombinedMuon*> m_vL2CBMuonsSelected;
   std::vector<const xAOD::Muon*> m_vRecoMuons;
+
+
 }; 
 
 
