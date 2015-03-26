@@ -173,10 +173,12 @@ StatusCode METMonTool::bookHistograms()
     ATH_MSG_DEBUG("in bookHistograms()");//msg(MSG::DEBUG) << "in bookHistograms()" << endreq;
 
     // If m_metFinKey is not empty then append it to m_metKeys
-    if (m_metFinKey != "") {
+    if (m_metFinKey != "")
+    {
         std::vector<std::string>::iterator it = m_metKeys.begin();
         // Remove m_metFinKey from m_metKeys if it already exists
-        for (; it != m_metKeys.end();) {
+        for (; it != m_metKeys.end();)
+        {
             if ((*it) == m_metFinKey) it = m_metKeys.erase(it);
             else it++;
         }
@@ -192,30 +194,36 @@ StatusCode METMonTool::bookHistograms()
     ATH_MSG_DEBUG("metRegKey = " << m_metRegKey);
     ATH_MSG_DEBUG("metKeys   = ");
     std::vector<std::string>::iterator it = m_metKeys.begin();
-    for (; it != m_metKeys.end(); it++) {
+    for (; it != m_metKeys.end(); it++)
+    {
         ATH_MSG_DEBUG((*it));
     }
     ATH_MSG_DEBUG("");
     // }
 
     // Check consistency between m_etrangeCalFactors and m_calIndices
-    if (m_etrangeCalFactors.size() < m_calIndices.size()) {
+    if (m_etrangeCalFactors.size() < m_calIndices.size())
+    {
         ATH_MSG_DEBUG("Vector of Et ranges for calorimeter subsystems is incomplete: filling with 1's");
-        for (unsigned int i = m_etrangeCalFactors.size(); i < m_calIndices.size(); i++) {
+        for (unsigned int i = m_etrangeCalFactors.size(); i < m_calIndices.size(); i++)
+        {
             m_etrangeCalFactors.push_back(1.);
         }
     }
 
     // Check consistency between m_etrangeRegFactors and m_regIndices
-    if (m_etrangeRegFactors.size() < m_regIndices.size()) {
+    if (m_etrangeRegFactors.size() < m_regIndices.size())
+    {
         ATH_MSG_DEBUG("Vector of Et ranges for regions is incomplete: filling with 1's");
-        for (unsigned int i = m_etrangeRegFactors.size(); i < m_regIndices.size(); i++) {
+        for (unsigned int i = m_etrangeRegFactors.size(); i < m_regIndices.size(); i++)
+        {
             m_etrangeRegFactors.push_back(1.);
         }
     }
 
     std::string suffix = "";
-    if (m_suffix != "") {
+    if (m_suffix != "")
+    {
         suffix += "_" + m_suffix;
     }
 
@@ -230,16 +238,20 @@ StatusCode METMonTool::bookHistograms()
 
     // Book histograms
 
-    if (m_environment == AthenaMonManager::online) {
+    if (m_environment == AthenaMonManager::online)
+    {
         // book histograms that are only made in the online environment...
     }
-    if (m_dataType == AthenaMonManager::cosmics) {
+    if (m_dataType == AthenaMonManager::cosmics)
+    {
         // book histograms that are only relevant for cosmics data...
     }
 
     unsigned int nSources = m_metKeys.size();
-    for (unsigned int i = 0; i < nSources; i++) {
-        if (m_metFinKey != "" && i == nSources - 1) {
+    for (unsigned int i = 0; i < nSources; i++)
+    {
+        if (m_metFinKey != "" && i == nSources - 1)
+        {
             bookSourcesHistograms(m_metKeys[i], met_summary, true).ignore();
             if (m_jetColKey != "") bookProfileHistograms(m_metKeys[i], "Jet", met_jets, &m_iJet).ignore();
             if (m_eleColKey != "") bookProfileHistograms(m_metKeys[i], "Ele", met_electrons, &m_iEle).ignore();
@@ -315,7 +327,7 @@ StatusCode METMonTool::bookSourcesHistograms(std::string& metName, MonGroup& met
     std::ostringstream hTitle;
     std::ostringstream hxTitle;
     std::ostringstream hyTitle;
-    TH1* h;
+    TH1* h = 0;
 
     // ***************************** //
     // Missing ET Sources Monitoring //
@@ -326,7 +338,8 @@ StatusCode METMonTool::bookSourcesHistograms(std::string& metName, MonGroup& met
     float sumetmin = 0., sumetmax = m_etrange*m_etrangeSumFactor;
     if (m_doFillNegativeSumEt) sumetmin = -sumetmax;
 
-    if ((m_suffix.find("EF_xe20_noMu") != std::string::npos)) {
+    if ((m_suffix.find("EF_xe20_noMu") != std::string::npos))
+    {
         etmax = m_etrange*0.5;
         sumetmax = m_etrange*0.5*m_etrangeSumFactor;
         m_truncatedMean = 0.5*m_truncatedMean;
@@ -399,7 +412,8 @@ StatusCode METMonTool::bookSourcesHistograms(std::string& metName, MonGroup& met
     hTitle.str("");
     hxTitle.str(""); hyTitle.str("");
 
-    if (doProfiles) {
+    if (doProfiles)
+    {
         // MissingET Vs SumEt
         hName << "metVsSumEt_" << metName;
         hTitle << "MET Vs SumEt Distribution (" << metName << ")";
@@ -443,13 +457,14 @@ StatusCode METMonTool::bookCalosHistograms(MonGroup& met_calos)
     std::ostringstream hTitle;
     std::ostringstream hxTitle;
     std::ostringstream hyTitle;
-    TH1* h;
+    TH1* h = 0;
 
     // ********************************** //
     // Missing ET Calorimeters Monitoring //
     // ********************************** //
 
-    for (unsigned int i = 0; i < m_calIndices.size(); i++) {
+    for (unsigned int i = 0; i < m_calIndices.size(); i++)
+    {
         // Set histogram ranges
         float etmin = 0., etmax = m_etrange*m_etrangeCalFactors[i];
         float sumetmin = 0., sumetmax = m_etrange*m_etrangeSumFactor*m_etrangeCalFactors[i];
@@ -538,13 +553,14 @@ StatusCode METMonTool::bookRegionsHistograms(MonGroup& met_regions)
     std::ostringstream hTitle;
     std::ostringstream hxTitle;
     std::ostringstream hyTitle;
-    TH1* h;
+    TH1* h = 0;
 
     // ***************************** //
     // Missing ET Regions Monitoring //
     // ***************************** //
 
-    for (unsigned int i = 0; i < m_regIndices.size(); i++) {
+    for (unsigned int i = 0; i < m_regIndices.size(); i++)
+    {
         // Set histogram ranges
         float etmin = 0., etmax = m_etrange*m_etrangeRegFactors[i];
         float sumetmin = 0., sumetmax = m_etrange*m_etrangeSumFactor*m_etrangeRegFactors[i];
@@ -645,14 +661,16 @@ StatusCode METMonTool::bookSummaryHistograms(MonGroup& met_summary)
     unsigned int nCalos = m_calIndices.size();
     unsigned int nRegions = m_regIndices.size();
 
-    if (nSources > 1) {
+    if (nSources > 1)
+    {
         m_exMean = new TProfile("exMean", "Means of the Ex Sources", nSources, 0., nSources);
         m_eyMean = new TProfile("eyMean", "Means of the Ey Sources", nSources, 0., nSources);
         m_phiMean = new TProfile("phiMean", "Means of the Phi Sources", nSources, 0., nSources);
         m_exMean->GetYaxis()->SetTitle(exTitle.str().c_str()); m_exMean->GetYaxis()->SetTitleOffset(m_tos);
         m_eyMean->GetYaxis()->SetTitle(eyTitle.str().c_str()); m_eyMean->GetYaxis()->SetTitleOffset(m_tos);
         m_phiMean->GetYaxis()->SetTitle(phiTitle.str().c_str()); m_phiMean->GetYaxis()->SetTitleOffset(m_tos);
-        for (unsigned int i = 0; i < nSources; i++) {
+        for (unsigned int i = 0; i < nSources; i++)
+        {
             m_exMean->GetXaxis()->SetBinLabel(i + 1, m_metKeys[i].c_str());
             m_eyMean->GetXaxis()->SetBinLabel(i + 1, m_metKeys[i].c_str());
             m_phiMean->GetXaxis()->SetBinLabel(i + 1, m_metKeys[i].c_str());
@@ -662,14 +680,16 @@ StatusCode METMonTool::bookSummaryHistograms(MonGroup& met_summary)
         met_summary.regHist(m_phiMean).ignore();
     }
 
-    if (m_metCalKey != "" && nCalos > 1) {
+    if (m_metCalKey != "" && nCalos > 1)
+    {
         m_exCalMean = new TProfile("exCalMean", "Means of the Ex Calorimeters", nCalos, 0., nCalos);
         m_eyCalMean = new TProfile("eyCalMean", "Means of the Ey Calorimeters", nCalos, 0., nCalos);
         m_phiCalMean = new TProfile("phiCalMean", "Means of the Phi Calorimeters", nCalos, 0., nCalos);
         m_exCalMean->GetYaxis()->SetTitle(exTitle.str().c_str()); m_exCalMean->GetYaxis()->SetTitleOffset(m_tos);
         m_eyCalMean->GetYaxis()->SetTitle(eyTitle.str().c_str()); m_eyCalMean->GetYaxis()->SetTitleOffset(m_tos);
         m_phiCalMean->GetYaxis()->SetTitle(phiTitle.str().c_str()); m_phiCalMean->GetYaxis()->SetTitleOffset(m_tos);
-        for (unsigned int i = 0; i < nCalos; i++) {
+        for (unsigned int i = 0; i < nCalos; i++)
+        {
             m_exCalMean->GetXaxis()->SetBinLabel(i + 1, m_calStrings[i].c_str());
             m_eyCalMean->GetXaxis()->SetBinLabel(i + 1, m_calStrings[i].c_str());
             m_phiCalMean->GetXaxis()->SetBinLabel(i + 1, m_calStrings[i].c_str());
@@ -679,14 +699,16 @@ StatusCode METMonTool::bookSummaryHistograms(MonGroup& met_summary)
         met_summary.regHist(m_phiCalMean).ignore();
     }
 
-    if (m_metRegKey != "" && nRegions > 1) {
+    if (m_metRegKey != "" && nRegions > 1)
+    {
         m_exRegMean = new TProfile("exRegMean", "Means of the Ex Regions", nRegions, 0., nRegions);
         m_eyRegMean = new TProfile("eyRegMean", "Means of the Ey Regions", nRegions, 0., nRegions);
         m_phiRegMean = new TProfile("phiRegMean", "Means of the Phi Regions", nRegions, 0., nRegions);
         m_exRegMean->GetYaxis()->SetTitle(exTitle.str().c_str()); m_exRegMean->GetYaxis()->SetTitleOffset(m_tos);
         m_eyRegMean->GetYaxis()->SetTitle(eyTitle.str().c_str()); m_eyRegMean->GetYaxis()->SetTitleOffset(m_tos);
         m_phiRegMean->GetYaxis()->SetTitle(phiTitle.str().c_str()); m_phiRegMean->GetYaxis()->SetTitleOffset(m_tos);
-        for (unsigned int i = 0; i < nRegions; i++) {
+        for (unsigned int i = 0; i < nRegions; i++)
+        {
             m_exRegMean->GetXaxis()->SetBinLabel(i + 1, m_regStrings[i].c_str());
             m_eyRegMean->GetXaxis()->SetBinLabel(i + 1, m_regStrings[i].c_str());
             m_phiRegMean->GetXaxis()->SetBinLabel(i + 1, m_regStrings[i].c_str());
@@ -716,8 +738,8 @@ StatusCode METMonTool::bookProfileHistograms(std::string& metName, const char* o
     std::ostringstream hTitle;
     std::ostringstream hxTitle;
     std::ostringstream hyTitle;
-    TProfile* hp;
-    TProfile2D* hp2;
+    TProfile* hp = 0;
+    TProfile2D* hp2 = 0;
 
     // MissingET Vs Eta
     hName << "metVs" << objName << "Eta_" << metName.c_str();
@@ -859,13 +881,15 @@ StatusCode METMonTool::fillHistograms()
 
     ATH_MSG_DEBUG("in fillHistograms()");
 
-    const EventInfo* thisEventInfo;
+    const EventInfo* thisEventInfo = 0;
     StatusCode sc(evtStore()->retrieve(thisEventInfo));
 
     if (sc != StatusCode::SUCCESS)
         ATH_MSG_DEBUG("No EventInfo object found! Can't access LAr event info status!");
-    else {
-        if (thisEventInfo->errorState(EventInfo::LAr) == EventInfo::Error) {
+    else
+    {
+        if (thisEventInfo->errorState(EventInfo::LAr) == EventInfo::Error)
+        {
             return StatusCode::SUCCESS;
         }
     }
@@ -890,33 +914,40 @@ StatusCode METMonTool::fillSourcesHistograms()
 
     const xAOD::Jet* xjet = 0;
 
-    if (m_jetColKey != "") {
+    if (m_jetColKey != "")
+    {
 
         const xAOD::JetContainer* xJetCollection = 0;
         ATH_CHECK(evtStore()->retrieve(xJetCollection, "AntiKt4LCTopoJets"));
 
-        if (!xJetCollection) {
+        if (!xJetCollection)
+        {
             ATH_MSG_WARNING("Unable to retrieve JetContainer: " << "AntiKt4LCTopoJets");
             //return StatusCode::FAILURE;
         }
-        else {
+        else
+        {
             // Get Hardest Jet
             // Assume sorted collection
-            if (!(xJetCollection->size() > 0) && m_badJets) {
+            if (!(xJetCollection->size() > 0) && m_badJets)
+            {
                 return StatusCode::SUCCESS;
             }
 
-            if (xJetCollection->size() > 0) {
+            if (xJetCollection->size() > 0)
+            {
                 xAOD::JetContainer::const_iterator jetItr = xJetCollection->begin();
 
                 xjet = (*jetItr);
 
-                if (m_doJetcleaning && !m_badJets) {
+                if (m_doJetcleaning && !m_badJets)
+                {
                     //Jet cleaning. No event with at least one bad (loose) jet is kept
 
                     xAOD::JetContainer::const_iterator jetItrE = xJetCollection->end();
 
-                    for (; jetItr != jetItrE; ++jetItr) {
+                    for (; jetItr != jetItrE; ++jetItr)
+                    {
 
                         const xAOD::Jet* xjet_ = *jetItr;
                         const xAOD::JetFourMom_t& jetP4 = xjet_->jetP4();
@@ -940,18 +971,22 @@ StatusCode METMonTool::fillSourcesHistograms()
                         StatusCode xjet_sumpt;
 
                         bool caught_error = false;
-                        try {
+                        try
+                        {
                             xjet_sumpt = xjet_->getAttribute(xAOD::JetAttribute::SumPtTrkPt500, SumPtTrk_);
                         }
-                        catch ( ... ) {
+                        catch (...)
+                        {
                             caught_error = true;
                         }
 
-                        if (!caught_error && xjet_sumpt.isSuccess() && SumPtTrk_.size() > 0) {
+                        if (!caught_error && xjet_sumpt.isSuccess() && SumPtTrk_.size() > 0)
+                        {
                             chf = SumPtTrk_[0] / ptjet;
                         }
 
-                        if (ptjet*emjes > 20000) {
+                        if (ptjet*emjes > 20000)
+                        {
                             if ((emf > 0.95 && fabs(jetQuality) > 0.8 && fabs(etajet) < 2.8)   //EM coherent noise
                                 || (hecf > 0.5 && fabs(hecq) > 0.5)                            //HEC spike
                                 || (fabs(negE) > 60000)
@@ -959,19 +994,22 @@ StatusCode METMonTool::fillSourcesHistograms()
                                 || (fabs(jetTime) > 25)                                        //cosmic-beam background
                                 || (emf < 0.05 && chf < 0.05 && fabs(etajet) < 2.)
                                 || (emf < 0.05 && fabs(etajet) >= 2.)
-                                || (fracSamplingMax > 0.99 && fabs(etajet) < 2.0)) {
+                                || (fracSamplingMax > 0.99 && fabs(etajet) < 2.0))
+                            {
                                 return StatusCode::SUCCESS;
                             }
                         }
                     }
                 }
 
-                if (m_badJets) {
+                if (m_badJets)
+                {
                     int counterbadjets = 0;
 
                     xAOD::JetContainer::const_iterator jetItrE = xJetCollection->end();
 
-                    for (; jetItr != jetItrE; ++jetItr) {
+                    for (; jetItr != jetItrE; ++jetItr)
+                    {
 
                         const xAOD::Jet* xjet_ = *jetItr;
                         const xAOD::JetFourMom_t& jetP4 = xjet_->jetP4();
@@ -991,21 +1029,25 @@ StatusCode METMonTool::fillSourcesHistograms()
                         std::vector<float> SumPtTrk_;
                         double chf = 1.0; // set to 1.0 if not found. Prefer 0.0?
                         StatusCode xjet_sumpt;
-                        
+
                         bool caught_error = false;
-                        try {
+                        try
+                        {
                             xjet_sumpt = xjet_->getAttribute(xAOD::JetAttribute::SumPtTrkPt500, SumPtTrk_);
                         }
-                        catch (...) {
+                        catch (...)
+                        {
                             caught_error = true;
                         }
 
-                        if (!caught_error && xjet_sumpt.isSuccess() && SumPtTrk_.size() > 0) {
+                        if (!caught_error && xjet_sumpt.isSuccess() && SumPtTrk_.size() > 0)
+                        {
                             chf = SumPtTrk_[0] / ptjet;
                         }
 
                         //Rel. 16 2011
-                        if (ptjet*emjes > 20000) {
+                        if (ptjet*emjes > 20000)
+                        {
                             if ((emf > 0.95 && fabs(jetQuality) > 0.8 && fabs(etajet) < 2.8)    //EM coherent noise
                                 || (hecf > 0.5 && fabs(hecq) > 0.5)                            //HEC spike
                                 || (fabs(negE) > 60000)
@@ -1013,18 +1055,21 @@ StatusCode METMonTool::fillSourcesHistograms()
                                 || (fabs(jetTime) > 25)                                      //cosmic-beam background
                                 || (emf < 0.05 && chf < 0.05 && fabs(etajet) < 2.)
                                 || (emf < 0.05 && fabs(etajet) >= 2.)
-                                || (fracSamplingMax > 0.99 && fabs(etajet) < 2.0)) {
+                                || (fracSamplingMax > 0.99 && fabs(etajet) < 2.0))
+                            {
                                 counterbadjets++;
                             }
                         }
 
                     }
-                    if (counterbadjets == 0) {
+                    if (counterbadjets == 0)
+                    {
                         return StatusCode::SUCCESS;
                     }
                 }
             }
-            else {
+            else
+            {
                 ATH_MSG_DEBUG("Empty jet collection");
             }
         }
@@ -1033,15 +1078,19 @@ StatusCode METMonTool::fillSourcesHistograms()
     const xAOD::ElectronContainer* xElectrons = 0; // evtStore()->retrieve< const xAOD::ElectronContainer >("ElectronCollection");
     const xAOD::Electron* xhEle = 0;
 
-    if (m_eleColKey != "") {
+    if (m_eleColKey != "")
+    {
         ATH_CHECK(evtStore()->retrieve(xElectrons, "Electrons"));
-        if (!xElectrons) {
+        if (!xElectrons)
+        {
             ATH_MSG_WARNING("Unable to retrieve ElectronContainer: " << "Electrons");
         }
-        else {
+        else
+        {
             // Get Hardest Electron
             // Assume sorted collection
-            if (xElectrons->size() > 0) {
+            if (xElectrons->size() > 0)
+            {
                 auto eleItr = xElectrons->begin();
                 xhEle = *eleItr;
             }
@@ -1052,16 +1101,20 @@ StatusCode METMonTool::fillSourcesHistograms()
     const xAOD::MuonContainer* xMuons = 0; // evtStore()->retrieve< const xAOD::ElectronContainer >("ElectronCollection");
     const xAOD::Muon* xhMuon = 0;
 
-    if (m_muoColKey != "") {
+    if (m_muoColKey != "")
+    {
         ATH_CHECK(evtStore()->retrieve(xMuons, "Muons"));
-        if (!xMuons) {
+        if (!xMuons)
+        {
             ATH_MSG_WARNING("Unable to retrieve muon collection: " << "Muons");
             m_ContainerWarnings_Muon++;
         }
-        else {
+        else
+        {
             // Get Hardest Electron
             // Assume sorted collection
-            if (xMuons->size() > 0) {
+            if (xMuons->size() > 0)
+            {
                 auto muonItr = xMuons->begin();
                 xhMuon = *muonItr;
             }
@@ -1076,73 +1129,144 @@ StatusCode METMonTool::fillSourcesHistograms()
     bool doSummary = (m_metKeys.size() > 1);
     // const MissingET *missET;
 
-    for (unsigned int i = 0; i < m_metKeys.size(); i++) {
+    for (unsigned int i = 0; i < m_metKeys.size(); i++)
+    {
 
         std::string xaod_key = "";
         std::string xaod_subkey = "";
-        if (m_metKeys[i].compare("MET_RefFinal") == 0) {
-            xaod_key = "MET_RefFinal";
-            xaod_subkey = "Final";
+        if (m_metKeys[i].compare("MET_RefFinal") == 0)
+        {
+            xaod_key = "MET_Reference_AntiKt4EMPFlow";
+            xaod_subkey = "FinalClus"; // add track
         }
-        else if (m_metKeys[i].compare("MET_RefEle") == 0) {
-            xaod_key = "MET_RefFinal";
+        else if (m_metKeys[i].compare("MET_RefEle") == 0)
+        {
+            xaod_key = "MET_Reference_AntiKt4EMPFlow";
             xaod_subkey = "RefEle";
         }
-        else if (m_metKeys[i].compare("MET_RefGamma") == 0) {
-            xaod_key = "MET_RefFinal";
+        else if (m_metKeys[i].compare("MET_RefGamma") == 0)
+        {
+            xaod_key = "MET_Reference_AntiKt4EMPFlow";
             xaod_subkey = "RefGamma";
         }
-        else if (m_metKeys[i].compare("MET_RefTau") == 0) {
-            xaod_key = "MET_RefFinal";
+        else if (m_metKeys[i].compare("MET_RefTau") == 0)
+        {
+            xaod_key = "MET_Reference_AntiKt4EMPFlow";
             xaod_subkey = "RefTau";
         }
 
-        else if (m_metKeys[i].compare("MET_SoftClus") == 0) {
-            xaod_key = "MET_RefFinal";
+        else if (m_metKeys[i].compare("MET_SoftClus") == 0)
+        {
+            xaod_key = "MET_Reference_AntiKt4EMPFlow";
             xaod_subkey = "SoftClus";
         }
 
-        else if (m_metKeys[i].compare("MET_SoftTrk") == 0) {
-            xaod_key = "MET_RefFinal";
-            xaod_subkey = "SoftTrk";
+        else if (m_metKeys[i].compare("MET_SoftTrk") == 0)
+        {
+            xaod_key = "MET_Reference_AntiKt4EMPFlow";
+            xaod_subkey = "FinalTrk";
         }
 
-        else if (m_metKeys[i].compare("MET_PVSoftTrk") == 0) {
-            xaod_key = "MET_RefFinal";
+        else if (m_metKeys[i].compare("MET_PVSoftTrk") == 0)
+        {
+            xaod_key = "MET_Reference_AntiKt4EMPFlow";
             xaod_subkey = "PVSoftTrk";
         }
 
-        else if (m_metKeys[i].compare("MET_RefJet_JVFCut") == 0) {
-            xaod_key = "MET_RefFinal";
-            xaod_subkey = "RefJet_JVFCut";
+        else if (m_metKeys[i].compare("MET_RefJet_JVFCut") == 0)
+        {
+            xaod_key = "MET_Reference_AntiKt4EMPFlow";
+            xaod_subkey = "RefJet"; // RefJet_JVFCut
         }
 
-        else if (m_metKeys[i].compare("MET_RefJet") == 0) {
-            xaod_key = "MET_RefFinal";
+        else if (m_metKeys[i].compare("MET_RefJet") == 0)
+        {
+            xaod_key = "MET_Reference_AntiKt4EMPFlow";
             xaod_subkey = "RefJet";
         }
-        else if (m_metKeys[i].compare("MET_Muon") == 0) {
-            xaod_key = "MET_RefFinal";
+        else if (m_metKeys[i].compare("MET_Muon") == 0)
+        {
+            xaod_key = "MET_Reference_AntiKt4EMPFlow";
+            xaod_subkey = "Muons";
+        }
+        else if (m_metKeys[i].compare("MET_PFlow_RefFinal") == 0)
+        {
+            xaod_key = "MET_Reference_AntiKt4EMPFlow";
+            xaod_subkey = "FinalClus"; // add track
+        }
+        else if (m_metKeys[i].compare("MET_PFlow_RefEle") == 0)
+        {
+            xaod_key = "MET_Reference_AntiKt4EMPFlow";
+            xaod_subkey = "RefEle";
+        }
+        else if (m_metKeys[i].compare("MET_PFlow_RefGamma") == 0)
+        {
+            xaod_key = "MET_Reference_AntiKt4EMPFlow";
+            xaod_subkey = "RefGamma";
+        }
+        else if (m_metKeys[i].compare("MET_PFlow_RefTau") == 0)
+        {
+            xaod_key = "MET_Reference_AntiKt4EMPFlow";
+            xaod_subkey = "RefTau";
+        }
+
+        else if (m_metKeys[i].compare("MET_PFlow_SoftClus") == 0)
+        {
+            xaod_key = "MET_Reference_AntiKt4EMPFlow";
+            xaod_subkey = "SoftClus";
+        }
+
+        else if (m_metKeys[i].compare("MET_PFlow_SoftTrk") == 0)
+        {
+            xaod_key = "MET_Reference_AntiKt4EMPFlow";
+            xaod_subkey = "FinalTrk";
+        }
+
+        else if (m_metKeys[i].compare("MET_PFlow_PVSoftTrk") == 0)
+        {
+            xaod_key = "MET_Reference_AntiKt4EMPFlow";
+            xaod_subkey = "PVSoftTrk";
+        }
+
+        else if (m_metKeys[i].compare("MET_PFlow_RefJet_JVFCut") == 0)
+        {
+            xaod_key = "MET_Reference_AntiKt4EMPFlow";
+            xaod_subkey = "RefJet"; // RefJet_JVFCut
+        }
+
+        else if (m_metKeys[i].compare("MET_PFlow_RefJet") == 0)
+        {
+            xaod_key = "MET_Reference_AntiKt4EMPFlow";
+            xaod_subkey = "RefJet";
+        }
+        else if (m_metKeys[i].compare("MET_PFlow_Muon") == 0)
+        {
+            xaod_key = "MET_Reference_AntiKt4EMPFlow";
             xaod_subkey = "Muons";
         }
         else if (m_metKeys[i].compare("MET_LocHadTopo") == 0
-                 || m_metKeys[i].compare("MET_LocalHadTopo") == 0) {
+            || m_metKeys[i].compare("MET_LocalHadTopo") == 0)
+        {
             xaod_key = "MET_LocHadTopo";
             xaod_subkey = "LocHadTopo";
         }
-        else if (m_metKeys[i].compare("MET_Topo") == 0) {
-            xaod_key = "MET_LocHadTopo";
-            xaod_subkey = "LocHadTopo";
+        else if (m_metKeys[i].compare("MET_Topo") == 0)
+        {
+            xaod_key = "MET_EMTopo";
+            xaod_subkey = "EMTopo";
         }
-        else if (m_metKeys[i].compare("MET_Track") == 0) {
+        else if (m_metKeys[i].compare("MET_Track") == 0)
+        {
             xaod_key = "MET_Track";
             xaod_subkey = "Track";
         }
-        else if (m_metKeys[i].compare("MET_PFlow") == 0) {
-            xaod_key = "MET_PFlow";
-            xaod_subkey = "PFlow";
+        else if (m_metKeys[i].compare("MET_PFlow") == 0)
+        {
+            xaod_key = "MET_Reference_AntiKt4EMPFlow";
+            xaod_subkey = "FinalClus";
         }
-        else {
+        else
+        {
             //quiet// ATH_MSG_WARNING("m_metKeys member not recognized: " << m_metKeys[i]);
             continue;
         }
@@ -1151,28 +1275,33 @@ StatusCode METMonTool::fillSourcesHistograms()
 
         bool sc_exists = evtStore()->contains<xAOD::MissingETContainer>(xaod_key);
 
-        if (sc_exists) {
+        if (sc_exists)
+        {
             ATH_CHECK(evtStore()->retrieve(xMissEt, xaod_key));
 
 
-            if (!xMissEt) {
+            if (!xMissEt)
+            {
                 ATH_MSG_DEBUG("Unable to retrieve MissingETContainer: " << xaod_key);
             }
-            else {
+            else
+            {
                 ATH_MSG_DEBUG("Filling histograms for term " << m_metKeys[i]);
                 float ex = (*xMissEt)[xaod_subkey]->mpx() / CLHEP::GeV;
                 float ey = (*xMissEt)[xaod_subkey]->mpy() / CLHEP::GeV;
                 float et = (*xMissEt)[xaod_subkey]->met() / CLHEP::GeV;
                 float phi = (*xMissEt)[xaod_subkey]->phi();
                 float sumet = (*xMissEt)[xaod_subkey]->sumet() / CLHEP::GeV;
-                if (et > 0.) {
+                if (et > 0.)
+                {
                     m_et[i]->Fill(et);
                     m_ex[i]->Fill(ex);
                     m_ey[i]->Fill(ey);
                     m_phi[i]->Fill(phi);
                     m_sumet[i]->Fill(sumet);
 
-                    if (m_metFinKey != "" && i == m_metKeys.size() - 1) {
+                    if (m_metFinKey != "" && i == m_metKeys.size() - 1)
+                    {
                         // met Vs SumEt
                         m_metVsSumEt->Fill(sumet, et);
                         m_metVsMetPhi->Fill(phi, et);
@@ -1180,9 +1309,11 @@ StatusCode METMonTool::fillSourcesHistograms()
 
                         //msg_info// ATH_MSG_INFO("METMonTool::FILL_ONE_ONE::1092");
 
-                        if (TMath::Abs(et) < m_truncatedMean) {
+                        if (TMath::Abs(et) < m_truncatedMean)
+                        {
                             //msg_info// ATH_MSG_INFO("METMonTool::FILL_TWO_TWO::1095");
-                            if (xjet != 0) {
+                            if (xjet != 0)
+                            {
                                 const xAOD::JetFourMom_t& jetP4 = xjet->jetP4();
 
                                 fillProfileHistograms(et, phi, jetP4.eta(), jetP4.phi(), m_iJet).ignore();
@@ -1193,7 +1324,8 @@ StatusCode METMonTool::fillSourcesHistograms()
                         }
                     }
                     // Mean summaries
-                    if (doSummary) {
+                    if (doSummary)
+                    {
                         m_exMean->Fill(i + 0.5, ex);
                         m_eyMean->Fill(i + 0.5, ey);
                         m_phiMean->Fill(i + 0.5, phi);
@@ -1204,7 +1336,8 @@ StatusCode METMonTool::fillSourcesHistograms()
 
         }
 
-        else {
+        else
+        {
             ATH_MSG_DEBUG("Unable to retrieve MissingETContainer: " << xaod_key);
         }
     }
@@ -1232,16 +1365,20 @@ StatusCode METMonTool::fillCalosHistograms()
 
     bool sc_exists = evtStore()->contains<xAOD::MissingETContainer>("MET_Calo");
 
-    if (sc_exists) {
+    if (sc_exists)
+    {
         ATH_CHECK(evtStore()->retrieve(xmetCal, "MET_Calo"));
 
-        if (!xmetCal) {
+        if (!xmetCal)
+        {
             ATH_MSG_DEBUG("Unable to retrieve MissingETContainer: " << "MET_Calo");
         }
-        else {
+        else
+        {
             ATH_MSG_DEBUG("Filling histograms per calorimeter subsystem with key " << m_metCalKey);
 
-            for (unsigned int i = 0; i < m_calIndices.size(); i++) {
+            for (unsigned int i = 0; i < m_calIndices.size(); i++)
+            {
 
                 float ex = (*xmetCal)[m_calStrings[i]]->mpx() / CLHEP::GeV;
                 float ey = (*xmetCal)[m_calStrings[i]]->mpy() / CLHEP::GeV;
@@ -1249,14 +1386,16 @@ StatusCode METMonTool::fillCalosHistograms()
                 float phi = atan2(ey, ex);//  (*xmetCal)["LocHadTopo"]->phi() / CLHEP::GeV;
                 float sumet = (*xmetCal)[m_calStrings[i]]->sumet() / CLHEP::GeV;
 
-                if (et > 0.) {
+                if (et > 0.)
+                {
                     m_etCal[i]->Fill(et);
                     m_exCal[i]->Fill(ex);
                     m_eyCal[i]->Fill(ey);
                     m_phiCal[i]->Fill(phi);
                     m_sumetCal[i]->Fill(sumet);
                     // Mean summaries
-                    if (doSummary) {
+                    if (doSummary)
+                    {
                         m_exCalMean->Fill(i + 0.5, ex);
                         m_eyCalMean->Fill(i + 0.5, ey);
                         m_phiCalMean->Fill(i + 0.5, phi);
@@ -1265,7 +1404,8 @@ StatusCode METMonTool::fillCalosHistograms()
             }
         }
     }
-    else {
+    else
+    {
         ATH_MSG_DEBUG("Unable to retrieve MissingETContainer: " << "MET_Calo");
     }
     return StatusCode::SUCCESS;
@@ -1289,17 +1429,21 @@ StatusCode METMonTool::fillRegionsHistograms()
 
     bool sc_exists = evtStore()->contains<xAOD::MissingETContainer>("MET_TruthRegions");
 
-    if (sc_exists) {
+    if (sc_exists)
+    {
 
         ATH_CHECK(evtStore()->retrieve(xmetReg, "MET_TruthRegions"));
 
-        if (!xmetReg) {
+        if (!xmetReg)
+        {
             ATH_MSG_DEBUG("Unable to retrieve MissingETContainer: " << "MET_TruthRegions");
         }
-        else {
+        else
+        {
             //s// ATH_MSG_DEBUG("Filling histograms per calorimeter region with key " << m_metRegKey);
             //s// metReg = missET->getRegions();
-            for (unsigned int i = 0; i < m_regIndices.size(); i++) {
+            for (unsigned int i = 0; i < m_regIndices.size(); i++)
+            {
                 std::string xaod_truth_region = "";
                 if (i == 0) xaod_truth_region = "Int_Central";
                 else if (i == 1) xaod_truth_region = "Int_EndCap";
@@ -1312,14 +1456,16 @@ StatusCode METMonTool::fillRegionsHistograms()
                 float phi = atan2(ey, ex);
                 float sumet = (*xmetReg)[xaod_truth_region]->sumet() / CLHEP::GeV;
 
-                if (et > 0.) {
+                if (et > 0.)
+                {
                     m_etReg[i]->Fill(et);
                     m_exReg[i]->Fill(ex);
                     m_eyReg[i]->Fill(ey);
                     m_phiReg[i]->Fill(phi);
                     m_sumetReg[i]->Fill(sumet);
                     // Mean summaries
-                    if (doSummary) {
+                    if (doSummary)
+                    {
                         m_exRegMean->Fill(i + 0.5, ex);
                         m_eyRegMean->Fill(i + 0.5, ey);
                         m_phiRegMean->Fill(i + 0.5, phi);
@@ -1328,7 +1474,8 @@ StatusCode METMonTool::fillRegionsHistograms()
             }
         }
     }
-    else {
+    else
+    {
         ATH_MSG_DEBUG("Unable to retrieve MissingETContainer: " << "MET_TruthRegions");
     }
 
