@@ -57,6 +57,18 @@ TRT_StrawStatusSummarySvc::TRT_StrawStatusSummarySvc( const std::string& name,
   declareProperty("statusTextFilePermanent",par_stattextfilepermanent);
   declareProperty("statusTextFileHT",par_stattextfileHT);
   declareProperty("ToolSvc",m_toolsvc);
+
+    // create arrays for alive straws
+  m_stw_total = new int[7];
+  m_stw_local = new int*[10];
+  m_stw_local_wheel = new int*[34];
+  m_stw_local_straw = new int*[36];
+
+  for (int i=0; i<10; ++i) m_stw_local[i] = new int[32];
+  for (int i=0; i<34; ++i) m_stw_local_wheel[i] = new int[32];
+  for (int i=0; i<36; ++i) m_stw_local_straw[i] = new int[32];
+                          
+  resetArrays();//RM moved to c'tor from initialize() to avoid coverity defects
 }
 //  declareProperty("statusTextFile",par_stattextfile);
 
@@ -190,7 +202,7 @@ StatusCode TRT_StrawStatusSummarySvc::initialize()
     if(msgLvl(MSG::VERBOSE)) msg() <<i<<" "<<ht_interval*(i+0.5)<<endreq;
   }
 
-
+/*
     // create arrays for alive straws
   m_stw_total = new int[7];
   m_stw_local = new int*[10];
@@ -208,8 +220,8 @@ StatusCode TRT_StrawStatusSummarySvc::initialize()
   for (int i=0; i<36; ++i){
     m_stw_local_straw[i] = new int[32];
   }
-  resetArrays();
-
+  resetArrays();//RM move to c'tor to avoid coverity defects
+*/
   msg(MSG::INFO) << "TRT_StrawStatusSummarySvc initialized successfully  " << endreq;
   return StatusCode::SUCCESS;
 }
@@ -219,10 +231,20 @@ StatusCode TRT_StrawStatusSummarySvc::initialize()
 
 StatusCode TRT_StrawStatusSummarySvc::finalize()
 {
-
   delete [] m_stw_total;
+  for (int i=0; i<10; ++i){
+  	delete[] m_stw_local[i]; 
+  }
   delete [] m_stw_local;
+
+  for (int i=0; i<34; ++i){
+   	delete []  m_stw_local_wheel[i];
+  }
   delete [] m_stw_local_wheel;
+
+  for (int i=0; i<36; ++i){
+	delete[] m_stw_local_straw[i];
+  }
   delete [] m_stw_local_straw;
 
   msg(MSG::INFO) << " in finalize() " << endreq;
@@ -895,10 +917,16 @@ StatusCode TRT_StrawStatusSummarySvc::ComputeAliveStraws(){
 
   for (std::vector<Identifier>::const_iterator it = m_trtid->straw_layer_begin(); it != m_trtid->straw_layer_end(); it++  ) {
 
+   unsigned int nstraws = 0;
    if (detectorManager){
      const InDetDD::TRT_BaseElement *el = m_trtDetMgr->getElement(*it);
      if( !el ) continue;
-     for (unsigned int i=0; i<el->nStraws(); i++) {
+     nstraws = el->nStraws();
+   }
+   else{
+     nstraws = m_trtid->straw_max( *it) + 1; // There is a difference of 1 between both methods....
+   }
+   for (unsigned int i=0; i<nstraws  ;i++) {
       Identifier id = m_trtid->straw_id( *it, i);
       int det = m_trtid->barrel_ec(         id)     ;
       int lay = m_trtid->layer_or_wheel(    id)     ;
@@ -918,32 +946,7 @@ StatusCode TRT_StrawStatusSummarySvc::ComputeAliveStraws(){
       m_stw_local[i_local][phi] +=1;
       m_stw_local_wheel[i_local_wheel][phi] +=1;
       m_stw_local_straw[i_local_straw][phi] +=1;
-     }
-   }// det manager
-   else{ // This is slower!! 
-     for (int i=0; i<=m_trtid->straw_max( *it); i++) {
-      Identifier id = m_trtid->straw_id( *it, i);
-      int det = m_trtid->barrel_ec(         id)     ;
-      int lay = m_trtid->layer_or_wheel(    id)     ;
-      int phi = m_trtid->phi_module(        id)     ;
-
-      bool status               = get_status( id );
-      if ( status ) ATH_MSG_VERBOSE(" The sector " << det << " " << lay << " " << phi << " has status " << status);
-      if (status) continue;
-
-      int i_total = findArrayTotalIndex(det, lay);
-      int i_local = findArrayLocalIndex(det, lay);
-      int i_local_wheel = findArrayLocalWheelIndex(det, lay);
-      int strawlay = m_trtid->straw_layer(id);
-      int i_local_straw = findArrayLocalStrawIndex(det, lay, strawlay);
-
-      m_stw_total[0]            +=1;
-      m_stw_total[i_total]      +=1;
-      m_stw_local[i_local][phi] +=1;
-      m_stw_local_wheel[i_local_wheel][phi] +=1;
-      m_stw_local_straw[i_local_straw][phi] +=1;
-    }
-  }// close eslse
+    }//For
  }//For
 
  ATH_MSG_DEBUG("Active Straws: " << m_stw_total[0] << " \t" << m_stw_total[1]<< "\t" << m_stw_total[2]<< "\t" << m_stw_total[3] );	
