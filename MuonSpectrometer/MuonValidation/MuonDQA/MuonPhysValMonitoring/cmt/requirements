@@ -29,6 +29,7 @@ use TrkValHistUtils     TrkValHistUtils-*       Tracking/TrkValidation
 use MuonHistUtils       MuonHistUtils-*         MuonSpectrometer/MuonValidation/MuonHistogramming
 use MuonSelectorTools   MuonSelectorTools-*	PhysicsAnalysis/MuonID
 use TrigDecisionTool    TrigDecisionTool-*  Trigger/TrigAnalysis
+use MuonCombinedToolInterfaces  MuonCombinedToolInterfaces-*    Reconstruction/MuonIdentification
 end_private
 
 

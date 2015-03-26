@@ -14,7 +14,7 @@ RecoRelatedTriggerMuonPlots::RecoRelatedTriggerMuonPlots(PlotBase* pParent, std:
 
 RecoRelatedTriggerMuonPlots::~RecoRelatedTriggerMuonPlots() {}
 
-void RecoRelatedTriggerMuonPlots::fill(const xAOD::Muon& Trigmu, const xAOD::Muon& Recomu){
+void RecoRelatedTriggerMuonPlots::fill(const xAOD::Muon& /*Trigmu*/, const xAOD::Muon& /*Recomu*/){
 
   //  m_oMuonResolutionPlots.fill(Trigmu, Recomu);   ////work in progress
 }
