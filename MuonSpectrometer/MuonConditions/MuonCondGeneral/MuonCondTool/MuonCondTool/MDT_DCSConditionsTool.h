@@ -34,22 +34,22 @@ public:
 
   /** required by the IAddressProvider interface */
   //virtual StatusCode updateAddress(SG::TransientAddress* tad);
-  virtual StatusCode updateAddress(StoreID::type storeID, SG::TransientAddress* tad) override;
+  virtual StatusCode updateAddress(StoreID::type storeID, SG::TransientAddress* tad);
   
-  virtual StatusCode initialize() override;
+  virtual StatusCode initialize();
 
-  virtual std::string DropChamberFolderName() const override {return m_dropchamberFolder;}
-  virtual std::string HVFolderName() const override {return m_hvFolder;}
-  virtual std::string LVFolderName() const override {return m_lvFolder;}
-  virtual std::string JTAGFolderName() const override {return m_jtagFolder;}
-  virtual std::string SetPointsV0FolderName() const override {return m_setPointsV0Folder;}
-  virtual std::string SetPointsV1FolderName() const override {return m_setPointsV1Folder;}
+  virtual std::string DropChamberFolderName() const {return m_dropchamberFolder;}
+  virtual std::string HVFolderName() const {return m_hvFolder;}
+  virtual std::string LVFolderName() const {return m_lvFolder;}
+  virtual std::string JTAGFolderName() const {return m_jtagFolder;}
+  virtual std::string SetPointsV0FolderName() const {return m_setPointsV0Folder;}
+  virtual std::string SetPointsV1FolderName() const {return m_setPointsV1Folder;}
 
-  virtual bool Simulation_Setup() const override {return m_simulation_Setup;}
+  virtual bool Simulation_Setup() const {return m_simulation_Setup;}
 
-  virtual const std::vector<std::string>& deadStations() const override { return m_cachedDeadStations;}
-  virtual const std::vector<Identifier>& deadStationsId() const override { return m_cachedDeadStationsId;}
-  virtual const std::vector<Identifier>& deadMultiLayersId() const override { return m_cachedDeadMultiLayersId;} 
+  virtual const std::vector<std::string>& deadStations(){ return m_cachedDeadStations;}
+  virtual const std::vector<Identifier>& deadStationsId(){ return m_cachedDeadStationsId;}
+  virtual const std::vector<Identifier>& deadMultiLayersId(){ return m_cachedDeadMultiLayersId;} 
 
   const std::string OnlineName(Identifier OfflineId);
   const Identifier OfflineName(std::string OnlineId);
@@ -58,25 +58,25 @@ public:
 
 
  
-  virtual StatusCode loadParameters(IOVSVC_CALLBACK_ARGS) override;
-  virtual StatusCode loadDropChamber(IOVSVC_CALLBACK_ARGS) override;
-  virtual StatusCode loadHV(IOVSVC_CALLBACK_ARGS) override;
-  virtual StatusCode loadLV(IOVSVC_CALLBACK_ARGS) override;
-  virtual StatusCode loadJTAG(IOVSVC_CALLBACK_ARGS) override;
+  virtual StatusCode loadParameters(IOVSVC_CALLBACK_ARGS);
+  virtual StatusCode loadDropChamber(IOVSVC_CALLBACK_ARGS);
+  virtual StatusCode loadHV(IOVSVC_CALLBACK_ARGS);
+  virtual StatusCode loadLV(IOVSVC_CALLBACK_ARGS);
+  virtual StatusCode loadJTAG(IOVSVC_CALLBACK_ARGS);
 
        
   StoreGateSvc* m_detStore;
   IIOVSvc* m_IOVSvc;
 
-  std::map<std::string, Identifier> m_Chamber_Map;
+  std::map<std::string, Identifier> Chamber_Map;
 
-  std::map<int, Identifier> m_Chamber_Naming_standby;
+  std::map<int, Identifier> Chamber_Naming_standby;
 
-  std::map<Identifier, float> m_ChamberML_V0;
-  std::map<Identifier, float> m_ChamberML_V1;
+  std::map<Identifier, float> ChamberML_V0;
+  std::map<Identifier, float> ChamberML_V1;
 
-  std::map<int, float> m_ChamberML_V0_chanum;
-  std::map<int, float> m_ChamberML_V1_chanum;
+  std::map<int, float> ChamberML_V0_chanum;
+  std::map<int, float> ChamberML_V1_chanum;
   const MdtIdHelper* m_mdtIdHelper;
  
   std::string m_OnlineName;
@@ -113,10 +113,10 @@ public:
   std::string     m_setPointsV0Folder;
   std::string     m_setPointsV1Folder;
   std::vector<std::string> parlineFolder() { return m_parlineFolder; }
-  std::stringstream m_MDTChamDrop;
-  std::stringstream m_MDTLV;
-  std::stringstream m_MDTHV;
-  std::stringstream m_MDTJTAG;
+  std::stringstream MDTChamDrop;
+  std::stringstream MDTLV;
+  std::stringstream MDTHV;
+  std::stringstream MDTJTAG;
   IChronoStatSvc* m_chronoSvc;
   std::vector<std::string>      m_parlineFolder;
   std::string m_chrono1;
@@ -125,7 +125,7 @@ public:
   std::string m_chrono4;
   ToolHandle<IMDT_MapConversion> m_condMapTool;
  
-  MsgStream m_log;
+  MsgStream log;
   bool      m_debug;
   bool      m_verbose;
 };

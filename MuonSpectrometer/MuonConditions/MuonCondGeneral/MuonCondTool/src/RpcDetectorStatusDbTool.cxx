@@ -31,9 +31,6 @@ RpcDetectorStatusDbTool::RpcDetectorStatusDbTool (const std::string& type,
                              const std::string& name,
                              const IInterface* parent)
   : AthAlgTool(type, name, parent), 
-    m_FirstCall(true),
-    m_detStore(0),
-    m_IOVSvc(0),
     m_log( msgSvc(), name ),
     m_debug(false),
     m_verbose(false)
@@ -69,20 +66,20 @@ StatusCode RpcDetectorStatusDbTool::updateAddress(StoreID::type /*storeID*/, SG:
 
 StatusCode RpcDetectorStatusDbTool::initialize()
 { 
-  m_log.setLevel(msgLevel());
+  m_log.setLevel(outputLevel());
   m_debug = m_log.level() <= MSG::DEBUG;
   m_verbose = m_log.level() <= MSG::VERBOSE;
   
-  m_FirstCall = true ;
+  FirstCall = true ;
  
-  if( m_debug )  m_log << MSG::INFO << "Initializing" << endmsg;
+  if( m_debug )  m_log << MSG::INFO << "Initializing" << endreq;
   
    
   StatusCode sc = serviceLocator()->service("DetectorStore", m_detStore);
   if ( sc.isSuccess() ) {
-    if( m_debug )  m_log << MSG::DEBUG << "Retrieved DetectorStore" << endmsg;
+    if( m_debug )  m_log << MSG::DEBUG << "Retrieved DetectorStore" << endreq;
   }else{
-    m_log << MSG::ERROR << "Failed to retrieve DetectorStore" << endmsg;
+    m_log << MSG::ERROR << "Failed to retrieve DetectorStore" << endreq;
     return sc;
   }
 
@@ -92,7 +89,7 @@ StatusCode RpcDetectorStatusDbTool::initialize()
   sc = service( "IOVSvc", m_IOVSvc, CREATEIF );
   if ( sc.isFailure() )
   {
-       m_log << MSG::ERROR << "Unable to get the IOVSvc" << endmsg;
+       m_log << MSG::ERROR << "Unable to get the IOVSvc" << endreq;
        return StatusCode::FAILURE;
   }
 
@@ -101,7 +98,7 @@ StatusCode RpcDetectorStatusDbTool::initialize()
   sc = m_detStore->retrieve(m_rpcIdHelper, "RPCIDHELPER" );
   if (sc.isFailure())
     {
-      m_log<< MSG::FATAL << " Cannot retrieve RpcIdHelper " << endmsg;
+      m_log<< MSG::FATAL << " Cannot retrieve RpcIdHelper " << endreq;
       return sc;
     }
   
@@ -138,7 +135,7 @@ StatusCode RpcDetectorStatusDbTool::loadRpcDqStatus(IOVSVC_CALLBACK_ARGS_P(I,key
   
   StatusCode sc=StatusCode::SUCCESS;
    
-  m_log << MSG::INFO << "Load Rpc Status flags  from DB" << endmsg;
+  m_log << MSG::INFO << "Load Rpc Status flags  from DB" << endreq;
    
   
    
@@ -147,7 +144,7 @@ StatusCode RpcDetectorStatusDbTool::loadRpcDqStatus(IOVSVC_CALLBACK_ARGS_P(I,key
    
   std::list<std::string>::const_iterator keyIt = keys.begin();
   for (; keyIt != keys.end(); ++ keyIt) if( m_debug )  m_log << MSG::DEBUG << *keyIt << " ";
-  if( m_debug )  m_log << MSG::DEBUG << endmsg;
+  if( m_debug )  m_log << MSG::DEBUG << endreq;
    
      
 
@@ -156,7 +153,7 @@ StatusCode RpcDetectorStatusDbTool::loadRpcDqStatus(IOVSVC_CALLBACK_ARGS_P(I,key
   if(sc.isFailure())  {
     m_log << MSG::ERROR 
 	  << "could not retreive the CondAttrListCollection from DB folder " 
-	  << m_FolderName << endmsg;
+	  << m_FolderName << endreq;
     return sc;
   }
    
@@ -166,7 +163,7 @@ StatusCode RpcDetectorStatusDbTool::loadRpcDqStatus(IOVSVC_CALLBACK_ARGS_P(I,key
 
     
   int iEntry=0;
-  if( m_debug )  m_log << MSG::DEBUG << "Folder Size " <<atrc->size() << endmsg;
+  if( m_debug )  m_log << MSG::DEBUG << "Folder Size " <<atrc->size() << endreq;
   for (itr = atrc->begin(); itr != atrc->end(); ++itr) {
     const coral::AttributeList& atr=itr->second;
     channum=itr->first;
@@ -182,10 +179,10 @@ StatusCode RpcDetectorStatusDbTool::loadRpcDqStatus(IOVSVC_CALLBACK_ARGS_P(I,key
     striplist=*(static_cast<const std::string*>((atr["StripStatus"]).addressOfData()));
      
     if( m_debug )  {
-      m_log << MSG::DEBUG << "-----------------------------entry #"<<iEntry<<" total # of entries in the folder ="<<atrc->size()<<endmsg;
-      m_log << MSG::DEBUG << "channel ID = Panel ID " <<  channum <<" as identif. = "<<m_rpcIdHelper->show_to_string(chamberId)<< endmsg; 
-      m_log << MSG::DEBUG << "eff_panel load is " << eff_panel << endmsg;
-      m_log << MSG::DEBUG << "striplist load is " << striplist << " "<< striplist.size() << endmsg;
+      m_log << MSG::DEBUG << "-----------------------------entry #"<<iEntry<<" total # of entries in the folder ="<<atrc->size()<<endreq;
+      m_log << MSG::DEBUG << "channel ID = Panel ID " <<  channum <<" as identif. = "<<m_rpcIdHelper->show_to_string(chamberId)<< endreq; 
+      m_log << MSG::DEBUG << "eff_panel load is " << eff_panel << endreq;
+      m_log << MSG::DEBUG << "striplist load is " << striplist << " "<< striplist.size() << endreq;
     } 
     std::string delimiter = " ";
     std::vector<std::string> info_panel;
@@ -199,7 +196,7 @@ StatusCode RpcDetectorStatusDbTool::loadRpcDqStatus(IOVSVC_CALLBACK_ARGS_P(I,key
       {
 	for(unsigned int i=0; i<info_panel.size();i++){       
 	  ch_tmp= const_cast<char*>(info_panel[i].c_str());       
-	  m_log << MSG::VERBOSE << " info_panel " << ch_tmp << endmsg;
+	  m_log << MSG::VERBOSE << " info_panel " << ch_tmp << endreq;
 	  // version(3), # tracks, #strips, eff, errors, eff_gap, errors, res_cs1, errors, res_cs2, errors, res_csother, errors,
 	  // noise, errors, noise_cor, errors, cluster_size, errors, frac_cs1, frac_cs2, frac_cs3_8, aver_cs3_8, frac_cs9_up*100, aver_cs9_up 
 	}
@@ -207,9 +204,9 @@ StatusCode RpcDetectorStatusDbTool::loadRpcDqStatus(IOVSVC_CALLBACK_ARGS_P(I,key
 
     char * SDBversion = const_cast<char*>(info_panel[0].c_str());    
     int DBversion = atoi( SDBversion ) ;
-    if (m_FirstCall) m_log << MSG::INFO << " DB version  "   << info_panel[ 0] <<" Size of info_panel array = "<<info_panel.size()<<endmsg;
+    if (FirstCall) m_log << MSG::INFO << " DB version  "   << info_panel[ 0] <<" Size of info_panel array = "<<info_panel.size()<<endreq;
  
-    if( m_FirstCall  && DBversion > 2) { 
+    if( FirstCall  && DBversion > 2) { 
       m_log << MSG::INFO << " DB version  "   << info_panel[ 0] ;
       m_log << MSG::INFO << " # Tracks    "   << info_panel[ 1] ;
       m_log << MSG::INFO << " # Strips    "   << info_panel[ 2] ; 
@@ -222,7 +219,7 @@ StatusCode RpcDetectorStatusDbTool::loadRpcDqStatus(IOVSVC_CALLBACK_ARGS_P(I,key
       m_log << MSG::INFO << " res_cs2     "   << info_panel[ 9] ;
       m_log << MSG::INFO << " errors	   "   << info_panel[10] ;
       m_log << MSG::INFO << " res_csother "   << info_panel[11] ;
-      m_log << MSG::INFO << " errors	   "   << info_panel[12] << endmsg ;
+      m_log << MSG::INFO << " errors	   "   << info_panel[12] << endreq ;
       m_log << MSG::INFO << " noise	   "   << info_panel[13] ;
       m_log << MSG::INFO << " errors	   "   << info_panel[14] ;
       m_log << MSG::INFO << " noise_cor   "   << info_panel[15] ;
@@ -234,7 +231,7 @@ StatusCode RpcDetectorStatusDbTool::loadRpcDqStatus(IOVSVC_CALLBACK_ARGS_P(I,key
       m_log << MSG::INFO << " frac_cs3_8  "   << info_panel[21] ;
       m_log << MSG::INFO << " aver_cs3_8  "   << info_panel[22] ;
       m_log << MSG::INFO << " frac_cs9_up%"   << info_panel[23] ;
-      m_log << MSG::INFO << " aver_cs9_up "   << info_panel[24] << endmsg;
+      m_log << MSG::INFO << " aver_cs9_up "   << info_panel[24] << endreq;
     }
      
      
@@ -243,77 +240,77 @@ StatusCode RpcDetectorStatusDbTool::loadRpcDqStatus(IOVSVC_CALLBACK_ARGS_P(I,key
    
     char * SProjectedTracks=const_cast<char*>(info_panel[1].c_str());
     double ProjectedTracks = atof(SProjectedTracks);
-    m_RPC_PanelProjectedTracksMap.insert(std::make_pair(chamberId,ProjectedTracks));     
+    RPC_PanelProjectedTracksMap.insert(std::make_pair(chamberId,ProjectedTracks));     
 
-    if( m_debug )  m_log << MSG::DEBUG << "Size of  RPC_PanelProjectedTracksMap " << m_RPC_PanelProjectedTracksMap.size() << "; in panel " <<  channum << " SProjectedTracks " << SProjectedTracks << " ProjectedTracks " << ProjectedTracks << endmsg;     
+    if( m_debug )  m_log << MSG::DEBUG << "Size of  RPC_PanelProjectedTracksMap " << RPC_PanelProjectedTracksMap.size() << "; in panel " <<  channum << " SProjectedTracks " << SProjectedTracks << " ProjectedTracks " << ProjectedTracks << endreq;     
 
     char * SEfficiency=const_cast<char*>(info_panel[3].c_str());
     double Efficiency = atof(SEfficiency);
-    m_RPC_PanelEfficiencyMap.insert(std::make_pair(chamberId,Efficiency));
+    RPC_PanelEfficiencyMap.insert(std::make_pair(chamberId,Efficiency));
 
-    if( m_debug )  m_log << MSG::DEBUG << "Size of  RPC_PanelEfficiencyMap " << m_RPC_PanelEfficiencyMap.size() << "; in panel " <<  channum << " SEfficiency " << SEfficiency << " Efficiency " << Efficiency << endmsg;     
+    if( m_debug )  m_log << MSG::DEBUG << "Size of  RPC_PanelEfficiencyMap " << RPC_PanelEfficiencyMap.size() << "; in panel " <<  channum << " SEfficiency " << SEfficiency << " Efficiency " << Efficiency << endreq;     
 
     char * SGapEfficiency=const_cast<char*>(info_panel[5].c_str());
     double GapEfficiency = atof(SGapEfficiency);
-    m_RPC_GapEfficiencyMap.insert(std::make_pair(chamberId,GapEfficiency));     
+    RPC_GapEfficiencyMap.insert(std::make_pair(chamberId,GapEfficiency));     
 
-    if( m_debug )  m_log << MSG::DEBUG << "Size of  RPC_GapEfficiencyMap " << m_RPC_GapEfficiencyMap.size() << "; in panel " <<  channum << " SGapEfficiency " << SGapEfficiency << " GapEfficiency " << GapEfficiency << endmsg;
+    if( m_debug )  m_log << MSG::DEBUG << "Size of  RPC_GapEfficiencyMap " << RPC_GapEfficiencyMap.size() << "; in panel " <<  channum << " SGapEfficiency " << SGapEfficiency << " GapEfficiency " << GapEfficiency << endreq;
 
     char * SMeanClusterSizeMap=const_cast<char*>(info_panel[17].c_str());
     double MeanClusterSizeMap = atof(SMeanClusterSizeMap);
-    m_RPC_PanelMeanClusterSizeMap.insert(std::make_pair(chamberId,MeanClusterSizeMap));     
+    RPC_PanelMeanClusterSizeMap.insert(std::make_pair(chamberId,MeanClusterSizeMap));     
 
-    if( m_debug )  m_log << MSG::DEBUG << "Size of  RPC_PanelMeanClusterSizeMap " << m_RPC_PanelMeanClusterSizeMap.size() << "; in panel " <<  channum << " SMeanClusterSizeMap " << SMeanClusterSizeMap << " MeanClusterSizeMap " << MeanClusterSizeMap << endmsg;     
+    if( m_debug )  m_log << MSG::DEBUG << "Size of  RPC_PanelMeanClusterSizeMap " << RPC_PanelMeanClusterSizeMap.size() << "; in panel " <<  channum << " SMeanClusterSizeMap " << SMeanClusterSizeMap << " MeanClusterSizeMap " << MeanClusterSizeMap << endreq;     
     //std::cout<<"Here DBversion="<<DBversion<<std::endl;
     //std::cout<<"info_panel size  = "<<info_panel.size()<<std::endl;
     //for(unsigned int ii=0; ii<info_panel.size();ii++){       
     //  char* ch_tmp1= const_cast<char*>(info_panel[ii].c_str());       
-    //  m_log << MSG::INFO << " info_panel " <<ii<<" "<< ch_tmp1 << endmsg;
+    //  m_log << MSG::INFO << " info_panel " <<ii<<" "<< ch_tmp1 << endreq;
     //}
     if( DBversion>2 ){
       char * SFracClusterSize1Map_a=const_cast<char*>(info_panel[19].c_str());
       char * SFracClusterSize1Map_b=const_cast<char*>(info_panel[20].c_str());
       double FracClusterSize1Map = atof(SFracClusterSize1Map_a)+atof(SFracClusterSize1Map_b)*10000;
-      m_RPC_PanelFracClusterSize1Map.insert(std::make_pair(chamberId,FracClusterSize1Map));     
+      RPC_PanelFracClusterSize1Map.insert(std::make_pair(chamberId,FracClusterSize1Map));     
 
       if( m_debug )  
-	m_log << MSG::DEBUG << "Size of  RPC_PanelFracClusterSize1Map " << m_RPC_PanelFracClusterSize1Map.size() << "; in panel " <<  channum << " SFracClusterSize1Map_a " << SFracClusterSize1Map_a << " SFracClusterSize1Map_b " << SFracClusterSize1Map_b <<" FracClusterSize1Map " << FracClusterSize1Map << endmsg;     
+	m_log << MSG::DEBUG << "Size of  RPC_PanelFracClusterSize1Map " << RPC_PanelFracClusterSize1Map.size() << "; in panel " <<  channum << " SFracClusterSize1Map_a " << SFracClusterSize1Map_a << " SFracClusterSize1Map_b " << SFracClusterSize1Map_b <<" FracClusterSize1Map " << FracClusterSize1Map << endreq;     
 
       char * SFracClusterSize2Map_a=const_cast<char*>(info_panel[21].c_str());
       char * SFracClusterSize2Map_b=const_cast<char*>(info_panel[22].c_str());
       double FracClusterSize2Map = atof(SFracClusterSize2Map_a)+atof(SFracClusterSize2Map_b)*10000;
-      m_RPC_PanelFracClusterSize2Map.insert(std::make_pair(chamberId,FracClusterSize2Map));     
+      RPC_PanelFracClusterSize2Map.insert(std::make_pair(chamberId,FracClusterSize2Map));     
 
-      if( m_debug )  m_log << MSG::DEBUG << "Size of  RPC_PanelFracClusterSize2Map " << m_RPC_PanelFracClusterSize2Map.size() << "; in panel " <<  channum << " SFracClusterSize2Map_a " << SFracClusterSize2Map_a << " SFracClusterSize2Map_b " << SFracClusterSize2Map_b <<" FracClusterSize2Map " << FracClusterSize2Map << endmsg;     
+      if( m_debug )  m_log << MSG::DEBUG << "Size of  RPC_PanelFracClusterSize2Map " << RPC_PanelFracClusterSize2Map.size() << "; in panel " <<  channum << " SFracClusterSize2Map_a " << SFracClusterSize2Map_a << " SFracClusterSize2Map_b " << SFracClusterSize2Map_b <<" FracClusterSize2Map " << FracClusterSize2Map << endreq;     
 
       char * SFracClusterSize3Map_a=const_cast<char*>(info_panel[23].c_str());
       char * SFracClusterSize3Map_b=const_cast<char*>(info_panel[24].c_str());
       double FracClusterSize3Map = atof(SFracClusterSize3Map_a)+atof(SFracClusterSize3Map_b)*10000;
-      m_RPC_PanelFracClusterSize3Map.insert(std::make_pair(chamberId,FracClusterSize3Map));     
+      RPC_PanelFracClusterSize3Map.insert(std::make_pair(chamberId,FracClusterSize3Map));     
 
-      if( m_debug )  m_log << MSG::DEBUG << "Size of  RPC_PanelFracClusterSize3Map " << m_RPC_PanelFracClusterSize3Map.size() << "; in panel " <<  channum << " SFracClusterSize3Map_a " << SFracClusterSize3Map_a << " SFracClusterSize3Map_b " << SFracClusterSize3Map_b <<" FracClusterSize3Map " << FracClusterSize3Map << endmsg;     
+      if( m_debug )  m_log << MSG::DEBUG << "Size of  RPC_PanelFracClusterSize3Map " << RPC_PanelFracClusterSize3Map.size() << "; in panel " <<  channum << " SFracClusterSize3Map_a " << SFracClusterSize3Map_a << " SFracClusterSize3Map_b " << SFracClusterSize3Map_b <<" FracClusterSize3Map " << FracClusterSize3Map << endreq;     
 
     }    
     else{
       if (info_panel.size()>20){
 	char * SFracClusterSize1Map=const_cast<char*>(info_panel[19].c_str());
 	double FracClusterSize1Map = atof(SFracClusterSize1Map);
-	m_RPC_PanelFracClusterSize1Map.insert(std::make_pair(chamberId,FracClusterSize1Map));     
+	RPC_PanelFracClusterSize1Map.insert(std::make_pair(chamberId,FracClusterSize1Map));     
 
-	if( m_debug )  m_log << MSG::DEBUG << "Size of  RPC_PanelFracClusterSize1Map " << m_RPC_PanelFracClusterSize1Map.size() << "; in panel " <<  channum << " SFracClusterSize1Map " << SFracClusterSize1Map << " FracClusterSize1Map " << FracClusterSize1Map << endmsg;     
+	if( m_debug )  m_log << MSG::DEBUG << "Size of  RPC_PanelFracClusterSize1Map " << RPC_PanelFracClusterSize1Map.size() << "; in panel " <<  channum << " SFracClusterSize1Map " << SFracClusterSize1Map << " FracClusterSize1Map " << FracClusterSize1Map << endreq;     
 
 	char * SFracClusterSize2Map=const_cast<char*>(info_panel[20].c_str());
 	double FracClusterSize2Map = atof(SFracClusterSize2Map);
-	m_RPC_PanelFracClusterSize2Map.insert(std::make_pair(chamberId,FracClusterSize2Map));     
+	RPC_PanelFracClusterSize2Map.insert(std::make_pair(chamberId,FracClusterSize2Map));     
 
-	if( m_debug )  m_log << MSG::DEBUG << "Size of  RPC_PanelFracClusterSize2Map " << m_RPC_PanelFracClusterSize2Map.size() << "; in panel " << channum << " SFracClusterSize2Map " << SFracClusterSize2Map << " FracClusterSize2Map " << FracClusterSize2Map << endmsg;     
+	if( m_debug )  m_log << MSG::DEBUG << "Size of  RPC_PanelFracClusterSize2Map " << RPC_PanelFracClusterSize2Map.size() << "; in panel " << channum << " SFracClusterSize2Map " << SFracClusterSize2Map << " FracClusterSize2Map " << FracClusterSize2Map << endreq;     
       }
       else
 	{
-	  m_RPC_PanelFracClusterSize1Map.insert(std::make_pair(chamberId,0.6));     
-	  m_RPC_PanelFracClusterSize2Map.insert(std::make_pair(chamberId,0.2));     
+	  RPC_PanelFracClusterSize1Map.insert(std::make_pair(chamberId,0.6));     
+	  RPC_PanelFracClusterSize2Map.insert(std::make_pair(chamberId,0.2));     
 	  m_log << MSG::DEBUG << "Here a panel with incomplete info in the DB, size = "<<info_panel.size()<<" instead of being>20 panel ID="<<channum<<" = "<<m_rpcIdHelper->show_to_string(chamberId)
-		<<" cluster size 1 & 2 fraction set to .... 0.6 and 0.2"<<endmsg;
+		<<" cluster size 1 & 2 fraction set to .... 0.6 and 0.2"<<endreq;
 	}
     }
      
@@ -337,16 +334,16 @@ StatusCode RpcDetectorStatusDbTool::loadRpcDqStatus(IOVSVC_CALLBACK_ARGS_P(I,key
 
     
     char * ch_strip2;
-    if( m_debug )  m_log << MSG::DEBUG << "strip list "  << striplist << " info list "<<info_strip [0]<< " "<<info_strip.size()   << " del "<< delimiter_strip<< endmsg; 
+    if( m_debug )  m_log << MSG::DEBUG << "strip list "  << striplist << " info list "<<info_strip [0]<< " "<<info_strip.size()   << " del "<< delimiter_strip<< endreq; 
     
     if (info_strip.size()>1){
-      if(m_FirstCall)  m_log << MSG::INFO << "TIMING INFO AVAILABLE" << endmsg;
+      if(FirstCall)  m_log << MSG::INFO << "TIMING INFO AVAILABLE" << endreq;
      
            
       for(unsigned int i=0; i<info_strip.size();i++){
 
 	ch_strip2= const_cast<char*>(info_strip[i].c_str());
-	if( m_verbose )  m_log << MSG::VERBOSE << "strip # "<<i<<" Status+Timing INFO (time, error) " <<ch_strip2 << endmsg;
+	if( m_verbose )  m_log << MSG::VERBOSE << "strip # "<<i<<" Status+Timing INFO (time, error) " <<ch_strip2 << endreq;
 	 
 	std::string delimiter_strip2 = "  ";
 	std::vector<std::string> info_strip2;
@@ -359,7 +356,7 @@ StatusCode RpcDetectorStatusDbTool::loadRpcDqStatus(IOVSVC_CALLBACK_ARGS_P(I,key
 	  for(unsigned int ii=0; ii<info_strip2.size();ii++)
 	    {
 	      ch_strip_new= const_cast<char*>(info_strip2[ii].c_str());
-	      m_log << MSG::VERBOSE << " info_strip with time " <<  info_strip2[ii] << "  again  " <<ch_strip_new << endmsg;	
+	      m_log << MSG::VERBOSE << " info_strip with time " <<  info_strip2[ii] << "  again  " <<ch_strip_new << endreq;	
 	    }
 	}
 	 
@@ -369,7 +366,7 @@ StatusCode RpcDetectorStatusDbTool::loadRpcDqStatus(IOVSVC_CALLBACK_ARGS_P(I,key
 	double SigmaTime = atof(SSigmaTime);
 	char* strip_status= const_cast<char*>(info_strip2[0].c_str());
 
-	if( m_verbose )  m_log << MSG::VERBOSE << "strip # "<<i<<" after dec: Status+Timing INFO (time, error) " << strip_status <<" "<<Time<<"+/-"<<SigmaTime<< endmsg; 
+	if( m_verbose )  m_log << MSG::VERBOSE << "strip # "<<i<<" after dec: Status+Timing INFO (time, error) " << strip_status <<" "<<Time<<"+/-"<<SigmaTime<< endreq; 
 	strip_status_list = strip_status_list + strip_status ;
 	
 	std::vector<double> Time_vect;
@@ -383,20 +380,20 @@ StatusCode RpcDetectorStatusDbTool::loadRpcDqStatus(IOVSVC_CALLBACK_ARGS_P(I,key
 	 
 
 	if( m_verbose )  m_log << MSG::VERBOSE << "strip #"<<i+1
-			       << " strip_id " <<  stripnum <<" expanded "<<m_rpcIdHelper->show_to_string(strip_id)<< endmsg;
+			       << " strip_id " <<  stripnum <<" expanded "<<m_rpcIdHelper->show_to_string(strip_id)<< endreq;
 
-	m_RPC_StripTimeMap.insert(std::make_pair(strip_id,Time_vect));   
+	RPC_StripTimeMap.insert(std::make_pair(strip_id,Time_vect));   
 
 	countpanelstrip++ ;
  
 	if(strip_status[0]=='0'){
 	  if (m_debug && (!m_verbose)) m_log << MSG::DEBUG << "strip #"<<i+1<<" info_strip " <<  strip_status[0]
-					     << " strip_id " <<  stripnum <<" expanded "<<m_rpcIdHelper->show_to_string(strip_id)<< endmsg;
-	  m_RPC_PanelDeadStripList.insert(std::make_pair(strip_id,1));     
+					     << " strip_id " <<  stripnum <<" expanded "<<m_rpcIdHelper->show_to_string(strip_id)<< endreq;
+	  RPC_PanelDeadStripList.insert(std::make_pair(strip_id,1));     
 	  countdeadstrip++;   
 	  if( m_debug )  {
-	    m_log << MSG::DEBUG << "Size of RPC_PanelDeadStripList (full det) " << m_RPC_PanelDeadStripList.size() << " in this panel "<<countdeadstrip
-		  <<" for "<< m_rpcIdHelper->show_to_string(strip_id) << endmsg; 
+	    m_log << MSG::DEBUG << "Size of RPC_PanelDeadStripList (full det) " << RPC_PanelDeadStripList.size() << " in this panel "<<countdeadstrip
+		  <<" for "<< m_rpcIdHelper->show_to_string(strip_id) << endreq; 
 	  }
 	  if (i>1 && i<info_strip.size()-2)
 	    {
@@ -404,13 +401,13 @@ StatusCode RpcDetectorStatusDbTool::loadRpcDqStatus(IOVSVC_CALLBACK_ARGS_P(I,key
 	      countdeadstripinfidarea++;   
 	      if( m_debug )  {
 		m_log << MSG::DEBUG << "# of dead strips in fid. area for deadFrac measurement " <<countdeadstripinfidarea
-		      <<" for "<<  stripnum << " " <<m_rpcIdHelper->show_to_string(strip_id) << endmsg; 
+		      <<" for "<<  stripnum << " " <<m_rpcIdHelper->show_to_string(strip_id) << endreq; 
 	      }
 	    }
 	  else 
 	    {
 	      if( m_debug )  {
-		m_log << MSG::DEBUG << "dead strips n. "<<i+1<<" is at the border - not used for deadFrac of "<<  m_rpcIdHelper->show_to_string(strip_id) << endmsg; 
+		m_log << MSG::DEBUG << "dead strips n. "<<i+1<<" is at the border - not used for deadFrac of "<<  m_rpcIdHelper->show_to_string(strip_id) << endreq; 
 	      }
 	    }
 	}
@@ -418,10 +415,10 @@ StatusCode RpcDetectorStatusDbTool::loadRpcDqStatus(IOVSVC_CALLBACK_ARGS_P(I,key
       }
        
     } else{
-      if (m_FirstCall) m_log << MSG::INFO << "NO TIMING INFO" << endmsg;
+      if (FirstCall) m_log << MSG::INFO << "NO TIMING INFO" << endreq;
       if( m_verbose )  {
-	//m_log << MSG::VERBOSE << "NO TIMING INFO" << endmsg;
-        m_log << MSG::VERBOSE << "Size of the strip list " << striplist.size() << endmsg;
+	//m_log << MSG::VERBOSE << "NO TIMING INFO" << endreq;
+        m_log << MSG::VERBOSE << "Size of the strip list " << striplist.size() << endreq;
       }
       for(unsigned int i=0; i<striplist.size();i++){
 	 
@@ -440,31 +437,31 @@ StatusCode RpcDetectorStatusDbTool::loadRpcDqStatus(IOVSVC_CALLBACK_ARGS_P(I,key
 	 
 	if( m_verbose )  m_log << MSG::VERBOSE << "strip #"<<i+1<<" info_strip " << part_strip 
 			       << " strip_id " <<  stripnum <<" expanded "<<m_rpcIdHelper->show_to_string(strip_id)
-			       << " panel = " << ch_panel<< endmsg;
+			       << " panel = " << ch_panel<< endreq;
 	 
 	countpanelstrip++ ;
  
 	if(part_strip=="0"){
 	  if (m_debug && (!m_verbose)) m_log << MSG::DEBUG << "strip #"<<i+1<<" info_strip " << part_strip 
-					     << " strip_id " <<  stripnum <<" expanded "<<m_rpcIdHelper->show_to_string(strip_id)<< endmsg;
+					     << " strip_id " <<  stripnum <<" expanded "<<m_rpcIdHelper->show_to_string(strip_id)<< endreq;
 	  countdeadstrip++;   
-	  m_RPC_PanelDeadStripList.insert(std::make_pair(strip_id,1));     
+	  RPC_PanelDeadStripList.insert(std::make_pair(strip_id,1));     
 	  if( m_debug )  {
-	    m_log << MSG::DEBUG << "Size of RPC_PanelDeadStripList (full det) " << m_RPC_PanelDeadStripList.size() << " in this panel "<<countdeadstrip
-		  <<" for "<< m_rpcIdHelper->show_to_string(strip_id) << endmsg; 
+	    m_log << MSG::DEBUG << "Size of RPC_PanelDeadStripList (full det) " << RPC_PanelDeadStripList.size() << " in this panel "<<countdeadstrip
+		  <<" for "<< m_rpcIdHelper->show_to_string(strip_id) << endreq; 
 	  }
 	  if (i>1 && i<striplist.size()-2){
 	    // strip in the fiducial area for the efficiency measurement
 	    countdeadstripinfidarea++;   
 	    if( m_debug )  {
 	      m_log << MSG::DEBUG << "# of dead strips in fid. area for deadFrac measurement " <<countdeadstripinfidarea
-		    <<" for "<<  stripnum << " " <<m_rpcIdHelper->show_to_string(strip_id) << endmsg; 
+		    <<" for "<<  stripnum << " " <<m_rpcIdHelper->show_to_string(strip_id) << endreq; 
 	    }
 	  }
 	  else 
 	    {
 	      if( m_debug )  {
-		m_log << MSG::DEBUG << "dead strips n. "<<i+1<<" is at the border - not used for deadFrac of "<<  m_rpcIdHelper->show_to_string(strip_id) << endmsg; 
+		m_log << MSG::DEBUG << "dead strips n. "<<i+1<<" is at the border - not used for deadFrac of "<<  m_rpcIdHelper->show_to_string(strip_id) << endreq; 
 	      }
 	    }
 	}
@@ -473,24 +470,24 @@ StatusCode RpcDetectorStatusDbTool::loadRpcDqStatus(IOVSVC_CALLBACK_ARGS_P(I,key
     }
      
      
-    if(countpanelstrip!= npanelstrip) m_log << MSG::WARNING << "WARNING (no side effects for this, just a reminder for a proper fix of the DB content) no matching strip number!!! " << countpanelstrip << " != " <<npanelstrip << " Identifier: " << channum << endmsg; 
+    if(countpanelstrip!= npanelstrip) m_log << MSG::WARNING << "WARNING (no side effects for this, just a reminder for a proper fix of the DB content) no matching strip number!!! " << countpanelstrip << " != " <<npanelstrip << " Identifier: " << channum << endreq; 
      
     float FracDeadStripMap = 0 ;
      
     if(countpanelstrip-4>0) FracDeadStripMap = float(countdeadstripinfidarea)/float(countpanelstrip-4);
 
     // store in the suitabel maps 
-    m_RPC_PanelDeadStripListMap.insert(std::make_pair(chamberId,strip_status_list));               
-    m_RPC_PanelFracDeadStripMap.insert(std::make_pair(chamberId,FracDeadStripMap));     
+    RPC_PanelDeadStripListMap.insert(std::make_pair(chamberId,strip_status_list));               
+    RPC_PanelFracDeadStripMap.insert(std::make_pair(chamberId,FracDeadStripMap));     
      
     if( m_debug )  {
-      m_log << MSG::DEBUG << "Size of RPC_PanelFracDeadStripMap " << m_RPC_PanelFracDeadStripMap.size() 
+      m_log << MSG::DEBUG << "Size of RPC_PanelFracDeadStripMap " << RPC_PanelFracDeadStripMap.size() 
 	    << "; in panel " <<  channum 
 	    << " FracDeadStri(in fid.area) " << FracDeadStripMap ;
       if( countpanelstrip == 0 ) m_log << " (incl. borders) DIVISION BY ZERO IMPOSSIBLE";
       else m_log << " (incl. borders) "<<float(countdeadstrip)/float(countpanelstrip);
       m_log << " nDeadStrips,InFidArea/nStrips "<<countdeadstrip<<","<<countdeadstripinfidarea<<"/"<<countpanelstrip
-	    <<endmsg;    
+	    <<endreq;    
     }
     if (Efficiency-(0.99-FracDeadStripMap)>0.) 
       {
@@ -504,17 +501,17 @@ StatusCode RpcDetectorStatusDbTool::loadRpcDqStatus(IOVSVC_CALLBACK_ARGS_P(I,key
 		      <<countdeadstripinfidarea<<"/"<<countpanelstrip
 		      <<" for panelId="<<m_rpcIdHelper->show_to_string(chamberId);
 		if      (Efficiency-(0.99-FracDeadStripMap)>0.2)	
-		  m_log << " difference >0.2"<<endmsg;
+		  m_log << " difference >0.2"<<endreq;
 		else if (Efficiency-(0.99-FracDeadStripMap)>0.1)	
-		  m_log << " difference >0.1"<<endmsg;
+		  m_log << " difference >0.1"<<endreq;
 		else if (Efficiency-(0.99-FracDeadStripMap)>0.05)	
-		  m_log << " difference >0.05"<<endmsg;
+		  m_log << " difference >0.05"<<endreq;
 		else if (Efficiency-(0.99-FracDeadStripMap)>0.025)	
-		  m_log << " difference >0.025"<<endmsg;
+		  m_log << " difference >0.025"<<endreq;
 		else if (Efficiency-(0.99-FracDeadStripMap)>0.01)	
-		  m_log << " difference >0.01"<<endmsg;
+		  m_log << " difference >0.01"<<endreq;
 		else 
-		  m_log << " difference >0 but <=0.01"<<endmsg;
+		  m_log << " difference >0 but <=0.01"<<endreq;
 	      }
 	    
 	  }
@@ -527,10 +524,10 @@ StatusCode RpcDetectorStatusDbTool::loadRpcDqStatus(IOVSVC_CALLBACK_ARGS_P(I,key
        
     }
 
-    m_FirstCall = false ;
+    FirstCall = false ;
 
   }
-  if( m_debug ) m_log << MSG::DEBUG <<"----------------------------- end of BLOB reached; reading and decoding DetStatus DB DONE"<<endmsg;
+  if( m_debug ) m_log << MSG::DEBUG <<"----------------------------- end of BLOB reached; reading and decoding DetStatus DB DONE"<<endreq;
 
   return  sc; 
 }

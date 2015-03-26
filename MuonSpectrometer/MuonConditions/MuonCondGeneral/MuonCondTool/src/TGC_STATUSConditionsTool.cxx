@@ -33,9 +33,6 @@ TGC_STATUSConditionsTool::TGC_STATUSConditionsTool (const std::string& type,
 				      const std::string& name,
 				      const IInterface* parent)
   : AthAlgTool(type, name, parent), 
-    m_detStore(0),
-    m_IOVSvc(0),
-    m_chronoSvc(0),
     log( msgSvc(), name ),
     m_debug(false),
     m_verbose(false)  
@@ -55,7 +52,7 @@ TGC_STATUSConditionsTool::TGC_STATUSConditionsTool (const std::string& type,
 StatusCode TGC_STATUSConditionsTool::updateAddress(StoreID::type /*storeID*/, SG::TransientAddress* tad)
 {
   
-  log.setLevel(msgLevel());
+  log.setLevel(outputLevel());
   m_debug = log.level() <= MSG::DEBUG;
   m_verbose = log.level() <= MSG::VERBOSE;
   // CLID clid        = tad->clID();
@@ -68,17 +65,17 @@ StatusCode TGC_STATUSConditionsTool::updateAddress(StoreID::type /*storeID*/, SG
 
 StatusCode TGC_STATUSConditionsTool::initialize()
 {
-  log.setLevel(msgLevel());
+  log.setLevel(outputLevel());
   m_debug = log.level() <= MSG::DEBUG;
   m_verbose = log.level() <= MSG::VERBOSE;
 
-  log << MSG::INFO << "Initializing - folders names are: Chamber Status "<<m_FolderName << endmsg;
+  log << MSG::INFO << "Initializing - folders names are: Chamber Status "<<m_FolderName << endreq;
    
   StatusCode sc = serviceLocator()->service("DetectorStore", m_detStore);
   if ( sc.isSuccess() ) {
-     if( m_debug ) log << MSG::DEBUG << "Retrieved DetectorStore" << endmsg;
+     if( m_debug ) log << MSG::DEBUG << "Retrieved DetectorStore" << endreq;
   }else{
-    log << MSG::ERROR << "Failed to retrieve DetectorStore" << endmsg;
+    log << MSG::ERROR << "Failed to retrieve DetectorStore" << endreq;
     return sc;
   }
   
@@ -88,7 +85,7 @@ StatusCode TGC_STATUSConditionsTool::initialize()
   sc = service( "IOVSvc", m_IOVSvc, CREATEIF );
   if ( sc.isFailure() )
     {
-      log << MSG::ERROR << "Unable to get the IOVSvc" << endmsg;
+      log << MSG::ERROR << "Unable to get the IOVSvc" << endreq;
       return StatusCode::FAILURE;
     }
   
@@ -99,7 +96,7 @@ StatusCode TGC_STATUSConditionsTool::initialize()
   // initialize the chrono service
   sc = service("ChronoStatSvc",m_chronoSvc);
   if (sc != StatusCode::SUCCESS) {
-    log << MSG::ERROR << "Could not find the ChronoSvc" << endmsg;
+    log << MSG::ERROR << "Could not find the ChronoSvc" << endreq;
     return sc;
   }
   if(sc.isFailure()) return StatusCode::FAILURE;
@@ -107,7 +104,7 @@ StatusCode TGC_STATUSConditionsTool::initialize()
   sc = m_detStore->retrieve(m_tgcIdHelper, "TGCIDHELPER" );
   if (sc.isFailure())
     {
-      log<< MSG::FATAL << " Cannot retrieve TgcIdHelper " << endmsg;
+      log<< MSG::FATAL << " Cannot retrieve TgcIdHelper " << endreq;
       return sc;
     }
   
@@ -120,12 +117,12 @@ StatusCode TGC_STATUSConditionsTool::initialize()
 StatusCode TGC_STATUSConditionsTool::loadParameterStatus(IOVSVC_CALLBACK_ARGS_P(I,keys))
 {
  
-  log.setLevel(msgLevel());
+  log.setLevel(outputLevel());
   m_debug = log.level() <= MSG::DEBUG;
   m_verbose = log.level() <= MSG::VERBOSE;	 
   std::list<std::string>::const_iterator itr;
   for (itr=keys.begin(); itr!=keys.end(); ++itr) {
-    log << MSG::INFO <<"LoadParameters "<< *itr << " I="<<I<<" "<<endmsg;
+    log << MSG::INFO <<"LoadParameters "<< *itr << " I="<<I<<" "<<endreq;
     if(*itr==m_FolderName) {
         StatusCode sc =loadTgcDqStatus(I,keys);
       if (sc.isFailure())
@@ -146,32 +143,32 @@ StatusCode TGC_STATUSConditionsTool::loadParameterStatus(IOVSVC_CALLBACK_ARGS_P(
 
 StatusCode TGC_STATUSConditionsTool::loadTgcDqStatus(IOVSVC_CALLBACK_ARGS_P(I,keys)) 
 {
-  log.setLevel(msgLevel());
+  log.setLevel(outputLevel());
   m_debug = log.level() <= MSG::DEBUG;
   m_verbose = log.level() <= MSG::VERBOSE;
  
   StatusCode sc=StatusCode::SUCCESS;
-  log << MSG::INFO << "Load Tgc Status flags  from DB" << endmsg;
+  log << MSG::INFO << "Load Tgc Status flags  from DB" << endreq;
 
   // Print out callback information
    if( m_debug )  log << MSG::DEBUG << "Level " << I << " Keys: ";
   std::list<std::string>::const_iterator keyIt = keys.begin();
   for (; keyIt != keys.end(); ++ keyIt)  if( m_debug ) log << MSG::DEBUG << *keyIt << " ";
-   if( m_debug )  log << MSG::DEBUG << endmsg;
+   if( m_debug )  log << MSG::DEBUG << endreq;
   
   const CondAttrListCollection * atrc;
-  log << MSG::INFO << "Try to read from folder <"<< m_FolderName <<">"<<endmsg;
+  log << MSG::INFO << "Try to read from folder <"<< m_FolderName <<">"<<endreq;
 
   sc=m_detStore->retrieve(atrc,m_FolderName);
   if(sc.isFailure())  {
     log << MSG::ERROR
 	<< "could not retreive the CondAttrListCollection from DB folder " 
-	<< m_FolderName << endmsg;
+	<< m_FolderName << endreq;
     return sc;
 	  }
   
   else
-    log<<MSG::INFO<<" CondAttrListCollection from DB folder have been obtained with size "<< atrc->size() <<endmsg;
+    log<<MSG::INFO<<" CondAttrListCollection from DB folder have been obtained with size "<< atrc->size() <<endreq;
   
  
   CondAttrListCollection::const_iterator itr;
@@ -180,7 +177,7 @@ StatusCode TGC_STATUSConditionsTool::loadTgcDqStatus(IOVSVC_CALLBACK_ARGS_P(I,ke
      int detector_status;
  
      detector_status=*(static_cast<const int*>((atr["detector_status"]).addressOfData()));
-      if( m_debug ) log << MSG::DEBUG << "TGC detector status is " << detector_status << endmsg;
+      if( m_debug ) log << MSG::DEBUG << "TGC detector status is " << detector_status << endreq;
 
      if (detector_status!=0){
        int channum=itr->first;
@@ -192,7 +189,7 @@ StatusCode TGC_STATUSConditionsTool::loadTgcDqStatus(IOVSVC_CALLBACK_ARGS_P(I,ke
   
     
    if( m_debug ) log << MSG::VERBOSE << "Collection CondAttrListCollection CLID "
-       << atrc->clID() << endmsg;
+       << atrc->clID() << endreq;
 
 
  

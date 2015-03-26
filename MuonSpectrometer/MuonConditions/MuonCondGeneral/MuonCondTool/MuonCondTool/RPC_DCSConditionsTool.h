@@ -34,17 +34,17 @@ public:
 
   /** required by the IAddressProvider interface */
   //  virtual StatusCode updateAddress(SG::TransientAddress* tad);
-  virtual StatusCode updateAddress(StoreID::type storeID, SG::TransientAddress* tad) override;
+  virtual StatusCode updateAddress(StoreID::type storeID, SG::TransientAddress* tad);
 
-  virtual StatusCode initialize() override;
+  virtual StatusCode initialize();
 
-  virtual std::string  PanelDeadFolderName() const override {return m_deadPanelFolder;}
-  virtual std::string  PanelOffFolderName() const override {return m_offPanelFolder;}
+  virtual std::string  PanelDeadFolderName() const {return m_deadPanelFolder;}
+  virtual std::string  PanelOffFolderName() const {return m_offPanelFolder;}
 
 
 
-  virtual const std::vector<Identifier>& deadPanelId() const override { return m_cachedDeadPanelId;}
-  virtual const std::vector<Identifier>& offPanelId() const override { return m_cachedOffPanelId;} 
+  virtual const std::vector<Identifier>& deadPanelId(){ return m_cachedDeadPanelId;}
+  virtual const std::vector<Identifier>& offPanelId(){ return m_cachedOffPanelId;} 
 
 
 
@@ -52,9 +52,9 @@ public:
 
 
  
-  virtual StatusCode loadParameters(IOVSVC_CALLBACK_ARGS) override;
-  virtual StatusCode loadPanelOff(IOVSVC_CALLBACK_ARGS) override;
-  virtual StatusCode loadPanelDead(IOVSVC_CALLBACK_ARGS) override;
+  virtual StatusCode loadParameters(IOVSVC_CALLBACK_ARGS);
+  virtual StatusCode loadPanelOff(IOVSVC_CALLBACK_ARGS);
+  virtual StatusCode loadPanelDead(IOVSVC_CALLBACK_ARGS);
 
 
        
@@ -64,7 +64,7 @@ public:
 
   const RpcIdHelper* m_rpcIdHelper;
  
-  MsgStream m_log;
+  MsgStream log;
   bool      m_debug;
   bool      m_verbose;
   
@@ -84,8 +84,8 @@ public:
   std::string     m_deadPanelFolder;
 
   std::vector<std::string> parlineFolder() { return m_parlineFolder; }
-  std::stringstream m_RPCPaneloff;
-  std::stringstream m_RPCPaneldead;
+  std::stringstream RPCPaneloff;
+  std::stringstream RPCPaneldead;
 
   IChronoStatSvc* m_chronoSvc;
   std::vector<std::string>      m_parlineFolder;

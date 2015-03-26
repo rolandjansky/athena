@@ -37,29 +37,25 @@ public:
 
   /** required by the IAddressProvider interface */
   // virtual StatusCode updateAddress(SG::TransientAddress* tad);
-  virtual StatusCode updateAddress(StoreID::type storeID, SG::TransientAddress* tad) override;
+  virtual StatusCode updateAddress(StoreID::type storeID, SG::TransientAddress* tad);
   
-  virtual StatusCode initialize() override;
+  virtual StatusCode initialize();
 
-  virtual std::string DeadTubeFolderName() const override {return m_deadtubeFolder;}
+  virtual std::string DeadTubeFolderName() const {return m_deadtubeFolder;}
   
 
  private:
 
 
  
-  virtual StatusCode loadParameters(IOVSVC_CALLBACK_ARGS) override;
+  virtual StatusCode loadParameters(IOVSVC_CALLBACK_ARGS);
 
-  virtual StatusCode loadDeadTube(IOVSVC_CALLBACK_ARGS) override;
+  virtual StatusCode loadDeadTube(IOVSVC_CALLBACK_ARGS);
 
-  virtual const std::vector<std::string>& deadTubes() const override
-  { return m_cachedDeadTubes;}      
-  virtual const std::vector<Identifier>& deadTubesId() const override
-  { return m_cachedDeadTubesId;}      
-  virtual const std::map<Identifier,std::string>& Tube_MapId() const
-  { return m_Tube_Map;}      
-  virtual const std::vector<Identifier>& List_Chambers_with_deadTube() const override
-  { return m_Chamber_with_deadTube;}
+  virtual const std::vector<std::string>& deadTubes(){ return m_cachedDeadTubes;}      
+  virtual const std::vector<Identifier>& deadTubesId(){ return m_cachedDeadTubesId;}      
+  virtual const std::map<Identifier,std::string>& Tube_MapId(){ return Tube_Map;}      
+  virtual const std::vector<Identifier>& List_Chambers_with_deadTube(){ return m_Chamber_with_deadTube;}
   StoreGateSvc* m_detStore;
   IIOVSvc* m_IOVSvc;
 
@@ -69,9 +65,9 @@ public:
   const MdtIdHelper* m_mdtIdHelper;
   
 
-  std::map<std::string, Identifier> m_Chamber_Map;
+  std::map<std::string, Identifier> Chamber_Map;
 
-  std::map<Identifier,std::string> m_Tube_Map;
+  std::map<Identifier,std::string> Tube_Map;
  
   std::string     m_tubeStatusDataLocation; 
   std::string     m_deadtubeFolder;
@@ -90,7 +86,7 @@ public:
 
   ToolHandle<IMDT_MapConversion> m_condMapTool; 
   
-  MsgStream m_log;
+  MsgStream log;
   bool      m_debug;
   bool      m_verbose;
 

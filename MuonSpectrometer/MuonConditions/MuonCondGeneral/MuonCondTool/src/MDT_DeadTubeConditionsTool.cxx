@@ -43,12 +43,8 @@ MDT_DeadTubeConditionsTool::MDT_DeadTubeConditionsTool (const std::string& type,
 				    const std::string& name,
 				    const IInterface* parent)
   : AthAlgTool(type, name, parent),
-    m_detStore(0),
-    m_IOVSvc(0),
-    m_mdtIdHelper(0),
-    m_chronoSvc(0),
     m_condMapTool("MDT_MapConversion"), 
-    m_log( msgSvc(), name ),
+    log( msgSvc(), name ),
     m_debug(false),
     m_verbose(false)  
 {
@@ -70,7 +66,7 @@ StatusCode MDT_DeadTubeConditionsTool::updateAddress(StoreID::type /*storeID*/, 
   //std::string key  = tad->name();
   //if ( 228145 == clid && m_tubeStatusDataLocation == key)
   //  {
-  //    log << MSG::DEBUG << "OK Tube Status" << endmsg;
+  //    log << MSG::DEBUG << "OK Tube Status" << endreq;
   //    return StatusCode::SUCCESS;
   //  }
   return StatusCode::FAILURE;
@@ -80,17 +76,17 @@ StatusCode MDT_DeadTubeConditionsTool::updateAddress(StoreID::type /*storeID*/, 
 
 StatusCode MDT_DeadTubeConditionsTool::initialize()
 {
-  m_log.setLevel(msgLevel());
-  m_debug = m_log.level() <= MSG::DEBUG;
-  m_verbose = m_log.level() <= MSG::VERBOSE;
+  log.setLevel(outputLevel());
+  m_debug = log.level() <= MSG::DEBUG;
+  m_verbose = log.level() <= MSG::VERBOSE;
 
-  m_log << MSG::INFO << "Initializing - folders names are: ChamberDropped "<<m_deadtubeFolder << endmsg;
+  log << MSG::INFO << "Initializing - folders names are: ChamberDropped "<<m_deadtubeFolder << endreq;
    
   StatusCode sc = serviceLocator()->service("DetectorStore", m_detStore);
   if ( sc.isSuccess() ) {
-     if( m_debug ) m_log << MSG::DEBUG << "Retrieved DetectorStore" << endmsg;
+     if( m_debug ) log << MSG::DEBUG << "Retrieved DetectorStore" << endreq;
   }else{
-    m_log << MSG::ERROR << "Failed to retrieve DetectorStore" << endmsg;
+    log << MSG::ERROR << "Failed to retrieve DetectorStore" << endreq;
     return sc;
   }
   
@@ -101,7 +97,7 @@ StatusCode MDT_DeadTubeConditionsTool::initialize()
   sc = service( "IOVSvc", m_IOVSvc, CREATEIF );
   if ( sc.isFailure() )
     {
-      m_log << MSG::ERROR << "Unable to get the IOVSvc" << endmsg;
+      log << MSG::ERROR << "Unable to get the IOVSvc" << endreq;
       return StatusCode::FAILURE;
     }
   
@@ -112,7 +108,7 @@ StatusCode MDT_DeadTubeConditionsTool::initialize()
   // initialize the chrono service
   sc = service("ChronoStatSvc",m_chronoSvc);
   if (sc != StatusCode::SUCCESS) {
-    m_log << MSG::ERROR << "Could not find the ChronoSvc" << endmsg;
+    log << MSG::ERROR << "Could not find the ChronoSvc" << endreq;
     return sc;
   }
 	
@@ -122,19 +118,19 @@ StatusCode MDT_DeadTubeConditionsTool::initialize()
   sc = m_detStore->retrieve(m_mdtIdHelper, "MDTIDHELPER" );
   if (sc.isFailure())
     {
-      m_log << MSG::FATAL << " Cannot retrieve MdtIdHelper " << endmsg;
+      log << MSG::FATAL << " Cannot retrieve MdtIdHelper " << endreq;
       return sc;
     }
   
   sc = m_condMapTool.retrieve();
   if ( sc.isFailure() )
     {
-      m_log << MSG::ERROR << "Could not retrieve MDT_MapConversion" << endmsg;
+      log << MSG::ERROR << "Could not retrieve MDT_MapConversion" << endreq;
       return sc;
     }
   else
     {
-      m_log<<MSG::INFO<<"MDT_MapConversion retrieved with statusCode = "<<sc<<" pointer = "<<m_condMapTool<<endmsg;
+      log<<MSG::INFO<<"MDT_MapConversion retrieved with statusCode = "<<sc<<" pointer = "<<m_condMapTool<<endreq;
     
     }
      
@@ -144,13 +140,13 @@ StatusCode MDT_DeadTubeConditionsTool::initialize()
 StatusCode MDT_DeadTubeConditionsTool::loadParameters(IOVSVC_CALLBACK_ARGS_P(I,keys))
 {
 
-  m_log.setLevel(msgLevel());
-  m_debug = m_log.level() <= MSG::DEBUG;
-  m_verbose = m_log.level() <= MSG::VERBOSE;
+  log.setLevel(outputLevel());
+  m_debug = log.level() <= MSG::DEBUG;
+  m_verbose = log.level() <= MSG::VERBOSE;
 	 
   std::list<std::string>::const_iterator itr;
   for (itr=keys.begin(); itr!=keys.end(); ++itr) {
-    m_log << MSG::INFO <<"LoadParameters "<< *itr << " I="<<I<<" "<<endmsg;
+    log << MSG::INFO <<"LoadParameters "<< *itr << " I="<<I<<" "<<endreq;
     if(*itr==m_deadtubeFolder) {
       StatusCode sc = loadDeadTube(I,keys);
       if (sc.isFailure())
@@ -170,34 +166,34 @@ StatusCode MDT_DeadTubeConditionsTool::loadDeadTube(IOVSVC_CALLBACK_ARGS_P(I,key
 {
 
 
-  m_log.setLevel(msgLevel());
-  m_debug = m_log.level() <= MSG::DEBUG;
-  m_verbose = m_log.level() <= MSG::VERBOSE;
+  log.setLevel(outputLevel());
+  m_debug = log.level() <= MSG::DEBUG;
+  m_verbose = log.level() <= MSG::VERBOSE;
 
   StatusCode sc=StatusCode::SUCCESS;
-  m_log << MSG::INFO << "Load Dropped tube from  Chamber from DB" << endmsg;
+  log << MSG::INFO << "Load Dropped tube from  Chamber from DB" << endreq;
   
   // Print out callback information
-   if( m_debug ) m_log << MSG::DEBUG << "Level " << I << " Keys: ";
+   if( m_debug ) log << MSG::DEBUG << "Level " << I << " Keys: ";
   std::list<std::string>::const_iterator keyIt = keys.begin();
-  for (; keyIt != keys.end(); ++ keyIt)  if( m_debug ) m_log << MSG::DEBUG << *keyIt << " ";
-   if( m_debug ) m_log << MSG::DEBUG << endmsg;
+  for (; keyIt != keys.end(); ++ keyIt)  if( m_debug ) log << MSG::DEBUG << *keyIt << " ";
+   if( m_debug ) log << MSG::DEBUG << endreq;
  
   
 	
   const CondAttrListCollection * atrc;
-  m_log << MSG::INFO << "Try to read from folder <"<<m_deadtubeFolder<<">"<<endmsg;
+  log << MSG::INFO << "Try to read from folder <"<<m_deadtubeFolder<<">"<<endreq;
   
    sc=m_detStore->retrieve(atrc,m_deadtubeFolder);
    if(sc.isFailure())  {
-     m_log << MSG::ERROR
+     log << MSG::ERROR
  	<< "could not retreive the CondAttrListCollection from DB folder " 
- 	<< m_deadtubeFolder << endmsg;
+ 	<< m_deadtubeFolder << endreq;
      return sc;
  	  }
 
    else
-     m_log<<MSG::INFO<<" CondAttrListCollection from DB folder have been obtained with size "<< atrc->size() <<endmsg;
+     log<<MSG::INFO<<" CondAttrListCollection from DB folder have been obtained with size "<< atrc->size() <<endreq;
   
  
   CondAttrListCollection::const_iterator itr;
@@ -212,7 +208,7 @@ StatusCode MDT_DeadTubeConditionsTool::loadDeadTube(IOVSVC_CALLBACK_ARGS_P(I,key
     dead_tube=*(static_cast<const std::string*>((atr["DeadTube_List"]).addressOfData()));
     chamber_name=*(static_cast<const std::string*>((atr["Chamber_Name"]).addressOfData()));
     
-    if( m_verbose ) m_log << MSG::VERBOSE << "Sequence load is \n" << chamber_name <<" tubes dead :  " <<dead_tube<<endmsg;
+    if( m_verbose ) log << MSG::VERBOSE << "Sequence load is \n" << chamber_name <<" tubes dead :  " <<dead_tube<<endreq;
 
     std::string mylist;
     std::vector<std::string> tokens;
@@ -230,15 +226,15 @@ StatusCode MDT_DeadTubeConditionsTool::loadDeadTube(IOVSVC_CALLBACK_ARGS_P(I,key
       m_cachedDeadTubesId.push_back(ChannelId);
     }
     
-    m_Tube_Map.insert(std::make_pair(ChamberId,tube_list));
-    if( m_verbose ) m_log << MSG::VERBOSE << "Sequence load is \n" << mylist<< endmsg;
+    Tube_Map.insert(std::make_pair(ChamberId,tube_list));
+    if( m_verbose ) log << MSG::VERBOSE << "Sequence load is \n" << mylist<< endreq;
     m_Chamber_with_deadTube.push_back(ChamberId);
     m_cachedDeadTubes.push_back(mylist);
   }
   std::sort(m_cachedDeadTubesId.begin(),m_cachedDeadTubesId.end());   
 //  for(unsigned int k=0;k<m_cachedDeadTubes.size();k++){
 //     std::string Id = (m_cachedDeadTubes[k]);
-//     m_log<< MSG::INFO << "writing from Tool SERVICE TUBES \n" << Id<<endmsg;
+//     log<< MSG::INFO << "writing from Tool SERVICE TUBES \n" << Id<<endreq;
 //   }
   
   return StatusCode::SUCCESS;
