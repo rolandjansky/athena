@@ -267,7 +267,7 @@ void CaloHitAna::Loop()
 	 }
        if (m_Debug > 1) std::cout <<" Done"<<std::endl;
        
-       if (m_Debug > 1) std::cout <<"Reading detailed FCS hits";
+       if (m_Debug > 1) std::cout <<"Reading detailed FCS hits "<< HitIdentifier->size()<<std::endl;
        for (unsigned int hit_i = 0; hit_i < HitIdentifier->size(); hit_i++)
 	 {
 	   if ((*HitSampling)[hit_i] >=12 && (*HitSampling)[hit_i]<=20 && (*HitT)[hit_i]>m_TimingCut)

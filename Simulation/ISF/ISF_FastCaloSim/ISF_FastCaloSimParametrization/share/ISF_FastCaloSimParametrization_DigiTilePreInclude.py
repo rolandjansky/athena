@@ -14,6 +14,7 @@ print ServiceMgr.TileInfoLoader
 print topSequence.TileDigitsMaker
 print ToolSvc.TileHitVecToCntTool
 topSequence.TileDigitsMaker.OutputLevel=1
+topSequence.TileDigitsMaker.IntegerDigits=True
 TileHitVecToCntTool.OutputLevel=1
 ToolSvc.TileRawChannelBuilderOptATLAS.OutputLevel=1
 ########### 
