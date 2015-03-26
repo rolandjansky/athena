@@ -8,7 +8,7 @@
             <queue>long</queue>
 
 
-#          include "samples/TrigInDetValidation_mu_sample3.xml"
+#          include "samples/TrigInDetValidation_mu_sample6.xml"
 
 
             <action position="1">
