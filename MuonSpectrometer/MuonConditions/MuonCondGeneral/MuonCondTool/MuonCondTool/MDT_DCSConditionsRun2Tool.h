@@ -102,7 +102,7 @@ public:
   static bool compareId(Identifier x,Identifier y) { return (x > y); } 
   
   bool m_check_on_setPoint;
-  bool m_simulation_Setup;
+  //bool m_simulation_Setup;
   std::string      m_DataLocation;
  
 

@@ -56,7 +56,7 @@ MDT_DCSConditionsRun2Tool::MDT_DCSConditionsRun2Tool (const std::string& type,
   declareProperty("HVFolder",     m_hvFolder="/MDT/DCS/HV");
   ///declareProperty("JTAGFolder",     m_jtagFolder="/MDT/DCS/JTAGCHSTATE");
   declareProperty("MDT_MapConversion", m_condMapTool);
-  
+  //declareProperty("Simulation_Setup",m_simulation_Setup=false);
   MDTChamDrop.str("EMPTY");
   MDTLV.str("EMPTY");
   MDTHV.str("EMPTY");
@@ -83,7 +83,7 @@ StatusCode MDT_DCSConditionsRun2Tool::initialize()
   m_debug = log.level() <= MSG::DEBUG;
   m_verbose = log.level() <= MSG::VERBOSE;
 
-  log << MSG::INFO << "Initializing - folders names are: LV "<<m_lvFolder<< " / HV "<<m_hvFolder<< endreq;
+  log << MSG::VERBOSE << "Initializing - folders names are: LV "<<m_lvFolder<< " / HV "<<m_hvFolder<< endreq;
    
   StatusCode sc = serviceLocator()->service("DetectorStore", m_detStore);
   if ( sc.isSuccess() ) {
@@ -159,16 +159,16 @@ StatusCode MDT_DCSConditionsRun2Tool::loadParameters(IOVSVC_CALLBACK_ARGS_P(I,ke
 
   std::list<std::string>::const_iterator itr;
   for (itr=keys.begin(); itr!=keys.end(); ++itr) {
-    log << MSG::INFO <<"LoadParameters "<< *itr << " I="<<I<<" "<<endreq;
+    log << MSG::VERBOSE <<"LoadParameters "<< *itr << " I="<<I<<" "<<endreq;
    
-    if (*itr==m_lvFolder && m_simulation_Setup==false) {
+    if (*itr==m_lvFolder) {
       StatusCode sc = loadLV(I,keys);
       if (sc.isFailure())
 	{
 	  return sc;
 	}
     }
-    else if(*itr==m_hvFolder  && m_simulation_Setup==false){
+    else if(*itr==m_hvFolder){
      StatusCode sc = loadHV(I,keys);
      if (sc.isFailure())
         {
@@ -195,9 +195,9 @@ StatusCode MDT_DCSConditionsRun2Tool::loadHV(IOVSVC_CALLBACK_ARGS_P(I,keys))
   m_debug = log.level() <= MSG::DEBUG;
   m_verbose = log.level() <= MSG::VERBOSE;
   StatusCode sc=StatusCode::SUCCESS;
-  log << MSG::INFO << "Load HV from DCS DB" << endreq;
+  log << MSG::VERBOSE << "Load HV from DCS DB" << endreq;
   const CondAttrListCollection * atrc;
-  log << MSG::INFO << "Try to read from folder <"<<m_hvFolder<<">"<<endreq;
+  log << MSG::VERBOSE << "Try to read from folder <"<<m_hvFolder<<">"<<endreq;
 
   // Print out callback information
   if( m_debug ) log << MSG::DEBUG << "Level " << I << " Keys: ";
@@ -216,7 +216,7 @@ StatusCode MDT_DCSConditionsRun2Tool::loadHV(IOVSVC_CALLBACK_ARGS_P(I,keys))
   }
   
   else
-    log<<MSG::INFO<<" CondAttrListCollection from DB folder have been obtained with size "<< atrc->size() <<endreq;
+    log<<MSG::VERBOSE<<" CondAttrListCollection from DB folder have been obtained with size "<< atrc->size() <<endreq;
 
 
 
@@ -344,9 +344,9 @@ StatusCode MDT_DCSConditionsRun2Tool::loadLV(IOVSVC_CALLBACK_ARGS_P(I,keys))
   m_verbose = log.level() <= MSG::VERBOSE;
 
   StatusCode sc=StatusCode::SUCCESS;
-  log << MSG::INFO << "Load LV from DCS DB" << endreq;
+  log << MSG::VERBOSE << "Load LV from DCS DB" << endreq;
   const CondAttrListCollection * atrc;
-  log << MSG::INFO << "Try to read from folder <"<<m_lvFolder<<">"<<endreq;
+  log << MSG::VERBOSE << "Try to read from folder <"<<m_lvFolder<<">"<<endreq;
 
   // Print out callback information
   log << MSG::DEBUG << "Level " << I << " Keys: ";
@@ -413,7 +413,7 @@ StatusCode MDT_DCSConditionsRun2Tool::loadLV(IOVSVC_CALLBACK_ARGS_P(I,keys))
 	Identifier ChamberId= m_condMapTool->ConvertToOffline(chamber_name);
 	m_cachedDeadLVStationsId.push_back(ChamberId);
 	 if( m_verbose ) log<<MSG::VERBOSE<<"Chamber off from LV Chamber !=ON "<<tokens2[0] <<endreq;
-	 log<<MSG::INFO<<"Chamber off from LV Chamber !=ON "<<tokens2[0] <<endreq;
+	 log<<MSG::VERBOSE<<"Chamber off from LV Chamber !=ON "<<tokens2[0] <<endreq;
       }
      
     }
