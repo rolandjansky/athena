@@ -27,12 +27,21 @@ class MuonSegmentPlots:public PlotBase {
       TH1* segmentfitChi2oNdof;
 
       TH1* t0;
+      TH1* t0_top;
+      TH1* t0_bottom;
       TH1* t0err;
+      TH1* t0err_top;
+      TH1* t0err_bottom;
       
       TH1* nPrecisionHits;
       TH1* nPhiLayers;
       TH1* nTrigEtaLayers;
       TH2* nPrecisionHits_nTriggerHits;
+
+      TH2* B_MDT_nPhiLayers_phi;
+      TH2* B_MDT_nPhiLayers_eta;
+      TH2* B_MDT_zeroPhiLayers_eta_phi;
+      TH2* B_MDT_withPhiLayers_eta_phi;
 
       TH1* etaIndex;
       TH1* sector;
@@ -41,7 +50,9 @@ class MuonSegmentPlots:public PlotBase {
       TH2* xypos_barrel;
       TH2* xypos_endcap;
       TH2* rzpos_sectorSmall;
+      TH2* rzpos_sectorSmall_splitY;
       TH2* rzpos_sectorLarge;
+      TH2* rzpos_sectorLarge_splitY;
 
       TH1* etadir;
       TH1* etadir_barrel;

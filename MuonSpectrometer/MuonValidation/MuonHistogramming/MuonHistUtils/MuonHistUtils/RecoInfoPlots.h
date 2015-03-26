@@ -24,6 +24,7 @@ class RecoInfoPlots: public PlotBase {
 
     TH1* author;
     TH1* quality;
+    TH1* quality_cutflow;
     TH1* muonType;
 
   
