@@ -14,7 +14,7 @@ from TrigEgammaRec import TrigEgammaRecConf
 # New configuration for use in rel 19.X with xAOD
 # Adapted from egammaRec/egammaGetter.py
 # Factory tools, handles configuration of tools and dependencies
-from egammaRec.Factories import ToolFactory, FcnWrapper, getPropertyValue 
+from egammaRec.Factories import Factory, ToolFactory, FcnWrapper, getPropertyValue 
 
 # Import tools required for trigger reconstruction
 from egammaTools.egammaToolsFactories import \
@@ -78,7 +78,7 @@ def configureTrigEgammaMonitoring(tool):
   time = TrigTimeHistToolConfig("Time")
   tool.AthenaMonTools = [ time, validation, online, cosmic ]
 
-TrigEgammaRec = ToolFactory(TrigEgammaRecConf.TrigEgammaRec, name="TrigEgammaRec",
+TrigEgammaRec = Factory(TrigEgammaRecConf.TrigEgammaRec, name="TrigEgammaRec",doAdd=False,doPrint=True,
     # Keys
     ElectronContainerName="egamma_Electrons", 
     PhotonContainerName="egamma_Photons",
