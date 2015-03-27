@@ -47,14 +47,6 @@ def addDigitizationArguments(parser):
     addCommonSimDigArguments(parser)
     addPureDigitizationArguments(parser)
 
-def addHITSValidArguments(parser):
-    from SimuJobTransforms.simTrfArgs import addHITSValidArgs
-    addHITSValidArgs(parser)
-
-def addRDOValidArguments(parser):
-    from SimuJobTransforms.simTrfArgs import addRDOValidArgs
-    addRDOValidArgs(parser)
-
 ### Add Sub-step Methods
 ## @brief Add ISF transform substep
 #  @param overlayTransform If @c True use the tweaked version of in/outData for an overlay job
@@ -64,56 +56,41 @@ def addSimulationSubstep(executorSet, overlayTransform = False):
                                    inData=['NULL','EVNT','EVNT_CAVERN','EVNT_COSMICS'],
                                    outData=['EVNT_CAVERNTR','EVNT_COSMICSTR','HITS','NULL'] )
     if overlayTransform:
-        from PyJobTransforms.trfUtils import releaseIsOlderThan
-        if releaseIsOlderThan(20,3):
-            SimExe.inData = [('EVNT', 'BS_SKIM')]
-        else:
-            SimExe.inData = [('EVNT','TXT_EVENTID')]
+        SimExe.inData = [('EVNT', 'BS_SKIM')]
         SimExe.outData = ['HITS']
-        SimExe.inputDataTypeCountCheck = ['EVNT']
     executorSet.add(SimExe)
 
 def addAtlasG4Substep(executorSet):
     executorSet.add(athenaExecutor(name = 'AtlasG4Tf', skeletonFile = 'SimuJobTransforms/skeleton.EVGENtoHIT_MC12.py',
-                                   substep = 'sim', tryDropAndReload = False, 
+                                   substep = 'sim', tryDropAndReload = False, perfMonFile = 'ntuple.pmon.gz',
                                    inData=['NULL','EVNT','EVNT_CAVERN','EVNT_COSMICS'],
                                    outData=['EVNT_CAVERNTR','EVNT_COSMICSTR','HITS','NULL'] ))
 
 def addConfigurableSimSubstep(executorSet, confName, extraSkeleton, confSubStep, confInData, confOutData, confExtraRunargs, confRuntimeRunargs):
     executorSet.add(athenaExecutor(name = confName, skeletonFile = extraSkeleton + ['SimuJobTransforms/skeleton.EVGENtoHIT_MC12.py'],
-                                   substep = confSubStep, tryDropAndReload = False,
+                                   substep = confSubStep, tryDropAndReload = False, perfMonFile = 'ntuple.pmon.gz',
                                    inData = confInData,
                                    outData = confOutData, extraRunargs = confExtraRunargs, runtimeRunargs = confRuntimeRunargs ))
 
 def addStandardHITSMergeSubstep(executorSet):
     executorSet.add(athenaExecutor(name = 'HITSMerge', substep="hitsmerge", skeletonFile = 'SimuJobTransforms/skeleton.HITSMerge.py',
-                                              tryDropAndReload = False, inputDataTypeCountCheck = ['HITS']))
+                                              tryDropAndReload = False, perfMonFile = 'ntuple_HITSMerge.pmon.gz'))
 
 def addAFII_HITSMergeSubstep(executorSet):
     executorSet.add(athenaExecutor(name = 'HITSMerge', substep="hitsmerge", skeletonFile = 'SimuJobTransforms/skeleton.HITSMerge.py',
-                                   tryDropAndReload = False,
+                                   tryDropAndReload = False, perfMonFile = 'ntuple_HITSMerge.pmon.gz',
                                    extraRunargs = {'preInclude': ['FastSimulationJobTransforms/jobConfig.v14_Parametrisation.py','FastCaloSimHit/preInclude.AF2Hit.py'],
                                                    'postInclude': ['FastCaloSimHit/postInclude.AF2FilterHitItems.py','FastSimulationJobTransforms/jobConfig.FastCaloSim_ID_cuts.py','FastSimulationJobTransforms/jobConfig.egamma_lateral_shape_tuning.config20.py']} ))
 
 def addDigitizationSubstep(executorSet):
     executorSet.add(athenaExecutor(name = 'HITtoRDO', skeletonFile = 'SimuJobTransforms/skeleton.HITtoRDO.py',
-                                              substep = 'h2r', tryDropAndReload = False,
+                                              substep = 'h2r', tryDropAndReload = False, perfMonFile = 'ntuple.pmon.gz',
                                               inData = ['HITS'], outData = ['RDO','RDO_FILT'], runtimeRunargs =
                                               {'LowPtMinbiasHitsFile' : 'runArgs.inputLowPtMinbiasHitsFile',
                                                'HighPtMinbiasHitsFile' : 'runArgs.inputHighPtMinbiasHitsFile',
                                                'cavernHitsFile' : 'runArgs.inputCavernHitsFile',
                                                'beamHaloHitsFile' : 'runArgs.inputBeamHaloHitsFile',
                                                'beamGasHitsFile' : 'runArgs.inputBeamGasHitsFile',}))
-
-def addSimValidationSubstep(executorSet):
-    executorSet.add(athenaExecutor(name = 'SimValidation',
-                                           skeletonFile = 'SimuJobTransforms/skeleton.HITStoHIST_SIM.py',
-                                           inData = ['HITS'], outData = ['HIST_SIM'],))
-
-def addDigiValidationSubstep(executorSet):
-    executorSet.add(athenaExecutor(name = 'DigiValidation',
-                                           skeletonFile = 'SimuJobTransforms/skeleton.RDOtoHIST_DIGI.py',
-                                           inData = ['RDO'], outData = ['HIST_DIGI'],))
 
 ### Append Sub-step Methods
 def appendSimulationSubstep(trf):
@@ -149,13 +126,3 @@ def appendDigitizationSubstep(trf):
     executor = set()
     addDigitizationSubstep(executor)
     trf.appendToExecutorSet(executor)
-
-#def appendSimValidationSubstep(trf):
-#   executor = set()
-#  addSimValidationSubstep(executor)
-# trf.appendSimVAlidationSubstep(executor)
-
-#def appendDigiValidationSubstep(trf):
-#   executor = set()
-#  addDigiValidationSubstep(executor)
-# trf.appendDigiVAlidationSubstep(executor)

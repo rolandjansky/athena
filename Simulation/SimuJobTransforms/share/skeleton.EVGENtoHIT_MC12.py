@@ -112,10 +112,6 @@ if hasattr(runArgs, "inputEVNT_CAVERNFile"):
     include('SimulationJobOptions/preInclude.G4ReadCavern.py')
 if hasattr(runArgs, "outputEVNT_CAVERNTRFile"):
     include('SimulationJobOptions/preInclude.G4WriteCavern.py')
-    
-# Avoid command line preInclude for event service
-if hasattr(runArgs, "eventService") and runArgs.eventService:
-    include('AthenaMP/AthenaMP_EventService.py')
 
 if jobproperties.Beam.beamType.get_Value() == 'cosmics':
     include('SimulationJobOptions/preInclude.Cosmics.py')
@@ -128,48 +124,49 @@ if 'DetFlags' not in dir():
 DetFlags.LVL1_setOff() # LVL1 is not part of G4 sim
 DetFlags.Truth_setOn()
 DetFlags.Forward_setOff() # Forward dets are off by default
-checkHGTDOff = getattr(DetFlags, 'HGTD_setOff', None)
-if checkHGTDOff is not None:
-    checkHGTDOff() #Default for now
-
+## TODO Move repeated syntax into a separate function
 if hasattr(runArgs, "AFPOn"):
     if runArgs.AFPOn:
-        DetFlags.AFP_setOn()
-if hasattr(runArgs, "ALFAOn"):
-    if runArgs.ALFAOn:
-        DetFlags.ALFA_setOn()
+        checkAFP = getattr(DetFlags, 'AFP_setOn', None)
+        if checkAFP is not None:
+            checkAFP()
+        else:
+            atlasG4log.warning( 'AFP Simulation is not supported in this release' )
 if hasattr(runArgs, "FwdRegionOn"):
     if runArgs.FwdRegionOn:
-        DetFlags.FwdRegion_setOn()
+        checkFwdRegion = getattr(DetFlags, 'FwdRegion_setOn', None)
+        if checkFwdRegion is not None:
+            checkFwdRegion()
+        else:
+            atlasG4log.warning( 'FwdRegion Simulation is not supported in this release' )
 if hasattr(runArgs, "LucidOn"):
     if runArgs.LucidOn:
         DetFlags.Lucid_setOn()
+if hasattr(runArgs, "ALFAOn"):
+    if runArgs.ALFAOn:
+        DetFlags.ALFA_setOn()
 if hasattr(runArgs, "ZDCOn"):
     if runArgs.ZDCOn:
         DetFlags.ZDC_setOn()
-if hasattr(runArgs, "HGTDOn"):
-    if runArgs.HGTDOn:
-        checkHGTDOn = getattr(DetFlags, 'HGTD_setOn', None)
-        if checkHGTDOn is not None:
-            checkHGTDOn()
-        else:
-            atlasG4log.warning('The HGTD DetFlag is not supported in this release')
-
-DetFlags.Print()
 
 if DetFlags.Forward_on():
-    if DetFlags.FwdRegion_on() or DetFlags.ZDC_on() or DetFlags.ALFA_on() or DetFlags.AFP_on():
+    checkFwdRegion = getattr(DetFlags, 'FwdRegion_on', None)
+    checkAFP = getattr(DetFlags, 'AFP_on', None)
+
+    if (checkFwdRegion is not None and checkFwdRegion()) or DetFlags.ZDC_on() or DetFlags.ALFA_on() or (checkAFP is not None and checkAFP()):
         ## Do not filter high eta particles
         if simFlags.EventFilter.statusOn:
             simFlags.EventFilter.get_Value()['EtaPhiFilters'] = False
         ## ForwardTransport is applied to particles hitting BeamPipe::SectionF46
         DetFlags.bpipe_setOn()
 
-    if DetFlags.FwdRegion_on():
+    if checkFwdRegion is not None and checkFwdRegion():
         # Do full simulation rather than beam transport
         simFlags.ForwardDetectors = 1
         atlasG4log.info( 'FwdRegion switched on, so will run Full Simulation of the Forward Region rather than Forward Transport.' )
-    elif DetFlags.ZDC_on() or DetFlags.ALFA_on() or DetFlags.AFP_on():
+    elif DetFlags.ZDC_on() or DetFlags.ALFA_on() or (checkAFP is not None and checkAFP()):
+        atlasG4log.info( 'Temoporary Measure: Switching off Magnetic Field for Forward Detector simulation.' )
+        simFlags.MagneticField.set_Off()
         ## Use the ForwardTransport package to do the beam transport
         atlasG4log.info( 'FwdRegion switched off, so will run Full Simulation of the Forward Region rather than Forward Transport.' )
         simFlags.ForwardDetectors = 2
@@ -232,21 +229,17 @@ try:
 except:
     atlasG4log.warning('Could not add TimingAlg, no timing info will be written out.')
 
-from AthenaCommon.CfgGetter import getAlgorithm
-topSeq += getAlgorithm("BeamEffectsAlg", tryDefaultConfigurable=True)
+## Add G4 alg to alg sequence
+from G4AtlasApps.PyG4Atlas import PyG4AtlasAlg
+topSeq += PyG4AtlasAlg()
 
-# Add G4 alg to alg sequence
-try:
-    # the non-hive version of G4AtlasApps provides PyG4AtlasAlg
-    from G4AtlasApps.PyG4Atlas import PyG4AtlasAlg
-    topSeq += PyG4AtlasAlg()
-except ImportError:
-    try:
-        # the hive version provides PyG4AtlasSvc
-        from G4AtlasApps.PyG4Atlas import PyG4AtlasSvc
-        svcMgr += PyG4AtlasSvc()
-    except ImportError:
-        atlasG4log.fatal("Failed to import PyG4AtlasAlg/Svc")
+from PyJobTransforms.trfUtils import releaseIsOlderThan
+if releaseIsOlderThan(17,6):
+    ## Random number configuration
+    from G4AtlasAlg.G4AtlasAlgConf import G4AtlasAlg
+    g4AtlasAlg = G4AtlasAlg()
+    g4AtlasAlg.RandomGenerator = "athena"
+    g4AtlasAlg.AtRndmGenSvc = simFlags.RandomSvc.get_Value()
 
 ## Add AMITag MetaData to TagInfoMgr
 if hasattr(runArgs, 'AMITag'):
@@ -287,18 +280,10 @@ if hasattr(runArgs, "postExec"):
 
 ## Always enable the looper killer, unless it's been disabled
 if not hasattr(runArgs, "enableLooperKiller") or runArgs.enableLooperKiller:
-    # this configures the MT LooperKiller
-    try:
-        from G4UserActions import G4UserActionsConfig
-        G4UserActionsConfig.addLooperKillerTool()
-    except AttributeError, ImportError:
-        atlasG4log.warning("Could not add the MT-version of the LooperKiller")
-        # this configures the non-MT looperKiller
-        try:
-            from G4AtlasServices.G4AtlasUserActionConfig import UAStore
-        except ImportError:
-            from G4AtlasServices.UserActionStore import UAStore
-        # add default configurable
-        UAStore.addAction('LooperKiller',['Step'])
+    def use_looperkiller():
+        from G4AtlasApps import PyG4Atlas, AtlasG4Eng
+        lkAction = PyG4Atlas.UserAction('G4UserActions', 'LooperKiller', ['BeginOfRun', 'EndOfRun', 'BeginOfEvent', 'EndOfEvent', 'Step'])
+        AtlasG4Eng.G4Eng.menu_UserActions.add_UserAction(lkAction)
+    simFlags.InitFunctions.add_function("postInit", use_looperkiller)
 else:
     atlasG4log.warning("The looper killer will NOT be run in this job.")

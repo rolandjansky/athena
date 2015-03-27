@@ -342,19 +342,19 @@ if hasattr(runArgs,"doAllNoise"):
             digitizationFlags.doCaloNoise=False
             digitizationFlags.doMuonNoise=False
 
-if hasattr(runArgs,"LucidOn") or hasattr(runArgs,"ALFAOn") or hasattr(runArgs,"ZDCOn") or hasattr(runArgs,"AFPOn") or hasattr(runArgs,"FwdRegionOn") or hasattr(runArgs,"HGTDOn"):
+if hasattr(runArgs,"LucidOn") or hasattr(runArgs,"ALFAOn") or hasattr(runArgs,"ZDCOn") or hasattr(runArgs,"AFPOn") or hasattr(runArgs,"FwdRegionOn"):
     if not 'DetFlags' in dir():
         #if you configure one detflag, you're responsible for configuring them all!
         from AthenaCommon.DetFlags import DetFlags
         DetFlags.all_setOn()
         DetFlags.ALFA_setOff() #Default for now
         DetFlags.ZDC_setOff() #Default for now
-        DetFlags.AFP_setOff() #Default for now
-        DetFlags.FwdRegion_setOff() #Default for now
-        checkHGTDOff = getattr(DetFlags, 'HGTD_setOff', None)
-        if checkHGTDOff is not None:
-            checkHGTDOff() #Default for now
-
+        checkAFPOff = getattr(DetFlags, 'AFP_setOff', None)
+        if checkAFPOff is not None:
+            checkAFPOff() #Default for now
+        checkFwdRegionOff = getattr(DetFlags, 'FwdRegion_setOff', None)
+        if checkFwdRegionOff is not None:
+            checkFwdRegionOff() #Default for now
 
     if hasattr(runArgs,"LucidOn"):
         if not runArgs.LucidOn:
@@ -367,18 +367,18 @@ if hasattr(runArgs,"LucidOn") or hasattr(runArgs,"ALFAOn") or hasattr(runArgs,"Z
             DetFlags.ZDC_setOn()
     if hasattr(runArgs, "AFPOn"):
         if runArgs.AFPOn:
-            DetFlags.AFP_setOn()
+            checkAFPOn = getattr(DetFlags, 'AFP_setOn', None)
+            if checkAFPOn is not None:
+                checkAFPOn()
+            else:
+                digilog.warning('The AFP DetFlag is not supported in this release')
     if hasattr(runArgs, "FwdRegionOn"):
         if runArgs.FwdRegionOn:
-            DetFlags.FwdRegion_setOn()
-    if hasattr(runArgs, "HGTDOn"):
-        if runArgs.HGTDOn:
-            checkHGTDOn = getattr(DetFlags, 'HGTD_setOn', None)
-            if checkHGTDOn is not None:
-                checkHGTDOn()
+            checkFwdRegionOn = getattr(DetFlags, 'FwdRegion_setOn', None)
+            if checkFwdRegionOn is not None:
+                checkFwdRegionOn()
             else:
-                digilog.warning('The HGTD DetFlag is not supported in this release')
-
+                digilog.warning('The FwdRegion DetFlag is not supported in this release')
 
 def NoTriggerConfig(runArgs):
     if hasattr(runArgs,"triggerConfig"):
@@ -397,21 +397,40 @@ if NoTriggerConfig(runArgs):
     DetFlags.Print()
 
 ## Output RDO File
-if hasattr(runArgs,"outputRDOFile") or hasattr(runArgs,"outputRDO_FILTFile"):
+if hasattr(runArgs,"outputRDOFile") or hasattr(runArgs,"tmpRDO") or hasattr(runArgs,"outputRDO_FILTFile") or hasattr(runArgs,"tmpRDO_FILT"):
     if hasattr(runArgs,"outputRDOFile"):
+        if hasattr(runArgs,"tmpRDO"):
+            digilog.fatal("Both outputRDOFile and tmpRDO specified - this configuration should not be used!")
+            raise SystemError
         if hasattr(runArgs,"outputRDO_FILTFile"):
             digilog.fatal("Both outputRDOFile and outputRDO_FILTFile specified - this configuration should not be used!")
             raise SystemError
+        if hasattr(runArgs,"tmpRDO_FILT"):
+            digilog.fatal("Both outputRDOFile and tmpRDO_FILT specified - this configuration should not be used!")
+            raise SystemError
         athenaCommonFlags.PoolRDOOutput.set_Value_and_Lock( runArgs.outputRDOFile )
+    elif hasattr(runArgs,"tmpRDO"):
+        if hasattr(runArgs,"outputRDO_FILTFile"):
+            digilog.fatal("Both tmpRDO and outputRDO_FILTFile specified - this configuration should not be used!")
+            raise SystemError
+        if hasattr(runArgs,"tmpRDO_FILT"):
+            digilog.fatal("Both tmpRDO and tmpRDO_FILT specified - this configuration should not be used!")
+            raise SystemError
+        athenaCommonFlags.PoolRDOOutput.set_Value_and_Lock( runArgs.tmpRDO )
     elif hasattr(runArgs,"outputRDO_FILTFile"):
+        if hasattr(runArgs,"tmpRDO_FILT"):
+            digilog.fatal("Both outputRDO_FILTFile and tmpRDO_FILT specified - this configuration should not be used!")
+            raise SystemError
         athenaCommonFlags.PoolRDOOutput.set_Value_and_Lock( runArgs.outputRDO_FILTFile )
+    elif hasattr(runArgs,"tmpRDO_FILT"):
+        athenaCommonFlags.PoolRDOOutput.set_Value_and_Lock( runArgs.tmpRDO_FILT )
     if hasattr(runArgs, "AddCaloDigi"):
         AddCaloDigi = runArgs.AddCaloDigi
         if AddCaloDigi:
             digilog.info("Will write out all LArDigitContainers and TileDigitsContainers to RDO file.")
             digitizationFlags.experimentalDigi+=["AddCaloDigi"]
 else:
-    digilog.info("no output file (outputRDOFile or outputRDO_FILTFile) specified - switching off output StreamRDO")
+    digilog.info("no output file (outputRDOFile, outputRDO_FILTFile, tmpRDO or tmpRDO_FILT) specified - switching off output StreamRDO")
     if not 'DetFlags' in dir():
         #if you configure one detflag, you're responsible for configuring them all!
         from AthenaCommon.DetFlags import DetFlags

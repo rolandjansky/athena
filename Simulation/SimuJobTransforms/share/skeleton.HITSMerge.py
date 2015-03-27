@@ -75,10 +75,8 @@ include( "PartPropSvc/PartPropSvc.py" )
 GeoModelSvc = Service( "GeoModelSvc" )
 GeoModelSvc.IgnoreTagDifference=True
 
-# set up all detector description stuff
-from AtlasGeoModel import SetGeometryVersion
-from AtlasGeoModel import GeoModelInit
-
+# set up all detector description stuff + some voodoo
+include( "RecExCond/AllDet_detDescr.py" )
 from AthenaCommon.DetFlags import DetFlags
 DetFlags.Print()
 

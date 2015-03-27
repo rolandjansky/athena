@@ -31,9 +31,6 @@ def addForwardDetTrfArgs(parser):
     parser.add_argument('--FwdRegionOn',
                         type=argFactory(argBool),
                         help='Switch on FwdRegion simulation/digitization.', group='ForwardDetector')
-    parser.add_argument('--HGTDOn',
-                        type=argFactory(argBool),
-                        help='Switch on HGTD simulation/digitization.', group='ForwardDetector')
 
 ## Add Basic digitization arguments to an argparse ArgumentParser
 def addBasicDigiArgs(parser):
@@ -69,6 +66,12 @@ def addBasicDigiArgs(parser):
     parser.add_argument('--AddCaloDigi',
                         type=argFactory(argBool),
                         help='Save Calo Digits too, not just RawChannels.', group='Digi')
+    parser.add_argument('--tmpRDO', nargs='+',
+                        type=argFactory(argRDOFile, io='output'),
+                        help='Temporary output RDO file (for when running as part of a multi-step transform, where RDO file preservation is not required.', group='Digi')
+    parser.add_argument('--tmpRDO_FILT', nargs='+',
+                        type=argFactory(argRDOFile, io='output'),
+                        help='Temporary output filtered RDO file (for when running as part of a multi-step transform, where RDO file preservation is not required.', group='Digi')
 
 ## Add Pile-up related transform arguments to an argparse ArgumentParser
 def addPileUpTrfArgs(parser):
@@ -77,19 +80,19 @@ def addPileUpTrfArgs(parser):
                         type=argFactory(argBool),
                         help='Calculates the number of background events that will be require for a given pile-up configuration.', group='PileUp')
     parser.add_argument('--inputLowPtMinbiasHitsFile','--LowPtMinbiasHitsFile', nargs='+',
-                        type=argFactory(argHITSFile, io='input', executor=['HITtoRDO'], auxiliaryFile=True),
+                        type=argFactory(argHITSFile, io='input', executor=['HITtoRDO']),
                         help='Input HITS file for low pT minimum bias pile-up sub-events', group='PileUp')
     parser.add_argument('--inputHighPtMinbiasHitsFile','--HighPtMinbiasHitsFile', nargs='+',
-                        type=argFactory(argHITSFile, io='input', executor=['HITtoRDO'], auxiliaryFile=True),
+                        type=argFactory(argHITSFile, io='input', executor=['HITtoRDO']),
                         help='Input HITS file for high pT minimum bias pile-up sub-events', group='PileUp')
     parser.add_argument('--inputCavernHitsFile', '--cavernHitsFile', nargs='+',
-                        type=argFactory(argHITSFile, io='input', executor=['HITtoRDO'], auxiliaryFile=True),
+                        type=argFactory(argHITSFile, io='input', executor=['HITtoRDO']),
                         help='Input HITS file for cavern background sub-events', group='PileUp')
     parser.add_argument('--inputBeamHaloHitsFile', '--beamHaloHitsFile', nargs='+',
-                        type=argFactory(argHITSFile, io='input', executor=['HITtoRDO'], auxiliaryFile=True),
+                        type=argFactory(argHITSFile, io='input', executor=['HITtoRDO']),
                         help='Input HITS file for beam halo sub-events', group='PileUp'),
     parser.add_argument('--inputBeamGasHitsFile', '--beamGasHitsFile', nargs='+',
-                        type=argFactory(argHITSFile, io='input', executor=['HITtoRDO'], auxiliaryFile=True),
+                        type=argFactory(argHITSFile, io='input', executor=['HITtoRDO']),
                         help='Input HITS file for beam gas sub-events', group='PileUp')
     parser.add_argument('--numberOfLowPtMinBias',
                         type=argFactory(argFloat),
@@ -200,9 +203,6 @@ def addCommonSimDigTrfArgs(parser):
     parser.add_argument('--jobNumber',
                         type=argFactory(argInt),
                         help='The number of this job in the current RunDependentSimulation task.', group='SimDigi')
-    parser.add_argument('--eventService',
-                        type=argFactory(argBool),
-                        help='Switch AthenaMP to the Event Service configuration', group='SimDigi')
 
 def addHITSMergeArgs(parser):
     # Use arggroup to get these arguments in their own sub-section (of --help)
@@ -216,23 +216,3 @@ def addHITSMergeArgs(parser):
     parser.add_argument('--inputLogsFile', nargs='+',
                         type=argFactory(argFile, io='input', runarg=True, type='log'),
                         help='Input Log files', group='HITSMerge_tf') ## FIXME need to add code to do the log file merging.
-
-## Add HITS validation transform arguments
-def addHITSValidArgs(parser):
-    parser.defineArgGroup('SimValid_tf', 'SimValid_tf specific options')
-    parser.add_argument('--inputHITSFile', nargs = '+',
-                        type=argFactory(argPOOLFile, io='input'),
-                        help='Input HITS files', group='SimValid_tf')
-    parser.add_argument('--outputHIST_SIMFile', nargs = '+',
-                        type=argFactory(argFile, io='output'),
-                        help=' Output HIST_SIM files', group='SimValid_tf')
-
-## Add RDO validation transform arguments
-def addRDOValidArgs(parser):
-    parser.defineArgGroup('DigiValid_tf', 'DigiValid_tf specific options')
-    parser.add_argument('--inputRDOFile', nargs = '+',
-                        type=argFactory(argPOOLFile, io='input'),
-                        help='Input RDO files', group='DigiValid_tf')
-    parser.add_argument('--outputHIST_DIGIFile', nargs = '+',
-                        type=argFactory(argFile, io='output'),
-                        help=' Output HIST_DIGI files', group='DigiValid_tf')
