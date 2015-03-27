@@ -353,6 +353,15 @@ class L2BMuMuHypo_DiMu_7invm9_noVtx (TrigL2BMuMuHypo):
 
         self.AthenaMonTools = [ validation, online, time ]
 
+class L2BMuMuHypo_DiMu_7invm9 (L2BMuMuHypo_DiMu_7invm9_noVtx):
+    __slots__ = []
+    def __init__(self, name = "L2BMuMuHypo_DiMu_7invm9"):
+        super( L2BMuMuHypo_DiMu_7invm9, self ).__init__( name )
+        
+        # L2 Bmumu cuts
+        self.ApplyChi2Cut      = True
+        
+        
 class L2BMuMuHypo_DiMu_11invm60_noVtx (TrigL2BMuMuHypo):
     __slots__ = []
     def __init__(self, name = "L2BMuMuHypo_DiMu_11invm60_noVtx"):
@@ -377,6 +386,15 @@ class L2BMuMuHypo_DiMu_11invm60_noVtx (TrigL2BMuMuHypo):
 
         self.AthenaMonTools = [ validation, online, time ]
         
+class L2BMuMuHypo_DiMu_11invm60 (L2BMuMuHypo_DiMu_11invm60_noVtx):
+    __slots__ = []
+    def __init__(self, name = "L2BMuMuHypo_DiMu_11invm60"):
+        super( L2BMuMuHypo_DiMu_11invm60, self ).__init__( name )
+        
+        # L2 Bmumu cuts
+        self.ApplyChi2Cut      = True
+        
+        
 class L2BMuMuHypo_DiMu_11invm24_noVtx (L2BMuMuHypo_DiMu_11invm60_noVtx):
     __slots__ = []
     def __init__(self, name = "L2BMuMuHypo_DiMu_11invm24_noVtx"):
@@ -385,6 +403,14 @@ class L2BMuMuHypo_DiMu_11invm24_noVtx (L2BMuMuHypo_DiMu_11invm60_noVtx):
         # L2 Bmumu cuts
         self.LowerMassCut      = 11000.
         self.UpperMassCut      = 24000.
+        
+class L2BMuMuHypo_DiMu_11invm24 (L2BMuMuHypo_DiMu_11invm24_noVtx):
+    __slots__ = []
+    def __init__(self, name = "L2BMuMuHypo_DiMu_11invm24"):
+        super( L2BMuMuHypo_DiMu_11invm24, self ).__init__( name )
+        
+        # L2 Bmumu cuts
+        self.ApplyChi2Cut      = True
         
         
 class L2BMuMuHypo_DiMu_24invm60_noVtx (L2BMuMuHypo_DiMu_11invm60_noVtx):
@@ -395,6 +421,14 @@ class L2BMuMuHypo_DiMu_24invm60_noVtx (L2BMuMuHypo_DiMu_11invm60_noVtx):
         # L2 Bmumu cuts
         self.LowerMassCut      = 24000.
         self.UpperMassCut      = 60000.
+        
+class L2BMuMuHypo_DiMu_24invm60 (L2BMuMuHypo_DiMu_24invm60_noVtx):
+    __slots__ = []
+    def __init__(self, name = "L2BMuMuHypo_DiMu_24invm60"):
+        super( L2BMuMuHypo_DiMu_24invm60, self ).__init__( name )
+        
+        # L2 Bmumu cuts
+        self.ApplyChi2Cut      = True
         
         
 class L2BMuMuHypo_DiMu_18invm60_noVtx (TrigL2BMuMuHypo):
