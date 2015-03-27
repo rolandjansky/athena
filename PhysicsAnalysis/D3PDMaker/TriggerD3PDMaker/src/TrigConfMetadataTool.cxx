@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TrigConfMetadataTool.cxx 727271 2016-03-02 16:02:45Z tamartin $
+// $Id: TrigConfMetadataTool.cxx 626801 2014-11-07 06:28:07Z ssnyder $
 
 // Athena/Gaudi include(s):
 #include "AthenaKernel/errorcheck.h"
@@ -583,8 +583,8 @@ namespace D3PD {
          m_trigConfSvc->ctpConfig()->menu().items().begin();
       TrigConf::ItemContainer::const_iterator item_end =
          m_trigConfSvc->ctpConfig()->menu().items().end();
-      std::vector< float > prescales =
-         m_trigConfSvc->ctpConfig()->prescaleSet().prescales_float();
+      std::vector< int > prescales =
+         m_trigConfSvc->ctpConfig()->prescaleSet().prescales();
       for( ; item_itr != item_end; ++item_itr ) {
          ( *m_lvl1ConfigNameMap )[ ( *item_itr )->name() ] = ( *item_itr )->ctpId();
          ( *m_lvl1ConfigPSKMap )[ ( *item_itr )->name() ] =
