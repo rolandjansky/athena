@@ -1,0 +1,14 @@
+<lcgdict>
+
+<class name="D3PDTest::Obj1"/>
+<class name="D3PDTest::Obj1Container"/>
+<class name="D3PDTest::Obj3"/>
+<class name="D3PDTest::Obj4"/>
+<class name="D3PDTest::Obj4Container"/>
+<class name="D3PDTest::Obj5"/>
+<class name="D3PDTest::Obj5Container"/>
+<class name="D3PDTest::MapDumper"/>
+<class name="D3PDTest::MyVec2"/>
+<class name="std::vector<D3PDTest::MyVec2>"/>
+
+</lcgdict>
