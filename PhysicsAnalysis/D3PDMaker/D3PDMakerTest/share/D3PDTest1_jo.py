@@ -7,12 +7,6 @@
 # Purpose: Test D3PD making.
 #
 
-# Touch these types early, before dictionaries are loaded,
-# to prevent spurious error messages from ROOT.
-# See ATLASRECTS-3486.
-import cppyy
-getattr(cppyy.gbl, 'map<string,string>')
-
 ## basic job configuration
 import AthenaCommon.AtlasUnixGeneratorJob
 
@@ -218,7 +212,7 @@ from MuonD3PDMaker.TrackRecordD3PDObject import TrackRecordD3PDObject
 alg += TrackRecordD3PDObject (99, sgkey = 'TrackRecord',
                               exclude = ['TruthHits'])
 
-from AnalysisTools.AthAnalysisToolsConf import AANTupleStream
+from AnalysisTools.AnalysisToolsConf import AANTupleStream
 AANTupleStream('D3PD').ExistDataHeader = False
 
 
