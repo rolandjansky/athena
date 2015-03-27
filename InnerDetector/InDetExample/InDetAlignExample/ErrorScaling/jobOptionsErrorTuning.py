@@ -40,13 +40,11 @@ include('datasets.py')
 #datasample = data11_calibration_RAW
 #datasample = mc11_Ztautau_RAW
 #datasample = mc12_muons
-#datasample = mc12_Ztautau
+datasample = mc12_Ztautau
 #datasample = mc11_Zprime_ESD
 #datasample = mc10_muons_RAW
 #datasample = mc10_muons_RAW_highStat
 
-datasample = data15_267073_Express_RAW
-#datasample = data15_267073_Express_ESD
 print 'Pre-job-option data set type:',datasample.getFormat()
 
 #this should be passed in on the command line via the athena.py -c switch.
@@ -62,7 +60,7 @@ if (runmode == 'local'):
 # as well
 if (runmode == 'batch'):
     #theApp.EvtMax = 2500
-    theApp.EvtMax = 500
+    theApp.EvtMax = 5000
     datasample.activateSegment(nSegments, iSegment, shuffle=True)
 
 # just the InDetRecExample options as mentioned above
@@ -70,17 +68,17 @@ if (runmode == 'batch'):
 
 if datasample.getFormat()=='ESD': 
     print "Using a ESD Dataset"
-    include('jobOptionsESD_Run2.py')
+    include('jobOptionsESD.py')
 
 if datasample.getFormat()=='RAW':
     print "Using a RAW Dataset"
-    include('jobOptionsESD_Run2.py')
+    include('jobOptionsRAW.py')
 
 print 'This dataset is mc:',datasample.isMC()
 
 #this fixes MC for now- look into why later
 #if not datasample.isMC():
-#conddb.blockFolder("/Indet/TrkErrorScaling")
+conddb.blockFolder("/Indet/TrkErrorScaling")
     #errorScalingOverride is passed in on the command line when this job is invoked in
     # iterateTrkError.py . It typically contains the name of the override tag from the iteration.
-#conddb.addFolderWithTag("LOCAL","/Indet/TrkErrorScaling", errorScalingOverride, force=True)
+conddb.addFolderWithTag("LOCAL","/Indet/TrkErrorScaling", errorScalingOverride, force=True)

@@ -10,7 +10,7 @@ import sys
 # ===============================
 # Number of Iterations
 # ===============================
-FirstIteration = 0
+FirstIteration = 3
 Iterations     = 1
 
 # ===============================
@@ -25,7 +25,7 @@ runMode = 'batch'
 QUEUE          = 'atlasb1'
 
 # Prefix to identify your jobs
-preName        = 'm9_test'
+preName        = 'm8'
 
 HOME           = os.environ['HOME']
 # Alignment Output
@@ -127,8 +127,7 @@ else:
     if isData:
         #Data1.setGlobalTag("CONDBR2-ES1PA-2014-01")
         Data1.setGlobalTag("CONDBR2-ES1PA-2014-03") # move to 03 -> recomended by PF 
-        # Data1.setDetDescrVersion("ATLAS-R2-2015-02-00-00")
-        Data1.setDetDescrVersion("ATLAS-R2-2015-03-04-00")
+        Data1.setDetDescrVersion("ATLAS-R2-2015-02-00-00")
     else:
         Data1.setGlobalTag("OFLCOND-RUN12-SDR-14")
         Data1.setDetDescrVersion("ATLAS-R2-2015-01-01-00")
