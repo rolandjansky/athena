@@ -21,9 +21,9 @@
       </expectations>
     </TEST>
 
-    <TEST name="RECOSHIFT_Reco_DC14_13TeV_nopileup" type="script" suite="reco_tf">
+    <TEST name="RECOSHIFT_Reco_MC15_13TeV_nopileup" type="script" suite="reco_tf">
       <options_atn>
-	  export TRF_ECHO=True; Reco_tf.py --AMITag r5935 --DBRelease="current" --DataRunNumber="222525" --autoConfiguration="everything" --conditionsTag="OFLCOND-RUN12-SDR-22" --digiSeedOffset1="1" --digiSeedOffset2="1" --geometryVersion="ATLAS-R2-2015-02-01-00" --jobNumber 1 --maxEvents 5 --numberOfCavernBkg="0" --postInclude="RecJobTransforms/UseFrontier.py" --preExec "rec.Commissioning.set_Value_and_Lock(True);from AthenaCommon.BeamFlags import jobproperties;jobproperties.Beam.numberOfCollisions.set_Value_and_Lock(0.);from LArROD.LArRODFlags import larRODFlags;larRODFlags.nSamples.set_Value_and_Lock(4)" "HITtoRDO:from Digitization.DigitizationFlags import digitizationFlags;digitizationFlags.overrideMetadata+=[\"SimLayout\",\"PhysicsList\"]" "RAWtoESD:from TriggerJobOpts.TriggerFlags import TriggerFlags;TriggerFlags.triggerMenuSetup=\"MC_pp_v5\";from CaloRec.CaloCellFlags import jobproperties;jobproperties.CaloCellFlags.doLArCellEmMisCalib=False" "ESDtoAOD:TriggerFlags.AODEDMSet=\"AODFULL\"" --inputHITSFile="/afs/cern.ch/atlas/groups/validation/disk2/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.simul.HITS.e3099_s2082_tid01614220_00/HITS.01614220._000553.pool.root.1" --outputAODFile="AOD.01614496._000003.pool.root" --outputESDFile="ESD.01614496._000003.pool.root"
+	  export TRF_ECHO=True; Reco_tf.py '--inputHITSFile=/afs/cern.ch/atlas/project/rig/referencefiles/MC/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.e3099_s2578/HITS.04919495._000958.pool.root.1' '--AMITag=r6193' '--DBRelease=current' '--DataRunNumber=222525' '--autoConfiguration=everything' '--conditionsTag=OFLCOND-RUN12-SDR-25' '--digiSeedOffset1=1' '--digiSeedOffset2=1' '--geometryVersion=ATLAS-R2-2015-03-01-00' '--jobNumber=1' '--maxEvents=5' '--numberOfCavernBkg=0' '--outputAODFile=AOD.pool.root' '--outputRDOFile=RDO.pool.root' '--outputESDFile=ESD.pool.root' '--postExec' 'RAWtoESD:from AthenaCommon.AlgSequence import AlgSequence;AlgSequence().LVL1TGCTrigger.TILEMU=True;from IOVDbSvc.CondDB import conddb; conddb.addOverride("/PIXEL/PixelClustering/PixelClusNNCalib","PixelClusNNCalib-SIM-RUN12-000-02")' '--postInclude=RecJobTransforms/UseFrontier.py' '--preExec' 'rec.Commissioning.set_Value_and_Lock(True);rec.doTrigger.set_Value_and_Lock(True);from AthenaCommon.BeamFlags import jobproperties;jobproperties.Beam.numberOfCollisions.set_Value_and_Lock(0.);from LArROD.LArRODFlags import larRODFlags;larRODFlags.nSamples.set_Value_and_Lock(4)' 'HITtoRDO:from Digitization.DigitizationFlags import digitizationFlags;digitizationFlags.overrideMetadata+=["SimLayout","PhysicsList"]' 'RAWtoESD:from TriggerJobOpts.TriggerFlags import TriggerFlags;TriggerFlags.triggerMenuSetup="MC_pp_v5_loose_mc_prescale";from CaloRec.CaloCellFlags import jobproperties;jobproperties.CaloCellFlags.doLArCellEmMisCalib=False' 'ESDtoAOD:TriggerFlags.AODEDMSet="AODFULL"' '--runNumber=110401' '--skipEvents=0'
 	</options_atn>
       <timelimit>30</timelimit>	
       <author>Xiaohu Sun, Carl Gwilliam and Marie-Helene Genest</author>
@@ -274,15 +274,15 @@
       </chain>
 
       <chain>
-	<chainName>PhysicsValidationDC14ChainJob14TeV</chainName>
+	<chainName>PhysicsValidationMC15ChainJob13TeV</chainName>
 	<sequential>
 	  <!-- Run Reco -->
 	  <chainElement>
-      <jobTransform userJobId="Reco_DC14_13TeV_nopileup">
+      <jobTransform userJobId="Reco_MC15_13TeV_nopileup">
 	<doc>Reco_tf runs physics validation as defined by Carl G/Marie-Helene G, July 28 2014</doc>
-	<jobTransformJobName>Reco_DC14_tf</jobTransformJobName>
+	<jobTransformJobName>Reco_MC15_tf</jobTransformJobName>
 	<jobTransformCmd>
-	  export TRF_ECHO=True; Reco_tf.py --AMITag r5935 --DBRelease="current" --DataRunNumber="222525" --autoConfiguration="everything" --conditionsTag="OFLCOND-RUN12-SDR-22" --digiSeedOffset1="1" --digiSeedOffset2="1" --geometryVersion="ATLAS-R2-2015-02-01-00" --jobNumber 1 --maxEvents 500 --numberOfCavernBkg="0" --postInclude="RecJobTransforms/UseFrontier.py" --preExec "rec.Commissioning.set_Value_and_Lock(True);from AthenaCommon.BeamFlags import jobproperties;jobproperties.Beam.numberOfCollisions.set_Value_and_Lock(0.);from LArROD.LArRODFlags import larRODFlags;larRODFlags.nSamples.set_Value_and_Lock(4)" "HITtoRDO:from Digitization.DigitizationFlags import digitizationFlags;digitizationFlags.overrideMetadata+=[\"SimLayout\",\"PhysicsList\"]" "RAWtoESD:from TriggerJobOpts.TriggerFlags import TriggerFlags;TriggerFlags.triggerMenuSetup=\"MC_pp_v5\";from CaloRec.CaloCellFlags import jobproperties;jobproperties.CaloCellFlags.doLArCellEmMisCalib=False" "ESDtoAOD:TriggerFlags.AODEDMSet=\"AODFULL\"" --inputHITSFile="/afs/cern.ch/atlas/groups/validation/disk2/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.simul.HITS.e3099_s2082_tid01614220_00/HITS.01614220._000553.pool.root.1" --outputAODFile="AOD_13TeV_PhysVal.pool.root" --outputESDFile="ESD.01614496._000003.pool.root"
+	  export TRF_ECHO=True; Reco_tf.py '--inputHITSFile=/afs/cern.ch/atlas/project/rig/referencefiles/MC/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.e3099_s2578/HITS.04919495._000958.pool.root.1' '--AMITag=r6193' '--DBRelease=current' '--DataRunNumber=222525' '--autoConfiguration=everything' '--conditionsTag=OFLCOND-RUN12-SDR-25' '--digiSeedOffset1=1' '--digiSeedOffset2=1' '--geometryVersion=ATLAS-R2-2015-03-01-00' '--jobNumber=1' '--maxEvents=500' '--numberOfCavernBkg=0' '--outputAODFile=AOD_13TeV_PhysVal.pool.root' '--outputRDOFile=RDO.pool.root' '--outputESDFile=ESD.pool.root' '--postExec' 'RAWtoESD:from AthenaCommon.AlgSequence import AlgSequence;AlgSequence().LVL1TGCTrigger.TILEMU=True;from IOVDbSvc.CondDB import conddb; conddb.addOverride("/PIXEL/PixelClustering/PixelClusNNCalib","PixelClusNNCalib-SIM-RUN12-000-02")' '--postInclude=RecJobTransforms/UseFrontier.py' '--preExec' 'rec.Commissioning.set_Value_and_Lock(True);rec.doTrigger.set_Value_and_Lock(True);from AthenaCommon.BeamFlags import jobproperties;jobproperties.Beam.numberOfCollisions.set_Value_and_Lock(0.);from LArROD.LArRODFlags import larRODFlags;larRODFlags.nSamples.set_Value_and_Lock(4)' 'HITtoRDO:from Digitization.DigitizationFlags import digitizationFlags;digitizationFlags.overrideMetadata+=["SimLayout","PhysicsList"]' 'RAWtoESD:from TriggerJobOpts.TriggerFlags import TriggerFlags;TriggerFlags.triggerMenuSetup="MC_pp_v5_loose_mc_prescale";from CaloRec.CaloCellFlags import jobproperties;jobproperties.CaloCellFlags.doLArCellEmMisCalib=False' 'ESDtoAOD:TriggerFlags.AODEDMSet="AODFULL"' '--runNumber=110401' '--skipEvents=0'
 	</jobTransformCmd>
 	<group>RecTrf</group>
 	<queue>long</queue>
@@ -292,9 +292,9 @@
 
 	  <!-- Runs validation histogram code -->
 	  <chainElement>
-	    <jobTransform userJobId="PhysVal_DC14_13TeV_Example">
+	    <jobTransform userJobId="PhysVal_MC15_13TeV_Example">
 	      <doc>Reco_tf runs physcs validation as defined by Carl G/Marie-Helene G, May 7 2014</doc>
-	      <jobTransformJobName>PhysVal_DC14_trf</jobTransformJobName>
+	      <jobTransformJobName>PhysVal_MC15_trf</jobTransformJobName>
 	      <jobTransformCmd>
 		Reco_tf.py --inputAODFile AOD_13TeV_PhysVal.pool.root --outputNTUP_PHYSVALFile PhysVal_13TeV_Example.pool.root --validationFlags doExample 
 		</jobTransformCmd>
@@ -304,7 +304,7 @@
 		  <chaindatasetName>AOD_13TeV_PhysVal.pool.root</chaindatasetName>
 		  <dataset_info>
 		    <dc2 />
-		    <datasetName>/afs/cern.ch/atlas/project/rig/referencefiles/RTTinputFiles/MC12_14TeV/AOD_14TeV_PhysVal.pool.root</datasetName>
+		    <datasetName>/afs/cern.ch/atlas/project/rig/referencefiles/RTTinputFiles/MC12_14TeV/AOD_13TeV_PhysVal.pool.root</datasetName>
 		  </dataset_info>
 		</chaindataset_info>
 		<queue>long</queue>
@@ -312,9 +312,9 @@
 	    </jobTransform>
 	  </chainElement>
 	  <chainElement>
-	    <jobTransform userJobId="PhysVal_DC14_13TeV_All">
+	    <jobTransform userJobId="PhysVal_MC15_13TeV_All">
 	      <doc>Reco_tf runs physcs validation as defined by Carl G/Marie-Helene G, May 7 2014</doc>
-	      <jobTransformJobName>PhysVal_DC14_trf</jobTransformJobName>
+	      <jobTransformJobName>PhysVal_MC15_trf</jobTransformJobName>
 	      <jobTransformCmd>
 		Reco_tf.py --inputAODFile AOD_13TeV_PhysVal.pool.root --outputNTUP_PHYSVALFile PhysVal_14TeV_All.pool.root --validationFlags doExample doPFlow doTopoCluster doJet doMET doMuon doTau doEgamma doBtag doInDet doZee
 		</jobTransformCmd>
@@ -324,7 +324,7 @@
 		  <chaindatasetName>AOD_13TeV_PhysVal.pool.root</chaindatasetName>
 		  <dataset_info>
 		    <dc2 />
-		    <datasetName>/afs/cern.ch/atlas/project/rig/referencefiles/RTTinputFiles/MC12_14TeV/AOD_14TeV_PhysVal.pool.root</datasetName>
+		    <datasetName>/afs/cern.ch/atlas/project/rig/referencefiles/RTTinputFiles/MC12_14TeV/AOD_13TeV_PhysVal.pool.root</datasetName>
 		  </dataset_info>
 		</chaindataset_info>
 		<queue>long</queue>
@@ -334,11 +334,11 @@
 	</sequential>
       </chain>
 
-      <jobTransform userJobId="Reco_DC14_13TeV_nopileup_stdcmalloc">
+      <jobTransform userJobId="Reco_MC15_13TeV_nopileup_stdcmalloc">
 	<doc>Reco_tf runs physics validation alternatively with stdcmalloc</doc>
-	<jobTransformJobName>Reco_DC14_tf</jobTransformJobName>
+	<jobTransformJobName>Reco_MC15_tf</jobTransformJobName>
 	<jobTransformCmd>
-	  export TRF_ECHO=True; Reco_tf.py --AMITag r5935 --DBRelease="current" --DataRunNumber="222525" --autoConfiguration="everything" --conditionsTag="OFLCOND-RUN12-SDR-22" --digiSeedOffset1="1" --digiSeedOffset2="1" --geometryVersion="ATLAS-R2-2015-02-01-00" --jobNumber 1 --maxEvents 500 --numberOfCavernBkg="0" --postInclude="RecJobTransforms/UseFrontier.py" --preExec "rec.Commissioning.set_Value_and_Lock(True);from AthenaCommon.BeamFlags import jobproperties;jobproperties.Beam.numberOfCollisions.set_Value_and_Lock(0.);from LArROD.LArRODFlags import larRODFlags;larRODFlags.nSamples.set_Value_and_Lock(4)" "HITtoRDO:from Digitization.DigitizationFlags import digitizationFlags;digitizationFlags.overrideMetadata+=[\"SimLayout\",\"PhysicsList\"]" "RAWtoESD:from TriggerJobOpts.TriggerFlags import TriggerFlags;TriggerFlags.triggerMenuSetup=\"MC_pp_v5\";from CaloRec.CaloCellFlags import jobproperties;jobproperties.CaloCellFlags.doLArCellEmMisCalib=False" "ESDtoAOD:TriggerFlags.AODEDMSet=\"AODFULL\"" --inputHITSFile="/afs/cern.ch/atlas/groups/validation/disk2/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.simul.HITS.e3099_s2082_tid01614220_00/HITS.01614220._000553.pool.root.1" --outputAODFile="AOD.01614496._000003.pool.root" --outputESDFile="ESD.01614496._000003.pool.root" --athenaopts="--stdcmalloc"
+	  export TRF_ECHO=True; Reco_tf.py '--inputHITSFile=/afs/cern.ch/atlas/project/rig/referencefiles/MC/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.e3099_s2578/HITS.04919495._000958.pool.root.1' '--AMITag=r6193' '--DBRelease=current' '--DataRunNumber=222525' '--autoConfiguration=everything' '--conditionsTag=OFLCOND-RUN12-SDR-25' '--digiSeedOffset1=1' '--digiSeedOffset2=1' '--geometryVersion=ATLAS-R2-2015-03-01-00' '--jobNumber=1' '--maxEvents=500' '--numberOfCavernBkg=0' '--outputAODFile=AOD.pool.root' '--outputRDOFile=RDO.pool.root' '--outputESDFile=ESD.pool.root' '--postExec' 'RAWtoESD:from AthenaCommon.AlgSequence import AlgSequence;AlgSequence().LVL1TGCTrigger.TILEMU=True;from IOVDbSvc.CondDB import conddb; conddb.addOverride("/PIXEL/PixelClustering/PixelClusNNCalib","PixelClusNNCalib-SIM-RUN12-000-02")' '--postInclude=RecJobTransforms/UseFrontier.py' '--preExec' 'rec.Commissioning.set_Value_and_Lock(True);rec.doTrigger.set_Value_and_Lock(True);from AthenaCommon.BeamFlags import jobproperties;jobproperties.Beam.numberOfCollisions.set_Value_and_Lock(0.);from LArROD.LArRODFlags import larRODFlags;larRODFlags.nSamples.set_Value_and_Lock(4)' 'HITtoRDO:from Digitization.DigitizationFlags import digitizationFlags;digitizationFlags.overrideMetadata+=["SimLayout","PhysicsList"]' 'RAWtoESD:from TriggerJobOpts.TriggerFlags import TriggerFlags;TriggerFlags.triggerMenuSetup="MC_pp_v5_loose_mc_prescale";from CaloRec.CaloCellFlags import jobproperties;jobproperties.CaloCellFlags.doLArCellEmMisCalib=False' 'ESDtoAOD:TriggerFlags.AODEDMSet="AODFULL"' '--runNumber=110401' '--skipEvents=0' --athenaopts="--stdcmalloc"
 	</jobTransformCmd>
 	<group>RecTrf</group>
 	<queue>long</queue>
@@ -348,11 +348,32 @@
 	<doc>Reco_tf runs physics validation with pileup as defined by Carl G/Marie-Helene G, Aug 12 2014</doc>
 	<jobTransformJobName>Reco_DC14_tf</jobTransformJobName>
 	<jobTransformCmd>
-	 export TRF_ECHO=True; Reco_tf.py --DBRelease="current" --autoConfiguration="everything" --conditionsTag="OFLCOND-RUN12-SDR-22" --digiSeedOffset1="5" --digiSeedOffset2="5" --geometryVersion="ATLAS-R2-2015-01-01-00" --jobNumber 1 --maxEvents 500 --postExec "from IOVDbSvc.CondDB import conddb;conddb.addOverride(\"/Indet/Beampos\", \"IndetBeampos-14TeV-0.55m-285urad\");CfgMgr.MessageSvc().setError+=[\"HepMcParticleLink\"]" "HITtoRDO:job.StandardPileUpToolsAlg.PileUpTools[\"MergeMcEventCollTool\"].OnlySaveSignalTruth=True" --postInclude="RecJobTransforms/UseFrontier.py" --preExec 'rec.Commissioning.set_Value_and_Lock(True);jobproperties.Beam.numberOfCollisions.set_Value_and_Lock(20.0);from LArROD.LArRODFlags import larRODFlags;larRODFlags.nSamples.set_Value_and_Lock(4)' 'HITtoRDO:from LArROD.LArRODFlags import larRODFlags;larRODFlags.doOFCPileupOptimization.set_Value_and_Lock(True);larRODFlags.NumberOfCollisions.set_Value_and_Lock(20);larRODFlags.UseDelta.set_Value_and_Lock(3)' 'RAWtoESD:from TriggerJobOpts.TriggerFlags import TriggerFlags;TriggerFlags.triggerMenuSetup="DC14_loose_mc_prescale";from LArROD.LArRODFlags import larRODFlags;larRODFlags.doOFCPileupOptimization.set_Value_and_Lock(True);larRODFlags.UseDelta.set_Value_and_Lock(3);from CaloRec.CaloCellFlags import jobproperties;jobproperties.CaloCellFlags.doLArCellEmMisCalib=False' 'ESDtoAOD:TriggerFlags.AODEDMSet="AODSLIM" ' 'AODtoTAG:' --preInclude "HITtoRDO:Digitization/ForceUseOfPileUpTools.py,SimulationJobOptions/preInclude.PileUpBunchTrains2011Config8_DigitConfig.py,RunDependentSimData/configLumi_run222222.py" --inputHITSFile="/afs/cern.ch/user/p/physval/validafs/disk2/HITS.01453355._000020.pool.root.1" --numberOfHighPtMinBias "0.12311" --numberOfLowPtMinBias "39.87688" --LowPtMinbiasHitsFile="/afs/cern.ch/atlas/groups/validation/disk2/mc14_13TeV.119995.Pythia8_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e3038_s1967_s2007_tid01498150_00/HITS.01498150._001551.pool.root.1" --HighPtMinbiasHitsFile="/afs/cern.ch/atlas/groups/validation/disk2/mc14_13TeV.119996.Pythia8_A2MSTW2008LO_minbias_inelastic_high.merge.HITS.e3038_s1967_s2007_tid01498156_00/HITS.01498156._005554.pool.root.1" --outputAODFile="AOD.pool.root" --outputESDFile="ESD.pool.root"
+	 export TRF_ECHO=True; Reco_tf.py --DBRelease="current" --autoConfiguration="everything" --conditionsTag="OFLCOND-RUN12-SDR-22" --digiSeedOffset1="5" --digiSeedOffset2="5" --geometryVersion="ATLAS-R2-2015-01-01-00" --jobNumber 1 --maxEvents 500 --postExec "from IOVDbSvc.CondDB import conddb;conddb.addOverride(\"/Indet/Beampos\", \"IndetBeampos-14TeV-0.55m-285urad\");CfgMgr.MessageSvc().setError+=[\"HepMcParticleLink\"]" "HITtoRDO:job.StandardPileUpToolsAlg.PileUpTools[\"MergeMcEventCollTool\"].OnlySaveSignalTruth=True" --postInclude="RecJobTransforms/UseFrontier.py" --preExec 'rec.Commissioning.set_Value_and_Lock(True);jobproperties.Beam.numberOfCollisions.set_Value_and_Lock(20.0);from LArROD.LArRODFlags import larRODFlags;larRODFlags.nSamples.set_Value_and_Lock(4)' 'HITtoRDO:from LArROD.LArRODFlags import larRODFlags;larRODFlags.doOFCPileupOptimization.set_Value_and_Lock(True);larRODFlags.NumberOfCollisions.set_Value_and_Lock(20);larRODFlags.UseDelta.set_Value_and_Lock(3)' 'RAWtoESD:from TriggerJobOpts.TriggerFlags import TriggerFlags;TriggerFlags.triggerMenuSetup="MC_pp_v5";from LArROD.LArRODFlags import larRODFlags;larRODFlags.doOFCPileupOptimization.set_Value_and_Lock(True);larRODFlags.UseDelta.set_Value_and_Lock(3);from CaloRec.CaloCellFlags import jobproperties;jobproperties.CaloCellFlags.doLArCellEmMisCalib=False' 'ESDtoAOD:TriggerFlags.AODEDMSet="AODSLIM" ' 'AODtoTAG:' --preInclude "HITtoRDO:Digitization/ForceUseOfPileUpTools.py,SimulationJobOptions/preInclude.PileUpBunchTrains2011Config8_DigitConfig.py,RunDependentSimData/configLumi_run222222.py" --inputHITSFile="/afs/cern.ch/user/p/physval/validafs/disk2/HITS.01453355._000020.pool.root.1" --numberOfHighPtMinBias "0.12311" --numberOfLowPtMinBias "39.87688" --LowPtMinbiasHitsFile="/afs/cern.ch/atlas/groups/validation/disk2/mc14_13TeV.119995.Pythia8_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e3038_s1967_s2007_tid01498150_00/HITS.01498150._001551.pool.root.1" --HighPtMinbiasHitsFile="/afs/cern.ch/atlas/groups/validation/disk2/mc14_13TeV.119996.Pythia8_A2MSTW2008LO_minbias_inelastic_high.merge.HITS.e3038_s1967_s2007_tid01498156_00/HITS.01498156._005554.pool.root.1" --outputAODFile="AOD.pool.root" --outputESDFile="ESD.pool.root"
 	</jobTransformCmd>
 	<group>RecTrf</group>
 	<queue>long</queue>
       </jobTransform>
+
+      <jobTransform userJobId="HIReco_data11">
+	<doc>heavy ion reconstruction test from Andrzej Olszewski and Iwona Grabowska-Bold</doc>
+	<jobTransformJobName>Reco_tf</jobTransformJobName>
+	<jobTransformCmd>
+	  export TRF_ECHO=True; Reco_tf.py --inputBSFile /afs/cern.ch/atlas/project/rig/referencefiles/RTTinputFiles/HeavyIon/data11_hi.00193321.physics_HardProbes.merge.RAW.filtered_muons_v1_event_part_1.HLT_HIV3.repro20150303._0001.data --outputESDFile ESD.pool.root --outputAODFile AOD.pool.root --maxEvents 10 --autoConfiguration everything --preExec 'from HIRecExample.HIRecExampleFlags import jobproperties;jobproperties.HIRecExampleFlags.doHIJetRec.set_Value_and_Lock(False);jobproperties.HIRecExampleFlags.doHIGlobal.set_Value_and_Lock(False);jobproperties.HIRecExampleFlags.ppMode.set_Value_and_Lock(True);rec.doTrigger=True;from TriggerJobOpts.TriggerFlags import TriggerFlags;TriggerFlags.EDMDecodingVersion.set_Value_and_Lock(2);from RecExConfig.RecFlags import rec;rec.doTau.set_Value_and_Lock(False);rec.doJetMissingETTag.set_Value_and_Lock(False)' --conditionsTag COMCOND-BLKPA-RUN1-06 --geometryVersion ATLAS-R1-2011-02-00-00
+	</jobTransformCmd>
+	<group>RecTrf</group>
+	<queue>medium</queue>
+      </jobTransform>
+
+      <jobTransform userJobId="HIReco_mc14_5TeV">
+	<doc>heavy ion reconstruction test from Andrzej Olszewski and Iwona Grabowska-Bold</doc>
+	<jobTransformJobName>Reco_tf</jobTransformJobName>
+	<jobTransformCmd>
+	  export TRF_ECHO=True; Reco_tf.py --inputRDOFile=/afs/cern.ch/atlas/project/rig/referencefiles/RTTinputFiles/HeavyIon/user.olszewsk.5064454.EXT0._000171.RDO.pool.root --outputESDFile=ESD.pool.root --outputAODFile=AOD.pool.root --DBRelease=current --autoConfiguration=everything --conditionsTag=OFLCOND-RUN12-SDR-14 --geometryVersion=ATLAS-R2-2015-01-01-00 --maxEvents=5 --postExec 'CfgMgr.MessageSvc().setError+=["HepMcParticleLink"]' --postInclude 'RecJobTransforms/UseFrontier.py' --preExec 'rec.Commissioning.set_Value_and_Lock(True);rec.doTrigger=False;rec.doTau.set_Value_and_Lock(False);rec.doJetMissingETTag.set_Value_and_Lock(False);from AthenaCommon.BeamFlags import jobproperties;jobproperties.Beam.numberOfCollisions.set_Value_and_Lock(0.0);jobproperties.Beam.bunchSpacing.set_Value_and_Lock(25);from LArROD.LArRODFlags import larRODFlags;larRODFlags.nSamples.set_Value_and_Lock(4)' 'RAWtoESD:rec.doHeavyIon.set_Value_and_Lock(True);from CaloRec.CaloCellFlags import jobproperties;jobproperties.CaloCellFlags.doLArCellEmMisCalib=False;from HIRecExample.HIRecExampleFlags import jobproperties;jobproperties.HIRecExampleFlags.withHijingEventPars.set_Value_and_Lock(False);jobproperties.HIRecExampleFlags.ppMode.set_Value_and_Lock(True);jobproperties.HIRecExampleFlags.doHIJetRec.set_Value_and_Lock(False);jobproperties.HIRecExampleFlags.doHIGlobal.set_Value_and_Lock(False)'
+	</jobTransformCmd>
+	<group>RecTrf</group>
+	<queue>medium</queue>
+      </jobTransform>
+
 
       <jobTransform userJobId="mc12_rdotobs">
 	<doc>RDO to BS on MC tt MC12 </doc>
