@@ -239,7 +239,10 @@ if hasattr(runArgs, 'truthStrategy'):
     ISF_Flags.TruthService     = 'ISF_'     + runArgs.truthStrategy + 'TruthService'
     ISF_Flags.EntryLayerFilter = 'ISF_'     + runArgs.truthStrategy + 'EntryLayerFilter'
     ISF_Flags.TruthStrategy    = runArgs.truthStrategy
-    simFlags.SimBarcodeOffset  = 1000000 #MC15 setting
+    if 'MC12' == runArgs.truthStrategy or 'MC15a' == runArgs.truthStrategy:
+        simFlags.SimBarcodeOffset  = 200000 #MC12 setting
+    else:
+        simFlags.SimBarcodeOffset  = 1000000 #MC15 setting
 else:
     ISF_Flags.BarcodeService   = 'Barcode_MC12BarcodeSvc'
     ISF_Flags.TruthService     = 'ISF_TruthService'
