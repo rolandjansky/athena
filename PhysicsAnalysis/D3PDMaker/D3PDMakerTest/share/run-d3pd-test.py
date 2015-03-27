@@ -24,7 +24,7 @@ if hasattr (rec, 'doEdmMonitor'):
 include (jo)
 
 import ROOT
-import PyCintex
+import cppyy
 ROOT.errorcheck.ReportMessage.hideErrorLocus (True)
 
 if not hasattr (globals(), 'd3pd_tests'):

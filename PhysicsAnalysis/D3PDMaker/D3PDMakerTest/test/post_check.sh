@@ -205,6 +205,7 @@ PP="$PP"'|load MagFieldTool|: Defining |Start of Reco Config|^CscSegments=|^Muon
 
 PP="$PP"'|TClassTable::Add|^Note.* already loaded|^DataLink version|^ElementLink version|Using split mode on a class'
 
+PP="$PP"'|^Warning .* is already in '
 
 # temp
 PP="$PP"'|^zzz[14]'

@@ -239,7 +239,7 @@ chronoStatSvc.StatPrintOutTable   = FALSE
 
 # Elide files/errors in log messages.
 import ROOT
-import PyCintex
+import cppyy
 ROOT.errorcheck.ReportMessage.hideErrorLocus (True)
 
 theApp.getHandle().Dlls += [ 'D3PDMakerRoot']

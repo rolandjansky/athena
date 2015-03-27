@@ -18,13 +18,15 @@ os.environ['TERM'] = 'dumb'
 
 
 import ROOT
-import PyCintex
+import cppyy
+from PyUtils.Helpers import ROOT6Setup
+ROOT6Setup()
 # Autoloading doesn't work correctly for vector<unsigned long long>,
 # since root will munge the name to vector<ULong64_t> before trying
 # to look up the autoload.  (cf  R__FindSTLClass in TROOT.cxx).
 # So need to make sure that the reflex dictionary for these classes
 # is loaded.
-PyCintex.loadDictionary ('AtlasSTLAddReflexDict')
+cppyy.loadDictionary ('AtlasSTLAddReflexDict')
 ROOT.TClass('vector<float>')
 ROOT.TClass('vector<vector<unsigned int> >')
 from ordereddict import OrderedDict

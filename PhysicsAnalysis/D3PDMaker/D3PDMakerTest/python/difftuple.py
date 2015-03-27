@@ -15,10 +15,12 @@ if os.environ.has_key('DISPLAY'):
     del os.environ['DISPLAY']
 
 import ROOT
-import PyCintex
+import cppyy
 import types
 import os
 from fnmatch import fnmatch
+from PyUtils.Helpers import ROOT6Setup
+ROOT6Setup()
 
 # new : old
 renames = {

@@ -16,7 +16,7 @@
 #include "D3PDMakerTest/Obj3.h"
 #include "D3PDMakerTest/Obj4.h"
 #include "D3PDMakerTest/Obj5.h"
-#include "D3PDMakerTest/MyVec.h"
+#include "D3PDMakerTest/MyVec2.h"
 #include "ParticleEvent/SelectedParticles.h"
 #include "NavFourMom/INavigable4MomentumCollection.h"
 #include "StoreGate/StoreGateSvc.h"
@@ -131,10 +131,11 @@ StatusCode FillerAlg::fillObj3Collections()
 {
   INavigable4MomentumCollection* c = new INavigable4MomentumCollection;
   for (unsigned i = 0; i < 10; i++) {
-    Obj3* o3 = new Obj3 (randf(100*GeV),
-                         randf(5, -5),
-                         randf(-M_PI, M_PI),
-                         randf(10*GeV));
+    double pt = randf(100*GeV);
+    double eta = randf(5, -5);
+    double phi = randf(-M_PI, M_PI);
+    double m = randf(10*GeV);
+    Obj3* o3 = new Obj3 (pt, eta, phi, m);
     c->push_back (o3);
   }
   CHECK( this->evtStore()->record (c, m_sgkeyObj3cont) );
@@ -170,7 +171,7 @@ StatusCode FillerAlg::fillObj5Collections()
   static Obj5::Accessor<int> anInt ("anInt");
   static Obj5::Accessor<float> aFloat ("aFloat");
   static Obj5::Accessor<std::string> aString ("aString");
-  static Obj5::Accessor<D3PDTest::MyVec> aFourvec ("aFourvec");
+  static Obj5::Accessor<D3PDTest::MyVec2> aFourvec ("aFourvec");
 
   for (unsigned i = 0; i < 10; i++) {
     c->push_back (make_unique<Obj5> (300*m_count + i));
@@ -181,10 +182,11 @@ StatusCode FillerAlg::fillObj5Collections()
     os << "aux " << 600*m_count + i;
     aString(*c->back()) = os.str();
 
-    aFourvec(*c->back()).SetPtEtaPhiM (randf(100*GeV),
-                                       randf(-5, 5),
-                                       randf(-M_PI, M_PI),
-                                       randf(10*GeV));
+    double pt = randf(100*GeV);
+    double eta = randf(-5, 5);
+    double phi = randf(-M_PI, M_PI);
+    double m = randf(10*GeV);
+    aFourvec(*c->back()).SetPtEtaPhiM (pt, eta, phi, m);
   }
   CHECK( this->evtStore()->record (std::move(c),     m_sgkeyObj5cont) );
   CHECK( this->evtStore()->record (std::move(store), m_sgkeyObj5cont + "Aux.") );

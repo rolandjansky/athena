@@ -7,9 +7,9 @@
 #include "D3PDMakerTest/Obj4.h"
 #include "D3PDMakerTest/Obj5.h"
 #include "D3PDMakerTest/MapDumper.h"
-#include "D3PDMakerTest/MyVec.h"
+#include "D3PDMakerTest/MyVec2.h"
 
 
 namespace D3PDMakerTestInstan {
-  std::vector<D3PDTest::MyVec> vec;
+  std::vector<D3PDTest::MyVec2> vec2;
 }

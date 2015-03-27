@@ -17,19 +17,26 @@ if os.environ.has_key('DISPLAY'):
 
 
 import ROOT
-import PyCintex
+import cppyy
 from D3PDMakerTest.Treereader import treereader
 
 from RootUtils import PyROOTFixes
 PyROOTFixes.enable_tree_speedups()
+
+def safeord(x):
+    if type(x) == type(''):
+        return ord(x)
+    if x < 0:
+        x = x + 256
+    return x
 
 def dump_obj1 (tr, coll = True, dodef = False):
     for i in range (tr.n):
         assert tr.i[i] == tr.mult_i[i]
         print ' %1d %3d %3d %3d %3d %3d %3d %5.1f %5.1f %1d %3d %5.1f %3d %5.1f %3d %5.1f %3d %5.1f' % \
               (i,
-               ord(tr.c[i]),
-               ord(tr.uc[i]),
+               safeord(tr.c[i]),
+               safeord(tr.uc[i]),
                tr.s[i],
                tr.us[i],
                tr.i[i],

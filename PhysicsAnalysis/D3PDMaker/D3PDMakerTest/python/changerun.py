@@ -22,7 +22,9 @@ import uuid
 os.environ['_ATHENABARCODEIMPL_JOBUUID'] = uuid.uuid1().hex
 
 import ROOT
-import PyCintex
+import cppyy
+from PyUtils.Helpers import ROOT6Setup
+ROOT6Setup()
 
 ROOT.DataModelAthenaPool.CLHEPConverters.initialize()
 
