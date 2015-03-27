@@ -55,7 +55,7 @@ void ParticleBaseCnv_p1::persToTrans( const ParticleBase_p1* pers,
 				      MsgStream& msg ) 
 {
 //   msg << MSG::DEBUG << "Loading ParticleBase from persistent state..."
-//       << endmsg;
+//       << endreq;
 
   vxCnv.persToTrans( &pers->m_origin, &trans->m_origin, msg );
 
@@ -66,7 +66,7 @@ void ParticleBaseCnv_p1::persToTrans( const ParticleBase_p1* pers,
   trans->m_dataType  = static_cast<ParticleDataType::DataType>( pers->m_dataType );
 
 //   msg << MSG::DEBUG << "Loaded ParticleBase from persistent state [OK]"
-//       << endmsg;
+//       << endreq;
 
   return;
 }
@@ -76,7 +76,7 @@ void ParticleBaseCnv_p1::transToPers( const ParticleBase* trans,
 				      MsgStream& msg ) 
 {
 //   msg << MSG::DEBUG << "Creating persistent state of ParticleBase..."
-//       << endmsg;
+//       << endreq;
 
   vxCnv.transToPers( &trans->m_origin, &pers->m_origin, msg );
 
@@ -87,7 +87,7 @@ void ParticleBaseCnv_p1::transToPers( const ParticleBase* trans,
   pers->m_dataType  = trans->m_dataType;
 
 //   msg << MSG::DEBUG << "Created persistent state of ParticleBase [OK]"
-//       << endmsg;
+//       << endreq;
   return;
 }
 
@@ -97,7 +97,7 @@ void ParticleBaseCnv_p1::persToTrans( const ParticleBase_p1* pers,
 				      MsgStream& msg ) 
 {
 //   msg << MSG::DEBUG << "Loading ParticleBase from persistent state..."
-//       << endmsg;
+//       << endreq;
 
   vxCnv.persToTrans( &pers->m_origin, &trans->m_origin, msg );
 
@@ -113,7 +113,7 @@ void ParticleBaseCnv_p1::persToTrans( const ParticleBase_p1* pers,
 
 
 //   msg << MSG::DEBUG << "Loaded ParticleBase from persistent state [OK]"
-//       << endmsg;
+//       << endreq;
 
   return;
 }
@@ -123,15 +123,15 @@ void ParticleBaseCnv_p1::transToPers( const ParticleEvent::Base* trans,
 				      MsgStream& msg ) 
 {
 //   msg << MSG::DEBUG << "Creating persistent state of ParticleBase..."
-//       << endmsg;
+//       << endreq;
 
 #ifdef PBC_P1_VERBOSE
     msg << MSG::WARNING 
 	<< "an old T->P ParticleBase converter is being called!"
-	// << endmsg
-	// << "consider migrating to ParticleBase(Cnv)_p2 !" << endmsg
+	// << endreq
+	// << "consider migrating to ParticleBase(Cnv)_p2 !" << endreq
 	// << "this method will be removed for 16.0.0" 
-	<< endmsg;
+	<< endreq;
 #endif
   
 
@@ -147,6 +147,6 @@ void ParticleBaseCnv_p1::transToPers( const ParticleEvent::Base* trans,
   s_abcCnv.transToPers((const AthenaBarCodeImpl*)(&(trans->getAthenaBarCodeImpl())), (AthenaBarCode_p1*)(&(pers->m_athenabarcode)),msg);
 
 //   msg << MSG::DEBUG << "Created persistent state of ParticleBase [OK]"
-//       << endmsg;
+//       << endreq;
   return;
 }

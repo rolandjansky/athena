@@ -17,7 +17,8 @@
 
 // Gaudi includes
 
-#include "AthLinks/ElementLink.h"
+// DataModel includes
+#include "DataModel/ElementLink.h"
 
 // DataModelAthenaPool includes
 #include "DataModelAthenaPool/ElementLinkCnv_p3.h"

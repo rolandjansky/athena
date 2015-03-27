@@ -13,7 +13,11 @@
 // STL includes
 
 // ParticleEvent includes
+#define private public
+#define protected public
 #include "ParticleEvent/CompositeParticle.h"
+#undef private
+#undef protected
 
 // DataModelAthenaPool includes
 #include "DataModelAthenaPool/NavigableCnv_p1.h"
@@ -53,7 +57,7 @@ void CompositeParticleCnv_p1::persToTrans( const CompositeParticle_p1* pers,
                                            MsgStream& msg ) 
 {
 //   msg << MSG::DEBUG << "Loading CompositeParticle from persistent state..."
-//       << endmsg;
+//       << endreq;
   s_navCnv.persToTrans( &pers->m_nav,      
                         &trans->navigableBase(), 
                         msg );
@@ -65,7 +69,7 @@ void CompositeParticleCnv_p1::persToTrans( const CompositeParticle_p1* pers,
                        msg );
 
 //   msg << MSG::DEBUG << "Loaded CompositeParticle from persistent state [OK]"
-//       << endmsg;
+//       << endreq;
   return;
 }
 
@@ -74,7 +78,7 @@ void CompositeParticleCnv_p1::transToPers( const CompositeParticle* trans,
                                            MsgStream& msg ) 
 {
 //   msg << MSG::DEBUG << "Creating persistent state of CompositeParticle..."
-//       << endmsg;
+//       << endreq;
 
   s_navCnv.transToPers( &trans->navigableBase(), 
                         &pers->m_nav,      
@@ -87,6 +91,6 @@ void CompositeParticleCnv_p1::transToPers( const CompositeParticle* trans,
                        msg );
 
 //   msg << MSG::DEBUG << "Created persistent state of CompositeParticle [OK]"
-//       << endmsg;
+//       << endreq;
   return;
 }

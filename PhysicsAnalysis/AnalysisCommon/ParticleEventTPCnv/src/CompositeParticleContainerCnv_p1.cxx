@@ -9,7 +9,8 @@
 // Author: S.Binet<binet@cern.ch>
 /////////////////////////////////////////////////////////////////// 
 
-#include "AthAllocators/DataPool.h"
+// DataModel includes
+#include "DataModel/DataPool.h"
 
 // ParticleEvent includes
 #define private public
@@ -48,7 +49,7 @@ CompositeParticleContainerCnv_p1::persToTrans( const CompositeParticleContainer_
                                   MsgStream& msg ) 
 {
 //   msg << MSG::DEBUG << "Loading CompositeParticleContainer from persistent state..."
-//       << endmsg;
+//       << endreq;
 
   // elements are managed by DataPool
   trans->clear(SG::VIEW_ELEMENTS);
@@ -70,7 +71,7 @@ CompositeParticleContainerCnv_p1::persToTrans( const CompositeParticleContainer_
     trans->push_back( p );
   }
 //   msg << MSG::DEBUG << "Loading CompositeParticleContainer from persistent state [OK]"
-//       << endmsg;
+//       << endreq;
   return;
 }
 
@@ -81,7 +82,7 @@ CompositeParticleContainerCnv_p1::transToPers( const CompositeParticleContainer*
 {
 //    msg << MSG::DEBUG
 //        << "Creating persistent state of CompositeParticleContainer..."
-//        << endmsg;
+//        << endreq;
 
   std::size_t size = trans->size();     
   pers->resize(size);
@@ -96,7 +97,7 @@ CompositeParticleContainerCnv_p1::transToPers( const CompositeParticleContainer*
   
 //   msg << MSG::DEBUG
 //       << "Creating persistent state of CompositeParticleContainer [OK]"
-//       << endmsg;
+//       << endreq;
   return;
 }
 

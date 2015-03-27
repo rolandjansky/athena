@@ -17,10 +17,14 @@
 // AthenaPoolCnvSvc includes
 //#include "AthenaPoolCnvSvc/T_AthenaPoolTPConverter.h" (in DataLinkCnv_p1.h)
 #include "DataModelAthenaPool/DataLinkCnv_p1.h"
-#include "AthLinks/DataLink.h"
+#include "DataModel/DataLink.h"
 #include "GaudiKernel/MsgStream.h"
 #include "ParticleEvent/ParticleLinks.h"
+#define private public
+#define protected public
 #include "ParticleEvent/SelectedParticles.h"
+#undef private
+#undef protected
 #include "ParticleEventTPCnv/ParticleLinks_p1.h"
 #include <string>
 #include <iostream>
@@ -67,7 +71,7 @@ template<class Container>
 void ParticleLinksCnv_p1<Container>::transToPers(const ParticleLinks<Container>* transObj, 
 						 ParticleLinks_p1* persObj, 
 						 MsgStream &msg ){
-    msg<< MSG::DEBUG<<typeid(*transObj).name()<<" called"<<endmsg;
+    msg<< MSG::DEBUG<<typeid(*transObj).name()<<" called"<<endreq;
     //std::cout<<">>> ParticleLinksCnv_p1 "<<typeid(*transObj).name()<<" called"<<std::endl;
     if(transObj->size()==0) return;
     SelectedParticles selparts;    SelectedParticles_p1 selparts_p1;
@@ -81,14 +85,14 @@ void ParticleLinksCnv_p1<Container>::transToPers(const ParticleLinks<Container>*
     }
 
     std::string container_name=(&(*transObj)[0])->dataID();
-    msg<< MSG::DEBUG<<"Container name="<<container_name<<endmsg;
-    selparts_p1.m_bits=selparts.AllBits();
+    msg<< MSG::DEBUG<<"Container name="<<container_name<<endreq;
+    selparts_p1.m_bits=selparts.m_bits;
     persObj->setSelectedParticles_p1(selparts_p1);
     DataLink<Container> dl(container_name);
     DataLink_p1 dl_p1;
     m_dl.transToPers(&dl,&dl_p1,msg);
     persObj->setDataLink_p1(dl_p1);
-    msg << MSG::DEBUG << "Created SelectedParticles, persistent state of "<<typeid(*transObj).name()<<endmsg;
+    msg << MSG::DEBUG << "Created SelectedParticles, persistent state of "<<typeid(*transObj).name()<<endreq;
 
 }
 
@@ -100,21 +104,23 @@ void ParticleLinksCnv_p1<Container>::persToTrans(const ParticleLinks_p1* persObj
     const DataLink_p1* dl_p1=persObj->dl_p1();
     m_dl.persToTrans(dl_p1,&dl,msg);
     dl.toTransient();
-    //const Container *particles=dl.cptr();
+    const Container *particles=dl.cptr();
     const SelectedParticles_p1* selparts_p1=persObj->sel();
-    //typename Container::const_iterator ipItr = particles->begin();
-    //typename Container::const_iterator ipEnd = particles->end();
+    typename Container::const_iterator ipItr = particles->begin();
+    typename Container::const_iterator ipEnd = particles->end();
     SelectedParticles selparts;
-    selparts.Set (selparts_p1->m_bits);
     //SelectedParticles selparts(m_bits);
-    std::vector<unsigned> goodparts;
-    selparts.goodParticles (goodparts);
-    transObj->reserve(goodparts.size());
-    for (unsigned index : goodparts) {
-      transObj->emplace_back (dl.key(), index);
+    transObj->reserve(selparts.numGood());
+    selparts.m_bits=selparts_p1->m_bits;
+    unsigned ipart=0;
+    for(; ipItr != ipEnd; ++ipItr) {
+      if(selparts.isGood(ipart++)){
+	ElementLink<Container> el(*particles,ipart-1);
+	transObj->push_back(el);
+      }
     }
     
-    msg << MSG::DEBUG << "Loading "<<typeid(*transObj).name()<<"from SelectedParticles"<<endmsg;
+    msg << MSG::DEBUG << "Loading "<<typeid(*transObj).name()<<"from SelectedParticles"<<endreq;
 }
 
 #endif // not __REFLEX__

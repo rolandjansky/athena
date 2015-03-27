@@ -13,7 +13,11 @@
 // STL includes
 
 // ParticleEvent includes
+#define private public
+#define protected public
 #include "ParticleEvent/ParticleShallowClone.h"
+#undef private
+#undef protected
 
 // DataModelAthenaPool includes
 #include "DataModelAthenaPool/ElementLinkCnv_p3.h"
@@ -53,7 +57,7 @@ void ParticleShallowCloneCnv_p1::persToTrans( const ParticleShallowClone_p1* per
                                               MsgStream& msg ) 
 {
 //   msg << MSG::DEBUG << "Loading ParticleShallowClone from persistent state..."
-//       << endmsg;
+//       << endreq;
 
   // convert the 4Momentum part
   s_momCnv.persToTrans( &pers->m_momentum,
@@ -75,7 +79,7 @@ void ParticleShallowCloneCnv_p1::persToTrans( const ParticleShallowClone_p1* per
   trans->m_charge    = static_cast<ChargeType>(pers->m_charge);
 
 //   msg << MSG::DEBUG << "Loaded ParticleShallowClone from persistent state [OK]"
-//       << endmsg;
+//       << endreq;
   return;
 }
 
@@ -84,7 +88,7 @@ void ParticleShallowCloneCnv_p1::transToPers( const Analysis::ParticleShallowClo
                                               MsgStream& msg ) 
 {
 //   msg << MSG::DEBUG << "Creating persistent state of ParticleShallowClone..."
-//       << endmsg;
+//       << endreq;
 
   // convert the 4Momentum part
   s_momCnv.transToPers( &trans->momentumBase(),
@@ -106,6 +110,6 @@ void ParticleShallowCloneCnv_p1::transToPers( const Analysis::ParticleShallowClo
   pers->m_charge    = static_cast<float>(trans->m_charge);
 
 //   msg << MSG::DEBUG << "Created persistent state of ParticleShallowClone [OK]"
-//       << endmsg;
+//       << endreq;
   return;
 }

@@ -13,7 +13,11 @@
 // STL includes
 
 // ParticleEvent includes
+#define private public
+#define protected public
 #include "ParticleEvent/Neutrino.h"
+#undef private
+#undef protected
 
 // EventCommonTPCnv includes
 #include "EventCommonTPCnv/P4ImplPxPyPzECnv_p1.h"
@@ -48,7 +52,7 @@ NeutrinoCnv_p2::persToTrans( const Neutrino_p2* pers,
 			     MsgStream& msg ) 
 {
 //   msg << MSG::DEBUG << "Loading Neutrino from persistent state..."
-//       << endmsg;
+//       << endreq;
 
   // base classes
   s_momCnv.persToTrans( &pers->m_momentum,     
@@ -59,7 +63,7 @@ NeutrinoCnv_p2::persToTrans( const Neutrino_p2* pers,
 			     msg );
 
 //   msg << MSG::DEBUG << "Loaded Neutrino from persistent state [OK]"
-//       << endmsg;
+//       << endreq;
   return;
 }
 
@@ -69,7 +73,7 @@ NeutrinoCnv_p2::transToPers( const Neutrino* trans,
 			     MsgStream& msg ) 
 {
 //   msg << MSG::DEBUG << "Creating persistent state of Neutrino..."
-//       << endmsg;
+//       << endreq;
 
   // base classes
   s_momCnv.transToPers( &trans->momentumBase(), 
@@ -80,6 +84,6 @@ NeutrinoCnv_p2::transToPers( const Neutrino* trans,
 			     msg );
 
 //   msg << MSG::DEBUG << "Created persistent state of Neutrino [OK]"
-//       << endmsg;
+//       << endreq;
   return;
 }
