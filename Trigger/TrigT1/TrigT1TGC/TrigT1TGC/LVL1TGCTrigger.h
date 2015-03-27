@@ -147,10 +147,6 @@ class LVL1TGCTrigger : public AthAlgorithm
   
   int nEventInSector;
 
-  // flag for ATLAS configuration (1/12 sector cabling service)
-  //      or OldSimulation (octant cabling service)
-  bool isAtlas;
-
   // EIFI-SL connection
   TGCInnerTrackletSlotHolder m_innerTrackletSlotHolder;
   

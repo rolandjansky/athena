@@ -19,8 +19,6 @@ namespace LVL1TGCTrigger {
 
 extern bool g_OUTCOINCIDENCE;
 extern TGCCoincidences * g_TGCCOIN;
-extern bool g_SINGLEBEAM;
-extern bool g_MUHALO;
 extern bool g_DEBUGLEVEL;
 
 void TGCRPhiCoincidenceMatrix::inputR(int rIn, int dRIn, int ptRIn)
@@ -84,37 +82,16 @@ TGCRPhiCoincidenceOut* TGCRPhiCoincidenceMatrix::doCoincidence()
       subsector = 4*(2*SSCId+r)+phi[j];
     }
     
-    ////////////////////////
-    if (g_SINGLEBEAM){ // for single beam run
-      // pt=1 [MU0_TGC_HALO] W:2st, S:2st
-      // pt=4 [MU0_TGC]      W:3st, S:2st or 3st
-      // pt=5 [MU6_TGC]      W:3st |dR|<=10, S:2st or 3st
-      if ( ptR == 1 ){
-	if( std::abs(dR) <= 10 ) ptOut = 4;
-	else ptOut = 3;
-      } else {
-	ptOut = 0;
+    int type = map->getMapType(ptR, ptPhi[j]);
+    for( int pt=NumberOfPtLevel-1; pt>=0; pt-=1){
+      if(map->test(sectorLogic->getOctantID(),sectorLogic->getModuleID(),subsector,
+		   type, pt,
+		   dR,dPhi[j])) {
+	ptOut = pt;
+	break;
       }
-      ////////////////
+    } // loop pt
       
-    } else {
-      int type = map->getMapType(ptR, ptPhi[j]);
-      for( int pt=NumberOfPtLevel-1; pt>=0; pt-=1){
-	if(map->test(sectorLogic->getOctantID(),sectorLogic->getModuleID(),subsector,
-		     type, pt,
-		     dR,dPhi[j])) {
-	  ptOut = pt;
-	  break;
-	}
-      } // loop pt
-      
-      if ( g_MUHALO && ptOut<0 ) {  // include TGC_MUHALO in pt=1
-	// only 2-station coincidence holds
-	// set pt = 1 
-	ptOut = 0;
-      }   
-    }
-
     if (g_OUTCOINCIDENCE) {
       TGCCoincidence * coin
 	= new TGCCoincidence(sectorLogic->getBid(), sectorLogic->getId(), sectorLogic->getModuleID(), 

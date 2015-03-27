@@ -71,11 +71,7 @@ bool TGCRPhiCoincidenceMap::checkVersion()
 
   // select right database according to a set of thresholds
   std::string dbname="";
-  if ( TGCDatabaseManager::IsAtlas()) { 
-    dbname = "RPhiCoincidenceMap."+m_verName+"._12.db";
-  } else {
-    dbname = "RPhiCoincidenceMap."+m_verName+".db";
-  }
+  dbname = "RPhiCoincidenceMap."+m_verName+"._12.db";
 
   //----- 
   std::string fullName;
@@ -88,13 +84,8 @@ bool TGCRPhiCoincidenceMap::checkVersion()
 	  << " Default set is chosen !!" << endreq;
     }
     // default set 
-    if ( TGCDatabaseManager::IsAtlas()) { 
-      m_verName = "setM";
-      dbname = "RPhiCoincidenceMap."+m_verName+"._12.db";
-    } else {
-      m_verName = "setD";
-      dbname = "RPhiCoincidenceMap."+m_verName+".db";
-    }
+    m_verName = "setM";
+    dbname = "RPhiCoincidenceMap."+m_verName+"._12.db";
     fullName = PathResolver::find_file( dbname.c_str(), "DATAPATH" );
     isFound =( fullName.length() > 0 );
   } 
@@ -204,22 +195,17 @@ bool TGCRPhiCoincidenceMap::readMap()
     int phimod2=ModuleName[iModule].find("b")!=std::string::npos ? 1 : 0;
     std::ostringstream modName;
     std::string fn = "RPhiCoincidenceMap.mod" 
-                      + ModuleName[iModule] + "." + m_verName;
+                      + ModuleName[iModule] + "." + m_verName +"._12.db";
     if (m_fullCW) {
       if ( (m_side>=0) && (m_side<NumberOfSide) && 
 	   (m_octant>=0) && (m_octant<NumberOfOctant)) {
 	fn = "RPhiCoincidenceMap." 
 	              + SideName[m_side] + OctantName[m_octant]  
                       + ".mod" + ModuleName[iModule] 
-                      + "." + m_verName;
+                      + "." + m_verName +"._12.db";
       } 
     }
 
-    if ( TGCDatabaseManager::IsAtlas()) { 
-      fn = fn +"._12.db";
-    } else {
-      fn = fn + ".db";
-    }
     fullName = PathResolver::find_file( fn.c_str(), "DATAPATH" );
     if( fullName.length() == 0 ) { 
       log << MSG::ERROR 

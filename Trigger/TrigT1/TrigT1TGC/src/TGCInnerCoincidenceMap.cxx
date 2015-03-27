@@ -74,8 +74,7 @@ TGCInnerCoincidenceMap::TGCInnerCoincidenceMap()
   }
 
   if (!g_USE_INNER) return;
-  if (!TGCDatabaseManager::IsAtlas()) return; 
-
+ 
   //////////////////////////////
   IMessageSvc* msgSvc = 0;
   ISvcLocator* svcLocator = Gaudi::svcLocator();

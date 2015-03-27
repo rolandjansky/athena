@@ -35,8 +35,7 @@ void TGCElectronicsSystem::distributeSignal(LVL1TGCTrigger::TGCEvent* event)
 
 TGCElectronicsSystem::TGCElectronicsSystem()
   :DB(0),
-   tmdb(0),
-   fAtlas(true)
+   tmdb(0)
 {
   for(int side=0; side < NumberOfSide; side++){
     for(int oct=0; oct < NumberOfOctant; oct++){
@@ -50,10 +49,9 @@ TGCElectronicsSystem::TGCElectronicsSystem()
 }
 
 TGCElectronicsSystem::TGCElectronicsSystem(TGCDatabaseManager* database,
-					   bool                isAtlas):
+					   bool                ):
   DB(database),
-  tmdb(0),
-  fAtlas(isAtlas)
+  tmdb(0)
 { 
   // TileMu
   tmdb = new TGCTMDB();
@@ -119,50 +117,45 @@ TGCForwardBackwardType TGCElectronicsSystem::getForwardBackward(int side, int oc
   }
   
   TGCForwardBackwardType forwardBackward = ForwardSector;
-  if (fAtlas) {
-    // for new cabling service 
-    // A-side : side == 0
-    // C-side : side == 1 
-    bool isAside = (side ==0);
 
-    // backward/Forward definition is same 
-    // compared with TGCIdBase::isBackward() in TGCcablingInterface
-    // because strip layer is swapped in default
-    if ( isEndcap ){
-      if (!isInner){
-	if(isAside) {
-	  if (sec%2==0) forwardBackward = ForwardSector;
-	  else          forwardBackward = BackwardSector;
-	} else {
-	  if (sec%2==1) forwardBackward = ForwardSector;
-	  else          forwardBackward = BackwardSector;
-	}
+  // for new cabling service 
+  // A-side : side == 0
+  // C-side : side == 1 
+  bool isAside = (side ==0);
+  
+  // backward/Forward definition is same 
+  // compared with TGCIdBase::isBackward() in TGCcablingInterface
+  // because strip layer is swapped in default
+  if ( isEndcap ){
+    if (!isInner){
+      if(isAside) {
+	if (sec%2==0) forwardBackward = ForwardSector;
+	else          forwardBackward = BackwardSector;
       } else {
-	// EI
-	// Special case of EI11
-	if (sec == 15) {
-	  if(isAside ) forwardBackward = ForwardSector;
-	  else          forwardBackward = BackwardSector;
-	} else if (sec == 16) {
-	  if(isAside ) forwardBackward = BackwardSector;
-	  else          forwardBackward = ForwardSector;
-	} else {
-	  if (isAside) {  
-	    if (sec%3==2) forwardBackward = BackwardSector;
-	    else          forwardBackward = ForwardSector;
-	  } else {
-	    if (sec%3!=2) forwardBackward = BackwardSector;
-	  else          forwardBackward = ForwardSector;
-	  }
-	}
+	if (sec%2==1) forwardBackward = ForwardSector;
+	else          forwardBackward = BackwardSector;
       }
     } else {
-      if(isAside) forwardBackward = BackwardSector; // all Backward
-      else         forwardBackward = ForwardSector;  // all Forward 
+      // EI
+      // Special case of EI11
+      if (sec == 15) {
+	if(isAside ) forwardBackward = ForwardSector;
+	else          forwardBackward = BackwardSector;
+      } else if (sec == 16) {
+	if(isAside ) forwardBackward = BackwardSector;
+	else          forwardBackward = ForwardSector;
+      } else {
+	if (isAside) {  
+	  if (sec%3==2) forwardBackward = BackwardSector;
+	  else          forwardBackward = ForwardSector;
+	} else {
+	  if (sec%3!=2) forwardBackward = BackwardSector;
+	  else          forwardBackward = ForwardSector;
+	}
+      }
     }
   } else {
-    // old cabling (8-fold)
-    if (sec%2==side) forwardBackward = BackwardSector;
+    forwardBackward = BackwardSector; // all Backward
   }
   return forwardBackward;
 }
@@ -195,7 +188,7 @@ TGCElectronicsSystem::~TGCElectronicsSystem()
 
 // hiddedn copy constructor
 TGCElectronicsSystem::TGCElectronicsSystem(const TGCElectronicsSystem& )
-  : DB(0), tmdb(0), fAtlas(true)
+  : DB(0), tmdb(0)
 {
   for( int i=0; i<NumberOfSide; i+=1){
     for( int j=0; j<NumberOfOctant; j+=1) {
