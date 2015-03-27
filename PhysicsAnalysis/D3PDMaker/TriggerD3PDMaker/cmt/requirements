@@ -31,7 +31,6 @@ use TrigConfInterfaces         TrigConfInterfaces-*     Trigger/TrigConfiguratio
 use TrigConfigSvc              TrigConfigSvc-*          Trigger/TrigConfiguration
 use TrigConfL1Data             TrigConfL1Data-*         Trigger/TrigConfiguration
 use TrigConfHLTData            TrigConfHLTData-*        Trigger/TrigConfiguration
-use TrigDecisionEvent          TrigDecisionEvent-*      Trigger/TrigEvent
 use TrigAnalysisInterfaces     TrigAnalysisInterfaces-* Trigger/TrigAnalysis
 use TriggerMenuNtuple          TriggerMenuNtuple-*      Trigger/TrigAnalysis
 use TriggerMenuAnalysis        TriggerMenuAnalysis-*    Trigger/TrigAnalysis
