@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TrigDecisionFillerTool.h 734655 2016-04-07 17:09:12Z ssnyder $
+// $Id: TrigDecisionFillerTool.h 593763 2014-04-22 15:03:09Z fpastore $
 #ifndef TRIGGERD3PDMAKER_TRIGDECISIONFILLERTOOL_H
 #define TRIGGERD3PDMAKER_TRIGDECISIONFILLERTOOL_H
 
@@ -13,6 +13,7 @@
 #include "GaudiKernel/ServiceHandle.h"
 
 // Trigger include(s):
+#include "TrigDecisionTool/TrigDecisionTool.h"
 #include "TrigConfInterfaces/ITrigConfigSvc.h"
 
 // D3PD include(s):
@@ -21,9 +22,6 @@
 // Forward declaration(s):
 namespace TrigConf {
    class HLTChain;
-}
-namespace Trig {
-   class TrigDecisionTool;
 }
 
 namespace D3PD {
@@ -44,8 +42,8 @@ namespace D3PD {
     *
     * @author Attila Krasznahorkay Jr.
     *
-    * $Revision: 734655 $
-    * $Date: 2016-04-07 19:09:12 +0200 (Thu, 07 Apr 2016) $
+    * $Revision: 593763 $
+    * $Date: 2014-04-22 17:03:09 +0200 (Tue, 22 Apr 2014) $
     */
    class TrigDecisionFillerTool : public BlockFillerTool< void > {
 

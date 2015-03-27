@@ -18,7 +18,6 @@
 #include "AthenaKernel/errorcheck.h"
 #include <sstream>
 
-// Note: this tool is failing in 20.7+ when used on MC. To be fixed if still needed used...
 
 namespace D3PD {
 
@@ -75,9 +74,9 @@ TriggerKeyTool::Keys TriggerKeyTool::getKeys() const
        keys.first < 0 || keys.second.first < 0 || keys.second.second < 0 )
   {
     // See if we are reading an AOD:
-    const TrigConf::DSConfigSvc* dsSvc = 0;
+    TrigConf::DSConfigSvc* dsSvc = 0;
     if (m_dsSvc)
-      dsSvc = dynamic_cast<const TrigConf::DSConfigSvc*> (&*m_dsSvc);
+      dsSvc = dynamic_cast<TrigConf::DSConfigSvc*> (&*m_dsSvc);
      
     if( ! dsSvc ) {
       REPORT_MESSAGE( MSG::ERROR )
@@ -113,8 +112,8 @@ std::string TriggerKeyTool::getString() const
   }
 
   if (m_dsSvc) {
-    const TrigConf::DSConfigSvc* dsSvc =
-      dynamic_cast<const TrigConf::DSConfigSvc*> (&*m_dsSvc);
+    TrigConf::DSConfigSvc* dsSvc =
+      dynamic_cast<TrigConf::DSConfigSvc*> (&*m_dsSvc);
     if (dsSvc)
       return dsSvc->configurationSource();
   }

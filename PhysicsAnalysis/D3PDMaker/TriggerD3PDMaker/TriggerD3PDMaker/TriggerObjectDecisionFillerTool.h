@@ -104,9 +104,7 @@ private:
 } // namespace D3PD
 
 
-#ifndef TRIGGERD3PDMAKER_ENTRIES_FILE
 #include "TriggerD3PDMaker/TriggerObjectDecisionFillerTool.icc"
-#endif
 
 
 #endif // not TRIGGERD3PDMAKER_TRIGGEROBJECTDECISIONFILLERTOOL_H
