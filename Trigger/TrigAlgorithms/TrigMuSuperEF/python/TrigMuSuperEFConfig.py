@@ -44,6 +44,10 @@ class TrigMuSuperEFConfig(TrigMuSuperEF):
         doCaloTagOnly    = kwargs["CaloTagOnly"]
         combinerOnly     = kwargs["CombinerOnly"]
         doCosmics        = jobproperties.Beam.beamType == 'cosmics'
+        
+        # turn on seeded data decoding by default
+        TriggerFlags.MuonSlice.doEFRoIDrivenAccess = True
+        
         # make instance
         super(TrigMuSuperEFConfig,self).__init__(name,**kwargs)
 

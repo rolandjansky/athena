@@ -195,24 +195,48 @@ void TrigMuSuperEF::clearRoiCache(){
 HLT::ErrorCode 
 TrigMuSuperEF::prepareRobRequests(const HLT::TriggerElement* input){
 
-  ATH_MSG_DEBUG( "PREPARE ROB REQUESTS CALLED");
+  ATH_MSG_DEBUG("prepareRobRequests called");
 
   HLT::RobRequestInfo* RRInfo = config()->robRequestInfo();
-  if(m_doOutsideIn){
-    const IRoiDescriptor* muonRoI = getRoiDescriptor(input, 0);
-    const std::vector<uint32_t>& MdtRobList = m_TrigMuonEF_saTrackTool->getMdtRobList(muonRoI);
-    const std::vector<uint32_t>& RpcRobList = m_TrigMuonEF_saTrackTool->getRpcRobList(muonRoI);
-    const std::vector<uint32_t>& TgcRobList = m_TrigMuonEF_saTrackTool->getTgcRobList(muonRoI);
-    const std::vector<uint32_t>& CscRobList = m_TrigMuonEF_saTrackTool->getCscRobList(muonRoI);
 
-    RRInfo->addRequestScheduledRobIDs(MdtRobList);
-    RRInfo->addRequestScheduledRobIDs(RpcRobList);
-    RRInfo->addRequestScheduledRobIDs(TgcRobList);
-    RRInfo->addRequestScheduledRobIDs(CscRobList);
+  const IRoiDescriptor* muonRoI = getRoiDescriptor(input, 0);
+  
+  std::vector<uint32_t> MdtRobList;
+  std::vector<uint32_t> RpcRobList;
+  std::vector<uint32_t> TgcRobList;
+  std::vector<uint32_t> CscRobList;
+  
+  //MDT
+  if (m_TrigMuonEF_saTrackTool->useMdtSeededDecoding())
+    MdtRobList = m_TrigMuonEF_saTrackTool->getMdtRobList(muonRoI);
+  else
+    MdtRobList = m_TrigMuonEF_saTrackTool->getMdtRobList(0);
+  
+  //RPC
+  if (m_TrigMuonEF_saTrackTool->useRpcSeededDecoding())
+    RpcRobList = m_TrigMuonEF_saTrackTool->getRpcRobList(muonRoI);
+  else
+    RpcRobList = m_TrigMuonEF_saTrackTool->getRpcRobList(0);
+  
+  //TGC
+  if (m_TrigMuonEF_saTrackTool->useTgcSeededDecoding())
+    TgcRobList = m_TrigMuonEF_saTrackTool->getTgcRobList(muonRoI);
+  else
+    TgcRobList = m_TrigMuonEF_saTrackTool->getTgcRobList(0);
+  
+  //CSC
+  if (m_TrigMuonEF_saTrackTool->useCscSeededDecoding())
+    CscRobList = m_TrigMuonEF_saTrackTool->getCscRobList(muonRoI);
+  else
+    CscRobList = m_TrigMuonEF_saTrackTool->getCscRobList(0);
+  
+  RRInfo->addRequestScheduledRobIDs(MdtRobList);
+  RRInfo->addRequestScheduledRobIDs(RpcRobList);
+  RRInfo->addRequestScheduledRobIDs(TgcRobList);
+  RRInfo->addRequestScheduledRobIDs(CscRobList);
+  
+  ATH_MSG_DEBUG( "prepareRobRequests found "<<MdtRobList.size()<<" MDT ROBs, "<<RpcRobList.size()<<" RPC ROBs, "<<TgcRobList.size()<< "TGC ROBs, and "<<CscRobList.size()<< " CSC ROBs");
 
-    ATH_MSG_DEBUG( "Calling prepareRobRequests, find "<<MdtRobList.size()<<" Mdt Rob's, "<<RpcRobList.size()<<" Rpc Rob's, "<<TgcRobList.size()<< "Tgc Rob's, and "<<CscRobList.size()<< " Csc Rob's");
-
-  }
 return HLT::OK;
 }
 // ----------------------------------------
@@ -544,9 +568,9 @@ HLT::ErrorCode TrigMuSuperEF::runCombinerOnly(const HLT::TriggerElement* inputTE
     // build muon candidates from the xAOD muons
     MuonCandidateCollection muonCandidates;
     for(auto muon : *lastMuons) {
-      const ElementLink<xAOD::TrackParticleContainer>& saTrackLink = muon->muonSpectrometerTrackParticleLink();
-      if(saTrackLink.isValid() && muon->isAvailable< ElementLink<xAOD::TrackParticleContainer> >("msTrackLink")) {
-	const ElementLink<xAOD::TrackParticleContainer> msTrackLink = muon->auxdata< ElementLink<xAOD::TrackParticleContainer> >("msTrackLink");
+      const ElementLink<xAOD::TrackParticleContainer>& saTrackLink = muon->extrapolatedMuonSpectrometerTrackParticleLink();
+      if(saTrackLink.isValid() && muon->muonSpectrometerTrackParticleLink()) {
+	const ElementLink<xAOD::TrackParticleContainer> msTrackLink = muon->muonSpectrometerTrackParticleLink();
 	// for now have to deep copy the extrapolated track (MuonCandidate takes ownership)
 	// Upgraded MuonCandidate in future should allow MuonCandidate( msTrackLink, saTrackLink ) without the copy
 	if(msTrackLink.isValid()) muonCandidates.push_back( new MuonCombined::MuonCandidate( msTrackLink, new Trk::Track(*((*saTrackLink)->track())) ) );
@@ -1187,8 +1211,8 @@ void TrigMuSuperEF::fillMonitoringVars(  ) {
     ATH_MSG_DEBUG("muon type " << muon->muonType() << " muon pt " << muon->pt() << " trk d0 " << trkpart->d0() << " trk z0 " << trkpart->z0() << " trk chi2 " <<trkpart->chiSquared() << " trk charge "<<trkpart->charge());
     ++nTracks;
     if(m_debug) {
-      if(muon->isAvailable< ElementLink<xAOD::TrackParticleContainer> >("msTrackLink")) {
-	const ElementLink<xAOD::TrackParticleContainer> msTrackLink = muon->auxdata< ElementLink<xAOD::TrackParticleContainer> >("msTrackLink");
+      if(muon->muonSpectrometerTrackParticleLink()) {
+	const ElementLink<xAOD::TrackParticleContainer> msTrackLink = muon->muonSpectrometerTrackParticleLink();
 	if(msTrackLink.isValid()) ATH_MSG_DEBUG(" muon MS track before extrapolation pt = " << (*msTrackLink)->pt());
 	else ATH_MSG_DEBUG(" muon MS track before extrapolation is not valid");
       } else ATH_MSG_DEBUG( " no MS track link available for this muon");
@@ -1260,8 +1284,8 @@ void TrigMuSuperEF::fillCBMonitoringVars() {
     ATH_MSG_DEBUG("muon type " << muon->muonType() << " muon pt " << muon->pt() << " trk d0 " << trkpart->d0() << " trk z0 " << trkpart->z0() << " trk chi2 " <<trkpart->chiSquared() << " trk charge "<<trkpart->charge());
     ++nTracks;
     if(m_debug) {
-      if(muon->isAvailable< ElementLink<xAOD::TrackParticleContainer> >("msTrackLink")) {
-	const ElementLink<xAOD::TrackParticleContainer> msTrackLink = muon->auxdata< ElementLink<xAOD::TrackParticleContainer> >("msTrackLink");
+      if(muon->muonSpectrometerTrackParticleLink()) {
+	const ElementLink<xAOD::TrackParticleContainer> msTrackLink = muon->muonSpectrometerTrackParticleLink();
 	if(msTrackLink.isValid()) ATH_MSG_DEBUG(" muon MS track before extrapolation pt = " << (*msTrackLink)->pt());
 	else ATH_MSG_DEBUG(" muon MS track before extrapolation is not valid");
       } else ATH_MSG_DEBUG( " no MS track link available for this muon");
