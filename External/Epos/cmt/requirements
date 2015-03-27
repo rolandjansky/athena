@@ -5,10 +5,11 @@ author  Sami Kama <sami.kama@cern.ch>
 use AtlasPolicy       AtlasPolicy-*
 use LCG_Configuration
 use AtlasExternalArea AtlasExternalArea-* External
-
+macro LCG_config_version = 67c
 # to be fixed when epos is properly installed in LCG
 macro Epos_home "$(LCG_ROOT)/external/MCGenerators_lcgcmt$(LCG_config_version)/crmc"
-macro EPOS_native_version "v3400"
+#macro Epos_home "$(LCG_external)/MCGenerators/crmc"
+macro EPOS_native_version "1.3"
 macro Epos_native_version "$(EPOS_native_version)_lcgcmt$(LCG_config_version)"
 macro Epos_system "$(LCG_ext_system)" \
       slc4&gcc43&32 "slc4_ia32_gcc34" \
