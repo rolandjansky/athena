@@ -282,10 +282,10 @@ MaterialAllocator::addLeadingMaterial (std::list<FitMeasurement*>&	measurements,
 	// leading material identified by outwards extrapolateM from perigee to delimiter
 	// FIXME: currently only for indet
 	// first create the fitted perigee (ignoring the leading material)
-	Perigee perigee(fitParameters.position(),
-			p*fitParameters.direction(),
-			charge,
-			fitParameters.vertex());
+	Perigee* perigee						= new Perigee(fitParameters.position(),
+										      p*fitParameters.direction(),
+										      charge,
+										      fitParameters.vertex());
 	bool haveMaterial						= false;
 	const std::vector<const TrackStateOnSurface*>* indetMaterial	= 0;
 	if (haveDelimiter && intersection && surface && m_indetVolume->inside(endPosition))
@@ -301,7 +301,7 @@ MaterialAllocator::addLeadingMaterial (std::list<FitMeasurement*>&	measurements,
 	    
 	    // extrapolateM from perigee to get leading material
 	    indetMaterial = extrapolatedMaterial(m_extrapolator,
-						 perigee,
+						 *perigee,
 						 *surface,
 						 alongMomentum,
 						 false,
@@ -357,7 +357,7 @@ MaterialAllocator::addLeadingMaterial (std::list<FitMeasurement*>&	measurements,
 		
 		indetMaterialR = extrapolatedMaterial(m_extrapolator,
 						      parameters,
-						      perigee.associatedSurface(),
+						      perigee->associatedSurface(),
 						      oppositeMomentum,
 						      false,
 						      particleHypothesis);
@@ -387,7 +387,6 @@ MaterialAllocator::addLeadingMaterial (std::list<FitMeasurement*>&	measurements,
 		    indetMaterialF	= 0;
 		}
 	    }
-	    delete indetMaterialF;
 	    delete indetMaterialR;
 	    delete plane;
 	}
@@ -397,7 +396,7 @@ MaterialAllocator::addLeadingMaterial (std::list<FitMeasurement*>&	measurements,
 	{
 	    Amg::Vector3D direction     = intersection->direction();
 	    Amg::Vector3D startPosition = intersection->position();
-	    double p1 			= indetMaterial->front()->trackParameters()->momentum().mag();
+	    double p1 			= perigee->momentum().mag();
 	    
 	    for (std::vector<const TrackStateOnSurface*>::const_iterator s = indetMaterial->begin();
 		 s != indetMaterial->end();
@@ -552,7 +551,7 @@ MaterialAllocator::addLeadingMaterial (std::list<FitMeasurement*>&	measurements,
 	// final step to give intersection at perigee surface plus memory management
 	if (leadingMeas)
 	{
-	    intersection	= m_intersector->intersectSurface(perigee.associatedSurface(),
+	    intersection	= m_intersector->intersectSurface(perigee->associatedSurface(),
 								  intersection,
 								  qOverP);
 	}
@@ -560,7 +559,8 @@ MaterialAllocator::addLeadingMaterial (std::list<FitMeasurement*>&	measurements,
 	{
 	    delete intersection;
 	    intersection	= 0;
-	}	
+	}
+	delete perigee;
 	deleteMaterial(indetMaterial);
 	indetMaterial	= 0;
     }
@@ -720,22 +720,27 @@ MaterialAllocator::initializeScattering (std::list<FitMeasurement*>&	measurement
 		}
 	    }
 	
-	    integrate		=  true;
+	    integrate		 =  true;
             double thicknessInX0 = (**m).materialEffects()->thicknessInX0();
-            if( (**m).materialEffects()->thicknessInX0() < 0. ){
-              ATH_MSG_WARNING("thicknessInX0 smaller or equal to zero " <<  (**m).materialEffects()->thicknessInX0()
-                              << " " << *(**m).materialEffects());
-              thicknessInX0 = 1e-6;
+            if ((**m).materialEffects()->thicknessInX0() < 0. )
+	    {
+		ATH_MSG_WARNING( "thicknessInX0 smaller or equal to zero "
+				 << (**m).materialEffects()->thicknessInX0()
+				 << " " << *(**m).materialEffects() );
+		thicknessInX0	= 1e-6;
             }
 	    X0Integral		+= thicknessInX0;
-            double logTerm = 1.;
-            if( X0Integral > 0. ){ 
-              logTerm	=  1.0 + m_scatteringLogCoeff*std::log(X0Integral);
-            }else{
-              ATH_MSG_WARNING("X0Integral smaller or equal to zero " << X0Integral 
-                              << " thicknessInX0 " <<  (**m).materialEffects()->thicknessInX0()
-                              << " " << *(**m).materialEffects());
-              X0Integral = 1e-6;
+            double logTerm	=  1.;
+            if (X0Integral > 0.)
+	    { 
+		logTerm		=  1.0 + m_scatteringLogCoeff*std::log(X0Integral);
+            }
+	    else
+	    {
+		ATH_MSG_WARNING( "X0Integral smaller or equal to zero " << X0Integral 
+				 << " thicknessInX0 " <<  (**m).materialEffects()->thicknessInX0()
+				 << " " << *(**m).materialEffects() );
+		X0Integral	= 1e-6;
             }
             double scattering	=  X0Integral*logTerm*logTerm;
             double angle	=  m_scatteringConstant * std::sqrt(scattering-previousScattering);
@@ -1171,12 +1176,12 @@ MaterialAllocator::deleteMaterial (const std::vector<const TrackStateOnSurface*>
 }
 
 const std::vector<const TrackStateOnSurface*>*
-MaterialAllocator::extrapolatedMaterial (ToolHandle<IExtrapolator>	extrapolator,
-					 const TrackParameters&		parameters,
-					 const Surface&			surface,
-					 PropDirection			dir,
-					 BoundaryCheck			boundsCheck,
-					 ParticleHypothesis		particleHypothesis) const
+MaterialAllocator::extrapolatedMaterial (const ToolHandle<IExtrapolator>&	extrapolator,
+					 const TrackParameters&			parameters,
+					 const Surface&				surface,
+					 PropDirection				dir,
+					 BoundaryCheck				boundsCheck,
+					 ParticleHypothesis			particleHypothesis) const
 {
     // fix up material duplication appearing after recent TrackingGeometry speed-up
     const std::vector<const TrackStateOnSurface*>* TGMaterial =
@@ -1249,6 +1254,7 @@ MaterialAllocator::indetMaterial (std::list<FitMeasurement*>&	measurements,
 	    // use first measurement at a plane surface to create starting parameters
 	    if (! (**m).isPositionMeasurement()) continue;
 	    if (! endIndetMeasurement
+		&& (**m).hasIntersection(FittedTrajectory)
 		&& ((**m).surface()->type()	== Surface::SurfaceType::Plane
 		    || (**m).surface()->type()	== Surface::SurfaceType::Disc ))
 	    {
@@ -1260,9 +1266,10 @@ MaterialAllocator::indetMaterial (std::list<FitMeasurement*>&	measurements,
 									  intersection,
 									  qOverP);
 		Amg::Vector2D localPos;
-		if (plane.globalToLocal(intersection->position(),
-					intersection->direction(),
-					localPos))
+		if (intersection
+		    && plane.globalToLocal(intersection->position(),
+					   intersection->direction(),
+					   localPos))
 		{
 		    parameters		= new AtaPlane(localPos[locR],
 						       localPos[locZ],
@@ -1290,7 +1297,11 @@ MaterialAllocator::indetMaterial (std::list<FitMeasurement*>&	measurements,
 	    break;
 	}
     }
-    if (! endIndetMeasurement) return;
+    if (! endIndetMeasurement)
+    {
+	if (parameters != &startParameters)	delete parameters;
+	return;
+    }
     
     // allocate indet material from TrackingGeometry
     Amg::Vector3D endPosition	= endIndetMeasurement->intersection(FittedTrajectory).position();
@@ -1305,7 +1316,7 @@ MaterialAllocator::indetMaterial (std::list<FitMeasurement*>&	measurements,
 			     false,
 			     particleHypothesis);
 
-    if (parameters != &startParameters)	delete parameters;
+    if (parameters != &startParameters) 	delete parameters;
     if (! indetMaterial || indetMaterial->empty())
     {
 	deleteMaterial(indetMaterial);
@@ -2532,18 +2543,20 @@ MaterialAllocator::spectrometerMaterial (std::list<FitMeasurement*>&	measurement
 	    // insert next to adjacent measurement
 	    material.push_back(measurement);
 	    double distance = startDirection.dot(tsos.trackParameters()->position() - startPosition);
-	    if (distance > endSpectrometerDistance) {
-	      delete measurement;
-	      break;
+	    if (distance > endSpectrometerDistance)
+	    {
+		delete measurement;
+		break;
 	    }
 	    while (m != measurements.end()
 		   && distance > startDirection.dot((**m).intersection(FittedTrajectory).position() - startPosition)) 
-	      {
+	    {
 		++m;
-	      }
-	    if (m == measurements.end()) {
-	      delete measurement;
-	      break;
+	    }
+	    if (m == measurements.end())
+	    {
+		delete measurement;
+		break;
 	    }
 
 	    m = measurements.insert(m,material.back());	    

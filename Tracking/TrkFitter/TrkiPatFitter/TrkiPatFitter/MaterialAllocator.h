@@ -92,12 +92,12 @@ private:
 
     // extrapolateM wrapper
     const std::vector<const TrackStateOnSurface*>*	extrapolatedMaterial (
-	ToolHandle<IExtrapolator>	extrapolator,
-	const TrackParameters&		parameters,
-	const Surface&			surface,
-	PropDirection			dir,
-	BoundaryCheck			boundsCheck,
-	ParticleHypothesis		particleHypothesis) const;
+	const ToolHandle<IExtrapolator>&	extrapolator,
+	const TrackParameters&			parameters,
+	const Surface&				surface,
+	PropDirection				dir,
+	BoundaryCheck				boundsCheck,
+	ParticleHypothesis			particleHypothesis) const;
 
     // allocate material in inner detector
     void	indetMaterial (std::list<FitMeasurement*>&		measurements,
