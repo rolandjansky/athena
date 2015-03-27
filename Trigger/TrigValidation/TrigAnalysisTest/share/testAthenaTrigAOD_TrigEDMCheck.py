@@ -92,15 +92,17 @@ StatusCodeSvc.AbortOnError=False
 from TrigValAlgs.TrigValAlgsConfig import TrigEDMChecker
 TrigEDMChecker = TrigEDMChecker("TrigEDMChecker")
 
+from TrigDecisionTool.TrigDecisionToolConf import Trig__TrigDecisionTool
+ToolSvc += Trig__TrigDecisionTool( "TrigDecisionTool" )
+
+from TrigEDMConfig.TriggerEDM import EDMLibraries
+ToolSvc.TrigDecisionTool.Navigation.Dlls = EDMLibraries
+
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
 topSequence += TrigEDMChecker
 TrigEDMChecker.doDumpAll = True
 
-
-
-from TrigEDMConfig.TriggerEDM import EDMLibraries 
-ToolSvc.TrigDecisionTool.Navigation.Dlls = EDMLibraries 
 
 
 include("TriggerTest/TriggerTestCommon.py")

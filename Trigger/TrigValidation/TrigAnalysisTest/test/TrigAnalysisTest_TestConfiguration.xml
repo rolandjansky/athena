@@ -162,16 +162,16 @@
             </expectations> 
         </TEST> 
         
-        <TEST name= "AthenaTrigAOD_TrigSlimValidation" type="script" suite="triganalysis_val"> 
-            <options_atn>trigtest.pl - -test AthenaTrigAOD_TrigSlimValidation - -run AthenaTrigAOD_TrigSlimValidation - -conf TrigAnalysisTest.conf</options_atn> 
-            <timelimit>30</timelimit> 
-            <author>TrigAnalysis validation</author> 
-            <mailto> Benjamin.Smith@cern.ch</mailto> 
-            <expectations> 
-                <errorMessage>FAILURE </errorMessage> 
-                <returnValue>0</returnValue> 
-            </expectations> 
-        </TEST> 
+        <!--TEST name= "AthenaTrigAOD_TrigSlimValidation" type="script" suite="triganalysis_val"> 
+         <options_atn>trigtest.pl - -test AthenaTrigAOD_TrigSlimValidation - -run AthenaTrigAOD_TrigSlimValidation - -conf TrigAnalysisTest.conf</options_atn> 
+         <timelimit>30</timelimit> 
+         <author>TrigAnalysis validation</author> 
+         <mailto> Benjamin.Smith@cern.ch</mailto> 
+         <expectations> 
+         <errorMessage>FAILURE </errorMessage> 
+         <returnValue>0</returnValue> 
+         </expectations> 
+         </TEST--> 
         
         <!--TEST name= "AthenaTrigAOD_UnslimVal" type="script" suite="triganalysis_val"> 
          <options_atn>trigtest.pl - -test AthenaTrigAOD_UnslimVal - -run AthenaTrigAOD_UnslimVal - -conf TrigAnalysisTest.conf</options_atn> 
@@ -262,15 +262,15 @@
         <!-- EDM backwards compatibility tests -->
         
         <!--TEST name= "BackCompAthenaTrigBStoESDAOD_2010" type="script" suite="triganalysis_val"> 
-            <options_atn>trigtest.pl - -test BackCompAthenaTrigBStoESDAOD_2010 - -run BackCompAthenaTrigBStoESDAOD_2010 - -conf TrigAnalysisTest.conf</options_atn> 
-            <timelimit>45</timelimit> 
-            <author>TrigAnalysis validation</author> 
-            <mailto> p.f.salvatore@sussex.ac.uk </mailto> 
-            <expectations> 
-                <errorMessage>FAILURE </errorMessage> 
-                <returnValue>0</returnValue> 
-            </expectations> 
-        </TEST--> 
+         <options_atn>trigtest.pl - -test BackCompAthenaTrigBStoESDAOD_2010 - -run BackCompAthenaTrigBStoESDAOD_2010 - -conf TrigAnalysisTest.conf</options_atn> 
+         <timelimit>45</timelimit> 
+         <author>TrigAnalysis validation</author> 
+         <mailto> p.f.salvatore@sussex.ac.uk </mailto> 
+         <expectations> 
+         <errorMessage>FAILURE </errorMessage> 
+         <returnValue>0</returnValue> 
+         </expectations> 
+         </TEST--> 
         
         <TEST name= "BackCompAthenaTrigBStoESDAOD" type="script" suite="triganalysis_val"> 
             <options_atn>trigtest.pl --test BackCompAthenaTrigBStoESDAOD --run BackCompAthenaTrigBStoESDAOD --conf TrigAnalysisTest.conf</options_atn> 
@@ -283,27 +283,27 @@
             </expectations> 
         </TEST> 
         
-        <TEST name="BackCompAthenaTrigAOD_TrigDecTool" type="script" suite="triganalysis_val"> 
-            <options_atn>trigtest.pl --test BackCompAthenaTrigAOD_TrigDecTool --run BackCompAthenaTrigAOD_TrigDecTool --conf TrigAnalysisTest.conf</options_atn> 
-            <timelimit>30</timelimit> 
-            <author>TrigAnalysis validation</author> 
-            <mailto> p.f.salvatore@sussex.ac.uk </mailto> 
-            <expectations> 
-                <errorMessage>FAILURE </errorMessage> 
-                <returnValue>0</returnValue> 
-            </expectations> 
-        </TEST> 
-        
-        <TEST name="BackCompAthenaTrigAOD_TrigEDMCheck" type="script" suite="triganalysis_val"> 
-            <options_atn>trigtest.pl --test BackCompAthenaTrigAOD_TrigEDMCheck --run  BackCompAthenaTrigAOD_TrigEDMCheck --conf TrigAnalysisTest.conf</options_atn> 
-            <timelimit>30</timelimit> 
-            <author>TrigAnalysis validation</author> 
-            <mailto> p.f.salvatore@sussex.ac.uk </mailto> 
-            <expectations> 
-                <errorMessage>FAILURE </errorMessage> 
-                <returnValue>0</returnValue> 
-            </expectations> 
-        </TEST> 
+        <!--TEST name="BackCompAthenaTrigAOD_TrigDecTool" type="script" suite="triganalysis_val"> 
+         <options_atn>trigtest.pl - -test BackCompAthenaTrigAOD_TrigDecTool - -run BackCompAthenaTrigAOD_TrigDecTool - -conf TrigAnalysisTest.conf</options_atn> 
+         <timelimit>30</timelimit> 
+         <author>TrigAnalysis validation</author> 
+         <mailto> p.f.salvatore@sussex.ac.uk </mailto> 
+         <expectations> 
+         <errorMessage>FAILURE </errorMessage> 
+         <returnValue>0</returnValue> 
+         </expectations> 
+         </TEST> 
+         
+         <TEST name="BackCompAthenaTrigAOD_TrigEDMCheck" type="script" suite="triganalysis_val"> 
+         <options_atn>trigtest.pl - -test BackCompAthenaTrigAOD_TrigEDMCheck - -run  BackCompAthenaTrigAOD_TrigEDMCheck - -conf TrigAnalysisTest.conf</options_atn> 
+         <timelimit>30</timelimit> 
+         <author>TrigAnalysis validation</author> 
+         <mailto> p.f.salvatore@sussex.ac.uk </mailto> 
+         <expectations> 
+         <errorMessage>FAILURE </errorMessage> 
+         <returnValue>0</returnValue> 
+         </expectations> 
+         </TEST--> 
         
         <!-- Summary table -->
         <TEST name="atn_timeline" type="script" suite="triganalysis_val">
@@ -393,24 +393,24 @@
                 <group>TrigAnalysisTestIOTests</group>
                 <queue>long</queue>
                 <!--test position="10">
-                    <modulename>ValGrindPostScript_TrigAnalysisTest</modulename>
-                    <testname>ValGrindPostScript_TrigAnalysisTest</testname>
-                    <arg>
-                        <argname>command</argname>
-                        <argvalue>sed -e '/    definitely lost: / { N; d; }' Valgrind_*_log > Valgrind_test_log_1 </argvalue>
-                    </arg>
-                    <noalarm />
-                </test>
-                <test position="11">
-                    <modulename>ValgrindAnalysisScript_TrigAnalysisTest</modulename>
-                    <testname>ValgrindAnalysisScript_TrigAnalysisTest</testname>
-                    <testdoc>Create a shortened Valgrind log file</testdoc>
-                    <arg>
-                        <argname>command</argname>
-                        <argvalue>python ValgrindAnalysisScript_TrigAnalysisTest.py</argvalue>
-                    </arg>
-                    <noalarm />
-                </test-->
+                 <modulename>ValGrindPostScript_TrigAnalysisTest</modulename>
+                 <testname>ValGrindPostScript_TrigAnalysisTest</testname>
+                 <arg>
+                 <argname>command</argname>
+                 <argvalue>sed -e '/    definitely lost: / { N; d; }' Valgrind_*_log > Valgrind_test_log_1 </argvalue>
+                 </arg>
+                 <noalarm />
+                 </test>
+                 <test position="11">
+                 <modulename>ValgrindAnalysisScript_TrigAnalysisTest</modulename>
+                 <testname>ValgrindAnalysisScript_TrigAnalysisTest</testname>
+                 <testdoc>Create a shortened Valgrind log file</testdoc>
+                 <arg>
+                 <argname>command</argname>
+                 <argvalue>python ValgrindAnalysisScript_TrigAnalysisTest.py</argvalue>
+                 </arg>
+                 <noalarm />
+                 </test-->
                 <testToRemove>
                     <jobGroupName>RTT:Athena</jobGroupName>
                     <testidentifier>Athena_FileGrepper</testidentifier>
@@ -433,24 +433,24 @@
                 <group>TrigAnalysisTestIOTests</group>
                 <queue>long</queue>
                 <!--test position="10">
-                    <modulename>ValGrindPostScript_TrigAnalysisTest</modulename>
-                    <testname>ValGrindPostScript_TrigAnalysisTest</testname>
-                    <arg>
-                        <argname>command</argname>
-                        <argvalue>sed -e '/    definitely lost: / { N; d; }' Valgrind_*_log > Valgrind_test_log_1 </argvalue>
-                    </arg>
-                    <noalarm />
-                </test>
-                <test position="11">
-                    <modulename>ValgrindAnalysisScript_TrigAnalysisTest</modulename>
-                    <testname>ValgrindAnalysisScript_TrigAnalysisTest</testname>
-                    <testdoc>Create a shortened Valgrind log file</testdoc>
-                    <arg>
-                        <argname>command</argname>
-                        <argvalue>python ValgrindAnalysisScript_TrigAnalysisTest.py</argvalue>
-                    </arg>
-                    <noalarm />
-                </test-->
+                 <modulename>ValGrindPostScript_TrigAnalysisTest</modulename>
+                 <testname>ValGrindPostScript_TrigAnalysisTest</testname>
+                 <arg>
+                 <argname>command</argname>
+                 <argvalue>sed -e '/    definitely lost: / { N; d; }' Valgrind_*_log > Valgrind_test_log_1 </argvalue>
+                 </arg>
+                 <noalarm />
+                 </test>
+                 <test position="11">
+                 <modulename>ValgrindAnalysisScript_TrigAnalysisTest</modulename>
+                 <testname>ValgrindAnalysisScript_TrigAnalysisTest</testname>
+                 <testdoc>Create a shortened Valgrind log file</testdoc>
+                 <arg>
+                 <argname>command</argname>
+                 <argvalue>python ValgrindAnalysisScript_TrigAnalysisTest.py</argvalue>
+                 </arg>
+                 <noalarm />
+                 </test-->
                 <testToRemove>
                     <jobGroupName>RTT:Athena</jobGroupName>
                     <testidentifier>Athena_FileGrepper</testidentifier>
@@ -476,24 +476,24 @@
                 <group>TrigAnalysisTestIOTests</group>
                 <queue>long</queue>
                 <!--test position="10">
-                    <modulename>ValGrindPostScript_TrigAnalysisTest</modulename>
-                    <testname>ValGrindPostScript_TrigAnalysisTest</testname>
-                    <arg>
-                        <argname>command</argname>
-                        <argvalue>sed -e '/    definitely lost: / { N; d; }' Valgrind_*_log > Valgrind_test_log_1 </argvalue>
-                    </arg>
-                    <noalarm />
-                </test>
-                <test position="11">
-                    <modulename>ValgrindAnalysisScript_TrigAnalysisTest</modulename>
-                    <testname>ValgrindAnalysisScript_TrigAnalysisTest</testname>
-                    <testdoc>Create a shortened Valgrind log file</testdoc>
-                    <arg>
-                        <argname>command</argname>
-                        <argvalue>python ValgrindAnalysisScript_TrigAnalysisTest.py</argvalue>
-                    </arg>
-                    <noalarm />
-                </test-->
+                 <modulename>ValGrindPostScript_TrigAnalysisTest</modulename>
+                 <testname>ValGrindPostScript_TrigAnalysisTest</testname>
+                 <arg>
+                 <argname>command</argname>
+                 <argvalue>sed -e '/    definitely lost: / { N; d; }' Valgrind_*_log > Valgrind_test_log_1 </argvalue>
+                 </arg>
+                 <noalarm />
+                 </test>
+                 <test position="11">
+                 <modulename>ValgrindAnalysisScript_TrigAnalysisTest</modulename>
+                 <testname>ValgrindAnalysisScript_TrigAnalysisTest</testname>
+                 <testdoc>Create a shortened Valgrind log file</testdoc>
+                 <arg>
+                 <argname>command</argname>
+                 <argvalue>python ValgrindAnalysisScript_TrigAnalysisTest.py</argvalue>
+                 </arg>
+                 <noalarm />
+                 </test-->
                 <testToRemove>
                     <jobGroupName>RTT:Athena</jobGroupName>
                     <testidentifier>Athena_FileGrepper</testidentifier>
@@ -516,24 +516,24 @@
                 <group>TrigAnalysisTestIOTests</group>
                 <queue>long</queue>
                 <!--test position="10">
-                    <modulename>ValGrindPostScript_TrigAnalysisTest</modulename>
-                    <testname>ValGrindPostScript_TrigAnalysisTest</testname>
-                    <arg>
-                        <argname>command</argname>
-                        <argvalue>sed -e '/    definitely lost: / { N; d; }' Valgrind_*_log > Valgrind_test_log_1 </argvalue>
-                    </arg>
-                    <noalarm />
-                </test>
-                <test position="11">
-                    <modulename>ValgrindAnalysisScript_TrigAnalysisTest</modulename>
-                    <testname>ValgrindAnalysisScript_TrigAnalysisTest</testname>
-                    <testdoc>Create a shortened Valgrind log file</testdoc>
-                    <arg>
-                        <argname>command</argname>
-                        <argvalue>python ValgrindAnalysisScript_TrigAnalysisTest.py</argvalue>
-                    </arg>
-                    <noalarm />
-                </test--> 
+                 <modulename>ValGrindPostScript_TrigAnalysisTest</modulename>
+                 <testname>ValGrindPostScript_TrigAnalysisTest</testname>
+                 <arg>
+                 <argname>command</argname>
+                 <argvalue>sed -e '/    definitely lost: / { N; d; }' Valgrind_*_log > Valgrind_test_log_1 </argvalue>
+                 </arg>
+                 <noalarm />
+                 </test>
+                 <test position="11">
+                 <modulename>ValgrindAnalysisScript_TrigAnalysisTest</modulename>
+                 <testname>ValgrindAnalysisScript_TrigAnalysisTest</testname>
+                 <testdoc>Create a shortened Valgrind log file</testdoc>
+                 <arg>
+                 <argname>command</argname>
+                 <argvalue>python ValgrindAnalysisScript_TrigAnalysisTest.py</argvalue>
+                 </arg>
+                 <noalarm />
+                 </test--> 
                 <testToRemove>
                     <jobGroupName>RTT:Athena</jobGroupName>
                     <testidentifier>Athena_FileGrepper</testidentifier>
@@ -612,95 +612,114 @@
                 <sequential>
                     <parallel>
                         
-                         <sequential>
-                        <chainElement>
-                            <jobTransform userJobId="Split" >
-                                <doc>
-                                    Reco_tf.py split activated
-                                </doc>
-                                <jobTransformJobName>Split</jobTransformJobName>
-                                <jobTransformCmd>
-                                    Reco_tf.py --inputRDOFile /afs/cern.ch/work/g/graemes/ddm/pmb/RDO.01177879._000004.pool.root.2 --outputRDO_TRIGFile tmp.RDO_TRIG --outputESDFile Split.ESD.pool.root --outputAODFile Split.AOD.pool.root --maxEvents 1000 --autoConfiguration everything --preExec "TriggerFlags.enableMonitoring = ['Online']" --steering RAWtoESD:in-RDO RAWtoESD:in-BS RAWtoESD:in+RDO_TRIG --conditionsTag="OFLCOND-RUN12-SDR-22"
-                                </jobTransformCmd>
-                                <group>TrigAnalysisTestIOTests</group>
-                                <queue>long</queue>
-                                <alwaysRunPostProc />
-                            </jobTransform>
-                            <chainfileout>Split.AOD.pool.root</chainfileout>
-                        </chainElement>
-                        
-                        
-                        <!--chainElement>
-                                <athena userJobId="Split_TDT">
-                                    <doc> AthenaTrigAOD_TrigDecTool on Split AOD </doc>
-                                    <displayName>Split_TDT</displayName>
-                                    <commandLineFlags>RunningRTT=TRUE;jp.AthenaCommonFlags.PoolAODInput=["Split.AOD.pool.root"]</commandLineFlags>
-                                    <options>testAthenaTrigAOD_TrigDecTool.py</options>
-                                    <package>Trigger/TrigValidation/TrigAnalysisTest</package> 
+                        <sequential>
+                            <chainElement>
+                                <jobTransform userJobId="Split" >
+                                    <doc>
+                                        Reco_tf.py split activated
+                                    </doc>
+                                    <jobTransformJobName>Split</jobTransformJobName>
+                                    <jobTransformCmd>
+                                        Reco_tf.py --inputRDOFile /afs/cern.ch/work/g/graemes/ddm/pmb/RDO.01177879._000004.pool.root.2 --outputRDO_TRIGFile tmp.RDO_TRIG --outputAODFile Split.AOD.pool.root --maxEvents 500 --autoConfiguration everything --preExec "TriggerFlags.enableMonitoring = ['Online']" --steering RAWtoESD:in-RDO RAWtoESD:in-BS RAWtoESD:in+RDO_TRIG --conditionsTag="OFLCOND-RUN12-SDR-22" ; rm -f tmp.* 
+                                    </jobTransformCmd>
                                     <group>TrigAnalysisTestIOTests</group>
-                                    <queue>long</queue> 
-                                    <chaindataset_info>
-                                        <dc2/>
-                                        <chaindatasetName>Split.AOD.pool.root</chaindatasetName>
-                                        <dataset_info>
-                                            <dc2 />
-                                            <datasetName>/afs/cern.ch/atlas/project/RTT/prod/Results/rtt/chainstore/devval/x86_64-slc6-gcc47-opt/AtlasProduction/Trigger/TrigValidation/TrigAnalysisTest/AthenaTrigAOD_TrigEDMandTDTCheck_chain/file_link_broken_on_purpose_to_spot_RTT_errors_AOD.pool.root</datasetName>
-                                        </dataset_info>
-                                    </chaindataset_info>
-                                </athena>
-                            <chainfileout>Split.xml</chainfileout>
-                        </chainElement-->
+                                    <queue>long</queue>
+                                    <alwaysRunPostProc />
+                                </jobTransform>
+                                <chainfileout>Split.AOD.pool.root</chainfileout>
+                            </chainElement>
+                            
+                            
+                            <!--chainElement>
+                             <athena userJobId="Split_TDT">
+                             <doc> AthenaTrigAOD_TrigDecTool on Split AOD </doc>
+                             <displayName>Split_TDT</displayName>
+                             <commandLineFlags>RunningRTT=TRUE;jp.AthenaCommonFlags.PoolAODInput=["Split.AOD.pool.root"]</commandLineFlags>
+                             <options>testAthenaTrigAOD_TrigDecTool.py</options>
+                             <package>Trigger/TrigValidation/TrigAnalysisTest</package> 
+                             <group>TrigAnalysisTestIOTests</group>
+                             <queue>long</queue> 
+                             <chaindataset_info>
+                             <dc2/>
+                             <chaindatasetName>Split.AOD.pool.root</chaindatasetName>
+                             <dataset_info>
+                             <dc2 />
+                             <datasetName>/afs/cern.ch/atlas/project/RTT/prod/Results/rtt/chainstore/devval/x86_64-slc6-gcc47-opt/AtlasProduction/Trigger/TrigValidation/TrigAnalysisTest/AthenaTrigAOD_TrigEDMandTDTCheck_chain/file_link_broken_on_purpose_to_spot_RTT_errors_AOD.pool.root</datasetName>
+                             </dataset_info>
+                             </chaindataset_info>
+                             </athena>
+                             <chainfileout>Split.xml</chainfileout>
+                             </chainElement-->
+                            
+                            
+                            
+                        </sequential>
                         
                         
+                        <sequential>
+                            <chainElement>
+                                <jobTransform userJobId="Split_compare" >
+                                    <doc>
+                                        Reco_tf.py comp split vs nonsplit
+                                    </doc>
+                                    <jobTransformJobName>Split</jobTransformJobName>
+                                    <jobTransformCmd>
+                                        Reco_tf.py --inputRDOFile /afs/cern.ch/work/g/graemes/ddm/pmb/RDO.01177879._000004.pool.root.2 --outputRDO_TRIGFile tmp.RDO_TRIG --outputAODFile Split.AOD.pool.root --maxEvents 250 --autoConfiguration everything --preExec "TriggerFlags.enableMonitoring = ['Online']" --steering RAWtoESD:in-RDO RAWtoESD:in-BS RAWtoESD:in+RDO_TRIG --conditionsTag="OFLCOND-RUN12-SDR-22" ; rm -f tmp.* ; Reco_tf.py --inputRDOFile /afs/cern.ch/work/g/graemes/ddm/pmb/RDO.01177879._000004.pool.root.2 --outputAODFile noSplit.AOD.pool.root --maxEvents 250 --autoConfiguration everything --preExec "TriggerFlags.enableMonitoring = ['Online']" --conditionsTag="OFLCOND-RUN12-SDR-22" ; rm -f tmp.* ; cp /afs/cern.ch/user/c/czodrows/public/testTDT.py ./ ; athena.py -c'fileList=["Split.AOD.pool.root"]' testTDT.py ; mv trigger_counts.xml Split.xml ; athena.py -c'fileList=["noSplit.AOD.pool.root"]' testTDT.py ; mv trigger_counts.xml noSplit.xml ; python /afs/cern.ch/user/c/czodrows/public/rogercounts/counts/countable.py -f html -o splitcheck.html Split.xml noSplit.xml ; python /afs/cern.ch/user/c/czodrows/public/rogercounts/counts/countable.py -f text -o splitcheck.txt Split.xml noSplit.xml
+                                    </jobTransformCmd>
+                                    <group>TrigAnalysisTestIOTests</group>
+                                    <queue>long</queue>
+                                    <alwaysRunPostProc />
+                                </jobTransform>
+
+                            </chainElement> 
+                        </sequential>
                         
-                         </sequential>
-                         
-                          <sequential>
-                        <chainElement>
-                            <jobTransform userJobId="noSplit" >
-                                <doc>
-                                    Reco_tf.py noSplit 
-                                </doc>
-                                <jobTransformJobName>noSplit</jobTransformJobName>
-                                <jobTransformCmd>
-                                    Reco_tf.py --inputRDOFile /afs/cern.ch/work/g/graemes/ddm/pmb/RDO.01177879._000004.pool.root.2 --outputESDFile noSplit.ESD.pool.root --outputAODFile noSplit.AOD.pool.root --maxEvents 1000 --autoConfiguration everything --preExec "TriggerFlags.enableMonitoring = ['Online']" --conditionsTag="OFLCOND-RUN12-SDR-22"
-                                </jobTransformCmd>
-                                <group>TrigAnalysisTestIOTests</group>
-                                <queue>long</queue>
-                                <alwaysRunPostProc />
-                            </jobTransform>
-                            <chainfileout>noSplit.AOD.pool.root</chainfileout>
-                        </chainElement>
-                        
-                        
-                        <!--chainElement>
-                            <athena userJobId="noSplit_TDT">
-                                <doc> AthenaTrigAOD_TrigDecTool on Split AOD </doc>
-                                <displayName>Split_TDT</displayName>
-                                <commandLineFlags>RunningRTT=TRUE;jp.AthenaCommonFlags.PoolAODInput=["Split.AOD.pool.root"]</commandLineFlags>
-                                <options>testAthenaTrigAOD_TrigDecTool.py</options>
-                                <package>Trigger/TrigValidation/TrigAnalysisTest</package> 
-                                <group>TrigAnalysisTestIOTests</group>
-                                <queue>long</queue> 
-                                <chaindataset_info>
-                                    <dc2/>
-                                    <chaindatasetName>Split.AOD.pool.root</chaindatasetName>
-                                    <dataset_info>
-                                        <dc2 />
-                                        <datasetName>/afs/cern.ch/atlas/project/RTT/prod/Results/rtt/chainstore/devval/x86_64-slc6-gcc47-opt/AtlasProduction/Trigger/TrigValidation/TrigAnalysisTest/AthenaTrigAOD_TrigEDMandTDTCheck_chain/file_link_broken_on_purpose_to_spot_RTT_errors_AOD.pool.root</datasetName>
-                                    </dataset_info>
-                                </chaindataset_info>
-                                <testToRemove>
-                                    <jobGroupName>RTT:Top</jobGroupName>
-                                    <testidentifier>CheckFileRunner0</testidentifier>
-                                </testToRemove>
-                            </athena>
-                            <chainfileout>noSplit.xml</chainfileout>
-                        </chainElemen-->
-                        
-                        
-                        
-                         </sequential>
+                        <sequential>
+                            <chainElement>
+                                <jobTransform userJobId="noSplit" >
+                                    <doc>
+                                        Reco_tf.py noSplit 
+                                    </doc>
+                                    <jobTransformJobName>noSplit</jobTransformJobName>
+                                    <jobTransformCmd>
+                                        Reco_tf.py --inputRDOFile /afs/cern.ch/work/g/graemes/ddm/pmb/RDO.01177879._000004.pool.root.2 --outputAODFile noSplit.AOD.pool.root --maxEvents 500 --autoConfiguration everything --preExec "TriggerFlags.enableMonitoring = ['Online']" --conditionsTag="OFLCOND-RUN12-SDR-22" ; rm -f tmp.* 
+                                    </jobTransformCmd>
+                                    <group>TrigAnalysisTestIOTests</group>
+                                    <queue>long</queue>
+                                    <alwaysRunPostProc />
+                                </jobTransform>
+                                <chainfileout>noSplit.AOD.pool.root</chainfileout>
+                            </chainElement>
+                            
+                            
+                            <!--chainElement>
+                             <athena userJobId="noSplit_TDT">
+                             <doc> AthenaTrigAOD_TrigDecTool on Split AOD </doc>
+                             <displayName>Split_TDT</displayName>
+                             <commandLineFlags>RunningRTT=TRUE;jp.AthenaCommonFlags.PoolAODInput=["Split.AOD.pool.root"]</commandLineFlags>
+                             <options>testAthenaTrigAOD_TrigDecTool.py</options>
+                             <package>Trigger/TrigValidation/TrigAnalysisTest</package> 
+                             <group>TrigAnalysisTestIOTests</group>
+                             <queue>long</queue> 
+                             <chaindataset_info>
+                             <dc2/>
+                             <chaindatasetName>Split.AOD.pool.root</chaindatasetName>
+                             <dataset_info>
+                             <dc2 />
+                             <datasetName>/afs/cern.ch/atlas/project/RTT/prod/Results/rtt/chainstore/devval/x86_64-slc6-gcc47-opt/AtlasProduction/Trigger/TrigValidation/TrigAnalysisTest/AthenaTrigAOD_TrigEDMandTDTCheck_chain/file_link_broken_on_purpose_to_spot_RTT_errors_AOD.pool.root</datasetName>
+                             </dataset_info>
+                             </chaindataset_info>
+                             <testToRemove>
+                             <jobGroupName>RTT:Top</jobGroupName>
+                             <testidentifier>CheckFileRunner0</testidentifier>
+                             </testToRemove>
+                             </athena>
+                             <chainfileout>noSplit.xml</chainfileout>
+                             </chainElemen-->
+                            
+                            
+                            
+                        </sequential>
                     </parallel>
                     
                     
@@ -708,65 +727,65 @@
                     
                     
                     <!--chainElement>
-                        <jobTransform userJobId="compare_Split_and_noSplit" >
-                            <doc>
-                               compare_Split_and_noSplit
-                            </doc>
-                            <jobTransformJobName>compare_Split_and_noSplit</jobTransformJobName>
-                            <jobTransformCmd>
-                                mv trigger_counts.xml 
-                            </jobTransformCmd>
-                            <group>TrigAnalysisTestIOTests</group>
-                            <queue>long</queue> 
-                            <chaindataset_info>
-                                <dc2/>
-                                <chaindatasetName>noSplit.xml</chaindatasetName>
-                                <dataset_info>
-                                    <dc2 />
-                                    <datasetName>/afs/cern.ch/atlas/project/RTT/prod/Results/rtt/chainstore/devval/x86_64-slc6-gcc47-opt/AtlasProduction/Trigger/TrigValidation/TrigAnalysisTest/AthenaTrigAOD_TrigEDMandTDTCheck_chain/file_link_broken_on_purpose_to_spot_RTT_errors_noSplit.xml</datasetName>
-                                </dataset_info>
-                            </chaindataset_info>
-                            <chaindataset_info>
-                                <dc2/>
-                                <chaindatasetName>Split.xml</chaindatasetName>
-                                <dataset_info>
-                                    <dc2 />
-                                    <datasetName>/afs/cern.ch/atlas/project/RTT/prod/Results/rtt/chainstore/devval/x86_64-slc6-gcc47-opt/AtlasProduction/Trigger/TrigValidation/TrigAnalysisTest/AthenaTrigAOD_TrigEDMandTDTCheck_chain/file_link_broken_on_purpose_to_spot_RTT_errors_Split.xml</datasetName>
-                                </dataset_info>
-                            </chaindataset_info>
-                            <testToRemove>
-                                <jobGroupName>RTT:Top</jobGroupName>
-                                <testidentifier>CheckFileRunner0</testidentifier>
-                            </testToRemove>
-
-                        </jobTransform>
-                    </chainElement-->
+                     <jobTransform userJobId="compare_Split_and_noSplit" >
+                     <doc>
+                     compare_Split_and_noSplit
+                     </doc>
+                     <jobTransformJobName>compare_Split_and_noSplit</jobTransformJobName>
+                     <jobTransformCmd>
+                     mv trigger_counts.xml 
+                     </jobTransformCmd>
+                     <group>TrigAnalysisTestIOTests</group>
+                     <queue>long</queue> 
+                     <chaindataset_info>
+                     <dc2/>
+                     <chaindatasetName>noSplit.xml</chaindatasetName>
+                     <dataset_info>
+                     <dc2 />
+                     <datasetName>/afs/cern.ch/atlas/project/RTT/prod/Results/rtt/chainstore/devval/x86_64-slc6-gcc47-opt/AtlasProduction/Trigger/TrigValidation/TrigAnalysisTest/AthenaTrigAOD_TrigEDMandTDTCheck_chain/file_link_broken_on_purpose_to_spot_RTT_errors_noSplit.xml</datasetName>
+                     </dataset_info>
+                     </chaindataset_info>
+                     <chaindataset_info>
+                     <dc2/>
+                     <chaindatasetName>Split.xml</chaindatasetName>
+                     <dataset_info>
+                     <dc2 />
+                     <datasetName>/afs/cern.ch/atlas/project/RTT/prod/Results/rtt/chainstore/devval/x86_64-slc6-gcc47-opt/AtlasProduction/Trigger/TrigValidation/TrigAnalysisTest/AthenaTrigAOD_TrigEDMandTDTCheck_chain/file_link_broken_on_purpose_to_spot_RTT_errors_Split.xml</datasetName>
+                     </dataset_info>
+                     </chaindataset_info>
+                     <testToRemove>
+                     <jobGroupName>RTT:Top</jobGroupName>
+                     <testidentifier>CheckFileRunner0</testidentifier>
+                     </testToRemove>
+                     
+                     </jobTransform>
+                     </chainElement-->
                     
                     
                     <!--chainElement>
-                        <athena userJobId="AOD_TrigDecTool_MC_pp_v5">
-                            <doc> AthenaTrigAOD_TrigDecTool on Menu: MC_pp_v5 Sample: top AOD from RDO</doc>
-                            <displayName>AthenaTrigAOD_TrigDecTool_MC_pp_v5</displayName>
-                            <commandLineFlags>RunningRTT=TRUE;jp.AthenaCommonFlags.PoolAODInput=["AOD.pool.root"]</commandLineFlags>
-                            <options>testAthenaTrigAOD_TrigDecTool.py</options>
-                            <package>Trigger/TrigValidation/TrigAnalysisTest</package> 
-                            <group>TrigAnalysisTestIOTests</group>
-                            <queue>long</queue> 
-                            <chaindataset_info>
-                                <dc2/>
-                                <chaindatasetName>AOD.pool.root</chaindatasetName>
-                                <dataset_info>
-                                    <dc2 />
-                                    <datasetName>/afs/cern.ch/atlas/project/RTT/prod/Results/rtt/chainstore/devval/x86_64-slc6-gcc47-opt/AtlasProduction/Trigger/TrigValidation/TrigAnalysisTest/AthenaTrigAOD_TrigEDMandTDTCheck_chain/file_link_broken_on_purpose_to_spot_RTT_errors_AOD.pool.root</datasetName>
-                                </dataset_info>
-                            </chaindataset_info>
-                            <testToRemove>
-                                <jobGroupName>RTT:Top</jobGroupName>
-                                <testidentifier>CheckFileRunner0</testidentifier>
-                            </testToRemove>
-                        </athena>
-                          </chainElement-->
-                        
+                     <athena userJobId="AOD_TrigDecTool_MC_pp_v5">
+                     <doc> AthenaTrigAOD_TrigDecTool on Menu: MC_pp_v5 Sample: top AOD from RDO</doc>
+                     <displayName>AthenaTrigAOD_TrigDecTool_MC_pp_v5</displayName>
+                     <commandLineFlags>RunningRTT=TRUE;jp.AthenaCommonFlags.PoolAODInput=["AOD.pool.root"]</commandLineFlags>
+                     <options>testAthenaTrigAOD_TrigDecTool.py</options>
+                     <package>Trigger/TrigValidation/TrigAnalysisTest</package> 
+                     <group>TrigAnalysisTestIOTests</group>
+                     <queue>long</queue> 
+                     <chaindataset_info>
+                     <dc2/>
+                     <chaindatasetName>AOD.pool.root</chaindatasetName>
+                     <dataset_info>
+                     <dc2 />
+                     <datasetName>/afs/cern.ch/atlas/project/RTT/prod/Results/rtt/chainstore/devval/x86_64-slc6-gcc47-opt/AtlasProduction/Trigger/TrigValidation/TrigAnalysisTest/AthenaTrigAOD_TrigEDMandTDTCheck_chain/file_link_broken_on_purpose_to_spot_RTT_errors_AOD.pool.root</datasetName>
+                     </dataset_info>
+                     </chaindataset_info>
+                     <testToRemove>
+                     <jobGroupName>RTT:Top</jobGroupName>
+                     <testidentifier>CheckFileRunner0</testidentifier>
+                     </testToRemove>
+                     </athena>
+                     </chainElement-->
+                    
                     
                     
                 </sequential>
