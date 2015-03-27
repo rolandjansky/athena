@@ -1,8 +1,10 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 from D3PDMakerCoreComps.D3PDObject import make_SGDataVector_D3PDObject
+from D3PDMakerConfig.D3PDMakerFlags           import D3PDMakerFlags
 from TriggerD3PDMaker.TriggerD3PDMakerConf import D3PD__ChainEntryFillerTool,\
      D3PD__CombLinksFillerTool
+from AthenaCommon.AlgSequence import AlgSequence
 
 """
 These D3PDObjects are based on ChainEntryContainer and CombLinksContainer which
@@ -24,7 +26,8 @@ information necessary to create the flat navigation structure.
 # Hook setting up the navigation slimming:
 def __navSlimming( c, **kw ):
     from TriggerD3PDMaker.TrigNavSlimming import TrigNavSlimming
-    TrigNavSlimming()
+    preseq = AlgSequence (D3PDMakerFlags.PreD3PDAlgSeqName())
+    TrigNavSlimming (sequence = preseq)
     return
 
 # ChainEntry

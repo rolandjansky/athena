@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-# $Id: TrigNavSlimming.py 632512 2014-12-01 11:57:51Z ssnyder $
+# $Id: TrigNavSlimming.py 657472 2015-03-27 22:40:44Z ssnyder $
 #
 # The singleton in this module can be used to slim the trigger navigation
 # in jobs running on MC AODs. MC AODs of the future (R18) will have their
@@ -50,8 +50,8 @@ def singleton( cls ):
 #
 # @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
 #
-# $Revision: 632512 $
-# $Date: 2014-12-01 12:57:51 +0100 (Mon, 01 Dec 2014) $
+# $Revision: 657472 $
+# $Date: 2015-03-27 23:40:44 +0100 (Fri, 27 Mar 2015) $
 @singleton
 class TrigNavSlimming( Configured ):
 
@@ -107,6 +107,10 @@ class TrigNavSlimming( Configured ):
             pass
         __log.info( "Will retain references for objects: %s" % objlist )
 
+        actions = ['SyncThinning', 'Reload']
+        if objlist:
+            actions.append ('DropFeatures')
+
         # Set up the slimming algorithm:
         from TrigNavTools.TrigNavToolsConf import HLT__TrigNavigationSlimming, TrigNavigationThinningTool, HLT__TrigNavigationSlimmingTool
 
@@ -115,7 +119,7 @@ class TrigNavSlimming( Configured ):
         thinningSvc = ThinningSvc()
         ServiceMgr += thinningSvc
         navSlimmingTool = HLT__TrigNavigationSlimmingTool()
-        navSlimmingTool.Actions = ['DropFeatures', 'SyncThinning', 'Reload']
+        navSlimmingTool.Actions = actions
         navSlimmingTool.ThinningSvc = thinningSvc
         navSlimmingTool.FeatureInclusionList = objlist
 
@@ -129,8 +133,7 @@ class TrigNavSlimming( Configured ):
         slimmer = HLT__TrigNavigationSlimming()                
         slimmer.ThinningTool = navThinningTool        
                                         
-        # Add it to the beginning of the algorithm sequence:
-        self.__sequence.insert( 0, slimmer )
+        self.__sequence += slimmer
 
         # Signal that everything went okay:
         return True

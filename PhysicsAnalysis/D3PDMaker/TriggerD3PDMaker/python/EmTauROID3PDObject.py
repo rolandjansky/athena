@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-# $Id: EmTauROID3PDObject.py 633617 2014-12-04 10:10:16Z ssnyder $
+# $Id: EmTauROID3PDObject.py 633616 2014-12-04 10:10:12Z ssnyder $
 #
 # D3PD object saving the LVL1 Em/Tau RoI information into the D3PD
 #

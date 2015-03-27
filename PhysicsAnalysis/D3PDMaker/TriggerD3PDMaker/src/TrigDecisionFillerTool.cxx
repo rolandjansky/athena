@@ -2,13 +2,13 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TrigDecisionFillerTool.cxx 593763 2014-04-22 15:03:09Z fpastore $
+// $Id: TrigDecisionFillerTool.cxx 655890 2015-03-20 20:03:09Z ssnyder $
 
 // Gaudi/Athena include(s):
 #include "AthenaKernel/errorcheck.h"
 
 // Trigger include(s):
-#include "TrigDecisionEvent/TrigDecision.h"
+#include "xAODTrigger/TrigDecision.h"
 #include "TrigSteeringEvent/Lvl1Result.h"
 #include "TrigConfHLTData/HLTChainList.h"
 #include "TrigConfHLTData/HLTChain.h"
@@ -161,29 +161,28 @@ namespace D3PD {
          //
          // The LVL1 data can be retrieved most easily from the TrigDecision object itself.
          //
-         const TrigDec::TrigDecision* decision;
+         const xAOD::TrigDecision* decision = nullptr;
          CHECK( evtStore()->retrieve( decision ) );
 
-         const LVL1CTP::Lvl1Result& l1result = decision->getL1Result();
          if( m_saveLVL1Raw ) {
-            *m_tbp = l1result.itemsBeforePrescale();
-            *m_tap = l1result.itemsAfterPrescale();
+            *m_tbp = decision->tbp();
+            *m_tap = decision->tap();
             ATH_MSG_DEBUG( "Saved the RAW LVL1 information" );
          }
          if( m_saveLVL1Physics ) {
-            *m_tav = l1result.itemsAfterVeto();
+           *m_tav = decision->tav();
             ATH_MSG_DEBUG( "Saved the Physics LVL1 information" );
          }
 
          if( m_saveBGCode ) {
-            *m_bgCode = decision->BGCode();
+            *m_bgCode = decision->bgCode();
             ATH_MSG_DEBUG( "Saved the BGCode information" );
          }
 
          if( m_saveTruncated ) {
-            *m_l2Truncated = decision->getL2Result().isHLTResultTruncated();
-            *m_efTruncated = decision->getEFResult().isHLTResultTruncated();
-            *m_HLTTruncated = decision->getEFResult().isHLTResultTruncated();//using EFResult
+            *m_l2Truncated = decision->lvl2Truncated();
+            *m_efTruncated = decision->efTruncated();
+            *m_HLTTruncated = decision->efTruncated();//using EFResult
             ATH_MSG_DEBUG( "Saved HLTResult truncation information" );
          }
       }
