@@ -427,7 +427,7 @@ Trk::EnergyLoss* Trk::EnergyLossUpdator::updateEnergyLoss(Trk::EnergyLoss* eLoss
       double scale_xc = 2.3;
       double xc = scale_xc*0.87388*momentumError/(3.59524*sigmaL);
       double correction = (1.747*xc*xc + 0.97*0.938*xc*xc*xc)/(1+4.346*xc+5.371*xc*xc+0.938*xc*xc*xc); // correction ranges from 0 to 0.97
-      double MOPreso = 1.5*isign*3.59524*sigmaL*correction;
+      double MOPreso = 2.5*isign*3.59524*sigmaL*correction;
       
       deltaE = isign*caloEnergy + MOPreso;
       sigmaMinusDeltaE = caloEnergyError + 0.08*sigmaDeltaE_rad;  
@@ -443,19 +443,20 @@ Trk::EnergyLoss* Trk::EnergyLossUpdator::updateEnergyLoss(Trk::EnergyLoss* eLoss
 //
 // MOPCalo is correction to MOP for Calorimeter energy cut
 //
-      double xe = caloEnergyError/sigmaL;
-      double MOPCalo = -isign*sigmaL*0.1*(1+xe)/(1+0.077*xe+0.077*xe*xe); // ranges from -0.1 sigmaL to 0.
+//      double xe = caloEnergyError/sigmaL;
+//      double MOPCalo = -isign*sigmaL*0.1*(1+xe)/(1+0.077*xe+0.077*xe*xe); // ranges from -0.1 sigmaL to 0.
 //
 // Shift of MOP due to momentum resolution smearing
 //
-      double errorScale = sqrt(1./4.65/4.65 + caloEnergyError*caloEnergyError/(caloEnergyError*caloEnergyError+sigmaPlus*sigmaPlus)); // ranges from 1/4.65 to 1 
+//      double errorScale = sqrt(1./4.65/4.65 + caloEnergyError*caloEnergyError/(caloEnergyError*caloEnergyError+sigmaPlus*sigmaPlus)); // ranges from 1/4.65 to 1 
+      double errorScale = 1.;
       double xc = 0.87388*momentumError/(3.59524*sigmaL*errorScale);
       double correction = (1.747*xc*xc + 0.97*0.938*xc*xc*xc)/(1+4.346*xc+5.371*xc*xc+0.938*xc*xc*xc); // correction ranges from 0 to 0.97
       double MOPreso = isign*3.59524*sigmaL*errorScale*correction;
 // 
 // Use MOP after correction for radiation (MOPshift) and Calo cut (MOPCalo) and momentum resolution smearing (MOPreso) 
 //
-      deltaE = MOP + MOPshift + MOPCalo + MOPreso;
+      deltaE = MOP + MOPshift + MOPreso;
       sigmaMinusDeltaE = sigmaMinus;
       sigmaPlusDeltaE = sigmaPlus*errorScale; 
       sigmaDeltaE = sqrt(0.5*sigmaMinusDeltaE*sigmaMinusDeltaE+0.5*sigmaPlusDeltaE*sigmaPlusDeltaE);
