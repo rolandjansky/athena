@@ -916,17 +916,6 @@ TrigConf::TrigConfCoolWriter::writeL1CTPCoreInputMapping( ValidityRange vr,
 
 
 
-
-
-
-
-
-
-
-
-
-
-
 // ------------------------------------------------------------
 // writeLVL1BunchGroups()
 // ------------------------------------------------------------
@@ -1577,11 +1566,23 @@ TrigConfCoolWriter::readL1BunchGroupLBPayload( unsigned int run, unsigned int lb
    pair< vector<string>, map<unsigned int,unsigned char> > bg_pair = readL1BunchGroupRunPayload(run);
    vector<string> names = bg_pair.first;
 
+
+   
+   uint newBGSSize = bgV.size() <= names.size() ? bgV.size() : names.size();
+
+   if(bgV.size() !=  names.size()) {
+      cout << "WARNING Bunchgroup content vector is of size " << bgV.size()
+           << ", which is different from the size of the names vector: " << names.size()
+           << ". Using " << newBGSSize << endl;
+
+   }
+
    // create a new bunch group set, set names and bunch groups
    bgs = BunchGroupSet();
-   for(unsigned int i=0; i<8; i++) {
-      if(names[i]=="") continue;
-      bgV[i].setName(names[i]);
+   for(unsigned int i=0; i<newBGSSize; i++) {
+      string bgname = names[i];
+      if(bgname=="") bgname = "NoName";
+      bgV[i].setName(bgname);
       bgV[i].setInternalNumber(i);
       bgs.addBunchGroup(bgV[i]);
    }
