@@ -8,6 +8,8 @@ private
 use GeneratorFortranCommon GeneratorFortranCommon-* Generators
 end_private
 
+apply_pattern cmake_add_command command="find_package(Pythia6)"
+
 # The dependencies of the various generator packages need to be sorted out
 # so that they work in full asNeeded/noUndefined mode. Until that time, this
 # package explicitly sets the notAsNeeded tag
