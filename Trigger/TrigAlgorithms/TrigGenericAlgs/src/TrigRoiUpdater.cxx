@@ -110,16 +110,20 @@ namespace PESA
 
     float oldEtaW = m_inpEtaPlus - m_inpEtaMinus;
     float oldPhiW = m_inpPhiPlus - m_inpPhiMinus;
-    float diff_e = oldEtaW/2. - m_etaHalfWidth;
-    float diff_p = oldPhiW/2. - m_phiHalfWidth;
+
+
+    if (  m_inpPhiPlus < m_inpPhiMinus ) oldPhiW += 2*M_PI;
+
+    float diff_eta = 0.5*oldEtaW - m_etaHalfWidth;
+    float diff_phi = 0.5*oldPhiW - m_phiHalfWidth;
 
     float zedm = roi->zedMinus()-m_zHalfWidth;
     float zedp = roi->zedPlus()+m_zHalfWidth;
 
 
     TrigRoiDescriptor *outroi =     
-		       new TrigRoiDescriptor(eta, m_inpEtaMinus+diff_e, m_inpEtaPlus-diff_e,
-					     phi, m_inpPhiMinus+diff_p, m_inpPhiPlus-diff_p,
+		       new TrigRoiDescriptor(eta, m_inpEtaMinus+diff_eta, m_inpEtaPlus-diff_eta,
+					     phi, m_inpPhiMinus+diff_phi, m_inpPhiPlus-diff_phi,
 					     roi->zed(), zedm, zedp);
 
     ATH_MSG_DEBUG("Input RoI " << *roi);
