@@ -21,7 +21,6 @@
 #include <utility> // std::pair
 #include <vector>
 
-class TF1;
 namespace Trig { class IBunchCrossingTool; }
 
 namespace LVL1
@@ -66,11 +65,14 @@ namespace LVL1
     /** retrieve the bcidCorrection value */
     virtual int dynamicPedestal(int iEta, int layer, int pedestal, int iBCID, float mu);
 
+    // forward declaration for a function that evaluates the correction as function of mu
+    class ParamFunc;
   private:
+    
     // Stores the the correction for each eta-slice (the "outer" index of the vector) and bcid (the "inner" index).
     // The first entry of the array is for trains after short gaps, the second for trains after long gaps.
-    std::array<std::vector<std::vector<std::unique_ptr<TF1>>>, 2> m_emParameterizations;
-    std::array<std::vector<std::vector<std::unique_ptr<TF1>>>, 2> m_hadParameterizations;
+    std::array<std::vector<std::vector<std::unique_ptr<ParamFunc>>>, 2> m_emParameterizations;
+    std::array<std::vector<std::vector<std::unique_ptr<ParamFunc>>>, 2> m_hadParameterizations;
     
     //// properties ////
     ToolHandle<Trig::IBunchCrossingTool> m_bunchCrossingTool;
@@ -88,7 +90,7 @@ namespace LVL1
     void parseBeamIntensityPattern();
 
     // parses the input file
-    void parseInputFile(const std::string& fileName, std::vector<std::vector<std::unique_ptr<TF1>>>& params);
+    void parseInputFile(const std::string& fileName, std::vector<std::vector<std::unique_ptr<ParamFunc>>>& params);
 
     static const unsigned s_nElements = 33;
     static const unsigned s_nBCIDPerTrain = 74; // actually 72 filled BCIDs + one before and one after

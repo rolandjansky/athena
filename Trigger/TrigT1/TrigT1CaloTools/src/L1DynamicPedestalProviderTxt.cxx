@@ -14,11 +14,10 @@
 
 #include <algorithm>
 #include <cmath>
+#include <initializer_list>
 #include <iterator>
 #include <fstream>
 #include <sstream>
-
-#include <TF1.h>
 
 using CxxUtils::make_unique;
 
@@ -30,6 +29,28 @@ static const bcid_t MAX_BCID = 3564;
 namespace LVL1 
 {
 
+class L1DynamicPedestalProviderTxt::ParamFunc {
+public:
+  virtual double operator()(double mu) = 0;
+  virtual ~ParamFunc() {}
+};
+
+class ParamFuncPol2 : public L1DynamicPedestalProviderTxt::ParamFunc {
+public:
+  ParamFuncPol2(double p0, double p1, double p2) : p_{p0, p1, p2} {}
+  virtual double operator()(double mu) { return p_[0] + p_[1]*mu + p_[2]*mu*mu; }
+private:
+  std::array<double, 3> p_;
+};
+
+class ParamFuncExp : public L1DynamicPedestalProviderTxt::ParamFunc {
+public:
+  ParamFuncExp(double p0, double p1, double p2) : p_{p0, p1, p2} {}
+  virtual double operator()(double mu) { return p_[0]*(1-exp(-p_[1]*mu)) + p_[2]*mu; }
+private:
+  std::array<double, 3> p_;
+};
+
 //================ Constructor ================================================
 L1DynamicPedestalProviderTxt::L1DynamicPedestalProviderTxt(const std::string& t,
                                                            const std::string& n,
@@ -40,15 +61,15 @@ L1DynamicPedestalProviderTxt::L1DynamicPedestalProviderTxt(const std::string& t,
   declareInterface<IL1DynamicPedestalProvider>(this);
 
   // fill the vectors with default values - didn't find a more clever way due to move-only unique_ptr
-  m_emParameterizations[0] = std::vector<std::vector<std::unique_ptr<TF1>>>(s_nElements);
-  m_emParameterizations[1] = std::vector<std::vector<std::unique_ptr<TF1>>>(s_nElements);
-  m_hadParameterizations[0] = std::vector<std::vector<std::unique_ptr<TF1>>>(s_nElements);
-  m_hadParameterizations[1] = std::vector<std::vector<std::unique_ptr<TF1>>>(s_nElements);
+  m_emParameterizations[0] = std::vector<std::vector<std::unique_ptr<ParamFunc>>>(s_nElements);
+  m_emParameterizations[1] = std::vector<std::vector<std::unique_ptr<ParamFunc>>>(s_nElements);
+  m_hadParameterizations[0] = std::vector<std::vector<std::unique_ptr<ParamFunc>>>(s_nElements);
+  m_hadParameterizations[1] = std::vector<std::vector<std::unique_ptr<ParamFunc>>>(s_nElements);
   for(std::size_t i = 0; i < s_nElements; ++i) {
-    m_emParameterizations[0][i] = std::vector<std::unique_ptr<TF1>>(s_nBCIDPerTrain);
-    m_emParameterizations[1][i] = std::vector<std::unique_ptr<TF1>>(s_nBCIDPerTrain);
-    m_hadParameterizations[0][i] = std::vector<std::unique_ptr<TF1>>(s_nBCIDPerTrain);
-    m_hadParameterizations[1][i] = std::vector<std::unique_ptr<TF1>>(s_nBCIDPerTrain);
+    m_emParameterizations[0][i] = std::vector<std::unique_ptr<ParamFunc>>(s_nBCIDPerTrain);
+    m_emParameterizations[1][i] = std::vector<std::unique_ptr<ParamFunc>>(s_nBCIDPerTrain);
+    m_hadParameterizations[0][i] = std::vector<std::unique_ptr<ParamFunc>>(s_nBCIDPerTrain);
+    m_hadParameterizations[1][i] = std::vector<std::unique_ptr<ParamFunc>>(s_nBCIDPerTrain);
   }
 
   declareProperty("BunchCrossingTool", m_bunchCrossingTool);
@@ -220,9 +241,9 @@ int L1DynamicPedestalProviderTxt::dynamicPedestal(int iElement, int layer, int p
   // pedestal is added to the value obtained from the parameterization.
   int correction = 0;
   if(layer == 0) {
-    correction = std::round(m_emParameterizations[longGap][iElement][bcid]->Eval(mu));
+    correction = std::round((*m_emParameterizations[longGap][iElement][bcid])(mu));
   } else if(layer == 1) {
-    correction = std::round(m_hadParameterizations[longGap][iElement][bcid]->Eval(mu));
+    correction = std::round((*m_hadParameterizations[longGap][iElement][bcid])(mu));
   } else {
     ATH_MSG_ERROR("Wrong layer index. Give 0 for Em, 1 for Had.");
   }
@@ -277,7 +298,7 @@ namespace {
 //     poly: F(mu) = P0 + P1 * mu + P2 * mu * mu
 //     exp:  F(mu) = -a0 * (1 - exp(-a1 * mu)) + a2 * mu
 void L1DynamicPedestalProviderTxt::parseInputFile(const std::string& fileName,
-                                                  std::vector<std::vector<std::unique_ptr<TF1>>>& params)
+                                                  std::vector<std::vector<std::unique_ptr<ParamFunc>>>& params)
 {
   using CxxUtils::StringUtils::trim;
   using std::istream_iterator;
@@ -330,11 +351,9 @@ void L1DynamicPedestalProviderTxt::parseInputFile(const std::string& fileName,
 				 ": expected 3 parameters got " + std::to_string(P.size()));
       }
       if(std::binary_search(ctx.poly.begin(), ctx.poly.end(), B)) {
-        params[ctx.E][B] = make_unique<TF1>("", "pol2", 0., 1e3);
-        params[ctx.E][B]->SetParameters(P[0], P[1], P[2]);
+        params[ctx.E][B] = make_unique<ParamFuncPol2>(P[0], P[1], P[2]);
       } else if(std::binary_search(ctx.exp.begin(), ctx.exp.end(), B)) {
-        params[ctx.E][B] = make_unique<TF1>("", "-[0]*(1-TMath::Exp(-[1]*x)) + [2]*x", 0., 1e3);
-        params[ctx.E][B]->SetParameters(P[0], P[1], P[2]);
+        params[ctx.E][B] = make_unique<ParamFuncExp>(P[0], P[1], P[2]);
       } else {
 	throw ParseException("BCID '" + std::to_string(B) + "' didn't appear in 'poly' or 'exp' for element '" +
                              std::to_string(ctx.E) + "'.");
@@ -352,7 +371,7 @@ void L1DynamicPedestalProviderTxt::parseInputFile(const std::string& fileName,
   }
 
   for(auto& V : params) {
-    if(std::find_if(V.begin(), V.end(), [](std::unique_ptr<TF1>& p) { return p == nullptr; }) != V.end()) {
+    if(std::find_if(V.begin(), V.end(), [](std::unique_ptr<ParamFunc>& p) { return p == nullptr; }) != V.end()) {
       throw ParseException("Not all elements and bcids filled!");
     }
   }
