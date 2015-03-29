@@ -16,6 +16,7 @@ Purpose : build the JetMissingEtIdentification Tag object - AnalysisTag.h.
           can be encoded in this word
 *****************************************************************************/
 
+#include "GaudiKernel/ToolHandle.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 //#include "StoreGate/StoreGateSvc.h"
 #include "TagEvent/TagFragmentCollection.h"
@@ -23,6 +24,7 @@ Purpose : build the JetMissingEtIdentification Tag object - AnalysisTag.h.
 
 /** Interface ID for JetMissingEtIdentificationTagTool*/  
 static const InterfaceID IID_JetMissingEtIdentificationTagTool("JetMissingEtIdentificationTagTool", 1, 0);
+class IJetCalibrationTool;
 
 class JetMissingEtIdentificationTagTool : public AthAlgTool {
 
@@ -46,12 +48,14 @@ protected:
    virtual ~JetMissingEtIdentificationTagTool( );
 
 private:
+   /** Jet calibration tool handle */
+    ToolHandle<IJetCalibrationTool>        m_jetCalibrationTool;
 
   /** Properties */
   std::string m_jetContainerName;
   std::string m_missingEtObjectName;
   double m_badjetPtCut;
-
+  bool   m_useEMScale; //Emergency fix for HI (W.L, 22.11.2010)
   /** Event Store */
 
  };

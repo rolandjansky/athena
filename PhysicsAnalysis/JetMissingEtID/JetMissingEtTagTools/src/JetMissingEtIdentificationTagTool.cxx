@@ -17,6 +17,7 @@ Purpose : create a JetMissingEtIdentificationTag - word to encode Jet and
 #include "CLHEP/Units/SystemOfUnits.h"
 
 #include "xAODJet/JetContainer.h"
+#include "xAODCore/ShallowCopy.h"
 
 #include "JetUtils/JetCaloQualityUtils.h"
 
@@ -32,11 +33,15 @@ Purpose : create a JetMissingEtIdentificationTag - word to encode Jet and
 // define some global/static selectors
 // veryLooseBadTool, looseBadTool, etc... are defined here
 #include "JetSelectorDefs.h"
+// JetCalibTools includes
+#include "JetCalibTools/IJetCalibrationTool.h"
 
+#include <vector>
 /** the constructor */
 JetMissingEtIdentificationTagTool::JetMissingEtIdentificationTagTool (const std::string& type, const std::string& name, 
     const IInterface* parent) : 
-    AthAlgTool( type, name, parent ) {
+    AthAlgTool( type, name, parent ),
+	m_jetCalibrationTool("")	{
 
   /** AOD Container Names */
   declareProperty("JetContainer",    m_jetContainerName = "AntiKt4LCTopoJets");
@@ -44,6 +49,7 @@ JetMissingEtIdentificationTagTool::JetMissingEtIdentificationTagTool (const std:
 
   /** Pt cut on jte - modifiable in job options */
   declareProperty("BadEtCut",        m_badjetPtCut = 20.0*CLHEP::GeV);
+  declareProperty("JetCalibrationTool",    m_jetCalibrationTool);
 
   
   declareInterface<JetMissingEtIdentificationTagTool>( this );
@@ -57,6 +63,8 @@ StatusCode  JetMissingEtIdentificationTagTool::initialize() {
 
   CHECK(initJetSelectors());
 
+  // retrieve the jet calibration tool
+  CHECK(m_jetCalibrationTool.retrieve());
   return StatusCode::SUCCESS;
 }
 
@@ -67,7 +75,7 @@ StatusCode JetMissingEtIdentificationTagTool::attributeSpecification(
   MsgStream mLog(msgSvc(), name());
   mLog << MSG::DEBUG << "in attributeSpecification()" << endreq;
 
-  /** specifiy the Jet and MissingET the attributes */
+  /** specify the Jet and MissingET the attributes */
 
   attrMap[ JetMissingEtAttributeNames[0] ] = AthenaAttributeType("unsigned int", JetMissingEtAttributeUnitNames[0], JetMissingEtAttributeGroupNames[0]);
 
@@ -92,20 +100,35 @@ StatusCode JetMissingEtIdentificationTagTool::execute(TagFragmentCollection& jet
   }
   ATH_MSG_DEBUG("AOD Jet container ("<<m_jetContainerName<<") successfully retrieved" );
 
+  // create a shallow copy of the jet container
+  std::pair< xAOD::JetContainer*, xAOD::ShallowAuxContainer* >  shallowCopy = xAOD::shallowCopyContainer(*jetContainer);
+  xAOD::JetContainer *jetContainerCopy = shallowCopy.first;
+
+  // apply jet energy scale correction
+  for ( xAOD::Jet *jet : *jetContainerCopy ) {
+    CHECK( m_jetCalibrationTool->applyCalibration(*jet) );
+  }
+
+  // determine jet scale to use
+  xAOD::JetScale scale = m_useEMScale ? xAOD::JetEMScaleMomentum : xAOD::JetAssignedScaleMomentum ;
 
   unsigned int AnyBadJet = 0x0;
 
-  for (auto jetItr=jetContainer->begin(); jetItr != jetContainer->end(); ++jetItr){
-    const xAOD::Jet* jet = *jetItr;
+  /** select and store jets that pass selection cuts into 'selecteJets' vector */
+  for ( xAOD::Jet *calibratedJet : *jetContainerCopy ) {
+  	const xAOD::JetFourMom_t &jetP4 = calibratedJet->jetP4(scale);
 
-    ATH_MSG_DEBUG( " Before touching signal state:" << jet->pt() );
-    if ( jet->pt() < m_badjetPtCut ) continue;
+    /** select and store Jets */
+    double pt = jetP4.Pt();
 
-    if (jet::JetCaloQualityUtils::isUgly( *jetItr ))  AnyBadJet |= 1<<0;
-    if (veryLooseBadTool->accept( *jet))               AnyBadJet |= 1<<1;
-    if (looseBadTool->accept( *jet))                   AnyBadJet |= 1<<2;
-    if (mediumBadTool->accept( *jet))                  AnyBadJet |= 1<<3;
-    if (tightBadTool->accept( *jet))                   AnyBadJet |= 1<<4;
+    ATH_MSG_DEBUG( " Before touching signal state:" << pt );
+    if ( pt < m_badjetPtCut ) continue;
+
+    if (jet::JetCaloQualityUtils::isUgly( calibratedJet ))  AnyBadJet |= 1<<0;
+    if (!veryLooseBadTool->accept( *calibratedJet))          AnyBadJet |= 1<<1;
+    if (!looseBadTool->accept( *calibratedJet))              AnyBadJet |= 1<<2;
+    if (!mediumBadTool->accept( *calibratedJet))             AnyBadJet |= 1<<3;
+    if (!tightBadTool->accept( *calibratedJet))              AnyBadJet |= 1<<4;
     
   }
 
