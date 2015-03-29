@@ -27,5 +27,5 @@ def PhotonIsEMLooseSelectorConfigDC14(theTool) :
     #
     # PHOTON Loose cuts, with updated using *DC14*.
     #
-    theTool.ConfigFile = "ElectronPhotonSelectorTools/offline/dc14b_20141031/PhotonIsEMLooseSelectorCutDefs.conf"  
+    theTool.ConfigFile = "ElectronPhotonSelectorTools/offline/mc15_20150329/PhotonIsEMLooseSelectorCutDefs.conf"  
 

@@ -24,7 +24,7 @@ def ElectronIsEMLooseSelectorConfigDC14(theTool) :
     
     theTool = GetTool(theTool)
     
-    theTool.ConfigFile = "ElectronPhotonSelectorTools/offline/mc15_20150224/ElectronIsEMLooseSelectorCutDefs.conf"
+    theTool.ConfigFile = "ElectronPhotonSelectorTools/offline/mc15_20150329/ElectronIsEMLooseSelectorCutDefs.conf"
 
 
 def ElectronIsEMLooseSelectorConfig2011(theTool) :

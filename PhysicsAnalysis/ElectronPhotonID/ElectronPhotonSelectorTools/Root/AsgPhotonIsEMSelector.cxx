@@ -26,20 +26,6 @@
 
 #include "xAODEgamma/EgammaxAODHelpers.h"
 
-double AsgPhotonIsEMSelector::getConversion1OverP(const xAOD::Vertex* vx) const
-{
-  auto tps = vx->trackParticleLinks();
-  if (tps.size() == 1) {
-    return fabs((*tps[0])->qOverP());
-  } else if (tps.size() == 2) {
-    auto p = (*tps[0])->p4() + (*tps[1])->p4();
-    return 1.0/p.P();
-  } else {
-    ATH_MSG_WARNING("A conversion vertex has an incorrect size");
-    return 1.0;
-  }
-}
-
 //=============================================================================
 // Standard constructor
 //=============================================================================
@@ -496,10 +482,12 @@ StatusCode AsgPhotonIsEMSelector::execute(const xAOD::Photon* eg) const
     // apply only calo information
     //
   } else {
-    // retrieve associated track
-    const xAOD::Vertex* vx = eg->vertex();
-    if (vx != 0) {
-      ep = energy * getConversion1OverP(vx);
+    if (xAOD::EgammaHelpers::isConvertedPhoton(eg)) {
+      float p = xAOD::EgammaHelpers::momentumAtVertex(eg).mag();
+      if (p!=0.)
+	ep = energy / p;
+      else
+	ep = 9999999.;
     }
   }
 

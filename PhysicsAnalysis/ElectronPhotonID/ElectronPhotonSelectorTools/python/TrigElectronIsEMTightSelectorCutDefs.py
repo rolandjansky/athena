@@ -32,7 +32,7 @@ def TrigElectronIsEMTightSelectorConfigDC14(theTool) :
     theTool = GetTool(theTool)
     
     # the isEM name
-    theTool.ConfigFile = "ElectronPhotonSelectorTools/trigger/mc15_20150224/ElectronIsEMTightSelectorCutDefs.conf"
+    theTool.ConfigFile = "ElectronPhotonSelectorTools/trigger/mc15_20150329/ElectronIsEMTightSelectorCutDefs.conf"
 
 
 

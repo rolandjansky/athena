@@ -449,10 +449,15 @@ StatusCode AsgElectronIsEMSelector::execute(const xAOD::Electron* el) const
   // energy in calorimeter 
   const double energy =  cluster->e();
   // transverse energy of the electron (using the track eta) 
-  const double et = el->pt();
+  // const double et = el->pt();
+  double et = 0.;
+  
+  if(el->trackParticle() && !m_caloOnly ){
+    et  = ( cosh(el->trackParticle()->eta()) != 0.) ? energy/cosh(el->trackParticle()->eta()) : 0.; 
+  } else et  = ( cosh(eta2) != 0.) ? energy/cosh(eta2) : 0.; 
   
   iflag = calocuts_electrons(el, eta2, et, m_trigEtTh, 0);
-
+  
   if(!m_caloOnly){
     if(el->trackParticle()){
       iflag = TrackCut(el, eta2, et, energy, iflag);
