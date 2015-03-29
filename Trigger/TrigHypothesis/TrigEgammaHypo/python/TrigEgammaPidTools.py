@@ -15,9 +15,9 @@ from PATCore.HelperUtils import *
 from AthenaCommon import CfgMgr
 
 import sys
-import PyCintex
+import cppyy
 
-PyCintex.loadDictionary('ElectronPhotonSelectorToolsDict')
+cppyy.loadDictionary('ElectronPhotonSelectorToolsDict')
 from ROOT import LikeEnum
 from ROOT import egammaPID
 
@@ -32,7 +32,7 @@ from ElectronPhotonSelectorTools.TrigEGammaPIDdefs import SelectionDefElectron
 from ElectronPhotonSelectorTools.TrigEGammaPIDdefs import SelectionDefPhoton
 
 # Path for versioned configuration
-ConfigFilePath = "ElectronPhotonSelectorTools/trigger/mc15_20150224/"
+ConfigFilePath = "ElectronPhotonSelectorTools/trigger/mc15_20150329/"
 
 # Dictionaries for ToolNames
 ElectronToolName = {'vloose':'AsgElectronIsEMVLooseSelector',
@@ -84,15 +84,45 @@ ElectronCaloHypoToolName = {'vloose':'AsgElectronIsEMVLooseCaloHypoSelector',
     'lhtight':'AsgElectronLHTightCaloHypoSelector',}
 
 # Electron LH tools for alignment / commisioning
-ElectronLHToolName = {'cutd0dphideta':'AsgElectronLHMediumCutD0DphiDetaSelector',
+ElectronLHVLooseToolName = {'cutd0dphideta':'AsgElectronLHVeryLooseCutD0DphiDetaSelector',
+        'nod0':'AsgElectronLHVeryLooseNoD0Selector',
+        'nodeta':'AsgElectronLHVeryLooseNoDetaSelector',
+        'nodphires':'AsgElectronLHVeryLooseNoDphiResSelector',}
+
+ElectronLHVLooseToolConfigFile = {'cutd0dphideta':'ElectronLikelihoodVeryLooseTriggerConfig2015_CutD0DphiDeta.conf',
+        'nod0':'ElectronLikelihoodVeryLooseTriggerConfig2015_NoD0.conf',
+        'nodeta':'ElectronLikelihoodVeryLooseTriggerConfig2015_NoDeta.conf',
+        'nodphires':'ElectronLikelihoodVeryLooseTriggerConfig2015_NoDphiRes.conf',}
+
+ElectronLHLooseToolName = {'cutd0dphideta':'AsgElectronLHLooseCutD0DphiDetaSelector',
+        'nod0':'AsgElectronLHLooseNoD0Selector',
+        'nodeta':'AsgElectronLHLooseNoDetaSelector',
+        'nodphires':'AsgElectronLHLooseNoDphiResSelector',}
+
+ElectronLHLooseToolConfigFile = {'cutd0dphideta':'ElectronLikelihoodLooseTriggerConfig2015_CutD0DphiDeta.conf',
+        'nod0':'ElectronLikelihoodLooseTriggerConfig2015_NoD0.conf',
+        'nodeta':'ElectronLikelihoodLooseTriggerConfig2015_NoDeta.conf',
+        'nodphires':'ElectronLikelihoodLooseTriggerConfig2015_NoDphiRes.conf',}
+
+ElectronLHMediumToolName = {'cutd0dphideta':'AsgElectronLHMediumCutD0DphiDetaSelector',
         'nod0':'AsgElectronLHMediumNoD0Selector',
         'nodeta':'AsgElectronLHMediumNoDetaSelector',
         'nodphires':'AsgElectronLHMediumNoDphiResSelector',}
 
-ElectronLHToolConfigFile = {'cutd0dphideta':'ElectronLikelihoodMediumTriggerConfig2015_CutD0DphiDeta.conf',
+ElectronLHMediumToolConfigFile = {'cutd0dphideta':'ElectronLikelihoodMediumTriggerConfig2015_CutD0DphiDeta.conf',
         'nod0':'ElectronLikelihoodMediumTriggerConfig2015_NoD0.conf',
         'nodeta':'ElectronLikelihoodMediumTriggerConfig2015_NoDeta.conf',
         'nodphires':'ElectronLikelihoodMediumTriggerConfig2015_NoDphiRes.conf',}
+
+ElectronLHTightToolName = {'cutd0dphideta':'AsgElectronLHTightCutD0DphiDetaSelector',
+        'nod0':'AsgElectronLHTightNoD0Selector',
+        'nodeta':'AsgElectronLHTightNoDetaSelector',
+        'nodphires':'AsgElectronLHTightNoDphiResSelector',}
+
+ElectronLHTightToolConfigFile = {'cutd0dphideta':'ElectronLikelihoodTightTriggerConfig2015_CutD0DphiDeta.conf',
+        'nod0':'ElectronLikelihoodTightTriggerConfig2015_NoD0.conf',
+        'nodeta':'ElectronLikelihoodTightTriggerConfig2015_NoDeta.conf',
+        'nodphires':'ElectronLikelihoodTightTriggerConfig2015_NoDphiRes.conf',}
 
 ElectronToolConfigFile = {'vloose':'ElectronIsEMVLooseSelectorCutDefs.conf', 
     'loose':'ElectronIsEMLooseSelectorCutDefs.conf',
@@ -151,134 +181,142 @@ PhotonIsEMBits = {'loose':SelectionDefPhoton.PhotonLoose,
     'medium1':SelectionDefPhoton.PhotonMediumEF,
     'tight1':SelectionDefPhoton.PhotonTight,}
 
+# Add function to add to ToolSvc, same as in Factories
+def addToToolSvc( tool ):
+    "addToToolSvc( tool ) --> add tool to ToolSvc"
+    from AthenaCommon.AppMgr import ToolSvc
+    if not hasattr(ToolSvc,tool.getName()):
+        ToolSvc += tool
+        #print tool
+    return tool
+
 def ElectronPidTools():
-    from AthenaCommon.AppMgr import ToolSvc   
+    #from AthenaCommon.AppMgr import ToolSvc   
     # Run1 selectors -- added directly to ToolSvc from default config via mapping
     #print '=========== Run1 PID ============'
     for key in ElectronToolName:
         if not ('lh' in key):
             if ('1' in key):
-                #print ElectronToolName[key]
                 tool=ConfiguredAsgElectronIsEMSelector(ElectronToolName[key],ElectronPidName[key],electronPIDmenu.menuTrig2012)
-                ToolSvc += tool
+                addToToolSvc( tool )
     
     # Trigger specific Run1 selectors for high pt triggers
     #print '=========== Run1 PID trigger specific ============'
     for key in ElectronHypoToolName:
         if not ('lh' in key):
             if ('1' in key):
-                #print ElectronHypoToolName[key]
                 tool=ConfiguredAsgElectronIsEMSelector(ElectronHypoToolName[key],ElectronPidName[key],electronPIDmenu.menuTrig2012)
                 tool.trigEtTh = 20000
-                ToolSvc += tool
+                addToToolSvc( tool )
     
     # Calo only Run1 selectors
     #print '=========== Run1 PID Calo============'
     for key in ElectronCaloToolName:
         if not ('lh' in key):
             if ('1' in key):
-                #print ElectronCaloToolName[key]
                 tool=ConfiguredAsgElectronIsEMSelector(ElectronCaloToolName[key],ElectronPidName[key],electronPIDmenu.menuTrig2012)
                 tool.caloOnly = True
-                ToolSvc += tool
+                addToToolSvc( tool )
     
     # Calo-only Trigger specific with trigEtTh property set  
     #print '=========== Run1 PID Calo trigger specific ============'
     for key in ElectronCaloHypoToolName:
         if not ('lh' in key):
             if ('1' in key):
-                #print ElectronCaloHypoToolName[key]
                 tool=ConfiguredAsgElectronIsEMSelector(ElectronCaloHypoToolName[key],ElectronPidName[key],electronPIDmenu.menuTrig2012)
                 tool.caloOnly = True
                 tool.trigEtTh = 20000
-                ToolSvc += tool
+                addToToolSvc( tool )
     
     # Versioned selectors for Run2
     #print '=========== Run2 PID ============'
     for key in ElectronToolName:
         if not('lh' in key):
             if not('1' in key):
-                #print ElectronToolName[key]
-                #print ElectronToolConfigFile[key]
                 tool=CfgMgr.AsgElectronIsEMSelector(ElectronToolName[key])
                 tool.ConfigFile = ConfigFilePath + ElectronToolConfigFile[key]
                 tool.isEMMask = ElectronIsEMBits[key]
-                ToolSvc += tool
+                addToToolSvc( tool )
     
     # Trigger specific Run2 selectors
     #print '=========== Run2 PID trigger specific ============'
     for key in ElectronHypoToolName:
         if not('lh' in key):
             if not('1' in key):
-                #print ElectronHypoToolName[key]
-                #print ElectronToolConfigFile[key]
                 tool=CfgMgr.AsgElectronIsEMSelector(ElectronHypoToolName[key])
                 tool.ConfigFile = ConfigFilePath + ElectronToolConfigFile[key]
                 tool.isEMMask = ElectronIsEMBits[key]
                 tool.trigEtTh = 20000
-                ToolSvc += tool
+                addToToolSvc( tool )
     
     # Calo-only selectors
     #print '=========== Run2 PID Calo============'
     for key in ElectronCaloToolName:
         if not('lh' in key):
             if not('1' in key):
-                #print ElectronCaloToolName[key]
-                #print ElectronCaloToolConfigFile[key]
                 tool=CfgMgr.AsgElectronIsEMSelector(ElectronCaloToolName[key])
                 tool.ConfigFile = ConfigFilePath + ElectronCaloToolConfigFile[key]
                 tool.isEMMask = ElectronIsEMBits[key]
                 tool.caloOnly = True
-                ToolSvc += tool
+                addToToolSvc( tool )
     
     # Calo-only trigger specific selectors
     #print '=========== Run2 PID Calo trigger specific ============'
     for key in ElectronCaloHypoToolName:
         if not('lh' in key):
             if not('1' in key):
-                #print ElectronCaloHypoToolName[key]
-                #print ElectronCaloToolConfigFile[key]
                 tool=CfgMgr.AsgElectronIsEMSelector(ElectronCaloHypoToolName[key])
                 tool.ConfigFile = ConfigFilePath + ElectronCaloToolConfigFile[key]
                 tool.isEMMask = ElectronIsEMBits[key]
                 tool.caloOnly = True
                 tool.trigEtTh = 20000
-                ToolSvc += tool
+                addToToolSvc( tool )
    
     # LH selectors
     #print '======== LH selectors ==========='
     for key in ElectronToolName:
         if('lh' in key):
-            #print ElectronToolName[key]
-            #print ElectronToolConfigFile[key]
             tool=CfgMgr.AsgElectronLikelihoodTool(ElectronToolName[key])
             tool.ConfigFile = ConfigFilePath + ElectronToolConfigFile[key]
-            #tool.inputPDFFileName = ConfigFilePath + "DC14OnlinePDFs.root"
-            #tool.inputPDFFileName = "ElectronPhotonSelectorTools/trigger/dc14b_20141031/DC14OnlinePDFs.root"
             tool.usePVContainer = False
-            ToolSvc += tool
+            addToToolSvc( tool )
    
     # Special LH triggers for alignment / commisioning
-    for key in ElectronLHToolName:
-        #print ElectronLHToolName[key]
-        #print ElectronLHToolConfigFile[key]
-        tool=CfgMgr.AsgElectronLikelihoodTool(ElectronLHToolName[key])
-        tool.ConfigFile = ConfigFilePath + ElectronLHToolConfigFile[key]
-        #tool.inputPDFFileName = ConfigFilePath + "DC14OnlinePDFs.root"
+    for key in ElectronLHVLooseToolName:
+        tool=CfgMgr.AsgElectronLikelihoodTool(ElectronLHVLooseToolName[key])
+        tool.ConfigFile = ConfigFilePath + ElectronLHVLooseToolConfigFile[key]
         tool.usePVContainer = False
-        ToolSvc += tool
+        addToToolSvc( tool )
+        
+    for key in ElectronLHLooseToolName:
+        tool=CfgMgr.AsgElectronLikelihoodTool(ElectronLHLooseToolName[key])
+        tool.ConfigFile = ConfigFilePath + ElectronLHLooseToolConfigFile[key]
+        tool.usePVContainer = False
+        addToToolSvc( tool )
+        
+    for key in ElectronLHMediumToolName:
+        tool=CfgMgr.AsgElectronLikelihoodTool(ElectronLHMediumToolName[key])
+        tool.ConfigFile = ConfigFilePath + ElectronLHMediumToolConfigFile[key]
+        tool.usePVContainer = False
+        addToToolSvc( tool )
+        
+    for key in ElectronLHTightToolName:
+        tool=CfgMgr.AsgElectronLikelihoodTool(ElectronLHTightToolName[key])
+        tool.ConfigFile = ConfigFilePath + ElectronLHTightToolConfigFile[key]
+        tool.usePVContainer = False
+        addToToolSvc( tool )
+        
 
     # Calo-only LH selectors
     #print '======== LH Calo selectors ==========='
     for key in ElectronCaloToolName:
         if('lh' in key):
-            #print ElectronCaloToolName[key]
             tool=CfgMgr.AsgElectronLikelihoodTool(ElectronCaloToolName[key])
             tool.ConfigFile = ConfigFilePath + ElectronCaloToolConfigFile[key]
-            #tool.inputPDFFileName = ConfigFilePath + "DC14OnlinePDFs.root"
             tool.usePVContainer = False
             tool.caloOnly = True
-            ToolSvc += tool
+            addToToolSvc( tool )
+            
     
 def PhotonPidTools():
     from AthenaCommon.AppMgr import ToolSvc
@@ -289,7 +327,8 @@ def PhotonPidTools():
             tool.ConfigFile = ConfigFilePath + PhotonToolConfigFile[key]
             tool.isEMMask = PhotonIsEMBits[key]
             tool.ForceConvertedPhotonPID = True
-            ToolSvc += tool
+            addToToolSvc( tool )
+            
     # Run1 Photon triggers
     PhotonLoose1Sel=ConfiguredAsgElectronIsEMSelector("AsgPhotonIsEMLoose1Selector",egammaPID.PhotonIDLooseEF,electronPIDmenu.menuTrig2012)
     PhotonLoose1Sel.caloOnly = True
@@ -301,9 +340,9 @@ def PhotonPidTools():
     PhotonTight1Sel.ConfigFile = 'ElectronPhotonSelectorTools/dc14b_20141031/PhotonIsEMTight8TeVSelectorCutDefs.conf'   
     PhotonTight1Sel.ForceConvertedPhotonPID = True
     
-    ToolSvc += PhotonLoose1Sel
-    ToolSvc += PhotonMedium1Sel
-    ToolSvc += PhotonTight1Sel
+    addToToolSvc( PhotonLoose1Sel )
+    addToToolSvc( PhotonMedium1Sel )
+    addToToolSvc( PhotonTight1Sel )
     print "====  PhotonLooseHLT:                                 0x%08x              =====" % SelectionDefPhoton.PhotonLoose
     print "====  PhotonLoose:                                 0x%08x              =====" % egammaPID.PhotonLoose
     print "====  PhotonMediumHLT:                                 0x%08x              =====" % SelectionDefPhoton.PhotonMedium

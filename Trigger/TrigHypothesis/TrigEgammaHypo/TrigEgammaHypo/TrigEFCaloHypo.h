@@ -73,7 +73,6 @@ class TrigEFCaloHypo : public HLT::HypoAlgo {
   // Cuts to be applied:
 
   double     m_emEt;
-  double     m_isEM;
   bool       m_applyIsEM;  //!< true if isem flag required 
   bool       m_applyLH; // use LH
   unsigned int        m_IsEMrequiredBits;  //!< isem flag bits required

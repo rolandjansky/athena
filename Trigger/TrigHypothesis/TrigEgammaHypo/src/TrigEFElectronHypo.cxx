@@ -221,11 +221,10 @@ HLT::ErrorCode TrigEFElectronHypo::hltInitialize()
  
   //retrieving TrackToVertex:    
   if ( m_trackToVertexTool.retrieve().isFailure() ) {  
-    msg() << MSG::ERROR <<"Failed to retrieve tool " << m_trackToVertexTool << endreq;  	  
-    m_trackToVertexTool = 0;  
-    return StatusCode::FAILURE;  
+      ATH_MSG_ERROR("Failed to retrieve tool " << m_trackToVertexTool);
+      return StatusCode::FAILURE;  
   } else {  
-    msg() << MSG::DEBUG << "Retrieved tool " << m_trackToVertexTool<< endreq; 
+    ATH_MSG_DEBUG("Retrieved tool " << m_trackToVertexTool);
   }
 
   //-------------------------------------------------------------------------------
@@ -234,10 +233,8 @@ HLT::ErrorCode TrigEFElectronHypo::hltInitialize()
   //------------------------------------------------------------------------------
   
   if (m_egammaElectronCutIDToolName=="") {
-    msg() << MSG::DEBUG << "egammaElectronCutID PID is disabled " 
-	  << m_egammaElectronCutIDToolName 
-	  << endreq;
-    m_egammaElectronCutIDTool=0;
+    ATH_MSG_DEBUG("egammaElectronCutID PID is disabled, no tool specified "); 
+    m_egammaElectronCutIDTool=ToolHandle<IAsgElectronIsEMSelector>();
   } else {
     m_egammaElectronCutIDTool=ToolHandle<IAsgElectronIsEMSelector>(m_egammaElectronCutIDToolName);    
     if(m_egammaElectronCutIDTool.retrieve().isFailure()) {
@@ -253,9 +250,8 @@ HLT::ErrorCode TrigEFElectronHypo::hltInitialize()
   }
   
   if (m_athElectronLHIDSelectorToolName=="") {
-      msg() << MSG::DEBUG <<  "AthenaElectronLHIDSelectorTool is disabled  " 
-	  << m_athElectronLHIDSelectorToolName << endreq;
-      m_athElectronLHIDSelectorTool=0;
+      ATH_MSG_DEBUG("AthenaElectronLHIDSelectorTool is disabled, no tool specified  "); 
+       m_athElectronLHIDSelectorTool=ToolHandle<IAsgElectronLikelihoodTool>();
   } else {
       m_athElectronLHIDSelectorTool=ToolHandle<IAsgElectronLikelihoodTool>(m_athElectronLHIDSelectorToolName);
       // a priori this is not useful
@@ -377,8 +373,6 @@ HLT::ErrorCode TrigEFElectronHypo::hltExecute(const HLT::TriggerElement* outputT
   // default value, it will be set to true if selection satisfied
   accepted=false;
 
-  // AcceptAll property = true means selection cuts should not be applied
-  if (m_acceptAll) accepted=true;
   
   // get egamma objects from the trigger element:
   //--------------------------------------------------
@@ -417,6 +411,22 @@ HLT::ErrorCode TrigEFElectronHypo::hltExecute(const HLT::TriggerElement* outputT
     if (timerSvc()) m_totalTimer->stop();
     return HLT::OK;
   }
+  // Check for objects in container
+  if(m_EgammaContainer->size() == 0){
+      ATH_MSG_DEBUG("REGTEST: No Electrons in container");
+      if (timerSvc()) m_totalTimer->stop();
+      return HLT::OK;
+  }
+  
+  // AcceptAll property = true means selection cuts should not be applied
+  // Only set after checking container size
+  if (m_acceptAll) {
+      accepted = true;
+      ATH_MSG_DEBUG("AcceptAll property is set: taking all events");
+  } 
+  else 
+      ATH_MSG_DEBUG("AcceptAll property not set: applying selection");
+
 
   // generate TrigPassBits mask to flag which egamma objects pass hypo cuts
   TrigPassBits* passBits = HLT::makeTrigPassBits(m_EgammaContainer);
@@ -447,7 +457,7 @@ HLT::ErrorCode TrigEFElectronHypo::hltExecute(const HLT::TriggerElement* outputT
 
   //Monitor the required isEM 32-Bit pattern Before Cuts
   for(unsigned int i=0;i<32;++i) { //32-bit as it is in the Offline isEM for BitDefElecton and BitDefPhoton	
-    m_IsEMRequiredBits[i]+= ((m_IsEMrequiredBits & (0x1<<i)) && 1); 
+    m_IsEMRequiredBits[i]+= ((m_IsEMrequiredBits & (0x1<<i)) != 0); 
   }
   for (const auto& egIt : *m_EgammaContainer){
 
@@ -528,7 +538,7 @@ HLT::ErrorCode TrigEFElectronHypo::hltExecute(const HLT::TriggerElement* outputT
         
         //Monitor isEM Before Cut
         for(unsigned int i=0;i<32;++i) { //32-bit as it is in the Offline isEM for BitDefElecton and BitDefPhoton
-            m_NcandIsEM[i]+= ((isEMTrig & (0x1<<i)) && 1); 
+            m_NcandIsEM[i]+= ((isEMTrig & (0x1<<i)) != 0); 
         }
 
         if(isEMFlags)
@@ -557,12 +567,12 @@ HLT::ErrorCode TrigEFElectronHypo::hltExecute(const HLT::TriggerElement* outputT
 
         //Monitor isEM After Cut
         for(unsigned int i=0;i<32;++i) { //32-bit as it is in the Offline isEM for BitDefElecton and BitDefPhoton
-            m_NcandIsEMAfterCut[i]+= ((isEMTrig & (0x1<<i)) && 1); 
+            m_NcandIsEMAfterCut[i]+= ((isEMTrig & (0x1<<i)) != 0); 
         }
 
         //Monitor the required isEM 32-Bit pattern After Cut
         for(unsigned int i=0;i<32;++i) { //32-bit as it is in the Offline isEM for BitDefElecton and BitDefPhoton	
-            m_IsEMRequiredBitsAfterCut[i]+= ((m_IsEMrequiredBits & (0x1<<i)) && 1); 
+            m_IsEMRequiredBitsAfterCut[i]+= ((m_IsEMrequiredBits & (0x1<<i)) != 0); 
         }
 
 
