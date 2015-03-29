@@ -141,10 +141,6 @@ class LocalNoiseSuppressionTool : public AthAlgTool, virtual public ICellWeightT
   const CaloCell_ID* m_calo_id;
 
   const CaloCellContainer* m_caloCellContainer;
-
-  StoreGateSvc* m_storeGate;	
-  
-
 };
 
 #endif
