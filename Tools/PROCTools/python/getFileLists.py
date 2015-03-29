@@ -9,7 +9,7 @@ from string import *
 def tctPath(build,rel):
     if not rel.startswith("rel_"):
         rel="rel_"+rel
-    arch = "x86_64-slc6-gcc47-opt"
+    arch = "x86_64-slc6-gcc48-opt"
     if build.startswith("17.") or build.startswith("18."):
         arch = "i686-slc5-gcc43-opt"
     return "/afs/cern.ch/atlas/project/RTT/prod/Results/tct/"+rel+"/"+build+"/build/"+arch+"/offline/Tier0ChainTests/"

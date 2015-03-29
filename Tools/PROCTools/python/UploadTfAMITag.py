@@ -3,23 +3,30 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 import sys,pickle,os
 
-HIProjTag="data[0-9][0-9]_hi" # Only for Pb-Pb and p-Pb collisions (this regular expression matches with both "data11_hi" and "data11_hip")
-HIpProjTag="data[0-9][0-9]_hip" # Only for p-Pb collisions
-ppProjTag="data[0-9][0-9]_.*eV" # Only for pp data
-cmProjTag="data[0-9][0-9]_(cos|1beam)" # only for commissioning
-cpProjTag="data[0-9][0-9]_(cos|1beam|.*eV|comm)" #For commissioning or pp but not HI
-cphipProjTag="data[0-9][0-9]_(cos|1beam|.*eV|comm|hip)" # Above plus hip, i.e. all bar Pb-Pb HI
-pphipProjTag="data[0-9][0-9]_(.*eV|hip)" # pp or hip, for hip outputs in pp
+##############################################################
+#                                                            #
+# UploadTfAMITag.py                                          #
+# Script for creating and updating Tier-0 AMI tags w/ pyAMI  #
+#                                                            #
+##############################################################
+
+HIProjTag = "data[0-9][0-9]_hi" # Only for Pb-Pb and p-Pb collisions (this regular expression matches with both "data11_hi" and "data11_hip")
+HIpProjTag = "data[0-9][0-9]_hip" # Only for p-Pb collisions
+ppProjTag = "data[0-9][0-9]_.*eV" # Only for pp data
+cmProjTag = "data[0-9][0-9]_(cos|1beam)" # only for commissioning
+cpProjTag = "data[0-9][0-9]_(cos|1beam|.*eV|comm)" #For commissioning or pp but not HI
+cphipProjTag = "data[0-9][0-9]_(cos|1beam|.*eV|comm|hip)" # Above plus hip, i.e. all bar Pb-Pb HI
+pphipProjTag = "data[0-9][0-9]_(.*eV|hip)" # pp or hip, for hip outputs in pp
 
 #Setup script locations
-setupScript="/afs/cern.ch/atlas/tzero/software/setup/setuptrf.sh"
-specialT0Setup_Oracle="/afs/cern.ch/atlas/tzero/software/setup/specialsetup_tier0.sh" # Direct-Oracle - for everything but f-tags
-specialT0Setup_Frontier="/afs/cern.ch/atlas/tzero/software/setup/specialsetup_tier0_frontier.sh" # FronTier - for f-tags. Will also use for v tags with an alert
+setupScript = "/afs/cern.ch/atlas/tzero/software/setup/setuptrf.sh"
+specialT0Setup_Oracle = "/afs/cern.ch/atlas/tzero/software/setup/specialsetup_tier0.sh" # Direct-Oracle - for everything but f-tags
+specialT0Setup_Frontier = "/afs/cern.ch/atlas/tzero/software/setup/specialsetup_tier0_frontier.sh" # FronTier - for f-tags. Will also use for v tags with an alert
 
-specialT0Setup=specialT0Setup_Oracle # By Default
+specialT0Setup = specialT0Setup_Oracle # By Default
 
 #For Commissioning, Colissions and Heavy Ions
-OutputsVsStreams={
+OutputsVsStreams = {
 
 # The basics:
     'outputESDFile': {'dstype': 'ESD', 'ifMatch': '(?!.*DRAW.*)', 'HumanOutputs': 'always produced.'},
@@ -30,7 +37,7 @@ OutputsVsStreams={
 # Ntuples
     'outputNTUP_TRIGFile': {'dstype': 'NTUP_TRIG', 'ifMatch': '(?!.*DRAW.*)(.*express.*|.*physics_MinBias.*|.*physics_HardProbes.*|.*physics_UPC.*)',
                             'HumanOutputs': 'always produced for express. Produced for MinBias, HardProbes and UPC in early hip running'},
-    'outputNTUP_MUONCALIBFile': {'dstype': 'NTUP_MUONCALIB', 'ifMatch': cpProjTag+'(?!.*DRAW.*)(.*EnhancedBias.*|.*MuonswBeam.*|.*physics_Muons\..*|.*physics_L1TT.*|.*physics_L1Muon\..*|.*physics_HLTPassthrough\..*|.*physics_IDCosmic\..*)',
+    'outputNTUP_MUONCALIBFile': {'dstype': 'NTUP_MUONCALIB', 'ifMatch': cpProjTag+'(?!.*DRAW.*)(.*EnhancedBias.*|.*MuonswBeam.*|.*physics_Muons\..*|.*physics_L1TT.*|.*physics_L1Muon\..*|.*physics_HLTPassthrough\..*|.*physics_IDCosmic\..*|.*physics_CosmicMuons\..*)',
                                  'HumanOutputs': 'produced for EnhancedBias, Muon, L1TT and L1Muon, IDCosmic and HLTPassthrough streams, not for HI'},
     'outputNTUP_TRIGMUFile': {'dstype': 'NTUP_TRIGMU', 'ifMatch': cpProjTag+'(?!.*DRAW.*)(.*physics_L1Muon\..*|.*physics_IDCosmic\..*|.*physics_HLTPassthrough\..*)',
                                  'HumanOutputs': 'produced for L1Muon, IDCosmic and HLTPassthrough streams, not for HI'},
@@ -95,8 +102,6 @@ OutputsVsStreams={
 
     #Special for pixelStream outputs :
     'outputNTUP_IDVTXLUMIFile' : {'dstype' : 'NTUP_IDVTXLUMI', 'ifMatch' : ppProjTag+'(?!.*DRAW.*)(.*PixelBeam.*|.*calibration_VdM.*)','HumanOutputs': 'produced for luminosity studies, for the PixelBeam stream.'},
-
-
     }
 
 #Print for debugging...
@@ -106,12 +111,10 @@ OutputsVsStreams={
 ##     except:
 ##         print outputKey,": always produced"
 
-
-
 #-------------------------------------------------------------------------------------
 def GetProcessConfigs(release,patcharea):
-    rel=str(release)
-    pa=str(patcharea)
+    rel = str(release)
+    pa = str(patcharea)
     #print "Got release",release
     #print "Got Patch area",pa
     processConfigs = {}
@@ -138,11 +141,11 @@ def GetProcessConfigs(release,patcharea):
     
     # NTUP merging
     processConfigs['ntupmerge'] = {
-        'inputs': {'inputROOTFiles': {}},
-        'outputs': {'outputROOTFile': {'dstype': '!likeinput'}},
-        'phconfig': {},
-        'transformation': 'hadd',
-        'tasktransinfo': {'trfpath': '/afs/cern.ch/atlas/tzero/software/trfs/ROOTMerge_trf.py', 
+        'inputs': {'inputNTUP_MUONCALIBFile': {}},
+        'outputs': {'outputNTUP_MUONCALIB_MRGFile': {'dstype': '!likeinput'}},
+        'phconfig': {}, #{'skipFileValidation': 'True'},
+        'transformation': 'NTUPMerge_tf.py',
+        'tasktransinfo': {'trfpath': 'NTUPMerge_tf.py', 
                           'trfsetupcmd': setupScript + ' '+pa+' '+rel+' none'},
 
         'description': 'Trf for plain-ROOT n-tuple merging. '}
@@ -150,22 +153,22 @@ def GetProcessConfigs(release,patcharea):
     # AOD merging
     processConfigs['aodmerge'] = {
         'inputs': {'inputAODFile': {}},
-        'outputs': {'outputAOD_MRGFile': {'dstype': 'AOD'},
-                    'outputTAGFile': {'dstype': 'TAG'}
+        'outputs': {'outputAOD_MRGFile': {'dstype': 'AOD'}
+                    #'outputTAGFile': {'dstype': 'TAG'}
                     },
         'phconfig': {'ignoreErrors': 'True', 'autoConfiguration': 'everything'},
         'transformation': 'AODMerge_tf.py',
         'tasktransinfo': {'trfpath': 'AODMerge_tf.py',
                           'trfsetupcmd':  setupScript+' '+pa+' '+rel+' '+specialT0Setup },
-        'description': 'Produces merged AODs plus associated physics TAGs with Merging_trf.py. '}
+        'description': 'Produces merged AODs plus associated physics TAGs with AODMerge_tf.py. '}
 
     # DPD merging
     processConfigs['dpdmerge'] = {
         'inputs': {'inputESDFile': {}},
         'outputs': {'outputESDFile': {'dstype': '!likeinput' }},
-        'phconfig': {'--ignoreerrors': 'ALL', 'autoConfiguration': 'everything', 'preExec': 'rec.doDPD.set_Value_and_Lock(False)'},
-        'transformation': 'Merging_trf.py',
-        'tasktransinfo': {'trfpath': 'Merging_trf.py',
+        'phconfig': {'ignoreerrors': 'ALL', 'autoConfiguration': 'everything', 'preExec': 'rec.doDPD.set_Value_and_Lock(False)'},
+        'transformation': 'Merging_tf.py',
+        'tasktransinfo': {'trfpath': 'Merging_tf.py',
                           'trfsetupcmd': setupScript+' '+pa+' '+rel+' '+specialT0Setup }, 
         'description': 'Produces merged DPDs with Merging_trf. ' }
 
@@ -174,11 +177,11 @@ def GetProcessConfigs(release,patcharea):
     processConfigs['fastmon'] = {
         'inputs': {'inputAODFile': {}},
         'outputs': {'outputNTUP_FASTMONFile': {'dstype': 'NTUP_FASTMON'}},
-        'phconfig': {'--ignoreerrors': 'ALL', 'autoConfiguration': 'everything' },
-        'transformation': 'Reco_trf.py',
-        'tasktransinfo': {'trfpath': 'Reco_trf.py',
+        'phconfig': {'ignoreerrors': 'ALL', 'autoConfiguration': 'everything' },
+        'transformation': 'Reco_tf.py',
+        'tasktransinfo': {'trfpath': 'Reco_tf.py',
                           'trfsetupcmd':  setupScript+' '+pa+' '+rel+' '+specialT0Setup },
-        'description': 'Produces Fast Physics Monitoring ntuple with Reco_trf.py  '}
+        'description': 'Produces Fast Physics Monitoring ntuple with Reco_tf.py  '}
 
 
     # Reco
@@ -190,44 +193,48 @@ def GetProcessConfigs(release,patcharea):
         'tasktransinfo': {'trfpath': 'Reco_tf.py',
                           'trfsetupcmd': setupScript+' '+pa+' '+rel+' '+specialT0Setup }, 
 
-        'description': 'Runs reconstruction with Reco_trf. ' }
+        'description': 'Runs reconstruction with Reco_tf. ' }
     return processConfigs
 #-------------------------------------------------------------------------------------
 
 if __name__ == '__main__':
-    if len(sys.argv)<7 or len(sys.argv)>9:
+    if len(sys.argv) < 5 or len(sys.argv) > 8:
         print "##############"
         print "Application to create or update AMI tags (for manager only)\n"
         print "Usage:"
-        print "UploadAMITag.py <login> <password> inputDictionary.pickle create_AMITag <release> <description> [patcharea] [updateConditionsTag]"
+        print "UploadAMITag.py inputDictionary.pickle create_AMITag <release> <description> [patcharea] [updateConditionsTag]"
         print "or"
-        print "UploadAMITag.py <login> <password> inputDictionary.pickle update_AMITag <release> <description> [patcharea] [updateConditionsTag]"
+        print "UploadAMITag.py inputDictionary.pickle update_AMITag <release> <description> [patcharea] [updateConditionsTag]"
         print "\nTo create inputDictionary.pickle, execute:"
-        print "Reco_trf.py"
+        print "Reco_tf.py --dumpPickle inputDictionary.pickle ..."
         print "or"
         print "CmdToPickledDic.py <command>"
+        print "\nMake sure you have stored your pyAMI credentials encrypted in ~/.pyami, if not, please do:"
+        print "\n setupATLAS"
+        print " localSetupPyAMI"
+        print " ami auth"
+        print "\n and enter your AMI username and password"
         print "##############"
         sys.exit(0)
 
 
-    login=str(sys.argv[1])
-    password=str(sys.argv[2])
-    inPickleFile=str(sys.argv[3])
-    amiTagTmp=str(sys.argv[4])
-    release=str(sys.argv[5])
-    description=str(sys.argv[6])
+    inPickleFile=str(sys.argv[1])
+    amiTagTmp=str(sys.argv[2])
+    release=str(sys.argv[3])
+    description=str(sys.argv[4])
     updateConditionsTag = True # Switch to enable/disable the CURRENT conditions tag update
-    if len(sys.argv)>7:
-        patcharea=str(sys.argv[7])
+    if len(sys.argv)>5:
+        print sys.argv
+        patcharea=str(sys.argv[5])
         if not os.access(patcharea,os.R_OK):
             print "WARNING Can't access patch area at",patcharea
         if not patcharea.startswith("/afs/cern.ch/"):
-            print "WARNING Patch area does not start with /afs/cern.ch/ ???"
-        if len(sys.argv)>8:    
+            print "WARNING Patch area does not start with /afs/cern.ch/ - this is probably a mistake!"
+        if len(sys.argv)>6:
             try:
-                updateConditionsTag = int(sys.argv[8])
+                updateConditionsTag = int(sys.argv[6])
             except:
-                if sys.argv[8].lower() == "false":
+                if sys.argv[6].lower() == "false":
                     updateConditionsTag = False
 
     else:
@@ -237,11 +244,9 @@ if __name__ == '__main__':
     amiTag=''
     if amiTagTmp.startswith("create_"):
         doWhat="create"
-        #amiTag=amiTagTmp.strip("create_")
         amiTag=amiTagTmp.replace("create_","")
     elif amiTagTmp.startswith("update_"):
         doWhat="update"
-        #amiTag=amiTagTmp.strip("update_")
         amiTag=amiTagTmp.replace("update_","")
 
     if amiTag.startswith("f") or amiTag.startswith("v"):
@@ -250,19 +255,15 @@ if __name__ == '__main__':
             print "INFO: This v-tag is being created with specialT0Setup =",specialT0Setup
 
     process=None
-    if inPickleFile.endswith('.pickle'): process='reco'
-    elif inPickleFile=='histmerge': process='histmerge'
-    elif inPickleFile=='tagmerge': process='tagmerge'
-    elif inPickleFile=='ntupmerge': process='ntupmerge'
-    elif inPickleFile=='aodmerge': process='aodmerge'
-    elif inPickleFile=='dpdmerge': process='dpdmerge'
-    elif inPickleFile=='fastmon' : process='fastmon'
+    if inPickleFile.endswith('.pickle'): 
+        process='reco'
+    elif (inPickleFile in ['histmerge', 'tagmerge', 'ntupmerge', 'aodmerge', 'dpdmerge', 'fastmon']):
+        process = inPickleFile
     else:
-        s="Don't know how to interpret argument: '%s'.\n"%inPickleFile
-        s+="Possible arguments are: histmerge, tagmerge, ntupmerge, aodmerge, dpdmerge\n"
-        s+="...or for reconstruction tags: a pickeled dic named *.pickle\n"
+        s = "Don't know how to interpret argument: '%s'.\n"%inPickleFile
+        s += "Possible arguments are: histmerge, tagmerge, ntupmerge, aodmerge, dpdmerge\n"
+        s += "...or for reconstruction tags: a pickeled dic named *.pickle\n"
         raise RuntimeError(s)
-
 
     #Check if release exists
     relSp=release.split("-")
@@ -281,12 +282,6 @@ if __name__ == '__main__':
         #else:
         #    print "Found",relPath
     #Release exists in both releases and builds area if we reach this point
-
-    # Forcing histmerge to be in 64 bits
-    if process=='histmerge':
-        release=release+",64"
-        print "INFO: Enforcing histmerge tag to be in 64 bits"
-        
 
     processConfigs=GetProcessConfigs(release,patcharea)
     humanReadableOutputs=""
@@ -317,17 +312,25 @@ if __name__ == '__main__':
         inputDic={}
         outputDic={}
         configDic={}
+
+        print startingDic
+
         from PATJobTransforms.Configuration import ConfigDic
-        didConditionsUpdate=False
+        didConditionsUpdate = False
         for key in startingDic.keys():
             if ConfigDic.has_key(key) and hasattr(ConfigDic[key],"isInput"):
-                inputDic[key]={}
+                if amiTag.startswith("q"): # only write the input file for q-tags
+                    inputDic[key]=startingDic[key]
+                else:
+                    inputDic[key]={}
+                #print "inputDic[%s] = %s" % (key, inputDic[key])
+
             elif ConfigDic.has_key(key) and hasattr(ConfigDic[key],"isOutput") and (key!="tmpESD" and key!="tmpAOD"):
                 try:
                     #print "key: " , key , " isOutput"
                     outputDic[key]=OutputsVsStreams[key]
                 except:
-                    print "Known outputs defined in the OutputsVsStreams dictionnary are:"
+                    print "Known outputs defined in the OutputsVsStreams dictionary are:"
                     print OutputsVsStreams
                     raise RuntimeError("Don't know what to do with out key %s, please add it to OutputsVsStreams to use it"%key)
             elif key=='autoConfiguration' and updateConditionsTag and 'Conditions' in currentConditionsTag: # legacy: used for autoconfiguration of conditions like COMCOND-ES1P*-005-04
@@ -365,8 +368,14 @@ if __name__ == '__main__':
             configDic['conditionsTag']=currentConditionsTag
     
         #Special treatment for maxEvents and AMITag, in configDic
-        configDic['maxEvents']='-1'
+        configDic['maxEvents'] = '-1'
+        if amiTag.startswith("q"):
+            configDic['maxEvents'] = '25'
         configDic['AMITag']=str(amiTag)
+
+        # remove AMIConfig
+        if 'AMIConfig' in configDic.keys():
+            del configDic['AMIConfig']
 
         #Special treatment of outputs for Tier0 internal manipulations (hopefully temporary)
         for key in outputDic.keys():
@@ -393,42 +402,25 @@ if __name__ == '__main__':
     moreInfoDic={}
     moreInfoDic['tasktransinfo']=processConfigs[process]['tasktransinfo']
 
-    #---------------------
-    #Get pyAMI client
-#    try:
-#        from pyAMI.pyAMI import AMI
-#    except ImportError:
-#        print "WARNING unable to import AMI from pyAMI with standard $PYTHONPATH."
-#        print "Will manually add ZSI and 4suite, then try again..."
-#        import sys
-#        sys.path.insert(0,'/afs/cern.ch/atlas/offline/external/ZSI/2.1-a1/lib/python')
-#        sys.path.insert(0,'/afs/cern.ch/sw/lcg/external/4suite/1.0.2_python2.5/slc4_ia32_gcc34/lib/python2.5/site-packages')
-#        from pyAMI.pyAMI import AMI
-#    print "import pyAMI was succesful"
-#    amiclient=AMI(False)
-
-#    import setup_pyAMI
-#    from pyAMI.pyAMI import AMI
     try:
-        from pyAMI.client import AMIClient
+        import pyAMI.client
     except ImportError:
-        print "WARNING unable to import AMIClient from pyAMI"
-    print "import pyAMI4 was successful"    
-    amiclient=AMIClient(False)
+        print "WARNING unable to import pyAMI.client"
+    amiclient=pyAMI.client.Client('atlas')
 
     #------------------------
     #Build final AMI tag info
     s={} #stable values
-    s['configTag']=amiTag
-    s['AMIUser']=login
-    s['AMIPass']=password
+  
+    #s['AMIUser']=login
+    #s['AMIPass']=password
 
     c={} #changing values
     c['phconfig']=str(processConfigs[process]['phconfig'].__str__())
     c['inputs']=str(processConfigs[process]['inputs'].__str__())
     c['outputs']=str(processConfigs[process]['outputs'].__str__())
-    if humanReadableOutputs: c['Human-readable outputs']=str(humanReadableOutputs)
-    c['SWReleaseCache']=str(release)
+    if humanReadableOutputs: c['humanReadableOutputs']=str(humanReadableOutputs)
+    c['SWReleaseCache']=str(release).replace('-','_')
     c['transformation']=str(processConfigs[process]['transformation'])
     c['description']=processConfigs[process]['description']+description+" Using "+release
     c['trfsetupcmd']=str(moreInfoDic['tasktransinfo']['trfsetupcmd'])
@@ -443,56 +435,40 @@ if __name__ == '__main__':
     
     #Upload info to AMI
     if doWhat=="create":
-        l=['AddConfigurationTag']
+        # This should just be a letter. the number will be assigned by AMI
+        s['tagType']=amiTag[0]
+        l=['AddAMITag']
         for k in s.keys():
-            l.append(k+'='+s[k])
+            l.append(k+'="'+s[k].replace('"','\\"')+'"')
         for k in c.keys():
-            l.append(k+'='+c[k])
+            l.append(k+'="'+c[k].replace('"','\\"')+'"')
 
-        #print "command is: "
-        #print "l=",l
-        result=amiclient.execute(l)
-        print "\n\n###############################################"
-        print "#  Succesfully created new tag %s !!   :-)  #"%amiTag
-        print "###############################################\n\n"        
-
+        print "\nThis is the command that will be sent to AMI:\n"
+        print "l=",l
+        result=amiclient.execute(l,format='text')
+        print "\nHere's what AMI replied:\n\n%s" % result
 
     elif doWhat=="update":
-        l=['UpdateConfigurationTag']
+        s['amiTag']=amiTag
+        l=['UpdateAMITag']
+      
         for k in s.keys():
-            l.append(k+'='+s[k])
-
-        s='xx'
-        l.append('separator='+s)
-        
-        nKeys=len(c.keys())
-        n=0
-        tmp='updateField='
+            l.append(k+'="'+s[k].replace('"','\\"')+'"')
+            
         for k in c.keys():
-            tmp+=k
-            n+=1
-            if n<nKeys: tmp+=s
-        l.append(tmp)
-
-        n=0
-        tmp='updateValue='
-        for k in c.keys():
-            tmp+=c[k]
-            n+=1
-            if n<nKeys: tmp+=s
-        l.append(tmp)
-        
-        #print "l=",l
+            if (k=='transformation') :
+                # transformation cannot be changed in an update.
+                continue
+            l.append(k+'="'+c[k].replace('"','\\"')+'"')
+            
+        print "\nThis is the command that will be sent to AMI:\n"
+        print "l=",l
         result=amiclient.execute(l)
-        print "\n\n#####################################################"
-        print "#  Succesfully updated existing tag %s !!!   :-)  #"%amiTag
-        print "#####################################################\n\n"        
+        print "\nHere's what AMI replied:\n\n%s" % result
 
     else:
         raise SyntaxError("Don't know what to do... amiTagTmp='%s'  doWhat='%s'"%(amiTagTmp,doWhat))
-            
-    print "To see the corresponding command, do:"
-    print "GetCommand.py AMI=%s \n"%amiTag
-    print "or go to:"
-    print "http://ami.in2p3.fr/AMI/servlet/net.hep.atlas.Database.Bookkeeping.AMI.Servlet.Command?linkId=501"
+
+    print "\nTo see the corresponding command, go to:\n"
+    print "https://ami.in2p3.fr/AMI/servlet/net.hep.atlas.Database.Bookkeeping.AMI.Servlet.Command?linkId=10226"
     print "\n"
