@@ -12,7 +12,6 @@ Purpose : create a collection of ElectronTag
 *****************************************************************************/
 
 #include "GaudiKernel/Property.h"
-
 #include "StoreGate/StoreGateSvc.h"
 
 #include "xAODEgamma/EgammaContainer.h"
@@ -22,7 +21,7 @@ Purpose : create a collection of ElectronTag
 #include "AthenaPoolUtilities/AthenaAttributeSpecification.h"
 #include "xAODEgamma/EgammaEnums.h"
 #include "ElectronPhotonTagTools/ElectronTagTool.h"
-#include "ElectronPhotonSelectorTools/AsgElectronLikelihoodTool.h"
+#include "ElectronPhotonSelectorTools/IAsgElectronLikelihoodTool.h"
 #include "TagEvent/ElectronAttributeNames.h"
 #include "AnalysisUtils/AnalysisMisc.h"
 
@@ -34,7 +33,11 @@ Purpose : create a collection of ElectronTag
 /** the constructor */
 ElectronTagTool::ElectronTagTool (const std::string& type, const std::string& name, 
     const IInterface* parent) : 
-  AthAlgTool( type, name, parent ) {
+  AthAlgTool( type, name, parent ),
+  m_loose_likelihood(""),
+  m_medium_likelihood(""),
+  m_tight_likelihood(""){
+
 
   /** Electron AOD Container Name */
   declareProperty("Container",     m_containerNames);
@@ -48,47 +51,22 @@ ElectronTagTool::ElectronTagTool (const std::string& type, const std::string& na
   /** Calo Isolation cut values */
   declareProperty("TrackIsoCutValues",m_trackisocutvalues, "Cut values for track isolation");
 
+  /** Electron Tool name */
+  declareProperty("LooseLHSelector",    m_loose_likelihood);
+  declareProperty("MediumLHSelector",    m_medium_likelihood);
+  declareProperty("TightLHSelector",    m_tight_likelihood);
+
   declareInterface<ElectronTagTool>( this );
 }
 
 /** initialization - called once at the begginning */
 StatusCode  ElectronTagTool::initialize() {
-  ATH_MSG_DEBUG( "in intialize()" );
+  ATH_MSG_DEBUG( "in initialize()" );
+  // retrieve the electron likelihood calibration tool
+  CHECK(m_loose_likelihood.retrieve());
+  CHECK(m_medium_likelihood.retrieve());
+  CHECK(m_tight_likelihood.retrieve());
 
-
-  //Likelihood
-  std::string confDir = "ElectronPhotonSelectorTools/offline/dc14b_20150121/";
-  //loose
-  m_loose_Likelihood= new AsgElectronLikelihoodTool("LooseLikelihood");
-  StatusCode sc_loo = m_loose_Likelihood->setProperty("ConfigFile",confDir+"ElectronLikelihoodLooseOfflineConfig2015.conf");
-  if(!sc_loo.isSuccess()) {
-    ATH_MSG_WARNING("Unable to set property of tool: "<< m_loose_Likelihood);
-  }
-  if(!m_loose_Likelihood->initialize().isSuccess()){
-    ATH_MSG_WARNING("looseLikelihood not initialized");
-  }
-    
-  //medium
-  m_medium_Likelihood= new AsgElectronLikelihoodTool("MediumLikelihood");
-  StatusCode sc_med= m_medium_Likelihood->setProperty("ConfigFile",confDir+"ElectronLikelihoodMediumOfflineConfig2015.conf");
-  if(!sc_med.isSuccess()) {
-    ATH_MSG_WARNING("Unable to set property of tool: "<< m_medium_Likelihood);
-  }
-  if(!m_medium_Likelihood->initialize().isSuccess()){
-    ATH_MSG_WARNING("mediumLikelihood not initialized");
-  }
-  
-  //tight
-  m_tight_Likelihood = new AsgElectronLikelihoodTool("TightLikelihood");
-  StatusCode sc_tig= m_tight_Likelihood->setProperty("ConfigFile",confDir+"ElectronLikelihoodTightOfflineConfig2015.conf");
-  if(!sc_tig.isSuccess()) {
-    ATH_MSG_WARNING("Unable to set property of tool: "<< m_tight_Likelihood);
-  }
-  if(!m_tight_Likelihood->initialize().isSuccess()){
-    ATH_MSG_WARNING("tightLikelihood not initialized");
-  }
-  
-  
   return StatusCode::SUCCESS;
 }
 
@@ -127,13 +105,6 @@ StatusCode ElectronTagTool::attributeSpecification(std::map<std::string,AthenaAt
     os << ElectronAttributeNames[ElectronID::Tight] << std::dec << i;
     attrMap[ os.str() ] = AthenaAttributeType("unsigned int", ElectronAttributeUnitNames[ElectronID::Tight], ElectronAttributeGroupNames[ElectronID::Tight]) ;;
     m_tightStr.push_back( os.str() );
-
-    /** Forward Electron */
-    os.str("");
-    os << ElectronAttributeNames[ElectronID::Forward] << std::dec << i;
-    attrMap[ os.str() ] = AthenaAttributeType("bool", ElectronAttributeUnitNames[ElectronID::Forward], ElectronAttributeGroupNames[ElectronID::Forward]) ;
-    m_fwdStr.push_back( os.str() );
-
 
     /** Isolation for  Electron */
     os.str("");
@@ -248,11 +219,11 @@ StatusCode ElectronTagTool::execute(TagFragmentCollection& eTagColl, const int& 
     /** varying levels of tighness cuts */
     unsigned int tightness = 0x0; 
     if ( val_loose == 1 )       tightness |= (1 << 0);//LoosePP
-    if ( m_loose_Likelihood->accept(*EleItr) )       tightness |= (1 << 1);//Likelihood Loose
+    if ( m_loose_likelihood->accept(*EleItr) )       tightness |= (1 << 1);//Likelihood Loose
     if ( val_medium == 1 )    tightness |= (1 << 2);//MediumPP
-    if ( !m_medium_Likelihood->accept(*EleItr))      tightness |= (1 << 3);//Likelihood Medium
+    if ( m_medium_likelihood->accept(*EleItr))      tightness |= (1 << 3);//Likelihood Medium
     if ( val_tight == 1 )     tightness |= (1 << 4);//TightPP
-    if ( !m_tight_Likelihood->accept(*EleItr))       tightness |= (1 << 5);//Likelihood Tight
+    if ( m_tight_likelihood->accept(*EleItr))       tightness |= (1 << 5);//Likelihood Tight
 
     eTagColl.insert( m_tightStr[i], tightness ); 
         

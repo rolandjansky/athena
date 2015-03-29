@@ -14,10 +14,11 @@ Purpose : build the Electron Tag objects - ElectronTagCollection.h.
 	  The Electron Tag fragment is built here
 *****************************************************************************/
 
+#include "GaudiKernel/ToolHandle.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "TagEvent/TagFragmentCollection.h"
 #include "AthenaPoolUtilities/AthenaAttributeSpecification.h"
-#include "ElectronPhotonSelectorTools/AsgElectronLikelihoodTool.h"
+#include "ElectronPhotonSelectorTools/IAsgElectronLikelihoodTool.h"
 
 
 #include <map>
@@ -65,10 +66,9 @@ private:
   std::vector<std::string> m_fwdStr;
   std::vector<std::string> m_isoStr;
   
-
-  AsgElectronLikelihoodTool* m_loose_Likelihood;//!
-  AsgElectronLikelihoodTool* m_medium_Likelihood;//!
-  AsgElectronLikelihoodTool* m_tight_Likelihood;//!
+  ToolHandle<IAsgElectronLikelihoodTool> m_loose_likelihood;
+  ToolHandle<IAsgElectronLikelihoodTool> m_medium_likelihood;
+  ToolHandle<IAsgElectronLikelihoodTool> m_tight_likelihood;
  };
 
 #endif // ELECTRONTAGTOOL_H
