@@ -23,7 +23,6 @@ Purpose : create a collection of PhotonTag
 
 #include "ElectronPhotonTagTools/PhotonTagTool.h"
 #include "TagEvent/PhotonAttributeNames.h"
-#include "ElectronPhotonSelectorTools/AsgElectronLikelihoodTool.h"
 #include "AnalysisUtils/AnalysisMisc.h"
 #include "AthenaPoolUtilities/AthenaAttributeSpecification.h"
 
