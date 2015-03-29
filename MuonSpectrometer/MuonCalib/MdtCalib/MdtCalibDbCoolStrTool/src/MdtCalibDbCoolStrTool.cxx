@@ -2,8 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "GaudiKernel/MsgStream.h"
-
 #include "StoreGate/StoreGateSvc.h"
 #include "SGTools/TransientAddress.h"
 #include "CoralBase/Attribute.h"
@@ -57,16 +55,18 @@ namespace MuonCalib
 MdtCalibDbCoolStrTool::MdtCalibDbCoolStrTool (const std::string& type,
                              const std::string& name,
                              const IInterface* parent)
-  : AlgTool(type, name, parent), m_idToFixedIdTool("MuonCalib::IdToFixedIdTool"),m_rtFolder("/MDT/RT"), m_tubeFolder("/MDT/T0"),
+  : AthAlgTool(type, name, parent),
+    m_idToFixedIdTool("MuonCalib::IdToFixedIdTool"),
+    m_IOVDbSvc("IOVDbSvc", name),
+    m_regionSvc ("MdtCalibrationRegionSvc", name),
+    m_rtFolder("/MDT/RT"), m_tubeFolder("/MDT/T0"),
     m_rtDataLocation("RtKey"), m_tubeDataLocation("TubeKey"), m_defaultT0(800.),
     
     m_t0Shift(0.),
     m_t0Spread(0.),
     m_rtShift(0.),
     m_rtScale(1.),
-    m_log(0),
-    m_debug(false),
-    m_verbose(false),
+    m_AtRndmGenSvc ("AtRndmGenSvc", name),
     m_buffer_length(0),
     m_decompression_buffer(NULL)
 {
@@ -120,24 +120,20 @@ StatusCode MdtCalibDbCoolStrTool::updateAddress(StoreID::type /*storeID*/, SG::T
     std::string key  = tad->name();
     if ( 1221928754== clid && m_tubeDataLocation == key)
     {
-        if( m_debug ) *m_log << MSG::DEBUG << "OK Tube" << endreq;
-        return StatusCode::SUCCESS;
+      ATH_MSG_DEBUG(  "OK Tube" );
+      return StatusCode::SUCCESS;
     }
     if ( 1270996316== clid && m_rtDataLocation == key)
     {
-        if( m_debug )*m_log << MSG::DEBUG << "OK Rt" << endreq;
-        return StatusCode::SUCCESS;
+      ATH_MSG_DEBUG(  "OK Rt" );
+      return StatusCode::SUCCESS;
     }
     return StatusCode::FAILURE;
 }
 
 StatusCode MdtCalibDbCoolStrTool::initialize()
 { 
-  m_log = new MsgStream(msgSvc(), name());
-  m_debug = m_log->level() <= MSG::DEBUG;
-  m_verbose = m_log->level() <= MSG::VERBOSE;
-
-  if( m_debug ) *m_log << MSG::DEBUG << "Initializing " << endreq;
+  ATH_MSG_DEBUG(  "Initializing " );
   if(m_MeanCorrectionVsR.size())
   	{
 	m_TsCorrectionT0=m_MeanCorrectionVsR[0];
@@ -147,101 +143,52 @@ StatusCode MdtCalibDbCoolStrTool::initialize()
 		}
 	
 	}
-  StatusCode sc = serviceLocator()->service("DetectorStore", m_detStore);
-  if ( sc.isSuccess() ) {
-    if( m_debug ) *m_log << MSG::DEBUG << "Retrieved DetectorStore" << endreq;
-  }else{
-    *m_log << MSG::ERROR << "Failed to retrieve DetectorStore" << endreq;
-    return sc;
-  }
+  ATH_CHECK( detStore()->retrieve(m_mdtIdHelper, "MDTIDHELPER" ) );
+  ATH_CHECK( detStore()->retrieve( m_detMgr ) );
 
-  sc = m_detStore->retrieve(m_mdtIdHelper, "MDTIDHELPER" );
-  if (!sc.isSuccess()) {
-    *m_log << MSG::ERROR << "Can't retrieve MdtIdHelper" << endreq;
-    return sc;
-  }
-  
-  sc = m_detStore->retrieve( m_detMgr );
-  if (!sc.isSuccess()) {
-    *m_log << MSG::ERROR << "Can't retrieve MuonDetectorManager" << endreq;
-    return sc;
-  }
-
-
-  // Get interface to IOVSvc
-  m_IOVDbSvc = 0;
-  bool CREATEIF(true);
-  sc = service( "IOVDbSvc", m_IOVDbSvc, CREATEIF );
-  if ( sc.isFailure() )
-  {
-       *m_log << MSG::ERROR << "Unable to get the IOVDbSvc" << endreq;
-       return StatusCode::FAILURE;
-  }
-
-  sc = serviceLocator()->service("MdtCalibrationRegionSvc", m_regionSvc);
-  if ( sc.isSuccess() ) {
-    if( m_debug ) *m_log << MSG::DEBUG << "Retrieved MdtCalibrationRegionSvc" << endreq;
-  }else{
-    *m_log << MSG::ERROR << "Failed to retrieve MdtCalibrationRegionSvc" << endreq;    return sc;
-  }
+  ATH_CHECK( m_IOVDbSvc.retrieve() );
+  ATH_CHECK( m_regionSvc.retrieve() );
 
   // register callbacks
   const DataHandle<CondAttrListCollection> tubeData;
-  sc=m_detStore->regFcn(&IMdtCalibDBTool::loadTube,
-                        dynamic_cast<IMdtCalibDBTool*>(this),
-                        tubeData,m_tubeFolder);
-  if(sc.isFailure()) return StatusCode::FAILURE;
+  ATH_CHECK( detStore()->regFcn(&IMdtCalibDBTool::loadTube,
+                                dynamic_cast<IMdtCalibDBTool*>(this),
+                                tubeData,m_tubeFolder) );
   const DataHandle<CondAttrListCollection> rtData;
-  sc=m_detStore->regFcn(&IMdtCalibDBTool::loadRt,
-                        dynamic_cast<IMdtCalibDBTool*>(this),
-                        rtData,m_rtFolder);
-  if(sc.isFailure()) return StatusCode::FAILURE;
+  ATH_CHECK( detStore()->regFcn(&IMdtCalibDBTool::loadRt,
+                                dynamic_cast<IMdtCalibDBTool*>(this),
+                                rtData,m_rtFolder) );
 
-  sc = m_idToFixedIdTool.retrieve();
-  if (sc.isFailure()) {
-     *m_log << MSG::FATAL << "Could not find " << m_idToFixedIdTool << endreq;
-      return sc;
-  } else {
-     if( m_debug )*m_log << MSG::INFO << "Retrieved " << m_idToFixedIdTool << endreq;
-  }
+  ATH_CHECK( m_idToFixedIdTool.retrieve() );
 
+  ServiceHandle<MdtCalibrationDbSvc> dbSvc ("MdtCalibrationDbSvc", name());
+  ATH_CHECK( dbSvc.retrieve() );
+  ATH_MSG_DEBUG(  "Retrieved MdtCalibrationDbSvc" );
 
-  MdtCalibrationDbSvc * dbSvc;
-
-  sc = serviceLocator()->service("MdtCalibrationDbSvc", dbSvc);
-  if ( sc.isSuccess() ) {
-    if( m_debug ) *m_log << MSG::DEBUG << "Retrieved MdtCalibrationDbSvc" << endreq;
-  }else{
-    *m_log << MSG::ERROR << "Failed to retrieve MdtCalibrationDbSvc" << endreq;    return sc;
-  }
-  sc= m_detStore->regFcn(&IMdtCalibDBTool::loadTube,dynamic_cast<IMdtCalibDBTool*>(this),&MdtCalibrationDbSvc::loadTube,dynamic_cast<MdtCalibrationDbSvc*>(dbSvc));
-  if(sc.isFailure()) return StatusCode::FAILURE;
-  sc=m_detStore->regFcn(&IMdtCalibDBTool::loadRt,dynamic_cast<IMdtCalibDBTool*>(this),&MdtCalibrationDbSvc::loadRt,dynamic_cast<MdtCalibrationDbSvc*>(dbSvc));
-  if(sc.isFailure()) return StatusCode::FAILURE;
+  ATH_CHECK( detStore()->regFcn(&IMdtCalibDBTool::loadTube,dynamic_cast<IMdtCalibDBTool*>(this),&MdtCalibrationDbSvc::loadTube,dynamic_cast<MdtCalibrationDbSvc*>(&*dbSvc)) );
+  ATH_CHECK( detStore()->regFcn(&IMdtCalibDBTool::loadRt,dynamic_cast<IMdtCalibDBTool*>(this),&MdtCalibrationDbSvc::loadRt,dynamic_cast<MdtCalibrationDbSvc*>(&*dbSvc)) );
 
   // initialize MdtTubeCalibContainers 
-  sc=defaultT0s();
-  if(sc.isFailure()) return StatusCode::FAILURE;
-  sc=m_detStore->record( m_tubeData, m_tubeDataLocation, true );
-  if(sc.isFailure()) return StatusCode::FAILURE;
+  ATH_CHECK( defaultT0s() );
+  ATH_CHECK( detStore()->record( m_tubeData, m_tubeDataLocation, true ) );
 
   // Get the TransientAddress from DetectorStore and set "this" as the
   // AddressProvider
-  SG::DataProxy* proxy = m_detStore->proxy(ClassID_traits<MdtTubeCalibContainerCollection>::ID(), m_tubeDataLocation);
+  SG::DataProxy* proxy = detStore()->proxy(ClassID_traits<MdtTubeCalibContainerCollection>::ID(), m_tubeDataLocation);
   if (!proxy) {
-    *m_log << MSG::ERROR << "Unable to get the proxy for class MdtTubeCalibContainerCollection" << endreq;
+    ATH_MSG_ERROR(  "Unable to get the proxy for class MdtTubeCalibContainerCollection" );
     return StatusCode::FAILURE;
   }
 
   SG::TransientAddress* tad =  proxy->transientAddress();
   if (!tad) {
-    *m_log << MSG::ERROR << "Unable to get the tad" << endreq;
+    ATH_MSG_ERROR(  "Unable to get the tad" );
     return StatusCode::FAILURE;
   }
 
   IAddressProvider* addp = this;
   tad->setProvider(addp, StoreID::DETECTOR_STORE);
-  if( m_debug ) *m_log << MSG::DEBUG << "set address provider for MdtTubeCalibContainerCollection" << endreq;
+  ATH_MSG_DEBUG(  "set address provider for MdtTubeCalibContainerCollection" );
 
   // WARNING: the region mapping is currently hardcoded in 
   //          MdtCalibrationRegionSvc and we use the folder names to select
@@ -250,58 +197,48 @@ StatusCode MdtCalibDbCoolStrTool::initialize()
   if(m_rtFolder != "/MDT/RTUNIQUE") {
     m_regionSvc->remapRtRegions("OnePerChamber");
   }
-  sc=defaultRt();
-  if(sc.isFailure()) return StatusCode::FAILURE;
-  sc=m_detStore->record( m_rtData, m_rtDataLocation, true );
-  if(sc.isFailure()) return StatusCode::FAILURE;
+  ATH_CHECK( defaultRt() );
+  ATH_CHECK( detStore()->record( m_rtData, m_rtDataLocation, true ) );
                                                                                 
   // Get the TransientAddress from DetectorStore and set "this" as the
   // AddressProvider
-  proxy = m_detStore->proxy(ClassID_traits<MdtRtRelationCollection>::ID(), m_rtDataLocation);
+  proxy = detStore()->proxy(ClassID_traits<MdtRtRelationCollection>::ID(), m_rtDataLocation);
   if (!proxy) {
-    *m_log << MSG::ERROR << "Unable to get the proxy for class MdtRtRelationCollection" << endreq;
+    ATH_MSG_ERROR(  "Unable to get the proxy for class MdtRtRelationCollection" );
     return StatusCode::FAILURE;
   }
                                                                                 
   tad =  proxy->transientAddress();
   if (!tad) {
-    *m_log << MSG::ERROR << "Unable to get the tad" << endreq;
+    ATH_MSG_ERROR(  "Unable to get the tad" );
     return StatusCode::FAILURE;
   }
                                                                                 
   addp = this;
   tad->setProvider(addp, StoreID::DETECTOR_STORE);
-  if( m_debug ) *m_log << MSG::DEBUG << "set address provider for MdtRtRelationCollection" << endreq;
+  ATH_MSG_DEBUG(  "set address provider for MdtRtRelationCollection" );
    
 
   //initiallize random number generator if doing t0 smearing (for robustness studies)
   if( m_t0Spread != 0. ) {
-    static const bool CREATEIFNOTTHERE(true);
-    StatusCode RndmStatus = service("AtRndmGenSvc", p_AtRndmGenSvc, CREATEIFNOTTHERE);
-    if (!RndmStatus.isSuccess() || 0 == p_AtRndmGenSvc)
-      {
-	*m_log << MSG::ERROR << " Could not initialize Random Number Service" << endreq;
-	return RndmStatus;
-      }      
-    else{
-      if( m_debug ) *m_log << MSG::DEBUG << " initialize Random Number Service: running with t0 shift "
-			   << m_t0Shift << " spread " << m_t0Spread << " rt shift " << m_rtShift << endreq;
+    ATH_CHECK( m_AtRndmGenSvc.retrieve() );
+    ATH_MSG_DEBUG(  " initialize Random Number Service: running with t0 shift "
+                    << m_t0Shift << " spread " << m_t0Spread << " rt shift " << m_rtShift );
       
-    }
     // getting our random numbers stream
-    p_engine  =       p_AtRndmGenSvc->GetEngine("MDTCALIBDBASCIITOOL");
+    p_engine  =       m_AtRndmGenSvc->GetEngine("MDTCALIBDBASCIITOOL");
   }
 
   if ( m_rtShift != 0. || m_rtScale != 1. || m_t0Shift != 0. || m_t0Spread != 0.) {
-    *m_log << MSG::INFO << "************************************" << std::endl
-	   << " Running with Calibration Deformations! " << std::endl
-	   << " For performance studies only!" << std::endl
-	   << " **************************************" << endreq;
-    *m_log << MSG::DEBUG << " rt scale " << m_rtScale << " t0 shift " 
-	   << m_t0Shift << " spread " << m_t0Spread << " rt shift " << m_rtShift << endreq;
+    ATH_MSG_INFO(  "************************************" << std::endl
+                   << " Running with Calibration Deformations! " << std::endl
+                   << " For performance studies only!" << std::endl
+                   << " **************************************" );
+    ATH_MSG_DEBUG(  " rt scale " << m_rtScale << " t0 shift " 
+                    << m_t0Shift << " spread " << m_t0Spread << " rt shift " << m_rtShift );
   }
   
-  return sc;
+  return StatusCode::SUCCESS;
 }
 
 
@@ -309,13 +246,13 @@ StatusCode MdtCalibDbCoolStrTool::initialize()
 StatusCode MdtCalibDbCoolStrTool::LoadCalibration(IOVSVC_CALLBACK_ARGS_P(I,keys)) 
 {
   StatusCode sc;
-  if( m_debug ) *m_log << MSG::DEBUG << "LoadCalibration has been triggered for the following keys " << endreq;
+  ATH_MSG_DEBUG(  "LoadCalibration has been triggered for the following keys " );
   
   std::list<std::string>::const_iterator itr;
   for (itr=keys.begin(); itr!=keys.end(); ++itr) {
-    if( m_debug ) *m_log << MSG::DEBUG << *itr << " I="<<I<<" ";
+    if( msgLvl(MSG::DEBUG) ) msg() << MSG::DEBUG << *itr << " I="<<I<<" ";
   }
-  if( m_debug ) *m_log << MSG::DEBUG << endreq;
+  if( msgLvl(MSG::DEBUG) ) msg() << MSG::DEBUG << endreq;
 
   for (itr=keys.begin(); itr!=keys.end(); ++itr) {
     if(*itr==m_tubeFolder) {
@@ -329,38 +266,28 @@ StatusCode MdtCalibDbCoolStrTool::LoadCalibration(IOVSVC_CALLBACK_ARGS_P(I,keys)
   }
 
   return StatusCode::SUCCESS;
-
 }
 
 
 StatusCode MdtCalibDbCoolStrTool::loadTube(IOVSVC_CALLBACK_ARGS) 
 {
-
-   StatusCode sc;
-   if( m_debug ) *m_log << MSG::DEBUG << "Load Tube Calibration from DB" << endreq;
+   ATH_MSG_DEBUG(  "Load Tube Calibration from DB" );
    // retreive the and remove the old collection 
-   sc = m_detStore->retrieve( m_tubeData, m_tubeDataLocation );
+   StatusCode sc = detStore()->retrieve( m_tubeData, m_tubeDataLocation );
    if(sc.isSuccess())  {
-    if( m_debug ) *m_log << MSG::DEBUG << "Tube Collection found " << m_tubeData << endreq;
-    sc = m_detStore->removeDataAndProxy( m_tubeData );
-    if(sc.isSuccess())  {
-      if( m_debug ) *m_log << MSG::DEBUG << "Tube Collection at " << m_tubeData << " removed "<<endreq;
-    }
+     ATH_MSG_DEBUG(  "Tube Collection found " << m_tubeData );
+     sc = detStore()->removeDataAndProxy( m_tubeData );
+     if(sc.isSuccess())  {
+       ATH_MSG_DEBUG(  "Tube Collection at " << m_tubeData << " removed ");
+     }
    }
 
    // reinitialize the MdtTubeCalibContainerCollection
-   sc=defaultT0s();
-   if(sc.isFailure()) return StatusCode::FAILURE;
+   ATH_CHECK( defaultT0s() );
 
    // retreive the collection of strings read out from the DB
-   const CondAttrListCollection * atrc;
-   sc=m_detStore->retrieve(atrc,m_tubeFolder);
-   if(sc.isFailure())  {
-     *m_log << MSG::ERROR 
-         << "could not retreive the CondAttrListCollection from DB folder " 
-         << m_tubeFolder << endreq;
-     return sc;
-   }
+   const CondAttrListCollection * atrc = nullptr;
+   ATH_CHECK( detStore()->retrieve(atrc,m_tubeFolder) );
 
    // unpack the strings in the collection and update the 
    // MdtTubeCalibContainers in TDS
@@ -372,11 +299,11 @@ StatusCode MdtCalibDbCoolStrTool::loadTube(IOVSVC_CALLBACK_ARGS)
     bool t0_ts_applied=(atr["tech"].data<int>() & TIME_SLEWING_CORRECTION_APPLIED);
     if (atr["data"].specification().type() == typeid(coral::Blob))
     	{
-	if( m_verbose ) *m_log << MSG::VERBOSE << "Data load is a blob. Uncompressing"<< endreq;
-	if(!uncompressInMyBuffer(atr["data"].data<coral::Blob>()))
+          ATH_MSG_VERBOSE(  "Data load is a blob. Uncompressing");
+          if(!uncompressInMyBuffer(atr["data"].data<coral::Blob>()))
 		{
-		(*m_log) << MSG::FATAL << "Cannot uncompress buffer" << endreq;
-		return StatusCode::FAILURE;
+                  ATH_MSG_FATAL(  "Cannot uncompress buffer" );
+                  return StatusCode::FAILURE;
 		}
 	std::istringstream istr(reinterpret_cast<char*>(m_decompression_buffer));
 	istr >> a >> b >> c;
@@ -387,15 +314,15 @@ StatusCode MdtCalibDbCoolStrTool::loadTube(IOVSVC_CALLBACK_ARGS)
 	data=*(static_cast<const std::string*>((atr["data"]).addressOfData()));
 	//data=atr("data").data<std::string>();
 	//atr["data"].getValue(data);
-	if( m_verbose ) *m_log << MSG::VERBOSE << "Data load is " << data << endreq;
+	ATH_MSG_VERBOSE(  "Data load is " << data );
 
 	// interpret as string stream
 	std::istringstream istr(data.c_str());
 	// a: header, b: payload, c: trailer
 	istr >> a >> b >> c;
 	}
-    if( m_verbose) *m_log << MSG::VERBOSE << "Read string1:" << a << " string2:" << b 
-			  << " string3:" << c << endreq;
+    ATH_MSG_VERBOSE(  "Read string1:" << a << " string2:" << b 
+                      << " string3:" << c );
                                                                                 
     char* eta; 
     char* phi;
@@ -411,7 +338,7 @@ StatusCode MdtCalibDbCoolStrTool::loadTube(IOVSVC_CALLBACK_ARGS)
     int i=0;
     pch = strtok (parameters," _,");
     std::string name(pch,2,3);
-    if( m_verbose ) *m_log << MSG::VERBOSE  << "name of chamber is " << pch << " station name is " << name << endreq;
+    ATH_MSG_VERBOSE(  "name of chamber is " << pch << " station name is " << name );
  
     pch = strtok (NULL, "_,");
     while (pch != NULL)
@@ -421,27 +348,27 @@ StatusCode MdtCalibDbCoolStrTool::loadTube(IOVSVC_CALLBACK_ARGS)
      if (i==1) {
        phi=pch; 
        is >> iphi; 
-       if( m_verbose ) *m_log << MSG::VERBOSE  << "phi value is " << phi << endreq; 
+       ATH_MSG_VERBOSE(  "phi value is " << phi );
      }
      if (i==2) {
        eta=pch; 
        is >> ieta; 
-       if( m_verbose ) *m_log << MSG::VERBOSE  << "eta value is " << eta << endreq; 
+       ATH_MSG_VERBOSE(  "eta value is " << eta );
      }
      if (i==4) {
        is >> region; 
-       if( m_verbose ) *m_log << MSG::VERBOSE  << "region value is " << region << endreq; 
+       ATH_MSG_VERBOSE(  "region value is " << region );
      }
      if (i==5) {
        is >> ntubes; 
-       if( m_verbose ) *m_log << MSG::VERBOSE  << "ntubes value is " << ntubes << endreq; 
+       ATH_MSG_VERBOSE(  "ntubes value is " << ntubes );
      }
      pch = strtok (NULL, "_,");
     }
     delete [] parameters;
     // find chamber ID
     Identifier chId=m_mdtIdHelper->elementID(name,ieta,iphi);
-    if( m_verbose ) *m_log << MSG::VERBOSE  << "station name is " << name << " chamber ID  is " << chId <<endreq;
+    ATH_MSG_VERBOSE(  "station name is " << name << " chamber ID  is " << chId );
  
     MuonCalib::MdtTubeCalibContainer* tubes = 0;
 
@@ -449,15 +376,15 @@ StatusCode MdtCalibDbCoolStrTool::loadTube(IOVSVC_CALLBACK_ARGS)
     MdtBasicRegionHash hash;
     IdContext idCont = m_mdtIdHelper->module_context();
     m_mdtIdHelper->get_hash( chId , hash, &idCont );
-    if( m_verbose ) *m_log << MSG::VERBOSE  << "corresponding hash is " << hash <<endreq;
+    ATH_MSG_VERBOSE(  "corresponding hash is " << hash );
     
    //scip illegal stations. 
     
     if (hash>=m_tubeData->size())
     	{
 	//std::cout<<pch<<std::endl;
-	*m_log << MSG::INFO << "Illegal station (1)! (" << name << "," << iphi << "," << ieta << ")" << endreq;
-	continue;
+          ATH_MSG_INFO(  "Illegal station (1)! (" << name << "," << iphi << "," << ieta << ")" );
+          continue;
 	}
                                                                                 
     // or retreive the existing one?
@@ -466,8 +393,8 @@ StatusCode MdtCalibDbCoolStrTool::loadTube(IOVSVC_CALLBACK_ARGS)
     if(tubes==NULL)
     	{
 	//std::cout<<pch<<std::endl;
-	*m_log << MSG::INFO << "Illegal station (2)! (" << name << "," << iphi << "," << ieta << ")" <<endreq;
-	continue;
+          ATH_MSG_INFO(  "Illegal station (2)! (" << name << "," << iphi << "," << ieta << ")" );
+          continue;
 	}
     
 
@@ -476,8 +403,8 @@ StatusCode MdtCalibDbCoolStrTool::loadTube(IOVSVC_CALLBACK_ARGS)
     int ntubesLay=tubes->numTubes();
     int size = nml*nlayers*ntubesLay;
     if(size!=ntubes) {
-     *m_log << MSG::ERROR  << "Pre-existing MdtTubeCalibContainer for chamber ID " <<chId<< " size does not match the one found in DB "<<endreq; 
-     return StatusCode::FAILURE;
+      ATH_MSG_ERROR(  "Pre-existing MdtTubeCalibContainer for chamber ID " <<chId<< " size does not match the one found in DB ");
+      return StatusCode::FAILURE;
     }
 
     int ml=1; int l= 1; int t=1;
@@ -495,14 +422,14 @@ StatusCode MdtCalibDbCoolStrTool::loadTube(IOVSVC_CALLBACK_ARGS)
 	 double tzero = atof(pch1);
 	 if( m_t0Shift != 0. ){
 	   tzero += m_t0Shift;
-	   if( m_verbose ) *m_log << MSG::VERBOSE << "T0 shift " << m_t0Shift << " t0 " << tzero 
-				  << " id " << ml << " " << l << " " << t << endreq;
+	   ATH_MSG_VERBOSE(  "T0 shift " << m_t0Shift << " t0 " << tzero 
+                             << " id " << ml << " " << l << " " << t );
 	 }
 	 if(m_t0Spread != 0. ){
 	   double sh = CLHEP::RandGaussZiggurat::shoot(p_engine,0.,m_t0Spread);
 	   tzero += sh;
-	   if( m_verbose ) *m_log << MSG::VERBOSE << "T0 spread " << sh << " t0 " << tzero 
-				  << " id " << ml << " " << l << " " << t << endreq;
+	   ATH_MSG_VERBOSE(  "T0 spread " << sh << " t0 " << tzero 
+                             << " id " << ml << " " << l << " " << t );
 	 }
 	 if(!t0_ts_applied && m_TimeSlewingCorrection)
 	 	{
@@ -520,7 +447,7 @@ StatusCode MdtCalibDbCoolStrTool::loadTube(IOVSVC_CALLBACK_ARGS)
         datatube.adcCal = atof(pch1);
         datatube.inversePropSpeed = (1./(300. * m_prop_beta));
         tubes->setCalib( ml-1,l-1,t-1,datatube);
-        if( m_verbose ) *m_log<<MSG::VERBOSE<< "Loading T0s "<<ml << " " << l << " " << t << " " << datatube.t0 <<endreq; 
+        ATH_MSG_VERBOSE(  "Loading T0s "<<ml << " " << l << " " << t << " " << datatube.t0 );
         t++; k=0;
         if (t>ntubesLay) {
           l++; 
@@ -539,8 +466,8 @@ StatusCode MdtCalibDbCoolStrTool::loadTube(IOVSVC_CALLBACK_ARGS)
    // update the IOV for the MdtTubeCalibContainerCollection 
    // using the IOV from the string class
    // for some reason the clid appears to be 1 instead of 1238547719 
-   if( m_verbose ) *m_log << MSG::VERBOSE << "Collection CondAttrListCollection CLID "
-                     << atrc->clID() << endreq;
+   ATH_MSG_VERBOSE(  "Collection CondAttrListCollection CLID "
+                     << atrc->clID() );
    // use 1238547719 to get the IOVRange from DB (
 /*   IOVRange range;
    sc = m_IOVSvc->getRange(1238547719, m_tubeFolder, range);
@@ -557,24 +484,26 @@ StatusCode MdtCalibDbCoolStrTool::loadTube(IOVSVC_CALLBACK_ARGS)
 */
 
    // finally record MdtTubeCalibContainerCollection
-   sc = m_detStore->record( m_tubeData, m_tubeDataLocation );
-   if (sc.isFailure()){*m_log << MSG::WARNING << "m_tubeData not recorded" << endreq;}
+   sc = detStore()->record( m_tubeData, m_tubeDataLocation );
+   if (sc.isFailure()) {
+     ATH_MSG_WARNING(  "m_tubeData not recorded" );
+   }
 
-  SG::DataProxy* proxy = m_detStore->proxy(ClassID_traits<MdtTubeCalibContainerCollection>::ID(), m_tubeDataLocation);
+   SG::DataProxy* proxy = detStore()->proxy(ClassID_traits<MdtTubeCalibContainerCollection>::ID(), m_tubeDataLocation);
   if (!proxy) {
-    *m_log << MSG::ERROR << "Unable to get the proxy for class MdtTubeCalibContainerCollection" << endreq;
+    ATH_MSG_ERROR(  "Unable to get the proxy for class MdtTubeCalibContainerCollection" );
     return StatusCode::FAILURE;
   }
 
   SG::TransientAddress* tad =  proxy->transientAddress();
   if (!tad) {
-    *m_log << MSG::ERROR << "Unable to get the tad" << endreq;
+    ATH_MSG_ERROR(  "Unable to get the tad" );
     return StatusCode::FAILURE;
   }
 
   IAddressProvider* addp = this;
   tad->setProvider(addp, StoreID::DETECTOR_STORE);
-  if( m_debug ) *m_log << MSG::DEBUG<< "set address provider for MdtTubeCalibContainerCollection" << endreq;
+  ATH_MSG_DEBUG(  "set address provider for MdtTubeCalibContainerCollection" );
 
    m_IOVDbSvc->dropObject(m_tubeFolder, true);
    return  sc; 
@@ -582,36 +511,28 @@ StatusCode MdtCalibDbCoolStrTool::loadTube(IOVSVC_CALLBACK_ARGS)
 
 StatusCode MdtCalibDbCoolStrTool::loadRt(IOVSVC_CALLBACK_ARGS) 
 {
-  if( m_debug ) *m_log << MSG::DEBUG << "Load Rt Calibration from DB" << endreq;
+  ATH_MSG_DEBUG(  "Load Rt Calibration from DB" );
 
 //tr-relation creators
    MuonCalib::RtResolutionFromPoints res_from_points;
    MuonCalib::RtFromPoints rt_fromPoints;
 
   // retreive the and remove the old collection
-  StatusCode sc = m_detStore->retrieve( m_rtData, m_rtDataLocation );
+  StatusCode sc = detStore()->retrieve( m_rtData, m_rtDataLocation );
   if(sc.isSuccess())  {
-   if( m_debug ) *m_log << MSG::DEBUG << "Rt Collection found " << m_rtData << endreq;   
-   sc = m_detStore->removeDataAndProxy( m_rtData );
-   if(sc.isSuccess())  {
-     if( m_debug ) *m_log << MSG::DEBUG << "Rt Collection at " << m_rtData << " removed "<<endreq;
-   }
+    ATH_MSG_DEBUG(  "Rt Collection found " << m_rtData );
+    sc = detStore()->removeDataAndProxy( m_rtData );
+    if(sc.isSuccess())  {
+      ATH_MSG_DEBUG(  "Rt Collection at " << m_rtData << " removed ");
+    }
   }
 
   // reinitialize the MdtRtRelationCollection
-  sc=defaultRt();
-  if(sc.isFailure()) return StatusCode::FAILURE;
-
+  ATH_CHECK( defaultRt() );
                                                                                 
   // retreive the collection of strings read out from the DB
-  const CondAttrListCollection * atrc;
-  sc=m_detStore->retrieve(atrc,m_rtFolder);
-  if(sc.isFailure())  {
-     *m_log << MSG::ERROR 
-         << "could not retreive the CondAttrListCollection from DB folder " 
-         << m_rtFolder << endreq;
-     return sc;
-  }
+  const CondAttrListCollection * atrc = nullptr;
+  ATH_CHECK( detStore()->retrieve(atrc,m_rtFolder) );
 
   // unpack the strings in the collection and update the
   // MdtTubeCalibContainers in TDS
@@ -622,16 +543,16 @@ StatusCode MdtCalibDbCoolStrTool::loadRt(IOVSVC_CALLBACK_ARGS)
     std::string a,b,c;
      if (atr["data"].specification().type() == typeid(coral::Blob))
     	{
-	if( m_verbose ) *m_log << MSG::VERBOSE << "Data load is a blob. Uncompressing"<< endreq;
+        ATH_MSG_VERBOSE(  "Data load is a blob. Uncompressing");
 	if(!uncompressInMyBuffer(atr["data"].data<coral::Blob>()))
 		{
-		(*m_log) << MSG::FATAL << "Cannot uncompress buffer" << endreq;
-		return StatusCode::FAILURE;
+                  ATH_MSG_FATAL(  "Cannot uncompress buffer" );
+                  return StatusCode::FAILURE;
 		}
 	std::istringstream istr(reinterpret_cast<char*>(m_decompression_buffer));
 	istr >> a >> b >> c;
-	if( m_verbose ) *m_log << MSG::VERBOSE << "Read string1:" << a << " string2:" << b
-			   << " string3:" << c << endreq;
+	ATH_MSG_VERBOSE(  "Read string1:" << a << " string2:" << b
+                          << " string3:" << c );
 	}
    else
         {
@@ -639,12 +560,12 @@ StatusCode MdtCalibDbCoolStrTool::loadRt(IOVSVC_CALLBACK_ARGS)
 	data=*(static_cast<const std::string*>((atr["data"]).addressOfData()));
     //data=atr("data").data<string>();
     //atr["data"].getValue(data);
-	if( m_verbose ) *m_log << MSG::VERBOSE << "Data load is " << data << endreq;
+	ATH_MSG_VERBOSE(  "Data load is " << data );
     // interpret as string stream
 	std::istringstream istr(data.c_str());
 	istr >> a >> b >> c;
-	if( m_verbose ) *m_log << MSG::VERBOSE << "Read string1:" << a << " string2:" << b
-			   << " string3:" << c << endreq;
+	ATH_MSG_VERBOSE(  "Read string1:" << a << " string2:" << b
+                          << " string3:" << c );
      	}                                                                       
     char * parameters = new char [a.size() +1];
     strncpy(parameters, a.c_str(), a.size() +1);
@@ -661,9 +582,9 @@ StatusCode MdtCalibDbCoolStrTool::loadRt(IOVSVC_CALLBACK_ARGS)
       IdContext idCont = m_mdtIdHelper->module_context();
       MdtBasicRegionHash hash;
       m_mdtIdHelper->get_hash( athenaId , hash, &idCont );
-      if(m_verbose) *m_log << MSG::VERBOSE << "Fixed region Id "<<regionId
-                    <<" converted into athena Id "<<athenaId
-                    <<" and then into hash "<<hash<<endreq;
+      ATH_MSG_VERBOSE(  "Fixed region Id "<<regionId
+                        <<" converted into athena Id "<<athenaId
+                        <<" and then into hash "<<hash);
       regionId=hash;
     }
     while (pch != NULL)
@@ -701,15 +622,15 @@ StatusCode MdtCalibDbCoolStrTool::loadRt(IOVSVC_CALLBACK_ARGS)
 	 float oldrad = rad;
 	 float rshift = m_rtShift*1.87652e-2*rad*(rad-14.6);
 	 rad = oldrad + rshift;
-	 if( m_debug ) *m_log << MSG::DEBUG  << "DEFORM RT: old radius " << oldrad << " new radius " 
-			      << rad << " shift " << rshift << " max shift " << m_rtShift << std::endl;	   
+	 ATH_MSG_DEBUG(  "DEFORM RT: old radius " << oldrad << " new radius " 
+                         << rad << " shift " << rshift << " max shift " << m_rtShift );
        }
        
        if( m_rtScale !=1.){
 //	 float oldrad = rad;
 	 rad = rad * m_rtScale;
-	 if( m_debug ) *m_log << MSG::DEBUG  << "DEFORM RT: old radius " << rad << " new radius " 
-			      << rad << " scale factor " << m_rtScale << std::endl;	   
+	 ATH_MSG_DEBUG(  "DEFORM RT: old radius " << rad << " new radius " 
+                         << rad << " scale factor " << m_rtScale );
        }
        
        tr_point.set_x2(rad);
@@ -742,11 +663,11 @@ StatusCode MdtCalibDbCoolStrTool::loadRt(IOVSVC_CALLBACK_ARGS)
    delete [] RTPar;
    if(ts_points.size()<3)
 	{
-	*m_log<<MSG::FATAL<<"Rt relation broken!"<<endreq;
-	*m_log<<MSG::FATAL <<"file='"<<atr["file"].data<std::string>()<<"'"<<endreq;
-	*m_log<<MSG::FATAL<<"a='"<<a<<"'"<<endreq;
+          ATH_MSG_FATAL( "Rt relation broken!");
+          ATH_MSG_FATAL( "file='"<<atr["file"].data<std::string>()<<"'");
+          ATH_MSG_FATAL( "a='"<<a<<"'");
 	
-	return StatusCode::FAILURE;
+          return StatusCode::FAILURE;
 	}
    if  (rt_ts_applied != m_TimeSlewingCorrection)
    	{
@@ -764,20 +685,20 @@ StatusCode MdtCalibDbCoolStrTool::loadRt(IOVSVC_CALLBACK_ARGS)
 	}
 
    MuonCalib::IRtResolution* reso = getRtResolutionInterpolation(ts_points);
-   if (m_debug)
+   if (msgLvl(MSG::DEBUG))
    	{
-   *m_log << MSG::DEBUG  << "Resolution pints :"<<endreq;
-   for(std::vector<SamplePoint>::const_iterator it=tr_points.begin(); it!=tr_points.end(); it++)
-   	{
-	*m_log << MSG::DEBUG  <<it->x1()<<"|"<<it->x2()<<"|"<<it->error()<<endreq;
-	}
+          ATH_MSG_DEBUG(  "Resolution pints :");
+          for(std::vector<SamplePoint>::const_iterator it=tr_points.begin(); it!=tr_points.end(); it++)
+          {
+            ATH_MSG_DEBUG( it->x1()<<"|"<<it->x2()<<"|"<<it->error());
+          }
 	
 	
-   *m_log << MSG::DEBUG  << "Resolution parameters :"<<endreq;
-   for(unsigned int i=0; i<reso->nPar(); i++)
-   	{
-	 *m_log << MSG::DEBUG  << i<<" "<<reso->par(i) << endreq;
-	}
+          ATH_MSG_DEBUG(  "Resolution parameters :");
+          for(unsigned int i=0; i<reso->nPar(); i++)
+          {
+            ATH_MSG_DEBUG(  i<<" "<<reso->par(i) );
+          }
 	}
       try {
       MuonCalib::IRtRelation* rt =new RtRelationLookUp(rt_fromPoints.getRtRelationLookUp(tr_points));;
@@ -786,32 +707,32 @@ StatusCode MdtCalibDbCoolStrTool::loadRt(IOVSVC_CALLBACK_ARGS)
      if(regionId>=m_rtData->size())
      	{
 	delete reso; delete rt;
-	*m_log << MSG::WARNING << "Illegal regionId "<< regionId <<endreq;
+	ATH_MSG_WARNING(  "Illegal regionId "<< regionId );
 	}
 	else 
 	{ 
 	if (rt->par(1)==0.0)
 		{
-		*m_log << MSG::WARNING << "Bin size is 0"<< endreq;
-   		for(std::vector<SamplePoint>::const_iterator it=tr_points.begin(); it!=tr_points.end(); it++)
-			*m_log << MSG::WARNING << it->x1() << " " <<it->x2() <<" "<< it->error() << endreq;
+                  ATH_MSG_WARNING(  "Bin size is 0");
+                  for(std::vector<SamplePoint>::const_iterator it=tr_points.begin(); it!=tr_points.end(); it++)
+                    ATH_MSG_WARNING(  it->x1() << " " <<it->x2() <<" "<< it->error() );
 		}
      if(multilayer_tmax_diff>-8e8)
      	{
 	rt->SetTmaxDiff(multilayer_tmax_diff);
 	}
      (*m_rtData)[regionId] = new MuonCalib::MdtRtRelation( rt, reso, 0.);
-     if( m_debug ) *m_log << MSG::DEBUG << "Inserting new Rt for region "<<regionId<< endreq;
+     ATH_MSG_DEBUG(  "Inserting new Rt for region "<<regionId);
      }
    }
    }   
    catch (int i)
    	{
-	 *m_log << MSG::FATAL << "Error in creating rt-relation!" <<endreq;
-	 *m_log << MSG::FATAL << "npoints="<<tr_points.size()<<endreq;
-	 *m_log << MSG::FATAL << "Offending input: a=" << a <<endreq;
-	 *m_log << MSG::FATAL << "Offending input: b=" << b <<endreq;
-	 return StatusCode::FAILURE;
+          ATH_MSG_FATAL(  "Error in creating rt-relation!" );
+          ATH_MSG_FATAL(  "npoints="<<tr_points.size());
+          ATH_MSG_FATAL(  "Offending input: a=" << a );
+          ATH_MSG_FATAL(  "Offending input: b=" << b );
+          return StatusCode::FAILURE;
 	}
 
   }
@@ -829,28 +750,28 @@ StatusCode MdtCalibDbCoolStrTool::loadRt(IOVSVC_CALLBACK_ARGS)
    if( m_debug ) *m_log << MSG::DEBUG <<"MdtRtRelationCollection new IOVRange "<<range2<<endreq;*/
                                                                                 
    // finally record MdtRtRelationCollection
-   sc = m_detStore->record( m_rtData, m_rtDataLocation );
-   if (sc.isFailure()){*m_log << MSG::WARNING << "m_tubeData not recorded" << endreq;}
+   sc = detStore()->record( m_rtData, m_rtDataLocation );
+   if (sc.isFailure()) {
+     ATH_MSG_WARNING(  "m_tubeData not recorded" );
+   }
 
-  SG::DataProxy* proxy = m_detStore->proxy(ClassID_traits<MdtRtRelationCollection>::ID(), m_rtDataLocation);
+   SG::DataProxy* proxy = detStore()->proxy(ClassID_traits<MdtRtRelationCollection>::ID(), m_rtDataLocation);
   if (!proxy) {
-    *m_log << MSG::ERROR << "Unable to get the proxy for class MdtRtRelationCollection" << endreq;
+    ATH_MSG_ERROR(  "Unable to get the proxy for class MdtRtRelationCollection" );
     return StatusCode::FAILURE;
   }
                                                                                 
   SG::TransientAddress* tad =  proxy->transientAddress();
   if (!tad) {
-    *m_log << MSG::ERROR << "Unable to get the tad" << endreq;
+    ATH_MSG_ERROR(  "Unable to get the tad" );
     return StatusCode::FAILURE;
   }
                                                                                 
   IAddressProvider* addp = this;
   tad->setProvider(addp, StoreID::DETECTOR_STORE);
-  if( m_debug ) *m_log << MSG::DEBUG<< "set address provider for MdtRtRelationCollection" << endreq;
+  ATH_MSG_DEBUG(  "set address provider for MdtRtRelationCollection" );
                                                                                 
-   m_IOVDbSvc->dropObject(m_rtFolder, true);
-                                                                                
-
+  m_IOVDbSvc->dropObject(m_rtFolder, true);
   return  StatusCode::SUCCESS; 
 }
 
@@ -858,18 +779,18 @@ StatusCode MdtCalibDbCoolStrTool::defaultT0s()
 {
   m_tubeData=NULL;
   // create collection
-  if (m_detStore->contains<MdtTubeCalibContainerCollection>(m_tubeDataLocation))
+  if (detStore()->contains<MdtTubeCalibContainerCollection>(m_tubeDataLocation))
   	{
-	StatusCode sc=m_detStore->retrieve(m_tubeData, m_tubeDataLocation);
-	if(!sc.isSuccess()) m_tubeData=NULL;
+          StatusCode sc = detStore()->retrieve(m_tubeData, m_tubeDataLocation);
+          if(!sc.isSuccess()) m_tubeData=NULL;
 	}
   if(m_tubeData==NULL)
   	{
-	*m_log<<MSG::INFO<<"Creating new tube data vector"<<endreq;
-	m_tubeData = new MdtTubeCalibContainerCollection();
+          ATH_MSG_INFO( "Creating new tube data vector");
+          m_tubeData = new MdtTubeCalibContainerCollection();
 	}
   m_tubeData->resize( m_mdtIdHelper->module_hash_max() );
-  if( m_debug ) *m_log << MSG::DEBUG << " Created new MdtTubeCalibContainerCollection size " << m_tubeData->size() << endreq;
+  ATH_MSG_DEBUG(  " Created new MdtTubeCalibContainerCollection size " << m_tubeData->size() );
 
   MdtIdHelper::const_id_iterator it     = m_mdtIdHelper->module_begin();
   MdtIdHelper::const_id_iterator it_end = m_mdtIdHelper->module_end();
@@ -887,12 +808,10 @@ StatusCode MdtCalibDbCoolStrTool::defaultT0s()
       int nlayers=tubes->numLayers();
       int ntubes=tubes->numTubes();
       int size = nml*nlayers*ntubes;
-      if( m_verbose ) {
-	*m_log << MSG::VERBOSE << "Adding chamber " << m_mdtIdHelper->print_to_string(*it) << endreq;
-	*m_log << MSG::VERBOSE << " size " << size
-	       << " ml " << nml << " l " << nlayers << " t " 
-	       << ntubes << " address " << tubes << endreq;
-      }
+      ATH_MSG_VERBOSE(  "Adding chamber " << m_mdtIdHelper->print_to_string(*it) );
+      ATH_MSG_VERBOSE(  " size " << size
+                        << " ml " << nml << " l " << nlayers << " t " 
+                        << ntubes << " address " << tubes );
       for( int ml=0;ml<nml;++ml ){
 	for( int l=0;l<nlayers;++l ){
 	  for( int t=0;t<ntubes;++t ){
@@ -905,30 +824,28 @@ StatusCode MdtCalibDbCoolStrTool::defaultT0s()
 	}
       }
     }
-    if( m_verbose ) *m_log << MSG::VERBOSE << " set t0's done " << endreq;
+    ATH_MSG_VERBOSE(  " set t0's done " );
     MdtBasicRegionHash hash;
     IdContext idCont = m_mdtIdHelper->module_context();
     m_mdtIdHelper->get_hash( *it, hash, &idCont );
 
     if( hash < m_tubeData->size() ){
       (*m_tubeData)[hash] = tubes;
-      if( m_verbose ) *m_log << MSG::VERBOSE << " adding tubes at " << hash << " current size " << m_tubeData->size() << endreq;
+      ATH_MSG_VERBOSE(  " adding tubes at " << hash << " current size " << m_tubeData->size() );
 //write out string for chamberlist
       if(tubes)
     	{
       int nml=tubes->numMultilayers();
       int nlayers=tubes->numLayers();
       int ntubes=tubes->numTubes();	
-      if( m_verbose ) *m_log << MSG::VERBOSE << "CHAMBERLIST: " << m_mdtIdHelper->stationNameString(m_mdtIdHelper->stationName(*it)) << " " << m_mdtIdHelper->stationEta(*it) << " " << m_mdtIdHelper->stationPhi(*it) << " " << nml*nlayers*ntubes << " " << nml << " " << nlayers << " " << ntubes << " dummy " << hash << endreq;      
+      ATH_MSG_VERBOSE(  "CHAMBERLIST: " << m_mdtIdHelper->stationNameString(m_mdtIdHelper->stationName(*it)) << " " << m_mdtIdHelper->stationEta(*it) << " " << m_mdtIdHelper->stationPhi(*it) << " " << nml*nlayers*ntubes << " " << nml << " " << nlayers << " " << ntubes << " dummy " << hash );
       }
     }else{
       if(tubes) delete tubes;
-      *m_log << MSG::WARNING << " HashId out of range " << hash << " max " << m_tubeData->size() << endreq;
+      ATH_MSG_WARNING(  " HashId out of range " << hash << " max " << m_tubeData->size() );
     }
   }
-  if( m_debug )*m_log << MSG::DEBUG << " Done defaultT0s " << m_tubeData->size() << endreq;
-
-
+  ATH_MSG_DEBUG(  " Done defaultT0s " << m_tubeData->size() );
 
   return StatusCode::SUCCESS;
 }
@@ -942,13 +859,13 @@ MuonCalib::MdtTubeCalibContainer * MdtCalibDbCoolStrTool::buildMdtTubeCalibConta
     if (m_mdtIdHelper->numberOfMultilayers(id) == 2){
       detEl2 = m_detMgr->getMdtReadoutElement(m_mdtIdHelper->channelID(id,2,1,1) );
     }else{
-      if( m_verbose ) *m_log << MSG::VERBOSE << "A single multilayer for this station " << m_mdtIdHelper->stationNameString(m_mdtIdHelper->stationName(id))<<","<< m_mdtIdHelper->stationPhi(id) <<","<< m_mdtIdHelper->stationEta(id) <<endreq;
+      ATH_MSG_VERBOSE(  "A single multilayer for this station " << m_mdtIdHelper->stationNameString(m_mdtIdHelper->stationName(id))<<","<< m_mdtIdHelper->stationPhi(id) <<","<< m_mdtIdHelper->stationEta(id) );
     }
 
-    if( m_verbose ) *m_log << MSG::VERBOSE << " new det el " << detEl << endreq;
+    ATH_MSG_VERBOSE(  " new det el " << detEl );
     
     if( !detEl ){ 
-      *m_log << MSG::INFO << "Ignoring non existing station in calibration db: " << m_mdtIdHelper->print_to_string(id) << endreq;
+      ATH_MSG_INFO(  "Ignoring non existing station in calibration db: " << m_mdtIdHelper->print_to_string(id) );
     }else{
       int nml = 2;
       if( !detEl2 ) {
@@ -957,13 +874,13 @@ MuonCalib::MdtTubeCalibContainer * MdtCalibDbCoolStrTool::buildMdtTubeCalibConta
 
       int nlayers = detEl->getNLayers();
       if( detEl2 && detEl2->getNLayers() > nlayers ){
-	if( m_debug ) *m_log << MSG::DEBUG << "Second multilayer has more layers " << detEl2->getNLayers() << " then first " << nlayers << endreq;
+	ATH_MSG_DEBUG(  "Second multilayer has more layers " << detEl2->getNLayers() << " then first " << nlayers );
 	nlayers = detEl2->getNLayers();
       }
 
       int ntubes = detEl->getNtubesperlayer();
       if( detEl2 && detEl2->getNtubesperlayer() > ntubes ){
-	if( m_debug ) *m_log << MSG::DEBUG << "Second multilayer has more tubes " << detEl2->getNtubesperlayer() << " then first " << ntubes << endreq;
+	ATH_MSG_DEBUG(  "Second multilayer has more tubes " << detEl2->getNtubesperlayer() << " then first " << ntubes );
 	ntubes = detEl2->getNtubesperlayer();
       }
 
@@ -989,30 +906,30 @@ StatusCode MdtCalibDbCoolStrTool::defaultRt()
 {
   m_rtData=NULL;
   // create collection
-  if (m_detStore->contains<MdtRtRelationCollection>(m_rtDataLocation))
+  if (detStore()->contains<MdtRtRelationCollection>(m_rtDataLocation))
   	{
-	StatusCode sc=m_detStore->retrieve(m_rtData, m_rtDataLocation);
-	if(!sc.isSuccess())
-		m_rtData=NULL;
+          StatusCode sc = detStore()->retrieve(m_rtData, m_rtDataLocation);
+          if(!sc.isSuccess())
+            m_rtData=NULL;
 	}
   if(m_rtData==NULL)
   	{
-	*m_log<<MSG::INFO<<"Creating new tube data vector"<<endreq;
-  	m_rtData = new MdtRtRelationCollection(); 
+          ATH_MSG_INFO( "Creating new tube data vector");
+          m_rtData = new MdtRtRelationCollection(); 
 	}
  
   // create collection 
   m_rtData->resize(m_regionSvc->numberOfRtRegions());
-  if( m_debug ) *m_log << MSG::DEBUG << " Created new MdtRtRelationCollection size " << m_rtData->size() << endreq;
+  ATH_MSG_DEBUG(  " Created new MdtRtRelationCollection size " << m_rtData->size() );
   
   std::vector<std::string>::const_iterator it     = m_RTfileNames.value().begin();
   std::vector<std::string>::const_iterator it_end = m_RTfileNames.value().end();
 
   if (it == it_end ) {
-     *m_log << MSG::FATAL << "No input RT file declared in jobOptions"<<endreq;
+     ATH_MSG_FATAL(  "No input RT file declared in jobOptions");
      return StatusCode::FAILURE;
   } else if (it_end-it>1) {
-     *m_log << MSG::WARNING << "Only first RT file declared in jobOptions will be used"<<endreq;
+    ATH_MSG_WARNING(  "Only first RT file declared in jobOptions will be used");
   }
 
   //for ( ; it != it_end ; ++it) {
@@ -1020,26 +937,26 @@ StatusCode MdtCalibDbCoolStrTool::defaultRt()
     std::string fileName = 
       PathResolver::find_file(it->c_str(),"DATAPATH");
     if(fileName.length() == 0){
-      *m_log << MSG::ERROR << "RT Ascii file \"" <<  it->c_str() << "\" not found" << endreq;
+      ATH_MSG_ERROR(  "RT Ascii file \"" <<  it->c_str() << "\" not found" );
     }
     // Open the Ascii file with the RT relations
     std::ifstream inputFile( fileName.c_str() );
     if( !inputFile ) {
-      *m_log << MSG::ERROR << "Unable to open RT Ascii file: " << fileName.c_str() << endreq;
+      ATH_MSG_ERROR(  "Unable to open RT Ascii file: " << fileName.c_str() );
       return StatusCode::FAILURE;
     }else{
-      if( m_debug ) *m_log << MSG::DEBUG << "Opened RT Ascii file: " <<  fileName.c_str() << endreq;
+      ATH_MSG_DEBUG(  "Opened RT Ascii file: " <<  fileName.c_str() );
     }
     MuonCalib::RtDataFromFile rts;
     rts.read(inputFile);
-    if( m_verbose ) *m_log << MSG::VERBOSE << "File contains " << rts.nRts() << " RT relations " << endreq;
+    ATH_MSG_VERBOSE(  "File contains " << rts.nRts() << " RT relations " );
 
     for(unsigned int n=0;n<rts.nRts();++n){
       MuonCalib::RtDataFromFile::RtRelation* rt = rts.getRt( n );
       unsigned int regionId = rt->regionId();
 
       if( regionId >= m_rtData->size() ){
-	*m_log << MSG::WARNING << " regionHash out of range: " << regionId << " max " << m_rtData->size() << endreq;
+        ATH_MSG_WARNING(  " regionHash out of range: " << regionId << " max " << m_rtData->size() );
 	delete rt;
 	continue;
       }
@@ -1051,15 +968,13 @@ StatusCode MdtCalibDbCoolStrTool::defaultRt()
        
       // check if rt contains data, at least two point on the rt are required
       if( times.size() < 2 ) {
-	*m_log << MSG::ERROR << " defaultRt rt table has too few entries"
-	    << endreq;
+	ATH_MSG_ERROR(  " defaultRt rt table has too few entries" );
 	continue;
       }
 
       // check if all tables have same size
       if( times.size() != radii.size() || times.size() != reso.size() ) {
-	*m_log << MSG::ERROR << "defaultRt rt table size mismatch "
-	    << endreq;
+	ATH_MSG_ERROR(  "defaultRt rt table size mismatch " );
 	continue;
       }
 
@@ -1069,8 +984,7 @@ StatusCode MdtCalibDbCoolStrTool::defaultRt()
 
       // additional consistency check 
       if( bin_size <= 0 ) {
-	*m_log << MSG::ERROR<< "RtCalibrationClassic::defaultRt rt table negative binsize "
-	    << endreq;
+	ATH_MSG_ERROR(  "RtCalibrationClassic::defaultRt rt table negative binsize " );
 	continue;
       }
 
@@ -1083,8 +997,7 @@ StatusCode MdtCalibDbCoolStrTool::defaultRt()
       // copy r values into vector
       rtPars.insert( rtPars.end(), radii.begin(), radii.end() );
 
-      if( m_debug ) *m_log << MSG::DEBUG << "defaultRt new  MuonCalib::IRtRelation" 
-			   << endreq;
+      ATH_MSG_DEBUG(  "defaultRt new  MuonCalib::IRtRelation"  );
 
       MuonCalib::CalibFunc::ParVec resoPars;
       resoPars.push_back( t_min );
@@ -1093,36 +1006,32 @@ StatusCode MdtCalibDbCoolStrTool::defaultRt()
       // copy r values into vector
       resoPars.insert( resoPars.end(), reso.begin(), reso.end() );
 
-      if( m_debug ) *m_log << MSG::DEBUG << "defaultRt new  MuonCalib::IRtResolution" 
-			   << endreq;
+      ATH_MSG_DEBUG(  "defaultRt new  MuonCalib::IRtResolution"  );
 
       for(unsigned int j=0; j<m_rtData->size();j++) {
         MuonCalib::IRtRelation* rtRel = 
         MuonCalib::MdtCalibrationFactory::createRtRelation( "RtRelationLookUp", rtPars );
         if( !rtRel ){
-     	  *m_log << MSG::WARNING << "ERROR creating RtRelationLookUp " 
-              << std::endl;
+     	  ATH_MSG_WARNING(  "ERROR creating RtRelationLookUp "  );
         }
         MuonCalib::IRtResolution* resoRel = 
         MuonCalib::MdtCalibrationFactory::createRtResolution( "RtResolutionLookUp", resoPars );
         if( !rtRel ){
-	  *m_log << MSG::WARNING << "ERROR creating RtResolutionLookUp " 
-              << endreq;
+	  ATH_MSG_WARNING(  "ERROR creating RtResolutionLookUp "  );
         }
         if( resoRel && rtRel ){
 	  (*m_rtData)[j] = new MuonCalib::MdtRtRelation( rtRel, resoRel, 0. );
-	  if( m_debug ) *m_log << MSG::DEBUG << "Inserting default Rt for region "<<j<< endreq;
+	  ATH_MSG_DEBUG(  "Inserting default Rt for region "<<j);
         }
 
         if(j==0 && rtRel && resoRel){
           int npoints= rtRel->nPar()-2;
-          if( m_verbose ) *m_log << MSG::VERBOSE 
-				 << "defaultRt npoints from rtRel="<< npoints<< endreq;
+          ATH_MSG_VERBOSE(  "defaultRt npoints from rtRel="<< npoints );
 
           for( int j=0;j<npoints;++j ){
 	    double t = t_min + j*bin_size;
-	    if( m_verbose ) *m_log<<MSG::VERBOSE << "  " << j << " " << t << "  " 
-				  << rtRel->radius(t) << " " << resoRel->resolution(t) << endreq;
+	    ATH_MSG_VERBOSE(  "  " << j << " " << t << "  " 
+                              << rtRel->radius(t) << " " << resoRel->resolution(t) );
           }
         }
     if(!resoRel || !rtRel) {
@@ -1155,12 +1064,12 @@ inline bool MdtCalibDbCoolStrTool :: uncompressInMyBuffer(const coral::Blob & bl
 		if( res == Z_BUF_ERROR)
 			{
 			m_buffer_length*=2;
-			 *m_log<<MSG::VERBOSE << "Increasing buffer to " << m_buffer_length<<endreq;
+                        ATH_MSG_VERBOSE(  "Increasing buffer to " << m_buffer_length);
 			delete [] m_decompression_buffer;
 			m_decompression_buffer = new Bytef[m_buffer_length];
 			continue;
 			}
-	//somethinh else is wrong
+	//something else is wrong
 		return false;
 		}
 	//append 0 to terminate string, increase buffer if it is not big enough

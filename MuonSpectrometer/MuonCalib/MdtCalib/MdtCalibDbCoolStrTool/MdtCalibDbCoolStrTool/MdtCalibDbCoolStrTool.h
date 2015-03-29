@@ -5,7 +5,7 @@
 #ifndef MDTCALIBDB_MDTCALIBCOOLSTRTOOL_H
 #define MDTCALIBDB_MDTCALIBCOOLSTRTOOL_H
 
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "MdtCalibInterfaces/IMdtCalibDBTool.h"
 #include "MdtCalibData/MdtTubeCalibContainerCollection.h"
 #include "MdtCalibData/MdtRtRelationCollection.h"
@@ -19,7 +19,6 @@
 
 class MdtCalibrationRegionSvc;
 class Identifier; 
-class StoreGateSvc; 
 class MdtIdHelper;
 class IIOVDbSvc;
 class MsgStream;
@@ -41,7 +40,7 @@ class RtResolutionLookUp;
 class SamplePoint;
 
 
-class MdtCalibDbCoolStrTool: public AlgTool,
+class MdtCalibDbCoolStrTool: public AthAlgTool,
 	             virtual public IMdtCalibDBTool
 
 {
@@ -87,11 +86,10 @@ private:
   virtual StatusCode loadTube(IOVSVC_CALLBACK_ARGS);
 
   ToolHandle<IIdToFixedIdTool> m_idToFixedIdTool;
-  StoreGateSvc* m_detStore;
-  IIOVDbSvc * m_IOVDbSvc;
+  ServiceHandle<IIOVDbSvc> m_IOVDbSvc;
   const MdtIdHelper* m_mdtIdHelper;
   const MuonGM::MuonDetectorManager* m_detMgr;
-  MdtCalibrationRegionSvc* m_regionSvc;
+  ServiceHandle<MdtCalibrationRegionSvc> m_regionSvc;
   mutable MdtTubeCalibContainerCollection * m_tubeData;
   mutable MdtRtRelationCollection * m_rtData;
 
@@ -112,16 +110,11 @@ private:
   double m_rtShift;
   double m_rtScale;
   double m_prop_beta;
-
-  IAtRndmGenSvc* p_AtRndmGenSvc;
+  ServiceHandle<IAtRndmGenSvc> m_AtRndmGenSvc;
   CLHEP::HepRandomEngine* p_engine;
 
   StringArrayProperty m_RTfileNames; //temporary!!!
  
-  MsgStream* m_log;
-  bool m_debug;
-  bool m_verbose;
-  
 //decompression buffer and length of buffer
    uLongf m_buffer_length;
    Bytef * m_decompression_buffer;

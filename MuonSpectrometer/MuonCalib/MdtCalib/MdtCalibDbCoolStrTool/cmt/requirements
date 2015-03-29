@@ -3,7 +3,9 @@ package MdtCalibDbCoolStrTool
 ########
 
 use AtlasPolicy     AtlasPolicy-* 
+use  AthenaBaseComps            AthenaBaseComps-*               Control
 use GaudiInterface  GaudiInterface-*  External
+use AthenaBaseComps AthenaBaseComps-* Control
 use MdtCalibData    MdtCalibData-*    MuonSpectrometer/MuonCalib/MdtCalib
 use MdtCalibInterfaces   MdtCalibInterfaces-*  MuonSpectrometer/MuonCalib/MdtCalib
 use MuonCalibITools MuonCalibITools-* MuonSpectrometer/MuonCalib
