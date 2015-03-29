@@ -63,14 +63,14 @@ if EventTagFlags.doRawSummary():
         print traceback.format_exc() 
         print "ERROR could not load RawInfoSummaryTagBuilder_jobOptions.py"
 
-"""
+
 if EventTagFlags.doAnalysis():
     try:
         include( "EventTagAlgs/AnalysisTagBuilder_jobOptions.py" )
     except Exception:
         print traceback.format_exc() 
         print "ERROR could not load AnalysisTagBuilder_jobOptions.py"
-"""
+
 # Define infile metadata list
 from EventTagAlgs.EventTagGlobal import EventTagGlobal
 tagmetadatalist = [ "TagAthenaAttributeList#"+EventTagGlobal.AttributeList ] 
