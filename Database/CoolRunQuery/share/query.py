@@ -32,7 +32,8 @@ def _new_request(q=''):
     datapath = 'data/arq_%s/arq_%s' % (queryday,queryid)
     
     # where to store the result
-    fulldatapath = '%s/%s' % (installpath,datapath)
+    #fulldatapath = '%s/%s' % (installpath,datapath)
+    fulldatapath = '/%s' % datapath
     os.makedirs(fulldatapath)
 
     # the query that should be run
@@ -42,7 +43,8 @@ def _new_request(q=''):
     fh.close()
 
     # global log file
-    logfile = '%s/data/log.txt' % installpath
+    logpath = fulldatapath
+    logfile = '%s/log.txt' % logpath
     fh = open(logfile,"a")
     print >> fh, "%s / [id %s] - received query: %s" % (timeofrequest, queryid, q if q else "none" )
     fh.close()

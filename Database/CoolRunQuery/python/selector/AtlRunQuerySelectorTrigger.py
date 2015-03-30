@@ -51,8 +51,10 @@ class TrigKeySelector(RunLBBasedCondition):
     def setShow(self, what):
         if what == 'smk':
             super(TrigKeySelector,self).setShowOutput('SMK')
+            self.showTrigKeys = True
         if what == 'release':
             super(TrigKeySelector,self).setShowOutput('Release')
+            self.showRelease = True
 
     def relStringToInt(self, r):
         major, minor, sub, patch = ([int(x) for x in r.split('.')] + [0,0,0,0])[0:4]
@@ -126,7 +128,7 @@ class TrigKeySelector(RunLBBasedCondition):
                 info = list(smknames[int(smk)] if str.isdigit(smk) else ("","",""))
                 if info[2]=="" or info[2]=="~": info[2]="no comment"
                 run.stats[k] = { "info" : tuple(info),
-                                 "random" : getRandom(smk) }
+                                 "random" : getRandom(int(smk)) if str.isdigit(smk) else (0,0,0,0)}
 
 
 class BGSKeySelector(RunLBBasedCondition):
@@ -183,7 +185,6 @@ class L1TrigKeySelector(RunLBBasedCondition):
             for run in runlist:
                 run.stats[k] = { "blocks" : [], "first" : 0 }
                 entries = run.data[k]
-                print "OOOOOOOO",entries
                 if len(entries)==0: continue
                 blocks = []
                 for entry in entries:
@@ -237,22 +238,43 @@ class HLTTrigKeySelector(RunLBBasedCondition):
 
         HLTTrigKeySelector.combineHltL1Keys(runlist)
 
+
+
+
     @classmethod
     def combineHltL1Keys(cls, runlist):
-        l1keys = set()
-        hltkeys = set()
+        from CoolRunQuery.utils.AtlRunQueryTriggerUtils import isTriggerRun2
+        l1keysRun1 = set() # to collect run 1 keys
+        hltkeysRun1 = set()
+        l1keysRun2 = set() # to collect run 2 keys
+        hltkeysRun2 = set()
         for run in runlist:
-            if 'L1 PSK' in run.stats:
-                l1keys.update( [x[0] for x in run.stats['L1 PSK']['blocks']] )
-            if 'HLT PSK' in run.stats:
-                hltkeys.update( [x[0] for x in run.stats['HLT PSK']['blocks']] )
+            if isTriggerRun2(run_number = run.runNr): # run 2
+                if 'L1 PSK' in run.stats:
+                    l1keysRun2.update( [x[0] for x in run.stats['L1 PSK']['blocks']] )
+                if 'HLT PSK' in run.stats:
+                    hltkeysRun2.update( [x[0] for x in run.stats['HLT PSK']['blocks']] )
+            else: # run 1
+                if 'L1 PSK' in run.stats:
+                    l1keysRun1.update( [x[0] for x in run.stats['L1 PSK']['blocks']] )
+                if 'HLT PSK' in run.stats:
+                    hltkeysRun1.update( [x[0] for x in run.stats['HLT PSK']['blocks']] )
+
 
         from CoolRunQuery.utils.AtlRunQueryTriggerUtils import getL1PskNames, getHLTPskNames
-        if len(l1keys)>0 and len(hltkeys)>0:
-            l1names = getL1PskNames(l1keys)
-            hltnames = getHLTPskNames(hltkeys)
+
+        l1namesRun1  = getL1PskNames(l1keysRun1, isRun2 = False)
+        hltnamesRun1 = getHLTPskNames(hltkeysRun1, isRun2 = False)
+        l1namesRun2  = getL1PskNames(l1keysRun2, isRun2 = True)
+        hltnamesRun2 = getHLTPskNames(hltkeysRun2, isRun2 = True)
 
         for run in runlist:
+            if isTriggerRun2(run_number = run.runNr): # run 2
+                l1names  = l1namesRun2
+                hltnames = hltnamesRun2
+            else:
+                l1names  = l1namesRun1
+                hltnames = hltnamesRun1
             if not ('L1 PSK' in run.stats and 'HLT PSK' in run.stats): continue
             ic = 0
             blocks = set()
@@ -389,21 +411,27 @@ class TriggerSelector(RunLBBasedCondition):
         else: return "Retrieving trigger names [%s]" % ','.join(self.showtriggerpatterns)
 
 
-    def getL1Prescales(self, l1psks):
+    def getL1Prescales(self, runl1psks):
+        """
+        runl1psks is a dict run -> [l1psk,...]
+        """
         from CoolRunQuery.utils.AtlRunQueryTriggerUtils import getL1Prescales
-        l1pscache    = dict()
-        for l1psk in l1psks:
-            l1pscache[l1psk] = getL1Prescales(l1psk)
+        l1pscache = dict()
+        for run_number, pss in runl1psks.items():
+            for l1psk in pss:
+                l1pscache[(run_number,l1psk)] = getL1Prescales(l1psk,run_number = run_number)
         return l1pscache
 
-    def getHLTPrescales(self, hltpsks):
+    def getHLTPrescales(self, runhltpsks):
+        """
+        runhltpsks is a dict run -> [hltpsk,...]
+        """
         from CoolRunQuery.utils.AtlRunQueryTriggerUtils import getHLTPrescales
-
         l2pscache   = dict()
         efpscache   = dict()
-
-        for hltpsk in hltpsks:
-            l2pscache[hltpsk], efpscache[hltpsk] = getHLTPrescales(hltpsk)
+        for run_number, pss in runhltpsks.items():
+            for psk in pss:
+                l2pscache[(run_number,psk)], efpscache[(run_number,psk)] = getHLTPrescales(psk, run_number = run_number)
 
         return l2pscache, efpscache
 
@@ -482,17 +510,17 @@ class TriggerSelector(RunLBBasedCondition):
         runranges = SmartRangeCalulator(runlist)
 
         smks = [r.result['SMK'] for r in runlist]
-        l1psks = set()
-        hltpsks = set()
+        runl1psks = dict()
+        runhltpsks = dict()
         for r in runlist:
-            l1psks.update( [l1psk for (l1psk,firstlb,lastlb) in r.stats['L1 PSK']['blocks']] )
-            hltpsks.update( [hltpsk for (hltpsk,firstlb,lastlb) in r.stats['HLT PSK']['blocks']] )
+            runl1psks[r.runNr]  = [l1psk for (l1psk,firstlb,lastlb) in r.stats['L1 PSK']['blocks']]
+            runhltpsks[r.runNr] = [hltpsk for (hltpsk,firstlb,lastlb) in r.stats['HLT PSK']['blocks']]
 
         l1menucache, l2menucache, efmenucache = self.getMenuFromRun(smks)
 
-        l1pscache = self.getL1Prescales(l1psks)
+        l1pscache = self.getL1Prescales(runl1psks)
 
-        l2pscache, efpscache = self.getHLTPrescales(hltpsks)
+        l2pscache, efpscache = self.getHLTPrescales(runhltpsks) # for RUN 2 only efpscache is filled, l2pscache is None
 
         for run in runlist: # go through old runlist and see
 
@@ -510,7 +538,7 @@ class TriggerSelector(RunLBBasedCondition):
                     if not l1psk:
                         value[item].append(None)
                         continue
-                    itemps = l1pscache[l1psk][item.counter]
+                    itemps = l1pscache[(run.runNr,l1psk)][item.counter]
                     value[item].append(itemps if itemps>=0 else -1)
 
             for l2chain in l2chains:
@@ -518,11 +546,11 @@ class TriggerSelector(RunLBBasedCondition):
                     if not l1psk or not hltpsk:
                         value[l2chain].append(None)
                         continue
-                    chainps,chainpt = l2pscache[hltpsk][l2chain.counter]
+                    chainps,chainpt = l2pscache[(smk,hltpsk)][l2chain.counter]
                     if chainps<0:
                         value[l2chain].append(-1)
                         continue
-                    chainps *= l1pscache[l1psk][l2chain.lowercounter]
+                    chainps *= l1pscache[(run.runNr,l1psk)][l2chain.lowercounter]
                     value[l2chain].append(chainps if chainps>=0 else -1)
 
             for efchain in efchains:
@@ -531,16 +559,16 @@ class TriggerSelector(RunLBBasedCondition):
                     if not l1psk or not hltpsk:
                         value[efchain].append(None)
                         continue
-                    chainps,chainpt = efpscache[hltpsk][efchain.counter]
+                    chainps,chainpt = efpscache[(smk,hltpsk)][efchain.counter]
                     if chainps<0:
                         value[efchain].append(-1)
                         continue
-                    l2chainps,l2chainpt = l2pscache[hltpsk][l2chain.counter]
+                    l2chainps,l2chainpt = l2pscache[(smk,hltpsk)][l2chain.counter]
                     chainps *= l2chainps
                     if chainps<0:
                         value[efchain].append(-1)
                         continue
-                    chainps *= l1pscache[l1psk][l2chain.lowercounter]
+                    chainps *= l1pscache[(run.runNr,l1psk)][l2chain.lowercounter]
                     value[efchain].append(chainps if chainps>=0 else -1)
 
                 # remove all the disabled triggers

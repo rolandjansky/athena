@@ -23,8 +23,9 @@ def main():
     if arguments[1] == 'fileindex':
         installpath = '/'.join(os.path.dirname(__file__).split('/')[:-1])
         fileindex = arguments[2]
-        datapath = 'data/arq_%s/arq_%s' % (fileindex[:6],fileindex)
-        queryfile = '%s/%s/query.txt' % (installpath,datapath)
+        datapath = '/data/arq_%s/arq_%s' % (fileindex[:6],fileindex)
+        #queryfile = '%s/%s/query.txt' % (installpath,datapath)
+        queryfile = '%s/query.txt' % datapath
         fh = open(queryfile,"r")
         origQuery = fh.readline().strip()
         fh.close()
@@ -42,7 +43,7 @@ def main():
         atlqueryarg = origQuery
 
     else:
-        
+
         from CoolRunQuery.AtlRunQueryParser import ArgumentParser
         ap = ArgumentParser()
 
@@ -75,6 +76,7 @@ def main():
 
 
     from CoolRunQuery.AtlRunQueryLib import AtlRunQuery
+    print "Data path %s" % datapath
     AtlRunQuery(options, html="AUTO", origQuery=origQuery, datapath=datapath, parsedstring=atlqueryarg)  # html can be "YES", "NO", "AUTO"
     return 0
 

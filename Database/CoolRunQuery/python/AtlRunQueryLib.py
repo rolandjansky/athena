@@ -122,7 +122,6 @@ class AtlRunQuery:
         else:
             self.prodgrl = not runsOnServer()
 
-
         if self.cmdlineOptions.dictroot != None : # happens if --root or --noroot is specified
             self.dictroot = self.cmdlineOptions.dictroot
         else:
@@ -263,6 +262,7 @@ class AtlRunQuery:
 
 
     def evaluate(self, runlist):
+
         # provide pickled dictionary of query result
         with timer('CreateResultDict'):
             from CoolRunQuery.output.AtlRunQuerySave import CreateResultDict
@@ -272,6 +272,7 @@ class AtlRunQuery:
         # create XML file (and return pretty html output for print)
         with timer('CreateXMLFile'):
             if self.prodgrl:
+                print "Producing XML file"
                 from CoolRunQuery.output.AtlRunQueryXML import CreateXMLFile
                 from .AtlRunQueryVersion import SvnVersion
                 xmlhtmlstr = CreateXMLFile( runlist, self.cmdlineOptions, self.origQuery, self.datapath,
@@ -302,27 +303,27 @@ class AtlRunQuery:
 
             # create web page
             from .html.AtlRunQueryHTML import ResultPageMaker
-            try:
-                pageinfo = { 'datapath'      : self.datapath,
-                             'origQuery'     : self.origQuery,
-                             'fullQuery'     : self.parsedstring,
-                             'runlist'       : runlist,
-                             'dic'           : dic,
-                             'dicsum'        : dicsum,
-                             'makeSummary'   : self.makeSummary,
-                             'makeDQeff'     : self.makeDQeff,
-                             'makeDQSummary' : self.makeDQSummary,
-                             'makeDQPlots'   : self.makeDQPlots,
-                             'roothtmlstr'   : roothtmlstr,
-                             'xmlfilename'   : self.xmlFileName,
-                             'xmlhtmlstr'    : xmlhtmlstr,
-                             'querytime'     : time() - self.querystart,
-                             'selout'        : self.selectionOutput,
-                             }
-                with timer("run page maker"):
-                    ResultPageMaker.makePage(pageinfo)
-            except ImportError, ie:
-                print "Can't import pagemaker, no web page made",ie
+            #try:
+            pageinfo = { 'datapath'      : self.datapath,
+                         'origQuery'     : self.origQuery,
+                         'fullQuery'     : self.parsedstring,
+                         'runlist'       : runlist,
+                         'dic'           : dic,
+                         'dicsum'        : dicsum,
+                         'makeSummary'   : self.makeSummary,
+                         'makeDQeff'     : self.makeDQeff,
+                         'makeDQSummary' : self.makeDQSummary,
+                         'makeDQPlots'   : self.makeDQPlots,
+                         'roothtmlstr'   : roothtmlstr,
+                         'xmlfilename'   : self.xmlFileName,
+                         'xmlhtmlstr'    : xmlhtmlstr,
+                         'querytime'     : time() - self.querystart,
+                         'selout'        : self.selectionOutput,
+                         }
+            with timer("run page maker"):
+                ResultPageMaker.makePage(pageinfo)
+            #except ImportError, ie:
+            #    print "Can't import pagemaker, no web page made",ie
 
         else:
             print '---------------------------------------------------------------------'
