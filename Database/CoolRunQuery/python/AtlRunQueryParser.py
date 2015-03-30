@@ -140,6 +140,7 @@ class ArgumentParser:
         #               or 'data10_7TeV.periodA-periodC' or 'data10_7TeV.periodA,data10_7TeV.periodB,...'
         # This is case sensitive !!
         """
+
         pat_last   = re.compile("(?:l|la|las|last) (\d*)$")  # l(ast) NN runs
         pat_number = re.compile("\d{5,8}[+-]?$")  # run number (5-8 digits), possibly followed by a + or -
         pat_range  = re.compile("\d{5,8}-\d{5,8}$")  # range of run numbers (each 5-8 digits)
@@ -147,6 +148,8 @@ class ArgumentParser:
         pat_data   = re.compile("data(?P<year>\d{2})_.*\.period(?P<period>[a-zA-Z]+\d*)$") # form: data10_7TeV.periodA
 
         pshort     = re.compile("(?P<first>(data|20)?(?P<year>\d{2})(_.*)?\.)?(period)?(?P<period>[a-zA-Z])(?P<subperiod>\d+)?$",re.I)
+
+        pallyear   = re.compile("(?P<first>(data|20)?(?P<year>\d{2})(_.*)?\.)?(periodAllYear)?$",re.I)
 
 
         available_periods = []
@@ -239,15 +242,39 @@ class ArgumentParser:
             from CoolRunQuery.AtlRunQueryCOMA import ARQ_COMA
             available_periods = ARQ_COMA.get_all_periods()
 
+            print "Available ", available_periods
+
             if '-' in tag:
                 list_of_periods = getDataPeriodsWithinRange( tag.split('-') )
                 list_of_runs += getRunsFromPeriods(list_of_periods)
                 continue
 
+            #data12_8TeV.periodAllYear
 
-            m = pshort.match(tag)
 
-            #m = pat_short.match(tag)
+            m = pallyear.match(tag) # (?P<first>(data|20)?(?P<year>\d{2})(_.*)?\.)?(periodAllYear)?$
+            if m:
+                m = m.groupdict()
+                # year
+                year = int(m['year']) if m['year'] else getCurrentYear()
+
+                print "Interpret period: AllYear for %i" % (2000+year)
+
+                # ordinate
+                p1c = 10000*year
+                p2c = 10000*(year+1) - 1
+
+                list_of_periods = getListOfPeriodsFromOrdinateRange(p1c,p2c)
+
+                print list_of_periods
+
+                list_of_runs += getRunsFromPeriods(list_of_periods)
+                continue
+
+
+
+            
+            m = pshort.match(tag) # pshort : "(?P<first>(data|20)?(?P<year>\d{2})(_.*)?\.)?(period)?(?P<period>[a-zA-Z])(?P<subperiod>\d+)?$",re.I
             if m:
                 m = m.groupdict()
                 # year
@@ -694,6 +721,7 @@ class ArgumentParser:
 
         newarg = ""
         for arg in argList:
+
             # check if negation
             negation = False
             if 'not' in arg:
@@ -799,7 +827,6 @@ class ArgumentParser:
 
         shwarg   = self.PostProcessShowArgs( shwarg )
 
-        
         # interpret other arguments
         nodef_flag = False
         oargs = otherarg.split()

@@ -49,7 +49,8 @@ class Enumerate(object):
 
 def runsOnServer():
     hostname = os.getenv('HOSTNAME')
-    return re.match('voatlas(197|218|262).cern.ch',hostname)
+    onserver = ( re.match('aiatlas.*\.cern\.ch',hostname) != None )
+    return onserver
 
 def importroot(batch=True):
     import sys

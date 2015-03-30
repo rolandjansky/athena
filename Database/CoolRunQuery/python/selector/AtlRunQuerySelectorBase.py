@@ -135,6 +135,10 @@ class Selector(object):
         print "Determinded %s, based on run number %i" % (Selector.__conddb, run_number)
         return Selector.__conddb
 
+    @staticmethod
+    def isRun2(run_number = None ):
+        return Selector.condDB(run_number)=="CONDBR2"
+
 
 
     def __init__(self, name):
@@ -339,11 +343,10 @@ class RunLBBasedCondition(Condition):
             iovmin=(rr[0] << 32)+0
             iovmax=((rr[1]+1) << 32)-1
 
+            # access to COOL
             objs = self._retrieve(iovmin, iovmax, f, sortedRanges)
 
             for obj in objs:
-                #if 'DQDEFECT' in keys:
-                #    print '\n YYYYYYY ',obj
                 ch  = obj.channel
                 for chtmp, internalKey, payloadKey in keys[ch]:
                     if type(payloadKey)==tuple:
@@ -352,10 +355,8 @@ class RunLBBasedCondition(Condition):
                     else:
                         payload = obj.payload(payloadKey)
 
-                    #if 'DQDEFECT' in keys:
-                    #    print '\n YYYYYYY ', payload
-
                     condData[internalKey].append( (IOVRange(obj.iovrange), payload) )
+
         return condData
 
 
@@ -554,7 +555,7 @@ class TimeBasedCondition(Condition):
         condData = defaultdict(list)
 
             
-
+        # access COOL
         for rr in runranges:
             firstrun = runlist[runlist.index(rr[0])]
             lastrun = runlist[runlist.index(rr[1])]

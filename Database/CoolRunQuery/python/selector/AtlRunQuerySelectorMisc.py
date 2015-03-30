@@ -18,11 +18,13 @@ class FilenameSelector(RunLBBasedCondition):
         if projecttag:
             self.fntpatterns = [re.compile(pt.strip().replace('*','.*').replace('?','.'),re.I) for pt in projecttag.split(',')]
         super(FilenameSelector,self).__init__(name=name,
-                                              dbfolderkey='COOLONL_TDAQ::/TDAQ/RunCtrl/SOR_Params',
-                                              channelKeys = [(0, 'Project tag','FilenameTag')])
+                                              dbfolderkey='COOLONL_TDAQ::/TDAQ/RunCtrl/SOR%s' % ("_Params" if Selector.condDB() == "COMP200" else ""),
+                                              channelKeys = [(0, 'Project tag','FilenameTag' if Selector.condDB() == "COMP200" else 'T0ProjectTag')])
+
     def __str__(self):
         if self.applySelection: return 'SELOUT Checking if the filename tag matches "%s"' % self.filenametag
         else: return "Retrieving filenametag"
+
     def passes(self,value,key):
         for p in self.fntpatterns:
             if p.match(value): return True
@@ -133,6 +135,10 @@ class DetectorSelector(RunLBBasedCondition):
         return retval
 
     def prettyValue(self, value, key):
+        """
+        run 1: run 211541 has DetectorMask 281474976710647
+        run 2: run 252233 has DetectorMask 0d00069fffffffff0
+        """
         return  value
 
 
