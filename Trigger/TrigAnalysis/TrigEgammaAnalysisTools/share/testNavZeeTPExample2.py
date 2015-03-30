@@ -20,18 +20,41 @@ if not 'DIR' in dir():
 else :
      dirtouse=DIR
 
+# probelist to be imported from somewhere
+probelist = ["e26_tight_iloose",
+            "e24_tight_iloose",
+            "e26_lhtight_iloose",
+            "e26_tight_iloose",
+            "e26_tight1_iloose",
+            "e24_tight_iloose_L1EM20VH",
+            "e24_tight1_iloose_L1EM20VH",
+            "e24_lhtight_iloose_L1EM20V",
+            "e24_medium_iloose_L1EM20VH",
+            "e24_lhmedium_iloose_L1EM20VH",
+            "e24_medium1_iloose_L1EM18VH"
+            "e24_tight_iloose_HLTCalo_L1EM20VH",
+            "e24_tight_iloose_L2EFCalo_L1EM20VH",
+            "e24_lhtight_iloose_HLTCalo_L1EM20VH",
+            "e24_lhtight_iloose_L2EFCalo_L1EM20VH",
+            "e24_tight_iloose_etisem_L1EM20VH",
+            "e24_lhmedium_cutd0dphi_L1EM18VH",
+            "e24_lhmedium_nod0_L1EM18VH",
+            "e24_lhmedium_nodphi_L1EM18VH",
+            "e24_lhmedium_nodphires_iloose_L1EM18VH"
+            ]
+
 
 # To run
 # athena -l DEBUG -c "DIR='/afs/cern.ch/user/r/rwhite/workspace/egamma/mc/DC14Val/mc14_13TeV.147406.PowhegPythia8_AZNLO_Zee.recon.AOD.e3059_s1982_s2008_r5787_tid01572494_00'" test_NavZeeTPAll.py
-listfiles=os.listdir(dirtouse)
-finallist=[]
-for ll in listfiles:
-      finallist.append(dirtouse+'/'+ll)
+#listfiles=os.listdir(dirtouse)
+finallist=[dirtouse]
+#for ll in listfiles:
+#      finallist.append(dirtouse+'/'+ll)
 #print finallist
 
 athenaCommonFlags.FilesInput=finallist
-athenaCommonFlags.EvtMax=500
-#athenaCommonFlags.EvtMax=-1
+#athenaCommonFlags.EvtMax=500
+athenaCommonFlags.EvtMax=-1
 rec.readAOD=True
 # switch off detectors
 rec.doForwardDet=False
@@ -72,64 +95,24 @@ from TrigEgammaAnalysisTools.TrigEgammaAnalysisToolsConfig import TrigEgammaNavZ
 
 Res = TrigEgammaNavZeeTPRes(name="NavZeeTPRes",
         ElectronKey="Electrons",
-        ProbeTriggerList=['e26_tight_iloose',
-            'e24_tight_iloose',
-            'e26_lhtight_iloose',
-            'e24_tight_iloose_L1EM20VH',
-            'e24_medium_iloose_L1EM20VH',
-            'e24_lhmedium_iloose_L1EM20VH',
-            'e24_tight_iloose_HLTCalo_L1EM20VH',
-            'e24_tight_iloose_L2EFCalo_L1EM20VH',
-            'e24_lhtight_iloose_L1EM20V',
-            'e24_lhtight_iloose_HLTCalo_L1EM20VH',
-            'e24_lhtight_iloose_L2EFCalo_L1EM20VH',
-            ],
+        ProbeTriggerList=probelist,
         TagTrigger="e26_lhtight_iloose",
         OutputLevel=2,
         )
 Eff = TrigEgammaNavZeeTPEff(name="NavZeeTPEff",
         ElectronKey="Electrons",
-        ProbeTriggerList=['e26_tight_iloose',
-            'e24_tight_iloose',
-            'e26_lhtight_iloose',
-            'e24_tight_iloose_L1EM20VH',
-            'e24_medium_iloose_L1EM20VH',
-            'e24_lhmedium_iloose_L1EM20VH',
-            'e24_tight_iloose_HLTCalo_L1EM20VH',
-            'e24_tight_iloose_L2EFCalo_L1EM20VH',
-            'e24_lhtight_iloose_L1EM20V',
-            'e24_lhtight_iloose_HLTCalo_L1EM20VH',
-            'e24_lhtight_iloose_L2EFCalo_L1EM20VH',
-            ],
-        
+        ProbeTriggerList=probelist,
         TagTrigger="e26_tight_iloose",
         )
 Counts = TrigEgammaNavZeeTPCounts(name="NavZeeTPCounts",
         ElectronKey="Electrons",
-        ProbeTriggerList=['e26_tight_iloose','e0_perf_L1EM15',
-            'e24_tight_iloose',
-            'e26_lhtight_iloose',
-            'e24_tight_iloose_L1EM20VH',
-            'e24_medium_iloose_L1EM20VH',
-            'e24_lhmedium_iloose_L1EM20VH',
-            'e24_tight_iloose_HLTCalo_L1EM20VH',
-            'e24_tight_iloose_L2EFCalo_L1EM20VH',
-            'e24_lhtight_iloose_L1EM20V',
-            'e24_lhtight_iloose_HLTCalo_L1EM20VH',
-            'e24_lhtight_iloose_L2EFCalo_L1EM20VH',
-            ],
+        ProbeTriggerList=probelist,
         TagTrigger="e26_tight_iloose",
         )
 
 Ineff = TrigEgammaNavZeeTPIneff(name="NavZeeTPIneff",
         ElectronKey="Electrons",
-        ProbeTriggerList=['e26_tight_iloose',
-            'e24_tight_iloose',
-            'e24_tight_iloose_L1EM20VH',
-            'e24_medium_iloose_L1EM20VH',
-            'e24_tight_iloose_HLTCalo_L1EM20VH',
-            'e24_tight_iloose_L2EFCalo_L1EM20VH',
-            ],
+        ProbeTriggerList=probelist,
         TagTrigger="e26_lhtight_iloose",
         )
 
@@ -137,41 +120,18 @@ Perf = TrigEgammaNavZeeTPPerf(name="NavZeeTPPerf",
 #        File = "ttbar",
         OutputLevel = 2,
         ElectronKey="Electrons",
-        ProbeTriggerList=['e26_tight_iloose',
-            'e24_tight_iloose',
-            'e26_lhtight_iloose',
-            'e24_tight_iloose_L1EM20VH',
-            'e24_medium_iloose_L1EM20VH',
-            'e24_lhmedium_iloose_L1EM20VH',
-            'e24_tight_iloose_HLTCalo_L1EM20VH',
-            'e24_tight_iloose_L2EFCalo_L1EM20VH',
-            'e24_lhtight_iloose_L1EM20V',
-            'e24_lhtight_iloose_HLTCalo_L1EM20VH',
-            'e24_lhtight_iloose_L2EFCalo_L1EM20VH',
-            ],
+        ProbeTriggerList=probelist,
         TagTrigger="e26_lhtight_iloose",
         )
 
 Ntuple = TrigEgammaNavZeeTPNtuple(name="NavZeeTPNtuple",
         ElectronKey="Electrons",
-        ProbeTriggerList=['e26_tight_iloose',
-            'e24_tight_iloose',
-            'e26_lhtight_iloose',
-            'e24_tight_iloose_L1EM20VH',
-            'e24_medium_iloose_L1EM20VH',
-            'e24_lhmedium_iloose_L1EM20VH',
-            'e24_tight_iloose_HLTCalo_L1EM20VH',
-            'e24_tight_iloose_L2EFCalo_L1EM20VH',
-            'e24_lhtight_iloose_L1EM20V',
-            'e24_lhtight_iloose_HLTCalo_L1EM20VH',
-            'e24_lhtight_iloose_L2EFCalo_L1EM20VH',
-            ],
+        ProbeTriggerList=probelist,
         TagTrigger="e26_lhtight_iloose",
         doRinger=False, # if its true, we will save only tes with ringer.
         )
 
 
-#Alg = TrigEgammaAnalysisAlg(name="MyAlg",Tools=[Counts,Eff,TrigEgammaEmulationTool(OutputLevel=2)])
-#Alg = TrigEgammaAnalysisAlg(name="MyAlg",Tools=[Res])
-Alg = TrigEgammaAnalysisAlg(name="MyAlg",Tools=[Perf])
+#Alg = TrigEgammaAnalysisAlg(name="MyAlg",Tools=[Counts,Eff,TrigEgammaEmulationTool()])
+Alg = TrigEgammaAnalysisAlg(name="MyAlg",Tools=[Counts,Eff,Perf])
 

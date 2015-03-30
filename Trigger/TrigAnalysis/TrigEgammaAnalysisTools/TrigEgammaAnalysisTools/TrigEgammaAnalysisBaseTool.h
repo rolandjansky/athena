@@ -8,6 +8,7 @@
 
 #include "TrigEgammaAnalysisTools/ITrigEgammaAnalysisBaseTool.h"
 #include "AsgTools/AsgTool.h"
+#include "TrigDecisionTool/TrigDecisionTool.h"
 class TrigEgammaAnalysisBaseTool
 : public asg::AsgTool,
   virtual public ITrigEgammaAnalysisBaseTool {
@@ -55,6 +56,8 @@ protected:
   // Histograms
   ITHistSvc* m_histsvc;
 
+  // ToolHandles
+  ToolHandle<Trig::TrigDecisionTool> m_trigdec;
   // Infra-structure members
   std::vector<std::string> m_dir; // maintain directories
   std::map<std::string, TH1 *> m_hist1; // maintain histograms
@@ -63,6 +66,14 @@ protected:
 
   // Book-keeping the current mon group
   std::string m_currentDir;
+  /*! Simple setter to pick up correct probe PID for given trigger */
+  void parseTriggerName(const std::string,const std::string, std::string &,float &, float &, std::string &,std::string &, bool&, bool&);
+  /*! Creates static map to return L1 item from trigger name */
+  std::string getL1Item(std::string trigger);
+  
+  std::string getProbePid(const std::string);// {return m_offProbeTightness;}
+  /*! String for offline container key */
+  std::string m_offElContKey;
 };
 
 #endif

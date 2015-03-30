@@ -10,7 +10,7 @@
 //#include "TrigNavigation/Navigation.h"
 
 #include "TrigEgammaAnalysisTools/TrigEgammaAnalysisBaseTool.h"
-#include "TrigDecisionTool/TrigDecisionTool.h"
+
 #include "xAODEgamma/Egamma.h"
 #include "xAODEgamma/ElectronContainer.h"
 #include "xAODEgamma/PhotonContainer.h"
@@ -29,6 +29,7 @@
 #include "xAODTrigger/EmTauRoIContainer.h"
 #include "egammaMVACalib/IegammaMVATool.h"
 #include "ElectronPhotonSelectorTools/IAsgElectronIsEMSelector.h"
+#include "ElectronPhotonSelectorTools/IAsgPhotonIsEMSelector.h"
 #include "ElectronPhotonSelectorTools/IAsgElectronLikelihoodTool.h"
 
 
@@ -61,9 +62,6 @@ protected:
   StatusCode executeTandP(const std::string trigItem); 
   /*! Tag Electron selection */
   bool isTagElectron(const xAOD::Electron *el);
-  /*! Simple setter to pick up correct probe PID for given trigger */
-  void setProbePid(const std::string);
-  std::string getPid(const std::string);
   /*! Probe selection */
   bool isGoodProbeElectron(const xAOD::Electron *el,const std::string); 
   /*! Creates pairs of probes and TE */
@@ -74,8 +72,6 @@ protected:
   bool passedTrigger(const HLT::TriggerElement* obj); 
   /*! Clears list of probes after each trigger item per event */
   void clearProbeList(); 
-  // ToolHandles
-  ToolHandle<Trig::TrigDecisionTool> m_trigdec;
   /*! Dual-use tool for MVA calibration */
   ToolHandle<IegammaMVATool>  m_MVACalibTool; 
   /*! vector of offline electron probe and matched TE */
@@ -86,11 +82,10 @@ protected:
   std::vector<std::string> m_probeTrigList; 
   /*! To apply MVA calibration -- TBD */
   bool m_applyMVACalib; 
+  /*! dR matching between TE and offline probe */
+  float m_dR;
   /*! Directory name for each algorithm */
-  std::string m_dir; 
-  /*! String for offline container key */
-  std::string m_offElContKey;
-
+  std::string m_dir;
   // Additional monitoring function   
   float getEta2(const xAOD::Egamma* eg){
       if(eg && (eg->caloCluster())){
@@ -360,13 +355,14 @@ private:
   ToolHandleArray<IAsgElectronLikelihoodTool> m_electronLHTool; 
 
   std::map< std::string, unsigned int > m_PidToolMap; /*! Pass a string to pick up correct selector */
+  //std::map< std::string, std::string > m_PidMap; /*! Map trigger pid to selector pid */ 
   //
   /*! Event Wise offline ElectronContainer Access and end iterator */
   const xAOD::ElectronContainer* m_offElectrons;
   /*! Jet container for probe selection */
   const xAOD::JetContainer* m_jets;
   /* TP selection properties */
-  std::vector< std::string > m_minTrig; /* Event-wise trigger list */
+ 
   /*! Zee lower mass cut */
   float m_ZeeMassMin;
   /*! Zee upper mass cut */
@@ -375,14 +371,22 @@ private:
   unsigned int m_isEMoffTag;
   /*! Define the PID for tag electron */
   std::string m_offTagTightness;
-  /*! define the Pid of Probe from the trigger */ 
+  /*! define the Pid of Probe from the trigger name */ 
   std::string m_offProbeTightness;
+  /*! define the Pid of Probe from the user */ 
+  std::string m_defaultProbeTightness;
+  /*! force user defined probe for pid triggers */
+  bool m_forceProbePid;
   /*! Select opposite or same-sign pairs -- for background studies */
   bool m_oppositeCharge;
   /*! Minimum tag Et */
   float m_tagMinEt;
-  /*! Trigger for tag */
-  std::string m_tagTrigItem; 
+  /*! Minimum probe Et */
+  float m_probeMinEt;
+  /*! Trigger for tag and event wise selection */
+  std::string m_tagTrigItem;
+  /*! Map of trigger name and L1 item */
+  //std::map<std::string,std::string> m_triggerMap;
   
 };
 

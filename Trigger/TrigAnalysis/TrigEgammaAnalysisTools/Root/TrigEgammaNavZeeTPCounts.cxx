@@ -53,7 +53,6 @@ StatusCode TrigEgammaNavZeeTPCounts::childExecute()
             return StatusCode::FAILURE;
 
         for(unsigned int i=0;i<m_probeElectrons.size();i++){
-            if ( m_probeElectrons[i].first->pt() < 24e3 ) continue;
             const HLT::TriggerElement* feat = m_probeElectrons[i].second;
             m_nProbes[probeTrigger]++;
             if ( feat ) {

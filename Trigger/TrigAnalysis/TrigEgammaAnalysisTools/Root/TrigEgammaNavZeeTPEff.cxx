@@ -71,7 +71,6 @@ StatusCode TrigEgammaNavZeeTPEff::childExecute()
 
         // Just for counting
         for(unsigned int i=0;i<m_probeElectrons.size();i++){
-            if ( m_probeElectrons[i].first->pt() < 24e3 ) continue;
             const xAOD::Electron* offEl = m_probeElectrons[i].first;
             float denOffEl_et = getEt(offEl)/1e3;//offEl->caloCluster()->et()/1e3;
             float denOffEl_eta = offEl->eta();
