@@ -204,11 +204,20 @@ def bMultipleOptionTopos(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoSta
 
 
 
-    if ('7invm9' in topoAlgs) & ('noos' in topoAlgs):
+    if ('7invm9' in topoAlgs) & ('noos' in topoAlgs) & ('novtx' not in topoAlgs):
         from TrigBphysHypo.TrigL2BMuMuFexConfig import L2BMuMuFex_DiMu_7invm9_noOS
-        from TrigBphysHypo.TrigL2BMuMuHypoConfig import L2BMuMuHypo_DiMu_7invm9_noVtx           
+        from TrigBphysHypo.TrigL2BMuMuHypoConfig import L2BMuMuHypo_DiMu_7invm9
         from TrigBphysHypo.TrigEFBMuMuFexConfig import EFBMuMuFex_DiMu_7invm9_noOS
-        from TrigBphysHypo.TrigEFBMuMuHypoConfig import EFBMuMuHypo_DiMu_7invm9_noVtx           
+        from TrigBphysHypo.TrigEFBMuMuHypoConfig import EFBMuMuHypo_DiMu_7invm9
+        L2Fex  = L2BMuMuFex_DiMu_7invm9_noOS()
+        L2Hypo = L2BMuMuHypo_DiMu_7invm9()
+        EFFex  = EFBMuMuFex_DiMu_7invm9_noOS()
+        EFHypo = EFBMuMuHypo_DiMu_7invm9()
+    elif ('7invm9' in topoAlgs) & ('noos' in topoAlgs) & ('novtx' in topoAlgs):
+        from TrigBphysHypo.TrigL2BMuMuFexConfig import L2BMuMuFex_DiMu_7invm9_noOS
+        from TrigBphysHypo.TrigL2BMuMuHypoConfig import L2BMuMuHypo_DiMu_7invm9_noVtx
+        from TrigBphysHypo.TrigEFBMuMuFexConfig import EFBMuMuFex_DiMu_7invm9_noOS
+        from TrigBphysHypo.TrigEFBMuMuHypoConfig import EFBMuMuHypo_DiMu_7invm9_noVtx
         L2Fex  = L2BMuMuFex_DiMu_7invm9_noOS()
         L2Hypo = L2BMuMuHypo_DiMu_7invm9_noVtx()
         EFFex  = EFBMuMuFex_DiMu_7invm9_noOS()
@@ -222,7 +231,34 @@ def bMultipleOptionTopos(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoSta
         L2Hypo = L2BMuMuHypo_DiMu_18invm60_noVtx()
         EFFex  = EFBMuMuFex_DiMu_18invm60_noOS()
         EFHypo = EFBMuMuHypo_DiMu_18invm60_noVtx()
-    elif ('11invm60' in topoAlgs) & ('noos' in topoAlgs):
+    elif ('11invm60' in topoAlgs) & ('noos' in topoAlgs) & ('novtx' not in topoAlgs):
+        from TrigBphysHypo.TrigL2BMuMuFexConfig import L2BMuMuFex_DiMu_11invm60_noOS
+        from TrigBphysHypo.TrigL2BMuMuHypoConfig import L2BMuMuHypo_DiMu_11invm60
+        from TrigBphysHypo.TrigEFBMuMuFexConfig import EFBMuMuFex_DiMu_11invm60_noOS
+        from TrigBphysHypo.TrigEFBMuMuHypoConfig import EFBMuMuHypo_DiMu_11invm60
+        L2Fex  = L2BMuMuFex_DiMu_11invm60_noOS()
+        L2Hypo = L2BMuMuHypo_DiMu_11invm60()
+        EFFex  = EFBMuMuFex_DiMu_11invm60_noOS()
+        EFHypo = EFBMuMuHypo_DiMu_11invm60()                   
+    elif ('11invm24' in topoAlgs) & ('noos' in topoAlgs) & ('novtx' not in topoAlgs):
+        from TrigBphysHypo.TrigL2BMuMuFexConfig import L2BMuMuFex_DiMu_11invm24_noOS
+        from TrigBphysHypo.TrigL2BMuMuHypoConfig import L2BMuMuHypo_DiMu_11invm24
+        from TrigBphysHypo.TrigEFBMuMuFexConfig import EFBMuMuFex_DiMu_11invm24_noOS
+        from TrigBphysHypo.TrigEFBMuMuHypoConfig import EFBMuMuHypo_DiMu_11invm24
+        L2Fex  = L2BMuMuFex_DiMu_11invm24_noOS()
+        L2Hypo = L2BMuMuHypo_DiMu_11invm24()
+        EFFex  = EFBMuMuFex_DiMu_11invm24_noOS()
+        EFHypo = EFBMuMuHypo_DiMu_11invm24()
+    elif ('24invm60' in topoAlgs) & ('noos' in topoAlgs) & ('novtx' not in topoAlgs):
+        from TrigBphysHypo.TrigL2BMuMuFexConfig import L2BMuMuFex_DiMu_24invm60_noOS
+        from TrigBphysHypo.TrigL2BMuMuHypoConfig import L2BMuMuHypo_DiMu_24invm60
+        from TrigBphysHypo.TrigEFBMuMuFexConfig import EFBMuMuFex_DiMu_24invm60_noOS
+        from TrigBphysHypo.TrigEFBMuMuHypoConfig import EFBMuMuHypo_DiMu_24invm60
+        L2Fex  = L2BMuMuFex_DiMu_24invm60_noOS()
+        L2Hypo = L2BMuMuHypo_DiMu_24invm60()
+        EFFex  = EFBMuMuFex_DiMu_24invm60_noOS()
+        EFHypo = EFBMuMuHypo_DiMu_24invm60()
+    elif ('11invm60' in topoAlgs) & ('noos' in topoAlgs) & ('novtx' in topoAlgs):
         from TrigBphysHypo.TrigL2BMuMuFexConfig import L2BMuMuFex_DiMu_11invm60_noOS
         from TrigBphysHypo.TrigL2BMuMuHypoConfig import L2BMuMuHypo_DiMu_11invm60_noVtx           
         from TrigBphysHypo.TrigEFBMuMuFexConfig import EFBMuMuFex_DiMu_11invm60_noOS
@@ -231,7 +267,7 @@ def bMultipleOptionTopos(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoSta
         L2Hypo = L2BMuMuHypo_DiMu_11invm60_noVtx()
         EFFex  = EFBMuMuFex_DiMu_11invm60_noOS()
         EFHypo = EFBMuMuHypo_DiMu_11invm60_noVtx()                   
-    elif ('11invm24' in topoAlgs) & ('noos' in topoAlgs):
+    elif ('11invm24' in topoAlgs) & ('noos' in topoAlgs) & ('novtx' in topoAlgs):
         from TrigBphysHypo.TrigL2BMuMuFexConfig import L2BMuMuFex_DiMu_11invm24_noOS
         from TrigBphysHypo.TrigL2BMuMuHypoConfig import L2BMuMuHypo_DiMu_11invm24_noVtx           
         from TrigBphysHypo.TrigEFBMuMuFexConfig import EFBMuMuFex_DiMu_11invm24_noOS
@@ -240,7 +276,7 @@ def bMultipleOptionTopos(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoSta
         L2Hypo = L2BMuMuHypo_DiMu_11invm24_noVtx()
         EFFex  = EFBMuMuFex_DiMu_11invm24_noOS()
         EFHypo = EFBMuMuHypo_DiMu_11invm24_noVtx()
-    elif ('24invm60' in topoAlgs) & ('noos' in topoAlgs):
+    elif ('24invm60' in topoAlgs) & ('noos' in topoAlgs) & ('novtx' in topoAlgs):
         from TrigBphysHypo.TrigL2BMuMuFexConfig import L2BMuMuFex_DiMu_24invm60_noOS
         from TrigBphysHypo.TrigL2BMuMuHypoConfig import L2BMuMuHypo_DiMu_24invm60_noVtx           
         from TrigBphysHypo.TrigEFBMuMuFexConfig import EFBMuMuFex_DiMu_24invm60_noOS
@@ -249,6 +285,7 @@ def bMultipleOptionTopos(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoSta
         L2Hypo = L2BMuMuHypo_DiMu_24invm60_noVtx()
         EFFex  = EFBMuMuFex_DiMu_24invm60_noOS()
         EFHypo = EFBMuMuHypo_DiMu_24invm60_noVtx()
+        
     elif ('bDimu' in topoAlgs) & ('novtx' in topoAlgs) & ('noos' in topoAlgs):
         from TrigBphysHypo.TrigL2BMuMuFexConfig  import L2BMuMuFex_DiMu_noOS
         from TrigBphysHypo.TrigL2BMuMuHypoConfig import L2BMuMuHypo_DiMu_noVtx

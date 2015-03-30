@@ -235,28 +235,44 @@ class LVL1TopoInput(LVL1Threshold):
     import re
     multibitPattern = re.compile("(?P<line>.*)\[(?P<bit>\d+)\]")
 
-    def __init__(self, triggerlines):
-        from TriggerMenu.l1topo.TopoOutput import TriggerLine
+    #<TriggerThreshold active="1" bitnum="1" id="148" mapping="0" name="4INVM9999-AJ0s6-AJ0s6" type="TOPO" input="ctpcore" version="1">
+    #  <Cable connector="CON1" input="CTPCORE" name="TOPO1">
+    #    <Signal range_begin="0" range_end="0" clock="0"/>
 
-        if type(triggerlines)==list:
-            # multibit triggerlines
-            (commonNameOfLines, firstbit, numberOfBits, cable, clock, fpga) = TriggerLine.checkMultibitConsistency(triggerlines)
-            super(LVL1TopoInput,self).__init__(name=commonNameOfLines, ttype='TOPO', mapping=firstbit)
 
-            self.cable      = cable           # 0 .. 1
+    def __init__(self, triggerlines = None , thresholdName = None , mapping = None , connector = None , firstbit = None , numberOfBits = None , clock = None ):
+
+        if triggerlines != None :
+            # from triggerline
+            from TriggerMenu.l1topo.TopoOutput import TriggerLine
+            if type(triggerlines)==list:
+                # multibit triggerlines
+                (commonNameOfLines, firstbit, numberOfBits, cable, clock, fpga) = TriggerLine.checkMultibitConsistency(triggerlines)
+                super(LVL1TopoInput,self).__init__(name=commonNameOfLines, ttype='TOPO', mapping=firstbit)
+
+                self.cable      = cable           # 0 .. 1
+                self.bitnum     = numberOfBits
+                self.bitOnCable = firstbit        # 0 .. 31
+                self.fpga       = fpga
+                self.clock      = clock
+
+            else:
+                triggerline = triggerlines
+                super(LVL1TopoInput,self).__init__(name=triggerline.trigger, ttype='TOPO', mapping=triggerline.ordinal)
+                self.cable      = triggerline.cable      # 0 .. 1
+                self.bitnum     = 1
+                self.bitOnCable = triggerline.bit        # 0 .. 31
+                self.fpga       = triggerline.fpga       # 0 .. 1
+                self.clock      = triggerline.clock
+        else:
+            # from XML
+            super(LVL1TopoInput,self).__init__(name=thresholdName, ttype='TOPO', mapping=firstbit)
+            self.cable      = int(connector[-1]) # 0 .. 1
             self.bitnum     = numberOfBits
-            self.bitOnCable = firstbit        # 0 .. 31
-            self.fpga       = fpga
+            self.bitOnCable = firstbit           # 0 .. 31
+            self.fpga       = -1
             self.clock      = clock
             
-        else:
-            triggerline = triggerlines
-            super(LVL1TopoInput,self).__init__(name=triggerline.trigger, ttype='TOPO', mapping=triggerline.ordinal)
-            self.cable      = triggerline.cable      # 0 .. 1
-            self.bitnum     = 1
-            self.bitOnCable = triggerline.bit        # 0 .. 31
-            self.fpga       = triggerline.fpga       # 0 .. 1
-            self.clock      = triggerline.clock
 
 
     def setCableInput(self):

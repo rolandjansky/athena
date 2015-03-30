@@ -78,9 +78,6 @@ def defineMenu():
 
 
 
-
-
-
     #---------------------------------
     # L1menu in MCppV5 is basis 
     # BeamSplashes: adapt some thresholds and items

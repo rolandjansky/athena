@@ -371,7 +371,7 @@ def defineMenu():
         
         # XE
         "L1_XE35", "L1_XE40", "L1_XE45", "L1_XE50", "L1_XE55", "L1_XE60", "L1_XE70", "L1_XE80", 
-        #"L1_XE35_BGRP7", "L1_XE40_BGRP7", "L1_XE45_BGRP7", "L1_XE50_BGRP7", "L1_XE55_BGRP7", "L1_XE60_BGRP7", "L1_XE70_BGRP7", "L1_XE80_BGRP7", 
+        "L1_XE35_BGRP7", "L1_XE40_BGRP7", "L1_XE45_BGRP7", "L1_XE50_BGRP7", "L1_XE55_BGRP7", "L1_XE60_BGRP7", "L1_XE70_BGRP7", "L1_XE80_BGRP7", 
         
         #XS
         'L1_XS20', 'L1_XS30', 'L1_XS40', 'L1_XS45', 'L1_XS50', 'L1_XS55', 'L1_XS60', 'L1_XS65', 
@@ -419,6 +419,8 @@ def defineMenu():
 
         # LHCF
         "L1_LHCF",
+        "L1_LHCF_MBTS_1",
+        "L1_LHCF_MBTS_2",
         
         #CALREQ
         "L1_CALREQ2",

@@ -42,6 +42,7 @@ calibStreams = ['Background',
                 'Muon_Calibration',
                 'ALFACalib',
                 'IBLLumi',
+                'TgcNoiseBurst',
                 ]
 
 ##NOTE: DataScouting_xx_NAME: 

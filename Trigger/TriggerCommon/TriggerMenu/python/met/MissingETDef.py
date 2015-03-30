@@ -212,7 +212,7 @@ class L2EFChain_met(L2EFChainDef):
         #----------------------------------------------------
         # Obtaining the needed jet TEs from the jet code
         #----------------------------------------------------
-        chain = ['j7', '',  [], ["Main"], ['RATE:SingleJet', 'BW:Jet'], -1]
+        chain = ['j0', '',  [], ["Main"], ['RATE:SingleJet', 'BW:Jet'], -1]
         
         from TriggerMenu.menu import DictFromChainName
         theDictFromChainName = DictFromChainName.DictFromChainName()
@@ -222,10 +222,27 @@ class L2EFChain_met(L2EFChainDef):
         jetChainDict['chainCounter'] = 9151
         jetChainDef = generateHLTChainDef(jetChainDict)
             
-        roiTE = jetChainDef.signatureList[0]['listOfTriggerElements'][0]
-        caloCellClusterTE = jetChainDef.signatureList[1]['listOfTriggerElements'][0]
-        jetRecTE = jetChainDef.signatureList[2]['listOfTriggerElements'][0]
-        jetHypoTE = jetChainDef.signatureList[3]['listOfTriggerElements'][0]
+        #for i in range(3):
+        #    m_input[i] = jetChainDef.sequenceList[i]['input']
+        #    m_output[i]= jetChainDef.sequenceList[i]['output']
+        #    m_algo[i] =jetChainDef.sequenceList[i]['algorithm']
+
+        #obtaining DummyUnseededAllTEAlgo/RoiCreator
+        input0=jetChainDef.sequenceList[0]['input']
+        output0 =jetChainDef.sequenceList[0]['output']
+        algo0 =jetChainDef.sequenceList[0]['algorithm']
+
+        #obtaining TrigCaloCellMaker/FS, TrigCaloClusterMaker, TrigHLTEnergyDensity
+        input1=jetChainDef.sequenceList[1]['input']
+        output1 =jetChainDef.sequenceList[1]['output']
+        algo1 =jetChainDef.sequenceList[1]['algorithm']
+
+        #obtaining TrigHLTJetRecFromCluster
+        input2=jetChainDef.sequenceList[2]['input']
+        output2 =jetChainDef.sequenceList[2]['output']
+        algo2 =jetChainDef.sequenceList[2]['algorithm']
+
+
         #---End of obtaining jet TEs------------------------------
                    
         ########### Sequences ###########
@@ -252,12 +269,19 @@ class L2EFChain_met(L2EFChainDef):
         # --- EF ---                
         #topocluster
         if EFrecoAlg=='tc' or EFrecoAlg=='pueta' or EFrecoAlg=='pufit':
-            self.EFsequenceList +=[[ [caloCellClusterTE],          [theEFMETFex],  'EF_xe_step1' ]]            
+            self.EFsequenceList +=[[ input0,algo0,  output0 ]]            
+            self.EFsequenceList +=[[ input0,algo0,  output0 ]]            
+            self.EFsequenceList +=[[ input1,algo1,  output1 ]]            
+            self.EFsequenceList +=[[ [output1],          [theEFMETFex],  'EF_xe_step1' ]]            
             self.EFsequenceList +=[[ ['EF_xe_step1',muonSeed],     [theEFMETMuonFex, theEFMETHypo],  'EF_xe_step2' ]]
             
         #trigger-jet based MET
         elif EFrecoAlg=='mht': 
-            self.EFsequenceList +=[[ [jetRecTE], [theEFMETFex], 'EF_xe_step1' ]]
+            self.EFsequenceList +=[[ input0,algo0,  output0 ]]            
+            self.EFsequenceList +=[[ input1,algo1,  output1 ]]            
+            self.EFsequenceList +=[[ input2,algo2,  output2 ]]            
+
+            self.EFsequenceList +=[[ [output2], [theEFMETFex], 'EF_xe_step1' ]]
             self.EFsequenceList +=[[ ['EF_xe_step1',muonSeed], [theEFMETMuonFex, theEFMETHypo], 'EF_xe_step2' ]]
 
         #cell based MET

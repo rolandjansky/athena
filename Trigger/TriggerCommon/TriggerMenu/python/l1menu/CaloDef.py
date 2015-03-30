@@ -28,7 +28,9 @@ class CaloDef:
         caloInfo.setGlobalJetScale(1)
 
         # XS parameterization
-        caloInfo.setXsParams( xsSigmaScale=660, xsSigmaOffset=1561, xeMin=11, xeMax=63, teSqrtMin=4, teSqrtMax=63 )
+        # updated by ATR-10664
+        caloInfo.setXsParams( xsSigmaScale=1264, xsSigmaOffset=1496, xeMin=11, xeMax=63, teSqrtMin=4, teSqrtMax=63 )
+        #caloInfo.setXsParams( xsSigmaScale=660, xsSigmaOffset=1561, xeMin=11, xeMax=63, teSqrtMin=4, teSqrtMax=63 )
         #caloInfo.setXsParams( xsSigmaScale=1150, xsSigmaOffset=1640, xeMin=11, xeMax=63, teSqrtMin=4, teSqrtMax=63 )
 
         # isolation parametrization

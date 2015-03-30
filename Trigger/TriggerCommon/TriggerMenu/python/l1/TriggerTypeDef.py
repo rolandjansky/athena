@@ -11,10 +11,10 @@ class TT:
     rand        = 1 << 0
     zerobs      = 1 << 1  # trigger type for zero bias triggers
     calo        = 1 << 2        
-    rpcin = tgc = 1 << 3  # Assign TGC to RPCIN to free one bit for new and CALOEM trigger type
-    caloem      = 1 << 4  # to stream separately
-    minb        = 1 << 5
-    rpcout      = 1 << 6
+    muon        = 1 << 3
+    lardemo     = 1 << 4
+    ftk = minb  = 1 << 5  # min-bias TT is needed for TM internal use (L1Seeds.py) 
+    nim = alfa  = 1 << 6
     phys        = 1 << 7
 
     # Calibration requests
@@ -23,19 +23,3 @@ class TT:
     calreq0 = 0x30
     calreq1 = 0x32
     calreq2 = 0x34
-
-    if any([ x in TF.triggerMenuSetup() for x in
-             [ 'InitialBeam_HI',
-               'Cosmic_v3',
-               'L1_pp',
-               'L1_alfa',
-               'MC_pp',
-               'MC_HI',
-               'MC_loose',
-               'MC_tight',
-               'Physics_pp',
-               'Physics_default',
-               'Physics_HI',
-               ]]):
-        caloem = 0
-

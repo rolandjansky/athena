@@ -843,14 +843,10 @@ class GenerateMenu:
                             if myTEstring == None:
                                 myTEstring = itemThr
                             else:
+                                log.error("Can't handle multiple TEs for topo_start_from yet!")
                                 myTEstring += " "+itemThr
                             
-                        #if len(itemThrNames) == 1:
-                        #chainDicts['topoThreshold'] = itemThrNames
                         chainDicts['topoThreshold'] = myTEstring
-                        #chainDicts['topoThreshold'] = itemThrNames
-                        #else:
-                        #    log.info("Multiple thresholds found for item, not sure which one to pass")
 
             chainDef = self.getChainDef(chainDicts)
 
@@ -985,8 +981,14 @@ class GenerateMenu:
                                                    self.triggerPythonConfig.getHLTConfigFile(),
                                                    "TriggerMenu/menu_check_exceptions.xml") )
         print output
+        #if  ("ERROR" in output):
+        #    log.error("There are ERRORs in the TrigConfConsistency checker, please check carefully!!")
+        #if  ("WARNING" in output):
+        #    log.warning("There are WARNING in the TrigConfConsistency checker, please check carefully!!")
 
-        # this does test the triggertype (JS)
+ 
+
+       # this does test the triggertype (JS)
         #for bit in xrange(8):
         #    print "TriggerType",bit,":",self.triggerPythonConfig.Lvl1ItemByTriggerType(0x01<<bit,0x01<<bit)
 

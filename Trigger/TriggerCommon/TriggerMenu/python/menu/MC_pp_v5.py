@@ -48,6 +48,7 @@ def setupMenu():
                       'noalg_L1DY-BOX-2MU6',
                       'noalg_L1DR-TAU20ITAU12I',
                       'noalg_L1DR-MU10TAU12I',
+                      'noalg_L1TGC_BURST',
                       'e0_perf_L1EM3HI',
                       'g0_perf_L1EM3HI',
                       'e3_loose_L2EFCalo',
@@ -184,18 +185,16 @@ def setupMenu():
         #['mu24_imedium_mu20noL1_msonly',  'L1_MU20', [], [PhysicsStream], ['RATE:MultiMuon','BW:Muon'],-1],       
 
         # Primary (narrow scan chains)
-        ['mu11_2mu4noL1_nscan03_L1MU11_2MU6', 'L1_MU11_2MU6', ['L1_MU11_2MU6',''], [PhysicsStream], ['RATE:MultiMuon','BW:Muon'], -1,['serial',-1,['mu11','2mu4noL1_nscan03']]],        
-        ['mu11_2mu4noL1_nscan03_L1MU10_2MU6', 'L1_MU10_2MU6', ['L1_MU10_2MU6',''], [PhysicsStream], ['RATE:MultiMuon','BW:Muon'], -1,['serial',-1,['mu11','2mu4noL1_nscan03']]],        
-        ['mu20_msonly_mu6noL1_msonly_nscan05','L1_MU20',     ['L1_MU20',''], [PhysicsStream], ['RATE:MultiMuon','BW:Muon'], -1,['serial',-1,['mu20_msonly','mu6noL1_msonly_nscan05']]],
-        ['mu11_2mu4noL1_nscan03', 'L1_LFV-MU', ['L1_MU10_2MU6',''], [PhysicsStream], ['RATE:MultiMuon','BW:Muon'], -1,['serial',-1,['mu11','2mu4noL1_nscan03']]],
+        ['mu11_2mu4noL1_nscan03_L1MU11_2MU6', 'L1_MU11_2MU6', ['L1_MU11_2MU6','L1_MU11'], [PhysicsStream], ['RATE:MultiMuon','BW:Muon'], -1,['serial',-1,['mu11','2mu4noL1_nscan03']]],        
+        ['mu11_2mu4noL1_nscan03_L1MU10_2MU6', 'L1_MU10_2MU6', ['L1_MU10_2MU6','L1_MU10'], [PhysicsStream], ['RATE:MultiMuon','BW:Muon'], -1,['serial',-1,['mu11','2mu4noL1_nscan03']]],        
+        ['mu20_msonly_mu6noL1_msonly_nscan05','L1_MU20',     ['L1_MU20','L1_MU20'], [PhysicsStream], ['RATE:MultiMuon','BW:Muon'], -1,['serial',-1,['mu20_msonly','mu6noL1_msonly_nscan05']]],
+        ['mu11_2mu4noL1_nscan03', 'L1_LFV-MU', ['L1_MU10_2MU6','L1_MU10'], [PhysicsStream], ['RATE:MultiMuon','BW:Muon'], -1,['serial',-1,['mu11','2mu4noL1_nscan03']]],
  
-        ['mu11_2mu4noL1_nscan03_L1MU11_LFV-MU', 'L1_LFV-MU', ['L1_MU11_2MU6',''], [PhysicsStream], ['RATE:MultiMuon','BW:Muon'], -1,['serial',-1,['mu11','2mu4noL1_nscan03']]],
+        ['mu11_2mu4noL1_nscan03_L1MU11_LFV-MU', 'L1_LFV-MU', ['L1_MU11_2MU6','L1_MU11'], [PhysicsStream], ['RATE:MultiMuon','BW:Muon'], -1,['serial',-1,['mu11','2mu4noL1_nscan03']]],
         ]
 
     TriggerFlags.JetSlice.signatures = TriggerFlags.JetSlice.signatures() + [
         ['j460_a10_sub_L1J100', 'L1_J100', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jets'], -1],
-        ['j400_a4_sub', 'L1_J100', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jets'], -1],
-        ['j400_a4_jes', 'L1_J100', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jets'], -1],        
         ['3j175',            'L1_J100', [], [PhysicsStream], ['RATE:MultiJet',  'BW:Jets'], -1],
         ['ht1000_L1J100',    'L1_J100', [], [PhysicsStream], ['RATE:MultiJet', 'BW:Jets'], -1],
         ['j30_muvtx',        'L1_2MU10',[], [PhysicsStream], ['RATE:MuonJet','BW:Muon'], -1],
@@ -261,7 +260,8 @@ def setupMenu():
         ['5j85_jes',                'L1_4J20', [], [PhysicsStream], ['RATE:MultiJet',  'BW:Jets'], -1],
         ['5j85_lcw',                'L1_4J20', [], [PhysicsStream], ['RATE:MultiJet',  'BW:Jets'], -1],
         ['5j85_lcw_jes',            'L1_4J20', [], [PhysicsStream], ['RATE:MultiJet',  'BW:Jets'], -1],
-
+        
+        ['6j45',                  'L1_4J20', [], [PhysicsStream], ['RATE:MultiJet',  'BW:Jets'], -1],
         ['6j45_0eta240',                  'L1_4J15', [], [PhysicsStream], ['RATE:MultiJet',  'BW:Jets'], -1],
         ['6j45_0eta240_L14J20',           'L1_4J20', [], [PhysicsStream], ['RATE:MultiJet',  'BW:Jets'], -1],
         ['6j45_0eta240_L15J150ETA25',     'L1_5J15.0ETA25', [], [PhysicsStream], ['RATE:MultiJet',  'BW:Jets'], -1],
@@ -454,8 +454,8 @@ def setupMenu():
         ['j65_bperf_3j65_L13J25.0ETA23', 'L1_3J25.0ETA23', [], [PhysicsStream], ['RATE:SingleBJet', 'BW:Jets'], -1],
         ['j225_bloose', 'L1_J100', [], [PhysicsStream], ['RATE:SingleBJet', 'BW:Jets'], -1],
         ['j225_bperf', 'L1_J100', [], [PhysicsStream], ['RATE:SingleBJet', 'BW:Jets'], -1],
-        ['j150_bmedium_j50_bmedium', 'L1_J100', [], [PhysicsStream], ['RATE:MultBJet', 'BW:Jets'], -1],
-        ['j150_bperf_j50_bperf', 'L1_J100', [], [PhysicsStream], ['RATE:MultBJet', 'BW:Jets'], -1],
+        ['j150_bmedium_j50_bmedium', 'L1_J100', [], [PhysicsStream], ['RATE:MultiBJet', 'BW:Jets'], -1],
+        ['j150_bperf_j50_bperf', 'L1_J100', [], [PhysicsStream], ['RATE:MultiBJet', 'BW:Jets'], -1],
         ['j175_bmedium', 'L1_J100', [], [PhysicsStream], ['RATE:SingleBJet', 'BW:Jets'], -1],
         ['j175_bperf', 'L1_J50', [], [PhysicsStream], ['RATE:SingleBJet', 'BW:Jets'], -1],
 
@@ -606,21 +606,21 @@ def setupMenu():
         ##add muon corrections
 
         ['xe35_wEFMu',                    'L1_XE35', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
-        #['xe35_tc_lcw_wEFMu',             'L1_XE35', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
+        ['xe35_tc_lcw_wEFMu',             'L1_XE35', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
         ['xe35_tc_em_wEFMu',              'L1_XE35', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
         ['xe35_mht_wEFMu',                'L1_XE35', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
         ['xe35_pueta_wEFMu',              'L1_XE35', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
         ['xe35_pufit_wEFMu',              'L1_XE35', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
 
         ['xe60_wEFMu',                    'L1_XE40', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
-        #['xe60_tc_lcw_wEFMu',             'L1_XE40', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
+        ['xe60_tc_lcw_wEFMu',             'L1_XE40', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
         ['xe60_tc_em_wEFMu',              'L1_XE40', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
         ['xe60_mht_wEFMu',                'L1_XE40', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
         ['xe60_pueta_wEFMu',              'L1_XE40', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
         ['xe60_pufit_wEFMu',              'L1_XE40', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
 
         ['xe70_wEFMu',                    'L1_XE50', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
-        #['xe70_tc_lcw_wEFMu',             'L1_XE50', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
+        ['xe70_tc_lcw_wEFMu',             'L1_XE50', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
         ['xe70_tc_em_wEFMu',              'L1_XE50', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
         ['xe70_mht_wEFMu',                'L1_XE50', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
         ['xe70_pueta_wEFMu',              'L1_XE50', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
@@ -629,70 +629,70 @@ def setupMenu():
         ####defaul chains
 
         ['xe60',                     'L1_XE40', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
-        #['xe60_tc_lcw',              'L1_XE40', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
+        ['xe60_tc_lcw',              'L1_XE40', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
         ['xe60_tc_em',               'L1_XE40', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
         ['xe60_mht',                 'L1_XE40', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
         ['xe60_pueta',               'L1_XE40', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
         ['xe60_pufit',               'L1_XE40', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
 
         ['xe70',                     'L1_XE50', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
-        #['xe70_tc_lcw',              'L1_XE50', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
+        ['xe70_tc_lcw',              'L1_XE50', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
         ['xe70_tc_em',               'L1_XE50', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
         ['xe70_mht',                 'L1_XE50', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
         ['xe70_pueta',               'L1_XE50', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
         ['xe70_pufit',               'L1_XE50', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
 
         ['xe80_L1XE50',              'L1_XE50', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
-        #['xe80_tc_lcw_L1XE50',       'L1_XE50', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
+        ['xe80_tc_lcw_L1XE50',       'L1_XE50', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
         ['xe80_tc_em_L1XE50',        'L1_XE50', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
         ['xe80_mht_L1XE50',          'L1_XE50', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
         ['xe80_pueta_L1XE50',        'L1_XE50', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
         ['xe80_pufit_L1XE50',        'L1_XE50', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
 
         ['xe80_wEFMu_L1XE50',        'L1_XE50', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
-        #['xe80_tc_lcw_wEFMu_L1XE50', 'L1_XE50', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
+        ['xe80_tc_lcw_wEFMu_L1XE50', 'L1_XE50', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
         ['xe80_tc_em_wEFMu_L1XE50',  'L1_XE50', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
         ['xe80_mht_wEFMu_L1XE50',    'L1_XE50', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
         ['xe80_pueta_wEFMu_L1XE50',  'L1_XE50', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
         ['xe80_pufit_wEFMu_L1XE50',  'L1_XE50', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
 
         ['xe80',                     'L1_XE60', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
-        #['xe80_tc_lcw',              'L1_XE60', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
+        ['xe80_tc_lcw',              'L1_XE60', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
         ['xe80_tc_em',               'L1_XE60', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
         ['xe80_mht',                 'L1_XE60', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
         ['xe80_pueta',               'L1_XE60', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
         ['xe80_pufit',               'L1_XE60', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
 
         ['xe80_wEFMu',               'L1_XE60', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
-        #['xe80_tc_lcw_wEFMu',        'L1_XE60', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
+        ['xe80_tc_lcw_wEFMu',        'L1_XE60', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
         ['xe80_tc_em_wEFMu',         'L1_XE60', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
         ['xe80_mht_wEFMu',           'L1_XE60', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
         ['xe80_pueta_wEFMu',         'L1_XE60', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
         ['xe80_pufit_wEFMu',         'L1_XE60', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
 
         ['xe80_L1XE70',              'L1_XE70', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
-        #['xe80_tc_lcw_L1XE70',       'L1_XE70', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
+        ['xe80_tc_lcw_L1XE70',       'L1_XE70', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
         ['xe80_tc_em_L1XE70',        'L1_XE70', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
         ['xe80_mht_L1XE70',          'L1_XE70', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
         ['xe80_pueta_L1XE70',        'L1_XE70', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
         ['xe80_pufit_L1XE70',        'L1_XE70', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
 
         ['xe80_wEFMu_L1XE70',        'L1_XE70', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
-        #['xe80_tc_lcw_wEFMu_L1XE70', 'L1_XE70', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
+        ['xe80_tc_lcw_wEFMu_L1XE70', 'L1_XE70', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
         ['xe80_tc_em_wEFMu_L1XE70',  'L1_XE70', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
         ['xe80_mht_wEFMu_L1XE70',    'L1_XE70', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
         ['xe80_pueta_wEFMu_L1XE70',  'L1_XE70', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
         ['xe80_pufit_wEFMu_L1XE70',  'L1_XE70', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
 
         ['xe100',                    'L1_XE70', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
-        #['xe100_tc_lcw',             'L1_XE70', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
+        ['xe100_tc_lcw',             'L1_XE70', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
         ['xe100_tc_em',              'L1_XE70', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
         ['xe100_mht',                'L1_XE70', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
         ['xe100_pueta',              'L1_XE70', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
         ['xe100_pufit',              'L1_XE70', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
 
         ['xe100_wEFMu',              'L1_XE70', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
-        #['xe100_tc_lcw_wEFMu',       'L1_XE70', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
+        ['xe100_tc_lcw_wEFMu',       'L1_XE70', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
         ['xe100_tc_em_wEFMu',        'L1_XE70', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
         ['xe100_mht_wEFMu',          'L1_XE70', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
         ['xe100_pueta_wEFMu',        'L1_XE70', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
@@ -700,7 +700,7 @@ def setupMenu():
 
         # Rerun chains
         ['xe0noL1_l2fsperf',         '',        [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
-        #['xe0noL1_l2fsperf_tc_lcw',  '',        [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
+        ['xe0noL1_l2fsperf_tc_lcw',  '',        [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
         ['xe0noL1_l2fsperf_tc_em',   '',        [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
         ['xe0noL1_l2fsperf_mht',     '',        [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
         ['xe0noL1_l2fsperf_pueta',   '',        [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
@@ -910,7 +910,7 @@ def setupMenu():
         # Rerun mode, cut-based
         ['e9_medium',                            'L1_EM7',      [], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],
         ['e12_loose',                            'L1_EM8VH',    [], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],
-        ['e12_loose_L1EM10VH',                   'L1_EM8VH',    [], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],
+        ['e12_loose_L1EM10VH',                   'L1_EM10VH',    [], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],
         ['e15_loose_L1EM13VH',                   'L1_EM13VH',   [], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],
         ['e17_loose_L1EM15',                     'L1_EM15',     [], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],
         ['e17_loose',                            'L1_EM15VH',   [], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],
@@ -947,8 +947,18 @@ def setupMenu():
         ['e24_tight_iloose_HLTCalo_L1EM20VH',     'L1_EM20VH',   [], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],
         ['e24_lhtight_iloose_HLTCalo_L1EM20VH',   'L1_EM20VH',   [], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],
         ['e24_tight_iloose_etisem_L1EM20VH',      'L1_EM20VH',   [], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],
+        ['e24_lhmedium_iloose_HLTCalo_L1EM18VH', 'L1_EM18VH', [], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],
+        ['e24_lhmedium_iloose_HLTCalo_L1EM20VH', 'L1_EM20VH', [], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],
+        ['e24_lhtight_iloose_HLTCalo', 'L1_EM20VHI', [], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],
+        ['e26_lhtight_iloose_HLTCalo', 'L1_EM22VHI', [], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],
+        ['e60_lhmedium_HLTCalo', 'L1_EM22VHI', [], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],
+        ['e120_lhloose_HLTCalo', 'L1_EM22VHI', [], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],
+        ['e140_lhloose_HLTCalo', 'L1_EM22VHI', [], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],
         ['g120_loose_HLTCalo',                    'L1_EM22VHI',    [], [PhysicsStream], ['RATE:SinglePhoton','BW:Egamma'],-1],
         ['g35_medium_HLTCalo_g25_medium_HLTCalo', 'L1_2EM15VH',  [], [PhysicsStream], ['RATE:MultiPhoton','BW:Egamma'],-1],
+        ['2e12_lhloose_HLTCalo_L12EM10VH', 'L1_2EM10VH', [], [PhysicsStream], ['RATE:MultiElectron', 'BW:Egamma'],-1],
+        ['2e15_lhloose_HLTCalo_L12EM13VH', 'L1_2EM13VH', [], [PhysicsStream], ['RATE:MultiElectron', 'BW:Egamma'],-1],
+        ['2e17_lhloose_HLTCalo', 'L1_2EM15VH', [], [PhysicsStream], ['RATE:MultiElectron', 'BW:Egamma'],-1],
         
         #Single electron/chaing for testing mis-ant robust LH ID
         ['e24_lhmedium_nod0_L1EM18VH',            'L1_EM18VH',    [], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],
@@ -959,6 +969,18 @@ def setupMenu():
         ['e24_lhmedium_nodeta_iloose_L1EM18VH',          'L1_EM18VH',    [], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],
         ['e24_lhmedium_nodphires_iloose_L1EM18VH',       'L1_EM18VH',    [], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],
         ['e24_lhmedium_cutd0dphideta_iloose_L1EM18VH',       'L1_EM18VH',    [], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],
+
+        ['e24_lhmedium_cutd0dphideta_iloose_L1EM20VH', 'L1_EM20VH', [], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],
+        ['e24_lhtight_cutd0dphideta_iloose_L1EM20VH', 'L1_EM20VH', [], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],
+        ['e24_lhtight_cutd0dphideta_iloose', 'L1_EM20VHI', [], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],
+        ['e26_lhtight_cutd0dphideta_iloose', 'L1_EM22VHI', [], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],
+        ['e60_lhmedium_cutd0dphideta', 'L1_EM22VHI', [], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],
+        ['2e12_lhloose_nod0_L12EM10VH', 'L1_2EM10VH', [], [PhysicsStream], ['RATE:MultiElectron', 'BW:Egamma'],-1],
+        ['2e12_lhloose_nodeta_L12EM10VH', 'L1_2EM10VH', [], [PhysicsStream], ['RATE:MultiElectron', 'BW:Egamma'],-1],
+        ['2e12_lhloose_nodphires_L12EM10VH', 'L1_2EM10VH', [], [PhysicsStream], ['RATE:MultiElectron', 'BW:Egamma'],-1],
+        ['2e12_lhloose_cutd0dphideta_L12EM10VH', 'L1_2EM10VH', [], [PhysicsStream], ['RATE:MultiElectron', 'BW:Egamma'],-1],
+        ['2e15_lhloose_cutd0dphideta_L12EM13VH', 'L1_2EM13VH', [], [PhysicsStream], ['RATE:MultiElectron', 'BW:Egamma'],-1],
+        ['2e17_lhloose_cutd0dphideta', 'L1_2EM15VH', [], [PhysicsStream], ['RATE:MultiElectron', 'BW:Egamma'],-1],
         
         # Loose chains with etcut variations
         ['e120_loose1',  'L1_EM22VHI', [], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],
@@ -1020,21 +1042,21 @@ def setupMenu():
         ['e5_tight1_e4_etcut_Jpsiee',  'L1_2EM3', [], [PhysicsStream], ['RATE:MultiElectron', 'BW:Egamma'],-1],
 
         #Jpsiee from L1Topo
-        ['e5_tight_e4_etcut_L1JPSI-1M5',                                'L1_JPSI-1M5', ['L1_2EM3','L1_2EM3'], [PhysicsStream], ['RATE:MultiElectron', 'BW:Egamma'],-1],
-        ['e5_lhtight_e4_etcut_L1JPSI-1M5',                                'L1_JPSI-1M5', ['L1_2EM3','L1_2EM3'], [PhysicsStream], ['RATE:MultiElectron', 'BW:Egamma'],-1],
-        ['e5_tight1_e4_etcut_L1JPSI-1M5',                                'L1_JPSI-1M5', ['L1_2EM3','L1_2EM3'], [PhysicsStream], ['RATE:MultiElectron', 'BW:Egamma'],-1],
+        ['e5_tight_e4_etcut_L1JPSI-1M5',                                'L1_JPSI-1M5', ['L1_2EM3','L1_2EM3'], [PhysicsStream], ['RATE:MultiElectron', 'BW:Egamma'],-1, True],
+        ['e5_lhtight_e4_etcut_L1JPSI-1M5',                                'L1_JPSI-1M5', ['L1_2EM3','L1_2EM3'], [PhysicsStream], ['RATE:MultiElectron', 'BW:Egamma'],-1, True],
+        ['e5_tight1_e4_etcut_L1JPSI-1M5',                                'L1_JPSI-1M5', ['L1_2EM3','L1_2EM3'], [PhysicsStream], ['RATE:MultiElectron', 'BW:Egamma'],-1, True],
 
-        ['e5_tight_e4_etcut_Jpsiee_L1JPSI-1M5',             'L1_JPSI-1M5', ['L1_2EM3','L1_2EM3'], [PhysicsStream], ['RATE:MultiElectron', 'BW:Egamma'],-1, False],
-        ['e9_tight_e4_etcut_Jpsiee_L1JPSI-1M5-EM7',         'L1_JPSI-1M5-EM7',  ['L1_EM7','L1_2EM3'], [PhysicsStream], ['RATE:MultiElectron', 'BW:Egamma'],-1, False], 
-        ['e9_etcut_e5_tight_Jpsiee_L1JPSI-1M5-EM7',         'L1_JPSI-1M5-EM7',  ['L1_EM7','L1_2EM3'], [PhysicsStream], ['RATE:MultiElectron', 'BW:Egamma'],-1, False],         
-        ['e14_tight_e4_etcut_Jpsiee_L1JPSI-1M5-EM12',       'L1_JPSI-1M5-EM12', ['L1_EM12','L1_2EM3'], [PhysicsStream], ['RATE:MultiElectron', 'BW:Egamma'],-1, False],
-        ['e14_etcut_e5_tight_Jpsiee_L1JPSI-1M5-EM12',       'L1_JPSI-1M5-EM12', ['L1_EM12','L1_2EM3'], [PhysicsStream], ['RATE:MultiElectron', 'BW:Egamma'],-1, False],
-        ['e5_lhtight_e4_etcut_Jpsiee_L1JPSI-1M5',           'L1_JPSI-1M5', ['L1_2EM3','L1_2EM3'], [PhysicsStream], ['RATE:MultiElectron', 'BW:Egamma'],-1, False],
-        ['e9_lhtight_e4_etcut_Jpsiee_L1JPSI-1M5-EM7',           'L1_JPSI-1M5-EM7',  ['L1_EM7','L1_2EM3'], [PhysicsStream], ['RATE:MultiElectron', 'BW:Egamma'],-1, False],
-        ['e9_etcut_e5_lhtight_Jpsiee_L1JPSI-1M5-EM7',       'L1_JPSI-1M5-EM7',  ['L1_EM7','L1_2EM3'], [PhysicsStream], ['RATE:MultiElectron', 'BW:Egamma'],-1, False], 
-        ['e14_lhtight_e4_etcut_Jpsiee_L1JPSI-1M5-EM12',      'L1_JPSI-1M5-EM12', ['L1_EM12','L1_2EM3'], [PhysicsStream], ['RATE:MultiElectron', 'BW:Egamma'],-1, False],
-        ['e14_etcut_e5_lhtight_Jpsiee_L1JPSI-1M5-EM12',     'L1_JPSI-1M5-EM12', ['L1_EM12','L1_2EM3'], [PhysicsStream], ['RATE:MultiElectron', 'BW:Egamma'],-1, False],                
-        ['e5_tight1_e4_etcut_Jpsiee_L1JPSI-1M5',       'L1_JPSI-1M5', ['L1_2EM3','L1_2EM3'], [PhysicsStream], ['RATE:MultiElectron', 'BW:Egamma'],-1, False],
+        ['e5_tight_e4_etcut_Jpsiee_L1JPSI-1M5',             'L1_JPSI-1M5', ['L1_2EM3','L1_2EM3'], [PhysicsStream], ['RATE:MultiElectron', 'BW:Egamma'],-1, True],
+        ['e9_tight_e4_etcut_Jpsiee_L1JPSI-1M5-EM7',         'L1_JPSI-1M5-EM7',  ['L1_EM7','L1_2EM3'], [PhysicsStream], ['RATE:MultiElectron', 'BW:Egamma'],-1, True], 
+        ['e9_etcut_e5_tight_Jpsiee_L1JPSI-1M5-EM7',         'L1_JPSI-1M5-EM7',  ['L1_EM7','L1_2EM3'], [PhysicsStream], ['RATE:MultiElectron', 'BW:Egamma'],-1, True],         
+        ['e14_tight_e4_etcut_Jpsiee_L1JPSI-1M5-EM12',       'L1_JPSI-1M5-EM12', ['L1_EM12','L1_2EM3'], [PhysicsStream], ['RATE:MultiElectron', 'BW:Egamma'],-1, True],
+        ['e14_etcut_e5_tight_Jpsiee_L1JPSI-1M5-EM12',       'L1_JPSI-1M5-EM12', ['L1_EM12','L1_2EM3'], [PhysicsStream], ['RATE:MultiElectron', 'BW:Egamma'],-1, True],
+        ['e5_lhtight_e4_etcut_Jpsiee_L1JPSI-1M5',           'L1_JPSI-1M5', ['L1_2EM3','L1_2EM3'], [PhysicsStream], ['RATE:MultiElectron', 'BW:Egamma'],-1, True],
+        ['e9_lhtight_e4_etcut_Jpsiee_L1JPSI-1M5-EM7',           'L1_JPSI-1M5-EM7',  ['L1_EM7','L1_2EM3'], [PhysicsStream], ['RATE:MultiElectron', 'BW:Egamma'],-1, True],
+        ['e9_etcut_e5_lhtight_Jpsiee_L1JPSI-1M5-EM7',       'L1_JPSI-1M5-EM7',  ['L1_EM7','L1_2EM3'], [PhysicsStream], ['RATE:MultiElectron', 'BW:Egamma'],-1, True], 
+        ['e14_lhtight_e4_etcut_Jpsiee_L1JPSI-1M5-EM12',      'L1_JPSI-1M5-EM12', ['L1_EM12','L1_2EM3'], [PhysicsStream], ['RATE:MultiElectron', 'BW:Egamma'],-1, True],
+        ['e14_etcut_e5_lhtight_Jpsiee_L1JPSI-1M5-EM12',     'L1_JPSI-1M5-EM12', ['L1_EM12','L1_2EM3'], [PhysicsStream], ['RATE:MultiElectron', 'BW:Egamma'],-1, True],                
+        ['e5_tight1_e4_etcut_Jpsiee_L1JPSI-1M5',       'L1_JPSI-1M5', ['L1_2EM3','L1_2EM3'], [PhysicsStream], ['RATE:MultiElectron', 'BW:Egamma'],-1, True],
 
 
         # W T&P triggers
@@ -1086,16 +1108,15 @@ def setupMenu():
         ['g100_loose',                    'L1_EM22VHI', [], [PhysicsStream], ['RATE:SinglePhoton', 'BW:Egamma'], -1], 
 
         # Rerun mode and PS
-        ['g10_loose_L1EM7',               'L1_EM7',   [], [PhysicsStream], ['RATE:SinglePhoton', 'BW:Egamma'],-1],
+        ['g10_loose',                     'L1_EM7',   [], [PhysicsStream], ['RATE:SinglePhoton', 'BW:Egamma'],-1],
         ['g25_loose_L1EM15',              'L1_EM15',  [], [PhysicsStream], ['RATE:SinglePhoton', 'BW:Egamma'],-1],
         ['g35_loose_L1EM15',              'L1_EM15',  [], [PhysicsStream], ['RATE:SinglePhoton', 'BW:Egamma'],-1],
         ['g60_loose',                     'L1_EM22VHI', [], [PhysicsStream], ['RATE:SinglePhoton', 'BW:Egamma'],-1],
         ['g70_loose',                     'L1_EM22VHI', [], [PhysicsStream], ['RATE:SinglePhoton', 'BW:Egamma'],-1],
 
         # Rerun mode
-        ['g10_medium_L1EM7',              'L1_EM7',   [], [PhysicsStream], ['RATE:SinglePhoton', 'BW:Egamma'],-1],
-        ['g10_loose',                     'L1_EM8VH', [], [PhysicsStream], ['RATE:SinglePhoton', 'BW:Egamma'],-1],
-        ['g10_medium',                    'L1_EM8VH', [], [PhysicsStream], ['RATE:SinglePhoton', 'BW:Egamma'],-1],
+        ['g10_etcut',                     'L1_EM7',   [], [PhysicsStream], ['RATE:SinglePhoton', 'BW:Egamma'],-1],
+        ['g10_medium',                    'L1_EM7',   [], [PhysicsStream], ['RATE:SinglePhoton', 'BW:Egamma'],-1],
         ['g15_loose_L1EM3',               'L1_EM3',   [], [PhysicsStream], ['RATE:SinglePhoton', 'BW:Egamma'],-1],
         ['g15_loose',                     'L1_EM13VH',[], [PhysicsStream], ['RATE:SinglePhoton', 'BW:Egamma'],-1],
         ['g20_loose_L1EM15',              'L1_EM15',  [], [PhysicsStream], ['RATE:SinglePhoton', 'BW:Egamma'],-1],
@@ -1204,10 +1225,11 @@ def setupMenu():
         
         #L1_2MU4 seeded
         ['mu4_iloose_mu4_7invm9_noos',     'L1_2MU4', [], [PhysicsStream], ['RATE:Bphysics','BW:Bphys'], -1],
-        ['mu4_iloose_mu4_7invm9_noos_L1DY-DR-2MU4',     'L1_DY-DR-2MU4', ['L1_MU4','L1_MU4'], [PhysicsStream], ['RATE:Bphysics','BW:Bphys'], -1, True],
+        ['mu4_iloose_mu4_7invm9_noos_L1DY-BOX-2MU4',     'L1_DY-BOX-2MU4', ['L1_MU4','L1_MU4'], [PhysicsStream], ['RATE:Bphysics','BW:Bphys'], -1, True],
         ['mu4_mu4_idperf_bJpsimumu_noid',  'L1_2MU4', [], [PhysicsStream], ['RATE:IDMonitoring','BW:Bphys'], -1],
         ['mu4_iloose_mu4_11invm60_noos',   'L1_2MU4', [], [PhysicsStream], ['RATE:Bphysics','BW:Bphys'], -1],
-        ['mu4_iloose_mu4_11invm60_noos_L1DY-DR-2MU4',   'L1_DY-DR-2MU4', ['L1_MU4','L1_MU4'], [PhysicsStream], ['RATE:Bphysics','BW:Bphys'], -1, True],
+        ['mu4_iloose_mu4_11invm60_noos_L1DY-BOX-2MU4',   'L1_DY-BOX-2MU4', ['L1_MU4','L1_MU4'], [PhysicsStream], ['RATE:Bphysics','BW:Bphys'], -1, True],
+        ['mu4_iloose_mu4_11invm60_noos_novtx_L1DY-BOX-2MU4',   'L1_DY-BOX-2MU4', ['L1_MU4','L1_MU4'], [PhysicsStream], ['RATE:Bphysics','BW:Bphys'], -1, True],
 
         ########## SS dimuon selection ###
         ['2mu4_bDimu_noinvm_novtx_ss',    'L1_2MU4',     [], [PhysicsStream], ['RATE:Bphysics','BW:Bphys'], -1],
@@ -1286,6 +1308,8 @@ def setupMenu():
         ['mu6_iloose_mu6_24invm60_noos', 'L1_2MU6', [], [PhysicsStream], ['RATE:Bphysics','BW:Bphys'], -1],
         ['mu6_iloose_mu6_11invm24_noos_L1DY-BOX-2MU6', 'L1_DY-BOX-2MU6', ['L1_MU6','L1_MU6'], [PhysicsStream], ['RATE:Bphysics','BW:Bphys'], -1, True],
         ['mu6_iloose_mu6_24invm60_noos_L1DY-BOX-2MU6', 'L1_DY-BOX-2MU6', ['L1_MU6','L1_MU6'], [PhysicsStream], ['RATE:Bphysics','BW:Bphys'], -1, True],
+        ['mu6_iloose_mu6_11invm24_noos_novtx_L1DY-BOX-2MU6', 'L1_DY-BOX-2MU6', ['L1_MU6','L1_MU6'], [PhysicsStream], ['RATE:Bphysics','BW:Bphys'], -1, True],
+        ['mu6_iloose_mu6_24invm60_noos_novtx_L1DY-BOX-2MU6', 'L1_DY-BOX-2MU6', ['L1_MU6','L1_MU6'], [PhysicsStream], ['RATE:Bphysics','BW:Bphys'], -1, True],
         #not set up yet?? ['mu6_iloose_mu6_18invm60_noos', 'L1_2MU6', [], [PhysicsStream], ['RATE:Bphysics','BW:Bphys'], -1],
 
         ########### MU6_2MU4 seeded ###########
@@ -1467,14 +1491,12 @@ def setupMenu():
 
         ['g25_medium_mu24',          'L1_MU20', ['L1_EM15VH','L1_MU20'], [PhysicsStream], ['RATE:EgammaMuon', 'BW:Egamma', 'BW:Muon'], -1, ['parallel',-1,[] ]],
 
-
-        ['g10_etcut_L1EM7_mu10_taumass', 'L1_EM7_MU10', ['L1_EM7', 'L1_MU10'], [PhysicsStream], ['RATE:EgammaMuon', 'BW:Egamma', 'BW:Muon'], -1, ['parallel',-1,["g10_etcut_L1EM7","mu10"]] ],
-        ['g20_etcut_L1EM15_mu4_taumass', 'L1_EM15_MU4', ['L1_EM15', 'L1_MU4'], [PhysicsStream], ['RATE:EgammaMuon', 'BW:Egamma', 'BW:Muon'], -1, ['parallel',-1,["g20_etcut_L1EM15","mu4"]] ],
-        ['g10_etcut_mu10_L1LFV-EM8I', 'L1_LFV-EM8I', ['L1_EM7', 'L1_MU10'], [PhysicsStream], ['RATE:EgammaMuon', 'BW:Egamma', 'BW:Muon'], -1, ['parallel',-1,["g10_etcut","mu10"]] ],
-        ['g20_etcut_mu4_L1LFV-EM15I', 'L1_LFV-EM15I', ['L1_EM15', 'L1_MU4'], [PhysicsStream], ['RATE:EgammaMuon', 'BW:Egamma', 'BW:Muon'], -1, ['parallel',-1,["g20_etcut","mu4"]] ],
-        ['g10_etcut_mu10_taumass', 'L1_LFV-EM8I', ['L1_EM7', 'L1_MU10'], [PhysicsStream], ['RATE:EgammaMuon', 'BW:Egamma', 'BW:Muon'], -1, ['parallel',-1,["g10_etcut","mu10"]] ],
-        ['g20_etcut_mu4_taumass', 'L1_LFV-EM15I', ['L1_EM15', 'L1_MU4'], [PhysicsStream], ['RATE:EgammaMuon', 'BW:Egamma', 'BW:Muon'], -1, ['parallel',-1,["g20_etcut","mu4"]] ],
-     
+        ['g10_etcut_mu10_L1LFV-EM8I',         'L1_LFV-EM8I',  ['L1_EM7', 'L1_MU10'], [PhysicsStream], ['RATE:EgammaMuon', 'BW:Egamma', 'BW:Muon'], -1, ['parallel',-1,["g10_etcut","mu10"]] ],
+        ['g20_etcut_mu4_L1LFV-EM15I',         'L1_LFV-EM15I', ['L1_EM15', 'L1_MU4'], [PhysicsStream], ['RATE:EgammaMuon', 'BW:Egamma', 'BW:Muon'], -1, ['parallel',-1,["g20_etcut","mu4"]] ],
+        ['g10_etcut_L1EM7_mu10_taumass',      'L1_EM7_MU10',  ['L1_EM7', 'L1_MU10'], [PhysicsStream], ['RATE:EgammaMuon', 'BW:Egamma', 'BW:Muon'], -1, ['parallel',-1,["g10_etcut_L1EM7","mu10"]] ],
+        ['g20_etcut_L1EM15_mu4_taumass',      'L1_EM15_MU4',  ['L1_EM15', 'L1_MU4'], [PhysicsStream], ['RATE:EgammaMuon', 'BW:Egamma', 'BW:Muon'], -1, ['parallel',-1,["g20_etcut_L1EM15","mu4"]] ],
+        ['g10_etcut_mu10_taumass',            'L1_LFV-EM8I',  ['L1_EM7', 'L1_MU10'], [PhysicsStream], ['RATE:EgammaMuon', 'BW:Egamma', 'BW:Muon'], -1, ['parallel',-1,["g10_etcut","mu10"]] ],
+        ['g20_etcut_mu4_taumass',             'L1_LFV-EM15I', ['L1_EM15', 'L1_MU4'], [PhysicsStream], ['RATE:EgammaMuon', 'BW:Egamma', 'BW:Muon'], -1, ['parallel',-1,["g20_etcut","mu4"]] ],
 
 #        ['g10_loose_mu10_taumass',   'L1_EM7_MU10', ['L1_EM7', 'L1_MU10'], [PhysicsStream], ['RATE:EgammaMuon', 'BW:Egamma', 'BW:Muon'], -1, ['parallel',-1,["g10_loose","mu10"]] ],
 #        ['g20_loose_mu4_taumass',    'L1_EM15_MU4', ['L1_EM15', 'L1_MU4'], [PhysicsStream], ['RATE:EgammaMuon', 'BW:Egamma', 'BW:Muon'], -1, ['parallel',-1,["g20_loose","mu4"]] ],
@@ -1486,8 +1508,11 @@ def setupMenu():
         ['2g10_loose_mu20',          'L1_MU20', ['L1_2EM7', 'L1_MU20'], [PhysicsStream], ['RATE:EgammaMuon', 'BW:Egamma', 'BW:Muon'], -1, ['serial',-1,['2g10_loose','mu20'] ]],
         ['2g10_medium_mu20',         'L1_MU20', ['L1_2EM7', 'L1_MU20'], [PhysicsStream], ['RATE:EgammaMuon', 'BW:Egamma', 'BW:Muon'], -1, ['serial',-1,['2g10_medium','mu20'] ]],
         
-        ['e24_medium_L1EM20VHI_mu8noL1',    'L1_EM20VHI', ['L1_EM20VHI', ''], [PhysicsStream], ['RATE:EgammaMuon', 'BW:Egamma'], -1, ['serial',-1,['e24_medium_L1EM20VHI','mu8noL1'] ]],
-        ['e24_lhmedium_L1EM20VHI_mu8noL1',    'L1_EM20VHI', ['L1_EM20VHI', ''], [PhysicsStream], ['RATE:EgammaMuon', 'BW:Egamma'], -1, ['serial',-1,['e24_lhmedium_L1EM20VHI','mu8noL1'] ]],
+        ['e24_medium_L1EM20VHI_mu8noL1',      'L1_EM20VHI', ['L1_EM20VHI', ''], [PhysicsStream], ['RATE:EgammaMuon', 'BW:Egamma', 'BW:Muon'], -1, ['serial',-1,['e24_medium_L1EM20VHI','mu8noL1'] ]],
+        ['e24_lhmedium_L1EM20VHI_mu8noL1',    'L1_EM20VHI', ['L1_EM20VHI', ''], [PhysicsStream], ['RATE:EgammaMuon', 'BW:Egamma', 'BW:Muon'], -1, ['serial',-1,['e24_lhmedium_L1EM20VHI','mu8noL1'] ]],
+
+        ['e26_medium_L1EM22VHI_mu8noL1',      'L1_EM22VHI', ['L1_EM22VHI', ''], [PhysicsStream], ['RATE:EgammaMuon', 'BW:Egamma', 'BW:Muon'], -1, ['serial',-1,['e26_medium_L1EM22VHI','mu8noL1'] ]],
+        ['e26_lhmedium_L1EM22VHI_mu8noL1',    'L1_EM22VHI', ['L1_EM22VHI', ''], [PhysicsStream], ['RATE:EgammaMuon', 'BW:Egamma', 'BW:Muon'], -1, ['serial',-1,['e26_lhmedium_L1EM22VHI','mu8noL1'] ]],
 
         
         # Di-EM triggers
@@ -1740,10 +1765,11 @@ def setupMenu():
         ['mu6_j400_bperf_dr05', 'L1_MU6_J75', ['L1_MU6', ''], [PhysicsStream], ['RATE:MuonBjet', 'BW:Bjet', 'BW:Muon'], -1,['serial',-1,['mu6', 'j400_bperf'] ]],
         
         #bjet combined:
-        ['2mu14_2j35_bperf',                'L1_2MU10',          ['L1_2MU10', ''],     [PhysicsStream], ['RATE:MuonBjet', 'BW:Muon'], -1,['serial',-1,['2mu14', '2j35_bperf']]],
-        ['2e17_loose_2j35_bperf',           'L1_2EM15VH',        ['L1_2EM15VH', ''],   [PhysicsStream], ['RATE:EgammaJet', 'BW:Egamma'],-1,['serial',-1,['2e17_loose', '2j35_bperf']]  ],
-        ['mu26_imedium_2j35_bperf',         'L1_MU20',           ['L1_MU20', ''],      [PhysicsStream], ['RATE:MuonBjet', 'BW:Muon'], -1,['serial',-1,['mu26_imedium', '2j35_bperf']  ]],
+        ['2mu14_2j35_bperf',                'L1_2MU10',        ['L1_2MU10', ''],     [PhysicsStream], ['RATE:MuonBjet', 'BW:Muon'], -1,['serial',-1,['2mu14', '2j35_bperf']]],
+        ['2e17_loose_2j35_bperf',           'L1_2EM15VH',      ['L1_2EM15VH', ''],   [PhysicsStream], ['RATE:EgammaJet', 'BW:Egamma'],-1,['serial',-1,['2e17_loose', '2j35_bperf']]  ],
+        ['mu26_imedium_2j35_bperf',         'L1_MU20',         ['L1_MU20', ''],      [PhysicsStream], ['RATE:MuonBjet', 'BW:Muon'], -1,['serial',-1,['mu26_imedium', '2j35_bperf']  ]],
         ['e26_tight_iloose_2j35_bperf',     'L1_EM22VHI',      ['L1_EM22VHI', ''], [PhysicsStream], ['RATE:EgammaJet', 'BW:Egamma'],-1,['serial',-1,['e26_tight_iloose', '2j35_bperf'] ] ], 
+        ['e26_lhtight_iloose_2j35_bperf',   'L1_EM22VHI',      ['L1_EM22VHI', ''], [PhysicsStream], ['RATE:EgammaJet', 'BW:Egamma'],-1,['serial',-1,['e26_lhtight_iloose', '2j35_bperf'] ] ], 
 
         ]
 
@@ -1857,8 +1883,8 @@ Prescales.HLTPrescales.update({
      # Chains in physics_pp_v5, except for:
      #     2mu4_bDimu, 2mu4_bDimu_novtx_noos, 2mu6_bDimu, 2mu6_bDimu_novtx_noos
      #     mb_mbts_L1MBTS_2, mb_sptrk, mb_perf_L1LUCID, mb_sptrk_noisesup
-    'beamspot_allTE_L2StarB_L1RDO_FILLED'   : [    -1,    0,   -1],
-    'beamspot_allTE_trkfast_L1RDO_FILLED'   : [    -1,    0,   -1],
+    'beamspot_allTE_L2StarB_L1TRT'   : [    -1,    0,   -1],
+    'beamspot_allTE_trkfast_L1TRT'   : [    -1,    0,   -1],
     'costmonitor'                           : [    -1,    0,   -1],
     'cscmon_L1EM3'                          : [    -1,    0,   -1],
     'cscmon_L1J12'                          : [    -1,    0,   -1],
@@ -1979,6 +2005,8 @@ Prescales.HLTPrescales.update({
     'noalg_eb_L1BGRP7'                      : [    -1,    0,   -1],
     'noalg_eb_L1RD0_EMPTY'                  : [    -1,    0,   -1],
     'noalg_idcosmic_L1TRT'                  : [    -1,    0,   -1],
+    'noalg_idcosmic_L1TRT_EMPTY'                  : [    -1,    0,   -1],
+    'noalg_idcosmic_L1TRT_FILLED'                  : [    -1,    0,   -1],
     'noalg_idmon_L1RD0_EMPTY'               : [    -1,    0,   -1],
     'noalg_idmon_L1RD0_FILLED'              : [    -1,    0,   -1],
     'noalg_idmon_L1RD0_UNPAIRED_ISO'        : [    -1,    0,   -1],
@@ -2000,6 +2028,9 @@ Prescales.HLTPrescales.update({
     'noalg_mb_L1RD1_EMPTY'                  : [    -1,    0,   -1],
     'noalg_mb_L1RD1_FILLED'                 : [    -1,    0,   -1],
     'noalg_zb_L1ZB'                         : [    -1,    0,   -1],
+    'noalg_L1LHCF'                          : [    -1,    0,   -1],
+    'noalg_L1LHCF_MBTS_1'                   : [    -1,    0,   -1],
+    'noalg_L1LHCF_MBTS_2'                   : [    -1,    0,   -1],
     'pixel_beam'                            : [    -1,    0,   -1],
     'pixel_noise'                           : [    -1,    0,   -1],
     'robrequest'                            : [    -1,    0,   -1],
@@ -2025,8 +2056,8 @@ Prescales.HLTPrescales.update({
     'xe0_l2fsperf_wEFMuFEB_wEFMu_L1XE35'    : [    -1,    0,   -1],
     'xe0_tc_em_L1All'                       : [    -1,    0,   -1],
     'xe0_tc_em_L1XE35'                      : [    -1,    0,   -1],
-    #'xe0_tc_lcw_L1All'                      : [    -1,    0,   -1],
-    #'xe0_tc_lcw_L1XE35'                     : [    -1,    0,   -1],
+    'xe0_tc_lcw_L1All'                      : [    -1,    0,   -1],
+    'xe0_tc_lcw_L1XE35'                     : [    -1,    0,   -1],
     'xe0_tc_mht_L1All'                      : [    -1,    0,   -1],
     'xe0_tc_mht_L1XE35'                     : [    -1,    0,   -1],
     'xe0_tc_pueta_L1All'                    : [    -1,    0,   -1],
@@ -2040,7 +2071,7 @@ Prescales.HLTPrescales.update({
     'xe35_pueta'                            : [    -1,    0,   -1],
     'xe35_pufit'                            : [    -1,    0,   -1],
     'xe35_tc_em'                            : [    -1,    0,   -1],
-    #'xe35_tc_lcw'                           : [    -1,    0,   -1],
+    'xe35_tc_lcw'                           : [    -1,    0,   -1],
     'xs30'                                  : [    -1,    0,   -1],
     'xs30_tc_lcw'                           : [    -1,    0,   -1],
 
@@ -2065,7 +2096,7 @@ Prescales.HLTPrescales.update({
     'xe0noL1_l2fsperf_pueta'                : [    0,    0,   1],
     'xe0noL1_l2fsperf_pufit'                : [    0,    0,   1],
     'xe0noL1_l2fsperf_tc_em'                : [    0,    0,   1],
-    #'xe0noL1_l2fsperf_tc_lcw'               : [    0,    0,   1],
+    'xe0noL1_l2fsperf_tc_lcw'               : [    0,    0,   1],
     'mu0noL1_fsperf'                        : [    0,    0,   1],
 })
 ######################################################
@@ -2091,7 +2122,7 @@ Prescales.HLTPrescales_loose_mc_prescale.update({})
 Prescales.L1Prescales_tight_mc_prescale  = deepcopy(Prescales.L1Prescales)
 Prescales.HLTPrescales_tight_mc_prescale = deepcopy(Prescales.HLTPrescales)
 Prescales.HLTPrescales_tight_mc_prescale.update({
-     # Minbias chains in physics_pp_v5
+     # MinBias chains in physics_pp_v5
     'mb_mbts_L1MBTS_1'                      : [    -1,    0,   -1],
     'mb_mbts_L1MBTS_1_1'                    : [    -1,    0,   -1],
     'mb_mbts_L1MBTS_2'                      : [    -1,    0,   -1],
@@ -2102,7 +2133,7 @@ Prescales.HLTPrescales_tight_mc_prescale.update({
     'mb_sptrk_noisesup'                     : [    -1,    0,   -1],
     'mb_sp2_hmtperf_L1MBTS_1_1'             : [    -1,    0,   -1],
 
-     # Minbias chains in MC_pp_v5
+     # MinBias chains in MC_pp_v5
     'mb_sp2_hmtperf_L1MBTS_1_1'             : [    -1,    0,   -1],
     'mb_sp1800_hmtperf_L1TE20'              : [    -1,    0,   -1],
     'mb_sp1800_hmtperf_L1TE30.0ETA25'       : [    -1,    0,   -1],
@@ -2387,14 +2418,13 @@ Prescales.HLTPrescales_special_mc_prescale.update({
     'g0_hiptrt_L1EM18VH'                    : [    5,    0,   -1],
     'g0_hiptrt_L1EM20VH'                    : [    5,    0,   -1],
     'g0_hiptrt_L1EM20VHI'                   : [    5,    0,   -1],
-    'g0_hiptrt_L1EM22VHI'                 : [    5,    0,   -1],
+    'g0_hiptrt_L1EM22VHI'                   : [    5,    0,   -1],
     'g0_perf_L1EM15'                        : [    5,    0,   -1],
+    'g10_etcut'                             : [    5,    0,   -1],
     'g10_loose'                             : [    5,    0,   -1],
-    'g10_loose_L1EM7'                       : [    5,    0,   -1],
     'g10_loose_mu10'                        : [    5,    0,   -1],
     'g10_loose_mu10_taumass'                : [    5,    0,   -1],
     'g10_medium'                            : [    5,    0,   -1],
-    'g10_medium_L1EM7'                      : [    5,    0,   -1],
     'g15_loose'                             : [    5,    0,   -1],
     'g15_loose_2j40_0eta490_5j25_0eta490'   : [    5,    0,   -1],
     'g15_loose_2mu10_msonly'                : [    5,    0,   -1],

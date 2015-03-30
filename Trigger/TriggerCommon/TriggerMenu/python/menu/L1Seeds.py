@@ -8,13 +8,21 @@ from TriggerJobOpts.TriggerFlags  import TriggerFlags
 #######################################
 # trigger type definitions
 ######################################
-from TriggerMenu.l1.TriggerTypeDef import TT
+from TriggerMenu.l1.Lvl1Flags import Lvl1Flags
+run1 = Lvl1Flags.CTPVersion()<=3
+
+if run1:
+    from TriggerMenu.l1.TriggerTypeDefRun1 import TT
+    rpcout_type = TT.rpcout | TT.phys
+    rpcin_type  = TT.rpcin  | TT.phys             
+else:
+    from TriggerMenu.l1.TriggerTypeDef import TT
+    rpcout_type = TT.muon   | TT.phys
+    rpcin_type  = TT.muon   | TT.phys             
+
 
 cl_type     = TT.calo      | TT.phys
 mb_type     = TT.minb      | TT.phys
-tgc_type    = TT.tgc    | TT.phys  #obsolete!!
-rpcout_type = TT.rpcout | TT.phys
-rpcin_type  = TT.rpcin  | TT.phys             
 
 calo_exceptions = set([])
 

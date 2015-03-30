@@ -29,7 +29,7 @@ class L2EFChain_mu(L2EFChainDef):
     self.chainName = chainDict['chainName']
     self.chainL1Item = chainDict['L1item']
     self.chainCounter = chainDict['chainCounter']
-
+    
     self.chainPart = chainDict['chainParts']
     self.chainPartL1Item = self.chainPart['L1item']
     self.L2Name = 'L2_'+self.chainPart['chainPartName']
@@ -831,10 +831,9 @@ class L2EFChain_mu(L2EFChainDef):
 
     if "nscan03" in self.chainPart['FSinfo']:
       cone = "_cone03"
-      self.EFsequenceList += [['',
-                              [PESA__DummyUnseededAllTEAlgo("EFDummyAlgo")]+
-                              [CfgGetter.getAlgorithm("TrigMuSuperEF_WideCone"),
-                               theTrigMuonEFSA_NS_Hypo],
+      self.EFsequenceList += [[self.chainPart['L1item'].replace("L1_",""),
+                               [CfgGetter.getAlgorithm("TrigMuSuperEF_WideCone"),
+                                theTrigMuonEFSA_NS_Hypo],
                                'EF_SA_NS']]
       self.EFsequenceList += [['EF_SA_NS',
                               [CfgGetter.getAlgorithm("TrigMuonEFFSRoiMaker")],
@@ -851,8 +850,7 @@ class L2EFChain_mu(L2EFChainDef):
                                'EF_CB_NS']]
     elif "nscan05" in self.chainPart['FSinfo']:
       cone = "_cone05"
-      self.EFsequenceList += [['',
-                              [PESA__DummyUnseededAllTEAlgo("EFDummyAlgo")]+
+      self.EFsequenceList += [[self.chainPart['L1item'].replace("L1_",""),
                               [CfgGetter.getAlgorithm("TrigMuSuperEF_WideCone05"),
                                theTrigMuonEFSA_NS_Hypo],
                                'EF_SA_NS']]
@@ -876,19 +874,21 @@ class L2EFChain_mu(L2EFChainDef):
       self.EFsignatureList += [ [['EF_NS']] ]
 
     ########### TE renaming ##########
+    if self.chainPart['L1item']:
+      suffix = "_"+self.chainPart['L1item']
 
     if "nscan03" in self.chainPart['FSinfo']:
       self.TErenamingDict = {
-        'EF_SA_NS': mergeRemovingOverlap('EF_SA_NS_','SANSHypo'+hypocut+'_'+hypocutEF+cone),
-        'EF_SAR_NS': mergeRemovingOverlap('EF_SAR_NS_','SANSHypo'+hypocut+'_'+hypocutEF+cone),
-        'EF_NStracksMuon': mergeRemovingOverlap('EF_NStracksMuon_', 'SANSHypo'+hypocut+'_'+hypocutEF+cone),
-        'EF_CB_NS_single': mergeRemovingOverlap('EF_CB_NS_single_','SANSHypo'+hypocut+'_'+hypocutEF+cone), 
-        'EF_CB_NS': mergeRemovingOverlap('EF_CB_NS_', 'SANSHypo'+hypocut+'_'+hypocutEF+cone),
+        'EF_SA_NS': mergeRemovingOverlap('EF_SA_NS_','SANSHypo'+hypocut+'_'+hypocutEF+cone+suffix),
+        'EF_SAR_NS': mergeRemovingOverlap('EF_SAR_NS_','SANSHypo'+hypocut+'_'+hypocutEF+cone+suffix),
+        'EF_NStracksMuon': mergeRemovingOverlap('EF_NStracksMuon_', 'SANSHypo'+hypocut+'_'+hypocutEF+cone+suffix),
+        'EF_CB_NS_single': mergeRemovingOverlap('EF_CB_NS_single_','SANSHypo'+hypocut+'_'+hypocutEF+cone+suffix), 
+        'EF_CB_NS': mergeRemovingOverlap('EF_CB_NS_', 'SANSHypo'+hypocut+'_'+hypocutEF+cone+suffix),
       }
     if "nscan05" in self.chainPart['FSinfo']:
       self.TErenamingDict = {
-        'EF_SA_NS': mergeRemovingOverlap('EF_SA_NS_','SANSHypo'+hypocut+'_'+hypocutEF+cone),
-        'EF_NS': mergeRemovingOverlap('EF_NS_', 'SANSHypo'+hypocut+'_'+hypocutEF+cone),
+        'EF_SA_NS': mergeRemovingOverlap('EF_SA_NS_','SANSHypo'+hypocut+'_'+hypocutEF+cone+suffix),
+        'EF_NS': mergeRemovingOverlap('EF_NS_', 'SANSHypo'+hypocut+'_'+hypocutEF+cone+suffix),
       }
 
   #################################################################################################
