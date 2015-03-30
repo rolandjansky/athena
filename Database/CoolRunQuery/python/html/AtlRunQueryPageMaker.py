@@ -35,7 +35,7 @@ class PageMaker:
         if '/var/vhost' in os.path.dirname(__file__):
             page = open("%s/index.html" % os.path.dirname(__file__).replace('CoolRunQuery/html',''))
         else:
-            page = open("%s/atlas-runquery.html" % os.path.dirname(__file__).replace('python/CoolRunQuery/html','html/CoolRunQuery'))
+            page = open("%s/atlas-runquery.html" % os.path.dirname(__file__).replace('python/CoolRunQuery/html','html'))
         s = page.read()
         top, bottom = re.match("(.*)<!--INSERTQUERYRESULT-->(.*)", s, re.S|re.M).group(1,2)
         if removeExamples:

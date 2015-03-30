@@ -1032,7 +1032,8 @@ def ashtml(run):
 
                 if "detector systems" in k.lower():
                     if v!='n.a.':
-                        v = DecodeDetectorMask('0x'+v,Selector.condDB()=='CONDBR2',True)
+                        mask = '0x'+v if Selector.condDB()=='CONDBR2' else v # run2 the format is a hex string, in run 1 it is an int (represented as string)
+                        v = DecodeDetectorMask( mask, Selector.condDB()=='CONDBR2',True)
                     s += '  <td style="min-width:%ipx"><font size="-2">%s<hr color="#aaaaaa" size=1>[<a href="http://sroe.home.cern.ch/sroe/cgi-bin/avgmodule.py?run=%i" target=_blank>SCT HV setting</a>]</font></td>' % (1.1*len(v),v,run.runNr)
                     continue
 

@@ -54,8 +54,16 @@ class ARQ_COMA:
         any connection to ATLR is fine, we use Trigger DB
         """
         if not cls.__cursor:
-            from TrigConfigSvc.TrigConfigSvcUtils import getTriggerDBCursor
-            cls.__cursor = getTriggerDBCursor("TRIGGERDB")[0]
+
+            from CoolRunQuery.utils.AtlRunQueryTriggerUtils import interpretConnection
+            connectionParameters = interpretConnection("TRIGGERDB")
+            
+            from cx_Oracle import connect
+            connection = connect ( connectionParameters["user"],
+                                   connectionParameters["passwd"],
+                                   connectionParameters["server"], threaded=True)
+            cls.__cursor = connection.cursor()
+
         return cls.__cursor
 
 

@@ -35,7 +35,7 @@ DQChannelDict = {'PIXB':101,'PIX0':102,'PIXEA':104,'PIXEC':105,
                  'RPCBA':312,'RPCBC':313,
                  'TGCEA':324,'TGCEC':325,
                  'CSCEA':334,'CSCEC':335,
-                  'LCDA':353,'LCDC':354,
+                 'LCDA':353,'LCDC':354,
                  'ALFA':360,'ZDC':370,
                  'L1CAL':401,'L1MUB':402,'L1MUE':403,'L1CTP':404,
                  'TRCAL':411,
@@ -326,51 +326,87 @@ def InitDetectorMaskDecoderRun2():
 
     NotInAll = map(lambda x: ' NotInAll' if x in notInAll else '', dName)
 
-    vetoedbits = [3, 50, 51, 52, 53] + range(64,128)
+    vetoedbits = [3, 41, 42, 44, 50, 51, 52, 53, 57, 58, 59] + range(64,128)
 
     return (dName, NotInAll, vetoedbits)
 
 
 
 
+def DecodeDetectorMaskToString( detmask, isRun2, smart ):
+    """
+    takes (int) detmask
+    returns ( (string) listOfDetectors, (bool) inclusion )
+    if smart is set to True, then the listOfDetectors might be inversed and excluded ones are shown
+    """
+
+    dName, NotInAll, vetoedbits = InitDetectorMaskDecoder(isRun2)
+
+    ic = 0
+    res = ""
+    success = False
+    inclusion = True
+    for i in xrange( len(dName) ):
+        if i not in vetoedbits and (detmask & (1 << i)):
+            success = True
+            res += dName[i] + ", "
+            ic += 1
+    if res=="":
+        res = "none"
+    else:
+        res = res[:-2] # chop off last comma-space
+
+    if smart and ic > 30:
+        # many included prefer to show excluded sub detectors
+        inclusion = False
+        res = ""
+        for i in range( len(dName) ):
+            if i not in vetoedbits and not (detmask & (1 << i)):
+                success = True
+                res += dName[i] + ", "
+        if res=="":
+            res = "all"
+        else:
+            res = res[:-2] # chop off last comma-space
+
+    return (res, inclusion)
+
+
+def splitAt(line, splitstring=',', splitsize=80):
+    res = [line]
+    while len( res[-1] ):
+        linebreak = res[-1].find( splitstring, splitsize)
+        if linebreak==-1:
+            break
+        res[-1:] = [ res[-1][:linebreak], res[-1][linebreak+len(splitstring):] ]
+    return res
+
+
 def DecodeDetectorMask( mask, isRun2, smart=False ):
+    """
+    takes an decimal or hex string (hex string must start with 0x) and returns an HTML element
+    """
     if type(mask)!=str:
         raise RuntimeError("DetectorMask must be a string")
 
     if mask.startswith('0x'):
-        mask = mask[2:]
-        mask = int(mask,16)
+        mask = int(mask[2:],16)
     else:
         mask = int(mask)
         
-    dName, NotInAll, vetoedbits = InitDetectorMaskDecoder(isRun2)
-    col = '#000000'
-    if smart: col = '#106734'
-    res = '<b>Detector mask = %s (%s), corresponding to the systems:</b><br><font color="%s">' % (mask,hex(mask).rstrip('L'),col)
-    ic = 0
-    found = False
-    for i in range(64):
-        if (mask & (1 << i)):
-            found = True
-            res += dName[i] + ", "
-            ic += 1
-    if smart:
-        # check if it is more interesting to give the missing systems
-        if ic > 30:
-            res = '<b>Detector mask = %i.<br> <font color="#aa0000">The following systems are NOT in partition:</b><br>' % mask
-            for i in range(64):
-                if i not in vetoedbits and not (mask & (1 << i)):
-                    found = True
-                    res += dName[i] + ", "
-        
-    # chop off last comma-space
-    if found:
-        if len(res)>1: res = res[:-2]
-        res += '</font>'
+    detectors, inclusion = DecodeDetectorMaskToString(mask, isRun2, smart)
+    #detectors = ",<BR>".join( splitAt(detectors,", ") )
+
+    col = '#106734' if smart else '#000000'
+    if inclusion:
+        res = '<b>Detector mask = %s (%s), corresponding to the systems:</b><br><font color="%s">' % (mask,hex(mask).rstrip('L'),col)
     else:
-        res += '???'
+        res = '<b>Detector mask = %i (%s).<br> <font color="#aa0000">The following systems are NOT included:</b><br>' % (mask,hex(mask).rstrip('L'))
+    res += detectors
+    res += '</font>'
 
     return res
+
 
 def LArConfig(type):
     # runtype, format
