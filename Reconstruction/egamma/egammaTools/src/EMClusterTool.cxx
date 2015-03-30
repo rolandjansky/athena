@@ -16,13 +16,12 @@
 
 #include "CaloUtils/CaloClusterStoreHelper.h"
 #include "CaloUtils/CaloCellDetPos.h"
+#include "CxxUtils/make_unique.h"
+
 
 // =============================================================
 EMClusterTool::EMClusterTool(const std::string& type, const std::string& name, const IInterface* parent) :
-  egammaBaseTool(type, name, parent),
-  m_MVACalibTool(0),
-  m_storeGate(0),
-  m_caloCellDetPos(0)
+  egammaBaseTool(type, name, parent)
 {
   declareProperty("ClusterCorrectionToolName", m_ClusterCorrectionToolName = "egammaSwTool/egammaswtool");
   declareProperty("MVACalibTool", m_MVACalibTool);
@@ -42,10 +41,10 @@ EMClusterTool::EMClusterTool(const std::string& type, const std::string& name, c
 
   declareInterface<IEMClusterTool>(this);
   
-  m_caloCellDetPos = new CaloCellDetPos();
+  m_caloCellDetPos = CxxUtils::make_unique<CaloCellDetPos>();
 }
 
-EMClusterTool::~EMClusterTool() { delete m_caloCellDetPos; }
+EMClusterTool::~EMClusterTool() {  }
 
 // const InterfaceID& ClusterTool::interfaceID() {
 //   return IID_IClusterTool;
@@ -56,12 +55,6 @@ StatusCode EMClusterTool::initialize() {
 
   ATH_MSG_DEBUG("Initializing " << name() << "...");
 
-  if (service("StoreGateSvc", m_storeGate).isFailure()) 
-  {
-    ATH_MSG_ERROR("Unable to retrieve pointer to StoreGateSvc");
-    return StatusCode::FAILURE;
-  }
-  
   // Get the cluster correction tool
   m_clusterCorrectionTool = ToolHandle<IegammaSwTool>(m_ClusterCorrectionToolName);
   if(m_clusterCorrectionTool.retrieve().isFailure()) {
@@ -97,7 +90,7 @@ StatusCode EMClusterTool::contExecute()
 {
   // Create output cluster container and register in StoreGate
   xAOD::CaloClusterContainer* outputClusterContainer = \
-    CaloClusterStoreHelper::makeContainer(m_storeGate, 
+    CaloClusterStoreHelper::makeContainer(&*evtStore(), 
                                           m_outputClusterContainerName, 
                                           msg());
   if (!outputClusterContainer){
@@ -112,7 +105,7 @@ StatusCode EMClusterTool::contExecute()
   if (m_outputTopoSeededClusterContainerName != m_outputClusterContainerName)
   {
     outputTopoSeededClusterContainer = \
-      CaloClusterStoreHelper::makeContainer(m_storeGate, 
+      CaloClusterStoreHelper::makeContainer(&*evtStore(), 
                                             m_outputTopoSeededClusterContainerName, 
                                             msg());
     if (!outputTopoSeededClusterContainer){
@@ -123,19 +116,11 @@ StatusCode EMClusterTool::contExecute()
   }
   
   // Retrieve electron and photon containers
-  xAOD::ElectronContainer *electronContainer;
-  if (m_storeGate->retrieve(electronContainer, m_electronContainerName).isFailure())
-  {
-    ATH_MSG_ERROR("Cannot retrieve electron container " << m_electronContainerName);
-    return StatusCode::FAILURE;
-  }
+  xAOD::ElectronContainer *electronContainer = nullptr;
+  ATH_CHECK (evtStore()->retrieve(electronContainer, m_electronContainerName) );
   
-  xAOD::PhotonContainer *photonContainer;
-  if (m_storeGate->retrieve(photonContainer, m_photonContainerName).isFailure())
-  {
-    ATH_MSG_ERROR("Cannot retrieve photon container " << m_photonContainerName);
-    return StatusCode::FAILURE;
-  }
+  xAOD::PhotonContainer *photonContainer = nullptr;
+  ATH_CHECK( evtStore()->retrieve(photonContainer, m_photonContainerName) );
     
   // Loop over electrons and create new clusters
   xAOD::EgammaParameters::EgammaType egType = xAOD::EgammaParameters::electron;
@@ -156,7 +141,7 @@ StatusCode EMClusterTool::contExecute()
   }    
   
   if (m_finalizeClusters)
-    CHECK( CaloClusterStoreHelper::finalizeClusters(m_storeGate, 
+    CHECK( CaloClusterStoreHelper::finalizeClusters(&*evtStore(), 
                                                     outputClusterContainer,
                                                     m_outputClusterContainerName,
                                                     msg()) );

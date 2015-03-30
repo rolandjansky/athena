@@ -12,8 +12,8 @@ from ElectronPhotonSelectorTools.PhotonIsEMSelectorMapping import photonPIDmenu
 #import base class
 from egammaTools.egammaToolsConf import EMPIDBuilder
 
-import PyCintex
-PyCintex.loadDictionary('ElectronPhotonSelectorToolsDict')
+import cppyy
+cppyy.loadDictionary('ElectronPhotonSelectorToolsDict')
 from ROOT import egammaPID
 from ROOT import LikeEnum
 

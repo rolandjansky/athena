@@ -101,9 +101,7 @@ class EMClusterTool : public egammaBaseTool, virtual public IEMClusterTool {
   /** @brief Call CaloClusterStoreHelper::finalizeClusters ? **/ 
   bool m_finalizeClusters;
   
-  StoreGateSvc*   m_storeGate;
-  
-  CaloCellDetPos *m_caloCellDetPos;
+  std::unique_ptr<CaloCellDetPos> m_caloCellDetPos;
 };
 
 #endif // EGAMMATOOLS_EMCLUSTERTOOL_H

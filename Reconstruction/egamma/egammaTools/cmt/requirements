@@ -8,6 +8,7 @@ use AthenaKernel               AthenaKernel-*          Control
 use AtlasROOT                  AtlasROOT-*             External
 use GaudiInterface	       GaudiInterface-*	       External
 use AtlasCLHEP                 AtlasCLHEP-*            External
+use CxxUtils                   CxxUtils-*              Control
 use StoreGate                  StoreGate-*             Control
 use Identifier                 Identifier-*            DetectorDescription
 use EventKernel                EventKernel-*           Event
