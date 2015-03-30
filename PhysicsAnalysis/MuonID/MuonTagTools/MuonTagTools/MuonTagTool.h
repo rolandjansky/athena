@@ -28,19 +28,6 @@ Purpose : build the Muon Tag objects - MuonTagCollection.h.
 }
 */
 
-
-namespace Reco {
-  class ITrackToVertex;
-}
-
-namespace Trk {
-  class ITrackToVertexIPEstimator;
-}
-
-namespace Muon {
-  class MuonIdHelperTool;
-}
-
 /** Interface ID for MuonTagTool*/  
 static const InterfaceID IID_MuonTagTool("MuonTagTool", 1, 0);
 
@@ -101,14 +88,6 @@ private:
 
   /** PV StoreGate key */
   std::string m_vxCandidate;
-  /** track to vertex extrapolator */
-  ToolHandle<Reco::ITrackToVertex> m_trackToVertexTool;
-  ToolHandle< Trk::ITrackToVertexIPEstimator > m_trackToVertexIPEstimator;
-  ToolHandle<Muon::MuonIdHelperTool>    m_idHelper;
  };
 
 #endif // MUONTAGTOOL_H
-
-
-
-

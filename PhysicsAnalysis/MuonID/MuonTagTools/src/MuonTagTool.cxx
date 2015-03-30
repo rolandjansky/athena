@@ -12,30 +12,20 @@ Purpose : create a collection of MuonTag
 
 #include "GaudiKernel/Property.h"
 
-//#include "muonEvent/MuonContainer.h"
-//#include "xAODMuon/MuonSegmentContainer.h"
 #include "xAODMuon/MuonContainer.h"
 #include "MuonTagTools/MuonTagTool.h"
 #include "xAODTracking/VertexContainer.h"
 #include "xAODTracking/TrackParticleContainer.h"
-#include "ITrackToVertex/ITrackToVertex.h"
-#include "TrkVertexFitterInterfaces/ITrackToVertexIPEstimator.h"
 #include "TagEvent/MuonAttributeNames.h"
 #include "AnalysisUtils/AnalysisMisc.h"
 #include "AthenaPoolUtilities/AthenaAttributeSpecification.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
-#include "TrkTrackSummary/TrackSummary.h"
-#include "TrkTrackSummary/MuonTrackSummary.h"
 #include <sstream>
 
 
 /** the constructor */
 MuonTagTool::MuonTagTool (const std::string& type, const std::string& name, 
                                   const IInterface* parent) : 
-  AthAlgTool( type, name, parent ),
-  m_trackToVertexTool("Reco::TrackToVertex"),
-  m_trackToVertexIPEstimator(""),
-  m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool")
+  AthAlgTool( type, name, parent )
 {
 
   /** Muon AOD Container Name */
@@ -71,9 +61,6 @@ MuonTagTool::MuonTagTool (const std::string& type, const std::string& name,
   /** key for primary vertex container */
   declareProperty ("PrimaryVertexKey", m_vxCandidate = "PrimaryVertices");
 
-  /** tool handle for track to vertex */
-  declareProperty ("TrackToVertexTool",  m_trackToVertexTool);
-  declareProperty ("TrackToVertexIPEstimator",  m_trackToVertexIPEstimator);
   /** D0 tight veto cut */
   declareProperty("maxD0tight",  m_maxD0tight = 0.3*CLHEP::mm);
   /** Z0 tight veto cut */
@@ -90,28 +77,6 @@ MuonTagTool::MuonTagTool (const std::string& type, const std::string& name,
 StatusCode  MuonTagTool::initialize() {
 
   AthAlgTool::initialize().ignore();
-
-
-  /** get TrackToVertexTool if Inner Detector is available */
-  if(m_doInDet) {
-    StatusCode sc = m_trackToVertexTool.retrieve();
-    if (sc.isFailure()) {
-      ATH_MSG_FATAL ("Unable to retrieve handle on TrackToVertexTool");
-      return sc;
-    }
-    if( !m_trackToVertexIPEstimator.empty() ){
-      sc = m_trackToVertexIPEstimator.retrieve();
-      if (sc.isFailure()) {
-	ATH_MSG_FATAL ("Unable to retrieve " << m_trackToVertexIPEstimator);
-	return sc;
-      }
-    }
-  }
-
-  if ( !m_idHelper.retrieve().isSuccess() ) {
-    ATH_MSG_ERROR ("Unable to retrieve " << m_idHelper);
-    return StatusCode::FAILURE;
-  }
 
   return StatusCode::SUCCESS;
 }

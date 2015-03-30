@@ -17,7 +17,7 @@ if jobproperties.Beam.beamType() == 'cosmics' or jobproperties.Beam.beamType() =
 from RecExConfig.RecFlags import rec
 from MuonTagTools.MuonTagToolsConf import MuonTagTool as ConfiguredMuonTagTool
 MuonTagTool = ConfiguredMuonTagTool(Container         = theMuonCollection,
-                                    EtCut             = 2.0*GeV,
+                                    EtCut             = 6.0*GeV,
                                     CaloIsoCutValues  = [3.0*GeV, 5.0*GeV],
                                     TrackIsoCutValues = [3.0*GeV, 5.0*GeV],
                                     CaloRelIsoCutValues  = [0.15, 0.3],
