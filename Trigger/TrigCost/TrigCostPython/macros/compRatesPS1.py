@@ -63,6 +63,10 @@ p.add_option( "", "--apply-PS", action  = "store_true", default = False,
               dest = "apply_PS",
               help = "apply prescales" )
 
+p.add_option( "", "--undo-PS", action  = "store_true", default = False,
+              dest = "undo_PS",
+              help = "undo prescales" )
+
 p.add_option( "", "--hide-zero-PS", action  = "store_true", default = False,
               dest = "hide_zero_PS",
               help = "hide PS of 0 and -1" )
@@ -758,6 +762,7 @@ def CompareRates(opath, level, varname, input_rates, index_html, ratetype=""):
                             scale_factor_1 = scale_factor_1/rate.GetChain(chain).GetAttrWithCheck("prescale")
                         if ratio_rate.GetChain(chain).GetAttrWithCheck("prescale")>0:
                             scale_factor_2 = scale_factor_2/ratio_rate.GetChain(chain).GetAttrWithCheck("prescale")
+
                     
                     if options.hlt_rej and level!='L1':
                     # Ignoring error on lower chain (probably smaller and correlated)
@@ -1198,6 +1203,8 @@ for i in args :
 
 gpath = options.output_path+"/"
 
+
+
 # Copy the xml if requested
 if options.copy_xml :
     counter = 0
@@ -1236,6 +1243,41 @@ if options.summary_html :
 levels = ['L1','HLT']
 
 #ComparePS_PT()
+
+
+if options.undo_PS :
+    for result in input_results :        
+        for ch in result.GetChains('HLT') :
+            ps = ch.GetPrescale()
+            lowerchain = ch.GetAttrWithDefault("lowerchain", "none")
+            if lowerchain!='none' :
+                if result.HasChain(lowerchain):
+                    lchain = result.GetChain(ch.lowerchain)
+                    ps *= lchain.GetPrescale()
+                if "L2" in lowerchain :
+                    #lchain.SetPrescale(1.)
+                    #lchain.prescale = 1.
+                    lowerlowerchain = lchain.GetAttrWithDefault("lowerchain", "none")
+                    if lowerlowerchain!='none' :
+                        if result.HasChain(lowerlowerchain):
+                            llchain = result.GetChain(lchain.lowerchain)
+                            ps *= llchain.GetPrescale()
+                
+            if ps > 1 : print " change PS for ", ch.GetName(), ch.GetRate(), ch.GetPrescale(), lchain.GetPrescale(), ps
+            if ps != 1 and ps >0 :
+                ch.SetRate( ch.GetRate()*ps)
+                ch.SetPrescale( 1.)
+                ch.prescale = 1
+                if ps > 1 : print "       ----------> ", ch.GetRate(), ch.GetPrescale()
+
+        for ch in result.GetChains('L1') : # now L1
+            ps = ch.GetPrescale()
+            if ps > 1 : print " change PS for ", ch.GetName(), ch.GetRate(), ps
+            if ps != 1 and ps >0 :
+                ch.SetRate( ch.GetRate()*ps)
+                ch.SetPrescale( 1.)
+                if ps > 1: print "       ----------> ", ch.GetRate(), ch.GetPrescale()
+
 
 for level in levels:    
     #CompareAttr(gpath, level, 'rate', 'diff', index_html)

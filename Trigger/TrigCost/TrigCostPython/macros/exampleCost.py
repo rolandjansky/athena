@@ -198,7 +198,7 @@ if ratecoll and opts.printRates:
     print "LB Range("+str(ratecoll.lbbeg)+","+str(ratecoll.lbend)+")"
     print
 
-    for lvl in ['L1','L2','EF']:
+    for lvl in ['L1','HLT']:
         print "-------------------------------------------------------------------------"
         print "%-45s %4s" % ("Rates for %s" % lvl, "LB="),
         for lb in ratecoll.LBRange():
@@ -366,7 +366,7 @@ if rates:
     print "XML Rates"
     print
 
-    for lvl in ['L1','L2','EF']:
+    for lvl in ['L1','HLT']:
         print "-------------------------------------------------------------------------"
         print "Rates for ",lvl
         print "-------------------------------------------------------------------------"
@@ -451,30 +451,27 @@ if opts.writexml!="":
                 # skip groups, streams, unused CTPs, "recording" info, time , ...
                 # first set all PS to -1000 as a not valid flag
                 avgch.SetPrescale(-1000)
+                print "L1 ", config.L1Prescales
+                print "HLT ", config.HLTPrescales
                 if not TrigCostTRP.NonChainTRP(chname) and not opts.nopsrangebreak:
 
                     try:
                         if avgch.GetLevel() == 'L1':
                             avgch.SetPrescale(config.L1Prescales[psrange.l1key][chname].ps)
-                        elif avgch.GetLevel() == 'L2':
-                            avgch.SetPrescale(config.L2Prescales[psrange.hltkey][chname].ps)
-                            avgch.SetPassthrough(config.L2Prescales[psrange.hltkey][chname].pt)
-                            avgch.SetRerun(config.L2Prescales[psrange.hltkey][chname].rerun)
-                        elif avgch.GetLevel() == 'EF':
-                            avgch.SetPrescale(config.EFPrescales[psrange.hltkey][chname].ps)
-                            avgch.SetPassthrough(config.EFPrescales[psrange.hltkey][chname].pt)
-                            avgch.SetRerun(config.EFPrescales[psrange.hltkey][chname].rerun)
+                            print chname,config.L1Prescales[psrange.l1key][chname].ps
+                        elif avgch.GetLevel() == 'HLT':
+                            avgch.SetPrescale(config.HLTPrescales[psrange.hltkey][chname].ps)
+                            avgch.SetPassthrough(0) #config.HLTPrescales[psrange.hltkey][chname].pt)
+                            avgch.SetRerun(config.HLTPrescales[psrange.hltkey][chname].rerun)
                     except:
-                        print "Warning: Unable to set prescales for ",chname
+                        print "Warning: Unable to set prescales for ",chname, " ",  avgch.GetLevel(), " " ,psrange.l1key
                         
                 # add lower chain info
                 # skip groups, streams, unused CTPs, "recording" info, time , ...
                 if not TrigCostTRP.NonChainTRP(chname):
 
                     try:
-                        if avgch.GetLevel() == 'L2':
-                            avgch.SetLowerChain(config.ChainName2HLTChain[chname].LowerChainName)
-                        elif avgch.GetLevel() == 'EF':
+                        if avgch.GetLevel() == 'HLT':
                             avgch.SetLowerChain(config.ChainName2HLTChain[chname].LowerChainName)
                     except:
                         print "Warning: Unable to set lower chain for ",chname
@@ -517,10 +514,8 @@ if opts.PSHistoryTrg!="":
         for trg in trgs:
             if string.count(trg,"L1"):
                 pars.append(config.L1Prescales[psr.l1key][trg].ps)
-            elif string.count(trg,"L2"):
-                pars.append(config.L2Prescales[psr.hltkey][trg].ps)
-            elif string.count(trg,"EF"):
-                pars.append(config.EFPrescales[psr.hltkey][trg].ps)
+            elif string.count(trg,"HLT"):
+                pars.append(config.HLTPrescales[psr.hltkey][trg].ps)
             else:
                 print "Trigger not found:",trg
                 sys.exit(-1)

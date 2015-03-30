@@ -32,7 +32,7 @@ class TrigCostTRP:
 #----------------------------------------------------------------------
 # Note: prescale reading not used right now
 #
-def ReadTRP(runnumber, lb_beg, lb_end, options=[], myafspath='', myhttppath='', levels='L1,L2,EF'):
+def ReadTRP(runnumber, lb_beg, lb_end, options=[], myafspath='', myhttppath='', levels='L1,HLT'):
 
     # Return object
     collection = TrigCostAnalysis.CostResultCollection()
@@ -58,7 +58,7 @@ def ReadTRP(runnumber, lb_beg, lb_end, options=[], myafspath='', myhttppath='', 
         startpoint    = GetStartpoint(tree, lb_beg, entries)
         lblast        = 0                                 # Last LB number
         count         = 0                                 # Number of lb to average
-
+        #print  ' tree name', tree.GetName(), ' Nebntries=', entries
         # Average samplings in lumiblock
         for i in xrange(startpoint, entries):
 
@@ -71,6 +71,7 @@ def ReadTRP(runnumber, lb_beg, lb_end, options=[], myafspath='', myhttppath='', 
 
             # Loop over branch names
             for bname in branches:
+                #print ' Branch', bname
                 ProcessBranch(tree, lb, lblast, bname, lvl, count, sfx_in, sfx_ps, sfx_out, collection)
 
             # Increment
@@ -144,8 +145,7 @@ def GetTChains(runnumber, filename):
         prefix = 'ISS_TRP.'
 
     tchains = { 'L1' : ROOT.TChain(prefix+'L1_Rate', 'L1'),
-                'L2' : ROOT.TChain(prefix+'L2_Rate', 'L2'),
-                'EF' : ROOT.TChain(prefix+'EF_Rate', 'EF') }
+                'HLT' : ROOT.TChain(prefix+'HLT_Rate', 'HLT') }
 
     # Open TFiles
     for tc in tchains.values():
@@ -247,7 +247,11 @@ def GetBranches(tree, lvl, sfx_out):
         #
         if comp.match( branch.GetName() ):
             bname = branch.GetName()
+        if "HLT" in bname :
+            pos   = -(len(br_out)-5)
+        else :
             pos   = -(len(br_out)-4)
+
             cname = bname[:pos]
             branches.append( cname )
 
@@ -468,10 +472,8 @@ def NonChainTRP(chname):
            or string.count(chname,"_L1A") != 0\
            or string.count(chname,"_total") != 0\
            or string.count(chname,"_time") != 0\
-           or string.count(chname,"L2_RATE") != 0\
-           or string.count(chname,"L2_Providers") != 0\
-           or string.count(chname,"EF_RATE") != 0\
-           or string.count(chname,"EF_Providers") != 0
+           or string.count(chname,"HLT_RATE") != 0\
+           or string.count(chname,"HLT_Providers") != 0
 
 #----------------------------------------------------------------------
 # E-mail thread for the Naming change after 178292

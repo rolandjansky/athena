@@ -75,6 +75,7 @@ hltmenu_foldername      = '/TRIGGER/HLT/Menu'                   # Idx by run-LB
 l1ps_foldername         = '/TRIGGER/LVL1/Prescales'             # Idx by run-LB
 hltps_foldername        = '/TRIGGER/HLT/Prescales'              # Idx by run-LB
 l1pskey_foldername      = '/TRIGGER/LVL1/Lvl1ConfigKey'         # Idx by run-LB
+#hltpskey_foldername      = '/TRIGGER/HLT/HltConfigKey'         # Idx by run-LB
 hltpskey_foldername     = '/TRIGGER/HLT/PrescaleKey'            # Idx by run-LB
 
 #------------------------------------------------------------
@@ -137,8 +138,9 @@ def InitDB(foldertype='TRIGGER'):
             return #already initialized
 
         try:
-            dbProd = indirectOpen('COOLONL_TRIGGER/COMP200', oracle=True)
-            log.info("Connected to database: "+'COOLONL_TRIGGER/COMP200')
+            #dbProd = indirectOpen('COOLONL_TRIGGER/COMP200', oracle=True)
+            dbProd = indirectOpen('COOLONL_TRIGGER/CONDBR2', oracle=True)
+            log.info("Connected to database: "+'COOLONL_TRIGGER/CONDBR2')
         except Exception.e:
             log.error('Error connecting to database:'+str(e))
             sys.exit(-1)
@@ -152,8 +154,8 @@ def InitDB(foldertype='TRIGGER'):
             return #already initialized
 
         try:
-            dbLhc = indirectOpen('COOLOFL_DCS/COMP200', oracle=True)
-            log.info("Connected to database: "+'COOLOFL_DCS/COMP200')
+            dbLhc = indirectOpen('COOLOFL_DCS/CONDBR2', oracle=True)
+            log.info("Connected to database: "+'COOLOFL_DCS/CONDBR2')
         except Exception.e:
             log.error('Error connecting to database:'+str(e))
             sys.exit(-1)
@@ -181,8 +183,8 @@ def InitDB(foldertype='TRIGGER'):
             return #already initialized
 
         try:
-            dbCompString="oracle://ATLAS_COOLPROD;schema=ATLAS_COOLONL_TDAQ;dbname=COMP200;user=ATLAS_COOL_READER;password=COOLRED4PRO"
-            dbComp = indirectOpen('COOLONL_TDAQ/COMP200', oracle=True)
+            dbCompString="oracle://ATLAS_COOLPROD;schema=ATLAS_COOLONL_TDAQ;dbname=CONDBR2;user=ATLAS_COOL_READER;password=COOLRED4PRO"
+            dbComp = indirectOpen('COOLONL_TDAQ/CONDBR2', oracle=True)
             log.info("Connected to database: "+dbCompString)
         except Exception,e:
             log.error('Error connecting to database:'+str(e))
@@ -195,7 +197,7 @@ def InitDB(foldertype='TRIGGER'):
         return #already initialized
 
     dbSvc=cool.DatabaseSvcFactory.databaseService()
-    dbTrigString="oracle://ATLAS_COOLPROD;schema=ATLAS_COOLONL_TRIGGER;dbname=COMP200;user=ATLAS_COOL_READER;password=COOLRED4PRO"
+    dbTrigString="oracle://ATLAS_COOLPROD;schema=ATLAS_COOLONL_TRIGGER;dbname=CONDBR2;user=ATLAS_COOL_READER;password=COOLRED4PRO"
 
     try:
         dbTrig=dbSvc.openDatabase(dbTrigString, False)
@@ -251,6 +253,8 @@ def GetFolderItrForRun(foldername, run, foldertype='TRIGGER', run_beg_time=-1, r
 
     logging.debug('foldername:'+foldername)
     logging.debug('foldertype:'+foldertype)
+    
+    print "Getting DB for ",foldername,foldertype
 
     # "PROD" option added -- for bunch groups
     if foldertype=="PROD":
@@ -285,8 +289,8 @@ def GetFolderItrForRun(foldername, run, foldertype='TRIGGER', run_beg_time=-1, r
     # ---- See this email from Eric ----
     # From: torrence@uoregon.edu on Sun, Sep 25, 2011 at 14:04
     # Hi Tae, During the technical stop, it (BUNCHLUMIS) was moved
-    # from MONP200 to COMP200.  A few channels were also backfilled in
-    # COMP200 back to the start of 2011, so that you can run over the
+    # from MONP200 to CONDBR2.  A few channels were also backfilled in
+    # CONDBR2 back to the start of 2011, so that you can run over the
     # entire year.  The channel 0 designation is the channel chosen as
     # the 'preferred' channel.  This is actually the best thing to
     # use.  The hardcoded 201 in my script is a bit historical, and I
@@ -313,7 +317,7 @@ def GetFolderItrForRun(foldername, run, foldertype='TRIGGER', run_beg_time=-1, r
         print 'ERROR - default foldertype should be TRIGGER'
         return None
 
-    return folder.browseObjects(run << 32,(run+1) << 32,cool.ChannelSelection.all())
+    return folder.browseObjects(run << 32,((run+1) << 32),cool.ChannelSelection.all())
 
 
 #------------------------------------------------------------
@@ -342,11 +346,17 @@ def UnpackBCIDData(StartTime, EndTime, payload):
 
 #------------------------------------------------------------
 def UnpackFillData(StartTime, EndTime, payload):
-    fill    = payload['FillNumber']
+    beam    = payload['BeamMode']
+    fill    = 'None'
+    ebeam   = 'None'
+    if (beam == 'NO BEAM') : # Cosmics?
+        fill    = 0
+        ebeam   = 0.
+    else : 
+        fill    = payload['FillNumber']
+        ebeam   = payload['BeamEnergyGeV']
     stable  = payload['StableBeams']
     lhc     = payload['MachineMode']
-    beam    = payload['BeamMode']
-    ebeam   = payload['BeamEnergyGeV']
 
     fillData = dict()
     fillData['StartTime']   = StartTime
@@ -542,12 +552,19 @@ def GetLumiblocks(runnumber,lb_beg,lb_end,options=[]):
             payload     = obj.payload()
 
             # no lumiblock range implementation -- they're timestamped!
+            beam    = payload['BeamMode']
+            fill    = 'None'
+            ebeam   = 'None'
+            if (beam == 'NO BEAM') : # Cosmics?
+                fill    = 0
+                ebeam   = 0.
+            else : 
+                fill    = payload['FillNumber']
+                ebeam   = payload['BeamEnergyGeV']
 
-            fill    = payload['FillNumber']
             stable  = payload['StableBeams']
             lhc     = payload['MachineMode']
-            beam    = payload['BeamMode']
-            ebeam   = payload['BeamEnergyGeV']
+
             beg_    = 'None'
             end_    = 'None'
             try:
@@ -894,6 +911,7 @@ def GetConfig(runnumber,options=[]):
     #
     # Read L1 Menu
     #
+    
     itr = GetFolderItrForRun(lvl1menu_foldername,runnumber)
     try:
         while itr.goToNext() :
@@ -906,9 +924,12 @@ def GetConfig(runnumber,options=[]):
             config.L1CtpId2ChainName[itemNo]=name
             config.L1ChainName2CtpId[name]=itemNo
 
+            print "L1 Read ", name, " from DB  id=", itemNo
+
     except Exception,e:
         log.error('Reading data from '+lvl1menu_foldername+' failed: '+str(e))
 
+    print " L1 read ok ",runnumber," size=", len( config.L1CtpId2ChainName)
 
     #
     # Read HLT Menu
@@ -930,18 +951,15 @@ def GetConfig(runnumber,options=[]):
 
             config.ChainName2HLTChain[chain.ChainName]=chain
 
-            if chain.TriggerLevel=='L2':
-                config.L2Counter2HLTChain[chain.ChainCounter] = chain
-            else:
-                config.EFCounter2HLTChain[chain.ChainCounter] = chain
+            if chain.TriggerLevel=='HLT':
+                config.HLTCounter2HLTChain[chain.ChainCounter] = chain
 
             # HLT map: counter <-> name
-            if chain.TriggerLevel=='L2':
-                config.L2Counter2ChainName[chain.ChainCounter]  = chain.ChainName
-                config.L2ChainName2Counter[chain.ChainName] = chain.ChainCounter
-            else:
-                config.EFCounter2ChainName[chain.ChainCounter]  = chain.ChainName
-                config.EFChainName2Counter[chain.ChainName] = chain.ChainCounter
+            if chain.TriggerLevel=='HLT':
+                config.HLTCounter2ChainName[chain.ChainCounter]  = chain.ChainName
+                config.HLTChainName2Counter[chain.ChainName] = chain.ChainCounter
+                print "Read HLT ", chain.ChainName, " from DB"
+
     except Exception,e:
         log.error('Reading data from '+hltmenu_foldername+' failed: '+str(e))
 
@@ -1039,6 +1057,11 @@ def GetConfig(runnumber,options=[]):
             prescale     = Prescale()
             prescale.ps  = payload['Lvl1Prescale']
 
+            #print "itemNo ", itemNo
+            #print  config.L1CtpId2ChainName.has_key(itemNo)
+            #print "name=",config.L1CtpId2ChainName[itemNo]
+            #print " ps=",prescale," PS=",prescale.ps
+
             if not l1keymap.has_key(lb):
                 print "Expected new L1 prescales for new L1 prescale key:",lb,
                 sys.exit(-1)
@@ -1067,9 +1090,9 @@ def GetConfig(runnumber,options=[]):
         while itr.goToNext() :
             obj     = itr.currentRef()
             lb      = (obj.since() & 0xffff)
-            lvl     = "L2"
-            if obj.channelId()%2 == 1:
-                lvl = "EF"
+            lvl     = "HLT"
+            #if obj.channelId()%2 == 1:
+            #    lvl = "EF"
             chainctr= obj.channelId()/2 # div 2?
             payload = obj.payload()
 
@@ -1085,21 +1108,14 @@ def GetConfig(runnumber,options=[]):
                 sys.exit(-1)
 
             pskey = hltkeymap[lb]
-            if not config.L2Prescales.has_key(pskey):
-                config.L2Prescales[pskey]={}
-            if not config.EFPrescales.has_key(pskey):
-                config.EFPrescales[pskey]={}
-
+            if not config.HLTPrescales.has_key(pskey):
+                config.HLTPrescales[pskey]={}
 
             # fill map
-            if lvl=='L2':
-                if config.L2Counter2HLTChain.has_key(chainctr):
-                    chain=config.L2Counter2HLTChain[chainctr]
-                    config.L2Prescales[pskey][chain.ChainName]=prescale
-            else:
-                if config.EFCounter2HLTChain.has_key(chainctr):
-                    chain=config.EFCounter2HLTChain[chainctr]
-                    config.EFPrescales[pskey][chain.ChainName]=prescale
+            if lvl=='HLT':
+                if config.HLTCounter2HLTChain.has_key(chainctr):
+                    chain=config.HLTCounter2HLTChain[chainctr]
+                    config.HLTPrescales[pskey][chain.ChainName]=prescale
 
     except Exception,e:
         log.error('Reading data from '+hltps_foldername+' failed: '+str(e))
@@ -1422,8 +1438,7 @@ def GetRates(runnumber,lb_beg,lb_end,options=[]):
         sys.exit(-1)
 
     # Add HLT
-    collection.AddHLT( GetHLTRates(runnumber,config,lbset,lb_beg,lb_end,'L2',options) )
-    collection.AddHLT( GetHLTRates(runnumber,config,lbset,lb_beg,lb_end,'EF',options) )
+    collection.AddHLT( GetHLTRates(runnumber,config,lbset,lb_beg,lb_end,'HLT',options) )
     collection.SetRun( runnumber )
 
     return collection
@@ -1445,9 +1460,7 @@ def GetHLTRates(runnumber, config, lbset, lb_beg, lb_end, lvl, options=[]):
     #
     # Read Counters
     #
-    hltcounters_foldername = '/TRIGGER/LUMI/LVL2COUNTERS'
-    if lvl=="EF":
-        hltcounters_foldername = '/TRIGGER/LUMI/EFCOUNTERS'
+    hltcounters_foldername = '/TRIGGER/LUMI/HLTCOUNTERS'
     itr = GetFolderItrForRun(hltcounters_foldername, runnumber)
     try:
         while itr.goToNext():
@@ -1551,9 +1564,8 @@ def FillHLTChain(chain, pos, blob, lb, lvl, config, lbset, bloblength):
     chain.SetLb(lb)
 
     # Find name from counter
-    findL2 = bool(lvl=='L2' and not config.L2Counter2ChainName.has_key(chainctr))
-    findEF = bool(lvl=='EF' and not config.EFCounter2ChainName.has_key(chainctr))
-    if (findL2 or findEF) and counts:
+    findHLT = bool(lvl=='HLT' and not config.HLTCounter2ChainName.has_key(chainctr))
+    if (findHLT) and counts:
         if int(counts.AfterPrescale)!=0:
             log.warning("Counts for %s item %d with no name? %s %d %d %d" % (
                 lvl,
@@ -1566,17 +1578,14 @@ def FillHLTChain(chain, pos, blob, lb, lvl, config, lbset, bloblength):
     if counts != None:
 
         # Chain name
-        name = ''
-        if   lvl=='L2': name = config.L2Counter2ChainName[chainctr]
-        elif lvl=='EF': name = config.EFCounter2ChainName[chainctr]
+        name = config.HLTCounter2ChainName[chainctr]
         chain.SetName(name)
 
         # Check LB range for prescale values
         ps = 0
         for ps_range in config.PrescaleRanges:
             if ps_range.FirstLB() <= lb <= ps_range.LastLB():
-                if   lvl=='L2': ps = config.L2Prescales[ps_range.hltkey][name].ps
-                elif lvl=='EF': ps = config.EFPrescales[ps_range.hltkey][name].ps
+                ps = config.HLTPrescales[ps_range.hltkey][name].ps
 
         chain.SetPrescale(ps)
 
