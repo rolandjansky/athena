@@ -22,15 +22,41 @@ from TrigCostAnalysis import *              ;
 def ReadXmlFile(filename):
 
     # map from number to string level
-    lvlmap = { '1':'L1', '2':'L2', '3':'EF' }
+    lvlmap = { '1':'L1', '2':'HLT' }
 
     result = CostResult()
 
     def GetData(nodelist, name):
+
+        if name == 'prescale' : return GetPrescaleData(nodelist)
         #print name,[x.nodeName for x in nodelist]
 
         for val in nodelist:
             if val.nodeName != name:
+                continue
+
+            svalue = ""
+            icount = int(0)
+            for s in val.childNodes:
+                icount = icount+1
+                svalue = s.data
+
+            if icount == 1:
+                return svalue.strip()
+            elif icount == 0:
+                return ''
+            elif icount > 1 :
+                raise Exception('ReadXmlFile - Node has multiple data entries')
+
+        raise Exception('ReadXmlFile - failed to find data, '+name)
+        return ""
+    
+    def GetPrescaleData(nodelist):
+        #print name,[x.nodeName for x in nodelist]
+
+        for val in nodelist:
+            #print val.nodeName
+            if val.nodeName != 'prescale' and val.nodeName != 'chain_prescale' and val.nodeName != 'chain_precale':
                 continue
 
             svalue = ""
@@ -90,10 +116,8 @@ def ReadXmlFile(filename):
             # using TRP compatible level names
             if lvl_name=="L1":
                 ch.SetName("L1_L1A")
-            if lvl_name=="L2":
-                ch.SetName("L2_total_physics")
-            if lvl_name=="EF":
-                ch.SetName("EF_recording_physics")
+            if lvl_name=="HLT":
+                ch.SetName("HLT_recording_physics")
 
             ch.SetLevel(lvl_name)
             result.SetChain(ch.GetName(),ch)
@@ -119,7 +143,7 @@ def ReadXmlFile(filename):
 
                 ch.SetName(GetData(sig.childNodes, "sig_name"))
                 ch.SetLevel(lvl_name)
-                ch.SetPrescale(string.atof(GetData(sig.childNodes, 'prescale')))
+                ch.SetPrescale(string.atof(GetPrescaleData(sig.childNodes)))
                 ch.SetPassthrough(string.atof(GetData(sig.childNodes, 'passthrough')))
                 ch.SetRate(string.atof(GetData(sig.childNodes, 'rate')))
                 ch.SetRateErr(string.atof(GetData(sig.childNodes, 'rate_err')))
@@ -156,7 +180,7 @@ def ReadXmlFile(filename):
 
                     # add stream tag to TriggerCost streams
                     if gtype == 'Stream':
-                        name = name.replace("EF_","EF_str_")
+                        name = name.replace("HLT_","HLT_str_")
 
                     ch.SetName(name)
                     ch.SetIsGroup(True)
@@ -187,7 +211,7 @@ def WriteXmlFile(filename,rates,lbset=None):
     xout.write('<trigger>\n')
 
 
-    for lvl in ['L1','L2','EF']:
+    for lvl in ['L1','HLT']:
         xout.write('  <level>\n')
         xout.write('    <lvl_name>'+lvl+'</lvl_name>\n')
 
@@ -212,8 +236,8 @@ def WriteXmlFile(filename,rates,lbset=None):
                            +'</rate>\n')
             xout.write('      <rate_err>'                +str(ch.GetAttrWithDefault("rateerr",0))\
                            +'</rate_err>\n')
-            xout.write('      <prescale>'                +str(ch.GetAttrWithDefault("prescale",0))\
-                           +'</prescale>\n')
+            xout.write('      <chain_prescale>'                +str(ch.GetAttrWithDefault("prescale",0))\
+                           +'</chain_prescale>\n')
             xout.write('      <passthrough>'             +str(ch.GetAttrWithDefault("passthrough",0))\
                            +'</passthrough>\n')
             xout.write('      <lower_chain_name>'        +str(ch.GetAttrWithDefault("lowerchain",""))\
@@ -231,7 +255,7 @@ def WriteXmlFile(filename,rates,lbset=None):
         xout.write('  </level>\n')
 
 
-    for lvl in ['L1','L2','EF']:
+    for lvl in ['L1','HLT']:
 
         for chname in rates.GetChainNames(lvl):
             ch = rates.GetChain(chname)
@@ -255,8 +279,8 @@ def WriteXmlFile(filename,rates,lbset=None):
                            +'</rate>\n')
             xout.write('      <rate_err>'                +str(ch.GetAttrWithDefault("rateerr",0))\
                            +'</rate_err>\n')
-            xout.write('      <prescale>'                +str(ch.GetAttrWithDefault("prescale",0))\
-                           +'</prescale>\n')
+            xout.write('      <chain_prescale>'                +str(ch.GetAttrWithDefault("prescale",0))\
+                           +'</chain_prescale>\n')
             xout.write('      <passthrough>'             +str(ch.GetAttrWithDefault("passthrough",0))\
                            +'</passthrough>\n')
             xout.write('      <efficiency>'              +str(ch.GetAttrWithDefault("efficiency",0))\

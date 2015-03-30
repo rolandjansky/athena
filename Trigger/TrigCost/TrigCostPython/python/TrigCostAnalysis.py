@@ -147,7 +147,7 @@ class CostChain:
         else:
             return default
 
-    lvlmap = { 'L1':1, 'L2':2, 'EF':3 }
+    lvlmap = { 'L1':1, 'HLT':2 }
 
     def GetName(self)            : return self.name
     def IsGroup(self)            : return self.isgroup
@@ -155,7 +155,15 @@ class CostChain:
     def GetRateErr(self)         : return self.GetAttrWithCheck("rateerr")
     def GetLevel(self)           : return self.level
     def GetLevelNum(self)        : return CostChain.lvlmap[self.level]
-    def GetPrescale(self)        : return self.GetAttrWithCheck("prescale")
+    def GetPrescale(self)        :
+        if hasattr(self,"prescale"):
+            return getattr(self,"prescale")
+        elif  hasattr(self,"chain_prescale"):
+            return getattr(self,"chain_prescale")
+        elif  hasattr(self,"chain_precale"):
+            return getattr(self,"chain_precale")
+        else :
+           raise VarNotAvailable("Requested attribute prescale not loaded, chain="+self.GetName())
     def GetPassthrough(self)     : return self.GetAttrWithCheck("passthrough")
     def GetRerun(self)           : return self.GetAttrWithCheck("rerun")
     def GetLowerChain(self)      :
@@ -311,12 +319,10 @@ class CostResult:
                      if ch.GetLevel()==lvl]
 
     def GetL1ChainNames(self): return self.GetChainNames('L1')
-    def GetL2ChainNames(self): return self.GetChainNames('L2')
-    def GetEFChainNames(self): return self.GetChainNames('EF')
+    def GetHLTChainNames(self): return self.GetChainNames('HLT')
 
     def GetL1Chains(self): return self.GetChains('L1')
-    def GetL2Chains(self): return self.GetChains('L2')
-    def GetEFChains(self): return self.GetChains('EF')
+    def GetHLTChains(self): return self.GetChains('HLT')
 
     #    def GetChains(self): return self.chains.values()
     def GetChain(self,chname):
@@ -361,8 +367,7 @@ class CostResultCollection:
             return self.results[lb].GetChainNames(lvl)
         return []
     def GetL1ChainNames(self): return self.GetChainNames('L1')
-    def GetL2ChainNames(self): return self.GetChainNames('L2')
-    def GetEFChainNames(self): return self.GetChainNames('EF')
+    def GetHLTChainNames(self): return self.GetChainNames('HLT')
 
 
     def FirstLB(self): return self.lbbeg
@@ -411,7 +416,7 @@ class CostResultCollection:
         if len(self.results)==0: return
         lbrange = self.LBRange()
         print "\nLB Range("+str(self.lbbeg)+","+str(self.lbend)+")"
-        for lvl in ['L1','L2','EF']:
+        for lvl in ['L1','HLT']:
             print "\n-------------------------------------------------------------------------",
             print "\n%-45s %4s" % ("Rates for %s" % lvl, "LB="),
             for lb in lbrange: print "% 7d" % lb,
@@ -497,18 +502,14 @@ class RunConfig:
         self.ChainName2HLTChain  = {} # to HLTChain object (contains counter)
 
         self.L1CtpId2ChainName   = {}
-        self.L2Counter2HLTChain  = {} # to HLTChain object
-        self.EFCounter2HLTChain  = {} # to HLTChain object
+        self.HLTCounter2HLTChain  = {} # to HLTChain object
 
         self.PrescaleRanges = []
         self.L1Prescales    = {} # map from l1key to prescales
-        self.L2Prescales    = {} # map from hltkey to prescales
-        self.EFPrescales    = {} # map from hltkey to prescales
+        self.HLTPrescales    = {} # map from hltkey to prescales
 
-        self.L2ChainName2Counter = {}
-        self.EFChainName2Counter = {}
-        self.L2Counter2ChainName = {}
-        self.EFCounter2ChainName = {}
+        self.HLTChainName2Counter = {}
+        self.HLTCounter2ChainName = {}
 
     def GetPrescaleRanges(self): return self.PrescaleRanges
 
