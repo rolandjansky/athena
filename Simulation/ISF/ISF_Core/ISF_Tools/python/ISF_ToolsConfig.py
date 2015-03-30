@@ -38,6 +38,9 @@ def getMC15EntryLayerFilter(name="ISF_MC15EntryLayerFilter", **kwargs):
     from ISF_Tools.ISF_ToolsConf import ISF__EntryLayerFilter
     return ISF__EntryLayerFilter(name, **kwargs  )
 
+def getMC15aEntryLayerFilter(name="ISF_MC15aEntryLayerFilter", **kwargs):
+    return getMC15EntryLayerFilter(name, **kwargs)
+
 def getValidationEntryLayerFilter(name="ISF_ValidationEntryLayerFilter", **kwargs):
     return getMC12EntryLayerFilter(name, **kwargs)
 
