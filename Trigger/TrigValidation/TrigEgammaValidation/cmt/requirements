@@ -25,7 +25,7 @@ macro TrigEgammaValidation_TestConfiguration "../test/TrigEgammaValidation_TestC
 apply_pattern declare_runtime files="*.C *.py *.root *.xml" extras="-s=../test TrigEgammaValidation_TestConfiguration.xml"
 #apply_pattern declare_runtime extras="../test/TrigEgammaValidation_TestConfiguration.xml ../share/TrigEgammaValidation_RTT_*.py" 
 
-apply_pattern declare_joboptions files="TrigInDetValidation_RTT_*.py testAthenaTrigRDOtoAOD.py testNavZeeTPExample.py"
+apply_pattern declare_joboptions files="TrigInDetValidation_RTT_*.py testAthenaTrigEgammaZeeRDOtoAOD.py testNavZeeTPExample.py"
 
 apply_pattern declare_docs  files="-s=../doc/Summary-dev *.php *.html content.xml style.css *.gif"
 
