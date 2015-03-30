@@ -89,9 +89,6 @@ class egammaMVACalib : public asg::AsgMessaging
 	bool external;
     };
 
- egammaMVACalib() :asg::AsgMessaging("egammaMVACalib")
-      { ATH_MSG_DEBUG ("** DEFAULT **");}
-
     /** Constructor
       * @param particle : photon or electron, @see egammaType
       * @param newBDTs  : use new BDTs or TMVA ones

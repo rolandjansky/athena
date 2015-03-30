@@ -1,7 +1,8 @@
+#! /usr/bin/env python
+
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 import unittest
-import math
 import ROOT
 
 
@@ -34,22 +35,27 @@ def xAOD_photon_generator(tree):
 class TestEgammaMVACalib(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.photon_tool = ROOT.egammaMVACalib(ROOT.egammaMVACalib.egPHOTON, True, "egammaMVACalib/v1")
-        cls.electron_tool = ROOT.egammaMVACalib(ROOT.egammaMVACalib.egELECTRON, True, "egammaMVACalib/v1")
+        cls.photon_tool_v1 = ROOT.egammaMVACalib(ROOT.egammaMVACalib.egPHOTON, True, "egammaMVACalib/v1")
+        cls.electron_tool_v1 = ROOT.egammaMVACalib(ROOT.egammaMVACalib.egELECTRON, True, "egammaMVACalib/v1")
+        cls.photon_tool_v3 = ROOT.egammaMVACalib(ROOT.egammaMVACalib.egPHOTON, True, "/home/turra/v3_tmp")
+        cls.electron_tool_v3 = ROOT.egammaMVACalib(ROOT.egammaMVACalib.egELECTRON, True, "/home/turra/v3_tmp")
+        cls.photon_tool_v3_online = ROOT.egammaMVACalib(ROOT.egammaMVACalib.egPHOTON, True, "/home/turra/v3_tmp/trigger")
+        cls.electron_tool_v3_online = ROOT.egammaMVACalib(ROOT.egammaMVACalib.egELECTRON, True, "/home/turra/v3_tmp/trigger")
 
-        cls.photon_tool.useClusterIf0(False)
-        cls.electron_tool.useClusterIf0(False)
+        cls.tools = (cls.photon_tool_v1, cls.electron_tool_v1,
+                     cls.photon_tool_v3, cls.electron_tool_v3,
+                     cls.photon_tool_v3_online, cls.electron_tool_v3_online)
 
-        cls.photon_tool.InitTree(0)
-        cls.electron_tool.InitTree(0)
+        for t in cls.tools:
+            t.InitTree(0)
 
     def test_energy_v1_weights(self):
         """
         test for some fixed case if using run1 weights (v1) the tool reproduces
         the same outputs +/- 1 MeV
         """
-        photon_tool = ROOT.egammaMVACalib(ROOT.egammaMVACalib.egPHOTON, True, "egammaMVACalib/v1")
-        electron_tool = ROOT.egammaMVACalib(ROOT.egammaMVACalib.egELECTRON, True, "egammaMVACalib/v1")
+        photon_tool = self.photon_tool_v1
+        electron_tool = self.electron_tool_v1
         photon_tool.InitTree(0)
         electron_tool.InitTree(0)
         # first example
@@ -159,28 +165,51 @@ class TestEgammaMVACalib(unittest.TestCase):
         self.assertGreater(tree.GetEntries(), 0)
 
     def test_coverage(self):
+        for tool in self.tools:
+            tool.useClusterIf0(False)
+
         for rconv in (0, 117):
             for eta in arange(-3, 3, 0.01):
                 inputs = (12222.08, 49425.33, 89170.18, 655.61, eta, 160612.73, eta,
                           2.060981035232544, 71608.8984375, 49311.08984375, 22297.919921875,
                           2, 10, 0, 10, rconv)
-                mva_energy = self.photon_tool.getMVAEnergyPhoton(*inputs)
-                if 1.370001 < abs(eta) < 1.5199999 or abs(eta) > 2.4700001:
-                    self.assertEqual(mva_energy, 0)
+                mva_energy_v1 = self.photon_tool_v1.getMVAEnergyPhoton(*inputs)
+                mva_energy_v3 = self.photon_tool_v3.getMVAEnergyPhoton(*inputs)
+                is_crack = 1.370001 < abs(eta) < 1.5199999
+                is_forward = abs(eta) > 2.4700001
+                if is_crack:
+                    self.assertEqual(mva_energy_v1, 0)
+                    self.assertGreater(mva_energy_v3, 0)
+                elif is_forward:
+                    self.assertEqual(mva_energy_v1, 0)
+                    self.assertEqual(mva_energy_v3, 0)
                 else:
-                    self.assertGreater(mva_energy, 0)
+                    self.assertGreater(mva_energy_v1, 0)
+                    self.assertGreater(mva_energy_v3, 0)
 
         for eta in arange(-3, 3, 0.01):
             inputs = (2943.845703125, 20473.12109375, 22390.435546875, 275.47125244140625,
                       eta, 48970.80859375, eta, 2.843465566635132)
-            mva_energy = self.electron_tool.getMVAEnergyElectron(*inputs)
-            if 1.370001 < abs(eta) < 1.5199999 or abs(eta) > 2.4700001:
-                self.assertEqual(mva_energy, 0)
+            mva_energy_v1 = self.electron_tool_v1.getMVAEnergyElectron(*inputs)
+            mva_energy_v3 = self.electron_tool_v3.getMVAEnergyElectron(*inputs)
+            is_crack = 1.370001 < abs(eta) < 1.5199999
+            is_forward = abs(eta) > 2.4700001
+            if is_crack:
+                self.assertEqual(mva_energy_v1, 0)
+                self.assertGreater(mva_energy_v3, 0)
+            elif is_forward:
+                self.assertEqual(mva_energy_v1, 0)
+                self.assertEqual(mva_energy_v3, 0)
             else:
-                self.assertGreater(mva_energy, 0)
+                self.assertGreater(mva_energy_v1, 0)
+                self.assertGreater(mva_energy_v3, 0)
+
+        for tool in self.tools:
+            tool.useClusterIf0(True)
 
     def test_tool_initialization(self):
         tool = ROOT.egammaMVATool('the_tool')
+        self.assertTrue(tool)
 
 
 class TestEgammaMVATool(unittest.TestCase):
@@ -228,7 +257,6 @@ class TestEgammaMVATool(unittest.TestCase):
                 break
         print "tested %d photons" % i
         self.assertGreater(i, 10, msg="too few photons")
-
 
 
 class TestEgammaMVATrigger(unittest.TestCase):

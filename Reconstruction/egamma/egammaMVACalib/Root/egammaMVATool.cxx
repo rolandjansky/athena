@@ -43,7 +43,7 @@ egammaMVATool::egammaMVATool( const std::string &name )
 {
 
   // Configurable properties...
-  declareProperty("folder", m_folder="egammaMVACalib/v2");//, "folder with weight files");
+  declareProperty("folder", m_folder="egammaMVACalib/offline/v3");//, "folder with weight files");
 }
 
 StatusCode egammaMVATool::initialize(){
