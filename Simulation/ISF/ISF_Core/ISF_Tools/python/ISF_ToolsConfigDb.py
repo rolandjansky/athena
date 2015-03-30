@@ -21,5 +21,6 @@ addTool("ISF_Tools.ISF_ToolsConfig.getCosmicEventFilterTool"                , "I
 addTool("ISF_Tools.ISF_ToolsConfig.getInToOutSubDetOrderingTool"            , "ISF_InToOutSubDetOrderingTool"       )
 addTool("ISF_Tools.ISF_ToolsConfig.getParticleOrderingTool"                 , "ISF_ParticleOrderingTool"            )
 addTool("ISF_Tools.ISF_ToolsConfig.getMC12EntryLayerFilter"                 , "ISF_MC12EntryLayerFilter"            )
+addTool("ISF_Tools.ISF_ToolsConfig.getMC15aEntryLayerFilter"                , "ISF_MC15aEntryLayerFilter"           )
 addTool("ISF_Tools.ISF_ToolsConfig.getMC15EntryLayerFilter"                 , "ISF_MC15EntryLayerFilter"            )
 addTool("ISF_Tools.ISF_ToolsConfig.getValidationEntryLayerFilter"           , "ISF_ValidationEntryLayerFilter"      )
