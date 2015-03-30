@@ -489,13 +489,17 @@ StatusCode IDAlignMonGenericTracks::initialize()
   }
   
   // retrieving trackToVertexIPEstimator
-  if ( m_trackToVertexIPEstimator.retrieve().isFailure() ) {
-    ATH_MSG_DEBUG( "Failed to retrieve tool " << m_trackToVertexIPEstimator);
-    m_trackToVertexIPEstimator = 0;
-  } else {
-    ATH_MSG_DEBUG( "Retrieved tool " << m_trackToVertexIPEstimator);  
+  //if ( m_trackToVertexIPEstimator.retrieve().isFailure() ) {
+  //  ATH_MSG_DEBUG( "Failed to retrieve tool " << m_trackToVertexIPEstimator);
+  //m_trackToVertexIPEstimator = 0;
+  //} else {
+  //ATH_MSG_DEBUG( "Retrieved tool " << m_trackToVertexIPEstimator);  
+  //}
+
+  if (m_doIP) {
+    ATH_CHECK (m_trackToVertexIPEstimator.retrieve());
   }
-  
+    
   if(m_extendedPlots){
     if ( m_beamCondSvc.retrieve().isFailure() ) {
       if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Failed to retrieve beamspot service " << m_beamCondSvc << " - will use nominal beamspot at (0,0,0)" << endreq;
