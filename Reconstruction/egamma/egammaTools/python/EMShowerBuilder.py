@@ -10,10 +10,10 @@ from egammaRec import egammaKeys
 from egammaCaloTools.egammaCaloToolsFactories import egammaShowerShape, \
   egammaIso
 
-import ROOT, PyCintex
+import ROOT, cppyy
 # Need to be sure base dict is loaded first.
-PyCintex.loadDictionary('xAODCoreRflxDict')
-PyCintex.loadDictionary('xAODPrimitivesDict')
+cppyy.loadDictionary('xAODCoreRflxDict')
+cppyy.loadDictionary('xAODPrimitivesDict')
 EgammaParameters = ROOT.xAOD.Iso
 
 from CaloIdentifier import SUBCALO        
