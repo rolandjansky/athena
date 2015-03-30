@@ -40,6 +40,9 @@ from CoolRunQuery.AtlRunQueryRun         import Run
 from CoolRunQuery.AtlRunQueryQueryConfig import QC
 
 
+
+
+
 # -----------------------------------------------------------------------------------------
 # class: AtlRunQuery
 # -----------------------------------------------------------------------------------------
@@ -202,12 +205,12 @@ class AtlRunQuery:
         # find the begin and end of each interesting run
         runlist = rtSel.select()
 
-        # if Selector.condDB()=="CONDBR2":
-        #     self.cmdlineOptions.show = [x for x in self.cmdlineOptions.show if x not in ["lhc","olclumi","olcfillparams","olclbdata"]]
-        #     self.cmdlineOptions.partition=None
-        #     self.cmdlineOptions.projecttag=None
-        #     print "Pre-run2 selection removed partition and projecttag from querying"
-        #     print "Pre-run2 selection removed lhc, olc from showing. Modified show list: %r" % self.cmdlineOptions.show
+        if Selector.condDB()=="CONDBR2":
+            self.cmdlineOptions.show = [x for x in self.cmdlineOptions.show if x not in ["lhc","olclumi","olcfillparams","olclbdata"]]
+            self.cmdlineOptions.partition=None
+            self.cmdlineOptions.projecttag=None
+            print "Pre-run2 selection removed partition and projecttag from querying"
+            print "Pre-run2 selection removed lhc, olc from showing. Modified show list: %r" % self.cmdlineOptions.show
             
         self.selectionOutput += ["%s" % rtSel]
 
@@ -267,25 +270,25 @@ class AtlRunQuery:
 
 
         # create XML file (and return pretty html output for print)
-        if self.prodgrl:
-            with timer('CreateXMLFile'):
+        with timer('CreateXMLFile'):
+            if self.prodgrl:
                 print "Producing XML file"
                 from CoolRunQuery.output.AtlRunQueryXML import CreateXMLFile
                 from .AtlRunQueryVersion import SvnVersion
                 xmlhtmlstr = CreateXMLFile( runlist, self.cmdlineOptions, self.origQuery, self.datapath,
                                             self.xmlFileName, self.xmlFileLabel, SvnVersion )
-        else:
-            xmlhtmlstr = None
-            print "Creation of GRL disabled"
+            else:
+                xmlhtmlstr = None
+                print "Creation of GRL disabled"
 
-        if self.dictroot and len(runlist) > 0:
-            with timer('CreateRootFile'):
+        with timer('CreateRootFile'):
+            if self.dictroot and len(runlist) > 0:
                 # create root file from dictionary - and make plots
                 from CoolRunQuery.output.AtlRunQueryRoot import CreateRootFile
                 rootfilename, roothtmlstr = CreateRootFile( dic )
-        else:
-            roothtmlstr = None
-            print "Creation of root file disabled"
+            else:
+                roothtmlstr = None
+                print "Creation of root file disabled"
 
         return (dic, dicsum, xmlhtmlstr, roothtmlstr)
         
@@ -317,7 +320,7 @@ class AtlRunQuery:
                          'querytime'     : time() - self.querystart,
                          'selout'        : self.selectionOutput,
                          }
-            with timer("run ResultPageMaker makePage"):
+            with timer("run page maker"):
                 ResultPageMaker.makePage(pageinfo)
             #except ImportError, ie:
             #    print "Can't import pagemaker, no web page made",ie
