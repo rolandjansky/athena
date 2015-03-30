@@ -156,6 +156,8 @@ namespace InDet {
         break;
       }
     }
+
+    if(!tp) return 0;
     
     //
     // --- Need to compute a global position covariance matrix as J.C.JT
@@ -498,7 +500,7 @@ namespace InDet {
       if(Rfirst < m_minInitR_noBLay)
       {
         ATH_MSG_DEBUG("No BLayer hit expected. Radius of first hit (" << 
-                      Rfirst << ") below minimum: " << m_minInitR);
+                      Rfirst << ") below minimum: " << m_minInitR_noBLay);
         return false;
       }
     }
