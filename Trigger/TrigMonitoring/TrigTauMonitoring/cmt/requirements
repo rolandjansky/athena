@@ -21,9 +21,13 @@ use TrigDecisionTool      TrigDecisionTool-*      Trigger/TrigAnalysis
 use TrigHLTMonitoring     TrigHLTMonitoring-*     Trigger/TrigMonitoring
 use tauEvent              tauEvent-*              Reconstruction
 use VxVertex              VxVertex-*              Tracking/TrkEvent
+use TrigConfHLTData       TrigConfHLTData-*       Trigger/TrigConfiguration
 
 use xAODTau		  xAODTau-*		  Event/xAOD
 use xAODTrigger		  xAODTrigger-*		  Event/xAOD
+use xAODTruth             xAODTruth-*             Event/xAOD 
+use xAODEventInfo	  xAODEventInfo-*	  Event/xAOD
+use xAODTracking          xAODTracking-*          Event/xAOD
 
 public
 

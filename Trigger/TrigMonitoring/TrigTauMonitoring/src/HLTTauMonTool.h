@@ -22,6 +22,8 @@
 #include "TrigHLTMonitoring/IHLTMonTool.h"
 #include "TrigDecisionInterface/ITrigDecisionTool.h"
 #include "tauEvent/TauJet.h"
+#include "xAODTruth/TruthParticleContainer.h"
+#include "xAODTruth/TruthParticle.h"
 // Forward declarations
 class StatusCode;
 
@@ -65,49 +67,99 @@ class HLTTauMonTool : public IHLTMonTool {
 
   /// Method books the histograms for one tau trigger item.
   void bookHistogramsForItem(const std::string & trigItem);
-  
+  void bookHistogramsAllItem();  
   /// Method filling the L1 RoI  histograms
-  StatusCode fillL1ForItem(const std::string & trigItem);
+  //StatusCode fillL1ForItem(const std::string & trigItem);
+  StatusCode fillL1Tau(const xAOD::EmTauRoI * aL1Tau);
 
   /// Method filling the efficiency histograms
-  StatusCode fillEfficiency(const std::string & trigItem);
+//  StatusCode fillEfficiency(const std::string & trigItem);
 
   /// Method filling the EF tau histograms
-  void fillEFTau(const xAOD::TauJet *aEFTau);
-
-  /// Method filling the EV vs Offline tau histograms
-  void fillEFTauVsOffline(const xAOD::TauJet *aEFTau);
+  StatusCode fillPreselTau(const xAOD::TauJet *aEFTau);
+  StatusCode fillEFTau(const xAOD::TauJet *aEFTau, const std::string & trigItem, const std::string & BDTinput_type);
+  /// Method filling the EF vs Offline tau histograms
+  StatusCode fillEFTauVsOffline(const xAOD::TauJet *aEFTau, const std::string & trigItem, const std::string & BDTinput_type);
+  StatusCode fillPreselTauVsOffline(const xAOD::TauJet *aEFTau);
+  StatusCode fillL1TauVsOffline(const xAOD::EmTauRoI *aEFTau);
+  StatusCode fillEFTauVsTruth(const xAOD::TauJet *aEFTau, const std::string & trigItem);  
 
   /// Method finds  LVL1_ROI object corresponding to  given TrigRoiDescriptor
   const xAOD::EmTauRoI * findLVL1_ROI(const TrigRoiDescriptor * roiDesc);
 
+  /// Method for Turn On Curves
+  void examineTruthTau(const xAOD::TruthParticle& xTruthParticle) const;
+  StatusCode TruthTauEfficiency(const std::string & trigItem, const std::string & TauCont_type);
+  StatusCode RecoTauEfficiency(const std::string & trigItem);
+
+  //Methods for HLT and L1 Matching
+  bool HLTTauMatching(const std::string & trigItem, const TLorentzVector & TLV, double DR);
+  bool L1TauMatching(const std::string & trigItem, const TLorentzVector & TLV, double DR);
+  StatusCode test2StepTracking();
+  void testClusterNavigation(const xAOD::TauJet *aEFTau);
+  bool Selection(const xAOD::TauJet *aTau);
+  bool Selection(const xAOD::EmTauRoI *aTau);
+  int m_selection_nTrkMax, m_selection_nTrkMin;
+  float m_selection_ptMax, m_selection_ptMin;
+  float m_selection_absEtaMax, m_selection_absEtaMin;
+  float m_selection_absPhiMax, m_selection_absPhiMin; 
+
+  StatusCode Emulation(const std::string & trigItem, const std::string & level);
+  std::string LowerChain(std::string hlt_item);
   /// Method for managing the histogram divisions
   void divide(TH1 *num, TH1 *den, TH1 *quo);
-
+  void divide(TH2 *num, TH2 *den, TH2 *quo);
+  void divide(const std::string & h_name_num, const std::string & h_name_den, const std::string & h_name_div, const std::string & dir);
+  void divide2(const std::string & h_name_num, const std::string & h_name_den, const std::string & h_name_div, const std::string & dir);
   float deltaPhi(float phi1, float phi2);
   float deltaR(float eta1, float eta2, float phi1, float phi2);
   float deltaR(const xAOD::TauJet* aEFTau, const xAOD::EmTauRoI* l1Tau);
-
+  void plotUnderOverFlow(TH1* hist);
+  void cloneHistogram(const std::string name, const std::string folder); 
+  void cloneHistogram2(const std::string name, const std::string folder);
   /* StatusCode OfflineEfficiency(const std::string & trigItem); */
   /* StatusCode OfflineEfficiencyBDTMedium(const std::string & trigItem); */
   bool Match_Offline_L1(const xAOD::TauJet *aOfflineTau, const std::string & trigItem);
   bool Match_Offline_EF(const xAOD::TauJet *aOfflineTau, const std::string & trigItem);
-
+  int PrimaryVertices();
+  float Pileup();
   void FillRelDiffHist(TH1 * hist, float val1, float val2, float checkVal, int checkMode);
+  template<class T> void FillRelDiffProfile(TProfile * prof, float val1, float val2, T val3, float checkVal, int checkMode);
 
-  bool m_fakeJetEff;
-  bool m_offlineEff;
-  bool m_offlineEffBDTMedium;
   bool m_TracksInfo;
+  bool m_turnOnCurves;
+  bool m_truth;
+  bool m_doTestTracking;
+  bool m_emulation;
+
+  unsigned int m_L1flag;
+  unsigned int m_Preselectionflag;
+  unsigned int m_HLTflag;
+  bool m_doIncludeL1deactivateTE;
+  bool m_doIncludePreseldeactivateTE;
+  bool m_doIncludeHLTdeactivateTE;
+
+
+
+
+
   ///Name of the trigger items to be monitored.
   ///Set by job options
   std::vector<std::string> m_trigItems;
+  std::vector<std::string> m_trigItemsAll;
   std::vector<std::string> m_primary_tau;
   std::vector<std::string> m_monitoring_tau;
   std::vector<std::string> m_prescaled_tau;
 
+  std::string m_lowest_singletau;
+  std::string m_lowest_ditau;
+  std::string m_lowest_etau;
+  std::string m_lowest_mutau;
+  std::string m_lowest_mettau;
+
   // offline tau pt threshold for efficiency plots as a function of eta, phi, and nvtx
   double m_effOffTauPtCut;
+
 };
 
 #endif
