@@ -488,6 +488,7 @@ namespace InDet
 	    else{
 	      ATH_MSG_WARNING("Unknown type of vertex");
 	      delete myVertex;
+	      myVertex = 0;
 	    }
 
 	    if(myVertex){
@@ -520,6 +521,7 @@ namespace InDet
 	  }else {
             ATH_MSG_DEBUG("VxCandidate failed the post selection cuts!");
             delete myVertex;
+	    myVertex = 0;
           }
         } else {
           ATH_MSG_DEBUG("VertexFit was NOT successful!");
