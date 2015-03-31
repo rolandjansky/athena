@@ -338,6 +338,12 @@ if evgenConfig.saveJets:
     StreamEVGEN.ItemList += ["xAOD::JetContainer_v1#*"]
     StreamEVGEN.ItemList += ["xAOD::JetAuxContainer_v1#*.TruthLabelID.PartonTruthLabelID"]
 
+# Remove any requested items from the ItemList so as not to write out
+for removeItem in evgenConfig.doNotSaveItems: StreamEVGEN.ItemList.remove( removeItem )
+
+# Allow (re-)addition to the output stream
+for addItem in evgenConfig.extraSaveItems: StreamEVGEN.ItemList += [ addItem ]
+
 ## Set the run numbers
 svcMgr.EventSelector.RunNumber = runArgs.runNumber
 # TODO: set EventType::mc_channel_number = runArgs.runNumber
