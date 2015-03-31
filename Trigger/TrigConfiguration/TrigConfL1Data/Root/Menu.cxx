@@ -7,6 +7,7 @@
 #include "TrigConfL1Data/TriggerItem.h"
 #include "TrigConfL1Data/HelperFunctions.h"
 #include <iostream>
+#include <iomanip>
 
 using namespace std;
 using namespace TrigConf;
@@ -27,6 +28,7 @@ TrigConf::Menu::bunchgroupMask() const {
    return bgmask;
 }
 
+#ifndef __COVERITY__
 void TrigConf::Menu::addTriggerItem(TriggerItem* ti) {
    // they all work:
    // pair<item_by_ctpid_iterator, bool> ins = item_by_ctpid().insert(ti);
@@ -37,6 +39,7 @@ void TrigConf::Menu::addTriggerItem(TriggerItem* ti) {
       throw runtime_error("Menu insertion of TriggerItem failed");
    }
 }
+#endif
 
 void TrigConf::Menu::addThresholdMonitor(ThresholdMonitor* thrm) {
    m_ThresholdMonitorVector.push_back(thrm);
@@ -49,6 +52,15 @@ void TrigConf::Menu::addPit(PIT* pit) {
 
 void TrigConf::Menu::addTip(TIP* tip) {
 	m_TIPs.push_back(tip);
+}
+
+void 
+TrigConf::Menu::addLutOutputName(unsigned int lutCounter, const std::string & lutCondition) {
+   if( m_LUT.find(lutCounter) != m_LUT.end()) {
+      cerr << "WARNING Menu: insertion of LUT output (counter " << lutCounter << ", name " << lutCounter << ") failed, uniqueness constraint violated." << endl;
+      return;
+   }
+   m_LUT[lutCounter] = lutCondition;
 }
 
 
@@ -127,6 +139,7 @@ TrigConf::Menu::compareTo(const Menu* o) const {
 
 
 
+#ifndef __COVERITY__
 void
 TrigConf::Menu::clear() {
    m_ThresholdConfig.clear();
@@ -140,10 +153,28 @@ TrigConf::Menu::clear() {
    for( PIT* pit : m_PITs) delete pit;
    m_PITs.clear();
 }
+#endif
+
 
 namespace {
+
+   // strict weak ordering: x and y are equivalent if compX(x,y) and compX(y,x) are false
    
-   bool compTIP(TIP *x, TIP *y) { // strict weak ordering: x and y are equivalent if compMon(x,y) and compMon(y,x) are false
+   bool compThr(TriggerThreshold *x, TriggerThreshold *y) {
+      return x->id() < y->id();
+   }
+
+   bool compMon(ThresholdMonitor *x, ThresholdMonitor *y) {
+      if(x->thresholdName() != y->thresholdName() )
+         return x->thresholdName() < y->thresholdName();
+      return x->multiplicity() < y->multiplicity();
+   }
+
+   bool compMonByID(ThresholdMonitor *x, ThresholdMonitor *y) {
+      return x->internalCounter() < y->internalCounter();
+   }
+
+   bool compTIP(TIP *x, TIP *y) {
       if(x->tipNumber() != y->tipNumber())
          return x->tipNumber() < y->tipNumber();
       return x->thresholdBit()<y->thresholdBit();
@@ -153,6 +184,7 @@ namespace {
 
 
 
+#ifndef __COVERITY__
 void
 TrigConf::Menu::print(const std::string& indent, unsigned int detail) const {
    if(detail>=1) {
@@ -181,8 +213,10 @@ TrigConf::Menu::print(const std::string& indent, unsigned int detail) const {
          cout << indent << "==================================" << endl;
          cout << indent << " The ThresholdMonitorVector:" << endl;
          cout << indent << "==================================" << endl;
-         for(ThresholdMonitor* thrm : m_ThresholdMonitorVector)
-            thrm->print(indent + "  ");
+         auto sortedMon = m_ThresholdMonitorVector;
+         sort(sortedMon.begin(),sortedMon.end(),compMonByID);
+         for(ThresholdMonitor* thrm : sortedMon)
+            thrm->print(indent + "  ", detail);
       }
 
       if(detail>=3) {
@@ -191,7 +225,6 @@ TrigConf::Menu::print(const std::string& indent, unsigned int detail) const {
          cout << indent << "==================================" << endl;
          auto sortedTIPs = m_TIPs;
          sort(sortedTIPs.begin(),sortedTIPs.end(),compTIP);
-
          for(TIP* tip : sortedTIPs)
             tip->print(indent + "  ");
       }
@@ -213,7 +246,7 @@ TrigConf::Menu::print(const std::string& indent, unsigned int detail) const {
          cout << indent << "==================================" << endl;
          unsigned int i=0;
          for ( uint16_t m : bunchgroupMask() )
-            cout << indent << "  ctpid=" << i++ << ": bgmask=" << uint2bin(m, 16) << endl;
+            cout << indent << "  ctpid=" << setw(3) << i++ << ": bgmask=" << uint2bin(m, 16) << endl;
       }
 
    }
@@ -229,14 +262,8 @@ TrigConf::Menu::writeXMLItems(std::ostream & xmlfile, int indentLevel, int inden
       item->writeXML(xmlfile, indentLevel+1, indentWidth);
    indent(xmlfile, indentLevel, indentWidth) << "</TriggerMenu>" << endl;
 }
+#endif
 
-namespace {
-   
-   bool compThr(TriggerThreshold *x, TriggerThreshold *y) { // strict weak ordering: x and y are equivalent if compMon(x,y) and compMon(y,x) are false
-      return x->id() < y->id();
-   }
-
-}
 
 void
 TrigConf::Menu::writeXMLThresholds(std::ostream & xmlfile, int indentLevel, int indentWidth) const {
@@ -250,16 +277,6 @@ TrigConf::Menu::writeXMLThresholds(std::ostream & xmlfile, int indentLevel, int 
          thr->writeXML(xmlfile, indentLevel+1, indentWidth);
    }
    indent(xmlfile, indentLevel, indentWidth) << "</TriggerThresholdList>" << endl;
-}
-
-namespace {
-   
-   bool compMon(ThresholdMonitor *x, ThresholdMonitor *y) { // strict weak ordering: x and y are equivalent if compMon(x,y) and compMon(y,x) are false
-      if(x->thresholdName() != y->thresholdName() )
-         return x->thresholdName() < y->thresholdName();
-      return x->multiplicity() < y->multiplicity();
-   }
-
 }
 
 void

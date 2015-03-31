@@ -23,7 +23,8 @@ TriggerItem::TriggerItem() : TrigConfData(),
                              m_TopNode( nullptr ),
                              m_CtpId( -1 ),
                              m_TriggerType( 0 ),
-                             m_Partition( 0 )
+                             m_Partition( 0 ),
+                             m_Monitor( 0 )
 {}
 
 TriggerItem::~TriggerItem() {
@@ -34,7 +35,9 @@ TriggerItem::~TriggerItem() {
 uint16_t
 TrigConf::TriggerItem::bunchgroupMask() const {
    uint16_t bgmask(0);
-   m_TopNode->getBunchGroupsMask(bgmask);
+   if( m_TopNode ) {
+      m_TopNode->getBunchGroupsMask(bgmask);
+   }
    return bgmask;
 }
 
@@ -120,7 +123,21 @@ TriggerItem::writeXML(std::ostream & xmlfile, int indentLevel, int indentWidth) 
       << "\" name=\"" << name() 
       << "\" complex_deadtime=\"" << complex_deadtime()
       << "\" definition=\"" << final_def
-      << "\" trigger_type=\"" << TrigConf::uint2bin(m_TriggerType, partition()==1 ? 8 : 4) << "\">" << endl;
+      << "\" trigger_type=\"" << TrigConf::uint2bin(m_TriggerType, partition()==1 ? 8 : 4) << "\"";
+   if(monitor()!=0) {
+      string s("");
+      if(monitor()&0x1) s += "TBP";
+      if(monitor()&0x2) {
+         if(s!="") s+="|";
+         s += "TAP";
+      }
+      if(monitor()&0x4) {
+         if(s!="") s+="|";
+         s += "TAV";
+      }
+      xmlfile << " monitor=\"" << s << "\"";
+   }
+   xmlfile << ">" << endl;
 
    if (m_TopNode)
       m_TopNode->writeXML(xmlfile, indentLevel+1, indentWidth);
@@ -169,7 +186,8 @@ TriggerItem::print(const std::string& indent, unsigned int detail) const {
       cout << indent << "Definition:       " << m_Definition << endl;
       cout << indent << "CTP_id  :         " << m_CtpId << endl;
       cout << indent << "TriggerType(hex): 0x" << std::hex << m_TriggerType << std::dec << endl;
-      cout << indent << "Bunchgroup mask : 0x" << uint2bin(bunchgroupMask(), 16) << endl;
+      cout << indent << "Bunchgroup mask : " << uint2bin(bunchgroupMask(), 16) << endl;
+      cout << indent << "Monitor : " << monitor() << endl;
       if(detail>=4) {
          if (m_TopNode) m_TopNode->print(indent,detail);
          else cout << indent << "TopNode is NULL pointer" << endl;
