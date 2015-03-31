@@ -19,7 +19,7 @@ msg = logging.getLogger( 'PrimaryDPDHelpers' )
 ## Import needed modules
 import PyUtils.RootUtils as ru
 ROOT = ru.import_root()
-import PyCintex
+import cppyy
 
 
 # This function correctly determines the name of the output file.

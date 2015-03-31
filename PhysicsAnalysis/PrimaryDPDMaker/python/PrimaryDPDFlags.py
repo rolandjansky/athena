@@ -33,8 +33,8 @@ daodEventSkimmingFilterNamesList = []
 # IsEM selections and also the author selections
 #import PyUtils.RootUtils as ru
 #ROOT = ru.import_root()
-#import PyCintex
-#PyCintex.loadDictionary('egammaEnumsDict')
+#import cppyy
+#cppyy.loadDictionary('egammaEnumsDict')
 #from ROOT import egammaPID
 #from ROOT import egammaParameters
 
@@ -1104,32 +1104,6 @@ class WriteDAOD_UPSIMUMUStream(JobProperty):
 jobproperties.PrimaryDPDFlags.add_JobProperty(WriteDAOD_UPSIMUMUStream)
 listAODtoDPD.append(WriteDAOD_UPSIMUMUStream.StreamName)
 
-class WriteDAOD_RED_TEST1Stream(JobProperty):
-    """ Produce the DPD for DAOD_RED_TEST1 - derivation framework test """
-    statusOn     = True
-    allowedTypes = ['bool']
-    StoredValue  = False
-    StreamName   = "StreamDAOD_RED_TEST1"
-    FileName     = ""
-    isVirtual      = False
-    DPDMakerScript = "DerivationFrameworkExamples/DerivationExampleLoose.py"
-    pass
-jobproperties.PrimaryDPDFlags.add_JobProperty(WriteDAOD_RED_TEST1Stream)
-listAODtoDPD.append(WriteDAOD_RED_TEST1Stream.StreamName)
-
-class WriteDAOD_RED_TEST2Stream(JobProperty):
-    """ Produce the DPD for DAOD_RED_TEST2 - derivation framework test """
-    statusOn     = True
-    allowedTypes = ['bool']
-    StoredValue  = False
-    StreamName   = "StreamDAOD_RED_TEST2"
-    FileName     = ""
-    isVirtual      = False
-    DPDMakerScript = "DerivationFrameworkExamples/DerivationExampleTight.py"
-    pass
-jobproperties.PrimaryDPDFlags.add_JobProperty(WriteDAOD_RED_TEST2Stream)
-listAODtoDPD.append(WriteDAOD_RED_TEST2Stream.StreamName)
-
 class WriteD2AOD_DIONIAStream(JobProperty):
     """ Produce the DPD for D2AOD_DIONIA """
     statusOn     = True
@@ -1189,6 +1163,19 @@ class WriteDESD_FWJETStream(JobProperty):
     pass
 jobproperties.PrimaryDPDFlags.add_JobProperty(WriteDESD_FWJETStream)
 listESDtoDPD.append(WriteDESD_FWJETStream.StreamName)
+
+class WriteDAOD_IDTRKVALIDStream(JobProperty):
+    """ Produce the DPD for DAOD_IDTRKVALID - AOD with PrepRawData """
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = False
+    StreamName   = "StreamDAOD_IDTRKVALID"
+    FileName     = ""
+    isVirtual      = False
+    DPDMakerScript = "InDetPrepRawDataToxAOD/InDetDxAOD.py"
+    pass
+jobproperties.PrimaryDPDFlags.add_JobProperty(WriteDAOD_IDTRKVALIDStream)
+listESDtoDPD.append(WriteDAOD_IDTRKVALIDStream.StreamName)
 
 
 class WriteD2ESD_ZMMStream(JobProperty):
