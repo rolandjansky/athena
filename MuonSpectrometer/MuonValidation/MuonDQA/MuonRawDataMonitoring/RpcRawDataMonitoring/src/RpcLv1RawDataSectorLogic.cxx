@@ -471,7 +471,7 @@ StatusCode RpcLv1RawDataSectorLogic::bookHistogramsRecurrent()
       std::string m_rpclv1_rowinBCid_vs_TriggerSector_title = "SL_rowinBCid_vs_TriggerSector";
       const char* m_rpclv1_rowinBCid_vs_TriggerSector_title_char = m_rpclv1_rowinBCid_vs_TriggerSector_title.c_str();
 	
-      TH2* rpclv1_rowinBCid_vs_TriggerSector = new TH2I ( m_rpclv1_rowinBCid_vs_TriggerSector_title_char, m_rpclv1_rowinBCid_vs_TriggerSector_title_char, 64, 0, 64, 7, 0, 7);
+      TH2* rpclv1_rowinBCid_vs_TriggerSector = new TH2I ( m_rpclv1_rowinBCid_vs_TriggerSector_title_char, m_rpclv1_rowinBCid_vs_TriggerSector_title_char, 64, 0, 64, 8, 0, 8);
 
       sc = rpclv1sl_shift.regHist( rpclv1_rowinBCid_vs_TriggerSector );
       if(sc.isFailure()){ 
@@ -492,7 +492,7 @@ StatusCode RpcLv1RawDataSectorLogic::bookHistogramsRecurrent()
       std::string m_rpclv1_triggerBCid_inout_vs_Tower_title = "SL_triggerBCid_inout_vs_Tower";
       const char* m_rpclv1_triggerBCid_inout_vs_Tower_title_char = m_rpclv1_triggerBCid_inout_vs_Tower_title.c_str();
 	
-      TH2* rpclv1_triggerBCid_inout_vs_Tower = new TH2I ( m_rpclv1_triggerBCid_inout_vs_Tower_title_char, m_rpclv1_triggerBCid_inout_vs_Tower_title_char, 7, 0, 7, 8, 0, 8);
+      TH2* rpclv1_triggerBCid_inout_vs_Tower = new TH2I ( m_rpclv1_triggerBCid_inout_vs_Tower_title_char, m_rpclv1_triggerBCid_inout_vs_Tower_title_char, 8, 0, 8, 8, 0, 8);
 
       sc = rpclv1sl_shift.regHist( rpclv1_triggerBCid_inout_vs_Tower );
       if(sc.isFailure()){ 
@@ -573,7 +573,7 @@ StatusCode RpcLv1RawDataSectorLogic::bookHistogramsRecurrent()
       std::string m_rpclv1_TriggerSector_vs_Pad_triggerBCid_inout_title = "SL_TriggerSector_vs_Tower_triggerBCid_inout";    
       const char* m_rpclv1_TriggerSector_vs_Pad_triggerBCid_inout_title_char = m_rpclv1_TriggerSector_vs_Pad_triggerBCid_inout_title.c_str ();     
 
-      TH2 *rpclv1_TriggerSector_vs_Pad_triggerBCid_inout = new TH2I(m_rpclv1_TriggerSector_vs_Pad_triggerBCid_inout_title_char,m_rpclv1_TriggerSector_vs_Pad_triggerBCid_inout_title_char, 15, -7.5, 7.5, 32, 0, 32);
+      TH2 *rpclv1_TriggerSector_vs_Pad_triggerBCid_inout = new TH2I(m_rpclv1_TriggerSector_vs_Pad_triggerBCid_inout_title_char,m_rpclv1_TriggerSector_vs_Pad_triggerBCid_inout_title_char, 17, -8.5, 8.5, 32, 0, 32);
 
       sc = rpclv1sl_shift.regHist(rpclv1_TriggerSector_vs_Pad_triggerBCid_inout);  
       if (sc.isFailure()) { 
@@ -592,7 +592,7 @@ StatusCode RpcLv1RawDataSectorLogic::bookHistogramsRecurrent()
       std::string m_rpclv1_TriggerSector_vs_Pad_title = "SL_TriggerSector_vs_Tower";    
       const char* m_rpclv1_TriggerSector_vs_Pad_title_char = m_rpclv1_TriggerSector_vs_Pad_title.c_str ();     
 
-      TH2 *rpclv1_TriggerSector_vs_Pad = new TH2I(m_rpclv1_TriggerSector_vs_Pad_title_char,m_rpclv1_TriggerSector_vs_Pad_title_char, 15, -7.5, 7.5, 32, 0, 32);
+      TH2 *rpclv1_TriggerSector_vs_Pad = new TH2I(m_rpclv1_TriggerSector_vs_Pad_title_char,m_rpclv1_TriggerSector_vs_Pad_title_char, 17, -8.5, 8.5, 32, 0, 32);
 
       sc = rpclv1sl_shift.regHist(rpclv1_TriggerSector_vs_Pad);  
       if (sc.isFailure()) { 
@@ -610,7 +610,7 @@ StatusCode RpcLv1RawDataSectorLogic::bookHistogramsRecurrent()
       std::string m_rpclv1_TriggerSector_vs_Pad_Pt1_title = "SL_TriggerSector_vs_Tower_Pt1";    
       const char* m_rpclv1_TriggerSector_vs_Pad_Pt1_title_char = m_rpclv1_TriggerSector_vs_Pad_Pt1_title.c_str ();     
 
-      TH2 *rpclv1_TriggerSector_vs_Pad_Pt1 = new TH2I(m_rpclv1_TriggerSector_vs_Pad_Pt1_title_char,m_rpclv1_TriggerSector_vs_Pad_Pt1_title_char, 15, -7.5, 7.5, 32, 0, 32);
+      TH2 *rpclv1_TriggerSector_vs_Pad_Pt1 = new TH2I(m_rpclv1_TriggerSector_vs_Pad_Pt1_title_char,m_rpclv1_TriggerSector_vs_Pad_Pt1_title_char, 17, -8.5, 8.5, 32, 0, 32);
 
       sc = rpclv1sl_shift.regHist(rpclv1_TriggerSector_vs_Pad_Pt1);  
       if (sc.isFailure()) { 
@@ -625,7 +625,7 @@ StatusCode RpcLv1RawDataSectorLogic::bookHistogramsRecurrent()
       std::string m_rpclv1_TriggerSector_vs_Pad_Pt2_title = "SL_TriggerSector_vs_Tower_Pt2";    
       const char* m_rpclv1_TriggerSector_vs_Pad_Pt2_title_char = m_rpclv1_TriggerSector_vs_Pad_Pt2_title.c_str ();     
 
-      TH2 *rpclv1_TriggerSector_vs_Pad_Pt2 = new TH2I(m_rpclv1_TriggerSector_vs_Pad_Pt2_title_char,m_rpclv1_TriggerSector_vs_Pad_Pt2_title_char, 15, -7.5, 7.5, 32, 0, 32);
+      TH2 *rpclv1_TriggerSector_vs_Pad_Pt2 = new TH2I(m_rpclv1_TriggerSector_vs_Pad_Pt2_title_char,m_rpclv1_TriggerSector_vs_Pad_Pt2_title_char, 17, -8.5, 8.5, 32, 0, 32);
 
       sc = rpclv1sl_shift.regHist(rpclv1_TriggerSector_vs_Pad_Pt2);  
       if (sc.isFailure()) { 
@@ -640,7 +640,7 @@ StatusCode RpcLv1RawDataSectorLogic::bookHistogramsRecurrent()
       std::string m_rpclv1_TriggerSector_vs_Pad_Pt3_title = "SL_TriggerSector_vs_Tower_Pt3";    
       const char* m_rpclv1_TriggerSector_vs_Pad_Pt3_title_char = m_rpclv1_TriggerSector_vs_Pad_Pt3_title.c_str ();     
 
-      TH2 *rpclv1_TriggerSector_vs_Pad_Pt3 = new TH2I(m_rpclv1_TriggerSector_vs_Pad_Pt3_title_char,m_rpclv1_TriggerSector_vs_Pad_Pt3_title_char, 15, -7.5, 7.5, 32, 0, 32);
+      TH2 *rpclv1_TriggerSector_vs_Pad_Pt3 = new TH2I(m_rpclv1_TriggerSector_vs_Pad_Pt3_title_char,m_rpclv1_TriggerSector_vs_Pad_Pt3_title_char, 17, -8.5, 8.5, 32, 0, 32);
 
       sc = rpclv1sl_shift.regHist(rpclv1_TriggerSector_vs_Pad_Pt3);  
       if (sc.isFailure()) { 
@@ -655,7 +655,7 @@ StatusCode RpcLv1RawDataSectorLogic::bookHistogramsRecurrent()
       std::string m_rpclv1_TriggerSector_vs_Pad_Pt4_title = "SL_TriggerSector_vs_Tower_Pt4";    
       const char* m_rpclv1_TriggerSector_vs_Pad_Pt4_title_char = m_rpclv1_TriggerSector_vs_Pad_Pt4_title.c_str ();     
 
-      TH2 *rpclv1_TriggerSector_vs_Pad_Pt4 = new TH2I(m_rpclv1_TriggerSector_vs_Pad_Pt4_title_char,m_rpclv1_TriggerSector_vs_Pad_Pt4_title_char, 15, -7.5, 7.5, 32, 0, 32);
+      TH2 *rpclv1_TriggerSector_vs_Pad_Pt4 = new TH2I(m_rpclv1_TriggerSector_vs_Pad_Pt4_title_char,m_rpclv1_TriggerSector_vs_Pad_Pt4_title_char, 17, -8.5, 8.5, 32, 0, 32);
 
       sc = rpclv1sl_shift.regHist(rpclv1_TriggerSector_vs_Pad_Pt4);  
       if (sc.isFailure()) { 
@@ -670,7 +670,7 @@ StatusCode RpcLv1RawDataSectorLogic::bookHistogramsRecurrent()
       std::string m_rpclv1_TriggerSector_vs_Pad_Pt5_title = "SL_TriggerSector_vs_Tower_Pt5";    
       const char* m_rpclv1_TriggerSector_vs_Pad_Pt5_title_char = m_rpclv1_TriggerSector_vs_Pad_Pt5_title.c_str ();     
 
-      TH2 *rpclv1_TriggerSector_vs_Pad_Pt5 = new TH2I(m_rpclv1_TriggerSector_vs_Pad_Pt5_title_char,m_rpclv1_TriggerSector_vs_Pad_Pt5_title_char, 15, -7.5, 7.5, 32, 0, 32);
+      TH2 *rpclv1_TriggerSector_vs_Pad_Pt5 = new TH2I(m_rpclv1_TriggerSector_vs_Pad_Pt5_title_char,m_rpclv1_TriggerSector_vs_Pad_Pt5_title_char, 17, -8.5, 8.5, 32, 0, 32);
 
       sc = rpclv1sl_shift.regHist(rpclv1_TriggerSector_vs_Pad_Pt5);  
       if (sc.isFailure()) { 
@@ -685,7 +685,7 @@ StatusCode RpcLv1RawDataSectorLogic::bookHistogramsRecurrent()
       std::string m_rpclv1_TriggerSector_vs_Pad_Pt6_title = "SL_TriggerSector_vs_Tower_Pt6";    
       const char* m_rpclv1_TriggerSector_vs_Pad_Pt6_title_char = m_rpclv1_TriggerSector_vs_Pad_Pt6_title.c_str ();     
 
-      TH2 *rpclv1_TriggerSector_vs_Pad_Pt6 = new TH2I(m_rpclv1_TriggerSector_vs_Pad_Pt6_title_char,m_rpclv1_TriggerSector_vs_Pad_Pt6_title_char, 15, -7.5, 7.5, 32, 0, 32);
+      TH2 *rpclv1_TriggerSector_vs_Pad_Pt6 = new TH2I(m_rpclv1_TriggerSector_vs_Pad_Pt6_title_char,m_rpclv1_TriggerSector_vs_Pad_Pt6_title_char, 17, -8.5, 8.5, 32, 0, 32);
 
       sc = rpclv1sl_shift.regHist(rpclv1_TriggerSector_vs_Pad_Pt6);  
       if (sc.isFailure()) { 
@@ -725,7 +725,7 @@ StatusCode RpcLv1RawDataSectorLogic::bookHistogramsRecurrent()
       std::string m_rpclv1_ptid_vs_Tower_title = "SL_ptid_vs_Tower";
       const char* m_rpclv1_ptid_vs_Tower_title_char = m_rpclv1_ptid_vs_Tower_title.c_str();
 
-      TH2 * rpclv1_ptid_vs_Tower = new TH2I(m_rpclv1_ptid_vs_Tower_title_char, m_rpclv1_ptid_vs_Tower_title_char, 7, 0, 7, 6, 1, 7);
+      TH2 * rpclv1_ptid_vs_Tower = new TH2I(m_rpclv1_ptid_vs_Tower_title_char, m_rpclv1_ptid_vs_Tower_title_char, 8, 0, 8, 6, 1, 7);
  
       sc = rpclv1sl_shift.regHist(rpclv1_ptid_vs_Tower);
       if(sc.isFailure()){ 

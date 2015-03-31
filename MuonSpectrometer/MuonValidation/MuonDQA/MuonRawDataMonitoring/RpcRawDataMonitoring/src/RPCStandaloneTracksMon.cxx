@@ -3794,9 +3794,12 @@ void RPCStandaloneTracksMon::bookHistogramsSummaryDistribution(  )
 // Radiography histograms
 void RPCStandaloneTracksMon::bookRPCLayerRadiographyHistograms( int m_isec, std::string m_layer_name )
 {
+
+  ATH_MSG_DEBUG ( "bookRPCLayerRadiographyHistograms" );
+  
   gErrorIgnoreLevel=kInfo;
-  StatusCode sc = StatusCode::SUCCESS;
-  {  ATH_MSG_DEBUG ( "bookRPCLayerRadiographyHistograms" ); }
+  StatusCode sc = StatusCode::SUCCESS;      
+  if(sc.isFailure() )  return ;
    
   if( m_doRpcESD==true ) {if( m_environment == AthenaMonManager::tier0 || m_environment == AthenaMonManager::tier0ESD ) { 
       sprintf(histName_char,"Sector%.2d", m_isec+1 ) ;
@@ -3861,7 +3864,10 @@ void RPCStandaloneTracksMon::bookRPCLayerRadiographyHistograms( int m_isec, std:
       TH2 * rpcSectorLayerTrackProj = new TH2I( m_rpcSectorLayerProj_title_char, m_rpcSectorLayerProj_title_char, binz, binminz, binmaxz, binx, binminx, binmaxx);
     
       sc = rpc_radiography.regHist( rpcSectorLayerTrackProj );
-      if(sc.isFailure() )  ATH_MSG_WARNING ( "couldn't register " << m_rpcSectorLayerProj_title << " hist to MonGroup" );
+      if(sc.isFailure() ){  
+       ATH_MSG_WARNING ( "couldn't register " << m_rpcSectorLayerProj_title << " hist to MonGroup" );
+       return ;
+      }
     
       rpcSectorLayerTrackProj->SetOption("COLZ");
       rpcSectorLayerTrackProj->GetXaxis()->SetTitle("<--- SIDE C      Rpc Eta strip      SIDE A --->");
@@ -3875,8 +3881,11 @@ void RPCStandaloneTracksMon::bookRPCLayerRadiographyHistograms( int m_isec, std:
       TH2 * rpcSectorLayerResponse = new TH2I( m_rpcSectorLayerResponse_title_char, m_rpcSectorLayerResponse_title_char ,binz, binminz, binmaxz, binx, binminx, binmaxx);
  
       sc = rpc_radiography.regHist( rpcSectorLayerResponse );
-      if(sc.isFailure() )  ATH_MSG_WARNING ( "couldn't register " << m_rpcSectorLayerResponse_title << " hist to MonGroup" );
-    
+      if(sc.isFailure() )  
+      {  
+       ATH_MSG_WARNING ( "couldn't register " << m_rpcSectorLayerResponse_title << " hist to MonGroup" );
+       return ;
+      }
       rpcSectorLayerResponse->SetOption("COLZ");
       rpcSectorLayerResponse->GetXaxis()->SetTitle("<--- SIDE C	   Rpc Eta strip      SIDE A --->");
       if ( (m_isec%2) == 0) { rpcSectorLayerResponse->GetYaxis()->SetTitle("<--- HV side     Rpc Phi strip     RO side --->"); }  // large
@@ -3889,8 +3898,13 @@ void RPCStandaloneTracksMon::bookRPCLayerRadiographyHistograms( int m_isec, std:
       TH2 * rpcSectorLayerResponseOR = new TH2I( m_rpcSectorLayerResponseOR_title_char, m_rpcSectorLayerResponseOR_title_char ,binz, binminz, binmaxz, binx, binminx, binmaxx);
  
       sc = rpc_radiography.regHist( rpcSectorLayerResponseOR );
-      if(sc.isFailure() )  ATH_MSG_WARNING ( "couldn't register " << m_rpcSectorLayerResponseOR_title << " hist to MonGroup" );
-    
+      if(sc.isFailure() ) 
+      { 
+       ATH_MSG_WARNING ( "couldn't register " << m_rpcSectorLayerResponseOR_title << " hist to MonGroup" );
+       return ;
+      }
+      
+      
       rpcSectorLayerResponseOR->SetOption("COLZ");
       rpcSectorLayerResponseOR->GetXaxis()->SetTitle("<--- SIDE C	   Rpc Eta strip      SIDE A --->");
       if ( (m_isec%2) == 0) { rpcSectorLayerResponseOR->GetYaxis()->SetTitle("<--- HV side     Rpc Phi strip     RO side --->"); }  // large
@@ -3905,8 +3919,12 @@ void RPCStandaloneTracksMon::bookRPCLayerRadiographyHistograms( int m_isec, std:
       TH2 * rpcSectorLayerNoiseCorr = new TH2I( m_rpcSectorLayerNoiseCorr_title_char, m_rpcSectorLayerNoiseCorr_title_char ,binz, binminz, binmaxz, binx, binminx, binmaxx);
  
       sc = rpc_radiography.regHist( rpcSectorLayerNoiseCorr );
-      if(sc.isFailure() )  ATH_MSG_WARNING ( "couldn't register " << m_rpcSectorLayerNoiseCorr_title << " hist to MonGroup" );
-    
+      if(sc.isFailure() )  
+      {  
+       ATH_MSG_WARNING ( "couldn't register " << m_rpcSectorLayerNoiseCorr_title << " hist to MonGroup" );
+       return ;
+      }
+      
       rpcSectorLayerNoiseCorr->SetOption("COLZ");
       rpcSectorLayerNoiseCorr->GetXaxis()->SetTitle("<--- SIDE C	   Rpc Eta strip      SIDE A --->");
       if ( (m_isec%2) == 0) { rpcSectorLayerNoiseCorr->GetYaxis()->SetTitle("<--- HV side     Rpc Phi strip     RO side --->"); }  // large
@@ -3919,8 +3937,11 @@ void RPCStandaloneTracksMon::bookRPCLayerRadiographyHistograms( int m_isec, std:
       TH2 * rpcSectorLayerNoiseNotCorr = new TH2I( m_rpcSectorLayerNoiseNotCorr_title_char, m_rpcSectorLayerNoiseNotCorr_title_char ,binz, binminz, binmaxz, binx, binminx, binmaxx);
  
       sc = rpc_radiography.regHist( rpcSectorLayerNoiseNotCorr );
-      if(sc.isFailure() )  ATH_MSG_WARNING ( "couldn't register " << m_rpcSectorLayerNoiseNotCorr_title << " hist to MonGroup" );
-    
+      if(sc.isFailure() )  
+      {  
+      ATH_MSG_WARNING ( "couldn't register " << m_rpcSectorLayerNoiseNotCorr_title << " hist to MonGroup" ); 
+       return ;
+      }
       rpcSectorLayerNoiseNotCorr->SetOption("COLZ");
       rpcSectorLayerNoiseNotCorr->GetXaxis()->SetTitle("<--- SIDE C	   Rpc Eta strip      SIDE A --->");
       if ( (m_isec%2) == 0) { rpcSectorLayerNoiseNotCorr->GetYaxis()->SetTitle("<--- HV side     Rpc Phi strip     RO side --->"); }  // large
@@ -3938,6 +3959,10 @@ void RPCStandaloneTracksMon::bookRPCCoolHistograms_NotNorm( std::vector<std::str
   ATH_MSG_DEBUG ( "RPCStandaloneTracksMon: bookRPCCoolHistograms_NotNorm" );
   
   StatusCode sc = StatusCode::SUCCESS ;
+  if(sc.isFailure() )  
+  {
+       return ;
+  }
   std::string m_generic_path_rpcmonitoring = "Muon/MuonRawDataMonitoring/RPCStandAloneTrackMon";
   MonGroup rpcCoolDb( this, m_generic_path_rpcmonitoring+"/CoolDB", run, ATTRIB_UNMANAGED );
   
@@ -3992,7 +4017,12 @@ void RPCStandaloneTracksMon::bookRPCCoolHistograms_NotNorm( std::vector<std::str
   }
   TH1 *rpcCoolHisto = new TH1F(histName.c_str(), histName.c_str(), NTotStripsSideC+NTotStripsSideA, -NTotStripsSideC, NTotStripsSideA );
   sc=rpcCoolDb.regHist(rpcCoolHisto) ;
-  if(sc.isFailure() )  ATH_MSG_WARNING ( "couldn't register " << histName << "hist to MonGroup" );
+  if(sc.isFailure() )  
+  {  
+    ATH_MSG_WARNING ( "couldn't register " << histName << "hist to MonGroup" );
+    return ;
+  }
+ 
   rpcCoolHisto->GetXaxis()->SetTitle("strip");  
   
 }
@@ -4009,6 +4039,10 @@ void RPCStandaloneTracksMon::bookRPCCoolHistograms( std::vector<std::string>::co
   ATH_MSG_DEBUG ( "RPCStandaloneTracksMon: bookRPCCoolHistograms" );
 	  												   
   StatusCode sc = StatusCode::SUCCESS ;
+  if(sc.isFailure() )  
+  {  
+       return ;
+  }
   std::string m_generic_path_rpcmonitoring = "Muon/MuonRawDataMonitoring/RPCStandAloneTrackMon";
   MonGroup rpcCoolDb( this, m_generic_path_rpcmonitoring+"/CoolDB", run, ATTRIB_UNMANAGED );
    
@@ -4067,7 +4101,11 @@ void RPCStandaloneTracksMon::bookRPCCoolHistograms( std::vector<std::string>::co
     
   TH1 *rpcCoolHisto = new TH1F(histName.c_str(), histName.c_str(), NTotStripsSideC+NTotStripsSideA, -NTotStripsSideC, NTotStripsSideA );
   sc = rpcCoolDb.regHist(rpcCoolHisto) ;
-  if(sc.isFailure() )  ATH_MSG_INFO ( "couldn't register " << histName << " hist to MonGroup" );
+  if(sc.isFailure() )  
+  {  
+    ATH_MSG_INFO ( "couldn't register " << histName << " hist to MonGroup" );
+    return ;
+  }
   rpcCoolHisto->GetXaxis()->SetTitle("strip");
   
   TDirectory* currentDir = gDirectory;
@@ -4087,6 +4125,10 @@ void RPCStandaloneTracksMon::bookRPCTracksLayerHistograms(std::string m_hardware
 {
   gErrorIgnoreLevel=kError;
   StatusCode sc = StatusCode::SUCCESS;
+  if(sc.isFailure() )  
+  {  
+    return ;
+  }
   if( m_doRpcESD==true ) {if( m_environment == AthenaMonManager::tier0 || m_environment == AthenaMonManager::tier0ESD || m_environment == AthenaMonManager::online ) {    		    
       //declare a group of histograms
       std::string m_generic_path_rpcmonitoring = "Muon/MuonRawDataMonitoring/RPCStandAloneTrackMon";
@@ -4329,7 +4371,7 @@ void RPCStandaloneTracksMon::bookRPCSummaryFinalHistograms( int m_i_sec, const s
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
 
-StatusCode RPCStandaloneTracksMon::procHistograms( bool isEndOfEventsBlock, bool isEndOfLumiBlock, bool isEndOfRun )
+StatusCode RPCStandaloneTracksMon::procHistograms( )
 {
   StatusCode sc = StatusCode::SUCCESS;
   
@@ -4348,10 +4390,10 @@ StatusCode RPCStandaloneTracksMon::procHistograms( bool isEndOfEventsBlock, bool
       MonGroup rpcprd_dq_BA      ( this, m_generic_path_rpcmonitoring + "/RPCBA"   ,  run, ATTRIB_UNMANAGED );
       MonGroup rpcprd_dq_BC      ( this, m_generic_path_rpcmonitoring + "/RPCBC"   ,  run, ATTRIB_UNMANAGED );
     
-      if(isEndOfEventsBlock){}
-      if(isEndOfLumiBlock){}
-      if(isEndOfRun){        
-      
+      if(endOfEventsBlock){}
+      if(endOfLumiBlock){}
+      if(endOfRun){        
+    
 	sc = rpcprd_dq_BA.getHist(RPCBA_layerTrackProj,"Layer_TrackProj_sideA");	      
 	if(sc.isFailure() )  ATH_MSG_WARNING ( "couldn't get Layer_TrackProj_sideA  hist" );  
              
@@ -4668,6 +4710,7 @@ StatusCode RPCStandaloneTracksMon::procHistograms( bool isEndOfEventsBlock, bool
 std::vector<int>  RPCStandaloneTracksMon::RpcStripShift(Identifier prdcoll_id, int  irpctriggerInfo) 
 {
 
+
   ATH_MSG_DEBUG ( "in RPCStandaloneTracksMon::RpcStripShift" );  
      
   int irpcstationPhi	 =   int(m_rpcIdHelper->stationPhi(prdcoll_id))   ;		     
@@ -4685,39 +4728,43 @@ std::vector<int>  RPCStandaloneTracksMon::RpcStripShift(Identifier prdcoll_id, i
   const MuonGM::RpcReadoutElement* descriptor = m_muonMgr->getRpcReadoutElement(prdcoll_id);
   
   // const MuonGM::RpcReadoutElement* rpc = m_muonMgr->getRpcReadoutElement(irpcstationName-2, irpcstationEta  + 8,  irpcstationPhi-1, irpcdoubletR -1,irpcdoubletZ   -1);
-//  const MuonGM::RpcReadoutElement* rpc = m_muonMgr->getRpcRElement_fromIdFields( irpcstationName, irpcstationEta, irpcstationPhi, irpcdoubletR, irpcdoubletZ, irpcdoubletPhi  );
-  
-  //Identifier idr = rpc->identify();
+  // const MuonGM::RpcReadoutElement* rpc = m_muonMgr->getRpcRElement_fromIdFields( irpcstationName, irpcstationEta, irpcstationPhi, irpcdoubletR, irpcdoubletZ, irpcdoubletPhi  );
   
   std::vector<int>  rpcstriptot  ;
   
-  int NphiStrips	   = descriptor -> NphiStrips()  *  2		     ;
-  int ShiftPhiStrips       = descriptor -> NphiStrips()  * (irpcdoubletPhi  -1 ) ;
-  int NetaStrips	   = 0						     ;
-  int ShiftEtaStrips       = 0						     ;
-  int ShiftStrips	   = 0						     ;
-  int NetaStripsTot        = 0						     ;
-  int NetaStripsTotSideA   = 0						     ;
-  int NetaStripsTotSideC   = 0						     ;
-  int ShiftEtaStripsTot    = 0						     ;
-  int Nbin  	           = 0						     ;
-  int EtaStripSign         = 0						     ;
-  int SectorLogic	   = 0						     ;
-  int Side  	           = 0						     ;
-  int PanelIndex	   = 0						     ;
-  int Settore	           = 0						     ;
-  int PlaneTipo	           = 0						     ;
-  int strip_dbindex        = 0						     ;
-  int ShiftPhiTot_db       = 0						     ;
-  int NphiStripsTotSideA   = 0					             ;
-  int NphiStripsTotSideC   = 0					             ;
+  int NphiStrips	    = descriptor -> NphiStrips()* 2		     ;
+  int ShiftPhiStrips        = descriptor -> NphiStrips()*(irpcdoubletPhi-1)  ;
+  int NetaStrips	    = 0						     ;
+  int ShiftEtaStrips        = 0						     ;
+  int ShiftStrips	    = 0						     ;
+  int NetaStripsTot         = 0						     ;
+  int NetaStripsTotSideA    = 0						     ;
+  int NetaStripsTotSideC    = 0						     ;
+  int ShiftEtaStripsTot     = 0						     ;
+  int Nbin  	            = 0						     ;
+  int EtaStripSign          = 0						     ;
+  int SectorLogic	    = 0						     ;
+  int Side  	            = 0						     ;
+  int PanelIndex	    = 0						     ;
+  int Settore	            = 0						     ;
+  int PlaneTipo	            = 0						     ;
+  int strip_dbindex         = 0						     ;
+  int ShiftPhiTot_db        = 0						     ;
+  int NphiStripsTotSideA    = 0					             ;
+  int NphiStripsTotSideC    = 0					             ;
+  int NetaPanelsTot         = 0					             ;
+  int ShiftEtaPanelsTot     = 0					             ;
+  int NetaPanelsTotSideA    = 0					             ;
+  int NetaPanelsTotSideC    = 0					             ;
+  int ShiftStripPhiAtlas    = 0					             ;
   
+  //1***
   //evaluate sector logic
-  //2=BML,3=BMS,4=BOL,5=BOS,8=BMF,9=BOF,10=BOG
+  //2=BML,3=BMS,4=BOL,5=BOS,8=BMF,9=BOF,10=BOG,53=BME
   SectorLogic  = (irpcstationPhi - 1) * 4 ; 
   SectorLogic +=  irpcdoubletPhi          ;
   Settore      = (irpcstationPhi -1) * 2  ;
-  if(irpcstationName==3||irpcstationName==5||irpcstationName>7){
+  if( (irpcstationName==3||irpcstationName==5||irpcstationName>7) && (irpcstationName<11) ){
     SectorLogic+=2;
     Settore++; 
   }
@@ -4726,152 +4773,93 @@ std::vector<int>  RPCStandaloneTracksMon::RpcStripShift(Identifier prdcoll_id, i
   if(SectorLogic==-1)SectorLogic=31;
   if(irpcstationEta>0){Side = 1     ;SectorLogic+=32;}
   
-  //2=BML,3=BMS,4=BOL,5=BOS,8=BMF,9=BOF,10=BOG
-  if( (irpcstationName>1) && (irpcstationName<4||irpcstationName==8) ){
+  //evaluate plane type
+  //2=BML,3=BMS,4=BOL,5=BOS,8=BMF,9=BOF,10=BOG,53=BME
+  if( irpcstationName==2||irpcstationName==3||irpcstationName==8||irpcstationName==53 ){
     if(irpcdoubletR==1){
       PlaneTipo=0;
-      if(irpcstationName==2&&abs(irpcstationEta)==7)layer_name="Pivot";
-      if(irpcstationName==2&&irpcstationPhi==7&&abs(irpcstationEta)==6)layer_name="Pivot";
     }
     else {PlaneTipo=1;}
   }			
   else {PlaneTipo=2;}
+  //Extension feet Pivot
+  if(irpcdoubletR==2)PlaneTipo=1;
+  //BML7 assigned to pivot 
+  if( irpcstationName==2 && ( (abs(irpcstationEta)==7)||(irpcstationPhi==7&&abs(irpcstationEta)==6) ) )PlaneTipo=1;;
   
+  //evaluate strip shift
+  //2=BML,3=BMS,4=BOL,5=BOS,8=BMF,9=BOF,10=BOG,53=BME
   /////// NB !!!!!
   // the eta strip number increases going far away from IP
   // the phi strip number increases going from HV side to RO side
-  
-  if ( irpcstationName< 9 )  {
-    for ( int ieta=-1; ieta!= -9; ieta-- ) {
-      int irpcdoubletRn = irpcdoubletR ;
-      if(irpcstationName==2&&(abs(irpcstationEta)!=7)&&ieta==-7){
-	if(irpcdoubletR==1)continue;
-	irpcdoubletRn=1;
-      }
-      else if(irpcstationName==2&&irpcstationPhi==7&&(abs(irpcstationEta)!=6)&&ieta==-6){
-	if(irpcdoubletR==1)continue;
-	irpcdoubletRn=1;
-      }      
-      else if(irpcstationName==2&&irpcstationEta ==- 7 &&abs(ieta)<7){
-	irpcdoubletRn=2;
-      }
-      else if(irpcstationName==2&&irpcstationPhi==7&& irpcstationEta==-6&&abs(ieta)<5){
-	irpcdoubletRn=2;
-      }
- 
-      //      int stname_index = irpcstationName;
-      //      if (irpcstationName==53) stname_index=MuonGM::MuonDetectorManager::NRpcStatType-2;
-      for(int idbz=1; idbz!= 4; idbz++){
-	const MuonGM::RpcReadoutElement* rpc = m_muonMgr->getRpcRElement_fromIdFields(irpcstationName, ieta, irpcstationPhi, irpcdoubletRn, idbz, 1 );
-        if(rpc != NULL ){
-          if ( idbz != rpc->getDoubletZ() ) continue ;
-          if(ieta==irpcstationEta){
-            if( idbz==irpcdoubletZ ){ 
-              ShiftEtaStrips    = NetaStrips;  
-              ShiftEtaStripsTot = NetaStripsTotSideC ;
-              ShiftPhiTot_db    = NphiStripsTotSideC ;
-            }
-            NetaStrips    +=  rpc->NetaStrips()  ;
-          }
-          NetaStripsTot      +=  rpc->NetaStrips()   ;
-          NetaStripsTotSideC +=  rpc->NetaStrips()   ;
-          NphiStripsTotSideC +=  rpc->NphiStrips()   ;
-        } 
-      }
-    } // end loop on side C    
-    for(int ieta=0; ieta!= 9; ieta++){
-      int irpcdoubletRn = irpcdoubletR ;
-      if(irpcstationName==2&&(abs(irpcstationEta)!=7)&&ieta==7){
-	if(irpcdoubletR==1)continue;
-	irpcdoubletRn=1;
-      }
-      else if(irpcstationName==2&&irpcstationPhi==7&&(abs(irpcstationEta)!=6)&&ieta==6){
-	if(irpcdoubletR==1)continue;
-	irpcdoubletRn=1;
-      }      
-      else if(irpcstationName==2&&(irpcstationEta==7)&&abs(ieta)<7){
-	irpcdoubletRn=2;
-      }
-      else if(irpcstationName==2&&irpcstationPhi==7&&(irpcstationEta==6)&&abs(ieta)<5){
-	irpcdoubletRn=2;
-      }
+     
+    for(int keta=0; keta!= 9; keta++){
+      int ieta = keta ;
+      if(irpcstationEta<0)ieta = - keta ;
+      int krpcstationName    = irpcstationName ;
+      int krpcstationNameMin = irpcstationName ;
+      int krpcstationNameMax = irpcstationName ;
+      if((irpcstationName==2||irpcstationName==53)&&irpcstationPhi==7){ // sector 13 with BME
+         krpcstationNameMin = 1; 
+         krpcstationNameMax = 2;	 
+      }  
+      if(irpcstationName>=9&&irpcstationName<=10&&irpcdoubletR==1){ // feet extension
+         krpcstationNameMin =  9; 
+         krpcstationNameMax = 10; 
+      }  
+      if(irpcstationName>=8&&irpcstationName<=10&&irpcdoubletR==2){ // feet extension
+         krpcstationNameMin =  8; 
+         krpcstationNameMax = 10; 
+      } 
       
+      for(int jrpcstationName=krpcstationNameMin; jrpcstationName!=krpcstationNameMax+1; jrpcstationName++){
+       if (jrpcstationName>10 && jrpcstationName!=53) continue; 
+       krpcstationName = jrpcstationName ;
+       if(krpcstationName==1)krpcstationName = 53 ; //BME
       for(int idbz=1; idbz!= 4; idbz++){
-    	const MuonGM::RpcReadoutElement* rpc = m_muonMgr->getRpcRElement_fromIdFields(irpcstationName, ieta, irpcstationPhi, irpcdoubletRn, idbz, 1 );
+    	const MuonGM::RpcReadoutElement* rpc = m_muonMgr->getRpcRElement_fromIdFields(krpcstationName, ieta, irpcstationPhi, irpcdoubletR, idbz, 1 );
     	if(rpc != NULL ){
+		
 	  if ( idbz != rpc->getDoubletZ() ) continue ;
-    	  if( ieta==irpcstationEta ){
-    	    if( idbz==irpcdoubletZ ){ ShiftEtaStrips=NetaStrips; }
+	  
+    	  if( ieta==irpcstationEta ){if(krpcstationName == irpcstationName ){
+    	    if( idbz==irpcdoubletZ ){ 
+	     ShiftEtaStrips    = NetaStrips;
+	     if(irpcstationEta<0){ 
+	      ShiftEtaStripsTot = NetaStripsTotSideC  ;  
+	      ShiftPhiTot_db    = NphiStripsTotSideC  ;
+	      ShiftEtaPanelsTot = NetaPanelsTotSideC  ;
+	     }
+	     else{ 
+	      ShiftEtaStripsTot = NetaStripsTotSideA  ;  
+	      ShiftPhiTot_db    = NphiStripsTotSideA  ;
+	      ShiftEtaPanelsTot = NetaPanelsTotSideA  ;
+	     }
+	    }
     	    NetaStrips    +=  rpc->NetaStrips()  ;
-    	  }
-    	  NetaStripsTot   +=  rpc->NetaStrips()  ;
-    	  
-    	  if( ieta==irpcstationEta ){
-	    if( idbz==irpcdoubletZ ) { ShiftEtaStripsTot = NetaStripsTotSideA  ;  ShiftPhiTot_db = NphiStripsTotSideA ; }
+    	  }}
+	  
+    	  NetaStripsTot       +=  rpc->NetaStrips()  ;
+    	  NetaPanelsTot       ++                     ;
+	  if(irpcstationEta<0){
+	   NetaStripsTotSideC  +=  rpc->NetaStrips()  ;
+	   NphiStripsTotSideC  +=  rpc->NphiStrips()  ;
+    	   NetaPanelsTotSideC  ++                     ;
 	  }
-	  NetaStripsTotSideA  +=  rpc->NetaStrips()   ;
-	  NphiStripsTotSideA  +=  rpc->NphiStrips()   ;
-    	  
+	  else{ 
+	   NetaStripsTotSideA  +=  rpc->NetaStrips()  ;
+	   NphiStripsTotSideA  +=  rpc->NphiStrips()  ;
+    	   NetaPanelsTotSideA  ++                     ;
+	  }
+    	
+	  
         } //check if rpc!=NULL
       } //for loop in idbz
-    } // for loop in etastation
-  }
-  else {
-    for ( int ieta=-1; ieta!= -9; ieta-- ) {
-      for ( int irpcstationNameF=9; irpcstationNameF!=11; irpcstationNameF++  ) {
-	for (int idbz=1; idbz!= 4; idbz++){ 
-	  const MuonGM::RpcReadoutElement* rpc = m_muonMgr->getRpcRElement_fromIdFields(irpcstationNameF, ieta, irpcstationPhi, irpcdoubletR, idbz, 1 );
-	  if(rpc != NULL ){
-	    if ( idbz != rpc->getDoubletZ() ) continue ;
-	    if ( ieta==irpcstationEta  && irpcstationNameF==irpcstationName ) {
-	      if( idbz==irpcdoubletZ ){ 
-		ShiftEtaStrips    = NetaStrips;  
-		ShiftEtaStripsTot = NetaStripsTotSideC ;
-		ShiftPhiTot_db    = NphiStripsTotSideC ;
-	      }
-	      NetaStrips    +=  rpc->NetaStrips()  ;
-	    }
-	    NetaStripsTot   +=  rpc->NetaStrips()  ;
-	    NetaStripsTotSideC +=  rpc->NetaStrips()   ;
-	    NphiStripsTotSideC +=  rpc->NphiStrips()   ;
-	  }
-	}
-      }
-    } // end loop on side C    
-    for(int ieta=0; ieta!= 9; ieta++){
-      for ( int irpcstationNameF=9; irpcstationNameF!=11; irpcstationNameF++  ) {
-	for(int idbz=1; idbz!= 4; idbz++){
-	  const MuonGM::RpcReadoutElement* rpc = m_muonMgr->getRpcRElement_fromIdFields(irpcstationNameF, ieta, irpcstationPhi, irpcdoubletR, idbz, 1 );
-	  if(rpc != NULL ){
-	    if ( idbz != rpc->getDoubletZ() ) continue ;
-	    if ( ieta==irpcstationEta  && irpcstationNameF==irpcstationName ) {
-	      if( idbz==irpcdoubletZ ){ ShiftEtaStrips=NetaStrips; }
-	      NetaStrips    +=  rpc->NetaStrips()  ;
-	    }
-	    NetaStripsTot   +=  rpc->NetaStrips()  ;
-    	  
-	    if ( ieta==irpcstationEta && irpcstationNameF==irpcstationName ){
-	      if( idbz==irpcdoubletZ ) { ShiftEtaStripsTot = NetaStripsTotSideA  ;  ShiftPhiTot_db = NphiStripsTotSideA ; }
-	    }
-	    NetaStripsTotSideA  +=  rpc->NetaStrips()   ;
-	    NphiStripsTotSideA  +=  rpc->NphiStrips()   ;
+     } //for loop in krpcstationName
+    } // for loop in etastation     
   
-	  } //check if rpc!=NULL
-	} //for loop in idbz
-      } // for loop in etastation 
-    }    
-  }
-     
   Nbin	      = NetaStrips     ;
   ShiftStrips = ShiftEtaStrips ;
-  
-  // commented out 05 oct 2009
-  // check it !!
-  // if(irpcstationEta<0) { 
-  //   ShiftEtaStripsTot = NetaStripsTotSideC - ShiftEtaStripsTot ;
-  //   ShiftPhiTot_db    = NphiStripsTotSideC - ShiftPhiTot_db    ;
-  // }
-  
   //re-define for phi view
   if(irpcmeasuresPhi==1) {
     Nbin = NphiStrips ;	   
@@ -4880,7 +4868,38 @@ std::vector<int>  RPCStandaloneTracksMon::RpcStripShift(Identifier prdcoll_id, i
      
   EtaStripSign =  1	                   ; 
   if(irpcstationEta<0)  EtaStripSign = -1  ; 
-  
+  		
+  if(irpcdoubletR==1){
+   if     (irpcstationName==2||irpcstationName==53 ){ShiftStripPhiAtlas = (2*48+64*2) * ( irpcstationPhi -1 )        ;}
+   else if(irpcstationName==3                      ){ShiftStripPhiAtlas = (2*48+64*2) * ( irpcstationPhi -1 ) + 2*64 ;}
+   else if(irpcstationName==8                      ){ShiftStripPhiAtlas = (2*48+64*2) * ( irpcstationPhi -1 ) + 2*64 ;}
+   else if(irpcstationName==4		           ){ShiftStripPhiAtlas = (2*64+80*2) * ( irpcstationPhi -1 )	     ;}
+   else{ShiftStripPhiAtlas = (2*64+80*2) * ( irpcstationPhi -1 ) + 2*80 ;} 
+   //BML7 assigned to pivot 
+   if( irpcstationName==2 && abs(irpcstationEta)==7){
+    ShiftStripPhiAtlas = (2*48+64*2) * ( irpcstationPhi -1 );
+    if(irpcstationPhi==8)ShiftStripPhiAtlas +=4*16;
+   }
+   if( irpcstationName==2 && irpcstationPhi==7&&abs(irpcstationEta)==6 ){
+    ShiftStripPhiAtlas = (2*48+64*2) * ( irpcstationPhi -1 ) +2*16      ;
+   }
+  } 		
+  if(irpcdoubletR==2){
+   if(irpcstationPhi<=6){   
+    if     (irpcstationName==2                      ){ShiftStripPhiAtlas = (2*48+64*2) * ( irpcstationPhi -1 )        ;}
+    else if(irpcstationName==3                      ){ShiftStripPhiAtlas = (2*48+64*2) * ( irpcstationPhi -1 ) + 2*64 ;} 
+    else if(irpcstationName>=8&&irpcstationName<=10 ){ShiftStripPhiAtlas = (2*48+64*2) * ( irpcstationPhi -1 ) + 2*64 ;}                    
+   }
+   else if(irpcstationPhi==7){   
+    if     (irpcstationName==2||irpcstationName==53 ){ShiftStripPhiAtlas = (2*48+64*2) * ( irpcstationPhi -1 )+2*16     ;}
+    else if(irpcstationName>=8&&irpcstationName<=10 ){ShiftStripPhiAtlas = (2*48+64*2) * ( irpcstationPhi -1 )+2*16+2*64;}
+   }
+   else if(irpcstationPhi==8){   
+    if     (irpcstationName==2                      ){ShiftStripPhiAtlas = (2*48+64*2) * ( irpcstationPhi -1 ) +4*16      ;}
+    else if(irpcstationName==3                      ){ShiftStripPhiAtlas = (2*48+64*2) * ( irpcstationPhi -1 ) +4*16+2*64 ;}
+   }
+  }
+  //2***
   // cool db strip index
   if(irpcmeasuresPhi==0) {
     strip_dbindex = ( ShiftEtaStripsTot + irpcstrip ) * EtaStripSign ;
@@ -4889,18 +4908,19 @@ std::vector<int>  RPCStandaloneTracksMon::RpcStripShift(Identifier prdcoll_id, i
     if ( irpcstationEta<0 ) { strip_dbindex= - NetaStripsTotSideC - ShiftPhiTot_db - irpcstrip ;}
     else { strip_dbindex = NetaStripsTotSideA + ShiftPhiTot_db + irpcstrip; }
   } 
-  
-  // if ( irpcstationEta>0 ) strip_dbindex = strip_dbindex -1;
   if ( irpcstationEta>=0 ) strip_dbindex = strip_dbindex -1;
   
+  //3***
   //bin panel number for summary plots 
   int irpcstationName_index = irpcdoubletR -1 ; // 0 LowPt, 1 Pivot, 2 HighPt
-  if ( irpcstationName !=2 && irpcstationName !=3 && irpcstationName !=8 ) irpcstationName_index += 2 ;  
-  //PanelIndex = irpcmeasuresPhi + (irpcgasGap-1)*2 + (irpcdoubletPhi-1)*4 + (irpcdoubletZ-1)*8 + (irpcstationName_index)*24 
-  //  + ( ( abs(irpcstationEta) ) -1 )*72 ;
+  if ( irpcstationName !=2 && irpcstationName !=3 && irpcstationName !=8 && irpcstationName !=53) irpcstationName_index += 2 ;  
+  
+
   PanelIndex = irpcmeasuresPhi + (irpcgasGap-1)*2 + (irpcdoubletPhi-1)*4 + (irpcdoubletZ-1)*8 + (irpcstationName_index)*24 
     + ( ( abs(irpcstationEta) ) )*72 ;
-  
+  // exception station name=53, assume irpcstationEta = 0 ;
+  if(irpcstationName ==53)
+  PanelIndex = irpcmeasuresPhi + (irpcgasGap-1)*2 + (irpcdoubletPhi-1)*4 + (irpcdoubletZ-1)*8 + (irpcstationName_index)*24;
   // exception for special chambers sectors 12 and 14:
   if ( irpcstationName==10 ) { 
     // convention: BOG <-> doubletZ=3 <-> (3-1)*8=16
@@ -4915,7 +4935,220 @@ std::vector<int>  RPCStandaloneTracksMon::RpcStripShift(Identifier prdcoll_id, i
   if(irpcstationEta<0) PanelIndex = -PanelIndex ; 
   
   PanelIndex+= 1000*irpctriggerInfo	;
-  	  
+
+
+
+  //4***
+  //panel and tower consecutive index
+
+  int tower_dbindex  = 0 ;  
+  int panel_dbindex  = 0 ; 
+  int lastname       = 0 ;
+  int lastdoubletZ   = 0 ;
+  int laststationEta = 0 ; 
+  int krpcdoubletR   =  irpcdoubletR;
+ 
+  for(int iphi = 1; iphi != 8*0+irpcstationPhi+1; iphi++ ){ 
+    lastname    = 10;
+    if(iphi==irpcstationPhi&&irpcstationName<10){
+      lastname    = irpcstationName ;
+    }
+    for(int kname=      1; kname!=       10*0+lastname+1 ; kname++){
+      int iname = kname ;
+      if (kname == 1) iname= 53;
+      if (iname>10 && iname!=53) continue; 
+      laststationEta = 7 ;
+   
+      if(iname==irpcstationName&&iphi==irpcstationPhi){
+	laststationEta    = irpcstationEta ;
+	lastdoubletZ      = irpcdoubletZ   ;
+      }
+   
+      for(int ieta = -7; ieta != 8*0+laststationEta+1; ieta++ ){
+   
+	krpcdoubletR   =  irpcdoubletR;   
+	if( iname==2||iname==8 || iname==53){    
+    
+	  if(PlaneTipo!=1&&abs(ieta)>=6&&iphi==7)continue;
+	  if(PlaneTipo!=1&&abs(ieta)>=7&&iphi!=7)continue;
+	  if(PlaneTipo==1&&abs(ieta)==6&&iphi==7)krpcdoubletR   =  1;
+	  if(PlaneTipo==1&&abs(ieta)==7&&iphi!=7)krpcdoubletR   =  1;
+	  if(PlaneTipo==1&&abs(ieta) <6&&iphi==7)krpcdoubletR   =  2;
+	  if(PlaneTipo==1&&abs(ieta) <7&&iphi!=7)krpcdoubletR   =  2;
+    
+	}    
+	else if( iname==3 ){      
+	  if(PlaneTipo>1)continue;
+	}      
+	else if( iname==6 || iname==7 ){      
+	  continue;
+	}       
+	else if( (iname==4 || iname ==5 || iname == 9 ||  iname == 10) && (krpcdoubletR > 1) ) continue;       
+           
+	if(PlaneTipo==2 && krpcdoubletR > 1 )continue;
+	if(PlaneTipo==2 &&  (iname==2 || iname ==3 || iname==8 || iname==53) )continue; 
+	if(PlaneTipo <2 && !(iname==2 || iname ==3 || iname==8 || iname==53) )continue; 
+    
+	if(irpcstationEta>=0&&ieta<0){
+	  continue;
+	}
+	else if(irpcstationEta<0&&ieta>=0){
+	  continue;
+	}
+  
+	lastdoubletZ   = 3 ;
+   
+	if(iname==irpcstationName&&iphi==irpcstationPhi&&ieta==irpcstationEta){
+	  lastdoubletZ      = irpcdoubletZ   ;
+	}    
+ 
+	for(int iz   =      1; iz   !=      3*0+lastdoubletZ+1; iz++	){ 
+	  
+	  const MuonGM::RpcReadoutElement* rpc = m_muonMgr->getRpcRElement_fromIdFields(iname, ieta, iphi, krpcdoubletR, iz, 1);
+	  //if(irpcstationPhi<=1)std::cout <<iname << " "<< ieta <<" "<< iphi<<" "<< iz<<" z "<< panel_dbindex<< std::endl; 
+    
+	  if(rpc == NULL )continue;
+	  
+	  panel_dbindex++;
+	  
+	  if(iz==1)tower_dbindex++;
+	   
+	   
+	  //if(irpcstationPhi<=1)std::cout <<iname << " "<< ieta <<" "<< iphi<<" "<< iz<<" x "<< panel_dbindex<< std::endl; 
+	  
+	}}}}		  
+  //if(irpcstationPhi<=1)std::cout << "PlaneTipo "<< PlaneTipo << " "<< irpcstationName<<" "<< irpcstationEta<<" "<< irpcstationPhi<<" "<< irpcdoubletR << " "<< irpcdoubletZ <<" "<< irpcdoubletPhi <<" panel_dbindex "<<  panel_dbindex<<" tower_dbindex "<< tower_dbindex<< std::endl; 
+ 
+  for(int iphi = 1; iphi != 8*0+irpcstationPhi+1; iphi++ ){ 
+    lastname    = 10;
+    if(iphi==irpcstationPhi&&irpcstationName<10){
+      lastname    = irpcstationName ;
+    }
+    for(int kname=      1; kname!=       10*0+lastname+1 ; kname++){
+      int iname = kname ;
+      if (kname == 1) iname= 53;
+      if (iname>10 && iname!=53) continue; 
+      laststationEta = 7 ;
+   
+      if(iname==irpcstationName&&iphi==irpcstationPhi){
+	laststationEta    = irpcstationEta ;
+	lastdoubletZ      = irpcdoubletZ   ;
+      }
+   
+      for(int ieta = -7; ieta != 8*0+laststationEta+1; ieta++ ){
+   
+	krpcdoubletR   =  irpcdoubletR;   
+	if( iname==2||iname==8 || iname==53){    
+    
+	  if(PlaneTipo!=1&&abs(ieta)>=6&&iphi==7)continue;
+	  if(PlaneTipo!=1&&abs(ieta)>=7&&iphi!=7)continue;
+	  if(PlaneTipo==1&&abs(ieta)==6&&iphi==7)krpcdoubletR   =  1;
+	  if(PlaneTipo==1&&abs(ieta)==7&&iphi!=7)krpcdoubletR   =  1;
+	  if(PlaneTipo==1&&abs(ieta) <6&&iphi==7)krpcdoubletR   =  2;
+	  if(PlaneTipo==1&&abs(ieta) <7&&iphi!=7)krpcdoubletR   =  2;
+    
+	}    
+	else if( iname==3 ){      
+	  if(PlaneTipo>1)continue;
+	}      
+	else if( iname==6 || iname==7 ){      
+	  continue;
+	}       
+	else if( (iname==4 || iname ==5 || iname == 9 ||  iname == 10) && (krpcdoubletR > 1) ) continue;       
+           
+	if(PlaneTipo==2 && krpcdoubletR > 1 )continue;
+	if(PlaneTipo==2 &&  (iname==2 || iname ==3 || iname==8 || iname==53) )continue; 
+	if(PlaneTipo <2 && !(iname==2 || iname ==3 || iname==8 || iname==53) )continue; 
+    
+	if(irpcstationEta>=0&&ieta<0){
+	  continue;
+	}
+	else if(irpcstationEta<0&&ieta>=0){
+	  continue;
+	}
+  
+	lastdoubletZ   = 3 ;
+   
+	if(iname==irpcstationName&&iphi==irpcstationPhi&&ieta==irpcstationEta){
+	  lastdoubletZ      = irpcdoubletZ   ;
+	}    
+ 
+	for(int iz   =      1; iz   !=      3*0+lastdoubletZ+1; iz++	){ 
+	  
+	  const MuonGM::RpcReadoutElement* rpc = m_muonMgr->getRpcRElement_fromIdFields(iname, ieta, iphi, krpcdoubletR, iz, 1);
+	  //if(irpcstationPhi<=1)std::cout <<iname << " "<< ieta <<" "<< iphi<<" "<< iz<<" z "<< panel_dbindex<< std::endl; 
+    
+	  if(rpc == NULL )continue;
+	  
+	  panel_dbindex++;
+	  
+	  if(iz==1)tower_dbindex++;
+	   
+	   
+	  //if(irpcstationPhi<=1)std::cout <<iname << " "<< ieta <<" "<< iphi<<" "<< iz<<" x "<< panel_dbindex<< std::endl; 
+	  
+	}}}}		  
+  //std::cout << "PlaneTipo "<< PlaneTipo << " Name "<< irpcstationName<<" Eta "<< irpcstationEta<<" Phi "<< irpcstationPhi<<" dR "<< irpcdoubletR << " dZ "<< irpcdoubletZ<<" dPhi "<< irpcdoubletPhi <<" panel_dbindex "<<  panel_dbindex<<" tower_dbindex "<< tower_dbindex<< std::endl;    
+  //  //calculate max panels and towers  
+  //  int panel_dbindex1 = 0 ; 
+  //  int tower_dbindex1 = 0 ;
+  //  krpcdoubletR   =  irpcdoubletR;
+  //  for(int iphi = 1; iphi != 8+1; iphi++ ){ 
+  //   for(int iname=      2; iname!=       10+1 ; iname++){
+  //    //     
+  //    for(int ieta = -7; ieta != 8+1; ieta++ ){
+  //    
+  //     krpcdoubletR   =  irpcdoubletR;
+  //     
+  //     if( iname==2||iname==8 ){
+  //  
+  //     	if(PlaneTipo!=1&&abs(ieta)>=6&&iphi==7)continue;
+  //     	if(PlaneTipo!=1&&abs(ieta)>=7&&iphi!=7)continue;
+  //     	if(PlaneTipo==1&&abs(ieta)==6&&iphi==7)krpcdoubletR   =  1;
+  //     	if(PlaneTipo==1&&abs(ieta)==7&&iphi!=7)krpcdoubletR   =  1;
+  //     	if(PlaneTipo==1&&abs(ieta) <6&&iphi==7)krpcdoubletR   =  2;
+  //     	if(PlaneTipo==1&&abs(ieta) <7&&iphi!=7)krpcdoubletR   =  2;
+  //  
+  //     }   
+  //     else if( iname==3 ){      
+  //      if(PlaneTipo>1)continue;
+  //     }      
+  //     else if( iname==6 || iname==7 ){      
+  //      continue;
+  //     } 
+  //     else if( (iname==4 || iname ==5 || iname>8 ) && (krpcdoubletR > 1) ) continue;   
+  //     if(PlaneTipo==2 && krpcdoubletR > 1 )continue;
+  //     if(PlaneTipo==2 && (iname==2 || iname ==3 || iname==8 ) )continue;
+  //     if(PlaneTipo <2 && !(iname==2 || iname ==3 || iname==8 ) )continue;  
+  //      
+  //     
+  //     
+  //       
+  // 
+  //     if(irpcstationEta>=0&&ieta<0){
+  //      continue;
+  //     }
+  //     else if(irpcstationEta<0&&ieta>=0){
+  //      continue;
+  //     }
+  //    
+  //       for(int iz   =      1; iz   !=      3+1; iz++	){ 
+  // 	  
+  // 	  const MuonGM::RpcReadoutElement* rpc = m_muonMgr->getRpcRElement_fromIdFields(iname, ieta, iphi, krpcdoubletR , iz, 1 );
+  // 	      
+  // 	  if(rpc == NULL )continue;
+  // 	  
+  // 	  panel_dbindex1++;   
+  // 	   
+  // 	   
+  // 	  if(iz==1)tower_dbindex1++;
+  // 	  if(irpcstationPhi<=1&&iz==1)std::cout <<iname << " "<< ieta <<" "<< iphi<<" "<<irpcdoubletR <<" " << krpcdoubletR<< " " << iz<<" tower_dbindex "<<tower_dbindex1 << std::endl; 
+  // 	  
+  // 	  
+  //   }}}}		 
+  //   std::cout <<"PlaneTipo "<< PlaneTipo << " panel_dbindex1 "<< panel_dbindex1<< " tower_dbindex1 "<< tower_dbindex1<<std::endl; 
+
+				    	  
   rpcstriptot.push_back(NphiStrips	      );  // 0
   rpcstriptot.push_back(ShiftPhiStrips	      );  // 1
   rpcstriptot.push_back(NetaStrips	      );
@@ -4934,7 +5167,21 @@ std::vector<int>  RPCStandaloneTracksMon::RpcStripShift(Identifier prdcoll_id, i
   rpcstriptot.push_back(PlaneTipo	      );   //15
   rpcstriptot.push_back(strip_dbindex	      );   //16
   rpcstriptot.push_back(NphiStripsTotSideA    );
-  rpcstriptot.push_back(NphiStripsTotSideC    );
+  rpcstriptot.push_back(NphiStripsTotSideC    ); 
+  rpcstriptot.push_back(NetaPanelsTot         ); 
+  rpcstriptot.push_back(ShiftEtaPanelsTot     ); 
+  rpcstriptot.push_back(NetaPanelsTotSideC    );
+  rpcstriptot.push_back(NetaPanelsTotSideA    );   //22 
+  rpcstriptot.push_back(panel_dbindex         );
+  rpcstriptot.push_back(tower_dbindex         );   //24
+  rpcstriptot.push_back(ShiftStripPhiAtlas    );   //25
+  
+  //   std::cout << "----------------"<< std::endl;
+  // 
+  //   std::cout << "NphiStripsTotSideA "<<NphiStripsTotSideA<< " NphiStripsTotSideC "<<NphiStripsTotSideC<< " " <<irpcmeasuresPhi <<std::endl;
+  //   std::cout << "NetaStripsTotSideA "<<NetaStripsTotSideA<< " NetaStripsTotSideC "<<NetaStripsTotSideC<<" ShiftEtaStripsTot "<< ShiftEtaStripsTot<< std::endl;
+  //   std::cout << "NetaPanelsTotSideA "<<NetaPanelsTotSideA<< " NetaPanelsTotSideC "<<NetaPanelsTotSideC<<" ShiftEtaPanelsTot "<< ShiftEtaPanelsTot<< std::endl;
+  //   
   
   return  rpcstriptot ;
 
@@ -4942,7 +5189,7 @@ std::vector<int>  RPCStandaloneTracksMon::RpcStripShift(Identifier prdcoll_id, i
 std::vector<std::string>    RPCStandaloneTracksMon::RpcLayerSectorSideName(Identifier prdcoll_id, int  irpctriggerInfo) 
 {
   
-  ATH_MSG_DEBUG ( "in RPCStandaloneTracksMon::RpcLayerSectorSideName" );  
+  ATH_MSG_DEBUG (  "in RPCStandaloneTracksMon::RpcLayerSectorSideName" );  
   
   std::vector<std::string>  layersectorside_name ;
     
@@ -4976,18 +5223,19 @@ std::vector<std::string>    RPCStandaloneTracksMon::RpcLayerSectorSideName(Ident
   sprintf(dblZ_char    ,"_dblZ%d"    ,irpcdoubletZ  );
   sprintf(dblPhi_char  ,"_dblPhi%d"  ,irpcdoubletPhi);
   	    
-  //2=BML,3=BMS,4=BOL,5=BOS,8=BMF,9=BOF,10=BOG
-  if( (irpcstationName>1) && (irpcstationName<4||irpcstationName==8) ){
+  //2=BML,3=BMS,4=BOL,5=BOS,8=BMF,9=BOF,10=BOG,53=BME
+  if( irpcstationName==2 || irpcstationName==3 || irpcstationName==8 || irpcstationName==53 ){
     if(irpcdoubletR==1){
       layer_name="LowPt";
-      if(irpcstationName==2&&abs(irpcstationEta)==7)layer_name="Pivot";
-      if(irpcstationName==2&&irpcstationPhi==7&&abs(irpcstationEta)==6)layer_name="Pivot";
     }
     else {layer_name="Pivot";}
   }			
   else {layer_name="HighPt";}
+  if(irpcdoubletR==2)layer_name="Pivot";
+  //BML7 assigned to pivot 
+  if( irpcstationName==2 && ( (abs(irpcstationEta)==7)||(irpcstationPhi==7&&abs(irpcstationEta)==6) ) )layer_name="Pivot";
 	    
-  if(irpcstationName==3||irpcstationName==5||irpcstationName>7){
+  if(irpcstationName==3||irpcstationName==5||irpcstationName==8||irpcstationName==9||irpcstationName==10){
     HVorROsideleft  = "RO side" ;
     HVorROsideright = "HV side" ;
   }

@@ -20,10 +20,10 @@ rpcLV1RawDataValAlg = RpcLv1RawDataValAlg(name='rpcLV1RawDataValAlg'            
                                           RpcLv1File        = False              ,
                                           RpcLv1Hist        = False              ,
                                           RpcLv1Prof        = False              ,
-                                          RpcLv1ReduceNbins = 1                  ,
+                                          RpcLv1ReduceNbins = 2                  ,
 					  OutputLevel       = OutputMessageLevel ,
                                           LastEvent         = MuonDQAFlags.EvtMax,
-					  doCoolDB          = True               )
+					  doCoolDB          = False               )
 ToolSvc += rpcLV1RawDataValAlg
 rpcLv1RawMonMan.AthenaMonTools += [ rpcLV1RawDataValAlg ]
 topSequence += rpcLv1RawMonMan

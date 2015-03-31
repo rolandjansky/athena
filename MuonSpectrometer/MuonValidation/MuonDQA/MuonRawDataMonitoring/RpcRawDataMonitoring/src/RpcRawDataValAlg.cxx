@@ -71,9 +71,8 @@ static const float Chi2dofCut         =     1;
 /////////////////////////////////////////////////////////////////////////////
 
 RpcRawDataValAlg::RpcRawDataValAlg( const std::string & type, const std::string & name, const IInterface* parent )
-  :ManagedMonitorToolBase( type, name, parent ),
-   m_first(true) 
-				  //,m_pSummarySvc("RPCCondSummarySvc", name)
+  :ManagedMonitorToolBase( type, name, parent )
+  //,m_pSummarySvc("RPCCondSummarySvc", name)
 {
   // Declare the properties 
   declareProperty("DoRpcEsd",            m_doRpcESD		= false	); 
@@ -106,7 +105,7 @@ RpcRawDataValAlg::RpcRawDataValAlg( const std::string & type, const std::string 
   declareProperty("RPCTriggerContainer", m_key_trig		= "RPC_triggerHits"	);
   declareProperty("MinimunEntries",      MinEntries		= 10	);    // min entries required for summary plot 
   declareProperty("LB_Nbins"      ,      m_LB_Nbins		= 300	);     
-  declareProperty("LBmax"         ,      m_LBmax		= 1500	);     
+  declareProperty("LBmax"         ,      m_LBmax		= 1500	);
   m_padsId     = 0;
   m_chambersId = 0;
 } 
@@ -198,7 +197,8 @@ StatusCode RpcRawDataValAlg::initialize(){
   */
   hardware_name_list.push_back("XXX");
   
-  ManagedMonitorToolBase::initialize().ignore();  //  Ignore the checking code;
+  ManagedMonitorToolBase::initialize().ignore();  //  Ignore the checking code; 
+  
  
   rpc_eventstotal=0;  
   
@@ -212,6 +212,47 @@ StatusCode RpcRawDataValAlg::initialize(){
   rpc1DvsLBoffPanelDCS  .clear();
   rpc1DvsLBdeadPanelDCS.clear();
   rpc1DvsLBTrigTowerHits.clear();
+  
+
+  //2=BML,3=BMS,4=BOL,5=BOS,8=BMF,9=BOF,10=BOG,53=BME  
+  StationNameViewIndex[ 2][0]= 0;
+  StationNameViewIndex[ 2][1]= 1;
+  StationNameViewIndex[ 3][0]= 2;
+  StationNameViewIndex[ 3][1]= 3;
+  StationNameViewIndex[ 4][0]= 8;
+  StationNameViewIndex[ 4][1]= 9;
+  StationNameViewIndex[ 5][0]= 6;
+  StationNameViewIndex[ 5][1]= 7;
+  StationNameViewIndex[ 8][0]= 4;
+  StationNameViewIndex[ 8][1]= 5;
+  StationNameViewIndex[ 9][0]=10;
+  StationNameViewIndex[ 9][1]=11;
+  StationNameViewIndex[10][0]=10;
+  StationNameViewIndex[10][1]=11;
+  StationNameViewIndex[53][0]= 2;
+  StationNameViewIndex[53][1]= 2; 
+  
+  //size in cm2 =zmax in cm * layers * # phi strips * 3 cm pitch
+  StationNameSectorSize[ 2]=  965*4*6*128*3;
+  StationNameSectorSize[ 3]=  945*4*6* 96*3;
+  StationNameSectorSize[ 4]= 1235*2*6*160*3;
+  StationNameSectorSize[ 5]= 1285*2*6*128*3;
+  StationNameSectorSize[ 8]=  685*4*2* 96*3;
+  StationNameSectorSize[ 9]= 1235*4*2*128*3;
+  StationNameSectorSize[10]= 1235*4*2*128*3;
+  StationNameSectorSize[53]=  965*4*6*128*3;
+  
+  StationPivotSectorSize[ 2]=  965*6*128*3;
+  StationPivotSectorSize[ 3]=  945*6* 96*3;
+  StationPivotSectorSize[ 4]= 1235*6*160*3;
+  StationPivotSectorSize[ 5]= 1285*6*128*3;
+  StationPivotSectorSize[ 8]=  685*2* 96*3;
+  StationPivotSectorSize[ 9]= 1235*2*128*3;
+  StationPivotSectorSize[10]= 1235*2*128*3;
+  StationPivotSectorSize[53]=  965*6*128*3;
+ 
+  m_first = true ;
+  
   return StatusCode::SUCCESS;
 }
 
@@ -241,7 +282,10 @@ StatusCode RpcRawDataValAlg::fillHistograms()
 	ATH_MSG_DEBUG ( "event LB " << lumiblock ); 
 	      
       }
-       
+              
+      float AverageLuminosityWeight = 1;
+      
+             
       //          
       //     
       //     //dcs condition
@@ -837,7 +881,12 @@ StatusCode RpcRawDataValAlg::fillHistograms()
     
       sc = rpcprd_dq_BA.getHist(rpctime_Sector16_BA, "rpctime_Sector16_BA" );
       if(sc.isFailure() ) ATH_MSG_WARNING ( "couldn't get rpctime_Sector2_BA hist "  );
-    
+            
+      sc = rpcprd_dq_BA.getHist(rpc1DStationNameHitsSideA, "rpc1DStationNameHitsSideA" );
+      if(sc.isFailure() ) ATH_MSG_WARNING ( "couldn't get rpc1DStationNameHitsSideA hist "  );
+            
+      sc = rpcprd_dq_BA.getHist(rpc1DStationNameTriggerHitsSideA, "rpc1DStationNameTriggerHitsSideA" );
+      if(sc.isFailure() ) ATH_MSG_WARNING ( "couldn't get rpc1DStationNameTriggerHitsSideA hist "  );
 
       sc = rpcprd_dq_BC.getHist(rpctime_Sector1_BC, "rpctime_Sector1_BC" );
       if(sc.isFailure() ) ATH_MSG_WARNING ( "couldn't get rpctime_Sector1_BC hist "  );
@@ -886,7 +935,12 @@ StatusCode RpcRawDataValAlg::fillHistograms()
     
       sc = rpcprd_dq_BC.getHist(rpctime_Sector16_BC, "rpctime_Sector16_BC" );
       if(sc.isFailure() ) ATH_MSG_WARNING ( "couldn't get rpctime_Sector16_BC hist "  );
-
+            
+      sc = rpcprd_dq_BC.getHist(rpc1DStationNameHitsSideC, "rpc1DStationNameHitsSideC" );
+      if(sc.isFailure() ) ATH_MSG_WARNING ( "couldn't get rpc1DStationNameHitsSideC hist "  );
+            
+      sc = rpcprd_dq_BC.getHist(rpc1DStationNameTriggerHitsSideC, "rpc1DStationNameTriggerHitsSideC" );
+      if(sc.isFailure() ) ATH_MSG_WARNING ( "couldn't get rpc1DStationNameTriggerHitsSideC hist "  );
     
       // trigger road
     
@@ -964,7 +1018,7 @@ StatusCode RpcRawDataValAlg::fillHistograms()
 		irpctriggerInfo	 =   int((*rpcCollection)->triggerInfo   ())     ; // double		   
 		irpcambiguityFlag	 =   double((*rpcCollection)->ambiguityFlag ())  ;		 
 		// irpcthreshold	 =   double((*rpcCollection)->threshold ())  ;		 
-          
+		
 		// std::cout << "irpcthreshold rpcCollection   " << irpcthreshold <<  "\n";		  
 		// m_threshold: internal threshold 
 		const MuonGM::RpcReadoutElement* descriptor_Atl = m_muonMgr->getRpcReadoutElement( prdcoll_id );
@@ -978,6 +1032,8 @@ StatusCode RpcRawDataValAlg::fillHistograms()
 	    		  
 		//get information from geomodel to book and fill rpc histos with the right max strip number
 		std::vector<int>   rpcstripshift = RpcStripShift(prdcoll_id, irpctriggerInfo)  ;
+		
+		
 		NphiStrips         =  rpcstripshift[0] ;
 		ShiftPhiStrips     =  rpcstripshift[1] ;
 		NetaStrips	       =  rpcstripshift[2] ;
@@ -999,6 +1055,7 @@ StatusCode RpcRawDataValAlg::fillHistograms()
 		NetaPanelsTotSideC =  rpcstripshift[22];
 		rpcpanel_dbindex   =  rpcstripshift[23];
 		rpctower_dbindex   =  rpcstripshift[24];
+		shiftstripphiatlas =  rpcstripshift[25];
  
 		//get name for titles and labels 
 		std::vector<std::string>   rpclayersectorsidename = RpcLayerSectorSideName(prdcoll_id, irpctriggerInfo)  ;  
@@ -1029,6 +1086,7 @@ StatusCode RpcRawDataValAlg::fillHistograms()
 	      
 
 		//dq histo from Mauro
+		if(irpctriggerInfo==0){
 		//enum_Eta(Phi)_LowPt0_BA(BC)
 		if(PlaneTipo==0&&irpcgasGap==1){
 		  if(irpcmeasuresPhi==0){	 
@@ -1167,20 +1225,29 @@ StatusCode RpcRawDataValAlg::fillHistograms()
 		    }
 		  }
 		}
-            
+                }
 
-		///////
-
-
-		if(irpctriggerInfo>0){
+		///////SHIFT 1D HISTOS
+		 
+	        if(EtaStripSign>=0){
+		   if(irpctriggerInfo==  0)rpc1DStationNameHitsSideA       ->Fill(StationNameViewIndex[irpcstationName][irpcmeasuresPhi]  ,1./StationNameSectorSize [irpcstationName]*AverageLuminosityWeight);
+		   if(irpctriggerInfo==  6)rpc1DStationNameTriggerHitsSideA->Fill(StationNameViewIndex[irpcstationName][irpcmeasuresPhi]  ,1./StationPivotSectorSize[irpcstationName]*AverageLuminosityWeight);		  
+		   if(irpctriggerInfo==106)rpc1DStationNameTriggerHitsSideA->Fill(StationNameViewIndex[irpcstationName][irpcmeasuresPhi]+6,1./StationPivotSectorSize[irpcstationName]*AverageLuminosityWeight);
+		} 
+	        else{
+		   if(irpctriggerInfo==  0)rpc1DStationNameHitsSideC       ->Fill(StationNameViewIndex[irpcstationName][irpcmeasuresPhi]  ,1./StationNameSectorSize [irpcstationName]*AverageLuminosityWeight);
+		   if(irpctriggerInfo==  6)rpc1DStationNameTriggerHitsSideC->Fill(StationNameViewIndex[irpcstationName][irpcmeasuresPhi]  ,1./StationPivotSectorSize[irpcstationName]*AverageLuminosityWeight);		  
+		   if(irpctriggerInfo==106)rpc1DStationNameTriggerHitsSideC->Fill(StationNameViewIndex[irpcstationName][irpcmeasuresPhi]+6,1./StationPivotSectorSize[irpcstationName]*AverageLuminosityWeight);
+		}
+		  
+		////////Trigger hits  
+		if(irpctriggerInfo>0){		  
 		  if(irpctriggerInfo==6){
 		    if(irpcmeasuresPhi==0){	 
 		      if(EtaStripSign>0){
 			rpc2DPanelHits[enum_Eta_LowPt]->Fill(ShiftEtaPanelsTot, Settore + 0.5*(irpcdoubletPhi-1)-1);
-			rpc1DvsLBPanelHits[enum_Eta_LowPt]->Fill(lumiblock, float(rpcpanel_dbindex) + float(irpcdoubletPhi-1)*0.5-1      );
-		     
-			rpc1DvsLBTrigTowerHits[enum_Eta_TrigTowerLowPt_BA]->Fill(lumiblock, float(rpctower_dbindex) + float(irpcdoubletPhi-1)*0.5-1      );
-		     
+			rpc1DvsLBPanelHits[enum_Eta_LowPt]->Fill(lumiblock, float(rpcpanel_dbindex) + float(irpcdoubletPhi-1)*0.5-1      );		     
+			rpc1DvsLBTrigTowerHits[enum_Eta_TrigTowerLowPt_BA]->Fill(lumiblock, float(rpctower_dbindex) + float(irpcdoubletPhi-1)*0.5-1      );		     
 			rpctime_LPt_BA->Fill(irpctime);
 		      }
 		      else{
@@ -1272,6 +1339,8 @@ StatusCode RpcRawDataValAlg::fillHistograms()
 		      rpc2DEtaStationTriggerHits_Side_Pt[enumBA_HighPt] ->Fill(irpcstationEta, Settore-1 + 0.5*(irpcdoubletPhi-1) );
 		    }
 		  }
+		  
+		  
 		}
 	      
 	      
@@ -1323,7 +1392,7 @@ StatusCode RpcRawDataValAlg::fillHistograms()
 		if (irpcstationEta>=0&&Settore==13){ rpctime_Sector13_BA->Fill(irpctime); }
 		if (irpcstationEta>=0&&Settore==14){ rpctime_Sector14_BA->Fill(irpctime); }
 		if (irpcstationEta>=0&&Settore==15){ rpctime_Sector15_BA->Fill(irpctime); }
-		if (irpcstationEta>=0&&Settore==16){ rpctime_Sector16_BA->Fill(irpctime); }
+		if (irpcstationEta>=0&&Settore==16){ rpctime_Sector16_BA->Fill(irpctime); } 
 
 
 	   
@@ -1406,7 +1475,7 @@ StatusCode RpcRawDataValAlg::fillHistograms()
 		////////////// Start Loop on the second prd ///////////////////////////////
 		for (Muon::RpcPrepDataCollection::const_iterator rpcCollectionII=(*containerIt)->begin();
 		     rpcCollectionII!=(*containerIt)->end(); ++rpcCollectionII)	  	   	 	   
-		  {
+		  { 
 		    Identifier prdcoll_id_II = (*rpcCollectionII)->identify(); 
 		  
 		    irpcstationPhiII       =   int(m_rpcIdHelper->stationPhi(prdcoll_id_II))  ;		
@@ -1476,13 +1545,6 @@ StatusCode RpcRawDataValAlg::fillHistograms()
 			  else {ATH_MSG_DEBUG (  "rpcstriplayerPhivsEtaSector not in hist list!" );}
 			}
 		      
-			// if(irpcstationName==2||irpcstationName==8)    {shiftstripphiatlas = (2*48+64*2) * ( irpcstationPhi -1 )        ;}
-			// else if(irpcstationName==3                   ){shiftstripphiatlas = (2*48+64*2) * ( irpcstationPhi -1 ) + 2*64 ;}
-			if(irpcstationName==2)                          {shiftstripphiatlas = (2*48+64*2) * ( irpcstationPhi -1 )        ;}
-			else if(irpcstationName==3||irpcstationName==8 ){shiftstripphiatlas = (2*48+64*2) * ( irpcstationPhi -1 ) + 2*64 ;}
-			else if(irpcstationName==4                   ){shiftstripphiatlas = (2*64+80*2) * ( irpcstationPhi -1 )        ;}
-			else {shiftstripphiatlas = (2*64+80*2) * ( irpcstationPhi -1 ) + 2*80 ;} 
-						
 			stripphiatlas = stripphisector + shiftstripphiatlas ;
 			
 			x_atlas = x_atl     ;
@@ -1548,7 +1610,8 @@ StatusCode RpcRawDataValAlg::fillHistograms()
 			  rpcPhivsEtaAtlasHighPt1        ->Fill( stripetaatlas , stripphiatlas -1 );	    
 			  rpcPhivsEtaAtlasHighPt1_PhivsZ ->Fill( z_atlas, phi_atlas )           ;
 			}
-			if(layeronly_name=="LowPt_TriggerOut"       ){
+			if(layeronly_name=="LowPt_TriggerOut"       ){ 
+		
 			  rpcPhivsEtaAtlasLowPt_TriggerOut        ->Fill( stripetaatlas , stripphiatlas-1 );
 			  rpcPhivsEtaAtlasLowPt_TriggerOut_PhivsZ ->Fill( z_atlas, phi_atlas )           ;
 			}
@@ -1747,6 +1810,7 @@ StatusCode RpcRawDataValAlg::fillHistograms()
 		NetaPanelsTotSideC =  rpcstripshift[22];
 		rpcpanel_dbindex   =  rpcstripshift[23];
 		rpctower_dbindex   =  rpcstripshift[24];
+		shiftstripphiatlas =  rpcstripshift[25];
 
  
 		//get name for titles and labels 
@@ -1775,6 +1839,17 @@ StatusCode RpcRawDataValAlg::fillHistograms()
 		    irpcstationNameC1 =  9 ;
 		    irpcstationNameC2 = 10 ;
 		  }
+		}
+		
+		///////SHIFT 1D HISTOS
+		 
+	        if(EtaStripSign>=0){
+		   if(irpctriggerInfo==  6)rpc1DStationNameTriggerHitsSideA->Fill(StationNameViewIndex[irpcstationName][irpcmeasuresPhi]  ,1./StationPivotSectorSize[irpcstationName]*AverageLuminosityWeight);		  
+		   if(irpctriggerInfo==106)rpc1DStationNameTriggerHitsSideA->Fill(StationNameViewIndex[irpcstationName][irpcmeasuresPhi]+6,1./StationPivotSectorSize[irpcstationName]*AverageLuminosityWeight);
+		} 
+	        else{
+		   if(irpctriggerInfo==  6)rpc1DStationNameTriggerHitsSideC->Fill(StationNameViewIndex[irpcstationName][irpcmeasuresPhi]  ,1./StationPivotSectorSize[irpcstationName]*AverageLuminosityWeight);		  
+		   if(irpctriggerInfo==106)rpc1DStationNameTriggerHitsSideC->Fill(StationNameViewIndex[irpcstationName][irpcmeasuresPhi]+6,1./StationPivotSectorSize[irpcstationName]*AverageLuminosityWeight);
 		}
 		
 		// fill trigger road
@@ -2019,6 +2094,7 @@ StatusCode RpcRawDataValAlg::fillHistograms()
 		for (Muon::RpcCoinDataCollection::const_iterator rpcCoinCollectionII=(*trigcontainerIt)->begin();
 		     rpcCoinCollectionII!=(*trigcontainerIt)->end(); ++rpcCoinCollectionII)				       
 		  {
+	
 		    Identifier prdcoll_id_II = (*rpcCoinCollectionII)->identify(); 
              	     
 		    irpcstationPhiII	    =	int(m_rpcIdHelper->stationPhi( prdcoll_id_II))   ; 	
@@ -2089,13 +2165,7 @@ StatusCode RpcRawDataValAlg::fillHistograms()
 			  }
 			  else {ATH_MSG_DEBUG (  "rpcstriplayerPhivsEtaSector not in hist list!" );} 
 			}
-			// if(irpcstationName==2||irpcstationName==8){shiftstripphiatlas = (2*48+64*2) * ( irpcstationPhi -1 )        ;}
-			// else if(irpcstationName==3			){shiftstripphiatlas = (2*48+64*2) * ( irpcstationPhi -1 ) + 2*64 ;}
-			if(irpcstationName==2)                          {shiftstripphiatlas = (2*48+64*2) * ( irpcstationPhi -1 )        ;}
-			else if(irpcstationName==3||irpcstationName==8 ){shiftstripphiatlas = (2*48+64*2) * ( irpcstationPhi -1 ) + 2*64 ;}
-			else if(irpcstationName==4			){shiftstripphiatlas = (2*64+80*2) * ( irpcstationPhi -1 )	  ;}
-			else {shiftstripphiatlas = (2*64+80*2) * ( irpcstationPhi -1 ) + 2*80 ;} 
-             			 
+			 
 			stripphiatlas = stripphisector + shiftstripphiatlas ;
                
 			x_atlas = x_atl     ;
@@ -2416,7 +2486,7 @@ StatusCode RpcRawDataValAlg::fillHistograms()
 		if(irpc_clus_measphi==1){
 		  for (Muon::RpcPrepDataCollection::const_iterator rpcCollectionII = clusterCollection->begin(); 
 		       rpcCollectionII != clusterCollection->end(); ++rpcCollectionII) {
-	   	
+	   	    
 		    Identifier prd_idII = (*rpcCollectionII)->identify();
 	     
 		    irpc_clus_sizeII     = ((*rpcCollectionII)->rdoList()).size();
@@ -2468,10 +2538,6 @@ StatusCode RpcRawDataValAlg::fillHistograms()
 	   
 		    if (rpcclusterlayerPhivsEtaSector) {
 		      rpcclusterlayerPhivsEtaSector->Fill( avstripeta , avstripphi );
-		      //if(irpc_clus_stationII==2||irpc_clus_stationII==8){shiftphiatlas = (2*48+64*2) * ( irpc_clus_phi -1 )        ;}
-		      //else if(irpc_clus_stationII==3                   ){shiftphiatlas = (2*48+64*2) * ( irpc_clus_phi -1 ) + 2*64 ;}
-		      //else if(irpc_clus_stationII==4                   ){shiftphiatlas = (2*64+80*2) * ( irpc_clus_phi -1 )        ;}
-		      //else {shiftphiatlas = (2*64+80*2) * ( irpc_clus_phi -1 ) + 2*80 ;} 
 		      layertype = 0 ;
 		      if(layeronly_name=="Pivot0"	){
 			layertype = 3 ;
@@ -4431,7 +4497,7 @@ StatusCode RpcRawDataValAlg::bookHistogramsRecurrent()
 	  
 	  
 	
-	  TH2 *rpcPhivsEtaAtlasPivot0=new TH2I("AtlasPivot0","AtlasPivot0", 2*400/m_rpcreducenbins, -400, 400, 8*(48*2+64*2)/m_rpcreducenbins,0,8*(48*2+64*2)); 
+	  TH2 *rpcPhivsEtaAtlasPivot0=new TH2I("AtlasPivot0","AtlasPivot0", 2*408/m_rpcreducenbins, -408, 408, (8*(48*2+64*2)+4*16)/m_rpcreducenbins,0,8*(48*2+64*2)+4*16); 
 	  sc=rpcprd_expert.regHist(rpcPhivsEtaAtlasPivot0) ; 
 	  rpcPhivsEtaAtlasPivot0->SetFillColor(42);  
 	  rpcPhivsEtaAtlasPivot0->SetMarkerColor(1);  
@@ -4441,7 +4507,7 @@ StatusCode RpcRawDataValAlg::bookHistogramsRecurrent()
 	  rpcPhivsEtaAtlasPivot0->GetXaxis()->SetTitle("<--- SIDE C      Rpc Eta  strip	SIDE A --->");
 	  rpcPhivsEtaAtlasPivot0->GetYaxis()->SetTitle("Rpc Phi  strip");
 	  
-	  TH2 *rpcPhivsEtaAtlasPivot1=new TH2I("AtlasPivot1","AtlasPivot1", 2*400/m_rpcreducenbins, -400, 400, 8*(48*2+64*2)/m_rpcreducenbins,0,8*(48*2+64*2)); 
+	  TH2 *rpcPhivsEtaAtlasPivot1=new TH2I("AtlasPivot1","AtlasPivot1", 2*408/m_rpcreducenbins, -408, 408, (8*(48*2+64*2)+4*16)/m_rpcreducenbins,0,8*(48*2+64*2)+4*16); 
 	  sc=rpcprd_expert.regHist(rpcPhivsEtaAtlasPivot1) ; 
 	  rpcPhivsEtaAtlasPivot1->SetFillColor(42);  
 	  rpcPhivsEtaAtlasPivot1->SetMarkerColor(1);  
@@ -4451,7 +4517,7 @@ StatusCode RpcRawDataValAlg::bookHistogramsRecurrent()
 	  rpcPhivsEtaAtlasPivot1->GetXaxis()->SetTitle("<--- SIDE C      Rpc Eta  strip	SIDE A --->");
 	  rpcPhivsEtaAtlasPivot1->GetYaxis()->SetTitle("Rpc Phi  strip");
 	
-	  TH2 *rpcPhivsEtaAtlasLowPt0=new TH2I("AtlasLowPt0","AtlasLowPt0", 2*400/m_rpcreducenbins, -400, 400, 8*(48*2+64*2)/m_rpcreducenbins,0,8*(48*2+64*2)); 
+	  TH2 *rpcPhivsEtaAtlasLowPt0=new TH2I("AtlasLowPt0","AtlasLowPt0", 2*408/m_rpcreducenbins, -408, 408, 8*(48*2+64*2)/m_rpcreducenbins,0,8*(48*2+64*2)); 
 	  sc=rpcprd_expert.regHist(rpcPhivsEtaAtlasLowPt0) ; 
 	  rpcPhivsEtaAtlasLowPt0->SetFillColor(42);  
 	  rpcPhivsEtaAtlasLowPt0->SetMarkerColor(1);  
@@ -4461,7 +4527,7 @@ StatusCode RpcRawDataValAlg::bookHistogramsRecurrent()
 	  rpcPhivsEtaAtlasLowPt0->GetXaxis()->SetTitle("<--- SIDE C      Rpc Eta  strip	SIDE A --->");
 	  rpcPhivsEtaAtlasLowPt0->GetYaxis()->SetTitle("Rpc Phi  strip");
 	  
-	  TH2 *rpcPhivsEtaAtlasLowPt1=new TH2I("AtlasLowPt1","AtlasLowPt1", 2*400/m_rpcreducenbins, -400, 400, 8*(48*2+64*2)/m_rpcreducenbins,0,8*(48*2+64*2)); 
+	  TH2 *rpcPhivsEtaAtlasLowPt1=new TH2I("AtlasLowPt1","AtlasLowPt1", 2*408/m_rpcreducenbins, -408, 408, 8*(48*2+64*2)/m_rpcreducenbins,0,8*(48*2+64*2)); 
 	  sc=rpcprd_expert.regHist(rpcPhivsEtaAtlasLowPt1) ; 
 	  rpcPhivsEtaAtlasLowPt1->SetFillColor(42);  
 	  rpcPhivsEtaAtlasLowPt1->SetMarkerColor(1);  
@@ -4471,7 +4537,7 @@ StatusCode RpcRawDataValAlg::bookHistogramsRecurrent()
 	  rpcPhivsEtaAtlasLowPt1->GetXaxis()->SetTitle("<--- SIDE C      Rpc Eta  strip	SIDE A --->");
 	  rpcPhivsEtaAtlasLowPt1->GetYaxis()->SetTitle("Rpc Phi  strip");
 	
-	  TH2 *rpcPhivsEtaAtlasHighPt0=new TH2I("AtlasHighPt0","AtlasHighPt0", 2*400/m_rpcreducenbins, -400, 400, 8*(64*2+80*2)/m_rpcreducenbins,0,8*(64*2+80*2)); 
+	  TH2 *rpcPhivsEtaAtlasHighPt0=new TH2I("AtlasHighPt0","AtlasHighPt0", 2*408/m_rpcreducenbins, -408, 408, 8*(64*2+80*2)/m_rpcreducenbins,0,8*(64*2+80*2)); 
 	  sc=rpcprd_expert.regHist(rpcPhivsEtaAtlasHighPt0) ; 
 	  rpcPhivsEtaAtlasHighPt0->SetFillColor(42);  
 	  rpcPhivsEtaAtlasHighPt0->SetMarkerColor(1);  
@@ -4481,7 +4547,7 @@ StatusCode RpcRawDataValAlg::bookHistogramsRecurrent()
 	  rpcPhivsEtaAtlasHighPt0->GetXaxis()->SetTitle("<--- SIDE C      Rpc Eta  strip	 SIDE A --->");
 	  rpcPhivsEtaAtlasHighPt0->GetYaxis()->SetTitle("Rpc Phi  strip");
 	  
-	  TH2 *rpcPhivsEtaAtlasHighPt1=new TH2I("AtlasHighPt1","AtlasHighPt1", 2*400/m_rpcreducenbins, -400, 400, 8*(64*2+80*2)/m_rpcreducenbins,0,8*(64*2+80*2)); 
+	  TH2 *rpcPhivsEtaAtlasHighPt1=new TH2I("AtlasHighPt1","AtlasHighPt1", 2*408/m_rpcreducenbins, -408, 408, 8*(64*2+80*2)/m_rpcreducenbins,0,8*(64*2+80*2)); 
 	  sc=rpcprd_expert.regHist(rpcPhivsEtaAtlasHighPt1) ; 
 	  rpcPhivsEtaAtlasHighPt1->SetFillColor(42);  
 	  rpcPhivsEtaAtlasHighPt1->SetMarkerColor(1);  
@@ -4492,7 +4558,7 @@ StatusCode RpcRawDataValAlg::bookHistogramsRecurrent()
 	  rpcPhivsEtaAtlasHighPt1->GetYaxis()->SetTitle("Rpc Phi  strip");
 	
 	  
-	  TH2 *rpcPhivsEtaAtlasLowPt_TriggerOut=new TH2I("AtlasLowPt_TriggerOut","AtlasLowPt_TriggerOut", 2*400/m_rpcreducenbins, -400, 400, 8*(48*2+64*2)/m_rpcreducenbins,0,8*(48*2+64*2)); 
+	  TH2 *rpcPhivsEtaAtlasLowPt_TriggerOut=new TH2I("AtlasLowPt_TriggerOut","AtlasLowPt_TriggerOut", 2*408/m_rpcreducenbins, -408, 408, (8*(48*2+64*2)+4*16)/m_rpcreducenbins,0,8*(48*2+64*2)+4*16); 
 	  sc=rpcprd_expert.regHist(rpcPhivsEtaAtlasLowPt_TriggerOut) ; 
 	  rpcPhivsEtaAtlasLowPt_TriggerOut->SetFillColor(42);  
 	  rpcPhivsEtaAtlasLowPt_TriggerOut->SetMarkerColor(1);  
@@ -4502,7 +4568,7 @@ StatusCode RpcRawDataValAlg::bookHistogramsRecurrent()
 	  rpcPhivsEtaAtlasLowPt_TriggerOut->GetXaxis()->SetTitle("<--- SIDE C      Rpc Eta  strip	  SIDE A --->");
 	  rpcPhivsEtaAtlasLowPt_TriggerOut->GetYaxis()->SetTitle("Rpc Phi  strip");
 	  
-	  TH2 *rpcPhivsEtaAtlasHighPt_TriggerFromLowPt=new TH2I("AtlasHighPt_TriggerFromLowPt","AtlasHighPt_TriggerFromLowPt", 2*400/m_rpcreducenbins, -400, 400, 8*(48*2+64*2)/m_rpcreducenbins,0,8*(48*2+64*2)); 
+	  TH2 *rpcPhivsEtaAtlasHighPt_TriggerFromLowPt=new TH2I("AtlasHighPt_TriggerFromLowPt","AtlasHighPt_TriggerFromLowPt", 2*408/m_rpcreducenbins, -408, 408, (8*(48*2+64*2)+4*16)/m_rpcreducenbins,0,8*(48*2+64*2)+4*16); 
 	  sc=rpcprd_expert.regHist(rpcPhivsEtaAtlasHighPt_TriggerFromLowPt) ; 
 	  rpcPhivsEtaAtlasHighPt_TriggerFromLowPt->SetFillColor(42);  
 	  rpcPhivsEtaAtlasHighPt_TriggerFromLowPt->SetMarkerColor(1);  
@@ -4512,7 +4578,7 @@ StatusCode RpcRawDataValAlg::bookHistogramsRecurrent()
 	  rpcPhivsEtaAtlasHighPt_TriggerFromLowPt->GetXaxis()->SetTitle("<--- SIDE C      Rpc Eta  strip	 SIDE A --->");
 	  rpcPhivsEtaAtlasHighPt_TriggerFromLowPt->GetYaxis()->SetTitle("Rpc Phi  strip");
 	
-	  TH2 *rpcPhivsEtaAtlasHighPt_TriggerOut=new TH2I("AtlasHighPt_TriggerOut","AtlasHighPt_TriggerOut", 2*400/m_rpcreducenbins, -400, 400, 8*(48*2+64*2)/m_rpcreducenbins,0,8*(48*2+64*2)); 
+	  TH2 *rpcPhivsEtaAtlasHighPt_TriggerOut=new TH2I("AtlasHighPt_TriggerOut","AtlasHighPt_TriggerOut", 2*408/m_rpcreducenbins, -408, 408, (8*(48*2+64*2)+4*16)/m_rpcreducenbins,0,8*(48*2+64*2)+4*16); 
 	  sc=rpcprd_expert.regHist(rpcPhivsEtaAtlasHighPt_TriggerOut) ; 
 	  rpcPhivsEtaAtlasHighPt_TriggerOut->SetFillColor(42);  
 	  rpcPhivsEtaAtlasHighPt_TriggerOut->SetMarkerColor(1);  
@@ -4993,7 +5059,128 @@ StatusCode RpcRawDataValAlg::bookHistogramsRecurrent()
 	  //ATH_MSG_DEBUG (  "SHIFT : " << shift );
 	  ATH_MSG_DEBUG (  "RUN : " << run );	       
 	  ATH_MSG_DEBUG (  "Booked bookrpctimedistribution successfully" );     
+          
+	  
+	  
+	  
+	  //////////////////////////////
+	  // DQMF 1D shift histograms   
          
+	  // station trigger hits SIDE A
+	  TH1 *rpc1DStationNameTriggerHitsSideA= new TH1F("rpc1DStationNameTriggerHitsSideA","rpc1DStationNameTriggerHitsSideA", 12, 0, 12); 
+	  
+	  rpc1DStationNameTriggerHitsSideA->GetXaxis()->SetBinLabel( 1,"BMS #eta");
+	  rpc1DStationNameTriggerHitsSideA->GetXaxis()->SetBinLabel( 2,"BMS #phi");
+	  rpc1DStationNameTriggerHitsSideA->GetXaxis()->SetBinLabel( 3,"BML #eta");
+	  rpc1DStationNameTriggerHitsSideA->GetXaxis()->SetBinLabel( 4,"BML #phi");
+	  rpc1DStationNameTriggerHitsSideA->GetXaxis()->SetBinLabel( 5,"BMF #eta");
+	  rpc1DStationNameTriggerHitsSideA->GetXaxis()->SetBinLabel( 6,"BMF #phi");
+	  rpc1DStationNameTriggerHitsSideA->GetXaxis()->SetBinLabel( 7,"BOS #eta");
+	  rpc1DStationNameTriggerHitsSideA->GetXaxis()->SetBinLabel( 8,"BOS #phi");
+	  rpc1DStationNameTriggerHitsSideA->GetXaxis()->SetBinLabel( 9,"BOL #eta");
+	  rpc1DStationNameTriggerHitsSideA->GetXaxis()->SetBinLabel(10,"BOL #phi");
+	  rpc1DStationNameTriggerHitsSideA->GetXaxis()->SetBinLabel(11,"BOF/G #eta");
+	  rpc1DStationNameTriggerHitsSideA->GetXaxis()->SetBinLabel(12,"BOF/G #phi");
+	  
+	  rpc1DStationNameTriggerHitsSideA->SetFillColor(42);
+	  rpc1DStationNameTriggerHitsSideA->SetTitle("RPC trigger hits surface density Side A ");
+	  rpc1DStationNameTriggerHitsSideA->GetYaxis()->SetTitle("RPC trigger hits [cm-2]");
+	  rpc1DStationNameTriggerHitsSideA->GetXaxis()->SetTitle("RPC Station Name");
+	  
+	  sc=rpcprd_dq_BA.regHist(rpc1DStationNameTriggerHitsSideA) ;  
+	  if(sc.isFailure())
+	    { ATH_MSG_FATAL(  "rpc1DStationNameTriggerHitsSideA Failed to register histogram " );       
+	      return sc;
+	    }	       
+	  ATH_MSG_DEBUG (  "Booked  rpc1DStationNameTriggerHitsSideA successfully" );  
+	  
+  
+         
+	  // station hits SIDE A
+	  TH1 *rpc1DStationNameHitsSideA= new TH1F("rpc1DStationNameHitsSideA","rpc1DStationNameHitsSideA", 12, 0, 12); 
+	  
+	  rpc1DStationNameHitsSideA->GetXaxis()->SetBinLabel( 1,"BMS #eta");
+	  rpc1DStationNameHitsSideA->GetXaxis()->SetBinLabel( 2,"BMS #phi");
+	  rpc1DStationNameHitsSideA->GetXaxis()->SetBinLabel( 3,"BML #eta");
+	  rpc1DStationNameHitsSideA->GetXaxis()->SetBinLabel( 4,"BML #phi");
+	  rpc1DStationNameHitsSideA->GetXaxis()->SetBinLabel( 5,"BMF #eta");
+	  rpc1DStationNameHitsSideA->GetXaxis()->SetBinLabel( 6,"BMF #phi");
+	  rpc1DStationNameHitsSideA->GetXaxis()->SetBinLabel( 7,"BOS #eta");
+	  rpc1DStationNameHitsSideA->GetXaxis()->SetBinLabel( 8,"BOS #phi");
+	  rpc1DStationNameHitsSideA->GetXaxis()->SetBinLabel( 9,"BOL #eta");
+	  rpc1DStationNameHitsSideA->GetXaxis()->SetBinLabel(10,"BOL #phi");
+	  rpc1DStationNameHitsSideA->GetXaxis()->SetBinLabel(11,"BOF/G #eta");
+	  rpc1DStationNameHitsSideA->GetXaxis()->SetBinLabel(12,"BOF/G #phi");;
+	  
+	  rpc1DStationNameHitsSideA->SetFillColor(42);
+	  rpc1DStationNameHitsSideA->SetTitle("RPC  hits surface density Side A ");
+	  rpc1DStationNameHitsSideA->GetYaxis()->SetTitle("RPC hits [cm-2]");
+	  rpc1DStationNameHitsSideA->GetXaxis()->SetTitle("RPC Station Name");
+	  
+	  sc=rpcprd_dq_BA.regHist(rpc1DStationNameHitsSideA) ;  
+	  if(sc.isFailure())
+	    { ATH_MSG_FATAL(  "rpc1DStationNameHitsSideA Failed to register histogram " );       
+	      return sc;
+	    }	       
+	  ATH_MSG_DEBUG (  "Booked  rpc1DStationNameHitsSideA successfully" ); 	   
+         
+	  // station trigger hits SIDE C
+	  TH1 *rpc1DStationNameTriggerHitsSideC= new TH1F("rpc1DStationNameTriggerHitsSideC","rpc1DStationNameTriggerHitsSideC", 12, 0, 12); 
+	  
+	  rpc1DStationNameTriggerHitsSideC->GetXaxis()->SetBinLabel( 1,"BMS #eta");
+	  rpc1DStationNameTriggerHitsSideC->GetXaxis()->SetBinLabel( 2,"BMS #phi");
+	  rpc1DStationNameTriggerHitsSideC->GetXaxis()->SetBinLabel( 3,"BML #eta");
+	  rpc1DStationNameTriggerHitsSideC->GetXaxis()->SetBinLabel( 4,"BML #phi");
+	  rpc1DStationNameTriggerHitsSideC->GetXaxis()->SetBinLabel( 5,"BMF #eta");
+	  rpc1DStationNameTriggerHitsSideC->GetXaxis()->SetBinLabel( 6,"BMF #phi");
+	  rpc1DStationNameTriggerHitsSideC->GetXaxis()->SetBinLabel( 7,"BOS #eta");
+	  rpc1DStationNameTriggerHitsSideC->GetXaxis()->SetBinLabel( 8,"BOS #phi");
+	  rpc1DStationNameTriggerHitsSideC->GetXaxis()->SetBinLabel( 9,"BOL #eta");
+	  rpc1DStationNameTriggerHitsSideC->GetXaxis()->SetBinLabel(10,"BOL #phi");
+	  rpc1DStationNameTriggerHitsSideC->GetXaxis()->SetBinLabel(11,"BOF/G #eta");
+	  rpc1DStationNameTriggerHitsSideC->GetXaxis()->SetBinLabel(12,"BOF/G #phi"); 
+	  
+	  rpc1DStationNameTriggerHitsSideC->SetFillColor(42);
+	  rpc1DStationNameTriggerHitsSideC->SetTitle("RPC trigger hits surface density Side C ");
+	  rpc1DStationNameTriggerHitsSideC->GetYaxis()->SetTitle("RPC trigger hits [cm-2]");
+	  rpc1DStationNameTriggerHitsSideC->GetXaxis()->SetTitle("RPC Station Name");
+	  
+	  sc=rpcprd_dq_BC.regHist(rpc1DStationNameTriggerHitsSideC) ;  
+	  if(sc.isFailure())
+	    { ATH_MSG_FATAL(  "rpc1DStationNameTriggerHitsSideC Failed to register histogram " );       
+	      return sc;
+	    }	       
+	  ATH_MSG_DEBUG (  "Booked  rpc1DStationNameTriggerHitsSideC successfully" );  
+	  
+  
+         
+	  // station hits SIDE C
+	  TH1 *rpc1DStationNameHitsSideC= new TH1F("rpc1DStationNameHitsSideC","rpc1DStationNameHitsSideC", 12, 0, 12); 
+	  
+	  rpc1DStationNameHitsSideC->GetXaxis()->SetBinLabel( 1,"BMS #eta");
+	  rpc1DStationNameHitsSideC->GetXaxis()->SetBinLabel( 2,"BMS #phi");
+	  rpc1DStationNameHitsSideC->GetXaxis()->SetBinLabel( 3,"BML #eta");
+	  rpc1DStationNameHitsSideC->GetXaxis()->SetBinLabel( 4,"BML #phi");
+	  rpc1DStationNameHitsSideC->GetXaxis()->SetBinLabel( 5,"BMF #eta");
+	  rpc1DStationNameHitsSideC->GetXaxis()->SetBinLabel( 6,"BMF #phi");
+	  rpc1DStationNameHitsSideC->GetXaxis()->SetBinLabel( 7,"BOS #eta");
+	  rpc1DStationNameHitsSideC->GetXaxis()->SetBinLabel( 8,"BOS #phi");
+	  rpc1DStationNameHitsSideC->GetXaxis()->SetBinLabel( 9,"BOL #eta");
+	  rpc1DStationNameHitsSideC->GetXaxis()->SetBinLabel(10,"BOL #phi");
+	  rpc1DStationNameHitsSideC->GetXaxis()->SetBinLabel(11,"BOF/G #eta");
+	  rpc1DStationNameHitsSideC->GetXaxis()->SetBinLabel(12,"BOF/G #phi");
+	  
+	  rpc1DStationNameHitsSideC->SetFillColor(42);
+	  rpc1DStationNameHitsSideC->SetTitle("RPC  hits surface density Side C ");
+	  rpc1DStationNameHitsSideC->GetYaxis()->SetTitle("RPC hits [cm-2]");
+	  rpc1DStationNameHitsSideC->GetXaxis()->SetTitle("RPC Station Name");
+	  
+	  sc=rpcprd_dq_BC.regHist(rpc1DStationNameHitsSideC) ;  
+	  if(sc.isFailure())
+	    { ATH_MSG_FATAL(  "rpc1DStationNameHitsSideC Failed to register histogram " );       
+	      return sc;
+	    }	       
+	  ATH_MSG_DEBUG (  "Booked  rpc1DStationNameHitsSideC successfully" );  
 	  ////////////////////////////////////
 	
 	  // cool histogram
@@ -5731,13 +5918,11 @@ StatusCode RpcRawDataValAlg::procHistograms()
 	    panel_name.insert(7, "_")         ;
 	    sector_num  = name.substr(5, 2)   ;
 	    sector_name = "Sector"+sector_num ;
-            
-	    const MuonDQAHistList& hists1 = m_stationHists.getList( list_name);  
-	    TH1* rpcclustersizedislayer = hists1.getH1( panel_name + "_CSdistribution"); 
-      
+                  
 	  }
     
-  
+          //Normalize for integrated luminosity
+	  
   
       } // end if isEndOfRun
   
@@ -5750,7 +5935,8 @@ StatusCode RpcRawDataValAlg::procHistograms()
 std::vector<int>  RpcRawDataValAlg::RpcStripShift(Identifier prdcoll_id, int  irpctriggerInfo) 
 {
 
-  ATH_MSG_DEBUG ( "in RPCStandaloneTracksMon::RpcStripShift" );  
+
+  ATH_MSG_DEBUG ( "in RpcRawDataValAlg::RpcStripShift" );  
      
   int irpcstationPhi	 =   int(m_rpcIdHelper->stationPhi(prdcoll_id))   ;		     
   int irpcstationName	 =   int(m_rpcIdHelper->stationName(prdcoll_id))  ;	     
@@ -5764,15 +5950,12 @@ std::vector<int>  RpcRawDataValAlg::RpcStripShift(Identifier prdcoll_id, int  ir
    
   //get information from geomodel to book and fill rpc histos with the right max strip number
   
-  //std::cout<<" from RpcStripShift name/Eta/Phi/dbR/dbZ/dbP/gg/mphi/stip = "<<irpcstationName<<"/"<<irpcstationEta<<"/"<<irpcstationPhi<<"/"<<irpcdoubletR<<"/"<<irpcdoubletZ<<"/"<<irpcdoubletPhi<<"/"<<irpcgasGap<<"/"<<irpcmeasuresPhi<<"/"<<irpcstrip<<std::endl;
-  
-  std::vector<int>  rpcstriptot  ;
-  
   const MuonGM::RpcReadoutElement* descriptor = m_muonMgr->getRpcReadoutElement(prdcoll_id);
   
   // const MuonGM::RpcReadoutElement* rpc = m_muonMgr->getRpcReadoutElement(irpcstationName-2, irpcstationEta  + 8,  irpcstationPhi-1, irpcdoubletR -1,irpcdoubletZ   -1);
   // const MuonGM::RpcReadoutElement* rpc = m_muonMgr->getRpcRElement_fromIdFields( irpcstationName, irpcstationEta, irpcstationPhi, irpcdoubletR, irpcdoubletZ, irpcdoubletPhi  );
   
+  std::vector<int>  rpcstriptot  ;
   
   int NphiStrips	    = descriptor -> NphiStrips()* 2		     ;
   int ShiftPhiStrips        = descriptor -> NphiStrips()*(irpcdoubletPhi-1)  ;
@@ -5798,13 +5981,15 @@ std::vector<int>  RpcRawDataValAlg::RpcStripShift(Identifier prdcoll_id, int  ir
   int ShiftEtaPanelsTot     = 0					             ;
   int NetaPanelsTotSideA    = 0					             ;
   int NetaPanelsTotSideC    = 0					             ;
+  int ShiftStripPhiAtlas    = 0					             ;
   
+  //1***
   //evaluate sector logic
-  //2=BML,3=BMS,4=BOL,5=BOS,8=BMF,9=BOF,10=BOG
+  //2=BML,3=BMS,4=BOL,5=BOS,8=BMF,9=BOF,10=BOG,53=BME
   SectorLogic  = (irpcstationPhi - 1) * 4 ; 
   SectorLogic +=  irpcdoubletPhi          ;
   Settore      = (irpcstationPhi -1) * 2  ;
-  if(irpcstationName==3||irpcstationName==5||irpcstationName>7){
+  if( (irpcstationName==3||irpcstationName==5||irpcstationName>7) && (irpcstationName<11) ){
     SectorLogic+=2;
     Settore++; 
   }
@@ -5813,159 +5998,93 @@ std::vector<int>  RpcRawDataValAlg::RpcStripShift(Identifier prdcoll_id, int  ir
   if(SectorLogic==-1)SectorLogic=31;
   if(irpcstationEta>0){Side = 1     ;SectorLogic+=32;}
   
-  //2=BML,3=BMS,4=BOL,5=BOS,8=BMF,9=BOF,10=BOG
-  if( (irpcstationName>1) && (irpcstationName<4||irpcstationName==8) ){
+  //evaluate plane type
+  //2=BML,3=BMS,4=BOL,5=BOS,8=BMF,9=BOF,10=BOG,53=BME
+  if( irpcstationName==2||irpcstationName==3||irpcstationName==8||irpcstationName==53 ){
     if(irpcdoubletR==1){
       PlaneTipo=0;
-      if(irpcstationName==2&&abs(irpcstationEta)==7)layer_name="Pivot";
-      if(irpcstationName==2&&irpcstationPhi==7&&abs(irpcstationEta)==6)layer_name="Pivot";
     }
     else {PlaneTipo=1;}
   }			
   else {PlaneTipo=2;}
+  //Extension feet Pivot
+  if(irpcdoubletR==2)PlaneTipo=1;
+  //BML7 assigned to pivot 
+  if( irpcstationName==2 && ( (abs(irpcstationEta)==7)||(irpcstationPhi==7&&abs(irpcstationEta)==6) ) )PlaneTipo=1;;
   
+  //evaluate strip shift
+  //2=BML,3=BMS,4=BOL,5=BOS,8=BMF,9=BOF,10=BOG,53=BME
   /////// NB !!!!!
   // the eta strip number increases going far away from IP
   // the phi strip number increases going from HV side to RO side
-  
-  if ( irpcstationName< 9 )  {
-    for ( int ieta=-1; ieta!= -9; ieta-- ) {
-      int irpcdoubletRn = irpcdoubletR ;
-      if(irpcstationName==2&&(abs(irpcstationEta)!=7)&&ieta==-7){
-	if(irpcdoubletR==1)continue;
-	irpcdoubletRn=1;
-      }
-      else if(irpcstationName==2&&irpcstationPhi==7&&(abs(irpcstationEta)!=6)&&ieta==-6){
-	if(irpcdoubletR==1)continue;
-	irpcdoubletRn=1;
-      }      
-      else if(irpcstationName==2&&irpcstationEta ==- 7 &&abs(ieta)<7){
-	irpcdoubletRn=2;
-      }
-      else if(irpcstationName==2&&irpcstationPhi==7&& irpcstationEta==-6&&abs(ieta)<5){
-	irpcdoubletRn=2;
-      }
- 
-      for(int idbz=1; idbz!= 4; idbz++){
-	const MuonGM::RpcReadoutElement* rpc = m_muonMgr->getRpcRElement_fromIdFields(irpcstationName, ieta, irpcstationPhi, irpcdoubletRn, idbz, 1 );
-        if(rpc != NULL ){
-          if ( idbz != rpc->getDoubletZ() ) continue ;
-          if(ieta==irpcstationEta){
-            if( idbz==irpcdoubletZ ){ 
-              ShiftEtaStrips    = NetaStrips;  
-              ShiftEtaStripsTot = NetaStripsTotSideC ;
-              ShiftPhiTot_db    = NphiStripsTotSideC ;
-	      ShiftEtaPanelsTot = NetaPanelsTotSideC ;
-            }
-            NetaStrips    +=  rpc->NetaStrips()  ;
-          }
-          NetaStripsTot      +=  rpc->NetaStrips()   ;
-          NetaStripsTotSideC +=  rpc->NetaStrips()   ;
-          NphiStripsTotSideC +=  rpc->NphiStrips()   ;
-	  NetaPanelsTot++;
-	  NetaPanelsTotSideC++;
-        } 
-      }
-    } // end loop on side C    
-    for(int ieta=0; ieta!= 9; ieta++){
-      int irpcdoubletRn = irpcdoubletR ;
-      if(irpcstationName==2&&(abs(irpcstationEta)!=7)&&ieta==7){
-	if(irpcdoubletR==1)continue;
-	irpcdoubletRn=1;
-      }
-      else if(irpcstationName==2&&irpcstationPhi==7&&(abs(irpcstationEta)!=6)&&ieta==6){
-	if(irpcdoubletR==1)continue;
-	irpcdoubletRn=1;
-      }      
-      else if(irpcstationName==2&&(irpcstationEta==7)&&abs(ieta)<7){
-	irpcdoubletRn=2;
-      }
-      else if(irpcstationName==2&&irpcstationPhi==7&&(irpcstationEta==6)&&abs(ieta)<5){
-	irpcdoubletRn=2;
-      }
+     
+    for(int keta=0; keta!= 9; keta++){
+      int ieta = keta ;
+      if(irpcstationEta<0)ieta = - keta ;
+      int krpcstationName    = irpcstationName ;
+      int krpcstationNameMin = irpcstationName ;
+      int krpcstationNameMax = irpcstationName ;
+      if((irpcstationName==2||irpcstationName==53)&&irpcstationPhi==7){ // sector 13 with BME
+         krpcstationNameMin = 1; 
+         krpcstationNameMax = 2;	 
+      }  
+      if(irpcstationName>=9&&irpcstationName<=10&&irpcdoubletR==1){ // feet extension
+         krpcstationNameMin =  9; 
+         krpcstationNameMax = 10; 
+      }  
+      if(irpcstationName>=8&&irpcstationName<=10&&irpcdoubletR==2){ // feet extension
+         krpcstationNameMin =  8; 
+         krpcstationNameMax = 10; 
+      } 
       
+      for(int jrpcstationName=krpcstationNameMin; jrpcstationName!=krpcstationNameMax+1; jrpcstationName++){
+       if (jrpcstationName>10 && jrpcstationName!=53) continue; 
+       krpcstationName = jrpcstationName ;
+       if(krpcstationName==1)krpcstationName = 53 ; //BME
       for(int idbz=1; idbz!= 4; idbz++){
-    	const MuonGM::RpcReadoutElement* rpc = m_muonMgr->getRpcRElement_fromIdFields(irpcstationName, ieta, irpcstationPhi, irpcdoubletRn, idbz, 1 );
+    	const MuonGM::RpcReadoutElement* rpc = m_muonMgr->getRpcRElement_fromIdFields(krpcstationName, ieta, irpcstationPhi, irpcdoubletR, idbz, 1 );
     	if(rpc != NULL ){
+		
 	  if ( idbz != rpc->getDoubletZ() ) continue ;
-    	  if( ieta==irpcstationEta ){
-    	    if( idbz==irpcdoubletZ ){ ShiftEtaStrips=NetaStrips; }
+	  
+    	  if( ieta==irpcstationEta ){if(krpcstationName == irpcstationName ){
+    	    if( idbz==irpcdoubletZ ){ 
+	     ShiftEtaStrips    = NetaStrips;
+	     if(irpcstationEta<0){ 
+	      ShiftEtaStripsTot = NetaStripsTotSideC  ;  
+	      ShiftPhiTot_db    = NphiStripsTotSideC  ;
+	      ShiftEtaPanelsTot = NetaPanelsTotSideC  ;
+	     }
+	     else{ 
+	      ShiftEtaStripsTot = NetaStripsTotSideA  ;  
+	      ShiftPhiTot_db    = NphiStripsTotSideA  ;
+	      ShiftEtaPanelsTot = NetaPanelsTotSideA  ;
+	     }
+	    }
     	    NetaStrips    +=  rpc->NetaStrips()  ;
-    	  }
-    	  NetaStripsTot   +=  rpc->NetaStrips()  ;
-    	  NetaPanelsTot++;
-    	  if( ieta==irpcstationEta ){
-	    if( idbz==irpcdoubletZ ) { ShiftEtaStripsTot = NetaStripsTotSideA  ;  ShiftPhiTot_db = NphiStripsTotSideA ;ShiftEtaPanelsTot = NetaPanelsTotSideA ;}
+    	  }}
+	  
+    	  NetaStripsTot       +=  rpc->NetaStrips()  ;
+    	  NetaPanelsTot       ++                     ;
+	  if(irpcstationEta<0){
+	   NetaStripsTotSideC  +=  rpc->NetaStrips()  ;
+	   NphiStripsTotSideC  +=  rpc->NphiStrips()  ;
+    	   NetaPanelsTotSideC  ++                     ;
 	  }
-	  NetaStripsTotSideA  +=  rpc->NetaStrips()   ;
-	  NphiStripsTotSideA  +=  rpc->NphiStrips()   ;
-    	  NetaPanelsTotSideA++;
-    	  
+	  else{ 
+	   NetaStripsTotSideA  +=  rpc->NetaStrips()  ;
+	   NphiStripsTotSideA  +=  rpc->NphiStrips()  ;
+    	   NetaPanelsTotSideA  ++                     ;
+	  }
+    	
+	  
         } //check if rpc!=NULL
       } //for loop in idbz
-    } // for loop in etastation
-  }
-  else {
-    for ( int ieta=-1; ieta!= -9; ieta-- ) {
-      for ( int irpcstationNameF=9; irpcstationNameF!=11; irpcstationNameF++  ) {
-	for (int idbz=1; idbz!= 4; idbz++){ 
-	  const MuonGM::RpcReadoutElement* rpc = m_muonMgr->getRpcRElement_fromIdFields(irpcstationNameF, ieta, irpcstationPhi, irpcdoubletR, idbz, 1 );
-	  if(rpc != NULL ){
-	    if ( idbz != rpc->getDoubletZ() ) continue ;
-	    if ( ieta==irpcstationEta  && irpcstationNameF==irpcstationName ) {
-	      if( idbz==irpcdoubletZ ){ 
-		ShiftEtaStrips    = NetaStrips;  
-		ShiftEtaStripsTot = NetaStripsTotSideC ;
-		ShiftPhiTot_db    = NphiStripsTotSideC ;
-		ShiftEtaPanelsTot = NetaPanelsTotSideC ;
-		
-	      }
-	      NetaStrips    +=  rpc->NetaStrips()  ;
-	    }
-	    NetaStripsTot      +=  rpc->NetaStrips()   ;
-	    NetaStripsTotSideC +=  rpc->NetaStrips()   ;
-	    NphiStripsTotSideC +=  rpc->NphiStrips()   ;
-	    NetaPanelsTot++;
-	    NetaPanelsTotSideC++;
-	  }
-	}
-      }
-    } // end loop on side C    
-    for(int ieta=0; ieta!= 9; ieta++){
-      for ( int irpcstationNameF=9; irpcstationNameF!=11; irpcstationNameF++  ) {
-	for(int idbz=1; idbz!= 4; idbz++){
-	  const MuonGM::RpcReadoutElement* rpc = m_muonMgr->getRpcRElement_fromIdFields(irpcstationNameF, ieta, irpcstationPhi, irpcdoubletR, idbz, 1 );
-	  if(rpc != NULL ){
-	    if ( idbz != rpc->getDoubletZ() ) continue ;
-	    if ( ieta==irpcstationEta  && irpcstationNameF==irpcstationName ) {
-	      if( idbz==irpcdoubletZ ){ ShiftEtaStrips=NetaStrips; }
-	      NetaStrips    +=  rpc->NetaStrips()  ;
-	    }
-	    NetaStripsTot   +=  rpc->NetaStrips()  ;
-    	    NetaPanelsTot++;
-	    if ( ieta==irpcstationEta && irpcstationNameF==irpcstationName ){
-	      if( idbz==irpcdoubletZ ) { ShiftEtaStripsTot = NetaStripsTotSideA  ;  ShiftPhiTot_db = NphiStripsTotSideA ; ShiftEtaPanelsTot = NetaPanelsTotSideA ;}
-	    }
-	    NetaStripsTotSideA  +=  rpc->NetaStrips()   ;
-	    NphiStripsTotSideA  +=  rpc->NphiStrips()   ;
-    	    NetaPanelsTotSideA++;
+     } //for loop in krpcstationName
+    } // for loop in etastation     
   
-	  } //check if rpc!=NULL
-	} //for loop in idbz
-      } // for loop in etastation 
-    }    
-  }
-     
   Nbin	      = NetaStrips     ;
   ShiftStrips = ShiftEtaStrips ;
-  
-  // commented out 05 oct 2009
-  // check it !!
-  // if(irpcstationEta<0) { 
-  //   ShiftEtaStripsTot = NetaStripsTotSideC - ShiftEtaStripsTot ;
-  //   ShiftPhiTot_db    = NphiStripsTotSideC - ShiftPhiTot_db    ;
-  // }
-  
   //re-define for phi view
   if(irpcmeasuresPhi==1) {
     Nbin = NphiStrips ;	   
@@ -5974,7 +6093,38 @@ std::vector<int>  RpcRawDataValAlg::RpcStripShift(Identifier prdcoll_id, int  ir
      
   EtaStripSign =  1	                   ; 
   if(irpcstationEta<0)  EtaStripSign = -1  ; 
-  
+  		
+  if(irpcdoubletR==1){
+   if     (irpcstationName==2||irpcstationName==53 ){ShiftStripPhiAtlas = (2*48+64*2) * ( irpcstationPhi -1 )        ;}
+   else if(irpcstationName==3                      ){ShiftStripPhiAtlas = (2*48+64*2) * ( irpcstationPhi -1 ) + 2*64 ;}
+   else if(irpcstationName==8                      ){ShiftStripPhiAtlas = (2*48+64*2) * ( irpcstationPhi -1 ) + 2*64 ;}
+   else if(irpcstationName==4		           ){ShiftStripPhiAtlas = (2*64+80*2) * ( irpcstationPhi -1 )	     ;}
+   else{ShiftStripPhiAtlas = (2*64+80*2) * ( irpcstationPhi -1 ) + 2*80 ;} 
+   //BML7 assigned to pivot 
+   if( irpcstationName==2 && abs(irpcstationEta)==7){
+    ShiftStripPhiAtlas = (2*48+64*2) * ( irpcstationPhi -1 );
+    if(irpcstationPhi==8)ShiftStripPhiAtlas +=4*16;
+   }
+   if( irpcstationName==2 && irpcstationPhi==7&&abs(irpcstationEta)==6 ){
+    ShiftStripPhiAtlas = (2*48+64*2) * ( irpcstationPhi -1 ) +2*16      ;
+   }
+  } 		
+  if(irpcdoubletR==2){
+   if(irpcstationPhi<=6){   
+    if     (irpcstationName==2                      ){ShiftStripPhiAtlas = (2*48+64*2) * ( irpcstationPhi -1 )        ;}
+    else if(irpcstationName==3                      ){ShiftStripPhiAtlas = (2*48+64*2) * ( irpcstationPhi -1 ) + 2*64 ;} 
+    else if(irpcstationName>=8&&irpcstationName<=10 ){ShiftStripPhiAtlas = (2*48+64*2) * ( irpcstationPhi -1 ) + 2*64 ;}                    
+   }
+   else if(irpcstationPhi==7){   
+    if     (irpcstationName==2||irpcstationName==53 ){ShiftStripPhiAtlas = (2*48+64*2) * ( irpcstationPhi -1 )+2*16     ;}
+    else if(irpcstationName>=8&&irpcstationName<=10 ){ShiftStripPhiAtlas = (2*48+64*2) * ( irpcstationPhi -1 )+2*16+2*64;}
+   }
+   else if(irpcstationPhi==8){   
+    if     (irpcstationName==2                      ){ShiftStripPhiAtlas = (2*48+64*2) * ( irpcstationPhi -1 ) +4*16      ;}
+    else if(irpcstationName==3                      ){ShiftStripPhiAtlas = (2*48+64*2) * ( irpcstationPhi -1 ) +4*16+2*64 ;}
+   }
+  }
+  //2***
   // cool db strip index
   if(irpcmeasuresPhi==0) {
     strip_dbindex = ( ShiftEtaStripsTot + irpcstrip ) * EtaStripSign ;
@@ -5983,18 +6133,19 @@ std::vector<int>  RpcRawDataValAlg::RpcStripShift(Identifier prdcoll_id, int  ir
     if ( irpcstationEta<0 ) { strip_dbindex= - NetaStripsTotSideC - ShiftPhiTot_db - irpcstrip ;}
     else { strip_dbindex = NetaStripsTotSideA + ShiftPhiTot_db + irpcstrip; }
   } 
-  
-  // if ( irpcstationEta>0 ) strip_dbindex = strip_dbindex -1;
   if ( irpcstationEta>=0 ) strip_dbindex = strip_dbindex -1;
   
+  //3***
   //bin panel number for summary plots 
   int irpcstationName_index = irpcdoubletR -1 ; // 0 LowPt, 1 Pivot, 2 HighPt
-  if ( irpcstationName !=2 && irpcstationName !=3 && irpcstationName !=8 ) irpcstationName_index += 2 ;  
-  //PanelIndex = irpcmeasuresPhi + (irpcgasGap-1)*2 + (irpcdoubletPhi-1)*4 + (irpcdoubletZ-1)*8 + (irpcstationName_index)*24 
-  //  + ( ( abs(irpcstationEta) ) -1 )*72 ;
+  if ( irpcstationName !=2 && irpcstationName !=3 && irpcstationName !=8 && irpcstationName !=53) irpcstationName_index += 2 ;  
+  
+
   PanelIndex = irpcmeasuresPhi + (irpcgasGap-1)*2 + (irpcdoubletPhi-1)*4 + (irpcdoubletZ-1)*8 + (irpcstationName_index)*24 
     + ( ( abs(irpcstationEta) ) )*72 ;
-  
+  // exception station name=53, assume irpcstationEta = 0 ;
+  if(irpcstationName ==53)
+  PanelIndex = irpcmeasuresPhi + (irpcgasGap-1)*2 + (irpcdoubletPhi-1)*4 + (irpcdoubletZ-1)*8 + (irpcstationName_index)*24;
   // exception for special chambers sectors 12 and 14:
   if ( irpcstationName==10 ) { 
     // convention: BOG <-> doubletZ=3 <-> (3-1)*8=16
@@ -6012,6 +6163,7 @@ std::vector<int>  RpcRawDataValAlg::RpcStripShift(Identifier prdcoll_id, int  ir
 
 
 
+  //4***
   //panel and tower consecutive index
 
   int tower_dbindex  = 0 ;  
@@ -6023,12 +6175,13 @@ std::vector<int>  RpcRawDataValAlg::RpcStripShift(Identifier prdcoll_id, int  ir
  
   for(int iphi = 1; iphi != 8*0+irpcstationPhi+1; iphi++ ){ 
     lastname    = 10;
-    if(iphi==irpcstationPhi){
+    if(iphi==irpcstationPhi&&irpcstationName<10){
       lastname    = irpcstationName ;
     }
-    for(int iname=      2; iname!=       10*0+lastname+1 ; iname++){
-      if (iname>10 && iname!=53) continue;
-
+    for(int kname=      1; kname!=       10*0+lastname+1 ; kname++){
+      int iname = kname ;
+      if (kname == 1) iname= 53;
+      if (iname>10 && iname!=53) continue; 
       laststationEta = 7 ;
    
       if(iname==irpcstationName&&iphi==irpcstationPhi){
@@ -6038,10 +6191,8 @@ std::vector<int>  RpcRawDataValAlg::RpcStripShift(Identifier prdcoll_id, int  ir
    
       for(int ieta = -7; ieta != 8*0+laststationEta+1; ieta++ ){
    
-
 	krpcdoubletR   =  irpcdoubletR;   
-	
-	if( iname==2||iname==8 ){    
+	if( iname==2||iname==8 || iname==53){    
     
 	  if(PlaneTipo!=1&&abs(ieta)>=6&&iphi==7)continue;
 	  if(PlaneTipo!=1&&abs(ieta)>=7&&iphi!=7)continue;
@@ -6057,11 +6208,11 @@ std::vector<int>  RpcRawDataValAlg::RpcStripShift(Identifier prdcoll_id, int  ir
 	else if( iname==6 || iname==7 ){      
 	  continue;
 	}       
-	else if( (iname==4 || iname ==5 || iname>8 ) && (krpcdoubletR > 1) ) continue;       
+	else if( (iname==4 || iname ==5 || iname == 9 ||  iname == 10) && (krpcdoubletR > 1) ) continue;       
            
 	if(PlaneTipo==2 && krpcdoubletR > 1 )continue;
-	if(PlaneTipo==2 &&  (iname==2 || iname ==3 || iname==8 ) )continue; 
-	if(PlaneTipo <2 && !(iname==2 || iname ==3 || iname==8 ) )continue; 
+	if(PlaneTipo==2 &&  (iname==2 || iname ==3 || iname==8 || iname==53) )continue; 
+	if(PlaneTipo <2 && !(iname==2 || iname ==3 || iname==8 || iname==53) )continue; 
     
 	if(irpcstationEta>=0&&ieta<0){
 	  continue;
@@ -6077,7 +6228,9 @@ std::vector<int>  RpcRawDataValAlg::RpcStripShift(Identifier prdcoll_id, int  ir
 	}    
  
 	for(int iz   =      1; iz   !=      3*0+lastdoubletZ+1; iz++	){ 
+	  
 	  const MuonGM::RpcReadoutElement* rpc = m_muonMgr->getRpcRElement_fromIdFields(iname, ieta, iphi, krpcdoubletR, iz, 1);
+	  //if(irpcstationPhi<=1)std::cout <<iname << " "<< ieta <<" "<< iphi<<" "<< iz<<" z "<< panel_dbindex<< std::endl; 
     
 	  if(rpc == NULL )continue;
 	  
@@ -6090,7 +6243,77 @@ std::vector<int>  RpcRawDataValAlg::RpcStripShift(Identifier prdcoll_id, int  ir
 	  
 	}}}}		  
   //if(irpcstationPhi<=1)std::cout << "PlaneTipo "<< PlaneTipo << " "<< irpcstationName<<" "<< irpcstationEta<<" "<< irpcstationPhi<<" "<< irpcdoubletR << " "<< irpcdoubletZ <<" "<< irpcdoubletPhi <<" panel_dbindex "<<  panel_dbindex<<" tower_dbindex "<< tower_dbindex<< std::endl; 
+ 
+  for(int iphi = 1; iphi != 8*0+irpcstationPhi+1; iphi++ ){ 
+    lastname    = 10;
+    if(iphi==irpcstationPhi&&irpcstationName<10){
+      lastname    = irpcstationName ;
+    }
+    for(int kname=      1; kname!=       10*0+lastname+1 ; kname++){
+      int iname = kname ;
+      if (kname == 1) iname= 53;
+      if (iname>10 && iname!=53) continue; 
+      laststationEta = 7 ;
    
+      if(iname==irpcstationName&&iphi==irpcstationPhi){
+	laststationEta    = irpcstationEta ;
+	lastdoubletZ      = irpcdoubletZ   ;
+      }
+   
+      for(int ieta = -7; ieta != 8*0+laststationEta+1; ieta++ ){
+   
+	krpcdoubletR   =  irpcdoubletR;   
+	if( iname==2||iname==8 || iname==53){    
+    
+	  if(PlaneTipo!=1&&abs(ieta)>=6&&iphi==7)continue;
+	  if(PlaneTipo!=1&&abs(ieta)>=7&&iphi!=7)continue;
+	  if(PlaneTipo==1&&abs(ieta)==6&&iphi==7)krpcdoubletR   =  1;
+	  if(PlaneTipo==1&&abs(ieta)==7&&iphi!=7)krpcdoubletR   =  1;
+	  if(PlaneTipo==1&&abs(ieta) <6&&iphi==7)krpcdoubletR   =  2;
+	  if(PlaneTipo==1&&abs(ieta) <7&&iphi!=7)krpcdoubletR   =  2;
+    
+	}    
+	else if( iname==3 ){      
+	  if(PlaneTipo>1)continue;
+	}      
+	else if( iname==6 || iname==7 ){      
+	  continue;
+	}       
+	else if( (iname==4 || iname ==5 || iname == 9 ||  iname == 10) && (krpcdoubletR > 1) ) continue;       
+           
+	if(PlaneTipo==2 && krpcdoubletR > 1 )continue;
+	if(PlaneTipo==2 &&  (iname==2 || iname ==3 || iname==8 || iname==53) )continue; 
+	if(PlaneTipo <2 && !(iname==2 || iname ==3 || iname==8 || iname==53) )continue; 
+    
+	if(irpcstationEta>=0&&ieta<0){
+	  continue;
+	}
+	else if(irpcstationEta<0&&ieta>=0){
+	  continue;
+	}
+  
+	lastdoubletZ   = 3 ;
+   
+	if(iname==irpcstationName&&iphi==irpcstationPhi&&ieta==irpcstationEta){
+	  lastdoubletZ      = irpcdoubletZ   ;
+	}    
+ 
+	for(int iz   =      1; iz   !=      3*0+lastdoubletZ+1; iz++	){ 
+	  
+	  const MuonGM::RpcReadoutElement* rpc = m_muonMgr->getRpcRElement_fromIdFields(iname, ieta, iphi, krpcdoubletR, iz, 1);
+	  //if(irpcstationPhi<=1)std::cout <<iname << " "<< ieta <<" "<< iphi<<" "<< iz<<" z "<< panel_dbindex<< std::endl; 
+    
+	  if(rpc == NULL )continue;
+	  
+	  panel_dbindex++;
+	  
+	  if(iz==1)tower_dbindex++;
+	   
+	   
+	  //if(irpcstationPhi<=1)std::cout <<iname << " "<< ieta <<" "<< iphi<<" "<< iz<<" x "<< panel_dbindex<< std::endl; 
+	  
+	}}}}		  
+  //std::cout << "PlaneTipo "<< PlaneTipo << " Name "<< irpcstationName<<" Eta "<< irpcstationEta<<" Phi "<< irpcstationPhi<<" dR "<< irpcdoubletR << " dZ "<< irpcdoubletZ<<" dPhi "<< irpcdoubletPhi <<" panel_dbindex "<<  panel_dbindex<<" tower_dbindex "<< tower_dbindex<< std::endl;    
   //  //calculate max panels and towers  
   //  int panel_dbindex1 = 0 ; 
   //  int tower_dbindex1 = 0 ;
@@ -6176,6 +6399,7 @@ std::vector<int>  RpcRawDataValAlg::RpcStripShift(Identifier prdcoll_id, int  ir
   rpcstriptot.push_back(NetaPanelsTotSideA    );   //22 
   rpcstriptot.push_back(panel_dbindex         );
   rpcstriptot.push_back(tower_dbindex         );   //24
+  rpcstriptot.push_back(ShiftStripPhiAtlas    );   //25
   
   //   std::cout << "----------------"<< std::endl;
   // 
@@ -6187,7 +6411,6 @@ std::vector<int>  RpcRawDataValAlg::RpcStripShift(Identifier prdcoll_id, int  ir
   return  rpcstriptot ;
 
 }
-
     
 std::vector<std::string>    RpcRawDataValAlg::RpcLayerSectorSideName(Identifier prdcoll_id, int  irpctriggerInfo) 
 {
@@ -6226,18 +6449,19 @@ std::vector<std::string>    RpcRawDataValAlg::RpcLayerSectorSideName(Identifier 
   sprintf(dblZ_char    ,"_dblZ%d"    ,irpcdoubletZ  );
   sprintf(dblPhi_char  ,"_dblPhi%d"  ,irpcdoubletPhi);
   	    
-  //2=BML,3=BMS,4=BOL,5=BOS,8=BMF,9=BOF,10=BOG
-  if( (irpcstationName>1) && (irpcstationName<4||irpcstationName==8) ){
+  //2=BML,3=BMS,4=BOL,5=BOS,8=BMF,9=BOF,10=BOG,53=BME
+  if( irpcstationName==2 || irpcstationName==3 || irpcstationName==8 || irpcstationName==53 ){
     if(irpcdoubletR==1){
       layer_name="LowPt";
-      if(irpcstationName==2&&abs(irpcstationEta)==7)layer_name="Pivot";
-      if(irpcstationName==2&&irpcstationPhi==7&&abs(irpcstationEta)==6)layer_name="Pivot";
     }
     else {layer_name="Pivot";}
   }			
   else {layer_name="HighPt";}
+  if(irpcdoubletR==2)layer_name="Pivot";
+  //BML7 assigned to pivot 
+  if( irpcstationName==2 && ( (abs(irpcstationEta)==7)||(irpcstationPhi==7&&abs(irpcstationEta)==6) ) )layer_name="Pivot";
 	    
-  if(irpcstationName==3||irpcstationName==5||irpcstationName>7){
+  if(irpcstationName==3||irpcstationName==5||irpcstationName==8||irpcstationName==9||irpcstationName==10){
     HVorROsideleft  = "RO side" ;
     HVorROsideright = "HV side" ;
   }
