@@ -4,34 +4,34 @@
 
 #include "LArG4Barrel/LArCoudeElectrodes.h"
 
-LArCoudeElectrodes* LArCoudeElectrodes::s_instance=0;
+LArCoudeElectrodes* LArCoudeElectrodes::m_instance=0;
 
-PhysicalVolumeAccessor* LArCoudeElectrodes::s_theCoudes=0;
+PhysicalVolumeAccessor* LArCoudeElectrodes::theCoudes=0;
 
 LArCoudeElectrodes*  LArCoudeElectrodes::GetInstance(std::string strDetector)
 {
-  if (s_instance==0) {
-    s_instance = new LArCoudeElectrodes(strDetector);
+  if (m_instance==0) {
+    m_instance = new LArCoudeElectrodes(strDetector);
   }
-  return s_instance;
+  return m_instance;
 }
 
 
 LArCoudeElectrodes::LArCoudeElectrodes(std::string strDetector) 
 {
-	if (s_theCoudes==0) 
+	if (theCoudes==0) 
 	{
           if (strDetector=="") {
-		s_theCoudes=
+		theCoudes=
 		new PhysicalVolumeAccessor("LAr::EMB::STAC",
 					   "LAr::EMB::Electrode::CornerDownFold");
-		s_theCoudes->SetPhysicalVolumeList("LAr::EMB::Electrode::CornerUpFold");
+		theCoudes->SetPhysicalVolumeList("LAr::EMB::Electrode::CornerUpFold");
           }
           else {
-		s_theCoudes=
+		theCoudes=
 		new PhysicalVolumeAccessor(strDetector+"::LAr::EMB::STAC",
 					   strDetector+"::LAr::EMB::Electrode::CornerDownFold");
-		s_theCoudes->SetPhysicalVolumeList(strDetector+"::LAr::EMB::Electrode::CornerUpFold");
+		theCoudes->SetPhysicalVolumeList(strDetector+"::LAr::EMB::Electrode::CornerUpFold");
           }
 	}				   
         m_filled=false;
@@ -60,7 +60,7 @@ double LArCoudeElectrodes::XCentCoude(int stackid, int cellid)
       } 
       else {
 	int id=cellid+stackid*10000;
-	const G4VPhysicalVolume *pv=s_theCoudes->GetPhysicalVolume(id);
+	const G4VPhysicalVolume *pv=theCoudes->GetPhysicalVolume(id);
         if (!pv) return 0.;
 	const G4ThreeVector& tv=pv->GetTranslation();
 	return tv.x();
@@ -73,7 +73,7 @@ double LArCoudeElectrodes::YCentCoude(int stackid, int cellid)
       } 
       else {
 	int id=cellid+stackid*10000;
-	const G4VPhysicalVolume *pv=s_theCoudes->GetPhysicalVolume(id);
+	const G4VPhysicalVolume *pv=theCoudes->GetPhysicalVolume(id);
         if (!pv) return 0.;
 	const G4ThreeVector& tv=pv->GetTranslation();
 	return tv.y();
@@ -86,7 +86,7 @@ double LArCoudeElectrodes::PhiRot(int stackid, int cellid)
        }
        else {
         int id=cellid+stackid*10000;
-        const G4VPhysicalVolume *pv=s_theCoudes->GetPhysicalVolume(id);
+        const G4VPhysicalVolume *pv=theCoudes->GetPhysicalVolume(id);
         if (!pv) return 0.;
         const G4RotationMatrix *rm=pv->GetRotation();
         double alpha;

@@ -23,8 +23,8 @@ class PsMap {
    CurrMap* Map() {return m_curr;}
   private:
    PsMap();
-   static PsMap* s_thePointer;
-   curr_map m_theMap;
+   static PsMap* thePointer;
+   curr_map theMap;
    std::string m_directory;
 // current map info
    CurrMap* m_curr;

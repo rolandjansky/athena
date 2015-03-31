@@ -16,7 +16,7 @@
 
 MapEta::MapEta(int isampling)
 {
- m_directory="/afs/cern.ch/atlas/offline/data/lar/calo_data";
+ directory="/afs/cern.ch/atlas/offline/data/lar/calo_data";
  m_nx=0;
  m_ny=0;
  m_init=0;
@@ -38,7 +38,7 @@ MapEta::~MapEta()
 
 void MapEta::SetDirectory(std::string dir)
 {
- m_directory=dir;
+ directory=dir;
 }
 
 void MapEta::Initialize(int isampling)
@@ -46,15 +46,15 @@ void MapEta::Initialize(int isampling)
   if (m_init==1) return;
   if (isampling < 1 || isampling >3) return;
   std::ostringstream fn;
-  if (isampling==1) fn<<"deta_strip.map";
-  if (isampling==2) fn<<"deta_middle.map";
-  if (isampling==3) fn<<"eta_trans.map";
+  if (isampling==1) fn<<"deta_strip.map"<<std::ends;
+  if (isampling==2) fn<<"deta_middle.map"<<std::ends;
+  if (isampling==3) fn<<"eta_trans.map"<<std::ends;
   std::string filename = fn.str();
   filename=filename.substr(0,15);
   std::string fileLocation;
 #ifdef LARG4_STAND_ALONE
   // The stand-alone program expects to find the file via AFS.
-  fileLocation = m_directory + "/" + filename;
+  fileLocation = directory + "/" + filename;
 #else
   // In Athena, the PathResolver tool will find the file for us.
   std::cout << "filename " << filename << std::endl;
@@ -152,12 +152,11 @@ void MapEta::GetData(double x,double y,double* resp, double* xt0, double* xt1, d
      *xt2 += m_xt2[n]*w[m];
    }
  }
- const double inv_sumw = 1. / sumw;
  if (sumw>0.) {
-  *resp = *resp*inv_sumw;
-  *xt0 = *xt0*inv_sumw;
-  *xt1 = *xt1*inv_sumw;
-  *xt2 = *xt2*inv_sumw;
+  *resp = *resp/sumw;
+  *xt0 = *xt0/sumw;
+  *xt1 = *xt1/sumw;
+  *xt2 = *xt2/sumw;
  }
 
 }

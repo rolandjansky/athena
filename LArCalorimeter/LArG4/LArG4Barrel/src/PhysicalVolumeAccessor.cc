@@ -23,45 +23,45 @@ G4LogicalVolume* PhysicalVolumeAccessor::GetLV(std::string name)
 
 PhysicalVolumeAccessor::PhysicalVolumeAccessor(std::string name)
 {
-	m_theLogicalVolume=GetLV(name);
+	theLogicalVolume=GetLV(name);
 }
 
 PhysicalVolumeAccessor::PhysicalVolumeAccessor(std::string name,
 						std::string PVname)
 {
-	m_theLogicalVolume=GetLV(name);
-	assert (m_theLogicalVolume!=0);
-	for (int i=0;i<m_theLogicalVolume->GetNoDaughters();i++)
+	theLogicalVolume=GetLV(name);
+	assert (theLogicalVolume!=0);
+	for (int i=0;i<theLogicalVolume->GetNoDaughters();i++)
 	{
-		G4VPhysicalVolume *pv=m_theLogicalVolume->GetDaughter(i);
+		G4VPhysicalVolume *pv=theLogicalVolume->GetDaughter(i);
 		if (PVname==(pv->GetName()))
 		{
-			m_thePhysicalVolumes[pv->GetCopyNo()]=pv;
+			thePhysicalVolumes[pv->GetCopyNo()]=pv;
 		}
 	}
 }
 
 const G4VPhysicalVolume* PhysicalVolumeAccessor::GetPhysicalVolume(int icopy)
 {
-	if (m_thePhysicalVolumes.find(icopy)!=m_thePhysicalVolumes.end())
-		return m_thePhysicalVolumes[icopy];
+	if (thePhysicalVolumes.find(icopy)!=thePhysicalVolumes.end())
+		return thePhysicalVolumes[icopy];
 	else
 	{
 //              std::cout<<"Physical Volume copy "<<icopy<<" not found in"
-//                       <<m_theLogicalVolume->GetName()<<"!!! return 0"<<std::endl;
+//                       <<theLogicalVolume->GetName()<<"!!! return 0"<<std::endl;
 		return 0;
 	}
 }
 
 void PhysicalVolumeAccessor::SetPhysicalVolumeList(std::string name)
 {
-  //	assert (m_thePhysicalVolumes.size()==0);
-	for (int i=0;i<m_theLogicalVolume->GetNoDaughters();i++)
+  //	assert (thePhysicalVolumes.size()==0);
+	for (int i=0;i<theLogicalVolume->GetNoDaughters();i++)
 	{
-		G4VPhysicalVolume *pv=m_theLogicalVolume->GetDaughter(i);
+		G4VPhysicalVolume *pv=theLogicalVolume->GetDaughter(i);
 		if (name==(pv->GetName()))
 		{
-			m_thePhysicalVolumes[pv->GetCopyNo()]=pv;
+			thePhysicalVolumes[pv->GetCopyNo()]=pv;
 		}
 	}
 }

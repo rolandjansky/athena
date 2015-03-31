@@ -9,7 +9,7 @@
 #include "PathResolver/PathResolver.h"
 #endif
 
-PsMap* PsMap::s_thePointer=0;
+PsMap* PsMap::thePointer=0;
 
 PsMap::PsMap()
 {
@@ -26,7 +26,7 @@ PsMap::PsMap()
   for (int imap=0;imap<5;imap++) {
 // accordion folds
      std::ostringstream fn;
-     fn << "presampler_"<<imap<<".map";
+     fn << "presampler_"<<imap<<".map\0"<<std::ends;
      std::string filename = fn.str();
      std::string fileLocation;
 #ifdef LARG4_STAND_ALONE
@@ -37,7 +37,7 @@ PsMap::PsMap()
 #endif
      CurrMap* cm = new CurrMap(fileLocation,xnorm);
      int code=imap;
-     m_theMap[code]=cm;
+     theMap[code]=cm;
   }
   m_curr=0;
 
@@ -45,16 +45,16 @@ PsMap::PsMap()
 
 PsMap* PsMap::GetPsMap()
 {
-  if (s_thePointer==0) s_thePointer=new PsMap();
-  return s_thePointer;
+  if (thePointer==0) thePointer=new PsMap();
+  return thePointer;
 }
 
 void PsMap::Reset()
 {
-  curr_map::iterator it=m_theMap.begin();
-  while (it != m_theMap.end()) {
+  curr_map::iterator it=theMap.begin();
+  while (it != theMap.end()) {
     delete (*it).second;
-    m_theMap.erase(it++);
+    theMap.erase(it++);
   }
 }
 
@@ -69,8 +69,8 @@ void PsMap::SetMap(int module)
  int code = -1;
  if (module==0 || module==1) code=module;
  if (module > 1 && module < 8) code=(module-2)/2 + 2;
- if (m_theMap.find(code) != m_theMap.end())
-     m_curr = m_theMap[code];
+ if (theMap.find(code) != theMap.end())
+     m_curr = theMap[code];
  else {
      std::cout << " Code " << code << " not found in map ..." << std::endl;
      m_curr=0;

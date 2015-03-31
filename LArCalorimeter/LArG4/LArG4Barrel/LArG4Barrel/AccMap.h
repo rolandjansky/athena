@@ -37,8 +37,8 @@ class AccMap {
        else return -999.;}
   private:
    AccMap();
-   static AccMap* s_thePointer;
-   curr_map m_theMap;
+   static AccMap* thePointer;
+   curr_map theMap;
    std::string m_directory;
 // current map info
    CurrMap* m_curr;

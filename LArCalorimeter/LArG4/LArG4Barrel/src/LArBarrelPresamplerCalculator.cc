@@ -32,9 +32,7 @@
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/Bootstrap.h"
 #include "StoreGate/StoreGateSvc.h"
-#include "AthenaKernel/Units.h"
 
-namespace Units = Athena::Units;
 
 // #define DEBUGSTEP
 
@@ -54,10 +52,10 @@ LArBarrelPresamplerCalculator* LArBarrelPresamplerCalculator::GetCalculator()
 
 //=============================================================================
 LArBarrelPresamplerCalculator::LArBarrelPresamplerCalculator()
-  : m_IflCur(true)
-  , m_birksLaw(NULL)
+  : IflCur(true)
+  , birksLaw(NULL)
   , m_nhits(0)
-  , m_detectorName("LArMgr")
+  , m_detectorName("")
   , m_testbeam(false)
 {
 
@@ -71,10 +69,10 @@ LArBarrelPresamplerCalculator::LArBarrelPresamplerCalculator()
   //Inizialize the geometry calculator
   m_geometry = LArG4::BarrelPresampler::Geometry::GetInstance();
 
-  if (m_IflCur) 
+  if (IflCur) 
      std::cout << " LArBarrelPresamplerCalculator: start reading current maps" << std::endl;
 
-  if (m_IflCur) m_psmap = PsMap::GetPsMap();
+  if (IflCur) m_psmap = PsMap::GetPsMap();
   else m_psmap=0;
 
   // Get the out-of-time cut from the detector parameters routine.
@@ -99,14 +97,14 @@ LArBarrelPresamplerCalculator::LArBarrelPresamplerCalculator()
       if (IflBirks) {
         const double Birks_LAr_density = 1.396;
         const double Birks_k = barrelOptions->EMBBirksk();
-        m_birksLaw = new LArG4BirksLaw(Birks_LAr_density,Birks_k);
+        birksLaw = new LArG4BirksLaw(Birks_LAr_density,Birks_k);
       }
     }
   }
 
-   if(m_birksLaw) {
+   if(birksLaw) {
      std::cout << " LArBarrelPresamplerCalculator: Birks' law ON " << std::endl;
-     std::cout << " LArBarrelPresamplerCalculator:   parameter k    " << m_birksLaw->k() << std::endl;
+     std::cout << " LArBarrelPresamplerCalculator:   parameter k    " << birksLaw->k() << std::endl;
    }
    else
      std::cout << " LArBarrelPresamplerCalculator: Birks' law OFF" << std::endl;
@@ -120,21 +118,23 @@ LArBarrelPresamplerCalculator::LArBarrelPresamplerCalculator()
 //==============================================================================
 LArBarrelPresamplerCalculator::~LArBarrelPresamplerCalculator()
 {
-  if (m_birksLaw)   delete m_birksLaw;
+  if (birksLaw)   delete birksLaw;
 }
 
 
 // ==============================================================================
-G4bool LArBarrelPresamplerCalculator::Process(const G4Step* a_step, std::vector<LArHitData>& hdata)
+G4bool LArBarrelPresamplerCalculator::Process(const G4Step* a_step)
 {
   m_nhits = 0;
-  hdata.clear();
+  m_identifier.clear();
+  m_energy.clear();
+  m_time.clear();
   m_isInTime.clear();
 
 //  check the Step content is non trivial
   G4double thisStepEnergyDeposit = a_step->GetTotalEnergyDeposit();
-  G4double thisStepLength = a_step->GetStepLength() / Units::mm;
-  G4double dstep = .1*Units::mm;   // length of punctual charge for Current Option
+  G4double thisStepLength = a_step->GetStepLength() / CLHEP::mm;
+  G4double dstep = .1*CLHEP::mm;   // length of punctual charge for Current Option
 
 #ifdef  DEBUGSTEP
   std::cout << "******  LArBarrelPresamplerCalculator:  Step energy,length "
@@ -165,7 +165,7 @@ G4bool LArBarrelPresamplerCalculator::Process(const G4Step* a_step, std::vector<
 
   const G4NavigationHistory* g4navigation = thisStepPoint->GetTouchable()->GetHistory();
   G4int ndep = g4navigation->GetDepth();
-  G4bool testbeam=false;
+  G4bool m_testbeam=false;
   G4int idep = -999;
 
 #ifdef DEBUGSTEP
@@ -176,7 +176,7 @@ G4bool LArBarrelPresamplerCalculator::Process(const G4Step* a_step, std::vector<
     for (G4int ii=0;ii<=ndep;ii++) {
       G4VPhysicalVolume* v1 = g4navigation->GetVolume(ii);
       if (v1->GetName()=="LAr::Barrel::Presampler") idep=ii;    // half barrel
-      if (v1->GetName()=="LAr::TBBarrel::Cryostat::LAr") testbeam=true;  // TB or not ?
+      if (v1->GetName()=="LAr::TBBarrel::Cryostat::LAr") m_testbeam=true;  // TB or not ?
     }
   else
     for (G4int ii=0;ii<=ndep;ii++) {
@@ -185,7 +185,7 @@ G4bool LArBarrelPresamplerCalculator::Process(const G4Step* a_step, std::vector<
       std::cout << " Level,VolumeName " << ii << " " << v1->GetName() << std::endl;
 #endif
       if (v1->GetName()==G4String(m_detectorName+"::LAr::Barrel::Presampler")) idep=ii;   
-      if (v1->GetName()==G4String(m_detectorName+"::LAr::TBBarrel::Cryostat::LAr")) testbeam=true;  // TB or not ?
+      if (v1->GetName()==G4String(m_detectorName+"::LAr::TBBarrel::Cryostat::LAr")) m_testbeam=true;  // TB or not ?
     }
 
 #ifdef DEBUGSTEP
@@ -220,7 +220,7 @@ G4bool LArBarrelPresamplerCalculator::Process(const G4Step* a_step, std::vector<
 //   otherwise 200 microns (dstep) division
 
   G4int nsub_step=1;
-  if (m_IflCur) nsub_step=(int) (thisStepLength*(1./dstep)) + 1;
+  if (IflCur) nsub_step=(int) (thisStepLength/dstep) + 1;
 // delta is fraction of step between two sub steps
   G4double delta=1./((double) nsub_step);
 #ifdef DEBUGSTEP
@@ -228,10 +228,10 @@ G4bool LArBarrelPresamplerCalculator::Process(const G4Step* a_step, std::vector<
 #endif
 
   G4double energy = a_step->GetTotalEnergyDeposit();
-  if (m_birksLaw) {
+  if (birksLaw) {
      const double EField = 10. ; // 10 kV/cm electric field in presampler gap
-     const double wholeStepLengthCm = a_step->GetStepLength() * (1./CLHEP::cm);
-     energy = (*m_birksLaw)(energy, wholeStepLengthCm, EField);
+     const double wholeStepLengthCm = a_step->GetStepLength() / CLHEP::cm;
+     energy = (*birksLaw)(energy, wholeStepLengthCm, EField);
   }
 
 // loop over sub steps
@@ -261,7 +261,7 @@ G4bool LArBarrelPresamplerCalculator::Process(const G4Step* a_step, std::vector<
 
 // compute cell identifier
       G4int zSide;
-      if (testbeam)
+      if (m_testbeam)
        zSide = 1;
       else
        zSide = ( startPoint.z() > 0.) ? 1 : -1;
@@ -294,19 +294,19 @@ G4bool LArBarrelPresamplerCalculator::Process(const G4Step* a_step, std::vector<
 
 // time computation is not necessarily correct for test beam
       G4double time;
-      if (testbeam)
+      if (m_testbeam)
       {
         time=0.;
       }
       else
       {
         G4double tof;
-        tof = thisStepPoint->GetGlobalTime() / Units::ns;
-        time  = tof - thisStepPoint->GetPosition().mag() * (1. / (CLHEP::c_light * CLHEP::ns));
+        tof = thisStepPoint->GetGlobalTime() / CLHEP::ns;
+        time  = tof - ( thisStepPoint->GetPosition().mag()/CLHEP::c_light ) / CLHEP::ns;
       }
 
       G4double Current;
-      if (!m_IflCur)  {
+      if (!IflCur)  {
 // no charge collection   Current=E from Geant
          Current=energy;
       }
@@ -352,17 +352,18 @@ G4bool LArBarrelPresamplerCalculator::Process(const G4Step* a_step, std::vector<
 //  to an already existing hit
       G4bool found=false;
       for (int j=0; j<m_nhits; j++) {
-        if (hdata[j].id==m_identifier2) {
-           hdata[j].energy += Current;
-           hdata[j].time += time*Current;
+        if (m_identifier[j]==m_identifier2) {
+           m_energy[j] += Current;
+           m_time[j] += time*Current;
            found=true;
            break;
         }
       }    // loop over hits
       if (!found) {
         m_nhits++;
-        LArHitData newdata = {m_identifier2, time*Current, Current};
-        hdata.push_back(newdata);
+        m_identifier.push_back(m_identifier2);
+        m_energy.push_back(Current);
+        m_time.push_back(time*Current);
         m_isInTime.push_back(true);
       }    // hit was not existing before
 
@@ -372,17 +373,17 @@ G4bool LArBarrelPresamplerCalculator::Process(const G4Step* a_step, std::vector<
 
 #ifdef DEBUGSTEP
     std::cout << "Number of hits for this step " << m_nhits << " "
-              << hdata.size() << std::endl;
+              << m_identifier.size() << " " << m_energy.size() << std::endl;
 #endif
 
 // finalise time computations
   for (int i=0;i<m_nhits;i++) {
-     if (std::fabs(hdata[i].energy)>1e-6) hdata[i].time=hdata[i].time/hdata[i].energy;
-     else hdata[i].time=0.;
-     if (std::fabs(hdata[i].time)> m_OOTcut) m_isInTime[i]=false;
+     if (std::fabs(m_energy[i])>1e-6) m_time[i]=m_time[i]/m_energy[i];
+     else m_time[i]=0.;
+     if (std::fabs(m_time[i])> m_OOTcut) m_isInTime[i]=false;
 #ifdef DEBUGSTEP
      std::cout << "Hit Energy/Time "
-               << hdata[i].energy << " " << hdata[i].time << std::endl;
+               << m_energy[i] << " " << m_time[i] << std::endl;
 #endif
   }
 

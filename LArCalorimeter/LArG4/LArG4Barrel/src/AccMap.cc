@@ -9,7 +9,7 @@
 #include "PathResolver/PathResolver.h"
 #endif
 
-AccMap* AccMap::s_thePointer=0;
+AccMap* AccMap::thePointer=0;
 
 AccMap::AccMap()
 {
@@ -40,7 +40,7 @@ AccMap::AccMap()
 // accordion folds
     for (int ifold=i1[iregion]; ifold<=i2[iregion]; ifold++) {
        std::ostringstream fn;
-       fn << "fold"<<ifold<<"_region"<<iregion<<".map";
+       fn << "fold"<<ifold<<"_region"<<iregion<<".map\0"<<std::ends;
        std::string filename = fn.str();
        std::string fileLocation;
 #ifdef LARG4_STAND_ALONE
@@ -52,7 +52,7 @@ AccMap::AccMap()
 //       std::cout << " try to open map " << fileLocation << std::endl;
        CurrMap* cm = new CurrMap(fileLocation,xnorm);
        int code=10*ifold+iregion;
-       m_theMap[code]=cm;
+       theMap[code]=cm;
 
 // add some rounding safety in edges of map
        m_xmin[ifold]=cm->GetXmin()+0.1;
@@ -63,7 +63,7 @@ AccMap::AccMap()
 // straight section
     for (int istr=1; istr<=2; istr++) {
      std::ostringstream fn;
-     fn << "straight"<<istr<<"_region"<<iregion<<".map";
+     fn << "straight"<<istr<<"_region"<<iregion<<".map\0"<<std::ends;
       std::string filename = fn.str();
        std::string fileLocation;
 #ifdef LARG4_STAND_ALONE
@@ -75,7 +75,7 @@ AccMap::AccMap()
 //       std::cout << " try to open map " << fileLocation << std::endl;
        CurrMap* cm = new CurrMap(fileLocation,xnorm);
        int code=10*(20+istr)+iregion;
-       m_theMap[code]=cm;
+       theMap[code]=cm;
     }
   }
 
@@ -83,16 +83,16 @@ AccMap::AccMap()
 
 AccMap* AccMap::GetAccMap()
 {
-  if (s_thePointer==0) s_thePointer=new AccMap();
-  return s_thePointer;
+  if (thePointer==0) thePointer=new AccMap();
+  return thePointer;
 }
 
 void AccMap::Reset()
 {
-  curr_map::iterator it = m_theMap.begin();
-  while (it != m_theMap.end()) {
+  curr_map::iterator it = theMap.begin();
+  while (it != theMap.end()) {
     delete (*it).second;
-    m_theMap.erase(it++);
+    theMap.erase(it++);
   }
 }
 
@@ -115,8 +115,8 @@ void AccMap::SetMap(int ifold, int ielecregion)
  m_elecregion=ielecregion;
  int code=10*ifold+ielecregion;
 // std::cout << " code is " << code << std::endl;
- if (m_theMap.find(code) != m_theMap.end())
-     m_curr = m_theMap[code];
+ if (theMap.find(code) != theMap.end())
+     m_curr = theMap[code];
  else {
      std::cout << " Code " << code << " not found in map ..." << std::endl;
      m_curr=0;

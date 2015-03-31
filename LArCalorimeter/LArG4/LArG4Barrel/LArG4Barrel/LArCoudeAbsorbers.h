@@ -10,12 +10,12 @@
 
 class LArCoudeAbsorbers {
 private:
-	static PhysicalVolumeAccessor* s_theCoudes;
+	static PhysicalVolumeAccessor* theCoudes;
         double m_xcent[1024][15];
         double m_ycent[1024][15];
         double m_phirot[1024][15];
         bool m_filled;
-        static LArCoudeAbsorbers* s_instance;
+        static LArCoudeAbsorbers* m_instance;
 public:
         static LArCoudeAbsorbers* GetInstance(std::string strDetector="") ;
 	double XCentCoude(int stackid, int cellid) ;
