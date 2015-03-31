@@ -60,7 +60,7 @@ class RPCStandaloneTracksMon: public ManagedMonitorToolBase {
   StatusCode initialize(); 
   virtual StatusCode bookHistogramsRecurrent();
   virtual StatusCode fillHistograms();
-  virtual StatusCode procHistograms( bool isEndOfEventsBlock, bool isEndOfLumiBlock, bool isEndOfRun );
+  virtual StatusCode procHistograms();
   StatusCode finalize();
  
  private:
