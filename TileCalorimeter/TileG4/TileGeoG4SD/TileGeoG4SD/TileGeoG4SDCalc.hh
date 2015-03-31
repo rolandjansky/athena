@@ -16,14 +16,15 @@
 //
 //************************************************************
 
-#ifndef TTileGeoG4SDCalc_H
-#define TileGeoG4SDCalc_H 
+#ifndef TILEGEOG4SD_TILEGEOG4SDCALC_H
+#define TILEGEOG4SD_TILEGEOG4SDCALC_H
 
 #include "FadsSensitiveDetector/FadsSensitiveDetector.h"
 #include "CaloIdentifier/TileID.h"
 #include "CaloIdentifier/TileTBID.h"
 
 #include <vector>
+#include <memory>
 
 using namespace FADS;
 
@@ -136,7 +137,7 @@ private:
     bool   m_doTileRow;
 
     /** @brief Structure holding the attenuation lengths */
-    TileRow* m_row;
+    std::unique_ptr<TileRow> m_row;
 
     /** @brief true if time of flight correction is applied
         for particles coming from ATLAS center */
@@ -168,5 +169,4 @@ private:
 
 };  //class TileGeoG4SDCalc
 
-#endif
-
+#endif // not TILEGEOG4SD_TILEGEOG4SDCALC_H

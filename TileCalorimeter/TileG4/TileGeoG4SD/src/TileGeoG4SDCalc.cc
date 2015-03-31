@@ -21,6 +21,7 @@
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/IMessageSvc.h"
 #include "StoreGate/StoreGateSvc.h"
+#include "CxxUtils/make_unique.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 
 #include "TileGeoG4SD/TileGeoG4SDCalc.hh"
@@ -85,7 +86,6 @@ TileGeoG4SDCalc::TileGeoG4SDCalc(bool is_ctb)
     , is_negative(0)
     , totalTime_up(0)
     , totalTime_down(0)
-    , m_row(0)
 {
     // Get MessageSvc pointers
     ISvcLocator* svcLocator = Gaudi::svcLocator(); // from Bootstrap
@@ -277,7 +277,7 @@ TileGeoG4SDCalc::TileGeoG4SDCalc(bool is_ctb)
         std::string ratioFileName = "TileOpticalRatio.dat";
         std::string attFile   = PathResolver::find_file(attFileName,   "DATAPATH");
         std::string ratioFile = PathResolver::find_file(ratioFileName, "DATAPATH");
-        m_row = new TileRow(attFile, ratioFile); //holds attenuation lengths for tiles
+        m_row = CxxUtils::make_unique<TileRow>(attFile, ratioFile); //holds attenuation lengths for tiles
         (*m_log) << MSG::INFO << "Using Optical Ratio = " << m_row->OpticalRatio[0].at(0) << endreq;
     }
 
@@ -293,7 +293,6 @@ TileGeoG4SDCalc::~TileGeoG4SDCalc()
 {
     delete m_log;
     delete m_lookup;
-    if(m_row) {delete m_row;}
 }
 
 
