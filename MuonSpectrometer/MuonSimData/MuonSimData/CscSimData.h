@@ -37,9 +37,16 @@ private:
   float m_charge;
 };
 
+//<<<<<< INCLUDES  >>>>
 #include <utility>
 #include <vector>
 #include "GeneratorObjects/HepMcParticleLink.h"
+//<<<<<< PUBLIC DEFINES                                                 >>>>>>
+//<<<<<< PUBLIC CONSTANTS                                               >>>>>>
+//<<<<<< PUBLIC TYPES                                                   >>>>>>
+//<<<<<< PUBLIC VARIABLES                                               >>>>>>
+//<<<<<< PUBLIC FUNCTIONS                                               >>>>>>
+//<<<<<< CLASS DECLARATIONS                                             >>>>>>
 
 class CscSimData {
     
@@ -49,7 +56,6 @@ public:
 public:
   CscSimData();
   CscSimData (const std::vector<Deposit>& deposits, int simDataWord =0);
-  CscSimData (      std::vector<Deposit>&& deposits, int simDataWord =0);
   CscSimData (const CscSimData& rhs);
   virtual ~CscSimData();
   int word() const;                       // Get the packed simdata word
@@ -59,8 +65,11 @@ public:
 private:
   int m_word;  
   std::vector<Deposit> m_deposits;
+  CscSimData & operator=(const CscSimData &right);
 };
 
+//<<<<<< INLINE PUBLIC FUNCTIONS                                        >>>>>>
+//<<<<<< INLINE MEMBER FUNCTIONS                                        >>>>>>
 
 inline int CscSimData::word() const {
   return m_word & 0x1fffffff;

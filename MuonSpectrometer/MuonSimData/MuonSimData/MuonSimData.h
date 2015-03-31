@@ -54,10 +54,19 @@ class MuonMCData {
   float  m_second;
 };
 
+//<<<<<< INCLUDES  >>>>
 #include <utility>
 #include <vector>
 #include "GeneratorObjects/HepMcParticleLink.h"
+#ifndef __CLING__
 #include "GeoPrimitives/GeoPrimitives.h"
+#endif
+//<<<<<< PUBLIC DEFINES                                                 >>>>>>
+//<<<<<< PUBLIC CONSTANTS                                               >>>>>>
+//<<<<<< PUBLIC TYPES                                                   >>>>>>
+//<<<<<< PUBLIC VARIABLES                                               >>>>>>
+//<<<<<< PUBLIC FUNCTIONS                                               >>>>>>
+//<<<<<< CLASS DECLARATIONS                                             >>>>>>
 
 class MuonSimData {
     
@@ -67,26 +76,26 @@ public:
     // other values relevent for the subsystem
     MuonSimData();
     MuonSimData (const std::vector< Deposit >& deposits, int simDataWord = 0);
-    MuonSimData (std::vector< Deposit >&& deposits, int simDataWord = 0);
     MuonSimData (const MuonSimData& other);
     virtual ~MuonSimData();
     int word() const;                       // Get the packed simdata word
     void deposits(std::vector<Deposit>& deposits) const; // Get the Deposits
     const std::vector< Deposit >& getdeposits() const;
-    void setPosition(const Amg::Vector3D& pos);
+#ifndef __CLING__
+    void setPosition(Amg::Vector3D& pos);
     const Amg::Vector3D globalPosition() const;
-    void setTime(const float& time);
-    float getTime() const;
-    
+#endif
 private:
     int m_word;  
     std::vector<Deposit> m_deposits;
-    float m_x;
-    float m_y;
-    float m_z;
-    float m_t;
+    float x;
+    float y;
+    float z;
+    MuonSimData & operator=(const MuonSimData &right);
 };
 
+//<<<<<< INLINE PUBLIC FUNCTIONS                                        >>>>>>
+//<<<<<< INLINE MEMBER FUNCTIONS                                        >>>>>>
 
 inline int MuonSimData::word() const
 {
@@ -105,29 +114,21 @@ inline void MuonSimData::deposits(std::vector< MuonSimData::Deposit>& deposits) 
 }
 
 
-inline void MuonSimData::setPosition(const Amg::Vector3D& pos)
+#ifndef __CLING__
+inline void MuonSimData::setPosition(Amg::Vector3D& pos)
 {
-  m_x = pos.x();
-  m_y = pos.y();
-  m_z = pos.z();
+  x = pos.x();
+  y = pos.y();
+  z = pos.z();
 }
 
 inline const Amg::Vector3D MuonSimData::globalPosition() const
 {
-  Amg::Vector3D globPos(m_x, m_y, m_z);
+  Amg::Vector3D globPos(x,y,z);
   return globPos;
 }
+#endif
 
-inline void MuonSimData::setTime(const float& time)
-{
-  m_t =time;
-}
-
-inline float MuonSimData::getTime() const
-{
-  float time= m_t;
-  return time;
-}
 
 #endif // MUONSIMDATA_MuonSimData_H
 
