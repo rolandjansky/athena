@@ -30,6 +30,7 @@ double LArCoudes::XCentCoude(int stackid, int cellid)
 {
 	int id=cellid+stackid*10000;
 	const G4VPhysicalVolume *pv=theCoudes->GetPhysicalVolume(id);
+        if (!pv) std::abort();
 	const G4ThreeVector& tv=pv->GetTranslation();
 	return tv.x();
 }
@@ -37,6 +38,7 @@ double LArCoudes::YCentCoude(int stackid, int cellid)
 {
 	int id=cellid+stackid*10000;
 	const G4VPhysicalVolume *pv=theCoudes->GetPhysicalVolume(id);
+        if (!pv) std::abort();
 	const G4ThreeVector& tv=pv->GetTranslation();
 	return tv.y();
 }
