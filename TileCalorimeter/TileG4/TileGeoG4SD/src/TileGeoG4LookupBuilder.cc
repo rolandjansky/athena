@@ -317,52 +317,10 @@ void TileGeoG4LookupBuilder::CreateGeoG4Cells()
     for(i=0; i<_cell->nrOfPMT; i++)
       _cell->holes.push_back(static_cast<int>(m_dbManager->TICLholes(i)));
 
-
     // Put it there...
     m_cellMap->operator[](nameCell) = _cell;
   }
   delete[] buff;
-
-    // Create and fill in the GeoG4Cell - E5(E4')
-    // if (m_isE5) {
-        // nameCell = "E5";
-        // if (m_cellMap->find(nameCell) != m_cellMap->end()) {
-            // (*m_log) << MSG::ERROR << "CreateGeoG4Cells() - Attempt to recreate GeoG4Cell with name ---> "
-                     // << nameCell << endreq;
-            // abort();
-        // }
-        // _cell = new TileGeoG4Cell();
-        // _cell->detector = 4;
-        // _cell->cellNum = 5;
-        // _cell->tower = 18;
-        // _cell->sample = 4;
-        // _cell->firstRow = 1;
-        // _cell->lastRow = 1;
-        // _cell->nrOfTilesInRow.push_back(1);
-        // _cell->nrOfPMT = 2;
-        // for(i=0; i<_cell->nrOfPMT; i++) { _cell->holes.push_back(i+1); }
-
-        // Identifier cell_id = m_tileID->cell_id(std::min(_cell->detector,3),(int)copysign(1.1,_cell->tower-2),0,abs(_cell->tower)-3,_cell->sample-1);
-        // CaloDetDescrElement * caloDDE = m_theManager->get_cell_element(cell_id);
-        // _cell->sinTh = caloDDE->sinTh();
-        // _cell->r = caloDDE->r();
-        // (*m_log)<< MSG::DEBUG <<"  Cell "<<nameCell<<": cell_id="<<m_tileID->to_string(cell_id,-2)
-                // <<"  r="<<_cell->r<<"  sinTh="<<_cell->sinTh<<endreq;
-
-        // // Zmin and Zmax - position of first tile row in a cell along Z axis
-        // TileCellDim* cellDim = m_theManager->get_cell_dim(cell_id);
-        // _cell->zMin = cellDim->getZMin(0);
-        // _cell->zMax = cellDim->getZMax(0);
-            // cell_id = m_tileID->cell_id(std::min(_cell->detector,3),-(int)copysign(1.1,_cell->tower-2),0,abs(_cell->tower)-3,_cell->sample-1);
-            // cellDim = m_theManager->get_cell_dim(cell_id);
-            // _cell->zMin2 = cellDim->getZMin(0);
-            // _cell->zMax2 = cellDim->getZMax(0);
-            // // (*m_log)<< MSG::DEBUG <<" cell_id2="<<m_tileID->to_string(cell_id,-2)<<"  Zmin="<<_cell->zMin
-                    // // <<"  Zmax="<<_cell->zMax<<"  Zmin2="<<_cell->zMin2<<"  Zmax2="<<_cell->zMax2<<endreq;
-
-        // // Put it there...
-        // m_cellMap->operator[](nameCell) = _cell;
-    // }
 }
 
 void TileGeoG4LookupBuilder::CreateGeoG4Sections(bool is_tb) 
@@ -394,6 +352,7 @@ void TileGeoG4LookupBuilder::CreateGeoG4Sections(bool is_tb)
   
   int nSections = (is_tb) ? 4 : m_dbManager->GetNumTilb();
   if (m_dbManager->GetNumberOfEnv() == 1) nSections = 1;
+  nSections = std::min(6,nSections);
 
   int nModules = (is_tb) ? 3 : 64;
   for (int ii=m_dbManager->GetNumberOfEnv()-1; ii>=0; --ii) {
