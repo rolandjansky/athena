@@ -1,6 +1,7 @@
 package MuonResonanceTools
 
-author Andrea Di Simone
+author Andrea Di Simone 
+author Fabio Cardillo
 
 public
 use  AtlasPolicy                AtlasPolicy-*                   
@@ -14,6 +15,8 @@ use  MuonSelectorTools          MuonSelectorTools-*             PhysicsAnalysis/
 use  MuonPerformanceHistUtils   MuonPerformanceHistUtils-*      PhysicsAnalysis/MuonID/MuonPerformanceAnalysis
 use  MuonEfficiencyCorrections  MuonEfficiencyCorrections-*     PhysicsAnalysis/MuonID/MuonIDAnalysis 
 use  MuonMomentumCorrections    MuonMomentumCorrections-*       PhysicsAnalysis/MuonID/MuonIDAnalysis
+use  TrigDecisionTool           TrigDecisionTool-*              Trigger/TrigAnalysis
+use  TrigMuonMatching           TrigMuonMatching-*              Trigger/TrigAnalysis 
 
 private
 #use  AthenaBaseComps            AthenaBaseComps-*               Control

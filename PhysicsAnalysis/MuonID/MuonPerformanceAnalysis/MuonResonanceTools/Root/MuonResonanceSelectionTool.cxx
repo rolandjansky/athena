@@ -12,7 +12,10 @@ MuonResonanceSelectionTool::MuonResonanceSelectionTool(std::string myname)
   : AsgTool(myname),
     m_seliTool("CP::MuonSelectionTool/MuonSelectionTool", this), 
     m_sfTool("CP::MuonEfficiencyScaleFactors/MuonEfficiencyScaleFactors", this ),
-    m_calibTool("CP::MuonCalibrationAndSmearingTool/MuonCalibrationAndSmearingTool", this ){
+    m_calibTool("CP::MuonCalibrationAndSmearingTool/MuonCalibrationAndSmearingTool", this ),
+    m_matchTool("Trig::TrigMuonMatching/TrigMuonMatching", this),
+    m_trigTool("Trig::TrigDecisionTool/TrigDecisionTool", this){
+  
   
   declareProperty("PtCut",          m_ptCut = 20000.0);
   declareProperty("EtaCut",         m_etaCut = 2.5);
@@ -25,23 +28,31 @@ MuonResonanceSelectionTool::MuonResonanceSelectionTool(std::string myname)
   declareProperty("UseIDCuts",      m_IDCuts = true);
   declareProperty("Calibrate",      m_doCalib = true);
   declareProperty("EfficiencyCorr", m_doEff = true);
+  declareProperty("TriggerList",    m_triggerList );
 
   declareProperty("MuonSelectionTool",   m_seliTool );
   declareProperty("ScaleFactorTool",     m_sfTool );
   declareProperty("MuonCalibrationTool", m_calibTool );
+  declareProperty("TriggerDecisionTool", m_trigTool ); 
+  declareProperty("TriggerMatchingTool", m_matchTool ); 
   
 }
 
 StatusCode MuonResonanceSelectionTool::initialize()
 {
-  // ATH_CHECK(m_muonSelectionTool.retrieve());
-
+  
   ATH_CHECK( m_seliTool.retrieve() );
   ATH_CHECK( m_sfTool.retrieve() );
   ATH_CHECK( m_calibTool.retrieve() );
-  ATH_MSG_INFO( "MuonSelectionTool  = " << m_seliTool );
-  ATH_MSG_INFO( "ScaleFactorTool    = " << m_sfTool );
-  ATH_MSG_INFO( "MuonCalibrationAndSmearingTool  = " << m_calibTool );
+  ATH_CHECK( m_trigTool.retrieve() );
+  ATH_CHECK( m_matchTool.retrieve() ); 
+
+  ATH_MSG_INFO("Tools initialized:" );
+  ATH_MSG_INFO("SelectionTool   :: \t" << m_seliTool );
+  ATH_MSG_INFO("ScaleFactorTool :: \t" << m_sfTool );
+  ATH_MSG_INFO("CalibrationTool :: \t" << m_calibTool );
+  ATH_MSG_INFO("TriggerTool     :: \t" << m_trigTool );
+  ATH_MSG_INFO("TrigMatchingTool:: \t" << m_matchTool );
 
   ATH_MSG_INFO("Selection summary :  ");
   ATH_MSG_INFO("PtCut        = " <<  m_ptCut );
@@ -55,7 +66,7 @@ StatusCode MuonResonanceSelectionTool::initialize()
   ATH_MSG_INFO("UseIDCuts    = " <<  m_IDCuts );
   ATH_MSG_INFO("Calibrate    = " <<  m_doCalib );
   ATH_MSG_INFO("Eff. Corr    = " <<  m_doEff ); 
-
+  
   return StatusCode::SUCCESS;
 }
 
@@ -66,7 +77,12 @@ StatusCode MuonResonanceSelectionTool::initialize()
 std::pair<std::vector<const xAOD::Muon*>,std::vector<const xAOD::Muon*> > MuonResonanceSelectionTool::selectMuons(const xAOD::MuonContainer* tags, bool isMC, CP::SystematicSet sys) const{
 
   ATH_MSG_DEBUG("Number of found Muons :"<< tags->size() ); 
-  std::pair<std::vector<const xAOD::Muon*>,std::vector<const xAOD::Muon*> > goodMuons=std::make_pair(std::vector<const xAOD::Muon*>(), std::vector<const xAOD::Muon*>());
+  std::pair<std::vector<const xAOD::Muon*>,std::vector<const xAOD::Muon*> > goodMuons = std::make_pair(std::vector<const xAOD::Muon*>(), std::vector<const xAOD::Muon*>());
+
+  if( !isTriggered() ){ 
+    ATH_MSG_DEBUG("No trigger pass - rejecting event");
+    return goodMuons;
+  }
 
   if( m_calibTool->applySystematicVariation( sys ) != CP::SystematicCode::Ok ) 
     ATH_MSG_WARNING( "Cannot configure muon calibration tool for systematic " << sys.name() ); 
@@ -83,18 +99,14 @@ std::pair<std::vector<const xAOD::Muon*>,std::vector<const xAOD::Muon*> > MuonRe
     //correct muon
     xAOD::Muon* mu = 0;
     if(m_doCalib){    
-      try{
-	m_calibTool->correctedCopy( *tag, mu );
-      }
+      try{ m_calibTool->correctedCopy( *tag, mu );}
       catch(SG::ExcBadAuxVar&){
 	ATH_MSG_WARNING( "Cannot retrieve aux-item - rejecting muon" );
 	continue;
       }
     }
     else{ 
-      try{
-	mu = copy(*tag);
-      }
+      try{ mu = copy(*tag);}
       catch(SG::ExcBadAuxVar&){    
       	ATH_MSG_WARNING( "Cannot retrieve aux-item - rejecting muon" );
 	continue;
@@ -106,8 +118,7 @@ std::pair<std::vector<const xAOD::Muon*>,std::vector<const xAOD::Muon*> > MuonRe
     ATH_MSG_DEBUG("pT(corr)/pT : " << mu->pt()/tag->pt() );
 
     //apply efficiency SF
-    if(m_doEff)
-      applySF(*mu, isMC);
+    if(m_doEff) applySF(*mu, isMC);
     
     //pass MuonSelectionTool
     if(!m_seliTool->accept(*mu)){ 
@@ -126,6 +137,8 @@ std::pair<std::vector<const xAOD::Muon*>,std::vector<const xAOD::Muon*> > MuonRe
 	!IPCutAbs(*mu, m_Abs_z0Cut, m_Abs_d0Cut) ) continue;
     if( m_IDCuts && !IDTrk(*mu) ) continue;
 
+    //TriggerMatching
+    applyTriggerMatch(*mu);
 
     if( mu->trackParticle(xAOD::Muon::Primary)->charge()>0) goodMuons.first.push_back(mu);   
     else goodMuons.second.push_back(mu);
@@ -138,7 +151,7 @@ std::pair<std::vector<const xAOD::Muon*>,std::vector<const xAOD::Muon*> > MuonRe
 
 
 //apply efficiency scale factors
-void  MuonResonanceSelectionTool::applySF(const xAOD::Muon& mu, bool isMC) const{
+void MuonResonanceSelectionTool::applySF(const xAOD::Muon& mu, bool isMC) const{
   
   float sf = 1.;
   if(isMC){
@@ -254,3 +267,33 @@ xAOD::Muon* MuonResonanceSelectionTool::copy(const xAOD::Muon& mu) const{
   mu_c->makePrivateStore(mu);
   return mu_c;
 }
+
+//Check if event passed trigger
+bool MuonResonanceSelectionTool::isTriggered (void) const{
+
+  ATH_MSG_DEBUG("Selected triggers " << (int)m_triggerList.size() << "\t Triggers found by tool " << (int)m_trigTool->getListOfTriggers().size() );
+  if (m_triggerList.size() == 0 || m_trigTool->getListOfTriggers().size() == 0) return true; 
+
+  for (auto trigger : m_triggerList){
+    ATH_MSG_DEBUG("Asking trigger "<< trigger); 
+    if ( m_trigTool->isPassed(trigger) ) return true; 
+  } 
+  return false; 
+}
+
+void MuonResonanceSelectionTool::applyTriggerMatch(xAOD::Muon& mu) const{
+
+  if(m_triggerList.size() == 0 || m_trigTool->getListOfTriggers().size() == 0 ){ 
+    mu.auxdata< bool >("isTriggered") = true;
+    return;
+  }   
+  bool isTriggered = false;
+  for (auto trigger :  m_triggerList) {
+    ATH_MSG_DEBUG("Matching on " << trigger << " : \t" << m_matchTool->match(mu.eta(), mu.phi(), trigger) );       
+    if( m_matchTool->match(mu.eta(), mu.phi(), trigger) ) isTriggered = true;
+  }
+  mu.auxdata< bool >("isTriggered") = isTriggered;
+  return;
+}
+
+

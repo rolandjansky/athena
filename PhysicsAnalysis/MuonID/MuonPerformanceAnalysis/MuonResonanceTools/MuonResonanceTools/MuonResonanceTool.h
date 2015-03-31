@@ -57,6 +57,9 @@ class MuonResonanceTool
   MuonResonancePlots* m_resonancePlots[MURESETABINS][TRACKBINS][SYSBINS];
   std::vector< CP::SystematicSet > getSystematics() const;
   std::vector< std::string > getSysNames() const;
+
+  bool hasTriggerMatch(const xAOD::Muon& mu1st, const xAOD::Muon& mu2nd) const;
+
   int EtaBin(const xAOD::Muon& mu1st, const xAOD::Muon& mu2nd) const;
   int AuthorBin(const xAOD::Muon& mu1st, const xAOD::Muon& mu2nd) const;
 
