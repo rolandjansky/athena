@@ -21,20 +21,20 @@ def main(runArgs):
   if hasattr(runArgs,'precommand'):
     option['precommand'] = runArgs.precommand
 
-  if hasattr(runArgs,'joboptionsvc_type'):
-    option['joboptionsvc-type'] = runArgs.joboptionsvc_type
-  if hasattr(runArgs,'use_database'):
-    option['use-database'] = runArgs.use_database
-  if hasattr(runArgs,'db_type'):
-    option['db-type'] = runArgs.db_type
-  if hasattr(runArgs,'db_server'):
-    option['db-server'] = runArgs.db_server
-  if hasattr(runArgs,'db_smkey'):
-    option['db-smkey'] = runArgs.db_smkey
-  if hasattr(runArgs,'db_hltpskey'):
-    option['db-hltpskey'] = runArgs.db_hltpskey
-  if hasattr(runArgs,'db_extra'):
-    option['db-extra'] = eval(runArgs.db_extra)
+  if hasattr(runArgs,'jobOptionSvcType'):
+    option['joboptionsvc-type'] = runArgs.jobOptionSvcType
+  if hasattr(runArgs,'useDB'):
+    option['use-database'] = runArgs.useDB
+  if hasattr(runArgs,'DBtype'):
+    option['db-type'] = runArgs.DBtype
+  if hasattr(runArgs,'DBserver'):
+    option['db-server'] = runArgs.DBserver
+  if hasattr(runArgs,'DBsmkey'):
+    option['db-smkey'] = runArgs.DBsmkey
+  if hasattr(runArgs,'DBhltpskey'):
+    option['db-hltpskey'] = runArgs.DBhltpskey
+  if hasattr(runArgs,'DBextra'):
+    option['db-extra'] = eval(runArgs.DBextra)
   
   return option
   

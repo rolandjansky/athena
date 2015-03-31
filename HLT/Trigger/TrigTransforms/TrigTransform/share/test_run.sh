@@ -1,5 +1,11 @@
+##############################################################################
 
-echo "***begin testing with BSRDO->BS"
+# Testing script to be run via:
+# . ./HLT/Trigger/TrigTransforms/TrigTransform/share/test_run.sh | tee test_log.txt
+
+##############################################################################
+
+echo "***test 1: BSRDO->BS"
 
 rm -rf tmpTestDirBSRDO_BS
 mkdir tmpTestDirBSRDO_BS
@@ -7,9 +13,9 @@ cd tmpTestDirBSRDO_BS
 
 Trig_reco_tf.py \
 --inputBS_RDOFile=root://eosatlas//eos/atlas/atlasdatadisk/rucio/data15_cos/fe/0c/data15_cos.00253010.physics_IDCosmic.merge.RAW._lb0010._SFO-ALL._0001.1 \
---joboptionsvc-type TrigConf::HLTJobOptionsSvc \
---use-database TRUE --db-type Coral --db-server TRIGGERDBREPR \
---db-smkey 11 --db-hltpskey 7 --db-extra "{'lvl1key': 4}" \
+--jobOptionSvcType TrigConf::HLTJobOptionsSvc \
+--useDB TRUE --DBtype Coral --DBserver TRIGGERDBREPR \
+--DBsmkey 11 --DBhltpskey 7 --DBextra "{'lvl1key': 4}" \
 --precommand "rerunLVL1=True;markTest=True" \
 --ignoreErrors="True" --runNumber="253010" \
 --maxEvents=1 --skipEvents=2 \
@@ -38,7 +44,9 @@ grep lfn metadata.xml
 
 cd ..
 
-echo "***next test BSRDO->BS->ESD"
+##############################################################################
+
+echo "***test 2: BSRDO->BS->ESD"
 
 rm -rf tmpTestDirBSRDO_ESD
 mkdir tmpTestDirBSRDO_ESD
@@ -47,9 +55,9 @@ cd tmpTestDirBSRDO_ESD
 
 Trig_reco_tf.py \
 --inputBS_RDOFile=root://eosatlas//eos/atlas/atlasdatadisk/rucio/data15_cos/fe/0c/data15_cos.00253010.physics_IDCosmic.merge.RAW._lb0010._SFO-ALL._0001.1 \
---joboptionsvc-type TrigConf::HLTJobOptionsSvc \
---use-database TRUE --db-type Coral --db-server TRIGGERDBREPR \
---db-smkey 11 --db-hltpskey 7 --db-extra "{'lvl1key': 4}" \
+--jobOptionSvcType TrigConf::HLTJobOptionsSvc \
+--useDB TRUE --DBtype Coral --DBserver TRIGGERDBREPR \
+--DBsmkey 11 --DBhltpskey 7 --DBextra "{'lvl1key': 4}" \
 --precommand "rerunLVL1=True;markTest=True" \
 --ignoreErrors="True" --runNumber="253010" \
 --maxEvents=1 --skipEvents=2 \
@@ -84,8 +92,5 @@ ls thetestrecoESD.pool.root
 
 cd ..
 
-
-
-
-
+##############################################################################
 

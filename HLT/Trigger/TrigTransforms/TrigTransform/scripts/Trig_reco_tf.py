@@ -175,20 +175,20 @@ def addTriggerDBArgs(parser):
     
     #TODO add short forms and help messages
         
-    parser.add_argument('--joboptionsvc-type', type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True),
-                        help='joboptionsvc-type aka -J', group='TriggerDB')
-    parser.add_argument('--use-database', type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=True),
-                        help='use-database', group='TriggerDB')
-    parser.add_argument('--db-type', type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True),
-                        help='db-type', group='TriggerDB')
-    parser.add_argument('--db-server', type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True),
-                        help='db-server', group='TriggerDB')
-    parser.add_argument('--db-smkey', type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True),
-                        help='db-smkey', group='TriggerDB')
-    parser.add_argument('--db-hltpskey', type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True),
-                        help='db-hltpskey', group='TriggerDB')
-    parser.add_argument('--db-extra', type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True),
-                        help='db-extra', group='TriggerDB')
+    parser.add_argument('--jobOptionSvcType', type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True),
+                        help='jobOptionSvcType aka -J', group='TriggerDB')
+    parser.add_argument('--useDB', type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=True),
+                        help='useDB', group='TriggerDB')
+    parser.add_argument('--DBtype', type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True),
+                        help='DBtype', group='TriggerDB')
+    parser.add_argument('--DBserver', type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True),
+                        help='DBserver', group='TriggerDB')
+    parser.add_argument('--DBsmkey', type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True),
+                        help='DBsmkey', group='TriggerDB')
+    parser.add_argument('--DBhltpskey', type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True),
+                        help='DBhltpskey', group='TriggerDB')
+    parser.add_argument('--DBextra', type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True),
+                        help='DBextra', group='TriggerDB')
      
         
                         
