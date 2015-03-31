@@ -241,7 +241,7 @@ StatusCode RpcLv1RawDataEfficiency::readRpcCoinDataContainer()
   const MuonGM::RpcReadoutElement* descriptor_Atl;
   double  x_atlas, y_atlas, z_atlas, phi_atlas, eta_atlas;
   int irpcstationEta; // for the switch of the eta in the coin matrix
-  int irpcmeasuresPhi; 
+    
 
 
   for( it_container = rpc_coin_container->begin(); it_container != rpc_coin_container->end(); ++it_container ) {
@@ -252,7 +252,6 @@ StatusCode RpcLv1RawDataEfficiency::readRpcCoinDataContainer()
       coindata->SetThresholdLowHigh(int((*it_collection)->threshold()), int((*it_collection)->isLowPtCoin()), int((*it_collection)->isHighPtCoin()));
       prdcoll_id   = (*it_collection)->identify();
       descriptor_Atl = m_muonMgr->getRpcReadoutElement( prdcoll_id );
-      irpcmeasuresPhi = int(m_rpcIdHelper->measuresPhi(prdcoll_id));
       irpcstationEta = int(m_rpcIdHelper->stationEta(prdcoll_id));
       x_atlas = descriptor_Atl->stripPos(prdcoll_id ).x();
       y_atlas = descriptor_Atl->stripPos(prdcoll_id ).y();

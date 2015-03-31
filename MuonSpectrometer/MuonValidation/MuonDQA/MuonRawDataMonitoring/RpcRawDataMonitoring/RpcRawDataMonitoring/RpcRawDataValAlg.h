@@ -70,7 +70,7 @@ class RpcRawDataValAlg: public ManagedMonitorToolBase {
   
  private:
       
-  bool m_first;   //!< flag to make sure that overflow message is only printed once   
+  bool m_first = true;   //!< flag to make sure that overflow message is only printed once 
   std::string type ;
   
   // Private function to add the clusters to the ntuple
@@ -82,6 +82,8 @@ class RpcRawDataValAlg: public ManagedMonitorToolBase {
 
 
   //ServiceHandle<IRPCConditionsSvc> m_pSummarySvc;
+  
+  
 
   std::string m_generic_path_rpcmonitoring ;
   
@@ -104,18 +106,21 @@ class RpcRawDataValAlg: public ManagedMonitorToolBase {
   int m_sector;
   int m_side;
   int rpc_eventstotal;
-  std::string hardware_name                               ;
-  std::vector<Identifier>* m_chambersId			  ;
-  std::vector<std::string> hardware_name_list             ;  
-  std::vector<std::string> layer_name_list                ; 
-  std::vector<std::string> layer_name_list_panel          ; 
-  std::vector<int>         layer_name_bin_list            ; 
-  std::vector<int>         layer_name_bin_list_panel      ;
-  std::vector<std::string> layervslayer_name_list         ;
-  std::vector<std::string> layerPhivsEta_name_list        ;
-  std::vector<std::string> layerPhivsEtaSector_name_list  ;
-  // std::vector<std::string> cm_time_list                ;
-  // std::vector<int>         ch16_index_list             ;
+  std::string hardware_name                                  ;
+  std::vector<Identifier>*    m_chambersId		     ;
+  std::vector<std::string>    hardware_name_list             ;  
+  std::vector<std::string>    layer_name_list                ; 
+  std::vector<std::string>    layer_name_list_panel          ; 
+  std::vector<int>            layer_name_bin_list            ; 
+  std::vector<int>            layer_name_bin_list_panel      ;
+  std::vector<std::string>    layervslayer_name_list         ;
+  std::vector<std::string>    layerPhivsEta_name_list        ;
+  std::vector<std::string>    layerPhivsEtaSector_name_list  ;
+  // std::vector<std::string> cm_time_list                   ;
+  // std::vector<int>         ch16_index_list                ;
+  int                         StationNameViewIndex[100][2]   ;
+  float                       StationNameSectorSize[100]     ;
+  float                       StationPivotSectorSize[100]    ;
   
   int shiftphiatlas ;
    
@@ -328,6 +333,11 @@ class RpcRawDataValAlg: public ManagedMonitorToolBase {
   TH1* rpcTriggerHitsPerEvents_Phi_LowPt    ;  
   TH1* rpcTriggerHitsPerEvents_Eta_HighPt   ;  
   TH1* rpcTriggerHitsPerEvents_Phi_HighPt   ;
+  
+  TH1* rpc1DStationNameHitsSideA            ;
+  TH1* rpc1DStationNameTriggerHitsSideA     ;
+  TH1* rpc1DStationNameHitsSideC            ;
+  TH1* rpc1DStationNameTriggerHitsSideC     ;
   
   
   // Global Variables declaration
