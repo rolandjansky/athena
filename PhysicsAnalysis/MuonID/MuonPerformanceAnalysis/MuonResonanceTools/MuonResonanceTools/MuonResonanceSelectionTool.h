@@ -10,11 +10,12 @@
 //////////////////////////////////////////////////////////////////////////////
 #ifndef MuonResonanceSelectionTool_H
 #define MuonResonanceSelectionTool_H
-
-#include "MuonResonanceTools/IMuonResonanceSelectionTool.h"
+ 
 #include "AsgTools/AsgTool.h"
+#include "AsgTools/AsgToolsConf.h"
+#include "AsgTools/AsgMetadataTool.h"
 #include "GaudiKernel/ToolHandle.h"
-
+#include "MuonResonanceTools/IMuonResonanceSelectionTool.h"
 
 class MuonResonanceSelectionTool
 : virtual public asg::AsgTool,
@@ -35,7 +36,9 @@ class MuonResonanceSelectionTool
   // cut on ID track quality
   bool IDTrk(const xAOD::Muon& mu) const;
   void applySF(const xAOD::Muon& mu, bool isMC) const;
-  xAOD::Muon* copy(const xAOD::Muon& mu ) const;
+  xAOD::Muon* copy(const xAOD::Muon& mu) const;
+  bool isTriggered (void) const;
+  void applyTriggerMatch(xAOD::Muon& mu) const; 
 
 
  private:
@@ -54,11 +57,15 @@ class MuonResonanceSelectionTool
   bool m_IDCuts;
   bool m_doCalib;
   bool m_doEff;
+
+  std::vector<std::string> m_triggerList;
  
   ToolHandle< CP::IMuonSelectionTool >              m_seliTool;
   ToolHandle< CP::IMuonEfficiencyScaleFactors >     m_sfTool;
   ToolHandle< CP::IMuonCalibrationAndSmearingTool > m_calibTool;
-  
+  ToolHandle< Trig::ITrigMuonMatching >             m_matchTool;
+  ToolHandle< Trig::TrigDecisionTool >              m_trigTool;
+   
   };
 
 #endif

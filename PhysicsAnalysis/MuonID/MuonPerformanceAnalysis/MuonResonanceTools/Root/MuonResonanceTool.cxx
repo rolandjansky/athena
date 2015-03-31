@@ -97,7 +97,9 @@ void MuonResonanceTool::findResonance(const xAOD::MuonContainer* tags, bool isMC
     auto resonances = m_muonResonancePairingTool->buildPairs(goodMuons);
 
     ATH_MSG_DEBUG("filling plots" );
-    if(resonances.size()>0){
+    if(resonances.size()>0){    
+      if( !hasTriggerMatch(* resonances[0].first, * resonances[0].second) ) return; 
+
       int etabin= EtaBin(* resonances[0].first, * resonances[0].second);
       int authbin= AuthorBin(* resonances[0].first, * resonances[0].second);
       ATH_MSG_DEBUG("Eta | Author Bin:  "<< etabin <<" | "<< authbin );
@@ -189,3 +191,12 @@ std::vector< CP::SystematicSet > MuonResonanceTool:: getSystematics() const{
   return Systematics;
 }
 
+bool MuonResonanceTool::hasTriggerMatch(const xAOD::Muon& mu1st, const xAOD::Muon& mu2nd) const{
+
+  bool trig1st = false, trig2nd = false;
+  if(mu1st.isAvailable< bool >("isTriggered"))  trig1st = mu1st.auxdata< bool >("isTriggered");
+  if(mu2nd.isAvailable< bool >("isTriggered"))  trig2nd = mu2nd.auxdata< bool >("isTriggered");
+  ATH_MSG_DEBUG("MuonTriggerMatch : (" << trig1st << "|" << trig2nd << ")" );  
+
+  return (trig1st || trig2nd);
+}
