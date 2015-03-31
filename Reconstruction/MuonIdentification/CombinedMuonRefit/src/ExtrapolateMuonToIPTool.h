@@ -61,7 +61,7 @@ class ExtrapolateMuonToIPTool : virtual public Muon::IMuonTrackExtrapolationTool
   ToolHandle<Muon::MuonEDMPrinterTool>   m_printer;              //!< muon EDM printer tool
 
   mutable unsigned int m_nextrapolations;
-  mutable unsigned int m_ngoodExtrapolations;
+  //mutable unsigned int m_ngoodExtrapolations;
   mutable unsigned int m_failedClosestPars;
   mutable unsigned int m_failedExtrapolationLowMom;
   mutable unsigned int m_failedExtrapolationHighMom;
