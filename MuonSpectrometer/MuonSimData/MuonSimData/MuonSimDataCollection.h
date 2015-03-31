@@ -30,6 +30,10 @@ class MuonSimDataCollection : public std::map<Identifier,MuonSimData> {
  public:
   MuonSimDataCollection();
   virtual ~MuonSimDataCollection();
+
+  // Helpers for easy access from python / debugger.
+  Identifier id (size_t i) const;
+  const MuonSimData* data (size_t i) const;
 };
 CLASS_DEF(MuonSimDataCollection, 41658935, 1)
 
