@@ -180,7 +180,7 @@ class ThinObjects( PyAthena.Alg ):
         ROOT = ru.import_root()
         self.std = ROOT.std
         # Get enum for tracking enum
-        PyCintex.loadDict("libTrkTrackSummaryDict")
+        cppyy.loadDict("libTrkTrackSummaryDict")
         self.trk = ROOT.Trk
 
         return StatusCode.Success
@@ -319,7 +319,7 @@ class ThinObjects( PyAthena.Alg ):
                         pass
                     pass
                 # Get enum for tracking enum
-                #PyCintex.loadDict("libTrkTrackSummaryDict")
+                #cppyy.loadDict("libTrkTrackSummaryDict")
                 #trk = ROOT.Trk
                 #trackSummary  = trackParticle.trackSummary()
                 # The trackSummary enumerates are defined here:
