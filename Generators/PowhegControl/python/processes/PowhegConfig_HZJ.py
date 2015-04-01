@@ -1,38 +1,45 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-#########################################################################################################################
+## @PowhegControl PowhegConfig_HZJ
+#  Powheg configuration for HZJ subprocess
 #
-#   Script to configure Powheg HZJ subprocess
-#
-#   Authors: James Robinson  <james.robinson@cern.ch>
-#
-#########################################################################################################################
+#  Authors: James Robinson  <james.robinson@cern.ch>
 
 #! /usr/bin/env python
 from ..PowhegConfig_base import PowhegConfig_base
 from ..decorators import PowhegDecorators
 
-###############################################################################
+## Default Powheg configuration for HZJ generation
 #
-#  HZJ
-#
-###############################################################################
+#  Create a full configurable with all available Powheg options
 class PowhegConfig_HZJ(PowhegConfig_base) :
-  # These are process specific - put generic properties in PowhegConfig_base
-  mass_Z_low  = 10.
-  mass_Z_high = 1000.
 
-  # Set process-dependent paths in the constructor
   def __init__( self, runArgs=None, opts=None ) :
+    ## Constructor: set process-dependent executable path here
     super(PowhegConfig_HZJ, self).__init__( runArgs, opts )
     self._powheg_executable += '/HZJ/pwhg_main'
 
-    # Add decorators
-    PowhegDecorators.decorate( self, 'Higgs v2' )
-    PowhegDecorators.decorate( self, 'HJ' )
-    PowhegDecorators.decorate( self, 'HV' )
+    ## Add process specific options
+    self.bornsuppfactV = -1
+    self.kappa_ghz     = 1.0
+    self.ptVhigh       = -1
+    self.ptVlow        = -1
+    self.Vstep         = -1
 
-    # Set optimised integration parameters
+    ## Decorate with generic option sets
+    PowhegDecorators.decorate( self, 'Higgs mass window' )
+    PowhegDecorators.decorate( self, 'Higgs properties' )
+    PowhegDecorators.decorate( self, 'Higgs+V+jet' )
+    PowhegDecorators.decorate( self, 'MiNLO NNLL' )
+    PowhegDecorators.decorate( self, 'radiation' )
+    PowhegDecorators.decorate( self, 'running scales' )
+    PowhegDecorators.decorate( self, 'top mass' )
+    PowhegDecorators.decorate( self, 'vector boson decay' )
+    PowhegDecorators.decorate( self, 'v2' )
+    PowhegDecorators.decorate( self, 'v2 radiation' )
+    PowhegDecorators.decorate( self, 'Z mass window' )
+
+    ## Set optimised integration parameters
     self.ncall1   = 80000
     self.ncall2   = 50000
     self.nubound  = 50000
@@ -41,10 +48,13 @@ class PowhegConfig_HZJ(PowhegConfig_base) :
     self.foldy    = 5
     self.foldphi  = 5
 
-  # Implement base-class function
+  ## Extend base-class runcard generation
   def generateRunCard(self) :
     self.initialiseRunCard()
 
-    with open( str(self.TestArea)+'/powheg.input','a') as f :
-      f.write( 'max_z_mass '+str(self.mass_Z_high)+'  ! M Z < mass high\n')
-      f.write( 'min_z_mass '+str(self.mass_Z_low)+'   ! M Z > mass low\n')
+    with open( self.runcard_path(), 'a' ) as f :
+      f.write( 'bornsuppfactV '+str(self.bornsuppfactV)+' ! \n' )
+      f.write( 'kappa_ghz '+str(self.kappa_ghz)+'         ! multiplicative kappa-factor of the Higgs-Z coupling\n' )
+      f.write( 'ptVhigh '+str(self.ptVhigh)+'             ! \n' )
+      f.write( 'ptVlow '+str(self.ptVlow)+'               ! \n' )
+      f.write( 'Vstep '+str(self.Vstep)+'                 ! \n' )
