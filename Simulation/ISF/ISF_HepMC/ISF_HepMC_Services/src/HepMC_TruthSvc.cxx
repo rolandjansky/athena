@@ -348,7 +348,7 @@ void ISF::HepMC_TruthSvc::registerTruthIncident( ISF::ITruthIncident& truth) {
       vtx->add_particle_out( p);
 
       // Check to see if this is meant to be a "primary" vertex
-      if (p->barcode() < myFirstSecondary){
+      if ( p && p->barcode() < myFirstSecondary){
         vtx->suggest_barcode( myLowestVertex );
         ++myLowestVertex;
         if (m_quasiStableParticlesIncluded){
