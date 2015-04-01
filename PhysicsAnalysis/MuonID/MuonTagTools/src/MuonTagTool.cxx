@@ -240,8 +240,7 @@ StatusCode MuonTagTool::execute(TagFragmentCollection & muonTagCol, const int ma
 		 << " px " << muon.p4().Px() << " py " << muon.p4().Py() );
     
     /** pt */
-    muonTagCol.insert( m_ptStr[i], muon.pt() );
-    //* muon.charge() );
+    muonTagCol.insert( m_ptStr[i], muon.pt() * muon.charge() );
     
     /** eta */
     muonTagCol.insert( m_etaStr[i], muon.eta() );
