@@ -4,4 +4,4 @@
 
 from G4AtlasApps.SimFlags import simFlags
 from G4AtlasApps import callbacks
-simFlags.InitFunctions.add_function("postInit", callbacks.use_verbose_tracking)
+simFlags.InitFunctions.add_function("preInitG4", callbacks.use_verbose_tracking)
