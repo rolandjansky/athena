@@ -1330,7 +1330,7 @@ StatusCode MuFastSteering::updateMonitor(const LVL1::RecMuonRoI*                
     m_efficiency  = 1;
   
     const TrigL2MuonSA::TrackPattern& pattern = trackPatterns[0]; 
-    float norm = (trackPatterns[0].s_address==-1)? 10.: 1.;
+    float norm = 10.;
     
     float count_inner  = 0;
     float count_middle = 0;

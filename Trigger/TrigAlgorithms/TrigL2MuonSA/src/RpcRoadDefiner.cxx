@@ -155,7 +155,7 @@ StatusCode TrigL2MuonSA::RpcRoadDefiner::defineRoad(const LVL1::RecMuonRoI*     
     std::string name = m_mdtIdHelper->stationNameString(m_mdtIdHelper->stationName(id));
     
     int LargeSmall = 0;
-    if(name[2]=='S') LargeSmall = 1;
+    if(name[2]=='S' || name[2]=='F' || name[2]=='G') LargeSmall = 1;
     int sector = (stationPhi-1)*2 + LargeSmall;
     if(sector_trigger == 99)
       sector_trigger = sector;
