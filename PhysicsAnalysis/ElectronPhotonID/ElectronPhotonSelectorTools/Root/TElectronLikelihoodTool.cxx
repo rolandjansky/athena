@@ -377,9 +377,9 @@ const Root::TAccept& Root::TElectronLikelihoodTool::accept( LikeEnum::LHAcceptVa
   }
   
   double cutDiscriminant;
-  
+  int ibin_combined = etbin*10+etabin; // Must change if number of eta bins changes!. Also starts from 7-10 GeV bin.
+
   if (vars_struct.eT > 7000. || !CutLikelihood4GeV.size()){
-    int ibin_combined = etbin*10+etabin; // Must change if number of eta bins changes!
     cutDiscriminant = CutLikelihood[ibin_combined];
     // If doPileupTransform, then correct the discriminant itself instead of the cut value
     if (!doPileupTransform && CutLikelihoodPileupCorrection.size()) 
@@ -401,7 +401,7 @@ const Root::TAccept& Root::TElectronLikelihoodTool::accept( LikeEnum::LHAcceptVa
 
   // d0 cut
   if (CutA0.size()){
-    if (fabs(vars_struct.d0) > CutA0[etabin]){
+    if (fabs(vars_struct.d0) > CutA0[ibin_combined]){
       ATH_MSG_DEBUG("Likelihood macro: D0 Failed.");
       passTrackA0 = false;
     }
@@ -409,7 +409,7 @@ const Root::TAccept& Root::TElectronLikelihoodTool::accept( LikeEnum::LHAcceptVa
 
   // deltaEta cut
   if (CutDeltaEta.size()){
-    if ( fabs(vars_struct.deltaEta) > CutDeltaEta[etabin]){
+    if ( fabs(vars_struct.deltaEta) > CutDeltaEta[ibin_combined]){
       ATH_MSG_DEBUG("Likelihood macro: deltaEta Failed.");
       passDeltaEta = false;
     }
@@ -417,7 +417,7 @@ const Root::TAccept& Root::TElectronLikelihoodTool::accept( LikeEnum::LHAcceptVa
   
   // deltaPhiRes cut
   if (CutDeltaPhiRes.size()){
-    if ( fabs(vars_struct.deltaphires) > CutDeltaPhiRes[etabin]){
+    if ( fabs(vars_struct.deltaphires) > CutDeltaPhiRes[ibin_combined]){
       ATH_MSG_DEBUG("Likelihood macro: deltaphires Failed.");
       passDeltaPhiRes = false;
     }

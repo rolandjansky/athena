@@ -607,7 +607,7 @@ const Root::TResult& AsgElectronLikelihoodTool::calculate( const xAOD::Electron*
   double ip = static_cast<double>(m_nPVdefault);
 
   if(mu < 0){ // use npv if mu is negative (not given)
-      ip = static_cast<double>(m_usePVCont ? this->getNPrimVertices() : m_nPVdefault);
+    ip = static_cast<double>(m_usePVCont ? this->getNPrimVertices() : m_nPVdefault);
   }
   else{
     ip = mu;
@@ -816,19 +816,23 @@ const Root::TResult& AsgElectronLikelihoodTool::calculate(const xAOD::IParticle*
 //=============================================================================
 unsigned int AsgElectronLikelihoodTool::getNPrimVertices() const
 {
-  // Get the number of vertices
+  static bool PVExists = true; 
   unsigned int nVtx(0);
   const xAOD::VertexContainer* vxContainer(0);
-  if ( StatusCode::SUCCESS != evtStore()->retrieve( vxContainer, m_primVtxContName ) )
+  if(PVExists)
+  {
+    if ( StatusCode::SUCCESS != evtStore()->retrieve( vxContainer, m_primVtxContName ) )
     {
-      ATH_MSG_ERROR ( "Vertex container not found with name:" << m_primVtxContName );
+      ATH_MSG_WARNING ( "Vertex container not found with name: " << m_primVtxContName );
+      PVExists = false; // if retrieve failed, don't try to retrieve again
       return nVtx;
     }
-  for ( unsigned int i=0; i<vxContainer->size(); i++ )
+    for ( unsigned int i=0; i<vxContainer->size(); i++ )
     {
       const xAOD::Vertex* vxcand = vxContainer->at(i);
       if ( vxcand->nTrackParticles() >= 2 ) nVtx++;
     }
+  }
   return nVtx;
 }
 
