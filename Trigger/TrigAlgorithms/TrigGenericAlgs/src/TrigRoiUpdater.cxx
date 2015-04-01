@@ -70,7 +70,7 @@ namespace PESA
 
     const TrigRoiDescriptor *roi = 0;
     bool forIDfound=false;
-    //    bool updateNeeded=false;
+    bool updateNeeded=true;
 
     std::vector<std::string> roiNames = {"forID3","forID2","forID1", "forID", ""};
     std::string roiName= "";
@@ -80,7 +80,7 @@ namespace PESA
 	ATH_MSG_DEBUG("|"  << roiNames[k] << "| not found or zero"); 
       } else {
 	roiName = roiNames[k-1>0 ? k-1 : 0];
-	ATH_MSG_DEBUG("RoI with label |" << roiNames[k] << "| found and use " << roiName << " for an update"); 
+	ATH_MSG_DEBUG("RoI with label |" << roiNames[k] << "| found and " << roiName << " will be used for an update"); 
 	if (roiName.find("forID1")!=std::string::npos) forIDfound = true;
 	break;
       }
@@ -99,28 +99,43 @@ namespace PESA
       return HLT::OK;
     }
 
-
-    m_inpPhiMinus= roi->phiMinus(); m_inpPhiPlus = roi->phiPlus();  m_inpPhiSize= m_inpPhiPlus - m_inpPhiMinus;
-    m_inpEtaMinus= roi->etaMinus(); m_inpEtaPlus = roi->etaPlus();  m_inpEtaSize= m_inpEtaPlus - m_inpEtaMinus;
-
-
-
-    float eta = roi->eta();
-    float phi = roi->phi();
-
-    float oldEtaW = m_inpEtaPlus - m_inpEtaMinus;
-    float oldPhiW = m_inpPhiPlus - m_inpPhiMinus;
-    float diff_e = oldEtaW/2. - m_etaHalfWidth;
-    float diff_p = oldPhiW/2. - m_phiHalfWidth;
-
-    float zedm = roi->zedMinus()-m_zHalfWidth;
-    float zedp = roi->zedPlus()+m_zHalfWidth;
+    if (instanceName.find("Bjet")!=std::string::npos || instanceName.find("bjet")!=std::string::npos){
+      ATH_MSG_DEBUG("don't use fixed RoI halfwidths for bjets");
+      updateNeeded = false;
+    }
 
 
-    TrigRoiDescriptor *outroi =     
-		       new TrigRoiDescriptor(eta, m_inpEtaMinus+diff_e, m_inpEtaPlus-diff_e,
-					     phi, m_inpPhiMinus+diff_p, m_inpPhiPlus-diff_p,
-					     roi->zed(), zedm, zedp);
+
+    TrigRoiDescriptor *outroi = 0;
+
+    if (updateNeeded) {
+      m_inpPhiMinus= roi->phiMinus(); m_inpPhiPlus = roi->phiPlus();  m_inpPhiSize= m_inpPhiPlus - m_inpPhiMinus;
+      m_inpEtaMinus= roi->etaMinus(); m_inpEtaPlus = roi->etaPlus();  m_inpEtaSize= m_inpEtaPlus - m_inpEtaMinus;
+      
+      
+      
+      float eta = roi->eta();
+      float phi = roi->phi();
+      
+      float oldEtaW = m_inpEtaPlus - m_inpEtaMinus;
+      float oldPhiW = m_inpPhiPlus - m_inpPhiMinus;
+      
+      
+      if (  m_inpPhiPlus < m_inpPhiMinus ) oldPhiW += 2*M_PI;
+      
+      float diff_eta = 0.5*oldEtaW - m_etaHalfWidth;
+      float diff_phi = 0.5*oldPhiW - m_phiHalfWidth;
+      
+      float zedm = roi->zedMinus()-m_zHalfWidth;
+      float zedp = roi->zedPlus()+m_zHalfWidth;
+      
+      outroi =  new TrigRoiDescriptor(eta, m_inpEtaMinus+diff_eta, m_inpEtaPlus-diff_eta,
+				      phi, m_inpPhiMinus+diff_phi, m_inpPhiPlus-diff_phi,
+				      roi->zed(), zedm, zedp);
+    }
+    else {
+      outroi = new TrigRoiDescriptor(*roi);
+    }
 
     ATH_MSG_DEBUG("Input RoI " << *roi);
 
