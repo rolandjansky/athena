@@ -44,6 +44,7 @@ namespace TrigConf {
       virtual ~HLTJobOptionsSvc();
 
       // Service initialization method
+      virtual StatusCode sysInitialize();
       virtual StatusCode initialize();
 
       // Service finalization method

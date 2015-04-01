@@ -39,7 +39,7 @@ namespace TrigConf {
       const CTPConfig* ctpConfig() const { return m_ctpConfig; }
       const ThresholdConfig* thresholdConfig() const { return m_thrcfg; }
       const BunchGroupSet* bunchGroupSet() const;
-      uint32_t lvl1PrescaleKey() const { return 0; }
+      uint32_t lvl1PrescaleKey() const { return m_prescaleSetID; }
 
    private:
       
