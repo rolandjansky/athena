@@ -9,6 +9,7 @@
 #include "CoolKernel/IFolder.h"
 #include "CoralBase/Attribute.h"
 #include "CoralBase/AttributeList.h"
+#include "CoralBase/AttributeListException.h"
 
 #include "CTPfragment/CTPdataformatVersion.h"
 
@@ -218,20 +219,15 @@ TrigConfCoolL1PayloadConverters::createLvl1BGContentPayload( cool::IFolderPtr fl
 
    Record payload(fld->payloadSpecification());
 
-   vector<unsigned char> codes(TrigConfCoolFolderSpec::mBGContentBlobSize,0);
+   // the output vector
+   vector<unsigned char> codes(2 * TrigConfCoolFolderSpec::mBGContentBlobSize, 0 );
 
    std::vector<const BunchGroup*> bgOrdered(16,(const BunchGroup*)0);
 
-//    const vector<BunchGroup> & bgV = bgs.bunchGroups();
-//    vector<BunchGroup>::const_iterator bgIt = bgV.begin();
-//    for(bgIt = bgV.begin(); bgIt != bgV.end(); ++bgIt) {
-//       const BunchGroup* bgp = &*bgIt;
-//       bgOrdered.at(bgp->internalNumber()) = bgp;
-//    }
-
-   for(const BunchGroup & bgp: bgs.bunchGroups()) {
+   for(const BunchGroup & bgp: bgs.bunchGroups())
       bgOrdered.at(bgp.internalNumber()) = &bgp;
-   }
+
+
 
 
    for(int bgC=0; bgC<16; ++bgC) {
@@ -239,31 +235,32 @@ TrigConfCoolL1PayloadConverters::createLvl1BGContentPayload( cool::IFolderPtr fl
       if(bg==0) continue;
 
       // mask describes the current bunchgroup (BG1: 1, BG2: 2, BG3: 4, ..., BG8: 128)
-      unsigned char mask = (1 << bgC);
-      const std::vector<int>& bV = bg->bunches();
-      std::vector<int>::const_iterator bIt = bV.begin();
-      for(; bIt!=bV.end(); ++bIt) {
-         if(*bIt<0 || *bIt>=TrigConfCoolFolderSpec::mBGContentBlobSize) {
+
+      unsigned char mask = (1 << (bgC % 8) );
+      unsigned int bgOffset = bgC < 8 ? 0 : TrigConfCoolFolderSpec::mBGContentBlobSize; // for BG 8-15 we use the higher part of the blob
+
+      for(int b : bg->bunches()) {
+         if(b<0 || b >= TrigConfCoolFolderSpec::mBGContentBlobSize) {
             // this is a serious error which can't be ignored
-            std::string errorMsg = "Bunch groups ";
-            errorMsg += lexical_cast<std::string,int>(bgC);
-            errorMsg += " contains bunch number ";
-            errorMsg += lexical_cast<std::string,int>(*bIt);
-            errorMsg += " which is outside the range [0,3563]";
+            std::string errorMsg =
+               "Bunch group " + to_string(bgC) + " contains bunch number "
+               + to_string(b) + " which is outside the range [0,3563]";
             throw std::runtime_error(errorMsg);
          }
-         codes[static_cast<unsigned int>(*bIt)] |= mask;
+         codes[static_cast<unsigned int>(b) + bgOffset] |= mask;
       }
    }
 
    std::cout << "LVL1 bunchgroups [list 16 bunches per line]:" << std::endl;
-   // Get the blob, resize it to actual size, and push codes into it
-   //coral::Blob& blob = payload["BunchCode"].data<coral::Blob>();
    coral::Blob blob;
-   blob.resize( TrigConfCoolFolderSpec::mBGContentBlobSize );
+
+   blob.resize( codes.size() );
+
    unsigned char* p = static_cast<unsigned char*>(blob.startingAddress());
-   for (size_t i=0; i<static_cast<size_t>(TrigConfCoolFolderSpec::mBGContentBlobSize) ;++i,++p) {
+
+   for (size_t i=0; i < codes.size() ; ++i,++p) {
       *p = codes[i];
+
       cout << string(std::bitset<8>(codes[i]).to_string<char,std::char_traits<char>,std::allocator<char> >());
       if((i+1)%16==0) cout << endl;
       else cout << " ";
@@ -512,19 +509,32 @@ TrigConfCoolL1PayloadConverters::createLvl1Threshold( const coral::AttributeList
 
 vector<BunchGroup>
 TrigConfCoolL1PayloadConverters::readLvl1BGContent( const coral::AttributeList & al) {
-   vector<BunchGroup> bgV(8);
    const coral::Blob& blob = al["BunchCode"].data<coral::Blob>();
 
    // check blob size - if we ever change the blob size, we have to work with schema versions here
-   if(blob.size() != TrigConfCoolFolderSpec::mBGContentBlobSize)
+   if(blob.size() != 3564 && blob.size() != 2 * 3564)
       throw runtime_error("Read BLOB for BunchCode of unexpected size!");
+
+
+   unsigned int numberBG = (blob.size() == 3564) ? 8 : 16;
+
+   vector<BunchGroup> bgV(numberBG);
+
    
    const unsigned char* p = static_cast<const unsigned char*>(blob.startingAddress());
-   for (size_t bunch = 0; bunch < static_cast<size_t>(blob.size());++bunch,++p) {
-      unsigned char mask = (*p);
-      if( bunch>3564 ) throw runtime_error("Exceed 3564 bunches!");
+
+   for (size_t bunch = 0; bunch < 3564; ++bunch, ++p) {
+      unsigned char mask = *p;
       for(int i=0; i<8;i++) {
          if( (mask>>i) & 0x1) bgV[i].addBunch(bunch);
+      }
+   }
+
+   if(blob.size() == 2 * 3564) { // Run 2 with have 8 more BG
+      for (size_t bunch = 0; bunch < 3564; ++bunch, ++p) {
+         unsigned char mask = *p;
+         for(int i=0; i<8;i++)
+            if( (mask>>i) & 0x1) bgV[8+i].addBunch(bunch);
       }
    }
    return bgV;
@@ -542,6 +552,17 @@ TrigConfCoolL1PayloadConverters::readLvl1BGDesc(const coral::AttributeList & al)
    names.push_back(al["BunchGroup5"].data<cool::String255>());
    names.push_back(al["BunchGroup6"].data<cool::String255>());
    names.push_back(al["BunchGroup7"].data<cool::String255>());
+   try {
+      names.push_back(al["BunchGroup8"].data<cool::String255>());
+      names.push_back(al["BunchGroup9"].data<cool::String255>());
+      names.push_back(al["BunchGroup10"].data<cool::String255>());
+      names.push_back(al["BunchGroup11"].data<cool::String255>());
+      names.push_back(al["BunchGroup12"].data<cool::String255>());
+      names.push_back(al["BunchGroup13"].data<cool::String255>());
+      names.push_back(al["BunchGroup14"].data<cool::String255>());
+      names.push_back(al["BunchGroup15"].data<cool::String255>());
+    }
+   catch(const coral::AttributeListException &) {} // run2
 
    std::map<unsigned int,unsigned char> codes;
    const coral::Blob& blob = al["ItemToBunchGroupMap"].data<coral::Blob>();

@@ -560,9 +560,6 @@ TrigConf::JobOptionTableLoader::load( JobOptionTable& jot ) {
 
    std::set<int> compIDsToLoad = loadComponentIDsFromSetup(setupId);
 
-   std::set<int> compIDsToLoad2 = loadComponentIDsFromMenu(triggerMenuID, level);
-
-   compIDsToLoad.insert(compIDsToLoad2.begin(), compIDsToLoad2.end());
 
    TRG_MSG_INFO("Direct components => " << compIDsToLoad.size());
 

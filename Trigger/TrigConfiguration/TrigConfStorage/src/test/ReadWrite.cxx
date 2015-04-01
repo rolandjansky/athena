@@ -70,35 +70,40 @@ void printhelp(std::ostream & o, std::ostream& (*lineend) ( std::ostream& os )) 
   o << "TrigConfReadWrite <options>\n";
   o << "\n";
   o << "[Global options]\n";
-  o << "  -i|--input        input [input [input]]       ... source of configuration (mandatory)\n";
-  o << "  -2|--comp         input [input [input]]       ... source of a second configuration for comparison\n";
-  o << "  -o|--output       xml|cool [output[;cooldb]]  ... output format, name\n";
-  o << "                                                ... absolute output file name must contain '/', cooldb can be appended COMP200|OFLP200\n";
-  o << "  -v|--loglevel     <string>                    ... log level [NIL, VERBOSE, DEBUG, INFO, WARNING, ERROR, FATAL, ALWAYS]\n";
-  o << "  -l|--log          <string>                    ... name of a log file\n";
-  o << "  --jo                                          ... read and write job options where possible\n";
-  o << "  --fw                                          ... read ctp firmware\n";
-  o << "  -p|--print        <int>                       ... print configuration with detail 0...5 (default 1)\n";
-  o << "  -h|--help                                     ... this output\n";
-  o << "  --nomerge                                     ... internally don't merge L2 and EF (by default merge is enabled)\n";
-  o << "\n";
+  o << "  -i|--input        input [input [input]]             ... source of configuration, format see below (mandatory)\n";
+  o << "  -2|--comp         input [input [input]]             ... source of a second configuration for comparison\n";
+  o << "  -o|--output       xml|cool [output[;cooldb]] [run]  ... output format, name (for cool optional run number)\n";
+  o << "                                                      ... absolute output file name must contain '/', cooldb can be appended COMP200|OFLP200\n";
+  o << "  -v|--loglevel     <string>                          ... log level [NIL, VERBOSE, DEBUG, INFO, WARNING, ERROR, FATAL, ALWAYS]\n";
+  o << "  -l|--log          <string>                          ... name of a log file\n";
+  o << "  --jo                                                ... read and write job options where possible\n";
+  o << "  --fw                                                ... read ctp firmware\n";
+  o << "  -p|--print        <int>                             ... print configuration with detail 0...5 (default 1)\n";
+  o << "  -h|--help                                           ... this output\n";
+  o << "  --nomerge                                           ... internally don't merge L2 and EF (by default merge is enabled)\n";
+  o << "\n\n";
   o << "Input can be specified the following\n";
-  o << "  -i [l1menu.xml] [hltmenu2.xml]                   ... to read L1 and/or HLT menu from XML [file names must end with '.xml'\n";
-  o << "  -i DBALIAS|dbconnection smk[,l1psk,hltpsk,bgsk]  ... to read the menu from a trigger db via alias or explicit connection specification (ORACLE or SQlite)\n";
-  o << "  -i COOLDBALIAS|cooldbconnection run[,lb]         ... to read the menu from COOL for a certain run and possbly LB\n";
+  o << "  -i [l1menu.xml] [hltmenu2.xml]                                    ... to read L1 and/or HLT menu from XML [file names must end with '.xml'\n";
+  o << "  -i <TRIGDB_ALIAS>|<TRIGDB_connection> smk[,l1psk,hltpsk,bgsk]     ... to read the menu from a trigger db via alias or explicit connection specification (ORACLE or SQlite)\n";
+  o << "  -i <COOLDB_ALIAS>|<COOLDB_connection>|cool.db run[,lb]            ... to read the menu from COOL for a certain run and possibly LB [file names must end with '.db']\n";
   o << "\n";
-  o << "The dbconnection can be specified as following\n";
-  o << "  'sqlite:TriggerMenuSQLiteFile_rel1.sqlite'\n";
+  o << "The cool dbconnection can be specified as one of the following\n";
+  o << "     - via alias   : COOLONL_TRIGGER    (use COOLONL_TRIGGER/COMP200 for Run 1 data)";
+  o << "     - from sqlite : cool.db            (use cool.db;COMP200 for Run 1 data)";
   o << "\n";
   o << "\n";
+  o << "Input for comparison can be specified the same way, using the '-2' or '--comp' option\n";
   o << "\n";
-  o << "Input for comparison can be specified the same way, using the '-2' option\n";
   o << "\n";
   o << "Output formats can be xml or cool. In case a second input is specified for comparison, the output will be on screen or an xml file with the differences\n";
   o << "  -o xml test                                     ... will produce LVL1config_test.xml and/or HLTconfig_test.xml. When\n";
   o << "                                                      comparing two menus this will produce Diff_test.xml. In this case the\n";
   o << "                                                      specification of '-o test' is sufficient\n";
-  o << "  -o cool test                                    ... will produce Menu_test.db\n";
+  o << "  -o cool                                         ... will produce trig_cool.db with cool db instance CONDBR2 and infinite IOV\n";
+  o << "  -o cool 200000                                  ... will produce trig_cool.db with cool db instance CONDBR2 and run number 200000\n";
+  o << "  -o cool test [200000]                           ... will produce trig_cool_test.db with cool db instance CONDBR2 [and run number 200000]\n";
+  o << "  -o cool ../test.db [200000]                     ... will produce ../test.db with cool db instance CONDBR2 [and run number 200000]\n";
+  o << "  -o cool 'test;COMP200' [200000]                 ... will produce Menu_test.db with cool db instance COMP200 [and run number 200000]\n";
   o << "\n";
   o << "================================================================================\n";
 }
@@ -121,8 +126,9 @@ public:
    string       l1xmlOutFile { "LVL1Config.xml" };
    string       l1topoOutFile { "L1TopoConfig.xml" };
    string       hltxmlOutFile { "HLTConfig.xml" };
-   string       coolOutFile { "trig_cool.db" };
-   string       coolDbname { "COMP200" };
+   string       coolInputConnection { "" };
+   string       coolOutputConnection { "" };
+   unsigned int coolOutputRunNr { 0 };
 
    // other
    bool         help {false};
@@ -159,6 +165,12 @@ namespace {
       if(str.size()<sub.size())
          return false;
       return (str.compare(0,sub.size(),sub) == 0);
+   }
+
+   bool isUnsignedInteger(const std::string& str) {
+      for(const char c : str)
+         if(c<'0' || c>'9') return false;
+      return true;
    }
 }
 
@@ -228,11 +240,31 @@ JobConfig::parseProgramOptions(int argc, char* argv[]) {
    if(inpar.size()==0)
       error.push_back("No input specified, use '-i' option");
 
+
+   // parse the input 
    if( (inpar.size()==1 && endswith(inpar[0],".xml")) || 
        (inpar.size()==2 && endswith(inpar[1],".xml") && endswith(inpar[1],".xml")) ) {
       input = XML;
-   } else if( inpar.size()>=1 && ( endswith(inpar[0],".db") || startswith(inpar[0],"COOLONL_TRIGGER") ) ) {
+   } else if( inpar.size()>=1 && inpar[0].find(".db") != string::npos ) {
+      // sqlite file
       input = COOL;
+      vector<string> ksv;
+      boost::split(ksv,inpar[0],boost::is_any_of(";"));
+      if(ksv.size()==1) { // defaults to CONDBR2
+         coolInputConnection = "sqlite://;schema="+ksv[0]+";dbname=CONDBR2";
+      } else {
+         coolInputConnection = "sqlite://;schema="+ksv[0]+";dbname=" + ksv[1];
+      }
+   } else if( inpar.size()>=1 && startswith(inpar[0],"COOLONL_TRIGGER") ) {
+      input = COOL;
+      vector<string> ksv;
+      boost::split(ksv,inpar[0],boost::is_any_of("/"));
+      if(ksv.size()==1) {
+         coolInputConnection = ksv[0]+"/CONDBR2";
+      } else {
+         coolInputConnection = ksv[0]+"/" + ksv[1];
+      }
+
    } else if( inpar.size()==2 ) {
       input = DB;
       db = inpar[0];
@@ -248,26 +280,33 @@ JobConfig::parseProgramOptions(int argc, char* argv[]) {
       input2 = XML;
    }
 
-
+   // parse the output
    for(const string& o: outpar) {
-      if(o=="xml") { output |= XML; }
-      else if(o=="cool") { output |= COOL; }
-      else { outBase = o; }
+      if ( o=="xml") { 
+         output |= XML;
+      } else if ( o=="cool" ) {
+         output |= COOL;
+      } else if ( isUnsignedInteger(o) ) {
+         coolOutputRunNr = boost::lexical_cast<unsigned int,string>(o);
+      } else {
+         outBase = o;
+      }
    }
 
    if (outBase != "") {
       if( output & JobConfig::COOL ) {
-         string out = outBase;
-         size_t sempos = outBase.find(";");
-         if (sempos !=  string::npos) {
-            coolDbname = outBase.substr(sempos+1);
-            out = outBase.substr(0,sempos);
+         string dbname = "CONDBR2";
+         string outfile = outBase;
+         vector<string> ksv;
+         boost::split(ksv,outBase,boost::is_any_of(";"));
+         if(ksv.size()==2) { // defaults to CONDBR2
+            outfile = ksv[0];
+            dbname = ksv[1];
          }
-         if (out.find("/") !=  string::npos) {
-            coolOutFile = out;
-         } else {
-            coolOutFile="trig_cool_" + out + ".db";
+         if (outfile.find("/")==string::npos && outfile.find('.')==string::npos) {
+            outfile="trig_cool_" + outfile + ".db";
          }
+         coolOutputConnection = "sqlite://;schema="+outfile+";dbname="+dbname;
       } else {
          l1xmlOutFile  = "LVL1config_" + outBase + ".xml";
          l1topoOutFile = "L1TopoConfig_" + outBase + ".xml";
@@ -314,7 +353,10 @@ JobConfig::PrintSetup(std::ostream & log, std::ostream& (*lineend) ( std::ostrea
    if( output != UNDEF ) {
       log << "   Output              : ";
       if( output&XML )  log << l1xmlOutFile << ", " << l1topoOutFile << ", " << hltxmlOutFile;
-      if( output&COOL ) log << coolOutFile << "; " << coolDbname;
+      if( output&COOL ) { 
+         log << coolOutputConnection;
+         if(coolOutputRunNr==0) { log << ", infinite IOV"; } else { log << ", run nr " << coolOutputRunNr; }
+      }
       log << lineend;
    }
    if( printlevel>=0)
@@ -442,18 +484,11 @@ int main( int argc, char* argv[] ) {
     * from COOL
     *-----------------*/
    else if (gConfig.input == JobConfig::COOL) {
-      string coolinput = gConfig.inpar[0];
+      string coolInputConnection = gConfig.coolInputConnection;
       unsigned int runnumber =  gConfig.inpar.size()>1 ? boost::lexical_cast<unsigned int,string>(gConfig.inpar[1]) : 1;
       unsigned int lb =  gConfig.inpar.size()>2 ? boost::lexical_cast<unsigned int,string>(gConfig.inpar[2]) : 0;
-      string connection("");
-      if(coolinput.find('.') != string::npos) {
-         connection = "sqlite://;schema="+coolinput+";dbname=COMP200";
-         log << "TrigConfReadWrite:                Reading cool from file " << coolinput << " with schema name COMP200" << lineend;
-      } else {
-         connection = coolinput;
-         log << "TrigConfReadWrite:                Reading cool using dblookup with alias " << coolinput << lineend;
-      }
-      TrigConfCoolWriter * coolWriter = new TrigConfCoolWriter( connection );
+      log << "TrigConfReadWrite:                Reading cool : " << coolInputConnection << lineend;
+      TrigConfCoolWriter * coolWriter = new TrigConfCoolWriter( coolInputConnection );
       string configSource("");
       ctpc = new CTPConfig();
       coolWriter->readL1Payload( runnumber, *ctpc);
@@ -584,18 +619,20 @@ int main( int argc, char* argv[] ) {
       /*------------------
        * to COOL
        *-----------------*/
-      log << "TrigConfReadWrite:                Writing sqlite cool file " << gConfig.coolOutFile << " with schema name " << gConfig.coolDbname << lineend;
-      TrigConfCoolWriter * coolWriter = new TrigConfCoolWriter( "sqlite://;schema="+gConfig.coolOutFile+";dbname="+gConfig.coolDbname );
+      log << "TrigConfReadWrite:                Writing sqlite cool file : " << gConfig.coolOutputConnection << " with ";
+      if( gConfig.coolOutputRunNr==0 ) { log << "infinite IOV"; } else { log << " runNr " << gConfig.coolOutputRunNr; }
+      log << lineend;
+      TrigConfCoolWriter * coolWriter = new TrigConfCoolWriter( gConfig.coolOutputConnection );
       string configSource("");
-      if(ctpc) {
-         coolWriter->writeL1Payload(0x80000000, // infinite range
-                                    *ctpc);
-      }
-      if(hltFrame) {
-         coolWriter->writeHLTPayload(0x80000000, // infinite range
-                                     *hltFrame,
-                                     configSource);
-      }
+      unsigned int runNr = gConfig.coolOutputRunNr;
+      if(runNr == 0) { runNr = 0x80000000; } // infinite range
+      
+      if(ctpc)
+         coolWriter->writeL1Payload(runNr, *ctpc);
+      
+      if(hltFrame)
+         coolWriter->writeHLTPayload(runNr, *hltFrame, configSource);
+
    }
 
    delete ctpc;
