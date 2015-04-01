@@ -1,52 +1,46 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-#########################################################################################################################
+## @PowhegControl PowhegConfig_ggHZ
+#  Powheg configuration for ggHZ subprocess
 #
-#   Script to configure Powheg ggHZ subprocess
-#
-#   Authors: James Robinson  <james.robinson@cern.ch>
-#            Daniel Hayden   <danhayden0@googlemail.com>
-#            Stephen Bieniek <stephen.paul.bieniek@cern.ch>
-#
-#########################################################################################################################
+#  Authors: James Robinson  <james.robinson@cern.ch>
+#           Daniel Hayden   <danhayden0@googlemail.com>
+#           Stephen Bieniek <stephen.paul.bieniek@cern.ch>
 
 #! /usr/bin/env python
 from ..PowhegConfig_base import PowhegConfig_base
 from ..decorators import PowhegDecorators
 
-###############################################################################
+## Default Powheg configuration for ggHZ generation
 #
-#  ggHZ
-#
-###############################################################################
+#  Create a full configurable with all available Powheg options
 class PowhegConfig_ggHZ(PowhegConfig_base) :
-  # These are process specific - put generic properties in PowhegConfig_base
-  mass_Z_low  = 10.
-  mass_Z_high = 1000.
 
-  # Set process-dependent paths in the constructor
   def __init__( self, runArgs=None, opts=None ) :
+    ## Constructor: set process-dependent executable path here
     super(PowhegConfig_ggHZ, self).__init__( runArgs, opts )
     self._powheg_executable += '/ggHZ/pwhg_main'
 
-    # Add decorators
-    PowhegDecorators.decorate( self, 'Higgs v2' )
+    ## Decorate with generic option sets
+    PowhegDecorators.decorate( self, 'Higgs fixed width' )
+    PowhegDecorators.decorate( self, 'Higgs mass window' )
+    PowhegDecorators.decorate( self, 'Higgs properties' )
+    PowhegDecorators.decorate( self, 'running scales' )
     PowhegDecorators.decorate( self, 'vector boson decay' )
+    PowhegDecorators.decorate( self, 'v2' )
+    PowhegDecorators.decorate( self, 'Z mass window' )
 
-    # Set optimised integration parameters
+    ## Set optimised integration parameters
     self.ncall1   = 25000
     self.ncall2   = 60000
     self.nubound  = 60000
     self.xupbound = 6
     self.itmx1    = 1
 
-    # Override defaults
-    self.minlo    = -1
+    ## Override defaults
+    self.minlo = -1
 
-  # Implement base-class function
+
+  ## Extend base-class runcard generation
   def generateRunCard(self) :
     self.initialiseRunCard()
-
-    with open( str(self.TestArea)+'/powheg.input', 'a' ) as f :
-      f.write( 'max_z_mass '+str(self.mass_Z_high)+'  ! M Z < mass high\n')
-      f.write( 'min_z_mass '+str(self.mass_Z_low)+'   ! M Z > mass low\n')

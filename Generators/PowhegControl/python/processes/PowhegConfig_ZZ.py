@@ -1,40 +1,40 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-#########################################################################################################################
+## @PowhegControl PowhegConfig_ZZ
+#  Powheg configuration for ZZ subprocess
 #
-#   Script to configure Powheg ZZ subprocess
-#
-#   Authors: James Robinson  <james.robinson@cern.ch>
-#            Daniel Hayden   <danhayden0@googlemail.com>
-#            Stephen Bieniek <stephen.paul.bieniek@cern.ch>
-#
-#########################################################################################################################
+#  Authors: James Robinson  <james.robinson@cern.ch>
+#           Daniel Hayden   <danhayden0@googlemail.com>
+#           Stephen Bieniek <stephen.paul.bieniek@cern.ch>
 
 #! /usr/bin/env python
 from ..PowhegConfig_base import PowhegConfig_base
 from ..decorators import PowhegDecorators
 
-###############################################################################
+## Default Powheg configuration for ZZ generation
 #
-#  ZZ
-#
-###############################################################################
+#  Create a full configurable with all available Powheg options
 class PowhegConfig_ZZ(PowhegConfig_base) :
-  # These are process specific - put generic properties in PowhegConfig_base
-  cutallpairs      = -1
-  mllmin           = 4
 
-  # Set process-dependent paths in the constructor
   def __init__( self, runArgs=None, opts=None ) :
+    ## Constructor: set process-dependent executable path here
     super(PowhegConfig_ZZ, self).__init__( runArgs, opts )
     self._powheg_executable += '/ZZ/pwhg_main'
 
-    # Add decorators
-    PowhegDecorators.decorate( self, 'diboson' )
-    PowhegDecorators.decorate( self, 'fixed scale' )
-    PowhegDecorators.decorate( self, 'v2' )
+    ## Add process specific options
+    self.cutallpairs = -1
 
-    # Set optimised integration parameters
+    ## Decorate with generic option sets
+    PowhegDecorators.decorate( self, 'diboson' )
+    PowhegDecorators.decorate( self, 'diboson interference' )
+    PowhegDecorators.decorate( self, 'fixed scale' )
+    PowhegDecorators.decorate( self, 'radiation' )
+    PowhegDecorators.decorate( self, 'running width' )
+    PowhegDecorators.decorate( self, 'v2' )
+    PowhegDecorators.decorate( self, 'v2 radiation' )
+    PowhegDecorators.decorate( self, 'zero width' )
+
+    ## Set optimised integration parameters
     self.ncall1   = 50000
     self.ncall2   = 50000
     self.nubound  = 100000
@@ -44,15 +44,15 @@ class PowhegConfig_ZZ(PowhegConfig_base) :
     self.foldx    = 2
     self.foldy    = 2
 
-    # Override defaults
+    ## Override defaults
     self.allowed_decay_modes = [ 'ZZllll', 'ZZqqll', 'ZZqqqq', 'ZZvvvv', 'ZZvvll', 'ZZvvqq', 'ZZeeee', 'ZZmumumumu', 'ZZtautautautau', 'ZZmumuee', 'ZZeetautau', 'ZZtautaumumu' ]
     self.decay_mode = 'ZZllll'
-    self._use_delta_lambda = False
+    self.minlo      = -1
 
-  # Implement base-class function
+
+  ## Extend base-class runcard generation
   def generateRunCard(self) :
     self.initialiseRunCard()
 
-    with open( str(self.TestArea)+'/powheg.input', 'a' ) as f :
-      f.write( 'cutallpairs '+str(self.cutallpairs)+'   ! \n' )
-      f.write( 'mllmin '+str(self.mllmin)+'             ! Minimum invariant mass of lepton pairs from Z decay\n' )
+    with open( self.runcard_path(), 'a' ) as f :
+      f.write( 'cutallpairs '+str(self.cutallpairs)+' ! \n' )
