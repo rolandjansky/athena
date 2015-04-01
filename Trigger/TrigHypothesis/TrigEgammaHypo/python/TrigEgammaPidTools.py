@@ -32,7 +32,7 @@ from ElectronPhotonSelectorTools.TrigEGammaPIDdefs import SelectionDefElectron
 from ElectronPhotonSelectorTools.TrigEGammaPIDdefs import SelectionDefPhoton
 
 # Path for versioned configuration
-ConfigFilePath = "ElectronPhotonSelectorTools/trigger/mc15_20150329/"
+ConfigFilePath = "ElectronPhotonSelectorTools/trigger/mc15_20150401/"
 
 # Dictionaries for ToolNames
 ElectronToolName = {'vloose':'AsgElectronIsEMVLooseSelector',
