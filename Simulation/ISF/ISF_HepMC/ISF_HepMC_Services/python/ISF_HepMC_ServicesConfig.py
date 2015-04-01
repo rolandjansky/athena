@@ -35,6 +35,9 @@ def getMC15TruthService(name="ISF_MC15TruthService", **kwargs):
     kwargs.setdefault('PassWholeVertices'       , False) # new for MC15 - can write out partial vertices.
     return getGenericTruthService(name, **kwargs);
 
+def getMC15aTruthService(name="ISF_MC15aTruthService", **kwargs):
+    return getMC15TruthService(name, **kwargs);
+
 def getMC12TruthService(name="ISF_MC12TruthService", **kwargs):
     kwargs.setdefault('BeamPipeTruthStrategies' , [ 'ISF_MCTruthStrategyGroupID' ] ) # this is used for beam pipe but not BeamPipeCentral which uses same as ID
     kwargs.setdefault('IDTruthStrategies'       , [ 'ISF_MCTruthStrategyGroupID', 'ISF_MCTruthStrategyGroupIDHadInt' ] )
