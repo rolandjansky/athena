@@ -101,6 +101,7 @@ TrigConf::MenuLoader::loadItems(TrigConf::Menu& menu) {
    attList.extend<int>        ( "TI.L1TI_VERSION"                    );
    if(isRun2()) {
       attList.extend<int>     ( "TI.L1TI_PARTITION"                  );
+      attList.extend<string>  ( "TI.L1TI_MONITOR"                    );
    }
    attList.extend<int>        ( "TI.L1TI_CTP_ID"                     );
    attList.extend<std::string>( "TI.L1TI_PRIORITY"                   );
@@ -144,6 +145,12 @@ TrigConf::MenuLoader::loadItems(TrigConf::Menu& menu) {
          item->setVersion    (row["TI.L1TI_VERSION"].data<int>());
          if(isRun2()) {
             item->setPartition  (row["TI.L1TI_PARTITION"].data<int>());
+            string mon = row["TI.L1TI_MONITOR"].data<string>();
+            unsigned short monMask = 0;
+            if(mon.find("TBP") != string::npos) monMask |= 0x1;
+            if(mon.find("TAP") != string::npos) monMask |= 0x2;
+            if(mon.find("TAV") != string::npos) monMask |= 0x4;
+            item->setMonitor( monMask );
          }
 
          string priority = row["TI.L1TI_PRIORITY"].data<string>();

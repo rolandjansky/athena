@@ -811,7 +811,7 @@ int main( int argc, char* argv[] ) {
                    ctpc.setBunchGroupSetId(bgKey);
                    sm->masterTableLoader().load(ctpc);
                  }
-                 //ctpc.print();
+                 //ctpc.print("  ",5);
                }
 
                // get the HLT trigger information
@@ -839,21 +839,21 @@ int main( int argc, char* argv[] ) {
                                              hltFrame,
                                              configSource);
 
-                  TrigConf::HLTPrescaleSet *hltpss = hltFrame.chains().extractPrescaleSet();
-                  coolWriter.writeHltPrescalePayload( runRanges, *hltpss);
-                  delete hltpss;
+                  //                   TrigConf::HLTPrescaleSet *hltpss = hltFrame.chains().extractPrescaleSet();
+                  //                   coolWriter.writeHltPrescalePayload( runRanges, *hltpss);
+                  //                   delete hltpss;
                } else {
                   coolWriter.writeL1MenuPayload(runRanges,ctpc.menu());
                }
 
                
-               if(gConfig.WriteLevel() & JobConfig::LVL1) {
-                 if(lvlPrescaleKey>0) {
-                   coolWriter.writeL1PrescalePayload(runRanges,
-                                                     lvlPrescaleKey,
-                                                     lvl1ps);
-                 }
-               }
+//                if(gConfig.WriteLevel() & JobConfig::LVL1) {
+//                  if(lvlPrescaleKey>0) {
+//                    coolWriter.writeL1PrescalePayload(runRanges,
+//                                                      lvlPrescaleKey,
+//                                                      lvl1ps);
+//                  }
+//                }
 
 
             } else { // write lumiblock-wise information (prescales only)
@@ -1024,27 +1024,6 @@ int main( int argc, char* argv[] ) {
       if(errf) errf->close();
       return 0;
    }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

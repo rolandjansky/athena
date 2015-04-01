@@ -45,7 +45,14 @@ TrigConf::XMLMenuLoader::load(Menu& menu) {
       if( readAttribute(v.second, "partition", ival) )        item->setPartition(ival);
       if( readAttribute(v.second, "definition", sval) )       item->setDefinition(sval);
       if( readAttribute(v.second, "ctpid", ival) )            item->setCtpId(ival);
-      if( readAttribute(v.second, "trigger_type", sval) )     { item->setTriggerType( TrigConf::bin2uint(sval) ); }
+      if( readAttribute(v.second, "trigger_type", sval) )     item->setTriggerType( TrigConf::bin2uint(sval) );
+      if( readAttribute(v.second, "monitor", sval) )          {
+         unsigned short monMask = 0;
+         if(sval.find("TBP") != string::npos) monMask |= 0x1;
+         if(sval.find("TAP") != string::npos) monMask |= 0x2;
+         if(sval.find("TAV") != string::npos) monMask |= 0x4;
+         item->setMonitor( monMask );
+      }
 
       for(value_type top: v.second) {
          if(top.first=="AND" || top.first=="InternalTrigger" || top.first=="TriggerCondition") {

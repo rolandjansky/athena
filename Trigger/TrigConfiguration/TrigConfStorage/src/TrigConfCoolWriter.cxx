@@ -315,7 +315,7 @@ TrigConfCoolWriter::writeL1Payload( ValidityRange vr, const CTPConfig& ctpConfig
       writeL1MenuPayload         (vr, ctpConfig.menu());
       writeL1BunchGroupRunPayload(vr, ctpConfig.menu(), ctpConfig.bunchGroupSet() ); // writes bunchgroup description folder
       writeL1BunchGroupLBPayload (vr, ctpConfig.bunchGroupSet().id(), ctpConfig.bunchGroupSet()); // writes bunchgroup content and key folders
-      writeL1PrescalePayload(vr.since(), vr.until(), ctpConfig.id(), ctpConfig.prescaleSet());
+      writeL1PrescalePayload(vr.since(), vr.until(), ctpConfig.prescaleSet().id(), ctpConfig.prescaleSet());
    }
    catch(exception & e) {
       m_ostream << "<writeL1Payload> caught and re-throw exception: " << e.what() << endl;
@@ -455,6 +455,8 @@ TrigConfCoolWriter::writeRunPayload( const RunRangeVec& runRanges,
                                      const TrigConf::HLTFrame & hltFrame,
                                      const std::string & configSource)
 {
+   cout << "JOERG begin of writeRunPayload" << endl;
+
    AutoDBOpen db(this, READ_WRITE);
    TrigConfCoolFolderSpec::createFolderStructure(m_dbPtr); // just in case
 
@@ -881,9 +883,6 @@ TrigConf::TrigConfCoolWriter::writeL1CTPCoreInputMapping( ValidityRange vr,
       cool::IFolderPtr tipFolder = TrigConfCoolFolderSpec::getLvl1InputMapFolder(m_dbPtr);
       tipFolder->setupStorageBuffer();
 
-      cout << "JOERG PIT SIZE " << lvl1Menu.pitVector().size() << endl;
-      cout << "JOERG TIP SIZE " << lvl1Menu.tipVector().size() << endl;
-
       for ( const TIP * tip : lvl1Menu.tipVector() ) {
 
          cool::ChannelId tipNum = static_cast<cool::ChannelId>(tip->tipNumber());
@@ -1030,6 +1029,7 @@ TrigConf::TrigConfCoolWriter::writeHltPrescalePayload( ValidityKey since,
                                                        ValidityKey until,
                                                        const HLTPrescaleSet& pss)
 {
+
    AutoDBOpen db(this, READ_WRITE);
    // writing configuration keys and prescales
    try {
@@ -1178,6 +1178,9 @@ TrigConf::TrigConfCoolWriter::writeL1PrescalePayload( cool::ValidityKey since,
                                                       unsigned int lvl1PrescaleKey,
                                                       const TrigConf::PrescaleSet & prescaleSet)
 {
+   cout << "JOERG writeL1PrescalePayload " << lvl1PrescaleKey << endl;
+
+   prescaleSet.print("",5);
    AutoDBOpen db(this, READ_WRITE);
    // writing configuration keys and prescales
    try {
@@ -1186,18 +1189,20 @@ TrigConf::TrigConfCoolWriter::writeL1PrescalePayload( cool::ValidityKey since,
          rangeInfo("LVL1 prescale key", since, until);
          cool::Record payload =
             TrigConfCoolL1PayloadConverters::createLvl1ConfigKeyPayload(lvl1CkConfFolder, lvl1PrescaleKey);
-         m_ostream << "Store LVL1 prescale key to /TRIGGER/LVL1/Lvl1ConfigKey" << endl;
+         m_ostream << "Store LVL1 prescale key " << lvl1PrescaleKey << " to /TRIGGER/LVL1/Lvl1ConfigKey" << endl;
          lvl1CkConfFolder->storeObject(since, until, payload, 0);
       }
 
       if( shouldFolderBeUpdated("/TRIGGER/LVL1/Prescales") ) {
          rangeInfo("LVL1 prescale set", since, until);
          IFolderPtr lvl1PsConfFolder = TrigConfCoolFolderSpec::getLvl1PrescalesFolder(m_dbPtr);
-         // TODO: Changed to int64_t here
-         vector<int64_t> prescaleV = prescaleSet.prescales_ctp();
-         vector<int64_t>::const_iterator psIt = prescaleV.begin();
+         vector<int32_t> prescaleV = prescaleSet.cuts();
+
+         vector<int32_t>::const_iterator psIt = prescaleV.begin();
+
          // use buffer to speed up COOL writing
          lvl1PsConfFolder->setupStorageBuffer();
+
          m_ostream << "Writing (to buffer) LVL1 prescales [(value/channel)]:" << endl;
          for(int channel=0; psIt != prescaleV.end(); channel++, psIt++) {
             Record payload =
