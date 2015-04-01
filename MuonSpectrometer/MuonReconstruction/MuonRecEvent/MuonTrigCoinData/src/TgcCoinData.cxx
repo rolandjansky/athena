@@ -11,7 +11,7 @@
 
 #include <new>
 #include "MuonTrigCoinData/TgcCoinData.h"
-#include "GaudiKernel/MsgStream.h" 
+#include "GaudiKernel/MsgStream.h"
 
 namespace Muon
 {
@@ -32,7 +32,7 @@ namespace Muon
 			    const Amg::Vector2D *posOut,
 			    const double widthIn,
 			    const double widthOut,
-			    const int delta, 
+			    const int delta,
 			    const int sub,
                             const int tile) :
     m_channelIdIn(channelIdIn),
@@ -86,6 +86,7 @@ namespace Muon
     m_type(type),
     m_isAside(isAside),
     m_phi(phi),
+    m_isInner(false),
     m_isForward(isForward),
     m_isStrip(isStrip),
     m_trackletId(0),
@@ -98,6 +99,7 @@ namespace Muon
     m_delta(0),
     m_roi(0),
     m_pt(0),
+    m_veto(false),
     m_sub(sub),
     m_tile(0),
     m_isPositiveDeltaR(false),
@@ -130,6 +132,7 @@ namespace Muon
     m_type(type),
     m_isAside(isAside),
     m_phi(phi),
+    m_isInner(false),
     m_isForward(isForward),
     m_isStrip(false),
     m_trackletId(trackletId),
@@ -238,6 +241,7 @@ TgcCoinData& TgcCoinData::operator=(const TgcCoinData& RIO)
       m_detElIn = RIO.m_detElIn;
       delete m_detElOut;
       m_detElOut = RIO.m_detElOut;
+      m_type = RIO.m_type;
       m_phi = RIO.m_phi;
       m_isAside = RIO.m_isAside;
       m_isInner = RIO.m_isInner;
