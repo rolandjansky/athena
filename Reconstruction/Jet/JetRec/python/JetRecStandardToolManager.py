@@ -133,6 +133,7 @@ if jetFlags.useTruth():
 # Add track jet ghosts.
 if jetFlags.useTracks():
   trackjetgetters = []
+  trackjetgetters += [jtm.gakt2trackget]
   trackjetgetters += [jtm.gakt3trackget]
   trackjetgetters += [jtm.gakt4trackget]
   emgetters += trackjetgetters
@@ -198,7 +199,6 @@ if jetFlags.useCaloQualityTool():
   topo_ungroomed_modifiers += [jtm.caloqual_cluster]
 if jetFlags.useTracks():
   topo_ungroomed_modifiers += [jtm.jvf]
-  topo_ungroomed_modifiers += [jtm.jvfloose]
   topo_ungroomed_modifiers += [jtm.jvt]
   topo_ungroomed_modifiers += [jtm.trkmoms]
   topo_ungroomed_modifiers += [jtm.charge]

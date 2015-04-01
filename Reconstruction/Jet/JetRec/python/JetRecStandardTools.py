@@ -291,6 +291,16 @@ jtm += PFlowPseudoJetGetter(
   UseVertices = useVertices
 )
 
+# AntiKt2 track jets.
+jtm += PseudoJetGetter(
+  "gakt2trackget", # give a unique name
+  InputContainer = jetFlags.containerNamePrefix() + "AntiKt2PV0TrackJets", # SG key
+  Label = "GhostAntiKt2TrackJet",   # this is the name you'll use to retrieve associated ghosts
+  OutputContainer = "PseudoJetGhostAntiKt2TrackJet",
+  SkipNegativeEnergy = True,
+  GhostScale = 1.e-20,   # This makes the PseudoJet Ghosts, and thus the reco flow will treat them as so.
+)
+
 # AntiKt3 track jets.
 jtm += PseudoJetGetter(
   "gakt3trackget", # give a unique name
@@ -501,21 +511,21 @@ jtm += JetCaloEnergies("jetens")
 
 # Jet vertex fraction.
 jtm += JetVertexFractionTool(
-  "jvf",
+  "jvfold",
   VertexContainer = jtm.vertexContainer,
   AssociatedTracks = "GhostTrack",
   TrackVertexAssociation = jtm.tvassoc.TrackVertexAssociation,
-  JVFName = "JVF"
+  JVFName = "JVFOld"
 )
 
 # Jet vertex fraction with selection.
 jtm += JetVertexFractionTool(
-  "jvfloose",
+  "jvf",
   VertexContainer = jtm.vertexContainer,
   AssociatedTracks = "GhostTrack",
   TrackVertexAssociation = jtm.tvassoc.TrackVertexAssociation,
   TrackSelector = jtm.trackselloose,
-  JVFName = "JVFLoose"
+  JVFName = "JVF"
 )
 
 # Jet vertex tagger.

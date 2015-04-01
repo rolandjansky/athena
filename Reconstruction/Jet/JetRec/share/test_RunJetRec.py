@@ -268,8 +268,10 @@ for name in names:
     jdmp.FloatMoments += ["ShowerDeconstructionW"]
     jdmp.FloatMoments += ["ShowerDeconstructionTop"]
     if isTrackJetTagged:
+      jdmp.IntMoments += ["GhostAntiKt2TrackJetCount"]
       jdmp.IntMoments += ["GhostAntiKt3TrackJetCount"]
       jdmp.IntMoments += ["GhostAntiKt4TrackJetCount"]
+      jdmp.FloatMoments += ["GhostAntiKt2TrackJetPt"]
       jdmp.FloatMoments += ["GhostAntiKt3TrackJetPt"]
       jdmp.FloatMoments += ["GhostAntiKt4TrackJetPt"]
     if isTopo and isAntiKt4:
@@ -335,16 +337,18 @@ for name in names:
     jdmp.FloatVectorMoments += ["EnergyPerSampling"]
   if isTopo and jetFlags.useTracks():
     jdmp.FloatVectorMoments += ["JVF"]
-    jdmp.FloatVectorMoments += ["JVFLoose"]
+    #jdmp.FloatVectorMoments += ["JVFLoose"]
   if isVTrack:
     jdmp.ElementLinkMoments += ["OriginVertex"]
   if isTopo and jetFlags.useTracks():
     jdmp.ElementLinkMoments += ["HighestJVFVtx"]
+    #jdmp.ElementLinkMoments += ["HighestJVFLooseVtx"]
   if isTopo or isTrack:
     jdmp.AssociatedParticleVectors += ["GhostTruth"]
   if isTopo:
     jdmp.AssociatedParticleVectors += ["GhostTrack"]
     if isTrackJetTagged:
+      jdmp.AssociatedParticleVectors += ["GhostAntiKt2TrackJet"]
       jdmp.AssociatedParticleVectors += ["GhostAntiKt3TrackJet"]
       jdmp.AssociatedParticleVectors += ["GhostAntiKt4TrackJet"]
   if isTopo:

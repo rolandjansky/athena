@@ -10,7 +10,7 @@
 # Input stream
 #--------------------------------------------------------------
 #infile = "/afs/cern.ch/user/d/dadams/pubdata/valid1.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.recon.AOD_5ev.root"
-infile = "/afs/cern.ch/user/d/dadams/pubdata/r20test_AOD.pool.root"
+infile = "/afs/cern.ch/user/d/dadams/pubdata/r20.1.4.3test_AOD.pool.root"
 from AthenaCommon.AppMgr import ServiceMgr
 import AthenaPoolCnvSvc.ReadAthenaPool
 ServiceMgr.EventSelector.InputCollections = [infile]

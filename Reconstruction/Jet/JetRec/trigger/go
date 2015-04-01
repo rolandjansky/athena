@@ -12,7 +12,11 @@ for BAD in ERROR FATAL FPE; do
   echo
   echo
   echo Checking for $BAD
-  grep $BAD $LOG
+  if [ $BAD = ERROR ]; then
+    grep $BAD $LOG | grep -v TRT_ERROR | grep -v "INFO TOTAL ERRORS"
+  else
+    grep $BAD $LOG
+  fi
 done
 echo
 echo
