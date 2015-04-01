@@ -101,10 +101,9 @@ StatusCode TrigL2MuonSA::MdtRegionDefiner::getMdtRegions(const LVL1::RecMuonRoI*
 	int chamber_this = 99;
 	int sector_this = 99;
 	bool isEndcap;
-        int sectorID = p_roi->sectorID();
-	find_station_sector(name, stationPhi, sectorID, isEndcap, chamber_this, sector_this);
+	find_station_sector(name, stationPhi, isEndcap, chamber_this, sector_this);
 	
-	if(chamber_this == chamber && sector_this == sector){
+	if(chamber_this == chamber && sector_this == sector ){
 	  if(ty1 == -1)
 	    ty1 = m_mdtIdHelper->stationNameIndex(name)+1;
 	  else if(ty2 == -1)
@@ -245,8 +244,7 @@ StatusCode TrigL2MuonSA::MdtRegionDefiner::getMdtRegions(const LVL1::RecMuonRoI*
 	int chamber_this = 99;
 	int sector_this = 99;
 	bool isEndcap;
-        int sectorID = p_roi->sectorID();
-	find_station_sector(name, stationPhi, sectorID, isEndcap, chamber_this, sector_this);
+	find_station_sector(name, stationPhi, isEndcap, chamber_this, sector_this);
 	msg() << MSG::DEBUG << "name/stationPhi/isEndcap/chamber_this/sector_this=" <<
 	  name << "/" << stationPhi << "/" << isEndcap << "/" << chamber_this << "/" << sector_this << endreq;
 	
@@ -359,7 +357,7 @@ StatusCode TrigL2MuonSA::MdtRegionDefiner::getMdtRegions(const LVL1::RecMuonRoI*
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-void TrigL2MuonSA::MdtRegionDefiner::find_station_sector(std::string name, int phi, int sectorID, bool& endcap, 
+void TrigL2MuonSA::MdtRegionDefiner::find_station_sector(std::string name, int phi, bool& endcap, 
     int& chamber, int& sector)
 {   
   if(name[0]=='E' || name[0]=='F')
@@ -367,7 +365,7 @@ void TrigL2MuonSA::MdtRegionDefiner::find_station_sector(std::string name, int p
   else 
     endcap = false;
   int largeSmall=0;
-  if(name[2]=='S') largeSmall = 1;
+  if(name[2]=='S' || name[2]=='F' || name[2]=='G') largeSmall = 1;
   sector = (phi-1)*2 + largeSmall;
   if (endcap){
     if(name[1]=='I')
@@ -385,12 +383,6 @@ void TrigL2MuonSA::MdtRegionDefiner::find_station_sector(std::string name, int p
       chamber = 1;
     if(name[1]=='O')
       chamber = 2;
-    largeSmall = ((sectorID + 1)/2 )%2;
-    int PhysicsSector = ((sectorID + 1)/4 )%8 + 1;
-    int special = 0;
-    if (largeSmall == 0 && (PhysicsSector == 6 || PhysicsSector == 8 )) special = 1;
-    if (largeSmall == 1 && (PhysicsSector == 6 || PhysicsSector == 7 )) special = 1;
-    if (special==1) sector = (PhysicsSector - 1)*2 + largeSmall;
   }
 }
 
