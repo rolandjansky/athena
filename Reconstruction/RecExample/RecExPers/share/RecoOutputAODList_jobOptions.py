@@ -227,13 +227,12 @@ if DetFlags.detdescr.Muon_on() or DetFlags.detdescr.Calo_on():
     except Exception:
         treatException("Could not load MCRE/MuonCombined_OutputItemsAOD.py" )
 
-if recAlgs.doTrackParticleCellAssociation():    
-    trackParticleCellAssociationList=["xAOD::CaloClusterContainer#InDetTrackParticlesAssociatedClusters",
-                                      "xAOD::CaloClusterAuxContainer#InDetTrackParticlesAssociatedClustersAux.",
-                                      "CaloClusterCellLinkContainer#InDetTrackParticlesAssociatedClusters_links",
-                                      "xAOD::TrackParticleClusterAssociationContainer#InDetTrackParticlesClusterAssociations",
-                                      "xAOD::TrackParticleClusterAssociationAuxContainer#InDetTrackParticlesClusterAssociationsAux."]
-    fullAODList += CfgItemList("trackParticleCellAssoAod",items=trackParticleCellAssociationList)
+trackParticleCellAssociationList=["xAOD::CaloClusterContainer#InDetTrackParticlesAssociatedClusters",
+                                  "xAOD::CaloClusterAuxContainer#InDetTrackParticlesAssociatedClustersAux.",
+                                  "CaloClusterCellLinkContainer#InDetTrackParticlesAssociatedClusters_links",
+                                  "xAOD::TrackParticleClusterAssociationContainer#InDetTrackParticlesClusterAssociations",
+                                  "xAOD::TrackParticleClusterAssociationAuxContainer#InDetTrackParticlesClusterAssociationsAux."]
+fullAODList += CfgItemList("trackParticleCellAssoAod",items=trackParticleCellAssociationList)
 
 # Atlfast, note ESD and AOD lists are equal
 
