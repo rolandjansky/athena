@@ -76,8 +76,7 @@ namespace met{
     // Accept functions
     // bool isPVTrack(const xAOD::TrackParticle* trk, const xAOD::Vertex* pv) const;
     bool isGoodEoverP(const xAOD::TrackParticle* trk,
-		      const std::vector<const xAOD::IParticle*>& trkList,
-		      const xAOD::CaloClusterContainer* clusters) const;
+		      const std::vector<const xAOD::TrackParticle*>& trkList) const;
 
   private:
     // Default constructor: 

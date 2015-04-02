@@ -87,12 +87,13 @@ namespace met {
   StatusCode METElectronAssociator::extractTracks(const xAOD::IParticle* obj,
 						  std::vector<const xAOD::IParticle*>& constlist,
 						  const xAOD::CaloClusterContainer* tcCont,
+						  const xAOD::TrackParticleContainer* trkCont,
 					          const xAOD::Vertex* pv)
   {
     const Electron *el = static_cast<const Electron*>(obj);
     for(size_t iTrk=0; iTrk<el->nTrackParticles(); ++iTrk) {
       const TrackParticle* eltrk = EgammaHelpers::getOriginalTrackParticleFromGSF(el->trackParticle(iTrk));
-      if(acceptTrack(eltrk,pv) && isGoodEoverP(eltrk,tcCont)) {
+      if(acceptTrack(eltrk,pv) && isGoodEoverP(eltrk,tcCont,pv,trkCont)) {
 	// if(acceptTrack(eltrk,pv)) {
 	ATH_MSG_VERBOSE("Accept electron track " << eltrk << " px, py = " << eltrk->p4().Px() << ", " << eltrk->p4().Py());
 	constlist.push_back(eltrk);
@@ -127,9 +128,10 @@ namespace met {
 	  nearbyPFO.push_back(pfo);
 	}
       } else if(pv) {
+	const TrackParticle* pfotrk = pfo->track(0);
 	for(size_t iTrk=0; iTrk<el->nTrackParticles(); ++iTrk) {
 	  const TrackParticle* eltrk = EgammaHelpers::getOriginalTrackParticleFromGSF(el->trackParticle(iTrk));
-	  if(pfo->track(0) == eltrk) {
+	  if(pfotrk == eltrk) {
 	    if(acceptChargedPFO(eltrk,pv)) {
 	      pfolist.push_back(pfo);
 	    }

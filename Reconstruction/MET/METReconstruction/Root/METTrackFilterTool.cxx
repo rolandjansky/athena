@@ -57,7 +57,7 @@ namespace met {
     // declareProperty( "TrackD0Max",      m_trk_d0Max = 1.5                    );
     // declareProperty( "TrackZ0Max",      m_trk_z0Max = 1.5                    );
     declareProperty( "InputPVKey",        m_pv_inputkey = "PrimaryVertices" );
-    declareProperty( "DoEoverPSel",       m_trk_doEoverPsel = false             );
+    declareProperty( "DoEoverPSel",       m_trk_doEoverPsel = true             );
     declareProperty( "InputClusterKey",   m_cl_inputkey = "CaloCalTopoClusters" );
     declareProperty( "InputElectronKey",  m_el_inputkey = "Electrons"       );
     declareProperty( "InputMuonKey",      m_mu_inputkey = "Muons"           );
@@ -116,12 +116,15 @@ namespace met {
   // }
 
   bool METTrackFilterTool::isGoodEoverP(const xAOD::TrackParticle* trk,
-					const std::vector<const xAOD::IParticle*>& trkList,
-					const xAOD::CaloClusterContainer* clusters) const {
+					const std::vector<const xAOD::TrackParticle*>& trkList) const {
 
     if( (fabs(trk->eta())<1.5 && trk->pt()>200e3) ||
     	(fabs(trk->eta())>=1.5 && trk->pt()>120e3) ) {
-
+      const xAOD::CaloClusterContainer* clusters(0);
+      if(evtStore()->retrieve(clusters,m_cl_inputkey).isFailure()) { 
+	  ATH_MSG_WARNING("Failed to retrieve cluster container"); 
+	  return true;
+      }
       // Get relative error on qoverp
       float Rerr = Amg::error(trk->definingParametersCovMatrix(),4)/fabs(trk->qOverP());
       ATH_MSG_VERBOSE( "Track momentum error (%): " << Rerr*100 );
@@ -262,7 +265,7 @@ namespace met {
 
 	  ATH_MSG_VERBOSE("Number of tracks associated to vertex " << vx->index() << ": "<< (trktovxmap[vx]).size());
 	  
-	  ATH_CHECK( buildTrackMET(metMap,metTerm,vx,selElectrons,selMuons,trktovxmap[vx]) );
+	  ATH_CHECK( buildTrackMET(metMap,met_vx,vx,selElectrons,selMuons,trktovxmap[vx]) );
 	  firstVx = false;
 	}
       }
@@ -289,11 +292,11 @@ namespace met {
     }
     // Loop over the tracks and select only good ones
     for( const auto& trk : softTracks ) {
-      MissingETBase::Types::weight_t trackWeight = metComp->weight(trk);
+
       // Could/should use common implementation of addToMET here -- derive builder and refiner from a common base tool?
       bool passFilters = true;
       //      if(m_trk_doPVsel && !isPVTrack(trk,(*vxCont)[0])) passFilters = false;
-      //      if(m_trk_doEoverPsel && !isGoodEoverP(trk,softTracks,cl_cont)) passFilters = false;
+      if(m_trk_doEoverPsel && !isGoodEoverP(trk,softTracks)) passFilters = false;
       if(m_trk_doPVsel) {
 	if(!(m_trkseltool->accept( *trk, pv ))) passFilters=false;
       } else {
@@ -311,21 +314,22 @@ namespace met {
 
       bool isLepton=(isMuon||isElectron);
 
+      MissingETBase::Types::weight_t dummyWeight(1.,1.,1.);
       if(passFilters || (m_doLepRecovery && isLepton)) {
         if(!passFilters && isElectron && m_doLepRecovery) {
 	  //electron track fails, replace with electron pt
           const Electron* el = selElectrons[el_index];
 
-          metTerm->add(el->pt()*cos(trk->phi())*trackWeight.wpx(),
-              el->pt()*sin(trk->phi())*trackWeight.wpy(),
-              el->pt()*trackWeight.wet());
-          MissingETComposition::insert(metMap,metTerm,el,dummyList,trackWeight);
+          metTerm->add(el->pt()*cos(trk->phi()),
+		       el->pt()*sin(trk->phi()),
+		       el->pt());
+          MissingETComposition::insert(metMap,metTerm,el,dummyList,dummyWeight);
         } else {
 	  ATH_MSG_VERBOSE("Add track with pt " << trk->pt() <<" to MET.");
-	  metTerm->add(trk->pt()*cos(trk->phi())*trackWeight.wpx(),
-		       trk->pt()*sin(trk->phi())*trackWeight.wpy(),
-		       trk->pt()*trackWeight.wet());
-	  MissingETComposition::insert(metMap,metTerm,trk,dummyList,trackWeight);
+	  metTerm->add(trk->pt()*cos(trk->phi()),
+		       trk->pt()*sin(trk->phi()),
+		       trk->pt());
+	  MissingETComposition::insert(metMap,metTerm,trk,dummyList,dummyWeight);
         }
       }
     }
