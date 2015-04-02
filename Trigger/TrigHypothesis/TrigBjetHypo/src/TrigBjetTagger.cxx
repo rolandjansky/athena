@@ -459,7 +459,7 @@ void TrigBjetTagger::getWeights(std::vector<TrigBjetTrackInfo>*& m_trigBjetTrack
 
     float m_IP2D = d0Sign/sqrt((*pTrack).ed0()*(*pTrack).ed0() + m_sigmaBeamSpot*m_sigmaBeamSpot);
 
-    if(fabs(m_IP2D <= 15.0)) {
+    if(fabs(m_IP2D) <= 15.0) {
       if((*pTrack).grade() == 1) p = f_ip(-m_IP2D,1);
       if((*pTrack).grade() == 2) p = f_ip(-m_IP2D,0);
     } else p = 0.0001;

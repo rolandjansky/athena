@@ -101,9 +101,9 @@ HLT::ErrorCode TrigLeptonJetMatchAllTE::hltExecute(std::vector<std::vector<HLT::
   beforeExecMonitors().ignore();
 
   msg() << MSG::DEBUG 
-	<< "Number of input TEs is " <<  inputTE.size() 
-	<< " TE0: " << inputTE[0].size() 
-	<< " TE1: " << inputTE[1].size() <<  endreq;  
+        << "Number of input TEs is " <<  inputTE.size() 
+        << " TE0: " << inputTE[0].size() 
+        << " TE1: " << inputTE[1].size() <<  endreq;  
 
   m_cutCounter   = -1;
   m_deltaEtaPass = -9; m_muonEFEta = -9;
@@ -127,32 +127,7 @@ HLT::ErrorCode TrigLeptonJetMatchAllTE::hltExecute(std::vector<std::vector<HLT::
   }
 
 
-  // ==============================
-  // Retrieve HLT muons
-  // ==============================
-
-  const xAOD::MuonContainer* m_muons=0;
-  HLT::ErrorCode statusMuons = getFeature(inputTE[0].front(), m_muons);
-  if (statusMuons != HLT::OK) {
-    if (msgLvl() <= MSG::WARNING)
-      msg() << MSG::WARNING << "Failed to retrieve muons" << endreq;
-    return HLT::NAV_ERROR;
-  } 
-  else if (m_muons==0) {
-    if (msgLvl() <= MSG::WARNING)
-      msg() << MSG::WARNING << "Missing muon feature." << endreq;
-    return HLT::MISSING_FEATURE;
-  } 
-  else if (m_muons->size()==0) {
-    if (msgLvl() <= MSG::DEBUG)
-      msg() << MSG::DEBUG << "Muon vector empty." << endreq;
-    return HLT::OK;
-  } 
-  else {
-    if (msgLvl() <= MSG::DEBUG)
-      msg() << MSG::DEBUG << "Retrieved " << m_muons->size() << " muons." << endreq;
-  } 
-
+ 
   //
   // ==============================
   // Retrieve primary vertex
@@ -200,18 +175,18 @@ HLT::ErrorCode TrigLeptonJetMatchAllTE::hltExecute(std::vector<std::vector<HLT::
   /*  const xAOD::TrackParticleContainer*  pointerToEFTrackCollections(0);
 
   if ( getTrackCollection(pointerToEFTrackCollections, inputTE[1].front()) != HLT::OK) {
-    msg() << MSG::DEBUG << "No track collection retrieved" << endreq;
+  msg() << MSG::DEBUG << "No track collection retrieved" << endreq;
   } 
   else if (msgLvl() <= MSG::DEBUG) {
-    msg() << MSG::DEBUG << "Track collection retrieved" << endreq;
+  msg() << MSG::DEBUG << "Track collection retrieved" << endreq;
   }
 
   if( pointerToEFTrackCollections == 0 ){
-    msg() << MSG::ERROR << "No tracks associated to the TE! " << endreq;
-    return HLT::ERROR;
+  msg() << MSG::ERROR << "No tracks associated to the TE! " << endreq;
+  return HLT::ERROR;
   }  
   else if (msgLvl() <= MSG::DEBUG)
-    msg() << MSG::DEBUG << "HLT track collection retrieved with size = " << pointerToEFTrackCollections->size() << endreq;
+  msg() << MSG::DEBUG << "HLT track collection retrieved with size = " << pointerToEFTrackCollections->size() << endreq;
 
   */
 
@@ -223,129 +198,160 @@ HLT::ErrorCode TrigLeptonJetMatchAllTE::hltExecute(std::vector<std::vector<HLT::
   if ((inputTE.size()>0) && (inputTE[1].size()>0))
     for (unsigned int i=0; i<inputTE[1].size(); i++)
       allTEs.push_back(inputTE[1][i]);
-  // ==============================
-  // Retrieve HLT jets
-  // ==============================
- 
-  for(unsigned int i=0; i<inputTE[1].size(); i++) {
-  const xAOD::JetContainer* outJets(0);
 
-       HLT::ErrorCode statJets = getFeature(inputTE[1][i], outJets, m_jetKey);
+  // ==============================
+  // Retrieve HLT muons
+  // ==============================
+
+  for(unsigned int im=0; im<inputTE[0].size(); im++) {
+    const xAOD::MuonContainer* m_muons=0;
+    //    HLT::ErrorCode statusMuons = getFeature(inputTE[0].front(), m_muons);
+    HLT::ErrorCode statusMuons = getFeature(inputTE[0][im], m_muons);
+
+    if (statusMuons != HLT::OK) {
+      if (msgLvl() <= MSG::WARNING)
+        msg() << MSG::WARNING << "Failed to retrieve muons" << endreq;
+      return HLT::NAV_ERROR;
+    } 
+    else if (m_muons==0) {
+      if (msgLvl() <= MSG::WARNING)
+        msg() << MSG::WARNING << "Missing muon feature." << endreq;
+      return HLT::MISSING_FEATURE;
+    } 
+    else if (m_muons->size()==0) {
+      if (msgLvl() <= MSG::DEBUG)
+        msg() << MSG::DEBUG << "Muon vector empty." << endreq;
+      return HLT::OK;
+    } 
+    else {
+      if (msgLvl() <= MSG::DEBUG)
+        msg() << MSG::DEBUG << "Retrieved " << m_muons->size() << " muons." << endreq;
+    } 
+
+    // ==============================
+    // Retrieve HLT jets
+    // ==============================
+ 
+    for(unsigned int i=0; i<inputTE[1].size(); i++) {
+      const xAOD::JetContainer* outJets(0);
+    
+      HLT::ErrorCode statJets = getFeature(inputTE[1][i], outJets, m_jetKey);
      
 
-//  msg() << MSG::DEBUG << "statJets " <<statJets  <<endreq;
-  //
-  if(statJets!=HLT::OK) {
-    msg() << MSG::WARNING << " Failed to get JetCollections " << endreq;
-    return HLT::OK;
-  }
-  //
-  if( outJets == 0 ){
-    msg() << MSG::DEBUG << " Got no JetCollections associated to the TE! " << endreq;
-    return HLT::MISSING_FEATURE;
-  }
-    std::vector<const xAOD::Jet*> theJets(outJets->begin(), outJets->end());
+      //  msg() << MSG::DEBUG << "statJets " <<statJets  <<endreq;
+      //
+      if(statJets!=HLT::OK) {
+        msg() << MSG::WARNING << " Failed to get JetCollections " << endreq;
+        return HLT::OK;
+      }
+      //
+      if( outJets == 0 ){
+        msg() << MSG::DEBUG << " Got no JetCollections associated to the TE! " << endreq;
+        return HLT::MISSING_FEATURE;
+      }
+      std::vector<const xAOD::Jet*> theJets(outJets->begin(), outJets->end());
 
 
-  //check size of JetCollection
-  if( theJets.size() == 0 ){
-    msg()<< MSG::DEBUG << " Size of JetCollection is 0! " << endreq;
-    return HLT::OK;
-  }
+      //check size of JetCollection
+      if( theJets.size() == 0 ){
+        msg()<< MSG::DEBUG << " Size of JetCollection is 0! " << endreq;
+        return HLT::OK;
+      }
 
-  if (msgLvl() <= MSG::DEBUG)
-    msg() << MSG::DEBUG << "Retrieved " << theJets.size() << " jets." << endreq;
+      if (msgLvl() <= MSG::DEBUG)
+        msg() << MSG::DEBUG << "Retrieved " << theJets.size() << " jets." << endreq;
   
  
-  // ===============================
+      // ===============================
 
-  if(theJets.size()==0 ) {
-    m_cutCounter=0;
-    if( m_workingMode!=2 ) 
-      return HLT::OK;
-  }
-
-  float muonEta=0, muonPhi=0, muonZ=0;
-  float jetEta=0,  jetPhi=0, jetZ=0;
-  float m_deltaEta=0, m_deltaPhi=0, m_deltaZ=0;
-
-  std::vector<const  xAOD::Jet*>::const_iterator Jet     = theJets.begin();
-  std::vector<const  xAOD::Jet*>::const_iterator lastJet = theJets.end();
- 
-  int j=0;
- 
-  for(auto Muon : *m_muons) {
-    j++;
-
-      const xAOD::Muon::MuonType muontype = Muon->muonType();
-	          if(!muontype == xAOD::Muon::MuonType::Combined ) continue;
-
-    muonEta = Muon->eta();
-    muonPhi = Muon->phi();
-    muonZ=0; 
-
-    muonZ= (*(Muon->combinedTrackParticleLink()))->z0();
-
-    //   msg() << MSG::DEBUG << "Z je " <<tr->z0() << " = " <<muonZ <<  endreq;
-      
-    if (msgLvl() <= MSG::DEBUG)
-      msg() << MSG::DEBUG << "Muon "<< j+1 << "; eta "<< muonEta << "; phi " << muonPhi << "; z " << muonZ << endreq;
-      
-    for(unsigned int i=0; Jet!=lastJet; Jet++,i++) {
-	
-      jetEta = (*Jet)->eta();
-      jetPhi = (*Jet)->phi();
-      jetZ=m_zPrmVtx;
-	
-      if (msgLvl() <= MSG::DEBUG)
-        msg() << MSG::DEBUG << "Jet "<< i+1 << "; eta "<< jetEta << "; phi " << jetPhi << "; z " << jetZ  <<  endreq;
-	  
-      m_deltaEta = muonEta - jetEta;
-      m_deltaPhi = phiCorr(phiCorr(muonPhi) - phiCorr(jetPhi));
-      m_deltaZ   = fabs(muonZ-jetZ);
-	
-      double dR = sqrt(m_deltaEta*m_deltaEta + m_deltaPhi*m_deltaPhi);
-
-      if (msgLvl() <= MSG::DEBUG) 
-        msg() << MSG::DEBUG << "deltaR = "<< dR << "; deltaZ = " << m_deltaZ <<  endreq; 
-
-      switch (m_workingMode) {
-
-      case 1:
-        if (dR < m_deltaRCut && m_deltaZ <= m_deltaZCut) {
-          m_deltaEtaPass = m_deltaEta; m_deltaPhiPass = m_deltaPhi; 
-          m_muonEFEta = muonEta; m_muonEFPhi = muonPhi;
-          pass = true;
-          break;
-        }
-        break;
-	  
-      case 2:
-        if (dR < m_deltaRCut) {
-          pass = false;
-          break;
-        }
-        break;
+      if(theJets.size()==0 ) {
+        m_cutCounter=0;
+        if( m_workingMode!=2 ) 
+          return HLT::OK;
       }
-    }
-  }
 
-    if (pass) {
+      float muonEta=0, muonPhi=0, muonZ=0;
+      float jetEta=0,  jetPhi=0, jetZ=0;
+      float m_deltaEta=0, m_deltaPhi=0, m_deltaZ=0;
+
+      std::vector<const  xAOD::Jet*>::const_iterator Jet     = theJets.begin();
+      std::vector<const  xAOD::Jet*>::const_iterator lastJet = theJets.end();
+ 
+      int j=0;
+ 
+      for(auto Muon : *m_muons) {
+        j++;
+
+        const xAOD::Muon::MuonType muontype = Muon->muonType();
+        if(!muontype == xAOD::Muon::MuonType::Combined ) continue;
+
+        muonEta = Muon->eta();
+        muonPhi = Muon->phi();
+        muonZ=0; 
+
+        muonZ= (*(Muon->combinedTrackParticleLink()))->z0();
+
+        //   msg() << MSG::DEBUG << "Z je " <<tr->z0() << " = " <<muonZ <<  endreq;
+      
+        if (msgLvl() <= MSG::DEBUG)
+          msg() << MSG::DEBUG << "Muon "<< j+1 << "; eta "<< muonEta << "; phi " << muonPhi << "; z " << muonZ << endreq;
+      
+        for(unsigned int i=0; Jet!=lastJet; Jet++,i++) {
 	
-      if(msgLvl() <= MSG::DEBUG)
-        msg() << MSG::DEBUG << "Accepting the event" << endreq;
+          jetEta = (*Jet)->eta();
+          jetPhi = (*Jet)->phi();
+          jetZ=m_zPrmVtx;
 	
-      m_cutCounter=1;
+          if (msgLvl() <= MSG::DEBUG)
+            msg() << MSG::DEBUG << "Jet "<< i+1 << "; eta "<< jetEta << "; phi " << jetPhi << "; z " << jetZ  <<  endreq;
+	  
+          m_deltaEta = muonEta - jetEta;
+          m_deltaPhi = phiCorr(phiCorr(muonPhi) - phiCorr(jetPhi));
+          m_deltaZ   = fabs(muonZ-jetZ);
+	
+          double dR = sqrt(m_deltaEta*m_deltaEta + m_deltaPhi*m_deltaPhi);
+
+          if (msgLvl() <= MSG::DEBUG) 
+            msg() << MSG::DEBUG << "deltaR = "<< dR << "; deltaZ = " << m_deltaZ <<  endreq; 
+
+          switch (m_workingMode) {
+
+          case 1:
+            if (dR < m_deltaRCut && m_deltaZ <= m_deltaZCut) {
+              m_deltaEtaPass = m_deltaEta; m_deltaPhiPass = m_deltaPhi; 
+              m_muonEFEta = muonEta; m_muonEFPhi = muonPhi;
+              pass = true;
+              break;
+            }
+            break;
+	  
+          case 2:
+            if (dR < m_deltaRCut) {
+              pass = false;
+              break;
+            }
+            break;
+          }
+        }
+      }
+
+      if (pass) {
+	
+        if(msgLvl() <= MSG::DEBUG)
+          msg() << MSG::DEBUG << "Accepting the event" << endreq;
+	
+        m_cutCounter=1;
         
-      break;
+        break;
         
-    } else {
+      } else {
 	
-      if(msgLvl() <= MSG::DEBUG)
-        msg() << MSG::DEBUG << "Rejecting the event" << endreq;
+        if(msgLvl() <= MSG::DEBUG)
+          msg() << MSG::DEBUG << "Rejecting the event" << endreq;
 	
-      m_cutCounter=0;
+        m_cutCounter=0;
          
+      }
     }
   }
 
@@ -434,7 +440,7 @@ HLT::ErrorCode TrigLeptonJetMatchAllTE::getPrmVtxCollection(const xAOD::VertexCo
     for ( ; pPrmVtxColl != lastPrmVtxColl; pPrmVtxColl++) { 
       
       if ((*pPrmVtxColl)->size() != 0)
-	msg() << MSG::VERBOSE << "xAOD::VertexContainer with label " << (*pPrmVtxColl)->front()->vertexType() << endreq;
+        msg() << MSG::VERBOSE << "xAOD::VertexContainer with label " << (*pPrmVtxColl)->front()->vertexType() << endreq;
     }
     pPrmVtxColl = vectorOfEFPrmVtxCollections.begin();
   }
@@ -449,8 +455,8 @@ HLT::ErrorCode TrigLeptonJetMatchAllTE::getPrmVtxCollection(const xAOD::VertexCo
       if ((*pPrmVtxColl)->front()->vertexType() == xAOD::VxType::PriVtx) { // was == 1
         if (msgLvl() <= MSG::DEBUG) {
           msg() << MSG::DEBUG << "Selected collection with Primary Vertex label " << (*pPrmVtxColl)->front()->vertexType() << endreq;
-	  msg() << MSG::DEBUG << "First PV has z-position = " <<  (*pPrmVtxColl)->front()->z() << endreq;
-	}
+          msg() << MSG::DEBUG << "First PV has z-position = " <<  (*pPrmVtxColl)->front()->z() << endreq;
+        }
         break;
       }
     }

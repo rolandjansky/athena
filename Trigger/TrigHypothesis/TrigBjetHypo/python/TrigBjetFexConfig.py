@@ -141,7 +141,7 @@ class BjetFex (TrigBjetFex):
             self.TrkSelGrade1_PixHits         = 2
             self.TrkSelGrade1_SiHits          = 7
             self.TrkSelGrade1_D0              = 1*mm
-            self.TrkSelGrade1_Z0              = 2*mm
+            self.TrkSelGrade1_Z0              = 1.5*mm
             self.TrkSelGrade1_Pt              = 1*GeV
             self.TrkSelGrade1_Eta             = 0.2
             self.TrkSelGrade1_Phi             = 0.2
@@ -152,7 +152,7 @@ class BjetFex (TrigBjetFex):
             self.TrkSelGrade2_PixHits         = 2
             self.TrkSelGrade2_SiHits          = 7
             self.TrkSelGrade2_D0              = 1*mm
-            self.TrkSelGrade2_Z0              = 2*mm
+            self.TrkSelGrade2_Z0              = 1.5*mm
             self.TrkSelGrade2_Pt              = 1*GeV
             self.TrkSelGrade2_Eta             = 0.2
             self.TrkSelGrade2_Phi             = 0.2
@@ -288,7 +288,7 @@ class BjetFexSplit (TrigBjetFex):
             self.TrkSelGrade1_PixHits         = 2
             self.TrkSelGrade1_SiHits          = 7
             self.TrkSelGrade1_D0              = 1*mm
-            self.TrkSelGrade1_Z0              = 2*mm
+            self.TrkSelGrade1_Z0              = 1.5*mm
             self.TrkSelGrade1_Pt              = 1*GeV
             self.TrkSelGrade1_Eta             = 0.4
             self.TrkSelGrade1_Phi             = 0.4
@@ -299,7 +299,7 @@ class BjetFexSplit (TrigBjetFex):
             self.TrkSelGrade2_PixHits         = 2
             self.TrkSelGrade2_SiHits          = 7
             self.TrkSelGrade2_D0              = 1*mm
-            self.TrkSelGrade2_Z0              = 2*mm
+            self.TrkSelGrade2_Z0              = 1.5*mm
             self.TrkSelGrade2_Pt              = 1*GeV
             self.TrkSelGrade2_Eta             = 0.4
             self.TrkSelGrade2_Phi             = 0.4

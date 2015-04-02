@@ -40,8 +40,6 @@ class TrigBjetEtHypo : public HLT::HypoAlgo {
   bool m_acceptAll;
   /** @brief DeclareProperty: Et threshold cut. */
   float m_etThreshold;
-  /** @brief DeclareProperty: lowest-possible Et threshold cut. */
-  float m_etThresholdMin;
   /** @brief DeclareProperty: Et threshold. */
   float m_et;
   /** @brief DeclareProperty: string corresponding to the trigger level in which the algorithm is running. */
