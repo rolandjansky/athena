@@ -130,13 +130,11 @@ StatusCode PoolCollectionConverter::initialize() {
 	         m_contextId);
       } catch (std::exception &e) {
          m_poolCollection = 0;
+      }
+      if (m_poolCollection == 0) {
          // Now set where to look in the implicit file
          m_inputCollection = m_inputContainer + "(DataHeader)";
       }
-/*
-      // Now set where to look in the implicit file
-      m_inputCollection = m_inputContainer + "(DataHeader)";
-*/
    }
    try {
       if (m_poolCollection == 0) {
