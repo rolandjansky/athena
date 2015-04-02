@@ -68,7 +68,7 @@
               </arg>
               <arg> 
                 <argname>exeParamString</argname>
-                <argvalue>data-muon.root data-muon-reference-newchains.root HLT_mu6_idperf_TrigFastTrackFinder_Muon HLT_mu6_L2Star_idperf_TrigL2SiTrackFinder_Muon_0 HLT_mu6_L2Star_idperf_TrigL2SiTrackFinder_Muon_1 HLT_mu6_L2Star_idperf_TrigL2SiTrackFinder_Muon_2  -d HLTL2-plots_mu6 </argvalue>
+                <argvalue>data-muon.root data-muon-reference-newchains.root HLT_mu6_idperf_TrigFastTrackFinder_Muon HLT_mu6_L2Star_idperf_TrigL2SiTrackFinder_Muon_0 HLT_mu6_L2Star_idperf_TrigL2SiTrackFinder_Muon_1 HLT_mu6_L2Star_idperf_TrigL2SiTrackFinder_Muon_2  -d HLTL2-plots </argvalue>
               </arg>
             </action>
 
@@ -85,7 +85,7 @@
 
             <auxFilePattern>TIDAdata*.dat</auxFilePattern>
 	    <auxFilePattern>data-muon-reference.root</auxFilePattern>
-	    <auxFilePattern>data-muon-reference-newchains.root</auxFilePattern>
+	    <auxFilePattern>data-muon-singlemu-larged0-reference-newchains.root</auxFilePattern>
             <auxFilePattern>expert-monitoring-mu_single_mu_100_run2-ref.root</auxFilePattern>
 #           include "TrigInDetValidation_aux.xml"
 	    <auxFilePattern>Test_bin.dat</auxFilePattern>

@@ -126,15 +126,15 @@ def tauChains(runMergedChain):
   
   if runMergedChain==True:
     if use_new_tm:
-      idTrigChainlist.append(['tau29_idperf', 'L1_TAU12', [], ['Tau'], ['RATE:SingleTau', 'BW:Tau'], 1])
-      idTrigChainlist.append(['tau29_tracktwo_idperf', 'L1_TAU12', [], ['Tau'], ['RATE:SingleTau', 'BW:Tau'], 1])
-      tidaAnalysischains.append('HLT_tau29_idperf:TrigFastTrackFinder_Tau')
-      tidaAnalysischains.append('HLT_tau29_idperf:TrigFastTrackFinder_Tau_IDTrig')
-      tidaAnalysischains.append('HLT_tau29_idperf:InDetTrigParticleCreation_Tau_IDTrig')
-      tidaAnalysischains.append('HLT_tau29_idperf:InDetTrigTrackingxAODCnv_Tau_IDTrig')
-      tidaAnalysischains.append('HLT_tau29_tracktwo_idperf:TrigFastTrackFinder_TauCore')
-      tidaAnalysischains.append('HLT_tau29_tracktwo_idperf:TrigFastTrackFinder_TauIso')
-      tidaAnalysischains.append('HLT_tau29_tracktwo_idperf:InDetTrigTrackingxAODCnv_Tau_IDTrig')
+      idTrigChainlist.append(['tau29_idperf_track', 'L1_TAU12', [], ['Tau'], ['RATE:SingleTau', 'BW:Tau'], 1])
+      idTrigChainlist.append(['tau29_idperf_tracktwo', 'L1_TAU12', [], ['Tau'], ['RATE:SingleTau', 'BW:Tau'], 1])
+      tidaAnalysischains.append('HLT_tau29_idperf_track:TrigFastTrackFinder_Tau')
+      tidaAnalysischains.append('HLT_tau29_idperf_track:InDetTrigParticleCreation_Tau_IDTrig')
+      tidaAnalysischains.append('HLT_tau29_idperf_track:InDetTrigTrackingxAODCnv_Tau_IDTrig')
+      tidaAnalysischains.append('HLT_tau29_idperf_tracktwo:TrigFastTrackFinder_TauCore')
+      tidaAnalysischains.append('HLT_tau29_idperf_tracktwo:TrigFastTrackFinder_TauIso')
+      tidaAnalysischains.append('HLT_tau29_idperf_tracktwo:InDetTrigTrackingxAODCnv_Tau_IDTrig')
+
     else:
       idTrigChainlist.append('tau29_IDTrkNoCut_IDT')
       tidaAnalysischains.append('EF_tau29_IDTrkNoCut_IDT:TrigFastTrackFinder_Tau')

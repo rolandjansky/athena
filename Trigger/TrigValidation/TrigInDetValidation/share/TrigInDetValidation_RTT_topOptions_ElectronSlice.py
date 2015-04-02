@@ -81,10 +81,3 @@ rec.RootNtupleOutput="ntupleInDetElectronSlice.root"
   
 include("TrigInDetValidation/TrigInDetValidation_RTT_Common.py")
 
-if 'runMergedChain' in dir() and runMergedChain==True:
-  if 'robust' in dir() and robust==True:
-    topSequence.TrigSteer_HLT.TrigFastTrackFinder_eGamma.UseNewSeeding = False
-    topSequence.TrigSteer_HLT.TrigFastTrackFinder_eGamma.RoadMakerTool.LayerOneDepth=3
-    topSequence.TrigSteer_HLT.TrigFastTrackFinder_eGamma.RoadMakerTool.LayerTwoDepth=3 
-  if 'newSeeding' in dir() and newSeeding==False:
-    topSequence.TrigSteer_HLT.TrigFastTrackFinder_eGamma.UseNewSeeding = False

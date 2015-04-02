@@ -45,7 +45,7 @@
              </arg>
              <arg> 
                <argname>exeParamString</argname>
-               <argvalue>data-tau-merge.root data-tau-merge.root HLT_tau29_idperf_TrigFastTrackFinder_Tau HLT_tau29_idperf_InDetTrigTrackingxAODCnv_Tau_IDTrig HLT_tau29_tracktwo_idperf_TrigFastTrackFinder_TauCore HLT_tau29_tracktwo_idperf_TrigFastTrackFinder_TauIso HLT_tau29_tracktwo_idperf_InDetTrigTrackingxAODCnv_Tau_IDTrig -d HLTEF-plots </argvalue>
+               <argvalue>data-tau-merge.root data-tau-merge.root HLT_tau29_idperf_track_TrigFastTrackFinder_Tau HLT_tau29_idperf_track_InDetTrigTrackingxAODCnv_Tau_IDTrig HLT_tau29_idperf_tracktwo_TrigFastTrackFinder_TauCore HLT_tau29_idperf_tracktwo_TrigFastTrackFinder_TauIso HLT_tau29_idperf_tracktwo_InDetTrigTrackingxAODCnv_Tau_IDTrig -d HLTEF-plots </argvalue>
              </arg>
            </action> 
 	   
@@ -59,7 +59,7 @@
              </arg>
              <arg> 
                <argname>exeParamString</argname>
-               <argvalue>data-tau-merge.root data-tau-pu46-run2-reference-newchains.root HLT_tau29_idperf_TrigFastTrackFinder_Tau  HLT_tau20_r1_idperf_TrigL2SiTrackFinder_Tau_1 HLT_tau20_r1_idperf_TrigL2SiTrackFinder_Tau_2 -d HLTL2-plots </argvalue>
+               <argvalue>data-tau-merge.root HLT_tau29_idperf_track_TrigFastTrackFinder_Tau  HLT_tau20_r1_idperf_TrigL2SiTrackFinder_Tau_1 HLT_tau20_r1_idperf_TrigL2SiTrackFinder_Tau_2 -d HLTL2-plots </argvalue>
              </arg>
            </action> 
 	   
@@ -72,7 +72,7 @@
              </arg>
              <arg> 
                <argname>exeParamString</argname>
-               <argvalue>data-tau-merge.root data-tau-pu46-run2-reference-newchains.root  HLT_tau29_idperf_InDetTrigTrackingxAODCnv_Tau_EFID HLT_tau20_r1_idperf_InDetTrigTrackingxAODCnv_Tau_EFID --tag EFID  -d HLTEF-plots </argvalue>
+               <argvalue>data-tau-merge.root  HLT_tau29_idperf_track_InDetTrigTrackingxAODCnv_Tau_IDTrig HLT_tau20_r1_idperf_InDetTrigTrackingxAODCnv_Tau_EFID --tag EFID  -d HLTEF-plots </argvalue>
              </arg>
            </action> 
 
@@ -90,7 +90,7 @@
 	   
            <auxFilePattern>TIDAdata*.dat</auxFilePattern>
            <auxFilePattern>data-tau-merge-reference.root</auxFilePattern>
-           <auxFilePattern>data-tau-pu46-run2-reference-newchains.root</auxFilePattern>
+           <auxFilePattern>data-tau-merge.root</auxFilePattern>
             <auxFilePattern>expert-monitoring-tau_pu46_run2-ref.root</auxFilePattern>
 #           include "TrigInDetValidation_aux.xml"
 	   <auxFilePattern>Test_bin.dat</auxFilePattern>

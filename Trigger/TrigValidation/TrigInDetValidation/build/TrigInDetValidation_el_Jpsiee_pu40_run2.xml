@@ -77,7 +77,7 @@
 	   
            <auxFilePattern>TIDAdata*.dat</auxFilePattern>
            <auxFilePattern>data-electron-merge-reference.root</auxFilePattern>
-           <auxFilePattern>data-electron-merge-lowpt-reference-newchains.root</auxFilePattern>
+           <auxFilePattern>data-electron-Jpsiee-reference-newchains.root</auxFilePattern>
             <auxFilePattern>expert-monitoring-el_single_e_5_run2-ref.root</auxFilePattern>
 #           include "TrigInDetValidation_aux.xml"
 	   <auxFilePattern>Test_bin.dat</auxFilePattern>

@@ -682,7 +682,7 @@
 	   
            <auxFilePattern>TIDAdata*.dat</auxFilePattern>
            <auxFilePattern>data-electron-merge-reference.root</auxFilePattern>
-           <auxFilePattern>data-electron-merge-lowpt-reference-newchains.root</auxFilePattern>
+           <auxFilePattern>data-electron-Jpsiee-reference-newchains.root</auxFilePattern>
             <auxFilePattern>expert-monitoring-el_single_e_5_run2-ref.root</auxFilePattern>
 
             <auxFilePattern>TIDAWeb/*</auxFilePattern>
@@ -700,10 +700,10 @@
 
 
 
-         <athena trendId='electronTrend' userJobId='TrigInDetValidation_el_single_e_7-80_larged0'>
+         <athena trendId='electronIBLTrend' userJobId='TrigInDetValidation_el_single_e_7-80_larged0'>
             <doc>Single part electron test 7-80 GeV, larged0</doc>
-            <displayName>ElectronSlice single partile e 7-80 GeV large d0</displayName>
-	    <commandLineFlags>EventMax=6000;</commandLineFlags>
+            <displayName>ElectronSlice single particle e 7-80 GeV, larged0</displayName>
+	    <commandLineFlags>EventMax=6000;runMergedChain=True</commandLineFlags>
             <options>TrigInDetValidation_RTT_topOptions_ElectronSlice</options>
             <package>Trigger/TrigValidation/TrigInDetValidation</package>
             <group>TrigInDetValidation</group>
@@ -741,7 +741,7 @@
               </arg>
               <arg> 
                 <argname>exeParamString</argname>
-                <argvalue>TIDAdata11-rtt.dat -f data-electron.root -p 11 -b Test_bin.dat </argvalue>
+                <argvalue>TIDAdata11-rtt.dat -f data-electron-IBL.root -p 11 -b Test_bin.dat </argvalue>
               </arg>
             </action>
 
@@ -755,22 +755,10 @@
               </arg>
               <arg> 
                 <argname>exeParamString</argname>
-                <argvalue>data-electron.root data-electron-reference.root EF_e22vh_medium_IDTrkNoCut_InDetTrigParticleCreation_Electron_EFID  -d EF-plots </argvalue>
+                <argvalue>data-electron-IBL.root data-electron-reference.root EF_e24vh_medium1_IDTrkNoCut_IDT_TrigFastTrackFinder_eGamma EF_e22vh_medium_IDTrkNoCut_InDetTrigParticleCreation_Electron_EFID  -d EF-plots </argvalue>
               </arg>
             </action>
 
-	    <action position="3">    
-              <modulename>RttLibraryTools</modulename> 
-              <testname>ExeRunner</testname>  
-              <arg> 
-                <argname>exeName</argname>
-                <argvalue>TIDAcomparitor.exe</argvalue> 
-              </arg>
-              <arg> 
-                <argname>exeParamString</argname>
-                <argvalue>data-electron.root data-electron-reference.root L2_e22vh_medium_IDTrkNoCut_TrigL2SiTrackFinder_eGamma_0 L2_e22vh_medium_IDTrkNoCut_TrigL2SiTrackFinder_eGamma_1 L2_e22vh_medium_IDTrkNoCut_TrigL2SiTrackFinder_eGamma_2 L2_e22vh_medium_IDTrkNoCut_TrigL2SiTrackFinder_eGamma_3   -d L2-plots </argvalue>
-              </arg>
-            </action>
 
 	    <action position="4">    
               <modulename>RttLibraryTools</modulename> 
@@ -781,10 +769,9 @@
               </arg>
               <arg> 
                 <argname>exeParamString</argname>
-                <argvalue>data-electron.root data-electron-reference-newchains.root HLT_e24_loose_L2Star_idperf_InDetTrigTrackingxAODCnv_Electron_EFID  HLT_e24_medium_L2Star_idperf_InDetTrigTrackingxAODCnv_Electron_EFID -d HLTEF-plots </argvalue>
+                <argvalue>data-electron-IBL.root data-electron-IBL-pu40-reference-newchains.root HLT_e24_medium_idperf_TrigFastTrackFinder_eGamma  HLT_e24_medium_idperf_InDetTrigTrackingxAODCnv_Electron_EFID  HLT_e24_medium_L2Star_idperf_InDetTrigTrackingxAODCnv_Electron_EFID -d HLTEF-plots </argvalue>
               </arg>
             </action>
-
 
 	    <action position="5">    
               <modulename>RttLibraryTools</modulename> 
@@ -795,10 +782,9 @@
               </arg>
               <arg> 
                 <argname>exeParamString</argname>
-                <argvalue>data-electron.root data-electron-reference-newchains.root HLT_e24_loose_idperf_TrigFastTrackFinder_eGamma HLT_e24_loose_L2Star_idperf_InDetTrigTrackingxAODCnv_Electron_EFID  -d HLTEF-plots </argvalue>
+                <argvalue>data-electron-IBL.root data-electron-IBL-pu40-reference-newchains.root  HLT_e5_loose_idperf_TrigFastTrackFinder_eGamma  HLT_e5_loose_idperf_InDetTrigTrackingxAODCnv_Electron_EFID HLT_e5_loose_L2Star_idperf_InDetTrigTrackingxAODCnv_Electron_EFID  -d HLTEF-plots-lowpt  </argvalue>
               </arg>
             </action>
-
 
 
 	    <action position="6">    
@@ -810,7 +796,7 @@
               </arg>
               <arg> 
                 <argname>exeParamString</argname>
-                <argvalue>data-electron.root data-electron-reference-newchains.root HLT_e5_loose_L2Star_idperf_InDetTrigTrackingxAODCnv_Electron_EFID  HLT_e24_medium_L2Star_idperf_InDetTrigTrackingxAODCnv_Electron_EFID -d HLTEF-plots-lowpt </argvalue>
+                <argvalue>data-electron-IBL.root data-electron-IBL-pu40-reference-newchains.root HLT_e24_medium_idperf_TrigFastTrackFinder_eGamma HLT_e24_medium_L2Star_idperf_TrigL2SiTrackFinder_eGamma_0  HLT_e24_medium_L2Star_idperf_TrigL2SiTrackFinder_eGamma_2  -d HLTL2-plots </argvalue>
               </arg>
             </action>
 
@@ -823,7 +809,7 @@
               </arg>
               <arg> 
                 <argname>exeParamString</argname>
-                <argvalue>data-electron.root data-electron-reference-newchains.root HLT_e5_loose_L2Star_idperf_TrigL2SiTrackFinder_eGamma_0 HLT_e5_loose_L2Star_idperf_TrigL2SiTrackFinder_eGamma_1 HLT_e5_loose_L2Star_idperf_TrigL2SiTrackFinder_eGamma_2  -d HLTL2-plots-lowpt  </argvalue>
+                <argvalue>data-electron-IBL.root data-electron-IBL-pu40-reference-newchains.root HLT_e5_loose_idperf_TrigFastTrackFinder_eGamma HLT_e5_loose_L2Star_idperf_TrigL2SiTrackFinder_eGamma_0  HLT_e5_loose_L2Star_idperf_TrigL2SiTrackFinder_eGamma_2  -d HLTL2-plots-lowpt  </argvalue>
               </arg>
             </action>
 
@@ -922,8 +908,8 @@
 
             <auxFilePattern>TIDAdata*.dat</auxFilePattern>
 	    <auxFilePattern>data-electron-reference.root</auxFilePattern>
-	    <auxFilePattern>data-electron-reference-newchains.root</auxFilePattern>
-            <auxFilePattern>expert-monitoring-el_single_e_7-80_pu40-ref.root</auxFilePattern>
+	    <auxFilePattern>data-electron-singlee-larged0-reference-newchains.root</auxFilePattern>
+            <auxFilePattern>expert-monitoring-el_single_e_7-80_IBL_pu40_run2-ref.root</auxFilePattern>
 
             <auxFilePattern>TIDAWeb/*</auxFilePattern>
             <auxFilePattern>TIDAWeb/build/*</auxFilePattern>
@@ -932,11 +918,12 @@
             <auxFilePattern>TIDAindex-*.htm</auxFilePattern>
             <auxFilePattern>TIDAindex*.php</auxFilePattern>
             <auxFilePattern>TIDAstyle.css</auxFilePattern>
-	    <auxFilePattern>TIDAindex-lowpt.html</auxFilePattern>
+	    <auxFilePattern>TIDAindex-lowpt.html</auxFilePattern>	
 	    <auxFilePattern>Test_bin.dat</auxFilePattern>
 
          <athenaCommonFlags /> 
          </athena>
+
 
 
          <athena trendId='electronTrend' userJobId='TrigInDetValidation_el_single_e_7-80_pu40'>
@@ -5553,7 +5540,7 @@
              </arg>
              <arg> 
                <argname>exeParamString</argname>
-               <argvalue>data-tau-merge.root data-tau-merge.root HLT_tau29_idperf_TrigFastTrackFinder_Tau HLT_tau29_idperf_InDetTrigTrackingxAODCnv_Tau_IDTrig HLT_tau29_tracktwo_idperf_TrigFastTrackFinder_TauCore HLT_tau29_tracktwo_idperf_TrigFastTrackFinder_TauIso HLT_tau29_tracktwo_idperf_InDetTrigTrackingxAODCnv_Tau_IDTrig -d HLTEF-plots </argvalue>
+               <argvalue>data-tau-merge.root data-tau-merge.root HLT_tau29_idperf_track_TrigFastTrackFinder_Tau HLT_tau29_idperf_track_InDetTrigTrackingxAODCnv_Tau_IDTrig HLT_tau29_idperf_tracktwo_TrigFastTrackFinder_TauCore HLT_tau29_idperf_tracktwo_TrigFastTrackFinder_TauIso HLT_tau29_idperf_tracktwo_InDetTrigTrackingxAODCnv_Tau_IDTrig -d HLTEF-plots </argvalue>
              </arg>
            </action> 
 	   
@@ -5567,7 +5554,7 @@
              </arg>
              <arg> 
                <argname>exeParamString</argname>
-               <argvalue>data-tau-merge.root data-tau-pu46-run2-reference-newchains.root HLT_tau29_idperf_TrigFastTrackFinder_Tau  HLT_tau20_r1_idperf_TrigL2SiTrackFinder_Tau_1 HLT_tau20_r1_idperf_TrigL2SiTrackFinder_Tau_2 -d HLTL2-plots </argvalue>
+               <argvalue>data-tau-merge.root HLT_tau29_idperf_track_TrigFastTrackFinder_Tau  HLT_tau20_r1_idperf_TrigL2SiTrackFinder_Tau_1 HLT_tau20_r1_idperf_TrigL2SiTrackFinder_Tau_2 -d HLTL2-plots </argvalue>
              </arg>
            </action> 
 	   
@@ -5580,7 +5567,7 @@
              </arg>
              <arg> 
                <argname>exeParamString</argname>
-               <argvalue>data-tau-merge.root data-tau-pu46-run2-reference-newchains.root  HLT_tau29_idperf_InDetTrigTrackingxAODCnv_Tau_EFID HLT_tau20_r1_idperf_InDetTrigTrackingxAODCnv_Tau_EFID --tag EFID  -d HLTEF-plots </argvalue>
+               <argvalue>data-tau-merge.root  HLT_tau29_idperf_track_InDetTrigTrackingxAODCnv_Tau_IDTrig HLT_tau20_r1_idperf_InDetTrigTrackingxAODCnv_Tau_EFID --tag EFID  -d HLTEF-plots </argvalue>
              </arg>
            </action> 
 
@@ -5680,7 +5667,7 @@
 	   
            <auxFilePattern>TIDAdata*.dat</auxFilePattern>
            <auxFilePattern>data-tau-merge-reference.root</auxFilePattern>
-           <auxFilePattern>data-tau-pu46-run2-reference-newchains.root</auxFilePattern>
+           <auxFilePattern>data-tau-merge.root</auxFilePattern>
             <auxFilePattern>expert-monitoring-tau_pu46_run2-ref.root</auxFilePattern>
 
             <auxFilePattern>TIDAWeb/*</auxFilePattern>
@@ -6391,7 +6378,7 @@
               </arg>
               <arg> 
                 <argname>exeParamString</argname>
-                <argvalue>data-muon.root data-muon-reference-newchains.root HLT_mu6_idperf_TrigFastTrackFinder_Muon HLT_mu6_L2Star_idperf_TrigL2SiTrackFinder_Muon_0 HLT_mu6_L2Star_idperf_TrigL2SiTrackFinder_Muon_1 HLT_mu6_L2Star_idperf_TrigL2SiTrackFinder_Muon_2  -d HLTL2-plots_mu6 </argvalue>
+                <argvalue>data-muon.root data-muon-reference-newchains.root HLT_mu6_idperf_TrigFastTrackFinder_Muon HLT_mu6_L2Star_idperf_TrigL2SiTrackFinder_Muon_0 HLT_mu6_L2Star_idperf_TrigL2SiTrackFinder_Muon_1 HLT_mu6_L2Star_idperf_TrigL2SiTrackFinder_Muon_2  -d HLTL2-plots </argvalue>
               </arg>
             </action>
 
@@ -6490,7 +6477,7 @@
 
             <auxFilePattern>TIDAdata*.dat</auxFilePattern>
 	    <auxFilePattern>data-muon-reference.root</auxFilePattern>
-	    <auxFilePattern>data-muon-reference-newchains.root</auxFilePattern>
+	    <auxFilePattern>data-muon-singlemu-larged0-reference-newchains.root</auxFilePattern>
             <auxFilePattern>expert-monitoring-mu_single_mu_100_run2-ref.root</auxFilePattern>
 
             <auxFilePattern>TIDAWeb/*</auxFilePattern>
