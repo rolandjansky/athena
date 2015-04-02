@@ -37,7 +37,7 @@ StatusCode CaloReadLCJetEnergyScaleFile::initDataFromFile(std::vector<std::strin
   for (unsigned int iFile=0;iFile<theLCJetEnergyScaleFileNames.size();iFile++) {
     // Find the full path to filename:
     std::string file = PathResolver::find_file (theLCJetEnergyScaleFileNames[iFile], "DATAPATH");
-    log << MSG::INFO << "Reading file  " << file << endmsg;
+    log << MSG::INFO << "Reading file  " << file << endreq;
     TFile* theLCJetEnergyScaleFile = new TFile(file.c_str());
     if ( !theLCJetEnergyScaleFile ) {
       return StatusCode::FAILURE;
@@ -81,7 +81,7 @@ StatusCode CaloReadLCJetEnergyScaleFile::initDataFromFile(std::vector<std::strin
       for (idim=0;idim<keys.size();idim++) {
 	size_t found = sTitle.find(keys[idim]);
 	if ( found == std::string::npos ) {
-	  log << MSG::ERROR << "Could not find key " << keys[idim] << " in current histogram." << endmsg;
+	  log << MSG::ERROR << "Could not find key " << keys[idim] << " in current histogram." << endreq;
 	  allValid = false;
 	}
 	else {
@@ -94,7 +94,7 @@ StatusCode CaloReadLCJetEnergyScaleFile::initDataFromFile(std::vector<std::strin
 	  rmax[idim] = 5.; // |eta| max
 	  
 	  if ( ibin[idim] < 0 || ibin[idim] >= nbin[idim] ) {
-	    log << MSG::ERROR << "Found invalid bin number " << ibin[idim] << " not in valid range [0," << nbin[idim] << " in current histogram." << endmsg;
+	    log << MSG::ERROR << "Found invalid bin number " << ibin[idim] << " not in valid range [0," << nbin[idim] << " in current histogram." << endreq;
 	    allValid = false;
 	  }
 	}
@@ -124,7 +124,7 @@ StatusCode CaloReadLCJetEnergyScaleFile::initDataFromFile(std::vector<std::strin
 	    CaloLocalHadCoeff::LocalHadDimension theDim(names[idim].c_str(),types[idim],nbin[idim],rmin[idim],rmax[idim]);
 	    theArea.addDimension(theDim);
 	  }
-	  log << MSG::INFO << "adding Area with nDim = " << theArea.getNdim() << endmsg;
+	  log << MSG::INFO << "adding Area with nDim = " << theArea.getNdim() << endreq;
 	  m_data->addArea(theArea);
 	}
 	// now fill all data for current histogram
@@ -144,7 +144,7 @@ StatusCode CaloReadLCJetEnergyScaleFile::initDataFromFile(std::vector<std::strin
 	    log << MSG::INFO << "Now set data for bins: ";
 	    for(unsigned int ii=0;ii<ibin.size();ii++)
 	      log << ibin[ii] << " ";
-	    log << endmsg;
+	    log << endreq;
 	    m_data->setCoeff(m_data->getBin(iFile,ibin),theData);
 	  }
 	}
@@ -157,28 +157,28 @@ StatusCode CaloReadLCJetEnergyScaleFile::initDataFromFile(std::vector<std::strin
 
 StatusCode CaloReadLCJetEnergyScaleFile::initialize() {
   MsgStream log(msgSvc(), name());
-  log << MSG::INFO << " Building CaloLocalHadCoeff object " << endmsg;
+  log << MSG::INFO << " Building CaloLocalHadCoeff object " << endreq;
   StatusCode sc;
   StoreGateSvc* detStore;
   sc=service("DetectorStore",detStore);
   if (sc.isFailure()) {
-     log << MSG::ERROR << "Unable to get the DetectorStore" << endmsg;
+     log << MSG::ERROR << "Unable to get the DetectorStore" << endreq;
      return sc;
    }
   sc=initDataFromFile(m_LCJetEnergyScaleFileNames, m_LCJetEnergyScaleJetCollectionNames);
   if (sc.isFailure()) {
-     log << MSG::ERROR << "Unable to init data from file" << endmsg;
+     log << MSG::ERROR << "Unable to init data from file" << endreq;
      return sc;
    }
 
   sc=detStore->record(m_data,m_key);
   if (sc.isFailure()) {
-    log << MSG::ERROR << "Unable to record CaloLocalHadCoeff" << endmsg;
+    log << MSG::ERROR << "Unable to record CaloLocalHadCoeff" << endreq;
     return sc;
   }
   sc=detStore->setConst(m_data);
   if (sc.isFailure()) {
-    log << MSG::ERROR << "Unable to lock CaloLocalHadCoeff" << endmsg;
+    log << MSG::ERROR << "Unable to lock CaloLocalHadCoeff" << endreq;
     return sc;
   }
   return StatusCode::SUCCESS;

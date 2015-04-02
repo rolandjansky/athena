@@ -75,7 +75,7 @@ class GetLCSinglePionsPerf : public AthAlgorithm
     moment_name_vector m_validMoments;
 
 //     const DataHandle<CaloClusterContainer> pClusColl;
-    const DataHandle<xAOD::CaloClusterContainer> m_clusColl ;
+    const DataHandle<xAOD::CaloClusterContainer> pClusColl ;
 
     double m_distance_cut;
 

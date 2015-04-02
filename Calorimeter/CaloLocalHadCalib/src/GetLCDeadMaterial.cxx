@@ -112,9 +112,10 @@ GetLCDeadMaterial::~GetLCDeadMaterial()
 ***************************************************************************** */
 StatusCode GetLCDeadMaterial::initialize()
 {
-  //std::cout << std::endl;
-  //std::cout << std::endl;
-  //std::cout << "--- GetLCDeadMaterial::initialize() --- " << std::endl;
+  MsgStream log(messageService(), name());
+  std::cout << std::endl;
+  std::cout << std::endl;
+  std::cout << "--- GetLCDeadMaterial::initialize() --- " << std::endl;
 
   /* ********************************************
   default coefficients
@@ -123,30 +124,34 @@ StatusCode GetLCDeadMaterial::initialize()
   std::string fileName = PathResolver::find_file (m_HadDMCoeffInputFile, "DATAPATH");
   CaloLocalHadCoeff * initHadDMCoeff = dmHelper.InitDataFromFile(fileName.c_str());
   if( !initHadDMCoeff ) {
-    ATH_MSG_FATAL( " Error while initializing default dead material coefficients " );
+    log << MSG::FATAL
+        << " Error while initializing default dead material coefficients "
+        << endreq;
     return StatusCode::FAILURE;
   }
   //dmHelper.PrintData(initHadDMCoeff, std::cout);
-  ATH_MSG_INFO( "  Number of dead material areas defined:" << initHadDMCoeff->getSizeAreaSet()
-      << ", total number of correction coefficients:" << initHadDMCoeff->getSizeCoeffSet() );
+  log << MSG::INFO
+      << "  Number of dead material areas defined:" << initHadDMCoeff->getSizeAreaSet()
+      << ", total number of correction coefficients:" << initHadDMCoeff->getSizeCoeffSet()
+      << endreq;
 
   /* ********************************************
   input chain
   ******************************************** */
   TChain *pChain = new TChain("DeadMaterialTree");
   if( !m_inputRootFiles.size() ) {
-    ATH_MSG_FATAL( " Empty vector of input root files! "  );
+    log << MSG::FATAL << " Empty vector of input root files! " << endreq;
     return StatusCode::FAILURE;
   }
   for(std::vector<std::string >::iterator it = m_inputRootFiles.begin(); it!=m_inputRootFiles.end(); it++){
-    ATH_MSG_INFO( " Adding root file '" <<(*it) << "'"  );
+    log << MSG::INFO << " Adding root file '" <<(*it) << "'" << endreq;
     pChain->Add( (*it).c_str() );
   }
 
   // pointer to the chain and data in it
   std::auto_ptr<CaloHadDMCoeffData> dmData (new CaloHadDMCoeffData(pChain));
   if(m_ClassificationType == "particleid") {
-    ATH_MSG_INFO( "Particle ID em fraction will be used to classify clusters:"  );
+    log << MSG::INFO << "Particle ID em fraction will be used to classify clusters:" << endreq;
     m_isSingleParticle = false;
     dmData->SetClassificationType(CaloHadDMCoeffData::kCLASSIFY_USE_PARTICLEID);
   }
@@ -162,7 +167,7 @@ StatusCode GetLCDeadMaterial::initialize()
     dmFit->SetNormalizationType(m_NormalizationTypeForFit);
     newHadDMCoeffFit = dmFit->process(dmData.get(), initHadDMCoeff, m_isSingleParticle, m_isTestbeam);
     if( !newHadDMCoeffFit ) {
-      ATH_MSG_FATAL( "Failed in CaloHadDMCoeffFit::process()"  );
+      log << MSG::FATAL << "Failed in CaloHadDMCoeffFit::process()" << endreq;
       delete dmFit;
       return StatusCode::FAILURE;
     }
@@ -181,7 +186,7 @@ StatusCode GetLCDeadMaterial::initialize()
       newHadDMCoeffMinim = dmMinim->process(dmData.get(), initHadDMCoeff, m_isSingleParticle, m_isTestbeam);
     }
     if( !newHadDMCoeffMinim ) {
-      ATH_MSG_FATAL( "Failed in CaloHadDMCoeffMinim::process()"  );
+      log << MSG::FATAL << "Failed in CaloHadDMCoeffMinim::process()" << endreq;
       return StatusCode::FAILURE;
     }
     if(m_reportMinimization.size()) dmMinim->make_report(m_reportMinimization);
@@ -206,8 +211,22 @@ StatusCode GetLCDeadMaterial::initialize()
 
   // writing data to the pool
   if(m_doPool) {
-    ATH_CHECK( detStore()->record(result,m_key) );
-    ATH_CHECK( detStore()->setConst(result) );
+    StoreGateSvc* detStore;
+    StatusCode sc=service("DetectorStore",detStore);
+    if (sc.isFailure()) {
+      log << MSG::ERROR << "Unable to get the DetectorStore" << endreq;
+      return sc;
+    }
+    sc=detStore->record(result,m_key);
+    if (sc.isFailure()) {
+      log << MSG::ERROR << "Unable to record CaloHadDMCoeff" << endreq;
+      return sc;
+    }
+    sc=detStore->setConst(result);
+    if (sc.isFailure()) {
+      log << MSG::ERROR << "Unable to lock CaloHadDMCoeff" << endreq;
+      return sc;
+    }
   }
 
   // running toy reconstruction for validation of new dead material constants
@@ -236,7 +255,8 @@ StatusCode GetLCDeadMaterial::initialize()
 ***************************************************************************** */
 StatusCode GetLCDeadMaterial::finalize()
 {
-  ATH_MSG_INFO( " Nothing to be done in finalize() method "  );
+  MsgStream log(messageService(), name());
+  log << MSG::INFO << " Nothing to be done in finalize() method " << endreq;
   return StatusCode::SUCCESS;
 }
 
@@ -247,7 +267,8 @@ StatusCode GetLCDeadMaterial::finalize()
 ***************************************************************************** */
 StatusCode GetLCDeadMaterial::execute()
 {
-  ATH_MSG_INFO( " Nothing to be done in execute() method "  );
+  MsgStream log(messageService(), name());
+  log << MSG::INFO << " Nothing to be done in execute() method " << endreq;
   return StatusCode::SUCCESS;
 }
 
