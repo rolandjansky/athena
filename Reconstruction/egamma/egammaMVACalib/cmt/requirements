@@ -29,7 +29,7 @@ end_private
 # end of it
 ############################################################
 
-apply_pattern dual_use_library files="../Root/*.cxx components/*.cxx"
+apply_pattern dual_use_library files="../Root/*.cxx"
 apply_pattern declare_joboptions files=*.py
 apply_pattern declare_python_modules files="../python/*.py"
 

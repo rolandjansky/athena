@@ -79,14 +79,14 @@ def getTChain(inputfiles, treename, readFromFile=False, dataset=False):
 
 
 def run_egammaMVACalib(outputfile, inputTree, 
-  inputPath='egammaMVACalib/v2', useTMVA='', particleType=0,
+  inputPath='egammaMVACalib/offline/v3', useTMVA='', particleType=0,
   method='BDTG', calibrationType=1, nEvents=-1, 
   debug=False, printBranches=False, branchName="", copyBranches="input", shift=0,
   fudge=None, etaBinDef='', energyBinDef='', particleTypeVar= '',
   filePattern="", ignoreSpectators = True,
   interact=False, first_event=0, friend=False, defs=None):
   """run_egammaMVACalib(outputfile, inputTree, 
-  inputPath='egammaMVACalib/v2', useTMVA='', particleType=0,
+  inputPath='egammaMVACalib/offline/v3', useTMVA='', particleType=0,
   method='BDTG', calibrationType=1, nEvents=-1, 
   debug=False, printBranches=False, branchName="", copyBranches="input", shift=0,
   fudge=None, etaBinDef='', energyBinDef='', particleTypeVar= '',
@@ -274,7 +274,7 @@ if __name__ == "__main__":
   if not options.branchName:
     options.branchName = ''
   if not options.inputPath:
-    options.inputPath = 'egammaMVACalib/v2'
+    options.inputPath = 'egammaMVACalib/offline/v3'
   
   try:
     outputfile = inputfiles.pop(0)

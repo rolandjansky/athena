@@ -2,14 +2,9 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-//#include "GaudiKernel/MsgStream.h"
-
-// C++
-// Stuff be here...
 #include "egammaMVACalib/egammaMVATool.h"
 #include "egammaMVACalib/egammaMVACalib.h"
 
-// xAOD
 #include "xAODEgamma/Egamma.h"
 #include "xAODEgamma/EgammaDefs.h"
 
@@ -18,7 +13,6 @@
 #include "xAODCaloEvent/CaloCluster.h"
 #include "xAODEgamma/EgammaxAODHelpers.h"
 
-// tracking
 #include "xAODTracking/Vertex.h"
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/TrackingPrimitives.h"
@@ -49,7 +43,7 @@ egammaMVATool::egammaMVATool( const std::string &name )
 {
 
   // Configurable properties...
-  declareProperty("folder", m_folder="egammaMVACalib/v2");//, "folder with weight files");
+  declareProperty("folder", m_folder="egammaMVACalib/offline/v3");//, "folder with weight files");
 }
 
 StatusCode egammaMVATool::initialize(){
@@ -114,7 +108,7 @@ StatusCode egammaMVATool::execute(xAOD::CaloCluster* cluster,const xAOD::Egamma*
   return StatusCode::SUCCESS;
 }
 
-StatusCode egammaMVATool::hltexecute(xAOD::CaloCluster* cluster,std::string egType) {
+StatusCode egammaMVATool::hltexecute(xAOD::CaloCluster* cluster, const std::string& egType) {
     ATH_MSG_DEBUG( "in finalize" );
     if(!cluster){
         ATH_MSG_ERROR("Invalid Pointer to cluster object");
@@ -131,7 +125,7 @@ StatusCode egammaMVATool::hltexecute(xAOD::CaloCluster* cluster,std::string egTy
   return StatusCode::SUCCESS;
 }
 
-float egammaMVATool::getEnergy(xAOD::CaloCluster* cluster, std::string egType){
+float egammaMVATool::getEnergy(xAOD::CaloCluster* cluster, const std::string& egType){
   ATH_MSG_DEBUG("In execute...");
 
   // Check for errors...
@@ -338,6 +332,7 @@ bool egammaMVATool::getConversionVariables(const xAOD::Vertex *phVertex){
     tp0->summaryValue(hits,xAOD::numberOfSCTHits);
     m_convtrk1nSCTHits = hits;
   }
+  else { m_convtrk1nPixHits = m_convtrk1nSCTHits = 0; }
 
   if(tp1){
     uint8_t hits;
@@ -346,6 +341,7 @@ bool egammaMVATool::getConversionVariables(const xAOD::Vertex *phVertex){
     tp1->summaryValue(hits,xAOD::numberOfSCTHits);
     m_convtrk2nSCTHits = hits;
   }
+  else { m_convtrk2nPixHits = m_convtrk2nSCTHits = 0; }
 
   m_ptconv = xAOD::EgammaHelpers::momentumAtVertex(*phVertex).perp();
   return true;

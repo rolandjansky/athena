@@ -38,10 +38,6 @@
 #include "PathResolver/PathResolver.h"
 #include <memory>
 
-#ifdef ROOTCORE
-ClassImp(egammaMVACalib)
-#endif
-
 using namespace egammaMVACalibNmsp;
 
 #define CHECK_SETUPBDT(EXP) { \
@@ -56,6 +52,12 @@ using namespace egammaMVACalibNmsp;
 // - DOCUMENTATION
 // - Print "empty" bins ?
 
+template<typename T>
+std::unique_ptr<T> loadFromFile(TFile* f, std::string key)
+{
+  return std::unique_ptr<T>( dynamic_cast<T*>(f->Get(key.c_str())));
+}
+
 egammaMVACalib::egammaMVACalib(int particle,
                                bool useNewBDTs,
                                TString folder,
@@ -67,8 +69,7 @@ egammaMVACalib::egammaMVACalib(int particle,
                                const TString& particleTypeVar,
                                TString filePattern,
                                bool ignoreSpectators)
-  : TObject(),
-    asg::AsgMessaging("egammaMVACalib"),
+  : asg::AsgMessaging("egammaMVACalib"),
     m_useNewBDTs(useNewBDTs),
     fMethodName(method),
     m_debug(debug),
@@ -193,7 +194,7 @@ egammaMVACalib::egammaMVACalib(int particle,
     ATH_MSG_FATAL("No reader defined");
     throw std::runtime_error("No reader defined");
   }
-  
+
   printReadersInfo();
   ATH_MSG_INFO("Number of variables:" << m_formulae.size());
   if (m_debug) {
@@ -416,15 +417,15 @@ void egammaMVACalib::setupBDT(const TString& fileName)
   TString filePath = PathResolverFindCalibFile(fileName.Data());
   std::unique_ptr<TFile> f(TFile::Open(filePath));
   CHECK_SETUPBDT( f.get() && f->IsZombie() );
-  
+
   // Load hPoly
   auto hPoly = loadFromFile<TH2Poly>(f.get(), "hPoly");
   CHECK_SETUPBDT( hPoly );
-  
+
   if (!m_hPoly) m_hPoly = (TH2Poly*) hPoly.get()->Clone();
   m_hPoly->SetDirectory(0);
   CHECK_SETUPBDT( m_hPoly );
-  
+
   // Load formulae
   auto formulae = loadFromFile<TObjArray>(f.get(), "formulae");
   CHECK_SETUPBDT( formulae );
@@ -434,37 +435,41 @@ void egammaMVACalib::setupBDT(const TString& fileName)
   auto variables = loadFromFile<TObjArray>(f.get(), "variables");
   CHECK_SETUPBDT( variables );
   variables->SetOwner(); // to delete the objects when d-tor is called
-  
+
   // Load shifts
   auto shifts = loadFromFile<TObjArray>(f.get(), "shifts");
   CHECK_SETUPBDT( shifts );
   shifts->SetOwner(); // to delete the objects when d-tor is called
-  
+
   // Load trees
   auto trees = loadFromFile<TObjArray>(f.get(), "trees");
-  if (trees.get()) { 
+  if (trees.get()) {
     trees->SetOwner(); // to delete the objects when d-tor is called
     ATH_MSG_DEBUG("setupBDT " << "BDTs read from TObjArray");
-  }  
+  }
   else{
     ATH_MSG_DEBUG("setupBDT " << "Reading trees individually");
     trees = CxxUtils::make_unique<TObjArray>();
     trees->SetOwner(); // to delete the objects when d-tor is called
     for (int i = 0; i < variables->GetEntries(); ++i)
-      trees->AddAtAndExpand(f->Get(Form("BDT%d", i)), i);
+    {
+      TTree *tree = dynamic_cast<TTree*>(f->Get(Form("BDT%d", i)));
+      if (tree) tree->SetCacheSize(0);
+      trees->AddAtAndExpand(tree, i);
+    }
   }
-  
+
   // Ensure the objects have (the same number of) entries
   CHECK_SETUPBDT( trees->GetEntries() );
   CHECK_SETUPBDT( (trees->GetEntries() == variables->GetEntries()) );
-  
+
   // (pre) define formulae
   TNamed *formula;
   TIter nextFormula(formulae.get());
   while ((formula = (TNamed*) nextFormula())){
     predefineFormula(formula->GetName(), formula->GetTitle(), "variable");
   }
-  
+
   // Loop simultaneously over trees, variables and shifts
   // Define the BDTs, the list of variables and the shift for each BDT
   TObjString *str2, *shift;
@@ -615,14 +620,14 @@ int egammaMVACalib::getBin(float etaMin, float etaMax, float energyMin, float en
   {
     bin = m_hPoly->AddBin(etaMin - 1e-10, energyMin - 1e-10, etaMax, energyMax);
     m_hPoly->SetBinContent(bin, bin); // just for drawing, no use
-    if (m_debug) ATH_MSG_DEBUG("New bin (" 
+    if (m_debug) ATH_MSG_DEBUG("New bin ("
 			       << bin << "):"
-			       << " etaMin = " 
-			       << etaMin << " / etaMax = " 
+			       << " etaMin = "
+			       << etaMin << " / etaMax = "
 			       << etaMax
-			       << " / Emin = " 
-			       << energyMin 
-			       << " / Emax = " 
+			       << " / Emin = "
+			       << energyMin
+			       << " / Emax = "
 			       << energyMax);
   }
   else if (!checkBin(bin, etaMin, etaMax, energyMin, energyMax))
@@ -770,6 +775,7 @@ TTree* egammaMVACalib::createInternalTree(egammaType egamma_type, TTree *tree)
   if (m_debug) ATH_MSG_DEBUG("Creating internal tree");
   TTree* new_tree = new TTree();
   new_tree->SetDirectory(0);
+  new_tree->SetCacheSize(0);
   new_tree->Branch(fMethodName.Data(), &m_mvaOutput, Form("%s/F", fMethodName.Data()));
   if (tree) {
     m_useInternalTree = false;
@@ -818,13 +824,6 @@ void egammaMVACalib::InitTree(TTree* tree, bool doNotify)
   {
     if (m_input_tree == tree) return;
     m_input_tree = tree;
-    if (doNotify)
-    {
-      if (m_input_tree->GetNotify()) { 
-	ATH_MSG_WARNING("InitTree " <<"Tree already had an object to notify"); 
-      }
-      m_input_tree->SetNotify(this);
-    }
     m_tree->AddFriend(m_input_tree);
   }
 
@@ -856,6 +855,16 @@ void egammaMVACalib::InitTree(TTree* tree, bool doNotify)
 
   // Instantiate the formula for cluster energy
   defineClusterEnergyFormula();
+
+  if (tree and doNotify) {
+    for (formulaIt = m_formulae.begin(); formulaIt != m_formulae.end(); ++formulaIt) {
+      m_notify_dispatcher.add_object(formulaIt->second.formula);
+    }
+
+    if (m_clusterFormula) { m_notify_dispatcher.add_object(m_clusterFormula); }
+
+    m_input_tree->SetNotify(&m_notify_dispatcher);
+  }
 }
 
 TTreeFormula* egammaMVACalib::defineFormula(const TString & varName, const TString & expression, TTree *tree)
@@ -899,9 +908,9 @@ float* egammaMVACalib::getAddress(const TString & input_name)
   std::map< TString, egammaMVACalib::VarFormula >::iterator it = m_formulae.find(input_name);
   if (it == m_formulae.end()) {
     std::string formulae_string = "";
-    for (std::map< TString, egammaMVACalib::VarFormula >::iterator it = m_formulae.begin();
-         it != m_formulae.end(); ++it) {
-      formulae_string += std::string(" ") + it->first + std::string(" ");
+    for (std::map< TString, egammaMVACalib::VarFormula >::iterator it2 = m_formulae.begin();
+         it2 != m_formulae.end(); ++it2) {
+      formulae_string += std::string(" ") + it2->first + std::string(" ");
     }
     ATH_MSG_FATAL("getAddress , formula not found. "  << input_name.Data() <<" Should be one of "<< formulae_string.c_str());
     throw std::runtime_error("formula not found");
@@ -914,9 +923,9 @@ void egammaMVACalib::setExternal(const TString & input_name)
   std::map< TString, egammaMVACalib::VarFormula >::iterator it = m_formulae.find(input_name);
   if (it == m_formulae.end()) {
     std::string formulae_string = "";
-    for (std::map< TString, egammaMVACalib::VarFormula >::iterator it = m_formulae.begin();
-         it != m_formulae.end(); ++it) {
-      formulae_string += std::string(" ") + it->first + std::string(" ");
+    for (std::map< TString, egammaMVACalib::VarFormula >::iterator it2 = m_formulae.begin();
+         it2 != m_formulae.end(); ++it2) {
+      formulae_string += std::string(" ") + it2->first + std::string(" ");
     }
     ATH_MSG_FATAL("setExternal , formula not found. "  << input_name.Data() <<" Should be one of "<< formulae_string.c_str());
     throw std::runtime_error("formula not found");
@@ -933,11 +942,11 @@ void egammaMVACalib::printValueInput()
     egammaMVACalib::VarFormula *varFormula = &(formulaIt->second);
     assert(varFormula);
     assert(varFormula->formula);
-    ATH_MSG_INFO ("printValueInput formula: " 
-		  << formulaIt->first.Data() 
-		  <<"\n   expression: " 
-		  << varFormula->expression.Data() 
-		  <<"\n   TTreeFormula::Title= " 
+    ATH_MSG_INFO ("printValueInput formula: "
+		  << formulaIt->first.Data()
+		  <<"\n   expression: "
+		  << varFormula->expression.Data()
+		  <<"\n   TTreeFormula::Title= "
 		  << varFormula->formula->GetTitle()
 		  <<"\n  value: " << varFormula->variable);
   }
@@ -1308,24 +1317,24 @@ void egammaMVACalib::printReadersInfo() const
   TAxis* fAxisEnergy = (m_binMultiplicity > 1 ? m_hPoly->GetYaxis() : 0);
 
   if (fAxisEta){
-    ATH_MSG_INFO("egammaMVACalib::printReadersInfo " 
+    ATH_MSG_INFO("egammaMVACalib::printReadersInfo "
 		 << fAxisEta->GetNbins()
-		 <<" eta bin(s) -- ( " 
-		 <<fAxisEta->GetXmin() + 1e-10  
-		 <<" < abs(" 
-		 <<   m_etaVar.Data() 
-		 << ") < " 
+		 <<" eta bin(s) -- ( "
+		 <<fAxisEta->GetXmin() + 1e-10
+		 <<" < abs("
+		 <<   m_etaVar.Data()
+		 << ") < "
 		 << fAxisEta->GetXmax());
   }
   if (fAxisEnergy){
-    ATH_MSG_INFO("egammaMVACalib::printReadersInfo " 
+    ATH_MSG_INFO("egammaMVACalib::printReadersInfo "
 		 << fAxisEnergy->GetNbins()
-		 << " energy bin(s) -- ( " 
+		 << " energy bin(s) -- ( "
 		 << fAxisEnergy->GetXmin() + 1e-10
-		 << "  < " 
-		 <<  m_energyVar.Data()  
-		 << " < "  
-		 << fAxisEnergy->GetXmax() 
+		 << "  < "
+		 <<  m_energyVar.Data()
+		 << " < "
+		 << fAxisEnergy->GetXmax()
 		 << "GeV");
   }
 }
@@ -1563,13 +1572,13 @@ void egammaMVACalib::writeROOTfile(const TString& directory, int particle)
       return;
     }
   }
-  
+
   if (m_useNewBDTs)
   {
     ATH_MSG_WARNING("writeROOTfile " << "not implemented when reading ROOT files");
     return;
   }
-  
+
   TString particleName("electron");
   if (particle == UNCONVERTED)
     particleName = "unconvertedPhoton";
@@ -1579,7 +1588,7 @@ void egammaMVACalib::writeROOTfile(const TString& directory, int particle)
   TString fileName = directory + TString("/MVACalib_") + particleName + TString(".weights.root");
   TFile *f = TFile::Open(fileName, "UPDATE");
   TObjArray trees, variables, formulae, shifts;
-  
+
   // Convert readers to TTrees and fill variables
   // The index of each object in the array is determined by the binning
   std::map< egammaMVACalib::ReaderID, TMVA::Reader* >::const_iterator itReader;
@@ -1813,25 +1822,6 @@ TMVA::Reader* egammaMVACalib::getDummyReader(const TString &xmlFileName)
 
   reader->BookMVA("BDTG", xmlFileName);
   return reader;
-}
-
-bool egammaMVACalib::Notify()
-{
-  if (m_debug) ATH_MSG_DEBUG("Notify called");
-
-  // Update the formulae defined in m_formulae
-  std::map< TString, egammaMVACalib::VarFormula >::iterator formulaIt;
-  for (formulaIt = m_formulae.begin(); formulaIt != m_formulae.end(); ++formulaIt) {
-    if (m_debug) ATH_MSG_DEBUG("updating address for variable " << formulaIt->first);
-    checkFormula(formulaIt->second.formula);
-  }
-
-  // Update cluster formula
-  if (m_clusterFormula)
-    checkFormula(m_clusterFormula);
-
-  if (m_debug) ATH_MSG_DEBUG("Notify done");
-  return true;
 }
 
 //  LocalWords:  TObjArray
