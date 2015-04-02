@@ -119,13 +119,14 @@ namespace met {
   StatusCode METTauAssociator::extractTracks(const xAOD::IParticle *obj,
 					     std::vector<const xAOD::IParticle*>& constlist,
 					     const xAOD::CaloClusterContainer* tcCont,
+					     const xAOD::TrackParticleContainer* trkCont,
 					     const xAOD::Vertex* pv)
   {
     const TauJet* tau = static_cast<const TauJet*>(obj);
     const Jet* jet = *tau->jetLink();
     for(size_t iTrk=0; iTrk<tau->nTracks(); ++iTrk) {
       const TrackParticle* tautrk = tau->track(iTrk);
-      if(acceptTrack(tautrk,pv) && isGoodEoverP(tautrk,tcCont)) {
+      if(acceptTrack(tautrk,pv) && isGoodEoverP(tautrk,tcCont,pv,trkCont)) {
 	//if(acceptTrack(tautrk,pv)) {
 	// bool matchedmu = false;
 	// for(const auto& mutrk : mutracks) {
@@ -143,7 +144,7 @@ namespace met {
     for(size_t iTrk=0; iTrk<tau->nOtherTracks(); ++iTrk) {
       const TrackParticle* tautrk = tau->otherTrack(iTrk);
       double dR = jet->p4().DeltaR(tautrk->p4());
-      if(dR<0.2 && acceptTrack(tautrk,pv) && isGoodEoverP(tautrk,tcCont)) {
+      if(dR<0.2 && acceptTrack(tautrk,pv) && isGoodEoverP(tautrk,tcCont,pv,trkCont)) {
 	//if(dR<0.2 && acceptTrack(tautrk,pv)) {
 	// bool matchedmu = false;
 	// for(const auto& mutrk : mutracks) {
@@ -177,15 +178,16 @@ namespace met {
 	match = true;
 	}
       } else if(pv) {
+	const TrackParticle* pfotrk = pfo->track(0);
 	for(size_t iTrk=0; iTrk<tau->nTracks(); ++iTrk) {
 	  const TrackParticle* tautrk = tau->track(iTrk);
-	  if(tautrk==pfo->track(0)) {
+	  if(tautrk==pfotrk) {
 	    if(acceptChargedPFO(tautrk,pv)) match = true; 
 	  }
 	}
 	for(size_t iTrk=0; iTrk<tau->nOtherTracks(); ++iTrk) {
 	  const TrackParticle* tautrk = tau->otherTrack(iTrk);
-	  if(tautrk==pfo->track(0)) {
+	  if(tautrk==pfotrk) {
 	    double dR = seedjet->p4().DeltaR(tautrk->p4());
 	    if(dR<0.2 && acceptChargedPFO(tautrk,pv)) match = true;
 	  }

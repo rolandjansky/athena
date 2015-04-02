@@ -115,8 +115,6 @@ namespace met {
     trkCont=0;
     ATH_CHECK( evtStore()->retrieve(trkCont, m_trkcoll) );
 
-    filterTracks(trkCont,pv);
-
     if(m_pflow) {
       pfoCont = 0;
       if( evtStore()->contains<xAOD::PFOContainer>("EtmissParticleFlowObjects") ) {
@@ -175,19 +173,11 @@ namespace met {
         MissingETComposition::insert(metMap,obj,constlist,momentumOverride);
       } else {
         ATH_CHECK( this->extractTopoClusters(obj,constlist,tcCont) );
-        if(pv) { ATH_CHECK( this->extractTracks(obj,constlist,tcCont,pv) ); }
+        if(pv) { ATH_CHECK( this->extractTracks(obj,constlist,tcCont,trkCont,pv) ); }
         MissingETComposition::insert(metMap,obj,constlist);
       }
     }
     return StatusCode::SUCCESS;
-  }
-  
-  void METAssociator::filterTracks(const xAOD::TrackParticleContainer* tracks,
-				   const xAOD::Vertex* pv) {
-    for(const auto& trk : *tracks) {
-      m_goodtracks.clear();
-      if(acceptTrack(trk,pv)) m_goodtracks.push_back(trk);
-    }
   }
   
   // Accept Track
@@ -206,7 +196,7 @@ namespace met {
   }
 
 
-  bool METAssociator::isGoodEoverP(const xAOD::TrackParticle* trk,const xAOD::CaloClusterContainer*& tcCont) const
+  bool METAssociator::isGoodEoverP(const xAOD::TrackParticle* trk,const xAOD::CaloClusterContainer*& tcCont,const xAOD::Vertex*& pv,const xAOD::TrackParticleContainer*& trkCont) const
   {
 
     if( (fabs(trk->eta())<1.5 && trk->pt()>200e3) ||
@@ -218,8 +208,8 @@ namespace met {
 
       // first compute track and calo isolation variables
       float ptcone20 = 0;
-      for(const auto& testtrk : m_goodtracks) {
-	if(testtrk==trk) continue;
+      for(const auto& testtrk : *trkCont) {
+	if(testtrk==trk || !acceptTrack(testtrk,pv)) continue;
 	if(testtrk->p4().DeltaR(trk->p4()) < 0.2) {
 	  ptcone20 += testtrk->pt();
 	}
