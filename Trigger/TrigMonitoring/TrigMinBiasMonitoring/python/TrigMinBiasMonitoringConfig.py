@@ -36,6 +36,7 @@ def TrigMinBiasMonitoringTool():
 		
         NOALG, MBTS, LUCID, IDMINBIAS, ZDC, BCM, HMT, ALL = 0, 1, 2, 4, 8, 16, 32, 63
         NOCUT, LOOSE, LOOSEPRIMARY, TIGHTPRIMARY = 0, 1, 2, 3
+        PHYSICS, L1_ISPASSEDBEFOREPRESCALE = 0, 1
 		
 		#!---CRITICAL---
 		
@@ -56,11 +57,11 @@ def TrigMinBiasMonitoringTool():
 										  
 										  monitoring_minbias = triggersFiltered,
 										  MinBiasRefTrigItem = "mb_sptrk", # "mb_sptrk" should be used
-										  #MinBiasTrigItem = ["noalg_mb_L1MBTS_2", "mb_perf_L1MBTS_2", "mb_mbts_L1MBTS_2", "mb_sptrk", "mb_sptrk_noisesup", "mb_sptrk_costr"],
-                                          MinBiasAvailableAlgorithms = ['mbts', 'sptrk', 'noalg', 'idperf', 	 'perf',       'hmt'], #the order here should matter (?) more specific names before more general eg. 'ideperf' before 'perf'... to think it through...
-                                          MinBiasHistoTargets = 	   [MBTS,      0,     MBTS,       0, 	MBTS + IDMINBIAS, 	HMT],
-                                          MinBiasEffCuts =             [LOOSE,   LOOSE,  LOOSE,     LOOSE, 		LOOSE,       LOOSEPRIMARY],
-										  MinBiasPurCuts = [LOOSE],
+                                          MinBiasAvailableAlgorithms = ['mbts', 	  'sptrk', 		'noalg', 			'hmtperf', 		'idperf', 	 	'perf',       'hmt'], #the order here should matter (?) more specific names before more general eg. 'ideperf' before 'perf'... to think it through...
+                                          MinBiasHistoTargets = 	   [MBTS,      	  IDMINBIAS,     MBTS, 					HMT,       		0, 		MBTS + IDMINBIAS, 	HMT],
+                                          MinBiasEffCuts =             [LOOSEPRIMARY, LOOSEPRIMARY,  LOOSEPRIMARY,  	LOOSEPRIMARY,  LOOSEPRIMARY, LOOSEPRIMARY, LOOSEPRIMARY],
+										  MinBiasPurCuts = 			   [LOOSEPRIMARY],
+										  IsPassedCondtitions = 	   [PHYSICS, 	  PHYSICS, L1_ISPASSEDBEFOREPRESCALE,  PHYSICS,  	PHYSICS, 		PHYSICS, 	  PHYSICS],
 										  
                                           MBTS_countsSideA = 16,
                                           MBTS_countsSideC = 16

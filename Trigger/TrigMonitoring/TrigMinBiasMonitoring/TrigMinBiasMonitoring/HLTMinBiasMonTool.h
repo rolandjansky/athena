@@ -105,6 +105,7 @@ private:
 	void fillEfficiencyForItem(const std::string &item, unsigned goodTracks, bool isPassed);
 	
 	void initSelTools(std::vector< ToolHandle< InDet::IInDetTrackSelectionTool > > &selTool, const std::vector<unsigned> &cuts);
+	unsigned receiveIsPassedCondition(unsigned internalIsPassedCondition);
 	
 	StatusCode fillHLTMbtsInfo();
 	StatusCode fillMbtsInfo(const std::string &item);
@@ -135,10 +136,12 @@ private:
 	std::map< std::string, unsigned > m_algorithmsForChainClass;
 	std::map< std::string, unsigned > m_effCutForChainClass;
 	std::map< std::string, unsigned > m_numGoodTracksPerCutType;
+	std::map< std::string, unsigned > m_isPassedCondtitionForChainClass;
 	
 	struct chainMapping{
 		unsigned histoGroup;
 		unsigned effCutIdx;
+		unsigned isPassedCondition;
 	};
 	std::map< std::string, chainMapping > m_chainProperties;
 	
@@ -224,6 +227,7 @@ private:
 	std::string m_inDetTrackParticleContainerName;
 	std::vector<unsigned> m_effCuts;
 	std::vector<unsigned> m_purCuts;
+	std::vector<unsigned> m_isPassedCondtitions;
 	
 	std::string m_refTrigItem;
 };
