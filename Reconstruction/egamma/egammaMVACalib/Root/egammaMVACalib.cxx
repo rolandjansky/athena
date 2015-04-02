@@ -452,7 +452,11 @@ void egammaMVACalib::setupBDT(const TString& fileName)
     trees = CxxUtils::make_unique<TObjArray>();
     trees->SetOwner(); // to delete the objects when d-tor is called
     for (int i = 0; i < variables->GetEntries(); ++i)
-      trees->AddAtAndExpand(f->Get(Form("BDT%d", i)), i);
+    {
+      TTree *tree = dynamic_cast<TTree*>(f->Get(Form("BDT%d", i)));
+      if (tree) tree->SetCacheSize(0);
+      trees->AddAtAndExpand(tree, i);
+    }
   }
 
   // Ensure the objects have (the same number of) entries
@@ -771,6 +775,7 @@ TTree* egammaMVACalib::createInternalTree(egammaType egamma_type, TTree *tree)
   if (m_debug) ATH_MSG_DEBUG("Creating internal tree");
   TTree* new_tree = new TTree();
   new_tree->SetDirectory(0);
+  new_tree->SetCacheSize(0);
   new_tree->Branch(fMethodName.Data(), &m_mvaOutput, Form("%s/F", fMethodName.Data()));
   if (tree) {
     m_useInternalTree = false;

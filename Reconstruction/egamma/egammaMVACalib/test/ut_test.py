@@ -37,10 +37,10 @@ class TestEgammaMVACalib(unittest.TestCase):
     def setUpClass(cls):
         cls.photon_tool_v1 = ROOT.egammaMVACalib(ROOT.egammaMVACalib.egPHOTON, True, "egammaMVACalib/v1")
         cls.electron_tool_v1 = ROOT.egammaMVACalib(ROOT.egammaMVACalib.egELECTRON, True, "egammaMVACalib/v1")
-        cls.photon_tool_v3 = ROOT.egammaMVACalib(ROOT.egammaMVACalib.egPHOTON, True, "/home/turra/v3_tmp")
-        cls.electron_tool_v3 = ROOT.egammaMVACalib(ROOT.egammaMVACalib.egELECTRON, True, "/home/turra/v3_tmp")
-        cls.photon_tool_v3_online = ROOT.egammaMVACalib(ROOT.egammaMVACalib.egPHOTON, True, "/home/turra/v3_tmp/trigger")
-        cls.electron_tool_v3_online = ROOT.egammaMVACalib(ROOT.egammaMVACalib.egELECTRON, True, "/home/turra/v3_tmp/trigger")
+        cls.photon_tool_v3 = ROOT.egammaMVACalib(ROOT.egammaMVACalib.egPHOTON, True, "egammaMVACalib/offline/v3")
+        cls.electron_tool_v3 = ROOT.egammaMVACalib(ROOT.egammaMVACalib.egELECTRON, True, "egammaMVACalib/offline/v3")
+        cls.photon_tool_v3_online = ROOT.egammaMVACalib(ROOT.egammaMVACalib.egPHOTON, True, "egammaMVACalib/online/v3")
+        cls.electron_tool_v3_online = ROOT.egammaMVACalib(ROOT.egammaMVACalib.egELECTRON, True, "egammaMVACalib/online/v3")
 
         cls.tools = (cls.photon_tool_v1, cls.electron_tool_v1,
                      cls.photon_tool_v3, cls.electron_tool_v3,
@@ -175,34 +175,56 @@ class TestEgammaMVACalib(unittest.TestCase):
                           2, 10, 0, 10, rconv)
                 mva_energy_v1 = self.photon_tool_v1.getMVAEnergyPhoton(*inputs)
                 mva_energy_v3 = self.photon_tool_v3.getMVAEnergyPhoton(*inputs)
+                mva_energy_v3_trigger = self.photon_tool_v3_online.getMVAEnergyPhoton(*inputs)
                 is_crack = 1.370001 < abs(eta) < 1.5199999
-                is_forward = abs(eta) > 2.4700001
+                is_forward = abs(eta) > 2.4700001 and abs(eta) < 2.5000001
+                is_out = abs(eta) >= 2.5000001
                 if is_crack:
                     self.assertEqual(mva_energy_v1, 0)
                     self.assertGreater(mva_energy_v3, 0)
+                    if rconv == 0:
+                        self.assertGreater(mva_energy_v3_trigger, 0)
                 elif is_forward:
                     self.assertEqual(mva_energy_v1, 0)
+                    self.assertGreater(mva_energy_v3, 0)
+                    if rconv == 0:
+                        self.assertGreater(mva_energy_v3_trigger, 0)
+                elif is_out:
+                    self.assertEqual(mva_energy_v1, 0)
                     self.assertEqual(mva_energy_v3, 0)
+                    if rconv == 0:
+                        self.assertEqual(mva_energy_v3_trigger, 0)
                 else:
                     self.assertGreater(mva_energy_v1, 0)
                     self.assertGreater(mva_energy_v3, 0)
+                    if rconv == 0:
+                        self.assertGreater(mva_energy_v3_trigger, 0)
 
         for eta in arange(-3, 3, 0.01):
             inputs = (2943.845703125, 20473.12109375, 22390.435546875, 275.47125244140625,
                       eta, 48970.80859375, eta, 2.843465566635132)
             mva_energy_v1 = self.electron_tool_v1.getMVAEnergyElectron(*inputs)
             mva_energy_v3 = self.electron_tool_v3.getMVAEnergyElectron(*inputs)
+            mva_energy_v3_trigger = self.electron_tool_v3_online.getMVAEnergyElectron(*inputs)
             is_crack = 1.370001 < abs(eta) < 1.5199999
-            is_forward = abs(eta) > 2.4700001
+            is_forward = abs(eta) > 2.4700001 and abs(eta) < 2.5000001
+            is_out = abs(eta) >= 2.5000001
             if is_crack:
                 self.assertEqual(mva_energy_v1, 0)
                 self.assertGreater(mva_energy_v3, 0)
+                self.assertGreater(mva_energy_v3_trigger, 0)
             elif is_forward:
                 self.assertEqual(mva_energy_v1, 0)
+                self.assertGreater(mva_energy_v3, 0)
+                self.assertGreater(mva_energy_v3_trigger, 0)
+            elif is_out:
+                self.assertEqual(mva_energy_v1, 0)
                 self.assertEqual(mva_energy_v3, 0)
+                self.assertEqual(mva_energy_v3_trigger, 0)
             else:
                 self.assertGreater(mva_energy_v1, 0)
                 self.assertGreater(mva_energy_v3, 0)
+                self.assertGreater(mva_energy_v3_trigger, 0)
 
         for tool in self.tools:
             tool.useClusterIf0(True)
@@ -218,10 +240,11 @@ class TestEgammaMVATool(unittest.TestCase):
         """ using a filename where the egamma.e() is already computed
         v1 MVA calibration
         """
-        filename = '~/AOD.01614626._000399.pool.root.9'
-        filename = '~/user.blenzi.4956574.EXT0._000001.AOD.pool.root'
+        filename = 'root://eosatlas.cern.ch//eos/atlas/user/t/turra/user.blenzi.4956574.EXT0._000001.AOD.pool.root'
         if (not ROOT.xAOD.Init().isSuccess()):
             print "Failed xAOD.Init()"
+        if not f:
+            print "ERROR: problem opening eos file"
         treeName = "CollectionTree"
 
         f = ROOT.TFile.Open(filename)
@@ -262,25 +285,18 @@ class TestEgammaMVATool(unittest.TestCase):
 class TestEgammaMVATrigger(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        filename = '~/AOD.01614626._000399.pool.root.9'
+        filename = 'root://eosatlas.cern.ch//eos/atlas/user/t/turra/user.blenzi.4956574.EXT0._000001.AOD.pool.root'
         if (not ROOT.xAOD.Init().isSuccess()):
             print "Failed xAOD.Init()"
         treeName = "CollectionTree"
 
         f = ROOT.TFile.Open(filename)
+        if not f:
+            print "ERROR: problem opening eos file"
         cls.tree = ROOT.xAOD.MakeTransientTree(f, treeName)
 
-#  bug: https://its.cern.ch/jira/browse/ATLASG-52
-#        import tempfile
-#        dirpath = tempfile.mkdtemp()
-#        import shutil
-#        from PathResolver import PathResolver
-#        src = PathResolver.FindCalibFile("egammaMVACalib/v1" + "/MVACalib_unconvertedPhoton.weights.root")
-#        shutil.copyfile(src, dirpath)
-#        print dirpath
-
         cls.xAOD_tool = ROOT.egammaMVATool("egammaMVATool")
-        cls.xAOD_tool.setProperty("folder", "~/trigger_weights")
+        cls.xAOD_tool.setProperty("folder", "egammaMVACalib/v1")
         cls.xAOD_tool.initialize()
 
     def testElectron(self):
