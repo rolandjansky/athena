@@ -22,6 +22,7 @@
 #pragma link C++ class std::vector<egammaMVACalibNmsp::Node*>+;
 #pragma link C++ class egammaMVATool;
 
+
 #pragma link C++ enum egammaMVACalib::ParticleType+;
 #pragma link C++ enum egammaMVACalib::CalibrationType+;
 

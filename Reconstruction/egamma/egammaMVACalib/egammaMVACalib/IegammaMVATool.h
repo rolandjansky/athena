@@ -29,7 +29,7 @@ public:
   virtual StatusCode finalize() = 0;
  /** @brief execute method*/
   virtual StatusCode execute(xAOD::CaloCluster* cluster,const xAOD::Egamma* eg)=0;
-  virtual StatusCode hltexecute(xAOD::CaloCluster* cluster,std::string egType)=0;
+  virtual StatusCode hltexecute(xAOD::CaloCluster* cluster, const std::string& egType)=0;
 };
 
 #endif
