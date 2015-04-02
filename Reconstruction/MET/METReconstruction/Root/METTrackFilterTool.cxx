@@ -265,7 +265,7 @@ namespace met {
 
 	  ATH_MSG_VERBOSE("Number of tracks associated to vertex " << vx->index() << ": "<< (trktovxmap[vx]).size());
 	  
-	  ATH_CHECK( buildTrackMET(metMap,metTerm,vx,selElectrons,selMuons,trktovxmap[vx]) );
+	  ATH_CHECK( buildTrackMET(metMap,met_vx,vx,selElectrons,selMuons,trktovxmap[vx]) );
 	  firstVx = false;
 	}
       }

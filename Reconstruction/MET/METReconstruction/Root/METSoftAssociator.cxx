@@ -14,6 +14,7 @@
 
 // METReconstruction includes
 #include "METReconstruction/METSoftAssociator.h"
+#include "xAODCaloEvent/CaloClusterChangeSignalState.h"
 
 namespace met {
 
@@ -66,7 +67,7 @@ namespace met {
 
     // Add MET terms to the container
     // Always do this in order that the terms exist even if the method fails
-    MissingET* metCoreCl = new MissingET(0.,0.,0.,"SoftClusCore",MissingETBase::Source::softEvent() | MissingETBase::Source::cluster());
+    MissingET* metCoreCl = new MissingET(0.,0.,0.,"SoftClusCore",MissingETBase::Source::softEvent() | MissingETBase::Source::clusterLC());
     metCont->push_back(metCoreCl);
     MissingET* metCoreTrk = new MissingET(0.,0.,0.,"PVSoftTrkCore",MissingETBase::Source::softEvent() | MissingETBase::Source::track());
     metCont->push_back(metCoreTrk);
@@ -97,9 +98,22 @@ namespace met {
       }
       delete uniquePFOs;
     } else {
+      MissingET* metCoreEMCl = new MissingET(0.,0.,0.,"SoftClusEMCore",MissingETBase::Source::softEvent() | MissingETBase::Source::clusterEM());
+      metCont->push_back(metCoreEMCl);
       const IParticleContainer* uniqueClusters = metMap->getUniqueSignals(tcCont);
       for(const auto& cl : *uniqueClusters) {
-	if (cl->e()>0) *metCoreCl += cl;
+	if (cl->e()>0) {
+	  // clusters at LC scale
+	  {
+	    CaloClusterChangeSignalState statehelperLC(static_cast<const CaloCluster*>(cl),xAOD::CaloCluster::CALIBRATED);
+	    *metCoreCl += cl;
+	  }
+	  // clusters at EM scale
+	  {
+	    CaloClusterChangeSignalState statehelperEM(static_cast<const CaloCluster*>(cl),xAOD::CaloCluster::UNCALIBRATED);
+	    *metCoreEMCl += cl;
+	  }
+	}
       }
       const IParticleContainer* uniqueTracks = metMap->getUniqueSignals(trkCont);
       if(pv) {
