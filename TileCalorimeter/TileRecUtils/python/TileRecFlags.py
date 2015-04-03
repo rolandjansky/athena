@@ -57,14 +57,6 @@ class doTileOpt2(JobProperty):
     StoredValue  = False
 
 #
-class doTileQIE(JobProperty):
-    """ Use QIE algorith for energy reconstruction
-    """
-    statusOn     = True
-    allowedTypes = ['bool']
-    StoredValue  = False
-
-#
 class doTileOF1(JobProperty):
     """ Use Optimal Filtering (version 1) for energy reconstruction, using pedestals from the conditions DB
     """
@@ -113,15 +105,6 @@ class TileRawChannelContainer(JobProperty):
     StoredValue  = 'TileRawChannelCnt'
 
 #
-class TileDigitsContainer(JobProperty):
-    """ name of the container which will be used by TileRawChannelMaker
-    """
-    statusOn     = True
-    allowedTypes = ['str']
-    StoredValue  = 'TileDigitsCnt'
-
-
-#
 class TileRunType(JobProperty):
     """ declare type of all events in a run (0=unknown, 1=physics, 2=laser, 4=ped, 8=cis)
     """
@@ -144,14 +127,6 @@ class correctTime(JobProperty):
     statusOn     = True
     allowedTypes = ['bool']
     StoredValue  = False
-
-#
-class correctTimeNI(JobProperty):
-    """ apply time correction in Optimal filter without iterations
-    """
-    statusOn     = True
-    allowedTypes = ['bool']
-    StoredValue  = True
 
 #
 class correctAmplitude(JobProperty):
@@ -224,24 +199,6 @@ class simulateTrips(JobProperty):
     allowedTypes = ['bool']
     StoredValue  = False    
 
-
-class zeroAmplitudeWithoutDigits(JobProperty):
-    """ zero amplitude in Tile raw channel container from DSP reconstructed with OF1 method
-        if amplitude is above threshold but there are no corresponding digits 
-        available in Tile digits container
-    """
-    statusOn     = True
-    allowedTypes = ['bool']
-    StoredValue  = True
-
-class correctPedestalDifference(JobProperty):
-    """ correct amplitude in Tile raw channel container from DSP reconstructed with OF1 method
-        if there is online pedestal difference 
-    """
-    statusOn     = True
-    allowedTypes = ['bool']
-    StoredValue  = True    
-
                     
 # Defines the container for the performance monitoring flags  
 class TileRecFlags(JobPropertyContainer):
@@ -262,17 +219,14 @@ list_jobproperties = [
     doTileOpt,
     doTileOF1,
     doTileOpt2,
-    doTileQIE,
     doTileManyAmps,
     doTileMF,
     doTileOptATLAS,
     TileRawChannelContainer,
-    TileDigitsContainer,
     TileRunType,
     noiseFilter,
     calibrateEnergy,
     correctTime,
-    correctTimeNI,
     correctAmplitude,
     AmpMinForAmpCorrection,
     TimeMinForAmpCorrection,
@@ -281,9 +235,7 @@ list_jobproperties = [
     BestPhaseFromCOOL,
     readDigits,
     doTileOverflowFit,
-    simulateTrips,
-    zeroAmplitudeWithoutDigits,
-    correctPedestalDifference
+    simulateTrips
     ]
 
 for i in list_jobproperties:

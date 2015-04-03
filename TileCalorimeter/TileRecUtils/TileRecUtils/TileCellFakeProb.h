@@ -37,13 +37,13 @@ class TileCellFakeProb: public AthAlgTool, virtual public ICellWeightTool {
         const IInterface* parent);
 
     /*! Standard destructor */
-    virtual ~TileCellFakeProb();
+    ~TileCellFakeProb();
 
     /*! AlgTool Initialization */
-    virtual StatusCode initialize() override;
+    virtual StatusCode initialize();
 
     /*! implementation of ICellWeightTool weighting method */
-    virtual double wtCell(const CaloCell* theCell) const override;
+    virtual double wtCell(const CaloCell* theCell);
 
   private:
     /*! Reads in properties and creates list of miscalibrated cells */

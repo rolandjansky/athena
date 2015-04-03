@@ -9,12 +9,14 @@
 
 // Tile includes
 #include "TileIdentifier/TileHWID.h"
+#define private public
 #include "TileEvent/TileRawChannel.h"
+#undef private
 #include "TileEvent/TileRawChannelContainer.h"
 #include "TileCalibBlobObjs/TileCalibUtils.h"
 #include "TileRecUtils/TileRawChannelNoiseFilter.h"
 #include "TileConditions/ITileBadChanTool.h"
-//#include "TileConditions/TileCondToolEmscale.h"
+#include "TileConditions/TileCondToolEmscale.h"
 #include "TileConditions/TileCondToolNoiseSample.h"
 #include "TileRecUtils/TileBeamInfoProvider.h"
 
@@ -174,7 +176,7 @@ StatusCode TileRawChannelNoiseFilter::process(const TileRawChannelContainer *rch
     TileRawChannelCollection::iterator lastRch = coll->end();
 
     for (; rchItr != lastRch; ++rchItr) {
-      const TileRawChannel* rch = (*rchItr);
+      TileRawChannel* rch = (*rchItr);
 
       HWIdentifier adc_id = rch->adc_HWID();
       //int index,pmt;
@@ -317,11 +319,9 @@ StatusCode TileRawChannelNoiseFilter::process(const TileRawChannelContainer *rch
         // correct amplitude directly in channel
         // (will change this to set() method once it is available in TileRawChannel)
         int mob = chan/maxChannel;
-        if (undoOnlCalib)
-          rch->setAmplitude (rch->amplitude() - commonmode[mob] / calib[chan]);
-        else
-          rch->setAmplitude (rch->amplitude() - commonmode[mob]);
-        rch->setPedestal (rch->pedestal() + commonmode[mob]);
+        if (undoOnlCalib) rch->m_amplitude[0] -= commonmode[mob] / calib[chan];
+        else rch->m_amplitude[0] -= commonmode[mob];
+        rch->m_pedestal += commonmode[mob];
       }
     }
   }

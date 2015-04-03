@@ -21,104 +21,104 @@
 
 // Constructors
 TileFitter::TileFitter()
-  : m_iConstraint(0)
-  , m_cAmp()
-  , m_pedConst(0.0)
-  , m_sigPedF2(0.0)
-  , m_sigPileF2(0.0)
-  , m_nSamples(0)
-  , m_nParameters(0)
-  , m_iConfig(0)
-  , m_vConfig()
-  , m_SPD()
-  , m_MISPD()
-  , m_errDiag()
+  : Iconstraint(0)
+  , Camp()
+  , Ped_const(0.0)
+  , F2_sigPed(0.0)
+  , F2_sigPile(0.0)
+  , ND(0)
+  , NP(0)
+  , iconfig(0)
+  , vconfig()
+  , SPD()
+  , MISPD()
+  , ErrDiag()
 {
 }
 
-TileFitter::TileFitter(bool debug, int nrow, int ncol, int index, CLHEP::HepMatrix& S, int Icon)
-  : m_iConstraint(0)
-  , m_cAmp()
-  , m_pedConst(0.0)
-  , m_sigPedF2(0.0)
-  , m_sigPileF2(0.0)
-  , m_nSamples(0)
-  , m_nParameters(0)
-  , m_iConfig(0)
-  , m_vConfig()
-  , m_SPD()
-  , m_MISPD()
-  , m_errDiag()
+TileFitter::TileFitter(bool debug, int nrow, int ncol, int index, HepMatrix& S, int Icon)
+  : Iconstraint(0)
+  , Camp()
+  , Ped_const(0.0)
+  , F2_sigPed(0.0)
+  , F2_sigPile(0.0)
+  , ND(0)
+  , NP(0)
+  , iconfig(0)
+  , vconfig()
+  , SPD()
+  , MISPD()
+  , ErrDiag()
 {
 
   // Set P_const.
-  m_iConstraint = Icon;
-  m_nParameters = nrow;
-  m_nSamples = ncol;
-  m_iConfig = index;
+  Iconstraint = Icon;
+  NP = nrow;
+  ND = ncol;
+  iconfig = index;
 
   //  if(nrow>ncol) debug=true;
-  m_pedConst = 50.0;
-  m_sigPedF2 = std::pow(1.6 / 10., 2);
-  m_sigPileF2 = std::pow(1.6 / 50., 2);
+  Ped_const = 50.0;
+  F2_sigPed  = pow(1.6/10.,2.);
+  F2_sigPile = pow(1.6/50.,2.);
 
   //  std::cout << "TileFitter constructor called for NP=" << NP << ", iconfig=" << iconfig << std::endl;
-  m_SPD = S;
+  SPD = S;
 
   //Calculate the matrices needed for fitting.  Save SPD and MISPD.
-  CLHEP::HepMatrix SPDT = m_SPD.T();
-  CLHEP::HepMatrix M = m_SPD * SPDT;
+  HepMatrix SPDT = SPD.T();
+  HepMatrix M    = SPD*SPDT;
 
   // Add constraint terms to chisquare if Iconstraint>0.
-  if (m_iConstraint > 0) {
-    if (debug) {
-      std::cout << " add f*p:  F2_sigPed=" << m_sigPedF2 << ", Ped_const=" << m_pedConst << ", F2_sigPile="
-          << m_sigPileF2 << std::endl;
+  if(Iconstraint>0) {
+    if(debug) {
+      std::cout << " add f*p:  F2_sigPed=" << F2_sigPed << ", Ped_const=" << Ped_const 
+	   << ", F2_sigPile=" << F2_sigPile << std::endl;
     }
-    M[0][0] = M[0][0] + m_sigPedF2;
-    if (m_iConstraint > 1) {
-      for (int i = 2; i < m_nParameters; i++) {
-        M[i][i] = M[i][i] + m_sigPileF2;
+    M[0][0] = M[0][0] + F2_sigPed;
+    if(Iconstraint>1) {
+      for(int i=2; i<NP; i++) {
+	M[i][i] = M[i][i] + F2_sigPile;
       }
     }
   }
 
   int err;
-  CLHEP::HepMatrix MI = M.inverse(err);
-  m_MISPD = MI * m_SPD;
+  HepMatrix MI   = M.inverse(err);
+  MISPD = MI*SPD;
 
-  if (m_iConstraint > 0) {
-    CLHEP::HepVector temp(m_nParameters);
-    for (int i = 0; i < 10; i++) {
-      temp[i] = MI[0][i];
+  if(Iconstraint>0) {
+    HepVector temp(NP);
+    for(int i=0; i<10; i++) {
+      temp[i]=MI[0][i];
     }
-    m_cAmp = m_pedConst * m_sigPedF2 * temp;
-    if (debug) {
+    Camp = Ped_const*F2_sigPed*temp;
+    if(debug) {
       std::cout << " Camp: ";
-      printVec(m_cAmp);
+      PrintVec(Camp);
     }
   }
 
-  for (int i = 0; i < m_nParameters; i++) {
+  for(int i=0; i<NP; i++) {
     double err = sqrt(MI[i][i]);
-    m_errDiag.push_back(err);
+    ErrDiag.push_back(err);
   }
 
-  if (debug) {
+  if(debug) { 
     std::cout << " SPD: ";
-    printMat(m_SPD);
+    PrintMat(SPD);
     std::cout << " SPDT: ";
-    printMat(SPDT);
-    CLHEP::HepMatrix Ident = M * MI;
+    PrintMat(SPDT);
+    HepMatrix Ident = M*MI;
     std::cout << " M*MI:  ";
-    printMat(Ident);
+    PrintMat(Ident);
     std::cout << " MISPD: ";
-    printMat(m_MISPD);
+    PrintMat(MISPD);
     std::cout << " errDiag=";
-    for (int i = 0; i < m_nParameters; i++) {
-      std::cout << m_errDiag[i] << " ";
+    for(int i=0; i<NP; i++) {
+      std::cout  << ErrDiag[i] << " ";
     }
-    std::cout << std::endl;
+  std::cout << std::endl;
   }
 }
 // ============================================================================== 
@@ -128,54 +128,54 @@ TileFitter::~TileFitter() {
   return;
 }
 // ============================================================================== 
-int TileFitter::fitAmp(TileFilterResult &tResult, bool lDebug) {
+int TileFitter::FitAmp(TileFilterResult &tResult, bool lDebug) {
   int iret = -1;
   bool debugFitAmp = lDebug;
   // Get reference to variables which will store results.
   double sigDig = tResult.getSigDig();
-  CLHEP::HepVector& digits = tResult.getDigRef();
+  HepVector& digits = tResult.getDigRef();
   // int nrow = digits.num_row();
-  CLHEP::HepVector& Amp = tResult.getParamRef();
-  CLHEP::HepVector& Err = tResult.getErrRef();
-  CLHEP::HepVector& residuals = tResult.getResidRef();
-  double& chisq = tResult.getChi2Ref();
-  if (debugFitAmp) {
-    std::cout << " Enter FitAmp. NP=" << m_nParameters << ", ND=" << m_nSamples << std::endl;
+  HepVector& Amp = tResult.getParamRef();
+  HepVector& Err = tResult.getErrRef();
+  HepVector& residuals = tResult.getResidRef();
+  double& chisq = tResult.getChisqRef();
+  if(debugFitAmp) {
+    std::cout << " Enter FitAmp. NP=" << NP << ", ND=" << ND << std::endl;
     std::cout << " In FitAmp:  MISPD=" << std::endl;
-    printMat(m_MISPD);
+    PrintMat(MISPD);
   }
 
   // Multiply MISPD into digits to get fitted parameters. 
 
-  Amp = m_MISPD * digits;
-  if (m_iConstraint > 0) Amp = Amp + m_cAmp;
+  Amp = MISPD*digits;
+  if(Iconstraint>0) Amp = Amp + Camp;
 
   // Right-multiply Fit into SPD to get predicted digits.
-  CLHEP::HepVector predict(m_nSamples);
-  predict = m_SPD.T() * Amp;
+  HepVector predict(ND);
+  predict = SPD.T()*Amp;
 
   // Subtract digits from predict to get residuals, sum to get chisq*sig.
   residuals = digits - predict;
-  chisq = residuals.normsq() / (sigDig * sigDig);
-  if (m_iConstraint > 0) chisq += std::pow(Amp[0] - m_pedConst, 2) * m_sigPedF2;
-  if (m_iConstraint > 1) {
-    for (int iamp = 2; iamp < m_nParameters; iamp++) {
-      chisq = chisq + Amp[iamp] * Amp[iamp] * m_sigPileF2;
+  chisq = residuals.normsq()/(sigDig*sigDig);
+  if(Iconstraint>0) chisq += pow(Amp[0]-Ped_const,2.)*F2_sigPed;
+  if(Iconstraint>1) {
+    for(int iamp=2; iamp<NP; iamp++) {
+      chisq = chisq + Amp[iamp]*Amp[iamp]*F2_sigPile;
     }
   }
 
   // Get error on each parameter from ErrDiag.
-  CLHEP::HepVector newErr(m_nParameters);
-  for (int ip = 0; ip < m_nParameters; ip++) {
-    newErr[ip] = sigDig * m_errDiag[ip];
+  HepVector newErr(NP);
+  for(int ip=0; ip<NP; ip++) {
+    newErr[ip]=sigDig*ErrDiag[ip];
   }
   Err = newErr;
 
-  if (debugFitAmp) {
+  if(debugFitAmp) {
     std::cout << " predict: ";
-    printVec(predict);
+    PrintVec(predict);
     std::cout << " residuals: ";
-    printVec(residuals);
+    PrintVec(residuals);
     //Check chisq.
     //    double dig2 = digits.normsq();
     //    double chisq2 = dig2 - dot(M*Amp,Amp);
@@ -187,34 +187,34 @@ int TileFitter::fitAmp(TileFilterResult &tResult, bool lDebug) {
 
 // ============================================================================== 
 int TileFitter::getIndex() {
-  return m_iConfig;
+  return iconfig;
 }
 // ============================================================================== 
-std::vector<double>& TileFitter::getErr() {
-  return m_errDiag;
+std::vector<double>& TileFitter::getErrRef() {
+  return ErrDiag;
 }
 // ============================================================================== 
-void TileFitter::printMat(CLHEP::HepMatrix &mat) {
-  boost::io::ios_base_all_saver coutsave(std::cout);
+void TileFitter::PrintMat(HepMatrix &mat) {
+  boost::io::ios_base_all_saver coutsave (std::cout);
   int nrow = mat.num_row();
   int ncol = mat.num_col();
   std::cout << "  nrow=" << nrow << ", ncol=" << ncol << std::endl;
   std::streamsize oldprec = std::cout.precision(4);
-  for (int irow = 0; irow < nrow; irow++) {
+  for (int irow=0; irow<nrow; irow++) {
     std::cout << " irow=" << irow << ": Mat=";
-    for (int icol = 0; icol < ncol; icol++) {
-      std::cout << std::setw(7) /* << std::setprecision(4) */<< mat[irow][icol];
+    for (int icol=0; icol<ncol; icol++) {
+      std::cout << std::setw(7) /* << std::setprecision(4) */ << mat[irow][icol];
     }
     std::cout << std::endl;
   }
   std::cout.precision(oldprec);
 }
 // ============================================================================== 
-void TileFitter::printVec(CLHEP::HepVector &vec) {
+void TileFitter::PrintVec(HepVector &vec) {
   int nr = vec.num_row();
   int nc = vec.num_col();
   std::cout << " nr=" << nr << ", nc=" << nc << ",  vec=";
-  for (int i = 0; i < nr; i++) {
+  for(int i=0; i<nr; i++) {
     std::cout << vec[i] << " ";
   }
   std::cout << std::endl;

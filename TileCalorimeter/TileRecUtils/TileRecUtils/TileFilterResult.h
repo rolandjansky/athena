@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TILERECUTILS_TILEFILTERRESULT_H
-#define TILERECUTILS_TILEFILTERRESULT_H
+#ifndef TILERECALGS_TILEFILTERRESULT_H
+#define TILERECALGS_TILEFILTERRESULT_H
 //*********************************************************************************
 // Filename : TileFilterResult.h
 // Authors  : F. Merritt, A. Aurisano
@@ -15,7 +15,7 @@
 #include <CLHEP/Matrix/Vector.h>
 #include <vector>
 
-//using namespace CLHEP;
+using namespace CLHEP;
 /** Auxiliary class for TileRawChannelMakerManyAmps. 
  */
 class TileFilterResult
@@ -29,37 +29,38 @@ class TileFilterResult
   ~TileFilterResult();
 
   double       getSigDig() const;
-  CLHEP::HepVector&   getDigRef();
+  HepVector&   getDigRef();
+  HepVector*   getDigPt();
   std::vector<int>& getVcrossRef();
   int&         getFitIndexRef();
   int&         getNparRef();
-  CLHEP::HepVector&   getParamRef();
-  CLHEP::HepVector&   getErrRef();
-  CLHEP::HepVector&   getResidRef();
-  double&      getChi2Ref();
+  HepVector&   getParamRef();
+  HepVector&   getErrRef();
+  HepVector&   getResidRef();
+  double&      getChisqRef();
   int          addCross(int kcrIndex);
   int          dropCross(int kcrIndex);
-  void         printFitParam();
+  void         PrintFitParam();
   double       getInTime(double &, double &, double &, double &, double &);
-  void         snapShot(int imode);
+  void         SnapShot(int imode);
 
  private:
 
-  bool m_debug;
+  bool debug;
 
-  CLHEP::HepVector m_digits;
-  double m_sigDigit;
+  HepVector digits;
+  double sigDigit;
 
-  int m_nParam;
-  int m_nPileup;
-  int m_iFitIndex;
-  std::vector<int> m_vCross;
+  int Nparam;
+  int Npileup;
+  int iFitIndex;
+  std::vector<int> Vcross;
 
-  CLHEP::HepVector m_fitParam;
-  CLHEP::HepVector m_fitErr;
+  HepVector fitParam;
+  HepVector fitErr;
 
-  CLHEP::HepVector m_residuals;
-  double m_chi2;
+  HepVector residuals;
+  double chisq;
 };
 // **********************************************************************************
-#endif // TILERECUTILS_TILEFILTERRESULT_H
+#endif // TILERECALGS_TILEFILTERRESULT_H
