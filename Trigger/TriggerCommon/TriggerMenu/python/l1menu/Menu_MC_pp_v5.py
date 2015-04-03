@@ -179,7 +179,7 @@ def defineMenu():
         #'MULT-CMU6ab',
         
         #B-jet
-        '0DR04-MU4ab-CJ15ab', '0DR04-MU4ab-CJ30ab', '0DR04-MU6ab-CJ25ab', '0DR04-MU4ab-CJ17ab', '0DR04-MU4ab-CJ20ab',
+        '0DR04-MU4ab-CJ15ab', '0DR04-MU4ab-CJ20ab', '0DR04-MU4ab-CJ30ab', '0DR04-MU6ab-CJ20ab', '0DR04-MU6ab-CJ25ab',
         #B-physics
         '2DR15-2MU4ab', '2INVM999-2MU4ab', '4INVM8-2MU4ab',
         '2DR15-2MU6ab', '2INVM999-2MU6ab', '4INVM8-2MU6ab',
@@ -455,7 +455,9 @@ def defineMenu():
         ### 'L1_JPSI-1M5-EM12s',
 
         # B-jet
-        'L1_BTAG-MU4J15', 'L1_BTAG-MU4J30', 'L1_BTAG-MU6J25', 'L1_BTAG-MU4J17', 'L1_BTAG-MU4J20',
+        'L1_BTAG-MU4J15', 'L1_BTAG-MU4J30', 'L1_BTAG-MU6J20', 'L1_BTAG-MU6J25', 'L1_BTAG-MU4J20',
+        'L1_3J15_BTAG-MU4J15', 'L1_3J15_BTAG-MU4J30', 'L1_3J15_BTAG-MU6J25', 'L1_3J20_BTAG-MU4J20',
+        #'L1_3J20_BTAG-MU4J30', 'L1_3J20_BTAG-MU6J25',
 
         # ZH
         'L1_J40_DPHI-Js2XE50', 'L1_J40_DPHI-J20s2XE50', 'L1_J40_DPHI-J20XE50', 'L1_J40_DPHI-CJ20XE50',

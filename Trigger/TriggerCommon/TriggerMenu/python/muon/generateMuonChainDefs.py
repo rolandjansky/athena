@@ -41,15 +41,15 @@ def GetAllMuonThresholds(chainDict):
     return muons
 
 def generateChainDefs(chainDict):
-    chainParts = chainDict['chainParts']
     
     listOfChainDicts = splitChainDict(chainDict)
-
     listOfChainDefs = []
 
     asymDiMuonChain = False
     if (len(listOfChainDicts) > 1): asymDiMuonChain = True
     else: asymDiMuonChain = False
+
+    modifyNscanInputTE = False
 
     for subChainDict in listOfChainDicts:
         if "IdTest" in subChainDict["chainParts"]["addInfo"]:
@@ -64,6 +64,11 @@ def generateChainDefs(chainDict):
             Muon = L2EFChain_mu(subChainDict, asymDiMuonChain, AllMuons)
 
         listOfChainDefs += [Muon.generateHLTChainDef()]
+        
+        #only needed for nscan
+        if "nscan" in  subChainDict["chainParts"]['FSinfo']:
+            modifyNscanInputTE = True
+
 
     if len(listOfChainDefs)>1:
         if ('mergingStrategy' in chainDict.keys()):        
@@ -73,9 +78,28 @@ def generateChainDefs(chainDict):
     else:
         theChainDef = listOfChainDefs[0]
 
+    # needed for nscan to replace the placeholder TE with the L2TE of the other chain
+    if (modifyNscanInputTE == True):
+        theChainDef = _modifyTEinChainDef(theChainDef,chainDict)
+        
     #if chainDict["topo"]:
     #    theChainDef = _addTopoInfo(theChainDef,chainDict)
 
+    return theChainDef
+
+
+
+def _modifyTEinChainDef(theChainDef,chainDict):
+    maxL2SignatureIndex = -1
+    for signatureIndex,signature in enumerate(theChainDef.signatureList):
+        if signature['listOfTriggerElements'][0][0:2] == "L2":
+            maxL2SignatureIndex = max(maxL2SignatureIndex,signatureIndex)            
+    inputTEsL2 = theChainDef.signatureList[maxL2SignatureIndex]['listOfTriggerElements']    
+
+    for index,item in enumerate(theChainDef.sequenceList):
+        if (item['input'] == ['placeHolderTE']):
+            theChainDef.sequenceList[index]['input']=inputTEsL2
+    
     return theChainDef
 
 

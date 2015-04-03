@@ -828,10 +828,11 @@ class L2EFChain_mu(L2EFChainDef):
 
     cone = ""
     ########### Sequence List ##############
-
+    inputTEfromL2 = "placeHolderTE"
     if "nscan03" in self.chainPart['FSinfo']:
       cone = "_cone03"
-      self.EFsequenceList += [[self.chainPart['L1item'].replace("L1_",""),
+      #      self.EFsequenceList += [[self.chainPart['L1item'].replace("L1_",""),
+      self.EFsequenceList += [[inputTEfromL2,
                                [CfgGetter.getAlgorithm("TrigMuSuperEF_WideCone"),
                                 theTrigMuonEFSA_NS_Hypo],
                                'EF_SA_NS']]
@@ -850,7 +851,8 @@ class L2EFChain_mu(L2EFChainDef):
                                'EF_CB_NS']]
     elif "nscan05" in self.chainPart['FSinfo']:
       cone = "_cone05"
-      self.EFsequenceList += [[self.chainPart['L1item'].replace("L1_",""),
+      #      self.EFsequenceList += [[self.chainPart['L1item'].replace("L1_",""),
+      self.EFsequenceList += [[inputTEfromL2,
                               [CfgGetter.getAlgorithm("TrigMuSuperEF_WideCone05"),
                                theTrigMuonEFSA_NS_Hypo],
                                'EF_SA_NS']]

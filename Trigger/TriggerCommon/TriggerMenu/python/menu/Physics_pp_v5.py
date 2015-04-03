@@ -181,6 +181,12 @@ def setupMenu():
     TriggerFlags.BeamspotSlice.signatures = [
         ['beamspot_allTE_L2StarB_L1TRT',           'L1_TRT', [], [PhysicsStream], ['RATE:BeamSpot',  'BW:BeamSpot'], -1],
         ['beamspot_allTE_trkfast_L1TRT',           'L1_TRT', [], [PhysicsStream], ['RATE:BeamSpot',  'BW:BeamSpot'], -1],
+
+        ['beamspot_allTE_L2StarB_L1TRT_FILLED',           'L1_TRT_FILLED', [], [PhysicsStream], ['RATE:BeamSpot',  'BW:BeamSpot'], -1],
+        ['beamspot_allTE_trkfast_L1TRT_FILLED',           'L1_TRT_FILLED', [], [PhysicsStream], ['RATE:BeamSpot',  'BW:BeamSpot'], -1],
+
+        ['beamspot_allTE_L2StarB_L1TRT_EMPTY',           'L1_TRT_EMPTY', [], [PhysicsStream], ['RATE:BeamSpot',  'BW:BeamSpot'], -1],
+        ['beamspot_allTE_trkfast_L1TRT_EMPTY',           'L1_TRT_EMPTY', [], [PhysicsStream], ['RATE:BeamSpot',  'BW:BeamSpot'], -1],
         ]   
 
     TriggerFlags.MinBiasSlice.signatures = [
@@ -217,9 +223,12 @@ def setupMenu():
     TriggerFlags.CalibSlice.signatures   = [
         ['larnoiseburst_L1All',                  'L1_All',       [], ['LArNoiseBurst','CosmicCalo'], ["RATE:Calibration", "BW:Detector"], -1],
         ['larnoiseburst_loose_L1All',             'L1_All',       [], ['LArNoiseBurst','CosmicCalo'], ["RATE:Calibration", "BW:Detector"], -1],
-        ['larnoiseburst_loose_rerun_L1All',       'L1_All',       [], ['LArNoiseBurst'], ["RATE:Calibration", "BW:Detector"], -1],
         ['larnoiseburst_L1RD0_EMPTY',            'L1_RD0_EMPTY', [], ['LArNoiseBurst','CosmicCalo'], ["RATE:Calibration", "BW:Detector"], -1],        
+        
+        #Special re-run chains
         ['larnoiseburst_rerun',                  '',             [], ['LArNoiseBurst'], ["RATE:Calibration", "BW:Detector"], -1],
+        ['larnoiseburst_loose_rerun',            '',       [], ['LArNoiseBurst'], ["RATE:Calibration", "BW:Detector"], -1],
+        
 
         ['l1calocalib',             'L1_RD0_FILLED',     [], ['L1CaloCalib'], ["RATE:Calibration", "RATE:L1CaloCalib", "BW:Detector"], -1],
         ['l1calocalib_L1BGRP7',     'L1_BGRP7',          [], ['L1CaloCalib'], ["RATE:Calibration", "RATE:L1CaloCalib", "BW:Detector"], -1], 
@@ -261,7 +270,7 @@ def setupMenu():
         ['larps_L1J12_FIRSTEMPTY', 'L1_J12_FIRSTEMPTY', [], ['LArCellsEmpty'], ['RATE:CosmicSlice', 'RATE:Cosmic_LArCalibration', 'BW:Detector'], -1],
         ['larps_L1J30_FIRSTEMPTY', 'L1_J30_FIRSTEMPTY', [], ['LArCellsEmpty'], ['RATE:CosmicSlice', 'RATE:Cosmic_LArCalibration', 'BW:Detector'], -1],
 
-        ['larhec_L1J12_FIRSTEMPTY', 'L1_J12_FIRSTEMPTY', [], ['LArCellsEmpty'], ['RATE:CosmicSlice', 'RATE:Cosmic_LArCalibration', 'BW:Detector'], -1],
+        #['larhec_L1J12_FIRSTEMPTY', 'L1_J12_FIRSTEMPTY', [], ['LArCellsEmpty'], ['RATE:CosmicSlice', 'RATE:Cosmic_LArCalibration', 'BW:Detector'], -1],
 
         #CosmicID
         ['id_cosmicid_L1MU4',         'L1_MU4', [],  ['HLT_IDCosmic', 'express'], ['RATE:CosmicSlice', 'RATE:Cosmic_Tracking', 'BW:Detector'], -1],
@@ -474,7 +483,7 @@ class Prescales:
     #----------------------------------------------------------
     HLTPrescales = {
         'larnoiseburst_rerun' : [ 1, 0 , 1, "LArNoiseBurst"],
-        'larnoiseburst_test_rerun_L1All' : [ 1, 0 , 1, "LArNoiseBurst"],
+        'larnoiseburst_loose_rerun' : [ 1, 0 , 1, "LArNoiseBurst"],
         }
 
 #StreamConfig = {}

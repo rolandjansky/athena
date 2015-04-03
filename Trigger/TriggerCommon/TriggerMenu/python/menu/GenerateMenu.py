@@ -746,6 +746,7 @@ class GenerateMenu:
                 log.info('Generating L1 topo configuration for %s' % TriggerFlags.triggerMenuSetup() )
 
                 from TriggerMenu.TriggerConfigL1Topo import TriggerConfigL1Topo
+
                 self.trigConfL1Topo = TriggerConfigL1Topo( outputFile = TriggerFlags.outputL1TopoConfigFile(), menuName = TriggerFlags.triggerMenuSetup() )
 
                 # build the menu structure
