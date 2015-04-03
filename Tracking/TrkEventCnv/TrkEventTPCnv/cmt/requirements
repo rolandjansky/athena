@@ -39,6 +39,7 @@ use  VxMultiVertex              VxMultiVertex-*                 Tracking/TrkEven
 use  VxVertex                   VxVertex-*                      Tracking/TrkEvent
 private
 use  AthenaKernel               AthenaKernel-*                  Control
+use  CxxUtils                   CxxUtils-*                      Control
 use  AtlasReflex                AtlasReflex-*                   External                        -no_auto_imports
 use  TrkDetDescrUtils           TrkDetDescrUtils-*              Tracking/TrkDetDescr
 use  TrkTrackLink               TrkTrackLink-*                  Tracking/TrkEvent

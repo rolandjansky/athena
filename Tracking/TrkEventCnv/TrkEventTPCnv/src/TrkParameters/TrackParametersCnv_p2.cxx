@@ -32,6 +32,7 @@
 #include "TrkEventTPCnv/helpers/CLHEPHelpers.h"
 // #include "TrkEventPrimitives/Charged.h"
 #include "EventPrimitives/EventPrimitivesHelpers.h"
+#include "CxxUtils/make_unique.h"
 
 #include <cassert>
 #include <iostream>
@@ -168,9 +169,12 @@ void TrackParametersCnv_p2::transToPers( const Trk :: TrackParameters    *transO
       fillPersSurface(transObj, persObj, log);
     } else {
       if (debug) log<<MSG::WARNING<<"Received parameters with non-supported surface. Will convert to curvilinear. TransObj="<<*transObj<<endreq;
+      std::unique_ptr<AmgSymMatrix(5)> newcov;
+      if (transObj->covariance())
+        newcov = CxxUtils::make_unique<AmgSymMatrix(5)> (*transObj->covariance());
       const Trk::CurvilinearParameters* curvilinear = 
         new Trk::CurvilinearParameters(transObj->position(), transObj->momentum(), transObj->charge(), 
-        const_cast< AmgSymMatrix(5)* >(transObj->covariance() ) );
+                                       newcov.release());
       transObj = curvilinear; 
       deleteAtEnd = true; // Because the curvilinear will leak otherwise (the original parameters will be deleted when SG is wiped)
       convertTransCurvilinearToPers(transObj,persObj);
