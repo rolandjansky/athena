@@ -13,10 +13,8 @@ AlignableTransform::AlignableTransform(std::string tag) :
    m_tag(tag), m_vec()
 {}
 
-void AlignableTransform::add(const Identifier& ident,
-                             const HepGeom::Transform3D& trans)
-{
-  m_vec.emplace_back(ident,trans);
+void AlignableTransform::add(Identifier ident, HepGeom::Transform3D trans) {
+  m_vec.push_back(AlignTransMember(ident,trans));
 }
 
 void AlignableTransform::print() const {
@@ -36,18 +34,16 @@ void AlignableTransform::print2() const {
   }
 }
 
-bool AlignableTransform::update(const Identifier& ident,
-                                const HepGeom::Transform3D& trans)
-{
+bool AlignableTransform::update(const Identifier ident,
+const HepGeom::Transform3D trans) {
   AlignTransMem_itr itr=findIdent(ident);
   if (itr==m_vec.end()) return false;
   itr->setTransform(trans);
   return true;
 }
 
-bool AlignableTransform::tweak(const Identifier& ident,
-                               const HepGeom::Transform3D& trans)
-{
+bool AlignableTransform::tweak(const Identifier ident,
+const HepGeom::Transform3D trans) {
   AlignTransMem_itr itr=findIdent(ident);
   if (itr==m_vec.end()) return false;
   HepGeom::Transform3D newtrans=trans*(itr->transform());
