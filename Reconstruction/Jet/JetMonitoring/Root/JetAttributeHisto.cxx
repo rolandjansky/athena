@@ -13,6 +13,8 @@ namespace jet {
   public:
     virtual ~HistoFiller() {}
     virtual void fill(const xAOD::Jet & ){};
+    // allows to avoid invalid attribute
+    virtual bool isValid(const xAOD::Jet &){return false;}
   };
 
   // ------------------
@@ -46,6 +48,7 @@ namespace jet {
     AttFiller(const std::string & attname, TH1F* h, bool gev1)  : AccessorAndHisto<T, TH1F>(attname, h, gev1) {}
 
     virtual void fill(const xAOD::Jet & j){this->m_h->Fill( this->m_accessor(j)*scale1 ); };
+    virtual bool isValid(const xAOD::Jet &j){return this->m_accessor.isAvailable(j);}
   };
 
   
@@ -57,6 +60,8 @@ namespace jet {
       const std::vector<T> & vec = this->m_accessor( j);
       for(const T& v : vec ) this->m_h->Fill( v *scale1 );
     }
+    virtual bool isValid(const xAOD::Jet & j){return this->m_accessor.isAvailable(j);}
+
   };
   
   template<typename T>
@@ -67,6 +72,8 @@ namespace jet {
       const std::vector<T> & vec = this->m_accessor( j);
       if( vec.size() > m_index) this->m_h->Fill( vec[m_index]*scale1 );
     }
+    virtual bool isValid(const xAOD::Jet & j){return this->m_accessor.isAvailable(j);}
+
   protected:
     size_t m_index;
   };
@@ -79,6 +86,8 @@ namespace jet {
     AttvsAttFiller(const std::string & att1,const std::string & att2  , HTYPE* h, bool gev1, bool gev2) : AccessorAndHisto2<T,T, HTYPE>(att1,att2,h, gev1, gev2) {}
 
     virtual void fill(const xAOD::Jet & j){this->m_h->Fill( this->m_accessor(j)*scale1, this->m_accessor2(j)*scale2 ); };
+    virtual bool isValid(const xAOD::Jet &j){return (this->m_accessor.isAvailable(j))&&(this->m_accessor2.isAvailable(j));}
+
   };
 
   template<typename T,typename HTYPE>
@@ -92,6 +101,8 @@ namespace jet {
         else        this->m_h->Fill( vec[m_index] *scale1, this->m_accessor2(j)*scale2) ;
       }
     }
+
+    virtual bool isValid(const xAOD::Jet &j){return (this->m_accessor.isAvailable(j))&&(this->m_accessor2.isAvailable(j));}
 
   protected:
     size_t m_index;
@@ -276,6 +287,15 @@ int JetAttributeHisto::buildHistos(){
 int JetAttributeHisto::fillHistosFromJet(const xAOD::Jet &j){
   m_histoFiller->fill(j);
   return 0;
+}
+
+int JetAttributeHisto::fillHistosFromContainer(const xAOD::JetContainer & cont){
+  if (cont.empty() ) return 0;
+  const xAOD::Jet * j0 = cont[0];
+  if ( !m_histoFiller->isValid(*j0) ){
+    return 0;
+  }
+  return JetHistoBase::fillHistosFromContainer(cont);
 }
 
 

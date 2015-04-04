@@ -47,7 +47,7 @@ int JetKinematicHistos::buildHistos(){
   // -------------- 
 
   // Build and register the histos in this group : 
-
+  TH1::AddDirectory(kFALSE); // Turn off automatic addition to gDirectory to avoid Warnings. Histos are anyway placed in their own dir later.
   m_pt  = bookHisto( new TH1F(prefixn+"pt"  ,  "Jet P_{T};P_{T} (GeV);Entries", 100,0,200) );
   m_eta = bookHisto( new TH1F(prefixn+"eta" ,  "Jet #eta;#eta;Entries", 50,-6,6) );
   m_phi = bookHisto( new TH1F(prefixn+"phi" ,  "Jet #phi;#phi;Entries", 50,-3.3,3.3) );
@@ -59,6 +59,7 @@ int JetKinematicHistos::buildHistos(){
   if(m_doAverageE) m_averageE_EtaPhi = bookHisto( new TProfile2D(prefixn+"AverageE_EtaPhi", "Average E;#eta;#phi;Entries", 50,-5,5,50,-3.1416,3.1416) );
 
   if(m_doNConstit) m_nConstit = bookHisto( new TH1F(prefixn+"numconstit", "Number of constituents;N;",100,0,100) );
+  TH1::AddDirectory(kTRUE); // Turn on automatic addition to gDirectory in case others needs it.
 
   // -------------- Modify histo titles.
   if(prefixn != "" ){
