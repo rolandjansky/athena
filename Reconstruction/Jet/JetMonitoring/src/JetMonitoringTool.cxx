@@ -47,7 +47,7 @@ StatusCode JetMonitoringTool::bookHistograms()
 
   // loop over tools : for each tool, register its histos
   for( auto jtool : m_htools){
-    //ATH_MSG_INFO(" Building histos for tool "<< jtool->name() );
+    ATH_MSG_DEBUG(" Building histos for tool "<< jtool->name() );
     jtool->setInterval((HistoGroupBase::Interval_t) m_interval );
     if( jtool->buildHistos() != 0 ) continue;
     
@@ -55,8 +55,9 @@ StatusCode JetMonitoringTool::bookHistograms()
     const auto & hdata = jtool->bookedHistograms();
     // loop over histos
     for( const auto& hd : hdata){
-      // ATH_MSG_INFO ("Initializing " << hd.hist << " " << hd.hist->GetName() << " " << hd.path << "..." << hd.interval );
+      ATH_MSG_DEBUG ("Initializing " << hd.hist << " name= "<< hd.hist->GetName() << " path=" << hd.path << "..." << hd.interval << " dir="<<hd.hist->GetDirectory());
       ATH_CHECK(regHist(hd.hist,hd.path,  (Interval_t) hd.interval));
+      ATH_MSG_DEBUG ("    -->> "<< hd.hist->GetName()  << " dir="<<hd.hist->GetDirectory() << "  "<< hd.hist->kCanDelete );
     } // loop over histos
   } // loop over tools
 

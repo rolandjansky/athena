@@ -14,6 +14,7 @@ use JetUtils            JetUtils-*              Reconstruction/Jet
 public
 use xAODJet             xAODJet-*               Event/xAOD
 use AsgTools            AsgTools-*              Control/AthToolSupport
+use JetInterface        JetInterface-*          Reconstruction/Jet
 
 
 use AtlasPolicy		AtlasPolicy-*

@@ -68,6 +68,14 @@ akt4Filler.HistoTools += [
     selectionAndHistos( jhm.alljets , [ jhm.Timing ] ),
     
 
+    # Other types of selection with simple expression.
+    # Only jets satisfying the expression will fill the histos
+    # expresion must be in the form : '1.23<var<3.45'
+    # 'var' must be a jet attribute (float, int or vector<float>)
+    selectionAndHistos( "-1<eta<1" , [ "basickinematics", ] ),
+    selectionAndHistos( "eta<1" , [ "basickinematics", ] ),
+    selectionAndHistos( "JVF[0]<0.8" , [ "basickinematics", "JVF[0]"] ),
+
     ]
 
 

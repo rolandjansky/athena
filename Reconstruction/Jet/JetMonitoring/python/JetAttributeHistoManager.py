@@ -1,8 +1,9 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
+
 from JetMonitoring.HistoDefinitionHelpers import createHistoDefTool as hdef
 from JetMonitoring.HistoDefinitionHelpers import mergeHistoDefinition
-from JetMonitoring.JetMonitoringConf import JetAttributeHisto
+from JetMonitoring.JetMonitoringConf import JetAttributeHisto, JetSelectorAttribute
 from JetMonitoring.JetHistoManager import jetHistoManager as jhm
 
 
@@ -34,7 +35,7 @@ class AttributeHistoManager(object):
 
 
     def add2DHistoTool(self, name, binning=None, attributeInfo1=None, attributeInfo2=None,**otherArgs):        
-        if name in self.knownTools:
+        if self.jhm.hasTool(name):
             print "ERROR  JetAttributeHisto with name ", name ," already exists. Can't add a new one"
             return None
 
@@ -68,6 +69,19 @@ class AttributeHistoManager(object):
 
         return self.jhm.addTool( tool)
 
+    def addSelector(self, selectString, name="", typ="float"):
+        if name != "" and self.jhm.hasTool(name) :
+            print "ERROR  JetSelectorAttribute with name ", name ," already exists. Can't add a new one"
+            return None
+        if  self.jhm.hasTool(selectString) :
+            print "ERROR  JetSelectorAttribute  ", selectString ," already exists. Can't add a new one"
+            return None        
+        tool = createAttSelector( selectString, name=name, typ=typ)
+        # selectors are public tools :
+        from AthenaCommon.AppMgr import ToolSvc
+
+        ToolSvc += tool
+        return self.jhm.addTool( tool , alias=selectString)
 
 
 
@@ -105,6 +119,24 @@ def create2DHistoTool( name, binning=None, attributeInfo1=None, attributeInfo2=N
                               SelectIndex = selectIndex , **otherArgs)
 
 
+def createAttSelector(selectString, name="", typ="float"):
+    """A short cut to create JetSelectorAttribute out of a simple string """
+    cmin, att, cmax = interpretSelStr(selectString)
+    att, ind = findSelectIndex(att)
+    if ind>-1 and 'vector' not in typ :
+        typ = 'vector<'+typ+'>'
+
+    if name == "":
+        # try to build a unique name
+        name = selectString.replace('<','_inf_')
+        name = name.replace('[','_')
+        name = name.replace(']','_')
+        name = name.replace('.','_')
+        name = 'sel_'+name
+    tool = JetSelectorAttribute(name, Attribute=att, AttributeType=typ, VectorIndex=ind)
+    if cmin is not None: tool.CutMin = cmin
+    if cmax is not None: tool.CutMax = cmax
+    return tool
 
 def unpackto3(t):
     if len(t)==2:
@@ -121,6 +153,32 @@ def findSelectIndex( name):
     index = int(index[:-1])
     return name, index
     
+
+def interpretSelStr(selStr):
+    """Interpret a selection string in the form '12.3<var<42.0'
+    and returns a tuple.
+     '12.3<var<42.0' -> returns (12.3, 'var', 42.)
+     'var<42.0' -> returns (None, 'var', 42.)
+     '12.3<var' -> returns (12.3, 'var', None)
+    """
+    parts = selStr.split('<')
+    cmin, cmax = None, None
+    var = selStr
+    if len(parts)==2:
+        ismin = False
+        try :
+            var, cut = parts[0] , float(parts[1])
+        except:
+            cut, var = float(parts[0]) ,parts[1]
+            ismin=True
+        if ismin : cmin = cut
+        else: cmax = cut
+    elif len(parts)==3:
+        cmin, var, cmax = parts
+        cmin = float(cmin)
+        cmax = float(cmax)
+
+    return cmin, var, cmax
 
 
 attributeHistoManager = AttributeHistoManager(jhm)

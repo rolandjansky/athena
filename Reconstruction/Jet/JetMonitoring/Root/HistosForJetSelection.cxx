@@ -16,6 +16,7 @@ HistosForJetSelection::HistosForJetSelection(const std::string &t) : JetHistoBas
   declareProperty("HistoTools", m_histoTools);
   declareProperty("HistoTitleSuffix", m_titleSuffix);
   declareProperty("HistoNameSuffix", m_nameSuffix);
+  declareProperty("JetSelectorTool", m_selTool);
 }
   
 HistosForJetSelection::~HistosForJetSelection(){
@@ -38,6 +39,13 @@ StatusCode HistosForJetSelection::initialize() {
     break;
   case FromTool:
     {
+      CHECK(m_selTool.retrieve());
+      if( (m_nameSuffix == "" ) || (m_titleSuffix=="") ) {
+        ATH_MSG_ERROR("When using a selection tool, please set BOTH of HistoTitleSuffix (="<<m_titleSuffix<<") and HistoNameSuffix (="<<m_nameSuffix<<") or set them explicitely to 'none'. This is to avoid histo names clashes.");
+        return StatusCode::FAILURE;      
+      }
+      if(m_nameSuffix == "none")  m_nameSuffix="";
+      if(m_titleSuffix == "none") m_titleSuffix="";
       // either ask from tool or let m_xxSuffix be properties
     }
     break;
@@ -53,16 +61,17 @@ int HistosForJetSelection::buildHistos(){
   int count=0;
   for( auto jtool : m_histoTools){
     count+=jtool->buildHistos();
-    
     // keep a pointer to histos :
     const auto & hdata = jtool->bookedHistograms();
+    ATH_MSG_DEBUG(" Histo tool "<< jtool->name() << "  count= "<< count<< " nh="<<hdata.size());
     for( const auto & hd : hdata ){ 
       TH1 * h = const_cast<TH1*>(hd.hist);
+      ATH_MSG_DEBUG(" Histo tool  h "<< h->GetName() );
       m_vBookedHistograms.push_back(hd);
       modifyNameAndTitle(h);
     }
   }
-return count;
+  return count;
 }
 
   
@@ -98,8 +107,11 @@ int HistosForJetSelection::fillHistosFromContainer(const xAOD::JetContainer & co
 
   case FromTool:
     {
-      // m_selTool->filter(cont, tmpCont); or equivalent
-      // contPtr = &tmpCont;
+      // filter :
+      for(const xAOD::Jet* jet : cont ) { 
+        if( m_selTool->keep(*jet) ) tmpCont.push_back(jet) ;
+      }
+      contPtr = tmpCont.asDataVector();
     }
     break;
   default:

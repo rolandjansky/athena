@@ -39,18 +39,41 @@ def commonMonitoringTool(container, refcontainer=""):
             jhm.Timing,
             jhm.LArQuality,
 
+            # calo quality variables
+            jhm.AverageLArQF,
+            jhm.HECQuality,
+            jhm.FracSamplingMax,
+            jhm.FracSamplingMaxIndex,
+            jhm.N90Constituents,
+            jhm.CentroidR,
+            jhm.OotFracClusters5,
+            jhm.OotFracClusters10,
+
+            # energy per sampling
+            jhm.PreSamplerB,
+            jhm.EMB1,
             jhm.EMB2,
-            jhm.EMB3,            
+            jhm.EMB3,
+            jhm.PreSamplerE,
+            jhm.EME1,
             jhm.EME2,
             jhm.EME3,
+            jhm.HEC0,
+            jhm.HEC1,   
             jhm.HEC2,
             jhm.HEC3,
             jhm.FCAL0,
             jhm.FCAL1,
+            jhm.FCAL2, 
             jhm.TileBar0,
             jhm.TileBar1,
+            jhm.TileBar2,
             jhm.TileExt0,
             jhm.TileExt1,
+            jhm.TileExt2,
+            jhm.TileGap1,
+            jhm.TileGap2,
+            jhm.TileGap3,
             
             ]
         if jetFlags.useTracks:

@@ -22,7 +22,7 @@
 
 #include "JetMonitoring/JetHistoBase.h"
 #include "JetMonitoring/HistoDefinitionTool.h"
-
+#include "JetInterface/IJetSelector.h"
 
 class HistosForJetSelection : public JetHistoBase {
   ASG_TOOL_CLASS0(HistosForJetSelection);
@@ -62,7 +62,7 @@ protected:
   /// List of histo tools to call on selected jets
   ToolHandleArray<JetHistoBase> m_histoTools;
 
-  // ToolHandle<JetSelector> m_selTool /// to be implemented
+  ToolHandle<IJetSelector> m_selTool; /// used only if m_selType == FromTool
 
   /// Flag for the selection 
   int m_selType;

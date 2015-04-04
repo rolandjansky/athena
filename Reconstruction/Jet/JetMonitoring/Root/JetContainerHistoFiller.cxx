@@ -65,9 +65,12 @@ void JetContainerHistoFiller::setInterval(Interval_t ityp, bool force ){
 int JetContainerHistoFiller::buildHistos(){
   int count=0;
 
+  ATH_MSG_DEBUG ("Building hists " );
+
   // ask subtools to build their histos
   for( auto jtool : m_histoTools){
     count+=jtool->buildHistos();
+    ATH_MSG_DEBUG (" *** Built hist :  "<<jtool->name()  );
     
     // keep a pointer to histos :
     const auto & hdata = jtool->bookedHistograms();
