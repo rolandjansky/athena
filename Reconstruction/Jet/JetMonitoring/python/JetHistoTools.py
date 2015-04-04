@@ -42,8 +42,19 @@ compactSpecification = {
 
     "BchCorrDotx"      : (("BchCorrDotx:BchCorrDotx;",50,0,1), ("BchCorrDotx", "float") ),
     "BchCorrCell"      : (("BchCorrCell:BchCorrCell;",50,0,1), ("BchCorrCell", "float") ),
-    
-    
+    ## Jet Cleaning variables ##
+    "AverageLArQF"     : (("Average LAr QF;AverageLArQF;",50,-0.1, 3.), ("AverageLArQF", "float") ),
+    "HECQuality"       : (("HEC Quality;HEC Quality;",50,-0.1, 1.4), ("HECQuality", "float") ),
+    "FracSamplingMax"  : (("FracSamplingMax; FracSamplingMax;",50,-0.1, 1.2), ("FracSamplingMax", "float") ),
+    "FracSamplingMaxIndex" : (("FracSamplingMaxIndex; FracSamplingMaxIndex;",23,0,23), ("FracSamplingMaxIndex", "int") ),
+    "N90Constituents"  : (("N90Constituents; N90Constituents;",50,0,10), ("N90Constituents", "float") ),
+    "CentroidR"        : (("CentroidR; CentroidR;",100,0,7500), ("CentroidR", "float") ),
+    "OotFracClusters5" : (("OotFracClusters5; OotFracClusters5;",50,-0.1,1.2), ("OotFracClusters5", "float") ),
+    "OotFracClusters10": (("OotFracClusters5; OotFracClusters5;",50,-0.1,1.2), ("OotFracClusters10", "float") ),
+    #SumPtTrkPt500/pT (= CHF) To add soon, need to talk to P-A for that
+    #LeadingClusterCenterLambda : To be included in next derivation, activate, once supported in mon. release
+    #LeadingClusterSecondR : To be included in next derivation, activate, once supported in mon. release
+
     # 2D Histo format is
     # "histoname" : ( binning, attributeInfo1, attributeInfo2 )
     # where
@@ -109,15 +120,29 @@ jhm.addTool( HistosForJetSelection("subleadingjet", SelectionType=2) )
 #**************************************
 #**************************************
 # a helper function to combine selection with histo tools.
-def selectionAndHistos( selectType, histos, selectionName="", **otherArgs):
+def selectionAndHistos( selectType, histos, selectionName="", histoNameSuffix="",**otherArgs):
 
     if isinstance(selectType, str): 
-        selTool = jhm.tool(selectType)
+        tool = jhm.tool(selectType)
+        if issubclass( tool.__class__ , HistosForJetSelection):
+            # we're done.
+            selTool = tool
+        else:
+            # assume we have or need an attribute selector
+            attSel = tool
+            if tool is None:
+                attSel = attributeHistoManager.addSelector(selectType)
+            # and we rebuild a HistosForJetSelection in any case.
+            if histoNameSuffix=="" : histoNameSuffix = attSel.getName()
+            selTool = HistosForJetSelection("hjsel_"+attSel.getName(), SelectionType=3,
+                                            JetSelectorTool = attSel ,
+                                            HistoTitleSuffix = ' ('+selectType+')',
+                                            HistoNameSuffix = histoNameSuffix)
     else:
         selTool = selectType
     
-    if selTool is None or not issubclass( selTool.__class__ , HistosForJetSelection ):
-        print "ERROR can't build histo tool for a jet selection. Uknown or wrong selection request :",selectType
+    if selTool is None :
+        print "ERROR can't build histo tool for a jet selection. Uknown or wrong selection request :",selectType , selTool
         return None
     
     if selectionName != "":
@@ -134,5 +159,4 @@ def selectionAndHistos( selectType, histos, selectionName="", **otherArgs):
     # set other args if any:
     for k,v in otherArgs.iteritems():
         setattr(selTool, k, v)
-
     return selTool
