@@ -1495,11 +1495,15 @@ StatusCode HLTMuonMonTool::fillCommonDQA()
   // vs_ESstd.push_back("HLT_mu22_medium"); // for test
 
   std::vector<std::string> vs_EStag;
-  vs_EStag.push_back("HLT_mu24_muCombTag_NoEF_tight");
+  //vs_EStag.push_back("HLT_mu24_muCombTag_NoEF_tight"); // pp v4
+  vs_EStag.push_back("HLT_mu20_idperf"); // pp v5
+  vs_EStag.push_back("HLT_mu6_idperf");
 
   std::vector<std::string> vs_ESid;
-  vs_ESid.push_back("HLT_mu18_IDTrkNoCut_tight");
-  vs_ESid.push_back("HLT_mu22_IDTrkNoCut_tight");
+  //vs_ESid.push_back("HLT_mu18_IDTrkNoCut_tight");  // pp v4
+  //vs_ESid.push_back("HLT_mu22_IDTrkNoCut_tight");
+  vs_ESid.push_back("HLT_mu20_idperf"); // pp v5
+  vs_ESid.push_back("HLT_mu6_idperf");
   
   // independent chains for L1 monitor
   std::vector<std::string> vs_ESindep;

@@ -375,8 +375,8 @@ StatusCode HLTMuonMonTool::fillMuZTPDQA()
     //if (isTriggered_L1 == false){
     //  return StatusCode::SUCCESS;
     //} 
-    // bool isTriggered_L2 = false;
-    bool isTriggered_L2 = true;
+    bool isTriggered_L2 = false;
+    // bool isTriggered_L2 = true;
     // YY 2 Oct 2014 - L2 decision should be obtained from whether the muComb trigger element is active or not?
     // perhaps OK if a matched active TE is found - although this may not be exactly 100% correct.
     
@@ -570,6 +570,10 @@ StatusCode HLTMuonMonTool::fillMuZTPDQA()
       } //active ROI
     } // jEF
 	  
+
+    //  check if there is at least one activated L2 object to determine L2 trigger decision  
+    if(isMSonlychain) isTriggered_L2 = ( L2Expt.size() > 0) ;
+    else isTriggered_L2 = (L2Cbpt.size() > 0);
 
 
     ///////////////////////////////////// get OFFLINE Objects //////////////////////////////////////////

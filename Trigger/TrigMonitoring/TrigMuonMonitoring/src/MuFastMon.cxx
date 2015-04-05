@@ -401,6 +401,12 @@ StatusCode HLTMuonMonTool::fillMuFastDQA()
     }
 
 
+
+    float MDTInnChi2 = 0;
+    float MDTMidChi2 = 0;
+    float MDTOutChi2 = 0;
+
+
     // loop each MDT tube
 
     int n_mdt_hits = (*itMfd)->nMdtHits();
@@ -415,8 +421,8 @@ StatusCode HLTMuonMonTool::fillMuFastDQA()
       if( systemID==0 ){//barrel
         for(int i_tube=0; i_tube<n_mdt_hits; i_tube++) {
           
-          float res = (*itMfd)->mdtHitResidual(i_tube);
-          float r   = (*itMfd)->mdtHitR(i_tube);
+          float res = (*itMfd)->mdtHitResidual(i_tube)/10.;  // convert to cm
+          float r   = (*itMfd)->mdtHitR(i_tube)/10.;  // convert to cm
           int imr = 2;
           if     ( r < 650 ) { imr=0; }
           else if( r < 850 ) { imr=1; }
@@ -451,12 +457,16 @@ StatusCode HLTMuonMonTool::fillMuFastDQA()
 				}
           }
         }
+        MDTInnChi2 = (*itMfd)->superPointChi2(0);
+        MDTMidChi2 = (*itMfd)->superPointChi2(1);
+        MDTOutChi2 = (*itMfd)->superPointChi2(2);
+
       } 
       else{ //endcap
         for(int i_tube=0; i_tube<n_mdt_hits; i_tube++) {
 
           float res = (*itMfd)->mdtHitResidual(i_tube) / 10 ; // to cm
-          float z   = (*itMfd)->mdtHitR(i_tube);
+          float z   = (*itMfd)->mdtHitZ(i_tube);
           int imr = 2;
           if     ( fabs(z) < 10000 ) { imr=0; }
           else if( fabs(z) < 15000 ) { imr=1; }
@@ -490,47 +500,44 @@ StatusCode HLTMuonMonTool::fillMuFastDQA()
 				}
           }
         }
+        MDTInnChi2 = (*itMfd)->superPointChi2(3);
+        MDTMidChi2 = (*itMfd)->superPointChi2(4);
+        MDTOutChi2 = (*itMfd)->superPointChi2(5);
       }
 
     //MDT flow
     bool isMDThitThereForTriggerPlane = false;
-//*    bool isMDTFitOkForTriggerPlane    = false;
-//*    bool isMDTFitOkFor2Plane          = false;
+    bool isMDTFitOkForTriggerPlane    = false;
+    bool isMDTFitOkFor2Plane          = false;
 
-//*    int nMDT = (*itMfd)->mdt_onlineId().size();
-//*
-//*    float MDTInnChi2 = (*itMfd)->mdt_Inner_fit_chi();
-//*    float MDTMidChi2 = (*itMfd)->mdt_Middle_fit_chi();
-//*    float MDTOutChi2 = (*itMfd)->mdt_Outer_fit_chi();
-//*
-//*    const float MDT_CHI2_NO_VALUE = -99999;
+
+    const float MDT_CHI2_NO_VALUE = -99999;
 
     if( n_mdt_hits_middle != 0 ) isMDThitThereForTriggerPlane = true;
-//*    if( fabs(MDTMidChi2-MDT_CHI2_NO_VALUE) > ZERO_LIMIT ) isMDTFitOkForTriggerPlane = true;
-//*    if( isMDTFitOkForTriggerPlane && (fabs(MDTInnChi2 - MDT_CHI2_NO_VALUE) > ZERO_LIMIT || fabs(MDTOutChi2 - MDT_CHI2_NO_VALUE) > ZERO_LIMIT) ) isMDTFitOkFor2Plane  = true;
+    if( fabs(MDTMidChi2-MDT_CHI2_NO_VALUE) > ZERO_LIMIT ) isMDTFitOkForTriggerPlane = true;
+    if( isMDTFitOkForTriggerPlane && (fabs(MDTInnChi2 - MDT_CHI2_NO_VALUE) > ZERO_LIMIT || fabs(MDTOutChi2 - MDT_CHI2_NO_VALUE) > ZERO_LIMIT) ) isMDTFitOkFor2Plane  = true;
 
     ATH_MSG_DEBUG("isL1hitThere/emuOkForTriggerPlane=" << isL1hitThere << " / " << isL1emuOkForTriggerPlane);
 
-//*    ATH_MSG_DEBUG("isMDThitThere/FitOkForTriggerPlane/FitOkFor2Plane=" << isMDThitThereForTriggerPlane << " / "
-//*                  << isMDTFitOkForTriggerPlane << " / " << isMDTFitOkFor2Plane);
+    ATH_MSG_DEBUG("isMDThitThere/FitOkForTriggerPlane/FitOkFor2Plane=" << isMDThitThereForTriggerPlane << " / "
+                  << isMDTFitOkForTriggerPlane << " / " << isMDTFitOkFor2Plane);
 
     hist("muFast_proc_flow",histdirmufast)->Fill(1+0.01);
     if( isL1hitThere )                 hist("muFast_proc_flow",histdirmufast)->Fill(2+0.01);
     if( isL1emuOkForTriggerPlane )     hist("muFast_proc_flow",histdirmufast)->Fill(3+0.01);
     if( isMDThitThereForTriggerPlane ) hist("muFast_proc_flow",histdirmufast)->Fill(4+0.01);
-//*    if( isMDTFitOkForTriggerPlane )    hist("muFast_proc_flow",histdirmufast)->Fill(5+0.01);
-//*    if( isMDTFitOkFor2Plane )          hist("muFast_proc_flow",histdirmufast)->Fill(6+0.01);
+    if( isMDTFitOkForTriggerPlane )    hist("muFast_proc_flow",histdirmufast)->Fill(5+0.01);
+    if( isMDTFitOkFor2Plane )          hist("muFast_proc_flow",histdirmufast)->Fill(6+0.01);
 
     // fill
 
     if( systemID==0 ){//barrel
       hist("muFast_RPC_Pad_N", histdirmufast)->Fill(nRPC);
 
-//*      hist("muFast_MDT_Inn_fit_chi2_barrel", histdirmufast)->Fill(MDTInnChi2);
-//*      hist("muFast_MDT_Mid_fit_chi2_barrel", histdirmufast)->Fill(MDTMidChi2);
-//*      hist("muFast_MDT_Out_fit_chi2_barrel", histdirmufast)->Fill(MDTOutChi2);
+      hist("muFast_MDT_Inn_fit_chi2_barrel", histdirmufast)->Fill(MDTInnChi2);
+      hist("muFast_MDT_Mid_fit_chi2_barrel", histdirmufast)->Fill(MDTMidChi2);
+      hist("muFast_MDT_Out_fit_chi2_barrel", histdirmufast)->Fill(MDTOutChi2);
 
-//*      hist("muFast_MDT_N_barrel", histdirmufast)->Fill(nMDT+0.01);
       hist("muFast_MDT_N_barrel", histdirmufast)->Fill(n_mdt_hits+0.01);
 
       hist("muFast_MDT_Inn_N_barrel", histdirmufast)->Fill(n_mdt_hits_inner+0.01);
@@ -546,11 +553,10 @@ StatusCode HLTMuonMonTool::fillMuFastDQA()
       hist("muFast_TGC_Mid_rho_chi2", histdirmufast)->Fill(TGCMidRhoChi2);
       hist("muFast_TGC_Mid_phi_chi2", histdirmufast)->Fill(TGCMidPhiChi2);
 
-//*      hist("muFast_MDT_Inn_fit_chi2_endcap", histdirmufast)->Fill(MDTInnChi2);
-//*      hist("muFast_MDT_Mid_fit_chi2_endcap", histdirmufast)->Fill(MDTMidChi2);
-//*      hist("muFast_MDT_Out_fit_chi2_endcap", histdirmufast)->Fill(MDTOutChi2);
+      hist("muFast_MDT_Inn_fit_chi2_endcap", histdirmufast)->Fill(MDTInnChi2);
+      hist("muFast_MDT_Mid_fit_chi2_endcap", histdirmufast)->Fill(MDTMidChi2);
+      hist("muFast_MDT_Out_fit_chi2_endcap", histdirmufast)->Fill(MDTOutChi2);
 
-//*      hist("muFast_MDT_N_endcap", histdirmufast)->Fill(nMDT);
       hist("muFast_MDT_N_endcap", histdirmufast)->Fill(n_mdt_hits);
 
       hist("muFast_MDT_Inn_N_endcap", histdirmufast)->Fill(n_mdt_hits_inner+0.01);
