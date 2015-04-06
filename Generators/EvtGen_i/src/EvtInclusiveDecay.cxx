@@ -74,7 +74,9 @@ EvtInclusiveDecay::EvtInclusiveDecay(const std::string& name, ISvcLocator* pSvcL
   declareProperty("allowAllKnownDecays", m_allowAllKnownDecays=true);
   declareProperty("allowDefaultBDecays", m_allowDefaultBDecays=true);
   declareProperty("whiteList",m_whiteList);
-
+  
+  declareProperty("DecayedParticleStatus", m_decayedStatus=2);
+  
   // Level of output
   declareProperty("printHepMCBeforeEvtGen", m_printHepMCBeforeEvtGen=false);
   declareProperty("printHepMCAfterEvtGen", m_printHepMCAfterEvtGen=false);
@@ -129,6 +131,7 @@ StatusCode EvtInclusiveDecay::initialize() {
   msg(MSG::INFO) << "* prohibitRemoveSelfDecay = " << m_prohibitRemoveSelfDecay << endreq;
   msg(MSG::INFO) << "* allowAllKnownDecays     = " << m_allowAllKnownDecays << endreq;
   msg(MSG::INFO) << "* allowDefaultBDecays     = " << m_allowDefaultBDecays << endreq;
+  msg(MSG::INFO) << "Decayed particle status   = " << m_decayedStatus << endreq;
   msg(MSG::INFO) << "User selection parameters:" << endreq;
   msg(MSG::INFO) << "* applyUserSelection             = " << m_applyUserSelection << endreq;
   msg(MSG::INFO) << "* userSelRequireOppositeSignedMu = " << m_userSelRequireOppositeSignedMu << endreq;
@@ -185,31 +188,26 @@ StatusCode EvtInclusiveDecay::execute() {
   std::string   key = m_inputKeyName;
 
   // retrieve event from Transient Store (Storegate)
+  
+  const McEventCollection* oldmcEvtColl=0;
   if(m_readExisting) {
-
-    
-    m_mcEvtColl = new McEventCollection();
+    CHECK(evtStore()->retrieve(oldmcEvtColl, key)); 
     // Fill the new McEventCollection with a copy of the initial HepMC::GenEvent
-    for (McEventCollection::const_iterator evt = events_const()->begin(); evt != events_const()->end(); ++evt) {
-      m_mcEvtColl->push_back(new HepMC::GenEvent(*(*evt)));
-    }
+    m_mcEvtColl = new McEventCollection(*oldmcEvtColl);
   }
   else {CHECK(evtStore()->retrieve(m_mcEvtColl, key));}
 
   if(m_readExisting) {
-    if(m_outputKeyName==key) {
-     CHECK(evtStore()->overwrite(m_mcEvtColl,m_outputKeyName));
-    }
-    else {
+    if(m_outputKeyName!=key) {
      CHECK(evtStore()->record( m_mcEvtColl,m_outputKeyName));
     }
   }
-
+  
 
   McEventCollection::iterator mcItr;
   for( mcItr = m_mcEvtColl->begin(); mcItr != m_mcEvtColl->end(); mcItr++ )   {
     HepMC::GenEvent* hepMC = *mcItr;
-
+   
     // Search HepMC record for particles to be decayed by EvtGen
     // NOTE: In order to ensure repeatability, we use a std::set of barcodes to obtain
     //       an ordered list of particles to be decayed by EvtGen.
@@ -267,6 +265,15 @@ StatusCode EvtInclusiveDecay::execute() {
 	printHepMC(hepMC,&toBeDecayed);
       else
 	printHepMC(hepMC);
+    }
+  }
+
+  if(m_readExisting && m_outputKeyName==key) {
+    McEventCollection* newmcEvtColl=0;
+    newmcEvtColl = const_cast<McEventCollection*> (oldmcEvtColl);
+    newmcEvtColl->clear();
+    for (McEventCollection::const_iterator evt = m_mcEvtColl->begin(); evt != m_mcEvtColl->end(); ++evt) {
+      newmcEvtColl->push_back(new HepMC::GenEvent(*(*evt)));
     }
   }
   return StatusCode::SUCCESS;
@@ -383,7 +390,7 @@ void EvtInclusiveDecay::removeDecayTree(HepMC::GenEvent* hepMC, HepMC::GenPartic
 // The following status codes are used: 
 //
 // status == 1     - undecayed particle (also for particles that are not supposed to decay)
-// status == 999   - particle decayed by EvtGen
+// status == m_decayedStatus (default 2)   - particle decayed by EvtGen
 // status == 899   - particle was supposed to be decayed by EvtGen, but found no decay channel
 //
 // Note that if a particle with an existing decay tree but no defined decay channels
@@ -415,7 +422,7 @@ void EvtInclusiveDecay::decayParticle(HepMC::GenEvent* hepMC, HepMC::GenParticle
 
   // Add new decay tree to hepMC, converting back from GeV to MeV.
   addEvtGenDecayTree(hepMC, part, evtPart, 1000.);
-  if(evtPart->getNDaug() !=0) part->set_status(999);  
+  if(evtPart->getNDaug() !=0) part->set_status(m_decayedStatus);
   evtPart->deleteTree();
 }
 
@@ -442,7 +449,7 @@ void EvtInclusiveDecay::addEvtGenDecayTree(HepMC::GenEvent* hepMC, HepMC::GenPar
       double pz=(evtPart->getDaug(it)->getP4Lab()).get(3) * momentumScaleFactor;
       int id=EvtPDL::getStdHep(evtPart->getDaug(it)->getId());
       int status=1;
-      if(evtPart->getDaug(it)->getNDaug() != 0) status=999;
+      if(evtPart->getDaug(it)->getNDaug() != 0) status=m_decayedStatus;
       HepMC::GenParticle* daughter = new HepMC::GenParticle(CLHEP::HepLorentzVector(px,py,pz,e),id,status);
       end_vtx->add_particle_out(daughter);
       addEvtGenDecayTree(hepMC, daughter, evtPart->getDaug(it), momentumScaleFactor);
@@ -467,6 +474,8 @@ bool EvtInclusiveDecay::isToBeDecayed(const HepMC::GenParticle* p, bool doCrossC
 
   // Ignore documentation lines
   if (stat == 3) return false;
+  // And any particles that aren't stable or decayed
+  if(stat>2) return false;
 
   // Particularly for Herwig, try to ignore particles that really should
   // be flagged as documentation lines
@@ -665,7 +674,7 @@ std::string EvtInclusiveDecay::pdgName(const HepMC::GenParticle* p, bool statusH
          ((barcodeList==0) && isToBeDecayed(p,false)) )
       buf << "\033[7m";   // reverse
     if (p->status() != 1) {
-      if (p->status() == 999)
+      if (p->status() == m_decayedStatus)
 	buf << "\033[33m";   // yellow
       else
 	buf << "\033[31m";   // red
