@@ -474,6 +474,8 @@ bool EvtInclusiveDecay::isToBeDecayed(const HepMC::GenParticle* p, bool doCrossC
 
   // Ignore documentation lines
   if (stat == 3) return false;
+  // And any particles that aren't stable or decayed
+  if(stat>2) return false;
 
   // Particularly for Herwig, try to ignore particles that really should
   // be flagged as documentation lines
