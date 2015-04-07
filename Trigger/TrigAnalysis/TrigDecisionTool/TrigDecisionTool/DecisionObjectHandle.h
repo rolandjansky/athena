@@ -14,11 +14,15 @@
 namespace TrigDec {
   class TrigDecision;
 
-#if XAOD_ANALYSIS
+  #if XAOD_ANALYSIS
   class TrigDecision{
   };
-#endif
+  #endif
 }
+
+#if defined(ASGTOOL_ATHENA) and !defined(XAOD_ANALYSIS)
+#include "TrigDecisionEvent/TrigDecision.h"
+#endif
 
 /**
  * @brief collection of classes which care about invalidating TDT after event is finished
@@ -26,7 +30,7 @@ namespace TrigDec {
 
 namespace Trig {
   template<typename DECISIONTYPE, typename NAVIGATIONTYPE>
-  class DecisionObjectHandle : public Logger {
+  class DecisionObjectHandle  {
   public: 
     DecisionObjectHandle();
     virtual ~DecisionObjectHandle(){;}

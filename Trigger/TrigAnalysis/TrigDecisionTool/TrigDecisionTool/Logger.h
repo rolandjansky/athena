@@ -16,32 +16,36 @@
  * @author Tomasz Bold     <Tomasz.Bold@cern.ch>    - UC Irvine - AGH-UST Krakow
  *
  ***********************************************************************************/
-#include <string>
-#include "AsgTools/AsgToolsConf.h"
 
-#ifdef ASGTOOL_STANDALONE
-#include "AsgTools/AsgMessaging.h"
-#endif
-#ifdef ASGTOOL_ATHENA
-#include "AthenaKernel/getMessageSvc.h"
-#include "AthenaBaseComps/AthMessaging.h"
-#endif
 
-namespace Trig{
+#include "GaudiKernel/MsgStream.h"
+
+#define TDTLOG(x)   if (log().level()<=MSG::x) log() << MSG::x
+
+
+namespace Trig {
   class Logger {
   public:
-    MsgStream& msg() const;
-    MsgStream& msg(const MSG::Level lvl) const {return msg() << lvl;}
-    bool msgLvl(const MSG::Level lvl) const {return Logger::staticStream->msgLvl(lvl);}
-#ifdef ASGTOOL_STANDALONE
-    void setMessaging(asg::AsgMessaging* messaging){staticStream = messaging;}
-    static asg::AsgMessaging* staticStream;
-#endif
-#ifdef ASGTOOL_ATHENA
-    void setMessaging(AthMessaging* messaging){staticStream = messaging;}
-    static AthMessaging* staticStream;
-#endif
+    Logger(const std::string& name);
+    Logger();
+    virtual ~Logger() {}
+    MsgStream& log() const;
+    bool msgLvl(const MSG::Level lvl) const;
+    static void updateMsgStream(MsgStream* log);
+    virtual void setOutputLevel(int level);
+    
+  private:
+    static MsgStream* m_stream;
+    std::string m_name;
   };
+
+
+  inline bool
+  Logger::msgLvl(const MSG::Level lvl) const {
+    return log().level() <= lvl;
+  }
+
+
 }
 
-#endif
+#endif 

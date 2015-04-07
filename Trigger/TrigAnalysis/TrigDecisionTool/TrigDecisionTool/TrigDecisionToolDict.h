@@ -20,10 +20,4 @@
 #include "TrigDecisionTool/TrigDecisionToolCore.h"
 #include "TrigDecisionTool/TDTUtilities.h"
 
-
-namespace TDTStruct {
-   ToolHandle<Trig::TrigDecisionTool> tdt;
-
-}
-
 #endif

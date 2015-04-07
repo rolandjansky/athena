@@ -18,7 +18,8 @@
 #include "TrigDecisionTool/ConfigurationAccess.h"
 #include "TrigDecisionTool/TDTUtilities.h"
 
-Trig::ConfigurationAccess::ConfigurationAccess() {}
+Trig::ConfigurationAccess::ConfigurationAccess() 
+  : Logger("Configuration") {}
 
 Trig::ConfigurationAccess::~ConfigurationAccess() {}
 

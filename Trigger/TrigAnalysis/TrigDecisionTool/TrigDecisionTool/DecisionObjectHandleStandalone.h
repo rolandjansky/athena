@@ -22,8 +22,13 @@
 
 // Local include(s):
 #include "TrigDecisionTool/DecisionObjectHandle.h"
-#include "TrigDecisionTool/EventPtrDef.h"
 
+
+// Forward declaration(s):
+namespace asg {
+   class SgTEvent;
+}
+class StoreGateSvc;
 
 namespace Trig {
 
@@ -31,9 +36,22 @@ namespace Trig {
     * @brief Decision invalidator for ROOT (really doing the job)
     */
    class DecisionObjectHandleStandalone :
-    public DecisionObjectHandle< xAOD::TrigDecision, xAOD::TrigNavigation >{
+    public DecisionObjectHandle< xAOD::TrigDecision, xAOD::TrigNavigation >, public asg::AsgMessaging {
 
    public:
+      /// @name Declaration of the event store's type
+      /// @{
+         
+#ifdef ASGTOOL_STANDALONE
+      typedef asg::SgTEvent* EventPtr_t;
+#elif defined(ASGTOOL_ATHENA)
+      typedef StoreGateSvc*  EventPtr_t;
+#else
+#   error "Wrong environment configuration detected!"
+#endif
+         
+      /// @}
+
       /// Constructor with arguments
       DecisionObjectHandleStandalone( EventPtr_t sg, const std::string& deckey,
                                       const std::string& navikey );

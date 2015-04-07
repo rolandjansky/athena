@@ -2,10 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "AsgTools/AsgToolsConf.h"
-#include <iostream>
-#if defined(ASGTOOL_ATHENA) && !defined(XAOD_ANALYSIS)
-
+#include "iostream"
 #include "vector"
 
 #include "TrigNavigation/NavigationInit.h"
@@ -51,7 +48,6 @@ class TrigCaloCluster {
 public:
   TrigCaloCluster(int arg=0){a = arg;}
   ~TrigCaloCluster() { std::cerr << " deleting Cluster: "<< a << std::endl; }
-  TrigCaloCluster& operator=(const TrigCaloCluster&) = default;
   int a;
 };
 
@@ -68,7 +64,6 @@ void  nevercalled() {
 
 
 using namespace Trig;
-#if 0
 void testFeatureGroup() {
   TrigDecisionTool* tdt(0);
   FeatureContainer f = tdt->features("EF_mu6");
@@ -101,9 +96,7 @@ void testFeatureGroup() {
     sameObject(a, b);
   }
 }
-#endif
 
-#if 0
 void testFeatureLink() {
   TrigDecisionTool* tdt(0);
   TrigFeatureLink fl;
@@ -117,11 +110,9 @@ void testFeatureLink() {
 
 }
 
-#endif
 
 /**/
 //////////////////////////////////////////////////////////////////
-#endif
 
 
 
@@ -131,4 +122,3 @@ int main() {
   std::cout << "done" << std::endl;
   return 0;
 }
-

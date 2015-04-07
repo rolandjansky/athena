@@ -23,7 +23,9 @@
 #include<map>
 #include<string>
 #include "boost/foreach.hpp"
-#include <unordered_map>
+#include <ext/hash_map>
+
+#include "TrigDecisionEvent/TrigDecision.h"
 
 #include "TrigConfHLTData/HLTChain.h"
 #include "TrigConfHLTData/HLTChainList.h"
@@ -32,17 +34,16 @@
 #include "TrigConfL1Data/CTPConfig.h"
 
 #include "TrigSteeringEvent/Chain.h"
-#include "xAODTrigger/TrigCompositeContainer.h"
+
 
 #include "TrigDecisionTool/IDecisionUnpacker.h"
 #include "TrigDecisionTool/Logger.h"
 #include "AsgTools/AsgMessaging.h"
 
-
-
 namespace HLT {
   class Chain;
   class TriggerElement;
+  class NavigationCore;
 }
 
 namespace LVL1CTP {
@@ -50,14 +51,11 @@ namespace LVL1CTP {
   class Lvl1Result;
 }
 
-
-#include "TrigDecisionTool/EventPtrDef.h"
-
 namespace Trig {
 
   class ChainGroup;
 
-  class CacheGlobalMemory : public virtual Logger {
+  class CacheGlobalMemory : public virtual Logger, public asg::AsgMessaging {
 
   using Logger::msgLvl;//resolve ambiguity from also inheriting from Logger
   
@@ -91,21 +89,14 @@ namespace Trig {
     const LVL1CTP::Lvl1Item* item(const std::string& name) const;            //!< CTP item from given name
     const LVL1CTP::Lvl1Item* item(const TrigConf::TriggerItem& i) const;     //!< CTP item from given config item
     const TrigConf::TriggerItem* config_item(const std::string& name) const; //!< CTP config item from given name
-    float item_prescale(int ctpid) const;                                      //!< Prescale for CPT item
+    int item_prescale(int ctpid) const;                                      //!< Prescale for CPT item
     
     const HLT::Chain* chain(const std::string& name) const;                  //!< HLT chain object from given name (0 pointer returned if no match)
     const HLT::Chain* chain(const TrigConf::HLTChain& chIt) const;           //!< HLT chain object from given config chain
     const TrigConf::HLTChain* config_chain(const std::string& name) const;   //!< HLT config chain from given name
 
-    const HLT::TrigNavStructure* navigation() const {   //!< gives back pointer to navigation object (unpacking if necessary)
-      if(!m_unpacker->unpacked_navigation()){
-	if(const_cast<CacheGlobalMemory*>(this)->unpackNavigation().isFailure()){
-	  ATH_MSG_WARNING("unpack Navigation failed");;
-	}
-      }
-      return m_navigation; 
-    }
-    void navigation(HLT::TrigNavStructure* nav) { m_navigation = nav; }       //!< sets navigation object pointer
+    const HLT::NavigationCore* navigation() const { return m_navigation; }  //!< gives back pointer to navigation object
+    void navigation(HLT::NavigationCore* nav) { m_navigation = nav; }       //!< sets navigation object pointer
     
     std::map< std::vector< std::string >, Trig::ChainGroup* >& getChainGroups() {return m_chainGroupsRef;};
     //    std::map<unsigned, const LVL1CTP::Lvl1Item*>  getItems() {return m_items;};
@@ -117,8 +108,6 @@ namespace Trig {
     std::map<std::string, std::vector<std::string> > getStreams() {return m_streams;};
     std::map<std::string, std::vector<std::string> > getStreams() const {return m_streams;};
 
-    const xAOD::TrigCompositeContainer* expressStreamContainer() const;
-
     /**
      * @brief cheks if new event arrived with the decision
      * Need tu use before any call to CacheGlobalMemory.
@@ -128,13 +117,6 @@ namespace Trig {
 
     void setUnpacker( Trig::IDecisionUnpacker* up ){ m_unpacker = up; }
     Trig::IDecisionUnpacker* unpacker(){ return m_unpacker; }
-    
-
-    /// Set the event store to be used by the object
-    void setStore( EventPtr_t store ) { m_store = store; }
-    /// Get the event store that the object is using
-    EventPtr_t store() const { return m_store; }
-
 
     // 
     template<class T>
@@ -160,18 +142,20 @@ namespace Trig {
      **/
     void updateChainGroup(Trig::ChainGroup* chainGroup);
 
+    /**
+     * @brief access to navigation
+     **/
+    HLT::NavigationCore* navigation_feature() const { return m_navigation; }
+
     //
     // Data members
     //
 
-    /// Pointer to the event store in use
-    EventPtr_t m_store;
-    
     /// Trigger decision unpacker helper
     IDecisionUnpacker* m_unpacker;
 
     // Navigation owned by CGM
-    HLT::TrigNavStructure* m_navigation;
+    HLT::NavigationCore* m_navigation;
     
     // chain groups 
     typedef std::map< std::vector< std::string >, Trig::ChainGroup* >::iterator ChGrIt;
@@ -197,7 +181,7 @@ namespace Trig {
     
     const TrigConf::ItemContainer* m_confItems;             //!< items configuration
     const TrigConf::HLTChainList*  m_confChains;            //!< all chains configuration
-    mutable const xAOD::TrigCompositeContainer* m_expressStreamContainer;
+  
 
     struct eqstr
     {
@@ -206,8 +190,8 @@ namespace Trig {
         return strcmp(s1, s2) == 0;
       }
     };
-    
-    typedef std::unordered_map<const char*, const TrigConf::HLTChain*, std::hash<const char*>, eqstr> ChainHashMap_t;
+
+    typedef __gnu_cxx::hash_map<const char*, const TrigConf::HLTChain*, __gnu_cxx::hash<const char*>, eqstr> ChainHashMap_t;
     ChainHashMap_t     m_mConfChains;            //!< map of conf chains
   
     char     m_bgCode; //!< the encoded bunchgroup information

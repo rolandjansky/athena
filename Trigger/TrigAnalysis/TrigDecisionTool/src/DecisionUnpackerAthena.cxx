@@ -2,12 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "AsgTools/AsgToolsConf.h"
-//only in full Athena
-#if defined(ASGTOOL_ATHENA) && !defined(XAOD_ANALYSIS)
-
-
-
 #ifndef XAOD_ANALYSIS
 //there is no better way????
 #define private public
@@ -17,11 +11,12 @@
 #include "StoreGate/StoreGateSvc.h"
 #include "TrigNavStructure/TrigNavStructure.h"
 #include "TrigDecisionTool/DecisionUnpackerAthena.h"
-#include "TrigDecisionTool/DecisionObjectHandleAthena.h"
+
+
 #include "TrigNavigation/NavigationCore.h"
 
 namespace Trig {
-  DecisionUnpackerAthena::DecisionUnpackerAthena(StoreGateSvc* sg, const std::string& key) : m_handle(new DecisionObjectHandleAthena(sg,key)){
+  DecisionUnpackerAthena::DecisionUnpackerAthena(StoreGateSvc* sg, const std::string& key): asg::AsgMessaging("DecisionUnpackerAthena"), m_handle(new DecisionObjectHandleAthena(sg,key)){
   }
 
   DecisionUnpackerAthena::~DecisionUnpackerAthena(){
@@ -103,7 +98,6 @@ namespace Trig {
 
     // L2 chains
     l2chainsByName.clear();
-    ATH_MSG_DEBUG("Unpacking of L2 chains");
     if ( dec->getL2Result().getHLTLevel() != HLT::UNKNOWN ) {
       const std::vector<uint32_t>& l2_serialized_chains = dec->getL2Result().getChainResult();
       ATH_MSG_DEBUG(l2_serialized_chains.size() << " L2 chains");
@@ -114,7 +108,6 @@ namespace Trig {
     }
   
     // EF chains
-    ATH_MSG_DEBUG("Unpacking of EF/HLT chains");
     efchainsByName.clear();
     const std::vector<uint32_t>& ef_serialized_chains = dec->getEFResult().getChainResult();
     ATH_MSG_DEBUG(ef_serialized_chains.size() << " EF/HLT chains");
@@ -128,8 +121,6 @@ namespace Trig {
     }
   
   
-    this->unpacked_decision(true);
-
     return StatusCode::SUCCESS;
   }
 
@@ -139,7 +130,6 @@ namespace Trig {
     if (nav) {
       HLT::NavigationCore* fullNav = dynamic_cast<HLT::NavigationCore*>(nav);
       
-      // cppcheck-suppress oppositeInnerCondition
       if(!fullNav){
 	ATH_MSG_WARNING("downcast failed");
       }
@@ -157,10 +147,10 @@ namespace Trig {
 	  msg() << MSG::DEBUG << "EF/HLT Navigation unpacking failed";
 	if (!dec->getL2Result().getNavigationResult().empty()){
 	  msg() << ", falling back to L2 Navigation of size: "
-		<< dec->getL2Result().getNavigationResult().size() << endmsg;      
+		<< dec->getL2Result().getNavigationResult().size() << endreq;      
 	  unpacking_status = nav->deserialize(dec->getL2Result().getNavigationResult());
 	}
-	else msg() << endmsg;	
+	else msg() << endreq;	
       }
       if ( ! unpacking_status ) {
 	ATH_MSG_DEBUG("Full (L2 & EF) Navigation unpacking failed");
@@ -168,8 +158,6 @@ namespace Trig {
 	ATH_MSG_DEBUG("Unpacked Navigation ");  
       } 
     }
-    this->unpacked_navigation(true);
-
     return StatusCode::SUCCESS;
   }
 
@@ -193,10 +181,6 @@ namespace Trig {
   }
   void DecisionUnpackerAthena::invalidate_handle(){
     m_handle->invalidate();
-    this->unpacked_navigation(false);
-    this->unpacked_decision(false);
   }
 }
 #endif
-
-#endif // full Athena env

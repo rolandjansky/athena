@@ -4,16 +4,15 @@
 
 #ifndef TRIG_DECISIONUNPACKERATHENA_H
 #define TRIG_DECISIONUNPACKERATHENA_H
-
 #include "TrigConfHLTData/HLTChain.h"
 #include "TrigConfL1Data/CTPConfig.h"
 #include "TrigSteeringEvent/Chain.h"
 
 
 #include "TrigDecisionTool/IDecisionUnpacker.h"
-#include "TrigDecisionTool/Logger.h"
 #include "AsgTools/AsgMessaging.h"
 
+#include "DecisionObjectHandleAthena.h"
 
 class StoreGateSvc;
 
@@ -21,17 +20,10 @@ namespace HLT {
   class TrigNavStructure;
 }
 
-namespace LVL1CTP{
-  class Lvl1Item;
-  class Lvl1Result;
-}
-
 namespace Trig{  
+  
 
-
-  class DecisionObjectHandleAthena;  
-
-  class DecisionUnpackerAthena : public IDecisionUnpacker, public Logger {
+  class DecisionUnpackerAthena : public IDecisionUnpacker, public asg::AsgMessaging {
   public:
     DecisionUnpackerAthena(StoreGateSvc* sg, const std::string& key);
     virtual ~DecisionUnpackerAthena();
@@ -61,5 +53,7 @@ namespace Trig{
 
 
 } //end of Trig namespace
+
+
 
 #endif

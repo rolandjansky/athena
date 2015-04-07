@@ -16,12 +16,12 @@
 
 #include <vector>
 #include <exception>
-#include "TrigDecisionTool/ExpertMethods.h"
+#include "AthenaKernel/getMessageSvc.h"
 
-#if defined(ASGTOOL_ATHENA) && !defined(XAOD_ANALYSIS)
+#include "TrigDecisionTool/ExpertMethods.h"
 #include "TrigSteeringEvent/HLTResult.h"
+
 #include "TrigNavigation/AccessProxy.h"
-#endif
 
 #include "TrigSteeringEvent/Chain.h"
 #include "TrigConfHLTData/HLTSignature.h"
@@ -31,20 +31,23 @@
 #include "TrigDecisionTool/CacheGlobalMemory.h"
 #include "TrigDecisionTool/Logger.h"
 
-#include "xAODTrigger/TrigDecision.h"
+#define MLOG(x)   if (log().level()<=MSG::x) log() << MSG::x
 
 Trig::ExpertMethods::ExpertMethods(Trig::CacheGlobalMemory* cgm) 
-  : m_cacheGlobalMemory(cgm),
-    m_useExperimentalAndExpertMethods(false)   
+  : Logger("ExpertMethods"),
+    m_cacheGlobalMemory(cgm),
+    useExperimentalAndExpertMethods(false)   
 {
 }
 
 Trig::ExpertMethods::~ExpertMethods() {}
 
 bool Trig::ExpertMethods::checkExperimentalAndExpertMethods() const {
-  if (m_useExperimentalAndExpertMethods) return true;
+  if (useExperimentalAndExpertMethods) return true;
   else {
-    ATH_MSG_ERROR("You have not confirmed the use of experimental or expert TrigDecisionTool methods at this time.  Please take care before using such methods.");
+    log() << MSG::ERROR 
+	  <<"You have not confirmed the use of experimental or expert TrigDecisionTool methods at this time.  Please take care before using such methods." 
+	  << endreq;
     return false;
   }
 }
@@ -53,14 +56,14 @@ bool Trig::ExpertMethods::checkExperimentalAndExpertMethods() const {
 const TrigConf::TriggerItem*
 Trig::ExpertMethods::getItemConfigurationDetails(const std::string& chain) {
   if (!(checkExperimentalAndExpertMethods())) return 0;
-  ATH_MSG_VERBOSE("getting L1 item configuration details for: " << chain);
+  MLOG(VERBOSE) << "getting L1 item configuration details for: " << chain << endreq;
   return cgm(true)->config_item(chain);
 }
 
 const TrigConf::HLTChain*
 Trig::ExpertMethods::getChainConfigurationDetails(const std::string& chain) {
   if (!(checkExperimentalAndExpertMethods())) return 0;
-  ATH_MSG_VERBOSE("getting chain configuration details for: " << chain);
+  MLOG(VERBOSE) << "getting chain configuration details for: " << chain << endreq;
   return cgm(true)->config_chain(chain);
 }
 
@@ -76,25 +79,17 @@ const LVL1CTP::Lvl1Item* Trig::ExpertMethods::getItemDetails(const std::string& 
   return cgm()->item(chain);
 }
 
-#if defined(ASGTOOL_ATHENA) && !defined(XAOD_ANALYSIS)
 const HLT::NavigationCore* Trig::ExpertMethods::getNavigation() const
-{
-  if (!(checkExperimentalAndExpertMethods())) return 0;
-  return dynamic_cast<const HLT::NavigationCore*>(cgm()->navigation());
-}
-#else
-const HLT::TrigNavStructure* Trig::ExpertMethods::getNavigation() const
 {
   if (!(checkExperimentalAndExpertMethods())) return 0;
   return cgm()->navigation();
 }
-#endif
-
-
 Trig::CacheGlobalMemory* Trig::ExpertMethods::cgm(bool onlyConfig) const {
   if ( ! onlyConfig ) {
     if ( !const_cast<Trig::CacheGlobalMemory*>(m_cacheGlobalMemory)->assert_decision() ) {
-      ATH_MSG_WARNING("TDT has not ben able to unpack trigger decision");    
+      log() << MSG::WARNING
+	    <<"TDT has not ben able to unpack trigger decision" 
+	    << endreq;    
     } 
   } 
   return m_cacheGlobalMemory; 
@@ -104,27 +99,12 @@ Trig::CacheGlobalMemory* Trig::ExpertMethods::cgm(bool onlyConfig) const {
 
 
 bool Trig::ExpertMethods::isHLTTruncated() const {
-#if defined(ASGTOOL_ATHENA) && !defined(XAOD_ANALYSIS)
-    const HLT::HLTResult* res(0);
-    const xAOD::TrigDecision* trigDec(0);
-    auto navigation = getNavigation();
-    bool contains_xAOD_decision = cgm()->store()->transientContains<xAOD::TrigDecision>("xTrigDecision");
-    if(!contains_xAOD_decision){
-        if(!navigation || navigation->getAccessProxy()->retrieve(res, "HLTResult_HLT").isFailure()) {
-            ATH_MSG_WARNING("TDT has not ben able to get HLTResult_HLT");
-            return false;
-        }
-        return res->isHLTResultTruncated();   
-    }
-    else {
-        if(cgm()->store()->retrieve(trigDec,"xTrigDecision").isFailure()){
-            ATH_MSG_WARNING("TDT has not been able to retrieve xTrigDecision");
-            return false;
-        }
-        return trigDec->efTruncated();
-    }
-#else
-ATH_MSG_ERROR("isHLTTruncated only supported in full Athena");
-return false;
-#endif
+  const HLT::HLTResult* res(0);
+  if(cgm()->navigation()->getAccessProxy()->retrieve(res, "HLTResult_L2").isFailure()) {
+    log() << MSG::WARNING
+	  <<"TDT has not ben able to get HLTResult_L2" 
+	  << endreq;    
+    return false;
+  } 
+  return res->isHLTResultTruncated();    
 }

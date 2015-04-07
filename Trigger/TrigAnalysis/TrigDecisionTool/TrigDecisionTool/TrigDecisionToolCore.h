@@ -19,7 +19,10 @@
  * @author Joerg Stelzer  <Joerg.Stelzer@cern.ch>  - DESY
  *
  ***********************************************************************************/
-#include "AsgTools/StatusCode.h"
+#include "GaudiKernel/StatusCode.h"
+
+#include "TrigNavigation/Navigation.h"
+
 #include "TrigDecisionTool/ChainGroupFunctions.h"
 #include "TrigDecisionTool/Conditions.h"
 #include "TrigDecisionTool/ChainGroup.h"
@@ -37,7 +40,7 @@ namespace Trig {
   {
   public:
     // constructors, destructor
-    TrigDecisionToolCore();
+    TrigDecisionToolCore(const std::string& name);
     virtual ~TrigDecisionToolCore();
     
     // initialize routine as required for an Algorithm
@@ -58,6 +61,8 @@ namespace Trig {
     Trig::ExpertMethods* ExperimentalAndExpertMethods() const { return m_expertMethods; }
 
   protected:
+    const TrigDec::TrigDecision* m_decisionObject; //!< pointer to the decision object (i.e. can come from StoreGate or TTree)
+    
     virtual Trig::CacheGlobalMemory* cgm() const { return m_cacheGlobalMemory; }
 
     

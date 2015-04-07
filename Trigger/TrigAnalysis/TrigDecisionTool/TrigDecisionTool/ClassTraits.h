@@ -8,6 +8,8 @@
 #ifndef TRIGGER_DECISION_TOOL_ClassTraits_H
 #define TRIGGER_DECISION_TOOL_ClassTraits_H
 
+#include "AthContainers/DataVector.h"
+
 namespace TrigDec {
 
     // Here we define the trait classes.  The basic problem is
@@ -108,6 +110,7 @@ namespace TrigDec {
     DECLARE_ATTACHED_CONTAINER(Jet, JetCollection)
     DECLARE_ATTACHED_CONTAINER(CaloTower, CaloTowerContainer)
     DECLARE_ATTACHED_CONTAINER(egDetail, egDetailContainer)
+//    DECLARE_ATTACHED_CONTAINER_TYPEDEF(Trk, Track, DataVector<Trk::Track>)
     DECLARE_ATTACHED_CONTAINER_OBJECT_NAMESPACE(Trk, VxCandidate, VxContainer)
 
 #undef SPECIALIZE_CONTAINER_FOR_CLASS

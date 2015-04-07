@@ -19,7 +19,9 @@
 
 #include "TrigDecisionTool/TrigDecisionToolCore.h"
 
-Trig::TrigDecisionToolCore::TrigDecisionToolCore()
+Trig::TrigDecisionToolCore::TrigDecisionToolCore(const std::string& name)
+  : Logger(name),
+    m_decisionObject(0)
 {
   m_cacheGlobalMemory=new CacheGlobalMemory();
   m_expertMethods=new ExpertMethods(m_cacheGlobalMemory);
