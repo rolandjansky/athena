@@ -66,7 +66,7 @@ def getAFIIEnvelopeDefSvc(name="ISF_AFIIEnvelopeDefSvc", **kwargs):
     from AthenaCommon.SystemOfUnits import mm
     # ATLAS common envlope definitions
     kwargs.setdefault("ISFEnvelopeDefSvc"    , "ISF_ISFEnvelopeDefSvc"         )
-    kwargs.setdefault("InDetMaxExtentZ"      , 3550.*mm                        )
+    kwargs.setdefault("InDetMaxExtentZ"      , 3549.5*mm                       )
 
     from ISF_Services.ISF_ServicesConf import ISF__AFIIEnvelopeDefSvc
     return ISF__AFIIEnvelopeDefSvc(name, **kwargs)
