@@ -80,13 +80,14 @@ class TrigBjetFex: public HLT::FexAlgo {
 
   std::string m_jetKey;
   std::string m_priVtxKey;
+  std::string m_trackKey;
 
   /** @brief To retrieve track collections reconstructed at EF and stored in TrackParticleContainer. */
   HLT::ErrorCode getCollection(const xAOD::TrackParticleContainer*&, const HLT::TriggerElement*);
   /** @brief To retrieve primary vertex collections reconstructed and stored in TrigVertexCollection. */
   //  HLT::ErrorCode getPrmVtxCollection(const xAOD::VertexContainer*&, const HLT::TriggerElement*);
   /** @brief To retrieve primary vertex collections reconstructed and stored in VxContainer. */
-  HLT::ErrorCode getPrmVtxCollection(const xAOD::VertexContainer*&, const HLT::TriggerElement*);
+  HLT::ErrorCode getPrmVtxCollection(const xAOD::VertexContainer*&, const HLT::TriggerElement*, std::string priVtxKey);
   /** @brief To retrieve secondary vertex collections reconstructed and stored in Trk::VxSecVertexInfoContainer. */
   HLT::ErrorCode getSecVtxCollection(const Trk::VxSecVertexInfoContainer*&, const HLT::TriggerElement*);
   /** @brief To retrieve the EF secondary vertex information. */

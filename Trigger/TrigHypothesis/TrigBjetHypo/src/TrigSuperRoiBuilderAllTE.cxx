@@ -170,22 +170,22 @@ HLT::ErrorCode TrigSuperRoiBuilderAllTE::hltExecute(std::vector<std::vector<HLT:
     msg() << MSG::DEBUG << "Adding ROI descriptor to superROI!" << endreq;
     superRoi->push_back( roi );
 
-    // for checking Et and eta of jets in hypos later
-    TrigOperationalInfo* trigInfoJetEt = new TrigOperationalInfo();
-    trigInfoJetEt->set("EFJetEt", jetEt);
-    HLT::ErrorCode hltEtStatus = attachFeature(outputTE, trigInfoJetEt, "EFJetInfo"); 
-    if (hltEtStatus != HLT::OK) {
-      msg() << MSG::ERROR << "Failed to attach TrigOperationalInfo (jet Et) as feature" << endreq;
-      return hltEtStatus;
-    }
+//     // for checking Et and eta of jets in hypos later
+//     TrigOperationalInfo* trigInfoJetEt = new TrigOperationalInfo();
+//     trigInfoJetEt->set("EFJetEt", jetEt);
+//     HLT::ErrorCode hltEtStatus = attachFeature(outputTE, trigInfoJetEt, "EFJetInfo"); 
+//     if (hltEtStatus != HLT::OK) {
+//       msg() << MSG::ERROR << "Failed to attach TrigOperationalInfo (jet Et) as feature" << endreq;
+//       return hltEtStatus;
+//     }
 
-    TrigOperationalInfo* trigInfoJetEta = new TrigOperationalInfo();
-    trigInfoJetEta->set("EFJetEta", jetEta);
-    HLT::ErrorCode hltEtaStatus = attachFeature(outputTE, trigInfoJetEta, "EFJetInfo"); 
-    if (hltEtaStatus != HLT::OK) {
-      msg() << MSG::ERROR << "Failed to attach TrigOperationalInfo (jet eta) as feature" << endreq;
-      return hltEtaStatus;
-    }
+//     TrigOperationalInfo* trigInfoJetEta = new TrigOperationalInfo();
+//     trigInfoJetEta->set("EFJetEta", jetEta);
+//     HLT::ErrorCode hltEtaStatus = attachFeature(outputTE, trigInfoJetEta, "EFJetInfo"); 
+//     if (hltEtaStatus != HLT::OK) {
+//       msg() << MSG::ERROR << "Failed to attach TrigOperationalInfo (jet eta) as feature" << endreq;
+//       return hltEtaStatus;
+//     }
 
     // Ideally would have liked to attach a view container
     // but these cannot be persistified at the moment...

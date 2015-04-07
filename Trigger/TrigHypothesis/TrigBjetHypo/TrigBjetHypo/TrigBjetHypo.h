@@ -60,10 +60,7 @@ class TrigBjetHypo : public HLT::HypoAlgo {
  private:
 
   /** @brief Total execution time of TrigBjetFex class. */
-  TrigTimer *m_totTimer;
-
-  /** @brief Pointer to TrigEFBjet collection. */
-  TrigEFBjetContainer* m_trigEFBjetColl;
+  //TrigTimer *m_totTimer;
 
   std::string m_jetKey;
 

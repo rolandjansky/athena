@@ -145,7 +145,7 @@ void TrigBjetTagger::getWeights(std::vector<TrigBjetTrackInfo>*& m_trigBjetTrack
       if ((*pTagger).find("IP") == std::string::npos) continue;
 
       if (m_logLvl <= MSG::DEBUG) 
-         m_log << MSG::DEBUG << "Calculating IP likelihood weights for tagger " << (*pTagger) << endreq;
+	m_log << MSG::DEBUG << "Calculating IP likelihood weights for tagger " << (*pTagger) << endreq;
 
       if (m_logLvl <= MSG::VERBOSE)
 	m_log << MSG::VERBOSE << (*pTrack) << endreq;
@@ -235,91 +235,148 @@ void TrigBjetTagger::getWeights(std::vector<TrigBjetTrackInfo>*& m_trigBjetTrack
 
   if(m_trigBjetSecVtxInfo->isValid()) {
      
-     for ( ; pTagger != lastTagger; pTagger++) {
+    for ( ; pTagger != lastTagger; pTagger++) {
         
-        if ((*pTagger).find("VTX") == std::string::npos) continue;
+      if ((*pTagger).find("VTX") == std::string::npos) continue;
         
-        if (m_logLvl <= MSG::DEBUG) 
-           m_log << MSG::DEBUG << "Calculating " << (*pTagger) << " likelihood weight" << endreq;
+      if (m_logLvl <= MSG::DEBUG) 
+	m_log << MSG::DEBUG << "Calculating " << (*pTagger) << " likelihood weight" << endreq;
         
-        if ((*pTagger) == "MVTX") {
+      if ((*pTagger) == "MVTX") {
 
-	  double Pu=1, Pb=1;           
-	  getPuPb("MVTX", m_trigBjetSecVtxInfo->vtxMass(), Pu, Pb);
-	  m_taggersWMap[(*pTagger)] = getW("MVTX", m_trigBjetSecVtxInfo->vtxMass());
-	  m_taggersPuMap[(*pTagger)] = Pu;
-	  m_taggersPbMap[(*pTagger)] = Pb;
+	double Pu=1, Pb=1;           
+	getPuPb("MVTX", m_trigBjetSecVtxInfo->vtxMass(), Pu, Pb);
+	m_taggersWMap[(*pTagger)] = getW("MVTX", m_trigBjetSecVtxInfo->vtxMass());
+	m_taggersPuMap[(*pTagger)] = Pu;
+	m_taggersPbMap[(*pTagger)] = Pb;
            
-           if (m_logLvl <= MSG::DEBUG) {
-              m_log << MSG::DEBUG << "Invariant mass " << m_trigBjetSecVtxInfo->vtxMass() << endreq;
-              m_log << MSG::DEBUG << "---> W(" << (*pTagger) << ") = " << m_taggersWMap[(*pTagger)]
-		    << ";   W(" << m_taggersPbMap[(*pTagger)] << "/" << m_taggersPuMap[(*pTagger)] << ") = " << m_taggersPbMap[(*pTagger)]/m_taggersPuMap[(*pTagger)] << endreq;
-           }
-        }
+	if (m_logLvl <= MSG::DEBUG) {
+	  m_log << MSG::DEBUG << "Invariant mass " << m_trigBjetSecVtxInfo->vtxMass() << endreq;
+	  m_log << MSG::DEBUG << "---> W(" << (*pTagger) << ") = " << m_taggersWMap[(*pTagger)]
+		<< ";   W(" << m_taggersPbMap[(*pTagger)] << "/" << m_taggersPuMap[(*pTagger)] << ") = " << m_taggersPbMap[(*pTagger)]/m_taggersPuMap[(*pTagger)] << endreq;
+	}
+      }
         
-        else if ((*pTagger) == "EVTX") { 
+      else if ((*pTagger) == "EVTX") { 
            
-	  double Pu=1, Pb=1;           
-	  getPuPb("EVTX", m_trigBjetSecVtxInfo->energyFraction(), Pu, Pb);
-	  m_taggersWMap[(*pTagger)] = getW("EVTX", m_trigBjetSecVtxInfo->energyFraction());
-	  m_taggersPuMap[(*pTagger)] = Pu;
-	  m_taggersPbMap[(*pTagger)] = Pb;
+	double Pu=1, Pb=1;           
+	getPuPb("EVTX", m_trigBjetSecVtxInfo->energyFraction(), Pu, Pb);
+	m_taggersWMap[(*pTagger)] = getW("EVTX", m_trigBjetSecVtxInfo->energyFraction());
+	m_taggersPuMap[(*pTagger)] = Pu;
+	m_taggersPbMap[(*pTagger)] = Pb;
            
-           if (m_logLvl <= MSG::DEBUG) {
-              m_log << MSG::DEBUG << "Fraction of energy " << m_trigBjetSecVtxInfo->energyFraction() << endreq;
-              m_log << MSG::DEBUG << "---> W(" << (*pTagger) << ") = " << m_taggersWMap[(*pTagger)]
-		    << ";   W(" << m_taggersPbMap[(*pTagger)] << "/" << m_taggersPuMap[(*pTagger)] << ") = " << m_taggersPbMap[(*pTagger)]/m_taggersPuMap[(*pTagger)] << endreq;
-           }
-        }
+	if (m_logLvl <= MSG::DEBUG) {
+	  m_log << MSG::DEBUG << "Fraction of energy " << m_trigBjetSecVtxInfo->energyFraction() << endreq;
+	  m_log << MSG::DEBUG << "---> W(" << (*pTagger) << ") = " << m_taggersWMap[(*pTagger)]
+		<< ";   W(" << m_taggersPbMap[(*pTagger)] << "/" << m_taggersPuMap[(*pTagger)] << ") = " << m_taggersPbMap[(*pTagger)]/m_taggersPuMap[(*pTagger)] << endreq;
+	}
+      }
         
-        else if ((*pTagger) == "NVTX") { 
+      else if ((*pTagger) == "NVTX") { 
            
-	  double Pu=1, Pb=1;           
-	  getPuPb("NVTX", m_trigBjetSecVtxInfo->nTrksInVtx(), Pu, Pb);
-	  m_taggersWMap[(*pTagger)] = getW("NVTX", m_trigBjetSecVtxInfo->nTrksInVtx());
-	  m_taggersPuMap[(*pTagger)] = Pu;
-	  m_taggersPbMap[(*pTagger)] = Pb;
+	double Pu=1, Pb=1;           
+	getPuPb("NVTX", m_trigBjetSecVtxInfo->nTrksInVtx(), Pu, Pb);
+	m_taggersWMap[(*pTagger)] = getW("NVTX", m_trigBjetSecVtxInfo->nTrksInVtx());
+	m_taggersPuMap[(*pTagger)] = Pu;
+	m_taggersPbMap[(*pTagger)] = Pb;
            
-           if (m_logLvl <= MSG::DEBUG) {
-              m_log << MSG::DEBUG << "Number of tracks " << m_trigBjetSecVtxInfo->nTrksInVtx() << endreq;
-              m_log << MSG::DEBUG << "---> W(" << (*pTagger) << ") = " << m_taggersWMap[(*pTagger)]
-		    << ";   W(" << m_taggersPbMap[(*pTagger)] << "/" << m_taggersPuMap[(*pTagger)] << ") = " << m_taggersPbMap[(*pTagger)]/m_taggersPuMap[(*pTagger)] << endreq;
-           }
-        } 
+	if (m_logLvl <= MSG::DEBUG) {
+	  m_log << MSG::DEBUG << "Number of tracks " << m_trigBjetSecVtxInfo->nTrksInVtx() << endreq;
+	  m_log << MSG::DEBUG << "---> W(" << (*pTagger) << ") = " << m_taggersWMap[(*pTagger)]
+		<< ";   W(" << m_taggersPbMap[(*pTagger)] << "/" << m_taggersPuMap[(*pTagger)] << ") = " << m_taggersPbMap[(*pTagger)]/m_taggersPuMap[(*pTagger)] << endreq;
+	}
+      } 
         
-        else if ((*pTagger) == "SVTX") {
+      else if ((*pTagger) == "SVTX") {
            
-	  double Pu=1, Pb=1;           
-	  getPuPb("SVTX", m_trigBjetSecVtxInfo->vtxMass(), m_trigBjetSecVtxInfo->energyFraction(), m_trigBjetSecVtxInfo->nTrksInVtx(), Pu, Pb);
-	  m_taggersWMap[(*pTagger)] = getW("SVTX", m_trigBjetSecVtxInfo->vtxMass(), m_trigBjetSecVtxInfo->energyFraction(), m_trigBjetSecVtxInfo->nTrksInVtx());
-	  m_taggersPuMap[(*pTagger)] = Pu;
-	  m_taggersPbMap[(*pTagger)] = Pb;
+	double Pu=1, Pb=1;           
+	getPuPb("SVTX", m_trigBjetSecVtxInfo->vtxMass(), m_trigBjetSecVtxInfo->energyFraction(), m_trigBjetSecVtxInfo->nTrksInVtx(), Pu, Pb);
+	m_taggersWMap[(*pTagger)] = getW("SVTX", m_trigBjetSecVtxInfo->vtxMass(), m_trigBjetSecVtxInfo->energyFraction(), m_trigBjetSecVtxInfo->nTrksInVtx());
+	m_taggersPuMap[(*pTagger)] = Pu;
+	m_taggersPbMap[(*pTagger)] = Pb;
            
-           if (m_logLvl <= MSG::DEBUG) {
-              m_log << MSG::DEBUG << "Invariant mass " << m_trigBjetSecVtxInfo->vtxMass() << " Fraction of energy " 
-                    << m_trigBjetSecVtxInfo->energyFraction() << " Number of tracks " << m_trigBjetSecVtxInfo->nTrksInVtx() << endreq;
-              m_log << MSG::DEBUG << "---> W(" << (*pTagger) << ") = " << m_taggersWMap[(*pTagger)]
-		    << ";   W(" << m_taggersPbMap[(*pTagger)] << "/" << m_taggersPuMap[(*pTagger)] << ") = " << m_taggersPbMap[(*pTagger)]/m_taggersPuMap[(*pTagger)] << endreq;
-           }
-        }
-     }
+	if (m_logLvl <= MSG::DEBUG) {
+	  m_log << MSG::DEBUG << "Invariant mass " << m_trigBjetSecVtxInfo->vtxMass() << " Fraction of energy " 
+		<< m_trigBjetSecVtxInfo->energyFraction() << " Number of tracks " << m_trigBjetSecVtxInfo->nTrksInVtx() << endreq;
+	  m_log << MSG::DEBUG << "---> W(" << (*pTagger) << ") = " << m_taggersWMap[(*pTagger)]
+		<< ";   W(" << m_taggersPbMap[(*pTagger)] << "/" << m_taggersPuMap[(*pTagger)] << ") = " << m_taggersPbMap[(*pTagger)]/m_taggersPuMap[(*pTagger)] << endreq;
+	}
+      }
+    }
+
+  } else {
+
+    for ( ; pTagger != lastTagger; pTagger++) {
+      
+      if ((*pTagger).find("VTX") == std::string::npos) continue;
+        
+      if (m_logLvl <= MSG::DEBUG) 
+	m_log << MSG::DEBUG << "Calculating " << (*pTagger) << " likelihood weight" << endreq;
+      
+      if ((*pTagger) == "MVTX") {
+	
+	double Pu=1, Pb=1;           
+	getPuPb("MVTX", 0.0, Pu, Pb);
+	m_taggersWMap[(*pTagger)] = getW("MVTX", 0.0);
+	m_taggersPuMap[(*pTagger)] = Pu;
+	m_taggersPbMap[(*pTagger)] = Pb;
+           
+	if (m_logLvl <= MSG::DEBUG) {
+	  m_log << MSG::DEBUG << "Invariant mass " << 0.0 << endreq;
+	  m_log << MSG::DEBUG << "---> W(" << (*pTagger) << ") = " << m_taggersWMap[(*pTagger)]
+		<< ";   W(" << m_taggersPbMap[(*pTagger)] << "/" << m_taggersPuMap[(*pTagger)] << ") = " << m_taggersPbMap[(*pTagger)]/m_taggersPuMap[(*pTagger)] << endreq;
+	}
+      }
+        
+      else if ((*pTagger) == "EVTX") { 
+           
+	double Pu=1, Pb=1;           
+	getPuPb("EVTX", 0.0, Pu, Pb);
+	m_taggersWMap[(*pTagger)] = getW("EVTX", 0.0);
+	m_taggersPuMap[(*pTagger)] = Pu;
+	m_taggersPbMap[(*pTagger)] = Pb;
+           
+	if (m_logLvl <= MSG::DEBUG) {
+	  m_log << MSG::DEBUG << "Fraction of energy " << 0.0 << endreq;
+	  m_log << MSG::DEBUG << "---> W(" << (*pTagger) << ") = " << m_taggersWMap[(*pTagger)]
+		<< ";   W(" << m_taggersPbMap[(*pTagger)] << "/" << m_taggersPuMap[(*pTagger)] << ") = " << m_taggersPbMap[(*pTagger)]/m_taggersPuMap[(*pTagger)] << endreq;
+	}
+      }
+        
+      else if ((*pTagger) == "NVTX") { 
+           
+	double Pu=1, Pb=1;           
+	getPuPb("NVTX", 0.0, Pu, Pb);
+	m_taggersWMap[(*pTagger)] = getW("NVTX",  0.0);
+	m_taggersPuMap[(*pTagger)] = Pu;
+	m_taggersPbMap[(*pTagger)] = Pb;
+           
+	if (m_logLvl <= MSG::DEBUG) {
+	  m_log << MSG::DEBUG << "Number of tracks " << 0.0 << endreq;
+	  m_log << MSG::DEBUG << "---> W(" << (*pTagger) << ") = " << m_taggersWMap[(*pTagger)]
+		<< ";   W(" << m_taggersPbMap[(*pTagger)] << "/" << m_taggersPuMap[(*pTagger)] << ") = " << m_taggersPbMap[(*pTagger)]/m_taggersPuMap[(*pTagger)] << endreq;
+	}
+      } 
+        
+    }
+
   }
 
   pTagger = m_trigBjetFex->m_taggers.begin();
 
   if (!m_trigBjetTrackInfoVector->size() && !m_trigBjetSecVtxInfo->isValid()) {
 
-     if (m_logLvl <= MSG::DEBUG) {
-        m_log << MSG::DEBUG << " No track info or sec vtx info available, set likelihood taggers to default" << endreq;
-     }        
+    if (m_logLvl <= MSG::DEBUG) {
+      m_log << MSG::DEBUG << " No track info or sec vtx info available, set likelihood taggers to default" << endreq;
+    }        
 
-     m_taggersPuMap["IP1D"]=m_taggersPuMap["IP2D"]=m_taggersPuMap["IP3D"]=1e9;
-     m_taggersPbMap["IP1D"]=m_taggersPbMap["IP2D"]=m_taggersPbMap["IP3D"]=1;
-     m_taggersPuMap["MVTX"]=m_taggersPuMap["EVTX"]=m_taggersPuMap["NVTX"]=1;
-     m_taggersPbMap["MVTX"]=m_taggersPbMap["EVTX"]=m_taggersPbMap["NVTX"]=1;
+    m_taggersPuMap["IP1D"]=m_taggersPuMap["IP2D"]=m_taggersPuMap["IP3D"]=1e9;
+    m_taggersPbMap["IP1D"]=m_taggersPbMap["IP2D"]=m_taggersPbMap["IP3D"]=1;
+    m_taggersPuMap["MVTX"]=m_taggersPuMap["EVTX"]=m_taggersPuMap["NVTX"]=1;
+    m_taggersPbMap["MVTX"]=m_taggersPbMap["EVTX"]=m_taggersPbMap["NVTX"]=1;
 
-     for ( ; pTagger != lastTagger; pTagger++)
-       m_taggersXMap[(*pTagger)] = -46;
+    for ( ; pTagger != lastTagger; pTagger++)
+      m_taggersXMap[(*pTagger)] = -46;
 
   } else if (!m_trigBjetTrackInfoVector->size()) {
     
@@ -346,25 +403,25 @@ void TrigBjetTagger::getWeights(std::vector<TrigBjetTrackInfo>*& m_trigBjetTrack
       m_log << MSG::DEBUG << "There is a valid sec vtx but MVTX weight is " << m_taggersXMap["MVTX"] << ". Should not happen!" << endreq;
     }
     
-  } else if (!m_trigBjetSecVtxInfo->isValid()) {
-    
-    if (m_logLvl <= MSG::DEBUG)
-      m_log << MSG::DEBUG << " No valid sec vtx but track info exists" << endreq;
-    
-    m_taggersPuMap["MVTX"]=m_taggersPuMap["EVTX"]=m_taggersPuMap["NVTX"]=1;
-    m_taggersPbMap["MVTX"]=m_taggersPbMap["EVTX"]=m_taggersPbMap["NVTX"]=1;
-
-    for ( ; pTagger != lastTagger; pTagger++) {
-      if ((*pTagger).find("COMB") != std::string::npos) continue; //skip combined here, set separately below
-      if ((*pTagger).find("VTX") == std::string::npos) {
-	m_taggersXMap[(*pTagger)] = getX(m_taggersWMap[(*pTagger)]);
-      } else {
-	m_taggersXMap[(*pTagger)] = -42;
-      }
-    }
-    
-    m_taggersWMap["COMB"] = m_taggersWMap["IP3D"];
-    m_taggersXMap["COMB"] = getXComb(m_taggersWMap["COMB"]);
+//  } else if (!m_trigBjetSecVtxInfo->isValid()) {
+//    
+//    if (m_logLvl <= MSG::DEBUG)
+//      m_log << MSG::DEBUG << " No valid sec vtx but track info exists" << endreq;
+//    
+//    m_taggersPuMap["MVTX"]=m_taggersPuMap["EVTX"]=m_taggersPuMap["NVTX"]=1;
+//    m_taggersPbMap["MVTX"]=m_taggersPbMap["EVTX"]=m_taggersPbMap["NVTX"]=1;
+//
+//    for ( ; pTagger != lastTagger; pTagger++) {
+//      if ((*pTagger).find("COMB") != std::string::npos) continue; //skip combined here, set separately below
+//      if ((*pTagger).find("VTX") == std::string::npos) {
+//	m_taggersXMap[(*pTagger)] = getX(m_taggersWMap[(*pTagger)]);
+//      } else {
+//	m_taggersXMap[(*pTagger)] = -42;
+//      }
+//    }
+//    
+//    m_taggersWMap["COMB"] = m_taggersWMap["IP3D"];
+//    m_taggersXMap["COMB"] = getXComb(m_taggersWMap["COMB"]);
 
   } else {
     
@@ -402,7 +459,7 @@ void TrigBjetTagger::getWeights(std::vector<TrigBjetTrackInfo>*& m_trigBjetTrack
 
     float m_IP2D = d0Sign/sqrt((*pTrack).ed0()*(*pTrack).ed0() + m_sigmaBeamSpot*m_sigmaBeamSpot);
 
-    if(fabs(m_IP2D <= 15.0)) {
+    if(fabs(m_IP2D) <= 15.0) {
       if((*pTrack).grade() == 1) p = f_ip(-m_IP2D,1);
       if((*pTrack).grade() == 2) p = f_ip(-m_IP2D,0);
     } else p = 0.0001;
@@ -772,9 +829,9 @@ float TrigBjetTagger::f_ip(float x, int iclass) {
   } else {
 
     if (iclass==0)
-        p = &m_trigBjetFex->m_par_0_MC[0];
+      p = &m_trigBjetFex->m_par_0_MC[0];
     else if (iclass==1)
-        p = &m_trigBjetFex->m_par_1_MC[0];
+      p = &m_trigBjetFex->m_par_1_MC[0];
 
   }
 

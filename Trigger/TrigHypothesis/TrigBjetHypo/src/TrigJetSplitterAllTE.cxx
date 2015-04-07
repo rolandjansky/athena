@@ -33,7 +33,7 @@ TrigJetSplitterAllTE::TrigJetSplitterAllTE(const std::string & name, ISvcLocator
 {
   declareProperty ("JetInputKey",  m_jetInputKey  = "TrigJetRec");
   declareProperty ("JetOutputKey", m_jetOutputKey = "SplitJet");
-  declareProperty ("PriVtxKey",    m_priVtxKey    = "EFHistoPrmVtx"); 
+  declareProperty ("PriVtxKey",    m_priVtxKey    = "xPrimVx"); //"EFHistoPrmVtx" 
   declareProperty ("EtaHalfWidth", m_etaHalfWidth = 0.4);
   declareProperty ("PhiHalfWidth", m_phiHalfWidth = 0.4);
   declareProperty ("ZHalfWidth",   m_zHalfWidth   = 20.0);// in mm?
