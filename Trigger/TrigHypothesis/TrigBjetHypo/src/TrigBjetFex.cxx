@@ -80,6 +80,7 @@ TrigBjetFex::TrigBjetFex(const std::string& name, ISvcLocator* pSvcLocator) :
   declareProperty ("Taggers",            m_taggers);
   declareProperty ("JetKey",             m_jetKey     = ""); //"" needed for default config, SplitJet for new config
   declareProperty ("PriVtxKey",          m_priVtxKey  = "EFHistoPrmVtx");
+  declareProperty ("TrackKey",           m_trackKey   = ""); //"" needed for default config, Bjet_IDTrig for new config?
 
   declareProperty ("par_0_MC",           m_par_0_MC);
   declareProperty ("par_1_MC",           m_par_1_MC);
@@ -367,11 +368,12 @@ HLT::ErrorCode TrigBjetFex::getCollection(const xAOD::TrackParticleContainer*& p
 
   std::vector<const xAOD::TrackParticleContainer*> vectorOfEFTrackCollections;
 
-  HLT::ErrorCode status = getFeatures(outputTE, vectorOfEFTrackCollections, ""); 
+  HLT::ErrorCode status = getFeatures(outputTE, vectorOfEFTrackCollections, m_trackKey); 
 
   if (status != HLT::OK) {
     msg() << MSG::ERROR << "Failed to get TrackParticleContainer from the trigger element" << endreq;
-  } else if (msgLvl() <= MSG::DEBUG) 
+  } 
+  else if (msgLvl() <= MSG::DEBUG) 
     msg() << MSG::DEBUG << "Got " << vectorOfEFTrackCollections.size() << " TrackParticleContainer" << endreq;
   
   std::vector<const xAOD::TrackParticleContainer*>::iterator pTrackColl    = vectorOfEFTrackCollections.begin();
@@ -380,7 +382,8 @@ HLT::ErrorCode TrigBjetFex::getCollection(const xAOD::TrackParticleContainer*& p
   if (pTrackColl == lastTrackColl) {
     pointerToEFTrackCollections = 0;
     return HLT::ERROR;
-  } else {
+  } 
+  else {
     pointerToEFTrackCollections = *pTrackColl;
     return HLT::OK;
   }
@@ -994,14 +997,14 @@ HLT::ErrorCode TrigBjetFex::hltExecute(const HLT::TriggerElement* /*inputTE*/, H
   // -----------------------------------
   // Get EF track collection 
   // -----------------------------------
-  //HLT::ErrorCode status = getFeature(outputTE, pointerToEFTrackCollections, "");
-  HLT::ErrorCode status = getFeature(outputTE, pointerToEFTrackCollections);
+  HLT::ErrorCode status = getFeature(outputTE, pointerToEFTrackCollections, m_trackKey);
 
   if (status != HLT::OK) {
     msg() << MSG::DEBUG << "No HLT track collection retrieved" << endreq;
   } 
-  else if (msgLvl() <= MSG::DEBUG)
-    msg() << MSG::DEBUG << "HLT track collection retrieved" << endreq;
+  else if (msgLvl() <= MSG::DEBUG) {
+    msg() << MSG::DEBUG << "HLT track collection retrieved with size = " << pointerToEFTrackCollections->size() << endreq;
+  }
 
   // -----------------------------------
   // Get secondary vertex collection 
@@ -1107,7 +1110,7 @@ HLT::ErrorCode TrigBjetFex::hltExecute(const HLT::TriggerElement* /*inputTE*/, H
   for (unsigned int j = 0; j < m_totTracks; j++) {
     
     const xAOD::TrackParticle* track = (*pointerToEFTrackCollections)[j];
-    
+
     m_mon_trk_a0.push_back(track->d0());
     m_mon_trk_z0.push_back(track->z0() + m_trigBjetPrmVtxInfo->zBeamSpot());
     

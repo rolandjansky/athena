@@ -80,6 +80,7 @@ class TrigBjetFex: public HLT::FexAlgo {
 
   std::string m_jetKey;
   std::string m_priVtxKey;
+  std::string m_trackKey;
 
   /** @brief To retrieve track collections reconstructed at EF and stored in TrackParticleContainer. */
   HLT::ErrorCode getCollection(const xAOD::TrackParticleContainer*&, const HLT::TriggerElement*);

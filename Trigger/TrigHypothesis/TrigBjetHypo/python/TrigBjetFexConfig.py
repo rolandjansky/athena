@@ -197,6 +197,7 @@ class BjetFexSplit (TrigBjetFex):
 
         self.JetKey = "SplitJet"
         self.PriVtxKey = "xPrimVx" #"EFHistoPrmVtx"
+        self.TrackKey = "InDetTrigTrackingxAODCnv_Bjet_IDTrig"
         
         self.par_0_MC = getTuning_par_0_MC(calibInstance)
         self.par_1_MC = getTuning_par_1_MC(calibInstance)
