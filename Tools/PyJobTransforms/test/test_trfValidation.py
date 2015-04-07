@@ -5,7 +5,7 @@
 ## @Package test_trfValidation.py
 #  @brief Unittests for trfValidation.py
 #  @author graeme.andrew.stewart@cern.ch
-#  @version $Id: test_trfValidation.py 636448 2014-12-17 11:40:15Z graemes $
+#  @version $Id: test_trfValidation.py 659213 2015-04-07 13:20:39Z graemes $
 
 import unittest
 
@@ -407,6 +407,10 @@ class athenaLogFileReportTests(unittest.TestCase):
 22:41:44 ./runwrapper.AODMerge.sh: line 10:  6608 Segmentation fault      athena.py --preloadlib=/cvmfs/atlas.cern.ch/repo/sw/software/x86_64-slc6-gcc47-opt/19.1.1/sw/IntelSoftware/linux/x86_64/xe2013/composer_xe_2013.3.163/compiler/lib/intel64/libintlc.so.5:/cvmfs/atlas.cern.ch/repo/sw/software/x86_64-slc6-gcc47-opt/19.1.1/sw/IntelSoftware/linux/x86_64/xe2013/composer_xe_2013.3.163/compiler/lib/intel64/libimf.so --drop-and-reload runargs.AODMerge.py RecJobTransforms/skeleton.MergePool_tf.py
 '''
 
+        testSuppressExcerpt = ""
+        for i in range(100):
+            testSuppressExcerpt += "12:13:14 DummyAlg ERROR An error message number {0}\n".format(i)
+
         with open('file1', 'w') as f1:
             print >> f1, 'This is test file 1 w/o meaning'
         with open('file2', 'w') as f2:
@@ -416,14 +420,17 @@ class athenaLogFileReportTests(unittest.TestCase):
             print >> f3, testErrorExcerpt
         with open('file4', 'w') as f4:
             print >> f4, testBadAlloc
+        with open('file5', 'w') as f5:
+            print >> f5, testSuppressExcerpt
 
         self.myFileReport1 = athenaLogFileReport('file1')
         self.myFileReport2 = athenaLogFileReport('file2')
         self.myFileReport3 = athenaLogFileReport('file3')
         self.myFileReport4 = athenaLogFileReport('file4')
+        self.myFileReport5 = athenaLogFileReport('file5')
 
     def tearDown(self):
-        for f in 'file1', 'file2', 'file3', 'file4':
+        for f in 'file1', 'file2', 'file3', 'file4', 'file5':
             try:
                 os.unlink(f)
             except OSError:
@@ -451,6 +458,11 @@ class athenaLogFileReportTests(unittest.TestCase):
         self.assertEqual(self.myFileReport4.worstError(), {'level': 'CATASTROPHE', 'nLevel': stdLogLevels['CATASTROPHE'],
                                                            'firstError': {'count': 1, 'firstLine': 11,
                                                                           'message': 'TrigDecisionCnvAlg                                  ERROR std::bad_alloc'}})
+    def test_suppress(self):
+        print self.myFileReport5
+        self.assertEqual(self.myFileReport5._levelCounter['ERROR'], 100)
+        self.assertEqual(len(self.myFileReport5._errorDetails['ERROR']), 10)
+        pass
     ## TODO
     # Special tests for G4 errors and core dumps
 

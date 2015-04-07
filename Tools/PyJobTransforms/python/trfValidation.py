@@ -6,7 +6,7 @@
 # @details Contains validation classes controlling how the transforms
 # will validate jobs they run.
 # @author atlas-comp-transforms-dev@cern.ch
-# @version $Id: trfValidation.py 634986 2014-12-10 12:43:21Z graemes $
+# @version $Id: trfValidation.py 659213 2015-04-07 13:20:39Z graemes $
 # @note Old validation dictionary shows usefully different options:
 # <tt>self.validationOptions = {'testIfEmpty' : True, 'testIfNoEvents' : False, 'testIfExists' : True,
 #                          'testIfCorrupt' : True, 'testCountEvents' : True, 'extraValidation' : False,
@@ -229,6 +229,7 @@ class athenaLogFileReport(logFileReport):
 
         self._metaPat = re.compile(r"MetaData:\s+(.*?)\s*=\s*(.*)$")
         self._metaData = {}
+        self._msgLimit = msgLimit
 
         self.resetReport()
 
@@ -345,15 +346,20 @@ class athenaLogFileReport(logFileReport):
                 # Record some error details
                 # N.B. We record 'IGNORED' errors as these really should be flagged for fixing
                 if fields['level'] is 'IGNORED' or stdLogLevels[fields['level']] >= self._msgDetails:
-                    detailsHandled = False
-                    for seenError in self._errorDetails[fields['level']]:
-                        if seenError['message'] == line:
-                            seenError['count'] += 1
-                            detailsHandled = True
-                            break
-                    if detailsHandled == False:
-                        self._errorDetails[fields['level']].append({'message': line, 'firstLine': lineCounter, 'count': 1})
-
+                    if self._levelCounter[fields['level']] <= self._msgLimit: 
+                        detailsHandled = False
+                        for seenError in self._errorDetails[fields['level']]:
+                            if seenError['message'] == line:
+                                seenError['count'] += 1
+                                detailsHandled = True
+                                break
+                        if detailsHandled == False:
+                            self._errorDetails[fields['level']].append({'message': line, 'firstLine': lineCounter, 'count': 1})
+                    elif self._levelCounter[fields['level']] == self._msgLimit + 1:
+                        msg.warning("Found message number {0} at level {1} - this and further messages will be supressed from the report".format(self._levelCounter[fields['level']], fields['level']))
+                    else:
+                        # Overcounted
+                        pass
 
     ## Return the worst error found in the logfile (first error of the most serious type)
     def worstError(self):

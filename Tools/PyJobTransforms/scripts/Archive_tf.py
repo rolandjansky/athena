@@ -3,17 +3,13 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 ## Archiving transform which will tar or zip input files to an output file
-# @version $Id: Archive_tf.py 531319 2012-12-20 09:49:53Z graemes $ 
+# @version $Id: Archive_tf.py 659213 2015-04-07 13:20:39Z graemes $ 
 
 import os.path
 import sys
 import time
 
 import logging
-
-# This is a hack for Prodsys I. To generate this list use the --dumpargs option to the transform, then paste in here
-# N.B. This all has to go on one line!
-ListOfDefaultPositionalKeys=['--compressionType', '--ignoreErrors', '--inputFile', '--omitFileValidation', '--outputFile', '--uploadtoami', '--validation']
 
 # Setup core logging here
 from PyJobTransforms.trfLogger import msg

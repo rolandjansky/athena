@@ -3,7 +3,7 @@
 ## @package PyJobTransforms.trfArgClasses
 # @brief Transform argument class definitions
 # @author atlas-comp-transforms-dev@cern.ch
-# @version $Id: trfArgClasses.py 652372 2015-03-06 22:13:05Z graemes $
+# @version $Id: trfArgClasses.py 659213 2015-04-07 13:20:39Z graemes $
 
 import argparse
 import bz2
@@ -1749,7 +1749,8 @@ class argSubstep(argument):
 
     @property
     def prodsysDescription(self):
-        desc = {'type': 'substep', 'substeptype': 'str'}
+        desc = {'type': 'substep', 'substeptype': 'str', 'separator': self._separator,
+                'default': self._defaultSubstep}
         return desc
     
 ## @brief Argument class for substep lists, suitable for preExec/postExec 
@@ -1775,7 +1776,9 @@ class argSubstepList(argSubstep):
 
     @property
     def prodsysDescription(self):
-        desc = {'type': 'substep', 'substeptype': 'list', 'listtype': 'str'}
+        desc = {'type': 'substep', 'substeptype': 'list', 'listtype': 'str',
+                'separator': self._separator,
+                'default': self._defaultSubstep}
         return desc
     @value.setter
     def value(self, value):
@@ -1826,7 +1829,8 @@ class argSubstepBool(argSubstep):
 
     @property
     def prodsysDescription(self):
-        desc = {'type': 'substep', 'substeptype': 'bool'}
+        desc = {'type': 'substep', 'substeptype': 'bool', 'separator': self._separator,
+                'default': self._defaultSubstep}
         return desc
     
     @value.setter
@@ -1868,7 +1872,8 @@ class argSubstepInt(argSubstep):
  
     @property
     def prodsysDescription(self):
-        desc = {'type': 'substep', 'substeptype': 'int'}
+        desc = {'type': 'substep', 'substeptype': 'int', 'separator': self._separator,
+                'default': self._defaultSubstep}
         return desc
    
     @value.setter
@@ -1915,7 +1920,8 @@ class argSubstepFloat(argSubstep):
         
     @property
     def prodsysDescription(self):
-        desc = {'type': 'substep', 'substeptype': 'float'}     
+        desc = {'type': 'substep', 'substeptype': 'float', 'separator': self._separator,
+                'default': self._defaultSubstep}     
         if self._min:
             desc['min'] = self._min
         if self._max:
@@ -1990,7 +1996,8 @@ class argSubstepSteering(argSubstep):
 
     @property
     def prodsysDescription(self):
-        desc = {'type': 'substep', 'substeptype': 'steering', 'listtype': 'str'}
+        desc = {'type': 'substep', 'substeptype': 'steering', 'listtype': 'str', 'separator': self._separator,
+                'default': self._defaultSubstep}
         return desc
     
     ## @details For strings passed to the setter we expect the format to be @c substep:{in/out}{+/-}DATATYPE
@@ -2065,14 +2072,19 @@ class trfArgParser(argparse.ArgumentParser):
         super(trfArgParser, self).__init__(*args, **kwargs)
 
     def add_argument(self, *args, **kwargs):
-        # Convert argument name to argparse standard
-        argName = cliToKey(args[0])
-        msg.debug('found arg name {0}'.format(argName))
+        argName = args[0].lstrip('-')
+        msg.debug('Found arg name {0}'.format(argName))
+
+        # Ban arguments with hyphens as they cause trouble in signature files and then
+        # AMI tag definitions because of the auto-translation to underscores in argparse
+        if '-' in argName:
+            raise trfExceptions.TransformArgException(trfExit.nameToCode('TRF_ARG_ERROR'),
+                                                      'Transform arguments may not use hyphens (use camelCase or underscore')
         
         # Prevent a crash if this argument already exists (there are valid use cases for 'grabbing' an
-        # argument, so this is INFO, not WARNING)
+        # argument, so this is DEBUG, not WARNING)
         if argName in self._argClass:
-            msg.info('Double definition of argument {0} - ignored'.format(argName))
+            msg.debug('Double definition of argument {0} - ignored'.format(argName))
             return
         
         # if there is a help function defined for the argument then populate the helpString dict

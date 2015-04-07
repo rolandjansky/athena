@@ -6,10 +6,10 @@
 #  @details Classes whose instance encapsulates transform reports
 #   at different levels, such as file, executor, transform
 #  @author atlas-comp-transforms-dev@cern.ch
-#  @version $Id: trfReports.py 623865 2014-10-24 12:39:44Z graemes $
+#  @version $Id: trfReports.py 659213 2015-04-07 13:20:39Z graemes $
 #
 
-__version__ = '$Revision: 623865 $'
+__version__ = '$Revision: 659213 $'
 
 import cPickle as pickle
 import json
@@ -308,7 +308,11 @@ class trfExecutorReport(object):
 
         # Do we have a logscan to add?
         if hasattr(self._exe, '_logScan'):
-            reportDict['logfileReport'] = self._exe._logScan.python
+            try:
+                json.dumps(self._exe._logScan.python)
+                reportDict['logfileReport'] = self._exe._logScan.python
+            except UnicodeDecodeError, e:
+                msg.error('Problem with serialising logfile report as JSON - this will be skipped from the report ({0})'.format(e))
             reportDict['metaData'] = self._exe._logScan._metaData
 
         # Asetup information

@@ -18,12 +18,12 @@ from PyJobTransforms.trfLogger import msg
 from PyJobTransforms.trfLogger import stdLogLevels, stdLogLevelsByCritcality
 
 # data files for unit tests
-fileAOD1  = "/afs/cern.ch/user/w/wbreaden/public/temporary/AOD.01448536._003819.pool.root.1"
-fileAOD2  = "/afs/cern.ch/user/w/wbreaden/public/temporary/AOD.01448536._003819.pool.root.1"
-fileAOD3  = "/afs/cern.ch/user/w/wbreaden/public/temporary/AOD.01448536._003819.pool_corrupted.root.1" # (corrupted for test purposes)
-fileESD1  = "/afs/cern.ch/user/w/wbreaden/public/temporary/my.ESD.pool.root"
-fileHIST1 = "/afs/cern.ch/user/w/wbreaden/public/temporary/my.HIST.root"
-fileTAG1  = "/afs/cern.ch/user/w/wbreaden/public/temporary/my.TAG.pool.root"
+fileAOD1  = "/afs/cern.ch/work/g/graemes/ddm/parallelValidate/AOD.01448536._003819.pool.root.1"
+fileAOD2  = "/afs/cern.ch/work/g/graemes/ddm/parallelValidate/AOD.01448536._003819.pool.root.1"
+fileAOD3  = "/afs/cern.ch/work/g/graemes/ddm/parallelValidate/AOD.01448536._003819.pool_corrupted.root.1" # (corrupted for test purposes)
+fileESD1  = "/afs/cern.ch/work/g/graemes/ddm/parallelValidate/my.ESD.pool.root"
+fileHIST1 = "/afs/cern.ch/work/g/graemes/ddm/parallelValidate/my.HIST.root"
+fileTAG1  = "/afs/cern.ch/work/g/graemes/ddm/parallelValidate/my.TAG.pool.root"
 fileBS1   = "/afs/cern.ch/atlas/project/rig/referencefiles/dataStreams_high_mu/data12_8TeV/data12_8TeV.00201556.physics_JetTauEtmiss.merge.RAW._lb0423._SFO-1._0001.1"
 
 

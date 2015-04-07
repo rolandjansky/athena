@@ -15,18 +15,22 @@ from PyJobTransforms.trfAMI import TagInfo
 from PyJobTransforms.trfExceptions import TransformAMIException
 
 def main():
+    parser = argparse.ArgumentParser(argument_default = argparse.SUPPRESS, description = 'GetTfCommand.py - prints the job transform commands accociated with an AMI tag.')
+    parser.add_argument('--AMI', '--AMIConfig', help = 'Production tag to be interpreted', required = True)
+    parser.add_argument('--verbose', '--debug', action = 'store_true', help = 'set logging level to DEBUG')
+    parser.add_argument('--doNotSuppressNonJobOptions', action = 'store_true', help = 'get full output from AMI')
 
-    parser = argparse.ArgumentParser(argument_default=argparse.SUPPRESS, description = 'GetTfCommand.py - prints the job transform commands accociated with an AMI tag.')
-    parser.add_argument('--AMI', '--AMIConfig', help='Production tag to be interpreted', required=True)
-    parser.add_argument('--verbose', '--debug', action='store_true', help='set logging level to DEBUG')
-    
-    args=vars(parser.parse_args(sys.argv[1:]))
+    args = vars(parser.parse_args(sys.argv[1:]))
 
     if 'verbose' in args:
         msg.setLevel(stdLogLevels['DEBUG'])
 
+    suppressNonJobOptions = True
+    if 'doNotSuppressNonJobOptions' in args:
+        suppressNonJobOptions = False
+
     try:
-        tag=TagInfo(args['AMI'])
+        tag = TagInfo(args['AMI'], suppressNonJobOptions)
     except TransformAMIException, e:
         print 'An AMI exception was raised when trying to resolve the tag {0}.'.format(args['AMI'])
         print 'Exception message was: {0}'.format(e.errMsg)
@@ -37,12 +41,7 @@ def main():
 
     if 'argdict' in args:
         tag.dump(args['argdict'])
-    
+
 
 if __name__ == '__main__':
-
         main()
-
-
-    
-
