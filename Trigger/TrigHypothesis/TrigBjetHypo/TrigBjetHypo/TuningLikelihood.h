@@ -50,14 +50,11 @@ class TuningLikelihood {
 
  private:
 
-  bool is1D, is2D, is3D;
-
   const float *m_numXLikelihood, *m_minXLikelihood, *m_maxXLikelihood;
   const float *m_numYLikelihood, *m_minYLikelihood, *m_maxYLikelihood;
   const float *m_numZLikelihood, *m_minZLikelihood, *m_maxZLikelihood;
 
   const float *m_bLikelihood, *m_uLikelihood;
-  const int m_dimensionLikelihood;
 
 };
 

@@ -21,7 +21,6 @@
 
 TuningLikelihood::TuningLikelihood(const float *sizeLikelihood, const float *bLikelihood,
 				   const float *uLikelihood, const int dimensionLikelihood) :
-  is1D(false), is2D(false), is3D(false),
   m_numXLikelihood(&sizeLikelihood[0]),
   m_minXLikelihood(&sizeLikelihood[1]),
   m_maxXLikelihood(&sizeLikelihood[2]),
@@ -32,8 +31,7 @@ TuningLikelihood::TuningLikelihood(const float *sizeLikelihood, const float *bLi
   m_minZLikelihood((dimensionLikelihood >= 9) ? &sizeLikelihood[7] : nullptr),
   m_maxZLikelihood((dimensionLikelihood >= 9) ? &sizeLikelihood[8] : nullptr),
   m_bLikelihood(&bLikelihood[0]),
-  m_uLikelihood(&uLikelihood[0]),
-  m_dimensionLikelihood(dimensionLikelihood)
+  m_uLikelihood(&uLikelihood[0])
 {
   
   //m_numXLikelihood = &sizeLikelihood[0];

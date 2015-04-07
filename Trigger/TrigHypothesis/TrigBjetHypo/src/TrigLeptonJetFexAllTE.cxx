@@ -14,16 +14,14 @@
 
 #include "TrigBjetHypo/TrigLeptonJetFexAllTE.h"
 
-#include "TrigMuonEvent/TrigMuonEFCbTrack.h"
-#include "TrigMuonEvent/TrigMuonEFInfoContainer.h"
-#include "TrigMuonEvent/TrigMuonEFInfoTrack.h"
-#include "TrigMuonEvent/TrigMuonEFInfoTrackContainer.h"
+#include "xAODMuon/MuonContainer.h"
 
 #include "JetEvent/Jet.h"
 #include "JetEvent/JetCollection.h"
 #include "FourMomUtils/P4DescendingSorters.h"
 
-
+#include "xAODJet/Jet.h"
+#include "xAODJet/JetContainer.h"
 
 //** ----------------------------------------------------------------------------------------------------------------- **//
 
@@ -110,13 +108,13 @@ HLT::ErrorCode TrigLeptonJetFexAllTE::hltExecute(std::vector<std::vector<HLT::Tr
   }
 
   HLT::TEVec allTEs;
-
-  //* Retrieve EF muons *//
-  const TrigMuonEFInfoContainer* muons;
+  
+  // Retrieve EF muons 
+  const xAOD::MuonContainer* muons=0; 
   HLT::ErrorCode statusMuons = getFeature(inputTE[0].front(), muons);
 
-  //* Retrieve EF jets *//
-  const JetCollection* jets_EF(0);
+  // Retrieve EF jets 
+  const xAOD::JetContainer* jets_EF = 0;
   HLT::ErrorCode statusJets = getFeature(inputTE[1].front(), jets_EF);
 
   if (statusMuons != HLT::OK || statusJets  != HLT::OK) {
@@ -150,10 +148,8 @@ HLT::ErrorCode TrigLeptonJetFexAllTE::hltExecute(std::vector<std::vector<HLT::Tr
   float jetEta=0,  jetPhi=0;
   float deltaEta=0, deltaPhi=0;
 
-  TrigMuonEFInfoContainer::const_iterator Muon = muons->begin();
-  TrigMuonEFInfoContainer::const_iterator lastMuon = muons->end();
 
-  std::vector<const Jet*> jets(jets_EF->begin(), jets_EF->end());
+  std::vector<const xAOD::Jet*> jets(jets_EF->begin(), jets_EF->end());
 
   if(jets.size()==0 ){
 
@@ -164,106 +160,94 @@ HLT::ErrorCode TrigLeptonJetFexAllTE::hltExecute(std::vector<std::vector<HLT::Tr
 
     if( m_workingMode!=2 ) return HLT::OK;
   }
-
-  std::sort (jets.begin(), jets.end(), P4Sorters::Descending::Et());
+  // This is commented just for this to compile  
+  //  std::sort (jets.begin(), jets.end(), P4Sorters::Descending::Et());
  
   if (msgLvl() <= MSG::DEBUG)
     msg() << MSG::DEBUG << "Found " << muons->size() << " muons and " << jets_EF->size() << " jets" << endreq; 
 
-  for (unsigned int j=0 ; Muon != lastMuon; Muon++, j++) {
 
-    const TrigMuonEFInfo* muonInfo = (*Muon);
+  int j=0;
+  
+  for(auto Muon : *muons) {
+    j++;
 
-    if (!muonInfo->hasTrack()) continue;
+    muonEta = Muon->eta();
+    muonPhi = Muon->phi();
 
-    if (m_workingMode==2) pass = true;
+    if (msgLvl() <= MSG::DEBUG)
+      msg() << MSG::DEBUG << "Muon "<< j+1 << "; ipt " <<  Muon->pt() << "; eta "<< muonEta << "; phi " << muonPhi << endreq;
 
-    TrigMuonEFInfoTrackContainer *tc = muonInfo->TrackContainer();
-    TrigMuonEFInfoTrackContainer::const_iterator Track = tc->begin();
-    TrigMuonEFInfoTrackContainer::const_iterator lastTrack = tc->end();
-
-    for ( int k=0; Track!=lastTrack; Track++,k++) {
-
-      const TrigMuonEFInfoTrack* muonInfoTrack = (*Track);
-
-      if (muonInfoTrack->MuonType()!=1) continue;
-
-      const TrigMuonEFTrack* muonEFTrack = 0;
-
-      if      ((*Track)->hasCombinedTrack())     { muonEFTrack = (*Track)->CombinedTrack(); }
-      else if ((*Track)->hasExtrapolatedTrack()) { muonEFTrack = (*Track)->ExtrapolatedTrack(); }
-      else if ((*Track)->hasSpectrometerTrack()) { muonEFTrack = (*Track)->SpectrometerTrack(); }
-
-      if (!muonEFTrack) continue;
-
-      muonEta = muonEFTrack->eta();
-      muonPhi = muonEFTrack->phi();
-
-      if (msgLvl() <= MSG::DEBUG)
-	msg() << MSG::DEBUG << "Muon "<< j+1 << "; ipt " << muonEFTrack->iPt() << "; eta "<< muonEta << "; phi " << muonPhi << endreq;
-
-      unsigned int i=0;
-      for (const Jet* jet : jets) {
-        ++i;
-	
-	if (jet->et() < m_etThreshold) {
-	  if (msgLvl() <= MSG::DEBUG)
-	    msg() << MSG::DEBUG << "Jet "<< i << " below the " << m_etThreshold/1000 << " GeV threshold; Et " << jet->et()/1000 << endreq;
-	  continue;
-	}
-
-	jetEta = jet->eta();
-	jetPhi = jet->phi();
-	
-	if (msgLvl() <= MSG::DEBUG)
-	  msg() << MSG::DEBUG << "Jet "<< i << "; Et " << jet->et()/1000 << "; eta "<< jetEta << "; phi " << jetPhi << endreq;
-	  
-	deltaEta = muonEta - jetEta;
-	deltaPhi = phiCorr(phiCorr(muonPhi) - phiCorr(jetPhi));
-	
-	double dR = sqrt(deltaEta*deltaEta + deltaPhi*deltaPhi);
-
-	if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "deltaR = "<< dR << endreq; 
-
-        switch (m_workingMode) {
-
-        case 1:
-          if (dR < m_deltaRCut) {
-	    m_deltaEtaPass = deltaEta; m_deltaPhiPass = deltaPhi; 
-	    m_muonEFEta = muonEta; m_muonEFPhi = muonPhi;
-	    pass = true;
-	    break;
-	  }
-          break;
-	  
-        case 2:
-          if (dR < m_deltaRCut) {
-            pass = false;
-	    break;
-	  }
-          break;
-        }        
-      }
-
-      if (pass) {
-	
-	if(msgLvl() <= MSG::DEBUG)
-	  msg() << MSG::DEBUG << "Accepting the event" << endreq;
-	
-	m_cutCounter=1;
+    unsigned int i=0;
+    for ( xAOD::JetContainer::const_iterator jetitr=jets_EF->begin() ; jetitr!=jets_EF->end() ; jetitr++ ) {
         
-	break;
+      ++i;
+      auto jet = *jetitr;
+      //-------
+      float jetEt  = jet->p4().Et()*0.001;
+
+
+	
+    if (jetEt < m_etThreshold) {
+          if (msgLvl() <= MSG::DEBUG)
+            msg() << MSG::DEBUG << "Jet "<< i << " below the " << m_etThreshold/1000 << " GeV threshold; Et " << jetEt/1000 << endreq;
+          continue;
+        }
+
+
+      jetEta = jet->eta();
+      jetPhi = jet->phi();
+
+   if (msgLvl() <= MSG::DEBUG)
+          msg() << MSG::DEBUG << "Jet "<< i << "; Et " << jetEt/1000 << "; eta "<< jetEta << "; phi " << jetPhi << endreq;
+
+	  
+      deltaEta = muonEta - jetEta;
+      deltaPhi = phiCorr(phiCorr(muonPhi) - phiCorr(jetPhi));
+	
+      double dR = sqrt(deltaEta*deltaEta + deltaPhi*deltaPhi);
+
+      if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "deltaR = "<< dR << endreq; 
+
+      switch (m_workingMode) {
+
+      case 1:
+        if (dR < m_deltaRCut) {
+          m_deltaEtaPass = deltaEta; m_deltaPhiPass = deltaPhi; 
+          m_muonEFEta = muonEta; m_muonEFPhi = muonPhi;
+          pass = true;
+          break;
+        }
+        break;
+	  
+      case 2:
+        if (dR < m_deltaRCut) {
+          pass = false;
+          break;
+        }
+        break;
+      }        
+    }
+
+    if (pass) {
+	
+      if(msgLvl() <= MSG::DEBUG)
+        msg() << MSG::DEBUG << "Accepting the event" << endreq;
+	
+      m_cutCounter=1;
         
-      } else {
+      break;
+        
+    } else {
 	
-	if(msgLvl() <= MSG::DEBUG)
-	  msg() << MSG::DEBUG << "Rejecting the event" << endreq;
+      if(msgLvl() <= MSG::DEBUG)
+        msg() << MSG::DEBUG << "Rejecting the event" << endreq;
 	
-	m_cutCounter=0;
+      m_cutCounter=0;
          
-      }
     }
   }
+  // }
 
   HLT::TriggerElement* outputTE = config()->getNavigation()->addNode(allTEs, output);
   outputTE->setActiveState(false); 
