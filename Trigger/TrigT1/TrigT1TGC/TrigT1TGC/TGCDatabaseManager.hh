@@ -44,9 +44,7 @@ public:
   TGCDatabaseManager& operator=(const TGCDatabaseManager& right);
 
   void deleteConnectionPPToSL();
-  void setIsAtlas(bool flag){isAtlas=flag;}
 
-  static bool IsAtlas(){return isAtlas;}
   static const std::string& getFilename(int type); 
 
 private:
@@ -55,7 +53,6 @@ private:
   TGCTileMuCoincidenceMap* mapTileMu;
   TGCConnectionPPToSL* PPToSL[NumberOfRegionType];
   TGCConnectionASDToPP* ASDToPP[NumberOfRegionType][NumberOfPatchPanelType][TotalNumForwardBackwardType];
-  static bool isAtlas;
 
   std::map<PatchPanelIDs, std::pair<const TGCConnectionInPP, PatchPanelPointers> > m_patchPanelToConnectionInPP;
 };

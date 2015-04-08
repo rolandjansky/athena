@@ -120,11 +120,11 @@ void TGCReadoutIndex::SetIndex(TGCIndex tgcindex, int ilyr)
 void TGCReadoutIndex::Print() const
 ///////////////////////////////////
 {
-  cout << "  " << strZ[zDirection] << "-" 
-       << setw(1) << octantNumber << "-"
-       << setw(2) << moduleNumber << "-" 
-       << rNumber << "-"
-       << layerNumber;
+  std::cout << "  " << strZ[zDirection] << "-" 
+            << std::setw(1) << octantNumber << "-"
+            << std::setw(2) << moduleNumber << "-" 
+            << rNumber << "-"
+            << layerNumber;
 }
 
 

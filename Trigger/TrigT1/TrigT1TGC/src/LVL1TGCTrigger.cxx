@@ -62,9 +62,6 @@ namespace LVL1TGCTrigger {
   bool g_STRICTST;
   bool g_OUTCOINCIDENCE;
   TGCCoincidences * g_TGCCOIN;
-  bool g_SINGLEBEAM;
-  bool g_MUHALO;
-  bool g_ISATLAS;
   bool g_DEBUGLEVEL;
   bool g_SHPT_ORED;
   bool g_USE_INNER;
@@ -83,7 +80,6 @@ namespace LVL1TGCTrigger {
     TimingManager(0),
     system(0),
     nEventInSector(0),
-    isAtlas(true),
     m_log( msgSvc(), name ),
     m_debuglevel(false)
 {
@@ -102,8 +98,6 @@ namespace LVL1TGCTrigger {
     declareProperty("STRICTSD",            m_STRICTSD            =false);
     declareProperty("STRICTST",            m_STRICTST            =false);
     declareProperty("OUTCOINCIDENCE",      m_OUTCOINCIDENCE      =false);
-    declareProperty("SINGLEBEAM",          m_SINGLEBEAM          =false);
-    declareProperty("MUHALO",              m_MUHALO              =false);
     declareProperty("SHPTORED",            m_SHPTORED            =true);
     declareProperty("USEINNER",            m_USEINNER            =true);
     declareProperty("INNERVETO",           m_INNERVETO           =true);
@@ -143,37 +137,26 @@ namespace LVL1TGCTrigger {
     g_DEBUGLEVEL          =  m_debuglevel;
 
     m_log << MSG::DEBUG << "LVL1TGCTrigger::initialize() called" << endreq;
-    m_log << MSG::INFO  << "LVL1TGCTrigger initialize" << endreq;
-
+ 
     g_STRICTWD            = m_STRICTWD.value();
     g_STRICTWT            = m_STRICTWT.value();
     g_STRICTSD            = m_STRICTSD.value();
     g_STRICTST            = m_STRICTST.value();
     g_OUTCOINCIDENCE      = m_OUTCOINCIDENCE.value();
-    g_SINGLEBEAM          = m_SINGLEBEAM.value();
-    g_MUHALO              = m_MUHALO.value();
     g_SHPT_ORED           = m_SHPTORED.value();
-    g_USE_INNER           = m_USEINNER.value() && isAtlas;
+    g_USE_INNER           = m_USEINNER.value();
     g_INNER_VETO          = m_INNERVETO.value() && g_USE_INNER;
     g_FULL_CW             = m_FULLCW.value();
     g_TILE_MU             = m_TILEMU.value() && g_USE_INNER;
-    g_ISATLAS             = isAtlas;
-
-    if ( m_SINGLEBEAM.value() ) {
-      m_log << MSG::INFO  << "CoincidenceMatrix for SINGLE BEAM will be used" << endreq;
-    }
-    if ( m_MUHALO.value() ) {
-      m_log << MSG::INFO  << "CoincidenceMatrix for TGC_MU_HALO will be used for pt=1" << endreq;
-    }
-  
+ 
     if (g_USE_INNER) {
       std::string vmode="MONITOR";
       if (g_INNER_VETO) vmode="SURPRESS";
-      m_log << MSG::INFO  << "CoincidenceMatrix for EI/FI will be used "
+      m_log << MSG::INFO  << "LVL1TGCTrigger: CoincidenceMatrix for EI/FI will be used "
 	    << "[ " << vmode << " mode ]" << endreq;
     }
     if (g_TILE_MU) {
-      m_log << MSG::INFO  << "CoincidenceMatrix for TileMu will be used "
+      m_log << MSG::INFO  << "LVL1TGCTrigger: CoincidenceMatrix for TileMu will be used "
 	    << endreq;
     }
 
@@ -182,8 +165,6 @@ namespace LVL1TGCTrigger {
       m_log << MSG::FATAL
 	    << "Unable to get pointer to DetectorStore Service" << endreq;
       return StatusCode::FAILURE;
-    } else {
-      m_log << MSG::INFO << "Could find DetectorStore" << endreq;
     }
 
     // TrigConfigSvc
@@ -225,7 +206,7 @@ namespace LVL1TGCTrigger {
     // try to initialize the TGCcabling
     sc = getCabling();
     if(sc.isFailure()) {
-      m_log << MSG::INFO 
+      m_log << MSG::DEBUG
           << "TGCcablingServerSvc not yet configured; postone TGCcabling initialization at first event. "
 	  << endreq;
     }
@@ -807,11 +788,7 @@ void LVL1TGCTrigger::FillSectorLogicData(LVL1MUONIF::Lvl1MuSectorLogicData *slda
     // get numbering scheme info from cabling svc 
     int startEndcapSector, coverageOfEndcapSector;
     int startForwardSector, coverageOfForwardSector;
-    if (isAtlas) {
-      rodId = 1;
-    } else {
-      rodId =0;
-    }
+    rodId = 1;
     m_cabling->getCoveragefromRodID(rodId,
 				    startEndcapSector,
 				    coverageOfEndcapSector,
@@ -989,8 +966,7 @@ void LVL1TGCTrigger::FillSectorLogicData(LVL1MUONIF::Lvl1MuSectorLogicData *slda
     //  0-5(EC), 0-2(FWD) for new TGCcabling (octant)
     int startEndcapSector, coverageOfEndcapSector;
     int startForwardSector, coverageOfForwardSector;
-    rodId = 0;
-    if (isAtlas) rodId = 1;
+    rodId = 1;
     m_cabling->getCoveragefromRodID(rodId,
 				    startEndcapSector,
 				    coverageOfEndcapSector,
@@ -1076,15 +1052,14 @@ void LVL1TGCTrigger::FillSectorLogicData(LVL1MUONIF::Lvl1MuSectorLogicData *slda
   // Mask=0/Fire=1
   StatusCode LVL1TGCTrigger::doMaskOperation() 
   {
-    std::string fname=m_MaskFileName.value();
-    if (isAtlas) fname=m_MaskFileName12.value();
+    std::string fname=m_MaskFileName12.value();
     if (fname.empty()) return StatusCode::SUCCESS;
 
     std::string fullName = PathResolver::find_file (fname.c_str(), "PWD");
     if( fullName.length() == 0 )
       fullName =  PathResolver::find_file (fname.c_str(), "DATAPATH");
 
-    ifstream fin(fullName.c_str());
+    std::ifstream fin(fullName.c_str());
     if (!fin) {
       m_log << MSG::FATAL << "Cannot open file " << fullName << endreq;
       return StatusCode::FAILURE;
@@ -1203,7 +1178,7 @@ void LVL1TGCTrigger::FillSectorLogicData(LVL1MUONIF::Lvl1MuSectorLogicData *slda
 	v.push_back(atoi(line.c_str()));
 	break;
       }
-      string temp = line;
+      std::string temp = line;
       temp.erase(i,line.size());
       v.push_back(atoi(temp.c_str()));
       line.erase(0,i+1);
@@ -1285,12 +1260,13 @@ StatusCode LVL1TGCTrigger::getCabling()
 
   int maxRodId,maxSswId, maxSbloc,minChannelId, maxChannelId;
   m_cabling->getReadoutIDRanges( maxRodId,maxSswId, maxSbloc,minChannelId, maxChannelId);
-  isAtlas = (maxRodId ==12);
-  g_ISATLAS = isAtlas;
-  if (isAtlas) {
+  if (maxRodId ==12) {
     m_log << MSG::INFO << m_cabling->name() << " is OK" << endreq ;
   } else {
-    m_log << MSG::INFO << "TGCcablingSvc(octant segmentation) OK" << endreq ;
+    m_log << MSG::FATAL 
+	  << " Old TGCcablingSvc(octant segmentation) can not be used !" 
+	  << endreq;
+    return StatusCode::FAILURE; 
   }
 
     // determine version of CW 
@@ -1298,56 +1274,36 @@ StatusCode LVL1TGCTrigger::getCabling()
     // !!        independent from TrigConfigSvc
     // default set is
     //   setM : for 12-fold
-    //   setD : for 8-fold
     const std::string setM="setM";
     const std::string setL="setL";
     const std::string setK="setK";
     const std::string setJ="setJ";
-    const std::string setI="setI";
-    const std::string setH="setH";
     const std::string setG="setG";
     const std::string setF="setF";
-    const std::string setE="setE";
     const std::string setD="setD";
-    const std::string setC="setC";
     std::string ver=m_VerCW.value();
-    if (    (ver!=setM) &&  (ver!= setL) && (ver!= setK) && (ver!=setI) 
-         && (ver!=setH) && (ver!=setF) &&  (ver!=setE) 
-	 && (ver!=setD) && (ver!=setC) && (ver!=setG) &&  (ver!=setJ) ){
+    if (    (ver!=setM) 
+         &&  (ver!= setL) && (ver!= setK) &&  (ver!= setJ) 
+         &&  (ver!= setG) && (ver!= setF) &&  (ver!= setD) ){ 
       // default CW is setM
       ver= setM;
     }
-    if (!isAtlas) {
-      // Only setC and SetD are provided for old MC cabling 
-      if (    (ver==setM)  || (ver==setL) || (ver==setK) || (ver==setI ) 
-           || (ver==setH ) || (ver == setF) || (ver==setG) || (ver==setJ) ) {
-	// 0, 6, 10, 11, 15, 20
-        ver = setD;
-      } else if (ver == setE) {
-	// 0, 6, 10, 15, 20, 40
-        ver= setC;
-      }
-    }
-    if ( (ver==setM) || (ver==setL)|| (ver==setK) || (ver==setI) || (ver==setG) ) {
-      // setG, I, K, L and setM use 2-st . g_MUHALO flag is set to false
-      //  i.e.  2-st. coincidence is described in db file
-      g_MUHALO = false;
-    }
+
     m_log << MSG::INFO 
            << " TGC CW version of " << ver << " is selected " << endreq;
     m_VerCW = ver;
 
     // check Inner /TileMu   
     if (g_USE_INNER) {
-      g_USE_INNER = (ver==setM) || (ver==setL)|| (ver==setK) || (ver==setH) ;
+      g_USE_INNER = (ver==setM) || (ver==setL)|| (ver==setK) ;
     } 
     if (g_TILE_MU) {
       g_TILE_MU = (ver==setM);
     } 
     
     // create DataBase and TGCElectronicsSystem
-    db = new TGCDatabaseManager(m_VerCW, isAtlas);
-    system = new TGCElectronicsSystem(db, isAtlas);
+    db = new TGCDatabaseManager(m_VerCW);
+    system = new TGCElectronicsSystem(db);
     
     TimingManager = new TGCTimingManager;
     TimingManager->setBunchCounter(0);
@@ -1376,7 +1332,7 @@ StatusCode LVL1TGCTrigger::fillTMDB()
   // loop over all TileMuonReceiverObj in container 
   TileMuonReceiverContainer::const_iterator tmItr = tileMuRecCont->begin();
 
-  TileMuonReceiverObj * tmObj_Thresholds = *tmItr;
+  const TileMuonReceiverObj * tmObj_Thresholds = *tmItr;
   if ( (tmObj_Thresholds->GetThresholds()).size() == 4) { 
     float thresholds[4];
     for (size_t ip=0;ip<4;ip++){
@@ -1400,7 +1356,7 @@ StatusCode LVL1TGCTrigger::fillTMDB()
   
   for ( ; tmItr != tileMuRecCont->end(); ++tmItr) {
     
-    TileMuonReceiverObj * tmObj = *tmItr;
+    const TileMuonReceiverObj * tmObj = *tmItr;
     // Tile Module
     int moduleID = tmObj-> GetID();
     // TMDB decision

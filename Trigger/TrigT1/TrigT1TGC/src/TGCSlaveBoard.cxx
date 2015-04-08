@@ -10,8 +10,6 @@
 
 namespace LVL1TGCTrigger {
 
-extern bool g_TESTVEC;
-
 TGCSlaveBoard::TGCSlaveBoard()
   :lengthOfCoincidenceOut(0),coincidenceOut(0), 
    slaveBoardOut(0), 

@@ -43,9 +43,6 @@ public:
   };
   TGCTMDB* getTMDB() const {return tmdb;}
 
-  void setAtlasFlag(bool f){fAtlas=f;};
-  bool isAtlas() const {return fAtlas;};
-
   TGCElectronicsSystem(TGCDatabaseManager* database, bool isAtlas=true);
   ~TGCElectronicsSystem();
 
@@ -59,7 +56,6 @@ private:
   TGCDatabaseManager* DB;
   TGCSector* sector[NumberOfSide][NumberOfOctant][NumberOfModule];
   TGCTMDB*   tmdb;
-  bool fAtlas; 
 };
 
 

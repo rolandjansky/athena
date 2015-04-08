@@ -3,8 +3,8 @@
 */
 
 // MakeCoincidenceOut.h
-#ifndef __MAKECOINCIDENCEOUT_H__
-#define __MAKECOINCIDENCEOUT_H__
+#ifndef TRIGT1TGC_MAKECOINCIDENCEOUT_H
+#define TRIGT1TGC_MAKECOINCIDENCEOUT_H
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 // Gaudi includes
@@ -42,7 +42,7 @@ namespace LVL1TGCTrigger {
     StringProperty  m_key;
     BooleanProperty m_WriteMCtruth;
     const TgcIdHelper* m_tgcIdHelper;
-    NTuple::Tuple* m_ntuplePtr;
+    //NTuple::Tuple* m_ntuplePtr;
     
     NTuple::Item<long>   m_runNumber, m_eventNumber;
     NTuple::Item<long>   m_ncol, m_ndig;
@@ -58,4 +58,4 @@ namespace LVL1TGCTrigger {
  
 } // namespace LVL1TGCTrigger
 
-#endif // __MAKECOINCIDENCEOUT_H__
+#endif // TRIGT1TGC_MAKECOINCIDENCEOUT_H
