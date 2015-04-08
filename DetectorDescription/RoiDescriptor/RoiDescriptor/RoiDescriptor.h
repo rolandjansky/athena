@@ -76,6 +76,11 @@ public:
   RoiDescriptor(double etaMinus, double etaPlus, 
 		double phiMinus, double phiPlus ); 
 
+  /**
+   * @brief copy constructor
+   */
+  RoiDescriptor( const IRoiDescriptor& _roi );
+
   
   // Destructor
   virtual ~RoiDescriptor();
@@ -87,14 +92,13 @@ public:
   double eta() const { return m_eta; }
   double zed() const { return m_zed; }
 
+  /// these quantities probably don't need to be used any more 
+  /// - they are implemented here only because we had them in 
+  ///   the original legacy interface
+ 
   virtual unsigned int roiId()   const { return 0; }
   virtual unsigned int l1Id()    const { return 0; }
   virtual unsigned int roiWord() const { return 0; }
-
-  /// these accessors will all be *sloooow* because they are computing 
-  /// the limits dynamicall *every* time, if *only* we could change the
-  /// internal representation to store the (more useful) limits rather 
-  /// than these stupid "halfwidths"  
 
   double zedPlus()  const { return m_zedPlus; } //!< z at the most forward end of the RoI
   double zedMinus() const { return m_zedMinus; } //!< z at the most backward end of the RoI
@@ -183,6 +187,7 @@ protected:
 		 double phi, double phiMinus, double phiPlus, 
 		 double zed, double zedMinus, double zedPlus); 
 
+  void construct( const IRoiDescriptor& _roi );
 
 protected:
 
