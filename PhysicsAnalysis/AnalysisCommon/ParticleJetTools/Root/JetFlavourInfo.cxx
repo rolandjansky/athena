@@ -70,12 +70,23 @@ xAOD::ConeFinalPartonFlavourLabel (const xAOD::Jet* jet) {
   return label;
 }
 
+int
+xAOD::ExclusiveConeHadronFlavourLabel (const xAOD::Jet* jet) {
+  // default label means "invalid"
+  int label = -1;
+
+  // We don't check the return value, as we would not be able to handle it gracefully anyway
+  jet->getAttribute("HadronConeExclTruthLabelID",label);
+  return label;
+}
+
 int xAOD::jetFlavourLabel (const xAOD::Jet* jet, JetFlavourLabelType t) {
 
   switch (t) {
   case GAFinalHadron:   return GAFinalHadronFlavourLabel (jet);   break;
   case GAInitialHadron: return GAInitialHadronFlavourLabel (jet); break;
   case GAFinalParton:   return GAFinalPartonFlavourLabel (jet);   break;
+  case ExclConeHadron:  return ExclusiveConeHadronFlavourLabel (jet);
   case ConeFinalParton: default: return ConeFinalPartonFlavourLabel (jet);
   }
 }
