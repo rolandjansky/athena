@@ -87,6 +87,10 @@ T merge_no_dupl(const T& v1, const T& v2) {
 TrigL2BMuMuXFex::TrigL2BMuMuXFex(const std::string & name, ISvcLocator* pSvcLocator):
   HLT::ComboAlgo(name, pSvcLocator)
 ,m_bphysHelperTool("TrigBphysHelperUtilsTool")
+,m_TotTimer(0)
+,m_VtxFitTimer(0)
+,m_L2vertFitter(0)
+,m_vertexingTool(0)
 {                     
 ////////////////////////////// Declaration of python configurables /////////////////////////////////////////
   // Read cuts or accept all?
@@ -406,12 +410,17 @@ TrigL2BMuMuXFex::TrigL2BMuMuXFex(const std::string & name, ISvcLocator* pSvcLoca
  
 ////////////////////////////// Declaration of output collections ///////////////////////////////////////////
   m_trigBphysColl_b = NULL;
+  m_trigBphysColl_bxAOD = NULL;
   m_VertexColl = NULL;
   // temporary
   m_trigBphysColl_kStar = NULL;
   m_trigBphysColl_phi = NULL;
   m_trigBphysColl_lambda = NULL;
   m_trigBphysColl_ds = NULL;
+  m_trigBphysColl_kStarxAOD = NULL;
+  m_trigBphysColl_phixAOD = NULL;
+  m_trigBphysColl_lambdaxAOD = NULL;
+  m_trigBphysColl_dsxAOD = NULL;
 //  m_trigBphysColl_kSplus = NULL;
 
   //////////////////////////// end of output collections ///////////////////////////////////////////////////
@@ -1664,6 +1673,7 @@ void TrigL2BMuMuXFex::checkBdMuMuKstar(const xAOD::L2CombinedMuon* mu1, const xA
             
             // timer
             if(timerSvc()) m_VtxFitTimer->resume();
+            kaStarVtx = new TrigL2Vertex();
             
             StatusCode status;
             status = m_vertexingTool->addTrack(trk3->track(),kaStarVtx,Trk::kaon);
@@ -1683,7 +1693,7 @@ void TrigL2BMuMuXFex::checkBdMuMuKstar(const xAOD::L2CombinedMuon* mu1, const xA
             //vertex fit
             if(vertex) status = m_L2vertFitter->fit(kaStarVtx);
             if(status.isSuccess() && kaStarVtx != NULL) status = m_vertexingTool->calculateInvariantMass(kaStarVtx);
-            if(status.isFailure()){
+            if(status.isFailure() || kaStarVtx == NULL){
                 if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " Kstar vertex fit failed!" << endreq;
                 delete kaStarVtx;
                 if(timerSvc()) m_VtxFitTimer->pause();
@@ -1934,9 +1944,9 @@ void TrigL2BMuMuXFex::checkBdMuMuKstar(const xAOD::L2CombinedMuon* mu1, const xA
                                 msg() << MSG::DEBUG << " Bd rejected by mass or chi2 cuts after vertex fit!"
                                 << ", chi2= " << baDVtx->chi2()
                                 << endreq;
-                                //continue; // for performance test not continue
-                                vertex = false;
                             }
+                            //continue; // for performance test not continue
+                            vertex = false;
                         }
                     } // end of successful fit condition "mother"
                     if (vertex){
@@ -2123,8 +2133,8 @@ void TrigL2BMuMuXFex::checkBsMuMuPhi(const xAOD::L2CombinedMuon* mu1, const xAOD
             //////////////
             //vertex fit
             if(vertex) status = m_L2vertFitter->fit(phia1020Vtx);
-            if(status.isSuccess()) status = m_vertexingTool->calculateInvariantMass(phia1020Vtx);
-            if(status.isFailure()){
+            if(status.isSuccess() && phia1020Vtx != NULL) status = m_vertexingTool->calculateInvariantMass(phia1020Vtx);
+            if(status.isFailure() || phia1020Vtx == NULL){
                 if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " Phi vertex fit failed!" << endreq;
                 delete phia1020Vtx;
                 if(timerSvc()) m_VtxFitTimer->pause();
@@ -2385,9 +2395,9 @@ void TrigL2BMuMuXFex::checkBsMuMuPhi(const xAOD::L2CombinedMuon* mu1, const xAOD
                                 msg() << MSG::DEBUG << " Bs rejected by mass or chi2 cuts after vertex fit!"
                                 << ", chi2= " << baSVtx->chi2()
                                 << endreq;
-                                vertex = false;
-                                //continue; // for performance test not continue
                             }
+                            //continue; // for performance test not continue
+                            vertex = false;
                         }
                     } // end of successful fit condition "mother"
                     if(vertex) {
@@ -2584,8 +2594,8 @@ void TrigL2BMuMuXFex::checkLbMuMuLambda(const xAOD::L2CombinedMuon* mu1, const x
             //////////////
             //vertex fit
             if(vertex) status = m_L2vertFitter->fit(lambdaaVtx);
-            if(status.isSuccess()) status = m_vertexingTool->calculateInvariantMass(lambdaaVtx);
-            if(status.isFailure()){
+            if(status.isSuccess() && lambdaaVtx != NULL) status = m_vertexingTool->calculateInvariantMass(lambdaaVtx);
+            if(status.isFailure() || lambdaaVtx == NULL){
                 if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " L vertex fit failed!" << endreq;
                 delete lambdaaVtx;
                 if(timerSvc()) m_VtxFitTimer->pause();
@@ -2833,9 +2843,9 @@ void TrigL2BMuMuXFex::checkLbMuMuLambda(const xAOD::L2CombinedMuon* mu1, const x
                                 msg() << MSG::DEBUG << " Lb rejected by mass or chi2 cuts after vertex fit!"
                                 << ", chi2= " << laBVtx->chi2()
                                 << endreq;
-                                //continue; // for performance test not continue
-                                vertex = false;
                             }
+                            //continue; // for performance test not continue
+                            vertex = false;
                         }
                     } // end of successful fit condition "mother"
                     if(vertex) {

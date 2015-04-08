@@ -41,6 +41,18 @@ class ISvcLocator;
 
 TrigEFBMuMuXHypo::TrigEFBMuMuXHypo(const std::string & name, ISvcLocator* pSvcLocator):
   HLT::HypoAlgo(name, pSvcLocator)
+//counters
+,m_lastEvent(-1)
+,m_lastEventPassed(-1)
+,m_countTotalEvents(0)
+,m_countTotalRoI(0)
+,m_countPassedEvents(0)
+,m_countPassedRoIs(0)
+,m_countPassedBplus(0)
+,m_countPassedBd(0)
+,m_countPassedBs(0)
+,m_countPassedLb(0)
+,m_countPassedBc(0)
 {
   declareProperty("AcceptAll",    m_acceptAll=true); // Should we just accept all events
   

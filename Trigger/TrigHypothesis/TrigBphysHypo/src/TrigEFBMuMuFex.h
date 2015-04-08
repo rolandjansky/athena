@@ -58,8 +58,8 @@ class TrigEFBMuMuFex: public HLT::ComboAlgo  {
     
     unsigned int m_expectNumberOfInputTE;
     
-    xAOD::Muon::TrackParticleType m_muonParticleType;
     double m_massMuon;
+    xAOD::Muon::TrackParticleType m_muonParticleType;
     
     bool m_oppositeCharge;
     bool m_sameCharge;

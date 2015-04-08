@@ -58,13 +58,70 @@
 
 /*----------------------------------------------------------------------------*/
 TrigEFBMuMuXFex::TrigEFBMuMuXFex(const std::string & name, ISvcLocator* pSvcLocator):
-HLT::ComboAlgo(name, pSvcLocator),
-m_fitterSvc("Trk::TrkVKalVrtFitter/VertexFitterTool",this),
-//m_trigBphysColl_b(NULL),
-//m_trigBphysColl_X(NULL),
-mTrigBphysColl_b(NULL),
-mTrigBphysColl_X(NULL)
+HLT::ComboAlgo(name, pSvcLocator)
+,m_fitterSvc("Trk::TrkVKalVrtFitter/VertexFitterTool",this)
+//,m_trigBphysColl_b(NULL)
+//,m_trigBphysColl_X(NULL)
+,mTrigBphysColl_b(NULL)
+,mTrigBphysColl_X(NULL)
 
+// counters
+,m_lastEvent(-1)
+,m_lastEventPassed(-1)
+,m_countTotalEvents(0)
+,m_countTotalRoI(0)
+,m_countPassedEvents(0)
+,m_countPassedRoIs(0)
+
+,m_lastEventPassedBplus(-1)
+,m_lastEventPassedBd(-1)
+,m_lastEventPassedBs(-1)
+,m_lastEventPassedLb(-1)
+,m_lastEventPassedBc(-1)
+,m_countPassedEventsBplus(0)
+,m_countPassedEventsBs(0)
+,m_countPassedEventsBd(0)
+,m_countPassedEventsLb(0)
+,m_countPassedEventsBc(0)
+
+,m_countPassedMuMuID(0)
+,m_countPassedMuMuOS(0)
+,m_countPassedMuMuMass(0)
+,m_countPassedMuMuVtx(0)
+,m_countPassedMuMuVtxChi2(0)
+
+,m_countPassedBplusMass(0)
+,m_countPassedBplusVtx(0)
+,m_countPassedBplusVtxChi2(0)
+
+,m_countPassedKstarMass(0)
+,m_countPassedBdMass(0)
+,m_countPassedKstarVtx(0)
+,m_countPassedKstarVtxChi2(0)
+,m_countPassedBdVtx(0)
+,m_countPassedBdVtxChi2(0)
+
+,m_countPassedPhi1020Mass(0)
+,m_countPassedBsMass(0)
+,m_countPassedPhi1020Vtx(0)
+,m_countPassedPhi1020VtxChi2(0)
+,m_countPassedBsVtx(0)
+,m_countPassedBsVtxChi2(0)
+
+,m_countPassedLambdaMass(0)
+,m_countPassedLbMass(0)
+,m_countPassedLambdaVtx(0)
+,m_countPassedLambdaVtxChi2(0)
+,m_countPassedLbVtx(0)
+,m_countPassedLbVtxChi2(0)
+
+,m_countPassedPhiDsMass(0)
+,m_countPassedDsMass(0)
+,m_countPassedBcMass(0)
+,m_countPassedDsVtx(0)
+,m_countPassedDsVtxChi2(0)
+,m_countPassedBcVtx(0)
+,m_countPassedBcVtxChi2(0)
 {
     declareProperty("AcceptAll",    m_acceptAll=true); // Should we just accept all events
     

@@ -45,7 +45,14 @@
 TrigL2MultiMuHypo::TrigL2MultiMuHypo(const std::string & name, ISvcLocator* pSvcLocator):
     HLT::HypoAlgo(name, pSvcLocator)
 ,m_bphysHelperTool("TrigBphysHelperUtilsTool")
-
+,m_lastEvent(-1)
+,m_lastEventPassed(-1)
+,m_countTotalEvents(0)
+,m_countTotalRoI(0)
+,m_countPassedEvents(0)
+,m_countPassedRoIs(0)
+,m_countPassedBsMass(0)
+,m_countPassedChi2Cut(0)
 {
 
   // Read cuts

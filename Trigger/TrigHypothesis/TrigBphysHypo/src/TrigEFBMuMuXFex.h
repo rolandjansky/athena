@@ -262,6 +262,12 @@ class TrigEFBMuMuXFex: public HLT::ComboAlgo  {
     bool m_acceptAll;
 
 
+    // TrigEFBphysContainer* m_trigBphysColl_b;
+    // TrigEFBphysContainer* m_trigBphysColl_X;
+
+    xAOD::TrigBphysContainer * mTrigBphysColl_b;
+    xAOD::TrigBphysContainer * mTrigBphysColl_X;
+    
     //Counters
     int m_lastEvent;
     int m_lastEventPassed;
@@ -319,12 +325,6 @@ class TrigEFBMuMuXFex: public HLT::ComboAlgo  {
     unsigned int m_countPassedDsVtxChi2;
     unsigned int m_countPassedBcVtx;
     unsigned int m_countPassedBcVtxChi2;
-
-    // TrigEFBphysContainer* m_trigBphysColl_b;
-    // TrigEFBphysContainer* m_trigBphysColl_X;
-
-    xAOD::TrigBphysContainer * mTrigBphysColl_b;
-    xAOD::TrigBphysContainer * mTrigBphysColl_X;
 
     
     void addUnique(std::vector<const Trk::Track*>&, const Trk::Track*);

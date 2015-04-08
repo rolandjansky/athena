@@ -82,8 +82,8 @@ class TrigEFBMuMuXHypo: public HLT::HypoAlgo  {
     float m_lowerBcMassCut;
     float m_upperBcMassCut;        
     float m_BcChi2Cut;        
-    float m_lowerPhiDsMassCut;
-    float m_upperPhiDsMassCut;        
+//     float m_lowerPhiDsMassCut;
+//     float m_upperPhiDsMassCut;        
     float m_lowerDsMassCut;
     float m_upperDsMassCut;        
     float m_DsChi2Cut;        

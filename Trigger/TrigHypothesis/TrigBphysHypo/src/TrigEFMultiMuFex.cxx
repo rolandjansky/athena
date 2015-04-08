@@ -32,6 +32,19 @@ TrigEFMultiMuFex::TrigEFMultiMuFex(const std::string & name, ISvcLocator* pSvcLo
 ,m_ApplyupperMassCut(true)
 ,m_muonAlgo("TrigMuSuperEF")
 ,m_acceptAll(false)
+//counters
+,m_lastEvent(-1)
+,m_lastEventPassed(-1)
+,m_countTotalEvents(0)
+,m_countTotalRoI(0)
+,m_countPassedEvents(0)
+,m_countPassedRoIs(0)
+,m_countPassedmumuPairsEv(0)
+,m_countPassedBsMassEv(0)
+,m_countPassedVtxFitEv(0)
+,m_countPassedmumuPairs2R(0)
+,m_countPassedBsMass2R(0)
+,m_countPassedVtxFit2R(0)
 ,m_massMuon(105.6583715)
 {
 
@@ -291,7 +304,7 @@ void TrigEFMultiMuFex::buildDiMu (const std::vector<const xAOD::Muon*> &muons, x
             const xAOD::TrackParticle * tp2 = (*muit2)->trackParticle(xAOD::Muon::InnerDetectorTrackParticle);
             if (!tp2) continue;
             
-            if ( (charge1*charge2 > 0) && (charge1*charge2 > 0) ) {
+            if ( (charge1*charge2 > 0) ) {
                 if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "Reject All same charges: " << charge1 << " " << charge2 << endreq;
                 continue;
             } // same sign

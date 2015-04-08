@@ -135,8 +135,6 @@ class TrigL2BMuMuXFex: public HLT::ComboAlgo
     float m_upperKstarVtxMassCut;
     float m_lowerKstar_KaonMassCut;
     float m_upperKstar_KaonMassCut;
-    float m_lowerKstar_PionMassCut;
-    float m_upperKstar_PionMassCut; 
     float m_lowerBd_KstarMuMuMassCut;
     float m_upperBd_KstarMuMuMassCut; 
     float m_kStarVtxChi2Cut;    
@@ -226,8 +224,6 @@ class TrigL2BMuMuXFex: public HLT::ComboAlgo
     BooleanProperty m_doBc_DsMuMuDecay;                                            
     BooleanProperty m_doDs_PhiPionVertexFit;                               
     BooleanProperty m_doBc_DsMuMuVertexFit;                                 
-
-    StoreGateSvc* m_pStoreGate; // obsolete now?
 
     TrigTimer* m_TotTimer;
     TrigTimer* m_VtxFitTimer;  
