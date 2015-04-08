@@ -96,12 +96,36 @@ RoiDescriptor::RoiDescriptor(double _etaMinus, double _etaPlus,
 }
 
 
+RoiDescriptor::RoiDescriptor( const IRoiDescriptor& _roi ) : 
+  m_phi(_roi.phi()), m_eta(_roi.eta()), m_zed(_roi.zed()), 
+  m_phiMinus(0),  m_phiPlus(0),
+  m_etaMinus(0),  m_etaPlus(0), 
+  m_zedMinus(0),  m_zedPlus(0), 
+  m_dzdrMinus(0), m_dzdrPlus(0), 
+  m_drdzMinus(0), m_drdzPlus(0), 
+  m_fullscan(_roi.isFullscan()),
+  m_composite(_roi.composite()),
+  m_manageConstituents(true), /// always manage constituents
+  m_version(_roi.version()) { 
+
+  construct( _roi );
+  
+  if ( _roi.size()>0 ) { 
+    if ( m_manageConstituents ) { 
+      /// manging it's own constituents, so take a deep copy
+      for ( unsigned i=0 ; i<_roi.size() ; i++ ) push_back( new RoiDescriptor( *_roi.at(i) ) );
+    }
+    else { 
+      /// these are already managed elsewhere, just copy the pointers
+      for ( unsigned i=0 ; i<_roi.size() ; i++ ) push_back( _roi.at(i) );      
+    }
+  }
+}
+
 
 
 RoiDescriptor::~RoiDescriptor(){
-  if ( m_composite ) {
-    if ( manageConstituents() ) for ( roi_iterator itr=begin() ; itr!=end() ; itr++ ) delete *itr;
-  }
+  if ( manageConstituents() ) for ( roi_iterator itr=begin() ; itr!=end() ; itr++ ) delete *itr;
 }
 
 
@@ -122,7 +146,7 @@ void RoiDescriptor::construct(double _eta, double _etaMinus, double _etaPlus,
   // deal with double -> float M_PI conversion 
 
   m_phiPlus  = _phiPlus; 
-  m_phiMinus = _phiMinus;
+  //  m_phiMinus = _phiMinus;
   
   while ( m_phiPlus> M_PIF ) m_phiPlus -= M_2PI;
   while ( m_phiPlus<-M_PIF ) m_phiPlus += M_2PI;
@@ -136,7 +160,7 @@ void RoiDescriptor::construct(double _eta, double _etaMinus, double _etaPlus,
   if ( m_phiPlus> M_PI ) m_phiPlus -= 1e-7; 
   if ( m_phiPlus<-M_PI ) m_phiPlus += 1e-7; 
 
-  m_phiPlus  = _phiPlus; 
+  //  m_phiPlus  = _phiPlus; 
   m_phiMinus = _phiMinus;
 
   while ( m_phiMinus<-M_PIF ) m_phiMinus += M_2PI;
@@ -160,7 +184,13 @@ void RoiDescriptor::construct(double _eta, double _etaMinus, double _etaPlus,
   m_zedOuterPlus  = _zedPlus  + m_dzdrPlus*maxR;
 
 }
-   
+
+
+void RoiDescriptor::construct( const IRoiDescriptor& _roi ) { 
+  construct( _roi.eta(),  _roi.etaMinus(),  _roi.etaPlus(), 
+	     _roi.phi(),  _roi.phiMinus(),  _roi.phiPlus(), 
+	     _roi.zed(),  _roi.zedMinus(),  _roi.zedPlus() ); 
+}
 
 /// methods to calculate z position at the RoI boundary 
 /// at a given radius
