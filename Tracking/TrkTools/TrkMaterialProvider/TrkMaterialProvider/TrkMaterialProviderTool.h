@@ -9,6 +9,9 @@
 #ifndef TrkMaterialProviderTool_H
 #define TrkMaterialProviderTool_H
 
+#define protected public
+#include "TrkTrack/Track.h"
+
 // Gaudi
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
