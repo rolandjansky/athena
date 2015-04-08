@@ -36,6 +36,8 @@ public:
 protected:
     // event counter
   int m_events;
+  int m_ievent; //event counter in Epos
+  int m_iout; //output type
 
     // setable properties
   double      m_beamMomentum;
@@ -44,15 +46,21 @@ protected:
   int         m_primaryParticle;
   int         m_targetParticle;
   std::string m_paramFile;
+  std::string m_lheout;
+  int         m_itab;
+  int         m_ilheout;
+  int         m_nEvents;
 
-    // max number of particles MUST BE EQUAL TO THE NUMBER SET IN crmc-aaa.f
-  static const size_t kMaxParticles = 9990; 
+    // max number of particles MUST BE EQUAL TO THE NUMBER SET IN crmc-aaa.f! (it is max. number allowed by HepMC2.6 now)
+ static const size_t kMaxParticles = 10000; 
+//  static const size_t kMaxParticles = HEPEVT_SIZE_REPLACE;
   int   m_partID[ kMaxParticles ];
-  float m_partPx[ kMaxParticles ];
-  float m_partPy[ kMaxParticles ];
-  float m_partPz[ kMaxParticles ];
-  float m_partEnergy[ kMaxParticles ];
-  float m_partMass[ kMaxParticles ];
+  double m_partPx[ kMaxParticles ];
+  double m_partPy[ kMaxParticles ];
+  double m_partPz[ kMaxParticles ];
+  double m_partEnergy[ kMaxParticles ];
+  double m_partMass[ kMaxParticles ];
+  int   m_partStat[ kMaxParticles ];
 
   std::vector<long int> m_seeds;
 };
