@@ -22,6 +22,21 @@
 
 using namespace std;
 
+namespace MC {
+
+  /// TEMPORARY copy from TruthUtils/ in the ParticleJetTools-00-03-33-branch
+  /// @brief Identify if the particle with given PDG ID would not interact with the detector, i.e. not a neutrino or WIMP
+  /// @deprecated Use MCUtils functions instead, e.g. isStronglyInteracting || isEMInteracting
+  inline bool isNonInteracting(int pid) {
+    const int apid = abs(pid);
+    if (apid == 12 || apid == 14 || apid == 16) return true; //< neutrinos
+    if (apid == 1000022 || apid == 1000024 || apid == 5100022) return true; // SUSY & KK photon and Z partners
+    if (apid == 39 || apid == 1000039 || apid == 5000039) return true; //< gravitons: standard, SUSY and KK
+    if (apid == 9000001 || apid == 9000002 || apid == 9000003 || apid == 9000004 || apid == 9000005 || apid == 9000006) return true; //< exotic particles from monotop model
+    return false;
+  }
+
+}
 
 CopyTruthJetParticles::CopyTruthJetParticles(const std::string& name)
   : CopyTruthParticles(name) ,
@@ -47,7 +62,7 @@ bool CopyTruthJetParticles::classifyJetInput(const xAOD::TruthParticle* tp, int 
   if ( tp->status()!=1 ) return false; // Stable!
   
   // Easy classifiers by PDG ID
-  if (!m_includeNu && MC::PID::isNeutrino(tp->pdgId())) return false;
+  if (!m_includeNu && MC::isNonInteracting(tp->pdgId())) return false;
   if (!m_includeMu && abs(tp->pdgId())==13) return false;
 
   // Cannot use the truth helper functions; they're written for HepMC
