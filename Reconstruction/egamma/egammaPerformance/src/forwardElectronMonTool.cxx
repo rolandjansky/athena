@@ -5,6 +5,7 @@
 /////////////////////////////////////////////////////////////
 //
 //      2014-10-22 Author: Remi Lafaye (Annecy) 
+//      2015-03-24 Author: Bertrand LAFORGE (LPNHE Paris)
 //
 //      NAME:    forwardElectronMonTool.cxx
 //      PACKAGE: offline/Reconstruction/egamma/egammaPerformance
@@ -114,7 +115,11 @@ StatusCode forwardElectronMonTool::bookHistograms()
   bookTH2F(m_hTightEtaPhi,electronGroup, "forwardElectronTightEtaPhi","TIGHT electron #eta,#phi map", 64, -3.2, 3.2, 64, -3.2, 3.2);
   bookTH1F(m_hTightEta,   electronGroup, "forwardElectronTightEta",   "TIGHT electron #eta", 64, -3.2, 3.2);
   bookTH1F(m_hTightPhi,   electronGroup, "forwardElectronTightPhi",   "TIGHT electron #phi", 64, -3.2, 3.2);
+  bookTH1F(m_hTopoEtCone40, electronGroup,"forwardElectronTopoEtcone40", "LOOSE forward electron Isolation Energy TopoEtCone40", 64, -1000., 20000.);
+  bookTH1F(m_hTime, electronGroup,"forwardElectronTime", "Time associated with the LOOSE electron cluster [ns]", 90, -30., 60.);
+
   bookTH1FperRegion(m_hvEt,electronGroup,"forwardElectronEt", "LOOSE electron transverse energy [MeV]",100, -1000.0, 250000.0,start,end);
+  bookTH1FperRegion(m_hvTime,electronGroup,"forwardElectronTime", "LOOSE electron time [ns]",90, -30.0, 60.0,start,end);
 
   // ID PANEL
   bookTH1FperRegion(m_hvDensity, electronIdGroup, "forwardElectronENG_DENS",      "First Moment of Energy Density ;FistEngDens; Nevents", 200,0.,2.,    start,end);
@@ -133,32 +138,43 @@ StatusCode forwardElectronMonTool::bookHistograms()
   bookTH1FperRegion(m_hvTightEt, electronGroup,"forwardElectronTightEt", "TIGHT electron transverse energy [MeV]",100, -1000.0, 250000.0,start,end);
   bookTH1FperRegion(m_hvTightEta,electronGroup,"forwardElectronTightEta","TIGHT electron #eta",64, -3.2, 3.2,start,end);
   bookTH1FperRegion(m_hvTightPhi,electronGroup,"forwardElectronTightPhi","TIGHT electron #phi",64, -3.2, 3.2,start,end);
-
+  bookTH1FperRegion(m_hvTopoEtCone40, electronGroup,"photonTopoEtCone40", "LOOSE Forward electron Isolation Energy TopoEtCone40 [MeV]", 64, -10000., 20000.,start,end);
   return StatusCode::SUCCESS;
 }
 
 StatusCode forwardElectronMonTool::fillHistograms()
 {
   ATH_MSG_DEBUG("forwardElectronMonTool::fillHistograms()");
+
+  if (!hasGoodTrigger("forward electron")) return StatusCode::SUCCESS; 
+
   //check whether Lar signalled event bad
+
   if(hasBadLar()) {
     ATH_MSG_DEBUG("forwardElectronMonTool::hasBadLar()");
-    return StatusCode::SUCCESS;
+    return StatusCode::RECOVERABLE;
   }
   
-  StatusCode sc;
-
   // Get electron container
   const xAOD::ElectronContainer* electron_container=0;
-  sc = m_storeGate->retrieve(electron_container, m_ForwardElectronContainer);
+  StatusCode sc = m_storeGate->retrieve(electron_container, m_ForwardElectronContainer);
   if(sc.isFailure() || !electron_container){
     ATH_MSG_VERBOSE("no electron container found in TDS");
-    return sc;
+    return StatusCode::FAILURE;
   } 
 
   xAOD::ElectronContainer::const_iterator e_iter = electron_container->begin();
   xAOD::ElectronContainer::const_iterator e_end  = electron_container->end();
+
   ATH_MSG_DEBUG("Number of electrons: " << electron_container->size());
+
+  // Check that the auxiliary store association was made successfully:
+  if( ! electron_container->hasStore() ) {
+    ATH_MSG_DEBUG("No auxiliary store got associated to the electron container with key: " << m_ForwardElectronContainer);
+    return StatusCode::FAILURE;
+  }
+
+  //
 
   int n_tot = 0;
   int n_tot_tight = 0;
@@ -186,6 +202,13 @@ StatusCode forwardElectronMonTool::fillHistograms()
     fillTH1FperRegion(m_hvEta,ir,eta);
     fillTH1FperRegion(m_hvPhi,ir,phi);
         
+    // Isolation Energy 
+    float topoetcone40;
+    if( (*e_iter)->isolationValue(topoetcone40,xAOD::Iso::topoetcone40)) {
+      m_hTopoEtCone40->Fill(topoetcone40);
+    }
+    fillTH1FperRegion(m_hvTopoEtCone40,ir,topoetcone40);
+
     // Associated cluster details
     const xAOD::CaloCluster *aCluster = (*e_iter)->caloCluster();
     if (aCluster) {
@@ -213,6 +236,10 @@ StatusCode forwardElectronMonTool::fillHistograms()
 	fillTH1FperRegion(m_hvSecondR,ir,secondR);
       if( aCluster->retrieveMoment( xAOD::CaloCluster::CENTER_LAMBDA, centerLambda) )
 	fillTH1FperRegion(m_hvCenterL,ir,centerLambda);
+
+      float time= aCluster->time();
+      m_hTime->Fill(time);
+      fillTH1FperRegion(m_hvTime,ir,time);
     }
 
     // TIGHT electrons

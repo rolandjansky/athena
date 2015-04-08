@@ -38,8 +38,13 @@ class ZeeTaPMonTool : public egammaMonToolBase
   float m_MassLowerCut;
   float m_MassUpperCut;
 
+  // Number of Z candidates vs leading electron eta
+
+  TH1 * m_hNZcandidates;
+
   // Zee mass distributions
   std::vector<TH1*> m_hvMass;         
+  TH1 * m_hMass;       // Histogram for Mass of Z candidates
 
   // Efficiencies vs pT, eta
   TH1 * m_hIDEt;

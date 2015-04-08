@@ -30,8 +30,8 @@ ZeeTaPMonTool::ZeeTaPMonTool(const std::string & type, const std::string & name,
   :  egammaMonToolBase(type,name,parent)
 {
   // Name of the electron collection
-  declareProperty("ElectronContainer", m_ElectronContainer = "ElectronCollection", "Name of the electron collection" );
-  declareProperty("massPeak", m_MassPeak = 91188, "Zee pak position" );
+  declareProperty("ElectronContainer", m_ElectronContainer = "Electrons", "Name of the electron collection" );
+  declareProperty("massPeak", m_MassPeak = 91188, "Zee peak position" );
   declareProperty("electronEtCut",m_ElectronEtCut = 15*GeV, "Et cut for electrons");
   declareProperty("massLowerCut", m_MassLowerCut = 70*GeV,"Lower mass cut");
   declareProperty("massUpperCut", m_MassUpperCut = 110*GeV,"Upper mass cut");
@@ -56,7 +56,12 @@ StatusCode ZeeTaPMonTool::bookHistograms()
   MonGroup electronIdGroup       (this,"egamma/tagandprobe/ID",        run); // to be re-booked every new run
   MonGroup electronIsoGroup      (this,"egamma/tagandprobe/Isolation", run); // to be re-booked every new run
 
+  // Number of Z candidates vs eta of leading electron
+  bookTH1F(m_hNZcandidates,electronGroup,"electronTagAndProbeNZcandidates",   "Number of Z candidates vs eta of leading electron",64,-3.2,3.2);
+
   // Mass plots
+  bookTH1F(m_hMass, electronGroup,"electronTagAndProbeGlobalMass", "Zee mass",100,m_MassLowerCut,m_MassUpperCut);
+
   bookTH1FperRegion(m_hvMass, electronGroup,"electronTagAndProbeMass",     "Zee mass",100,m_MassLowerCut,m_MassUpperCut,start,end);
 
   // EFFICIENCIES IN MAIN PANEL
@@ -76,7 +81,7 @@ StatusCode ZeeTaPMonTool::bookHistograms()
   bookTH1FperRegion(m_hvDeltaEta1     , electronTrkGroup,"electronTagAndProbeDeltaEta1",     "PROBE electron track match #Delta #eta (1st sampling) ;#Delta #eta;Nevents", 50,-0.05,0.05,start,end);
   bookTH1FperRegion(m_hvDeltaPhi2     , electronTrkGroup,"electronTagAndProbeDeltaPhi2",     "PROBE electron track match #Delta #phi (2st sampling) ;#Delta #phi;Nevents", 50,-0.15,0.1,start,end);
   bookTH1FperRegion(m_hvNOfBLayerHits , electronTrkGroup,"electronTagAndProbeNOfBLayerHits", "PROBE electron number of track B-Layer Hits ;N B layer hits;Nevents", 6,-0.5,5.5,start,end);
-  bookTH1FperRegion(m_hvNOfSiHits,      electronTrkGroup,"electronTagAndProbeNOfSiHits",     "PROBE electron number of track precision Hits ;N Si hits;Nevents", 26,-0.5,25.5,start,end);
+  bookTH1FperRegion(m_hvNOfSiHits     , electronTrkGroup,"electronTagAndProbeNOfSiHits",     "PROBE electron number of track precision Hits ;N Si hits;Nevents", 26,-0.5,25.5,start,end);
   bookTH1FperRegion(m_hvNOfTRTHits    , electronTrkGroup,"electronTagAndProbeNOfTRTHits",    "PROBE electron number of TRT Hits ;N TRT hits;Nevents", 51,-0.5,50.5,start,end);
 
   // ID PANEL
@@ -90,8 +95,8 @@ StatusCode ZeeTaPMonTool::bookHistograms()
   bookTH1FperRegion(m_hvRe237e277     , electronIdGroup,"electronTagAndProbeRe237e277",      "PROBE electron uncor. energy fraction in 3x7/7x7 cells in em sampling 2 ;R 3x7/7x7; Nevents", 50, 0., 2.,start,end);
 
   // ISO PANEL
-  bookTH1FperRegion(m_hvCaloIso       , electronIsoGroup,"electronTagAndProbeCaloIso",       "PROBE electron calorimeter isolation;E_{iso} [MeV];Nevents", 50,-10,40.0,start,end);
-  bookTH1FperRegion(m_hvTrackIso      , electronIsoGroup,"electronTagAndProbeTrackIso",      "PROBE electron track isolation;E_{trk iso} [MeV];Nevents",   50,-10,40.0,start,end);
+  bookTH1FperRegion(m_hvCaloIso       , electronIsoGroup,"electronTagAndProbeCaloIso",       "PROBE electron calorimeter isolation;E_{iso} [MeV];Nevents", 50,-10000.,40000.0,start,end);
+  bookTH1FperRegion(m_hvTrackIso      , electronIsoGroup,"electronTagAndProbeTrackIso",      "PROBE electron track isolation;E_{trk iso} [MeV];Nevents",   50,-10000.,40000.0,start,end);
 
   return StatusCode::SUCCESS;
 }
@@ -99,17 +104,18 @@ StatusCode ZeeTaPMonTool::bookHistograms()
 StatusCode ZeeTaPMonTool::fillHistograms()
 {
   ATH_MSG_DEBUG("ZeeTaPMonTool::fillHistograms()");
+
+  if (!hasGoodTrigger("Zee T&P electron")) return StatusCode::SUCCESS; 
+
   //check whether Lar signalled event bad
   if(hasBadLar()) {
     ATH_MSG_DEBUG("ZeeTaPMonTool::hasBadLar()");
-    return StatusCode::SUCCESS;
+    return StatusCode::RECOVERABLE;
   }
   
-  StatusCode sc;
-
   // Get electron container
   const xAOD::ElectronContainer* electron_container=0;
-  sc = m_storeGate->retrieve(electron_container, m_ElectronContainer);
+  StatusCode sc = m_storeGate->retrieve(electron_container, m_ElectronContainer);
   if(sc.isFailure() || !electron_container){
     ATH_MSG_VERBOSE("no electron container found in TDS");
     return sc;
@@ -142,13 +148,13 @@ StatusCode ZeeTaPMonTool::fillHistograms()
   }
 
   // Et cuts
-  if(lead_et<m_ElectronEtCut || lead_et<0) { m_hN->Fill(n_tot); return sc; }
-  if(subl_et<m_ElectronEtCut || subl_et<0) { m_hN->Fill(n_tot); return sc; }
+  if(lead_et<m_ElectronEtCut || lead_et<0) { m_hN->Fill(n_tot); return StatusCode::SUCCESS; }
+  if(subl_et<m_ElectronEtCut || subl_et<0) { m_hN->Fill(n_tot); return StatusCode::SUCCESS; }
 
   // Mass window
   float mass     = (lead_el->p4()+subl_el->p4()).M(); 
   ATH_MSG_DEBUG("Zee mass & cuts:                    (" << mass << ", " << m_MassLowerCut << ", " << m_MassUpperCut << ")");
-  if(mass<m_MassLowerCut || mass>m_MassUpperCut) { m_hN->Fill(n_tot); return sc; }
+  if(mass<m_MassLowerCut || mass>m_MassUpperCut) { m_hN->Fill(n_tot); return StatusCode::SUCCESS; }
 
   // Basic kinematics
   float lead_eta = lead_el->eta();
@@ -159,10 +165,10 @@ StatusCode ZeeTaPMonTool::fillHistograms()
   ATH_MSG_DEBUG("Subleading electron (eta,phi,et,q): (" << subl_eta << ", " << subl_phi << ", " << subl_et << ", " << subl_el->charge() << ")");
 
   // Eta cuts
-  if(fabs(lead_eta)>2.47 || fabs(subl_eta)>2.47) { m_hN->Fill(n_tot); return sc; }
+  if(fabs(lead_eta)>2.47 || fabs(subl_eta)>2.47) { m_hN->Fill(n_tot); return StatusCode::SUCCESS; }
 
   // Check charges
-  if (lead_el->charge()*subl_el->charge()>=0) { m_hN->Fill(n_tot); return sc; }
+  if (lead_el->charge()*subl_el->charge()>=0) { m_hN->Fill(n_tot); return StatusCode::SUCCESS; }
   
   // Check ID status for both candidates
   bool lead_isTight;
@@ -170,21 +176,26 @@ StatusCode ZeeTaPMonTool::fillHistograms()
   bool subl_isTight;
   if(!subl_el->passSelection(subl_isTight,"Tight")) subl_isTight = false;
 
+  bool EventZcandidateUsed = false;
+
   // If leading electron is TightPP use subleading as probe
   if(lead_isTight) { // TightPP: says menu not defined for electrons
     ++n_tot;
     fillElectronProbe(subl_el,subl_isTight,mass);
+    m_hNZcandidates->Fill(lead_eta);
+    EventZcandidateUsed = true;
   }
   // If subleading electron is TightPP use leading as probe
   if(subl_isTight) { // TightPP: says menu not defined for electrons
     ++n_tot;
     fillElectronProbe(lead_el,lead_isTight,mass);
+    if (!EventZcandidateUsed) m_hNZcandidates->Fill(subl_eta);
   }
 
   // Fill number of electrons histograms
   m_hN->Fill(n_tot);
 
-  return sc;
+  return StatusCode::SUCCESS;
 }
 
 void ZeeTaPMonTool::fillElectronProbe(const xAOD::Electron *el, bool isTight, float mass)
@@ -199,6 +210,7 @@ void ZeeTaPMonTool::fillElectronProbe(const xAOD::Electron *el, bool isTight, fl
   if(m_hEta)    m_hEta->Fill(eta);
   if(m_hPhi)    m_hPhi->Fill(phi);
   fillTH1FperRegion(m_hvMass,ir,mass);
+  if (m_hMass)  m_hMass->Fill(mass);
 
   if(isTight) {
     m_hIDEt->Fill(et);
@@ -247,6 +259,17 @@ void ZeeTaPMonTool::fillElectronProbe(const xAOD::Electron *el, bool isTight, fl
     }
     fillTH1FperRegion(m_hvRe237e277,ir,Re237e277);
   }
+  
+  // Isolation Energy 
+  float topoetcone40;
+  if( el->isolationValue(topoetcone40,xAOD::Iso::topoetcone40)) {
+    fillTH1FperRegion(m_hvCaloIso,ir,topoetcone40);
+  }
+  float ptcone20;
+  if( el->isolationValue(ptcone20,xAOD::Iso::ptcone20)) {
+    fillTH1FperRegion(m_hvTrackIso,ir,ptcone20);
+  }
+  
 
   // Associated track details
   const xAOD::TrackParticle *t = el->trackParticle();

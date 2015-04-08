@@ -5,6 +5,7 @@
 /////////////////////////////////////////////////////////////
 //
 //      2014-05-21 Author: Remi Lafaye (Annecy) 
+//      2015-02-15 Author: Bertrand LAFORGE (LPNHE Paris)
 //
 //      NAME:    photonMonTool.cxx
 //      PACKAGE: offline/Reconstruction/egamma/egammaPerformance
@@ -81,14 +82,7 @@
 #include "TH2F.h"
 
 photonMonTool::photonMonTool(const std::string & type, const std::string & name, const IInterface* parent)
-  :  egammaMonToolBase(type,name,parent),
-     m_hN (nullptr),
-     m_hEt (nullptr),
-     m_hPhi (nullptr),
-     m_hEtaPhi (nullptr),
-     m_hTightN (nullptr),
-     m_hTightEt (nullptr),
-     m_hTightEtaPhi (nullptr)
+  :  egammaMonToolBase(type,name,parent)
 {
   // Name of the photon collection
   declareProperty("PhotonContainer", m_PhotonContainer = "PhotonCollection", "Name of the photon collection");
@@ -114,25 +108,33 @@ StatusCode photonMonTool::bookHistograms()
 
   // MAIN PANEL
   // Number of photons
-  bookTH1F(m_hN,          photonGroup,"photonN", "Number of LOOSE photons",40, 0.0, 40.0);
-  bookTH1F(m_hEt,         photonGroup,"photonEt", "LOOSE photon transverse energy [MeV]",100, -1000.0, 250000.0);
-  bookTH2F(m_hEtaPhi,     photonGroup, "photonEtaPhi", "LOOSE photon #eta,#phi map", 64, -3.2, 3.2, 64, -3.2, 3.2);
-  bookTH1F(m_hEta,        photonGroup,"photonEta",        "LOOSE photon #eta", 64, -3.2, 3.2);
-  bookTH1F(m_hPhi,        photonGroup,  "photonPhi",  "LOOSE photon #phi", 64, -3.2, 3.2);
-  bookTH1F(m_hTightN,     photonGroup,"photonTightN", "Number of TIGHT photons",40, 0.0, 40.0);
-  bookTH1F(m_hTightEt,    photonGroup,"photonTightEt", "TIGHT photon transverse energy [MeV]",100, -1000.0, 250000.0);
-  bookTH1F(m_hTightEta,   photonGroup,"photonTightEta",   "TIGHT photon #eta", 64, -3.2, 3.2);
-  bookTH1F(m_hTightPhi,   photonGroup,"photonTightPhi",   "TIGHT photon #phi", 64, -3.2, 3.2);
-  bookTH2F(m_hTightEtaPhi,photonGroup,"photonTightEtaPhi",     "TIGHT photon #eta,#phi map", 64, -3.2, 3.2, 64, -3.2, 3.2);
-  bookTH1FperRegion(m_hvEt, photonGroup,  "photonEt",   "LOOSE photon transverse energy [MeV]",  100, -1000.0, 250000.0,start,end); // Don't make plots for forward photons
+  bookTH1F(m_hN,          photonGroup,"photonN",           "Number of LOOSE photons",40, 0.0, 40.0);
+  bookTH1F(m_hEt,         photonGroup,"photonEt",          "LOOSE photon transverse energy [MeV]",100, -1000.0, 250000.0);
+  bookTH2F(m_hEtaPhi,     photonGroup,"photonEtaPhi",      "LOOSE photon #eta,#phi map", 64, -3.2, 3.2, 64, -3.2, 3.2);
+  bookTH1F(m_hEta,        photonGroup,"photonEta",         "LOOSE photon #eta", 64, -3.2, 3.2);
+  bookTH1F(m_hPhi,        photonGroup,"photonPhi",         "LOOSE photon #phi", 64, -3.2, 3.2);
+  bookTH1F(m_hTopoEtCone40, photonGroup,"photonTopoEtcone40", "LOOSE photon Isolation Energy TopoEtCone40", 64, -10000., 20000.);
+  bookTH1F(m_hPtCone20,     photonGroup,"photonPtcone20",     "LOOSE photon Isolation Energy PtCone20", 64, -10000., 20000.);
+  bookTH1F(m_hTightN,     photonGroup,"photonTightN",      "Number of TIGHT photons",40, 0.0, 40.0);
+  bookTH1F(m_hTightEt,    photonGroup,"photonTightEt",     "TIGHT photon transverse energy [MeV]",100, -1000.0, 250000.0);
+  bookTH1F(m_hTightEta,   photonGroup,"photonTightEta",    "TIGHT photon #eta", 64, -3.2, 3.2);
+  bookTH1F(m_hTightPhi,   photonGroup,"photonTightPhi",    "TIGHT photon #phi", 64, -3.2, 3.2);
+  bookTH2F(m_hTightEtaPhi,photonGroup,"photonTightEtaPhi", "TIGHT photon #eta,#phi map", 64, -3.2, 3.2, 64, -3.2, 3.2);
+  bookTH1F(m_hTightTopoEtCone40, photonGroup,"photonTightTopoEtcone40", "TIGHT photon Isolation Energy TopoEtCone40", 64, -1000., 10000.);
+  bookTH1F(m_hTightPtCone20,    photonGroup,"photonTightPtcone20",     "TIGHT photon Isolation Energy PtCone20", 64, -1000., 10000.);
+  bookTH1F(m_hTime, photonGroup,"photonTime", "Time associated with the LOOSE photon cluster [ns]", 90, -30., 60.);
 
+  bookTH1FperRegion(m_hvEt, photonGroup,  "photonEt",      "LOOSE photon transverse energy [MeV]",  100, -1000.0, 250000.0,start,end); // Don't make plots for forward photons
+  bookTH1FperRegion(m_hvTopoEtCone40, photonGroup,"photonTopoEtCone40", "LOOSE photon Isolation Energy TopoEtCone40 [MeV]", 64, -10000., 20000.,start,end);
+  bookTH1FperRegion(m_hvPtCone20, photonGroup,"photonPtcone20", "LOOSE photon Isolation Energy PtCone20 [MeV]", 64, -10000., 20000.,start,end);
+  bookTH1FperRegion(m_hvTime,photonGroup,"forwardElectronTime", "LOOSE photon time [ns]",90, -30.0, 60.0,start,end);
   // TRACK PANEL
   bookTH1FperRegion(m_hvTightConvType,       photonTrkGroup, "photonTightConvType",   "TIGHT photon conv type; Nevents",4, 0, 4,start,end);
   bookTH1FperRegion(m_hvTightNOfTRTHits    , photonTrkGroup, "photonTightNOfTRTHits", "TIGHT photon number of TRT Hits ;N TRT hits;Nevents", 51,-0.5,50.5,start,end);
 
   // ID PANEL
-  bookTH1FperRegion(m_hvEhad1,    photonIdGroup,"photonEhad1", "LOOSE photon energy leakage in 1st sampling of hadronic cal. ;E had1; Nevents", 50, -1000., 10000.,start,end);
-  bookTH1FperRegion(m_hvCoreEM,   photonIdGroup,"photonCoreEM","LOOSE photon core energy in EM calorimeter ;E [MeV]; Nevents",50, -5000., 250000.,start,end);
+  bookTH1FperRegion(m_hvEhad1,    photonIdGroup, "photonEhad1", "LOOSE photon energy leakage in 1st sampling of hadronic cal. ;E had1; Nevents", 50, -1000., 10000.,start,end);
+  bookTH1FperRegion(m_hvCoreEM,   photonIdGroup, "photonCoreEM","LOOSE photon core energy in EM calorimeter ;E [MeV]; Nevents",50, -5000., 250000.,start,end);
   bookTH1FperRegion(m_hvF1,       photonIdGroup, "photonF1",         "LOOSE photon fractional energy in 1st sampling;F1; Nevents", 50, -1.0,1.0,start,end);
   bookTH1FperRegion(m_hvF2,       photonIdGroup, "photonF2",         "LOOSE photon fractional energy in 2nd sampling;F2; Nevents", 50, -1.0,1.0,start,end);
   bookTH1FperRegion(m_hvF3,       photonIdGroup, "photonF3",         "LOOSE photon fractional energy in 3rd sampling;F3; Nevents", 50, -1.0,1.0,start,end);
@@ -162,20 +164,30 @@ StatusCode photonMonTool::bookHistograms()
 StatusCode photonMonTool::fillHistograms()
 {
   ATH_MSG_DEBUG("photonMonTool::fillHistograms()");
+  
+  if (!hasGoodTrigger("photon")) return StatusCode::SUCCESS; 
+  
   //check whether Lar signalled event bad
   if(hasBadLar()) {
     ATH_MSG_DEBUG("photonMonTool::hasBadLar()");
-    return StatusCode::SUCCESS;
+    return StatusCode::RECOVERABLE;
   }
-  
-  StatusCode sc;
 
   const xAOD::PhotonContainer* photon_container=0;
-  sc = m_storeGate->retrieve(photon_container, m_PhotonContainer);
+
+  StatusCode sc = m_storeGate->retrieve(photon_container, m_PhotonContainer);
   if(sc.isFailure() || !photon_container){
     ATH_MSG_VERBOSE( "no photon container found in TDS");
     return sc;
   }
+
+  // Check that the auxiliary store association was made successfully:
+  if( ! photon_container->hasStore() ) {
+    ATH_MSG_DEBUG("No auxiliary store got associated to the photon container with key: " << m_PhotonContainer);
+    return StatusCode::FAILURE;
+  }
+
+  //
 
   xAOD::PhotonContainer::const_iterator g_iter = photon_container->begin();
   xAOD::PhotonContainer::const_iterator g_end  = photon_container->end();
@@ -247,8 +259,13 @@ StatusCode photonMonTool::fillHistograms()
       float f2 = 0.0;
       if(ec!=0) f2 = aCluster->energyBE(2)/ec;
       fillTH1FperRegion(m_hvF2,ir,f2);
+
+      float time= aCluster->time();
+      m_hTime->Fill(time);
+      fillTH1FperRegion(m_hvTime,ir,time);
+
     } else ATH_MSG_WARNING( "Can't get CaloCluster" );
-    
+      
     xAOD::EgammaParameters::ConversionType convType = xAOD::EgammaHelpers::conversionType(*g_iter);
     fillTH1FperRegion(m_hvConvType,ir,convType);
     float deltaPhi1 = 0.0;
@@ -259,6 +276,19 @@ StatusCode photonMonTool::fillHistograms()
     if( (*g_iter)->vertexCaloMatchValue(deltaPhi2, xAOD::EgammaParameters::convMatchDeltaPhi2) ) {
       fillTH1FperRegion(m_hvConvTrkMatch2,ir,deltaPhi2);
     }
+
+    // Isolation Energy 
+    float topoetcone40;
+    if( (*g_iter)->isolationValue(topoetcone40,xAOD::Iso::topoetcone40)) {
+      m_hTopoEtCone40->Fill(topoetcone40);
+    }
+    float ptcone20;
+    if( (*g_iter)->isolationValue(ptcone20,xAOD::Iso::ptcone20)) {
+      m_hPtCone20->Fill(ptcone20);
+    }
+
+    fillTH1FperRegion(m_hvTopoEtCone40,ir,topoetcone40);
+    fillTH1FperRegion(m_hvPtCone20,ir,ptcone20);
 
     // TIGHT photons
     bool isTight;
@@ -276,6 +306,8 @@ StatusCode photonMonTool::fillHistograms()
 	fillTH1FperRegion(m_hvTightConvType,ir,convType);
 	fillTH1FperRegion(m_hvTightConvTrkMatch1,ir,deltaPhi1);
 	fillTH1FperRegion(m_hvTightConvTrkMatch2,ir,deltaPhi2);
+	m_hTightTopoEtCone40->Fill(topoetcone40);
+	m_hTightPtCone20->Fill(ptcone20);
       }
     } else {
       ATH_MSG_WARNING( "Photon selection menu Tight is not defined" );

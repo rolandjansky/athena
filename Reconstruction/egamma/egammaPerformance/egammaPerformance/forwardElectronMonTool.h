@@ -36,12 +36,16 @@ class forwardElectronMonTool : public egammaMonToolBase
   TH1 * m_hEta;     // Histogram for electron eta
   TH1 * m_hPhi;     // Histogram for electron phi
   TH2 * m_hEtaPhi;  // Histogram for electron eta,phi
+  TH1 * m_hTopoEtCone40; // Histogram for calo based isolation energy
+  TH1 * m_hTime;         // Histogram for forward cluster time
 
   // Loose electrons per region histograms
   std::vector<TH1*> m_hvN;   // Histograms for number of electrons
   std::vector<TH1*> m_hvEt;  // Histograms for electron transverse energies
   std::vector<TH1*> m_hvEta; // Histograms for electron transverse eta
   std::vector<TH1*> m_hvPhi; // Histograms for electron transverse phi
+  std::vector<TH1*> m_hvTopoEtCone40;  // Histograms for electron calo-based isolation transverse energies
+  std::vector<TH1*> m_hvTime;  // Histograms for electron times
 
   // Tight electrons histograms
   TH1 * m_hTightN;       // Histogram for number of electrons
