@@ -42,8 +42,8 @@ namespace LVL1TGCTrigger {
   MakeCoincidenceOut::MakeCoincidenceOut(const std::string& name, ISvcLocator* pSvcLocator):
     AthAlgorithm(name,pSvcLocator),
     m_sgSvc("StoreGateSvc", name),
-    m_tgcIdHelper(0),
-    m_ntuplePtr(0)
+    m_tgcIdHelper(0)
+    //m_ntuplePtr(0)
   {
     declareProperty("EventStore", m_sgSvc, "Event Store");
     declareProperty("InputData_perEvent",  m_key);

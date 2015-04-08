@@ -14,26 +14,34 @@ Description of CW
 	--> OBSOLETE
   LPT        : MU_0  MU_5  MU_6 MU_11 MU_20 MU_40 
 	--> OBSOLETE
+
   setC       : MU_0  MU_6 MU_10 MU_15 MU_20 MU_40 
 	--> used in old MC production before 15.0.0
+	--> OBSOLETE
+ 
   setD       : MU_0  MU6 MU_10 ----  MU_15 MU_20
 	--> CW same as data in 2009-10
+
   setE       : MU_0  MU_6 MU_10 MU_15 MU_20 MU_40 
 	--> modified CW from setC (wider window in Phi-direction)
-            only for 12-fold cabling
+	--> OBSOLETE
+
   setF       : MU_0  MU6 MU_10 ----  MU_15 MU_20
 	--> modified CW from setD (wider window in Phi-direction)
 	    CW same as data after Aug. 2010 
             only for 12-fold cabling
+
   setG       : MU_0  MU_6 MU_10 ----  MU_15 MU_20
         -->  MU_0,6,10 use 2-st coincidence in naddition to 3-st coin (i.e HPT)             CW same as data after Oct. 2010 (default)
              only for 12-fold cabling
 
   setH       : MU_0  MU_6 ---- MU_10 MU_15 MU_20
        --> same as setF except pt=3 and pt=4 are swapped
+	--> OBSOLETE
 
   setI       : MU_4  MU_6 ---- MU_10 MU_15 MU_20
        --> Mu_4' (MU_0 but 3-st is used partially ) for pt=1 
+	--> OBSOLETE
    
   setJ       : ---- MU_0  MU_6 MU_10 MU_15 MU_20
        --> pt=1 is not used. pt=2 is MU_0 for ion run
@@ -70,18 +78,6 @@ Desrciption of Properties
   - use full CW (not 8-fold symmetry) 
        valid only for setK
 
-- SINGLEBEAM
-   - flag for single beam run @ 2008/2009
-         pt=1  W:2-st, S:2-st or 3-st
-         pt=4  W:3-st, S:2-st or 3-st
-         pt=5  W:3-st |dR|<=10, S:2-st or 3-st
-   - default : false 
-
-- MUHALO
-   - flag for including TGC_MU_HALO in pt=1
-      MU_HALO:   W:2-st, S:2-st or 3-st
-   - default : false
-
 - SHPTORED
    - flag for ored strip HPT fr E1 and E2 
      if the flag is set to true, the bug of Strip HPT board is 
@@ -96,30 +92,6 @@ Desrciption of Properties
 - InputData_perEvent
    - location of input data in the store gate	
    - default :   "TGC_DIGITS" (defined in JobOption)
-
-- CurrentBunchTag
-   - Bunch Tag used for LVL1 simulation
-   - default: TgcDigit::BC_CURRENT
-
-- OutputTgcRDO
-   - flag for making TgcRDO for coincidences (SLB/HPT/SL)
-   - default: true
-
-- MaskFileName
-   - file name of Mask settings for old (8-fold) cabling
-   - default:   - default :   "TGC_DIGITS" (defined in JobOption)
-
-- CurrentBunchTag
-   - Bunch Tag used for LVL1 simulation
-   - default: TgcDigit::BC_CURRENT
-
-- OutputTgcRDO
-   - flag for making TgcRDO for coincidences (SLB/HPT/SL)
-   - default: true
-
-- MaskFileName
-   - file name of Mask settings for old (8-fold) cabling
-   - default:   - default :   "TGC_DIGITS" (defined in JobOption)
 
 - CurrentBunchTag
    - Bunch Tag used for LVL1 simulation
@@ -162,6 +134,9 @@ Desrciption of Properties
      NOTE:   LVL1ConfigSvc is not used to chose CW
    - default : "TrigConf::LVL1ConfigSvc/LVL1ConfigSvc"
 
+- MUHALO                OBSOLETE 
+
+- SINGLEBEAM            OBSOLETE
 
 - ASDOutDataLocation    OBSOLETE 
       

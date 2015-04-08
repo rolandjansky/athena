@@ -47,7 +47,6 @@ TGCTileMuCoincidenceMap::TGCTileMuCoincidenceMap(const std::string& version)
   }
    
   if (!g_TILE_MU) return;
-  if (!TGCDatabaseManager::IsAtlas()) return; 
 
   //////////////////////////////
   IMessageSvc* msgSvc = 0;

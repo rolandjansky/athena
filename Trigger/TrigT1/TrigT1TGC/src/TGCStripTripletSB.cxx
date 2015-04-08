@@ -11,7 +11,6 @@
 namespace LVL1TGCTrigger {
 
 extern bool g_STRICTST;
-extern bool g_ISATLAS;
 
 TGCStripTripletSB::TGCStripTripletSB():TGCSlaveBoard()
 {}
@@ -90,33 +89,17 @@ void TGCStripTripletSB::doCoincidence()
       b[j]=false;
     }
 
-    //   rearrange signal pattern for 2layer for 1/2 coincidence.  
-    // ! the order to rearrange is chosen by Daniel table P.  
-    int i;
-    if ( g_ISATLAS) {
-      for( i=0; i<length/2; i+=1){
-	if(pattern[0]!=0){
-	  b[2*i+1]   = pattern[0]->getChannel(i+length/2);// smaller in phi
-	  b[2*i] = pattern[0]->getChannel(i);
-	}
-	if(pattern[1]!=0){
-	  b[length+2*i+1]   = pattern[1]->getChannel(i+length/2);// smaller in phi
-	  b[length+2*i] = pattern[1]->getChannel(i); 
-	}
+    for( int i=0; i<length/2; i+=1){
+      if(pattern[0]!=0){
+	b[2*i+1]   = pattern[0]->getChannel(i+length/2);// smaller in phi
+	b[2*i] = pattern[0]->getChannel(i);
       }
-    } else { 
-      // revert layer swap for OLD simulation (8-fold cabling)
-      for( i=0; i<length/2; i+=1){
-	if(pattern[1]!=0){
-	  b[2*i+1]   = pattern[1]->getChannel(i+length/2);// smaller in phi
-	  b[2*i] = pattern[1]->getChannel(i);
-	}
-	if(pattern[0]!=0){
-	  b[length+2*i+1]   = pattern[0]->getChannel(i+length/2);// smaller in phi      
-	  b[length+2*i] = pattern[0]->getChannel(i); 
-	}
-      }      
+      if(pattern[1]!=0){
+	b[length+2*i+1]   = pattern[1]->getChannel(i+length/2);// smaller in phi
+	b[length+2*i] = pattern[1]->getChannel(i); 
+      }
     }
+
     // perform 1/2 coincidence
     int block;
     for( block=0; block<2; block+=1){
@@ -135,7 +118,7 @@ void TGCStripTripletSB::doCoincidence()
 	}
       } else {
 
-	i=base;
+	int i=base;
 	coincidenceOut->setChannel(i,( b[i] & !b[i+1] ));
 	
 	i=base+1;

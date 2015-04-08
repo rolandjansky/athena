@@ -5,7 +5,7 @@
 #include "TrigT1TGC/TGCBIDOut.hh"
 
 namespace LVL1TGCTrigger {
-using namespace std;
+//using namespace std;
 
   TGCBIDOut::TGCBIDOut():TGCASDOut(),bid(0)
   {

@@ -25,8 +25,6 @@ namespace LVL1TGCTrigger {
  extern bool        g_TILE_MU;
  extern bool        g_FULL_CW;
 
- bool TGCDatabaseManager::isAtlas = false;
-
 TGCConnectionInPP* TGCDatabaseManager::getConnectionInPP(TGCPatchPanel* patchPanel) const 
 {
   if(!patchPanel) return 0;
@@ -104,12 +102,9 @@ TGCDatabaseManager::TGCDatabaseManager()
 
 }
 
-TGCDatabaseManager::TGCDatabaseManager(const std::string& ver,
-				       bool flag)
+TGCDatabaseManager::TGCDatabaseManager(const std::string& ver, bool )
 {
   bool status = true;
-
-  isAtlas = flag;
 
   int i,j,k;
   for( j=0; j<NumberOfRegionType; j+=1) {
@@ -270,34 +265,18 @@ TGCDatabaseManager::operator=(const TGCDatabaseManager& right)
 const std::string& TGCDatabaseManager::getFilename(int type)
 {
   static std::string fn="";
-  if (isAtlas) {
-    switch (type) {
-	case 0: //ASD2PP
-	  fn = "MuonTGC_Cabling_ASD2PP.db";
-	  break; 
-	case 1: //PP
-	  fn = "MuonTGC_Cabling_PP.db";
-	  break;
-	case 2: //PP2SL
-	  fn = "MuonTGC_Cabling_PP2SL.db";
-	  break;
-	default:
-	break;
-    }
-  } else {
-    switch (type) {
-	case 0: //ASD2PP
-	  fn = "ASD2PP.db";
-	  break; 
-	case 1: //PP
-	  fn = "PP.db";
-	  break;
-	case 2: //PP2SL
-	  fn = "PP2SL.db";
-	  break;
-	default:
-	break;
-    }
+  switch (type) {
+   case 0: //ASD2PP
+    fn = "MuonTGC_Cabling_ASD2PP.db";
+    break; 
+   case 1: //PP
+    fn = "MuonTGC_Cabling_PP.db";
+    break;
+   case 2: //PP2SL
+    fn = "MuonTGC_Cabling_PP2SL.db";
+    break;
+   default:
+    break;
   }
   return fn;
 }
