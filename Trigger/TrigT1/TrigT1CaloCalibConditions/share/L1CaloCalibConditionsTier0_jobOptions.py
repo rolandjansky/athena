@@ -1,17 +1,15 @@
-include.block ( "TrigT1CaloCalibConditions/L1CaloCalibConditionsTier0_jobOptions.py" )
+# Bytestream to TrigT1Calo objects conversions
+include.block("TrigT1CaloCalibConditions/L1CaloCalibConditionsTier0_jobOptions.py")
 
-# Setup the L1CaloCondSvc
-#from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-from TrigT1CaloCondSvc.TrigT1CaloCondSvcConf import L1CaloCondSvc
-ServiceMgr += L1CaloCondSvc()
+from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+from AthenaCommon.GlobalFlags       import globalflags
+from RecExConfig.AutoConfiguration  import GetRunNumber
+# Need something better eventually
+if athenaCommonFlags.isOnline:
+    run = 2
+elif globalflags.DataSource() == "data":
+    run = 1 if (GetRunNumber() < 230000) else 2
+else:  # MC
+    run = 2
 
-# Folders needed for Tier0 processing
-from IOVDbSvc.CondDB import conddb
-L1CaloFolderList = []
-L1CaloFolderList += ["/TRIGGER/L1Calo/V1/Configuration/PprChanDefaults"]
-L1CaloFolderList += ["/TRIGGER/L1Calo/V1/Calibration/Physics/PprChanCalib"]
-L1CaloFolderList += ["/TRIGGER/L1Calo/V1/Calibration/PpmDeadChannels"]
-L1CaloFolderList += ["/TRIGGER/L1Calo/V1/Conditions/DisabledTowers"]
-
-for l1calofolder in L1CaloFolderList:
-	conddb.addFolder("TRIGGER", l1calofolder+"<tag>HEAD</tag>")
+include ("TrigT1CaloCalibConditions/L1CaloCalibConditionsTier0Run%d_jobOptions.py" % run)
