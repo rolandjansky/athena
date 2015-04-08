@@ -62,11 +62,15 @@ void TrigRoiDescriptorCnv_p1::transToPers(const TrigRoiDescriptor* transObj,
 				       MsgStream &log)
 {
    log << MSG::DEBUG << "TrigRoiDescriptorCnv_p1::transToPers called " << endreq;
+   //   log << MSG::FATAL << "TrigRoiDescriptorCnv_p1::transToPers called - do not use this converter, use more recent converter" << endreq;
 
    persObj->m_phi0         = transObj->m_phi        ;                 
    persObj->m_eta0         = transObj->m_eta        ;                 
-   persObj->m_zed0         = transObj->m_zed        ;                 
-   persObj->m_phiHalfWidth = 0.5*std::fabs( HLT::wrapPhi(transObj->m_phiPlus-transObj->m_phiMinus) );
+   persObj->m_zed0         = transObj->m_zed        ;               
+
+   if ( transObj->m_phiPlus > transObj->m_phiMinus ) persObj->m_phiHalfWidth = 0.5*( transObj->m_phiPlus-transObj->m_phiMinus);
+   else                                              persObj->m_phiHalfWidth = 0.5*( transObj->m_phiPlus-transObj->m_phiMinus) + M_PI;
+
    persObj->m_etaHalfWidth = 0.5*std::fabs( transObj->m_etaPlus-transObj->m_etaMinus) ;
    persObj->m_zedHalfWidth = 0.5*std::fabs( transObj->m_zedPlus-transObj->m_zedMinus) ;
    persObj->m_etaPlus      = transObj->m_etaPlus     ;
