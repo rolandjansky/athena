@@ -59,7 +59,9 @@ iGeant4::TrackProcessorUserAction::TrackProcessorUserAction(const std::string& t
     m_cavernRmean(0.),  m_cavernZmean(0.),
     m_volumeOffset(1),
     m_minHistoryDepth(0),
-    m_hasCavern(true)
+    m_hasCavern(true),
+    m_passBackEkinThreshold(0.05), //TODO: should we add units here (MeV)?
+    m_killBoundaryParticlesBelowThreshold(false)
 {
 
   ATH_MSG_DEBUG("create TrackProcessorUserAction name: "<<name);
@@ -71,6 +73,12 @@ iGeant4::TrackProcessorUserAction::TrackProcessorUserAction(const std::string& t
   declareProperty("Geant4OnlyMode", m_geant4OnlyMode=false);
   declareProperty("TruthVolumeLevel", m_truthVolLevel=1, "Level in geo hierarchy for the truth volumes");
 
+  declareProperty("PassBackEkinThreshold",
+          m_passBackEkinThreshold=0.05, //TODO: should we add units here (MeV)?
+          "Ekin cut-off for particles returned to ISF");
+  declareProperty("KillBoundaryParticlesBelowThreshold",
+          m_killBoundaryParticlesBelowThreshold=false,
+          "Kill particles at boundary which are below Ekin cut-off rather than continue their simulation in G4");
 }
 
 StatusCode iGeant4::TrackProcessorUserAction::initialize()
@@ -138,122 +146,76 @@ void iGeant4::TrackProcessorUserAction::EndOfEventAction(const G4Event*)
 void iGeant4::TrackProcessorUserAction::SteppingAction(const G4Step* aStep)
 {
 
-  G4Track* aTrack = aStep->GetTrack();
+  G4Track*           aTrack   = aStep->GetTrack();
+  int               aTrackID  = aTrack->GetTrackID();
+  G4TrackStatus aTrackStatus  = aTrack->GetTrackStatus();
 
-  if (aTrack->GetTrackID()!=m_curTrackID){
-    m_curTrackID=aTrack->GetTrackID();
+  const G4StepPoint *preStep  = aStep->GetPreStepPoint();
+  const G4StepPoint *postStep = aStep->GetPostStepPoint();
+
+  // update m_curISP if TrackID has changed or current ISP is unset
+  if ( aTrackID!=m_curTrackID || !m_curISP ){
+    m_curTrackID = aTrackID;
 
     std::map<int, ISF::ISFParticle*>::iterator ispIt = m_parentISPmap.find(m_curTrackID);
-    if ( ispIt == m_parentISPmap.end() || ispIt->second==0 ) {
-      ATH_MSG_ERROR("no ISFParticle!");
-      m_curISP = 0;
-    } else {
-      m_curISP = ispIt->second;
-    }
+    m_curISP = ispIt!=m_parentISPmap.end() ? ispIt->second : 0;
 
-  }
-
-  //std::cout<<"retrieved isp "<<m_curISP<<" for trackID "<<m_curTrackID<<std::endl;
-
-  // reset nextGeoID for this particle so ISFTrajectory::AppendStep will have correct nextGeoID
-  if (m_geant4OnlyMode) {
-    AtlasDetDescr::AtlasRegion nextG4GeoID = nextGeoId(aStep);
-    if(!m_curISP) {
+    if ( !m_curISP ) {
+      ATH_MSG_ERROR("No corresponding ISFParticle link found for current G4Track (TrackID=="<< m_curTrackID << ") !");
       G4ExceptionDescription description;
       description << G4String("SteppingAction: ") + "NULL ISFParticle pointer for current G4Step (trackID "
                   << aTrack->GetTrackID() << ", track pos: "<<aTrack->GetPosition() << ", mom: "<<aTrack->GetMomentum()
                   << ", parentID " << aTrack->GetParentID() << ")";
       G4Exception("iGeant4::TrackProcessorUserAction", "NoISFParticle", FatalException, description);
       return; //The G4Exception call above should abort the job, but Coverity does not seem to pick this up.
-    } else if (m_curISP->nextGeoID()!=nextG4GeoID) { m_curISP->setNextGeoID( AtlasDetDescr::AtlasRegion(nextG4GeoID) ); }
-  }
-
-  // check if dead track
-  if (aTrack->GetTrackStatus()==fStopAndKill) {
-    ATH_MSG_DEBUG("dead particle, returning");
-    return;
-  }
-
-
-  // check if particle left detector volume
-  if (aStep->GetPostStepPoint()->GetPhysicalVolume()==0) {
-    // left world
-    return;
-  }
-
-
-  // Don't give particle to ISF if doing a zero step
-  // or if very low energy, don't give particle to ISF
-  if ( !m_geant4OnlyMode && ( ( aTrack->GetTrackLength() == 0.) ||
-                              ( aTrack->GetKineticEnergy() < 0.05) ) ) {
-    return;
-  }
-
-
-  //
-  // check if track changed volume
-  //
-
-
-  if(!m_curISP) {
-    G4ExceptionDescription description;
-    description << G4String("SteppingAction: ") + "NULL ISFParticle pointer for current G4Step (trackID "
-                << aTrack->GetTrackID() << ", track pos: "<<aTrack->GetPosition() << ", mom: "<<aTrack->GetMomentum()
-                << ", parentID " << aTrack->GetParentID() << ")";
-    G4Exception("iGeant4::TrackProcessorUserAction", "NoISFParticle2", FatalException, description);
-    return; //The G4Exception call above should abort the job, but Coverity does not seem to pick this up.
-  }
-  // get geoID from parent
-  AtlasDetDescr::AtlasRegion curGeoID=m_curISP?m_curISP->nextGeoID():AtlasDetDescr::fUndefinedAtlasRegion;
-
-  ATH_MSG_DEBUG("got geoID = "<<curGeoID);
-
-
-  // Detector boundaries defined by central GeoIDSvc
-  const G4StepPoint *preStep =aStep->GetPreStepPoint();
-  const G4StepPoint *postStep=aStep->GetPostStepPoint();
-  const G4VPhysicalVolume *preVol =preStep->GetPhysicalVolume();
-  const G4VPhysicalVolume *postVol=postStep->GetPhysicalVolume();
-  const G4ThreeVector &postPos  = postStep->GetPosition();
-  const G4ThreeVector &postMom  = postStep->GetMomentum();
-  AtlasDetDescr::AtlasRegion  nextGeoID =
-    m_geoIDSvcQuick->identifyNextGeoID( postPos.x(), postPos.y(), postPos.z(), postMom.x(), postMom.y(), postMom.z() );
-
-  ATH_MSG_DEBUG("next geoID = "<<nextGeoID);
-
-  if ( (m_geant4OnlyMode && preVol==postVol) ||
-       (!m_geant4OnlyMode && nextGeoID==curGeoID) ) {
-    ATH_MSG_DEBUG("track stays inside "<<curGeoID);
-
-    return;
-
-  }
-
-
-  //
-  // have good particle, now process at boundary
-  //
-
-
-  if (!m_geant4OnlyMode) {
-
-    // push new ISFParticle on stack
-    ISF::ISFParticle *parent = m_curISP;
-    m_curISP = newISFParticle(aTrack, parent, nextGeoID);
-
-    m_particleBroker->push(m_curISP, parent);
-
-    // kill this track in Geant4
-    aTrack->SetTrackStatus(fStopAndKill);
-
-    // flag the track to let code downstream know, that this track was returned to ISF
-    TrackInformation* trackInfo=dynamic_cast<TrackInformation*>(aTrack->GetUserInformation());
-    if (trackInfo) {
-      trackInfo->SetReturnedToISF(true);
     }
   }
-  else {
 
+  // get geoID from parent
+  AtlasDetDescr::AtlasRegion curGeoID = m_curISP->nextGeoID();
+  ATH_MSG_DEBUG( "Currently simulating TrackID = " << m_curTrackID <<
+                 " inside geoID = " << curGeoID );
+
+  //std::cout<<"retrieved isp "<<m_curISP<<" for trackID "<<m_curTrackID<<std::endl;
+
+  //
+  // Geant4-only mode
+  //
+  if (m_geant4OnlyMode) {
+    AtlasDetDescr::AtlasRegion nextG4GeoID = nextGeoId(aStep);
+    if ( m_curISP->nextGeoID()!=nextG4GeoID ) {
+      m_curISP->setNextGeoID( nextG4GeoID );
+    }
+
+    // check if dead track
+    if ( aTrackStatus==fStopAndKill ) {
+      ATH_MSG_DEBUG("Stepping dead G4Track, returning. TrackLength="<<aTrack->GetTrackLength()<<
+                    " TrackEkin="<<aTrack->GetKineticEnergy()<<" TrackID="<<m_curTrackID);
+      return;
+    }
+
+    const G4VPhysicalVolume *preVol  = preStep->GetPhysicalVolume();
+    const G4VPhysicalVolume *postVol = postStep->GetPhysicalVolume();
+
+    // check if particle left detector volume
+    if ( postVol==0 ) {
+      ATH_MSG_DEBUG("G4Step not in physical volume, returning. TrackLength="<<
+                    aTrack->GetTrackLength()<<" TrackEkin="<<aTrack->GetKineticEnergy()<<
+                    " TrackID="<<m_curTrackID);
+      // left world
+      return;
+    }
+
+    // check if particle is within same physical volume
+    if ( preVol==postVol ) {
+      ATH_MSG_DEBUG("G4Track stays inside geoID = "<<curGeoID);
+      return;
+    }
+
+    //
+    // this point is only reached if particle has crossed
+    // a sub-det boundary in the Geant4-only mode
+    //
 
     TrackHelper tHelp(aTrack);
 
@@ -265,12 +227,12 @@ void iGeant4::TrackProcessorUserAction::SteppingAction(const G4Step* aStep)
       ISF::EntryLayer layer = entryLayer(aStep);
 
       // update nextGeoID using Geant4 boundary definition
-      nextGeoID = nextGeoId(aStep);
+      AtlasDetDescr::AtlasRegion nextGeoID = nextGeoId(aStep);
 
       if (layer!=ISF::fUnsetEntryLayer) {
 
         // easier to create a new ISF particle than update existing one
-        m_curISP=newISFParticle(aTrack, m_curISP, nextGeoID);
+        m_curISP = newISFParticle(aTrack, m_curISP, nextGeoID);
         m_particleBroker->registerParticle(m_curISP, layer, true);
 
       }
@@ -281,7 +243,134 @@ void iGeant4::TrackProcessorUserAction::SteppingAction(const G4Step* aStep)
       m_curISP->updateMomentum(Amg::Vector3D(particleMomentum.x(), particleMomentum.y(), particlePosition.z()));//Eigen compatibility HACK
     }
 
-  }
+  //
+  // non-Geant4-only mode
+  //
+  } else {
+    // check geoID of postStep
+    const G4ThreeVector     &postPos  = postStep->GetPosition();
+    //const G4ThreeVector     &postMom  = postStep->GetMomentum();
+    //AtlasDetDescr::AtlasRegion  nextGeoID = m_geoIDSvcQuick->identifyNextGeoID( postPos.x(),
+    //                                                                            postPos.y(),
+    //                                                                            postPos.z(),
+    //                                                                            postMom.x(),
+    //                                                                            postMom.y(),
+    //                                                                            postMom.z() );
+    AtlasDetDescr::AtlasRegion  nextGeoID = m_geoIDSvcQuick->identifyGeoID( postPos.x(),
+                                                                            postPos.y(),
+                                                                            postPos.z() );
+
+    ATH_MSG_DEBUG("PostStep point resolved to geoID = "<<nextGeoID);
+
+    // return if particle did NOT cross boundary
+    if ( nextGeoID==curGeoID ) {
+      ATH_MSG_DEBUG(" -> G4Track stays inside geoID = "<<curGeoID);
+
+      //
+      // for debugging:
+      //
+      if ( msgLvl(MSG::DEBUG) ) {
+        const G4ThreeVector &prePos = preStep->GetPosition();
+        AtlasDetDescr::AtlasRegion  preStepGeoID  = m_geoIDSvcQuick->identifyGeoID( prePos.x(),
+                                                                                    prePos.y(),
+                                                                                    prePos.z() );
+        AtlasDetDescr::AtlasRegion  postStepGeoID = m_geoIDSvcQuick->identifyGeoID( postPos.x(),
+                                                                                    postPos.y(),
+                                                                                    postPos.z() );
+      
+        if( preStepGeoID!=postStepGeoID ) {
+          const G4VPhysicalVolume     *preVol  = preStep->GetPhysicalVolume();
+          const G4VPhysicalVolume     *postVol = postStep->GetPhysicalVolume();
+          const G4ThreeVector         &preMom  = preStep->GetMomentum();
+          const G4ThreeVector        &postMom  = postStep->GetMomentum();
+          const G4TrackVector *secondaryVector = aStep->GetSecondary();
+          const G4ThreeVector&      aTrack_pos = aTrack->GetPosition();
+          const G4ThreeVector&      aTrack_mom = aTrack->GetMomentum();
+          int pdgID=aTrack->GetDefinition()->GetPDGEncoding();
+          int bc=0;
+          TrackInformation* trackInfo=dynamic_cast<TrackInformation*>(aTrack->GetUserInformation());
+          if (trackInfo) {
+            bc=trackInfo->GetParticleBarcode();
+          }
+
+          ATH_MSG_WARNING("pre "<<preVol->GetName()<<" x="<<prePos.x()<<" y="<<prePos.y()<<" z="<<prePos.z()<<" p="<<preMom.mag()<<" geoID="<<preStepGeoID<<"; post "<<postVol->GetName()<<" x="<<postPos.x()<<" y="<<postPos.y()<<" z="<<postPos.z()<<" p="<<postMom.mag()<<" geoID="<<nextGeoID<<"; length="<<aStep->GetStepLength()<<"; n2nd="<<secondaryVector->size()<<" track  x="<<aTrack_pos.x()<<" y="<<aTrack_pos.y()<<" z="<<aTrack_pos.z()<<" p="<<aTrack_mom.mag()<<" curgeoID="<<curGeoID<<" pdgid="<<pdgID<<" bc="<<bc<<" trackID="<<m_curTrackID<<" ISF="<<m_curISP<<"; ploss="<<(postMom-preMom).mag());
+        }
+      }
+
+      return;
+    }
+  
+  
+    //
+    // this point is only reached if particle has crossed
+    // a sub-det boundary in the non-Geant4-only mode
+    //
+  
+    if ( aTrack->GetKineticEnergy() < m_passBackEkinThreshold ) {
+      // kinetic energy of primary particle below threshold
+      ATH_MSG_DEBUG(" -> G4Track enters geoID = " << nextGeoID <<
+                    " but is below Ekin threshold. Not returned to ISF.");
+      if ( m_killBoundaryParticlesBelowThreshold ) {
+          aTrack->SetTrackStatus( fStopAndKill );
+      } else {
+          // TODO: link G4Track to ISF particle with the new GeoID
+      }
+    } else if ( aTrackStatus!=fAlive ) {
+      // particle is killed by G4 in this step
+      // TODO: do we need to handle this case specifically?
+      ATH_MSG_DEBUG(" -> G4Track enters geoID = " << nextGeoID <<
+                    " but is destroyed in this step. Not returned to ISF.");
+
+    } else {
+      // particle is above kinetic energy threshold and alive after this step
+      // -> push new ISFParticle back to ISF particle broker
+      ATH_MSG_DEBUG(" -> G4Track enters geoID = " << nextGeoID <<
+                    " and is returned to ISF.");
+
+      ISF::ISFParticle *parent = m_curISP;
+      m_curISP = returnParticleToISF(aTrack, parent, nextGeoID);
+    }
+
+    //
+    // handle secondaries that were created in this G4Step
+    //
+    const std::vector<const G4Track*> *secondaryVector = aStep->GetSecondaryInCurrentStep();
+    // loop over new secondaries
+   	for ( const G4Track* aConstTrack_2nd : *secondaryVector ) {
+      // get a non-const G4Track for current secondary (nasty!)
+      G4Track *aTrack_2nd = const_cast<G4Track*>( aConstTrack_2nd );
+
+      // check if new secondary position is behind boundary
+   	  const G4ThreeVector&             pos_2nd = aTrack_2nd->GetPosition();
+      AtlasDetDescr::AtlasRegion nextGeoID_2nd = m_geoIDSvcQuick->identifyGeoID( pos_2nd.x(),
+                                                                                 pos_2nd.y(),
+                                                                                 pos_2nd.z() );
+      if( nextGeoID_2nd!=curGeoID ) {
+        // secondary was generated in this step and has
+        // a different geoID than the currently tracked one
+
+        if ( aTrack_2nd->GetKineticEnergy() < m_passBackEkinThreshold ) {
+          // kinetic energy of secondary particle below threshold
+          ATH_MSG_DEBUG(" -> Secondary particle generated in this G4Step does not pass Ekin cut." <<
+                        " Not returned to ISF.");
+          if ( m_killBoundaryParticlesBelowThreshold ) {
+              // TODO: should we use fKillTrackAndSecondaries instead?
+              aTrack_2nd->SetTrackStatus( fStopAndKill );
+          } else {
+              // TODO: link G4Track to ISF particle with the new GeoID
+          }
+        } else {
+          // secondary particle is above kinetic energy threshold
+          // -> return it to ISF
+          ATH_MSG_DEBUG(" -> Secondary particle generated in this G4Step is returned to ISF.");
+          ISF::ISFParticle *parent = m_curISP;
+          returnParticleToISF(aTrack_2nd, parent, nextGeoID_2nd);
+        }
+      }
+
+    } // <-- end loop over new secondaries
+
+  } // <-- end if non-Geant4-only mode
 
   return;
 }
@@ -304,8 +393,8 @@ void iGeant4::TrackProcessorUserAction::PreUserTrackingAction(const G4Track* aTr
   // set associated ISF particle
   TrackHelper tHelp(aTrack);
   ISF::ISFParticle* isp = 0;
-  TrackInformation* trackInfo=
-    dynamic_cast<TrackInformation*>(aTrack->GetUserInformation());
+  VTrackInformation* trackInfo=
+    dynamic_cast<VTrackInformation*>(aTrack->GetUserInformation());
 
   if (trackInfo && trackInfo->GetISFParticle()) {
 
@@ -449,7 +538,7 @@ iGeant4::TrackProcessorUserAction::newISFParticle(G4Track* aTrack,
   if (trackInfo && (trackInfo->GetHepMCParticle() ||
                     dynamic_cast<TrackBarcodeInfo*>(trackInfo))) {
     barcode=trackInfo->GetParticleBarcode();
-    HepMC::GenParticle* genpart= const_cast<HepMC::GenParticle*>(trackInfo->GetHepMCParticle());
+    HepMC::GenParticle* genpart = const_cast<HepMC::GenParticle*>(trackInfo->GetHepMCParticle());
     if (genpart) {
       if (!m_geant4OnlyMode) {
         //find the last particle of this type in the decay chain - this is the one that we should pass back to ISF
@@ -460,7 +549,6 @@ iGeant4::TrackProcessorUserAction::newISFParticle(G4Track* aTrack,
       tBinding->setPersistency( true);
     }
   }
-
 
   ISF::ISFParticle* isp= new ISF::ISFParticle( position,
                                                momentum,
@@ -477,15 +565,70 @@ iGeant4::TrackProcessorUserAction::newISFParticle(G4Track* aTrack,
     isp->setNextSimID( parent->nextSimID() );
   }
 
-  if (trackInfo && trackInfo->GetISFParticle())
-    trackInfo->SetISFParticle(isp);
-
-  int trackID=aTrack->GetTrackID();
-  m_parentISPmap[trackID]=isp;
-  //std::cout<<"setting ISFParticle to "<<isp<<" for trackID "<<trackID<<" (from new ISFParticle)"<<std::endl;
+  //if (m_geant4OnlyMode) {
+  //  if (trackInfo) {
+  //    trackInfo->SetISFParticle(isp);
+  //  }
+  //}
+  //// store new ISF particle in m_parentISPmap
+  //if (aTrack->GetTrackStatus()==fAlive) {
+  //  int trackID = aTrack->GetTrackID();
+  //  if(trackID) {
+  //    ATH_MSG_VERBOSE("Setting ISFParticle to "<<isp<<" for trackID "<<trackID<<" (from new ISFParticle)");
+  //    m_parentISPmap[trackID] = isp;
+  //  }
+  //}  
+  //FIXME: The two commented out if blocks above are correct and are meant
+  //       to replace the if-else statement below. However, the above is not
+  //       used now because of consistency with the already existing ~200M MC15 G4 Hits.
+  //       Should be changed for MC15b and following!
+  int trackID = aTrack->GetTrackID();
+  if (m_geant4OnlyMode) {
+    if (trackInfo && trackInfo->GetISFParticle()) {
+      trackInfo->SetISFParticle(isp);
+    }
+    m_parentISPmap[trackID] = isp;
+  } else {
+    // store new ISF particle in m_parentISPmap
+    if (aTrack->GetTrackStatus()==fAlive) {
+      if(trackID) {
+        ATH_MSG_VERBOSE("Setting ISFParticle to "<<isp<<" for trackID "<<trackID<<" (from new ISFParticle)");
+        m_parentISPmap[trackID] = isp;
+      }
+    }
+  }
 
   return isp;
 }
+
+
+//________________________________________________________________________
+ISF::ISFParticle*
+iGeant4::TrackProcessorUserAction::returnParticleToISF( G4Track *aTrack,
+                                                        ISF::ISFParticle *parentISP,
+                                                        AtlasDetDescr::AtlasRegion nextGeoID )
+{
+  // kill track inside G4
+  aTrack->SetTrackStatus( fStopAndKill );
+
+  // create new ISFParticle -> return value
+  ISF::ISFParticle *newISP = newISFParticle(aTrack, parentISP, nextGeoID);
+
+  // flag the track to let code downstream know that this track was returned to ISF
+  VTrackInformation* trackInfo = dynamic_cast<VTrackInformation*>(aTrack->GetUserInformation());
+  if (!trackInfo) {
+    trackInfo = new TrackBarcodeInfo(Barcode::fUndefinedBarcode, newISP);
+    aTrack->SetUserInformation(trackInfo);
+  }
+  trackInfo->SetReturnedToISF(true);
+
+
+  // push the particle back to ISF
+  m_particleBroker->push(newISP, parentISP);
+
+  return newISP;
+}
+
 
 //________________________________________________________________________
 ISF::EntryLayer

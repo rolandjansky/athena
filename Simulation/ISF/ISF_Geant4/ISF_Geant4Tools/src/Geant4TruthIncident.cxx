@@ -146,43 +146,45 @@ HepMC::GenParticle* ISF::Geant4TruthIncident::primaryParticle(bool /*setPersiste
   return hepParticle;
 }
 
-HepMC::GenParticle* ISF::Geant4TruthIncident::primaryParticleAfterIncident(Barcode::ParticleBarcode newBC,
-                                                                                    bool /*setPersistent*/ ) {
-  const G4Track * track = m_step->GetTrack();
-  G4TrackStatus  trackStatus =  track->GetTrackStatus();
-  
-  if ( trackStatus!=fAlive) {
-    TrackInformation* trackInfo=dynamic_cast<TrackInformation*>(track->GetUserInformation());
-    if ( !(trackInfo && trackInfo->GetReturnedToISF()==true) ) {
-      // primary does not exist anymore after this step
-      return 0;
-    }
+HepMC::GenParticle* ISF::Geant4TruthIncident::primaryParticleAfterIncident(Barcode::ParticleBarcode newBarcode,
+                                                                           bool /*setPersistent*/ ) {
+  const G4Track *track = m_step->GetTrack();
+
+  // check if particle is a alive in G4 or in ISF
+  if ( !particleAlive(track) ) {
+    return 0;
   }
-  
-  if (!m_primaryParticleAfterIncident) {
-    // create new hepPartcle using momentum and energy from G4DynamicParticle (which should be equivalent to postStep)
-    HepMC::GenParticle *hepParticle = convert(track);
+
+  // internally cache the HepMC representation of the primary particle
+  // (to allow multiple calls to this method on the same instance)
+  if ( !m_primaryParticleAfterIncident ) {
+    // create new HepMC particle, using momentum and energy
+    // from G4DynamicParticle (which should be equivalent to postStep)
+    m_primaryParticleAfterIncident = convert(track);
     
     EventInformation* evtInfo = static_cast<EventInformation*>
       (G4EventManager::GetEventManager()->GetConstCurrentEvent()->GetUserInformation());
     
-    evtInfo->SetCurrentlyTraced(hepParticle);
+    evtInfo->SetCurrentlyTraced( m_primaryParticleAfterIncident );
     
-    hepParticle->suggest_barcode(newBC);
-    
-    
-    // store (new) hepmc particle in tracks UserInformation
-    TrackHelper tHelper(track);
-    TrackInformation* tInfo=tHelper.GetTrackInformation();
-    int regenerationNr=tInfo->GetRegenerationNr();
-    regenerationNr++;
-    tInfo->SetRegenerationNr(regenerationNr);
-    if (tHelper.IsPrimary()) tInfo->SetClassification(RegeneratedPrimary);
+    m_primaryParticleAfterIncident->suggest_barcode( newBarcode );
 
-    m_primaryParticleAfterIncident = hepParticle;
-  }
+    // store (new) hepmc particle in track's UserInformation
+    TrackHelper       tHelper(track);
+    TrackInformation *tInfo = tHelper.GetTrackInformation();
+    if (tInfo) {
+      int regenerationNr = tInfo->GetRegenerationNr();
+      regenerationNr++;
+      tInfo->SetRegenerationNr(regenerationNr);
+      if ( tHelper.IsPrimary() ) { 
+        tInfo->SetClassification(RegeneratedPrimary);
+      }
+    }
 
-  // retrun new hepParticle
+  } // <-- end if m_primaryParticleAfterIncident is not filled
+
+
+  // return the HepMC particle representation of the primary
   return m_primaryParticleAfterIncident;
 }
 
@@ -219,33 +221,48 @@ int ISF::Geant4TruthIncident::secondaryPdgCode(unsigned short i) const {
   return m_secondaries[i]->GetDefinition()->GetPDGEncoding();
 }
 
-void ISF::Geant4TruthIncident::setAllSecondaryBarcodes(Barcode::ParticleBarcode bc) {
+void ISF::Geant4TruthIncident::setAllSecondaryBarcodes(Barcode::ParticleBarcode newBarcode) {
 
   prepareSecondaries();
 
-  for (unsigned short i=0; i<m_secondariesNum; ++i) {
+  for (unsigned short i=0; i<m_secondariesNum; i++) {
+
+    G4Track *curSecondary = m_secondaries[i];
 
     // get parent if it exists in user info
-    VTrackInformation *trackInfo=static_cast<VTrackInformation*>(m_secondaries[i]->GetUserInformation());
+    VTrackInformation *trackInfo=static_cast<VTrackInformation*>( curSecondary->GetUserInformation() );
     const ISF::ISFParticle* parent = (trackInfo) ? trackInfo->GetISFParticle() : NULL;
 
     // assume these G4Track don't have an information yet.
-    TrackBarcodeInfo * bi = new TrackBarcodeInfo(bc,parent);
+    TrackBarcodeInfo * bi = new TrackBarcodeInfo(newBarcode,parent);
 
-    m_secondaries[i]->SetUserInformation(bi);
+    curSecondary->SetUserInformation(bi);
   }
 
   return;
 }
 
 HepMC::GenParticle* ISF::Geant4TruthIncident::secondaryParticle(unsigned short i,
-                                                                Barcode::ParticleBarcode bc,
+                                                                Barcode::ParticleBarcode newBarcode,
                                                                 bool /*setPersistent*/) const {
   prepareSecondaries();
 
-  HepMC::GenParticle *p = convert(m_secondaries[i]);
-  if (m_secondaries[i]->GetDynamicParticle() &&
-      m_secondaries[i]->GetDynamicParticle()->GetPrimaryParticle()){
+  // return value
+  HepMC::GenParticle *hepParticle = 0;
+
+  // the G4Track instance for the current secondary
+  G4Track          *thisSecondary = m_secondaries[i];
+
+  // NB: NOT checking if secondary is actually alive. Even with zero momentum,
+  //     secondary could decay right away and create further particles which pass the
+  //     truth strategies.
+
+  hepParticle = convert( thisSecondary );
+
+  const G4DynamicParticle *g4DynParticle  = thisSecondary->GetDynamicParticle();
+  G4PrimaryParticle       *g4PrimParticle = g4DynParticle ? g4DynParticle->GetPrimaryParticle() : 0;
+
+  if ( g4PrimParticle ) {
     // This is a secondary that came from a primary particle
     //  It seems like a good idea to get back at the primary particle
     //  and from there use the gen particle.  But in the step *right* 
@@ -253,25 +270,44 @@ HepMC::GenParticle* ISF::Geant4TruthIncident::secondaryParticle(unsigned short i
     //  is not actually available at this point.  If only.
 
     // See if it should be stable
-    if (m_secondaries[i]->GetDynamicParticle()->GetPrimaryParticle()->GetDaughter()){
-      p->set_status(2);
+    if ( g4PrimParticle->GetDaughter() ){
+      hepParticle->set_status(2);
     }
     // Now we know that we have to deal with the barcode specially
-    p->suggest_barcode( m_secondaries[i]->GetDynamicParticle()->GetPrimaryParticle()->GetTrackID() );
+    hepParticle->suggest_barcode( g4PrimParticle->GetTrackID() );
 
   } else {
     // Normal situation - no primary particle
-    p->suggest_barcode( bc);
+    hepParticle->suggest_barcode( newBarcode );
   }
   
-  TrackInformation *ti=new TrackInformation(p);
+  // create new TrackInformation (with link to hepParticle)
+  // and attach it to G4Track
+  TrackInformation *ti = new TrackInformation(hepParticle);
   ti->SetRegenerationNr(0);
   ti->SetClassification(RegisteredSecondary);
 
-  m_secondaries[i]->SetUserInformation(ti);
+  thisSecondary->SetUserInformation(ti);
 
+  return hepParticle;
+}
 
-  return p;
+bool ISF::Geant4TruthIncident::particleAlive(const G4Track *track) const {
+  G4TrackStatus  trackStatus = track->GetTrackStatus();
+
+  if ( trackStatus!=fAlive ) {
+    // primary does not exist in G4 anymore after this step
+
+    // check whether the particle was returned to ISF
+    TrackInformation* trackInfo = dynamic_cast<TrackInformation*>( track->GetUserInformation() );
+    bool          returnedToISF = trackInfo ? trackInfo->GetReturnedToISF() : false;
+    if ( !returnedToISF ) {
+      // return, since primary does not exist in ISF either after this step
+      return false;
+    }
+  }
+
+  return true;
 }
 
 HepMC::GenParticle* ISF::Geant4TruthIncident::convert(const G4Track *track) const {
@@ -291,7 +327,10 @@ HepMC::GenParticle* ISF::Geant4TruthIncident::convert(const G4Track *track) cons
 void ISF::Geant4TruthIncident::prepareSecondaries() const {
 
   if (!m_secondariesPrepared) {
-    m_secondaries    = m_sHelper.GetSecondaries( m_secondariesNum );
+    // NB: m_secondaries is *not* a pointer, therefore this calls
+    //     the assignment operator of std::vector<T> (C++11 should
+    //     be using fast move semantics here)
+    m_secondaries = m_sHelper.GetSecondaries( m_secondariesNum );
 
     m_secondariesPrepared  = true;
   }
@@ -300,7 +339,6 @@ void ISF::Geant4TruthIncident::prepareSecondaries() const {
 bool ISF::Geant4TruthIncident::secondaryPt2Pass(double pt2cut) const {
   unsigned short numSec = numberOfSecondaries();
   bool pass = false; // true if cut passed
-
 
   // if vertex is ionisation, brem or Compton scattering, use only last secondary for check
   int imin=0;
