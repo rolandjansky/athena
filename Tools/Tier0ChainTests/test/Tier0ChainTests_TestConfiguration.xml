@@ -1939,7 +1939,7 @@
                                 <doc>RecoTrf</doc>
                                 <jobTransformJobName>2012_reco_wTrigger</jobTransformJobName>
                                 <jobTransformCmd>
-                                    tct_recotrf.py --jobnum=0 --trigStream=Single_Stream --runnum=00212967 --nfiles=1 --maxEvents=100 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00212967/Single_Stream --lumiblock=291 --autoConfiguration=everything --conditionsTag=COMCOND-ES1PA-006-05 --geometryVersion=ATLAS-GEO-20-00-02 --dropDESDs --dropDRAWs --dropNTUPs --conditionsTag="COMCOND-BLKPA-RUN1-07"
+                                    tct_recotrf.py --jobnum=0 --trigStream=Single_Stream --runnum=00212967 --nfiles=1 --maxEvents=100 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00212967/Single_Stream --lumiblock=291 --autoConfiguration=everything --conditionsTag="COMCOND-BLKPA-RUN1-07" --geometryVersion=ATLAS-GEO-20-00-02 --dropDESDs --dropDRAWs --dropNTUPs
                                 </jobTransformCmd>
                                 <group>TCTTransform</group>
                                 <queue>medium</queue>
@@ -1956,6 +1956,39 @@
                                     <arg>
                                         <argname>outputFile</argname>
                                         <argvalue>2012_reco_wTrigger.summary.txt</argvalue> 
+                                    </arg>
+                                    <arg>
+                                        <argname>searchList</argname>
+                                        <argvalue>successful run</argvalue> <!-- put here the string you should find to mean all ok -->
+                                    </arg>
+                                </test>
+                                
+                            </jobTransform>
+                        </chainElement>
+
+                        <chainElement>
+                            
+                            <jobTransform userJobId="2012_reco_wReprocessedTrigger">
+                                <doc>RecoTrf</doc>
+                                <jobTransformJobName>2012_reco_wReprocessedTrigger</jobTransformJobName>
+                                <jobTransformCmd>
+                                    tct_recotrf.py --jobnum=0 --trigStream=Single_StreamRepro --runnum=00212967 --nfiles=1 --maxEvents=100 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00212967/Single_StreamRepro --lumiblock=291 --autoConfiguration=everything --conditionsTag="COMCOND-BLKPA-RUN1-07" --geometryVersion=ATLAS-GEO-20-00-02 --dropDESDs --dropDRAWs --dropNTUPs
+                                </jobTransformCmd>
+                                <group>TCTTransform</group>
+                                <queue>medium</queue>
+                                <batchWallTime>420</batchWallTime>
+                                <castorSvcClass>t0atlas</castorSvcClass>
+                                
+                                <test>
+                                    <modulename>RttLibraryTools</modulename>
+                                    <testname>FileGrepper</testname>
+                                    <arg>
+                                        <argname>inputFile</argname>
+                                        <argvalue>log.???to???</argvalue> <!-- put this one if you use job log -->
+                                    </arg>
+                                    <arg>
+                                        <argname>outputFile</argname>
+                                        <argvalue>2012_reco_wReprocessedTrigger.summary.txt</argvalue> 
                                     </arg>
                                     <arg>
                                         <argname>searchList</argname>
