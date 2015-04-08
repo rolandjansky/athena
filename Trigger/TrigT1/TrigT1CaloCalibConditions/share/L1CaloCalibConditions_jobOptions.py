@@ -1,17 +1,15 @@
-include.block ( "TrigT1CaloCalibConditions/L1CaloCalibConditions_jobOptions.py" )
+# Bytestream to TrigT1Calo objects conversions
+include.block("TrigT1CaloCalibConditions/L1CaloCalibConditions_jobOptions.py")
 
-include("TrigT1CaloCalibConditions/L1CaloCalibConditionsTier0_jobOptions.py")
+from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+from AthenaCommon.GlobalFlags       import globalflags
+from RecExConfig.AutoConfiguration  import GetRunNumber
+# Need something better eventually
+if athenaCommonFlags.isOnline:
+    run = 2
+elif globalflags.DataSource() == "data":
+    run = 1 if (GetRunNumber() < 230000) else 2
+else:  # MC
+    run = 2
 
-from IOVDbSvc.CondDB import conddb
-L1CaloFolderList = []
-L1CaloFolderList += ["/TRIGGER/L1Calo/V1/Calibration/Calib1/PprChanCalib"]
-L1CaloFolderList += ["/TRIGGER/L1Calo/V1/Calibration/Calib2/PprChanCalib"]
-L1CaloFolderList += ["/TRIGGER/L1Calo/V1/Calibration/Cosmics/PprChanCalib"]
-L1CaloFolderList += ["/TRIGGER/L1Calo/V1/Configuration/ReadoutConfig"]
-L1CaloFolderList += ["/TRIGGER/Receivers/Conditions/VgaDac"]
-L1CaloFolderList += ["/TRIGGER/Receivers/Conditions/Strategy"]
-L1CaloFolderList += ["/TRIGGER/L1Calo/V1/Conditions/RunParameters"]
-L1CaloFolderList += ["/TRIGGER/L1Calo/V1/Conditions/DerivedRunPars"]
-
-for l1calofolder in L1CaloFolderList:
-	conddb.addFolder("TRIGGER", l1calofolder+"<tag>HEAD</tag>")
+include ("TrigT1CaloCalibConditions/L1CaloCalibConditionsRun%d_jobOptions.py" % run)
