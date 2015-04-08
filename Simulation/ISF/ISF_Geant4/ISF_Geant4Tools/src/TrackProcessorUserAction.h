@@ -61,6 +61,11 @@ namespace iGeant4 {
 
     ISF::ISFParticle* newISFParticle(G4Track* aTrack, const ISF::ISFParticle* parent, AtlasDetDescr::AtlasRegion  nextGeoID);
 
+    /** kills the given G4Track, converts it into an ISFParticle and returns it to the ISF particle broker */
+    ISF::ISFParticle* returnParticleToISF( G4Track *aTrack,
+                                           ISF::ISFParticle *parentISP,
+                                           AtlasDetDescr::AtlasRegion nextGeoID );
+
     HepMC::GenParticle* findMatchingDaughter(HepMC::GenParticle* parent, bool verbose) const;
 
     AtlasDetDescr::AtlasRegion nextGeoId(const G4Step* aStep);
@@ -94,6 +99,11 @@ namespace iGeant4 {
     /** for keeping track of the currently processed G4Track and its corresponding ISFParticle */
     int                                 m_curTrackID;  //!< the TrackID of the currently processed G4Track
     ISF::ISFParticle                   *m_curISP;      //!< the corresponding ISFParticle to this G4Track
+
+    /** properties to define which particles are returned to ISF */
+    double                              m_passBackEkinThreshold;
+    bool                                m_killBoundaryParticlesBelowThreshold;
+
   };
 
 }

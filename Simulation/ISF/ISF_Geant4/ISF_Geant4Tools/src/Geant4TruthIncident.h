@@ -108,6 +108,9 @@ namespace ISF {
       /** prepare the secondary particles, using the SecondaryTracksHelper */
       inline void prepareSecondaries() const;
 
+      /** check if the given G4Track represents a particle that is alive in ISF or ISF-G4 */
+      inline bool particleAlive(const G4Track *track) const;
+
       HepMC::GenParticle* convert(const G4Track *particle) const; //*AS* might be put static
 
       mutable bool                  m_positionSet;

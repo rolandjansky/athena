@@ -57,8 +57,11 @@ def getPassBackG4TrackProcessorUserAction(name='PassBackG4TrackProcessorUserActi
     return getTrackProcessorUserAction(name, **kwargs)
 
 def getAFII_G4TrackProcessorUserAction(name='AFII_G4TrackProcessorUserAction', **kwargs):
-    kwargs.setdefault('ParticleBroker', 'ISF_AFIIParticleBrokerSvc')
-    kwargs.setdefault('GeoIDSvc',       'ISF_AFIIGeoIDSvc')
+    from AthenaCommon.SystemOfUnits import MeV
+    kwargs.setdefault('ParticleBroker'                     , 'ISF_AFIIParticleBrokerSvc')
+    kwargs.setdefault('GeoIDSvc'                           , 'ISF_AFIIGeoIDSvc'         )
+    kwargs.setdefault('PassBackEkinThreshold'              , 0.05*MeV                   )
+    kwargs.setdefault('KillBoundaryParticlesBelowThreshold', True                       )
     return getPassBackG4TrackProcessorUserAction(name, **kwargs)
 
 def getQuasiStableG4TrackProcessorUserAction(name='QuasiStableG4TrackProcessorUserAction', **kwargs):
