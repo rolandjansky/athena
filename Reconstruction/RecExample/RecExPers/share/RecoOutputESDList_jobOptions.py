@@ -65,7 +65,9 @@ if rec.doTruth():
                                           "xAOD::TruthParticleContainer#TruthParticles",
                                           "xAOD::TruthParticleAuxContainer#TruthParticlesAux.-caloExtension",
                                           "xAOD::TruthVertexContainer#TruthVertices", 
-                                          "xAOD::TruthVertexAuxContainer#TruthVerticesAux."
+                                          "xAOD::TruthVertexAuxContainer#TruthVerticesAux.",
+                                          "xAOD::TruthPileupEventContainer#TruthPileupEvents",
+                                          "xAOD::TruthPileupEventAuxContainer#TruthPileupEventsAux."
                                           ] )
     if jobproperties.Beam.beamType=="cosmics" and globalflags.DataSource=="geant4":
         fullESDList += CfgItemList( "McTruthTracRecord",
