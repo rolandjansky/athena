@@ -41,9 +41,9 @@ namespace LVL1CTP {
     // default destructor
     virtual ~Lvl1Result_p1() { }
 
-    //private:
+  private:
 
-    bool m_configured = false;
+    bool m_configured;
     std::vector<uint32_t> m_l1_items;           
     std::vector<uint32_t> m_l1_itemsPrescaled;  
 
