@@ -11,6 +11,7 @@
 #include "ForwardRegionMgField/IForwardRegionProperties.h"
 
 #include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/IIncidentListener.h"
 #include "G4ThreeVector.hh"
 #include "CLHEP/Units/SystemOfUnits.h"
 
@@ -21,12 +22,24 @@
 
 //typedef G4ThreeVector (*PBF) (G4ThreeVector);
 
-class ForwardRegionMgField : public FADS::MagneticFieldMap
+class ForwardRegionMgField : public FADS::MagneticFieldMap, virtual public IIncidentListener
 {
 public:
     ForwardRegionMgField(std::string, int);
 
     virtual void Initialize();
+
+    void handle(const Incident& runIncident);
+
+    long unsigned int addRef(){
+        return ++m_refCounter;
+    }
+
+    long unsigned int release(){
+        return --m_refCounter;
+    }
+
+    StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface );
 
     G4ThreeVector FieldValue(G4ThreeVector Point) const;
     
@@ -84,6 +97,10 @@ public:
 
 private:
     int m_magnet;
+
+    int m_refCounter;
+
+    void InitMagData();
 
     std::string name;
     std::vector<std::vector<std::string> > m_magnets;
