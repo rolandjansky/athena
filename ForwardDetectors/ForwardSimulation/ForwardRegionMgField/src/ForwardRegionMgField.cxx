@@ -17,11 +17,14 @@
 #include "GaudiKernel/MsgStream.h"
 #include "AthenaKernel/getMessageSvc.h"
 
+#include "GaudiKernel/IIncidentSvc.h"
+
 #include "CLHEP/Geometry/Point3D.h"
 #include "CLHEP/Geometry/Transform3D.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 
 #include "PathResolver/PathResolver.h"
+
 
 static ForwardRegionMgField q1("Q1",ForwardRegionMgField::Q1);
 static ForwardRegionMgField q2("Q2",ForwardRegionMgField::Q2);
@@ -44,7 +47,7 @@ static ForwardRegionMgField q4vkickB("Q4VKickB",ForwardRegionMgField::Q4VKickB);
 static ForwardRegionMgField q5hkick("Q5HKick",ForwardRegionMgField::Q5HKick);
 static ForwardRegionMgField q6vkick("Q6VKick",ForwardRegionMgField::Q6VKick);
 
-ForwardRegionMgField::ForwardRegionMgField(std::string n,int m):FADS::MagneticFieldMap(n),m_magnet(m),name(n),m_properties("ForwardRegionProperties")
+ForwardRegionMgField::ForwardRegionMgField(std::string n,int m):FADS::MagneticFieldMap(n),m_magnet(m),name(n),m_magDataType(0),m_properties("ForwardRegionProperties")
 {
     MsgStream LogStream(Athena::getMessageSvc(), "ForwardRegionMgField::ForwardRegionMgField()");
 
@@ -95,9 +98,56 @@ ForwardRegionMgField::ForwardRegionMgField(std::string n,int m):FADS::MagneticFi
     }
 }
 
+// Register the main initialization with the BeginRun incident
 void ForwardRegionMgField::Initialize()
 {
     MsgStream LogStream(Athena::getMessageSvc(), "ForwardRegionMgField::Initialize()");
+
+    LogStream << MSG::INFO << "Postponing magnet strengths initialization of " << name << " till the begin of run" << endreq;
+
+    ServiceHandle<IIncidentSvc> incidentSvc("IncidentSvc", name);
+    if (incidentSvc.retrieve().isFailure()) {
+        LogStream << MSG::FATAL << "Unable to retrieve the IncidentSvc" << endreq;
+        return;
+    } else {
+        incidentSvc->addListener( this, IncidentType::BeginRun );
+        LogStream << MSG::INFO << "Added listener to BeginRun incident" << endreq;
+    }
+
+    m_refCounter = 0;
+
+    return;
+}
+
+// Query the interfaces - no idea what this is - TODO: find out
+StatusCode ForwardRegionMgField::queryInterface(const InterfaceID& riid, void** ppvInterface)
+{
+    if ( IIncidentListener::interfaceID().versionMatch(riid) ) {
+        *ppvInterface = dynamic_cast<IIncidentListener*>(this);
+    }  /*else {
+        // Interface is not directly available: try out a base class
+        return Service::queryInterface(riid, ppvInterface);
+    }*/
+    addRef();
+    return StatusCode::SUCCESS;
+}
+
+
+// Handle incident function - if BeginRun happens, initialize mag. fields
+void ForwardRegionMgField::handle(const Incident& runIncident)
+{
+    MsgStream LogStream(Athena::getMessageSvc(), "ForwardRegionMgField::handle()");
+    LogStream << MSG::INFO << "handling incidents ..." << endreq;
+    if (runIncident.type() == IncidentType::BeginRun) {
+        InitMagData();
+    }
+    LogStream << MSG::INFO << "BeginRun incident handled" << endreq;
+}
+
+// The main initialization - initialization of fields based on twiss files or magnets.dat
+void ForwardRegionMgField::InitMagData()
+{
+    MsgStream LogStream(Athena::getMessageSvc(), "ForwardRegionMgField::InitMagData()");
 
     LogStream << MSG::INFO << "Initializing " << name << " magnetic field" << endreq;
 
