@@ -56,19 +56,22 @@ epos.BeamMomentum     = -3500.0
 epos.TargetMomentum   = 3500.0
 epos.PrimaryParticle  = 1
 epos.TargetParticle   = 1
-epos.Model            = 0
+epos.Model            = 0  # [0=EPOS_LHC (default), 1=EPOS_1.99, 2=QGSJET01, 6=Sibyll_2.1, 7=QGSJETII-04, 11=QGSJETII-03]
 epos.ParamFile        = paramFile         # FIXME?
-
+eps.LheOutput         = 0 # yes=1 no-0
+epos.LheFile          = "epos.lhe"
+epos.TabCreate        = 0   # force tab creation yes-1 no-0
 job += epos
 
-theApp.ExtSvc += ["AtRndmGenSvc"]
+genSeq.ExtSvc += ["AtRndmGenSvc"]
 
 # Set output level threshold (2=DEBUG, 3=INFO, 4=WARNING, 5=ERROR, 6=FATAL )
 MessageSvc = Service( "MessageSvc" )
 MessageSvc.OutputLevel = 3
 
 # Number of events to be processed (default is 10)
-theApp.EvtMax = 200
+#theApp.EvtMax = 200
+evgenConfig.minevents = 100
 
 # ----------------------------------------------------------------------
 # Printing service
