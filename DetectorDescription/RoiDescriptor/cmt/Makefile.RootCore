@@ -1,8 +1,0 @@
-PACKAGE          = RoiDescriptor
-PACKAGE_PRELOAD = EG
-PACKAGE_CXXFLAGS = -D__USE_XOPEN2K8
-PACKAGE_LDFLAGS  = $(shell root-config --libs) -lPyROOT -lXMLParser -lEG
-PACKAGE_DEP      = IRegionSelector
-PACKAGE_PEDANTIC = 0
-include $(ROOTCOREDIR)/Makefile-common
-
