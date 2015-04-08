@@ -38,6 +38,23 @@
 // for line-by-line debugging
 #define MYDEBUG() std::cout<<__FILE__<<" "<<__func__<<" "<<__LINE__<<std::endl
 
+void myLocal_resetTrack( const Trk::Track& ctrack ){
+
+  Trk::Track& track = const_cast<Trk::Track&>(ctrack);
+  if( track.m_cachedParameterVector ){
+    delete track.m_cachedParameterVector;
+    track.m_cachedParameterVector = 0;
+  }
+
+  if( track.m_cachedMeasurementVector ){
+    delete track.m_cachedMeasurementVector;
+    track.m_cachedMeasurementVector = 0;;
+  }
+  if( track.m_cachedOutlierVector ){
+    delete track.m_cachedOutlierVector;
+    track.m_cachedOutlierVector = 0;
+  }
+}
 
 // constructor
 Trk::TrkMaterialProviderTool::TrkMaterialProviderTool(const std::string& t, const std::string& n, const IInterface* p)
@@ -243,6 +260,7 @@ void Trk::TrkMaterialProviderTool::updateCaloTSOS(Trk::Track& track, const Trk::
 
   // update the original vector
   this->updateVector(inputTSOS, firstCALO, firstMS, caloTSOS);
+  myLocal_resetTrack(track);
 
 #ifdef DEBUGON
     ATH_MSG_VERBOSE("NEW TSOS multiplicity : " << inputTSOS->size());
@@ -261,6 +279,7 @@ void Trk::TrkMaterialProviderTool::updateCaloTSOS(Trk::Track& idTrack, Trk::Trac
   DataVector<const Trk::TrackStateOnSurface>* inputTSOS_ID = const_cast<DataVector<const Trk::TrackStateOnSurface>*>(idTrack.trackStateOnSurfaces());
   DataVector<const Trk::TrackStateOnSurface>* inputTSOS_MS = const_cast<DataVector<const Trk::TrackStateOnSurface>*>(extrapolatedTrack.trackStateOnSurfaces());
   
+
   // find last ID TSOS
   DataVector<const Trk::TrackStateOnSurface>::iterator lastIDwP  = inputTSOS_ID->end();
   DataVector<const Trk::TrackStateOnSurface>::iterator it        = inputTSOS_ID->end()-1;
@@ -366,6 +385,8 @@ void Trk::TrkMaterialProviderTool::updateCaloTSOS(Trk::Track& idTrack, Trk::Trac
 
   // update the original vector
   this->updateVector(inputTSOS_MS, firstCALO, firstMS, caloTSOS);
+  
+  myLocal_resetTrack(extrapolatedTrack);
 
 #ifdef DEBUGON
     ATH_MSG_VERBOSE("NEW-MS TSOS multiplicity : " << inputTSOS_MS->size());
@@ -1059,7 +1080,6 @@ void Trk::TrkMaterialProviderTool::updateVector(DataVector<const Trk::TrackState
 {
   //printTSOS(*firstCALO, "UPD->FIRST CALO");
   //printTSOS(*firstMS, "UPD->FIRST MS");
-  
   unsigned int ntoupdate=0;
   DataVector<const Trk::TrackStateOnSurface>::iterator it = firstCALO;
   while(it!=firstMS) {
