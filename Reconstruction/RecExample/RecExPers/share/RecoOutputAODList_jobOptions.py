@@ -101,12 +101,6 @@ if DetFlags.detdescr.ID_on():
     except Exception:
        treatException("Could not include InDetRecExample/WriteInDetAOD.py" )
 
-
-# FTK 
-if DetFlags.detdescr.FTK_on():
-    protectedInclude ("FTK_RecExample/WriteFTK_AOD.py") 
-    fullAODList += CfgItemList( "FTKAod", items = FtkAODList )
-
 # Calorimeters 
 if DetFlags.detdescr.Calo_on():
     try:
@@ -299,16 +293,6 @@ if rec.doHeavyIon():
         fullAODList += CfgItemList( "HeavyIonsAod", items = HIAODItemList )
     except Exception:
         treatException("Could not load HIRecExample/HIRecOutputAODList_jobOptions.py")
-
-# ring-shaped calorimetry
-if rec.doCaloRinger():
-    try:
-        include ( "CaloRingerAlgs/CaloRingerOutputItemList_jobOptions.py" )
-        fullAODList += CfgItemList( "caloRingerAod", items = caloRingerAODList )
-        StreamAOD_Augmented.AddMetaDataItem( caloRingerMetaDataList )
-    except Exception:
-        treatException("Could not load CaloRingerAlgs/CaloRingerOutputItemList_jobOptions.py" )
-
 
 # now merge the explicit AOD list to the one coming from ObjKeyStore
 # (more and more will be taken from ObjKeyStore)

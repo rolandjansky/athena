@@ -91,11 +91,6 @@ if DetFlags.detdescr.ID_on():
                      "InDetEsd",
                      items = InDetESDList
                      )
-# FTK 
-if DetFlags.detdescr.FTK_on():
-    protectedInclude ("FTK_RecExample/WriteFTK_ESD.py") 
-    fullESDList += CfgItemList( "FTKEsd", items = FtkESDList )
-
 # Calorimeters 
 if DetFlags.detdescr.Calo_on():
     protectedInclude ("CaloRecEx/CaloRecOutputItemList_jobOptions.py") 
@@ -190,18 +185,6 @@ if recAlgs.doTrackParticleCellAssociation():
                                       "xAOD::TrackParticleClusterAssociationAuxContainer#InDetTrackParticlesClusterAssociationsAux."]
     fullESDList += CfgItemList("trackParticleCellAssoEsd",items=trackParticleCellAssociationList)
     
-#CaloRinger
-if rec.doCaloRinger():
-    try:
-        include ( "CaloRingerAlgs/CaloRingerOutputItemList_jobOptions.py" )
-        fullESDList += CfgItemList( "caloRingerEsd", items = caloRingerESDList )
-        from RecExConfig.ObjKeyStore import objKeyStore
-        objKeyStore['metaData'] += CfgItemList( "caloRingerMeta" , items = caloRingerMetaDataList )
-    except:
-        treatException("Could not load CaloRinger ESD item list")
-        pass
-    pass
-
 
 # Muon combined reconstruction
 if DetFlags.detdescr.Muon_on() or DetFlags.detdescr.Calo_on():
