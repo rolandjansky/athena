@@ -46,11 +46,14 @@ extern "C" double atl_epos_rndm_( int* )
 extern "C" 
 {
     // generator initialization
-  void crmc_init_f_( int &iSeed, double &beamMomentum, double &targetMomentum, 
-      int &primaryParticle, int &targetParticle, int &model, const char *paramFile );
+ void crmc_set_f_(int &nEvents,int &iSeed,double &beamMomentum, double &targetMomentum, int &primaryParticle, int &targetParticle, int &model,
+		  int &itab, int &ilheout, const char *outFile, const char *paramFile);
+  void crmc_init_f_();
+  //  void crmc_init_f_( int &iSeed, double &beamMomentum, double &targetMomentum, int &primaryParticle, int &targetParticle, int &model, const char *paramFile );
     // event generation
-  void crmc_f_( int &nParticles, float &impactParam, int &partPdg, 
-      float &partPx, float &partPy, float &partPz, float &partEnergy, float &partMass );
+  void crmc_f_( int &iout, int &ievent, int &nParticles, double &impactParam, int &partPdg, 
+		double &partPx, double &partPy, double &partPz, double &partEnergy, double &partMass, int &outstat );
+ 
     // cross section info 
   void crmc_xsection_f_(double &xsigtot, double &xsigine, double &xsigela, double &xsigdd, 
       double &xsigsd, double &xsloela, double &xsigtotaa, double &xsigineaa, double &xsigelaaa);
@@ -165,13 +168,20 @@ Epos::Epos( const std::string &name, ISvcLocator *pSvcLocator ):
   declareProperty( "PrimaryParticle", m_primaryParticle = 1 );            // 1=p, 12=C, 120=pi+, 207=Pb 
   declareProperty( "TargetParticle",  m_targetParticle  = 1 );
   declareProperty( "ParamFile",       m_paramFile       = "crmc.param" );
+  declareProperty( "LheOutput",       m_ilheout       = 0 );
+  declareProperty( "LheFile",         m_lheout       = "epos.lhe" );
+  declareProperty( "TabCreate",       m_itab       = 0 );
+  declareProperty( "nEvents",         m_nEvents    = 5500 );
   
-  m_events = 0;
+  m_events = 0; // current event number (counted by interface)
+  m_ievent = 0;  // current event number counted by Epos
+  m_iout = 0; // output type (output)
 
   // initialize internally used arrays
   for (size_t i = 0; i < kMaxParticles; ++i) {
     m_partID[i] = 0;
     m_partPx[i] = m_partPy[i] = m_partPz[i] = m_partEnergy[i] = m_partMass[i] = 0.0;
+    m_partStat[i] = 0;
   }
 
 }
@@ -183,7 +193,7 @@ Epos::~Epos()
 // ----------------------------------------------------------------------
 StatusCode Epos::genInitialize() 
 {
-  ATH_MSG_INFO( " Epos INITIALISING.\n" );
+  ATH_MSG_INFO( " CRMC INITIALISING.\n" );
 
   static const bool CREATEIFNOTTHERE = true;
   
@@ -198,11 +208,17 @@ StatusCode Epos::genInitialize()
   long int si1 = sip[0];
   long int si2 = sip[1];
 
-  int iSeed = si1;     // FIXME? 
+  int iSeed = si1;     // FIXME ?
+
+  // set up initial values
+
+  //  std::cout << "parameters " << m_nEvents << " " << iSeed << " " << m_beamMomentum << " " << m_targetMomentum << " " << m_primaryParticle << " " << m_targetParticle << " " << m_model << " " << m_itab << " " << m_ilheout << " " <<  m_lheout.c_str()<< " " <<  m_paramFile.c_str() << std::endl;
+
+  crmc_set_f_(m_nEvents, iSeed, m_beamMomentum, m_targetMomentum, m_primaryParticle, m_targetParticle, m_model, m_itab, m_ilheout, m_lheout.c_str(), m_paramFile.c_str() ); 
 
     // initialize Epos
-  crmc_init_f_( iSeed, m_beamMomentum, m_targetMomentum, m_primaryParticle, 
-      m_targetParticle, m_model, m_paramFile.c_str() );
+  //  crmc_init_f_( iSeed, m_beamMomentum, m_targetMomentum, m_primaryParticle, m_targetParticle, m_model, m_paramFile.c_str() );
+  crmc_init_f_();
 
     // ... and set them back to the stream for proper save
   p_AtRndmGenSvcEpos->CreateStream( si1, si2, epos_rndm_stream );
@@ -210,9 +226,9 @@ StatusCode Epos::genInitialize()
   epos_rndm_stream = "EPOS";
 
     // setup HepMC
-  HepMC::HEPEVT_Wrapper::set_sizeof_int(sizeof( int ));
-  HepMC::HEPEVT_Wrapper::set_sizeof_real(8);
-  HepMC::HEPEVT_Wrapper::set_max_number_entries(9990);    // as used in crmc-aaa.f!!!
+    HepMC::HEPEVT_Wrapper::set_sizeof_int(sizeof( int ));
+    HepMC::HEPEVT_Wrapper::set_sizeof_real( 8 );
+    HepMC::HEPEVT_Wrapper::set_max_number_entries(10000);    // as used in crmc-aaa.f!!!
 
   m_events = 0;
 
@@ -224,25 +240,43 @@ StatusCode Epos::genInitialize()
 // ---------------------------------------------------------------------- 
 StatusCode Epos::callGenerator() 
 {
-  ATH_MSG_INFO( " EPOS Generating." );
+  // ATH_MSG_INFO( " EPOS Generating." );
 
     // save the random number seeds in the event
-  CLHEP::HepRandomEngine* engine = p_AtRndmGenSvcEpos->GetEngine( epos_rndm_stream );
-  const long *s = engine->getSeeds();
+    CLHEP::HepRandomEngine* engine = p_AtRndmGenSvcEpos->GetEngine( epos_rndm_stream );
+   const long *s = engine->getSeeds();
   
-  m_seeds.clear();
-  m_seeds.push_back(s[0]);
-  m_seeds.push_back(s[1]);
+   m_seeds.clear();
+   m_seeds.push_back(s[0]);
+   m_seeds.push_back(s[1]);
 
-  ++m_events;
+   ++m_events;
   
     // as in crmchep.h
   int nParticles = 0;
-  float impactParameter = -1.0;
-
+  double impactParameter = -1.0;
+ 
     // generate event 
-  crmc_f_( nParticles, impactParameter, m_partID[0], m_partPx[0], m_partPy[0], m_partPz[0], 
-      m_partEnergy[0], m_partMass[0] );
+  crmc_f_( m_iout, m_ievent ,nParticles, impactParameter, m_partID[0], m_partPx[0], m_partPy[0], m_partPz[0], 
+	   m_partEnergy[0], m_partMass[0], m_partStat[0]  );
+
+  std::cout << "events " << m_events << " " << m_ievent << std::endl;
+  //  HepMC::HEPEVT_Wrapper::print_hepevt();
+
+  /* for (int i=1;i<=50;++i){
+   std::cout << "wrapper gen " << i <<  " " << HepMC::HEPEVT_Wrapper::number_entries() << " " << HepMC::HEPEVT_Wrapper::px(i)<<" " <<
+     HepMC::HEPEVT_Wrapper::py(i) << " " << HepMC::HEPEVT_Wrapper::pz(i) << " " << HepMC::HEPEVT_Wrapper::e(i) << " " << HepMC::HEPEVT_Wrapper::m(i) << " " << HepMC::HEPEVT_Wrapper::id(i) << " " << HepMC::HEPEVT_Wrapper::status(i) << std::endl;
+     }*/
+
+
+    // debug printout
+  /* std::cout << "parameters "<< m_iout << " " << m_ievent << " " << impactParameter << std::endl;  
+ std::cout << "n particles " << nParticles << std::endl;
+ for (int i=0; i<nParticles; i++){
+   std::cout << "part " << i << " " << m_partID[i] << " " << m_partStat[i] << std::endl;
+   std::cout << "part x " << m_partPx[i]<< " " << m_partPy[i] << " " << m_partPz[i] << " " << m_partEnergy[i] <<" " <<  m_partMass[i] << std::endl;
+   }*/
+
 
 
   return StatusCode::SUCCESS;
@@ -273,14 +307,20 @@ StatusCode Epos::genFinalize()
 // ---------------------------------------------------------------------- 
 StatusCode Epos::fillEvt( GenEvent* evt ) 
 {
-  ATH_MSG_INFO( " EPOS Filling.\n" );
+  //  ATH_MSG_INFO( " EPOS Filling.\n" );
+
+    // debug printout
+
 
   HepMC::HEPEVT_Wrapper::set_event_number(m_events);
   HepMC::IO_HEPEVT hepio;
 
+ 
   hepio.set_trust_mothers_before_daughters(0);
   hepio.set_print_inconsistency_errors(0);
   hepio.fill_next_event(evt);
+  // evt->print();
+ 
 
   evt->set_random_states( m_seeds );
 
@@ -296,19 +336,19 @@ StatusCode Epos::fillEvt( GenEvent* evt )
   } 
 
   evt->set_beam_particles(beams[0], beams[1]); 
-  
-  //beams[0]->print();
-  //beams[1]->print();
-
+  /*   std::cout << "beam particles" << std::endl;
+  beams[0]->print();
+  beams[1]->print();
+  std::cout << "general print out " << std::endl;
     // debug printout
-// for (HepMC::GenEvent::particle_const_iterator p = evt->particles_begin(); p != evt->particles_end(); ++p)
-// {
-//   (*p)->print();
-// }
+ for (HepMC::GenEvent::particle_const_iterator p = evt->particles_begin(); p != evt->particles_end(); ++p)
+ {
+   (*p)->print();
+   }*/
 
   // Heavy Ion and Signal ID from Epos to HepMC
 
-    HepMC::HeavyIon ion(cevt_.kohevt,
+     HepMC::HeavyIon ion(cevt_.kohevt,
                       cevt_.npjevt,
                       cevt_.ntgevt,
                       cevt_.kolevt,
@@ -322,7 +362,7 @@ StatusCode Epos::fillEvt( GenEvent* evt )
                       -1,  //c2evt_.fglevt,  //correct name but not defined
                       1e9*hadr5_.sigine);
 
-  evt->set_heavy_ion(ion);
+		      evt->set_heavy_ion(ion);  
 
   //an integer ID uniquely specifying the signal process (i.e. MSUB in Pythia)
    int sig_id = -1;
