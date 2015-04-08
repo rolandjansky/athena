@@ -155,7 +155,8 @@ TGCForwardBackwardType TGCElectronicsSystem::getForwardBackward(int side, int oc
       }
     }
   } else {
-    forwardBackward = BackwardSector; // all Backward
+    if (isAside) forwardBackward = BackwardSector; // all Backward
+    else         forwardBackward = ForwardSector;  // all Forward
   }
   return forwardBackward;
 }

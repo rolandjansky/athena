@@ -1059,7 +1059,7 @@ void LVL1TGCTrigger::FillSectorLogicData(LVL1MUONIF::Lvl1MuSectorLogicData *slda
     if( fullName.length() == 0 )
       fullName =  PathResolver::find_file (fname.c_str(), "DATAPATH");
 
-    ifstream fin(fullName.c_str());
+    std::ifstream fin(fullName.c_str());
     if (!fin) {
       m_log << MSG::FATAL << "Cannot open file " << fullName << endreq;
       return StatusCode::FAILURE;
@@ -1178,7 +1178,7 @@ void LVL1TGCTrigger::FillSectorLogicData(LVL1MUONIF::Lvl1MuSectorLogicData *slda
 	v.push_back(atoi(line.c_str()));
 	break;
       }
-      string temp = line;
+      std::string temp = line;
       temp.erase(i,line.size());
       v.push_back(atoi(temp.c_str()));
       line.erase(0,i+1);
@@ -1332,7 +1332,7 @@ StatusCode LVL1TGCTrigger::fillTMDB()
   // loop over all TileMuonReceiverObj in container 
   TileMuonReceiverContainer::const_iterator tmItr = tileMuRecCont->begin();
 
-  TileMuonReceiverObj * tmObj_Thresholds = *tmItr;
+  const TileMuonReceiverObj * tmObj_Thresholds = *tmItr;
   if ( (tmObj_Thresholds->GetThresholds()).size() == 4) { 
     float thresholds[4];
     for (size_t ip=0;ip<4;ip++){
@@ -1356,7 +1356,7 @@ StatusCode LVL1TGCTrigger::fillTMDB()
   
   for ( ; tmItr != tileMuRecCont->end(); ++tmItr) {
     
-    TileMuonReceiverObj * tmObj = *tmItr;
+    const TileMuonReceiverObj * tmObj = *tmItr;
     // Tile Module
     int moduleID = tmObj-> GetID();
     // TMDB decision

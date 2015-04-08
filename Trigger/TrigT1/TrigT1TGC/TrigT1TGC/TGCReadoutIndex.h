@@ -15,7 +15,7 @@
 
 namespace LVL1TGCTrigger {
 
-using namespace std;
+//using namespace std;
 
 // ====================================================================
 //
