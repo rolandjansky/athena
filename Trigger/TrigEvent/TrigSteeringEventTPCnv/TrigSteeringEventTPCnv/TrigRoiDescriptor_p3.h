@@ -31,6 +31,8 @@ class TrigRoiDescriptor_p3
 
   bool     fullscan;
 
+  std::vector< std::vector<float> > rois;
+
 /*   unsigned int m_roiId;          */
 /*   unsigned int m_roiWord;        */
 };
