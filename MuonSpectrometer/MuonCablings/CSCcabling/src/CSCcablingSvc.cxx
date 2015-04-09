@@ -12,13 +12,12 @@
 #include "RDBAccessSvc/IRDBAccessSvc.h"
 #include "RDBAccessSvc/IRDBRecordset.h"
 #include "RDBAccessSvc/IRDBRecord.h"
-#include <cassert>
 
 // Author: Ketevi A. Assamagan - may 2007
 
 CSCcablingSvc::CSCcablingSvc(const std::string& name, ISvcLocator* sl)
-  : ::AthService(name,sl), m_side(2), m_rod(16), m_max(32),
-    m_log(0), m_debug(false), m_verbose(false) {
+  : ::AthService(name,sl), m_side(2), m_rod(16), m_max(32)
+{
 
   declareProperty("Run1Cabling", m_run1 = false);
 }
@@ -38,24 +37,12 @@ StatusCode CSCcablingSvc::queryInterface(const InterfaceID& riid, void** ppvIF) 
 
 StatusCode CSCcablingSvc::initialize() { 
 
-  m_log = new MsgStream(msgSvc(), name());
-  *m_log << MSG::INFO << " in initialize() with name " << this->name() << endreq;
-  m_debug = m_log->level() <= MSG::DEBUG;
-  m_verbose = m_log->level() <= MSG::VERBOSE;
-
-  if(!::AthService::initialize().isSuccess()){
-    *m_log << MSG::ERROR << "AthService::initialise() failed" << endreq;
-    return StatusCode::FAILURE;
-  }
+  ATH_MSG_DEBUG ( " in initialize()" );
+  ATH_CHECK( AthService::initialize() );
 
   // Retrieve geometry config information from the database (RUN1, RUN2, etc...)
   IRDBAccessSvc* rdbAccess = 0;
-  StatusCode result = service("RDBAccessSvc",rdbAccess);
-
-  if(result.isFailure()) {
-     ATH_MSG_ERROR("Unable to get RDBAccessSvc");
-     return result;
-  }
+  ATH_CHECK( service("RDBAccessSvc",rdbAccess) );
 
   if(!rdbAccess->connect()) {
      ATH_MSG_ERROR("Unable to connect to the Geometry DB");
@@ -97,9 +84,7 @@ StatusCode CSCcablingSvc::initialize() {
 }
 
 StatusCode CSCcablingSvc::finalize() { 
-  StatusCode sc = StatusCode::SUCCESS;
-  delete m_log;
-  return sc;
+  return StatusCode::SUCCESS;
 }
 
 /** map offline ROD identifier to online ID */
@@ -231,9 +216,6 @@ bool CSCcablingSvc::is_offlineRodId (const uint16_t rodId ) const {
 /** calculate the collection Identifier */
 uint16_t CSCcablingSvc::collectionId(const uint16_t subDetectorId, const uint16_t rodId) const {
   
-  assert ( subDetectorId == 0x6A || subDetectorId == 0x69 );
-  assert ( this->is_offlineRodId(rodId) );
-
   uint16_t subId = (subDetectorId == 0x6A) ? 0 : 1;
   uint16_t onlineColId = subId*this->nROD()+rodId;
 
@@ -245,8 +227,6 @@ uint16_t CSCcablingSvc::collectionId(const uint16_t subDetectorId, const uint16_
       onlineColId = subId*this->nROD() + rodId;
   }
 
-  //assert ( onlineColId < 16 );
-  
   return onlineColId;
 }
 
@@ -376,4 +356,20 @@ void CSCcablingSvc::hash2Rob(const unsigned int& hashid, uint32_t& robid) const 
            break;
     }
   }
+}
+
+void CSCcablingSvc::hash2Rod(const unsigned int& hashid, uint32_t& rodid) const {
+   if(m_run1){
+     if(hashid & 16){
+        rodid = (hashid & 15);
+     } else {
+        rodid = hashid;
+     } 
+  } else {
+     if(hashid & 1){ 
+        rodid = (hashid >> 1);
+     } else {
+        rodid = ((hashid >> 1)|0x10);
+     }
+  } 
 }
