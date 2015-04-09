@@ -215,7 +215,7 @@ namespace MuonCombined {
     
     if( !dressMuon(*muon) ){
       ATH_MSG_WARNING("Failed to dress muon");
-      delete muon; 
+      outputData.muonContainer->pop_back();
       return 0;
     }
 
@@ -355,7 +355,7 @@ namespace MuonCombined {
 
     if( !dressMuon(*muon) ){ 
       ATH_MSG_WARNING("Failed to dress muon");
-      delete muon; 
+      outputData.muonContainer->pop_back();
       return 0;
     }
 
@@ -396,16 +396,17 @@ namespace MuonCombined {
       Trk::FitQuality fq(  tag.matchChi2() ,5);
       Trk::TrackInfo info( msTrack->info() );
       // todo update patrec bit set adding ID values
-      
-      xAOD::TrackParticle* tp = m_particleCreator->createParticle(&tag.combinedParameters(),&fq,&info,&summary,
+
+            
+      if( outputData.combinedTrackParticleContainer ){
+        xAOD::TrackParticle* tp = m_particleCreator->createParticle(&tag.combinedParameters(),&fq,&info,&summary,
                                                                   std::vector<const Trk::TrackParameters*>(),
                                                                   std::vector<xAOD::ParameterPosition>(),
                                                                   xAOD::muon, outputData.combinedTrackParticleContainer);
-      if( !tp ){
-        ATH_MSG_WARNING("Failed to create track particle");
-      }else{
-        // if the combined track particle is part of a container set the link
-        if( outputData.combinedTrackParticleContainer ){
+
+        if( !tp ){
+          ATH_MSG_WARNING("Failed to create track particle");
+        }else{
           ElementLink<xAOD::TrackParticleContainer> link(*outputData.combinedTrackParticleContainer,outputData.combinedTrackParticleContainer->size()-1);
           if( link.isValid() ) {
             //link.toPersistent();
@@ -414,11 +415,8 @@ namespace MuonCombined {
           }
           // for the purpose of the truth matching, set the track link to point to the ID track
           tp->setTrackLink(candidate.indetTrackParticle().trackLink());
-        }else{
-          // if the track particle is not added to a container, delete it 
-          delete tp;
         }
-      }
+      } //endif outputData.combinedTrackParticleContainer 
     }
     // add muon candidate
     addMuonCandidate(tag.muonCandidate(),muon,outputData);
@@ -1225,8 +1223,12 @@ namespace MuonCombined {
     muon.auxdata< float >("ET_TileCore") = etcore[Rec::CaloCellCollector::ET_TileCore];
     muon.auxdata< float >("ET_HECCore")  = etcore[Rec::CaloCellCollector::ET_HECCore];  
 
-    ATH_MSG_DEBUG("Tool,apply,sigma: " << m_caloNoiseTool->name() << "/" << m_applyCaloNoiseCut << "/"
-                  << m_sigmaCaloNoiseCut);
+    if( m_caloNoiseTool.empty() )
+      ATH_MSG_DEBUG("NO Tool for calo noise,apply,sigma: " << "/" << m_applyCaloNoiseCut << "/"
+                    << m_sigmaCaloNoiseCut);
+    else
+      ATH_MSG_DEBUG("Tool,apply,sigma: " << m_caloNoiseTool->name() << "/" << m_applyCaloNoiseCut << "/"
+                    << m_sigmaCaloNoiseCut);
 
     ATH_MSG_DEBUG("Etcore: tot/em/tile/hec " << etcore[Rec::CaloCellCollector::ET_Core] << "/"    
                   << etcore[Rec::CaloCellCollector::ET_EMCore] << "/"    
