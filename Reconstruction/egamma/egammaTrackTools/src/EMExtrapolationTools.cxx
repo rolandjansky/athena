@@ -280,7 +280,7 @@ EMExtrapolationTools::getMatchAtCalo (const xAOD::CaloCluster*      cluster,
 
 
   //TRT  only track. Could be in the standard or GSF container.
-  //Use the std tool/cache
+  //Use the std tool/cache always , no matter if perigee or rescaled requested.
   if (isTRT){
     if(!m_defaultParticleCaloExtensionTool->caloExtension(*trkPB,extension,m_useCaching)){
       ATH_MSG_WARNING("Could not create an extension for "<< " Track Pt "
@@ -289,7 +289,7 @@ EMExtrapolationTools::getMatchAtCalo (const xAOD::CaloCluster*      cluster,
       return StatusCode::SUCCESS;
     }
   }
-  //Perigee Rescaled , not caching possible for trk parameters
+  //Perigee Rescaled , not caching possible for trk parameters.
   else if (fromPerigeeRescaled == extrapFrom) {
     const Trk::TrackParameters*  trkPar = getRescaledPerigee(trkPB, cluster);    
     if(!trkPar){
@@ -303,7 +303,7 @@ EMExtrapolationTools::getMatchAtCalo (const xAOD::CaloCluster*      cluster,
     delete trkPar;    
   }
   //GSF track Particles, from perigee , using the egamma tool/cache
-  else if( trkPB->trackFitter() == xAOD::GaussianSumFilter){
+  else if( trkPB->trackFitter() == xAOD::GaussianSumFilter && fromPerigee == extrapFrom){
     if(!m_perigeeParticleCaloExtensionTool->caloExtension(*trkPB,extension,m_useCaching)){
       ATH_MSG_WARNING("Could not create an extension for "<< " Track Pt "
 		      <<trkPB->pt()<< " Track Eta " << trkPB->eta()<<" Track Fitter " 
@@ -311,7 +311,16 @@ EMExtrapolationTools::getMatchAtCalo (const xAOD::CaloCluster*      cluster,
       return StatusCode::SUCCESS;
     }
   }
-  //Else track Particles before GSF or if they failed GSF, use the std tool/cache
+  //GSF track Particles, from last measurement , the cache is used above so do not use it here 
+  else if( trkPB->trackFitter() == xAOD::GaussianSumFilter && fromLastMeasurement == extrapFrom){
+    if(!m_defaultParticleCaloExtensionTool->caloExtension(*trkPB,extension, false)){
+      ATH_MSG_WARNING("Could not create an extension for "<< " Track Pt "
+		      <<trkPB->pt()<< " Track Eta " << trkPB->eta()<<" Track Fitter " 
+		      << trkPB->trackFitter() << " isTRT " << isTRT<<" Extrapolate From " <<  extrapFrom); 
+      return StatusCode::SUCCESS;
+    }
+  }
+  //Else track Particles before GSF, or failed GSF, or last measurement use the std tool/cache
   else {
     if(!m_defaultParticleCaloExtensionTool->caloExtension(*trkPB,extension,m_useCaching)){
       ATH_MSG_WARNING("Could not create an extension for "<< " Track Pt "
