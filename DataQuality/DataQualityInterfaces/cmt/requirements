@@ -28,23 +28,6 @@ macro_append Boost_linkopts " $(Boost_linkopts_system) $(Boost_linkopts_regex) $
 #	library: DataQualityInterfaces
 ##############################################################################
 
-# Request cmake to generate the root dictionary and append the generated file to the library.
-# These lines are transparent to CMT.
-apply_pattern cmake_add_command command="athena_add_root_dictionary(DataQualityInterfacesDict ROOT_HEADERS  DataQualityInterfaces/MiniConfig.h\
- DataQualityInterfaces/MiniConfigTreeNode.h\
- DataQualityInterfaces/HanApp.h\
- DataQualityInterfaces/HanConfig.h\
- DataQualityInterfaces/HanConfigAlgLimit.h\
- DataQualityInterfaces/HanConfigAlgPar.h\
- DataQualityInterfaces/HanConfigParMap.h\
- DataQualityInterfaces/HanConfigAssessor.h\
- DataQualityInterfaces/HanConfigCompAlg.h\
- DataQualityInterfaces/HanConfigGroup.h\
- DataQualityInterfaces/HanConfigMetadata.h\
- DataQualityInterfaces/ConditionsSingleton.h\
- DataQualityInterfaces/LinkDef.h EXTERNAL_PACKAGES ROOT Boost dqm-common tdaq-common)"
-apply_pattern cmake_add_generated_files library=DataQualityInterfaces files=DataQualityInterfacesDict.cxx
-
 library  DataQualityInterfaces  $(lib_opts) "\
  ../src/HanAlgorithmConfig.cxx\
  ../src/HanApp.cxx\
@@ -62,57 +45,29 @@ library  DataQualityInterfaces  $(lib_opts) "\
  ../src/CompositeAlgorithm.cxx\
  ../src/HanInputRootFile.cxx\
  ../src/HanUtils.cxx\
- ../src/ConditionsSingleton.cxx\
- $(bin)DataQualityInterfacesRootDict.cxx"
+ ../src/ConditionsSingleton.cxx
 
 apply_pattern installed_library
 
-macro  DataQualityInterfaces_dependencies  "dqi_root_dictionary"
+apply_pattern have_root_headers root_headers="MiniConfig.h MiniConfigTreeNode.h HanApp.h \
+ HanConfig.h HanConfigAlgLimit.h HanConfigAlgPar.h HanConfigParMap.h HanConfigAssessor.h \
+ HanConfigCompAlg.h HanConfigGroup.h HanConfigMetadata.h ConditionsSingleton.h LinkDef.h" \
+ headers_lib=DataQualityInterfaces  extra_includes=" $(use_includes) "
 
-action  dqi_root_dictionary  "( $(ROOTSYS)/bin/rootcint -f $(bin)DataQualityInterfacesRootDict.cxx -c $(includes)\ 
- DataQualityInterfaces/MiniConfig.h\
- DataQualityInterfaces/MiniConfigTreeNode.h\
- DataQualityInterfaces/HanApp.h\
- DataQualityInterfaces/HanConfig.h\
- DataQualityInterfaces/HanConfigAlgLimit.h\
- DataQualityInterfaces/HanConfigAlgPar.h\
- DataQualityInterfaces/HanConfigParMap.h\
- DataQualityInterfaces/HanConfigAssessor.h\
- DataQualityInterfaces/HanConfigCompAlg.h\
- DataQualityInterfaces/HanConfigGroup.h\
- DataQualityInterfaces/HanConfigMetadata.h\
- DataQualityInterfaces/ConditionsSingleton.h\
- DataQualityInterfaces/LinkDef.h )"
-
-macro dqi_root_dictionary_dependencies " install_includes"
 
 #################
 # Persistency lib
 #################
 
-# Request cmake to generate the root dictionary and append the generated file to the library.
-# These lines are transparent to CMT.
-apply_pattern cmake_add_command command="athena_add_root_dictionary(dqm_persistencyDict ROOT_HEADERS DataQualityInterfaces/PAlgorithm.h DataQualityInterfaces/PMetadata.h DataQualityInterfaces/PParameter.h DataQualityInterfaces/PRegion.h DataQualityInterfaces/PResult.h DataQualityInterfaces/PFunctions.h DataQualityInterfaces/LinkDefdqmp.h EXTERNAL_PACKAGES ROOT Boost dqm-common tdaq-common)"
-apply_pattern cmake_add_generated_files library=dqm_persistency files=dqm_persistencyDict.cxx
-
-library  dqm_persistency  $(lib_opts) "\
- ../src/dqm_persistency_impl.cxx\
- $(bin)dqm_persistencyRootDict.cxx"
+library  dqm_persistency  $(lib_opts) \
+ ../src/dqm_persistency_impl.cxx
 
 apply_pattern named_installed_library library=dqm_persistency
 
-macro  dqm_persistency_dependencies  "dqmp_root_dictionary"
+apply_pattern have_root_headers root_headers="PAlgorithm.h PMetadata.h PParameter.h PRegion.h \
+  PResult.h PFunctions.h  LinkDefdqmp.h"  headers_lib=dqm_persistency \
+  extra_includes=" -p $(use_includes) "
 
-action  dqmp_root_dictionary  "( $(ROOTSYS)/bin/rootcint -f $(bin)dqm_persistencyRootDict.cxx -c $(includes)\
- ../DataQualityInterfaces/PAlgorithm.h\
- ../DataQualityInterfaces/PMetadata.h\
- ../DataQualityInterfaces/PParameter.h\
- ../DataQualityInterfaces/PRegion.h\
- ../DataQualityInterfaces/PResult.h\
- ../DataQualityInterfaces/PFunctions.h\
- ../DataQualityInterfaces/LinkDefdqmp.h )"
-
-macro dqmp_root_dictionary_dependencies " install_includes"
 
 #############################################################################
 #	application: han
