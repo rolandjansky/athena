@@ -22,8 +22,6 @@
 #include <TGraph.h>
 #include <TH1.h>
 #include <TKey.h>
-#include <TBox.h>
-#include <TLine.h>
 
 #include "dqm_core/LibraryManager.h"
 #include "dqm_core/Parameter.h"
@@ -50,8 +48,6 @@
 
 ClassImp(dqi::HanConfig)
 
-static TBox _box;
-static TLine _line;
 
 namespace dqi {
 
@@ -401,10 +397,8 @@ GetAlgorithmConfiguration( HanConfigAssessor* dqpar, const std::string& algID,
       //std::cout<<"Got tmpRefID=\""<<tmpRefID<<"\""<<std::endl;
       dqi::ConditionsSingleton &CS=dqi::ConditionsSingleton::getInstance();
       std::string refCond=CS.getCondition();
-      //parses
       std::vector<std::pair<std::string,std::string> > condPairs=CS.getConditionReferencePairs(tmpRefID);
       std::stringstream newRefString;
-      // for each condition ...
       for(size_t t=0;t<condPairs.size();t++){
 	std::string refID=condPairs.at(t).second;
 	std::string cond=condPairs.at(t).first;	
@@ -468,17 +462,8 @@ GetAlgorithmConfiguration( HanConfigAssessor* dqpar, const std::string& algID,
 		delete obj;
 	      }
 	    }
-	  } else {
-	    // not "same_name" - assign properly
-	    newRefId=CS.getNewReferenceName(algRefName,true);
-	    if(newRefId.empty()){
-	      std::cerr<<"Warning New reference id is empty for refId=\""
-		       <<refID<<"\", cond=\""<<cond<<"\", assessorName= \""
-		       <<assessorName<<"\""<<std::endl;
-	    }
 	  }
-	} 
-	    
+	}
 	if (isMultiRef) {
 	  std::string algRefUniqueName=cond+"_multiple:/"+absAlgRefName;
 	  newRefId=CS.getNewReferenceName(algRefUniqueName,true);
@@ -491,7 +476,7 @@ GetAlgorithmConfiguration( HanConfigAssessor* dqpar, const std::string& algID,
 	  delete toarray;
 	}
 
-	/*      if(newRefId.empty()){
+	/*	if(newRefId.empty()){
 	  newRefId=CS.getNewReferenceName(algRefName,true);
 	  if(newRefId.empty()){
 	    std::cerr<<"Warning New reference id is empty for refId=\""
