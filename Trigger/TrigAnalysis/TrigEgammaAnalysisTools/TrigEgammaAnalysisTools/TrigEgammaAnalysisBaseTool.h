@@ -9,6 +9,7 @@
 #include "TrigEgammaAnalysisTools/ITrigEgammaAnalysisBaseTool.h"
 #include "AsgTools/AsgTool.h"
 #include "TrigDecisionTool/TrigDecisionTool.h"
+#include "TrigEgammaAnalysisTools/ITrigEgammaMatchingTool.h"
 class TrigEgammaAnalysisBaseTool
 : public asg::AsgTool,
   virtual public ITrigEgammaAnalysisBaseTool {
@@ -58,6 +59,7 @@ protected:
 
   // ToolHandles
   ToolHandle<Trig::TrigDecisionTool> m_trigdec;
+  ToolHandle<ITrigEgammaMatchingTool> m_matchTool;
   // Infra-structure members
   std::vector<std::string> m_dir; // maintain directories
   std::map<std::string, TH1 *> m_hist1; // maintain histograms

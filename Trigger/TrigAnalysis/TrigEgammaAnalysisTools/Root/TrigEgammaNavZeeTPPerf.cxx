@@ -42,6 +42,7 @@ StatusCode TrigEgammaNavZeeTPPerf::childInitialize(){
     }
 
     for (int i = 0; i < (int) dirnames.size(); i++) {
+        ATH_MSG_INFO(dirnames[i]);
         addDirectory(dirnames[i]);
         addHistogram(new TH1F("hlt_pt", "HLT p_{T}; p_{T} [GeV] ; Count", 50, 0., 100.));
         addHistogram(new TH1F("hlt_et", "HLT E_{T}; E_{T} [GeV]; Count", 50, 0., 100.));
@@ -50,32 +51,32 @@ StatusCode TrigEgammaNavZeeTPPerf::childInitialize(){
         addHistogram(new TH1F("hlt_phi", "phi; phi ; Count", 50, -3.14, 3.14));
         addHistogram(new TH1F("match_pt", "HLT p_{T}; p_{T} [GeV] ; Count", 50, 0., 100.));
         addHistogram(new TH1F("match_et", "HLT E_{T}; E_{T} [GeV]; Count", 50, 0., 100.));
-        addHistogram(new TH1F("match_highet", "HLT E_{T}; E_{T} [GeV]; Count", 100, 0., 1000.));
+        addHistogram(new TH1F("match_highet", "HLT E_{T}; E_{T} [GeV]; Count", 100, 0., 2000.));
         addHistogram(new TH1F("match_eta", "eta; eta ; Count", 50, -2.47, 2.47));
         addHistogram(new TH1F("match_phi", "phi; phi ; Count", 50, -3.14, 3.14));
         
         addHistogram(new TH1F("matchEF_pt", "HLT p_{T}; p_{T} [GeV] ; Count", 50, 0., 100.));
         addHistogram(new TH1F("matchEF_et", "HLT E_{T}; E_{T} [GeV]; Count", 50, 0., 100.));
-        addHistogram(new TH1F("matchEF_highet", "HLT E_{T}; E_{T} [GeV]; Count", 100, 0., 1000.));
+        addHistogram(new TH1F("matchEF_highet", "HLT E_{T}; E_{T} [GeV]; Count", 100, 0., 2000.));
         addHistogram(new TH1F("matchEF_eta", "eta; eta ; Count", 50, -2.47, 2.47));
         addHistogram(new TH1F("matchEF_phi", "phi; phi ; Count", 50, -3.14, 3.14));
         
         
         addHistogram(new TH1F("pt", "Offline p_{T}; p_{T} [GeV] ; Count", 50, 0., 100.));
         addHistogram(new TH1F("et", "Offline E_{T}; E_{T} [GeV] ; Count", 50, 0., 100.));
-        addHistogram(new TH1F("highet", "Offline E_{T}; E_{T} [GeV] ; Count", 100, 0., 1000.));
+        addHistogram(new TH1F("highet", "Offline E_{T}; E_{T} [GeV] ; Count", 100, 0., 2000.));
         addHistogram(new TH1F("eta", "eta; eta ; Count", 50, -2.47, 2.47));
         addHistogram(new TH1F("phi", "phi; phi ; Count", 50, -3.14, 3.14));
         
         addHistogram(new TH1F("eff_pt", "#epsilon(p_T); p_{T} ; #epsilon", 50, 0., 100.));
         addHistogram(new TH1F("eff_et", "#epsilon(E_T); E_{T} [GeV] ; Count", 50, 0., 100.));
-        addHistogram(new TH1F("eff_highet", "#epsilon(E_T); E_{T} [GeV] ; Count", 100, 0., 1000.));
+        addHistogram(new TH1F("eff_highet", "#epsilon(E_T); E_{T} [GeV] ; Count", 100, 0., 2000.));
         addHistogram(new TH1F("eff_eta", "eta; eta ; Count", 50, -2.47, 2.47));
         addHistogram(new TH1F("eff_phi", "phi; phi ; Count", 50, -3.14, 3.14));
         
         addHistogram(new TH1F("effEF_pt", "#epsilon(p_T); p_{T} ; #epsilon", 50, 0., 100.));
         addHistogram(new TH1F("effEF_et", "#epsilon(E_T); E_{T} [GeV] ; Count", 50, 0., 100.));
-        addHistogram(new TH1F("effEF_highet", "#epsilon(E_T); E_{T} [GeV] ; Count", 100, 0., 1000.));
+        addHistogram(new TH1F("effEF_highet", "#epsilon(E_T); E_{T} [GeV] ; Count", 100, 0., 2000.));
         addHistogram(new TH1F("effEF_eta", "eta; eta ; Count", 50, -2.47, 2.47));
         addHistogram(new TH1F("effEF_phi", "phi; phi ; Count", 50, -3.14, 3.14));
         
@@ -337,60 +338,69 @@ void TrigEgammaNavZeeTPPerf::SimpleEfficiency(){
       bool perf=false;
       bool etcut=false;
       parseTriggerName(probeTrigger,"Loose",type,etthr,l1thr,l1type,pidname,perf,etcut); // Determines probe PID from trigger
-      if(type == "electron") SimpleElectronEfficiency(probeTrigger,pidname);
-      else if(type == "photon") SimplePhotonEfficiency(probeTrigger,pidname);
+      if(type == "electron") {
+          SimpleElectronEfficiency(probeTrigger,etthr,pidname);
+      }
+      else if(type == "photon"){
+          SimplePhotonEfficiency(probeTrigger,etthr);
+      }
   }
 
 }
-void TrigEgammaNavZeeTPPerf::SimplePhotonEfficiency(const std::string probeTrigger, const std::string pidname){
+void TrigEgammaNavZeeTPPerf::SimplePhotonEfficiency(const std::string probeTrigger, const float etthr){
 
     for(const auto& eg : *m_offPhotons){
-        if(!eg->passSelection(pidname)) continue;
+        if( !(getCluster_et(eg) > (etthr+2.0)*1.e3)) continue; //Take 2GeV above threshold
+        if(!eg->passSelection("Tight")) continue; 
         hist1("et")->Fill(getCluster_et(eg)/1e3);
         hist1("highet")->Fill(getCluster_et(eg)/1e3);
         hist1("eta")->Fill(eg->eta());
         hist1("phi")->Fill(eg->phi());
 
         if ( m_trigdec->isPassed("HLT_"+probeTrigger) ){
-            if(isMatchHLT(eg)){
+            const xAOD::Egamma * HLTobject = m_matchTool->closestHLTObject(eg,probeTrigger);
+            if(HLTobject){
+                const xAOD::Photon* phEF =static_cast<const xAOD::Photon*> (HLTobject);
                 hist1("match_et")->Fill(getCluster_et(eg)/1e3);
                 hist1("match_highet")->Fill(getCluster_et(eg)/1e3);
                 hist1("match_eta")->Fill(eg->eta());
                 hist1("match_phi")->Fill(eg->phi());
+                StatusCode sc = fillShowerShapes(phEF,eg);
+                if(sc != StatusCode::SUCCESS)
+                    ATH_MSG_DEBUG("Distributions Fails");
             }
         }
     }
 }
-void TrigEgammaNavZeeTPPerf::SimpleElectronEfficiency(const std::string probeTrigger,const std::string pidname){
+void TrigEgammaNavZeeTPPerf::SimpleElectronEfficiency(const std::string probeTrigger,const float etthr,const std::string pidname){
 
     for(const auto& eg : *m_offElectrons){
-        if( !(eg->e()/cosh(eg->trackParticle()->eta())  > 20.0*1.e3) ) continue;
+        if( !(eg->e()/cosh(eg->trackParticle()->eta())  > (etthr-5.)*1.e3) ) continue;
+        if ( (fabs(eg->eta())>1.37 && fabs(eg->eta())<1.52) || fabs(eg->eta())>2.47 )
+            continue; 
         if(!eg->passSelection(pidname)) continue;
         hist1("pt")->Fill(getTrack_pt(eg)/1e3);
         hist1("et")->Fill(getEt(eg)/1e3);
         hist1("highet")->Fill(getEt(eg)/1e3);
-        hist1("eta")->Fill(eg->eta());
-        hist1("phi")->Fill(eg->phi());
-
-        const HLT::TriggerElement *finalFC;
-        if ( TrigEgammaNavZeeTPBaseTool::isProbeElectron(eg, probeTrigger, finalFC)){
-            bool passedEF = ancestorPassed<xAOD::ElectronContainer>(finalFC); // EF check
-            const auto* EFEl = getFeature<xAOD::ElectronContainer>(finalFC);
-            if ( EFEl != NULL && passedEF==true){
-                hist1("matchEF_pt")->Fill(getTrack_pt(eg)/1e3);
-                hist1("matchEF_et")->Fill(getEt(eg)/1e3);
-                hist1("matchEF_highet")->Fill(getEt(eg)/1e3);
-                hist1("matchEF_eta")->Fill(eg->eta());
-                hist1("matchEF_phi")->Fill(eg->phi());
-            }
+        if( (eg->e()/cosh(eg->trackParticle()->eta())  > (etthr+1.0)*1.e3) ) {
+            hist1("eta")->Fill(eg->eta());
+            hist1("phi")->Fill(eg->phi());
         }
+
         if ( m_trigdec->isPassed("HLT_"+probeTrigger) ){
-            if(isMatchHLT(eg)){
+            const xAOD::Egamma * HLTobject = m_matchTool->closestHLTObject(eg,probeTrigger);
+            if(HLTobject){
+                const xAOD::Electron* elEF =static_cast<const xAOD::Electron*> (HLTobject);
                 hist1("match_pt")->Fill(getTrack_pt(eg)/1e3);
                 hist1("match_et")->Fill(getEt(eg)/1e3);
                 hist1("match_highet")->Fill(getEt(eg)/1e3);
-                hist1("match_eta")->Fill(eg->eta());
-                hist1("match_phi")->Fill(eg->phi());
+                if( (eg->e()/cosh(eg->trackParticle()->eta())  > (etthr+1.0)*1.e3) ) {
+                    hist1("match_eta")->Fill(eg->eta());
+                    hist1("match_phi")->Fill(eg->phi());
+                }
+                StatusCode sc = fillShowerShapes(elEF,eg);
+                if(sc != StatusCode::SUCCESS)
+                    ATH_MSG_DEBUG("Distributions Fails");
             }
         }
     }

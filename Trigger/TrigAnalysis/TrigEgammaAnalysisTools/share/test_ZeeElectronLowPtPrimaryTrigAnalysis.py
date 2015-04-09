@@ -16,13 +16,19 @@ from AthenaCommon.AppMgr import ToolSvc
 import os
 
 if not 'DIR' in dir():
-     dirtouse='/afs/cern.ch/user/r/rwhite/workspace/public/validation/mc/DC14/valid1.147806.PowhegPythia8_AU2CT10_Zee.recon.AOD.e2658_s1967_s1964_r5787_tid01572823_00'
+     dirtouse='/afs/cern.ch/work/j/jolopezl/datasets/valid1.147406.PowhegPythia8_AZNLO_Zee.recon.AOD.e3099_s2578_r6220_tid05203475_00'
 else :
      dirtouse=DIR
 
+if not 'NOV' in dir():
+    nov=-1
+else :
+    nov=NOV
+
 
 # To run
-# athena -l DEBUG -c "DIR='/afs/cern.ch/user/r/rwhite/workspace/egamma/mc/DC14Val/mc14_13TeV.147406.PowhegPythia8_AZNLO_Zee.recon.AOD.e3059_s1982_s2008_r5787_tid01572494_00'" test_NavZeeTPAll.py
+# athena -l DEBUG -c "DIR='/afs/cern.ch/work/j/jolopezl/datasets/valid1.147406.PowhegPythia8_AZNLO_Zee.recon.AOD.e3099_s2578_r6220_tid05203475_00'" -c "NOV=50" test_ZeeElectronLowPtSupportingTrigAnalysis.py
+# where NOV is the number of events to run
 listfiles=os.listdir(dirtouse)
 finallist=[]
 for ll in listfiles:
@@ -30,7 +36,7 @@ for ll in listfiles:
 #print finallist
 
 athenaCommonFlags.FilesInput=finallist
-athenaCommonFlags.EvtMax=500
+athenaCommonFlags.EvtMax=nov
 #athenaCommonFlags.EvtMax=-1
 rec.readAOD=True
 # switch off detectors
@@ -63,57 +69,60 @@ ToolSvc.TrigDecisionTool.TrigDecisionKey='xTrigDecision'
 # And the athena algorithm, simply a loop over tools
 from GaudiSvc.GaudiSvcConf import THistSvc
 ServiceMgr += THistSvc()
-ServiceMgr.THistSvc.Output += ["Validation_Zee DATAFILE='Validation_Zee.root' OPT='RECREATE'"]
+ServiceMgr.THistSvc.Output += ["Validation_Zee_LowMidPtPhysicsTriggers DATAFILE='Validation_Zee_LowMidPtPhysicsTriggers.root' OPT='RECREATE'"]
 #ServiceMgr.THistSvc.Output += ["zee DATAFILE='zee.root' OPT='RECREATE'"]
 #from TrigEgammaAnalysisTools.TrigEgammaAnalysisToolsConf import TrigEgammaTDToolTest
 #topSequence+=TrigEgammaTDToolTest("TrigEgammaTDToolTest")
 from TrigEgammaAnalysisTools.TrigEgammaAnalysisToolsConfig import TrigEgammaAnalysisAlg
 from TrigEgammaAnalysisTools.TrigEgammaAnalysisToolsConfig import TrigEgammaNavZeeTPCounts,TrigEgammaNavZeeTPPerf,TrigEgammaNavZeeTPEff,TrigEgammaNavZeeTPRes,TrigEgammaNavZeeTPNtuple,TrigEgammaNavZeeTPIneff,TrigEgammaEmulationTool
-
 from TrigEgammaAnalysisTools.TrigEgammaProbelist import * # to import probelist
 
-probelist = default 
+probelist = probeListLowMidPtPhysicsTriggers
 
 Res = TrigEgammaNavZeeTPRes(name="NavZeeTPRes",
         ElectronKey="Electrons",
-        ProbeTriggerList=default,
+        ProbeTriggerList=probelist,
         TagTrigger="e26_lhtight_iloose",
         OutputLevel=2,
+        File="Validation_Zee_LowMidPtPhysicsTriggers",
         )
 Eff = TrigEgammaNavZeeTPEff(name="NavZeeTPEff",
         ElectronKey="Electrons",
-        ProbeTriggerList=default,
+        ProbeTriggerList=probelist,
         TagTrigger="e26_tight_iloose",
+        File="Validation_Zee_LowMidPtPhysicsTriggers",
         )
 Counts = TrigEgammaNavZeeTPCounts(name="NavZeeTPCounts",
         ElectronKey="Electrons",
-        ProbeTriggerList=default,
+        ProbeTriggerList=probelist,
         TagTrigger="e26_tight_iloose",
+        File="Validation_Zee_LowMidPtPhysicsTriggers",
         )
 
 Ineff = TrigEgammaNavZeeTPIneff(name="NavZeeTPIneff",
         ElectronKey="Electrons",
-        ProbeTriggerList=default,
+        ProbeTriggerList=probelist,
         TagTrigger="e26_lhtight_iloose",
+        File="Validation_Zee_LowMidPtPhysicsTriggers",
         )
 
 Perf = TrigEgammaNavZeeTPPerf(name="NavZeeTPPerf",
 #        File = "ttbar",
         OutputLevel = 2,
         ElectronKey="Electrons",
-        ProbeTriggerList=default,
+        ProbeTriggerList=probelist,
         TagTrigger="e26_lhtight_iloose",
+        File="Validation_Zee_LowMidPtPhysicsTriggers",
         )
 
 Ntuple = TrigEgammaNavZeeTPNtuple(name="NavZeeTPNtuple",
         ElectronKey="Electrons",
-        ProbeTriggerList=default,
+        ProbeTriggerList=probelist,
         TagTrigger="e26_lhtight_iloose",
         doRinger=False, # if its true, we will save only tes with ringer.
+        File="Validation_Zee_LowMidPtPhysicsTriggers",
         )
 
 
-#Alg = TrigEgammaAnalysisAlg(name="MyAlg",Tools=[Counts,Eff,TrigEgammaEmulationTool(OutputLevel=2)])
+Alg = TrigEgammaAnalysisAlg(name="MyAlg",Tools=[Counts,Eff,Perf,TrigEgammaEmulationTool(OutputLevel=2)])
 #Alg = TrigEgammaAnalysisAlg(name="MyAlg",Tools=[Res])
-Alg = TrigEgammaAnalysisAlg(name="MyAlg",Tools=[Perf])
-

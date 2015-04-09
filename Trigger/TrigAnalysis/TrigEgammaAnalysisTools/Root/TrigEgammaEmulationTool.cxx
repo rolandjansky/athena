@@ -482,7 +482,11 @@ bool TrigEgammaEmulationTool::EmulationEF(const std::string trigger){
             << " etcut " << etcut << " idperf " << idperf << " perf " << perf);
 
 
-    if(perf) return true;
+    if(perf){
+        if(m_onlElectrons->size() == 0) return false;
+        else
+            return true;
+    }
    
     if(boost::contains(pidname,"1")) return false; // Not emulating Run1
     ATH_MSG_DEBUG("Emulating EF with " << m_onlElectrons->size() << " Electrons");

@@ -54,6 +54,7 @@ TrigEgammaNavZeeTPBaseTool( const std::string& myname )
   declareProperty("TagTrigger", m_tagTrigItem="e28_tight_iloose");
   declareProperty("ProbeTriggerList",m_probeTrigList);
   declareProperty("dR",m_dR=0.07); //new
+  declareProperty("RemoveCrack", m_rmCrack=true); //new
   // just for compile
 
   HLT::TriggerElement* t = NULL;
@@ -195,9 +196,11 @@ StatusCode TrigEgammaNavZeeTPBaseTool::executeTandP(const std::string probeTrigI
             } else {
                 ATH_MSG_DEBUG("tag and probe pair in Z mass window");
                 // Probe available. Good Probe?
-                if(!isGoodProbeElectron(elProbe,probeTrigItem)) continue; //Ensure passing offline electron selection
+                if(!isGoodProbeElectron(elProbe,probeTrigItem,etthr)) continue; //Ensure passing offline electron selection
                 const HLT::TriggerElement *finalFC;
-                if ( TrigEgammaNavZeeTPBaseTool::isProbeElectron(elProbe, probeTrigItem, finalFC)){
+                
+                // Use matching tool and create pair of offline probe and TE
+                if ( m_matchTool->match(elProbe, probeTrigItem, finalFC)){
                     std::pair<const xAOD::Electron*,const HLT::TriggerElement*> pairProbe(elProbe,finalFC);
                     m_probeElectrons.push_back(pairProbe);
                 } // end of check Probe
@@ -240,9 +243,9 @@ bool TrigEgammaNavZeeTPBaseTool::isTagElectron(const xAOD::Electron *el){
    
 
     ATH_MSG_DEBUG("Cluster E "<<clus->e());
-    ATH_MSG_DEBUG("Selecting Tag Electron isEM");
+    ATH_MSG_DEBUG("Selecting Tag Electron PID");
     if(!el->passSelection(m_offTagTightness)) return false;
-    //ATH_MSG_DEBUG("Selecting Tag Electron isEM Passes " << isEM << " " << isEMobtained); 
+    
     ATH_MSG_DEBUG("Selecting Tag Electron Et");
     //Require Et > 25 GeV
     if( !(el->e()/cosh(el->trackParticle()->eta())  > m_tagMinEt*GeV) ){
@@ -260,32 +263,15 @@ bool TrigEgammaNavZeeTPBaseTool::isTagElectron(const xAOD::Electron *el){
         ATH_MSG_DEBUG("Failed trigger " << m_tagTrigItem);
         return false;
     }
-    ATH_MSG_DEBUG("Selecting Tag Electron FC");
-    // Get the container of online electrons associated to passed items
-    Trig::FeatureContainer fc = m_trigdec->features("HLT_"+m_tagTrigItem);
-    //auto fc = m_trigdec->features("HLT_"+m_tagTrigItem);
-    const std::vector< Trig::Feature<xAOD::ElectronContainer> > vec_el = fc.get<xAOD::ElectronContainer>();
-    //auto vec_el = fc.containerFeature<xAOD::ElectronContainer>(); // Not available
-    //auto vec_el = fc.get<xAOD::ElectronContainer>();
-
-    TLorentzVector eloffLV;
-    eloffLV.SetPtEtaPhiE(el->pt(), el->trackParticle()->eta(), el->trackParticle()->phi(), el->e());
-    ATH_MSG_DEBUG("Selecting Tag Electron Match");
-    bool matched=false;
-    for(auto elfeat : vec_el){
-        const xAOD::ElectronContainer *elCont = elfeat.cptr();
-        for(const auto& eg : *elCont){
-            TLorentzVector elLV;
-            elLV.SetPtEtaPhiE(eg->pt(), eg->trackParticle()->eta(), eg->trackParticle()->phi(), eg->e());
-            if(elLV.DeltaR(eloffLV) < m_dR) matched = true;
-        }
-    }
+    ATH_MSG_DEBUG("Matching Tag Electron FC");
+    bool matched=m_matchTool->matchHLT(el,m_tagTrigItem);
     if(!matched) return false; // otherwise, someone matched!
 
     ATH_MSG_DEBUG("Found a tag electron");
     return true;
 }
-bool TrigEgammaNavZeeTPBaseTool::isGoodProbeElectron(const xAOD::Electron *el, const std::string trigItem){
+
+bool TrigEgammaNavZeeTPBaseTool::isGoodProbeElectron(const xAOD::Electron *el, const std::string trigItem, const float etthr){
 
     double GeV = 1000.;
     //Check constituents
@@ -298,11 +284,13 @@ bool TrigEgammaNavZeeTPBaseTool::isGoodProbeElectron(const xAOD::Electron *el, c
         return false;
     }
     //fiducial detector acceptance region
-    if ( (fabs(el->eta())>1.37 && fabs(el->eta())<1.52) || fabs(el->eta())>2.47 
-       ){
-        return false;
+    if(m_rmCrack){
+        if ( (fabs(el->eta())>1.37 && fabs(el->eta())<1.52) || fabs(el->eta())>2.47 
+           ){
+            return false;
+        }
     }
-    if( !(el->e()/cosh(el->trackParticle()->eta())  > m_probeMinEt*GeV) ){
+    if( !(el->e()/cosh(el->trackParticle()->eta())  > (etthr-5.0)*GeV) ){
         return false;
     }
     if(m_forceProbePid){ // Use common probe pid for all triggers
@@ -326,102 +314,6 @@ bool TrigEgammaNavZeeTPBaseTool::isGoodProbeElectron(const xAOD::Electron *el, c
         return false; 
     }
     return true; // Good probe electron
-}
-bool TrigEgammaNavZeeTPBaseTool::isProbeElectron(const xAOD::Electron *el,
-        const std::string trigItem,
-        const HLT::TriggerElement*& finalFC){
-    finalFC=NULL;
-
-    ATH_MSG_DEBUG("In isProbeElectron " << trigItem);
-    TLorentzVector eloffLV;
-    eloffLV.SetPtEtaPhiE(el->pt(), el->trackParticle()->eta(), el->trackParticle()->phi(), el->e());
-
-    // Get the container of online electrons associated to passed items
-    Trig::FeatureContainer fc = (m_trigdec->features("HLT_"+trigItem,TrigDefs::alsoDeactivateTEs));
-    //auto fc = (m_trigdec->features("HLT_"+trigItem,TrigDefs::alsoDeactivateTEs));
-
-    //const std::vector< Trig::Feature<xAOD::ElectronContainer> > vec_el = fc.get<xAOD::ElectronContainer>("",TrigDefs::alsoDeactivateTEs);
-    auto vec_el = fc.get<xAOD::ElectronContainer>("",TrigDefs::alsoDeactivateTEs);
-    ATH_MSG_DEBUG("EF FC Size " << vec_el.size());
-    bool matched=false;
-    for(auto elfeat : vec_el){
-        const xAOD::ElectronContainer *elCont = elfeat.cptr();
-        ATH_MSG_DEBUG("EF Size " << elCont->size());
-        for(const auto& eg : *elCont){
-            ATH_MSG_DEBUG("Online track eta " << eg->trackParticle()->eta());
-            ATH_MSG_DEBUG("Online track phi " << eg->trackParticle()->phi());
-            TLorentzVector elLV;
-            elLV.SetPtEtaPhiE(eg->pt(), eg->trackParticle()->eta(), eg->trackParticle()->phi(), eg->e());
-            if(elLV.DeltaR(eloffLV) < m_dR){
-                finalFC = (elfeat.te());
-                return true;
-            }
-        }
-    }
-
-    auto vec_efcalo = fc.get<xAOD::CaloClusterContainer>("",TrigDefs::alsoDeactivateTEs);
-    ATH_MSG_DEBUG("EFCal  FC Size " << vec_efcalo.size());
-    matched=false;
-    for(auto elfeat : vec_efcalo){
-        const xAOD::CaloClusterContainer *elCont = elfeat.cptr();
-        ATH_MSG_DEBUG("EF Calo Size " << elCont->size());
-        for(const auto& eg : *elCont){
-            TLorentzVector elLV;
-            elLV.SetPtEtaPhiE(eg->et(), eg->eta(), eg->phi(), eg->e());
-            if(elLV.DeltaR(eloffLV) < m_dR){
-                finalFC = (elfeat.te());
-                return true;
-            }
-        }
-    }
-    //const std::vector< Trig::Feature<xAOD::TrigElectronContainer> > vec_l2el = fc.get<xAOD::TrigElectronContainer>("",TrigDefs::alsoDeactivateTEs);
-    auto vec_l2el = fc.get<xAOD::TrigElectronContainer>("",TrigDefs::alsoDeactivateTEs);
-    ATH_MSG_DEBUG("L2 FC Size " << vec_l2el.size());
-    matched=false;
-    for(auto elfeat : vec_l2el){
-        const xAOD::TrigElectronContainer *elCont = elfeat.cptr();
-        ATH_MSG_DEBUG("L2 Size " << elCont->size());
-        for(const auto& eg : *elCont){
-            TLorentzVector elLV;
-            elLV.SetPtEtaPhiE(eg->pt(), eg->eta(), eg->phi(), eg->e());
-            if(elLV.DeltaR(eloffLV) < m_dR){
-                finalFC = (elfeat.te());
-                return true;
-            }
-        }
-    }
-    
-   // auto vec_l2calo = fc.get<xAOD::TrigEMClusterContainer>("",TrigDefs::alsoDeactivateTEs);
-    const std::vector< Trig::Feature<xAOD::TrigEMCluster> > vec_l2caloel = fc.get<xAOD::TrigEMCluster>("",TrigDefs::alsoDeactivateTEs);
-    ATH_MSG_DEBUG("L2 FC Size " << vec_l2caloel.size());
-
-    for(auto elfeat : vec_l2caloel){
-        const xAOD::TrigEMCluster *eg = elfeat.cptr();
-        ATH_MSG_DEBUG("TrigEMCluster << " << eg->et() );
-        TLorentzVector elLV;
-        elLV.SetPtEtaPhiE(eg->et(), eg->eta(), eg->phi(), 0.51);
-        if(elLV.DeltaR(eloffLV) < m_dR){
-            finalFC = (elfeat.te());
-            return true;
-        }
-    }
-
-    const std::vector< Trig::Feature<TrigRoiDescriptor> > initRois = fc.get<TrigRoiDescriptor>();
-    //auto initRois = fc.get<TrigRoiDescriptor>();
-    if ( initRois.size() < 1 ) return false;
-    //Trig::Feature<xAOD::EmTauRoI> itEmTau = m_trigdec->ancestor<xAOD::EmTauRoI>(initRois[0]);
-    auto itEmTau = m_trigdec->ancestor<xAOD::EmTauRoI>(initRois[0]);
-    const xAOD::EmTauRoI *l1 = itEmTau.cptr();
-    TLorentzVector elLV;
-    elLV.SetPtEtaPhiM(l1->emClus(), l1->eta(), l1->phi(), 0);
-    if(elLV.DeltaR(eloffLV) < 0.15) matched = true;
-
-    if ( matched ){
-        finalFC = (itEmTau.te());
-        return true;
-    }
-
-    return false; // otherwise, someone matched!
 }
 
 bool TrigEgammaNavZeeTPBaseTool::passedTrigger(const HLT::TriggerElement* obj){

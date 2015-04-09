@@ -38,6 +38,7 @@ TrigEgammaAnalysisBaseTool( const std::string& myname )
     : AsgTool(myname),
     m_trigdec("Trig::TrigDecisionTool/TrigDecisionTool") 
 {
+    declareProperty("MatchTool",m_matchTool);
     declareProperty("ElectronKey",m_offElContKey="Electrons");
     declareProperty("File",m_file="Validation_Zee");
     }
@@ -336,6 +337,7 @@ void TrigEgammaAnalysisBaseTool::parseTriggerName(const std::string trigger, std
         ATH_MSG_DEBUG("hiptrt " << perf << " " << pidname );
     }
     else if( strs.at(1)== "etcut"){
+        pidname = defaultPid;
         etcut=true;
     }
     else pidname = getProbePid(strs.at(1));

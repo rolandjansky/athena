@@ -16,8 +16,9 @@ TrigEgammaTDToolTest::
 TrigEgammaTDToolTest(const std::string& name, 
                     ISvcLocator* pSvcLocator )
 : ::AthAlgorithm( name, pSvcLocator ),
-    m_trigdec("Trig::TrigDecisionTool/TrigDecisionTool") 
+    m_trigdec("Trig::TrigDecisionTool/TrigDecisionTool")
 {
+    declareProperty("TrigEgammaMatchingTool",m_matchTool);
 }
 
 //**********************************************************************
@@ -61,10 +62,12 @@ StatusCode TrigEgammaTDToolTest::execute() {
           << ", EF: " << m_trigdec->isPassed( "EF_.*" )
           << ", HLT: " << m_trigdec->isPassed( "HLT_.*" ) );
   auto chainGroups = m_trigdec->getChainGroup("HLT_e.*");
+     
   for(auto &trig : chainGroups->getListOfTriggers()) {
       if(m_trigdec->isPassed(trig))
           ATH_MSG_INFO("Passed: " << trig);
       m_counterBits[trig]+=m_trigdec->isPassed(trig);
+      
   }
 
   //Check Containers
@@ -80,6 +83,11 @@ StatusCode TrigEgammaTDToolTest::execute() {
           ATH_MSG_INFO(" REGTEST: egamma energy: " << eg->e());
           ATH_MSG_INFO(" REGTEST: egamma eta: " << eg->eta() );
           ATH_MSG_INFO(" REGTEST: egamma phi: " << eg->phi() );
+          for(auto &trig : chainGroups->getListOfTriggers()){
+              trig.erase(0,4);
+              if(m_matchTool->match(eg,trig)) ATH_MSG_DEBUG("REGTEST:: Matched Electron with tool for " << trig);
+          }
+        
       } else{
           ATH_MSG_INFO(" REGTEST: problems with egamma pointer");
       }
@@ -105,6 +113,7 @@ StatusCode TrigEgammaTDToolTest::execute() {
           ATH_MSG_INFO(" REGTEST: egamma energy: " << eg->e());
           ATH_MSG_INFO(" REGTEST: egamma eta: " << eg->eta() );
           ATH_MSG_INFO(" REGTEST: egamma phi: " << eg->phi() );
+
       } else{
           ATH_MSG_INFO(" REGTEST: problems with egamma pointer");
       }

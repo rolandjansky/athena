@@ -8,6 +8,7 @@
 #include "TrigEgammaAnalysisTools/TrigEgammaNavZeeTPPerf.h"
 #include "TrigEgammaAnalysisTools/TrigEgammaNavZeeTPNtuple.h"
 #include "TrigEgammaAnalysisTools/TrigEgammaEmulationTool.h"
+#include "TrigEgammaAnalysisTools/TrigEgammaMatchingTool.h"
 #include "../TrigEgammaAnalysisAlg.h"
 #include "../TrigEgammaTDToolTest.h"
 
@@ -19,7 +20,8 @@ DECLARE_TOOL_FACTORY(TrigEgammaNavZeeTPEff)
 DECLARE_TOOL_FACTORY(TrigEgammaNavZeeTPIneff)
 DECLARE_TOOL_FACTORY(TrigEgammaNavZeeTPPerf)
 DECLARE_TOOL_FACTORY(TrigEgammaNavZeeTPNtuple)
-DECLARE_TOOL_FACTORY(TrigEgammaEmulationTool)    
+DECLARE_TOOL_FACTORY(TrigEgammaEmulationTool) 
+DECLARE_TOOL_FACTORY(TrigEgammaMatchingTool)    
 DECLARE_ALGORITHM_FACTORY(TrigEgammaAnalysisAlg)
 DECLARE_ALGORITHM_FACTORY(TrigEgammaTDToolTest)
     
@@ -33,6 +35,7 @@ DECLARE_FACTORY_ENTRIES(TrigEgammaAnalysisTools) {
   DECLARE_TOOL(TrigEgammaNavZeeTPPerf)
   DECLARE_TOOL(TrigEgammaNavZeeTPNtuple)
   DECLARE_TOOL(TrigEgammaEmulationTool)
+  DECLARE_TOOL(TrigEgammaMatchingTool)
   DECLARE_ALGORITHM(TrigEgammaAnalysisAlg)
   DECLARE_ALGORITHM(TrigEgammaTDToolTest)
 }

@@ -23,8 +23,8 @@ public:
 protected:
   StatusCode fillTracking(const xAOD::Electron*, const xAOD::Electron*);
   StatusCode fillShowerShapes(const xAOD::Egamma*, const xAOD::Egamma*);
-  void SimpleElectronEfficiency(const std::string,const std::string);
-  void SimplePhotonEfficiency(const std::string,const std::string);
+  void SimpleElectronEfficiency(const std::string,const float,const std::string);
+  void SimplePhotonEfficiency(const std::string,const float);
   void SimpleEfficiency();
   bool isMatchHLT(const xAOD::Egamma*);
   void fillRes(const xAOD::Electron *eloff, const xAOD::Electron *eg);

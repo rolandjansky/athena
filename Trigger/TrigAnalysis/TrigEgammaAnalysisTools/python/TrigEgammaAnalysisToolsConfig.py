@@ -45,6 +45,7 @@ TightLHSelector = ConfiguredAsgElectronLikelihoodTool("TightLHSelector", LikeEnu
 TightLHSelector.primaryVertexContainer="PrimaryVertices"
 ToolSvc+=TightLHSelector
 
+EgammaMatchTool = ToolFactory(TrigEgammaAnalysisToolsConf.TrigEgammaMatchingTool,name="TrigEgammaMatchingTool",DeltaR=0.07,L1DeltaR=0.15)
 # Base tool configuration here as example
 # All tools inherit these default properties
 # These are default in constructor as well
@@ -52,6 +53,7 @@ ToolSvc+=TightLHSelector
 TrigEgammaNavZeeTPBaseTool = ToolFactory(TrigEgammaAnalysisToolsConf.TrigEgammaNavZeeTPBaseTool, name = "TrigEgammaNavZeeTPBaseTool",
         DirectoryPath = 'NavZeeTPBase',
         ElectronKey = 'Electrons',
+        MatchTool = EgammaMatchTool,
         MVACalibTool=mvatool,
         ApplyMVACalib=False,
         ElectronIsEMSelector =[TightElectronSelector,MediumElectronSelector,LooseElectronSelector], 
@@ -73,6 +75,7 @@ TrigEgammaNavZeeTPCounts = ToolFactory(TrigEgammaAnalysisToolsConf.TrigEgammaNav
         OutputLevel=1,
         DirectoryPath='NavZeeTPCounts',
         ElectronKey = 'Electrons',
+        MatchTool = EgammaMatchTool,
         MVACalibTool=mvatool,
         ApplyMVACalib=False,
         ElectronIsEMSelector =[TightElectronSelector,MediumElectronSelector,LooseElectronSelector], 
@@ -94,6 +97,7 @@ TrigEgammaNavZeeTPCounts = ToolFactory(TrigEgammaAnalysisToolsConf.TrigEgammaNav
 TrigEgammaNavZeeTPEff = ToolFactory(TrigEgammaAnalysisToolsConf.TrigEgammaNavZeeTPEff, name = "TrigEgammaNavZeeTPEff",
         DirectoryPath='NavZeeTPEff',
         ElectronKey = 'Electrons',
+        MatchTool = EgammaMatchTool,
         MVACalibTool=mvatool,
         ApplyMVACalib=False,
         ElectronIsEMSelector =[TightElectronSelector,MediumElectronSelector,LooseElectronSelector], 
@@ -115,6 +119,7 @@ TrigEgammaNavZeeTPEff = ToolFactory(TrigEgammaAnalysisToolsConf.TrigEgammaNavZee
 TrigEgammaNavZeeTPRes = ToolFactory(TrigEgammaAnalysisToolsConf.TrigEgammaNavZeeTPRes, name = "TrigEgammaNavZeeTPRes",
         DirectoryPath='NavZeeTPRes',
         ElectronKey = 'Electrons',
+        MatchTool = EgammaMatchTool,
         MVACalibTool=mvatool,
         ApplyMVACalib=False,
         ElectronIsEMSelector =[TightElectronSelector,MediumElectronSelector,LooseElectronSelector], 
@@ -136,6 +141,7 @@ TrigEgammaNavZeeTPRes = ToolFactory(TrigEgammaAnalysisToolsConf.TrigEgammaNavZee
 TrigEgammaNavZeeTPIneff = ToolFactory(TrigEgammaAnalysisToolsConf.TrigEgammaNavZeeTPIneff, name = "TrigEgammaNavZeeTPIneff",
         DirectoryPath='NavZeeTPIneff',
         ElectronKey = 'Electrons',
+        MatchTool = EgammaMatchTool,
         IneffLabels=["ClusterEtaRange","ConversionMatch","ClusterHadronicLeakage","ClusterMiddleEnergy","ClusterMiddleEratio37","ClusterMiddleEratio33","ClusterMiddleWidth","f3","ClusterStripsEratio","ClusterStripsDeltaEmax2","ClusterStripsDeltaE","ClusterStripsWtot","ClusterStripsFracm","ClusterStripsWeta1c","empty14","ClusterStripsDEmaxs1","TrackBlayer","TrackPixel","TrackSi","TrackA0","TrackMatchEta","TrackMatchPhi","TrackMatchEoverP","TrackTRTeProbabilityHT_Electron","TrackTRThits","TrackTRTratio","TrackTRTratio90","TrackA0Tight","TrackMatchEtaTight","Isolation","ClusterIsolation","TrackIsolation"],
         ElectronOnlPPSelector=[ ToolSvc.AsgElectronIsEMTightSelector,ToolSvc.AsgElectronIsEMMediumSelector,ToolSvc.AsgElectronIsEMLooseSelector ],
         MVACalibTool=mvatool,
@@ -159,6 +165,7 @@ TrigEgammaNavZeeTPIneff = ToolFactory(TrigEgammaAnalysisToolsConf.TrigEgammaNavZ
 TrigEgammaNavZeeTPPerf = ToolFactory(TrigEgammaAnalysisToolsConf.TrigEgammaNavZeeTPPerf, name = "TrigEgammaNavZeeTPPerf",
         DirectoryPath='NavZeeTPPerf',
         ElectronKey = 'Electrons',
+        MatchTool = EgammaMatchTool,
         MVACalibTool=mvatool,
         ApplyMVACalib=False,
         ElectronIsEMSelector =[TightElectronSelector,MediumElectronSelector,LooseElectronSelector],
@@ -180,6 +187,7 @@ TrigEgammaNavZeeTPPerf = ToolFactory(TrigEgammaAnalysisToolsConf.TrigEgammaNavZe
 TrigEgammaNavZeeTPNtuple = ToolFactory(TrigEgammaAnalysisToolsConf.TrigEgammaNavZeeTPNtuple, name ="TrigEgammaNavZeeTPNtuple",
         DirectoryPath='NavZeeTPNtuple',
         ElectronKey = 'Electrons',
+        MatchTool = EgammaMatchTool, 
         MVACalibTool=mvatool,
         ApplyMVACalib=False,
         ElectronIsEMSelector =[TightElectronSelector,MediumElectronSelector,LooseElectronSelector],
@@ -202,6 +210,7 @@ TrigEgammaNavZeeTPNtuple = ToolFactory(TrigEgammaAnalysisToolsConf.TrigEgammaNav
 TrigEgammaEmulationTool = ToolFactory(TrigEgammaAnalysisToolsConf.TrigEgammaEmulationTool, name = "TrigEgammaEmulationTool",
         DirectoryPath='Emulation',
         ElectronKey = 'Electrons',
+        MatchTool = EgammaMatchTool,
         PhotonOnlPPSelector=[ ToolSvc.AsgPhotonIsEMTightSelector,
             ToolSvc.AsgPhotonIsEMMediumSelector,
             ToolSvc.AsgPhotonIsEMLooseSelector],

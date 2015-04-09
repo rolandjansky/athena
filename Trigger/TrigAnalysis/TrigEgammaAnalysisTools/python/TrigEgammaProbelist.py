@@ -1,38 +1,41 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-# This can be imported from TrigEgammaProbelist also
-#from TrigEgammaProbelist import *
-
-# default
-# probeListLowMidPtSupportingTriggers
-# probeListLowMidPtPhysicsTriggers
-# probeListHighPtSupportingTriggers
-# probeListHighPtPhysicsTriggers
-# probeListPhotonTriggers
-
-
-
 # this file contains the following probelist of triggers
 #
-# default
 # probeListLowMidPtSupportingTriggers
 # probeListLowMidPtPhysicsTriggers
 # probeListHighPtSupportingTriggers
 # probeListHighPtPhysicsTriggers
 # probeListPhotonTriggers
-# 
+# probeListLHTriggers -- short lilst to compare with IsEM triggers
+# probeListIsEMTriggers
+# probeListAltL1Seeds -- compare with same triggers with nominal L1 seed
+# probeListPerfTriggers -- id performance triggers for ID tracking studies
+# probeListRun1TrkTriggers -- compare with same items without L2Star in name
+# probeListRun1PidTriggers -- compare with sames items without 1 in name
+# probeListAltSequence -- compare with same trigers without HLTCalo or L2EFCalo in name
+# probeListMisAlignmentTriggers -- comapre with same trigger without misalignment configuration in name
+
 default = [
 	'e26_tight_iloose',
-    'e24_tight_iloose',
-    'e26_lhtight_iloose',
-    'e24_tight_iloose_L1EM20VH',
-    'e24_medium_iloose_L1EM20VH',
-    'e24_lhmedium_iloose_L1EM20VH',
-    'e24_tight_iloose_HLTCalo_L1EM20VH',
-    'e24_tight_iloose_L2EFCalo_L1EM20VH',
-    'e24_lhtight_iloose_L1EM20V',
-    'e24_lhtight_iloose_HLTCalo_L1EM20VH',
-    'e24_lhtight_iloose_L2EFCalo_L1EM20VH',
+        'e26_lhtight_iloose',
+        'e26_lhtight_cutd0dphideta_iloose',
+        'e26_lhtight_iloose_HLTCalo',
+        'e26_lhvloose_L1EM20VH',
+        'e26_vloose_L1EM20VH',
+        'e60_lhmedium',
+        'e60_lhmedium_HLTCalo',
+        'e60_lhmedium_cutd0dphideta',
+        'e60_lhvloose',
+        'e17_lhloose',
+        'e17_loose',
+        'e13_etcut_trkcut',
+	"g20_loose",
+	"g20_tight",
+	"g25_loose",
+	"g25_medium",
+	"g35_loose",
+	"g35_medium",
 	]
 
 # ProbeList 1 - Low/mid pt supporting triggers
@@ -51,7 +54,6 @@ probeListLowMidPtSupportingTriggers = [
 	"e13_etcut_L1W-NOMATCH",
 	"e13_etcut_L1W-NOMATCH_W-05RO-XEEMHT",
 	"e13_etcut_trkcut",
-	"e13_etcut_trkcut_L1EM10_W-MT25_W-15DPHI-JXE-0_W-15DPHI-EMXE_XS30",
 	"e14_etcut",
 	"e17_etcut_L1EM15",
 	"e17_etcut_L2StarA_L1EM15",
@@ -61,25 +63,14 @@ probeListLowMidPtSupportingTriggers = [
 	"e17_etcut_idperf_L1EM15",
 	"e18_etcut_L1EM15_W-MT35",
 	"e18_etcut_trkcut",
-	"e18_etcut_trkcut_L1EM15_W-MT35_W-05DPHI-JXE-0_W-15DPHI-EMXE_XS60",
 	"e20_etcut_L1EM12",
 	"e30_etcut_L1EM15",
 	"e3_etcut",
 	"e3_etcut_L1EM3_EMPTY",
 	"e4_etcut",
 	"e5_etcut",
-	"e5_etcut_L1W-05DPHI-EMXE-1",
-	"e5_etcut_L1W-05DPHI-JXE-0",
-	"e5_etcut_L1W-05RO-XEHT-0",
-	"e5_etcut_L1W-08RO-XEHT-0",
-	"e5_etcut_L1W-10DPHI-EMXE-0",
-	"e5_etcut_L1W-10DPHI-JXE-0",
-	"e5_etcut_L1W-15DPHI-EMXE-0",
-	"e5_etcut_L1W-15DPHI-JXE-0",
-	"e5_etcut_L1W-250RO2-XEHT-0",
-	"e5_etcut_L1W-90RO2-XEHT-0",
-	"e5_etcut_L1W-HT20-JJ15.ETA49",
 	"e9_etcut",
+        "e25_etcut_L1EM15",
 ]
 
 # ProbeList 2 Low/mid pt physics triggers
@@ -90,10 +81,8 @@ probeListLowMidPtPhysicsTriggers = [
 	"e10_lhvloose_L1EM7",
 	"e10_vloose_L1EM7",
 	"e12_lhloose",
-	"e12_lhloose_L1EM10VH",
-	"e12_lhvloose_L1EM10VH",
 	"e12_loose",
-	"e12_loose_L1EM10VH",
+	"e12_lhvloose_L1EM10VH",
 	"e12_vloose_L1EM10VH",
 	"e15_lhloose_L1EM13VH",
 	"e15_lhvloose_L1EM13VH",
@@ -102,87 +91,143 @@ probeListLowMidPtPhysicsTriggers = [
 	"e15_vloose_L1EM13VH",
 	"e15_vloose_L1EM7",
 	"e17_lhloose",
-	"e17_lhloose_L1EM15",
-	"e17_lhloose_L1EM15VHJJ1523ETA49",
 	"e17_lhmedium",
 	"e17_lhmedium_iloose",
 	"e17_lhvloose",
 	"e17_loose",
-	"e17_loose_L1EM15",
-	"e17_loose_L1EM15VHJJ1523ETA49",
 	"e17_medium",
 	"e17_medium_iloose",
 	"e17_vloose",
 	"e20_lhmedium",
 	"e20_lhvloose",
-	"e20_lhvloose_L1EM12",
 	"e20_medium",
 	"e20_vloose",
 	"e20_vloose_L1EM12",
 	"e24_lhmedium_L1EM15VH",
 	"e24_lhmedium_L1EM18VH",
-	"e24_lhmedium_L2Star_idperf_L1EM20VH",
-	"e24_lhmedium_cutd0dphideta_L1EM18VH",
-	"e24_lhmedium_cutd0dphideta_iloose_L1EM18VH",
-	"e24_lhmedium_cutd0dphideta_iloose_L1EM20VH",
-	"e24_lhmedium_idperf_L1EM20VH",
-	"e24_lhmedium_iloose_HLTCalo_L1EM18VH",
-	"e24_lhmedium_iloose_HLTCalo_L1EM20VH",
 	"e24_lhmedium_iloose_L1EM18VH",
 	"e24_lhmedium_iloose_L1EM20VH",
-	"e24_lhmedium_iloose_L2StarA_L1EM20VH",
-	"e24_lhmedium_nod0_L1EM18VH",
-	"e24_lhmedium_nod0_iloose_L1EM18VH",
-	"e24_lhmedium_nodeta_L1EM18VH",
-	"e24_lhmedium_nodeta_iloose_L1EM18VH",
-	"e24_lhmedium_nodphires_L1EM18VH",
-	"e24_lhmedium_nodphires_iloose_L1EM18VH",
-	"e24_lhtight_L1EM20VH",
-	"e24_lhtight_cutd0dphideta_iloose",
-	"e24_lhtight_cutd0dphideta_iloose_L1EM20VH",
 	"e24_lhtight_iloose",
-	"e24_lhtight_iloose_HLTCalo",
-	"e24_lhtight_iloose_HLTCalo_L1EM20VH",
-	"e24_lhtight_iloose_L1EM20VH",
-	"e24_lhtight_iloose_L2EFCalo_L1EM20VH",
 	"e24_lhvloose_L1EM18VH",
 	"e24_lhvloose_L1EM20VH",
-	"e24_medium1_L1EM18VH",
-	"e24_medium1_L2Star_idperf_L1EM18VH",
-	"e24_medium1_idperf_L1EM18VH",
-	"e24_medium1_iloose_L1EM18VH",
-	"e24_medium1_iloose_L2StarA_L1EM18VH",
 	"e24_medium_L1EM15VH",
 	"e24_medium_L1EM18VH",
-	"e24_medium_L2Star_idperf_L1EM20VH",
-	"e24_medium_idperf_L1EM20VH",
 	"e24_medium_iloose_L1EM18VH",
 	"e24_medium_iloose_L1EM20VH",
-	"e24_medium_iloose_L2StarA_L1EM20VH",
-	"e24_tight1_iloose",
-	"e24_tight1_iloose_L1EM20VH",
 	"e24_tight_L1EM20VH",
 	"e24_tight_iloose",
-	"e24_tight_iloose_HLTCalo_L1EM20VH",
-	"e24_tight_iloose_L1EM20VH",
-	"e24_tight_iloose_L2EFCalo_L1EM20VH",
-	"e24_tight_iloose_etisem_L1EM20VH",
 	"e24_vloose_L1EM18VH",
 	"e24_vloose_L1EM20VH",
-	"e25_etcut_L1EM15",
 	"e25_lhvloose_L1EM15",
 	"e25_vloose_L1EM15",
-	"e26_lhtight_cutd0dphideta_iloose",
 	"e26_lhtight_iloose",
-	"e26_lhtight_iloose_HLTCalo",
 	"e26_lhvloose_L1EM20VH",
-	"e26_tight1_iloose",
 	"e26_tight_iloose",
 	"e26_vloose_L1EM20VH",
 	"e30_lhvloose_L1EM15",
 	"e30_vloose_L1EM15",
 ]
 
+# Compare LHTrigger to IsEMTrigger
+probeListLHTriggers = [
+        "e10_lhvloose_L1EM7",
+        "e12_lhloose",
+        "e17_lhloose",
+	"e17_lhmedium",
+	"e17_lhmedium_iloose",
+        "e17_lhvloose",
+	"e20_lhmedium",
+	"e20_lhvloose",
+        "e24_lhtight_iloose",
+        "e26_lhtight_iloose",
+        "e30_lhvloose_L1EM15",
+        "e60_lhmedium",
+        ]
+
+# Compare with LH trigger above
+probeListIsEMTriggers = [
+        "e10_vloose_L1EM7",
+        "e12_loose",
+        "e17_loose",
+	"e17_medium",
+	"e17_medium_iloose",
+        "e17_vloose",
+	"e20_medium",
+	"e20_vloose",
+        "e24_tight_iloose",
+        "e26_tight_iloose",
+        "e30_vloose_L1EM15",
+        "e60_medium",
+        ]
+
+# Compare with same items without L1 seed
+probeListAltL1Seeds = [
+	"e12_lhloose_L1EM10VH",
+        "e12_loose_L1EM10VH",
+        "e17_lhloose_L1EM15",
+        "e17_loose_L1EM15",
+        "e20_lhvloose_L1EM12",
+        "e24_lhtight_L1EM20VH",
+	"e24_lhtight_iloose_L1EM20VH",
+	"e24_tight_iloose_L1EM20VH",
+	"e24_tight_iloose_etisem_L1EM20VH",
+        ]
+
+# Special triggers for hlt id performance
+probeListPerfTriggers = [
+	"e24_lhmedium_L2Star_idperf_L1EM20VH",
+	"e24_lhmedium_idperf_L1EM20VH",
+        "e24_medium1_L2Star_idperf_L1EM18VH",
+        "e24_medium1_idperf_L1EM18VH",
+        "e24_medium_L2Star_idperf_L1EM20VH",
+        "e24_medium_idperf_L1EM20VH",
+        ]
+
+# Run1 tracking triggers, for rate estimates
+# Compare with same triggers w/o L2StarA
+probeListRun1TrkTriggers = [
+    "e24_lhmedium_iloose_L2StarA_L1EM20VH",
+    "e24_medium1_iloose_L2StarA_L1EM18VH",
+    "e24_medium_iloose_L2StarA_L1EM20VH",
+        ]
+
+# Run1 Pid, compare with same Run2 items
+probeListRun1PidTriggers = [
+	"e24_medium1_L1EM18VH",
+	"e24_medium1_iloose_L1EM18VH",
+	"e24_tight1_iloose",
+	"e24_tight1_iloose_L1EM20VH",
+        "e26_tight1_iloose",
+        ]
+
+# To be compared with the default items
+probeListMisalignmentTriggers = [
+	"e24_lhmedium_cutd0dphideta_L1EM18VH",
+	"e24_lhmedium_cutd0dphideta_iloose_L1EM18VH",
+	"e24_lhmedium_cutd0dphideta_iloose_L1EM20VH",
+	"e24_lhmedium_nod0_L1EM18VH",
+	"e24_lhmedium_nod0_iloose_L1EM18VH",
+	"e24_lhmedium_nodeta_L1EM18VH",
+	"e24_lhmedium_nodeta_iloose_L1EM18VH",
+	"e24_lhmedium_nodphires_L1EM18VH",
+	"e24_lhmedium_nodphires_iloose_L1EM18VH",
+	"e24_lhtight_cutd0dphideta_iloose",
+	"e24_lhtight_cutd0dphideta_iloose_L1EM20VH",
+        "e26_lhtight_cutd0dphideta_iloose",
+        "e60_lhmedium_cutd0dphideta",
+        ]
+
+# Compare with default items
+probeListAltSequence = [
+	"e24_lhmedium_iloose_HLTCalo_L1EM18VH",
+	"e24_lhmedium_iloose_HLTCalo_L1EM20VH",
+	"e24_lhtight_iloose_HLTCalo",
+	"e24_lhtight_iloose_HLTCalo_L1EM20VH",
+        "e24_lhtight_iloose_L2EFCalo_L1EM20VH",
+        "e24_tight_iloose_HLTCalo_L1EM20VH",
+        "e24_tight_iloose_L2EFCalo_L1EM20VH",
+        "e26_lhtight_iloose_HLTCalo",
+        ]
 #ProbeList 3 High pt triggers
 #Should run with Zprime and / or WPrime samples
 #For Wprime - Perf
@@ -281,5 +326,3 @@ probeListPhotonTriggers = [
 	"g70_loose",
 	"g80_loose",
 ]
-
-probelist = default

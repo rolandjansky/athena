@@ -63,11 +63,7 @@ protected:
   /*! Tag Electron selection */
   bool isTagElectron(const xAOD::Electron *el);
   /*! Probe selection */
-  bool isGoodProbeElectron(const xAOD::Electron *el,const std::string); 
-  /*! Creates pairs of probes and TE */
-  bool isProbeElectron(const xAOD::Electron *el,
-          const std::string trigItem,
-          const HLT::TriggerElement*& finalFC);
+  bool isGoodProbeElectron(const xAOD::Electron *el,const std::string,const float); 
   /*! Event-wise trigger selection */
   bool passedTrigger(const HLT::TriggerElement* obj); 
   /*! Clears list of probes after each trigger item per event */
@@ -84,6 +80,8 @@ protected:
   bool m_applyMVACalib; 
   /*! dR matching between TE and offline probe */
   float m_dR;
+  /*! Remove crack region for Probe default True */
+  bool m_rmCrack;
   /*! Directory name for each algorithm */
   std::string m_dir;
   // Additional monitoring function   

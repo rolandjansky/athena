@@ -24,6 +24,8 @@ public:
 
 private:
 
+  void fillProbeHistos(const std::string,const float,const float,const float,const float);
+  void fillMatchHistos(const std::string,const float,const float,const float,const float);
   unsigned int m_eventCounter;
 };
 
