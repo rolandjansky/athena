@@ -50,7 +50,7 @@ MuGirlNS::StauRPC::StauRPC(StauTool* pStauTool, MsgStream& log,
             double error = RPCRESOLUTION; // default time resolution
             double distance = fabs(pos.perp()) / 1000; //[m]
             double muonToF = distance / SPEEDOFLIGHT;
-            double measuredTime = pRpcPrepData->time() + 0.5 * 3.125 - timeShift - bugFix;
+            double measuredTime = pRpcPrepData->time() + 1.5 * 3.125 - timeShift;
             LOG_DEBUG << "RPC hit - distance: " << distance
                       << ", pRpcPrepData->time(): " << pRpcPrepData->time()
                       << ", timeShift: " << timeShift
@@ -59,7 +59,7 @@ MuGirlNS::StauRPC::StauRPC(StauTool* pStauTool, MsgStream& log,
                       << endreq;
             if (m_pStau->doCalibration())
             { //Use external calibration files
-                int id = (pRpcRIO->identify()).get_compact();
+	      int id = pRpcRIO->identify().get_identifier32().get_compact();
                 auto itCalib = m_pCalibration->find(id);
                 if (itCalib == m_pCalibration->end()) continue;
                 double error = itCalib->second.error;
@@ -67,7 +67,7 @@ MuGirlNS::StauRPC::StauRPC(StauTool* pStauTool, MsgStream& log,
                 if (m_pStau->isData())
                 {
                     shift = itCalib->second.timeShift; //shift
-                    measuredTime += timeShift - 0.5 * 3.125 - shift;
+                    measuredTime += timeShift - 1.5 * 3.125 - shift;
                 }
                 else
                 { //smear
