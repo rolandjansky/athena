@@ -10,7 +10,6 @@
  * CSC Cabling service to decode online-offline maps
  *---------------------------------------------------*/
 
-#include "GaudiKernel/Service.h"
 #include "AthenaBaseComps/AthService.h"
 #include "GaudiKernel/IInterface.h"
 
@@ -53,17 +52,14 @@ public:
   unsigned int maxId()  const { return m_max; }
 
   void hash2Rob(const unsigned int&, uint32_t&) const;
+  void hash2Rod(const unsigned int&, uint32_t&) const;
+
  private:
 
   mutable unsigned int m_side;
   mutable unsigned int m_rod;
   mutable unsigned int m_max;
   mutable bool m_run1;
-
-  MsgStream* m_log;
-  bool m_debug;
-  bool m_verbose;
-
 };
 
 #endif
