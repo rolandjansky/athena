@@ -40,15 +40,6 @@ namespace Trig {
       virtual Bool_t matchL1(const xAOD::Muon* mu,
 			     const std::string &l1item,
 			     const double DelR = 0.2);
-
-      virtual Bool_t matchL2SA(const xAOD::Muon* mu,
-			       const std::string &l1item,
-			       const std::string & chain,
-			       const double DelR = 0.2);
-
-      virtual Bool_t matchL2CB(const xAOD::Muon* mu,
-			       const std::string & chain,
-			       const double DelR = 0.2);
       
       virtual Double_t minDelR(const xAOD::Muon* mu,
 			       const std::string &chain,
@@ -81,8 +72,6 @@ namespace Trig {
 				 std::pair<Bool_t, Bool_t>& result1,
 				 std::pair<Bool_t, Bool_t>& result2,
 				 const Double_t& mindelR = 0.1);
-
-      virtual Bool_t isPassedRerun(const std::string& trigger);
       
       struct EFmuon {
 	bool valid;
@@ -127,7 +116,9 @@ namespace Trig {
 				  const double eta,
 				  const double phi,
 				  const double mindelR,
-				  const std::string& chainEventTrigger);
+				  const std::string& chainEventTrigger,
+				  const std::string& l1item = std::string());
+				  
       
       bool decodeDimuonChain(DimuonChainInfo& chainInfo);
 
