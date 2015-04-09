@@ -66,8 +66,11 @@ void TrackCnv_p4::transToPers( const Trk::Track    *transObj,
   }
   
   assert(transObj->fitQuality());
-  persObj->m_chiSquared = transObj->m_fitQuality->m_chiSquared;
-  persObj->m_numberDoF  = transObj->m_fitQuality->m_numberDoF;
-  
+  if (transObj->m_fitQuality){
+    persObj->m_chiSquared = transObj->m_fitQuality->m_chiSquared;
+    persObj->m_numberDoF  = transObj->m_fitQuality->m_numberDoF;
+  } else {
+    log<<MSG::WARNING<<"No FitQuality on track at ["<<transObj<<"]"<<" with info="<<transObj->info().dumpInfo()<<endreq;
+  }
   m_trackStateVectorCnv.transToPers( transObj->m_trackStateVector, &persObj->m_trackState, log );
 }
