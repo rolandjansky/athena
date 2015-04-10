@@ -1163,7 +1163,7 @@ CombinedMuonTrackBuilder::indetExtension (const Trk::Track&		indetTrack,
 	if (numberMS < 5)
 	{
 	    // reject with insufficient MS measurements
-	    m_messageHelper->printWarning(5);
+	    ATH_MSG_DEBUG("indetExtension:: reject with insufficient MS measurements");
 	    delete combinedTrack;
 	    combinedTrack = 0;
 	}
@@ -1178,6 +1178,12 @@ Trk::Track*
 CombinedMuonTrackBuilder::standaloneFit	(const Trk::Track&	inputSpectrometerTrack,
 					 const Trk::Vertex*	inputVertex) const
 {
+
+    // no SA fit with vertex constraint for Toroid off data
+    if (m_trackQuery->isLineFit(inputSpectrometerTrack) && !m_magFieldSvc->toroidOn()) {
+      return 0;
+    } 
+
 
     if (msgLvl(MSG::VERBOSE))
     {
