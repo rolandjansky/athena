@@ -44,7 +44,7 @@ namespace Trk
 namespace MuGirlNS
 {
 class CandidateTool;
-struct CandidateSummary;
+class CandidateSummary;
 struct MdtSegmentMakerInfo;
 class SegmentManager;
 
