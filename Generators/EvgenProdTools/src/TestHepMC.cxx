@@ -385,7 +385,7 @@ StatusCode TestHepMC::execute() {
           vector<int>::size_type count = 0;
           while (susyPart==0 && (count < m_SusyPdgID_tab.size() )){
 	    // no warning for SUSY particles from the list susyParticlePdgid.txt
-            if (m_SusyPdgID_tab[count] == ppdgid) {
+            if (m_SusyPdgID_tab[count] == abs(ppdgid)) {
 	      //  cout << "susy particle " << ppdgid << endl;
               susyPart=1;
 	    }
@@ -399,8 +399,11 @@ StatusCode TestHepMC::execute() {
       }
 
       //Check that stable particles are known by G4 or they are non-interacting
-      HepPDT::ParticleID pid(ppdgid);         
-      if ((pstatus == 1 ) && (!(*pitr)->end_vertex()) && (!nonint.operator()(*pitr)) && (!pid.isNucleus())) {
+      HepPDT::ParticleID pid(ppdgid);
+      int first_dig = ppdgid;
+      while(first_dig > 9) first_dig /= 10;
+         
+      if ((pstatus == 1 ) && (!(*pitr)->end_vertex()) && (!nonint.operator()(*pitr)) && (!pid.isNucleus()) && (first_dig != 9) ) {
 
            int known_byG4 = 0;
            vector<int>::size_type count =0;
