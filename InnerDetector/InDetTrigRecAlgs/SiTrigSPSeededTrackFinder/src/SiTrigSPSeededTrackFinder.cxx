@@ -84,10 +84,10 @@ InDet::SiTrigSPSeededTrackFinder::SiTrigSPSeededTrackFinder
   declareMonitoredVariable("RoIPhi",m_RoIPhi);
   declareMonitoredVariable("nGoodSeedsTotal",m_nGoodSeedsTotal);
   declareMonitoredVariable("nBadSeedsTotal",m_nBadSeedsTotal);
-  declareMonitoredVariable("timeGoodSeeds",m_timeGoodSeeds);
-  declareMonitoredVariable("timeBadSeeds",m_timeBadSeeds);
-  declareMonitoredVariable("AvtimeGoodSeeds",m_AvtimeGoodSeeds);
-  declareMonitoredVariable("AvtimeBadSeeds",m_AvtimeBadSeeds);
+  declareMonitoredVariable("time_GoodSeeds",m_timeGoodSeeds);
+  declareMonitoredVariable("time_BadSeeds",m_timeBadSeeds);
+  declareMonitoredVariable("time_AveGoodSeeds",m_AvtimeGoodSeeds);
+  declareMonitoredVariable("time_AveBadSeeds",m_AvtimeBadSeeds);
  
   m_timerRegSel = 0;
   m_timerZVertexTool = 0;
@@ -336,11 +336,8 @@ HLT::ErrorCode InDet::SiTrigSPSeededTrackFinder::hltExecute(const HLT::TriggerEl
   
   if (m_useSeedMaker){
     
-    ++m_nseeds;
-    
-    if(doTiming()) 
-      m_timerSeedProcessing->start();
-    
+    //++m_nseeds;
+        
     if (msgLvl() <= MSG::DEBUG) 
       msg() << MSG::DEBUG << "Using internal seeding::::  " << endreq;
 
@@ -348,6 +345,9 @@ HLT::ErrorCode InDet::SiTrigSPSeededTrackFinder::hltExecute(const HLT::TriggerEl
     ///////////////////////////////////////
     
     while((seed = m_seedsmaker->next())) {
+      
+      if(doTiming()) 
+	m_timerSeedProcessing->start();
       
       ++m_nseeds;
       
@@ -468,14 +468,17 @@ HLT::ErrorCode InDet::SiTrigSPSeededTrackFinder::hltExecute(const HLT::TriggerEl
       return HLT::NAV_ERROR;
     }
        
-    TrackCollection::const_iterator itt, ite;
-    itt = tx->begin();
-    ite = tx->end();
+    TrackCollection::const_iterator iter    = tx->begin();
+    TrackCollection::const_iterator iterEnd = tx->end();
       
-    while (itt != ite){
+    while (iter != iterEnd){
+
+      if(doTiming()) 
+	m_timerSeedProcessing->start();
+
       ++m_nseeds;
       
-      const Trk::Perigee* perig = (*itt)->perigeeParameters();
+      const Trk::Perigee* perig = (*iter)->perigeeParameters();
       /////////////////////////////////////////////
       if (msgLvl() <= MSG::VERBOSE) {
 	msg() << MSG::VERBOSE << "Using seed with ====> " << endreq; 
@@ -508,8 +511,8 @@ HLT::ErrorCode InDet::SiTrigSPSeededTrackFinder::hltExecute(const HLT::TriggerEl
       gpList.clear();
       
 
-      DataVector<const Trk::TrackStateOnSurface>::const_iterator it= (*itt)->trackStateOnSurfaces()->begin();
-      DataVector<const Trk::TrackStateOnSurface>::const_iterator ite= (*itt)->trackStateOnSurfaces()->end();
+      DataVector<const Trk::TrackStateOnSurface>::const_iterator it  = (*iter)->trackStateOnSurfaces()->begin();
+      DataVector<const Trk::TrackStateOnSurface>::const_iterator ite = (*iter)->trackStateOnSurfaces()->end();
 
       //TODO selection
       while (it != ite) {
@@ -517,22 +520,22 @@ HLT::ErrorCode InDet::SiTrigSPSeededTrackFinder::hltExecute(const HLT::TriggerEl
 	  const Trk::MeasurementBase* mesh = (*it)->measurementOnTrack();
 	  gpList.push_back(mesh->globalPosition());
 	}
-	it++;
+	++it;
       }
       
       if (msgLvl() <= MSG::VERBOSE) {
 	
 	msg() << MSG::VERBOSE << "Using gpList with ====> " << endreq; 
-	for(std::list<Amg::Vector3D>::iterator it=gpList.begin(); it != gpList.end(); it++) {
+	for(std::list<Amg::Vector3D>::iterator itt = gpList.begin(); itt != gpList.end(); ++itt) {
 	  msg() << MSG::VERBOSE << "Global Position :::: " << endreq; 
-	  msg() << " :: r :: " << (*it).mag() 
-		<< " :: perp :: " << (*it).perp() 
-		<< " :: phi :: " << (*it).phi() 
-		<< " :: theta :: " << (*it).theta() 
-		<< " :: eta :: " << (*it).eta() 
-		<< " :: x :: " << (*it).x() 
-		<< " :: y :: " << (*it).y() 
-		<< " :: z :: " << (*it).z() <<endreq;
+	  msg() << " :: r :: " << (*itt).mag() 
+		<< " :: perp :: " << (*itt).perp() 
+		<< " :: phi :: " << (*itt).phi() 
+		<< " :: theta :: " << (*itt).theta() 
+		<< " :: eta :: " << (*itt).eta() 
+		<< " :: x :: " << (*itt).x() 
+		<< " :: y :: " << (*itt).y() 
+		<< " :: z :: " << (*itt).z() <<endreq;
 	}
       }
       
@@ -604,7 +607,7 @@ HLT::ErrorCode InDet::SiTrigSPSeededTrackFinder::hltExecute(const HLT::TriggerEl
 	///////////////////////////////////////
 	  
 	  
-      ++itt;
+      ++iter;
 	
     }
       
