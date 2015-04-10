@@ -387,12 +387,12 @@ if jetFlags.useTruth and jtm.haveParticleJetTools:
     CParticleCollection = "TruthLabelCHadronsFinal",
     TauParticleCollection = "TruthLabelTausFinal",
     PartPtMin = 5000.0,
-    JetPtMin = 10000.0,
+    JetPtMin =     0.0,
     DRMax = 0.3,
     MatchMode = "MinDR"
   )
 
-  # Cone matching for B, C and tau truth for all but track jets.
+  # Cone matching for B, C and tau truth for track jets.
   jtm += ParticleJetDeltaRLabelTool(
     "trackjetdrlabeler",
     LabelName = "HadronConeExclTruthLabelID",
