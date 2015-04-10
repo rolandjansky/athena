@@ -37,7 +37,7 @@
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
 #include "eformat/DetectorMask.h"
-#include "TrigInDetToolInterfaces/ITrigZFinder.h"
+#include "TrigInDetToolInterfaces/ITrigRun1ZFinder.h"
 #include "InDetBeamSpotService/IBeamCondSvc.h"
 #include "TrigInDetToolInterfaces/ITrigHitFilter.h"
 #include "TrigInDetRecoTools/ITrigL2DupTrackRemovalTool.h"
@@ -181,9 +181,7 @@ HLT::ErrorCode TrigL2PattRecoStrategyA::findTracks(const std::vector<const TrigS
   m_pattRecoTiming=0.0;
   m_zVertices.clear();
   m_nZvertices=0;
-  std::vector<TrigSiSpacePoint*> tempSP; // temporary solution, until zFinder & hitFilter interface changes to const SP's
-  for (unsigned int i=0;i<vsp.size();i++) tempSP.push_back(const_cast<TrigSiSpacePoint*>(vsp[i]));
-  int nHits = tempSP.size();
+  int nHits = vsp.size();
 
   MsgStream athenaLog(msgSvc(), name());
   int outputLevel = msgSvc()->outputLevel( name() );
@@ -227,7 +225,7 @@ HLT::ErrorCode TrigL2PattRecoStrategyA::findTracks(const std::vector<const TrigS
       zVertexColl = m_zFinder->findZ( m_shifterTool->spVec(), roi );
     else
     zVertexColl = m_zFinder->findZ( commonSPs,  roi );*/
-    TrigVertexCollection* zVertexColl = m_zFinder->findZ( tempSP,roi ); 
+    TrigVertexCollection* zVertexColl = m_zFinder->findZ( vsp,roi ); 
     if ( zVertexColl ) {
       for(TrigVertexCollection::iterator ivx=zVertexColl->begin(); ivx != zVertexColl->end(); ivx++)
 	m_zVertices.push_back( (*ivx)->position().z() );
@@ -309,7 +307,7 @@ HLT::ErrorCode TrigL2PattRecoStrategyA::findTracks(const std::vector<const TrigS
     }
     else{ */
     //m_hitFilter->findTracks(vsp, *m_recoTracks, &roi, zPosition, shiftx, shifty, missing_layers );
-    m_hitFilter->findTracks(tempSP, *trackColl, &roi, zPosition, shiftx, shifty, 0);
+    m_hitFilter->findTracks(vsp, *trackColl, &roi, zPosition, shiftx, shifty, 0);
     placeHolder.push_back(trackColl->size());
     if ( !trackColl->empty() && m_findMultipleZ == false ) break;
   }

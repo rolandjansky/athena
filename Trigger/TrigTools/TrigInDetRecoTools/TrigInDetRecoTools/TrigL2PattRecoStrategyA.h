@@ -18,7 +18,7 @@
 class TrigTimer;
 class StoreGateSvc;
 class IRegSelSvc;
-class ITrigZFinder;
+class ITrigRun1ZFinder;
 class IBeamCondSvc;
 class ITrigHitFilter;
 class ITrigL2DupTrackRemovalTool;
@@ -65,7 +65,7 @@ class TrigL2PattRecoStrategyA: public AthAlgTool, virtual public ITrigL2PattReco
   ServiceHandle<IRegSelSvc>     m_regionSelector;      //!< region selector service
 
   // z-finder stuff
-  ToolHandle<ITrigZFinder>   m_zFinder;
+  ToolHandle<ITrigRun1ZFinder>   m_zFinder;
   long m_zFinderMode;         // 0: run zfinder, 1:use z0 from MC truth, 2:use z0=m_zVertexValue (not implemented?)
   bool m_findMultipleZ;       // false: only take tracks from one vertex, true: use tracks from all verticies
   std::string m_TrueVertexLocation;
