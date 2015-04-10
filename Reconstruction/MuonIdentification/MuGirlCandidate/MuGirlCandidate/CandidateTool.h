@@ -109,6 +109,12 @@ public:
     virtual void candidateClear();
     virtual bool hasInnerStationSegments();
     virtual bool isHoughMaxAssociated(MuonHough::MuonLayerHough::Maximum* max, int sector, int distance, int region);
+    
+    
+    bool doDecoding() const
+    {
+      return m_doDecoding;
+    }
     bool doCSC() const
     {
         return m_doCSC;
@@ -268,6 +274,7 @@ private:
         return sc;
     }
 
+    BooleanProperty                                 m_doDecoding;       /**< call the PrepRawData decoders */
     BooleanProperty                                 m_doCSC;            /**< Process CSC hits */
     BooleanProperty                                 m_doMDT;            /**< Process MDT hits */
     BooleanProperty                                 m_doRPC;            /**< Process RPC hits */
