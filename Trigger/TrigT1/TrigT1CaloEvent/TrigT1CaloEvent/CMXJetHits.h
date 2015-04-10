@@ -100,22 +100,22 @@
 
   /** returns hits0 for peak sample */
   inline unsigned int CMXJetHits::hits0() const{
-          return m_hits0[m_peak];
+    return m_peak < (int)m_hits0.size()? m_hits0[m_peak]: 0;
   }
 
   /** returns hits1 for peak sample */
   inline unsigned int CMXJetHits::hits1() const{
-          return m_hits1[m_peak];
+    return m_peak < (int)m_hits1.size()? m_hits1[m_peak]: 0;
   }
 
   /** returns error0 for peak sample */
   inline int CMXJetHits::error0() const{
-          return m_error0[m_peak];
+    return m_peak < (int)m_error0.size()? m_error0[m_peak]: 0;
   }
 
   /** returns error1 for peak sample */
   inline int CMXJetHits::error1() const{
-          return m_error1[m_peak];
+    return m_peak < (int)m_error1.size()? m_error1[m_peak]: 0;
   }
 
   /** returns hits0 */
@@ -156,7 +156,7 @@
 
   /** returns peak slice number */
   inline int CMXJetHits::peak() const{
-          return m_peak;
+    return m_peak;
   }
 
 } // end of namespace

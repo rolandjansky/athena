@@ -23,6 +23,8 @@ namespace LVL1 {
     JetCMXTopoData( int crate, bool overflow, const std::vector< uint32_t >& tobWords );
     /** Constructor with Crate number, overflow flag and TOB vector */
     JetCMXTopoData( int crate, bool overflow, const std::vector< JetTopoTOB >& tobs );
+    /** For HLT: Constructor with Crate number and vector of RoI words*/
+    JetCMXTopoData( int crate, const std::vector< uint32_t >& roiWords );
     /** Constructor with Crate number only */
     JetCMXTopoData( int crate );
     /** Default constructor */
@@ -41,6 +43,9 @@ namespace LVL1 {
    /** Add TOB to record */
    void addTOB( const JetTopoTOB tob);
    void addTOB( uint32_t tobWord);
+ 
+   /** Add TOB from RoI word */
+   void addRoI( uint32_t roiWord );
    
    /** Set overflow flag */
    void setOverflow( bool overflow );

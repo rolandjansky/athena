@@ -19,10 +19,12 @@ namespace LVL1 {
   class CPCMXTopoData {
 
   public:
-    /** Constructor with Crate, CMX numbers, overflow flag and vector of TOB words */
+    /** Constructor with Crate, CMX numbers, overflow flag and vector of TOB words*/
     CPCMXTopoData( int crate, int cmx, bool overflow, const std::vector< uint32_t >& tobWords );
     /** Constructor with Crate, CMX numbers, overflow flag and TOB vector */
     CPCMXTopoData( int crate, int cmx, bool overflow, const std::vector< CPTopoTOB >& tobs );
+    /** Constructor for HLT: Crate, CMX numbers and vector of RoI words*/
+    CPCMXTopoData( int crate, int cmx, const std::vector< uint32_t >& roiWords );
     /** Constructor with Crate, CMX numbers only */
     CPCMXTopoData( int crate, int cmx );
     /** Default constructor */
@@ -43,6 +45,9 @@ namespace LVL1 {
    /** Add TOB to record */
    void addTOB( const CPTopoTOB tob );
    void addTOB( uint32_t tobWord );
+ 
+   /** Add TOB from RoI word */
+   void addRoI( uint32_t roiWord );
    
    /** Set overflow flag */
    void setOverflow( bool overflow );

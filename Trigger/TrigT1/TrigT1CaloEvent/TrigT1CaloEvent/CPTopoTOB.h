@@ -20,6 +20,7 @@ class CPTopoTOB {
    CPTopoTOB();
    CPTopoTOB(int crate, int cmx, uint32_t tobWord);
    CPTopoTOB(int crate, int cmx, int cpm, int chip, int location, int isolation, int et);
+   CPTopoTOB(uint32_t roiWord);
 
    ~CPTopoTOB();
 

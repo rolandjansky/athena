@@ -36,6 +36,12 @@ JetTopoTOB::JetTopoTOB(int crate, int jem, int frame, int localCoord, int etSmal
   m_tobWord |= (etLarge    & s_etLargeMask)    << s_etLargeBit;
 }
 
+JetTopoTOB::JetTopoTOB(uint32_t roiWord) 
+{
+  m_crate = (roiWord>>28) & 0x1; 
+  m_tobWord  = (roiWord&0xfffffff);
+}
+
 JetTopoTOB::~JetTopoTOB()
 {
 }

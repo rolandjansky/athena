@@ -44,6 +44,18 @@ CPTopoTOB::CPTopoTOB(int crate, int cmx, int cpm, int chip, int location, int is
   m_tobWord |= (et         & s_etMask)         << s_etBit;
 }
 
+
+CPTopoTOB::CPTopoTOB(uint32_t roiWord) 
+{
+   m_crate = (roiWord>>26) & 0x3; 
+   if ((roiWord&0xf0000000) == 0xa0000000) m_cmx = 0;
+   else                                    m_cmx = 1;
+   
+   uint32_t coord = (roiWord>>16) & 0x3ff;
+   uint32_t data  = (roiWord&0x1fff);
+   m_tobWord = data + (coord<<13);
+}
+
 CPTopoTOB::~CPTopoTOB()
 {
 }

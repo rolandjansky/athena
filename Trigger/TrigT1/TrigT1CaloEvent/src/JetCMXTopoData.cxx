@@ -35,6 +35,21 @@ namespace LVL1 {
   }
 
 
+  JetCMXTopoData::JetCMXTopoData( int crate, const std::vector< uint32_t >& roiWords )
+    : m_crate( crate )
+  {    
+
+    m_overflow = false;
+    m_tobWords.clear();
+    
+    for (std::vector<uint32_t>::const_iterator it = roiWords.begin(); it != roiWords.end(); ++it) {
+      JetTopoTOB tob((*it));
+      if (tob.crate() == m_crate) m_tobWords.push_back( tob.tobWord() );
+    }
+
+  }
+
+
   JetCMXTopoData::JetCMXTopoData( int crate )
     : m_crate( crate ), m_overflow( false )
   {
@@ -65,6 +80,12 @@ namespace LVL1 {
   void JetCMXTopoData::addTOB( uint32_t tobWord ) {
     if (m_tobWords.size() < s_maxTOBsPerLink) m_tobWords.push_back( tobWord );
     else m_overflow = true;
+  }
+
+  /** Add another TOB word to the collection. Note: overflows ignored in this method */
+  void JetCMXTopoData::addRoI( uint32_t roiWord ) {
+    JetTopoTOB tob(roiWord);
+    if (tob.crate() == m_crate) m_tobWords.push_back( tob.tobWord() );
   }
 
 

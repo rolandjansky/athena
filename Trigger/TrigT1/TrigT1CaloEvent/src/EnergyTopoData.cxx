@@ -45,6 +45,31 @@ void EnergyTopoData::addEt(unsigned int Et, unsigned int overflow, int type) {
       m_word2 = (m_word2&0xffff) + ( (word&0xffff)<<16 );      
 }
 
+void EnergyTopoData::addRoI(uint32_t roiWord) {
+   uint8_t header = (roiWord>>28);
+   uint8_t type   = (roiWord>>26)&1;
+   uint32_t payload = (roiWord&0xffff);
+   
+   if (header == 4) {
+      if (type == LVL1::EnergyTopoData::Normal)          m_word0 = (m_word0&0xffff0000) + payload;
+      else if (type == LVL1::EnergyTopoData::Restricted) m_word0 = (m_word0&0xffff) + (payload<<16);
+   }
+   else if (header == 6) {
+      if (type == LVL1::EnergyTopoData::Normal)          m_word1 = (m_word1&0xffff0000) + payload;
+      else if (type == LVL1::EnergyTopoData::Restricted) m_word1 = (m_word1&0xffff) + (payload<<16);
+   }
+   else if (header == 5) {
+      if (type == LVL1::EnergyTopoData::Normal)          m_word2 = (m_word2&0xffff0000) + payload;
+      else if (type == LVL1::EnergyTopoData::Restricted) m_word2 = (m_word2&0xffff) + (payload<<16);
+   }
+}
+
+void EnergyTopoData::addRoIs(const std::vector<uint32_t>& roiWords) {
+
+  for (std::vector<uint32_t>::const_iterator it = roiWords.begin(); it != roiWords.end(); ++it) addRoI((*it)) ;
+
+}
+
 /** Data access methods */
 
 /** Ex (signed) */
