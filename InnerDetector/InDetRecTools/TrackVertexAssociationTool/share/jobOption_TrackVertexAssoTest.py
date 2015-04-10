@@ -3,7 +3,7 @@ from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 from AthenaCommon.AppMgr import ServiceMgr, ToolSvc, theApp
 from AthenaCommon import CfgMgr
 
-filelist = ['/tmp/boliu/AOD.01512434._000916.pool.root.1']
+filelist = ['/tmp/boliu/AOD.04607224._000001.pool.root.1']
 
 ServiceMgr.EventSelector.InputCollections = filelist
 #ServiceMgr.EventSelector.InputCollections =[] 

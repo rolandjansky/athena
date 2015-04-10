@@ -48,7 +48,7 @@ namespace CP
 
   }
   //
-  xAOD::TrackVertexAssociationMap LooseTrackVertexAssociationTool::getMatchMap( std::vector< const xAOD::TrackParticle *> trk_list , std::vector< const xAOD::Vertex *> vx_list ) const
+  xAOD::TrackVertexAssociationMap LooseTrackVertexAssociationTool::getMatchMap( std::vector< const xAOD::TrackParticle *> &trk_list , std::vector< const xAOD::Vertex *> &vx_list ) const
   {
     xAOD::TrackVertexAssociationMap trktovxmap;
 
@@ -100,18 +100,18 @@ namespace CP
   {
     ElementLink< xAOD::VertexContainer> vx_link_tmp;
 
-    const xAOD::Vertex &vx_tmp=getUniqueMatchVx(trk, vxCont);
+    const xAOD::Vertex *vx_tmp=getUniqueMatchVx(trk, vxCont);
     
-    if(&vx_tmp!=NULL)
+    if(vx_tmp!=NULL)
     {
-      vx_link_tmp.toContainedElement(vxCont,&vx_tmp);
+      vx_link_tmp.toContainedElement(vxCont,vx_tmp);
     }
     return vx_link_tmp;
 
   }
 
 
-  const xAOD::Vertex& LooseTrackVertexAssociationTool::getUniqueMatchVertex( const xAOD::TrackParticle &trk, std::vector< const xAOD::Vertex *> vx_list) const // return the  vertex matched with the tracks in the vx_list
+  const xAOD::Vertex* LooseTrackVertexAssociationTool::getUniqueMatchVertex( const xAOD::TrackParticle &trk, std::vector< const xAOD::Vertex *> &vx_list) const // return the  vertex matched with the tracks in the vx_list
   {
     int vx_index=-1;
 
@@ -143,17 +143,17 @@ namespace CP
     {
       vx_index=mini_index;
       ATH_MSG_DEBUG("Find matched vertex, index: "<< vx_index);
-      return *(vx_list.at(vx_index));
+      return (vx_list.at(vx_index));
     }
 
-    const xAOD::Vertex *dummyVx=0;
+    const xAOD::Vertex *dummyVx=NULL;
 
-    return *dummyVx;
+    return dummyVx;
 
   }
 
 
-  xAOD::TrackVertexAssociationMap LooseTrackVertexAssociationTool::getUniqueMatchMap( std::vector< const xAOD::TrackParticle *> trk_list , std::vector< const xAOD::Vertex *> vx_list ) const
+  xAOD::TrackVertexAssociationMap LooseTrackVertexAssociationTool::getUniqueMatchMap( std::vector< const xAOD::TrackParticle *> &trk_list , std::vector< const xAOD::Vertex *> &vx_list ) const
   {
     xAOD::TrackVertexAssociationMap trktovxmap;
 
@@ -168,10 +168,10 @@ namespace CP
 
     for(unsigned int trki=0; trki < trk_list.size(); trki++)
     {
-      const xAOD::Vertex& vx_match=getUniqueMatchVertex(*(trk_list.at(trki)), vx_list);
-      if(&vx_match!=NULL) // can find matched vertex
+      const xAOD::Vertex* vx_match=getUniqueMatchVertex(*(trk_list.at(trki)), vx_list);
+      if(vx_match!=NULL) // can find matched vertex
       {
-        trktovxmap[&vx_match].push_back((trk_list.at(trki)));
+        trktovxmap[vx_match].push_back((trk_list.at(trki)));
       }
     }
 
@@ -193,10 +193,10 @@ namespace CP
 
     for(unsigned int trki=0; trki < trkCont.size(); trki++)
     {
-      const xAOD::Vertex& vx_match=getUniqueMatchVx(*(trkCont.at(trki)), vxCont);
-      if(&vx_match!=NULL) // can find matched vertex
+      const xAOD::Vertex* vx_match=getUniqueMatchVx(*(trkCont.at(trki)), vxCont);
+      if(vx_match!=NULL) // can find matched vertex
       {
-        trktovxmap[&vx_match].push_back((trkCont.at(trki)));
+        trktovxmap[vx_match].push_back((trkCont.at(trki)));
       }
     }
 
@@ -242,7 +242,7 @@ namespace CP
 
   }
 
-  const xAOD::Vertex& LooseTrackVertexAssociationTool::getUniqueMatchVx( const xAOD::TrackParticle &trk, const xAOD::VertexContainer &vxCont) const // return the  vertex matched with the tracks in the vx_list
+  const xAOD::Vertex* LooseTrackVertexAssociationTool::getUniqueMatchVx( const xAOD::TrackParticle &trk, const xAOD::VertexContainer &vxCont) const // return the  vertex matched with the tracks in the vx_list
   {
     int vx_index=-1;
 
@@ -273,11 +273,11 @@ namespace CP
     {
       vx_index=mini_index;
       ATH_MSG_DEBUG("Find matched vertex, index: "<< vx_index);
-      return *vxCont.at(vx_index);
+      return vxCont.at(vx_index);
     }
-    const xAOD::Vertex *dummyVx=0;
+    const xAOD::Vertex *dummyVx=NULL;
 
-    return *dummyVx;
+    return dummyVx;
 
 
 //    return 0;
