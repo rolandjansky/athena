@@ -24,6 +24,8 @@ class TrigTauRecOnlineMonitoring(TrigGenericMonitoringToolConfig):
         self.Histograms += [ defineHistogram('EF_EMRadius', type='TH1F', title="EF EMRadius; EM radius; nRoIs", xbins=50, xmin=-0.1, xmax=1.) ]
         self.Histograms += [ defineHistogram('EF_HadRadius', type='TH1F', title="EF HadRadius; Had radius; nRoIs", xbins=50, xmin=-0.1, xmax=1.) ]
 
+        self.Histograms += [ defineHistogram('PhiL1', type='TH1F', title="L1 RoI Phi; L1 RoI Phi; nRoIs", xbins=65, xmin=-3.1415936-0.098174/2., xmax=3.1415936+0.098174/2.) ]
+        self.Histograms += [ defineHistogram('EtaL1', type='TH1F', title="L1 RoI Eta; L1 RoI Eta; nRoIs", xbins=51, xmin=-2.55, xmax=2.55) ]       
         self.Histograms += [ defineHistogram('EtaL1, PhiL1', type='TH2F', title="L1 ROI Eta vs Phi in TrigTauRecMerged FEX; #eta; #phi ",
                                              xbins=51, xmin=-2.55, xmax=2.55,
                                              ybins=65, ymin=-3.1415936-0.098174/2., ymax=3.1415936+0.098174/2.)]
@@ -61,9 +63,9 @@ class TrigTauRecOnlineMonitoring(TrigGenericMonitoringToolConfig):
  
         self.Histograms += [ defineHistogram('EF_AvgInteractions', type='TH1F', title=" Number of average interaction per bunch crossing;AvgInteractions;nevents", xbins=50, xmin=0.0, xmax=50.) ]
 
-        self.Histograms += [ defineHistogram('EF_beamspot_x', type='TH1F', title=" Beamspot position;Beamspot x;nevents", xbins=50, xmin=-10.0, xmax=10.) ]
-        self.Histograms += [ defineHistogram('EF_beamspot_y', type='TH1F', title=" Beamspot position;Beamspot y;nevents", xbins=50, xmin=-10.0, xmax=10.) ]
-        self.Histograms += [ defineHistogram('EF_beamspot_z', type='TH1F', title=" Beamspot position;Beamspot z;nevents", xbins=50, xmin=-10.0, xmax=10.) ]
+        self.Histograms += [ defineHistogram('EF_beamspot_x', type='TH1F', title=" Beamspot position;Beamspot x;nevents", xbins=50, xmin=-50.0, xmax=50.) ]
+        self.Histograms += [ defineHistogram('EF_beamspot_y', type='TH1F', title=" Beamspot position;Beamspot y;nevents", xbins=50, xmin=-50.0, xmax=50.) ]
+        self.Histograms += [ defineHistogram('EF_beamspot_z', type='TH1F', title=" Beamspot position;Beamspot z;nevents", xbins=100, xmin=-100.0, xmax=100.) ]
 
 
         self.Histograms += [ defineHistogram('EF_calo_errors', type='TH1F', title=" EF Calo Errors ;  ; nRoIs", xbins=10, xmin=-0.5, xmax=9.5 , labels=errorcalolabels) ]

@@ -176,10 +176,10 @@ TrigTauRecMerged::TrigTauRecMerged(const std::string& name,ISvcLocator* pSvcLoca
   /** Phi of L1 RoI */
   declareMonitoredVariable("PhiL1",m_PhiL1);
   
-  /** Eta of L1 RoI */
+  /** Eta of EF RoI */
   declareMonitoredVariable("EtaEF",m_EtaEF);
   
-  /** Phi of L1 RoI */
+  /** Phi of EF RoI */
   declareMonitoredVariable("PhiEF",m_PhiEF);
   
   /** Errors */
