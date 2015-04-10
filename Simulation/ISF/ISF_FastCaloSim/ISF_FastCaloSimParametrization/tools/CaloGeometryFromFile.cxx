@@ -4,7 +4,6 @@
 
 #include "CaloGeometryFromFile.h"
 #include <TTree.h>
-#include <TFile.h>
 #include "CaloDetDescr/CaloDetDescrElement.h"
 
 using namespace std;

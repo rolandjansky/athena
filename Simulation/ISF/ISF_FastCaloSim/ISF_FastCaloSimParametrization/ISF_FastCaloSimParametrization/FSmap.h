@@ -2,9 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef ISF_FSmap_H
-#define ISF_FSmap_H
-
 #include<map>
 #include<math.h>
 
@@ -45,5 +42,3 @@ public:
      else return il;
   };
 };
-
-#endif
