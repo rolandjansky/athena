@@ -176,7 +176,19 @@ class L2EFChain_MB(L2EFChainDef):
                 theEFFex1 =  efid_heavyIon
 
             theEFFex2 =  EFMbTrkFex
-            theEFHypo =  EFMbTrkHypo
+            efhypo = self.chainPart['hypoEFInfo']
+            if efhypo:
+                efth=efhypo.lstrip('pt')
+                threshold=float(efth)
+                theEFHypo = MbTrkHypo('EFMbTrkHypo_%d'% threshold)
+                theEFHypo.Min_pt = threshold
+                chainSuffix = chainSuffix+'_pt'+efth
+            else:
+                efth=0.200 #default
+                theEFHypo =  EFMbTrkHypo
+
+            #print "igb: ", efhypo
+            #print "igb: ", theEFHypo.Min_pt
 
         ########### Sequence List ##############
 

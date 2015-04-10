@@ -83,37 +83,37 @@ def defineMenu():
     # BeamSplashes: adapt some thresholds and items
     #---------------------------------
     Lvl1Flags.ThresholdMap = {
-        'EM7'       : 'EM3HI',
-        'EM8VH'     : 'EM7',
-        'EM8I'      : 'EM8VH',
-        'EM10'      : 'EM8I',
-        'EM10VH'    : 'EM10VH',
-        'EM12'      : 'EM12',
-        'EM13VH'    : 'EM15',        
-        'EM15'      : 'EM15VH',
-        'EM15VH'    : 'EM15I',
-        'EM15I'     : 'EM15HI',
-        'EM15HI'    : 'EM18VH',
-        'EM18VH'    : 'EM20A',
-        'EM20VH'    : 'EM20C',
-        'EM20VHI'   : 'EM20VH',
-        'EM22VHI'   : 'EM20VHI',
-
-
-        'J75'       : 'J75A',    
-        'J85'       : 'J75C',
-        'J100'      : 'J85',         
-        'J120'      : 'J100',         
-        
-        'HA20'      : 'HA20A', 
-        'HA20IL'    : 'HA20C', 
-        'HA20IM'    : 'HA20', 
-        'HA20IT'    : 'HA20IL', 
-        'HA25'      : 'HA20IM', 
-        'HA25IT'    : 'HA20IT', 
-        'HA30'      : 'HA25', 
-        'HA40'      : 'HA25IT', 
-        'HA60'      : 'HA40', 
+#        'EM7'       : 'EM3HI',
+#        'EM8VH'     : 'EM7',
+#        'EM8I'      : 'EM8VH',
+#        'EM10'      : 'EM8I',
+#        'EM10VH'    : 'EM10VH',
+#        'EM12'      : 'EM12',
+#        'EM13VH'    : 'EM15',        
+#        'EM15'      : 'EM15VH',
+#        'EM15VH'    : 'EM15I',
+#        'EM15I'     : 'EM15HI',
+#        'EM15HI'    : 'EM18VH',
+#        'EM18VH'    : 'EM20A',
+#        'EM20VH'    : 'EM20C',
+#        'EM20VHI'   : 'EM20VH',
+#        'EM22VHI'   : 'EM20VHI',
+#
+#
+#        'J75'       : 'J75A',    
+#        'J85'       : 'J75C',
+#        'J100'      : 'J85',         
+#        'J120'      : 'J100',         
+#        
+#        'HA20'      : 'HA20A', 
+#        'HA20IL'    : 'HA20C', 
+#        'HA20IM'    : 'HA20', 
+#        'HA20IT'    : 'HA20IL', 
+#        'HA25'      : 'HA20IM', 
+#        'HA25IT'    : 'HA20IT', 
+#        'HA30'      : 'HA25', 
+#        'HA40'      : 'HA25IT', 
+#        'HA60'      : 'HA40', 
 
         'HT190-AJ15all.ETA20': 'HT200-AJ20s5.ETA49',
         'HT190-J15s5.ETA20': 'HT190-AJ20s5.ETA49',
@@ -222,20 +222,20 @@ def defineMenu():
         }
 
     Lvl1Flags.ItemMap = {
-        'L1_EM22VHI' : 'L1_EM20A' , #eta [1.6,2.].
-        'L1_EM13VH'    : 'L1_EM20C',     #eta[-2,-1.6] 
-        'L1_J75'       : 'L1_J75A',         #[1.6,2.4]
-        'L1_J120'      : 'L1_J75C',         #[-2.4,-1.6]  
-        'L1_EM10'      : 'L1_EM3HI',
-        'L1_TAU30'     : 'L1_TAU20A', 
-        'L1_TAU60'     : 'L1_TAU20C', 
-        
-        'L1_2EM13VH' : '',
-        'L1_3J75' : '',
-        'L1_J75_3J20' : '',
-        'L1_J75_XE40' :'',
-        'L1_MU6_J75': '',
-
+#        'L1_EM22VHI' : 'L1_EM20A' , #eta [1.6,2.].
+#        'L1_EM13VH'    : 'L1_EM20C',     #eta[-2,-1.6] 
+#        'L1_J75'       : 'L1_J75A',         #[1.6,2.4]
+#        'L1_J120'      : 'L1_J75C',         #[-2.4,-1.6]  
+#        'L1_EM10'      : 'L1_EM3HI',
+#        'L1_TAU30'     : 'L1_TAU20A', 
+#        'L1_TAU60'     : 'L1_TAU20C', 
+#        
+#        'L1_2EM13VH' : '',
+#        'L1_3J75' : '',
+#        'L1_J75_3J20' : '',
+#        'L1_J75_XE40' :'',
+#        'L1_MU6_J75': '',
+#
         'L1_BTAG-MU4J15': '',
         'L1_BTAG-MU4J30': '',
         'L1_BTAG-MU6J20': '',
@@ -276,8 +276,12 @@ def defineMenu():
         'L1_EM15_W-MT35': '',
         'L1_EM10_W-MT25_W-15DPHI-JXE-0_W-15DPHI-EMXE_W-90RO2-XEHT-0': '',
         'L1_EM10_W-MT25_W-15DPHI-JXE-0_W-15DPHI-EMXE_XS30': '',
+        'L1_EM10_W-MT25_W-15DPHI-JXE-0_W-15DPHI-EMXE_XS20': '',
+        'L1_EM10_W-MT25_W-15DPHI-JXE-0_W-15DPHI-EMXE': '',
         'L1_EM15_W-MT35_W-05DPHI-JXE-0_W-05DPHI-EMXE_W-250RO2-XEHT-0': '',
         'L1_EM15_W-MT35_W-05DPHI-JXE-0_W-15DPHI-EMXE_XS60': '',
+        'L1_EM15_W-MT35_W-05DPHI-JXE-0_W-15DPHI-EMXE_XS30': '',
+        'L1_EM15_W-MT35_W-05DPHI-JXE-0_W-15DPHI-EMXE': '',
         'L1_BPH-DR-2MU4_BPH-2M-2MU4': '',
         'L1_BPH-DR-2MU4_BPH-4M8-2MU4': '',
         'L1_BPH-DR-2MU6_BPH-2M-2MU6': '',

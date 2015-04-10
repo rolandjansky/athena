@@ -41,18 +41,17 @@ def defineMenu():
         'HA8', 'HA10IM','HA12', 'HA12IL', 'HA12IM', 'HA12IT','HA15', 'HA20', 'HA20IL',  'HA20IM', 'HA20IT','HA25','HA25IT', 'HA30', 'HA40', 'HA60', 
 
         # JETs and central jets (first 10 can have multiplicity 4 or more)
-        'J5', 'J12', 'J15', 'J15.0ETA25','J20', 'J25','J25.0ETA23','J30', 
+        'J12', 'J15', 'J15.0ETA25','J20', 'J25','J25.0ETA23','J30', 'J40', 
         #2 x VBF
         'J20.0ETA49', 'J30.0ETA49',
 
         'JJ15.23ETA49','J15.29ETA32', 'J20.29ETA32',
         
         # those 15 can have maximum multiplicity of 3
-        'J40','J50','J75', 'J85', 'J100', 'J120',
+        'J50','J75', 'J85', 'J100', 'J120', 'J400',
 
         # 6 x FJ              
         'J15.32ETA49', 'J20.32ETA49', 'J30.32ETA49', 'J50.32ETA49', 'J75.32ETA49', 'J100.32ETA49', 
-
 
         ##ONLY TWO ETA RANGES FOR TE and XE thresholds: 0-7 full eta and 8-15 restricted,         
         # 8 x TE
@@ -374,7 +373,8 @@ def defineMenu():
         "L1_XE35_BGRP7", "L1_XE40_BGRP7", "L1_XE45_BGRP7", "L1_XE50_BGRP7", "L1_XE55_BGRP7", "L1_XE60_BGRP7", "L1_XE70_BGRP7", "L1_XE80_BGRP7", 
         
         #XS
-        'L1_XS20', 'L1_XS30', 'L1_XS40', 'L1_XS45', 'L1_XS50', 'L1_XS55', 'L1_XS60', 'L1_XS65', 
+        'L1_XS20', 'L1_XS30', 
+        'L1_EM10_XS20', 'L1_EM15_XS30',
         
         # TE
         "L1_TE20", "L1_TE30", "L1_TE40", "L1_TE50", "L1_TE30.0ETA25",  
@@ -410,7 +410,7 @@ def defineMenu():
         "L1_BGRP7",
 
         # TRT
-        "L1_TRT",
+       # "L1_TRT",
         "L1_TRT_FILLED",
         "L1_TRT_EMPTY",
 
@@ -419,8 +419,6 @@ def defineMenu():
 
         # LHCF
         "L1_LHCF",
-        "L1_LHCF_MBTS_1",
-        "L1_LHCF_MBTS_2",
         
         #CALREQ
         "L1_CALREQ2",
@@ -491,8 +489,12 @@ def defineMenu():
         'L1_EM15_W-MT35',
         'L1_EM10_W-MT25_W-15DPHI-JXE-0_W-15DPHI-EMXE_W-90RO2-XEHT-0',
         'L1_EM10_W-MT25_W-15DPHI-JXE-0_W-15DPHI-EMXE_XS30',
+        'L1_EM10_W-MT25_W-15DPHI-JXE-0_W-15DPHI-EMXE_XS20',
+        'L1_EM10_W-MT25_W-15DPHI-JXE-0_W-15DPHI-EMXE',
         'L1_EM15_W-MT35_W-05DPHI-JXE-0_W-05DPHI-EMXE_W-250RO2-XEHT-0',
         'L1_EM15_W-MT35_W-05DPHI-JXE-0_W-15DPHI-EMXE_XS60',
+        'L1_EM15_W-MT35_W-05DPHI-JXE-0_W-15DPHI-EMXE_XS30',
+        'L1_EM15_W-MT35_W-05DPHI-JXE-0_W-15DPHI-EMXE',
         #'L1_W-10DPHI-JXE-0',
         #'L1_W-20DPHI-JXE-1',
         #'L1_W-20DPHI-JXE-0',

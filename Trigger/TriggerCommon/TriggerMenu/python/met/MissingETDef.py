@@ -212,7 +212,7 @@ class L2EFChain_met(L2EFChainDef):
         #----------------------------------------------------
         # Obtaining the needed jet TEs from the jet code
         #----------------------------------------------------
-        chain = ['j0', '',  [], ["Main"], ['RATE:SingleJet', 'BW:Jet'], -1]
+        chain = ['j0_lcw', '',  [], ["Main"], ['RATE:SingleJet', 'BW:Jet'], -1]
         
         from TriggerMenu.menu import DictFromChainName
         theDictFromChainName = DictFromChainName.DictFromChainName()

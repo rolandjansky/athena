@@ -17,19 +17,18 @@ class TriggerConfigLVL1:
     current = None
     def __init__(self, outputFile = None , inputFile = None , menuName = None , topoMenu = "MATCH" ):
         """
+        menuName: ignored now, will be taken from TF.triggerMenuSetup
         topoMenu: MATCH means that the L1Topo menu matches the L1 menu
         """
         TriggerConfigLVL1.current = self
 
         from TriggerJobOpts.TriggerFlags import TriggerFlags
-        if menuName:
-            TriggerFlags.triggerMenuSetup = menuName
+
         self.menuName = TriggerFlags.triggerMenuSetup()
 
         self.inputFile     = inputFile
         self.outputFile    = outputFile
         self.l1menuFromXML = None # flag if l1menu is read from XML file
-        self.menuName = menuName
 
         # all registered items
         self.registeredItems = {}
@@ -42,6 +41,7 @@ class TriggerConfigLVL1:
         self.topotriggers = self.getL1TopoTriggerLines(topoMenu)
         self.registerAllTopoTriggersAsThresholds()
 
+
         # menu
         self.menu = Lvl1Menu(self.menuName)
 
@@ -49,7 +49,6 @@ class TriggerConfigLVL1:
             """Read menu from XML"""
             self.l1menuFromXML = True
             self.menu.readMenuFromXML(self.inputFile)
-            
         else:
             """Build menu from menu name"""
 
@@ -71,16 +70,14 @@ class TriggerConfigLVL1:
         else:
             triggerLines = None
             try:
-                tpcl1 = TriggerConfigL1Topo( menuName = TriggerConfigL1Topo.getMenuBaseName(menu) )
+                from TriggerJobOpts.TriggerFlags import TriggerFlags
+                tpcl1 = TriggerConfigL1Topo()
                 tpcl1.generateMenu()
                 triggerLines = tpcl1.menu.getTriggerLines()
 
             except Exception, ex:
                 print "Topo menu generation inside L1 menu failed, but will be ignored for the time being",ex 
 
-            # restore the triggerMenuSetup for the LVL1 generation
-            from TriggerJobOpts.TriggerFlags import TriggerFlags
-            TriggerFlags.triggerMenuSetup = self.menuName
             return triggerLines
 
             

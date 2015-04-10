@@ -5,6 +5,7 @@ log = logging.getLogger( 'TriggerMenu.menu.StreamInfo' )
 
 monStreams = ['monitoring_random', 
               'CSC',
+              'IDMonitoring',
               ]
 
 physicsStreams = ['Main',
@@ -23,7 +24,6 @@ physicsStreams = ['Main',
                   'HLTPassthrough',
                   'JetTauEtmiss', # needed for LS1menu
                   'EnhancedBias',
-                  'IDMonitoring',
                   'CosmicMuons',
                   'HLT_IDCosmic',
                   'CosmicID',

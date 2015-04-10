@@ -453,7 +453,7 @@ MinBiasChainParts = {
     'trkInfo'        : ['hlttr', 'ftk', 'costr'],
     'hypoL2Info'     : ['sp2', 'sp1800', 'sp2000', 'sp2500', 'sp3000', ],
     'pileupInfo'     : ['pusup600', 'pusup700', 'pusup750', 'pusup800',],
-    'hypoEFInfo'     : ['trk50', 'trk60', 'trk70', 'trk90', 'trk120',],
+    'hypoEFInfo'     : ['trk50', 'trk60', 'trk70', 'trk90', 'trk120', 'pt4', 'pt8', ],
     'hypoEFsumEtInfo': ['sumet70', 'sumet110', 'sumet150',],
     'recoAlg'        : ['mbts', 'sptrk', 'sp', 'noalg', 'perf', 'hmt', 'hmtperf', 'idperf', 'zdcperf'],
     'addInfo'        : [ ],

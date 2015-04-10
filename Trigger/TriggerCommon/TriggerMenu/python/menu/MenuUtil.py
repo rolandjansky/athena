@@ -35,8 +35,12 @@ def applyHLTPrescale(triggerPythonConfig, HLTPrescale):
     for item, prescales in HLTPrescale.iteritems():
         # prescales is a list of 3 integers [HLT_prescale, HLT_pass_through, rerun_prescale]
         if item not in triggerPythonConfig.allChains.keys():
-            log.debug('Signature %s not registered to TriggerPythonConfig' % item)
-            continue
+            if triggerPythonConfig.signaturesOverwritten:
+                log.warning('Attempt to set prescales for nonexisting chain: %s' % item)
+                continue
+            else:
+                log.error('Attempt to set prescales for nonexisting chain: %s' % item)
+                continue
         n = len(prescales)
         hltchain = None
         for ch in triggerPythonConfig.allChains[item]:

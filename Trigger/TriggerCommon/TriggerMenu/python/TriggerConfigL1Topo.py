@@ -13,12 +13,15 @@ class TriggerConfigL1Topo:
     
     current = None
     def __init__(self, outputFile = None , inputFile = None , menuName = None ):
+        """
+        inputFile: if set the topo menu will be read from this xml file (not yet implemented)
+        outputFile: if no input file is specified the topo menu will be generated and written to outputFile
+        menuName: ignored now
+        """
         current = self
         from TriggerJobOpts.TriggerFlags import TriggerFlags
 
-        if menuName:
-            TriggerFlags.triggerMenuSetup = menuName
-        self.menuName = TriggerFlags.triggerMenuSetup()
+        self.menuName = TriggerConfigL1Topo.getMenuBaseName(TriggerFlags.triggerMenuSetup())
 
         self.inputFile     = inputFile
         self.outputFile    = outputFile
