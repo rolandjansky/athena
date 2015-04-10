@@ -1163,7 +1163,7 @@ CombinedMuonTrackBuilder::indetExtension (const Trk::Track&		indetTrack,
 	if (numberMS < 5)
 	{
 	    // reject with insufficient MS measurements
-	    m_messageHelper->printWarning(5);
+	    ATH_MSG_DEBUG("indetExtension:: reject with insufficient MS measurements");
 	    delete combinedTrack;
 	    combinedTrack = 0;
 	}
@@ -1178,6 +1178,12 @@ Trk::Track*
 CombinedMuonTrackBuilder::standaloneFit	(const Trk::Track&	inputSpectrometerTrack,
 					 const Trk::Vertex*	inputVertex) const
 {
+
+    // no SA fit with vertex constraint for Toroid off data
+    if (m_trackQuery->isLineFit(inputSpectrometerTrack) && !m_magFieldSvc->toroidOn()) {
+      return 0;
+    } 
+
 
     if (msgLvl(MSG::VERBOSE))
     {
@@ -1506,8 +1512,11 @@ CombinedMuonTrackBuilder::standaloneFit	(const Trk::Track&	inputSpectrometerTrac
               // look for first measured TSOS in muon volume
               if (! (**s).trackParameters() || ! (**s).trackParameters()->covariance() ) continue;
               if( m_calorimeterVolume->inside((**s).trackParameters()->position()) )     continue;
-              ATH_MSG_DEBUG("Found first parameters in MS " << (**s).trackParameters()->position().perp() << " z " << (**s).trackParameters()->position().z() );
-              break;
+// check that it is a measurement 
+              if((**s).type(Trk::TrackStateOnSurface::Measurement)) {
+                ATH_MSG_DEBUG("Found first parameters in MS " << (**s).trackParameters()->position().perp() << " z " << (**s).trackParameters()->position().z() );
+                break;
+              }
             }
             if ((**s).trackParameters()
 		&& s != prefit->trackStateOnSurfaces()->begin()
@@ -2865,7 +2874,7 @@ CombinedMuonTrackBuilder::appendSelectedTSOS(
 {
     // spectrometer measurement selection
     std::vector<const Trk::Surface*> measurementSurfaces;
-    measurementSurfaces.reserve(60);
+    measurementSurfaces.reserve(trackStateOnSurfaces.size()); 
     const Trk::Surface* previousSurface = 0;
     for (DataVector<const Trk::TrackStateOnSurface>::const_iterator s = begin;
 	 s != end;
@@ -3301,7 +3310,7 @@ CombinedMuonTrackBuilder::createExtrapolatedTrack(
     // fit the track
     if (msgLvl(MSG::VERBOSE))
     {
-	msg(MSG::VERBOSE) << "  fit SA track with " << trackStateOnSurfaces->size() << " TSOS";
+	msg(MSG::VERBOSE) << "  fit SA track with " << track->trackStateOnSurfaces()->size() << " TSOS";
 	if (particleHypothesis == Trk::nonInteracting) msg() << " using nonInteracting hypothesis";
 	msg() << endreq;
     }
@@ -3587,7 +3596,7 @@ CombinedMuonTrackBuilder::createSpectrometerTSOS(const Trk::Track& spectrometerT
     double deltaZ					= 0.;
     bool haveMeasurement				= false;
     std::vector<const Trk::Surface*> measurementSurfaces;
-    measurementSurfaces.reserve(60);
+    measurementSurfaces.reserve(spectrometerTrack.trackStateOnSurfaces()->size());
     unsigned numberMaterial				= 0;
     unsigned numberParameters				= 0;
     const Trk::Surface* previousSurface			= 0;
