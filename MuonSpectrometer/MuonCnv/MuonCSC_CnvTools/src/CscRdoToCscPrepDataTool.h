@@ -10,6 +10,7 @@
 
 #include "MuonPrepRawData/CscStripPrepDataContainer.h"
 #include "MuonCnvToolInterfaces/IMuonRdoToPrepDataTool.h"
+#include "CSCcabling/CSCcablingSvc.h"
 
 #include <string>
 
@@ -85,6 +86,8 @@ namespace Muon {
     ToolHandle<Muon::IMuonRawDataProviderTool> m_rawDataProviderTool; 
     ToolHandle<ICscCalibTool> m_cscCalibTool;
     ToolHandle<ICSC_RDO_Decoder> m_cscRdoDecoderTool;
+
+    ServiceHandle<CSCcablingSvc> m_cabling;
     /// Identifier hash offset
     int m_cscOffset;
     
