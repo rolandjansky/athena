@@ -63,7 +63,8 @@ class SiTrigSPSeededTrackFinderMonitorBase(TrigGenericMonitoringToolConfig):
                                            xbins = 100, xmin=-3., xmax=3.)]
       self.Histograms += [ defineHistogram('RoIPhi',
                                            type='TH1F',
-                                           title="RoI Phi",                                                               xbins = 160, xmin=-3.2, xmax=3.2)]
+                                           title="RoI Phi",                                                               
+                                           xbins = 160, xmin=-3.2, xmax=3.2)]
       self.Histograms += [ defineHistogram('nGoodSeedsTotal',
                                            type='TH1F',
                                            title="m_nGoodSeedsTotal",
@@ -72,28 +73,28 @@ class SiTrigSPSeededTrackFinderMonitorBase(TrigGenericMonitoringToolConfig):
                                            type='TH1F',
                                            title="m_nBadSeedsTotal",
                                            xbins = 1000, xmin=0, xmax=maxbadseeds)]
-      self.Histograms += [ defineHistogram('timeGoodSeeds',
+      self.Histograms += [ defineHistogram('time_GoodSeeds',
                                            type='TH1F',
                                            title="m_timeGoodSeeds",
                                            xbins = 1000, xmin=0, xmax=maxtimegoodseeds)]
-      self.Histograms += [ defineHistogram('timeBadSeeds',
+      self.Histograms += [ defineHistogram('time_BadSeeds',
                                            type='TH1F',
                                            title="m_timeBadSeeds",
                                            xbins = 1000, xmin=0, xmax=maxtimebadseeds)]
-      self.Histograms += [ defineHistogram('AvtimeGoodSeeds',
+      self.Histograms += [ defineHistogram('time_AveGoodSeeds',
                                            type='TH1F',
                                            title="m_AvtimeGoodSeeds",
                                            xbins = 100, xmin=0, xmax=avtimegoodseeds)]
-      self.Histograms += [ defineHistogram('AvtimeBadSeeds',
+      self.Histograms += [ defineHistogram('time_AveBadSeeds',
                                            type='TH1F',
                                            title="m_AvtimeBadSeeds",
                                            xbins = 100, xmin=0, xmax=avtimebadseeds)]
-      self.Histograms += [ defineHistogram('numSeeds, AvtimeGoodSeeds',
+      self.Histograms += [ defineHistogram('numSeeds, time_AveGoodSeeds',
                                            type='TH2F',
                                            title="m_AvtimeGoodSeeds_numSeeds",
                                            xbins = 200, xmin=0., xmax=maxseeds,
                                            ybins = 100, ymin=0, ymax=avtimegoodseeds)]
-      self.Histograms += [ defineHistogram('numSeeds, AvtimeBadSeeds',
+      self.Histograms += [ defineHistogram('numSeeds, time_AveBadSeeds',
                                            type='TH2F',
                                            title="m_AvtimeBadSeeds_numSeeds",
                                            xbins = 200, xmin=0., xmax=maxseeds, 
