@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-# $Id: PhysVal_jobOptions.py 635992 2014-12-15 14:31:55Z sroe $
+# $Id: PhysVal_jobOptions.py 659939 2015-04-10 13:20:44Z sroe $
 
 # Set up the reading of the input xAOD:
 FNAME = "AOD.pool.root"
@@ -54,4 +54,4 @@ svcMgr.THistSvc.Output += ["MyPhysVal DATAFILE='MyPhysVal.root' OPT='RECREATE'"]
 from AthenaCommon.AppMgr import theApp
 ServiceMgr.MessageSvc.OutputLevel = INFO
 ServiceMgr.MessageSvc.defaultLimit = 10000
-theApp.EvtMax = 10
+theApp.EvtMax = 40
