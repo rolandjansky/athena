@@ -18,6 +18,9 @@
 #ifndef EnergyTopoData_H
 #define EnergyTopoData_H
 
+// STL includes
+#include <vector>
+
 // Gaudi kernel stuff.
 #include "GaudiKernel/DataObject.h"
 
@@ -43,6 +46,10 @@ namespace LVL1 {
   void addEx(unsigned int Ex, unsigned int overflow, int type);
   void addEy(unsigned int Ey, unsigned int overflow, int type);
   void addEt(unsigned int Et, unsigned int overflow, int type);
+  
+  /** add data using RoI word */
+  void addRoI(uint32_t roiWord);
+  void addRoIs(const std::vector<uint32_t>& roiWords);
   
   /** return  word 0*/
   unsigned int word0() const {return m_word0;}

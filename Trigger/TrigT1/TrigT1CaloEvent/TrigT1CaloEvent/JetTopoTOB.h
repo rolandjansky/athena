@@ -20,6 +20,7 @@ class JetTopoTOB {
    JetTopoTOB();
    JetTopoTOB(int crate, uint32_t tobWord);
    JetTopoTOB(int crate, int jem, int frame, int localCoord, int etSmall, int etLarge);
+   JetTopoTOB(uint32_t roiWord);
 
    ~JetTopoTOB();
 

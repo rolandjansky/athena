@@ -33,6 +33,21 @@ namespace LVL1 {
       else m_overflow = true;
     }
     
+  }
+  
+
+  /** Load complete object in one go */
+  CPCMXTopoData::CPCMXTopoData( int crate, int cmx, const std::vector< uint32_t >& roiWords )
+    : m_crate( crate ), m_cmx( cmx ) {
+      
+    m_overflow = false;
+    m_tobWords.clear();
+    
+    for (std::vector<uint32_t>::const_iterator it = roiWords.begin(); it != roiWords.end(); ++it) {
+      CPTopoTOB tob((*it));
+      if (tob.crate() == m_crate && tob.cmx() == m_cmx) m_tobWords.push_back( tob.tobWord() );
+    }
+    
   } 
 
 
@@ -66,6 +81,16 @@ namespace LVL1 {
     if (m_tobWords.size() < s_maxTOBsPerLink)
       m_tobWords.push_back( tob.tobWord() );
     else m_overflow = true;
+  }
+
+
+  /** Add another TOB word to the collection. Note: overflows ignored in this method */
+  void CPCMXTopoData::addRoI( uint32_t roiWord ) {
+    
+    CPTopoTOB tob(roiWord);
+    
+    if (tob.crate() == m_crate &&  tob.cmx() == m_cmx) m_tobWords.push_back( tob.tobWord() );
+
   }
 
 
