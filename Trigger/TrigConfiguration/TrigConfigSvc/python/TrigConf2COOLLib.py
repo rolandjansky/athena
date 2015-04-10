@@ -79,13 +79,8 @@ class ConfToCoolSQlite:
         def __init__(self):
             from tempfile import mktemp
             self.dbfilename      = mktemp('.db','hltMenu.')
-            from AthenaCommon.GlobalFlags import globalflags
-            if (globalflags.DataSource()=='data'):
-                # real data
-                self.dbname='COMP200'
-            else:
-                # Monte Carlo
-                self.dbname='OFLP200'
+            from IOVDbSvc.CondDB import conddb
+            self.dbname=conddb.GetInstance() # COMP200 or CONDBR2 (consistent with what is used for reading it back)
             self.dbConnection    = "<dbConnection>sqlite://;schema=%s;dbname=%s</dbConnection>" % (self.dbfilename,self.dbname)
             self.isWritingNeeded = False
             from RecExConfig.RecFlags import jobproperties as jp

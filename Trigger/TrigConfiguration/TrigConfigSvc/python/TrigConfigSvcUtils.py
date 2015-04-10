@@ -182,10 +182,10 @@ def interpretConnection(connection, debug=False, resolveAlias=True):
 
     # If TriggerFlags.triggerUseFrontier=true then we remove sqlite files
     from TriggerJobOpts.TriggerFlags import TriggerFlags as tf
-    if tf.triggerUseFrontier() or os.getenv('TRIGGER_USE_FRONTIER',False):
-        connectionServices = filter(lambda conn: not conn.startswith("sqlite_file"), connectionServices)
-        if 'ATLAS_TRIGGERDB_FORCESQLITE' in os.environ:
-            log.fatal("Inconsistent setup: environment variable ATLAS_TRIGGERDB_FORCESQLITE is defined and use of Frontier is requested" )
+    #if tf.triggerUseFrontier() or os.getenv('TRIGGER_USE_FRONTIER',False):
+    #    connectionServices = filter(lambda conn: not conn.startswith("sqlite_file"), connectionServices)
+    #    if 'ATLAS_TRIGGERDB_FORCESQLITE' in os.environ:
+    #        log.fatal("Inconsistent setup: environment variable ATLAS_TRIGGERDB_FORCESQLITE is defined and use of Frontier is requested" )
 
 
     # SQLite
@@ -208,12 +208,13 @@ def interpretConnection(connection, debug=False, resolveAlias=True):
     # replicaList
     from CoolConvUtilities.AtlCoolLib import replicaList
     serverlist=['ATLAS_CONFIG' if s=='ATLAS_COOLPROD' else s for s in replicaList()]  # replicaList is for COOL, I need ATLAS_CONFIG instead of ATLAS_COOLPROD
+    #serverlist=['ATLF']
     log.info("Trying these servers in order %r" % serverlist)
     for server in serverlist:
         log.info("Trying server %s" % server)
 
         if server=='ATLF':
-            if not tf.triggerUseFrontier() and not os.getenv('TRIGGER_USE_FRONTIER',False): continue
+            #if not tf.triggerUseFrontier() and not os.getenv('TRIGGER_USE_FRONTIER',False): continue
             frontierconnections = [conn for conn in connectionServices if conn.startswith("frontier")]
             if len(frontierconnections) == 0:
                 log.debug("FroNTier connection not defined for alias %s in dblookup" % connection )
