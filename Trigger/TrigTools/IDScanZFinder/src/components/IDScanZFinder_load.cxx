@@ -9,3 +9,4 @@
 
 
 LOAD_FACTORY_ENTRIES( IDScanZFinder )
+LOAD_FACTORY_ENTRIES( TrigZFinder )
