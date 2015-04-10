@@ -88,12 +88,25 @@ StatusCode TrackVertexAssoTestAlg::execute()
 
   // Check compitable 
   //bool isMatched=m_tighttrackvertexassoTool->isCompatible(*(trkCont->at(0)), *(vxCont->at(0)));
+  if(trkCont->size()!=0)
+  {
   bool isMatched=m_loosetrackvertexassoTool->isCompatible(*(trkCont->at(0)), *vx_test);
   ATH_MSG_INFO("compitable? "<< isMatched);
+  }
 
   // do Match, match to all compitable vertices
   xAOD::TrackVertexAssociationMap trkvxassoMap_tight = m_tighttrackvertexassoTool->getMatchMap(*trkCont, *vxCont);
   xAOD::TrackVertexAssociationMap trkvxassoMap_loose = m_loosetrackvertexassoTool->getMatchMap(*trkCont, *vxCont);
+
+
+  std::vector<const xAOD::Vertex* > v_vx;
+  v_vx.clear();
+
+  if(trkCont->size()!=0)
+  {
+    const xAOD::Vertex *vx=m_tighttrackvertexassoTool->getUniqueMatchVertex(*(trkCont->at(0)), v_vx);
+    ATH_MSG_INFO(vx);
+  }
 
   // do Match, only match the best matched vertex
   xAOD::TrackVertexAssociationMap trkvxassoUniqueMap_tight = m_tighttrackvertexassoTool->getUniqueMatchMap(*trkCont, *vxCont);
@@ -105,23 +118,25 @@ StatusCode TrackVertexAssoTestAlg::execute()
 
   // example of access tracks match to each vertex, tracks stored in std::vector<xAOD::TrackParticle* >, more seen TrackVertexAssociationMap.h file
 
-  const xAOD::Vertex *pv=vxCont->at(0);
-  xAOD::TrackVertexAssociationList trkvxassoList_tight=trkvxassoMap_tight[pv];
-  ATH_MSG_INFO("Number of track PV associated: "<< trkvxassoList_tight.size());
+//  const xAOD::Vertex *pv=vxCont->at(0);
+//  xAOD::TrackVertexAssociationList trkvxassoList_tight=trkvxassoMap_tight[pv];
+//  ATH_MSG_INFO("Number of track PV associated: "<< trkvxassoList_tight.size());
 
 
   // Test of ElementLink
-  ElementLink<xAOD::VertexContainer> match_vx=m_tighttrackvertexassoTool->getUniqueMatchVertexLink(*(trkCont->at(2)), *vxCont );
-
-//  // 
-//  ElementLink<xAOD::VertexContainer> match_vx=m_tighttrackvertexassoTool->getUniqueMatchVertexLink((trkCont->at(2)), vxCont );
-
-
-  if(match_vx.isValid())
+  if(trkCont->size()>0)
   {
-    ATH_MSG_INFO( match_vx );
-    ATH_MSG_INFO( *match_vx );
-    ATH_MSG_INFO( (*match_vx)->z());
+    ElementLink<xAOD::VertexContainer> match_vx=m_tighttrackvertexassoTool->getUniqueMatchVertexLink(*(trkCont->at(0)), *vxCont );
+
+    //  // 
+
+
+    if(match_vx.isValid())
+    {
+      ATH_MSG_INFO( match_vx );
+      ATH_MSG_INFO( *match_vx );
+      ATH_MSG_INFO( (*match_vx)->z());
+    }
   }
 
 
