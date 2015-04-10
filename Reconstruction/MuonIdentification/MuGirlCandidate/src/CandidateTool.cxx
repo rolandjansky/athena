@@ -43,6 +43,7 @@ CandidateTool::CandidateTool(const std::string& t,
                              const std::string& n,
                              const IInterface*  p ) :
         AthAlgTool(t,n,p),
+        m_doDecoding(true),
         m_doCSC(true),
         m_doMDT(true),
         m_doRPC(true),
@@ -88,6 +89,7 @@ CandidateTool::CandidateTool(const std::string& t,
 {
     declareInterface<ICandidateTool>(this);
 
+    declareProperty("doDecoding",                   m_doDecoding);
     declareProperty("doCSC",                        m_doCSC);
     declareProperty("doMDT",                        m_doMDT);
     declareProperty("doRPC",                        m_doRPC);

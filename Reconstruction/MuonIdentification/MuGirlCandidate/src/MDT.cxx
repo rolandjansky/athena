@@ -94,7 +94,7 @@ unsigned MDT::prepData(Chamber* pChamber, PrepDataList& array)
         // If conversion failed, then there are clearly no hits, so return 0.
         if (m_pMuGirl->mdtRdoToPrepDataTool().empty())
             return 0;
-        if (m_pMuGirl->mdtRdoToPrepDataTool()->decode(inhash, outhash).isFailure())
+        if (m_pMuGirl->doDecoding() && m_pMuGirl->mdtRdoToPrepDataTool()->decode(inhash, outhash).isFailure())
             return 0;
         // If conversion succeeds, then we must be able to get the container, so try it now.
         if (m_pMuGirl->evtStore()->retrieve(m_pPrepDataContainer, m_sPrepDataCollection).isFailure() ||
@@ -114,7 +114,7 @@ unsigned MDT::prepData(Chamber* pChamber, PrepDataList& array)
             inhash.push_back(pChamber->hashId());
             if (m_pMuGirl->mdtRdoToPrepDataTool().empty())
                return 0;
-            if (m_pMuGirl->mdtRdoToPrepDataTool()->decode(inhash, outhash).isSuccess() && !outhash.empty())
+            if (m_pMuGirl->doDecoding() && m_pMuGirl->mdtRdoToPrepDataTool()->decode(inhash, outhash).isSuccess() && !outhash.empty())
                 itColl = m_pPrepDataContainer->indexFind(outhash.front());
         }
         if (itColl != m_pPrepDataContainer->end())

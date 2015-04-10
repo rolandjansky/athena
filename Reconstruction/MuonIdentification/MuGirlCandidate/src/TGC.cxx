@@ -135,7 +135,7 @@ unsigned TGC::prepData(Chamber* pChamber, PrepDataList& array)
         // If conversion failed, then there are clearly no hits, so return 0.
         if (m_pMuGirl->tgcRdoToPrepDataTool().empty())
             return 0;
-        if (m_pMuGirl->tgcRdoToPrepDataTool()->decode(inhash, outhash).isFailure())
+        if (m_pMuGirl->doDecoding() && m_pMuGirl->tgcRdoToPrepDataTool()->decode(inhash, outhash).isFailure())
             return 0;
         // If conversion succeeds, then we must be able to get the container, so try it now.
         if (m_pMuGirl->evtStore()->retrieve(m_pPrepDataContainer, m_sPrepDataCollection).isFailure() ||
@@ -156,7 +156,7 @@ unsigned TGC::prepData(Chamber* pChamber, PrepDataList& array)
             inhash.push_back(pChamber->hashId());
             if (m_pMuGirl->tgcRdoToPrepDataTool().empty())
                 return 0;
-            if (m_pMuGirl->tgcRdoToPrepDataTool()->decode(inhash, outhash).isSuccess() && !outhash.empty())
+            if (m_pMuGirl->doDecoding() && m_pMuGirl->tgcRdoToPrepDataTool()->decode(inhash, outhash).isSuccess() && !outhash.empty())
                 itColl = m_pPrepDataContainer->indexFind(outhash.front());
         }
         if (itColl != m_pPrepDataContainer->end())
@@ -181,7 +181,7 @@ unsigned TGC::prepData(Chamber* pChamber, PrepDataList& array)
         inhash.push_back(pChamber->hashId());
         // If conversion failed, then there are clearly no hits, so return 0.
         if (!m_pMuGirl->tgcRdoToPrepDataTool().empty())
-            if (m_pMuGirl->tgcRdoToPrepDataTool()->decode(inhash, outhash).isFailure())
+            if (m_pMuGirl->doDecoding() && m_pMuGirl->tgcRdoToPrepDataTool()->decode(inhash, outhash).isFailure())
                 m_pMuGirl->msg(MSG::WARNING) << "Cannot retrieve TGC PrepData Container " << m_sPrepDataPrior << endreq;
         // If conversion succeeds, then we must be able to get the container, so try it now.
         if (m_pMuGirl->evtStore()->retrieve(m_pPrepDataContainerP, m_sPrepDataPrior).isFailure() ||
@@ -197,7 +197,7 @@ unsigned TGC::prepData(Chamber* pChamber, PrepDataList& array)
             std::vector<IdentifierHash> inhash, outhash;
             inhash.push_back(pChamber->hashId());
             if (!m_pMuGirl->tgcRdoToPrepDataTool().empty())
-                if (m_pMuGirl->tgcRdoToPrepDataTool()->decode(inhash, outhash).isSuccess() && !outhash.empty())
+                if (m_pMuGirl->doDecoding() && m_pMuGirl->tgcRdoToPrepDataTool()->decode(inhash, outhash).isSuccess() && !outhash.empty())
                     itColl = m_pPrepDataContainerP->indexFind(outhash.front());
         }
         if (itColl != m_pPrepDataContainerP->end())
@@ -220,7 +220,7 @@ unsigned TGC::prepData(Chamber* pChamber, PrepDataList& array)
         inhash.push_back(pChamber->hashId());
         // If conversion failed, then there are clearly no hits, so return 0.
         if (!m_pMuGirl->tgcRdoToPrepDataTool().empty())
-            if (m_pMuGirl->tgcRdoToPrepDataTool()->decode(inhash, outhash).isFailure())
+            if (m_pMuGirl->doDecoding() && m_pMuGirl->tgcRdoToPrepDataTool()->decode(inhash, outhash).isFailure())
                 m_pMuGirl->msg(MSG::WARNING) << "Cannot retrieve TGC PrepData Container " << m_sPrepDataNext << endreq;
         // If conversion succeeds, then we must be able to get the container, so try it now.
         if (m_pMuGirl->evtStore()->retrieve(m_pPrepDataContainerN, m_sPrepDataNext).isFailure() ||
@@ -236,7 +236,7 @@ unsigned TGC::prepData(Chamber* pChamber, PrepDataList& array)
             std::vector<IdentifierHash> inhash, outhash;
             inhash.push_back(pChamber->hashId());
                 if (!m_pMuGirl->tgcRdoToPrepDataTool().empty())
-                    if (m_pMuGirl->tgcRdoToPrepDataTool()->decode(inhash, outhash).isSuccess() && !outhash.empty())
+                    if (m_pMuGirl->doDecoding() && m_pMuGirl->tgcRdoToPrepDataTool()->decode(inhash, outhash).isSuccess() && !outhash.empty())
                         itColl = m_pPrepDataContainerN->indexFind(outhash.front());
         }
         if (itColl != m_pPrepDataContainerN->end())
