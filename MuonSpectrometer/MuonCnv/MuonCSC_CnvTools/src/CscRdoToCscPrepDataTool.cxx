@@ -51,6 +51,7 @@ CscRdoToCscPrepDataTool::CscRdoToCscPrepDataTool
     m_rawDataProviderTool("Muon::CSC_RawDataProviderTool/CSC_RawDataProviderTool"),
     m_cscCalibTool( "CscCalibTool/CscCalibTool"),
     m_cscRdoDecoderTool ("Muon::CscRDO_Decoder/CscRDO_Decoder"),
+    m_cabling( "CSCcablingSvc" ,name),
     m_fullEventDone(false) {
 
   declareInterface<IMuonRdoToPrepDataTool>(this);
@@ -116,6 +117,12 @@ StatusCode CscRdoToCscPrepDataTool::initialize(){
   }
   m_cscStripPrepDataContainer->addRef();
   
+  if ( m_cabling.retrieve().isFailure() )
+  {
+    ATH_MSG_ERROR ( " Cannot get CSCcablingSvc " );
+    return StatusCode::FAILURE;
+  }
+
   return StatusCode::SUCCESS;
 }
 
@@ -236,10 +243,12 @@ StatusCode CscRdoToCscPrepDataTool::decode(const CscRawDataContainer* rdoContain
 
   //**********************************************
   // retrieve specific collection for the givenID
-  CscRawDataContainer::const_iterator it_coll = rdoContainer->indexFind(givenHashId);
+  uint32_t idColl = 0xffff;
+  m_cabling->hash2Rod(givenHashId,idColl);
+  CscRawDataContainer::const_iterator it_coll = rdoContainer->indexFind(idColl);
   if (rdoContainer->end() ==  it_coll) {
-    unsigned int coll_hash = givenHashId;  
-    ATH_MSG_DEBUG ( "Specific CSC RDO collection retrieving failed for collection hash = " << coll_hash );
+    unsigned int coll_hash = idColl;  
+    ATH_MSG_DEBUG ( "Specific CSC RDO collection retrieving failed for collection hash = " << idColl );
     return StatusCode::SUCCESS;
   }
 

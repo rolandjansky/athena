@@ -205,9 +205,7 @@ void Muon::CscROD_Decoder::rodVersion2(const ROBFragment& robFrag,  CscRawDataCo
   ATH_MSG_DEBUG ( "Online ROD / ROD / collection / subDetector IDs are 0x" << MSG::hex << onlineRodId << MSG::dec << " "
                   << rodId << " " << idColl << " " << subDetectorId );
 
-  assert (idColl <= 15);
-  assert (rodId <= 7);
-  assert (subDetectorId == 0x6A || subDetectorId == 0x69); // 50 or 51
+  //assert (subDetectorId == 0x6A || subDetectorId == 0x69); // 50 or 51
 
   CscRawDataCollection * rawCollection = 0;
   CscRawDataContainer::const_iterator it_coll = rdoIDC.indexFind(idColl);
@@ -538,9 +536,7 @@ void Muon::CscROD_Decoder::rodVersion1(const ROBFragment& robFrag,  CscRawDataCo
 
   uint16_t idColl        = m_cabling->collectionId(subDetectorId, rodId);
 
-  assert (idColl <= 15);
-  assert (rodId <= 7);
-  assert (subDetectorId <= 1);
+  //assert (subDetectorId <= 1);
   
   CscRawDataCollection * rawCollection = 0;
   CscRawDataContainer::const_iterator it_coll = rdoIDC.indexFind(idColl);
@@ -678,8 +674,7 @@ void Muon::CscROD_Decoder::rodVersion0(const ROBFragment& robFrag,  CscRawDataCo
   uint16_t subDetectorId = rodReadOut.subDetectorId();
   uint16_t rodId         = rodReadOut.rodId();
 
-  assert (rodId <= 7);
-  assert (subDetectorId <= 1);
+  //assert (subDetectorId <= 1);
 
   uint16_t subId = (subDetectorId == 0x0) ? 0x6A : 0x69;
   
