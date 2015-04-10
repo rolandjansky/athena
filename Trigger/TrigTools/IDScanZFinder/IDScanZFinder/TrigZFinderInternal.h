@@ -147,8 +147,6 @@ class TrigZFinderInternal
 
     double  m_weightThreshold;
 
-  std::vector<int> m_new2old; //transform table for new layer numbering scheme
-
 };
 
 
