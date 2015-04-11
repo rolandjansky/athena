@@ -6,7 +6,10 @@ if jobproperties.HIRecExampleFlags.withHijingEventPars:
     include ("HIRecExample/HijingOutputESDList_jobOptions.py")
 
 if jobproperties.HIRecExampleFlags.doHIGlobal:
-    include ("HIGlobal/HIGlobalOutputESDList_jobOptions.py")
+    from HIGlobal.HIGlobalUtils import AppendOutputList
+    AppendOutputList(HIESDItemList)
+
 
 if jobproperties.HIRecExampleFlags.doHIJetRec:
-    include ("HIJetRec/HIJetRecOutputESDList_jobOptions.py")
+    from HIJetRec.HIJetRecUtils import AppendOutputList
+    AppendOutputList(HIESDItemList)
