@@ -28,6 +28,9 @@ class HIJetClusterSubtractorTool : public HIJetSubtractorToolBase
 {
   ASG_TOOL_CLASS(HIJetClusterSubtractorTool, IHISubtractorTool)
 
+  // FIX
+  //needs lookup for static geometric factors!
+
   public:
   /// \brief Implements method defined in base
   /// First argument is reference to four vector that is updated to reflect
@@ -35,8 +38,9 @@ class HIJetClusterSubtractorTool : public HIJetSubtractorToolBase
   /// Method expects cl_in to be a cluster
   virtual StatusCode Subtract(xAOD::IParticle::FourMom_t& subtr_mom, xAOD::CaloCluster* cl_in, HIEventShapeContainer* shape) = 0;
 
-  // FIX
-  //needs lookup for static geometric factors!
+
+  virtual void UpdateUsingCluster(xAOD::HIEventShapeContainer* shape, const xAOD::CaloCluster* cl, 
+				  std::set<unsigned int>& used_indices, std::set<unsigned int>& used_eta_bins) = 0;
 
 
 };

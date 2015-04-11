@@ -13,6 +13,7 @@ namespace{
     float _ETMin;
 
     //return true if jet should be removed
+    /// %% FIX add check on attribute
     bool operator()(const xAOD::Jet* j1)
     {
       float max_ET=j1->getAttribute<float>("MaxConstituentET");
@@ -32,28 +33,9 @@ HIJetDiscriminatorTool::HIJetDiscriminatorTool(const std::string& t) : JetModifi
 
 int HIJetDiscriminatorTool::modify(xAOD::JetContainer& jets) const
 {
-  ATH_MSG(WARNING) << "discriminating" << endreq;
   xAOD::JetContainer::iterator itB = jets.begin();
   xAOD::JetContainer::iterator itE = jets.end();
   xAOD::JetContainer::iterator lastFiltered=std::remove_if(itB, itE, Discrim(m_MaxOverMean_cut,m_ET_min_cut));
   jets.erase( lastFiltered, itE );
   return 1;
 }
-
-// int HIJetFilter::modify(xAOD::JetContainer& jets) const
-// {
-  
-  
-//   for(auto iTool=m_tools.begin(); iTool!=m_tools.end(); iTool++)
-//   {
-//     xAOD::JetContainer::iterator itB = jets.begin();
-//     xAOD::JetContainer::iterator itE = jets.end();
-//     xAOD::JetContainer::iterator lastFiltered=std::remove_if(itB, itE, **m_tool );
-//     jets.erase( lastFiltered, itE );
-//   }
-
-//   return 1;
-// }
-//
-//Interface
-//bool operator()(const xAOD::Jet* j1); returns true of its supposed to be removed
