@@ -11,13 +11,12 @@ if not jobproperties.HIRecExampleFlags.ppMode:
   from JetRec.JetRecFlags import jetFlags
   jetFlags.Enabled = False
 
-  # AO InDet 2015
-  InDetFlags.cutLevel = 3
-  InDetFlags.doSGDeletion = False
-
-  # MC
-  from TriggerJobOpts.TriggerFlags import TriggerFlags
-  TriggerFlags.AODEDMSet.set_Value_and_Lock("AODFULL")
+  # running CaloTopoClusters for monitoring purposes
+  if rec.doMonitoring() :
+    from CaloRec.CaloRecFlags import jobproperties
+    jobproperties.CaloRecFlags.Enabled.set_Value_and_Lock(True) 
+    jobproperties.CaloRecFlags.doCaloTopoCluster.set_Value_and_Lock(True)
+    jobproperties.CaloRecFlags.doCaloEMTopoCluster.set_Value_and_Lock(True)
 
   from ParticleBuilderOptions.AODFlags import AODFlags
 
