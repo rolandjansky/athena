@@ -37,6 +37,13 @@ class doHIJetRec(JobProperty):
     allowedTypes = ['bool']
     StoredValue  = True
 
+class doHIegamma(JobProperty):
+    """ Run egamma reconstruction on subtracted cells
+    """
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = True
+
 class doHIJetAnalysis(JobProperty):
     """ Run heavy ion jet analysis
     """
@@ -101,6 +108,7 @@ list_jobproperties = [
     doHIReReco,
     doHIGlobal,
     doHIJetRec,
+    doHIegamma,
     doHIJetAnalysis,
     doHIEventView,
     doValidation,
