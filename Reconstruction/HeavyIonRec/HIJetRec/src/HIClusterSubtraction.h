@@ -20,21 +20,22 @@
 ///
 ////////////////////////////////////////////////////////////////////////////////
 
-
-#include <AthenaBaseComps/AthAlgorithm.h>
+#include "AsgTools/AsgTool.h"
+#include "JetInterface/IJetExecuteTool.h"
 #include <xAODCaloEvent/CaloClusterContainer.h>
 #include "AsgTools/ToolHandle.h"
 #include <HIJetRec/IHISubtractorTool.h>
 
-class HIClusterSubtraction : public AthAlgorithm
+class HIClusterSubtraction : virtual public asg::AsgTool,
+			     virtual public IJetExecuteTool
 {
-
+  ASG_TOOL_CLASS(HIClusterSubtraction,IJetExecuteTool)
 public:
-  HIClusterSubtraction(const std::string& name, ISvcLocator* pSvcLocator);
+  HIClusterSubtraction(std::string name);
   ~HIClusterSubtraction() {};
-  virtual StatusCode initialize(){return StatusCode::SUCCESS;};
-  virtual StatusCode execute();
-  virtual StatusCode finalize(){return StatusCode::SUCCESS;};
+
+  virtual int execute() const;
+
 
 private:
   /// \brief Name of input cluster container

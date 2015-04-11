@@ -28,7 +28,6 @@
 
 #include <string>
 #include "JetRec/JetModifierBase.h"
-#include "HIGlobal/HICaloHelper.h"
 #include "HIJetRec/IHISubtractorTool.h"
 #include "AsgTools/ToolHandle.h"
 
