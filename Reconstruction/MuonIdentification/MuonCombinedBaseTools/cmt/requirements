@@ -58,6 +58,7 @@ use  CaloEvent                  CaloEvent-*                     Calorimeter
 use  CaloInterface              CaloInterface-*                 Calorimeter
 use  Identifier                 Identifier-*                    DetectorDescription
 use  TrkEventUtils              TrkEventUtils-*                 Tracking/TrkEvent
+use  MagFieldInterfaces         MagFieldInterfaces-*            MagneticField
 end_private                     
 
 public

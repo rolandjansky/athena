@@ -38,6 +38,7 @@
 #include "Identifier/Identifier.h"
 #include "TrkEventUtils/IdentifierExtractor.h"
 #include "TrkMaterialOnTrack/ScatteringAngles.h"
+#include "MagFieldInterfaces/IMagFieldSvc.h"
 
 
 namespace MuonCombined {
@@ -55,6 +56,7 @@ namespace MuonCombined {
 	m_muonRecovery(""),
 	m_matchQuality("Rec::MuonMatchQuality/MuonMatchQuality"),
 	m_trackScoringTool("Muon::MuonTrackScoringTool/MuonTrackScoringTool"),
+	m_magFieldSvc("AtlasFieldSvc",name),
         m_DetID(0)
   {
     declareInterface<IMuonCombinedTagTool>(this);
@@ -71,6 +73,7 @@ namespace MuonCombined {
     declareProperty("MomentumBalanceCut",	m_momentumBalanceCut = 6.0);
     declareProperty("IndetPullCut", 		m_indetPullCut = 6.0);
     declareProperty("MatchChiSquaredCut",	m_matchChiSquaredCut = 30.0);
+    declareProperty("MagFieldSvc",		m_magFieldSvc);
   }
 
   MuonCombinedFitTagTool::~MuonCombinedFitTagTool()
@@ -90,6 +93,7 @@ namespace MuonCombined {
     ATH_CHECK(m_muonRecovery.retrieve()); 
     ATH_CHECK(m_matchQuality.retrieve());
     ATH_CHECK(m_trackScoringTool.retrieve());
+    ATH_CHECK(m_magFieldSvc.retrieve());
 
     if (detStore()->retrieve(m_DetID, "AtlasID").isFailure()) {
       ATH_MSG_ERROR ("Could not get AtlasDetectorID helper" );
@@ -294,8 +298,10 @@ namespace MuonCombined {
 							 const Trk::Track& indetTrack) const
   {
     // require calo correctly associated to track
-    if (! m_trackQuery->isCaloAssociated(combinedTrack)) return false;
-    
+    if (! m_trackQuery->isCaloAssociated(combinedTrack)) {
+      ATH_MSG_DEBUG(" No Calorimeter CaloDeposit found on combined track ");
+       return false;
+    }
     // loose cut on momentumBalanceSignificance
     double significance	= m_momentumBalanceTool->momentumBalanceSignificance(combinedTrack);
     if (fabs(significance) > m_momentumBalanceCut) {
@@ -368,9 +374,16 @@ namespace MuonCombined {
     
     // refit extrapolated from combined track (i.e. after cleaning)
     const Trk::Track*  refittedExtrapolatedTrack = 0;
-    if (! m_trackBuilder.empty())                                   refittedExtrapolatedTrack = m_trackBuilder->standaloneRefit(tag.combinedTrack());
-    if (! refittedExtrapolatedTrack && ! m_outwardsBuilder.empty()) refittedExtrapolatedTrack = m_outwardsBuilder->standaloneRefit(tag.combinedTrack());
+    bool dorefit = true;
     
+    // no SA refit for Toroid off 
+    if (!m_magFieldSvc->toroidOn()) dorefit = false;
+
+    ATH_MSG_DEBUG( " refit SA track " << dorefit);  
+    if(dorefit) {
+      if (! m_trackBuilder.empty())                                   refittedExtrapolatedTrack = m_trackBuilder->standaloneRefit(tag.combinedTrack());
+      if (! refittedExtrapolatedTrack && ! m_outwardsBuilder.empty()) refittedExtrapolatedTrack = m_outwardsBuilder->standaloneRefit(tag.combinedTrack());
+    } 
     // include vertex region pseudo for extrapolation failure
     unsigned numberPseudo = tag.muonCandidate().extrapolatedTrack() ? 
       m_trackQuery->numberPseudoMeasurements(*tag.muonCandidate().extrapolatedTrack()) : 1;

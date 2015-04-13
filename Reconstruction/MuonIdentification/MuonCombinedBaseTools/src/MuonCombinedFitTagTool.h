@@ -35,6 +35,10 @@ namespace Muon
   class MuonEDMPrinterTool;
 }
 
+namespace MagField {
+  class IMagFieldSvc;
+}
+
 namespace MuonCombined {
   class InDetCandidate;
   class MuonCandidate;
@@ -83,6 +87,7 @@ namespace MuonCombined {
     ToolHandle<Rec::IMuidMuonRecovery>		      m_muonRecovery; 
     ToolHandle<Rec::IMuonMatchQuality>		      m_matchQuality;
     ToolHandle<Trk::ITrackScoringTool>                m_trackScoringTool;
+    ServiceHandle<MagField::IMagFieldSvc>	      m_magFieldSvc;
     const AtlasDetectorID *m_DetID;
 
     // configuration
