@@ -500,10 +500,6 @@ private:
     /** Calibration */
     StauCalibration m_calibration;
 
-    std::string m_userStoreDummy;
-    std::string m_detStoreDummy;
-    std::string m_evtStoreDummy;
-
     /** */
     void printFcnSteps();
     void clearFcnSteps();

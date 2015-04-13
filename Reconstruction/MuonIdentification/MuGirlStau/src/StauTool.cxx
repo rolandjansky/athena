@@ -95,10 +95,6 @@ StauTool::StauTool(const std::string& t, const std::string& n, const IInterface*
     declareProperty("rpcCalibFileName", m_rpcCalibFileName);
     declareProperty("caloCalibFileName", m_caloCalibFileName);
 
-    // Dummies
-    declareProperty("UserStore", m_userStoreDummy);
-    declareProperty("DetStore", m_detStoreDummy);
-    declareProperty("EvtStore", m_evtStoreDummy);
 }
 
 //================ Destructor =================================================
