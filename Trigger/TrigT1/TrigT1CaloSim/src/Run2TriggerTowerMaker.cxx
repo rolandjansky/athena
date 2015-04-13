@@ -86,7 +86,7 @@ Run2TriggerTowerMaker::Run2TriggerTowerMaker(const std::string& name, ISvcLocato
   declareProperty("RequireAllCalos",m_requireAllCalos=true,"Should EM,Had and Tile all be available?");
 
   declareProperty("TriggerTowerLocation", m_outputLocation= TrigT1CaloDefs::TriggerTowerLocation);
-  declareProperty("xAODTriggerTowerLocation", m_xOutputLocation = "xAODTriggerTowers");
+  declareProperty("xAODTriggerTowerLocation", m_xOutputLocation = TrigT1CaloDefs::xAODTriggerTowerLocation );
   declareProperty("CellType", m_cellType = TTL1);
 
   declareProperty("EMTowerThreshold", m_emThresh = 4000,

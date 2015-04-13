@@ -43,8 +43,8 @@ try:
         raise RuntimeError('No key "intraTrainBunchSpacing" in /Digitization/Parameters.')
     _bunchSpacing = digiParam['intraTrainBunchSpacing']
 except RuntimeError, re:
-    log.error('Could not determine bunch-spacing from input file: %s' % re)
-    log.error('Configuring for 25ns - a wrong configuration might yield non sensible results!')
+    log.warning('Could not determine bunch-spacing from input file: %s' % re)
+    log.warning('Configuring for 25ns w/o pedestal correction - a wrong configuration might yield non sensible results!')
     _bunchSpacing = 25
     _doPC = False # not enough information to configure pedestal correction
 
@@ -52,7 +52,9 @@ if _bunchSpacing in _alg:
     log.info("Scheduling %s" %  _alg[_bunchSpacing].__name__)
     job += _alg[_bunchSpacing]( 'Run2TriggerTowerMaker' )
 else:
-    raise RuntimeError('Unrecognized bunch-spacing %s' % str(_bunchSpacing))
+    log.warning('No tuned configuration for a bunch-spacing of %s available. Using 25ns settings w/o pedestal correction.' % _bunchSpacing)
+    job += _alg[25]( 'Run2TriggerTowerMaker' )
+    _doPC = False
 
 log.info("Scheduling CPMTowerMaker, JetElementMaker, CPMSim, JEMJetSim, JEMEnergySim, CPCMX, JetCMX, EnergyCMX, RoIROD, Tester")
 
@@ -75,7 +77,7 @@ if not hasattr(ToolSvc, 'L1TriggerTowerTool'):
 job.Run2TriggerTowerMaker.ZeroSuppress = True
 
 # autoconfigure pedestal correction based on the input file
-if _doPC and _bunchSpacing not in (25,):
+if _doPC and _bunchSpacing not in (25,50):
     log.warning('Only 25ns intra train bunch spacing currently supported. Dynamic pedestal correction is disabled!')
     _doPC = False
 
@@ -93,10 +95,10 @@ if _doPC:
     if not hasattr(ToolSvc, 'L1DynamicPedestalProviderTxt'):
         ToolSvc += CfgMgr.LVL1__L1DynamicPedestalProviderTxt('L1DynamicPedestalProviderTxt',
                                                              BunchCrossingTool = bct,
-                                                             InputFileEM_ShortGap='DynamicPedestalCorrection_SG_EM.txt',
-                                                             InputFileHAD_ShortGap='DynamicPedestalCorrection_SG_HAD.txt',
-                                                             InputFileEM_LongGap='DynamicPedestalCorrection_LG_EM.txt',
-                                                             InputFileHAD_LongGap='DynamicPedestalCorrection_LG_HAD.txt')
+                                                             InputFileEM_ShortGap='DynamicPedestalCorrection_SG_EM_%dns.txt' % _bunchSpacing,
+                                                             InputFileHAD_ShortGap='DynamicPedestalCorrection_SG_HAD_%dns.txt' % _bunchSpacing,
+                                                             InputFileEM_LongGap='DynamicPedestalCorrection_LG_EM_%dns.txt' % _bunchSpacing,
+                                                             InputFileHAD_LongGap='DynamicPedestalCorrection_LG_HAD_%dns.txt' % _bunchSpacing)
     ToolSvc.L1TriggerTowerTool.L1DynamicPedestalProvider = ToolSvc.L1DynamicPedestalProviderTxt
 else:
     job.Run2TriggerTowerMaker.BaselineCorrection = False

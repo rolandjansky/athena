@@ -20,6 +20,7 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "DataModel/DataVector.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "xAODTrigL1Calo/TriggerTowerContainer.h"
 
 #include "TrigT1CaloToolInterfaces/IL1CPMTowerTools.h"
 
@@ -52,7 +53,7 @@ The CPMTowers so formed are used for the bytestream simulation.
 class Run2CPMTowerMaker : public AthAlgorithm
 {
   typedef DataVector<CPMTower> CPMTCollection;
-  typedef DataVector<xAOD::TriggerTower> TTCollection ;
+  typedef xAOD::TriggerTowerContainer TTCollection;
  public:
 
   //-------------------------

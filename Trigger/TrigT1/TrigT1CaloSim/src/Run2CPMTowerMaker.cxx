@@ -14,7 +14,6 @@
 // This algorithm includes
 #include "TrigT1CaloSim/Run2CPMTowerMaker.h"
 #include "TrigT1Interfaces/TrigT1CaloDefs.h"
-#include "xAODTrigL1Calo/TriggerTowerContainer.h"
 #include "TrigT1CaloEvent/CPMTower_ClassDEF.h"
 
 
