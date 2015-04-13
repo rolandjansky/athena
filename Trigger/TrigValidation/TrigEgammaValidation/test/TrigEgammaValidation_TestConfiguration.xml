@@ -50,7 +50,7 @@
                 athena.py -c 'from AthenaCommon.AthenaCommonFlags import athenaCommonFlags as acf;acf.EvtMax.set_Value_and_Lock(500);acf.FilesInput=["root://eosatlas//eos/atlas/atlascerngroupdisk/trig-daq/egamma/valid1.147406.PowhegPythia8_AZNLO_Zee.recon.RDO.e3099_s1982_s1964_r6067_tid04771185_00/RDO.04771185._000014.pool.root.1"];menu="MC_pp_v5"' TrigEgammaValidation/testAthenaTrigEgammaZeeRDOtoAOD.py
                 </jobTransformCmd>
               <group>HelloWorld</group>
-              <queue>short</queue>
+              <queue>long</queue>
             </jobTransform>
             <chainfileout>AOD.pool.root</chainfileout>
            </chainElement>
@@ -71,7 +71,7 @@
                         <datasetName>/eos/atlas/user/atlascerngroupdisk/trig-daq/egamma/AOD_backup_11events.root</datasetName>
                     </dataset_info>
                   </chaindataset_info>
-                <queue>short</queue>
+                <queue>long</queue>
             </jobTransform>
            </chainElement>        
 
