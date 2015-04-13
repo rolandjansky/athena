@@ -26,6 +26,9 @@
 
 #include "TrigTrackJetFinderTool/ITrigTrackJetFinderTool.h"
 
+
+#include "TrigDecisionTool/TrigDecisionTool.h"
+
 class BjetLikelihoodMon;
 class BjetProbabilityMon;
 
@@ -62,7 +65,7 @@ class HLTBjetMonTool : public IHLTMonTool {
 #endif
   //  */
 
-
+  ToolHandle<Trig::TrigDecisionTool> m_trigDec; //!
 
  private:
 
