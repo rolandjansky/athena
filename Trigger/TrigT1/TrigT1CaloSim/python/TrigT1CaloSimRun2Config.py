@@ -125,9 +125,17 @@ class Run2TriggerTowerMaker25ns(Run2TriggerTowerMaker):
         self.FilterCoeffsHadElement31=[3,-10,12,-3,0] # FCal2-2
         self.FilterCoeffsHadElement32=[0,-6,9,1,0]    # FCal3-2
 
-        # 25ns: noise cuts for auto-correlation filters (DC14 - need updating!!!)
-        self.EmThreshElementJEP=[6182,6246,6506,6515,6536,6495,6449,5844,5959,5780,5476,5526,5677,5348,4807,5307,5248,5383,5316,5230,5219,5228,5122,4933,4633,9316,9034,8981,6087,4116,11645,28641,26263]
-        self.HadThreshElementJEP=[4929,4859,4944,4569,4566,4394,4203,4067,4534,3633,3497,3517,3744,3369,3126,2684,3515,3680,3726,3607,3511,3526,3491,3387,3281,5617,5527,5206,2941,5329,10229,3044,5274]
+        # 25ns: noise cuts for auto-correlation filters
+        # MC15-like <mu>=20 w/ pedestal correction enabled
+        self.EmThreshElementJEP=[6545, 6708, 6729, 6715, 6823, 6713, 6591, 6197,
+                                 6135, 5908, 5857, 5846, 5788, 5206, 4693, 4909, 4848, 5473, 5143, 5149,
+                                 5005, 4976, 5001, 4889, 4556, 8678, 8580, 8486, 5464, 3606, 15776,
+                                 24490, 23520]
+        self.HadThreshElementJEP=[4466, 4403, 4273, 4125, 4051, 3910, 3836,
+                                  3696, 4007, 3090, 2883, 2936, 3088, 2707, 2456, 2191, 2827, 3137, 3182,
+                                  3075, 2892, 2773, 2719, 2605, 2566, 5491, 5077, 4366, 2225, 4738, 2398,
+                                  9324, 4639]
+
         # CP Thresholds are given for a Digit Scale of 1 GeV/count
         self.EmThreshElementCP=[4000]*33
         self.HadThreshElementCP=[4000]*33
@@ -209,9 +217,17 @@ class Run2TriggerTowerMaker50ns(Run2TriggerTowerMaker):
         self.FilterCoeffsHadElement31=[3,-8,12,-4,0] # FCal2-2
         self.FilterCoeffsHadElement32=[0,-3,8,1,0]   # FCal3-2
 
-        # 50ns: noise cuts for auto-correlation filters (DC14 - need updating!!!)
-        self.EmThreshElementJEP=[6182,6246,6506,6515,6536,6495,6449,5844,5959,5780,5476,5526,5677,5348,4807,5307,5248,5383,5316,5230,5219,5228,5122,4933,4633,9316,9034,8981,6087,4116,11645,28641,26263]
-        self.HadThreshElementJEP=[4929,4859,4944,4569,4566,4394,4203,4067,4534,3633,3497,3517,3744,3369,3126,2684,3515,3680,3726,3607,3511,3526,3491,3387,3281,5617,5527,5206,2941,5329,10229,3044,5274]
+        # 50ns: noise cuts for auto-correlation filters
+        # MC15-like <mu>=20 w/ pedestal correction enabled
+        self.EmThreshElementJEP=[5483, 5651, 5705, 5640, 5785, 5695, 5576, 5215,
+                                 5027, 4828, 4878, 4847, 4847, 4454, 3939, 4111, 4120, 4769, 4414, 4485,
+                                 4374, 4327, 4391, 4285, 3970, 8213, 8194, 8070, 4869, 3237, 17761,
+                                 22763, 23574]
+        self.HadThreshElementJEP=[3900, 3848, 3763, 3595, 3560, 3451, 3349,
+                                  3165, 3331, 2741, 2624, 2606, 2642, 2462, 2164, 1688, 2314, 2497, 2522,
+                                  2488, 2414, 2280, 2205, 1801, 2009, 4779, 4401, 3604, 1716, 4054, 2210,
+                                  7687, 3900]
+
         # CP thresholds are given for a Digit Scale of 1 GeV/count
         self.EmThreshElementCP=[4000]*33
         self.HadThreshElementCP=[4000]*33
