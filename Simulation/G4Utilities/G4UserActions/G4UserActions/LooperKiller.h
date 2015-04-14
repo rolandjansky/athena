@@ -13,7 +13,7 @@ class LooperKiller: public FADS::ActionsBase , public FADS::UserAction {
 
   public:
    LooperKiller(std::string s): FADS::ActionsBase(s), FADS::UserAction(s), m_max_steps(1000000), m_print_steps(100), m_count_steps(0), 
-                                m_killed_tracks(0), m_verbose_level(4), m_initted(false), m_abortEvent(true),
+                                m_killed_tracks(0), m_verbose_level(1), m_initted(false), m_abortEvent(true),
                                 m_setError(false) {}
    void BeginOfEventAction(const G4Event*);
    void EndOfEventAction(const G4Event*);
