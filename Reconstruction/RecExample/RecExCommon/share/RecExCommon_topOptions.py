@@ -161,12 +161,9 @@ if rec.doDetStatus() and not athenaCommonFlags.isOnline():
         treatException("Could not load DetStatusSvc_CondDb !")
         rec.doFileMetaData=False
 
-    if rec.doFileMetaData():
-        ## compute ESD item list (in CILMergedESD )
-        protectedInclude ( "RecExPers/RecoOutputMetadataList_jobOptions.py" )
-        #DR FIXME not sure about commissioing exception, filemetadata should be in filteredESD as well
-        if rec.doWriteRDO() or rec.doWriteESD() or rec.doWriteAOD() or rec.doDPD():
-            protectedInclude("DetectorStatus/DetStatusSvc_ToFileMetaData.py")
+if rec.doFileMetaData():
+    ## compute ESD item list (in CILMergedESD )
+    protectedInclude ( "RecExPers/RecoOutputMetadataList_jobOptions.py" )
 
 
 #Output file TagInfo and metadata
