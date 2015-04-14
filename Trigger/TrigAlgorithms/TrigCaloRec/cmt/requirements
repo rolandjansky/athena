@@ -42,6 +42,7 @@ use NavFourMom              NavFourMom-*                 Event
 use CaloDetDescr            CaloDetDescr-*               Calorimeter
 use CaloUtils               CaloUtils-*                  Calorimeter
 use TrigT1Interfaces        TrigT1Interfaces-*           Trigger/TrigT1
+#use TrigT1CaloByteStream    TrigT1CaloByteStream-*	 Trigger/TrigT1
 use CaloGeoHelpers          CaloGeoHelpers-*             Calorimeter
 use CaloRec                 CaloRec-*                    Calorimeter
 use CaloIdentifier          CaloIdentifier-*             Calorimeter

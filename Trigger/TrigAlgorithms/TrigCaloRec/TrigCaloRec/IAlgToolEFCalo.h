@@ -58,14 +58,12 @@ public:
     if (thecell->eta()<roi.etaMinus()) return false;
     if (thecell->eta()>roi.etaPlus()) return false;
     /// normal rois
-    if ( roi.phiPlus()<roi.phiMinus() && ( thecell->phi()<roi.phiMinus() || thecell->phi()>roi.phiPlus() ) ) return false;
-    else { 
-      double phi_cell = thecell->phi();
-      while (phi_cell> M_PI) phi_cell-=2*M_PI;
-      while (phi_cell<-M_PI) phi_cell+=2*M_PI;
-      /// roi spans the phi=pi boundary
-      if ( !(phi_cell>roi.phiMinus() || phi_cell<roi.phiPlus() ) ) return false;
-    }
+    
+    if (roi.phiPlus() < roi.phiMinus())
+      { if (! (thecell->phi()>roi.phiMinus() || thecell->phi()<roi.phiPlus())) return false; else return true; }
+    else
+      { if (! (thecell->phi()>roi.phiMinus() && thecell->phi()<roi.phiPlus())) return false; else return true; }
+
     /// these can never be called since the roi wraps to -pi to pi 
     ///    if (phimin<-M_PI && !(thecell->phi()<phimax || thecell->phi()>phimin+2*M_PI)) return false;
     ///    if (phimax>+M_PI && !(thecell->phi()>phimin || thecell->phi()<phimax-2*M_PI)) return false;
