@@ -363,6 +363,8 @@ HLT::ErrorCode TrigCaloCellMaker::hltExecute(const HLT::TriggerElement* inputTE,
   //  if ( !m_trustRoiLimits && !m_useSuperRoi ) delete roiDescriptor;
   // if ( createdRoi ) delete roiDescriptor;
 
+  if (pCaloCellContainer->size() < 1) return HLT::ErrorCode(HLT::Action::ABORT_CHAIN, HLT::Reason::MISSING_FEATURE);
+
   // Check conversion status
   pTrigCaloQuality->setPersistencyFlag(isPersistent);
   pTrigCaloQuality->setError(error);
