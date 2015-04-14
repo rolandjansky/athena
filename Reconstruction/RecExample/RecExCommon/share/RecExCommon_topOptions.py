@@ -161,10 +161,9 @@ if rec.doDetStatus() and not athenaCommonFlags.isOnline():
         treatException("Could not load DetStatusSvc_CondDb !")
         rec.doFileMetaData=False
 
-    if rec.doFileMetaData():
-        #DR FIXME not sure about commissioing exception, filemetadata should be in filteredESD as well
-        if rec.doWriteRDO() or rec.doWriteESD() or rec.doWriteAOD() or rec.doDPD():
-            protectedInclude("DetectorStatus/DetStatusSvc_ToFileMetaData.py")
+if rec.doFileMetaData():
+    ## compute ESD item list (in CILMergedESD )
+    protectedInclude ( "RecExPers/RecoOutputMetadataList_jobOptions.py" )
 
 
 #Output file TagInfo and metadata
@@ -963,8 +962,7 @@ if rec.doWriteRDO():
     #                             OutputFile    = athenaCommonFlags.PoolRDOOutput())
 
     if rec.doFileMetaData():
-        StreamRDO_Augmented.AddMetaDataItem( ["IOVMetaDataContainer#*"])
-        StreamRDO_Augmented.AddMetaDataItem( [ "LumiBlockCollection#*" ])
+        StreamRDO_Augmented.AddMetaDataItem(recoMetadataItemList())
 
 
     if rec.readRDO():
@@ -1033,13 +1031,21 @@ if rec.doFileMetaData():
 
     #lumiblocks
     if rec.readESD() or rec.readAOD():
+        # Lumi counting tool
         from LumiBlockComps.LumiBlockCompsConf import LumiBlockMetaDataTool
         svcMgr.MetaDataSvc.MetaDataTools += [ "LumiBlockMetaDataTool" ]
+        # Trigger tool
+        ToolSvc += CfgMgr.xAODMaker__TriggerMenuMetaDataTool( "TriggerMenuMetaDataTool",
+                                                               OutputLevel = 1 )
+        svcMgr.MetaDataSvc.MetaDataTools += [ ToolSvc.TriggerMenuMetaDataTool ]
+        # EventFormat tool
+        ToolSvc += CfgMgr.xAODMaker__EventFormatMetaDataTool( "EventFormatMetaDataTool",
+                                                               OutputLevel = 1 )
+        svcMgr.MetaDataSvc.MetaDataTools += [ ToolSvc.EventFormatMetaDataTool ]
+
     else:
         # Create LumiBlock meta data containers *before* creating the output StreamESD/AOD
-        include ("LumiBlockAthenaPool/LumiBlockAthenaPool_joboptions.py")
-        from LumiBlockComps.LumiBlockCompsConf import CreateLumiBlockCollectionFromFile
-        topSequence += CreateLumiBlockCollectionFromFile()
+        include ("LumiBlockComps/CreateLumiBlockFromFile_jobOptions.py")
         pass
     #EventBookkeepers
     if not hasattr(svcMgr,"CutFlowSvc"):
@@ -1177,10 +1183,7 @@ if rec.doWriteESD():
     StreamESD_Augmented=MSMgr.NewPoolStream(streamESDName,athenaCommonFlags.PoolESDOutput(),asAlg=True)
 
     if rec.doFileMetaData():
-        StreamESD_Augmented.AddMetaDataItem( "IOVMetaDataContainer#*")
-        StreamESD_Augmented.AddMetaDataItem( "LumiBlockCollection#*")
-        StreamESD_Augmented.AddMetaDataItem( "EventBookkeeperCollection#*")
-        StreamESD_Augmented.AddMetaDataItem( "ByteStreamMetadataContainer#*")
+        StreamESD_Augmented.AddMetaDataItem(recoMetadataItemList())
         StreamESD_Augmented.AddMetaDataItem( objKeyStore._store.metaData() )
         pass
 
@@ -1330,13 +1333,17 @@ if rec.doWriteAOD():
     from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
     StreamAOD_Augmented=MSMgr.NewPoolStream(streamAODName,athenaCommonFlags.PoolAODOutput(),asAlg=True)
     if rec.doFileMetaData():
+        # Trigger tool
+        ToolSvc += CfgMgr.xAODMaker__TriggerMenuMetaDataTool( "TriggerMenuMetaDataTool",
+                                                               OutputLevel = 1 )
+        svcMgr.MetaDataSvc.MetaDataTools += [ ToolSvc.TriggerMenuMetaDataTool ]
+        # EventFormat tool
+        ToolSvc += CfgMgr.xAODMaker__EventFormatMetaDataTool( "EventFormatMetaDataTool",
+                                                               OutputLevel = 1 )
+        svcMgr.MetaDataSvc.MetaDataTools += [ ToolSvc.EventFormatMetaDataTool ]
         # Put MetaData in AOD stream via AugmentedPoolStream_
-        # Write all IOV meta data containers
-        StreamAOD_Augmented.AddMetaDataItem("IOVMetaDataContainer#*")
-        # Write all LumiBlock meta data containers
-        StreamAOD_Augmented.AddMetaDataItem("LumiBlockCollection#*")
-        StreamAOD_Augmented.AddMetaDataItem("EventBookkeeperCollection#*")
-        StreamAOD_Augmented.AddMetaDataItem("ByteStreamMetadataContainer#*")
+        # Write all meta data containers
+        StreamAOD_Augmented.AddMetaDataItem(dfMetadataItemList())
         # Metadata declared by the sub-systems:
         StreamAOD_Augmented.AddMetaDataItem( objKeyStore._store.metaData() )
         pass
@@ -1599,11 +1606,7 @@ if rec.doDPD() and (rec.DPDMakerScripts()!=[] or rec.doDPD.passThroughMode):
             from RecExConfig.InputFilePeeker import inputFileSummary
             #Explicitely add file metadata from input and from transient store
             MSMgr.AddMetaDataItemToAllStreams(inputFileSummary['metadata_itemsList'])
-            MSMgr.AddMetaDataItemToAllStreams( "LumiBlockCollection#*" )
-            MSMgr.AddMetaDataItemToAllStreams( "xAOD::CutBookkeeperContainer#*" )
-            MSMgr.AddMetaDataItemToAllStreams( "xAOD::CutBookkeeperAuxContainer#*" )
-            #MSMgr.AddMetaDataItemToAllStreams( "EventBookkeeperCollection#*" )
-            MSMgr.AddMetaDataItemToAllStreams( "IOVMetaDataContainer#*" )
+            MSMgr.AddMetaDataItemToAllStreams(dfMetadataItemList())
             pass
         pass
     pass
