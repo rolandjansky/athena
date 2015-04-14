@@ -43,7 +43,7 @@ JetSamplingCollectionCnv::createPersistent( JetSamplingCollection* transCont )
   JetSamplingCollectionCnv_p2 cnv;
   JetSamplingCollection_PERS *persObj = cnv.createPersistent( transCont, msg );
 
-  msg << MSG::DEBUG << "::createPersistent [Success]" << endmsg;
+  msg << MSG::DEBUG << "::createPersistent [Success]" << endreq;
   return persObj; 
 }
 
@@ -62,14 +62,14 @@ JetSamplingCollection* JetSamplingCollectionCnv::createTransient()
     return poolReadObject<JetSamplingCollection>();
 
   } else if ( compareClassGuid(p2_guid) ) {
-    // using unique_ptr ensures deletion of the persistent object
-    std::unique_ptr<JetSamplingCollection_p2> persObj( poolReadObject<JetSamplingCollection_p2>() );
+    // using auto_ptr ensures deletion of the persistent object
+    std::auto_ptr<JetSamplingCollection_p2> persObj( poolReadObject<JetSamplingCollection_p2>() );
     JetSamplingCollectionCnv_p2 cnv;
     transObj = cnv.createTransient( persObj.get(), msg );
 
   } else if ( compareClassGuid(p1_guid) ) {
-    // using unique_ptr ensures deletion of the persistent object
-    std::unique_ptr<JetSamplingCollection_p1> persObj( poolReadObject<JetSamplingCollection_p1>() );
+    // using auto_ptr ensures deletion of the persistent object
+    std::auto_ptr<JetSamplingCollection_p1> persObj( poolReadObject<JetSamplingCollection_p1>() );
     JetSamplingCollectionCnv_p1 cnv;
     transObj = cnv.createTransient( persObj.get(), msg );
 
