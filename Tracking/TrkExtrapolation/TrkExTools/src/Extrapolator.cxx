@@ -2670,9 +2670,21 @@ const Trk::TrackParameters* Trk::Extrapolator::extrapolateWithinDetachedVolumes(
                                                                                matupmode);       
      if (onNextLayer) {      // solution with the destination surface ?     
        throwIntoGarbageBin(onNextLayer);
-       if ( sf.isOnSurface(onNextLayer->position(),bchk,m_tolerance,m_tolerance) ) {
+       // isOnSurface dummy for Perigee, use straightline distance estimate instead
+       // if ( sf.isOnSurface(onNextLayer->position(),bchk,m_tolerance,m_tolerance) ) {
+       Trk::DistanceSolution distSol = sf.straightLineDistanceEstimate(onNextLayer->position(),dir*onNextLayer->momentum().normalized());
+       double currentDistance =  (distSol.numberOfSolutions()>0 )?  distSol.absClosest() : fabs(distSol.toPointOfClosestApproach());
+       if ( currentDistance<=m_tolerance && sf.isOnSurface(onNextLayer->position(),bchk,m_tolerance,m_tolerance) ) {
          m_parametersAtBoundary.boundaryInformation(0,0,0);
-         if ( !bcheck || sf.isOnSurface(onNextLayer->position(),bcheck,m_tolerance,m_tolerance)) return onNextLayer->clone();
+         if ( !bcheck || sf.isOnSurface(onNextLayer->position(),bcheck,m_tolerance,m_tolerance)) {
+           if (sf.type() != onNextLayer->associatedSurface().type()) {
+	     ATH_MSG_DEBUG("mismatch in destination surface type:"<<sf.type()<<","<<  onNextLayer->associatedSurface().type()
+			     <<":distance to the destination surface:"<<currentDistance);
+             const Trk::TrackParameters* cParms=prop.propagate(*onNextLayer,sf,dir,bchk,m_fieldProperties,particle);
+             return cParms;
+	   } 
+	   return onNextLayer->clone();
+	 }
          else return returnParameters; 
        }
      } else {
