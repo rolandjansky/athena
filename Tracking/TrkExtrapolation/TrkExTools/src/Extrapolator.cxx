@@ -2680,12 +2680,8 @@ const Trk::TrackParameters* Trk::Extrapolator::extrapolateWithinDetachedVolumes(
            if (sf.type() != onNextLayer->associatedSurface().type()) {
 	     ATH_MSG_DEBUG("mismatch in destination surface type:"<<sf.type()<<","<<  onNextLayer->associatedSurface().type()
 			     <<":distance to the destination surface:"<<currentDistance);
-             const Trk::TrackParameters* cParms;
-             if (sf.type()==Trk::Surface::SurfaceType::Perigee)
-	       cParms= new Trk::Perigee(onNextLayer->position(),onNextLayer->momentum(),onNextLayer->charge(),Trk::PerigeeSurface());
-	     else cParms= new Trk::CurvilinearParameters(onNextLayer->position(),onNextLayer->momentum(),onNextLayer->charge());
-             return cParms;    
-             //return sf.createParameters(onNextLayer->position(),onNextLayer->momentum(),onNextLayer->charge());
+             const Trk::TrackParameters* cParms=prop.propagate(*onNextLayer,sf,dir,bchk,m_fieldProperties,particle);
+             return cParms;
 	   } 
 	   return onNextLayer->clone();
 	 }
