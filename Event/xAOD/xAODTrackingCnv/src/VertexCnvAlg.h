@@ -11,8 +11,6 @@
 // Athena/Gaudi include(s):
 #include "AthenaBaseComps/AthAlgorithm.h"
 
-#include "xAODTracking/VertexContainer.h"
-#include "xAODTracking/VertexAuxContainer.h"
 namespace xAODMaker {
 
    /**
@@ -38,12 +36,9 @@ namespace xAODMaker {
 
    private:
       /// The key of the input Container
-      SG::ReadHandle<VxContainer> m_aod;
-      
+      std::string m_aodContainerName;
       /// The key for the output xAOD::Container
-      SG::WriteHandle<xAOD::VertexContainer> m_xaodout;
-      SG::WriteHandle<xAOD::VertexAuxContainer> m_xauxout;      
-      
+      std::string m_xaodContainerName;
       /// The key for the track particle links Container
       std::string m_TPContainerName;
       /// The key for the neutral particle links Container

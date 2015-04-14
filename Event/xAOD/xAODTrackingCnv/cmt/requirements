@@ -8,8 +8,6 @@ use AtlasPolicy     AtlasPolicy-*
 
 public
 use  AtlasPolicy                AtlasPolicy-*                   
-use  TrkTrack                   TrkTrack-*                      Tracking/TrkEvent
-use  xAODTracking               xAODTracking-*                  Event/xAOD
 private
 use  AthenaBaseComps            AthenaBaseComps-*               Control
 use  AthenaKernel               AthenaKernel-*                  Control
@@ -21,11 +19,12 @@ use  Particle                   Particle-*                      Reconstruction
 use  ParticleTruth              ParticleTruth-*                 Reconstruction
 use  TrkParticleBase            TrkParticleBase-*               Tracking/TrkEvent
 use  TrkToolInterfaces          TrkToolInterfaces-*             Tracking/TrkTools
+use  TrkTrack                   TrkTrack-*                      Tracking/TrkEvent
 use  TrkTrackLink               TrkTrackLink-*                  Tracking/TrkEvent
 use  TrkTruthData               TrkTruthData-*                  Tracking/TrkEvent
 use  VxVertex                   VxVertex-*                      Tracking/TrkEvent
+use  xAODTracking               xAODTracking-*                  Event/xAOD
 use  TrkLinks                   TrkLinks-*              	Tracking/TrkEvent
-use CxxUtils                   CxxUtils-*                      Control
 end_private
 
 # Make a component library:
