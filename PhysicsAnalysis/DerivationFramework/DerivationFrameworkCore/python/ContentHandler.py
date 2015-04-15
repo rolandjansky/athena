@@ -15,24 +15,37 @@ class ContentHandler:
 		return line
 
 	def expandAuxStore(self,auxContainerName):
+		# Expand to dynamic variables via the AuxStoreWrapper
 		wrapperName = auxContainerName+"Wrapper"
 		seq = AlgSequence()
-		if not hasattr( seq, wrapperName ):
-			alg = CfgMgr.xAODMaker__AuxStoreWrapper( wrapperName, SGKeys = [ auxContainerName+"." ] )
-			seq.insert( 0, alg )
-			pass
+		for item in seq:
+			if item.name() == "AuxStoreWrapperSequence":
+				if not hasattr( item, wrapperName ):
+					alg = CfgMgr.xAODMaker__AuxStoreWrapper( wrapperName, SGKeys = [ auxContainerName+"." ] )
+					#seq.insert( 0, alg )
+					item += alg
+					pass
+				break
 
-	def GetContent(self,contentList):
+	def GetContent(self,contentList,wholeContentList):
 		mainOutput = []
 		auxOutput = {}
 		for item in contentList:
 			components = item.split(".")
 			if len(components)==1:
+				# deal with main containers
 				mainItem = self.mainContainerLine(components[0])
 				if (mainItem not in mainOutput):
 					mainOutput.append(self.mainContainerLine(components[0]))
 			if len(components)>1:
-				self.expandAuxStore(components[0])
+				# Deal with Aux containers
+				if (self.mainContainerLine(components[0]).split('#')[0]!='xAOD::JetAuxContainer'):
+					# expand to dynamic, not needed for jets as dynamic already
+					self.expandAuxStore(components[0])
+				if (components[0]+"." in wholeContentList):
+					if (components[0] not in auxOutput.keys()):
+						auxOutput[components[0]] = ""
+					continue
 				if (components[0] not in auxOutput.keys()):
 					auxOutput[components[0]] = components[1:]
 				if (components[0] in auxOutput.keys()):

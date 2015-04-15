@@ -16,9 +16,16 @@ from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
 from AthenaCommon.JobProperties import jobproperties
 from AthenaCommon import CfgMgr 
 from AthenaCommon.AlgSequence import AlgSequence 
+from JetRec.JetRecFlags import jetFlags 
+from AthenaCommon.GlobalFlags  import globalflags
+
+# Sequence for the AuxStoreWrappers (for slimming)
+AuxStoreWrapperSequence = CfgMgr.AthSequencer("AuxStoreWrapperSequence")
+
 
 # DerivationJob is COMMON TO ALL DERIVATIONS
 DerivationFrameworkJob = AlgSequence()
+DerivationFrameworkJob += AuxStoreWrapperSequence
 
 # Set up stream auditor
 from AthenaCommon.AppMgr import ServiceMgr as svcMgr
@@ -32,3 +39,12 @@ cfg = TriggerConfigGetter('ReadPool')
 from TrigDecisionTool.TrigDecisionToolConf import Trig__TrigDecisionTool
 tdt = Trig__TrigDecisionTool("TrigDecisionTool")
 ToolSvc += tdt
+
+# Centrally setting (jet for now) flags
+# Data and MC flags
+jetFlags.useTracks = True
+# MC-related flags
+if globalflags.DataSource()=='geant4':
+    print "Switching on jetFlags.useTruth"
+    jetFlags.useTruth = True
+
