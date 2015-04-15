@@ -31,7 +31,7 @@ ALFA_RawDataContainer_charge::ALFA_RawDataContainer_charge():
   //: IdentifiableContainer<ALFA_RawDataCollection_charge>() 
   DataVector<ALFA_RawDataCollection_charge>(),
   m_wordMarker(0),
-  m_dataWord(0),
+  //m_dataWord(0),
   m_subdetId(0),
   m_mrodId(0),
   m_lvl1Id(0),

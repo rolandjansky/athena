@@ -29,7 +29,7 @@ class ALFA_RawDataContainer : public DataVector<ALFA_RawDataCollection> {
  
   // I added runNum, runType, DetEventType
   // modification based on page19 MROD data format document and on ALFA dumped data file
-  uint32_t m_dataWord;
+  //uint32_t m_dataWord;
 
   // Data members
   uint16_t m_subdetId;   // Sub-detector Id 

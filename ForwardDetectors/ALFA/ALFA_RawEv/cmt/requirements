@@ -3,14 +3,14 @@ package ALFA_RawEv
 author Tomas Sykora <tomas.sykora@cern.ch>, Sara Diglio <Sara.Diglio@cern.ch>
 
 
-use AtlasPolicy           AtlasPolicy-01-*
+use AtlasPolicy           AtlasPolicy-*
 use CLIDSvc               CLIDSvc-*                  Control
 use DataModel             DataModel-*                Control
 
-use HitManagement	  HitManagement-00-*	     Simulation
+use HitManagement	  HitManagement-*	     Simulation
 
 use SGTools               SGTools-*                  Control
-use AtlasReflex   AtlasReflex-00-*   External -no_auto_imports
+use AtlasReflex           AtlasReflex-*              External -no_auto_imports
 
 library  ALFA_RawEv ../src/*.cxx
 
