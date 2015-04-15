@@ -440,6 +440,26 @@ class L2BMuMuFex_DiMu_11invm60_noOS (TrigL2BMuMuFex):
         online = TrigL2BMuMuFexOnlineMonitoring()
 
         self.AthenaMonTools = [ validation, online, time ]
+        
+class L2BMuMuFex_DiMu_11invm24_noOS (L2BMuMuFex_DiMu_11invm60_noOS):
+    __slots__ = []
+    def __init__(self, name = "L2BMuMuFex_DiMu_11invm24_noOS"):
+        super( L2BMuMuFex_DiMu_11invm24_noOS, self ).__init__( name )
+        
+        # L2 Bmumu cuts
+        self.LowerMassCut       = 11000.
+        self.UpperMassCut       = 24000.
+
+
+class L2BMuMuFex_DiMu_24invm60_noOS (L2BMuMuFex_DiMu_11invm60_noOS):
+    __slots__ = []
+    def __init__(self, name = "L2BMuMuFex_DiMu_24invm60_noOS"):
+        super( L2BMuMuFex_DiMu_24invm60_noOS, self ).__init__( name )
+        
+        # L2 Bmumu cuts
+        self.LowerMassCut       = 24000.
+        self.UpperMassCut       = 60000.
+
 
 class L2BMuMuFex_DiMu_18invm60_noOS (TrigL2BMuMuFex):
     __slots__ = []

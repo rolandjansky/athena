@@ -262,6 +262,12 @@ class TrigEFBMuMuXFex: public HLT::ComboAlgo  {
     bool m_acceptAll;
 
 
+    // TrigEFBphysContainer* m_trigBphysColl_b;
+    // TrigEFBphysContainer* m_trigBphysColl_X;
+
+    xAOD::TrigBphysContainer * mTrigBphysColl_b;
+    xAOD::TrigBphysContainer * mTrigBphysColl_X;
+    
     //Counters
     int m_lastEvent;
     int m_lastEventPassed;
@@ -320,16 +326,12 @@ class TrigEFBMuMuXFex: public HLT::ComboAlgo  {
     unsigned int m_countPassedBcVtx;
     unsigned int m_countPassedBcVtxChi2;
 
-    // TrigEFBphysContainer* m_trigBphysColl_b;
-    // TrigEFBphysContainer* m_trigBphysColl_X;
-
-    xAOD::TrigBphysContainer * mTrigBphysColl_b;
-    xAOD::TrigBphysContainer * mTrigBphysColl_X;
-
     
     void addUnique(std::vector<const Trk::Track*>&, const Trk::Track*);
+    void addUnique(std::vector<const xAOD::TrackParticle*>&, const xAOD::TrackParticle*);
 //   double invariantMass(const TrigMuonEF* , const TrigMuonEF* );
 //   double invariantMass(const Trk::Track* , const Trk::Track* );
+    bool isUnique(const  xAOD::TrackParticle* id1, const  xAOD::TrackParticle* id2) const;
 
     double XMass(const Trk::Track* particle1, const Trk::Track* particle2, int decay);
     double KMuMuMass(const Trk::Track* mu1, const Trk::Track* mu2, const Trk::Track* kaon);

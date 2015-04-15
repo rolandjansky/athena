@@ -48,10 +48,24 @@
 /*--------------------------------------------------------------------------------*/
 TrigL2MultiMuFex::TrigL2MultiMuFex(const std::string & name, ISvcLocator* pSvcLocator):
   HLT::ComboAlgo(name, pSvcLocator),
-m_bphysHelperTool("TrigBphysHelperUtilsTool"),
+  m_bphysHelperTool("TrigBphysHelperUtilsTool"),
   m_L2vertFitter("TrigL2VertexFitter",this),
   m_vertexingTool("TrigVertexingTool",this),
-m_massMuon(105.6583715)
+  m_BmmHypTot(0),
+  m_BmmHypVtx(0),
+  // counters
+  m_lastEvent(-1),
+  m_lastEventPassed(-1),
+  m_countTotalEvents(0),
+  m_countTotalRoI(0),
+  m_countPassedEvents(0),
+  m_countPassedRoIs(0),
+  m_countPassedmumuPairs(0),
+  m_countPassedBsMass(0),
+  m_countPassedVtxFit(0),
+
+  m_passInvMass(false),
+  m_massMuon(105.6583715)
 /*--------------------------------------------------------------------------------*/
 {
 

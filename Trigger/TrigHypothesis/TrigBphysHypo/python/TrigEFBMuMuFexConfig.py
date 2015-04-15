@@ -400,6 +400,26 @@ class EFBMuMuFex_DiMu_11invm60_noOS (TrigEFBMuMuFex):
 
         self.AthenaMonTools = [ validation, online, time ]
 
+class EFBMuMuFex_DiMu_11invm24_noOS (EFBMuMuFex_DiMu_11invm60_noOS):
+    __slots__ = []
+    def __init__(self, name = "EFBMuMuFex_DiMu_11invm24_noOS"):
+        super( EFBMuMuFex_DiMu_11invm24_noOS, self ).__init__( name )
+        
+        # L2 Bmumu cuts
+        self.LowerMassCut      = 11000.
+        self.UpperMassCut      = 24000.
+        
+        
+class EFBMuMuFex_DiMu_24invm60_noOS (EFBMuMuFex_DiMu_11invm60_noOS):
+    __slots__ = []
+    def __init__(self, name = "EFBMuMuFex_DiMu_24invm60_noOS"):
+        super( EFBMuMuFex_DiMu_24invm60_noOS, self ).__init__( name )
+        
+        # L2 Bmumu cuts
+        self.LowerMassCut      = 24000.
+        self.UpperMassCut      = 60000.
+        
+        
 class EFBMuMuFex_DiMu_18invm60_noOS (TrigEFBMuMuFex):
     __slots__ = []
     def __init__(self, name = "EFBMuMuFex_DiMu_18invm60_noOS"):

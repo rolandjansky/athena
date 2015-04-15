@@ -46,11 +46,27 @@
 
 //class ISvcLocator;
 
+
 /*--------------------------------------------------------------------------------*/
 TrigL2BMuMuFex::TrigL2BMuMuFex(const std::string & name, ISvcLocator* pSvcLocator):
 HLT::ComboAlgo(name, pSvcLocator),
+m_muon1(0),
+m_muon2(0),
 m_L2vertFitter("TrigL2VertexFitter",this),
 m_vertexingTool("TrigVertexingTool",this),
+m_BmmHypTot(0),
+m_BmmHypVtx(0),
+// counters
+m_lastEvent(-1),
+m_lastEventPassed(-1),
+m_countTotalEvents(0),
+m_countTotalRoI(0),
+m_countPassedEvents(0),
+m_countPassedRoIs(0),
+m_countPassedmumuPairs(0),
+m_countPassedBsMass(0),
+m_countPassedVtxFit(0),
+
 m_massMuon(105.6583715)
 /*--------------------------------------------------------------------------------*/
 {
@@ -72,7 +88,10 @@ m_massMuon(105.6583715)
     declareProperty("TrigVertexingTool" , m_vertexingTool, "TrigVertexingTool" );
     
     declareProperty("MassTrack" , m_massMuon, "Mass of the muon" );
-    
+    declareProperty("L2CombinedMuonIDTrackKey",m_combinedMuonIDTrackKey="InDetTrigTrackingxAODCnv_Muon_FTF");
+    declareProperty("L2CombinedMuonKey",       m_combinedMuonKey       ="MuonL2CBInfo");
+    declareProperty("StandAloneMuonKey",       m_standaloneMuonKey     ="MuonL2SAInfo");
+
     
     // Variables for monitoring histograms
     declareMonitoredStdContainer("Errors"                 , mon_Errors                  , AutoClear);
@@ -105,7 +124,8 @@ m_massMuon(105.6583715)
     declareMonitoredStdContainer("SumPtMutrk12_okFit"     , mon_SumPtMutrk12_okFit      , AutoClear);
     declareMonitoredStdContainer("FitVtxR"                , mon_FitVtxR                 , AutoClear);
     declareMonitoredStdContainer("FitVtxZ"                , mon_FitVtxZ                 , AutoClear);
-    //  declareMonitoredVariable(    "VertexingTime"          , mon_VertexingTime );
+    declareMonitoredVariable(    "VertexingTime"          , mon_VertexingTime );
+    declareMonitoredVariable(    "TotalRunTime"          , mon_TotalRunTime );
     //  // - one combined + one standalone muon
     //  declareMonitoredStdContainer("MustandROIdR"           , mon_MustandROIdR            , AutoClear);
     //  declareMonitoredStdContainer("MustandPt"              , mon_MustandPt               , AutoClear);
@@ -429,6 +449,7 @@ HLT::ErrorCode TrigL2BMuMuFex::acceptInputs(HLT::TEConstVec& inputTE, bool& pass
             } else {
                 if (l2combinedMuonEL[i].size()) {
                     muonX[i] = l2combinedMuonEL[i][0].isValid() ? *(l2combinedMuonEL[i][0]): nullptr;
+                    muonXEL[i] = l2combinedMuonEL[i][0];
                 }
                 if (l2combinedMuonEL[i].size() > 1) {
                     msg() << MSG::WARNING << "Unexpected number of containers for comb feature: " << i+1 << endreq;
@@ -624,8 +645,12 @@ HLT::ErrorCode TrigL2BMuMuFex::acceptInputs(HLT::TEConstVec& inputTE, bool& pass
             if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "Missing track(s) from ID or they are the same" << endreq;
             vtxpass    = false;
             mumuIDpass = false;
-            // if ( timerSvc() ) m_BmmHypTot->stop();
-            // return HLT::OK;
+            pass = true; // ST: to actually pass the empty collection to L2BMuMuHypo
+            if ( timerSvc() ) {
+              m_BmmHypTot->stop();
+              mon_TotalRunTime = m_BmmHypTot->elapsed();
+            }
+            return HLT::OK;
         } else {
             mon_Acceptance.push_back( ACCEPT_MuMu_Both_IDTracks );
             // Monitoring of the combined muons w.r.t. ID tracks
@@ -822,24 +847,70 @@ HLT::ErrorCode TrigL2BMuMuFex::acceptInputs(HLT::TEConstVec& inputTE, bool& pass
         << " phi, eta "    << trigPartBmumu->phi() << " " << trigPartBmumu->eta()
         << " vertex type " << trigPartBmumu->particleType() << endreq;
     
-    // JK Add element-links to tracks
     if ( !m_noId ) {
-        const ElementLink< xAOD::TrackParticleContainer >& track1EL  = m_muon1->idTrackLink();
-        const ElementLink< xAOD::TrackParticleContainer >& track2EL  = m_muon2->idTrackLink();
+        //const ElementLink< xAOD::TrackParticleContainer >& track1EL  = m_muon1->idTrackLink();
+        //const ElementLink< xAOD::TrackParticleContainer >& track2EL  = m_muon2->idTrackLink();
+        ElementLink< xAOD::TrackParticleContainer > track1EL  = m_muon1->idTrackLink();
+        ElementLink< xAOD::TrackParticleContainer > track2EL  = m_muon2->idTrackLink();
+        // note - the above tracks have HLT autokey - need to remap to pers. container
+        // no garauntee that some slimming won't latter mess this up - better to use TDT in analysis
+        ElementLinkVector< xAOD::TrackParticleContainer > newContainer1, newContainer2;
+        if (HLT::OK != getFeaturesLinks<xAOD::TrackParticleContainer,xAOD::TrackParticleContainer>(inputTE[0],newContainer1,m_combinedMuonIDTrackKey)) {
+            msg() << MSG::DEBUG << "No elv trkcon roi0" << endreq;
+
+        }
+        if (HLT::OK != getFeaturesLinks<xAOD::TrackParticleContainer,xAOD::TrackParticleContainer>(inputTE[1],newContainer2,m_combinedMuonIDTrackKey)) {
+            msg() << MSG::DEBUG << "No elv trkcon roi1" << endreq;
+        }
+        msg() << MSG::DEBUG << "Before mapping: Valid " << track1EL.isValid() << " "  << track2EL.isValid() << endreq;
+        msg() << MSG::DEBUG << "V1 " << track1EL.dataID() << " "  << track1EL.index() << endreq;
+        msg() << MSG::DEBUG << "V2 " << track2EL.dataID() << " "  << track2EL.index() << endreq;
+        track1EL = remap_container(track1EL,newContainer1);
+        track2EL = remap_container(track2EL,newContainer2);
         
-        if ( msgLvl() <= MSG::VERBOSE ) {
-            msg() << MSG::VERBOSE << "Just check track links... " << endreq;
-            msg() << MSG::VERBOSE << "Track 1 pT " << (*track1EL)->pt()
+        
+        
+        if ( msgLvl() <= MSG::DEBUG ) {
+            msg() << MSG::DEBUG << "Just check track links... " << endreq;
+            msg() << MSG::DEBUG << "Valid " << track1EL.isValid() << " "  << track2EL.isValid() << endreq; 
+            msg() << MSG::DEBUG << "V1 " << track1EL.dataID() << " "  << track1EL.index() << endreq; 
+            msg() << MSG::DEBUG << "V2 " << track2EL.dataID() << " "  << track2EL.index() << endreq; 
+            msg() << MSG::DEBUG << "Track 1 pT " << (*track1EL)->pt()
             << " eta: " << (*track1EL)->eta()
             << " phi: " << (*track1EL)->phi() << endreq;
-            msg() << MSG::VERBOSE << "Track 2 pT " << (*track2EL)->pt()
+            msg() << MSG::DEBUG << "Track 2 pT " << (*track2EL)->pt()
             << " eta: " << (*track2EL)->eta()
             << " phi: " << (*track2EL)->phi() << endreq;
         }
         trigPartBmumu->addTrackParticleLink(track1EL);
         trigPartBmumu->addTrackParticleLink(track2EL);
-        ElementLink<xAOD::IParticleContainer> ptl1EL(muonXEL[0].dataID(),muonXEL[0].index());
-        ElementLink<xAOD::IParticleContainer> ptl2EL(muonXEL[1].dataID(),muonXEL[1].index());
+        
+        msg() << MSG::DEBUG << "JWPtl1: " << muonXEL[0].isValid() << " " << muonXEL[0].dataID() << " " << muonXEL[0].index() << endreq;
+        msg() << MSG::DEBUG << "JWPt12: " << muonXEL[1].isValid() << " " << muonXEL[1].dataID() << " " << muonXEL[1].index() << endreq;
+
+        ElementLinkVector< xAOD::L2CombinedMuonContainer > muonContainerComb1,muonContainerComb2;
+        if (HLT::OK != getFeaturesLinks<xAOD::L2CombinedMuonContainer,xAOD::L2CombinedMuonContainer>(inputTE[0],muonContainerComb1,m_combinedMuonKey)) {
+            msg() << MSG::DEBUG << "No comb muon container" << endreq;
+        } else {
+            msg() << MSG::DEBUG << "Comb muon container: " << muonContainerComb1.size() << endreq;
+        }
+        for (auto el: muonContainerComb1) {
+            msg() << MSG::DEBUG << "Comb muon container: " << el.dataID() << " " << el.index() << endreq;
+        }
+        if (HLT::OK != getFeaturesLinks<xAOD::L2CombinedMuonContainer,xAOD::L2CombinedMuonContainer>(inputTE[1],muonContainerComb2,m_combinedMuonKey)) {
+            msg() << MSG::DEBUG << "No comb muon container" << endreq;
+        } else {
+            msg() << MSG::DEBUG << "Comb muon container: " << muonContainerComb2.size() << endreq;
+        }
+        for (auto el: muonContainerComb2) {
+            msg() << MSG::DEBUG << "Comb muon container: " << el.dataID() << " " << el.index() << endreq;
+        }
+        ElementLink<xAOD::IParticleContainer> ptl1EL = remap_container(muonXEL[0],muonContainerComb1);
+        ElementLink<xAOD::IParticleContainer> ptl2EL = remap_container(muonXEL[1],muonContainerComb2);
+
+        
+        //ElementLink<xAOD::IParticleContainer> ptl1EL(muonXEL[0].dataID(),muonXEL[0].index());
+        //ElementLink<xAOD::IParticleContainer> ptl2EL(muonXEL[1].dataID(),muonXEL[1].index());
         trigPartBmumu->addParticleLink(ptl1EL); //
         trigPartBmumu->addParticleLink(ptl2EL); //
 
@@ -851,7 +922,15 @@ HLT::ErrorCode TrigL2BMuMuFex::acceptInputs(HLT::TEConstVec& inputTE, bool& pass
 
         
     } else {
-        const ElementLink< xAOD::TrackParticleContainer >& track1EL  = m_muon->idTrackLink();
+        ElementLink< xAOD::TrackParticleContainer > track1EL  = m_muon->idTrackLink();
+        ElementLinkVector< xAOD::TrackParticleContainer > newContainer1;
+        if (HLT::OK != getFeaturesLinks<xAOD::TrackParticleContainer,xAOD::TrackParticleContainer>(inputTE[0],newContainer1,m_combinedMuonIDTrackKey)) {
+            msg() << MSG::DEBUG << "No elv trkcon roi0" << endreq;
+            
+        }
+        msg() << MSG::DEBUG << "V1 " << track1EL.dataID() << " "  << track1EL.index() << endreq;
+        track1EL = remap_container(track1EL,newContainer1);
+
         if ( msgLvl() <= MSG::VERBOSE ){
             msg() << MSG::VERBOSE << "Just check track links... " << endreq;
             msg() << MSG::VERBOSE << "Track 1 pT " << (*track1EL)->pt()
@@ -868,6 +947,10 @@ HLT::ErrorCode TrigL2BMuMuFex::acceptInputs(HLT::TEConstVec& inputTE, bool& pass
         trigPartBmumu->setPhi(dimuon.Phi());
 
         trigPartBmumu->addTrackParticleLink(track1EL);
+        msg() << MSG::DEBUG << "JWnoid1: " << m_muonEL.dataID() << " " << m_muonEL.index() << endreq;
+        msg() << MSG::DEBUG << "JWnoid2: " << pMuonFeatureEL.dataID() << " " << pMuonFeatureEL.index() << endreq;
+        
+
         ElementLink<xAOD::IParticleContainer> tEL(m_muonEL.dataID(),m_muonEL.index());
         trigPartBmumu->addParticleLink(tEL); // use Iparticle container for standalone muon
 
@@ -1195,17 +1278,95 @@ HLT::ErrorCode TrigL2BMuMuFex::hltExecute(HLT::TEConstVec& , HLT::TriggerElement
 //  return mass;
 //}
 //
-bool TrigL2BMuMuFex::isUnique(const  xAOD::IParticle* id1, const  xAOD::IParticle* id2) const {
+bool TrigL2BMuMuFex::isUnique(const  xAOD::TrackParticle* id1, const  xAOD::TrackParticle* id2) const {
     if (!id1 || !id2) return false;
     float dEta = fabs( id1->eta() - id2->eta() );
     float dPhi = id1->phi() - id2->phi();
     while  (dPhi >  M_PI) dPhi -= 2*M_PI;
     while  (dPhi < -M_PI) dPhi += 2*M_PI;
     
-    if(dEta < 0.02 && fabs(dPhi) < 0.02 ) return false;
+    if( dEta < 0.02 && fabs(dPhi) < 0.02 && id1->charge() * id2->charge() > 0 ) return false;
     else return true;
     
 }
+
+
+ElementLink<xAOD::TrackParticleContainer> TrigL2BMuMuFex::remap_container(const ElementLink<xAOD::TrackParticleContainer> & oldElink,
+                                                                          const ElementLinkVector<xAOD::TrackParticleContainer> &newContainer) const {
+    // take a valid element link, and remap it onto already stored objects
+    // if original not valid, then no hope in finding new object, return the old
+    
+    //    msg() << MSG::DEBUG << oldElink.isValid() << " " << (*oldElink)->pt()<< " " << (*oldElink)->phi() << " " << (*oldElink)->eta()  << endreq;
+    //    msg() << MSG::DEBUG << "Container: " << newContainer.size() << endreq;
+    if (!oldElink.isValid()) return oldElink;
+    const auto tp  = *oldElink;
+
+    for (auto elink : newContainer) {
+        if (!elink.isValid()) continue;
+        const auto el  = *elink;
+
+        // do some simple matching:
+        if ( fabs(tp->pt()  - el->pt()  ) > 1   ) continue;
+        if ( fabs(tp->eta() - el->eta() > 0.001)) continue;
+        double dphi = fabs(tp->phi() - el->phi());
+        if (dphi > M_PI) dphi = 2*M_PI - dphi;
+        if (fabs(dphi) > 0.001) continue;
+        //msg() << MSG::DEBUG << elink.isValid() << " "
+        //      << elink.dataID() << " " << elink.index()
+        //      << " \n \t" << (*elink)->pt()<< " " << (*elink)->phi() << " " << (*elink)->eta()  << endreq;
+
+        // if here, then passed the critera and assume is a match
+        return elink;
+        
+    } // loop over container
+    msg() << MSG::DEBUG << " No matching link found for remapping" << endreq;
+    
+      // if here, then no match was found;
+      // best to return the original object
+    return oldElink;
+} // remap_container
+
+ElementLink<xAOD::IParticleContainer> TrigL2BMuMuFex::remap_container(const ElementLink<xAOD::L2CombinedMuonContainer> & oldElink,
+                                                                          const ElementLinkVector<xAOD::L2CombinedMuonContainer> &newContainer) const {
+    // take a valid element link, and remap it onto already stored objects
+    // if original not valid, then no hope in finding new object, return the old
+    ////msg() << MSG::DEBUG << "IParticle mapping" << endreq;
+    //msg() << MSG::DEBUG << oldElink.isValid() << " " << (*oldElink)->pt()<< " " << (*oldElink)->phi() << " " << (*oldElink)->eta()  << endreq;
+    //msg() << MSG::DEBUG << "Container: " << newContainer.size() << endreq;
+    ElementLink<xAOD::IParticleContainer> iptlELold(oldElink.dataID(),oldElink.index());
+    //msg() << MSG::DEBUG << " Valid: " << oldElink.isValid() << endreq;
+    if (!oldElink.isValid()) return iptlELold;
+    const auto tp  = *oldElink;
+    
+    for (auto elink : newContainer) {
+        if (!elink.isValid()) continue;
+        const auto el  = *elink;
+        
+        // do some simple matching:
+        if ( fabs(tp->pt()  - el->pt()  ) > 1   ) continue;
+        if ( fabs(tp->eta() - el->eta() > 0.001)) continue;
+        double dphi = fabs(tp->phi() - el->phi());
+        if (dphi > M_PI) dphi = 2*M_PI - dphi;
+        if (fabs(dphi) > 0.001) continue;
+        //msg() << MSG::DEBUG << elink.isValid() << " "
+        //      << elink.dataID() << " " << elink.index()
+        //      << " \n \t" << (*elink)->pt()<< " " << (*elink)->phi() << " " << (*elink)->eta()  << endreq;
+        
+        // if here, then passed the critera and assume is a match
+        //return elink;
+        ElementLink<xAOD::IParticleContainer> iptlEL(elink.dataID(),elink.index());
+        //msg() << MSG::DEBUG << "ELIparticle link: " << iptlEL.isValid() << " "
+        //<< iptlEL.dataID() << " " << iptlEL.index() << endreq;
+        //msg() << MSG::DEBUG << " \n \t" << (*iptlEL)->pt()<< " " << (*iptlEL)->phi() << " " << (*iptlEL)->eta()  << endreq;
+        return iptlEL;
+    } // loop over container
+    msg() << MSG::DEBUG << " No matching link found for remapping" << endreq;
+    
+    // if here, then no match was found;
+    // best to return the original object
+    return iptlELold; // this is the old link to the IParticle
+} // remap_container
+
 
 
 ///*----------------------------------------------------------------------------------*/

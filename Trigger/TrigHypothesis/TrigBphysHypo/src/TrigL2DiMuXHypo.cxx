@@ -47,6 +47,7 @@
 
 TrigL2DiMuXHypo::TrigL2DiMuXHypo(const std::string & name, ISvcLocator* pSvcLocator):
   HLT::HypoAlgo(name, pSvcLocator)
+,m_TotTimer(0)
 ,m_bphysHelperTool("TrigBphysHelperUtilsTool")
 {
 

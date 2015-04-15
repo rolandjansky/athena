@@ -58,7 +58,7 @@ class TrigEFTrkMassFex: public HLT::FexAlgo {
     
     // Properties:
     
-    StoreGateSvc* m_storeGate;
+//     StoreGateSvc* m_storeGate;
 
     // container inputs names
     std::string m_input_trackCollectionKey; //! list of tracks to search for second leg

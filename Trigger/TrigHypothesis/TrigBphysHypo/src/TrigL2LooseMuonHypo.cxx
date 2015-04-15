@@ -20,7 +20,8 @@
 using namespace std;
 
 TrigL2LooseMuonHypo::TrigL2LooseMuonHypo(const std::string& name, ISvcLocator* pSvcLocator) :
-    HLT::HypoAlgo(name, pSvcLocator)
+    HLT::HypoAlgo(name, pSvcLocator),
+    m_pStoreGate(NULL)
 {
   declareProperty("AcceptAll",      m_acceptAll  = false);
 }

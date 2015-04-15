@@ -24,7 +24,10 @@
 
 TrigEFDiMuHypo::TrigEFDiMuHypo(const std::string& name, ISvcLocator* pSvcLocator) :
   HLT::HypoAlgo(name, pSvcLocator),
-  m_pStoreGate(NULL)
+  m_pStoreGate(NULL),
+  eEventNumber(0),
+  eRunNumber(0),
+  jpsiMassCutAlg(0)
 {
   declareProperty("MuMuMassMin", m_MassMin = 2800.);
   declareProperty("MuMuMassMax", m_MassMax = 4000.);

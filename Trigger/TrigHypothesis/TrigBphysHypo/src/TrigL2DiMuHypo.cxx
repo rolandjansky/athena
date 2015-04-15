@@ -28,7 +28,8 @@ using namespace std;
 TrigL2DiMuHypo::TrigL2DiMuHypo(const std::string& name, ISvcLocator* pSvcLocator) :
     HLT::HypoAlgo(name, pSvcLocator),
     m_roiNum          (0),
-    m_jpsiNum         (0)
+    m_jpsiNum         (0),
+    m_pStoreGate      (NULL)
 {
   declareProperty("MuMuMassMin", m_MassMin = 2800.);
   declareProperty("MuMuMassMax", m_MassMax = 4000.);
@@ -142,7 +143,7 @@ HLT::ErrorCode TrigL2DiMuHypo::hltExecute(const HLT::TriggerElement* outputTE, b
         }
 
         VecEL::const_iterator  it=trackVector.begin(),  itEnd=trackVector.end();
-        int goodTracks = 0;
+        // int goodTracks = 0;
         std::vector<float> pT, eta, phi;
           /* JW Not yet adapted
         for (int itrk=0; it != itEnd; ++it, ++itrk)
@@ -189,6 +190,7 @@ HLT::ErrorCode TrigL2DiMuHypo::hltExecute(const HLT::TriggerElement* outputTE, b
               msg() << MSG::WARNING << "Code in TrigL2DiMuHypo not fully implemented:  " << endreq;
               continue;
           }
+        /* ST: commented out to prevent Coverity warning
         if (goodTracks == 2)
         {
           if (msgLvl() <= MSG::DEBUG)
@@ -214,6 +216,7 @@ HLT::ErrorCode TrigL2DiMuHypo::hltExecute(const HLT::TriggerElement* outputTE, b
             mon_muPhi.push_back(phi[1]);
           }
         }
+        */
       }
     }
   }
