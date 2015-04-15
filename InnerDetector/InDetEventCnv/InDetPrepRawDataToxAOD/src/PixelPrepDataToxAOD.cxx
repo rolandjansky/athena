@@ -446,7 +446,7 @@ std::vector<SiHit> PixelPrepDataToxAOD::findAllHitsCompatibleWithCluster( const 
         highestXPos = *siHitIter2;
         ajoiningHits.push_back( *siHitIter2 );
         // Dont use hit  more than once
-        multiMatchingHits.erase( siHitIter2 );
+        siHitIter2 = multiMatchingHits.erase( siHitIter2 );
       }else if (fabs((lowestXPos->localStartPosition().x()-(*siHitIter2)->localEndPosition().x()))<0.00005 &&
                 fabs((lowestXPos->localStartPosition().y()-(*siHitIter2)->localEndPosition().y()))<0.00005 &&
                 fabs((lowestXPos->localStartPosition().z()-(*siHitIter2)->localEndPosition().z()))<0.00005)
@@ -454,7 +454,7 @@ std::vector<SiHit> PixelPrepDataToxAOD::findAllHitsCompatibleWithCluster( const 
         lowestXPos = *siHitIter2;
         ajoiningHits.push_back( *siHitIter2 );
         // Dont use hit  more than once
-        multiMatchingHits.erase( siHitIter2 );
+        siHitIter2 = multiMatchingHits.erase( siHitIter2 );
       } else {
         ++siHitIter2;
       }
