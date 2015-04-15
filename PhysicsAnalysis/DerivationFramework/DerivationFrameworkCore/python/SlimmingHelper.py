@@ -36,25 +36,41 @@
 
 from DerivationFrameworkCore.CompulsoryContent import *
 from DerivationFrameworkCore.ContentHandler import *
+from DerivationFrameworkCore.ContainerNamesAndTypes import *
 from AthenaCommon.BeamFlags import jobproperties
 
 class SlimmingHelper:
 	def __init__(self,inputName):
 		self.name = inputName
-		self.UserContent = [] # Content added explicitly by users via old-style content lists
+		self.StaticContent = [] # Content added explicitly via old-style content lists
 		self.ExtraVariables = [] # Content added by users via variable names (dictionary type:[item1,item,..,N])
 		# Smart slimming (only variables needed for CP + kinematics)
 		self.SmartCollections = [] 
 		self.AllVariables = [] # Containers for which all branches should be kept
 		self.AppendToDictionary = {} 
 		self.theHandler = ContentHandler(self.name+"Handler")
+		self.IncludeMuonTriggerContent = False
+		self.IncludeEGammaTriggerContent = False
+		self.IncludeJetTauEtMissTriggerContent = False
+		self.IncludeBPhysTriggerContent = False
 
 	# The main routine: called by all job options once.  
 	def AppendContentToStream(self,Stream):
 	        # Master item list: all items that must be passed to the ContentHandler for processing
 	        # This will now be filled
 		masterItemList = []
-	        
+		# All variables list: where all variables are requested, no variable lists are needed
+		# This list ensures that variables are not added individually in such cases
+		allVariablesList = []	       
+ 
+		# Add all-variable collections
+		if len(self.AllVariables)>0:
+			for item in self.AllVariables:
+				masterItemList.extend(self.GetWholeContentItems(item))
+		for item in masterItemList:
+			if "Aux." in item:
+				allVariablesList.append(item)
+
 	        # Smart items
 		if len(self.SmartCollections)>0:
 			for collection in self.SmartCollections:
@@ -66,24 +82,24 @@ class SlimmingHelper:
 			for item in self.ExtraVariables:
 				masterItemList.extend(self.GetExtraItems(item))
 		
-		# Add all-variable collections
-		if len(self.AllVariables)>0:
-			for item in self.AllVariables:
-				masterItemList.extend(self.GetWholeContentItems(item))
-		        
 		# Process the master list...
+
 		# Main containers (this is a simple list of lines, one per container X collection)
 		mainEntries = []
 		# Aux items (this is a dictionary: collection name and list of aux variables)
 		auxEntries = {}
 		self.theHandler.AppendToDictionary = self.AppendToDictionary
-		mainEntries,auxEntries = self.theHandler.GetContent(masterItemList)
+		mainEntries,auxEntries = self.theHandler.GetContent(masterItemList,allVariablesList)
 	        
 		# Add processed items to the stream
 		for item in mainEntries:
 			Stream.AddItem(item)
 		for item in auxEntries.keys():
-			entry = "xAOD::AuxContainerBase#"+item+"."
+			theDictionary = dict(ContainerNamesAndTypes.items() + self.AppendToDictionary.items())
+			if (theDictionary[item]=='xAOD::JetAuxContainer'):
+				entry = "xAOD::JetAuxContainer#"+item+"." 
+			else:
+				entry = "xAOD::AuxContainerBase#"+item+"."
 			for element in auxEntries[item]:
 				length = len(auxEntries[item])
 				if (element==(auxEntries[item])[length-1]):
@@ -95,9 +111,53 @@ class SlimmingHelper:
 	        # Add compulsory items (not covered by smart slimming so no expansion)
 		for item in CompulsoryContent:
 			Stream.AddItem(item)
-		# Add user-defined content (not covered by smart slimming so no expansion)
-		for item in self.UserContent:
-			Stream.AddItem(item)
+		# Add trigger item (not covered by smart slimming so no expansion)
+		triggerContent = False
+		# Issues with dictionaries, and should be replaced by smart slimming soon
+		# ==> Commented out for now (but will not break derivations with some flag turned ON)
+		#if (self.IncludeMuonTriggerContent == True):
+		#	triggerContent = True
+		#	from DerivationFrameworkCore.MuonTriggerContent import MuonTriggerContent
+		#	for item in MuonTriggerContent:
+		#		Stream.AddItem(item)
+		#if (self.IncludeEGammaTriggerContent == True):
+		#	triggerContent = True
+		#	from DerivationFrameworkCore.EGammaTriggerContent import EGammaTriggerContent
+		#	for item in EGammaTriggerContent:
+		#		Stream.AddItem(item)
+		#if (self.IncludeJetTauEtMissTriggerContent == True):
+		#	triggerContent = True
+		#	from DerivationFrameworkCore.JetTauEtMissTriggerContent import JetTauEtMissTriggerContent
+		#	for item in JetTauEtMissTriggerContent:
+		#		Stream.AddItem(item)
+		#if (self.IncludeBPhysTriggerContent == True):
+		#	triggerContent = True
+		#	from DerivationFrameworkCore.BPhysTriggerContent import BPhysTriggerContent
+		#	for item in BPhysTriggerContent:
+		#		Stream.AddItem(item)
+		#if (triggerContent):
+		#	from DerivationFrameworkCore.CompulsoryTriggerContent import CompulsoryTriggerContent
+		#	for item in CompulsoryTriggerContent:
+		#		Stream.AddItem(item)
+
+		# Add non-xAOD and on-the-fly content (not covered by smart slimming so no expansion)
+		badItemsWildcards = []
+		badItemsXAOD = []
+		for item in self.StaticContent:
+			if (self.ValidateStaticContent(item)=="OK"):
+				Stream.AddItem(item)
+			if (self.ValidateStaticContent(item)=="WILDCARD"):
+				badItemsWildcards.append(item)
+			if (self.ValidateStaticContent(item)=="XAOD"):
+				badItemsXAOD.append(item)
+		if (len(badItemsWildcards)>0):
+			print "These static items contain wildcards: not permitted"
+			print badItemsWildcards
+			raise RuntimeError("Static content list contains wildcards")
+		if (len(badItemsXAOD)>0):
+			print "These static items are xAOD collections: not permitted"
+			print badItemsXAOD
+			raise RuntimeError("Static content list contains xAOD collections")		
 
 ###################################################################################
 ###################################################################################
@@ -111,39 +171,48 @@ class SlimmingHelper:
 	def GetSmartItems(self,collectionName):
 		# Look up what is needed for this container type
 		items = []
-		if collectionName=="ElectronCollection":
-			#from DerivationFrameworkEGamma.ElectronCollectionCPContent import ElectronCollectionCPContent
-			from DerivationFrameworkCore.ElectronCollectionCPContent import ElectronCollectionCPContent
-			items.extend(ElectronCollectionCPContent)
-		elif collectionName=="PhotonCollection":
-			#from DerivationFrameworkEGamma.PhotonCollectionCPContent import PhotonCollectionCPContent
-			from DerivationFrameworkCore.PhotonCollectionCPContent import PhotonCollectionCPContent
-			items.extend(PhotonCollectionCPContent)
+		if collectionName=="Electrons":
+			#from DerivationFrameworkEGamma.ElectronsCPContent import ElectronsCPContent
+			from DerivationFrameworkCore.ElectronsCPContent import ElectronsCPContent
+			items.extend(ElectronsCPContent)
+		elif collectionName=="Photons":
+			#from DerivationFrameworkEGamma.PhotonsCPContent import PhotonsCPContent
+			from DerivationFrameworkCore.PhotonsCPContent import PhotonsCPContent
+			items.extend(PhotonsCPContent)
 		elif collectionName=="Muons":
 			#from DerivationFrameworkMuons.MuonsCPContent import MuonsCPContent
 			from DerivationFrameworkCore.MuonsCPContent import MuonsCPContent
 			items.extend(MuonsCPContent)
-		elif collectionName=="TauRecContainer":
-			#from DerivationFrameworkTau.TauRecContainerCPContent import TauRecContainerCPContent
-			from DerivationFrameworkCore.TauRecContainerCPContent import TauRecContainerCPContent
-			items.extend(TauRecContainerCPContent)
-		elif collectionName=="MET_RefFinal":
-			#from DerivationFrameworkJetEtMiss.MET_RefFinalCPContent import MET_RefFinalCPContent
-			from DerivationFrameworkCore.MET_RefFinalCPContent import MET_RefFinalCPContent
-			items.extend(MET_RefFinalCPContent)
+		#elif collectionName=="MuonsTriggerMatching":
+		#	from DerivationFrameworkCore.MuonsTriggerMatchingContent import MuonsTriggerMatchingContent
+		#	items.extend(MuonsTriggerMatchingContent)
+		elif collectionName=="TauJets":
+			#from DerivationFrameworkTau.TauJetsCPContent import TauJetsCPContent
+			from DerivationFrameworkCore.TauJetsCPContent import TauJetsCPContent
+			items.extend(TauJetsCPContent)
+		elif collectionName=="MET_Reference_AntiKt4LCTopo":
+			#from DerivationFrameworkJetEtMiss.MET_Reference_AntiKt4LCTopoCPContent import MET_Reference_AntiKt4LCTopoCPContent
+			from DerivationFrameworkCore.MET_Reference_AntiKt4LCTopoCPContent import MET_Reference_AntiKt4LCTopoCPContent
+			items.extend(MET_Reference_AntiKt4LCTopoCPContent)
+		elif collectionName=="MET_Reference_AntiKt4EMTopo":
+			#from DerivationFrameworkJetEtMiss.MET_Reference_AntiKt4EMTopoCPContent import MET_Reference_AntiKt4EMTopoCPContent
+			from DerivationFrameworkCore.MET_Reference_AntiKt4EMTopoCPContent import MET_Reference_AntiKt4EMTopoCPContent
+			items.extend(MET_Reference_AntiKt4EMTopoCPContent)	
 		elif collectionName=="AntiKt4LCTopoJets":
 			#from DerivationFrameworkJetEtMiss.AntiKt4LCTopoJetsCPContent import AntiKt4LCTopoJetsCPContent
 			from DerivationFrameworkCore.AntiKt4LCTopoJetsCPContent import AntiKt4LCTopoJetsCPContent
 			items.extend(AntiKt4LCTopoJetsCPContent)
+		elif collectionName=="AntiKt4EMTopoJets":
+			#from DerivationFrameworkJetEtMiss.AntiKt4EMTopoJetsCPContent import AntiKt4EMTopoJetsCPContent
+			from DerivationFrameworkCore.AntiKt4EMTopoJetsCPContent import AntiKt4EMTopoJetsCPContent
+			items.extend(AntiKt4EMTopoJetsCPContent)
 		elif collectionName=="BTagging_AntiKt4LCTopo":
-			if jobproperties.Beam.energy()==4000000.0:
-				#from DerivationFrameworkFlavourTag.BTagging_AntiKt4LCTopoCPContent import BTagging_AntiKt4LCTopoCPContent
-				from DerivationFrameworkCore.BTagging_AntiKt4LCTopoCPContent import BTagging_AntiKt4LCTopoCPContent
-				items.extend(BTagging_AntiKt4LCTopoCPContent)
-			else:
-				#from DerivationFrameworkFlavourTag.BTagging_AntiKt4LCTopo_DC14Run2CPContent import BTagging_AntiKt4LCTopoCPContent
-				from DerivationFrameworkCore.BTagging_AntiKt4LCTopo_DC14Run2CPContent import BTagging_AntiKt4LCTopoCPContent
-				items.extend(BTagging_AntiKt4LCTopoCPContent)
+			#from DerivationFrameworkFlavourTag.BTagging_AntiKt4LCTopoCPContent import BTagging_AntiKt4LCTopoCPContent
+			from DerivationFrameworkCore.BTagging_AntiKt4LCTopoCPContent import BTagging_AntiKt4LCTopoCPContent
+			items.extend(BTagging_AntiKt4LCTopoCPContent)
+		elif collectionName=="BTagging_AntiKt4EMTopo":
+			from DerivationFrameworkCore.BTagging_AntiKt4EMTopoCPContent import BTagging_AntiKt4EMTopoCPContent
+			items.extend(BTagging_AntiKt4EMTopoCPContent)
 		elif collectionName=="InDetTrackParticles":
 			#from DerivationFrameworkInDet.InDetTrackParticlesCPContent import InDetTrackParticlesCPContent
 			from DerivationFrameworkCore.InDetTrackParticlesCPContent import InDetTrackParticlesCPContent
@@ -180,3 +249,18 @@ class SlimmingHelper:
 				auxLine = auxLine+string+"."
 		items.append(auxLine)
 		return items
+	
+	# Check that static content is legit
+	def ValidateStaticContent(self,item):
+		# No wildcards
+		if ("*" in item):
+			return "WILDCARD"
+		# No xAOD containers
+		sep = item.split("#") 
+		collection = sep[1]
+		if (sep[1] in ContainerNamesAndTypes.keys()):
+			return "XAOD"
+		return "OK"	
+
+
+  
