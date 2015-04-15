@@ -78,17 +78,17 @@ class ALFA_RawDataCollection : public DataVector<ALFA_RawData>
   // Methods to access the decoded information
  
 
-  uint16_t GetMBId_POT(){return MBId_POT;};
-  uint16_t GetMrodId_POT(){return MrodId_POT;};
-  uint32_t GetEventCount_POT() {return EventCount_POT;};
-  std::vector<bool> Get_pattern_POT() {return patternId;};
-  uint16_t Get_scaler_POT() {return scalerId;};
-  uint16_t Get_ADC1_POT() {return ADC1Id;};
-  uint16_t Get_ADC2_POT() {return ADC2Id;};
-  bool GetTrigSyncErr() {return TrigSyncErrId;};
+  uint16_t GetMBId_POT() const {return MBId_POT;};
+  uint16_t GetMrodId_POT() const {return MrodId_POT;};
+  uint32_t GetEventCount_POT()  const {return EventCount_POT;};
+  std::vector<bool> Get_pattern_POT()  const {return patternId;};
+  uint16_t Get_scaler_POT()  const {return scalerId;};
+  uint16_t Get_ADC1_POT()  const {return ADC1Id;};
+  uint16_t Get_ADC2_POT()  const {return ADC2Id;};
+  bool GetTrigSyncErr()  const {return TrigSyncErrId;};
 
-  std::vector<ALFA_RawData> Get_POT_DATA() {return POT_DATA;};
-  ALFA_RawData Get_POT_PMF_DATA(uint32_t Numpmf) {return POT_DATA[Numpmf];};
+  std::vector<ALFA_RawData> Get_POT_DATA()  const {return POT_DATA;};
+  ALFA_RawData Get_POT_PMF_DATA(uint32_t Numpmf)  const {return POT_DATA[Numpmf];};
 
 
 };
