@@ -70,7 +70,7 @@ private:
     xAOD::TrigBphysContainer * mTrigBphysColl;
     //xAOD::TrigBphysAuxContainer * mTrigBphysAuxColl;
 
-    int                                 m_max_pair;
+//     int                                 m_max_pair;
     StringProperty                      m_ntupleName;       /**< The name of the output NTuple */
     StringProperty                      m_ntupleTitle;      /**< The label of the output NTuple */
     StringProperty			m_fileName;
@@ -78,7 +78,7 @@ private:
     BooleanProperty                     m_doNTuple;
     // TrigEFDiMuNtuple*                   m_pTrigEFDiMuNtuple;
     int *m_pTrigEFDiMuNtuple;
-    NTuple::Tuple*                      m_ntuple;
+//     NTuple::Tuple*                      m_ntuple;
 
     BooleanProperty                     m_GotFitTool;
     ToolHandle<Trk::IVertexFitter>      m_iVKVVertexFitter; 

@@ -328,8 +328,10 @@ class TrigEFBMuMuXFex: public HLT::ComboAlgo  {
 
     
     void addUnique(std::vector<const Trk::Track*>&, const Trk::Track*);
+    void addUnique(std::vector<const xAOD::TrackParticle*>&, const xAOD::TrackParticle*);
 //   double invariantMass(const TrigMuonEF* , const TrigMuonEF* );
 //   double invariantMass(const Trk::Track* , const Trk::Track* );
+    bool isUnique(const  xAOD::TrackParticle* id1, const  xAOD::TrackParticle* id2) const;
 
     double XMass(const Trk::Track* particle1, const Trk::Track* particle2, int decay);
     double KMuMuMass(const Trk::Track* mu1, const Trk::Track* mu2, const Trk::Track* kaon);

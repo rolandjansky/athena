@@ -42,11 +42,16 @@
 TrigEFDiMuFex::TrigEFDiMuFex(const std::string& name, ISvcLocator* pSvcLocator) :
 HLT::FexAlgo(name, pSvcLocator),
 m_pStoreGate        (NULL),
+eRunNumber(0),
+eEventNumber(0),
+jpsiMass(-99),
+jpsiE(99),
+NumberOfMuons(99),
 mTrigBphysColl(0),
 //mTrigBphysAuxColl(0),
 m_pTrigEFDiMuNtuple (NULL),
-m_iVKVVertexFitter("Trk::TrkVKalVrtFitter")
-//  m_iVKVVertexFitter("Trk::TrkVKalVrtFitter/VertexFitterTool",this);
+m_iVKVVertexFitter("Trk::TrkVKalVrtFitter"),
+m_eVKalVrtFitter(0)
 {
     
     declareProperty("MuMuMassMin", m_MassMin = 2800.);
@@ -80,14 +85,15 @@ HLT::ErrorCode TrigEFDiMuFex::hltInitialize()
     
     if (m_doNTuple)
     {
+        msg()<< MSG::ERROR << "NTuple making is not available" << endreq;
         return HLT::BAD_JOB_SETUP; // FIXME, enable the ntuple making again
-        //m_pTrigEFDiMuNtuple = new TrigEFDiMuNtuple(this, ntupleSvc());
-        StatusCode SCstatus = StatusCode::FAILURE; // m_pTrigEFDiMuNtuple->book(m_ntupleName, m_ntupleTitle);
-        if (SCstatus.isFailure() || m_pTrigEFDiMuNtuple == NULL)
-        {
-            msg()<< MSG::ERROR << "Could not book NTuple " << m_ntupleName << endreq;
-            return HLT::BAD_JOB_SETUP;
-        }
+//         //m_pTrigEFDiMuNtuple = new TrigEFDiMuNtuple(this, ntupleSvc());
+//         StatusCode SCstatus = StatusCode::FAILURE; // m_pTrigEFDiMuNtuple->book(m_ntupleName, m_ntupleTitle);
+//         if (SCstatus.isFailure() || m_pTrigEFDiMuNtuple == NULL)
+//         {
+//             msg()<< MSG::ERROR << "Could not book NTuple " << m_ntupleName << endreq;
+//             return HLT::BAD_JOB_SETUP;
+//         }
     }
     
     m_GotFitTool=true;
@@ -97,7 +103,13 @@ HLT::ErrorCode TrigEFDiMuFex::hltInitialize()
         if (msgLvl() <= MSG::DEBUG) msg()<<MSG::DEBUG<<"Fail to retrieve tool "<< m_iVKVVertexFitter<<endreq;
         m_GotFitTool=false;
     }
-    else if (msgLvl() <= MSG::DEBUG) msg()<<MSG::DEBUG<<"Retrieved tool " << m_iVKVVertexFitter<<endreq;
+    else if ( (m_eVKalVrtFitter = dynamic_cast<Trk::TrkVKalVrtFitter*>(&(*m_iVKVVertexFitter))) ) {
+      if (msgLvl() <= MSG::DEBUG) msg()<<MSG::DEBUG<<"Retrieved tool " << m_iVKVVertexFitter<<endreq;
+    }
+    else {
+      if (msgLvl() <= MSG::DEBUG) msg()<<MSG::DEBUG<<"Fail to dynamic_cast<Trk::TrkVKalVrtFitter*>(&(*m_iVKVVertexFitter)) with "<< m_iVKVVertexFitter<<endreq;
+      m_GotFitTool=false;
+    }
     
     return HLT::OK;
 }
@@ -552,9 +564,10 @@ HLT::ErrorCode TrigEFDiMuFex::hltExecute(const HLT::TriggerElement* inputTE, HLT
                         if (kndex==Mu1) idmuons.push_back( (*tb)->track());
                         if (kndex==Mu2) idmuons.push_back( (*tb)->track());
                     }
-                    // to add --> cheack identical tracks
-                    // define the fit object
-                    m_eVKalVrtFitter=dynamic_cast<Trk::TrkVKalVrtFitter*>(&(*m_iVKVVertexFitter));
+                    // // to add --> cheack identical tracks
+                    // // define the fit object
+                    // ST: moved to hltInitialize
+                    // m_eVKalVrtFitter=dynamic_cast<Trk::TrkVKalVrtFitter*>(&(*m_iVKVVertexFitter));
                     // initialize the fit object
                     m_eVKalVrtFitter->setDefault();
                     m_eVKalVrtFitter->setRobustness(0);
