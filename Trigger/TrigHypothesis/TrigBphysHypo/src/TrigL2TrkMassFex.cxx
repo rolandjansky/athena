@@ -49,7 +49,9 @@ TrigL2TrkMassFex::TrigL2TrkMassFex(const std::string & name, ISvcLocator* pSvcLo
   HLT::FexAlgo(name, pSvcLocator),
   m_vertFitter("TrigVertexFitter",this),
   m_L2vertFitter("TrigL2VertexFitter",this),
-  m_vertexingTool("TrigVertexingTool",this)
+  m_vertexingTool("TrigVertexingTool",this),
+  m_TotTimer(0),
+  m_VtxFitTimer(0)
 /*------------------------------------------------------------------------------------*/
 {
     
@@ -877,7 +879,7 @@ HLT::ErrorCode TrigL2TrkMassFex::hltExecute(const HLT::TriggerElement*, HLT::Tri
                 msg() << MSG::DEBUG << " vertex fit failed for tracks  " << itrk << " and " << jtrk << endreq;
 
               // delete pL2V;
-              delete p_vertex;
+//               delete p_vertex;
               // delete trigL2Bphys;
               // continue;
 
@@ -969,8 +971,8 @@ HLT::ErrorCode TrigL2TrkMassFex::hltExecute(const HLT::TriggerElement*, HLT::Tri
 
   // Some debugging information
   if ( msgLvl() <= MSG::DEBUG) {
-    if ( m_VertexColl    != NULL ) msg() << MSG::DEBUG << " vertex collection size : " << m_VertexColl->size() << " m_VertexColl " << m_VertexColl << endreq;
-    if ( m_trigBphysColl != NULL ) msg() << MSG::DEBUG << "Bphys collection size : " << m_trigBphysColl->size() << " m_trigBphysColl " << m_trigBphysColl << endreq;
+    /*if ( m_VertexColl    != NULL )*/ msg() << MSG::DEBUG << " vertex collection size : " << m_VertexColl->size() << " m_VertexColl " << m_VertexColl << endreq;
+    /*if ( m_trigBphysColl != NULL )*/ msg() << MSG::DEBUG << "Bphys collection size : " << m_trigBphysColl->size() << " m_trigBphysColl " << m_trigBphysColl << endreq;
   }
 
   // Reach this point successfully
@@ -994,7 +996,7 @@ HLT::ErrorCode TrigL2TrkMassFex::hltExecute(const HLT::TriggerElement*, HLT::Tri
   m_VertexColl = 0;
 
   // Attach the resulting bphys-objects to the output trigger element
-  if ( ( m_trigBphysColl != 0 ) && ( m_trigBphysColl->size() > 0 ) ) {
+  if ( /*( m_trigBphysColl != 0 ) &&*/ ( m_trigBphysColl->size() > 0 ) ) {
     if ( msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "REGTEST: Store Bphys Collection size: " << m_trigBphysColl->size() << endreq;
     HLT::ErrorCode sc = attachFeature(outputTE, m_trigBphysColl, "L2TrackMass" );
     if ( sc != HLT::OK ) {

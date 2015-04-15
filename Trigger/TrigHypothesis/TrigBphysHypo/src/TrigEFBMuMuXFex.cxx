@@ -58,13 +58,70 @@
 
 /*----------------------------------------------------------------------------*/
 TrigEFBMuMuXFex::TrigEFBMuMuXFex(const std::string & name, ISvcLocator* pSvcLocator):
-HLT::ComboAlgo(name, pSvcLocator),
-m_fitterSvc("Trk::TrkVKalVrtFitter/VertexFitterTool",this),
-//m_trigBphysColl_b(NULL),
-//m_trigBphysColl_X(NULL),
-mTrigBphysColl_b(NULL),
-mTrigBphysColl_X(NULL)
+HLT::ComboAlgo(name, pSvcLocator)
+,m_fitterSvc("Trk::TrkVKalVrtFitter/VertexFitterTool",this)
+//,m_trigBphysColl_b(NULL)
+//,m_trigBphysColl_X(NULL)
+,mTrigBphysColl_b(NULL)
+,mTrigBphysColl_X(NULL)
 
+// counters
+,m_lastEvent(-1)
+,m_lastEventPassed(-1)
+,m_countTotalEvents(0)
+,m_countTotalRoI(0)
+,m_countPassedEvents(0)
+,m_countPassedRoIs(0)
+
+,m_lastEventPassedBplus(-1)
+,m_lastEventPassedBd(-1)
+,m_lastEventPassedBs(-1)
+,m_lastEventPassedLb(-1)
+,m_lastEventPassedBc(-1)
+,m_countPassedEventsBplus(0)
+,m_countPassedEventsBs(0)
+,m_countPassedEventsBd(0)
+,m_countPassedEventsLb(0)
+,m_countPassedEventsBc(0)
+
+,m_countPassedMuMuID(0)
+,m_countPassedMuMuOS(0)
+,m_countPassedMuMuMass(0)
+,m_countPassedMuMuVtx(0)
+,m_countPassedMuMuVtxChi2(0)
+
+,m_countPassedBplusMass(0)
+,m_countPassedBplusVtx(0)
+,m_countPassedBplusVtxChi2(0)
+
+,m_countPassedKstarMass(0)
+,m_countPassedBdMass(0)
+,m_countPassedKstarVtx(0)
+,m_countPassedKstarVtxChi2(0)
+,m_countPassedBdVtx(0)
+,m_countPassedBdVtxChi2(0)
+
+,m_countPassedPhi1020Mass(0)
+,m_countPassedBsMass(0)
+,m_countPassedPhi1020Vtx(0)
+,m_countPassedPhi1020VtxChi2(0)
+,m_countPassedBsVtx(0)
+,m_countPassedBsVtxChi2(0)
+
+,m_countPassedLambdaMass(0)
+,m_countPassedLbMass(0)
+,m_countPassedLambdaVtx(0)
+,m_countPassedLambdaVtxChi2(0)
+,m_countPassedLbVtx(0)
+,m_countPassedLbVtxChi2(0)
+
+,m_countPassedPhiDsMass(0)
+,m_countPassedDsMass(0)
+,m_countPassedBcMass(0)
+,m_countPassedDsVtx(0)
+,m_countPassedDsVtxChi2(0)
+,m_countPassedBcVtx(0)
+,m_countPassedBcVtxChi2(0)
 {
     declareProperty("AcceptAll",    m_acceptAll=true); // Should we just accept all events
     
@@ -877,7 +934,8 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
                     std::map<const xAOD::TrackParticle*, ElIndex> mapTrackToIndex;
                     int idCounter(0);
                     for (auto trk: *tracksRoiI1) {
-                        merged_tracks.push_back(trk);
+                        // merged_tracks.push_back(trk);
+                        addUnique(merged_tracks,trk);
                         ElIndex tmp;
                         tmp.roi = 1;
                         tmp.index = idCounter;
@@ -886,7 +944,8 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
                     }
                     idCounter = 0;
                     for (auto trk: *tracksRoiI2) {
-                        merged_tracks.push_back(trk);
+                        // merged_tracks.push_back(trk);
+                        addUnique(merged_tracks,trk);
                         ElIndex tmp;
                         tmp.roi = 1;
                         tmp.index = idCounter;
@@ -988,7 +1047,7 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
                     
                     
                     // loop to find the muon associated withthe trk::track. can be optimised
-                    int piTrk(-1),miTrk(-1);
+//                     int piTrk(-1),miTrk(-1);
                     ElementLink<xAOD::TrackParticleContainer> trackELmu1;
                     ElementLink<xAOD::TrackParticleContainer> trackELmu2;
                     auto trkmuit = mapTrkToMuons.find(*pItr);
@@ -1023,8 +1082,22 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
                     {
                         const Trk::Track* track1 = (*trkIt1)->track();
                         
+                        //ElementLink<xAOD::TrackParticleContainer> trackEL3(*xAODTrkParticleCont,itrk1);
+                        ElementLink<xAOD::TrackParticleContainer> trackEL3( mapTrackToIndex[*trkIt1].roi == 1 ? *tracksRoiI1 : *tracksRoiI2, mapTrackToIndex[*trkIt1].index);
+                        
+                        
                         // Check that it is not muon track
-                        if(itrk1==piTrk || itrk1==miTrk) {
+//                         if(itrk1==piTrk || itrk1==miTrk) {
+//                             ATH_MSG(DEBUG) << "Track " << track1 << " was matched to a muon, skip it" << endreq;
+//                             continue;
+//                         }
+                        
+                        // ST: EL comparison does not work -- they appear to be always different
+//                         if(trackEL3 == trackELmu1 || trackEL3 == trackELmu2 ) {
+//                             ATH_MSG(DEBUG) << "Track " << track1 << " was matched to a muon, skip it" << endreq;
+//                             continue;
+//                         }
+                        if( !(Found1Track && isUnique(*trkIt1,*trackELmu1)) || !(Found2Track &&isUnique(*trkIt1,*trackELmu2)) ) {
                             ATH_MSG(DEBUG) << "Track " << track1 << " was matched to a muon, skip it" << endreq;
                             continue;
                         }
@@ -1065,8 +1138,7 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
                                 delete trigPartBplusMuMuKplus; // done with the old object now.
                                 trigPartBplusMuMuKplus =0;
                                 
-                                //ElementLink<xAOD::TrackParticleContainer> trackEL3(*xAODTrkParticleCont,itrk1);
-                                ElementLink<xAOD::TrackParticleContainer> trackEL3( mapTrackToIndex[*trkIt1].roi == 1 ? *tracksRoiI1 : *tracksRoiI2, mapTrackToIndex[*trkIt1].index);
+                                
                                 xaodObj->addTrackParticleLink(trackEL3);
                                 if(Found1Track) xaodObj->addTrackParticleLink(trackELmu1);
                                 if(Found2Track) xaodObj->addTrackParticleLink(trackELmu2);
@@ -1110,11 +1182,17 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
                             }
                             
                             if(m_doBd_KstarMuMuDecay || m_doBs_Phi1020MuMuDecay || m_doLb_LambdaMuMuDecay || m_doBc_DsMuMuDecay) {
-                                const Trk::Track* track1 = (*trkIt1)->track();
                                 const Trk::Track* track2 = (*trkIt2)->track();
                                 
+                                //ElementLink<xAOD::TrackParticleContainer> trackEL4(*xAODTrkParticleCont,itrk2);
+                                ElementLink<xAOD::TrackParticleContainer> trackEL4( mapTrackToIndex[*trkIt2].roi == 1 ? *tracksRoiI1 : *tracksRoiI2, mapTrackToIndex[*trkIt2].index);
+                                
                                 // Check that it is not muon track
-                                if(itrk2==piTrk || itrk2==miTrk) {
+//                                 if(itrk2==piTrk || itrk2==miTrk) {
+//                                     ATH_MSG(DEBUG) << "Track " << track2 << " was matched to a muon, skip it" << endreq;
+//                                     continue;
+//                                 }
+                                if( !(Found1Track && isUnique(*trkIt2,*trackELmu1)) || !(Found2Track &&isUnique(*trkIt2,*trackELmu2)) ) {
                                     ATH_MSG(DEBUG) << "Track " << track2 << " was matched to a muon, skip it" << endreq;
                                     continue;
                                 }
@@ -1175,12 +1253,6 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
                                         delete trigPartKstar; // done with the old object now.
                                         trigPartKstar =0;
                                         
-                                        
-                                        //ElementLink<xAOD::TrackParticleContainer> trackEL3(*xAODTrkParticleCont,itrk1);
-                                        //ElementLink<xAOD::TrackParticleContainer> trackEL4(*xAODTrkParticleCont,itrk2);
-                                        ElementLink<xAOD::TrackParticleContainer> trackEL3( mapTrackToIndex[*trkIt1].roi == 1 ? *tracksRoiI1 : *tracksRoiI2, mapTrackToIndex[*trkIt1].index);
-                                        ElementLink<xAOD::TrackParticleContainer> trackEL4( mapTrackToIndex[*trkIt2].roi == 1 ? *tracksRoiI1 : *tracksRoiI2, mapTrackToIndex[*trkIt2].index);
-
                                         xaod_trigPartKstar->addTrackParticleLink(trackEL3);
                                         xaod_trigPartKstar->addTrackParticleLink(trackEL4);
                                         //m_trigBphysColl_X->push_back(trigPartKstar);
@@ -1244,13 +1316,6 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
                                         
                                         delete trigPartKstar; // done with the old object now.
                                         trigPartKstar =0;
-
-                                        //                     trigPartBdMuMuKstar->addTrack(trackELmu1);
-                                        //                     trigPartBdMuMuKstar->addTrack(trackELmu2);
-                                        //ElementLink<xAOD::TrackParticleContainer> trackEL3(*xAODTrkParticleCont,itrk2);
-                                        //ElementLink<xAOD::TrackParticleContainer> trackEL4(*xAODTrkParticleCont,itrk1);
-                                        ElementLink<xAOD::TrackParticleContainer> trackEL3( mapTrackToIndex[*trkIt1].roi == 1 ? *tracksRoiI1 : *tracksRoiI2, mapTrackToIndex[*trkIt1].index);
-                                        ElementLink<xAOD::TrackParticleContainer> trackEL4( mapTrackToIndex[*trkIt2].roi == 1 ? *tracksRoiI1 : *tracksRoiI2, mapTrackToIndex[*trkIt2].index);
 
                                         xaod_trigPartKstar->addTrackParticleLink(trackEL3);
                                         xaod_trigPartKstar->addTrackParticleLink(trackEL4);
@@ -1321,12 +1386,7 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
                                         
                                         delete trigPartPhi; // done with the old object now.
                                         trigPartPhi =0;
-
-                                        //ElementLink<xAOD::TrackParticleContainer> trackEL3(*xAODTrkParticleCont,itrk1);
-                                        //ElementLink<xAOD::TrackParticleContainer> trackEL4(*xAODTrkParticleCont,itrk2);
-                                        ElementLink<xAOD::TrackParticleContainer> trackEL3( mapTrackToIndex[*trkIt1].roi == 1 ? *tracksRoiI1 : *tracksRoiI2, mapTrackToIndex[*trkIt1].index);
-                                        ElementLink<xAOD::TrackParticleContainer> trackEL4( mapTrackToIndex[*trkIt2].roi == 1 ? *tracksRoiI1 : *tracksRoiI2, mapTrackToIndex[*trkIt2].index);
-
+                                        
                                         xaod_trigPartPhi->addTrackParticleLink(trackEL3);
                                         xaod_trigPartPhi->addTrackParticleLink(trackEL4);
                                         //m_trigBphysColl_X->push_back(trigPartPhi);
@@ -1399,12 +1459,6 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
                                         
                                         delete trigPartLambda; // done with the old object now.
                                         trigPartLambda =0;
-
-                                        
-                                        //ElementLink<xAOD::TrackParticleContainer> trackEL3(*xAODTrkParticleCont,itrk1);
-                                        //ElementLink<xAOD::TrackParticleContainer> trackEL4(*xAODTrkParticleCont,itrk2);
-                                        ElementLink<xAOD::TrackParticleContainer> trackEL3( mapTrackToIndex[*trkIt1].roi == 1 ? *tracksRoiI1 : *tracksRoiI2, mapTrackToIndex[*trkIt1].index);
-                                        ElementLink<xAOD::TrackParticleContainer> trackEL4( mapTrackToIndex[*trkIt2].roi == 1 ? *tracksRoiI1 : *tracksRoiI2, mapTrackToIndex[*trkIt2].index);
 
                                         xaod_trigPartLambda->addTrackParticleLink(trackEL3);
                                         xaod_trigPartLambda->addTrackParticleLink(trackEL4);
@@ -1522,13 +1576,20 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
                                             {
                                                 const Trk::Track* track3 = (*trkIt3)->track();
                                                 
+                                                //ElementLink<xAOD::TrackParticleContainer> trackEL5(*xAODTrkParticleCont,itrk3);
+                                                ElementLink<xAOD::TrackParticleContainer> trackEL5( mapTrackToIndex[*trkIt3].roi == 1 ? *tracksRoiI1 : *tracksRoiI2, mapTrackToIndex[*trkIt3].index);
+                                                    
                                                 if(itrk3==itrk1 || itrk3==itrk2) {
                                                     ATH_MSG(DEBUG) << "Track " << track3 << " is the same as another" << endreq;
                                                     continue;
                                                 }
                                                 
                                                 // Check that it is not muon track
-                                                if(itrk3==piTrk || itrk3==miTrk) {
+//                                                 if(itrk3==piTrk || itrk3==miTrk) {
+//                                                     ATH_MSG(DEBUG) << "Track " << track3 << " was matched to a muon, skip it" << endreq;
+//                                                     continue;
+//                                                 }
+                                                if( !(Found1Track && isUnique(*trkIt3,*trackELmu1)) || !(Found2Track &&isUnique(*trkIt3,*trackELmu2)) ) {
                                                     ATH_MSG(DEBUG) << "Track " << track3 << " was matched to a muon, skip it" << endreq;
                                                     continue;
                                                 }
@@ -1575,15 +1636,6 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
                                                     delete trigPartDs; // done with the old object now.
                                                     trigPartDs =0;
 
-                                                    
-                                                    
-                                                    //ElementLink<xAOD::TrackParticleContainer> trackEL3(*xAODTrkParticleCont,itrk1);
-                                                    //ElementLink<xAOD::TrackParticleContainer> trackEL4(*xAODTrkParticleCont,itrk2);
-                                                    //ElementLink<xAOD::TrackParticleContainer> trackEL5(*xAODTrkParticleCont,itrk3);
-                                                    ElementLink<xAOD::TrackParticleContainer> trackEL3( mapTrackToIndex[*trkIt1].roi == 1 ? *tracksRoiI1 : *tracksRoiI2, mapTrackToIndex[*trkIt1].index);
-                                                    ElementLink<xAOD::TrackParticleContainer> trackEL4( mapTrackToIndex[*trkIt2].roi == 1 ? *tracksRoiI1 : *tracksRoiI2, mapTrackToIndex[*trkIt2].index);
-                                                    ElementLink<xAOD::TrackParticleContainer> trackEL5( mapTrackToIndex[*trkIt3].roi == 1 ? *tracksRoiI1 : *tracksRoiI2, mapTrackToIndex[*trkIt3].index);
-
                                                     xaod_trigPartDs->addTrackParticleLink(trackEL3);
                                                     xaod_trigPartDs->addTrackParticleLink(trackEL4);
                                                     xaod_trigPartDs->addTrackParticleLink(trackEL5);
@@ -1627,18 +1679,18 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
     
     if(mTrigBphysColl_b!=0 && mTrigBphysColl_b->size()>0) {
         if ( msgLvl() <= MSG::DEBUG ) msg()  << MSG::DEBUG << "REGTEST: Store Bphys Collection " << mTrigBphysColl_b << " size: " << mTrigBphysColl_b->size() << endreq;
-        HLT::ErrorCode sc = attachFeature(outputTE, mTrigBphysColl_b, "EFBMuMuXFex" );
+        HLT::ErrorCode sc = attachFeature(outputTE, mTrigBphysColl_X, "EFBMuMuXFex_X" );
         if(sc != HLT::OK) {
-            msg() << MSG::WARNING << "Failed to store trigBphys Collection in outputTE" << endreq;
+            msg() << MSG::WARNING << "Failed to store trigBphys_X Collection in outputTE" << endreq;
             mon_Errors.push_back(ERROR_BphysCollStore_Fails);
             delete mTrigBphysColl_b;
             delete mTrigBphysColl_X;
             if ( timerSvc() ) m_TotTimer->stop();
             return HLT::ERROR;
         }
-        sc = attachFeature(outputTE, mTrigBphysColl_X, "EFBMuMuXFex_X" );
+        sc = attachFeature(outputTE, mTrigBphysColl_b, "EFBMuMuXFex" );
         if(sc != HLT::OK) {
-            msg() << MSG::WARNING << "Failed to store trigBphys_X Collection in outputTE" << endreq;
+            msg() << MSG::WARNING << "Failed to store trigBphys Collection in outputTE" << endreq;
             mon_Errors.push_back(ERROR_BphysCollStore_Fails);
             delete mTrigBphysColl_b;
             delete mTrigBphysColl_X;
@@ -2464,6 +2516,43 @@ void TrigEFBMuMuXFex::addUnique(std::vector<const Trk::Track*>& tracks, const Tr
         }
     } 
     tracks.push_back(trkIn);       
+}
+
+/*----------------------------------------------------------------------------*/
+void TrigEFBMuMuXFex::addUnique(std::vector<const xAOD::TrackParticle*>& tps, const xAOD::TrackParticle* tpIn)
+{
+    //  std::cout<<" in addUnique : tpIn pT= "<<tpIn->pt()<<std::endl;
+    std::vector<const xAOD::TrackParticle*>::iterator tpItr;
+    for( tpItr = tps.begin(); tpItr != tps.end(); tpItr++)
+    {
+        double dPhi=fabs((*tpItr)->phi() -
+                         tpIn->phi());
+        if (dPhi > M_PI) dPhi = 2.*M_PI - dPhi;
+        
+        if( fabs(dPhi) < 0.02 &&
+           fabs((*tpItr)->eta() -
+                tpIn->eta()) < 0.02  &&
+                    tpIn->charge() * (*tpItr)->charge() > 0) 
+        { //std::cout<<" TrigEFBMuMuFex addUnique: the SAME tps! pT= "<<
+            //tpIn->pt()<<" and "<<
+            //(*tpItr)->pt()<<std::endl;
+            return;
+        }
+    } 
+    tps.push_back(tpIn);       
+}
+
+/*----------------------------------------------------------------------------*/
+bool TrigEFBMuMuXFex::isUnique(const  xAOD::TrackParticle* id1, const  xAOD::TrackParticle* id2) const {
+    if (!id1 || !id2) return false;
+    float dEta = fabs( id1->eta() - id2->eta() );
+    float dPhi = id1->phi() - id2->phi();
+    while  (dPhi >  M_PI) dPhi -= 2*M_PI;
+    while  (dPhi < -M_PI) dPhi += 2*M_PI;
+    
+    if( dEta < 0.02 && fabs(dPhi) < 0.02 && id1->charge() * id2->charge() > 0 ) return false;
+    else return true;
+    
 }
 
 

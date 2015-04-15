@@ -51,6 +51,8 @@ using namespace std;
 TrigEFTrkMassFex::TrigEFTrkMassFex(const std::string & name, ISvcLocator* pSvcLocator):
 HLT::FexAlgo(name, pSvcLocator)
 ,m_bphysHelperTool("TrigBphysHelperUtilsTool")
+,m_TotTimer(0)
+,m_VtxFitTimer(0)
 /*------------------------------------------------------------------------------------*/
 {
     
@@ -595,7 +597,7 @@ HLT::ErrorCode TrigEFTrkMassFex::hltExecute(const HLT::TriggerElement*  inputTE 
         mon_VertexingTime = m_VtxFitTimer->elapsed();
     }
 
-    if (xAODTrigBphysColl && xAODTrigBphysColl->size()) {
+    if (/*xAODTrigBphysColl &&*/ xAODTrigBphysColl->size()) {
         if ( msgLvl() <= MSG::DEBUG ) msg()  << MSG::DEBUG << "REGTEST: Store Bphys Collection size: " << xAODTrigBphysColl->size() << endreq;
         
         HLT::ErrorCode sc = attachFeature(outputTE, xAODTrigBphysColl, "EFTrackMass" );

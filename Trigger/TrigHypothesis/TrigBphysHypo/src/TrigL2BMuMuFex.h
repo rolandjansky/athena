@@ -63,8 +63,14 @@ class TrigL2BMuMuFex: public HLT::ComboAlgo {
     //    double invariantMass(const CombinedMuonFeature* mu1, const MuonFeature* mu2);
 
     //bool isUnique(const  TrigInDetTrack* id1, const  TrigInDetTrack* id2);
-    bool isUnique(const  xAOD::IParticle* id1, const  xAOD::IParticle* id2) const;
-
+    bool isUnique(const  xAOD::TrackParticle* id1, const  xAOD::TrackParticle* id2) const;
+    ElementLink<xAOD::TrackParticleContainer> remap_container(const ElementLink<xAOD::TrackParticleContainer> & oldElink,const ElementLinkVector<xAOD::TrackParticleContainer> &newContainer) const;
+    //    ElementLink<xAOD::IParticleContainer> remap_container(const ElementLink<xAOD::IParticleContainer> & oldElink,const ElementLinkVector<xAOD::IParticleContainer> &newContainer) const;
+    ElementLink<xAOD::IParticleContainer> remap_container(const ElementLink<xAOD::L2CombinedMuonContainer> & oldElink,
+                                                          const ElementLinkVector<xAOD::L2CombinedMuonContainer> &newContainer) const;
+        
+    std::string m_combinedMuonIDTrackKey,m_combinedMuonKey,m_standaloneMuonKey;
+    
     // Variables to keep pre-results from acceptInput to hltExecute
     //const CombinedMuonFeature *m_muon1;
     //const CombinedMuonFeature *m_muon2;
