@@ -33,14 +33,12 @@
 
 DerivationFramework::DerivationKernel::DerivationKernel(const std::string& name, ISvcLocator* pSvcLocator) :
 AthFilterAlgorithm(name, pSvcLocator),
-m_chronoSvc("ChronoStatSvc", name),
-m_runSkimmingFirst(false)
+m_chronoSvc("ChronoStatSvc", name)
 {
     // ------- Python changeable properties -------
     declareProperty("SkimmingTools",         m_skimmingTools);
     declareProperty("ThinningTools",         m_thinningTools);
     declareProperty("AugmentationTools",     m_augmentationTools);
-    declareProperty("RunSkimmingFirst",      m_runSkimmingFirst);
     //declareProperty("PrintCutFlow",          m_printCutFlow);
     //declareProperty("PrintMemoryAndCPU",     m_printMemCPU)
     //---------------------------------------------
@@ -95,10 +93,6 @@ StatusCode DerivationFramework::DerivationKernel::initialize() {
 	    return StatusCode::FAILURE;
     } 
 
-    if (m_runSkimmingFirst) {
-	ATH_MSG_INFO("Skimming will be run before augmentation. Make sure your skimming does not depend on variables calculated in the augmentation step!");
-    }
-
     return StatusCode::SUCCESS;
     
 }
@@ -120,17 +114,16 @@ StatusCode DerivationFramework::DerivationKernel::execute() {
     // AUGMENTATION ===============================================================
     //=============================================================================
 
-    if (!m_runSkimmingFirst) {
-        ToolHandleArray<IAugmentationTool>::iterator augmentationTool(m_augmentationTools.begin());
-        ToolHandleArray<IAugmentationTool>::iterator endOfAugmentationTools(m_augmentationTools.end());
-        while (augmentationTool != endOfAugmentationTools) {
-            if ( (**augmentationTool).addBranches().isFailure() ) {
-                    ATH_MSG_ERROR("Augmentation failed!");
-                    return StatusCode::FAILURE;
-            }
-            ++augmentationTool;
+    ToolHandleArray<IAugmentationTool>::iterator augmentationTool(m_augmentationTools.begin());
+    ToolHandleArray<IAugmentationTool>::iterator endOfAugmentationTools(m_augmentationTools.end());
+    while (augmentationTool != endOfAugmentationTools) {
+        if ( (**augmentationTool).addBranches().isFailure() ) {
+                ATH_MSG_ERROR("Augmentation failed!");
+                return StatusCode::FAILURE;
         }
-    }    
+        ++augmentationTool;
+    }
+
  
     //=============================================================================
     //SKIMMING ===================================================================
@@ -159,20 +152,7 @@ StatusCode DerivationFramework::DerivationKernel::execute() {
 
     // Return if event didn't pass
     if (!acceptEvent) return StatusCode::SUCCESS;
-
-    // If user requested skimming first, run augmentation now...
-    if (m_runSkimmingFirst) {
-        ToolHandleArray<IAugmentationTool>::iterator augmentationTool(m_augmentationTools.begin());
-        ToolHandleArray<IAugmentationTool>::iterator endOfAugmentationTools(m_augmentationTools.end());
-        while (augmentationTool != endOfAugmentationTools) {
-            if ( (**augmentationTool).addBranches().isFailure() ) {
-                    ATH_MSG_ERROR("Augmentation failed!");
-                    return StatusCode::FAILURE;
-            }
-            ++augmentationTool;
-        }
-    }
- 
+    
 
     //=============================================================================
     // THINNING ===================================================================
