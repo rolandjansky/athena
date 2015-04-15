@@ -175,7 +175,7 @@ StatusCode ALFA_LocRecCorr::initialize()
 	//MsgStream LogStream(Athena::getMessageSvc(), "ALFA_LocRecCorr::Initialize()");
 	ATH_MSG_DEBUG("begin ALFA_LocRecCorr::Initialize()");
 
-	StatusCode sc;
+//	StatusCode sc;
 
 //	sc = service("StoreGateSvc",m_storeGate);
 //	if(sc.isFailure())
