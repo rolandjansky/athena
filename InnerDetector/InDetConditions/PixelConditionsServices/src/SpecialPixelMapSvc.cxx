@@ -57,12 +57,14 @@ SpecialPixelMapSvc::SpecialPixelMapSvc(const std::string& name, ISvcLocator* sl)
   m_mergePixelMaps(true),
   m_differentialUpdates(false),
   m_useDualFolderStructure(false),
+  m_maskLayers(false),
   m_writeBlobs(false),
   m_connectionString("oracle://ATLAS_COOLPROD/ATLAS_COOLONL_PIXEL"),
   m_connectivityTag("PIT-ALL-V39"),
   m_aliasTag("PIT-ALL-V39"),
   m_fileListFileName("filelist"),
   m_fileListFileDir("filelistdir"),
+  m_killingModule(0.),
   m_pixelID(0),
   m_pixman(0)
 {
@@ -86,6 +88,7 @@ SpecialPixelMapSvc::SpecialPixelMapSvc(const std::string& name, ISvcLocator* sl)
   declareProperty("DifferentialUpdates", m_differentialUpdates, "Switch for differential updates");
   declareProperty("UseDualFolderStructure", m_useDualFolderStructure, 
 		  "Use dual folder structure when creating a CondAttrListCollection");
+  declareProperty("MaskLayers",  m_maskLayers, "Mask full layers/disks in overlay" );
   declareProperty("WriteBlobs", m_writeBlobs, "Switch between blob and clob writing");
   declareProperty("ConnectionString", m_connectionString, "Connection string for connectivity DB (used when reading text files)"); 
   declareProperty("ConnectivityTag", m_connectivityTag, "Connectivity tag"); 
@@ -93,6 +96,8 @@ SpecialPixelMapSvc::SpecialPixelMapSvc(const std::string& name, ISvcLocator* sl)
   declareProperty("FileList", m_fileListFileName, "list of text files"); 
   declareProperty("FileListDir", m_fileListFileDir, "directory of list of text files");
   declareProperty("KillingModules", m_killingModule, "Probability of Killing module");
+  declareProperty("LayersToMask", m_layersToMask, "Which barrel layers to mask out, goes from 0 to N-1");
+  declareProperty("DisksToMask", m_disksToMask, "Which endcap disks to mask out, goes from -N+1 to N+1 , skipping zero");
 }
 
 
@@ -204,6 +209,19 @@ StatusCode SpecialPixelMapSvc::initialize()
       }
     }
   }
+
+  if (m_maskLayers &&  !m_layersToMask.size() && !m_disksToMask.size()){
+    ATH_MSG_DEBUG( "Layer/Disk masking enabled, but no layer/disk specified!" );
+    m_maskLayers = false;
+  }
+
+  if (!m_maskLayers &&  (m_layersToMask.size() || m_disksToMask.size())){
+    ATH_MSG_DEBUG( "Layer/Disk to mask specified, but masking is disabled!" );
+  } 
+
+  if (m_maskLayers &&  m_disksToMask.size() && (std::find(m_disksToMask.begin(), m_disksToMask.end(),0)!=m_disksToMask.end())){
+    ATH_MSG_WARNING( "0th Disk not defined (-N to N) - check your setup!" );
+  }   
 
   return StatusCode::SUCCESS;
 }
@@ -432,7 +450,53 @@ StatusCode SpecialPixelMapSvc::IOVCallBack(IOVSVC_CALLBACK_ARGS_P(I, keys)){
 		     << m_overlayKey );
       return sc;
     }
-  
+
+    if(m_maskLayers){
+      
+      DetectorSpecialPixelMap* overlay = 0;
+    
+      if(m_detStore->contains<DetectorSpecialPixelMap>(m_overlayKey)){
+	sc = m_detStore->retrieve(overlay, m_overlayKey);
+	if( sc.isSuccess() ){
+	  ATH_MSG_DEBUG( "Old DetectorSpecialPixelMap at " << m_overlayKey
+			 << " retrieved" );
+	}
+	else{
+	  ATH_MSG_FATAL( "Unable to retrieve old DetectorSpecialPixelMap at "
+			 << m_overlayKey );
+	  return StatusCode::FAILURE;
+	}
+      }
+	
+      DetectorSpecialPixelMap* maskOverlay = 0;	
+      
+      if(m_detStore->contains<DetectorSpecialPixelMap>("MaskingOverlay")){
+	sc = m_detStore->retrieve(maskOverlay, "MaskingOverlay");
+	if( sc.isSuccess() ){
+	  ATH_MSG_DEBUG( "Old DetectorSpecialPixelMap at MaskingOverlay retrieved" );
+	  sc = m_detStore->remove(maskOverlay);
+	  if(!sc.isSuccess()) {ATH_MSG_FATAL( "Unable to remove old Masking Overlay!" );return StatusCode::FAILURE;}
+	}
+	else{
+	  ATH_MSG_FATAL( "Unable to retrieve old DetectorSpecialPixelMap at MaskingOverlay" );
+	  return StatusCode::FAILURE;
+	}
+      }
+
+      sc = createMaskingOverlay();
+
+      if(!sc.isSuccess()) {ATH_MSG_FATAL( "Unable to create new Masking Overlay!" );return StatusCode::FAILURE;}
+      
+      sc = m_detStore->retrieve(maskOverlay, "MaskingOverlay");
+
+      if(!sc.isSuccess()) {ATH_MSG_FATAL( "Unable to retrieve new Masking Overlay!" );return StatusCode::FAILURE;}
+      
+	  
+      overlay->merge(maskOverlay);	  
+      
+
+    }
+      
     if( !m_overlayLongFolder.empty() ){
     
       DetectorSpecialPixelMap* overlayLong = 0;
@@ -1133,6 +1197,53 @@ StatusCode SpecialPixelMapSvc::createDeadModuleList() const{
     return StatusCode::FAILURE;
   }
 
+  return StatusCode::SUCCESS;
+}
+
+StatusCode SpecialPixelMapSvc::createMaskingOverlay() const{
+
+  DetectorSpecialPixelMap* spm = new DetectorSpecialPixelMap;
+
+  spm->resize(m_pixelID->wafer_hash_max());
+
+  StatusCode sc = m_detStore->record(spm, "MaskingOverlay");
+  if (sc.isFailure()) {
+    ATH_MSG_FATAL( "Unable to record SpecialPixelMap" );
+    return StatusCode::FAILURE;
+  }
+  if(m_condAttrListCollectionKeys.size() == 0){
+    ATH_MSG_FATAL( "No database folder specified" );
+    return StatusCode::FAILURE;
+  }
+  else if(m_condAttrListCollectionKeys.size() > 1){
+    ATH_MSG_INFO( "Multiple database folders specified" );
+    ATH_MSG_INFO( "Trying to store special pixel map at "
+                  << m_condAttrListCollectionKeys[0] );
+  }
+  int mk(0);
+  for(unsigned int i = 0; i < m_pixelID->wafer_hash_max(); i++){
+    Identifier mID( m_pixelID->wafer_id(i) );
+    (*spm)[i] = new ModuleSpecialPixelMap();
+    (*spm)[i]->setchipsPerModule( getChips(i) ); 
+    if (
+	(m_pixelID->barrel_ec(mID) == 0 && (std::find(m_layersToMask.begin(), m_layersToMask.end(), m_pixelID->layer_disk(mID)) != m_layersToMask.end())) ||
+	(m_pixelID->barrel_ec(mID) == 2  && (std::find(m_disksToMask.begin(), m_disksToMask.end(), (m_pixelID->layer_disk(mID) + 1)) != m_disksToMask.end())) ||
+	(m_pixelID->barrel_ec(mID) == -2 && (std::find(m_disksToMask.begin(), m_disksToMask.end(), -1*(m_pixelID->layer_disk(mID) + 1)) != m_disksToMask.end()))
+	){
+      (*spm)[i]->setModuleStatus(1);
+      ATH_MSG_INFO( "List of modules killed "<<mk<<" hash "<<i<<" ["<<m_pixelID->barrel_ec(mID)<<","<< m_pixelID->layer_disk(mID)<<","<<
+		    m_pixelID->phi_module(mID)<<","<<m_pixelID->eta_module(mID)<<"]");
+      ++mk;
+    }
+  }
+  
+  sc = registerCondAttrListCollection(spm);
+  
+  if( !sc.isSuccess() ){
+    ATH_MSG_FATAL( "Unable to create and register CondAttrListCollection" );
+    return StatusCode::FAILURE;
+  }
+  
   return StatusCode::SUCCESS;
 }
 

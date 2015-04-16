@@ -12,6 +12,8 @@
 #include "StoreGate/StoreGateSvc.h"
 
 #include "InDetIdentifier/PixelID.h"
+#include "PixelGeoModel/IBLParameterSvc.h"
+
 
 #include <iostream>
 
@@ -23,6 +25,7 @@ PixelByteStreamErrorsSvc::PixelByteStreamErrorsSvc( const std::string& name,
 										 m_pixel_id(0),
 										 m_storeGate("StoreGateSvc",name),
 										 m_detStore("DetectorStore",name),
+                                         m_IBLParameterSvc("IBLParameterSvc",name),
 										 m_module_errors(0),
 										 m_moduleROD_errors(0),
 										 m_event_read(0),
@@ -77,6 +80,18 @@ StatusCode PixelByteStreamErrorsSvc::initialize(){
   if( sc.isSuccess() ) {
     incsvc->addListener( this, "BeginEvent", priority);
   }
+
+
+
+
+  // Get IBLParameterSvc
+  if (m_IBLParameterSvc.retrieve().isFailure()) {
+    msg(MSG::FATAL) << "Could not retrieve IBLParameterSvc" << endreq;
+    return StatusCode::FAILURE;
+  }
+  // Check if IBL is present or not
+  m_ibl_is_present = m_IBLParameterSvc->containsIBL();
+  m_dbm_is_present = m_IBLParameterSvc->containsDBM();
 
 
   resetCounts();
@@ -215,12 +230,21 @@ PixelByteStreamErrorsSvc::isGood(const Identifier & elementId, InDetConditions::
 bool 
 PixelByteStreamErrorsSvc::isGood(const IdentifierHash & elementIdHash) {
 
-  int errorcode = m_module_errors[elementIdHash];
+    Identifier dehashedId = m_pixel_id->wafer_id(elementIdHash);
 
-  if ((errorcode & 0xFFF1F00F)==0 ) // Mask FE errors
-    return isActive(elementIdHash) ;
-  else
-    return false;
+    if (m_ibl_is_present || m_dbm_is_present) {
+        // If module is IBL of DBM, return isActive
+        if ((m_pixel_id->barrel_ec(dehashedId) == 0 && m_pixel_id->layer_disk(dehashedId) == 0)
+                || m_pixel_id->is_dbm(dehashedId)) {
+            return isActive(elementIdHash);
+        }
+    }
+
+    int errorcode = m_module_errors[elementIdHash];
+    if ((errorcode & 0xFFF1F00F) == 0) // Mask FE errors
+        return isActive(elementIdHash);
+    else
+        return false;
 }
 
 
