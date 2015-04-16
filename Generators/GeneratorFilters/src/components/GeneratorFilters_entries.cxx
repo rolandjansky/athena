@@ -77,7 +77,8 @@
 #include "GeneratorFilters/DecayPositionFilter.h"
 #include "GeneratorFilters/HTFilter.h"
 #include "GeneratorFilters/TTbarPlusHeavyFlavorFilter.h"
-
+#include "GeneratorFilters/DuplicateEventFilter.h"
+#include "GeneratorFilters/BoostedHadTopAndTopPair.h"
 
 DECLARE_ALGORITHM_FACTORY(ElectronFilter)
 DECLARE_ALGORITHM_FACTORY(LeptonFilter)
@@ -156,6 +157,8 @@ DECLARE_ALGORITHM_FACTORY(LeptonPairFilter)
 DECLARE_ALGORITHM_FACTORY(DecayPositionFilter)
 DECLARE_ALGORITHM_FACTORY(HTFilter)
 DECLARE_ALGORITHM_FACTORY(TTbarPlusHeavyFlavorFilter)
+DECLARE_ALGORITHM_FACTORY(DuplicateEventFilter)
+DECLARE_ALGORITHM_FACTORY(BoostedHadTopAndTopPair)
 
 DECLARE_FACTORY_ENTRIES(GeneratorFilters) {
     DECLARE_ALGORITHM(LeptonFilter)
@@ -234,5 +237,6 @@ DECLARE_FACTORY_ENTRIES(GeneratorFilters) {
     DECLARE_ALGORITHM(DecayPositionFilter)
     DECLARE_ALGORITHM(HTFilter)
     DECLARE_ALGORITHM(TTbarPlusHeavyFlavorFilter)
-
+    DECLARE_ALGORITHM(DuplicateEventFilter)
+    DECLARE_ALGORITHM(BoostedHadTopAndTopPair)
 }

@@ -53,6 +53,7 @@ LeadingDiBjetFilter::LeadingDiBjetFilter(const std::string& name,
   m_Nevt = 0;
   m_SumOfWeigths_Pass = 0;
   m_SumOfWeigths_Evt = 0;
+  m_ranNumGen = 0;
 }
 
 //--------------------------------------------------------------------------

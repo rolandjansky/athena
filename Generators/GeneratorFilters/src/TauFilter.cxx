@@ -6,7 +6,9 @@
 #include "CLHEP/Vector/LorentzVector.h"
 
 TauFilter::TauFilter( const std::string& name, ISvcLocator* pSvcLocator)
-  : GenFilter( name,pSvcLocator )
+  : GenFilter( name,pSvcLocator ),
+    m_eventse(0), m_eventsmu(0), m_eventshad(0), 
+    m_eventseacc(0), m_eventsmuacc(0), m_eventshadacc(0)
 {
   declareProperty( "Ntaus", m_Ntau = 1 );
   declareProperty( "EtaMaxe", m_etaMaxe = 2.5 );
