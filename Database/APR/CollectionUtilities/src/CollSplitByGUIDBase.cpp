@@ -7,7 +7,7 @@
  * @brief Base class for the utility to list the file GUIDs used by a POOL collection and split the
  * collection into sub-collections by GUID
  * @author K. Karr <Kristo.Karr@cern.ch>, C. Nicholson <Caitriana.Nicholson@cern.ch>, Marcin.Nowak@cern.ch
- * $Id: CollSplitByGUIDBase.cpp 632516 2014-12-01 12:14:37Z ssnyder $
+ * $Id: CollSplitByGUIDBase.cpp 632515 2014-12-01 12:14:33Z ssnyder $
  */
 
 #include "PersistentDataModel/Token.h"

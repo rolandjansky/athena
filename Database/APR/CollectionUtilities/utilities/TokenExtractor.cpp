@@ -111,7 +111,8 @@ void printConfiguration(const CLI& cli)
 {
   std::cout << std::endl << "***** Token Extractor Configuration:" << std::endl;
   std::cout << "* Read tokens from " << (cli.useEI?"Event Index":"TAG") << std::endl;
-  std::cout << "* Source: " << cli.source << std::endl;
+  if (cli.source)
+    std::cout << "* Source: " << cli.source << std::endl;
   std::cout << "* Yampl Channel: " << (cli.yampl?cli.yampl:"TokenExtractorChannel") << std::endl;
   std::cout << "* Verbose: " << (cli.verbose?"Yes":"No") << std::endl;
   std::cout << "**********************" << std::endl << std::endl;
@@ -140,16 +141,17 @@ MapTokensByGuid::const_iterator retrieveTokens(bool useEI
 					       , bool verbose
 					       , char* source
 					       , const std::string& guid
-					       , MapTokensByGuid& tokensByGuid)
+					       , MapTokensByGuid& tokensByGuid
+					       , std::string& errorMessage)
 {
   MapTokensByGuid::const_iterator retVal(tokensByGuid.end());
   if(useEI) {
     // Read tokens from the Event Index web service using curl
-    std::cout << "Reading tokens from Event Index" << std::endl;
+    std::cout << "Reading tokens from the Event Index" << std::endl;
 
     // Compose the URL
-    // NB!!! Here we assume that the source looks like this: 'https://aiatlas016.cern.ch/EIHadoop/ES.jsp?query=path:EICache/atlevind/2014_6_31_13_53_7_893&guid='
-    //       And we want to make it look like that: 'https://aiatlas016.cern.ch/EIHadoop/ES.jsp?query=path:EICache/atlevind/2014_6_31_13_53_7_893&guid=4E5EDBC7-5F6D-E111-B20A-003048F3524E'
+    // NB!!! It is expected that the source looks like this: 'https://aiatlas016.cern.ch/EIHadoop/ES.jsp?query=path:EICache/atlevind/2014_6_31_13_53_7_893&guid='
+    //       And we want to turn it into something like that: 'https://aiatlas016.cern.ch/EIHadoop/ES.jsp?query=path:EICache/atlevind/2014_6_31_13_53_7_893&guid=4E5EDBC7-5F6D-E111-B20A-003048F3524E'
     std::string url(source);
     url += guid;
 
@@ -164,7 +166,7 @@ MapTokensByGuid::const_iterator retrieveTokens(bool useEI
 
     curl = curl_easy_init();
     if(curl) {
-      curl_easy_setopt(curl, CURLOPT_URL, url.c_str()); // "http://wn181.ific.uv.es:8080/getIndex.jsp?guid=4E5EDBC7-5F6D-E111-B20A-003048F3524E&format=txt2"
+      curl_easy_setopt(curl, CURLOPT_URL, url.c_str()); // "http://wn181.ific.uv.es:8080/getIndex.jsp?format=txt2&guid=4E5EDBC7-5F6D-E111-B20A-003048F3524E"
       curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
       curl_easy_setopt(curl, CURLOPT_WRITEDATA, &tokenBuf);
       curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
@@ -174,7 +176,9 @@ MapTokensByGuid::const_iterator retrieveTokens(bool useEI
       res = curl_easy_perform(curl);
       // Check for errors
       if(res != CURLE_OK) {
-	std::cerr <<  "curl_easy_perform() failed! " << curl_easy_strerror(res) << std::endl;
+	errorMessage.clear();
+	errorMessage = "CURL curl_easy_perform() failed! " + std::string(curl_easy_strerror(res));
+	std::cerr <<  "ERROR: " << errorMessage << std::endl;
 	return retVal;
       }
       else {
@@ -185,7 +189,9 @@ MapTokensByGuid::const_iterator retrieveTokens(bool useEI
       curl_easy_cleanup(curl);
     }
     else  {
-      std::cerr << "Unable to initialize curl!" << std::endl;
+      errorMessage.clear();
+      errorMessage = "CURL curl_easy_init() failed!";
+      std::cerr << "ERROR: " << errorMessage << std::endl;
       return retVal;
     }
 
@@ -208,14 +214,33 @@ MapTokensByGuid::const_iterator retrieveTokens(bool useEI
 	  // Trim the token
 	  token.erase(token.find_last_not_of(" \t")+1);
 	  token.erase(0,token.find_first_not_of(" \t"));
+	  
+	  // Error handling
+	  // In certain cases (eg wrong URL) instead of the list of tokens, the server
+	  // returns a HTML, which has the word Error in its header and the word ERROR in the body
+	  if(token.find("Error")!=std::string::npos) {
+	    token.erase(0,sizeof("<title>")-1);
+	    token.erase(token.find("</title>"));
+	    errorMessage.clear();
+	    errorMessage = "URL " + token;
+	    std::cerr << "ERROR: " << errorMessage << std::endl;
+	    tokensByGuid.erase(itTokensByGuid);
+	    return retVal;
+	  }
+
 	  if(verbose) std::cout << "TOKEN : " << token << std::endl;
 	  newTokens.push_back(token);
 	}
 	startpos = i+1;
-	// TO DO: this is error-prone! 
       }
     }
 
+    if(newTokens.empty()) {
+      errorMessage.clear();
+      errorMessage = "URL No tokens for GUID " + guid;
+      tokensByGuid.erase(itTokensByGuid);
+      itTokensByGuid = tokensByGuid.end();
+    }
     retVal = itTokensByGuid;
   }
   else {
@@ -308,6 +333,8 @@ int main(int argc, char *argv[])
     printUsage();
     return 0;
   }
+  // Hint to coverity: cli.source must be non-null here.
+  if (!cli.source) std::abort();
 
   printConfiguration(cli);
 
@@ -323,9 +350,12 @@ int main(int argc, char *argv[])
     char *requestBuffer(0), *responseBuffer(0);
     std::string strEvtTokens("");
 
-    // Empty message to be delivered to the requester in case of an error
-    void* empty_message = malloc(1);
-
+    // In case of an error respond to the request with two messages
+    //
+    // Message 1: Error Code (unsigned): 0 - GLOBAL, 1 - RANGE
+    // Message 2: Error string
+    unsigned* errorCode = new unsigned(0);
+    std::string errorMessage;
 
     std::cout << "\nWaiting for an incoming request ..." << std::endl;
     ssize_t requestSize = socket->recv(requestBuffer);
@@ -337,8 +367,13 @@ int main(int argc, char *argv[])
     }
 
     if(requestSize==-1) {
-      std::cerr << "ERROR receiving a request over the yampl channel. Ignoring this request" << std::endl;
-      socket->send(empty_message,1);
+      errorMessage = "Failed to receive a Range over the yampl channel. Ignoring this Range";
+      std::cerr << "ERROR: " << errorMessage << std::endl;
+      *errorCode = 1;
+      socket->send((void*)errorCode,sizeof(unsigned));
+      void* errorMess = malloc(errorMessage.size());
+      memcpy(errorMess,errorMessage.data(),errorMessage.size());
+      socket->send(errorMess,errorMessage.size());
       continue;
     }
 
@@ -347,8 +382,13 @@ int main(int argc, char *argv[])
     if(cli.verbose) std::cout << "Request: " << strRequest << std::endl;
     size_t comapos = strRequest.find(',');
     if(comapos==std::string::npos) {
-      std::cerr << "ERROR: Wrong format of the incoming request: " << strRequest << std::endl;
-      socket->send(empty_message,1);
+      errorMessage = "Wrong format of the Range: " + strRequest;
+      std::cerr << "ERROR: " << errorMessage << std::endl;
+      *errorCode = 1;
+      socket->send((void*)errorCode,sizeof(unsigned));
+      void* errorMess = malloc(errorMessage.size());
+      memcpy(errorMess,errorMessage.data(),errorMessage.size());
+      socket->send(errorMess,errorMessage.size());
       continue;
     }
 
@@ -358,10 +398,13 @@ int main(int argc, char *argv[])
     // _____________ Locate GUID in the tokens map. If does not exist, then retrieve from the source __________________
     MapTokensByGuid::const_iterator guidIterator = tokensByGuid.find(guid);
     if(guidIterator==tokensByGuid.end()) {
-      guidIterator = retrieveTokens(cli.useEI,cli.verbose,cli.source,guid,tokensByGuid);
+      guidIterator = retrieveTokens(cli.useEI,cli.verbose,cli.source,guid,tokensByGuid,errorMessage);
       if(guidIterator==tokensByGuid.end()) {
 	std::cerr << "ERROR: unable to retrieve event tokens for GUID=" << guid << std::endl;
-	socket->send(empty_message,1);
+	socket->send((void*)errorCode,sizeof(unsigned));
+	void* errorMess = malloc(errorMessage.size());
+	memcpy(errorMess,errorMessage.data(),errorMessage.size());
+	socket->send(errorMess,errorMessage.size());
 	continue;
       }
     }
@@ -372,8 +415,10 @@ int main(int argc, char *argv[])
     size_t startpos(comapos+1);
     size_t endpos = strRequest.find(',',startpos);
     unsigned evtPos(0);
+    bool all_ok(true);
     while(endpos!=std::string::npos) {
-      evtPos = std::atoi(strRequest.substr(startpos,endpos-startpos).c_str());
+      std::string strEvtPos(strRequest.substr(startpos,endpos-startpos));
+      evtPos = std::atoi(strEvtPos.c_str());
       std::cout << "Event number = " << evtPos << std::endl;
       startpos = endpos+1;
       endpos = strRequest.find(',',startpos);
@@ -384,34 +429,47 @@ int main(int argc, char *argv[])
 	if(cli.verbose) std::cout << "Corresponding Token  " << cachedTokens[evtPos-1] << std::endl;
       }
       else {
-	std::cerr << "ERROR: wrong event positional number received " << evtPos << std::endl;
-	socket->send(empty_message,1);
-	continue;
+	errorMessage = "Range contains wrong positional number " + strEvtPos;
+	std::cerr << "ERROR:  " << errorMessage << std::endl;
+	all_ok = false;
+	break;
       }
     }
-    evtPos = std::atoi(strRequest.substr(startpos).c_str());
-    std::cout << "Event number = " << evtPos << std::endl;
-    if(evtPos<=cachedTokens.size() && evtPos>0) {
-      if(!strEvtTokens.empty())
-	strEvtTokens += std::string(",");
-      strEvtTokens += cachedTokens[evtPos-1];
-      if(cli.verbose) std::cout << "Corresponding Token  " << cachedTokens[evtPos-1] << std::endl;
+    if(all_ok) {
+      std::string strEvtPos(strRequest.substr(startpos,endpos-startpos));
+      evtPos = std::atoi(strEvtPos.c_str());
+      std::cout << "Event number = " << evtPos << std::endl;
+      if(evtPos<=cachedTokens.size() && evtPos>0) {
+	if(!strEvtTokens.empty())
+	  strEvtTokens += std::string(",");
+	strEvtTokens += cachedTokens[evtPos-1];
+	if(cli.verbose) std::cout << "Corresponding Token  " << cachedTokens[evtPos-1] << std::endl;
+      }
+      else {
+	errorMessage = "Range contains wrong positional number " + strEvtPos;
+	std::cerr << "ERROR:  " << errorMessage << std::endl;
+	all_ok = false;
+      }
+    }
+
+    if(all_ok) {
+      if(cli.verbose) std::cout << "Response message: " << strEvtTokens << std::endl;
+      // Construct a response buffer: evtToken[,evtToken] 
+      responseBuffer = (char*)malloc(strEvtTokens.size());
+      memcpy(responseBuffer,strEvtTokens.data(),strEvtTokens.size());
+      socket->send(responseBuffer,strEvtTokens.size());
+      std::cout << "Response sent" << std::endl;
     }
     else {
-      std::cerr << "ERROR: wrong event positional number received " << evtPos << std::endl;
-      socket->send(empty_message,1);
-      continue;
+      *errorCode = 1;
+      socket->send((void*)errorCode,sizeof(unsigned));
+      void* errorMess = malloc(errorMessage.size());
+      memcpy(errorMess,errorMessage.data(),errorMessage.size());
+      socket->send(errorMess,errorMessage.size());      
+      continue; // In order to avoid double delete of the errorCode;
     }
-
-    if(cli.verbose) std::cout << "Response message: " << strEvtTokens << std::endl;
-
-    // Construct a response buffer: evtToken[,evtToken] 
-    responseBuffer = (char*)malloc(strEvtTokens.size());
-    memcpy(responseBuffer,strEvtTokens.data(),strEvtTokens.size());
-    socket->send(responseBuffer,strEvtTokens.size());
-    std::cout << "Response sent" << std::endl;
     
-    free(empty_message);
+    delete errorCode;
   }
 
   delete socket;
