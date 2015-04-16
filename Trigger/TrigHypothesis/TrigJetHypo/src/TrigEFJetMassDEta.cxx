@@ -208,7 +208,7 @@ HLT::ErrorCode TrigEFJetMassDEta::hltExecute(const HLT::TriggerElement* outputTE
     return HLT::OK;
   }
  
-  std::sort (theJets.begin(), theJets.end(), DescendingEta());
+  std::sort (theSelectedJets.begin(), theSelectedJets.end(), DescendingEta());
 
   ///  now add the TrigPassBits for the jets to specify whether each jet
   ///  passes the hypo etc
