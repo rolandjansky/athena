@@ -36,7 +36,7 @@ class AthenaMPToolBase : public AthAlgTool
   // _________IAthenaMPTool_________   
   virtual int makePool(int maxevt, int nprocs, const std::string& topdir) = 0;
   virtual StatusCode exec() = 0;
-  virtual StatusCode wait_once(int& numFinishedProc);
+  virtual StatusCode wait_once(pid_t& pid);
 
   virtual void reportSubprocessStatuses();
   virtual void subProcessLogs(std::vector<std::string>&) = 0;

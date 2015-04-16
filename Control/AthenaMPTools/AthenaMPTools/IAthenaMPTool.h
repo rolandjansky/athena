@@ -38,7 +38,7 @@ class IAthenaMPTool : virtual public IAlgTool
   virtual int makePool(int maxevt, int nprocs, const std::string& topdir) = 0;
 
   virtual StatusCode exec() = 0;
-  virtual StatusCode wait_once(int& numFinishedProc) = 0;
+  virtual StatusCode wait_once(pid_t& pid) = 0; // Pid of the finished process, 0 if no process finished, <0 if wait on the group failed
 
   virtual void reportSubprocessStatuses() = 0;
   virtual void subProcessLogs(std::vector<std::string>&) = 0;
