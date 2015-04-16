@@ -84,10 +84,32 @@ class EventsBeforeFork(JobProperty):
     StoredValue  = 0
 
 class EventRangeChannel(JobProperty):
-    """ For the Event Service: Channel for communicating Event Ranges with the Pilot"""
+    """ For the Event Service: Channel for communicating Event Ranges with the Pilot
+    """
     statusOn = True
     allowedTypes = ['str']
     StoredValue = 'EventService_EventRanges'
+
+class TokenScattererCaching(JobProperty):
+    """ For the Event Service: flag for activating extra event caching by the TokenScatterer
+    """
+    statusOn = True
+    allowedTypes = ['bool']
+    StoredValue = False
+
+class MemSamplingInterval(JobProperty):
+    """ Time interval in seconds between taking memory samples
+    """
+    statusOn = True
+    allowedTypes = ['int']
+    StoredValue  = 0
+
+class ChunkSize(JobProperty):
+    """ Size of event chunks in the shared queue
+    """
+    statusOn = True
+    allowedTypes = ['int']
+    StoredValue  = 1
 
 # Defines the container for the performance monitoring flags  
 class AthenaMPFlags(JobPropertyContainer):
@@ -110,7 +132,10 @@ list_jobproperties = [
     Version,
     PollingInterval,
     EventsBeforeFork,
-    EventRangeChannel
+    EventRangeChannel,
+    MemSamplingInterval,
+    TokenScattererCaching,
+    ChunkSize
     ]
 
 for i in list_jobproperties:

@@ -46,10 +46,17 @@ class AthMpEvtLoopMgr
   bool                           m_collectSubprocessLogs;
   ToolHandleArray<IAthenaMPTool> m_tools;
   int                            m_nChildProcesses;
-  int                            m_nPollingInterval; // in milliseconds
+  int                            m_nPollingInterval;      // in milliseconds
+  int                            m_nMemSamplingInterval;  // in seconds
   int                            m_nEventsBeforeFork;
   std::string                    m_shmemName;
   pid_t                          m_masterPid;
+
+  // vectors for collecting memory samples
+  std::vector<unsigned long>     m_samplesRss;
+  std::vector<unsigned long>     m_samplesPss;
+  std::vector<unsigned long>     m_samplesSize;
+  std::vector<unsigned long>     m_samplesSwap;
   
   AthMpEvtLoopMgr();
   AthMpEvtLoopMgr(const AthMpEvtLoopMgr&);

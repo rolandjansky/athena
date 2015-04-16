@@ -21,10 +21,17 @@
 #include <cstdlib>
 #include <string>
 #include <time.h>
+#include <chrono>
+#include <algorithm>
 
 #include <boost/filesystem.hpp>
 #include <boost/interprocess/shared_memory_object.hpp>
 #include <boost/interprocess/mapped_region.hpp>
+
+namespace athenaMP_MemHelper
+{
+  int getPss(pid_t, unsigned long&, unsigned long&, unsigned long&, unsigned long&, bool verbose=false);
+}
 
 AthMpEvtLoopMgr::AthMpEvtLoopMgr(const std::string& name
 				 , ISvcLocator* svcLocator)
@@ -39,6 +46,7 @@ AthMpEvtLoopMgr::AthMpEvtLoopMgr(const std::string& name
   , m_tools(this)
   , m_nChildProcesses(0)
   , m_nPollingInterval(100) // 0.1 second
+  , m_nMemSamplingInterval(0) // no sampling by default
   , m_nEventsBeforeFork(0)
   , m_shmemName("")
   , m_masterPid(getpid())
@@ -51,6 +59,7 @@ AthMpEvtLoopMgr::AthMpEvtLoopMgr(const std::string& name
   declareProperty("CollectSubprocessLogs",m_collectSubprocessLogs);
   declareProperty("Tools",m_tools);
   declareProperty("PollingInterval",m_nPollingInterval);
+  declareProperty("MemSamplingInterval",m_nMemSamplingInterval);
   declareProperty("EventsBeforeFork",m_nEventsBeforeFork);
 }
 
@@ -131,18 +140,29 @@ StatusCode AthMpEvtLoopMgr::executeRun(int maxevt)
   std::ostringstream randStream;
   randStream << rand();
 
+  StoreGateSvc* pDetStore(0);
+  if(service("DetectorStore", pDetStore).isFailure() || pDetStore==0) {
+    msg(MSG::FATAL) << "Unable to access Detector Store" << endreq;
+    return StatusCode::FAILURE;
+  }
+
   // Create Shared Event queue if necessary and make it available to the tools
   if(m_strategy=="SharedQueue" || m_strategy=="SharedReader") {
-    StoreGateSvc* pDetStore(0);
-    if(service("DetectorStore", pDetStore).isFailure() || pDetStore==0) {
-      msg(MSG::FATAL) << "Unable to access Detector Store" << endreq;
+    AthenaInterprocess::SharedQueue* evtQueue = new AthenaInterprocess::SharedQueue("AthenaMPEventQueue_"+randStream.str(),2000,sizeof(long));
+    if(pDetStore->record(evtQueue,"AthenaMPEventQueue_"+randStream.str()).isFailure()) {
+      msg(MSG::FATAL) << "Unable to record the pointer to the Shared Event queue into Detector Store" << endreq;
+      delete evtQueue;
       return StatusCode::FAILURE;
     }
+  }
 
-    AthenaInterprocess::SharedQueue* evtQueue = new AthenaInterprocess::SharedQueue("AthenaMPEventQueue_"+randStream.str(),2000,sizeof(int));
-    if(pDetStore->record(evtQueue,"AthenaMPEventQueue_"+randStream.str()).isFailure()) {
-      msg(MSG::FATAL) << "Unable to record the pointer to Shared Event queue into Detector Store" << endreq;
-      delete evtQueue;
+  // For the Event Service: create a queue for connecting TokenProcessor in the master with TokenScatterer subprocess
+  // The TokenProcessor master will be sending pid-s of failed processes to Token Scatterer
+  if(m_strategy=="TokenScatterer") {
+    AthenaInterprocess::SharedQueue* failedPidQueue = new AthenaInterprocess::SharedQueue("AthenaMPFailedPidQueue_"+randStream.str(),100,sizeof(pid_t));
+    if(pDetStore->record(failedPidQueue,"AthenaMPFailedPidQueue_"+randStream.str()).isFailure()) {
+      msg(MSG::FATAL) << "Unable to record the pointer to the Failed PID queue into Detector Store" << endreq;
+      delete failedPidQueue;
       return StatusCode::FAILURE;
     }
   }
@@ -190,12 +210,13 @@ StatusCode AthMpEvtLoopMgr::executeRun(int maxevt)
   }
 
   // When forking before 1st event, fire BeforeFork incident in non-pileup jobs
+  ServiceHandle<IIncidentSvc> incSvc("IncidentSvc",name());
+  if(incSvc.retrieve().isFailure()) {
+    msg(MSG::FATAL) << "Unable to retrieve IncidentSvc" << endreq;
+    return StatusCode::FAILURE;
+  }
+
   if(m_nEventsBeforeFork==0 && !m_isPileup) {
-    ServiceHandle<IIncidentSvc> incSvc("IncidentSvc",name());
-    if(incSvc.retrieve().isFailure()) {
-      msg(MSG::FATAL) << "Unable to retrieve IncidentSvc" << endreq;
-      return StatusCode::FAILURE;
-    }
     incSvc->fireIncident(Incident(name(),"BeforeFork"));
   }
 
@@ -240,6 +261,8 @@ StatusCode AthMpEvtLoopMgr::executeRun(int maxevt)
   for(; it!=itLast; ++it) {
     (*it)->useFdsRegistry(registry);
     (*it)->setRandString(randStream.str());
+    if(it==m_tools.begin())
+      incSvc->fireIncident(Incident(name(),"PreFork")); // Do it only once
     int nChildren = (*it)->makePool(maxevt,m_nWorkers,m_workerTopDir);
     if(nChildren==-1) {
       msg(MSG::FATAL) << "makePool failed for " << (*it)->name() << endreq;
@@ -264,6 +287,15 @@ StatusCode AthMpEvtLoopMgr::executeRun(int maxevt)
   }
 
   StatusCode sc = wait();
+
+  if(m_nMemSamplingInterval>0) {
+    msg(MSG::INFO) << "*** *** Memory Usage *** ***" << endreq;
+    msg(MSG::INFO) << "*** MAX PSS  "  << (*std::max_element(m_samplesPss.cbegin(),m_samplesPss.cend()))/1024 << "MB" << endreq;
+    msg(MSG::INFO) << "*** MAX RSS  "  << (*std::max_element(m_samplesRss.cbegin(),m_samplesRss.cend()))/1024 << "MB" << endreq;
+    msg(MSG::INFO) << "*** MAX SIZE " << (*std::max_element(m_samplesSize.cbegin(),m_samplesSize.cend()))/1024 << "MB" << endreq;
+    msg(MSG::INFO) << "*** MAX SWAP " << (*std::max_element(m_samplesSwap.cbegin(),m_samplesSwap.cend()))/1024 << "MB" << endreq;
+    msg(MSG::INFO) << "*** *** Memory Usage *** ***" << endreq;
+  }
 
   if(m_collectSubprocessLogs) {
     msg(MSG::INFO) << "BEGIN collecting sub-process logs" << endreq;
@@ -331,23 +363,45 @@ StatusCode AthMpEvtLoopMgr::wait()
   msg(MSG::INFO) << "Waiting for sub-processes" << endreq;
   ToolHandleArray<IAthenaMPTool>::iterator it = m_tools.begin(),
     itLast = m_tools.end();
-  int nFinishedProc(0);
+  pid_t pid(0);
   bool all_ok(true);
+
+  auto memMonTime = std::chrono::system_clock::now();
 
   while(m_nChildProcesses>0) {
     for(it = m_tools.begin(); it!=itLast; ++it) {
-      if((*it)->wait_once(nFinishedProc).isFailure()) {
+      if((*it)->wait_once(pid).isFailure()) {
 	all_ok = false;
 	msg(MSG::ERROR) << "Failure in waiting or sub-process finished abnormally" << endreq;
 	break;
       }
       else {
-	m_nChildProcesses -= nFinishedProc;
+	if(pid>0) m_nChildProcesses -= 1;
       }
     }
     if(!all_ok) break;
 
-    usleep(m_nPollingInterval*1000); 
+    usleep(m_nPollingInterval*1000);
+
+    if(m_nMemSamplingInterval>0) {
+      auto currTime = std::chrono::system_clock::now();
+      if(std::chrono::duration<double,std::ratio<1,1>>(currTime-memMonTime).count()>m_nMemSamplingInterval) {
+	unsigned long size(0);
+	unsigned long rss(0);
+	unsigned long pss(0);
+	unsigned long swap(0);
+
+	if(athenaMP_MemHelper::getPss(getpid(), pss, swap, rss, size, msgLvl(MSG::DEBUG)))
+	  msg(MSG::WARNING) << "Unable to get memory sample" << endreq;
+	else {
+	  m_samplesRss.push_back(rss);
+	  m_samplesPss.push_back(pss);
+	  m_samplesSize.push_back(size);
+	  m_samplesSwap.push_back(swap);
+	}
+	memMonTime=currTime;
+      }
+    }
   }
 
   for(it=m_tools.begin(); it!=itLast; ++it) 
