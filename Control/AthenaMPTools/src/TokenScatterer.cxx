@@ -4,6 +4,7 @@
 
 #include "TokenScatterer.h"
 #include "AthenaInterprocess/ProcessGroup.h"
+#include "AthenaInterprocess/SharedQueue.h"
 
 #include "AthenaKernel/IEventShare.h"
 #include "GaudiKernel/IEvtSelector.h"
@@ -27,10 +28,12 @@ TokenScatterer::TokenScatterer(const std::string& type
   : AthenaMPToolBase(type,name,parent)
   , m_processorChannel("")
   , m_eventRangeChannel("")
+  , m_doCaching(false)
 {
   m_subprocDirPrefix = "token_scatterer";
   declareProperty("ProcessorChannel", m_processorChannel);
   declareProperty("EventRangeChannel", m_eventRangeChannel);
+  declareProperty("DoCaching",m_doCaching);
 }
 
 TokenScatterer::~TokenScatterer()
@@ -191,7 +194,7 @@ AthenaInterprocess::ScheduledWork* TokenScatterer::exec_func()
   yampl::ISocket* socket2Pilot = socketFactory->createClientSocket(yampl::Channel(m_eventRangeChannel.value(),yampl::LOCAL),yampl::MOVE_DATA);
   msg(MSG::DEBUG) << "Created CLIENT socket for communicating Event Ranges with the Pilot" << endreq;
   // Create a socket to communicate with TokenProcessors
-  yampl::ISocket* socket2Processor = socketFactory->createServerSocket(yampl::Channel(m_processorChannel.value(),yampl::LOCAL_PIPE),yampl::MOVE_DATA);
+  yampl::ISocket* socket2Processor = socketFactory->createServerSocket(yampl::Channel(m_processorChannel.value(),yampl::LOCAL),yampl::MOVE_DATA);
   msg(MSG::DEBUG)<< "Created SERVER socket to token processors: " << m_processorChannel.value() << endreq;
   // Create a socket to communicate with the token extractor
   yampl::ISocket* socket2Extractor = socketFactory->createClientSocket(yampl::Channel("TokenExtractorChannel",yampl::LOCAL_PIPE),yampl::MOVE_DATA);
@@ -200,23 +203,46 @@ AthenaInterprocess::ScheduledWork* TokenScatterer::exec_func()
   bool all_ok=true;
   int procReportPending(0);  // Keep track of how many output files are yet to be reported by Token Processors
 
+  AthenaInterprocess::SharedQueue*  sharedFailedPidQueue(0);
+  if(detStore()->retrieve(sharedFailedPidQueue,"AthenaMPFailedPidQueue_"+m_randStr).isFailure()) {
+    msg(MSG::ERROR) << "Unable to retrieve the pointer to Shared Failed PID Queue" << endreq;
+    all_ok=false;
+  }
+
   // Communication protocol with the Pilot
   std::string strReady("Ready for events");
   std::string strStopProcessing("No more events");
+  std::string processorWaitRequest("");
 
-  // Signal the Pilot that AthenaMP is ready for event processing
-  void* ready_message = malloc(strReady.size());
-  memcpy(ready_message,strReady.data(),strReady.size());
-  socket2Pilot->send(ready_message,strReady.size());
-  void* eventRangeMessage;
-  ssize_t eventRangeSize = socket2Pilot->recv(eventRangeMessage);
-  std::string eventRange((const char*)eventRangeMessage,eventRangeSize);
-  size_t carRet = eventRange.find('\n');
-  if(carRet!=std::string::npos)
-    eventRange = eventRange.substr(0,carRet);
+  while(all_ok) {
+    // NO CACHING MODE: first get a request from one of the processors and only after that request the next event range from the pilot
+    if(!m_doCaching && processorWaitRequest.empty()) {
+      msg(MSG::DEBUG) << "Start waiting for event range request from one of the processors" << endreq;
+      while(processorWaitRequest.empty()) {
+	processorWaitRequest = getNewRangeRequest(socket2Processor,socket2Pilot,procReportPending);
+	pollFailedPidQueue(sharedFailedPidQueue,socket2Pilot,procReportPending);
+	usleep(1000);
+      }
+      msg(MSG::DEBUG) << "One of the processors is ready for the next range" << endreq;
+    }    
 
-  while(eventRange.compare(strStopProcessing)!=0) {
-    msg(MSG::DEBUG) << "Got Event Range: " << eventRange << endreq;
+    // Signal the Pilot that AthenaMP is ready for event processing
+    void* ready_message = malloc(strReady.size());
+    memcpy(ready_message,strReady.data(),strReady.size());
+    socket2Pilot->send(ready_message,strReady.size());
+    void* eventRangeMessage;
+    ssize_t eventRangeSize = socket2Pilot->recv(eventRangeMessage);
+    std::string eventRange((const char*)eventRangeMessage,eventRangeSize);
+    size_t carRet = eventRange.find('\n');
+    if(carRet!=std::string::npos)
+      eventRange = eventRange.substr(0,carRet);
+
+    // Break the loop if no more ranges are expected
+    if(eventRange.compare(strStopProcessing)==0) {
+      msg(MSG::DEBUG) << "Stopped the loop. Last message from the Event Range Channel: " << eventRange << endreq;
+      break;
+    }
+    msg(MSG::DEBUG) << "Got Event Range from the pilot: " << eventRange << endreq;
 
     // Parse the Event Range string 
     // Expected the following format: [{KEY:VALUE[,KEY:VALUE]}]
@@ -253,9 +279,13 @@ AthenaInterprocess::ScheduledWork* TokenScatterer::exec_func()
        || eventRangeMap.find("startEvent")==eventRangeMap.end()
        || eventRangeMap.find("lastEvent")==eventRangeMap.end()
        || eventRangeMap.find("GUID")==eventRangeMap.end()) {
-      msg(MSG::ERROR) << "Wrong format of the event range: " << eventRange << endreq;
-      all_ok = false;
-      break;
+      std::string errorStr("ERR_ATHENAMP_PARSE \"" + eventRange + "\": Wrong format");
+      msg(MSG::ERROR) << errorStr << endreq;
+      msg(MSG::INFO) << "Ignoring this event range " << endreq;
+      void* errorMessage = malloc(errorStr.size());
+      memcpy(errorMessage,errorStr.data(),errorStr.size());
+      socket2Pilot->send(errorMessage,errorStr.size());
+      continue;
     }
     else {
       msg(MSG::DEBUG) << "*** Decoded Event Range ***" << endreq;
@@ -270,10 +300,16 @@ AthenaInterprocess::ScheduledWork* TokenScatterer::exec_func()
     std::string guid = eventRangeMap["GUID"];
     int startEvent = std::atoi(eventRangeMap["startEvent"].c_str());
     int lastEvent = std::atoi(eventRangeMap["lastEvent"].c_str());
-    if(rangeID.empty() || lastEvent < startEvent) {
-      msg(MSG::WARNING) << "Wrong values in the Event Range: " << eventRange << endreq;
-      all_ok = false;
-      break;
+    if(rangeID.empty() 
+       || guid.empty()
+       || lastEvent < startEvent) {
+      std::string errorStr("ERR_ATHENAMP_PARSE \"" + eventRange + "\": Wrong values of range fields");
+      msg(MSG::ERROR) << errorStr << endreq;
+      msg(MSG::INFO) << "Ignoring this event range " << endreq;
+      void* errorMessage = malloc(errorStr.size());
+      memcpy(errorMessage,errorStr.data(),errorStr.size());
+      socket2Pilot->send(errorMessage,errorStr.size());
+      continue;
     }
 
     // Compose a string to be sent to the TokenExtractor
@@ -291,55 +327,66 @@ AthenaInterprocess::ScheduledWork* TokenScatterer::exec_func()
     socket2Extractor->send(requestBuffer,message2Extractor.size());
     msg(MSG::DEBUG) << "Sent message to the Token Extractor" << endreq;
     
-    // Get the response: list of tokens - TODO: error handling.
-    ssize_t responseSize = socket2Extractor->recv(responseBuffer);
-    
-    if(responseSize>1) {
-      // Wait for a new range request from some Processor
-      // If an output file report is received, then pass it over to the Pilot and keep waiting
-      while(true) {
-	void* processor_request(0);
-	ssize_t processorRequestSize = socket2Processor->recv(processor_request);
-	std::string strProcessorRequest((const char*)processor_request,processorRequestSize);
-	msg(MSG::DEBUG) << "Received request from a processor: " << strProcessorRequest << endreq;
-	// Decode the request. If it contains output file name then pass it over to the pilot and keep waiting
-	if(strProcessorRequest.find('/')==0) {
-	  void* outpFileNameMessage = malloc(strProcessorRequest.size());
-	  memcpy(outpFileNameMessage,strProcessorRequest.data(),strProcessorRequest.size());
-	  socket2Pilot->send(outpFileNameMessage,strProcessorRequest.size());
-	  procReportPending--;
-	}
-	else {
-	  break;
-	}
+    // Get the response: list of tokens
+    ssize_t responseSize = socket2Extractor->recv(responseBuffer);    
+    if(responseSize==sizeof(unsigned)) {
+      // Token Extractor reported an error. In such cases the Token Extractor sends two messages
+      // 1. Error code: 0 - Global, 1 - Range-specific
+      unsigned* errorCode = (unsigned*)responseBuffer;
+      bool globalTEError = (*errorCode==0?true:false);
+      // 2. Error message
+      responseSize = socket2Extractor->recv(responseBuffer);
+      std::string errorString(responseBuffer,responseSize);
+      msg(MSG::ERROR) << "Token Extractor reporting an error: " << errorString << endreq;
+
+      if(globalTEError) {
+	std::string errorStr("ERR_TE_FATAL " + rangeID + ": " + errorString);
+	void* errorMessage = malloc(errorStr.size());
+	memcpy(errorMessage,errorStr.data(),errorStr.size());
+	socket2Pilot->send(errorMessage,errorStr.size());
+	msg(MSG::ERROR) << "This is a FATAL error! Stopping the event loop" << endreq;
+	all_ok = false;
+	break;
       }
-
-      // Send to the Processor: RangeID,evtToken[,evtToken] 
-      std::string responseStr(responseBuffer,responseSize);
-      msg(MSG::DEBUG) << "Received response from the token extractor with the tokens: " << responseStr << endreq;
-      std::string message2ProcessorStr(rangeID+std::string(",")+responseStr);
-      message2Processor = (char*)malloc(message2ProcessorStr.size());
-      memcpy(message2Processor,message2ProcessorStr.data(),message2ProcessorStr.size());
-      socket2Processor->send(message2Processor,message2ProcessorStr.size());
-      procReportPending++;
-      msg(MSG::DEBUG) << "Sent response to the processor : " << message2ProcessorStr << endreq;
+      else {
+	// Range specific error
+	std::string errorStr("ERR_TE_RANGE " + rangeID + ": " + errorString);
+	void* errorMessage = malloc(errorStr.size());
+        memcpy(errorMessage,errorStr.data(),errorStr.size());
+        socket2Pilot->send(errorMessage,errorStr.size());
+	msg(MSG::INFO) << "Ignoring this event range " << endreq;
+	continue;
+      }
     }
-    else {
-      msg(MSG::ERROR) << "Token Extractor failed to deliver tokens for the RangeID=" << rangeID << ". The range WILL NOT be processed" << endreq;
-      // TODO: shall a send a message about it to the Pilot?
-    }
+    std::string responseStr(responseBuffer,responseSize);
+    msg(MSG::DEBUG) << "Received response from the token extractor with the tokens: " << responseStr << endreq;
 
-    // Get the next event range
-    ready_message = malloc(strReady.size());
-    memcpy(ready_message,strReady.data(),strReady.size());
-    socket2Pilot->send(ready_message,strReady.size());
-    eventRangeSize = socket2Pilot->recv(eventRangeMessage);
-    eventRange = std::string((const char*)eventRangeMessage,eventRangeSize);
-    carRet = eventRange.find('\n');
-    if(carRet!=std::string::npos)
-      eventRange = eventRange.substr(0,carRet);
+    // CACHING MODE: first get an event range from the pilot, transform it into the tokens
+    // and only after that wait for a new range request by one of the processors
+    if(m_doCaching) {
+      msg(MSG::DEBUG) << "Start waiting for event range request from one of the processors" << endreq;
+      while(processorWaitRequest.empty()) {
+	processorWaitRequest = getNewRangeRequest(socket2Processor,socket2Pilot,procReportPending);
+	pollFailedPidQueue(sharedFailedPidQueue,socket2Pilot,procReportPending);
+	usleep(1000);
+      }
+      msg(MSG::DEBUG) << "One of the processors is ready for the next range" << endreq;
+    }
+    
+    // Send to the Processor: RangeID,evtToken[,evtToken] 
+    std::string message2ProcessorStr(rangeID+std::string(",")+responseStr);
+    message2Processor = (char*)malloc(message2ProcessorStr.size());
+    memcpy(message2Processor,message2ProcessorStr.data(),message2ProcessorStr.size());
+    socket2Processor->send(message2Processor,message2ProcessorStr.size());
+    procReportPending++;
+
+    // Get PID from the request and Update m_pid2RangeID
+    int pid = std::atoi(processorWaitRequest.c_str());
+    m_pid2RangeID[pid] = rangeID;
+    processorWaitRequest.clear();
+
+    msg(MSG::DEBUG) << "Sent response to the processor : " << message2ProcessorStr << endreq;
   }
-  msg(MSG::DEBUG) << "Stopped the loop. Last message from the Event Range Channel: " << eventRange << endreq;
 
   // Send an empty message to the Token Extractor, by this way informing that it can exit
   // Here (and everywhere) the empty message is in fact a dummy message with size=1, as I'm having troubles sending 0 size messages
@@ -350,51 +397,38 @@ AthenaInterprocess::ScheduledWork* TokenScatterer::exec_func()
   void* emptyMessage = malloc(1);
   socket2Extractor->send(emptyMessage,1);
 
-
-  // We are done distributing event tokens. 
-  // Tell the workers that the event processing is over
-  // i.e. send out m_nprocs empty messages
-  for(int i(0); i<m_nprocs; ++i) {
-    while(true) {
-      void* processor_request(0);
-      // If this is an output file report, just pass it over to the Pilot and keep waiting
-      ssize_t processorRequestSize = socket2Processor->recv(processor_request);
-      std::string strProcessorRequest((const char*)processor_request,processorRequestSize);
-      msg(MSG::DEBUG) << "Received request from a processor: " << strProcessorRequest << endreq;
-      if(strProcessorRequest.find('/')==0) {
-	void* outpFileNameMessage = malloc(strProcessorRequest.size());
-	memcpy(outpFileNameMessage,strProcessorRequest.data(),strProcessorRequest.size());
-	socket2Pilot->send(outpFileNameMessage,strProcessorRequest.size());
-	procReportPending--;
-      }
-      else {
-	break;
-      }
-    }
-    // Return empty range
-    void* emptyMess = malloc(1);
-    socket2Processor->send(emptyMess,1);
-  }
-
-  // Final round of colecting output file names from processors
   if(all_ok) {
+    // We are done distributing event tokens. 
+    // Tell the workers that the event processing is over
+    // i.e. send out m_nprocs empty messages
+    void* emptyMess4Processor(0);
+    if(!processorWaitRequest.empty()) {
+      // We already have one processor waiting for the answer
+      emptyMess4Processor = malloc(1);
+      socket2Processor->send(emptyMess4Processor,1);
+      msg(MSG::DEBUG) << "Set one processor free" << endreq;
+    }
+    for(int i(0); i<(processorWaitRequest.empty()?m_nprocs:m_nprocs-1); ++i) {
+      msg(MSG::DEBUG) << "Going to set another processor free" << endreq;
+      while(getNewRangeRequest(socket2Processor,socket2Pilot,procReportPending).empty()) {
+	pollFailedPidQueue(sharedFailedPidQueue,socket2Pilot,procReportPending);
+	usleep(1000);
+      }
+      emptyMess4Processor = malloc(1);
+      socket2Processor->send(emptyMess4Processor,1);
+      msg(MSG::DEBUG) << "DONE" << endreq;
+    }
+
+    msg(MSG::DEBUG) << "Still " << procReportPending << " pending reports" << endreq;
+    
+    // Final round of colecting output file names from processors
     while(procReportPending>0) {
-      void* processor_request(0);
-      // If this is an output file report, just pass it over to the Pilot and keep waiting
-      ssize_t processorRequestSize = socket2Processor->recv(processor_request);
-      std::string strProcessorRequest((const char*)processor_request,processorRequestSize);
-      msg(MSG::DEBUG) << "Received request from a processor: " << strProcessorRequest << endreq;
-      if(strProcessorRequest.find('/')==0) {
-        void* outpFileNameMessage = malloc(strProcessorRequest.size());
-        memcpy(outpFileNameMessage,strProcessorRequest.data(),strProcessorRequest.size());
-        socket2Pilot->send(outpFileNameMessage,strProcessorRequest.size());
-        procReportPending--;
+      std::string strProcessorRequest = getNewRangeRequest(socket2Processor,socket2Pilot,procReportPending);
+      if(!strProcessorRequest.empty()) {
+	msg(MSG::WARNING) << "Unexpected message received from a processor at this stage : " << strProcessorRequest << endreq;
       }
-      else {
-	msg(MSG::ERROR) << "Unexpected message received from a processor at this stage : " << strProcessorRequest << endreq;
-	all_ok = false;
-	break;
-      }
+      pollFailedPidQueue(sharedFailedPidQueue,socket2Pilot,procReportPending);
+      usleep(1000);
     }
   }
 
@@ -466,4 +500,45 @@ void TokenScatterer::trimRangeStrings(std::string& str)
       str = str.substr(0,str.size()-1);
     }
   }
+}
+
+std::string TokenScatterer::getNewRangeRequest(yampl::ISocket* socket2Processor
+					       , yampl::ISocket* socket2Pilot
+					       , int& procReportPending)
+{
+//  msg(MSG::DEBUG) << "In getNewRangeRequest ..."  << endreq;
+  void* processor_request(0);
+  ssize_t processorRequestSize = socket2Processor->tryRecv(processor_request);
+
+  if(processorRequestSize==-1) return std::string("");
+  std::string strProcessorRequest((const char*)processor_request,processorRequestSize);
+  msg(MSG::DEBUG) << "Received request from a processor: " << strProcessorRequest << endreq;
+  // Decode the request. If it contains output file name then pass it over to the pilot and return empty string
+  if(strProcessorRequest.find('/')==0) {
+    void* outpFileNameMessage = malloc(strProcessorRequest.size());
+    memcpy(outpFileNameMessage,strProcessorRequest.data(),strProcessorRequest.size());
+    socket2Pilot->send(outpFileNameMessage,strProcessorRequest.size());
+    procReportPending--;
+    return std::string("");
+  }
+  return strProcessorRequest;
+}
+
+void TokenScatterer::pollFailedPidQueue(AthenaInterprocess::SharedQueue*  sharedFailedPidQueue
+					, yampl::ISocket* socket2Pilot
+					, int& procReportPending)
+{
+  pid_t pid;
+  if(sharedFailedPidQueue->try_receive_basic<pid_t>(pid)) {
+    msg(MSG::INFO) << "Procesor with PID=" << pid << " has failed!" << endreq;
+    if(m_pid2RangeID.find(pid)!=m_pid2RangeID.end()) {
+      msg(MSG::WARNING) << "The failed RangeID = " << m_pid2RangeID[pid] << " will be reported to Pilot" << endreq;
+
+      std::string errorStr("ERR_ATHENAMP_PROCESS " + m_pid2RangeID[pid] + ": Failed to process event range");
+      void* errorMessage = malloc(errorStr.size());
+      memcpy(errorMessage,errorStr.data(),errorStr.size());
+      socket2Pilot->send(errorMessage,errorStr.size());
+    }
+    procReportPending--;
+  } 
 }

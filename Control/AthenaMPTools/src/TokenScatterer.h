@@ -7,6 +7,13 @@
 
 #include "AthenaMPToolBase.h"
 #include "yampl/Exceptions.h"
+#include <map>
+
+typedef std::map<pid_t,std::string> Pid2RangeID;
+
+namespace yampl {
+  class ISocket;
+}
 
 class TokenScatterer : public AthenaMPToolBase
 {
@@ -42,8 +49,21 @@ class TokenScatterer : public AthenaMPToolBase
   // 2. Leading "u\'" and trailing "\'"
   void trimRangeStrings(std::string&);
 
+  // Helper functuion for receiving new messages from the socket2Processor channel
+  // If this is an output file report, then it is forwarded to the pilot and an empty string is returned to the caller
+  std::string getNewRangeRequest(yampl::ISocket* socket2Processor
+				 , yampl::ISocket* socket2Pilot
+				 , int& procReportPending);
+
+  // Poll the failed PID queue to see if any of the Processors has failed
+  void pollFailedPidQueue(AthenaInterprocess::SharedQueue*  sharedFailedPidQueue
+			  , yampl::ISocket* socket2Pilot
+			  , int& procReportPending);
+
   StringProperty           m_processorChannel;
   StringProperty           m_eventRangeChannel;
+  bool                     m_doCaching;
+  Pid2RangeID              m_pid2RangeID; // Current RangeID-s by PIDs
 };
 
 #endif
