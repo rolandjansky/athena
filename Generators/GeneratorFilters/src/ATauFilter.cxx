@@ -13,7 +13,10 @@ using HepMC::GenParticle;
 
 
 ATauFilter::ATauFilter(const std::string& name, ISvcLocator* pSvcLocator )
-  : GenFilter( name,pSvcLocator )
+  : GenFilter( name,pSvcLocator ),
+    m_eventsaccepted(0), m_eventsrefused(0), m_eventsll(0),
+    m_eventslh(0), m_eventshh(0),  m_eventsllacc(0), 
+    m_eventslhacc(0), m_eventshhacc(0)
 {
   declareProperty( "Etacut", m_EtaRange = 2.5 );
   // pt cuts for a0 -> tau + atau -> l + l + X

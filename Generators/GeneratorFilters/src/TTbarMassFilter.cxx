@@ -166,7 +166,7 @@ StatusCode TTbarMassFilter::filterEvent() {
     for (size_t i = 1; i < top_vtxs.size(); ++i) {
       if (top_vtxs[i] == prodVtx) top_12=i;
       else {
-        if (top_21 < -1) top_21 = i;
+        if (top_21 < 0) top_21 = i;
         else top_22 = i;
       }
     }

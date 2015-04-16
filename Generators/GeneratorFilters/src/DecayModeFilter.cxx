@@ -15,7 +15,11 @@ inline bool isIn(const std::vector<unsigned int>& pdgs, int pdg) {
 
 
 DecayModeFilter::DecayModeFilter(const std::string& name, ISvcLocator* pSvcLocator)
-  : GenFilter(name, pSvcLocator)
+  : GenFilter(name, pSvcLocator),
+    m_nDirectModeEvents(0), m_nBosonicModeEvents(0), m_nLeptonicModeEvents(0),
+    m_nDirect3bodyModeEvents(0), m_nDoubleBosonicMode(0), m_nDoubleLeptonicMode(0), m_nBosonicLeptonicMode(0),
+    m_nDirectDecays(0), m_nBosonicDecays(0),
+    m_nLeptonicDecays(0), m_nDirect3bodyDecays(0)
 {
   declareProperty("modeID", m_modeID ="-" );
   declareProperty("submode", m_submode = "-" );

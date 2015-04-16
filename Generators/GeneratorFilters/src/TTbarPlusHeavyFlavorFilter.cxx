@@ -125,7 +125,8 @@ StatusCode TTbarPlusHeavyFlavorFilter::filterEvent() {
 
     } /// loop on particles
 
-    break;
+    // Coverity dislikes this break as it means the loop is poitless, commentted out in line with other filters
+    //break;
 
   } /// loop on events (only one at evgen - no PU)
   
