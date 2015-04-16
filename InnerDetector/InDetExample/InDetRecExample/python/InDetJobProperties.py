@@ -1265,7 +1265,6 @@ class InDetJobProperties(JobPropertyContainer):
        self.checkThenSet(self.doTrackSegmentsSCT     , False )
        self.checkThenSet(self.doTrackSegmentsTRT     , False )
        self.checkThenSet(self.doSlimming             , False )
-       self.checkThenSet(self.doSGDeletion           , True )
        # --- turn off brem
        self.checkThenSet(self.doBremRecovery         , False)
        self.checkThenSet(self.doCaloSeededBrem       , False)
@@ -1621,8 +1620,8 @@ class InDetJobProperties(JobPropertyContainer):
       # ---- TRT Phase
       # --------------------------------------------------------------------
       #
-      # Collision phase is done on segments so can't run if TRT segements not run
-      if not self.doCosmics(): self.doTRTPhaseCalculation = self.doTRTPhaseCalculation() and DetFlags.haveRIO.TRT_on() and self.doPRDFormation()
+      # Collision phase is done on segments so can't run if TRT segements not run. Also don't run when running standalone pseudo tracking.
+      if not self.doCosmics(): self.doTRTPhaseCalculation = self.doTRTPhaseCalculation() and DetFlags.haveRIO.TRT_on() and self.doPRDFormation() and not (self.doPseudoTracking and not self.doNewTracking)
 
       #
       # --------------------------------------------------------------------
