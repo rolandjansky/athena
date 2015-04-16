@@ -110,7 +110,7 @@ elif dbType == 2:
 else:
   SpecialPixelMapSvc.DBFolders = [ "/PIXEL/PixMap" ]
   SpecialPixelMapSvc.OutputFolder = "/PIXEL/NoiseMapShort"
-  SpecialPixelMapSvc.OutputFolder = "/PIXEL/NoiseMapLong"
+  SpecialPixelMapSvc.OutputLongFolder = "/PIXEL/NoiseMapLong"
 
 SpecialPixelMapSvc.UseDualFolderStructure = True
 # If true, only module masks which fit in a String4k are written to
@@ -192,7 +192,7 @@ elif dbType == 2:
   OutputConditionsAlg.ObjectList=[ "CondAttrListCollection#/PIXEL/PixMapOverlay" ]
 else:
   OutputConditionsAlg.ObjectList=[ "CondAttrListCollection#/PIXEL/NoiseMapShort" ]
-  OutputConditionsAlg.ObjectList=[ "CondAttrListCollection#/PIXEL/NoiseMapLong" ]
+  OutputConditionsAlg.ObjectList+=[ "CondAttrListCollection#/PIXEL/NoiseMapLong" ]
 
 OutputConditionsAlg.WriteIOV=True
 OutputConditionsAlg.Run1=222222

@@ -61,6 +61,9 @@ public:
   virtual const DetectorSpecialPixelMap *getPixelMap(unsigned int index) const = 0;
   //!< returns a const pointer to the index'th special pixel map
 
+  virtual unsigned int getChips(const unsigned int & index) const = 0;
+  //!< returns the number of chips and type of module as 10*mchips+i 
+
   virtual StatusCode registerCondAttrListCollection(const DetectorSpecialPixelMap* spm) const = 0;
   //!< convert spm to CondAttrListCollection and register in the detector store
   //!< used when preparing database write

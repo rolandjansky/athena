@@ -68,6 +68,7 @@ public:
   //!< create special pixel map objects using data from the offline COOL database
   StatusCode createDeadModuleList() const;
   //!<create PixelMapOverlap by randomly killing some fraction of modules
+  StatusCode createMaskingOverlay() const;
   StatusCode create() const; 
   //!< create special pixel map objects using the data source specified in the job options
   StatusCode print() const; 
@@ -108,6 +109,7 @@ private:
   bool m_mergePixelMaps;
   bool m_differentialUpdates;
   bool m_useDualFolderStructure;
+  bool m_maskLayers;
 
   bool m_writeBlobs;
   
@@ -118,7 +120,9 @@ private:
   std::string m_fileListFileDir;
 
   double m_killingModule;
-
+  std::vector<int> m_layersToMask;
+  std::vector<int> m_disksToMask;
+ 
   std::map<unsigned int, unsigned int> m_chips;
 
   const PixelID* m_pixelID;
