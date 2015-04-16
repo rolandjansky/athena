@@ -88,7 +88,7 @@ HLT::ErrorCode TrigEFJetHypoNoise::hltInitialize()
   if ( cfact ) {
       msg() << MSG::DEBUG << "Got the factory for TDAQ interface, will try to register vectors" << endreq;
       try {
-          m_IsObject = cfact->constructContainer("LArISInfo","LArNoiseBurstCandidates");
+          m_IsObject = cfact->constructContainer("LArISInfo_"+name(),"LArNoiseBurstCandidates");
           m_evntPos = cfact->addIntVector(m_IsObject,"Flag",hltinterface::GenericHLTContainer::LASTVALUE);
           m_timeTagPos = cfact->addIntVector(m_IsObject,"TimeStamp",hltinterface::GenericHLTContainer::LASTVALUE);
           m_timeTagPosns = cfact->addIntVector(m_IsObject,"TimeStamp_ns",hltinterface::GenericHLTContainer::LASTVALUE);
