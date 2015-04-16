@@ -34,6 +34,9 @@ namespace pool
 
      virtual            ~MetaInfo();
 
+     MetaInfo (const MetaInfo&) = delete;
+     MetaInfo& operator= (const MetaInfo&) = delete;
+
      /// process options
      virtual bool       evalArgs(std::vector<std::string>& argv);
 

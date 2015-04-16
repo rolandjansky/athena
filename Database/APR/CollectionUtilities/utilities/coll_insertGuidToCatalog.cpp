@@ -111,7 +111,10 @@ InsertFileToCatalogApplication::execute()
     catalog->start();
     
     pool::PFNEntry entry( fileNames[0], guid, technologyName );
-    dynamic_cast< pool::FCLeaf* >( catalog->getWriteCatalog() )->getImpl()->insertPFN( entry );
+    pool::FCLeaf* leaf = 
+      dynamic_cast< pool::FCLeaf* >( catalog->getWriteCatalog() );
+    if (leaf)
+      leaf->getImpl()->insertPFN( entry );
     
     catalog->commit();
   }
