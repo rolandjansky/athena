@@ -7,7 +7,7 @@
  * @brief Utility to list the file GUID's used by a POOL collection
  * @author K. Karr <Kristo.Karr@cern.ch>
  * @author Marcin.Nowak@cern.ch
- * $Id: CollListFileGUID.cpp 527111 2012-11-21 21:11:08Z gemmeren $
+ * $Id: CollListFileGUID.cpp 653428 2015-03-11 17:56:02Z ssnyder $
  */
 
 #include "PersistentDataModel/Token.h"
@@ -155,8 +155,12 @@ int main(int argc, const char *argv[])
          if( collection->description().type() == "RelationalCollection" ) {
             // the fast query version for relational collections
             // (gets only references to the Link table)
+            ICollectionRelationalExtensions* relcoll = 
+              dynamic_cast<ICollectionRelationalExtensions*>(collection);
+            if (!relcoll)
+              std::abort();
             auto_ptr<pool::ICollectionGUIDQuery>
-               collQuery( dynamic_cast<ICollectionRelationalExtensions*>(collection)->newGUIDQuery() );
+               collQuery( relcoll->newGUIDQuery() );
             collQuery->setCondition( queryinfo.query(i) );
             if( mainToken ) {
                collQuery->addToOutputList( collection->description().eventReferenceColumnName() );

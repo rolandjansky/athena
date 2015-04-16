@@ -170,7 +170,8 @@ CollAppendBase::openDestCollections( pool::CollectionDescription& destDescriptio
    for( unsigned int i=0; i<m_dstinfo.nDst(); i++ ) {
       if( destCollExistVec[i] ) {
 	 // open existing
-	 m_progress.print("Opening destination collections", 100*i/m_dstinfo.nDst());
+         int nDst = m_dstinfo.nDst();
+	 m_progress.print("Opening destination collections", nDst ? 100*i/nDst : 0);
 	 destCollections[i] = openDestCollection( m_dstinfo.name(i), 
 						  m_dstinfo.type(i), 
 						  m_dstinfo.connect() );

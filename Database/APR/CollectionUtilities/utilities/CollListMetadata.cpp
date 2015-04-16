@@ -245,10 +245,10 @@ int main(int argc, const char *argv[])
                theSerializer->write(newDocument, theOutput);
 
                // clean up the mess
-               if (theSerializer!=NULL && theSerializer!=0) delete theSerializer;
-               if (theOutput!=NULL && theOutput!=0) delete theOutput;
-               if (myFormTarget!=NULL && myFormTarget!=0)   delete myFormTarget;
-               if (newDocument!=NULL && newDocument!=0)     delete newDocument;
+               if (theSerializer!=NULL) delete theSerializer;
+               if (theOutput!=NULL) delete theOutput;
+               if (myFormTarget!=NULL)   delete myFormTarget;
+               if (newDocument!=NULL)     delete newDocument;
 #endif
             }
             catch (const SAXException& e) {

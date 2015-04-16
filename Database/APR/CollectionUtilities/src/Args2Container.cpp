@@ -220,7 +220,7 @@ bool Args2Container::evalArgs(const std::string cliarg, std::vector<std::string>
       for (Args2Container::const_iterator ait = this->begin(); ait != this->end(); ++ait) {
          if ( cliarg=="ALL" || (*ait)->name()==cliarg) {
 	    (*ait)->ignoreMissingArgs( true );
-            (*ait)->evalArgs(argv); 
+            (void) (*ait)->evalArgs(argv); 
 	    (*ait)->ignoreMissingArgs( false );
          } 
       } 
