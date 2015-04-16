@@ -164,8 +164,8 @@ def addDetaInvmTopo(theChainDef,chainDicts,inputTEsL2, inputTEsEF,topoAlgs):
         if 'deta' in topo_item:
             detaCut=float(topo_item.split('deta')[1]) 
         else:
-            logJet.debug("No deta threshold in topo definition, using default deta=99.")
-            detaCut = 99.
+            logJet.debug("No deta threshold in topo definition, using default deta=-99.")
+            detaCut = -99.
 
         if 'invm' in topo_item:
             invmCut=float(topo_item.split('invm')[1]) 

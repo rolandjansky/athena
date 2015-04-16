@@ -546,7 +546,7 @@ def setupMenu():
 
         #bperf
         ['j45_bperf_3j45', 'L1_3J15', [], [PhysicsStream], ['RATE:SingleBJet', 'BW:Jets'], -1],
-        ['j45_bperf_3j45_L14J20', 'L1_3J15', [], [PhysicsStream], ['RATE:SingleBJet', 'BW:Jets'], -1],
+        ['j45_bperf_3j45_L14J20', 'L1_4J20', [], [PhysicsStream], ['RATE:SingleBJet', 'BW:Jets'], -1],
         ['j45_bperf_3j45_L13J15.0ETA25', 'L1_3J15.0ETA25', [], [PhysicsStream], ['RATE:SingleBJet', 'BW:Jets'], -1],
         ['j45_bperf_3j45_L13J20', 'L1_3J20', [], [PhysicsStream], ['RATE:SingleBJet', 'BW:Jets'], -1],
         ['j55_bperf_3j55', 'L1_4J20', [], [PhysicsStream], ['RATE:SingleBJet', 'BW:Jets'], -1],
@@ -825,7 +825,8 @@ def setupMenu():
         ['e5_loose_L2Star_idperf',               'L1_EM3',       [], [PhysicsStream], ['RATE:IDMonitoring', 'BW:Egamma'],-1],
         ['e5_loose_idperf',                     'L1_EM3',       [], [PhysicsStream], ['RATE:IDMonitoring', 'BW:Egamma'],-1],
         ['e24_medium_idperf_L1EM20VH',          'L1_EM20VH',    [], [PhysicsStream], ['RATE:IDMonitoring', 'BW:Egamma'],-1], 
-        
+
+
         ['e5_lhloose',                          'L1_EM3',       [], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1], 
         ['e5_lhloose_L2StarA',                  'L1_EM3',       [], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1], 
         ['e5_lhloose_L2Star_idperf',            'L1_EM3',       [], [PhysicsStream], ['RATE:IDMonitoring', 'BW:Egamma'],-1],
@@ -977,6 +978,17 @@ def setupMenu():
         ['2e12_lhloose_cutd0dphideta_L12EM10VH', 'L1_2EM10VH', [], [PhysicsStream], ['RATE:MultiElectron', 'BW:Egamma'],-1],
         ['2e15_lhloose_cutd0dphideta_L12EM13VH', 'L1_2EM13VH', [], [PhysicsStream], ['RATE:MultiElectron', 'BW:Egamma'],-1],
         ['2e17_lhloose_cutd0dphideta', 'L1_2EM15VH', [], [PhysicsStream], ['RATE:MultiElectron', 'BW:Egamma'],-1],
+
+        #New egamma chains for mc15a (alignment-robust nod0 & TRT commissioning)
+        ['e24_lhmedium_nod0_iloose_L1EM20VH', 'L1_EM20VH', [], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],
+        ['e24_lhtight_nod0_iloose_L1EM20VH', 'L1_EM20VH', [], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],
+        ['e24_lhtight_nod0_iloose', 'L1_EM20VHI', [], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],
+        ['e26_lhtight_nod0_iloose', 'L1_EM22VHI', [], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],
+        ['e60_lhmedium_nod0', 'L1_EM22VHI', [], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],
+        ['2e15_lhloose_nod0_L12EM13VH', 'L1_2EM13VH', [], [PhysicsStream], ['RATE:MultiElectron', 'BW:Egamma'],-1],
+        ['2e17_lhloose_nod0', 'L1_2EM15VH', [], [PhysicsStream], ['RATE:MultiElectron', 'BW:Egamma'],-1],
+        ['e120_lhloose_nod0', 'L1_EM22VHI', [], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1], 
+        ['e140_lhloose_nod0', 'L1_EM22VHI', [], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],
         
         # Loose chains with etcut variations
         ['e120_loose1',  'L1_EM22VHI', [], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],
@@ -1171,6 +1183,12 @@ def setupMenu():
         ['e5_loose1_idperf',                      'L1_EM3',    [], [PhysicsStream], ['RATE:IDMonitoring', 'BW:Egamma'],-1],
         ['e24_medium1_iloose_L2StarA_L1EM18VH',   'L1_EM18VH', [], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],
         
+        # extra id perf chains for TRT HT studies (ATR-10849)
+        ['e5_tight_idperf',                     'L1_EM3',       [], [PhysicsStream], ['RATE:IDMonitoring', 'BW:Egamma'],-1],
+        ['e10_tight_idperf',                     'L1_EM7',       [], [PhysicsStream], ['RATE:IDMonitoring', 'BW:Egamma'],-1],
+        ['e5_lhtight_idperf',                     'L1_EM3',       [], [PhysicsStream], ['RATE:IDMonitoring', 'BW:Egamma'],-1],
+        ['e10_lhtight_idperf',                     'L1_EM7',       [], [PhysicsStream], ['RATE:IDMonitoring', 'BW:Egamma'],-1],
+
         
         ]
 
@@ -1629,13 +1647,20 @@ def setupMenu():
         ['e17_medium_tau25_medium1_tracktwo_L1EM15-TAU12I',  'L1_EM15-TAU12I',['L1_EM15HI','L1_TAU12IM'], [PhysicsStream], ['RATE:ElectronTau', 'BW:Tau'], -1,['serial',-1,["e17_medium","tau25_medium1_tracktwo"]]],
         ['e17_lhmedium_tau25_medium1_tracktwo_L1EM15-TAU12I',  'L1_EM15-TAU12I',['L1_EM15HI','L1_TAU12IM'], [PhysicsStream], ['RATE:ElectronTau', 'BW:Tau'], -1,['serial',-1,["e17_lhmedium","tau25_medium1_tracktwo"]]],
 
+
+
         # High-threshold
         ['e17_medium_tau80_medium1_tracktwo',   'L1_EM15HI_TAU40_2TAU15',['L1_EM15HI','L1_TAU40'], [PhysicsStream], ['RATE:ElectronTau', 'BW:Tau'], -1,['serial',-1,["e17_medium","tau80_medium1_tracktwo"]]],
         ['e17_lhmedium_tau80_medium1_tracktwo',   'L1_EM15HI_TAU40_2TAU15',['L1_EM15HI','L1_TAU40'], [PhysicsStream], ['RATE:ElectronTau', 'BW:Tau'], -1,['serial',-1,["e17_lhmedium","tau80_medium1_tracktwo"]]],
 
         ['e17_medium_tau80_medium1_tracktwo_L1EM15-TAU40',   'L1_EM15-TAU40',['L1_EM15HI','L1_TAU40'], [PhysicsStream], ['RATE:ElectronTau', 'BW:Tau'], -1,['serial',-1,["e17_medium","tau80_medium1_tracktwo"]]],
         ['e17_lhmedium_tau80_medium1_tracktwo_L1EM15-TAU40',   'L1_EM15-TAU40',['L1_EM15HI','L1_TAU40'], [PhysicsStream], ['RATE:ElectronTau', 'BW:Tau'], -1,['serial',-1,["e17_lhmedium","tau80_medium1_tracktwo"]]],
-        
+
+        #new ones
+        ['e17_lhmedium_nod0_tau80_medium1_tracktwo',   'L1_EM15HI_TAU40_2TAU15',['L1_EM15HI','L1_TAU40'], [PhysicsStream], ['RATE:ElectronTau', 'BW:Tau'], -1,['serial',-1,["e17_lhmedium_nod0","tau80_medium1_tracktwo"]]],
+        ['e17_lhmedium_nod0_iloose_tau25_medium1_tracktwo_L1DR-EM15TAU12I-J25',  'L1_DR-EM15TAU12I-J25',['L1_EM15HI','L1_TAU12IM'], [PhysicsStream], ['RATE:ElectronTau', 'BW:Tau'], -1,['serial',-1,["e17_lhmedium_nod0_iloose","tau25_medium1_tracktwo"]]],
+        ['e17_lhmedium_nod0_iloose_tau25_medium1_tracktwo',  'L1_EM15HI_2TAU12IM_J25_3J12',['L1_EM15HI','L1_TAU12IM'], [PhysicsStream], ['RATE:ElectronTau', 'BW:Tau'], -1,['serial',-1,["e17_lhmedium_nod0_iloose","tau25_medium1_tracktwo"]]],
+
         # Tau + Muon
         ['mu14_tau25_medium1_tracktwo',      'L1_MU10_TAU12IM_J25_2J12',['L1_MU10','L1_TAU12IM'], [PhysicsStream], ['RATE:MuonTau', 'BW:Tau'], -1,['serial',-1,["mu14","tau25_medium1_tracktwo"]]],        
         ['mu14_tau35_medium1_tracktwo_L1TAU20',  'L1_MU10_TAU20',['L1_MU10','L1_TAU20'], [PhysicsStream], ['RATE:MuonTau', 'BW:Tau'], -1,['serial',-1,["mu14","tau35_medium1_tracktwo_L1TAU20"]]],
@@ -2023,13 +2048,13 @@ Prescales.HLTPrescales.update({
     'noalg_mb_L1LUCID'                      : [    -1,    0,   -1],
     'noalg_mb_L1LUCID_EMPTY'                : [    -1,    0,   -1],
     'noalg_mb_L1LUCID_UNPAIRED_ISO'         : [    -1,    0,   -1],
-    'noalg_mb_L1MBTS_1'                     : [    -1,    0,   -1],
-    'noalg_mb_L1MBTS_1_1'                   : [    -1,    0,   -1],
+    #'noalg_mb_L1MBTS_1'                     : [    -1,    0,   -1],
+    #'noalg_mb_L1MBTS_1_1'                   : [    -1,    0,   -1],
     'noalg_mb_L1MBTS_1_1_EMPTY'             : [    -1,    0,   -1],
     'noalg_mb_L1MBTS_1_1_UNPAIRED_ISO'      : [    -1,    0,   -1],
     'noalg_mb_L1MBTS_1_EMPTY'               : [    -1,    0,   -1],
     'noalg_mb_L1MBTS_1_UNPAIRED_ISO'        : [    -1,    0,   -1],
-    'noalg_mb_L1MBTS_2'                     : [    -1,    0,   -1],
+    #'noalg_mb_L1MBTS_2'                     : [    -1,    0,   -1],
     'noalg_mb_L1MBTS_2_EMPTY'               : [    -1,    0,   -1],
     'noalg_mb_L1MBTS_2_UNPAIRED_ISO'        : [    -1,    0,   -1],
     'noalg_mb_L1RD0_EMPTY'                  : [    -1,    0,   -1],
