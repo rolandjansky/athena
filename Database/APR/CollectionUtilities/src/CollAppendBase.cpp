@@ -61,6 +61,7 @@ CollAppendBase::CollAppendBase(std::string name) :
 CollAppendBase::~CollAppendBase()
 {
    delete m_metainfo;
+   delete m_collectionService;
 }
 
 void CollAppendBase::setMetaInfo( MetaInfo* minfo )
@@ -169,7 +170,8 @@ CollAppendBase::openDestCollections( pool::CollectionDescription& destDescriptio
    for( unsigned int i=0; i<m_dstinfo.nDst(); i++ ) {
       if( destCollExistVec[i] ) {
 	 // open existing
-	 m_progress.print("Opening destination collections", 100*i/m_dstinfo.nDst());
+         int nDst = m_dstinfo.nDst();
+	 m_progress.print("Opening destination collections", nDst ? 100*i/nDst : 0);
 	 destCollections[i] = openDestCollection( m_dstinfo.name(i), 
 						  m_dstinfo.type(i), 
 						  m_dstinfo.connect() );
@@ -183,7 +185,9 @@ CollAppendBase::openDestCollections( pool::CollectionDescription& destDescriptio
 	 }
       } else {
 	 // create missing destination collections
-	 m_progress.print("Creating destination collections", 100*i/m_dstinfo.nDst());
+         int nDst = m_dstinfo.nDst();
+         if (nDst < 1) nDst = 1;
+	 m_progress.print("Creating destination collections", 100*i/nDst);
 	 destDescription.setName( m_dstinfo.name(i) );
 	 destDescription.setType( m_dstinfo.type(i) ); 
 	 destDescription.setConnection( m_dstinfo.connect() );
@@ -426,7 +430,9 @@ CollAppendBase::copyData()
    m_log << coral::Info << "Number of input collections: " << m_srcinfo.nSrc() << corENDL;
    for( unsigned int sCollN=0; sCollN < m_srcinfo.nSrc(); sCollN++ )
    {
-      m_progress.print("Opening source collection", 100*sCollN/m_srcinfo.nSrc());
+      int nSrc = m_srcinfo.nSrc();
+      if (nSrc < 1) nSrc = 1;
+      m_progress.print("Opening source collection", 100*sCollN / nSrc);
       pool::ICollection *srcCollection = openSrcCollection( m_srcinfo.name(sCollN), m_srcinfo.type(sCollN), m_srcinfo.connect() );
       m_srcCollections.push_back( srcCollection );
       m_srcCountVec.push_back(0);
@@ -489,7 +495,7 @@ CollAppendBase::copyData()
       while( cursor.next() && (m_numEvents < 0 || m_numEvents > evtCounter) ) {
 	 evtCounter++;
 	 m_evtCounterTotal++;
-	 if( evtCounter % progressStep )
+	 if( (evtCounter % progressStep) == 0)
 	    m_progress.print("Copying collection(s)", (long)(100*evtCounter/srcSize));
 
 	 for( unsigned int i=0; i<m_dstinfo.nDst(); i++ )
