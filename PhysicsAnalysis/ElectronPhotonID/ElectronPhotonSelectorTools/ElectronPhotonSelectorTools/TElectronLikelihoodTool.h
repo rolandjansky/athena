@@ -229,6 +229,8 @@ namespace Root {
 	doPileupTransform = false;
 	CutLikelihood.assign(Disc_VeryTight,Disc_VeryTight+sizeof(Disc_VeryTight)/sizeof(double));
 	CutLikelihoodPileupCorrection.assign(Disc_VeryTight_b,Disc_VeryTight_b+sizeof(Disc_VeryTight_b)/sizeof(double));
+        CutLikelihood4GeV.clear();
+        CutLikelihoodPileupCorrection4GeV.clear();
       }
       else if (OperatingPoint == LikeEnum::Tight){
 	m_variableBitMask = LikelihoodTightBitmask();
@@ -240,6 +242,8 @@ namespace Root {
 	doPileupTransform = false;
 	CutLikelihood.assign(Disc_Tight,Disc_Tight+sizeof(Disc_Tight)/sizeof(double));
 	CutLikelihoodPileupCorrection.assign(Disc_Tight_b,Disc_Tight_b+sizeof(Disc_Tight_b)/sizeof(double));
+        CutLikelihood4GeV.clear();
+        CutLikelihoodPileupCorrection4GeV.clear();
       }	
       // Medium cut requirements
       else if (OperatingPoint == LikeEnum::Medium){
@@ -252,6 +256,8 @@ namespace Root {
 	doPileupTransform = false;
 	CutLikelihood.assign(Disc_Medium,Disc_Medium+sizeof(Disc_Medium)/sizeof(double));
 	CutLikelihoodPileupCorrection.assign(Disc_Medium_b,Disc_Medium_b+sizeof(Disc_Medium_b)/sizeof(double));
+        CutLikelihood4GeV.clear();
+        CutLikelihoodPileupCorrection4GeV.clear();
       }
       // Loose / Loose Relaxed / Very Loose
       else if (OperatingPoint == LikeEnum::Loose){
@@ -264,6 +270,8 @@ namespace Root {
 	doPileupTransform = false;
 	CutLikelihood.assign(Disc_Loose,Disc_Loose+sizeof(Disc_Loose)/sizeof(double));
 	CutLikelihoodPileupCorrection.clear();
+        CutLikelihood4GeV.clear();
+        CutLikelihoodPileupCorrection4GeV.clear();
       }
       else if (OperatingPoint == LikeEnum::LooseRelaxed){
 	m_variableBitMask = LikelihoodLooseBitmask();
@@ -275,6 +283,8 @@ namespace Root {
 	doPileupTransform = false;
 	CutLikelihood.assign(Disc_LooseRelaxed,Disc_LooseRelaxed+sizeof(Disc_LooseRelaxed)/sizeof(double));
 	CutLikelihoodPileupCorrection.clear();
+        CutLikelihood4GeV.clear();
+        CutLikelihoodPileupCorrection4GeV.clear();
       }
       else if (OperatingPoint == LikeEnum::VeryLoose){
 	m_variableBitMask = LikelihoodLooseBitmask();
@@ -286,6 +296,8 @@ namespace Root {
 	doPileupTransform = false;
 	CutLikelihood.assign(Disc_VeryLoose,Disc_VeryLoose+sizeof(Disc_VeryLoose)/sizeof(double));
 	CutLikelihoodPileupCorrection.clear();
+        CutLikelihood4GeV.clear();
+        CutLikelihoodPileupCorrection4GeV.clear();
       }
       // Custom operating point (user-defined stuff)
       else if (OperatingPoint == LikeEnum::CustomOperatingPoint) {
@@ -360,12 +372,22 @@ namespace Root {
     std::vector<double> CutLikelihood;
     /** @brief pileup correction factor for cut on likelihood output*/
     std::vector<double> CutLikelihoodPileupCorrection;
+    /** @brief cut on likelihood output, 4 GeV bin*/
+    std::vector<double> CutLikelihood4GeV;
+    /** @brief pileup correction factor for cut on likelihood output, 4 GeV bin*/
+    std::vector<double> CutLikelihoodPileupCorrection4GeV;
     /** @brief reference disc for very hard cut; used by pileup transform */
     std::vector<double> DiscHardCutForPileupTransform;
     /** @brief reference slope on disc for very hard cut; used by pileup transform */
     std::vector<double> DiscHardCutSlopeForPileupTransform;
     /** @brief reference disc for a pileup independent loose menu; used by pileup transform */
     std::vector<double> DiscLooseForPileupTransform;
+    /** @brief reference disc for very hard cut; used by pileup transform - 4-7 GeV */
+    std::vector<double> DiscHardCutForPileupTransform4GeV;
+    /** @brief reference slope on disc for very hard cut; used by pileup transform - 4-7 GeV */
+    std::vector<double> DiscHardCutSlopeForPileupTransform4GeV;
+    /** @brief reference disc for a pileup independent loose menu; used by pileup transform - 4-7 GeV */
+    std::vector<double> DiscLooseForPileupTransform4GeV;
     /** @brief max discriminant for which pileup transform is to be used */
     double DiscMaxForPileupTransform;
     /** @brief max nvtx or mu to be used in pileup transform  */
@@ -383,16 +405,16 @@ namespace Root {
     // Private methods
   private:
     /// Apply a transform to zoom into the LH output peaks. Optionally do pileup correction too
-    double TransformLikelihoodOutput(double ps,double pb, double ip, unsigned int ibin_combined) const;
+    double TransformLikelihoodOutput(double ps,double pb, double ip, double et, double eta) const;
 
     /// Eta binning for pdfs and discriminant cuts.
     unsigned int getLikelihoodEtaBin(double eta) const ;
 
     /// Coarse Et binning. Used for the likelihood pdfs.
-    unsigned int getLikelihoodEtBin(double eT)const ;
+    unsigned int getLikelihoodEtHistBin(double eT)const ;
     
     /// Fine Et binning. Used for the likelihood discriminant cuts.
-    unsigned int getLikelihoodEtFineBin(double eT) const;
+    unsigned int getLikelihoodEtDiscBin(double eT) const;
 
 
     // Private member variables
@@ -449,12 +471,12 @@ namespace Root {
 
     //static const unsigned int  fnIpBins =2;
     static const double fIpBounds[IP_BINS+1];
-    static const unsigned int  fnEtBins         = 6;
-    static const unsigned int  fnFineEtBins     = 9;
+    static const unsigned int  fnEtBinsHist     = 7; // number of hists stored, including 4GeV bin
+    static const unsigned int  fnDiscEtBins     = 9; // number of discs stored, excluding 4GeV bin
     static const unsigned int  fnEtaBins        = 10;
     static const unsigned int  fnVariables      = 14; // 19
-    TH1F*               fPDFbins     [2][IP_BINS][6][10][14]; // [sig(0)/bkg(1)][ip][et][eta][variable]
-    double              fPDFIntegrals[2][IP_BINS][6][10][14]; // [sig(0)/bkg(1)][ip][et][eta][variable]
+    TH1F*               fPDFbins     [2][IP_BINS][7][10][14]; // [sig(0)/bkg(1)][ip][et][eta][variable]
+    double              fPDFIntegrals[2][IP_BINS][7][10][14]; // [sig(0)/bkg(1)][ip][et][eta][variable]
     static const char*  fVariables                      [14]; // 
     //static const double cutDiscriminant [1][6][10];     // [ip][et][eta]
 

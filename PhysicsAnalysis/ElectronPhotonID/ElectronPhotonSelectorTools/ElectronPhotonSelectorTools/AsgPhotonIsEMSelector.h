@@ -83,8 +83,6 @@ class AsgPhotonIsEMSelector : virtual public asg::AsgTool,
 
 private:
 
-  double getConversion1OverP(const xAOD::Vertex*) const; 
-  
   /** Config File */
   std::string m_configFile;
 
