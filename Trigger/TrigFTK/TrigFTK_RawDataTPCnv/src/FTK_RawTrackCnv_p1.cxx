@@ -15,7 +15,7 @@ void FTK_RawTrackCnv_p1::persToTrans(const FTK_RawTrack_p1* persObj,
 				     FTK_RawTrack* transObj,
 				     MsgStream &log)
 {
-  log << MSG::INFO << "FTK_RawTrackCnv_p1::persToTrans called" << endreq;
+  //  log << MSG::INFO << "FTK_RawTrackCnv_p1::persToTrans called" << endreq;
   //  log << MSG::ATH << "FTK_RawTrackCnv_p1:: m_pars[th1] = " << persObj->m_pars[th1] << endreq;
   //  log << MSG::ATH << "FTK_RawTrackCnv_p1:: m_pars[th2] = " << persObj->m_pars[th2] << endreq;
   //  log << MSG::ATH << "FTK_RawTrackCnv_p1:: m_pars[th3] = " << persObj->m_pars[th3] << endreq;
