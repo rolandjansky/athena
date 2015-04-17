@@ -18,11 +18,11 @@ class StatusCode;
 // This books and formats the histograms in the constructor. The fill method will take the identifier 
 // as the input and fill the correct histogram and bin. The histograms are also public so that they
 // can be formated/accessed like any other histograms in the monitoring.
-
+ 
 class PixelMon2DLumiMaps
 {
    public:
-      PixelMon2DLumiMaps(std::string name, std::string title, std::string zlabel);
+  PixelMon2DLumiMaps(std::string name, std::string title, std::string zlabel,bool doIBL=false,bool errorHist=false);
       ~PixelMon2DLumiMaps();
       TH2F_LW* IBLlbm;
       TH2F_LW* B0lbm;
@@ -30,12 +30,12 @@ class PixelMon2DLumiMaps
       TH2F_LW* B2lbm;
       TH2F_LW* Albm;
       TH2F_LW* Clbm;
-      void Fill(double LB,Identifier &id, const PixelID* pixID,double weight=1, bool doIBL=false);
-      void Scale(double number);
-      StatusCode regHist(ManagedMonitorToolBase::MonGroup &group);
+      void Fill(double LB,Identifier &id, const PixelID* pixID,double weight=1, bool doIBL=false, bool errorHist=false);
+      void Scale(double number,bool doIBL,bool errorHist);
+      StatusCode regHist(ManagedMonitorToolBase::MonGroup &group,bool doIBL=false,bool errorHist=false);
 private:
       StatusCode sc;
-      void formatHist();
+      void formatHist(bool doIBL=false,bool errorHist=false);
       
 };
 
