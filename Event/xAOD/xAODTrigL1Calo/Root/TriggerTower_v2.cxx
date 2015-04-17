@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TriggerTower_v2.cxx 646335 2015-02-12 01:16:10Z morrisj $
+// $Id: TriggerTower_v2.cxx 661282 2015-04-17 21:30:07Z amazurov $
 
 // EDM includes(s):
 #include "xAODCore/AuxStoreAccessorMacros.h"
@@ -118,13 +118,13 @@ namespace xAOD{
   /// get cpET from peak of lut_cp
   uint_least8_t TriggerTower_v2::cpET() const
   {
-    return lut_cp()[ peak() ];
+    return peak() < lut_cp().size() ? lut_cp()[ peak() ]: 0;
   }
   
   /// get jepET from peak of lut_jep
   uint_least8_t TriggerTower_v2::jepET() const
   {
-    return lut_jep()[ peak() ];
+    return  peak() < lut_jep().size()? lut_jep()[ peak() ]: 0;
   }
   
   /// Is tower saturated?
