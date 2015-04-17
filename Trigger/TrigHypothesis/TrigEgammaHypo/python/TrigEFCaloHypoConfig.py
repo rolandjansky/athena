@@ -68,8 +68,11 @@ class TrigEFCaloHypo_e_ID (TrigEFCaloHypoBase):
             self.ApplyIsEM = True
             self.IsEMrequiredBits =  ElectronIsEMBits[IDinfo]
             self.LHSelectorToolName="AsgElectronLikelihoodTool/AsgElectronLHLooseSelector"
-            if( float(threshold) > 20 ):
-                self.SelectorToolName = 'AsgElectronIsEMSelector/'+ElectronCaloHypoToolName[IDinfo]
+            if('1' in IDinfo):
+                if( float(threshold) < 20 ):
+                    self.SelectorToolName = 'AsgElectronIsEMSelector/'+ElectronCaloToolName[IDinfo]
+                else:
+                    self.SelectorToolName = 'AsgElectronIsEMSelector/'+ElectronCaloHypoToolName[IDinfo]
             else:
                 self.SelectorToolName = 'AsgElectronIsEMSelector/'+ElectronCaloToolName[IDinfo]
         
@@ -84,29 +87,11 @@ class TrigEFCaloHypo_g_ID (TrigEFCaloHypoBase):
         self.ApplyLH = False
         
         from AthenaCommon.AppMgr import ToolSvc           
-        if IDinfo == 'loose' or IDinfo == 'loose1':
+        if IDinfo == 'loose1' or IDinfo == 'loose' :
             self.IsEMrequiredBits = SelectionDefPhoton.PhotonLooseEF #includ Rhad , Reta , Weta2 and Eratio
             self.SelectorToolName = "AsgElectronIsEMSelector/AsgPhotonIsEMLoose1Selector"
             self.LHSelectorToolName="AsgElectronLikelihoodTool/AsgElectronLHLooseCaloSelector"
-            PhotonSelector  = ToolSvc.AsgPhotonIsEMLoose1Selector
-            PhotonSelector.caloOnly = True
-            if( float(threshold) > 20 ):
-                PhotonSelector.trigEtTh = 20000 
-        elif IDinfo == 'medium' or IDinfo == 'medium1':
+        else: 
             self.IsEMrequiredBits = SelectionDefPhoton.PhotonMediumEF #includ Rhad , Reta , Weta2 and Eratio
             self.SelectorToolName = "AsgElectronIsEMSelector/AsgPhotonIsEMMedium1Selector"
             self.LHSelectorToolName="AsgElectronLikelihoodTool/AsgElectronLHMediumCaloSelector"
-            PhotonSelector  = ToolSvc.AsgPhotonIsEMMedium1Selector
-            PhotonSelector.caloOnly = True
-            if( float(threshold) > 20 ):
-                PhotonSelector.trigEtTh = 20000 
-        # Tight not properly configured
-        # Need to add additional tool handle
-        elif IDinfo == 'tight' or IDinfo == 'tight1': 
-            self.IsEMrequiredBits = SelectionDefPhoton.PhotonMediumEF
-            self.SelectorToolName = "AsgElectronIsEMSelector/AsgPhotonIsEMMedium1Selector"
-            self.LHSelectorToolName="AsgElectronLikelihoodTool/AsgElectronLHTightCaloSelector"
-            PhotonSelector  = ToolSvc.AsgPhotonIsEMMedium1Selector
-            PhotonSelector.caloOnly = True
-            if( float(threshold) > 20 ):
-                PhotonSelector.trigEtTh = 20000 
