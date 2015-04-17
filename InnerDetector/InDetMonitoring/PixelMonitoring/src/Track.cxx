@@ -60,7 +60,7 @@ StatusCode PixelMainMon::BookTrackMon(void)
      sc=trackHistos.regHist(m_track_pull_eta  = TH1F_LW::create("m_Pixel_track_pull_eta", ("m_Pixel_track_pull_eta (pixel tracks)" + m_histTitleExt).c_str(),100,-2,2));   
      sc=trackHistos.regHist(m_track_chi2      = TH1F_LW::create("m_Pixel_track_chi2", ("chi2 of reconstructed track (pixel tracks)" + m_histTitleExt + "; #chi^{2}/DoF;").c_str(), 50,-0.,10.));
 
-     if(m_do2DMaps){
+     if(m_do2DMaps && !m_doOnline){
        m_tsos_hitmap = new PixelMon2DMaps("TSOS_Measurement", ("TSOS of type Measurement" + m_histTitleExt).c_str());
        sc = m_tsos_hitmap->regHist(trackHistos);
        m_tsos_holemap = new PixelMon2DMaps("TSOS_Hole", ("TSOS of type Hole" + m_histTitleExt).c_str());
@@ -119,6 +119,11 @@ StatusCode PixelMainMon::BookTrackMon(void)
        sc = m_tsos_holemap->regHist(trackHistos);
        m_tsos_outliermap = new PixelMon2DMaps("TSOS_Outlier", ("TSOS of type Outlier" + m_histTitleExt).c_str());
        sc = m_tsos_outliermap->regHist(trackHistos);
+     }
+
+     if(m_doModules){
+       m_tsos_hiteff_vs_lumi = new PixelMonModulesProf("TSOS_HitEfficiency",("TSOS-based hit efficiency in module" + m_histTitleExt).c_str(),2500,-0.5,2499.5,m_doIBL);
+       sc = m_tsos_hiteff_vs_lumi->regHist(this,(path+"/Modules_TSOSHitEff").c_str(),run, m_doIBL);
      }
 
      if(!m_doOnline && m_doModules){
@@ -204,6 +209,7 @@ StatusCode PixelMainMon::FillTrackMon(void)
 
       int nholes=-1;
       const Trk::TrackSummary* summary = track0->trackSummary();
+
       if (summary) {
 	nholes = summary->get(Trk::numberOfPixelHoles);
 
@@ -276,17 +282,23 @@ StatusCode PixelMainMon::FillTrackMon(void)
 
 	  if(m_idHelper->is_pixel(surfaceID) && (*trackStateOnSurfaceIterator)->type(Trk::TrackStateOnSurface::Measurement)){
 	    if(m_tsos_hitmap)m_tsos_hitmap->Fill(surfaceID,m_pixelid,m_doIBL);
-	    if(m_tsos_hiteff_vs_lumi)m_tsos_hiteff_vs_lumi->Fill(m_lumiBlockNum,1.,surfaceID,m_pixelid,m_doIBL);
+	    if(m_tsos_hiteff_vs_lumi){
+	      m_tsos_hiteff_vs_lumi->Fill(m_lumiBlockNum,1.,surfaceID,m_pixelid,m_doIBL);
+	    }
 	  }
 
 	  if(m_idHelper->is_pixel(surfaceID) && (*trackStateOnSurfaceIterator)->type(Trk::TrackStateOnSurface::Hole)){
 	    if(m_tsos_holemap)m_tsos_holemap->Fill(surfaceID,m_pixelid,m_doIBL);
-	    if(m_tsos_hiteff_vs_lumi)m_tsos_hiteff_vs_lumi->Fill(m_lumiBlockNum,0.,surfaceID,m_pixelid,m_doIBL);
-	  } 
-
+	    if(m_tsos_hiteff_vs_lumi){
+	      m_tsos_hiteff_vs_lumi->Fill(m_lumiBlockNum,0.,surfaceID,m_pixelid,m_doIBL);
+	    } 
+	  }
+	    
 	  if(m_idHelper->is_pixel(surfaceID) && (*trackStateOnSurfaceIterator)->type(Trk::TrackStateOnSurface::Outlier)){
 	    if(m_tsos_outliermap)m_tsos_outliermap->Fill(surfaceID,m_pixelid,m_doIBL);
-	    if(m_tsos_hiteff_vs_lumi)m_tsos_hiteff_vs_lumi->Fill(m_lumiBlockNum,0.,surfaceID,m_pixelid,m_doIBL);
+	    if(m_tsos_hiteff_vs_lumi){
+	      m_tsos_hiteff_vs_lumi->Fill(m_lumiBlockNum,0.,surfaceID,m_pixelid,m_doIBL);
+	    }
 	  }
 	
 	    if(!(*trackStateOnSurfaceIterator)->type(Trk::TrackStateOnSurface::Measurement)){continue;}
@@ -300,7 +312,7 @@ StatusCode PixelMainMon::FillTrackMon(void)
 	  {
 	    const InDet::PixelCluster* pixelCluster=dynamic_cast<const InDet::PixelCluster*>(RawDataClus);
 	    if(!pixelCluster){
-	      //std::cout<<"ERROR! Dynamic-cast to pixel cluster failed!"<<std::endl;
+	      //	      std::cout<<"ERROR! Dynamic-cast to pixel cluster failed!"<<std::endl;
 	    }
 	    
 	    else{
