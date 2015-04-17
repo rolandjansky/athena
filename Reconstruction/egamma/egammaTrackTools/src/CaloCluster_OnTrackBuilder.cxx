@@ -26,17 +26,7 @@ CaloCluster_OnTrackBuilder::CaloCluster_OnTrackBuilder(const std::string& t,
                                                        const std::string& n,
                                                        const IInterface*  p )
 : AthAlgTool(t,n,p),
-  m_calosurf("CaloSurfaceBuilder"),
-  m_cellContainer(0),
-  m_eta(0),
-  m_phi(0),
-  m_deta(0),
-  m_dphi(0),
-  m_calo_dd(0),
-  m_emid(0),
-  m_sam(CaloSampling::EMB2),
-  m_subcalo(CaloCell_ID::LAREM),
-  m_barrel(0)
+  m_calosurf("CaloSurfaceBuilder")
 {
   declareInterface<ICaloCluster_OnTrackBuilder>(this);
   declareProperty( "CaloSurfaceBuilder",     m_calosurf      );
@@ -79,7 +69,7 @@ StatusCode CaloCluster_OnTrackBuilder::finalize(){ return StatusCode::SUCCESS; }
 
 
 //--------------------------------------------------------------------------------------------
-  Trk::CaloCluster_OnTrack* CaloCluster_OnTrackBuilder::buildClusterOnTrack( const xAOD::Egamma* eg, int charge )
+  Trk::CaloCluster_OnTrack* CaloCluster_OnTrackBuilder::buildClusterOnTrack( const xAOD::Egamma* eg, int charge ) const
 //--------------------------------------------------------------------------------------------
 {
   return buildClusterOnTrack( eg->caloCluster(), charge );
@@ -88,7 +78,7 @@ StatusCode CaloCluster_OnTrackBuilder::finalize(){ return StatusCode::SUCCESS; }
 
 
 //--------------------------------------------------------------------------------------------
-  Trk::CaloCluster_OnTrack* CaloCluster_OnTrackBuilder::buildClusterOnTrack( const xAOD::CaloCluster* cluster, int charge ) 
+  Trk::CaloCluster_OnTrack* CaloCluster_OnTrackBuilder::buildClusterOnTrack( const xAOD::CaloCluster* cluster, int charge ) const
 //--------------------------------------------------------------------------------------------
 {
 
@@ -135,7 +125,7 @@ StatusCode CaloCluster_OnTrackBuilder::finalize(){ return StatusCode::SUCCESS; }
 
 
 //--------------------------------------------------------------------------------------------
-const Trk::Surface*   CaloCluster_OnTrackBuilder::getCaloSurface( const xAOD::CaloCluster* cluster ) 
+const Trk::Surface*   CaloCluster_OnTrackBuilder::getCaloSurface( const xAOD::CaloCluster* cluster ) const
 //--------------------------------------------------------------------------------------------
 {
  
@@ -314,6 +304,10 @@ double CaloCluster_OnTrackBuilder::getClusterPhiError( const xAOD::CaloCluster* 
   /** Note these should be take from EMError details*/
   
   double clusterEnergy =  cluster->calE()*1e-3;
+  
+  
+
+   
    
   /** Error on phi = C(eta) mrad/sqrt(Energy) */
   double error  = electronPhiResolution( cluster->eta() , clusterEnergy ); 
