@@ -144,14 +144,12 @@ StatusCode PixelMainMon::FillStatusMon(void)
 	  nBad++;
 	  if(m_pixelid->barrel_ec(WaferID)==2)  nBad_ECA++;
 	  if(m_pixelid->barrel_ec(WaferID)==-2) nBad_ECC++;
-	  if (m_pixelid->barrel_ec(WaferID)==0 && m_doIBL==false) {
-	    if(m_pixelid->layer_disk(WaferID)==0) nBad_B0++;
-	    if(m_pixelid->layer_disk(WaferID)==1) nBad_B1++;
-	    if(m_pixelid->layer_disk(WaferID)==2) nBad_B2++;
+	  if (m_pixelid->barrel_ec(WaferID)==0) {
+	    if(m_pixelid->layer_disk(WaferID)==0 && m_doIBL) nBad_IBL++;
+	    if(m_pixelid->layer_disk(WaferID)==0+m_doIBL) nBad_B0++;
+	    if(m_pixelid->layer_disk(WaferID)==1+m_doIBL) nBad_B1++;
+	    if(m_pixelid->layer_disk(WaferID)==2+m_doIBL) nBad_B2++;
           }
-	  if (m_pixelid->barrel_ec(WaferID)==0 && m_doIBL==true) {
-	    if(m_pixelid->layer_disk(WaferID)==0) nBad_IBL++;
-	  }
 	}
 	// inactive or bad modules
 	// should maybe use only inactive modules for these, however, since tracking etc use "disabled module" as !(active+good)
@@ -159,14 +157,13 @@ StatusCode PixelMainMon::FillStatusMon(void)
 	nDisabled++;
 	if(m_pixelid->barrel_ec(WaferID)==2)  nDisabled_ECA++;
 	if(m_pixelid->barrel_ec(WaferID)==-2) nDisabled_ECC++;
-	if (m_pixelid->barrel_ec(WaferID)==0 && m_doIBL==false) {
-	  if(m_pixelid->layer_disk(WaferID)==0) nDisabled_B0++;
-	  if(m_pixelid->layer_disk(WaferID)==1) nDisabled_B1++;
-	  if(m_pixelid->layer_disk(WaferID)==2) nDisabled_B2++;
-	}	 
-	if (m_pixelid->barrel_ec(WaferID)==0 && m_doIBL==true) {
-	  if(m_pixelid->layer_disk(WaferID)==0) nDisabled_IBL++;
+	if (m_pixelid->barrel_ec(WaferID)==0) {
+	  if(m_pixelid->layer_disk(WaferID)==0 && m_doIBL) nDisabled_IBL++;
+	  if(m_pixelid->layer_disk(WaferID)==0+m_doIBL) nDisabled_B0++;
+	  if(m_pixelid->layer_disk(WaferID)==1+m_doIBL) nDisabled_B1++;
+	  if(m_pixelid->layer_disk(WaferID)==2+m_doIBL) nDisabled_B2++;
 	}
+
 	if (m_Status_modules)
          {
             int diffToFill=0;

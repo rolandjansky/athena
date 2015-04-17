@@ -14,7 +14,7 @@
 #include "GaudiKernel/StatusCode.h"     
 #include <string.h>
 
-PixelMon2DMapsLW::PixelMon2DMapsLW(std::string name, std::string title)
+PixelMon2DMapsLW::PixelMon2DMapsLW(std::string name, std::string title,bool doIBL, bool errorHist)
 
 {
   IBL3D = TH2F_LW::create((name+"_IBL3D").c_str(),("IBL 3D modules " + title + ";eta index of module;phi index of module").c_str(),8,-.5,7.5,14,-0.5,13.5);
@@ -25,7 +25,7 @@ PixelMon2DMapsLW::PixelMon2DMapsLW(std::string name, std::string title)
   A  = TH2F_LW::create((name+"_A" ).c_str(),("ECA "            + title + ";disk number;phi index of module").c_str(),         3,-0.5,2.5,48,-0.5,47.5);
   C  = TH2F_LW::create((name+"_C" ).c_str(),("ECC "            + title + ";disk number;phi index of module").c_str(),         3,-0.5,2.5,48,-0.5,47.5);
 
-  formatHist();
+  formatHist(doIBL,errorHist);
 }
 
 PixelMon2DMapsLW::~PixelMon2DMapsLW()
@@ -39,7 +39,7 @@ PixelMon2DMapsLW::~PixelMon2DMapsLW()
    LWHist::safeDelete(C);
 }
 
-void PixelMon2DMapsLW::Fill(Identifier &id, const PixelID* pixID, bool doIBL)
+void PixelMon2DMapsLW::Fill(Identifier &id, const PixelID* pixID, bool doIBL,bool errorHist)
 {
   int bec = pixID->barrel_ec(id);
    int ld  = pixID->layer_disk(id);
@@ -61,7 +61,7 @@ void PixelMon2DMapsLW::Fill(Identifier &id, const PixelID* pixID, bool doIBL)
        else if(ld ==2){ 
 	 B2->Fill(em,pm);
        }
-       else if(ld ==-1){
+       else if(ld ==-1 && doIBL && !errorHist){
 	 if(em<6 && em>-7){
 	   IBL2D->Fill(em,pm);
 	 }
@@ -89,7 +89,7 @@ void PixelMon2DMapsLW::Fill(Identifier &id, const PixelID* pixID, bool doIBL)
 //    IBL3D->Scale((float) 1.0/number);
 // }
 
-void PixelMon2DMapsLW::formatHist()
+void PixelMon2DMapsLW::formatHist(bool doIBL, bool errorHist)
 {
    const int ndisk = 3;
    const int nphi  = 48;
@@ -165,21 +165,23 @@ void PixelMon2DMapsLW::formatHist()
       B1->GetXaxis()->SetBinLabel( i+1, mod[i] );
       B2->GetXaxis()->SetBinLabel( i+1, mod[i] );
    }
-   for (int i=0; i<nmodIBL2D; i++)
-     {
-       IBL2D->GetXaxis()->SetBinLabel( i+1, modIBL2D[i] );
-     }
-   for (int i=0; i<nstaveb; i++)
-   {
-      IBL2D->GetYaxis()->SetBinLabel( i+1, staveb[i] );
-   }
-   for (int i=0; i<nmodIBL3D; i++)
-     {
-       IBL3D->GetXaxis()->SetBinLabel( i+1, modIBL3D[i] );
-     }
-   for (int i=0; i<nstaveb; i++)
-   {
-      IBL3D->GetYaxis()->SetBinLabel( i+1, staveb[i] );
+   if(doIBL && !errorHist){
+     for (int i=0; i<nmodIBL2D; i++)
+       {
+	 IBL2D->GetXaxis()->SetBinLabel( i+1, modIBL2D[i] );
+       }
+     for (int i=0; i<nstaveb; i++)
+       {
+	 IBL2D->GetYaxis()->SetBinLabel( i+1, staveb[i] );
+       }
+     for (int i=0; i<nmodIBL3D; i++)
+       {
+	 IBL3D->GetXaxis()->SetBinLabel( i+1, modIBL3D[i] );
+       }
+     for (int i=0; i<nstaveb; i++)
+       {
+	 IBL3D->GetYaxis()->SetBinLabel( i+1, staveb[i] );
+       }
    }
 
    for (int i=0; i<nstave0; i++) 
@@ -195,10 +197,16 @@ void PixelMon2DMapsLW::formatHist()
       B2->GetYaxis()->SetBinLabel( i+1, stave2[i] ); 
    }
 
+   if(doIBL && !errorHist){
+     IBL2D->GetYaxis()->SetLabelSize(0.03);
+     IBL3D->GetYaxis()->SetLabelSize(0.03);
+     IBL2D->SetOption("colz");
+     IBL3D->SetOption("colz");
+     IBL2D->SetMinimum(0.);
+     IBL3D->SetMinimum(0.);
+   }
 
    //Make the text smaller
-   IBL2D->GetYaxis()->SetLabelSize(0.03);
-   IBL3D->GetYaxis()->SetLabelSize(0.03);
    B0->GetYaxis()->SetLabelSize(0.03);
    B1->GetYaxis()->SetLabelSize(0.03);
    B2->GetYaxis()->SetLabelSize(0.03);
@@ -213,16 +221,12 @@ void PixelMon2DMapsLW::formatHist()
    // A->GetYaxis()->SetTitleOffset(1.35);
    // C->GetYaxis()->SetTitleOffset(1.35);
    //put histograms in the easier to read colz format
-   IBL2D->SetOption("colz");
-   IBL3D->SetOption("colz");
    B0->SetOption("colz");
    B1->SetOption("colz");
    B2->SetOption("colz");
    A->SetOption("colz");
    C->SetOption("colz");
    //force the minimum to be 0 so you can spot empty blocks easily
-   IBL2D->SetMinimum(0.);
-   IBL3D->SetMinimum(0.);
    B0->SetMinimum(0.);
    B1->SetMinimum(0.);
    B2->SetMinimum(0.);
@@ -239,15 +243,17 @@ void PixelMon2DMapsLW::formatHist()
 
 }
 
-StatusCode PixelMon2DMapsLW::regHist(ManagedMonitorToolBase::MonGroup &group)
+StatusCode PixelMon2DMapsLW::regHist(ManagedMonitorToolBase::MonGroup &group, bool doIBL, bool errorHist)
 {
-   sc = group.regHist(IBL2D);
-   sc = group.regHist(IBL3D);
-   sc = group.regHist(B0);
-   sc = group.regHist(B1);
-   sc = group.regHist(B2);
-   sc = group.regHist(A);
-   sc = group.regHist(C);
-   
+  if(doIBL && !errorHist){
+    sc = group.regHist(IBL2D);
+    sc = group.regHist(IBL3D);
+  }
+    sc = group.regHist(B0);
+    sc = group.regHist(B1);
+    sc = group.regHist(B2);
+    sc = group.regHist(A);
+    sc = group.regHist(C);
+
    return sc;
 }

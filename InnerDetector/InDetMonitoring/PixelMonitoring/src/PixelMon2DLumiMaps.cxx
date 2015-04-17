@@ -13,21 +13,21 @@
 #include "GaudiKernel/StatusCode.h"     
 #include <string.h>
 
-PixelMon2DLumiMaps::PixelMon2DLumiMaps(std::string name, std::string title,std::string zlabel)
+PixelMon2DLumiMaps::PixelMon2DLumiMaps(std::string name, std::string title,std::string zlabel,bool doIBL,bool errorHist)
 {
-  IBLlbm = TH2F_LW::create((name+"_2D_Map_IBL").c_str(),("IBL " + title + " (Map);LB;Module;" + zlabel).c_str(),2500,-0.5,2499.5,224,-0.5,223.5);
+  IBLlbm = TH2F_LW::create((name+"_2D_Map_IBL").c_str(),("IBL " + title + " (Map);LB;Module;" + zlabel).c_str(),2500,-0.5,2499.5,280,-0.5,279.5);
   B0lbm = TH2F_LW::create((name+"_2D_Map_B0").c_str(),("Barrel layer 0 " + title + " (Map);LB;Module;" + zlabel).c_str(),2500,-0.5,2499.5,286,-0.5,285.5);
   B1lbm = TH2F_LW::create((name+"_2D_Map_B1").c_str(),("Barrel layer 1 " + title + " (Map);LB;Module;" + zlabel).c_str(),2500,-0.5,2499.5,494,-0.5,493.5);
   B2lbm = TH2F_LW::create((name+"_2D_Map_B2").c_str(),("Barrel layer 2 " + title + " (Map);LB;Module;" + zlabel).c_str(),2500,-0.5,2499.5,676,-0.5,675.5);
   Albm  = TH2F_LW::create((name+"_2D_Map_A" ).c_str(),("ECA "            + title + " (Map);LB;Module;" + zlabel).c_str(),2500,-0.5,2499.5,144,-0.5,143.5);
   Clbm  = TH2F_LW::create((name+"_2D_Map_C" ).c_str(),("ECC "            + title + " (Map);LB;Module;" + zlabel).c_str(),2500,-0.5,2499.5,144,-0.5,143.5);
 
-  formatHist();
+  formatHist(doIBL,errorHist);
 }
 
 PixelMon2DLumiMaps::~PixelMon2DLumiMaps()
 {
-   LWHist::safeDelete(IBLlbm);
+  LWHist::safeDelete(IBLlbm);//includes null pointer check
    LWHist::safeDelete(B0lbm);
    LWHist::safeDelete(B1lbm);
    LWHist::safeDelete(B2lbm);
@@ -35,7 +35,7 @@ PixelMon2DLumiMaps::~PixelMon2DLumiMaps()
    LWHist::safeDelete(Clbm);
 }
 
-void PixelMon2DLumiMaps::Fill(double LB,Identifier &id, const PixelID* pixID,double weight, bool doIBL)
+void PixelMon2DLumiMaps::Fill(double LB,Identifier &id, const PixelID* pixID,double weight, bool doIBL, bool errorHist)
 {
    int bec = pixID->barrel_ec(id);
    int ld  = pixID->layer_disk(id);
@@ -60,13 +60,13 @@ void PixelMon2DLumiMaps::Fill(double LB,Identifier &id, const PixelID* pixID,dou
       else if(ld ==2){
          B2lbm->Fill(LB,em+13*pm,weight);
       }
-      else if(ld ==-1){
-	IBLlbm->Fill(LB,em+2+16*pm,weight);
+      else if(ld ==-1 && !errorHist && doIBL){
+	IBLlbm->Fill(LB,em+4+20*pm,weight);
       }
    }
 }
 
-void PixelMon2DLumiMaps::Scale (double number)
+void PixelMon2DLumiMaps::Scale (double number,bool doIBL,bool errorHist)
 {
    if (number==0) return; //shouldn't happen the way function is called, but dummy check to avoid divide by zero
 
@@ -75,26 +75,23 @@ void PixelMon2DLumiMaps::Scale (double number)
    B0lbm->scaleContentsAndErrors((float) 1.0/number);
    B1lbm->scaleContentsAndErrors((float) 1.0/number);
    B2lbm->scaleContentsAndErrors((float) 1.0/number);
-   IBLlbm->scaleContentsAndErrors((float) 1.0/number);
-
+   if(!errorHist && doIBL)IBLlbm->scaleContentsAndErrors((float) 1.0/number);
 }
 
-void PixelMon2DLumiMaps::formatHist()
+void PixelMon2DLumiMaps::formatHist(bool doIBL, bool errorHist)
 {
    const int ndisk = 3;
    const int nphi  = 48;
    const char *disk[ndisk] = { "D1", "D2", "D3" };
    const int nmod = 13;
-   const int nmodIBL = 16;
+   const int nmodIBL = 20;
    const char *mod[nmod] = { "M6C", "M5C", "M4C", "M3C", "M2C", "M1C", "M0", "M1A", "M2A", "M3A", "M4A", "M5A", "M6A" } ;
-   const char *modIBL[nmodIBL] = {"M8C", "M7C", "M6C", "M5C", "M4C", "M3C", "M2C", "M1C", "M0", "M1A", "M2A", "M3A", "M4A", "M5A", "M6A", "M7A" } ;
+   const char *modIBL[nmodIBL] = { "M4_C8_2","M4_C8_1","M4_C7_2","M4_C7_1","M3_C6", "M3_C5", "M2_C4", "M1_C3", "M1_C2", "M1_C1", "M1_A1", "M1_A2", "M2_A3", "M2_A4", "M3_A5", "M3_A6","M4_A7_1","M4_A7_2","M4_A8_1","M4_A8_2"};
    char label[30];
-
    const int nstaveb = 14;
    const char *staveb[nstaveb] = {
-     "B01_S1", "B01_S2", "B02_S1", "B02_S2", "B03_S1", "B03_S2",
-     "B04_S1", "B04_S2", "B05_S1", "B05_S2", "B06_S1", "B06_S2",
-     "B07_S1", "B07_S2"};
+     "S01", "S02", "S03", "S04", "S05", "S06","S07",
+     "S08", "S09", "S10", "S11", "S12", "S13","S14"};
    const int nstave0 = 22;
    const char *stave0[nstave0] = {                      "B11_S2", 
       "B01_S1", "B01_S2", "B02_S1", "B02_S2", "B03_S1", "B03_S2",
@@ -140,7 +137,6 @@ void PixelMon2DLumiMaps::formatHist()
       "B04_S2_M4", "B04_S2_M3", "B04_S2_M5", "B04_S2_M2", "B04_S2_M6", "B04_S2_M1", 
       "B01_S1_M4", "B01_S1_M3", "B01_S1_M5", "B01_S1_M2", "B01_S1_M6", "B01_S1_M1"};
 
-
    int count = 1;
    for (int j=0;j<ndisk;j++){
       for (int i=0; i<nphi; i++){
@@ -154,7 +150,7 @@ void PixelMon2DLumiMaps::formatHist()
    count = 1;
    for (int i=0; i<nstave0; i++){
       for (int j=0; j<nmod; j++){
-         sprintf(label,"L0_%s_%s",stave0[i],mod[j]);
+	sprintf(label,"L0_%s_%s",stave0[i],mod[j]);
          B0lbm->GetYaxis()->SetBinLabel( count, label ); 
          count++;
       }
@@ -178,25 +174,29 @@ void PixelMon2DLumiMaps::formatHist()
       } 
    }
    count = 1;
-   for (int i=0; i<nstaveb; i++)
-     {
-       for (int j=0; j<nmodIBL; j++){
-         sprintf(label,"IBL_%s_%s",staveb[i],modIBL[j]);
-         IBLlbm->GetYaxis()->SetBinLabel( count, label );
-         count++;
+   if(!errorHist && doIBL){
+     for (int i=0; i<nstaveb; i++)
+       {
+	 for (int j=0; j<nmodIBL; j++){
+	   sprintf(label,"IBL_%s_%s",staveb[i],modIBL[j]);
+	   IBLlbm->GetYaxis()->SetBinLabel( count, label );
+	   count++;
+	 }
        }
-     }
-
+   }
+   
+   if(!errorHist && doIBL){
+     IBLlbm->GetYaxis()->SetLabelSize(0.04);
+     IBLlbm->SetOption("colz");
+   }
 
    //Make the text smaller
-   IBLlbm->GetYaxis()->SetLabelSize(0.04);
    B0lbm->GetYaxis()->SetLabelSize(0.04);
    B1lbm->GetYaxis()->SetLabelSize(0.04);
    B2lbm->GetYaxis()->SetLabelSize(0.04);
    Albm->GetYaxis()->SetLabelSize(0.04);
    Clbm->GetYaxis()->SetLabelSize(0.04);
    //put histograms in the easier to read colz format
-   IBLlbm->SetOption("colz");
    B0lbm->SetOption("colz");
    B1lbm->SetOption("colz");
    B2lbm->SetOption("colz");
@@ -211,14 +211,14 @@ void PixelMon2DLumiMaps::formatHist()
 
 }
 
-StatusCode PixelMon2DLumiMaps::regHist(ManagedMonitorToolBase::MonGroup &group)
+StatusCode PixelMon2DLumiMaps::regHist(ManagedMonitorToolBase::MonGroup &group,bool doIBL,bool errorHist)
 {
-   sc = group.regHist(IBLlbm);
+  if(!errorHist && doIBL)sc = group.regHist(IBLlbm);
    sc = group.regHist(B0lbm);
    sc = group.regHist(B1lbm);
    sc = group.regHist(B2lbm);
    sc = group.regHist(Albm);
    sc = group.regHist(Clbm);
-   
+
    return sc;
 }
