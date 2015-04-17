@@ -22,7 +22,7 @@ from .selection import make_browse_objects_selection
 from .sugar import IOVSet, RunLumi, RunLumiType, TimestampType, make_iov_type
 from .ext.silence import silence
 
-DEFAULT_DBNAME = "COMP200"
+DEFAULT_DBNAME = "CONDBR2"
 
 def make_safe_fields(fields):
     return [(field + "_") if iskeyword(field) else field for field in fields]
@@ -98,7 +98,6 @@ def fetch_iovs(folder_name, since=None, until=None, channels=None, tag="",
     """
     from .quick_retrieve import quick_retrieve, browse_coracool, get_coracool_payload_spec
     import PyCool
-    IFolderPtr = getattr(PyCool.PyCintex.gbl, "boost::shared_ptr<cool::IFolder>")
     
     if channels == []: return IOVSet()
             
@@ -107,11 +106,13 @@ def fetch_iovs(folder_name, since=None, until=None, channels=None, tag="",
     channel_mapping = None
     if isinstance(folder_name, str):
         folder = Databases.get_folder(folder_name, database) 
-    elif isinstance(folder_name, IFolderPtr):
-        folder = folder_name
-        folder_name = folder.fullPath()
     else:
-        raise RuntimeError
+        try:
+            folder = folder_name
+            folder_name = folder.fullPath()
+        except:
+            log.error("Exception when interpreting folder: {0}".format(folder_name))
+            raise
 
     log.info("Querying %s" % folder_name)
     log.debug("Query range: [%s, %s]" % (since, until))
