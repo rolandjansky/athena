@@ -193,7 +193,7 @@ def ElectronLikelihoodLooseTriggerConfig2015(theTool) :
     '''
     
     theTool = GetTool(theTool)
-    theTool.ConfigFile = "ElectronPhotonSelectorTools/trigger/mc15_20150214/ElectronLikelihoodLooseTriggerConfig2015.conf"
+    theTool.ConfigFile = "ElectronPhotonSelectorTools/trigger/mc15_20150401/ElectronLikelihoodLooseTriggerConfig2015.conf"
 
     
 def ElectronLikelihoodMediumTriggerConfig2015(theTool) :
@@ -204,7 +204,7 @@ def ElectronLikelihoodMediumTriggerConfig2015(theTool) :
     '''
     
     theTool = GetTool(theTool)
-    theTool.ConfigFile = "ElectronPhotonSelectorTools/trigger/mc15_20150214/ElectronLikelihoodMediumTriggerConfig2015.conf"
+    theTool.ConfigFile = "ElectronPhotonSelectorTools/trigger/mc15_20150401/ElectronLikelihoodMediumTriggerConfig2015.conf"
 
   
     
@@ -216,7 +216,7 @@ def ElectronLikelihoodTightTriggerConfig2015(theTool) :
     '''
 
     theTool = GetTool(theTool)
-    theTool.ConfigFile = "ElectronPhotonSelectorTools/trigger/mc15_20150214/ElectronLikelihoodTightTriggerConfig2015.conf"
+    theTool.ConfigFile = "ElectronPhotonSelectorTools/trigger/mc15_20150401/ElectronLikelihoodTightTriggerConfig2015.conf"
     
     
 def ElectronLikelihoodLooseOfflineConfig2015(theTool) :
@@ -227,7 +227,7 @@ def ElectronLikelihoodLooseOfflineConfig2015(theTool) :
     '''
     
     theTool = GetTool(theTool)
-    theTool.ConfigFile = "ElectronPhotonSelectorTools/offline/mc15_20150214/ElectronLikelihoodLooseOfflineConfig2015.conf"
+    theTool.ConfigFile = "ElectronPhotonSelectorTools/offline/mc15_20150401/ElectronLikelihoodLooseOfflineConfig2015.conf"
 
     
 def ElectronLikelihoodMediumOfflineConfig2015(theTool) :
@@ -238,7 +238,7 @@ def ElectronLikelihoodMediumOfflineConfig2015(theTool) :
     '''
     
     theTool = GetTool(theTool)
-    theTool.ConfigFile = "ElectronPhotonSelectorTools/offline/mc15_20150214/ElectronLikelihoodMediumOfflineConfig2015.conf"
+    theTool.ConfigFile = "ElectronPhotonSelectorTools/offline/mc15_20150401/ElectronLikelihoodMediumOfflineConfig2015.conf"
 
     
 def ElectronLikelihoodTightOfflineConfig2015(theTool) :
@@ -249,6 +249,6 @@ def ElectronLikelihoodTightOfflineConfig2015(theTool) :
     '''
     
     theTool = GetTool(theTool)
-    theTool.ConfigFile = "ElectronPhotonSelectorTools/offline/mc15_20150214/ElectronLikelihoodTightOfflineConfig2015.conf"
+    theTool.ConfigFile = "ElectronPhotonSelectorTools/offline/mc15_20150401/ElectronLikelihoodTightOfflineConfig2015.conf"
 
     

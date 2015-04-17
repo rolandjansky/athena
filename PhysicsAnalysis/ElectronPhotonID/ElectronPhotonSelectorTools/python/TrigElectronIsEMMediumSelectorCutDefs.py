@@ -30,7 +30,7 @@ def TrigElectronIsEMMediumSelectorConfigDC14(theTool) :
     '''
     theTool = GetTool(theTool)
     
-    theTool.ConfigFile = "ElectronPhotonSelectorTools/trigger/mc15_20150224/ElectronIsEMMediumSelectorCutDefs.conf"
+    theTool.ConfigFile = "ElectronPhotonSelectorTools/trigger/mc15_20150329/ElectronIsEMMediumSelectorCutDefs.conf"
 
 
 

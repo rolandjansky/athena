@@ -262,11 +262,14 @@ class SelectionDefElectron:
                 0x1 << BitDefElectron.ClusterBackEnergyFraction_Electron | \
                 0x1 << BitDefElectron.ClusterMiddleEratio33_Electron
 
-        """ @brief Tight with Rphi Electron1 definition """
+        """ @brief Tight with Rphi&f3 Electron1 definition """
         ElectronTightHLT = CutDefElectron.CALO_ELECTRON | CutDefElectron.TRACKING_ELECTRON | \
-                CutDefElectron.TRACKMATCHDETA_ELECTRON | CutDefElectron.TRACKMATCH_ELECTRON_EF | \
-                CutDefElectron.TRACKMATCHTIGHT_ELECTRON | CutDefElectron.TRT_ELECTRON | \
+                CutDefElectron.TRACKMATCHDETA_ELECTRON | \
+                CutDefElectron.TRACKMATCHTIGHT_ELECTRON | \
+                CutDefElectron.TRT_ELECTRON | \
+                0x1 << BitDefElectron.ClusterBackEnergyFraction_Electron | \
                 0x1 << BitDefElectron.ClusterMiddleEratio33_Electron
+
         Electron_trk = CutDefElectron.TRACKINGLOOSE_ELECTRON
         
 

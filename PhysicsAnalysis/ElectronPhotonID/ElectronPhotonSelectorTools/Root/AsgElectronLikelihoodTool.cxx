@@ -49,7 +49,7 @@ AsgElectronLikelihoodTool::AsgElectronLikelihoodTool(std::string myname) :
   // Declare the needed properties
   declareProperty("ConfigFile",m_configFile="","The config file to use");
   declareProperty("usePVContainer", m_usePVCont=true, "Whether to use the PV container");
-  declareProperty("nPVdefault", m_nPVdefault = 11, "The default number of PVs if not counted");
+  declareProperty("nPVdefault", m_nPVdefault = 0, "The default number of PVs if not counted");
   declareProperty("primaryVertexContainer", m_primVtxContName="PrimaryVertices", "The primary vertex container name" );
 
 
@@ -66,6 +66,10 @@ AsgElectronLikelihoodTool::AsgElectronLikelihoodTool(std::string myname) :
   declareProperty("CutLikelihood",m_rootTool->CutLikelihood,"Cut on likelihood discriminant");
   // The pileup-correction part of the likelihood cut values
   declareProperty("CutLikelihoodPileupCorrection",m_rootTool->CutLikelihoodPileupCorrection,"Pileup correction for LH discriminant");
+  // The likelihood cut values - 4 GeV
+  declareProperty("CutLikelihood4GeV",m_rootTool->CutLikelihood4GeV,"Cut on likelihood discriminant, 4 GeV special bin");
+  // The pileup-correction part of the likelihood cut values - 4 GeV
+  declareProperty("CutLikelihoodPileupCorrection4GeV",m_rootTool->CutLikelihoodPileupCorrection4GeV,"Pileup correction for LH discriminant, 4 GeV special bin");
   // do the conversion cut
   declareProperty("doCutConversion",m_rootTool->doCutConversion,"Apply the conversion bit cut");
   // cut on b-layer
@@ -90,11 +94,18 @@ AsgElectronLikelihoodTool::AsgElectronLikelihoodTool(std::string myname) :
   declareProperty("DiscHardCutSlopeForPileupTransform",m_rootTool->DiscHardCutSlopeForPileupTransform,"Reference slope on disc for very hard cut; used by pileup transform");
   // reference disc for a pileup independent loose menu; used by pileup transform
   declareProperty("DiscLooseForPileupTransform",m_rootTool->DiscLooseForPileupTransform,"Reference disc for pileup indepdendent loose menu; used by pileup transform");
+  // reference disc for very hard cut; used by pileup transform - 4-7 GeV bin
+  declareProperty("DiscHardCutForPileupTransform4GeV",m_rootTool->DiscHardCutForPileupTransform4GeV,"Reference disc for very hard cut; used by pileup transform. 4-7 GeV bin");
+  // reference slope on disc for very hard cut; used by pileup transform - 4-7 GeV bin
+  declareProperty("DiscHardCutSlopeForPileupTransform4GeV",m_rootTool->DiscHardCutSlopeForPileupTransform4GeV,"Reference slope on disc for very hard cut; used by pileup transform. 4-7 GeV bin");
+  // reference disc for a pileup independent loose menu; used by pileup transform - 4-7 GeV bin
+  declareProperty("DiscLooseForPileupTransform4GeV",m_rootTool->DiscLooseForPileupTransform4GeV,"Reference disc for pileup indepdendent loose menu; used by pileup transform. 4-7 GeV bin");
   // max discriminant for which pileup transform is to be used
   declareProperty("DiscMaxForPileupTransform",m_rootTool->DiscMaxForPileupTransform,"Max discriminant for which pileup transform is to be used");
   // max nvtx or mu to be used in pileup transform
   declareProperty("PileupMaxForPileupTransform",m_rootTool->PileupMaxForPileupTransform,"Max nvtx or mu to be used in pileup transform");
-  declareProperty("caloOnly", m_caloOnly=false, "Flag to tell the tool if its a calo only LH");
+  // Flag to tell the tool if it is a calo-only LH
+  declareProperty("caloOnly", m_caloOnly=false, "Flag to tell the tool if it is a calo-only LH");
 }
 
 
@@ -122,16 +133,22 @@ StatusCode AsgElectronLikelihoodTool::initialize()
 
   if(!m_configFile.empty()){
     std::string configFile = PathResolverFindCalibFile( m_configFile);
+     if(configFile=="")
+      { 
+	ATH_MSG_ERROR("Could not locate " << m_configFile );
+      } 
     TEnv env(configFile.c_str());
 
     // Get the input PDFs in the tool.
-
-    if(!m_pdfFileName.empty()){  //If the property was set by the user, take that.
-      ATH_MSG_INFO("Setting user specified PDF file " << m_pdfFileName);
-      PDFfilename = m_pdfFileName;
-    }else{
+    ATH_MSG_DEBUG("Get the input PDFs in the tool ");
+    
+    if(!m_pdfFileName.empty())
+      {  //If the property was set by the user, take that.
+	ATH_MSG_INFO("Setting user specified PDF file " << m_pdfFileName);
+	PDFfilename = m_pdfFileName;
+      } else {
       if (m_configFile.find("dev/") != std::string::npos) {
-        
+	
         std::string PDFdevval = env.GetValue("inputPDFFileName", "ElectronPhotonSelectorTools/v1/ElectronLikelihoodPdfs.root");
         PDFfilename = ("dev/"+PDFdevval);
         ATH_MSG_DEBUG ( "Getting the input PDFs from: " << PDFfilename  );
@@ -147,9 +164,12 @@ StatusCode AsgElectronLikelihoodTool::initialize()
       ATH_MSG_ERROR ("Could not find PDF file");
       return StatusCode::FAILURE;
     }
+
     m_rootTool->VariableNames =  env.GetValue("VariableNames","");
     m_rootTool->CutLikelihood = AsgConfigHelper::HelperDouble("CutLikelihood",env);
     m_rootTool->CutLikelihoodPileupCorrection = AsgConfigHelper::HelperDouble("CutLikelihoodPileupCorrection", env);
+    m_rootTool->CutLikelihood4GeV = AsgConfigHelper::HelperDouble("CutLikelihood4GeV",env);
+    m_rootTool->CutLikelihoodPileupCorrection4GeV = AsgConfigHelper::HelperDouble("CutLikelihoodPileupCorrection4GeV", env);
     // do the conversion cut
     m_rootTool->doCutConversion = env.GetValue("doCutConversion", false);
     // cut on b-layer
@@ -173,6 +193,9 @@ StatusCode AsgElectronLikelihoodTool::initialize()
     m_rootTool->DiscHardCutForPileupTransform = AsgConfigHelper::HelperDouble("DiscHardCutForPileupTransform",env);
     m_rootTool->DiscHardCutSlopeForPileupTransform = AsgConfigHelper::HelperDouble("DiscHardCutSlopeForPileupTransform",env);
     m_rootTool->DiscLooseForPileupTransform = AsgConfigHelper::HelperDouble("DiscLooseForPileupTransform",env);
+    m_rootTool->DiscHardCutForPileupTransform4GeV = AsgConfigHelper::HelperDouble("DiscHardCutForPileupTransform4GeV",env);
+    m_rootTool->DiscHardCutSlopeForPileupTransform4GeV = AsgConfigHelper::HelperDouble("DiscHardCutSlopeForPileupTransform4GeV",env);
+    m_rootTool->DiscLooseForPileupTransform4GeV = AsgConfigHelper::HelperDouble("DiscLooseForPileupTransform4GeV",env);
     m_rootTool->DiscMaxForPileupTransform = env.GetValue("DiscMaxForPileupTransform", 2.0);
     m_rootTool->PileupMaxForPileupTransform = env.GetValue("PileupMaxForPileupTransform", 50);
 
@@ -252,7 +275,8 @@ const Root::TAccept& AsgElectronLikelihoodTool::accept( const xAOD::Electron* eg
       ATH_MSG_DEBUG ("Failed, no cluster.");
       return m_acceptDummy;
     }  
-  
+
+  const double energy =  cluster->e();
   const float eta = (cluster->etaBE(2)); 
   if ( fabs(eta) > 300.0 )
     {
@@ -261,8 +285,13 @@ const Root::TAccept& AsgElectronLikelihoodTool::accept( const xAOD::Electron* eg
     }
   
   // transverse energy of the electron (using the track eta) 
-  const double et = eg->pt(); 
-
+  //  const double et = eg->pt(); 
+  double et = 0.;
+  if(eg->trackParticle() && !m_caloOnly) {
+    et  = ( cosh(eg->trackParticle()->eta()) != 0.) ? energy/cosh(eg->trackParticle()->eta()) : 0.;
+  } else 
+    et  = ( cosh(eta) != 0.) ? energy/cosh(eta) : 0.;
+  
   // number of track hits
   uint8_t nSi(0);
   uint8_t nSiDeadSensors(0);
@@ -302,20 +331,14 @@ const Root::TAccept& AsgElectronLikelihoodTool::accept( const xAOD::Electron* eg
         {
           ATH_MSG_WARNING ( "Failed, no track particle: et= " << et << "eta= " << eta );
         }
-      //if ( nSi < 4 ){ et = cluster->et(); }
 
       allFound = allFound && eg->trackCaloMatchValue(deltaEta, xAOD::EgammaParameters::deltaEta1);
       allFound = allFound && eg->trackCaloMatchValue(deltaPhiRescaled2, xAOD::EgammaParameters::deltaPhiRescaled2);
 
   } //if not calo ONly
 
-  // Get the conversion bit
-  // //convBit = eg->isem(0x1 << egammaPID::ConversionMatch_Electron) == 0;
-  // unsigned int isem = (unsigned int)eg->egammaID (egammaPID::IsEM);
-  // convBit = isem & (0x1 << egammaPID::ConversionMatch_Electron);
-
-  // Get the number of primary vertices in this events
-  if( mu < 0 ){
+  // Get the number of primary vertices in this event
+  if( mu < 0 ){ // use npv if mu is negative (not given)
     ip = static_cast<double>(m_usePVCont ? this->getNPrimVertices() : m_nPVdefault);
   }
   else {
@@ -360,6 +383,7 @@ const Root::TAccept& AsgElectronLikelihoodTool::accept( const xAOD::Electron* eg
 //=============================================================================
 const Root::TAccept& AsgElectronLikelihoodTool::accept( const xAOD::Egamma* eg, double mu) const
 {
+  // Call the main accept if this is not a calo-only LH
   if( !m_caloOnly )
     {
       const xAOD::Electron* el = dynamic_cast<const xAOD::Electron*>(eg);
@@ -378,6 +402,7 @@ const Root::TAccept& AsgElectronLikelihoodTool::accept( const xAOD::Egamma* eg, 
       return m_acceptDummy;
     }  
   
+  const double energy =  cluster->e();
   const float eta = (cluster->etaBE(2)); 
   if ( fabs(eta) > 300.0 )
     {
@@ -385,9 +410,8 @@ const Root::TAccept& AsgElectronLikelihoodTool::accept( const xAOD::Egamma* eg, 
       return m_acceptDummy;
     }
   
-  // transverse energy of the electron (using the track eta) 
-  const double et = eg->pt(); 
-
+  const double et  = ( cosh(eta) != 0.) ? energy/cosh(eta) : 0.;
+  
   // Variables the EFCaloLH ignores
   uint8_t nSi(0);
   uint8_t nSiDeadSensors(0);
@@ -396,12 +420,12 @@ const Root::TAccept& AsgElectronLikelihoodTool::accept( const xAOD::Egamma* eg, 
   uint8_t expectBlayer(true);
   uint8_t nBlayerHits(0); 
   uint8_t nBlayerOutliers(0); 
-  int convBit(0);
+  int convBit(0); // this no longer works
 
-  // Temporary until mu input is sorted
-
+  // Get the pileup information
   double ip(0);
-  if( mu < 0 ){
+
+  if( mu < 0 ){ // use npv if mu is negative (not given)
     ip = static_cast<double>(m_usePVCont ? this->getNPrimVertices() : m_nPVdefault);
   }
   else {
@@ -458,7 +482,8 @@ const Root::TResult& AsgElectronLikelihoodTool::calculate( const xAOD::Electron*
       ATH_MSG_DEBUG ("Failed, no cluster.");
       return m_resultDummy;
     }  
-  
+
+  const double energy =  cluster->e();
   const float eta = cluster->etaBE(2); 
   if ( fabs(eta) > 300.0 )
     {
@@ -466,11 +491,17 @@ const Root::TResult& AsgElectronLikelihoodTool::calculate( const xAOD::Electron*
       return m_resultDummy;
     }
   
-  double et = cluster->e()/cosh(eta); 
+  //double et = cluster->e()/cosh(eta); 
+  // transverse energy of the electron (using the track eta) 
+  //const double et = eg->pt(); 
+  double et = 0.;
+  if(eg->trackParticle() && !m_caloOnly) {
+    et  = ( cosh(eg->trackParticle()->eta()) != 0.) ? energy/cosh(eg->trackParticle()->eta()) : 0.;
+  } else 
+    et  = ( cosh(eta) != 0.) ? energy/cosh(eta) : 0.;
   
-
+  
   // number of track hits and other track quantities
-  //int nSi(0);
   uint8_t nTRThigh(0); 
   uint8_t nTRThighOutliers(0); 
   uint8_t nTRT(0); 
@@ -481,7 +512,7 @@ const Root::TResult& AsgElectronLikelihoodTool::calculate( const xAOD::Electron*
   float d0sigma(0.0);
   double dpOverp(0.0);
   float TRT_PID(0.0);
-  float trans_TRT_PID(0.0);
+  double trans_TRT_PID(0.0);
   float deltaEta=0, deltaPhiRescaled2=0;
   double rTRT(0.0);
 
@@ -498,7 +529,6 @@ const Root::TResult& AsgElectronLikelihoodTool::calculate( const xAOD::Electron*
 	  d0sigma=sqrtf(vard0);
         }
 
-      //nSi = summary->get(Trk::numberOfPixelHits)+summary->get(Trk::numberOfSCTHits);
         allFound = allFound && t->summaryValue(nTRThigh, xAOD::numberOfTRTHighThresholdHits);
         allFound = allFound && t->summaryValue(nTRThighOutliers, xAOD::numberOfTRTHighThresholdOutliers);
         allFound = allFound && t->summaryValue(nTRT, xAOD::numberOfTRTHits);
@@ -509,9 +539,10 @@ const Root::TResult& AsgElectronLikelihoodTool::calculate( const xAOD::Electron*
         //Transform the TRT PID output for use in the LH tool.
         double tau = 15.0; 
         double fEpsilon = 1.0e-30;  // to avoid zero division
-        if (TRT_PID >= 1.0) TRT_PID = float(1.0) - float(1.0e-15);  //this number comes from TMVA
-        else if (TRT_PID <= fEpsilon) TRT_PID = fEpsilon;
-        trans_TRT_PID = - log(1.0/TRT_PID - 1.0)/double(tau);
+	double pid_tmp = TRT_PID;
+        if (pid_tmp >= 1.0) pid_tmp = 1.0 - 1.0e-15;  //this number comes from TMVA
+        else if (pid_tmp <= fEpsilon) pid_tmp = fEpsilon;
+        trans_TRT_PID = - log(1.0/pid_tmp - 1.0)/double(tau);
 
         unsigned int index;
         if( t->indexOfParameterAtPosition(index, xAOD::LastMeasurement) ) {
@@ -529,10 +560,8 @@ const Root::TResult& AsgElectronLikelihoodTool::calculate( const xAOD::Electron*
       {
         ATH_MSG_WARNING ( "Failed, no track particle: et= " << et << "eta= " << eta );
       }
-    //if ( nSi < 4 ){ et = cluster->et(); }
   }  // if not calo Only
 
-  //float e233(0), e237(0), e277(0), ethad1(0), ethad(0), ws3(0), w2(0), f1(0), emax2(0), emax(0), f3(0);
   float Reta(0), Rphi(0),  Rhad1(0), Rhad(0), ws3(0), w2(0), f1(0), Eratio(0), f3(0);
 
   // reta = e237/e277
@@ -553,21 +582,8 @@ const Root::TResult& AsgElectronLikelihoodTool::calculate( const xAOD::Electron*
   allFound = allFound && eg->showerShapeValue(f1, xAOD::EgammaParameters::f1);
   // E of 2nd max between max and min in strips
   allFound = allFound && eg->showerShapeValue(Eratio, xAOD::EgammaParameters::Eratio);
-  // E of 1st max in strips
-//  allFound = allFound && eg->showerShapeValue(emax, xAOD::EgammaParameters::emaxs1);
   // fraction of energy reconstructed in the 3rd sampling
   allFound = allFound && eg->showerShapeValue(f3, xAOD::EgammaParameters::f3);
-
- // double rHad1  = et != 0. ? ethad1/et : 0.;
- // double rHad   = et != 0. ? ethad/et : 0.;
-  
- // float Reta   = e277 != 0 ? e237/e277 : 0.;
- // float Rphi   = e237 != 0. ? e233 / e237 : 0.;
-  
-  //float Eratio = (emax+emax2)>0. ? (emax-emax2)/(emax+emax2) : 0.0;
-  
-
-  // Delta eta,phi matching
 
   if( !m_caloOnly){
     allFound = allFound && eg->trackCaloMatchValue(deltaEta, xAOD::EgammaParameters::deltaEta1);
@@ -587,23 +603,15 @@ const Root::TResult& AsgElectronLikelihoodTool::calculate( const xAOD::Electron*
   //   }
   }
 
-  // Get the number of primary vertices in this events
-
+  // Get the number of primary vertices in this event
   double ip = static_cast<double>(m_nPVdefault);
 
-  if(mu < 0){  // use npv if mu is negative (not given)
-    if (!m_caloOnly){
-      ip = static_cast<double>(m_usePVCont ? this->getNPrimVertices() : m_nPVdefault);
-    }
+  if(mu < 0){ // use npv if mu is negative (not given)
+    ip = static_cast<double>(m_usePVCont ? this->getNPrimVertices() : m_nPVdefault);
   }
   else{
     ip = mu;
   }
-
-  if (!m_caloOnly){
-    ip = static_cast<double>(m_usePVCont ? this->getNPrimVertices() : m_nPVdefault);
-  }
-
 
   ATH_MSG_VERBOSE ( Form("Vars: eta=5%8.5f, et=%8.5f, f3=%8.5f, rHad==%8.5f, rHad1=%8.5f, Reta=%8.5f, w2=%8.5f, f1=%8.5f, Emaxs1=%8.5f, deltaEta=%8.5f, d0=%8.5f, rTRT=%8.5f, d0sigma=%8.5f, Rphi=%8.5f, ws3=%8.5f, dpOverp=%8.5f, deltaPhiRescaled2=%8.5f, TRT_PID=%8.5f, trans_TRT_PID=%8.5f, ip=%8.5f",
                          eta, et, f3, Rhad, Rhad1, Reta,
@@ -611,7 +619,7 @@ const Root::TResult& AsgElectronLikelihoodTool::calculate( const xAOD::Electron*
                          deltaEta, d0, rTRT,
                          d0sigma, 
                          Rphi, ws3, dpOverp, deltaPhiRescaled2,
-			                   TRT_PID, trans_TRT_PID,
+                         TRT_PID, trans_TRT_PID,
                          ip ) );
 
 
@@ -630,13 +638,13 @@ const Root::TResult& AsgElectronLikelihoodTool::calculate( const xAOD::Electron*
                                 f1,
                                 Eratio,
                                 deltaEta,
-                                d0, //??? el_trackd0pv
+                                d0,
                                 rTRT,
-                                d0sigma, //??? el_tracksigd0pv
+                                d0sigma,
                                 Rphi,
                                 dpOverp,
                                 deltaPhiRescaled2,
-				                        trans_TRT_PID,
+                                trans_TRT_PID,
                                 ip
                                 );
 }
@@ -664,6 +672,7 @@ const Root::TResult& AsgElectronLikelihoodTool::calculate( const xAOD::Egamma* e
       return m_resultDummy;
     }  
   
+  const double energy =  cluster->e();
   const float eta = cluster->etaBE(2); 
   if ( fabs(eta) > 300.0 )
     {
@@ -671,8 +680,8 @@ const Root::TResult& AsgElectronLikelihoodTool::calculate( const xAOD::Egamma* e
       return m_resultDummy;
     }
   
-  double et = cluster->e()/cosh(eta); 
-  
+  const double et  = ( cosh(eta) != 0.) ? energy/cosh(eta) : 0.;
+
   // Track variables that the EFCaloLH will not use
   float d0(0.0);
   float d0sigma(0.0);
@@ -706,11 +715,11 @@ const Root::TResult& AsgElectronLikelihoodTool::calculate( const xAOD::Egamma* e
   // fraction of energy reconstructed in the 3rd sampling
   allFound = allFound && eg->showerShapeValue(f3, xAOD::EgammaParameters::f3);
 
-  // Get the number of primary vertices in this events
-  // Should make this mu!
+  // Get the pileup information
   double ip(0);
-  if( mu < 0){
-    ip = static_cast<double>(m_nPVdefault);
+
+  if( mu < 0){ // use npv if mu is negative (not given)
+    ip = static_cast<double>(m_usePVCont ? this->getNPrimVertices() : m_nPVdefault);
   } else {
     ip = mu;
   }
@@ -807,19 +816,23 @@ const Root::TResult& AsgElectronLikelihoodTool::calculate(const xAOD::IParticle*
 //=============================================================================
 unsigned int AsgElectronLikelihoodTool::getNPrimVertices() const
 {
-  // Get the number of vertices
+  static bool PVExists = true; 
   unsigned int nVtx(0);
   const xAOD::VertexContainer* vxContainer(0);
-  if ( StatusCode::SUCCESS != evtStore()->retrieve( vxContainer, m_primVtxContName ) )
+  if(PVExists)
+  {
+    if ( StatusCode::SUCCESS != evtStore()->retrieve( vxContainer, m_primVtxContName ) )
     {
-      ATH_MSG_ERROR ( "Vertex container not found with name:" << m_primVtxContName );
+      ATH_MSG_WARNING ( "Vertex container not found with name: " << m_primVtxContName );
+      PVExists = false; // if retrieve failed, don't try to retrieve again
       return nVtx;
     }
-  for ( unsigned int i=0; i<vxContainer->size(); i++ )
+    for ( unsigned int i=0; i<vxContainer->size(); i++ )
     {
       const xAOD::Vertex* vxcand = vxContainer->at(i);
       if ( vxcand->nTrackParticles() >= 2 ) nVtx++;
     }
+  }
   return nVtx;
 }
 

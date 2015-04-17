@@ -27,7 +27,7 @@ def PhotonIsEMMediumSelectorConfigDC14(theTool) :
     # MEDIUM (20/11/2013 -- Ludovica@cern.ch)
     #  Coming from Fer
     #
-    theTool.ConfigFile = "ElectronPhotonSelectorTools/offline/dc14b_20141031/PhotonIsEMMediumSelectorCutDefs.conf"
+    theTool.ConfigFile = "ElectronPhotonSelectorTools/offline/mc15_20150408/PhotonIsEMMediumSelectorCutDefs.conf"
 
 
 def PhotonIsEMMediumSelectorConfig2012(theTool) :

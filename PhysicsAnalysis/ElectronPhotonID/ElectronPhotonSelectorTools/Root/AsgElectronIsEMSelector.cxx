@@ -205,10 +205,14 @@ StatusCode AsgElectronIsEMSelector::initialize()
   // The standard status code
   StatusCode sc = StatusCode::SUCCESS ;
 
-  if(!m_configFile.empty()){
+  if(!m_configFile.empty()) {
     
     //find the file and read it in
     std::string filename = PathResolverFindCalibFile( m_configFile);
+    if(filename=="")
+      { 
+	ATH_MSG_ERROR("Could not locate " << m_configFile );
+      } 
     TEnv env(filename.c_str());
     
     ///------- Read in the TEnv config ------///
@@ -219,6 +223,7 @@ StatusCode AsgElectronIsEMSelector::initialize()
       m_rootTool->isEMMask=mask;
     }
     //
+    ATH_MSG_DEBUG("Read in the TEnv config ");
     //From here on the conf ovverides all other properties
     bool useTRTOutliers(env.GetValue("useTRTOutliers", true));
     m_rootTool->useTRTOutliers =useTRTOutliers;
@@ -444,10 +449,15 @@ StatusCode AsgElectronIsEMSelector::execute(const xAOD::Electron* el) const
   // energy in calorimeter 
   const double energy =  cluster->e();
   // transverse energy of the electron (using the track eta) 
-  const double et = el->pt();
+  // const double et = el->pt();
+  double et = 0.;
+  
+  if(el->trackParticle() && !m_caloOnly ){
+    et  = ( cosh(el->trackParticle()->eta()) != 0.) ? energy/cosh(el->trackParticle()->eta()) : 0.; 
+  } else et  = ( cosh(eta2) != 0.) ? energy/cosh(eta2) : 0.; 
   
   iflag = calocuts_electrons(el, eta2, et, m_trigEtTh, 0);
-
+  
   if(!m_caloOnly){
     if(el->trackParticle()){
       iflag = TrackCut(el, eta2, et, energy, iflag);
@@ -552,10 +562,9 @@ unsigned int AsgElectronIsEMSelector::calocuts_electrons(const xAOD::Egamma* eg,
     return iflag;
   }
    
-  // change et value when dealing with trigger
-  // to be sure that it will take the correct bin (VD)
-  if(trigEtTh > 0) et = trigEtTh*1.01; 
-
+  // For cut-based triggers above 20 GeV threshold, the online cut values on the discriminant variables are always taken from the 20 GeV optimisation.
+  // if(et > 20000 )  { if(trigEtTh > 0) et = trigEtTh*1.01; }
+  
   return m_rootTool->calocuts_electrons(eta2,
 					et,
                                         Reta, //replacing e233
