@@ -39,6 +39,9 @@ TrigTrackCounter::TrigTrackCounter(const std::string& name, ISvcLocator* pSvcLoc
   declareProperty("PhiMin", m_hPhiMin = 0.);
   declareProperty("PhiMax", m_hPhiMax = 3.2);
   declareProperty("InputTrackContainerName",  m_trkContainerName = "AmbigSolv");
+  // thresholds for filling m_eta_phi histo
+  declareProperty("Min_pt", m_pt_min= 0.1000 ); // GeV
+  declareProperty("Max_z0", m_z0_max= 200.0 ); // GeV
   
   // Monitoring of the data stored in TrigTrackCounts
   declareMonitoredStdContainer("TrkZ0",       m_trkZ0); 
@@ -156,8 +159,9 @@ HLT::ErrorCode TrigTrackCounter::hltExecute( const HLT::TriggerElement *, HLT::T
       pT = aMeasPer->pT();
       
       m_z0_pt->fill(fabs(z0), pT/1000.0, 1.);
-      m_eta_phi->fill(fabs(eta), fabs(phi0), 1.);
-
+      if(pT/1000.>m_pt_min && fabs(z0)<m_z0_max){
+	m_eta_phi->fill(fabs(eta), fabs(phi0), 1.);
+      }
       if(msgLvl() <= MSG::DEBUG){
 	m_log << MSG::DEBUG 
 	      << "REGTEST: Found track with: "

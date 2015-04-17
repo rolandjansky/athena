@@ -42,7 +42,7 @@ class trkZ0Max(JobProperty):
 class trkPtBins(JobProperty):
     statusOn = True
     allowedTypes = ['int']
-    StoredValue = 20
+    StoredValue = 50
 
 class trkPtMin(JobProperty):
     statusOn = True
@@ -52,12 +52,12 @@ class trkPtMin(JobProperty):
 class trkPtMax(JobProperty):
     statusOn = True
     allowedTypes = ['float']
-    StoredValue = 2.
+    StoredValue = 10.
 
 class trkEtaBins(JobProperty):
     statusOn = True
     allowedTypes = ['int']
-    StoredValue = 10
+    StoredValue = 25
 
 class trkEtaMin(JobProperty):
     statusOn = True

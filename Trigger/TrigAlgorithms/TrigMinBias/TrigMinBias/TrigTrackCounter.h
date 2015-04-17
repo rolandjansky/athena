@@ -44,6 +44,10 @@ class TrigTrackCounter: public HLT::FexAlgo {
   
   /** A histogram of the online reconstructed low pt tracks: eta vs phi*/
   xAOD::TrigHisto2D* m_eta_phi;
+  /** thresholds for filling m_eta_phi histo */
+  float m_pt_min;
+  float m_z0_max;
+
 
   /** TrigHisto input parameters */
   unsigned int m_hZ0Bins;

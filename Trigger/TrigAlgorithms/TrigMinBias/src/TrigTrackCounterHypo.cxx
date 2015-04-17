@@ -13,7 +13,10 @@ TrigTrackCounterHypo::TrigTrackCounterHypo(const std::string& name, ISvcLocator*
 m_log(msgSvc(), name) {
   declareProperty("Max_z0", m_max_z0 = 200.0); // (mm)
   declareProperty("Min_pt", m_min_pt = 0.100); // (GeV)
+  declareProperty("Min_eta", m_min_eta = -1.0); // eta
+  declareProperty("Max_eta", m_max_eta = -1.0); // eta
   declareProperty("Required_ntrks", m_required_ntrks = 1); // (#)
+  declareProperty("MaxRequired_ntrks", m_max_required_ntrks = -1); // (#)
   declareProperty("AcceptAll_EF", m_acceptAll = false );
   
   // Monitoring
@@ -38,6 +41,7 @@ HLT::ErrorCode TrigTrackCounterHypo::hltInitialize() {
     m_log << MSG::INFO << "max_z0 = " << m_max_z0 << " mm" << endreq;
     m_log << MSG::INFO << "min_pt = " << m_min_pt << " GeV" << endreq;
     m_log << MSG::INFO << "required_ntrks = " << m_required_ntrks << " #" << endreq;
+    m_log << MSG::INFO << "Max required_ntrks = " << m_max_required_ntrks << " #" << endreq;
     m_log << MSG::INFO << "AcceptAll = "
     << (m_acceptAll==true ? "True" : "False") << endreq; 
   }
@@ -73,23 +77,42 @@ HLT::ErrorCode TrigTrackCounterHypo::hltExecute(const HLT::TriggerElement* outpu
   // Count the number of tracks within the selected region
   xAOD::TrigHisto2D *th2dZ0_pt = new xAOD::TrigHisto2D;
   th2dZ0_pt->makePrivateStore();
+
+  if(m_min_eta <0 && m_max_eta<0){
+    
+    th2dZ0_pt->initialize(m_trigTrackCounts->z0Bins(),
+			  m_trigTrackCounts->z0Min(),
+			  m_trigTrackCounts->z0Max(),
+			  m_trigTrackCounts->ptBins(),
+			  m_trigTrackCounts->ptMin(),
+			  m_trigTrackCounts->ptMax());
+    th2dZ0_pt->setContents(m_trigTrackCounts->z0_pt());
+    
+    m_ntrksSelected =th2dZ0_pt->sumEntries(m_max_z0, m_min_pt, xAOD::TrigHistoCutType::BELOW_X_ABOVE_Y);
+  } else {
+    th2dZ0_pt->initialize(m_trigTrackCounts->etaBins(),
+			  m_trigTrackCounts->etaMin(),
+			  m_trigTrackCounts->etaMax(),
+			  m_trigTrackCounts->phiBins(),
+			  m_trigTrackCounts->phiMin(),
+			  m_trigTrackCounts->phiMax());
+    th2dZ0_pt->setContents(m_trigTrackCounts->eta_phi());
+    
+    double m_ntrksSelected_low = th2dZ0_pt->sumEntries(m_min_eta, 100, xAOD::TrigHistoCutType::ABOVE_X_BELOW_Y);
+    double m_ntrksSelected_up = th2dZ0_pt->sumEntries(m_max_eta, 100, xAOD::TrigHistoCutType::ABOVE_X_BELOW_Y);
+    
+    m_ntrksSelected = m_ntrksSelected_low-m_ntrksSelected_up;
+  }
   
-  th2dZ0_pt->initialize(m_trigTrackCounts->z0Bins(),
-		       m_trigTrackCounts->z0Min(),
-		       m_trigTrackCounts->z0Max(),
-		       m_trigTrackCounts->ptBins(),
-		       m_trigTrackCounts->ptMin(),
-		       m_trigTrackCounts->ptMax());
-  th2dZ0_pt->setContents(m_trigTrackCounts->z0_pt());
   
-  m_ntrksSelected =th2dZ0_pt->sumEntries(m_max_z0, m_min_pt, xAOD::TrigHistoCutType::BELOW_X_ABOVE_Y);
   
   if(msgLvl() <= MSG::DEBUG) {
     m_log << MSG::DEBUG << "There are " << m_ntrksSelected << " tracks within selection window.  ";
   }
   
   // Check the trigger condition.
-  if(m_ntrksSelected >= m_required_ntrks) {
+  if(((m_ntrksSelected >= m_required_ntrks) && m_max_required_ntrks==-1) || 
+     (m_ntrksSelected <= m_max_required_ntrks) ) {
     pass=true;
     if(msgLvl() <= MSG::DEBUG) {
       m_log << MSG::DEBUG << "The event passes." << endreq;
