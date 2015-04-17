@@ -14,9 +14,6 @@ def tctPath(build,rel):
         arch = "i686-slc5-gcc43-opt"
     return "/afs/cern.ch/atlas/project/RTT/prod/Results/tct/"+rel+"/"+build+"/build/"+arch+"/offline/Tier0ChainTests/"
 
-
-
-
 class TCTChainInfo:
     def __init__(self,dir,log,runEventIn=()):
         self.directory=dir
@@ -25,11 +22,10 @@ class TCTChainInfo:
         self.loglines=0
         self.cpulist=()
         self.memlist=()
+        self.outputDict={}
 
     def addRunEvent(self,run,event):
         self.eventlist+=((run,event),)
-
-
 
 class findTCTFiles:
     def __init__(self,rDir,vDir,checkAge=False):
@@ -39,7 +35,6 @@ class findTCTFiles:
         self._commonDirs=dict()
         self._vFiles=[]
         self._rFiles=[]
-
         
     def checkFileAge(self,path):
         try:
@@ -47,6 +42,7 @@ class findTCTFiles:
         except:
             return
         age=time()-fileTime
+
         if age>86400: #More than 24h
             print "WARNING! File",path
             print "is more than",int(age/86400.),"day(s) old"
@@ -85,46 +81,44 @@ class findTCTFiles:
         fileList+=[file,]
         return
 
+    def findBetween(self, s, first, last ):
+        try:
+            start = s.index( first ) + len( first )
+            end = s.index( last, start )
+            return s[start:end]
+        except ValueError:
+            return ""
+
     def getTCTChainInfo(self,tci):
-        logLine="AthenaEventLoopMgr                                   INFO   ===>>>  start processing event #"
-        cpuline="Py:PerfMonSvc        INFO <cpu>:    ("
-        memline="Py:PerfMonSvc        INFO <vmem>:   ("
+        validationStartLine = "INFO Validating output files"
         
         try:
-            lf=open(tci.logfile,"r")
+            lf = open(tci.logfile,"r")
         except:
             return None
 
+        # loop through the log file and find all the output files being validated
+        foundFileValidationStart = False
+        nextLineHasEventCount = False
+        lastOutputFileName = ""
         for l in lf:
-            tci.loglines+=1
-            if l.startswith(logLine):
-                p1=len(logLine)
-                p2=l.find(",",p1)
-                event=int(l[p1:p2])
-                p1=l.find("#",p2)
-                p2=l.find(" ",p1)
-                run=int(l[p1+1:p2])
-                tci.addRunEvent(run,event)
-
-            elif l.startswith(cpuline):
-                p1=len(cpuline)
-                p2=l.find("+/-",p1)
-                cpu=float(l[p1:p2])
-                if l.endswith(" s"):
-                    cpu*=1000
-                tci.cpulist+=(cpu,)
-
-            elif l.startswith(memline):
-                p1=len(memline)
-                p2=l.find("+/-",p1)
-                mem=float(l[p1:p2])
-                if l.endswith(" GB"):
-                    mem*=1000
-                tci.memlist+=(mem,)
-                
+            tci.loglines += 1
+            if not foundFileValidationStart:
+                if validationStartLine in l:
+                    foundFileValidationStart = True
+            elif "Testing event count..." in l:                
+                format = self.findBetween(l, "INFO", "Testing event count...").strip()
+                tci.outputDict[format] = -1
+                nextLineHasEventCount = True
+                lastOutputFileName = format
+            elif nextLineHasEventCount:
+                tci.outputDict[lastOutputFileName] = int(self.findBetween(l, "Event counting test passed (", " events)."))
+                nextLineHasEventCount = False
+        #print "Done parsing %s, found the following output files:" % tci.logfile
+        #for file in tci.outputDict:
+        #    print "  %s : %d events" % (file, tci.outputDict[format])
         lf.close()
-        return tci.eventlist
-
+        return tci.outputDict
 
     def getChains(self):
         print "Input directory:",self._rDir
@@ -136,47 +130,47 @@ class findTCTFiles:
         
     def getCommonChains(self):
         print "Seaching for compatible TCT directories ..." 
-        allEvents=set()
-
+        allEvents=0
+        
         os.path.walk(self._rDir,self.hasLogfile,True)   # Reference directory
         os.path.walk(self._vDir,self.hasLogfile,False)  # Validation directory
         
         names=self._commonDirs.keys()
         for tctname in names:
-            tcis=self._commonDirs[tctname]
+            tcis = self._commonDirs[tctname]
 
-            if len(tcis)!=2:
+            if len(tcis) != 2:
                 self._commonDirs.pop(tctname)
                 continue
 
-            ref=tcis[0]
-            val=tcis[1]
+            ref = tcis[0]
+            val = tcis[1]
             
-            refEvents=self.getTCTChainInfo(ref)
-            if refEvents is None or len(refEvents)==0:
+            refEvents = self.getTCTChainInfo(ref)
+            if refEvents is None or len(refEvents) == 0:
                 print "No events found in",ref.logfile
                 self._commonDirs.pop(tctname)
                 continue
             
             valEvents=self.getTCTChainInfo(val)
-            if valEvents is None or len(valEvents)==0:
+            if valEvents is None or len(valEvents) == 0:
                 print "No events found in",val.logfile
                 continue
 
-
-            sValEvents=set(valEvents)
-            sRefEvents=set(refEvents)
-            
-            if (sValEvents == sRefEvents):
-                allEvents|=sRefEvents
-                print "TCT",tctname,"is compatible.",len(sRefEvents),"Events."
+            if (valEvents == refEvents):
+                for file in refEvents:
+                    allEvents += refEvents[file]
+                print "TCT %s output seems compatible for ref and chk:" % (tctname)
+                for format in refEvents:
+                    print "%-70s: ref: %d events, val: %d events" % (format, refEvents[format], valEvents[format])
             else:
-                #print "TCT",tctname,"is NOT compatible.",len(refEvents),len(valEvents)
-                print "TCT %s is NOT compatible. %i/%i Events." % (tctname,len(sRefEvents),len(sValEvents))
-                
+                print "TCT %s is NOT compatible, outputs different number of events for at least one format:" % tctname
+                for format in refEvents:
+                    print "  %s, ref: %d, val: %d" % (format, refEvents[format], valEvents[format])
+                # don't compare the files for this then!
                 self._commonDirs.pop(tctname)
                 
-        print "Found %i compatible TCT chains with at total of %i events" % (len(self._commonDirs),len(allEvents))
+        print "Found %i compatible TCT chains with at total of %i events" % (len(self._commonDirs), allEvents)
         #rint "Done"
         #sys.exit(0)
         return self._commonDirs
