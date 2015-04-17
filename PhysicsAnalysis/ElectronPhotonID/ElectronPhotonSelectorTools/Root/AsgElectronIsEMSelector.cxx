@@ -562,10 +562,9 @@ unsigned int AsgElectronIsEMSelector::calocuts_electrons(const xAOD::Egamma* eg,
     return iflag;
   }
    
-  // change et value when dealing with trigger
-  // to be sure that it will take the correct bin (VD)
-  if(trigEtTh > 0) et = trigEtTh*1.01; 
-
+  // For cut-based triggers above 20 GeV threshold, the online cut values on the discriminant variables are always taken from the 20 GeV optimisation.
+  // if(et > 20000 )  { if(trigEtTh > 0) et = trigEtTh*1.01; }
+  
   return m_rootTool->calocuts_electrons(eta2,
 					et,
                                         Reta, //replacing e233
