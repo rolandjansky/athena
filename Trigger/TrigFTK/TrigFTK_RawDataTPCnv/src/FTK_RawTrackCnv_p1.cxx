@@ -28,7 +28,6 @@ void FTK_RawTrackCnv_p1::persToTrans(const FTK_RawTrack_p1* persObj,
   transObj->setTH3(persObj->m_pars[th3]);
   transObj->setTH4(persObj->m_pars[th4]);
   transObj->setTH5(persObj->m_pars[th5]);
-  transObj->setTH6(persObj->m_pars[th6]);
   transObj->setBarcode(persObj->m_barcode);
 
   // Pixel Clusters //
@@ -137,7 +136,6 @@ void FTK_RawTrackCnv_p1::transToPers(const FTK_RawTrack* transObj,
   persObj->m_pars[th3] = transObj->getTH3();
   persObj->m_pars[th4] = transObj->getTH4();
   persObj->m_pars[th5] = transObj->getTH5();
-  persObj->m_pars[th6] = transObj->getTH6();
   persObj->m_barcode   = transObj->getBarcode();
 
   // Pixel Clusters //
