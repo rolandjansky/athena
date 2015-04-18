@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: L2StandAloneMuon_v1.cxx 706292 2015-11-06 05:33:24Z ssnyder $
+// $Id: L2StandAloneMuon_v1.cxx 661304 2015-04-18 04:31:23Z mishitsu $
 
 // System include(s):
 #include <iostream>
@@ -344,29 +344,10 @@ namespace xAOD {
                                          roiNumber, setRoiNumber )
    AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( L2StandAloneMuon_v1, uint32_t,
                                          roiThreshold, setRoiThreshold )
-   //AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( L2StandAloneMuon_v1, uint32_t,
-   //                                      roiEta, setRoiEta )
-   //AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( L2StandAloneMuon_v1, uint32_t,
-   //                                      roiPhi, setRoiPhi )
-   uint32_t L2StandAloneMuon_v1::roiEta() const {
-      static Accessor< uint32_t > acc( "roiEtaUint" );
-      return acc( *this );                 
-   }                                       
-   void L2StandAloneMuon_v1::setRoiEta( uint32_t value ) {         
-      static Accessor< uint32_t > acc( "roiEtaUint" );
-      acc( *this ) = value;                
-      return;                              
-   }
-   uint32_t L2StandAloneMuon_v1::roiPhi() const {                 
-      static Accessor< uint32_t > acc( "roiPhiUint" );
-      return acc( *this );                 
-   }                                       
-   void L2StandAloneMuon_v1::setRoiPhi( uint32_t value ) {         
-      static Accessor< uint32_t > acc( "roiPhiUint" );
-      acc( *this ) = value;                
-      return;                              
-   }
-
+   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( L2StandAloneMuon_v1, uint32_t,
+                                         roiEta, setRoiEta )
+   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( L2StandAloneMuon_v1, uint32_t,
+                                         roiPhi, setRoiPhi )
    ///
    /////////////////////////////////////////////////////////////////////////////
 
@@ -1246,7 +1227,7 @@ namespace xAOD {
    /// Set size of L1 emulation storage
    void L2StandAloneMuon_v1::setLvl1EmuCapacity( int value ) {
  
-      static Accessor< int > lcapAcc( "lvl1EmuCapacity" );
+      static Accessor< int > lcapAcc( "lvl1Emuapacity" );
       lcapAcc( *this ) = value;
 
       if ( value > 0 ) {
