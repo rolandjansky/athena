@@ -1,6 +1,7 @@
 
 #include "TrigT1CaloEvent/JetTopoTOB.h"
 #include <cmath>
+#include <stdlib.h>
 
 namespace LVL1 {
 
@@ -46,53 +47,34 @@ JetTopoTOB::~JetTopoTOB()
 {
 }
 
-/** Extract eta index from TOB data
+/** Extract eta index from the TOB data (0-31) */
+int JetTopoTOB::etaIndex() const
+{
+  return (localCoord()&1) + (frame()>>2)*s_frameEtaWidth + (jem()&7)*s_jemEtaWidth;
+}
+
+/** Extract eta coordinate from TOB data
     The index is an integer eta coordinate in multiples of 0.1 (TT eta granularity) */
 
 int JetTopoTOB::ieta() const
 {
-  int jemFrame = frame();
-  int loc = localCoord();
-  int moduleEta  =  (jemFrame >> 2)*s_frameEtaWidth + (loc&1);
   
-  // Jet eta coordinates are irregular in forward regions as JE sizes vary
+  int index = etaIndex();
+  
   int ieta = 0;
-  if (jem() == 0 || jem() == 8) {
-    switch (moduleEta) {
-      case 0:
-        ieta = -s_jemFJEta;
-        break;
-      case 1:
-        ieta = -s_jemEC1Eta;
-        break;
-      case 2:
-        ieta = -s_jemEC2Eta;
-        break;
-      case 3:
-        ieta = -s_jemEC3Eta;
-        break;
-    }
-  }
-  else if (jem() == 7 || jem() == 15) {
-    switch (moduleEta) {
-      case 0:
-        ieta = s_jemEC2Eta;
-        break;
-      case 1:
-        ieta = s_jemEC1Eta;
-        break;
-      case 2:
-        ieta = s_jemFJEta;
-        break;
-      case 3:
-        ieta = s_jemFJEta;
-        break;    
-    }
+  if (index < 4 || index > 26) {
+    if (index==0)       ieta = -s_jemFJEta;
+    else if (index==1)  ieta = -s_jemEC1Eta;
+    else if (index==2)  ieta = -s_jemEC2Eta;
+    else if (index==3)  ieta = -s_jemEC3Eta;
+    else if (index==27) ieta =  s_jemEC3Eta;
+    else if (index==28) ieta =  s_jemEC2Eta;
+    else if (index==29) ieta =  s_jemEC1Eta;
+    else if (index==30) ieta =  s_jemFJEta;
+    else if (index==31) ieta =  s_jemFJEta;
   }
   else {
-    ieta = moduleEta + (jem()%s_nJemPerQuadrant)*s_jemEtaWidth  - s_jemEtaOffset;
-    ieta *= s_jetElementWidth;
-    ieta -= 1;
+    ieta = (index - s_jemEtaOffset)*s_jetElementWidth;
   }
   
   return ieta;
@@ -102,29 +84,69 @@ int JetTopoTOB::ieta() const
 
 float JetTopoTOB::eta() const
 {
-  if (ieta() > 24)       return (ieta()*0.1 - 0.05);
-  else if (ieta() < -24) return (ieta()*0.1 + 0.05);
-  else                   return (ieta()+1)*0.1;
+  
+  float eta = ieta()*0.1;
+
+  /*  
+  int absEta = abs(ieta());
+  int sign = (eta > 0 ? 1 : -1);
+
+  switch (absEta) {
+    case s_jemEC3Eta:
+      eta = sign*2.45;
+      break;
+    case s_jemEC2Eta:
+      eta = sign*2.65;
+      break;
+    case s_jemEC1Eta:
+      eta = sign*2.95;
+      break;
+  }
+  */
+  
+  return eta;
 }
 
-/** Extract phi index from TOB data.
-    The index has the range -30 -> +32 in steps of 2*/
+
+/** Extract phi index from the TOB data (0-31) */
+int JetTopoTOB::phiIndex() const
+{
+  int index = (localCoord() >> 1) + (frame()&3)*s_framePhiWidth + m_crate*s_jemPhiWidth;
+  if (jem() >= s_nJemPerQuadrant) index += 2*s_jemPhiWidth;
+  
+  return index;
+}
+
+
+/** Extract integer phi coordinate from TOB data.
+    The coordinate has the range 0 -> 62 in steps of 2*/
 
 int JetTopoTOB::iphi() const
 {
-  int jemFrame = frame();
-  int loc = localCoord();
-  int modulePhi = (loc >> 1) + (jemFrame&0x3)*s_framePhiWidth;
-  int iphi = modulePhi + m_crate*s_jemPhiWidth  + s_jemPhiOffset;
-  if (jem() >= s_nJemPerQuadrant) iphi -= 2*s_jemPhiWidth;
-  return (iphi*s_jetElementWidth) - 1;
+  int index = phiIndex();
+  
+  int iphi = (index+1)*s_jetElementWidth;
+  if (iphi > 63) iphi -= 64;
+  return iphi;
+}
+
+/** Signed iphi (-30 -> 32) */
+
+int JetTopoTOB::iphiSigned() const
+{
+  int index = phiIndex();
+  
+  int iphi = (index+1)*s_jetElementWidth;
+  if (iphi > 32) iphi -= 64;
+  return iphi;
 }
 
 // Extract phi coordinate from TOB data
 
 float JetTopoTOB::phi() const
 {
-  return (iphi()+1)*M_PI/32;
+  float phi = iphiSigned()*M_PI/32;
+  return phi;
 }
 
 // Construct RoI word and return
