@@ -1089,7 +1089,7 @@
                                             <testname>FileGrepper</testname>
                                             <arg>
                                                 <argname>inputFile</argname>
-                                                <argvalue>log.*</argvalue> <!-- put this one if you use job log -->
+                                                <argvalue>*_log</argvalue> <!-- put this one if you use job log -->
                                             </arg>
                                             <arg>
                                                 <argname>outputFile</argname>
@@ -1188,7 +1188,7 @@
                                             <testname>FileGrepper</testname>
                                             <arg>
                                                 <argname>inputFile</argname>
-                                                <argvalue>log.*</argvalue> <!-- put this one if you use job log -->
+                                                <argvalue>*_log</argvalue> <!-- put this one if you use job log -->
                                             </arg>
                                             <arg>
                                                 <argname>outputFile</argname>
@@ -1287,7 +1287,7 @@
                                             <testname>FileGrepper</testname>
                                             <arg>
                                                 <argname>inputFile</argname>
-                                                <argvalue>log.*</argvalue> <!-- put this one if you use job log -->
+                                                <argvalue>*_log</argvalue> <!-- put this one if you use job log -->
                                             </arg>
                                             <arg>
                                                 <argname>outputFile</argname>
@@ -1386,7 +1386,7 @@
                                             <testname>FileGrepper</testname>
                                             <arg>
                                                 <argname>inputFile</argname>
-                                                <argvalue>log.*</argvalue> <!-- put this one if you use job log -->
+                                                <argvalue>*_log</argvalue> <!-- put this one if you use job log -->
                                             </arg>
                                             <arg>
                                                 <argname>outputFile</argname>
@@ -2289,7 +2289,7 @@
                                 <doc>Email notification when finished</doc>
                                 <jobTransformJobName>Notification</jobTransformJobName>
                                 <jobTransformCmd>
-                                    tct_finishedMail.py atlas-sw-tct@cern.ch summaryESDTAGcomp.txt <!-- Run00183021_express_Collisions_Comparison.txt,MinBiasStream_Run201489_Pileup_20_Collisions_Comparison.txt,JetTauEtmissStream_Run201489_Pileup_20_Collisions_Comparison.txt,MuonsStream_Run201489_Pileup_20_Collisions_Comparison.txt,EgammaStream_Run201489_Pileup_20_Collisions_Comparison.txt-->
+                                    tct_finishedMail.py atlas-sw-tct@cern.ch summaryESDTAGcomp.txt <!-- MinBiasStream_Run201489_Pileup_20_Collisions_Comparison.txt,JetTauEtmissStream_Run201489_Pileup_20_Collisions_Comparison.txt,MuonsStream_Run201489_Pileup_20_Collisions_Comparison.txt,EgammaStream_Run201489_Pileup_20_Collisions_Comparison.txt-->
                                 </jobTransformCmd>
                                 <group>TCTTransform</group>
                                 <chaindataset_info>
