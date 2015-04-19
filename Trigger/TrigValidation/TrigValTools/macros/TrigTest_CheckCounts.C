@@ -273,6 +273,7 @@ void  TrigTest_CheckCounts(Int_t toler,char *refname, char *level)
             if(i<nbins)
             {     
                 xlabels[i] = new TString(tchain->GetXaxis()->GetBinLabel(i));
+                while (xlabels[i]->Contains(" ")) xlabels[i]->Chop();
                 manam[i]=false;
             }
         }
@@ -348,6 +349,8 @@ void  TrigTest_CheckCounts(Int_t toler,char *refname, char *level)
         {
             Int_t bi = -1;
             TString *obna = new TString(otchain->GetXaxis()->GetBinLabel(i));
+            if( debug ){ cout << i << "reference bin label (before chop): " << *obna << endl; }
+            while (obna->Contains(" ")) obna->Chop();
             if( debug ){ cout << i << "reference bin label: " << *obna << endl; }
             for(Int_t si=0; si<nbins+nexlb; si++)
             {
@@ -418,7 +421,7 @@ void  TrigTest_CheckCounts(Int_t toler,char *refname, char *level)
                 "Ref n" << setw(10) << "Test" << setw(15) << "test-ref" << endl;  
                 for(Int_t i=1; i<nbins+nexlb; i++)
                 {
-                    TString *label = xlabels[i];
+                    TString *label = xlabels[i];                  
                     label->Resize(50);
                     Int_t cndif = 0;
                     if(i<nbins)
