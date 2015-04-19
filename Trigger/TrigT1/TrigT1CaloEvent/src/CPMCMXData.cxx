@@ -171,17 +171,17 @@ std::vector<unsigned int> LVL1::CPMCMXData::TOBWords() const {
   if ( (m_DataWords[0] & 0xffff) == 0 ) return data;
   
   /// Otherwise decode data words
-  unsigned int ntob = 0;
+  int ntob = 0;
   for (unsigned int i = 0; i < 16; ++i) {
     
     if ( (m_DataWords[0] & (1<<i)) > 0 ) {
       
       if (ntob < 5) {
         
-        unsigned int word = 0;
-        unsigned int coord = 0;
-        unsigned int isol = 0;
-        unsigned int et = 0;
+        unsigned int word;
+        unsigned int coord;
+        unsigned int isol;
+        unsigned int et;
       
         switch (ntob) {
           case 0:
@@ -232,7 +232,7 @@ std::vector<unsigned int> LVL1::CPMCMXData::TopoTOBs() const {
   if ( (m_DataWords[0] & 0xffff) == 0 ) return data;
   
   /// Otherwise decode data words
-  unsigned int ntob = 0;
+  int ntob = 0;
   for (unsigned int i = 0; i < 16; ++i) {
     
     if ( (m_DataWords[0] & (1<<i)) > 0 ) {
@@ -244,9 +244,9 @@ std::vector<unsigned int> LVL1::CPMCMXData::TopoTOBs() const {
         
         unsigned int word;
         
-        unsigned int coord = 0;
-        unsigned int isol = 0;
-        unsigned int et = 0;
+        unsigned int coord;
+        unsigned int isol;
+        unsigned int et;
       
         switch (ntob) {
           case 0:

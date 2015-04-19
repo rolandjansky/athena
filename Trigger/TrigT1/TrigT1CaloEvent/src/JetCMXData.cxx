@@ -181,17 +181,17 @@ std::vector<unsigned int> LVL1::JetCMXData::TOBWords() const {
   if ( (m_DataWords[0] & 0xff) == 0 ) return data;
   
   /// Otherwise decode data words
-  unsigned int ntob = 0;
+  int ntob = 0;
   for (unsigned int i = 0; i < 8; ++i) {
     
     if ( (m_DataWords[0] & (1<<i)) > 0 ) {
       
       if (ntob < 4) {
         
-        unsigned int word = 0;
-        unsigned int coord = 0;
-        unsigned int etSmall = 0;
-        unsigned int etLarge = 0;
+        unsigned int word;
+        unsigned int coord;
+        unsigned int etSmall;
+        unsigned int etLarge;
       
         switch (ntob) {
           case 0:
@@ -215,7 +215,6 @@ std::vector<unsigned int> LVL1::JetCMXData::TOBWords() const {
             etLarge =  (m_DataWords[3] >> 13) & 0x3ff;
             break;
         }
-
         word = etLarge + (etSmall<<10) + (coord<<19);
         data.push_back(word);
       }
@@ -238,7 +237,7 @@ std::vector<unsigned int> LVL1::JetCMXData::TopoTOBs() const {
   if ( (m_DataWords[0] & 0xff) == 0 ) return data;
   
   /// Otherwise decode data words
-  unsigned int ntob = 0;
+  int ntob = 0;
   for (unsigned int i = 0; i < 8; ++i) {
     
     if ( (m_DataWords[0] & (1<<i)) > 0 ) {
@@ -249,9 +248,9 @@ std::vector<unsigned int> LVL1::JetCMXData::TopoTOBs() const {
         
         unsigned int word;
         
-        unsigned int coord = 0;
-        unsigned int etSmall = 0;
-        unsigned int etLarge = 0;
+        unsigned int coord;
+        unsigned int etSmall;
+        unsigned int etLarge;
       
         switch (ntob) {
           case 0:

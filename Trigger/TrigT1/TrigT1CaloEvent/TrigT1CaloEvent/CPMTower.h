@@ -23,7 +23,6 @@
 #include "CLIDSvc/CLASS_DEF.h"
 
 #include "TrigT1Interfaces/Coordinate.h"
-#include <map>
 
   
 namespace LVL1 {
@@ -49,21 +48,15 @@ public:
     CPMTower(double phi, double eta);
     
     CPMTower(double phi, double eta,
-             const std::vector<int>& em_et,
-             const std::vector<int>& em_error,
-             const std::vector<int>& had_et,
-             const std::vector<int>& had_error,
-             int peak);
+             std::vector<int>& em_et,std::vector<int>& em_error,
+             std::vector<int>& had_et,std::vector<int>& had_error, int peak);
     
 /** Destructor */
     virtual ~CPMTower();
 
 /** Methods to fill towers with digits, calibrated ET vectors and status flags*/
-    void fill(const std::vector<int>& em_et,
-              const std::vector<int>& em_error,
-	      const std::vector<int>& had_et,
-              const std::vector<int>& had_error,
-              int peak);
+    void fill(std::vector<int>& em_et,std::vector<int>& em_error,
+	      std::vector<int>& had_et,std::vector<int>& had_error, int peak);
     
 /** return the final ET values using the in algorithms */
     int emEnergy() const {return m_em_energy[m_peak];};
@@ -108,8 +101,6 @@ public:
     int m_peak;
   
     };
-
-    typedef std::map<int, CPMTower*> CPMTowerMap_t;
   } // end of namespace
 
 #ifndef CPMTower_ClassDEF_H
