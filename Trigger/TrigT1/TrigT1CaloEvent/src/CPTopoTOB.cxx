@@ -60,31 +60,46 @@ CPTopoTOB::~CPTopoTOB()
 {
 }
 
-// Extract eta index from TOB data (reference tower index)
+/** Extract eta index from the TOB data (0-49) */
+int CPTopoTOB::etaIndex() const
+{
+  int loc = location();
+  return cpm()*s_cpmEtaWidth + (loc >> 2)*2 + (loc&1);
+}
+
+// Integer eta coordinate of RoI
 
 int CPTopoTOB::ieta() const
 {
-  int loc = location();
-  int locEta  = (loc >> 2)*2 + (loc&1);
-  int ieta = locEta + cpm()*s_cpmEtaWidth  - s_cpmEtaOffset;
-  return ieta;
+  return etaIndex()  - s_cpmEtaOffset + 1;
 }
 
 // Extract eta coordinate from TOB data (RoI centre coordinate)
 
 float CPTopoTOB::eta() const
 {
-  return (ieta()+1)*0.1;
+  return ieta()*0.1;
 }
 
-// Extract phi index from TOB data
+/** Extract phi index from the TOB data (0-63) */
+int CPTopoTOB::phiIndex() const
+{
+  return ((location()>>1)&1) + chip()*s_chipPhiWidth  + m_crate*s_cpmPhiWidth;  
+}
+
+// Extract integer phi coordinate from TOB data
 
 int CPTopoTOB::iphi() const
 {
-  int loc = location();
-  int locPhi = (loc >> 1)&1;
-  int iphi = locPhi + chip()*s_chipPhiWidth  + m_crate*s_cpmPhiWidth + s_cpmPhiOffset;
-  if (iphi >= s_cpmPhiBins/2) iphi -= s_cpmPhiBins;
+  int iphi = phiIndex() + 1;
+  if (iphi > 63) iphi -= 64;
+  return iphi;
+}
+
+int CPTopoTOB::iphiSigned() const
+{
+  int iphi = phiIndex() + 1;
+  if (iphi > 32) iphi -= 64;
   return iphi;
 }
 
@@ -92,7 +107,7 @@ int CPTopoTOB::iphi() const
 
 float CPTopoTOB::phi() const
 {
-  return (iphi()+1)*M_PI/32;
+  return iphiSigned()*M_PI/32;
 }
 
 // Construct RoI word and return

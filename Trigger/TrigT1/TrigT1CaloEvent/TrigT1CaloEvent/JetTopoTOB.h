@@ -37,10 +37,15 @@ class JetTopoTOB {
    /// Large cluster ET value
    unsigned int etLarge()    const;
    
-   // Integer eta index
+   // eta index
+   int etaIndex() const;
+   // phi index
+   int phiIndex() const;
+   // Integer eta coordinate
    int ieta() const;
-   // Integer phi index
+   // Integer phi coordinate
    int iphi() const;
+   int iphiSigned() const;
    // Floating eta coordinate
    float eta() const;
    // Floating phi coordinate
@@ -73,8 +78,8 @@ class JetTopoTOB {
    static const int s_jemPhiWidth     =  8; 
    static const int s_jemEtaOffset    = 15; 
    static const int s_jemPhiOffset    =  1; 
-   static const int s_jemFJEta        = 40;
-   static const int s_jemEC1Eta       = 30;
+   static const int s_jemFJEta        = 39;
+   static const int s_jemEC1Eta       = 29;
    static const int s_jemEC2Eta       = 27;
    static const int s_jemEC3Eta       = 25;
    static const int s_nJemPerQuadrant =  8; 

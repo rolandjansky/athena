@@ -39,10 +39,15 @@ class CPTopoTOB {
    /// ET value
    unsigned int et()    const;
    
+   // eta index
+   int etaIndex() const;
+   // phi index
+   int phiIndex() const;
    // Integer eta index
    int ieta() const;
    // Integer phi index
    int iphi() const;
+   int iphiSigned() const;
    // Floating eta coordinate
    float eta() const;
    // Floating phi coordinate
