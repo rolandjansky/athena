@@ -34,6 +34,20 @@
       </expectations>
     </TEST>
 
+    <TEST name="RECOSHIFT_Reco_MC15_13TeV" type="script" suite="reco_tf">
+      <options_atn>
+	  export TRF_ECHO=True; Reco_tf.py --inputHITSFile="/afs/cern.ch/atlas/project/rig/referencefiles/RTTinputFiles/MC15_13TeV/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.simul.HITS.e3099_s2578_tid04919495_00/HITS.04919495._[000416,000417,000418,000419,000420].pool.root" --AMITag="r6594" --autoConfiguration="everything" --conditionsTag "default:OFLCOND-RUN12-SDR-28" --digiSeedOffset1="64" --digiSeedOffset2="64" --geometryVersion="default:ATLAS-R2-2015-03-01-00" --inputHighPtMinbiasHitsFile="/afs/cern.ch/atlas/project/rig/referencefiles/RTTinputFiles/MC15_13TeV/mc15_valid.361035.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_high.merge.HITS.e3581_s2578_s2169_tid05098387_00/HITS.05098387._[002354,002355,002356,002357,002358,002359,002360,002361,002370,002371,002372,002373,002374,002375,002376,002377,002378,002379,002380,002381,002387,002388,002389,002390,002391].pool.root" --inputLowPtMinbiasHitsFile="/afs/cern.ch/atlas/project/rig/referencefiles/RTTinputFiles/MC15_13TeV/mc15_valid.361034.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e3581_s2578_s2169_tid05098374_00/HITS.05098374._[002102,002103,002104,002105,002106,002107,002108,002109,002110,002111,002112,002113,002114,002115,002116,002117,002118,002119,002120,002121,002122,002123,002124,002125,002126].pool.root" --jobNumber="64" --maxEvents="10" --numberOfCavernBkg="0" --numberOfHighPtMinBias="0.12268057" --numberOfLowPtMinBias="39.8773194" --outputAODFile="AOD_13TeV_PhysVal.pool.root" --outputESDFile="ESD.pool.root" --outputRDOFile="RDO.pool.root" --postExec "all:CfgMgr.MessageSvc().setError+=[\"HepMcParticleLink\"]" "HITtoRDO:job.StandardPileUpToolsAlg.PileUpTools[\"MergeMcEventCollTool\"].OnlySaveSignalTruth=True" "RAWtoESD:ToolSvc.LArAutoCorrTotalToolDefault.deltaBunch="1"" "HITtoRDO:ToolSvc.LArAutoCorrTotalToolDefault.deltaBunch=1" --postInclude "default:RecJobTransforms/UseFrontier.py" --preExec "all:rec.Commissioning.set_Value_and_Lock(True);rec.doTrigger.set_Value_and_Lock(True);from AthenaCommon.BeamFlags import jobproperties;jobproperties.Beam.numberOfCollisions.set_Value_and_Lock(20.0);from LArROD.LArRODFlags import larRODFlags;larRODFlags.NumberOfCollisions.set_Value_and_Lock(20);larRODFlags.nSamples.set_Value_and_Lock(4);larRODFlags.doOFCPileupOptimization.set_Value_and_Lock(True);larRODFlags.firstSample.set_Value_and_Lock(0);larRODFlags.useHighestGainAutoCorr.set_Value_and_Lock(True)" "RAWtoESD:from TriggerJobOpts.TriggerFlags import TriggerFlags;TriggerFlags.triggerMenuSetup=\"MC_pp_v5_loose_mc_prescale\";from CaloRec.CaloCellFlags import jobproperties;jobproperties.CaloCellFlags.doLArCellEmMisCalib=False" "ESDtoAOD:TriggerFlags.AODEDMSet=\"AODFULL\"" "RDOtoRDOTrigger:from TriggerJobOpts.TriggerFlags import TriggerFlags;TriggerFlags.triggerMenuSetup=\"MC_pp_v5_loose_mc_prescale\";" "HITtoRDO:from AthenaCommon.BeamFlags import jobproperties;jobproperties.Beam.bunchSpacing.set_Value_and_Lock(50);" --preInclude "HITtoRDO:Digitization/ForceUseOfPileUpTools.py,SimulationJobOptions/preInclude.PileUpBunchTrainsMC15_2015_50ns_Config1.py,RunDependentSimData/configLumi_run222510.py" "RDOtoRDOTrigger:RecExPers/RecoOutputMetadataList_jobOptions.py" --runNumber="110401" --skipEvents="0" --steering "RAWtoESD:in-RDO,in+RDO_TRIG,in-BS" --pileupFinalBunch 6 
+	</options_atn>
+      <timelimit>30</timelimit>	
+      <author>Xiaohu Sun, Carl Gwilliam and Marie-Helene Genest</author>
+      <prescript>rm -f $ATN_WORK_AREA/*</prescript>
+      <expectations>
+	<errorMessage>FAILURE </errorMessage>
+	<returnValue>0</returnValue>
+      </expectations>
+    </TEST>
+
+
     <TEST name="RecoTf_MC12_No" type="script" suite="reco_tf">
       <options_atn>
             export TRF_ECHO=True; Reco_tf.py --inputRDOFile root://eosatlas//eos/atlas/atlascerngroupdisk/phys-rig/pileupSamples/mc12_8TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.digit.RDO.e1513_s1499_s1504_d700/RDO.01177879._000001.pool.root.1 --maxEvents 5 --autoConfiguration everything --preExec 'rec.doDetailedAuditor=True' 'rec.doNameAuditor=True' 'rec.doCalo=False' 'rec.doInDet=False' 'rec.doMuon=False' 'rec.doJetMissingETTag=False' 'rec.doEgamma=False' 'rec.doMuonCombined=False' 'rec.doTau=False' 'rec.doTrigger=False' --outputESDFile my.ESD.pool.root
@@ -273,16 +287,26 @@
 	</sequential>
       </chain>
 
-      <chain>
-	<chainName>PhysicsValidationMC15ChainJob13TeV</chainName>
-	<sequential>
-	  <!-- Run Reco -->
-	  <chainElement>
       <jobTransform userJobId="Reco_MC15_13TeV_nopileup">
 	<doc>Reco_tf runs physics validation as defined by Carl G/Marie-Helene G, July 28 2014</doc>
 	<jobTransformJobName>Reco_MC15_tf</jobTransformJobName>
 	<jobTransformCmd>
 	  export TRF_ECHO=True; Reco_tf.py '--inputHITSFile=/afs/cern.ch/atlas/project/rig/referencefiles/MC/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.e3099_s2578/HITS.04919495._000958.pool.root.1' '--AMITag=r6193' '--DBRelease=current' '--DataRunNumber=222525' '--autoConfiguration=everything' '--conditionsTag=OFLCOND-RUN12-SDR-25' '--digiSeedOffset1=1' '--digiSeedOffset2=1' '--geometryVersion=ATLAS-R2-2015-03-01-00' '--jobNumber=1' '--maxEvents=500' '--numberOfCavernBkg=0' '--outputAODFile=AOD_13TeV_PhysVal.pool.root' '--outputRDOFile=RDO.pool.root' '--outputESDFile=ESD.pool.root' '--postExec' 'RAWtoESD:from AthenaCommon.AlgSequence import AlgSequence;AlgSequence().LVL1TGCTrigger.TILEMU=True;from IOVDbSvc.CondDB import conddb; conddb.addOverride("/PIXEL/PixelClustering/PixelClusNNCalib","PixelClusNNCalib-SIM-RUN12-000-02")' '--postInclude=RecJobTransforms/UseFrontier.py' '--preExec' 'rec.Commissioning.set_Value_and_Lock(True);rec.doTrigger.set_Value_and_Lock(True);from AthenaCommon.BeamFlags import jobproperties;jobproperties.Beam.numberOfCollisions.set_Value_and_Lock(0.);from LArROD.LArRODFlags import larRODFlags;larRODFlags.nSamples.set_Value_and_Lock(4)' 'HITtoRDO:from Digitization.DigitizationFlags import digitizationFlags;digitizationFlags.overrideMetadata+=["SimLayout","PhysicsList"]' 'RAWtoESD:from TriggerJobOpts.TriggerFlags import TriggerFlags;TriggerFlags.triggerMenuSetup="MC_pp_v5_loose_mc_prescale";from CaloRec.CaloCellFlags import jobproperties;jobproperties.CaloCellFlags.doLArCellEmMisCalib=False' 'ESDtoAOD:TriggerFlags.AODEDMSet="AODFULL"' '--runNumber=110401' '--skipEvents=0'
+	</jobTransformCmd>
+	<group>RecTrf</group>
+	<queue>long</queue>
+      </jobTransform>
+
+      <chain>
+	<chainName>PhysicsValidationMC15ChainJob13TeV</chainName>
+	<sequential>
+	  <!-- Run Reco -->
+	  <chainElement>
+      <jobTransform userJobId="Reco_MC15_13TeV">
+	<doc>Reco_tf runs physics validation as defined by Carl G, April 18 2015</doc>
+	<jobTransformJobName>Reco_MC15_tf</jobTransformJobName>
+	<jobTransformCmd>
+	  export TRF_ECHO=True; Reco_tf.py --inputHITSFile="/afs/cern.ch/atlas/project/rig/referencefiles/RTTinputFiles/MC15_13TeV/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.simul.HITS.e3099_s2578_tid04919495_00/HITS.04919495._[000416,000417,000418,000419,000420].pool.root" --AMITag="r6594" --autoConfiguration="everything" --conditionsTag "default:OFLCOND-RUN12-SDR-28" --digiSeedOffset1="64" --digiSeedOffset2="64" --geometryVersion="default:ATLAS-R2-2015-03-01-00" --inputHighPtMinbiasHitsFile="/afs/cern.ch/atlas/project/rig/referencefiles/RTTinputFiles/MC15_13TeV/mc15_valid.361035.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_high.merge.HITS.e3581_s2578_s2169_tid05098387_00/HITS.05098387._[002354,002355,002356,002357,002358,002359,002360,002361,002370,002371,002372,002373,002374,002375,002376,002377,002378,002379,002380,002381,002387,002388,002389,002390,002391].pool.root" --inputLowPtMinbiasHitsFile="/afs/cern.ch/atlas/project/rig/referencefiles/RTTinputFiles/MC15_13TeV/mc15_valid.361034.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e3581_s2578_s2169_tid05098374_00/HITS.05098374._[002102,002103,002104,002105,002106,002107,002108,002109,002110,002111,002112,002113,002114,002115,002116,002117,002118,002119,002120,002121,002122,002123,002124,002125,002126].pool.root" --jobNumber="64" --maxEvents="500" --numberOfCavernBkg="0" --numberOfHighPtMinBias="0.12268057" --numberOfLowPtMinBias="39.8773194" --outputAODFile="AOD_13TeV_PhysVal.pool.root" --outputESDFile="ESD.pool.root" --outputRDOFile="RDO.pool.root" --postExec "all:CfgMgr.MessageSvc().setError+=[\"HepMcParticleLink\"]" "HITtoRDO:job.StandardPileUpToolsAlg.PileUpTools[\"MergeMcEventCollTool\"].OnlySaveSignalTruth=True" "RAWtoESD:ToolSvc.LArAutoCorrTotalToolDefault.deltaBunch="1"" "HITtoRDO:ToolSvc.LArAutoCorrTotalToolDefault.deltaBunch=1" --postInclude "default:RecJobTransforms/UseFrontier.py" --preExec "all:rec.Commissioning.set_Value_and_Lock(True);rec.doTrigger.set_Value_and_Lock(True);from AthenaCommon.BeamFlags import jobproperties;jobproperties.Beam.numberOfCollisions.set_Value_and_Lock(20.0);from LArROD.LArRODFlags import larRODFlags;larRODFlags.NumberOfCollisions.set_Value_and_Lock(20);larRODFlags.nSamples.set_Value_and_Lock(4);larRODFlags.doOFCPileupOptimization.set_Value_and_Lock(True);larRODFlags.firstSample.set_Value_and_Lock(0);larRODFlags.useHighestGainAutoCorr.set_Value_and_Lock(True)" "RAWtoESD:from TriggerJobOpts.TriggerFlags import TriggerFlags;TriggerFlags.triggerMenuSetup=\"MC_pp_v5_loose_mc_prescale\";from CaloRec.CaloCellFlags import jobproperties;jobproperties.CaloCellFlags.doLArCellEmMisCalib=False" "ESDtoAOD:TriggerFlags.AODEDMSet=\"AODFULL\"" "RDOtoRDOTrigger:from TriggerJobOpts.TriggerFlags import TriggerFlags;TriggerFlags.triggerMenuSetup=\"MC_pp_v5_loose_mc_prescale\";" "HITtoRDO:from AthenaCommon.BeamFlags import jobproperties;jobproperties.Beam.bunchSpacing.set_Value_and_Lock(50);" --preInclude "HITtoRDO:Digitization/ForceUseOfPileUpTools.py,SimulationJobOptions/preInclude.PileUpBunchTrainsMC15_2015_50ns_Config1.py,RunDependentSimData/configLumi_run222510.py" "RDOtoRDOTrigger:RecExPers/RecoOutputMetadataList_jobOptions.py" --runNumber="110401" --skipEvents="0" --steering "RAWtoESD:in-RDO,in+RDO_TRIG,in-BS" --pileupFinalBunch 6
 	</jobTransformCmd>
 	<group>RecTrf</group>
 	<queue>long</queue>
@@ -304,7 +328,7 @@
 		  <chaindatasetName>AOD_13TeV_PhysVal.pool.root</chaindatasetName>
 		  <dataset_info>
 		    <dc2 />
-		    <datasetName>/afs/cern.ch/atlas/project/rig/referencefiles/RTTinputFiles/MC12_14TeV/AOD_13TeV_PhysVal.pool.root</datasetName>
+		    <datasetName>/afs/cern.ch/atlas/project/rig/referencefiles/RTTinputFiles/MC15_13TeV/AOD_13TeV_PhysVal.pool.root</datasetName>
 		  </dataset_info>
 		</chaindataset_info>
 		<queue>long</queue>
@@ -324,7 +348,7 @@
 		  <chaindatasetName>AOD_13TeV_PhysVal.pool.root</chaindatasetName>
 		  <dataset_info>
 		    <dc2 />
-		    <datasetName>/afs/cern.ch/atlas/project/rig/referencefiles/RTTinputFiles/MC12_14TeV/AOD_13TeV_PhysVal.pool.root</datasetName>
+		    <datasetName>/afs/cern.ch/atlas/project/rig/referencefiles/RTTinputFiles/MC15_13TeV/AOD_13TeV_PhysVal.pool.root</datasetName>
 		  </dataset_info>
 		</chaindataset_info>
 		<queue>long</queue>
@@ -545,11 +569,12 @@
 
       <!-- Test run with 7TeV collision data from different run -->
 
+      <!-- turn CaloMon LArMon off tmp, follow https://its.cern.ch/jira/browse/ATLASRECTS-1957 -->
       <jobTransform userJobId="data11_7TeV_diffinput">
 	<doc>Reco_tf runs 7TeV collision data with different runs</doc>
 	<jobTransformJobName>RecoTf_7TeV_data_diff_input</jobTransformJobName>
 	<jobTransformCmd>
-	  Reco_tf.py --inputBSFile /afs/cern.ch/atlas/project/rig/referencefiles/dataStreams_high_mu/high_mu-data11_7TeV.00179725.physics_JetTauEtmiss.merge.RAW._lb0021.data,/afs/cern.ch/atlas/project/rig/referencefiles/dataStreams_high_mu/high_mu-data11_7TeV.00180481.physics_JetTauEtmiss.merge.RAW._lb0172.data --conditionsTag="COMCOND-BLKPA-RUN1-07" --preExec 'rec.doTrigger=False;' --outputESDFile myESD.pool.root --outputAODFile myAOD.pool.root --outputTAGFile myTAG.pool.root --outputHISTFile myHIST.pool.root
+	  Reco_tf.py --inputBSFile /afs/cern.ch/atlas/project/rig/referencefiles/dataStreams_high_mu/high_mu-data11_7TeV.00179725.physics_JetTauEtmiss.merge.RAW._lb0021.data,/afs/cern.ch/atlas/project/rig/referencefiles/dataStreams_high_mu/high_mu-data11_7TeV.00180481.physics_JetTauEtmiss.merge.RAW._lb0172.data --conditionsTag="COMCOND-BLKPA-RUN1-07" --preExec 'rec.doTrigger=False;from AthenaMonitoring.DQMonFlags import DQMonFlags; DQMonFlags.doCaloMon.set_Value_and_Lock(False); DQMonFlags.doLArMon.set_Value_and_Lock(False);' --outputESDFile myESD.pool.root --outputAODFile myAOD.pool.root --outputTAGFile myTAG.pool.root --outputHISTFile myHIST.pool.root
 	</jobTransformCmd>
 	<group>RecTrf</group>
 	<queue>long</queue>
@@ -603,7 +628,7 @@
 	<doc>Test of DigiMReco from HITS to AOD/TAG</doc>
 	<jobTransformJobName>DigiMReco_FCT</jobTransformJobName>
 	<jobTransformCmd>
-	export TRF_ECHO=True; Reco_tf.py --inputHITSFile root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc11a/mc11_7TeV.105200.T1_McAtNlo_Jimmy.merge.HITS.e835_s1310_s1300/HITS.508808._000857.pool.root.1 --outputESDFile my.ESD.pool.root --outputHISTFile my.HIST.pool.root --outputAODFile my.ADO.pool.root --outputTAGFile my.TAG.root --maxEvents 10 --triggerConfig MCRECO:MC_pp_v5 --preInclude 'h2r:Digitization/ForceUseOfPileUpTools.py,SimulationJobOptions/preInclude.PileUpBunchTrains2011Config8_DigitConfig.py,RunDependentSimData/configLumi_mc11b_v1.py' --preExec 'h2r:from Digitization.DigitizationFlags import digitizationFlags;digitizationFlags.overrideMetadata+=["SimLayout","PhysicsList"]' --postExec 'h2r:ToolSvc.LArAutoCorrTotalToolDefault.NMinBias=0' 'e2a:TriggerFlags.AODEDMSet "AODSLIM";rec.Commissioning.set_Value_and_Lock(True);jobproperties.Beam.energy.set_Value_and_Lock(3500*Units.GeV);muonRecFlags.writeSDOs=True;jobproperties.Beam.numberOfCollisions.set_Value_and_Lock(8.0);jobproperties.Beam.bunchSpacing.set_Value_and_Lock(50)' 'r2e:RegSelSvc=topSequence.allConfigurables.get("RegSelSvcDefault");RegSelSvc.DeltaZ=225*Units.mm' 'r2e:rec.Commissioning.set_Value_and_Lock(True);jobproperties.Beam.energy.set_Value_and_Lock(3500*Units.GeV);muonRecFlags.writeSDOs=True;jobproperties.Beam.numberOfCollisions.set_Value_and_Lock(8.0);jobproperties.Beam.bunchSpacing.set_Value_and_Lock(50);from InDetTrigRecExample.ConfiguredNewTrackingTrigCuts import L2IDTrackingCuts;L2IDTrackingCuts.setRegSelZmax(225*Units.mm)'  --RunNumber 105200 --autoConfiguration everything --conditionsTag=OFLCOND-RUN12-SDR-22 --geometryVersion ATLAS-GEO-18-01-00 --numberOfLowPtMinBias 29.966 --numberOfHighPtMinBias 0.034 --LowPtMinbiasHitsFile root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc11a/mc11_7TeV.108118.Pythia8_minbias_Inelastic_low.merge.HITS.e816_s1299_s1303/HITS.500617._000382.pool.root.1 --HighPtMinbiasHitsFile root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc11a/mc11_7TeV.108119.Pythia8_minbias_Inelastic_high.merge.HITS.e848_s1299_s1303/HITS.500616._001496.pool.root.1 --DataRunNumber -1 --jobNumber 41 --digiSeedOffset1 41 --digiSeedOffset2 41 
+	export TRF_ECHO=True; Reco_tf.py --inputHITSFile root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc11a/mc11_7TeV.105200.T1_McAtNlo_Jimmy.merge.HITS.e835_s1310_s1300/HITS.508808._000857.pool.root.1 --outputESDFile my.ESD.pool.root --outputHISTFile my.HIST.pool.root --outputAODFile my.ADO.pool.root --outputTAGFile my.TAG.root --maxEvents 10 --triggerConfig MCRECO:MC_pp_v5 --preInclude 'h2r:Digitization/ForceUseOfPileUpTools.py,SimulationJobOptions/preInclude.PileUpBunchTrains2011Config8_DigitConfig.py,RunDependentSimData/configLumi_mc11b_v1.py' --preExec 'h2r:from Digitization.DigitizationFlags import digitizationFlags;digitizationFlags.overrideMetadata+=["SimLayout","PhysicsList"];from AthenaMonitoring.DQMonFlags import DQMonFlags; DQMonFlags.doCaloMon.set_Value_and_Lock(False); DQMonFlags.doLArMon.set_Value_and_Lock(False);' --postExec 'h2r:ToolSvc.LArAutoCorrTotalToolDefault.NMinBias=0' 'e2a:TriggerFlags.AODEDMSet "AODSLIM";rec.Commissioning.set_Value_and_Lock(True);jobproperties.Beam.energy.set_Value_and_Lock(3500*Units.GeV);muonRecFlags.writeSDOs=True;jobproperties.Beam.numberOfCollisions.set_Value_and_Lock(8.0);jobproperties.Beam.bunchSpacing.set_Value_and_Lock(50)' 'r2e:RegSelSvc=topSequence.allConfigurables.get("RegSelSvcDefault");RegSelSvc.DeltaZ=225*Units.mm' 'r2e:rec.Commissioning.set_Value_and_Lock(True);jobproperties.Beam.energy.set_Value_and_Lock(3500*Units.GeV);muonRecFlags.writeSDOs=True;jobproperties.Beam.numberOfCollisions.set_Value_and_Lock(8.0);jobproperties.Beam.bunchSpacing.set_Value_and_Lock(50);from InDetTrigRecExample.ConfiguredNewTrackingTrigCuts import L2IDTrackingCuts;L2IDTrackingCuts.setRegSelZmax(225*Units.mm)'  --RunNumber 105200 --autoConfiguration everything --conditionsTag=OFLCOND-RUN12-SDR-22 --geometryVersion ATLAS-GEO-18-01-00 --numberOfLowPtMinBias 29.966 --numberOfHighPtMinBias 0.034 --LowPtMinbiasHitsFile root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc11a/mc11_7TeV.108118.Pythia8_minbias_Inelastic_low.merge.HITS.e816_s1299_s1303/HITS.500617._000382.pool.root.1 --HighPtMinbiasHitsFile root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc11a/mc11_7TeV.108119.Pythia8_minbias_Inelastic_high.merge.HITS.e848_s1299_s1303/HITS.500616._001496.pool.root.1 --DataRunNumber -1 --jobNumber 41 --digiSeedOffset1 41 --digiSeedOffset2 41 
 	</jobTransformCmd>
 	<group>RecTrf</group>
 	<queue>long</queue>
