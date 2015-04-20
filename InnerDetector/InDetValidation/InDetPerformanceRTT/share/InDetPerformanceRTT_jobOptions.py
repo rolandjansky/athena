@@ -228,4 +228,6 @@ jtm.addJetFinder("Run2AntiKt4TruthJets", "AntiKt", 0.4, "truth", ghostArea=0.0)
 
 include ("RecExCommon/RecExCommon_topOptions.py")
 
-
+# Turn off TRT validity gate, which is not configured for 50ns RDOs
+ToolSvc.InDetTRT_DriftCircleTool.ValidityGateSuppression = False
+ToolSvc.InDetTRT_DriftCircleTool.SimpleOutOfTimePileupSupression = True
