@@ -82,6 +82,10 @@ private:
   bool m_filled;
   const SCT_ID * m_pHelper;
   bool m_useDatabase;
+  bool m_maskLayers;
+  int m_maskSide;
+  std::vector<int> m_layersToMask; 
+  std::vector<int> m_disksToMask; 
   const DataHandle<AthenaAttributeList>   m_dbList;// implies single channel folder used
   ServiceHandle<StoreGateSvc> m_detStore;
 };
