@@ -54,6 +54,8 @@ namespace Analysis {
 
     std::string m_taggerName;
     std::string m_taggerNameBase; // unique name for regular and flip versions
+    std::string m_treeName;
+    std::string m_varStrName;
 
     /** pointer to calibration in COOL: */
     ToolHandle<CalibrationBroker> m_calibrationTool;

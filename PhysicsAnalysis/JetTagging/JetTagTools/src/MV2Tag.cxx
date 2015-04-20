@@ -78,6 +78,9 @@ namespace Analysis {
     m_disableAlgo=false;
     m_warnCounter=0;
 
+    m_treeName = "BDT";
+    m_varStrName = "variables";
+
     // prepare calibration tool:
     StatusCode sc = m_calibrationTool.retrieve();
     if ( sc.isFailure() ) {
@@ -87,6 +90,8 @@ namespace Analysis {
       ATH_MSG_INFO("#BTAG# Retrieved tool " << m_calibrationTool);
     }
     m_calibrationTool->registerHistogram(m_taggerNameBase, m_taggerNameBase+"Calib");
+    m_calibrationTool->registerHistogram(m_taggerNameBase, m_taggerNameBase+"Calib/"+m_treeName);
+    m_calibrationTool->registerHistogram(m_taggerNameBase, m_taggerNameBase+"Calib/"+m_varStrName);
     m_tmvaReaders.clear();
     m_tmvaMethod.clear();
     m_egammaBDTs.clear();
@@ -146,7 +151,7 @@ namespace Analysis {
     std::pair<TObject*, bool> calib=m_calibrationTool->retrieveTObject<TObject>(m_taggerNameBase,author,m_taggerNameBase+"Calib");
 
     bool calibHasChanged = calib.second;
-    
+
     TMVA::Reader* tmvaReader=0;     std::map<std::string, TMVA::Reader*>::iterator pos;
     TMVA::MethodBase * kl=0;        std::map<std::string, TMVA::MethodBase*>::iterator it_mb;
     egammaMVACalibNmsp::BDT *bdt=0; std::map<std::string, egammaMVACalibNmsp::BDT*>::iterator it_egammaBDT;
@@ -170,8 +175,8 @@ namespace Analysis {
       }
       m_calibrationTool->updateHistogramStatus(m_taggerNameBase, alias, m_taggerNameBase+"Calib", false);
 
-      const std::string treeName  ="BDT";
-      const std::string varStrName="variables";
+      //const std::string treeName  ="BDT";
+      //const std::string varStrName="variables";
       std::vector<float*>  inputPointers; inputPointers.clear();
       std::vector<std::string> inputVars; inputVars.clear();
       unsigned nConfgVar=0,calibNvars=0; bool badVariableFound=false;
@@ -232,15 +237,15 @@ namespace Analysis {
 	  TMVA::MethodBDT* tbdt= dynamic_cast<TMVA::MethodBDT*>(method);  assert(tbdt);
 	  bdt= new egammaMVACalibNmsp::BDT(tbdt);
 	  TFile *f = new TFile(filename.data(),"recreate");
-	  TTree *tree = bdt->WriteTree(treeName.data());
+	  TTree *tree = bdt->WriteTree(m_treeName.data());
 	  variables.AddAtAndExpand(new TObjString(*vars),0);
 	  trees.AddAtAndExpand(tree,0);
-	  ATH_MSG_INFO("#BTAG# Writing down TTree: "<<tree->GetName()<<", variables: "<<varStrName<<" in "<<filename);
+	  ATH_MSG_INFO("#BTAG# Writing down TTree: "<<tree->GetName()<<", variables: "<<m_varStrName<<" in "<<filename);
 	  f->mkdir((m_taggerNameBase+"/"+author+"/"+m_taggerNameBase+"Calib").data());
 	  f->cd   ((m_taggerNameBase+"/"+author+"/"+m_taggerNameBase+"Calib").data());
 	  const int option = (TObject::kSingleKey | TObject::kOverwrite);
 	  trees.Write();
-	  variables.Write(varStrName.data(),option);
+	  variables.Write(m_varStrName.data(),option);
 	  f->Close();
 	  delete bdt;
 	}
@@ -265,19 +270,24 @@ namespace Analysis {
       else {//if m_useEgammaMethodMV2
 	ATH_MSG_INFO("#BTAG# Booking egammaMVACalibNmsp::BDT for "<<m_taggerNameBase);
 
-	TDirectoryFile* f= (TDirectoryFile*)calib.first;
-	TTree *tree = (TTree*) f->Get(treeName.data());
+	// TDirectoryFile* f= (TDirectoryFile*)calib.first;
+	// TTree *tree = (TTree*) f->Get(treeName.data());
+	std::pair<TObject*, bool> calibTree=m_calibrationTool->retrieveTObject<TObject>(m_taggerNameBase,author,m_taggerNameBase+"Calib/"+m_treeName);
+	TTree *tree = (TTree*) calibTree.first;
+	
 	if (tree) {
 	  bdt = new egammaMVACalibNmsp:: BDT(tree);
 	  delete tree;//<- Crash at finalization if w/o this
 	}
 	else {
-	  ATH_MSG_WARNING("#BTAG# No TTree with name: "<<treeName<<" exists in the calibration file.. Disabling algorithm.");
+	  ATH_MSG_WARNING("#BTAG# No TTree with name: "<<m_treeName<<" exists in the calibration file.. Disabling algorithm.");
 	  m_disableAlgo=true;
 	  return StatusCode::SUCCESS;
 	}
 	
-	TObjArray* toa= (TObjArray*) f->Get(varStrName.data());
+	// TObjArray* toa= (TObjArray*) f->Get(varStrName.data());
+	std::pair<TObject*, bool> calibVariables=m_calibrationTool->retrieveTObject<TObject>(m_taggerNameBase,author,m_taggerNameBase+"Calib/"+m_varStrName);
+	TObjArray* toa= (TObjArray*) calibVariables.first;
 	std::string commaSepVars="";
 	if (toa) {
 	  TObjString *tos= 0;
