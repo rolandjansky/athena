@@ -14,7 +14,8 @@ namespace PFlowPJHelper{
   // needs to be corrected.
   // We temporary use this helper object to reproduce the filling code in PseudoJetGetter::append .
   // PseudoJetGetter::append can be re-worked and the duplication in this helper class removed
-  struct PseudoJetFiller {
+  class PseudoJetFiller {
+  public:
     PseudoJetFiller(jet::PseudoJetVector& psjs, const jet::LabelIndex* pli,  const std::string &label,
                     double g, bool skipNegE=true)
     : m_pjVector(psjs), m_labelMap(pli), m_ghostscale(g>0 ? g : 1), m_skipNegE(skipNegE) {
