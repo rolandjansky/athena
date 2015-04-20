@@ -18,6 +18,9 @@
 #include <string>
 #include <map>
 #include <list>
+#include "egammaMVACalib/egammaMVACalib.h"
+#include "egammaMVACalib/BDT.h"
+#include "egammaMVACalib/Node.h"
 #include "TMVA/MethodBase.h"
 #include "TMVA/IMethod.h"
 
@@ -51,14 +54,19 @@ namespace Analysis {
 
     std::string m_taggerName;
     std::string m_taggerNameBase; // unique name for regular and flip versions
+    std::string m_treeName;
+    std::string m_varStrName;
 
     /** pointer to calibration in COOL: */
     ToolHandle<CalibrationBroker> m_calibrationTool;
     bool m_forceMV2CalibrationAlias;
+    bool m_useEgammaMethodMV2;
     std::string m_MV2CalibAlias;
     std::string m_MV2cXX;
     std::string m_xAODBaseName;
     
+    const unsigned m_nClasses=3;//b,u,c probabilities. It might be better to read from calib file for future
+    const bool m_writeRootFile=false;//Developper option
     bool m_disableAlgo;
     int  m_warnCounter;
 
@@ -73,8 +81,6 @@ namespace Analysis {
     const xAOD::Vertex* m_priVtx;
 
     /** reader to define the TMVA algorithms */
-
-    // addeed by VD (new training from Kazuya)
     float m_pt;
     float m_absEta;
 
@@ -102,10 +108,11 @@ namespace Analysis {
     float m_jf_dR;
 
     /////////////////////////////////////////////////////////////////////
+    //IP2D posteriors
     float m_ip2_pu; 
     float m_ip2_pb; 
     float m_ip2_pc; 
-    // IP3D posteriors
+    //IP3D posteriors
     float m_ip3_pu; 
     float m_ip3_pb; 
     float m_ip3_pc; 
@@ -138,6 +145,7 @@ namespace Analysis {
 
     std::map<std::string, TMVA::Reader*> m_tmvaReaders;
     std::map<std::string, TMVA::MethodBase*> m_tmvaMethod; 
+    std::map<std::string, egammaMVACalibNmsp::BDT*> m_egammaBDTs;
     std::list<std::string> m_undefinedReaders; // keep track of undefined readers to prevent too many warnings.
 
 
@@ -149,7 +157,21 @@ namespace Analysis {
     std::string m_jfprob_infosource;
 
     std::string m_trainingConfig;
+    //void setInputVariables(xAOD::Jet& jetToTag, xAOD::BTagging* BTag);//for future
     void ClearInputs();
+    void PrintInputs();
+    void SetVariableRefs(const std::vector<std::string> inputVars, TMVA::Reader* tmvaReader, 
+			  unsigned &nConfgVar, bool &badVariableFound, std::vector<float*> &inputPointers);
+    //KM: The fuctions below will be migrated to the new class, somewhere in common btwn egamma/b-tagging
+    std::vector<float> GetMulticlassResponse(egammaMVACalibNmsp::BDT* bdt,const std::vector<float>& values   ) const;
+    std::vector<float> GetMulticlassResponse(egammaMVACalibNmsp::BDT* bdt,const std::vector<float*>& pointers) const;
+    std::vector<float> GetMulticlassResponse(egammaMVACalibNmsp::BDT* bdt) const {
+      std::vector<float> v(m_nClasses,-1);
+      return (bdt->GetPointers().size() ? GetMulticlassResponse(bdt,bdt->GetPointers()) : v); 
+    }
+    double GetClassResponse (egammaMVACalibNmsp::BDT* bdt,const std::vector<float>& values   ) const;
+    double GetClassResponse (egammaMVACalibNmsp::BDT* bdt,const std::vector<float*>& pointers) const;
+    double GetClassResponse (egammaMVACalibNmsp::BDT* bdt) const { return (bdt->GetPointers().size() ? GetClassResponse(bdt,bdt->GetPointers()) : -9.); }
   }; // End class
 
 

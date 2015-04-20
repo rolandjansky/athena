@@ -13,6 +13,7 @@ use TrkParameters        TrkParameters-*         Tracking/TrkEvent
 use xAODJet              xAODJet-*               Event/xAOD
 use xAODBTagging         xAODBTagging-*          Event/xAOD
 use xAODTracking         xAODTracking-*          Event/xAOD
+use egammaMVACalib       egammaMVACalib-*        Reconstruction/egamma
 
 
 
