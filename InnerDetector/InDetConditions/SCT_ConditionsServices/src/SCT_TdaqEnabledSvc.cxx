@@ -16,7 +16,6 @@
 #include <sstream>
 #include <iterator>
 #include "boost/array.hpp"
-#include "boost/lexical_cast.hpp"
 #include <iostream>
 //Use Event info to determine whether folder is expetd to have valid data
 #include "EventInfo/EventInfo.h"
@@ -39,12 +38,13 @@ static const std::string run1FolderName("/TDAQ/EnabledResources/ATLAS/SCT/Robins
 static const std::string run2FolderName("/TDAQ/Resources/ATLAS/SCT/Robins");
 static const unsigned int earliestRunForFolder(119253);
 namespace{ //anonymous namespace to introduce file scope
+/**
   //utility; is integer in given range
   bool
   inRange(const int var, const int lo, const int hi){
     return ((var>=lo) and (var<=hi));
   }
-  
+  **/
   //parse a rod channel name to a rod number, names are of the format 'ROL-SCT-BA-00-210000'
   //October 2014: names can now also be of format 'ROL-SCT-B-00-210100'
   unsigned int
@@ -75,7 +75,7 @@ namespace{ //anonymous namespace to introduce file scope
         return std::string("One SCT rod was");
         break;
       default:
-        return boost::lexical_cast<std::string>(aNumber) + " SCT rods were";
+        return std::to_string(aNumber) + " SCT rods were"; //C++11
         break;
     } 
   }
@@ -176,6 +176,7 @@ SCT_TdaqEnabledSvc::fillData(int& /*i*/ , std::list<std::string>& /*folderList*/
   if (m_detStore->retrieve(m_dbList,m_coolFolderName).isFailure())  return StatusCode::FAILURE;
   CondAttrListCollection::const_iterator attrList( m_dbList->begin());
   CondAttrListCollection::const_iterator end( m_dbList->end());
+  //CondAttrListCollection doesnt support C++11 type loops, no generic 'begin'
   for (;attrList!=end;++attrList) {
     //A CondAttrListCollection is a map of ChanNum and AttributeList
     CondAttrListCollection::ChanNum  channelNumber=attrList->first;
@@ -198,7 +199,7 @@ SCT_TdaqEnabledSvc::fillData(int& /*i*/ , std::list<std::string>& /*folderList*/
   }
   unsigned int nBad = NRODS-m_goodRods.size();
   std::string howMany=inWords(nBad);
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<howMany<<" declared bad in the database."<<endreq;
+  ATH_MSG_DEBUG(howMany << " declared bad in the database.");
   //provide short-cut for no rods bad (hopefully the most common case)
   m_noneBad=(nBad==0);
   if (m_noneBad){
@@ -208,7 +209,7 @@ SCT_TdaqEnabledSvc::fillData(int& /*i*/ , std::list<std::string>& /*folderList*/
  //now find the modules which belong to those rods...
   std::vector<IdentifierHash> tmpIdVec(0);
   tmpIdVec.reserve(modulesPerRod);
-  for (auto thisRod : m_goodRods){
+  for (const auto & thisRod : m_goodRods){
     tmpIdVec.clear();
     m_cablingSvc->getHashesForRod(tmpIdVec, thisRod);
     copy(tmpIdVec.begin(), tmpIdVec.end(), inserter(m_goodIds, m_goodIds.end()));
@@ -236,7 +237,7 @@ SCT_TdaqEnabledSvc::unfilledRun() const{
     if (noDataExpected) ATH_MSG_INFO("This run occurred before the /TDAQ/EnabledResources/ATLAS/SCT/Robins folder was filled in COOL; assuming the SCT is all ok.");
     return noDataExpected;
   }
-  msg(MSG::ERROR) <<"The event information could not be retrieved in this service"<<endreq;
+  ATH_MSG_ERROR("The event information could not be retrieved in this service");
   return false; //this means the service will attempt to access the folder and fill it, even though the run number is unknown
 }
 

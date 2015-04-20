@@ -27,7 +27,6 @@ SCT_SiliconConditionsSvc::SCT_SiliconConditionsSvc(const std::string& name, ISvc
   m_forceUseGeoModel(false),
   m_detStore("DetectorStore", name),
   m_sctDCSSvc("InDetSCT_DCSConditionsSvc", name),
-  m_IBLParameterSvc("IBLParameterSvc",name),
   m_geoModelSvc("GeoModelSvc", name),
   m_rdbSvc("RDBAccessSvc", name),
   m_useGeoModel(false)
@@ -53,56 +52,39 @@ SCT_SiliconConditionsSvc::~SCT_SiliconConditionsSvc(){}
 
 // Initialize
 StatusCode SCT_SiliconConditionsSvc::initialize(){
-  msg(MSG:: INFO) << "SCT_SiliconConditionsSvc::initialize()" << endreq;
-  if (m_IBLParameterSvc.retrieve().isFailure()) {
-      msg(MSG::WARNING) << "Could not retrieve IBLParameterSvc" << endreq;
-  }
-  else {
-	bool notForceUseGeoModel = !m_forceUseGeoModel;
- 	m_IBLParameterSvc->setBoolParameters(notForceUseGeoModel,"useDCS");
-	m_forceUseGeoModel=!notForceUseGeoModel;
-  }
+  ATH_MSG_DEBUG( "SCT_SiliconConditionsSvc::initialize()" );
 
-  if (m_checkGeoModel || m_forceUseGeoModel) {
+  if (m_checkGeoModel or m_forceUseGeoModel) {
     m_useGeoModel = setConditionsFromGeoModel();
     if (m_useGeoModel) {
-      msg(MSG::INFO) << "Default conditions come from GeoModel." << endreq;
+      ATH_MSG_INFO( "Default conditions come from GeoModel." );
     } else {
-      msg(MSG::INFO) << "GeoModel requests to use Conditions DB." << endreq;
+      ATH_MSG_INFO( "GeoModel requests to use Conditions DB." );
     }
   } 
   if (!m_useGeoModel) {
-    msg(MSG::INFO) << "Will use temperature and voltages from this service (not from GeoModel)." << endreq;
+    ATH_MSG_INFO( "Will use temperature and voltages from this service (not from GeoModel)." );
    
     // Get from Conditions database. Register callback, etc.
     if(m_useDB){
-      if (StatusCode::SUCCESS!=m_sctDCSSvc.retrieve()) {
-	msg(MSG::FATAL) << "Unable to retrieve SCT_DCSSvc" << endreq;
-	return StatusCode::FAILURE;
-      }
-      msg(MSG::INFO) << "SCTDCSSvc retrieved" << endreq;
-      msg(MSG::INFO) << "Registering callback." << endreq;
-      StatusCode sc = m_detStore->regFcn(&ISCT_ConditionsSvc::fillData,  dynamic_cast<ISCT_ConditionsSvc*>(&*m_sctDCSSvc),
-					 &ISiliconConditionsSvc::callBack, dynamic_cast<ISiliconConditionsSvc *>(this), true);
-      if (sc.isFailure()) {
-	msg(MSG::ERROR)<< "Could not register callback." << endreq;
-	return sc;
-      }
+      ATH_CHECK(m_sctDCSSvc.retrieve()) ;
+      ATH_MSG_INFO( "SCTDCSSvc retrieved" );
+      ATH_MSG_INFO( "Registering callback." );
+      ATH_CHECK( m_detStore->regFcn(&ISCT_ConditionsSvc::fillData,  dynamic_cast<ISCT_ConditionsSvc*>(&*m_sctDCSSvc),
+					 &ISiliconConditionsSvc::callBack, dynamic_cast<ISiliconConditionsSvc *>(this), true));
     }
   } else {
     // Otherwise we use the GeoModel values
     m_defaultTemperature      = m_geoModelTemperature;
     m_defaultBiasVoltage      = m_geoModelBiasVoltage;
     m_defaultDepletionVoltage = m_geoModelDepletionVoltage;
-  }
- 
-  static const StatusCode fail(StatusCode::FAILURE);
+  } 
   return StatusCode::SUCCESS; 
 }
 
 // Finalize
 StatusCode SCT_SiliconConditionsSvc::finalize(){
-  msg(MSG:: INFO) << "SCT_SiliconConditionsSvc::finalize()" << endreq; 
+  ATH_MSG_DEBUG( "SCT_SiliconConditionsSvc::finalize()" ); 
   return StatusCode::SUCCESS; 
 } 
 
@@ -118,11 +100,10 @@ StatusCode SCT_SiliconConditionsSvc::queryInterface(const InterfaceID& riid, voi
 
 // Silicon temperature (by Identifier)
 float SCT_SiliconConditionsSvc::temperature(const Identifier& elementId){
-  
   if(m_useDB && !m_useGeoModel) {
     float temperature = m_sctDCSSvc->sensorTemperature(elementId);
     if (temperature <= -30.){
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Sensor temperature: "<< temperature <<" <  -30 " << endreq;
+      ATH_MSG_DEBUG( "Sensor temperature: "<< temperature <<" <  -30 " );
       return m_defaultTemperature; 
     }
     return temperature;
@@ -132,11 +113,10 @@ float SCT_SiliconConditionsSvc::temperature(const Identifier& elementId){
 
 // Silicon bias voltage (by Identifier)
 float SCT_SiliconConditionsSvc::biasVoltage(const Identifier& elementId){
-  
   if(m_useDB && !m_useGeoModel) {
     float hv = m_sctDCSSvc->modHV(elementId); 
     if (hv < 0.){
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "HV: "<< hv <<" <  0 " << endreq;
+      ATH_MSG_DEBUG( "HV: "<< hv <<" <  0 " );
       return m_defaultBiasVoltage;
     }
     return hv;
@@ -151,11 +131,10 @@ float SCT_SiliconConditionsSvc::depletionVoltage(const Identifier& /*elementId*/
 
 // Silicon temperature (by IdentifierHash)
 float SCT_SiliconConditionsSvc::temperature(const IdentifierHash& elementHash){
-
   if(m_useDB && !m_useGeoModel) {
     float temperature = m_sctDCSSvc->sensorTemperature(elementHash);
     if (temperature <= -30.){
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Sensor temperature: "<< temperature <<" <  -30 " << endreq;
+      ATH_MSG_DEBUG( "Sensor temperature: "<< temperature <<" <  -30 ");
       return m_defaultTemperature; 
     }
     return m_sctDCSSvc->sensorTemperature(elementHash);
@@ -210,11 +189,9 @@ SCT_SiliconConditionsSvc::setConditionsFromGeoModel()
     msg(MSG::ERROR) << "Could not locate GeoModelSvc" << endreq;
     return false;
   }
-
   m_rdbSvc->connect();
-
   DecodeVersionKey versionKey(&*m_geoModelSvc, "SCT");
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Checking GeoModel Version Tag: "<<  versionKey.tag() << " at Node: " << versionKey.node() << endreq;
+  ATH_MSG_DEBUG( "Checking GeoModel Version Tag: "<<  versionKey.tag() << " at Node: " << versionKey.node() );
 
   const IRDBRecordset * sctConditionsSet = m_rdbSvc->getRecordset("SctConditions",  versionKey.tag(), versionKey.node());
   if (sctConditionsSet->size()) {
@@ -230,8 +207,7 @@ SCT_SiliconConditionsSvc::setConditionsFromGeoModel()
       useCondDB = (defaultConditions->getInt("USECONDDB"));
     }
   } else {
-    msg(MSG::WARNING) << "Default conditions NOT available in GeoModel database. Using old GeoModel defaults"  
-		      << endreq;
+    ATH_MSG_WARNING( "Default conditions NOT available in GeoModel database. Using old GeoModel defaults" );
     // These are pre DC3 geometries. Probably never will be used.
     m_geoModelTemperature = -7;
     m_geoModelBiasVoltage = 100;
