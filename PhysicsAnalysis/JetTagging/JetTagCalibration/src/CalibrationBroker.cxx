@@ -10,6 +10,7 @@
 #include "DetDescrCondTools/ICoolHistSvc.h"
 #include "TH1.h"
 #include "TObject.h"
+#include "TTree.h"
 #include <string>
 #include <utility>
 #include <vector>
@@ -547,15 +548,22 @@ namespace Analysis {
 	      hFullName+="/"; hFullName+=hname;
 	      ATH_MSG_DEBUG( "#BTAG#     histo name in physical file= " << hFullName );
 	      TObject* hPointer = 0;
+	      TObject* hPointerTree = 0;
 
 	      if(p_coolhistsvc->objectExists(folder, m_singleFolderName, hFullName)){
 		if(p_coolhistsvc->getTObject(folder, m_singleFolderName, hFullName, hPointer).isSuccess()){
-		  //StatusCode sc = p_coolhistsvc->getTObject(folder, m_singleFolderName, hFullName, hPointer);
-		  //if(sc.isSuccess()) {
 		    if(hPointer) {
 		      ATH_MSG_DEBUG( "#BTAG# Cached pointer to histogram: " 
 				     << hPointer);
-		      (*mI).second.first = hPointer;
+		      const TString rootClassName=hPointer->ClassName();
+		      if (rootClassName=="TTree") {
+			((TTree*)hPointer)->LoadBaskets();
+			hPointerTree = (TTree*)hPointer->Clone();
+			(*mI).second.first = hPointerTree;
+			hPointer = 0;
+		      } else {
+			(*mI).second.first = hPointer;
+		      }
 		      (*mI).second.second = true;
 		      updateHistoStatusTaggerList(m_folders[i],fname);
 		    } else {
@@ -565,11 +573,11 @@ namespace Analysis {
 		} else {
 		  ATH_MSG_WARNING( "#BTAG# Problem getting histogram " << hFullName << " from COOL");
 		}
-	      }else{
+	      } else {
 		ATH_MSG_WARNING("#BTAG# error: histogram "<<hFullName
 				<<" does not exist - you are probably using an old database tag");
 	      }
-	    }
+	    } //end loop histos
 	  }
         }
       }
