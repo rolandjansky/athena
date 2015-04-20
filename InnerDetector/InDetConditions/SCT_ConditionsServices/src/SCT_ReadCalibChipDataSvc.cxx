@@ -83,13 +83,14 @@ namespace{
     return noNan;
   }
 
-
+/**
   //decide whether folder contains noise occupancy or gain
   FolderType folderType(const std::string & folderName){
     if ( folderName.find("Gain")!=std::string::npos) return NPTGAIN;
     if ( folderName.find("Noise")!=std::string::npos) return NOISEOCC;
     return UNKNOWN_FOLDER;
   }
+  **/
 }//end of anon namespace
 
 
@@ -138,7 +139,6 @@ SCT_ReadCalibChipDataSvc::~SCT_ReadCalibChipDataSvc(){
 StatusCode 
 SCT_ReadCalibChipDataSvc::initialize(){
   // Print where you are
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "in initialize()" << endreq;
   // Get SCT detector manager
   if (m_detStoreSvc->retrieve(m_SCTdetMgr, "SCT").isFailure()) return msg(MSG:: FATAL) << "Failed to get SCT detector manager" << endreq,  StatusCode::FAILURE;
   // Get SCT helper
@@ -184,7 +184,6 @@ SCT_ReadCalibChipDataSvc::initialize(){
 //----------------------------------------------------------------------
 StatusCode SCT_ReadCalibChipDataSvc::finalize(){
   // Print where you are
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "in finalize()" << endreq;
   return StatusCode::SUCCESS;
 } // SCT_ReadCalibChipDataSvc::finalize()
 
@@ -321,7 +320,7 @@ bool SCT_ReadCalibChipDataSvc::isGood(const IdentifierHash & elementHashId){
     }
   }
   float meanNoiseValue = sum/nChips;
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Module mean noise: " << meanNoiseValue << endreq;
+  ATH_MSG_DEBUG ( "Module mean noise: " << meanNoiseValue );
   return ( meanNoiseValue < m_noiseLevel );
 } //SCT_ReadCalibChipDataSvc::summary()
 
@@ -335,7 +334,7 @@ bool SCT_ReadCalibChipDataSvc::isGood(const Identifier & elementId, InDetConditi
   }
   else{
     // Not applicable for Calibration data
-    msg(MSG:: WARNING) << "summary(): " << h << "good/bad is not applicable for Calibration data" << endreq;
+    ATH_MSG_WARNING( "summary(): " << h << "good/bad is not applicable for Calibration data" );
     return true;
   }
 }
@@ -344,7 +343,7 @@ bool SCT_ReadCalibChipDataSvc::isGood(const Identifier & elementId, InDetConditi
 std::vector<float> 
 SCT_ReadCalibChipDataSvc::getNPtGainData(const Identifier & moduleId, const int side, const std::string & datatype){
   // Print where you are
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "in getNPtGainData()" << endreq;
+  ATH_MSG_DEBUG ( "in getNPtGainData()" );
   std::vector<float> waferData;
     //find hash
   const IdentifierHash hashId = m_id_sct->wafer_hash(moduleId);
@@ -379,7 +378,7 @@ SCT_ReadCalibChipDataSvc::getNPtGainData(const Identifier & moduleId, const int 
 std::vector<float> 
 SCT_ReadCalibChipDataSvc::getNoiseOccupancyData(const Identifier & moduleId, const int side, const std::string & datatype){
     // Print where you are
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "in getNoiseOccupancyData()" << endreq;
+  ATH_MSG_DEBUG ( "in getNoiseOccupancyData()" );
   std::vector<float> waferData;
    //find hash
   const IdentifierHash hashId = m_id_sct->wafer_hash(moduleId);

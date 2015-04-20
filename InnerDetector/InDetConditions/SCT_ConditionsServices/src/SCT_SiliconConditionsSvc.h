@@ -83,9 +83,8 @@ private:
   bool                                        m_checkGeoModel;
   bool                                        m_forceUseGeoModel;
 
-  ServiceHandle< StoreGateSvc > m_detStore;
-  ServiceHandle< ISCT_DCSConditionsSvc > m_sctDCSSvc;
-  ServiceHandle<IBLParameterSvc>                         m_IBLParameterSvc; 
+  ServiceHandle< StoreGateSvc >               m_detStore;
+  ServiceHandle<ISCT_DCSConditionsSvc >       m_sctDCSSvc;
   ServiceHandle<IGeoModelSvc>                 m_geoModelSvc;
   ServiceHandle<IRDBAccessSvc>                m_rdbSvc;
 

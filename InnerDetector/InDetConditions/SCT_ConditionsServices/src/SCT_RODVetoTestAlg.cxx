@@ -54,8 +54,8 @@ SCT_RODVetoTestAlg::execute(){
   // so the INFO level messages have no impact on performance of these services when used by clients
   StatusCode sc(StatusCode::SUCCESS);
   msg(MSG::INFO) << "Calling execute" << endreq;
-  msg(MSG::INFO) <<"Call to module in ROD 0x240100: Module is "<<endreq;
-  bool result=m_pRODVetoSvc->isGood(0x807b00000000000);
+  msg(MSG::INFO) <<"Call to module in ROD : Module is "<<endreq;
+  bool result=m_pRODVetoSvc->isGood(0x240100);//invented, no idea what this is
   msg(MSG::INFO) << (result?"good":"bad") << endreq;
   IdentifierHash anyRandomHash(1000);
   result=m_pRODVetoSvc->isGood(anyRandomHash);
