@@ -13,15 +13,7 @@
 
 #include "plugin-version.h"
 #include "options.h"
-#if GCC_VERSION >= 4009
-#include "tree-core.h"
-#else
-#include "tree.h"
-#endif
 #include "tree-pass.h"
-#include "plugin.h"
-#include "c-family/c-pragma.h"
-#include "diagnostic.h"
 
 
 /* Declare GPL compatible license. */
@@ -37,7 +29,7 @@ struct Checker
 };
 
 static Checker checkers[] = {
-#define CHECKER(NAME, FLAG) { #NAME, FLAG, init_##NAME##_checker },
+#define CHECKER(NAME) { #NAME, true, init_##NAME##_checker },
 #include "checkers.def"
 #undef CHECKER
 };
@@ -46,7 +38,6 @@ static Checker checkers[] = {
 extern "C" {
 
 
-static
 void print_plugin_version(struct plugin_name_args *plugin_info)
 {
   printf("ATLAS gcc checker plugins info:\n"
@@ -63,7 +54,6 @@ void print_plugin_version(struct plugin_name_args *plugin_info)
 }
 
 
-static
 bool handle_checker_arg (const std::string& arg)
 {
   if (arg == "all") {
@@ -102,7 +92,6 @@ bool handle_checker_arg (const std::string& arg)
  *
  * Not very elegant cf. GCC, but does the job.
  */
-static
 int
 collect_plugin_args (plugin_name_args *plugin_info)
 {
@@ -164,37 +153,6 @@ checker_plugin_info = {
 };
 
 
-static struct
-attribute_spec attribs[] =
-  { {"thread_safe", 0, 0, false, false, false, NULL, false},
-    {"not_thread_safe", 0, 0, false, false, false, NULL, false},
-    {"not_reentrant", 0, 0, false, false, false, NULL, false},
-    {"not_const_thread_safe", 0, 0, false, false, false, NULL, false},
-    {"argument_not_const_thread_safe", 0, 0, false, false, false, NULL, false},
-    {"check_thread_safety", 0, 0, false, false, false, NULL, false},
-    {"check_thread_safety_debug", 0, 0, false, false, false, NULL, false},
-    {NULL, 0, 0, false, false, false, NULL, false},
-  };
-
-
-static
-void
-register_checker_attributes (void* /*event_data*/, void* /*data*/)
-{
-  //fprintf (stderr, "register_attributes %s\n", thread_safe_attr.name);
-  register_scoped_attributes (attribs, "gnu");
-}
-
-
-static
-void
-register_checker_pragmas (void* /*event_data*/, void* /*data*/)
-{
-  c_register_pragma ("ATLAS", "check_thread_safety",
-                     CheckerGccPlugins::handle_check_thread_safety_pragma);
-}
-
-
 int
 plugin_init(struct plugin_name_args   *plugin_info,
             struct plugin_gcc_version *version)
@@ -222,30 +180,9 @@ plugin_init(struct plugin_name_args   *plugin_info,
     if (c.enabled) c.initfunc (plugin_info);
   }
 
-  // Register callback to set up common attributes and pragmas.
-  register_callback (plugin_info->base_name,
-                     PLUGIN_ATTRIBUTES,
-                     register_checker_attributes,
-                     NULL);
-  register_callback (plugin_info->base_name,
-                     PLUGIN_PRAGMAS,
-                     register_checker_pragmas,
-                     NULL);
-
   return 0;
 }
 
 
 } // extern "C"
 
-
-
-namespace CheckerGccPlugins {
-
-void inform_url (location_t loc, const char* url)
-{
-  if (!in_system_header_at(loc) && !global_dc->dc_warn_system_headers)
-    inform (loc, "See %s.", url);
-}
-
-}
