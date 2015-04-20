@@ -105,7 +105,7 @@ jet::TrackVertexAssociation* TrackVertexAssociationTool::buildTrackVertexAssocia
 
   for( const xAOD::TrackParticle* track : *trackContainer) {
     
-    const xAOD::Vertex * v = & m_tvaTool->getUniqueMatchVertex(*track, vecVert) ;
+    const xAOD::Vertex * v =  m_tvaTool->getUniqueMatchVertex(*track, vecVert) ;
     tva->associate( track, v );
   }
   return tva;
