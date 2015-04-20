@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-makeplots(string mfile="InDetStandardPlots.root"){
+void makeplots(string mfile="InDetStandardPlots.root"){
   
   gStyle->SetCanvasColor(0);
 
@@ -84,6 +84,7 @@ makeplots(string mfile="InDetStandardPlots.root"){
   TFile f1(mfile.c_str());
   //  TFile *f1 = new TFile("InDetStandardPlots.root");
   //  TFile *f1 = new TFile("/afs/cern.ch/user/b/beate/scratch0/reco/testarea/rel_5/InnerDetector/InDetExample/InDetRecExample/run/InDetStandardPlots.root");
+  if (!f1.IsOpen()) return;
   
   // resolutions
   TH1F* h1res[6];
@@ -316,7 +317,7 @@ makeplots(string mfile="InDetStandardPlots.root"){
     sprintf(name,"resplot%i.png",i);
     c->Print(name);
     c->cd(1);
-    TLegend *legeff = new TLegend(0.81,0.6,0.99,0.9,NULL,"brNDC");
+    legeff = new TLegend(0.81,0.6,0.99,0.9,NULL,"brNDC");
     if(h1pullres[i]){
       h1pullres[i]->Draw("e");
       h1pullres[i]->SetLineColor(2);
@@ -332,11 +333,10 @@ makeplots(string mfile="InDetStandardPlots.root"){
     legeff->SetFillColor(0);
     legeff->SetBorderSize(0);
     legeff->Draw();
-    char name[200];
     sprintf(name,"pullresplot%i.png",i);
     c->Print(name);
     c->cd(1);
-    TLegend *legeff = new TLegend(0.81,0.6,0.99,0.9,NULL,"brNDC");
+    legeff = new TLegend(0.81,0.6,0.99,0.9,NULL,"brNDC");
     if(h1mean[i]){
       h1mean[i]->Draw("e");
       h1mean[i]->SetLineColor(2);
@@ -352,7 +352,6 @@ makeplots(string mfile="InDetStandardPlots.root"){
     legeff->SetFillColor(0);
     legeff->SetBorderSize(0);
     legeff->Draw();
-    char name[200];
     sprintf(name,"meanplot%i.png",i);
     c->Print(name);
   }
@@ -529,7 +528,7 @@ makeplots(string mfile="InDetStandardPlots.root"){
     c->Print(name);
     c->Clear();
     c->cd(1);
-    TLegend *legeff = new TLegend(0.81,0.6,0.99,0.9,NULL,"brNDC");
+    legeff = new TLegend(0.81,0.6,0.99,0.9,NULL,"brNDC");
     if(hitoutl[i]){
       hitoutl[i]->Draw("e");
       hitoutl[i]->SetLineColor(2);
