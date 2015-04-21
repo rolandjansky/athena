@@ -40,16 +40,16 @@ Purpose : create a JetMissingEtIdentificationTag - word to encode Jet and
 /** the constructor */
 JetMissingEtIdentificationTagTool::JetMissingEtIdentificationTagTool (const std::string& type, const std::string& name, 
     const IInterface* parent) : 
-    AthAlgTool( type, name, parent ),
-	m_jetCalibrationTool("")	{
+    AthAlgTool( type, name, parent ){
+	//m_jetCalibrationTool("")	{
 
   /** AOD Container Names */
-  declareProperty("JetContainer",    m_jetContainerName = "AntiKt4LCTopoJets");
+  declareProperty("JetContainer",    m_jetContainerName = "AntiKt4LCTopoJets_TAGcalib");
   declareProperty("MissingEtObject", m_missingEtObjectName = "MET_RefFinal");
 
   /** Pt cut on jte - modifiable in job options */
   declareProperty("BadEtCut",        m_badjetPtCut = 20.0*CLHEP::GeV);
-  declareProperty("JetCalibrationTool",    m_jetCalibrationTool);
+  //declareProperty("JetCalibrationTool",    m_jetCalibrationTool);
 
   
   declareInterface<JetMissingEtIdentificationTagTool>( this );
@@ -64,7 +64,7 @@ StatusCode  JetMissingEtIdentificationTagTool::initialize() {
   CHECK(initJetSelectors());
 
   // retrieve the jet calibration tool
-  CHECK(m_jetCalibrationTool.retrieve());
+//  CHECK(m_jetCalibrationTool.retrieve());
   return StatusCode::SUCCESS;
 }
 
@@ -101,13 +101,13 @@ StatusCode JetMissingEtIdentificationTagTool::execute(TagFragmentCollection& jet
   ATH_MSG_DEBUG("AOD Jet container ("<<m_jetContainerName<<") successfully retrieved" );
 
   // create a shallow copy of the jet container
-  std::pair< xAOD::JetContainer*, xAOD::ShallowAuxContainer* >  shallowCopy = xAOD::shallowCopyContainer(*jetContainer);
-  xAOD::JetContainer *jetContainerCopy = shallowCopy.first;
+//  std::pair< xAOD::JetContainer*, xAOD::ShallowAuxContainer* >  shallowCopy = xAOD::shallowCopyContainer(*jetContainer);
+//  xAOD::JetContainer *jetContainerCopy = shallowCopy.first;
 
   // apply jet energy scale correction
-  for ( xAOD::Jet *jet : *jetContainerCopy ) {
-    CHECK( m_jetCalibrationTool->applyCalibration(*jet) );
-  }
+ // for ( xAOD::Jet *jet : *jetContainerCopy ) {
+ //   CHECK( m_jetCalibrationTool->applyCalibration(*jet) );
+ // }
 
   // determine jet scale to use
   xAOD::JetScale scale = m_useEMScale ? xAOD::JetEMScaleMomentum : xAOD::JetAssignedScaleMomentum ;
@@ -115,7 +115,7 @@ StatusCode JetMissingEtIdentificationTagTool::execute(TagFragmentCollection& jet
   unsigned int AnyBadJet = 0x0;
 
   /** select and store jets that pass selection cuts into 'selecteJets' vector */
-  for ( xAOD::Jet *calibratedJet : *jetContainerCopy ) {
+  for ( auto *calibratedJet : *jetContainer ) {
   	const xAOD::JetFourMom_t &jetP4 = calibratedJet->jetP4(scale);
 
     /** select and store Jets */

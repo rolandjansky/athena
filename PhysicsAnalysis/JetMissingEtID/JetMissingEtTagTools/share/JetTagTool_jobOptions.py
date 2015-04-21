@@ -16,8 +16,15 @@ if inputFileSummary.has_key("evt_type"):
 		print "Detected that the input file is real data"
 	pass
 
+CalibrationSetup="aroj"
+
+from AthenaCommon.BeamFlags import jobproperties
+
+if jobproperties.Beam.beamType() == 'cosmics' or jobproperties.Beam.beamType() == 'singlebeam':
+	CalibrationSetup="aj"
+
 from JetRec.JetRecCalibrationFinder import jrcf
-JetCalibrationTool = jrcf.find("AntiKt", 0.4, "LCTopo", "aj", "reco", "auto")
+JetCalibrationTool = jrcf.find("AntiKt", 0.4, "LCTopo", CalibrationSetup, "reco", "auto")
 #if not hasattr(ToolSvc, JetCalibrationTool):
 ToolSvc += JetCalibrationTool 
 
