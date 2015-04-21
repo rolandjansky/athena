@@ -1,0 +1,66 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+//VolumeTreeNavigator.icc - Access functions for VolumeTreeNavigator class
+
+inline
+int VolumeTreeNavigator::GetCurrentDepth()
+{
+  // returns current depth in volume tree
+  return distance( m_history.begin(), m_h_nav );
+}
+
+inline
+G4VPhysicalVolume* VolumeTreeNavigator::GetVolume(int rel) const
+{
+  // returns volume at relative level rel to h_nav; -:above, +:below
+  VolNav it = m_h_nav;
+  advance(it, rel);
+  return it->first;
+}
+
+inline
+int VolumeTreeNavigator::GetCopyNumber(int rel) const
+{
+  // returns copy number of volume at relative level rel to h_nav; -:above, +:below
+  VolNav it = m_h_nav;
+  advance(it, rel);
+  return it->second;
+}
+
+inline
+G4Track* VolumeTreeNavigator::GetTrack() const 
+{
+  return m_track;
+}
+
+inline
+G4StepPoint* VolumeTreeNavigator::GetPreStepPoint() const 
+{
+  return m_preStepPoint;
+}
+
+inline
+G4StepPoint* VolumeTreeNavigator::GetPostStepPoint() const 
+{
+  return m_postStepPoint;
+}
+
+inline
+int VolumeTreeNavigator::GetStepNumber() const
+{
+  return m_stepNo;
+}
+
+inline
+VolTree VolumeTreeNavigator::GetHistory() const 
+{
+  return m_history;
+}
+
+inline
+int VolumeTreeNavigator::GetFullDepth() const 
+{
+  return (int)m_preDepth;
+}
