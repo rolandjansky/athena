@@ -319,6 +319,7 @@ void L1CPMTools::findRoIs(const std::map<int, CPMTower*>* towers, DataVector<CPM
           
           CPMTobAlgorithm* tob = new CPMTobAlgorithm(tempEta, tempPhi, towers, m_configSvc, slice);
           if ( (tob->isEMRoI() || tob->isTauRoI()) ) tobs->push_back(tob);
+          else delete tob;
         } // not done this one already
       } // phi neighbours
     } // eta neighbours

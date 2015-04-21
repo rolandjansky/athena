@@ -201,11 +201,11 @@ void L1CPMTowerTools::makeCPMTowers(const DataVector<xAOD::TriggerTower>* trigge
           // Avoids potential problem of different vector lengths in EM and Had
           if ((*it)->layer() == 0) {
             emET[Peak] = (*it)->cpET();
-            emError[Peak] = (*it)->error();
+            emError[Peak] = (*it)->errorWord();
           }
           else {
             hadET[Peak] = (*it)->cpET();
-            hadError[Peak] = (*it)->error();
+            hadError[Peak] = (*it)->errorWord();
           }
           
         } // Loop through TT for this CPMT
