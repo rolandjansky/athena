@@ -52,10 +52,8 @@ if InDetFlags.doMonitoringGlobal():
   TrackCollection = InDetKeys.UnslimmedTracks()
   InDetGlobalTrackMonTool.LoosePrimary_SelTool.UseTrkTrackTools = True
   InDetGlobalTrackMonTool.LoosePrimary_SelTool.CutLevel = "LoosePrimary"
-  InDetGlobalTrackMonTool.LoosePrimary_SelTool.OutputLevel = VERBOSE 
   InDetGlobalTrackMonTool.Tight_SelTool.UseTrkTrackTools = True
   InDetGlobalTrackMonTool.Tight_SelTool.CutLevel = "TightPrimary"
-  InDetGlobalTrackMonTool.Tight_SelTool.OutputLevel = VERBOSE 
   
   InDetGlobalTrackMonTool.LoosePrimary_SelTool.TrackSummaryTool = InDetTrackSummaryTool
   InDetGlobalTrackMonTool.LoosePrimary_SelTool.Extrapolator        = InDetExtrapolator

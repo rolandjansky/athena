@@ -1023,6 +1023,12 @@ class keepAdditionalHitsOnTrackParticle(InDetFlagsJobProperty):
   allowedTypes = ['bool']
   StoredValue  = False
 
+class doSCTModuleVeto(InDetFlagsJobProperty): 
+  """Turn on SCT_ModuleVetoSvc, allowing it to be configured later""" 
+  statusOn     = True 
+  allowedTypes = ['bool']
+  StoredValue  = False
+
 ##-----------------------------------------------------------------------------
 ## 2nd step
 ## Definition of the InDet flag container
@@ -2373,7 +2379,8 @@ _list_InDetJobProperties = [Enabled,
                             doSLHCVeryForward,
                             doTRTOccupancyEventInfo,
                             doNNToTCalibration,
-                            keepAdditionalHitsOnTrackParticle
+                            keepAdditionalHitsOnTrackParticle,
+                            doSCTModuleVeto
                            ]
 for j in _list_InDetJobProperties: 
     jobproperties.InDetJobProperties.add_JobProperty(j)
