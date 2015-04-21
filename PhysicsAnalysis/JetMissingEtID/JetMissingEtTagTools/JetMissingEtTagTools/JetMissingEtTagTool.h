@@ -14,12 +14,15 @@ Purpose : build the JetMissingEt Tag objects - ParticleJetTagCollection.h and Mi
 	  The JetMissingEt Tag fragments are built here
 *****************************************************************************/
 
+#include "GaudiKernel/ToolHandle.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "TagEvent/TagFragmentCollection.h"
 #include "AthenaPoolUtilities/AthenaAttributeSpecification.h"
 
 #include <map>
 
+// forward declaration
+class IJetCalibrationTool;
 
 class JetMetTagTool : public AthAlgTool {
 
@@ -49,8 +52,13 @@ public:
 
 private:
 
+  /** Jet calibration tool handle */
+  ToolHandle<IJetCalibrationTool>        m_jetCalibrationTool;
+
+
   /** Properties */
   std::string m_containerName;
+  std::string m_jetCalibcontainerName;
   std::string m_metContainerName;
   std::string m_metRefFinalName;
   // std::string m_metSoftJetName;
@@ -58,7 +66,7 @@ private:
   std::string m_metMuonsName;
   std::string m_metSoftTermName;
   std::string m_metRefTauName;
-
+  
 
   double m_jetPtCut;
   bool   m_useEMScale; //Emergency fix for HI (W.L, 22.11.2010)
@@ -69,6 +77,7 @@ private:
   std::vector<std::string> m_etaStr;
   std::vector<std::string> m_phiStr;
   std::vector<std::string> m_pidStr;
+  std::vector<std::string> m_eStr;
 
 
  };

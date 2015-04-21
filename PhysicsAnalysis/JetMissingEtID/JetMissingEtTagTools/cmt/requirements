@@ -9,9 +9,12 @@ use AtlasCLHEP		AtlasCLHEP-*		External
 use JetUtils		JetUtils-*		Reconstruction/Jet
 #use MissingETEvent 	MissingETEvent-*	Reconstruction
 use AnalysisUtils	AnalysisUtils-*		PhysicsAnalysis/AnalysisCommon
+use xAODCore            xAODCore-*              Event/xAOD
 use xAODJet             xAODJet-*               Event/xAOD
 use xAODMissingET       xAODMissingET-*         Event/xAOD
+use xAODParticleEvent   xAODParticleEvent-*     Event/xAOD 	
 use JetSelectorTools JetSelectorTools-* PhysicsAnalysis/JetMissingEtID
+use JetCalibTools       JetCalibTools-*         Reconstruction/Jet
 
 public 
 use AtlasPolicy		AtlasPolicy-*

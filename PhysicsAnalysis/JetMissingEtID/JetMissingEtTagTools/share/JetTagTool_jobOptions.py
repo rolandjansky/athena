@@ -16,6 +16,18 @@ if inputFileSummary.has_key("evt_type"):
 		print "Detected that the input file is real data"
 	pass
 
+CalibrationSetup="aroj"
+
+from AthenaCommon.BeamFlags import jobproperties
+
+if jobproperties.Beam.beamType() == 'cosmics' or jobproperties.Beam.beamType() == 'singlebeam':
+	CalibrationSetup="aj"
+
+from JetRec.JetRecCalibrationFinder import jrcf
+JetCalibrationTool = jrcf.find("AntiKt", 0.4, "LCTopo", CalibrationSetup, "reco", "auto")
+#if not hasattr(ToolSvc, JetCalibrationTool):
+ToolSvc += JetCalibrationTool 
+
 from JetMissingEtTagTools.JetMissingEtTagToolsConf import JetMetTagTool as ConfiguredJetMissingEtTagTool
 if rec.doHeavyIon():
 	JetMissingEtTagTool=ConfiguredJetMissingEtTagTool(
@@ -29,6 +41,10 @@ else:
 		UseEMScale          = False,
 		EtCut               = 40.0*GeV,
 		isSimulation        = inputIsSimulation,
+		JetCalibrationTool  = JetCalibrationTool,
+		JetCalibContainer   = "AntiKt4LCTopoJets_TAGcalib",
+		METContainer        = "MET_Reference_AntiKt4LCTopo_TAGcalib",
+        METFinalName        = "FinalClus"
         #OutputLevel = 2,
         )
 
