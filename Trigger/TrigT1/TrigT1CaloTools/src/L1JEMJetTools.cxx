@@ -157,6 +157,7 @@ void L1JEMJetTools::findRoIs(const std::map<int, JetInput*>* elements, DataVecto
           double tempPhi = tempCoord.phi();
           JEMJetAlgorithm* roi = new JEMJetAlgorithm(tempEta, tempPhi, elements, m_configSvc);
           if (roi->isRoI()) rois->push_back(roi);
+          else delete roi;
         }
         tempCoord = testKey.downPhi(tempCoord); // decrement phi
       } // phi offset loop
