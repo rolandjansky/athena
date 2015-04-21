@@ -95,7 +95,7 @@ evgenLog.debug("****************** CONFIGURING EVENT GENERATION ****************
 ## Functions for operating on generator names
 ## NOTE: evgenConfig, topSeq, svcMgr, theApp, etc. should NOT be explicitly re-imported in JOs
 from EvgenJobTransforms.EvgenConfig import evgenConfig
-from EvgenJobTransforms.EvgenConfig import gens_known, gens_lhef, gen_sortkey, gens_testhepmc, gens_notune
+from EvgenJobTransforms.EvgenConfig import gens_known, gens_lhef, gen_sortkey, gens_testhepmc, gens_notune, gen_require_steering
 
 ## Fix non-standard event features
 from EvgenProdTools.EvgenProdToolsConf import FixHepMC
@@ -260,6 +260,13 @@ if joparts[0].startswith("MC"): #< if this is an "official" JO
                        " has too few physicsShort fields separated by '_'." +
                        " It should contain <generators>_<tune+PDF_<process>. Please rename.")
         sys.exit(1)
+
+## Check the "--steering=afterburn" command line argument has been set if EvtGen is in the JO name
+# Dont't have access to steering flag so check it's effect on output files
+if gen_require_steering(gennames):
+    if hasattr(runArgs, "outputEVNTFile") and not hasattr(runArgs, "outputEVNT_PreFile"):
+        raise RuntimeError("'EvtGen' found in job options name, please set '--steering=afterburn'")
+
 
 ## Check that the evgenConfig.minevents setting is acceptable
 ## minevents defines the production event sizes and must be sufficiently "round"
