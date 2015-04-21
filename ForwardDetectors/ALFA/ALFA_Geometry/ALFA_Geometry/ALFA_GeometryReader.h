@@ -134,6 +134,12 @@ typedef struct _PLATEPARAMS {
 } PLATEPARAMS, *PPLATEPARAMS;
 
 typedef struct _ROMAPOT {
+
+	_ROMAPOT()
+	{
+		clear();
+	}
+
 	eGeoSourceType eMDGeometryType;
 	eGeoSourceType eODGeometryType;
 	std::list<FIBERPARAMS> ListUFibers;
@@ -144,6 +150,20 @@ typedef struct _ROMAPOT {
 	std::list<FIBERPARAMS> ListODFibersV1;
 	std::map<int,PLATEPARAMS> MapPlates;
 	std::map<int,PLATEPARAMS> MapODPlates;
+
+	void clear()
+	{
+		eMDGeometryType=EGST_IDEALGEOMETRY;
+		eODGeometryType=EGST_IDEALGEOMETRY;
+		ListUFibers.clear();
+		ListVFibers.clear();
+		ListODFibersU0.clear();
+		ListODFibersV0.clear();
+		ListODFibersU1.clear();
+		ListODFibersV1.clear();
+		MapPlates.clear();
+		MapODPlates.clear();
+	}
 } ROMAPOT, *PROMAPOT;
 
 typedef struct _CFGRPPOSPARAMS {
