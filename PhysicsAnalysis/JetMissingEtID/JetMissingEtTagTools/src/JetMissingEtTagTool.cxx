@@ -8,16 +8,16 @@ Package : offline/PhysicsAnalysis/JetMissingEtID/JetMissingEtTagTools
 Author  : Ketevi A. Assamagan
 Created : January 2006
 Purpose : create a collection of JetMissingEtJetTag
-
 *****************************************************************************/
-
 #include "JetMissingEtTagTools/JetMissingEtTagTool.h"
 
 #include "CLHEP/Units/SystemOfUnits.h"
 
-
+#include "xAODCore/ShallowCopy.h"
+#include "xAODParticleEvent/IParticleLink.h"
 //#include "JetEvent/JetCollection.h"
 #include "xAODJet/JetContainer.h"
+#include "xAODJet/JetAuxContainer.h"
 //#include "JetUtils/JetCaloHelper.h"
 #include "JetUtils/JetCaloQualityUtils.h"
 
@@ -28,10 +28,15 @@ Purpose : create a collection of JetMissingEtJetTag
 #include "TagEvent/MissingETAttributeNames.h"
 #include "TagEvent/ParticleJetAttributeNames.h"
 
+// JetCalibTools includes
+#include "JetCalibTools/IJetCalibrationTool.h"
+
 #include "AnalysisUtils/AnalysisMisc.h"
 #include "AthenaPoolUtilities/AthenaAttributeSpecification.h"
 
+
 #include <sstream>
+#include <vector>
 
 
 
@@ -46,18 +51,22 @@ using xAOD::MissingETContainer;
 /** the constructor */
 JetMetTagTool::JetMetTagTool (const std::string& type, const std::string& name, 
                                           const IInterface* parent) : 
-  AthAlgTool( type, name, parent ) {
+  AthAlgTool( type, name, parent ),
+  m_jetCalibrationTool("") {
+
+  /** JetMissingEt AOD Container Name */
+  declareProperty("JetCalibrationTool",    m_jetCalibrationTool);
 
   /** JetMissingEt AOD Container Name */
   declareProperty("JetContainer",          m_containerName           = "AntiKt4LCTopoJets");
-  declareProperty("METContainer",          m_metContainerName        = "MET_Reference_AntiKt4LCTopo");
+  declareProperty("METContainer",          m_metContainerName        = "MET_Reference_AntiKt4LCTopo_TAGcalib");
   declareProperty("METFinalName",          m_metRefFinalName         = "FinalClus");
   // declareProperty("METSoftJetName",        m_metSoftJetName          = "MET_SoftJets");
   // declareProperty("METRefMuonInName",      m_metRefMuonInName        = "MET_RefMuons");
   declareProperty("METMuonsName",          m_metMuonsName            = "Muons");
   declareProperty("METSoftTermName",       m_metSoftTermName         = "SoftClus");
   declareProperty("METRefTauName",         m_metRefTauName           = "RefTau");
-
+  declareProperty("JetCalibContainer",     m_jetCalibcontainerName   = "AntiKt4LCTopoJets_TAGcalib");
   /** selection cut of Pt */
   declareProperty("EtCut",                 m_jetPtCut                = 40.0*CLHEP::GeV);
 
@@ -71,6 +80,8 @@ JetMetTagTool::JetMetTagTool (const std::string& type, const std::string& name,
 StatusCode  JetMetTagTool::initialize() {
   ATH_MSG_DEBUG(  "in intialize()" );
 
+  // retrieve the jet calibration tool
+  CHECK(m_jetCalibrationTool.retrieve());
 
   // init selectors as defined in JetSelectorDefs.h
   CHECK(initJetSelectors());
@@ -116,6 +127,12 @@ StatusCode JetMetTagTool::attributeSpecification(std::map<std::string,AthenaAttr
     attrMap[ os.str() ] = AthenaAttributeType("float", JetAttributeUnitNames[PJet::Pt], JetAttributeGroupNames[PJet::Pt]);
     m_ptStr.push_back( os.str() );
 
+    /** E */
+    os.str("");
+    os << JetAttributeNames[PJet::E] << std::dec << i;
+    attrMap[ os.str() ] = AthenaAttributeType("float", JetAttributeUnitNames[PJet::E], JetAttributeGroupNames[PJet::E]);
+    m_eStr.push_back( os.str() );
+
     /** eta */
     os.str("");
     os << JetAttributeNames[PJet::Eta] << std::dec << i;
@@ -149,7 +166,7 @@ StatusCode JetMetTagTool::execute(TagFragmentCollection& jetMissingEtTagColl, co
   ATH_MSG_DEBUG(  "in execute() - jet" );
 
   /** retrieve the AOD Jet container */
-  const xAOD::JetContainer * jetContainer=0;
+  const xAOD::JetContainer *jetContainer=0;
   StatusCode sc = evtStore()->retrieve( jetContainer, m_containerName);
   if (sc.isFailure()) {
     ATH_MSG_WARNING(  "No AOD Jet container ("<<m_containerName<<") found in SG" );
@@ -157,10 +174,82 @@ StatusCode JetMetTagTool::execute(TagFragmentCollection& jetMissingEtTagColl, co
   }
   ATH_MSG_DEBUG(  "AOD Jet container ("<<m_containerName<<") successfully retrieved" );
 
-  std::vector<const Jet*> userContainer (jetContainer->begin(),
-                                         jetContainer->end());
+  // create a shallow copy of the jet container
+  std::pair< xAOD::JetContainer*, xAOD::ShallowAuxContainer* >  shallowCopy = xAOD::shallowCopyContainer(*jetContainer);
+  xAOD::JetContainer *jetContainerShallowCopy = shallowCopy.first;
+ // xAOD::ShallowAuxContainer *jetAuxContainerCopy = shallowCopy.second;
+  //create a deep copy
+  xAOD::JetContainer    *jetContainerCopy = new xAOD::JetContainer;
+  xAOD::JetAuxContainer *jetAuxContainerCopy = new xAOD::JetAuxContainer;
+  (jetContainerCopy)->setStore(jetAuxContainerCopy);
 
-  //Jet should be sorted by pt
+  if( evtStore()->record(jetContainerCopy, m_jetCalibcontainerName).isFailure() ) {
+    ATH_MSG_WARNING("Unable to record JetCalibratedContainer: " << m_jetCalibcontainerName);
+    return StatusCode::SUCCESS;
+  }
+
+  if( evtStore()->record(jetAuxContainerCopy, m_jetCalibcontainerName+"Aux.").isFailure() ) {
+    ATH_MSG_WARNING("Unable to record JetCalibratedAuxContainer: " << m_jetCalibcontainerName+"Aux.");
+    return StatusCode::SUCCESS;
+  }
+  static SG::AuxElement::Accessor< xAOD::IParticleLink > accSetOriginLink ("originalObjectLink");
+
+  for ( xAOD::Jet *originalJet : * jetContainerShallowCopy ) {
+	  CHECK( m_jetCalibrationTool->applyCalibration(*originalJet) );
+	  const xAOD::IParticleLink originLink( *jetContainer, originalJet->index() );
+  	  accSetOriginLink(*originalJet) = originLink;
+	  xAOD::Jet *jetCopy = new xAOD::Jet;
+	  jetContainerCopy->push_back( jetCopy );
+  	  *jetCopy = *originalJet;
+
+  }
+
+  // apply jet energy scale correction
+//  for ( xAOD::Jet *jet : *jetContainerCopy ) {
+//    CHECK( m_jetCalibrationTool->applyCalibration(*jet) );
+//  }
+  
+  if(evtStore()->setConst(jetContainerCopy).isFailure()){
+    std::cout << "Failed to set jetcalibCollection (" << m_jetCalibcontainerName << ")const in StoreGate!"<<std::endl;
+  }
+
+  if(evtStore()->setConst(jetAuxContainerCopy).isFailure()){
+    std::cout << "Failed to set jetcalibCollection (" << m_jetCalibcontainerName+"Aux." << ")const in StoreGate!"<<std::endl;
+  }
+
+
+  // vector to store all jets that pass selection cuts
+  std::vector<xAOD::Jet *> selectedJetsVector;
+  selectedJetsVector.reserve( jetContainerCopy->size() );
+
+  // determine jet scale to use
+  xAOD::JetScale scale = m_useEMScale ? xAOD::JetEMScaleMomentum : xAOD::JetAssignedScaleMomentum ;
+
+  /** for counting the total energy in jets */
+  float jetSumEt = 0;
+  /** select and store jets that pass selection cuts into 'selecteJets' vector */
+  for ( xAOD::Jet *calibratedJet : *jetContainerCopy ) {
+  	const xAOD::JetFourMom_t &jetP4 = calibratedJet->jetP4(scale);
+
+    /** select and store Jets */
+    double pt = jetP4.Pt();
+
+    bool select = ( pt > m_jetPtCut ) && (  veryLooseBadTool->accept( *calibratedJet) );
+
+    if (select) {
+  		ATH_MSG_DEBUG(" Selected jet with pt=" << pt);
+
+  		/** jet summed Et - to be implemented correctly */
+  		jetSumEt += pt;
+
+      selectedJetsVector.push_back(calibratedJet);
+    } else {
+    	ATH_MSG_DEBUG( "Did not select jet with pt=" << jetP4.pt() );
+    }
+  }
+
+  /** sort selected jets container by pT */
+  AnalysisUtils::Sort::pT( &selectedJetsVector );
 
   /** make the selection */
   int i=0;
@@ -175,122 +264,139 @@ StatusCode JetMetTagTool::execute(TagFragmentCollection& jetMissingEtTagColl, co
   int iBj55=0;
   int iBj80=0;
   int iBj100=0;
-  float jetSumEt = 0;
 
-  for (auto jetItr=jetContainer->begin(); jetItr != jetContainer->end(); ++jetItr){
+	for (xAOD::Jet *selectedJet : selectedJetsVector) {
 
-    ATH_MSG_DEBUG(  " Before touching signal state:" << (*jetItr)->pt() );
-    const xAOD::Jet* jet = *jetItr;
+		ATH_MSG_DEBUG(" Before touching signal state:" << selectedJet->pt());
+		const xAOD::JetFourMom_t &jetP4 = selectedJet->jetP4(scale);
 
-    xAOD::JetScale s = m_useEMScale ? xAOD::JetEMScaleMomentum : xAOD::JetAssignedScaleMomentum ;
-    const xAOD::JetFourMom_t & jetP4 = jet->jetP4(s);
-      
-    /** select  Jets */
-    double pt      = jetP4.Pt();
-    bool select =  ( pt > m_jetPtCut ) && (  veryLooseBadTool->accept( *jet) );
+		if (i < max) {
 
-    if ( select ) { 
-      ATH_MSG_DEBUG(  " Selected jet with pt=" << pt);
-      /** jet summed Et - to be implemented correctly */ 
-      jetSumEt += pt;
+			/** pt */
+			jetMissingEtTagColl.insert(m_ptStr[i], selectedJet->pt());
 
-      if ( i<max ) { 
+			/** e */
+			jetMissingEtTagColl.insert(m_eStr[i], selectedJet->e());
 
-         /** pt */
-         jetMissingEtTagColl.insert( m_ptStr[i], (*jetItr)->pt() );
-       
-         /** eta */
-         jetMissingEtTagColl.insert( m_etaStr[i], (*jetItr)->eta() );
+			/** eta */
+			jetMissingEtTagColl.insert(m_etaStr[i], selectedJet->eta());
 
-         /** phi */
-         jetMissingEtTagColl.insert( m_phiStr[i], (*jetItr)->phi() );
+			/** phi */
+			jetMissingEtTagColl.insert(m_phiStr[i], selectedJet->phi());
 
-         /** add PID information */
-         unsigned int pid = 0;
-         
-         /** isBadJet */
-         if (jet::JetCaloQualityUtils::isUgly( *jetItr ))  pid |= 1<<0;
-         
-         if (!veryLooseBadTool->accept( *jet))               pid |= 1<<1;
-         if (!looseBadTool->accept( *jet))                   pid |= 1<<2;
-         if (!mediumBadTool->accept( *jet))                  pid |= 1<<3;
-         if (!tightBadTool->accept( *jet))                   pid |= 1<<4;
-         
-         /** get JVT */
-         bool hasjvt = jet->isAvailable<float>("Jvt");
-         if (hasjvt) {
-           float jvt = jet->auxdata<float>("Jvt");
-           if (fabs(jvt) > 0.2)  pid |= 1<<6;
-         }
-        
-         /** get JVF */
-         std::vector<float> jvf_v;
-         bool hasjvf = jet->getAttribute<std::vector<float> >(xAOD::JetAttribute::JVF, jvf_v);
-         if(hasjvf){
-           double jetVertFrac = -1;
-           if(!jvf_v.empty()) jetVertFrac= jvf_v[0];
-           if (jetVertFrac > 0.0)  pid |= 1<<8;
-           if (jetVertFrac > 0.5)  pid |= 1<<9;
-           if (jetVertFrac > 0.75) pid |= 1<<10;
-           if (jetVertFrac > 0.9)  pid |= 1<<11;
-         }
+			/** add PID information */
+			unsigned int pid = 0;
 
-         /** B-tagging */
-         const xAOD::BTagging* btag =  (*jetItr)->btagging();
-         if( bool(btag) )
-           {
-             double mvx;
-             btag->MVx_discriminant("MV2c20", mvx);
-             
-             if (mvx >  0.473)  pid |= 1<< 12; 	 // MV2c20 @ 60% 
-             if (mvx > -0.046)  pid |= 1<< 13; 	 // MV2c20 @ 70% 
-             if (mvx > -0.819)  pid |= 1<< 14; 	 // MV2c20 @ 85% 
-           }
-         jetMissingEtTagColl.insert( m_pidStr[i], pid);
-         
-      }
-      
-      /** count jets |eta|<2.8 with different pT cuts */
-      if (fabs(jetP4.eta())<2.8){
-        if (jetP4.pt() > 40.0*CLHEP::GeV) ij40++;
-        if (jetP4.pt() > 50.0*CLHEP::GeV) ij50++;
-        if (jetP4.pt() > 55.0*CLHEP::GeV) ij55++;
-        if (jetP4.pt() > 80.0*CLHEP::GeV) ij80++;
-        if (jetP4.pt() > 100.0*CLHEP::GeV) ij100++;
+			/** isBadJet */
+			if (jet::JetCaloQualityUtils::isUgly(selectedJet))
+				pid |= 1 << 0;
 
-        const xAOD::BTagging* btag =  (*jetItr)->btagging();
-        if( bool(btag) )
-          {
-            double mvx;
-            btag->MVx_discriminant("MV2c20", mvx);
-            if (fabs(jetP4.eta()) < 2.5 &&  mvx >  -0.046){
-              if (jetP4.pt() > 40.0*CLHEP::GeV) iBj40++;
-              if (jetP4.pt() > 50.0*CLHEP::GeV) iBj50++;
-              if (jetP4.pt() > 55.0*CLHEP::GeV) iBj55++;
-              if (jetP4.pt() > 80.0*CLHEP::GeV) iBj80++;
-              if (jetP4.pt() > 100.0*CLHEP::GeV) iBj100++;
-            }
-          }
-      }
+			if (!veryLooseBadTool->accept(*selectedJet))
+				pid |= 1 << 1;
+			if (!looseBadTool->accept(*selectedJet))
+				pid |= 1 << 2;
+			if (!mediumBadTool->accept(*selectedJet))
+				pid |= 1 << 3;
+			if (!tightBadTool->accept(*selectedJet))
+				pid |= 1 << 4;
 
-      /** count the total number of jets */
-      i++;
-      
-    }
-    else
-      ATH_MSG_DEBUG(  "Did not select jet with pt=" << jetP4.pt() );
-  }
+			/** get JVT */
+			bool hasjvt = selectedJet->isAvailable<float>("Jvt");
+			if (hasjvt) {
+				float jvt = selectedJet->auxdata<float>("Jvt");
+				if (fabs(jvt) > 0.2)
+					pid |= 1 << 6;
+			}
+
+			/** get JVF */
+			std::vector<float> jvf_v;
+			bool hasjvf = selectedJet->getAttribute < std::vector<float> > (xAOD::JetAttribute::JVF, jvf_v);
+			if (hasjvf) {
+				double jetVertFrac = -1;
+				if (!jvf_v.empty())
+					jetVertFrac = jvf_v[0];
+				if (jetVertFrac > 0.0)
+					pid |= 1 << 8;
+				if (jetVertFrac > 0.5)
+					pid |= 1 << 9;
+				if (jetVertFrac > 0.75)
+					pid |= 1 << 10;
+				if (jetVertFrac > 0.9)
+					pid |= 1 << 11;
+			}
+
+			/** B-tagging */
+			const xAOD::BTagging* btag = selectedJet->btagging();
+			if (bool(btag)) {
+				double mvx;
+				btag->MVx_discriminant("MV2c20", mvx);
+
+				if (mvx > 0.473)
+					pid |= 1 << 12; 	 // MV2c20 @ 60%
+				if (mvx > -0.046)
+					pid |= 1 << 13; 	 // MV2c20 @ 70%
+				if (mvx > -0.819)
+					pid |= 1 << 14; 	 // MV2c20 @ 85%
+			}
+
+			/** isbadCHF */
+			std::vector<float> sumPtTrkvec;
+			selectedJet->getAttribute( xAOD::JetAttribute::SumPtTrkPt500, sumPtTrkvec );
+			float sumpttrk = 0.;
+			if( ! sumPtTrkvec.empty() ) sumpttrk = sumPtTrkvec[0];
+			float chf = sumpttrk/selectedJet->pt();
+
+			if (chf < 0.1) pid |= 1 << 16;
+
+			jetMissingEtTagColl.insert(m_pidStr[i], pid);
+
+		}
+
+		/** count jets |eta|<2.8 with different pT cuts */
+		if (fabs(jetP4.eta()) < 2.8) {
+			if (jetP4.pt() > 40.0 * CLHEP::GeV)
+				ij40++;
+			if (jetP4.pt() > 50.0 * CLHEP::GeV)
+				ij50++;
+			if (jetP4.pt() > 55.0 * CLHEP::GeV)
+				ij55++;
+			if (jetP4.pt() > 80.0 * CLHEP::GeV)
+				ij80++;
+			if (jetP4.pt() > 100.0 * CLHEP::GeV)
+				ij100++;
+
+			const xAOD::BTagging* btag = selectedJet->btagging();
+			if (bool(btag)) {
+				double mvx;
+				btag->MVx_discriminant("MV2c20", mvx);
+				if (fabs(jetP4.eta()) < 2.5 && mvx > -0.046) {
+					if (jetP4.pt() > 40.0 * CLHEP::GeV)
+						iBj40++;
+					if (jetP4.pt() > 50.0 * CLHEP::GeV)
+						iBj50++;
+					if (jetP4.pt() > 55.0 * CLHEP::GeV)
+						iBj55++;
+					if (jetP4.pt() > 80.0 * CLHEP::GeV)
+						iBj80++;
+					if (jetP4.pt() > 100.0 * CLHEP::GeV)
+						iBj100++;
+				}
+			}
+		}
+
+		/** count the total number of jets */
+		i++;
+	}
 
   /** insert the number Jet and BJet */
   jetMissingEtTagColl.insert(JetAttributeNames[PJet::NJet], i);
   //  jetMissingEtTagColl.insert(JetAttributeNames[PJet::NBJet], nbjet);
   jetMissingEtTagColl.insert(JetAttributeNames[PJet::JetSumET], jetSumEt);
- 
+
   /** add the encoded jet and b-tagged jet counting information */
   jetMissingEtTagColl.insert(JetAttributeNames[PJet::NpTJet], ij40+100*ij50+10000*ij55+1000000*ij80+100000000*ij100);
   jetMissingEtTagColl.insert(JetAttributeNames[PJet::NpTBJet], iBj40+100*iBj50+10000*iBj55+1000000*iBj80+100000000*iBj100);
 
-  
   return StatusCode::SUCCESS;
 }
 
@@ -301,14 +407,14 @@ StatusCode JetMetTagTool::execute(TagFragmentCollection& missingEtTagColl) {
 
   ATH_MSG_DEBUG(  "in execute() - missing Et" );
 
-  const MissingETContainer *met(0);
+  const MissingETContainer *met(0); //comment out const
   StatusCode sc = evtStore()->retrieve( met, m_metContainerName);
   if (sc.isFailure()) {
     ATH_MSG_WARNING(  "No MissingET container found in SG" ); 
     return StatusCode::SUCCESS;
   }
 
-  const MissingET* metfinal = (*met)[m_metRefFinalName];
+  const MissingET* metfinal = (*met)[m_metRefFinalName]; //comment out const
   if (!metfinal) {
     ATH_MSG_WARNING(  "No total MissingET object found in container with name " << m_metRefFinalName ); 
     return StatusCode::SUCCESS;
@@ -345,6 +451,7 @@ StatusCode JetMetTagTool::execute(TagFragmentCollection& missingEtTagColl) {
 /** finialize - called once at the end */
 StatusCode JetMetTagTool::finalize() {
   ATH_MSG_DEBUG(  "in finalize()" );
+  CHECK(m_jetCalibrationTool.release());
   return StatusCode::SUCCESS;
 }
 
