@@ -97,7 +97,7 @@ namespace Trk {
   }
 
   inline TrackParametersIdentifier TrackParametersIdHelper::encodeInValidIdentifier() const {
-    TrackParametersIdentifier id;
+    TrackParametersIdentifier id(0);
     m_validField.encode(1,id);
     return id;
   }
