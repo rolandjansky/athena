@@ -135,7 +135,7 @@ int Process::mainloop() {
     params.size = message.size();
 
     if(decoder) {
-      ScheduledWork* outwork = (*decoder)(params);
+      std::unique_ptr<ScheduledWork> outwork = (*decoder)(params);
 
       if(outwork) {
 	bool posted = m_outbox.try_send(std::string((char*)outwork->data,outwork->size));
@@ -143,7 +143,6 @@ int Process::mainloop() {
 	// Convention: first int in the outwork->data buffer is an error flag: 0 - success, 1 - failure
 	int errflag = *((int*)outwork->data);
 	free(outwork->data);
-	free(outwork);
 
 	if(errflag) {
 	  exit_code = 1;  // TODO: what should be the exit code here ????
