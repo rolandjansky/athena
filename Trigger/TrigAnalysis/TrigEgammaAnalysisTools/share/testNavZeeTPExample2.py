@@ -15,32 +15,45 @@ from AthenaCommon.AppMgr import ToolSvc
 
 import os
 
-if not 'OUTPUT' in dir():
-     outputName = 'Validation_Zee'
-else:
-     outputName = OUTPUT
+if not 'DIR' in dir():
+     dirtouse='/afs/cern.ch/user/r/rwhite/workspace/public/validation/mc/DC14/valid1.147806.PowhegPythia8_AU2CT10_Zee.recon.AOD.e2658_s1967_s1964_r5787_tid01572823_00'
+else :
+     dirtouse=DIR
+
+# probelist to be imported from somewhere
+probelist = ["e26_tight_iloose",
+            "e24_tight_iloose",
+            "e26_lhtight_iloose",
+            "e26_tight_iloose",
+            "e26_tight1_iloose",
+            "e24_tight_iloose_L1EM20VH",
+            "e24_tight1_iloose_L1EM20VH",
+            "e24_lhtight_iloose_L1EM20V",
+            "e24_medium_iloose_L1EM20VH",
+            "e24_lhmedium_iloose_L1EM20VH",
+            "e24_medium1_iloose_L1EM18VH"
+            "e24_tight_iloose_HLTCalo_L1EM20VH",
+            "e24_tight_iloose_L2EFCalo_L1EM20VH",
+            "e24_lhtight_iloose_HLTCalo_L1EM20VH",
+            "e24_lhtight_iloose_L2EFCalo_L1EM20VH",
+            "e24_tight_iloose_etisem_L1EM20VH",
+            "e24_lhmedium_cutd0dphi_L1EM18VH",
+            "e24_lhmedium_nod0_L1EM18VH",
+            "e24_lhmedium_nodphi_L1EM18VH",
+            "e24_lhmedium_nodphires_iloose_L1EM18VH"
+            ]
+
 
 # To run
 # athena -l DEBUG -c "DIR='/afs/cern.ch/user/r/rwhite/workspace/egamma/mc/DC14Val/mc14_13TeV.147406.PowhegPythia8_AZNLO_Zee.recon.AOD.e3059_s1982_s2008_r5787_tid01572494_00'" test_NavZeeTPAll.py
-
-dirtouse = str()
-finallist = []
-if 'FILE' in dir() :
-     finallist.append(FILE)
-else :
-     if 'DIR' in dir():
-          dirtouse=DIR       
-     else :
-          dirtouse='/afs/cern.ch/user/r/rwhite/workspace/public/validation/mc/DC14/valid1.147806.PowhegPythia8_AU2CT10_Zee.recon.AOD.e2658_s1967_s1964_r5787_tid01572823_00'
-     while( dirtouse.endswith('/') ) :
-          dirtouse= dirtouse.rstrip('/')
-     listfiles=os.listdir(dirtouse)
-     for ll in listfiles:
-          finallist.append(dirtouse+'/'+ll)
-
+#listfiles=os.listdir(dirtouse)
+finallist=[dirtouse]
+#for ll in listfiles:
+#      finallist.append(dirtouse+'/'+ll)
+#print finallist
 
 athenaCommonFlags.FilesInput=finallist
-#athenaCommonFlags.EvtMax=1000
+#athenaCommonFlags.EvtMax=500
 athenaCommonFlags.EvtMax=-1
 rec.readAOD=True
 # switch off detectors
@@ -73,38 +86,33 @@ ToolSvc.TrigDecisionTool.TrigDecisionKey='xTrigDecision'
 # And the athena algorithm, simply a loop over tools
 from GaudiSvc.GaudiSvcConf import THistSvc
 ServiceMgr += THistSvc()
-ServiceMgr.THistSvc.Output += ["%s DATAFILE='%s.root' OPT='RECREATE'" % (outputName,outputName)]
+ServiceMgr.THistSvc.Output += ["Validation_Zee DATAFILE='Validation_Zee.root' OPT='RECREATE'"]
 #ServiceMgr.THistSvc.Output += ["zee DATAFILE='zee.root' OPT='RECREATE'"]
 #from TrigEgammaAnalysisTools.TrigEgammaAnalysisToolsConf import TrigEgammaTDToolTest
 #topSequence+=TrigEgammaTDToolTest("TrigEgammaTDToolTest")
 from TrigEgammaAnalysisTools.TrigEgammaAnalysisToolsConfig import TrigEgammaAnalysisAlg
-from TrigEgammaAnalysisTools.TrigEgammaAnalysisToolsConfig import TrigEgammaNavZeeTPCounts,TrigEgammaNavZeeTPPerf,TrigEgammaNavZeeTPEff,TrigEgammaNavZeeTPRes,TrigEgammaNavZeeTPNtuple,TrigEgammaNavNtuple,TrigEgammaNavZeeTPIneff
-
-from TrigEgammaAnalysisTools.TrigEgammaAnalysisToolsConfig import TrigEgammaEmulationTool, TrigEgammaValidationTool
-from TrigEgammaAnalysisTools.TrigEgammaProbelist import * # to import probelist
-
-probelist = default 
+from TrigEgammaAnalysisTools.TrigEgammaAnalysisToolsConfig import TrigEgammaNavZeeTPCounts,TrigEgammaNavZeeTPPerf,TrigEgammaNavZeeTPEff,TrigEgammaNavZeeTPRes,TrigEgammaNavZeeTPNtuple,TrigEgammaNavZeeTPIneff,TrigEgammaEmulationTool
 
 Res = TrigEgammaNavZeeTPRes(name="NavZeeTPRes",
         ElectronKey="Electrons",
-        ProbeTriggerList=default,
+        ProbeTriggerList=probelist,
         TagTrigger="e26_lhtight_iloose",
         OutputLevel=2,
         )
 Eff = TrigEgammaNavZeeTPEff(name="NavZeeTPEff",
         ElectronKey="Electrons",
-        ProbeTriggerList=default,
+        ProbeTriggerList=probelist,
         TagTrigger="e26_tight_iloose",
         )
 Counts = TrigEgammaNavZeeTPCounts(name="NavZeeTPCounts",
         ElectronKey="Electrons",
-        ProbeTriggerList=default,
+        ProbeTriggerList=probelist,
         TagTrigger="e26_tight_iloose",
         )
 
 Ineff = TrigEgammaNavZeeTPIneff(name="NavZeeTPIneff",
         ElectronKey="Electrons",
-        ProbeTriggerList=default,
+        ProbeTriggerList=probelist,
         TagTrigger="e26_lhtight_iloose",
         )
 
@@ -112,30 +120,18 @@ Perf = TrigEgammaNavZeeTPPerf(name="NavZeeTPPerf",
 #        File = "ttbar",
         OutputLevel = 2,
         ElectronKey="Electrons",
-        ProbeTriggerList=default,
+        ProbeTriggerList=probelist,
         TagTrigger="e26_lhtight_iloose",
         )
 
-NtupleZee = TrigEgammaNavZeeTPNtuple(name="NavZeeTPNtuple",
+Ntuple = TrigEgammaNavZeeTPNtuple(name="NavZeeTPNtuple",
         ElectronKey="Electrons",
-        ProbeTriggerList=default,
+        ProbeTriggerList=probelist,
         TagTrigger="e26_lhtight_iloose",
         doRinger=False, # if its true, we will save only tes with ringer.
         )
 
-Ntuple = TrigEgammaNavNtuple(name="NavNtuple",
-        ElectronKey="Electrons",
-        TriggerList=default,
-        doRinger=False, # if its true, we will save only tes with ringer.
-        )
 
+#Alg = TrigEgammaAnalysisAlg(name="MyAlg",Tools=[Counts,Eff,TrigEgammaEmulationTool()])
+Alg = TrigEgammaAnalysisAlg(name="MyAlg",Tools=[Counts,Eff,Perf])
 
-
-#Alg = TrigEgammaAnalysisAlg(name="MyAlg",Tools=[Counts,Eff,TrigEgammaEmulationTool(OutputLevel=2)])
-#Alg = TrigEgammaAnalysisAlg(name="MyAlg",Tools=[Res])
-#Alg = TrigEgammaAnalysisAlg(name="MyAlg",Tools=[Counts,Eff,TrigEgammaEmulationTool(),TrigEgammaValidationTool()])
-valid = TrigEgammaValidationTool(File=outputName)
-# Set to True in order to get plots only with unconverted photons
-# maybe set some command line parameter?
-valid.doUnconverted=False 
-Alg = TrigEgammaAnalysisAlg(name="MyAlg",Tools=[valid])

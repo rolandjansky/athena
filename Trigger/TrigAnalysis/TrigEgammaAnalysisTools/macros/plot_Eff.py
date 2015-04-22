@@ -1,16 +1,41 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
+# 
+# python plot_Eff.py -b path_to_file.root
+#
+
+from sys import argv
+
 from ROOT import TFile, TH1F
 from ROOT import TCanvas, TLegend
-from probelist import *
-# Import file as TFile
-
 from ROOT import SetOwnership
 
+from probelist import *
 
-inputfile = TFile("Validation_Zee.root")
+filename = argv[2]
+print "Looking for file : ",filename
+inputfile = TFile(filename)
 
-leveltype = ["L2Efficiencies","HLTEfficiencies"]
+
+# probeListLowMidPtSupportingTriggers
+# probeListLowMidPtPhysicsTriggers
+# probeListHighPtSupportingTriggers
+# probeListHighPtPhysicsTriggers
+# probeListPhotonTriggers
+
+if "LowMidPtSupportingTriggers" in filename:
+	probelist = probeListLowMidPtSupportingTriggers
+elif "LowMidPtPhysicsTriggers" in filename:
+	probelist = probeListLowMidPtPhysicsTriggers
+elif "HighPtSupportingTriggers" in filename:
+	probelist = probeListHighPtSupportingTriggers
+elif "HighPtPhysicsTriggers" in filename:
+	probelist = probeListHighPtPhysicsTriggers
+elif "ggH" in filename:
+	probelist = probeListPhotonTriggers
+else:
+	print "Using the default list of triggers. Set another one if neeeded"
+	probelist = default # or yours
 
 def produceTH1F(triggerName, leveltype):
 	histEffEt  = TH1F()
@@ -186,24 +211,32 @@ def produceCanvas(triggerName):
 	canv = TCanvas()
 	canv.Divide(3,3)
 
-	leg1 = TLegend(0.4,0.2,0.65,0.30)
-	leg2 = TLegend(0.4,0.2,0.65,0.35)
-	leg3 = TLegend(0.4,0.2,0.75,0.30)
-	leg3.SetTextSize(0.03)
+	leg1 = TLegend(0.4,0.2,0.75,0.40, triggerName)
+	leg2 = TLegend(0.4,0.2,0.75,0.50, triggerName)
+	leg3 = TLegend(0.4,0.2,0.75,0.40, triggerName)
+	#leg4 = TLegend(0.4,0.2,0.95,0.30) # for the trigger name
+	leg1.SetBorderSize(0)
+	leg2.SetBorderSize(0)
+	leg3.SetBorderSize(0)
+	#leg4.SetBorderSize(0)
+	leg1.SetTextSize(0.05)
+	leg2.SetTextSize(0.05)
+	leg3.SetTextSize(0.05)
+	#leg4.SetTextSize(0.05)
 
 	leg1.AddEntry(histEffEt_A, "L2Efficiencies","l")
 	leg1.AddEntry(histEffEt_B, "HLTEfficiencies","l")
+	
 	leg2.AddEntry(histEffEt_C, "L1CaloEfficiencies","l")
 	leg2.AddEntry(histEffEt_D, "L2CaloEfficiencies","l")
 	leg2.AddEntry(histEffEt_E, "EFCaloEfficiencies","l")
 
-	leg3.AddEntry(histEffEt_B, "ZeeTPEff - HLTEfficiencies","l")
-	leg3.AddEntry(histEff_Et, "ZeeTPPerf - HLTEfficiencies","l")
+	leg3.AddEntry(histEffEt_B, "Eff - HLTEfficiencies","l")
+	leg3.AddEntry(histEff_Et, "Perf - HLTEfficiencies","l")
 
 	SetOwnership( leg1, 0 )   # 0 = release (not keep), 1 = keep
 	SetOwnership( leg2, 0 )   # 0 = release (not keep), 1 = keep
 	SetOwnership( leg3, 0 )   # 0 = release (not keep), 1 = keep
-
 
 	canv.cd(1)
 	histEffEt_A.Draw()
@@ -242,21 +275,18 @@ def produceCanvas(triggerName):
 	canv.cd(8)
 	histEffEta_B.Draw()
 	histEff_Eta.Draw("SAME")
+
 	canv.cd(9)
 	histEffPhi_B.Draw()
 	histEff_Phi.Draw("SAME")
 
 	return canv
 
-
 ##### Full Trigger name list
 triggerName_list = probelist
 
-
-# comment the line below to produce all plots
-# triggerName_list = ["e26_tight_iloose"]
-
 for triggerName in triggerName_list:
+	print "Looking for trigger : ", triggerName
 	canv = TCanvas();
 	canv = produceCanvas(triggerName)
 	canv.Print("plots/plot_Eff_"+triggerName+".pdf")

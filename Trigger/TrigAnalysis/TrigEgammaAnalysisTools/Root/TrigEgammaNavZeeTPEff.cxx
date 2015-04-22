@@ -55,6 +55,24 @@ StatusCode TrigEgammaNavZeeTPEff::childInitialize(){
     return StatusCode::SUCCESS;
 }
 
+void TrigEgammaNavZeeTPEff::fillProbeHistos(const std::string dir,const float etthr,const float et, const float eta, const float phi){
+    cd(dir);
+    hist1("ZeeProbeEt")->Fill(et);
+    if(et > etthr+1.0){
+        hist1("ZeeProbeEta")->Fill(eta);
+        hist1("ZeeProbePhi")->Fill(phi);
+    }
+}
+
+void TrigEgammaNavZeeTPEff::fillMatchHistos(const std::string dir,const float etthr,const float et, const float eta, const float phi){
+    cd(dir);
+    hist1("ZeeMatchProbeEt")->Fill(et);
+    if(et > etthr+1.0){
+        hist1("ZeeMatchProbeEta")->Fill(eta);
+        hist1("ZeeMatchProbePhi")->Fill(phi);
+    }
+}
+
 StatusCode TrigEgammaNavZeeTPEff::childExecute()
 {
 
@@ -66,12 +84,19 @@ StatusCode TrigEgammaNavZeeTPEff::childExecute()
     for(unsigned int ilist = 0; ilist != m_probeTrigList.size(); ilist++) {
         std::string probeTrigger = m_probeTrigList.at(ilist);
 
+        std::string type="";
+        float etthr=0;
+        float l1thr=0;
+        std::string l1type="";
+        std::string pidname="";
+        bool perf=false;
+        bool etcut=false;
+        parseTriggerName(probeTrigger,"Loose",type,etthr,l1thr,l1type,pidname,perf,etcut); // Determines probe PID from trigger
         if ( executeTandP(probeTrigger).isFailure() )
             return StatusCode::FAILURE;
 
         // Just for counting
         for(unsigned int i=0;i<m_probeElectrons.size();i++){
-            if ( m_probeElectrons[i].first->pt() < 24e3 ) continue;
             const xAOD::Electron* offEl = m_probeElectrons[i].first;
             float denOffEl_et = getEt(offEl)/1e3;//offEl->caloCluster()->et()/1e3;
             float denOffEl_eta = offEl->eta();
@@ -82,26 +107,11 @@ StatusCode TrigEgammaNavZeeTPEff::childExecute()
             bool passedEFCalo=false;
             bool passedEF=false;
             const HLT::TriggerElement* feat = m_probeElectrons[i].second;
-            cd(m_dir+"/"+probeTrigger+"/L1CaloEfficiencies");
-            hist1("ZeeProbeEt")->Fill(denOffEl_et);
-            hist1("ZeeProbeEta")->Fill(denOffEl_eta);
-            hist1("ZeeProbePhi")->Fill(denOffEl_phi);
-            cd(m_dir+"/"+probeTrigger+"/L2CaloEfficiencies");
-            hist1("ZeeProbeEt")->Fill(denOffEl_et);
-            hist1("ZeeProbeEta")->Fill(denOffEl_eta);
-            hist1("ZeeProbePhi")->Fill(denOffEl_phi);
-            cd(m_dir+"/"+probeTrigger+"/L2Efficiencies");
-            hist1("ZeeProbeEt")->Fill(denOffEl_et);
-            hist1("ZeeProbeEta")->Fill(denOffEl_eta);
-            hist1("ZeeProbePhi")->Fill(denOffEl_phi);
-            cd(m_dir+"/"+probeTrigger+"/EFCaloEfficiencies");
-            hist1("ZeeProbeEt")->Fill(denOffEl_et);
-            hist1("ZeeProbeEta")->Fill(denOffEl_eta);
-            hist1("ZeeProbePhi")->Fill(denOffEl_phi);
-            cd(m_dir+"/"+probeTrigger+"/HLTEfficiencies");
-            hist1("ZeeProbeEt")->Fill(denOffEl_et);
-            hist1("ZeeProbeEta")->Fill(denOffEl_eta);
-            hist1("ZeeProbePhi")->Fill(denOffEl_phi);
+            fillProbeHistos(m_dir+"/"+probeTrigger+"/L1CaloEfficiencies",etthr,denOffEl_et,denOffEl_eta,denOffEl_phi);
+            fillProbeHistos(m_dir+"/"+probeTrigger+"/L2CaloEfficiencies",etthr,denOffEl_et,denOffEl_eta,denOffEl_phi);
+            fillProbeHistos(m_dir+"/"+probeTrigger+"/L2Efficiencies",etthr,denOffEl_et,denOffEl_eta,denOffEl_phi);
+            fillProbeHistos(m_dir+"/"+probeTrigger+"/EFCaloEfficiencies",etthr,denOffEl_et,denOffEl_eta,denOffEl_phi);
+            fillProbeHistos(m_dir+"/"+probeTrigger+"/HLTEfficiencies",etthr,denOffEl_et,denOffEl_eta,denOffEl_phi);
 
             if ( feat ) {
                 passedL1Calo=ancestorPassed<xAOD::EmTauRoI>(feat);
@@ -109,38 +119,13 @@ StatusCode TrigEgammaNavZeeTPEff::childExecute()
                 passedL2 = ancestorPassed<xAOD::TrigElectronContainer>(feat);
                 passedEFCalo = ancestorPassed<xAOD::CaloClusterContainer>(feat);
                 passedEF = ancestorPassed<xAOD::ElectronContainer>(feat);
-                if ( passedL1Calo ) {
-                    cd(m_dir+"/"+probeTrigger+"/L1CaloEfficiencies");
-                    hist1("ZeeMatchProbeEt")->Fill(denOffEl_et);
-                    hist1("ZeeMatchProbeEta")->Fill(denOffEl_eta);
-                    hist1("ZeeMatchProbePhi")->Fill(denOffEl_phi);
-                }
-                if ( passedL2Calo ) {
-                    cd(m_dir+"/"+probeTrigger+"/L2CaloEfficiencies");
-                    hist1("ZeeMatchProbeEt")->Fill(denOffEl_et);
-                    hist1("ZeeMatchProbeEta")->Fill(denOffEl_eta);
-                    hist1("ZeeMatchProbePhi")->Fill(denOffEl_phi);
-                }
-                if ( passedL2 ) {
-                    cd(m_dir+"/"+probeTrigger+"/L2Efficiencies");
-                    hist1("ZeeMatchProbeEt")->Fill(denOffEl_et);
-                    hist1("ZeeMatchProbeEta")->Fill(denOffEl_eta);
-                    hist1("ZeeMatchProbePhi")->Fill(denOffEl_phi);
-                }
-                if ( passedEFCalo ) {
-                    cd(m_dir+"/"+probeTrigger+"/EFCaloEfficiencies");
-                    hist1("ZeeMatchProbeEt")->Fill(denOffEl_et);
-                    hist1("ZeeMatchProbeEta")->Fill(denOffEl_eta);
-                    hist1("ZeeMatchProbePhi")->Fill(denOffEl_phi);
-                }
-                if ( passedEF ) {
-                    cd(m_dir+"/"+probeTrigger+"/HLTEfficiencies");
-                    hist1("ZeeMatchProbeEt")->Fill(denOffEl_et);
-                    hist1("ZeeMatchProbeEta")->Fill(denOffEl_eta);
-                    hist1("ZeeMatchProbePhi")->Fill(denOffEl_phi);
-                }
-            }
-        }
+                if( passedL1Calo) fillMatchHistos(m_dir+"/"+probeTrigger+"/L1CaloEfficiencies",etthr,denOffEl_et,denOffEl_eta,denOffEl_phi);
+                if( passedL2Calo ) fillMatchHistos(m_dir+"/"+probeTrigger+"/L2CaloEfficiencies",etthr,denOffEl_et,denOffEl_eta,denOffEl_phi);
+                if( passedL2 ) fillMatchHistos(m_dir+"/"+probeTrigger+"/L2Efficiencies",etthr,denOffEl_et,denOffEl_eta,denOffEl_phi);
+                if( passedEFCalo ) fillMatchHistos(m_dir+"/"+probeTrigger+"/EFCaloEfficiencies",etthr,denOffEl_et,denOffEl_eta,denOffEl_phi);
+                if( passedEF ) fillMatchHistos(m_dir+"/"+probeTrigger+"/HLTEfficiencies",etthr,denOffEl_et,denOffEl_eta,denOffEl_phi);
+            } // Features
+        } // End loop over electrons
         clearProbeList(); // Clear Probes after each trigger
     } // End loop over trigger list
 
