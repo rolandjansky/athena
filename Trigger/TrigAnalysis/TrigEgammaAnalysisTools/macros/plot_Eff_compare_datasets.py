@@ -1,5 +1,9 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
+# use
+# python plot_Eff_compare_datasets.py -b
+# change variables inputfile1 and inputfile2 with the path to datasets
+
 from ROOT import TFile, TH1F
 from ROOT import TCanvas, TLegend
 from probelist import *
@@ -7,11 +11,8 @@ from probelist import *
 
 from ROOT import SetOwnership
 
-
-inputfile1 = TFile("Validation_Zee_r6067.root")
-inputfile2 = TFile("Validation_Zee_r6119.root")
-
-leveltype = ["L2Efficiencies","HLTEfficiencies"]
+inputfile1 = TFile("../outputs_r6532/ZeePhysics/Validation_Zee_LowMidPtPhysicsTriggers.root")
+inputfile2 = TFile("../outputs_r6220/ZeePhysics/Validation_Zee_LowMidPtPhysicsTriggers.root")
 
 def produceTH1F(triggerName, leveltype, variable_name_online, variable_name_offline):
 	print "producing... ", variable_name_online
@@ -54,6 +55,7 @@ def produceCanvas(triggerName):
 	histEff1, histEff2 = produceTH1F(triggerName, leveltype_list[0], variable_list[0])
 	histEff1.Draw()
 	histEff2.Draw("SAME")
+	canv.SetGridx()
 	canv.cd(2)
 	histEff1, histEff2 = produceTH1F(triggerName, leveltype_list[0], variable_list[1])
 	histEff1.Draw()
@@ -87,17 +89,20 @@ def produceCanvas(triggerName):
 	histEff1.Draw()
 	histEff2.Draw("SAME")
 	####################################
-	leg1 = TLegend(0.4,0.2,0.65,0.30)
-	leg1.AddEntry(histEff1, "r6067","l")
-	leg1.AddEntry(histEff2, "r6119","l")
+	leg1 = TLegend(0.4,0.2,0.65,0.40,triggerName)
+	leg1.AddEntry(histEff1, "r6532","l")
+	leg1.AddEntry(histEff2, "r6220","l")
 	SetOwnership( leg1, 0 )   # 0 = release (not keep), 1 = keep
+	leg1.SetBorderSize(0)
+	leg1.SetTextSize(0.05)
 	canv.cd(1)
 	leg1.Draw()
 	return canv
 
 
 ##### Full Trigger name list
-triggerName_list = probelist
+from TrigEgammaProbelist import probeListLowMidPtPhysicsTriggers
+triggerName_list = probeListLowMidPtPhysicsTriggers
 
 # comment the line below to produce all plots
 #triggerName_list = ["e26_tight_iloose"]

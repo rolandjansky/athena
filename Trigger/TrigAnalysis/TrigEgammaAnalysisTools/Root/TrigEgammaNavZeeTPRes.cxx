@@ -61,7 +61,6 @@ StatusCode TrigEgammaNavZeeTPRes::childExecute()
         // Just for counting
         ATH_MSG_DEBUG("Execute NavZeeTPRes:: Probe Loop " << m_probeElectrons.size()); 
         for(unsigned int i=0;i<m_probeElectrons.size();i++){
-            if ( m_probeElectrons[i].first->pt() < 24e3 ) continue;
             const xAOD::Electron* offEl = m_probeElectrons[i].first;
             //float denOffEl_et = offEl->caloCluster()->et()/1e3;
             float denOffEl_eta = offEl->caloCluster()->eta();

@@ -29,6 +29,7 @@ StatusCode TrigEgammaNavZeeTPCounts::childInitialize(){
     for(unsigned int ilist = 0; ilist != m_probeTrigList.size(); ilist++) {
         std::string probeTrigger = m_probeTrigList.at(ilist);
         m_nProbes[probeTrigger]=0;
+        m_nProbesPassedL1[probeTrigger]=0;
         m_nProbesPassedL2[probeTrigger]=0;
         m_nProbesPassedEF[probeTrigger]=0;
         m_nProbesPassedL2Calo[probeTrigger]=0;
@@ -53,7 +54,6 @@ StatusCode TrigEgammaNavZeeTPCounts::childExecute()
             return StatusCode::FAILURE;
 
         for(unsigned int i=0;i<m_probeElectrons.size();i++){
-            if ( m_probeElectrons[i].first->pt() < 24e3 ) continue;
             const HLT::TriggerElement* feat = m_probeElectrons[i].second;
             m_nProbes[probeTrigger]++;
             if ( feat ) {
@@ -63,12 +63,16 @@ StatusCode TrigEgammaNavZeeTPCounts::childExecute()
                 ATH_MSG_DEBUG("; eta : " << offEl->eta());
                 ATH_MSG_DEBUG("; phi : " << offEl->phi());
 
+                //bool L1ok=false;
                 bool L2Cok=false;
                 bool L2ok=false;
                 bool EFCok=false;
                 bool EFok=false;
 
 
+                bool passedL1Calo=ancestorPassed<xAOD::EmTauRoI>(feat);
+                if (passedL1Calo) m_nProbesPassedL1[probeTrigger]++;
+                
                 bool passedL2Calo = ancestorPassed<xAOD::TrigEMCluster>(feat); // L2 check
                 const auto* l2ElCalo = getFeature<xAOD::TrigEMCluster>(feat);
                 if ( l2ElCalo != NULL){
@@ -149,6 +153,7 @@ StatusCode TrigEgammaNavZeeTPCounts::childFinalize()
         countsFile << "------------------------------ Estimated TP Counts and Efficiencies ------------------------------\n";
         for(unsigned int i = 0; i != m_probeTrigList.size(); i++) {
             std::string probeTrigger = m_probeTrigList.at(i);
+            m_EffL1[probeTrigger] = 100.0*((float)m_nProbesPassedL1[probeTrigger]/(float)m_nProbes[probeTrigger]);
             m_EffL2[probeTrigger] = 100.0*((float)m_nProbesPassedL2[probeTrigger]/(float)m_nProbes[probeTrigger]);
             m_EffHLT[probeTrigger] = 100.0*((float)m_nProbesPassedEF[probeTrigger]/(float)m_nProbes[probeTrigger]);
             m_EffL2Calo[probeTrigger] = 100.0*((float)m_nProbesPassedL2Calo[probeTrigger]/(float)m_nProbes[probeTrigger]);
@@ -157,7 +162,8 @@ StatusCode TrigEgammaNavZeeTPCounts::childFinalize()
                 std::setw(6) << m_nProbesPassedEF[probeTrigger] << " Eff " << std::setprecision(4) << m_EffHLT[probeTrigger] << " N EFCalo " <<
                 std::setw(6) << m_nProbesPassedEFCalo[probeTrigger] << " Eff EFCalo " << std::setprecision(4) <<  m_EffEFCalo[probeTrigger] << " N L2 " <<
                 std::setw(6) << m_nProbesPassedL2[probeTrigger] << " Eff L2 " << std::setprecision(4) <<  m_EffL2[probeTrigger] << " N L2Calo " <<
-                std::setw(6) << m_nProbesPassedL2Calo[probeTrigger] << " Eff L2Calo " << std::setprecision(4) <<  m_EffL2Calo[probeTrigger] << " -----\n";
+                std::setw(6) << m_nProbesPassedL2Calo[probeTrigger] << " Eff L2Calo " << std::setprecision(4) <<  m_EffL2Calo[probeTrigger] << " N L1Calo " << 
+                std::setw(6) << m_nProbesPassedL1[probeTrigger] << " Eff L1 " << std::setprecision(4) <<  m_EffL1[probeTrigger] <<" -----\n";
         }
     }
     countsFile.close();

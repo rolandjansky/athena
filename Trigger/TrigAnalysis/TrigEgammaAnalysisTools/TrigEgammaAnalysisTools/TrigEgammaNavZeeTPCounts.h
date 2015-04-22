@@ -31,6 +31,8 @@ private:
    * */
   std::map< std::string,unsigned int > m_nProbesPassedL2;
   std::map< std::string,float > m_EffL2;
+  std::map< std::string,unsigned int > m_nProbesPassedL1;
+  std::map< std::string,float > m_EffL1;
   /*! EF Probes */
   /*! Probes mathing EF trigger object 
    *  xAOD::ElectronContainer egamma_Electrons

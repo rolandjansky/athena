@@ -11,6 +11,7 @@
 #include "GaudiKernel/ToolHandle.h"
 
 #include "TrigDecisionTool/TrigDecisionTool.h"
+#include "TrigEgammaAnalysisTools/ITrigEgammaMatchingTool.h"
 class IExecuteTool;
 
 class TrigEgammaTDToolTest : public AthAlgorithm { 
@@ -35,6 +36,7 @@ private:
 
 private:
   ToolHandle<Trig::TrigDecisionTool> m_trigdec;
+  ToolHandle<ITrigEgammaMatchingTool> m_matchTool;
   std::map<std::string,int> m_counterBits;
   StoreGateSvc * m_storeGate;
 }; 

@@ -20,21 +20,25 @@ public:
   StatusCode childInitialize();
   StatusCode childExecute();
   StatusCode childFinalize();
-  StatusCode TDCounts();
-  StatusCode Distributions(const xAOD::Electron*, const xAOD::Electron*);
-  StatusCode SimpleEfficiency();
-  bool isMatchHLT(const xAOD::Electron *eloff);
+protected:
+  StatusCode fillTracking(const xAOD::Electron*, const xAOD::Electron*);
+  StatusCode fillShowerShapes(const xAOD::Egamma*, const xAOD::Egamma*);
+  void SimpleElectronEfficiency(const std::string,const float,const std::string);
+  void SimplePhotonEfficiency(const std::string,const float);
+  void SimpleEfficiency();
+  bool isMatchHLT(const xAOD::Egamma*);
+  void fillRes(const xAOD::Electron *eloff, const xAOD::Electron *eg);
 
 private:
-  std::map<std::string,int> m_counterBits;
   int m_eventCounter;
   const xAOD::ElectronContainer *m_offElectrons;
+  const xAOD::PhotonContainer *m_offPhotons;
   const xAOD::ElectronContainer *m_onlElectrons;
+  const xAOD::PhotonContainer *m_onlPhotons;
   const xAOD::TrigElectronContainer *m_trigElectrons;
   const xAOD::CaloClusterContainer *m_caloClusters;
   const xAOD::TrigEMClusterContainer *m_trigEMClusters;
   const xAOD::EmTauRoIContainer *m_emTauRoI;
-  ToolHandleArray<IAsgElectronIsEMSelector> m_electronOnlPPCutIDTool;
 };
 
 #endif
