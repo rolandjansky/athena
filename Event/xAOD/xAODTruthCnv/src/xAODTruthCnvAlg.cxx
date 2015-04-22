@@ -235,10 +235,24 @@ namespace xAODMaker {
         // (2) Build particles and vertices
         // Map for building associations between particles and vertices
         // The pair in the map is the (incomingParticles . outgoingParticles) of the given vertex
+	// If signal process vertex is a disconnected vertex (no incoming/outgoing particles), add it manually
         VertexMap vertexMap;
         VertexMap::iterator mapItr;
         vector<const HepMC::GenVertex*> vertices;
 
+	// Check signal process vertex
+	// If this is a disconnected vertex, add it manually or won't be added from the loop over particles below.
+	HepMC::GenVertex* disconnectedSignalProcessVtx = genEvt->signal_process_vertex(); // Get the signal process vertex
+	if (disconnectedSignalProcessVtx) {
+	  if (disconnectedSignalProcessVtx->particles_in_size() == 0 && 
+	      disconnectedSignalProcessVtx->particles_out_size() == 0 ) {
+	    //This is a disconnected vertex, add it manually
+	    vertices.push_back (disconnectedSignalProcessVtx);
+	  }
+	} else {
+	  ATH_MSG_WARNING("Signal process vertex pointer not valid in HepMC Collection for GenEvent #" << cntr << " / " << mcColl->size());
+	}
+	
         // Get the beam particles
         pair<HepMC::GenParticle*,HepMC::GenParticle*> beamParticles;
         if ( genEvt->valid_beam_particles() ) beamParticles = genEvt->beam_particles();

@@ -53,6 +53,14 @@ StatusCode HepMCTruthReader::execute() {
     // Print the event particle/vtx contents
     if (cntr==0) ATH_MSG_INFO("Printing signal event...");
     if (cntr>0) ATH_MSG_INFO("Printing pileup events...");  
+
+    if (cntr==0) {
+      HepMC::GenVertex* signalProcessVtx = genEvt->signal_process_vertex();
+      ATH_MSG_INFO("Signal process vertex position: (" << signalProcessVtx->position().x() 
+		   << ", " << signalProcessVtx->position().y() << ", " << signalProcessVtx->position().z() << "). Pointer: " 
+		   << signalProcessVtx);
+    }
+
     printEvent(genEvt);
 
   }
@@ -81,7 +89,7 @@ void HepMCTruthReader::printEvent(const HepMC::GenEvent* event) {
 // Particle print method called within here
 void HepMCTruthReader::printVertex(const HepMC::GenVertex* vertex) {
   std::ios::fmtflags f( cout.flags() ); 
-  cout << "GenVertex:";
+  cout << "GenVertex (" << vertex << "):";
   if (vertex->barcode() != 0) {
     if (vertex->position().x() != 0.0 && vertex->position().y() != 0.0 && vertex->position().z() != 0.0) {
       cout.width(9);
