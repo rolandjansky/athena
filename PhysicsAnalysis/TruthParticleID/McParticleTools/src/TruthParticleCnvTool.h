@@ -103,7 +103,8 @@ class TruthParticleCnvTool :  virtual public ITruthParticleCnvTool,
   /** Type of data we are dealing with (Full/Fast/Truth/...)
    */
   ParticleDataType::DataType m_dataType;
-
+  int m_dataType_int;
+  
   std::string m_vxCandidatesName;
 
   /** Location of the McEventCollection the TruthParticles will be made from

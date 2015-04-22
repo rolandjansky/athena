@@ -61,10 +61,9 @@ TruthParticleCnvTool::TruthParticleCnvTool( const std::string& type,
   //
   // Property declaration
   // 
-
-  int dataType = m_dataType;
+  
   declareProperty( "DataType", 
-		   dataType = 4,
+		   m_dataType_int = 4,
 		   "Type of data we are dealing with (Full/Fast/Truth...)" );
 
   declareProperty( "McEvents", 
@@ -90,7 +89,7 @@ TruthParticleCnvTool::TruthParticleCnvTool( const std::string& type,
 		   "(and their underlying @c HepMC::GenParticle).\n"
 		   "Default is to not compute these Et-isolations (and save CPU)." );
 
-  setDataType( dataType );
+  setDataType( m_dataType_int );
 
   declareProperty( "SelectSignalType",
 		   m_selectSignalTypeProp,

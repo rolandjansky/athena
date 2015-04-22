@@ -191,16 +191,18 @@ StatusCode EtaPtFilterTool::buildGenEvent( const HepMC::GenEvent* in,
   for ( HepMC::GenEvent::vertex_const_iterator vtx = in->vertices_begin();
 	vtx != in->vertices_end(); 
 	++vtx ) {
-
-    if ( !isAccepted(*vtx) ) {
+    
+    bool isSignalVertex = isSignalProcessVertex(*vtx, in);
+    if ( !isAccepted(*vtx) and !isSignalVertex ) {
       // no in-going nor out-going particles at this vertex matches 
-      // the requirements: ==> Skip it
+      // the requirements nor it is a signal process vertex : ==> Skip it
       continue;
     }
     
-    if ( addVertex( *vtx, out ).isFailure() ) {
+    if ( addVertex( *vtx, out, isSignalVertex ).isFailure() ) {
       ATH_MSG_WARNING("Could not add vertex [" << (*vtx)->barcode() << "]");
     }
+
   } //> end loop over vertices
   
   return StatusCode::SUCCESS;
@@ -301,8 +303,19 @@ bool EtaPtFilterTool::isAccepted( const HepMC::GenVertex* vtx ) const
   return false;
 }
 
-StatusCode EtaPtFilterTool::addVertex( const HepMC::GenVertex* srcVtx,
-				       HepMC::GenEvent* evt ) const
+bool EtaPtFilterTool::isSignalProcessVertex( const HepMC::GenVertex* vtx, const HepMC::GenEvent* evt )
+{
+  if (evt->signal_process_vertex() == vtx) {
+    ATH_MSG_DEBUG("Signal Process vertex found: " << vtx << " = ("
+		  << vtx->position().x() << ", " << vtx->position().y() 
+		  << ", " << vtx->position().z() << ")");
+    return true;
+  }
+  return false;
+}
+
+StatusCode EtaPtFilterTool::addVertex( const HepMC::GenVertex* srcVtx, HepMC::GenEvent* evt,
+				       bool isSignalVertex) const
 {
   if ( 0 == srcVtx || 0 == evt ) {
     ATH_MSG_ERROR("In addVertex(vtx,evt) : INVALID pointer given !!" << endreq
@@ -319,6 +332,7 @@ StatusCode EtaPtFilterTool::addVertex( const HepMC::GenVertex* srcVtx,
     vtx->suggest_barcode( srcVtx->barcode() );
     vtx->weights() = srcVtx->weights();
     evt->add_vertex(vtx);
+    if (isSignalVertex) evt->set_signal_process_vertex(vtx);
   }
 
   ////////////////////////////
