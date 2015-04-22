@@ -27,12 +27,12 @@
 #include "MuGirlStau/IStauBetaTofTool.h"
 
 // Gaudi
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include <string>
 
 namespace MuGirlNS
 {
-    class StauBetaTofTool: public AlgTool, virtual public IStauBetaTofTool
+    class StauBetaTofTool: public extends1<AthAlgTool, IStauBetaTofTool>
     {
     public:
         /**AlgTool constructor */

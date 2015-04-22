@@ -9,10 +9,9 @@
 #ifndef MUGIRLNSSTAUTOOL_H
 #define MUGIRLNSSTAUTOOL_H
 
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/MsgStream.h"
 #include "MuGirlInterfaces/IStauTool.h"
 #include "MuGirlInterfaces/MdtSegmentMakerInfo.h"
 #include "MuGirlInterfaces/RpcSegmentInfo.h"
@@ -23,8 +22,8 @@
 #include "TrkTrack/Track.h"
 #include "MuGirlInterfaces/IGlobalFitTool.h"
 #include "AthenaKernel/IOVSvcDefs.h"
+#include "AthenaKernel/IAtRndmGenSvc.h"
 #include "TrkToolInterfaces/ITrackParticleCreatorTool.h"
-#include "StoreGate/StoreGateSvc.h"
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
 
@@ -88,7 +87,7 @@ class StauMDTT;
  @author  shikma bressler <sshikma@tx.technion.ac.il>
  */
 
-class StauTool: virtual public IStauTool, public AlgTool
+class StauTool: public extends1<AthAlgTool, IStauTool>
 {
 public:
     StauTool(const std::string&, const std::string&, const IInterface*);
@@ -375,30 +374,6 @@ public:
         return m_calibration;
     }
 private:
-    template<class T>
-    StatusCode retrieve(ToolHandle<T>& pHandle, bool bError = true)
-    {
-        StatusCode sc = pHandle.retrieve();
-        if (sc.isFailure())
-            m_log << (bError ? MSG::ERROR : MSG::WARNING) << "Cannot retrieve tool " << pHandle << endreq;
-        else
-            m_log << MSG::INFO << "Retrieved tool " << pHandle << endreq;
-        return sc;
-    }
-    template<class T>
-    StatusCode retrieve(ServiceHandle<T>& pHandle, bool bError = true)
-    {
-        StatusCode sc = pHandle.retrieve();
-        if (sc.isFailure())
-            m_log << (bError ? MSG::ERROR : MSG::WARNING) << "Cannot retrieve service " << pHandle << endreq;
-        else
-            m_log << MSG::INFO << "Retrieved service " << pHandle << endreq;
-        return sc;
-    }
-
-    /** class member version of retrieving MsgStream */
-    mutable MsgStream m_log;
-    int m_outputlevel;
 
     /** add muon tof flag  */
     bool m_addMuToF;
@@ -428,9 +403,9 @@ private:
     std::string m_rpcCalibFileName;
     std::string m_caloCalibFileName;
 
-    TFile *m_mdtCalibFile;
-    TFile *m_rpcCalibFile;
-    TFile *m_caloCalibFile;
+    //TFile *m_mdtCalibFile;
+    //TFile *m_rpcCalibFile;
+    //TFile *m_caloCalibFile;
 
     int m_runNumber;
 
@@ -445,9 +420,10 @@ private:
     ToolHandle<Rec::IParticleCaloCellAssociationTool> m_caloCellAssociationTool; //!< Tool to make the step-wise extrapolation
 
     ServiceHandle<MdtCalibrationDbSvc> m_pMdtCalibDbSvc;
+    ServiceHandle<IAtRndmGenSvc> m_randSvc;
+    std::string m_randStreamName;
 
     /** a handle on Store Gate for access to the Event Store */
-    StoreGateSvc* m_storeGate;
     const EventInfo* m_pEventInfo;
 
     const MuonGM::MuonDetectorManager* m_pMuonMgr; /* the muon detector manager*/
@@ -467,7 +443,7 @@ private:
     double m_minTTrack; /** the lower ttrack limit - after fixing the range */
     double m_maxTTrack; /** the upper ttrack limit - after fixing the range*/
 
-    bool m_mdtOnTheEdge;
+    //bool m_mdtOnTheEdge;
     double m_lowerLimitNoMdt;
     double m_upperLimitNoMdt;
 

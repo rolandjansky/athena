@@ -4,11 +4,12 @@
 
 #include "MuGirlStau/StauRPC.h"
 #include "MuGirlStau/StauCalibration.h"
-#include "TRandom3.h"
+#include "AtlasCLHEP_RandomGenerators/RandGaussZiggurat.h"
 
 //================ Constructor =================================================
 
 MuGirlNS::StauRPC::StauRPC(StauTool* pStauTool, MsgStream& log,
+                           CLHEP::HepRandomEngine& randEngine,
         const MuGirlNS::RIO_OnTrackLists& rpcHitsInSegments) :
                 m_pStau(pStauTool),
                 m_log(log),
@@ -16,7 +17,8 @@ MuGirlNS::StauRPC::StauRPC(StauTool* pStauTool, MsgStream& log,
                 m_beta(StauBetaDefault),
                 m_avgBeta(StauBetaDefault),
                 m_rmsBeta(-1.),
-                m_hasHits(false)
+                m_hasHits(false),
+                m_randEngine (randEngine)
 {
     m_pMuonMgr = pStauTool->muonMgr();
     m_addMuToF = pStauTool->addMuToF();
@@ -48,7 +50,7 @@ MuGirlNS::StauRPC::StauRPC(StauTool* pStauTool, MsgStream& log,
             double error = RPCRESOLUTION; // default time resolution
             double distance = fabs(pos.perp()) / 1000; //[m]
             double muonToF = distance / SPEEDOFLIGHT;
-            double measuredTime = pRpcPrepData->time() + 0.5 * 3.125 - timeShift - bugFix;
+            double measuredTime = pRpcPrepData->time() + 1.5 * 3.125 - timeShift;
             LOG_DEBUG << "RPC hit - distance: " << distance
                       << ", pRpcPrepData->time(): " << pRpcPrepData->time()
                       << ", timeShift: " << timeShift
@@ -57,7 +59,7 @@ MuGirlNS::StauRPC::StauRPC(StauTool* pStauTool, MsgStream& log,
                       << endreq;
             if (m_pStau->doCalibration())
             { //Use external calibration files
-                int id = (pRpcRIO->identify()).get_compact();
+	      int id = pRpcRIO->identify().get_identifier32().get_compact();
                 auto itCalib = m_pCalibration->find(id);
                 if (itCalib == m_pCalibration->end()) continue;
                 double error = itCalib->second.error;
@@ -65,12 +67,11 @@ MuGirlNS::StauRPC::StauRPC(StauTool* pStauTool, MsgStream& log,
                 if (m_pStau->isData())
                 {
                     shift = itCalib->second.timeShift; //shift
-                    measuredTime += timeShift - 0.5 * 3.125 - shift;
+                    measuredTime += timeShift - 1.5 * 3.125 - shift;
                 }
                 else
                 { //smear
-                    TRandom3 rand(0);
-                    shift = m_pStau->rpcSmearFactor() * rand.Gaus(0, error); //Low 1.5 Mid 2 High 2.5
+                    shift = m_pStau->rpcSmearFactor() * CLHEP::RandGaussZiggurat::shoot(&m_randEngine, 0, error); //Low 1.5 Mid 2 High 2.5
                     measuredTime -= shift;
                 }
             }

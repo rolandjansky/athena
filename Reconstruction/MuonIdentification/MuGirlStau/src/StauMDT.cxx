@@ -7,18 +7,22 @@
 #include "MuonRecToolInterfaces/IMuonSegmentMaker.h"
 #include "MuonRecToolInterfaces/IMdtDriftCircleOnTrackCreator.h"
 #include "MuGirlStau/IStauBetaTofTool.h"
+#include "AtlasCLHEP_RandomGenerators/RandGaussZiggurat.h"
 
 #include "GeoPrimitives/GeoPrimitives.h"
 
 //================ Constructor =================================================
+bool MUGIRLNS_STAUMDT_DO_CALIBRATION = false;
 
 MuGirlNS::StauMDT::StauMDT(StauTool* pStauTool, MsgStream& log,
+                           CLHEP::HepRandomEngine& randEngine,
         const MuGirlNS::MdtSegmentMakerInfoList& mdtSegmentMakerInfoList) :
-        m_pStau(pStauTool), m_log(log), m_beta(-1.), m_segmentNumber(-1), m_chamberNumber(-1)
+        m_pStau(pStauTool), m_log(log), m_beta(-1.), m_segmentNumber(-1), m_chamberNumber(-1),
+        m_randEngine (randEngine)
 {
     m_pMdtSegmentMakerInfoList = &mdtSegmentMakerInfoList;
 
-    if (m_pStau->doCalibration()) initCalibrationParameters();
+    if (m_pStau->doCalibration() && MUGIRLNS_STAUMDT_DO_CALIBRATION) initCalibrationParameters();
 }
 
 /*
@@ -53,8 +57,7 @@ void MuGirlNS::StauMDT::initCalibrationParameters()
                 else
                 { //smear
                     double error = itCalib->second.error;
-                    TRandom3 rand(0);
-                    shift = m_pStau->mdtSmearFactor() * rand.Gaus(0, error); //Sofia: Low 0.5 MID 0.9 HIGH 1.4
+                    shift = m_pStau->mdtSmearFactor() * CLHEP::RandGaussZiggurat::shoot(&m_randEngine, 0, error); //Sofia: Low 0.5 MID 0.9 HIGH 1.4
                 }
             }
             segmentShifts.push_back(shift);
@@ -130,7 +133,7 @@ void MuGirlNS::StauMDT::findNewSegments(double beta)
     //Set the correct beta in the ToF tool
     m_pStau->tofTool()->setBeta(beta);
 
-    if (m_pStau->doCalibration()) m_segmentNumber = 0;
+    if (m_pStau->doCalibration() && MUGIRLNS_STAUMDT_DO_CALIBRATION) m_segmentNumber = 0;
 
     //unsigned int iStation = 0;
     for (auto pMdtSegmentMakerInfo : *m_pMdtSegmentMakerInfoList)
@@ -166,7 +169,7 @@ void MuGirlNS::StauMDT::findNewSegments(double beta)
             delete pSegments;
         }
 
-        if (m_pStau->doCalibration()) m_segmentNumber++;
+        if (m_pStau->doCalibration() && MUGIRLNS_STAUMDT_DO_CALIBRATION) m_segmentNumber++;
     }
     LOG_VERBOSE << "done" << endreq;
 }
@@ -179,7 +182,7 @@ void MuGirlNS::StauMDT::processMdtWithBeta(double currentBeta, MdtStepData* mdtD
     m_pStau->tofTool()->setBeta(currentBeta);
 
     //calibration
-    if (m_pStau->doCalibration()) m_segmentNumber = 0;
+    if (m_pStau->doCalibration() && MUGIRLNS_STAUMDT_DO_CALIBRATION) m_segmentNumber = 0;
 
     //unsigned int iStation = 0;
     for (auto pMdtSegmentMakerInfo : *m_pMdtSegmentMakerInfoList)
@@ -215,7 +218,7 @@ void MuGirlNS::StauMDT::processMdtWithBeta(double currentBeta, MdtStepData* mdtD
             pSegments->clear();
             delete pSegments;
         }
-        if (m_pStau->doCalibration()) m_segmentNumber++;
+        if (m_pStau->doCalibration() && MUGIRLNS_STAUMDT_DO_CALIBRATION) m_segmentNumber++;
     }
 
 //    mdtData->dof = mdtData->totNumHits - 2*mdtData->pStationDataList->size();
@@ -255,10 +258,10 @@ void MuGirlNS::StauMDT::fillStationData(MdtStepData* mdtData, MdtSegments* pSegm
 int MuGirlNS::StauMDT::recreateMdcots(MDCOTLists& mdts, MDCOTLists* pMdocotLists)
 {
     int numOfHits = 0;
-    if (m_pStau->doCalibration()) m_chamberNumber = 0;
+    if (m_pStau->doCalibration() && MUGIRLNS_STAUMDT_DO_CALIBRATION) m_chamberNumber = 0;
     for (auto mdcotList : mdts)
     {
-        if (m_pStau->doCalibration())
+        if (m_pStau->doCalibration() && MUGIRLNS_STAUMDT_DO_CALIBRATION)
         {
             double shift = m_shifts[m_segmentNumber][m_chamberNumber];
             if (shift == 0) continue; //we don't know how to shift this chamber, so don't use it
@@ -278,7 +281,7 @@ int MuGirlNS::StauMDT::recreateMdcots(MDCOTLists& mdts, MDCOTLists* pMdocotLists
             NewMdcotList.push_back(dynamic_cast<const Muon::MdtDriftCircleOnTrack*>(pRio));
         }
         pMdocotLists->push_back(NewMdcotList);
-        if (m_pStau->doCalibration()) m_chamberNumber++;
+        if (m_pStau->doCalibration() && MUGIRLNS_STAUMDT_DO_CALIBRATION) m_chamberNumber++;
     }
 
     return numOfHits;

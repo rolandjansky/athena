@@ -13,6 +13,7 @@
 #include "MuGirlStau/StauToolDefinitions.h"
 #include "MuGirlStau/StauTool.h"
 #include "MuGirlStau/StauCalibration.h"
+#include "CLHEP/Random/RandomEngine.h"
 
 namespace MuGirlNS
 {
@@ -20,6 +21,7 @@ namespace MuGirlNS
     {
     public:
         StauRPC(StauTool* pStau, MsgStream& log,
+                CLHEP::HepRandomEngine& randEngine,
                 const MuGirlNS::RIO_OnTrackLists& rpcHitsInSegments);
 
         /** default destructor */
@@ -85,6 +87,8 @@ namespace MuGirlNS
         StauHits m_hits;
 
         StauCalibration::id_calibration_map* m_pCalibration;
+
+        CLHEP::HepRandomEngine& m_randEngine;
     };
 
 } // end of namespace

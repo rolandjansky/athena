@@ -10,6 +10,7 @@
 #include "MuGirlStau/StauToolDefinitions.h"
 #include "MuGirlStau/StauCalibration.h"
 #include "MuGirlInterfaces/CandidateSummary.h"
+#include "CLHEP/Random/RandomEngine.h"
 
 class MsgStream;
 
@@ -34,7 +35,8 @@ namespace MuGirlNS
     class StauMDTT
     {
     public:
-        StauMDTT(StauTool* pStau, MsgStream& log);
+        StauMDTT(StauTool* pStau, MsgStream& log,
+                 CLHEP::HepRandomEngine& randEngine);
         ~StauMDTT();
         bool initialize(const Trk::Track* pTrack);
         void clear();
@@ -94,6 +96,8 @@ namespace MuGirlNS
         double m_rmsBeta; //
 
         StauCalibration::id_calibration_map* m_pCalibration;
+
+        CLHEP::HepRandomEngine& m_randEngine;
     };
 // class StauMDTT
 }// namespace MuGirlsNS

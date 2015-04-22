@@ -11,19 +11,20 @@
 ///////////////////////////////////
 #include "MuGirlStau/StauTileCal.h"
 //#include "Particle/TrackParticle.h"
-#include "TRandom3.h"
 #include "RecoToolInterfaces/IParticleCaloCellAssociationTool.h"
 #include "ParticleCaloExtension/ParticleCellAssociation.h"
 #include "CaloEvent/CaloCellContainer.h"
+#include "AtlasCLHEP_RandomGenerators/RandGaussZiggurat.h"
 
-static const int nLayers = 15;    // Number of layers in the calorimeter (for beta tile)
-static const int nEbins  = 20;    // Number of energy bins in calorimeter calibration (for beta tile)
-static const int nEbinsDeca = 10; // Number of energy bins per decade in calorimeter calibration (for beta tile)
+//static const int nLayers = 15;    // Number of layers in the calorimeter (for beta tile)
+static const int nEbins  = 44;    // Number of energy bins in calorimeter calibration (for beta tile)
+static const int nEbinsDeca = 20; // Number of energy bins per decade in calorimeter calibration (for beta tile)
 static const double Emin = 100.0; // Lowest cell energy (in MeV) used in calibration (for beta tile)
 
 //================ Constructor =================================================
 
 MuGirlNS::StauTileCal::StauTileCal(StauTool* pStauTool, MsgStream& log,
+                                   CLHEP::HepRandomEngine& randEngine,
         const xAOD::TrackParticle* trkParticle) :
                 m_pStau(pStauTool),
                 m_log(log),
@@ -33,7 +34,8 @@ MuGirlNS::StauTileCal::StauTileCal(StauTool* pStauTool, MsgStream& log,
                 m_rmsBeta(-1.),
                 m_pCaloCells(NULL),
                 m_hasCells(false),
-                m_pCalibration(NULL)
+                m_pCalibration(NULL),
+                m_randEngine (randEngine)
 {
     LOG_DEBUG << "trkParticle=" << trkParticle << endreq;
     //std::vector<const CaloCell*> cellsOnTrack = m_pToCalo->getCellsOnTrack(m_pTrkParticle,tile1,tile3,true);
@@ -70,12 +72,15 @@ MuGirlNS::StauTileCal::StauTileCal(StauTool* pStauTool, MsgStream& log,
     LOG_DEBUG << "done" << endreq;
 }
 
-MuGirlNS::StauTileCal::StauTileCal(StauTool* pStauTool, MsgStream& log, const Trk::Track* /*trk*/) :
+MuGirlNS::StauTileCal::StauTileCal(StauTool* pStauTool, MsgStream& log,
+                                   CLHEP::HepRandomEngine& randEngine,
+                                   const Trk::Track* /*trk*/) :
                 m_pStau(pStauTool),
                 m_log(log),
                 m_pTrkParticle(NULL),
                 m_pCaloCells(NULL),
-                m_hasCells(false)
+                m_hasCells(false),
+                m_randEngine(randEngine)
 {
     m_pCaloCells = new StauTileCalCells();
 }
@@ -132,8 +137,7 @@ void MuGirlNS::StauTileCal::initCaloCells(const Rec::ParticleCellAssociation* as
             else
             { //smear
               // double error = itCalib->second.error;
-                TRandom3 rand(0);
-                shift = m_pStau->tileSmearFactor() * rand.Gaus(0, error); //Sofia: Low 0.5 MID 0.9 HIGH 1.4
+                shift = m_pStau->tileSmearFactor() * CLHEP::RandGaussZiggurat::shoot(&m_randEngine, 0, error); //Sofia: Low 0.5 MID 0.9 HIGH 1.4
             }
         }
 

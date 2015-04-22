@@ -8,8 +8,14 @@
 
 using namespace MuGirlNS;
 
+#if defined(__GNUC__) && !defined(__clang__)
+// constexpr sqrt is a nonstandard extension implemented by gcc
 constexpr double GOLD2 = (sqrt(5.0) - 1.0) / 2.0;
 constexpr double GOLD1 = 1.0 - GOLD2;
+#else
+static const double GOLD2 = (sqrt(5.0) - 1.0) / 2.0;
+static const double GOLD1 = 1.0 - GOLD2;
+#endif
 
 std::pair<double, double> Minimizer::minimize(
         IObjective& obj,
