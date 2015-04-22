@@ -70,7 +70,7 @@ JobMaker=[
     #--> end hiding
 ]
 
-# include('RunDependentSimData/configCommon.py')
+include('RunDependentSimData/configCommon.py')
 
 #cleanup python memory
 if not "RunDMC_testing_configuration" in dir():
