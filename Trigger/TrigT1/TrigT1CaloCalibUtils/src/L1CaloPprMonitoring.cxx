@@ -10,6 +10,8 @@
 #include "TH1.h"
 
 #include "TrigT1CaloEvent/TriggerTowerCollection.h"
+#include "TrigT1CaloToolInterfaces/IL1TriggerTowerTool.h"
+#include "TrigT1Interfaces/TrigT1CaloDefs.h"
 
 L1CaloPprMonitoring::L1CaloPprMonitoring(const std::string& name, ISvcLocator* pSvcLocator) : AthAlgorithm(name,pSvcLocator),
     m_eventInfo(0),
@@ -20,9 +22,11 @@ L1CaloPprMonitoring::L1CaloPprMonitoring(const std::string& name, ISvcLocator* p
     m_histoSvc(0),
     m_fineTimePlotManager(0),
     m_pedestalPlotManager(0),
+    m_pedestalCorrectionPlotManager(0),
     m_etCorrelationPlotManager(0),
     m_storeGate("StoreGateSvc", name),
-    m_towerTools("LVL1::L1CaloOfflineTriggerTowerTools/L1CaloOfflineTriggerTowerTools"),
+    m_offlineTowerTools("LVL1::L1CaloOfflineTriggerTowerTools/L1CaloOfflineTriggerTowerTools"),
+    m_towerTools("LVL1::L1TriggerTowerTool/L1TriggerTowerTool"),
     m_dbPpmDeadChannelsFolder("/TRIGGER/L1Calo/V1/Calibration/PpmDeadChannels"),
     m_dbPpmDisabledTowersFolder("/TRIGGER/L1Calo/V1/Conditions/DisabledTowers"),
     m_dbFineTimeRefsFolder("/TRIGGER/L1Calo/V1/References/FineTimeReferences"),
@@ -37,7 +41,7 @@ L1CaloPprMonitoring::L1CaloPprMonitoring(const std::string& name, ISvcLocator* p
     m_caloCellContainerName(""),
     m_EtMinForEtCorrelation(0)									      
 {
-    declareProperty("TriggerTowersLocation",m_triggerTowersLocation="xAODTriggerTowers");
+    declareProperty("TriggerTowersLocation",m_triggerTowersLocation=LVL1::TrigT1CaloDefs::xAODTriggerTowerLocation);
     declareProperty("ppmADCMinValue",m_PpmAdcMinValue=60);
     declareProperty("ppmADCMaxValue",m_PpmAdcMaxValue=1023); 
     declareProperty("lumiBlockMax",m_lumiBlockMax=2000);
@@ -65,7 +69,7 @@ StatusCode L1CaloPprMonitoring::initialize()
     if (m_doFineTimePlots)
     {
         m_fineTimePlotManager = new L1CaloPprFineTimePlotManager(m_histoSvc,
-								 m_towerTools,
+								 m_offlineTowerTools,
 								 m_PpmAdcMinValue,
 								 m_lumiBlockMax,
 								 "L1Calo/PPM");
@@ -76,7 +80,7 @@ StatusCode L1CaloPprMonitoring::initialize()
     if (m_doPedestalPlots)
     {
         m_pedestalPlotManager = new L1CaloPprPedestalPlotManager(m_histoSvc,
-								 m_towerTools,
+								 m_offlineTowerTools,
 								 m_lumiBlockMax,
 								 "L1Calo/PPM");
 	m_pedestalPlotManager->SetPedestalMaxWidth(m_pedestalMaxWidth);
@@ -84,13 +88,13 @@ StatusCode L1CaloPprMonitoring::initialize()
     if (m_doPedestalCorrectionPlots)
     {
         m_pedestalCorrectionPlotManager = new L1CaloPprPedestalCorrectionPlotManager(m_histoSvc,
-								 m_towerTools,
+								 m_offlineTowerTools,
 								 m_lumiBlockMax,
 								 "L1Calo/PPM");
     }
     if (m_doEtCorrelationPlots){
         m_etCorrelationPlotManager = new L1CaloPprEtCorrelationPlotManager(m_histoSvc,
-									   m_towerTools,
+									   m_offlineTowerTools,
 									   m_lumiBlockMax,
 									   "L1Calo/PPM");
 	m_etCorrelationPlotManager->SetCaloCellContainer(m_caloCellContainerName);
@@ -114,28 +118,31 @@ StatusCode L1CaloPprMonitoring::execute()
         //Dead Channel DB folder used for 2010 data
         //Disabled tower DB folder used for 2011/12 data
         
-	const coral::AttributeList* DbDead = 0;
+// 	const coral::AttributeList* DbDead = 0;
 
 	bool ChanIsDisabled(false);
-        if(m_eventInfo->event_ID()->run_number() < 175000)
-        {
-	    DbDead      = m_towerTools->DbAttributes(*TT_itr,m_dbPpmDeadChannels);
-
-            if(DbDead!=0){ChanIsDisabled = true;}
-        }
-        else //2011/12 data 
-        {
-	    DbDead      = m_towerTools->DbAttributes(*TT_itr,m_dbPpmDisabledTowers);
-            
-	    if(m_towerTools->DisabledTower(DbDead)){ChanIsDisabled= true; }
-        }
+	unsigned int CoolChannelID = (*TT_itr)->coolId();
+//         if(m_eventInfo->event_ID()->run_number() < 175000)
+//         {
+// 	    DbDead      = m_xAODtowerTools->DbAttributes(*TT_itr,m_dbPpmDeadChannels);
+// 
+//             if(DbDead!=0){ChanIsDisabled = true;}
+//         }
+//         else //2011/12 data 
+//         {
+// 	    DbDead      = m_xAODtowerTools->DbAttributes(*TT_itr,m_dbPpmDisabledTowers);
+//             
+// 	    if(m_towerTools->DisabledTower(DbDead)){ChanIsDisabled= true; }
+//         }
+        
+        ChanIsDisabled = m_towerTools->disabledChannel(CoolChannelID);
 	if (m_doFineTimePlots)
 	{
 	    //Set the reference and calibration values for the fine time, they are stored per cool ID in a data base
 	    double Reference = 0;
 	    double CalFactor = 0;
 	  
-	    unsigned int CoolId = m_towerTools->CoolChannelId(*TT_itr);
+	    unsigned int CoolId = (*TT_itr)->coolId();
 
 	    CondAttrListCollection::const_iterator Itr = m_dbFineTimeRefsTowers->chanAttrListPair(CoolId);
 	    if (Itr != m_dbFineTimeRefsTowers->end()) {
@@ -178,6 +185,11 @@ StatusCode L1CaloPprMonitoring::finalize()
     {
         m_pedestalPlotManager->MakeSummary();
 	delete m_pedestalPlotManager;
+    }
+    if (m_doPedestalCorrectionPlots)
+    {
+      m_pedestalCorrectionPlotManager->MakeSummary();
+      delete m_pedestalCorrectionPlotManager;
     }
     if (m_doEtCorrelationPlots)
     {
@@ -227,6 +239,9 @@ StatusCode L1CaloPprMonitoring::loadInTools()
     sc = service("THistSvc",m_histoSvc);
     if(sc.isFailure()){msg(MSG::INFO)<<"Failed to load the histogram service"<<endreq; return sc;}
 
+    sc = m_offlineTowerTools.retrieve();
+    if(sc.isFailure()){msg(MSG::ERROR)<<"Could not retrieve OfflineTriggerTowerTools"<<endreq;return sc;}
+    
     sc = m_towerTools.retrieve();
     if(sc.isFailure()){msg(MSG::ERROR)<<"Could not retrieve TriggerTowerTools"<<endreq;return sc;}
        
