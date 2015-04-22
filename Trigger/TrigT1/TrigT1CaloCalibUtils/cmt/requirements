@@ -38,6 +38,7 @@ use TileRecUtils          TileRecUtils-*          TileCalorimeter
 use TrigConfHLTData       TrigConfHLTData-*       Trigger/TrigConfiguration
 use TrigConfL1Data        TrigConfL1Data-*        Trigger/TrigConfiguration
 use TrigSteeringEvent     TrigSteeringEvent-*     Trigger/TrigEvent
+use TrigT1Interfaces    	TrigT1Interfaces-*    	Trigger/TrigT1
 
 use TrigT1CaloEvent           TrigT1CaloEvent-*           Trigger/TrigT1
 use TrigT1CaloUtils           TrigT1CaloUtils-*           Trigger/TrigT1

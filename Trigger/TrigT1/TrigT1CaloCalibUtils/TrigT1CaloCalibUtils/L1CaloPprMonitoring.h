@@ -39,10 +39,16 @@
 #include "TrigT1CaloEvent/TriggerTowerCollection.h"
 #include "TrigT1CaloCalibConditions/L1CaloCoolChannelId.h"
 #include "TrigT1CaloCalibToolInterfaces/IL1CaloOfflineTriggerTowerTools.h"
+#include "TrigT1Interfaces/TrigT1CaloDefs.h"
+
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
+
+namespace LVL1 {
+  class IL1TriggerTowerTool;
+}
 
 class L1CaloPprMonitoring : public AthAlgorithm
 {
@@ -76,7 +82,9 @@ class L1CaloPprMonitoring : public AthAlgorithm
 	L1CaloPprEtCorrelationPlotManager* m_etCorrelationPlotManager;
  
         ServiceHandle<StoreGateSvc> m_storeGate;
-        ToolHandle<LVL1::IL1CaloOfflineTriggerTowerTools> m_towerTools;
+        ToolHandle<LVL1::IL1CaloOfflineTriggerTowerTools> m_offlineTowerTools;
+	ToolHandle<LVL1::IL1TriggerTowerTool> m_towerTools;
+
         std::string m_triggerTowersLocation;
         std::string m_dbPpmDeadChannelsFolder;
         std::string m_dbPpmDisabledTowersFolder;
