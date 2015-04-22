@@ -14,8 +14,8 @@
 #include "MdtCalibData/MdtFullCalibData.h"
 #include "MdtCalibData/TrRelation.h"
 #include "MuonRecToolInterfaces/IMdtDriftCircleOnTrackCreator.h"
+#include "AtlasCLHEP_RandomGenerators/RandGaussZiggurat.h"
 #include <sstream>
-#include "TRandom3.h"
 
 using namespace MuGirlNS;
 
@@ -41,8 +41,10 @@ StauMDTT::MDTT::MDTT(StauTool* pStau, MsgStream&, const Muon::MdtDriftCircleOnTr
 
 }
 
-StauMDTT::StauMDTT(StauTool* pStau, MsgStream& log) :
-        m_pStau(pStau), m_log(log), m_pTrack(NULL), m_avgBeta(StauBetaDefault), m_rmsBeta(-1.)
+StauMDTT::StauMDTT(StauTool* pStau, MsgStream& log,
+                   CLHEP::HepRandomEngine& randEngine) :
+        m_pStau(pStau), m_log(log), m_pTrack(NULL), m_avgBeta(StauBetaDefault), m_rmsBeta(-1.),
+        m_randEngine (randEngine)
 {
     if (m_pStau->doCalibration()) m_pCalibration = m_pStau->calibration().getMdtCalibration();
 }
@@ -93,8 +95,7 @@ bool StauMDTT::initialize(const Trk::Track* pTrack)
                     t0Shift = itCalib->second.timeShift; //shift
                 else
                 { //smear
-                    TRandom3 rand(0);
-                    t0Shift = m_pStau->mdtSmearFactor() * rand.Gaus(0, error); //Sofia: Low 0.5 MID 0.9 HIGH 1.4
+                    t0Shift = m_pStau->mdtSmearFactor() * CLHEP::RandGaussZiggurat::shoot(&m_randEngine, 0, error); //Sofia: Low 0.5 MID 0.9 HIGH 1.4
                 }
             }
         }
