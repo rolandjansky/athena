@@ -1,5 +1,5 @@
 // Dear emacs, this is -*- c++ -*-
-// $Id: AsgMetadataTool.h 771072 2016-08-31 14:50:22Z krasznaa $
+// $Id: AsgMetadataTool.h 649341 2015-02-24 16:43:21Z krasznaa $
 #ifndef ASGTOOLS_ASGMETADATATOOL_H
 #define ASGTOOLS_ASGMETADATATOOL_H
 
@@ -41,8 +41,8 @@ namespace asg {
    ///
    /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
    ///
-   /// $Revision: 771072 $
-   /// $Date: 2016-08-31 16:50:22 +0200 (Wed, 31 Aug 2016) $
+   /// $Revision: 649341 $
+   /// $Date: 2015-02-24 17:43:21 +0100 (Tue, 24 Feb 2015) $
    ///
    class AsgMetadataTool : public AsgTool,
                            public virtual IIncidentListener {
@@ -100,7 +100,7 @@ namespace asg {
                                    T& out ) __attribute__ ((deprecated));
 
    protected:
-      /// @name Callback functions helping in metadata reading/writing
+      /// @name Callback functions helping in metadata reading
       /// @{
 
       /// Function receiving incidents from IncidentSvc/TEvent
@@ -109,15 +109,8 @@ namespace asg {
       /// Function called when a new input file is opened
       virtual StatusCode beginInputFile();
 
-      /// Function called when the currently open input file got completely
-      /// processed
-      virtual StatusCode endInputFile();
-
       /// Function called when a new events is loaded
       virtual StatusCode beginEvent();
-
-      /// Function called when the tool should write out its metadata
-      virtual StatusCode metaDataStop();
 
       /// @}
 
@@ -126,10 +119,6 @@ namespace asg {
       mutable MetaStore_t m_inputMetaStore;
       /// Object accessing the output metadata store
       mutable MetaStore_t m_outputMetaStore;
-
-      /// Flag helping to discover when the tool misses the opening of the first
-      /// input file
-      bool m_beginInputFileCalled;
 
    }; // class AsgMetadataTool
 

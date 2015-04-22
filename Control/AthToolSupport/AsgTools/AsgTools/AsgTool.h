@@ -1,5 +1,5 @@
 // Dear emacs, this is -*- c++ -*-
-// $Id: AsgTool.h 790658 2016-12-20 20:54:19Z leggett $
+// $Id: AsgTool.h 619923 2014-10-03 18:49:49Z dadams $
 #ifndef ASGTOOLS_ASGTOOL_H
 #define ASGTOOLS_ASGTOOL_H
 
@@ -12,15 +12,15 @@
 #ifdef ASGTOOL_STANDALONE
 #   include "AsgTools/AsgMessaging.h"
 #   include "AsgTools/SgTEvent.h"
-   // Forward declaration(s):
-   class Property;
-   class PropertyMgr;
 #elif defined(ASGTOOL_ATHENA)
 #   include "AthenaBaseComps/AthAlgTool.h"
 #else
 #   error "What environment are we in?!?"
 #endif // Environment selection
 
+// Forward declaration(s):
+class Property;
+class PropertyMgr;
 
 namespace asg {
 
@@ -40,8 +40,8 @@ namespace asg {
    ///
    /// @author David Adams <dladams@bnl.gov>
    ///
-   /// $Revision: 790658 $
-   /// $Date: 2016-12-20 21:54:19 +0100 (Tue, 20 Dec 2016) $
+   /// $Revision: 619923 $
+   /// $Date: 2014-10-03 20:49:49 +0200 (Fri, 03 Oct 2014) $
    ///
    class AsgTool : public virtual IAsgTool,
                    public AsgToolBase {
@@ -51,9 +51,6 @@ namespace asg {
       AsgTool( const std::string& name );
       /// Destructor
       ~AsgTool();
-
-
-     
 
 #ifdef ASGTOOL_STANDALONE
 
@@ -95,7 +92,13 @@ namespace asg {
 #endif // ASGTOOL_STANDALONE
 
 #ifdef ASGTOOL_ATHENA
-   public:
+
+      /// Method to set the type for Gaudi AlgTools.
+      /// For expert use only.
+      /// The ctor macros call this to set the type which is needed
+      /// by the trigger DB
+      void setAlgToolType( const std::string& type );
+
       /// Pull in the usage of the base class's getProperty function
       using ::AthAlgTool::getProperty;
 
@@ -136,8 +139,5 @@ namespace asg {
 
 // Include the implementation of the template functions:
 #include "AsgTools/AsgTool.icc"
-
-// Include static methods for working with AsgTools
-#include "AsgTools/SetProperty.h"
 
 #endif // ASGTOOLS_ASGTOOL_H

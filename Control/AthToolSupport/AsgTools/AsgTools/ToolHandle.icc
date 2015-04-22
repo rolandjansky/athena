@@ -1,5 +1,5 @@
 // Dear emacs, this is -*- c++ -*-
-// $Id: ToolHandle.icc 784417 2016-11-15 19:50:05Z krumnack $
+// $Id: ToolHandle.icc 659434 2015-04-08 11:53:27Z krasznaa $
 #ifndef ASGTOOLS_TOOLHANDLE_ICC
 #define ASGTOOLS_TOOLHANDLE_ICC
 
@@ -13,6 +13,7 @@
 template< class T >
 ToolHandle< T >::ToolHandle( T* ptool )
 : ToolHandleBase(), m_ptool( ptool ) {
+
    // Set the name in the base class in case we received a valid pointer:
    if( m_ptool ) {
       m_name = m_ptool->name();
@@ -20,13 +21,13 @@ ToolHandle< T >::ToolHandle( T* ptool )
 }
 
 template< class T >
-ToolHandle< T >::ToolHandle( const std::string& typeAndName, asg::IAsgTool* parent )
-: ToolHandleBase( typeAndName , parent ), m_ptool( 0 ) {
+ToolHandle< T >::ToolHandle( const std::string& typeAndName )
+: ToolHandleBase( typeAndName ), m_ptool( 0 ) {
 
 }
 
 template< class T >
-T& ToolHandle< T >::operator*() {
+T& ToolHandle< T >::operator*() const {
 
    // Retrieve the tool pointer if necessary:
    if( ! m_ptool ) {
@@ -43,50 +44,11 @@ T& ToolHandle< T >::operator*() {
 }
 
 template< class T >
-const T& ToolHandle< T >::operator*() const {
+T* ToolHandle<T>::operator->() const {
 
    // Retrieve the tool pointer if necessary:
    if( ! m_ptool ) {
       m_ptool = asg::ToolStore::get< T >( name() );
-   }
-   // Check if we succeeded:
-   if( ! m_ptool ) {
-      throw std::runtime_error( "Couldn't find tool with name \"" +
-                                name() + "\"" );
-   }
-
-   // Return a reference to the tool:
-   return *m_ptool;
-}
-
-template< class T >
-T* ToolHandle<T>::operator->() {
-
-   // Retrieve the tool pointer if necessary:
-   if( ! m_ptool ) {
-      m_ptool = asg::ToolStore::get< T >( name() );
-   }
-   // Check if we succeeded:
-   if( ! m_ptool ) {
-      throw std::runtime_error( "Couldn't find tool with name \"" +
-                                name() + "\"" );
-   }
-
-   // Return the (possibly null-)pointer to the tool:
-   return m_ptool;
-}
-
-template< class T >
-const T* ToolHandle<T>::operator->() const {
-
-   // Retrieve the tool pointer if necessary:
-   if( ! m_ptool ) {
-      m_ptool = asg::ToolStore::get< T >( name() );
-   }
-   // Check if we succeeded:
-   if( ! m_ptool ) {
-      throw std::runtime_error( "Couldn't find tool with name \"" +
-                                name() + "\"" );
    }
 
    // Return the (possibly null-)pointer to the tool:
@@ -119,20 +81,12 @@ bool ToolHandle< T >::empty() const {
 }
 
 template< class T >
-bool ToolHandle< T >::isSet() const {
-
-   return ( !( m_ptool == 0 ) );
-}
-
-template< class T >
 std::ostream& operator<<( std::ostream& out,
                           const ToolHandle< T >& handle ) {
 
-   out << "ASG ToolHandle with name = \"" << handle.name() << "\", pointer = ";
-   const T* ptool = nullptr;
-   if (handle.retrieve())
-     ptool = handle.operator->();
-   out << ptool;
+   T* ptool = handle.operator->();
+   out << "ASG ToolHandle with name = \"" << handle.name() << "\", pointer = "
+       << ptool;
 
    // Return the same stream object:
    return out;
