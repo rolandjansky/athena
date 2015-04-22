@@ -17,8 +17,8 @@
 #include "AtlasCLHEP_RandomGenerators/RandGaussZiggurat.h"
 
 //static const int nLayers = 15;    // Number of layers in the calorimeter (for beta tile)
-static const int nEbins  = 20;    // Number of energy bins in calorimeter calibration (for beta tile)
-static const int nEbinsDeca = 10; // Number of energy bins per decade in calorimeter calibration (for beta tile)
+static const int nEbins  = 44;    // Number of energy bins in calorimeter calibration (for beta tile)
+static const int nEbinsDeca = 20; // Number of energy bins per decade in calorimeter calibration (for beta tile)
 static const double Emin = 100.0; // Lowest cell energy (in MeV) used in calibration (for beta tile)
 
 //================ Constructor =================================================
