@@ -5,16 +5,13 @@
 #ifndef READMDTRDO_H
 #define READMDTRDO_H
 
-#include "GaudiKernel/Algorithm.h"
-
+#include "AthenaBaseComps/AthAlgorithm.h"
+#include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/NTuple.h"
 
-class ActiveStoreSvc;
-class MsgStream;
- 
 /////////////////////////////////////////////////////////////////////////////
 
-class ReadMdtRDO: public Algorithm {
+class ReadMdtRDO: public AthAlgorithm {
 
  public:
   ReadMdtRDO (const std::string& name, ISvcLocator* pSvcLocator);
@@ -25,7 +22,7 @@ class ReadMdtRDO: public Algorithm {
  protected:
  
   NTuple::Tuple* m_ntuplePtr;
-  ActiveStoreSvc* m_activeStore;
+  ServiceHandle<ActiveStoreSvc> m_activeStore;
 
  private:
 
@@ -48,12 +45,6 @@ class ReadMdtRDO: public Algorithm {
   NTuple::Array<long>  m_fine;      // fine()
   NTuple::Array<long>  m_coarse;      // coarse() 
   NTuple::Array<long>  m_width;      // width()
-
-  MsgStream* m_log;
-  bool m_debug;
-  bool m_verbose;
-
-  
 };
 
 #endif

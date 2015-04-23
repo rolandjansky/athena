@@ -11,17 +11,6 @@
 
 #include <cassert>
 
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/ISvcLocator.h"
-
-#include "StoreGate/StoreGate.h"
-#include "GaudiKernel/SmartDataPtr.h"
-#include "GaudiKernel/IDataProviderSvc.h"
-
-#include "GaudiKernel/PropertyMgr.h"
-
-#include "GaudiKernel/INTupleSvc.h"
-
 #include "MuonRDO/TgcRawData.h"
 #include "MuonRDO/TgcRdo.h"
 #include "MuonRDO/TgcRdoContainer.h"
@@ -34,13 +23,10 @@ const int MAX_RDO = 24;
 const int MAX_DATA = 1024;
 
 ReadTgcRDO::ReadTgcRDO(const std::string& name, ISvcLocator* pSvcLocator) :
-  Algorithm(name, pSvcLocator),
+  AthAlgorithm(name, pSvcLocator),
   m_ntuplePtr(0), 
-  m_activeStore(0), 
-  m_hashFunc(0), 
-  m_log(0), 
-  m_debug(false), 
-  m_verbose(false)
+  m_activeStore("ActiveStoreSvc", name),
+  m_hashFunc(0)
 {
   // Declare the properties
   declareProperty("NtupleLocID",m_NtupleLocID);
@@ -51,53 +37,32 @@ ReadTgcRDO::ReadTgcRDO(const std::string& name, ISvcLocator* pSvcLocator) :
 
 StatusCode ReadTgcRDO::initialize()
 {
-  m_log = new MsgStream(msgSvc(), name());
-  m_debug = m_log->level() <= MSG::DEBUG;
-  m_verbose = m_log->level() <= MSG::VERBOSE;
-  if(m_debug) *m_log << MSG::DEBUG << " in initialize()" << endreq;
-
-  // Store Gate active store
-  StatusCode sc = serviceLocator()->service("ActiveStoreSvc", m_activeStore);
-  if (sc != StatusCode::SUCCESS )
-    {
-      *m_log << (sc.isFailure() ? MSG::FATAL : MSG::ERROR) << " Cannot get ActiveStoreSvc " << endreq;
-      return sc ;
-    }
+  ATH_MSG_DEBUG( " in initialize()"  );
+  ATH_CHECK( m_activeStore.retrieve() );
 
   if (!m_tgcNtuple) return StatusCode::SUCCESS;
 
-  if ( accessNtuple() != StatusCode::SUCCESS || ! m_ntuplePtr )
-    {
-      *m_log << MSG::FATAL << "accessNtuple has failed !" << endreq;
-      return StatusCode::FAILURE;
-    }
+  ATH_CHECK( accessNtuple() );
 
   //  Add the following items to the ntuple:
 
-  sc = m_ntuplePtr -> addItem ("tgcrod/nrdo",   m_nRdo,     0, MAX_RDO);
-  sc = m_ntuplePtr -> addItem ("tgcrod/ndata",  m_nRawData, 0, MAX_DATA);
-  sc = m_ntuplePtr -> addItem ("tgcrod/l1Id",   m_nRdo,        m_l1Id);
-  sc = m_ntuplePtr -> addItem ("tgcrod/bcId",   m_nRdo,        m_bcId);
-  sc = m_ntuplePtr -> addItem ("tgcrod/bcTag",  m_nRawData,    m_bcTag);
-  sc = m_ntuplePtr -> addItem ("tgcrod/l1IdS",  m_nRawData,    m_l1IdSLB);
-  sc = m_ntuplePtr -> addItem ("tgcrod/bcIdS",  m_nRawData,    m_bcIdSLB);
-  sc = m_ntuplePtr -> addItem ("tgcrod/subID",  m_nRawData,    m_subId);
-  sc = m_ntuplePtr -> addItem ("tgcrod/rodID",  m_nRawData,    m_rodId);
-  sc = m_ntuplePtr -> addItem ("tgcrod/sswID",  m_nRawData,    m_sswId);
-  sc = m_ntuplePtr -> addItem ("tgcrod/slbID",  m_nRawData,    m_slbId);
-  sc = m_ntuplePtr -> addItem ("tgcrod/bitPos", m_nRawData,    m_bitPos);
-  sc = m_ntuplePtr -> addItem ("tgcrod/isCoincidence",m_nRawData,m_isCoincidence);
-  sc = m_ntuplePtr -> addItem ("tgcrod/type",m_nRawData,m_type);
-  sc = m_ntuplePtr -> addItem ("tgcrod/index",m_nRawData,m_index);
-  sc = m_ntuplePtr -> addItem ("tgcrod/pos",m_nRawData,m_pos);
-  sc = m_ntuplePtr -> addItem ("tgcrod/delta",m_nRawData,m_delta);
-
-  if ( sc == StatusCode::FAILURE )
-    {
-      *m_log << MSG::FATAL 
-	     << "Could not add items to column wise ntuple" << endreq;
-      return StatusCode::FAILURE;
-    }
+  ATH_CHECK( m_ntuplePtr -> addItem ("tgcrod/nrdo",   m_nRdo,     0, MAX_RDO) );
+  ATH_CHECK( m_ntuplePtr -> addItem ("tgcrod/ndata",  m_nRawData, 0, MAX_DATA) );
+  ATH_CHECK( m_ntuplePtr -> addItem ("tgcrod/l1Id",   m_nRdo,        m_l1Id) );
+  ATH_CHECK( m_ntuplePtr -> addItem ("tgcrod/bcId",   m_nRdo,        m_bcId) );
+  ATH_CHECK( m_ntuplePtr -> addItem ("tgcrod/bcTag",  m_nRawData,    m_bcTag) );
+  ATH_CHECK( m_ntuplePtr -> addItem ("tgcrod/l1IdS",  m_nRawData,    m_l1IdSLB) );
+  ATH_CHECK( m_ntuplePtr -> addItem ("tgcrod/bcIdS",  m_nRawData,    m_bcIdSLB) );
+  ATH_CHECK( m_ntuplePtr -> addItem ("tgcrod/subID",  m_nRawData,    m_subId) );
+  ATH_CHECK( m_ntuplePtr -> addItem ("tgcrod/rodID",  m_nRawData,    m_rodId) );
+  ATH_CHECK( m_ntuplePtr -> addItem ("tgcrod/sswID",  m_nRawData,    m_sswId) );
+  ATH_CHECK( m_ntuplePtr -> addItem ("tgcrod/slbID",  m_nRawData,    m_slbId) );
+  ATH_CHECK( m_ntuplePtr -> addItem ("tgcrod/bitPos", m_nRawData,    m_bitPos) );
+  ATH_CHECK( m_ntuplePtr -> addItem ("tgcrod/isCoincidence",m_nRawData,m_isCoincidence) );
+  ATH_CHECK( m_ntuplePtr -> addItem ("tgcrod/type",m_nRawData,m_type) );
+  ATH_CHECK( m_ntuplePtr -> addItem ("tgcrod/index",m_nRawData,m_index) );
+  ATH_CHECK( m_ntuplePtr -> addItem ("tgcrod/pos",m_nRawData,m_pos) );
+  ATH_CHECK( m_ntuplePtr -> addItem ("tgcrod/delta",m_nRawData,m_delta) );
 
   m_hashFunc = new TgcRdoIdHash();
    
@@ -108,18 +73,12 @@ StatusCode ReadTgcRDO::initialize()
 
 StatusCode ReadTgcRDO::execute()
 {
-  if ( m_debug ) *m_log << MSG::DEBUG << "in execute()" << endreq;
+  ATH_MSG_DEBUG( "in execute()"  );
 
   const DataHandle<TgcRdoContainer> TgcRDO; 
-  StatusCode sc_read = (*m_activeStore)->retrieve( TgcRDO, "TGCRDO" );
+  ATH_CHECK( (*m_activeStore)->retrieve( TgcRDO, "TGCRDO" ) );
 
-  if ( sc_read != SUCCESS )
-    {
-      *m_log << MSG::FATAL << "Could not find event" << endreq;
-      return StatusCode::FAILURE;
-    }
-
-  if ( m_debug ) *m_log << MSG::DEBUG <<"****** TgcRDO->size() : " << TgcRDO->size()<<endreq;
+  ATH_MSG_DEBUG("****** TgcRDO->size() : " << TgcRDO->size() );
 
   if (!m_tgcNtuple) return StatusCode::SUCCESS;
 
@@ -136,8 +95,7 @@ StatusCode ReadTgcRDO::execute()
      const TgcRdo * rdo = *itR;
      assert (m_nRdo < MAX_RDO);
 
-     if ( m_debug ) *m_log << MSG::DEBUG << " Number of RawData in this rdo " 
-	                   << rdo->size() << endreq;
+     ATH_MSG_DEBUG( " Number of RawData in this rdo "  << rdo->size()  );
 
      if ((*itR)->size() == 0) continue;
 
@@ -175,22 +133,20 @@ StatusCode ReadTgcRDO::execute()
 	   m_delta[m_nRawData] = 0;
 	 }
 
-	 if ( m_debug ) *m_log << MSG::DEBUG << MSG::hex
-	                       << " Sub : " << data->subDetectorId()
-	                       << " ROD : " << data->rodId() 
-	                       << " SSW : " << data->sswId()
-	                       << " SLB : " << data->slbId()
-	                       << " Ch  : " << data->bitpos()
-	                       << endreq;
+	 ATH_MSG_DEBUG( MSG::hex
+                        << " Sub : " << data->subDetectorId()
+                        << " ROD : " << data->rodId() 
+                        << " SSW : " << data->sswId()
+                        << " SLB : " << data->slbId()
+                        << " Ch  : " << data->bitpos() );
 
 	 ++m_nRawData;
        }
      ++m_nRdo;
    }
  
- if ( m_debug ) *m_log << MSG::DEBUG << " done collecting histograms" << endreq;
-
- if ( m_debug ) *m_log << MSG::DEBUG << "ReadTgcRDO::execute reports success" << endreq;
+ ATH_MSG_DEBUG( " done collecting histograms"  );
+ ATH_MSG_DEBUG( "ReadTgcRDO::execute reports success"  );
 
  return StatusCode::SUCCESS;
 }
@@ -199,19 +155,14 @@ StatusCode ReadTgcRDO::execute()
 
 StatusCode ReadTgcRDO::finalize()
 {
-  *m_log << MSG::INFO << "in finalize()" << endreq;
-  delete m_log;
-
+  ATH_MSG_INFO( "in finalize()"  );
   if (m_hashFunc) delete m_hashFunc;
-
   return StatusCode::SUCCESS;
 }
 
 
 StatusCode ReadTgcRDO::accessNtuple()
 {
-  MsgStream log(messageService(), name());
-
   m_NtupleLocID = "/NTUPLES" + m_NtupleLocID;
 
   //try to access it  
@@ -220,12 +171,12 @@ StatusCode ReadTgcRDO::accessNtuple()
   if ((int) nt)
     {
       m_ntuplePtr=nt;
-      *m_log << MSG::INFO << "Ntuple " << m_NtupleLocID 
-	     << " reaccessed! " << endreq;
+      ATH_MSG_INFO( "Ntuple " << m_NtupleLocID 
+                    << " reaccessed! "  );
     }
   else
     {
-      *m_log << MSG::FATAL << "Cannot reaccess " << m_NtupleLocID << endreq;
+      ATH_MSG_FATAL( "Cannot reaccess " << m_NtupleLocID  );
       return StatusCode::FAILURE;
     }
   

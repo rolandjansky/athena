@@ -5,16 +5,15 @@
 #ifndef READMDTDIGIT_H
 #define READMDTDIGIT_H
 
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/NTuple.h"
-#include "MuonIdHelpers/MdtIdHelper.h"
+#include "GaudiKernel/ServiceHandle.h"
 
-class ActiveStoreSvc;
-class MsgStream;
+class MdtIdHelper;
 
 /////////////////////////////////////////////////////////////////////////////
 
-class ReadMdtDigit: public Algorithm {
+class ReadMdtDigit: public AthAlgorithm {
 
  public:
   ReadMdtDigit (const std::string& name, ISvcLocator* pSvcLocator);
@@ -23,21 +22,20 @@ class ReadMdtDigit: public Algorithm {
   virtual StatusCode finalize();
 
  protected:
- 
+
   NTuple::Tuple* m_ntuplePtr;
-  ActiveStoreSvc* m_activeStore;
+  ServiceHandle<ActiveStoreSvc> m_activeStore;
 
  private:
 
   StatusCode accessNtuple();
-
   bool m_mdtNtuple;
 
   //Ntuple ID
   std::string     m_NtupleLocID;
 
   const MdtIdHelper* m_mdtIdHelper;
-  
+
   // Define variables in the Ntuple:
 
   NTuple::Item<long>   m_nColl;    // number of collection in the container
@@ -47,11 +45,6 @@ class ReadMdtDigit: public Algorithm {
   NTuple::Array<float> m_multi; // Return the multilayers
   NTuple::Array<float> m_layer;// Return the  layer in each multilayer.
   NTuple::Array<float> m_wire; // Return the wire in each layer.
-  
-  MsgStream* m_log;
-  bool m_debug;
-  bool m_verbose;
-
 };
 
 #endif

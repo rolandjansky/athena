@@ -5,16 +5,14 @@
 #ifndef MUONBYTESTREAMCNVTEST_READMDTPRD_H
 #define MUONBYTESTREAMCNVTEST_READMDTPRD_H
 
-#include "GaudiKernel/Algorithm.h"
-#include "MuonIdHelpers/MdtIdHelper.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/NTuple.h"
-#include "StoreGate/StoreGate.h"
+
+class MdtIdHelper;
 
 /////////////////////////////////////////////////////////////////////////////
 
-class MsgStream;
-
-class ReadMdtPRD: public Algorithm {
+class ReadMdtPRD: public AthAlgorithm {
 
  public:
   ReadMdtPRD (const std::string& name, ISvcLocator* pSvcLocator);
@@ -23,21 +21,17 @@ class ReadMdtPRD: public Algorithm {
   virtual StatusCode finalize();
 
  protected:
- 
   NTuple::Tuple* m_ntuplePtr;
-  StoreGateSvc* m_eventStore;
 
  private:
-
   StatusCode accessNtuple();
-
   bool m_mdtNtuple;
 
   //Ntuple ID
   std::string     m_NtupleLocID;
 
   const MdtIdHelper* m_mdtIdHelper;
-  
+
   // Define variables in the Ntuple:
 
   NTuple::Item<long>   m_nColl;    // number of collection in the container
@@ -47,11 +41,6 @@ class ReadMdtPRD: public Algorithm {
   NTuple::Array<float> m_multi;    // Return the multilayer number
   NTuple::Array<float> m_layer;    // Return the layer number
   NTuple::Array<float> m_wire;     // Return the tube number
-
-  MsgStream* m_log;
-  bool m_debug;
-  bool m_verbose;
-  
 };
 
 #endif

@@ -13,15 +13,7 @@
 //#include <strstream>
 #include <cassert>
 
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/ISvcLocator.h"
-
 #include "StoreGate/StoreGate.h"
-#include "GaudiKernel/SmartDataPtr.h"
-#include "GaudiKernel/IDataProviderSvc.h"
-#include "GaudiKernel/PropertyMgr.h"
-#include "GaudiKernel/INTupleSvc.h"
-
 #include "MuonRDO/RpcFiredChannel.h"
 #include "MuonRDO/RpcCoinMatrix.h"
 #include "MuonRDO/RpcPad.h"
@@ -38,8 +30,9 @@ static const int maxFiredChannels =  4096;
 /////////////////////////////////////////////////////////////////////////////
 
 ReadRpcRDO::ReadRpcRDO(const std::string& name, ISvcLocator* pSvcLocator) :
-  Algorithm(name, pSvcLocator), m_ntuplePtr(0), m_activeStore(0),
-  m_log(0), m_debug(false), m_verbose(false) {
+  AthAlgorithm(name, pSvcLocator), m_ntuplePtr(0),
+  m_activeStore("ActiveStoreSvc", name)
+{
   
   // Declare the properties
 
@@ -50,75 +43,47 @@ ReadRpcRDO::ReadRpcRDO(const std::string& name, ISvcLocator* pSvcLocator) :
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
 
-StatusCode ReadRpcRDO::initialize(){
-
-  m_log = new MsgStream(msgSvc(), name());
-  *m_log << MSG::DEBUG << " in initialize()" << endreq;
-  m_debug = m_log->level() <= MSG::DEBUG;
-  m_verbose = m_log->level() <= MSG::VERBOSE;
-
-  StatusCode sc;
-
-  // Store Gate active store
-  sc = serviceLocator()->service("ActiveStoreSvc", m_activeStore);
-  if (sc != StatusCode::SUCCESS ) {
-    *m_log << MSG::ERROR << " Cannot get ActiveStoreSvc " << endreq;
-    return sc ;
-  }
+StatusCode ReadRpcRDO::initialize()
+{
+  ATH_CHECK( m_activeStore.retrieve() );
 
   if (!m_rpcNtuple) return StatusCode::SUCCESS;
 
-  if ( accessNtuple() != StatusCode::SUCCESS || ! m_ntuplePtr ) {
-    *m_log << MSG::ERROR << "accessNtuple has failed !" << endreq;
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( accessNtuple() );
 
   //  Add the following items to the ntuple:
   //  --- numbers of pads, CMA and fired Channels
   //  --- pad, cma and fired channels data members
 
-  sc = m_ntuplePtr -> addItem ("rpcrod/npads",   m_nPads,          0, maxPad);
-  sc = m_ntuplePtr -> addItem ("rpcrod/ncmas",   m_nCMA,           0, maxCMA);
-  sc = m_ntuplePtr -> addItem ("rpcrod/fchan",   m_nFiredChannels, 0, maxFiredChannels);
-  sc = m_ntuplePtr -> addItem ("rpcrod/sector",  m_nPads,          m_sector);
-  sc = m_ntuplePtr -> addItem ("rpcrod/padId",   m_nPads,          m_padId);
-  sc = m_ntuplePtr -> addItem ("rpcrod/status",  m_nPads,          m_status);
-  sc = m_ntuplePtr -> addItem ("rpcrod/ercode",  m_nPads,          m_errorCode);
-  sc = m_ntuplePtr -> addItem ("rpcrod/cmaId",   m_nCMA,           m_cmaId);
-  sc = m_ntuplePtr -> addItem ("rpcrod/fel1Id",  m_nCMA,           m_fel1Id);
-  sc = m_ntuplePtr -> addItem ("rpcrod/febcId",  m_nCMA,           m_febcId);
-  sc = m_ntuplePtr -> addItem ("rpcrod/crc",     m_nCMA,           m_crc);  
-  sc = m_ntuplePtr -> addItem ("rpcrod/bcId",    m_nFiredChannels, m_bcId);  
-  sc = m_ntuplePtr -> addItem ("rpcrod/time",    m_nFiredChannels, m_time);  
-  sc = m_ntuplePtr -> addItem ("rpcrod/ijk",     m_nFiredChannels, m_ijk);  
-  sc = m_ntuplePtr -> addItem ("rpcrod/channel", m_nFiredChannels, m_channel);  
-
-  if ( sc == StatusCode::FAILURE ) {
-       
-    *m_log << MSG::ERROR 
-           << "Could not add items to column wise ntuple" << endreq;
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( m_ntuplePtr -> addItem ("rpcrod/npads",   m_nPads,          0, maxPad) );
+  ATH_CHECK( m_ntuplePtr -> addItem ("rpcrod/ncmas",   m_nCMA,           0, maxCMA) );
+  ATH_CHECK( m_ntuplePtr -> addItem ("rpcrod/fchan",   m_nFiredChannels, 0, maxFiredChannels) );
+  ATH_CHECK( m_ntuplePtr -> addItem ("rpcrod/sector",  m_nPads,          m_sector) );
+  ATH_CHECK( m_ntuplePtr -> addItem ("rpcrod/padId",   m_nPads,          m_padId) );
+  ATH_CHECK( m_ntuplePtr -> addItem ("rpcrod/status",  m_nPads,          m_status) );
+  ATH_CHECK( m_ntuplePtr -> addItem ("rpcrod/ercode",  m_nPads,          m_errorCode) );
+  ATH_CHECK( m_ntuplePtr -> addItem ("rpcrod/cmaId",   m_nCMA,           m_cmaId) );
+  ATH_CHECK( m_ntuplePtr -> addItem ("rpcrod/fel1Id",  m_nCMA,           m_fel1Id) );
+  ATH_CHECK( m_ntuplePtr -> addItem ("rpcrod/febcId",  m_nCMA,           m_febcId) );
+  ATH_CHECK( m_ntuplePtr -> addItem ("rpcrod/crc",     m_nCMA,           m_crc) );  
+  ATH_CHECK( m_ntuplePtr -> addItem ("rpcrod/bcId",    m_nFiredChannels, m_bcId) );  
+  ATH_CHECK( m_ntuplePtr -> addItem ("rpcrod/time",    m_nFiredChannels, m_time) );  
+  ATH_CHECK( m_ntuplePtr -> addItem ("rpcrod/ijk",     m_nFiredChannels, m_ijk) );  
+  ATH_CHECK( m_ntuplePtr -> addItem ("rpcrod/channel", m_nFiredChannels, m_channel) );  
 
   return StatusCode::SUCCESS;
-
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
 
 StatusCode ReadRpcRDO::execute() {
 
-  if ( m_debug ) *m_log << MSG::DEBUG << "in execute()" << endreq;
+  ATH_MSG_DEBUG( "in execute()"  );
 
   const DataHandle<RpcPadContainer> RpcRDO; 
-  StatusCode sc_read = (*m_activeStore)->retrieve( RpcRDO, "RPCPAD" );
+  ATH_CHECK( (*m_activeStore)->retrieve( RpcRDO, "RPCPAD" ) );
 
-  if ( sc_read != SUCCESS ) {
-    *m_log << MSG::FATAL << "Could not find event" << endreq;
-    return StatusCode::FAILURE;
-  }
-
- if ( m_debug ) *m_log << MSG::DEBUG <<"****** RpcRDO->size() : " << RpcRDO->size()<<endreq;
+  ATH_MSG_DEBUG("****** RpcRDO->size() : " << RpcRDO->size() );
 
   if (!m_rpcNtuple) return StatusCode::SUCCESS;
 
@@ -141,13 +106,13 @@ StatusCode ReadRpcRDO::execute() {
      m_padId[m_nPads]     = (long) pad->onlineId();
      m_status[m_nPads]    = (long) pad->status();
      m_errorCode[m_nPads] = (long) pad->errorCode();
-     if ( m_debug ) *m_log << MSG::DEBUG << " Number of CMA in this pad " << (*it1)->size() << endreq;
+     ATH_MSG_DEBUG( " Number of CMA in this pad " << (*it1)->size()  );
 
      // for each pad, loop over cma
      RpcPad::const_iterator it3 = (*it1)->begin(); 
      RpcPad::const_iterator it4 = (*it1)->end();
      for (; it3!=it4; ++it3) { 
-       if ( m_debug ) *m_log << MSG::DEBUG << " Number of fired channels in this cma " << (*it3)->size() << endreq;
+       ATH_MSG_DEBUG( " Number of fired channels in this cma " << (*it3)->size()  );
        const RpcCoinMatrix * cma = (*it3);
        assert (m_nCMA < maxCMA);
        m_cmaId[m_nCMA]  = (long) cma->onlineId();
@@ -173,30 +138,22 @@ StatusCode ReadRpcRDO::execute() {
    }
  }
 
- if ( m_debug ) { 
-   *m_log << MSG::DEBUG << " done collecting histograms" << endreq;
-
-   *m_log << MSG::DEBUG
-          << "ReadRpcRDO::execute reports success" 
-          << endreq;
-  }
-  return StatusCode::SUCCESS;
-
+ ATH_MSG_DEBUG( " done collecting histograms"  );
+ ATH_MSG_DEBUG( "ReadRpcRDO::execute reports success" );
+ return StatusCode::SUCCESS;
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
 
-StatusCode ReadRpcRDO::finalize() {
-
-  *m_log << MSG::INFO << "in finalize()" << endreq;
-
+StatusCode ReadRpcRDO::finalize()
+{
+  ATH_MSG_INFO( "in finalize()"  );
   return StatusCode::SUCCESS;
 }
 
 
-StatusCode ReadRpcRDO::accessNtuple() {
-
-
+StatusCode ReadRpcRDO::accessNtuple()
+{
   m_NtupleLocID = "/NTUPLES" + m_NtupleLocID ;
 
   //try to access it  
@@ -204,15 +161,14 @@ StatusCode ReadRpcRDO::accessNtuple() {
 
   if ((int) nt)     {
      m_ntuplePtr=nt;
-     *m_log << MSG::INFO << "Ntuple " << m_NtupleLocID << " reaccessed! " << endreq;
+     ATH_MSG_INFO( "Ntuple " << m_NtupleLocID << " reaccessed! "  );
   } 
   else {
-     *m_log << MSG::FATAL << "Cannot reaccess " << m_NtupleLocID << endreq;
+     ATH_MSG_FATAL( "Cannot reaccess " << m_NtupleLocID  );
      return StatusCode::FAILURE;
   }
 
   return StatusCode::SUCCESS;
-
 }
 
 

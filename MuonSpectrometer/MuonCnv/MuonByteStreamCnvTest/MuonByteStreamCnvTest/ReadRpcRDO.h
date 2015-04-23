@@ -5,16 +5,13 @@
 #ifndef READRPCRDO_H
 #define READRPCRDO_H
 
-#include "GaudiKernel/Algorithm.h"
-
+#include "AthenaBaseComps/AthAlgorithm.h"
+#include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/NTuple.h"
-
-class ActiveStoreSvc;
-class MsgStream;
 
 /////////////////////////////////////////////////////////////////////////////
 
-class ReadRpcRDO: public Algorithm {
+class ReadRpcRDO: public AthAlgorithm {
 
  public:
   ReadRpcRDO (const std::string& name, ISvcLocator* pSvcLocator);
@@ -23,14 +20,11 @@ class ReadRpcRDO: public Algorithm {
   virtual StatusCode finalize();
 
  protected:
- 
   NTuple::Tuple* m_ntuplePtr;
-  ActiveStoreSvc* m_activeStore;
+  ServiceHandle<ActiveStoreSvc> m_activeStore;
 
  private:
-
   StatusCode accessNtuple();
-
   bool m_rpcNtuple;
 
   //Ntuple ID
@@ -53,11 +47,6 @@ class ReadRpcRDO: public Algorithm {
   NTuple::Array<long>  m_time;           // time
   NTuple::Array<long>  m_ijk;            // ijk code
   NTuple::Array<long>  m_channel;        // fired channel
-
-  MsgStream* m_log;
-  bool m_debug;
-  bool m_verbose;
-
 };
 
 #endif

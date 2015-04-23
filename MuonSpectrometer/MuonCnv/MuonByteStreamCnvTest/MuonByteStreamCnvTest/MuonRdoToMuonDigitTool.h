@@ -5,16 +5,12 @@
 #ifndef MUONRDOTOMUONDIGITTOOL_H
 #define MUONRDOTOMUONDIGITTOOL_H 
 
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 //#include "CscCalibTools/CscCalibTool.h"
 #include "CscCalibTools/ICscCalibTool.h"
 
 #include "MuonDigToolInterfaces/IMuonDigitizationTool.h"
-
-class ActiveStoreSvc;
-class StoreGateSvc;
-class MsgStream;
 
 class MdtIdHelper;
 class CscIdHelper;
@@ -56,7 +52,7 @@ namespace Muon {
 // loop over the digits and build the digit container
 // store the digit container in StoreGate
 
-class MuonRdoToMuonDigitTool : virtual public IMuonDigitizationTool, public AlgTool {
+class MuonRdoToMuonDigitTool : virtual public IMuonDigitizationTool, public AthAlgTool {
 
  public:
 
@@ -88,8 +84,7 @@ class MuonRdoToMuonDigitTool : virtual public IMuonDigitizationTool, public AlgT
  private:
 
   // store gate transactions
-  ActiveStoreSvc    *           m_acSvc;
-  ServiceHandle<StoreGateSvc>   m_sgSvc;
+  ServiceHandle<ActiveStoreSvc> m_acSvc;
   ToolHandle<ICscCalibTool>     m_cscCalibTool;
   ToolHandle<Muon::IMDT_RDO_Decoder>  m_mdtRdoDecoderTool;
   ToolHandle<Muon::ICSC_RDO_Decoder>  m_cscRdoDecoderTool;
@@ -125,10 +120,6 @@ class MuonRdoToMuonDigitTool : virtual public IMuonDigitizationTool, public AlgT
       sub=103 rod=9 ssw=6 slb=20 bitpos=151 +offset=0 orFlag=0
   */
   bool m_show_warning_level_invalid_TGC_A09_SSW6_hit;
-
-  MsgStream* m_log;
-  bool m_debug;
-  bool m_verbose;
 
   bool m_retrievePrivateCopy;
 

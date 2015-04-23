@@ -5,13 +5,9 @@
 #ifndef RPCDIGITTORPCRDO_H
 #define RPCDIGITTORPCRDO_H
 
-#include <vector>
-
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/Property.h"
 #include "StoreGate/DataHandle.h"
-#include "Identifier/Identifier.h"
 
 #include "RPCcablingInterface/IRPCcablingServerSvc.h"
 //#include "RPCgeometry/IRPCgeometrySvc.h"
@@ -26,15 +22,11 @@
 
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 
-class ActiveStoreSvc;
-class MsgStream;
 class RpcIdHelper;
-class ITagInfoMgr;
-
 
 /////////////////////////////////////////////////////////////////////////////
 
-class RpcDigitToRpcRDO : public Algorithm {
+class RpcDigitToRpcRDO : public AthAlgorithm {
 
 public:
 
@@ -74,15 +66,12 @@ private:
   BooleanProperty m_data_detail;           // flag to printout detailed INFO on
                                            // processed data
 
-  unsigned int m_simu_code;  
+  //unsigned int m_simu_code;  
 
   StatusCode fill_RPCdata(RPCsimuData&);
 
 protected:
-
-  ActiveStoreSvc    *  m_activeStore;
-  ServiceHandle<StoreGateSvc> m_EvtStore;
-  
+  ServiceHandle<ActiveStoreSvc>  m_activeStore;
   const MuonGM::MuonDetectorManager* m_MuonMgr;
   StatusCode fillTagInfo() const;
 
@@ -91,14 +80,7 @@ protected:
 
   RpcPadContainer*      m_padContainer;
   const RpcIdHelper*    m_rpcHelper;
-  ITagInfoMgr          * m_tagInfoMgr;   // Tag Info Manager
-
-  MsgStream* m_log;
-  bool m_debug;
-  bool m_verbose;
   std::string  m_cablingType;
-
-
 };
 
 #endif

@@ -2,21 +2,17 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/StatusCode.h"
-
-#include "StoreGate/StoreGate.h"
 #include "StoreGate/StoreGateSvc.h"
-
-#include "GaudiKernel/PropertyMgr.h"
-#include "GaudiKernel/IToolSvc.h"
 
 #include "MuonDigitContainer/MdtDigitContainer.h"
 #include "MuonDigitContainer/MdtDigitCollection.h"
 #include "MuonDigitContainer/MdtDigit.h"
 
+#include "MuonMDT_Cabling/MuonMDT_CablingSvc.h"
+
 #include "MuonRDO/MdtCsmIdHash.h"
+#include "MuonRDO/MdtCsmContainer.h"
+#include "MuonRDO/MdtCsm.h"
 
 #include "MuonByteStreamCnvTest/MdtDigitToMdtRDO.h"
 
@@ -32,75 +28,25 @@ using namespace std;
 /////////////////////////////////////////////////////////////////////////////
 
 MdtDigitToMdtRDO::MdtDigitToMdtRDO(const std::string& name, ISvcLocator* pSvcLocator) :
-  Algorithm(name, pSvcLocator), m_activeStore(0), m_EvtStore("StoreGateSvc", name),
-  m_cabling(0), m_csmContainer(0), m_mdtIdHelper(0), m_tagInfoMgr(0), m_log(0),
-  m_debug(false), m_verbose(false), m_BMEpresent(false)
+  AthAlgorithm(name, pSvcLocator),
+  m_activeStore("ActiveStoreSvc", name), 
+  m_cabling("MuonMDT_CablingSvc", name),
+  m_csmContainer(0), m_mdtIdHelper(0),
+  m_BMEpresent(false)
 {
-
-  declareProperty("Store", m_EvtStore, "help");
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
 
-StatusCode MdtDigitToMdtRDO::initialize(){
+StatusCode MdtDigitToMdtRDO::initialize()
+{
+  ATH_MSG_DEBUG( " in initialize()"  );
+  ATH_CHECK( m_activeStore.retrieve() );
+  ATH_CHECK( detStore()->retrieve(m_mdtIdHelper,"MDTIDHELPER") );
+  ATH_CHECK( m_cabling.retrieve() );
 
-  m_log = new MsgStream(msgSvc(), name());
-  *m_log << MSG::DEBUG << " in initialize()" << endreq;
-  m_debug = m_log->level() <= MSG::DEBUG;
-  m_verbose = m_log->level() <= MSG::VERBOSE;
-
-  StatusCode sc;
-
-  // initialize the StoreGate service
-  sc = serviceLocator()->service("ActiveStoreSvc", m_activeStore);
-  if (sc != StatusCode::SUCCESS ) {
-    *m_log << MSG::ERROR << " Cannot get ActiveStoreSvc " << endreq;
-    return sc ;
-  }
-  
-   // intitialize transient event store
-  if (m_EvtStore.retrieve().isFailure()) {
-     *m_log << MSG::FATAL << "Could not retrieve  StoreGate Service !" << endreq;
-     return StatusCode::FAILURE;
-  }
- 
-  
-  StoreGateSvc* detStore = 0;
-  sc = serviceLocator()->service("DetectorStore", detStore);
-  if (sc.isFailure()) {
-    *m_log << MSG::FATAL << "DetectorStore service not found !" << endreq;
-    return StatusCode::FAILURE;
-  } 
-  
-  sc = detStore->retrieve(m_mdtIdHelper,"MDTIDHELPER");
-  if (sc.isFailure()) {
-    *m_log << MSG::FATAL << "Cannot get MdtIdHelper" << endreq;
-    return StatusCode::FAILURE;
-  }  
-  else {
-    *m_log << MSG::DEBUG << " Found the MdtIdHelper. " << endreq;
-  }
-
-  // initialize MDT cabling service
-  sc = serviceLocator()->service("MuonMDT_CablingSvc", m_cabling);
-  if (sc != StatusCode::SUCCESS ) 
-    {
-      *m_log << MSG::ERROR << " Cannot get MDT cabling Service " << endreq;
-      return sc ;
-    }
-
-
-  // get TagInfoMgr
-  sc = service("TagInfoMgr", m_tagInfoMgr);
-  if ( sc.isFailure() || m_tagInfoMgr==0) {
-    *m_log << MSG::WARNING << " Unable to locate TagInfoMgr service" << endreq;
-  }
-
-  // fill the taginfo information
-  sc = fillTagInfo();
-  if (sc != StatusCode::SUCCESS) {
-    *m_log << MSG::WARNING << "Could not fill the tagInfo for MDT cabling" << endreq;
-    
+  if ( fillTagInfo().isFailure() ) {
+    ATH_MSG_WARNING( "Could not fill the tagInfo for MDT cabling"  );
   }
 
   // create an empty pad container and record it
@@ -109,7 +55,8 @@ StatusCode MdtDigitToMdtRDO::initialize(){
 
   // check if the layout includes elevator chambers
   m_BMEpresent = m_mdtIdHelper->stationNameIndex("BME") != -1;
-  if ( m_BMEpresent ) *m_log << MSG::INFO << "Processing configuration for layouts with BME chambers." << endreq;
+  if ( m_BMEpresent )
+    ATH_MSG_INFO( "Processing configuration for layouts with BME chambers."  );
   
   return StatusCode::SUCCESS;
 }
@@ -122,18 +69,16 @@ StatusCode MdtDigitToMdtRDO::initialize(){
 
 StatusCode MdtDigitToMdtRDO::execute() {
 
-  if ( m_debug ) *m_log << MSG::DEBUG << "in execute()" << endreq;
-
-  StatusCode sc;
+  ATH_MSG_DEBUG( "in execute()"  );
 
   m_csmContainer->cleanup();
   std::string key = "MDTCSM";
-  m_activeStore->setStore( &*m_EvtStore );
-  sc = m_EvtStore->record(m_csmContainer,key);
-  if (sc.isFailure()) *m_log << MSG::ERROR << "Fail to record MDT CSM container in TDS" << endreq;
+  m_activeStore->setStore( &*evtStore() );
+  StatusCode sc = evtStore()->record(m_csmContainer,key);
+  if (sc.isFailure()) ATH_MSG_ERROR( "Fail to record MDT CSM container in TDS"  );
 
   sc = fill_MDTdata();
-  if (sc.isFailure()) *m_log << MSG::ERROR << "MdtDigitiToMdtRDO fail to execute" << endreq;
+  if (sc.isFailure()) ATH_MSG_ERROR( "MdtDigitiToMdtRDO fail to execute"  );
 
   return StatusCode::SUCCESS;
 }
@@ -141,22 +86,19 @@ StatusCode MdtDigitToMdtRDO::execute() {
 
 StatusCode MdtDigitToMdtRDO::finalize() {
  
-  *m_log << MSG::DEBUG << "in finalize()" << endreq;
-  delete m_log;
+  ATH_MSG_DEBUG( "in finalize()"  );
   if(m_csmContainer) m_csmContainer->release();
- 
   return StatusCode::SUCCESS;
 }
 
 
 StatusCode MdtDigitToMdtRDO::fill_MDTdata() const {
 
-  StatusCode sc;
-  if ( m_debug ) *m_log << MSG::DEBUG << "in execute() : fill_MDTdata" << endreq;
+  ATH_MSG_DEBUG( "in execute() : fill_MDTdata"  );
 
   IdContext mdtContext = m_mdtIdHelper->module_context();
 
-  m_activeStore->setStore( &*m_EvtStore );
+  m_activeStore->setStore( &*evtStore() );
 
   typedef MdtDigitContainer::const_iterator collection_iterator;
   typedef MdtDigitCollection::const_iterator digit_iterator;
@@ -164,11 +106,7 @@ StatusCode MdtDigitToMdtRDO::fill_MDTdata() const {
   // Retrieve the digit container
   std::string key = "MDT_DIGITS";
   const MdtDigitContainer* container;
-  sc = m_EvtStore->retrieve(container,key);
-  if (sc.isFailure()) {
-    *m_log << MSG::ERROR << "Cannot retrieve MDT Container" << endreq;
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( evtStore()->retrieve(container,key) );
 
   MdtCsmIdHash hashF;
 
@@ -197,12 +135,11 @@ StatusCode MdtDigitToMdtRDO::fill_MDTdata() const {
 					    tdc, channel);
 
       if (!cabling) {
-	*m_log << MSG::ERROR 
-	       << "MDTcabling can't return an online ID for the channel : " << endreq;
-	*m_log << MSG::ERROR << name << " "
-	       << eta << " " << phi << " "
-	       << "and dummy multilayer=1, layer=1, tube=1 ." << endreq;
-	assert(false);
+	ATH_MSG_ERROR( "MDTcabling can't return an online ID for the channel : "  );
+	ATH_MSG_ERROR( name << " "
+                       << eta << " " << phi << " "
+                       << "and dummy multilayer=1, layer=1, tube=1 ."  );
+        std::abort();
       } 
 
       Identifier chid1, chid2;
@@ -248,12 +185,11 @@ StatusCode MdtDigitToMdtRDO::fill_MDTdata() const {
 					   link_2ndcsm, tdc_2ndcsm, channel_2ndcsm);
 
 	  if (!cabling) {
-	    *m_log << MSG::ERROR 
-		   << "MDTcabling can't return an online ID for the channel : " << endreq;
-	    *m_log << MSG::ERROR << name << " "
-		   << eta << " " << phi << " "
-		   << " and dummy multilayer=1, layer=1, tube=1 ." << endreq;
-	    assert(false);
+	    ATH_MSG_ERROR( "MDTcabling can't return an online ID for the channel : "  );
+	    ATH_MSG_ERROR( name << " "
+                           << eta << " " << phi << " "
+                           << " and dummy multilayer=1, layer=1, tube=1 ."  );
+            std::abort();
 	  } 
 
 	  mdtCsm_2nd = new MdtCsm(chid2, elementHash_2nd, subsystem_2ndcsm, mrod_2ndcsm, link_2ndcsm);
@@ -281,12 +217,11 @@ StatusCode MdtDigitToMdtRDO::fill_MDTdata() const {
 					       tdc, channel);
 	            
 	      if (!cabling) {
-		*m_log << MSG::ERROR 
-		       << "MDTcabling can't return an online ID for the channel : " << endreq;
-		*m_log << MSG::ERROR << name << " "
-		       << eta << " " << phi << " "
-		       << multilayer << " " << layer << " " << tube << endreq;
-		assert(false);
+		ATH_MSG_ERROR( "MDTcabling can't return an online ID for the channel : "  );
+		ATH_MSG_ERROR( name << " "
+                               << eta << " " << phi << " "
+                               << multilayer << " " << layer << " " << tube  );
+                std::abort();
 	      } 
 
 	      bool masked = mdtDigit->is_masked();
@@ -302,15 +237,15 @@ StatusCode MdtDigitToMdtRDO::fill_MDTdata() const {
 	            
 	      amtHit->setValues(coarse, fine, width);
 	            
-	      if ( m_debug ) *m_log << MSG::DEBUG << "Adding a new AmtHit" << endreq;
-	      if ( m_debug ) *m_log << MSG::DEBUG << "Subdet : " << (int) subsystem 
-		                    << " mrod : " << (int) mrod 
-		                    << " link : " << (int) link << endreq;
-	      if ( m_debug ) *m_log << MSG::DEBUG << " Tdc : " << (int) tdc
-		                    << " Channel : " << (int) channel 
-		                    << " Coarse time : " << coarse 
-		                    << " Fine time : " << fine 
-		                    << " Width : " << width << endreq; 
+	      ATH_MSG_DEBUG( "Adding a new AmtHit"  );
+	      ATH_MSG_DEBUG( "Subdet : " << (int) subsystem 
+                             << " mrod : " << (int) mrod 
+                             << " link : " << (int) link  );
+	      ATH_MSG_DEBUG( " Tdc : " << (int) tdc
+                             << " Channel : " << (int) channel 
+                             << " Coarse time : " << coarse 
+                             << " Fine time : " << fine 
+                             << " Width : " << width  );
 
 	      // Add the digit to the CSM
 	      if( name != 53 ) mdtCsm->push_back(amtHit);
@@ -319,7 +254,7 @@ StatusCode MdtDigitToMdtRDO::fill_MDTdata() const {
 		else if( link == mdtCsm_2nd->CsmId() ) mdtCsm_2nd->push_back(amtHit);
 		else {
 		  delete amtHit; amtHit = NULL;
-		  *m_log << MSG::ERROR << "There's a BME digit that doesn't match a CSM" << endreq;
+		  ATH_MSG_ERROR( "There's a BME digit that doesn't match a CSM"  );
 		}
 	      }
 	            
@@ -328,15 +263,15 @@ StatusCode MdtDigitToMdtRDO::fill_MDTdata() const {
 	}
 
       // Add the CSM to the CsmContainer
-      m_activeStore->setStore( &*m_EvtStore );
-      sc = m_csmContainer->addCollection(mdtCsm, elementHash);
+      m_activeStore->setStore( &*evtStore() );
+      StatusCode sc = m_csmContainer->addCollection(mdtCsm, elementHash);
       if (sc.isFailure())
-	*m_log << MSG::WARNING << "Unable to record MDT CSM in IDC" << endreq;
+	ATH_MSG_WARNING( "Unable to record MDT CSM in IDC"  );
         //delete mdtCsm;
       if ( name == 53 && m_BMEpresent) {
 	sc = m_csmContainer->addCollection(mdtCsm_2nd, elementHash_2nd);
 	if (sc.isFailure()) 
-	  *m_log << MSG::WARNING << "Unable to record MDT CSM in IDC 2nd" << endreq;
+	  ATH_MSG_WARNING( "Unable to record MDT CSM in IDC 2nd"  );
       }
     }
   return StatusCode::SUCCESS;
@@ -345,7 +280,9 @@ StatusCode MdtDigitToMdtRDO::fill_MDTdata() const {
 
 StatusCode MdtDigitToMdtRDO::fillTagInfo() const {
 
-  if (m_tagInfoMgr==0) return StatusCode::FAILURE;
+  ServiceHandle<ITagInfoMgr> tagInfoMgr ("TagInfoMgr", name());
+  if (tagInfoMgr.retrieve().isFailure())
+    return StatusCode::FAILURE;
   
   std::string cablingType="";
   if (m_cabling->usingOldCabling() ) {
@@ -355,17 +292,15 @@ StatusCode MdtDigitToMdtRDO::fillTagInfo() const {
     cablingType="NewMDT_Cabling";
   }
 
-  StatusCode sc = m_tagInfoMgr->addTag("MDT_CablingType",cablingType); 
+  StatusCode sc = tagInfoMgr->addTag("MDT_CablingType",cablingType); 
   
   if(sc.isFailure()) {
-    *m_log << MSG::WARNING << "MDT_CablingType " << cablingType
-	   << " not added to TagInfo " << endreq;
+    ATH_MSG_WARNING( "MDT_CablingType " << cablingType
+                     << " not added to TagInfo "  );
     return sc;
   } else {
-    if ( m_debug ) {
-      *m_log << MSG::DEBUG << "MDT_CablingType " << cablingType
-	     << " is Added TagInfo " << endreq;
-    }
+    ATH_MSG_DEBUG( "MDT_CablingType " << cablingType
+                   << " is Added TagInfo "  );
   }
   
   return StatusCode::SUCCESS;

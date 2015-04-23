@@ -5,42 +5,31 @@
 #ifndef READTGCRDO_H
 #define READTGCRDO_H
 
-#include "GaudiKernel/Algorithm.h"
-
+#include "AthenaBaseComps/AthAlgorithm.h"
+#include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/NTuple.h"
-
-class ActiveStoreSvc;
-class MsgStream;
 
 /////////////////////////////////////////////////////////////////////////////
 
-class ReadTgcRDO: public Algorithm 
+class ReadTgcRDO: public AthAlgorithm
 {
 public:
-  
   ReadTgcRDO (const std::string& name, ISvcLocator* pSvcLocator);
   virtual StatusCode initialize();
   virtual StatusCode execute();
   virtual StatusCode finalize();
 
 protected:
-  
   NTuple::Tuple* m_ntuplePtr;
-  ActiveStoreSvc* m_activeStore;
+  ServiceHandle<ActiveStoreSvc> m_activeStore;
   TgcRdoIdHash* m_hashFunc;
 
 private:
-
   StatusCode accessNtuple();
-
   bool m_tgcNtuple;
 
   //Ntuple ID
   std::string     m_NtupleLocID;
-
-  MsgStream* m_log;
-  bool m_debug;
-  bool m_verbose;
 
   // Define variables in the Ntuple:
 

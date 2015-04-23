@@ -2,19 +2,10 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "StoreGate/StoreGate.h"
-
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/SmartDataPtr.h"
-#include "GaudiKernel/IDataProviderSvc.h"
-#include "GaudiKernel/PropertyMgr.h"
-#include "GaudiKernel/INTupleSvc.h"
-
+#include "MuonByteStreamCnvTest/ReadTgcDigit.h"
 #include "MuonIdHelpers/TgcIdHelper.h"
 #include "MuonDigitContainer/TgcDigitCollection.h"
 #include "MuonDigitContainer/TgcDigitContainer.h"
-#include "MuonByteStreamCnvTest/ReadTgcDigit.h"
 
 const int maxColl = 1600;
 const int maxDig  = 4096;
@@ -22,13 +13,10 @@ const int maxDig  = 4096;
 /////////////////////////////////////////////////////////////////////////////
 
 ReadTgcDigit::ReadTgcDigit(const std::string& name, ISvcLocator* pSvcLocator)
-  : Algorithm(name, pSvcLocator), 
+  : AthAlgorithm(name, pSvcLocator), 
     m_ntuplePtr(0), 
-    m_activeStore(0), 
-    m_tgcIdHelper(0), 
-    m_log(0),
-    m_debug(false), 
-    m_verbose(false)
+    m_activeStore("ActiveStoreSvc", name),
+    m_tgcIdHelper(0)
 {
   // Declare the properties
   declareProperty("NtupleLocID",m_NtupleLocID);
@@ -39,64 +27,25 @@ ReadTgcDigit::ReadTgcDigit(const std::string& name, ISvcLocator* pSvcLocator)
 
 StatusCode ReadTgcDigit::initialize()
 {
-  m_log = new MsgStream(msgSvc(), name());
-  m_debug = m_log->level() <= MSG::DEBUG;
-  m_verbose = m_log->level() <= MSG::VERBOSE;
-  if(m_debug) *m_log << MSG::DEBUG << " in initialize()" << endreq;
-
-  // Store Gate active store
-  StatusCode sc = serviceLocator()->service("ActiveStoreSvc", m_activeStore);
-  if (sc.isFailure())
-    {
-      *m_log << MSG::FATAL << "Cannot get ActiveStoreSvc" << endreq;
-      return sc ;
-    }
-
-  // Initialize the IdHelper
-  StoreGateSvc* detStore = 0;
-  sc = service("DetectorStore", detStore);
-  if (sc.isFailure())
-    {
-      *m_log << MSG::FATAL << "Can't locate the DetectorStore" << endreq;
-      return sc;
-    }
-
-  // get TGC ID helper
-  sc = detStore->retrieve( m_tgcIdHelper, "TGCIDHELPER");
-  if (sc.isFailure())
-    {
-      *m_log << MSG::FATAL << "Could not get TgcIdHelper !" << endreq;
-      return sc;
-    }
+  ATH_MSG_DEBUG( " in initialize()"  );
+  ATH_CHECK( m_activeStore.retrieve() );
+  ATH_CHECK( detStore()->retrieve( m_tgcIdHelper, "TGCIDHELPER") );
 
   if (!m_tgcNtuple) return StatusCode::SUCCESS;
 
-  sc = accessNtuple();
-
-  if (sc.isFailure())
-    {
-      *m_log << MSG::FATAL << "accessNtuple has failed !" << endreq;
-      return StatusCode::FAILURE;
-    }
+  ATH_CHECK( accessNtuple() );
 
   // add items
-  sc = m_ntuplePtr -> addItem ("tgcdig/TGCncoll",   m_nColl, 0, maxColl);
-  sc = m_ntuplePtr -> addItem ("tgcdig/TGCndig",    m_nDig,  0, maxDig);
-  sc = m_ntuplePtr -> addItem ("tgcdig/TGCstation", m_nDig,  m_stationName);
-  sc = m_ntuplePtr -> addItem ("tgcdig/TGCeta",     m_nDig,  m_stationEta);
-  sc = m_ntuplePtr -> addItem ("tgcdig/TGCphi",     m_nDig,  m_stationPhi);
-  sc = m_ntuplePtr -> addItem ("tgcdig/TGCgasgap",  m_nDig,  m_gasGap);
-  sc = m_ntuplePtr -> addItem ("tgcdig/TGCisstrip", m_nDig,  m_isStrip);
-  sc = m_ntuplePtr -> addItem ("tgcdig/TGCchannel", m_nDig,  m_channel);
-  sc = m_ntuplePtr -> addItem ("tgcdig/TGCbctag",   m_nDig,  m_bcTag);
+  ATH_CHECK( m_ntuplePtr -> addItem ("tgcdig/TGCncoll",   m_nColl, 0, maxColl) );
+  ATH_CHECK( m_ntuplePtr -> addItem ("tgcdig/TGCndig",    m_nDig,  0, maxDig) );
+  ATH_CHECK( m_ntuplePtr -> addItem ("tgcdig/TGCstation", m_nDig,  m_stationName) );
+  ATH_CHECK( m_ntuplePtr -> addItem ("tgcdig/TGCeta",     m_nDig,  m_stationEta) );
+  ATH_CHECK( m_ntuplePtr -> addItem ("tgcdig/TGCphi",     m_nDig,  m_stationPhi) );
+  ATH_CHECK( m_ntuplePtr -> addItem ("tgcdig/TGCgasgap",  m_nDig,  m_gasGap) );
+  ATH_CHECK( m_ntuplePtr -> addItem ("tgcdig/TGCisstrip", m_nDig,  m_isStrip) );
+  ATH_CHECK( m_ntuplePtr -> addItem ("tgcdig/TGCchannel", m_nDig,  m_channel) );
+  ATH_CHECK( m_ntuplePtr -> addItem ("tgcdig/TGCbctag",   m_nDig,  m_bcTag) );
   
-  if (sc.isFailure())
-    {
-      *m_log << MSG::FATAL 
-	     << "Could not add items to column wise ntuple" << endreq;
-      return StatusCode::FAILURE;
-    }
-
   return StatusCode::SUCCESS;
 }
 
@@ -104,19 +53,14 @@ StatusCode ReadTgcDigit::initialize()
 
 StatusCode ReadTgcDigit::execute()
 {
-  if ( m_debug ) *m_log << MSG::DEBUG << "in execute()" << endreq;
+  ATH_MSG_DEBUG( "in execute()"  );
 
   // get TGC digit container
   const std::string key = "TGC_DIGITS";
   const DataHandle<TgcDigitContainer> tgc_container;
-  StatusCode sc = (*m_activeStore)->retrieve(tgc_container, key);
-  if (sc.isFailure())
-    {
-      *m_log << MSG::FATAL << "Cannot retrieve TGC Digit Container" << endreq;
-      return sc;
-    }
+  ATH_CHECK( (*m_activeStore)->retrieve(tgc_container, key) );
  
-  if ( m_debug ) *m_log << MSG::DEBUG <<"****** tgc->size() : " << tgc_container->size()<<endreq;
+  ATH_MSG_DEBUG("****** tgc->size() : " << tgc_container->size() );
 
   if (!m_tgcNtuple) return StatusCode::SUCCESS; 
 
@@ -154,7 +98,7 @@ StatusCode ReadTgcDigit::execute()
 	  
 	  vID.push_back(id);
 	  
-	  if ( m_debug ) *m_log << MSG::DEBUG << "Digit number " << m_nDig << endreq;
+          ATH_MSG_DEBUG( "Digit number " << m_nDig  );
 
 	  // ID information
 	  m_stationName[m_nDig] = m_tgcIdHelper->stationName(id);
@@ -165,32 +109,27 @@ StatusCode ReadTgcDigit::execute()
 	  m_channel    [m_nDig] = m_tgcIdHelper->channel(id); 
 	  m_bcTag      [m_nDig] = bctag;
 
-	  if ( m_debug ) *m_log << MSG::DEBUG
-	                        << MSG::hex
-	                        << " N_" << m_tgcIdHelper->stationName(id)
-	                        << " E_" << m_tgcIdHelper->stationEta(id)
-	                        << " P_" << m_tgcIdHelper->stationPhi(id)
-	                        << " G_" << m_tgcIdHelper->gasGap(id)
-	                        << " C_" << m_tgcIdHelper->channel(id)
-	                        << endreq;
+	  ATH_MSG_DEBUG( MSG::hex
+                         << " N_" << m_tgcIdHelper->stationName(id)
+                         << " E_" << m_tgcIdHelper->stationEta(id)
+                         << " P_" << m_tgcIdHelper->stationPhi(id)
+                         << " G_" << m_tgcIdHelper->gasGap(id)
+                         << " C_" << m_tgcIdHelper->channel(id) );
 
 	  ++m_nDig;
 	}
       ++m_nColl;
   }
 
- if ( m_debug ) *m_log << MSG::DEBUG << "execute() completed" 
-                       << endreq;
- 
- return StatusCode::SUCCESS;
+  ATH_MSG_DEBUG( "execute() completed" );
+  return StatusCode::SUCCESS;
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
 
 StatusCode ReadTgcDigit::finalize()
 {
-  if ( m_debug ) *m_log << MSG::DEBUG << "in finalize()" << endreq;
-
+  ATH_MSG_DEBUG( "in finalize()"  );
   return StatusCode::SUCCESS;
 }
 
@@ -206,12 +145,12 @@ StatusCode ReadTgcDigit::accessNtuple()
   if (static_cast<int>(nt))
     {
       m_ntuplePtr=nt;
-      if ( m_debug ) *m_log << MSG::INFO << "Ntuple " << m_NtupleLocID 
-	                    << " reaccessed! " << endreq;
+      ATH_MSG_INFO( "Ntuple " << m_NtupleLocID 
+                    << " reaccessed! "  );
     } 
   else
     {
-      if ( m_debug ) *m_log << MSG::FATAL << "Cannot reaccess " << m_NtupleLocID << endreq;
+      ATH_MSG_FATAL( "Cannot reaccess " << m_NtupleLocID  );
       return StatusCode::FAILURE;
     }
 

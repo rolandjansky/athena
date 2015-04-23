@@ -7,21 +7,16 @@
 
 #include <string.h>
 
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/NTuple.h"
-#include "GaudiKernel/StatusCode.h"
-#include "StoreGate/StoreGateSvc.h"
-#include "DataModel/DataLink.h"
- 
-class RpcIdHelper;
-class MsgStream;
 
-class ReadRpcDigit : public Algorithm 
+class RpcIdHelper;
+
+class ReadRpcDigit : public AthAlgorithm
 {
  public:
   // Agorithm constructor
-  ReadRpcDigit (const std::string &name, ISvcLocator *pSvcLocator); 
-  
+  ReadRpcDigit (const std::string &name, ISvcLocator *pSvcLocator);
   ~ReadRpcDigit();
 
   // Gaudi hooks
@@ -30,16 +25,11 @@ class ReadRpcDigit : public Algorithm
   StatusCode finalize();
 
  private:
-  
-  StoreGateSvc* m_eventStore;
-  ActiveStoreSvc* m_activeStore;
-
+  ServiceHandle<ActiveStoreSvc> m_activeStore;
   StatusCode accessNtuple();
-
   bool m_rpcNtuple;
   std::string m_NtupleLocID;
   NTuple::Tuple* m_ntuplePtr;
-
   const RpcIdHelper* m_rpcIdHelper;
 
   // Ntuple Variables
@@ -56,11 +46,6 @@ class ReadRpcDigit : public Algorithm
   NTuple::Array<float> m_gasGap;     // Return gasGap
   NTuple::Array<float> m_measuresPhi;     // Return measuresPhi
   NTuple::Array<float> m_strip;       // Return the strip # 
-
-  MsgStream* m_log;
-  bool m_debug;
-  bool m_verbose;
-
 };
 #endif     // MUONBYTESTREAMCNVTEST_READRPCDIGIT
 

@@ -14,8 +14,6 @@
 #include "RPCcablingInterface/IRPCcablingSvc.h"
 #include "MuonRDO/RpcPadContainer.h"
 
-#include <vector>
-
 // Builds a RPCbytestream object from the bare RPC RDO's
 // Stefano Rosati
 // Jan 2003
@@ -55,6 +53,6 @@ class RpcByteStreamEncoder {
   unsigned int m_byteStreamWord;
   bool m_highest;
 
-};    //  MUONBYTESTREAM_RPCBYTESTREAMENCODER_H 
+};
 
-#endif
+#endif //  MUONBYTESTREAM_RPCBYTESTREAMENCODER_H

@@ -4,17 +4,6 @@
 
 #include "MuonByteStreamCnvTest/ReadRpcDigit.h"
 
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/AlgFactory.h"
-#include "GaudiKernel/ISvcLocator.h"
-
-#include "GaudiKernel/SmartDataPtr.h"
-#include "GaudiKernel/SmartDataLocator.h"
-#include "GaudiKernel/IDataProviderSvc.h"
-
-#include "GaudiKernel/PropertyMgr.h"
-#include "GaudiKernel/INTupleSvc.h"
-
 #include "MuonDigitContainer/RpcDigitContainer.h"
 #include "MuonIdHelpers/RpcIdHelper.h"
 
@@ -23,8 +12,9 @@ static const int maxDig  = 2000;
 
 // Algorithm constructor
 ReadRpcDigit::ReadRpcDigit(const std::string &name, ISvcLocator *pSvcLocator)
-  : Algorithm(name, pSvcLocator), m_eventStore(0), m_activeStore(0),
-    m_ntuplePtr(0), m_rpcIdHelper(0), m_log(0), m_debug(false), m_verbose(false)
+  : AthAlgorithm(name, pSvcLocator),
+    m_activeStore("ActiveStoreSvc", name),
+    m_ntuplePtr(0), m_rpcIdHelper(0)
 {
   declareProperty("NtupleLocID", m_NtupleLocID);  
   declareProperty("WriteRpcNtuple", m_rpcNtuple = false);
@@ -37,72 +27,29 @@ ReadRpcDigit::~ReadRpcDigit()
 
 StatusCode ReadRpcDigit::initialize()
 {
-  m_log = new MsgStream(msgSvc(), name());
-  *m_log << MSG::DEBUG << " in initialize()" << endreq;
-  m_debug = m_log->level() <= MSG::DEBUG;
-  m_verbose = m_log->level() <= MSG::VERBOSE;
-
-  StatusCode sc;
-
-  // Store Gate active store
-  sc = serviceLocator()->service("ActiveStoreSvc", m_activeStore);
-  if (sc != StatusCode::SUCCESS ) {
-    *m_log << MSG::ERROR << " Cannot get ActiveStoreSvc " << endreq;
-    return sc ;
-  }
-
-  // Event store service
-  sc = serviceLocator()->service("StoreGateSvc", m_eventStore);
-  if (sc.isFailure()) 
-    {
-      *m_log << MSG::ERROR << "Could not find StoreGateSvc" << endreq;
-      return  sc;
-    }
-
-  // Initialize the IdHelper
-  StoreGateSvc* detStore = 0;
-  sc = service("DetectorStore", detStore);
-  if (sc.isFailure())   {
-    *m_log << MSG::ERROR << "Can't locate the DetectorStore" << endreq; 
-    return sc;
-  }
-  sc = detStore->retrieve(m_rpcIdHelper, "RPCIDHELPER");
-  if (sc.isSuccess())
-    {
-      *m_log << MSG::DEBUG << "Retrieved RpdIdHelper..." << endreq;
-   }
-  else
-    *m_log << MSG::ERROR << "Cannot retrieve RpcIdHelper!" << endreq;
+  ATH_MSG_DEBUG( " in initialize()"  );
+  ATH_CHECK( m_activeStore.retrieve() );
+  ATH_CHECK( detStore()->retrieve(m_rpcIdHelper, "RPCIDHELPER") );
 
   if (!m_rpcNtuple) return StatusCode::SUCCESS;  
 
-  if ( accessNtuple() != StatusCode::SUCCESS || ! m_ntuplePtr ) {
-    *m_log << MSG::ERROR << "accessNtuple has failed !" << endreq;
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( accessNtuple() );
   
   if (!m_rpcNtuple) return StatusCode::SUCCESS;
 
   // Digits block
-  sc = m_ntuplePtr -> addItem ("rpcdig/nrpccoll",   m_nColl,  0, maxColl);
-  sc = m_ntuplePtr -> addItem ("rpcdig/nrpcdig",    m_nDig,   0, maxDig);
-  sc = m_ntuplePtr -> addItem ("rpcdig/rtime",      m_nDig,   m_time);
-  sc = m_ntuplePtr -> addItem ("rpcdig/rstation",   m_nDig,   m_station);
-  sc = m_ntuplePtr -> addItem ("rpcdig/reta",       m_nDig,   m_eta);
-  sc = m_ntuplePtr -> addItem ("rpcdig/rphi",       m_nDig,   m_phi);
-  sc = m_ntuplePtr -> addItem ("rpcdig/rdoublr",    m_nDig,   m_doubletR);
-  sc = m_ntuplePtr -> addItem ("rpcdig/rdoublz",    m_nDig,   m_doubletZ);
-  sc = m_ntuplePtr -> addItem ("rpcdig/rdoublphi",  m_nDig,   m_doubletPhi);
-  sc = m_ntuplePtr -> addItem ("rpcdig/rgasgap",    m_nDig,   m_gasGap);
-  sc = m_ntuplePtr -> addItem ("rpcdig/rmeasphi",   m_nDig,   m_measuresPhi);
-  sc = m_ntuplePtr -> addItem ("rpcdig/rstrip",     m_nDig,   m_strip);
-
-  if (sc.isFailure())
-    {
-      *m_log << MSG::ERROR 
-	     << "Could not add items to column wise ntuple" << endreq;
-      return StatusCode::FAILURE;
-    }
+  ATH_CHECK( m_ntuplePtr -> addItem ("rpcdig/nrpccoll",   m_nColl,  0, maxColl) );
+  ATH_CHECK( m_ntuplePtr -> addItem ("rpcdig/nrpcdig",    m_nDig,   0, maxDig) );
+  ATH_CHECK( m_ntuplePtr -> addItem ("rpcdig/rtime",      m_nDig,   m_time) );
+  ATH_CHECK( m_ntuplePtr -> addItem ("rpcdig/rstation",   m_nDig,   m_station) );
+  ATH_CHECK( m_ntuplePtr -> addItem ("rpcdig/reta",       m_nDig,   m_eta) );
+  ATH_CHECK( m_ntuplePtr -> addItem ("rpcdig/rphi",       m_nDig,   m_phi) );
+  ATH_CHECK( m_ntuplePtr -> addItem ("rpcdig/rdoublr",    m_nDig,   m_doubletR) );
+  ATH_CHECK( m_ntuplePtr -> addItem ("rpcdig/rdoublz",    m_nDig,   m_doubletZ) );
+  ATH_CHECK( m_ntuplePtr -> addItem ("rpcdig/rdoublphi",  m_nDig,   m_doubletPhi) );
+  ATH_CHECK( m_ntuplePtr -> addItem ("rpcdig/rgasgap",    m_nDig,   m_gasGap) );
+  ATH_CHECK( m_ntuplePtr -> addItem ("rpcdig/rmeasphi",   m_nDig,   m_measuresPhi) );
+  ATH_CHECK( m_ntuplePtr -> addItem ("rpcdig/rstrip",     m_nDig,   m_strip) );
 
   return StatusCode::SUCCESS;  
 }
@@ -112,18 +59,14 @@ StatusCode ReadRpcDigit::initialize()
 
 StatusCode ReadRpcDigit::execute()
 {
-  if ( m_debug ) *m_log << MSG::DEBUG << "in execute()" << endreq;
+  ATH_MSG_DEBUG( "in execute()"  );
 
   std::string key = "RPC_DIGITS";
 
   const DataHandle<RpcDigitContainer> rpc_container;
-  StatusCode sc_read = (*m_activeStore)->retrieve(rpc_container, key);
-  if (sc_read.isFailure()) {
-    *m_log << MSG::ERROR << " Cannot retrieve RPC Digit Container " << endreq;
-    return sc_read;
-  }
+  ATH_CHECK( (*m_activeStore)->retrieve(rpc_container, key) );
   
- if ( m_debug ) *m_log << MSG::DEBUG <<"****** rpc->size() : " << rpc_container->size()<<endreq;
+  ATH_MSG_DEBUG("****** rpc->size() : " << rpc_container->size() );
 
   if (!m_rpcNtuple) return StatusCode::SUCCESS;
 
@@ -159,23 +102,21 @@ StatusCode ReadRpcDigit::execute()
 	  ++m_nDig;
 
 	  if (m_nDig > maxDig-1) {
-	     if ( m_debug ) *m_log << MSG::WARNING << "Maximum number of RpcDigit in the ntuple reached: " 
-	                           << maxDig << endreq;
+             ATH_MSG_WARNING( "Maximum number of RpcDigit in the ntuple reached: " 
+                              << maxDig  );
 	     return StatusCode::SUCCESS;
 	  }
 	  
 	}
 
       ++m_nColl;
-      if ( m_debug ) *m_log << MSG::DEBUG << " Collection number  " << m_nColl<<endreq;
+      ATH_MSG_DEBUG( " Collection number  " << m_nColl );
 
       if (m_nColl > maxColl-1) {
-	*m_log << MSG::WARNING << "Maximum number of RpcDigitCollection in the ntuple reached: " 
-	       << maxColl << endreq;
+	ATH_MSG_WARNING( "Maximum number of RpcDigitCollection in the ntuple reached: " 
+                         << maxColl  );
 	return StatusCode::SUCCESS;
       }
-      
-      
     }
   }
 
@@ -187,7 +128,6 @@ StatusCode ReadRpcDigit::execute()
 
 StatusCode ReadRpcDigit::finalize()
 {
-  delete m_log;
   return StatusCode::SUCCESS;
 }
 
@@ -200,13 +140,13 @@ StatusCode ReadRpcDigit::accessNtuple()
   if (nt) 
     {
       m_ntuplePtr=nt;
-      *m_log << MSG::INFO << "Ntuple " <<m_NtupleLocID 
-	  << " reaccessed! " << endreq;
+      ATH_MSG_INFO( "Ntuple " <<m_NtupleLocID 
+                    << " reaccessed! "  );
       return StatusCode::SUCCESS;
     } 
   else
     {
-      *m_log << MSG::FATAL << "Cannot reaccess " << m_NtupleLocID << endreq;
+      ATH_MSG_FATAL( "Cannot reaccess " << m_NtupleLocID  );
       return StatusCode::FAILURE;
     }
 }

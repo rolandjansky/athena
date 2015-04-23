@@ -3,10 +3,10 @@
 */
 
 #ifndef MUONBYTESTREAMCNVTEST_CSCDIGITTOCSCRDO_H
-#define MUONBYTESTREAMCNVTEST_CSCDIGITTOCSCRDO_H 
+#define MUONBYTESTREAMCNVTEST_CSCDIGITTOCSCRDO_H
 
 #include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 
 class IMuonDigitizationTool;
 
@@ -20,28 +20,19 @@ class IMuonDigitizationTool;
 // loop over the digit and build the digit container
 // store the digits in StoreGate
 
-class MsgStream;
-
-class CscDigitToCscRDO : public Algorithm {
+class CscDigitToCscRDO : public AthAlgorithm {
 
  public:
 
   CscDigitToCscRDO(const std::string& name, ISvcLocator* pSvcLocator);
   ~CscDigitToCscRDO();
-    
+
   StatusCode initialize();
   StatusCode execute();
   StatusCode finalize();
 
  private:
-
    ToolHandle<IMuonDigitizationTool> m_digTool;
-
-   MsgStream* m_log;
-   bool m_debug;
-   bool m_verbose;
-
 };
 
 #endif
-

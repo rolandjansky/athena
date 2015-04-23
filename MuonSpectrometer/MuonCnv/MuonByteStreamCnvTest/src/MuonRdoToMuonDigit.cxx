@@ -2,16 +2,13 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "GaudiKernel/MsgStream.h"
-
-#include "MuonDigToolInterfaces/IMuonDigitizationTool.h"
-
 #include "MuonByteStreamCnvTest/MuonRdoToMuonDigit.h"
+#include "MuonDigToolInterfaces/IMuonDigitizationTool.h"
 
 MuonRdoToMuonDigit::MuonRdoToMuonDigit(const std::string& name, 
 				 ISvcLocator* pSvcLocator)
-  : Algorithm(name, pSvcLocator),
-    m_digTool("MuonRdoToMuonDigitTool", this ), m_log(0), m_debug(false), m_verbose(false)
+  : AthAlgorithm(name, pSvcLocator),
+    m_digTool("MuonRdoToMuonDigitTool", this )
 {
    declareProperty("MuonRdoToMuonDigitTool", m_digTool);
 }
@@ -20,37 +17,23 @@ MuonRdoToMuonDigit::~MuonRdoToMuonDigit()  {
 
 }
 
-StatusCode MuonRdoToMuonDigit::initialize() {
-
-  m_log = new MsgStream(msgSvc(),name());
-  m_debug = m_log->level() <= MSG::DEBUG;
-  m_verbose = m_log->level() <= MSG::VERBOSE;
-
-// intitialize store gate active store
-  if (m_digTool.retrieve().isFailure()) {
-    *m_log << MSG::FATAL << "Could not retrieve MuonRdoToMuonDigit Tool!" 
-	   << endreq;
-    return StatusCode::FAILURE;
-  }
-  if ( m_debug ) *m_log << MSG::DEBUG << "Retrieved MuonRdoToMuonDigit Tool." << endreq;
-
+StatusCode MuonRdoToMuonDigit::initialize()
+{
+  ATH_CHECK( m_digTool.retrieve() );
   return StatusCode::SUCCESS;
-    
 }
 
-StatusCode MuonRdoToMuonDigit::execute() {
-
-  if ( m_debug ) *m_log << MSG::DEBUG << "in execute()" << endreq;
-
+StatusCode MuonRdoToMuonDigit::execute()
+{
+  ATH_MSG_DEBUG( "in execute()"  );
   return m_digTool->digitize();
 }
 
- StatusCode MuonRdoToMuonDigit::finalize() {
-    
-   if ( m_debug ) *m_log << MSG::DEBUG << "finalize." << endreq;
-   delete m_log;
 
-   return StatusCode::SUCCESS;
+StatusCode MuonRdoToMuonDigit::finalize()
+{
+  ATH_MSG_DEBUG( "finalize."  );
+  return StatusCode::SUCCESS;
 }
 
 

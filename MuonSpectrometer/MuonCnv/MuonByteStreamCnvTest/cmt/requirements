@@ -6,20 +6,17 @@ author Stefano Rosati <Stefano.Rosati@cern.ch>
 public
 use  AtlasPolicy                AtlasPolicy-*                   
 use  CscCalibTools              CscCalibTools-*                 MuonSpectrometer/MuonCalib/CscCalib
-use  DataModel                  DataModel-*                     Control
+use  AthenaBaseComps            AthenaBaseComps-*               Control
 use  GaudiInterface             GaudiInterface-*                External
-use  Identifier                 Identifier-*                    DetectorDescription
-use  MuonMDT_Cabling            MuonMDT_Cabling-*               MuonSpectrometer/MuonCablings
 use  MuonDigToolInterfaces      MuonDigToolInterfaces-*         MuonSpectrometer/MuonDigitization
-use  MuonReadoutGeometry               MuonReadoutGeometry-*                  MuonSpectrometer/MuonDetDescr
-use  MuonIdHelpers              MuonIdHelpers-*                 MuonSpectrometer
+use  MuonReadoutGeometry        MuonReadoutGeometry-*           MuonSpectrometer/MuonDetDescr
 use  MuonRDO                    MuonRDO-*                       MuonSpectrometer
 use  RPCcablingInterface        RPCcablingInterface-*           MuonSpectrometer/MuonCablings
 #use  RPCgeometry                RPCgeometry-*                   MuonSpectrometer/MuonCablings
 use  StoreGate                  StoreGate-*                     Control
-use  TGCcablingInterface        TGCcablingInterface-*           MuonSpectrometer/MuonCablings
 use  TrigT1RPChardware          TrigT1RPChardware-*             Trigger/TrigT1
 use  TrigT1RPClogic             TrigT1RPClogic-*                Trigger/TrigT1
+
 private
 use  EventInfo                  EventInfo-*                     Event
 use  EventInfoMgt               EventInfoMgt-*                  Event
@@ -29,9 +26,11 @@ use  MuonMDT_CnvTools           MuonMDT_CnvTools-*              MuonSpectrometer
 use  MuonPrepRawData            MuonPrepRawData-*               MuonSpectrometer/MuonReconstruction/MuonRecEvent
 use  MuonRPC_CnvTools           MuonRPC_CnvTools-*              MuonSpectrometer/MuonCnv
 use  MuonTGC_CnvTools           MuonTGC_CnvTools-*              MuonSpectrometer/MuonCnv
+use  MuonIdHelpers              MuonIdHelpers-*                 MuonSpectrometer
+use  MuonMDT_Cabling            MuonMDT_Cabling-*               MuonSpectrometer/MuonCablings
+use  TGCcablingInterface        TGCcablingInterface-*           MuonSpectrometer/MuonCablings
+
 public
-
 apply_pattern dual_use_library files="*.cxx"
-
 apply_pattern declare_joboptions files="*.py"
 

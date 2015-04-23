@@ -12,11 +12,8 @@
 #include "TrigT1RPChardware/MatrixReadOutStructure.h"
 #include "RPCcablingInterface/IRPCcablingSvc.h"
 #include "MuonRDO/RpcPad.h"
-#include "MuonIdHelpers/RpcIdHelper.h"
 
-#include <vector>
-
-class MsgStream;
+class RpcIdHelper;
 
 // Decode a RPCbytestream object and build the bare RPC RDO's
 // Stefano Rosati
@@ -29,12 +26,11 @@ typedef std::map < int, PADreadout, std::less <int> > PAD_Readout;
 class RpcByteStreamDecoder {
 
  public:
-
   // Constructor and destructor
   RpcByteStreamDecoder(const RPCbytestream * p_bytestream, const IRPCcablingSvc * p_cabling,
 		  const RpcIdHelper * rpcHelper, MsgStream* log=0);
   ~RpcByteStreamDecoder();
-  
+
   // Decode the bytestream coming from the LVL1 simulation
   StatusCode decodeByteStream();
 
@@ -45,7 +41,7 @@ class RpcByteStreamDecoder {
   void print();
 
  private:
-  
+
   // Pad and Matrix decoding functions
   RpcPad * decodePad(PADreadout& pad);
   RpcCoinMatrix * decodeMatrix(MatrixReadOut* matrix, Identifier& id);
@@ -63,9 +59,9 @@ class RpcByteStreamDecoder {
   RpcByteStreamDecoder & operator=(const RpcByteStreamDecoder &right);
   RpcByteStreamDecoder(const RpcByteStreamDecoder&);
 
-};    //  RPCBYTESTREAMDECODER_H 
+};
 
-#endif
+#endif //  RPCBYTESTREAMDECODER_H
 
 
 

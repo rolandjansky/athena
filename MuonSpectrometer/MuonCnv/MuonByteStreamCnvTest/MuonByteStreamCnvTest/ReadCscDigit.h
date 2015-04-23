@@ -12,17 +12,15 @@
   BNL, December 31 2003
 */
 
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
+#include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/NTuple.h"
 
 class CscIdHelper;
 
-class ActiveStoreSvc;
-class MsgStream;
-
 /////////////////////////////////////////////////////////////////////////////
 
-class ReadCscDigit: public Algorithm
+class ReadCscDigit: public AthAlgorithm
 {
 public:
   ReadCscDigit (const std::string& name, ISvcLocator* pSvcLocator);
@@ -31,14 +29,11 @@ public:
   virtual StatusCode finalize();
 
 protected:
- 
   NTuple::Tuple* m_ntuplePtr;
-  ActiveStoreSvc* m_activeStore;
+  ServiceHandle<ActiveStoreSvc> m_activeStore;
 
 private:
-
   StatusCode accessNtuple();
-
   bool m_cscNtuple;
 
   //Ntuple ID
@@ -59,18 +54,6 @@ private:
   NTuple::Array<long>  m_measuresPhi;
   NTuple::Array<long>  m_strip;
   NTuple::Array<long>  m_charge;  // the charge on the strip
-
-  MsgStream* m_log;
-  bool m_debug;
-  bool m_verbose;
-
 };
 
 #endif
-
-
-
-
-
-
-

@@ -12,17 +12,15 @@
     based on ReadMdtDigit by Michela Biglietti
 */
 
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
+#include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/NTuple.h"
 
 class TgcIdHelper;
 
-class ActiveStoreSvc;
-class MsgStream;
-
 /////////////////////////////////////////////////////////////////////////////
 
-class ReadTgcDigit: public Algorithm
+class ReadTgcDigit: public AthAlgorithm
 {
 public:
   ReadTgcDigit (const std::string& name, ISvcLocator* pSvcLocator);
@@ -31,21 +29,18 @@ public:
   virtual StatusCode finalize();
 
 protected:
- 
   NTuple::Tuple* m_ntuplePtr;
-  ActiveStoreSvc* m_activeStore;
+  ServiceHandle<ActiveStoreSvc> m_activeStore;
 
 private:
-
   StatusCode accessNtuple();
-
   bool m_tgcNtuple;
 
   //Ntuple ID
   std::string     m_NtupleLocID;
 
   const TgcIdHelper* m_tgcIdHelper;
-  
+
   // Define variables in the Ntuple:
 
   NTuple::Item<long>   m_nColl;    // number of collection in the container
@@ -58,11 +53,6 @@ private:
   NTuple::Array<long>  m_isStrip;
   NTuple::Array<long>  m_channel;
   NTuple::Array<long>  m_bcTag;
-
-  MsgStream* m_log;
-  bool m_debug;
-  bool m_verbose;
-
 };
 
 #endif

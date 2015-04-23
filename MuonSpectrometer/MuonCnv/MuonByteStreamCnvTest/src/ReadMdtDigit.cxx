@@ -13,20 +13,9 @@
 //#include <strstream>
 //#include <cassert>
 
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/ISvcLocator.h"
-
-#include "StoreGate/StoreGate.h"
-#include "GaudiKernel/SmartDataPtr.h"
-#include "GaudiKernel/IDataProviderSvc.h"
-
-#include "GaudiKernel/PropertyMgr.h"
-
-#include "GaudiKernel/INTupleSvc.h"
-
+#include "MuonByteStreamCnvTest/ReadMdtDigit.h"
 #include "MuonDigitContainer/MdtDigitCollection.h"
 #include "MuonDigitContainer/MdtDigitContainer.h"
-#include "MuonByteStreamCnvTest/ReadMdtDigit.h"
 
 using namespace std;
 
@@ -37,92 +26,51 @@ static const int maxDig =    5000;
 /////////////////////////////////////////////////////////////////////////////
 
 ReadMdtDigit::ReadMdtDigit(const std::string& name, ISvcLocator* pSvcLocator) :
-  Algorithm(name, pSvcLocator), m_ntuplePtr(0), m_activeStore(0),
-  m_mdtIdHelper(0), m_log(0), m_debug(false), m_verbose(false) {
-  
+  AthAlgorithm(name, pSvcLocator), m_ntuplePtr(0),
+  m_activeStore("ActiveStoreSvc", name),
+  m_mdtIdHelper(0)
+{
   // Declare the properties
 
   declareProperty("NtupleLocID",m_NtupleLocID);
   declareProperty("WriteMdtNtuple", m_mdtNtuple = false);
-
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
 
-StatusCode ReadMdtDigit::initialize(){
-
-  m_log = new MsgStream(msgSvc(), name());
-  *m_log << MSG::DEBUG << " in initialize()" << endreq;
-  m_debug = m_log->level() <= MSG::DEBUG;
-  m_verbose = m_log->level() <= MSG::VERBOSE;
-
-  StatusCode sc;
-
-  // Store Gate active store
-  sc = serviceLocator()->service("ActiveStoreSvc", m_activeStore);
-  if (sc != StatusCode::SUCCESS ) {
-    *m_log << MSG::ERROR << " Cannot get ActiveStoreSvc " << endreq;
-    return sc ;
-  }
-
-  // Initialize the IdHelper
-  StoreGateSvc* detStore = 0;
-  sc = service("DetectorStore", detStore);
-  if (sc.isFailure()) {
-    *m_log << MSG::FATAL << "DetectorStore service not found !" << endreq;
-    return StatusCode::FAILURE;
-  }   
-  sc = detStore->retrieve(m_mdtIdHelper,"MDTIDHELPER");
-  if (sc.isFailure()) {
-    *m_log << MSG::FATAL << "Cannot get MdtIdHelper" << endreq;
-    return StatusCode::FAILURE;
-  }  
-  else {
-    if ( m_debug ) *m_log << MSG::DEBUG << " Found the MdtIdHelper. " << endreq;
-  }
-  
+StatusCode ReadMdtDigit::initialize()
+{
+  ATH_MSG_DEBUG( " in initialize()"  );
+  ATH_CHECK( m_activeStore.retrieve() );
+  ATH_CHECK( detStore()->retrieve(m_mdtIdHelper,"MDTIDHELPER") );
+ 
 
   if (!m_mdtNtuple) return StatusCode::SUCCESS;
 
-  if ( accessNtuple() != StatusCode::SUCCESS || ! m_ntuplePtr ) {
-    if ( m_debug ) *m_log << MSG::ERROR << "accessNtuple has failed !" << endreq;
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( accessNtuple() );
 
-  sc = m_ntuplePtr -> addItem ("mdtdig/ncoll",   m_nColl,       0, maxColl);
-  sc = m_ntuplePtr -> addItem ("mdtdig/ndig",    m_nDig,        0, maxDig);
-  sc = m_ntuplePtr -> addItem ("mdtdig/tdc",     m_nDig,        m_tdc);
-  sc = m_ntuplePtr -> addItem ("mdtdig/adc",     m_nDig,        m_adc);
-  sc = m_ntuplePtr -> addItem ("mdtdig/imulti",  m_nDig,   m_multi);
-  sc = m_ntuplePtr -> addItem ("mdtdig/ilayer",  m_nDig,   m_layer);
-  sc = m_ntuplePtr -> addItem ("mdtdig/iwire",   m_nDig,   m_wire);
+  ATH_CHECK( m_ntuplePtr -> addItem ("mdtdig/ncoll",   m_nColl,       0, maxColl) );
+  ATH_CHECK( m_ntuplePtr -> addItem ("mdtdig/ndig",    m_nDig,        0, maxDig) );
+  ATH_CHECK( m_ntuplePtr -> addItem ("mdtdig/tdc",     m_nDig,        m_tdc) );
+  ATH_CHECK( m_ntuplePtr -> addItem ("mdtdig/adc",     m_nDig,        m_adc) );
+  ATH_CHECK( m_ntuplePtr -> addItem ("mdtdig/imulti",  m_nDig,   m_multi) );
+  ATH_CHECK( m_ntuplePtr -> addItem ("mdtdig/ilayer",  m_nDig,   m_layer) );
+  ATH_CHECK( m_ntuplePtr -> addItem ("mdtdig/iwire",   m_nDig,   m_wire) );
   
-  if ( sc == StatusCode::FAILURE ) {
-       
-    *m_log << MSG::ERROR 
-           << "Could not add items to column wise ntuple" << endreq;
-    return StatusCode::FAILURE;
-  }
-
   return StatusCode::SUCCESS;
-
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
 
-StatusCode ReadMdtDigit::execute() {
-
-  if ( m_debug ) *m_log << MSG::DEBUG << "in execute()" << endreq;
+StatusCode ReadMdtDigit::execute()
+{
+  ATH_MSG_DEBUG( "in execute()"  );
 
   std::string	key = "MDT_DIGITS";
   const DataHandle<MdtDigitContainer> mdt_container;
-  StatusCode sc_read = (*m_activeStore)->retrieve(mdt_container, key);
-  if (sc_read.isFailure()) {
-    *m_log << MSG::ERROR << " Cannot retrieve MDT Digit Container " << endreq;
-    return sc_read;
-  }
+  ATH_CHECK( (*m_activeStore)->retrieve(mdt_container, key) );
  
-  if ( m_debug ) *m_log << MSG::DEBUG <<"****** mdt->size() : " << mdt_container->size()<<endreq;
+  ATH_MSG_DEBUG("****** mdt->size() : " << mdt_container->size() );
 
   if (!m_mdtNtuple) return StatusCode::SUCCESS;
 
@@ -151,11 +99,11 @@ StatusCode ReadMdtDigit::execute() {
 	m_layer[m_nDig] = m_mdtIdHelper->tubeLayer(dig_id);
 	m_wire[m_nDig]  = m_mdtIdHelper->tube(dig_id); 
 	++m_nDig;
-	if ( m_debug ) *m_log << MSG::DEBUG << " Digit number  " << m_nDig<<endreq;
+        ATH_MSG_DEBUG( " Digit number  " << m_nDig );
 
 	if (m_nDig > maxDig-1) {
-	  *m_log << MSG::WARNING << "Maximum number of MdtDigit in the ntuple reached: " 
-	         << maxDig << endreq;
+	  ATH_MSG_WARNING( "Maximum number of MdtDigit in the ntuple reached: " 
+                           << maxDig  );
 	  return StatusCode::SUCCESS;
 	}
 	
@@ -163,41 +111,32 @@ StatusCode ReadMdtDigit::execute() {
       }
       ++m_nColl;
 
-      if ( m_debug ) *m_log << MSG::DEBUG << " Collection number  " << m_nColl<<endreq;
+      ATH_MSG_DEBUG( " Collection number  " << m_nColl );
       if (m_nColl > maxColl-1) {
-	*m_log << MSG::WARNING << "Maximum number of MdtDigitCollection in the ntuple reached: " 
-	       << maxColl << endreq;
+	ATH_MSG_WARNING( "Maximum number of MdtDigitCollection in the ntuple reached: " 
+                         << maxColl  );
 	return StatusCode::SUCCESS;
       }
 
     }
   }
  
- if ( m_debug ) { 
-   *m_log << MSG::DEBUG << " done collecting histograms" << endreq;
- 
-   *m_log << MSG::DEBUG
-          << "ReadMdtDigit::execute reports success" 
-          << endreq;
- }  
- return StatusCode::SUCCESS;
- 
+  ATH_MSG_DEBUG( " done collecting histograms"  );
+  ATH_MSG_DEBUG( "ReadMdtDigit::execute reports success" );
+  return StatusCode::SUCCESS;
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
 
-StatusCode ReadMdtDigit::finalize() {
-
-  *m_log << MSG::INFO << "in finalize()" << endreq;
-  delete m_log;
-
+StatusCode ReadMdtDigit::finalize()
+{
+  ATH_MSG_INFO( "in finalize()"  );
   return StatusCode::SUCCESS;
 }
 
 
-StatusCode ReadMdtDigit::accessNtuple() {
-
-
+StatusCode ReadMdtDigit::accessNtuple()
+{
   m_NtupleLocID = "/NTUPLES" + m_NtupleLocID ;
 
   //try to access it  
@@ -205,15 +144,14 @@ StatusCode ReadMdtDigit::accessNtuple() {
 
   if ((int) nt)     {
      m_ntuplePtr=nt;
-     *m_log << MSG::INFO << "Ntuple " << m_NtupleLocID << " reaccessed! " << endreq;
+     ATH_MSG_INFO( "Ntuple " << m_NtupleLocID << " reaccessed! "  );
   } 
   else {
-     *m_log << MSG::FATAL << "Cannot reaccess " << m_NtupleLocID << endreq;
+    ATH_MSG_FATAL( "Cannot reaccess " << m_NtupleLocID  );
      return StatusCode::FAILURE;
   }
 
   return StatusCode::SUCCESS;
-
 }
 
 
