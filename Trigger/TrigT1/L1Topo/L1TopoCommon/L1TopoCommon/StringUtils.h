@@ -6,8 +6,8 @@
 //  L1TopoCommon
 //  Created by Christian Ohm
 
-#ifndef L1TOPOCOMMON_STRINGUTILS_H
-#define L1TOPOCOMMON_STRINGUTILS_H
+#ifndef __L1TopoCommon__StringUtils__
+#define __L1TopoCommon__StringUtils__
 
 // this file contains the following helper functions
 
@@ -24,7 +24,6 @@
 #include <sstream>
 #include <bitset>
 #include <algorithm>
-#include <vector>
 #include <limits.h>
 
 namespace TCS {
@@ -78,4 +77,4 @@ namespace TCS {
   
 } // end of namespace TCS
 
-#endif // not L1TOPOCOMMON_STRINGUTILS_H
+#endif /* defined(__L1TopoCommon__StringUtils__) */
