@@ -32,7 +32,7 @@ TCS::inputType(const std::string& input) {
    if ( input == "Taus" || input == "TauTobArray" )
       return TCS::TAU;
           
-   if ( input == "MET" || input == "MetIn" )
+   if ( input == "MET" || input == "MetTobArray" )
       return TCS::MET;
           
 
