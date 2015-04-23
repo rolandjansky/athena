@@ -18,7 +18,8 @@ T2MbtsUtils::T2MbtsUtils(): m_threshold(0.),
   for(int i=0;i<32;i++) m_timeOffsets[i] = 0.;
 }
 
-int T2MbtsUtils::calculateMultiplicities(const xAOD::TrigT2MbtsBits *t2mbtsBits, 
+int T2MbtsUtils::calculateMultiplicities(const xAOD::TrigT2MbtsBits *t2mbtsBits,
+					 int m_mode,
 					 MsgStream& mlog, 
 					 unsigned int msgLvl) {
   m_mult = std::make_pair(0,0);
@@ -51,7 +52,9 @@ int T2MbtsUtils::calculateMultiplicities(const xAOD::TrigT2MbtsBits *t2mbtsBits,
 
   // Loop over each counter and form bit sets from time and energy (optional).
   for(ibit=0; ibit< xAOD::TrigT2MbtsBits::NUM_MBTS; ibit++) {
-
+    if(m_mode==1 && !( ibit<8               || (ibit>=16 && ibit<24) )) continue; // count only inner
+    if(m_mode==2 && !((ibit >=8 && ibit<16) || (ibit>=24 && ibit<32) )) continue;  // count only outer
+    
     // Check the energy threshold.
     if(triggerEnergies[ibit] <= m_threshold) continue; 
 

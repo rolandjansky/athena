@@ -42,10 +42,13 @@ class T2MbtsHypo: public HLT::HypoAlgo, public T2MbtsUtils {
    unsigned int m_mbtsCounters;
    
    /** A flag to control if this is a coincidence requirement or not */
-   bool m_coincidence;
-   /** Flag extending above choice to do Or between the two sides of MBTS */   
-   bool m_or; 
-
+  bool m_coincidence;
+  /** Flag extending above choice to do Or between the two sides of MBTS */   
+  bool m_or; 
+  /** Flag to select lowe than threshold multiplicities */
+  bool m_veto;
+   /** Flag to count multiplicities only on inner or outer MBTS modules */
+  int m_mbtsmode;
    /** A pointer to the TrigT2MbtsBits object. */
    const xAOD::TrigT2MbtsBits *m_t2MbtsBits; 
 

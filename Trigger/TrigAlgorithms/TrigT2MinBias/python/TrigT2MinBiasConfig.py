@@ -1164,7 +1164,18 @@ L2MbMbtsHypo_4_4_or.TimeCut = trigT2MinBiasProperties.mbtsTimeCut()
 #L2MbMbtsHypo11.Threshold = 0.18 # pC
 hypos["L2MbMbtsHypo_4_4_or"] = L2MbMbtsHypo_4_4_or 
 
-
+## hypo for CEP events
+# the following mean that only events with 0_0, 1_0, 0_1 and 1_1 will pass
+L2MbMbtsHypo_1_1_inn_veto = MbMbtsHypo("L2MbMbtsHypo_1_1_inn_veto")
+L2MbMbtsHypo_1_1_inn_veto.AcceptAll = False
+L2MbMbtsHypo_1_1_inn_veto.MbtsCounters = 2
+L2MbMbtsHypo_1_1_inn_veto.Coincidence = True
+L2MbMbtsHypo_1_1_inn_veto.Or = False
+L2MbMbtsHypo_1_1_inn_veto.Veto = True
+L2MbMbtsHypo_1_1_inn_veto.MBTSMode = 1 # inner
+L2MbMbtsHypo_1_1_inn_veto.TimeCut = trigT2MinBiasProperties.mbtsTimeCut()
+#L2MbMbtsHypo11.Threshold = 0.18 # pC
+hypos["L2MbMbtsHypo_1_1_inn_veto"] = L2MbMbtsHypo_1_1_inn_veto 
 
 
 
