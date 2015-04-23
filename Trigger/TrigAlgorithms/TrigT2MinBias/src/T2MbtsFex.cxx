@@ -247,7 +247,7 @@ HLT::ErrorCode T2MbtsFex::hltExecute(std::vector<std::vector<HLT::TriggerElement
   m_t2MbtsBits->setTriggerTimes(m_triggerTimes);
 
   // Calculate the multiplicities to fill the monitoring variables
-  if(!calculateMultiplicities(m_t2MbtsBits,m_log,msgLvl())) {
+  if(!calculateMultiplicities(m_t2MbtsBits,0,m_log,msgLvl())) {
     m_log << MSG::DEBUG << "calculateMultiplicities failed" << endreq;
     return HLT::OK;
   } 

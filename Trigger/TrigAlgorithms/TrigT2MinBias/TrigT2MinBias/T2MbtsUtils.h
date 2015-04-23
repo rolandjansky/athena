@@ -11,14 +11,14 @@
 
 class MsgStream;
 
+
 class T2MbtsUtils {
  public:
 
   T2MbtsUtils();
-  int calculateMultiplicities(const xAOD::TrigT2MbtsBits *t2mbtsBits,
+  int calculateMultiplicities(const xAOD::TrigT2MbtsBits *t2mbtsBits, int m_mode,
 			      MsgStream& mlog, 
-			      unsigned int msgLvl);
-  
+			      unsigned int msgLvl); // m_mode 0 --> all, 1 --> inner, 2 --> outer
  protected:
   
   /** Energy threshold in pC */

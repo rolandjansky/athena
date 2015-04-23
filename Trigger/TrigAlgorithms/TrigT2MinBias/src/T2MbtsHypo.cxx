@@ -18,12 +18,16 @@ T2MbtsHypo::T2MbtsHypo(const std::string &name,
 						  m_mbtsCounters(0),
 						  m_coincidence(false),
 						  m_or(false),
+						  m_veto(false),
+						  m_mbtsmode(0),
 						  m_t2MbtsBits(0) {
 
   declareProperty("AcceptAll",                          m_acceptAll=false);
   declareProperty("MbtsCounters",                       m_mbtsCounters=2);
   declareProperty("Coincidence",                        m_coincidence=false);
   declareProperty("Or",                                 m_or=false);
+  declareProperty("Veto",                               m_veto=false);
+  declareProperty("MBTSMode",                           m_mbtsmode=0);
   declareProperty("Threshold",                          m_threshold = 40.0/222.0 );  // Value in pC
   declareProperty("TimeCut",                            m_timeCut=-1.0);
   declareProperty("GlobalTimeOffset",                   m_globalTimeOffset=0.0);
@@ -78,6 +82,8 @@ HLT::ErrorCode T2MbtsHypo::hltInitialize() {
     m_log << MSG::INFO << " AcceptAll -------------------  " << (m_acceptAll==true ? "True" : "False") << endreq; 
     m_log << MSG::INFO << " MbtsCounters required -------  " << m_mbtsCounters << endreq;
     m_log << MSG::INFO << " Coincidence requirement -----  " << (m_coincidence==true ? "True" : "False") << endreq;
+    m_log << MSG::INFO << " Veto requirement ------------  " << (m_veto==true ? "True" : "False") << endreq;
+    m_log << MSG::INFO << " MBTS mode -------------------  " << (m_mbtsmode==0 ? "All" : ( m_mbtsmode==1 ? "Inner" : "Outer")) << endreq;
     m_log << MSG::INFO << " Threshold -------------------  " << m_threshold << " pC" << endreq;
     m_log << MSG::INFO << " TimeCut  --------------------  "; 
     if(m_timeCut<0) {
@@ -132,7 +138,7 @@ HLT::ErrorCode T2MbtsHypo::hltExecute(const HLT::TriggerElement* outputTE,
   }
 
   // Calculate MBTS counter multiplicities after energy and an optional time cut.
-  if(!calculateMultiplicities(m_t2MbtsBits,m_log,msgLvl())) {
+  if(!calculateMultiplicities(m_t2MbtsBits,m_mbtsmode, m_log,msgLvl())) {
     m_log << MSG::DEBUG << "calculateMultiplicities failed" << endreq;
     return HLT::OK;
   } 
@@ -151,16 +157,31 @@ HLT::ErrorCode T2MbtsHypo::hltExecute(const HLT::TriggerElement* outputTE,
 
   
   if(m_coincidence) { // Coincidence logic
-    if(m_mult.first >= m_mbtsCounters && m_mult.second >= m_mbtsCounters) 
-      pass = true;
-  } else {
-      if ( m_or ) { // Or logic
-      if ((m_mult.first >= m_mbtsCounters || m_mult.second >= m_mbtsCounters)) 
-	pass = true;       
-    } else {   // Sum logic
-      if((m_mult.first + m_mult.second) >= m_mbtsCounters) 
+    if(!m_veto){
+      if(m_mult.first >= m_mbtsCounters && m_mult.second >= m_mbtsCounters) 
+	pass = true;
+    } else {
+      if(m_mult.first < m_mbtsCounters && m_mult.second < m_mbtsCounters) 
 	pass = true;
     }
+  } else {
+      if ( m_or ) { // Or logic
+	if(!m_veto){
+	  if ((m_mult.first >= m_mbtsCounters || m_mult.second >= m_mbtsCounters)) 
+	    pass = true;       
+	} else {
+	  if ((m_mult.first < m_mbtsCounters || m_mult.second < m_mbtsCounters)) 
+	    pass = true;       
+	}
+      } else {   // Sum logic
+	if(!m_veto){
+	  if((m_mult.first + m_mult.second) >= m_mbtsCounters) 
+	    pass = true;
+	} else {
+	  if((m_mult.first + m_mult.second) < m_mbtsCounters) 
+	    pass = true;
+	}
+      }
   }
   
   if(msgLvl() <= MSG::DEBUG) {
