@@ -39,7 +39,10 @@ float LArDSPThresholdsFlat::tQThr(const HWIdentifier&  CellID) const {
 }
   
 float LArDSPThresholdsFlat::tQThrByHash(const IdentifierHash& h) const {
-  //Range check?
+  if (h>=m_nChannels) {
+    (*m_log) << MSG::ERROR << "tQThrByHash: Hash out of range ( " << h << ", max=" << m_nChannels << ")" << endreq;
+    return 0;
+  }
   return m_ptQThr[h];
 }
 
@@ -48,7 +51,10 @@ float LArDSPThresholdsFlat::samplesThr(const HWIdentifier&  CellID) const {
 }
   
 float LArDSPThresholdsFlat::samplesThrByHash(const IdentifierHash& h) const {
-  //Range check?
+  if (h>=m_nChannels) {
+    (*m_log) << MSG::ERROR << "samplesThrByHash: Hash out of range ( " << h << ", max=" << m_nChannels << ")" << endreq;
+    return 0;
+  }
   return m_psamplesThr[h];
 }
 
@@ -57,7 +63,10 @@ float LArDSPThresholdsFlat::trigSumThr(const HWIdentifier&  CellID) const {
 }
   
 float LArDSPThresholdsFlat::trigSumThrByHash(const IdentifierHash& h) const {
-  //Range check?
+  if (h>=m_nChannels) {
+    (*m_log) << MSG::ERROR << "trigSumThrByHash: Hash out of range ( " << h << ", max=" << m_nChannels << ")" << endreq;
+    return 0;
+  }
   return m_ptrigSumThr[h];
 }
 
@@ -67,13 +76,13 @@ void LArDSPThresholdsFlat::readBlob(const AthenaAttributeList* attrList) {
 
   if (!attrList) return;
   
-  const coral::AttributeList& attr= attrList->coralList();
+  //const coral::AttributeList& attr= attrList->coralList();
 
   //m_setName=attr["Name"].data<std::string>();
 
-  const coral::Blob& tQThrBlob = attr["tQThr"].data<coral::Blob>();
-  const coral::Blob& samplesThrBlob = attr["samplesThr"].data<coral::Blob>();
-  const coral::Blob& trigSumThrBlob = attr["trigSumThr"].data<coral::Blob>();
+  const coral::Blob& tQThrBlob = (*attrList)["tQThr"].data<coral::Blob>();
+  const coral::Blob& samplesThrBlob = (*attrList)["samplesThr"].data<coral::Blob>();
+  const coral::Blob& trigSumThrBlob = (*attrList)["trigSumThr"].data<coral::Blob>();
   //const coral::Blob *tQThrBlob = new coral::Blob(attr["tQThr"].data<coral::Blob>());
   //const coral::Blob *samplesThrBlob = new coral::Blob(attr["samplesThr"].data<coral::Blob>());
   //const coral::Blob *trigSumThrBlob = new coral::Blob(attr["trigSumThr"].data<coral::Blob>());
@@ -87,6 +96,13 @@ void LArDSPThresholdsFlat::readBlob(const AthenaAttributeList* attrList) {
 
   m_nChannels=tQThrBlob.size()/sizeof(float);
   
+
+  //(*m_log) << MSG::INFO << "Blob sizes:" << tQThrBlob.size() << "/" << samplesThrBlob.size()  << "/" << trigSumThrBlob.size() << endreq;
+
+  if (m_nChannels!=m_onlineHelper->channelHashMax()) {
+    (*m_log) << MSG::WARNING << "Found data for " << m_nChannels << " but expected " << m_onlineHelper->channelHashMax() << endreq;
+  }
+
   (*m_log) << MSG::DEBUG << "Found data for " << m_nChannels << endreq;
   m_ptQThr=static_cast<const float*>(tQThrBlob.startingAddress());
   m_psamplesThr=static_cast<const float*>(samplesThrBlob.startingAddress());
