@@ -12,6 +12,7 @@
 
 // Include files.
 #include "ByteStreamCnvSvc/ByteStreamInputSvc.h"
+#include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 #include "ByteStreamCnvSvc/IByteStreamFreeMetadataSvc.h"
 #include "ByteStreamData/RawEvent.h"
 
@@ -83,6 +84,7 @@ private: // data
    ServiceHandle<StoreGateSvc> m_mdSvc; //!< StoreGateSvc
    ServiceHandle<IIncidentSvc> m_incidentSvc; //!< IncidentSvc
    ServiceHandle<IByteStreamFreeMetadataSvc> m_attlistsvc; 
+   ServiceHandle<IROBDataProviderSvc> m_robProvider;
 
 private: // properties
    std::vector<std::string>	m_vExplicitFile;  //!< prefix of the file names

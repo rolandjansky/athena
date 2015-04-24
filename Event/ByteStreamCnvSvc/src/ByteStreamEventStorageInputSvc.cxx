@@ -49,6 +49,7 @@ ByteStreamEventStorageInputSvc::ByteStreamEventStorageInputSvc(const std::string
 	m_mdSvc("StoreGateSvc/InputMetaDataStore", name),
 	m_incidentSvc("IncidentSvc", name),
         m_attlistsvc("ByteStreamAttListMetadataSvc", name),
+        m_robProvider("ROBDataProviderSvc", name),
 	m_sequential(false),
 	m_fileCount(0) {
    declareProperty("FullFileName", m_vExplicitFile);
@@ -91,13 +92,17 @@ StatusCode ByteStreamEventStorageInputSvc::initialize() {
       ATH_MSG_FATAL("Cannot get metadata AttListSvc.");
       return(StatusCode::FAILURE);
    }
-  // Initialize stores for user metadata
-  if (m_keys.size()>0) {
-    StatusCode sc = m_attlistsvc->readInit(m_keys);
-    if (sc.isFailure()) {
+   if (!m_robProvider.retrieve().isSuccess()) {
+      ATH_MSG_FATAL("Cannot get rob data provider");
+      return(StatusCode::FAILURE);
+   }
+   // Initialize stores for user metadata
+   if (m_keys.size()>0) {
+     StatusCode sc = m_attlistsvc->readInit(m_keys);
+     if (sc.isFailure()) {
        msg() << MSG::WARNING << "readInit for AttributeList service failed" << endreq;
-    }
-  }
+     }
+   }
 
    // Check if defunct properties set, and give instructions
    if (m_procBadEvent != false) ATH_MSG_WARNING("ProcessBadEvent property has been moved to EventSelector, please use svgMgr.EventSelector.ProcessBadEvent instead");
@@ -127,6 +132,9 @@ StatusCode ByteStreamEventStorageInputSvc::finalize() {
    }
    if (!m_incidentSvc.release().isSuccess()) {
       ATH_MSG_WARNING("Cannot release IncidentSvc");
+   }
+   if (!m_robProvider.release().isSuccess()) {
+      ATH_MSG_WARNING("Cannot release rob data provider");
    }
    if (!m_mdSvc.release().isSuccess()) {
       ATH_MSG_WARNING("Cannot release InputMetaDataStore");
@@ -284,6 +292,10 @@ const RawEvent* ByteStreamEventStorageInputSvc::previousEvent() {
     return 0;
   }
 
+  // Set it for the data provider
+  m_robProvider->setNextEvent(m_re);
+  m_robProvider->setEventStatus(m_eventStatus);
+
   // dump
   if (m_dump) {
     DumpFrags::dump(m_re);
@@ -356,6 +368,10 @@ const RawEvent* ByteStreamEventStorageInputSvc::nextEvent() {
     ATH_MSG_ERROR("Failure to build fragment");
     return 0;
   }
+
+  // Set it for the data provider
+  m_robProvider->setNextEvent(m_re);
+  m_robProvider->setEventStatus(m_eventStatus);
 
   //++m_totalEventCounter;
 
@@ -496,6 +512,18 @@ StatusCode ByteStreamEventStorageInputSvc::generateDataHeader()
     Dh->setStatus(DataHeader::Primary);
     //add the Dhe self reference to the object vector
     Dh->insert(Dhe);
+
+    if (m_sgSvc->contains<EventInfo>("ByteStreamEventInfo")) {
+      // Temporary event header pointer for retrieval of the old one , if exists
+      const DataHandle<EventInfo> Ei_temp;
+      //Ei_temp = m_sgSvc->retrieve<EventInfo>("ByteStreamEventInfo");
+      if (m_sgSvc->retrieve(Ei_temp,"ByteStreamEventInfo").isSuccess()) {
+        StatusCode sc = m_sgSvc->remove(Ei_temp.cptr());
+        if (!sc.isSuccess()) {
+          ATH_MSG_ERROR("Failed to remove ByteStreamEventInfo");
+        }
+      }
+    }
     // Now add ref to EventInfo objects
     IOpaqueAddress* iop = new ByteStreamAddress(ClassID_traits<EventInfo>::ID(), "ByteStreamEventInfo", "");
     StatusCode ioc = m_sgSvc->recordAddress("ByteStreamEventInfo",iop);

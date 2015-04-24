@@ -39,7 +39,6 @@ EventSelectorByteStream::EventSelectorByteStream(const std::string& name, ISvcLo
 	m_beginIter(0),
 	m_endIter(0),
 	m_eventSource(0),
-	m_robProvider("ROBDataProviderSvc", name),
         m_incidentSvc("IncidentSvc", name),
         m_evtStore( "StoreGateSvc", name ),
         m_firstFileFired(false),
@@ -148,10 +147,6 @@ StatusCode EventSelectorByteStream::initialize() {
       return(StatusCode::FAILURE);
    }
    m_eventSource->addRef();
-   if (!m_robProvider.retrieve().isSuccess()) {
-      ATH_MSG_FATAL("Cannot get ROBDataProviderSvc");
-      return(StatusCode::FAILURE);
-   }
    if (!m_evtStore.retrieve().isSuccess()) {
       ATH_MSG_FATAL("Cannot get StoreGateSvc");
       return(StatusCode::FAILURE);
@@ -356,9 +351,6 @@ StatusCode EventSelectorByteStream::finalize() {
       ATH_MSG_WARNING("Cannot release " << m_helperTools);
    }
    if (m_eventSource) m_eventSource->release();
-   if (!m_robProvider.release().isSuccess()) {
-      ATH_MSG_WARNING("Cannot release ROBDataProviderSvc");
-   }
    // Finalize the Service base class.
    return(AthService::finalize());
 }
@@ -499,9 +491,6 @@ StatusCode EventSelectorByteStream::next(IEvtSelector::Context& it) const {
 	 }
          ATH_MSG_WARNING("Continue with bad event");
       }
-      // Set RE for rob data provider svc
-      m_robProvider->setNextEvent(pre);
-      m_robProvider->setEventStatus(m_eventSource->currentEventStatus());
 
       // Check whether properties or tools reject this event
       if ( m_NumEvents > m_SkipEvents && 
@@ -928,9 +917,6 @@ StatusCode EventSelectorByteStream::readEvent(int maxevt) {
 //________________________________________________________________________________
 StatusCode EventSelectorByteStream::createAddress(const IEvtSelector::Context& /*it*/,
                 IOpaqueAddress*& iop) const {
-   const RawEvent* pre = m_eventSource->currentEvent();
-   m_robProvider->setNextEvent(pre);
-   m_robProvider->setEventStatus(m_eventSource->currentEventStatus());
    SG::DataProxy* proxy = m_evtStore->proxy(ClassID_traits<DataHeader>::ID(),"ByteStreamDataHeader");
    if (proxy !=0) {
      iop = proxy->address();

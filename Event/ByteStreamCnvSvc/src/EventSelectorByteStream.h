@@ -123,7 +123,6 @@ private:
    StringArrayProperty m_inputCollectionsProp;
    mutable std::vector<std::string>::const_iterator m_inputCollectionsIterator;
    void inputCollectionsHandler(Property&);
-   ServiceHandle<IROBDataProviderSvc> m_robProvider;
    ServiceHandle<IIncidentSvc> m_incidentSvc;
    ServiceHandle<StoreGateSvc> m_evtStore;
 
