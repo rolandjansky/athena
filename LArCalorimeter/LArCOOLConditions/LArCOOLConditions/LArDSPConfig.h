@@ -23,6 +23,8 @@ protected:
  public:  
 
   enum {
+    //Encoding
+    //0R0P PPPP
     PEAKSAMPLE_MASK=0x1F,
     MGRAMPINTERCEPT_MASK=0x40,
   };
