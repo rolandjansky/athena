@@ -1,0 +1,55 @@
+--- Eigen/src/QR/HouseholderQR.h-orig	2015-03-18 19:15:30.000000001 +0100
++++ Eigen/src/QR/HouseholderQR.h	2015-03-18 19:15:34.000000001 +0100
+@@ -232,7 +232,7 @@
+ {
+   typedef typename MatrixQR::Index Index;
+   typedef typename MatrixQR::Scalar Scalar;
+-  typedef typename MatrixQR::RealScalar RealScalar;
++  //typedef typename MatrixQR::RealScalar RealScalar;
+   typedef Block<MatrixQR,Dynamic,Dynamic> BlockType;
+ 
+   Index rows = mat.rows();
+--- Eigen/src/Core/products/SelfadjointMatrixVector.h-orig	2015-03-18 19:17:37.000000001 +0100
++++ Eigen/src/Core/products/SelfadjointMatrixVector.h	2015-03-18 19:17:45.000000001 +0100
+@@ -35,7 +35,7 @@
+   Scalar alpha)
+ {
+   typedef typename packet_traits<Scalar>::type Packet;
+-  typedef typename NumTraits<Scalar>::Real RealScalar;
++  //typedef typename NumTraits<Scalar>::Real RealScalar;
+   const Index PacketSize = sizeof(Packet)/sizeof(Scalar);
+ 
+   enum {
+--- Eigen/src/Core/util/Memory.h-orig	2015-03-18 19:16:29.000000001 +0100
++++ Eigen/src/Core/util/Memory.h	2015-03-18 19:16:34.000000001 +0100
+@@ -451,7 +451,7 @@
+ template<typename Scalar, typename Index>
+ static inline Index first_aligned(const Scalar* array, Index size)
+ {
+-  typedef typename packet_traits<Scalar>::type Packet;
++  //typedef typename packet_traits<Scalar>::type Packet;
+   enum { PacketSize = packet_traits<Scalar>::size,
+          PacketAlignedMask = PacketSize-1
+   };
+--- Eigen/src/Eigenvalues/Tridiagonalization.h-orig	2015-03-18 19:13:57.000000001 +0100
++++ Eigen/src/Eigenvalues/Tridiagonalization.h	2015-03-18 19:14:01.000000001 +0100
+@@ -425,7 +425,7 @@
+ template<typename MatrixType, typename DiagonalType, typename SubDiagonalType>
+ void tridiagonalization_inplace(MatrixType& mat, DiagonalType& diag, SubDiagonalType& subdiag, bool extractQ)
+ {
+-  typedef typename MatrixType::Index Index;
++  //typedef typename MatrixType::Index Index;
+   //Index n = mat.rows();
+   eigen_assert(mat.cols()==mat.rows() && diag.size()==mat.rows() && subdiag.size()==mat.rows()-1);
+   tridiagonalization_inplace_selector<MatrixType>::run(mat, diag, subdiag, extractQ);
+--- Eigen/src/Eigenvalues/ComplexSchur.h-orig	2015-03-18 19:14:40.000000001 +0100
++++ Eigen/src/Eigenvalues/ComplexSchur.h	2015-03-18 19:14:46.000000001 +0100
+@@ -309,7 +309,7 @@
+   static void run(ComplexSchur<MatrixType>& _this, const MatrixType& matrix, bool computeU)
+   {
+     typedef typename ComplexSchur<MatrixType>::ComplexScalar ComplexScalar;
+-    typedef typename ComplexSchur<MatrixType>::ComplexMatrixType ComplexMatrixType;
++    //typedef typename ComplexSchur<MatrixType>::ComplexMatrixType ComplexMatrixType;
+ 
+     // Note: m_hess is over RealScalar; m_matT and m_matU is over ComplexScalar
+     _this.m_hess.compute(matrix);
