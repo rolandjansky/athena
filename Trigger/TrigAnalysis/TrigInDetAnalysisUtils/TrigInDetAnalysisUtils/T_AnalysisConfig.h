@@ -79,7 +79,9 @@ public:
     m_mcTruth(false),
     m_genericFlag(true),
     m_releaseData(""),
-    m_keepAllEvents(false)
+    m_keepAllEvents(false),
+    m_useHighestPT(false),
+    m_filterOnRoi(true)
   {
       // Rearrange objects in vectors: chain names
       std::vector<std::string> testChainNames; testChainNames.push_back(testChainName);
@@ -136,7 +138,8 @@ public:
     m_beamZ(0),
     m_genericFlag(true),
     m_releaseData(""),
-    m_keepAllEvents(false)
+    m_keepAllEvents(false),
+    m_filterOnRoi(true)
   {
       // Rearrange objects in vectors: chain names
       std::vector<std::string> testChainNames; testChainNames.push_back(testChainName);
@@ -257,6 +260,13 @@ public:
 
   void keepAllEvents( bool b ) { m_keepAllEvents = b; }
 
+  void setUseHighestPT( bool b )    { m_useHighestPT=b; } 
+  bool getUseHighestPT()      const { return m_useHighestPT; } 
+
+  bool filterOnRoi()          const { return m_filterOnRoi; }
+  bool setFilterOnRoi(bool b)       { return m_filterOnRoi=b; }
+
+
 protected:
 
   virtual void loop() = 0;
@@ -292,6 +302,9 @@ protected:
 
   template<class Collection>
   bool selectTracks( TrigTrackSelector* selector, Trig::FeatureContainer::combination_const_iterator citr,  const std::string& key="" ) {
+
+    //    std::cout << "try " << key << "\t" << m_provider->evtStore()->template transientContains<Collection>(key) << std::endl;
+
     std::vector< Trig::Feature<Collection> >  trackcollections = citr->get<Collection>( key, TrigDefs::alsoDeactivateTEs );
     if ( !trackcollections.empty() ) {
       // NB!! a combination should never have more than one entry for a track collection from a single algorithm,
@@ -320,6 +333,9 @@ protected:
   ///     to 0 - there should be abetter way to do this, but shan't worry about it now.
   template<class Collection>
   bool selectTracks( TrigTrackSelector* selector, Trig::FeatureContainer::combination_const_iterator citr, const TrigInDetTrackTruthMap* truthmap, const std::string& key="", unsigned index=0 ) {
+
+    //    std::cout << "try " << key << "\t" << m_provider->evtStore()->template transientContains<Collection>(key) << std::endl;
+
     std::vector< Trig::Feature<Collection> >  trackcollections = citr->get<Collection>( key, TrigDefs::alsoDeactivateTEs );
     if ( !trackcollections.empty() ) {
 
@@ -621,6 +637,10 @@ protected:
   std::string            m_releaseData;
 
   bool                   m_keepAllEvents;
+
+  bool                   m_useHighestPT;
+
+  bool                   m_filterOnRoi;
 
 };
 
