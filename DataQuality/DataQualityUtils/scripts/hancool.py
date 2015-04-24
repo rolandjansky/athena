@@ -46,7 +46,7 @@ if __name__ == "__main__":
   else: # set to defaults
       runNumber     = 52280
       filePath      = "/afs/cern.ch/user/a/atlasdqm/dqmdisk/han_results/tier0/FDR2a/1/physics_Express/"
-      dbConnection  = "sqlite://;schema=MyCOOL_histo.db;dbname=COMP200"
+      dbConnection  = "sqlite://;schema=MyCOOL_histo.db;dbname=CONDBR2"
       dqmfOfl       = "/GLOBAL/DETSTATUS/DQMFOFL"
       db_tag = "HEAD"
 

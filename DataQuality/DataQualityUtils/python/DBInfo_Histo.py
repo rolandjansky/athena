@@ -31,7 +31,7 @@ def getFolderH():
 
 def getDbName():
 #	return "OFLP200"
-    return "COMP200"
+    return "CONDBR2"
 #	return "STRMP200"
 
 def getSchema():
