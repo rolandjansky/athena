@@ -116,9 +116,9 @@ def getRunMask(run):
     from PyCool import cool, coral
     dbSvc = cool.DatabaseSvcFactory.databaseService()
     # Necessary to work around COOL database lookup stupidity
-    db = dbSvc.openDatabase('oracle://ATLAS_COOLPROD;dbname=COMP200;schema=ATLAS_COOLONL_TDAQ', True)
+    db = dbSvc.openDatabase('oracle://ATLAS_COOLPROD;dbname=CONDBR2;schema=ATLAS_COOLONL_TDAQ', True)
     iov = run << 32
-    folder = db.getFolder('/TDAQ/RunCtrl/SOR_Params')
+    folder = db.getFolder('/TDAQ/RunCtrl/SOR')
     obj = folder.findObject(iov, 0)
     mask = obj.payload()['DetectorMask']
     db.closeDatabase()
@@ -126,7 +126,7 @@ def getRunMask(run):
   
 def getNumLumiBlocks(run):
     from DQUtils.db import fetch_iovs
-    lbs = fetch_iovs('LBLB', (run, 1), (run, 0xFFFFFFFF), database='oracle://ATLAS_COOLPROD;dbname=COMP200;schema=ATLAS_COOLONL_TRIGGER')
+    lbs = fetch_iovs('LBLB', (run, 1), (run, 0xFFFFFFFF), database='oracle://ATLAS_COOLPROD;dbname=CONDBR2;schema=ATLAS_COOLONL_TRIGGER')
     return len(lbs)
     
     
