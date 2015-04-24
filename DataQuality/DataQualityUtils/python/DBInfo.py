@@ -20,7 +20,7 @@ def getFolder():
   return "/GLOBAL/DETSTATUS/DQMFOFL" #/GLOBAL/DETSTATUS/DQMFOFLH"
 
 def getDbName():
-	return "COMP200"
+	return "CONDBR2"
 #	return "STRMP200"
 
 def getSchema():

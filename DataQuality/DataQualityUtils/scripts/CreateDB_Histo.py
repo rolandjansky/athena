@@ -91,6 +91,6 @@ db.closeDatabase()
 # create defects
 from DQDefects import DefectsDB
 ddb = DefectsDB(connectString, create=True, read_only=False)
-chandb = DefectsDB('COOLOFL_GLOBAL/COMP200')
+chandb = DefectsDB('COOLOFL_GLOBAL/CONDBR2')
 for chan in chandb.defect_names:
     ddb.create_defect(chan, chandb.get_channel_descriptions([chan]))

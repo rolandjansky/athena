@@ -12,6 +12,7 @@
 #include <sstream>
 #include <cstdlib>
 #include <boost/algorithm/string/case_conv.hpp>
+#include <boost/lexical_cast.hpp>
 #include <TCanvas.h>
 #include <TDirectory.h>
 #include <TFile.h>
@@ -43,6 +44,17 @@ namespace {
 //   bool useRecursiveDelete;
 // };
 
+  Double_t getScaleVal(std::string& display) {
+    std::size_t found = display.find("ScaleRef");
+    std::size_t found2 = display.find_first_of(",",found+1);
+    // has multiple entries? Do this later.
+    try {
+      return boost::lexical_cast<Double_t>(display.substr(found+9, found2-found-9));
+    } catch (boost::bad_lexical_cast const&) {
+      std::cerr << "Unable to cast scaling value " << display.substr(found+9, found2-found-9) << " to double" << std::endl;
+      return 1.;
+    }
+  }
 } // end unnamed namespace
 
 
@@ -1242,7 +1254,9 @@ saveHistogramToFile( std::string nameHis, std::string location, TDirectory* grou
 	    hRef->Draw(("SAME"+drawrefopt).c_str());
 	  } else {
 	    double scale = 1.0;
-	    if ( h->Integral("width") > 0.0 && hRef->Integral("width") > 0.0 && (AlgoName.find("BinContentComp")==std::string::npos) && (display.find("NoNorm")==std::string::npos) ) {
+	    if (display.find("ScaleRef")!=std::string::npos) {
+	      scale = getScaleVal(display);
+	    } else if ( h->Integral("width") > 0.0 && hRef->Integral("width") > 0.0 && (AlgoName.find("BinContentComp")==std::string::npos) && (display.find("NoNorm")==std::string::npos) ) {
 	      scale = h->Integral("width")/hRef->Integral("width");
 	    }
 	    hRef->Scale( scale );
@@ -1840,7 +1854,9 @@ bool HanOutputFile::drawReference(TCanvas* myC,TH1* hRef,TH1* h,std::string &dra
     h->Draw(("SAME"+drawopt).c_str());
   } else {//ordinary reference
     double scale = 1.0;
-    if ( h->Integral("width") > 0.0 && hRef->Integral("width") > 0.0 && (AlgoName.find("BinContentComp")==std::string::npos) && (display.find("NoNorm")==std::string::npos) ) {
+    if ( display.find("ScaleRef")!=std::string::npos) {
+      scale = getScaleVal(display);
+    } else if ( h->Integral("width") > 0.0 && hRef->Integral("width") > 0.0 && (AlgoName.find("BinContentComp")==std::string::npos) && (display.find("NoNorm")==std::string::npos) ) {
       scale = h->Integral("width")/hRef->Integral("width");
     }
     hRef->Scale( scale );
