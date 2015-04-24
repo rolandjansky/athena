@@ -28,8 +28,3 @@
 
 #include "TrigNavigation/TypeRegistration.h"
 REGISTER_PACKAGE_WITH_NAVI(TrigParticle)
-
-// Avoid checkreq warnings.
-#include "xAODBTagging/BTaggingContainer.h"
-#include "xAODEgamma/ElectronContainer.h"
-#include "xAODTau/TauJetContainer.h"
