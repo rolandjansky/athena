@@ -5,7 +5,7 @@
 #include "LArCOOLConditions/LArOFCFlat.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include "CoralBase/Blob.h"
-#include "LArCabling/LArCablingService.h"
+#include "LArTools/LArCablingService.h"
 
 LArOFCFlat::LArOFCFlat():
   m_nChannels(0),
@@ -31,7 +31,7 @@ LArOFCFlat::LArOFCFlat(const CondAttrListCollection* attrList) :
   m_pOFCa.resize(attrList->size());
   m_pOFCb.resize(attrList->size());
   m_pTimeOffset.resize(attrList->size());
-  (*m_log) << MSG::DEBUG << "Found data for " << attrList->size() << " gains." << endmsg;
+  (*m_log) << MSG::DEBUG << "Found data for " << attrList->size() << " gains." << endreq;
   
   int blobSize=0;  //FIXME Force size to hash-max??? m_onlineHelper->channelHashMax()
 
@@ -40,7 +40,7 @@ LArOFCFlat::LArOFCFlat(const CondAttrListCollection* attrList) :
   for(;gainIt!=gainIt_e;++gainIt) {
     const unsigned gain=gainIt->first;
     if (gain>=attrList->size() || gain>2) {
-      (*m_log) << MSG::ERROR << "Found unexpected COOL-channel (=gain) number:" << gain << endmsg;
+      (*m_log) << MSG::ERROR << "Found unexpected COOL-channel (=gain) number:" << gain << endreq;
       return; //ERROR
     }
     const coral::AttributeList& attr=gainIt->second;
@@ -53,12 +53,12 @@ LArOFCFlat::LArOFCFlat(const CondAttrListCollection* attrList) :
     //Sanity checks:
     if (blobSize!=ofcaBlob.size() || blobSize!=ofcbBlob.size()) {
       (*m_log) << MSG::ERROR << "Unequal blob size (" << blobSize << "/" 
-	       << ofcaBlob.size() << "/" << ofcbBlob.size() << ")" <<endmsg;
+	       << ofcaBlob.size() << "/" << ofcbBlob.size() << ")" <<endreq;
       return;
     }
     if (m_nSamples!=attr["nSamples"].data<unsigned>()) {
       (*m_log) << MSG::ERROR << "Unequal number of samples (" << m_nSamples << "/" 
-	       << attr["nSamples"].data<unsigned>() << ")" << endmsg;
+	       << attr["nSamples"].data<unsigned>() << ")" << endreq;
       return;
     }
 
@@ -69,11 +69,11 @@ LArOFCFlat::LArOFCFlat(const CondAttrListCollection* attrList) :
   }// end loop over COOL channels
 
   if (m_nSamples==0) {
-    (*m_log) << MSG::ERROR << "Number of samples is zero!" << endmsg;
+    (*m_log) << MSG::ERROR << "Number of samples is zero!" << endreq;
     return;
   }
   m_nChannels=blobSize/(sizeof(float)*m_nSamples);
-  (*m_log) << MSG::DEBUG << "Found data for " << m_nChannels << endmsg;
+  (*m_log) << MSG::DEBUG << "Found data for " << m_nChannels << endreq;
 }
 
 LArOFCFlat::OFCRef_t LArOFCFlat::OFC_a(const Identifier&  CellID, int gain, int tbin) const {

@@ -4,7 +4,7 @@
 
 #include "LArCOOLConditions/LArHVScaleCorrSC.h"
 
-//const float LArHVScaleCorrSC::errorcode=ILArHVScaleCorr::ERRORCODE;
+const float LArHVScaleCorrSC::errorcode=ILArHVScaleCorr::ERRORCODE;
 
 LArHVScaleCorrSC::LArHVScaleCorrSC() {}
 
@@ -18,7 +18,7 @@ LArHVScaleCorrSC::LArHVScaleCorrSC(const CondAttrListCollection* attrList) {
    readBlob(attrList,"HVScaleCorr",*m_log);
 
   if (m_pValues.size()!=1) {
-    (*m_log) << MSG::ERROR << "Found unexpected number of gains (" << m_pValues.size() <<"). Expected exactly one gain." << endmsg;
+    (*m_log) << MSG::ERROR << "Found unexpected number of gains (" << m_pValues.size() <<"). Expected exactly one gain." << endreq;
   }
 
   return;

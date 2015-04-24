@@ -7,7 +7,7 @@
 
 // Services/helpers
 #include "LArIdentifier/LArOnlineID.h"
-#include "LArCabling/LArCablingService.h" 
+#include "LArTools/LArCablingService.h" 
 
 // Gaudi/Athena
 #include "GaudiKernel/Bootstrap.h"
@@ -35,10 +35,10 @@ StatusCode LArCondFlatBase::initializeBase(const char* context) {
   else
     sContext=context;
   m_log=new MsgStream(Athena::getMessageSvc(), sContext);
-  (*m_log) << MSG::DEBUG << "initializeBase "<< endmsg;
+  (*m_log) << MSG::DEBUG << "initializeBase "<< endreq;
 
   if (m_isInitialized) {
-    (*m_log) << MSG::DEBUG << "already initialized - returning "<< endmsg;
+    (*m_log) << MSG::DEBUG << "already initialized - returning "<< endreq;
     return (StatusCode::SUCCESS);
   }
   //Get LArOnlineID....
@@ -46,29 +46,29 @@ StatusCode LArCondFlatBase::initializeBase(const char* context) {
   StoreGateSvc* detStore;
   StatusCode sc = svcLoc->service("DetectorStore",detStore);
   if (sc.isFailure()) {
-    (*m_log) << MSG::ERROR << "Cannot get DetectorStore!" << endmsg;
+    (*m_log) << MSG::ERROR << "Cannot get DetectorStore!" << endreq;
     return sc;
   }
   sc = detStore->retrieve(m_onlineHelper,"LArOnlineID");
   if (sc.isFailure()) {
-    (*m_log) << MSG::ERROR << "Cannot get LArOnlineID!" << endmsg;
+    (*m_log) << MSG::ERROR << "Cannot get LArOnlineID!" << endreq;
     return sc;
   }
 
   IToolSvc* toolSvc;
   sc = svcLoc->service( "ToolSvc",toolSvc  );
   if (sc.isFailure()) {
-    (*m_log) << MSG::ERROR << "Cannot get ToolSvc!" << endmsg;
+    (*m_log) << MSG::ERROR << "Cannot get ToolSvc!" << endreq;
     return sc;
   }
 
   sc = toolSvc->retrieveTool("LArCablingService",m_larCablingSvc);
   if (sc.isFailure()) {
-    (*m_log) << MSG::ERROR << "Cannot get LArCablingService!" << endmsg;
+    (*m_log) << MSG::ERROR << "Cannot get LArCablingService!" << endreq;
     return sc;
   }
 
   m_isInitialized = true;
-  (*m_log) << MSG::DEBUG << "end initializeBase " << endmsg;
+  (*m_log) << MSG::DEBUG << "end initializeBase " << endreq;
   return (StatusCode::SUCCESS);
 }

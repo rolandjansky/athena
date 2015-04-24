@@ -9,7 +9,7 @@ LAruA2MeVSC::LAruA2MeVSC() {}
 
 LAruA2MeVSC::~LAruA2MeVSC() {}
 
-//const float LAruA2MeVSC::errorcode=ILAruA2MeV::ERRORCODE;
+const float LAruA2MeVSC::errorcode=ILAruA2MeV::ERRORCODE;
 
 LAruA2MeVSC::LAruA2MeVSC(const CondAttrListCollection* attrList) {
   StatusCode sc=initializeBase("LAruA2MeVSC");
@@ -18,7 +18,7 @@ LAruA2MeVSC::LAruA2MeVSC(const CondAttrListCollection* attrList) {
   readBlob(attrList,"uA2MeV",*m_log);
 
   if (m_pValues.size()!=1) {
-    (*m_log) << MSG::ERROR << "Found unexpected number of gains (" << m_pValues.size() <<"). Expected exactly one gain." << endmsg;
+    (*m_log) << MSG::ERROR << "Found unexpected number of gains (" << m_pValues.size() <<"). Expected exactly one gain." << endreq;
   }
 
   return;

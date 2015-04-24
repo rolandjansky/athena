@@ -9,7 +9,7 @@
 #include <string>
 #include "GaudiKernel/StatusCode.h"
 #include "LArIdentifier/LArOnlineID.h"
-#include "LArCabling/LArCablingService.h" 
+#include "LArTools/LArCablingService.h" 
 
 // Forward delcarations
 class MsgStream;

@@ -27,14 +27,14 @@ void LArPedestalBlob::readBlob(const CondAttrListCollection* attrList, MsgStream
   
   m_pPedestal.resize(attrList->size());
   m_pPedestalRMS.resize(attrList->size());
-  msg << MSG::DEBUG << "Found data for " << attrList->size() << " gains." << endmsg;
+  msg << MSG::DEBUG << "Found data for " << attrList->size() << " gains." << endreq;
   
   int blobSize=0; 
 
   for(;gainIt!=gainIt_e;++gainIt) {
     const unsigned gain=gainIt->first;
     if (gain>=attrList->size()) {
-      msg << MSG::ERROR << "Found unexpected COOL-channel (=gain) number:" << gain << endmsg;
+      msg << MSG::ERROR << "Found unexpected COOL-channel (=gain) number:" << gain << endreq;
       return; //ERROR
     }
     const coral::AttributeList& attr=gainIt->second;
@@ -45,7 +45,7 @@ void LArPedestalBlob::readBlob(const CondAttrListCollection* attrList, MsgStream
     //Sanity checks:
     if (blobSize!=pedBlob.size() || blobSize!=rmsBlob.size()) {
       msg << MSG::ERROR << "Unequal blob size (" << blobSize << "/" 
-	  << pedBlob.size() << "/" << rmsBlob.size() << ")" <<endmsg;
+	  << pedBlob.size() << "/" << rmsBlob.size() << ")" <<endreq;
       return;
     }
     m_pPedestal[gain]=static_cast<const float*>(pedBlob.startingAddress());
@@ -54,6 +54,6 @@ void LArPedestalBlob::readBlob(const CondAttrListCollection* attrList, MsgStream
 
   
   m_nChannels=blobSize/sizeof(float);
-  msg << MSG::DEBUG << "Found data for " << m_nChannels << endmsg;
+  msg << MSG::DEBUG << "Found data for " << m_nChannels << endreq;
   return;
 }

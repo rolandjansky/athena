@@ -5,7 +5,7 @@
 #include "LArCOOLConditions/LArMinBiasSC.h"
 
 
-//const float LArMinBiasSC::errorcode=ILArMinBias::ERRORCODE;
+const float LArMinBiasSC::errorcode=ILArMinBias::ERRORCODE;
 
 LArMinBiasSC::LArMinBiasSC() {}
 
@@ -19,7 +19,7 @@ LArMinBiasSC::LArMinBiasSC(const CondAttrListCollection* attrList) {
    readBlob(attrList,"MinBias",*m_log);
 
   if (m_pValues.size()!=1) {
-    (*m_log) << MSG::ERROR << "Found unexpected number of gains (" << m_pValues.size() <<"). Expected exactly one gain." << endmsg;
+    (*m_log) << MSG::ERROR << "Found unexpected number of gains (" << m_pValues.size() <<"). Expected exactly one gain." << endreq;
   }
 
   return;

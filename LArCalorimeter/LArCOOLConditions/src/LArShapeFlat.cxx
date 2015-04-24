@@ -5,7 +5,7 @@
 #include "LArCOOLConditions/LArShapeFlat.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include "CoralBase/Blob.h"
-#include "LArCabling/LArCablingService.h"
+#include "LArTools/LArCablingService.h"
 
 LArShapeFlat::LArShapeFlat()   {}
 

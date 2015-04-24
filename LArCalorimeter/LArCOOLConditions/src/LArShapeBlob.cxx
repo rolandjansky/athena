@@ -5,7 +5,7 @@
 #include "LArCOOLConditions/LArShapeBlob.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include "CoralBase/Blob.h"
-#include "LArCabling/LArCablingService.h"
+#include "LArTools/LArCablingService.h"
 
 LArShapeBlob::LArShapeBlob():
   m_nChannels(0),
@@ -30,7 +30,7 @@ void LArShapeBlob::readBlob(const CondAttrListCollection* attrList, MsgStream& m
   m_pShape.resize(attrList->size());
   m_pShapeDer.resize(attrList->size());
   m_pTimeOffset.resize(attrList->size());
-  msg << MSG::DEBUG << "Found data for " << attrList->size() << " gains." << endmsg;
+  msg << MSG::DEBUG << "Found data for " << attrList->size() << " gains." << endreq;
   
   int blobSize=0;  //FIXME Force size to hash-max??? m_onlineHelper->channelHashMax()
 
@@ -38,7 +38,7 @@ void LArShapeBlob::readBlob(const CondAttrListCollection* attrList, MsgStream& m
   for(;gainIt!=gainIt_e;++gainIt) {
     const unsigned gain=gainIt->first;
     if (gain>=attrList->size() || gain>2) {
-      msg << MSG::ERROR << "Found unexpected COOL-channel (=gain) number:" << gain << endmsg;
+      msg << MSG::ERROR << "Found unexpected COOL-channel (=gain) number:" << gain << endreq;
       return; //ERROR
     }
     const coral::AttributeList& attr=gainIt->second;
@@ -51,12 +51,12 @@ void LArShapeBlob::readBlob(const CondAttrListCollection* attrList, MsgStream& m
     //Sanity checks:
     if (blobSize!=shapeaBlob.size() || blobSize!=shapebBlob.size()) {
       msg << MSG::ERROR << "Unequal blob size (" << blobSize << "/" 
-	       << shapeaBlob.size() << "/" << shapebBlob.size() << ")" <<endmsg;
+	       << shapeaBlob.size() << "/" << shapebBlob.size() << ")" <<endreq;
       return;
     }
     if (m_nSamples!=attr["nSamples"].data<unsigned>()) {
       msg << MSG::ERROR << "Unequal number of samples (" << m_nSamples << "/" 
-	  << attr["nSamples"].data<unsigned>() << ")" << endmsg;
+	  << attr["nSamples"].data<unsigned>() << ")" << endreq;
       return;
     }
 
@@ -67,9 +67,9 @@ void LArShapeBlob::readBlob(const CondAttrListCollection* attrList, MsgStream& m
   }// end loop over COOL channels
 
   if (m_nSamples==0) {
-    msg << MSG::ERROR << "Number of samples is zero!" << endmsg;
+    msg << MSG::ERROR << "Number of samples is zero!" << endreq;
     return;
   }  
   m_nChannels=blobSize/(sizeof(float)*m_nSamples);
-  msg << MSG::DEBUG << "Found data for " << m_nChannels << endmsg;
+  msg << MSG::DEBUG << "Found data for " << m_nChannels << endreq;
 }

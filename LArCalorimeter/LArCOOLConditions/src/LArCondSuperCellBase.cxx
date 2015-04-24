@@ -36,10 +36,10 @@ StatusCode LArCondSuperCellBase::initializeBase(const char* context) {
 
   if (!m_log)
     m_log=new MsgStream(Athena::getMessageSvc(), sContext);
-  (*m_log) << MSG::DEBUG << "initializeBase "<< endmsg;
+  (*m_log) << MSG::DEBUG << "initializeBase "<< endreq;
 
   if (m_isInitialized) {
-    (*m_log) << MSG::DEBUG << "already initialized - returning "<< endmsg;
+    (*m_log) << MSG::DEBUG << "already initialized - returning "<< endreq;
     return (StatusCode::SUCCESS);
   }
   //Get SuperCellID ...
@@ -47,16 +47,16 @@ StatusCode LArCondSuperCellBase::initializeBase(const char* context) {
   StoreGateSvc* detStore;
   StatusCode sc = svcLoc->service("DetectorStore",detStore);
   if (sc.isFailure()) {
-    (*m_log) << MSG::ERROR << "Cannot get DetectorStore!" << endmsg;
+    (*m_log) << MSG::ERROR << "Cannot get DetectorStore!" << endreq;
     return sc;
   }
   sc = detStore->retrieve( m_scOnlineID,"LArOnline_SuperCellID");
   if (sc.isFailure()) {
-    (*m_log) << MSG::ERROR << "Cannot get LArOnline_SuperCellID!" << endmsg;
+    (*m_log) << MSG::ERROR << "Cannot get LArOnline_SuperCellID!" << endreq;
     return sc;
   }
 
   m_isInitialized = true;
-  (*m_log) << MSG::DEBUG << "end initializeBase " << endmsg;
+  (*m_log) << MSG::DEBUG << "end initializeBase " << endreq;
   return (StatusCode::SUCCESS);
 }

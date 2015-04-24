@@ -5,7 +5,7 @@
 #include "LArCOOLConditions/LArfSamplSC.h"
 
 
-//const float LArfSamplSC::errorcode=ILArfSampl::ERRORCODE;
+const float LArfSamplSC::errorcode=ILArfSampl::ERRORCODE;
 
 LArfSamplSC::LArfSamplSC() {}
 
@@ -19,7 +19,7 @@ LArfSamplSC::LArfSamplSC(const CondAttrListCollection* attrList) {
    readBlob(attrList,"fSampl",*m_log);
 
   if (m_pValues.size()!=1) {
-    (*m_log) << MSG::ERROR << "Found unexpected number of gains (" << m_pValues.size() <<"). Expected exactly one gain." << endmsg;
+    (*m_log) << MSG::ERROR << "Found unexpected number of gains (" << m_pValues.size() <<"). Expected exactly one gain." << endreq;
   }
 
   return;
