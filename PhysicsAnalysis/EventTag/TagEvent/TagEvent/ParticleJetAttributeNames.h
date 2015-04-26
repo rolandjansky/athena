@@ -14,9 +14,9 @@
 
 /** list of ALL the Jet attribute  */
 namespace PJet { 
-  static const int NjetAttr=8;   // This is the number of Jet TAG attributes
+  static const int NjetAttr=9;   // This is the number of Jet TAG attributes
   static const int NumJet = 6;   // This is the max number of ParticleJets in the TAG
-  enum { NJet=0, Pt=1, Eta=2, Phi=3, JetSumET=4, JetPID=5, NpTJet=6, NpTBJet=7 };
+  enum { NJet=0, Pt=1, Eta=2, Phi=3, JetSumET=4, E=5, JetPID=6, NpTJet=7, NpTBJet=8 };
 }
 
 /** This is the list of Jet TAG attributes */
@@ -26,6 +26,7 @@ static const std::string JetAttributeNames[PJet::NjetAttr] = {
                                                   "JetEta",
                                                   "JetPhi",
                                                   "JetSumET",
+												  "JetE",
 						  "JetPID",
 						  "NpTJet",
 						  "NpTBJet",
@@ -38,6 +39,7 @@ static const std::string JetAttributeUnitNames[PJet::NjetAttr] = {
 						UnitNames[Unt::Rap],
 						UnitNames[Unt::Rad],
                                                 UnitNames[Unt::Mev],
+												UnitNames[Unt::Mev],
 						UnitNames[Unt::Bitmask],
                                                 UnitNames[Unt::Number],
                                                 UnitNames[Unt::Number],
@@ -50,6 +52,7 @@ static const std::string JetAttributeGroupNames[PJet::NjetAttr] = {
                                                 GroupNames[Grp::PhysicsJetmet],
                                                 GroupNames[Grp::PhysicsJetmet],
                                                 GroupNames[Grp::PhysicsJetmet],
+												GroupNames[Grp::PhysicsJetmet],
                                                 GroupNames[Grp::PhysicsJetmet],
                                                 GroupNames[Grp::PhysicsJetmet],
                                                 GroupNames[Grp::PhysicsJetmet],

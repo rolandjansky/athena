@@ -26,7 +26,7 @@ class RawInfoSummaryForTag
      CellEnergySum(-99), CellEnergySumEMB(-99), CellEnergySumEMEC(-99), CellEnergySumHEC(-99), CellEnergySumFCAL(-99), CellEnergySumTile(-99), ClusterEnergySum(-99),
      TopoClEt1(-99), TopoClEta1(-99), TopoClPhi1(-99),
      CellMET(-99), CellMETPhi(-99),
-    MBTStimeDiff(-99), LArECtimeDiff(-99),TrtEventPhase(-99),
+    MBTStimeDiff(-99), LArECtimeDiff(-99), MBTStimeAvg(-99), LArECtimeAvg(-99), TrtEventPhase(-99),
      PixelTracks(-99), SCTTracks(-99), TRTTracks(-99),
      MooreSegments(-99), ConvertedMBoySegments(-99),
     MooreTracks(-99), ConvertedMBoyTracks(-99),
@@ -68,6 +68,9 @@ class RawInfoSummaryForTag
 
   void setMBTStimeDiff(float);
   void setLArECtimeDiff(float);
+  void setMBTStimeAvg(float);
+  void setLArECtimeAvg(float);
+
   void setTrtEventPhase(float);
 
   void setPixelTracks(int);
@@ -127,6 +130,9 @@ class RawInfoSummaryForTag
 
   float getMBTStimeDiff() const;
   float getLArECtimeDiff() const;
+  float getMBTStimeAvg() const;
+  float getLArECtimeAvg() const;
+
   float getTrtEventPhase() const;
 
   int getPixelTracks() const;
@@ -166,7 +172,7 @@ class RawInfoSummaryForTag
   float CellEnergySum, CellEnergySumEMB, CellEnergySumEMEC, CellEnergySumHEC, CellEnergySumFCAL, CellEnergySumTile, ClusterEnergySum;
   float TopoClEt1, TopoClEta1, TopoClPhi1;   
   float CellMET, CellMETPhi;
-  float MBTStimeDiff, LArECtimeDiff;
+  float MBTStimeDiff, LArECtimeDiff,MBTStimeAvg, LArECtimeAvg;
   float TrtEventPhase;
   /* ints */
   int PixelTracks, SCTTracks, TRTTracks;
@@ -242,6 +248,8 @@ inline std::ostream &operator<<(std::ostream &stream, RawInfoSummaryForTag& o)
 
   stream << "MBTStimeDiff \t "<< o.getMBTStimeDiff()<<"\n";
   stream << "LArECtimeDiff \t "<< o.getLArECtimeDiff()<<"\n";
+  stream << "MBTStimeAvg \t "<< o.getMBTStimeAvg()<<"\n";
+    stream << "LArECtimeAvg \t "<< o.getLArECtimeAvg()<<"\n";
 
   return stream; // must return stream
 }
@@ -276,6 +284,9 @@ inline void RawInfoSummaryForTag::setCellMETPhi(float a){ CellMETPhi=a;}
 
 inline void RawInfoSummaryForTag::setMBTStimeDiff(float a){ MBTStimeDiff=a;}
 inline void RawInfoSummaryForTag::setLArECtimeDiff(float a){ LArECtimeDiff=a;}
+inline void RawInfoSummaryForTag::setMBTStimeAvg(float a){ MBTStimeAvg=a;}
+inline void RawInfoSummaryForTag::setLArECtimeAvg(float a){ LArECtimeAvg=a;}
+
 
 inline void RawInfoSummaryForTag::setTrtEventPhase(float a){ TrtEventPhase=a;}
 
@@ -338,6 +349,8 @@ inline float RawInfoSummaryForTag::getCellMETPhi() const {return CellMETPhi;}
 
 inline float RawInfoSummaryForTag::getMBTStimeDiff() const {return MBTStimeDiff;}
 inline float RawInfoSummaryForTag::getLArECtimeDiff() const {return LArECtimeDiff;}
+inline float RawInfoSummaryForTag::getMBTStimeAvg() const {return MBTStimeAvg;}
+inline float RawInfoSummaryForTag::getLArECtimeAvg() const {return LArECtimeAvg;}
 
 inline float RawInfoSummaryForTag::getTrtEventPhase() const {return TrtEventPhase;}
 

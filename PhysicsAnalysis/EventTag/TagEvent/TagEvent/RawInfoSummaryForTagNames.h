@@ -16,8 +16,8 @@
 /** list of ALL the RawSummary attributes */
 namespace Raw { 
 
-  static const unsigned int NAttr = 17;    // This is the number of the RawSummary TAG attributes 
-  static const unsigned int NFloats = 12;
+  static const unsigned int NAttr = 22;    // This is the number of the RawSummary TAG attributes
+  static const unsigned int NFloats = 16;
 }
 
 static const AthenaAttributeSpecification RawSummaryAttributeSpecs[Raw::NAttr] = 
@@ -34,11 +34,16 @@ static const AthenaAttributeSpecification RawSummaryAttributeSpecs[Raw::NAttr] =
    AthenaAttributeSpecification("TopoClusterPhi1","float",   GroupNames[Grp::RawSummary],UnitNames[Unt::Rad]),
    AthenaAttributeSpecification("CellMissingET","float",      GroupNames[Grp::RawSummary],UnitNames[Unt::Mev]),
    AthenaAttributeSpecification("CellMissingETPhi","float",   GroupNames[Grp::RawSummary],UnitNames[Unt::Rad]),
+   AthenaAttributeSpecification("MBTStimeDiff","float", GroupNames[Grp::RawSummary],UnitNames[Unt::nanosec]),
+   AthenaAttributeSpecification("LArECtimeDiff","float",GroupNames[Grp::RawSummary],UnitNames[Unt::nanosec]),
+   AthenaAttributeSpecification("MBTStimeAvg","float", GroupNames[Grp::RawSummary],UnitNames[Unt::nanosec]),
+   AthenaAttributeSpecification("LArECtimeAvg","float",GroupNames[Grp::RawSummary],UnitNames[Unt::nanosec]),
    AthenaAttributeSpecification("NSCTSPs","int",  GroupNames[Grp::RawSummary],UnitNames[Unt::Number]),
    AthenaAttributeSpecification("NPixelSPs","int",  GroupNames[Grp::RawSummary],UnitNames[Unt::Number]),
    AthenaAttributeSpecification("NTRTDCs","int",  GroupNames[Grp::RawSummary],UnitNames[Unt::Number]),
    AthenaAttributeSpecification("NTRTHtDCs","int",GroupNames[Grp::RawSummary],UnitNames[Unt::Number]),
-   AthenaAttributeSpecification("NBCMHits","int", GroupNames[Grp::RawSummary],UnitNames[Unt::Number])
+   AthenaAttributeSpecification("NBCMHits","int", GroupNames[Grp::RawSummary],UnitNames[Unt::Number]),
+   AthenaAttributeSpecification("MBTSword","unsigned int",GroupNames[Grp::RawSummary],UnitNames[Unt::Bitmask])
 };
 
 
