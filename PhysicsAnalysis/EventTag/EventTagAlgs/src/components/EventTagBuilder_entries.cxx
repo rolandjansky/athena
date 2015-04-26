@@ -1,3 +1,4 @@
+#include "../AnalysisTagBuilder.h" 
 #include "../RawInfoSummaryTagBuilder.h"
 #include "../ElectronTagBuilder.h"
 #include "../GlobalEventTagBuilder.h"
@@ -12,6 +13,7 @@
 
 #include "GaudiKernel/DeclareFactoryEntries.h"
 
+DECLARE_ALGORITHM_FACTORY( AnalysisTagBuilder )
 DECLARE_ALGORITHM_FACTORY( RawInfoSummaryTagBuilder )
 DECLARE_ALGORITHM_FACTORY( ElectronTagBuilder )
 DECLARE_ALGORITHM_FACTORY( GlobalEventTagBuilder )
@@ -27,6 +29,7 @@ DECLARE_ALGORITHM_FACTORY( EventSplitter )
 
 DECLARE_FACTORY_ENTRIES( EventTagAlgs ) {
 
+  DECLARE_ALGORITHM( AnalysisTagBuilder )  
   DECLARE_ALGORITHM( RawInfoSummaryTagBuilder )
   DECLARE_ALGORITHM( ElectronTagBuilder )
   DECLARE_ALGORITHM( GlobalEventTagBuilder )

@@ -28,7 +28,8 @@ use TauTagTools		     	TauTagTools-*			PhysicsAnalysis/TauID
 #use JetTaggingTagTools	     	JetTaggingTagTools-*	   	PhysicsAnalysis/JetTagging
 end_private
 
-library EventTagAlgs ElectronTagBuilder.cxx \
+library EventTagAlgs AnalysisTagBuilder.cxx \
+	             ElectronTagBuilder.cxx \
 	             GlobalEventTagBuilder.cxx \
                      GlobalTriggerTagBuilder.cxx \
   	             MissingETTagBuilder.cxx \
@@ -40,7 +41,7 @@ library EventTagAlgs ElectronTagBuilder.cxx \
 		     TauJetTagBuilder.cxx \
 		     EventSplitter.cxx \
 		     components/*.cxx
-
+		     
 apply_pattern component_library
 
 apply_pattern declare_joboptions files="*.py"
