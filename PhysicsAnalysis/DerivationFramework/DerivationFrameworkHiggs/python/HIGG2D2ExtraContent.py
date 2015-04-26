@@ -4,19 +4,21 @@
 
 HIGG2D2ExtraContent=[
     "egammaClusters.rawE.phi_sampl.calM",
-    "GSFTrackParticles.expectNextToInnermostPixelLayerHit.numberOfNextToInnermostPixelLayerHits.numberOfNextToInnermostPixelLayerOutliers",
-    "Muons.quality.etcone20.ptconecoreTrackPtrCorrection",
-    "ExtrapolatedMuonTrackParticles.numberOfTRTHits.numberOfTRTOutliers",
-    "AntiKt4EMTopoJets.JetEMScaleMomentum_pt.JetEMScaleMomentum_eta.JetEMScaleMomentum_phi.JetEMScaleMomentum_m"
-    ]
+    "GSFTrackParticles.expectInnermostPixelLayerHit.numberOfInnermostPixelLayerHits.numberOfInnermostPixelLayerOutliers.expectNextToInnermostPixelLayerHit.numberOfNextToInnermostPixelLayerHits.numberOfNextToInnermostPixelLayerOutliers.eProbabilityHT",
+    "Muons.quality.etcone20",
+    "CombinedMuonTrackParticles.definingParametersCovMatrix",
+    "ExtrapolatedMuonTrackParticles.definingParametersCovMatrix.numberOfTRTHits.numberOfTRTOutliers",
+    "AntiKt4EMTopoJets.JetEMScaleMomentum_pt.JetEMScaleMomentum_eta.JetEMScaleMomentum_phi.JetEMScaleMomentum_m.Jvt.JvtJvfcorr.JvtRpt",
+    "AntiKt4LCTopoJets.Jvt.JvtJvfcorr.JvtRpt"]
 
 HIGG2D2ExtraContentTruth=[
-    ]
+    "AntiKt4EMTopoJets.ConeTruthLabelID.PartonTruthLabelID",
+    "AntiKt4LCTopoJets.ConeTruthLabelID.PartonTruthLabelID"]
 
 HIGG2D2ExtraContainers=[
-    "MuonClusterCollection",
-    "MET_Track",
-    "CaloCalTopoClusters"]
+    "MuonSegments",
+    "MET_Track"]#,
+    #"METMap_Track"]
 
 HIGG2D2ExtraContainersTruth=[
     "TruthEvents",

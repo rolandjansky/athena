@@ -23,8 +23,6 @@
 #include "xAODEgamma/PhotonContainer.h"
 #include "TrigDecisionTool/TrigDecisionTool.h"
 
-class TLoretzVector;
-
 namespace DerivationFramework {
 
 
@@ -55,11 +53,10 @@ namespace DerivationFramework {
     mutable unsigned int m_ntot;
     mutable unsigned int m_npass;
     
-    mutable std::vector<TLorentzVector> m_goodAllJets;
-    mutable std::vector<TLorentzVector> m_goodCentralJets;
+    mutable std::vector<const xAOD::Jet*> m_goodAllJets;
+    mutable std::vector<const xAOD::Jet*> m_goodCentralJets;
     
     std::string m_jetSGKey;
-    std::string m_calibedJetMomKey;
     
     // for jet multiplicity
     bool         m_reqNAllJets;
@@ -80,10 +77,9 @@ namespace DerivationFramework {
     bool   m_reqVbfMjj;
     double m_vbfMjjCut;
     
-    bool checkAllJetQuality(const TLorentzVector& jet) const;
-    bool checkCentralJetQuality(const TLorentzVector& jet) const;
-    TLorentzVector getCalibedJets(const xAOD::Jet* jet) const;
-    
+    bool checkAllJetQuality(const xAOD::Jet *jet) const;
+    bool checkCentralJetQuality(const xAOD::Jet *jet) const;
+
     //for photon (p. rose)
     std::string m_phSGKey;
     bool m_reqPh;
