@@ -28,7 +28,7 @@ public:
   float CellEnergySum, CellEnergySumEMB, CellEnergySumEMEC, CellEnergySumHEC, CellEnergySumFCAL, CellEnergySumTile, ClusterEnergySum;
   float TopoClEt1, TopoClEta1, TopoClPhi1;    
   float CellMET, CellMETPhi;
-  float MBTStimeDiff, LArECtimeDiff;
+  float MBTStimeDiff, LArECtimeDiff, MBTStimeAvg, LArECtimeAvg;
   float TrtEventPhase;
 	
   /* ints */
