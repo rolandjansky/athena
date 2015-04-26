@@ -41,6 +41,8 @@ RawInfoSummaryForTagCnv_p1::persToTrans(const Pers_t* pers, Trans_t* trans, MsgS
   trans->setCellMETPhi       (pers->CellMETPhi       );      
   trans->setMBTStimeDiff     (pers->MBTStimeDiff     );      
   trans->setLArECtimeDiff    (pers->LArECtimeDiff    );
+  trans->setMBTStimeAvg     (pers->MBTStimeAvg     );
+  trans->setLArECtimeAvg    (pers->LArECtimeAvg    );
   trans->setTrtEventPhase    (pers->TrtEventPhase    );
 
   
@@ -98,6 +100,8 @@ RawInfoSummaryForTagCnv_p1::transToPers(const Trans_t* trans, Pers_t* pers, MsgS
    pers->CellMETPhi		=  trans->getCellMETPhi       (); 
    pers->MBTStimeDiff		=  trans->getMBTStimeDiff     (); 
    pers->LArECtimeDiff     	=  trans->getLArECtimeDiff    (); 
+   pers->MBTStimeAvg		=  trans->getMBTStimeAvg     ();
+   pers->LArECtimeAvg     	=  trans->getLArECtimeAvg    ();
    pers->TrtEventPhase    	=  trans->getTrtEventPhase    (); 
 	
   /* ints */
