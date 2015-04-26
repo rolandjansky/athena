@@ -10,6 +10,5 @@ RawInfoSummaryTagBuilder   = RawInfoSummaryTagBuilder(
      name               = "RawInfoSummaryTagBuilder",
      RawInfoSummaryForTagTool = RawInfoSummaryForTagTool,
      AttributeList      = EventTagGlobal.AttributeList,
-     CheckAttribute     = True)
+     CheckAttribute     = False)
 topSequence += RawInfoSummaryTagBuilder
-
