@@ -112,13 +112,20 @@ StatusCode RawInfoSummaryForTagTool::execute(TagFragmentCollection& rawfragment)
   // Cell Met
   rawfragment.insert(RawSummaryAttributeSpecs[10].name(),rawinfo->getCellMET());
   rawfragment.insert(RawSummaryAttributeSpecs[11].name(),rawinfo->getCellMETPhi());
-  // INTS
+  rawfragment.insert(RawSummaryAttributeSpecs[12].name(),rawinfo->getMBTStimeDiff());
+  rawfragment.insert(RawSummaryAttributeSpecs[13].name(),rawinfo->getLArECtimeDiff());
+  rawfragment.insert(RawSummaryAttributeSpecs[14].name(),rawinfo->getMBTStimeAvg());
+  rawfragment.insert(RawSummaryAttributeSpecs[15].name(),rawinfo->getLArECtimeAvg());
+
   // Track counts and muon
-  rawfragment.insert(RawSummaryAttributeSpecs[12].name(),rawinfo->getNsctSPs());
-  rawfragment.insert(RawSummaryAttributeSpecs[13].name(),rawinfo->getNpixSPs());
-  rawfragment.insert(RawSummaryAttributeSpecs[14].name(),rawinfo->getNtrtDCs());
-  rawfragment.insert(RawSummaryAttributeSpecs[15].name(),rawinfo->getNtrtHtDCs());
-  rawfragment.insert(RawSummaryAttributeSpecs[16].name(),rawinfo->getBCMHit());
+  rawfragment.insert(RawSummaryAttributeSpecs[16].name(),rawinfo->getNsctSPs());
+  rawfragment.insert(RawSummaryAttributeSpecs[17].name(),rawinfo->getNpixSPs());
+  rawfragment.insert(RawSummaryAttributeSpecs[18].name(),rawinfo->getNtrtDCs());
+  rawfragment.insert(RawSummaryAttributeSpecs[19].name(),rawinfo->getNtrtHtDCs());
+  rawfragment.insert(RawSummaryAttributeSpecs[20].name(),rawinfo->getBCMHit());
+
+  //putting back MBTS and LAr
+  rawfragment.insert(RawSummaryAttributeSpecs[19].name(),rawinfo->getMBTSword());
 
 
   return StatusCode::SUCCESS;

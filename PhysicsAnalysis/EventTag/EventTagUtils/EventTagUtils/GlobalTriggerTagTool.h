@@ -70,7 +70,7 @@ private:
 
   ToolHandle<Trig::TrigDecisionTool> m_trigDec;
 
-  const ChainGroup* m_level;
+  //const ChainGroup* m_level;
   std::map<int, std::string> m_ccnameL1;
   std::map<int, std::string> m_ccnameL2;
   std::map<int, std::string> m_ccnameEF;
