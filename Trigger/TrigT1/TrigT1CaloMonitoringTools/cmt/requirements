@@ -4,7 +4,7 @@ author Peter Faulkner
 
 use AtlasPolicy         	AtlasPolicy-*
 use GaudiInterface      	GaudiInterface-*      	External
-use AthenaBaseComps             AthenaBaseComps-*       Control
+use AsgTools             AsgTools-*             Control/AthToolSupport
 use AthenaMonitoring    	AthenaMonitoring-* 	Control
 
 private
@@ -18,6 +18,7 @@ use TrigT1CaloUtils             TrigT1CaloUtils-*       Trigger/TrigT1
 use TrigT1Interfaces            TrigT1Interfaces-*      Trigger/TrigT1
 use TrigConfInterfaces          TrigConfInterfaces-*    Trigger/TrigConfiguration	
 use TrigConfL1Data              TrigConfL1Data-*        Trigger/TrigConfiguration
+use xAODTrigL1Calo       xAODTrigL1Calo-*       Event/xAOD
 end_private
 
 #apply_pattern declare_joboptions files="*.py"
