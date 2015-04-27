@@ -81,7 +81,7 @@ class CTPSimulationOnData(DefaultCTPSimulation):
         self.PrescaleMode = 0
         self.DoBPTX=True
         self.DoNIM=True
-        self.DoRNDM=False
+        self.DoRNDM=True
         self.DoPSCL=False
                 
     def setDefaults(self, handle):

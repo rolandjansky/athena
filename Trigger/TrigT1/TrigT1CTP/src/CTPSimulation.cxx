@@ -410,8 +410,8 @@ LVL1CTP::CTPSimulation::start() {
    m_thrHATot   = new TH1I("ThrHA", "Total threshold count HA", 16, 0, 16);
    m_thrJETTot  = new TH1I("ThrJET", "Total threshold count JET", 25, 0, 25);
    m_thrMUTot   = new TH1I("ThrMU", "Total threshold count MU", 6, 0, 6);
-   m_thrTETot   = new TH1I("ThrTE", "Total threshold count TE", 8, 0, 8);
-   m_thrXETot   = new TH1I("ThrXE", "Total threshold count XE", 8, 0, 8);
+   m_thrTETot   = new TH1I("ThrTE", "Total threshold count TE", 16, 0, 16);
+   m_thrXETot   = new TH1I("ThrXE", "Total threshold count XE", 16, 0, 16);
    m_thrXSTot   = new TH1I("ThrXS", "Total threshold count XS", 8, 0, 8);
 
    m_thrEMMult   = new TH1I("ThrMultEM", "Cumulative input threshold multiplicity EM", 128, 0, 128);
@@ -419,9 +419,9 @@ LVL1CTP::CTPSimulation::start() {
    m_thrJET1Mult = new TH1I("ThrMultJET3b", "Cumulative input threshold multiplicity JET 3b", 80, 0, 80);
    m_thrJET2Mult = new TH1I("ThrMultJET2b", "Cumulative input threshold multiplicity JET 2b", 60, 0, 60);
    m_thrMUMult   = new TH1I("ThrMultMU", "Cumulative input threshold multiplicity MU", 48, 0, 48);
-   m_thrTEMult   = new TH1I("ThrMultTE", "Cumulative input threshold multiplicity TE", 16, 0, 16);
-   m_thrXEMult   = new TH1I("ThrMultXE", "Cumulative input threshold multiplicity XE", 16, 0, 16);
-   m_thrXSMult   = new TH1I("ThrMultXS", "Cumulative input threshold multiplicity XS", 16, 0, 16);
+   m_thrTEMult   = new TH1I("ThrMultTE", "Cumulative input threshold multiplicity TE", 32, 0, 32);
+   m_thrXEMult   = new TH1I("ThrMultXE", "Cumulative input threshold multiplicity XE", 32, 0, 32);
+   m_thrXSMult   = new TH1I("ThrMultXS", "Cumulative input threshold multiplicity XS", 32, 0, 32);
 
    const TrigConf::ThresholdConfig* thresholdConfig = m_configSvc->thresholdConfig();
    setThresholdHistLabels(m_thrEMMult, m_thrEMTot, thresholdConfig->getThresholdVector(L1DataDef::EM), 8);
@@ -1404,6 +1404,27 @@ LVL1CTP::CTPSimulation::extractMultiplicities() {
          }
       }  
 
+      else if ( thr->cableName() == "EN2") {
+         if ( m_energyCTP.isValid() ) {
+            multiplicity = CTPUtil::getMult( m_energyCTP->cableWord1(), thr->cableStart(), thr->cableEnd() );
+
+            TH1I * hMult(0), * hTot(0);
+            switch(thr->ttype()) {
+            case L1DataDef::TE:
+               hMult = m_thrTEMult; hTot = m_thrTETot; break;
+            case L1DataDef::XE:
+               hMult = m_thrXEMult; hTot = m_thrXETot; break;
+            default:
+               break;
+            }
+            if(hMult) {
+               for(int x=0; x<=multiplicity; x++)
+                  hMult->AddBinContent(1+ 2 * thr->mapping() + x);
+               hTot->AddBinContent(1+ thr->mapping(), multiplicity);
+            }
+         }
+      }  
+
       else if ( thr->cableName() == "CTPCAL" ) {
 			
          if ( thr->type() == TrigConf::L1DataDef::lucidType()) {
@@ -1616,11 +1637,13 @@ LVL1CTP::CTPSimulation::LoadBunchGroups() {
 	
    //translating bunch group set into a CTPSimulation readable format
    const std::vector<TrigConf::BunchGroup> bunchGroups(bunchGroupSet->bunchGroups());
-   for (size_t i(0); i < bunchGroups.size(); ++i) {
-      std::ostringstream message;
-      ATH_MSG_DEBUG("BunchGroup " << i << " Name " << bunchGroups[i].name() << " Bunches:";
-                    for (size_t j(0); j < bunchGroups[i].bunches().size(); ++j) message << " " << bunchGroups[i].bunches()[j]);
-      ATH_MSG_DEBUG("REGTEST - " << message.str());
+   if (msgLvl(MSG::DEBUG)) {
+     for (size_t i(0); i < bunchGroups.size(); ++i) {
+       std::ostringstream message;
+       ATH_MSG_DEBUG("BunchGroup " << i << " Name " << bunchGroups[i].name() << " Bunches:");
+       for (size_t j(0); j < bunchGroups[i].bunches().size(); ++j) message << " " << bunchGroups[i].bunches()[j];
+       ATH_MSG_DEBUG("REGTEST - " << message.str());
+     }
    }
 	
    if (bunchGroups.empty()) {
