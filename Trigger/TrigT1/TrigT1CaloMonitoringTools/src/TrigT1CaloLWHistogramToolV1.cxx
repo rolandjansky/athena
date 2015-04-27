@@ -36,30 +36,17 @@
 #include "TrigT1CaloUtils/QuadLinear.h"
 
 #include "TrigT1CaloMonitoringTools/TrigT1CaloLWHistogramToolV1.h"
-
-// To be used for Run1 data 
-
-// Interface ID
-
-static const InterfaceID IID_ITrigT1CaloLWHistogramToolV1(
-                                           "TrigT1CaloLWHistogramToolV1", 1, 1);
-
-const InterfaceID& TrigT1CaloLWHistogramToolV1::interfaceID()
-{
-  return IID_ITrigT1CaloLWHistogramToolV1;
-}
-
+// ============================================================================
+namespace LVL1 {
+// ============================================================================
 // Constructor
 
-TrigT1CaloLWHistogramToolV1::TrigT1CaloLWHistogramToolV1(const std::string& type,
-                                                     const std::string& name,
-	    			                     const IInterface*  parent)
-        : AthAlgTool(type, name, parent),
+TrigT1CaloLWHistogramToolV1::TrigT1CaloLWHistogramToolV1(const std::string& name)
+        : AsgTool(name),
 	  m_configSvc("TrigConf::TrigConfigSvc/TrigConfigSvc", name),
 	  m_monGroup(0), m_phiScaleTT(32./M_PI), m_phiScaleJE(16./M_PI)
 {
   declareInterface<TrigT1CaloLWHistogramToolV1>(this);
-
   declareProperty( "LVL1ConfigSvc", m_configSvc, "LVL1 Config Service");
 
   declareProperty("EventSamples", m_eventSamples = 10,
@@ -2096,3 +2083,6 @@ void TrigT1CaloLWHistogramToolV1::efficienciesForMerge(LWHist* lw1, LWHist* lw2,
     hist3->SetMaximum(110.);
   }
 }
+// ============================================================================
+} // end namespace
+// ============================================================================

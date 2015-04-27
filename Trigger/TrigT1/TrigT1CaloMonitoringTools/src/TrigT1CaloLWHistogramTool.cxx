@@ -37,27 +37,18 @@
 
 #include "TrigT1CaloMonitoringTools/TrigT1CaloLWHistogramTool.h"
 
-// Interface ID
-
-static const InterfaceID IID_ITrigT1CaloLWHistogramTool(
-                                           "TrigT1CaloLWHistogramTool", 1, 1);
-
-const InterfaceID& TrigT1CaloLWHistogramTool::interfaceID()
-{
-  return IID_ITrigT1CaloLWHistogramTool;
-}
+// ============================================================================
+namespace LVL1 {
+// ============================================================================
 
 // Constructor
 
-TrigT1CaloLWHistogramTool::TrigT1CaloLWHistogramTool(const std::string& type,
-                                                     const std::string& name,
-	    			                     const IInterface*  parent)
-        : AthAlgTool(type, name, parent),
+TrigT1CaloLWHistogramTool::TrigT1CaloLWHistogramTool(const std::string& name)
+        : AsgTool(name),
 	  m_configSvc("TrigConf::TrigConfigSvc/TrigConfigSvc", name),
 	  m_monGroup(0), m_phiScaleTT(32./M_PI), m_phiScaleJE(16./M_PI)
 {
   declareInterface<TrigT1CaloLWHistogramTool>(this);
-
   declareProperty( "LVL1ConfigSvc", m_configSvc, "LVL1 Config Service");
 
   declareProperty("EventSamples", m_eventSamples = 10,
@@ -2152,3 +2143,6 @@ void TrigT1CaloLWHistogramTool::efficienciesForMerge(LWHist* lw1, LWHist* lw2,
     hist3->SetMaximum(110.);
   }
 }
+// ============================================================================
+} // end namespace
+// ============================================================================

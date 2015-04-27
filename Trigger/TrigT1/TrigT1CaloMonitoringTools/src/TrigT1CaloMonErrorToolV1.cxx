@@ -11,69 +11,66 @@
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/TriggerInfo.h"
 
-#include "TrigT1CaloEvent/CMXCPHits.h"
-#include "TrigT1CaloEvent/CMXEtSums.h"
-#include "TrigT1CaloEvent/CMXJetTob.h"
-#include "TrigT1CaloEvent/CMXJetHits.h"
-#include "TrigT1CaloEvent/CMXRoI.h"
-
-#include "TrigT1CaloEvent/CPMTobRoI.h"
+#include "TrigT1CaloEvent/CMMCPHits.h"
+#include "TrigT1CaloEvent/CMMEtSums.h"
+#include "TrigT1CaloEvent/CMMJetHits.h"
+#include "TrigT1CaloEvent/CMMRoI.h"
+#include "TrigT1CaloEvent/CPMHits.h"
+#include "TrigT1CaloEvent/CPMTower.h"
+#include "TrigT1CaloEvent/CPMRoI.h"
 #include "TrigT1CaloEvent/JEMEtSums.h"
-#include "TrigT1CaloEvent/JEMTobRoI.h"
+#include "TrigT1CaloEvent/JEMHits.h"
+#include "TrigT1CaloEvent/JEMRoI.h"
 #include "TrigT1CaloEvent/JetElement.h"
 #include "TrigT1CaloEvent/RODHeader.h"
-
-#include "xAODTrigL1Calo/TriggerTowerContainer.h"
-#include "xAODTrigL1Calo/CPMTowerContainer.h"
-#include "xAODTrigL1Calo/CMXCPTobContainer.h"
-#include "xAODTrigL1Calo/CMXCPHitsContainer.h"
-
-
+#include "TrigT1CaloEvent/TriggerTower.h"
 #include "TrigT1Interfaces/TrigT1CaloDefs.h"
 
-#include "TrigT1CaloMonErrorTool.h"
+#include "TrigT1CaloMonErrorToolV1.h"
 
 namespace LVL1 {
 
 
 // Constructor
 
-TrigT1CaloMonErrorTool::TrigT1CaloMonErrorTool(
-  const std::string& name = "TrigT1CaloMonErrorTool")
+TrigT1CaloMonErrorToolV1::TrigT1CaloMonErrorToolV1(
+  const std::string& name = "TrigT1CaloMonErrorToolV1")
   : AsgTool(name)
 {
 
   declareProperty("TriggerTowerLocation",
                   m_triggerTowerLocation =
-                    LVL1::TrigT1CaloDefs::xAODTriggerTowerLocation);
+                    LVL1::TrigT1CaloDefs::TriggerTowerLocation);
   declareProperty("CPMTowerLocation",
                   m_cpmTowerLocation  = LVL1::TrigT1CaloDefs::CPMTowerLocation);
   declareProperty("CPMTowerLocationOverlap",
                   m_cpmTowerLocationOverlap  =
                     LVL1::TrigT1CaloDefs::CPMTowerLocation + "Overlap");
-  declareProperty("CMXCPTobLocation",
-                  m_cmxCpTobLocation   = LVL1::TrigT1CaloDefs::CMXCPTobLocation);
-  declareProperty("CMXCPHitsLocation",
-                  m_cmxCpHitsLocation  = LVL1::TrigT1CaloDefs::CMXCPHitsLocation);
-  declareProperty("CPMTobRoILocation",
-                  m_cpmRoiLocation     = LVL1::TrigT1CaloDefs::CPMTobRoILocation);
+  declareProperty("CPMHitsLocation",
+                  m_cpmHitsLocation   = LVL1::TrigT1CaloDefs::CPMHitsLocation);
+  declareProperty("CMMCPHitsLocation",
+                  m_cmmCpHitsLocation = LVL1::TrigT1CaloDefs::CMMCPHitsLocation);
+  declareProperty("CPMRoILocation",
+                  m_cpmRoiLocation    = LVL1::TrigT1CaloDefs::CPMRoILocation);
   declareProperty("JetElementLocation",
-                  m_jetElementLocation = LVL1::TrigT1CaloDefs::JetElementLocation);
+                  m_jetElementLocation =
+                    LVL1::TrigT1CaloDefs::JetElementLocation);
   declareProperty("JetElementLocationOverlap",
                   m_jetElementLocationOverlap =
                     LVL1::TrigT1CaloDefs::JetElementLocation + "Overlap");
-  declareProperty("CMXJetTobLocation",
-                  m_cmxJetTobLocation  = LVL1::TrigT1CaloDefs::CMXJetTobLocation);
-  declareProperty("CMXJetHitsLocation",
-                  m_cmxJetHitsLocation = LVL1::TrigT1CaloDefs::CMXJetHitsLocation);
-  declareProperty("JEMTobRoILocation",
-                  m_jemRoiLocation     = LVL1::TrigT1CaloDefs::JEMTobRoILocation);
-  declareProperty("CMXRoILocation",
-                  m_cmxRoiLocation     = LVL1::TrigT1CaloDefs::CMXRoILocation);
+  declareProperty("JEMHitsLocation",
+                  m_jemHitsLocation    = LVL1::TrigT1CaloDefs::JEMHitsLocation);
+  declareProperty("CMMJetHitsLocation",
+                  m_cmmJetHitsLocation =
+                    LVL1::TrigT1CaloDefs::CMMJetHitsLocation);
+  declareProperty("JEMRoILocation",
+                  m_jemRoiLocation     = LVL1::TrigT1CaloDefs::JEMRoILocation);
+  declareProperty("CMMRoILocation",
+                  m_cmmRoiLocation     = LVL1::TrigT1CaloDefs::CMMRoILocation);
   declareProperty("JEMEtSumsLocation",
-                  m_jemEtSumsLocation  = LVL1::TrigT1CaloDefs::JEMEtSumsLocation);
-  declareProperty("CMXEtSumsLocation",
-                  m_cmxEtSumsLocation  = LVL1::TrigT1CaloDefs::CMXEtSumsLocation);
+                  m_jemEtSumsLocation = LVL1::TrigT1CaloDefs::JEMEtSumsLocation);
+  declareProperty("CMMEtSumsLocation",
+                  m_cmmEtSumsLocation = LVL1::TrigT1CaloDefs::CMMEtSumsLocation);
   declareProperty("RodHeaderLocation",
                   m_rodHeaderLocation = LVL1::TrigT1CaloDefs::RODHeaderLocation);
   declareProperty("RodHeaderLocationCPRoIB",
@@ -89,7 +86,7 @@ TrigT1CaloMonErrorTool::TrigT1CaloMonErrorTool(
 
 // Destructor
 
-TrigT1CaloMonErrorTool::~TrigT1CaloMonErrorTool()
+TrigT1CaloMonErrorToolV1::~TrigT1CaloMonErrorToolV1()
 {
 }
 
@@ -99,7 +96,7 @@ TrigT1CaloMonErrorTool::~TrigT1CaloMonErrorTool()
 #define PACKAGE_VERSION "unknown"
 #endif
 
-StatusCode TrigT1CaloMonErrorTool::initialize()
+StatusCode TrigT1CaloMonErrorToolV1::initialize()
 {
   msg(MSG::INFO) << "Initializing " << name() << " - package version "
                  << PACKAGE_VERSION << endreq;
@@ -109,47 +106,51 @@ StatusCode TrigT1CaloMonErrorTool::initialize()
 
 // Finalize
 
-StatusCode TrigT1CaloMonErrorTool::finalize()
+StatusCode TrigT1CaloMonErrorToolV1::finalize()
 {
   return StatusCode::SUCCESS;
 }
 
 // Retrieve error vector
 
-StatusCode TrigT1CaloMonErrorTool::retrieve(const std::vector<unsigned int>*&
+StatusCode TrigT1CaloMonErrorToolV1::retrieve(const std::vector<unsigned int>*&
     errColl)
 {
 
   // Must ensure bytestream converters have unpacked all our data
   // before retrieving error vector.
 
-  typedef DataVector<LVL1::CPMTobRoI>    CpmRoiCollection;
+  typedef DataVector<LVL1::TriggerTower> TriggerTowerCollection;
+  typedef DataVector<LVL1::CPMTower>     CpmTowerCollection;
+  typedef DataVector<LVL1::CPMHits>      CpmHitsCollection;
+  typedef DataVector<LVL1::CMMCPHits>    CmmCpHitsCollection;
+  typedef DataVector<LVL1::CPMRoI>       CpmRoiCollection;
   typedef DataVector<LVL1::JetElement>   JetElementCollection;
-  typedef DataVector<LVL1::CMXJetTob>    CmxJetTobCollection;
-  typedef DataVector<LVL1::CMXJetHits>   CmxJetHitsCollection;
-  typedef DataVector<LVL1::JEMTobRoI>    JemRoiCollection;
+  typedef DataVector<LVL1::JEMHits>      JemHitsCollection;
+  typedef DataVector<LVL1::CMMJetHits>   CmmJetHitsCollection;
+  typedef DataVector<LVL1::JEMRoI>       JemRoiCollection;
   typedef DataVector<LVL1::JEMEtSums>    JemEtSumsCollection;
-  typedef DataVector<LVL1::CMXEtSums>    CmxEtSumsCollection;
+  typedef DataVector<LVL1::CMMEtSums>    CmmEtSumsCollection;
   typedef DataVector<LVL1::RODHeader>    RodHeaderCollection;
 
   StatusCode sc;
 
   //Retrieve Trigger Towers from SG
-  const xAOD::TriggerTowerContainer* triggerTowerTES = 0;
-  const xAOD::TriggerTowerContainer* triggerTowerSpareTES = 0;
-  const xAOD::TriggerTowerContainer* triggerTowerMuonTES = 0;
+  const TriggerTowerCollection* triggerTowerTES = 0;
+  const TriggerTowerCollection* triggerTowerSpareTES = 0;
+  const TriggerTowerCollection* triggerTowerMuonTES = 0;
   sc = evtStore()->retrieve(triggerTowerTES, m_triggerTowerLocation);
   if ( sc.isFailure()  ||  !triggerTowerTES ) {
     msg(MSG::DEBUG) << "No Trigger Tower container found" << endreq;
   }
-  if (evtStore()->contains<xAOD::TriggerTowerContainer>(m_triggerTowerLocation + "Spare")) {
+  if (evtStore()->contains<TriggerTowerCollection>(m_triggerTowerLocation + "Spare")) {
     sc = evtStore()->retrieve(triggerTowerSpareTES,
                               m_triggerTowerLocation + "Spare");
   } else sc = StatusCode::FAILURE;
   if ( sc.isFailure()  ||  !triggerTowerSpareTES ) {
     msg(MSG::DEBUG) << "No Spare Trigger Tower container found" << endreq;
   }
-  if (evtStore()->contains<xAOD::TriggerTowerContainer>(m_triggerTowerLocation + "Muon")) {
+  if (evtStore()->contains<TriggerTowerCollection>(m_triggerTowerLocation + "Muon")) {
     sc = evtStore()->retrieve(triggerTowerMuonTES,
                               m_triggerTowerLocation + "Muon");
   } else sc = StatusCode::FAILURE;
@@ -158,13 +159,13 @@ StatusCode TrigT1CaloMonErrorTool::retrieve(const std::vector<unsigned int>*&
   }
 
   //Retrieve Core and Overlap CPM Towers from SG
-  const xAOD::CPMTowerContainer* cpmTowerTES = 0;
-  const xAOD::CPMTowerContainer* cpmTowerOvTES = 0;
+  const CpmTowerCollection* cpmTowerTES = 0;
+  const CpmTowerCollection* cpmTowerOvTES = 0;
   sc = evtStore()->retrieve(cpmTowerTES, m_cpmTowerLocation);
   if ( sc.isFailure()  ||  !cpmTowerTES ) {
     msg(MSG::DEBUG) << "No Core CPM Tower container found" << endreq;
   }
-  if (evtStore()->contains<xAOD::CPMTowerContainer>(m_cpmTowerLocationOverlap)) {
+  if (evtStore()->contains<CpmTowerCollection>(m_cpmTowerLocationOverlap)) {
     sc = evtStore()->retrieve(cpmTowerOvTES, m_cpmTowerLocationOverlap);
   } else sc = StatusCode::FAILURE;
   if ( sc.isFailure()  ||  !cpmTowerOvTES ) {
@@ -178,18 +179,18 @@ StatusCode TrigT1CaloMonErrorTool::retrieve(const std::vector<unsigned int>*&
     msg(MSG::DEBUG) << "No CPM RoIs container found" << endreq;
   }
 
-  //Retrieve CMX-CP TOBs from SG
-  const xAOD::CMXCPTobContainer* cmxCpTobTES = 0;
-  sc = evtStore()->retrieve( cmxCpTobTES, m_cmxCpTobLocation);
-  if ( sc.isFailure()  ||  !cmxCpTobTES ) {
-    msg(MSG::DEBUG) << "No CMX-CP TOB container found" << endreq;
+  //Retrieve CPM Hits from SG
+  const CpmHitsCollection* cpmHitsTES = 0;
+  sc = evtStore()->retrieve( cpmHitsTES, m_cpmHitsLocation);
+  if ( sc.isFailure()  ||  !cpmHitsTES ) {
+    msg(MSG::DEBUG) << "No CPM Hits container found" << endreq;
   }
 
-  //Retrieve CMX-CP Hits from SG
-  const xAOD::CMXCPHitsContainer* cmxCpHitsTES = 0;
-  sc = evtStore()->retrieve( cmxCpHitsTES, m_cmxCpHitsLocation);
-  if ( sc.isFailure()  ||  !cmxCpHitsTES ) {
-    msg(MSG::DEBUG) << "No CMX-CP Hits container found" << endreq;
+  //Retrieve CMM-CP Hits from SG
+  const CmmCpHitsCollection* cmmCpHitsTES = 0;
+  sc = evtStore()->retrieve( cmmCpHitsTES, m_cmmCpHitsLocation);
+  if ( sc.isFailure()  ||  !cmmCpHitsTES ) {
+    msg(MSG::DEBUG) << "No CMM-CP Hits container found" << endreq;
   }
 
   //Retrieve Core and Overlap Jet Elements from SG
@@ -213,25 +214,25 @@ StatusCode TrigT1CaloMonErrorTool::retrieve(const std::vector<unsigned int>*&
     msg(MSG::DEBUG) << "No DAQ JEM RoIs container found" << endreq;
   }
 
-  //Retrieve CMX-Jet TOBs from SG
-  const CmxJetTobCollection* cmxJetTobTES = 0;
-  sc = evtStore()->retrieve( cmxJetTobTES, m_cmxJetTobLocation);
-  if ( sc.isFailure()  ||  !cmxJetTobTES ) {
-    msg(MSG::DEBUG) << "No CMX-Jet TOB container found" << endreq;
+  //Retrieve JEM Hits from SG
+  const JemHitsCollection* jemHitsTES = 0;
+  sc = evtStore()->retrieve( jemHitsTES, m_jemHitsLocation);
+  if ( sc.isFailure()  ||  !jemHitsTES ) {
+    msg(MSG::DEBUG) << "No JEM Hits container found" << endreq;
   }
 
-  //Retrieve CMX-Jet Hits from SG
-  const CmxJetHitsCollection* cmxJetHitsTES = 0;
-  sc = evtStore()->retrieve( cmxJetHitsTES, m_cmxJetHitsLocation);
-  if ( sc.isFailure()  ||  !cmxJetHitsTES ) {
-    msg(MSG::DEBUG) << "No CMX-Jet Hits container found" << endreq;
+  //Retrieve CMM-Jet Hits from SG
+  const CmmJetHitsCollection* cmmJetHitsTES = 0;
+  sc = evtStore()->retrieve( cmmJetHitsTES, m_cmmJetHitsLocation);
+  if ( sc.isFailure()  ||  !cmmJetHitsTES ) {
+    msg(MSG::DEBUG) << "No CMM-Jet Hits container found" << endreq;
   }
 
-  //Retrieve CMX RoIs from SG
-  const LVL1::CMXRoI* cmxRoiTES = 0;
-  sc = evtStore()->retrieve( cmxRoiTES, m_cmxRoiLocation);
-  if ( sc.isFailure()  ||  !cmxRoiTES ) {
-    msg(MSG::DEBUG) << "No CMX RoIs container found" << endreq;
+  //Retrieve CMM RoIs from SG
+  const LVL1::CMMRoI* cmmRoiTES = 0;
+  sc = evtStore()->retrieve( cmmRoiTES, m_cmmRoiLocation);
+  if ( sc.isFailure()  ||  !cmmRoiTES ) {
+    msg(MSG::DEBUG) << "No CMM RoIs container found" << endreq;
   }
 
   //Retrieve JEM Et Sums from SG
@@ -241,11 +242,11 @@ StatusCode TrigT1CaloMonErrorTool::retrieve(const std::vector<unsigned int>*&
     msg(MSG::DEBUG) << "No JEM Et Sums container found" << endreq;
   }
 
-  //Retrieve CMX Et Sums from SG
-  const CmxEtSumsCollection* cmxEtSumsTES = 0;
-  sc = evtStore()->retrieve( cmxEtSumsTES, m_cmxEtSumsLocation);
-  if ( sc.isFailure()  ||  !cmxEtSumsTES ) {
-    msg(MSG::DEBUG) << "No CMX-Energy Et Sums container found" << endreq;
+  //Retrieve CMM Et Sums from SG
+  const CmmEtSumsCollection* cmmEtSumsTES = 0;
+  sc = evtStore()->retrieve( cmmEtSumsTES, m_cmmEtSumsLocation);
+  if ( sc.isFailure()  ||  !cmmEtSumsTES ) {
+    msg(MSG::DEBUG) << "No CMM-Energy Et Sums container found" << endreq;
   }
 
   //Retrieve ROD Headers from SG
@@ -290,7 +291,7 @@ StatusCode TrigT1CaloMonErrorTool::retrieve(const std::vector<unsigned int>*&
 
 // Return true if current event has any corruption errors
 
-bool TrigT1CaloMonErrorTool::corrupt()
+bool TrigT1CaloMonErrorToolV1::corrupt()
 {
   if (m_flagCorruptEvents == "AnyROBOrUnpackingError") {
     return robOrUnpackingError();
@@ -303,7 +304,7 @@ bool TrigT1CaloMonErrorTool::corrupt()
 
 // Return true if current event has Full Event status generic timeout bit set
 
-bool TrigT1CaloMonErrorTool::fullEventTimeout()
+bool TrigT1CaloMonErrorToolV1::fullEventTimeout()
 {
   unsigned int evtStatus = 0;
   const EventInfo* evtInfo = 0;
@@ -317,7 +318,7 @@ bool TrigT1CaloMonErrorTool::fullEventTimeout()
 
 // Return true if any ROB/ROD fragments are missing
 
-bool TrigT1CaloMonErrorTool::missingFragment()
+bool TrigT1CaloMonErrorToolV1::missingFragment()
 {
 
   typedef DataVector<LVL1::RODHeader> RodHeaderCollection;
@@ -392,7 +393,7 @@ bool TrigT1CaloMonErrorTool::missingFragment()
 
 // Return true if current event has any ROB or unpacking errors
 
-bool TrigT1CaloMonErrorTool::robOrUnpackingError()
+bool TrigT1CaloMonErrorToolV1::robOrUnpackingError()
 {
   const std::vector<unsigned int>* errVecTES = 0;
   StatusCode sc = retrieve(errVecTES);

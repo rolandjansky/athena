@@ -9,7 +9,7 @@
 #include <vector>
 
 #include "GaudiKernel/ServiceHandle.h"
-#include "AthenaBaseComps/AthAlgTool.h"
+#include "AsgTools/AsgTool.h"
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
 
 class TH1;
@@ -32,7 +32,10 @@ class StatusCode;
 namespace TrigConf {
   class ILVL1ConfigSvc;
 }
-
+// ============================================================================
+namespace LVL1
+{
+// ============================================================================
 /** Tool to provide histogramming utilities
  *
  *  Utilities for labelling, booking and filling histograms in a standard way
@@ -74,15 +77,12 @@ namespace TrigConf {
  *  @author Peter Faulkner
  */
 
-class TrigT1CaloLWHistogramTool : public AthAlgTool {
-
+class TrigT1CaloLWHistogramTool : public asg::AsgTool {
+  ASG_TOOL_INTERFACE(TrigT1CaloLWHistogramTool)
+  ASG_TOOL_CLASS0(TrigT1CaloLWHistogramTool)
  public:
-   TrigT1CaloLWHistogramTool(const std::string& type, const std::string& name,
-                             const IInterface* parent);
+   TrigT1CaloLWHistogramTool(const std::string& name);
    virtual ~TrigT1CaloLWHistogramTool();
-
-   /// AlgTool InterfaceID
-   static const InterfaceID& interfaceID();
 
    virtual StatusCode initialize();
    virtual StatusCode finalize();
@@ -507,5 +507,7 @@ class TrigT1CaloLWHistogramTool : public AthAlgTool {
    bool m_shrinkEtaBins;
 
 };
-
+// ============================================================================
+} // end namespace
+// ============================================================================
 #endif
