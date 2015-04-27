@@ -161,9 +161,7 @@ VP1CaloCellSystem::Clockwork::Clockwork()
 :controller(0),
  noCalo(false),
  noLArDigitsGlobal(false),
- noLArDigitsEvent(false),
  noTileDigitsGlobal(false),
- noTileDigitsEvent(false),
  modeSimple(true),    // simple mode by default, expert on demand
  calo_dd_man(0),
  tile_dd_man(0),
@@ -313,10 +311,6 @@ void VP1CaloCellSystem::Clockwork::FillManagers()
 					cell_managers[VP1CC_SelTypeEMB3]->add(_embCC);
 					break;
 				}
-				default: { //unknown case, tidy up
-				  delete _embCC; _embCC=nullptr;
-				  break;
-				}
 				}
 				// ------- EMB ----------
 			}
@@ -342,10 +336,6 @@ void VP1CaloCellSystem::Clockwork::FillManagers()
 						cell_managers[VP1CC_SelTypeEMEC3]->add(_emechecCC);
 						break;
 					}
-					default: { //unknown case, tidy up
-					  delete _emechecCC; _emechecCC=nullptr;
-					  break;
-					}
 					}
 					// ------- EMEC ----------
 				} else {
@@ -366,10 +356,6 @@ void VP1CaloCellSystem::Clockwork::FillManagers()
 					case 3: {
 						cell_managers[VP1CC_SelTypeHEC3]->add(_emechecCC);
 						break;
-					}
-					default: { //unknown case, tidy up
-					  delete _emechecCC; _emechecCC=nullptr;
-					  break;
 					}
 					}
 					// ------- EMEC ----------
@@ -392,10 +378,6 @@ void VP1CaloCellSystem::Clockwork::FillManagers()
 					cell_managers[VP1CC_SelTypeFCAL3]->add(_fcalCC);
 					break;
 				}
-				default: { //unknown case, tidy up
-					  delete _fcalCC; _fcalCC=nullptr;
-					  break;
-					}
 				}
 				// ------- FCAL ----------
 			}
@@ -985,14 +967,11 @@ void VP1CaloCellSystem::userPickedNode(SoNode* pickedNode, SoPath *pickedPath)
 									for(;itTileRawCh!=_clockwork->tile_rawchannel->end();itTileRawCh++)
 										if((*itTileRawCh)->size()>0 && (*itTileRawCh)->identify()==_frag2) {
 											messageDebug("Get channel2...");
-											//the following value is never used, gets immediately overwritten after the 
-											// break from loop
-											//rawchannel2 = (**itTileRawCh)[_channel2];
+											rawchannel2 = (**itTileRawCh)[_channel2];
 											break;
 										}
-								} else{
+								} else
 									messageDebug("channel2!=_channel1. Get channel2...");
-								}
 								rawchannel2 = (**itTileRawCh)[_channel2];
 
 								if(rawchannel2==0) {
