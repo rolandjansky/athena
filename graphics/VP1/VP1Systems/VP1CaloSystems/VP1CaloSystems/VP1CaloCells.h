@@ -399,7 +399,8 @@ class VP1Mbts
  public:
   VP1Mbts(const TileCell*            _cell,
 	  const TileTBID*            _idhelper,
-	  SoSeparator*               _separator);
+         SoSeparator*               _separator,
+         bool                       _run2Geo);
   ~VP1Mbts();
 
   // Update graphics scene according to the trivial energy threshold criterion
@@ -417,6 +418,7 @@ class VP1Mbts
   const TileCell* m_cell;        // Pointer to the Cell object (TileCell)
   const TileTBID* m_idhelper;    // Tile TB id helper
   SoSeparator*    m_separator;   // Separator helper
+  bool            m_run2Geo;     // RUN2 geometry: the readout granularity of MBTS2 changes from 8 to 4
 };
 
 #endif

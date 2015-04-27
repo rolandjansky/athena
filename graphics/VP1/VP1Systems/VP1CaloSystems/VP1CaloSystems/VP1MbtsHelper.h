@@ -40,6 +40,7 @@ class VP1MbtsHelper : public QObject
   Clockwork* _clockwork;
 
   bool m_outline;
+  bool m_run2Geo;     // RUN2 geometry: the readout granularity of MBTS2 changes from 8 to 4
 };
 
 #endif
