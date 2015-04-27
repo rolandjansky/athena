@@ -841,11 +841,13 @@ void VP1CC_TileCrack::remove3DObjects(VP1CC_SoNode2CCMap* _node2cc)
 // ---------------------------------------------------
 
 VP1Mbts::VP1Mbts(const TileCell*  _cell,
-			 const TileTBID*  _idhelper,
-			 SoSeparator*     _separator):
+                const TileTBID*  _idhelper,                                              
+                SoSeparator*     _separator,                                             
+                bool             _run2Geo):                                              
   m_cell(_cell),
   m_idhelper(_idhelper),
-  m_separator(_separator)
+  m_separator(_separator),                                                               
+  m_run2Geo(_run2Geo)                                                                    
 {
 }
 
@@ -906,6 +908,39 @@ bool VP1Mbts::UpdateScene(VP1CC_MbtsScinInfoMap* _drawinfo,
   // Keep the pointer to the 3D object in the map
   (*_node2mbts)[_scinTrd] = this;
 
+  // ________________________________________________________________________________________
+  // RUN2: if _channel=1 draw two scintillators instead of one                               
+  if(m_run2Geo && _channel==1) {                                                             
+    SoTransform* _scinXF1 = 0;                                                               
+    if(_type == -1) {                                                                        
+      if(_scinInfo->cTransforms.find(_module+1)==_scinInfo->cTransforms.end())               
+       throw std::runtime_error("Unable to find global transform for the scintillator");     
+      _scinXF1 = VP1LinAlgUtils::toSoTransform(_scinInfo->cTransforms[_module+1]);           
+    }                                                                                        
+    else if( _type == 1) {                                                                   
+      if(_scinInfo->aTransforms.find(_module+1)==_scinInfo->aTransforms.end())               
+       throw std::runtime_error("Unable to find global transform for the scintillator");     
+      _scinXF1 = VP1LinAlgUtils::toSoTransform(_scinInfo->aTransforms[_module+1]);           
+    }                                                                                        
+    SoGenericBox* _scinTrd1 = new SoGenericBox();                                            
+    _scinTrd1->setParametersForTrd(_scinInfo->dx1 + MBTS_EPS,                                
+                                  _scinInfo->dx2 + MBTS_EPS,                                 
+                                  _scinInfo->dy1 - MBTS_EPS,                                 
+                                  _scinInfo->dy2 - MBTS_EPS,                                 
+                                  _scinInfo->dz  - MBTS_EPS);                                
+    _scinTrd1->drawEdgeLines = _outline;                                                     
+    // Now add the object to the scene                                                       
+    SoSeparator* _scinSep1 = new SoSeparator();                                              
+    _scinSep1->addChild(_scinXF1);                                                           
+    _scinSep1->addChild(_scinTrd1);                                                          
+    m_separator->addChild(_scinSep1);                                                        
+                                                                                             
+    // Keep the pointer to the 3D object in the map                                          
+    (*_node2mbts)[_scinTrd1] = this;                                                         
+  }                                                                                          
+  // ________________________________________________________________________________________
+  // RUN2: if _channel=1 draw two scintillators instead of one                               
+                                                                                             
   return true;
 }
 

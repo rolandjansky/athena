@@ -45,7 +45,8 @@ class VP1MbtsHelper::Clockwork
 
 VP1MbtsHelper::VP1MbtsHelper(bool outline):
   _clockwork(new Clockwork()),
-  m_outline(outline)
+  m_outline(outline),                                                                        
+  m_run2Geo(false)                                                                           
 {
   _clockwork->tiletb_id = 0;
   _clockwork->mbts_container = 0;
@@ -112,6 +113,20 @@ void VP1MbtsHelper::systemcreate(StoreGateSvc* detstore)
     throw std::runtime_error("Unable to find MBTS volume");
 
   // Find shapes of scintillators and their local transforms
+  // Here we need to distinguish between two geometry description: "OLD" and "NEW"                                 
+  //                                                                                                               
+  // OLD description: scintillator volumes are placed directly into the mother.                                    
+  //                  each scintillator colume has copy number assigned to it                                      
+  //                                                                                                               
+  // NEW description: here is the volume hierarchy tree leading from MBTS_mother to scintillators:                 
+  //                                                                                                               
+  //  MBTS_mother                                                                                                  
+  //    MBTSAirEnv <--- Copy numbers                                                                               
+  //      MBTSAluEnv                                                                                               
+  //        MBTSAirInAlu                                                                                           
+  //          MBTS1                                                                                                
+  //          MBTS1                                                                                                
+                                                                                                                   
   GeoVolumeCursor _cursor2(_pvMbtsMother);
 
   PVConstLink pvScin1;
@@ -124,6 +139,10 @@ void VP1MbtsHelper::systemcreate(StoreGateSvc* detstore)
   {
     PVConstLink _child = _cursor2.getVolume();
     std::string _childName = _child->getLogVol()->getName();
+    if(_childName.find("MBTSAirEnv")!=std::string::npos) {                                                         
+      m_run2Geo = true;                                                                                               
+      break;                                                                                                       
+    }                                                                                                              
     if(_childName == "MBTS1")
     {
       scin1Exists = true;
@@ -144,6 +163,66 @@ void VP1MbtsHelper::systemcreate(StoreGateSvc* detstore)
     }
     _cursor2.next();
   }
+
+  if(m_run2Geo) {                                                                                                     
+    GeoVolumeCursor _cursor2a(_pvMbtsMother);                                                                      
+    while(!_cursor2a.atEnd()) {                                                                                    
+      PVConstLink _pvAirEnv = _cursor2a.getVolume();                                                               
+      if(_pvAirEnv->getLogVol()->getName().find("MBTSAirEnv")!=std::string::npos) {                                
+       int _copyNo =  _cursor2a.getId();                                                                           
+                                                                                                                   
+       // **** Find Aluminun Envelope ****                                                                         
+       GeoVolumeCursor _cursor3(_pvAirEnv);                                                                        
+       bool aluEnvExists(false);                                                                                   
+       while(!_cursor3.atEnd()) {                                                                                  
+         if(_cursor3.getVolume()->getLogVol()->getName().find("MBTSAluEnv")!=std::string::npos) {                  
+           aluEnvExists = true;                                                                                    
+           break;                                                                                                  
+         }                                                                                                         
+         _cursor3.next();                                                                                          
+       }                                                                                                           
+       if(!aluEnvExists)                                                                                           
+         throw std::runtime_error("Problems with MBTS geometry: Cannot find MBTSAluEnv!");                         
+                                                                                                                   
+       PVConstLink _pvAluEnv = _cursor3.getVolume();
+                                                                                                                   
+       // **** Find "Air in Aluminum" ****                                                                         
+       GeoVolumeCursor _cursor4(_pvAluEnv);                                                                        
+       bool airInAluExists(false);                                                                                 
+       while(!_cursor4.atEnd()) {
+         if(_cursor4.getVolume()->getLogVol()->getName().find("MBTSAirInAlu")!=std::string::npos) {
+           airInAluExists = true;
+           break;
+         }
+         _cursor4.next();
+       }
+       if(!airInAluExists)
+         throw std::runtime_error("Problems with MBTS geometry: Cannot find MBTSAirInAlu!");
+
+       PVConstLink _pvAirInAluEnv = _cursor4.getVolume();
+
+       // **** Find scintillators ****
+       GeoVolumeCursor _cursor5(_pvAirInAluEnv);
+       while(!_cursor5.atEnd()) {
+         PVConstLink _child = _cursor5.getVolume();
+         if(_child->getLogVol()->getName()=="MBTS1") {
+           scin1Exists = true;
+           pvScin1 = _child;
+           aTransforms1[_copyNo] = _xfLArECA * _xfMbtsMother * _cursor2a.getTransform() * _cursor3.getTransform() * _cursor4.getTransform() * _cursor5.getTransform();
+           cTransforms1[_copyNo] = _xfLArECC * _xfMbtsMother * _cursor2a.getTransform() * _cursor3.getTransform() * _cursor4.getTransform() * _cursor5.getTransform();
+         }
+         if(_child->getLogVol()->getName()=="MBTS2") {
+           scin2Exists = true;
+           pvScin2 = _child;
+           aTransforms2[_copyNo] = _xfLArECA * _xfMbtsMother * _cursor2a.getTransform() * _cursor3.getTransform() * _cursor4.getTransform() * _cursor5.getTransform();
+           cTransforms2[_copyNo] = _xfLArECC * _xfMbtsMother * _cursor2a.getTransform() * _cursor3.getTransform() * _cursor4.getTransform() * _cursor5.getTransform();
+         }
+         _cursor5.next();
+       }
+      } // Dealing with MBTSAirEnv
+      _cursor2a.next();
+    } // Looping over MBTS mother daughters
+  } // In New Geometry
 
   if(!scin1Exists)
     throw std::runtime_error("No MBTS1 in the geometry");
@@ -206,7 +285,7 @@ void VP1MbtsHelper::buildEventSceneGraph(StoreGateSvc* sg, SoSeparator* root)
 
   for(; it!=_clockwork->mbts_container->end(); it++)
   {
-    VP1Mbts* _mbts = new VP1Mbts(*it,_clockwork->tiletb_id,root);
+    VP1Mbts* _mbts = new VP1Mbts(*it,_clockwork->tiletb_id,root,m_run2Geo);
     _clockwork->vp1_mbts.push_back(_mbts);
   }
 }
