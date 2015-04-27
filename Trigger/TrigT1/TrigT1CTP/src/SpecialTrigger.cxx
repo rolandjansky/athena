@@ -75,7 +75,7 @@ LVL1CTP::SpecialTrigger::pit() const {
    case TrigConf::L1DataDef::PCLK:
       //return 174 + m_thrNumber;
 			if (m_ctpVersionNumber>3) {
-				throw runtime_error("There are no prescaled clock triggers in CTP version " + m_ctpVersionNumber);
+                                throw runtime_error("There are no prescaled clock triggers in CTP version " + std::to_string(m_ctpVersionNumber));
 				return 9999;
 			}else {
 				return m_ctpVersion->getMaxTIPtotal() + m_ctpVersion->getPrescaledClockShift() + m_thrNumber;
