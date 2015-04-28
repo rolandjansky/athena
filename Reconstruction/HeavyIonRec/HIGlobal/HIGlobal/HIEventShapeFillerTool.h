@@ -2,38 +2,40 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef __HIEVENTSHAPEMODIFIERBASE_H__
-#define __HIEVENTSHAPEMODIFIERBASE_H__
+#ifndef __HIEVENTSHAPEFILLERTOOL_H__
+#define __HIEVENTSHAPEFILLERTOOL_H__
 
 #include "AsgTools/AsgTool.h"
 #include "HIGlobal/IHIEventShapeFiller.h"
 #include "xAODHIEvent/HIEventShapeContainer.h"
-#include "xAODHIEvent/HIEventShapeAuxContainer.h"
-#include <CaloEvent/CaloCell.h>
+#include "HIEventUtils/HIEventShapeIndex.h"
+#include <NavFourMom/INavigable4MomentumCollection.h>
 
-class HIEventShapeFillerTool : virtual public asg::AsgTool, virtual public IHIEventShapeFiller
+class CaloCellContainer;
+
+
+class HIEventShapeFillerTool : public asg::AsgTool, virtual public IHIEventShapeFiller
 {
    ASG_TOOL_CLASS(HIEventShapeFillerTool,IHIEventShapeFiller)
-
-   enum{
-      N_ETA_SLICES  = 100,
-      N_CALO_LAYERS =  24,
-      N_ORDERS      =   4,
-   };
   
    public:
    HIEventShapeFillerTool(const std::string& myname);
   
-   virtual StatusCode InitializeCollection();
-   virtual StatusCode RecordCollection(const std::string &event_shape_key, const std::string &event_shapeaux_key);
-   virtual StatusCode UpdateWithCell(const CaloCell* theCell, float geoWeight);
+   virtual StatusCode InitializeCollection            (xAOD::HIEventShapeContainer *evtShape_        );
+   virtual StatusCode FillCollectionFromTowers        (const std::string &tower_container_key      );
+   virtual StatusCode FillCollectionFromCells         (const std::string &cell_container_key       );
 
-   virtual const xAOD::HIEventShapeContainer* GetHIEventShapeContainer(){return evtShape;} 
- 
+  virtual StatusCode FillCollectionFromTowerContainer(const INavigable4MomentumCollection* navInColl);
+  virtual StatusCode FillCollectionFromCellContainer(const CaloCellContainer* CellContainer);
+
+   virtual const xAOD::HIEventShapeContainer* GetHIEventShapeContainer()  {return evtShape;} 
+   virtual StatusCode  SetNumOrders(int Norders);   
+
    private:
-   xAOD::HIEventShapeContainer    *evtShape    ;
-   xAOD::HIEventShapeAuxContainer *evtShapeAux ;
-
+   xAOD::HIEventShapeContainer *evtShape      ;
+   int m_NumOrders;// The number of flow harmonics to store in the Q-vectors
+   const HIEventShapeIndex* m_index;
+  void UpdateShape(xAOD::HIEventShapeContainer* shape, const HIEventShapeIndex* index, const CaloCell* theCell, float geoWeight, float eta0, float phi0, bool isNeg=false) const;
 };
 
 #endif

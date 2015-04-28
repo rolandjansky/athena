@@ -6,15 +6,13 @@
 #define __HIEVENTSHAPEMAKER_H__
 
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "HIGlobal/HICaloHelper.h"
-#include <string>
+
 #include "xAODHIEvent/HIEventShapeContainer.h"
+#include <string>
 
 #include "GaudiKernel/ToolHandle.h"
 #include "IHIEventShapeFiller.h"
-
-class CaloCell;
-class TH2D;
+#include "HIEventUtils/HIEventShapeSummaryTool.h"
 
 class HIEventShapeMaker : public AthAlgorithm
 {
@@ -31,19 +29,16 @@ public:
   virtual StatusCode finalize();
 
 private:
-  std::string m_tower_container_key;
-  std::string m_output_key;
-  std::string m_output_aux_key;
-
-  TH2D* h2_eta_maxSamp ;
-  TH2D* h2_eta_samp    ;
+  std::string m_tower_container_key;//TowerContainer key
+  std::string m_cell_container_key ;//CaloCellContainer key
+  std::string m_output_key         ;//Name of output container key
+  bool        m_use_calo_cell      ;//use cells instead of towers to fill the EventShape
+  int         m_NumOrders          ;//The number of Orders of harmonic flow to store in the EventShape
+  std::string m_summary_key;
      
   ToolHandle<IHIEventShapeFiller> m_HIEventShapeFillerTool;
+  ToolHandle<IHIEventShapeSummaryTool> m_summary_tool;
   void PrintHIEventShapeContainer(const xAOD::HIEventShapeContainer *Container);
-
-
-
-
 };
 
 #endif

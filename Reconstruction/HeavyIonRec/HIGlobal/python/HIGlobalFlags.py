@@ -30,19 +30,12 @@ class doHIFlow(JobProperty):
     allowedTypes = ['bool']
     StoredValue  = True
 
-class FlowHarmonicMin(JobProperty):
+class NumFlowHarmonics(JobProperty):
     """ Min n to include in vn analysis
     """
     statusOn     = True
     allowedTypes = ['int']
-    StoredValue  = 1
-
-class FlowHarmonicMax(JobProperty):
-    """ Max n to include in vn analysis
-    """
-    statusOn     = True
-    allowedTypes = ['int']
-    StoredValue  = 6
+    StoredValue  = 7
 
 class HIFlowContainerPrefix(JobProperty):
     """ Max n to include in vn analysis
@@ -83,11 +76,54 @@ class doHIGlobalNSiCluster(JobProperty):
     StoredValue  = True
 
 class EventShapeKey(JobProperty):
-    """ Name of EventShape object container
+    """ Name of HIEventShape object container
     """
     statusOn     = True
     allowedTypes = ['string']
     StoredValue  = "HIEventShape"
+
+class EventShapeSummaryKey(JobProperty):
+    """ Name of HIEventShape object container containing summary info
+    """
+    statusOn     = True
+    allowedTypes = ['string']
+    StoredValue  = 'CaloSums'
+
+class SummarySubCalos(JobProperty):
+    """ List of SubCalos to be written in summary
+    """
+    statusOn     = True
+    allowedTypes = ['list']
+    StoredValue  = ['FCal','EMCal','HCal','ALL']
+
+class SummarySamplings(JobProperty):
+    """ List of samplings to be written in summary
+    """
+    statusOn     = True
+    allowedTypes = ['list']
+    StoredValue  = ['FCAL0','FCAL1','FCAL2']
+
+class DoSummary(JobProperty):
+    """ Add extra HIEventShapeContainer containing summary
+    """
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = True
+
+class SummaryPN(JobProperty):
+    """ Compute separate summaries for positive and negative eta
+    """
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = False
+
+class HIGlobalItemList(JobProperty):
+    """ List of items to be written to AOD, initially empty but filled based on configuration
+    """
+    statusOn     = True
+    allowedTypes = ['list']
+    StoredValue  = []
+
     
 # Defines the container for heavy ion reco flags  
 class HIGlobalFlags(JobPropertyContainer):
@@ -106,10 +142,15 @@ list_jobproperties = [
     doHITRT,
     doHIPixelTracklet,
     doHIGlobalNSiCluster,
-    FlowHarmonicMin,
-    FlowHarmonicMax,
+    NumFlowHarmonics,
     HIFlowContainerPrefix,
-    EventShapeKey
+    EventShapeKey,
+    DoSummary,
+    EventShapeSummaryKey,
+    SummarySubCalos,
+    SummarySamplings,
+    SummaryPN,
+    HIGlobalItemList
     ]
 
 for i in list_jobproperties:
