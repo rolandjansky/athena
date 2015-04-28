@@ -1,0 +1,1 @@
+rm *.txt  PoolFileCatalog.xml*

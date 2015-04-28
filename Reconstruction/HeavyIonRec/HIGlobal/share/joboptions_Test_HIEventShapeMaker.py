@@ -17,21 +17,35 @@ DetDescrVersion="ATLAS-GEO-10-00-00"
 theApp.Dlls += [ "CaloTools", "TileRecAlgs", "LArClusterRec" ]
 
 
-algSeq = CfgMgr.AthSequencer("AthAlgSeq")
-HIEventShapeMakerAlg=CfgMgr.HIEventShapeMaker()
-HIEventShapeMakerAlg.OutputLevel=VERBOSE
-algSeq += HIEventShapeMakerAlg
 
-
+#The HIEventShapeFillerTool
 HIEventShapeFillerTool_instance=CfgMgr.HIEventShapeFillerTool("HIEventShapeFillerTool")
 HIEventShapeFillerTool_instance.OutputLevel=VERBOSE
 ToolSvc += HIEventShapeFillerTool_instance
 
 
+#the main algorithm sequence
+algSeq = CfgMgr.AthSequencer("AthAlgSeq")
+
+
+#Algorithm to Call the HIEventShapeFillerTool
+HIEventShapeMakerAlg=CfgMgr.HIEventShapeMaker()
+HIEventShapeMakerAlg.OutputLevel           =VERBOSE
+HIEventShapeMakerAlg.InputTowerKey         ="CombinedTower"
+HIEventShapeMakerAlg.InputCellKey          ="AllCalo"
+HIEventShapeMakerAlg.UseCaloCell           =False
+HIEventShapeMakerAlg.OutputContainerKey    ="HIEventShapeContainer"
+HIEventShapeMakerAlg.OrderOfFlowHarmonics  =7
+HIEventShapeMakerAlg.HIEventShapeFillerTool=HIEventShapeFillerTool_instance
+algSeq += HIEventShapeMakerAlg
+
+
+#Output file for histograms
 svcMgr += CfgMgr.THistSvc()
 svcMgr.THistSvc.Output += ["MYSTREAM DATAFILE='myfile.root' OPT='RECREATE'"]
 
 
+#Output xAOD and branches to keep
 from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
 outStream = MSMgr.NewPoolRootStream( "MyXAODStream", "myXAOD.pool.root");
 outStream.AddItem(['xAOD::HIEventShapeContainer_v1#*'])
