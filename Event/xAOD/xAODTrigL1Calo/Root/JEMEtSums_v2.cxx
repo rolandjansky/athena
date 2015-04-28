@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: JEMEtSums_v2.cxx 646335 2015-02-12 01:16:10Z morrisj $
+// $Id: JEMEtSums_v2.cxx 652807 2015-03-09 21:52:07Z morrisj $
 
 // System include(s):
 #include <cmath>
@@ -21,18 +21,18 @@ namespace xAOD{
   }
   
   /// initialize
-  void JEMEtSums_v2::initialize(const uint_least8_t crate,const uint_least8_t module)
+  void JEMEtSums_v2::initialize(const uint8_t crate,const uint8_t module)
   {       
     setCrate( crate );
     setModule( module );
   }
 
   /// initialize
-  void JEMEtSums_v2::initialize(const uint_least8_t crate,const uint_least8_t module,
-                                const std::vector<uint_least16_t>& etVec,
-                                const std::vector<uint_least16_t>& exVec,
-                                const std::vector<uint_least16_t>& eyVec,
-                                const uint_least8_t peak)
+  void JEMEtSums_v2::initialize(const uint8_t crate,const uint8_t module,
+                                const std::vector<uint16_t>& etVec,
+                                const std::vector<uint16_t>& exVec,
+                                const std::vector<uint16_t>& eyVec,
+                                const uint8_t peak)
   {  
     setCrate( crate );
     setModule( module );
@@ -43,34 +43,34 @@ namespace xAOD{
   }
 
 
-  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( JEMEtSums_v2 , uint_least8_t , crate , setCrate )  
-  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( JEMEtSums_v2 , uint_least8_t , module , setModule )  
-  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( JEMEtSums_v2 , uint_least8_t , peak , setPeak )  
-  AUXSTORE_OBJECT_SETTER_AND_GETTER( JEMEtSums_v2 , std::vector<uint_least16_t> , etVec , setEtVec )  
-  AUXSTORE_OBJECT_SETTER_AND_GETTER( JEMEtSums_v2 , std::vector<uint_least16_t> , exVec , setExVec )  
-  AUXSTORE_OBJECT_SETTER_AND_GETTER( JEMEtSums_v2 , std::vector<uint_least16_t> , eyVec , setEyVec )  
+  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( JEMEtSums_v2 , uint8_t , crate , setCrate )  
+  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( JEMEtSums_v2 , uint8_t , module , setModule )  
+  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( JEMEtSums_v2 , uint8_t , peak , setPeak )  
+  AUXSTORE_OBJECT_SETTER_AND_GETTER( JEMEtSums_v2 , std::vector<uint16_t> , etVec , setEtVec )  
+  AUXSTORE_OBJECT_SETTER_AND_GETTER( JEMEtSums_v2 , std::vector<uint16_t> , exVec , setExVec )  
+  AUXSTORE_OBJECT_SETTER_AND_GETTER( JEMEtSums_v2 , std::vector<uint16_t> , eyVec , setEyVec )  
     
-  uint_least8_t JEMEtSums_v2::forward() const
+  uint8_t JEMEtSums_v2::forward() const
   {
-    uint_least8_t result(0);
-    uint_least8_t mod = module();
+    uint8_t result(0);
+    uint8_t mod = module();
     if( ((mod%8) == 0)  || ((mod%8) == 7) ){
       result = 1;
     }
     return result;
   }
   
-  uint_least16_t JEMEtSums_v2::et() const
+  uint16_t JEMEtSums_v2::et() const
   {
     return etVec()[ peak() ];  
   }
   
-  uint_least16_t JEMEtSums_v2::ex() const
+  uint16_t JEMEtSums_v2::ex() const
   {
     return exVec()[ peak() ]; 
   }
   
-  uint_least16_t JEMEtSums_v2::ey() const
+  uint16_t JEMEtSums_v2::ey() const
   {
     return eyVec()[ peak() ]; 
   }

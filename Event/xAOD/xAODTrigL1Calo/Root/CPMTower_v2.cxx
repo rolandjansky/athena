@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: CPMTower_v2.cxx 646335 2015-02-12 01:16:10Z morrisj $
+// $Id: CPMTower_v2.cxx 660145 2015-04-13 06:57:50Z amazurov $
 
 // System include(s):
 #include <cmath>
@@ -29,11 +29,11 @@ namespace xAOD{
   
   /// initialize
   void CPMTower_v2::initialize(const float eta,const float phi,
-              const std::vector<uint_least8_t>& emEnergyVec,
-              const std::vector<uint_least8_t>& hadEnergyVec,
-              const std::vector<uint_least8_t>& emErrorVec,
-              const std::vector<uint_least8_t>& hadErrorVec,
-              const uint_least8_t peak)
+              const std::vector<uint8_t>& emEnergyVec,
+              const std::vector<uint8_t>& hadEnergyVec,
+              const std::vector<uint8_t>& emErrorVec,
+              const std::vector<uint8_t>& hadErrorVec,
+              const uint8_t peak)
   { 
     setEta( eta );
     setPhi( phi );
@@ -44,26 +44,26 @@ namespace xAOD{
     setPeak( peak );
   }  
   
-  AUXSTORE_OBJECT_SETTER_AND_GETTER( CPMTower_v2 , std::vector<uint_least8_t> , emEnergyVec , setEmEnergyVec )  
-  AUXSTORE_OBJECT_SETTER_AND_GETTER( CPMTower_v2 , std::vector<uint_least8_t> , hadEnergyVec , setHadEnergyVec )    
-  AUXSTORE_OBJECT_SETTER_AND_GETTER( CPMTower_v2 , std::vector<uint_least8_t> , emErrorVec , setEmErrorVec )  
-  AUXSTORE_OBJECT_SETTER_AND_GETTER( CPMTower_v2 , std::vector<uint_least8_t> , hadErrorVec , setHadErrorVec )     
+  AUXSTORE_OBJECT_SETTER_AND_GETTER( CPMTower_v2 , std::vector<uint8_t> , emEnergyVec , setEmEnergyVec )  
+  AUXSTORE_OBJECT_SETTER_AND_GETTER( CPMTower_v2 , std::vector<uint8_t> , hadEnergyVec , setHadEnergyVec )    
+  AUXSTORE_OBJECT_SETTER_AND_GETTER( CPMTower_v2 , std::vector<uint8_t> , emErrorVec , setEmErrorVec )  
+  AUXSTORE_OBJECT_SETTER_AND_GETTER( CPMTower_v2 , std::vector<uint8_t> , hadErrorVec , setHadErrorVec )     
   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( CPMTower_v2 , float , eta , setEta )   
   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( CPMTower_v2 , float , phi , setPhi )  
-  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( CPMTower_v2 , uint_least8_t , peak , setPeak )  
+  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( CPMTower_v2 , uint8_t , peak , setPeak )  
  
   /** return the final ET values using the in algorithms */
-  uint_least8_t CPMTower_v2::emEnergy() const
+  uint8_t CPMTower_v2::emEnergy() const
   {
-    return emEnergyVec()[ peak() ];
+    return emSliceEnergy(peak());
   }
   
-  uint_least8_t CPMTower_v2::hadEnergy() const
+  uint8_t CPMTower_v2::hadEnergy() const
   {
-    return hadEnergyVec()[ peak() ];
+    return hadSliceEnergy(peak());
   }
 
-  uint_least8_t CPMTower_v2::emSliceEnergy(unsigned int slice) const
+  uint8_t CPMTower_v2::emSliceEnergy(unsigned int slice) const
   {
     if( slice < emEnergyVec().size() ){
       return emEnergyVec()[ slice ];
@@ -71,7 +71,7 @@ namespace xAOD{
     return 0;    
   }
   
-  uint_least8_t CPMTower_v2::hadSliceEnergy(unsigned int slice) const
+  uint8_t CPMTower_v2::hadSliceEnergy(unsigned int slice) const
   {
     if( slice < hadEnergyVec().size() ){
       return hadEnergyVec()[ slice ];
@@ -79,17 +79,17 @@ namespace xAOD{
     return 0;        
   }
   
-  uint_least8_t CPMTower_v2::emError() const
+  uint8_t CPMTower_v2::emError() const
   {
-    return emErrorVec()[ peak() ];
+    return emSliceError(peak());
   }
   
-  uint_least8_t CPMTower_v2::hadError() const
+  uint8_t CPMTower_v2::hadError() const
   {
-    return hadErrorVec()[ peak() ];
+    return hadSliceError(peak());
   }
   
-  uint_least8_t CPMTower_v2::emSliceError(unsigned int slice) const
+  uint8_t CPMTower_v2::emSliceError(unsigned int slice) const
   {
     if( slice < emErrorVec().size() ){
       return emErrorVec()[ slice ];
@@ -97,7 +97,7 @@ namespace xAOD{
     return 0;      
   }
   
-  uint_least8_t CPMTower_v2::hadSliceError(unsigned int slice) const
+  uint8_t CPMTower_v2::hadSliceError(unsigned int slice) const
   {
     if( slice < hadErrorVec().size() ){
       return hadErrorVec()[ slice ];

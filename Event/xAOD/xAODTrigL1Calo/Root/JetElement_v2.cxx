@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: JetElement_v2.cxx 646335 2015-02-12 01:16:10Z morrisj $
+// $Id: JetElement_v2.cxx 652807 2015-03-09 21:52:07Z morrisj $
 
 // System include(s):
 #include <cmath>
@@ -30,12 +30,12 @@ namespace xAOD{
   
   /// initialize
   void JetElement_v2::initialize(const float eta,const float phi,const unsigned int key,
-                                 const std::vector<uint_least16_t>& emEnergyVec,
-                                 const std::vector<uint_least16_t>& hadEnergyVec,
-                                 const std::vector<uint_least8_t>& emErrorVec,
-                                 const std::vector<uint_least8_t>& hadErrorVec,
-                                 const std::vector<uint_least8_t>& linkErrorVec,
-                                 const uint_least8_t peak)
+                                 const std::vector<uint16_t>& emEnergyVec,
+                                 const std::vector<uint16_t>& hadEnergyVec,
+                                 const std::vector<uint8_t>& emErrorVec,
+                                 const std::vector<uint8_t>& hadErrorVec,
+                                 const std::vector<uint8_t>& linkErrorVec,
+                                 const uint8_t peak)
   {  
     setEta( eta );
     setPhi( phi );
@@ -52,12 +52,12 @@ namespace xAOD{
   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( JetElement_v2 , float , eta , setEta )
   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( JetElement_v2 , float , phi , setPhi )  
   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( JetElement_v2 , unsigned int , key , setKey )  
-  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( JetElement_v2 , uint_least8_t , peak , setPeak )
-  AUXSTORE_OBJECT_SETTER_AND_GETTER( JetElement_v2 , std::vector<uint_least16_t> , emEnergyVec , setEmEnergyVec )  
-  AUXSTORE_OBJECT_SETTER_AND_GETTER( JetElement_v2 , std::vector<uint_least16_t> , hadEnergyVec , setHadEnergyVec )
-  AUXSTORE_OBJECT_SETTER_AND_GETTER( JetElement_v2 , std::vector<uint_least8_t> , emErrorVec , setEmErrorVec )  
-  AUXSTORE_OBJECT_SETTER_AND_GETTER( JetElement_v2 , std::vector<uint_least8_t> , hadErrorVec , setHadErrorVec )
-  AUXSTORE_OBJECT_SETTER_AND_GETTER( JetElement_v2 , std::vector<uint_least8_t> , linkErrorVec , setLinkErrorVec )    
+  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( JetElement_v2 , uint8_t , peak , setPeak )
+  AUXSTORE_OBJECT_SETTER_AND_GETTER( JetElement_v2 , std::vector<uint16_t> , emEnergyVec , setEmEnergyVec )  
+  AUXSTORE_OBJECT_SETTER_AND_GETTER( JetElement_v2 , std::vector<uint16_t> , hadEnergyVec , setHadEnergyVec )
+  AUXSTORE_OBJECT_SETTER_AND_GETTER( JetElement_v2 , std::vector<uint8_t> , emErrorVec , setEmErrorVec )  
+  AUXSTORE_OBJECT_SETTER_AND_GETTER( JetElement_v2 , std::vector<uint8_t> , hadErrorVec , setHadErrorVec )
+  AUXSTORE_OBJECT_SETTER_AND_GETTER( JetElement_v2 , std::vector<uint8_t> , linkErrorVec , setLinkErrorVec )    
 
   unsigned int JetElement_v2::emEnergy()  const
   {
@@ -143,17 +143,17 @@ namespace xAOD{
     return false;    
   }
   
-  uint_least8_t JetElement_v2::emError()   const
+  uint8_t JetElement_v2::emError()   const
   {
     return emErrorVec()[ peak() ];
   }
   
-  uint_least8_t JetElement_v2::hadError()  const
+  uint8_t JetElement_v2::hadError()  const
   {
     return hadErrorVec()[ peak() ];
   }
   
-  uint_least8_t JetElement_v2::linkError() const
+  uint8_t JetElement_v2::linkError() const
   {
     return linkErrorVec()[ peak() ];
   }

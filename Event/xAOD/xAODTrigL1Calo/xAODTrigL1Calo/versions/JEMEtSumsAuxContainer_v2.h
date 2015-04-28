@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: JEMEtSumsAuxContainer_v2.h 646335 2015-02-12 01:16:10Z morrisj $
+// $Id: JEMEtSumsAuxContainer_v2.h 652807 2015-03-09 21:52:07Z morrisj $
 #ifndef XAODTRIGL1CALO_VERSIONS_JEMETSUMSAUXCONTAINER_V2_H
 #define XAODTRIGL1CALO_VERSIONS_JEMETSUMSAUXCONTAINER_V2_H
 
@@ -22,8 +22,8 @@ namespace xAOD{
   ///
   /// @author John Morris <john.morris@cern.ch>
   ///
-  /// $Revision: 646335 $
-  /// $Date: 2015-02-12 02:16:10 +0100 (Thu, 12 Feb 2015) $    
+  /// $Revision: 652807 $
+  /// $Date: 2015-03-09 22:52:07 +0100 (Mon, 09 Mar 2015) $    
 
   class JEMEtSumsAuxContainer_v2 : public AuxContainerBase {
   public:
@@ -31,12 +31,12 @@ namespace xAOD{
     JEMEtSumsAuxContainer_v2();
 
   private:
-    std::vector<uint_least8_t> crate;
-    std::vector<uint_least8_t> module;
-    std::vector<uint_least8_t> peak;
-    std::vector<std::vector<uint_least16_t> > etVec;
-    std::vector<std::vector<uint_least16_t> > exVec;
-    std::vector<std::vector<uint_least16_t> > eyVec;
+    std::vector<uint8_t> crate;
+    std::vector<uint8_t> module;
+    std::vector<uint8_t> peak;
+    std::vector<std::vector<uint16_t> > etVec;
+    std::vector<std::vector<uint16_t> > exVec;
+    std::vector<std::vector<uint16_t> > eyVec;
     
   }; // class JEMEtSumsAuxContainer_v2  
 } // namespace xAOD

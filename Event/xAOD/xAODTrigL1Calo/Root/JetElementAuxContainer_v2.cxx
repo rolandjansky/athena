@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: JetElementAuxContainer_v2.cxx 646335 2015-02-12 01:16:10Z morrisj $
+// $Id: JetElementAuxContainer_v2.cxx 643193 2015-01-30 17:55:27Z morrisj $
 
 // Local include(s):
 #include "xAODTrigL1Calo/versions/JetElementAuxContainer_v2.h"

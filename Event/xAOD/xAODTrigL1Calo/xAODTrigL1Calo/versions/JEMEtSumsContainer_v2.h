@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: JEMEtSumsContainer_v2.h 646335 2015-02-12 01:16:10Z morrisj $
+// $Id: JEMEtSumsContainer_v2.h 643054 2015-01-30 13:55:12Z morrisj $
 #ifndef XAODTRIGL1CALO_VERSIONS_JEMETSUMSCONTAINER_V2_H
 #define XAODTRIGL1CALO_VERSIONS_JEMETSUMSCONTAINER_V2_H
 

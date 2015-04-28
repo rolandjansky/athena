@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TriggerTower_v2.cxx 646335 2015-02-12 01:16:10Z morrisj $
+// $Id: TriggerTower_v2.cxx 660145 2015-04-13 06:57:50Z amazurov $
 
 // EDM includes(s):
 #include "xAODCore/AuxStoreAccessorMacros.h"
@@ -40,36 +40,36 @@ namespace xAOD{
   }
     
   
-  AUXSTORE_OBJECT_SETTER_AND_GETTER( TriggerTower_v2 , std::vector<uint_least8_t> , lut_cp , setLut_cp )
-  AUXSTORE_OBJECT_SETTER_AND_GETTER( TriggerTower_v2 , std::vector<uint_least8_t> , lut_jep , setLut_jep )
-  AUXSTORE_OBJECT_SETTER_AND_GETTER( TriggerTower_v2 , std::vector<int_least16_t> , correction , setCorrection )
-  AUXSTORE_OBJECT_SETTER_AND_GETTER( TriggerTower_v2 , std::vector<uint_least8_t> , correctionEnabled , setCorrectionEnabled )
-  AUXSTORE_OBJECT_SETTER_AND_GETTER( TriggerTower_v2 , std::vector<uint_least8_t> , bcidVec , setBcidVec )
-  AUXSTORE_OBJECT_SETTER_AND_GETTER( TriggerTower_v2 , std::vector<uint_least16_t> , adc , setAdc )
-  AUXSTORE_OBJECT_SETTER_AND_GETTER( TriggerTower_v2 , std::vector<uint_least8_t> , bcidExt , setBcidExt )  
-  AUXSTORE_OBJECT_SETTER_AND_GETTER( TriggerTower_v2 , std::vector<uint_least8_t> , sat80Vec , setSat80Vec )
-  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( TriggerTower_v2, uint_least32_t , coolId , setCoolId )
-  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( TriggerTower_v2, uint_least16_t , error , setError )
-  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( TriggerTower_v2, uint_least8_t , peak , setPeak )
-  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( TriggerTower_v2, uint_least8_t , adcPeak , setAdcPeak )  
+  AUXSTORE_OBJECT_SETTER_AND_GETTER( TriggerTower_v2 , std::vector<uint8_t> , lut_cp , setLut_cp )
+  AUXSTORE_OBJECT_SETTER_AND_GETTER( TriggerTower_v2 , std::vector<uint8_t> , lut_jep , setLut_jep )
+  AUXSTORE_OBJECT_SETTER_AND_GETTER( TriggerTower_v2 , std::vector<int16_t> , correction , setCorrection )
+  AUXSTORE_OBJECT_SETTER_AND_GETTER( TriggerTower_v2 , std::vector<uint8_t> , correctionEnabled , setCorrectionEnabled )
+  AUXSTORE_OBJECT_SETTER_AND_GETTER( TriggerTower_v2 , std::vector<uint8_t> , bcidVec , setBcidVec )
+  AUXSTORE_OBJECT_SETTER_AND_GETTER( TriggerTower_v2 , std::vector<uint16_t> , adc , setAdc )
+  AUXSTORE_OBJECT_SETTER_AND_GETTER( TriggerTower_v2 , std::vector<uint8_t> , bcidExt , setBcidExt )  
+  AUXSTORE_OBJECT_SETTER_AND_GETTER( TriggerTower_v2 , std::vector<uint8_t> , sat80Vec , setSat80Vec )
+  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( TriggerTower_v2, uint32_t , coolId , setCoolId )
+  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( TriggerTower_v2, uint32_t , errorWord , setErrorWord )
+  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( TriggerTower_v2, uint8_t , peak , setPeak )
+  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( TriggerTower_v2, uint8_t , adcPeak , setAdcPeak )  
   
   
   /// initialize
-  void TriggerTower_v2::initialize(const uint_least32_t CoolId,const float Eta,const float Phi)
+  void TriggerTower_v2::initialize(const uint32_t CoolId,const float Eta,const float Phi)
   {
     setCoolId( CoolId );
     setEta( Eta );
     setPhi( Phi );    
   }
   
-  void TriggerTower_v2::initialize(const uint_least32_t CoolId,const float Eta,const float Phi,
-                                   const std::vector<uint_least8_t>& Lut_cp,const std::vector<uint_least8_t>& Lut_jep,
-                                   const std::vector<int_least16_t>& Correction,const std::vector<uint_least8_t>& CorrectionEnabled,
-                                   const std::vector<uint_least8_t>& BcidVec,const std::vector<uint_least16_t>& Adc,
-                                   const std::vector<uint_least8_t>& BcidExt,const std::vector<uint_least8_t>& Sat80Vec,
-                                   const uint_least16_t Error,
-                                   const uint_least8_t Peak,
-                                   const uint_least8_t AdcPeak)
+  void TriggerTower_v2::initialize(const uint32_t CoolId,const float Eta,const float Phi,
+                                   const std::vector<uint8_t>& Lut_cp,const std::vector<uint8_t>& Lut_jep,
+                                   const std::vector<int16_t>& Correction,const std::vector<uint8_t>& CorrectionEnabled,
+                                   const std::vector<uint8_t>& BcidVec,const std::vector<uint16_t>& Adc,
+                                   const std::vector<uint8_t>& BcidExt,const std::vector<uint8_t>& Sat80Vec,
+                                   const uint32_t ErrorWord,
+                                   const uint8_t Peak,
+                                   const uint8_t AdcPeak)
   {
     setCoolId( CoolId );
     setEta( Eta );
@@ -82,12 +82,12 @@ namespace xAOD{
     setAdc( Adc );
     setBcidExt( BcidExt );
     setSat80Vec( Sat80Vec );
-    setError( Error );
+    setErrorWord( ErrorWord );
     setPeak( Peak );
     setAdcPeak( AdcPeak );
   }
   
-  uint_least8_t TriggerTower_v2::layer() const
+  int TriggerTower_v2::layer() const
   {
     unsigned int cnum = ( coolId() >> 24 ) & 0x7;
     unsigned int mnum = ( coolId() >> 16 ) & 0xf;
@@ -114,17 +114,45 @@ namespace xAOD{
     // really shouldn't get this far
     return 1;
   }
+  
+  int TriggerTower_v2::sampling() const
+  {
+    unsigned int cnum = ( coolId() >> 24 ) & 0x7;
+    unsigned int mnum = ( coolId() >> 16 ) & 0xf;
+    // unsigned int chan = coolId() & 0x3; // To be used for FCAL2,FCAL3 soon
+
+    if (cnum < 4) {  // EMB,EMEC
+      return 0;
+    }
+    else if (cnum < 6) {  // HEC,FCAL
+      if (mnum == 0) {
+        return 0;  // FCAL1
+      }
+      else if (mnum == 8) {  // FCAL2,FCAL3
+        // Detail to be determined (using chan): for now use layer 1
+        return 1;
+      }
+      else {  // HEC
+        return 1;
+      }
+    }
+    else {  // Tile
+      return 1;
+    } 
+    // really shouldn't get this far
+    return 1;    
+  }
     
   /// get cpET from peak of lut_cp
-  uint_least8_t TriggerTower_v2::cpET() const
+  uint8_t TriggerTower_v2::cpET() const
   {
-    return lut_cp()[ peak() ];
+    return peak() < lut_cp().size()? lut_cp()[ peak() ]: 0;
   }
   
   /// get jepET from peak of lut_jep
-  uint_least8_t TriggerTower_v2::jepET() const
+  uint8_t TriggerTower_v2::jepET() const
   {
-    return lut_jep()[ peak() ];
+    return peak() < lut_jep().size()? lut_jep()[ peak() ]: 0;
   }
   
   /// Is tower saturated?
