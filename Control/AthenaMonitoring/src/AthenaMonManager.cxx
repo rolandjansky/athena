@@ -776,58 +776,125 @@ writeAndDeleteLWHist( LWHist*lwh  )
 
 LWHist *
 AthenaMonManager::
-writeAndDeleteLWHist( const std::string& key, const std::string& streamName, bool doDelete )
+writeAndDeleteLWHist( const std::string& key, const std::string& streamName )
 {
 //     std::cout<<"writeAndDeleteLWHist... maybe"<<std::endl;
-  //If is owned LWHist we write it in a root file and deletes it + returns it's (now deallocated) address.
+    //If is owned LWHist we write it in a root file and deletes it + returns it's (now deallocated) address.
 
-  Imp::ObjMapLW_t::iterator iLW = d->m_objMapLW.find( key );
-  if( iLW != d->m_objMapLW.end() ) {
-    //Fixme: add private helper method actualWriteAndDelete(TH1*), to use by both...
-    LWHist * lwhist =iLW->second;
-    TH1 * h = lwhist->getROOTHistBase();
-    if( h != 0 ) {
-      //Get correct dir by doing a quick reg/dereg:
-      bool ok(false);
-      if (lwhist->usingROOTBackend()) {
-	      //Already registered
-	      ok = true;
-      } else {
-	      //Delayed registration:
-	      if (m_THistSvc->regHist( streamName, h ).isSuccess())
-	      //	  if (m_THistSvc->deReg(  h ).isSuccess())
-	      ok = true;
-      }
+    Imp::ObjMapLW_t::iterator iLW = d->m_objMapLW.find( key );
+    if( iLW != d->m_objMapLW.end() )
+    {
+        //Fixme: add private helper method actualWriteAndDelete(TH1*), to use by both...
+        LWHist * lwhist =iLW->second;
+        TH1 * h = lwhist->getROOTHistBase();
+        if( h != 0 )
+        {
+            //Get correct dir by doing a quick reg/dereg:
+            bool ok(false);
+            if (lwhist->usingROOTBackend())
+            {
+                //Already registered
+                ok = true;
+            }
+            else
+            {
+                //Delayed registration:
+                if (m_THistSvc->regHist( streamName, h ).isSuccess())
+                    //    if (m_THistSvc->deReg(  h ).isSuccess())
+                    ok = true;
+            }
 
-      if (ok) {
-        bool doRecursiveReferenceDelete = gROOT->MustClean();
-        gROOT->SetMustClean(false);
-        TDirectory* dir = h->GetDirectory();
-        TDirectory* g = gDirectory;
-        if(dir)
-          dir->cd();
-        h->Write();
-        g->cd();
+            if (ok)
+            {
+                bool doRecursiveReferenceDelete = gROOT->MustClean();
+                gROOT->SetMustClean(false);
+                TDirectory* dir = h->GetDirectory();
+                TDirectory* g = gDirectory;
+                if(dir)
+                    dir->cd();
+                h->Write();
+                g->cd();
 
-	    StatusCode sc = m_THistSvc->deReg( h );
-	    if( !sc.isSuccess() ) {
-	        if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "AthenaMonManager::WriteAndDeleteHist(): Failure to deReg( TObject* )" << endreq;
-	    }
+                StatusCode sc = m_THistSvc->deReg( h );
+                if( !sc.isSuccess() )
+                {
+                    if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "AthenaMonManager::WriteAndDeleteHist(): Failure to deReg( TObject* )" << endreq;
+                }
 
-        d->m_objMapLW.erase( iLW );
-	lwhist->setOwnsROOTHisto(true);//Since we deregistered
-	if (doDelete) {
-	  LWHistAthMonWrapper::deleteLWHist(lwhist);
-	  lwhist=0;
-	}
-        gROOT->SetMustClean(doRecursiveReferenceDelete);//Should be after the deleteLWHist call
-      }
-      return lwhist;
+                d->m_objMapLW.erase( iLW );
+                lwhist->setOwnsROOTHisto(true);//Since we deregistered
+                LWHistAthMonWrapper::deleteLWHist(lwhist);
+                lwhist=0;
+                gROOT->SetMustClean(doRecursiveReferenceDelete);//Should be after the deleteLWHist call
+            }
+            return lwhist;
+        }
     }
-  }
-  return 0;
+    return 0;
 }
 
+LWHist *
+AthenaMonManager::
+writeAndResetLWHist( const std::string& key, const std::string& streamName )
+{
+//     std::cout<<"writeAndDeleteLWHist... maybe"<<std::endl;
+    //If is owned LWHist we write it in a root file and deletes it + returns it's (now deallocated) address.
+
+    Imp::ObjMapLW_t::iterator iLW = d->m_objMapLW.find( key );
+    if( iLW != d->m_objMapLW.end() )
+    {
+        //Fixme: add private helper method actualWriteAndDelete(TH1*), to use by both...
+        LWHist * lwhist =iLW->second;
+        TH1 * h = lwhist->getROOTHistBase();
+        if( h != 0 )
+        {
+            //Get correct dir by doing a quick reg/dereg:
+            bool ok(false);
+            if (lwhist->usingROOTBackend())
+            {
+                //Already registered
+                ok = true;
+            }
+            else
+            {
+                //Delayed registration:
+                if (m_THistSvc->regHist( streamName, h ).isSuccess())
+                    //    if (m_THistSvc->deReg(  h ).isSuccess())
+                    ok = true;
+            }
+
+            if (ok)
+            {
+                bool doRecursiveReferenceDelete = gROOT->MustClean();
+                gROOT->SetMustClean(false);
+                TDirectory* dir = h->GetDirectory();
+                TDirectory* g = gDirectory;
+                if(dir)
+                    dir->cd();
+                h->Write();
+                g->cd();
+
+                StatusCode sc = m_THistSvc->deReg( h );
+                if( !sc.isSuccess() )
+                {
+                    if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "AthenaMonManager::WriteAndDeleteHist(): Failure to deReg( TObject* )" << endreq;
+                }
+
+                d->m_objMapLW.erase( iLW );
+                lwhist->setOwnsROOTHisto(true);//Since we deregistered
+
+                //LWHistAthMonWrapper::deleteLWHist(lwhist);
+                LWHistAthMonWrapper::removeCustomData(lwhist);
+                lwhist->Reset();
+
+                lwhist=0;
+                gROOT->SetMustClean(doRecursiveReferenceDelete);//Should be after the deleteLWHist call
+            }
+            return lwhist;
+        }
+    }
+    return 0;
+}
 
 
 void

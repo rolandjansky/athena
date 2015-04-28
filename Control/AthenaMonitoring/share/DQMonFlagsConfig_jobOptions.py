@@ -238,9 +238,8 @@ if (not rec.doJetMissingETTag() or (rec.readRDO() and not jobproperties.JetRecFl
 if (not rec.doTau()):
    DQMonFlags.doTauMon=False
 
-# covered now by doJetMissingETTag
-#if (not recAlgs.doMissingET()):
-#   DQMonFlags.doMissingEtMon=False
+if (not recAlgs.doMissingET()):
+   DQMonFlags.doMissingEtMon=False
 
 #
 # Stream Aware Monitoring

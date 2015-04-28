@@ -19,6 +19,7 @@
 
 #include "AthenaMonitoring/AthenaMonManager.h"
 #include "AthenaMonitoring/IMonitorToolBase.h"
+#include "AthenaMonitoring/ITriggerTranslatorTool.h"
 
 #include "GaudiKernel/ToolHandle.h"
 #include "LumiBlockComps/ILuminosityTool.h"
@@ -714,7 +715,7 @@ class ManagedMonitorToolBase : public AthAlgTool, virtual public IMonitorToolBas
 
       std::map< Interval_t, std::vector< MgmtParams<LWHist> > > m_templateLWHistograms;
       // Runs over the vector of managed histograms and register them (just a helper method).
-      StatusCode regManagedLWHistograms(std::vector< MgmtParams<LWHist> >& m_templateLWHistograms, bool usePreviousInterval, bool doDelete=false);
+      StatusCode regManagedLWHistograms(std::vector< MgmtParams<LWHist> >& m_templateLWHistograms);
 
       std::vector<std::string> m_vTrigChainNames, m_vTrigGroupNames;
       StatusCode parseList(const std::string&, std::vector<std::string>&);
@@ -842,6 +843,7 @@ class ManagedMonitorToolBase : public AthAlgTool, virtual public IMonitorToolBas
 
       ServiceHandle<ITHistSvc>         m_THistSvc;
       ToolHandle<Trig::ITrigDecisionTool>    m_trigDecTool;
+      ToolHandle<ITriggerTranslatorTool> m_trigTranslator;
       ToolHandleArray<IDQFilterTool> m_DQFilterTools;
 
       long         m_procNEventsProp;
