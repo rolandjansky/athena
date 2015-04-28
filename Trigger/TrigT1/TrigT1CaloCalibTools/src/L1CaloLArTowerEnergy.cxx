@@ -6,19 +6,18 @@
 
 namespace LVL1{
 
-  L1CaloLArTowerEnergy::L1CaloLArTowerEnergy(const std::string& type, const std::string& name, const IInterface* parent )
-    : AthAlgTool(type,name,parent),
-      m_condSvc(0),
-      m_lvl1Helper(0),
-      caloMgr(0),
-      m_LArOnlineHelper(0),
-      m_ttService(0),
-      m_cells2tt("LVL1::L1CaloCells2TriggerTowers/L1CaloCells2TriggerTowers"),
-      m_badChannelTool("LArBadChanTool"),
-      m_larCablingSvc("LArCablingService"),
-      m_ttTool("LVL1::L1TriggerTowerTool/LVL1::L1TriggerTowerTool")
+  L1CaloLArTowerEnergy::L1CaloLArTowerEnergy( const std::string& name ) :
+    asg::AsgTool( name ),
+    m_condSvc(nullptr),
+    m_lvl1Helper(nullptr),
+    caloMgr(nullptr),
+    m_LArOnlineHelper(nullptr),
+    m_ttService(nullptr),
+    m_cells2tt("LVL1::L1CaloCells2TriggerTowers/L1CaloCells2TriggerTowers"),
+    m_badChannelTool("LArBadChanTool"),
+    m_larCablingSvc("LArCablingService"),
+    m_ttTool("LVL1::L1TriggerTowerTool/LVL1::L1TriggerTowerTool")
   {
-    declareInterface<IL1CaloLArTowerEnergy>(this);
   }
 
   StatusCode L1CaloLArTowerEnergy::initialize() {

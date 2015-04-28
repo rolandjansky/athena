@@ -36,8 +36,7 @@ L1CaloPprPedestalCorrectionPlotManager::L1CaloPprPedestalCorrectionPlotManager(I
 			   "PedestalCorrection", 
 			   "",
 			   true),
-      m_l1CondSvc("L1CaloCondSvc", histoSvc->name()),
-      m_firstCall(true)
+      m_l1CondSvc("L1CaloCondSvc", histoSvc->name())
 {
 }
 
@@ -56,16 +55,15 @@ L1CaloPprPedestalCorrectionPlotManager::L1CaloPprPedestalCorrectionPlotManager(M
 			   "pedestalCorrection",
 			   "PedestalCorrection",
 			   ""),
-      m_l1CondSvc("L1CaloCondSvc", aMonObj->name()),
-      m_firstCall(true)
-
+      m_l1CondSvc("L1CaloCondSvc", aMonObj->name())
 {
 }
 
 // --------------------------------------------------------------------------
 
-double L1CaloPprPedestalCorrectionPlotManager::getMonitoringValue(const xAOD::TriggerTower* trigTower, CalLayerEnum theLayer)
+double L1CaloPprPedestalCorrectionPlotManager::getMonitoringValue(const xAOD::TriggerTower* trigTower, CalLayerEnum /*theLayer*/)
 {   
+  
     const std::vector<short int>& pedCorrVec = trigTower->correction();
     const int nSlices = pedCorrVec.size();
     double pedestalCorrection = 0;  // to be returned
@@ -225,7 +223,7 @@ void L1CaloPprPedestalCorrectionPlotManager::fillPartitionOnlineHistos(const xAO
 
         ManagedMonitorToolBase::MgmtAttr_t attr = ManagedMonitorToolBase::ATTRIB_UNMANAGED;
         ManagedMonitorToolBase::MonGroup ADC_Partitions(m_monObj, m_pathInRootFile , ManagedMonitorToolBase::run, attr, "", mergeMethod);
-	std::cout << "m_histTool = " << m_histTool << std::endl;
+
         m_histTool->setMonGroup(&ADC_Partitions);
 	
         TProfile_LW* anLWProfileHist = m_histTool->bookProfile(Form("ppm_%s_1d_profile_adc_%s_%sVsLumi",
@@ -257,13 +255,11 @@ void L1CaloPprPedestalCorrectionPlotManager::fillPartitionOnlineHistos(const xAO
         std::string mergeMethod("");
 	if (AthenaMonManager::environment() != AthenaMonManager::online) {
 	    mergeMethod = "mergeRebinned";
-            std::cout << "mergeMethod = ''mergeRebinned''" << std::endl;
         }
 
         ManagedMonitorToolBase::MgmtAttr_t attr2 = ManagedMonitorToolBase::ATTRIB_UNMANAGED;
         ManagedMonitorToolBase::MonGroup ADC_Partitions2(m_monObj, m_pathInRootFile , ManagedMonitorToolBase::run, attr2, "", mergeMethod);
         m_histTool->setMonGroup(&ADC_Partitions2);
-        std::cout << Form("ppm_%s_1d_profile_adc_%s_%sVsBCN",plotType.data(),detectorRegionString.data(),m_monitoringName.data()) << std::endl;
         TProfile_LW* anLWProfileHist2 = m_histTool->bookProfile(Form("ppm_%s_1d_profile_adc_%s_%sVsBCN",
 								    plotType.data(),
 								    detectorRegionString.data(),
@@ -284,6 +280,124 @@ void L1CaloPprPedestalCorrectionPlotManager::fillPartitionOnlineHistos(const xAO
 	part_itr2->second->Fill(m_bunchCrossing,value);
       } 
       
+}
+
+// --------------------------------------------------------------------------
+
+/*virtual*/
+void L1CaloPprPedestalCorrectionPlotManager::fillDifferentialOnlineHistos(const xAOD::TriggerTower* trigTower, unsigned int &coolId, CalLayerEnum theLayer, double &value)
+{
+    //Create fully differential plots
+    /****************************************************************************************************/
+    
+    std::map<unsigned int, TProfile_LW*>::iterator p_itr;
+    p_itr = m_map_online_coolIDProfile_ValueVsLumi.find(coolId);
+    
+    if(p_itr == m_map_online_coolIDProfile_ValueVsLumi.end())
+    {
+        double eta  = trigTower->eta();
+        std::string plotType = this->GetDetectorLayerString(theLayer);
+        CaloDivisionEnum detectorRegion = this->GetDetectorRegion(eta,theLayer);
+        std::string detectorRegionString = this->GetDetectorRegionString(detectorRegion);
+
+        ManagedMonitorToolBase::MgmtAttr_t attr = ManagedMonitorToolBase::ATTRIB_UNMANAGED;
+        ManagedMonitorToolBase::MonGroup ADC_Channels(m_monObj, 
+						      m_pathInRootFile + Form("/%s",detectorRegionString.data()), 
+						      ManagedMonitorToolBase::run,
+                                                      attr);
+        m_histTool->setMonGroup(&ADC_Channels);
+
+        std::string titles;
+	if ( m_ppmAdcMinValue > 0 ) {
+	    titles=Form("Run:%d, %s Vs Lumi Profile for %sFADC >%d, Channel:%08x ;Lumi Block; %s %s",
+								    m_currentRunNo,
+								    m_monitoringTitle.data(),
+								    plotType.data(),
+								    m_ppmAdcMinValue,
+								    coolId,
+								    m_monitoringTitle.data(),
+								    m_monitoringDimension.data());
+	}
+	else {
+	    titles=Form("Run:%d, %s Vs Lumi Profile, Channel:%08x ;Lumi Block; %s %s",
+								    m_currentRunNo,
+								    m_monitoringTitle.data(),
+								    coolId,
+								    m_monitoringTitle.data(),
+								    m_monitoringDimension.data());
+	}
+        TProfile_LW* anLWProfileHist = m_histTool->bookProfile(Form("ppm_%s_1d_profile_adc_%08x_%sVsLumi",
+								    plotType.data(),
+								    coolId,
+								    m_monitoringName.data()),
+							       titles,									
+							       m_lumiMax,
+							       0,
+							       m_lumiMax);
+	anLWProfileHist->Fill(m_lumiNo,value);
+	m_map_online_coolIDProfile_ValueVsLumi.insert ( std::pair<unsigned int,TProfile_LW*>(coolId,anLWProfileHist) );
+
+        m_histTool->unsetMonGroup();
+	
+    }
+    else
+    {
+        p_itr->second->Fill(m_lumiNo,value);
+    }
+
+    //Now for bunch crossing number:
+    std::map<unsigned int, TProfile_LW*>::iterator p_itr2;
+    p_itr2 = m_map_online_coolIDProfile_ValueVsBCN.find(coolId);
+    if(p_itr2 == m_map_online_coolIDProfile_ValueVsBCN.end())
+    {
+        double eta  = trigTower->eta();
+        std::string plotType = this->GetDetectorLayerString(theLayer);
+        CaloDivisionEnum detectorRegion = this->GetDetectorRegion(eta,theLayer);
+        std::string detectorRegionString = this->GetDetectorRegionString(detectorRegion);
+
+        ManagedMonitorToolBase::MgmtAttr_t attr = ManagedMonitorToolBase::ATTRIB_UNMANAGED;
+        ManagedMonitorToolBase::MonGroup ADC_Channels(m_monObj, 
+						      m_pathInRootFile + Form("/%s",detectorRegionString.data()), 
+						      ManagedMonitorToolBase::run,
+                                                      attr);
+        m_histTool->setMonGroup(&ADC_Channels);
+
+        std::string titles;
+	if ( m_ppmAdcMinValue > 0 ) {
+	    titles=Form("Run:%d, %s Vs BCN Profile for %sFADC >%d, Channel:%08x ;BCN; %s %s",
+								    m_currentRunNo,
+								    m_monitoringTitle.data(),
+								    plotType.data(),
+								    m_ppmAdcMinValue,
+								    coolId,
+								    m_monitoringTitle.data(),
+								    m_monitoringDimension.data());
+	}
+	else {
+	    titles=Form("Run:%d, %s Vs BCN Profile, Channel:%08x ;BCN; %s %s",
+								    m_currentRunNo,
+								    m_monitoringTitle.data(),
+								    coolId,
+								    m_monitoringTitle.data(),
+								    m_monitoringDimension.data());
+	}
+        TProfile_LW* anLWProfileHist2 = m_histTool->bookProfile(Form("ppm_%s_1d_profile_adc_%08x_%sVsBCN",
+								    plotType.data(),
+								    coolId,
+								    m_monitoringName.data()),
+							       titles,									
+							       0xdec, 0, 0xdec);
+	anLWProfileHist2->Fill(m_bunchCrossing,value);
+	m_map_online_coolIDProfile_ValueVsBCN.insert ( std::pair<unsigned int,TProfile_LW*>(coolId,anLWProfileHist2) );
+
+        m_histTool->unsetMonGroup();
+	
+    }
+    else
+    {
+        p_itr2->second->Fill(m_bunchCrossing,value);
+    }
+
 }
 
 // --------------------------------------------------------------------------

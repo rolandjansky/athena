@@ -79,8 +79,8 @@ class L1CaloCoolChannelId;
 
 class L1CaloPprPhos4ShapeCollection{
 public:
-   L1CaloPprPhos4ShapeCollection(void);
-   ~L1CaloPprPhos4ShapeCollection(void){};
+   L1CaloPprPhos4ShapeCollection();
+   ~L1CaloPprPhos4ShapeCollection();
    
    L1CaloPprPhos4Shape* GetSignalShape(const L1CaloCoolChannelId& coolId);
    
@@ -90,7 +90,7 @@ public:
    void SetTimingRegime(const std::string regime){m_timingRegime = regime;};
    std::string GetTimingRegime(void) const {return m_timingRegime;};
    
-   void SetHistogramTool(ToolHandle<TrigT1CaloLWHistogramTool>& histTool){m_histTool = &histTool;};
+   void SetHistogramTool(ToolHandle<LVL1::TrigT1CaloLWHistogramTool>& histTool){m_histTool = &histTool;};
    
    StatusCode SetCurrentFullDelayData(const L1CaloCoolChannelId& coolId,unsigned int delay);
    StatusCode SetPedValue(const L1CaloCoolChannelId& coolId,unsigned int value);
@@ -159,7 +159,7 @@ private:
    unsigned int m_minSignalHeight;
    std::string m_timingRegime;
    
-   ToolHandle<TrigT1CaloLWHistogramTool>* m_histTool;
+   ToolHandle<LVL1::TrigT1CaloLWHistogramTool>* m_histTool;
    
    ShapesMap_t* m_signalShapes;
    ShapesMap_itr m_signalShapesItr;

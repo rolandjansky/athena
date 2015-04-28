@@ -5,7 +5,7 @@
 //*************************************************************
 // Name: L1CaloPprPedestalCorrectionPlotManager.h
 //
-// Author: Patrick Rieck - rieck@physik.hu-berlin.de
+// Author: Hanno Meyer zu Theenhausen
 //
 // Special plotter for pedestal correction monitoring
 // 
@@ -23,8 +23,8 @@
 #include "TrigT1CaloCondSvc/L1CaloCondSvc.h"
 #include "TrigT1CaloCalibTools/L1CaloPprPlotManager.h"
 
-#include "xAODTrigL1Calo/xAODTrigL1Calo/TriggerTower.h"
-#include "xAODTrigL1Calo/xAODTrigL1Calo/TriggerTowerContainer.h"
+#include "xAODTrigL1Calo/TriggerTower.h"
+#include "xAODTrigL1Calo/TriggerTowerContainer.h"
 
 class ITHistSvc;
 class ManagedMonitorToolBase;
@@ -64,10 +64,9 @@ class L1CaloPprPedestalCorrectionPlotManager : public L1CaloPprPlotManager
 	
 	void fillPartitionOnlineHistos(const xAOD::TriggerTower* trigTower, CalLayerEnum theLayer, double &value);
 	void fillGlobalOnlineHistos(const xAOD::TriggerTower* trigTower, CalLayerEnum layer, double &value);
+        void fillDifferentialOnlineHistos(const xAOD::TriggerTower* trigTower, unsigned int &coolId, CalLayerEnum theLayer, double &value);
 	
 	ServiceHandle<L1CaloCondSvc> m_l1CondSvc;
-
-        bool m_firstCall;
 
 };
 

@@ -18,17 +18,13 @@ namespace LVL1{
   const double L1CaloTTIdTools::ETAMIN = -4.9;
   const double L1CaloTTIdTools::PHIMIN = 0.;
 
-  L1CaloTTIdTools::L1CaloTTIdTools(const std::string& type, const std::string& name, const IInterface* parent ) : AthAlgTool(type,name,parent),
+  L1CaloTTIdTools::L1CaloTTIdTools( const std::string& name) : 
+    asg::AsgTool( name ),
     m_detStore(0),
     m_l1ttonlineHelper(0),
     m_l1ttofflineHelper(0),
     m_bInitialized(false)
   {
-    declareInterface<IL1CaloTTIdTools>(this);
-  }
-
-  L1CaloTTIdTools::~L1CaloTTIdTools() {
-
   }
 
   StatusCode L1CaloTTIdTools::initialize() {
@@ -494,7 +490,7 @@ namespace LVL1{
       return TT;
   }
 
-  double L1CaloTTIdTools::etaWidth(double eta) const {
+  double L1CaloTTIdTools::etaWidth(const double eta) const {
     double abseta = fabs(eta);
       if(abseta<ETAMAXREGION0) {
           return BASEDETA;
@@ -510,7 +506,7 @@ namespace LVL1{
       }
   }
 
-  double L1CaloTTIdTools::phiWidth(double eta) const {
+  double L1CaloTTIdTools::phiWidth(const double eta) const {
     double abseta = fabs(eta);
       if(abseta<ETAMAXREGION0) {
           return BASEDPHI;
@@ -526,11 +522,11 @@ namespace LVL1{
       }
   }
 
-  int L1CaloTTIdTools::pos_neg_z(double eta) const {
+  int L1CaloTTIdTools::pos_neg_z(const double eta) const {
     return (eta>=0) ? +1 : -1;
   }
 
-  int L1CaloTTIdTools::etaIndex(double eta) const {
+  int L1CaloTTIdTools::etaIndex(const double eta) const {
       int etacenter = -1;
       double deta = this->etaWidth(eta);
       double abseta = fabs(eta);
@@ -550,13 +546,13 @@ namespace LVL1{
       return etacenter;
   }
 
-  int L1CaloTTIdTools::phiIndex(double eta, double phi) const {
+  int L1CaloTTIdTools::phiIndex(const double eta, const double phi) const {
       double dphi = this->phiWidth(eta);
       int phicenter = (int) floor(phi/dphi);
       return phicenter;
   }
 
-  int L1CaloTTIdTools::regionIndex(double eta) const {
+  int L1CaloTTIdTools::regionIndex(const double eta) const {
       int region = -1;
     double abseta = fabs(eta);
 

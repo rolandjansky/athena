@@ -17,9 +17,9 @@
 #include <string>
 #include <vector>
 
+#include "AsgTools/AsgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 
-#include "AthenaBaseComps/AthAlgTool.h"
 #include "TrigT1CaloCalibToolInterfaces/IL1CaloMonitoringCaloTool.h"
 
 class IInterface;
@@ -32,16 +32,21 @@ namespace LVL1 {
 
   class IL1CaloCells2TriggerTowers;
 
-  class L1CaloMonitoringCaloTool: public IL1CaloMonitoringCaloTool, public AthAlgTool
+  class L1CaloMonitoringCaloTool: public IL1CaloMonitoringCaloTool, public asg::AsgTool
   {
-
-   public:
-  
-    L1CaloMonitoringCaloTool(const std::string & type, const std::string & name,
-		             const IInterface* parent);
+    /// Create a proper constructor for Athena
+    ASG_TOOL_CLASS( L1CaloMonitoringCaloTool , LVL1::IL1CaloMonitoringCaloTool ) 
     
-
-    virtual ~L1CaloMonitoringCaloTool();
+   public:
+      /// constructor
+    L1CaloMonitoringCaloTool( const std::string& name );
+    /// destructor
+    virtual ~L1CaloMonitoringCaloTool(){}
+    /// delete the big 4
+    L1CaloMonitoringCaloTool() = delete;
+    L1CaloMonitoringCaloTool(const L1CaloMonitoringCaloTool & rhs) = delete;
+    L1CaloMonitoringCaloTool(L1CaloMonitoringCaloTool&& rhs) = delete;
+    L1CaloMonitoringCaloTool& operator=(const L1CaloMonitoringCaloTool& rhs) = delete;   
 
     virtual StatusCode initialize();
     virtual StatusCode finalize();
@@ -53,8 +58,8 @@ namespace LVL1 {
    private:
 
     int towerIndex(const Identifier& ttId) const;
-    int region(int index) const;
-    int etaBin(int index) const;
+    int region(const int index) const;
+    int etaBin(const int index) const;
 
     ToolHandle<LVL1::IL1CaloCells2TriggerTowers> m_cells2tt;
     const CaloLVL1_ID* m_lvl1Helper;

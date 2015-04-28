@@ -16,8 +16,8 @@
 
 namespace LVL1 {
 
-  L1CaloOfflineTriggerTowerTools::L1CaloOfflineTriggerTowerTools(const std::string& type, const std::string& name, const IInterface* parent ) :
-  AthAlgTool(type,name,parent),
+  L1CaloOfflineTriggerTowerTools::L1CaloOfflineTriggerTowerTools( const std::string& name ) :
+    asg::AsgTool( name ),
     m_l1CaloTTIdTools("LVL1::L1CaloTTIdTools/L1CaloTTIdTools"),
     m_cells2tt("LVL1::L1CaloCells2TriggerTowers/L1CaloCells2TriggerTowers"),
     m_larEnergy("LVL1::L1CaloLArTowerEnergy/L1CaloLArTowerEnergy"),
@@ -30,12 +30,10 @@ namespace LVL1 {
     m_ttOnlineIdHelper = 0;
     m_lvl1Helper = 0;
     m_l1CondSvc = 0;
-    m_LArHVCorrTool = 0;
     m_larOnlineID = 0;
     m_isLArHVCorrToolSet = false;
     m_tileHWID = 0;
     
-    declareInterface<IL1CaloOfflineTriggerTowerTools>(this);
     declareProperty("LArHVCorrTool",m_LArHVCorrTool);
     declareProperty("LArHVNonNomPara",m_LArHVNonNomPara = 1.003);
     declareProperty("TileBadChanTool", m_tileBadChanTool);
@@ -73,13 +71,6 @@ namespace LVL1 {
     HWIdentifier HWId = m_ttSvc->createTTChannelID(Id);
     return m_ttOnlineIdHelper->channel(HWId);
   }
-
-  unsigned int L1CaloOfflineTriggerTowerTools::CoolChannelId(const xAOD::TriggerTower* tt) const{
-    Identifier Id = this->ID(tt->eta(),tt->phi(),tt->layer());
-    HWIdentifier HWId = m_ttSvc->createTTChannelID(Id);
-    L1CaloCoolChannelId coolId = m_ttSvc->createL1CoolChannelId(HWId);
-    return coolId.id();
-  }  
 
   unsigned int L1CaloOfflineTriggerTowerTools::emCoolChannelId(const TriggerTower* tt) const{
     Identifier Id = this->emID(tt->eta(),tt->phi());
@@ -389,11 +380,6 @@ namespace LVL1 {
     return output;
   }
 
-  float L1CaloOfflineTriggerTowerTools::TTCellsEt(const xAOD::TriggerTower* tt) const{
-    Identifier Id = this->ID(tt->eta(),tt->phi(),tt->layer());
-    return m_cells2tt->et( m_cells2tt->caloCells(Id) );
-  }  
-  
   float L1CaloOfflineTriggerTowerTools::emTTCellsEt(const TriggerTower* tt) const{
     Identifier Id = this->emID(tt->eta(),tt->phi());
     return m_cells2tt->et( m_cells2tt->caloCells(Id) );
@@ -637,7 +623,6 @@ namespace LVL1 {
       }
       return 0.0;
     }
-    return 0.0;
   }
 
   std::vector<std::vector<const CaloCell*> > L1CaloOfflineTriggerTowerTools::sortFCAL23Cells(const std::vector<const CaloCell*> &cells,
@@ -1226,21 +1211,6 @@ namespace LVL1 {
   //////////////////////////////////////////////////////
   //           Database Attributes                    //
   //////////////////////////////////////////////////////
-  
-  // General
-  
-  const coral::AttributeList*  L1CaloOfflineTriggerTowerTools::DbAttributes(const xAOD::TriggerTower* tt,const CondAttrListCollection* dbAttrList) const{
-    unsigned int coolId = this->CoolChannelId(tt);
-    typedef CondAttrListCollection::const_iterator Itr_db;
-    const coral::AttributeList* attrList = 0;
-    for(Itr_db i=dbAttrList->begin();i!=dbAttrList->end();++i){
-      if(i->first == coolId){
-        attrList = &(i->second);
-        break;
-      }
-    }
-    return attrList;
-  }
   
   // EM
 
