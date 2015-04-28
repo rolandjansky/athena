@@ -2,12 +2,13 @@
 
 
 from DataQualityUtils.DQWebDisplayConfig import DQWebDisplayConfig
+import os
 
 dqconfig = DQWebDisplayConfig()
 dqconfig.config         = "Collisions Data"
-dqconfig.hcfg           = "/afs/cern.ch/user/a/atlasdqm/dqmdisk/tier0/han_config/Collisions/collisions_run.current.hcfg"
-dqconfig.hcfg_min10     = "/afs/cern.ch/user/a/atlasdqm/dqmdisk/tier0/han_config/Collisions/collisions_minutes10.current.hcfg"
-dqconfig.hcfg_min30     = "/afs/cern.ch/user/a/atlasdqm/dqmdisk/tier0/han_config/Collisions/collisions_minutes30.current.hcfg"
+dqconfig.hcfg           = os.environ.get('DQC_HCFG_COLLISIONS_RUN', "/afs/cern.ch/user/a/atlasdqm/dqmdisk/tier0/han_config/Collisions/collisions_run.current.hcfg")
+dqconfig.hcfg_min10     = os.environ.get('DQC_HCFG_COLLISIONS_MINUTES10', "/afs/cern.ch/user/a/atlasdqm/dqmdisk/tier0/han_config/Collisions/collisions_minutes10.current.hcfg")
+dqconfig.hcfg_min30     = os.environ.get('DQC_HCFG_COLLISIONS_MINUTES30', "/afs/cern.ch/user/a/atlasdqm/dqmdisk/tier0/han_config/Collisions/collisions_minutes30.current.hcfg")
 dqconfig.server         = ["atlasdqm.cern.ch"]
 dqconfig.histogramCache = "/afs/cern.ch/user/a/atlasdqm/w1/histogram_web_display_cache"
 dqconfig.hanResultsDir  = "/dqmdisk0/han_results/tier0/collisions"
