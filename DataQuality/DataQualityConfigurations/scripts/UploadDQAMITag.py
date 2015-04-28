@@ -21,45 +21,63 @@ AMI_TAG_PREFIX='h'
 
 def get_current_config(amiclient):
 
-    amicommand = ['BrowseSQLQuery', 'processingStep=Atlas_Production',
-                  'project=Atlas_Production', 'nbElements=1',
-                  '''sql=SELECT tag ,'Atlas_Production' as PROJECT,'Atlas_Production' as PROCESS, '%(tg)s_config' as AMIENTITYNAME, %(tg)s_config.identifier as AMIELEMENTID FROM %(tg)s_config order by %(tg)s_config.created DESC''' % { 'tg': AMI_TAG_PREFIX }]
-    #print amicommand
+    #amicommand = ['ListElement', '-entity=h_config', '-processingStep=Atlas_Production', '-project=Atlas_Production', '-select=tag']
+    amicommand = ['SearchQuery', '''-sql="SELECT V_AMITags.tagType, V_AMITags.tagNumber FROM V_AMITags WHERE V_AMITags.tagType = 'h' ORDER BY V_AMITags.tagNumber DESC"''' 
+                                 '-project="AMITags"', '-processingStep=production']
 
-    result = amiclient.execute(amicommand)
-    resultDict = result.getDict()
-    try:
-        latestTag = resultDict['Element_Info']['row_1']['tag']
-    except:
-        latestTag = 'h0'
+    print amicommand
+
+    result = amiclient.execute(amicommand, format='dict_object')
+    resultlist = result.get_rows('Element_Info')
+    latestTag = 'h' + resultlist[0]['tagNumber']
+    #try:
+    #    latestTag = 'h' + `max(int(_['tag'][1:]) for _ in resultlist)`
+    #except:
+    #    latestTag = 'h0'
 
     nextTag = latestTag[0] + str(int(latestTag[1:])+1)
 
     print 'Latest AMI tag is', latestTag
     print 'Will create AMI tag', nextTag
+    #latestTag='h7'
 
-    amicommand = ['ListConfigurationTag', 'configTag='+latestTag]
+    amicommand = ['AMIGetAMITagInfo', '-amiTag='+latestTag]
 
-    result = amiclient.execute(amicommand)
-    resultDict = result.getDict()
-    rv = resultDict['rowset_'+latestTag][latestTag]
+    result = amiclient.execute(amicommand, format='dict_object')
+    print '----------'
+    #print result
+    #print result.get_rowset_types()
+    #sprint result.get_rows('amiTagInfo')
+    rv = result.get_rows('amiTagInfo')[0]
 
     print
     print '-------------------------------------'
     print 'Info of current AMI tag ...'
     for key, val in rv.items():
         print '  %s:' % key, val
+    rv1 = {}
+    for k, v in rv.items():
+        rv1[k] = v.__str__()
 
-    del rv['readStatus']
-    del rv['writeStatus']
-    del rv['tag']
-    del rv['productionStep']
+    #del rv1['readStatus']
+    #del rv1['writeStatus']
+    for k in ('tag', 'createdBy', 'modifiedBy', 'tagStatus', 'tagNumber', 'tagType',
+              'locked', 'updates', 'created', 'lastModified', 'processingStep',
+              'transformationName', 'baseRelease'):
+        try:
+            del rv1[k]
+        except KeyError:
+            pass
+    for k in ('inputs','outputs', 'moreInfo', 'phconfig', 'trfsetupcmd',
+              'description'):
+        rv1[k] = '"%s"' % str(rv1[k].__str__())
 
-    return rv, latestTag
+    #rv1['phconfig'] = str(rv1['phconfig'].__str__())
+    return rv1, latestTag
 
 def get_next_tag(latestTag):
     nextTag = latestTag[0] + str(int(latestTag[1:])+1)
-
+    #nextTag='h8'
     return nextTag
 
 def update_dict_for_configs(updict, indir):
@@ -121,7 +139,7 @@ def update_dict_for_configs(updict, indir):
     if isinstance(val, basestring):
         val = {}
     val['filepaths'] = filepathdict
-    updict['phconfig'] = val
+    updict['phconfig'] = '"%s"' % val
 
 def update_dict_for_release(updict, release):
     # From UpdateAMITag.py
@@ -131,40 +149,47 @@ def update_dict_for_release(updict, release):
         s="ERROR: Expected parameter 'release' in the form Project-number, got "+release
         raise RuntimeError(s)
     relProj=relSp[0]
-    relNbr=relSp[1]
+    if ',' in relSp[1]:
+        relNbr, relAddtl=relSp[1].split(',', 1)
+    else:
+        relNbr, relAddtl=relSp[1], None
     baseRelNbr=".".join(relNbr.split(".")[:3])
     relPaths=("/afs/cern.ch/atlas/software/builds/"+relProj+"/"+relNbr,
               "/afs/cern.ch/atlas/software/releases/"+baseRelNbr+"/"+relProj+"/"+relNbr)
     for relPath in relPaths:
         if not os.path.isdir(relPath):
-            s="ERROR Release directory " + relPath + " does not exists"
+            s="ERROR Release directory " + relPath + " does not exist"
             raise RuntimeError(s)
         #else:
         #    print "Found",relPath
     #Release exists in both releases and builds area if we reach this point
 
     # update dictionary
-    updict['tasktransinfo'] = {'trfpath': 'DQM_Tier0Wrapper_trf.py',
-                               'trfsetupcmd': '/afs/cern.ch/atlas/project/tzero/prod1/inst/projects/data10/setup/setuptrf_releases.sh v1r21 /afs/cern.ch/atlas/project/tzero/prod1/inst/projects/data10/patches/'+release+' '+release+' /afs/cern.ch/atlas/project/tzero/prod1/inst/projects/data10/setup/specialsetup_tier0.sh'}
-    updict['SWReleaseCache'] = release
-    updict['description'] = 'Trf for combined DQM histogram merging and DQM webpage creation, to get periodic DQ monitoring updates. Using ' + release
-    updict['trfsetupcmd'] = updict['tasktransinfo']['trfsetupcmd']
+    tasktransinfo = {'trfpath': 'DQM_Tier0Wrapper_trf.py',
+                               'trfsetupcmd': "/afs/cern.ch/atlas/tzero/software/setup/setuptrf.sh /afs/cern.ch/atlas/tzero/software/patches/"+release+" "+release+" /afs/cern.ch/atlas/tzero/software/setup/specialsetup_tier0.sh"}
+    updict['moreInfo'] = '"{\'tasktransinfo\': %s}"' % tasktransinfo.__str__()
+    updict['SWReleaseCache'] = release.replace('-', '_')
+    updict['groupName'] = relProj
+    updict['cacheName'] = relSp[1]
+    updict['description'] = "'Trf for combined DQM histogram merging and DQM webpage creation, to get periodic DQ monitoring updates. Using " + release +"'"
+    updict['trfsetupcmd'] = '"%s"' % tasktransinfo['trfsetupcmd']
+    #updict['tagNumber'] = nextTag[1:]
+    #del updict['trfsetupcmd']
 
 def upload_new_config(amiclient, nextTag, updict):
 
-    amicommand = ['AddConfigurationTag', 'configTag=' + nextTag,
-                  ]
-
+    amicommand = ['AddAMITag', 'tagType="h"', ]
+    
     for key, val in updict.items():
         amicommand.append('%s=%s' % (key, val))
 
     print '-------------------------------------'
     print 
-    print 'Now uploading new AMI tag', nextTag
+    print 'Now uploading new AMI tag'
     print 'AMI command:', amicommand
 
     result = amiclient.execute(amicommand)
-    #print result
+    print result
     print
     print 'Success!'
 
@@ -194,20 +219,24 @@ if __name__ == '__main__':
 
 
     #Get pyAMI client
-    try:
-        from pyAMI.pyAMI import AMI
-    except ImportError:
-        print "WARNING unable to import AMI from pyAMI with standard $PYTHONPATH."
-        print "Will manually add ZSI and 4suite, then try again..."
-        import sys
-        sys.path.insert(0,'/afs/cern.ch/atlas/offline/external/ZSI/2.1-a1/lib/python')
-        sys.path.insert(0,'/afs/cern.ch/sw/lcg/external/4suite/1.0.2_python2.5/slc4_ia32_gcc34/lib/python2.5/site-packages')
-        from pyAMI.pyAMI import AMI
+#    try:
+#        from pyAMI.client import Client
+#    except ImportError:
+#        print "WARNING unable to import AMI from pyAMI with standard $PYTHONPATH."
+#        print "Will manually add ZSI and 4suite, then try again..."
+#        import sys
+#        sys.path.insert(0,'/afs/cern.ch/atlas/offline/external/ZSI/2.1-a1/lib/python')
+#        sys.path.insert(0,'/afs/cern.ch/sw/lcg/external/4suite/1.0.2_python2.5/slc4_ia32_gcc34/lib/python2.5/site-packages')
+#        from pyAMI.client import Client
+#
+#    amiclient=Client('atlas', ignore_proxy = not options.certificate)
+#    if options.amiuser is not None and options.amipass is not None:
+#        amiclient.auth(options.amiuser, options.amipass)
 
-    amiclient=AMI(options.certificate)
-    if options.amiuser is not None and options.amipass is not None:
-        amiclient.auth(options.amiuser, options.amipass)
-
+    import pyAMI.client
+    import pyAMI.atlas.api as AtlasAPI
+    amiclient = pyAMI.client.Client('atlas')
+    AtlasAPI.init()
 
     cfgdict, latestTag = get_current_config(amiclient)
     nextTag = get_next_tag(latestTag)
