@@ -29,7 +29,6 @@ def getmodule(modname):
     # Does it match a pattern?
     if (modname.endswith('_900GeV')
         or modname.endswith('_2p76TeV')
-        or modname.endswith('_5TeV')
         or modname.endswith('_7TeV')
         or modname.endswith('_8TeV')
         or modname.endswith('_13TeV')
@@ -50,12 +49,8 @@ def getmodule(modname):
           or modname.endswith('_tilecomm')):
         from . import base_data_cos; return base_data_cos
 
-    import re
-    # Does it look like datann_hip?
-    m = re.match('data\d{2}_hip', modname)
-    if m:
-        from . import base_data_hi; return base_data_hi
     # Does it look like datann?
+    import re
     m = re.match('data\d{2}$', modname)
     if m:
         from . import base_data; return base_data
