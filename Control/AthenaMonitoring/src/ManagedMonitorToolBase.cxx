@@ -21,6 +21,7 @@
 #include "TROOT.h"
 #include "TFile.h"
 #include "LWHists/LWHist.h"
+#include "LWHists/LWHistControls.h"
 #include "LWHistAthMonWrapper.h"
 #include "AthMonBench.h"
 
@@ -395,6 +396,7 @@ ManagedMonitorToolBase( const std::string & type, const std::string & name,
    , m_streamNameFcn(0)
    , m_THistSvc("THistSvc",name)
    , m_trigDecTool("")
+   , m_trigTranslator("")
    , m_DQFilterTools()
    , m_procNEventsProp(0)
    , m_path("")
@@ -435,6 +437,9 @@ ManagedMonitorToolBase( const std::string & type, const std::string & name,
    // The TrigDecisionTool, clients normally should not have to set this
    declareProperty( "TrigDecisionTool", m_trigDecTool );
    
+   // The TriggerTranslator
+   declareProperty( "TriggerTranslatorTool", m_trigTranslator );
+
    // The filter tools, to be specified in jobOptions
    declareProperty( "FilterTools", m_DQFilterTools );
 
@@ -672,6 +677,14 @@ initialize()
       }
       ATH_MSG_DEBUG("  --> Found AlgTool \"TrigDecisionTool\"");
 
+      if( !m_trigTranslator.empty() ) {
+	sc = m_trigTranslator.retrieve();
+	if ( !sc.isSuccess() ) {
+	  ATH_MSG_ERROR(" Unable to retrieve the TrigTranslatorTool!" << endreq);
+	  return sc;
+	}
+      }
+
       if(m_triggerChainProp!="") {
 	ATH_MSG_DEBUG("  --> Found nonempty trigger chain list");
          sc=parseList(m_triggerChainProp, m_vTrigChainNames);
@@ -872,7 +885,7 @@ fillHists()
             sc1 = regManagedHistograms(m_templateHistograms[interval]);     
             sc1 = regManagedGraphs(m_templateGraphs[interval]);
             sc1 = regManagedTrees(m_templateTrees[interval]);
-            sc1 = regManagedLWHistograms(m_templateLWHistograms[interval], true);     
+            sc1 = regManagedLWHistograms(m_templateLWHistograms[interval]);     
           }
       }
       
@@ -1189,49 +1202,22 @@ regManagedTrees(std::vector< MgmtParams<TTree> >& m_templateTrees)
 
 StatusCode
 ManagedMonitorToolBase::
-regManagedLWHistograms(std::vector<MgmtParams<LWHist> >& m_templateLWHistograms, bool usePreviousInterval, bool doDelete)
+regManagedLWHistograms(std::vector<MgmtParams<LWHist> >& m_templateLWHistograms)
 {
-    bool allIsOk = true;
     StatusCode sc1;
     sc1.setChecked();
 
     for( std::vector< MgmtParams<LWHist> >::iterator it = m_templateLWHistograms.begin(); it != m_templateLWHistograms.end(); ++it ) {
+        // Get histogram group
         MonGroup group = (*it).m_group;
 
         // Get handle to the histogram
         LWHist* h = (*it).m_templateHist;
 
-        std::string hName = h->GetName();
-        
-        std::string streamName = streamNameFunction()->getStreamName( this, group, hName, usePreviousInterval );
-        LWHistAthMonWrapper::setStreamName(h,streamName);
-
-        StatusCode smd = registerMetadata(streamName, hName, group);
-        if (smd != StatusCode::SUCCESS) allIsOk = false;
-        
-        //Only register with THistSvc if root backend, otherwise AthMonManager
-        //will do it for us
-        if (h->usingROOTBackend()) {
-          h->setOwnsROOTHisto(false);//Since might end up with thist svc
-          return m_THistSvc->regHist( streamName, h->getROOTHistBase() );
-        }
-        
-        if( m_manager ) {
-          std::string genericName = NoOutputStream().getStreamName( this, group, hName );
-          LWHistAthMonWrapper::setKey(h,genericName);
-          m_manager->passOwnership( h, genericName );
-          ATH_MSG_DEBUG("!! LWHist: hName == " << hName);
-          ATH_MSG_DEBUG("!! LWHist: genericName == " << genericName);
-          ATH_MSG_DEBUG("!! LWHist: streamName == " << LWHistAthMonWrapper::streamName(h));
-          m_manager->writeAndDeleteLWHist( genericName, LWHistAthMonWrapper::streamName(h), doDelete );
-          if (! doDelete) h->Reset();
-          //	 m_lwhists.erase(it);
-        }
+        sc1 = regHist(h, group);
     }
     
-   if (!allIsOk) return StatusCode::FAILURE;
-
-   return StatusCode::SUCCESS;
+   return sc1;
 }
 
 StatusCode
@@ -1260,7 +1246,9 @@ finalHists()
        //sc1 = regManagedHistograms(m_templateHistograms[interval], false);
        //sc1 = regManagedGraphs(m_templateGraphs[interval], false);
        //sc1 = regManagedTrees(m_templateTrees[interval], false);
-       sc1 = regManagedLWHistograms(m_templateLWHistograms[interval], false, true);
+       
+       // Yura: commented out when fixing online environment
+       //sc1 = regManagedLWHistograms(m_templateLWHistograms[interval], false, true);
        sc1.setChecked();
      }
 
@@ -1415,56 +1403,70 @@ StatusCode ManagedMonitorToolBase::regHist( LWHist* h,const std::string& system,
 
 StatusCode ManagedMonitorToolBase::regHist( LWHist* h, const MonGroup& group )
 {
+   // You may want to setROOTBackend to true in online environment
+   //LWHistControls::setROOTBackend(true);
+   
    if (!h)
       return StatusCode::FAILURE;
 
-   if ( (group.histo_mgmt() & ATTRIB_UNMANAGED) == 0 ) {
-       // Create an unmanaged group based on the original MonGroup instance passed
-       // This is needed because managed histogram is presented as a number of unmanaged
-       // histograms (one per each interval)
-       MonGroup group_unmanaged( this, group.system(), group.interval(), ATTRIB_UNMANAGED, group.chain(), group.merge());
+   if (!m_bookHistogramsInitial) {
+           ATH_MSG_INFO("Yura: very first time");
+	   if ( (group.histo_mgmt() & ATTRIB_UNMANAGED) == 0 ) {
 
-       if (m_supportedIntervalsForRebooking.count(group.interval())) {
-	       m_templateLWHistograms[group.interval()].push_back( MgmtParams<LWHist>(h, group_unmanaged) );
-       } else {
-	       ATH_MSG_ERROR("Attempt to book managed histogram " << h->GetName() << " with invalid interval type " << intervalEnumToString(group.interval()));
-	       return StatusCode::FAILURE;
-       }
-       return StatusCode::SUCCESS; 
+               ATH_MSG_INFO("Yura: we have managed histograms");
+	       if (m_supportedIntervalsForRebooking.count(group.interval())) {
+                       ATH_MSG_INFO("        Yura: adding histogram" << h->GetName());
+		       m_templateLWHistograms[group.interval()].push_back( MgmtParams<LWHist>(h, group) );
+	       } else {
+		       ATH_MSG_ERROR("Attempt to book managed histogram " << h->GetName() << " with invalid interval type " << intervalEnumToString(group.interval()));
+		       return StatusCode::FAILURE;
+	       }
+	       //return StatusCode::SUCCESS; 
+	   }
    }
 
-   //FIXME: Code copied more or less verbatim from above. Collect most code (espc. for streamname) in common helpers!!
-   std::string hName = h->GetName();
+    if (!h)
+        return StatusCode::FAILURE;
 
-   if( m_manager ) {
-     std::string genericName = NoOutputStream().getStreamName( this, group, hName );
-     LWHistAthMonWrapper::setKey(h,genericName);
-     LWHist* prevLWHist = m_manager->ownedLWHistOfKey(genericName);
-     if (prevLWHist) {
-       std::set<LWHist*>::iterator it =  m_lwhists.find(prevLWHist);
-       if (it!=m_lwhists.end()) {
-        m_manager->writeAndDeleteLWHist( genericName, LWHistAthMonWrapper::streamName(prevLWHist) );
-        m_lwhists.erase(it);
-       }
-     }
-     m_manager->passOwnership( h, genericName );
-   }
+    //FIXME: Code copied more or less verbatim from above. Collect most code (espc. for streamname) in common helpers!!
+    std::string hName = h->GetName();
 
-   std::string streamName = streamNameFunction()->getStreamName( this, group, hName );
-   LWHistAthMonWrapper::setStreamName(h,streamName);
+    if( m_manager )
+    {
+        std::string genericName = NoOutputStream().getStreamName(this, group, hName );
+        LWHistAthMonWrapper::setKey(h,genericName);
+        LWHist* prevLWHist = m_manager->ownedLWHistOfKey(genericName);
+        if (prevLWHist)
+        {
+            std::set<LWHist*>::iterator it =  m_lwhists.find(prevLWHist);
+            if (it!=m_lwhists.end())
+            {
+                if ( (group.histo_mgmt() & ATTRIB_UNMANAGED) == 0 ) {
+                    m_manager->writeAndResetLWHist( genericName, LWHistAthMonWrapper::streamName(prevLWHist) );
+                } else {
+                    m_manager->writeAndDeleteLWHist( genericName, LWHistAthMonWrapper::streamName(prevLWHist) );
+                }
+                m_lwhists.erase(it);
+            }
+        }
+        m_manager->passOwnership( h, genericName );
+    }
+    m_lwhists.insert(h);
 
-   StatusCode smd = registerMetadata(streamName, hName, group);
-   if (smd != StatusCode::SUCCESS) return StatusCode::FAILURE;
+    std::string streamName = streamNameFunction()->getStreamName( this, group, hName );
+    LWHistAthMonWrapper::setStreamName(h,streamName);
+    StatusCode smd = registerMetadata(streamName, hName, group);
+    smd.setChecked();
 
-   //Delay registration with THistSvc (unless root backend):
-   //    m_lwhistMap.insert(std::pair<LWHist*,std::string>(h,streamName));
-   m_lwhists.insert(h);
-   if (h->usingROOTBackend()) {
-     h->setOwnsROOTHisto(false);//Since might end up with thist svc
-     return m_THistSvc->regHist( streamName, h->getROOTHistBase() );
-   }
+    //Delay registration with THistSvc (unless root backend):
+    //m_lwhistMap.insert(std::pair<LWHist*,std::string>(h,streamName));
+    if (h->usingROOTBackend())
+    {
+        h->setOwnsROOTHisto(false);//Since might end up with thist svc
+        return m_THistSvc->regHist( streamName, h->getROOTHistBase() );
+    }
 
-   return StatusCode::SUCCESS;
+    return StatusCode::SUCCESS;
 
 }
 

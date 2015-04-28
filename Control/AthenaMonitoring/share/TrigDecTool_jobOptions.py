@@ -31,4 +31,9 @@ if DQMonFlags.useTrigger():
                                              )
       ToolSvc += monTrigDecTool
 
+   tdt_local_logger.info('Scheduling the trigger translator')
+   from AthenaMonitoring.AthenaMonitoringConf import TriggerTranslatorToolSimple
+   monTrigTransTool = TriggerTranslatorToolSimple()
+   ToolSvc += monTrigTransTool
+
 del tdt_local_logger

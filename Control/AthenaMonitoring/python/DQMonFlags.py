@@ -178,7 +178,7 @@ class doMuonTrackMon(JobProperty):
     """ Switch for muon track monitoring """
     statusOn=True
     allowedTypes=['bool']
-    StoredValue=True
+    StoredValue=False
 list+=[doMuonTrackMon]
 
 class doMuonAlignMon(JobProperty):

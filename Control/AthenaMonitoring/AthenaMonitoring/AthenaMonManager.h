@@ -112,7 +112,8 @@ class AthenaMonManager : public AthAlgorithm {
       virtual void writeAndDelete( const std::string& key );
       virtual LWHist *ownedLWHistOfKey(const std::string& key) const;
       // If you know it is an LWHist use writeAndDeleteLWHist. The just deleted LWHist pointer will be returned (0 if nothing deleted)
-      virtual LWHist *writeAndDeleteLWHist( const std::string& key, const std::string& streamName, bool doDelete = true );
+      virtual LWHist *writeAndDeleteLWHist( const std::string& key, const std::string& streamName );
+      virtual LWHist *writeAndResetLWHist( const std::string& key, const std::string& streamName );
 
       virtual void writeAndDeleteLWHist( LWHist*lwh );
 

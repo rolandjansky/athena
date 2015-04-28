@@ -14,13 +14,15 @@ def _resolve_db_tag(origDbTag):
 
 #decide database instance based on project tag dataXX_
 def _InstanceFromProjectName():
+    from AthenaCommon.Logging import logging
     from RecExConfig.RecFlags import rec
     projectName=rec.projectName()
     try:
         year=int(projectName[4:6]);
     except:
-        self.msg.error("Failed to extract year from project tag "+ projectName+". Guessing run1")
-        return "COMP200"
+        log = logging.getLogger('BadLBFilterTool')
+        log.error("Failed to extract year from project tag "+ projectName+". Guessing run2")
+        return "CONDBR2"
        
     if (year>13):
         return "CONDBR2"
