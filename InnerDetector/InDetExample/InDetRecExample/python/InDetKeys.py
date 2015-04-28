@@ -387,6 +387,19 @@ class PixelTracks(JobProperty):
     allowedTypes = ['str']
     StoredValue  = 'ResolvedPixelTracks'
 
+class PixelDetailedTracksTruth(JobProperty):
+    """StoreGate key for DetailedTrackTruth  (PseudoTracking)"""
+    statusOn     = True
+    allowedTypes = ['str']
+    StoredValue  = 'ResolvedPixelTrackDetailedTruth'
+
+class PixelTracksTruth(JobProperty):
+    """StoreGate key for TracksTruth  (PseudoTracking)"""
+    statusOn     = True
+    allowedTypes = ['str']
+    StoredValue  = 'ResolvedPixelTrackTruthCollection'
+
+
 class PixelPrdAssociationTracks(JobProperty):
     """StoreGate key for resolved pixel tracks run after New Tracking on remaining PRDs"""
     statusOn     = True
@@ -926,6 +939,8 @@ jobproperties.InDetContainerKeys.add_JobProperty(SiSpSeededPixelTracks)
 jobproperties.InDetContainerKeys.add_JobProperty(SiSpSeededPixelPrdAssociationTracks)
 jobproperties.InDetContainerKeys.add_JobProperty(SiSpSeededSCTTracks)
 jobproperties.InDetContainerKeys.add_JobProperty(PixelTracks)
+jobproperties.InDetContainerKeys.add_JobProperty(PixelDetailedTracksTruth)
+jobproperties.InDetContainerKeys.add_JobProperty(PixelTracksTruth)
 jobproperties.InDetContainerKeys.add_JobProperty(PixelPrdAssociationTracks)
 jobproperties.InDetContainerKeys.add_JobProperty(SCTTracks)
 jobproperties.InDetContainerKeys.add_JobProperty(TRTTracks)

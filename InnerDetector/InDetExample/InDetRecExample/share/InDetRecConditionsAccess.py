@@ -215,7 +215,14 @@ if DetFlags.haveRIO.SCT_on():
         ServiceMgr += InDetSCT_MonitorConditionsSvc
         if (InDetFlags.doPrintConfigurables()):
             print InDetSCT_MonitorConditionsSvc
-    
+
+    if InDetFlags.doSCTModuleVeto():
+      from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ModuleVetoSvc
+      InDetSCT_ModuleVetoSvc = SCT_ModuleVetoSvc(name = "InDetSCT_ModuleVetoSvc")
+      ServiceMgr += InDetSCT_ModuleVetoSvc
+      if (InDetFlags.doPrintConfigurables()):
+        print InDetSCT_ModuleVetoSvc
+
     # Load bytestream errors service
     from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ByteStreamErrorsSvc
     InDetSCT_ByteStreamErrorsSvc = SCT_ByteStreamErrorsSvc(name = "InDetSCT_ByteStreamErrorsSvc")
@@ -270,7 +277,7 @@ if DetFlags.haveRIO.SCT_on():
        
     # switch conditions off for SLHC usage
     elif InDetFlags.doSLHC():
-        InDetSCT_ConditionsSummarySvc.ConditionsServices= [ ]
+        InDetSCT_ConditionsSummarySvc.ConditionsServices= []
       
     else :
         InDetSCT_ConditionsSummarySvc.ConditionsServices= [ "InDetSCT_ConfigurationConditionsSvc",
@@ -278,6 +285,11 @@ if DetFlags.haveRIO.SCT_on():
                                                             "InDetSCT_MonitorConditionsSvc",
                                                             "InDetSCT_ByteStreamErrorsSvc",
                                                             "InDetSCT_ReadCalibDataSvc"]
+
+
+    if InDetFlags.doSCTModuleVeto():
+      InDetSCT_ConditionsSummarySvc.ConditionsServices += ["InDetSCT_ModuleVetoSvc"]
+        
     
     if (InDetFlags.doPrintConfigurables()):
         print InDetSCT_ConditionsSummarySvc

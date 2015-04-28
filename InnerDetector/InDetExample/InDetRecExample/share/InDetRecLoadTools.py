@@ -569,7 +569,7 @@ if InDetFlags.loadFitter():
                                                  TRTTubeHitCut         = ScaleHitUncertainty,
                                                  MaxIterations         = 40,
                                                  Acceleration          = True,
-                                                 RecalculateDerivatives= InDetFlags.doCosmics() or InDetFlags.doBeamHalo(),
+                                                 RecalculateDerivatives= InDetFlags.doMinBias() or InDetFlags.doCosmics() or InDetFlags.doBeamHalo(),
                                                  TRTExtensionCuts      = True,
                                                  TrackChi2PerNDFCut    = 7)
         if InDetFlags.doRefit() or use_broad_cluster_any == True: 
@@ -698,7 +698,7 @@ if InDetFlags.loadFitter():
         ToolSvc += InDetTrackFitterTRT
         if (InDetFlags.doPrintConfigurables()):
             print InDetTrackFitterTRT
-        if InDetFlags.doLowPt():
+        if InDetFlags.doLowPt() or (InDetFlags.doTrackSegmentsPixel() and InDetFlags.doMinBias()):
             ToolSvc+=InDetTrackFitterLowPt
             if (InDetFlags.doPrintConfigurables()):
                 print InDetTrackFitterLowPt
