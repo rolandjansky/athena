@@ -13,8 +13,6 @@
 #include "LWHists/TProfile2D_LW.h"
 #include "LWHists/TH2F_LW.h"
 
-#include "TrigT1CaloMonitoringTools/TrigT1CaloLWHistogramTool.h"
-
 #include "TrigT1CaloCalibConditions/L1CaloPprConditionsContainer.h"
 #include "TrigT1CaloCalibConditions/L1CaloPprConditions.h"
 #include "TrigT1CaloCalibToolInterfaces/IL1CaloOfflineTriggerTowerTools.h"
@@ -67,19 +65,14 @@ L1CaloPprPedestalPlotManager::L1CaloPprPedestalPlotManager(ManagedMonitorToolBas
 
 // --------------------------------------------------------------------------
 
-double L1CaloPprPedestalPlotManager::getMonitoringValue(const xAOD::TriggerTower* trigTower, CalLayerEnum theLayer)
+double L1CaloPprPedestalPlotManager::getMonitoringValue(const xAOD::TriggerTower* trigTower, CalLayerEnum /*theLayer*/)
 {
+  
     // only analyze non-signal towers
     // otherwise return default value -1000.
-    if ( trigTower->cpET() && trigTower->jepET() ) { return -1000 ; }
-    
-    double eta = trigTower->eta();
-    double phi = trigTower->phi();
+    if ( trigTower->cpET() ) { return -1000 ; } // && trigTower->jepET()
 
-    unsigned int coolID;
-    
-    if(isOnline) { coolID = m_ttToolOnline->channelID(eta, phi,trigTower->layer()).id(); }
-    else { coolID = m_ttToolOffline->CoolChannelId(trigTower); }
+    unsigned int coolID = trigTower->coolId();
 
     const std::vector<short unsigned int>& EtLut = trigTower->adc();
     
@@ -306,7 +299,6 @@ void L1CaloPprPedestalPlotManager::fillPartitionOnlineHistos(const xAOD::Trigger
         std::string mergeMethod("");
 	if (AthenaMonManager::environment() != AthenaMonManager::online) {
 	    mergeMethod = "mergeRebinned";
-            std::cout << "mergeMethod = ''mergeRebinned''" << std::endl;
         }
 
         ManagedMonitorToolBase::MgmtAttr_t attr2 = ManagedMonitorToolBase::ATTRIB_UNMANAGED;

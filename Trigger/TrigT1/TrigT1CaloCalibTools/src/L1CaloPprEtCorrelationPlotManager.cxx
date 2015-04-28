@@ -12,6 +12,7 @@
 #include "StoreGate/StoreGateSvc.h"
 
 #include "TrigT1CaloCalibToolInterfaces/IL1CaloOfflineTriggerTowerTools.h"
+#include "TrigT1CaloCalibToolInterfaces/IL1CaloxAODOfflineTriggerTowerTools.h"
 #include "TrigT1CaloToolInterfaces/IL1TriggerTowerTool.h"
 #include "TrigT1CaloEvent/TriggerTower.h"
 
@@ -19,8 +20,6 @@
 #include "Identifier/Identifier.h"
 
 #include <utility>
-
-#include "TrigT1CaloCalibToolInterfaces/IL1CaloOfflineTriggerTowerTools.h"
 
 
 L1CaloPprEtCorrelationPlotManager::L1CaloPprEtCorrelationPlotManager(ITHistSvc* histoSvc,
@@ -100,22 +99,25 @@ StatusCode L1CaloPprEtCorrelationPlotManager::getCaloCells()
 
 // --------------------------------------------------------------------------
 
-double L1CaloPprEtCorrelationPlotManager::getMonitoringValue(const xAOD::TriggerTower* trigTower, CalLayerEnum theLayer)
+double L1CaloPprEtCorrelationPlotManager::getMonitoringValue(const xAOD::TriggerTower* trigTower, CalLayerEnum /*theLayer*/)
 {
     Identifier id;
     double caloEnergy;
     double ttCpEnergy;
     ttCpEnergy=trigTower->cpET();
     if (ttCpEnergy <= m_EtMin) return -1000.;
-    if(isOnline) { 
-	id = m_ttToolOnline->identifier(trigTower->eta(),trigTower->phi(),trigTower->layer());
-	caloEnergy = m_caloTool->et(id);
-    }
-    else {
-      caloEnergy = m_ttToolOffline->TTCellsEt(trigTower); //update to xAOD
-    }
+    caloEnergy = trigTower->auxdataConst< float >("CaloCellEnergy") / cosh( trigTower->eta() );
+//     if(isOnline) { 
+// 	id = m_ttToolOnline->identifier(trigTower->eta(),trigTower->phi(),trigTower->layer());
+// 	caloEnergy = m_caloTool->et(id);
+//     }
+//     else {
+//      caloEnergy = m_ttToolOffline->TTCellsEt(trigTower);
+//      caloEnergy = m_xAODttToolOffline->caloCellsET(*trigTower);
+//     }
     // round calo energy to nearest GeV in order to compare with L1 energy
     caloEnergy=int(caloEnergy+0.5);
+
     // set calo energy to saturation limit if necessary
     if (caloEnergy>255.) { caloEnergy=255.; }
     

@@ -311,8 +311,9 @@ void L1CaloPprPhos4Shape::CalculatePedestal(TH1* histo,float& pedMean,float& ped
       pedSum2 += histo->GetBinContent(bin)*histo->GetBinContent(bin);
       pedN++;
    }
-   pedMean = (pedN==0)? 0 : pedSum/(float)pedN;
-   pedSigma = (pedN==0)? 0 : sqrt( (1.0/(float)pedN)*pedSum2 - pedMean*pedMean);
+   // pedN > 0 <=>  NANOSEC_PER_LHC_CLOCK_TICK > 0, which is protected by the above return
+   pedMean = pedSum/(float)pedN;
+   pedSigma = sqrt( (1.0/(float)pedN)*pedSum2 - pedMean*pedMean);
    
 }
 

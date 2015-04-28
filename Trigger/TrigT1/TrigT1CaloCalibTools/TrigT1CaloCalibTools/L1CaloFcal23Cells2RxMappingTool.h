@@ -20,34 +20,43 @@
 #include <map>
 #include <vector>
 
-#include "AthenaBaseComps/AthAlgTool.h"
+#include "AsgTools/AsgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "StoreGate/StoreGateSvc.h"
 
 #include "TrigT1CaloCalibToolInterfaces/IL1CaloFcal23Cells2RxMappingTool.h"
 
-namespace LVL1{
+namespace LVL1 {
 
-  class L1CaloFcal23Cells2RxMappingTool : virtual public IL1CaloFcal23Cells2RxMappingTool,public AthAlgTool{
-    public:
-      L1CaloFcal23Cells2RxMappingTool(const std::string& type, const std::string& name, const IInterface* parent);
-      virtual ~L1CaloFcal23Cells2RxMappingTool();
+class L1CaloFcal23Cells2RxMappingTool : virtual public IL1CaloFcal23Cells2RxMappingTool, public asg::AsgTool
+{
+  /// Create a proper constructor for Athena
+  ASG_TOOL_CLASS( L1CaloFcal23Cells2RxMappingTool , LVL1::IL1CaloFcal23Cells2RxMappingTool )
 
-      virtual StatusCode initialize();
-      virtual StatusCode finalize();
+public:
+  /// constructor
+  L1CaloFcal23Cells2RxMappingTool( const std::string& name );
+  /// destructor
+  virtual ~L1CaloFcal23Cells2RxMappingTool();
+  /// delete the big 4
+  L1CaloFcal23Cells2RxMappingTool() = delete;
+  L1CaloFcal23Cells2RxMappingTool(const L1CaloFcal23Cells2RxMappingTool& rhs) = delete;
+  L1CaloFcal23Cells2RxMappingTool(L1CaloFcal23Cells2RxMappingTool&& rhs) = delete;
+  L1CaloFcal23Cells2RxMappingTool& operator=(const L1CaloFcal23Cells2RxMappingTool& rhs) = delete;
 
-      unsigned int offlineCell2RxId(const unsigned int& cellId) const;
-      unsigned int onlineCell2RxId(const unsigned int& cellId) const;
 
-    private:
-      L1CaloFcal23Cells2RxMappingTool(const L1CaloFcal23Cells2RxMappingTool& rhs);
-      L1CaloFcal23Cells2RxMappingTool& operator=(const L1CaloFcal23Cells2RxMappingTool& rhs);
+  virtual StatusCode initialize();
+  virtual StatusCode finalize();
 
-      std::map<unsigned int,unsigned int>* m_mapOfflineCell2RxId;
-      std::map<unsigned int,unsigned int>* m_mapOnlineCell2RxId;
+  unsigned int offlineCell2RxId(const unsigned int& cellId) const;
+  unsigned int onlineCell2RxId(const unsigned int& cellId) const;
 
-      std::map<unsigned int,unsigned int>* m_mapOfflineCellNotConnectedToCalibLines;
-      std::map<unsigned int,unsigned int>* m_mapOnlineCellNotConnectedToCalibLines;
-  };
+private:
+  std::map<unsigned int, unsigned int>* m_mapOfflineCell2RxId;
+  std::map<unsigned int, unsigned int>* m_mapOnlineCell2RxId;
+
+  std::map<unsigned int, unsigned int>* m_mapOfflineCellNotConnectedToCalibLines;
+  std::map<unsigned int, unsigned int>* m_mapOnlineCellNotConnectedToCalibLines;
+};
 } // end of namespace
 #endif

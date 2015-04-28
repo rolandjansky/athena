@@ -37,7 +37,11 @@ L1CaloPprFineTimePlotManager::L1CaloPprFineTimePlotManager(ITHistSvc* histoSvc,
       m_fineTimeCut(0),
       m_ppmAdcMaxValue(1023),     
       m_RefValue(0),
+      m_emRefValue(0.),
+      m_hadRefValue(0.),
       m_CalFactor(0),
+      m_emCalFactor(0.),
+      m_hadCalFactor(0.),
       m_doCaloQualCut(true)
 {
     this->loadTools();

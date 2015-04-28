@@ -6,7 +6,7 @@
 #define _TRIGGER_TRIGT1_TRIGT1CALOCALIBTOOLS_L1CALOLARTOWERENERGY_H_
 
 // Athena includes
-#include "AthenaBaseComps/AthAlgTool.h"
+#include "AsgTools/AsgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "StoreGate/StoreGateSvc.h"
 
@@ -38,61 +38,64 @@
 
 
 
-namespace LVL1{
+namespace LVL1 {
 
-  class L1CaloLArTowerEnergy : virtual public IL1CaloLArTowerEnergy,public AthAlgTool
-  {
-  public:
+class L1CaloLArTowerEnergy : virtual public IL1CaloLArTowerEnergy, public asg::AsgTool
+{
+  /// Create a proper constructor for Athena
+  ASG_TOOL_CLASS( L1CaloLArTowerEnergy , LVL1::IL1CaloLArTowerEnergy )
+
+public:
   // constructor
-    L1CaloLArTowerEnergy(const std::string& type, const std::string& name, const IInterface* parent );
-    virtual ~L1CaloLArTowerEnergy(){};
+  L1CaloLArTowerEnergy( const std::string& name );
+  virtual ~L1CaloLArTowerEnergy() {};
 
-    virtual StatusCode initialize();
-    virtual StatusCode finalize();
+  virtual StatusCode initialize();
+  virtual StatusCode finalize();
 
-    bool initL1CaloLArTowerEnergy(const CaloCellContainer& cellContainer, const TriggerTowerCollection &triggerTowerCollection);
-    float EtLArg(const Identifier& TTid);
-    bool hasMissingFEB(const Identifier& TTid);
+  bool initL1CaloLArTowerEnergy(const CaloCellContainer& cellContainer, const TriggerTowerCollection &triggerTowerCollection);
+  float EtLArg(const Identifier& TTid);
+  bool hasMissingFEB(const Identifier& TTid);
 
-  protected:
-    void reset();
-    double IDeta(const Identifier& TTid);
+protected:
+  void reset();
+  double IDeta(const Identifier& TTid);
 
-  private:
+private:
 
-      // properties
-      std::string m_triggerTowerCollectionName; // name of transient TriggerTower container
-      std::string m_caloCellContainerName; // name of transient CaloCell container.
-      std::string m_l1CaloCells2TriggerTowersToolName;
+  // properties
+  std::string m_triggerTowerCollectionName; // name of transient TriggerTower container
+  std::string m_caloCellContainerName; // name of transient CaloCell container.
+  std::string m_l1CaloCells2TriggerTowersToolName;
 
-      L1CaloCondSvc *m_condSvc;
-      const CaloLVL1_ID *m_lvl1Helper;
-      const CaloIdManager *caloMgr;
-      const LArOnlineID *m_LArOnlineHelper;
+  L1CaloCondSvc *m_condSvc;
+  const CaloLVL1_ID *m_lvl1Helper;
+  const CaloIdManager *caloMgr;
+  const LArOnlineID *m_LArOnlineHelper;
 
-      CaloTriggerTowerService* m_ttService;
-      ToolHandle<LVL1::IL1CaloCells2TriggerTowers> m_cells2tt;
+  CaloTriggerTowerService* m_ttService;
+  ToolHandle<LVL1::IL1CaloCells2TriggerTowers> m_cells2tt;
 
-      ToolHandle< ILArBadChanTool > m_badChannelTool; // Handle to badChannelTool
-      ToolHandle<LArCablingService> m_larCablingSvc;  // Handle to LarCablingService
-      ToolHandle<LVL1::IL1TriggerTowerTool> m_ttTool; // Handle to L1TriggerTowerTool
-
-
-
-      typedef std::map<Identifier,double> mapTT;
-      typedef std::map<double,std::pair<double,int> > mapSum;
-
-      //definition of the maps containing the EtCells of each TT
-      mapTT m_map_Etcells_em;
-      mapTT m_map_Etcells_had;
+  ToolHandle< ILArBadChanTool > m_badChannelTool; // Handle to badChannelTool
+  ToolHandle<LArCablingService> m_larCablingSvc;  // Handle to LarCablingService
+  ToolHandle<LVL1::IL1TriggerTowerTool> m_ttTool; // Handle to L1TriggerTowerTool
 
 
-      //definition of the maps containing the average EtCells in phi
-      mapSum m_map_sumEtcells_phi_em;
-      mapSum m_map_sumEtcells_phi_had;
 
-  };
+  typedef std::map<Identifier, double> mapTT;
+  typedef std::map<double, std::pair<double, int> > mapSum;
+
+  //definition of the maps containing the EtCells of each TT
+  mapTT m_map_Etcells_em;
+  mapTT m_map_Etcells_had;
+
+
+  //definition of the maps containing the average EtCells in phi
+  mapSum m_map_sumEtcells_phi_em;
+  mapSum m_map_sumEtcells_phi_had;
+
+};
 } // end of namespace
 
 #endif //L1CALOLARTOWERENERGY_H
- 
+

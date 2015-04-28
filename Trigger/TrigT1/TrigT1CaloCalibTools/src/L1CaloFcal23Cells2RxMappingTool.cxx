@@ -14,13 +14,27 @@
 
 namespace LVL1{
 
-  L1CaloFcal23Cells2RxMappingTool::L1CaloFcal23Cells2RxMappingTool(const std::string& type, const std::string& name, const IInterface* parent ) : AthAlgTool(type,name,parent){
-    declareInterface<IL1CaloFcal23Cells2RxMappingTool>(this);
-    
-    m_mapOfflineCell2RxId = new std::map<unsigned int,unsigned int>;
+  L1CaloFcal23Cells2RxMappingTool::L1CaloFcal23Cells2RxMappingTool( const std::string& name ) :
+    asg::AsgTool( name ),
+    m_mapOfflineCell2RxId(nullptr),
+    m_mapOnlineCell2RxId(nullptr),
+    m_mapOfflineCellNotConnectedToCalibLines(nullptr),
+    m_mapOnlineCellNotConnectedToCalibLines(nullptr)
+{
+  
+    m_mapOfflineCell2RxId = new std::map<unsigned int,unsigned int>;   
     m_mapOnlineCell2RxId = new std::map<unsigned int,unsigned int>;
-    m_mapOfflineCellNotConnectedToCalibLines = new std::map<unsigned int,unsigned int>;
+    
+    m_mapOfflineCellNotConnectedToCalibLines = new std::map<unsigned int,unsigned int>;    
     m_mapOnlineCellNotConnectedToCalibLines = new std::map<unsigned int,unsigned int>;
+  }
+  
+  L1CaloFcal23Cells2RxMappingTool::~L1CaloFcal23Cells2RxMappingTool()
+  {
+    delete m_mapOfflineCell2RxId;
+    delete m_mapOnlineCell2RxId;
+    delete m_mapOfflineCellNotConnectedToCalibLines;
+    delete m_mapOnlineCellNotConnectedToCalibLines;
   }
 
   unsigned int L1CaloFcal23Cells2RxMappingTool::offlineCell2RxId(const unsigned int& cellId) const{
@@ -37,13 +51,6 @@ namespace LVL1{
       return itr->second;
     }
     return 0;
-  }
-
-  L1CaloFcal23Cells2RxMappingTool::~L1CaloFcal23Cells2RxMappingTool(){
-    delete m_mapOfflineCell2RxId;
-    delete m_mapOnlineCell2RxId;
-    delete m_mapOfflineCellNotConnectedToCalibLines;
-    delete m_mapOnlineCellNotConnectedToCalibLines;
   }
 
   StatusCode L1CaloFcal23Cells2RxMappingTool::finalize(){

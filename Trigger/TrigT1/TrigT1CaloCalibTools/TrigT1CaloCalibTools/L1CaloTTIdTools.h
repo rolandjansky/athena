@@ -5,7 +5,7 @@
 #ifndef _TRIGGER_TRIGT1_TRIGT1CALOCALIBTOOLS_L1CALOTTIDTOOLS_H_
 #define _TRIGGER_TRIGT1_TRIGT1CALOCALIBTOOLS_L1CALOTTIDTOOLS_H_
 
-#include "AthenaBaseComps/AthAlgTool.h"
+#include "AsgTools/AsgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "StoreGate/StoreGateSvc.h"
 
@@ -33,12 +33,21 @@
 
 namespace LVL1{
 
-  class L1CaloTTIdTools : virtual public IL1CaloTTIdTools,public AthAlgTool
+  class L1CaloTTIdTools : virtual public IL1CaloTTIdTools,public asg::AsgTool
   {
+    /// Create a proper constructor for Athena
+    ASG_TOOL_CLASS( L1CaloTTIdTools , LVL1::IL1CaloTTIdTools )     
+
   public:
-  // constructor
-    L1CaloTTIdTools(const std::string& type, const std::string& name, const IInterface* parent );
-    virtual ~L1CaloTTIdTools();
+    /// constructor
+    L1CaloTTIdTools( const std::string& name );
+    /// destructor
+    virtual ~L1CaloTTIdTools(){}
+    /// delete the big 4
+    L1CaloTTIdTools() = delete;
+    L1CaloTTIdTools(const L1CaloTTIdTools& rhs) = delete;
+    L1CaloTTIdTools(L1CaloTTIdTools&& rhs) = delete;
+    L1CaloTTIdTools& operator=(const L1CaloTTIdTools& rhs) = delete;
 
     virtual StatusCode initialize();
     virtual StatusCode finalize();
@@ -63,12 +72,12 @@ namespace LVL1{
       LVL1::InternalTriggerTower* findInternalTriggerTower(std::map<unsigned int, LVL1::InternalTriggerTower*>* pIntTTContainer, double tt_phi, double tt_eta, unsigned int key, bool bCreate = true);
 
 
-      double etaWidth(double eta) const;
-      double phiWidth(double eta) const;
-      int pos_neg_z(double eta) const;
-      int regionIndex(double eta) const;
-      int etaIndex(double eta) const;
-      int phiIndex(double eta, double phi) const;
+      double etaWidth(const double eta) const;
+      double phiWidth(const double eta) const;
+      int pos_neg_z(const double eta) const;
+      int regionIndex(const double eta) const;
+      int etaIndex(const double eta) const;
+      int phiIndex(const double eta, const double phi) const;
 
   private:
 

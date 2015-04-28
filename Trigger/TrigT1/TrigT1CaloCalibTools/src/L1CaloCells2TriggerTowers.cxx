@@ -5,19 +5,19 @@
 #include "TrigT1CaloCalibTools/L1CaloCells2TriggerTowers.h"
 
 namespace LVL1{
-  L1CaloCells2TriggerTowers::L1CaloCells2TriggerTowers(const std::string& type, const std::string& name, const IInterface* parent ) : AthAlgTool(type,name,parent),
-    m_caloMgr(0),
-    m_lvl1Helper(0),
-    m_tileID(0),
-    m_caloCellHelper(0),
-    m_larCablingSvc(0),
-    m_tileCablingService(0),
-    m_ttSvc(0),
+  L1CaloCells2TriggerTowers::L1CaloCells2TriggerTowers(const std::string& name) : 
+    asg::AsgTool( name ),
+    m_caloMgr(nullptr),
+    m_lvl1Helper(nullptr),
+    m_tileID(nullptr),
+    m_caloCellHelper(nullptr),
+    m_larCablingSvc(nullptr),
+    m_tileCablingService(nullptr),
+    m_ttSvc(nullptr),
     m_bInitialized(false),
     m_bLArDigitsInitialized(false),
     m_bTileDigitsInitialized(false)
   {
-    declareInterface<IL1CaloCells2TriggerTowers>(this);
   }
 
   // Return the Calo Cells associated with a TriggerTower
@@ -632,7 +632,6 @@ namespace LVL1{
 
 
   void L1CaloCells2TriggerTowers::dumpLArDigits(const Identifier& ttId) const {
-      MsgStream log( msgSvc(), name() );
 
     std::map<unsigned int, std::vector<const LArDigit*> >::const_iterator it = m_mTTLArDigits.find(ttId.get_identifier32().get_compact());
     if(it!=m_mTTLArDigits.end()) {

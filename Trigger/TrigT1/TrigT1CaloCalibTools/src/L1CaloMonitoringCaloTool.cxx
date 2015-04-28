@@ -42,12 +42,10 @@ const int L1CaloMonitoringCaloTool::s_nsinThBins;
 
 
 /*---------------------------------------------------------*/
-L1CaloMonitoringCaloTool::L1CaloMonitoringCaloTool(const std::string & type,
-                                       const std::string & name,
-				       const IInterface* parent)
-  : AthAlgTool(type, name, parent),
+L1CaloMonitoringCaloTool::L1CaloMonitoringCaloTool( const std::string & name ) :
+    asg::AsgTool( name ),
     m_cells2tt("LVL1::L1CaloCells2TriggerTowers/L1CaloCells2TriggerTowers"),
-    m_lvl1Helper(0),
+    m_lvl1Helper(nullptr),
     m_sinTh(s_nsinThBins, 0.),
     m_events(0),
     m_lastRun(0),
@@ -59,17 +57,8 @@ L1CaloMonitoringCaloTool::L1CaloMonitoringCaloTool(const std::string & type,
     m_etaShift(s_nregions, 0)
 /*---------------------------------------------------*/
 {
-  declareInterface<IL1CaloMonitoringCaloTool>(this);
-
   declareProperty("CaloCellContainer", m_caloCellContainerName = "AllCalo");
-  declareProperty("MappingVectorSize", m_maxCells = 188080);
-  
-}
-
-/*---------------------------------------------------------*/
-L1CaloMonitoringCaloTool::~L1CaloMonitoringCaloTool()
-/*---------------------------------------------------------*/
-{
+  declareProperty("MappingVectorSize", m_maxCells = 188080);  
 }
 
 #ifndef PACKAGE_VERSION
@@ -80,14 +69,13 @@ L1CaloMonitoringCaloTool::~L1CaloMonitoringCaloTool()
 StatusCode L1CaloMonitoringCaloTool:: initialize()
 /*---------------------------------------------------------*/
 {
-  msg(MSG::INFO) << "Initializing " << name() << " - package version "
-                 << PACKAGE_VERSION << endreq;
+  ATH_MSG_INFO("Initializing " << name() << " - package version ");
 
   StatusCode sc;
   
   sc = m_cells2tt.retrieve();
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Unable to locate tool L1CaloCells2TriggerTowers" << endreq;
+    ATH_MSG_ERROR("Unable to locate tool L1CaloCells2TriggerTowers");
     return sc;
   }
 
@@ -95,7 +83,7 @@ StatusCode L1CaloMonitoringCaloTool:: initialize()
   const CaloLVL1_ID* lvl1_id = 0;
   sc = detStore()->retrieve(lvl1_id, "CaloLVL1_ID");
   if (sc.isFailure() || !lvl1_id) {
-    msg(MSG::ERROR) << "Could not get CaloLVL1_ID helper !" << endreq;
+    ATH_MSG_ERROR("Could not get CaloLVL1_ID helper !");
     return sc;
   }
   else {
@@ -160,7 +148,9 @@ StatusCode L1CaloMonitoringCaloTool::loadCaloCells()
 /*---------------------------------------------------------*/
 {
   const bool debug = msgLvl(MSG::DEBUG);
-  if (debug) msg(MSG::DEBUG) << "in loadCaloCells()" << endreq;
+  if (debug) {
+    ATH_MSG_DEBUG("in loadCaloCells()");
+  }
 
   StatusCode sc;
 
@@ -171,7 +161,9 @@ StatusCode L1CaloMonitoringCaloTool::loadCaloCells()
   const EventInfo* evInfo = 0;
   sc = evtStore()->retrieve(evInfo);
   if (sc.isFailure()) {
-    if (debug) msg(MSG::DEBUG) << "No EventInfo found" << endreq;
+    if (debug) {
+    ATH_MSG_DEBUG("No EventInfo found");
+    }
   } else {
     const EventID* evID = evInfo->event_ID();
     if (evID) {
@@ -190,7 +182,7 @@ StatusCode L1CaloMonitoringCaloTool::loadCaloCells()
   const CaloCellContainer* caloCellContainer = 0;
   sc = evtStore()->retrieve(caloCellContainer, m_caloCellContainerName); 
   if(!sc.isSuccess() || !caloCellContainer) {
-    msg(MSG::WARNING) << "No CaloCellContainer found at AllCalo" << endreq; 
+    ATH_MSG_WARNING("No CaloCellContainer found at AllCalo");
     return StatusCode::SUCCESS;
   }
   ++m_events;
@@ -334,7 +326,7 @@ int L1CaloMonitoringCaloTool::towerIndex(const Identifier& ttId) const
 
 // Return the region corresponding to index
 
-int L1CaloMonitoringCaloTool::region(int index) const
+int L1CaloMonitoringCaloTool::region(const int index) const
 {
   int rg = 0;
   int ix = index;
@@ -351,7 +343,7 @@ int L1CaloMonitoringCaloTool::region(int index) const
 
 // Return the eta bin corresponding to index
 
-int L1CaloMonitoringCaloTool::etaBin(int index) const
+int L1CaloMonitoringCaloTool::etaBin(const int index) const
 {
   int bin = 0;
   int ix = index;
