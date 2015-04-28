@@ -5,12 +5,12 @@ author  Sami Kama <sami.kama@cern.ch>
 use AtlasPolicy       AtlasPolicy-*
 use LCG_Configuration
 use AtlasExternalArea AtlasExternalArea-* External
-macro LCG_config_version "67c"
+macro my_LCG_config_version "67c"
 # to be fixed when epos is properly installed in LCG
-macro Epos_home "$(LCG_ROOT)/external/MCGenerators_lcgcmt$(LCG_config_version)/crmc"
+macro Epos_home "$(LCG_ROOT)/external/MCGenerators_lcgcmt$(my_LCG_config_version)/crmc"
 #macro Epos_home "$(LCG_external)/MCGenerators/crmc"
-macro EPOS_native_version "1.3"
-macro Epos_native_version "$(EPOS_native_version)_lcgcmt$(LCG_config_version)"
+macro EPOS_native_version "1.5.3"
+macro Epos_native_version "$(EPOS_native_version)_lcgcmt$(my_LCG_config_version)"
 macro Epos_system "$(LCG_ext_system)" \
       slc4&gcc43&32 "slc4_ia32_gcc34" \
       slc4&gcc43    "slc4_amd64_gcc34" \
@@ -18,7 +18,7 @@ macro Epos_system "$(LCG_ext_system)" \
       slc5&gcc43&64 "x86_64-slc5-gcc43-opt"
 macro Epos_lib "$(Epos_home)/$(EPOS_native_version)/$(Epos_system)/lib"
 
-macro Epos_linkopts "-L$(Epos_lib) -lcrmc " target-darwin "$(Epos_lib)/libcrmc.a"
+macro Epos_linkopts "-L$(Epos_lib) -lCrmcBasic -lEpos
 
 include_path none
 include_dirs "$(Epos_home)/$(EPOS_native_version)/$(Epos_system)/include"
@@ -30,18 +30,17 @@ macro EposExternalFiles \
 	"$(Epos_home)/$(EPOS_native_version)/$(Epos_system)/"
 
 apply_pattern generic_declare_for_copy kind=runtime prefix=share files="$(EposExternalFiles)/crmc.param \
-   $(EposExternalFiles)/tabs/qgsjet.dat    \
-   $(EposExternalFiles)/tabs/qgsjet.ncs    \
-   $(EposExternalFiles)/tabs/sectnu-II-03  \
+   $(EposExternalFiles)/tabs/dpmjet.dat    \
    $(EposExternalFiles)/tabs/epos.initl    \
    $(EposExternalFiles)/tabs/epos.iniev    \
    $(EposExternalFiles)/tabs/epos.inirj    \
    $(EposExternalFiles)/tabs/epos.inirj.lhc  \
    $(EposExternalFiles)/tabs/epos.inics    \
-   $(EposExternalFiles)/tabs/epos.inics.lhc "
-
+   $(EposExternalFiles)/tabs/epos.inics.lhc  \
+   $(EposExternalFiles)/tabs/epos.inidi    \
+   $(EposExternalFiles)/tabs/qgsdat-II-04.lzma "
 private
-macro Epos_libraries "$(Epos_lib)/libcrmc.so $(Epos_lib)/libcrmc.a"
+macro Epos_libraries "$(Epos_lib)/libCrmcBasic.so $(Epos_lib)/libEpos.so $(Epos_lib)/libHepEvtDummy.so"
 
 macro Epos_include_objfiles "yes"
 end_private
