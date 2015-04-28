@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: ContainerProxies.cxx 646335 2015-02-12 01:16:10Z morrisj $
+// $Id: ContainerProxies.cxx 652824 2015-03-09 23:24:32Z morrisj $
 
 // xAOD include(s):
 #include "xAODCore/AddDVProxy.h"
@@ -29,19 +29,21 @@
 // Run 2
 #include "xAODTrigL1Calo/versions/TriggerTowerContainer_v2.h"
 
-#include "xAODTrigL1Calo/versions/CMXCPHitsContainer_v2.h"
-#include "xAODTrigL1Calo/versions/CMXCPTobContainer_v2.h"
-#include "xAODTrigL1Calo/versions/CMXJetHitsContainer_v2.h"
-#include "xAODTrigL1Calo/versions/CMXJetTobContainer_v2.h"
-#include "xAODTrigL1Calo/versions/CMXEtSumsContainer_v2.h"
+#include "xAODTrigL1Calo/versions/CMXCPHitsContainer_v1.h"
+#include "xAODTrigL1Calo/versions/CMXCPTobContainer_v1.h"
+#include "xAODTrigL1Calo/versions/CMXJetHitsContainer_v1.h"
+#include "xAODTrigL1Calo/versions/CMXJetTobContainer_v1.h"
+#include "xAODTrigL1Calo/versions/CMXEtSumsContainer_v1.h"
 
 #include "xAODTrigL1Calo/versions/CPMTowerContainer_v2.h"
-#include "xAODTrigL1Calo/versions/CPMTobRoIContainer_v2.h"
+#include "xAODTrigL1Calo/versions/CPMTobRoIContainer_v1.h"
 
 #include "xAODTrigL1Calo/versions/JEMEtSumsContainer_v2.h"
-#include "xAODTrigL1Calo/versions/JEMTobRoIContainer_v2.h"
+#include "xAODTrigL1Calo/versions/JEMTobRoIContainer_v1.h"
 
 #include "xAODTrigL1Calo/versions/JetElementContainer_v2.h"
+
+#include "xAODTrigL1Calo/versions/L1TopoRawDataContainer_v1.h"
 
 // Set up the collection proxies:
 // Run 1
@@ -64,15 +66,17 @@ ADD_NS_DV_PROXY( xAOD , TriggerTowerContainer_v1 );
 // Run 2
 ADD_NS_DV_PROXY( xAOD , TriggerTowerContainer_v2 );
 
-ADD_NS_DV_PROXY( xAOD , CMXCPHitsContainer_v2 );
-ADD_NS_DV_PROXY( xAOD , CMXCPTobContainer_v2 );
-ADD_NS_DV_PROXY( xAOD , CMXJetHitsContainer_v2 );
-ADD_NS_DV_PROXY( xAOD , CMXJetTobContainer_v2 );
-ADD_NS_DV_PROXY( xAOD , CMXEtSumsContainer_v2 );
+ADD_NS_DV_PROXY( xAOD , CMXCPHitsContainer_v1 );
+ADD_NS_DV_PROXY( xAOD , CMXCPTobContainer_v1 );
+ADD_NS_DV_PROXY( xAOD , CMXJetHitsContainer_v1 );
+ADD_NS_DV_PROXY( xAOD , CMXJetTobContainer_v1 );
+ADD_NS_DV_PROXY( xAOD , CMXEtSumsContainer_v1 );
 
 ADD_NS_DV_PROXY( xAOD , CPMTowerContainer_v2 );
-ADD_NS_DV_PROXY( xAOD , CPMTobRoIContainer_v2 );
+ADD_NS_DV_PROXY( xAOD , CPMTobRoIContainer_v1 );
 
 ADD_NS_DV_PROXY( xAOD , JEMEtSumsContainer_v2 );
-ADD_NS_DV_PROXY( xAOD , JEMTobRoIContainer_v2 );
+ADD_NS_DV_PROXY( xAOD , JEMTobRoIContainer_v1 );
 ADD_NS_DV_PROXY( xAOD , JetElementContainer_v2 );
+
+ADD_NS_DV_PROXY( xAOD , L1TopoRawDataContainer_v1 );

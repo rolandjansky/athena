@@ -4,18 +4,18 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: CMXJetTobContainer.h 639736 2015-01-15 15:27:50Z morrisj $
+// $Id: CMXJetTobContainer.h 652810 2015-03-09 22:33:00Z morrisj $
 #ifndef XAODTRIGL1CALO_CMXJETTOBCONTAINER_H
 #define XAODTRIGL1CALO_CMXJETTOBCONTAINER_H
 
 // Local include(s):
 #include "xAODTrigL1Calo/CMXJetTob.h"
-#include "xAODTrigL1Calo/versions/CMXJetTobContainer_v2.h"
+#include "xAODTrigL1Calo/versions/CMXJetTobContainer_v1.h"
 
 // Namespace holding all the xAOD EDM classes
 namespace xAOD{
-  /// Define the latest version of the CMMCPHits class
-  typedef CMXJetTobContainer_v2 CMXJetTobContainer;
+  /// Define the latest version of the CMXJetTob class
+  typedef CMXJetTobContainer_v1 CMXJetTobContainer;
 }
 
 #include "xAODCore/CLASS_DEF.h"

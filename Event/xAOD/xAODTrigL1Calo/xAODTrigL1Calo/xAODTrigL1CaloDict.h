@@ -4,9 +4,14 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: xAODTrigL1CaloDict.h 646335 2015-02-12 01:16:10Z morrisj $
+// $Id: xAODTrigL1CaloDict.h 652824 2015-03-09 23:24:32Z morrisj $
 #ifndef XAODTRIGL1CALO_XAODTRIGL1CALOCALOEVENTDICT_H
 #define XAODTRIGL1CALO_XAODTRIGL1CALOCALOEVENTDICT_H
+
+// Needed to successfully generate the dictionary in standalone mode:
+#if defined(__GCCXML__) and not defined(EIGEN_DONT_VECTORIZE)
+#   define EIGEN_DONT_VECTORIZE
+#endif // __GCCXML__
 
 // System include(s):
 #include <vector>
@@ -74,291 +79,298 @@
 #include "xAODTrigL1Calo/versions/TriggerTowerContainer_v2.h"
 #include "xAODTrigL1Calo/versions/TriggerTowerAuxContainer_v2.h"
 
-#include "xAODTrigL1Calo/versions/CMXCPHits_v2.h"
-#include "xAODTrigL1Calo/versions/CMXCPHitsContainer_v2.h"
-#include "xAODTrigL1Calo/versions/CMXCPHitsAuxContainer_v2.h"
+#include "xAODTrigL1Calo/versions/CMXCPHits_v1.h"
+#include "xAODTrigL1Calo/versions/CMXCPHitsContainer_v1.h"
+#include "xAODTrigL1Calo/versions/CMXCPHitsAuxContainer_v1.h"
 
-#include "xAODTrigL1Calo/versions/CMXCPTob_v2.h"
-#include "xAODTrigL1Calo/versions/CMXCPTobContainer_v2.h"
-#include "xAODTrigL1Calo/versions/CMXCPTobAuxContainer_v2.h"
+#include "xAODTrigL1Calo/versions/CMXCPTob_v1.h"
+#include "xAODTrigL1Calo/versions/CMXCPTobContainer_v1.h"
+#include "xAODTrigL1Calo/versions/CMXCPTobAuxContainer_v1.h"
 
-#include "xAODTrigL1Calo/versions/CMXJetHits_v2.h"
-#include "xAODTrigL1Calo/versions/CMXJetHitsContainer_v2.h"
-#include "xAODTrigL1Calo/versions/CMXJetHitsAuxContainer_v2.h"
+#include "xAODTrigL1Calo/versions/CMXJetHits_v1.h"
+#include "xAODTrigL1Calo/versions/CMXJetHitsContainer_v1.h"
+#include "xAODTrigL1Calo/versions/CMXJetHitsAuxContainer_v1.h"
 
-#include "xAODTrigL1Calo/versions/CMXJetTob_v2.h"
-#include "xAODTrigL1Calo/versions/CMXJetTobContainer_v2.h"
-#include "xAODTrigL1Calo/versions/CMXJetTobAuxContainer_v2.h"
+#include "xAODTrigL1Calo/versions/CMXJetTob_v1.h"
+#include "xAODTrigL1Calo/versions/CMXJetTobContainer_v1.h"
+#include "xAODTrigL1Calo/versions/CMXJetTobAuxContainer_v1.h"
 
-#include "xAODTrigL1Calo/versions/CMXEtSums_v2.h"
-#include "xAODTrigL1Calo/versions/CMXEtSumsContainer_v2.h"
-#include "xAODTrigL1Calo/versions/CMXEtSumsAuxContainer_v2.h"
+#include "xAODTrigL1Calo/versions/CMXEtSums_v1.h"
+#include "xAODTrigL1Calo/versions/CMXEtSumsContainer_v1.h"
+#include "xAODTrigL1Calo/versions/CMXEtSumsAuxContainer_v1.h"
 
 #include "xAODTrigL1Calo/versions/CPMTower_v2.h"
 #include "xAODTrigL1Calo/versions/CPMTowerContainer_v2.h"
 #include "xAODTrigL1Calo/versions/CPMTowerAuxContainer_v2.h"
 
-#include "xAODTrigL1Calo/versions/CPMTobRoI_v2.h"
-#include "xAODTrigL1Calo/versions/CPMTobRoIContainer_v2.h"
-#include "xAODTrigL1Calo/versions/CPMTobRoIAuxContainer_v2.h"
+#include "xAODTrigL1Calo/versions/CPMTobRoI_v1.h"
+#include "xAODTrigL1Calo/versions/CPMTobRoIContainer_v1.h"
+#include "xAODTrigL1Calo/versions/CPMTobRoIAuxContainer_v1.h"
 
 
 #include "xAODTrigL1Calo/versions/JEMEtSums_v2.h"
 #include "xAODTrigL1Calo/versions/JEMEtSumsContainer_v2.h"
 #include "xAODTrigL1Calo/versions/JEMEtSumsAuxContainer_v2.h"
 
-#include "xAODTrigL1Calo/versions/JEMTobRoI_v2.h"
-#include "xAODTrigL1Calo/versions/JEMTobRoIContainer_v2.h"
-#include "xAODTrigL1Calo/versions/JEMTobRoIAuxContainer_v2.h"
+#include "xAODTrigL1Calo/versions/JEMTobRoI_v1.h"
+#include "xAODTrigL1Calo/versions/JEMTobRoIContainer_v1.h"
+#include "xAODTrigL1Calo/versions/JEMTobRoIAuxContainer_v1.h"
 
 #include "xAODTrigL1Calo/versions/JetElement_v2.h"
 #include "xAODTrigL1Calo/versions/JetElementContainer_v2.h"
 #include "xAODTrigL1Calo/versions/JetElementAuxContainer_v2.h"
+
+#include "xAODTrigL1Calo/versions/L1TopoRawData_v1.h"
+#include "xAODTrigL1Calo/versions/L1TopoRawDataContainer_v1.h"
+#include "xAODTrigL1Calo/versions/L1TopoRawDataAuxContainer_v1.h"
+
+
+// Versionless AuxContainers
+#include "xAODTrigL1Calo/CMMCPHitsAuxContainer.h"                                                                                                                                                 
+#include "xAODTrigL1Calo/CMMEtSumsAuxContainer.h"                                                                                                                                                 
+#include "xAODTrigL1Calo/CMMJetHitsAuxContainer.h"                                                                                                                                                
+#include "xAODTrigL1Calo/CMMRoIAuxInfo.h"
+#include "xAODTrigL1Calo/CMXCPHitsAuxContainer.h"
+#include "xAODTrigL1Calo/CMXCPTobAuxContainer.h"
+#include "xAODTrigL1Calo/CMXEtSumsAuxContainer.h"
+#include "xAODTrigL1Calo/CMXJetHitsAuxContainer.h"
+#include "xAODTrigL1Calo/CMXJetTobAuxContainer.h"
+#include "xAODTrigL1Calo/CPMHitsAuxContainer.h"
+#include "xAODTrigL1Calo/CPMRoIAuxContainer.h"
+#include "xAODTrigL1Calo/CPMTobRoIAuxContainer.h"
+#include "xAODTrigL1Calo/CPMTowerAuxContainer.h"
+#include "xAODTrigL1Calo/JEMEtSumsAuxContainer.h"
+#include "xAODTrigL1Calo/JEMHitsAuxContainer.h"
+#include "xAODTrigL1Calo/JEMRoIAuxContainer.h"
+#include "xAODTrigL1Calo/JEMTobRoIAuxContainer.h"
+#include "xAODTrigL1Calo/JetElementAuxContainer.h"
+#include "xAODTrigL1Calo/RODHeaderAuxContainer.h"
+#include "xAODTrigL1Calo/TriggerTowerAuxContainer.h"
+#include "xAODTrigL1Calo/L1TopoRawDataAuxContainer.h"
+
 
 namespace {
   struct GCCXML_DUMMY_INSTANTIATION_XAODTRIGL1CALO {
       
     // Run 1
     
-    // JEMHits    
-    // Container(s):
-    xAOD::JEMHitsContainer_v1 JEMHits_c1;
-    // Element link(s):
-    ElementLink< xAOD::JEMHitsContainer_v1 > JEMHits_el1;
-    std::vector< ElementLink< xAOD::JEMHitsContainer_v1 > > JEMHits_el2;
-    // Element link vector(s):
-    ElementLinkVector< xAOD::JEMHitsContainer_v1 > JEMHits_elv1;
-    std::vector< ElementLinkVector< xAOD::JEMHitsContainer_v1 > > JEMHits_elv2;
+    // JEMHits  
+    xAOD::JEMHitsContainer_v1 JEMHits_v1_c1;
+    DataLink< xAOD::JEMHitsContainer_v1 > JEMHits_v1_l1;
+    ElementLink< xAOD::JEMHitsContainer_v1 > JEMHits_v1_l2;
+    ElementLinkVector< xAOD::JEMHitsContainer_v1 > JEMHits_v1_l3;
+    std::vector< DataLink< xAOD::JEMHitsContainer_v1 > > JEMHits_v1_l4;
+    std::vector< ElementLink< xAOD::JEMHitsContainer_v1 > > JEMHits_v1_l5;
+    std::vector< ElementLinkVector< xAOD::JEMHitsContainer_v1 > > JEMHits_v1_l6;    
     
     // JEMEtSums
-    // Container(s):
-    xAOD::JEMEtSumsContainer_v1 JEMEtSums_c1;
-    // Element link(s):
-    ElementLink< xAOD::JEMEtSumsContainer_v1 > JEMEtSums_el1;
-    std::vector< ElementLink< xAOD::JEMEtSumsContainer_v1 > > JEMEtSums_el2;
-    // Element link vector(s):
-    ElementLinkVector< xAOD::JEMEtSumsContainer_v1 > JEMEtSums_elv1;
-    std::vector< ElementLinkVector< xAOD::JEMEtSumsContainer_v1 > > JEMEtSums_elv2;      
+    xAOD::JEMEtSumsContainer_v1 JEMEtSums_v1_c1;
+    DataLink< xAOD::JEMEtSumsContainer_v1 > JEMEtSums_v1_l1;
+    ElementLink< xAOD::JEMEtSumsContainer_v1 > JEMEtSums_v1_l2;
+    ElementLinkVector< xAOD::JEMEtSumsContainer_v1 > JEMEtSums_v1_l3;
+    std::vector< DataLink< xAOD::JEMEtSumsContainer_v1 > > JEMEtSums_v1_l4;
+    std::vector< ElementLink< xAOD::JEMEtSumsContainer_v1 > > JEMEtSums_v1_l5;
+    std::vector< ElementLinkVector< xAOD::JEMEtSumsContainer_v1 > > JEMEtSums_v1_l6;     
 
-    // JEMRoI    
-    // Container(s):
-    xAOD::JEMRoIContainer_v1 JEMRoI_c1;
-    // Element link(s):
-    ElementLink< xAOD::JEMRoIContainer_v1 > JEMRoI_el1;
-    std::vector< ElementLink< xAOD::JEMRoIContainer_v1 > > JEMRoI_el2;
-    // Element link vector(s):
-    ElementLinkVector< xAOD::JEMRoIContainer_v1 > JEMRoI_elv1;
-    std::vector< ElementLinkVector< xAOD::JEMRoIContainer_v1 > > JEMRoI_elv2;  
+    // JEMRoI   
+    xAOD::JEMRoIContainer_v1 JEMRoI_v1_c1;
+    DataLink< xAOD::JEMRoIContainer_v1 > JEMRoI_v1_l1;
+    ElementLink< xAOD::JEMRoIContainer_v1 > JEMRoI_v1_l2;
+    ElementLinkVector< xAOD::JEMRoIContainer_v1 > JEMRoI_v1_l3;
+    std::vector< DataLink< xAOD::JEMRoIContainer_v1 > > JEMRoI_v1_l4;
+    std::vector< ElementLink< xAOD::JEMRoIContainer_v1 > > JEMRoI_v1_l5;
+    std::vector< ElementLinkVector< xAOD::JEMRoIContainer_v1 > > JEMRoI_v1_l6;      
+
+    // CPMHits  
+    xAOD::CPMHitsContainer_v1 CPMHits_v1_c1;
+    DataLink< xAOD::CPMHitsContainer_v1 > CPMHits_v1_l1;
+    ElementLink< xAOD::CPMHitsContainer_v1 > CPMHits_v1_l2;
+    ElementLinkVector< xAOD::CPMHitsContainer_v1 > CPMHits_v1_l3;
+    std::vector< DataLink< xAOD::CPMHitsContainer_v1 > > CPMHits_v1_l4;
+    std::vector< ElementLink< xAOD::CPMHitsContainer_v1 > > CPMHits_v1_l5;
+    std::vector< ElementLinkVector< xAOD::CPMHitsContainer_v1 > > CPMHits_v1_l6;      
     
+    // CPMTower  
+    xAOD::CPMTowerContainer_v1 CPMTower_v1_c1;
+    DataLink< xAOD::CPMTowerContainer_v1 > CPMTower_v1_l1;
+    ElementLink< xAOD::CPMTowerContainer_v1 > CPMTower_v1_l2;
+    ElementLinkVector< xAOD::CPMTowerContainer_v1 > CPMTower_v1_l3;
+    std::vector< DataLink< xAOD::CPMTowerContainer_v1 > > CPMTower_v1_l4;
+    std::vector< ElementLink< xAOD::CPMTowerContainer_v1 > > CPMTower_v1_l5;
+    std::vector< ElementLinkVector< xAOD::CPMTowerContainer_v1 > > CPMTower_v1_l6;        
     
-    // CPMHits    
-    // Container(s):
-    xAOD::CPMHitsContainer_v1 CPMHits_c1;
-    // Element link(s):
-    ElementLink< xAOD::CPMHitsContainer_v1 > CPMHits_el1;
-    std::vector< ElementLink< xAOD::CPMHitsContainer_v1 > > CPMHits_el2;
-    // Element link vector(s):
-    ElementLinkVector< xAOD::CPMHitsContainer_v1 > CPMHits_elv1;
-    std::vector< ElementLinkVector< xAOD::CPMHitsContainer_v1 > > CPMHits_elv2; 
-    
-    // CPMTower    
-    // Container(s):
-    xAOD::CPMTowerContainer_v1 CPMTower_c1;
-    // Element link(s):
-    ElementLink< xAOD::CPMTowerContainer_v1 > CPMTower_el1;
-    std::vector< ElementLink< xAOD::CPMTowerContainer_v1 > > CPMTower_el2;
-    // Element link vector(s):
-    ElementLinkVector< xAOD::CPMTowerContainer_v1 > CPMTower_elv1;
-    std::vector< ElementLinkVector< xAOD::CPMTowerContainer_v1 > > CPMTower_elv2;    
-    
-    // CPMRoI    
-    // Container(s):
-    xAOD::CPMRoIContainer_v1 CPMRoI_c1;
-    // Element link(s):
-    ElementLink< xAOD::CPMRoIContainer_v1 > CPMRoI_el1;
-    std::vector< ElementLink< xAOD::CPMRoIContainer_v1 > > CPMRoI_el2;
-    // Element link vector(s):
-    ElementLinkVector< xAOD::CPMRoIContainer_v1 > CPMRoI_elv1;
-    std::vector< ElementLinkVector< xAOD::CPMRoIContainer_v1 > > CPMRoI_elv2;  
+    // CPMRoI 
+    xAOD::CPMRoIContainer_v1 CPMRoI_v1_c1;
+    DataLink< xAOD::CPMRoIContainer_v1 > CPMRoI_v1_l1;
+    ElementLink< xAOD::CPMRoIContainer_v1 > CPMRoI_v1_l2;
+    ElementLinkVector< xAOD::CPMRoIContainer_v1 > CPMRoI_v1_l3;
+    std::vector< DataLink< xAOD::CPMRoIContainer_v1 > > CPMRoI_v1_l4;
+    std::vector< ElementLink< xAOD::CPMRoIContainer_v1 > > CPMRoI_v1_l5;
+    std::vector< ElementLinkVector< xAOD::CPMRoIContainer_v1 > > CPMRoI_v1_l6;      
 
     // CMMCPHits
-    // Container(s):
-    xAOD::CMMCPHitsContainer_v1 CMMCPHits_c1;
-    // Data link(s):
-    DataLink< xAOD::CMMCPHitsContainer_v1 > CMMCPHits_dl1;
-    std::vector< DataLink< xAOD::CMMCPHitsContainer_v1 > > CMMCPHits_dl2;
-    // Element link(s):
-    ElementLink< xAOD::CMMCPHitsContainer_v1 > CMMCPHits_el1;
-    std::vector< ElementLink< xAOD::CMMCPHitsContainer_v1 > > CMMCPHits_el2;
-    std::vector< std::vector< ElementLink< xAOD::CMMCPHitsContainer_v1 > > > CMMCPHits_el3;
+    xAOD::CMMCPHitsContainer_v1 CMMCPHits_v1_c1;
+    DataLink< xAOD::CMMCPHitsContainer_v1 > CMMCPHits_v1_l1;
+    ElementLink< xAOD::CMMCPHitsContainer_v1 > CMMCPHits_v1_l2;
+    ElementLinkVector< xAOD::CMMCPHitsContainer_v1 > CMMCPHits_v1_l3;
+    std::vector< DataLink< xAOD::CMMCPHitsContainer_v1 > > CMMCPHits_v1_l4;
+    std::vector< ElementLink< xAOD::CMMCPHitsContainer_v1 > > CMMCPHits_v1_l5;
+    std::vector< ElementLinkVector< xAOD::CMMCPHitsContainer_v1 > > CMMCPHits_v1_l6;     
     
-    // CMMEtSums    
-    // Container(s):
-    xAOD::CMMEtSumsContainer_v1 CMMEtSums_c1;
-    // Element link(s):
-    ElementLink< xAOD::CMMEtSumsContainer_v1 > CMMEtSums_el1;
-    std::vector< ElementLink< xAOD::CMMEtSumsContainer_v1 > > CMMEtSums_el2;
-    // Element link vector(s):
-    ElementLinkVector< xAOD::CMMEtSumsContainer_v1 > CMMEtSums_elv1;
-    std::vector< ElementLinkVector< xAOD::CMMEtSumsContainer_v1 > > CMMEtSums_elv2; 
+    // CMMEtSums 
+    xAOD::CMMEtSumsContainer_v1 CMMEtSums_v1_c1;
+    DataLink< xAOD::CMMEtSumsContainer_v1 > CMMEtSums_v1_l1;
+    ElementLink< xAOD::CMMEtSumsContainer_v1 > CMMEtSums_v1_l2;
+    ElementLinkVector< xAOD::CMMEtSumsContainer_v1 > CMMEtSums_v1_l3;
+    std::vector< DataLink< xAOD::CMMEtSumsContainer_v1 > > CMMEtSums_v1_l4;
+    std::vector< ElementLink< xAOD::CMMEtSumsContainer_v1 > > CMMEtSums_v1_l5;
+    std::vector< ElementLinkVector< xAOD::CMMEtSumsContainer_v1 > > CMMEtSums_v1_l6;    
     
-    // CMMJetHits    
-    // Container(s):
-    xAOD::CMMJetHitsContainer_v1 CMMJetHits_c1;
-    // Element link(s):
-    ElementLink< xAOD::CMMJetHitsContainer_v1 > CMMJetHits_el1;
-    std::vector< ElementLink< xAOD::CMMJetHitsContainer_v1 > > CMMJetHits_el2;
-    // Element link vector(s):
-    ElementLinkVector< xAOD::CMMJetHitsContainer_v1 > CMMJetHits_elv1;
-    std::vector< ElementLinkVector< xAOD::CMMJetHitsContainer_v1 > > CMMJetHits_elv2; 
+    // CMMJetHits   
+    xAOD::CMMJetHitsContainer_v1 CMMJetHits_v1_c1;
+    DataLink< xAOD::CMMJetHitsContainer_v1 > CMMJetHits_v1_l1;
+    ElementLink< xAOD::CMMJetHitsContainer_v1 > CMMJetHits_v1_l2;
+    ElementLinkVector< xAOD::CMMJetHitsContainer_v1 > CMMJetHits_v1_l3;
+    std::vector< DataLink< xAOD::CMMJetHitsContainer_v1 > > CMMJetHits_v1_l4;
+    std::vector< ElementLink< xAOD::CMMJetHitsContainer_v1 > > CMMJetHits_v1_l5;
+    std::vector< ElementLinkVector< xAOD::CMMJetHitsContainer_v1 > > CMMJetHits_v1_l6;        
+        
+    // JetElement  
+    xAOD::JetElementContainer_v1 JetElement_v1_c1;
+    DataLink< xAOD::JetElementContainer_v1 > JetElement_v1_l1;
+    ElementLink< xAOD::JetElementContainer_v1 > JetElement_v1_l2;
+    ElementLinkVector< xAOD::JetElementContainer_v1 > JetElement_v1_l3;
+    std::vector< DataLink< xAOD::JetElementContainer_v1 > > JetElement_v1_l4;
+    std::vector< ElementLink< xAOD::JetElementContainer_v1 > > JetElement_v1_l5;
+    std::vector< ElementLinkVector< xAOD::JetElementContainer_v1 > > JetElement_v1_l6;        
     
+    // RODHeader  
+    xAOD::RODHeaderContainer_v1 RODHeader_v1_c1;
+    DataLink< xAOD::RODHeaderContainer_v1 > RODHeader_v1_l1;
+    ElementLink< xAOD::RODHeaderContainer_v1 > RODHeader_v1_l2;
+    ElementLinkVector< xAOD::RODHeaderContainer_v1 > RODHeader_v1_l3;
+    std::vector< DataLink< xAOD::RODHeaderContainer_v1 > > RODHeader_v1_l4;
+    std::vector< ElementLink< xAOD::RODHeaderContainer_v1 > > RODHeader_v1_l5;
+    std::vector< ElementLinkVector< xAOD::RODHeaderContainer_v1 > > RODHeader_v1_l6;      
     
-    // JetElement    
-    // Container(s):
-    xAOD::JetElementContainer_v1 JetElement_c1;
-    // Element link(s):
-    ElementLink< xAOD::JetElementContainer_v1 > JetElement_el1;
-    std::vector< ElementLink< xAOD::JetElementContainer_v1 > > JetElement_el2;
-    // Element link vector(s):
-    ElementLinkVector< xAOD::JetElementContainer_v1 > JetElement_elv1;
-    std::vector< ElementLinkVector< xAOD::JetElementContainer_v1 > > JetElement_elv2;   
-    
-    // RODHeader    
-    // Container(s):
-    xAOD::RODHeaderContainer_v1 RODHeader_c1;
-    // Element link(s):
-    ElementLink< xAOD::RODHeaderContainer_v1 > RODHeader_el1;
-    std::vector< ElementLink< xAOD::RODHeaderContainer_v1 > > RODHeader_el2;
-    // Element link vector(s):
-    ElementLinkVector< xAOD::RODHeaderContainer_v1 > RODHeader_elv1;
-    std::vector< ElementLinkVector< xAOD::RODHeaderContainer_v1 > > RODHeader_elv2;   
-    
-    // TriggerTower    
-    // Container(s):
-    xAOD::TriggerTowerContainer_v1 TriggerTower_c1;
-    // Element link(s):
-    ElementLink< xAOD::TriggerTowerContainer_v1 > TriggerTower_el1;
-    std::vector< ElementLink< xAOD::TriggerTowerContainer_v1 > > TriggerTower_el2;
-    // Element link vector(s):
-    ElementLinkVector< xAOD::TriggerTowerContainer_v1 > TriggerTower_elv1;
-    std::vector< ElementLinkVector< xAOD::TriggerTowerContainer_v1 > > TriggerTower_elv2; 
+    // TriggerTower 
+    xAOD::TriggerTowerContainer_v1 TriggerTower_v1_c1;
+    DataLink< xAOD::TriggerTowerContainer_v1 > TriggerTower_v1_l1;
+    ElementLink< xAOD::TriggerTowerContainer_v1 > TriggerTower_v1_l2;
+    ElementLinkVector< xAOD::TriggerTowerContainer_v1 > TriggerTower_v1_l3;
+    std::vector< DataLink< xAOD::TriggerTowerContainer_v1 > > TriggerTower_v1_l4;
+    std::vector< ElementLink< xAOD::TriggerTowerContainer_v1 > > TriggerTower_v1_l5;
+    std::vector< ElementLinkVector< xAOD::TriggerTowerContainer_v1 > > TriggerTower_v1_l6;      
     
     // Run 2
     
-    // Container(s):
+    // TriggerTower
     xAOD::TriggerTowerContainer_v2 TriggerTower_v2_c1;
-    // Element link(s):
-    ElementLink< xAOD::TriggerTowerContainer_v2 > TriggerTower_v2_el1;
-    std::vector< ElementLink< xAOD::TriggerTowerContainer_v2 > > TriggerTower_v2_el2;
-    // Element link vector(s):
-    ElementLinkVector< xAOD::TriggerTowerContainer_v2 > TriggerTower_v2_elv1;
-    std::vector< ElementLinkVector< xAOD::TriggerTowerContainer_v2 > > TriggerTower_v2_elv2;  
-    
+    DataLink< xAOD::TriggerTowerContainer_v2 > TriggerTower_v2_l1;
+    ElementLink< xAOD::TriggerTowerContainer_v2 > TriggerTower_v2_l2;
+    ElementLinkVector< xAOD::TriggerTowerContainer_v2 > TriggerTower_v2_l3;
+    std::vector< DataLink< xAOD::TriggerTowerContainer_v2 > > TriggerTower_v2_l4;
+    std::vector< ElementLink< xAOD::TriggerTowerContainer_v2 > > TriggerTower_v2_l5;
+    std::vector< ElementLinkVector< xAOD::TriggerTowerContainer_v2 > > TriggerTower_v2_l6;
 
     // CMXCPHits
-    // Container(s):
-    xAOD::CMXCPHitsContainer_v2 CMXCPHits_v2;
-    // Element Link(s):
-    ElementLink< xAOD::CMXCPHitsContainer_v2 > CMXCPHits_el1;
-    std::vector< ElementLink< xAOD::CMXCPHitsContainer_v2 > > CMXCPHits_el2;
-    // Element link vector(s):
-    ElementLinkVector< xAOD::CMXCPHitsContainer_v2 > CMXCPHits_elv1;
-    std::vector< ElementLinkVector< xAOD::CMXCPHitsContainer_v2 > > CMXCPHits_elv2;   
+    xAOD::CMXCPHitsContainer_v1 CMXCPHits_v1_c1;
+    DataLink< xAOD::CMXCPHitsContainer_v1 > CMXCPHits_v1_l1;
+    ElementLink< xAOD::CMXCPHitsContainer_v1 > CMXCPHits_v1_l2;
+    ElementLinkVector< xAOD::CMXCPHitsContainer_v1 > CMXCPHits_v1_l3;
+    std::vector< DataLink< xAOD::CMXCPHitsContainer_v1 > > CMXCPHits_v1_l4;
+    std::vector< ElementLink< xAOD::CMXCPHitsContainer_v1 > > CMXCPHits_v1_l5;
+    std::vector< ElementLinkVector< xAOD::CMXCPHitsContainer_v1 > > CMXCPHits_v1_l6;    
     
     // CMXCPTob
-    // Container(s):
-    xAOD::CMXCPTobContainer_v2 CMXCPTob_v2;
-    // Element Link(s):
-    ElementLink< xAOD::CMXCPTobContainer_v2 > CMXCPTob_el1;
-    std::vector< ElementLink< xAOD::CMXCPTobContainer_v2 > > CMXCPTob_el2;
-    // Element link vector(s):
-    ElementLinkVector< xAOD::CMXCPTobContainer_v2 > CMXCPTob_elv1;
-    std::vector< ElementLinkVector< xAOD::CMXCPTobContainer_v2 > > CMXCPTob_elv2;  
-    
+    xAOD::CMXCPTobContainer_v1 CMXCPTob_v1_c1;
+    DataLink< xAOD::CMXCPTobContainer_v1 > CMXCPTob_v1_l1;
+    ElementLink< xAOD::CMXCPTobContainer_v1 > CMXCPTob_v1_l2;
+    ElementLinkVector< xAOD::CMXCPTobContainer_v1 > CMXCPTob_v1_l3;
+    std::vector< DataLink< xAOD::CMXCPTobContainer_v1 > > CMXCPTob_v1_l4;
+    std::vector< ElementLink< xAOD::CMXCPTobContainer_v1 > > CMXCPTob_v1_l5;
+    std::vector< ElementLinkVector< xAOD::CMXCPTobContainer_v1 > > CMXCPTob_v1_l6;     
+         
     // CMXJetHits
-    // Container(s):
-    xAOD::CMXJetHitsContainer_v2 CMXJetHits_v2;
-    // Element Link(s):
-    ElementLink< xAOD::CMXJetHitsContainer_v2 > CMXJetHits_el1;
-    std::vector< ElementLink< xAOD::CMXJetHitsContainer_v2 > > CMXJetHits_el2;
-    // Element link vector(s):
-    ElementLinkVector< xAOD::CMXJetHitsContainer_v2 > CMXJetHits_elv1;
-    std::vector< ElementLinkVector< xAOD::CMXJetHitsContainer_v2 > > CMXJetHits_elv2;
-
+    xAOD::CMXJetHitsContainer_v1 CMXJetHits_v1_c1;
+    DataLink< xAOD::CMXJetHitsContainer_v1 > CMXJetHits_v1_l1;
+    ElementLink< xAOD::CMXJetHitsContainer_v1 > CMXJetHits_v1_l2;
+    ElementLinkVector< xAOD::CMXJetHitsContainer_v1 > CMXJetHits_v1_l3;
+    std::vector< DataLink< xAOD::CMXJetHitsContainer_v1 > > CMXJetHits_v1_l4;
+    std::vector< ElementLink< xAOD::CMXJetHitsContainer_v1 > > CMXJetHits_v1_l5;
+    std::vector< ElementLinkVector< xAOD::CMXJetHitsContainer_v1 > > CMXJetHits_v1_l6;      
 
     // CMXJetTob
-    // Container(s):
-    xAOD::CMXJetTobContainer_v2 CMXJetTob_v2;
-    // Element Link(s):
-    ElementLink< xAOD::CMXJetTobContainer_v2 > CMXJetTob_el1;
-    std::vector< ElementLink< xAOD::CMXJetTobContainer_v2 > > CMXJetTob_el2;
-    // Element link vector(s):
-    ElementLinkVector< xAOD::CMXJetTobContainer_v2 > CMXJetTob_elv1;
-    std::vector< ElementLinkVector< xAOD::CMXJetTobContainer_v2 > > CMXJetTob_elv2;
-
+    xAOD::CMXJetTobContainer_v1 CMXJetTob_v1_c1;
+    DataLink< xAOD::CMXJetTobContainer_v1 > CMXJetTob_v1_l1;
+    ElementLink< xAOD::CMXJetTobContainer_v1 > CMXJetTob_v1_l2;
+    ElementLinkVector< xAOD::CMXJetTobContainer_v1 > CMXJetTob_v1_l3;
+    std::vector< DataLink< xAOD::CMXJetTobContainer_v1 > > CMXJetTob_v1_l4;
+    std::vector< ElementLink< xAOD::CMXJetTobContainer_v1 > > CMXJetTob_v1_l5;
+    std::vector< ElementLinkVector< xAOD::CMXJetTobContainer_v1 > > CMXJetTob_v1_l6;    
 
     // CMXEtSums
-    // Container(s):
-    xAOD::CMXEtSumsContainer_v2 CMXEtSums_v2;
-    // Element Link(s):
-    ElementLink< xAOD::CMXEtSumsContainer_v2 > CMXEtSums_el1;
-    std::vector< ElementLink< xAOD::CMXEtSumsContainer_v2 > > CMXEtSums_el2;
-    // Element link vector(s):
-    ElementLinkVector< xAOD::CMXEtSumsContainer_v2 > CMXEtSums_elv1;
-    std::vector< ElementLinkVector< xAOD::CMXEtSumsContainer_v2 > > CMXEtSums_elv2;
-    
-    
-    // CPMTower    
-    // Container(s):
+    xAOD::CMXEtSumsContainer_v1 CMXEtSums_v1_c1;
+    DataLink< xAOD::CMXEtSumsContainer_v1 > CMXEtSums_v1_l1;
+    ElementLink< xAOD::CMXEtSumsContainer_v1 > CMXEtSums_v1_l2;
+    ElementLinkVector< xAOD::CMXEtSumsContainer_v1 > CMXEtSums_v1_l3;
+    std::vector< DataLink< xAOD::CMXEtSumsContainer_v1 > > CMXEtSums_v1_l4;
+    std::vector< ElementLink< xAOD::CMXEtSumsContainer_v1 > > CMXEtSums_v1_l5;
+    std::vector< ElementLinkVector< xAOD::CMXEtSumsContainer_v1 > > CMXEtSums_v1_l6;        
+   
+    // CPMTower  
     xAOD::CPMTowerContainer_v2 CPMTower_v2_c1;
-    // Element link(s):
-    ElementLink< xAOD::CPMTowerContainer_v2 > CPMTower_v2_el1;
-    std::vector< ElementLink< xAOD::CPMTowerContainer_v2 > > CPMTower_v2_el2;
-    // Element link vector(s):
-    ElementLinkVector< xAOD::CPMTowerContainer_v2 > CPMTower_v2_elv1;
-    std::vector< ElementLinkVector< xAOD::CPMTowerContainer_v2 > > CPMTower_v2_elv2;       
-
-
+    DataLink< xAOD::CPMTowerContainer_v2 > CPMTower_v2_l1;
+    ElementLink< xAOD::CPMTowerContainer_v2 > CPMTower_v2_l2;
+    ElementLinkVector< xAOD::CPMTowerContainer_v2 > CPMTower_v2_l3;
+    std::vector< DataLink< xAOD::CPMTowerContainer_v2 > > CPMTower_v2_l4;
+    std::vector< ElementLink< xAOD::CPMTowerContainer_v2 > > CPMTower_v2_l5;
+    std::vector< ElementLinkVector< xAOD::CPMTowerContainer_v2 > > CPMTower_v2_l6;     
+   
     // CPMTobRoI
-    // Container(s):
-    xAOD::CPMTobRoIContainer_v2 CPMTobRoI_v2;
-    // Element Link(s):
-    ElementLink< xAOD::CPMTobRoIContainer_v2 > CPMTobRoI_el1;
-    std::vector< ElementLink< xAOD::CPMTobRoIContainer_v2 > > CPMTobRoI_el2;
-    // Element link vector(s):
-    ElementLinkVector< xAOD::CPMTobRoIContainer_v2 > CPMTobRoI_elv1;
-    std::vector< ElementLinkVector< xAOD::CPMTobRoIContainer_v2 > > CPMTobRoI_elv2;
+    xAOD::CPMTobRoIContainer_v1 CPMTobRoI_v1_c1;
+    DataLink< xAOD::CPMTobRoIContainer_v1 > CPMTobRoI_v1_l1;
+    ElementLink< xAOD::CPMTobRoIContainer_v1 > CPMTobRoI_v1_l2;
+    ElementLinkVector< xAOD::CPMTobRoIContainer_v1 > CPMTobRoI_v1_l3;
+    std::vector< DataLink< xAOD::CPMTobRoIContainer_v1 > > CPMTobRoI_v1_l4;
+    std::vector< ElementLink< xAOD::CPMTobRoIContainer_v1 > > CPMTobRoI_v1_l5;
+    std::vector< ElementLinkVector< xAOD::CPMTobRoIContainer_v1 > > CPMTobRoI_v1_l6;     
 
     // JEMEtSums
-    // Container(s):
     xAOD::JEMEtSumsContainer_v2 JEMEtSums_v2_c1;
-    // Element link(s):
-    ElementLink< xAOD::JEMEtSumsContainer_v2 > JEMEtSums_v2_el1;
-    std::vector< ElementLink< xAOD::JEMEtSumsContainer_v2 > > JEMEtSums_v2_el2;
-    // Element link vector(s):
-    ElementLinkVector< xAOD::JEMEtSumsContainer_v2 > JEMEtSums_v2_elv1;
-    std::vector< ElementLinkVector< xAOD::JEMEtSumsContainer_v2 > > JEMEtSums_v2_elv2;      
+    DataLink< xAOD::JEMEtSumsContainer_v2 > JEMEtSums_v2_l1;
+    ElementLink< xAOD::JEMEtSumsContainer_v2 > JEMEtSums_v2_l2;
+    ElementLinkVector< xAOD::JEMEtSumsContainer_v2 > JEMEtSums_v2_l3;
+    std::vector< DataLink< xAOD::JEMEtSumsContainer_v2 > > JEMEtSums_v2_l4;
+    std::vector< ElementLink< xAOD::JEMEtSumsContainer_v2 > > JEMEtSums_v2_l5;
+    std::vector< ElementLinkVector< xAOD::JEMEtSumsContainer_v2 > > JEMEtSums_v2_l6;     
 
     // JEMTobRoI
-    // Container(s):
-    xAOD::JEMTobRoIContainer_v2 JEMTobRoI_v2;
-    // Element Link(s):
-    ElementLink< xAOD::JEMTobRoIContainer_v2 > JEMTobRoI_el1;
-    std::vector< ElementLink< xAOD::JEMTobRoIContainer_v2 > > JEMTobRoI_el2;
-    // Element link vector(s):
-    ElementLinkVector< xAOD::JEMTobRoIContainer_v2 > JEMTobRoI_elv1;
-    std::vector< ElementLinkVector< xAOD::JEMTobRoIContainer_v2 > > JEMTobRoI_elv2;
-    
+    xAOD::JEMTobRoIContainer_v1 JEMTobRoI_v1_c1;
+    DataLink< xAOD::JEMTobRoIContainer_v1 > JEMTobRoI_v1_l1;
+    ElementLink< xAOD::JEMTobRoIContainer_v1 > JEMTobRoI_v1_l2;
+    ElementLinkVector< xAOD::JEMTobRoIContainer_v1 > JEMTobRoI_v1_l3;
+    std::vector< DataLink< xAOD::JEMTobRoIContainer_v1 > > JEMTobRoI_v1_l4;
+    std::vector< ElementLink< xAOD::JEMTobRoIContainer_v1 > > JEMTobRoI_v1_l5;
+    std::vector< ElementLinkVector< xAOD::JEMTobRoIContainer_v1 > > JEMTobRoI_v1_l6;        
      
-    // JetElement    
-    // Container(s):
+    // JetElement
     xAOD::JetElementContainer_v2 JetElement_v2_c1;
-    // Element link(s):
-    ElementLink< xAOD::JetElementContainer_v2 > JetElement_v2_el1;
-    std::vector< ElementLink< xAOD::JetElementContainer_v2 > > JetElement_v2_el2;
-    // Element link vector(s):
-    ElementLinkVector< xAOD::JetElementContainer_v2 > JetElement_v2_elv1;
-    std::vector< ElementLinkVector< xAOD::JetElementContainer_v2 > > JetElement_v2_elv2; 
+    DataLink< xAOD::JetElementContainer_v2 > JetElement_v2_l1;
+    ElementLink< xAOD::JetElementContainer_v2 > JetElement_v2_l2;
+    ElementLinkVector< xAOD::JetElementContainer_v2 > JetElement_v2_l3;
+    std::vector< DataLink< xAOD::JetElementContainer_v2 > > JetElement_v2_l4;
+    std::vector< ElementLink< xAOD::JetElementContainer_v2 > > JetElement_v2_l5;
+    std::vector< ElementLinkVector< xAOD::JetElementContainer_v2 > > JetElement_v2_l6;
+    
+    // L1TopoRawData
+    xAOD::L1TopoRawDataContainer_v1 L1TopoRawData_v1_c1;
+    DataLink< xAOD::L1TopoRawDataContainer_v1 > L1TopoRawData_v1_l1;
+    ElementLink< xAOD::L1TopoRawDataContainer_v1 > L1TopoRawData_v1_l2;
+    ElementLinkVector< xAOD::L1TopoRawDataContainer_v1 > L1TopoRawData_v1_l3;
+    std::vector< DataLink< xAOD::L1TopoRawDataContainer_v1 > > L1TopoRawData_v1_l4;
+    std::vector< ElementLink< xAOD::L1TopoRawDataContainer_v1 > > L1TopoRawData_v1_l5;
+    std::vector< ElementLinkVector< xAOD::L1TopoRawDataContainer_v1 > > L1TopoRawData_v1_l6;    
     
   };
 }

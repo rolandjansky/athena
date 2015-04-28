@@ -4,17 +4,17 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: CPMTobRoIAuxContainer.h 639736 2015-01-15 15:27:50Z morrisj $
+// $Id: CPMTobRoIAuxContainer.h 652818 2015-03-09 22:54:24Z morrisj $
 #ifndef XAODTRIGL1CALO_CPMTOBROIAUXCONTAINER_H
 #define XAODTRIGL1CALO_CPMTOBROIAUXCONTAINER_H
 
 // Local include(s):
-#include "xAODTrigL1Calo/versions/CPMTobRoIAuxContainer_v2.h"
+#include "xAODTrigL1Calo/versions/CPMTobRoIAuxContainer_v1.h"
 
 // Namespace holding all the xAOD EDM classes
 namespace xAOD{
-  /// Define the latest version of the CMMCPHits class
-  typedef CPMTobRoIAuxContainer_v2 CPMTobRoIAuxContainer;
+  /// Define the latest version of the CPMTobRoI class
+  typedef CPMTobRoIAuxContainer_v1 CPMTobRoIAuxContainer;
 }
 
 #include "xAODCore/CLASS_DEF.h"
