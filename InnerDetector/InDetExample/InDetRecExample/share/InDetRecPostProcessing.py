@@ -263,7 +263,7 @@ if InDetFlags.doV0Finder():
                                                                        Extrapolator        = "Trk::Extrapolator/InDetExtrapolator",
                                                                        maxTrtD0            = 50.,
                                                                        maxSiZ0             = 250.,
-                                                                       significanceD0_Si   = 0.,
+                                                                       significanceD0_Si   = 1.,
                                                                        significanceD0_Trt  = 1.,
                                                                        significanceZ0_Trt  = 3.,
                                                                        minPt               = 50.0,
@@ -328,6 +328,10 @@ if InDetFlags.doV0Finder():
                                             uksmax                  = 2000.,
                                             ulamin                  = 0.,
                                             ulamax                  = 2000.,
+                                            ksmin                   = 350,
+                                            ksmax                   = 650,
+                                            lamin                   = 900, 
+                                            lamax                   = 1300,    
                                             d0_cut                  = 0.,
                                             Extrapolator            = "Trk::Extrapolator/InDetExtrapolator")
   else:
@@ -422,7 +426,7 @@ if InDetFlags.doConversions():
     print "InDetRecPostProcessing: InDetConversionVertexCuts not set before - import them now"
     from InDetRecExample.ConfiguredSecondaryVertexCuts import ConfiguredSecondaryVertexCuts
     InDetConversionVertexCuts      = ConfiguredSecondaryVertexCuts(InDetFlags.conversionVertexCutSetup(),
-                                                                   InDetNewTrackingCuts.minSecondaryPt())
+                                                                   InDetNewTrackingCuts.minPT())
     if (InDetFlags.doPrintConfigurables()):
       print InDetConversionVertexCuts.printInfo()
     pass
@@ -430,16 +434,30 @@ if InDetFlags.doConversions():
   #
   # --- configure the conversion finder
   #
+
+  # Utility for conversion tool
+  from TrkVertexFitterUtils.TrkVertexFitterUtilsConf import Trk__NeutralParticleParameterCalculator
+  convUtils = Trk__NeutralParticleParameterCalculator(
+      name                   = "convUtils",
+      LinearizedTrackFactory = None)
+  ToolSvc+= convUtils 
+
   from InDetRecExample.ConfiguredSecVertexFinding import ConfiguredSecVertexFinding
   InDetConversionFinding = ConfiguredSecVertexFinding (prefix           = "InDetConversion",
                                                        VertexCuts       = InDetConversionVertexCuts,
-                                                       TrackParticles   = InDetKeys.TrackParticles(),
+                                                       TrackParticles   = InDetKeys.xAODTrackParticleContainer(),
                                                        SecVertices      = InDetKeys.Conversions(),
                                                        Extrapolator     = InDetExtrapolator,
                                                        TrackSummaryTool = InDetTrackSummaryTool,
                                                        printConfig      = InDetFlags.doPrintConfigurables())
   # --- we need the driving algorithm
   InDetConversionFinding.addAlgorithm()
+
+  from egammaTrackTools.egammaTrackToolsConf import EMExtrapolationTools
+  egammaExtrapolationTool = EMExtrapolationTools(name = 'egammaExtrapolationTool')
+  ToolSvc += egammaExtrapolationTool
+  topSequence.InDetConversionFinder.ExtrapolationTool  =  egammaExtrapolationTool
+  topSequence.InDetConversionFinder.doExtrapolation = True
 
 
 if InDetFlags.doParticleCreation():

@@ -90,7 +90,8 @@ if InDetFlags.doTrackSegmentsPixel() and InDetFlags.doParticleCreation():
  xAODPixelTrackParticleCnvAlg.TrackContainerName = InDetKeys.PixelTracks()
  xAODPixelTrackParticleCnvAlg.ConvertTrackParticles = False
  xAODPixelTrackParticleCnvAlg.ConvertTracks = True
- xAODPixelTrackParticleCnvAlg.AddTruthLink = False
+ xAODPixelTrackParticleCnvAlg.TrackTruthContainerName = InDetKeys.PixelTracksTruth()
+ xAODPixelTrackParticleCnvAlg.AddTruthLink = InDetFlags.doTruth()
  xAODPixelTrackParticleCnvAlg.PrintIDSummaryInfo = True
  #xAODPixelTrackParticleCnvAlg.OutputLevel = VERBOSE
  topSequence += xAODPixelTrackParticleCnvAlg

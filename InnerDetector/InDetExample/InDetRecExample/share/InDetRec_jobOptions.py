@@ -197,6 +197,12 @@ else:
                                                                  InDetNewTrackingCutsPixel,
                                                                  TrackCollectionKeys,
                                                                  TrackCollectionTruthKeys)
+
+      if InDetFlags.doTruth():
+        PixelTracksTruth = ConfiguredInDetTrackTruth(InDetKeys.PixelTracks(),
+                                                     InDetKeys.PixelDetailedTracksTruth(),
+                                                     InDetKeys.PixelTracksTruth())
+
     #
     # --- SCT track segment finding
     #

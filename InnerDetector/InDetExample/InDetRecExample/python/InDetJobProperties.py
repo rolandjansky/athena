@@ -1023,6 +1023,12 @@ class keepAdditionalHitsOnTrackParticle(InDetFlagsJobProperty):
   allowedTypes = ['bool']
   StoredValue  = False
 
+class doSCTModuleVeto(InDetFlagsJobProperty): 
+  """Turn on SCT_ModuleVetoSvc, allowing it to be configured later""" 
+  statusOn     = True 
+  allowedTypes = ['bool']
+  StoredValue  = False
+
 ##-----------------------------------------------------------------------------
 ## 2nd step
 ## Definition of the InDet flag container
@@ -1265,7 +1271,8 @@ class InDetJobProperties(JobPropertyContainer):
        self.checkThenSet(self.doTrackSegmentsSCT     , False )
        self.checkThenSet(self.doTrackSegmentsTRT     , False )
        self.checkThenSet(self.doSlimming             , False )
-       self.checkThenSet(self.doSGDeletion           , True )
+       self.checkThenSet(self.useBeamConstraint      , False )
+       self.checkThenSet(self.selectSCTIntimeHits    , False )
        # --- turn off brem
        self.checkThenSet(self.doBremRecovery         , False)
        self.checkThenSet(self.doCaloSeededBrem       , False)
@@ -1326,26 +1333,34 @@ class InDetJobProperties(JobPropertyContainer):
 
        # --- new setup for MinBias tracking
        if self.doMinBias():
-          # --- run soft tracking
-          #self.checkThenSet(self.doLowPt             , False )    
-          #self.checkThenSet(self.doVeryLowPt         , False )
+          # --- run TRT only tracking over the entire detector
+          self.checkThenSet(self.cutLevel     , 12)
           # --- disable forward tracklets
           self.checkThenSet(self.doForwardTracks     , False )
           # --- run tracklets
-          #self.checkThenSet(self.doTrackSegmentsPixel, False )
+          self.checkThenSet(self.doTrackSegmentsPixelPrdAssociation, False)
+          self.checkThenSet(self.doTrackSegmentsPixel, True )
           #self.checkThenSet(self.doTrackSegmentsSCT  , False )
           #self.checkThenSet(self.doTrackSegmentsTRT  , False )
           # --- turn off brem
-          self.checkThenSet(self.doBremRecovery  , False)
-          self.checkThenSet(self.doCaloSeededBrem, False)
+          #self.checkThenSet(self.doBremRecovery  , False)
+          #self.checkThenSet(self.doCaloSeededBrem, False)
           self.checkThenSet(self.doHadCaloSeededSSS     , False)
 
           # --- primary vertex setup
           self.checkThenSet(self.primaryVertexSetup      , "IterativeFinding")
           self.checkThenSet(self.primaryVertexCutSetup   , "Offline")          
+          self.checkThenSet(self.priVtxCutLevel          , 1)   
           # --- sec vertexing setup
           self.checkThenSet(self.secondaryVertexCutSetup , "StartUp") 
           self.checkThenSet(self.conversionVertexCutSetup, "ConversionStartUp")
+          # --- enable sec vertexing
+          self.checkThenSet(self.doV0Finder,       True) 
+          self.checkThenSet(self.doSimpleV0Finder, True)
+          self.checkThenSet(self.doConversions,    True)
+          # --- keep 1st and last hit information
+          self.checkThenSet(self.keepAdditionalHitsOnTrackParticle, True)
+         
 
        # --- new setup for d0LowLMuRunSetup tracking
        elif self.doLowMuRunSetup():
@@ -1613,8 +1628,8 @@ class InDetJobProperties(JobPropertyContainer):
       # ---- TRT Phase
       # --------------------------------------------------------------------
       #
-      # Collision phase is done on segments so can't run if TRT segements not run
-      if not self.doCosmics(): self.doTRTPhaseCalculation = self.doTRTPhaseCalculation() and DetFlags.haveRIO.TRT_on() and self.doPRDFormation()
+      # Collision phase is done on segments so can't run if TRT segements not run. Also don't run when running standalone pseudo tracking.
+      if not self.doCosmics(): self.doTRTPhaseCalculation = self.doTRTPhaseCalculation() and DetFlags.haveRIO.TRT_on() and self.doPRDFormation() and not (self.doPseudoTracking and not self.doNewTracking)
 
       #
       # --------------------------------------------------------------------
@@ -2366,7 +2381,8 @@ _list_InDetJobProperties = [Enabled,
                             doSLHCVeryForward,
                             doTRTOccupancyEventInfo,
                             doNNToTCalibration,
-                            keepAdditionalHitsOnTrackParticle
+                            keepAdditionalHitsOnTrackParticle,
+                            doSCTModuleVeto
                            ]
 for j in _list_InDetJobProperties: 
     jobproperties.InDetJobProperties.add_JobProperty(j)

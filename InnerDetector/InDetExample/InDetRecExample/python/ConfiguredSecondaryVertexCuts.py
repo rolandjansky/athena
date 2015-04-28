@@ -132,9 +132,9 @@ class ConfiguredSecondaryVertexCuts :
       self.__TrkSel_maxTrtZ0                   = 10000. # off ?
       self.__TrkSel_minPt                      = minPt
       self.__TrkSel_RatioCut1                  = 0.0    # e-prob: Ntrt < 15
-      self.__TrkSel_RatioCut2                  = 0.1    # e-prob: 15 < Ntrt < 25  
-      self.__TrkSel_RatioCut3                  = 0.1    # e-prob: Ntrt > 25 
-      self.__TrkSel_RatioTRT                   = 0.1    # e-prob cut for TRT only
+      self.__TrkSel_RatioCut2                  = 0.0    # e-prob: 15 < Ntrt < 25  
+      self.__TrkSel_RatioCut3                  = 0.0    # e-prob: Ntrt > 25 
+      self.__TrkSel_RatioTRT                   = 0.0    # e-prob cut for TRT only
       self.__TrkSel_IsConversion               = True
       self.__TrkSel_significanceD0_Si          = -1.    # V0 only cuts
       self.__TrkSel_RatioV0                    = -1.    # V0 only cuts
