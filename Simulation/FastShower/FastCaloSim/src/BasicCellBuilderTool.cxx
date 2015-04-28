@@ -702,7 +702,7 @@ void BasicCellBuilderTool::findCells(cellinfo_vec & cell_vec, double eta_min, do
 
   std::vector<IdentifierHash> idhash_list;
 
-  std::vector<CaloDetDescrElement*> caloDDE_list;
+  std::vector<const CaloDetDescrElement*> caloDDE_list;
   std::vector<double> vol_list;
   std::vector<bool> emhadflag_list;
   double vol=0;
@@ -727,7 +727,7 @@ void BasicCellBuilderTool::findCells(cellinfo_vec & cell_vec, double eta_min, do
     subcalos.push_back(CaloCell_ID::LARFCAL);
   }
   
-  CaloDetDescrElement* theDDE;
+  const CaloDetDescrElement* theDDE;
 
   for(unsigned int sc=0;sc<subcalos.size();++sc) {
     m_caloDDM->cellsInZone(eta_min,eta_max,phi_min,phi_max,subcalos[sc],idhash_list);
