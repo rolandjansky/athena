@@ -48,6 +48,8 @@ ISF::GenEventStackFiller::GenEventStackFiller(const std::string& t, const std::s
     m_particleDataTable(0),
     m_inputMcEventCollection("GEN_EVENT"),
     m_outputMcEventCollection("TruthEvent"),
+    m_pileupMcEventCollection(""),
+    m_outputPileupMcEventCollection(""),
     m_recordOnlySimulated(false),
     m_useGeneratedParticleMass(false),
     m_genEventManipulators(),
@@ -73,6 +75,11 @@ ISF::GenEventStackFiller::GenEventStackFiller(const std::string& t, const std::s
   declareProperty("PurgeOutputCollectionToSimulatedParticlesOnly",
                   m_recordOnlySimulated,
                   "Record only particles that were taken as Input for the Simulation.");
+  declareProperty("PileupMcEventCollection",m_pileupMcEventCollection,
+      "StoreGate collection name of pileup generator McEventCollection");
+  declareProperty("OutputPileupMcEventCollection",
+      m_outputPileupMcEventCollection,
+      "StoreGate collection name of pileup truth McEventCollection");
   // particle mass from particle data table?
   declareProperty("UseGeneratedParticleMass",
                   m_useGeneratedParticleMass,
@@ -164,6 +171,9 @@ StatusCode ISF::GenEventStackFiller::fillStack(ISF::ISFParticleContainer& partic
   } else {
     // 2. try to retrieve and process regular mceventcollection, as usual
     sc = processSingleColl(particleColl);
+    // added by RJH, process additional inline pileup collections if requested
+    if (sc.isSuccess() && m_pileupMcEventCollection!="") 
+      sc = processPileupColl(particleColl);
   }
 
   if (sc.isFailure()) {
@@ -180,7 +190,7 @@ StatusCode ISF::GenEventStackFiller::fillStack(ISF::ISFParticleContainer& partic
 }
 
 
-/** process merged (hard-scatter+pileup) mcevent collections */
+/** process single (hard-scatter-only) mcevent collection */
 StatusCode
 ISF::GenEventStackFiller::processSingleColl(ISF::ISFParticleContainer& particleColl) const
 {
@@ -206,13 +216,13 @@ ISF::GenEventStackFiller::processSingleColl(ISF::ISFParticleContainer& particleC
     return StatusCode::FAILURE;
   }
 
-  ATH_MSG_VERBOSE( "Created particle collection with length " << particleColl.size() );
+  ATH_MSG_DEBUG( "Created particle collection with length " << particleColl.size() );
 
   return StatusCode::SUCCESS;
 }
 
 
-/** process single (hard-scatter-only) mcevent collection */
+/** process merged (hard-scatter+pileup) mcevent collections */
 StatusCode
 ISF::GenEventStackFiller::processMergedColls(ISF::ISFParticleContainer& particleColl) const
 {
@@ -264,6 +274,37 @@ ISF::GenEventStackFiller::processMergedColls(ISF::ISFParticleContainer& particle
   return StatusCode::SUCCESS;
 }
 
+// addd by RJH process pileup mcevent collection
+StatusCode 
+ISF::GenEventStackFiller::processPileupColl(ISF::ISFParticleContainer& 
+					    particleColl) const
+{
+  // Retrieve pileup collecton from StoreGate
+  const McEventCollection* inputCollection=0;
+  if (evtStore()->retrieve(inputCollection,m_pileupMcEventCollection).isFailure()) {
+    ATH_MSG_ERROR("Coould not retrieve " << m_pileupMcEventCollection << 
+		  "from StoreGateSvc");
+    return StatusCode::FAILURE;
+  }
+  // create copy
+  McEventCollection *mcCollection=new McEventCollection(*inputCollection);
+  StatusCode status=mcEventCollLooper(particleColl,mcCollection,1);
+  if (status!=StatusCode::SUCCESS) return status;
+
+  // record this additional collection to Storegate
+  bool allowMods(true);
+  if (evtStore()->record(mcCollection, m_outputPileupMcEventCollection, 
+			 allowMods).isFailure()) {
+    ATH_MSG_ERROR( "Could not record " << m_outputPileupMcEventCollection << 
+		   " to StoreGateSvc. Abort.");
+    return StatusCode::FAILURE;
+  }
+
+  ATH_MSG_DEBUG( "After adding pileup, particle collection has length " << 
+		 particleColl.size() );
+  return StatusCode::SUCCESS;
+}
+
 
 /** common code to loop over mcevent collection */
 StatusCode
@@ -271,6 +312,10 @@ ISF::GenEventStackFiller::mcEventCollLooper(ISF::ISFParticleContainer& particleC
 {
   // ensure unique barcode for merged pileup collisions
   int bcPileupOffset = ( nPileupCounter>0 ? m_largestBc+1 : 0 ); 
+
+  ATH_MSG_DEBUG("Starting mcEVentCollLooper for pileup " << nPileupCounter
+		<< " bcPileupOffset " << bcPileupOffset << " with "
+		<< particleColl.size() << " ISF particles");
 
   McEventCollection::iterator eventIt    = mcCollection->begin();
   McEventCollection::iterator eventItEnd = mcCollection->end();
@@ -284,9 +329,17 @@ ISF::GenEventStackFiller::mcEventCollLooper(ISF::ISFParticleContainer& particleC
   std::vector<HepMC::GenParticle*> goodparticles;
 
   // loop over the event in the mc collection
-  for ( ; eventIt != eventItEnd; ++eventIt) {
+  int npile=0;
+  for ( ; eventIt != eventItEnd; ++eventIt,++npile) {
     // skip empty events
     if ( *eventIt == 0) continue;
+
+    // RJH - for pileup, calculate bcid from signal-process-id
+    int bcid=0;
+    if (nPileupCounter>0) {
+      bcid=((*eventIt)->signal_process_id())/10000;
+      ATH_MSG_DEBUG("Pileup index " << npile << " mapped to BCID " << bcid);
+    }
 
     ATH_MSG_VERBOSE(" signal_process_id " << (*eventIt)->signal_process_id() );
     ATH_MSG_VERBOSE(" event number " << (*eventIt)->event_number() );
@@ -361,10 +414,10 @@ ISF::GenEventStackFiller::mcEventCollLooper(ISF::ISFParticleContainer& particleC
       for ( ; passFilter && filterIt!=filterEnd; ++filterIt) {
 	// determine if the particle passes current filter
 	passFilter = (*filterIt)->pass(*tParticle);
-	ATH_MSG_DEBUG("GenParticleFilter '" << (*filterIt).typeAndName() << "' returned: "
+	ATH_MSG_VERBOSE("GenParticleFilter '" << (*filterIt).typeAndName() << "' returned: "
 		     << (passFilter ? "true, will keep particle."
 			 : "false, will remove particle."));
-	ATH_MSG_DEBUG("Particle: ("
+	ATH_MSG_VERBOSE("Particle: ("
 		     <<tParticle->momentum().px()<<", "
 		     <<tParticle->momentum().py()<<", "
 		     <<tParticle->momentum().pz()<<"), pdgCode: "
@@ -403,7 +456,7 @@ ISF::GenEventStackFiller::mcEventCollLooper(ISF::ISFParticleContainer& particleC
 	continue;
       }
       
-      ATH_MSG_DEBUG( "GenParticle with Barcode '" << pBarcode
+      ATH_MSG_VERBOSE( "GenParticle with Barcode '" << pBarcode
 		     << "' passed all cuts, adding it to the initial ISF particle list.");
       
       // -> particle origin (TODO: add proper GeoID, collision/cosmics)
@@ -461,10 +514,11 @@ ISF::GenEventStackFiller::mcEventCollLooper(ISF::ISFParticleContainer& particleC
       sParticle->setUserInformation( new ISF::ParticleUserInformation() );
       if ( m_barcodeSvc->hasBitCalculator() ) {
 	// first gen-event in the list is the hard scatter.
-	if (m_current_event_index==0) { m_barcodeSvc->getBitCalculator()->SetHS(extrabc,true); }
+	// RJH - change thsi to use the pileupCounter parameter
+	if (nPileupCounter==0) { m_barcodeSvc->getBitCalculator()->SetHS(extrabc,true); }
 	else { m_barcodeSvc->getBitCalculator()->SetHS(extrabc,false); }
-	// bcid
-	int bcid = int( m_current_event_time / m_bunch_spacing );
+	// bcid - RJH now set this above from signal-process-id of pileup
+	// int bcid = int( m_current_event_time / m_bunch_spacing );
 	m_barcodeSvc->getBitCalculator()->SetBCID(extrabc,bcid);
 	// parent pid
 	int absPDG = abs( pPdgId );
@@ -500,7 +554,7 @@ ISF::GenEventStackFiller::mcEventCollLooper(ISF::ISFParticleContainer& particleC
 double ISF::GenEventStackFiller::getParticleMass(const HepMC::GenParticle &part) const {
   // default value: generated particle mass
   double mass = part.generated_mass();
-  ATH_MSG_DEBUG("part.generated_mass, mass="<<mass);
+  ATH_MSG_VERBOSE("part.generated_mass, mass="<<mass);
 
   // 1. use PDT mass?
   if ( !m_useGeneratedParticleMass) {
@@ -510,7 +564,7 @@ double ISF::GenEventStackFiller::getParticleMass(const HepMC::GenParticle &part)
       : 0 ;
     if (pData) {
       mass = pData->mass();
-      ATH_MSG_DEBUG("using pData mass, mass="<<mass);
+      ATH_MSG_VERBOSE("using pData mass, mass="<<mass);
     }
     else
       ATH_MSG_WARNING( "Unable to find mass of particle with PDG ID '" << absPDG << "' in ParticleDataTable. Will set mass to generated_mass: " << mass);
@@ -521,6 +575,6 @@ double ISF::GenEventStackFiller::getParticleMass(const HepMC::GenParticle &part)
 
 StatusCode  ISF::GenEventStackFiller::finalize()
 {
-  ATH_MSG_VERBOSE("Finalizing ...");
+  ATH_MSG_DEBUG("Finalizing ...");
   return StatusCode::SUCCESS;
 }
