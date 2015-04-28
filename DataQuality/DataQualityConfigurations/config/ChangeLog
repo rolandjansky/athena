@@ -1,3 +1,65 @@
+2015-04-27 Suneet Upadhyay <suneet.upadhyay@cern.ch>
+  * config/MET/collisions_run.config: also updated for first beam.
+
+2015-04-24 Semen Turchikhin <Semen.Turchikhin@cern.ch>
+  * config/HLT/HLTbphys/collisions_run.config: update for first beam
+
+2015-03-25 Rachel Rosten <rrosten@cern.ch>
+	*config/MuonTrkPhys Removed all histos except Z-Signal as part of package makeover
+
+2015-03-25 camincher Clement <camincher@lpsc.in2p3.fr>
+
+	* config/LArMonitoring/cosmics_run.config include Eoff vs Eon histos, put DSP plots into a folder
+	* config/LArMonitoring/collision_run.config  include Eoff vs Eon hisyos, put DSP plots into a folder
+
+2015-03-18  Siarhei Harkusha  <Siarhei.Harkusha@cern.ch>
+
+	* config/Tile/cosmics_run.config: updated configuration for cosmics to add histogram for low gain occupancy map over threshold
+	* config/Tile/collisions_run.config: updated configuration for collisions to add histogram for low gain occupancy map over threshold
+
+2015-03-18 Elin Bergeaas Kuutmann <ebergeas@cern.ch>
+	* update of HLTglobal collisions config file
+	* minor updates of HLTglobal cosmics config file
+	* update of HLTidtrk collisions and cosmics config files
+
+2015-03-18 Semen Turchikhin <Semen.Turchikhin@cern.ch>
+	* update of HLTbphys collisions config
+
+2015-03-17 Elin Bergeaas Kuutmann <ebergeas@cern.ch>
+	* update of HLTglobal cosmics config file, linked to HLT/TRHLT in webdisplay
+	* update of HLTOfflineShifter collisions config file, to resolve crash induced by the removal of the HLTjet_Histogram_Not_Empty&GatherData algorithm
+	* addition of HLTOfflineShifter cosmics config file
+
+2015-03-16 Giulio Cornelio Grossi <giulio.cornelio.grossi@cern.ch>
+	* update HLTjet config files
+
+2015-03-12 Graham Cree <gcree@cern.ch>
+	* update MuonCombined config files
+
+2015-02-26 Gabriele Chiodini gabriele.chiodini@le.infn.it
+	* update RPC configs
+	
+2015-02-20 James Walder <jwalder@cern.ch>
+	* HLT/HLTbphys/cosmics_run.config udpates to match root output 
+
+2015-02-05  Khadeejah ALGhadeer <khadeejah.alghadeer@cern.ch>
+        * update config files for Run 2
+
+2015-02-04  Clement Camincher <camincher@lpsc.in2p3.fr>
+        * config/LArMonitoring/cosmics_run.config include weighted flag for the Noise Burst
+	* config/LArMonitoring/collision_run.config include weighted flag for the Noise Burst
+
+2014-11-30  Lee Sawyer <lee.sawyer@cern.ch>
+        * re-wrote HLT/HLTjet config files for Run 2
+
+2014-11-21  Semen Turchikhin <Semen.Turchikhin@cern.ch>
+	* config/HLTbphys/cosmics_run.config rewritten, 6 histograms added 
+
+2014-11-16  Siarhei Harkusha  <Siarhei.Harkusha@cern.ch>
+
+	* config/Tile/cosmics_run.config: updated configuration to take into account
+	  changement of MBTS histograms names and thereafore changed temporarily reference file for Tile
+
 2014-10-17 Rachel Hinman <rachel.reisner.hinman@cern.ch>
 	* initial addition of IBL to web displays for collisions and cosmics
 	* other updates for LS1 milestone runs/ run-2
