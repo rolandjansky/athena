@@ -314,6 +314,11 @@ class enableErrorTuning(JobProperty):
     allowedTypes=['bool']
     StoredValue=False
 
+class useLooseErrorTuning(JobProperty):
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=False
+
 ## Use MDTs in reconstruction
 class doMDTs(JobProperty):
     statusOn=True
@@ -506,6 +511,7 @@ class MuonRec(JobPropertyContainer):
         setDefault(self.forceCollisionsMode,False)
         setDefault(self.useWireSagCorrections,False)
         setDefault(self.enableErrorTuning,True)
+        setDefault(self.useLooseErrorTuning,False)
         setDefault(self.useAlignmentCorrections,DetFlags.detdescr.Muon_on() and rec.doMuon())
         setDefault(self.writeSDOs, rec.doWriteESD() and globalflags.DataSource != 'data')
         if globalflags.DataSource == 'data':

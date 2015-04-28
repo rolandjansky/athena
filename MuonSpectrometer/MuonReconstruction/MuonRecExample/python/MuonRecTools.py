@@ -70,39 +70,34 @@ def MdtDriftCircleOnTrackCreator(name="MdtDriftCircleOnTrackCreator",**kwargs):
     kwargs.setdefault("DoSlewingCorrection", mdtCalibFlags.correctMdtRtForTimeSlewing())
 
     if muonRecFlags.forceCollisionsMode(): #this setting uses loose collisions settings, with cosmics timing 
-        #print "MdtDriftCircleOnTrackCreator::configuring forceCollisionsMode"
         kwargs.setdefault("DoTofCorrection", False)
         kwargs.setdefault("DoFixedError", True)
         kwargs.setdefault("MuonTofTool", None)
         kwargs.setdefault("TimingMode", 1)
 
     elif beamFlags.beamType() == 'cosmics' or beamFlags.beamType() == 'singlebeam' :
-        #print "MdtDriftCircleOnTrackCreator::configuring cosmics"
         kwargs.setdefault("DoTofCorrection", False)
         kwargs.setdefault("DoFixedError", True)
         kwargs.setdefault("TimingMode", 1)
         kwargs.setdefault("UseParametrisedError", True)
 
-    elif globalflags.DataSource() == 'data': # collisions real data or simulated first data
-        #print "MdtDriftCircleOnTrackCreator::configuring data"
-        # set to use: Moore segment errors: 
+    else: # collisions simulation/data settings
         kwargs.setdefault("DoTofCorrection", True)
-        kwargs.setdefault("DoFixedError", True)   # FixedErrors
-        kwargs.setdefault("DoErrorScaling", True) # ScaledErrors
-        kwargs.setdefault("CreateTubeHit", True)  # BroadErrors
-        kwargs.setdefault("MuonTofTool", None) 
-        kwargs.setdefault("TimeWindowSetting", mdtCalibWindowNumber('Collision_data'))
-        kwargs.setdefault("UseParametrisedError", False)
-
-    else: # collisions simulation final precise cuts
-        #print "MdtDriftCircleOnTrackCreator::configuring default"
-        kwargs.setdefault("IsMC", True)
         kwargs.setdefault("DoFixedError", False)
         kwargs.setdefault("DoErrorScaling", False)
-        kwargs.setdefault("DoTofCorrection", True)
         kwargs.setdefault("MuonTofTool", None)
         kwargs.setdefault("TimeWindowSetting", mdtCalibWindowNumber('Collision_data'))  # MJW: should this be Collision_G4 ???
+        kwargs.setdefault("UseParametrisedError", False)
 
+        if globalflags.DataSource() == 'data': # collisions real data or simulated first data
+            kwargs.setdefault("CreateTubeHit", True)  # BroadErrors
+            kwargs.setdefault("UseLooseErrors", muonRecFlags.useLooseErrorTuning())  # LooseErrors on data                            
+
+    if globalflags.DataSource() == 'data':
+        kwargs.setdefault("IsMC", False)
+    else:
+        kwargs.setdefault("IsMC", True)
+                        
     from MdtDriftCircleOnTrackCreator.MdtDriftCircleOnTrackCreatorConf import Muon__MdtDriftCircleOnTrackCreator
     return Muon__MdtDriftCircleOnTrackCreator(name,**kwargs)
 # end of factory function MdtDriftCircleOnTrackCreator
