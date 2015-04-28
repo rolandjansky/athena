@@ -96,7 +96,8 @@ Muon::MdtDriftCircleOnTrackCreator::MdtDriftCircleOnTrackCreator
   declareProperty("DoSlewingCorrection",m_mdtCalibSvcSettings->doSlew );
   declareProperty("DoBackgroundCorrection",m_mdtCalibSvcSettings->doBkg );
   declareProperty("DoSegmentErrors",m_doSegments=true , "Use error strategy for segments");
-  declareProperty("IsMC",m_isMC=false , "Use error strategy for MC");
+  declareProperty("UseLooseErrors",m_looseErrors=false , "Use error strategy for MC");
+  declareProperty("IsMC",m_isMC=false);
   
   fillMboyParametrisedErrors();
 }
@@ -157,7 +158,9 @@ StatusCode Muon::MdtDriftCircleOnTrackCreator::initialize()
   if( m_errorStrategy.creationParameter(MuonDriftCircleErrorStrategy::Segment ) ) msg(MSG::INFO) << " Seg";
   msg(MSG::INFO) << endreq;
   
-  if( m_isMC ) ATH_MSG_INFO( "Using MC error tuning");
+  if( !m_isMC && m_looseErrors )  ATH_MSG_INFO( "Using Data Loose error tuning");
+  if( !m_isMC && !m_looseErrors ) ATH_MSG_INFO( "Using Data Tight error tuning");
+  if( m_isMC )                    ATH_MSG_INFO( "Using MC error tuning");
   ATH_MSG_VERBOSE( "A correction is made if set to true: do_MDT = " << m_doMdt ); 
   
   if (m_idHelper.retrieve().isFailure()) {  
@@ -490,7 +493,7 @@ return CalibrationOutput(Amg::Vector2D(),localCov,0.,false);
     // Use calib service errors.
     sigmaR   =sqrt(m_calibHit->sigma2DriftRadius());
   }
-  ATH_MSG_DEBUG("SigmaR="<<sigmaR);
+  ATH_MSG_DEBUG("Tube : " << m_idHelper->toString(DC.identify()) << " SigmaR = "<<sigmaR);
   double sigmaR2=0.0;
   // Handle the errors scaling / addition of fixed terms 
   if ( myStrategy->strategy()==MuonDriftCircleErrorStrategy::Moore ) {
@@ -908,14 +911,97 @@ float Muon::MdtDriftCircleOnTrackCreator::mBoyParametrisedSigma(double r) const{
 
 double Muon::MdtDriftCircleOnTrackCreator::mooreErrorStrategy(const MuonDriftCircleErrorStrategy* myStrategy, 
                                                               double sigmaR2, const Identifier& id) const
-	{
-	if(m_isMC)
-		return mooreErrorStrategyMC(myStrategy, sigmaR2, id);
-	else
-		return mooreErrorStrategyData(myStrategy, sigmaR2, id);
-	}
+{
+  if(m_isMC) 
+    return mooreErrorStrategyMC(myStrategy, sigmaR2, id);
+  else{
+    if(m_looseErrors)
+      return mooreErrorStrategyLoose(myStrategy, sigmaR2, id);
+    else
+      return mooreErrorStrategyTight(myStrategy, sigmaR2, id);
+  }
+}
 
-inline double Muon::MdtDriftCircleOnTrackCreator::mooreErrorStrategyMC(const MuonDriftCircleErrorStrategy* myStrategy, 
+double Muon::MdtDriftCircleOnTrackCreator::mooreErrorStrategyMC(const MuonDriftCircleErrorStrategy* myStrategy,
+								double sigmaR2, const Identifier& id) const {
+  ATH_MSG_DEBUG("mooreErrorStrategy sigmaR2="<<sigmaR2);                                 
+  
+  // Moore error strategy.  Hard coding numbers for the time being - hope to make them configurable some day
+  if ( myStrategy->creationParameter( MuonDriftCircleErrorStrategy::Segment ) ){
+    if ( myStrategy->creationParameter( MuonDriftCircleErrorStrategy::FixedError ) &&
+	 myStrategy->creationParameter( MuonDriftCircleErrorStrategy::ScaledError ) ){
+      if ( myStrategy->creationParameter( MuonDriftCircleErrorStrategy::T0Refit ) ){
+	ATH_MSG_VERBOSE(" segment error, t0fit ");
+	return sigmaR2 + 0.005; // Collisions with T0 refit (input)
+      } else if ( myStrategy->creationParameter( MuonDriftCircleErrorStrategy::BroadError ) ){
+	ATH_MSG_VERBOSE(" segment error, broad ");
+	return 4*sigmaR2 + 0.16; // Output segments - broad errors
+      } else {
+	ATH_MSG_VERBOSE(" segment error, precise ");
+	return sigmaR2 + 0.005; // Input segments , no T0 refit
+      }
+      ATH_MSG_VERBOSE(" segment error default ");
+      return sigmaR2;
+    }
+    // Don't know how to handle other cases - error?
+  } else { // Track
+    Muon::MuonStationIndex::StIndex stIndex = m_idHelper->stationIndex(id);
+    if( myStrategy->creationParameter( MuonDriftCircleErrorStrategy::StationError ) ){
+      if( stIndex == MuonStationIndex::BE ){
+	ATH_MSG_VERBOSE(" track error BEE ");
+	return 1.44*sigmaR2 + 1.44; // 1.2* + 1.2 mm
+      }else if( stIndex == MuonStationIndex::EE ){
+	ATH_MSG_VERBOSE(" track error EE ");
+	if( !m_isMC && m_idHelper->stationEta(id) < 0 ) return 1.44*sigmaR2 + 0.16; // 1.2* + 0.4 mm
+	return 1.44*sigmaR2 + 1.; // 1.2* + 1. mm
+      }else if( stIndex == MuonStationIndex::BI && m_idHelper->chamberIndex(id) == MuonStationIndex::BIS &&
+ 	        abs(m_idHelper->stationEta(id)) > 6 ){
+	ATH_MSG_VERBOSE(" track error BIS78 ");
+	if( abs(m_idHelper->stationEta(id)) == 7 ) return 1.44*sigmaR2 + 1.; // 1.2* + 1. mm
+	else                                       return 4*sigmaR2 + 25;    // 2* + 5. mm
+      }
+      ATH_MSG_VERBOSE(" track station error  ");
+      return 1.44*sigmaR2 + 1.; // 1.2* + 1. mm
+      
+    }else if( myStrategy->creationParameter( MuonDriftCircleErrorStrategy::FixedError ) ){
+      
+      if( myStrategy->creationParameter( MuonDriftCircleErrorStrategy::BroadError) ) {
+	ATH_MSG_VERBOSE(" track error Fixed/Broad ");
+	return 4*sigmaR2 + 49.;  // 2* + 7 mm -> barrel/endcap overlaps
+      }else{
+	ATH_MSG_VERBOSE(" track error Fixed ");
+	return 4*sigmaR2 + 4.; // 2* + 2mm S/L overlaps   
+      }
+      
+    } else if ( myStrategy->creationParameter( MuonDriftCircleErrorStrategy::ScaledError ) ){
+      
+      if( myStrategy->creationParameter( MuonDriftCircleErrorStrategy::BroadError ) ) {
+	ATH_MSG_VERBOSE(" track error Scaled/Broad ");
+	return 2.25*sigmaR2 + 0.09;
+      }else{
+	// use slightly smaller errors for the barrel
+	double fixedTerm = (stIndex == MuonStationIndex::BI||stIndex == MuonStationIndex::BM||stIndex == MuonStationIndex::BO) ? 0.014 : 0.04;
+	if( m_doIndividualChamberReweights && stIndex == MuonStationIndex::BI && m_idHelper->chamberIndex(id) == MuonStationIndex::BIL &&
+	    m_idHelper->stationEta(id) == 1 && m_idHelper->sector(id) == 13 && m_idHelper->mdtIdHelper().multilayer(id) == 1 ){
+	  fixedTerm = 1;
+	  ATH_MSG_VERBOSE(" track error Scaled: BIL1A13, first multi layer ");
+	}else{
+	  ATH_MSG_VERBOSE(" track error Scaled ");
+	}
+ 	
+	return 1.44*sigmaR2 + fixedTerm;
+      }
+    }
+  } // End of segment or track
+  // static bool first = true;
+  // if (first){
+  //   msg(MSG::WARNING) << "Unknown error strategy combination - check your configuration please! "<<(*myStrategy)<<endreq;
+  //   first = false;
+  // }
+  return sigmaR2;
+}
+
+double Muon::MdtDriftCircleOnTrackCreator::mooreErrorStrategyLoose(const MuonDriftCircleErrorStrategy* myStrategy, 
                                                                        double sigmaR2, const Identifier& id) const {
   ATH_MSG_DEBUG("mooreErrorStrategy sigmaR2="<<sigmaR2);                                  
 
@@ -942,25 +1028,24 @@ inline double Muon::MdtDriftCircleOnTrackCreator::mooreErrorStrategyMC(const Muo
     if( myStrategy->creationParameter( MuonDriftCircleErrorStrategy::StationError ) ){
       if( stIndex == MuonStationIndex::BE ){
         ATH_MSG_VERBOSE(" track error BEE ");
-        return 1.44*sigmaR2 + 1.44; // 1.2* + 1.2 mm
+        return 1.44*sigmaR2 + 4; // 1.2* + 2 mm
       }else if( stIndex == MuonStationIndex::EE ){
         ATH_MSG_VERBOSE(" track error EE ");
-        if( !m_isMC && m_idHelper->stationEta(id) < 0 ) return 1.44*sigmaR2 + 0.16; // 1.2* + 0.4 mm
-        return 1.44*sigmaR2 + 1.; // 1.2* + 1. mm
-        }else if( stIndex == MuonStationIndex::BI && m_idHelper->chamberIndex(id) == MuonStationIndex::BIS &&
-        abs(m_idHelper->stationEta(id)) > 6 ){
-          ATH_MSG_VERBOSE(" track error BIS78 ");
-          if( abs(m_idHelper->stationEta(id)) == 7 ) return 1.44*sigmaR2 + 1.; // 1.2* + 1. mm
-          else                                       return 4*sigmaR2 + 25;    // 2* + 5. mm
+        return 1.44*sigmaR2 + 0.04; // 1.2* + 0.2 mm
+      }else if( stIndex == MuonStationIndex::BI && m_idHelper->chamberIndex(id) == MuonStationIndex::BIS &&
+                abs(m_idHelper->stationEta(id)) > 6 ){
+        ATH_MSG_VERBOSE(" track error BIS78 ");
+        if( abs(m_idHelper->stationEta(id)) == 7 ) return 1.44*sigmaR2 + 1.; // 1.2* + 1. mm
+        else                                       return 4*sigmaR2 + 25;    // 2* + 5. mm
       }
       ATH_MSG_VERBOSE(" track station error  ");
-      return 1.44*sigmaR2 + 1.; // 1.2* + 1. mm
+      return 1.44*sigmaR2 + 0.04; // 1.2* + 0.2 mm
 
     }else if( myStrategy->creationParameter( MuonDriftCircleErrorStrategy::FixedError ) ){ 
       
       if( myStrategy->creationParameter( MuonDriftCircleErrorStrategy::BroadError) ) {
         ATH_MSG_VERBOSE(" track error Fixed/Broad ");
-        return 4*sigmaR2 + 49.;  // 2* + 7 mm -> barrel/endcap overlaps
+        return 4*sigmaR2 + 4.;  // 2* + 2 mm -> barrel/endcap overlaps
       }else{
         ATH_MSG_VERBOSE(" track error Fixed ");
         return 4*sigmaR2 + 4.; // 2* + 2mm S/L overlaps   
@@ -973,7 +1058,7 @@ inline double Muon::MdtDriftCircleOnTrackCreator::mooreErrorStrategyMC(const Muo
         return 2.25*sigmaR2 + 0.09;
       }else{
         // use slightly smaller errors for the barrel
-        double fixedTerm = (stIndex == MuonStationIndex::BI||stIndex == MuonStationIndex::BM||stIndex == MuonStationIndex::BO) ? 0.014 : 0.04;
+        double fixedTerm = (stIndex == MuonStationIndex::BI||stIndex == MuonStationIndex::BM||stIndex == MuonStationIndex::BO) ? 0.015 : 0.015;
         if( m_doIndividualChamberReweights && stIndex == MuonStationIndex::BI && m_idHelper->chamberIndex(id) == MuonStationIndex::BIL && 
         m_idHelper->stationEta(id) == 1 && m_idHelper->sector(id) == 13 && m_idHelper->mdtIdHelper().multilayer(id) == 1 ){
           fixedTerm = 1;
@@ -995,7 +1080,7 @@ inline double Muon::MdtDriftCircleOnTrackCreator::mooreErrorStrategyMC(const Muo
 }
 
 
-inline double Muon::MdtDriftCircleOnTrackCreator::mooreErrorStrategyData(const MuonDriftCircleErrorStrategy* myStrategy, 
+double Muon::MdtDriftCircleOnTrackCreator::mooreErrorStrategyTight(const MuonDriftCircleErrorStrategy* myStrategy, 
                                                               double sigmaR2, const Identifier& id) const {
   ATH_MSG_DEBUG("mooreErrorStrategy sigmaR2="<<sigmaR2);                                  
 
@@ -1022,10 +1107,10 @@ inline double Muon::MdtDriftCircleOnTrackCreator::mooreErrorStrategyData(const M
     if( myStrategy->creationParameter( MuonDriftCircleErrorStrategy::StationError ) ){
       if( stIndex == MuonStationIndex::BE ){
         ATH_MSG_VERBOSE(" track error BEE ");
-        return 1.44*sigmaR2 + 1.; // 1.2* + 1. mm
+        return 1.44*sigmaR2 + 0.04; // 1.2* + 0.2 mm
       }else if( stIndex == MuonStationIndex::EE ){
         ATH_MSG_VERBOSE(" track error EE ");
-        if(  m_idHelper->isSmallChamber(id) ) return 1.44*sigmaR2 + 1; // 1.2* + 1 mm
+        if(  m_idHelper->isSmallChamber(id) ) return 1.21*sigmaR2 + 0.01; // 1.1* + 0.1 mm
         else                                  return 1.21*sigmaR2 + 0.01; // 1.1* + 0.1 mm
         }else if( stIndex == MuonStationIndex::BI && m_idHelper->chamberIndex(id) == MuonStationIndex::BIS &&
         abs(m_idHelper->stationEta(id)) > 6 ){
@@ -1034,13 +1119,13 @@ inline double Muon::MdtDriftCircleOnTrackCreator::mooreErrorStrategyData(const M
           else                                       return 4*sigmaR2 + 4;    // 2* + 2. mm
       }
       ATH_MSG_VERBOSE(" track station error  ");
-      return 1.44*sigmaR2 + 1.; // 1.2* + 1. mm
+      return 1.21*sigmaR2 + 0.04; // 1.1* + 0.2 mm
 
     }else if( myStrategy->creationParameter( MuonDriftCircleErrorStrategy::FixedError ) ){ 
       
       if( myStrategy->creationParameter( MuonDriftCircleErrorStrategy::BroadError) ) {
         ATH_MSG_VERBOSE(" track error Fixed/Broad ");
-        return 4*sigmaR2 + 49.;  // 2* + 7 mm -> barrel/endcap overlaps
+        return 4*sigmaR2 + 4.;  // 2* + 2 mm -> barrel/endcap overlaps
       }else{
         ATH_MSG_VERBOSE(" track error Fixed ");
         return 4*sigmaR2 + 4.; // 2* + 2mm S/L overlaps   
@@ -1055,13 +1140,13 @@ inline double Muon::MdtDriftCircleOnTrackCreator::mooreErrorStrategyData(const M
 	
         // use slightly smaller errors for the barrel
 	// 
-        double fixedTerm = 1.;
+        double fixedTerm = 0.01;
 	bool isSmall = m_idHelper->isSmallChamber(id);
 	if( stIndex == MuonStationIndex::BI||stIndex == MuonStationIndex::BM||stIndex == MuonStationIndex::BO) {
-	  if( isSmall ) fixedTerm = 0.014;
+	  if( isSmall ) fixedTerm = 0.01;
 	  else          fixedTerm = 0.01;
 	}else{
-	  if( isSmall ) fixedTerm = 0.014;
+	  if( isSmall ) fixedTerm = 0.01;
 	  else          fixedTerm = 0.01;
 	}
         if( m_doIndividualChamberReweights ){
