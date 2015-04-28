@@ -193,8 +193,9 @@ namespace Muon {
       float mBoyParametrisedSigma(double r) const; // TODO - merge into parametrisedSigma? EJWM
       
       double mooreErrorStrategy(const MuonDriftCircleErrorStrategy* myStrategy, double sigmaR, const Identifier& id) const;
-      inline double mooreErrorStrategyMC(const MuonDriftCircleErrorStrategy* myStrategy, double sigmaR, const Identifier& id) const;
-      inline double mooreErrorStrategyData(const MuonDriftCircleErrorStrategy* myStrategy, double sigmaR, const Identifier& id) const;
+      double mooreErrorStrategyMC(const MuonDriftCircleErrorStrategy* myStrategy, double sigmaR, const Identifier& id) const;
+      double mooreErrorStrategyLoose(const MuonDriftCircleErrorStrategy* myStrategy, double sigmaR, const Identifier& id) const;
+      double mooreErrorStrategyTight(const MuonDriftCircleErrorStrategy* myStrategy, double sigmaR, const Identifier& id) const;
       double mboyErrorStrategy(const MuonDriftCircleErrorStrategy* myStrategy, double sigmaR) const;
       
       
@@ -231,7 +232,8 @@ namespace Muon {
       bool                                m_t0Refit; //!< Add a special error to account for the T0 refit
       bool                                m_doSegments; //!< Use error strategy for segments by default
       bool                                m_doIndividualChamberReweights; //!< Deweight individual chambers
-      bool                                m_isMC; //!< tuning for MC possibly different that for data
+      bool                                m_isMC; //!< toggle between MC and data alignment errors (to be removed in rel. 21!)
+      bool                                m_looseErrors; //!< toggle between loose errors (initial before alignment) and tight after alignment
       // Additions for Mboy errors 
       std::vector<float>                  m_mboyParametrisedErrors;//!< Holds the error values copied from MuonboyCore's fredigint.F90
     };
