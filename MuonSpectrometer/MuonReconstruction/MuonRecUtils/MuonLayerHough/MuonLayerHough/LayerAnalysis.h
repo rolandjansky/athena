@@ -8,9 +8,6 @@
 
 #include "MuonLayerHough/HitNtuple.h"
 #include "MuonLayerHough/MuonLayerHoughSelector.h"
-#include "MuonLayerHough/MuonLayerHough.h"
-#include "MuonLayerHough/MuonRegionHough.h"
-#include "MuonIdHelpers/MuonStationIndex.h"
 
 class TH1F;
 class TH2F;
@@ -49,52 +46,15 @@ namespace MuonHough {
     void analysis( std::map<int,SectorData>& data );
     void drawSector( int region, int sector, SectorData& data, MuonDetectorHough& detectorHough, MuonDetectorHough& detectorHoughTruth );
     void calculateVariables(Plots* Plot);
-    void SetStyle();
-    int getMaxLayers(Muon::MuonStationIndex::DetectorRegionIndex region, int sector);
-    void finishplot(TH1F* h);
-    float linear_extrapolate(MuonLayerHough::Maximum ref, MuonLayerHough::Maximum ex);
-    float parab_extrapolate(MuonLayerHough::Maximum ref, MuonLayerHough::Maximum ex);
 
     TTree*    m_tree;
     HitNtuple m_ntuple;
     EventData m_event;
     int       m_ncalls;
     std::vector<MuonDebugInfo> m_muons;
-    std::vector<SegDebugInfo> m_segs;
     std::vector<MuonHough::MuonLayerHoughSelector> m_selectors;
     
-    std::vector<Plots*> m_hMaximaHeightPerChIndex;
-    bool m_DEBUG;    
-    bool m_DEBUG_seg;
-    TH1F*     m_h_dtheta;    
-    TH1F*     m_h_dtheta_truth;    
-    TH1F*     m_h_diff_MI_e;
-    TH1F*     m_h_diff_MO_e;
-    TH1F*     m_h_diff_MI_b;
-    TH1F*     m_h_diff_MO_b;  
-    TH1F*     m_h_diff_MI_e_truth;  
-    TH1F*     m_h_diff_MO_e_truth;  
-    TH1F*     m_h_diff_MI_b_truth;  
-    TH1F*     m_h_diff_MO_b_truth;  
-    TH1F*     m_h_expt_MI_e;
-    TH1F*     m_h_expt_MO_e;
-    TH1F*     m_h_expt_MI_b;
-    TH1F*     m_h_expt_MO_b;  
-    TH1F*     m_h_expt_MI_e_truth;  
-    TH1F*     m_h_expt_MO_e_truth;  
-    TH1F*     m_h_expt_MI_b_truth;  
-    TH1F*     m_h_expt_MO_b_truth;   
-    TH1F*     m_h_comp_MI_e;  
-    TH1F*     m_h_comp_MO_e;  
-    TH1F*     m_h_comp_MI_b;  
-    TH1F*     m_h_comp_MO_b; 
-    TH1F*     m_h_comp_MI_e_truth;  
-    TH1F*     m_h_comp_MO_e_truth;  
-    TH1F*     m_h_comp_MI_b_truth;  
-    TH1F*     m_h_comp_MO_b_truth;  
-
-    MuonHough::MuonDetectorHough m_detectorHough;
-    MuonHough::MuonDetectorHough m_detectorHoughTruth;    
+    std::vector<Plots*> m_hMaximaHeightPerChIndex;    
   };
 
 
