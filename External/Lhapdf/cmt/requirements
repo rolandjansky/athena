@@ -6,13 +6,14 @@ author Andy Buckley <andy.buckley@cern.ch>
 use AtlasPolicy AtlasPolicy-*
 use AtlasExternalArea AtlasExternalArea-* External
 use LCG_Configuration
-
-macro LCG_config_version "67c"
-macro Genser_home "$(LCG_external)/MCGenerators_lcgcmt$(LCG_config_version)"
-#macro Genser_home "$(LCG_external)/MCGenerators_lcgcmt61g"
+#private
+macro my_LCG_config_version "67c"
+#end_private
+macro Genser_home "$(LCG_external)/MCGenerators_lcgcmt$(my_LCG_config_version)"
+#macro Genser_home "$(LCG_external)/MCGenerators"
 macro Lhapdf_home "$(Genser_home)/lhapdf"
-macro Lhapdf_version "6.1.4"
-macro Lhapdf_native_version "$(Lhapdf_version)_lcgcmt$(LCG_config_version)"
+macro Lhapdf_version "6.1.5"
+macro Lhapdf_native_version "$(Lhapdf_version)_lcgcmt$(my_LCG_config_version)"
 macro Lhapdf_system "$(LCG_ext_system)"
 macro Lhapdf_dir "$(Lhapdf_home)/$(Lhapdf_version)/$(Lhapdf_system)"
 macro Lhapdf_bin "$(Lhapdf_dir)/bin"
@@ -24,7 +25,7 @@ macro Lhapdf_setsdir "$(LCG_ROOT)/external/lhapdfsets/current/"
 ## Headers and C++/Fortran libs
 include_path none
 include_dirs "$(Lhapdf_dir)/include"
-macro_append Lhapdf_export_paths " $(Lhapdf_dir)/include $(Lhapdf_dir)/lib "
+macro_append Lhapdf_export_paths " $(Lhapdf_dir)/include $(Lhapdf_dir)/lib $(Lhapdf_dir)/bin "
 apply_pattern declare_installed_libraries dir="$(Lhapdf_dir)/lib"
 
 ## Install scripts
