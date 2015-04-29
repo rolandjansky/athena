@@ -15,6 +15,7 @@
 
 // #include "FillEBCFromFlat.h"
 
+#include "GaudiKernel/Incident.h"
 #include "GaudiKernel/FileIncident.h"
 #include "StoreGate/StoreClearedIncident.h"
 #include "GaudiKernel/IIncidentSvc.h"
@@ -50,24 +51,24 @@ CutFlowSvc::CutFlowSvc(const std::string& name,
   m_outMetaDataStore("StoreGateSvc/MetaDataStore", name),
   m_inMetaDataStore("StoreGateSvc/InputMetaDataStore", name),
   m_eventStore("StoreGateSvc", name),
-  m_ebkMap()
+  m_completeCollName(""),
+  m_incompleteCollName(""),
+  m_skimmingCycle(0),
+  m_inputStream(""),
+  m_inputCompleteBookTmp(0),
+  m_inputCompleteBookAuxTmp(0),
+  m_fileCurrentlyOpened(false),
+  m_ebkMap(),
+  m_alreadyCopiedEventBookkeepers(false),
+  m_alreadyDeterminedCycleNumber(false)
 {
   declareProperty("OutputCollName",           m_completeCollName="CutBookkeepers",
     "The default name of the xAOD::CutBookkeeperContainer for fully processed files");
   declareProperty("OutputIncompleteCollName", m_incompleteCollName = "IncompleteCutBookkeepers",
     "The default name of the xAOD::CutBookkeeperContainer for partially processed files");
-  declareProperty("SkimmingCycle",            m_skimmingCycle = -1, "The processing step number");
+  declareProperty("SkimmingCycle",            m_skimmingCycle = 0, "The processing step number");
   declareProperty("InputStream",              m_inputStream = "N/A", "The name of the input file stream");
-  declareProperty("printStream",              m_printStream = "",
-    "Empty string means Print() is not called at EndRun, 'any' will Print() all streams" );
-  declareProperty("printVirtualFilters",      m_printVirtual = "no", "allowed values: yes/no" );
-  declareProperty("writeRootFileNamed",       m_writeRootFileNamed = "",
-    "Empty string means no file is produced, anything else will trigger the file creation" );
-  declareProperty("writeTxtFileNamed",        m_writeTxtFileNamed = ""); // not yet implemented
   assert( pSvcLocator );
-
-  m_inputCompleteBookTmp = NULL;
-  m_fileCurrentlyOpened  = false;
 }
 
 
@@ -81,9 +82,26 @@ CutFlowSvc::~CutFlowSvc()
 StatusCode
 CutFlowSvc::initialize()
 {
-  // ATH_MSG_VERBOSE("== initialize ==");
   ATH_MSG_DEBUG( "Initializing " << name() << " - package version " << PACKAGE_VERSION );
 
+  //Get output MetaData StoreGate
+  ATH_CHECK( m_outMetaDataStore.retrieve() );
+  //Get input MetaData StoreGate
+  ATH_CHECK( m_inMetaDataStore.retrieve() );
+  //Get Event StoreGate
+  ATH_CHECK( m_eventStore.retrieve() );
+
+
+  //Get IncidentSvc
+  ServiceHandle<IIncidentSvc> incSvc("IncidentSvc", this->name());
+  ATH_CHECK( incSvc.retrieve() );
+  incSvc->addListener(this, IncidentType::BeginInputFile, 60); // pri has to be < 100 to be after MetaDataSvc.
+  incSvc->addListener(this, IncidentType::EndInputFile, 50); // pri has to be > 10 to be before MetaDataSvc.
+  incSvc->addListener(this, IncidentType::EndRun, 50);
+  incSvc->addListener(this, "StoreCleared", 50);
+
+
+  // Set up the container structure that we will write to the output file
   xAOD::CutBookkeeperContainer* completeBook(NULL);
   completeBook = new xAOD::CutBookkeeperContainer();
   ATH_CHECK( recordCollection( completeBook, m_completeCollName) );
@@ -93,33 +111,98 @@ CutFlowSvc::initialize()
   ATH_CHECK( recordCollection( incompleteBook, m_incompleteCollName) );
 
   delete m_inputCompleteBookTmp; m_inputCompleteBookTmp = NULL;
+  delete m_inputCompleteBookAuxTmp; m_inputCompleteBookAuxTmp = NULL;
   //Note, do not sg->record inputCompleteTmp, this is internal
   m_inputCompleteBookTmp = new xAOD::CutBookkeeperContainer();
-  // Take care of the peculiarities of the new xAOD EDM, i.e., create the needed AuxStore
-  m_inputCompleteBookTmp->setStore( new xAOD::CutBookkeeperAuxContainer );
-
-  //Get output MetaData StoreGate
-  ATH_CHECK( m_outMetaDataStore.retrieve() );
-
-  //Get input MetaData StoreGate
-  ATH_CHECK( m_inMetaDataStore.retrieve() );
-
-  //Get Event StoreGate
-  ATH_CHECK( m_eventStore.retrieve() );
-
-  //Get IncidentSvc
-  ServiceHandle<IIncidentSvc> incSvc("IncidentSvc", this->name());
-  ATH_CHECK( incSvc.retrieve() );
-  incSvc->addListener(this, "BeginInputFile", 60); // pri has to be < 100 to be after MetaDataSvc.
-  incSvc->addListener(this, "EndInputFile", 50); // pri has to be > 10 to be before MetaDataSvc.
-  incSvc->addListener(this, "EndRun", 50);
-  incSvc->addListener(this, "StoreCleared", 50);
+  // Take care of the peculiarities of the new xAOD EDM, i.e., create the needed AuxStore...
+  m_inputCompleteBookAuxTmp =  new xAOD::CutBookkeeperAuxContainer();
+  // ...and connect the two
+  m_inputCompleteBookTmp->setStore( m_inputCompleteBookAuxTmp );
 
   m_fileCurrentlyOpened = false;
+
+
+  // Determine the skimming cycle number that we should use now from the input file
+  ATH_MSG_VERBOSE("Have currently the cycle number = " << m_skimmingCycle );
+  ATH_CHECK( this->determineCycleNumberFromOldInput("EventBookkeepers") );
+  ATH_CHECK( this->determineCycleNumberFromOldInput("IncompleteEventBookkeepers") );
+  ATH_CHECK( this->determineCycleNumberFromInput(m_completeCollName) );
+  ATH_CHECK( this->determineCycleNumberFromInput(m_incompleteCollName) );
+  ATH_MSG_VERBOSE("Will use as currently cycle number = " << m_skimmingCycle );
 
   return StatusCode::SUCCESS;
 }
 
+
+
+
+StatusCode CutFlowSvc::determineCycleNumberFromInput( const std::string& collName )
+{
+  ATH_MSG_DEBUG("calling determineCycleNumberFromInput('" << collName
+                  << "')... have currently cycle number = " << m_skimmingCycle );
+
+  // Try to get CutBookkeepers from the input file
+  if ( m_inMetaDataStore->contains<xAOD::CutBookkeeperContainer>(collName) ) {
+
+    // There can always only be a single object in the input store. As the store
+    // is connected to just a single input file.
+    const xAOD::CutBookkeeperContainer* constColl = 0;
+    ATH_CHECK( m_inMetaDataStore->retrieve( constColl, collName ) );
+    xAOD::CutBookkeeperContainer* tmpColl = const_cast<xAOD::CutBookkeeperContainer*>(constColl);
+    if ( !(tmpColl->hasStore()) ) {
+      ATH_MSG_VERBOSE("Setting store of xAOD::CutBookkeeperContainer");
+      // Get also the auxilliary store
+      // const SG::IConstAuxStore* auxColl = 0;
+      const xAOD::CutBookkeeperAuxContainer* auxColl = 0;
+      ATH_CHECK( m_inMetaDataStore->retrieve(auxColl, collName+"Aux.") );
+      tmpColl->setConstStore( auxColl );
+    }
+    // Now, iterate over all CutBookkeepers and search for the highest cycle number
+    for ( std::size_t i=0; i<tmpColl->size(); ++i ) {
+      // Get the current old EBK
+      const xAOD::CutBookkeeper* cbk = tmpColl->at(i);
+      int inCycle = cbk->cycle();
+      if ( inCycle > m_skimmingCycle ){ m_skimmingCycle = inCycle + 1; }
+    }
+  }
+
+  ATH_MSG_DEBUG("done calling determineCycleNumberFromInput('" << collName
+                  << "')... have now cycle number = " << m_skimmingCycle );
+  return StatusCode::SUCCESS;
+}
+
+
+StatusCode CutFlowSvc::determineCycleNumberFromOldInput( const std::string& collName )
+{
+  ATH_MSG_DEBUG("calling determineCycleNumberFromOldInput('" << collName
+                  << "')... have currently cycle number = " << m_skimmingCycle );
+  // Now check if there are old-style EventBookkeepers in the input file, using the old default name
+  if ( m_inMetaDataStore->contains< ::EventBookkeeperCollection >(collName) ) {
+    //get list of input metadata stores(!)
+    std::list<SG::ObjectWithVersion< ::EventBookkeeperCollection > > allVersions;
+    ATH_CHECK( m_inMetaDataStore->retrieveAllVersions(allVersions, collName) );
+
+    //now get all corresponding lists...
+    for ( std::list<SG::ObjectWithVersion< ::EventBookkeeperCollection> >::const_iterator
+          iter = allVersions.begin();
+          iter != allVersions.end();
+          ++iter ) {
+      //const DataHandle<xAOD::CutBookkeeperContainer> tmpColl = iter->dataObject;
+      const ::EventBookkeeperCollection* tmpColl = iter->dataObject;
+      // Now, iterate over all old-style EventBookkeepers and search for the highest cycle number
+      for ( std::size_t i=0; i<tmpColl->size(); ++i ) {
+        // Get the current old EBK
+        const ::EventBookkeeper* oldEBK = tmpColl->at(i);
+        int inCycle = oldEBK->getCycle();
+        if ( inCycle > m_skimmingCycle ){ m_skimmingCycle = inCycle + 1; }
+      }
+    }
+  }
+
+  ATH_MSG_DEBUG("done calling determineCycleNumberFromOldInput('" << collName
+                  << "')... have now cycle number = " << m_skimmingCycle );
+  return StatusCode::SUCCESS;
+}
 
 
 
@@ -397,6 +480,7 @@ void CutFlowSvc::handle( const Incident& inc )
   //Things to do:
   // 1) transer tmp complete CutBookkeepers from input to output, and clear the tmp list
   if ( inc.type() == "StoreCleared" ) {
+    ATH_MSG_VERBOSE( "Start incident processing " << inc.type() << ", fileOpened " << m_fileCurrentlyOpened );
     const StoreClearedIncident* sinc = dynamic_cast<const StoreClearedIncident*>(&inc);
     if ( sinc != 0 && sinc->store() == &*m_outMetaDataStore ) {
       ATH_MSG_DEBUG( "StoreCleared: Going to re-initialize the map" );
@@ -410,6 +494,8 @@ void CutFlowSvc::handle( const Incident& inc )
     }
     return;
   }
+
+
   //OPENING NEW INPUT FILE
   //Things to do:
   // 1) note that a file is currently opened
@@ -424,15 +510,40 @@ void CutFlowSvc::handle( const Incident& inc )
     return;
   }
 
-  if ( inc.type() == "BeginInputFile" ) {
+  if ( inc.type() == IncidentType::BeginInputFile ) {
     m_fileCurrentlyOpened = true;
 
-    if( !(updateCollFromInputStore(incompleteBook,m_incompleteCollName) ).isSuccess() ) {
-      ATH_MSG_ERROR( "Could not update incomplete CutBookkeepers from input" );
-      return;
-    }
+    // // Determine the processing cycle number from the first input file that we open
+    // if (!m_alreadyDeterminedCycleNumber) {
+    //   // Determine the skimming cycle number that we should use now from the input file
+    //   ATH_MSG_WARNING("Have currently the cycle number = " << m_skimmingCycle );
+    //   ATH_MSG_VERBOSE("Have currently the cycle number = " << m_skimmingCycle );
+    //   if ( !(this->determineCycleNumberFromOldInput("EventBookkeepers")).isSuccess() ){
+    //     ATH_MSG_WARNING("Couldn't determineCycleNumberFromOldInput('EventBookkeepers') with cycle number = " << m_skimmingCycle );
+    //   }
+    //   if( !(this->determineCycleNumberFromOldInput("IncompleteEventBookkeepers")).isSuccess() ){
+    //     ATH_MSG_WARNING("Couldn't determineCycleNumberFromOldInput('IncompleteEventBookkeepers') with cycle number = " << m_skimmingCycle );
+    //   }
+    //   if( !(this->determineCycleNumberFromInput(m_completeCollName)).isSuccess() ){
+    //     ATH_MSG_WARNING("Couldn't determineCycleNumberFromInput('"<< m_completeCollName << "') with cycle number = " << m_skimmingCycle );
+    //   }
+    //   if( !(this->determineCycleNumberFromInput(m_incompleteCollName)).isSuccess() ){
+    //     ATH_MSG_WARNING("Couldn't determineCycleNumberFromInput('"<< m_incompleteCollName << "') with cycle number = " << m_skimmingCycle );
+    //   }
+    //   ATH_MSG_WARNING("Will use as currently cycle number = " << m_skimmingCycle );
+    //   ATH_MSG_VERBOSE("Will use as currently cycle number = " << m_skimmingCycle );
+    //   m_alreadyDeterminedCycleNumber = true;
+    // }
+
+    // Copy the existing cut bookkeepers from the input file to the output
+    m_alreadyCopiedEventBookkeepers = false;
+    ATH_MSG_DEBUG( "Start incident processing " << inc.type() << ", fileOpened " << m_fileCurrentlyOpened );
     if( !(updateCollFromInputStore(m_inputCompleteBookTmp, m_completeCollName) ).isSuccess() ) {
       ATH_MSG_ERROR( "Could not update complete CutBookkeepers from input" );
+      return;
+    }
+    if( !(updateCollFromInputStore(incompleteBook,m_incompleteCollName) ).isSuccess() ) {
+      ATH_MSG_ERROR( "Could not update incomplete CutBookkeepers from input" );
       return;
     }
   }
@@ -448,12 +559,16 @@ void CutFlowSvc::handle( const Incident& inc )
   //CLOSING INPUT FILE
   //Things to do:
   // 1) note that no file is currently opened
-  if ( inc.type() == "EndInputFile" ) {
+  if ( inc.type() == IncidentType::EndInputFile ) {
     m_fileCurrentlyOpened = false;
+    ATH_MSG_DEBUG( "Start incident processing " << inc.type() << ", fileOpened " << m_fileCurrentlyOpened );
+    ATH_MSG_DEBUG("In EndInputFile: updating container with completeBook of size=" << completeBook->size()
+                  << ", and m_inputCompleteBookTmp with size=" << m_inputCompleteBookTmp->size() );
     if( !(this->updateContainer( completeBook, m_inputCompleteBookTmp )).isSuccess() ) {
       ATH_MSG_ERROR( "Could not update complete CutBookkeepers from input at EndInputFile" );
       return;
     }
+    ATH_MSG_DEBUG("Now clearing the inputCompleteBookTmp... currently, it has size=" << m_inputCompleteBookTmp->size() );
     m_inputCompleteBookTmp->clear();
   }
 
@@ -462,11 +577,14 @@ void CutFlowSvc::handle( const Incident& inc )
   // 1) Create new incomplete CutBookkeepers if relevant
   // 2) Print cut flow summary
   // 3) Write root file if requested
-  if ( inc.type() == "EndRun" ) {
+  if ( inc.type() == IncidentType::EndRun ) {
+    ATH_MSG_DEBUG( "Start incident processing " << inc.type() << ", fileOpened " << m_fileCurrentlyOpened );
     if ( m_fileCurrentlyOpened ) {
       //Document which file caused the incompletion
       std::string fileName = ::getFileName(inc);
       std::string postfix = " (incomplete from " + fileName + ")";
+      ATH_MSG_DEBUG("In EndRun with open file: " << fileName);
+      ATH_MSG_VERBOSE("Have inputCompleteBookTmp container with size=" << m_inputCompleteBookTmp->size() );
       for ( std::size_t i=0; i<m_inputCompleteBookTmp->size(); ++i ) {
         std::string newDescrip = m_inputCompleteBookTmp->at(i)->description()
                                  + postfix;
@@ -479,20 +597,8 @@ void CutFlowSvc::handle( const Incident& inc )
       }
     }
 
-    // // Write a flat ROOT file
-    // if(m_writeRootFileNamed.value().length()>0){
-    //   TFile *F = new TFile(m_writeRootFileNamed.value().c_str(),"recreate");
-    //   TTree *t = dumpCutFlowToTTree("CutFlow");
-    //   t->Print();
-    //   F->Write();
-    //   delete F;
-    // }
-
     // Clear the internal map
     m_ebkMap.clear();
-
-    // // Print some info to the log file
-    // if(m_printStream.value().length()>0){ print(); }
   }
   ATH_MSG_DEBUG( "End incident " << inc.type() << " fileOpened " << m_fileCurrentlyOpened );
   return;
@@ -504,248 +610,10 @@ void CutFlowSvc::handle( const Incident& inc )
 void
 CutFlowSvc::print()
 {
-  // std::cout
-  //   << "\n\n"
-  //   << "              * * * * CutFlowSvc SUMMARY * * * *\n"
-  //   << "\n"
-  //   << "-------------------------------------------------------------------------\n"
-  //   << "Cut-flow information printed as: \n"
-  //   << "NAME  INPUTSTREAM  OUTPUTSTREAM  LOGIC  CYCLE  (#CHILDREN) : "
-  //   << "DESCRIPTION ==> #AccEvents  wAccEvents\n"
-  //   << "...where:\n"
-  //   << "* NAME == Filter name;\n"
-  //   << "* INPUTSTREAM == Name of the stream to which this filter is applied;\n"
-  //   << "* OUTPUTSTREAM == Name of the stream produced at the end of the current"
-  //   << " skimming cycle;\n"
-  //   << "* LOGIC == Type of Filter:  Top, Child, Accept, Veto, Reject, N/A;\n"
-  //   << "* CYCLE == Skimming cycle of the filter;\n"
-  //   << "* CHILDREN == Number of children cuts/filters. These are the cuts/filters"
-  //   << " that together make up the current filter;\n"
-  //   << "* DECRIPTION == Small description about the filter, which may be equal"
-  //   << " to the association of its child filters;\n"
-  //   << "* AccEvents == Number of accepted events;\n"
-  //   << "* wAccEvents ==  Weighted number of accepted events.\n"
-  //   << "-------------------------------------------------------------------------"
-  //   << std::endl;
-  //
-  // // Get the complete bookkeeper collection of the meta-data store
-  // xAOD::CutBookkeeperContainer* completeBook(NULL);
-  // ATH_CHECK( m_outMetaDataStore->retrieve( completeBook, m_completeCollName) );
-  //
-  // // Get the incomplete bookkeeper collection of the meta-data store
-  // xAOD::CutBookkeeperContainer* incompleteBook(NULL);
-  // ATH_CHECK( m_outMetaDataStore->retrieve( incompleteBook, m_incompleteCollName) );
-  //
-  // //Sanity checks
-  // if (!incompleteBook->empty()) {
-  //   ATH_MSG_WARNING("There are INCOMPLETE CutBookkeepers. "
-  //                   << "The cut flow of these EB cannot be trusted." << endreq
-  //                   << "To avoid this problem, make sure to process ALL "
-  //                   << "the events from the input file(s) in the same job.");
-  //   for (std::size_t i=0; i<incompleteBook->size(); i++) {
-  //     incompleteBook->at(i)->PrintFamily("incomplete: ");
-  //   }
-  // } else{
-  //   std::cout << "No incomplete CutBookkeepers: perfect! :-)" << std::endl;
-  // }
-  // if (completeBook->empty()) {
-  //   ATH_MSG_WARNING("There are NO complete CutBookkeepers in this job: unexpected.");
-  //   return;
-  // }
-  // std::cout
-  // << "-------------------------------------------------------------------------"
-  // << std::endl;
-  //
-  // //Print options
-  // bool printVirtual=false;
-  // if(m_printVirtual.value()=="yes"){ printVirtual=true; }
-  // else if(m_printVirtual.value()=="no"){ printVirtual=false; }
-  // else {
-  //   ATH_MSG_WARNING("Unexpected value of printVirtualFilters: "
-  //                   <<m_printVirtual.value()<<" (please use 'yes' or 'no').");
-  // }
-  // std::cout << "Print options: \n"
-  //           << " *printStream: " << m_printStream.value()
-  //           << "\n"
-  //           << " *print virtual filters: " << m_printVirtual.value()
-  //           << std::endl;
-  // if (m_skimmingCycle>-1) {
-  //   std::cout << " *SkimmingCycle: " << m_skimmingCycle
-  //             << std::endl;
-  // } else {
-  //   std::cout << " *SkimmingCycle: any" << std::endl;
-  // }
-  //
-  // if (!m_writeRootFileNamed.value().empty()) {
-  //   std::cout << " *writeRootFile:" << m_writeRootFileNamed.value()
-  //             << std::endl;
-  // } else {
-  //   std::cout << " *writeRootFile: no" << std::endl;
-  // }
-  // std::cout << "-------------------------------------------------------------------------"
-  //           << std::endl;
-  //
-  // //Find total number of processed events
-  // uint64_t totalEntries=0;
-  // double totalWeights=0;
-  // static const std::string s_ALLEXECUTEDEVTS = "AllExecutedEvents";
-  // for (std::size_t i=0; i<completeBook->size(); i++) {
-  //   CutBookkeeper* tmpBook = completeBook->at(i);
-  //   if (tmpBook->getName()==s_ALLEXECUTEDEVTS &&
-  //       tmpBook->getCycle()==0) {
-  //     totalEntries=tmpBook->getNAcceptedEvents();
-  //     totalWeights=tmpBook->getNWeightedAcceptedEvents();
-  //     break;
-  //   }
-  // }
-  // if(totalEntries>0){
-  //   std::cout << "Total number of processed events: "<< totalEntries << "\n"
-  //             << "   |-->sum of weights:            " << totalWeights << "\n"
-  //             << std::endl;
-  // }
-  //
-  // //Now print filters as specified by options
-  // std::cout << "Filter(s) specified by options:" << std::endl;
-  // for (std::size_t i=0; i<completeBook->size(); i++) {
-  //   CutBookkeeper* tmpBook = completeBook->at(i);
-  //   bool cycleOK=(m_skimmingCycle<0 || tmpBook->getCycle()==m_skimmingCycle);
-  //   bool virtualOK=(printVirtual || tmpBook->getInputStream()!="Virtual");
-  //   bool streamOK=(m_printStream.value()=="any" ||
-  //                  tmpBook->getOutputStream()==m_printStream.value());
-  //   if(cycleOK && virtualOK && streamOK){
-  //     tmpBook->PrintFamily();
-  //     if(!tmpBook->getChildrenCutBookkeepers()->empty()){
-  //       std::cout<< std::endl;
-  //     }
-  //   }
-  // }
-  // std::cout << std::endl;
   return;
 }
 
 
-
-
-// TTree*
-// CutFlowSvc::dumpCutFlowToTTree( const char* treeName )
-// {
-//   // Get the complete bookkeeper collection of the meta-data store
-//   xAOD::CutBookkeeperContainer* completeBook(NULL);
-//   if( !(m_outMetaDataStore->retrieve( completeBook, m_completeCollName)).isSuccess() )
-//     {
-//       ATH_MSG_ERROR( "(file: " __FILE__ << ", line: " << __LINE__ << ") "
-//                      << "Couldn't find xAOD::CutBookkeeperContainer with name " << m_completeCollName
-//                      << " in output meta-data store" );
-//       return 0;
-//     }
-//
-//   // Get the incomplete bookkeeper collection of the meta-data store
-//   xAOD::CutBookkeeperContainer* incompleteBook(NULL);
-//   if( !(m_outMetaDataStore->retrieve( incompleteBook, m_incompleteCollName)).isSuccess() )
-//     {
-//       ATH_MSG_ERROR( "(file: " __FILE__ << ", line: " << __LINE__ << ") "
-//                      << "Couldn't find xAOD::CutBookkeeperContainer with name " << m_incompleteCollName
-//                      << " in output meta-data store" );
-//       return 0;
-//     }
-//
-//   //Get a copy of completeBook with flat strucutre (instead of tree structure)
-//   xAOD::CutBookkeeperContainer* collFLAT = completeBook->GetCopyWithFlatStructure();
-//   xAOD::CutBookkeeperContainer* collFLAT_i = incompleteBook->GetCopyWithFlatStructure();
-//
-//   //Now map collFLAT to ntuple TTree
-//   int CutFlow_Nb=collFLAT->size();
-//   const std::size_t ressz = collFLAT->size() + collFLAT_i->size();
-//   std::vector<std::string> cf_name; cf_name.reserve(ressz);
-//   std::vector<std::string> cf_inputstream; cf_inputstream.reserve(ressz);
-//   std::vector<std::string> cf_outputstream; cf_outputstream.reserve(ressz);
-//   std::vector<std::string> cf_description; cf_description.reserve(ressz);
-//   std::vector<std::string> cf_logic; cf_logic.reserve(ressz);
-//   std::vector<ULong_t> cf_nAcceptedEvents; cf_nAcceptedEvents.reserve(ressz);
-//   std::vector<Double_t> cf_nWeightedAcceptedEvents; cf_nWeightedAcceptedEvents.reserve(ressz);
-//   std::vector<Int_t> cf_isComplete; cf_isComplete.reserve(ressz);
-//   std::vector<Int_t> cf_cycle; cf_cycle.reserve(ressz);
-//   std::vector<Int_t> cf_parentIndex; cf_parentIndex.reserve(ressz);
-//   std::vector<Int_t> cf_nbChildren; cf_nbChildren.reserve(ressz);
-//   std::vector< std::vector<UInt_t> > cf_childrenIndices; cf_childrenIndices.reserve(ressz);
-//
-//   //Loop over all complete EBs and tag them as such
-//   for(unsigned int i=0; i<collFLAT->size(); i++){
-//     CutBookkeeper* tmp = collFLAT->at(i);
-//     ATH_MSG_DEBUG("Complete EB from collFLAT: "<<tmp->getName());
-//     cf_name.push_back(tmp->getName());
-//     cf_inputstream.push_back(tmp->getInputStream());
-//     cf_outputstream.push_back(tmp->getOutputStream());
-//     cf_description.push_back(tmp->getDescription());
-//     cf_logic.push_back(tmp->getLogic());
-//     cf_nAcceptedEvents.push_back(tmp->getNAcceptedEvents());
-//     cf_nWeightedAcceptedEvents.push_back(tmp->getNWeightedAcceptedEvents());
-//     cf_cycle.push_back(tmp->getCycle());
-//     cf_isComplete.push_back(1);
-//     cf_parentIndex.push_back(tmp->m_parentIndex);
-//     cf_nbChildren.push_back(tmp->m_childrenIndices->size());
-//     cf_childrenIndices.push_back
-//       (std::vector<UInt_t>(tmp->m_childrenIndices->begin(),
-//                            tmp->m_childrenIndices->end()));
-//   }
-//
-//   //Loop over all incomplete EBs and tag them as such
-//   for(unsigned int i=0; i<collFLAT_i->size(); i++){
-//     CutBookkeeper* tmp = collFLAT_i->at(i);
-//     ATH_MSG_DEBUG("Incomplete EB from collFLAT: "<<tmp->getName());
-//     cf_name.push_back(tmp->getName());
-//     cf_inputstream.push_back(tmp->getInputStream());
-//     cf_outputstream.push_back(tmp->getOutputStream());
-//     cf_description.push_back(tmp->getDescription());
-//     cf_logic.push_back(tmp->getLogic());
-//     cf_nAcceptedEvents.push_back(tmp->getNAcceptedEvents());
-//     cf_nWeightedAcceptedEvents.push_back(tmp->getNWeightedAcceptedEvents());
-//     cf_cycle.push_back(tmp->getCycle());
-//     cf_isComplete.push_back(0);
-//     cf_parentIndex.push_back(tmp->m_parentIndex);
-//     cf_nbChildren.push_back(tmp->m_childrenIndices->size());
-//     cf_childrenIndices.push_back
-//       (std::vector<UInt_t>(tmp->m_childrenIndices->begin(),
-//                            tmp->m_childrenIndices->end()));
-//   }
-//
-//   //Fill output TTree
-//   TTree* t = new TTree(treeName,treeName);
-//   t->Branch("CutFlow_Nb", &CutFlow_Nb,"CutFlow_Nb/I");
-//   t->Branch("name", &cf_name);
-//   t->Branch("inputstream", &cf_inputstream);
-//   t->Branch("outputstream", &cf_outputstream);
-//   t->Branch("description", &cf_description);
-//   t->Branch("logic", &cf_logic);
-//   t->Branch("nAcceptedEvents", &cf_nAcceptedEvents);
-//   t->Branch("nWeightedAcceptedEvents", &cf_nWeightedAcceptedEvents);
-//   t->Branch("cycle", &cf_cycle);
-//   t->Branch("isComplete", &cf_isComplete);
-//   t->Branch("parentIndex", &cf_parentIndex);
-//   t->Branch("nbChildren", &cf_nbChildren);
-//   t->Branch("childrenIndices", &cf_childrenIndices);
-//   t->Fill();
-//
-//   //delete local collFLAT
-//   delete collFLAT;
-//   delete collFLAT_i;
-//
-//   //The caller now owns the TTree
-//   return t;
-// }
-
-
-
-
-// void
-// CutFlowSvc::loadCutFlowFromTTree( TTree* )
-// {
-//   //This function remains to be filled...
-//   //It should load the content of it into completeBook
-//
-//   //The caller now owns coll
-//   return;
-// }
 
 
 
@@ -754,27 +622,28 @@ StatusCode
 CutFlowSvc::updateCollFromInputStore(xAOD::CutBookkeeperContainer* coll,
                                      const std::string &collName)
 {
-  ATH_MSG_DEBUG("calling updateCollFromInputStore(" << collName << ")" );
+  ATH_MSG_DEBUG("calling updateCollFromInputStore(" << collName << ") with coll-size=" << coll->size() );
 
   if ( m_inMetaDataStore->contains<xAOD::CutBookkeeperContainer>(collName) ) {
+    ATH_MSG_VERBOSE("Input MetaData contains type xAOD::CutBookkeeperContainer with name" << collName);
 
-    //get list of input metadata stores(!)
-    std::list<SG::ObjectWithVersion<xAOD::CutBookkeeperContainer> > allVersions;
-    ATH_CHECK( m_inMetaDataStore->retrieveAllVersions(allVersions, collName) );
+    // There can always only be a single object in the input store. As the store
+    // is connected to just a single input file.
+    const xAOD::CutBookkeeperContainer* tmpColl = 0;
+    ATH_CHECK( m_inMetaDataStore->retrieve( tmpColl, collName ) );
 
-    //now get all corresponding lists...
-    for ( std::list<SG::ObjectWithVersion<xAOD::CutBookkeeperContainer> >::const_iterator
-            iter = allVersions.begin();
-          iter != allVersions.end();
-          ++iter ) {
-      //const DataHandle<xAOD::CutBookkeeperContainer> tmpColl = iter->dataObject;
-      const xAOD::CutBookkeeperContainer* tmpColl = iter->dataObject;
-      //...and update coll with each list.
-      ATH_CHECK( this->updateContainer(coll, tmpColl) );
+    // Check that we succeeded:
+    if( ! tmpColl->hasStore() ) {
+       ATH_MSG_FATAL( "Object doesn't have an auxiliary store" );
+       return StatusCode::FAILURE;
     }
+
+    //...and update coll with each list.
+    ATH_CHECK( this->updateContainer(coll, tmpColl) );
   }
   // Now check if there are old-style EventBookkeepers in the input file
   else if ( m_inMetaDataStore->contains< ::EventBookkeeperCollection >(collName) ) {
+    ATH_MSG_VERBOSE("Input MetaData contains type EventBookkeeperCollection with name" << collName);
     //get list of input metadata stores(!)
     std::list<SG::ObjectWithVersion< ::EventBookkeeperCollection > > allVersions;
     ATH_CHECK( m_inMetaDataStore->retrieveAllVersions(allVersions, collName) );
@@ -792,32 +661,28 @@ CutFlowSvc::updateCollFromInputStore(xAOD::CutBookkeeperContainer* coll,
   }
   // Now check if there are old-style EventBookkeepers in the input file, using the old default name
   else if ( m_inMetaDataStore->contains< ::EventBookkeeperCollection >("EventBookkeepers") ) {
+    if (!m_alreadyCopiedEventBookkeepers) {
+      ATH_MSG_VERBOSE("Input MetaData contains type EventBookkeeperCollection with name EventBookkeepers");
+      m_alreadyCopiedEventBookkeepers = true;
       //get list of input metadata stores(!)
       std::list<SG::ObjectWithVersion< ::EventBookkeeperCollection > > allVersions;
       ATH_CHECK( m_inMetaDataStore->retrieveAllVersions(allVersions, "EventBookkeepers") );
 
       //now get all corresponding lists...
       for ( std::list<SG::ObjectWithVersion< ::EventBookkeeperCollection> >::const_iterator
-          iter = allVersions.begin();
-          iter != allVersions.end();
-          ++iter ) {
-              //const DataHandle<xAOD::CutBookkeeperContainer> tmpColl = iter->dataObject;
-              const ::EventBookkeeperCollection* tmpColl = iter->dataObject;
-              //...and update coll with each list.
-              ATH_CHECK( this->updateContainerFromOldEDM(coll, tmpColl) );
-          }
+            iter = allVersions.begin();
+            iter != allVersions.end();
+            ++iter ) {
+        //const DataHandle<xAOD::CutBookkeeperContainer> tmpColl = iter->dataObject;
+        const ::EventBookkeeperCollection* tmpColl = iter->dataObject;
+        //...and update coll with each list.
+        ATH_CHECK( this->updateContainerFromOldEDM(coll, tmpColl) );
       }
-      // } else if (inputStoreHasFlatTTree()) {
-  //   ATH_MSG_INFO("Flat TTree CutFlow history detected! Parsing for " << collName << "...");
-  //   if (collName == std::string(m_incompleteCollName)) {
-  //     fillIncompleteCollectionFromInputStore(coll);
-  //   } else if (collName == std::string(m_completeCollName)) {
-  //     fillCompleteCollectionFromInputStore(coll);
-  //   } else {
-  //     ATH_MSG_ERROR("Bad collection name: " << collName);
-  //     return;
-  //   }
-  // }
+    }
+    else {
+      ATH_MSG_VERBOSE("Already copied EventBookkeeperCollection with name EventBookkeepers for this input file");
+    }
+  }
   else {
     ATH_MSG_INFO( "Cannot find xAOD::CutBookkeeperContainer "
                   << "or an old-style EventBookkeeperCollection "
@@ -826,32 +691,6 @@ CutFlowSvc::updateCollFromInputStore(xAOD::CutBookkeeperContainer* coll,
   return StatusCode::SUCCESS;
 }
 
-// bool CutFlowSvc::inputStoreHasFlatTTree() const
-// {
-//   return (m_inMetaDataStore->contains<int>("CutFlowTree/CutFlow_Nb"));
-// }
-
-// void CutFlowSvc::fillIncompleteCollectionFromInputStore(xAOD::CutBookkeeperContainer *coll)
-// {
-//   fillCollectionFromInputStore(coll, 0);
-// }
-
-// void CutFlowSvc::fillCompleteCollectionFromInputStore(xAOD::CutBookkeeperContainer *coll)
-// {
-//   fillCollectionFromInputStore(coll, 1);
-// }
-
-// void CutFlowSvc::fillCollectionFromInputStore(xAOD::CutBookkeeperContainer *coll, int wantIsComplete)
-// {
-//   xAOD::CutBookkeeperContainer *tmpColl = new xAOD::CutBookkeeperContainer();
-//
-//   FillEBCFromFlat filler(m_inMetaDataStore, tmpColl, wantIsComplete);
-//   filler.fill();
-//
-//   coll->UpdateFromColl(tmpColl);
-//   delete tmpColl;
-//   ATH_MSG_INFO("fillCollectionFromInputStore: final coll->size() = " << coll->size());
-// }
 
 
 
@@ -860,6 +699,8 @@ StatusCode
 CutFlowSvc::updateContainer( xAOD::CutBookkeeperContainer* contToUpdate,
                              const xAOD::CutBookkeeperContainer* otherCont ) {
   ATH_MSG_DEBUG("calling updateContainer(...)" );
+  ATH_MSG_VERBOSE("Have container to update with size=" << contToUpdate->size()
+                  << ", and other container with size=" << otherCont->size() );
 
   // Create an vector of indices of all the newly transferred CutBookkeepers
   std::vector< std::size_t > newEBKIndices;
@@ -867,23 +708,32 @@ CutFlowSvc::updateContainer( xAOD::CutBookkeeperContainer* contToUpdate,
   // If element already in contToUpdate, update event counts, otherwise create new element
   for ( std::size_t i=0; i<otherCont->size(); ++i ) {
     const xAOD::CutBookkeeper* otherEBK = otherCont->at(i);
+    ATH_MSG_VERBOSE("Looping through otherCont at index " << i);
+    ATH_MSG_VERBOSE("Have otherEBK with: name=" << otherEBK->name()
+                    << ", cycle=" << otherEBK->cycle()
+                    << ", nAcceptedEvents=" << otherEBK->nAcceptedEvents()
+                    << ", inputStream=" << otherEBK->inputStream() );
+
 
     // Loop through the container to be updated (contToUpdate) and see if we find a match
+    bool foundEBKToUpdate(false);
     for ( std::size_t j=0; j<contToUpdate->size(); ++j ) {
       xAOD::CutBookkeeper* ebkToUpdate = contToUpdate->at(j);
       // Check if they are identical, if so, update; else add otherEBK
       if ( otherEBK->isEqualTo(ebkToUpdate) ) {
         ebkToUpdate->setPayload( ebkToUpdate->payload() + otherEBK->payload() );
-      }
-      else {
-        xAOD::CutBookkeeper* newEBK = new xAOD::CutBookkeeper();
-        if ( newEBK->usingPrivateStore() ) { newEBK->releasePrivateStore(); }
-        newEBK->makePrivateStore(otherEBK);
-        contToUpdate->push_back( newEBK );
-        std::size_t ebIdx = newEBK->index();
-        newEBKIndices.push_back(ebIdx);
+        foundEBKToUpdate = true;
+        break;
       }
     } // End: Inner loop over contToUpdate
+    if (!foundEBKToUpdate) {
+      xAOD::CutBookkeeper* newEBK = new xAOD::CutBookkeeper();
+      if ( newEBK->usingPrivateStore() ) { newEBK->releasePrivateStore(); }
+      newEBK->makePrivateStore(otherEBK);
+      contToUpdate->push_back( newEBK );
+      std::size_t ebIdx = newEBK->index();
+      newEBKIndices.push_back(ebIdx);
+    }
   } // End: Outer loop over contToUpdate
 
   // Now, we still need to fix the cross-referencing of the newly added CutBookkkeepers
@@ -988,13 +838,16 @@ CutFlowSvc::updateContainer( xAOD::CutBookkeeperContainer* contToUpdate,
 StatusCode CutFlowSvc::updateContainerFromOldEDM( xAOD::CutBookkeeperContainer* contToUpdate,
                                                   const EventBookkeeperCollection* otherContOldEDM ) {
   // Helper class to update a container with information from another one from the old EDM
-  ATH_MSG_DEBUG("calling updateContainerFromOldEDM(...)" );
+  ATH_MSG_DEBUG("calling updateContainerFromOldEDM(contToUpdate, otherContOldEDM)"
+                << " with sizes=(" << contToUpdate->size() << "," << otherContOldEDM->size() << ")");
 
   // Create a new CutBookkeeperContainer to hold the transferred objects
   // Note, do not sg->record, this is internal
-  xAOD::CutBookkeeperContainer* otherCont = new xAOD::CutBookkeeperContainer();
-  // Take care of the peculiarities of the new xAOD EDM, i.e., create the needed AuxStore
-  otherCont->setStore( new xAOD::CutBookkeeperAuxContainer );
+  xAOD::CutBookkeeperContainer otherCont;
+  // Take care of the peculiarities of the new xAOD EDM, i.e., create the needed AuxStore...
+  xAOD::CutBookkeeperAuxContainer otherAuxCont;
+  // ...and connect both
+  otherCont.setStore( &otherAuxCont );
 
   // Now, iterate over all old-style EventBookkeepers and create new ones
   for ( std::size_t i=0; i<otherContOldEDM->size(); ++i ) {
@@ -1003,17 +856,15 @@ StatusCode CutFlowSvc::updateContainerFromOldEDM( xAOD::CutBookkeeperContainer* 
 
     // Create a new CutBookkeeper
     xAOD::CutBookkeeper* newEBK = new xAOD::CutBookkeeper();
-    otherCont->push_back( newEBK );
+    otherCont.push_back( newEBK );
 
     // Update the container
-    ATH_CHECK( this->updateContainerFromOldEDM( otherCont, newEBK, oldEBK ) );
+    ATH_CHECK( this->updateContainerFromOldEDM( &otherCont, newEBK, oldEBK ) );
   }
 
   // Now, we can pass this one on to the standard merging method
-  ATH_CHECK( this->updateContainer( contToUpdate, otherCont ) );
-
-  // Clean up
-  if ( otherCont ) { delete otherCont; }
+  ATH_CHECK( this->updateContainer( contToUpdate, &otherCont ) );
+  ATH_MSG_VERBOSE("Resulting size of contToUpdate=" << contToUpdate->size() << ", and of otherCont=" << otherCont.size() );
 
   return StatusCode::SUCCESS;
 }
@@ -1026,10 +877,12 @@ StatusCode CutFlowSvc::updateContainerFromOldEDM( xAOD::CutBookkeeperContainer* 
                                                   const EventBookkeeper* oldEBK,
                                                   const xAOD::CutBookkeeper* parentEBK ) {
   // Helper class to update a container with information from another one from the old EDM
-  ATH_MSG_DEBUG("calling updateContainerFromOldEDM(xAOD::CutBookkeeperContainer* contToUpdate,"
-                                               << "xAOD::CutBookkeeper* newEBK,"
-                                               << "const EventBookkeeper* oldEBK,"
-                                               << "const xAOD::CutBookkeeper* parentEBK)" );
+  ATH_MSG_DEBUG("calling updateContainerFromOldEDM(contToUpdate, newEBK, oldEBK, parentEBK)" );
+  ATH_MSG_VERBOSE("Old EBK has: name=" << oldEBK->getName()
+                  << ", cycle=" << oldEBK->getCycle()
+                  << ", nAcceptedEvents=" << oldEBK->getNAcceptedEvents()
+                  << ", inputStream=" << oldEBK->getInputStream()
+                  << ", outputStream=" << oldEBK->getOutputStream() );
 
   // Set all the properties of this new CutBookkeeper
   newEBK->setName( oldEBK->getName() );
@@ -1053,6 +906,7 @@ StatusCode CutFlowSvc::updateContainerFromOldEDM( xAOD::CutBookkeeperContainer* 
   // Deal with the translation of the old children to the new used others
   const std::vector<EventBookkeeper*>* oldChildren = oldEBK->getChildrenEventBookkeepers();
   for ( std::size_t i=0; i<oldChildren->size(); ++i ) {
+    ATH_MSG_VERBOSE("Updating child number " << i);
     // Get the current old child
     const ::EventBookkeeper* oldChild = oldChildren->at(i);
 
@@ -1066,6 +920,7 @@ StatusCode CutFlowSvc::updateContainerFromOldEDM( xAOD::CutBookkeeperContainer* 
     // Do this iteratively
     ATH_CHECK( this->updateContainerFromOldEDM( contToUpdate, newOther, oldChild, newEBK ) );
   }
+  ATH_MSG_DEBUG("Done with calling updateContainerFromOldEDM(contToUpdate, newEBK, oldEBK, parentEBK)" );
   return StatusCode::SUCCESS;
 }
 
@@ -1074,7 +929,7 @@ StatusCode CutFlowSvc::updateContainerFromOldEDM( xAOD::CutBookkeeperContainer* 
 StatusCode
 CutFlowSvc::finalize()
 {
-  ATH_MSG_DEBUG("calling finalize()" );
+  ATH_MSG_DEBUG( "Finalizing " << name() << " - package version " << PACKAGE_VERSION );
   return StatusCode::SUCCESS;
 }
 

@@ -30,16 +30,11 @@ theApp.CreateSvc+=['CutFlowSvc']
 
 svcMgr.CutFlowSvc.OutputLevel=INFO
 #svcMgr.CutFlowSvc.OutputLevel=DEBUG
-svcMgr.CutFlowSvc.printStream=stream
-svcMgr.CutFlowSvc.writeTxtFileNamed="myCutFlow.txt"
 if 'cycle' in dir():
     svcMgr.CutFlowSvc.SkimmingCycle=cycle
     pass
 if 'virtual' in dir():
     svcMgr.CutFlowSvc.printVirtualFilters=virtual
-    pass
-if 'outTFile' in dir():
-    svcMgr.CutFlowSvc.writeRootFileNamed=outTFile
     pass
 
 svcMgr.MessageSvc.defaultLimit = 9999999
