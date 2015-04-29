@@ -33,10 +33,7 @@
 #include "TrigT1Interfaces/RecEmTauRoI.h"
 #include "TrigInterfaces/HypoAlgo.h"
 
-// trigger EDM
-//#include "TrigCaloEvent/TrigEMCluster.h"
-//#include "TrigParticle/TrigPhoton.h"
-//#include "TrigParticle/TrigPhotonContainer.h"
+// EDM
 #include "xAODTrigCalo/TrigEMCluster.h"
 #include "xAODTrigEgamma/TrigPhoton.h"
 #include "xAODTrigEgamma/TrigPhotonContainer.h"
@@ -75,15 +72,15 @@ class TrigL2PhotonHypo : public HLT::HypoAlgo {
     std::vector<float> m_caeratiothr; //!<  selection variable for L2 calo selection: Eratio
     std::vector<float> m_F1thr; //!< selection variable for L2 calo: fraction of energy deposited in 1st sampling    
 
-    float m_detacluster;
-    float m_dphicluster;
     std::vector<float> m_calib;
     
     bool m_acceptAll; //!<  accept all events bool property if true
     bool m_etCutOnly;
-    bool m_acceptLOOSE;
-    bool m_saveTrigPh;   //!<  save TrigPhoton container bool property if true
 
+    //L1-L2 matching variables
+    float  m_detacluster; //!<  deta between track and L1 roI
+    float  m_dphicluster; //!<  dphi between track and L1 roI
+    
     int  PassedCuts; //!< counter for candidates passing each cut
 
     // functions to retrieve monitored quantities

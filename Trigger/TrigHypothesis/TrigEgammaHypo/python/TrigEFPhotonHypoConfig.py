@@ -51,7 +51,9 @@ class EFPhotonHypo_g_EtCut (TrigEFPhotonHypoBase):
     def __init__(self, name, threshold):
         super( EFPhotonHypo_g_EtCut, self ).__init__( name ) 
         self.AcceptAll = True
+        self.ApplyIsEM = False
         self.usePhotonCuts = False
+        self.emEt = float(threshold)*GeV
 
 class EFPhotonHypo_g_NoCut (TrigEFPhotonHypoBase):
     __slots__ = []

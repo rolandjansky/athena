@@ -39,8 +39,7 @@
 
 #include "ElectronPhotonSelectorTools/IAsgElectronIsEMSelector.h"
 #include "ElectronPhotonSelectorTools/IAsgElectronLikelihoodTool.h"
-#include "LumiBlockComps/ILuminosityTool.h"
-
+#include "LumiBlockComps/ILumiBlockMuTool.h"
 class StoreGateSvc;
 class TriggerElement;
 
@@ -74,7 +73,6 @@ class TrigEFCaloHypo : public HLT::HypoAlgo {
   // Cuts to be applied:
 
   double     m_emEt;
-  double     m_isEM;
   bool       m_applyIsEM;  //!< true if isem flag required 
   bool       m_applyLH; // use LH
   unsigned int        m_IsEMrequiredBits;  //!< isem flag bits required
@@ -85,7 +83,7 @@ class TrigEFCaloHypo : public HLT::HypoAlgo {
   ToolHandle<IAsgElectronLikelihoodTool> m_LHSelectorTool;
   
   /** Luminosity Tool */
-  ToolHandle<ILuminosityTool>  m_lumiTool;
+  ToolHandle<ILumiBlockMuTool>  m_lumiBlockMuTool;
   
   std::vector<TrigTimer*>   m_timers;
   TrigTimer* m_totalTimer;

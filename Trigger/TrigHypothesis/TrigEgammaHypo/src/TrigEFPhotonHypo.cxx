@@ -159,10 +159,8 @@ HLT::ErrorCode TrigEFPhotonHypo::hltInitialize()
   //------------------------------------------------------------------------------
   
   if (m_egammaElectronCutIDToolName=="") {
-    msg() << MSG::DEBUG << "egammaElectronCutID PID is disabled " 
-	  << m_egammaElectronCutIDToolName 
-	  << endreq;
-    m_egammaElectronCutIDTool=0;
+    ATH_MSG_DEBUG("egammaElectronCutID PID is disabled, no tool specified "); 
+    m_egammaElectronCutIDTool=ToolHandle<IAsgElectronIsEMSelector>();
   } else {
     m_egammaElectronCutIDTool=ToolHandle<IAsgElectronIsEMSelector>(m_egammaElectronCutIDToolName);    
     if(m_egammaElectronCutIDTool.retrieve().isFailure()) {
@@ -187,10 +185,8 @@ HLT::ErrorCode TrigEFPhotonHypo::hltInitialize()
   // independently on whether the egamma object has associated TrackParticle or not
   //------------------------------------------------------------------------------
   if (m_egammaPhotonCutIDToolName=="") {
-    msg() << MSG::DEBUG << "egammaPhotonCutID PID is disabled " 
-	  << m_egammaPhotonCutIDToolName 
-	  << endreq;
-    m_egammaPhotonCutIDTool=0;
+    ATH_MSG_DEBUG("egammaPhotonCutID PID is disabled, no tool specified " );
+    m_egammaPhotonCutIDTool=ToolHandle<IAsgPhotonIsEMSelector>();
   } else {
     m_egammaPhotonCutIDTool=ToolHandle<IAsgPhotonIsEMSelector>(m_egammaPhotonCutIDToolName);    
     if(m_egammaPhotonCutIDTool.retrieve().isFailure()) {
@@ -241,28 +237,6 @@ HLT::ErrorCode TrigEFPhotonHypo::hltExecute(const HLT::TriggerElement* outputTE,
   m_EgammaContainer = 0;
   m_NofPassedCuts=-1;
   
-  //counters for each cut
-  int Ncand[10];
-  for(int i=0; i<10; i++) Ncand[i]=0;
-  Ncand[0]++;
-
-  //isEM monitoring variables
-  for(unsigned int i=0;i<32;i++) m_NcandIsEM[i]=0; 
-  for(unsigned int i=0;i<32;i++) m_NcandIsEMAfterCut[i]=0;
-  m_NofPassedCuts = 0;
-  m_NofPassedCutsIsEM = 0;
-  m_NofPassedCutsIsEMTrig = 0;
-
-  //m_isEMTrig.clear(); //AT Aug2011: deactivate histogram egIsEM - outdated
-
-  //Monitor the required isEM bits Before/After Cuts
-  for(unsigned int i=0;i<32;i++) m_IsEMRequiredBits[i]=0; 
-  for(unsigned int i=0;i<32;i++) m_IsEMRequiredBitsAfterCut[i]=0;
-
-  //Monitor the required isEM 32-Bit pattern Before Cuts
-  for(unsigned int i=0;i<32;++i) { //32-bit as it is in the Offline isEM for BitDefElecton and BitDefPhoton	
-    m_IsEMRequiredBits[i]+= ((m_IsEMrequiredBits & (0x1<<i)) && 1); 
-  } 
 
 
   
@@ -272,19 +246,9 @@ HLT::ErrorCode TrigEFPhotonHypo::hltExecute(const HLT::TriggerElement* outputTE,
 
   if(msgLvl() <= MSG::DEBUG)
     msg() << MSG::DEBUG << name() << ": in execute()" << endreq;
- 
-  if (m_acceptAll) {
-    if ( msgLvl() <= MSG::DEBUG )
-      msg() << MSG::DEBUG << "AcceptAll property is set: taking all events" 
-	    << endreq;
-    pass = true;
-    return HLT::OK;
-  } 
-  else {
-    if ( msgLvl() <= MSG::DEBUG )
-      msg() << MSG::DEBUG << "AcceptAll property not set: applying selection" 
-	    << endreq;
-  }
+  
+  // default value, it will be set to true if selection satisfied
+  pass=false;
   
   // get egamma objects from the trigger element:
   //--------------------------------------------------
@@ -323,6 +287,20 @@ HLT::ErrorCode TrigEFPhotonHypo::hltExecute(const HLT::TriggerElement* outputTE,
     if (timerSvc()) m_totalTimer->stop();
     return HLT::OK;
   }
+  // Check for objects in container
+  if(m_EgammaContainer->size() == 0){
+      ATH_MSG_DEBUG("REGTEST: No Photons in container");
+      if (timerSvc()) m_totalTimer->stop();
+    return HLT::OK;
+  }
+  // AcceptAll property = true means selection cuts should not be applied
+  // Only set after checking container size
+  if (m_acceptAll) {
+      pass = true;
+      ATH_MSG_DEBUG("AcceptAll property is set: taking all events");
+  } 
+  else 
+      ATH_MSG_DEBUG("AcceptAll property not set: applying selection");
 
   // generate TrigPassBits mask to flag which egamma objects pass hypo cuts
   TrigPassBits* passBits = HLT::makeTrigPassBits(m_EgammaContainer);
@@ -334,6 +312,28 @@ HLT::ErrorCode TrigEFPhotonHypo::hltExecute(const HLT::TriggerElement* outputTE,
   // temporarily disable the TrigPassFlags until xAOD format is sorted out
   TrigPassFlags* isEMFlags = 0; //HLT::makeTrigPassFlags(m_EgammaContainer, flagSize);
   
+  //counters for each cut
+  int Ncand[10];
+  for(int i=0; i<10; i++) Ncand[i]=0;
+  Ncand[0]++;
+
+  //isEM monitoring variables
+  for(unsigned int i=0;i<32;i++) m_NcandIsEM[i]=0; 
+  for(unsigned int i=0;i<32;i++) m_NcandIsEMAfterCut[i]=0;
+  m_NofPassedCuts = 0;
+  m_NofPassedCutsIsEM = 0;
+  m_NofPassedCutsIsEMTrig = 0;
+
+  //m_isEMTrig.clear(); //AT Aug2011: deactivate histogram egIsEM - outdated
+
+  //Monitor the required isEM bits Before/After Cuts
+  for(unsigned int i=0;i<32;i++) m_IsEMRequiredBits[i]=0; 
+  for(unsigned int i=0;i<32;i++) m_IsEMRequiredBitsAfterCut[i]=0;
+
+  //Monitor the required isEM 32-Bit pattern Before Cuts
+  for(unsigned int i=0;i<32;++i) { //32-bit as it is in the Offline isEM for BitDefElecton and BitDefPhoton	
+    m_IsEMRequiredBits[i]+= ((m_IsEMrequiredBits & (0x1<<i)) != 0); 
+  } 
   Ncand[1]++;
 
   //Something to do with old trigger cuts
@@ -414,7 +414,7 @@ HLT::ErrorCode TrigEFPhotonHypo::hltExecute(const HLT::TriggerElement* outputTE,
 
           //Monitor isEM
           for(unsigned int i=0;i<32;++i) { //32-bit as it is in the Offline isEM for BitDefElecton and BitDefPhoton
-              m_NcandIsEM[i]+= ((isEMTrig & (0x1<<i)) && 1); 
+              m_NcandIsEM[i]+= ((isEMTrig & (0x1<<i)) != 0); 
           }
 
           // Set the isEM flag for this egamma object
@@ -430,12 +430,12 @@ HLT::ErrorCode TrigEFPhotonHypo::hltExecute(const HLT::TriggerElement* outputTE,
 
           //Monitor isEM After Cut
           for(unsigned int i=0;i<32;++i) { //32-bit as it is in the Offline isEM for BitDefElecton and BitDefPhoton
-              m_NcandIsEMAfterCut[i]+= ((isEMTrig & (0x1<<i)) && 1); 
+              m_NcandIsEMAfterCut[i]+= ((isEMTrig & (0x1<<i)) != 0); 
           }
 
           //Monitor the required isEM 32-Bit pattern After Cut
           for(unsigned int i=0;i<32;++i) { //32-bit as it is in the Offline isEM for BitDefElecton and BitDefPhoton	
-              m_IsEMRequiredBitsAfterCut[i]+= ((m_IsEMrequiredBits & (0x1<<i)) && 1); 
+              m_IsEMRequiredBitsAfterCut[i]+= ((m_IsEMrequiredBits & (0x1<<i)) != 0); 
           }
 
           // Do not count on m_NofPassedCuts since this cut might be disabled

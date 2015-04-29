@@ -69,7 +69,6 @@ HLT::ErrorCode TrigEFCaloCalibFex::hltInitialize()
   if(m_MVACalibTool.retrieve().isFailure()) {
       ATH_MSG_ERROR("Failed to retrieve " << m_MVACalibTool);
       m_applyMVACalib = false;
-      m_MVACalibTool = 0;
       return HLT::BAD_JOB_SETUP;
   }
   else {
