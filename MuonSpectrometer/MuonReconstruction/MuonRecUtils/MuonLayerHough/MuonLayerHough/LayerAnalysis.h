@@ -25,14 +25,15 @@ namespace MuonHough {
     TH2F* Unmatched;
     TH1F* Efficiency;
     TH1F* FakeEfficiency;
-	TH2F* Diff;
+    TH2F* Diff;
   };
 
 
   class LayerAnalysis {
   public:
     
-    LayerAnalysis( TTree& tree ) : m_tree(&tree) {
+    LayerAnalysis( TTree& tree ) : m_tree(&tree), m_ncalls(0) {
+      m_ntuple.reset();
       m_ntuple.initForRead(tree);
     }
     

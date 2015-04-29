@@ -32,7 +32,7 @@ namespace MuonHough {
     {
       if (cut.first < pos) return cut.second;
     }
-    return m_cutValues.end()->second;
+    return m_cutValues.back().second;
   }
 
   float MuonLayerHoughSelector::getMinCutValue() const

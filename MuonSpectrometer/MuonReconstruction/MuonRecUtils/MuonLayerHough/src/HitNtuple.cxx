@@ -331,8 +331,11 @@ namespace MuonHough {
       }
       Hit* hit = new Hit(lay[i],x[i],ymin[i],ymax[i],w[i],debug);
       
-      DataIndex index(debug->sector,debug->region,debug->layer,debug->type);
-      HitList& hitList = event.sectors[debug->sector][index];
+      DataIndex index(sector[i],
+                      static_cast<Muon::MuonStationIndex::DetectorRegionIndex>(region[i]),
+                      static_cast<Muon::MuonStationIndex::LayerIndex>(layer[i]),
+                      type[i]);
+      HitList& hitList = event.sectors[sector[i]][index];
       hitList.push_back( hit );
     }
    

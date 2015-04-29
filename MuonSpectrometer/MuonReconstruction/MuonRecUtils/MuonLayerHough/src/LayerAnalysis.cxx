@@ -178,7 +178,7 @@ namespace MuonHough {
   }
 
 
-  void LayerAnalysis::drawSector( int region, int sector, SectorData& data, MuonDetectorHough& detectorHough, MuonDetectorHough& detectorHoughTruth ) {
+  void LayerAnalysis::drawSector( int region, int sector, SectorData& /*data*/, MuonDetectorHough& detectorHough, MuonDetectorHough& detectorHoughTruth ) {
  
     TString canvasName = Form("event_%i_sector_%i,_display_%i", m_ncalls, sector, region);
     // TCanvas canvas(canvasName,canvasName,1500,1100);
@@ -335,7 +335,7 @@ namespace MuonHough {
       hists[pos]->SetFillStyle(3244);
       hists[pos]->SetFillColor(1);
       hists[pos]->Draw();
-      int chIndex = hough.m_descriptor.chIndex;
+      // int chIndex = hough.m_descriptor.chIndex;
       histsTruth[pos]->SetLineColor(2);
       histsTruth[pos]->Draw("SAME");
       // float maxPos = fabs(hists[pos]->GetXaxis()->GetBinCenter(hists[pos]->GetMaximumBin()));

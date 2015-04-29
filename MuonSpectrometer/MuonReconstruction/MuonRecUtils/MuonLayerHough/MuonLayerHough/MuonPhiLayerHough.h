@@ -18,7 +18,7 @@ namespace MuonHough {
   struct MuonPhiLayerHough {
 
     struct Maximum {
-      Maximum() : hough(0) {}
+      Maximum() : max(0.), pos(0.), binpos(-1), binposmin(-1), binposmax(-1), sector(-1), hough(nullptr) {}
 
       float max;
       float pos;
@@ -97,6 +97,12 @@ namespace MuonHough {
     int  m_nbins;
     bool m_debug;
     unsigned int* m_histo;
+
+    private:
+      // fake copy constructor and assignment operator
+      MuonPhiLayerHough(const MuonPhiLayerHough&);
+      MuonPhiLayerHough & operator=(const MuonPhiLayerHough &right);
+
   };
 
 }

@@ -44,7 +44,8 @@ namespace MuonHough {
 
     /// struct representing the maximum in the hough space 
     struct Maximum {
-      Maximum() : hough(0) {}
+      Maximum() : max(0.), pos(0.), theta(0.), binpos(-1), binposmin(-1),
+                  binposmax(-1), bintheta(-1), triggerConfirmed(0), hough(0) {}
 
       float max;    // value of the maximum
       float pos;    // spacial position
@@ -126,7 +127,7 @@ namespace MuonHough {
     float m_binsize;      /// binsize 
     float m_invbinsize;   /// inverse binsize
 
-    unsigned int m_nthetasamples;
+    // unsigned int m_nthetasamples;
     int m_nbins;
 
     unsigned int max;
