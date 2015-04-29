@@ -102,8 +102,6 @@ class TrigGSFTrackFex : public HLT::FexAlgo  {
   /** @brief helper for */
   CaloPhiRange          m_phiHelper;
   //collections
-  const xAOD::TrackParticleContainer*  m_trackTES;
-  //      const TrackParticleTruthCollection* m_trackTruthTES;
   TrackCollection*                    m_finalTracks;
   xAOD::TrackParticleContainer*        m_finalTrkPartContainer;
 

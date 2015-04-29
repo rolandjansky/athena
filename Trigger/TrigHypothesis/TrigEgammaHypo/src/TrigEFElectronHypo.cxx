@@ -55,7 +55,7 @@ namespace {
 TrigEFElectronHypo::TrigEFElectronHypo(const std::string& name, 
 				   ISvcLocator* pSvcLocator):
     HLT::HypoAlgo(name, pSvcLocator),
-    m_lumiTool("LuminosityTool"),
+    m_lumiBlockMuTool("LumiBlockMuTool/LumiBlockMuTool"),
     m_primaryVertex(Amg::Vector3D()), 
     m_trackToVertexTool("Reco::TrackToVertex")
   
@@ -79,7 +79,7 @@ TrigEFElectronHypo::TrigEFElectronHypo(const std::string& name,
 		  "Tool for track extrapolation to vertex"); 
 
   /** Luminosity tool */
-  declareProperty("LuminosityTool", m_lumiTool, "Luminosity Tool");
+  declareProperty("LuminosityTool", m_lumiBlockMuTool, "Luminosity Tool");
   
   declareProperty("emEt",m_emEt = -3.*CLHEP::GeV);
 
@@ -221,11 +221,10 @@ HLT::ErrorCode TrigEFElectronHypo::hltInitialize()
  
   //retrieving TrackToVertex:    
   if ( m_trackToVertexTool.retrieve().isFailure() ) {  
-    msg() << MSG::ERROR <<"Failed to retrieve tool " << m_trackToVertexTool << endreq;  	  
-    m_trackToVertexTool = 0;  
-    return StatusCode::FAILURE;  
+      ATH_MSG_ERROR("Failed to retrieve tool " << m_trackToVertexTool);
+      return StatusCode::FAILURE;  
   } else {  
-    msg() << MSG::DEBUG << "Retrieved tool " << m_trackToVertexTool<< endreq; 
+    ATH_MSG_DEBUG("Retrieved tool " << m_trackToVertexTool);
   }
 
   //-------------------------------------------------------------------------------
@@ -234,10 +233,8 @@ HLT::ErrorCode TrigEFElectronHypo::hltInitialize()
   //------------------------------------------------------------------------------
   
   if (m_egammaElectronCutIDToolName=="") {
-    msg() << MSG::DEBUG << "egammaElectronCutID PID is disabled " 
-	  << m_egammaElectronCutIDToolName 
-	  << endreq;
-    m_egammaElectronCutIDTool=0;
+    ATH_MSG_DEBUG("egammaElectronCutID PID is disabled, no tool specified "); 
+    m_egammaElectronCutIDTool=ToolHandle<IAsgElectronIsEMSelector>();
   } else {
     m_egammaElectronCutIDTool=ToolHandle<IAsgElectronIsEMSelector>(m_egammaElectronCutIDToolName);    
     if(m_egammaElectronCutIDTool.retrieve().isFailure()) {
@@ -253,9 +250,8 @@ HLT::ErrorCode TrigEFElectronHypo::hltInitialize()
   }
   
   if (m_athElectronLHIDSelectorToolName=="") {
-      msg() << MSG::DEBUG <<  "AthenaElectronLHIDSelectorTool is disabled  " 
-	  << m_athElectronLHIDSelectorToolName << endreq;
-      m_athElectronLHIDSelectorTool=0;
+      ATH_MSG_DEBUG("AthenaElectronLHIDSelectorTool is disabled, no tool specified  "); 
+       m_athElectronLHIDSelectorTool=ToolHandle<IAsgElectronLikelihoodTool>();
   } else {
       m_athElectronLHIDSelectorTool=ToolHandle<IAsgElectronLikelihoodTool>(m_athElectronLHIDSelectorToolName);
       // a priori this is not useful
@@ -269,7 +265,7 @@ HLT::ErrorCode TrigEFElectronHypo::hltInitialize()
       }
   }
   // For now, just try to retrieve the lumi tool
-  if (m_lumiTool.retrieve().isFailure()) {
+  if (m_lumiBlockMuTool.retrieve().isFailure()) {
       ATH_MSG_DEBUG("Unable to retrieve Luminosity Tool");
       // 244            return HLT::ERROR;
   } else {
@@ -377,8 +373,6 @@ HLT::ErrorCode TrigEFElectronHypo::hltExecute(const HLT::TriggerElement* outputT
   // default value, it will be set to true if selection satisfied
   accepted=false;
 
-  // AcceptAll property = true means selection cuts should not be applied
-  if (m_acceptAll) accepted=true;
   
   // get egamma objects from the trigger element:
   //--------------------------------------------------
@@ -417,6 +411,22 @@ HLT::ErrorCode TrigEFElectronHypo::hltExecute(const HLT::TriggerElement* outputT
     if (timerSvc()) m_totalTimer->stop();
     return HLT::OK;
   }
+  // Check for objects in container
+  if(m_EgammaContainer->size() == 0){
+      ATH_MSG_DEBUG("REGTEST: No Electrons in container");
+      if (timerSvc()) m_totalTimer->stop();
+      return HLT::OK;
+  }
+  
+  // AcceptAll property = true means selection cuts should not be applied
+  // Only set after checking container size
+  if (m_acceptAll) {
+      accepted = true;
+      ATH_MSG_DEBUG("AcceptAll property is set: taking all events");
+  } 
+  else 
+      ATH_MSG_DEBUG("AcceptAll property not set: applying selection");
+
 
   // generate TrigPassBits mask to flag which egamma objects pass hypo cuts
   TrigPassBits* passBits = HLT::makeTrigPassBits(m_EgammaContainer);
@@ -447,7 +457,7 @@ HLT::ErrorCode TrigEFElectronHypo::hltExecute(const HLT::TriggerElement* outputT
 
   //Monitor the required isEM 32-Bit pattern Before Cuts
   for(unsigned int i=0;i<32;++i) { //32-bit as it is in the Offline isEM for BitDefElecton and BitDefPhoton	
-    m_IsEMRequiredBits[i]+= ((m_IsEMrequiredBits & (0x1<<i)) && 1); 
+    m_IsEMRequiredBits[i]+= ((m_IsEMrequiredBits & (0x1<<i)) != 0); 
   }
   for (const auto& egIt : *m_EgammaContainer){
 
@@ -473,13 +483,26 @@ HLT::ErrorCode TrigEFElectronHypo::hltExecute(const HLT::TriggerElement* outputT
             //Check the tool
 
             if (m_athElectronLHIDSelectorTool == 0) {
-                msg() << MSG::ERROR << m_athElectronLHIDSelectorTool << " null, hypo continues but no AthenaLHSelector cut applied" << endreq;
+                ATH_MSG_ERROR(m_athElectronLHIDSelectorTool << " null, hypo continues but no AthenaLHSelector cut applied");
             }else{
                 if (timerSvc()) m_timerPIDTool->start(); //timer
-                //xAOD Tool does not accept Egamma object 
-                //Calo-only selection must be configured in tool
-                const Root::TAccept& acc = m_athElectronLHIDSelectorTool->accept(egIt);
-                isLHAcceptTrig = (bool) (acc);
+                double mu = 0.;
+                double avg_mu = 0.;
+                if(m_lumiBlockMuTool){
+                    mu = m_lumiBlockMuTool->actualInteractionsPerCrossing(); // (retrieve mu for the current BCID)
+                    avg_mu = m_lumiBlockMuTool->averageInteractionsPerCrossing();
+                    ATH_MSG_DEBUG("REGTEST: Retrieved Mu Value : " << mu);
+                    ATH_MSG_DEBUG("REGTEST: Average Mu Value   : " << avg_mu);
+                    const Root::TAccept& acc = m_athElectronLHIDSelectorTool->accept(egIt,avg_mu);
+                    ATH_MSG_DEBUG("LHValue with mu " << m_athElectronLHIDSelectorTool->getTResult().getResult(0));
+                    isLHAcceptTrig = (bool) (acc);
+                }
+                else {
+                    ATH_MSG_DEBUG("Lumi tool returns mu = 0, do not pass mu");
+                    const Root::TAccept& acc = m_athElectronLHIDSelectorTool->accept(egIt);
+                    ATH_MSG_DEBUG("LHValue no mu " << m_athElectronLHIDSelectorTool->getTResult().getResult(0));
+                    isLHAcceptTrig = (bool) (acc);
+                }
 
                 ATH_MSG_DEBUG("AthenaLHSelectorTool: TAccept = " << isLHAcceptTrig);
                 ATH_MSG_DEBUG("Stored Result LHVLoose " << egIt->passSelection("LHVLoose"));
@@ -515,7 +538,7 @@ HLT::ErrorCode TrigEFElectronHypo::hltExecute(const HLT::TriggerElement* outputT
         
         //Monitor isEM Before Cut
         for(unsigned int i=0;i<32;++i) { //32-bit as it is in the Offline isEM for BitDefElecton and BitDefPhoton
-            m_NcandIsEM[i]+= ((isEMTrig & (0x1<<i)) && 1); 
+            m_NcandIsEM[i]+= ((isEMTrig & (0x1<<i)) != 0); 
         }
 
         if(isEMFlags)
@@ -544,12 +567,12 @@ HLT::ErrorCode TrigEFElectronHypo::hltExecute(const HLT::TriggerElement* outputT
 
         //Monitor isEM After Cut
         for(unsigned int i=0;i<32;++i) { //32-bit as it is in the Offline isEM for BitDefElecton and BitDefPhoton
-            m_NcandIsEMAfterCut[i]+= ((isEMTrig & (0x1<<i)) && 1); 
+            m_NcandIsEMAfterCut[i]+= ((isEMTrig & (0x1<<i)) != 0); 
         }
 
         //Monitor the required isEM 32-Bit pattern After Cut
         for(unsigned int i=0;i<32;++i) { //32-bit as it is in the Offline isEM for BitDefElecton and BitDefPhoton	
-            m_IsEMRequiredBitsAfterCut[i]+= ((m_IsEMrequiredBits & (0x1<<i)) && 1); 
+            m_IsEMRequiredBitsAfterCut[i]+= ((m_IsEMrequiredBits & (0x1<<i)) != 0); 
         }
 
 

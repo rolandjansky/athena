@@ -34,21 +34,10 @@
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 
 // trigger EDM
-//#include "TrigInDetEvent/TrigInDetTrack.h"
-//#include "TrigInDetEvent/TrigInDetTrackCollection.h"
 #include "xAODTracking/TrackParticleContainer.h"
-
-//#include "TrigCaloEvent/TrigEMCluster.h"
-//#include "TrigParticle/TrigElectron.h"
-//#include "TrigParticle/TrigElectronContainer.h"
-
 #include "xAODTrigCalo/TrigEMCluster.h"
 #include "xAODTrigEgamma/TrigElectron.h"
 #include "xAODTrigEgamma/TrigElectronContainer.h"
-
-
-//class ITrigInDetTrackExtrapolator;
-
 
 /**
  * \class TrigL2ElectronHypo
@@ -75,15 +64,9 @@ class TrigL2ElectronHypo: public HLT::HypoAlgo  {
   // Properties:
   unsigned int m_trackalgoID; //!<  integer that assigns the tracking algorihtm used
   
-  //L1-L2 matching variables
-  float  m_detacluster; //!<  deta between track and L1 roI
-  float  m_dphicluster; //!<  dphi between track and L1 roI
   
   //tracking cut
   float  m_trackPtthr; //!< pT cut on track
-  int m_NPixelSpacePoints;
-  int m_NSCT_SpacePoints;
-  int m_NStrawHits;
   
   //calo-tracking cuts
   std::vector<float> m_etabin;
@@ -92,10 +75,6 @@ class TrigL2ElectronHypo: public HLT::HypoAlgo  {
   std::vector<float> m_calotrackdeoverp_low;  //!<  E/p lower cut between calo and track
   std::vector<float> m_calotrackdeoverp_high; //!<  E/p upper cut between calo and track  
 
-  //radius and Z of calorimeter face
-  float m_RCAL;  //!<  radious of calorimeter face
-  float m_ZCAL;  //!<  Z of calorimeter face
-  
   //TRT cuts
   std::vector<float> m_trtratio; //!< cut on ratio of NTRHits/NTRStrawHits for IDScan and SiTrack tracks
 
@@ -114,7 +93,6 @@ class TrigL2ElectronHypo: public HLT::HypoAlgo  {
 
   // monitoring variables
   int m_cutCounter;
-  float m_dEta, m_dPhi, m_EoverP, m_TRTRatio;
 
   //needed for monitoring to work
   const xAOD::TrigElectronContainer* m_egamma_container;

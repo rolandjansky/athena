@@ -42,7 +42,7 @@ class ISvcLocator;
 //
 TrigEFCaloHypo::TrigEFCaloHypo(const std::string& name, ISvcLocator* pSvcLocator):
     HLT::HypoAlgo(name, pSvcLocator),
-    m_lumiTool("LuminosityTool")
+    m_lumiBlockMuTool("LumiBlockMuTool/LumiBlockMuTool")
 {
 
   declareProperty("AcceptAll",      m_acceptAll=true);
@@ -58,7 +58,7 @@ TrigEFCaloHypo::TrigEFCaloHypo(const std::string& name, ISvcLocator* pSvcLocator
   declareProperty("LHSelectorToolName", m_LHSelectorToolName, "Name for LH selector tool");
 
   /** Luminosity tool */
-  declareProperty("LuminosityTool", m_lumiTool, "Luminosity Tool");
+  declareProperty("LuminosityTool", m_lumiBlockMuTool, "Luminosity Tool");
   
   //Monitor collections
   declareMonitoredStdContainer("EnergyBE0",m_EBE0);
@@ -118,7 +118,7 @@ HLT::ErrorCode TrigEFCaloHypo::hltInitialize()
   else ATH_MSG_DEBUG("Tool " << m_LHSelectorTool << " retrieved");
   
   // For now, just try to retrieve the lumi tool
-  if (m_lumiTool.retrieve().isFailure()) {
+  if (m_lumiBlockMuTool.retrieve().isFailure()) {
       ATH_MSG_DEBUG("Unable to retrieve Luminosity Tool");
       // 244            return HLT::ERROR;
   } else {
@@ -288,9 +288,24 @@ HLT::ErrorCode TrigEFCaloHypo::hltExecute(const HLT::TriggerElement* outputTE,
           else isEMTrig = m_SelectorTool->IsemValue();
       }
       else if(m_applyLH){
-          ATH_MSG_DEBUG("REGTEST:: CaloOnly LH Tool");
-          const Root::TAccept& lhacc = m_LHSelectorTool->accept(eg); // use method for calo-only
-          isLHAcceptTrig = (bool) (lhacc);
+          double mu = 0.;
+          double avg_mu = 0.;
+          if(m_lumiBlockMuTool){
+              mu = m_lumiBlockMuTool->actualInteractionsPerCrossing(); // (retrieve mu for the current BCID)
+              avg_mu = m_lumiBlockMuTool->averageInteractionsPerCrossing();
+              ATH_MSG_DEBUG("REGTEST: Retrieved Mu Value : " << mu);
+              ATH_MSG_DEBUG("REGTEST: Average Mu Value   : " << avg_mu);
+              const Root::TAccept& acc = m_LHSelectorTool->accept(eg,avg_mu);
+              ATH_MSG_DEBUG("LHValue with mu " << m_LHSelectorTool->getTResult().getResult(0));
+              isLHAcceptTrig = (bool) (acc);
+          }
+          else {
+              ATH_MSG_DEBUG("Lumi tool returns mu = 0, do not pass mu");
+              const Root::TAccept& lhacc = m_LHSelectorTool->accept(eg); // use method for calo-only
+              ATH_MSG_DEBUG("LHValue without mu " << m_LHSelectorTool->getTResult().getResult(0));
+              isLHAcceptTrig = (bool) (lhacc);
+          }
+
           ATH_MSG_DEBUG("REGTEST: Applying LH pid selection " << isLHAcceptTrig);
       }
       clus = eg->caloCluster();

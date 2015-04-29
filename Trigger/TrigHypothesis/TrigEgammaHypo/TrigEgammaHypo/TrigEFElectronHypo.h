@@ -43,7 +43,7 @@
 #include "TrkSurfaces/PerigeeSurface.h"
 #include "VxVertex/RecVertex.h"
 
-#include "LumiBlockComps/ILuminosityTool.h"
+#include "LumiBlockComps/ILumiBlockMuTool.h"
 /**
  * \class TrigEFElectronHypo
  * \brief TrigEFElectronHypo is a Trigger Hypothesis  Algorithm that retrieves the EF EgammaContainer
@@ -98,7 +98,7 @@ class TrigEFElectronHypo : public HLT::HypoAlgo {
   ToolHandle<IAsgElectronLikelihoodTool> m_athElectronLHIDSelectorTool;
   
   /** Luminosity Tool */
-  ToolHandle<ILuminosityTool>  m_lumiTool;
+  ToolHandle<ILumiBlockMuTool>  m_lumiBlockMuTool;
   
   bool m_useAthElectronLHIDSelector;
   //Offline isEM bit cut

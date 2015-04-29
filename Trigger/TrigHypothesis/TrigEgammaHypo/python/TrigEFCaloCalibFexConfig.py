@@ -10,11 +10,10 @@ from TrigEgammaHypo import TrigEgammaHypoConf
 from AthenaCommon.SystemOfUnits import GeV, mm
 
 from AthenaCommon.AppMgr import ToolSvc
-from egammaRec.Factories import ToolFactory
+from egammaRec.Factories import Factory, ToolFactory
 
-from egammaMVACalib import egammaMVACalibConf
-egammaMVATool =  ToolFactory(egammaMVACalibConf.egammaMVATool,folder="egammaMVACalib/v1")
-from egammaTools.egammaToolsFactories import EMFourMomBuilder, EMShowerBuilder 
+from egammaTools.egammaToolsFactories import egammaMVATool,EMFourMomBuilder, EMShowerBuilder 
+TrigEgammaMVACalibTool =  egammaMVATool.copy(name="TrigEgammaMVACalibTool",folder="egammaMVACalib/online/v3")
 
 def configureTrigEFCaloCalibFexMonitoring(tool):
     
@@ -26,10 +25,10 @@ def configureTrigEFCaloCalibFexMonitoring(tool):
 
     tool.AthenaMonTools = [ time, validation, online ]
 
-TrigEFCaloCalibFex_Electron = ToolFactory(TrigEgammaHypoConf.TrigEFCaloCalibFex, name = "TrigEFCaloCalibFex_Electron",
+TrigEFCaloCalibFex_Electron = Factory(TrigEgammaHypoConf.TrigEFCaloCalibFex, name = "TrigEFCaloCalibFex_Electron", doAdd=False, 
         AcceptAll = True,
         ApplyMVACalib = True,
-        MVACalibTool = egammaMVATool,
+        MVACalibTool = TrigEgammaMVACalibTool,
         egType = 'Electron',
         ShowerBuilderTool = EMShowerBuilder(
                 name = "TrigEgammaShowerBuilder",
@@ -40,10 +39,10 @@ TrigEFCaloCalibFex_Electron = ToolFactory(TrigEgammaHypoConf.TrigEFCaloCalibFex,
         postInit = [configureTrigEFCaloCalibFexMonitoring],
         )
 
-TrigEFCaloCalibFex_Photon = ToolFactory(TrigEgammaHypoConf.TrigEFCaloCalibFex, name = "TrigEFCaloCalibFex_Photon",
+TrigEFCaloCalibFex_Photon = Factory(TrigEgammaHypoConf.TrigEFCaloCalibFex, name = "TrigEFCaloCalibFex_Photon", doAdd=False, 
         AcceptAll = True,
         ApplyMVACalib = True,
-        MVACalibTool = egammaMVATool,
+        MVACalibTool = TrigEgammaMVACalibTool,
         egType = 'Photon',
         ShowerBuilderTool = EMShowerBuilder(
                 name = "TrigEgammaShowerBuilder",

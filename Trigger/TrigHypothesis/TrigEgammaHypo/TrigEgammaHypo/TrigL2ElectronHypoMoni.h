@@ -41,23 +41,16 @@
 #include "TrigT1Interfaces/RecEmTauRoI.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 // trigger EDM
-///#include "TrigInDetEvent/TrigInDetTrack.h"
-//#include "TrigInDetEvent/TrigInDetTrackCollection.h"
 #include "xAODTracking/TrackParticleContainer.h"
-
-//#include "TrigCaloEvent/TrigEMCluster.h"
-//#include "TrigParticle/TrigElectron.h"
-//#include "TrigParticle/TrigElectronContainer.h"
 #include "xAODTrigCalo/TrigEMCluster.h"
 #include "xAODTrigEgamma/TrigElectron.h"
 #include "xAODTrigEgamma/TrigElectronContainer.h"
+
 #include "TH1F.h"
 
 
 class StoreGateSvc;
 class TriggerElement;
-//class ITrigInDetTrackExtrapolator;
-//class IExtrapolateToCaloTool;
 class TH1F;
 
 
@@ -90,8 +83,6 @@ class TrigL2ElectronHypoMoni: public HLT::HypoAlgo  {
     TH1F* m_trackAlgoIDHist;
     TH1F* m_dETACLUSTERHist;
     TH1F* m_dPHICLUSTERHist;
-    
-    StoreGateSvc* m_storeGate;
     
     unsigned int m_trackalgoID;
 
