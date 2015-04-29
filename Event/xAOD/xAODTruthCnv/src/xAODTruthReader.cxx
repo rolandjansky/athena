@@ -49,10 +49,10 @@ namespace xAODReader {
     const xAOD::TruthEventContainer* xTruthEventContainer = NULL;
     CHECK( evtStore()->retrieve( xTruthEventContainer, m_xaodTruthEventContainerName));
     const xAOD::TruthPileupEventContainer* xTruthPUEventContainer = NULL;
-    CHECK( evtStore()->retrieve( xTruthPUEventContainer, m_xaodTruthPUEventContainerName));
+    //CHECK( evtStore()->retrieve( xTruthPUEventContainer, m_xaodTruthPUEventContainerName));
 
     ATH_MSG_INFO("Number of signal events in this Athena event: " << xTruthEventContainer->size());
-    ATH_MSG_INFO("Number of pile-up events in this Athena event: " << xTruthPUEventContainer->size());
+    if (xTruthPUEventContainer) ATH_MSG_INFO("Number of pile-up events in this Athena event: " << xTruthPUEventContainer->size());
 
     // Signal process loop
     ATH_MSG_INFO("Printing signal event...");
@@ -68,6 +68,13 @@ namespace xAODReader {
              << pdfi.pdfId1 << " and " << pdfi.pdfId2 << endl;
       }*/
 
+      // Print hard-scattering info
+      const xAOD::TruthVertex* vtx = evt->signalProcessVertex();
+      ATH_MSG_INFO("Signal process vertex: " << vtx);
+      if (vtx)
+	ATH_MSG_INFO("Poistion = (" << vtx->x() << ", " << vtx->y() << ", " << vtx->z() << ")");
+      else
+	ATH_MSG_INFO("Position n.a.");
       // Print the event particle/vtx contents
       printEvent(evt);
 
@@ -75,10 +82,12 @@ namespace xAODReader {
 
     // Pile-up loop
     ATH_MSG_INFO("Printing pileup events...");
-    for (const xAOD::TruthPileupEvent* evt : *xTruthPUEventContainer) {
-      cout << endl << endl;
-      printEvent(evt);
-    } 
+    if (xTruthPUEventContainer) {
+      for (const xAOD::TruthPileupEvent* evt : *xTruthPUEventContainer) {
+	cout << endl << endl;
+	printEvent(evt);
+      } 
+    }
 
     return StatusCode::SUCCESS;
   }
