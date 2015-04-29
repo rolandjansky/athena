@@ -29,7 +29,7 @@ MuonHoughPatternTool::MuonHoughPatternTool(const std::string& type, const std::s
   AthAlgTool(type,name,parent),
   m_number_of_ids(7),
   m_number_of_maxima(5),
-  m_use_rpc_measures_phi(true),
+  //m_use_rpc_measures_phi(true),
   m_use_rpc_measures_eta(true),
   m_use_ip(false),
   m_thresholdpattern_xyz(1),
@@ -38,7 +38,7 @@ MuonHoughPatternTool::MuonHoughPatternTool(const std::string& type, const std::s
   m_maximum_residu_mm_cosmics(2000.),
   m_maximum_residu_angle(3.),
   m_maximum_level(5),
-  m_use_hough_correction(true),
+  //m_use_hough_correction(true),
   m_z_cor_constant(-10000.),
   m_z_cor_constant2(6000.),
   m_theta_cor_constant(-0.042),
@@ -51,7 +51,7 @@ MuonHoughPatternTool::MuonHoughPatternTool(const std::string& type, const std::s
   m_detectorsize_rz_ip(1500.),
   m_detectorsize_angle_xyz(360.),
   m_detectorsize_angle_rz(180.),
-  m_detectorsize_inv_sqrt_curvature(0.015),
+  //m_detectorsize_inv_sqrt_curvature(0.015),
   m_stepsize_xy(75.),
   m_stepsize_yz(250.),
   m_stepsize_rz(75.),
@@ -61,7 +61,7 @@ MuonHoughPatternTool::MuonHoughPatternTool(const std::string& type, const std::s
   m_stepsize_per_angle_rz(0.25),
   m_stepsize_per_angle_xy_cosmics(1.),
   m_stepsize_per_angle_rz_cosmics(2.),
-  m_stepsize_per_inv_sqrt_curvature(0.001),
+  //m_stepsize_per_inv_sqrt_curvature(0.001),
   m_nbins_curved(160),
   m_weightmdt(0.),
   m_thresholdhisto_xyz(0.9),
@@ -552,7 +552,7 @@ int MuonHoughPatternTool::numberOfHits(const MuonHoughHitContainer* event)const
     }
   }
   
-  if (number_of_hits_left <0) {ATH_MSG_WARNING("number of hits smaller than 0");}
+  // logically impossible --- if (number_of_hits_left <0) {ATH_MSG_WARNING("number of hits smaller than 0");}
 
   ATH_MSG_VERBOSE("numberOfHits left: " << number_of_hits_left);
   ATH_MSG_VERBOSE("number_of_hits: " << number_of_hits);
@@ -922,8 +922,10 @@ MuonHoughTransformSteering* MuonHoughPatternTool::whichHoughTransform(int id_num
     default: ATH_MSG_WARNING("no valid id");    
     }
 
-  houghtransformer->useNegativeWeights(m_use_negative_weights);
-  houghtransformer->setIP(!m_use_cosmics);
+  if(houghtransformer) {
+    houghtransformer->useNegativeWeights(m_use_negative_weights);
+    houghtransformer->setIP(!m_use_cosmics);
+  }
 
   ATH_MSG_DEBUG("**** histo houghtransformer: ****");
   ATH_MSG_DEBUG("Id number: " << id_number); 

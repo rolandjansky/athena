@@ -41,7 +41,7 @@ branches MuonHoughPatternTools src
 
 #should be component library? but interface is also in this package
 #apply_pattern component_library
-apply_pattern dual_use_library files= *.cxx
+apply_pattern dual_use_library files=*.cxx
 
 private
 #macro cppdebugflags '$(cppdebugflags_s)'

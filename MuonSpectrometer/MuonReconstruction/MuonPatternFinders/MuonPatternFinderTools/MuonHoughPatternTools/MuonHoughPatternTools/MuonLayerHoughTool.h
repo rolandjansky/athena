@@ -86,6 +86,7 @@ namespace Muon {
 
     struct HoughDataPerSector {
       HoughDataPerSector() {
+	sector = -1;
 	hitVec.resize(MuonStationIndex::sectorLayerHashMax());
 	maxVec.resize(MuonStationIndex::sectorLayerHashMax());
 	phiHitVec.resize(MuonStationIndex::DetectorRegionIndexMax);

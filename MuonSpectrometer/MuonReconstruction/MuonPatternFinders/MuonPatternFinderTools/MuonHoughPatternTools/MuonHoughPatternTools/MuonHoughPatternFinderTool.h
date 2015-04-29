@@ -11,7 +11,7 @@
 #include "MuonRecToolInterfaces/IMuonHoughPatternFinderTool.h"
 #include "MuonRecToolInterfaces/IMuonCombinePatternTool.h"
 
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 
 #include "MuonSegment/MuonSegmentCombinationCollection.h"
@@ -44,7 +44,7 @@ class TgcIdHelper;
 
 namespace Muon {
 
-  class MuonHoughPatternFinderTool  : virtual public IMuonHoughPatternFinderTool, public AlgTool
+  class MuonHoughPatternFinderTool  : virtual public IMuonHoughPatternFinderTool, public AthAlgTool
   {
   public:
     /** constructor */
@@ -127,13 +127,6 @@ namespace Muon {
     int stationCode(int stationname, int phi, int eta)const;
 
     void addToStationMap(std::map<int,std::vector<std::pair<int, int> > > &stationmap, std::map<int,std::vector<std::pair<int, int> > >::iterator &it, int &stationcode, const int &hit_begin, const int &hit_end);
-
-    /** class member version of retrieving MsgStream */
-    mutable MsgStream m_log;
-    bool m_debug;
-    bool m_verbose;
-
-    StoreGateSvc* m_storeGate;
 
     /** Pointer to Detectormanager */
     const MuonGM::MuonDetectorManager*  m_detMgr;

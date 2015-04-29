@@ -53,10 +53,7 @@ using namespace TrkDriftCircleMath;
 namespace Muon {
 
   MuonHoughPatternFinderTool::MuonHoughPatternFinderTool(const std::string& t,const std::string& n,const IInterface* p)  :  
-    AlgTool(t,n,p),
-    m_log(msgSvc(),n),
-    m_debug(false),
-    m_verbose(false),
+    AthAlgTool(t,n,p),
     m_muonHoughPatternTool("MuonHoughPatternTool"), 
     m_muonCombinePatternTool("MuonCombinePatternTool"), 
     m_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool"), 
@@ -120,62 +117,52 @@ namespace Muon {
       m_weighthistogramtgc =  new TH1F("weighthistotgc","weighthistotgc",100,-0.3,2.2);
     }
 
-    m_log.setLevel(outputLevel());
-    m_debug = m_log.level() <= MSG::DEBUG;
-    m_verbose = m_log.level() <= MSG::VERBOSE;
-    m_log << MSG::VERBOSE << "MuonHoughPatternFinderTool::Initializing" << endreq;
-    StatusCode sc = service("StoreGateSvc", m_storeGate);
-    if (sc.isFailure())
-      {
-	m_log << MSG::FATAL << "StoreGate service not found" << endreq;
-	return StatusCode::FAILURE;
-      }
-
-    sc = m_muonCombinePatternTool.retrieve();
+    ATH_MSG_VERBOSE ("MuonHoughPatternFinderTool::Initializing");
+    StatusCode sc = m_muonCombinePatternTool.retrieve();
 
     if(sc.isFailure())
       {
-	m_log<<MSG::FATAL<<"Could not get MuonCombinePatternTool tool"<<endreq; 
+	ATH_MSG_FATAL ("Could not get MuonCombinePatternTool tool");
 	return sc;
       }
     else
       {
-	m_log << MSG::VERBOSE << "found Service MuonCombinePatternTool " << m_muonCombinePatternTool << endreq;
+	ATH_MSG_VERBOSE ("found Service MuonCombinePatternTool " << m_muonCombinePatternTool);
       }
 
     sc = m_muonHoughPatternTool.retrieve();
 
     if(sc.isFailure())
       {
-	m_log <<MSG::FATAL<<"Could not get muonHoughPatternTool tool"<<endreq; 
+	ATH_MSG_FATAL ("Could not get muonHoughPatternTool tool");
 	return sc;
       }
     else
       {
-	m_log << MSG::VERBOSE << "found Service muonHoughPatternTool: " << m_muonHoughPatternTool << endreq;
+	ATH_MSG_VERBOSE ("found Service muonHoughPatternTool: " << m_muonHoughPatternTool);
       }
 
     sc = m_idHelperTool.retrieve();
     if (sc.isSuccess()){
-      m_log << MSG::DEBUG << "Retrieved " << m_idHelperTool << endreq;
-    }else{
-      m_log << MSG::FATAL<<"Could not get " << m_idHelperTool <<endreq; 
+      ATH_MSG_DEBUG ("Retrieved " << m_idHelperTool);
+    }else{ 
+      ATH_MSG_FATAL ("Could not get " << m_idHelperTool);
       return sc;
     }
 
     sc = m_printer.retrieve();
     if (sc.isSuccess()){
-      m_log<<MSG::DEBUG << "Retrieved " << m_printer << endreq;
+      ATH_MSG_DEBUG ("Retrieved " << m_printer);
     }else{
-      m_log<<MSG::FATAL<<"Could not get " << m_printer <<endreq; 
+      ATH_MSG_FATAL ("Could not get " << m_printer);
       return sc;
     }
   
     sc = m_assocTool.retrieve();
     if (sc.isSuccess()){
-      m_log<<MSG::DEBUG << "Retrieved " << m_assocTool << endreq;
+      ATH_MSG_DEBUG ("Retrieved " << m_assocTool);
     }else{
-      m_log<<MSG::FATAL<<"Could not get " << m_assocTool <<endreq; 
+      ATH_MSG_FATAL ("Could not get " << m_assocTool);
       return sc;
     }
 
@@ -187,7 +174,7 @@ namespace Muon {
 	sc = detStore->retrieve( m_detMgr );
 
 	if ( sc.isFailure() ) {
-          m_log << MSG::WARNING << " Cannot retrieve MuonDetDescrMgr " << endreq;
+          ATH_MSG_WARNING (" Cannot retrieve MuonDetDescrMgr ");
           return sc;
 	} 
 	else 
@@ -196,22 +183,22 @@ namespace Muon {
 	    m_cscIdHelper = m_detMgr->cscIdHelper();    
 	    m_rpcIdHelper = m_detMgr->rpcIdHelper();
 	    m_tgcIdHelper = m_detMgr->tgcIdHelper();
-	    m_log << MSG::DEBUG << " Retrieved IdHelpers: (mdt, csc, rpc and tgc) " << endreq;
+	    ATH_MSG_DEBUG (" Retrieved IdHelpers: (mdt, csc, rpc and tgc) ");
 	  }
       } 
     else 
       {
-	m_log << MSG::WARNING << " MuonDetDescrMgr not found in DetectorStore " << endreq;
+	ATH_MSG_WARNING (" MuonDetDescrMgr not found in DetectorStore ");
 	return sc;
       }
 
     if ( m_hit_reweights ) {
-      m_log << MSG::DEBUG << "Hit Reweighting " << m_hit_reweights << endreq;
+      ATH_MSG_DEBUG ("Hit Reweighting " << m_hit_reweights);
     }
 
     m_phietahitassociation = new std::map<const Trk::PrepRawData*, std::set<const Trk::PrepRawData*,Muon::IdentifierPrdLess> >;
 
-    m_log << MSG::VERBOSE << "End of Initializing" << endreq;  
+    ATH_MSG_VERBOSE ("End of Initializing");
     return StatusCode::SUCCESS; 
   }
 
@@ -228,7 +215,7 @@ namespace Muon {
     if( hitcontainer ) {
       patCombiCol = analyse( *hitcontainer );
     }else{
-      m_log << MSG::INFO << " No hit container created! " << endreq;
+      ATH_MSG_INFO (" No hit container created! ");
     }
     // clear hit container
     delete hitcontainer;
@@ -236,14 +223,14 @@ namespace Muon {
     
     // ensure we always output a collection
     if( !patCombiCol ){
-      if (m_debug) {m_log << MSG::DEBUG << " NO pattern combinations found, creating empty collection " << endreq;}
+      ATH_MSG_DEBUG (" NO pattern combinations found, creating empty collection ");
       patCombiCol = new MuonPatternCombinationCollection();
     }
 
     // summary
-    if (m_summary==true || m_debug) {
-      if( patCombiCol->empty() ) m_log << MSG::DEBUG << " summarizing output: Combined pattern combination empty" << endreq;
-      else m_log << MSG::DEBUG << " summarizing Combined pattern combination output: " << std::endl 
+    if (m_summary==true || this->msgLvl(MSG::DEBUG)) {
+      if( patCombiCol->empty() ) msg() << MSG::DEBUG << " summarizing output: Combined pattern combination empty" << endreq;
+      else msg() << MSG::DEBUG << " summarizing Combined pattern combination output: " << std::endl 
 		 << m_printer->print( *patCombiCol ) << endreq;
     }
 
@@ -251,7 +238,7 @@ namespace Muon {
     cleanUp();
     m_count++;
   
-    if( m_verbose) m_log << MSG::VERBOSE << "execute(end) " << endreq; 
+    ATH_MSG_VERBOSE ("execute(end) ");
 
     // return result
     return patCombiCol;
@@ -275,23 +262,21 @@ namespace Muon {
     if (m_use_histos == true) {
       f_file->Write();
       f_file->Close();
-      if (m_debug) m_log << MSG::DEBUG << "MuonHoughPatternFinderTool:: delete rootfile" << std::endl;
+      ATH_MSG_DEBUG ("MuonHoughPatternFinderTool:: delete rootfile");
       delete f_file;
       f_file=0;
-      if (m_debug) m_log << MSG::DEBUG << "MuonHoughPatternFinderTool::delete Histogram: " << std::endl;
+      ATH_MSG_DEBUG ("MuonHoughPatternFinderTool::delete Histogram: ");
     }
     delete m_phietahitassociation;
     m_phietahitassociation = 0;
-    if( m_verbose ) m_log << MSG::VERBOSE << "finalize()" << endreq;
+    ATH_MSG_VERBOSE ("finalize()");
 
     return StatusCode::SUCCESS;
   }
 
   const MuonPatternCombinationCollection* MuonHoughPatternFinderTool::analyse( const MuonHoughHitContainer& hitcontainer ) {
     
-    if( m_debug ){
-      m_log << MSG::DEBUG << "size of event: " << hitcontainer.size() << endreq;
-    }
+    ATH_MSG_DEBUG ("size of event: " << hitcontainer.size());
 
     //  pass through hitcontainer (better still: preprawdata and only after make internal hitcontainer)
     m_muonHoughPatternTool->makePatterns(&hitcontainer);
@@ -299,18 +284,16 @@ namespace Muon {
     MuonPrdPatternCollection* phipatterns = m_muonHoughPatternTool->getPhiMuonPatterns();
     MuonPrdPatternCollection* etapatterns = m_muonHoughPatternTool->getEtaMuonPatterns();
     
-    if (m_summary==true || m_debug) {
-      if( phipatterns->empty() ) m_log << MSG::DEBUG << " summarizing input: Phi pattern combination empty" << endreq;
-      else m_log << MSG::DEBUG << " summarizing Phi pattern combination input: " << std::endl << m_printer->print( *phipatterns ) << endreq;
-      if( etapatterns->empty() ) m_log << MSG::DEBUG << " summarizing input: Eta pattern combination empty" << endreq;
-      else m_log << MSG::DEBUG << " summarizing Eta pattern combination input: " << std::endl << m_printer->print( *etapatterns ) << endreq;
+    if (m_summary==true || this->msgLvl(MSG::DEBUG)) {
+      if( phipatterns->empty() ) msg() << MSG::DEBUG << " summarizing input: Phi pattern combination empty" << endreq;
+      else msg() << MSG::DEBUG << " summarizing Phi pattern combination input: " << std::endl << m_printer->print( *phipatterns ) << endreq;
+      if( etapatterns->empty() ) msg() << MSG::DEBUG << " summarizing input: Eta pattern combination empty" << endreq;
+      else msg() << MSG::DEBUG << " summarizing Eta pattern combination input: " << std::endl << m_printer->print( *etapatterns ) << endreq;
     }
     
-    if( m_debug ){
-      m_log << MSG::DEBUG << "writePatterns" << endreq;
-      m_log << MSG::DEBUG << "size: phi: " << phipatterns->size() << " eta: " << etapatterns->size() << endreq;
-    }
-    
+    ATH_MSG_DEBUG ("writePatterns");
+    ATH_MSG_DEBUG ("size: phi: " << phipatterns->size() << " eta: " << etapatterns->size());
+   
     
     const MuonPrdPatternCollection* combinedpatterns = 0;
     const MuonPatternCombinationCollection* patterncombinations = 0;
@@ -326,7 +309,7 @@ namespace Muon {
     if (combinedpatterns) {
       patterncombinations = m_muonCombinePatternTool->makePatternCombinations(combinedpatterns);
     }else{
-      if( m_debug ) m_log << MSG::DEBUG << "No combined patterns, creating dummy." << endreq;
+      ATH_MSG_DEBUG ("No combined patterns, creating dummy.");
       combinedpatterns =  new MuonPrdPatternCollection();
     }
 
@@ -347,7 +330,7 @@ namespace Muon {
 								       const std::vector<const RpcPrepDataCollection*>& rpcCols,  
 								       const MuonSegmentCombinationCollection* cscSegmentCombis )
   {
-    if( m_verbose ) m_log << MSG::VERBOSE << "getAllHits()" << endreq;
+    ATH_MSG_VERBOSE ("getAllHits()");
 
     MuonHoughHitContainer* hitcontainer = new MuonHoughHitContainer;
     //reserve space for 5000 hits (arbitrary), this should gain some cpu/memory for background, but will lose for lower occupancy. If anyone knows a way to predict the number of muon hits, I'd like to hear it.
@@ -379,7 +362,7 @@ namespace Muon {
 
 	for(; msc != msc_end; ++msc)
 	  {
-	    if( m_verbose )m_log << MSG::VERBOSE << "CSC combo segments loop, segmentcombo " << (*msc) << endreq;
+	    ATH_MSG_VERBOSE ("CSC combo segments loop, segmentcombo " << (*msc));
 	    for (unsigned int ss=0; ss<(*msc)->numberOfStations(); ss++)
 	      {
 		const Muon::MuonSegmentCombination::SegmentVec* segmentsInCombo = (*msc)->stationSegments(ss);
@@ -389,7 +372,7 @@ namespace Muon {
           
 		for (; ms != ms_end; ++ms)
 		  {
-		    if( m_verbose ) m_log << MSG::VERBOSE << "CSC segments loop, segment: " << (*ms) << endreq;
+		    ATH_MSG_VERBOSE ("CSC segments loop, segment: " << (*ms));
 		    std::set<const Trk::PrepRawData*,Muon::IdentifierPrdLess> phi_set;
 		    std::vector<const Trk::PrepRawData*> eta_vector;
 		    std::pair<std::set<const Trk::PrepRawData*,Muon::IdentifierPrdLess>::iterator,bool> phi_pair;
@@ -398,9 +381,9 @@ namespace Muon {
 		    for(int i=0; i<nRoTs; ++i) 
 		      {
 			const Muon::CscClusterOnTrack* cscOnSeg = dynamic_cast<const Muon::CscClusterOnTrack*> ((*ms)->rioOnTrack(i));
-			if (!cscOnSeg) {m_log << MSG::INFO << "Dynamic cast to CscClusterOnTrack failed!" << endreq; continue;}
+			if (!cscOnSeg) {ATH_MSG_INFO ("Dynamic cast to CscClusterOnTrack failed!"); continue;}
 			const Muon::CscPrepData* prd = dynamic_cast<const Muon::CscPrepData*> (cscOnSeg->prepRawData());
-			if (!prd) {m_log << MSG::INFO << "Dynamic cast to CscPrepData failed!" << endreq; continue;}
+			if (!prd) {ATH_MSG_INFO ("Dynamic cast to CscPrepData failed!"); continue;}
 
 			// hit-segment association, stored for use in downstream algorithms
 			m_cschitsegassociation.insert(std::make_pair(prd,(*msc)));
@@ -412,12 +395,12 @@ namespace Muon {
 			bool channel_type = m_cscIdHelper->measuresPhi(id);
 			csc_pair = csc_set.insert(id);
 			if (csc_pair.second == false) {
-			  m_log << MSG::DEBUG << " CSC hit was already added, weight set to 0" << endreq;
+			  ATH_MSG_DEBUG (" CSC hit was already added, weight set to 0");
 			  layer_ids.push_back(0);
 			}
 			else {
 			  const int layer_id = 1000*m_cscIdHelper->stationEta(id) + 100*m_cscIdHelper->stationPhi(id) + 10*m_cscIdHelper->chamberLayer(id) + 2*m_cscIdHelper->wireLayer(id) + channel_type;
-			  m_log << MSG::DEBUG << "csc layer_id: " << layer_id << endreq;
+			  ATH_MSG_DEBUG ("csc layer_id: " << layer_id);
 			  ++number_of_hits_per_layer[layer_id];
 			  layer_ids.push_back(layer_id);
 			}
@@ -425,7 +408,7 @@ namespace Muon {
 			if (channel_type == true) { //phi hit
 			  phi_pair = phi_set.insert(prd);
 			  if (phi_pair.second == false) {
-			    m_log << MSG::INFO << " CSC phi hit was already added" << endreq;
+			    ATH_MSG_INFO (" CSC phi hit was already added");
 			  }
 			}
 			else { //eta hit
@@ -434,7 +417,7 @@ namespace Muon {
 		      } // rots
 		    // add hit association from segment to map: 
 		    if (!phi_set.empty()){
-		      if( m_verbose ) m_log << MSG::VERBOSE << "Number of Phi Csc hits in segment: " << phi_set.size() << endreq;
+		      ATH_MSG_VERBOSE ("Number of Phi Csc hits in segment: " << phi_set.size());
 		      std::vector <const Trk::PrepRawData*>::iterator vec_it = eta_vector.begin();
 		      for (;vec_it!=eta_vector.end(); ++vec_it) {
 			m_phietahitassociation->insert(std::make_pair(*vec_it,phi_set));
@@ -461,7 +444,7 @@ namespace Muon {
 	      weight = m_weight_csc_on_segment / (0.75*std::sqrt(number_of_hits)+0.25*number_of_hits);
 	    }
 	    
-	    if( m_debug ) m_log << MSG::DEBUG << m_printer->print( *prd ) << " weight " << weight << endreq; 
+	    ATH_MSG_DEBUG (m_printer->print( *prd ) << " weight " << weight);
 	    MuonHoughHit* hit = new MuonHoughHit(hitx,hity,hitz,channel_type,MuonHough::CSC,1.,weight,prd);
 	    
 	    hitcontainer->addHit(hit);
@@ -520,21 +503,20 @@ namespace Muon {
      
     // if statement for verbose:
 
-    if (m_verbose) {
+    if (this->msgLvl (MSG::VERBOSE)) {
     
-      m_log << MSG::VERBOSE << "MuonHoughPatternFinderTool::getAllHits() saving "
-	    << hitcontainer->size()<<" converted hits"
-	    << endreq;
+      ATH_MSG_VERBOSE ("MuonHoughPatternFinderTool::getAllHits() saving "
+                       << hitcontainer->size()<<" converted hits");
     
       for(unsigned int i=0;i<hitcontainer->size();i++)
 	{
-	  m_log << MSG::VERBOSE << " hit " << hitcontainer->getHit(i)->getWhichDetector()
-		<< " (" << hitcontainer->getHit(i)->getHitx() << "," << hitcontainer->getHit(i)->getHity()
-		<< "," << hitcontainer->getHit(i)->getHitz() << ") " << " weight: " << hitcontainer->getHit(i)->getWeight() << " measures phi: " << hitcontainer->getHit(i)->getMeasuresPhi() <<  endreq;
+	  ATH_MSG_VERBOSE (" hit " << hitcontainer->getHit(i)->getWhichDetector()
+                           << " (" << hitcontainer->getHit(i)->getHitx() << "," << hitcontainer->getHit(i)->getHity()
+                           << "," << hitcontainer->getHit(i)->getHitz() << ") " << " weight: " << hitcontainer->getHit(i)->getWeight() << " measures phi: " << hitcontainer->getHit(i)->getMeasuresPhi());
 	}
     
-      m_log << MSG::VERBOSE << "MuonHoughPatternFinderTool::getAllHits() saving " << m_phietahitassociation->size() 
-	    << "associated hits " << endreq;
+      ATH_MSG_VERBOSE ("MuonHoughPatternFinderTool::getAllHits() saving " << m_phietahitassociation->size() 
+                       << "associated hits ");
     }
 
     return hitcontainer;
@@ -544,24 +526,24 @@ namespace Muon {
   void MuonHoughPatternFinderTool::record( const MuonPrdPatternCollection* patCol, std::string location ) {
     
     if( !patCol ) {
-      m_log << MSG::WARNING << "Zero pointer, could not save patterns!!! " <<endreq;
+      ATH_MSG_WARNING ("Zero pointer, could not save patterns!!! ");
       return;
     }
 
     // check whether we are writing patterns to storegate, if not delete pattern
     if( !m_recordAllOutput ){
-      if( m_debug ) m_log << MSG::DEBUG << "Deleted patterns: " << patCol->size() << "  at " << location <<endreq;
+      ATH_MSG_DEBUG ("Deleted patterns: " << patCol->size() << "  at " << location);
 
       // since patCol Datavector, it owns (by defaults its elements)
       delete patCol;
     }
     else {
-      StatusCode sc = m_storeGate->record(patCol, location);
+      StatusCode sc = evtStore()->record(patCol, location);
       if ( sc.isFailure() ){
-	m_log << MSG::WARNING << "Could not save patterns at " << location <<endreq;
+	ATH_MSG_WARNING ("Could not save patterns at " << location);
       }
       else{
-	if( m_debug ) m_log << MSG::DEBUG << "Saved patterns: " << patCol->size() << "  at " << location <<endreq;
+	ATH_MSG_DEBUG ("Saved patterns: " << patCol->size() << "  at " << location);
       }
     }
   }
@@ -570,12 +552,12 @@ namespace Muon {
   {
     if (1)
       {
-	//m_log << MSG::VERBOSE << "Event through Cut()" << endreq;
+	//msg() << MSG::VERBOSE << "Event through Cut()" << endreq;
 	return true;
       }
 
     else {
-      //m_log << MSG::VERBOSE << "Event not through Cut()" << endreq;
+      //msg() << MSG::VERBOSE << "Event not through Cut()" << endreq;
       return false;
     }
   }
@@ -627,9 +609,9 @@ namespace Muon {
 	      if (channel_type) layer = layer + 4;
         
 	      layers.insert(layer);
-	      if( m_verbose ) m_log << MSG::VERBOSE << "layer_number: " << layer_number << " doubletR: " << doubletR 
-				    << " doubletZ: " << doubletZ << " doubletPhi " << doubletPhi
-				    << " gasGap " << gasGap << " layer " << layer << endreq;
+	      ATH_MSG_VERBOSE ("layer_number: " << layer_number << " doubletR: " << doubletR 
+                               << " doubletZ: " << doubletZ << " doubletPhi " << doubletPhi
+                               << " gasGap " << gasGap << " layer " << layer);
 	    }
 	  }
       }
@@ -665,7 +647,7 @@ namespace Muon {
 	  else { // gasgapid already in set
 	    gg_insert = (*gg_it).second.insert(prd);
 	    if (gg_insert.second == false) {
-	      if( m_debug ) m_log << MSG::DEBUG << "WARNING::RPC hit already in set? " << endreq;
+	      ATH_MSG_DEBUG ("WARNING::RPC hit already in set? ");
 	    }
 	  }
 	}
@@ -702,7 +684,7 @@ namespace Muon {
 	}
       MuonHoughHit* hit = new MuonHoughHit(hitx,hity,hitz,channel_type,MuonHough::RPC,prob,weight,prd);
       hitcontainer->addHit(hit);
-      if( m_debug ) m_log << MSG::DEBUG << m_printer->print( *prd ) << " NEW weight " << weight << endreq; 
+      ATH_MSG_DEBUG (m_printer->print( *prd ) << " NEW weight " << weight);
 
       if (m_use_histos == true) {
 	m_weighthistogram->Fill(weight);
@@ -778,7 +760,7 @@ namespace Muon {
 	      const int layer = layer_number; // layer ranges from 0..5
 
 	      layers.insert(layer);
-	      if( m_verbose ) m_log << MSG::VERBOSE << "gasgap: " << gasgap << " layer: " << layer_number << endreq;
+	      ATH_MSG_VERBOSE ("gasgap: " << gasgap << " layer: " << layer_number);
 	    }
 	  }
       }
@@ -803,7 +785,7 @@ namespace Muon {
       
 	if (std::isnan(hitx) || std::abs(hitx)>big_number || std::abs(hity) >big_number || std::abs(hitz) > big_number) // to avoid crashing with TGC hits
 	  {
-	    m_log << MSG::WARNING << "TGC hit not physical: hitx: " << hitx << " hity: " << hity << " hitz: " << hitz << endreq;
+	    ATH_MSG_WARNING ("TGC hit not physical: hitx: " << hitx << " hity: " << hity << " hitz: " << hitz);
 	  }
 	else 
 	  {
@@ -819,7 +801,7 @@ namespace Muon {
 		else { // gasgapid already in set
 		  gg_insert = (*gg_it).second.insert(prd);
 		  if (gg_insert.second == false) {
-		    if( m_debug ) m_log << MSG::DEBUG << "WARNING::TGC hit already in set? " << endreq;
+		    ATH_MSG_DEBUG ("WARNING::TGC hit already in set? ");
 		  }
 		}
 	      }
@@ -849,7 +831,7 @@ namespace Muon {
 	      }
 	    MuonHoughHit* hit = new MuonHoughHit(hitx,hity,hitz,channel_type,MuonHough::TGC,prob,weight,prd); //getPrd
 	    hitcontainer->addHit(hit);
-	    if( m_debug ) m_log << MSG::DEBUG << m_printer->print( *prd ) << " NEW weight " << weight << endreq; 
+	    ATH_MSG_DEBUG (m_printer->print( *prd ) << " NEW weight " << weight);
 	    if (m_use_histos == true) {
 	      m_weighthistogram->Fill(weight);
 	      m_weighthistogramtgc->Fill(weight);
@@ -892,13 +874,13 @@ namespace Muon {
       unsigned int channels = 2 * detEl->getNLayers() * detEl->getNtubesperlayer(); // Factor 2 for number of multilayers, should be changed when only 1 detector element per chamber (the chambers with only 1 multilayer have a twice less severe cut (for convenience))
       double occupancy = (double)size / (double)channels;
 
-      if (m_debug) m_log << MSG::DEBUG << " size: " << size << " channels: " << channels << " occupancy: " << occupancy << endreq;
+      ATH_MSG_DEBUG (" size: " << size << " channels: " << channels << " occupancy: " << occupancy);
 
       // if more than m_showerskipperc (default 30%) of all hits in the chamber is hit then all weights to 0
       // only done for large chambers (more than 50 hits) 
       if (occupancy > m_showerskipperc && size > 50) {
 
-	if (m_debug) m_log << MSG::DEBUG << "Chamber skipped! Too high occupancy (>" << m_showerskipperc << "%): " << occupancy << " association to pattern still possible" << endreq;
+	ATH_MSG_DEBUG ("Chamber skipped! Too high occupancy (>" << m_showerskipperc << "%): " << occupancy << " association to pattern still possible");
 
 	Muon::MdtPrepDataCollection::const_iterator cit = cit_begin;   
 	for( ; cit!=cit_end;++cit ) // first
@@ -917,7 +899,7 @@ namespace Muon {
 		double hitz = globalpos.z();
 	      
 		MuonHoughHit* hit = new MuonHoughHit(hitx,hity,hitz,false,MuonHough::MDT,0.,0.,mdt); //getPrd
-		if( m_debug ) m_log << MSG::DEBUG << m_printer->print( *mdt ) << endreq; 
+		ATH_MSG_DEBUG (m_printer->print( *mdt ));
 		hitcontainer->addHit(hit);
 	      }
 	  }
@@ -1009,8 +991,8 @@ namespace Muon {
 	    tubecount[tube-1]+=0.5;
 	    tubecount[tube+1]+=0.5;
 
-	    if( m_verbose ) m_log << MSG::VERBOSE << " layer_number: " << layer_number << " multi_layer: " << multi_layer
-				  << " tube_layer: " << tube_layer << endreq;
+	    ATH_MSG_VERBOSE (" layer_number: " << layer_number << " multi_layer: " << multi_layer
+                             << " tube_layer: " << tube_layer);
 
 	  } // adc cut
       }
@@ -1023,7 +1005,7 @@ namespace Muon {
       for (unsigned int i=0; i<prdsize; i++) {
       
 	MuonHoughHit* hit = new MuonHoughHit(hitx[i],hity[i],hitz[i],false,MuonHough::MDT,1.,1.,prd[i]); //getPrd
-	if( m_debug ) m_log << MSG::DEBUG << m_printer->print( *prd[i] ) << endreq; 
+	ATH_MSG_DEBUG (m_printer->print( *prd[i] ));
 	hitcontainer->addHit(hit);
       }
       return;
@@ -1033,16 +1015,16 @@ namespace Muon {
 
     if (tubem < 2.01) // allweights 0
       {
-	if( m_verbose ) m_log << MSG::VERBOSE << " TOO SMALL tubem : " << tubem << endreq;
+	ATH_MSG_VERBOSE (" TOO SMALL tubem : " << tubem);
 	for (unsigned int i=0; i<prdsize; i++) {
 	  MuonHoughHit* hit = new MuonHoughHit(hitx[i],hity[i],hitz[i],false,MuonHough::MDT,0.,0.,prd[i]); //getPrd
-	  if( m_debug ) m_log << MSG::DEBUG << m_printer->print( *prd[i] ) << " weight " << 0 << " adc: " << prd[i]->adc() << endreq; 
+	  ATH_MSG_DEBUG (m_printer->print( *prd[i] ) << " weight " << 0 << " adc: " << prd[i]->adc());
 	  hitcontainer->addHit(hit);
 	  if (m_use_histos == true) {
 	    m_weighthistogram->Fill(0);
 	    m_weighthistogrammdt->Fill(0);
 	  }
-	  //m_log << MSG::DEBUG << "Hit accepted" << endreq;
+	  //msg() << MSG::DEBUG << "Hit accepted" << endreq;
     
 	} // collection
 	return;
@@ -1071,10 +1053,10 @@ namespace Muon {
 
     if (ml1 + ml2 < 2.01) // allweights = 0
       {
-	if( m_verbose ) m_log << MSG::VERBOSE << " TOO SMALL ml1 + ml2 : " << ml1 << " ml2 " << ml2  << endreq;
+	ATH_MSG_VERBOSE (" TOO SMALL ml1 + ml2 : " << ml1 << " ml2 " << ml2);
 	for (unsigned int i=0; i<prdsize; i++) {
 	  MuonHoughHit* hit = new MuonHoughHit(hitx[i],hity[i],hitz[i],false,MuonHough::MDT,0.,0.,prd[i]); //getPrd
-	  if( m_debug ) m_log << MSG::DEBUG << m_printer->print( *prd[i] ) << " weight " << 0 << endreq; 
+	  ATH_MSG_DEBUG (m_printer->print( *prd[i] ) << " weight " << 0);
 	  hitcontainer->addHit(hit);
 	  if (m_use_histos == true) {
 	    m_weighthistogram->Fill(0);
@@ -1267,13 +1249,13 @@ namespace Muon {
 	    weights[i] = prob[i]/(0.25*layerhits_conf + 0.75*std::sqrt(layerhits_conf)); 
 	  }
 	  else {
-	    m_log << MSG::INFO << "Entry not in map! This should not happen" << endreq;
+	    ATH_MSG_INFO ("Entry not in map! This should not happen");
 	    weights[i] = prob[i];
 	  }
 	}
       }
       else {
-	m_log << MSG::INFO << "Entry not in map! This should not happen" << endreq;
+	ATH_MSG_INFO ("Entry not in map! This should not happen");
 	weights[i] = prob[i];
       }
     }
@@ -1283,13 +1265,13 @@ namespace Muon {
     for (unsigned int i=0; i<prdsize; i++) {
 
       MuonHoughHit* hit = new MuonHoughHit(hitx[i],hity[i],hitz[i],false,MuonHough::MDT,prob[i],weights[i],prd[i]); //getPrd
-      if( m_debug ) m_log << MSG::DEBUG << m_printer->print( *prd[i] ) << " trigger weight " <<  weight_trigger[i] << " on segment " << onsegment[i] << " psi " << psi[i] << " prob " << prob[i] << " weight " << weights[i] << endreq; 
+      ATH_MSG_DEBUG (m_printer->print( *prd[i] ) << " trigger weight " <<  weight_trigger[i] << " on segment " << onsegment[i] << " psi " << psi[i] << " prob " << prob[i] << " weight " << weights[i]);
       hitcontainer->addHit(hit);
       if (m_use_histos == true) {
 	m_weighthistogram->Fill(weights[i]);
 	m_weighthistogrammdt->Fill(weights[i]);
       }
-      //m_log << MSG::DEBUG << "Hit accepted" << endreq;
+      //msg() << MSG::DEBUG << "Hit accepted" << endreq;
     
     } // collection
   }
@@ -1316,7 +1298,7 @@ namespace Muon {
 
 	    ++number_of_hits_per_layer[layer_number];
       
-	    if( m_debug ) m_log << MSG::DEBUG << "chamber_layer: " << chamber_layer << " chamber_layer_max: " << chamber_layer_max << " wire_layer: " << wire_layer << endreq;
+	    ATH_MSG_DEBUG ("chamber_layer: " << chamber_layer << " chamber_layer_max: " << chamber_layer_max << " wire_layer: " << wire_layer);
       
 	  }
       }
@@ -1349,7 +1331,7 @@ namespace Muon {
 	    else { // gasgapid already in set
 	      gg_insert = (*gg_it).second.insert(prd);
 	      if (gg_insert.second == false) {
-		if( m_debug ) m_log << MSG::DEBUG << "WARNING::CSC hit already in set? " << endreq;
+		ATH_MSG_DEBUG ("WARNING::CSC hit already in set? ");
 	      }
 	    }
 	  }
@@ -1365,12 +1347,12 @@ namespace Muon {
 	    double number_of_hits = (double) number_of_hits_per_layer[layer_number];
 	    weight = weight_factor_csc / std::sqrt(number_of_hits);
       
-	    if( m_debug ) m_log << MSG::DEBUG << "CSC weight: " << weight << endreq;
+	    ATH_MSG_DEBUG ("CSC weight: " << weight);
 	  }
       
 	MuonHoughHit* hit = new MuonHoughHit(hitx,hity,hitz,channel_type,MuonHough::CSC,1.,weight,prd); //getPrd
 	hitcontainer->addHit(hit);
-	if( m_debug ) m_log << MSG::DEBUG << m_printer->print( *prd ) << " weight " << weight << endreq; 
+	ATH_MSG_DEBUG (m_printer->print( *prd ) << " weight " << weight);
 	if (m_use_histos == true) {
 	  m_weighthistogram->Fill(weight);
 	  m_weighthistogramcsc->Fill(weight);
@@ -1413,7 +1395,7 @@ namespace Muon {
 		    std::map <const Trk::PrepRawData*, const Muon::MuonSegmentCombination*>::const_iterator cscSegment = m_cschitsegassociation.find(*pit); 
 		    if ( cscSegment != m_cschitsegassociation.end())
                       {
-			if( m_verbose ) m_log << MSG::VERBOSE << "Hit CSC Association Found" << endreq;
+			ATH_MSG_VERBOSE ("Hit CSC Association Found");
 			//cscAssMap->addAssociation( combinedpatterns, *it, m_csc_segments, (*cscSegment).second );
 			m_assocTool->insert( (*cscSegment).second, *it);
 			break;
@@ -1422,13 +1404,13 @@ namespace Muon {
               }
           }
       }
-    // if (m_storeGate->record(cscAssMap,m_cscAssoOutputLocation).isSuccess())
+    // if (evtStore()->record(cscAssMap,m_cscAssoOutputLocation).isSuccess())
     // {
-    //     m_log << MSG::DEBUG << "stored Csc MuonSegPatAssociations at " << m_cscAssoOutputLocation  << endreq;
+    //     msg() << MSG::DEBUG << "stored Csc MuonSegPatAssociations at " << m_cscAssoOutputLocation  << endreq;
     // }
     // else 
     // {
-    //     m_log << MSG::DEBUG << "Failed to store Csc MuonSegPatAssociations at " << m_cscAssoOutputLocation << endreq;
+    //     msg() << MSG::DEBUG << "Failed to store Csc MuonSegPatAssociations at " << m_cscAssoOutputLocation << endreq;
     // }
   }
 
@@ -1440,7 +1422,7 @@ namespace Muon {
     // called once per rpc collection/station
   
     std::string st = m_rpcIdHelper->stationNameString(m_rpcIdHelper->stationName(rpcid));
-    if( m_verbose ) m_log << MSG::VERBOSE << "updateRpcMdtStationMap" <<  st << endreq;
+    ATH_MSG_VERBOSE ("updateRpcMdtStationMap" <<  st);
     if (st[0] != 'B') return; // no rpc for endcap chambers
 
     std::map<int,std::vector<std::pair<int, int> > >::iterator it;
@@ -1679,7 +1661,7 @@ namespace Muon {
       int isort = 100*(4*(it1->id().ml()) + it1->id().lay()) + it1->id().tube();
       dcsId[isort] = nhits;
       int ilay = 4*(it1->id().ml()) + it1->id().lay();
-      if( m_verbose ) m_log << MSG::VERBOSE << " ilay " << ilay << " isort " << isort << endreq;
+      ATH_MSG_VERBOSE (" ilay " << ilay << " isort " << isort);
 
       map_it = layerHits.find(ilay);
       if (map_it != layerHits.end()) {
@@ -1733,15 +1715,13 @@ namespace Muon {
 	      matchWithLine.set( *lit, roadWidth, TrkDriftCircleMath::MatchDCWithLine::Road );
 	      const TrkDriftCircleMath::DCOnTrackVec& hitsOnLine = matchWithLine.match( dcs );
 	      unsigned int matchedHits = matchWithLine.hitsOnTrack();
-	      if( m_verbose ) m_log << MSG::VERBOSE << " Summary nHits " << matchedHits << " nl1 " << matchWithLine.hitsMl1() 
-				    << " nl2 " << matchWithLine.hitsMl2() << endreq;
+	      ATH_MSG_VERBOSE (" Summary nHits " << matchedHits << " nl1 " << matchWithLine.hitsMl1() 
+                               << " nl2 " << matchWithLine.hitsMl2());
 	      if (matchedHits > nHits || (matchedHits ==  nHits && psi < angleDif )) {
 		int dnl = abs(matchWithLine.hitsMl1()-matchWithLine.hitsMl2());
-		if (m_debug ) {
-		  m_log << MSG::DEBUG << " matchWithLine.hitsOnTrack() >  nHits old " << nHits << " new: " << matchedHits <<endreq;
-		  m_log << MSG::DEBUG << " dnl " << dnl << " old dnl " << std::abs(nl1-nl2) << endreq;
-		  m_log << MSG::DEBUG << " hit cos phi " << cphi << " line " << coshit << " sin phi " << sphi << " line " << sinhit << " psi " << psi << endreq;
-		}
+                ATH_MSG_DEBUG (" matchWithLine.hitsOnTrack() >  nHits old " << nHits << " new: " << matchedHits);
+                ATH_MSG_DEBUG (" dnl " << dnl << " old dnl " << std::abs(nl1-nl2));
+                ATH_MSG_DEBUG (" hit cos phi " << cphi << " line " << coshit << " sin phi " << sphi << " line " << sinhit << " psi " << psi);
           
 		// update of variables:
 		nHits = matchedHits;
@@ -1753,7 +1733,7 @@ namespace Muon {
 		angleDif = psi;
 	      }
 
-	      if( m_verbose ) m_log << MSG::VERBOSE << " Select nHits " << nHits << " nl1 " << nl1 << " nl2 " << nl2 << endreq; 
+	      ATH_MSG_VERBOSE (" Select nHits " << nHits << " nl1 " << nl1 << " nl2 " << nl2);
 	      if (nHits >= dcs.size()) stop = true;
 	    } // end lines
 	    if (stop) break;
@@ -1765,7 +1745,7 @@ namespace Muon {
       if (stop) break; 
     } // end i
 
-    if( m_debug ) m_log << MSG::DEBUG << " Fast segment finder Max Layers hit " << dcs.size() << " nHitsLine - nHits " << nHitsLine-nl1-nl2 << " passed Tubes -nHits " << nPassedTubes-nl1-nl2 << " nl1 " << nl1 << " nl2 " << nl2  << " angleDif " << angleDif << endreq;
+    ATH_MSG_DEBUG (" Fast segment finder Max Layers hit " << dcs.size() << " nHitsLine - nHits " << nHitsLine-nl1-nl2 << " passed Tubes -nHits " << nPassedTubes-nl1-nl2 << " nl1 " << nl1 << " nl2 " << nl2  << " angleDif " << angleDif);
   
     TrkDriftCircleMath::DCOnTrackIt itt = hitsOnLineSel.begin();
     TrkDriftCircleMath::DCOnTrackIt itt_end = hitsOnLineSel.end();
@@ -1776,10 +1756,10 @@ namespace Muon {
 	int dcsIndex = dcsId[isort];
 	sel[dcsIndex] = 1;
 
-	if( m_debug ) m_log << MSG::DEBUG << " Selected Hit index " << dcsIndex << " MultiLayer " << itt->id().ml() << " layer " <<  itt->id().lay() << " tube " << itt->id().tube() << endreq;
+	ATH_MSG_DEBUG (" Selected Hit index " << dcsIndex << " MultiLayer " << itt->id().ml() << " layer " <<  itt->id().lay() << " tube " << itt->id().tube());
       } 
       else {
-	m_log << MSG::WARNING << " ALARM fastSegmentFinder hit NOT found " << i << " isort " << isort << endreq;
+	ATH_MSG_WARNING (" ALARM fastSegmentFinder hit NOT found " << i << " isort " << isort);
       }
     }
   }

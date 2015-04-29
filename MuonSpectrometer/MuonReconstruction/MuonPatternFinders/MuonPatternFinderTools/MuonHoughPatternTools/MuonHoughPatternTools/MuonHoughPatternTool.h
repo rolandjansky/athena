@@ -192,7 +192,7 @@ class MuonHoughPatternTool : virtual public IMuonHoughPatternTool, public AthAlg
   int m_number_of_maxima;
 
   /** use rpc phi strips in phi-patterns (true) */
-  const bool m_use_rpc_measures_phi; 
+  //const bool m_use_rpc_measures_phi; 
   /** use rpc eta strips in eta-patterns (true) */
   const bool m_use_rpc_measures_eta; 
   /** use interaction point constraint (true) */
@@ -220,7 +220,7 @@ class MuonHoughPatternTool : virtual public IMuonHoughPatternTool, public AthAlg
   /** use hough correction 
    * to correct the maximum found in rz-plane slightly as there is a bias in the houghtransform 
    */
-  const bool m_use_hough_correction; 
+  //const bool m_use_hough_correction; 
   /** constant 1 for z for hough correction */
   const double m_z_cor_constant;
   /** constant 2 for z for hough correction */
@@ -258,7 +258,7 @@ class MuonHoughPatternTool : virtual public IMuonHoughPatternTool, public AthAlg
   /** max range of angle in rz in degrees (180) */
   const double m_detectorsize_angle_rz; 
   /** max range of 1/sqrt(curvature) for curved transform, corresponds to 0.02 ~ 2,5m ~ 1.6GeV */
-  const double m_detectorsize_inv_sqrt_curvature; 
+  //const double m_detectorsize_inv_sqrt_curvature; 
 
   // properties of histograms:
 
@@ -281,7 +281,7 @@ class MuonHoughPatternTool : virtual public IMuonHoughPatternTool, public AthAlg
   /** bin width for angle in rzcosmics */
   const double m_stepsize_per_angle_rz_cosmics;
   /** bin width for 1/sqrt(curvature) */
-  const double m_stepsize_per_inv_sqrt_curvature;
+  //const double m_stepsize_per_inv_sqrt_curvature;
 
   /** new curved properties */
   const int m_nbins_curved; 
