@@ -56,7 +56,6 @@ Muon::MuonTGHitNtuple::MuonTGHitNtuple(const std::string &name, ISvcLocator *pSv
   m_measTool("Muon::MuonTGMeasurementTool/MuonTGMeasurementTool"),
   m_trackingGeometry(0),
   m_trackingGeometryName("MuonStandaloneTrackingGeometry"),
-  m_extrapolator(0),
   m_detStore(0),
   m_activeStore(0),
   m_StoreGate(0),
@@ -950,6 +949,8 @@ void Muon::MuonTGHitNtuple::fillSimNtuple() const
       m_nSimHit++;
     }
   }
+
+  if(peri) { delete peri; peri = NULL; }
 
   /*
   std::string key = "MDT_SDO";

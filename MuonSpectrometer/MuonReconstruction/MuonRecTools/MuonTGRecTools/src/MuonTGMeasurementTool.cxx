@@ -658,6 +658,7 @@ const Trk::TrackParameters* Muon::MuonTGMeasurementTool::detElToLayer(const Trk:
       Amg::Vector3D normal = lay->surfaceRepresentation().normal();
       Amg::Vector3D wireDir(1.,0.,0.);
       const Trk::PlaneSurface* laySurf = dynamic_cast<const Trk::PlaneSurface*> (&(lay->surfaceRepresentation()));
+      if (!laySurf) return projPar;
       //
       double ND = dir.dot(normal);
       double DL = locDir.dot(wireDir);
@@ -691,6 +692,7 @@ const Trk::TrackParameters* Muon::MuonTGMeasurementTool::detElToLayer(const Trk:
       // local position at detEl
       //const Amg::Vector2D locPos = parm->localPosition();
       const Trk::PlaneSurface* laySurf = dynamic_cast<const Trk::PlaneSurface*> (&(lay->surfaceRepresentation()));
+      if (!laySurf) return projPar;
       //
       Amg::VectorX locPar = parm->parameters();
       AmgMatrix(5,5)* pMx = 0;
@@ -732,7 +734,6 @@ const Trk::TrackParameters* Muon::MuonTGMeasurementTool::detElToLayer(const Trk:
         if (onSurface) {
           pPar[0]= locPos[0]; pPar[1]= locPos[1];
 	  delete projPar;
-	  projPar = 0;
 	  projPar = new Trk::AtaPlane(pPar[0],pPar[1],pPar[2],pPar[3],pPar[4],*laySurf,projEM);
 	  //delete projEM;
 	} else {
@@ -746,6 +747,7 @@ const Trk::TrackParameters* Muon::MuonTGMeasurementTool::detElToLayer(const Trk:
       // local position of detEl
       //const Amg::Vector2D locPos = parm->localPosition();
       const Trk::PlaneSurface* laySurf = dynamic_cast<const Trk::PlaneSurface*> (&(lay->surfaceRepresentation()));
+      if (!laySurf) return projPar;
       // dealing with parallel displaced planes
       double diff = m_cscIdHelper->measuresPhi(id) ? 1.55 : -1.55 ;      
       //
@@ -762,8 +764,8 @@ const Trk::TrackParameters* Muon::MuonTGMeasurementTool::detElToLayer(const Trk:
       Amg::VectorX parProj = pMxInv*parm->parameters();
       Amg::Vector3D corrLocPos = lay->surfaceRepresentation().center()-t*parm->momentum() + t*DN*layNormal;
       Amg::Vector2D locCorrLay;
-      lay->surfaceRepresentation().globalToLocal(corrLocPos, corrLocPos, locCorrLay);
-      if(locCorrLay.size()>0) { 
+      bool onSurface = lay->surfaceRepresentation().globalToLocal(corrLocPos, corrLocPos, locCorrLay);
+      if(onSurface && locCorrLay.size()>0) { 
         parProj[0] += locCorrLay[Trk::locX]+csc_shift[Trk::locX];
         parProj[1] += locCorrLay[Trk::locY]+csc_shift[Trk::locY];
         ATH_MSG_DEBUG("back projected parameters(CSC->layer):"<<m_cscIdHelper->measuresPhi(id)<<"," << parProj );
@@ -781,8 +783,7 @@ const Trk::TrackParameters* Muon::MuonTGMeasurementTool::detElToLayer(const Trk:
     if ( hitType == 4) {
       const Trk::PlaneSurface* laySurf = dynamic_cast<const Trk::PlaneSurface*> (&(lay->surfaceRepresentation()));
       if(!laySurf) { 
-        return 0;
-        delete projPar;
+        return projPar;
       }
       //projPar = new Trk::AtaPlane( *(laySurf->localToGlobal(*locLay)),parm->momentum(),parm->charge(),*laySurf);
       //
@@ -846,10 +847,6 @@ const Trk::RIO_OnTrack* Muon::MuonTGMeasurementTool::measToLayer(const Trk::Laye
     if ( m_mdtIdHelper->is_csc(id) ) hitType = 3;    
     if ( m_mdtIdHelper->is_tgc(id) ) hitType = 4;
 
-    if ( hitType==0 ) {
-      ATH_MSG_DEBUG("unknown hit technology");
-      return projRIO; 
-    }    
 
     if ( hitType == 1) {
       // local position of the tube
@@ -892,7 +889,7 @@ const Trk::RIO_OnTrack* Muon::MuonTGMeasurementTool::measToLayer(const Trk::Laye
       return mdtRio;
     } 
  
-    if ( hitType == 2) {
+    else if ( hitType == 2) {
       //
       double eta = (m_rpcIdHelper->stationEta(id)<0) ? -1. : 1.;
       double sign = (m_rpcIdHelper->measuresPhi(id) && m_rpcIdHelper->doubletPhi(id)==2 ) ? -1. : 1.;
@@ -925,7 +922,7 @@ const Trk::RIO_OnTrack* Muon::MuonTGMeasurementTool::measToLayer(const Trk::Laye
     }
 
 
-    if ( hitType == 3) {
+    else if ( hitType == 3) {
       // dealing with parallel displaced planes
       double diff = m_cscIdHelper->measuresPhi(id) ? 1.55 : -1.55 ;      
       //
@@ -936,10 +933,11 @@ const Trk::RIO_OnTrack* Muon::MuonTGMeasurementTool::measToLayer(const Trk::Laye
       const Amg::Vector2D csc_shift(0.,lay->getRef());
       Amg::Vector3D corrLocPos = lay->surfaceRepresentation().center()-t*parm->momentum() + t*DN*layNormal;
       Amg::Vector2D locCorrLay;
-      lay->surfaceRepresentation().globalToLocal(corrLocPos, corrLocPos, locCorrLay);
+      bool onSurface = lay->surfaceRepresentation().globalToLocal(corrLocPos, corrLocPos, locCorrLay);
       //
-      if(!locCorrLay.size()==2) {
-         return projRIO;
+      //if( !locCorrLay.size()==2) { ??
+      if( !onSurface ) {
+	return projRIO;
       }
       double locPos; 
       if (m_cscIdHelper->measuresPhi(id)) {
@@ -964,10 +962,10 @@ const Trk::RIO_OnTrack* Muon::MuonTGMeasurementTool::measToLayer(const Trk::Laye
 					      Trk::LocalParameters(Trk::DefinedParameter(locPos,Trk::locY)),
 					      cscPrd->localCovariance(), parm->localPosition()[Trk::locX],cscPrd->status());  
       return cscRio;
-   }
-
-
-    if ( hitType == 4) {
+    }
+    
+    
+    else if ( hitType==4 ) {
       //
       double locPos = rio->localParameters()[Trk::locX];
       /*
@@ -997,7 +995,10 @@ const Trk::RIO_OnTrack* Muon::MuonTGMeasurementTool::measToLayer(const Trk::Laye
       }
       return tgcRio;
     }
-    return projRIO;
+
+    ATH_MSG_DEBUG("unknown hit technology");
+    return projRIO;  
+
 }
 
 const Identifier Muon::MuonTGMeasurementTool::nearestDetEl(const Trk::Layer* lay, const Trk::TrackParameters* parm, bool measPhi,double& pitch) const
