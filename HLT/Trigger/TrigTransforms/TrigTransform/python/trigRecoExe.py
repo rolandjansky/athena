@@ -21,11 +21,12 @@ import PyJobTransforms.trfEnv as trfEnv
 import PyJobTransforms.trfExceptions as trfExceptions
 from PyJobTransforms.trfExitCodes import trfExit as trfExit
 import TrigTransform.dbgAnalysis as dbgStream
+from TrigTransform.trigTranslate import writeTranslate as writeTranslate
 
 
 class trigRecoExecutor(athenaExecutor):
-    # Trig_reco_tf.py executor
-    # used to change the extra output filenames
+    # Trig_reco_tf.py executor for BS-BS step
+    # used to setup input files/arguments and change output filenames
     
     #preExe is based on athenaExecutor but with key changes:
     # - removed athenaMP
@@ -124,12 +125,15 @@ class trigRecoExecutor(athenaExecutor):
         
         #to get athenaHLT to read in the relevant parts from the runargs file we have to add the -F option
         if 'athenaHLT' in self._exe:
-            self._cmd=['-F runargs.BSRDOtoRAW.py' if x=='runargs.BSRDOtoRAW.py' else x for x in self._cmd]
+            self._cmd=['-F runtranslate.BSRDOtoRAW.py' if x=='runargs.BSRDOtoRAW.py' else x for x in self._cmd]
+            
+            # write runTranslate file to be used by athenaHLT
+            writeTranslate('runtranslate.BSRDOtoRAW.py', self.conf.argdict, name=self._name, substep=self._substep, first=self.conf.firstExecutor, output = outputFiles)
             
             #instead of running athenaHLT we can dump the options it has loaded
             #note the -D needs to go after the -F in the command
             if 'dumpOptions' in self.conf.argdict:
-                self._cmd=['-F runargs.BSRDOtoRAW.py -D' if x=='-F runargs.BSRDOtoRAW.py' else x for x in self._cmd]
+                self._cmd=['-F runtranslate.BSRDOtoRAW.py -D' if x=='-F runtranslate.BSRDOtoRAW.py' else x for x in self._cmd]
             
             #Run preRun step debug_stream analysis if debug_stream=True
             if 'debug_stream' in self.conf.argdict:
@@ -168,10 +172,35 @@ class trigRecoExecutor(athenaExecutor):
         self._writeAthenaWrapper(asetup=asetupString, dbsetup=dbsetup)
         msg.info('Athena will be executed in a subshell via {0}'.format(self._cmd))
             
+    def _prepAthenaCommandLine(self):
+        
+        #When running from the DB athenaHLT needs no skeleton file
+        msg.info("Before build command line check if reading from DB")
+        
+        #check if expecting to run from DB
+        removeSkeleton = False
+        if 'useDB' in self.conf.argdict:
+            removeSkeleton=True
+        elif 'athenaopts' in self.conf.argdict:
+            v = self.conf.argdict['athenaopts'].value
+            if '--use-database' in v or '-b' in v:
+                removeSkeleton=True
+        
+        #due to athenaExecutor code don't remove skeleton, otherwise lose runargs too
+        #instead remove skeleton from _topOptionsFiles
+        if removeSkeleton and self._skeleton is not None:
+            msg.info('Read from DB: remove skeleton {0} from command'.format(self._skeleton))
+            self._topOptionsFiles.remove(self._skeleton[0])
+        else:
+            msg.info('Not reading from DB: keep skeleton in command')
+        
+        #now build command line as in athenaExecutor
+        super(trigRecoExecutor, self)._prepAthenaCommandLine()
+            
     def postExecute(self):
                 
-        msg.info("Check for expert-monitoring file")
-        #runHLT_standalone.py generates the file expert-monitoring.root
+        msg.info("Check for expert-monitoring.root file")
+        #the BS-BS step generates the file expert-monitoring.root
         #to save on panda it needs to be renamed via the outputHIST_HLTMONFile argument
         expectedFileName = 'expert-monitoring.root'
         #first check argument is in dict
@@ -195,20 +224,43 @@ class trigRecoExecutor(athenaExecutor):
         #The following is needed to handle the BS file being written with a different name (or names)
         #base is from either the tmp value created by the transform or the value entered by the user
         if 'BS' in self.conf.dataDictionary:
-            argumentInRunArgs = self.conf.dataDictionary['BS']
-            expectedOutputFileName = argumentInRunArgs.value[0] + '*.data'            
-            argumentInDataset = argumentInRunArgs._dataset
+            argInDict = self.conf.dataDictionary['BS']
+            #create expected string by taking only some of input
+            # removes uncertainty of which parts of the filename are used by athenaHLT
+            split_argInDict = argInDict.value[0].split('.')
+            #try to drop at least the last parts of the input string
+            # to remove any potential ._####.data already in argInDict
+            # otherwise just take first element
+            if(len(split_argInDict)>3):
+               expectedOutputFileName = '.'.join(split_argInDict[0:len(split_argInDict)-3])
+            else:
+               expectedOutputFileName = split_argInDict[0]
+            #expect file from athenaHLT to end _###.data so add .data ending
+            expectedOutputFileName+='*.data'
+            #keep dataset in case need to update argument
+            dataset_argInDict = argInDict._dataset
+            #list to store the filenames of files matching expectedOutputFileName
             matchedOutputFileNames = []
             #loop over all files in folder to find matching outputs
             for file in os.listdir('.'):
                 if fnmatch.fnmatch(file, expectedOutputFileName):
                     matchedOutputFileNames.append(file)
-            #check there are file matches
-            if(len(matchedOutputFileNames)):
-                msg.info('Renaming internal BS arg from %s to %s' % (argumentInRunArgs.value[0], matchedOutputFileNames))
-                argumentInRunArgs.multipleOK = True
-                argumentInRunArgs.value = matchedOutputFileNames
-                argumentInRunArgs._dataset = argumentInDataset
+            #check there are file matches and rename appropriately
+            if(len(matchedOutputFileNames)>1):
+                msg.warning('Multiple BS files found: will only rename internal arg')
+                msg.info('Renaming internal BS arg from %s to %s' % (argInDict.value[0], matchedOutputFileNames))
+                argInDict.multipleOK = True
+                argInDict.value = matchedOutputFileNames
+                argInDict._dataset = dataset_argInDict
+            elif(len(matchedOutputFileNames)):
+                msg.info('Single BS file found: will rename file')
+                msg.info('Renaming BS file from %s to %s' % (matchedOutputFileNames[0], argInDict.value[0]))
+                try:
+                    os.rename(matchedOutputFileNames[0], argInDict.value[0])
+                except OSError, e:
+                    msg.error('Exception raised when renaming {0} #to {1}: {2}'.format(expectedInput, inputFile, e))
+                    raise trfExceptions.TransformExecutionException(trfExit.nameToCode('TRF_OUTPUT_FILE_ERROR'),
+                              'Exception raised when renaming {0} #to {1}: {2}'.format(expectedInput, inputFile, e))
             else:
                 msg.error('no BS files created with expected name: %s' % expectedOutputFileName )
         else:
@@ -218,28 +270,31 @@ class trigRecoExecutor(athenaExecutor):
         if 'debug_stream' in self.conf.argdict:
             msg.info("debug_stream analysis in postExecute")
 
-            #Rename input to handle Tier-0 naming convention and work around for athenaHLT 0001.data default output
-            argumentInRunArgs = self.conf.dataDictionary['BS']
-            inputFile = argumentInRunArgs.value[0] 
-            expectedInput = str()
-            if not inputFile.endswith(".data") and inputFile[-1:].isdigit():
-                ending = re.split('[^\d]',inputFile)[-1]
-                li = inputFile.rsplit(ending,1)
-                expectedInput = '0001.data'.join(li)
-                inputFile = inputFile+".data"
-                argumentInRunArgs.value[0] = inputFile
-            else :
-                expectedInput = inputFile.replace(".data",'._0001.data')
-                if expectedInput.endswith("_0001._0001.data"):
-                    expectedInput = inputFile
-
-            msg.info('Renaming {0} to {1}'.format(expectedInput, inputFile))
-            try:
-                os.rename(expectedInput, inputFile)
-            except OSError, e:
-                msg.error('Exception raised when renaming {0} #to {1}: {2}'.format(expectedInput, inputFile, e))
-                raise trfExceptions.TransformExecutionException(trfExit.nameToCode('TRF_OUTPUT_FILE_ERROR'),
-                                                                'Exception raised when renaming {0} #to {1}: {2}'.format(expectedInput, inputFile, e))
+            # TODO is the code below now redundant?
+            #      also line 312: self.conf.dataDictionary['BS']._resetMetadata()
+            #
+            # #Rename input to handle Tier-0 naming convention and work around for athenaHLT 0001.data default output
+            # argInDict = self.conf.dataDictionary['BS']
+            # inputFile = argInDict.value[0]
+            # expectedInput = str()
+            # if not inputFile.endswith(".data") and inputFile[-1:].isdigit():
+            #     ending = re.split('[^\d]',inputFile)[-1]
+            #     li = inputFile.rsplit(ending,1)
+            #     expectedInput = '0001.data'.join(li)
+            #     inputFile = inputFile+".data"
+            #     argInDict.value[0] = inputFile
+            # else :
+            #     expectedInput = inputFile.replace(".data",'._0001.data')
+            #     if expectedInput.endswith("_0001._0001.data"):
+            #         expectedInput = inputFile
+            # 
+            # msg.info('Renaming {0} to {1}'.format(expectedInput, inputFile))
+            # try:
+            #     os.rename(expectedInput, inputFile)
+            # except OSError, e:
+            #     msg.error('Exception raised when renaming {0} #to {1}: {2}'.format(expectedInput, inputFile, e))
+            #     raise trfExceptions.TransformExecutionException(trfExit.nameToCode('TRF_OUTPUT_FILE_ERROR'),
+            #                                                     'Exception raised when renaming {0} #to {1}: {2}'.format(expectedInput, inputFile, e))
                 
             #set default file name for debug_stream analysis output
             fileNameDbg = ['debug-stream-monitoring.root']
@@ -254,7 +309,7 @@ class trigRecoExecutor(athenaExecutor):
                 msg.info('No file created  in PreRun step {0}'.format(fileNameDbg) )
 
             #do debug_stream postRun step
-            dbgStream.dbgPostRun(argumentInRunArgs,fileNameDbg)
+            dbgStream.dbgPostRun(argInDict,fileNameDbg)
             #now reset metadata for outputBSFile needed for trf file validation
             self.conf.dataDictionary['BS']._resetMetadata()
 
