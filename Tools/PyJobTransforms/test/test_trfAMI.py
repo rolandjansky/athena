@@ -5,7 +5,7 @@
 ## @Package test_trfAMI.py
 #  @brief Unittests for trfAMI.py
 #  @author bjorn.sarrazin@cern.ch
-#  @version $Id: test_trfAMI.py 656313 2015-03-24 09:33:56Z volkmer $
+#  @version $Id: test_trfAMI.py 663770 2015-04-29 12:50:46Z volkmer $
 
 import unittest
 
@@ -125,7 +125,6 @@ class trfAMIUnitTests(unittest.TestCase):
         self.assertEqual(tag.trfs[0].inDS, None)
         self.assertEqual(tag.trfs[0].outfmts, ['AOD', 'ESD'])
 
-
     def test_info_r6390(self):
         self.maxDiff = None
         physics = {'postInclude': 'all:RecJobTransforms/UseFrontier.py',
@@ -152,7 +151,6 @@ class trfAMIUnitTests(unittest.TestCase):
 
     def test_info_r6411(self):
         self.maxDiff = None
-
         physics = {'steering': 'RAWtoESD:in-RDO,in+RDO_TRIG,in-BS',
                    'conditionsTag': 'default:OFLCOND-RUN12-SDR-14',
                    'numberOfHighPtMinBias': '0.12311',
@@ -161,8 +159,11 @@ class trfAMIUnitTests(unittest.TestCase):
                    'DBRelease': 'default:current',
                    'geometryVersion': 'default:ATLAS-R2-2015-01-01-00',
                    'preInclude': 'HITtoRDO:Digitization/ForceUseOfPileUpTools.py,SimulationJobOptions/preInclude.PileUpBunchTrainsUpgradeConfig1_25ns.py,RunDependentSimData/configLumi_run222222.py',
-                   'postExec': ['default:CfgMgr.MessageSvc().setError+=[\\"HepMcParticleLink\\"]" "HITtoRDO:job.StandardPileUpToolsAlg.PileUpTools[\\"MergeMcEventCollTool\\"].OnlySaveSignalTruth=True'],
-                   'preExec': ['default:rec.Commissioning.set_Value_and_Lock(True);from AthenaCommon.BeamFlags import jobproperties;jobproperties.Beam.numberOfCollisions.set_Value_and_Lock(20.0);jobproperties.Beam.bunchSpacing.set_Value_and_Lock(25);from LArROD.LArRODFlags import larRODFlags;larRODFlags.doOFCPileupOptimization.set_Value_and_Lock(True);larRODFlags.NumberOfCollisions.set_Value_and_Lock(20);larRODFlags.nSamples.set_Value_and_Lock(4)" "RAWtoESD:from TriggerJobOpts.TriggerFlags import TriggerFlags;TriggerFlags.triggerMenuSetup=\\"DC14_loose_mc_prescale\\";from CaloRec.CaloCellFlags import jobproperties;jobproperties.CaloCellFlags.doLArCellEmMisCalib=False" "ESDtoAOD:TriggerFlags.AODEDMSet=\\"AODFULL\\"'],
+                   'postExec': ['default:CfgMgr.MessageSvc().setError+=["HepMcParticleLink"]',
+                                'HITtoRDO:job.StandardPileUpToolsAlg.PileUpTools["MergeMcEventCollTool"].OnlySaveSignalTruth=True'],
+                   'preExec': ['default:rec.Commissioning.set_Value_and_Lock(True);from AthenaCommon.BeamFlags import jobproperties;jobproperties.Beam.numberOfCollisions.set_Value_and_Lock(20.0);jobproperties.Beam.bunchSpacing.set_Value_and_Lock(25);from LArROD.LArRODFlags import larRODFlags;larRODFlags.doOFCPileupOptimization.set_Value_and_Lock(True);larRODFlags.NumberOfCollisions.set_Value_and_Lock(20);larRODFlags.nSamples.set_Value_and_Lock(4)',
+                               'RAWtoESD:from TriggerJobOpts.TriggerFlags import TriggerFlags;TriggerFlags.triggerMenuSetup="DC14_loose_mc_prescale";from CaloRec.CaloCellFlags import jobproperties;jobproperties.CaloCellFlags.doLArCellEmMisCalib=False',
+                               'ESDtoAOD:TriggerFlags.AODEDMSet="AODFULL"'],
                    'postInclude': 'default:RecJobTransforms/UseFrontier.py'
         }
 
@@ -179,7 +180,76 @@ class trfAMIUnitTests(unittest.TestCase):
         self.assertEqual(tag.trfs[0].inDS, None)
         self.assertEqual(tag.trfs[0].outfmts, [])
 
-    # test setup of transform
+
+    def test_info_r6540(self):
+        self.maxDiff = None
+        physics = {'DataRunNumber': '222525',
+                   'autoConfiguration': 'everything',
+                   'conditionsTag': 'default:OFLCOND-RUN12-SDR-25',
+                   'geometryVersion': 'default:ATLAS-R2-2015-03-01-00',
+                   'numberOfCavernBkg': '0',
+                   'postExec': ['RAWtoESD:ToolSvc.LArAutoCorrTotalToolDefault.deltaBunch=1',
+                                'HITtoRDO:job.StandardPileUpToolsAlg.PileUpTools["MdtDigitizationTool"].LastXing=150;ToolSvc.LArAutoCorrTotalToolDefault.deltaBunch=1',
+                                'RDOtoRDOTrigger:from AthenaCommon.AlgSequence import AlgSequence;AlgSequence().LVL1TGCTrigger.TILEMU=True'],
+                   'postInclude': 'default:RecJobTransforms/UseFrontier.py',
+                   'preExec': ['all:rec.Commissioning.set_Value_and_Lock(True);rec.doTrigger.set_Value_and_Lock(True);from AthenaCommon.BeamFlags import jobproperties;jobproperties.Beam.numberOfCollisions.set_Value_and_Lock(0.);from LArROD.LArRODFlags import larRODFlags;larRODFlags.NumberOfCollisions.set_Value_and_Lock(20);larRODFlags.nSamples.set_Value_and_Lock(4);larRODFlags.doOFCPileupOptimization.set_Value_and_Lock(True);larRODFlags.firstSample.set_Value_and_Lock(0);larRODFlags.useHighestGainAutoCorr.set_Value_and_Lock(True)',
+                               'RAWtoESD:from TriggerJobOpts.TriggerFlags import TriggerFlags;TriggerFlags.triggerMenuSetup="MC_pp_v5_loose_mc_prescale";from CaloRec.CaloCellFlags import jobproperties;jobproperties.CaloCellFlags.doLArCellEmMisCalib=False',
+                               'ESDtoAOD:TriggerFlags.AODEDMSet="AODFULL"',
+                               'RDOtoRDOTrigger:from TriggerJobOpts.TriggerFlags import TriggerFlags;TriggerFlags.triggerMenuSetup="MC_pp_v5_loose_mc_prescale";'],
+                   'steering': 'RAWtoESD:in-RDO,in+RDO_TRIG,in-BS'
+        }
+
+        tag = TagInfo("r6540")
+        self.assertTrue(isinstance(tag.trfs[0], TrfConfig))
+        self.assertEqual(tag.isProdSys, False)
+        self.assertEqual(tag.trfs[0].name, 'Reco_tf.py')
+        self.assertEqual(tag.trfs[0].release, 'AtlasProduction,20.1.4.3')
+        self.assertEqual(tag.trfs[0].newTransform, True)
+        self.assertEqual(tag.trfs[0].physics, physics)
+        self.assertEqual(tag.trfs[0].inFiles, {})
+        self.assertEqual(tag.trfs[0].outFiles, {})
+        self.assertEqual(tag.trfs[0].outputs, {})
+        self.assertEqual(tag.trfs[0].inDS, None)
+        self.assertEqual(tag.trfs[0].outfmts, [])
+
+    # test proper handling of substeparglist in preInclude command
+    def test_info_r6594(self):
+        self.maxDiff = None
+        physics = {'autoConfiguration': 'everything',
+                   'conditionsTag': 'default:OFLCOND-RUN12-SDR-28',
+                   'geometryVersion': 'default:ATLAS-R2-2015-03-01-00',
+                   'numberOfCavernBkg': '0',
+                   'numberOfHighPtMinBias': '0.12268057',
+                   'numberOfLowPtMinBias': '39.8773194',
+                   'postExec': ['all:CfgMgr.MessageSvc().setError+=["HepMcParticleLink"]',
+                                'HITtoRDO:job.StandardPileUpToolsAlg.PileUpTools["MergeMcEventCollTool"].OnlySaveSignalTruth=True',
+                                'RAWtoESD:ToolSvc.LArAutoCorrTotalToolDefault.deltaBunch=1',
+                                'HITtoRDO:job.StandardPileUpToolsAlg.PileUpTools["MdtDigitizationTool"].LastXing=150;ToolSvc.LArAutoCorrTotalToolDefault.deltaBunch=1'],
+                   'postInclude': 'default:RecJobTransforms/UseFrontier.py',
+                   'preExec': ['all:rec.Commissioning.set_Value_and_Lock(True);rec.doTrigger.set_Value_and_Lock(True);from AthenaCommon.BeamFlags import jobproperties;jobproperties.Beam.numberOfCollisions.set_Value_and_Lock(20.0);from LArROD.LArRODFlags import larRODFlags;larRODFlags.NumberOfCollisions.set_Value_and_Lock(20);larRODFlags.nSamples.set_Value_and_Lock(4);larRODFlags.doOFCPileupOptimization.set_Value_and_Lock(True);larRODFlags.firstSample.set_Value_and_Lock(0);larRODFlags.useHighestGainAutoCorr.set_Value_and_Lock(True)',
+                               'RAWtoESD:from TriggerJobOpts.TriggerFlags import TriggerFlags;TriggerFlags.triggerMenuSetup="MC_pp_v5_loose_mc_prescale";from CaloRec.CaloCellFlags import jobproperties;jobproperties.CaloCellFlags.doLArCellEmMisCalib=False',
+                               'ESDtoAOD:TriggerFlags.AODEDMSet="AODFULL"',
+                               'RDOtoRDOTrigger:from TriggerJobOpts.TriggerFlags import TriggerFlags;TriggerFlags.triggerMenuSetup="MC_pp_v5_loose_mc_prescale";',
+                               'HITtoRDO:from AthenaCommon.BeamFlags import jobproperties;jobproperties.Beam.bunchSpacing.set_Value_and_Lock(50);'],
+                   'preInclude': ['HITtoRDO:Digitization/ForceUseOfPileUpTools.py,SimulationJobOptions/preInclude.PileUpBunchTrainsMC15_2015_50ns_Config1.py,RunDependentSimData/configLumi_run222510.py',
+                                  'RDOtoRDOTrigger:RecExPers/RecoOutputMetadataList_jobOptions.py'],
+                   'steering': 'RAWtoESD:in-RDO,in+RDO_TRIG,in-BS'
+        }
+
+        tag = TagInfo("r6594")
+        self.assertTrue(isinstance(tag.trfs[0], TrfConfig))
+        self.assertEqual(tag.isProdSys, False)
+        self.assertEqual(tag.trfs[0].name, 'Reco_tf.py')
+        self.assertEqual(tag.trfs[0].release, 'AtlasProduction,20.1.4.5')
+        self.assertEqual(tag.trfs[0].newTransform, True)
+        self.assertEqual(tag.trfs[0].physics, physics)
+        self.assertEqual(tag.trfs[0].inFiles, {'inputHighPtMinbiasHitsFile': 'myHighPtMinbiasHits',
+                                               'inputLowPtMinbiasHitsFile': 'myLowPtMinbiasHits'})
+        self.assertEqual(tag.trfs[0].outFiles, {})
+        self.assertEqual(tag.trfs[0].outputs, {})
+        self.assertEqual(tag.trfs[0].inDS, None)
+        self.assertEqual(tag.trfs[0].outfmts, [])
+
     def test_transform(self):
         from PyJobTransforms.transform import transform
         from PyJobTransforms.trfArgClasses import argFactory, argString

@@ -103,12 +103,13 @@ class TrfConfig:
                         # Special intermediate treatment for pre/postExec from prodsys
                         string += " " + k + " " + " ".join(["'"+element.replace("'", "\\'")+"'" for element in v])
                     else:
-                        string += " " + k + "=" + "'" + ",".join(v).replace("'", "\\'") + "'"
+                        string += " " + k + "=" + " ".join(["'" + element.replace("'", "\\'") + "'" for element in v])
                 else:
                     # Assume some vanilla value
                     string +=" "+k+" "+"'"+str(v).replace("'", "\\'")+"'"
             else:
                 string +=" "+k+"="+"'"+str(v).replace("'", "\\'")+"'"
+#            string += '\n'
         return string
 
 ## @brief Back convert a pre/postExec dictionary into a set of command 
@@ -458,7 +459,15 @@ def getTrfConfigFromAMI(tag, suppressNonJobOptions = True):
         else:
             physics = {}
             for k, v in result[0].iteritems():
-                physics[convertToStr(k)] = convertToStr(remove_enclosing_quotes(v))
+                if 'Exec' in k:
+                    execStrList = [execStr for execStr in convertToStr(v).replace('" "', '"" ""').split('" "')]
+                    physics[convertToStr(k)] = [remove_enclosing_quotes(execStr).replace('\\"', '"') for execStr in execStrList]
+                elif '" "' in v:
+                    msg.info('found quote space quaote (" ") in parameter value for %s, converting to list' % k)
+                    subStrList = [subStr for subStr in convertToStr(v).replace('" "', '"" ""').split('" "')]
+                    physics[convertToStr(k)] = [remove_enclosing_quotes(subStr).replace('\\"', '"') for subStr in subStrList]
+                else:
+                    physics[convertToStr(k)] = convertToStr(remove_enclosing_quotes(v))
 
             msg.debug('Result from AMI after string cleaning:')
             msg.debug('%s' % dumps(physics, indent = 4))
@@ -473,9 +482,6 @@ def getTrfConfigFromAMI(tag, suppressNonJobOptions = True):
                     if ' ' in v:
                         physics[k] = v.replace(' ', ',')
                         msg.warning('Attempted to correct illegal trigger configuration string: {0} -> {1}'.format(v, physics[k]))
-                if 'Exec' in k:
-                    # Mash up to a list, where %8C is used as the quote delimitation character
-                    physics[k] = [ execElement.replace("%8C", "") for execElement in v.split("%8C %8C") ]
 
             msg.debug("Checking for pseudo-argument internal to ProdSys...")
             if 'extraParameter' in physics:
