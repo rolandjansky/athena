@@ -170,10 +170,7 @@ std::string Rec::MuonPrintingTool::print( const xAOD::Muon& muon ) const {
   float MeasEnergyLossSigma=0;
   if(muon.parameter(MeasEnergyLossSigma, xAOD::Muon::MeasEnergyLossSigma))
     sout << "  MeasEnergyLossSigma : " << MeasEnergyLossSigma << std::endl;
-  uint8_t energyLossType = muon.energyLossType();
-//  if(muon.parameter(energyLossType, xAOD::Muon::EnergyLossType)) 
-  sout << "  EnergyLossType : " << static_cast<int>(energyLossType) << std::endl;
-   
+
 
   uint8_t nprecisionLayers = 0;
   uint8_t nprecisionHoleLayers = 0;
@@ -200,12 +197,10 @@ std::string Rec::MuonPrintingTool::print( const xAOD::Muon& muon ) const {
        << " trigEta " << static_cast<int>(ntrigEtaLayers) << " holes " << static_cast<int>(ntrigEtaHoleLayers)
        << " main sector " << static_cast<int>(mainSector) << " secondary " << static_cast<int>(secondSector) << std::endl;
 
-  bool printMeasurements = true;
-
   if( muon.combinedTrackParticleLink().isValid() ){
     const xAOD::TrackParticle* cbtp = *muon.combinedTrackParticleLink();
     if( cbtp ){
-      sout << " --- Combined Muon track ---  " << print(*cbtp); 
+      sout << " --- MuonCB ---  " << print(*cbtp); 
       if( !cbtp->trackLink().isValid() ){
 	sout << " No Track link";
 	ATH_MSG_DEBUG("Combined track particle without Trk::Track");
@@ -213,8 +208,6 @@ std::string Rec::MuonPrintingTool::print( const xAOD::Muon& muon ) const {
 	const Trk::Track* cbtr = *cbtp->trackLink();
 	if( cbtr ) sout << std::endl
 			<< m_edmPrinter->printStations(*cbtr);
-	if( cbtr && printMeasurements) sout << std::endl
-			<< m_edmPrinter->printMeasurements(*cbtr);
       }
       sout << std::endl;
     }    
@@ -248,29 +241,10 @@ std::string Rec::MuonPrintingTool::print( const xAOD::Muon& muon ) const {
       sout << std::endl;
     }
   }
-
-  if( muon.extrapolatedMuonSpectrometerTrackParticleLink().isValid() ){
-    const xAOD::TrackParticle* satp = *muon.extrapolatedMuonSpectrometerTrackParticleLink();
-    if( satp ){
-      sout << " --- Extrapolated Muon track ---  " << print(*satp);
-      if( !satp->trackLink().isValid() ){
-	sout << " No Track link";
-	ATH_MSG_DEBUG("Extrapolated track particle without Trk::Track");
-      }else{
-	const Trk::Track* satr = *satp->trackLink();
-	if( satr ) sout << std::endl
-			<< m_edmPrinter->printStations(*satr);
-	if( satr && printMeasurements) sout << std::endl
-			<< m_edmPrinter->printMeasurements(*satr);
-      }
-      sout << std::endl;
-    }
-  }
-
   if( muon.muonSpectrometerTrackParticleLink().isValid() ){
     const xAOD::TrackParticle* satp = *muon.muonSpectrometerTrackParticleLink();
     if( satp ){
-      sout << " --- MuonSpectrometer track ---  " << print(*satp);
+      sout << " --- MuonSA ---  " << print(*satp);
       if( !satp->trackLink().isValid() ){
 	sout << " No Track link";
 	ATH_MSG_DEBUG("SA track particle without Trk::Track");
@@ -278,8 +252,6 @@ std::string Rec::MuonPrintingTool::print( const xAOD::Muon& muon ) const {
 	const Trk::Track* satr = *satp->trackLink();
 	if( satr ) sout << std::endl
 			<< m_edmPrinter->printStations(*satr);
-	if( satr && printMeasurements) sout << std::endl
-			<< m_edmPrinter->printMeasurements(*satr);
       }
       sout << std::endl;
     }
