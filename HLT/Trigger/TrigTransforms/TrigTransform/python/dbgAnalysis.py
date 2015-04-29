@@ -255,7 +255,7 @@ def getAsetupString(release):
         AtlasProject='AtlasP1HLT'
 
     #If TestArea is for tzero (tzero/software/patches), then return None   
-    if eVarDic['TestArea'] :
+    if eVarDic.get('TestArea') :
         TestArea = eVarDic['TestArea']
         if  TestArea.find("tzero/software/patches") > 0 :
             asetupString = None
