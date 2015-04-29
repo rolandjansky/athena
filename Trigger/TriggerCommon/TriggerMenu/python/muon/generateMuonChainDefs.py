@@ -99,7 +99,7 @@ def _modifyTEinChainDef(theChainDef,chainDict):
     for index,item in enumerate(theChainDef.sequenceList):
         if (item['input'] == ['placeHolderTE']):
             theChainDef.sequenceList[index]['input']=inputTEsL2
-    
+
     return theChainDef
 
 

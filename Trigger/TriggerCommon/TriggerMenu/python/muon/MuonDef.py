@@ -812,12 +812,13 @@ class L2EFChain_mu(L2EFChainDef):
  
     if len(self.allMuThrs) == 1:
       theTrigMuonEFCombinerMultiHypoConfig = TrigMuonEFCombinerHypoConfig('Muon', self.allMuThrs[0])
-      
+      theTrigMuonEFExtrapolatorMultiHypoConfig = TrigMuonEFExtrapolatorHypoConfig('Muon', self.allMuThrs[0])
     elif len(self.allMuThrs) == 2:
       theTrigMuonEFCombinerMultiHypoConfig = TrigMuonEFCombinerMultiHypoConfig('Muon',self.allMuThrs[0], self.allMuThrs[1]) 
-                                                                               
+      theTrigMuonEFExtrapolatorMultiHypoConfig = TrigMuonEFExtrapolatorMultiHypoConfig('Muon',self.allMuThrs[0], self.allMuThrs[1])                                                     
     elif len(self.allMuThrs) == 3:
       theTrigMuonEFCombinerMultiHypoConfig = TrigMuonEFCombinerMultiHypoConfig('Muon',self.allMuThrs[0],self.allMuThrs[1],self.allMuThrs[2])
+      theTrigMuonEFExtrapolatorMultiHypoConfig = TrigMuonEFExtrapolatorMultiHypoConfig('Muon',self.allMuThrs[0],self.allMuThrs[1],self.allMuThrs[2])
                                                                                                                                                             
     else:
       log.error("No TrigMuonEFCombinerHypo config yet for events with more than 3 muons")
@@ -858,7 +859,8 @@ class L2EFChain_mu(L2EFChainDef):
                                'EF_SA_NS']]
       self.EFsequenceList += [['EF_SA_NS',
                               [TrigMuonEFRoiAggregatorConfig('TrigMuonEFFSRoiAggregator'),
-                               theTrigMuonEFCombinerMultiHypoConfig],
+#                               theTrigMuonEFCombinerMultiHypoConfig],
+                               theTrigMuonEFExtrapolatorMultiHypoConfig],
                                'EF_NS']]
     else:
       log.error("No other cone than 05 or 03 was implemented")
