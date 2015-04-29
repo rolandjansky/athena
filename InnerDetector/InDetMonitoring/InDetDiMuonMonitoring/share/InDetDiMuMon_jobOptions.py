@@ -1,4 +1,4 @@
-DiMuMonDoROOTFile = True
+DiMuMonDoROOTFile = False
 doFits = False
 doSaveFits = False
 doJpsi = True
@@ -77,11 +77,12 @@ if doZmumu:
     InDetDiMuMonManager.AthenaMonTools += [ ZmumuMon_NoTrig ]
 
 
+
 if not hasattr(ToolSvc, 'monTrigDecTool'):
     print "DiMuMon_jobOptions.py: trigger decision tool not found: don't run trigger-aware monitoring"
 else:
     if doJpsi:
-        JpsiMon_XpressTrig = DiMuMon (name = "JpsiMon_XpressTrig",
+        JpsiMon_XpressTrig_idperf = DiMuMon (name = "JpsiMon_XpressTrig_idperf",
                                       resonName = "Jpsi",
                                       minInvmass = 2.5,
                                       maxInvmass = 3.5,
@@ -93,15 +94,35 @@ else:
                                       varsDistr = varsDistrJpsi,
                                       doFits = doFits,
                                       doSaveFits = doSaveFits)
-        JpsiMon_XpressTrig.TriggerChain = "EF_2mu4T_Jpsimumu_IDTrkNoCut"
-        JpsiMon_XpressTrig.TrigDecisionTool = monTrigDecTool
-        ToolSvc += JpsiMon_XpressTrig
+        JpsiMon_XpressTrig_idperf.TriggerChain = "Jpsimumu_idperf"
+        JpsiMon_XpressTrig_idperf.TrigDecisionTool = monTrigDecTool
+        ToolSvc += JpsiMon_XpressTrig_idperf
         if (InDetFlags.doPrintConfigurables()):
-            print JpsiMon_XpressTrig
-        InDetDiMuMonManager.AthenaMonTools += [ JpsiMon_XpressTrig ]
+            print JpsiMon_XpressTrig_idperf
+        InDetDiMuMonManager.AthenaMonTools += [ JpsiMon_XpressTrig_idperf ]
+
+        JpsiMon_XpressTrig_2mu = DiMuMon (name = "JpsiMon_XpressTrig_2mu",
+                                      resonName = "Jpsi",
+                                      minInvmass = 2.5,
+                                      maxInvmass = 3.5,
+                                      nMassBins = 50,
+                                      triggerChainName = "XpressTrig",
+                                      regions = regionsJpsi,
+                                      varsVSmean = varsVSmeanJpsi,
+                                      varsVSwidth = varsVSwidthJpsi,
+                                      varsDistr = varsDistrJpsi,
+                                      doFits = doFits,
+                                      doSaveFits = doSaveFits)
+        JpsiMon_XpressTrig_2mu.TriggerChain = "2mu14"
+        JpsiMon_XpressTrig_2mu.TrigDecisionTool = monTrigDecTool
+        ToolSvc += JpsiMon_XpressTrig_2mu
+        if (InDetFlags.doPrintConfigurables()):
+            print JpsiMon_XpressTrig_2mu
+        InDetDiMuMonManager.AthenaMonTools += [ JpsiMon_XpressTrig_2mu ]
+
 
     if doZmumu:
-        ZmumuMon_XpressTrig = DiMuMon (name = "ZmumuMon_XpressTrig",
+        ZmumuMon_XpressTrig_idperf = DiMuMon (name = "ZmumuMon_XpressTrig_idperf",
                                        resonName = "Zmumu",
                                        minInvmass = 60.,
                                        maxInvmass = 120.,
@@ -113,12 +134,32 @@ else:
                                        varsDistr = varsDistrZmumu,
                                        doFits = doFits,
                                        doSaveFits = doSaveFits)
-        ZmumuMon_XpressTrig.TriggerChain = "EF_2mu13_Zmumu_IDTrkNoCut"
-        ZmumuMon_XpressTrig.TrigDecisionTool = monTrigDecTool
-        ToolSvc += ZmumuMon_XpressTrig
+        ZmumuMon_XpressTrig_idperf.TriggerChain = "Zmumu_idperf"
+        ZmumuMon_XpressTrig_idperf.TrigDecisionTool = monTrigDecTool
+        ToolSvc += ZmumuMon_XpressTrig_idperf
         if (InDetFlags.doPrintConfigurables()):
-            print ZmumuMon_XpressTrig
-        InDetDiMuMonManager.AthenaMonTools += [ ZmumuMon_XpressTrig ]
+            print ZmumuMon_XpressTrig_idperf
+        InDetDiMuMonManager.AthenaMonTools += [ ZmumuMon_XpressTrig_idperf ]
+
+
+        ZmumuMon_XpressTrig_2mu = DiMuMon (name = "ZmumuMon_XpressTrig_2mu",
+                                       resonName = "Zmumu",
+                                       minInvmass = 60.,
+                                       maxInvmass = 120.,
+                                       nMassBins = 60,
+                                       triggerChainName = "XpressTrig",
+                                       regions = regionsZmumu,
+                                       varsVSmean = varsVSmeanZmumu,
+                                       varsVSwidth = varsVSwidthZmumu,
+                                       varsDistr = varsDistrZmumu,
+                                       doFits = doFits,
+                                       doSaveFits = doSaveFits)
+        ZmumuMon_XpressTrig_2mu.TriggerChain = "2mu14"
+        ZmumuMon_XpressTrig_2mu.TrigDecisionTool = monTrigDecTool
+        ToolSvc += ZmumuMon_XpressTrig_2mu
+        if (InDetFlags.doPrintConfigurables()):
+            print ZmumuMon_XpressTrig_2mu
+        InDetDiMuMonManager.AthenaMonTools += [ ZmumuMon_XpressTrig_2mu ]
 
 ## Setup the output histogram file(s):
 if not hasattr(ServiceMgr, 'THistSvc'):
