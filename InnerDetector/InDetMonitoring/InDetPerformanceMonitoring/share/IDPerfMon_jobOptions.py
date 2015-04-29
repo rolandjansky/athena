@@ -1,5 +1,5 @@
 ## set to true in case you would like to write out your own IDPerfMon.root
-IDPerfMonDoOutput = True
+IDPerfMonDoOutput = False
 
 from InDetPerformanceMonitoring.InDetPerformanceMonitoringConf import IDPerfMonZee
 IDPerfMonZee_noTrig = IDPerfMonZee (name = "IDPerfMonZee_noTrig",
@@ -31,42 +31,66 @@ if (InDetFlags.doPrintConfigurables()):
 if not hasattr(ToolSvc, 'monTrigDecTool'):
     print "IDPerfMon_jobOptions.py: trigger decision tool not found: don't run trigger-aware monitoring"
 else:
-    IDPerfMonZee_2e20 = IDPerfMonZee (name = "IDPerfMonZee_2e20",
-                                      tracksName = InDetKeys.TrackParticles())
-    IDPerfMonZee_e25i_tight = IDPerfMonZee (name = "IDPerfMonZee_e25i_tight",
+    print 'IDPerfMon_jobOptions.py : following express stream trigger menu (pp_v5_menu) -> https://twiki.cern.ch/twiki/bin/view/Atlas/ExpressStream#Run_2_Physics_Physics_pp_v5_menu'
+    print 'IDPerfMon_jobOptions.py : lowLumi Zee triggers'
+    IDPerfMonZee_2e12_loose = IDPerfMonZee (name = "IDPerfMonZee_2e12_loose",
                                             tracksName = InDetKeys.TrackParticles())
-    IDPerfMonWenu_g25_xe30 = IDPerfMonWenu (name = "IDPerfMonWenu_g25_xe30",
+    IDPerfMonZee_e24_medium_L1EM18VH = IDPerfMonZee (name = "IDPerfMonZee_e24_medium_L1EM18VH",
                                             tracksName = InDetKeys.TrackParticles())
-    IDPerfMonWenu_e25i_tight = IDPerfMonWenu (name = "IDPerfMonWenu_e25i_tight",
-                                              tracksName = InDetKeys.TrackParticles())
+    print 'IDPerfMon_jobOptions.py : highLumi Zee triggers'
+    IDPerfMonZee_2e15_loose = IDPerfMonZee (name = "IDPerfMonZee_2e15_loose",
+                                            tracksName = InDetKeys.TrackParticles())
+    IDPerfMonZee_e24_tight_L1EM20VH  = IDPerfMonZee (name = "IDPerfMonZee_e24_tight_L1EM20VH",
+                                            tracksName = InDetKeys.TrackParticles())
+    print 'IDPerfMon_jobOptions.py : Wenu triggers'
+    IDPerfMonWenu_g25_loose_xe35 = IDPerfMonWenu (name = "IDPerfMonWenu_g25_loose_xe35",
+                                            tracksName = InDetKeys.TrackParticles())
+    IDPerfMonWenu_e24_medium_L1EM18VH = IDPerfMonWenu (name = "IDPerfMonWenu_e24_medium_L1EM18VH",
+                                            tracksName = InDetKeys.TrackParticles())
+    IDPerfMonWenu_e24_tight_L1EM20VH  = IDPerfMonWenu (name = "IDPerfMonWenu_e24_tight_L1EM20VH",
+                                            tracksName = InDetKeys.TrackParticles())
 
-    IDPerfMonZee_2e20.TrigDecisionTool             = monTrigDecTool
-    IDPerfMonZee_e25i_tight.TrigDecisionTool       = monTrigDecTool
-    IDPerfMonWenu_g25_xe30.TrigDecisionTool        = monTrigDecTool
-    IDPerfMonWenu_e25i_tight.TrigDecisionTool      = monTrigDecTool
 
-    IDPerfMonZee_2e20.TriggerChain             = "EF_2e20" # alternative "EF_e25i_tight"
-    IDPerfMonZee_e25i_tight.TriggerChain       = "EF_e25i_tight"
-    IDPerfMonWenu_g25_xe30.TriggerChain        = "EF_g25_xe30" # alternative "EF_e25i_tight"
-    IDPerfMonWenu_e25i_tight.TriggerChain      = "EF_e25i_tight"
+    IDPerfMonZee_2e12_loose.TrigDecisionTool             = monTrigDecTool
+    IDPerfMonZee_e24_medium_L1EM18VH.TrigDecisionTool             = monTrigDecTool
+    IDPerfMonZee_2e15_loose.TrigDecisionTool             = monTrigDecTool
+    IDPerfMonZee_e24_tight_L1EM20VH.TrigDecisionTool             = monTrigDecTool
+    IDPerfMonWenu_g25_loose_xe35.TrigDecisionTool             = monTrigDecTool
+    IDPerfMonWenu_e24_medium_L1EM18VH.TrigDecisionTool             = monTrigDecTool
+    IDPerfMonWenu_e24_tight_L1EM20VH.TrigDecisionTool             = monTrigDecTool
 
-    IDPerfMonZee_2e20.triggerChainName             = "EF_2e20" # alternative "EF_e25i_tight"
-    IDPerfMonZee_e25i_tight.triggerChainName       = "EF_e25i_tight"
-    IDPerfMonWenu_g25_xe30.triggerChainName        = "EF_g25_xe30" # alternative "EF_e25i_tight"
-    IDPerfMonWenu_e25i_tight.triggerChainName      = "EF_e25i_tight"
+    IDPerfMonZee_2e12_loose.TriggerChain = "2e12_loose"
+    IDPerfMonZee_e24_medium_L1EM18VH.TriggerChain             = "e24_medium_L1EM18VH"
+    IDPerfMonZee_2e15_loose.TriggerChain             = "2e15_loose"
+    IDPerfMonZee_e24_tight_L1EM20VH.TriggerChain             = "e24_tight_L1EM20VH"
 
-    ToolSvc += IDPerfMonZee_2e20
+    IDPerfMonWenu_g25_loose_xe35.TriggerChain             = "g25_loose_xe35"
+    IDPerfMonWenu_e24_medium_L1EM18VH.TriggerChain             = "e24_medium_L1EM18VH"
+    IDPerfMonWenu_e24_tight_L1EM20VH.TriggerChain             = "e24_tight_L1EM20VH"
+
+    ToolSvc += IDPerfMonZee_2e12_loose
     if (InDetFlags.doPrintConfigurables()):
-        print IDPerfMonZee_2e20
-    ToolSvc += IDPerfMonZee_e25i_tight
+        print IDPerfMonZee_2e12_loose
+    ToolSvc += IDPerfMonZee_e24_medium_L1EM18VH
     if (InDetFlags.doPrintConfigurables()):
-        print IDPerfMonZee_e25i_tight
-    ToolSvc += IDPerfMonWenu_g25_xe30
+        print IDPerfMonZee_e24_medium_L1EM18VH
+    ToolSvc += IDPerfMonZee_2e15_loose
     if (InDetFlags.doPrintConfigurables()):
-        print IDPerfMonWenu_g25_xe30
-    ToolSvc += IDPerfMonWenu_e25i_tight
+        print IDPerfMonZee_2e15_loose
+    ToolSvc += IDPerfMonZee_e24_tight_L1EM20VH
     if (InDetFlags.doPrintConfigurables()):
-        print IDPerfMonWenu_e25i_tight
+        print IDPerfMonZee_e24_tight_L1EM20VH
+
+    ToolSvc += IDPerfMonWenu_g25_loose_xe35
+    if (InDetFlags.doPrintConfigurables()):
+        print IDPerfMonWenu_g25_loose_xe35
+    ToolSvc += IDPerfMonWenu_e24_medium_L1EM18VH
+    if (InDetFlags.doPrintConfigurables()):
+        print IDPerfMonWenu_e24_medium_L1EM18VH
+    ToolSvc += IDPerfMonWenu_e24_tight_L1EM20VH
+    if (InDetFlags.doPrintConfigurables()):
+        print IDPerfMonWenu_e24_tight_L1EM20VH
+
 
     ###########################
 
@@ -87,10 +111,15 @@ IDPerfMonManager.AthenaMonTools += [ IDPerfMonKshort_noTrig ]
 if not hasattr(ToolSvc, 'monTrigDecTool'):
     print "IDPerfMon_jobOptions.py: trigger decision tool not found: don't run trigger-aware monitoring"
 else:
-    IDPerfMonManager.AthenaMonTools += [ IDPerfMonZee_2e20 ]
-    IDPerfMonManager.AthenaMonTools += [ IDPerfMonZee_e25i_tight ]
-    IDPerfMonManager.AthenaMonTools += [ IDPerfMonWenu_g25_xe30 ]
-    IDPerfMonManager.AthenaMonTools += [ IDPerfMonWenu_e25i_tight ]
+    IDPerfMonManager.AthenaMonTools += [ IDPerfMonZee_2e12_loose ]
+    IDPerfMonManager.AthenaMonTools += [ IDPerfMonZee_e24_medium_L1EM18VH]
+    IDPerfMonManager.AthenaMonTools += [ IDPerfMonZee_2e15_loose ]
+    IDPerfMonManager.AthenaMonTools += [ IDPerfMonZee_e24_tight_L1EM20VH ]
+
+    IDPerfMonManager.AthenaMonTools += [ IDPerfMonWenu_g25_loose_xe35 ]
+    IDPerfMonManager.AthenaMonTools += [ IDPerfMonWenu_e24_medium_L1EM18VH ]
+    IDPerfMonManager.AthenaMonTools += [ IDPerfMonWenu_e24_tight_L1EM20VH ]
+
 
     # no trigger requirement for Kshorts
 

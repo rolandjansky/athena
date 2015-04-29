@@ -29,7 +29,7 @@ PoolInput = ["/afs/cern.ch/user/s/sthenkel/eos/atlas/user/s/sthenkel/MC/valid1.1
 EvtMax=-1
 SkipEvents = 0
 
-
+NoBeamConstraint=True
 
 # DetFlags modifications are best set here (uncomment RecExCommon_flags first)
 from PerfMonComps.PerfMonFlags import jobproperties as pmjp
@@ -84,7 +84,10 @@ rec.doTruth.set_Value_and_Lock(False)
 #from AthenaMonitoring.DQMonFlags import DQMonFlags
 #DQMonFlags.doInDetPerfMon.set_Value_and_Lock(True)
 
-
+#with beamconstraint
+if NoBeamConstraint:
+  from InDetRecExample.InDetJobProperties import InDetFlags
+  InDetFlags.useBeamConstraint.set_Value_and_Lock(False)
 
 from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 

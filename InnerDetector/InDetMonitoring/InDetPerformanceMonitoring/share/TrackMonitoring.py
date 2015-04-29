@@ -140,8 +140,8 @@ InDetAlignMonBeamSpot_noTrig = InDetAlignMonBeamSpot (name  = "InDetAlignMonBeam
                                                                                                           vxContainerName                = "PrimaryVertices",
 						                                                          trackContainerName  = "InDetTrackParticles",
 						                                                          useBeamspot  = True,
-                                                                                                          vxContainerWithBeamConstraint  = InDetFlags.useBeamConstraint(),
-						                                       #                   vxContainerWithBeamConstraint  = False,
+                                                                                                         vxContainerWithBeamConstraint  = InDetFlags.useBeamConstraint(),
+						                                    #                     vxContainerWithBeamConstraint  = False,
 						                                                          OutputLevel= 1)
 ToolSvc += InDetAlignMonBeamSpot_noTrig
 InDetAlignMonManager.AthenaMonTools += [ InDetAlignMonBeamSpot_noTrig ]
