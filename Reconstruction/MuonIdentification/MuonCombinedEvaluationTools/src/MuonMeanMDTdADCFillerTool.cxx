@@ -170,6 +170,10 @@ MuonMeanMDTdADCFillerTool::meanMDTdADCFiller (const Trk::Track& track) const
         // int statnam = fid.stationName();
         if(fid.is_mdt()) {
             const Muon::MdtDriftCircleOnTrack *mdtcirc = dynamic_cast<const Muon::MdtDriftCircleOnTrack *>(measurement);
+            if(mdtcirc == NULL) {
+              ATH_MSG_WARNING("cannot cast Trk::MeasurementBase to Muon::MdtDriftCircleOnTrack");
+              continue;
+            }
             const Muon::MdtPrepData *rawdata = mdtcirc->prepRawData();
             if(rawdata) {
                 // Calculate deltaADC as difference of number of ADC counts for given hit and datfit(Rdrift),
