@@ -1,89 +1,49 @@
 import os, re, sys
 
+#=#=#
 DataSets = [
-  #'mc14_8TeV.208001.Pythia8B_AU2_CTEQ6L1_pp_Jpsimu4mu4.merge.DAOD_MUON0.e1331_s1896_s1912_r5591_r5625_p1796/',
-  #'mc14_8TeV.147807.PowhegPythia8_AU2CT10_Zmumu.merge.DAOD_MUON0.e1852_s1896_s1912_r5591_r5625_p1796/',
-  'data12_8TeV.00204954.physics_Muons.merge.DAOD_MUON0.r5724_p1751_p1793_p1796/',
-  'data12_8TeV.00204134.physics_Muons.merge.DAOD_MUON0.r5724_p1751_p1793_p1796/',
-  'data12_8TeV.00204772.physics_Muons.merge.DAOD_MUON0.r5724_p1751_p1793_p1796/',
-  'data12_8TeV.00203258.physics_Muons.merge.DAOD_MUON0.r5724_p1751_p1793_p1796/',
-  'data12_8TeV.00203195.physics_Muons.merge.DAOD_MUON0.r5724_p1751_p1793_p1796/',
-  'data12_8TeV.00205016.physics_Muons.merge.DAOD_MUON0.r5724_p1751_p1793_p1796/',
-  'data12_8TeV.00204633.physics_Muons.merge.DAOD_MUON0.r5724_p1751_p1793_p1796/',
-  'data12_8TeV.00203739.physics_Muons.merge.DAOD_MUON0.r5724_p1751_p1793_p1796/',
-  'data12_8TeV.00204932.physics_Muons.merge.DAOD_MUON0.r5724_p1751_p1793_p1796/',
-  'data12_8TeV.00205017.physics_Muons.merge.DAOD_MUON0.r5724_p1751_p1793_p1796/',
-  'data12_8TeV.00204153.physics_Muons.merge.DAOD_MUON0.r5724_p1751_p1793_p1796/',
-  'data12_8TeV.00203524.physics_Muons.merge.DAOD_MUON0.r5724_p1751_p1793_p1796/',
-  'data12_8TeV.00205010.physics_Muons.merge.DAOD_MUON0.r5724_p1751_p1793_p1796/',
-  'data12_8TeV.00203228.physics_Muons.merge.DAOD_MUON0.r5724_p1751_p1793_p1796/',
-  'data12_8TeV.00204796.physics_Muons.merge.DAOD_MUON0.r5724_p1751_p1793_p1796/',
-  'data12_8TeV.00204474.physics_Muons.merge.DAOD_MUON0.r5724_p1751_p1793_p1796/',
-  'data12_8TeV.00203191.physics_Muons.merge.DAOD_MUON0.r5724_p1751_p1793_p1796/',
-  'data12_8TeV.00203792.physics_Muons.merge.DAOD_MUON0.r5724_p1751_p1793_p1796/',
-  'data12_8TeV.00204265.physics_Muons.merge.DAOD_MUON0.r5724_p1751_p1793_p1796/',
-  'data12_8TeV.00203027.physics_Muons.merge.DAOD_MUON0.r5724_p1751_p1793_p1796/',
-  'data12_8TeV.00203760.physics_Muons.merge.DAOD_MUON0.r5724_p1751_p1793_p1796/',
-  'data12_8TeV.00202712.physics_Muons.merge.DAOD_MUON0.r5724_p1751_p1793_p1796/',
-  'data12_8TeV.00203779.physics_Muons.merge.DAOD_MUON0.r5724_p1751_p1793_p1796/',
-  'data12_8TeV.00204025.physics_Muons.merge.DAOD_MUON0.r5724_p1751_p1793_p1796/',
-  'data12_8TeV.00204769.physics_Muons.merge.DAOD_MUON0.r5724_p1751_p1793_p1796/',
-  'data12_8TeV.00203636.physics_Muons.merge.DAOD_MUON0.r5724_p1751_p1793_p1796/',
-  'data12_8TeV.00204240.physics_Muons.merge.DAOD_MUON0.r5724_p1751_p1793_p1796/',
-  'data12_8TeV.00203523.physics_Muons.merge.DAOD_MUON0.r5724_p1751_p1793_p1796/',
-  'data12_8TeV.00203719.physics_Muons.merge.DAOD_MUON0.r5724_p1751_p1793_p1796/',
-  'data12_8TeV.00203169.physics_Muons.merge.DAOD_MUON0.r5724_p1751_p1793_p1796/',
-  'data12_8TeV.00204707.physics_Muons.merge.DAOD_MUON0.r5724_p1751_p1793_p1796/',
-  'data12_8TeV.00203336.physics_Muons.merge.DAOD_MUON0.r5724_p1751_p1793_p1796/',
-  'data12_8TeV.00204026.physics_Muons.merge.DAOD_MUON0.r5724_p1751_p1793_p1796/',
-  'data12_8TeV.00203432.physics_Muons.merge.DAOD_MUON0.r5724_p1751_p1793_p1796/',
-  'data12_8TeV.00204416.physics_Muons.merge.DAOD_MUON0.r5724_p1751_p1793_p1796/',
-  'data12_8TeV.00204910.physics_Muons.merge.DAOD_MUON0.r5724_p1751_p1793_p1796/',
-  'data12_8TeV.00204955.physics_Muons.merge.DAOD_MUON0.r5724_p1751_p1793_p1796/',
-  'data12_8TeV.00203353.physics_Muons.merge.DAOD_MUON0.r5724_p1751_p1793_p1796/',
-  'data12_8TeV.00204668.physics_Muons.merge.DAOD_MUON0.r5724_p1751_p1793_p1796/',
-  'data12_8TeV.00204726.physics_Muons.merge.DAOD_MUON0.r5724_p1751_p1793_p1796/',
-  'data12_8TeV.00205112.physics_Muons.merge.DAOD_MUON0.r5724_p1751_p1793_p1796/',
-  'data12_8TeV.00204976.physics_Muons.merge.DAOD_MUON0.r5724_p1751_p1793_p1796/',
-  'data12_8TeV.00202668.physics_Muons.merge.DAOD_MUON0.r5724_p1751_p1793_p1796/',
-  'data12_8TeV.00203745.physics_Muons.merge.DAOD_MUON0.r5724_p1751_p1793_p1796/',
-  'data12_8TeV.00203277.physics_Muons.merge.DAOD_MUON0.r5724_p1751_p1793_p1796/',
-  'data12_8TeV.00202991.physics_Muons.merge.DAOD_MUON0.r5724_p1751_p1793_p1796/',
-  'data12_8TeV.00203335.physics_Muons.merge.DAOD_MUON0.r5724_p1751_p1793_p1796/',
-  'data12_8TeV.00203876.physics_Muons.merge.DAOD_MUON0.r5724_p1751_p1793_p1796/',
-  'data12_8TeV.00204071.physics_Muons.merge.DAOD_MUON0.r5724_p1751_p1793_p1796/',
-  'data12_8TeV.00203602.physics_Muons.merge.DAOD_MUON0.r5724_p1751_p1793_p1796/',
-  'data12_8TeV.00204158.physics_Muons.merge.DAOD_MUON0.r5724_p1751_p1793_p1796/',
-  'data12_8TeV.00205055.physics_Muons.merge.DAOD_MUON0.r5724_p1751_p1793_p1796/',
-  'data12_8TeV.00202965.physics_Muons.merge.DAOD_MUON0.r5724_p1751_p1793_p1796/',
-  'data12_8TeV.00202798.physics_Muons.merge.DAOD_MUON0.r5724_p1751_p1793_p1796/',
-  'data12_8TeV.00203256.physics_Muons.merge.DAOD_MUON0.r5724_p1751_p1793_p1796/',
-  'data12_8TeV.00204442.physics_Muons.merge.DAOD_MUON0.r5724_p1751_p1793_p1796/',
-  'data12_8TeV.00205071.physics_Muons.merge.DAOD_MUON0.r5724_p1751_p1793_p1796/',
-  'data12_8TeV.00202660.physics_Muons.merge.DAOD_MUON0.r5724_p1751_p1793_p1796/',
-  'data12_8TeV.00204853.physics_Muons.merge.DAOD_MUON0.r5724_p1751_p1793_p1796/',
-  'data12_8TeV.00205113.physics_Muons.merge.DAOD_MUON0.r5724_p1751_p1793_p1796/',
-  'data12_8TeV.00203456.physics_Muons.merge.DAOD_MUON0.r5724_p1751_p1793_p1796/',
-  'data12_8TeV.00203875.physics_Muons.merge.DAOD_MUON0.r5724_p1751_p1793_p1796/',
-  'data12_8TeV.00204073.physics_Muons.merge.DAOD_MUON0.r5724_p1751_p1793_p1796/',
-  'data12_8TeV.00204564.physics_Muons.merge.DAOD_MUON0.r5724_p1751_p1793_p1796/',
-  'data12_8TeV.00202740.physics_Muons.merge.DAOD_MUON0.r5724_p1751_p1793_p1796/',
-  'data12_8TeV.00202987.physics_Muons.merge.DAOD_MUON0.r5724_p1751_p1793_p1796/',
-  'data12_8TeV.00204763.physics_Muons.merge.DAOD_MUON0.r5724_p1751_p1793_p1796/',
-  'data12_8TeV.00203680.physics_Muons.merge.DAOD_MUON0.r5724_p1751_p1793_p1796/',
-  'data12_8TeV.00203605.physics_Muons.merge.DAOD_MUON0.r5724_p1751_p1793_p1796/',
-  'data12_8TeV.00204857.physics_Muons.merge.DAOD_MUON0.r5724_p1751_p1793_p1796/',
-  'data12_8TeV.00203454.physics_Muons.merge.DAOD_MUON0.r5724_p1751_p1793_p1796/',
-  'data12_8TeV.00203934.physics_Muons.merge.DAOD_MUON0.r5724_p1751_p1793_p1796/',
+  'mc14_8TeV.208010.Pythia8B_AU2_CTEQ6L1_pp_Jpsimu6p5mu6p5.recon.AOD.e1966_s1933_s1911_r6242/',
+  'mc14_8TeV.147807.PowhegPythia8_AU2CT10_Zmumu.merge.AOD.e1852_s1896_s1912_r6259_r6260/',
+  'data12_8TeV.periodB.physics_Muons.PhysCont.AOD.repro17_v02/',
 ]
 
-UserName = 'gartoni'
+#=#=#
+PrintOnly = False
+IsOfficial = True
+Version = 'Version1'
+FilesPerJob = 20
+TotalFiles = -1
+
+#=#=#
+if IsOfficial:
+  UserName = 'group.perf-muons'
+else:
+  UserName = 'user.gartoni'
+
+#=#=#
+RegEx_MC = re.compile( '(\w*)\.(\d*)\.(\w*)\.(\w*)\.(\w*)\.(\w*)/' ) 
+RegEx_Data = re.compile( '(\w*)\.(\w*)\.(\w*)\.(\w*)\.(\w*)\.(\w*)/' ) 
 JobOptions = os.path.expandvars( '$TestArea/InstallArea/jobOptions/MuonPtCalibNtupleMaker/MuonPtCalibNtupleMaker_JobOptions.py' )
-RegEx = re.compile( '(\w*)\.(\d*)\.(\w*)\.(\w*)\.(\w*)\.(\w*)/' ) 
-Version = 'Test2'
-FilesPerJob = 5
 
 for DataSet in DataSets:
-  Match = RegEx.match( DataSet ) 
-  OutputDataSet = 'user.' + UserName + '.' + Match.group( 1 ) + '.' + Match.group( 2 ) + '.' + Match.group( 6 ) + '.PtCalibNtuple.' + Version
-  os.system( 'pathena %s --inDS=%s --outDS=%s --nFilesPerJob=%d' % ( JobOptions, DataSet, OutputDataSet, FilesPerJob ) )
+  Match_MC = RegEx_MC.match( DataSet ) 
+  Match_Data = RegEx_Data.match( DataSet ) 
+  OutputDataSet = ''
+  if Match_MC:
+    OutputDataSet = UserName + '.' + Match_MC.group( 1 ) + '.' + Match_MC.group( 2 ) + '.' + Match_MC.group( 6 ) + '.PtCalibNtuple.' + Version
+  elif Match_Data:
+    OutputDataSet = UserName + '.' + Match_Data.group( 1 ) + '.' + Match_Data.group( 2 ) + '.' + Match_Data.group( 3 ) + '.' + Match_Data.group( 6 ) + '.PtCalibNtuple.' + Version
+  Command  = 'pathena'
+  Command += ' %s' % JobOptions
+  Command += ' --inDS=%s' % DataSet
+  Command += ' --outDS=%s' % OutputDataSet
+  Command += ' --nFilesPerJob=%d' % FilesPerJob 
+  if TotalFiles > 0:
+    Command += ' --nFiles=%d' % TotalFiles
+  if IsOfficial:
+    Command += ' --official --voms=atlas:/atlas/perf-muons/Role=production' 
+  
+  if PrintOnly:
+    print Command
+  else:
+    os.system( Command )

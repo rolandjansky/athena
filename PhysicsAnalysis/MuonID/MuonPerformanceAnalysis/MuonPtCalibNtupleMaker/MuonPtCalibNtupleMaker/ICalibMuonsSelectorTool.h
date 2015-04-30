@@ -12,7 +12,9 @@
 #include "GaudiKernel/IAlgTool.h"
 
 //::: EDM includes
+#include "xAODEventInfo/EventInfo.h"
 #include "xAODMuon/MuonContainer.h"
+
 
 static const InterfaceID IID_ICalibMuonsSelectorTool( "ICalibMuonsSelectorTool", 1, 0 );
 

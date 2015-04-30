@@ -22,6 +22,7 @@ CalibMuonsSelectorTool::CalibMuonsSelectorTool( const std::string& type, const s
   declareProperty( "MaxZMassCut",    m_MaxZMassCut = 116. * CLHEP::GeV );
 
   declareProperty( "MuonSelectorTool", m_MuonSelectorTool ); 
+  declareProperty( "GRLTool",          m_GRLTool ); 
 }
 
 StatusCode CalibMuonsSelectorTool::initialize() {
@@ -30,6 +31,9 @@ StatusCode CalibMuonsSelectorTool::initialize() {
 
   m_MuonSelectorTool.setTypeAndName( "CP::MuonSelectionTool/MuonSelectionTool" ); 
   ATH_CHECK( m_MuonSelectorTool.retrieve() );
+
+  m_GRLTool.setTypeAndName( "GoodRunsListSelectionTool/GRLTool" ); 
+  ATH_CHECK( m_GRLTool.retrieve() );
 
   return StatusCode::SUCCESS;
 
@@ -45,6 +49,19 @@ StatusCode CalibMuonsSelectorTool::finalize() {
 PairsVector CalibMuonsSelectorTool::GetMuons( const xAOD::MuonContainer* the_muons, TH1F* cut_flow ) {
 
   PairsVector SelectedMuons;
+
+  //::: First Check if GRL is Passed
+  cut_flow->Fill( 0.5 ); //::: Start
+  const xAOD::EventInfo* evtInfo = 0;
+  StatusCode sc = evtStore()->retrieve( evtInfo, "EventInfo" );
+  if( sc.isFailure() ) {
+    ATH_MSG_ERROR( "Failed to retrieve EventInfo object" );
+    return SelectedMuons;
+  }
+  bool pass_GRL = m_GRLTool->passRunLB( *evtInfo );
+  ATH_MSG_DEBUG( "RunNumber: " << evtInfo->runNumber() << ", LumiBlock: " << evtInfo->lumiBlock() << ", Passes GRL: " << std::boolalpha << pass_GRL );
+  if( pass_GRL ) cut_flow->Fill( 1.5 ); //::: Pass GRL 
+  else return SelectedMuons;
 
   ATH_MSG_DEBUG( " ---> Number of muons in container: " << the_muons->size() );
 
@@ -90,9 +107,8 @@ PairsVector CalibMuonsSelectorTool::GetMuons( const xAOD::MuonContainer* the_muo
     }
   }
   
-  cut_flow->Fill( 0.5 ); //::: Start
-  if( at_least_two_muons ) cut_flow->Fill( 1.5 ); //::: >= 2 muons
-  if( in_mass_window ) cut_flow->Fill( 2.5 ); //::: mass window cut
+  if( at_least_two_muons ) cut_flow->Fill( 2.5 ); //::: >= 2 muons
+  if( in_mass_window ) cut_flow->Fill( 3.5 ); //::: mass window cut
 
   ATH_MSG_DEBUG( " ---> Number of pairs selected:     " << SelectedMuons.size() );
 
@@ -105,10 +121,10 @@ bool CalibMuonsSelectorTool::IsGoodMuon( const xAOD::Muon* the_muon ) {
   if( the_muon->muonType() != xAOD::Muon::MuonType::Combined ) return false;
 
   //::: Check if valid ElementLink to id Track
-  if( the_muon->trackParticle( xAOD::Muon::InnerDetectorTrackParticle ) == 0 ) return false;
+  if( the_muon->trackParticle( xAOD::Muon::InnerDetectorTrackParticle ) == NULL ) return false;
 
   //::: Check if valid ElementLink to ms Track
-  if( the_muon->trackParticle( xAOD::Muon::MuonSpectrometerTrackParticle ) == 0 ) return false;
+  if( the_muon->trackParticle( xAOD::Muon::ExtrapolatedMuonSpectrometerTrackParticle ) == NULL ) return false;
   
   //::: ID Quality Cuts with MuonSelectorTool
   //if( !m_MuonSelectorTool->passedIDCuts( *the_muon ) ) return false;

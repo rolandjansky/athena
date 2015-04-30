@@ -9,7 +9,8 @@ use  AthenaBaseComps     AthenaBaseComps-*     Control
 use  xAODMuon            xAODMuon-*            Event/xAOD
 use  xAODEventInfo       xAODEventInfo-*       Event/xAOD
 use  MuonSelectorTools   MuonSelectorTools-*   PhysicsAnalysis/MuonID
-                                              
+use  GoodRunsLists       GoodRunsLists-*       DataQuality
+
 private                                       
 use  AtlasCLHEP          AtlasCLHEP-*          External
 use  GaudiInterface      GaudiInterface-*      External
