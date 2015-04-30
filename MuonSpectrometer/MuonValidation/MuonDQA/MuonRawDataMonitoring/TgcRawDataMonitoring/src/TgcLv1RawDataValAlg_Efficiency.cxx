@@ -98,7 +98,7 @@ TgcLv1RawDataValAlg::bookHistogramsEfficiency(){
   // 0.33 for < 17GeV : 27bins
   // 0.50 for < 25GeV : 16bins
   // 1.00 for >=25GeV : 26bins
-  const int pt_nbins = 32 + 27 + 16 + 26;
+  const int pt_nbins = 1 + 32 + 27 + 16 + 26;
   float pt_bins[pt_nbins];
   pt_bins[0]=0.;
   float boundary=0.;

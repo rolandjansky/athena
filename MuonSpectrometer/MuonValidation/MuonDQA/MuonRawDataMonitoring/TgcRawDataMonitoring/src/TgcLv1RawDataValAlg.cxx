@@ -74,6 +74,115 @@ TgcLv1RawDataValAlg::TgcLv1RawDataValAlg(const std::string &type, const std::str
   declareProperty("L1muonRoIName",                m_L1muonRoIName = "LVL1MuonRoIs" );
   declareProperty("L1emtauRoIName",               m_L1emtauRoIName = "LVL1EmTauRoIs" );
   declareProperty("L1jetRoIName",                 m_L1jetRoIName = "LVL1JetRoIs" );
+
+  // initialize the histos
+  for(int ac=0;ac<2;ac++){
+	  tgclv1lpttiming[ac] = 0;
+	  tgclv1lpttimingptcut[ac] = 0;
+	  tgclv1lpttimingmap[ac] = 0;
+	  tgclv1lptcurrentfractionmap[ac] = 0;
+	  tgclv1lpttimingmapptcut[ac] = 0;
+	  tgclv1lptcurrentfractionmapptcut[ac] = 0;
+	  tgclv1slvslpttiming[ac] = 0;
+	  tgclv1slvslpttimingptcut[ac] = 0;
+	  tgclv1_SL_trigger_timing_ES[ac] = 0;
+	  tgclv1_SL_trigger_timing_num_ES[ac] = 0;
+	  tgclv1_SL_trigger_timing_denom_ES[ac] = 0;
+	  tgclv1_LPT_trigger_timing_ES[ac] = 0;
+	  tgclv1_LPT_trigger_timing_num_ES[ac] = 0;
+	  tgclv1_LPT_trigger_timing_denom_ES[ac] = 0;
+	  tgclv1_SL_trigger_timing_ES_GM[ac] = 0;
+	  tgclv1_LPT_trigger_timing_ES_GM[ac] = 0;
+	  tgclv1_plateau_eff_counting_ES[ac] = 0;
+	  tgclv1_plateau_eff_counting_num_ES[ac] = 0;
+	  tgclv1_plateau_eff_counting_denom_ES[ac] = 0;
+	  tgclv1_plateau_eff_counting_ES_GM[ac] = 0;
+	  tgclv1summaryofsltiming[ac] = 0;
+	  tgclv1summaryoflpttiming[ac] = 0;
+	  
+	  tgclv1slchamberlowstat[ac] = 0;
+	  tgclv1sltimingptcutlowstat[ac] = 0;
+
+	  tgclv1sltiming[ac] = 0;
+	  tgclv1sltimingptcut[ac] = 0;
+	  tgclv1sltimingmap[ac] = 0;
+	  tgclv1slcurrentfractionmap[ac] = 0;
+	  tgclv1sltimingmapptcut[ac] = 0;
+	  tgclv1slcurrentfractionmapptcut[ac] = 0;
+
+	  for(int isec=0; isec<12; isec++){
+	    tgclv1sltimingsector[ac][isec] = 0;
+	    tgclv1sltimingptcutsector[ac][isec] = 0;
+	    tgclv1lpttimingsector[ac][isec] = 0;
+	    tgclv1lpttimingptcutsector[ac][isec] = 0;
+	    tgclv1slvslpttimingsector[ac][isec] = 0;
+	    tgclv1slvslpttimingptcutsector[ac][isec] = 0;
+	    for(int itrig=0; itrig<4; itrig++){
+		tgclv1sltimingsectortrg[ac][isec][itrig] = 0;
+		tgclv1sltimingptcutsectortrg[ac][isec][itrig] = 0;
+		tgclv1lpttimingsectortrg[ac][isec][itrig] = 0;
+		tgclv1lpttimingptcutsectortrg[ac][isec][itrig] = 0;
+		tgclv1slvslpttimingsectortrg[ac][isec][itrig] = 0;
+		tgclv1slvslpttimingptcutsectortrg[ac][isec][itrig] = 0;
+	    }
+	  }
+	  for(int itrig=0; itrig<4; itrig++){
+	    tgclv1sltimingtrg[ac][itrig] = 0;
+	    tgclv1sltimingptcuttrg[ac][itrig] = 0;
+	    tgclv1lpttimingtrg[ac][itrig] = 0;
+	    tgclv1lpttimingptcuttrg[ac][itrig] = 0;
+	  }
+	  for(int im=0; im<2; im++){
+	    tgclv1sltimingtrack[ac][im] = 0;
+	    tgclv1sltimingptcuttrack[ac][im] = 0;
+	    tgclv1lpttimingtrack[ac][im] = 0;
+	    tgclv1lpttimingptcuttrack[ac][im] = 0;
+	  }
+
+	  for(int ipt=0; ipt<6; ipt++){
+	    tgclv1turnon_ES[ac][ipt] = 0;
+	    tgclv1turnontg_ES[ac][ipt] = 0;
+	    tgclv1turnonnum_ES[ac][ipt] = 0;
+	    tgclv1turnondenom_ES[ac][ipt] = 0;
+
+	    tgclv1sltimingpt[ac][ipt] = 0;
+	    tgclv1lpttimingpt[ac][ipt] = 0;
+	    for(int itrig=0; itrig<4; itrig++){
+		tgclv1sltimingpttrg[ac][ipt][itrig] = 0;
+		tgclv1lpttimingpttrg[ac][ipt][itrig] = 0;
+	    }
+	    for(int im=0; im<2; im++)
+		tgclv1deltar[ac][ipt][im] = 0;
+	    for(int icharge=0; icharge<3; icharge++){
+	       for(int imuid=0; imuid<2; imuid++){
+		  tgclv1turnon[ac][ipt][icharge][imuid] = 0;
+		  tgclv1turnontg[ac][ipt][icharge][imuid] = 0;
+		  tgclv1turnonnum[ac][ipt][icharge][imuid] = 0;
+		  tgclv1turnondenom[ac][ipt][icharge][imuid] = 0;
+		  tgclv1effetavsphidenom[ac][ipt][icharge][imuid] = 0;
+	          for(int ipcn=0; ipcn<3; ipcn++){
+		     tgclv1effetavsphi[ac][ipt][icharge][imuid][ipcn] = 0;
+		     tgclv1effetavsphinum[ac][ipt][icharge][imuid][ipcn] = 0;
+		  }
+	       }
+	    }
+	  }
+          for(int mod=0;mod<9;mod++)
+            for(int pt=0;pt<6;pt++){
+              tgclv1cw[ac][mod][pt] = 0;
+              for(int m=0;m<2;m++){
+                tgclv1cwoffline[ac][mod][pt][m] = 0;
+                tgclv1cwrejectedoffline[ac][mod][pt][m] = 0;
+              }
+            }
+
+	
+  }
+  for(int ich=0; ich<6; ich++){
+	  tgclv1summaryofsltimingperchambertype[ich] = 0;
+	  tgclv1summaryoflpttimingperchambertype[ich] = 0;
+  }
+
 } 
 
 

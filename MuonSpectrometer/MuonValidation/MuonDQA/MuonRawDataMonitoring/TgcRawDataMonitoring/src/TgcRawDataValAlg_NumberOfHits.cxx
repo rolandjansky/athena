@@ -126,7 +126,7 @@ TgcRawDataValAlg::bookHistogramsNumberOfHits(){
 StatusCode
 TgcRawDataValAlg::fillNumberOfHits(){
   // Get nHit values for filling histograms
-  int nHitsTotal;
+  int nHitsTotal=0;
   int nHitsWS[2]  ={0,0};//[ws]
   int nHitsSide[2]={0,0};//[ac]
   for(int ac=0;ac<2;ac++)

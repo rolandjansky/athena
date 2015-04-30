@@ -132,9 +132,6 @@ TgcRawDataValAlg::fillXYView(){
           if(ws==WIRE) Rhos[layer][stationEta][stationPhi].push_back(m_hitPosR[ac][ws].at(iHit));
           else         Phis[layer][stationEta][stationPhi].push_back(m_hitPosPhi[ac][ws].at(iHit));
         }
-        else{// invalid layer number
-          m_log << MSG::FATAL << "Invalid layer index: m_hitLayer[" << ac << "][" << ws << "]=" << layer << endreq;
-        }
       }//hit
     }//ws
     
