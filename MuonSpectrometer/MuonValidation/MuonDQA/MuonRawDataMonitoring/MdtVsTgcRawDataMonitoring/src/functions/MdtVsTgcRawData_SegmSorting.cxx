@@ -35,8 +35,8 @@ void
 MdtVsTgcRawDataValAlg::SortMDTSegments(const Trk::SegmentCollection *m_segmcollection,
                                        vector<const Muon::MuonSegment*> (&sortedSegments)[2][4]){
   // Flags for whether event has segments from sides and stations
-  bool HasStationSegm[2][4] = {{false,false,false,false},
-                               {false,false,false,false}};
+  //bool HasStationSegm[2][4] = {{false,false,false,false},
+  //                             {false,false,false,false}};
   
   // Loop over all segments in event
   for(Trk::SegmentCollection::const_iterator s = m_segmcollection->begin();
@@ -92,7 +92,7 @@ MdtVsTgcRawDataValAlg::SortMDTSegments(const Trk::SegmentCollection *m_segmcolle
     
     // If there is only one station pass the segment data on to the variables
     if(nMDTStations==1){
-      HasStationSegm[segmAC][MDTStationj]=true;
+      //HasStationSegm[segmAC][MDTStationj]=true;
       sortedSegments[segmAC][MDTStationj].push_back(segm);
     }
   }// Loop over segments

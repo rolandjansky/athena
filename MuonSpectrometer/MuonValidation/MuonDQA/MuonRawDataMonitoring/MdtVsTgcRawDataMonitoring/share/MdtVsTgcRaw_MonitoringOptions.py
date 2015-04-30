@@ -18,6 +18,7 @@ from MdtVsTgcRawDataMonitoring.MdtVsTgcRawDataMonitoringConf import MdtVsTgcRawD
 MdtVsTgcRawDataValAlg = MdtVsTgcRawDataValAlg (name = "MdtVsTgcRawDataValAlg",
                                                MdtAdcCut = 50,
                                                Side=0,
+                                               TgcPrepDataContainer="TGC_MeasurementsAllBCs",
                                                OutputCoinCollection="TrigT1CoinDataCollection",
                                                MdtPrepDataContainer="MDT_DriftCircles",
                                                TgcLv1File = False) 

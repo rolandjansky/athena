@@ -105,7 +105,6 @@ MdtVsTgcRawDataValAlg::numberOfSL(const Muon::TgcCoinDataContainer* tgctrgcontai
          ++itc){
 
       Muon::TgcCoinData* tcd=*itc;
-      Identifier tgcid=(*itc)->identify();
 
       if( tcd->type() != Muon::TgcCoinData::TYPE_SL )continue;
       m_log<<MSG::DEBUG<<"pt"<<tcd->pt()<<endreq;
