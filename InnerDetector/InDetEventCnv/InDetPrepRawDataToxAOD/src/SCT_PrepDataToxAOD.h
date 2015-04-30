@@ -77,6 +77,9 @@ private:
   bool  m_writeSiHits;
   
   std::map< Identifier, const SCT_RDORawData* > m_IDtoRAWDataMap;
+
+  // --- private members
+  bool m_firstEventWarnings;
   
 };
 

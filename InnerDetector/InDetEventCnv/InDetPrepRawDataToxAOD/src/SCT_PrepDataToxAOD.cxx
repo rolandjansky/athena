@@ -37,20 +37,22 @@
 SCT_PrepDataToxAOD::SCT_PrepDataToxAOD(const std::string &name, ISvcLocator *pSvcLocator) :
   AthAlgorithm(name,pSvcLocator),
   m_incidentSvc("IncidentSvc", name),
-  m_clustercontainer("SCT_Clusters"),
-  m_SDOcontainer("SCT_SDO_Map"),
-  m_sihitContainer("SCT_Hits"),
-  m_multiTruth("PRD_MultiTruthSCT")
+  m_SCTHelper(0),
+  m_firstEventWarnings(true)
 { 
-  declareProperty("SiClusterContainer",  m_clustercontainer);
-  declareProperty("MC_SDOs", m_SDOcontainer);
-  declareProperty("MC_Hits", m_sihitContainer);
-  declareProperty("PRD_MultiTruth", m_multiTruth);
-
+  // --- Steering and configuration flags
   declareProperty("UseTruthInfo", m_useTruthInfo=false);
   declareProperty("WriteRDOinformation", m_writeRDOinformation =true);
   declareProperty("WriteSDOs", m_writeSDOs = true);
   declareProperty("WriteSiHits", m_writeSiHits = true);
+
+  // --- Configuration keys
+  declareProperty("SiClusterContainer",  m_clustercontainer = "SCT_Clusters");
+  declareProperty("MC_SDOs", m_SDOcontainer = "SCT_SDO_Map");
+  declareProperty("MC_Hits", m_sihitContainer = "SCT_Hits");
+  declareProperty("PRD_MultiTruth", m_multiTruth = "PRD_MultiTruthSCT");
+
+  // --- Services and Tools
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -60,18 +62,10 @@ SCT_PrepDataToxAOD::SCT_PrepDataToxAOD(const std::string &name, ISvcLocator *pSv
 /////////////////////////////////////////////////////////////////////
 StatusCode SCT_PrepDataToxAOD::initialize()
 {
-  StatusCode sc = detStore()->retrieve(m_SCTHelper, "SCT_ID");
-  if ( sc.isFailure() ) {
-     ATH_MSG_ERROR("Unable to retrieve SCT ID Helper.");
-     return sc;       
-  } else {
-     ATH_MSG_INFO("retrieved SCT Helper " << m_SCTHelper); 
-  }
-  
-  if (m_incidentSvc.retrieve().isFailure()){
-    ATH_MSG_WARNING("Can not retrieve " << m_incidentSvc << ". Exiting.");
-    return StatusCode::FAILURE;
-  }
+
+  CHECK ( detStore()->retrieve(m_SCTHelper, "SCT_ID") );
+
+  CHECK ( m_incidentSvc.retrieve() );
   // register to the incident service:
   m_incidentSvc->addListener( this, IncidentType::EndEvent);
 
@@ -81,7 +75,7 @@ StatusCode SCT_PrepDataToxAOD::initialize()
     m_writeSiHits = false;
   }
 
-  return sc;
+  return StatusCode::SUCCESS;
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -96,7 +90,9 @@ StatusCode SCT_PrepDataToxAOD::execute()
   // the cluster ambiguity map
   if ( m_writeRDOinformation ) {
     if(!evtStore()->contains<SCT_RDO_Container>("SCT_RDOs")){
-      ATH_MSG_WARNING("RDO ASSOC: No SCT RDO container in StoreGate");
+      if (m_firstEventWarnings) {
+	ATH_MSG_WARNING("RDO ASSOC: No SCT RDO container in StoreGate");
+      }
     }
     else {
       if(evtStore()->retrieve(rdoContainer,"SCT_RDOs").isFailure()) {
@@ -114,7 +110,7 @@ StatusCode SCT_PrepDataToxAOD::execute()
         for (auto& rdo : *collection) {
 
           if ( !rdo) {
-            ATH_MSG_WARNING( "Null rdo....");
+            ATH_MSG_WARNING( "Null SCT RDO. Skipping it");
             continue;
           }
 
@@ -125,25 +121,49 @@ StatusCode SCT_PrepDataToxAOD::execute()
       } // container
     } // Have container;
   }   
-  std::cout<<" size of map is "<<m_IDtoRAWDataMap.size()<<std::endl;
+  ATH_MSG_DEBUG("Size of RDO map is "<<m_IDtoRAWDataMap.size());
 
+  // Mandatory. This is needed and required if this algorithm is scheduled.
   const InDet::SCT_ClusterContainer* sctClusterContainer = 0;     
   if( evtStore()->retrieve(sctClusterContainer,m_clustercontainer).isFailure() ) {
     ATH_MSG_ERROR("Cannot retrieve SCT PrepDataContainer " << m_clustercontainer);
     return StatusCode::FAILURE;
   }
 
-  // Normally only available in Hits files -- samples need to digitised and Hits need to be copied for this to work
-  const SiHitCollection*        sihitCollection = 0;
-  if (m_writeSiHits) ATH_CHECK(evtStore()->retrieve(sihitCollection, m_sihitContainer));
+  // Optional. Normally only available in Hits files -- samples need to digitised and Hits need to be copied for this to work
+  const SiHitCollection* sihitCollection = 0;
+  if (m_writeSiHits) {
+    if (evtStore()->contains<SiHitCollection>(m_sihitContainer)) {
+      ATH_CHECK(evtStore()->retrieve(sihitCollection, m_sihitContainer));
+    } else {
+      if (m_firstEventWarnings) {
+	ATH_MSG_WARNING("SiHit collection not available (" << m_sihitContainer << "). Skipping although requested.");
+	sihitCollection = 0;
+      }	
+    }
+  }
 
-  // On RDO
+  // Optional. On RDO
   const InDetSimDataCollection* sdoCollection = 0;
-  if (m_writeSDOs) ATH_CHECK(evtStore()->retrieve(sdoCollection, m_SDOcontainer));
+  if (m_writeSDOs) {
+    if ( evtStore()->contains<InDetSimDataCollection>(m_SDOcontainer) ) {
+      ATH_CHECK(evtStore()->retrieve(sdoCollection, m_SDOcontainer));
+    } else {
+      ATH_MSG_WARNING("SDO container not available (" << m_SDOcontainer << "). Skipping although requested.");
+      sdoCollection = 0;
+    }
+  }
 
-  // On ESD and AOD
+  // Optional. On ESD and AOD
   const PRD_MultiTruthCollection* prdmtColl = 0;
-  if (m_useTruthInfo) ATH_CHECK(evtStore()->retrieve(prdmtColl, m_multiTruth));
+  if (m_useTruthInfo) {
+    if ( evtStore()->contains<PRD_MultiTruthCollection>(m_multiTruth) ) {
+      ATH_CHECK(evtStore()->retrieve(prdmtColl, m_multiTruth));
+    } else {
+      ATH_MSG_WARNING("MultiTruth container not available (" << m_multiTruth << "). Skipping although requested.");
+      prdmtColl = 0;
+    }
+  }
 
 
   // Create the xAOD container and its auxiliary store:
@@ -173,7 +193,7 @@ StatusCode SCT_PrepDataToxAOD::execute()
       
       Identifier clusterId = prd->identify();
       if ( !clusterId.is_valid() ) {
-        ATH_MSG_WARNING("SCT cluster identifier is not valid");
+        ATH_MSG_WARNING("SCT cluster identifier is not valid!");
       }
               
       // create and add xAOD object
@@ -268,6 +288,8 @@ StatusCode SCT_PrepDataToxAOD::execute()
     }
   }
   ATH_MSG_DEBUG( " recorded SCT_PrepData objects: size " << xaod->size() );
+
+  m_firstEventWarnings = false; //disable one-time warnings
 
   return StatusCode::SUCCESS;
 }

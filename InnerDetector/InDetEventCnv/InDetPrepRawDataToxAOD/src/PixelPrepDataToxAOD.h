@@ -95,7 +95,8 @@ private:
   bool  m_writeNNinformation;
   bool  m_writeRDOinformation;
 
-   
+  // -- Private members   
+  bool m_firstEventWarnings;
 
 };
 

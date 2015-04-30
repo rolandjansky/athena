@@ -28,7 +28,6 @@ class ITRT_DriftFunctionTool;
 class ITRT_StrawSummarySvc;
 
 
-
 class TRT_PrepDataToxAOD : public AthAlgorithm  {
 
 public:
@@ -42,17 +41,25 @@ public:
 
 private:
 
+  // --- Steering and configuration flags
   bool m_useTruthInfo;
+  bool m_writeSDOs;
 
+  // --- Configuration keys
+  std::string  m_driftcirclecontainer;
+  std::string  m_SDOcontainer;
+  std::string  m_multiTruth;
+
+  // --- Services and Tools
   ToolHandle< ITRT_DriftFunctionTool >      m_driftFunctionTool ; //!< DriftFunctionTool
   ServiceHandle<ITRT_CalDbSvc>              m_trtcaldbSvc       ;
   ServiceHandle<ITRT_StrawNeighbourSvc>     m_neighbourSvc      ;
   ServiceHandle<ITRT_StrawStatusSummarySvc> m_TRTStrawSummarySvc; 
-
   const TRT_ID *m_TRTHelper;
-  std::string  m_driftcirclecontainer;
-  std::string  m_SDOcontainer;
-  std::string  m_multiTruth;
+
+  // ---- Internal members
+  bool m_firstEventWarnings;
+
 };
 
 

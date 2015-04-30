@@ -38,22 +38,25 @@
 /////////////////////////////////////////////////////////////////////
 PixelPrepDataToxAOD::PixelPrepDataToxAOD(const std::string &name, ISvcLocator *pSvcLocator) :
   AthAlgorithm(name,pSvcLocator),
-
-  m_clustercontainer("PixelClusters"),
-  m_SDOcontainer("PixelSDO_Map"),
-  m_sihitContainer("PixelHits"),
-  m_multiTruth("PRD_MultiTruthPixel")
+  m_PixelHelper(0),
+  m_firstEventWarnings(true)
 { 
-  declareProperty("SiClusterContainer",  m_clustercontainer);
-  declareProperty("MC_SDOs", m_SDOcontainer);
-  declareProperty("MC_Hits", m_sihitContainer);
-  declareProperty("PRD_MultiTruth", m_multiTruth);
-  
+  // --- Steering and configuration flags
+ 
   declareProperty("UseTruthInfo", m_useTruthInfo=false);
   declareProperty("WriteSDOs", m_writeSDOs = true);
   declareProperty("WriteSiHits", m_writeSiHits = true);
   declareProperty("WriteNNinformation", m_writeNNinformation = true);
   declareProperty("WriteRDOinformation", m_writeRDOinformation = true);
+
+  // --- Configuration keys
+  declareProperty("SiClusterContainer",  m_clustercontainer = "PixelClusters");
+  declareProperty("MC_SDOs", m_SDOcontainer = "PixelSDO_Map");
+  declareProperty("MC_Hits", m_sihitContainer = "PixelHits");
+  declareProperty("PRD_MultiTruth", m_multiTruth = "PRD_MultiTruthPixel");
+
+  // --- Services and Tools
+
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -63,13 +66,7 @@ PixelPrepDataToxAOD::PixelPrepDataToxAOD(const std::string &name, ISvcLocator *p
 /////////////////////////////////////////////////////////////////////
 StatusCode PixelPrepDataToxAOD::initialize()
 {
-  StatusCode sc = detStore()->retrieve(m_PixelHelper, "PixelID");
-  if ( sc.isFailure() ) {
-     ATH_MSG_ERROR("Unable to retrieve Pixel ID Helper.");
-     return sc;       
-  } else {
-     ATH_MSG_INFO("retrieved Pixel Helper " << m_PixelHelper); 
-  }
+  ATH_CHECK( detStore()->retrieve(m_PixelHelper, "PixelID") );
 
   //make sure we don't write what we don't have
   if (not m_useTruthInfo) {
@@ -77,7 +74,7 @@ StatusCode PixelPrepDataToxAOD::initialize()
     m_writeSiHits = false;
   }
 
-  return sc;
+  return StatusCode::SUCCESS;
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -87,25 +84,49 @@ StatusCode PixelPrepDataToxAOD::initialize()
 /////////////////////////////////////////////////////////////////////
 StatusCode PixelPrepDataToxAOD::execute() 
 {
+  //Mandatory. Require if the algorithm is scheduled.
   const InDet::PixelClusterContainer* PixelClusterContainer = 0;     
   if( evtStore()->retrieve(PixelClusterContainer,m_clustercontainer).isFailure() ) {
     ATH_MSG_ERROR("Cannot retrieve Pixel PrepDataContainer " << m_clustercontainer);
     return StatusCode::FAILURE;
   }
 
-  // Normally only available in Hits files -- samples need to digitised and Hits need to be copied for this to work
-  const SiHitCollection*        sihitCollection = 0;
-  if((m_writeNNinformation||m_writeSiHits)&&m_useTruthInfo)
-    ATH_CHECK(evtStore()->retrieve(sihitCollection, m_sihitContainer));
+  // Optional. Normally only available in Hits files -- samples need to digitised and Hits need to be copied for this to work
+  const SiHitCollection* sihitCollection = 0;
+  if((m_writeNNinformation||m_writeSiHits)&&m_useTruthInfo) {
+    if ( evtStore()->contains<SiHitCollection>(m_sihitContainer) ) {
+      ATH_CHECK(evtStore()->retrieve(sihitCollection, m_sihitContainer));
+    } else {
+      if (m_firstEventWarnings) {
+	ATH_MSG_WARNING("Si Hit cotainer no found (" << m_sihitContainer << "). Skipping it although requested.");
+	sihitCollection = 0;
+      }
+    }
+  }
 
-  // On RDO
+  // Optional. On RDO
   const InDetSimDataCollection* sdoCollection = 0;
-  if(m_writeSDOs) 
-    ATH_CHECK(evtStore()->retrieve(sdoCollection, m_SDOcontainer));
+  if(m_writeSDOs) {
+    if ( evtStore()->contains<InDetSimDataCollection>(m_SDOcontainer) ) {
+      ATH_CHECK(evtStore()->retrieve(sdoCollection, m_SDOcontainer));
+    } else {
+      if (m_firstEventWarnings) {
+	ATH_MSG_WARNING("SDO Collection not found (" << m_SDOcontainer << "). Skipping it although requested.");
+	sdoCollection = 0;
+      }
+    }
+  }
 
-  // On ESD and AOD
+  // Optional. On ESD and AOD
   const PRD_MultiTruthCollection* prdmtColl = 0;
-  if (m_useTruthInfo) ATH_CHECK(evtStore()->retrieve(prdmtColl, m_multiTruth));
+  if (m_useTruthInfo) {
+    if ( evtStore()->contains<PRD_MultiTruthCollection>(m_multiTruth) ) {
+      ATH_CHECK(evtStore()->retrieve(prdmtColl, m_multiTruth));
+    } else {
+      ATH_MSG_WARNING("PRD Truth collection missing (" << m_multiTruth << "). Skipping it although requested.");
+      prdmtColl = 0;
+    }
+  }
 
 
   // Create the xAOD container and its auxiliary store:
@@ -251,6 +272,8 @@ StatusCode PixelPrepDataToxAOD::execute()
     }
   }
   ATH_MSG_DEBUG( " recorded PixelPrepData objects: size " << xaod->size() );
+
+  m_firstEventWarnings = false;
 
   return StatusCode::SUCCESS;
 }
@@ -559,7 +582,10 @@ void PixelPrepDataToxAOD::addNNInformation(xAOD::TrackMeasurementValidation* xpr
 
 
   const InDetDD::PixelModuleDesign* design(dynamic_cast<const InDetDD::PixelModuleDesign*>(&de->design()));
-
+	if (not design) {
+		ATH_MSG_WARNING("PixelModuleDesign was not retrieved in function 'addNNInformation'");
+		return;
+	}
   const std::vector<Identifier>& rdos  = pixelCluster->rdoList();  
 
   const std::vector<float>& chList     = pixelCluster->chargeList();
@@ -576,7 +602,7 @@ void PixelPrepDataToxAOD::addNNInformation(xAOD::TrackMeasurementValidation* xpr
 
   if (!cellIdWeightedPosition.isValid())
   {
-    ATH_MSG_ERROR( "Weighted position is on invalid CellID." );
+    ATH_MSG_WARNING( "Weighted position is on invalid CellID." );
   }
 
   int etaPixelIndexWeightedPosition=cellIdWeightedPosition.etaIndex();
@@ -630,7 +656,7 @@ void PixelPrepDataToxAOD::addNNInformation(xAOD::TrackMeasurementValidation* xpr
   std::vector<float> vectorOfPitchesY(sizeY,0.4);
 
 
-  //Itererate over all elements hits in the cluster and fill the charge and tot matricies 
+  //Itererate over all elements hits in the cluster and fill the charge and tot matrices 
   std::vector<Identifier>::const_iterator rdosBegin = rdos.begin();
   std::vector<Identifier>::const_iterator rdosEnd = rdos.end();
   auto charge = chList.begin();    
@@ -638,8 +664,9 @@ void PixelPrepDataToxAOD::addNNInformation(xAOD::TrackMeasurementValidation* xpr
 
   ATH_MSG_VERBOSE(" Putting together the n. " << rdos.size() << " rdos into a matrix.");
 
-  for (; rdosBegin!= rdosEnd; ++rdosBegin, ++charge, ++tot)
+  for (; rdosBegin!= rdosEnd; ++rdosBegin)
   {
+    
     Identifier rId =  *rdosBegin;
     int absphiPixelIndex = m_PixelHelper->phi_index(rId)-phiPixelIndexWeightedPosition    + centralIndexX;
     int absetaPixelIndex = m_PixelHelper->eta_index(rId)-etaPixelIndexWeightedPosition + centralIndexY;
@@ -662,11 +689,15 @@ void PixelPrepDataToxAOD::addNNInformation(xAOD::TrackMeasurementValidation* xpr
     InDetDD::SiDiodesParameters diodeParameters = design->parameters(cellId);
     float pitchY = diodeParameters.width().xEta();
   
-    if ( totList.size() !=0 && tot    != totList.end()) matrixOfToT[absphiPixelIndex][absetaPixelIndex]   =*tot;
-    else matrixOfToT[absphiPixelIndex][absetaPixelIndex]   = -1;
+    if ( (not totList.empty()) && tot    != totList.end()) {
+      matrixOfToT[absphiPixelIndex][absetaPixelIndex]   =*tot;
+      ++tot;
+    } else matrixOfToT[absphiPixelIndex][absetaPixelIndex]   = -1;
 
-    if ( chList.size()  !=0 && charge != chList.end()) matrixOfCharge[absphiPixelIndex][absetaPixelIndex]=*charge;
-    else matrixOfCharge[absphiPixelIndex][absetaPixelIndex]=-1;
+    if ( (not chList.empty()) && charge != chList.end()){
+     matrixOfCharge[absphiPixelIndex][absetaPixelIndex]=*charge;
+     ++charge;
+    } else matrixOfCharge[absphiPixelIndex][absetaPixelIndex] = -1;
   
     if (pitchY > 0.1)
     {
@@ -790,7 +821,10 @@ void  PixelPrepDataToxAOD::addNNTruthInfo(  xAOD::TrackMeasurementValidation* xp
   InDetDD::SiCellId cellIdWeightedPosition = getCellIdWeightedPosition( pixelCluster );
 
   const InDetDD::PixelModuleDesign* design(dynamic_cast<const InDetDD::PixelModuleDesign*>(&de->design()));
-
+  if (not design) {
+		ATH_MSG_WARNING("PixelModuleDesign was not retrieved in function 'addNNTruthInfo'");
+		return;
+	}
   // lorentz shift correction    
   double shift = de->getLorentzCorrection();
   
@@ -936,7 +970,10 @@ InDetDD::SiCellId PixelPrepDataToxAOD::getCellIdWeightedPosition(  const InDet::
   }
 
   const InDetDD::PixelModuleDesign* design(dynamic_cast<const InDetDD::PixelModuleDesign*>(&de->design()));
-
+  if (not design) {
+    ATH_MSG_WARNING("PixelModuleDesign was not retrieved in function 'getCellIdWeightedPosition'");
+    return InDetDD::SiCellId();
+  }
   const std::vector<Identifier>& rdos  = pixelCluster->rdoList();  
 
   ATH_MSG_VERBOSE( "Number of RDOs: " << rdos.size() );
@@ -979,6 +1016,7 @@ InDetDD::SiCellId PixelPrepDataToxAOD::getCellIdWeightedPosition(  const InDet::
     // Then I assume the argument of column/row in this function is in offline manner, not the real hardware column/row.
     // 
     InDetDD::SiLocalPosition siLocalPosition( design->positionFromColumnRow(etaPixelIndex,phiPixelIndex) ); 
+    ATH_MSG_VERBOSE ( "Local Position: Row = " << siLocalPosition.xRow() << ", Col = " << siLocalPosition.xColumn() );
   
     sumOfWeightedPositions += (*charge)*siLocalPosition;
     sumOfCharge += (*charge);
@@ -997,6 +1035,8 @@ InDetDD::SiCellId PixelPrepDataToxAOD::getCellIdWeightedPosition(  const InDet::
 
   }
   sumOfWeightedPositions /= sumOfCharge;
+
+  ATH_MSG_VERBOSE ( "Wighted position: Row = " << sumOfWeightedPositions.xRow() << ", Col = " << sumOfWeightedPositions.xColumn() );
 
   if(rphiPixelIndexMin) *rphiPixelIndexMin = phiPixelIndexMin;
   if(rphiPixelIndexMax) *rphiPixelIndexMax = phiPixelIndexMax;
