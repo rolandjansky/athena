@@ -35,20 +35,22 @@
 
 #include "TrigT1CaloEvent/TriggerTowerCollection.h"
 #include "TrigT1CaloEvent/TriggerTower_ClassDEF.h"
-#include "TrigT1Monitoring/CalorimeterL1CaloMon.h"
 
 #include "TrigT1CaloToolInterfaces/IL1TriggerTowerTool.h"
-#include "TrigT1CaloMonitoringTools/TrigT1CaloMonErrorTool.h"
-#include "TrigT1CaloMonitoringTools/TrigT1CaloLWHistogramTool.h"
+#include "TrigT1CaloMonitoringTools/ITrigT1CaloMonErrorTool.h"
+#include "TrigT1CaloMonitoringTools/TrigT1CaloLWHistogramToolV1.h"
 
-/*---------------------------------------------------------*/
+#include "CalorimeterL1CaloMon.h"
+// ============================================================================
+namespace LVL1 {
+// ============================================================================
 CalorimeterL1CaloMon::CalorimeterL1CaloMon(const std::string & type,
                                            const std::string & name,
 					   const IInterface* parent)
   : ManagedMonitorToolBase ( type, name, parent ),
     m_ttTool("LVL1::L1TriggerTowerTool/L1TriggerTowerTool"),
-    m_errorTool("TrigT1CaloMonErrorTool"),
-    m_histTool("TrigT1CaloLWHistogramTool"),
+    m_errorTool("LVL1::TrigT1CaloMonErrorToolV1/TrigT1CaloMonErrorToolV1"),
+    m_histTool("LVL1::TrigT1CaloLWHistogramToolV1/TrigT1CaloLWHistogramToolV1"),
     m_caloTool("LVL1::L1CaloMonitoringCaloTool/L1CaloMonitoringCaloTool"),
     m_histBooked(false),
     m_h_CaloCell_tile_phi(0),
@@ -752,3 +754,6 @@ bool CalorimeterL1CaloMon::usedInTT(const CaloDetDescrElement* caloDDE)
 		  sampling == CaloCell_ID::FCAL2 );
   return result;
 }
+// ============================================================================
+}  // end namespace
+// ============================================================================

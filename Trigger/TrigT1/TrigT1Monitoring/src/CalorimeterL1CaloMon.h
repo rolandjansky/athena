@@ -29,14 +29,17 @@ class TH2F_LW;
 class TProfile2D_LW;
 class TProfile_LW;
 
-class TrigT1CaloMonErrorTool;
-class TrigT1CaloLWHistogramTool;
 class CaloDetDescrElement;
-
+// ============================================================================
 namespace LVL1 {
-  class IL1TriggerTowerTool;
-  class IL1CaloMonitoringCaloTool;
-}
+// ============================================================================
+// Forward declarations:
+// ============================================================================
+class IL1TriggerTowerTool;
+class IL1CaloMonitoringCaloTool;
+class ITrigT1CaloMonErrorTool;
+class TrigT1CaloLWHistogramToolV1;
+// ============================================================================
 
 /** Monitoring of the Calo/L1Calo interface.
  *
@@ -143,9 +146,9 @@ private:
   /// Tool for identifiers and disabled channels
   ToolHandle<LVL1::IL1TriggerTowerTool> m_ttTool;
   /// Event veto tool
-  ToolHandle<TrigT1CaloMonErrorTool>    m_errorTool;
+  ToolHandle<ITrigT1CaloMonErrorTool>    m_errorTool;
   /// Histogram helper
-  ToolHandle<TrigT1CaloLWHistogramTool> m_histTool;
+  ToolHandle<TrigT1CaloLWHistogramToolV1> m_histTool;
   /// Tool for CaloTT energies
   ToolHandle<LVL1::IL1CaloMonitoringCaloTool> m_caloTool;
 
@@ -244,5 +247,8 @@ private:
   TH2F_LW* m_h_hadcaloME_etaphi;                    ///< eta-phi map of had most energetic caloTT
 
 };
+// ============================================================================
+} // end namespace
+// ============================================================================
 
 #endif

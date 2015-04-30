@@ -29,13 +29,7 @@ class LWHist;
 class TH1F_LW;
 class TH2F_LW;
 class TH2I_LW;
-class TrigT1CaloMonErrorTool;
-class TrigT1CaloLWHistogramTool;
 
-namespace LVL1 {
-  class CPMRoI;
-  class JEMRoI;
-}
 
 namespace ROIB {
   class EMTauResult;
@@ -43,7 +37,16 @@ namespace ROIB {
   class JetEnergyResult;
   class JetEnergyRoI;
 }
-
+// ============================================================================
+namespace LVL1 {
+// ============================================================================
+// Forward declarations:
+// ============================================================================
+class CPMRoI;
+class JEMRoI;
+class ITrigT1CaloMonErrorTool;
+class TrigT1CaloLWHistogramToolV1;
+// ============================================================================
 /** Monitoring of L1Calo --> Level2 transmission
  *
  *  Compares L1Calo data with L2 data from RoIBResult.
@@ -143,9 +146,9 @@ private:
    void setLabels(LWHist* hist, bool xAxis = true);
 
    /// Corrupt events tool
-   ToolHandle<TrigT1CaloMonErrorTool>    m_errorTool;
+   ToolHandle<ITrigT1CaloMonErrorTool>    m_errorTool;
    /// Histogramming utilities
-   ToolHandle<TrigT1CaloLWHistogramTool> m_histTool;
+   ToolHandle<TrigT1CaloLWHistogramToolV1> m_histTool;
 
    // Location of data
    /// JEMRoI collection StoreGate key
@@ -171,6 +174,8 @@ private:
    TH2F_LW* m_h_l2_2d_CPMRoIErrorsEMTau; ///< Transmission Errors between CPMs and Level2 EMTau
    TH2I_LW* m_h_l2_2d_MismatchEvents;    ///< Transmission Errors between L1Calo and Level2 Event Numbers
 };
-
+// ============================================================================
+}  // end namespace
+// ============================================================================
 
 #endif

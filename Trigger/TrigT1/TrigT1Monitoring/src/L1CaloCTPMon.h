@@ -34,15 +34,19 @@ namespace TrigConf {
   class ILVL1ConfigSvc;
 }
 
-class TrigT1CaloMonErrorTool;
-class TrigT1CaloLWHistogramTool;
 class CTP_BC;
 
+// ============================================================================
 namespace LVL1 {
-  class CMMCPHits;
-  class CMMJetHits;
-  class CMMEtSums;
-}
+// ============================================================================
+// Forward declarations:
+// ============================================================================
+class CMMCPHits;
+class CMMJetHits;
+class CMMEtSums;
+class ITrigT1CaloMonErrorTool;
+class TrigT1CaloLWHistogramToolV1;
+// ============================================================================
 
 /** Monitoring of L1Calo --> CTP transmission
  *
@@ -148,9 +152,9 @@ private:
    /// Trigger configuration service
    ServiceHandle<TrigConf::ILVL1ConfigSvc> m_configSvc;
    /// Corrupt events tool
-   ToolHandle<TrigT1CaloMonErrorTool>      m_errorTool;
+   ToolHandle<ITrigT1CaloMonErrorTool>      m_errorTool;
    /// Histogram utilities tool
-   ToolHandle<TrigT1CaloLWHistogramTool>   m_histTool;
+   ToolHandle<TrigT1CaloLWHistogramToolV1>   m_histTool;
 
    // location of data
    /// CMMJetHits collection StoreGate key
@@ -182,6 +186,8 @@ private:
    TH2I_LW* m_h_ctp_2d_MismatchEvents;     ///< Transmission Errors between L1Calo and CTP Event Numbers
 
 };
-
+// ============================================================================
+}  // end namespace
+// ============================================================================
 
 #endif

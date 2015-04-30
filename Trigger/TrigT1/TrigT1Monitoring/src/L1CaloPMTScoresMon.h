@@ -24,17 +24,20 @@
 class StatusCode;
 class TH2F_LW;
 
-class TrigT1CaloMonErrorTool;
-class TrigT1CaloLWHistogramTool;
 class CaloCell;
 class ITileBadChanTool;
 class TileHWID;
-
+// ============================================================================
 namespace LVL1 {
-  class IL1CaloCells2TriggerTowers;
-  class IL1CaloTTIdTools;
-  class IL1TriggerTowerTool;
-}
+// ============================================================================
+// Forward declarations:
+// ============================================================================
+class IL1CaloCells2TriggerTowers;
+class IL1CaloTTIdTools;
+class IL1TriggerTowerTool;
+class ITrigT1CaloMonErrorTool;
+class TrigT1CaloLWHistogramToolV1;
+// ============================================================================
 
 /** Monitoring of mean Tile PMT gains by TriggerTower
  *
@@ -131,9 +134,9 @@ private:
   /// Tool for identifiers and disabled channels
   ToolHandle<LVL1::IL1TriggerTowerTool> m_ttTool;
   /// Event veto tool
-  ToolHandle<TrigT1CaloMonErrorTool>    m_errorTool;
+  ToolHandle<ITrigT1CaloMonErrorTool>    m_errorTool;
   /// Histogram helper tool
-  ToolHandle<TrigT1CaloLWHistogramTool> m_histTool;
+  ToolHandle<TrigT1CaloLWHistogramToolV1> m_histTool;
   /// CaloCell to TriggerTower mapping tool
   ToolHandle<LVL1::IL1CaloCells2TriggerTowers> m_cells2tt;
   /// Tool for Identifier to eta/phi mappings
@@ -162,5 +165,7 @@ private:
   
   static const int s_numPMTPlots   = 3;   ///< Number of layers
 };
-
+// ============================================================================
+}  // end namespace
+// ============================================================================
 #endif

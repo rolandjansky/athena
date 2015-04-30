@@ -51,7 +51,8 @@ if l1caloRawMon:
             svcMgr += ByteStreamAddressProviderSvc()
         svcMgr.ByteStreamAddressProviderSvc.TypeNames += [ "CTP_RDO/CTP_RDO" ]
         svcMgr.ByteStreamAddressProviderSvc.TypeNames += [ "ROIB::RoIBResult/RoIBResult" ]
-    
+        svcMgr.ByteStreamAddressProviderSvc.TypeNames += [ "L1TopoRDOCollection/L1TopoRDOCollection" ]
+
     if isData and isCalo and (Online or rec.triggerStream() == "express"
                                      or rec.triggerStream() == "JetTauEtmiss"):
 
@@ -59,8 +60,8 @@ if l1caloRawMon:
         include("CaloConditions/CaloConditions_jobOptions.py")
         include("LArDetDescr/LArDetDescr_joboptions.py")
         # CaloCells
-        from TrigT1Monitoring.TrigT1MonitoringConf import CalorimeterL1CaloMon
-        CalorimeterL1CaloMonTool = CalorimeterL1CaloMon(
+        from TrigT1Monitoring.TrigT1MonitoringConf import LVL1__CalorimeterL1CaloMon
+        CalorimeterL1CaloMonTool = LVL1__CalorimeterL1CaloMon(
             name = "CalorimeterL1CaloMonTool",
             PathInRootFile = "LVL1_Interfaces/Calorimeter",
             CaloThreshold = 0.1,
@@ -87,8 +88,8 @@ if l1caloRawMon:
             doHV = True
         else:
             doHV = False
-        from TrigT1Monitoring.TrigT1MonitoringConf import L1CaloHVScalesMon
-        L1CaloHVScalesMonTool = L1CaloHVScalesMon(
+        from TrigT1Monitoring.TrigT1MonitoringConf import LVL1__L1CaloHVScalesMon
+        L1CaloHVScalesMonTool = LVL1__L1CaloHVScalesMon(
             name = "L1CaloHVScalesMonTool",
             LArHVCorrTool = theLArHVCorrTool,
             DoHVDifference = doHV,
@@ -97,8 +98,8 @@ if l1caloRawMon:
         ToolSvc += L1CaloHVScalesMonTool
         L1Man.AthenaMonTools += [ L1CaloHVScalesMonTool ]
         # PMT scores
-        from TrigT1Monitoring.TrigT1MonitoringConf import L1CaloPMTScoresMon
-        L1CaloPMTScoresMonTool = L1CaloPMTScoresMon(
+        from TrigT1Monitoring.TrigT1MonitoringConf import LVL1__L1CaloPMTScoresMon
+        L1CaloPMTScoresMonTool = LVL1__L1CaloPMTScoresMon(
             name = "L1CaloPMTScoresMonTool",
             PathInRootFile = "LVL1_Interfaces/Calorimeter",
             )
@@ -128,6 +129,23 @@ if l1caloRawMon:
     #    )
     #ToolSvc += L1CaloLevel2MonTool
     #L1Man.AthenaMonTools += [ L1CaloLevel2MonTool ]
+
+    ####################### L1Calo->L1Topo ################################
+    if isData:
+        # Sasha: Current version of L1TopoMon call m_errorTool->robOrUnpackingError()
+        # which produces many warnings during run on MC data (test q221)
+        # since there are no some xAOD objects (e.g. xAOD::CPMTower)
+        # This block of code should be placed out if "if isData"  block
+        # when (1) there are not warnings from error tool OR (2) get rid of
+        # m_errorTool->robOrUnpackingError() checks
+        from TrigT1Monitoring.TrigT1MonitoringConf import LVL1__L1CaloL1TopoMon
+        L1CaloL1TopoMonTool = LVL1__L1CaloL1TopoMon(
+            name = "L1CaloL1TopoMonTool",
+            #OutputLevel = DEBUG,
+            #OutputLevel = VERBOSE,
+            )
+        ToolSvc += L1CaloL1TopoMonTool
+        L1Man.AthenaMonTools += [ L1CaloL1TopoMonTool ]
 
     ##########################################################################
     # FileKey must match that given to THistSvc
