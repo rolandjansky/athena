@@ -110,12 +110,12 @@ StatusCode TileFatherMonTool::initialize() {
   m_GainNames[1] = "HG";
 
   m_TrigNames[Trig_b0] = "bit0_RNDM";
-  m_TrigNames[Trig_b1] = "bit1_BPTX";
+  m_TrigNames[Trig_b1] = "bit1_ZeroBias";
   m_TrigNames[Trig_b2] = "bit2_L1CAL";
-  m_TrigNames[Trig_b3] = "bit3_TGC";
+  m_TrigNames[Trig_b3] = "bit3_Muon";
   m_TrigNames[Trig_b4] = "bit4_RPC";
-  m_TrigNames[Trig_b5] = "bit5_MBTS";
-  m_TrigNames[Trig_b6] = "bit6_COSM";
+  m_TrigNames[Trig_b5] = "bit5_FTK";
+  m_TrigNames[Trig_b6] = "bit6_CTP";
   m_TrigNames[Trig_b7] = "bit7_Calib";
   m_TrigNames[AnyTrig] = "AnyPhysTrig";
 

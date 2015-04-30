@@ -41,27 +41,23 @@ class TileRawChannelNoiseMonTool: public TileFatherMonTool {
 
     ~TileRawChannelNoiseMonTool();
 
-    StatusCode initialize();
+    virtual StatusCode initialize();
 
     //pure virtual methods
-    StatusCode bookHistograms();
-    StatusCode fillHistograms();
-    StatusCode procHistograms();
-    StatusCode checkHists(bool fromFinalize);
-    StatusCode finalHists();
+    virtual StatusCode bookHistograms();
+    virtual StatusCode fillHistograms();
+    virtual StatusCode procHistograms();
+
+  private:
 
     StatusCode bookRawChannelNoiseHistos();
-
     StatusCode fillHistoPerRawChannel();  // work on the raw channels
+
+    void cleanHistVec();
 
     // perform the 2G fit at the channel level, optional only if m_do2gfit=true
     void doFit();                         // perform  gaussian fit
 
-    void cleanHistVec();
-
-  private:
-
-    void FirstEvInit();
     void fitGauss(TH1F* h, double*, TF1*); // perform  gaussian fit
     void fitDoubleGauss(TH1F* h, double*, TF1*); // perform  gaussian fit
 
@@ -72,7 +68,6 @@ class TileRawChannelNoiseMonTool: public TileFatherMonTool {
     const TileDQstatus* m_DQstatus;
 
     bool m_doOnline;
-    bool m_isFirstEv;
 
     // x-axis range for the individual cell noise histograms
     float m_xmin;
@@ -80,10 +75,10 @@ class TileRawChannelNoiseMonTool: public TileFatherMonTool {
 
     Bool_t m_do2GFit;
     Bool_t m_doFit;
-    std::string m_RawChannelContainer;
+    std::string m_rawChannelContainerName;
 
     // histograms
-    std::vector<TH1F*> m_TileChannelEne[5][64]; // a 2D array of 5x64 partitions X modules, each containing a vector of channels
+    std::vector<TH1F*> m_tileChannelEne[5][64]; // a 2D array of 5x64 partitions X modules, each containing a vector of channels
 
     TH2F* m_map_sigma[5];
     TH2F* m_map_sigma2[5];

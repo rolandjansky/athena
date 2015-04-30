@@ -19,58 +19,56 @@
 class TileBeamInfoProvider;
 class ITileBadChanTool;
 class TileDQstatus;
+class TileCondToolNoiseSample;
 
 /** @class TileDigitsNoiseMonTool
  *  @brief Class for TileCal noise monitoring at digits level
  */
 
-class TileDigiNoiseMonTool : public TilePaterMonTool {
+class TileDigiNoiseMonTool : public TileFatherMonTool {
 
   public:
 
-    TileDigiNoiseMonTool(const std::string & type, const std::string & name,
-        const IInterface* parent);
+    TileDigiNoiseMonTool(const std::string & type, const std::string & name, const IInterface* parent);
 
     ~TileDigiNoiseMonTool();
 
-    StatusCode initialize();
+    virtual StatusCode initialize();
 
     //pure virtual methods
-    StatusCode bookHists();
-
-    StatusCode fillHists();
-    StatusCode finalHists();
-    StatusCode checkHists(bool fromFinalize);
-
+    virtual StatusCode bookHistograms();
+    virtual StatusCode fillHistograms();
+    virtual StatusCode procHistograms();
 
   private:
+    StatusCode updateSummaryHistograms();
 
-
-    bool m_bookAll;
-    bool m_book2D;
-    int m_runType;
-    std::string m_contNameDSP;
-
+    std::string m_digitsContainerName;
 
     ToolHandle<TileBeamInfoProvider> m_beamInfo;
     ToolHandle<ITileBadChanTool> m_tileBadChanTool;
+    ToolHandle<TileCondToolNoiseSample> m_tileToolNoiseSample; //!< tool which provided noise values
 
     const TileDQstatus* m_DQstatus;
 
     bool m_bigain;
-    int m_nEvents;
+
     //int m_nSamples;
-    double SumPed1[5][64][48][2];
-    double SumPed2[5][64][48][2];
-    double SumRms1[5][64][48][2];
-    double SumRms2[5][64][48][2];
+    double m_sumPed1[5][64][48][2];
+    double m_sumPed2[5][64][48][2];
+    double m_sumRms1[5][64][48][2];
+
+    int m_nPedEvents[5][64][48][2];
+    int m_nRmsEvents[5][64][48][2];
 
     // histogram to store 4 maps of module vs channel
-    TH2F * final_noise_map[5][2][2];
+    TH2F* m_finalNoiseMap[5][2][3];
 
     int m_summaryUpdateFrequency;
     int m_nEventsProcessed;
-
+    bool m_fillEmtyFromDB;
+    bool m_fillPedestalDifference;
+    std::vector<uint32_t> m_triggerTypes;
 };
 
 #endif

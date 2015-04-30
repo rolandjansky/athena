@@ -1366,7 +1366,7 @@ void TileRawChannelMonTool::drawHists(int ros, int drawer, std::string moduleNam
 /*---------------------------------------------------------*/
 {
 
-  ATH_MSG_INFO("in drawHists()");
+  ATH_MSG_DEBUG("in drawHists()");
 
   int maxgain = (m_bigain) ? 2 : 1;
   double ms = (m_bigain) ? 0.75 : 1.0; // marker size
@@ -1910,7 +1910,7 @@ bool TileRawChannelMonTool::DMUheaderCheck(std::vector<uint32_t>* headerVec, int
 void TileRawChannelMonTool::LaserFancyPlotting(int ros, int drawer, int maxgain, std::string moduleName) {
   /*---------------------------------------------------------*/
 
-  ATH_MSG_INFO("in LaserFancyPlotting...");
+  ATH_MSG_DEBUG("in LaserFancyPlotting...");
 
   //TCanvas * Can = new TCanvas("fit_amp","fit_amp",402*maxgain,588);
   bool do_plots = m_savePng || m_savePs || m_saveSvg;

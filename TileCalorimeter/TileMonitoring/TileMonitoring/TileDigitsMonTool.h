@@ -17,6 +17,7 @@
 #include "TileMonitoring/TilePaterMonTool.h"
 
 class TileBeamInfoProvider;
+class TileCondToolNoiseSample;
 
 /** @class TileDigitsMonTool
  *  @brief Class for TileCal monitoring at digits level
@@ -88,12 +89,9 @@ class TileDigitsMonTool: public TilePaterMonTool {
       for (int i = 0; i < 32; ++i)
         parity += ((header >> i) & 0x1);
 
-      if ((parity % 2) == 1)
-        return false; //no error
-      else
-        return true; //error
-    }
-    ;
+      if ((parity % 2) == 1) return false; //no error
+      else return true; //error
+    };
 
     bool m_bookAll;
     bool m_book2D;
@@ -112,6 +110,8 @@ class TileDigitsMonTool: public TilePaterMonTool {
     };
 
     ToolHandle<TileBeamInfoProvider> m_beamInfo;
+    ToolHandle<TileCondToolNoiseSample> m_tileToolNoiseSample; //!< tool which provided noise values
+
     const uint32_t* m_cispar;
 
     bool m_bigain;
@@ -145,7 +145,8 @@ class TileDigitsMonTool: public TilePaterMonTool {
     //For test
     //int hp;
     //int hb;
-
+    bool m_fillPedestalDifference;
+    std::string m_digitsContainerName;
 };
 
 #endif

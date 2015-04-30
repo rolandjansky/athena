@@ -651,7 +651,7 @@ StatusCode TileCellNoiseMonTool::fillHistoPerCell() {
 StatusCode TileCellNoiseMonTool::fillHistograms() {
 /*---------------------------------------------------------*/
 
-  ATH_MSG_INFO( "in fillHistograms() " );
+  ATH_MSG_DEBUG( "in fillHistograms() " );
 
   if (fillHistoPerCell().isFailure()) {
     ATH_MSG_WARNING( "Error  in fillHistoPerCell()  " );

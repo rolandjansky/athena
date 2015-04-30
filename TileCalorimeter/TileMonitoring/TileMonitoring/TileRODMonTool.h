@@ -16,9 +16,12 @@
 
 #include "TileMonitoring/TileFatherMonTool.h"
 
+#include <vector>
+
 class ITileBadChanTool;
 class TileCondToolEmscale;
 class TileBeamInfoProvider;
+class IROBDataProviderSvc;
 
 /** @class TileRODMonTool
  *  @brief Class for TileROD based monitoring
@@ -59,58 +62,35 @@ class TileRODMonTool: public TileFatherMonTool {
     ToolHandle<TileCondToolEmscale> m_tileToolEmscale;
     ToolHandle<TileBeamInfoProvider> m_beamInfo;
     ToolHandle<ITileBadChanTool> m_tileBadChanTool;
+    ServiceHandle<IROBDataProviderSvc> m_robSvc;
 
     std::string m_contName;
     std::string m_contNameDSP;
     std::string m_contNameOF;
     std::string m_contNameOFNI;
-    std::string dspName;
 
     std::vector<TH2F *> m_TileAvgDspRefEn[4];        // 4 partitions
     std::vector<TH2F *> m_TileAvgDspRefEnPhase[4];        // 4 partitions
+    std::vector<TH1F *> m_TileDspRefEnSummary[4];     // 4 partitions - 8 RODs - 4 DSPs
     std::vector<TH1F *> m_TileDspRefEn[4][8][4];     // 4 partitions - 8 RODs - 4 DSPs
     std::vector<TProfile *> m_TileAvgDspRefTim[4];       // 4 partitions
     std::vector<TProfile *> m_TileAvgDspRefTimPhase[4];       // 4 partitions
     std::vector<TH1F *> m_TileDspRefTim[4][8][4];    // 4 partitions - 8 RODs - 4 DSPs
+    std::vector<TH1F *> m_TileDspRefTimSummary[4];    // 4 partitions - 8 RODs - 4 DSPs
     std::vector<TProfile *> m_TileDspRefSummary[2];
 
+
     std::vector<TProfile2D*> m_TdspProfile[4]; //4 partitions
+    std::vector<TProfile2D*> m_tileRodFragmentSize; //
+    std::vector<TProfile*> m_tileRodFragmentSizeLB; 
 
     double m_evEref[4][64][48];    //partitions - 64 modules - 48 channels
     double m_evTref[4][64][48];    //partitions - 64 modules - 48 channels
 
-    // Borrowed from TileRawChannelMonTool
-    int m_chMap_LB[48];
-    int m_chMap_EB[48];
-    int m_chMap_EBsp[48];
-
-    // Tells if a PMT is disconnected or not
-    // Special modules are considered too.
-    // NB Input is Chan number (0-47)
-    // BEWARE: ugly code below this line!
-    inline bool isDisconnected(int ros, int drawer, int ch) {
-
-      if (ros < 3) { //LB, all standard. Chan 30,31,43 are disconnected
-        if (m_chMap_LB[ch]) return false; //connected
-        else return true;
-      } else {
-
-        if (((ros == 3) && (drawer == 14))
-            || ((ros == 4) && (drawer == 17))) {//EB, EBA15 and EBC18 are special
-
-          if (m_chMap_EBsp[ch]) return false; //connected
-          else return true;
-
-        } else {//EB standard module
-
-          if (m_chMap_EB[ch]) return false; //connected
-          else return true;
-        }
-
-      } //end if LB else EB
-
-    }
-
+    std::vector<uint32_t> m_tileRobIds;
+    int m_nEventsProcessed[9]; // number of processed events per trigger
+    int32_t m_old_lumiblock;
+    bool m_details;
 };
 
 #endif

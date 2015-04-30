@@ -17,6 +17,8 @@
 #include "TileEvent/TileDigitsContainer.h"
 #include "TileEvent/TileRawChannelContainer.h"
 #include "TileRecUtils/TileBeamInfoProvider.h"
+#include "TileConditions/TileCondToolNoiseSample.h"
+#include "TileCalibBlobObjs/TileCalibUtils.h"
 
 #include "TH1S.h"
 #include "TH1F.h"
@@ -46,6 +48,7 @@
 TileDigitsMonTool::TileDigitsMonTool(const std::string & type, const std::string & name, const IInterface* parent)
   : TilePaterMonTool(type, name, parent)
   , m_beamInfo("TileBeamInfoProvider")
+  , m_tileToolNoiseSample("TileCondToolNoiseSample")
   , m_cispar(0)
   , m_nEvents(0)
   , m_nSamples(0)
@@ -62,6 +65,9 @@ TileDigitsMonTool::TileDigitsMonTool(const std::string & type, const std::string
   declareProperty("runType", m_runType = 8);
   declareProperty("bigain", m_bigain = true);
   declareProperty("TileRawChannelContainerDSP", m_contNameDSP = "TileRawChannelCnt");
+  declareProperty("TileDigitsContainer", m_digitsContainerName = "TileDigitsCnt");
+  declareProperty("FillPedestalDifference", m_fillPedestalDifference = true);
+
   m_path = "/Tile/Digits"; //ROOT file directory
 }
 
@@ -78,6 +84,8 @@ StatusCode TileDigitsMonTool::initialize()
   ATH_MSG_INFO("in initialize()");
 
   CHECK(m_beamInfo.retrieve());
+
+  if (m_fillPedestalDifference) CHECK(m_tileToolNoiseSample.retrieve());
 
   m_nEvents = 0;
   memset(m_sumPed1, 0, sizeof(m_sumPed1));
@@ -310,222 +318,199 @@ StatusCode TileDigitsMonTool::fillHists()
 
   //  std::cout << "Calib Mode=" << m_beamInfo->calibMode() << "\n";
 
-  const TileDigitsContainer* DigitsCnt;
-  CHECK(evtStore()->retrieve(DigitsCnt, "TileDigitsCnt"));
+  const TileDigitsContainer* digitsContainer;
+  CHECK(evtStore()->retrieve(digitsContainer, m_digitsContainerName));
 
-  TileDigitsContainer::const_iterator collItr = DigitsCnt->begin();
-  TileDigitsContainer::const_iterator lastColl = DigitsCnt->end();
+  for (const TileDigitsCollection* digitsCollection : *digitsContainer) {
 
-  for (; collItr != lastColl; ++collItr) {
-    TileDigitsCollection::const_iterator digitsItr = (*collItr)->begin();
-    TileDigitsCollection::const_iterator lastDigits = (*collItr)->end();
+    if (digitsCollection->empty()) continue;
 
-    if (digitsItr != lastDigits) {
+    HWIdentifier adc_id = digitsCollection->front()->adc_HWID();
+    int ros = m_tileHWID->ros(adc_id);
+    int drawer = m_tileHWID->drawer(adc_id);
 
-      HWIdentifier adc_id = (*digitsItr)->adc_HWID();
-      int ros = m_tileHWID->ros(adc_id);
-      int drawer = m_tileHWID->drawer(adc_id);
+    if (m_hist1[ros][drawer][0][0].size() == 0) {
+      m_bigain = true;
+      m_nSamples = digitsCollection->front()->NtimeSamples();
+      if (!m_bookAll) bookHists(ros, drawer);
+    }
+    
+    std::vector<uint32_t> headerVec = digitsCollection->getFragChipHeaderWords();
 
-      if (m_hist1[ros][drawer][0][0].size() == 0) {
-        m_bigain = true;
-        m_nSamples = (*digitsItr)->NtimeSamples();
-        if (!m_bookAll) bookHists(ros, drawer);
-      }
-      std::vector<uint32_t> headerVec = (*collItr)->getFragChipHeaderWords();
-
-      int headsize = headerVec.size();
-      if (headsize > 16) {
-        ATH_MSG_ERROR("length of BCID vector " << headsize << " - greater than 16 !");
-        headsize = 16;
-      }
-
-      for (int dmu = 0; dmu < headsize; dmu++) {
-        m_corrup[ros][drawer][0][dmu] = DMUheaderCheck(&headerVec, ros, drawer, 0, dmu); //tests and fills
-        m_corrup[ros][drawer][1][dmu] = DMUheaderCheck(&headerVec, ros, drawer, 1, dmu);
-      }
-      for (int dmu = headsize; dmu < 16; dmu++) {
-        m_corrup[ros][drawer][0][dmu] = false;
-        m_corrup[ros][drawer][1][dmu] = false;
-      }
+    int headsize = headerVec.size();
+    if (headsize > 16) {
+      ATH_MSG_ERROR("length of BCID vector " << headsize << " - greater than 16 !");
+      headsize = 16;
+    }
+    
+    for (int dmu = 0; dmu < headsize; dmu++) {
+      m_corrup[ros][drawer][0][dmu] = DMUheaderCheck(&headerVec, ros, drawer, 0, dmu); //tests and fills
+      m_corrup[ros][drawer][1][dmu] = DMUheaderCheck(&headerVec, ros, drawer, 1, dmu);
+    }
+  
+    for (int dmu = headsize; dmu < 16; dmu++) {
+      m_corrup[ros][drawer][0][dmu] = false;
+      m_corrup[ros][drawer][1][dmu] = false;
     }
   }
 
-  collItr = DigitsCnt->begin(); //reset iterator
+  for (const TileDigitsCollection* digitsCollection : *digitsContainer) {
 
-  for (; collItr != lastColl; ++collItr) {
+    if (digitsCollection->empty()) continue;
 
-    //   std::cout << "FragChipHeaderWords()= " << (*collItr)->getFragChipHeaderWords().size() << "\n";
-    //	 std::cout << "FragChipHeaderWordsHigh()= " << (*collItr)->getFragChipHeaderWordsHigh().size() << "\n";
+    HWIdentifier adc_id = digitsCollection->front()->adc_HWID();
+    int ros = m_tileHWID->ros(adc_id);
+    int drawer = m_tileHWID->drawer(adc_id);
 
-    TileDigitsCollection::const_iterator digitsItr = (*collItr)->begin();
-    TileDigitsCollection::const_iterator lastDigits = (*collItr)->end();
+    if (m_hist1[ros][drawer][0][0].size() == 0) {
+      //m_bigain = (m_beamInfo->calibMode() == 1); // true if bi-gain run
+      // For the time being, we fill both high and low gain plots, as it was requiered by Tomas
+      m_bigain = true;
+      m_nSamples = digitsCollection->front()->NtimeSamples(); // number of samples
+      //        bookHists(ros,drawer);
+    }
+    
+    std::vector<uint32_t> headerVec = digitsCollection->getFragChipHeaderWords();
+    
+    int headsize = headerVec.size();
+    //if (headsize > 16 ) {
+    //   log << MSG::ERROR << "legth of BCID vector " << headsize << " - greater than 16 !" << endreq;
+    //   headsize = 16;
+    //}
+    
+    double mean_tmp[48][2][16];
+    memset(mean_tmp, 0, sizeof(mean_tmp));
+    
+    double charge = (m_cispar[6] * m_cispar[7] * 2. * 4.096) / 1023.;
+    
+    for (const TileDigits* tileDigits : *digitsCollection) {
 
-    if (digitsItr != lastDigits) {
-
-      HWIdentifier adc_id = (*digitsItr)->adc_HWID();
-      int ros = m_tileHWID->ros(adc_id);
-      int drawer = m_tileHWID->drawer(adc_id);
-
-      if (m_hist1[ros][drawer][0][0].size() == 0) {
-        //m_bigain = (m_beamInfo->calibMode() == 1); // true if bi-gain run
-        // For the time being, we fill both high and low gain plots, as it was requiered by Tomas
-        m_bigain = true;
-        m_nSamples = (*digitsItr)->NtimeSamples(); // number of samples
-//        bookHists(ros,drawer);
+      adc_id = tileDigits->adc_HWID();
+      int chan = m_tileHWID->channel(adc_id);
+      int gain = (m_bigain) ? m_tileHWID->adc(adc_id) : 0; // ignore gain in monogain run
+      
+      std::vector<float> vdigits = tileDigits->samples();
+      
+      double meansamp = 0.0;
+      double rmssamp = 0.0;
+      unsigned int dsize = vdigits.size();
+      if (dsize > 16) {
+        ATH_MSG_ERROR("length of digits vector " << dsize << " - greater than 16 !");
+        dsize = 16;
       }
-
-      std::vector<uint32_t> headerVec = (*collItr)->getFragChipHeaderWords();
-
-      int headsize = headerVec.size();
-      //if (headsize > 16 ) {
-      //   log << MSG::ERROR << "legth of BCID vector " << headsize << " - greater than 16 !" << endreq;
-      //   headsize = 16;
-      //}
-
-      double mean_tmp[48][2][16];
-      memset(mean_tmp, 0, sizeof(mean_tmp));
-
-      double charge = (m_cispar[6] * m_cispar[7] * 2. * 4.096) / 1023.;
-
-      for (; digitsItr != lastDigits; ++digitsItr) {
-
-        adc_id = (*digitsItr)->adc_HWID();
-        int chan = m_tileHWID->channel(adc_id);
-        int gain = (m_bigain) ? m_tileHWID->adc(adc_id) : 0; // ignore gain in monogain run
-
-        std::vector<float> vdigits = (*digitsItr)->samples();
-
-        double meansamp = 0.0;
-        double rmssamp = 0.0;
-        unsigned int dsize = vdigits.size();
-        if (dsize > 16) {
-          ATH_MSG_ERROR("length of digits vector " << dsize << " - greater than 16 !");
-          dsize = 16;
-        }
-        //std::cout << "m_runType= "<< m_runType << "\n";
-        for (unsigned int i = 0; i < dsize; ++i) {
-          double dig = vdigits[i];
-          meansamp += dig;
-          rmssamp += dig * dig;
-          mean_tmp[chan][gain][i] = dig;
-
-          if (!m_corrup[ros][drawer][gain][chan / 3]) {
-            if (m_runType != CisRun) {
-              m_histP[ros][drawer][chan][gain][0]->Fill(i + 0.1, dig, 1.0);
-              m_hist1[ros][drawer][chan][gain][2]->Fill(dig, 1.0);
-            }
-
-            else if (m_cispar[6] > 0. && (dig > 0 || gain < 1 || charge < 12.)) { //LF If CIS run, Protection to avoid zero amplitudes due to 0 injected charge
-              m_histP[ros][drawer][chan][gain][0]->Fill(i + 0.1, dig, 1.0);
-              m_hist1[ros][drawer][chan][gain][2]->Fill(dig, 1.0);
-            }
-
-            if (gain == 1 && dig > 1022.5) // overflow in high gain, find charge is it
+      //std::cout << "m_runType= "<< m_runType << "\n";
+      for (unsigned int i = 0; i < dsize; ++i) {
+        double dig = vdigits[i];
+        meansamp += dig;
+        rmssamp += dig * dig;
+        mean_tmp[chan][gain][i] = dig;
+        
+        if (!m_corrup[ros][drawer][gain][chan / 3]) {
+          if (m_runType != CisRun) {
+            m_histP[ros][drawer][chan][gain][0]->Fill(i + 0.1, dig, 1.0);
+            m_hist1[ros][drawer][chan][gain][2]->Fill(dig, 1.0);
+          } else if (m_cispar[6] > 0. && (dig > 0 || gain < 1 || charge < 12.)) { //LF If CIS run, Protection to avoid zero amplitudes due to 0 injected charge
+            m_histP[ros][drawer][chan][gain][0]->Fill(i + 0.1, dig, 1.0);
+            m_hist1[ros][drawer][chan][gain][2]->Fill(dig, 1.0);
+          }
+          
+          if (gain == 1 && dig > 1022.5) // overflow in high gain, find charge is it
             m_outInHighGain[0]->Fill(charge);
-          }
         }
-        if (dsize > 0 && !m_corrup[ros][drawer][gain][chan / 3]) {
-          double ped = vdigits[0];
-          m_hist1[ros][drawer][chan][gain][0]->Fill(ped, 1.0);
-          m_sumPed1[ros][drawer][chan][gain] += ped;
-          m_sumPed2[ros][drawer][chan][gain] += ped * ped;
-          //if ( (chan==23)&&(ros==1)&&(drawer==18)&&(gain==0)) {
-          //std::cout << "ped=" << ped << "\tm_sumPed1=" << m_sumPed1[ros][drawer][chan][gain] << "\n";
-          //std::cout << "ped^2=" << ped*ped << "\tm_sumPed2=" << m_sumPed2[ros][drawer][chan][gain] << "\n";
-          //}
-          if (dsize > 1) {
-            meansamp /= dsize;
-            rmssamp = rmssamp / dsize - meansamp * meansamp;
-            rmssamp = (rmssamp > 0.0) ? sqrt(rmssamp * dsize / (dsize - 1)) : 0.0;
-            m_hist1[ros][drawer][chan][gain][1]->Fill(rmssamp, 1.0);
-            m_sumRms1[ros][drawer][chan][gain] += rmssamp;
-            m_sumRms2[ros][drawer][chan][gain] += rmssamp * rmssamp;
-          }
-        }
-      } // digits
+      }
 
+      if (dsize > 0 && !m_corrup[ros][drawer][gain][chan / 3]) {
+        double ped = vdigits[0];
+        m_hist1[ros][drawer][chan][gain][0]->Fill(ped, 1.0);
+        m_sumPed1[ros][drawer][chan][gain] += ped;
+        m_sumPed2[ros][drawer][chan][gain] += ped * ped;
+        //if ( (chan==23)&&(ros==1)&&(drawer==18)&&(gain==0)) {
+        //std::cout << "ped=" << ped << "\tm_sumPed1=" << m_sumPed1[ros][drawer][chan][gain] << "\n";
+        //std::cout << "ped^2=" << ped*ped << "\tm_sumPed2=" << m_sumPed2[ros][drawer][chan][gain] << "\n";
+        //}
+        if (dsize > 1) {
+          meansamp /= dsize;
+          rmssamp = rmssamp / dsize - meansamp * meansamp;
+          rmssamp = (rmssamp > 0.0) ? sqrt(rmssamp * dsize / (dsize - 1)) : 0.0;
+          m_hist1[ros][drawer][chan][gain][1]->Fill(rmssamp, 1.0);
+          m_sumRms1[ros][drawer][chan][gain] += rmssamp;
+          m_sumRms2[ros][drawer][chan][gain] += rmssamp * rmssamp;
+        }
+      }
+    } // digits
+    
       //For cor&cov
-      for (int sample = 0; sample < m_nSamples; ++sample) {
-        for (int gain = 0; gain < 2; ++gain) {
-          for (int ch_i = 0; ch_i < 48; ++ch_i) {
-            m_meanAmp[ros][drawer][gain][ch_i] += mean_tmp[ch_i][gain][sample];
-            for (int ch_j = 0; ch_j < 48; ++ch_j)
-              m_meanAmp_ij[ros][drawer][gain][ch_i][ch_j] += mean_tmp[ch_i][gain][sample] * mean_tmp[ch_j][gain][sample];
-          }
+    for (int sample = 0; sample < m_nSamples; ++sample) {
+      for (int gain = 0; gain < 2; ++gain) {
+        for (int ch_i = 0; ch_i < 48; ++ch_i) {
+          m_meanAmp[ros][drawer][gain][ch_i] += mean_tmp[ch_i][gain][sample];
+          for (int ch_j = 0; ch_j < 48; ++ch_j)
+            m_meanAmp_ij[ros][drawer][gain][ch_i][ch_j] += mean_tmp[ch_i][gain][sample] * mean_tmp[ch_j][gain][sample];
         }
       }
-
-      // BCID
-      uint32_t bcid = (*collItr)->getRODBCID();
-      //std::vector<uint32_t> headerVec=(*collItr)->getFragChipHeaderWords();
-      //int headsize=headerVec.size(); 
-      //if (headsize > 16 ) {
-      //  log << MSG::ERROR << "length of BCID vector " << headsize << " - greater than 16 !" << endreq;
-      //  headsize = 16;
-      //}
-//         if(bcid==0)
-//	   bcid=0xDEC;
-
-      for (int ch = 0; ch < headsize; ++ch) {
-        uint32_t bcid_ch = (headerVec[ch] & 0xFFF);
-        m_hist1[ros][drawer][ch][0][3]->Fill(bcid_ch, 1.0);
-        if ((bcid_ch == bcid) || (bcid_ch == bcid - 1)) 	// Conservative condition to be consistent with both run before Feb07 and
-          m_hist1[ros][drawer][ch][0][4]->Fill(1.0, 1.0);  	// runs after Feb07. Introducing a RunNum variable it could be more strict.
-        else if ((bcid == 0) && ((bcid_ch == 3563) || (bcid_ch == 3564)))	// if bcid==0 then bcid_ch should be 3563 (0xDEB)
-          m_hist1[ros][drawer][ch][0][4]->Fill(1.0, 1.0);			// but sometimes 3564 (0xDEC) is observed.
-//        if (bcid_ch == bcid) 				// Now allow only exact bcid: ROD BCID = DMU BCID+1
-//          m_hist1[ros][drawer][ch][0][4]->Fill(1.0,1.0);  	// 	Apr 2013
-//        else if (bcid_ch == 0)
-//          m_hist1[ros][drawer][ch][0][4]->Fill(0.0,1.0);
-//        else 
-//          m_hist1[ros][drawer][ch][0][4]->Fill(2.0,1.0);
+    }
+    
+    // BCID
+    uint32_t bcid = digitsCollection->getRODBCID();
+    
+    for (int ch = 0; ch < headsize; ++ch) {
+      uint32_t bcid_ch = (headerVec[ch] & 0xFFF);
+      m_hist1[ros][drawer][ch][0][3]->Fill(bcid_ch, 1.0);
+      if ((bcid_ch == bcid) || (bcid_ch == bcid - 1)) 	// Conservative condition to be consistent with both run before Feb07 and
+        m_hist1[ros][drawer][ch][0][4]->Fill(1.0, 1.0);  	// runs after Feb07. Introducing a RunNum variable it could be more strict.
+      else if ((bcid == 0) && ((bcid_ch == 3563) || (bcid_ch == 3564)))	// if bcid==0 then bcid_ch should be 3563 (0xDEB)
+        m_hist1[ros][drawer][ch][0][4]->Fill(1.0, 1.0);			// but sometimes 3564 (0xDEC) is observed.
+      //        if (bcid_ch == bcid) 				// Now allow only exact bcid: ROD BCID = DMU BCID+1
+      //          m_hist1[ros][drawer][ch][0][4]->Fill(1.0,1.0);  	// 	Apr 2013
+      //        else if (bcid_ch == 0)
+      //          m_hist1[ros][drawer][ch][0][4]->Fill(0.0,1.0);
+      //        else 
+      //          m_hist1[ros][drawer][ch][0][4]->Fill(2.0,1.0);
+    }
+    
+    //DMUheaderCheck(&headerVec,headsize,ros,drawer,0); 
+    
+    if ((m_bigain) && ((digitsCollection->getFragChipHeaderWordsHigh()).size() > 0)) {// LF we need to avoid that headsize is set to zero in monogain runs
+      
+      headerVec = digitsCollection->getFragChipHeaderWordsHigh();
+      headsize = headerVec.size();
+      if (headsize > 16) {
+        ATH_MSG_ERROR("length of BCIDhigh vector " << headsize << " - greater than 16 !");
+        headsize = 16;
       }
-
-      //DMUheaderCheck(&headerVec,headsize,ros,drawer,0); 
-
-      if ((m_bigain) && (((*collItr)->getFragChipHeaderWordsHigh()).size() > 0)) {// LF we need to avoid that headsize is set to zero in monogain runs
-
-        headerVec = (*collItr)->getFragChipHeaderWordsHigh();
-        headsize = headerVec.size();
-        if (headsize > 16) {
-          ATH_MSG_ERROR("length of BCIDhigh vector " << headsize << " - greater than 16 !");
-          headsize = 16;
-        }
-      }
-      // if monogain run with m_bigain==1, we fill the BCID plots we the same info
-      for (int ch = 0; ch < headsize; ++ch) {
-        uint32_t bcid_ch = (headerVec[ch] & 0xFFF);
-        m_hist1[ros][drawer][ch][1][3]->Fill(bcid_ch, 1.0);
-        if ((bcid_ch == bcid) || (bcid_ch == bcid - 1))  		// BCID from TileDMU should match BCID from ROD header or
-          m_hist1[ros][drawer][ch][1][4]->Fill(1.0, 1.0);        		// bcid-1 for runs after Feb07.
-        else if ((bcid == 0) && ((bcid_ch == 3563) || (bcid_ch == 3564)))	// if bcid==0 then bcid_ch should be 3563 (0xDEB)
-          m_hist1[ros][drawer][ch][1][4]->Fill(1.0, 1.0);			// but sometimes 3564 (0xDEC) is observed.
-//        if (bcid_ch == bcid) 				// Now allow only exact bcid
-//          m_hist1[ros][drawer][ch][0][4]->Fill(1.0,1.0);  	// 	Apr 2013
-//	  else if (bcid_ch == 0)
-//	    m_hist1[ros][drawer][ch][1][4]->Fill(0.0,1.0);
-//	  else
-//	    m_hist1[ros][drawer][ch][1][4]->Fill(2.0,1.0);
-      }
-
-      //DMUheaderCheck(&headerVec,headsize,ros,drawer,1);
-
-      if (m_beamInfo->calibMode() == 1) {
-        // global and DMU CRC check
-        uint32_t crc32 = (*collItr)->getFragCRC();
-        uint32_t CRCmask = (*collItr)->getFragDMUMask();
-
-        CRCcheck(crc32, CRCmask, headsize, ros, drawer);
-      }
-    } //check if Digits in module
-
+    }
+    // if monogain run with m_bigain==1, we fill the BCID plots we the same info
+    for (int ch = 0; ch < headsize; ++ch) {
+      uint32_t bcid_ch = (headerVec[ch] & 0xFFF);
+      m_hist1[ros][drawer][ch][1][3]->Fill(bcid_ch, 1.0);
+      if ((bcid_ch == bcid) || (bcid_ch == bcid - 1))  		// BCID from TileDMU should match BCID from ROD header or
+        m_hist1[ros][drawer][ch][1][4]->Fill(1.0, 1.0);        		// bcid-1 for runs after Feb07.
+      else if ((bcid == 0) && ((bcid_ch == 3563) || (bcid_ch == 3564)))	// if bcid==0 then bcid_ch should be 3563 (0xDEB)
+        m_hist1[ros][drawer][ch][1][4]->Fill(1.0, 1.0);			// but sometimes 3564 (0xDEC) is observed.
+      //        if (bcid_ch == bcid) 				// Now allow only exact bcid
+      //          m_hist1[ros][drawer][ch][0][4]->Fill(1.0,1.0);  	// 	Apr 2013
+      //	  else if (bcid_ch == 0)
+      //	    m_hist1[ros][drawer][ch][1][4]->Fill(0.0,1.0);
+      //	  else
+      //	    m_hist1[ros][drawer][ch][1][4]->Fill(2.0,1.0);
+    }
+    
+    //DMUheaderCheck(&headerVec,headsize,ros,drawer,1);
+    
+    if (m_beamInfo->calibMode() == 1) {
+      // global and DMU CRC check
+      uint32_t crc32 = digitsCollection->getFragCRC();
+      uint32_t CRCmask = digitsCollection->getFragDMUMask();
+      
+      CRCcheck(crc32, CRCmask, headsize, ros, drawer);
+    }
   } //loop over drawers
   // 
+ 
   if (m_beamInfo->calibMode() == 0) {
     if (RODCRCcalc().isFailure()) ATH_MSG_WARNING("Not possible to check CRC from ROD");
-
   }
-
+  
   return StatusCode::SUCCESS;
 }
 
@@ -538,8 +523,13 @@ StatusCode TileDigitsMonTool::finalHists()
 
   const char *part[5] = { "AUX", "LBA", "LBC", "EBA", "EBC" };
   const char *gain[6] = { "_lo", "_hi", "", " low gain", " high gain", "" };
-  const char *HistName[8] = { "_ped", "_rms_lfr", "_rms_hfr", "_bits", " Pedestal[0]", " RMS noise low frequency", " RMS noise high frequency",
-      " Stuck bits and zero amp" };
+
+  std::string pedestalTitile(" Pedestal[0]");
+  if (m_fillPedestalDifference) pedestalTitile += " - pedestal from DB";
+
+  const char *HistName[8] = { "_ped", "_rms_lfr", "_rms_hfr", "_bits"
+                              , pedestalTitile.c_str(), " RMS noise low frequency", " RMS noise high frequency", " Stuck bits and zero amp" };
+
   const char *ErrName[4] = { "_bcid", "_crc", " BCID errors", " CRC errors" };
   const char *HistName2[4] = { "_covar", "_corr", " covariance", " correlation" };
 
@@ -548,13 +538,13 @@ StatusCode TileDigitsMonTool::finalHists()
   int mingain = (m_bigain) ? 0 : 2;
   int maxgain = (m_bigain) ? 2 : 3;
 
-  for (int ros = 1; ros < 5; ++ros) {
-    for (int drawer = 0; drawer < 64; ++drawer) {
+  for (unsigned int ros = 1; ros < TileCalibUtils::MAX_ROS; ++ros) {
+    for (unsigned int drawer = 0; drawer < TileCalibUtils::MAX_DRAWER ; ++drawer) {
       if (m_hist1[ros][drawer][0][0].size() != 0) {
+        unsigned int drawerIdx = TileCalibUtils::getDrawerIdx(ros, drawer);
 
         std::ostringstream sStr;
-        sStr << part[ros] << std::setfill('0') << std::setw(2) << drawer + 1 << std::setfill(' ');
-        std::string moduleName = sStr.str();
+        std::string moduleName = TileCalibUtils::getDrawerString(ros, drawer);
         std::string subDir = "Summary";
         std::string histName, histTitle;
 
@@ -571,6 +561,7 @@ StatusCode TileDigitsMonTool::finalHists()
             histTitle = sStr.str();
             m_final_hist1[ros][drawer][adc].push_back(book1F(subDir, histName, histTitle, 48, 0.0, 48.0));
           }
+
           // stuck bits and saturations / 0s
           sStr.str("");
           sStr << moduleName << gain[gn] << "_stucks";
@@ -588,13 +579,15 @@ StatusCode TileDigitsMonTool::finalHists()
           m_final_hist_stucks[ros][drawer][adc]->GetYaxis()->SetBinLabel(7, "Some 1023");
           m_final_hist_stucks[ros][drawer][adc]->GetYaxis()->SetBinLabel(8, "All 1023");
 
-          for (int ch = 0; ch < 48; ++ch) {
+          for (unsigned int channel = 0; channel < TileCalibUtils::MAX_CHAN; ++channel) {
 
-            //            int pmt = abs(m_cabling->channel2hole(ros,ch));
+            //            int pmt = abs(m_cabling->channel2hole(ros,channel));
 
             double Ped = 0.0, PedRMS = 0.0, RMSHi = 0.0;
 
-            int nevents = int(m_hist1[ros][drawer][ch][adc][0]->GetEntries()); //ROOT GetEntries return a Double_t.
+            int nevents = int(m_hist1[ros][drawer][channel][adc][0]->GetEntries()); //ROOT GetEntries return a Double_t.
+            bool fillPedAndRms = (nevents > 0);
+
             if ((nevents != 0) && (nevents != m_nEvents)) {
               /// LF: when we have a monogain run, like Laser, it might happen
               /// that occasionally some entries have not the expected gain.
@@ -608,7 +601,7 @@ StatusCode TileDigitsMonTool::finalHists()
               /// I use the latter for calculation porpouse. I could even use
               /// the histogram mean and RMS, but it is not necessary and I
               /// avoid problems in case of overflows.
-              ATH_MSG_VERBOSE( "Number of entries in histo " << m_hist1[ros][drawer][ch][adc][0]->GetTitle()
+              ATH_MSG_VERBOSE( "Number of entries in histo " << m_hist1[ros][drawer][channel][adc][0]->GetTitle()
                               << " doesnt match n. of events! Using the first one in mean and RMS calculation" );
 
               ATH_MSG_VERBOSE( "Number of entries in histo =" << nevents << "\tNumber of events= " << m_nEvents );
@@ -617,32 +610,47 @@ StatusCode TileDigitsMonTool::finalHists()
               nevents = m_nEvents;
             }
 
-            if (nevents > 0) {
-              Ped = m_sumPed1[ros][drawer][ch][adc] / nevents;
-              RMSHi = m_sumRms1[ros][drawer][ch][adc] / nevents;
+            if (fillPedAndRms) {
 
-              if (nevents > 1) {
-                PedRMS = m_sumPed2[ros][drawer][ch][adc] / nevents - Ped * Ped;
-                PedRMS = (PedRMS > 0.0) ? sqrt(PedRMS * nevents / (nevents - 1)) : 0.0;
+              if (nevents > 0) {
+                Ped = m_sumPed1[ros][drawer][channel][adc] / nevents;
+                RMSHi = m_sumRms1[ros][drawer][channel][adc] / nevents;
+                
+                if (nevents > 1) {
+                  PedRMS = m_sumPed2[ros][drawer][channel][adc] / nevents - Ped * Ped;
+                  PedRMS = (PedRMS > 0.0) ? sqrt(PedRMS * nevents / (nevents - 1)) : 0.0;
+                }
               }
+              
+              //	    if ( (pmt==24)&&(ros==1)&&(drawer==18)&&(adc==0)) {
+              //std::cout << "Evt = " << m_nEvents << "\t channel=" << channel << "  pmt=" << pmt << "\n";
+              //std::cout << "Ped = " << Ped << "\n";
+              //std::cout << "E(x^2) = " << m_sumPed2[ros][drawer][channel][adc] << "\n";
+              //std::cout << "PedRMS = " << PedRMS << "\n";
+              
+              //}
+              
+              if (m_fillPedestalDifference) {
+
+                if (!isDisconnected(ros, drawer, channel)) {
+                  m_final_hist1[ros][drawer][adc][0]->SetBinContent(channel + 1, Ped - m_tileToolNoiseSample->getPed(drawerIdx, channel, adc));
+                  m_final_hist1[ros][drawer][adc][0]->SetBinError(channel + 1, PedRMS);
+                }
+
+              } else {
+                m_final_hist1[ros][drawer][adc][0]->SetBinContent(channel + 1, Ped);
+                m_final_hist1[ros][drawer][adc][0]->SetBinError(channel + 1, PedRMS);
+              }
+              
+              m_final_hist1[ros][drawer][adc][1]->SetBinContent(channel + 1, PedRMS);
+              m_final_hist1[ros][drawer][adc][2]->SetBinContent(channel + 1, RMSHi);
+              
             }
 
-            //	    if ( (pmt==24)&&(ros==1)&&(drawer==18)&&(adc==0)) {
-            //std::cout << "Evt = " << m_nEvents << "\t ch=" << ch << "  pmt=" << pmt << "\n";
-            //std::cout << "Ped = " << Ped << "\n";
-            //std::cout << "E(x^2) = " << m_sumPed2[ros][drawer][ch][adc] << "\n";
-            //std::cout << "PedRMS = " << PedRMS << "\n";
-
-            //}
-
-            m_final_hist1[ros][drawer][adc][0]->SetBinContent(ch + 1, Ped);
-            m_final_hist1[ros][drawer][adc][1]->SetBinContent(ch + 1, PedRMS);
-            m_final_hist1[ros][drawer][adc][2]->SetBinContent(ch + 1, RMSHi);
-
             // For tests
-            //stuckBits_maker(m_hist1[ros][drawer][ch][adc][2]);
+            //stuckBits_maker(m_hist1[ros][drawer][channel][adc][2]);
 
-            TH1S * hist = m_hist1[ros][drawer][ch][adc][2];
+            TH1S * hist = m_hist1[ros][drawer][channel][adc][2];
             double weight = 0.0;
             for (int i = 2; i < 1025; ++i) { // first bin is excluded
               weight += hist->GetBinContent(i);
@@ -660,8 +668,8 @@ StatusCode TileDigitsMonTool::finalHists()
                 weight += 1.0; // some stuck bits
               }
             }
-            m_final_hist1[ros][drawer][adc][3]->SetBinContent(ch + 1, weight);
-            stuckBits_Amp2(hist, adc, m_final_hist_stucks[ros][drawer][adc], ch);
+            m_final_hist1[ros][drawer][adc][3]->SetBinContent(channel + 1, weight);
+            stuckBits_Amp2(hist, adc, m_final_hist_stucks[ros][drawer][adc], channel);
           } // end of loop over channels
 
           // BCID
@@ -879,7 +887,7 @@ void TileDigitsMonTool::drawHists(int ros, int drawer, std::string moduleName)
 /*---------------------------------------------------------*/
 {
 
-  ATH_MSG_INFO("in drawHists()");
+  ATH_MSG_VERBOSE("in drawHists()");
 
   int maxgain = (m_bigain) ? 2 : 1;
   double ms = (m_bigain) ? 0.75 : 1.0; // marker size
@@ -914,6 +922,10 @@ void TileDigitsMonTool::drawHists(int ros, int drawer, std::string moduleName)
   double miny[12] = { 20.0, 20.0, 0.0, 0.0, 0.0, 0.0, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1 };
   double maxy[12] = { 80.0, 80.0, 1.5, 3.0, 1.5, 3.0, 2.2, 2.2, 2.2, 2.2, 3.2, 2.2 };
   //                   ?  ,  ?  , ?  , ?  , ?  , ?  ,  ?  ,  ? , BC hi,BC lo, CRC ,  ?
+  if (m_fillPedestalDifference) {
+    miny[0] = miny[1] = -5.0;
+    maxy[0] = maxy[1] = 5.0;
+  }
 
   TText *t = new TText();
   t->SetTextAlign(32);
@@ -1318,6 +1330,9 @@ int TileDigitsMonTool::stuckBits_Amp(TH1S * hist, int /*adc*/) {
 
 /* version 2. */
 int TileDigitsMonTool::stuckBits_Amp2(TH1S * hist, int /*adc*/, TH2C *outhist, int ch) {
+
+  if (hist->GetEntries() < 1000)  return 0; /* too few events (1000 / N_samples) in histogram, ignore */
+
   int i, b, c, cc = 0; /* bin counter, but position, bin content */
   double cont;
   int last_non0, first_non0 = -1;
@@ -1437,67 +1452,6 @@ int TileDigitsMonTool::stuckBits_Amp2(TH1S * hist, int /*adc*/, TH2C *outhist, i
   return is_stack;
 }
 
-/* Old Function removed
- int TileDigitsMonTool::stuckBits_Amp(TH1S * hist, int adc)
- {
-
- // This method tries to find stuck bits looking at holes in the amplitude
- //distribution for a given channel. It starts from the first no zero channel
- //and it arrives up t othe last no zero channel
- int MinBin = 1;
- for ( ; MinBin < 1025; ++MinBin) {
- if (hist->GetBinContent(MinBin) > 0) {
- break;
- }
- }
- if (MinBin == 1025) return 0; // empty histogram, nothing to do
-
- int MaxBin = 1024;
- int nMaxBin =1024; // we use the second no empty bin, becasue to avoid that
- // an isolated bin at the end of the spectrum triggers a stuckbit
- for ( ; nMaxBin > 0; --nMaxBin) {
- if (hist->GetBinContent(nMaxBin) > 0) {
- if (MaxBin<1024) {
- break;
- }
- else {
- MaxBin=nMaxBin;
- }
- }
- }
-
- std::vector<int> empty_chan;
- for ( int bin=MinBin+1;bin<nMaxBin;++bin) {
- if ( hist->GetBinContent(bin)==0 ) {
- empty_chan.push_back(bin);
- }
- }
-
- // This is *VERY CRUDE*, but if a bit is stuck, then we should have a significant fraction of empty channels
-
- if (adc==0) {
-
- return 0; // we have to find a better way to spot stuck bits in LG. It doesn't work if n. events gets too high.
- //if  ( (m_nEvents>0)&&(empty_chan.size()>(4800./sqrt(m_nEvents))) ) { // in LG, high bins are less populated,
- // threshold is higher than HG
- //  return 1;
- //}
- //else {
- //  return 0;
- //}
- }
-
- else {
- if  ( (m_nEvents>0)&&(empty_chan.size()>(4800./sqrt(m_nEvents))) )  { // in HG, high bins are more populated
- // threshold is higher than LG
- return 1;
- }
- else {
- return 0;
- }
- }
-
- } */
 
 void TileDigitsMonTool::CRCcheck(uint32_t crc32, uint32_t crcMask, int headsize, int ros, int drawer) {
   //! Author: Luca. F. November 06
@@ -1623,43 +1577,9 @@ void TileDigitsMonTool::CRCcheck(uint32_t crc32, uint32_t crcMask, int headsize,
 ///                     11 - Not used
 /// g	-	High/low gain. Indicates high(1) or low(0) amplification from the 3-in-1 cards.
 /// b	-	Bunch Crossing.
-/*---------------------------------------------------------*/
-//void TileDigitsMonTool::DMUheaderCheck(std::vector<uint32_t>* headerVec,int headsize,int ros,int drawer,int gain)
-/*---------------------------------------------------------*/
-//{
-// for (int ch=0; ch<headsize;ch++) {
-//  bool err=false;
-//   if ( DMUheaderFormatCheck( (*headerVec)[ch] ) ) {
-//     m_hist2[ros][drawer][gain][0]->Fill(ch+0.5,1.,1.);
-//     err=true;
-//     continue;
-//   }
-//   if ( DMUheaderParityCheck( (*headerVec)[ch] ) ) {
-//     m_hist2[ros][drawer][gain][0]->Fill(ch+0.5,2.,1.);
-//     err=true;
-//     continue;
-//   }
-//   if ( ( (*headerVec)[ch] >> 25 ) & 0x1 ) {
-// Memory Parity Error
-//     m_hist2[ros][drawer][gain][0]->Fill(ch+0.5,3.,1.);
-//     err=true;
-//   }
-//   if ( ( (*headerVec)[ch] >> 24 ) & 0x1 ) {
-//     // Single Strobe Error
-//     m_hist2[ros][drawer][gain][0]->Fill(ch+0.5,4.,1.);
-//     err=true;
-//   }
-//   if ( ( (*headerVec)[ch] >> 23 ) & 0x1 ) {
-// Double Strobe Error
-//     m_hist2[ros][drawer][gain][0]->Fill(ch+0.5,5.,1.);
-//     err=true;
-//   }
-//   if (!err)
-//     m_hist2[ros][drawer][gain][0]->Fill(ch+0.5,0.,1.);
-// }
-
 //}
-//New Method to check for header errors. Checks per channel and returns True for data corrupted, or False for data not corrupted. Old method with relevant description is just above. Most important difference is that this is now a function of channel, so it should be called once per channel.
+//New Method to check for header errors. Checks per channel and returns True for data corrupted, or False for data not corrupted.
+
 /*-------------------------------------------------------*/
 bool TileDigitsMonTool::DMUheaderCheck(std::vector<uint32_t>* headerVec, int ros, int drawer, int gain, int dmu)
 /*-------------------------------------------------------*/
@@ -1707,37 +1627,31 @@ StatusCode TileDigitsMonTool::RODCRCcalc() {
   //! Global CRC is taken also from the DQ Fragment. '0' means OK,
   //! '1' means mismatch.
 
-  const TileRawChannelContainer* RawChannelCnt;
-  CHECK(evtStore()->retrieve(RawChannelCnt, m_contNameDSP));
+  const TileRawChannelContainer* rawChannelContainer;
+  CHECK(evtStore()->retrieve(rawChannelContainer, m_contNameDSP));
 
-  TileRawChannelContainer::const_iterator collItr = RawChannelCnt->begin();
-  TileRawChannelContainer::const_iterator lastColl = RawChannelCnt->end();
+  for (const TileRawChannelCollection* rawChannelCollection : *rawChannelContainer) {
 
-  for (; collItr != lastColl; ++collItr) {
+    if (rawChannelCollection->empty()) continue;
 
-    TileRawChannelCollection::const_iterator chItr = (*collItr)->begin();
-    TileRawChannelCollection::const_iterator lastCh = (*collItr)->end();
+    HWIdentifier hwid = rawChannelCollection->front()->adc_HWID(); //take the first channel in the drawer
+    int ros = m_tileHWID->ros(hwid);  //take the ros and drawer from the first channel
+    int drawer = m_tileHWID->drawer(hwid);
+    
+    uint32_t crc32 = rawChannelCollection->getFragGlobalCRC() & 1;
+    
+    if (crc32 == 0) {
+      crc32 = 0xFFFFFFFF;
+    } else { // means OK CRC match
+      crc32 = 0xFFFF;
+    } //means NOT OK, CRC mismatch
 
-    if (chItr != lastCh) {
-
-      HWIdentifier hwid = (*chItr)->adc_HWID(); //take the first channel in the drawer
-      int ros = m_tileHWID->ros(hwid);  //take the ros and drawer from the first channel
-      int drawer = m_tileHWID->drawer(hwid);
-
-      uint32_t crc32 = (*collItr)->getFragGlobalCRC() & 1;
-
-      if (crc32 == 0) {
-        crc32 = 0xFFFFFFFF;
-      } // means OK CRC match
-      else {
-        crc32 = 0xFFFF;
-      } //means NOT OK, CRC mismatch
-      uint32_t CRCmask = (*collItr)->getFragRODChipMask();
-      CRCmask = CRCmask << 16; // ROD mask is stored in the 16 most significant bits ce
-      CRCmask += (*collItr)->getFragFEChipMask();
-
-      CRCcheck(crc32, CRCmask, 16, ros, drawer); //reuse the same funcion used for digits
-    }
+    uint32_t CRCmask = rawChannelCollection->getFragRODChipMask();
+    CRCmask = CRCmask << 16; // ROD mask is stored in the 16 most significant bits ce
+    CRCmask += rawChannelCollection->getFragFEChipMask();
+    
+    CRCcheck(crc32, CRCmask, 16, ros, drawer); //reuse the same funcion used for digits
+    
   }
 
   return StatusCode::SUCCESS;

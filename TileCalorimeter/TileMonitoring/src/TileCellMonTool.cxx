@@ -74,49 +74,33 @@ TileCellMonTool::TileCellMonTool(const std::string & type, const std::string & n
   
   m_path = "/Tile/Cell";
 
-  std::ostringstream ss;
-  std::string ebcell[48] = {"E3","E4","D4","D4","C10","C10","A12","A12","B11","B11","A13","A13",
-                            "E1","E2","B12","B12","D5","D5","E3*","E4*","A14","A14","B13","B13",
-                            "","","","","","","B14","A15","A15","","","B14",
-                            "B15","D6","D6","B15","A16","A16","","","","","",""};
-
-  std::string lbcell[48] = {"D0","A1","B1","B1","A1","A2","B2","B2","A2","A3","A3","B3",
-                            "B3","D1","D1","A4","B4","B4","A4","A5","A5","B5","B5","A6",
-                            "D2","D2","A6","B6","B6","A7","","","A7","B7","B7","A8",
-                            "A9","A9","A8","B8","B8","D3","B9","","D3","A10","A10","B9"};
-
-
   m_PartNames[PartEBA] = "EBA";
   m_PartNames[PartLBA] = "LBA";
   m_PartNames[PartLBC] = "LBC";
   m_PartNames[PartEBC] = "EBC";
 
-  for (int p = 0; p < NPartHisto; p++) {
-    for (int m = 1; m < 65; m++) {
-      ss.str("");
-      if (m % 2 == 1) {
-        ss << m_PartNames[p] << std::setfill('0') << std::setw(2) << m << std::setfill(' '); //EBA01, EBA03,...
-      } else {
-        ss.str(" ");
-      }
-      m_moduleLabel[p].push_back(ss.str());
+  std::vector<unsigned int> roses = {3, 1, 2, 4};
 
+  for (int part = 0; part < NumPart; ++part) {
+    for (unsigned int drawer = 0; drawer < TileCalibUtils::MAX_DRAWER; ++drawer) {
+      if (drawer % 2 == 1) m_moduleLabel[part].push_back(" ");
+      else m_moduleLabel[part].push_back(TileCalibUtils::getDrawerString(roses[part], drawer));
     }
 
-    for (int ch = 0; ch < 48; ch++) {
-      ss.str("");
-      if ((p < PartLBA) || (p > PartLBC))
-        ss << ebcell[ch];
-      else
-        ss << lbcell[ch];
-      if ((ss.str()).length() > 0) ss << "_";
-      ss << "ch" << ch; //D0_ch1, A1_ch2, .., ch44, ...
-      m_cellchLabel[p].push_back(ss.str());
+    for (unsigned int channel = 0; channel < TileCalibUtils::MAX_CHAN; ++channel) {
+      std::string cell_name = getCellName(roses[part], channel);
+      if (cell_name.empty()) cell_name += "ch";
+      else cell_name += "_ch";
+      m_cellchLabel[part].push_back(cell_name + std::to_string(channel));
     }
-    
 
-    
   }
+
+  for (unsigned int drawer = 0; drawer < TileCalibUtils::MAX_DRAWER; ++drawer) {
+    if (drawer % 2 == 1) m_moduleLabel[NumPart].push_back(" ");
+    else m_moduleLabel[NumPart].push_back((drawer < 10) ? std::string("0") + std::to_string(drawer + 1) : std::to_string(drawer + 1));  
+  }
+
   m_old_lumiblock= -1;
   m_isFirstEv = true;
 
@@ -213,7 +197,6 @@ StatusCode TileCellMonTool::bookHistTrigPart( int trig , int part ) {
                                                              120,-2000.,10000., run, ATTRIB_MANAGED,
                                                              "", "mergeRebinned") );
        m_TileCellEvEneSamp[part][ sample ][ element ]->GetXaxis()->SetTitle("Event Energy (MeV)");
-      //m_TileCellEvEneSamp[part][ sample ][ element ]->SetBit(TH1::kCanRebin);
     }
 
     if (sample != 3) { //Don't make Samp E 
@@ -236,12 +219,8 @@ StatusCode TileCellMonTool::bookHistTrigPart( int trig , int part ) {
   //END of the booking per sample
 
 
-
-
   if (m_doOnline) {
     
-
-
     m_TilenCellsLB[ part ].push_back( bookProfile(m_TrigNames[trig]+"/"+m_PartNames[part],"tilenCellsLB" + m_PartNames[part] + m_TrigNames[trig],
                                                   "Trigger "+m_TrigNames[trig]+": TileCal Cell number per LumiBlock",100, -99.5, 0.5) );
     m_TilenCellsLB[ part ][ element ]->GetXaxis()->SetTitle("Last LumiBlocks");
@@ -249,6 +228,7 @@ StatusCode TileCellMonTool::bookHistTrigPart( int trig , int part ) {
     for (int bin = 1; bin < 100; ++bin) {
       m_TilenCellsLB[ part ][ element ]->SetBinContent(bin, m_cellsInPartition[part]);
       m_TilenCellsLB[ part ][ element ]->SetBinEntries(bin, 1);
+      m_TilenCellsLB[ part ][ element ]->SetBinError(bin, 1.0001 * m_cellsInPartition[part]);
     }
     m_TilenCellsLB[ part ][ element ]->SetEntries(0);
 
@@ -263,8 +243,8 @@ StatusCode TileCellMonTool::bookHistTrigPart( int trig , int part ) {
   m_TileCellModuleCorr[ part ].push_back( book2F(m_TrigNames[trig]+"/"+m_PartNames[part],"tileCellModuleCorr" + m_PartNames[part] + m_TrigNames[trig],
                                                  "Run "+runNumStr+" Trigger "+m_TrigNames[trig]+": TileCal Cell Module correlation", 64, 0.5, 64.5, 64, 0.5, 64.5) );
 
-  m_TileCellModuleCorr[ part ][ element ]->GetXaxis()->SetTitle("cell Module");
-  m_TileCellModuleCorr[ part ][ element ]->GetYaxis()->SetTitle("cell Module");
+  // m_TileCellModuleCorr[ part ][ element ]->GetXaxis()->SetTitle("cell Module");
+  // m_TileCellModuleCorr[ part ][ element ]->GetYaxis()->SetTitle("cell Module");
 
   SetBinLabel(m_TileCellModuleCorr[ part ][ element ]->GetXaxis(), m_moduleLabel[part]);
   m_TileCellModuleCorr[ part ][ element ]->GetXaxis()->SetTitleOffset(1.55);
@@ -276,14 +256,12 @@ StatusCode TileCellMonTool::bookHistTrigPart( int trig , int part ) {
     m_TileCellEvEneTim[ part ].push_back( bookProfile(m_TrigNames[trig]+"/"+m_PartNames[part],"tileCellEvEneTim"+m_PartNames[part] + m_TrigNames[trig],"Run "+runNumStr+" Trigger "+m_TrigNames[trig]+": Partition "+m_PartNames[part]+": Event Energy as a function of the event number",25,0., 100.,-2000.,200000.,  run, ATTRIB_MANAGED, "", "mergeRebinned") );
     m_TileCellEvEneTim[ part ][ element ]->SetYTitle("Average Event Energy (MeV)");
     m_TileCellEvEneTim[ part ][ element ]->SetXTitle("Event Number");
-    //m_TileCellEvEneTim[ part ][ element ]->SetBit(TH1::kCanRebin);
   }
 
   if ( part != NumPart ){ //Don't Make allpart
     m_TileCellEvEneLumi[ part ].push_back( bookProfile(m_TrigNames[trig]+"/"+m_PartNames[part],"tileCellEvEneLumi"+m_PartNames[part] + m_TrigNames[trig],"Run "+runNumStr+" Trigger "+m_TrigNames[trig]+": Partition "+m_PartNames[part]+": Event Energy as a function of the LumiBlock",10,0., 20.,-5.e6,5.e6, run, ATTRIB_MANAGED, "", "mergeRebinned") );
     m_TileCellEvEneLumi[ part ][ element ]->SetYTitle("Average Event Energy (MeV)");
     m_TileCellEvEneLumi[ part ][ element ]->SetXTitle("LumiBlock");
-    //m_TileCellEvEneLumi[ part ][ element ]->SetBit(TH1::kCanRebin);
   }
 
 
@@ -525,23 +503,12 @@ void  TileCellMonTool::cleanHistVec() {
 
   memset(m_nEventsProcessed, 0, sizeof(m_nEventsProcessed));
 
-  //m_TileCellEtaPhiOvThr.clear() ;
-  //m_TileCellEtaOvThr.clear() ;
-  //m_TileCellPhiOvThr.clear() ;
-  //m_TileCellEneEtaPhi.clear() ;
-  //m_TileCellEneEta.clear() ;
-  //m_TileCellEnePhi.clear() ;
-
-  //m_TileCellOccModPart.clear() ;
-  //m_TileCellOccModPartOvThr.clear() ;
   m_TileCellEneBalModPart.clear() ;
   m_TileCellTimBalModPart.clear() ;
 
   m_TileCellTrig = 0;  
 
   m_TileCellSynch.clear() ;
-
-  //m_TileEventsPerBCID.clear();
 
   for (int part = 0; part < NPartHisto; part++) {
     m_TileCellDetailOccMapOvThr[part].clear();
@@ -550,26 +517,20 @@ void  TileCellMonTool::cleanHistVec() {
     m_TileCellDetailOccMapOvThr300GeV[part].clear();
     m_TileCellDetailOccMap[part].clear();
     m_TileCellEneDiffChanMod[part].clear();
- 
-   //m_TilenCells[part].clear() ;
+
     m_TilenCellsLB[part].clear() ;
     m_TileCellModuleCorr[part].clear() ;
-    //m_TileCellTime[part].clear() ;
-    //m_TileCellEnergy[part].clear() ;
-    //m_TileCellEnergyRebin[part].clear();
 
     if (part != NumPart) {m_TileCellEvEneTim[part].clear() ;} // Don't make AllPart
     if (part != NumPart) {m_TileCellEvEneLumi[part].clear() ;} // Don't make AllPart
-    //m_TileCellEvEneRebin[part].clear() ;
 
     m_TileCellOccOvThrBCID[part].clear(); //last element not used
-    //m_TileCellOccEneBCID[part].clear();
 
     for (int sample = 0; sample < TotalSamp; sample++) {
       if (sample != 3) {
         m_TileCellEneDiffSamp[part][sample].clear();
       } //Don't make samp E
-      //m_TileCellEneRatSamp[part][sample].clear() ;
+
       if (sample != 3) {
         m_TileCellTimeDiffSamp[part][sample].clear();
       } //Don't make samp E
@@ -583,17 +544,13 @@ void  TileCellMonTool::cleanHistVec() {
   for (int sample = 0; sample < TotalSamp; sample++) {
     m_TileCellEtaPhiOvThrSamp[sample].clear();
     m_TileCellEneEtaPhiSamp[sample].clear();
-    //m_TileCellOccModPartSamp[sample].clear();
-    //m_TileCellOccModPartOvThrSamp[sample].clear();
   }
 
-  //m_TileChanDetTime.clear();
   for (int part = 0; part < NumPart; part++) {
     m_TileChanPartTime[part].clear();
     m_TileDigiPartTime[part].clear();
-    //m_TileChanModTime[part].clear();
+
     for (int mod = 0; mod < 64; mod++) {
-      //m_TileChanChTime[part][mod].clear();
       m_TileDigiTimeLB[part][mod].clear();
       m_TileDigiEnergyLB[part][mod].clear();
     }
@@ -683,15 +640,13 @@ StatusCode TileCellMonTool::fillHistograms() {
 
   CaloCellContainer::const_iterator iCell = cell_container->begin();
   CaloCellContainer::const_iterator lastCell  = cell_container->end();
-  
-  for ( ; iCell != lastCell; ++iCell) {
+  for (const CaloCell* cell : *cell_container) {
 
-    const CaloCell* cell_ptr = *iCell;     // pointer to cell object
-    Identifier id = cell_ptr->ID();
+    Identifier id = cell->ID();
 
     if ( m_tileID->is_tile(id) ) {
 
-      const TileCell* tile_cell = dynamic_cast<const TileCell*>(cell_ptr);
+      const TileCell* tile_cell = dynamic_cast<const TileCell*>(cell);
       if (tile_cell == 0) continue;
 
       int drw = 0; // drawer number, range 0-63, the same for both channels
@@ -723,7 +678,7 @@ StatusCode TileCellMonTool::fillHistograms() {
       }
 
       // just to avoid potential problems with disconnected cells
-      if (partition >= NumPart) partition = getPartition(cell_ptr);
+      if (partition >= NumPart) partition = getPartition(cell);
       if (partition2 >= NumPart) partition2 = partition;
       
       // something is wrong - go to next cell
@@ -769,11 +724,11 @@ StatusCode TileCellMonTool::fillHistograms() {
 
 
       // get the cell energy, time and position info
-      double energy = cell_ptr->energy();
-      double time = cell_ptr->time();
-      // double quality = cell_ptr->quality();
-      double eta = cell_ptr->eta();
-      double phi = cell_ptr->phi();
+      double energy = cell->energy();
+      double time = cell->time();
+      // double quality = cell->quality();
+      double eta = cell->eta();
+      double phi = cell->phi();
       double ene1 = tile_cell->ene1();
       double ene2 = tile_cell->ene2();
       double ediff = (single_PMT) ? 0.0 : tile_cell->eneDiff();
@@ -878,11 +833,8 @@ StatusCode TileCellMonTool::fillHistograms() {
             && (time > -60.) && (time < 60.) && (time != 0)
             && (cell_isbad < 2)) {
 
-          m_muonCells.push_back(cell_ptr);
+          m_muonCells.push_back(cell);
         }
-    
-        //if (m_nEvents<2) 
-        //  if (cell_isbad>1) m_TileBadCell->Fill(partition);
     
         // check if at least 1 cell's pmt is good
         if (cell_isbad < 2) {
@@ -890,23 +842,10 @@ StatusCode TileCellMonTool::fillHistograms() {
           for (unsigned int i = 0; i < m_eventTrigs.size(); i++) {
             int vecInd = vecIndx(i);
     
-            //m_TileCellEnergy[ partition ][ vecInd ]->Fill(energy, 1.);
-            //m_TileCellEnergy[ NumPart   ][ vecInd ]->Fill(energy, 1.);
-              
-            //m_TileCellEnergyRebin[ partition ][ vecInd ]->Fill(energy, 1.);
-            //m_TileCellEnergyRebin[ NumPart   ][ vecInd ]->Fill(energy, 1.);
-              
-            //m_TileCellEneEta[ vecInd ]->Fill(eta, energy);
-            //m_TileCellEnePhi[ vecInd ]->Fill(phi, energy);
-            //m_TileCellEneEtaPhi[ vecInd ]->Fill(eta, phi, energy);
             m_TileCellEneEtaPhiSamp[ AllSamp ][ vecInd ]->Fill(eta, phi, energy);
-    
             m_TileCellEneEtaPhiSamp[  samp ][ vecInd ]->Fill(eta, phi, energy);
-            //m_TileCellOccModPartSamp[ samp ][ vecInd ]->Fill(module, fpartition, energy);
     
             // Fill occupancy histograms
-            //m_TileCellOccModPart[ vecInd ]->Fill(module, fpartition, energy);
-            //m_TileCellOccModPartSamp[ AllSamp ][ vecInd ]->Fill(module, fpartition, energy);
     
             if (ch1Ok) {
               m_TileCellDetailOccMap[ partition ][ vecInd ]->Fill(drawer, ch1, ene1 * weight);
@@ -933,31 +872,16 @@ StatusCode TileCellMonTool::fillHistograms() {
           for (unsigned int i=0; i<m_eventTrigs.size(); i++) {
             int vecInd = vecIndx(i);
     
-            //m_TileCellEtaPhiOvThr[ vecInd ]->Fill(eta, phi, 1.);
             m_TileCellEtaPhiOvThrSamp[AllSamp][ vecInd ]->Fill(eta, phi, 1.);
-            //m_TileCellEtaOvThr[ vecInd ]->Fill(eta, 1.);
-            //m_TileCellPhiOvThr[ vecInd ]->Fill(phi, 1.);
-    
             m_TileCellEtaPhiOvThrSamp[ samp ][ vecInd ]->Fill(eta, phi, 1.);
-            //m_TileCellOccModPartOvThrSamp[ samp ][ vecInd ]->Fill(module, fpartition, 1.);
-            
-            //if ((ene1 > m_ThresholdForTime || ene2 > m_ThresholdForTime) && 
-            //   eratio<0.2 && time!=0.0 && 
-            //   (m_iscoll || m_eventTrigs[i]==Trig_b7)) {//new cut-either pmt over threshold and ediff/ene<0.2 
-              // Here we don't take into account negative energies on purpose.
-              // Negative energies channels should be monitored independently
-              //m_TileCellTime[ partition ][ vecInd ]->Fill(time, 1.);
-            //}
     
             // Fill channel timing histograms.
             if (m_iscoll || m_eventTrigs[i]==Trig_b7 || m_fillTimeHistograms) {
     
               if (ch1Ok && ene1 > m_ThresholdForTime) {
-                //m_TileChanDetTime [ vecInd ]->Fill(t1,1.);
+
                 m_TileChanPartTime[ partition ][ vecInd ]->Fill(drawer, ch1, t1, 1.);
                 m_TileDigiPartTime[ partition ][ vecInd ]->Fill(drawer, ch2digi[ch1], t1, 1.);
-                //m_TileChanModTime [ partition ][ vecInd ]->Fill(drawer, t1, 1.);
-                //m_TileChanChTime  [ partition ][ drw ][ vecInd ]->Fill(ch1, t1, 1.);
 
                  if(m_doOnline) {
                   m_delta_lumiblock = current_lumiblock - m_OldLumiArray2[partition][drw][vecInd];
@@ -986,11 +910,9 @@ StatusCode TileCellMonTool::fillHistograms() {
               }
     
               if (ch2Ok && ene2 > m_ThresholdForTime) {
-                //m_TileChanDetTime [ vecInd ]->Fill(t2, 1.);
+
                 m_TileChanPartTime[ partition2 ][ vecInd ]->Fill(drawer, ch2, t2, 1.);
                 m_TileDigiPartTime[ partition2 ][ vecInd ]->Fill(drawer, ch2digi[ch2], t2, 1.);
-                //m_TileChanModTime [ partition2 ][ vecInd ]->Fill(drawer, t2, 1.);
-                //m_TileChanChTime  [ partition2 ][ drw ][ vecInd ]->Fill(ch2, t2, 1.);
 
                 if(m_doOnline) {
                   m_delta_lumiblock = current_lumiblock - m_OldLumiArray2[partition2][drw][vecInd];
@@ -1020,9 +942,6 @@ StatusCode TileCellMonTool::fillHistograms() {
             }
     
             // store the occupancy for number hits over threshold
-            //m_TileCellOccModPartOvThr[ vecInd ]->Fill(module, fpartition, 1.);// we fill only events in a precise energy region
-            //m_TileCellOccModPartOvThrSamp[ AllSamp ][ vecInd ]->Fill(module, fpartition, 1.);
-    
 
             if (ch1Ok && ene1 > m_Threshold && (!badch1)) {
           
@@ -1058,9 +977,9 @@ StatusCode TileCellMonTool::fillHistograms() {
             for (unsigned int i = 0; i < m_eventTrigs.size(); i++) {
               int vecInd = vecIndx(i);
               if (samp != 3 && fillEneAndTimeDiff){  //Don't make samp E
-                //m_TileCellEneRatSamp [ partition ][ samp ][ vecInd ]->Fill(eratio, 1.);
+
                 m_TileCellEneDiffSamp[ partition ][ samp ][ vecInd ]->Fill(ediff, 1.);
-                //m_TileCellEneRatSamp [ NumPart   ][ samp ][ vecInd ]->Fill(eratio, 1.);
+
                 m_TileCellEneDiffSamp[ NumPart   ][ samp ][ vecInd ]->Fill(ediff, 1.);
                 
                 if ((ene1 > m_ThresholdForTime
@@ -1092,11 +1011,10 @@ StatusCode TileCellMonTool::fillHistograms() {
                 if (fillEneAndTimeDiff) {
                   m_TileCellEneDiffSamp[ partition ][ AllSamp ][ vecInd ]->Fill(ediff, 1.);
                   // also store the energy ratio diff/energy
-                  //m_TileCellEneRatSamp [ partition ][ AllSamp ][ vecInd ]->Fill(eratio, 1.);
                   
                   m_TileCellEneDiffSamp[ NumPart ][ AllSamp ][ vecInd ]->Fill(ediff, 1.);
                   // also store the energy ratio diff/energy
-                  //m_TileCellEneRatSamp [ NumPart ][ AllSamp ][ vecInd ]->Fill(eratio, 1.);
+
                   if ((ene1 > m_ThresholdForTime || ene2 > m_ThresholdForTime)
                       && (m_iscoll || m_eventTrigs[i]==Trig_b7 || m_fillTimeHistograms)) {        
                     
@@ -1180,27 +1098,17 @@ StatusCode TileCellMonTool::fillHistograms() {
   // Fill BCID plots
   for (unsigned int i = 0; i < m_eventTrigs.size(); i++) {
     int vecInd = vecIndx(i);
-    //m_TileEventsPerBCID[ vecInd ]->Fill(bcid, 1.);
+
     for (int partition = 0; partition < NPartHisto; partition++) {
 
       float ene = eTileSamp[partition][AllSamp] - eTileSamp[partition][SampE];  //Total Energy in partition without E sample
-
       m_TileCellOccOvThrBCID[ partition ][ vecInd ]->Fill(bcid, cellcnt[partition]);
-      //m_TileCellOccEneBCID  [ partition ][ vecInd ]->Fill(bcid, ene);
 
       if (partition != NumPart) {m_TileCellEvEneTim    [ partition ][ vecInd ]->Fill(evtNum, ene);} //don't make AllPart 
       if (partition != NumPart) {m_TileCellEvEneLumi   [ partition ][ vecInd ]->Fill(lumi,   ene);} //don't make AllPart
-      //m_TileCellEvEneRebin  [ partition ][ vecInd ]->Fill(ene,    1.0);
 
-      //for (int samp=0; samp<AllSamp; samp++) {
-        m_TileCellEvEneSamp [ partition ][ 3 ][ vecInd ]->Fill(eTileSamp[partition][3], 1.0); //Changed samp to 3, only make Samp E
-     // }
+      m_TileCellEvEneSamp [ partition ][ 3 ][ vecInd ]->Fill(eTileSamp[partition][3], 1.0); //Changed samp to 3, only make Samp E
 
-      //if (partition != NumPart) { // sum over samples in one partition includes E sample
-      //  m_TileCellEvEneSamp [ partition ][ AllSamp ][ vecInd ]->Fill(eTileSamp[partition][AllSamp], 1.0);
-      //} else {  // sum over samples in whole TileCal exccludes E sample
-      //  m_TileCellEvEneSamp [ partition ][ AllSamp ][ vecInd ]->Fill(ene, 1.0);
-      //}
     }
   }
 
@@ -1244,6 +1152,7 @@ StatusCode TileCellMonTool::fillHistograms() {
           for (; bin < 100; ++bin) { // for online monitoring set rest (but not last) to true number of cells
             m_TilenCellsLB[ partition ][ vecInd ]->SetBinEntries(bin, 1.);
             m_TilenCellsLB[ partition ][ vecInd ]->SetBinContent(bin, m_cellsInPartition[partition]);
+            m_TilenCellsLB[ partition ][ vecInd ]->SetBinError(bin, 1.0001 * m_cellsInPartition[partition]);
           }
 
           // set last bin to zero
@@ -1477,7 +1386,6 @@ void TileCellMonTool::FirstEvInit() {
       m_TileCellStatFromDB[p][g] = book2S("", "tileCellStatfromDB_" + m_PartNames[p] + "_" + m_GainNames[g]
                                           , "Run " + runNumStr + " Partition " + m_PartNames[p] + " " + m_GainNames[g] + ": Cell channel status in DB"
                                           , 64, 0.5, 64.5, 48, -0.5, 47.5);
-      //m_TileCellStatFromDB[p][g]->SetXTitle("Module");      m_TileCellStatFromDB[p][g]->SetYTitle("Channel");
       SetBinLabel(m_TileCellStatFromDB[p][g]->GetYaxis(), m_cellchLabel[p]);
       SetBinLabel(m_TileCellStatFromDB[p][g]->GetXaxis(), m_moduleLabel[p]);
       // setting average bit for histogram, but apparently it doesn't work ... need to investigate

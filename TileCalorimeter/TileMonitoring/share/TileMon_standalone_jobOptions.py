@@ -74,6 +74,10 @@ if doTileCells:
                                   cellsContainerName = "AllCalo",
                                   histoPathBase      = "/Tile/Cell");
 
+    if (jobproperties.Beam.beamType() == 'singlebeam'):
+        TileCellMon.FillTimeHistograms = True
+        TileCellMon.energyThresholdForTime = 150.0
+
     ToolSvc += TileCellMon;
     ManagedAthenaTileMon.AthenaMonTools += [ TileCellMon ];
 
@@ -107,6 +111,7 @@ if doTileCells:
         from TileMonitoring.TileMonitoringConf import TileMuonFitMonTool
         TileMuonFitMon = TileMuonFitMonTool(name                = 'TileMuonFitMon',
                                             OutputLevel         = 3, 
+                                            UseLVL1             = False,
                                             histoPathBase       = "/Tile/MuonFit");
         ToolSvc += TileMuonFitMon;
         ManagedAthenaTileMon.AthenaMonTools += [ TileMuonFitMon ];

@@ -224,7 +224,7 @@ include("TileConditions/TileConditions_jobOptions.py")
 # set reconstruction flags and reconstruct data
 from TileRecUtils.TileRecFlags import jobproperties
 jobproperties.TileRecFlags.calibrateEnergy.set_Value_and_Lock(False)  # don't need pC in raw channels, keep ADC counts
-jobproperties.TileRecFlags.noiseFilter.set_Value_and_Lock(1)  # Enable noise filter tool
+jobproperties.TileRecFlags.noiseFilter.set_Value_and_Lock(TileNoiseFilter)  # Enable noise filter tool
 jobproperties.TileRecFlags.BestPhaseFromCOOL.set_Value_and_Lock(True)  # Use best phase from COOL
 include("TileRec/TileRec_jobOptions.py")
 

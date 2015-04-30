@@ -54,10 +54,10 @@ if doTileMonDQ:
 if doTileDigiNoiseMon:
     toolSvc += CfgMgr.TileDigiNoiseMonTool(name               = 'TileDigiNoiseMon'
                                            , OutputLevel        = WARNING
-                                           , runType            = 4 # pedestal maybe always should be...
                                            , bigain             = True
-                                           , TileRawChannelContainerDSP = "TileRawChannelCnt"
+                                           , TileDigitsContainer = "TileDigitsCnt"
                                            , histoPathBase = "/Tile/DigiNoise"
+                                           , FillEmptyFromDB = True
                                            , SummaryUpdateFrequency = TileNoiseUpdateFrequency );
 
     topSequence.TileNoiseMon.AthenaMonTools += [ toolSvc.TileDigiNoiseMon ];

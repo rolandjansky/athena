@@ -23,7 +23,7 @@ class TileDQstatus;
 class TileRawChannel;
 class TileRawChannelCollection;
 
-#define NERR 13
+#define NERR 15
 #define NCORRUPTED 13
 #define NDMU 16
 
@@ -93,42 +93,27 @@ class TileDQFragMonTool: public TileFatherMonTool {
     bool m_checkDCS;  //!< if false, do not use TileDCSSvc at all
 
     /* njunior@cern.ch */
-    const TileDQstatus* dqStatus;
+    const TileDQstatus* m_dqStatus;
     int m_UpdateCount;
     int m_UpdateCount_shadow[10];
-    int m_Update;
     int m_UpdateTotal;
-    // int m_dmu_map[16][3]; // not used
     uint32_t m_last_lb;
-    //bool m_UpFlag = false;
-    int globalErrCount[4][64]; //global CRC errors
+    int m_globalErrCount[4][64]; //global CRC errors
 
     /* njunior@cern.ch */
-    TH2I* hist_error[4][64];
-    TH2I* hist_error_shadow[4][64][10];
-    TH2I* hist_global[2];
-    //TH1I* hist_summary[4];
-    //TH1I* hist_BadDrawerBCID;
-    //TProfile* hist_BadDrawerBCID_lb;
-    //TH1I* hist_BadChanNeg[2];
-    //TProfile* hist_BadChanNeg_lb[2];
-    //TH1I* hist_BadDrawerJump;
-    //TProfile* hist_BadDrawerJump_lb;
-    TH2S* hist_BadChannelJump2D[4];
-    TH2S* hist_BadChannelNeg2D[4];
-    //TH1I* hist_BadDrawerBCID_nonmask;
-    //TProfile* hist_BadDrawerBCID_lb_nonmask;
-    //TH1I* hist_BadChanNeg_nonmask[2];
-    //TProfile* hist_BadChanNeg_lb_nonmask[2];
-    //TH1I* hist_BadDrawerJump_nonmask;
-    //TProfile* hist_BadDrawerJump_lb_nonmask;
-    TH2S* hist_BadChannelJump2D_nonmask[4];
-    TH2S* hist_BadChannelNeg2D_nonmask[4];
+    TH2I* m_hist_error[4][64];
+    TH2I* m_hist_error_shadow[4][64][10];
+    TH2I* m_hist_global[2];
+    TH2S* m_hist_BadChannelJump2D[4];
+    TH2S* m_hist_BadChannelNeg2D[4];
+
+    TH2S* m_hist_BadChannelJump2D_nonmask[4];
+    TH2S* m_hist_BadChannelNeg2D_nonmask[4];
     std::vector<std::string> m_ErrorsLabels, m_PartitionsLabels;
     std::vector<std::string> m_moduleLabel[NumPart]; // array of module names
     std::vector<std::string> m_cellchLabel[NumPart]; // array of cell-channels names
 
-    TProfile* hist_error_lb[4][64];
+    TProfile* m_hist_error_lb[4][64];
 
     /*---------------------------------------------------------*/
 

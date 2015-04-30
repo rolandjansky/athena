@@ -61,7 +61,6 @@ TileRawChannelNoiseMonTool::TileRawChannelNoiseMonTool(const std::string & type,
   , m_tileBadChanTool("TileBadChanTool")
   , m_tileToolEmscale("TileCondToolEmscale")
   , m_DQstatus(0)
-  , m_isFirstEv(true)
   , m_gain(1)
   , m_nEventsProcessed(0)
 /*---------------------------------------------------------*/
@@ -78,7 +77,7 @@ TileRawChannelNoiseMonTool::TileRawChannelNoiseMonTool(const std::string & type,
   // update frequency for the histograms that are filled in finalize step, essentially only the 2G fit results
   declareProperty("SummaryUpdateFrequency", m_summaryUpdateFrequency = 0);
 
-  declareProperty("TileRawChannelContainer", m_RawChannelContainer = "TileRawChannelOpt2"); //SG RC Container
+  declareProperty("TileRawChannelContainer", m_rawChannelContainerName = "TileRawChannelOpt2"); //SG RC Container
   declareProperty("TileCondToolEmscale", m_tileToolEmscale);
   declareProperty("Gain", m_gainName = "HG"); // gain to be processed
   declareProperty("TriggerTypes", m_triggerTypes);
@@ -96,14 +95,11 @@ TileRawChannelNoiseMonTool::~TileRawChannelNoiseMonTool() {
 StatusCode TileRawChannelNoiseMonTool::initialize() {
   /*---------------------------------------------------------*/
 
-  ATH_MSG_INFO("in initialize()");
+  ATH_MSG_INFO("in initialize() - m_path = " << m_path);
 
   CHECK(m_beamInfo.retrieve());
   //=== get TileBadChanTool
   CHECK(m_tileBadChanTool.retrieve());
-
-  ATH_MSG_INFO("in TileRawChannelNoiseMonTool::initialize (...) ");
-  ATH_MSG_INFO(" - m_path = " << m_path);
 
   if (m_gainName == "HG"){
     m_gain = 1;
@@ -121,7 +117,7 @@ StatusCode TileRawChannelNoiseMonTool::initialize() {
   } else {
     msg(MSG::INFO) << "Only events of the following trigger type(s) will be processed: ";
     for (auto trigger: m_triggerTypes) {
-      msg(MSG::INFO) << trigger << " ";
+      msg(MSG::INFO) << trigger << " (0x" << std::hex << trigger << ") " << std::dec;
     }
     msg(MSG::INFO) << endmsg;
   }
@@ -134,8 +130,7 @@ StatusCode TileRawChannelNoiseMonTool::initialize() {
 StatusCode TileRawChannelNoiseMonTool::bookRawChannelNoiseHistos() {
   /*---------------------------------------------------------*/
 
-  ATH_MSG_INFO("in bookCellNoiseHistos()");
-  ATH_MSG_INFO(" - m_path = " << m_path);
+  ATH_MSG_DEBUG("in bookRawChannelNoiseHistos() - m_path = " << m_path);
 
   std::string PartitionName[] = {"AUX", "LBA", "LBC", "EBA", "EBC" };
 
@@ -151,7 +146,7 @@ StatusCode TileRawChannelNoiseMonTool::bookRawChannelNoiseHistos() {
       for (unsigned int channel = 0; channel < TileCalibUtils::MAX_CHAN; ++channel) {
         cell_name = getCellName(ros, channel);
 
-        m_TileChannelEne[ros][drawer].push_back( book1F(module_name, "ChannelNoise_" + module_name + "_" + cell_name + "_ch" + std::to_string(channel)
+        m_tileChannelEne[ros][drawer].push_back( book1F(module_name, "ChannelNoise_" + module_name + "_" + cell_name + "_ch" + std::to_string(channel)
                                                         , "TileChannelNoise - Run " + runNumStr + " " + module_name + " " + cell_name + " ch" + std::to_string(channel) + " " + m_gainName
                                                         , m_nbins, m_xmin, m_xmax));
 
@@ -225,11 +220,9 @@ StatusCode TileRawChannelNoiseMonTool::bookRawChannelNoiseHistos() {
 StatusCode TileRawChannelNoiseMonTool::bookHistograms()
 /*---------------------------------------------------------*/
 {
-  ATH_MSG_INFO("in bookHistograms()");
-  ATH_MSG_INFO("---  m_path = " << m_path);
+  ATH_MSG_DEBUG("in bookHistograms() -  m_path = " << m_path);
 
   cleanHistVec(); //necessary to avoid problems at the run, evblock, lumi blocks boundaries
-  m_isFirstEv = true;
 
   // Use all triggers (if needs to be done per trigger type then move the booking to the fillhisto where we check the trigger)
 
@@ -250,7 +243,7 @@ void TileRawChannelNoiseMonTool::cleanHistVec() {
 
   for (unsigned int ros = 0; ros < TileCalibUtils::MAX_ROS; ++ros) {
     for (unsigned int drawer = 0; drawer < TileCalibUtils::MAX_DRAWER; ++drawer) {
-      m_TileChannelEne[ros][drawer].clear();
+      m_tileChannelEne[ros][drawer].clear();
     } // drawer
   } // ros
 
@@ -280,9 +273,9 @@ void TileRawChannelNoiseMonTool::doFit() {
           // fit the single cell energy distributions
           ATH_MSG_VERBOSE("in  doFit() : ros = " << ros << ", drawer = " << drawer << ", channel = " << channel);
           
-          if (m_TileChannelEne[ros][drawer].at(channel)->GetEntries() > 0) {
+          if (m_tileChannelEne[ros][drawer].at(channel)->GetEntries() > 0) {
             
-            fitDoubleGauss(m_TileChannelEne[ros][drawer].at(channel), fitresults, &fitfunction);
+            fitDoubleGauss(m_tileChannelEne[ros][drawer].at(channel), fitresults, &fitfunction);
             
             // then store the fitresults into a permanent container
             ATH_MSG_VERBOSE( "Fit results:"
@@ -342,9 +335,9 @@ void TileRawChannelNoiseMonTool::doFit() {
 
           ATH_MSG_VERBOSE("in  doFit() : ros =  " << ros << ", drawer = " << drawer << ", channel = " << channel);
           
-          if (m_TileChannelEne[ros][drawer].at(channel)->GetEntries() > 0) {
+          if (m_tileChannelEne[ros][drawer].at(channel)->GetEntries() > 0) {
 
-            fitGauss(m_TileChannelEne[ros][drawer].at(channel), fitresults, &fitfunction);
+            fitGauss(m_tileChannelEne[ros][drawer].at(channel), fitresults, &fitfunction);
 
             // then store the fitresults into a permanent container
             ATH_MSG_VERBOSE( "Fit results:"
@@ -410,7 +403,7 @@ void TileRawChannelNoiseMonTool::fitGauss(TH1F* h, double* fitresults, TF1* fitf
   fitfunction->SetParName(2, "#sigma");
 
   float bin = h->GetBinWidth(0);
-  float lim1 = bin;
+  float lim1 = bin * 0.5;
   float lim2 = std::max(rms * 1.05, bin * 2.0);    
 
   fitfunction->SetParLimits(0, 0., nentries);
@@ -456,7 +449,7 @@ void TileRawChannelNoiseMonTool::fitDoubleGauss(TH1F* h, double* fitresults, TF1
   fitfunction->SetParName(5, "#sigma_{2}");
 
   float bin = h->GetBinWidth(0);
-  float lim1 = bin;
+  float lim1 = bin * 0.5;
   float lim2 = std::max(rms * 1.05, bin * 2.0);    
   float lim3 = std::max(rms * 10.0, bin * 20.);
 
@@ -493,39 +486,33 @@ StatusCode TileRawChannelNoiseMonTool::fillHistoPerRawChannel() {
 
   m_DQstatus = m_beamInfo->getDQstatus();
 
-  const TileRawChannelContainer* RawChannelContainer;
-  CHECK(evtStore()->retrieve(RawChannelContainer, m_RawChannelContainer));
+  const TileRawChannelContainer* rawChannelContainer;
+  CHECK(evtStore()->retrieve(rawChannelContainer, m_rawChannelContainerName));
 
   // What is the unit used to store info in the RawChannelContainer ?
-  TileRawChannelUnit::UNIT RChUnit = RawChannelContainer->get_unit();
+  TileRawChannelUnit::UNIT RChUnit = rawChannelContainer->get_unit();
   bool recalibrate(false);
   if (RChUnit != TileRawChannelUnit::ADCcounts) {
     ATH_MSG_VERBOSE( " RawChannel Units is = " << RChUnit << " - recalibrating in ADC counts ! "  );
     recalibrate = true;
   }
 
-  TileRawChannelContainer::const_iterator containerIter = RawChannelContainer->begin();
-  TileRawChannelContainer::const_iterator lastContainerIter = RawChannelContainer->end();
-
-  unsigned int drawerIdx(TileCalibUtils::MAX_DRAWERIDX);
   std::string module_name;
 
   // Loop over the containers
-  for (; containerIter != lastContainerIter; ++containerIter) {
-    TileRawChannelCollection::const_iterator channelIter = (*containerIter)->begin();
-    TileRawChannelCollection::const_iterator lastChannel = (*containerIter)->end();
+  for (const TileRawChannelCollection* rawChannelCollection : *rawChannelContainer) {
 
-    if (channelIter != lastChannel) {
-      HWIdentifier adc_id = (*channelIter)->adc_HWID();
-      int ros = m_tileHWID->ros(adc_id);
-      int drawer = m_tileHWID->drawer(adc_id);
-      drawerIdx = TileCalibUtils::getDrawerIdx(ros, drawer);
-    }
+    if (rawChannelCollection->empty()) continue;
+
+    HWIdentifier adc_id = rawChannelCollection->front()->adc_HWID();
+    int ros = m_tileHWID->ros(adc_id);
+    int drawer = m_tileHWID->drawer(adc_id);
+    unsigned int drawerIdx = TileCalibUtils::getDrawerIdx(ros, drawer);
 
     /////// loop over raw channels in the container ///////
-    for (; channelIter != lastChannel; ++channelIter) {
+    for (const TileRawChannel* rawChannel : *rawChannelCollection) {
 
-      HWIdentifier adc_id = (*channelIter)->adc_HWID();
+      HWIdentifier adc_id = rawChannel->adc_HWID();
       int adc = m_tileHWID->adc(adc_id);
 
       if (adc != m_gain) continue;
@@ -534,18 +521,13 @@ StatusCode TileRawChannelNoiseMonTool::fillHistoPerRawChannel() {
       int drawer = m_tileHWID->drawer(adc_id);
       unsigned int channel = m_tileHWID->channel(adc_id);
 
-      if (isDisconnected(ros, drawer, channel)) continue;
+      // if (isDisconnected(ros, drawer, channel)) continue;
 
-      bool good  = m_DQstatus->isAdcDQgood(ros, drawer, channel, adc) && m_beamInfo->isChanDCSgood(ros, drawer, channel);
-      if (good) {
-        TileBchStatus status = m_tileBadChanTool->getAdcStatus(drawerIdx, channel, adc);
-        good = ! status.isBad();
-      }
-
-      if (!good) continue;
+      if ( !(m_DQstatus->isAdcDQgood(ros, drawer, channel, adc) && m_beamInfo->isChanDCSgood(ros, drawer, channel)) ) continue;
+      if ( m_tileBadChanTool->getAdcStatus(drawerIdx, channel, adc).isBad() ) continue;
 
       module_name = TileCalibUtils::getDrawerString(ros, drawer);
-      double amplitude = (*channelIter)->amplitude();
+      double amplitude = rawChannel->amplitude();
 
       if (recalibrate) {
         amplitude = m_tileToolEmscale->channelCalib(drawerIdx, channel, adc, amplitude, RChUnit, TileRawChannelUnit::ADCcounts);
@@ -558,11 +540,11 @@ StatusCode TileRawChannelNoiseMonTool::fillHistoPerRawChannel() {
                       << "   amplitude = " << amplitude);
 
 
-      m_TileChannelEne[ros][drawer][channel]->Fill(amplitude);
+      m_tileChannelEne[ros][drawer][channel]->Fill(amplitude);
 
 
-    } // end of loop over raw channels (; channelIter != lastChannel; ++channelIter).
-  } //  for (; containerIter != lastContainerIter; ++containerIter).
+    }
+  } 
 
   ++m_nEventsProcessed;
 
@@ -574,7 +556,7 @@ StatusCode TileRawChannelNoiseMonTool::fillHistoPerRawChannel() {
 StatusCode TileRawChannelNoiseMonTool::fillHistograms() {
   /*---------------------------------------------------------*/
 
-  ATH_MSG_INFO("in fillHistograms() ");
+  ATH_MSG_DEBUG("in fillHistograms() ");
 
   // fill event info like L1 trigger type, run number, etc...
   fillEvtInfo();
@@ -606,7 +588,9 @@ StatusCode TileRawChannelNoiseMonTool::fillHistograms() {
     CHECK(fillHistoPerRawChannel());
   }
 
-  if ((m_summaryUpdateFrequency > 0) && (m_nEvents % m_summaryUpdateFrequency == 0) && m_nEvents > 10) return finalHists();
+  if ((m_summaryUpdateFrequency > 0) 
+      && (m_nEvents % m_summaryUpdateFrequency == 0) 
+      && (m_nEvents > 10) ) doFit();
 
   return StatusCode::SUCCESS;
 
@@ -616,37 +600,8 @@ StatusCode TileRawChannelNoiseMonTool::fillHistograms() {
 StatusCode TileRawChannelNoiseMonTool::procHistograms() {
   /*---------------------------------------------------------*/
 
-  if (endOfLumiBlock || endOfRun) {
-    ATH_MSG_INFO("in procHistograms()");
-  }
-
-  return StatusCode::SUCCESS;
-}
-
-/*---------------------------------------------------------*/
-StatusCode TileRawChannelNoiseMonTool::finalHists() {
-  /*---------------------------------------------------------*/
-
-  ATH_MSG_INFO("in finalHists()");
-  ATH_MSG_INFO(" - m_path = " << m_path);
-
-  // Call the fit for all Cell energy histograms
   if (m_doFit) doFit();
 
   return StatusCode::SUCCESS;
-} // finalHists()
-
-/*---------------------------------------------------------*/
-StatusCode TileRawChannelNoiseMonTool::checkHists(bool /* fromFinalize */) {
-  /*---------------------------------------------------------*/
-  ATH_MSG_INFO("in checkHists()");
-  return StatusCode::SUCCESS;
-} // checkHists()
-
-// Operations to be done only once at the first event
-/*---------------------------------------------------------*/
-void TileRawChannelNoiseMonTool::FirstEvInit() {
-  /*---------------------------------------------------------*/
-  m_isFirstEv = false; //Set the flag
-} // FirstEvInit
+}
 
