@@ -1,0 +1,37 @@
+This tools is inspired on:
+MuonSpectrometer/MuonCnv/MuonPrepRawDataToxAOD
+
+To run, you have to have flag:
+
+rec.doAOD=True
+InDetFlags.doxAOD.set_Value_and_Lock()
+
+Then, in: InnerDetector/InDetExample/InDetRecExample/share/WriteInDetAOD.py
+Add:
+if InDetFlags.doxAOD():
+  InDetAODList += ['xAOD::PrepRawDataContainer_v1#TRT_DriftCircles']
+  InDetAODList += ['xAOD::PrepRawDataAuxContainer_v1#TRT_DriftCirclesAux.']
+
+In: InnerDetector/InDetExample/InDetRecExample/share/InDetxAODCreator.py
+
+from TRT_ConditionsServices.TRT_ConditionsServicesConf import
+TRT_StrawNeighbourSvc
+TRTStrawNeighbourSvc=TRT_StrawNeighbourSvc()
+ServiceMgr += TRTStrawNeighbourSvc
+
+from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_CalDbSvc
+TRTCalibDBSvc=TRT_CalDbSvc()
+ServiceMgr += TRTCalibDBSvc
+
+from InDetPrepRawDataToxAOD.InDetPrepRawDataToxAODConf import
+TRT_PrepDataToxAOD
+xAOD_TRT_PrepDataToxAOD = TRT_PrepDataToxAOD( name =
+"xAOD_TRT_PrepDataToxAOD")
+xAOD_TRT_PrepDataToxAOD.OutputLevel=DEBUG
+print "Add TRT xAOD PrepRawData:"
+print xAOD_TRT_PrepDataToxAOD
+topSequence += xAOD_TRT_PrepDataToxAOD
+
+
+
+
