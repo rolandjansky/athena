@@ -22,7 +22,9 @@
 
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
 #include "DataModel/DataVector.h"
-#include "xAODTrigL1Calo/xAODTrigL1Calo/TriggerTowerContainer.h"
+
+#include "xAODTrigL1Calo/TriggerTower.h"
+#include "xAODTrigL1Calo/CPMTower.h"
 
 
 class TH1F_LW;
@@ -30,16 +32,20 @@ class TH2F_LW;
 class TH2I_LW;
 class StatusCode;
 
-class TrigT1CaloMonErrorTool;
-class TrigT1CaloLWHistogramTool;
- 
-namespace LVL1 {
-  class TriggerTower;
-  class CPMTower;
-  class CMXCPTob;
-  class CMXCPHits;
-  class CPMTobRoI;
 
+// ============================================================================
+namespace LVL1 {
+// ============================================================================
+// Forward declarations:
+// ============================================================================
+  class ITrigT1CaloMonErrorTool;
+  class TrigT1CaloLWHistogramTool;
+  class TriggerTower;
+  // class CPMTower;
+  // class CMXCPTob;
+  // class CMXCPHits;
+  class CPMTobRoI;
+// ============================================================================
 /** Monitoring of the Cluster Processor.
  *
  *  Produces histograms of CPM and CMX-CP input data, output data and hardware errors.
@@ -177,14 +183,14 @@ private:
                        TOBParity, SumParity, CMXStatus, NumberOfSummaryBins };
 
   //typedef DataVector<LVL1::TriggerTower> TriggerTowerCollection;
-  typedef DataVector<LVL1::CPMTower>     CpmTowerCollection;
-  typedef DataVector<LVL1::CMXCPTob>     CmxCpTobCollection;
-  typedef DataVector<LVL1::CMXCPHits>    CmxCpHitsCollection;
+  // typedef DataVector<LVL1::CPMTower>     CpmTowerCollection;
+  // typedef DataVector<LVL1::CMXCPTob>     CmxCpTobCollection;
+  // typedef DataVector<LVL1::CMXCPHits>    CmxCpHitsCollection;
   typedef DataVector<LVL1::CPMTobRoI>    CpmTobRoiCollection;
 
   //typedef std::map<unsigned int, LVL1::TriggerTower*> TriggerTowerMap;
-  typedef std::map<const unsigned int, const xAOD::TriggerTower_v2*> TriggerTowerMap;
-  typedef std::map<unsigned int, LVL1::CPMTower*>     CpmTowerMap;
+  typedef std::map<const unsigned int, const xAOD::TriggerTower*> TriggerTowerMap;
+  typedef std::map<unsigned int, const xAOD::CPMTower*> CpmTowerMap;
   
   static const int s_crates     = 4;   ///< Number of CPM crates
   static const int s_modules    = 14;  ///< Number of modules per crate (modules numbered 1-14)
@@ -197,7 +203,7 @@ private:
   static const int s_isolBits   = 5;   ///< Number of bits for encoded isolation
 
   /// Tool to retrieve bytestream errors
-  ToolHandle<TrigT1CaloMonErrorTool>   m_errorTool;  
+  ToolHandle<ITrigT1CaloMonErrorTool>   m_errorTool;  
   /// Histogram helper tool
   ToolHandle<TrigT1CaloLWHistogramTool> m_histTool;
 
@@ -331,7 +337,7 @@ private:
   TH2I_LW* m_h_cpm_2d_ErrorEventNumbers;        ///< CP Error Event Numbers
 
 };
-
+// ============================================================================
 } // end namespace
-
+// ============================================================================
 #endif

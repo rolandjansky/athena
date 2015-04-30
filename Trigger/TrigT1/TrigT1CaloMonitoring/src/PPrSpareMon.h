@@ -26,9 +26,14 @@ class TH2I_LW;
 class TProfile2D_LW;
 class StatusCode;
 
-class TrigT1CaloMonErrorTool;
+// ============================================================================
+namespace LVL1 {
+// ============================================================================
+// Forward declarations:
+// ============================================================================
+class ITrigT1CaloMonErrorTool;
 class TrigT1CaloLWHistogramTool;
-
+// ============================================================================
 /** Monitoring of Preprocessor spare channels
  *
  *  <b>ROOT Histogram Directories:</b>
@@ -132,7 +137,7 @@ private:
   std::string m_ErrorPathInRootFile;
      
   /// Tool to retrieve bytestream errors
-  ToolHandle<TrigT1CaloMonErrorTool>    m_errorTool;
+  ToolHandle<ITrigT1CaloMonErrorTool>    m_errorTool;
   /// Histogram helper tool
   ToolHandle<TrigT1CaloLWHistogramTool> m_histTool;
 
@@ -152,5 +157,7 @@ private:
   TH1F_LW* m_h_ppmspare_1d_tt_adc_TriggeredSlice;   ///< Spare Channels Number of the Triggered Slice
    
 };
-
+// ============================================================================
+}  // end namespace
+// ============================================================================
 #endif

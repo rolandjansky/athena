@@ -51,16 +51,20 @@
 #include "TrigT1CaloCalibConditions/L1CaloCoolChannelId.h"
 #include "Identifier/Identifier.h"
 
-#include "TrigT1CaloMonitoring/EmEfficienciesMonTool.h"
-#include "TrigT1CaloMonitoringTools/TrigT1CaloMonErrorTool.h"
+#include "EmEfficienciesMonTool.h"
+#include "TrigT1CaloMonitoringTools/ITrigT1CaloMonErrorTool.h"
 #include "TrigT1CaloMonitoringTools/TrigT1CaloLWHistogramToolV1.h"
 
+
+// ============================================================================
+namespace LVL1 {
+// ============================================================================
 /*---------------------------------------------------------*/
 EmEfficienciesMonTool::EmEfficienciesMonTool(const std::string & type,
 		const std::string & name, const IInterface* parent) 
 		  : ManagedMonitorToolBase(type, name, parent),
-                        m_errorTool("TrigT1CaloMonErrorTool"),
-			m_histTool("TrigT1CaloLWHistogramToolV1"),
+            m_errorTool("LVL1::TrigT1CaloMonErrorToolV1/TrigT1CaloMonErrorToolV1"),
+			m_histTool("LVL1::TrigT1CaloLWHistogramToolV1/TrigT1CaloLWHistogramToolV1"),
 			m_ttTool("LVL1::L1TriggerTowerTool/L1TriggerTowerTool"),
 			m_larEnergy("LVL1::L1CaloLArTowerEnergy/L1CaloLArTowerEnergy"),
 			m_trigger("Trig::TrigDecisionTool/TrigDecisionTool"),
@@ -1564,3 +1568,7 @@ StatusCode EmEfficienciesMonTool::loadContainers() {
 
 	return sc;
 }
+
+// ============================================================================
+}  // end namespace
+// ============================================================================

@@ -44,15 +44,13 @@
 #include "TrigT1Interfaces/Coordinate.h"
 #include "TrigT1Interfaces/JEPRoIDecoder.h"
 #include "TrigT1Interfaces/TrigT1CaloDefs.h"
-#include "TrigT1CaloMonitoringTools/TrigT1CaloMonErrorTool.h"
+#include "TrigT1CaloMonitoringTools/ITrigT1CaloMonErrorTool.h"
 #include "TrigT1CaloMonitoringTools/TrigT1CaloLWHistogramTool.h"
 
-#include "TrigT1CaloMonitoring/JEPSimMon.h"
-
+#include "JEPSimMon.h"
+// ============================================================================
 namespace LVL1 {
-
-
-/*---------------------------------------------------------*/
+// ============================================================================
 JEPSimMon::JEPSimMon(const std::string & type, 
 	 	     const std::string & name,
 		     const IInterface* parent)
@@ -61,8 +59,8 @@ JEPSimMon::JEPSimMon(const std::string & type,
     m_jetTool("LVL1::L1JetTools/L1JetTools"),
     m_jetElementTool("LVL1::L1JetElementTools/L1JetElementTools"),
     m_energyCmxTool("LVL1::L1EnergyCMXTools/L1EnergyCMXTools"),
-    m_errorTool("TrigT1CaloMonErrorTool"),
-    m_histTool("TrigT1CaloLWHistogramTool"),
+    m_errorTool("LVL1::TrigT1CaloMonErrorTool/TrigT1CaloMonErrorTool"),
+    m_histTool("LVL1::TrigT1CaloLWHistogramTool/TrigT1CaloLWHistogramTool"),
     m_debug(false), m_rodTES(0), m_limitedRoi(0),
     m_histBooked(false),
     m_h_jem_em_2d_etaPhi_jetEl_SimEqCore(0),
@@ -2778,8 +2776,10 @@ void JEPSimMon::simulate(const JetElementCollection* elements,
   }
 
   InternalRoiCollection* intRois = new InternalRoiCollection;
-  m_jetTool->findRoIs(elements, intRois);
-  m_jetCmxTool->formJEMTobRoI(intRois, rois);
+  if(elements) {
+    m_jetTool->findRoIs(elements, intRois);
+    m_jetCmxTool->formJEMTobRoI(intRois, rois);
+  }
   delete intRois;
 }
 
@@ -2869,5 +2869,6 @@ void JEPSimMon::loadRodHeaders()
     m_rodTES = 0;
   }
 }
-
+// ============================================================================
 } // end namespace
+// ============================================================================

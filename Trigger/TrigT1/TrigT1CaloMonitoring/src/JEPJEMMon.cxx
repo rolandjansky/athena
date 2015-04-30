@@ -27,7 +27,7 @@
 
 #include "AthenaMonitoring/AthenaMonManager.h"
 
-#include "TrigT1CaloMonitoringTools/TrigT1CaloMonErrorTool.h"
+#include "TrigT1CaloMonitoringTools/ITrigT1CaloMonErrorTool.h"
 #include "TrigT1CaloMonitoringTools/TrigT1CaloLWHistogramTool.h"
 
 #include "TrigT1CaloEvent/JEMEtSums.h"
@@ -40,20 +40,19 @@
 #include "TrigT1Interfaces/JEPRoIDecoder.h"                               // <<== Will change
 #include "TrigT1Interfaces/TrigT1CaloDefs.h"                              // Ditto
 
-#include "TrigT1CaloMonitoring/JEPJEMMon.h"
-
+#include "JEPJEMMon.h"
+// ============================================================================
 namespace LVL1 {
-
+// ============================================================================
 const int JEPJEMMon::s_crates;
 const int JEPJEMMon::s_modules;
 const int JEPJEMMon::s_tobsPerJEM;
-
-/*---------------------------------------------------------*/
+// ============================================================================
 JEPJEMMon::JEPJEMMon( const std::string & type, const std::string & name,
 		      const IInterface* parent )
   : ManagedMonitorToolBase( type, name, parent ),
-    m_errorTool("TrigT1CaloMonErrorTool"),
-    m_histTool("TrigT1CaloLWHistogramTool"),
+    m_errorTool("LVL1::TrigT1CaloMonErrorTool/TrigT1CaloMonErrorTool"),
+    m_histTool("LVL1::TrigT1CaloLWHistogramTool/TrigT1CaloLWHistogramTool"),
     m_histBooked(false),
     m_h_jem_em_1d_jetEl_Eta(0),
     m_h_jem_had_1d_jetEl_Eta(0),

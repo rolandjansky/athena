@@ -33,8 +33,7 @@
 
 #include "AthenaMonitoring/AthenaMonManager.h"
 
-#include "TrigT1CaloMonitoring/JEMMon.h"
-#include "TrigT1CaloMonitoringTools/TrigT1CaloMonErrorTool.h"
+#include "TrigT1CaloMonitoringTools/ITrigT1CaloMonErrorTool.h"
 #include "TrigT1CaloMonitoringTools/TrigT1CaloLWHistogramToolV1.h"
 
 #include "TrigT1CaloEvent/JEMHits.h"
@@ -50,12 +49,16 @@
 #include "TrigT1Interfaces/Coordinate.h"
 #include "TrigConfL1Data/L1DataDef.h"
 
-/*---------------------------------------------------------*/
+#include "JEMMon.h"
+// ============================================================================
+namespace LVL1 {
+// ============================================================================
+
 JEMMon::JEMMon( const std::string & type, const std::string & name,
 		const IInterface* parent )
   : ManagedMonitorToolBase( type, name, parent ),
-    m_errorTool("TrigT1CaloMonErrorTool"),
-    m_histTool("TrigT1CaloLWHistogramToolV1"),
+    m_errorTool("LVL1::TrigT1CaloMonErrorToolV1/TrigT1CaloMonErrorToolV1"),
+    m_histTool("LVL1::TrigT1CaloLWHistogramToolV1/TrigT1CaloLWHistogramToolV1"),
     m_histBooked(false),
     m_h_jem_em_1d_jetEl_Eta(0),
     m_h_jem_had_1d_jetEl_Eta(0),
@@ -697,3 +700,7 @@ StatusCode JEMMon::procHistograms()
 	
   return StatusCode::SUCCESS;
 }
+
+// ============================================================================
+}  // end namespace
+// ============================================================================

@@ -31,17 +31,19 @@
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
 
-#include "TrigT1CaloMonitoring/TrigT1CaloGlobalMonTool.h"
-#include "TrigT1CaloMonitoringTools/TrigT1CaloMonErrorTool.h"
+#include "TrigT1CaloMonitoringTools/ITrigT1CaloMonErrorTool.h"
 #include "TrigT1CaloMonitoringTools/TrigT1CaloLWHistogramToolV1.h"
 
-/*---------------------------------------------------------*/
+#include "TrigT1CaloGlobalMonTool.h"
+// ============================================================================
+namespace LVL1 {
+// ============================================================================
 TrigT1CaloGlobalMonTool::TrigT1CaloGlobalMonTool(const std::string & type, 
 				                 const std::string & name,
 				                 const IInterface* parent)
   : ManagedMonitorToolBase(type, name, parent),
-    m_errorTool("TrigT1CaloMonErrorTool"),
-    m_histTool("TrigT1CaloLWHistogramToolV1"),
+    m_errorTool("LVL1::TrigT1CaloMonErrorToolV1/TrigT1CaloMonErrorToolV1"),
+    m_histTool("LVL1::TrigT1CaloLWHistogramToolV1/TrigT1CaloLWHistogramToolV1"),
     m_lumiNo(0),
     m_lumipos(0),
     m_h_l1calo_2d_GlobalOverview(0),
@@ -695,3 +697,6 @@ TH2F* TrigT1CaloGlobalMonTool::bookOverview(const std::string& name,
 
   return hist;
 }
+// ============================================================================
+}  // end namespace
+// ============================================================================

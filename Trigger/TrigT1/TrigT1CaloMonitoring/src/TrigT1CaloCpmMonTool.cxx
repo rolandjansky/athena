@@ -38,24 +38,26 @@
 #include "TrigT1Interfaces/CPRoIDecoder.h"
 #include "TrigT1Interfaces/TrigT1CaloDefs.h"
 
-#include "TrigT1CaloMonitoring/TrigT1CaloCpmMonTool.h"
-#include "TrigT1CaloMonitoringTools/TrigT1CaloMonErrorTool.h"
+#include "TrigT1CaloMonitoringTools/ITrigT1CaloMonErrorTool.h"
 #include "TrigT1CaloMonitoringTools/TrigT1CaloLWHistogramToolV1.h"
 
+#include "TrigT1CaloCpmMonTool.h"
+// ============================================================================
+namespace LVL1 {
+// ============================================================================
 const int TrigT1CaloCpmMonTool::s_crates;
 const int TrigT1CaloCpmMonTool::s_modules;
 const int TrigT1CaloCpmMonTool::s_maxSlices;
 const int TrigT1CaloCpmMonTool::s_thresholds;
 const int TrigT1CaloCpmMonTool::s_threshBits;
 const int TrigT1CaloCpmMonTool::s_threshMask;
-
-/*---------------------------------------------------------*/
+// ============================================================================
 TrigT1CaloCpmMonTool::TrigT1CaloCpmMonTool(const std::string & type, 
 				           const std::string & name,
 				           const IInterface* parent)
   : ManagedMonitorToolBase(type, name, parent),
-    m_errorTool("TrigT1CaloMonErrorTool"),
-    m_histTool("TrigT1CaloLWHistogramToolV1"),
+    m_errorTool("LVL1::TrigT1CaloMonErrorToolV1/TrigT1CaloMonErrorToolV1"),
+    m_histTool("LVL1::TrigT1CaloLWHistogramToolV1/TrigT1CaloLWHistogramToolV1"),
     m_events(0),
     m_emBitMask(0),
     m_tauBitMask(0),
@@ -877,3 +879,6 @@ StatusCode TrigT1CaloCpmMonTool::procHistograms()
 
   return StatusCode::SUCCESS;
 }
+// ============================================================================
+} // end namespace
+// ============================================================================

@@ -28,8 +28,6 @@ class TH1F_LW;
 class TH2F_LW;
 class StatusCode;
 class CaloCluster;
-class TrigT1CaloMonErrorTool;
-class TrigT1CaloLWHistogramToolV1;
 class EventInfo;
 class CondAttrListCollection;
 class LVL1_ROI;
@@ -41,15 +39,19 @@ namespace Analysis {
   class Electron;
   class Photon;
 }
-namespace LVL1 {
-  class IL1TriggerTowerTool;
-  class IL1CaloLArTowerEnergy;
-  class TriggerTower;
-}
+
 namespace Trig {
   class TrigDecisionTool;
 }
-
+// ============================================================================
+namespace LVL1 {
+// ============================================================================
+  class IL1TriggerTowerTool;
+  class IL1CaloLArTowerEnergy;
+  class TriggerTower;
+  class ITrigT1CaloMonErrorTool;
+  class TrigT1CaloLWHistogramToolV1;
+// ============================================================================
 /** L1 EM trigger efficiency monitoring
  *
  *  <b>ROOT Histogram Directories:</b>
@@ -254,7 +256,7 @@ private:
   static const int ROI_BITS = 16;
 
   /// Corrupt event veto tool
-  ToolHandle<TrigT1CaloMonErrorTool>    m_errorTool;
+  ToolHandle<ITrigT1CaloMonErrorTool>    m_errorTool;
   /// Histogram helper tool
   ToolHandle<TrigT1CaloLWHistogramToolV1> m_histTool;
   /// TT simulation tool for Identifiers. Used first event only
@@ -384,5 +386,8 @@ private:
 
 
 };
+// ============================================================================
+}  // end namespace
+// ============================================================================
 
 #endif

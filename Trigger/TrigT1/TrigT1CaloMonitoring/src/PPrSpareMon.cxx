@@ -24,23 +24,26 @@
 
 #include "AthenaMonitoring/AthenaMonManager.h"
 
-#include "TrigT1CaloMonitoring/PPrSpareMon.h"
-#include "TrigT1CaloMonitoringTools/TrigT1CaloMonErrorTool.h"
+#include "TrigT1Interfaces/TrigT1CaloDefs.h"
+#include "TrigT1CaloMonitoringTools/ITrigT1CaloMonErrorTool.h"
 #include "TrigT1CaloMonitoringTools/TrigT1CaloLWHistogramTool.h"
 
 #include "TrigT1CaloEvent/TriggerTower_ClassDEF.h"
 #include "TrigT1CaloEvent/TriggerTowerCollection.h"
 #include "TrigT1CaloUtils/DataError.h"
 
-#include "xAODTrigL1Calo/xAODTrigL1Calo/TriggerTowerContainer.h"
+#include "xAODTrigL1Calo/TriggerTowerContainer.h"
 
-/*---------------------------------------------------------*/
+#include "PPrSpareMon.h"
+// ============================================================================
+namespace LVL1 {
+// ============================================================================
 PPrSpareMon::PPrSpareMon(const std::string & type, const std::string & name,
 					           const IInterface* parent)
   : ManagedMonitorToolBase ( type, name, parent ),
     m_SliceNo(15), m_histBooked(false),
-    m_errorTool("TrigT1CaloMonErrorTool"),
-    m_histTool("TrigT1CaloLWHistogramTool"),
+    m_errorTool("LVL1::TrigT1CaloMonErrorTool/TrigT1CaloMonErrorTool"),
+    m_histTool("LVL1::TrigT1CaloLWHistogramTool/TrigT1CaloLWHistogramTool"),
     m_h_ppmspare_2d_tt_adc_HitMap(0),
     m_h_ppmspare_2d_tt_adc_ProfileMap(0),
     m_h_ppmspare_1d_ErrorSummary(0),
@@ -55,7 +58,7 @@ PPrSpareMon::PPrSpareMon(const std::string & type, const std::string & name,
   declareProperty("BS_TriggerTowerContainer",
                   m_TriggerTowerContainerName = "TriggerTowersSpare");
   declareProperty("BS_xAODTriggerTowerContainer",
-                  m_xAODTriggerTowerContainerName = "xAODTriggerTowersSpare");  
+                  m_xAODTriggerTowerContainerName = LVL1::TrigT1CaloDefs::xAODTriggerTowerLocation + "Spare");  
   declareProperty("ADCHitMap_Thresh",  m_TT_ADC_HitMap_Thresh = 40,
                   "ADC cut for hitmaps");
 
@@ -306,10 +309,10 @@ StatusCode PPrSpareMon::fillHistograms()
 
     //------------------------ SubStatus Word errors -------------------------
 
-    if ((*TriggerTowerIterator)-> error()) {
+    if ((*TriggerTowerIterator)-> errorWord()) {
 
       using LVL1::DataError;
-      const DataError error((*TriggerTowerIterator)-> error());
+      const DataError error((*TriggerTowerIterator)-> errorWord());
    
       //Summary
 
@@ -406,3 +409,7 @@ StatusCode PPrSpareMon::procHistograms()
 	
   return StatusCode::SUCCESS;
 }
+
+// ============================================================================
+}  // end namespace
+// ============================================================================

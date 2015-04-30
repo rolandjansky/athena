@@ -4,15 +4,15 @@
 
 // ********************************************************************
 //
-// NAME:     TrigT1CaloRodMonTool.h
+// NAME:     RODMon.h
 // PACKAGE:  TrigT1CaloMonitoring
 //
 // AUTHOR:   Peter Faulkner
 //	     
 //
 // ********************************************************************
-#ifndef TRIGT1CALORODMONTOOL_H
-#define TRIGT1CALORODMONTOOL_H
+#ifndef TRIGT1CALOMONITORING_RODMON_H
+#define TRIGT1CALOMONITORING_RODMON_H
 
 #include <string>
 #include <vector>
@@ -28,12 +28,13 @@ class TH2F_LW;
 class TH2I_LW;
 
 class StatusCode;
-class TrigT1CaloMonErrorTool;
-class TrigT1CaloLWHistogramToolV1;
 
 namespace LVL1 {
-  class RODHeader;
-}
+
+class RODHeader;
+class ITrigT1CaloMonErrorTool;
+class TrigT1CaloLWHistogramTool;
+
 
 /** Monitoring of ROD errors.
  *
@@ -89,6 +90,8 @@ namespace LVL1 {
  *  <tr><td> DataTruncated   </td><td> Premature end of sub-block data                      </td></tr>
  *  <tr><td> ExcessData      </td><td> Excess data in sub-block                             </td></tr>
  *  <tr><td> DataSourceID    </td><td> Invalid Source ID in sub-block data                  </td></tr>
+ *  <tr><td> ExcessTOBs      </td><td> More TOBs in sub-block than allowed                  </td></tr>
+ *  <tr><td> DataID          </td><td> Invalid data word ID within sub-block                </td></tr>
  *  <tr><td> Unknown         </td><td> None of the above, shouldn't happen                  </td></tr>
  *  </table>
  *
@@ -119,16 +122,19 @@ namespace LVL1 {
  *  <b>Tools Used:</b>
  *
  *  <table>
- *  <tr><th> Tool                         </th><th> Description          </th></tr>
- *  <tr><td> @c TrigT1CaloMonErrorTool    </td><td> @copydoc m_errorTool </td></tr>
- *  <tr><td> @c TrigT1CaloLWHistogramToolV1 </td><td> @copydoc m_histTool  </td></tr>
+ *  <tr><th> Tool                               </th><th> Description          </th></tr>
+ *  <tr><td> @c LVL1::ITrigT1CaloMonErrorTool   </td><td> @copydoc m_errorTool </td></tr>
+ *  <tr><td> @c LVL1::TrigT1CaloLWHistogramTool </td><td> @copydoc m_histTool  </td></tr>
  *  </table>
  *
  *  <b>JobOption Properties:</b>
  *
  *  <table>
  *  <tr><th> Property               </th><th> Description                       </th></tr>
+ *  <tr><td> @c ErrorTool           </td><td> @copydoc m_errorTool              </td></tr>
+ *  <tr><td> @c HistogramTool       </td><td> @copydoc m_histTool               </td></tr>
  *  <tr><td> @c RodHeaderLocation   </td><td> @copydoc m_rodHeaderLocation      </td></tr>
+ *  <tr><td> @c ErrorLocation       </td><td> @copydoc m_errorLocation          </td></tr>
  *  <tr><td> @c RootDirectory       </td><td> @copydoc m_rootDir                </td></tr>
  *  <tr><td> @c OnlineTest          </td><td> @copydoc m_onlineTest             </td></tr>
  *  </table>
@@ -146,16 +152,16 @@ namespace LVL1 {
  *
  */
 
-class TrigT1CaloRodMonTool: public ManagedMonitorToolBase
+class RODMon: public ManagedMonitorToolBase
 {
 
 public:
   
-  TrigT1CaloRodMonTool(const std::string & type, const std::string & name,
-		       const IInterface* parent);
+  RODMon(const std::string & type, const std::string & name,
+		                   const IInterface* parent);
     
 
-  virtual ~TrigT1CaloRodMonTool();
+  virtual ~RODMon();
 
   virtual StatusCode initialize();
     
@@ -187,9 +193,9 @@ private:
   void setLabelsUnpacking(LWHist* hist, bool xAxis = true);
 
   /// Tool to retrieve bytestream errors.
-  ToolHandle<TrigT1CaloMonErrorTool>    m_errorTool;
+  ToolHandle<LVL1::ITrigT1CaloMonErrorTool>   m_errorTool;
   /// Histogram helper tool
-  ToolHandle<TrigT1CaloLWHistogramToolV1> m_histTool;
+  ToolHandle<LVL1::TrigT1CaloLWHistogramTool> m_histTool;
 
   /// DAQ ROD header container StoreGate key
   std::string m_rodHeaderLocation;
@@ -197,6 +203,8 @@ private:
   std::string m_cpRoibRodHeaderLocation;
   /// JEP RoIB ROD header container StoreGate key
   std::string m_jepRoibRodHeaderLocation;
+  /// Error vector StoreGate key
+  std::string m_errorLocation;
   
   /// Root directory
   std::string m_rootDir;
@@ -254,5 +262,7 @@ private:
   TH2I_LW* m_h_rod_2d_UnpackErrorEventNumbers;   ///< Bytestream Unpacking Error Event Numbers
 
 };
+
+} // end namespace
 
 #endif

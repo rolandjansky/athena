@@ -43,19 +43,21 @@
 #include "TrigT1Interfaces/CPRoIDecoder.h"
 #include "TrigT1Interfaces/TrigT1CaloDefs.h"
 
-#include "TrigT1CaloMonitoring/CPMSimBSMon.h"
-#include "TrigT1CaloMonitoringTools/TrigT1CaloMonErrorTool.h"
+#include "TrigT1CaloMonitoringTools/ITrigT1CaloMonErrorTool.h"
 #include "TrigT1CaloMonitoringTools/TrigT1CaloLWHistogramToolV1.h"
 
-/*---------------------------------------------------------*/
+#include "CPMSimBSMon.h"
+// ============================================================================
+namespace LVL1 {
+// ============================================================================
 CPMSimBSMon::CPMSimBSMon(const std::string & type, 
 			 const std::string & name,
 			 const IInterface* parent)
   : ManagedMonitorToolBase(type, name, parent),
     m_emTauTool("LVL1::L1EmTauTools/L1EmTauTools"),
     m_cpHitsTool("LVL1::L1CPHitsTools/L1CPHitsTools"),
-    m_errorTool("TrigT1CaloMonErrorTool"),
-    m_histTool("TrigT1CaloLWHistogramToolV1"),
+    m_errorTool("LVL1::TrigT1CaloMonErrorToolV1/TrigT1CaloMonErrorToolV1"),
+    m_histTool("LVL1::TrigT1CaloLWHistogramToolV1/TrigT1CaloLWHistogramToolV1"),
     m_debug(false), m_rodTES(0), m_overlapPresent(false), m_limitedRoi(0),
     m_histBooked(false),
     m_h_cpm_em_2d_etaPhi_tt_PpmEqCore(0),
@@ -1671,3 +1673,7 @@ bool CPMSimBSMon::limitedRoiSet(int crate)
   }
   return (((m_limitedRoi>>crate)&0x1) == 1);
 }
+
+// ============================================================================
+}  // end namespace
+// ============================================================================

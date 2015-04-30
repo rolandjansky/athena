@@ -28,15 +28,18 @@ class TH2I_LW;
 class TProfile2D_LW;
 
 class StatusCode;
-class TrigT1CaloMonErrorTool;
-class TrigT1CaloLWHistogramTool;
 
+// ============================================================================
 namespace LVL1 {
-
+// ============================================================================
+// Forward declarations:
+// ============================================================================
 class CMXJetTob;
 class CMXJetHits;
 class CMXEtSums;
-
+class ITrigT1CaloMonErrorTool;
+class TrigT1CaloLWHistogramTool;
+// ============================================================================
 /** Monitoring of the JEP on CMX level.
  *
  *  Produces histograms of CMX input data, output data and hardware errors.
@@ -162,7 +165,7 @@ private:
    static const int s_tobsPerJEM = 4;   ///< Maximum number of TOBs per JEM sent to CMX
 
    /// Tool to retrieve bytestream errors
-   ToolHandle<TrigT1CaloMonErrorTool>   m_errorTool;
+   ToolHandle<ITrigT1CaloMonErrorTool>   m_errorTool;
    /// Histogram helper tool
    ToolHandle<TrigT1CaloLWHistogramTool> m_histTool;
 

@@ -32,8 +32,7 @@
 class TH1F_LW;
 class TH2F_LW;
 class StatusCode;
-class TrigT1CaloMonErrorTool;
-class TrigT1CaloLWHistogramToolV1;
+
 class EventInfo;
 class CondAttrListCollection;
 class LVL1_ROI;
@@ -45,14 +44,20 @@ class TileID;
 class CaloLVL1_ID;
 class TileCablingService;
 
-namespace LVL1 {
-  class IL1TriggerTowerTool;
-  class IL1CaloLArTowerEnergy;
-  class TriggerTower;
-}
+
 namespace Trig {
   class TrigDecisionTool;
 }
+// ============================================================================
+namespace LVL1 {
+// ============================================================================
+// Forward declarations:
+// ============================================================================
+class IL1TriggerTowerTool;
+class IL1CaloLArTowerEnergy;
+class TriggerTower;
+class ITrigT1CaloMonErrorTool;
+class TrigT1CaloLWHistogramToolV1;
 
 /** L1 Jet trigger efficiency monitoring
  *
@@ -184,9 +189,6 @@ namespace Trig {
  *
  */
 
-using xAOD::Jet;
-using xAOD::JetContainer;
-
 class JetEfficienciesMonTool: public ManagedMonitorToolBase
 {
 
@@ -219,7 +221,7 @@ private:
   double calcDeltaR(double eta1, double phi1, double eta2, double phi2);
 	        
   /// Check for electron that it is of the right jet quality type as required from jobOptions
-  bool correctJetQuality(const Jet* jet);
+  bool correctJetQuality(const xAOD::Jet* jet);
   
   /// Ask if object has no EmTau RoIs nearby at L1
   bool isolatedJetObjectL1(double phi, double eta);
@@ -248,7 +250,7 @@ private:
   static const int FJET_ROI_BITS = 4;
 
   /// Corrupt event veto tool
-  ToolHandle<TrigT1CaloMonErrorTool>    m_errorTool;
+  ToolHandle<ITrigT1CaloMonErrorTool>    m_errorTool;
   /// Histogram helper tool
   ToolHandle<TrigT1CaloLWHistogramToolV1> m_histTool;
   /// TT simulation tool for Identifiers. Used first event only
@@ -299,7 +301,7 @@ private:
   const LVL1_ROI* m_lvl1RoIs;
   /// For offline jets
   //const JetCollection* m_offlineJets;
-  const JetContainer* m_offlineJets;
+  const xAOD::JetContainer* m_offlineJets;
   /// For primary vertices
   const VxContainer* m_primaryVertex;
 
@@ -409,5 +411,8 @@ private:
   int m_linkedHistos[FJET_ROI_BITS];
 
 };
+// ============================================================================
+}  // end namespace
+// ============================================================================
 
 #endif

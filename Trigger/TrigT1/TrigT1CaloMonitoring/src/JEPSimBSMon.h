@@ -28,25 +28,29 @@ class TH1F_LW;
 class TH2F_LW;
 class TH2I_LW;
 class StatusCode;
-class TrigT1CaloMonErrorTool;
-class TrigT1CaloLWHistogramToolV1;
 
+// ============================================================================
 namespace LVL1 {
-  class CMMEtSums;
-  class CMMJetHits;
-  class CMMRoI;
-  class JEMEtSums;
-  class JEMHits;
-  class JEMRoI;
-  class JetAlgorithm;
-  class JetElement;
-  class RODHeader;
-  class TriggerTower;
-  class IL1JEPHitsTools;
-  class IL1JetElementTools;
-  class IL1JetTools;
-  class IL1JEPEtSumsTools;
-}
+// ============================================================================
+// Forward declarations:
+// ============================================================================
+class CMMEtSums;
+class CMMJetHits;
+class CMMRoI;
+class JEMEtSums;
+class JEMHits;
+class JEMRoI;
+class JetAlgorithm;
+class JetElement;
+class RODHeader;
+class TriggerTower;
+class IL1JEPHitsTools;
+class IL1JetElementTools;
+class IL1JetTools;
+class IL1JEPEtSumsTools;
+class ITrigT1CaloMonErrorTool;
+class TrigT1CaloLWHistogramToolV1;
+// ============================================================================
 
 /** Cross-check of JEM and JEM-CMM data with simulation.
  *
@@ -318,7 +322,7 @@ private:
   /// JEP Et sums simulation tool
   ToolHandle<LVL1::IL1JEPEtSumsTools>    m_etSumsTool;
   /// Event veto tool
-  ToolHandle<TrigT1CaloMonErrorTool>     m_errorTool;
+  ToolHandle<ITrigT1CaloMonErrorTool>     m_errorTool;
   /// Histogram helper tool
   ToolHandle<TrigT1CaloLWHistogramToolV1>  m_histTool;
 
@@ -442,5 +446,9 @@ private:
   std::vector<TH2I_LW*> m_v_2d_MismatchEvents;       ///< Mismatch Event Number Samples
 
 };
+
+// ============================================================================
+}  // end namespace
+// ============================================================================
 
 #endif

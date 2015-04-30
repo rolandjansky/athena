@@ -28,8 +28,7 @@
 
 #include "AthenaMonitoring/AthenaMonManager.h"
 
-#include "TrigT1CaloMonitoring/CMMMon.h"
-#include "TrigT1CaloMonitoringTools/TrigT1CaloMonErrorTool.h"
+#include "TrigT1CaloMonitoringTools/ITrigT1CaloMonErrorTool.h"
 #include "TrigT1CaloMonitoringTools/TrigT1CaloLWHistogramToolV1.h"
 
 #include "TrigT1CaloEvent/CMMJetHits.h"
@@ -41,7 +40,10 @@
 
 #include "TrigT1Interfaces/TrigT1CaloDefs.h"
 
-
+#include "CMMMon.h"
+// ============================================================================
+namespace LVL1 {
+// ============================================================================
 // *********************************************************************
 // Public Methods
 // *********************************************************************
@@ -50,8 +52,8 @@
 CMMMon::CMMMon( const std::string & type, const std::string & name,
 		const IInterface* parent )
   : ManagedMonitorToolBase( type, name, parent ),
-    m_errorTool("TrigT1CaloMonErrorTool"),
-    m_histTool("TrigT1CaloLWHistogramToolV1"),
+    m_errorTool("LVL1::TrigT1CaloMonErrorToolV1/TrigT1CaloMonErrorToolV1"),
+    m_histTool("LVL1::TrigT1CaloLWHistogramToolV1/TrigT1CaloLWHistogramToolV1"),
     m_histBooked(false),
     m_h_cmm_1d_thresh_TotalMainHits(0),
     m_h_cmm_1d_thresh_TotalFwdHitsRight(0),
@@ -741,3 +743,6 @@ StatusCode CMMMon::procHistograms()
 	
   return StatusCode::SUCCESS;
 }
+// ============================================================================
+}   // end namespace
+// ============================================================================
