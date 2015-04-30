@@ -38,12 +38,12 @@ DerivationFramework::TrackParametersAtPV::~TrackParametersAtPV() {
 StatusCode DerivationFramework::TrackParametersAtPV::initialize()
 {
   if (m_collTrackName == "" || m_collVertexName == "") {
-    ATH_MSG_ERROR("No selection variables for the HIGGS3 selection wrapper tool!");
+    ATH_MSG_ERROR("No selection variables for the TrackParametersAtPV tool!");
     return StatusCode::FAILURE;
   }
   
   if (m_sgKey1 == "") {
-    ATH_MSG_ERROR("No Store Gate Keys for the HIGGS3 selection wrapper tool!");
+    ATH_MSG_ERROR("No Store Gate Keys for the TrackParametersAtPV tool!");
     return StatusCode::FAILURE;
   }
   
@@ -60,7 +60,7 @@ StatusCode DerivationFramework::TrackParametersAtPV::finalize()
 // Augmentation
 StatusCode DerivationFramework::TrackParametersAtPV::addBranches() const
 {
-  std::vector<float> *track_z0_PV = new std::vector<float>();
+  std::unique_ptr<std::vector<float> > track_z0_PV(new std::vector<float>());  
 
   // Get Primary vertex
   const xAOD::VertexContainer* vertices = 
@@ -104,7 +104,7 @@ StatusCode DerivationFramework::TrackParametersAtPV::addBranches() const
       ATH_MSG_ERROR("Tool is attempting to write StoreGate keys which already exists. Please use a different key");
       return StatusCode::FAILURE;
   } else {
-    CHECK(evtStore()->record(track_z0_PV, m_sgKey1));       
+    CHECK(evtStore()->record(std::move(track_z0_PV), m_sgKey1));       
   }
 
   return StatusCode::SUCCESS;

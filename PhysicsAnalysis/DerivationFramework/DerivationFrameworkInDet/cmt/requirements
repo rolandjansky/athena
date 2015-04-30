@@ -10,6 +10,9 @@ use xAODBase			xAODBase-*		Event/xAOD
 use xAODTracking                xAODTracking-*          Event/xAOD
 use xAODEgamma                  xAODEgamma-*            Event/xAOD
 use AthLinks                    AthLinks-*              Control
+use SCT_ConditionsServices      SCT_ConditionsServices-*        InnerDetector/InDetConditions
+use SCT_Cabling                 SCT_Cabling-*                   InnerDetector/InDetDetDescr
+use xAODEventInfo               xAODEventInfo-*                 Event/xAOD
 
 private
 use AthenaKernel		            AthenaKernel-*		Control
@@ -32,11 +35,12 @@ use TrkRIO_OnTrack              TrkRIO_OnTrack-*                Tracking/TrkEven
 use InDetReadoutGeometry        InDetReadoutGeometry-*          InnerDetector/InDetDetDescr
 use  TrkToolInterfaces          TrkToolInterfaces-*             Tracking/TrkTools
 use TRT_ConditionsServices      TRT_ConditionsServices-*        InnerDetector/InDetConditions
+
 use CommissionEvent             CommissionEvent-*               Commission
-use xAODEventInfo               xAODEventInfo-*                 Event/xAOD
 
 use InDetPhysValMonitoring      InDetPhysValMonitoring-*     InnerDetector/InDetValidation
 use TrkEventUtils               TrkEventUtils-*              Tracking/TrkEvent
+use TRT_ToT_Tools               TRT_ToT_Tools-*              InnerDetector/InDetRecTools
 ################################################################
 #
 public

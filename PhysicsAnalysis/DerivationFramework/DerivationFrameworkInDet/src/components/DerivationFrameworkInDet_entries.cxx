@@ -8,6 +8,7 @@
 #include "DerivationFrameworkInDet/TrackParametersAtPV.h"
 #include "DerivationFrameworkInDet/TrackStateOnSurfaceDecorator.h"
 #include "DerivationFrameworkInDet/TrackParametersForTruthParticles.h"
+#include "DerivationFrameworkInDet/EventInfoBSErrDecorator.h"
 
 using namespace DerivationFramework;
 
@@ -20,6 +21,7 @@ DECLARE_TOOL_FACTORY( JetTrackParticleThinning )
 DECLARE_TOOL_FACTORY( TrackParametersAtPV )
 DECLARE_TOOL_FACTORY( TrackStateOnSurfaceDecorator )
 DECLARE_TOOL_FACTORY( TrackParametersForTruthParticles )
+DECLARE_TOOL_FACTORY( EventInfoBSErrDecorator )
 
 DECLARE_FACTORY_ENTRIES( DerivationFrameworkInDet ) {
    DECLARE_TOOL( TrackToVertexWrapper )
@@ -31,5 +33,6 @@ DECLARE_FACTORY_ENTRIES( DerivationFrameworkInDet ) {
    DECLARE_TOOL( TrackParametersAtPV )
 	 DECLARE_TOOL( TrackStateOnSurfaceDecorator )
 	 DECLARE_TOOL( TrackParametersForTruthParticles )
+	 DECLARE_TOOL( EventInfoBSErrDecorator )
 }
 

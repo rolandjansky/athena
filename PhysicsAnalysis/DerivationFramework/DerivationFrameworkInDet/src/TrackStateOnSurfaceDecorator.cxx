@@ -41,6 +41,9 @@
 
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 
+#include "TRT_ToT_Tools/ITRT_ToT_dEdx.h"	
+#include "xAODTracking/VertexContainer.h"		
+#include "TrkTrack/Track.h"
 
 #include <vector>
 #include <string>
@@ -51,36 +54,15 @@ namespace DerivationFramework {
       const std::string& n,
       const IInterface* p) : 
     AthAlgTool(t,n,p),
-    m_sgName(""),
-    m_containerName(""),
-    m_pixelMapName("PixelClustersOffsets"),
-    m_sctMapName("SCT_ClustersOffsets"),
-    m_trtMapName("TRT_DriftCirclesOffsets"),
-    m_pixelClustersName("PixelClusters"),
-    m_sctClustersName("SCT_Clusters"),
-    m_trtDCName("TRT_DriftCircles"),
-    m_pixelMsosName("PixelMSOSs"),
-    m_sctMsosName("SCT_MSOSs"),
-    m_trtMsosName("TRT_MSOSs"),
     m_residualPullCalculator("Trk::ResidualPullCalculator/ResidualPullCalculator"),
     m_holeSearchTool("InDet::InDetTrackHoleSearchTool/InDetHoleSearchTool"),
-    m_trtcaldbSvc("TRT_CalDbSvc",n)  
+    m_trtcaldbSvc("TRT_CalDbSvc",n),
+    m_TRTdEdxTool("InDet::TRT_ToT_Tools/TRT_ToT_dEdx")
   {
     declareInterface<DerivationFramework::IAugmentationTool>(this);
-    declareProperty("DecorationPrefix",       m_sgName);
-    declareProperty("ContainerName",          m_containerName);
-    declareProperty("PixelMapName",           m_pixelMapName);
-    declareProperty("SctMapName",             m_sctMapName);
-    declareProperty("TrtMapName",             m_trtMapName);
-    declareProperty("PixelClustersName",      m_pixelClustersName);
-    declareProperty("SctClustersName",        m_sctClustersName);
-    declareProperty("TrtDriftCirclesName",    m_trtDCName);
-    declareProperty("PixelMsosName",          m_pixelMsosName);
-    declareProperty("SctMsosName",            m_sctMsosName);
-    declareProperty("TrtMsosName",            m_trtMsosName);    
-    declareProperty("ResidualPullCalculator", m_residualPullCalculator);
-    declareProperty("HoleSearch",             m_holeSearchTool);
-    declareProperty("TRT_CalDbSvc",           m_trtcaldbSvc);
+    // --- Steering and configuration flags
+    declareProperty("IsSimulation",           m_isSimulation=true);
+
     declareProperty("StoreHoles",             m_storeHoles =true);
     declareProperty("StoreOutliers",          m_storeOutliers = true);
     declareProperty("StoreTRT",               m_storeTRT =false);
@@ -90,18 +72,42 @@ namespace DerivationFramework {
     declareProperty("AddSurfaceInfo",         m_addSurfaceInfo =true);
     declareProperty("AddPRD",                 m_addPRD =true);
     declareProperty("AddExtraEventInfo",      m_addExtraEventInfo=true);
+
+    // --- Configuration keys
+    declareProperty("DecorationPrefix",       m_sgName="IDDET1_");
+    declareProperty("ContainerName",          m_containerName="InDetTrackParticles");
+    declareProperty("PixelMapName",           m_pixelMapName = "PixelClustersOffsets");
+    declareProperty("SctMapName",             m_sctMapName = "SCT_ClustersOffsets");
+    declareProperty("TrtMapName",             m_trtMapName = "TRT_DriftCirclesOffsets");
+    declareProperty("PixelClustersName",      m_pixelClustersName = "PixelClusters");
+    declareProperty("SctClustersName",        m_sctClustersName = "SCT_Clusters");
+    declareProperty("TrtDriftCirclesName",    m_trtDCName = "TRT_DriftCircles");
+    declareProperty("PixelMsosName",          m_pixelMsosName = "PixelMSOSs");
+    declareProperty("SctMsosName",            m_sctMsosName = "SCT_MSOSs");
+    declareProperty("TrtMsosName",            m_trtMsosName = "TRT_MSOSs");    
+    declareProperty("PriVtxContainerName",    m_PriVtxContainerName = "PrimaryVertices");
+
+    // -- Tools 
+    declareProperty("ResidualPullCalculator", m_residualPullCalculator);
+    declareProperty("HoleSearch",             m_holeSearchTool);
+    declareProperty("TRT_CalDbSvc",           m_trtcaldbSvc);
+    declareProperty("TRT_ToT_dEdx",           m_TRTdEdxTool);
   }
 
   StatusCode TrackStateOnSurfaceDecorator::initialize()
   {
+    ATH_MSG_DEBUG("Initialize");
+
     if (m_sgName=="") {
       ATH_MSG_WARNING("No decoration prefix name provided for the output of TrackStateOnSurfaceDecorator!");
     }
+    ATH_MSG_DEBUG("Prefix for decoration: " << m_sgName);
     
     if (m_containerName=="") {
       ATH_MSG_ERROR("No TrackParticle collection provided for TrackStateOnSurfaceDecorator!");
       return StatusCode::FAILURE;
     }
+    ATH_MSG_DEBUG("Input TrackParticle container: " << m_containerName);
 
     // need Atlas id-helpers to identify sub-detectors, take them from detStore
     if (detStore()->retrieve(m_idHelper, "AtlasID").isFailure()) {
@@ -136,24 +142,30 @@ namespace DerivationFramework {
       CHECK( m_holeSearchTool.retrieve() );
     }
 
+    if ( m_storeTRT && !m_TRTdEdxTool.empty() ) 
+	CHECK( m_TRTdEdxTool.retrieve() );
+
+    m_firstEventWarnings = true;
+
+    ATH_MSG_DEBUG("Initialization finished.");
 
     return StatusCode::SUCCESS;
   }
 
   StatusCode TrackStateOnSurfaceDecorator::finalize()
   {
+    ATH_MSG_DEBUG("Finalize");
     return StatusCode::SUCCESS;
   }
 
   StatusCode TrackStateOnSurfaceDecorator::addBranches() const
   {
-    ATH_MSG_DEBUG("Adding TSOS branches the track particles");
+    ATH_MSG_DEBUG("Adding TSOS decorations the track particles");
 
-    static SG::AuxElement::Decorator< std::vector< ElementLink< xAOD::TrackStateValidationContainer > > >  dectsos_msosLink(m_sgName+"_msosLink");
+    static SG::AuxElement::Decorator< std::vector< ElementLink< xAOD::TrackStateValidationContainer > > >  dectsos_msosLink(m_sgName+"msosLink");
 
-
-
-    // retrieve track container
+ 
+    // --- Retrieve track container (absolutely needed for decoration)
     const xAOD::TrackParticleContainer* tracks=0;
     CHECK( evtStore()->retrieve( tracks, m_containerName ) );
     if( ! tracks ) {
@@ -181,8 +193,9 @@ namespace DerivationFramework {
     int nTRT_MSOS(0);
      
 
-    //Add event-level information
+    // --- Add event-level information
     if (m_addExtraEventInfo) {
+      ATH_MSG_DEBUG("Adding EventInfo decorations");
       const xAOD::EventInfo* eventInfo = 0;
       if (evtStore()->retrieve(eventInfo).isFailure()) {
         ATH_MSG_ERROR(" Cannot access to event info.");
@@ -201,15 +214,17 @@ namespace DerivationFramework {
           trtPhase_time = trtPhase->getTime();
         } 
       } //TRT phase
-      eventInfo->auxdecor<float>(m_sgName+"_TrtPhaseTime") = trtPhase_time;
+      eventInfo->auxdecor<float>(m_sgName+"TrtPhaseTime") = trtPhase_time;
       
     } //extra event info
 
     
+    // --- Add track states containers
     if(m_addPRD){
       // Get clusters and the mapping between xAOD::PRD and Trk::PRD
       // Store the MSOS's in a conatiner based on the type of the detector 
       if(m_storePixel){
+	ATH_MSG_DEBUG("Creating Pixel track state container");
         CHECK( evtStore()->retrieve( pixelClusterOffsets, m_pixelMapName ) );
         CHECK( evtStore()->retrieve( pixelClusters, m_pixelClustersName ) );
       
@@ -220,6 +235,7 @@ namespace DerivationFramework {
         msosPixel->setStore( aux );
       }
       if(m_storeSCT){
+	ATH_MSG_DEBUG("Creating SCT track state container");
         CHECK( evtStore()->retrieve( sctClusterOffsets, m_sctMapName ) );
         CHECK( evtStore()->retrieve( sctClusters, m_sctClustersName ) );
 
@@ -230,6 +246,7 @@ namespace DerivationFramework {
         msosSCT->setStore( aux );
       }
       if(m_storeTRT){
+	ATH_MSG_DEBUG("Creating TRT track state container");
         CHECK( evtStore()->retrieve( trtClusterOffsets, m_trtMapName ) );    
         CHECK( evtStore()->retrieve( trtDCs, m_trtDCName ) );
 
@@ -241,27 +258,59 @@ namespace DerivationFramework {
       }
     }
     
-    
-    // Run tool for each element and calculate the impact parameters/errors 
+    // -- Setup tools needed to Derive and store TRT dEdx
+    // Get Primary vertex container, if available
+    int numberOfPrimaryVertices = 1;
+    if ( evtStore()->contains<xAOD::VertexContainer>(m_PriVtxContainerName) ) {
+      const xAOD::VertexContainer* vxContainer =  0;
+      CHECK ( evtStore()->retrieve(vxContainer, m_PriVtxContainerName) );
+      if (vxContainer) {
+	numberOfPrimaryVertices = 0;
+	for (const xAOD::Vertex* vtx: *vxContainer) {
+	  if ( (vtx->vertexType() == xAOD::VxType::PriVtx) ||
+	       (vtx->vertexType() == xAOD::VxType::PileUp) ) {
+	    numberOfPrimaryVertices++;
+	  }
+	}
+      }
+    } else {
+      if (m_firstEventWarnings) {
+	ATH_MSG_WARNING("No Primary Vertex container: " << m_PriVtxContainerName << ". Assuming 1 vertex per event.");
+      }
+    }
+	  
+    // Set up the decorators
+    SG::AuxElement::Decorator< float > decoratorTRTdEdx("ToT_dEdx");
+    SG::AuxElement::Decorator< float > decoratorTRTusedHits("ToT_usedHits");		
+		
+    // -- Run over each track and decorate it
     for (const auto& track : *tracks) {
+      //-- Start with things that do not need a Trk::Track object
 
+      // -- Now things that require a Trk::Track object
       if( !track->trackLink().isValid() || track->track() == 0 ) {
         ATH_MSG_WARNING("Track particle without Trk::Track");
         continue;
       }
       ATH_MSG_DEBUG("We have a Trk::Track");
 
+      // We now have a valid Trk::Track
+      const Trk::Track* trkTrack = track->track();
+
       //  This is the vector in which we will store the element links to the MSOS's
       std::vector< ElementLink< xAOD::TrackStateValidationContainer > > msosLink;
 
-      // We now have a valid Trk::Track
-      const Trk::Track* trkTrack = track->track();
-      
-      //
+      //Calculate and decorate track particle with TRT dEdx value    
+      if (m_storeTRT) {
+	decoratorTRTdEdx (*track)     = m_TRTdEdxTool->dEdx( trkTrack, !m_isSimulation, true, true, true, numberOfPrimaryVertices);
+	decoratorTRTusedHits (*track) = m_TRTdEdxTool->usedHits( trkTrack, true, true);
+      };
+	  
+      // -- Add Track states to the current track, filtering on their type
       std::vector<const Trk::TrackStateOnSurface*> tsoss;
       for (const auto& trackState: *(trkTrack->trackStateOnSurfaces())){
         //Get rid of any holes that already exist  --  we are doing the search again
-        if( trackState->types()[Trk::TrackStateOnSurface::Outlier] )
+        if( trackState->types()[Trk::TrackStateOnSurface::Hole] )
           continue;
         tsoss.push_back(trackState);
       } 
@@ -368,8 +417,6 @@ namespace DerivationFramework {
           msosLink.push_back(elink);
           ++nPixelMSOS;
         }
-
-        
 
         //fill type
         if( trackState->types()[Trk::TrackStateOnSurface::Hole] ){   
@@ -496,6 +543,8 @@ namespace DerivationFramework {
       dectsos_msosLink( *track ) = msosLink;
       
       ATH_MSG_DEBUG("Finished dressing TrackParticle");
+
+      //m_firstEventWarnings = false; //-- currently not possible since we are in a const function
 
     } // end of loop over tracks              
     return StatusCode::SUCCESS;
