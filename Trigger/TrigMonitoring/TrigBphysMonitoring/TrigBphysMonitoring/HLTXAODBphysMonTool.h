@@ -16,6 +16,9 @@ class TVector3;
 // TrigHLTMonitoring interface
 #include "TrigHLTMonitoring/IHLTMonTool.h"
 
+#include "TrigDecisionTool/TrigDecisionTool.h"
+
+
 namespace Trig { class chainGroup; }
 
 #include "xAODTracking/VertexFwd.h"
@@ -43,6 +46,9 @@ public:
     
 private:
     
+    // Method to parse the chain list passed from DB to form the monitoring chain dictionaries
+    StatusCode generateChainDicts();
+    
     // booking and filling methods; helper methods for booking
     StatusCode bookTriggers(); //! book the general trigger hists
     StatusCode fillTriggers(); //! fill the general trigger hists
@@ -55,7 +61,7 @@ private:
 
     StatusCode bookTriggerGroups(); //! book the hists for the triggered groups
     StatusCode fillTriggerGroups(); //! fill the hists for the triggered groups
-    StatusCode fillTriggerGroup(const std::string & groupName, const std::string & chainName); //! helper method for dedicated trigger chains
+    StatusCode fillTriggerGroup(const std::string & groupName, const std::string & chainName, const bool fullSetOfHists = true); //! helper method for dedicated trigger chains
 
     StatusCode bookEfficiencyGroups(); //! book the hists for the efficiency groups
     StatusCode bookEfficiencyGroup(const std::string & groupName); //! book the hists for the efficiency groups
@@ -67,12 +73,13 @@ private:
                                      const std::string & denominatorChainName, const std::string & numeratorChainName); //! helper method for dedicated Efficiency chains
 
     
-    void bookTrigBphysHists(const std::string & trigname,const std::string & prefix, const std::string & path, const std::string & chainName);
+    void bookTrigBphysHists(const std::string & trigname,const std::string & prefix, const std::string & path, const std::string & chainName, const bool fullSetOfHists = true);
     void fillTrigBphysHists(const xAOD::TrigBphys *bphysItem, const std::string & trigItem,
-                            const std::string & prefix, const std::string & path, const std::string & chainName);
+                            const std::string & prefix, const std::string & path, const std::string & chainName, const bool fullSetOfHists = true);
 
     
     // member variables
+    ToolHandle<Trig::TrigDecisionTool> m_tdt;
     const Trig::ChainGroup *m_all;
 
     
@@ -84,13 +91,23 @@ private:
     std::string m_prefix;            //!Bphys histogram prefix name
 
     typedef std::map<std::string, std::string> Table_t;
+    typedef std::pair<std::string, std::string> Pair_t;
     //typedef std::vector<std::pair<std::string, std::string> > Table_t;
     Table_t m_dedicated_chains;  //! menu-independent labels with matching menu-aware chain names for dedicated monitoring
+    Table_t m_dedicatedL1Topo_chains;  //! menu-independent labels with matching menu-aware chain names for dedicated L1Topo monitoring
     Table_t m_efficiency_chains; //! menu-independent labels with matching menu-aware chain names for numerator efficiencies
+    
+    // patterns for the above, if generated on-the-fly from m_primary_chains list
+    Table_t m_dedicated_chains_patterns;
+    Table_t m_dedicatedL1Topo_chains_patterns;
+    Table_t m_efficiency_chains_patterns;
 
     std::vector<std::string> m_containerList; //! Container list
     
     std::vector<std::string> m_monitored_chains; //! chaingroups for general monitoring
+    std::vector<std::string> m_primary_chains; //! chaingroups for detailed monitoring
+    
+    bool m_GenerateChainDictsFromDB;
 
     std::string m_JpsiCandidatesKey; //! offline di-muon container name
     
@@ -102,6 +119,9 @@ private:
     std::string m_trigchain_denomEF;
     std::string m_trigchain_denomnoVtxOS;
     std::string m_trigchain_denomL1Topo;
+    
+    // patterns for the above, if generated on-the-fly from m_primary_chains list
+    std::string m_trigchain_denomnoVtxOS_pattern;
     
     //property variables for histograms, etc.
     double m_mw_jpsi_forward_min;

@@ -8,7 +8,7 @@
 # ------------------------
 include( "JpsiUpsilonTools/configureServices.py" )
 
-print "JWW: apply temp fix TrkVKalVrtFitter.firstMeasuredPoint = False"
+#print "JWW: apply temp fix TrkVKalVrtFitter.firstMeasuredPoint = False"
 TrkVKalVrtFitter.FirstMeasuredPoint = False
 
 # ----------------------------------
@@ -53,7 +53,7 @@ from TrigBphysMonitoring.TrigBphysMonitoringConf import BphysTrigDiMuDecoratorTo
 from TrigBphysMonitoring.TrigBphysMonitoringConf import BphysTrigDecoratorAlg
 
 dimuDeco = BphysTrigDiMuDecoratorTool(name = "BphysTrigDiMuDecoratorTool",
-                                  OutputLevel=VERBOSE)
+                                  OutputLevel=INFO)
 
 ToolSvc += dimuDeco
 print      dimuDeco

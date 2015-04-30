@@ -13,13 +13,16 @@
 #include "BphysTrigDiMuDecoratorTool.h"
 
 // STL includes
+#include <memory>
 
 // FrameWork includes
 #include "GaudiKernel/IToolSvc.h"
+#include "CxxUtils/make_unique.h"
 #include "AthenaBaseComps/AthCheckMacros.h"
 
 #include "xAODTracking/TrackingPrimitives.h"
 
+#include "xAODEventInfo/EventInfo.h"
 
 /////////////////////////////////////////////////////////////////// 
 // Public methods: 
@@ -95,17 +98,52 @@ StatusCode BphysTrigDiMuDecoratorTool::decorateVertex(const xAOD::Vertex* vtx,
 
 
     const xAOD::VertexContainer* pvContainer(0);
-    ATH_CHECK(evtStore()->retrieve(pvContainer   ,m_pvCandidatesKey  ));
+    // check if PV container - ie. if cosmics // https://its.cern.ch/jira/browse/ATR-10633
+    if (evtStore()->retrieve(pvContainer   ,m_pvCandidatesKey  ).isFailure() || !pvContainer) {
+        ATH_MSG_DEBUG("No PrimaryVertex container of name: " << m_pvCandidatesKey);
+    } // no PV
     
     //vtx->auxdecor<unsigned int>("TestVar") = 10;
     
     const xAOD::Vertex * vtxbs(nullptr), *vtxpv(nullptr);
-    for (auto primvtx: *pvContainer) {
-        if ( primvtx->vertexType() == xAOD::VxType::PriVtx)
-            vtxpv = primvtx;
-        if ( primvtx->vertexType() == xAOD::VxType::NoVtx) // assume bs
-            vtxbs = primvtx;
-    } // vtx
+    if (pvContainer) {
+        for (auto primvtx: *pvContainer) {
+            if ( primvtx->vertexType() == xAOD::VxType::PriVtx)
+                vtxpv = primvtx;
+        } // vtx
+    } // if pv container is found
+    
+    const xAOD::EventInfo *evtInfo(nullptr);
+    if ( evtStore()->retrieve(evtInfo).isFailure() || !evtInfo) {
+        ATH_MSG_DEBUG("No EventInfo found; dummy BS position used");
+    } else {
+        ATH_MSG_VERBOSE("Beamspot: " << evtInfo->beamPosX() << " "
+                      << evtInfo->beamPosY() << " " << evtInfo->beamPosZ() << " / "
+                      << evtInfo->beamPosSigmaX() << " " << evtInfo->beamPosSigmaY() << " "
+                      << evtInfo->beamPosSigmaZ() );
+    }
+    std::unique_ptr<xAOD::Vertex> bsVertex = CxxUtils::make_unique<xAOD::Vertex>();
+    bsVertex->makePrivateStore();
+    if (evtInfo) {
+        bsVertex->setX(evtInfo->beamPosX());
+        bsVertex->setY(evtInfo->beamPosY());
+        bsVertex->setZ(evtInfo->beamPosZ());
+        AmgSymMatrix(3) cov;
+        cov(0,0) = evtInfo->beamPosSigmaX() * evtInfo->beamPosSigmaX();
+        cov(1,1) = evtInfo->beamPosSigmaY() * evtInfo->beamPosSigmaY();
+        cov(2,2) = evtInfo->beamPosSigmaZ() * evtInfo->beamPosSigmaZ();
+        bsVertex->setCovariancePosition(cov);
+    } else {
+        bsVertex->setX(0.);
+        bsVertex->setY(0.);
+        bsVertex->setZ(0.);
+        AmgSymMatrix(3) cov;
+        cov(0,0) = 50.;
+        cov(1,1) = 50.;
+        cov(2,2) = 300.;
+    }
+
+    vtxbs = bsVertex.get(); // get the pointer from the unique object
     
     if (!vtxbs) {
         ATH_MSG_DEBUG("Expected dummy vertex for BS");
@@ -117,7 +155,7 @@ StatusCode BphysTrigDiMuDecoratorTool::decorateVertex(const xAOD::Vertex* vtx,
     }
     
     if (!vtxpv) {
-        ATH_MSG_WARNING("Expected PV");
+        ATH_MSG_DEBUG("Expected PV");
     }
     
     std::vector<double> masses = {m_trackMass,m_trackMass};
