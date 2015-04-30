@@ -4,15 +4,15 @@
 
 // ********************************************************************
 //
-// NAME:     OverviewMon.h
+// NAME:     TrigT1CaloGlobalMonTool.h
 // PACKAGE:  TrigT1CaloMonitoring
 //
 // AUTHOR:   Peter Faulkner
 //	     
 //
 // ********************************************************************
-#ifndef TRIGT1CALOMONITORING_OVERVIEWMON_H
-#define TRIGT1CALOMONITORING_OVERVIEWMON_H
+#ifndef TRIGT1CALOGLOBALMONTOOL_H
+#define TRIGT1CALOGLOBALMONTOOL_H
 
 #include <string>
 #include <vector>
@@ -25,11 +25,13 @@ class TH1F;
 class TH2F;
 class StatusCode;
 
-class TrigT1CaloMonErrorTool;
-class TrigT1CaloLWHistogramTool;
 
+// ============================================================================
 namespace LVL1 {
-
+// ============================================================================
+class ITrigT1CaloMonErrorTool;
+class TrigT1CaloLWHistogramToolV1;
+// ============================================================================
 /** Summary error plots across all L1Calo sub-detectors.
  *
  *  Error info is passed from other monitoring tools via StoreGate.
@@ -90,39 +92,44 @@ namespace LVL1 {
  *    </td><td> Link down errors from CPM tower data or JEM jet element data
  *      </td><td> @c CPM/Errors/Hardware <br> 
  *                @c JEM/Errors/Hardware </td></tr>
+ *  <tr><td> RoIParity
+ *    </td><td> Parity errors from RoI words
+ *      </td><td> @c CPM/Errors/Hardware <br> 
+ *                @c JEM/Errors/Hardware </td></tr>
  *  <tr><td> Transmission
  *    </td><td> Data mismatches   <br>
  *              (PPM->CPM towers) <br>
  *              Not checked if there are ROB Status or unpacking errors
  *      </td><td> @c CPM/Errors/Transmission_Simulation </td></tr>
  *  <tr><td> Simulation
- *    </td><td> Simulation/data mismatches                     <br>
- *              (PPM LUT/CPM RoI/JEM JetElements, RoI, EtSums) <br>
+ *    </td><td> Simulation/data mismatches                                 <br>
+ *              (PPM LUT/CPM RoI, Hits/JEM JetElements, RoI, Hits, EtSums) <br>
  *              CPM/JEM data not checked if there are ROB Status or unpacking errors
  *      </td><td> @c PPM/Errors/Data_Simulation         <br>
  *                @c CPM/Errors/Transmission_Simulation <br>
  *                @c JEM/Errors/Transmission_Simulation </td></tr>
- *  <tr><td> CMXSubStatus
+ *  <tr><td> CMMSubStatus
  *    </td><td> Errors from sub-status word error field <br>
- *              (CMXs)
- *      </td><td> @c CPM_CMX/Errors/Hardware <br>
- *                @c JEM_CMX/Errors/Hardware </td></tr>
- *  <tr><td> CMXParity
- *    </td><td> Cable or backplane parity errors from CMXs
- *      </td><td> @c CPM_CMX/Errors/Hardware <br>
- *                @c JEM_CMX/Errors/Hardware </td></tr>
- *  <tr><td> CMXTransmission
- *    </td><td> Data mismatches                                  <br>
- *              (JEM->CMX EtSums, Local->Remote Sums, CMX->RoIs) <br>
+ *              (CMMs)
+ *      </td><td> @c CPM_CMM/Errors/Hardware <br>
+ *                @c JEM_CMM/Errors/Hardware </td></tr>
+ *  <tr><td> CMMParity
+ *    </td><td> Cable or backplane parity errors from CMMs
+ *      </td><td> @c CPM_CMM/Errors/Hardware <br>
+ *                @c JEM_CMM/Errors/Hardware </td></tr>
+ *  <tr><td> CMMTransmission
+ *    </td><td> Data mismatches                             <br>
+ *              (CPM->CMM Hits, JEM->CMM Hits, JEM->CMM EtSums,
+ *               Local->Remote Sums, CMM->RoIs)             <br>
  *              Not checked if there are ROB Status or unpacking errors
- *      </td><td> @c CPM_CMX/Errors/Transmission_Simulation      <br>
- *                @c JEM_CMX/Errors/Transmission_Simulation      </td></tr>
- *  <tr><td> CMXSimulation
- *    </td><td> Simulation/data mismatches                       <br>
- *              (RoI->CMX TOBs, Local Sums, Total Sums, Et Maps, Topo Info) <br>
+ *      </td><td> @c CPM_CMM/Errors/Transmission_Simulation <br>
+ *                @c JEM_CMM/Errors/Transmission_Simulation </td></tr>
+ *  <tr><td> CMMSimulation
+ *    </td><td> Simulation/data mismatches                  <br>
+ *              (Local Sums, Total Sums, Et Maps)           <br>
  *              Not checked if there are ROB Status or unpacking errors
- *      </td><td> @c CPM_CMX/Errors/Transmission_Simulation <br>
- *                @c JEM_CMX/Errors/Transmission_Simulation </td></tr>
+ *      </td><td> @c CPM_CMM/Errors/Transmission_Simulation <br>
+ *                @c JEM_CMM/Errors/Transmission_Simulation </td></tr>
  *  <tr><td> RODStatus
  *    </td><td> Errors from ROD Status element block
  *      </td><td> @c ROD </td></tr>
@@ -148,54 +155,45 @@ namespace LVL1 {
  *  <b>StoreGate Containers Used:</b>
  *
  *  <table>
- *  <tr><th> Container                      </th><th> Comment                            </th></tr>
- *  <tr><td> @c EventInfo                   </td><td> For lumiblock number               </td></tr>
+ *  <tr><th> Container                      </th><th> Comment                             </th></tr>
+ *  <tr><td> @c EventInfo                   </td><td> For lumiblock number                </td></tr>
  *  <tr><td> @c std::vector<int>            <br>
- *           @c "L1CaloPPMErrorVector"      </td><td> Error summary bits from PPMon      </td></tr>
+ *           @c "L1CaloPPMErrorVector"      </td><td> Error summary bits from PPrMon      </td></tr>
  *  <tr><td> @c std::vector<int>            <br>
- *           @c "L1CaloPPMSpareErrorVector" </td><td> Error summary bits from PPSpareMon </td></tr>
+ *           @c "L1CaloPPMSpareErrorVector" </td><td> Error summary bits from PPrSpareMon </td></tr>
  *  <tr><td> @c std::vector<int>            <br>
- *           @c "L1CaloCPMErrorVector"      </td><td> Error summary bits from CPMon      </td></tr>
+ *           @c "L1CaloCPMErrorVector"      </td><td> Error summary bits from TrigT1CaloCpmMonTool
+ *                                                                                        </td></tr>
  *  <tr><td> @c std::vector<int>            <br>
- *           @c "L1CaloJEMErrorVector"      </td><td> Error summary bits from JEPJEMMon  </td></tr>
+ *           @c "L1CaloJEMErrorVector"      </td><td> Error summary bits from JEMMon      </td></tr>
  *  <tr><td> @c std::vector<int>            <br>
- *           @c "L1CaloJEMCMXErrorVector"   </td><td> Error summary bits from JEPCMXMon  </td></tr>
+ *           @c "L1CaloJEMCMMErrorVector"   </td><td> Error summary bits from CMMMon      </td></tr>
  *  <tr><td> @c std::vector<int>            <br>
- *           @c "L1CaloRODErrorVector"      </td><td> Error summary bits from RODMon     </td></tr>
+ *           @c "L1CaloRODErrorVector"      </td><td> Error summary bits from TrigT1CaloRodMonTool
+ *                                                                                        </td></tr>
  *  <tr><td> @c std::vector<int>            <br>
- *           @c "L1CaloPPMMismatchVector"   </td><td> Error summary bits from PPSimMon   </td></tr>
+ *           @c "L1CaloPPMMismatchVector"   </td><td> Error summary bits from PPMSimBSMon </td></tr>
  *  <tr><td> @c std::vector<int>            <br>
- *           @c "L1CaloCPMMismatchVector"   </td><td> Error summary bits from CPSimMon   </td></tr>
+ *           @c "L1CaloCPMMismatchVector"   </td><td> Error summary bits from CPMSimBSMon </td></tr>
  *  <tr><td> @c std::vector<int>            <br>
- *           @c "L1CaloJEMMismatchVector"   </td><td> Error summary bits from JEPSimMon  </td></tr>
+ *           @c "L1CaloJEMMismatchVector"   </td><td> Error summary bits from JEPSimBSMon </td></tr>
  *  </table>
  *
  *  <b>Tools Used:</b>
  *
  *  <table>
- *  <tr><th> Tool                               </th><th> Description          </th></tr>
- *  <tr><td> @c LVL1::ITrigT1CaloMonErrorTool   </td><td> @copydoc m_errorTool </td></tr>
- *  <tr><td> @c LVL1::TrigT1CaloLWHistogramTool </td><td> @copydoc m_histTool  </td></tr>
+ *  <tr><th> Tool                         </th><th> Description          </th></tr>
+ *  <tr><td> @c TrigT1CaloMonErrorTool    </td><td> @copydoc m_errorTool </td></tr>
+ *  <tr><td> @c TrigT1CaloLWHistogramToolV1 </td><td> @copydoc m_histTool  </td></tr>
  *  </table>
  *
  *  <b>JobOption Properties:</b>
  *
  *  <table>
- *  <tr><th> Property                 </th><th> Description                      </th></tr>
- *  <tr><td> @c ErrorTool             </td><td> @copydoc m_errorTool             </td></tr>
- *  <tr><td> @c HistogramTool         </td><td> @copydoc m_histTool              </td></tr>
- *  <tr><td> @c PPMErrorLocation      </td><td> @copydoc m_ppmErrorLocation      </td></tr>
- *  <tr><td> @c PPMSpareErrorLocation </td><td> @copydoc m_ppmSpareErrorLocation </td></tr>
- *  <tr><td> @c CPMErrorLocation      </td><td> @copydoc m_cpmErrorLocation      </td></tr>
- *  <tr><td> @c JEMErrorLocation      </td><td> @copydoc m_jemErrorLocation      </td></tr>
- *  <tr><td> @c JEMCMXErrorLocation   </td><td> @copydoc m_jemCmxErrorLocation   </td></tr>
- *  <tr><td> @c RODErrorLocation      </td><td> @copydoc m_rodErrorLocation      </td></tr>
- *  <tr><td> @c PPMMismatchLocation   </td><td> @copydoc m_ppmMismatchLocation   </td></tr>
- *  <tr><td> @c CPMMismatchLocation   </td><td> @copydoc m_cpmMismatchLocation   </td></tr>
- *  <tr><td> @c JEMMismatchLocation   </td><td> @copydoc m_jemMismatchLocation   </td></tr>
- *  <tr><td> @c RootDirectory         </td><td> @copydoc m_rootDir               </td></tr>
- *  <tr><td> @c RecentLumiBlocks      </td><td> @copydoc m_recentLumi            </td></tr>
- *  <tr><td> @c OnlineTest            </td><td> @copydoc m_onlineTest            </td></tr>
+ *  <tr><th> Property            </th><th> Description           </th></tr>
+ *  <tr><td> @c RootDirectory    </td><td> @copydoc m_rootDir    </td></tr>
+ *  <tr><td> @c RecentLumiBlocks </td><td> @copydoc m_recentLumi </td></tr>
+ *  <tr><td> @c OnlineTest       </td><td> @copydoc m_onlineTest </td></tr>
  *  </table>
  *
  *  <!--
@@ -206,16 +204,16 @@ namespace LVL1 {
  *
  */
 
-class OverviewMon: public ManagedMonitorToolBase
+class TrigT1CaloGlobalMonTool: public ManagedMonitorToolBase
 {
 
 public:
   
-  OverviewMon(const std::string & type, const std::string & name,
+  TrigT1CaloGlobalMonTool(const std::string & type, const std::string & name,
   		          const IInterface* parent);
     
-  
-  virtual ~OverviewMon();
+
+  virtual ~TrigT1CaloGlobalMonTool();
 
   virtual StatusCode initialize();
   virtual StatusCode finalize();
@@ -233,12 +231,13 @@ private:
   enum PPMErrors { DataStatus, DataError, PPMSubStatus };
   /// Error bits in CPM error data
   enum CPMErrors { CPMEMParity, CPMEMLink, CPMHadParity, CPMHadLink, CPMStatus,
-                   CMXCPTobParity, CMXCPSumParity, CMXCPStatus };
+                   CPMRoIParity, CMMCPParity, CMMCPStatus };
   /// Error bits in JEM error data
-  enum JEMErrors { JEMEMParity, JEMHadParity, JEMEMLink, JEMHadLink, JEMStatus };
-  /// Error bits in JEM CMX error data
-  enum CMXErrors { JEMCMXJetStatus, JEMCMXEnergyStatus, JEMCMXJetParity,
-                   JEMCMXEnergyParity };
+  enum JEMErrors { JEMEMParity, JEMHadParity, JEMEMLink, JEMHadLink, JEMStatus,
+                   JEMRoIParity };
+  /// Error bits in JEM CMM error data
+  enum CMMErrors { JEMCMMJetStatus, JEMCMMEnergyStatus, JEMCMMJetParity,
+                   JEMCMMEnergyParity, JEMCMMRoIParity};
   /// Error bits in ROD error data
   enum RODErrors { GLink, /*CMMParity,*/ LVDSLink, FIFOOverflow, DataTransport,
                    Timeout, BCNMismatch, TriggerType, NoPayload, NoFragment,
@@ -248,22 +247,22 @@ private:
   /// Error bits in PPM simulation error data
   enum PPMMismatch { LUTMismatch };
   /// Error bits in CPM simulation error data
-  enum CPMMismatch { EMTowerMismatch, HadTowerMismatch, EMRoIMismatch,
-                     TauRoIMismatch, LeftCMXTobMismatch, RightCMXTobMismatch,
-		     LocalSumMismatch, RemoteSumMismatch, TotalSumMismatch,
-		     TopoMismatch };
+  enum CPMMismatch { EMTowerMismatch, HadTowerMismatch, CPMRoIMismatch,
+                     CPMHitsMismatch, CMMHitsMismatch, LocalSumMismatch,
+		     RemoteSumMismatch, TotalSumMismatch };
   /// Error bits in JEM simulation error data
   enum JEMMismatch { EMElementMismatch, HadElementMismatch, JEMRoIMismatch,
-                     CMXJetTobMismatch, LocalJetMismatch, RemoteJetMismatch,
-		     TotalJetMismatch, CMXJetTopoMismatch, JEMEtSumsMismatch,
-		     CMXEtSumsMismatch, LocalEnergyMismatch, RemoteEnergyMismatch,
+                     JEMHitsMismatch, CMMJetHitsMismatch, LocalJetMismatch,
+		     RemoteJetMismatch, TotalJetMismatch, JetEtMismatch,
+		     JetEtRoIMismatch, JEMEtSumsMismatch, CMMEtSumsMismatch,
+		     LocalEnergyMismatch, RemoteEnergyMismatch,
 		     TotalEnergyMismatch, SumEtMismatch, MissingEtMismatch,
 		     MissingEtSigMismatch, EnergyRoIMismatch };
 
   /// Bins for global error plots
   enum GlobalErrors { PPMDataStatus, PPMDataError, SubStatus, Parity, LinkDown,
-                      Transmission, Simulation, CMXSubStatus,
-		      GbCMXParity, CMXTransmission, CMXSimulation,
+                      RoIParity, Transmission, Simulation, CMMSubStatus,
+		      GbCMMParity, CMMTransmission, CMMSimulation,
 		      RODStatus, RODMissing, ROBStatus, Unpacking,
 		      NumberOfGlobalErrors };
 
@@ -273,28 +272,9 @@ private:
   TH2F* bookOverview(const std::string& name, const std::string& title);
 
   /// Tool to retrieve bytestream errors
-  ToolHandle<TrigT1CaloMonErrorTool>   m_errorTool;
+  ToolHandle<ITrigT1CaloMonErrorTool>    m_errorTool;
   /// Histogram helper tool
-  ToolHandle<TrigT1CaloLWHistogramTool> m_histTool;
-
-  /// PPM error vector location in StoreGate
-  std::string m_ppmErrorLocation;
-  /// PPM spare channels error vector location in StoreGate
-  std::string m_ppmSpareErrorLocation;
-  /// CPM error vector location in StoreGate
-  std::string m_cpmErrorLocation;
-  /// JEM error vector location in StoreGate
-  std::string m_jemErrorLocation;
-  /// JEM-CMX error vector location in StoreGate
-  std::string m_jemCmxErrorLocation;
-  /// ROD error vector location in StoreGate
-  std::string m_rodErrorLocation;
-  /// PPM mismatch vector location in StoreGate
-  std::string m_ppmMismatchLocation;
-  /// CPM mismatch vector location in StoreGate
-  std::string m_cpmMismatchLocation;
-  /// JEM mismatch vector location in StoreGate
-  std::string m_jemMismatchLocation;
+  ToolHandle<TrigT1CaloLWHistogramToolV1> m_histTool;
 
   /// Root directory
   std::string m_rootDir;
@@ -325,7 +305,7 @@ private:
   std::vector<TH2F*> m_v_l1calo_2d_GlobalOverviewBlock;
 
 };
-
-} // end namespace
-
+// ============================================================================
+}  // end namespace
+// ============================================================================
 #endif

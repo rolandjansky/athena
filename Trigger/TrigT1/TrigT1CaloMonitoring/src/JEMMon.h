@@ -31,15 +31,16 @@ class TH2I_LW;
 
 class StatusCode;
 
-class TrigT1CaloMonErrorTool;
-class TrigT1CaloLWHistogramToolV1;
 
+// ============================================================================
 namespace LVL1 {
-  class JEMHits;
-  class JEMEtSums;
-  class JetElement;
-  class JEMRoI;
-}
+// ============================================================================
+class JEMHits;
+class JEMEtSums;
+class JetElement;
+class JEMRoI;
+class ITrigT1CaloMonErrorTool;
+class TrigT1CaloLWHistogramToolV1;
 
 /** Monitoring of the JEP on JEM level.
  *
@@ -155,7 +156,7 @@ private:
    typedef DataVector<LVL1::JEMRoI> JemRoiCollection;
 
    /// Tool to retrieve bytestream errors
-   ToolHandle<TrigT1CaloMonErrorTool>    m_errorTool;
+   ToolHandle<ITrigT1CaloMonErrorTool>    m_errorTool;
    /// Histogram helper tool
    ToolHandle<TrigT1CaloLWHistogramToolV1> m_histTool;
 
@@ -231,6 +232,10 @@ private:
    TH1F_LW* m_h_jem_1d_ErrorSummary;              ///< Summary of JEM Data Errors
    TH2I_LW* m_h_jem_2d_ErrorEventNumbers;         ///< JEM Error Event Numbers
 };
+
+// ============================================================================
+}  // end namespace
+// ============================================================================
 
 
 #endif

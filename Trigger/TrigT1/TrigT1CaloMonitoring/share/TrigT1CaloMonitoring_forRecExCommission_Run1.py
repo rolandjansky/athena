@@ -48,6 +48,7 @@ if l1caloRawMon:
 
     if isData:
         include("TrigT1CaloCalibConditions/L1CaloCalibConditionsTier0_jobOptions.py")
+        include('TrigT1CaloCalibTools/DecorateL1CaloTriggerTowers_prodJobOFragment.py')
     
     from TrigT1CaloMonitoringTools.LVL1CaloMonFlags import LVL1CaloMonFlags
     
@@ -112,6 +113,7 @@ if l1caloRawMon:
         #================================= PPr ===========================================
         #=================================================================================
         from TrigT1CaloMonitoring.TrigT1CaloMonitoringConf import PPrMon
+        from AthenaCommon.JobProperties import jobproperties
         L1PPrMonTool = PPrMon(
             name = "L1PPrMonTool",
             BS_TriggerTowerContainer = "TriggerTowers",
@@ -124,6 +126,7 @@ if l1caloRawMon:
             ADCPedestal = 32,
             PathInRootFile = "L1Calo/PPM",
             ErrorPathInRootFile = "L1Calo/PPM/Errors",
+            BeamType=jobproperties.Beam.beamType(),
             #OnlineTest = True,
             #OutputLevel = DEBUG
             )
@@ -132,8 +135,8 @@ if l1caloRawMon:
 
         if isData:
                 
-            from TrigT1CaloMonitoring.TrigT1CaloMonitoringConf import PPMSimBSMon
-            PPMSimBSMonTool = PPMSimBSMon("PPMSimBSMonTool")
+            from TrigT1CaloMonitoring.TrigT1CaloMonitoringConf import LVL1__PPMSimBSMon
+            PPMSimBSMonTool = LVL1__PPMSimBSMon("PPMSimBSMonTool")
             ToolSvc += PPMSimBSMonTool
             L1CaloMan.AthenaMonTools += [ PPMSimBSMonTool ]
             #ToolSvc.PPMSimBSMonTool.OutputLevel = DEBUG
@@ -143,8 +146,8 @@ if l1caloRawMon:
             #ToolSvc.L1TriggerTowerTool.OutputLevel = DEBUG
             
             #--------------------------------- PPM Spare Channels----------------------------
-            from TrigT1CaloMonitoring.TrigT1CaloMonitoringConf import PPrSpareMon
-            L1PPrSpareMonTool = PPrSpareMon(
+            from TrigT1CaloMonitoring.TrigT1CaloMonitoringConf import LVL1_PPrSpareMon
+            L1PPrSpareMonTool = LVL1_PPrSpareMon(
                 name = "L1PPrSpareMonTool",
                 BS_TriggerTowerContainer = "TriggerTowersSpare",
                 ADCHitMap_Thresh = 40,
@@ -160,8 +163,8 @@ if l1caloRawMon:
         #=================================================================================
     
         #------------------------------------ JEM ----------------------------------------
-        from TrigT1CaloMonitoring.TrigT1CaloMonitoringConf import JEMMon
-        L1JEMMonTool = JEMMon(
+        from TrigT1CaloMonitoring.TrigT1CaloMonitoringConf import LVL1__JEMMon
+        L1JEMMonTool = LVL1__JEMMon(
             name = "L1JEMMonTool",
             JetElementLocation = "JetElements",
             JEMHitsLocation = "JEMHits",
@@ -176,8 +179,8 @@ if l1caloRawMon:
         L1CaloMan.AthenaMonTools += [ L1JEMMonTool ]
     
         #----------------------------------- CMM ------------------------------------------
-        from TrigT1CaloMonitoring.TrigT1CaloMonitoringConf import CMMMon
-        L1CMMMonTool = CMMMon (
+        from TrigT1CaloMonitoring.TrigT1CaloMonitoringConf import LVL1__CMMMon
+        L1CMMMonTool = LVL1__CMMMon (
             name = "L1CMMMonTool",
             CMMJetHitsLocation = "CMMJetHits",
             CMMEtSumsLocation = "CMMEtSums",
@@ -192,8 +195,8 @@ if l1caloRawMon:
         if isData:
     
             #--------------------- Transmission and Performance ------------------------------
-            from TrigT1CaloMonitoring.TrigT1CaloMonitoringConf import JEPSimBSMon
-            JEPSimBSMonTool = JEPSimBSMon("JEPSimBSMonTool",
+            from TrigT1CaloMonitoring.TrigT1CaloMonitoringConf import LVL1__JEPSimBSMon
+            JEPSimBSMonTool = LVL1__JEPSimBSMon("JEPSimBSMonTool",
                 JEPHitsTool = "LVL1::L1JEPHitsTools/L1JEPHitsTools_Mon",
                 JetTool = "LVL1::L1JetTools/L1JetTools_Mon",
                 JEPEtSumsTool = "LVL1::L1JEPEtSumsTools/L1JEPEtSumsTools_Mon",
@@ -223,8 +226,8 @@ if l1caloRawMon:
         #=================================================================================
         #===================================== CP ========================================
         #=================================================================================
-        from TrigT1CaloMonitoring.TrigT1CaloMonitoringConf import TrigT1CaloCpmMonTool
-        L1BSCPMMonTool = TrigT1CaloCpmMonTool (
+        from TrigT1CaloMonitoring.TrigT1CaloMonitoringConf import LVL1__TrigT1CaloCpmMonTool
+        L1BSCPMMonTool = LVL1__TrigT1CaloCpmMonTool (
             name = "L1BSCPMMonTool",
             TriggerTowerLocation = "TriggerTowers",
             CPMTowerLocation = "CPMTowers",
@@ -240,8 +243,8 @@ if l1caloRawMon:
     
         if isData:
     
-            from TrigT1CaloMonitoring.TrigT1CaloMonitoringConf import CPMSimBSMon
-            CPMSimBSMonTool = CPMSimBSMon("CPMSimBSMonTool",
+            from TrigT1CaloMonitoring.TrigT1CaloMonitoringConf import LVL1__CPMSimBSMon
+            CPMSimBSMonTool = LVL1__CPMSimBSMon("CPMSimBSMonTool",
                                       EmTauTool = "LVL1::L1EmTauTools/L1EmTauTools_Mon",
                                       )
             ToolSvc += CPMSimBSMonTool
@@ -256,8 +259,8 @@ if l1caloRawMon:
             #=================================================================================
             #===================================== ROD =======================================
             #=================================================================================
-            from TrigT1CaloMonitoring.TrigT1CaloMonitoringConf import TrigT1CaloRodMonTool
-            L1BSRODMonTool = TrigT1CaloRodMonTool (
+            from TrigT1CaloMonitoring.TrigT1CaloMonitoringConf import LVL1__RodMonV1
+            L1BSRODMonTool = LVL1__RodMonV1 (
                 name = "L1BSRODMonTool",
                 #OnlineTest = True,
                 #OutputLevel = DEBUG,
@@ -273,8 +276,8 @@ if l1caloRawMon:
             #                                         FlagCorruptEvents = "None"
             #                                         )
             #ToolSvc += L1MonErrorTool
-            from TrigT1CaloMonitoring.TrigT1CaloMonitoringConf import TrigT1CaloGlobalMonTool
-            L1GlobalMonTool = TrigT1CaloGlobalMonTool ( name = "L1GlobalMonTool",
+            from TrigT1CaloMonitoring.TrigT1CaloMonitoringConf import LVL1__TrigT1CaloGlobalMonTool
+            L1GlobalMonTool = LVL1__TrigT1CaloGlobalMonTool ( name = "L1GlobalMonTool",
     						        #OnlineTest = True,
     						        #OutputLevel = DEBUG
                                                       )
@@ -289,8 +292,8 @@ if l1caloRawMon:
             #=============================== EM Efficiencies =================================
             #=================================================================================
             trigstring = ['EF_.*']
-            from TrigT1CaloMonitoring.TrigT1CaloMonitoringConf import EmEfficienciesMonTool
-            L1EmEfficienciesMonTool = EmEfficienciesMonTool ( name = "EmEfficienciesMonTool",
+            from TrigT1CaloMonitoring.TrigT1CaloMonitoringConf import LVL1__EmEfficienciesMonTool
+            L1EmEfficienciesMonTool = LVL1__EmEfficienciesMonTool ( name = "EmEfficienciesMonTool",
                                                                   TriggerStrings = trigstring
                                                             )
             ToolSvc += L1EmEfficienciesMonTool
@@ -308,9 +311,9 @@ if l1caloRawMon:
             #=============================== Jet Efficiencies ================================
             #=================================================================================
             trigstring = ['EF_.*']
-            from TrigT1CaloMonitoring.TrigT1CaloMonitoringConf import JetEfficienciesMonTool
+            from TrigT1CaloMonitoring.TrigT1CaloMonitoringConf import LVL1__JetEfficienciesMonTool
             from JetSelectorTools.ConfiguredJetCleaningTools import *  
-            L1JetEfficienciesMonTool = JetEfficienciesMonTool ( name = "JetEfficienciesMonTool",
+            L1JetEfficienciesMonTool = JLVL1__etEfficienciesMonTool ( name = "JetEfficienciesMonTool",
                                                                   TriggerStrings = trigstring
                                                               )
             from AthenaCommon.AppMgr import ToolSvc

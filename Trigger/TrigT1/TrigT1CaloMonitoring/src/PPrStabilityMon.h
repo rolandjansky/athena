@@ -21,22 +21,25 @@
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
 #include "GaudiKernel/ToolHandle.h"
 
-#include "xAODTrigL1Calo/xAODTrigL1Calo/TriggerTower.h"
-#include "xAODTrigL1Calo/xAODTrigL1Calo/TriggerTowerContainer.h"
+#include "xAODTrigL1Calo/TriggerTower.h"
+#include "xAODTrigL1Calo/TriggerTowerContainer.h"
 
 class StatusCode;
 class EventInfo;
 
-class TrigT1CaloMonErrorTool;
-class TrigT1CaloLWHistogramTool;
+
 class L1CaloPprFineTimePlotManager;
 class L1CaloPprPedestalPlotManager;
 class L1CaloPprPedestalCorrectionPlotManager;
 class L1CaloPprEtCorrelationPlotManager;
-
+// ============================================================================
 namespace LVL1 {
-  class IL1TriggerTowerTool;
-}
+// ============================================================================
+// Forward declarations:
+// ============================================================================
+class IL1TriggerTowerTool;
+class ITrigT1CaloMonErrorTool;
+class TrigT1CaloLWHistogramTool;
 
 /** This class does stability monitoring by lumiblock
  *  of entities to be defined by the properties declared.
@@ -172,11 +175,11 @@ private:
   unsigned int m_lumiBlockMax;
 
   /// Tool to retrieve bytestream errors
-  ToolHandle<TrigT1CaloMonErrorTool>    m_errorTool;
+  ToolHandle<ITrigT1CaloMonErrorTool>    m_errorTool;
   /// Histogram helper tool
   ToolHandle<TrigT1CaloLWHistogramTool> m_histTool;
   /// Tool for identifiers and database info
-  ToolHandle<LVL1::IL1TriggerTowerTool> m_ttTool;
+  ToolHandle<IL1TriggerTowerTool> m_ttTool;
   /// Manager for fine time plots
   L1CaloPprFineTimePlotManager*         m_fineTimePlotManager;
   /// Manager for pedestal plots
@@ -213,5 +216,9 @@ private:
   bool m_doCaloQualCut;
   
 };
+
+// ============================================================================
+}  // end namespace
+// ============================================================================
 
 #endif

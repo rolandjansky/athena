@@ -28,11 +28,12 @@ class TH1F_LW;
 class TH2F_LW;
 class TH2I_LW;
 class StatusCode;
-class TrigT1CaloMonErrorTool;
-class TrigT1CaloLWHistogramTool;
 
+// ============================================================================
 namespace LVL1 {
-
+// ============================================================================
+// Forward declarations:
+// ============================================================================
 class CMXEtSums;
 class CMXJetTob;
 class CMXJetHits;
@@ -47,7 +48,9 @@ class IL1JetCMXTools;
 class IL1JetElementTools;
 class IL1JetTools;
 class IL1EnergyCMXTools;
-
+class ITrigT1CaloMonErrorTool;
+class TrigT1CaloLWHistogramTool;
+// ============================================================================
 
 /** Cross-check of JEM and JEM-CMX data with simulation.
  *
@@ -328,7 +331,7 @@ private:
   /// CMX-Energy simulation tool
   ToolHandle<LVL1::IL1EnergyCMXTools>         m_energyCmxTool;
   /// Event veto tool
-  ToolHandle<TrigT1CaloMonErrorTool>   m_errorTool;
+  ToolHandle<ITrigT1CaloMonErrorTool>   m_errorTool;
   /// Histogram helper tool
   ToolHandle<TrigT1CaloLWHistogramTool> m_histTool;
 

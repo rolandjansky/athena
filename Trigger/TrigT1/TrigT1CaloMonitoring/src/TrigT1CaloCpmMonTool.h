@@ -28,17 +28,19 @@ class TH2F_LW;
 class TH2I_LW;
 class StatusCode;
 
-class TrigT1CaloMonErrorTool;
-class TrigT1CaloLWHistogramToolV1;
-
+// ============================================================================
 namespace LVL1 {
-  class CPMTower;
-  class CPMHits;
-  class CMMCPHits;
-  class CPMRoI;
-  class TriggerTower;
-}
-
+// ============================================================================
+// Forward declarations:
+// ============================================================================
+class CPMTower;
+class CPMHits;
+class CMMCPHits;
+class CPMRoI;
+class TriggerTower;
+class ITrigT1CaloMonErrorTool;
+class TrigT1CaloLWHistogramToolV1;
+// ============================================================================
 /** Monitoring of the Cluster Processor.
  *
  *  Produces histograms of CPM and CMM-CP input data, output data and hardware errors.
@@ -186,7 +188,7 @@ private:
   static const int s_threshMask = 0x7; ///< Hit sums mask
 
   /// Tool to retrieve bytestream errors
-  ToolHandle<TrigT1CaloMonErrorTool>    m_errorTool;
+  ToolHandle<ITrigT1CaloMonErrorTool>    m_errorTool;
   /// Histogram helper tool
   ToolHandle<TrigT1CaloLWHistogramToolV1> m_histTool;
 
@@ -293,5 +295,7 @@ private:
   TH2I_LW* m_h_cpm_2d_ErrorEventNumbers;        ///< CP Error Event Numbers
 
 };
-
+// ============================================================================
+}  // end namespace
+// ============================================================================
 #endif

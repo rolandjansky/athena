@@ -34,10 +34,12 @@
 #include "TrigT1CaloEvent/TriggerTower.h"
 #include "TrigT1Interfaces/TrigT1CaloDefs.h"
 
-#include "TrigT1CaloMonitoring/TrigT1CaloBSMon.h"
 #include "TrigT1CaloCalibToolInterfaces/IL1CaloMonitoringCaloTool.h"
 
-/*---------------------------------------------------------*/
+#include "TrigT1CaloBSMon.h"
+// ============================================================================
+namespace LVL1 {
+// ============================================================================
 TrigT1CaloBSMon::TrigT1CaloBSMon(const std::string & type, 
 			 const std::string & name,
 			 const IInterface* parent)
@@ -313,3 +315,6 @@ StatusCode TrigT1CaloBSMon::fillHistograms()
   return StatusCode::SUCCESS;
 }
 
+// ============================================================================
+}  // end namespace
+// ============================================================================

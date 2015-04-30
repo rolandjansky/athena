@@ -9,7 +9,7 @@
 //
 // AUTHOR:   Ethan-Etienne Woehrling (eew@hep.ph.bham.ac.uk)
 //           Johanna Fleckner (Johanna.Fleckner@uni-mainz.de)
-//	     
+//
 //
 // ********************************************************************
 #ifndef PPRMON_H
@@ -29,12 +29,23 @@ class TProfile2D_LW;
 
 class StatusCode;
 
-class TrigT1CaloMonErrorTool;
-class TrigT1CaloLWHistogramTool;
 
+
+namespace Trig {
+class IBunchCrossingTool;
+
+static const std::string MC_DIGI_PARAM = "/Digitization/Parameters";
+} //added
+
+// ============================================================================
 namespace LVL1 {
-  class IL1TriggerTowerTool;
-}
+// ============================================================================
+// Forward declarations:
+// ============================================================================
+class IL1TriggerTowerTool;
+class ITrigT1CaloMonErrorTool;
+class TrigT1CaloLWHistogramTool;
+// ============================================================================
 
 /** Monitoring of the Preprocessor
  *
@@ -143,10 +154,10 @@ namespace LVL1 {
 class PPrMon: public ManagedMonitorToolBase
 {
 
- public:
-  
+public:
+
   PPrMon(const std::string & type, const std::string & name,
-		                   const IInterface* parent);
+         const IInterface* parent);
 
   virtual ~PPrMon();
 
@@ -154,12 +165,13 @@ class PPrMon: public ManagedMonitorToolBase
   virtual StatusCode bookHistogramsRecurrent();
   virtual StatusCode fillHistograms();
 private:
-  
+
   /// Subdetector partitions
   enum CaloPartitions { LArFCAL1C, LArEMECC, LArOverlapC, LArEMBC, LArEMBA,
-      LArOverlapA, LArEMECA, LArFCAL1A, LArFCAL23C, LArHECC,
-      TileEBC, TileLBC, TileLBA, TileEBA, LArHECA, LArFCAL23A,
-      MaxPartitions };
+                        LArOverlapA, LArEMECA, LArFCAL1A, LArFCAL23C, LArHECC,
+                        TileEBC, TileLBC, TileLBA, TileEBA, LArHECA, LArFCAL23A,
+                        MaxPartitions
+                      };
 
   /// Find signal maximum FADC slice
   double recTime(const std::vector<short unsigned int>& vFAdc, int cut);
@@ -167,7 +179,9 @@ private:
   int partition(int layer, double eta);
   /// Return subdetector partition name
   std::string partitionName(int part);
-
+  //Get LHC bunch structure
+  void parseBeamIntensityPattern();
+  std::vector<std::pair<bool, int16_t>> m_distanceFromHeadOfTrain;
   /// TriggerTower Container key
   std::string m_TriggerTowerContainerName;
   /// xAODTriggerTower Container key
@@ -188,6 +202,8 @@ private:
   int m_HADFADCCut;
   /// EM FADC cut for signal
   int m_EMFADCCut;
+  /// Specify beam type to flag parsing of bunch pattern
+  std::string m_BeamType;
   /// Flag to test online code offline
   bool m_onlineTest;
   /// Histograms booked flag
@@ -197,13 +213,15 @@ private:
   std::string m_PathInRootFile;
   /// Root directory for error plots
   std::string m_ErrorPathInRootFile;
-     
+
   /// Tool to retrieve bytestream errors
-  ToolHandle<TrigT1CaloMonErrorTool>      m_errorTool;
+  ToolHandle<ITrigT1CaloMonErrorTool>      m_errorTool;
   /// Histogram helper tool
   ToolHandle<TrigT1CaloLWHistogramTool>   m_histTool;
   /// TT simulation tool for Identifiers
-  ToolHandle<LVL1::IL1TriggerTowerTool>   m_ttTool; 
+  ToolHandle<LVL1::IL1TriggerTowerTool>   m_ttTool;
+  // Tool to retrieve bunch structure
+  ToolHandle<Trig::IBunchCrossingTool> m_bunchCrossingTool;
 
   // ADC hitmaps
   TH2F_LW* m_h_ppm_em_2d_etaPhi_tt_adc_HitMap;                  ///< eta-phi Map of EM FADC > cut for triggered timeslice
@@ -219,7 +237,7 @@ private:
   //timing HitMaps
   TProfile2D_LW* m_h_ppm_em_2d_etaPhi_tt_adc_MaxTimeslice;      ///< Average Maximum TimeSlice for EM Signal (TS:1-15)
   TProfile2D_LW* m_h_ppm_had_2d_etaPhi_tt_adc_MaxTimeslice;     ///< Average Maximum TimeSlice for HAD Signal (TS:1-15)
-  
+
   std::vector<TProfile_LW*> m_v_ppm_1d_tt_adc_SignalProfile;    ///< Signal Shape Profiles for each partition
 
   //LUT-CP Hitmaps per threshold
@@ -227,7 +245,7 @@ private:
   std::vector<TH2F_LW*> m_v_ppm_had_2d_etaPhi_tt_lutcp_Threshold; ///< eta-phi Map of HAD LUT-CP > each cut
   TProfile2D_LW* m_h_ppm_em_2d_etaPhi_tt_lutcp_AverageEt;         ///< EM Average LUT-CP Et for Et > 5
   TProfile2D_LW* m_h_ppm_had_2d_etaPhi_tt_lutcp_AverageEt;        ///< HAD Average LUT-CP Et for Et > 5
-  
+
   //LUT-JEP Hitmaps per threshold
   std::vector<TH2F_LW*> m_v_ppm_em_2d_etaPhi_tt_lutjep_Threshold;  ///< eta-phi Map of EM LUT-JEP > each cut
   std::vector<TH2F_LW*> m_v_ppm_had_2d_etaPhi_tt_lutjep_Threshold; ///< eta-phi Map of HAD LUT-JEP > each cut
@@ -245,7 +263,7 @@ private:
 
   TH1F_LW* m_h_ppm_1d_tt_lutcp_LutPerBCN;              ///< Num of LUT-CP > 5 per BC
   TH2F_LW* m_h_ppm_2d_tt_lutcp_BcidBits;               ///< PPM: Bits of BCID Logic Word Vs. LUT-CP
-  
+
   //distribution of LUT-JEP peak per detector region
   TH1F_LW* m_h_ppm_em_1d_tt_lutjep_Et;                  ///< EM LUT-JEP: Distribution of Peak
   TH1F_LW* m_h_ppm_em_1d_tt_lutjep_Eta;                 ///< EM LUT-JEP: Distribution of Peak per eta
@@ -257,7 +275,21 @@ private:
 
   TH1F_LW* m_h_ppm_1d_tt_lutjep_LutPerBCN;              ///< Num of LUT-JEP > 5 per BC
   TH2F_LW* m_h_ppm_2d_tt_lutjep_BcidBits;               ///< PPM: Bits of BCID Logic Word Vs. LUT-JEP
-   
+
+  //Distribution of Pedestal per BCN and Lumi Block
+  TProfile2D_LW* m_h_ppm_em_2d_pedestal_BCN_Lumi;
+  TProfile2D_LW* m_h_ppm_had_2d_pedestal_BCN_Lumi;
+
+  std::map<int, TProfile2D_LW*> m_map_em_partitionProfile_Ped_BCN_Lumi;
+  std::map<int, TProfile2D_LW*> m_map_had_partitionProfile_Ped_BCN_Lumi;
+
+  //Distribution of Pedestal Correction per BCN and Lumi Block
+  TProfile2D_LW* m_h_ppm_em_2d_pedestalCorrection_BCN_Lumi;
+  TProfile2D_LW* m_h_ppm_had_2d_pedestalCorrection_BCN_Lumi;
+
+  std::map<int, TProfile2D_LW*> m_map_em_partitionProfile_PedCorr_BCN_Lumi;
+  std::map<int, TProfile2D_LW*> m_map_had_partitionProfile_PedCorr_BCN_Lumi;
+
   // error
   TH1F_LW* m_h_ppm_1d_ErrorSummary;                  ///< Summary of SubStatus Errors
   TH2F_LW* m_h_ppm_2d_Status03;                      ///< Errors from TT SubStatus Word (crates 0-3)
@@ -271,7 +303,11 @@ private:
   // number of triggered slice
   TH1F_LW* m_h_ppm_em_1d_tt_adc_TriggeredSlice;      ///< Number of the EM Triggered Slice
   TH1F_LW* m_h_ppm_had_1d_tt_adc_TriggeredSlice;     ///< Number of the HAD Triggered Slice
-   
+
 };
+
+// ============================================================================
+}  // end namespace
+// ============================================================================
 
 #endif

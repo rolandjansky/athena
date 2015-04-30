@@ -42,22 +42,21 @@
 #include "TrigT1Interfaces/CoordinateRange.h"
 #include "TrigT1Interfaces/CPRoIDecoder.h"
 #include "TrigT1Interfaces/TrigT1CaloDefs.h"
-#include "TrigT1CaloMonitoringTools/TrigT1CaloMonErrorTool.h"  
+#include "TrigT1CaloMonitoringTools/ITrigT1CaloMonErrorTool.h"  
 #include "TrigT1CaloMonitoringTools/TrigT1CaloLWHistogramTool.h"
 
-#include "TrigT1CaloMonitoring/CPSimMon.h"
-
+#include "CPSimMon.h"
+// ============================================================================
 namespace LVL1 {
-
-/*---------------------------------------------------------*/
+// ============================================================================
 CPSimMon::CPSimMon(const std::string & type, 
 	  	   const std::string & name,
 		   const IInterface* parent)
   : ManagedMonitorToolBase(type, name, parent),
     m_emTauTool("LVL1::L1EmTauTools/L1EmTauTools"),
     m_cpCmxTool("LVL1::L1CPCMXTools/L1CPCMXTools"),
-    m_errorTool("TrigT1CaloMonErrorTool"),   
-    m_histTool("TrigT1CaloLWHistogramTool"), 
+    m_errorTool("LVL1::TrigT1CaloMonErrorTool/TrigT1CaloMonErrorTool"),   
+    m_histTool("LVL1::TrigT1CaloLWHistogramTool/TrigT1CaloLWHistogramTool"), 
     m_debug(false), m_rodTES(0), m_overlapPresent(false), m_limitedRoi(0),
     m_histBooked(false),
     m_h_cpm_em_2d_etaPhi_tt_PpmEqCore(0),
@@ -1778,5 +1777,6 @@ bool CPSimMon::limitedRoiSet(int crate)
   }
   return (((m_limitedRoi>>crate)&0x1) == 1);
 }
-
+// ============================================================================
 } // end namespace
+// ============================================================================

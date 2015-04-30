@@ -30,15 +30,16 @@ class TH2I_LW;
 class TProfile2D_LW;
 
 class StatusCode;
-
+// ============================================================================
 namespace LVL1 {
-  class CMMJetHits;
-  class CMMEtSums;
-}
-
-class TrigT1CaloMonErrorTool;
+// ============================================================================
+// Forward declarations:
+// ============================================================================
+class CMMJetHits;
+class CMMEtSums;
+class ITrigT1CaloMonErrorTool;
 class TrigT1CaloLWHistogramToolV1;
-
+// ============================================================================
 /** Monitoring of the JEP on CMM level.
  *
  *  Produces histograms of CMM input data, output data and hardware errors.
@@ -147,7 +148,7 @@ private:
                           NumberOfRoIParityBins };
 
    /// Tool to retrieve bytestream errors
-   ToolHandle<TrigT1CaloMonErrorTool>    m_errorTool;
+   ToolHandle<ITrigT1CaloMonErrorTool>    m_errorTool;
    /// Histogram helper tool
    ToolHandle<TrigT1CaloLWHistogramToolV1> m_histTool;
 
@@ -210,6 +211,8 @@ private:
    TH1F_LW* m_h_cmm_1d_TriggeredSlices;	         ///< Comparison of CMM Jet and Energy triggered slice numbers
    TH2I_LW* m_h_cmm_2d_ErrorEventNumbers;        ///< JEM-CMM Error Event Numbers
 };
-
+// ============================================================================
+} // end namespace
+// ============================================================================
 
 #endif

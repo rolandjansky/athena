@@ -26,7 +26,7 @@
 
 #include "AthenaMonitoring/AthenaMonManager.h"
 
-#include "TrigT1CaloMonitoringTools/TrigT1CaloMonErrorTool.h"
+#include "TrigT1CaloMonitoringTools/ITrigT1CaloMonErrorTool.h"
 #include "TrigT1CaloMonitoringTools/TrigT1CaloLWHistogramTool.h"
 
 #include "TrigT1CaloEvent/CMXJetTob.h"
@@ -37,20 +37,20 @@
 #include "TrigT1CaloUtils/CrateEnergy.h"
 #include "TrigT1Interfaces/TrigT1CaloDefs.h"
 
-#include "TrigT1CaloMonitoring/JEPCMXMon.h"
-
+#include "JEPCMXMon.h"
+// ============================================================================
 namespace LVL1 {
-
+// ============================================================================
 const int JEPCMXMon::s_crates;
 const int JEPCMXMon::s_modules;
 const int JEPCMXMon::s_tobsPerJEM;
+// ============================================================================
+static const InterfaceID IID_IJEPCMXMon("LVL1::JEPCMXMon", 1, 1);
 
-  static const InterfaceID IID_IJEPCMXMon("LVL1::JEPCMXMon", 1, 1);
-  
-  const InterfaceID& JEPCMXMon::interfaceID() {
-    return IID_IJEPCMXMon;
-  }
-
+const InterfaceID& JEPCMXMon::interfaceID() {
+  return IID_IJEPCMXMon;
+}
+// ============================================================================
 
 // *********************************************************************
 // Public Methods
@@ -60,8 +60,8 @@ const int JEPCMXMon::s_tobsPerJEM;
 JEPCMXMon::JEPCMXMon( const std::string & type, const std::string & name,
 		      const IInterface* parent )
   : ManagedMonitorToolBase( type, name, parent ),
-    m_errorTool("TrigT1CaloMonErrorTool"),
-    m_histTool("TrigT1CaloLWHistogramTool"),
+    m_errorTool("LVL1::TrigT1CaloMonErrorTool/TrigT1CaloMonErrorTool"),
+    m_histTool("LVL1::TrigT1CaloLWHistogramTool/TrigT1CaloLWHistogramTool"),
     m_histBooked(false),
     m_h_cmx_1d_tob_EnergyLg(0),
     m_h_cmx_1d_tob_EnergySm(0),

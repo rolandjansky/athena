@@ -29,11 +29,11 @@ class TH2F_LW;
 class TH2I_LW;
 class StatusCode;
 
-class TrigT1CaloMonErrorTool; 
-class TrigT1CaloLWHistogramTool;
-
+// ============================================================================
 namespace LVL1 {
-
+// ============================================================================
+// Forward declarations:
+// ============================================================================
 class CPAlgorithm;
 class CPMTower;
 class CMXCPTob;
@@ -43,6 +43,9 @@ class RODHeader;
 class TriggerTower;
 class IL1EmTauTools;
 class IL1CPCMXTools;
+class ITrigT1CaloMonErrorTool; 
+class TrigT1CaloLWHistogramTool;
+// ============================================================================
 
 /** Cross-check of CPM data with simulation.
  *
@@ -261,7 +264,7 @@ private:
   /// CP-CMX simulation tool
   ToolHandle<LVL1::IL1CPCMXTools>             m_cpCmxTool;
   /// Event veto error tool
-  ToolHandle<TrigT1CaloMonErrorTool>    m_errorTool;  
+  ToolHandle<ITrigT1CaloMonErrorTool>    m_errorTool;  
   /// Histogram helper tool
   ToolHandle<TrigT1CaloLWHistogramTool> m_histTool;
   // Debug printout flag
@@ -392,7 +395,8 @@ private:
   std::vector<TH2I_LW*> m_v_2d_MismatchEvents;    ///< Mismatch Event Number Samples
 
 };
-
+// ============================================================================
 } // end namespace
+// ============================================================================
 
 #endif
