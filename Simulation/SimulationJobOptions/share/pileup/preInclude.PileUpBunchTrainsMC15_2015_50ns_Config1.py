@@ -1,5 +1,5 @@
 ####################################################################################
-## For comparison with preInclude.PileUpBunchTrains2012ConfigRun208982_DigitConfig.py
+## Copy of preInclude.PileUpBunchTrains2012ConfigRun208982_DigitConfig.py
 ## This configuration replicates the beam configuration of Run 208982
 ## from 22nd August 2012. 11 Trains with 72 or 144 filled bunches with intra-train
 ## bunch spacing of 50ns make up most of the pattern, with variable
@@ -15,12 +15,12 @@ from Digitization.DigitizationFlags import digitizationFlags
 
 digitizationFlags.cavernIgnoresBeamInt = True
 
-if hasattr(digitizationFlags, 'numberOfLowPtMinBias'): digitizationFlags.numberOfLowPtMinBias = 23.67
-if hasattr(digitizationFlags, 'numberOfHighPtMinBias'): digitizationFlags.numberOfHighPtMinBias = 0.003314
+if hasattr(digitizationFlags, 'numberOfLowPtMinBias'): digitizationFlags.numberOfLowPtMinBias = 19.93866
+if hasattr(digitizationFlags, 'numberOfHighPtMinBias'): digitizationFlags.numberOfHighPtMinBias = 0.06134
 digitizationFlags.numberOfCavern = 1
 
 digitizationFlags.bunchSpacing = 25 # This now sets the bunch slot length.
-digitizationFlags.numberOfCollisions = 23.7
+digitizationFlags.numberOfCollisions = 20
 digitizationFlags.initialBunchCrossing = -32
 digitizationFlags.finalBunchCrossing = 32
 
