@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: xAODTriggerMenuAuxContainerCnv.cxx 647168 2015-02-16 15:30:50Z krasznaa $
+// $Id: xAODTriggerMenuAuxContainerCnv.cxx 664264 2015-04-30 22:30:00Z ssnyder $
 
 // System include(s):
 #include <stdexcept>
@@ -40,13 +40,15 @@ xAODTriggerMenuAuxContainerCnv::createTransient() {
       xAOD::TriggerMenuAuxContainer_v1* obj =
          poolReadObject< xAOD::TriggerMenuAuxContainer_v1 >();
 
+      size_t sz = obj->smk.size();
+
       // A little helper macro for bringing the detailed variables to the
       // right size:
 #define FIX_SIZE( NAME )                                                \
       do {                                                              \
-         if( obj->NAME.size() != 1 ) {                                  \
-            obj->NAME.resize( 1 );                                      \
-            ATH_MSG_VERBOSE( "Fixed the size of " << #NAME << " to 1" ); \
+         if( obj->NAME.size() < sz ) {                                    \
+            obj->NAME.resize( sz );                                      \
+            ATH_MSG_VERBOSE( "Fixed the size of " << #NAME << " to " << sz ); \
          }                                                              \
       } while( 0 )
 
