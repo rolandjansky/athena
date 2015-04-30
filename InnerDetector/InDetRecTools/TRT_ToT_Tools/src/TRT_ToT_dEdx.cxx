@@ -233,7 +233,7 @@ double TRT_ToT_dEdx::predictdEdx(const double pTrk, Trk::ParticleHypothesis hypo
     return Dedxcorrection::para_dEdx_p1/std::pow( sqrt( (betaGamma*betaGamma)/(1.+(betaGamma*betaGamma)) ), Dedxcorrection::para_dEdx_p4)  * 
       (Dedxcorrection::para_dEdx_p2 - std::pow( sqrt( (betaGamma*betaGamma)/(1.+(betaGamma*betaGamma)) ), Dedxcorrection::para_dEdx_p4 ) - log(Dedxcorrection::para_dEdx_p3+1./( std::pow( betaGamma, Dedxcorrection::para_dEdx_p5) ) ) );
   }
-  return 0;  
+  //return 0;  
 }
 
 double TRT_ToT_dEdx::mass(const double pTrk, double dEdx )const{
@@ -391,7 +391,7 @@ double TRT_ToT_dEdx::fitFuncBarrel_corrRZ(double driftRadius,double zPosition, i
     return fitFuncBarrelShort_corrRZ(driftRadius,zPosition, StrawLayer,data);
   else
     return fitFuncBarrelLong_corrRZ(driftRadius,zPosition,Layer, StrawLayer,data);
-  return 0;
+  //return 0;
 }
 
 
