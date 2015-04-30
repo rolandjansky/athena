@@ -1,12 +1,11 @@
-RPC LVL1 configuration files
-Version ATLAS.v6.4, online since April, 8 2010
-Thresholds:   mu0 mu6 mu10 mu11 mu15 mu20 
-
-Road version "nominal.v2"
-threshold   road-eta  road-phi
-mu0         mu0       mu0
-mu6         mu6       -
-mu10        mu10      mu6
-mu11        mu11      mu0-high
-mu15        mu15      -
-mu20        mu20      mu15
+RPC LVL1 R2 Configuration v15.0
+Standard roads as in v10.6
+New roads based on cabling v016 
+L1 THRESHOLDS:   MU4 MU6 MU10 MU11 MU15 MU20
+CMA            th0    th1   th2
+eta low-pt     mu4    mu6   mu10
+phi low-pt     mu4    mu6   mu10
+eta high-pt    mu11  mu15   mu20
+phi high-pt    mu11  mu15   mu15
+eta feet       -     mu10   mu20
+phi feet       -     mu10   mu20
