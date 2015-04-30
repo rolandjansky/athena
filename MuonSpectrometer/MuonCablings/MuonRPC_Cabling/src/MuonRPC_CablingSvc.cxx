@@ -1052,7 +1052,7 @@ StatusCode MuonRPC_CablingSvc::initTrigRoadsModel(IOVSVC_CALLBACK_ARGS_P(I,keys)
         msg(MSG::INFO) 
             << " Trigger roads will be loaded from " << roads_dir << endreq;
       }
-      return StatusCode::SUCCESS;
+      //return StatusCode::SUCCESS;
     }
     else {
         msg(MSG::INFO) 
@@ -1232,9 +1232,9 @@ StatusCode MuonRPC_CablingSvc::initTrigRoadsModel(IOVSVC_CALLBACK_ARGS_P(I,keys)
 
     // -----  Initialization of Pad configuration ------ //
     if (m_ApplyFeetPadThresholds) {
-        // check the existence of a PAD not existing in run-1 cabling
+        // if using COOL check the existence of a PAD not existing in run-1 cabling
         Identifier offline_id;
-        if (!giveOffflineID(0,21,7,offline_id)) {
+        if (!giveOffflineID(0,21,7,offline_id)&&m_RPCTriggerRoadsfromCool) {
             ATH_MSG_INFO("RUN-1 like cabling, not applying FeetPadThresholds");
         }else{
             if (m_FeetPadThresholds.size()!=3){
