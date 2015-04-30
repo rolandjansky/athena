@@ -21,9 +21,8 @@
 #include "LWHists/TH2F_LW.h"
 #include "LWHists/TH2I_LW.h"
 
-#include "TrigT1Monitoring/L1CaloLevel2Mon.h"
-#include "TrigT1CaloMonitoringTools/TrigT1CaloMonErrorTool.h"
-#include "TrigT1CaloMonitoringTools/TrigT1CaloLWHistogramTool.h"
+#include "TrigT1CaloMonitoringTools/ITrigT1CaloMonErrorTool.h"
+#include "TrigT1CaloMonitoringTools/TrigT1CaloLWHistogramToolV1.h"
 #include "TrigT1Interfaces/TrigT1CaloDefs.h"
 #include "TrigT1CaloEvent/JEMRoI.h"
 #include "TrigT1CaloEvent/CMMRoI.h"
@@ -37,7 +36,10 @@
 
 #include "AthenaMonitoring/AthenaMonManager.h"
 
-
+#include "L1CaloLevel2Mon.h"
+// ============================================================================
+namespace LVL1 {
+// ============================================================================
 // *********************************************************************
 // Public Methods
 // *********************************************************************
@@ -46,8 +48,8 @@
 L1CaloLevel2Mon::L1CaloLevel2Mon( const std::string & type,
                 const std::string & name, const IInterface* parent )
   : ManagedMonitorToolBase( type, name, parent ),
-    m_errorTool("TrigT1CaloMonErrorTool"),
-    m_histTool("TrigT1CaloLWHistogramTool"),
+    m_errorTool("LVL1::TrigT1CaloMonErrorToolV1/TrigT1CaloMonErrorToolV1"),
+    m_histTool("LVL1::TrigT1CaloLWHistogramToolV1/TrigT1CaloLWHistogramToolV1"),
     m_histBooked(false),
     m_h_l2_1d_L1NeL2Summary(0),
     m_h_l2_1d_L1EqL2Summary(0),
@@ -592,3 +594,6 @@ void L1CaloLevel2Mon::setLabels(LWHist* hist, bool xAxis)
   axis->SetBinLabel(1+SumEtType,        "SumEtHits");
   axis->SetBinLabel(1+MissingEtSigType, "MissEtSigHits");
 }
+// ============================================================================
+}  // end namespace
+// ============================================================================

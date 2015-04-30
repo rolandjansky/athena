@@ -40,12 +40,15 @@
 
 #include "TrigT1CaloEvent/TriggerTowerCollection.h"
 #include "TrigT1CaloEvent/TriggerTower_ClassDEF.h"
-#include "TrigT1Monitoring/L1CaloPMTScoresMon.h"
 
 #include "TrigT1CaloToolInterfaces/IL1TriggerTowerTool.h"
-#include "TrigT1CaloMonitoringTools/TrigT1CaloMonErrorTool.h"
-#include "TrigT1CaloMonitoringTools/TrigT1CaloLWHistogramTool.h"
+#include "TrigT1CaloMonitoringTools/ITrigT1CaloMonErrorTool.h"
+#include "TrigT1CaloMonitoringTools/TrigT1CaloLWHistogramToolV1.h"
 
+#include "L1CaloPMTScoresMon.h"
+// ============================================================================
+namespace LVL1 {
+// ============================================================================
 const int L1CaloPMTScoresMon::s_numPMTPlots;
 
 /*---------------------------------------------------------*/
@@ -54,8 +57,8 @@ L1CaloPMTScoresMon::L1CaloPMTScoresMon(const std::string & type,
 				       const IInterface* parent)
   : ManagedMonitorToolBase ( type, name, parent ),
     m_ttTool("LVL1::L1TriggerTowerTool/L1TriggerTowerTool"),
-    m_errorTool("TrigT1CaloMonErrorTool"),
-    m_histTool("TrigT1CaloLWHistogramTool"),
+    m_errorTool("LVL1::TrigT1CaloMonErrorToolV1/TrigT1CaloMonErrorToolV1"),
+    m_histTool("LVL1::TrigT1CaloLWHistogramToolV1/TrigT1CaloLWHistogramToolV1"),
     m_cells2tt("LVL1::L1CaloCells2TriggerTowers/L1CaloCells2TriggerTowers"),
     m_ttIdTools("LVL1::L1CaloTTIdTools/L1CaloTTIdTools"),
     m_tileBadChanTool("TileBadChanTool"),
@@ -397,3 +400,6 @@ double L1CaloPMTScoresMon::tileNonNominal(const CaloCell* cell)
 
   return score * multiplier;
 }
+// ============================================================================
+}  // end namespace
+// ============================================================================

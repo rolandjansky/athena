@@ -2,6 +2,7 @@ package TrigT1Monitoring
 
 author Johanna Fleckner
 
+private
 use AtlasPolicy         	AtlasPolicy-*
 use GaudiInterface      	GaudiInterface-*      	External
 use AthenaMonitoring    	AthenaMonitoring-* 	Control
@@ -10,12 +11,14 @@ use DataModel 			DataModel-*		Control
 use AtlasDoxygen		AtlasDoxygen-*  	Tools
 #use AtlasROOT			AtlasROOT-*		External
 
-private
+use L1TopoRDO                   L1TopoRDO-*             Trigger/TrigT1/L1Topo
+
+
 use Identifier 			Identifier-*		DetectorDescription
 use LWHists                     LWHists-*               Tools
 use CaloEvent           	CaloEvent-*           	Calorimeter
 use CaloDetDescr		CaloDetDescr-*		Calorimeter
-use  TrigConfInterfaces         TrigConfInterfaces-*            Trigger/TrigConfiguration
+use TrigConfInterfaces          TrigConfInterfaces-*    Trigger/TrigConfiguration
 use CaloIdentifier              CaloIdentifier-*        Calorimeter
 use CaloTriggerTool             CaloTriggerTool-*       Calorimeter
 use LArRecUtils                 LArRecUtils-*           LArCalorimeter

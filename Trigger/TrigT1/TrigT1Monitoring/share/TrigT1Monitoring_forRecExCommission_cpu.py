@@ -67,8 +67,8 @@ if l1caloRawMon:
         include("CaloConditions/CaloConditions_jobOptions.py")
         include("LArDetDescr/LArDetDescr_joboptions.py")
         # CaloCells
-        from TrigT1Monitoring.TrigT1MonitoringConf import CalorimeterL1CaloMon
-        CalorimeterL1CaloMonTool = CalorimeterL1CaloMon(
+        from TrigT1Monitoring.TrigT1MonitoringConf import LVL1__CalorimeterL1CaloMon
+        CalorimeterL1CaloMonTool = LVL1__CalorimeterL1CaloMon(
             name = "CalorimeterL1CaloMonTool",
             PathInRootFile = "LVL1_Interfaces/Calorimeter",
             CaloThreshold = 0.1,
@@ -95,8 +95,8 @@ if l1caloRawMon:
             doHV = True
         else:
             doHV = False
-        from TrigT1Monitoring.TrigT1MonitoringConf import L1CaloHVScalesMon
-        L1CaloHVScalesMonTool = L1CaloHVScalesMon(
+        from TrigT1Monitoring.TrigT1MonitoringConf import LVL1__L1CaloHVScalesMon
+        L1CaloHVScalesMonTool = LVL1__L1CaloHVScalesMon(
             name = "L1CaloHVScalesMonTool",
             LArHVCorrTool = theLArHVCorrTool,
             DoHVDifference = doHV,
@@ -105,8 +105,8 @@ if l1caloRawMon:
         ToolSvc += L1CaloHVScalesMonTool
         L1Man0B.AthenaMonTools += [ L1CaloHVScalesMonTool ]
         # PMT scores
-        from TrigT1Monitoring.TrigT1MonitoringConf import L1CaloPMTScoresMon
-        L1CaloPMTScoresMonTool = L1CaloPMTScoresMon(
+        from TrigT1Monitoring.TrigT1MonitoringConf import LVL1__L1CaloPMTScoresMon
+        L1CaloPMTScoresMonTool = LVL1__L1CaloPMTScoresMon(
             name = "L1CaloPMTScoresMonTool",
             PathInRootFile = "LVL1_Interfaces/Calorimeter",
             )
@@ -119,8 +119,8 @@ if l1caloRawMon:
         from IOVDbSvc.CondDB import conddb
         conddb.addFolderWithTag("TRIGGER", "/TRIGGER/LVL1/CTPCoreInputMapping", "HEAD")
 
-        from TrigT1Monitoring.TrigT1MonitoringConf import L1CaloCTPMon
-        L1CaloCTPMonTool = L1CaloCTPMon(
+        from TrigT1Monitoring.TrigT1MonitoringConf import LVL1__L1CaloCTPMon
+        L1CaloCTPMonTool = LVL1__L1CaloCTPMon(
             name = "L1CaloCTPMonTool",
             #OutputLevel = DEBUG,
             #OutputLevel = VERBOSE,
@@ -129,8 +129,8 @@ if l1caloRawMon:
         L1Man1.AthenaMonTools += [ L1CaloCTPMonTool ]
 
     ####################### L1Calo->Level-2 ################################
-    from TrigT1Monitoring.TrigT1MonitoringConf import L1CaloLevel2Mon
-    L1CaloLevel2MonTool = L1CaloLevel2Mon(
+    from TrigT1Monitoring.TrigT1MonitoringConf import LVL1__L1CaloLevel2Mon
+    L1CaloLevel2MonTool = LVL1__L1CaloLevel2Mon(
         name = "L1CaloLevel2MonTool",
         #OutputLevel = DEBUG,
         )

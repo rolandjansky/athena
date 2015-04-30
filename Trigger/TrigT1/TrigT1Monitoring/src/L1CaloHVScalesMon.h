@@ -25,8 +25,7 @@
 class StatusCode;
 class TH2F_LW;
 
-class TrigT1CaloMonErrorTool;
-class TrigT1CaloLWHistogramTool;
+
 class ILArHVCorrTool;
 class CaloCell;
 class CaloLVL1_ID;
@@ -34,13 +33,18 @@ class L1CaloCondSvc;
 class CaloDetDescrElement;
 class CaloTriggerTowerService;
 class L1CaloCoolChannelId;
-
+// ============================================================================
 namespace LVL1 {
-  class IL1CaloCells2TriggerTowers;
-  class IL1CaloLArTowerEnergy;
-  class IL1CaloTTIdTools;
-  class IL1TriggerTowerTool;
-}
+// ============================================================================
+// Forward declarations:
+// ============================================================================
+class IL1CaloCells2TriggerTowers;
+class IL1CaloLArTowerEnergy;
+class IL1CaloTTIdTools;
+class IL1TriggerTowerTool;
+class ITrigT1CaloMonErrorTool;
+class TrigT1CaloLWHistogramToolV1;
+// ============================================================================
 
 /** Monitoring of mean LAr HV corrections by TriggerTower
  *
@@ -150,9 +154,9 @@ private:
   /// Tool for identifiers and disabled channels
   ToolHandle<LVL1::IL1TriggerTowerTool>        m_ttTool;
   /// Event veto tool
-  ToolHandle<TrigT1CaloMonErrorTool>           m_errorTool;
+  ToolHandle<ITrigT1CaloMonErrorTool>           m_errorTool;
   /// Histogram helper tool
-  ToolHandle<TrigT1CaloLWHistogramTool>        m_histTool;
+  ToolHandle<TrigT1CaloLWHistogramToolV1>        m_histTool;
   /// CaloCell to TriggerTower mapping tool
   ToolHandle<LVL1::IL1CaloCells2TriggerTowers> m_cells2tt;
   /// Tool for missing FEBs
@@ -207,5 +211,7 @@ private:
   static const int s_numEmHVPlots  = 8;     ///< Number of EM partitions/layers
   static const int s_numHadHVPlots = 5;     ///< Number of Had partitions/layers
 };
-
+// ============================================================================
+}  // end namespace
+// ============================================================================
 #endif

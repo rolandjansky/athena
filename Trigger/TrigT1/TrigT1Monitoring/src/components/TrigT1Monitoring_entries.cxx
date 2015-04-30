@@ -1,22 +1,24 @@
-#include "TrigT1Monitoring/L1CaloCTPMon.h"
-#include "TrigT1Monitoring/L1CaloLevel2Mon.h"
-#include "TrigT1Monitoring/CalorimeterL1CaloMon.h"
-#include "TrigT1Monitoring/L1CaloHVScalesMon.h"
-#include "TrigT1Monitoring/L1CaloPMTScoresMon.h"
+#include "../L1CaloCTPMon.h"
+#include "../L1CaloL1TopoMon.h"
+#include "../L1CaloLevel2Mon.h"
+#include "../CalorimeterL1CaloMon.h"
+#include "../L1CaloHVScalesMon.h"
+#include "../L1CaloPMTScoresMon.h"
 
 #include "GaudiKernel/DeclareFactoryEntries.h"
 
-DECLARE_TOOL_FACTORY(L1CaloCTPMon)
-DECLARE_TOOL_FACTORY(L1CaloLevel2Mon)
-DECLARE_TOOL_FACTORY(CalorimeterL1CaloMon)
-DECLARE_TOOL_FACTORY(L1CaloHVScalesMon)
-DECLARE_TOOL_FACTORY(L1CaloPMTScoresMon)
+DECLARE_NAMESPACE_TOOL_FACTORY(LVL1, L1CaloCTPMon)
+DECLARE_NAMESPACE_TOOL_FACTORY(LVL1, L1CaloL1TopoMon)
+DECLARE_NAMESPACE_TOOL_FACTORY(LVL1, L1CaloLevel2Mon)
+DECLARE_NAMESPACE_TOOL_FACTORY(LVL1, CalorimeterL1CaloMon)
+DECLARE_NAMESPACE_TOOL_FACTORY(LVL1, L1CaloHVScalesMon)
+DECLARE_NAMESPACE_TOOL_FACTORY(LVL1, L1CaloPMTScoresMon)
 
 DECLARE_FACTORY_ENTRIES(TrigT1Monitoring) {
-  DECLARE_ALGTOOL(L1CaloCTPMon)
-  DECLARE_ALGTOOL(L1CaloLevel2Mon)
-  DECLARE_ALGTOOL(CalorimeterL1CaloMon)
-  DECLARE_ALGTOOL(L1CaloHVScalesMon)
-  DECLARE_ALGTOOL(L1CaloPMTScoresMon)
+  DECLARE_NAMESPACE_ALGTOOL(LVL1, L1CaloCTPMon)
+  DECLARE_NAMESPACE_ALGTOOL(LVL1, L1CaloL1TopoMon)
+  DECLARE_NAMESPACE_ALGTOOL(LVL1, L1CaloLevel2Mon)
+  DECLARE_NAMESPACE_ALGTOOL(LVL1, CalorimeterL1CaloMon)
+  DECLARE_NAMESPACE_ALGTOOL(LVL1, L1CaloHVScalesMon)
+  DECLARE_NAMESPACE_ALGTOOL(LVL1, L1CaloPMTScoresMon)
 }
-

@@ -27,9 +27,8 @@
 #include "TrigT1CaloEvent/CMMJetHits.h"
 #include "TrigT1CaloEvent/CMMEtSums.h"
 #include "TrigConfInterfaces/ILVL1ConfigSvc.h"
-#include "TrigT1Monitoring/L1CaloCTPMon.h"
-#include "TrigT1CaloMonitoringTools/TrigT1CaloMonErrorTool.h"
-#include "TrigT1CaloMonitoringTools/TrigT1CaloLWHistogramTool.h"
+#include "TrigT1CaloMonitoringTools/ITrigT1CaloMonErrorTool.h"
+#include "TrigT1CaloMonitoringTools/TrigT1CaloLWHistogramToolV1.h"
 #include "TrigT1Interfaces/TrigT1CaloDefs.h"
 #include "TrigConfL1Data/CTPConfig.h"
 #include "TrigConfL1Data/L1DataDef.h"
@@ -42,6 +41,10 @@
 
 #include "AthenaMonitoring/AthenaMonManager.h"
 
+#include "L1CaloCTPMon.h"
+// ============================================================================
+namespace LVL1 {
+// ============================================================================
 
 // *********************************************************************
 // Public Methods
@@ -52,8 +55,8 @@ L1CaloCTPMon::L1CaloCTPMon( const std::string & type, const std::string & name,
   		            const IInterface* parent )
   : ManagedMonitorToolBase( type, name, parent ),
     m_configSvc("TrigConf::TrigConfigSvc/TrigConfigSvc", name),
-    m_errorTool("TrigT1CaloMonErrorTool"),
-    m_histTool("TrigT1CaloLWHistogramTool"),
+    m_errorTool("LVL1::TrigT1CaloMonErrorToolV1/TrigT1CaloMonErrorToolV1"),
+    m_histTool("LVL1::TrigT1CaloLWHistogramToolV1/TrigT1CaloLWHistogramToolV1"),
     m_debug(false), m_histBooked(false),
     m_pitMap(0),
     m_h_ctp_1d_L1CaloNeCTPSummary(0),
@@ -516,3 +519,6 @@ void L1CaloCTPMon::setLabels(LWHist* hist, bool xAxis)
   axis->SetBinLabel(1+SumEtType,        "SumEtHits");
   axis->SetBinLabel(1+MissingEtSigType, "MissEtSigHits");
 }
+// ============================================================================
+}  // end namespace
+// ============================================================================
