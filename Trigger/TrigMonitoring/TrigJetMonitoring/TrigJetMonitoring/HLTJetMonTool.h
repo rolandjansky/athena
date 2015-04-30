@@ -2,6 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+
 #ifndef TrigHLTMonitoring_HLTJetMonTooL_H
 #define TrigHLTMonitoring_HLTJetMonTooL_H
 
@@ -37,7 +38,6 @@
 
 // forward declarations
 class TrigMatchTool;
-
 class TrigT2JetContainer;
 class Jet;
 class JetCollection;
@@ -118,7 +118,7 @@ class HLTJetMonTool : public IHLTMonTool {
 
     // jet selection, matching
     //bool m_doL1TrigEff, m_doHLTTrigEff, m_doOFJets, m_doEvtSel, m_debuglevel;
-    bool m_doL1TrigEff, m_doHLTTrigEff, m_doOFJets, m_debuglevel;
+    bool /*m_doLumiWeight,*/ m_doL1TrigEff, m_doHLTTrigEff, m_doOFJets, m_debuglevel;
     
     bool m_doselOFJets, m_doselOFBasicHists, m_reqMinPtCut, m_reqEtaCut, m_reqMaxNJetCut;
     bool m_reqP4State, /*m_reqEMFracCut, m_reqN90Cut, m_reqTimeCut,*/ m_reqBadQCut;
@@ -129,8 +129,9 @@ class HLTJetMonTool : public IHLTMonTool {
     float m_MinPtCut, m_EtaCut /*m_jetTimens, m_badQFrac*/ ;
     int m_MaxNJet /*, m_n90Cut*/ ;
 
-    std::string m_p4State;
+    double lumi_weight;
 
+    std::string m_p4State;
    
     /// Handle to the TDT
     //ToolHandle< Trig::TrigDecisionTool > m_tdt;
@@ -167,6 +168,7 @@ class HLTJetMonTool : public IHLTMonTool {
     void bookBasicHists(std::vector<std::string>& level, std::vector<std::string>& hists);     // basic hists
 
     void setHistProperties(TH1* h);
+    void set2DHistProperties(TH2* h);
     int basicKineVar(const std::string& hist, std::vector<std::string>& m_kinevars);
     void clearVectors();
     
@@ -205,9 +207,13 @@ class HLTJetMonTool : public IHLTMonTool {
         double m_eta, m_phi, m_pt, m_et;
         bool m_chpass;
     };
-    bool passedChain( const xAOD::Jet *jet, std::vector<ChainMatch>& mFound, const std::string& level);
+  
+    bool passedChainTest( const xAOD::Jet *jet, std::vector<std::string>& mFound,  std::vector<TLorentzVector>& mFoundJets, std::vector<std::string>& mUnmatched,std::vector<TLorentzVector>& mUnmatchedJets, const std::string& level);
     //bool evtSelTriggersPassed();
-    bool isChainActive(const std::string& theChain );
+
+    TLorentzVector DeltaRMatching(const xAOD::Jet *jet, const std::string &ChainName, const std::string &ContainerName, const std::string& level, double thrHLT, float DRCut, bool& Pass);
+    bool   isLeadingJet(const xAOD::Jet *jet, const xAOD::JetContainer *jetcoll);
+    bool   isChainActive(const std::string& theChain );
     double signed_delta_phi(double ph11, double phi2);
     double delta_r(double eta1, double phi1, double eta2, double phi2);
   
