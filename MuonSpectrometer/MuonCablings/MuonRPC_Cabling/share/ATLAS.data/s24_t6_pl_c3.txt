@@ -1,0 +1,26 @@
+set_l1c_pre                      ffff
+set_bcc_pre                      0000
+set_trig_thr0_maj_reg            02
+set_trig_thr1_maj_reg            02
+set_trig_thr2_maj_reg            02
+set_pipe_i0_edge                 ffffffff
+set_pipe_i1_edge                 ffffffff
+set_pipe_j0_edge                 ffffffffffffffff
+set_pipe_j1_edge                 ffffffffffffffff
+set_readout_buffer_latreg        63
+set_readout_buffer_hireg         63
+set_readout_buffer_lowreg        5c
+set_pipe_i0_ipb_regdepth         4545
+set_pipe_i1_ipb_regdepth         4545
+set_pipe_j0_ipb_regdepth         45454545
+set_pipe_j1_ipb_regdepth         45454545
+set_trig_prp_i_eta_reg           07
+set_trig_prp_j_eta_reg           07
+set_readout_serializer_dslink    03
+set_pipe_j1_mask0_in             ffffffffffffffff
+set_pipe_i0_mask0_in             ffffffff
+set_pipe_i1_mask0_in             ffffffff
+set_pipe_j0_mask0_in             ffffffffffffffff
+set_trig_ovl_sx_reg              00000000
+set_trig_ovl_dx_reg              00000000
+
