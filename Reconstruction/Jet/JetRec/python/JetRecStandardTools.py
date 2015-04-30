@@ -118,6 +118,18 @@ jtm += JetTrackSelectionTool(
   Selector        = jtm.trk_trackselloose
 )
 
+jtm += InDet__InDetTrackSelectionTool(
+  "trk_trackselloose_trackjets",
+  CutLevel                = "Loose"
+)
+
+jtm += JetTrackSelectionTool(
+   "trackselloose_trackjets",
+  InputContainer  = jtm.trackContainer,
+  OutputContainer = "JetSelectedTracks_LooseTrackJets",
+  Selector        = jtm.trk_trackselloose_trackjets
+)
+
 if jetFlags.useInDetTrackSelection():
   jtm += JetTrackSelectionTool(
     "tracksel",
@@ -220,7 +232,7 @@ jtm += PseudoJetGetter(
 # Tracks.
 jtm += TrackPseudoJetGetter(
   "trackget",
-  InputContainer = jtm.tracksel.OutputContainer,
+  InputContainer = jtm.trackselloose_trackjets.OutputContainer,
   Label = "Track",
   OutputContainer = "PseudoJetTracks",
   TrackVertexAssociation = jtm.tvassoc.TrackVertexAssociation,
