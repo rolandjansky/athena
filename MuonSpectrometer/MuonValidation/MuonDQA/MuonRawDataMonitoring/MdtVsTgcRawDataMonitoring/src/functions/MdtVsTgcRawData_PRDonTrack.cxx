@@ -22,6 +22,8 @@
 #include "TrkSurfaces/TrapezoidBounds.h"
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
 #include "muonEvent/MuonContainer.h"
+#include "MuonCompetingRIOsOnTrack/CompetingMuonClustersOnTrack.h"
+#include "MuonRIO_OnTrack/MuonClusterOnTrack.h"
 
 #include <TH1F.h>
 #include <TH2F.h>
@@ -66,19 +68,21 @@ MdtVsTgcRawDataValAlg::CheckTGConTrack(vector<SegmTrack> (&matchedSegments)[2],
     
     // Declare Position variables for inner
     //Trk::GlobalPosition innerSegmPos;
-    Amg::Vector3D innerSegmPos;
-    
-    float innerSegmRho=0; float innerSegmEta=0; float innerSegmPhi=0; float innerSegmZ=0;
+    Amg::Vector3D innerSegmPos = {0, 0, 0};
+
+    // float innerSegmEta=0; 
+    float innerSegmRho=0; float innerSegmPhi=0; float innerSegmZ=0;
     //Trk::GlobalDirection innerSegmDirzunit;
-    Amg::Vector3D innerSegmDirzunit;
+    Amg::Vector3D innerSegmDirzunit = {0, 0, 0};
     
     // Declare Position variables for midstation
     //Trk::GlobalPosition midSegmPos;
-    Amg::Vector3D midSegmPos;
-    
-    float midSegmRho  =0; float midSegmEta  =0; float midSegmPhi  =0; float midSegmZ  =0;
+    Amg::Vector3D midSegmPos = {0, 0, 0};
+
+    // float midSegmRho  =0; float midSegmEta  =0; 
+    float midSegmPhi  =0; float midSegmZ  =0;
     //Trk::GlobalDirection midSegmDirzunit;
-    Amg::Vector3D midSegmDirzunit;
+    Amg::Vector3D midSegmDirzunit = {0, 0, 0};
     
     // Check which layers have sufficienct segments to operate on for global coordinates
     bool canCheckGlobal[4] = {0, 0, 0, 0};// [TGCStation]
@@ -87,8 +91,8 @@ MdtVsTgcRawDataValAlg::CheckTGConTrack(vector<SegmTrack> (&matchedSegments)[2],
       canCheckGlobal[0]=true; canCheckGlobal[1]=true; canCheckGlobal[2]=true;
       // Read Midstation Segment Values into variables
       midSegmPos   = Amg::Vector3D(matchedSegments[i].at(0).at(2)->globalPosition());
-      midSegmRho   = abs(midSegmPos.perp());
-      midSegmEta   = abs(midSegmPos.eta());
+      // midSegmRho   = abs(midSegmPos.perp());
+      // midSegmEta   = abs(midSegmPos.eta());
       midSegmPhi   = midSegmPos.phi();
       midSegmZ     = midSegmPos.z();
       if(midSegmPhi<0)midSegmPhi+=2*M_PI;
@@ -100,7 +104,7 @@ MdtVsTgcRawDataValAlg::CheckTGConTrack(vector<SegmTrack> (&matchedSegments)[2],
       // Read Inner Segment Values
       innerSegmPos = Amg::Vector3D(matchedSegments[i].at(0).at(0)->globalPosition());
       innerSegmRho = abs(innerSegmPos.perp());
-      innerSegmEta = abs(innerSegmPos.eta());
+      // innerSegmEta = abs(innerSegmPos.eta());
       innerSegmZ   = abs(innerSegmPos.z());
       // Modify position
       innerSegmPhi = midSegmPhi;
@@ -129,6 +133,7 @@ MdtVsTgcRawDataValAlg::CheckTGConTrack(vector<SegmTrack> (&matchedSegments)[2],
       // Skip stations which don't have sufficient Segments to run efficiency check
       int stationName = TGCStationNames[stationnameindex];
       int stationIndex= TGCstationname2stationindex(stationName);
+      if(stationIndex<0) continue;
       if(!canCheckGlobal[stationIndex])continue;
       
       // Loop over StationEta&StationPhi
@@ -197,31 +202,45 @@ MdtVsTgcRawDataValAlg::CheckTGConTrack(vector<SegmTrack> (&matchedSegments)[2],
       if(matchedSegments[i].at(0).at(jMDT)==0)continue;
       const Muon::MuonSegment *segm=matchedSegments[i].at(0).at(jMDT);
       // Loop through contained ROTs and identify used stations
-      for(unsigned int iROT=0; iROT<segm->numberOfContainedROTs(); ++iROT) {
-        const Trk::RIO_OnTrack* rio = segm->rioOnTrack(iROT);
-        Identifier id = rio->identify();
-        int stationName = int(m_mdtIdHelper->stationName(id));
-        // 41=T1F 42=T1E 43=T2F 44=T2E 45=T3F 46=T3E 47=T4F 48=T4E
-        if(m_tgcIdHelper->isStrip(id)){
-          if((jMDT==2)&&((stationName==41)||(stationName==42)))nTGCStrips[0]++;// TGC
-          if((jMDT==2)&&((stationName==43)||(stationName==44)))nTGCStrips[1]++;// TGC
-          if((jMDT==2)&&((stationName==45)||(stationName==46)))nTGCStrips[2]++;// TGC
-          if((jMDT==0)&&((stationName==47)||(stationName==48)))nTGCStrips[3]++;// TGC
-        }
+      const std::vector<const Trk::MeasurementBase*> mMeasTrk = segm->containedMeasurements();
+      m_log  << MSG::DEBUG << "number of MeasurementBase: "<<mMeasTrk.size()<<endl;
+      for (unsigned int i=0; i<mMeasTrk.size(); i++) {
+	const Trk::MeasurementBase* m  = mMeasTrk[i];
+	//const Trk::RIO_OnTrack* rio = dynamic_cast<const Trk::RIO_OnTrack*>(m);
+	const Muon::CompetingMuonClustersOnTrack* crot = dynamic_cast<const Muon::CompetingMuonClustersOnTrack*>(m);
+	if(crot) { 
+	  const std::vector<const Muon::MuonClusterOnTrack*> mc_list = crot->containedROTs();
+	  for(unsigned int iROT=0; iROT< mc_list.size(); iROT++){
+	   const Muon::MuonClusterOnTrack * m_rio = mc_list[iROT];
+	   //const Trk::RIO_OnTrack* m_rio = crot->rioOnTrack(iROT);
+	   Identifier id = m_rio->identify();
+	   int stationName = int(m_mdtIdHelper->stationName(id));
+           // 41=T1F 42=T1E 43=T2F 44=T2E 45=T3F 46=T3E 47=T4F 48=T4E
+           if(m_tgcIdHelper->isStrip(id)){
+             if((jMDT==2)&&((stationName==41)||(stationName==42)))nTGCStrips[0]++;// TGC
+             if((jMDT==2)&&((stationName==43)||(stationName==44)))nTGCStrips[1]++;// TGC
+             if((jMDT==2)&&((stationName==45)||(stationName==46)))nTGCStrips[2]++;// TGC
+             if((jMDT==0)&&((stationName==47)||(stationName==48)))nTGCStrips[3]++;// TGC
+           }
+
+	   m_log << MSG::DEBUG<< " check if TGC strip: "<<m_tgcIdHelper->isStrip(id)<<" StationName: "<<stationName<<endl;
+	  }
+	}
       }
     }// MDT Station
+
     
-    // Don't check mid-stations when there are no strips in other mid-stations
+    // Don't check mid-stations when there are no strips in other mid-stations  
     if((nTGCStrips[1]==0)&&(nTGCStrips[2]==0)){canCheckSector[0]=false;canCheckGlobal[0]=false;}
     if((nTGCStrips[0]==0)&&(nTGCStrips[2]==0)){canCheckSector[1]=false;canCheckGlobal[1]=false;}
     if((nTGCStrips[0]==0)&&(nTGCStrips[1]==0)){canCheckSector[2]=false;canCheckGlobal[2]=false;}
     
     // Initialise hit registered arrays
-    bool hitregistered[9][2];
+    // bool hitregistered[9][2];
     bool sectorhitregistered[9][2];
     for(int l=0;l<9;l++){// Layer
       for(int k=0;k<2;k++){// WireStrip
-        hitregistered[l][k]=false;
+        // hitregistered[l][k]=false;
         sectorhitregistered[l][k]=false;
       }// WireStrip
     }// Layer
@@ -265,6 +284,7 @@ MdtVsTgcRawDataValAlg::CheckTGConTrack(vector<SegmTrack> (&matchedSegments)[2],
         int stationIndex = TGCstationname2stationindex(stationName);
 
         // Skip PRD in stations which can't be checked
+        if(stationIndex<0) continue;
         if(!(canCheckGlobal[stationIndex]||canCheckSector[stationIndex]))continue;
         HasPRD[layer]=true;
         
@@ -311,7 +331,7 @@ MdtVsTgcRawDataValAlg::CheckTGConTrack(vector<SegmTrack> (&matchedSegments)[2],
             // Do check
             float dRhoCut = dRhoCutGlobal[tgcWS]*tgcExtrRho;
             if(abs(dPhi)<dPhiCutGlobal[tgcWS] && abs(dRho)<dRhoCut){
-              hitregistered[layer][tgcWS] = true;
+              // hitregistered[layer][tgcWS] = true;
             }
           }
           
@@ -334,6 +354,7 @@ MdtVsTgcRawDataValAlg::CheckTGConTrack(vector<SegmTrack> (&matchedSegments)[2],
     for(int l=0;l<9;l++){// Layer
       // Get Station Number
       int stationIndex=TGClayer2stationindex(l);
+      if(stationIndex<0) continue;
       for(int k=0;k<2;k++){// WireStrip
         // If Segment Track matches a Sector
         if(canCheckSector[stationIndex]){

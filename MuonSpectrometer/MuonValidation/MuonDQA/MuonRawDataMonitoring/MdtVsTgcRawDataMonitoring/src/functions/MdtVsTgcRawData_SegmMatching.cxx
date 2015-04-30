@@ -54,8 +54,8 @@ MdtVsTgcRawDataValAlg::MatchMDTSegments(vector<const Muon::MuonSegment*> (&sorte
   // Loop over sides
   for(int i=0;i<2;i++){// AC
     bool skipSegm;int nDisqualifiedSegm; // used when checking the disqualified list for a segment
-    bool HasStationMatchSegm[4] = {false, false, false, false};// flags for whether the there are segments in each MDT station which were included in tracks
-    bool HasMatchedTrack = false;// flag for whether a track was found on current side
+    //bool HasStationMatchSegm[4] = {false, false, false, false};// flags for whether the there are segments in each MDT station which were included in tracks
+    //bool HasMatchedTrack = false;// flag for whether a track was found on current side
     
     for(int jMDT1=3;jMDT1>=0;jMDT1--){// MDT Stations in reverse]
       // Get number of segments
@@ -233,12 +233,12 @@ MdtVsTgcRawDataValAlg::MatchMDTSegments(vector<const Muon::MuonSegment*> (&sorte
         
         // If matches found add to matchedSegments and disqualify all segments in array
         if(nStationMatch>1){
-          HasMatchedTrack=true;
+          //HasMatchedTrack=true;
           const Muon::MuonSegment *segmArray[4] = {0,0,0,0};
           for(int jMDT2=0;jMDT2<4;jMDT2++){
             if(stationMatchFound[jMDT2]){
               segmArray[jMDT2]=matchingSegments[jMDT2].at(0);
-              HasStationMatchSegm[jMDT2]=true;
+              //HasStationMatchSegm[jMDT2]=true;
               disqualifiedSegments[i][jMDT2].push_back(matchingSegments[jMDT2].at(0));
             }
           }

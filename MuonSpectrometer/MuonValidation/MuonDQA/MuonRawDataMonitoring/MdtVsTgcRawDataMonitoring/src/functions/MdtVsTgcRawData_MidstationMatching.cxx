@@ -69,17 +69,17 @@ MdtVsTgcRawDataValAlg::MidstationOnlyCheck(vector<const Muon::MuonSegment*> (&so
     
     // Following "Fill" variables are only used if one segment passed all cuts
     // Flags for whether different stations can be checked by the segment
-    bool canCheckGlobalFill[4]       = {0, 0, 0, 0};
+    //bool canCheckGlobalFill[4]       = {0, 0, 0, 0};
     bool canCheckSectorFill[4]       = {0, 0, 0, 0};
     // Segment Global Position variables
-    float posThetaFill               = 0;
-    float posPhiFill                 = 0;
+    // float posThetaFill               = 0;
+    // float posPhiFill                 = 0;
     // Segment Sector Position
     int TGCstation_StationFEFill[4]  = {-1,-1,-1,-1};// [TGCStation]
     int TGCstation_StationEtaFill[4] = { 0, 0, 0, 0};// [TGCStation]
     int TGCstation_StationPhiFill[4] = { 0, 0, 0, 0};// [TGCStation]
     // Hit registered arrays
-    bool hitregisteredFill[9][2]       = {{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0}};
+    // bool hitregisteredFill[9][2]       = {{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0}};
     bool sectorhitregisteredFill[9][2] = {{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0}};
     
     bool skipSegm;int nDisqualifiedSegm; // used when checking the disqualified list for a segment
@@ -280,6 +280,7 @@ MdtVsTgcRawDataValAlg::MidstationOnlyCheck(vector<const Muon::MuonSegment*> (&so
             bool insideSectorBounds=tre->bounds().inside(sectorLocalPos2D,tol1,tol2);
             if(!insideSectorBounds)continue;
             // Assign values to matching station variables
+            if(stationIndex<0) continue;
             TGCstation_StationFE[stationIndex]= (tre->forward()==false);
             TGCstation_StationEta[stationIndex]=stationeta;
             TGCstation_StationPhi[stationIndex]=stationphi;
@@ -306,7 +307,7 @@ MdtVsTgcRawDataValAlg::MidstationOnlyCheck(vector<const Muon::MuonSegment*> (&so
       ////////////////////////////////////////////////////////////////////////
       // Check which PRD matches Segm1
       // Initialise hit registered arrays
-      bool hitregistered[9][2]       = {{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0}};
+      // bool hitregistered[9][2]       = {{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0}};
       bool sectorhitregistered[9][2] = {{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0}};
       vector<Muon::TgcPrepData*> tpdVector[2];
       
@@ -379,7 +380,7 @@ MdtVsTgcRawDataValAlg::MidstationOnlyCheck(vector<const Muon::MuonSegment*> (&so
             if(canCheckGlobal[stationIndex]){
               float dRhoCut = dRhoCutGlobal[tgcWS]*tgcExtrRho;
               if(abs(dPhi)<dPhiCutGlobal[tgcWS] && abs(dRho)<dRhoCut){
-                hitregistered[layer][tgcWS] = true;// Global hit
+                // if(layer>=0)hitregistered[layer][tgcWS] = true;// Global hit
               }
             }// global
 
@@ -395,7 +396,7 @@ MdtVsTgcRawDataValAlg::MidstationOnlyCheck(vector<const Muon::MuonSegment*> (&so
                  (tgcFE==TGCstation_StationFE[stationIndex])){
                 // Do check
                 if(abs(dPhi)<dPhiCutSector[tgcWS] && abs(dRho)<dRhoCutSector[tgcWS]){
-                  sectorhitregistered[layer][tgcWS]=true;// Sector hit
+                  if(layer>=0)sectorhitregistered[layer][tgcWS]=true;// Sector hit
                 }
               }
             }// sector
@@ -411,7 +412,9 @@ MdtVsTgcRawDataValAlg::MidstationOnlyCheck(vector<const Muon::MuonSegment*> (&so
       // Find vector of PRD which forms a coherent line in the vicinity of Segm1
 
       // Variables to hold best PRD matching results
-      vector<Muon::TgcPrepData*> *bestTPDmatches[2] = {0,0};
+      vector<Muon::TgcPrepData*> *bestTPDmatches[2];
+      if(bestTPDmatches[0]->size()>0) bestTPDmatches[0]->clear();
+      if(bestTPDmatches[1]->size()>0) bestTPDmatches[1]->clear();
       int bestTPDlayerMatches[2][9] = {{0,0,0,0,0,0,0,0,0},
                {0,0,0,0,0,0,0,0,0}};
 
@@ -443,7 +446,7 @@ MdtVsTgcRawDataValAlg::MidstationOnlyCheck(vector<const Muon::MuonSegment*> (&so
           int stationName1 = m_tgcIdHelper->stationName(tgcid1);
           int gasGap1      = m_tgcIdHelper->gasGap(tgcid1);
           int layer1       = TGCgetlayer(stationName1,gasGap1);
-          thisTPDlayerMatches[layer1]++;
+          if(layer1>=0)thisTPDlayerMatches[layer1]++;
           
           // Loop over PRD
           for(int iTPD2=0;iTPD2<nTPD;iTPD2++){
@@ -486,7 +489,7 @@ MdtVsTgcRawDataValAlg::MidstationOnlyCheck(vector<const Muon::MuonSegment*> (&so
               int layer2       = TGCgetlayer(stationName2,gasGap2);
               
               // Add PRD2 to matches for PRD1
-              thisTPDlayerMatches[layer2]++;
+              if(layer2>=0)thisTPDlayerMatches[layer2]++;
               thisTPDmatches.push_back(tpdVector[k].at(iTPD2));
             }
           }// nTPD2
@@ -515,7 +518,7 @@ MdtVsTgcRawDataValAlg::MidstationOnlyCheck(vector<const Muon::MuonSegment*> (&so
         
         // If matching array was somehow empty (should be impossible)
         if(nlayerMax==0)continue;
-        if(bestTPDmatches[k]==0){
+        if(bestTPDmatches[k]->size()==0){
           m_log << MSG::WARNING << "MidstationOnly: empty bestTPDmatches["<<k<<"] passed" << endreq;
           continue;
         }
@@ -546,10 +549,10 @@ MdtVsTgcRawDataValAlg::MidstationOnlyCheck(vector<const Muon::MuonSegment*> (&so
       if(nValidatedSegm==0){
         for(int jTGC=0;jTGC<4;jTGC++){// TGC Stations
           // Assign values of variables to fill histograms
-          posThetaFill = segm1PosThe;
-          posPhiFill   = segm1PosPhi;
+          // posThetaFill = segm1PosThe;
+          // posPhiFill   = segm1PosPhi;
           
-          canCheckGlobalFill[jTGC] = canCheckGlobal[jTGC];
+          //canCheckGlobalFill[jTGC] = canCheckGlobal[jTGC];
           canCheckSectorFill[jTGC] = canCheckSector[jTGC];
           
           TGCstation_StationFEFill[jTGC]  = TGCstation_StationFE[jTGC];
@@ -559,7 +562,7 @@ MdtVsTgcRawDataValAlg::MidstationOnlyCheck(vector<const Muon::MuonSegment*> (&so
         for(int l=0;l<9;l++){
           for(int k=0;k<2;k++){
             sectorhitregisteredFill[l][k] = sectorhitregistered[l][k];
-            hitregisteredFill[l][k]       = hitregistered[l][k];
+            // hitregisteredFill[l][k]       = hitregistered[l][k];
           }
         }
       }// TGC Stations
