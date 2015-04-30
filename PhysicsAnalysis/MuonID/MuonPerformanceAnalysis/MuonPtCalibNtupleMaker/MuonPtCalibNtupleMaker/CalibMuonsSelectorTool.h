@@ -13,6 +13,9 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 
+//::: GRL includes
+#include "GoodRunsLists/IGoodRunsListSelectionTool.h"
+
 //::: MCP includes
 #include "MuonSelectorTools/IMuonSelectionTool.h"
 
@@ -33,7 +36,8 @@ public:
 
   CalibMuonsSelectorTool();
 
-  ToolHandle< CP::IMuonSelectionTool > m_MuonSelectorTool;
+  ToolHandle< CP::IMuonSelectionTool >     m_MuonSelectorTool;
+  ToolHandle< IGoodRunsListSelectionTool > m_GRLTool;
 
 private: 
 
