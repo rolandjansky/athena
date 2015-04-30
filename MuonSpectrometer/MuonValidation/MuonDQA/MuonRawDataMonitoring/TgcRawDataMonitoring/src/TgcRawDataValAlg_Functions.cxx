@@ -302,7 +302,7 @@ TgcRawDataValAlg::getWireNumberPerPhi48(int tgc, int ws, int channel, int eta) c
     return -1;
   }
   int n;
-  if(ws==0)// Wire
+  if(ws==0 && tgc>=0)// Wire
     n=channel+m_offset[tgc][eta];
   else// Strip
     n=channel+eta*32;
