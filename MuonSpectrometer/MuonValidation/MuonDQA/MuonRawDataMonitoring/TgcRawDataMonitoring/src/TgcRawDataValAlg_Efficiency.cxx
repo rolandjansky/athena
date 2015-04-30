@@ -635,7 +635,8 @@ TgcRawDataValAlg::calculateEfficiency(int ac, int ws, int eta, int phi48, int la
   else if(layer==6) refLayer = 5;
   else if(layer==7) refLayer = 8;
   else if(layer==8) refLayer = 7;
-  else refLayer = -1;
+  else refLayer = 2;
+
   int referenceChannel = m_tgcIdHelper->channel(m_hitIdVects[CURR][ac][ws][eta][phi48][refLayer].at(0));
   referenceChannel+=m_SLBoffset[ws][ac][eta][refLayer];
   
@@ -686,7 +687,7 @@ TgcRawDataValAlg::calculateEfficiency(int ac, int ws, int eta, int phi48, int la
     if(compareID(prdChannel, referenceChannel, dmin, dmax)){
       if(m_debuglevel)m_log<<MSG::DEBUG<<"calculate efficiency next layer"<<layer+1 << " eta" << eta << " phi" << phi48 << " fire" <<std::endl;
       if(!isEIFI){
-        tgceffmapnumbc[ac][ws][NEXT]->Fill(binx, biny);
+        tgceffmapnumbc[ac][ws][NEXT-1]->Fill(binx, biny); // only prev/next defined, array index should be 1 for NEXT PRD
       }
       break;
     }
