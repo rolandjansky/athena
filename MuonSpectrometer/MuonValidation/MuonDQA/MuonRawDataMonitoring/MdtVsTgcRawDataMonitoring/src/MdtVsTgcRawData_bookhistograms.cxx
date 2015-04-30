@@ -192,20 +192,6 @@ MdtVsTgcRawDataValAlg::bookeffhists(MonGroup &mdtvstgclv1_expert_a,
   ////////////////////////////////////////////////////////////////
   // Sagittas
   
-  // Initialize to zero
-  for(int i=0;i<2;i++)// AC
-    for(int jTGC=0;jTGC<4;jTGC++)// TGC Station
-      for(int f=0;f<2;f++)// FE
-        for(int k=0;k<2;k++)// WireStrip
-          for(int x=0;x<4;x++){
-            mvt_extrprdsag[i][jTGC][f][k][x]=0;
-            mvt_extrprdsag2[i][jTGC][f][k][x]=0;
-          }
-  for(int k=0;k<2;k++)
-    for(int i=0;i<2;i++)
-      for(int x=0;x<4;x++){
-        tgc_prdcompsag[i][k][x]=0;
-      }
   
   nbins3D_1[0]=             8000; nbins3D_1[1]=              200; nbins3D_1[2]=             4096; nbins3D_1[3]=            40000;
   fGlobalCoords3Dlo[0]=    -8000; fGlobalCoords3Dlo[1]=       -1; fGlobalCoords3Dlo[2]=    -M_PI; fGlobalCoords3Dlo[3]=  -200000;

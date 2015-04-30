@@ -28,6 +28,8 @@
 #include "MuonDQAUtils/MuonCosmicSetup.h"
 #include "MuonDQAUtils/MuonDQAHistMap.h" 
 
+#include "MuonRIO_OnTrack/MuonClusterOnTrack.h"
+
 #include "TrkSegment/SegmentCollection.h"
  
 #include "Identifier/Identifier.h"
@@ -78,6 +80,56 @@ MdtVsTgcRawDataValAlg::MdtVsTgcRawDataValAlg( const std::string & type, const st
   declareProperty("MdtPrepDataContainer", m_mdt_PrepDataContainerName = "MDT_DriftCircles");
   declareProperty("MdtSegmentCollection", m_mdt_SegmentCollectionName = "MuonSegments");
   
+  // initialize class members
+  m_eventStore = 0;
+  m_activeStore = 0;
+  m_muonMgr = 0;
+  m_mdtIdHelper = 0;
+  m_tgcIdHelper = 0;
+  theSL = 0;
+  SLr = 0;
+  SLz = 0;
+  SLeta = 0;
+  SLphi = 0;
+   
+  for(int ac=0; ac<2; ac++){
+	mvt_cutspassed[ac] = 0;
+	for(int jMDT=0; jMDT<4; jMDT++){
+		mdt_segmmap[ac][jMDT] = 0;
+		for(int sMDT=0; sMDT<4; sMDT++){
+			mdt_segmposdirsag[ac][jMDT][sMDT] = 0;
+			for(int iREPT=0; iREPT<4; iREPT++){
+				mdt_segmmatchsag[ac][jMDT][sMDT][iREPT] = 0;
+				mdt_trackdirdirsag[ac][jMDT][sMDT][iREPT] = 0;
+				mdt_trackchecksag[ac][jMDT][sMDT][iREPT][0] = 0;
+				mdt_trackchecksag[ac][jMDT][sMDT][iREPT][1] = 0;
+			}
+		}
+	}
+	for(int WS=0; WS<2; WS++){
+		for(int EffNDE=0; EffNDE<4; EffNDE++){
+			eff_stationmapbase[ac][WS][EffNDE] = 0;
+			eff_stationmapmid[ac][WS][EffNDE] = 0;
+			eff_stationmap[ac][WS][EffNDE] = 0;
+		}
+	}
+  }
+
+  // Initialize to zero
+  for(int i=0;i<2;i++)// AC
+    for(int jTGC=0;jTGC<4;jTGC++)// TGC Station
+      for(int f=0;f<2;f++)// FE
+        for(int k=0;k<2;k++)// WireStrip
+          for(int x=0;x<4;x++){
+            mvt_extrprdsag[i][jTGC][f][k][x]=0;
+            mvt_extrprdsag2[i][jTGC][f][k][x]=0;
+          }
+  for(int k=0;k<2;k++)
+    for(int i=0;i<2;i++)
+      for(int x=0;x<4;x++){
+        tgc_prdcompsag[i][k][x]=0;
+      }
+
 }
 
 MdtVsTgcRawDataValAlg::~MdtVsTgcRawDataValAlg(){

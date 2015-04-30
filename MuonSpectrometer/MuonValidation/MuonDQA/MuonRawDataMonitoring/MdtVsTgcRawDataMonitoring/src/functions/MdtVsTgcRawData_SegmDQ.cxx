@@ -52,7 +52,7 @@ MdtVsTgcRawDataValAlg::DQCheckMDTSegments(vector<const Muon::MuonSegment*> (&sor
   for(int i=0;i<2;i++){// AC
     bool skipSegm;int nDisqualifiedSegm; // used when checking the disqualified list for a segment
     bool segmDisqual;                    // used to flag a segment which has been found DQ insufficient
-    bool HasStationDQSegm[4] = {false, false, false, false};// flags for whether the there are segments in each MDT station with sufficienct DQ
+    //bool HasStationDQSegm[4] = {false, false, false, false};// flags for whether the there are segments in each MDT station with sufficienct DQ
     
     for(int jMDT=0;jMDT<4;jMDT++){// MDT Stations
       // Get number of segments
@@ -143,7 +143,7 @@ MdtVsTgcRawDataValAlg::DQCheckMDTSegments(vector<const Muon::MuonSegment*> (&sor
           disqualifiedSegments[i][jMDT].push_back(segm);
         }
         else{
-          HasStationDQSegm[jMDT]=true;// Flag event as having a DQ sufficient segment in the current station
+          //HasStationDQSegm[jMDT]=true;// Flag event as having a DQ sufficient segment in the current station
         }
       }// Segments in station
     }// MDT Stations

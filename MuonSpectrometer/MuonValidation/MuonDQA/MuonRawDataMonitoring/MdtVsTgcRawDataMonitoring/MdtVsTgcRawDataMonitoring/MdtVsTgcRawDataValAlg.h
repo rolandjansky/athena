@@ -47,8 +47,6 @@
 #include "MuonTrigCoinData/TgcCoinDataCollection.h"
 
 #include "MuonDQAUtils/TGCDQAUtils.h"
-
-#include "MuonDQAUtils/MuonDQATrackHistTool.h"
 #include "MuonDQAUtils/MuonDQAFitFunc.h"
 
 #include "SegmTrack.h"

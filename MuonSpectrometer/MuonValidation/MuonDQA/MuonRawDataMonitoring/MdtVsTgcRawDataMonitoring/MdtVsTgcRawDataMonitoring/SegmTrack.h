@@ -58,6 +58,15 @@ class SegmTrack{
     dAC = p.Side();
   }
   
+  SegmTrack & operator=( const SegmTrack& p ) {
+    dSegments[0] = p.at(0);
+    dSegments[1] = p.at(1);
+    dSegments[2] = p.at(2);
+    dSegments[3] = p.at(3);
+    dAC = p.Side();
+    return *this;
+  }
+
   // Indexer, gets element from pointer array
   const Muon::MuonSegment* operator[](int j) const{
     return at(j);

@@ -16,6 +16,7 @@
 #include "TrkEventPrimitives/TrkEventPrimitivesDict.h"
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
 #include "muonEvent/MuonContainer.h"
+#include "MuonCompetingRIOsOnTrack/CompetingMuonClustersOnTrack.h"
 
 #include <TH1F.h>
 #include <TH2F.h>

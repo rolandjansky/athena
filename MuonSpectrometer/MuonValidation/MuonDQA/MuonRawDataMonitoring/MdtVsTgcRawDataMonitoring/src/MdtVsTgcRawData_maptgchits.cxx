@@ -41,12 +41,12 @@ MdtVsTgcRawDataValAlg::maphists(const Trk::SegmentCollection *m_segmcollection,
   
   //////////////////////////////////////////////////////
   // Declare flags for data types present
-  bool MDTSegm[2]    = {false,false};
-  bool TGCMidHit[2]  = {false,false};
-  bool TGCEIFIHit[2] = {false,false};
+  //bool MDTSegm[2]    = {false,false};
+  //bool TGCMidHit[2]  = {false,false};
+  //bool TGCEIFIHit[2] = {false,false};
   
-  int nMDTSegm[2]  = {0,0};
-  int nTGCPrep[2]  = {0,0};
+  //int nMDTSegm[2]  = {0,0};
+  //int nTGCPrep[2]  = {0,0};
 
   
   ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -85,11 +85,9 @@ MdtVsTgcRawDataValAlg::maphists(const Trk::SegmentCollection *m_segmcollection,
 
     // Establish which MDT stations the Segment is in
     int nStations = 0;
-    int Stationj = 0;
     for(int jMDT=0;jMDT<4;jMDT++){
       if(nMdtMeas[jMDT]){
         nStations++;
-        Stationj=jMDT;
       }
     }
     // Check that the Segment only occupies one Station
@@ -130,8 +128,8 @@ MdtVsTgcRawDataValAlg::maphists(const Trk::SegmentCollection *m_segmcollection,
         if(dPhi_Pos_Dir> M_PI)dPhi_Pos_Dir-=2*M_PI;
         */
         // Flag event
-        MDTSegm[segmAC] = true;
-        nMDTSegm[segmAC]++;
+        //MDTSegm[segmAC] = true;
+        //nMDTSegm[segmAC]++;
         
         // Fill position histogram
         mdt_segmmap[segmAC][jMDT]->Fill(segmGlobalPhi, segmGlobalEta);
@@ -159,7 +157,7 @@ MdtVsTgcRawDataValAlg::maphists(const Trk::SegmentCollection *m_segmcollection,
       
       // Get detector variables
       Identifier tgcid=(*tgc_itc)->identify();
-      int tgcAC=(tre->sideA()==false);//isNotAside a:0, c:1
+      //int tgcAC=(tre->sideA()==false);//isNotAside a:0, c:1
       //int tgcFE=(tre->forward()==false);//isNotForward f:0, e:1
       //int tgcWS=(m_tgcIdHelper->isStrip(tgcid));//isStrip w=0, s=1
       int tgcStationName = m_tgcIdHelper->stationName(tgcid);
@@ -187,9 +185,9 @@ MdtVsTgcRawDataValAlg::maphists(const Trk::SegmentCollection *m_segmcollection,
       }
       
       // Flag event and increment counter
-      if(tgcStationName==47 || tgcStationName==48)TGCEIFIHit[tgcAC] = true;
-      else TGCMidHit[tgcAC] = true;
-      nTGCPrep[tgcAC]++;
+      //if(tgcStationName==47 || tgcStationName==48)TGCEIFIHit[tgcAC] = true;
+      //else TGCMidHit[tgcAC] = true;
+      //nTGCPrep[tgcAC]++;
     }// TGC PRD Collection
   }// TGC PRD Container
   
