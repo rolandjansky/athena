@@ -9,6 +9,7 @@ use 	AtlasROOT            	AtlasROOT-*             	External
 use 	GaudiInterface       	GaudiInterface-*        	External
 use     TrigTrackJetFinderTool  TrigTrackJetFinderTool-*        Trigger/TrigTools
 use 	TrigHLTMonitoring   	TrigHLTMonitoring-*      	Trigger/TrigMonitoring
+use     TrigDecisionTool        TrigDecisionTool-*              Trigger/TrigAnalysis
 
 # ============================================================================================
 private

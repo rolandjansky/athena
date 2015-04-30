@@ -50,18 +50,6 @@ class TaggerHelper
   TaggerHelper(MsgStream*);
   ~TaggerHelper();
 
-  /** @brief To print track parameters and track parameter errors for reconstructed tracks at EF */
-  void showParam(const Rec::TrackParticle*&, unsigned int);
-
-  /** @brief To get the number of tracks in a track collection at EF. */
-  unsigned int getTrackNumber(const Rec::TrackParticleContainer*);
-  /** @brief To get the number of vertices in a vertex collection at EF. */
-  unsigned int getVerticesNumber(const VxContainer*&);
-
-  float signedD0(float&, float, float);
-  float signedZ0(float&, float, float);
-  float phiCorr(float);
-  void IPCorr(float, float, float&, float&, float, float, float, float, float);
 
  private:
 
