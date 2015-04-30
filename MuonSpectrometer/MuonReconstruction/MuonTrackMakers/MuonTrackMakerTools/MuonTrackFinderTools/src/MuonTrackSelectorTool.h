@@ -101,7 +101,7 @@ namespace Muon {
 
     /** internal data structure */
     struct StationData{
-      StationData() : isMdt(false),isCsc(false),isTrigger(false),mdtHasHitsinMl1(false),mdtHasHitsinMl2(false),
+      StationData() : isMdt(false),isCsc(false),isNSW(false),isTrigger(false),mdtHasHitsinMl1(false),mdtHasHitsinMl2(false),
 		      netaHits(0),nphiHits(0),netaHoles(0),nphiHoles(0),
 		      netaTrigHits(0),nphiTrigHits(0),netaTrigHoles(0),nphiTrigHoles(0) {}
       bool isMdt;
