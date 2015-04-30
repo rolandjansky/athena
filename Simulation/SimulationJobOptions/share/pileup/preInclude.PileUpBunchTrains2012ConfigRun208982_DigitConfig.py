@@ -384,4 +384,4 @@ digitizationFlags.BeamIntensityPattern = [
 0.0, 0.0, 0.0, 0.0]  # long gap
 
 from AthenaCommon.BeamFlags import jobproperties
-jobproperties.Beam.bunchSpacing = 25 # Set this to the spacing between filled bunch-crossings within the train.
+jobproperties.Beam.bunchSpacing = 50 # Set this to the spacing between filled bunch-crossings within the train.
