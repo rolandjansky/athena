@@ -31,6 +31,47 @@
       </jobTransform>
 
 
+      <jobTransform userJobId="system_reco_mc15_ttbar_valid_13tev_25ns_mu00_to_mu40">
+	<doc>Reco_tf runs on 13TeV collision mc ttbar 25 ns</doc>
+	<jobTransformJobName>system_reco_mc15_ttbar_valid_13tev_25ns_mu00_to_mu40</jobTransformJobName>
+	<jobTransformCmd>
+	  Reco_tf.py --inputRDOFile root://eosatlas//eos/atlas/user/a/atlaspmb/mc/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r6220_tid05191878_00/RDO.05191878._000121.pool.root.1 --maxEvents 100 --outputESDFile myESD.pool.root --outputAODFile myAOD.pool.root --preExec='--preExec=from PerfMonComps.PerfMonFlags import jobproperties as pmjp;pmjp.PerfMonFlags.doPostProcessing=True;pmjp.PerfMonFlags.doSemiDetailedMonitoringFullPrint=True;rec.doTrigger=False;rec.doForwardDet=False;rec.doInDet=True;rec.doMuon=True;rec.doCalo=True;rec.doEgamma=False;rec.doMuonCombined=False;rec.doJetMissingETTag=False;rec.doTau=False;from RecExConfig.RecAlgsFlags import recAlgs;recAlgs.doMuonSpShower=False;rec.doBTagging=False;recAlgs.doEFlow=False;recAlgs.doEFlowJet=False;recAlgs.doMissingET=False;recAlgs.doMissingETSig=False; from JetRec.JetRecFlags import jetFlags;jetFlags.Enabled=False;'
+	</jobTransformCmd>
+	<group>TrfRecPerf_CheckFile_PerfMon</group>
+	<queue>atlasrttperf</queue>
+      </jobTransform>
+
+      <jobTransform userJobId="combined_reco_mc15_ttbar_valid_13tev_25ns_mu00_to_mu40">
+	<doc>Reco_tf runs on 13TeV collision mc ttbar 25 ns</doc>
+	<jobTransformJobName>combined_reco_mc15_ttbar_valid_13tev_25ns_mu00_to_mu40</jobTransformJobName>
+	<jobTransformCmd>
+	  Reco_tf.py --inputRDOFile root://eosatlas//eos/atlas/user/a/atlaspmb/mc/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r6220_tid05191878_00/RDO.05191878._000121.pool.root.1 --maxEvents 100 --outputESDFile myESD.pool.root  --outputAODFile myAOD.pool.root --preExec='rec.doTrigger=False;rec.doMonitoring=False;from PerfMonComps.PerfMonFlags import jobproperties as pmjp;pmjp.PerfMonFlags.doPostProcessing=True;pmjp.PerfMonFlags.doSemiDetailedMonitoringFullPrint=True;'
+	</jobTransformCmd>
+	<group>TrfRecPerf_CheckFile_PerfMon</group>
+	<queue>atlasrttperf</queue>
+      </jobTransform>
+
+
+      <jobTransform userJobId="monitoring_reco_mc15_ttbar_valid_13tev_25ns_mu00_to_mu40">
+	<doc>Reco_tf runs on 13TeV collision mc ttbar 25 ns</doc>
+	<jobTransformJobName>monitoring_reco_mc15_ttbar_valid_13tev_25ns_mu00_to_mu40</jobTransformJobName>
+	<jobTransformCmd>
+	  Reco_tf.py --inputRDOFile root://eosatlas//eos/atlas/user/a/atlaspmb/mc/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r6220_tid05191878_00/RDO.05191878._000121.pool.root.1 --maxEvents 100 --outputESDFile myESD.pool.root  --outputAODFile myAOD.pool.root --preExec='rec.doTrigger=False;rec.doMonitoring=True;from PerfMonComps.PerfMonFlags import jobproperties as pmjp;pmjp.PerfMonFlags.doPostProcessing=True;pmjp.PerfMonFlags.doSemiDetailedMonitoringFullPrint=True;'
+	</jobTransformCmd>
+	<group>TrfRecPerf_CheckFile_PerfMon</group>
+	<queue>atlasrttperf</queue>
+      </jobTransform>
+
+      <jobTransform userJobId="trigger_reco_mc15_ttbar_valid_13tev_25ns_mu00_to_mu40">
+	<doc>Reco_tf runs on 13TeV collision mc ttbar 25 ns</doc>
+	<jobTransformJobName>trigger_reco_mc15_ttbar_valid_13tev_25ns_mu00_to_mu40</jobTransformJobName>
+	<jobTransformCmd>
+	  Reco_tf.py --inputRDOFile root://eosatlas//eos/atlas/user/a/atlaspmb/mc/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r6220_tid05191878_00/RDO.05191878._000121.pool.root.1 --maxEvents 100 --outputESDFile myESD.pool.root  --outputAODFile myAOD.pool.root --preExec='rec.doTrigger=True;rec.doMonitoring=True;from PerfMonComps.PerfMonFlags import jobproperties as pmjp;pmjp.PerfMonFlags.doPostProcessing=True;pmjp.PerfMonFlags.doSemiDetailedMonitoringFullPrint=True;'
+	</jobTransformCmd>
+	<group>TrfRecPerf_CheckFile_PerfMon</group>
+	<queue>atlasrttperf</queue>
+      </jobTransform>
+
     </jobList>
     
     <jobGroups>
