@@ -42,9 +42,7 @@ TBEMECXTalkToyModel::TBEMECXTalkToyModel(
 			     const std::string& name, 
 			     const IInterface* parent)
   :AthAlgTool(type, name, parent),
-   m_caloSelection(false),
-   m_calo_dd_man(nullptr),
-   m_calo_id(nullptr)
+   m_caloSelection(false)
 {
   declareInterface<ICaloCellMakerTool>(this);
   declareProperty("CaloNums",m_caloNums);
@@ -147,6 +145,7 @@ StatusCode TBEMECXTalkToyModel::process(CaloCellContainer * theCont )
 
 StatusCode TBEMECXTalkToyModel::processOnCellIterators(const CaloCellContainer::iterator &  itrCellBeg, const CaloCellContainer::iterator & itrCellEnd )
 {
+  CaloCell_ID::SUBCALO mySubDet;
   unsigned int myCellHashOffset[CaloCell_ID::NSUBCALO];
   std::set<int> m_validCalos;
   m_validCalos.insert(CaloCell_ID::LAREM);
@@ -154,6 +153,7 @@ StatusCode TBEMECXTalkToyModel::processOnCellIterators(const CaloCellContainer::
   std::set<int>::const_iterator vCaloIterEnd = m_validCalos.end(); 
   for(; vCaloIter!=vCaloIterEnd; vCaloIter++) {
     IdentifierHash myHashMin,myHashMax;
+    mySubDet=(CaloCell_ID::SUBCALO)(*vCaloIter);
     m_calo_id->calo_cell_hash_range ((*vCaloIter),myHashMin,myHashMax);
     myCellHashOffset[(*vCaloIter)] = myHashMin;
   }
@@ -182,7 +182,7 @@ StatusCode TBEMECXTalkToyModel::processOnCellIterators(const CaloCellContainer::
 	}
 	double e = (*cellItEng).second;
 
-        const CaloCell_ID::SUBCALO mySubDet = element->getSubCalo();
+	mySubDet = element->getSubCalo();
 	std::vector<IdentifierHash> theNeighbors;
 
 	int otherSubDet;
@@ -350,14 +350,14 @@ StatusCode TBEMECXTalkToyModel::processOnCellIterators(const CaloCellContainer::
 	}
 	/*
 	if (theCellN4) {
-	  log << MSG::DEBUG << "EMEC2 cell (N4): energy before = " << eN4 << " | energy after rescaling = " << rescaled_eN4 << endmsg;
+	  log << MSG::DEBUG << "EMEC2 cell (N4): energy before = " << eN4 << " | energy after rescaling = " << rescaled_eN4 << endreq;
 	  log << MSG::DEBUG << "                                 " << (1.-m_xtalkScaleEMEC2Eta)*eN4 + m_xtalkScaleEMEC2Eta*e
-	      << " | " << (theCellN4->energy()-eN4) << endmsg;
+	      << " | " << (theCellN4->energy()-eN4) << endreq;
 	}
 	if (theCellN5) {
-	  log << MSG::DEBUG << "EMEC2 cell (N5): energy before = " << eN5 << " | energy after rescaling = " << rescaled_eN5 << endmsg;
+	  log << MSG::DEBUG << "EMEC2 cell (N5): energy before = " << eN5 << " | energy after rescaling = " << rescaled_eN5 << endreq;
 	  log << MSG::DEBUG << "                                 " << (1.-m_xtalkScaleEMEC2Eta)*eN5 + m_xtalkScaleEMEC2Eta*e
-	      << " | " << (theCellN5->energy()-eN5) << endmsg;
+	      << " | " << (theCellN5->energy()-eN5) << endreq;
 	}
 	*/
 	theCell  ->setEnergy(rescaled_e);

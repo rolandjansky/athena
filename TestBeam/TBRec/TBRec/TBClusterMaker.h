@@ -35,12 +35,10 @@ class TBClusterMaker: public AthAlgTool, virtual public CaloClusterCollectionPro
   
   TBClusterMaker(const std::string& type, const std::string& name,
 		       const IInterface* parent);
-
-  using CaloClusterCollectionProcessor::execute;
-  virtual StatusCode execute(const EventContext& ctx,
-                             xAOD::CaloClusterContainer* theClusters) const override;
-  virtual StatusCode initialize() override;
-  virtual StatusCode finalize() override;
+  
+  StatusCode execute(xAOD::CaloClusterContainer* theClusters);
+  StatusCode initialize();
+  StatusCode finalize();
   
  private: 
   
@@ -53,7 +51,7 @@ class TBClusterMaker: public AthAlgTool, virtual public CaloClusterCollectionPro
 
   /**
    * @brief Map of cone cuts for calorimeter samplings **/
-  std::vector<float> m_samplingConeCuts;
+  std::map<CaloSampling::CaloSample, float> m_samplingConeCuts;
 
   /**
    * @brief Threshold cut on cell energy in sigma noise units **/
@@ -86,9 +84,9 @@ class TBClusterMaker: public AthAlgTool, virtual public CaloClusterCollectionPro
   bool m_CellEnergyInADC;
 
   /** Counters */
-  //int m_numSeedCellNotFound;
-  //int m_numCluIterationsConverged;
-  //int m_numCluIterationsNonConverged;
+  int m_numSeedCellNotFound;
+  int m_numCluIterationsConverged;
+  int m_numCluIterationsNonConverged;
 
   /** Services */
   StoreGateSvc* m_eventStore;
@@ -106,7 +104,7 @@ class TBClusterMaker: public AthAlgTool, virtual public CaloClusterCollectionPro
 
   std::map<std::string, CaloSampling::CaloSample> m_samplingFromNameLookup;
   std::map<CaloSampling::CaloSample, CaloCell_ID::SUBCALO> m_caloLookup;
-  std::vector<float> m_adcToMeV;
+  std::map<CaloSampling::CaloSample, float> m_adcToMeV;
 
   /** Setup lookup tables */
   StatusCode setupLookupTables();

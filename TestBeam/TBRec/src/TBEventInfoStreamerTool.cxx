@@ -17,8 +17,7 @@
 TBEventInfoStreamerTool::TBEventInfoStreamerTool(const std::string& name,
 						 const std::string& type,
 					         const IInterface* parent)
-  : TBEventStreamerTool(name,type,parent),
-    m_selected_events(0)
+  : TBEventStreamerTool(name,type,parent)
 {
    declareInterface<TBEventStreamerTool>(this);
   m_acceptTypes.resize(1,"Physics");

@@ -12,6 +12,7 @@
 #include "LArElecCalib/ILArHVCorrTool.h"
 
 // sandrine
+//#include "LArTools/LArCablingService.h"
 //#include "CaloIdentifier/LArEM_ID.h"
 
 //#include "LArRawUtils/LArRoI_Map.h"
@@ -21,7 +22,7 @@
 #include "LArIdentifier/LArOnlineID.h"
 
 #include "CaloIdentifier/CaloIdManager.h"
-#include "LArCabling/LArCablingService.h"
+#include "LArTools/LArCablingService.h"
 
 class CaloCell_ID;
 class CaloDetDescrManager;

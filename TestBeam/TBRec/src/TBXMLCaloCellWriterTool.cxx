@@ -92,7 +92,7 @@ TBXMLCaloCellWriterTool::writeEvent(std::ostream& outStream,
 	{
 	  log << MSG::ERROR
 	      << "tool does not hang off the TBXMLWriter algorithm."
-	      << endmsg;
+	      << endreq;
 	  return StatusCode::FAILURE;
 	}
 
@@ -102,7 +102,7 @@ TBXMLCaloCellWriterTool::writeEvent(std::ostream& outStream,
 	{
 	  log << MSG::ERROR
 	      << "cannot convert properties correctly!"
-	      << endmsg;
+	      << endreq;
 	  return StatusCode::FAILURE;
 	}
       m_firstEvent = false;
@@ -110,7 +110,7 @@ TBXMLCaloCellWriterTool::writeEvent(std::ostream& outStream,
       // print out configuration
       log << MSG::INFO
 	  << "list of included calo samplings:"
-	  << endmsg;
+	  << endreq;
       for ( unsigned int i=0; i<m_caloSamplings.size(); i++ )
 	{
 	  log << MSG::INFO
@@ -118,7 +118,7 @@ TBXMLCaloCellWriterTool::writeEvent(std::ostream& outStream,
 	      << m_includedSamplings[i]
 	      << "\042 with SubCalo index "
 	      << (int)m_caloSamplings[i]
-	      << endmsg;
+	      << endreq;
 	}
     }
 
@@ -134,7 +134,7 @@ TBXMLCaloCellWriterTool::writeEvent(std::ostream& outStream,
 	{
 	  log << MSG::ERROR
 	      << "cannot produce run XML files."
-	      << endmsg;
+	      << endreq;
 	  return StatusCode::FAILURE;
 	}
     }
@@ -438,7 +438,7 @@ TBXMLCaloCellWriterTool::convertProperties()
     {
       log << MSG::ERROR
 	  << "cannot allocate CaloCell_ID helper!"
-	  << endmsg;
+	  << endreq;
       return StatusCode::FAILURE;
     }
 

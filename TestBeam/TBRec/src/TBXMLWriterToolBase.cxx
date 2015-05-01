@@ -44,7 +44,7 @@ TBXMLWriterToolBase::openDictionary(std::ostream& outStream,
 				    const std::string& dictName)
 {
   std::vector<std::string> emptyList;
-  this->openDictionary(outStream,dictName, emptyList);
+  this->openDictionary(outStream,dictName);
 }
 
 // template <typename DATA>

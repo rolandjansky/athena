@@ -15,16 +15,15 @@
 #include "CaloIdentifier/CaloIdManager.h"
 
 #include "LArIdentifier/LArOnlineID.h"
-#include "LArCabling/LArCablingService.h"
+#include "LArTools/LArCablingService.h"
 #include "TBEvent/TBScintillatorCont.h"
 #include "TBEvent/TBBPCCont.h"
 #include "TBEvent/TBPhase.h"
-#include "AthenaKernel/Units.h"
 #include <vector>
 
 
-using Athena::Units::GeV;
-using Athena::Units::ns;
+using CLHEP::GeV;
+using CLHEP::ns;
 
 
 CBNT_Timing::CBNT_Timing(const std::string & name, ISvcLocator * pSvcLocator)
@@ -35,6 +34,9 @@ CBNT_Timing::CBNT_Timing(const std::string & name, ISvcLocator * pSvcLocator)
    , m_first_event(true)
    , m_caloCellName("AllCalo")
 {
+  NOTIME = -999;
+  NOENERGY = -999;
+
   m_sampling_names.resize(0);
 
   declareProperty("TBPhase",m_tbphase="TBPhase");
@@ -107,7 +109,7 @@ StatusCode CBNT_Timing::CBNT_initialize() {
              << "\042 ";
     }
   }
-  msg() << MSG::INFO << endmsg;
+  msg() << MSG::INFO << endreq;
 
   // get an idCalo keyed map of vectors of idSample for the requested samplings
   for (std::vector<CaloSampling::CaloSample>::iterator sample = m_samplingIndices.begin(); sample != m_samplingIndices.end(); sample++) {
@@ -136,7 +138,7 @@ StatusCode CBNT_Timing::CBNT_initialize() {
              << m_samplingToNameLookup[*sample]
              << "\042";
     }
-    msg()  << MSG::INFO << endmsg;
+    msg()  << MSG::INFO << endreq;
   }
 
   return StatusCode::SUCCESS; 
@@ -210,7 +212,7 @@ StatusCode CBNT_Timing::CBNT_execute()
       os << std::hex << *it_febID;
       msg() << MSG::INFO << " \042" << os.str() << "\042";
     }
-    msg() << MSG::INFO << endmsg;
+    msg() << MSG::INFO << endreq;
 
     m_first_event = false;
   }
@@ -270,7 +272,7 @@ StatusCode CBNT_Timing::CBNT_execute()
 
         double energy = (*cell)->e();
         double time = (*cell)->time();
-        if (fabs(time/ns - float(int(time/(25*ns))*25.)) > 0.001 && energy > m_energy_cut) {
+        if (fabs(time/ns - float(int(time/ns/25.)*25.)) > 0.001 && energy > m_energy_cut) {
 	  
 	  m_time_cell->push_back(time/ns);
 	  m_energy_cell->push_back(energy/GeV);	  

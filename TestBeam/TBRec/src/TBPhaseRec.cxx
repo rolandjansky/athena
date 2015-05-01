@@ -5,6 +5,8 @@
 
 #include "StoreGate/StoreGateSvc.h"
 
+#include "CLHEP/Units/SystemOfUnits.h"
+
 #include "GaudiKernel/Property.h"
 
 #include "EventInfo/EventInfo.h"
@@ -18,7 +20,6 @@
 #include "TBEvent/TBEventInfo.h"
 
 #include "PathResolver/PathResolver.h"
-#include "AthenaKernel/Units.h"
 
 #include <algorithm>
 #include <cmath>
@@ -26,7 +27,7 @@
 #include <iostream>
 #include <fstream>
 
-using Athena::Units::ns;
+using CLHEP::ns;
 
 TBPhaseRec::TBPhaseRec(const std::string& name,
 				 ISvcLocator* pSvcLocator) :
@@ -140,7 +141,8 @@ StatusCode TBPhaseRec::execute()
 
   // Get run number...
   unsigned int thisrun=0;
-  const EventInfo* thisEventInfo = nullptr;
+  EventID *thisEvent;           
+  const EventInfo* thisEventInfo;
   StatusCode sc=evtStore()->retrieve(thisEventInfo);
   if (sc!=StatusCode::SUCCESS){
     ATH_MSG_WARNING ( "No EventInfo object found! Can't read run number!" );
@@ -148,7 +150,8 @@ StatusCode TBPhaseRec::execute()
     setFilterPassed(false);
     return StatusCode::SUCCESS;
   } else {
-    thisrun = thisEventInfo->event_ID()->run_number();
+    thisEvent=thisEventInfo->event_ID();
+    thisrun = thisEvent->run_number();
   }
   
   // ... and get new calib constants (only if calibration constant file has been specified!)

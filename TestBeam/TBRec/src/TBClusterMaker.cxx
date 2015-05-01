@@ -71,9 +71,9 @@ TBClusterMaker::TBClusterMaker(const std::string& type,
   // Cluster \f$ \phi \f$) from JO file
   declareProperty("phiCluster",m_phi0=99.);
 
-  //m_numCluIterationsConverged = 0;
-  //m_numCluIterationsNonConverged = 0;
-  //m_numSeedCellNotFound = 0;
+  m_numCluIterationsConverged = 0;
+  m_numCluIterationsNonConverged = 0;
+  m_numSeedCellNotFound = 0;
 }
 ////////////////////
 // Initialization //
@@ -82,7 +82,7 @@ TBClusterMaker::TBClusterMaker(const std::string& type,
 StatusCode TBClusterMaker::initialize(){
 
   MsgStream log(msgSvc(), name());
-  log << MSG::INFO << "in initialize()" << endmsg;
+  log << MSG::INFO << "in initialize()" << endreq;
 
   // Get pointer to detector manager and CaloCell_ID:
    m_calo_DDM  = CaloDetDescrManager::instance(); 
@@ -91,7 +91,7 @@ StatusCode TBClusterMaker::initialize(){
   // Get StoreGateSvc //
   StatusCode sc = service ( "StoreGateSvc" , m_eventStore ) ;  
   if( sc.isFailure() ) {
-    log<<MSG::FATAL<<" Cannot locate StoreGateSvc " << endmsg ;
+    log<<MSG::FATAL<<" Cannot locate StoreGateSvc " << endreq ;
     sc = StatusCode::FAILURE ;
     return sc ;
   }
@@ -99,14 +99,14 @@ StatusCode TBClusterMaker::initialize(){
    // allocate detectorStore
   sc = service("DetectorStore", m_detectorStore);
   if (sc.isFailure()) {
-    log << MSG::FATAL << "cannot allocate DetectorStore" << endmsg;
+    log << MSG::FATAL << "cannot allocate DetectorStore" << endreq;
     return sc;
   }
 
   // allocate ToolSvc
   sc = service("ToolSvc", m_toolSvc);
   if (sc.isFailure()) {
-    log << MSG::FATAL << "cannot allocate ToolSvc" << endmsg;
+    log << MSG::FATAL << "cannot allocate ToolSvc" << endreq;
     return sc;
   }
     
@@ -116,12 +116,12 @@ StatusCode TBClusterMaker::initialize(){
   if (sc.isFailure()) {
     log << MSG::ERROR
 	<< "Unable to find tool for " << m_noiseToolName
-	<< endmsg;
+	<< endreq;
     return sc;
   }
   else {
     log << MSG::INFO << "Noise Tool "
-	<< m_noiseToolName << " is selected!" << endmsg;
+	<< m_noiseToolName << " is selected!" << endreq;
   }
   m_noiseTool = dynamic_cast<ICalorimeterNoiseTool*>(algtool);
 
@@ -129,31 +129,30 @@ StatusCode TBClusterMaker::initialize(){
   if ((this->setupLookupTables()).isFailure()) {
     log << MSG::FATAL
            << "problems performing setup of module and sampling lookup tables"
-           << endmsg;
+           << endreq;
     return StatusCode::FAILURE;
   }
 
   // fill map with cone cuts
   if (m_samplingNames.size() <= 0) {
-    log << MSG::FATAL << "List of samplings is not supplied" << endmsg;
+    log << MSG::FATAL << "List of samplings is not supplied" << endreq;
     return StatusCode::FAILURE;    
   }
   if (m_samplingNames.size() != m_coneCuts.size()) {
     log << MSG::FATAL << "Number of cone cuts = " << m_coneCuts.size() << 
       " does not correspond to the number of samplings = " << 
-      m_samplings.size() << endmsg;
+      m_samplings.size() << endreq;
     return StatusCode::FAILURE;
   }
 
   log << MSG::INFO << "Included calorimeter samplings(coneCuts): ";
   std::vector<std::string>::const_iterator sampling = m_samplingNames.begin();
   std::vector<float>::const_iterator cut = m_coneCuts.begin();
-  m_samplingConeCuts.resize (CaloSampling::getNumberOfSamplings());
   for (; sampling != m_samplingNames.end(); sampling++, cut++) {
      CaloSampling::CaloSample idSamp = m_samplingFromNameLookup[*sampling];
     if (idSamp == CaloSampling::Unknown) {
       log << MSG::FATAL << " Unknown sampling: \042" << *sampling << "\042 "
-	  << endmsg;
+	  << endreq;
       return StatusCode::FAILURE;
     }
       log << MSG::INFO << "\042" << *sampling << "\042"
@@ -165,29 +164,28 @@ StatusCode TBClusterMaker::initialize(){
       for (;it!=m_calos.end();it++) if (*it == idCalo) break;
       if (it == m_calos.end()) m_calos.push_back(idCalo);
   }
-  log << MSG::INFO << endmsg;
-  log << MSG::INFO << "Included calorimeters: " << m_calos << endmsg;
+  log << MSG::INFO << endreq;
+  log << MSG::INFO << "Included calorimeters: " << m_calos << endreq;
   if (m_fixClusterPosition && (m_eta0 == 99. || m_phi0 == 99.)) {
     log << MSG::FATAL << " Cluster position is fixed but (eta, phi) are not " 
-	<< "supplied in the JO file" << endmsg;
+	<< "supplied in the JO file" << endreq;
     return StatusCode::FAILURE;
   }
   // Clear counters
-  //m_numSeedCellNotFound=0;
-  //m_numCluIterationsConverged=0;
-  //m_numCluIterationsNonConverged=0;
+  m_numSeedCellNotFound=0;
+  m_numCluIterationsConverged=0;
+  m_numCluIterationsNonConverged=0;
 
   return StatusCode::SUCCESS;
 }
 
 
-StatusCode TBClusterMaker::execute(const EventContext& /*ctx*/,
-                                   xAOD::CaloClusterContainer* clusCont) const
-{
+StatusCode TBClusterMaker::execute(xAOD::CaloClusterContainer* clusCont) {
+
   //static CaloPhiRange range;
 
   MsgStream log(msgSvc(), name());
-  log << MSG::DEBUG << "in execute()" << endmsg;
+  log << MSG::DEBUG << "in execute()" << endreq;
 
   /////////////////
   // Data Access //
@@ -200,11 +198,11 @@ StatusCode TBClusterMaker::execute(const EventContext& /*ctx*/,
   if (sc.isFailure()) {
     log << MSG::ERROR
 	<< "cannot allocate CaloCellContainer with key <"
-	<< m_caloCellContainerName << ">" << endmsg;
+	<< m_caloCellContainerName << ">" << endreq;
     return sc;
   }
   log << MSG::DEBUG << "CaloCellContainer container size = " <<  
-    cellContainer->size() << endmsg;
+    cellContainer->size() << endreq;
 
   xAOD::CaloCluster *Cluster=0;
   double cluEta=0,cluPhi=0,cluNorm = 0;
@@ -214,7 +212,7 @@ StatusCode TBClusterMaker::execute(const EventContext& /*ctx*/,
     clusterPositionFound = true;
     cluEta0 = m_eta0;
     cluPhi0 = m_phi0;
-    //m_numCluIterationsConverged++;
+    m_numCluIterationsConverged++;
   }
   int nIter = 0;
   for (; nIter<m_maxIter+1; nIter++) {
@@ -238,7 +236,7 @@ StatusCode TBClusterMaker::execute(const EventContext& /*ctx*/,
 	    if (eSigma < m_seedCut) continue;
 	    log << MSG::DEBUG <<"smp,eta,phi,e,eSigma= "
 		<<idSample<<" "<<cell->eta()<<" "<<cell->phi()<<" "<<
-	      e<<" "<<eSigma<<" "<<endmsg;
+	      e<<" "<<eSigma<<" "<<endreq;
 	    double phiRef=0.;
 	    if (cluNorm0 == 0) {
 	      cluPhi0 = e*cell->phi();
@@ -273,25 +271,25 @@ StatusCode TBClusterMaker::execute(const EventContext& /*ctx*/,
 	  //Cluster->addCell(cellContainer,cell,1.);
 	  Cluster->addCell(cindex,1.);
 	  log << MSG::DEBUG <<"smp,e,eSigma= "
-	      <<idSample<<" "<<e<<" "<<eSigma<<" "<<endmsg;
+	      <<idSample<<" "<<e<<" "<<eSigma<<" "<<endreq;
 	}
       } // end of loop over cells of the current calorimeter
     } // end of loop over calorimeters
     if (clusterPositionFound) break;
     if (nIter==0) {
       if (cluNorm0 == 0.) {
-	//m_numSeedCellNotFound++;
-	log << MSG::INFO << "No seed cell found" << endmsg;
+	m_numSeedCellNotFound++;
+	log << MSG::INFO << "No seed cell found" << endreq;
 	return StatusCode::SUCCESS;
       }
       cluPhi0 /= cluNorm0;
       cluEta0 /= cluNorm0;
       log << MSG::DEBUG << "nIter=0: cluEta0,cluPhi0,cluNorm0= " << cluEta0 
-	  << " " << cluPhi0 << " " << cluNorm0 << endmsg;
+	  << " " << cluPhi0 << " " << cluNorm0 << endreq;
       continue;
     }
     if (cluNorm == 0.) {
-      log << MSG::ERROR << "cluNorm = 0.: should never be" << endmsg;
+      log << MSG::ERROR << "cluNorm = 0.: should never be" << endreq;
       return StatusCode::SUCCESS;
     }
     cluPhi /= cluNorm;
@@ -300,16 +298,16 @@ StatusCode TBClusterMaker::execute(const EventContext& /*ctx*/,
 		       +pow(cluEta0-cluEta,2));
     if (dist < m_deltaR) {
       clusterPositionFound = true;
-      //m_numCluIterationsConverged++;
+      m_numCluIterationsConverged++;
     }
     else if (nIter == m_maxIter-1) {
       clusterPositionFound = true;
-      //m_numCluIterationsNonConverged++;
-      log << MSG::DEBUG << "Maximal number of iterations reached" << endmsg;
+      m_numCluIterationsNonConverged++;
+      log << MSG::DEBUG << "Maximal number of iterations reached" << endreq;
       log << MSG::DEBUG << "cluEta0,cluPhi0,cluNorm0= " << cluEta0 << " " <<
-	cluPhi0 << " " << cluNorm0 << endmsg;
+	cluPhi0 << " " << cluNorm0 << endreq;
       log << MSG::DEBUG << "cluEta,cluPhi,cluNorm= " << cluEta << " " <<
-	cluPhi << " " << cluNorm << endmsg;
+	cluPhi << " " << cluNorm << endreq;
     }
     cluEta0 = cluEta;
     cluPhi0 = cluPhi;
@@ -325,24 +323,24 @@ StatusCode TBClusterMaker::execute(const EventContext& /*ctx*/,
       Cluster->phi0();
     log<<MSG::DEBUG<<" Cluster #cells, E, eta, phi= "<<
       Cluster->clusterSize()<<" "<<Cluster->e()<<" "<<
-      Cluster->eta()<<" "<<Cluster->phi()<<endmsg;
+      Cluster->eta()<<" "<<Cluster->phi()<<endreq;
     log<<MSG::DEBUG<<"In samplings: #samp E eta(etasize) phi(phisize):"
-       <<endmsg;
+       <<endreq;
     //std::vector<CaloSampling::CaloSample>::const_iterator
       //it=m_samplings.begin();
     //for(;it!=m_samplings.end();it++) {
        // CaloSampling::CaloSample smp=*it;
       //      if (!Cluster->is_valid_sampling(smp)) continue;
-      //log<<MSG::DEBUG<<"Valid= "<<Cluster->is_valid_sampling(smp)<<endmsg;
+      //log<<MSG::DEBUG<<"Valid= "<<Cluster->is_valid_sampling(smp)<<endreq;
       //log<<MSG::DEBUG<<"#"<<smp<<" "<<Cluster->eSample(smp)<<" ";
       //log<<MSG::DEBUG<<"#"<<smp<<" "<<Cluster->eSample(smp)<<" "<<
       //	Cluster->etaSample(smp)<<"("<<Cluster->etasize(smp)<<") "<<
       //	Cluster->phiSample(smp)<<"("<<Cluster->phisize(smp)<<") ";
     //}
-    //log<<MSG::DEBUG<<endmsg;
+    //log<<MSG::DEBUG<<endreq;
     return StatusCode::SUCCESS;
   } else {
-    log << MSG::ERROR << "Cluster not found: should never be here!" << endmsg;
+    log << MSG::ERROR << "Cluster not found: should never be here!" << endreq;
     return StatusCode::SUCCESS;
   }
 
@@ -351,15 +349,15 @@ StatusCode TBClusterMaker::execute(const EventContext& /*ctx*/,
 StatusCode TBClusterMaker::finalize(){
 
   MsgStream log(msgSvc(), name());
-  log << MSG::DEBUG << "in finalize()" << endmsg;
+  log << MSG::DEBUG << "in finalize()" << endreq;
 
-  //log << MSG::INFO << "Total number of found clusters = " <<
-  //  m_numCluIterationsConverged + m_numCluIterationsNonConverged << endmsg;
-  //log << MSG::INFO << "Numbers of clusters with converged/non-converged " <<
-  //  "iteration procedure = " << m_numCluIterationsConverged << "/" <<
-  //  m_numCluIterationsNonConverged<<endmsg;
-  //log << MSG::INFO << " Seed cells were not found in " << m_numSeedCellNotFound
-  //    << " events" << endmsg;
+  log << MSG::INFO << "Total number of found clusters = " <<
+    m_numCluIterationsConverged + m_numCluIterationsNonConverged << endreq;
+  log << MSG::INFO << "Numbers of clusters with converged/non-converged " <<
+    "iteration procedure = " << m_numCluIterationsConverged << "/" <<
+    m_numCluIterationsNonConverged<<endreq;
+  log << MSG::INFO << " Seed cells were not found in " << m_numSeedCellNotFound
+      << " events" << endreq;
 
   return StatusCode::SUCCESS;
 }
@@ -419,7 +417,6 @@ StatusCode TBClusterMaker::setupLookupTables() {
   m_caloLookup[CaloSampling::FCAL2]       = CaloCell_ID::LARFCAL;  
 
   // fill ADC to MeV conversion map (for HIGH gain !!)
-  m_adcToMeV.resize (CaloSampling::getNumberOfSamplings());
   m_adcToMeV[CaloSampling::EME2]  = 29.0;
   m_adcToMeV[CaloSampling::EME3]  = 13.7;
   m_adcToMeV[CaloSampling::HEC0]  = 11.2;

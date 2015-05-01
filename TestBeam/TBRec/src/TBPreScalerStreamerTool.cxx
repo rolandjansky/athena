@@ -22,7 +22,6 @@ TBPreScalerStreamerTool::TBPreScalerStreamerTool(const std::string& type,
 						 const IInterface* parent)
   : TBEventStreamerTool(type,name,parent)
     , m_acceptFraction(1.)
-    , m_randomizer(nullptr)
 {
   declareInterface<TBEventStreamerTool>(this); 
   declareProperty("AcceptEventFraction",m_acceptFraction);
@@ -39,7 +38,7 @@ StatusCode TBPreScalerStreamerTool::initializeTool()
       MsgStream report(msgSvc(),name());
       report << MSG::ERROR
 	     << "event accept frequency outside allowed range [0,1]"
-	     << endmsg;
+	     << endreq;
       return StatusCode::FAILURE;
     }
   // initialize randomizer

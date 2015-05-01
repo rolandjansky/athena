@@ -31,10 +31,7 @@
 TBBeamQualityDoubleHitsTool::TBBeamQualityDoubleHitsTool(const std::string& name,
 							 const std::string& type,
 							 const IInterface* parent)
-  : TBBeamQualityTool(name,type,parent),
-    m_StoreGate(nullptr),
-    m_Scint1ADC(0),
-    m_Scint2ADC(0)
+  : TBBeamQualityTool(name,type,parent)
 {
 
   // enter cut parameters
@@ -66,7 +63,7 @@ StatusCode TBBeamQualityDoubleHitsTool::accept(std::vector<std::string> m_partic
     
   log << MSG::DEBUG
       << "TBBeamQualityDoubleHits: Started Accept"
-      << endmsg;
+      << endreq;
 
   if (m_h6cuts==true) {// h6cuts  
   
@@ -90,7 +87,7 @@ StatusCode TBBeamQualityDoubleHitsTool::accept(std::vector<std::string> m_partic
   log <<MSG::DEBUG
       << "m_ScintCut1ADC: "<< m_ScintCut1ADC
       << "m_ScintCut2ADC: "<< m_ScintCut2ADC 
-      <<endmsg;
+      <<endreq;
   
   // checking out StoreGateSvc
   StatusCode sc = service("StoreGateSvc",m_StoreGate);
@@ -98,7 +95,7 @@ StatusCode TBBeamQualityDoubleHitsTool::accept(std::vector<std::string> m_partic
     {
       log << MSG::ERROR
 	  << "Cannot alllocate StoreGate service!"
-	  << endmsg;
+	  << endreq;
     }
   
   TBScintillatorCont * scint;
@@ -110,7 +107,7 @@ StatusCode TBBeamQualityDoubleHitsTool::accept(std::vector<std::string> m_partic
 	  << "Can't Retrieve "
 	  << m_SGScintkey
 	  <<" from SG"
-	  << endmsg;
+	  << endreq;
     }else { //else
       
       m_Scint1ADC = 0;

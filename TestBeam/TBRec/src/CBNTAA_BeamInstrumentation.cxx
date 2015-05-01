@@ -159,7 +159,7 @@ StatusCode CBNTAA_BeamInstrumentation::CBNT_execute()
 	unsigned NtupleVectorIndex;
 	for ( NtupleVectorIndex=0; NtupleVectorIndex!=nScint; NtupleVectorIndex++) 
 	  if (name==m_scint_names[NtupleVectorIndex]) {
-	    //	    log << MSG::DEBUG << "Scintillator '" << name << "' not found." << endmsg;
+	    //	    log << MSG::DEBUG << "Scintillator '" << name << "' not found." << endreq;
 	    break;
 	  }
 	if (NtupleVectorIndex==nScint) {

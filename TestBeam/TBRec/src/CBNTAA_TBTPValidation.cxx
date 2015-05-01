@@ -8,6 +8,10 @@
 #include "GaudiKernel/IToolSvc.h"
 #include "GaudiKernel/INTupleSvc.h"
 
+
+// hack that will allow to read the private and protected data members
+#define private public
+#define protected public
 #include "TBEvent/TBADCRawCont.h"
 #include "TBEvent/TBTDCRawCont.h"
 #include "TBEvent/TBPhase.h"
@@ -20,6 +24,8 @@
 #include "TBEvent/TBTrack.h"
 #include "TBEvent/TBTriggerPatternUnit.h"
 #include "TBEvent/TBMWPCCont.h"
+#undef private
+#undef protected
 
 
 CBNTAA_TBTPValidation::CBNTAA_TBTPValidation(const std::string & name, ISvcLocator * pSvcLocator) : CBNT_TBRecBase(name, pSvcLocator)
@@ -474,13 +480,15 @@ StatusCode CBNTAA_TBTPValidation::CBNT_execute()
      	(*m_xErr)[NtupleVectorIndex]                      = bpc-> getXErr();
      	(*m_yErr)[NtupleVectorIndex]                      = bpc-> getYErr();
      	(*m_xPulse)[NtupleVectorIndex]                    = bpc-> getXPulse();
-     	(*m_yPulse)[NtupleVectorIndex]                    = bpc-> getYPulse();
-     	(*m_hitnumber)[NtupleVectorIndex]                 = bpc-> getHitNbr();
+     	(*m_yPulse)[NtupleVectorIndex]                    = bpc-> m_yPulse;
+//     	(*m_yPulse)[NtupleVectorIndex]                    = bpc-> getYPulse();
+     	(*m_hitnumber)[NtupleVectorIndex]                 = bpc-> m_hitnumber;
+//     	(*m_hitnumber)[NtupleVectorIndex]                 = bpc-> getHitNbr();
      	(*m_xPosOverflow)[NtupleVectorIndex]              = bpc-> isXPosOverflow();
      	(*m_yPosOverflow)[NtupleVectorIndex]              = bpc-> isYPosOverflow();
      	(*m_xPulseOverflow)[NtupleVectorIndex]            = bpc-> isXPulseOverflow();
      	(*m_yPulseOverflow)[NtupleVectorIndex]            = bpc-> isYPulseOverflow();
-     	(*m_overflowSetFlag)[NtupleVectorIndex]           = false;//bpc-> m_overflowSetFlag ;
+     	(*m_overflowSetFlag)[NtupleVectorIndex]           = bpc-> m_overflowSetFlag ;
      	(*m_tbDetectorName_TBBPCCont)[NtupleVectorIndex]  = bpc-> getDetectorName();
      	(*m_overflow_TBBPCCont)[NtupleVectorIndex]        = bpc-> isOverflow();
     }
@@ -502,21 +510,23 @@ StatusCode CBNTAA_TBTPValidation::CBNT_execute()
     m_gain->resize(nLArDigits);
     m_nSamples->resize(nLArDigits);
     if (nLArDigits) 
-      m_samples->reserve( ( (*(LArDigitContainer->begin()))->nsamples() ) * nLArDigits);
+      m_samples->reserve( ( (*(LArDigitContainer->begin()))->m_samples.size() ) * nLArDigits);
 
     unsigned NtupleVectorIndex = 0;
     TBLArDigitContainer::const_iterator it_LArDigitContainer   = LArDigitContainer->begin();
     TBLArDigitContainer::const_iterator last_LArDigitContainer = LArDigitContainer->end();
     for(;it_LArDigitContainer!=last_LArDigitContainer;it_LArDigitContainer++,NtupleVectorIndex++) {
       const LArDigit * larDigit = (*it_LArDigitContainer);
-      (*m_channelID)[NtupleVectorIndex] = larDigit->hardwareID().get_identifier32().get_compact() ;
-      (*m_gain)[NtupleVectorIndex] = (unsigned char)larDigit->gain();
+      (*m_channelID)[NtupleVectorIndex] = larDigit->m_hardwareID.get_identifier32().get_compact() ;
+      (*m_gain)[NtupleVectorIndex] = (unsigned char)larDigit->m_gain;
 
-      unsigned nM_samples = larDigit->nsamples();
+      unsigned nM_samples = larDigit->m_samples.size();
       (*m_nSamples)[NtupleVectorIndex] = nM_samples;
         
-      m_samples->assign (larDigit->samples().begin(),
-                         larDigit->samples().end());
+      std::vector<short>::const_iterator it_dig   = larDigit->m_samples.begin();
+      std::vector<short>::const_iterator it_dig_e = larDigit->m_samples.end();
+      for(;it_dig!=it_dig_e;it_dig++)
+        (*m_samples).push_back(*it_dig);
     }
   }
 
@@ -578,7 +588,8 @@ StatusCode CBNTAA_TBTPValidation::CBNT_execute()
     m_tbDetectorName_TBTailCatcher    ->resize(nTailCatchers);
     m_overflow_TBTailCatcher          ->resize(nTailCatchers);
 
-    (*m_signals) = TailCatcher->getSignals();
+    // m_signals has no access method so just copy it over ...
+    (*m_signals) = TailCatcher->m_signals;
 
     unsigned NtupleVectorIndex = 0;
     TBTailCatcher::const_iterator it_TailCatcher   = TailCatcher->begin();
@@ -614,10 +625,10 @@ StatusCode CBNTAA_TBTPValidation::CBNT_execute()
     m_scale_TBTDC    ->resize(1);
     m_phase_TBTDC    ->resize(1);
 
-    (*m_tdc_TBTDC)[0]    = TDC-> tdc();
-    (*m_tdcmin_TBTDC)[0] = TDC-> tdcmin();
-    (*m_scale_TBTDC)[0]  = TDC-> scale();
-    (*m_phase_TBTDC)[0]  = TDC-> phase();
+    (*m_tdc_TBTDC)[0]    = TDC-> m_tdc;
+    (*m_tdcmin_TBTDC)[0] = TDC-> m_tdcmin;
+    (*m_scale_TBTDC)[0]  = TDC-> m_scale;
+    (*m_phase_TBTDC)[0]  = TDC-> m_phase;
   }
 
 
@@ -645,21 +656,27 @@ StatusCode CBNTAA_TBTPValidation::CBNT_execute()
     m_cryov           ->resize(1);
     m_cryow           ->resize(1);
 
-    (*m_hitNumberU)[0]    = Track->  getHitNumberU();
-    (*m_hitNumberV)[0]    = Track->  getHitNumberV();
-    (*m_chi2)[0]          = Track->  getChi2_global();
-    (*m_chi2u)[0]         = Track->  getChi2_u();
-    (*m_chi2v)[0]         = Track->  getChi2_v();
-    (*m_angle)[0]         = Track->  getAngle();
-    (*m_uslope)[0]        = Track->  getUslope();
-    (*m_vslope)[0]        = Track->  getVslope();
-    (*m_uintercept)[0]    = Track->  getUintercept();
-    (*m_vintercept)[0]    = Track->  getVintercept();
-    (*m_cryou)[0]         = Track->  getCryoHitu();
-    (*m_cryov)[0]         = Track->  getCryoHitv();
-    (*m_cryow)[0]         = Track->  getCryoHitw();
-    (*m_residualu) = Track->  getResidualu();
-    (*m_residualv) = Track->  getResidualv();
+    (*m_hitNumberU)[0]    = Track->  m_hitNumberU;
+    (*m_hitNumberV)[0]    = Track->  m_hitNumberV;
+    (*m_chi2)[0]          = Track->  m_chi2;
+    (*m_chi2u)[0]         = Track->  m_chi2u;
+    (*m_chi2v)[0]         = Track->  m_chi2v;
+    (*m_angle)[0]         = Track->  m_angle;
+    (*m_uslope)[0]        = Track->  m_uslope;
+    (*m_vslope)[0]        = Track->  m_vslope;
+    (*m_uintercept)[0]    = Track->  m_uintercept;
+    (*m_vintercept)[0]    = Track->  m_vintercept;
+    (*m_cryou)[0]         = Track->  m_cryou;
+    (*m_cryov)[0]         = Track->  m_cryov;
+    (*m_cryow)[0]         = Track->  m_cryow;
+    
+    unsigned int nResidualus = Track->m_residualu.size();
+    m_residualv->reserve(nResidualus);
+    (*m_residualu) = Track->  m_residualu;
+
+    unsigned int nResidualvs = Track->m_residualv.size();
+    m_residualv->reserve(nResidualvs);
+    (*m_residualv) = Track->  m_residualv;
   }
 
 
@@ -674,9 +691,11 @@ StatusCode CBNTAA_TBTPValidation::CBNT_execute()
     ATH_MSG_DEBUG ( "\033[34m" << "- Going over TBTriggerPatternUnit ( StoreGate key =" << m_containerKey11 << " ) ..."<< "\033[0m" );
 
     m_triggerWord->resize(1);
-    (*m_triggerWord)[0] = TriggerPatternUnit->  getTriggerWord();
+    (*m_triggerWord)[0] = TriggerPatternUnit->  m_triggerWord;
 
-    (*m_triggers)       = TriggerPatternUnit->  getTriggers();
+    unsigned int nM_triggers = TriggerPatternUnit->m_triggers.size();
+    m_triggers->reserve(nM_triggers);
+    (*m_triggers)       = TriggerPatternUnit->  m_triggers;
   }
 
 
@@ -721,14 +740,14 @@ StatusCode CBNTAA_TBTPValidation::CBNT_execute()
       // and now need to convert the bool constituents of the vectors to unsigned
       // ------------------------------------------------------------------------------------------------
       unsigned nBools = mwpc->isCPosOverflow().size();    //lenght of the vector of bool in TBMWPC
-      std::vector<unsigned>  cPosOverflowNow(nBools);   //defines lenght and initializes to zero
+      std::vector<unsigned>  m_cPosOverflowNow(nBools);   //defines lenght and initializes to zero
     
       for (unsigned nBoolNow=0; nBoolNow<nBools; nBoolNow++)
         if(mwpc->isCPosOverflow()[nBoolNow])
-          cPosOverflowNow[nBoolNow] = 1;
+          m_cPosOverflowNow[nBoolNow] = 1;
 
-      (*m_cPosOverflow)[NtupleVectorIndex] =  cPosOverflowNow;
-      cPosOverflowNow.clear();
+      (*m_cPosOverflow)[NtupleVectorIndex] =  m_cPosOverflowNow;
+      m_cPosOverflowNow.clear();
       // ------------------------------------------------------------------------------------------------
     }
   }

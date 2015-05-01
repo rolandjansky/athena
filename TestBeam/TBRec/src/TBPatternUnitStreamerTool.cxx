@@ -23,8 +23,6 @@ TBPatternUnitStreamerTool::TBPatternUnitStreamerTool(const std::string& name,
 						     const IInterface* parent)
   : TBEventStreamerTool(name,type,parent)
     , m_patternUnitKey("TBTrigPat")
-    , m_acceptPattern()
-    , m_rejectPattern()
 {
   declareInterface<TBEventStreamerTool>(this);
   declareProperty("PatternUnitName",m_patternUnitKey);
@@ -76,7 +74,7 @@ StatusCode TBPatternUnitStreamerTool::initializeTool()
     {
       report << MSG::ERROR
 	     << "cannot build accept pattern mask."
-	     << endmsg;
+	     << endreq;
       return StatusCode::FAILURE;
     }
 
@@ -88,29 +86,29 @@ StatusCode TBPatternUnitStreamerTool::initializeTool()
     {
       report << MSG::ERROR
 	     << "cannot build reject pattern mask."
-	     << endmsg;
+	     << endreq;
       return StatusCode::FAILURE;
     }
 
   // print pattern matrices
-  report << MSG::INFO << " " << endmsg;
-  report << MSG::INFO << "                      ###################" << endmsg;
-  report << MSG::INFO << "                      # TriggerPatterns #" << endmsg;
-  report << MSG::INFO << "                      ###################" << endmsg;
-  report << MSG::INFO << " " << endmsg;
-  report << MSG::INFO << "         +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+" << endmsg;
-  report << MSG::INFO << "         | | | | | | | | | | | | | | | | | | | | |S| |" << endmsg;
-  report << MSG::INFO << "         | | | | | | | | | | | | | | | | | | | | |c| |" << endmsg;
-  report << MSG::INFO << "         | | | | | |V| | | | | | | | | |C| | | | |a|C|" << endmsg;
-  report << MSG::INFO << "         | | | | |V|e| |V| |M| | | | |O|e|M|H| | |l|e|" << endmsg;
-  report << MSG::INFO << "         | | | | |e|t| |e|M|u|M|E| |I|f|d|u|o| | |e|d|" << endmsg;
-  report << MSG::INFO << "         | | | | |t|o|V|t|u|1|u|a|L|n|f|a|2|l| | |r|a|" << endmsg;
-  report << MSG::INFO << "         | | | | |o|R|e|o|1|R|2|r|a|S|S|r|R|e|W| |R|r|" << endmsg;
-  report << MSG::INFO << "         | | | | |L|i|t|D|L|i|L|l|t|p|p|7|i|V|1| |e|8|" << endmsg;
-  report << MSG::INFO << "         | | | | |e|g|o|o|e|g|e|y|e|i|i|o|g|e|*| |s|o|" << endmsg;
-  report << MSG::INFO << "         |S|S|S|B|f|h|U|w|f|h|f|P|P|l|l|f|h|t|W|B|e|f|" << endmsg;
-  report << MSG::INFO << "         |1|2|3|2|t|t|p|n|t|t|t|U|U|l|l|8|t|o|2|1|t|8|" << endmsg;
-  report << MSG::INFO << "+--------+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+" << endmsg;
+  report << MSG::INFO << " " << endreq;
+  report << MSG::INFO << "                      ###################" << endreq;
+  report << MSG::INFO << "                      # TriggerPatterns #" << endreq;
+  report << MSG::INFO << "                      ###################" << endreq;
+  report << MSG::INFO << " " << endreq;
+  report << MSG::INFO << "         +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+" << endreq;
+  report << MSG::INFO << "         | | | | | | | | | | | | | | | | | | | | |S| |" << endreq;
+  report << MSG::INFO << "         | | | | | | | | | | | | | | | | | | | | |c| |" << endreq;
+  report << MSG::INFO << "         | | | | | |V| | | | | | | | | |C| | | | |a|C|" << endreq;
+  report << MSG::INFO << "         | | | | |V|e| |V| |M| | | | |O|e|M|H| | |l|e|" << endreq;
+  report << MSG::INFO << "         | | | | |e|t| |e|M|u|M|E| |I|f|d|u|o| | |e|d|" << endreq;
+  report << MSG::INFO << "         | | | | |t|o|V|t|u|1|u|a|L|n|f|a|2|l| | |r|a|" << endreq;
+  report << MSG::INFO << "         | | | | |o|R|e|o|1|R|2|r|a|S|S|r|R|e|W| |R|r|" << endreq;
+  report << MSG::INFO << "         | | | | |L|i|t|D|L|i|L|l|t|p|p|7|i|V|1| |e|8|" << endreq;
+  report << MSG::INFO << "         | | | | |e|g|o|o|e|g|e|y|e|i|i|o|g|e|*| |s|o|" << endreq;
+  report << MSG::INFO << "         |S|S|S|B|f|h|U|w|f|h|f|P|P|l|l|f|h|t|W|B|e|f|" << endreq;
+  report << MSG::INFO << "         |1|2|3|2|t|t|p|n|t|t|t|U|U|l|l|8|t|o|2|1|t|8|" << endreq;
+  report << MSG::INFO << "+--------+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+" << endreq;
   report << MSG::INFO << "| accept |";
   std::string decoded = this->decodeBinary(m_acceptPattern);
   for ( unsigned int i=0; i<std::min(decoded.length(),m_triggerBitMap.size());
@@ -122,8 +120,8 @@ StatusCode TBPatternUnitStreamerTool::initializeTool()
 // 	 << " (0x" << std::setw(8) << std::setfill('0') 
 // 	 << std::setiosflags(std::ios_base::hex) << m_acceptPattern << ")" 
 // 	 << std::setiosflags(std::ios_base::dec)
-// 	 << endmsg;      
-  report << MSG::INFO << "+--------+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+" << endmsg;
+// 	 << endreq;      
+  report << MSG::INFO << "+--------+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+" << endreq;
   report << MSG::INFO << "| reject |";
   decoded = this->decodeBinary(m_rejectPattern);
   for ( unsigned int i=0; i<std::min(decoded.length(),m_triggerBitMap.size());
@@ -135,8 +133,8 @@ StatusCode TBPatternUnitStreamerTool::initializeTool()
 // 	 << " (0x" << std::setw(8) << std::setfill('0')
 // 	 << std::setiosflags(std::ios_base::hex) << m_rejectPattern << ")" 
 // 	 << std::setiosflags(std::ios_base::dec)
-// 	 << endmsg;
-  report << MSG::INFO << "+--------+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+" << endmsg;
+// 	 << endreq;
+  report << MSG::INFO << "+--------+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+" << endreq;
   report << MSG::INFO << "| ignore |";
   bit_mask ignorePattern = ~( m_rejectPattern ^ m_acceptPattern );
   decoded = this->decodeBinary(ignorePattern);
@@ -149,8 +147,8 @@ StatusCode TBPatternUnitStreamerTool::initializeTool()
 // 	 << " (0x" << std::setw(8) << std::setfill('0')
 // 	 << std::setiosflags(std::ios_base::hex) << ignorePattern << ")" 
 // 	 << std::setiosflags(std::ios_base::dec)
-// 	 << endmsg;
-  report << MSG::INFO << "+--------+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+" << endmsg;
+// 	 << endreq;
+  report << MSG::INFO << "+--------+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+" << endreq;
 
   return StatusCode::SUCCESS;
 }
@@ -169,7 +167,7 @@ StatusCode TBPatternUnitStreamerTool::accept()
   ATH_CHECK( evtStore()->retrieve(theEventInfo,"TBEventInfo") );
 
   unsigned short evType = theEventInfo->getEventType();
-  report << MSG::DEBUG << "Event Type found " << evType << endmsg;
+  report << MSG::DEBUG << "Event Type found " << evType << endreq;
   if (evType != 1) return StatusCode::SUCCESS;
 
   // retrieve pattern unit
@@ -244,7 +242,7 @@ StatusCode TBPatternUnitStreamerTool::findPattern(const pattern_store&
 		 << "requested pattern <"
 		 << *firstPattern
 		 << "> unknown, ignore..."
-		 << endmsg;
+		 << endreq;
 	}
     }
   return StatusCode::SUCCESS;

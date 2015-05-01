@@ -31,13 +31,7 @@
 TBBeamQualityMuonToolH6::TBBeamQualityMuonToolH6(const std::string& name,
 						 const std::string& type,
 						 const IInterface* parent)
-  : TBBeamQualityTool(name,type,parent),
-    m_StoreGate(nullptr),
-    m_mu1(false),
-    m_mu2(false),
-    m_mu3(false),
-    m_mu4(false),
-    m_successflag(false)
+  : TBBeamQualityTool(name,type,parent) 
 { 
   declareInterface<TBBeamQualityTool>(this); 
 }
@@ -51,7 +45,7 @@ StatusCode TBBeamQualityMuonToolH6::initializeTool()
   
   log << MSG::DEBUG
       << "initialize"
-      << endmsg;
+      << endreq;
   
   // setting triggflag
   
@@ -94,7 +88,7 @@ StatusCode TBBeamQualityMuonToolH6::accept(std::vector<std::string> m_particles)
     {
       log << MSG::ERROR
           << "Cannot alllocate StoreGate service!"
-          << endmsg;
+          << endreq;
     }
   
   // Trigger Pattern Pointer
@@ -102,16 +96,16 @@ StatusCode TBBeamQualityMuonToolH6::accept(std::vector<std::string> m_particles)
   
   sc = m_StoreGate->retrieve(triggpat_object, m_SGTrigkey);
   if (sc.isFailure()){
-    log << MSG::INFO << "TBCaloNtuple: Can't Retrieve "<<m_SGTrigkey<<" from SG"<< endmsg;
+    log << MSG::INFO << "TBCaloNtuple: Can't Retrieve "<<m_SGTrigkey<<" from SG"<< endreq;
     return sc;
   }else{ // obtaining trigger word from storegate
     
     unsigned int word =triggpat_object->getTriggerWord();
     
-    m_mu1=false;
-    m_mu2=false;
-    m_mu3=false;
-    m_mu4=false;
+    mu1=false;
+    mu2=false;
+    mu3=false;
+    mu4=false;
     
     // muon triggers are:
     // Entry 8:  Mu 1 Left
@@ -120,16 +114,16 @@ StatusCode TBBeamQualityMuonToolH6::accept(std::vector<std::string> m_particles)
     // Entry 16: Mu 2 Right
     
     if ((word & m_triggflag[8])!=0) {
-      m_mu1=true;
+      mu1=true;
     }
     if ((word & m_triggflag[9])!=0) {
-      m_mu2=true;
+      mu2=true;
     }
     if ((word & m_triggflag[10])!=0) {
-      m_mu3=true;
+      mu3=true;
     }
     if ((word & m_triggflag[16])!=0) {
-      m_mu4=true;
+      mu4=true;
     }
   } // trigg word from storegate
   
@@ -140,23 +134,23 @@ StatusCode TBBeamQualityMuonToolH6::accept(std::vector<std::string> m_particles)
   //muons
   log<<MSG::DEBUG
      <<m_particles[0]
-     <<endmsg;
+     <<endreq;
   
   if(m_particles[0]=="mu+" || m_particles[0]=="mu-"){
-    m_successflag=false;
+    successflag=false;
     
-    if (((m_mu1==true)&(m_mu3==true))||((m_mu1==true)&(m_mu4==true))||((m_mu2==true)&(m_mu3==true))||((m_mu2==true)&(m_mu4==true))) {
-      m_successflag=true;
+    if (((mu1==true)&(mu3==true))||((mu1==true)&(mu4==true))||((mu2==true)&(mu3==true))||((mu2==true)&(mu4==true))) {
+      successflag=true;
     }
   }else{
     //all particles except muons
-    m_successflag=true;
+    successflag=true;
     
-    if (((m_mu1==true)&(m_mu3==true))||((m_mu1==true)&(m_mu4==true))||((m_mu2==true)&(m_mu3==true))||((m_mu2==true)&(m_mu4==true))) {
-      m_successflag=false;
+    if (((mu1==true)&(mu3==true))||((mu1==true)&(mu4==true))||((mu2==true)&(mu3==true))||((mu2==true)&(mu4==true))) {
+      successflag=false;
     }
   }
-  if(m_successflag==true){
+  if(successflag==true){
     return StatusCode::SUCCESS; 
   }else{    
     return StatusCode::FAILURE;

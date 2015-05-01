@@ -29,7 +29,6 @@
 
 #include <cmath>
 
-
 CBNTAA_TBInfo::CBNTAA_TBInfo(const std::string& name, ISvcLocator* pSvcLocator) :
 CBNT_TBRecBase(name, pSvcLocator) 
 {
@@ -86,6 +85,7 @@ CBNTAA_TBInfo::~CBNTAA_TBInfo()
 StatusCode CBNTAA_TBInfo::CBNT_initialize(){
 
   StatusCode sc;
+  MsgStream log(messageService(), name());
 
   addBranch("EVENT_RunEta", m_runEta_nt,"RunEta/D");
   addBranch("EVENT_RunPartType", m_runParticleType_nt,"RunPartType/l"); 
@@ -139,6 +139,7 @@ StatusCode CBNTAA_TBInfo::CBNT_initialize(){
 
 StatusCode CBNTAA_TBInfo::CBNT_execute(){
 
+  MsgStream log(messageService(), name());
 
   m_runEnergy_nt=m_beamener;
   m_runParticleType_nt=m_beamtype;
@@ -149,7 +150,7 @@ StatusCode CBNTAA_TBInfo::CBNT_execute(){
     StatusCode sc1 = serviceLocator()->service( "StoreGateSvc", evtStore);
     if ( sc1.isFailure() )
       {
-	ATH_MSG_ERROR( "Unable to get the StoreGateSvc"  );
+	log << MSG::ERROR << "Unable to get the StoreGateSvc" << endreq;
 	return false ; 
       }
     
@@ -157,14 +158,14 @@ StatusCode CBNTAA_TBInfo::CBNT_execute(){
     sc1 = evtStore->retrieve(evtInfo);
     if ( sc1.isFailure() )
       {
-	ATH_MSG_INFO( "Unable to get EventInfo, run probably not begun yet "  );
+	log << MSG::INFO << "Unable to get EventInfo, run probably not begun yet " << endreq;
 	return false ; 
       }
     
     int run = evtInfo->event_ID()->run_number(); 
     int event = evtInfo->event_ID()->event_number();
 
-    ATH_MSG_VERBOSE( "run   " << run  );
+    log << MSG::VERBOSE << "run   " << run << endreq;
 
     if((event > 0) && (m_prevrunNum==-1))
       m_prevrunNum=run;//initializing the prev run
@@ -173,7 +174,7 @@ StatusCode CBNTAA_TBInfo::CBNT_execute(){
     StatusCode sc = service("ToolSvc", p_toolSvc);
     if (sc.isFailure())
       {
-	ATH_MSG_ERROR( "Cannot find ToolSvc "  );
+	log << MSG::ERROR << "Cannot find ToolSvc " << endreq;
 	return(StatusCode::FAILURE);
       }
     
@@ -182,11 +183,11 @@ StatusCode CBNTAA_TBInfo::CBNT_execute(){
     
     if(sc.isFailure() || !m_coord)
       {
-	ATH_MSG_ERROR( "Cannot get TBCaloCoordinate tool" );
+	log << MSG::ERROR << "Cannot get TBCaloCoordinate tool"<< endreq;
 	return(StatusCode::FAILURE);
       }
     else {
-      ATH_MSG_DEBUG( "Found TBCaloCoordinate tool" );
+      log << MSG::DEBUG << "Found TBCaloCoordinate tool"<< endreq;
     }
     
     m_runEta_nt = m_coord->beam_local_eta();
@@ -195,12 +196,12 @@ StatusCode CBNTAA_TBInfo::CBNT_execute(){
     
     if(sc.isFailure() || !m_runpar)
       {
-	ATH_MSG_ERROR( "Cannot get TBCondParTool" );
+	log << MSG::ERROR << "Cannot get TBCondParTool"<< endreq;
 	return(StatusCode::FAILURE);
       }
     else 
       {
-	ATH_MSG_DEBUG( "Found TBCondRunParTool" );
+	log << MSG::DEBUG << "Found TBCondRunParTool"<< endreq;
       }
 
     if ( m_computeBeamEnergy ) {
@@ -208,12 +209,12 @@ StatusCode CBNTAA_TBInfo::CBNT_execute(){
     //below the calculation of all energies and their errors...
     calculateAll(run,event);
 
-    ATH_MSG_DEBUG( "m_energy  " << m_energy  );
-    ATH_MSG_DEBUG( "m_errAbsEnergy  " << m_errAbsEnergy  );
-    ATH_MSG_DEBUG( "m_errCollimators  " << m_errCollimators  );
-    ATH_MSG_DEBUG( "m_errCurrents  " << m_errCurrents  );
-    ATH_MSG_DEBUG( "m_sycLoss  " << m_sycLoss  );
-    ATH_MSG_DEBUG( "m_errSycLoss  " << m_errSycLoss  );
+    log << MSG::DEBUG << "m_energy  " << m_energy << endreq;
+    log << MSG::DEBUG << "m_errAbsEnergy  " << m_errAbsEnergy << endreq;
+    log << MSG::DEBUG << "m_errCollimators  " << m_errCollimators << endreq;
+    log << MSG::DEBUG << "m_errCurrents  " << m_errCurrents << endreq;
+    log << MSG::DEBUG << "m_sycLoss  " << m_sycLoss << endreq;
+    log << MSG::DEBUG << "m_errSycLoss  " << m_errSycLoss << endreq;
 
     }
 
@@ -229,7 +230,7 @@ float CBNTAA_TBInfo::GetEnergy(float currB3, float currB4)
 { 
   float  Bdltot = GetBdl3(currB3) + GetBdl4(currB4);
   
-  float energy = (0.3/41.)*Bdltot * 1000;
+  float energy = 0.3*Bdltot/41. * 1000;
   
   return energy;
 }
@@ -273,15 +274,14 @@ float CBNTAA_TBInfo::GetErrColl(float coll3_down, float coll3_up, float coll9_do
   float coll3_opening = (fabs(coll3_down) + fabs(coll3_up))/2.0;
   float coll9_opening = (fabs(coll9_down) + fabs(coll9_up))/2.0;
 
-  float errcoll = sqrt(coll3_opening*coll3_opening + coll9_opening*coll9_opening)*(1./27);
+  float errcoll = sqrt(coll3_opening*coll3_opening + coll9_opening*coll9_opening)/27;
 
   return errcoll;
 }
 
 float CBNTAA_TBInfo::GetErrAbsE(float energy)
 { 
-  float fac = 25./energy;
-  float err_abs = sqrt(fac*fac + 0.5*0.5);
+  float err_abs = sqrt((25/energy)*(25/energy) + 0.5*0.5);
 
   return err_abs;
 }
@@ -296,9 +296,7 @@ float CBNTAA_TBInfo::GetErrCurr(float currB3, float currB4)
  
   float errBdl3 = (GetBdl3(currB3 + 0.1) - GetBdl3(currB3 - 0.1))/2;
   float errBdl4 = (GetBdl4(currB4 + 0.1) - GetBdl4(currB4 - 0.1))/2;
-  const float fac3 = errBdl3/Bdl3;
-  const float fac4 = errBdl4/Bdl4;
-  float errBdl = sqrt(fac3*fac3 + fac4*fac4)*Bdl_tot;
+  float errBdl = sqrt((errBdl3/Bdl3)*(errBdl3/Bdl3) + (errBdl4/Bdl4)*(errBdl4/Bdl4))*Bdl_tot;
  
   float resField = sqrt(0.0010*0.0010 + 0.0010*0.0010);
 
@@ -316,8 +314,8 @@ float CBNTAA_TBInfo::SyncLoss(float energy, float currB3, float currB4)
   float Bdl_B3 = GetBdl3(currB3);
   float Bdl_B4 = GetBdl4(currB4);
 
-  float B2dl_B3 = (Bdl_B3 * Bdl_B3)*(1./(Lmag*9));
-  float B2dl_B4 = (Bdl_B4 * Bdl_B4)*(1./(Lmag*9));
+  float B2dl_B3 = (Bdl_B3/3 * Bdl_B3/3)/Lmag;
+  float B2dl_B4 = (Bdl_B4/3 * Bdl_B4/3)/Lmag;
   float B2dl_tot = B2dl_B3 + B2dl_B4;
   
   float B5suB34 = 0.19;
@@ -340,6 +338,8 @@ float CBNTAA_TBInfo::SyncLossErr(float loss)
 }
 
 
+
+//<<<<<< METHOD finalize
 
 StatusCode CBNTAA_TBInfo::CBNT_finalize() {
 
@@ -365,10 +365,12 @@ StatusCode CBNTAA_TBInfo::CBNT_clear()
 //new method which will clculate all energies and their errors using info provided by m_runpar variable
 void CBNTAA_TBInfo::calculateAll(int runNumber,int eventNumber) {
 
+  MsgStream log(messageService(), name());
+
   int run = runNumber; 
   int event = eventNumber;
 
-  ATH_MSG_VERBOSE( "run   " << run  );
+  log << MSG::VERBOSE << "run   " << run << endreq;
 
   //check if the run is a VLE run then set the flag
   if (((run < 2101225) && (run >= 2101022)) || ((run < 2102165) && (run >= 2102003)))
@@ -398,10 +400,10 @@ void CBNTAA_TBInfo::calculateAll(int runNumber,int eventNumber) {
   float bend_equip[9];
   float coll_equip[24];
   
-  int nc_quad = 22;
-  int nc_bend = 9;
-  int nc_trim = 10;
-  int nc_coll = 24;
+  int m_nc_quad = 22;
+  int m_nc_bend = 9;
+  int m_nc_trim = 10;
+  int m_nc_coll = 24;
 
   const char* folder;
   if (m_dumpBeamLine == true)
@@ -440,22 +442,20 @@ void CBNTAA_TBInfo::calculateAll(int runNumber,int eventNumber) {
       float quad_equip[22];
       float trim_equip[10];
       
-      m_quad_file->reserve(nc_quad);
-      m_quad_equip->reserve(nc_quad);
-      for (int i=0; i<nc_quad; i++)
+      m_quad_file->reserve(m_nc_quad);
+      m_quad_equip->reserve(m_nc_quad);
+      for (int i=0; i<m_nc_quad; i++)
 	{
 	  quad_file[i] = -1;
 	  quad_equip[i] = -1;
           unsigned int val1;
           unsigned int val2;
-
-#if 0	  
+	  
 	  if (run < 1000454)
 	    {
 	      folder = "/TILE/DCS/SYSTEM1/BEAM";
 	    }
 	  else
-#endif
 	    {
 	      folder = "/TILE/DCS/SYSTEM1/BEAM";
 	    }
@@ -463,10 +463,10 @@ void CBNTAA_TBInfo::calculateAll(int runNumber,int eventNumber) {
           val2 = i+48;
 	  
 	  if (StatusCode::SUCCESS!=m_runpar->getVal(folder,val1,quad_file[i])) {
-            ATH_MSG_ERROR( "Cannot find val" << val1  );
+  	          log << MSG::ERROR << "Cannot find val" << val1 << endreq;
           }
 	  if (StatusCode::SUCCESS!=m_runpar->getVal(folder,val2,quad_equip[i])){
-	    ATH_MSG_ERROR( "Cannot find val" << val2  );
+	    log << MSG::ERROR << "Cannot find val" << val2 << endreq;
           }
 	  
 	  (*m_quad_file)[i] = quad_file[i];
@@ -474,9 +474,9 @@ void CBNTAA_TBInfo::calculateAll(int runNumber,int eventNumber) {
 	}
 	
 
-      m_bend_file->reserve(nc_bend);
-      m_bend_equip->reserve(nc_bend);
-      for (int i=0; i<nc_bend; i++)
+      m_bend_file->reserve(m_nc_bend);
+      m_bend_equip->reserve(m_nc_bend);
+      for (int i=0; i<m_nc_bend; i++)
 	{
 	  bend_file[i] = -1;
 	  bend_equip[i] = -1;
@@ -495,10 +495,10 @@ void CBNTAA_TBInfo::calculateAll(int runNumber,int eventNumber) {
           val2 = i+70;
 	  
 	  if (StatusCode::SUCCESS!=m_runpar->getVal(folder,val1,bend_file[i])) {
-	    ATH_MSG_ERROR( "Cannot find val" << val1  );
+	    log << MSG::ERROR << "Cannot find val" << val1 << endreq;
           }
 	  if (StatusCode::SUCCESS!=m_runpar->getVal(folder,val2,bend_equip[i])) {
-	    ATH_MSG_ERROR( "Cannot find val" << val2  );
+	    log << MSG::ERROR << "Cannot find val" << val2 << endreq;
           }
 	  
 	  (*m_bend_file)[i] = bend_file[i];
@@ -520,9 +520,9 @@ void CBNTAA_TBInfo::calculateAll(int runNumber,int eventNumber) {
 	    
 	}
       
-      m_trim_file->reserve(nc_trim);
-      m_trim_equip->reserve(nc_trim);
-      for (int i=0; i<nc_trim; i++)
+      m_trim_file->reserve(m_nc_trim);
+      m_trim_equip->reserve(m_nc_trim);
+      for (int i=0; i<m_nc_trim; i++)
 	{
 	  trim_file[i] = -1;
 	  trim_equip[i] = -1;
@@ -541,10 +541,10 @@ void CBNTAA_TBInfo::calculateAll(int runNumber,int eventNumber) {
           val2 = i+79;
 	  
 	  if (StatusCode::SUCCESS!=m_runpar->getVal(folder,val1,trim_file[i])) {
-	    ATH_MSG_ERROR( "Cannot find val" << val1  );
+	    log << MSG::ERROR << "Cannot find val" << val1 << endreq;
           }
 	  if (StatusCode::SUCCESS!=m_runpar->getVal(folder,val2,trim_equip[i])) {
-	    ATH_MSG_ERROR( "Cannot find val" << val2  );
+	    log << MSG::ERROR << "Cannot find val" << val2 << endreq;
           }
 	  
 	  (*m_trim_file)[i] = trim_file[i];
@@ -552,9 +552,9 @@ void CBNTAA_TBInfo::calculateAll(int runNumber,int eventNumber) {
 	}
       
       
-      m_coll_file->reserve(nc_coll);
-      m_coll_equip->reserve(nc_coll);
-      for (int i=0; i<nc_coll; i++)
+      m_coll_file->reserve(m_nc_coll);
+      m_coll_equip->reserve(m_nc_coll);
+      for (int i=0; i<m_nc_coll; i++)
 	{
 	  coll_file[i] = -1;
 	  coll_equip[i] = -1;
@@ -574,10 +574,10 @@ void CBNTAA_TBInfo::calculateAll(int runNumber,int eventNumber) {
           val2 = i+115;
 	  
 	  if (StatusCode::SUCCESS!=m_runpar->getVal(folder,val1,coll_file[i])) {
-	    ATH_MSG_ERROR( "Cannot find val" << val1  );
+	    log << MSG::ERROR << "Cannot find val" << val1 << endreq;
           }
 	  if (StatusCode::SUCCESS!=m_runpar->getVal(folder,val2,coll_equip[i])) {
-	    ATH_MSG_ERROR( "Cannot find val" << val2  );
+	    log << MSG::ERROR << "Cannot find val" << val2 << endreq;
           }
 	  
 	  (*m_coll_file)[i] = coll_file[i];
@@ -585,48 +585,48 @@ void CBNTAA_TBInfo::calculateAll(int runNumber,int eventNumber) {
 	}
       
       
-      for (int i=0; i<nc_quad; i++)
+      for (int i=0; i<m_nc_quad; i++)
 	{
-	  ATH_MSG_DEBUG( "Q" << i+1 << " from file   " << (*m_quad_file)[i]  );
+	  log << MSG::DEBUG << "Q" << i+1 << " from file   " << (*m_quad_file)[i] << endreq;
 	}
-      for (int i=0; i<nc_bend; i++)
+      for (int i=0; i<m_nc_bend; i++)
 	{
-	  ATH_MSG_DEBUG( "B" << i+1 << " from file   " << (*m_bend_file)[i]  );
+	  log << MSG::DEBUG << "B" << i+1 << " from file   " << (*m_bend_file)[i] << endreq;
 	}
-      for (int i=0; i<nc_trim; i++)
+      for (int i=0; i<m_nc_trim; i++)
 	{
-	  ATH_MSG_DEBUG( "Trim" << i+1 << " from file   " << (*m_trim_file)[i]  );
+	  log << MSG::DEBUG << "Trim" << i+1 << " from file   " << (*m_trim_file)[i] << endreq;
 	}
-      for (int i=0; i<nc_coll; i++)
+      for (int i=0; i<m_nc_coll; i++)
 	{
 	  int j = i/2;
 	  if (i == 2*j)
 	    {
-	      ATH_MSG_DEBUG( "Coll" << j+1 << " from file   (up or right position)     " << (*m_coll_file)[i]  );
-	      ATH_MSG_DEBUG( "Coll" << j+1 << " from file   (down or left position)    " << (*m_coll_file)[i+1]  );
+	      log << MSG::DEBUG << "Coll" << j+1 << " from file   (up or right position)     " << (*m_coll_file)[i] << endreq;
+	      log << MSG::DEBUG << "Coll" << j+1 << " from file   (down or left position)    " << (*m_coll_file)[i+1] << endreq;
 	    }
 	}
       
       
-      for (int i=0; i<nc_quad; i++)
+      for (int i=0; i<m_nc_quad; i++)
 	{
-	  ATH_MSG_DEBUG( "Q" << i+1 << " from equipement   " << (*m_quad_equip)[i]  );
+	  log << MSG::DEBUG << "Q" << i+1 << " from equipement   " << (*m_quad_equip)[i] << endreq;
 	}
-      for (int i=0; i<nc_bend; i++)
+      for (int i=0; i<m_nc_bend; i++)
 	{
-	  ATH_MSG_DEBUG( "B" << i+1 << " from equipement   " << (*m_bend_equip)[i]  );
+	  log << MSG::DEBUG << "B" << i+1 << " from equipement   " << (*m_bend_equip)[i] << endreq;
 	}
-      for (int i=0; i<nc_trim; i++)
+      for (int i=0; i<m_nc_trim; i++)
 	{
-	  ATH_MSG_DEBUG( "Trim" << i+1 << " from equipement   " << (*m_trim_equip)[i]  );
+	  log << MSG::DEBUG << "Trim" << i+1 << " from equipement   " << (*m_trim_equip)[i] << endreq;
 	}
-      for (int i=0; i<nc_coll; i++)
+      for (int i=0; i<m_nc_coll; i++)
 	{
 	  int j = i/2;
 	  if (i == 2*j)
 	    {
-	      ATH_MSG_DEBUG( "Coll" << j+1 << " from equipement  (up or right position)   " << (*m_coll_equip)[i]  );
-	      ATH_MSG_DEBUG( "Coll" << j+1 << " from file   (down or left position)       " << (*m_coll_equip)[i+1]  );
+	      log << MSG::DEBUG << "Coll" << j+1 << " from equipement  (up or right position)   " << (*m_coll_equip)[i] << endreq;
+	      log << MSG::DEBUG << "Coll" << j+1 << " from file   (down or left position)       " << (*m_coll_equip)[i+1] << endreq;
 	    }
 	}//for
     }//end of if (m_dumpBeamLine = true)
@@ -639,7 +639,7 @@ void CBNTAA_TBInfo::calculateAll(int runNumber,int eventNumber) {
 //      std::vector<std::string> names_bend_equip[9], rows_bend_equip[9];
 //      std::vector<std::string> names_coll_equip[9], rows_coll_equip[9];
       
-      for (int i=0; i<nc_bend; i++)
+      for (int i=0; i<m_nc_bend; i++)
 	{
 	  bend_equip[i] = -1;
 	  unsigned int val2;
@@ -654,12 +654,12 @@ void CBNTAA_TBInfo::calculateAll(int runNumber,int eventNumber) {
 	    }
           val2 = i+70;
 	  if (StatusCode::SUCCESS!=m_runpar->getVal(folder,val2,bend_equip[i])) {
-	    ATH_MSG_ERROR( "Cannot find val" << val2  );
+	    log << MSG::ERROR << "Cannot find val" << val2 << endreq;
           }
 	}
       
       
-      for (int i=0; i<nc_coll; i++)
+      for (int i=0; i<m_nc_coll; i++)
 	{
 	  coll_equip[i] = -1;
 	  unsigned int val2;
@@ -674,7 +674,7 @@ void CBNTAA_TBInfo::calculateAll(int runNumber,int eventNumber) {
 	    }
           val2 = i+115;
 	  if (StatusCode::SUCCESS!=m_runpar->getVal(folder,val2,coll_equip[i])) {
-	    ATH_MSG_ERROR( "Cannot find val" << val2  );
+	    log << MSG::ERROR << "Cannot find val" << val2 << endreq;
           }
 	}
       
@@ -688,8 +688,8 @@ void CBNTAA_TBInfo::calculateAll(int runNumber,int eventNumber) {
   if(m_is_VLE)//run is a VLE run
     {   
       
-      //ATH_MSG_INFO( "THIS is a VLE run..."  );
-      //ATH_MSG_INFO( "B8 current=" << bend_equip[7]  );
+      //log << MSG::INFO << "THIS is a VLE run..." <<endreq;	
+      //log << MSG::INFO << "B8 current=" << bend_equip[7] << endreq;
       
       //a polynomial function giving the values of Bdl for any given B8 current value...MIGRAD method for 4th order polynome ...:)
       // 	m_B8_Bdl = 0.00525593*bend_equip[7] + 0.00000410442*bend_equip[7]*bend_equip[7] - 
@@ -706,12 +706,12 @@ void CBNTAA_TBInfo::calculateAll(int runNumber,int eventNumber) {
       m_energy = 2.49826 * m_B8_Bdl;
       m_errAbsEnergy = GetErrAbsE(m_energy);
       
-      ATH_MSG_DEBUG( "B8dl=" << m_B8_Bdl  );
-      ATH_MSG_DEBUG( "m_energy=" << m_energy  );
+      log << MSG::DEBUG << "B8dl=" << m_B8_Bdl << endreq;
+      log << MSG::DEBUG << "m_energy=" << m_energy << endreq;
       
       //C12 opening calculations... C12 is the onlycollimator which is responsible for VLE runs
       float coll12_opening = (fabs(coll_equip[11]) + fabs(coll_equip[23]))/2.0;
-      m_errCollimators = sqrt(coll12_opening*coll12_opening)*(1./27);
+      m_errCollimators = sqrt(coll12_opening*coll12_opening)/27;
       
       //calculation of errors of magnet currents..
       m_errCurrents = GetErrCurr(bend_equip[6], bend_equip[7]);

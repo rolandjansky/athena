@@ -19,13 +19,12 @@
 #include "LArElecCalib/ILArGlobalTimeOffset.h"
 #include "LArElecCalib/ILArFEBTimeOffset.h"
 #include "CLHEP/Units/SystemOfUnits.h"
-#include "AthenaKernel/Units.h"
 
 #include <math.h>
 
 using CLHEP::MeV;
 using CLHEP::megahertz;
-using Athena::Units::picosecond;
+using CLHEP::picosecond;
 
 TBECLArRawChannelBuilder::TBECLArRawChannelBuilder (const std::string& name, ISvcLocator* pSvcLocator):
   AthAlgorithm(name, pSvcLocator),
@@ -333,10 +332,10 @@ StatusCode TBECLArRawChannelBuilder::execute()
       saturation++;
     }
     if ( m_skipSaturCells && nSatur>-1 ) {
-      msg() << ". Skipping channel." << endmsg; 
+      msg() << ". Skipping channel." << endreq; 
       continue; // Ignore this cell, saturation on at least one sample
     } else if ( nSatur>-1 ) {
-      msg() << "." << endmsg;
+      msg() << "." << endreq;
     }   
     
     //Get conditions data for this channel:
@@ -393,7 +392,7 @@ StatusCode TBECLArRawChannelBuilder::execute()
 	if (debugPrint) msg() << MSG::VERBOSE << " OFC=" << ofcTimeOffset;
       }
 
-      if (debugPrint) msg() << MSG::VERBOSE << " Total=" << timeShift << endmsg;
+      if (debugPrint) msg() << MSG::VERBOSE << " Total=" << timeShift << endreq;
       
       if (m_allowTimeJump && timeShift >= m_NOFCPhases*m_OFCTimeBin ) {
 	if (debugPrint) ATH_MSG_VERBOSE ( "Time Sample jump: -1" );
@@ -649,7 +648,7 @@ StatusCode TBECLArRawChannelBuilder::execute()
   //Put this LArRawChannel container in the transient store
   //sc = evtStore()->record(m_larRawChannelContainer, m_ChannelContainerName);
   //if(sc.isFailure()) {
-  // log << MSG::ERROR << "Can't record LArRawChannelContainer in StoreGate" << endmsg;
+  // log << MSG::ERROR << "Can't record LArRawChannelContainer in StoreGate" << endreq;
   //}
   //else
   //  std::cout << "Successfully recorded LArRawChannelContainer to StoreGate" << std::endl;
@@ -732,7 +731,7 @@ StatusCode TBECLArRawChannelBuilder::execute()
         msg() << MSG::WARNING << "   " << saturation << " out of " 
 	      << digitContainer->size() << " channel(s) showed saturations." << std::endl;
     }
-    msg() << endmsg;
+    msg() << endreq;
   }
     
   // lock raw channel container
@@ -790,7 +789,7 @@ StatusCode TBECLArRawChannelBuilder::finalize()
           << " out of " << (int)round(m_aveChannels) << " saturating channels."  
 	  << std::endl ;
     
-    msg() << endmsg;
+    msg() << endreq;
   } 
   else
     ATH_MSG_INFO ( "TBECLArRawChannelBuilder finished without errors or warnings." );

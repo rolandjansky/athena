@@ -36,8 +36,8 @@ class CBNT_Timing : public CBNT_TBRecBase
   virtual StatusCode CBNT_clear();
 
  private: 
-  static const int NOTIME = -999;
-  static const int NOENERGY = -999;
+  int NOTIME;
+  int NOENERGY;
 
   ToolHandle<LArCablingService> m_cablingService;
   const LArOnlineID* m_onlineHelper;

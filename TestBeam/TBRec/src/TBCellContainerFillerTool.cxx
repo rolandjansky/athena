@@ -15,7 +15,7 @@
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloIdentifier/CaloCell_ID.h"
-#include "LArCabling/LArCablingService.h"
+#include "LArTools/LArCablingService.h"
 #include "LArIdentifier/LArOnlineID.h"
 
 
@@ -24,8 +24,7 @@ TBCellContainerFillerTool::TBCellContainerFillerTool(
 			     const std::string& name, 
 			     const IInterface* parent)
   :AthAlgTool(type, name, parent) ,
-   m_theCaloDDM(0), m_theCaloCCIDM(0), m_onlineHelper(0),
-   m_hashMax(0)
+   m_theCaloDDM(0), m_theCaloCCIDM(0), m_onlineHelper(0)
 { 
   declareInterface<ICaloCellMakerTool>(this); 
 }

@@ -79,7 +79,8 @@ StatusCode TBPlaneTrackingAlgo::execute()
 
   // Get run number and get new calib constants -----------------------------
   unsigned int thisrun=0;
-  const EventInfo* thisEventInfo = nullptr;
+  EventID *thisEvent;           //EventID is a part of EventInfo
+  const EventInfo* thisEventInfo;
   sc1=evtStore()->retrieve(thisEventInfo);
   if (sc1!=StatusCode::SUCCESS){
     ATH_MSG_WARNING ("No EventInfo object found! Can't read run number!");
@@ -89,7 +90,8 @@ StatusCode TBPlaneTrackingAlgo::execute()
   }
   else
     {
-      thisrun = thisEventInfo->event_ID()->run_number();
+      thisEvent=thisEventInfo->event_ID();
+      thisrun = thisEvent->run_number();
     }
 
   if(thisrun != m_runnumber)
@@ -288,14 +290,13 @@ bool TBPlaneTrackingAlgo::fitHits(const std::vector<double> & v_u,
     m_suw += v_u[i]*v_w[i] / (v_eu[i]*v_eu[i]);
   }
  
-  const double denom = (m_s*m_sww-m_sw*m_sw);
-  if(denom == 0){
+  double denum = (m_s*m_sww-m_sw*m_sw);
+  if(denum == 0){
     return false;
   }
 
-  const double inv_denom = 1. / denom;
-  a1 = (m_su*m_sww - m_sw*m_suw) * inv_denom;
-  a2 = (m_s*m_suw - m_su*m_sw) * inv_denom;
+  a1 = (m_su*m_sww - m_sw*m_suw)/ denum;
+  a2 = (m_s*m_suw - m_su*m_sw)/ denum;
   return true;
 }
 /////////////////////////////////////////////////////////////////////////////

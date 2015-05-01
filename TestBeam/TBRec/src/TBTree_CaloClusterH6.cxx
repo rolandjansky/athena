@@ -35,7 +35,7 @@
 #include "LArRawEvent/LArDigitContainer.h"
 #include "LArElecCalib/ILArPedestal.h"
 #include "LArElecCalib/ILArADC2MeVTool.h"
-#include "LArCabling/LArCablingService.h"
+#include "LArTools/LArCablingService.h"
 
 #include "TBEvent/TBEventInfo.h"
 #include "TBEvent/TBTrack.h"
@@ -608,12 +608,12 @@ StatusCode TBTree_CaloClusterH6::execute()
         for (int i=0; i<nLayer; i++) {
           msg()<<MSG::VERBOSE<<(*m_wtcNOverflow)[i]<<" ";
         }
-        msg()<<MSG::VERBOSE<<endmsg;
+        msg()<<MSG::VERBOSE<<endreq;
         msg()<<MSG::VERBOSE<<"Signals: ";
         for (int i=0; i<nLayer; i++) {
           msg()<<MSG::VERBOSE<<(*m_wtcSignal)[i]<<" ";
         }
-        msg()<<MSG::VERBOSE<<endmsg;
+        msg()<<MSG::VERBOSE<<endreq;
       }
   }
 
@@ -841,9 +841,8 @@ StatusCode TBTree_CaloClusterH6::execute()
   } // end of cluster loop 
 
   if (eAbsTotal > 0.) {
-    const float inv_eAbsTotal = 1. / eAbsTotal;
-    m_etaTotal *= inv_eAbsTotal;
-    m_phiTotal *= inv_eAbsTotal;
+    m_etaTotal /= eAbsTotal;
+    m_phiTotal /= eAbsTotal;
   }
 
   // Fill the tree
@@ -885,13 +884,8 @@ StatusCode TBTree_CaloClusterH6::getNoise(CaloCluster const * const cluster) {
   float EMEC_eta0_2 = 0.5*(EMEC_eta2 + EMEC_eta3);
   float EMEC_beta1=1.04; float EMEC_alpha1=0.55;
   float EMEC_beta2=1.00; float EMEC_alpha2=0.55;
-  const float ramp_corr(1.045);
-  const float ramp_corr_eta1=2.8; 
-  const float ramp_corr_eta2=2.9;
-  const float EMEC_rescale=1.215;
-
-  const float inv_ramp_corr = 1. / ramp_corr;
-  const float inv_EMEC_rescale = 1. / EMEC_rescale;
+  float ramp_corr(1.045); float ramp_corr_eta1=2.8; float ramp_corr_eta2=2.9;
+  float EMEC_rescale=1.215;
 
   const LArDigitContainer* digitContainer = 0;
   const ILArPedestal* larPedestal = 0;
@@ -966,8 +960,8 @@ StatusCode TBTree_CaloClusterH6::getNoise(CaloCluster const * const cluster) {
       else if (eta > EMEC_eta2 && eta < EMEC_eta3) {
 	noise *= EMEC_beta2/(1 + EMEC_alpha2*(eta - EMEC_eta0_2));
       }
-      if (eta > ramp_corr_eta1 && eta < ramp_corr_eta2) noise *= inv_ramp_corr;
-      noise *= inv_EMEC_rescale;
+      if (eta > ramp_corr_eta1 && eta < ramp_corr_eta2) noise /= ramp_corr;
+      noise /= EMEC_rescale;
     }
     // End of EMEC corrections ================================================
     m_cell_noise->push_back(noise);
