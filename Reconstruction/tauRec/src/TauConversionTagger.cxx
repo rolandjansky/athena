@@ -87,6 +87,10 @@ StatusCode TauConversionTagger::execute(TauCandidateData *data) {
     return StatusCode::FAILURE;
   } 
 
+  //2012 data reporocessing bug
+  //events with no vertices had taus w/ associated tracks
+  if(pTau->vertexLink().isValid()==0) return StatusCode::SUCCESS;
+
   for(unsigned int j=0; j<pTau->nTracks(); j++ ) {
 
     const xAOD::TrackParticle *TauJetTrack = pTau->track(j);
