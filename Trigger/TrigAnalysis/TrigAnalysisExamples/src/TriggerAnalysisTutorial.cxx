@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TriggerAnalysisTutorial.cxx 551321 2013-06-16 19:51:49Z stelzer $
+// $Id: TriggerAnalysisTutorial.cxx 664438 2015-05-01 20:40:30Z ssnyder $
 
 // System include(s):
 #include <iomanip>
@@ -43,8 +43,18 @@ TriggerAnalysisTutorial::TriggerAnalysisTutorial( const std::string &name,
    : AthAlgorithm( name, pSvcLocator ),
      m_eventNr( 0 ),
      m_eventsPrinted( 0 ),
-     m_runNr( 0 ),
-     m_lbNr( 0 ),
+     //m_runNr( 0 ),
+     //m_lbNr( 0 ),
+     m_triggerAccepts(nullptr),
+     m_tree(nullptr),
+     m_l2Jet_et(0),
+     m_l2Jet_eta(0),
+     m_l2Jet_phi(0),
+     m_l1Jet_et88(0),
+     m_l1Jet_eta(0),
+     m_l1Jet_phi(0),
+     m_l1roi_eta(0),
+     m_l1roi_phi(0),
      m_MZ( new std::vector< float >() ),
      m_pE1( new std::vector< float >() ),
      m_pE2( new std::vector< float >() ),
@@ -63,6 +73,10 @@ TriggerAnalysisTutorial::TriggerAnalysisTutorial( const std::string &name,
                    "Trigger chain for Z->ee analysis");
    declareProperty("ElectronMatchMaxDistance", m_zeeMaxMatchDistance = 0.1,
                    "Maximum distance for matched electrons");
+}
+
+TriggerAnalysisTutorial::~TriggerAnalysisTutorial()
+{
 }
 
 StatusCode TriggerAnalysisTutorial::initialize() {
@@ -248,11 +262,11 @@ StatusCode TriggerAnalysisTutorial::jetTriggerStudy( const std::string& chain ) 
       ATH_MSG_INFO("FLAT Pass state " << chain << " = " << m_trigDec->isPassed( chain ) );
    }
 
-   bool useAlsoDeactivatedTEs = false;
+   //bool useAlsoDeactivatedTEs = false;
 
    // first declare a FeatureContainer; fill it using the features(std::string chain_name) method
    FeatureContainer f = m_trigDec->features( chain,
-                                             useAlsoDeactivatedTEs ? TrigDefs::alsoDeactivateTEs :
+                                             //useAlsoDeactivatedTEs ? TrigDefs::alsoDeactivateTEs :
                                              TrigDefs::Physics );
 
    // let's get the jets at level 2
@@ -326,7 +340,7 @@ StatusCode TriggerAnalysisTutorial::jetTriggerStudy( const std::string& chain ) 
    ATH_MSG_INFO( "COMB Pass state " << chain << " = " << m_trigDec->isPassed( chain ) );
 
    const std::vector< Trig::Combination >& tauJetCombinations = f.getCombinations();
-   ATH_MSG_INFO( "COMB Number of " << ( useAlsoDeactivatedTEs ? "" : "active " )
+   ATH_MSG_INFO( "COMB Number of " /*<< ( useAlsoDeactivatedTEs ? "" : "active " )*/
                  << "TauJetCombinations in " << chain << ": " << tauJetCombinations.size() );
    std::vector< Trig::Combination >::const_iterator cIt;
    for( cIt = tauJetCombinations.begin(); cIt != tauJetCombinations.end(); ++cIt ) {

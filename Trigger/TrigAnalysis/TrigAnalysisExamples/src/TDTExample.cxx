@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TDTExample.cxx 551321 2013-06-16 19:51:49Z stelzer $
+// $Id: TDTExample.cxx 659256 2015-04-07 14:42:43Z ssnyder $
 
 // STL include(s):
 #include <cmath>
@@ -46,6 +46,8 @@
 
 #include "TrigParticle/TrigEFBphys.h"
 #include "TrigParticle/TrigL2Bphys.h"
+#include "TrigParticle/TrigEFBphysContainer.h"
+#include "TrigParticle/TrigL2BphysContainer.h"
 
 #include "CaloEvent/CaloClusterContainer.h"
 #include "TrigCaloEvent/TrigT2Jet.h"
@@ -59,8 +61,8 @@
  *
  * @author Tomasz Bold     <tomasz.bold@cern.ch>     - UC Irvine, AGH-UST Krakow
  *
- * $Revision: 551321 $
- * $Date: 2013-06-16 21:51:49 +0200 (Sun, 16 Jun 2013) $
+ * $Revision: 659256 $
+ * $Date: 2015-04-07 16:42:43 +0200 (Tue, 07 Apr 2015) $
  */
 class JetInfo {
   
@@ -399,7 +401,7 @@ StatusCode Trig::TDTExample::featuresOfCompositeChain() {
       //
       jet = jets[1];
       Feature<TrigRoiDescriptor> j2RoI = m_trigDec->ancestor<TrigRoiDescriptor>(jets[1], "initialRoI");
-      if( ! initialRoI.empty() ) {
+      if( ! j2RoI.empty() ) {
          ATH_MSG_INFO( "REGTEST from chain: " << chain << " got jet: " << jet << " and initialRoI: "
                        << *j2RoI.cptr() ); 
       }

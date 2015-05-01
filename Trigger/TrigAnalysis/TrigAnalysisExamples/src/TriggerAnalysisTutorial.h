@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TriggerAnalysisTutorial.h 297842 2010-05-07 13:47:24Z krasznaa $
+// $Id: TriggerAnalysisTutorial.h 659256 2015-04-07 14:42:43Z ssnyder $
 #ifndef TRIGANALYSISEXAMPLES_TRIGGERANALYSISTUTORIAL_H
 #define TRIGANALYSISEXAMPLES_TRIGGERANALYSISTUTORIAL_H
 
@@ -41,6 +41,8 @@ public:
    /// Regular algorithm constructor
    TriggerAnalysisTutorial( const std::string& name, ISvcLocator *pSvcLocator );
 
+   ~TriggerAnalysisTutorial();
+
    /// Function called at the beginning of the job
    virtual StatusCode initialize();
    /// Function called at the end of the job
@@ -67,8 +69,8 @@ private:
    // event info
    unsigned int m_eventNr;
    unsigned int m_eventsPrinted;
-   unsigned int m_runNr;
-   unsigned int m_lbNr;
+   //unsigned int m_runNr;
+   //unsigned int m_lbNr;
 
    // histogram
    TH1* m_triggerAccepts;
@@ -77,9 +79,9 @@ private:
    TTree* m_tree;
 
    // variables for trigger jet study
-   float m_efJet_et;
-   float m_efJet_eta;
-   float m_efJet_phi;
+   //float m_efJet_et;
+   //float m_efJet_eta;
+   //float m_efJet_phi;
    float m_l2Jet_et;
    float m_l2Jet_eta;
    float m_l2Jet_phi;
