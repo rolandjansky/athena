@@ -8,7 +8,7 @@
 from __future__ import with_statement
 
 __doc__ = "a few utils to ease the day-to-day work with ROOT"
-__version__ = "$Revision: 644959 $"
+__version__ = "$Revision: 664272 $"
 __author__ = "Sebastien Binet"
 
 __all__ = [
@@ -162,6 +162,17 @@ def _pythonize_tfile():
     return 
 
 
+def _getLeaf (l):
+    tname = l.GetTypeName()
+    ndat = l.GetNdata()
+    if tname in ['UInt_t', 'Int_t', 'ULong64_t', 'Long64_t']:
+        return [l.GetValueLong64(i) for i in range(ndat)]
+    if tname in ['Float_t', 'Double_t']:
+        return [l.GetValue(i) for i in range(ndat)]
+    if tname in ['Char_t']:
+        return l.GetValueString()
+    return None
+
 class RootFileDumper(object):
     """
     A helper class to dump in more or less human readable form the content of
@@ -262,12 +273,22 @@ class RootFileDumper(object):
                 #print hdr
                 #tree.GetBranch(br_name).GetEntry(ientry)
                 py_name = [br_name]
-                
-                val = getattr(tree, br_name)
+
+                br = tree.GetBranch (br_name)
+                if br.GetClassName() != '':
+                    val = getattr(tree, br_name)
+                else:
+                    vals = [_getLeaf (l) for l in br.GetListOfLeaves()]
+                    if len(vals) == 0:
+                        val = None
+                    elif len(vals) == 1:
+                        val = vals
+                    else:
+                        val = tuple(vals)
                 if not (val is None):
                     #print "-->",val,br_name
                     try:
-                        vals = _pythonize(val, py_name)
+                        vals = _pythonize(val, py_name, True)
                     except Exception, err:
                         print "**err** for branch [%s] val=%s (type=%s)" % (
                             br_name, val, type(val),

@@ -1,0 +1,41 @@
+#!/usr/bin/python
+import os, sys,urllib2, getopt
+'''Package to query a web service which returns coverity defects as plain text.
+It infers the package name from the working directory, or this may be specified on the command line'''
+
+def getPackage():
+  directory=os.getcwd()
+  return directory.split("/")[-1]
+  
+def getDefects(pkg):
+  format="plain" #return plain text
+  baseUrl="http://atlas-computing.web.cern.ch/atlas-computing/projects/qa/CoverityResult/cgi-bin/defects"
+  query="?package="+pkg+"&format="+format
+  url=baseUrl+query
+  textData=None
+  request=urllib2.Request(url,textData)
+  try:
+    u=urllib2.urlopen(request, timeout=2)
+  except urllib2.URLError, e:
+    return "I'm sorry, the server timed out"
+  textString = u.read()
+  return textString
+  
+def main(argv):
+  package=getPackage()
+  try:
+    opts, args = getopt.getopt(argv,"hp:",["package="])
+  except getopt.GetoptError:
+    print 'issues -p <package>'
+    sys.exit(2)
+  for opt, arg in opts:
+    if opt == '-h':
+      print '"issues" will determine the package from the working directory; otherwise you may use "issues -p package"'
+      sys.exit()
+    elif opt in ("-p", "--package"):
+      package = arg
+  print getDefects(package)
+  return 0
+  
+if __name__=="__main__":
+  sys.exit(main(sys.argv[1:]))
