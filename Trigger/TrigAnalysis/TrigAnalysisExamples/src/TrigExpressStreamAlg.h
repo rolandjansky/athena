@@ -21,8 +21,6 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 
-// Trigger include(s):
-#include "TrigDecisionTool/TrigDecisionTool.h"
 class EventInfo;
 class StoreGateSvc;
 class IIncidentSvc;
@@ -37,19 +35,6 @@ public:
    StatusCode initialize();
    StatusCode execute(); 
    StatusCode finalize();
-
-private:
-
-   std::vector<std::string> m_streamTriggers;
-   std::map<std::string,int> m_numHLTPassedEvents; // events firing RAW trigger 
-   std::map<std::string,int> m_numHLTFailedEvents; // events failing
-   std::map<std::string,int> m_numL1PrescaledEvents; // events prescaled at L1
-   std::map<std::string,int> m_numHLTPrescaledEvents; // events prescaled at HLT
-   int m_evtNr;
-   float m_streamPrescale; // stream Prescale changes per Lumi
-   float m_prescale; //Prescale set per run
-
-   ToolHandle< Trig::TrigDecisionTool > m_trigDec; //!< TDT handle
 };
 
 #endif

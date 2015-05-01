@@ -1,52 +1,42 @@
-from AthenaCommon.AppMgr import theApp
-from AthenaCommon.AppMgr import ToolSvc
-## get a handle on the ServiceManager
-from AthenaCommon.AppMgr import ServiceMgr
+if not ('EvtMax' in dir()):
+  EvtMax = 10
 
-#--------------------------------------------------------------
-# Load POOL support
-#--------------------------------------------------------------
+if not ('PoolAODInput' in dir()):
+  PoolAODInput = ['/afs/cern.ch/user/b/bensmith/public/zmumu.AOD.pool.root']
+
 import AthenaPoolCnvSvc.ReadAthenaPool
- 
-from glob import glob
+ServiceMgr.EventSelector.InputCollections=PoolAODInput
+ServiceMgr.OutputLevel=ERROR
+for i in ServiceMgr:  i.OutputLevel=ERROR
 
-if not "InputFiles" in dir():
-    #InputFiles = [ "/afs/cern.ch/atlas/project/trigger/pesa-sw/validation/validation-data/attila.AOD.pool.root" ]
-    ServiceMgr.EventSelector.InputCollections = ["root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/rtt/prod/rtt/rel_2/21.0.X/x86_64-slc6-gcc49-opt/offline/TrigEgammaValidation/RDOtoAOD_MC_transform_Zee_25ns_pileup/AOD.Zee.25ns.pileup.pool.root"]
-if not "AthenaCommon.AppMgr.EvtMax" in dir():
-    theApp.EvtMax=100
+from AthenaCommon.AthenaCommonFlags  import athenaCommonFlags
+athenaCommonFlags.FilesInput.set_Value_and_Lock(PoolAODInput)
 
-# Set some output limits
-ServiceMgr.MessageSvc.infoLimit = 100000
-ServiceMgr.MessageSvc.errorLimit = 10
+##############################
+# Add the TagAndProbeExAlg
+##############################
 
-# TrigDecisionTool configuration
-from TrigAnalysisExamples import TDTAthAnalysisConfig
-#########################################################################
-#                                                                       #
-#                      Now set up the example job                       #
-#                                                                       #
-#########################################################################
-# Define sets of triggers to use
-
-electronHLTList=["HLT_e26_lhtight_nod0_ivarloose","HLT_e26_lhtight_nod0_iloose","HLT_e17_lhloose_nod0"] 
-L1List=["L1_EM15VH","L1_EM22VHI"]
-
-# Trigger Analysis Examples
-#
-from TrigAnalysisExamples.TrigAnalysisExamplesConf import TagAndProbeExAlg
-
-tp_electron=TagAndProbeExAlg( "TagAndProbeExAlg", Flavor="Electron",
-        HLTTriggerList=electronHLTList,
-        L1TriggerList=L1List)
-
-# Histogram routing
-ServiceMgr += CfgMgr.THistSvc()
-ServiceMgr.THistSvc.Output += ["Trigger DATAFILE='TagAndProbe.root' TYP='ROOT' OPT='RECREATE'"]
-ServiceMgr.THistSvc.OutputLevel = ERROR
-
-# Add the examples to the top algorithm sequence
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
 
-topSequence += tp_electron
+from TrigAnalysisExamples.TrigAnalysisExamplesConf import TagAndProbeExAlg
+TagAndProbeExAlg = TagAndProbeExAlg()
+TagAndProbeExAlg.OutputLevel = INFO
+TagAndProbeExAlg.MuonContainerKey = "StacoMuonCollection"
+TagAndProbeExAlg.L1ChainName = "L1_MU10"
+TagAndProbeExAlg.L2ChainName = "L2_mu10"
+TagAndProbeExAlg.EFChainName = "EF_mu10"
+topSequence += TagAndProbeExAlg
+
+###############################
+# Configure the job
+###############################
+
+from AthenaCommon.GlobalFlags import GlobalFlags
+GlobalFlags.DetGeo.set_atlas()
+
+#
+# Trigger Configuration
+#
+from TriggerJobOpts.TriggerConfigGetter import TriggerConfigGetter
+cfg = TriggerConfigGetter("ReadPool")
