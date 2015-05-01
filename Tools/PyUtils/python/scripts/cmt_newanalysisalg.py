@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-# @file PyUtils.scripts.cmt_newmetadataalg
+# @file PyUtils.scripts.cmt_newanalysisalg
 # @purpose streamline and ease the creation of new athena algs
 # @author Will Buttinger
 # @date September 2014
@@ -9,9 +9,9 @@
 
 from __future__ import with_statement
 
-__version__ = "$Revision: 621307 $"
+__version__ = "$Revision: 655341 $"
 __author__ = "Will Buttinger"
-__doc__ = "streamline and ease the creation of new metadata algorithms"
+__doc__ = "streamline and ease the creation of new AthAnalysisAlgorithm"
 
 ### imports -------------------------------------------------------------------
 import os
@@ -25,11 +25,11 @@ class Templates:
 #ifndef %(guard)s
 #define %(guard)s 1
 
-#include "AthenaBaseComps/AthMetadataAlgorithm.h"
+#include "AthAnalysisBaseComps/AthAnalysisAlgorithm.h"
 
 %(namespace_begin)s
 
-class %(klass)s: public ::AthMetadataAlgorithm { 
+class %(klass)s: public ::AthAnalysisAlgorithm { 
  public: 
   %(klass)s( const std::string& name, ISvcLocator* pSvcLocator );
   virtual ~%(klass)s(); 
@@ -53,7 +53,7 @@ class %(klass)s: public ::AthMetadataAlgorithm {
 
 %(namespace_begin)s
 
-%(klass)s::%(klass)s( const std::string& name, ISvcLocator* pSvcLocator ) : AthMetadataAlgorithm( name, pSvcLocator ){
+%(klass)s::%(klass)s( const std::string& name, ISvcLocator* pSvcLocator ) : AthAnalysisAlgorithm( name, pSvcLocator ){
 
   //declareProperty( "Property", m_nProperty ); //example property declaration
 
@@ -95,17 +95,17 @@ StatusCode %(klass)s::beginInputFile() {
 
 ### functions -----------------------------------------------------------------
 @acmdlib.command(
-    name='cmt.new-metadataalg'
+    name='cmt.new-analysisalg'
     )
 @acmdlib.argument(
     'algname',
     help="name of the new alg"
     )
 def main(args):
-    """create a new metadataalgorithm inside the current package. Call from within the package directory
+    """create a new AthAnalysisAlgorithm inside the current package. Call from within the package directory
 
     ex:
-     $ acmd cmt new-metadataalg MyAlg
+     $ acmd cmt new-analysisalg MyAlg
     """
     sc = 0
     
@@ -115,7 +115,7 @@ def main(args):
     cwd = os.getcwd()
     #check that cmt dir exists (i.e. this is a package)
     if not os.path.isdir(cwd+"/cmt"):
-        print "ERROR you must call new-metadataalg from within the package you want to add the algorithm to"
+        print "ERROR you must call new-analysisalg from within the package you want to add the algorithm to"
         return -1
     full_pkg_name = os.path.basename(cwd)
     print textwrap.dedent("""\
@@ -131,10 +131,10 @@ def main(args):
         if not line.startswith("use "): continue
         lastUse=lineCount
         uu = line.split(" ")
-        if uu[1].startswith("AthenaBaseComps"): foundBaseComps=True
+        if uu[1].startswith("AthAnalysisBaseComps"): foundBaseComps=True
         
     if not foundBaseComps:
-        print ":::  INFO Adding AthenaBaseComps to requirements file"
+        print ":::  INFO Adding AthAnalysisBaseComps to requirements file"
         #must add a use statement to the requirements file 
         #put inside private blocks
         lineCount=0
@@ -143,7 +143,7 @@ def main(args):
             lineCount+=1
             if lineCount==lastUse+1:
                 if not inPrivate: print "private"
-                print "use AthenaBaseComps AthenaBaseComps-* Control"
+                print "use AthAnalysisBaseComps AthAnalysisBaseComps-* Control"
                 if not inPrivate: print "end_private"
             if line.startswith("private"): inPrivate=True
             elif line.startswith("end_private"): inPrivate=False

@@ -75,6 +75,7 @@ apply_pattern declare_scripts files="\
  getTagDiff.py \
  gprof2dot \
  icython.py \
+ issues \
  lstags \
  magnifyPoolFile.py \
  merge-poolfiles.py \

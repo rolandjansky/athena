@@ -24,6 +24,10 @@ _suppression_dct = {
                                 'libAtlasSTLAddReflexDict.so'),
     'RooStats': ('libHistFactory.so',
                  'libRooStats.so'),
+    'vector<unsigned int>': ('libSTLRflx.so',
+                             'libSTLAddRflx.so'),
+    'vector<double>': ('libSTLRflx.so',
+                       'libSTLAddRflx.so'),
     }
 
 def _currentProject():
@@ -183,13 +187,13 @@ if __name__ == "__main__":
         print ":: checking dict. duplicates..."
         dups = dsoDb.dictDuplicates( pedantic = options.isPedantic )
         # restrict to just this project
-        currProj = _currentProject()
-        restrictedDups = {}
-        for label, libPaths in dups.items():
-            paths = [l for l in libPaths if ('/%s/' % currProj) in l]
-            if paths:
-                restrictedDups[label] = paths
-        dups = restrictedDups
+        #currProj = _currentProject()
+        #restrictedDups = {}
+        #for label, libPaths in dups.items():
+        #    paths = [l for l in libPaths if ('/%s/' % currProj) in l]
+        #    if paths:
+        #        restrictedDups[label] = paths
+        #dups = restrictedDups
 
         sc = 0
         suppression_log = []

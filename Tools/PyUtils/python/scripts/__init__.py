@@ -24,7 +24,8 @@ acmdlib.register('filter-files', 'PyUtils.scripts.filter_files:main')
 
 acmdlib.register('cmt.new-pkg', 'PyUtils.scripts.cmt_newpkg:main')
 acmdlib.register('cmt.new-alg', 'PyUtils.scripts.cmt_newalg:main')
-acmdlib.register('cmt.new-metadataalg', 'PyUtils.scripts.cmt_newmetadataalg:main')
+acmdlib.register('cmt.new-analysisalg', 'PyUtils.scripts.cmt_newanalysisalg:main')
 acmdlib.register('cmt.new-pyalg', 'PyUtils.scripts.cmt_newpyalg:main')
+acmdlib.register('cmt.new-jobo', 'PyUtils.scripts.cmt_newjobo:main')
 ##
 

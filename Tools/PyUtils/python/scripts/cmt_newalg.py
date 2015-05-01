@@ -26,6 +26,7 @@ class Templates:
 #define %(guard)s 1
 
 #include "AthenaBaseComps/AthAlgorithm.h"
+#include "GaudiKernel/ToolHandle.h" //included under assumption you'll want to use some tools! Remove if you don't!
 
 %(namespace_begin)s
 

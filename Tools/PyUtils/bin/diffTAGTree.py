@@ -18,25 +18,41 @@ __version__ = "$Revision: 1.3 $"
 __author__  = "Graeme Andrew Stewart"
 
 
+import argparse
 import sys
 import os
+import logging
 sys.argv += [ '-b' ] # tell ROOT to not use graphics
 from ROOT import TFile, TTree
 sys.argv.pop()
 
-setIgnoreLeaves=("Token","StreamESD_ref","StreamRDO_ref","StreamAOD_ref","RecoTimeRAWtoESD","RecoTimeESDtoAOD")
+global msg
+msg = logging.getLogger('diffTAGTree')
+hdlr = logging.StreamHandler(sys.stdout)
+frmt = logging.Formatter("%(levelname)s %(message)s")
+hdlr.setFormatter(frmt)
+msg.addHandler(hdlr)
+msg.setLevel(logging.INFO)
 
-def diffTTree(tOld,tNew,details=None): 
-    nOld = tOld.GetEntriesFast()
-    nNew = tNew.GetEntriesFast()
-    n=min(nOld,nNew)
+setIgnoreLeaves=("Token","StreamESD_ref","StreamRDO_ref","StreamAOD_ref","RecoTimeRAWtoESD","RecoTimeESDtoAOD","RandomNumber")
 
-    if nOld != nNew:
-        msg="Different number of entries: %i vs %i. Comparing first %i" % \
-            (nOld,nNew,n)
-        print msg
-        if details is not None: details.write(msg+"\n")
+def getEventDict(tagHandle, name):
+    duplicates = False
+    indexDict = {}
+    n=tagHandle.GetEntriesFast()
+    for i in range(n):
+        tagHandle.GetEntry(i)
+        idx = "{0}-{1}".format(tagHandle.RunNumber, tagHandle.EventNumber)
+        msg.debug("New file entry in {0} file {1} is #{2}".format(name, idx, i))
+        if idx in indexDict.keys():
+            duplicates = True
+            msg.error("Error - found duplicated event in file {0}: {1} appears at evt no. {2} and {3}!".format(name, idx, indexDict[idx], i))
+        else:
+            indexDict[idx] = i
+    return indexDict, duplicates
+    
 
+def diffTTree(tOld,tNew):
     leavesOld=tOld.GetListOfLeaves()
     leavesNew=tNew.GetListOfLeaves()
     
@@ -53,97 +69,64 @@ def diffTTree(tOld,tNew,details=None):
         if not name in setIgnoreLeaves:
             checkLeavesNew.add(name)
     
-    #print checkLeavesOld
     checkLeaves=checkLeavesOld & checkLeavesNew
     
     diffLeaves=checkLeavesOld ^ checkLeavesNew
     if len(diffLeaves):
-        msg="The following variables exist in only one tree, not compared:\n"
-        for d in diffLeaves:
-            msg+=d+"\n"
-        print msg
-        if details is not None: details.write(msg)
+        msg.warning("The following variables exist in only one tree, not compared: {0}".format(" ".join(diffLeaves)))
 
     nGood=0
     nBad=0
     diffSummary=dict()
 
     # To cope with events being out of order in the new TAG file
-    # (which can happen when running through prodsys) build up
-    # a cache for the new TAG file, mapping run/event numbers -> index
-    newRunEventDict=dict()  # Hold information about the run/event numbers vs entry index here
-    cachedIndex=0           # How far we looked through the new file already
-    
+    # (which can happen when running through prodsys or using AthenaMP) build up
+    # a cache for each TAG file, mapping run/event numbers -> index
+    # Also do a sanity check for duplicated events
+    newRunEventDict, ndups=getEventDict(tNew, 'new')
+    oldRunEventDict, odups=getEventDict(tOld, 'old')
+    if ndups or odups:
+        msg.error("There are serious problems with these tag files, but script will compare content of events")
+
+    # Some cross checks on the events we have
+    nk=set(newRunEventDict.keys())
+    ok=set(oldRunEventDict.keys())
+    mismatches = nk ^ ok
+    if len(mismatches) > 0:
+        msg.error("Inconsistent events in TAG files, these run-event pairs are only in one of the files: {0}".format(mismatches))
+
     # Loop over events in the old file
-    for iEntry in range(n):
+    for idx, iEntry in oldRunEventDict.iteritems():
         tOld.GetEntry(iEntry)
 
         try:
-            evOld=tOld.EventNumber
-            runOld=tOld.RunNumber
-            # Simple index combining run and event
-            runEventIndex = "%d-%d" % (runOld, evOld)
-#            print "Trying to match %i-%i" % (runOld, evOld)
-            if runEventIndex in newRunEventDict:
-#                print "Cache hit!"
-                tNew.GetEntry(newRunEventDict[runEventIndex])
-                evNew=tNew.EventNumber
-                runNew=tNew.RunNumber
-            else:
-                for sEntry in range(cachedIndex, n):
-                    tNew.GetEntry(sEntry)
-                    evNew=tNew.EventNumber
-                    runNew=tNew.RunNumber
-                    newRunEventDict["%d-%d" % (runNew, evNew)] = sEntry
-#                    print "Cached %i-%i" % (runNew, evNew)
-                    cachedIndex = sEntry + 1
-                    if evNew == evOld and runNew == runOld:
-                        break
-            if evOld != evNew or runOld != runNew:
-                msg="Run/Event numbers don't match: found no partner for RunNbr: %i, EventNbr: %i\n" % (runOld, evOld)
-                msg+="\nStop comparison now."
-                print msg
-                if details is not None:
-                    details.write(msg+"\n")
-                break
-        except AttributeError:
-            pass
-
+            evt=tOld.EventNumber
+            run=tOld.RunNumber
+            tNew.GetEntry(newRunEventDict[idx])
+            msg.debug("Found {0} at entry {1} in old file, {2} in new file".format(idx, iEntry, newRunEventDict[idx]))
+        except KeyError, e:
+            msg.error("Run-Event number {0} was not found in the new TAG file")
+            nBad+=1
+            continue
+            
         foundDiff=False
         for name in checkLeaves:
-            #exec "vOld=tOld."+name
             vOld=getattr(tOld,name)
             vNew=getattr(tNew,name)
         
             if vOld != vNew:
                 foundDiff=True
-                try: #Get Run/Event number
-                    evt=tNew.EventNumber
-                    rn=tNew.RunNumber
-
-                    evtO=tOld.EventNumber
-                    rnO=tOld.RunNumber
-                    
-                    evId="(Run %i, Evt %i)" % (rn, evt)
-                    evId+="(Run %i, Evt %i)" % (rnO, evtO)
-                except:
-                    evId=""
-                    
-                #print "Event #",iEntry,"Difference:",name,
-                diffmsg="Event #%i %s Difference: %s %s -> %s" %\
-                    (iEntry,evId,name,str(vOld),str(vNew))
-                #print vOld,"vs",vNew,
+                diffmsg="Run {1}, Event {0} (old#{2}, new#{3}) Difference: {4} {5} -> {6}".format(evt, run, iEntry, newRunEventDict[idx],
+                                                                                                  name, str(vOld),str(vNew))
                 try:
                     d=100.0*(vNew-vOld)/vOld
                     diffmsg+=" (%.3f%%)" % d
                 except:
                     pass
-                if details is not None:
-                    details.write(diffmsg+"\n")
                 else:
                     print diffmsg
 
-                if diffSummary.has_key(name):
+                if name in diffSummary:
                     diffSummary[name]+=1
                 else:
                     diffSummary[name]=1
@@ -152,31 +135,32 @@ def diffTTree(tOld,tNew,details=None):
         else:
             nGood+=1
 
-    msg="Found %i identical events and %i different events" % (nGood,nBad)
-    print msg
-    if details is not None:
-        details.write(msg+"\n")
+    message = "Found %i identical events and %i different (or missing) events" % (nGood,nBad)
+    if nBad > 0:
+        msg.error(message)
+    else:
+        msg.info(message)
         
     for n,v in diffSummary.iteritems():
-        msg="\tName: %s: %i Events differ" % (n,v)
-        print msg
-        if details is not None:
-            details.write(msg+"\n")
+        msg.warning("Name: %s: %i Events differ" % (n,v))
 
     return (nGood,nBad)
 
 if __name__=='__main__':
 
-    if len(sys.argv)<3 or len(sys.argv)>4 or sys.argv[1]=="-help":
-        print "Usage:",sys.argv[0],"File1 File2 <treename>"
-        sys.exit(-1)
+    parser = argparse.ArgumentParser(description = "Examine a pair of tag files for any differences")    
+    parser.add_argument('--debug', help='Set debugging output on', action='store_true')
+    parser.add_argument('--tree', help='Alternative tree to check (default is POOLCollectionTree)', 
+                        default='POOLCollectionTree')
+    parser.add_argument('tagFile', help='TAG files to check', nargs=2)
 
-    fnOld=sys.argv[1]
-    fnNew=sys.argv[2]
-    if len(sys.argv)>3:
-        treename=sys.argv[3]
-    else:
-        treename="POOLCollectionTree"
+    args = vars(parser.parse_args(sys.argv[1:]))
+
+    fnOld=args['tagFile'][0]
+    fnNew=args['tagFile'][1]
+    treename=args['tree']
+    if args['debug']:
+        msg.setLevel(logging.DEBUG)
 
     if not os.access(fnOld,os.R_OK):
         print "Can't access file",fnOld
@@ -206,3 +190,7 @@ if __name__=='__main__':
  
     ndiff=diffTTree(tOld,tNew)
 
+    if ndiff[1] != 0:
+        sys.exit(1)
+    
+    sys.exit(0)
