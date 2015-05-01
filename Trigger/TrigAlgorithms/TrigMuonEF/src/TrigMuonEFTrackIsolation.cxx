@@ -197,12 +197,12 @@ TrigMuonEFTrackIsolation::hltExecute(const HLT::TriggerElement* inputTE, HLT::Tr
       }
     } else { //isolation tool was ok - store results
       
-      m_trkptiso_cone2.push_back(isoResults.at(0) / 1000.0); // convert to GeV
+      const float ptcone20 = isoResults[0];
+      const float ptcone30 = isoResults[1];
 
-      m_trkptiso_cone3.push_back(isoResults.at(1) / 1000.0); // convert to GeV
-      
-      float ptcone20 = isoResults[0];
-      float ptcone30 = isoResults[0];
+      m_trkptiso_cone2.push_back(ptcone20 / 1000.0); // convert to GeV
+      m_trkptiso_cone3.push_back(ptcone30 / 1000.0); // convert to GeV
+
       ((xAOD::Muon*)muon)->setIsolation( ptcone20, xAOD::Iso::ptcone20 );
       ((xAOD::Muon*)muon)->setIsolation( ptcone30, xAOD::Iso::ptcone30 );
     }// isolation tool ok
