@@ -27,9 +27,7 @@
 //---------------------------------------------------------------------------------------
 TrigExpressStreamAlg::TrigExpressStreamAlg(const std::string& name,
 					   ISvcLocator* pSvcLocator)
-  :Algorithm(name, pSvcLocator),
-   m_log(0),
-   m_storeGate("StoreGateSvc", name)
+  :AthAlgorithm(name, pSvcLocator)
 {
 }
 
@@ -41,13 +39,6 @@ TrigExpressStreamAlg::~TrigExpressStreamAlg()
 //---------------------------------------------------------------------------------------
 StatusCode TrigExpressStreamAlg::initialize()
 {    
-  m_log = new MsgStream(msgSvc(), name()); 
-  
-  if(m_storeGate.retrieve().isFailure()) {
-    log() << MSG::ERROR << "Could not retrieve StoreGateSvc!" << endreq;
-    return StatusCode::FAILURE;
-  }
-  
   return StatusCode::SUCCESS;
 }
 
@@ -59,8 +50,8 @@ StatusCode TrigExpressStreamAlg::execute()
   //
 
   const DataHandle<EventInfo> event_handle;
-  if(m_storeGate -> retrieve(event_handle).isFailure()) {
-    log() << MSG::INFO << "Failed to read EventInfo" << endreq;
+  if(evtStore() -> retrieve(event_handle).isFailure()) {
+    ATH_MSG_INFO( "Failed to read EventInfo" );
     return StatusCode::SUCCESS;
   }
 
@@ -69,7 +60,7 @@ StatusCode TrigExpressStreamAlg::execute()
   //
   TriggerInfo *trig = event_handle->trigger_info();
   if(!trig) {
-    log() << MSG::INFO << "Failed to get TriggerInfo" << endreq;
+    ATH_MSG_INFO( "Failed to get TriggerInfo" );
     return StatusCode::SUCCESS;
   }
 
@@ -85,31 +76,31 @@ StatusCode TrigExpressStreamAlg::execute()
   }
 
   if(!found_express_stream) {
-    log() << MSG::INFO << "Failed to find express stream tag" << endreq;
+    ATH_MSG_INFO( "Failed to find express stream tag" );
     return StatusCode::SUCCESS;
   }
 
-  log() << MSG::INFO << ">>>>>>>>>>>>>>>>"
-	<< " run #" << event_handle->event_ID()->run_number()
-	<< " lumi #" << event_handle->event_ID()->lumi_block()
-	<< " event #" << event_handle->event_ID()->event_number() 
-	<< " has express stream tag" << endreq;
+  ATH_MSG_INFO( ">>>>>>>>>>>>>>>>"
+                << " run #" << event_handle->event_ID()->run_number()
+                << " lumi #" << event_handle->event_ID()->lumi_block()
+                << " event #" << event_handle->event_ID()->event_number() 
+                << " has express stream tag" );
   
   const std::string key = "HLT_EXPRESS_OPI_EF";
 
-  if(!m_storeGate->contains<TrigOperationalInfoCollection>(key)) {
-    log() << MSG::INFO << "Missing TrigOperationalInfoCollection with key=" << key << endreq;
+  if(!evtStore()->contains<TrigOperationalInfoCollection>(key)) {
+    ATH_MSG_INFO( "Missing TrigOperationalInfoCollection with key=" << key );
     return StatusCode::SUCCESS;
   }
   
   const TrigOperationalInfoCollection *opi = 0;
-  if(!m_storeGate->retrieve<TrigOperationalInfoCollection>(opi, key).isSuccess()) {
-    log() << MSG::INFO << "Failed to retreive TrigOperationalInfoCollection with key=" << key << endreq;
+  if(!evtStore()->retrieve<TrigOperationalInfoCollection>(opi, key).isSuccess()) {
+    ATH_MSG_INFO( "Failed to retreive TrigOperationalInfoCollection with key=" << key );
     return StatusCode::SUCCESS;
   }
   
-  log() << MSG::INFO << "Found TrigOperationalInfoCollectionwith key=" << key 
-	<< " and size=" << opi->size() << endreq;
+  ATH_MSG_INFO( "Found TrigOperationalInfoCollectionwith key=" << key 
+                << " and size=" << opi->size() );
 
   for(TrigOperationalInfoCollection::const_iterator it = opi->begin(); it != opi->end(); ++it) {
     const TrigOperationalInfo *ptr = *it;
@@ -118,7 +109,7 @@ StatusCode TrigExpressStreamAlg::execute()
     const std::pair<std::vector<std::string>, std::vector<float> > infos = ptr->infos();
     
     for(unsigned i = 0; i < infos.first.size(); ++i) {
-      log() << MSG::INFO << "Chain with express stream bit: " << infos.first.at(i) << endreq;
+      ATH_MSG_INFO( "Chain with express stream bit: " << infos.first.at(i) );
     }
   }
   
@@ -128,10 +119,5 @@ StatusCode TrigExpressStreamAlg::execute()
 //---------------------------------------------------------------------------------------
 StatusCode TrigExpressStreamAlg::finalize()
 {
-  //
-  // Finalize state
-  //
-  delete m_log; m_log = 0;
-
   return StatusCode::SUCCESS;
 }

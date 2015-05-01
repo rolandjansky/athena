@@ -16,7 +16,7 @@
 #include <set>
 
 // Framework
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
@@ -25,7 +25,7 @@ class EventInfo;
 class StoreGateSvc;
 class IIncidentSvc;
 
-class TrigExpressStreamAlg : public Algorithm
+class TrigExpressStreamAlg : public AthAlgorithm
 {
 public:
 
@@ -35,15 +35,6 @@ public:
    StatusCode initialize();
    StatusCode execute(); 
    StatusCode finalize();
-
-private:
-   
-   MsgStream& log() const { return *m_log; }
-   
- public:
-
-   MsgStream                          *m_log;
-   ServiceHandle<StoreGateSvc>         m_storeGate;
 };
 
 #endif
