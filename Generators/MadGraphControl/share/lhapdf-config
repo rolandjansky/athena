@@ -4,7 +4,37 @@
 
 #prefix=/afs/cern.ch/sw/lcg/external/MCGenerators/lhapdf/5.8.9/i686-slc5-gcc43-opt
 lhabase=$(echo $LHAPATH | awk '{split($1,a,"/share");print a[1];}')
-prefix=$lhabase/$CMTCONFIG
+prefix=$lhabase
+
+athversion=$(echo $AtlasVersion | awk '{split($1,a,"."); print a[1]}')
+if [[ "$athversion" != "17" && "$athversion" != "19" ]]; then
+    #Hack for nightlies
+    athversion=$(echo $(basename $(echo $AtlasBaseDir)) | awk '{split($1,a,"."); print a[1]}')
+fi
+
+
+if [[ "$athversion" == "17" ]]; then
+    prefix=$prefix/$CMTCONFIG
+
+    version=$($prefix/bin/lhapdf-config --version)
+    
+    datadir=$lhabase/share/lhapdf
+    if [ ! -d $datadir ]; then
+	datadir=$lhabase/share/LHAPDF
+    fi
+
+else
+    
+    version=$(echo "$prefix" | awk '{split($1,a,"lhapdf/"); split(a[2],b,"/");print b[1];}')
+    #datadir=$(echo $LHAPATH | awk '{split($1,a,":");print a[2];}')
+    datadir=$(echo $LHAPDF_DATA_PATH)
+fi
+
+versionIs6=FALSE
+test=$(echo $version | grep 6. | wc -w)
+if [ $test -eq 1 ]; then
+    versionIs6=TRUE
+fi
 
 
 exec_prefix=${prefix}
@@ -50,13 +80,13 @@ tmp=$( echo "$*" | egrep -- '--\<ldflags\>')
 test -n "$tmp" && OUT="$OUT -L${exec_prefix}/lib -lLHAPDF"
 
 tmp=$( echo "$*" | egrep -- '--\<datadir\>|--\<datarootdir\>')
-test -n "$tmp" && OUT="$OUT $lhabase/share/lhapdf"
+test -n "$tmp" && OUT="$OUT $datadir"
 
 tmp=$( echo "$*" | egrep -- '--\<pdfsets-path\>')
 test -n "$tmp" && OUT="$OUT $LHAPATH"
 
 ## Version
 tmp=$( echo "$*" | egrep -- '--\<version\>')
-test -n "$tmp" && OUT="$OUT 5.8.9"
+test -n "$tmp" && OUT="$OUT $version"
 
 echo $OUT
