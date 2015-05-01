@@ -292,6 +292,8 @@ def generate(run_card_loc='run_card.dat',param_card_loc='param_card.dat',mode=0,
 
 
 
+    origLHAPATH=os.environ['LHAPATH']
+    origLHAPDF_DATA_PATH=os.environ['LHAPDF_DATA_PATH']
 
 
     LHAPATH=os.environ['LHAPATH'].split(':')[0]
@@ -323,6 +325,11 @@ def generate(run_card_loc='run_card.dat',param_card_loc='param_card.dat',mode=0,
                 mglog.error('Failed to get lhapdf-config from MadGraphControl')
                 return 1
             lhapdfconfig = os.getcwd()+'/lhapdf-config'
+
+        mglog.info('lhapdf-config --version:      %s'%str(subprocess.Popen([lhapdfconfig, '--version'],stdout = subprocess.PIPE).stdout.read().strip()))
+        mglog.info('lhapdf-config --libdir:       %s'%str(subprocess.Popen([lhapdfconfig, '--libdir'],stdout = subprocess.PIPE).stdout.read().strip()))
+        mglog.info('lhapdf-config --datadir:      %s'%str(subprocess.Popen([lhapdfconfig, '--datadir'],stdout = subprocess.PIPE).stdout.read().strip()))
+        mglog.info('lhapdf-config --pdfsets-path: %s'%str(subprocess.Popen([lhapdfconfig, '--pdfsets-path'],stdout = subprocess.PIPE).stdout.read().strip()))
 
 
         if not isNLO:
@@ -428,7 +435,7 @@ def generate(run_card_loc='run_card.dat',param_card_loc='param_card.dat',mode=0,
 
     athenaMP = False
     if 'ATHENA_PROC_NUMBER' in os.environ:
-        njobs = os.environ['ATHENA_PROC_NUMBER']
+        njobs = int(os.environ['ATHENA_PROC_NUMBER'])
         mglog.info('Lucky you - you are running on a full node queue.  Will re-configure for '+str(njobs)+' jobs.')
         mode = 2
         athenaMP = True
@@ -565,7 +572,7 @@ def generate(run_card_loc='run_card.dat',param_card_loc='param_card.dat',mode=0,
 
             
         
-        mygenerate = subprocess.Popen(['bin/generate_events'],stdin=subprocess.PIPE, stderr=subprocess.STDOUT)
+        mygenerate = subprocess.Popen(['bin/generate_events','--name='+str(run_name)],stdin=subprocess.PIPE, stderr=subprocess.STDOUT)
         mygenerate.wait()
 
 
@@ -620,7 +627,29 @@ def generate(run_card_loc='run_card.dat',param_card_loc='param_card.dat',mode=0,
 
         raise RuntimeError('Gridpack sucessfully created, exiting the transform. IGNORE ERRORS if running gridpack generation!')
 
+
+    if madspin_card_loc:
+        if os.path.exists('Events/'+run_name+'_decayed_1'):
+            if not isNLO:
+                shutil.move('Events/'+run_name+'_decayed_1/unweighted_events.lhe.gz','Events/'+run_name+'/unweighted_events.lhe.gz')
+                mglog.info('Moving MadSpin events from %s to %s.'%('Events/'+run_name+'_decayed_1/unweighted_events.lhe.gz','Events/'+run_name+'/unweighted_events.lhe.gz'))
+            else:
+                shutil.move('Events/'+run_name+'_decayed_1/events.lhe.gz','Events/'+run_name+'/events.lhe.gz')
+                mglog.info('Moving MadSpin events from %s to %s.'%('Events/'+run_name+'_decayed_1/events.lhe.gz','Events/'+run_name+'/events.lhe.gz'))
+
+        else:
+            mglog.error('MadSpin was run but can\'t find output folder %s.'%('Events/'+run_name+'_decayed_1/'))
+            raise RuntimeError('MadSpin was run but can\'t find output folder %s.'%('Events/'+run_name+'_decayed_1/'))
+        
     os.chdir(currdir)
+
+    #reset LHAPDF paths
+    mglog.info('Restoring original LHAPDF env variables:')
+    os.environ['LHAPATH']=origLHAPATH
+    os.environ['LHAPDF_DATA_PATH']=origLHAPDF_DATA_PATH
+    mglog.info('LHAPATH=%s'%os.environ['LHAPATH'])
+    mglog.info('LHAPDF_DATA_PATH=%s'%os.environ['LHAPDF_DATA_PATH'])
+
 
     mglog.info('Finished at '+str(time.asctime()))
     return 0
@@ -854,7 +883,7 @@ def arrange_output(run_name='Test',proc_dir='PROC_mssm_0',outputDS='madgraph_OTF
     else:
         unzip = subprocess.Popen(['gunzip',proc_dir+'/Events/'+run_name+'/events.lhe.gz'])
         unzip.wait()
-
+ 
     mglog.info('Putting a copy in place for the transform.')
     if not isNLO:
         orig_input = open(proc_dir+'/Events/'+run_name+'/unweighted_events.lhe','r')
@@ -1080,7 +1109,8 @@ def get_variations( gentype , masses , syst_mod , xqcut = None ):
 def SUSY_StrongSM_Generation(runArgs = None, gentype='SS',decaytype='direct',masses=None,\
                              nevts=None, njets=1, syst_mod=None,\
                              SLHAonly=False, keepOutput=False, SLHAexactCopy=False,\
-                             writeGridpack=False,gridpackDirName=None,getnewruncard=False,MSSMCalc=False,pdlabel="'cteq6l1'",lhaid=10042):
+                             writeGridpack=False,gridpackDirName=None,getnewruncard=False,MSSMCalc=False,pdlabel="'cteq6l1'",\
+                             lhaid=10042,madspin_card=None):
     # Set beam energy
     beamEnergy = 6500.
     if hasattr(runArgs,'ecmEnergy'): beamEnergy = runArgs.ecmEnergy * 0.5
@@ -1164,7 +1194,7 @@ def SUSY_StrongSM_Generation(runArgs = None, gentype='SS',decaytype='direct',mas
             mglog.error('Wrong combination of arguments! writeGridpack='+str(writeGridpack)+' gridpackDirName='+str(gridpackDirName))
             return -1
     else:
-        if generate(run_card_loc='run_card.dat',param_card_loc='param_card.dat',mode=0,njobs=1,run_name='Test',proc_dir=thedir,grid_pack=writeGridpack):
+        if generate(run_card_loc='run_card.dat',param_card_loc='param_card.dat',mode=0,njobs=1,run_name='Test',proc_dir=thedir,grid_pack=writeGridpack,madspin_card_loc=madspin_card):
             mglog.error('Error generating events!')
             return -1
 
@@ -1184,7 +1214,8 @@ def SUSY_StrongSM_Generation(runArgs = None, gentype='SS',decaytype='direct',mas
 
 def SUSY_SM_Generation(runArgs = None, process='', gentype='SS',decaytype='direct',masses=None,\
                        nevts=None, syst_mod=None,xqcut=None, SLHAonly=False, keepOutput=False, SLHAexactCopy=False,\
-                       writeGridpack=False,gridpackDirName=None,MSSMCalc=False,pdlabel="'cteq6l1'",lhaid=10042):
+                       writeGridpack=False,gridpackDirName=None,MSSMCalc=False,pdlabel="'cteq6l1'",lhaid=10042,\
+                       madspin_card=None):
     # Set beam energy
     beamEnergy = 6500.
     if hasattr(runArgs,'ecmEnergy'): beamEnergy = runArgs.ecmEnergy * 0.5
@@ -1266,7 +1297,7 @@ output -f
             mglog.error('Wrong combination of arguments! writeGridpack='+str(writeGridpack)+' gridpackDirName='+str(gridpackDirName))
             return -1
     else:
-        if generate(run_card_loc='run_card.dat',param_card_loc='param_card.dat',mode=0,njobs=1,run_name='Test',proc_dir=thedir,grid_pack=writeGridpack):
+        if generate(run_card_loc='run_card.dat',param_card_loc='param_card.dat',mode=0,njobs=1,run_name='Test',proc_dir=thedir,grid_pack=writeGridpack,madspin_card_loc=madspin_card):
             mglog.error('Error generating events!')
             return -1
 

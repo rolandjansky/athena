@@ -26,7 +26,8 @@ if [[ "$athversion" == "17" ]]; then
 else
     
     version=$(echo "$prefix" | awk '{split($1,a,"lhapdf/"); split(a[2],b,"/");print b[1];}')
-    datadir=$(echo $LHAPATH | awk '{split($1,a,":");print a[2];}')
+    #datadir=$(echo $LHAPATH | awk '{split($1,a,":");print a[2];}')
+    datadir=$(echo $LHAPDF_DATA_PATH)
 fi
 
 versionIs6=FALSE
