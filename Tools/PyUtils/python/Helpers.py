@@ -21,25 +21,26 @@ def ROOT6Setup():
       """
       Fill ROOT include path list for entries for all packages found in CMTPATH
       """
-      log.debug( "\n  ---------   addROOTIncludePaths!" )
-      log.debug( "Expanding CMTPATH:\n" + str( os.environ['CMTPATH'] ) + '\n' )
-      import glob
-      import PyUtils.RootUtils as ru
-      interp = ru.import_root().gInterpreter
-      plist = os.environ['CMTPATH'].split(':')
-      for p in plist:
-         if p.find('AtlasCore')>0:
-            path_for_eigen = os.path.join (p, 'InstallArea', os.environ['CMTCONFIG'],'include')
-            interp.AddIncludePath( path_for_eigen )
-         # MN disabling to use the patchs from release setup now
-   #      if p.find('GAUDI')<0:
-   #         idir = os.path.join (p, 'InstallArea', 'include')
-   #         for ii in glob.glob (os.path.join (idir, '*')):
-   #            interp.AddIncludePath (ii)
-      try:
-         interp.AddIncludePath( os.environ['G4INCLUDE'] )
-      except KeyError:
-         pass
+
+      # Most projects make their headers available to root under
+      # root-include-path.  But DetCommon does not.
+      if 'CMTPATH' in os.environ:
+         import glob
+         import PyUtils.RootUtils as ru
+         interp = ru.import_root().gInterpreter
+         for p in os.environ['CMTPATH'].split(':'):
+            if p.find('DetCommon')>=0:
+               idir = os.path.join (p, 'InstallArea', 'include')
+               for ii in glob.glob (os.path.join (idir, '*')):
+                  interp.AddIncludePath (ii)
+            
+
+      # Also need to make Geant headers available.
+      if 'G4INCLUDE' in os.environ:
+          import PyUtils.RootUtils as ru
+          interp = ru.import_root().gInterpreter
+          interp.AddIncludePath( os.environ['G4INCLUDE'] )
+
 
 
    def cppyyFakeCintex():

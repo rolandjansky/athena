@@ -7,7 +7,7 @@
 
 from __future__ import with_statement
 
-__version__ = "$Revision: 279982 $"
+__version__ = "$Revision: 655341 $"
 __author__ = "Sebastien Binet"
 __doc__ = "streamline and ease the creation of new cmt packages"
 
@@ -89,15 +89,13 @@ def main(args):
 
         branches src src/components doc python share
 
-        private
-        ## default is to make component library
+        ## default is to make component library. See: https://twiki.cern.ch/twiki/bin/view/Main/LearningAthena#Libraries_in_CMT for alternatives
         library %(pkg_name)s *.cxx components/*.cxx
-
         apply_pattern component_library
+        
         apply_pattern declare_joboptions files="*.py"
         apply_pattern declare_python_modules files="*.py"
 
-        end_private
         
         """%locals())
     print "::: creating package [%(full_pkg_name)s]... [done]" % locals()

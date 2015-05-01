@@ -7,7 +7,7 @@
 
 from __future__ import with_statement
 
-__version__ = "$Revision: 635800 $"
+__version__ = "$Revision: 662725 $"
 __author__  = "Sebastien Binet"
 __doc__ = "implementation of AthFile-server behind a set of proxies to isolate environments"
 
@@ -1405,6 +1405,19 @@ class FilePeeker(object):
                 bs_metadata[key_name] = v
         # for bwd/fwd compat... -- END
             
+        # fix for ATEAM-122
+        if len(bs_metadata.get('evt_type','')) == 0 : # see: ATMETADATA-6
+            evt_type = ['IS_DATA', 'IS_ATLAS']
+            if   bs_metadata.get('Stream', '').startswith('physics_'):
+                evt_type.append('IS_PHYSICS')
+            elif bs_metadata.get('Stream', '').startswith('calibration_'):
+                evt_type.append('IS_CALIBRATION')
+            elif bs_metadata.get('Project', '').endswith('_calib'):        
+                evt_type.append('IS_CALIBRATION')
+            else:
+                evt_type.append('Unknown')
+            bs_metadata['evt_type'] = evt_type
+
         file_infos['file_guid'] = bs_metadata.get('GUID', _uuid())
         file_infos['evt_type']  = bs_metadata.get('evt_type', [])
         file_infos['geometry']  = bs_metadata.get('geometry', None)
