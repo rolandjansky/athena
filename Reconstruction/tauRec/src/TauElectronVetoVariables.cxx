@@ -195,7 +195,7 @@ StatusCode TauElectronVetoVariables::execute(TauCandidateData *data)
     for (int i = 0; i < numOfsampEM; ++i) {
       if ( eta_extrapol[i] < -11110. || phi_extrapol[i] < -11110. )
 	{
-	  ATH_MSG_WARNING("extrapolation of leading track to calo surfaces failed for sampling : " << i );
+	  ATH_MSG_DEBUG("extrapolation of leading track to calo surfaces failed for sampling : " << i );
 	  return StatusCode::SUCCESS;
 	}
     }
