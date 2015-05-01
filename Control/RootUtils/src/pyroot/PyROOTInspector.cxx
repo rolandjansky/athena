@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: PyROOTInspector.cxx 616359 2014-09-11 18:44:23Z ssnyder $
+// $Id: PyROOTInspector.cxx 664409 2015-05-01 16:57:25Z ssnyder $
 
 //#define PYROOT_INSPECTOR_DBG 1
 #define PYROOT_INSPECTOR_DBG 0
@@ -191,7 +191,8 @@ new_pylist(PyObject *pylist, PyObject *item)
 void
 recurse_pyinspect(PyObject *pyobj,
                   PyObject *pyobj_name,
-                  PyObject *&pystack)
+                  PyObject *&pystack,
+                  bool persistentOnly)
 {
   // handle non-pyroot objects
   if (!TPython::ObjectProxy_Check(pyobj)) {
@@ -239,7 +240,7 @@ recurse_pyinspect(PyObject *pyobj,
       PyObject *v0 = PyString_FromString("first");
       PyObject *v1 = PyObject_GetAttrString(pyobj, "first");
       PyObject *v1_name = ::new_pylist(pyobj_name, v0);
-      recurse_pyinspect(v1, v1_name, pystack);
+      recurse_pyinspect(v1, v1_name, pystack, persistentOnly);
       Py_DECREF(v1_name);
       Py_DECREF(v0);
       Py_DECREF(v1);
@@ -249,7 +250,7 @@ recurse_pyinspect(PyObject *pyobj,
       PyObject *v0 = PyString_FromString("second");
       PyObject *v1 = PyObject_GetAttrString(pyobj, "second");
       PyObject *v1_name = ::new_pylist(pyobj_name, v0);
-      recurse_pyinspect(v1, v1_name, pystack);
+      recurse_pyinspect(v1, v1_name, pystack, persistentOnly);
       Py_DECREF(v1_name);
       Py_DECREF(v1);
       Py_DECREF(v0);
@@ -283,20 +284,38 @@ recurse_pyinspect(PyObject *pyobj,
 
   if (hdr) {
     // handle collection
-    const Py_ssize_t nelems = PySequence_Size(pyobj);
 #if PYROOT_INSPECTOR_DBG
+    const Py_ssize_t nelems = PySequence_Size(pyobj);
     std::cerr << "== sequence (" << nelems << ")...\n";
 #endif
 
+    // This used to use PySequence_GetItem.
+    // However, xAOD::MissingETContainer redefines operator[] to do
+    // something completely different, so that didn't work.
+    // Rewriting in terms of iteration avoids this.
+    PyObject* iter = PyObject_GetIter(pyobj);
+    size_t i = 0;
+    if (iter) {
+      while (PyObject* item = PyIter_Next(iter)) {
+        PyObject *pyidx = PyLong_FromLong(i);
+        PyObject *itr_name = ::new_pylist(pyobj_name, pyidx);
+        recurse_pyinspect(item, itr_name, pystack, persistentOnly);
+        Py_XDECREF(itr_name);
+        Py_XDECREF(pyidx);
+        Py_DECREF(item);
+      }
+    }
+#if 0
     for (Py_ssize_t i = 0; i < nelems; ++i) {
       PyObject *pyidx = PyLong_FromLong(i);
       PyObject *itr = PySequence_GetItem(pyobj, i);
       PyObject *itr_name = ::new_pylist(pyobj_name, pyidx);
-      recurse_pyinspect(itr, itr_name, pystack);
+      recurse_pyinspect(itr, itr_name, pystack, persistentOnly);
       Py_XDECREF(itr_name);
       Py_XDECREF(pyidx);
       Py_XDECREF(itr);
     }
+#endif
 
 #if PYROOT_INSPECTOR_DBG
     std::cerr << "== sequence (" << nelems << ")... [done]\n";
@@ -321,6 +340,8 @@ recurse_pyinspect(PyObject *pyobj,
     PyObject *py_mbr_name = 0;
     PyObject *py_mbr = 0;
 
+    if (persistentOnly && !mbr->IsPersistent())
+      continue;
     if (mbr->IsaPointer())
       continue;
     if (mbr->IsBasic()) {
@@ -353,7 +374,7 @@ recurse_pyinspect(PyObject *pyobj,
     }
 
     PyObject *this_name = ::new_pylist(pyobj_name, py_mbr_name);
-    recurse_pyinspect(py_mbr, this_name, pystack);
+    recurse_pyinspect(py_mbr, this_name, pystack, persistentOnly);
     Py_DECREF(this_name);
     Py_DECREF(py_mbr_name);
     Py_DECREF(py_mbr);
@@ -373,7 +394,8 @@ recurse_pyinspect(PyObject *pyobj,
 namespace RootUtils {
 
 PyObject*
-PyROOTInspector::pyroot_inspect(PyObject* pyobj)
+PyROOTInspector::pyroot_inspect(PyObject* pyobj,
+                                bool persistentOnly /*= false*/)
 {
   // handle non-pyroot objects
   if (!TPython::ObjectProxy_Check(pyobj)) {
@@ -399,8 +421,8 @@ PyROOTInspector::pyroot_inspect(PyObject* pyobj)
     PyObject *val = PyTuple_New(2);
     PyObject *v0 = PyObject_GetAttrString(pyobj, "first");
     PyObject *v1 = PyObject_GetAttrString(pyobj, "second");
-    PyTuple_SET_ITEM(val, 0, pyroot_inspect(v0));
-    PyTuple_SET_ITEM(val, 1, pyroot_inspect(v1));
+    PyTuple_SET_ITEM(val, 0, pyroot_inspect(v0, persistentOnly));
+    PyTuple_SET_ITEM(val, 1, pyroot_inspect(v1, persistentOnly));
     Py_DECREF(v0);
     Py_DECREF(v1);
     return val;
@@ -438,7 +460,7 @@ PyROOTInspector::pyroot_inspect(PyObject* pyobj)
     PyObject *py_elems = PyList_New(nelems);
     for (Py_ssize_t i = 0; i < nelems; ++i) {
       PyObject *itr = PySequence_GetItem(pyobj, i);
-      PyObject *itr_pyroot = pyroot_inspect(itr);
+      PyObject *itr_pyroot = pyroot_inspect(itr, persistentOnly);
       PyList_SET_ITEM(py_elems, i, itr_pyroot);
       Py_DECREF(itr);
       //Py_DECREF(itr_pyroot);
@@ -469,6 +491,8 @@ PyROOTInspector::pyroot_inspect(PyObject* pyobj)
 
     PyObject *py_mbr = 0;
 
+    if (persistentOnly && !mbr->IsPersistent())
+      continue;
     if (mbr->IsaPointer())
       continue;
     if (mbr->IsBasic()) {
@@ -488,7 +512,7 @@ PyROOTInspector::pyroot_inspect(PyObject* pyobj)
         ((void*)ptr,
          mbr->GetTypeName());
       if (pyroot_obj) {
-        py_mbr = pyroot_inspect(pyroot_obj);
+        py_mbr = pyroot_inspect(pyroot_obj, persistentOnly);
       }
       Py_XDECREF(pyroot_obj);
     }
@@ -514,10 +538,11 @@ PyROOTInspector::pyroot_inspect(PyObject* pyobj)
 
 PyObject*
 PyROOTInspector::pyroot_inspect2(PyObject *pyobj,
-                                 PyObject *pyobj_name)
+                                 PyObject *pyobj_name,
+                                 bool persistentOnly /*= false*/)
 {
   PyObject *pystack = PyList_New(0);
-  ::recurse_pyinspect(pyobj, pyobj_name, pystack);
+  ::recurse_pyinspect(pyobj, pyobj_name, pystack, persistentOnly);
   return pystack;
 }
 
