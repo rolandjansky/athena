@@ -30,7 +30,7 @@ namespace FSR {
    public:
       enum FsrType { FsrNear, FsrFar, FsrUnknown };
 
-      FsrCandidate() : deltaR(-1), Et(-1), f1(-1), eta(-1), phi(-1), topoEtcone40(-1),
+       FsrCandidate() : particle(0), deltaR(-1), Et(-1), f1(-1), eta(-1), phi(-1), topoEtcone40(-1),
                        type(FsrUnknown) {}
       std::string container;
       const xAOD::IParticle* particle;
@@ -64,7 +64,7 @@ namespace FSR {
 
       virtual std::vector<FsrCandidate>* getFarFsrCandidateList(const xAOD::IParticle* part) = 0;
 
-      virtual std::vector<FsrCandidate>* getNearFsrCandidateList(const xAOD::IParticle* part) = 0;
+      virtual std::vector<FsrCandidate>* getNearFsrCandidateList(const xAOD::Muon* part) = 0;
 
    }; // class IFsrPhotonTool
 

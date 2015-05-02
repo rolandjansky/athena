@@ -55,37 +55,40 @@ namespace FSR {
       for( ; mu_itr != mu_end; ++mu_itr ) {
 
           
-    	  if ( m_fsrTool->getFsrPhoton(*mu_itr, candidate) )
-    	  {
-    	          ATH_MSG_INFO( " FSR candidate found !!!!!!!! ");
-    	          ATH_MSG_INFO( " container = " << candidate.container
-  	          //const xAOD::IParticle* particle;
-    	          << " deltaR = " << candidate.deltaR
-    	          << " Et = " << candidate.Et
-    	          <<" f1 = " << candidate.f1
-    	          <<" eta = " << candidate.eta
-    	          <<" phi = " << candidate.phi
-    	          <<" etcone = "<< candidate.topoEtcone40
-    	          <<" fsrtype = " << candidate.type
-    	          );
+	if ( m_fsrTool->getFsrPhoton(*mu_itr, candidate) ==  CP::CorrectionCode::Ok){
+	  ATH_MSG_INFO( " FSR candidate found !!!!!!!! ");
+	  ATH_MSG_INFO( " container = " << candidate.container
+			//const xAOD::IParticle* particle;
+			<< " deltaR = " << candidate.deltaR
+			<< " Et = " << candidate.Et
+			<<" f1 = " << candidate.f1
+			<<" eta = " << candidate.eta
+			<<" phi = " << candidate.phi
+			<<" etcone = "<< candidate.topoEtcone40
+			<<" fsrtype = " << candidate.type
+			);
     	 }
-
-         if (candidate.container == "photon" ) 
-         {
-                const xAOD::Photon* photon = dynamic_cast<const xAOD::Photon*>(candidate.particle);
-		fsr_energy = photon->e();
-	 } else if (candidate.container == "electron" ) {
-                const xAOD::Electron* electron = dynamic_cast<const xAOD::Electron*>(candidate.particle);
-		fsr_energy = electron->e();
-         } else
-             ATH_MSG_INFO( " FSR candidate particle is unknown " );
-
-         if ( fsr_energy > tmp_energy ) {
-	 	tmp_energy = fsr_energy;   
-	 	fsr_tlv.SetPtEtaPhiE(candidate.Et, candidate.eta, candidate.phi, fsr_energy);
-	 }
-
-
+	
+	if (candidate.container == "photon" ) {
+	  if(const xAOD::Photon* photon = dynamic_cast<const xAOD::Photon*>(candidate.particle)){
+	    fsr_energy = photon->e();
+	  }else{
+	    ATH_MSG_WARNING( "Could not cast to Photon " );
+	  }
+	} else if (candidate.container == "electron" ) {
+	  if(const xAOD::Electron* electron = dynamic_cast<const xAOD::Electron*>(candidate.particle)){
+	     fsr_energy = electron->e();
+	  }else{
+	    ATH_MSG_WARNING( "Could not cast to Electron " );
+	  }
+	} else{
+	  ATH_MSG_INFO( " FSR candidate particle is unknown " );
+	}
+	if ( fsr_energy > tmp_energy ) {
+	  tmp_energy = fsr_energy;   
+	  fsr_tlv.SetPtEtaPhiE(candidate.Et, candidate.eta, candidate.phi, fsr_energy);
+	}
+		
       }
    
       // Return gracefully:

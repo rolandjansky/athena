@@ -55,7 +55,7 @@ namespace FSR {
       virtual std::vector<FsrCandidate>* getFarFsrCandidateList(const xAOD::IParticle* part);
 
       /// Find and Return ALL NEAR FSR candidates
-      virtual std::vector<FsrCandidate>* getNearFsrCandidateList(const xAOD::IParticle* part);
+      virtual std::vector<FsrCandidate>* getNearFsrCandidateList(const xAOD::Muon* part);
 
       /// @}
    private:
@@ -86,7 +86,7 @@ namespace FSR {
 
 
       std::vector<FsrCandidate> m_fsrPhotons;
-      FsrCandidate::FsrType fsr_type;
+      FsrCandidate::FsrType     m_fsr_type;
 
    }; // class FsrPhotonTool
 
