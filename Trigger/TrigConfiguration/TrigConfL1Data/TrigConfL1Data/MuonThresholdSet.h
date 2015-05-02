@@ -28,13 +28,13 @@ namespace TrigConf {
       int rpcSetId() const {return m_rpc_set_ext_id;}
       void setRpcSetId( const int& i ){m_rpc_set_ext_id = i;}
 
-      std::string rpcSetName() const {return m_rpc_set_name;}
+      const std::string & rpcSetName() const {return m_rpc_set_name;}
       void setRpcSetName( const std::string& s ){m_rpc_set_name = s;}
 
       int tgcSetId() const {return m_tgc_set_ext_id;}
       void setTgcSetId( const int& i ){m_tgc_set_ext_id = i;}
 
-      std::string tgcSetName() const {return m_tgc_set_name;}
+      const std::string & tgcSetName() const {return m_tgc_set_name;}
       void setTgcSetName( const std::string& s ){m_tgc_set_name = s;}
 
       int rpcPt1Id() const {return m_rpc_pt1_ext_id;}

@@ -66,7 +66,7 @@ TrigConf::TriggerThresholdValue::~TriggerThresholdValue()
 
 int
 TrigConf::TriggerThresholdValue::thresholdValueCount() const {
-   return (int)(ptcut()/TriggerThresholdValue::caloGlobalScale());
+   return (int) ptcut(); // overriden in Cluster/JetThresholdValue
 }
 
 bool

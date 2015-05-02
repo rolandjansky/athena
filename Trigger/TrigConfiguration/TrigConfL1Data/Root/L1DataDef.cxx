@@ -107,8 +107,8 @@ TrigConf::L1DataDef::setMaxThresholdsFromL1Version(unsigned int l1version) {
       typeConfig(JB).max     =   0;
       typeConfig(JE).max     =   0;
       typeConfig(M).max      =   6;
-      typeConfig(TE).max     =   8;
-      typeConfig(XE).max     =   8;
+      typeConfig(TE).max     =  16;
+      typeConfig(XE).max     =  16;
       typeConfig(XS).max     =   8;
       typeConfig(RNDM).max   =   4;
       typeConfig(PCLK).max   =   0;

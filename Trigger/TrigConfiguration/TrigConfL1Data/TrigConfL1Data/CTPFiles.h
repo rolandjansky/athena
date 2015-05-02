@@ -35,41 +35,41 @@ namespace TrigConf {
       void setFileSizes(unsigned int run);
 
       // return copy of vector
-      std::vector<uint32_t> ctpcoreLUT();
+      const std::vector<uint32_t> & ctpcoreLUT() const;
       void setCtpcoreLUT( const std::vector<u_int>& vec);
 
       // return copy of vector
-      std::vector<uint32_t> ctpcoreCAM();
+      const std::vector<uint32_t> & ctpcoreCAM() const;
       void setCtpcoreCAM( const std::vector<u_int>& vec );
       
       // return copy of vector
-      std::vector<uint32_t> ctpinMonSelectorSlot7();
+      const std::vector<uint32_t> & ctpinMonSelectorSlot7() const;
       void setCtpinMonSelectorSlot7( const std::vector<u_int>& vec );
       
-      std::vector<uint32_t> ctpinMonSelectorSlot8();
+      const std::vector<uint32_t> & ctpinMonSelectorSlot8() const;
       void setCtpinMonSelectorSlot8( const std::vector<u_int>& vec );
      
-      std::vector<uint32_t> ctpinMonSelectorSlot9();
+      const std::vector<uint32_t> & ctpinMonSelectorSlot9() const;
       void setCtpinMonSelectorSlot9( const std::vector<u_int>& vec );
 
       // return copy of vector
-      std::vector<uint32_t> ctpmonSelector();
+      const std::vector<uint32_t> & ctpmonSelector() const;
       void setCtpmonSelector( const std::vector<u_int>& vec );
           
       // return copy of vector
-      std::vector<uint32_t> ctpinMonDecoderSlot7();
+      const std::vector<uint32_t> & ctpinMonDecoderSlot7() const;
       void setCtpinMonDecoderSlot7( const std::vector<u_int>& vec );
       
       // return copy of vector
-      std::vector<uint32_t> ctpinMonDecoderSlot8();
+      const std::vector<uint32_t> & ctpinMonDecoderSlot8() const;
       void setCtpinMonDecoderSlot8( const std::vector<u_int>& vec );
      
       // return copy of vector
-      std::vector<uint32_t> ctpinMonDecoderSlot9();
+      const std::vector<uint32_t> & ctpinMonDecoderSlot9() const;
       void setCtpinMonDecoderSlot9( const std::vector<u_int>& vec );
 
       // return copy of vector
-      std::vector<uint32_t> ctpmonDecoder();
+      const std::vector<uint32_t> & ctpmonDecoder() const;
       void setCtpmonDecoder( const std::vector<u_int>& vec );
 
       int lvl1MasterTableId() const {return m_Lvl1MasterTableId;}
@@ -78,7 +78,7 @@ namespace TrigConf {
       int smxId() const {return m_smxId;}
       void setSmxId (const int& id){m_smxId=id;}
 
-      std::string smxName() const {return m_smxName;}
+      const std::string & smxName() const {return m_smxName;}
       void setSmxName (const std::string& str) {m_smxName = str;}
 
       const std::string& ctpinSmxVhdlSlot7() const { return m_ctpinSmxVhdlSlot7; }
