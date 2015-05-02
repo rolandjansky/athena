@@ -20,6 +20,7 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "StoreGate/StoreGateSvc.h"
+#include "xAODEventInfo/EventInfo.h"
 #include <vector>
 
 class StatusCode;
@@ -36,7 +37,11 @@ namespace HLT {
    class IEventInfoAccessTool : public virtual IAlgTool
    {
    public:
-     virtual StatusCode updateStreamTag(const std::vector<SteeringChain*>& activeChains) = 0;     
+     virtual StatusCode updateStreamTag(const std::vector<SteeringChain*>& activeChains) = 0;   
+     virtual StatusCode setStreamTags(const std::vector< xAOD::EventInfo::StreamTag >& set_streams) = 0;   
+     virtual StatusCode removeStreamTags(const std::vector< xAOD::EventInfo::StreamTag >& remove_streams) = 0;   
+     virtual StatusCode addStreamTags(const std::vector< xAOD::EventInfo::StreamTag >& new_streams) = 0;   
+     virtual StatusCode getStreamTags(std::vector< xAOD::EventInfo::StreamTag >& streamTags) = 0;   
      static const InterfaceID& interfaceID() { return IID_EventInfoAccessTool; } //!< std interface declaration
    };
 
@@ -57,6 +62,10 @@ namespace HLT {
       StatusCode initialize(); //!< Gaudi initialize
       StatusCode finalize();   //!< Gaudi finalize
 
+      StatusCode setStreamTags(const std::vector< xAOD::EventInfo::StreamTag >& set_streams);
+      StatusCode removeStreamTags(const std::vector< xAOD::EventInfo::StreamTag >& remove_streams);
+      StatusCode addStreamTags(const std::vector< xAOD::EventInfo::StreamTag >& new_streams);
+      StatusCode getStreamTags(std::vector< xAOD::EventInfo::StreamTag >& streamTags);
       StatusCode updateStreamTag(const std::vector<SteeringChain*>& activeChains);
 
 
@@ -65,33 +74,10 @@ namespace HLT {
 
    protected:
 
-      MsgStream& msg(const MSG::Level lvl) { return (*m_log) << lvl; }
-      bool msgLvl (const MSG::Level lvl) const;
-
-      MsgStream* m_log;             //!< MsgStream used within all none Gaudi classes of this package
-
       StringArrayProperty m_listOfChainsAddingStreamTag; //!< list of chain:streamtag that are allowed to add streamtag to EventInfo even if in rerun
-
-      ServiceHandle< StoreGateSvc > m_storeGate; //!< pointer to StoreGate
  
    };
 
-
-   inline bool
-   EventInfoAccessTool::msgLvl(const MSG::Level lvl) const {
-      if (m_log->level() <= lvl) {
-         (*m_log) << lvl;
-         return true;
-      } else {
-         return false;
-      }
-   }
-
-
-
 } // end namespace
-
-
-
 
 #endif

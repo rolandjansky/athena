@@ -31,6 +31,7 @@ use  L1TopoEvent                L1TopoEvent-*                   Trigger/TrigT1/L
 use  L1TopoAlgorithms           L1TopoAlgorithms-*              Trigger/TrigT1/L1Topo
 use  L1TopoSimulation           L1TopoSimulation-*              Trigger/TrigT1/L1Topo
 use  TrigConfBase               TrigConfBase-*                  Trigger/TrigConfiguration
+use  xAODEventInfo              xAODEventInfo-*                 Event/xAOD
 
 private
 use  AtlasBoost                 AtlasBoost-*                    External
@@ -47,7 +48,6 @@ use  TrigMonitorBase            TrigMonitorBase-*               Trigger/TrigMoni
 use  TrigNavigation             TrigNavigation-*                Trigger/TrigEvent
 use  TrigSerializeResult        TrigSerializeResult-*           Trigger/TrigDataAccess
 use  TrigT1Interfaces           TrigT1Interfaces-*              Trigger/TrigT1
-use  xAODEventInfo              xAODEventInfo-*                 Event/xAOD
 use  L1TopoCommon               L1TopoCommon-*                  Trigger/TrigT1/L1Topo
 use  L1TopoConfig               L1TopoConfig-*                  Trigger/TrigT1/L1Topo
 use  TrigStorageDefinitions     TrigStorageDefinitions-*        Trigger/TrigEvent

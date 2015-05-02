@@ -492,7 +492,7 @@ void SteeringChain::setPrescaleState() {
 
 void SteeringChain::setResurrectedState() {
   //  float rerun = .;
-  float rerun = m_configChain->rerun_prescale();
+  float rerun = m_configChain->rerun_prescale("").second;
   m_resurrected = false;
   if ( rerun == 1.)
     m_resurrected = true;
