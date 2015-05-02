@@ -363,7 +363,6 @@ HLT::ErrorCode Sequence::prepareRobRequests()
 {
   // this variable enables the monitor of the pre-fetching with the trigROBDataProviderSvc
   bool do_prefetching_test = m_trigROBDataProvider.isValid() && m_trigROBDataProvider->isPrefetchingAtAlgoLevel();
-  if(do_prefetching_test) m_config->getMsgStream() << MSG::DEBUG <<  "Sequence::prepareRobRequests() prefetching_test is enabled "  <<endreq;
 
   // in case this sequence was executed before
   if (m_prepRobReqAlreadyExecuted) {
@@ -396,6 +395,8 @@ HLT::ErrorCode Sequence::prepareRobRequests()
   // those are executed. Only if there is no predecessor, the sequence
   // calls prepareRobRequest for its own algorithms
 
+  //FPP: latter sentence is not true anymore for Run2: we want now to execute all the sequences, not only the predecesors
+
   if( m_previousSequences.size()>0 ) {
     if (m_config->getMsgLvl() <=MSG::DEBUG) {
       std::string telabel;
@@ -405,6 +406,9 @@ HLT::ErrorCode Sequence::prepareRobRequests()
     // call prepareRobRequests() for all input Sequences
     for ( std::vector< HLT::Sequence* >::const_iterator seq = m_previousSequences.begin();
 	  seq != m_previousSequences.end(); ++seq) {      
+
+      // If the previous sequence was executed in the same step, the output TE is not created yet, so prefecthing is useless      
+      if( (*seq)->outputTEs().size() == 0) continue;
 
       // ignore, if already executed
       if ( (*seq)->m_alreadyExecuted ) continue;
@@ -416,7 +420,8 @@ HLT::ErrorCode Sequence::prepareRobRequests()
       if ( m_prepRobReqErrorCode.action() > HLT::Action::CONTINUE ) 
 	return m_prepRobReqErrorCode;
     }
-    //FPP    return m_prepRobReqErrorCode;
+    //FPP: comment this to run the current sequence (run on all the sequences, not only the first)
+    //return m_prepRobReqErrorCode;
   }
 
   // debug output
@@ -429,7 +434,7 @@ HLT::ErrorCode Sequence::prepareRobRequests()
 
   try {
 
-    // execute ROB preparation of all algorithms of this Sequence
+     // execute ROB preparation of all algorithms of this Sequence
 
     // a few comments:
 
@@ -445,7 +450,9 @@ HLT::ErrorCode Sequence::prepareRobRequests()
 
     for (unsigned int j = 0; j <  m_nextAlgos.size()+1; ++j) {
       
+      // FPP: comment this in order to run on all the algo of the sequence (needed in the merged system)
       // if (j>0) break; // only for the first algo the processRobRequests can be run 
+     
 
       HLT::Algo* alg = ( j==0 ? m_firstAlgo : m_nextAlgos[j-1] );
 
@@ -453,22 +460,19 @@ HLT::ErrorCode Sequence::prepareRobRequests()
 
       if(te_create_alg == 0) continue; // a hypo algo
 
-      if (m_config->getMsgLvl() <=MSG::DEBUG)
-        m_config->getMsgStream() << MSG::DEBUG << "  calling processRobRequests of TECreateAlgo '" <<  te_create_alg->name() << "'" << endreq;
+      if (m_config->getMsgLvl() <=MSG::DEBUG){
+	std::string teName;
+	TrigConf::HLTTriggerElement::getLabel(m_outputTeType, teName);
+        m_config->getMsgStream() << MSG::DEBUG << "  calling processRobRequests of TECreateAlgo '" <<  te_create_alg->name() << "' with outputTE = " << teName << endreq;
+      }
 
- 
       //test of the pre-fetching: clear the pre-fetching list
       if (do_prefetching_test){
 	m_config->robRequestInfo()->clearRequestScheduledRobIDs();
       }
 
       ErrorCode ec =  te_create_alg->processRobRequests( m_inputTeTypes );
-      m_prepRobReqErrorCode = std::max(m_prepRobReqErrorCode, ec);
-
-      //       // add new robIds to vector of requested ROB IDs
-      //       m_requestScheduledRobIDs.resize(m_requestScheduledRobIDs.size()+robIds.size());
-      //       std::copy_backward(robIds.begin(),robIds.end(), m_requestScheduledRobIDs.end());
-      
+      m_prepRobReqErrorCode = std::max(m_prepRobReqErrorCode, ec);     
 
       if (m_config->getMsgLvl() <=MSG::DEBUG)
         m_config->getMsgStream() << MSG::DEBUG
@@ -484,6 +488,7 @@ HLT::ErrorCode Sequence::prepareRobRequests()
       //test of the pretching: fill the pre-fetching list 
       if (do_prefetching_test){
 	std::string pref_name = alg->name() + "_pref";
+	m_config->getMsgStream() << MSG::DEBUG <<"Algorithm "<< te_create_alg->name() <<" requested "<<m_config->robRequestInfo()->requestScheduledRobIDs().size() <<" ROBs"<<std::endl;
 	m_trigROBDataProvider->addROBData(m_config->robRequestInfo()->requestScheduledRobIDs(),pref_name);
       }
 

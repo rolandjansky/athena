@@ -13,7 +13,7 @@
  * @author Ingrid Deigaard     <ingrid.deigaard@cern.ch>     Nikhef, NL
  *
  * File and Version Information:
- * $Id: TopoSequence.cxx 639471 2015-01-14 15:15:28Z stelzer $
+ * $Id: TopoSequence.cxx 664459 2015-05-02 10:37:22Z stelzer $
  **********************************************************************************/
 
 #include <iostream>
@@ -133,11 +133,11 @@ TopoSequence::execute()
    unsigned int teId;
    TrigConf::HLTTriggerElement::getId(m_name.c_str(),teId);
 
-   xAOD::TrigCompositeContainer * compCont = new xAOD::TrigCompositeContainer();
-   xAOD::TrigCompositeAuxContainer * compAux = new xAOD::TrigCompositeAuxContainer();
-   compCont->setStore(compAux);
-   std::string sgkey("");
-   unsigned int compositeCount(0);
+//    xAOD::TrigCompositeContainer * compCont = new xAOD::TrigCompositeContainer();
+//    xAOD::TrigCompositeAuxContainer * compAux = new xAOD::TrigCompositeAuxContainer();
+//    compCont->setStore(compAux);
+//   std::string sgkey("");
+//   unsigned int compositeCount(0);
 
 
    /**

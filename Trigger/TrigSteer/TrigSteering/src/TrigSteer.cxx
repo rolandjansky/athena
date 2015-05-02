@@ -607,20 +607,34 @@ StatusCode TrigSteer::execute()
       (*m_log) << MSG::DEBUG << "LvlConverter returned: " << strErrorCode(ec) << endreq;
    }
 
-   // figure out if event is passed
+   // figure out if event is passed on physics stream
 
    bool eventPassed = false;  
+   bool isPhysicsAccept = false;
    for (std::vector<HLT::SteeringChain*>::iterator iterChain = m_activeChains.begin();
         iterChain != m_activeChains.end(); ++iterChain) {
       // check whether the event is accepted
       eventPassed = (*iterChain)->chainPassed() || eventPassed;
+      if (eventPassed && isPhysicsAccept) break;
+      if ( (*iterChain)->chainPassed() && !isPhysicsAccept) {
+	// and get all streams from the chain
+	for (auto chain_stream : (*iterChain)->getStreamTags()){
+	  if ( chain_stream.getType() == "physics" ){
+	    isPhysicsAccept=true;
+	    (*m_log) << MSG::DEBUG << "FPP chain "<< (*iterChain)->getChainName()  <<" gives Physics Accepts" << endreq;
+	  }
+	  break;
+	}
+      }
+
    }
 
    // run on the prescaled chains, but only if trigger decision was positive
    if (m_doTiming) m_timerTotalRerun->reset();
 
    if (m_enableRerun){
-      if (eventPassed && canContinueEvent(ec) ) {
+      if (eventPassed && isPhysicsAccept && canContinueEvent(ec) ) {
+	(*m_log) << MSG::DEBUG << "FPP Start rerun " << endreq;
          // calculate trigger decision for prescaled chains
          if (m_doTiming) m_timerTotalRerun->start();
          runChains(true);

@@ -1,4 +1,4 @@
-  
+
 MessageSvc.Format = "% F%52W%S%7W%R%T %0W%M"
 MessageSvc.OutputLevel = DEBUG
 MessageSvc.defaultLimit=10000
@@ -64,6 +64,14 @@ if "useTopoMenu" in dir() and useTopoMenu == True:
     include("TrigSteering/pureTopoSteering_menu.py")
 else:
     include("TrigSteering/pureSteering_menu.py")
+
+# GEOMETRY AND MUON CABLING CONFIG
+from AthenaCommon.DetFlags import DetFlags; 
+DetFlags.detdescr.Muon_setOn();
+from AtlasGeoModel import SetGeometryVersion;
+from AtlasGeoModel import GeoModelInit
+import MuonCnvExample.MuonCablingConfig
+
 
 #include("./pureSteering_menu.py")
 # generate default L1 file
@@ -320,5 +328,6 @@ print job
 #print theApp.services()
 #log.info("print ServicesMgr:")
 #print ServiceMgr
+
 
 
