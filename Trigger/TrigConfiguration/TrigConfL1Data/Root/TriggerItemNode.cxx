@@ -244,7 +244,7 @@ TrigConf::TriggerItemNode::buildLogic(std::vector<std::string> & conditionList,
              m_Threshold->type() != L1DataDef::pclkType() &&
              m_Threshold->type() != L1DataDef::bgrpType()) {
             std::string name = m_Threshold->name();
-            name += "_x" + m_Multiplicity;
+            name += "_x" + std::to_string(m_Multiplicity);
             condition += '0' + m_Multiplicity;
             condition += "," + name;
             condition += "," + m_Threshold->name();

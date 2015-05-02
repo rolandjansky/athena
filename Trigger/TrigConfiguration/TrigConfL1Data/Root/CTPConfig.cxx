@@ -100,10 +100,10 @@ CTPConfig::print(const std::string& indent, unsigned int detail) const {
       cout << indent << "-----------------" << endl;
       menu().print(indent+ "  ", detail);
       prescaleSet().print(indent+ "  ", detail);
-      prioritySet().print(indent+ "  ", detail);
+      //prioritySet().print(indent+ "  ", detail);
       bunchGroupSet().print(indent+ "  ", detail);
-      prescaledClock().print(indent+ "  ", detail);
-      deadTime().print(indent+ "  ", detail);
+      //prescaledClock().print(indent+ "  ", detail);
+      //deadTime().print(indent+ "  ", detail);
       random().print(indent+ "  ", detail);
       cout << indent << "==================================" << endl;
    }

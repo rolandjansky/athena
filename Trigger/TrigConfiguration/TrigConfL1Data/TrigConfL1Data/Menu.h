@@ -51,16 +51,16 @@ namespace TrigConf {
       Menu();
       ~Menu();
 
-      item_by_ctpid_t&           item_by_ctpid() { return m_TriggerItemVector.get<tag_ctpid>(); }
-      const item_by_ctpid_t&     item_by_ctpid() const { return m_TriggerItemVector.get<tag_ctpid>(); }
+      item_by_ctpid_t&           item_by_ctpid();
+      const item_by_ctpid_t&     item_by_ctpid() const;
 
-      item_by_name_t&            item_by_name() { return m_TriggerItemVector.get<tag_name_hash>(); }
-      const item_by_name_t&      item_by_name() const { return m_TriggerItemVector.get<tag_name_hash>(); }
+      item_by_name_t&            item_by_name();
+      const item_by_name_t&      item_by_name() const;
 
       // setter and getters
       void addTriggerItem(TriggerItem* ti);
-      const ItemContainer& itemVector() const { return m_TriggerItemVector; }
-      const ItemContainer& items() const { return m_TriggerItemVector; }
+      const ItemContainer& itemVector() const;
+      const ItemContainer& items() const;
       TriggerItem* findTriggerItem(int ctpid) const { return item(ctpid); }
       TriggerItem* item(int ctpid) const;
       TriggerItem* item(const std::string& name) const;
@@ -69,6 +69,7 @@ namespace TrigConf {
       const std::vector<ThresholdMonitor*>& moncountVector() const { return m_ThresholdMonitorVector; }
       const std::vector<PIT*>&              pitVector() const { return m_PITs; }
       const std::vector<TIP*>&              tipVector() const { return m_TIPs; }
+      const std::map<unsigned int, std::string>& lutOutputNames() const { return m_LUT; }
       const ThresholdConfig& thresholdConfig() const { return m_ThresholdConfig; }
       const CaloInfo& caloInfo() const { return m_ThresholdConfig.caloInfo(); }
 
@@ -87,13 +88,16 @@ namespace TrigConf {
       void addThresholdMonitor(ThresholdMonitor* thrm);
       ThresholdMonitor* findThresholdMonitor(unsigned int id);
 
+      void addLutOutputName(unsigned int, const std::string &);
+      void setLutOutputNames(const std::map<unsigned int, std::string>& lut) { m_LUT = lut; }
+      
       void addPit(PIT* pit);
       PIT* findPIT(unsigned int id);
       
       void addTip(TIP* tip);
       TIP* findTIP(unsigned int id);
 
-      int size() const { return m_TriggerItemVector.size(); }
+      int size() const;
 
       virtual void print(const std::string& indent="", unsigned int detail=1) const;
 
@@ -109,11 +113,37 @@ namespace TrigConf {
 
    private:
       ThresholdConfig                m_ThresholdConfig;
+#ifndef __COVERITY__
       ItemContainer                  m_TriggerItemVector;
+#endif
       std::vector<ThresholdMonitor*> m_ThresholdMonitorVector;
       std::vector<PIT*>              m_PITs;
       std::vector<TIP*>              m_TIPs;
+      std::map<unsigned int, std::string> m_LUT;  // contains the conditions out of each LUT output
+
    };
+
+
+#ifndef __COVERITY__
+   inline
+   item_by_ctpid_t&           Menu::item_by_ctpid() { return m_TriggerItemVector.get<tag_ctpid>(); }
+   inline
+   const item_by_ctpid_t&     Menu::item_by_ctpid() const { return m_TriggerItemVector.get<tag_ctpid>(); }
+
+   inline
+   item_by_name_t&            Menu::item_by_name() { return m_TriggerItemVector.get<tag_name_hash>(); }
+   inline
+   const item_by_name_t&      Menu::item_by_name() const { return m_TriggerItemVector.get<tag_name_hash>(); }
+
+   inline
+   const ItemContainer& Menu::itemVector() const { return m_TriggerItemVector; }
+   inline
+   const ItemContainer& Menu::items() const { return m_TriggerItemVector; }
+
+   inline
+   int Menu::size() const { return m_TriggerItemVector.size(); }
+#endif
+
 }
 
 #endif

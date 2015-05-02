@@ -167,7 +167,7 @@ namespace {
       //std::cout << thrs.size() << ")"  << std::endl;
 
 
-      std::string::size_type last = logic.size();
+      //std::string::size_type last = logic.size();
 
       TriggerItemNode* thisNode(0);
       // tokenize
@@ -204,7 +204,8 @@ namespace {
       default:
          {
             std::string errMsg = "Unexpected character '";
-            errMsg += logic[pos] + "' in expression '" + logic + "' at position" + boost::lexical_cast<std::string,int>(pos) + " [a]";
+            errMsg += logic[pos];
+            errMsg += "' in expression '" + logic + "' at position" + boost::lexical_cast<std::string,int>(pos) + " [a]";
             throw std::logic_error(errMsg);
          }
          break;

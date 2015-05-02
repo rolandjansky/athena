@@ -60,8 +60,8 @@ TrigConf::CTPFiles::setFileSizes(unsigned int run) {
 
 
 // get the files 
-std::vector<uint32_t>
-TrigConf::CTPFiles::ctpcoreLUT() {
+const std::vector<uint32_t> &
+TrigConf::CTPFiles::ctpcoreLUT() const {
    return m_ctpcoreLUT;
 }
 
@@ -73,8 +73,8 @@ TrigConf::CTPFiles::setCtpcoreLUT( const std::vector<u_int>& vec)
    m_ctpcoreLUT = vec;
 }     
 
-std::vector<uint32_t> 
-TrigConf::CTPFiles::ctpcoreCAM() {
+const std::vector<uint32_t> &
+TrigConf::CTPFiles::ctpcoreCAM() const {
    return m_ctpcoreCAM;
 }
 
@@ -86,8 +86,8 @@ TrigConf::CTPFiles::setCtpcoreCAM( const std::vector<u_int>& vec ) {
 }
 
 // get the different decoder & selection files 
-std::vector<uint32_t>
-TrigConf::CTPFiles::ctpinMonSelectorSlot7() {
+const std::vector<uint32_t> &
+TrigConf::CTPFiles::ctpinMonSelectorSlot7() const {
    return m_ctpinMonSelectorSlot7;
 }
 
@@ -98,8 +98,8 @@ TrigConf::CTPFiles::setCtpinMonSelectorSlot7( const std::vector<u_int>& vec ) {
    m_ctpinMonSelectorSlot7 = vec;
 }
 
-std::vector<uint32_t>
-TrigConf::CTPFiles::ctpinMonSelectorSlot8() {
+const std::vector<uint32_t> &
+TrigConf::CTPFiles::ctpinMonSelectorSlot8() const {
    return m_ctpinMonSelectorSlot8;
 }
 
@@ -111,8 +111,8 @@ TrigConf::CTPFiles::setCtpinMonSelectorSlot8( const std::vector<u_int>& vec ) {
 }
 
 
-std::vector<uint32_t>
-TrigConf::CTPFiles::ctpinMonSelectorSlot9() {
+const std::vector<uint32_t> &
+TrigConf::CTPFiles::ctpinMonSelectorSlot9() const {
    return m_ctpinMonSelectorSlot9;
 }
 
@@ -124,8 +124,8 @@ TrigConf::CTPFiles::setCtpinMonSelectorSlot9( const std::vector<u_int>& vec ) {
 }
 
 
-std::vector<uint32_t>
-TrigConf::CTPFiles::ctpmonSelector() {
+const std::vector<uint32_t> &
+TrigConf::CTPFiles::ctpmonSelector() const {
    return m_ctpmonSelector;
 }
 
@@ -138,8 +138,8 @@ TrigConf::CTPFiles::setCtpmonSelector( const std::vector<u_int>& vec ) {
 }
  
 
-std::vector<uint32_t>
-TrigConf::CTPFiles::ctpinMonDecoderSlot7() {
+const std::vector<uint32_t> &
+TrigConf::CTPFiles::ctpinMonDecoderSlot7() const {
    return m_ctpinMonDecoderSlot7;
 }
 
@@ -149,8 +149,8 @@ void TrigConf::CTPFiles::setCtpinMonDecoderSlot7( const std::vector<u_int>& vec 
    m_ctpinMonDecoderSlot7 = vec;
 }
 
-std::vector<uint32_t>
-TrigConf::CTPFiles::ctpinMonDecoderSlot8() {
+const std::vector<uint32_t> &
+TrigConf::CTPFiles::ctpinMonDecoderSlot8() const {
    return m_ctpinMonDecoderSlot8;
 }
 
@@ -162,7 +162,8 @@ TrigConf::CTPFiles::setCtpinMonDecoderSlot8(const std::vector<u_int>& vec) {
 }
 
 
-std::vector<uint32_t> TrigConf::CTPFiles::ctpinMonDecoderSlot9() {
+const std::vector<uint32_t> &
+TrigConf::CTPFiles::ctpinMonDecoderSlot9() const {
    return m_ctpinMonDecoderSlot9;
 }
 
@@ -173,8 +174,8 @@ TrigConf::CTPFiles::setCtpinMonDecoderSlot9(const std::vector<u_int>& vec) {
    m_ctpinMonDecoderSlot9 = vec;
 }
 
-std::vector<uint32_t>
-TrigConf::CTPFiles::ctpmonDecoder() {
+const std::vector<uint32_t> &
+TrigConf::CTPFiles::ctpmonDecoder() const {
    return m_ctpmonDecoder;
 }
 

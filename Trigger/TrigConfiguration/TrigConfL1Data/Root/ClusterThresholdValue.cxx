@@ -4,6 +4,7 @@
 
 #include "TrigConfL1Data/ClusterThresholdValue.h"
 #include "TrigConfL1Data/HelperFunctions.h"
+#include "TrigConfL1Data/CaloInfo.h"
 #include <iostream>
 
 using namespace std;
@@ -29,30 +30,44 @@ TrigConf::ClusterThresholdValue::createCopy() const {
  
 int
 TrigConf::ClusterThresholdValue::emIsolationCount() const {
-   int count = static_cast<int>(m_EmIsolation*caloGlobalScaleGeVToCount());
-   if (count > fgCaloIsolationOff) count = fgCaloIsolationOff;
+
+   int count = static_cast<int>(m_EmIsolation * caloInfo().globalEmScale() );
+
+   if (count > fgCaloIsolationOff) {
+      count = fgCaloIsolationOff;
+   }
+
    return count;
 }
 
 int
 TrigConf::ClusterThresholdValue::hadIsolationCount() const {
-   int count = static_cast<int>(m_HadIsolation*caloGlobalScaleGeVToCount());
-   if (count > fgCaloIsolationOff) count = fgCaloIsolationOff;
+   int count = static_cast<int>(m_HadIsolation * caloInfo().globalEmScale() );
+   if (count > fgCaloIsolationOff) {
+      count = fgCaloIsolationOff;
+   }
    return count;
 }
 
 int
 TrigConf::ClusterThresholdValue::hadVetoCount() const {
-   int count = static_cast<int>(m_HadVeto*caloGlobalScaleGeVToCount());
-   if (count > fgCaloIsolationOff) count = fgCaloIsolationOff;
+   int count = static_cast<int>(m_HadVeto * caloInfo().globalEmScale() );
+   if (count > fgCaloIsolationOff) {
+      count = fgCaloIsolationOff;
+   }
    return count;
 }
 
 int
 TrigConf::ClusterThresholdValue::thresholdValueCount() const {
-   int count = static_cast<int>(m_Ptcut*caloGlobalScaleGeVToCount());
-   if (count > fgCaloClusterOff) count = fgCaloClusterOff;
-      return count;
+
+   int count = static_cast<int>(m_Ptcut * caloInfo().globalEmScale());
+
+   if (count > fgCaloClusterOff) {
+      count = fgCaloClusterOff;
+   }
+
+   return count;
 }
 
 void

@@ -4,6 +4,7 @@
 
 #include "TrigConfL1Data/EtThresholdValue.h"
 #include "TrigConfL1Data/L1DataDef.h"
+#include "TrigConfL1Data/CaloInfo.h"
 #include <iostream>
 
 using namespace std;
@@ -22,7 +23,9 @@ TrigConf::EtThresholdValue::createCopy() const{
 
 int
 TrigConf::EtThresholdValue::thresholdValueCount() const {
-   int count = static_cast<int>(m_Ptcut*caloGlobalScaleGeVToCount());
+
+   int count = static_cast<int>( m_Ptcut * caloInfo().globalJetScale() );
+
    if (type()==L1DataDef::jeType() && count > fgCaloJetEtOff) {
       count = fgCaloJetEtOff;
    } else if (type()==L1DataDef::teType() && count > fgCaloEtSumOff) {
@@ -30,6 +33,7 @@ TrigConf::EtThresholdValue::thresholdValueCount() const {
    } else if (type()==L1DataDef::xeType() && count > fgCaloEtMissOff) {
       count = fgCaloEtMissOff;
    }
+
    return count;
 }
 

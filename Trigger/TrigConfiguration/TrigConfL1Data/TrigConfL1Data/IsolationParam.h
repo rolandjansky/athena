@@ -28,7 +28,7 @@ namespace TrigConf {
       // getters
       bool isDefined() const { return m_isDefined; }
 
-      const std::string thrtype() const { return m_thrtype ; }
+      const std::string & thrtype() const { return m_thrtype ; }
       int isobit()       const { return m_isobit     ;} 
       int offset()       const { return m_offset     ;}
       int slope()        const { return m_slope      ;}
