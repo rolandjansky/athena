@@ -5,13 +5,11 @@
 __author__ = 'Renaud Bruneliere <Renaud.Bruneliere@cern.ch>'
 __doc__    = 'Print tct status. Usage tct_getstatus.py -h'
 
-import os,sys,datetime
+import os, sys, datetime, glob
 
 tctdir = '/afs/cern.ch/atlas/project/RTT/prod/Results/tct'
-jobstatus = ['\033[31mfailed    \033[0m','\033[32msuccessful\033[0m']
-castorstatus = ['\033[31mfiles not copied properly\033[0m','\033[32mall castor files ok\033[0m']
-jobstatusNoColor = ['failed    ','successful']
-castorstatusNoColor = ['files not copied properly','all castor files ok']
+jobstatus = ['\033[31mFailure\033[0m', '\033[32mSuccess\033[0m', '\033[37mN/A\033[m']
+jobstatusNoColor = ['Failure', 'Success', 'N/A']
 
 def parseCmdLine(args,itoday):
     # Parse options
@@ -35,8 +33,13 @@ def parseCmdLine(args,itoday):
     return config
 
 def getJobResults(workdir,config):
+    # Print out table header
+    print '%-65s  %-14s   %-14s   %-9s %-9s' % ('Job', 'Start', 'End', 'Test', 'Output')
+
     # Loop over jobs
-    for job in os.listdir(workdir):
+    jobs = [j for j in os.listdir(workdir)]
+    jobs.sort()
+    for job in jobs:
         if not os.path.isdir(workdir+'/'+job): continue
         if not os.path.isfile('%s/%s/rttjobinfo.xml' % (workdir,job)): continue # check only rtt job folders
         if not len(os.listdir(workdir+'/'+job)):
@@ -46,39 +49,56 @@ def getJobResults(workdir,config):
             if config.dump: config.file.write(strNoCol+'\n')
             continue
         jobnum = (os.listdir(workdir+'/'+job))[0]
-        if os.path.isfile('%s/%s/%s_log' % (workdir,job,job)):
-            host = ''
-            if os.path.isfile('%s/%s/%s_script_log' % (workdir,job,job)):
-                host = os.popen('grep "Job was executed on host" %s/%s/%s_script_log' % (workdir,job,job)).readlines()
-            if len(host): host = host[0].split()[5].strip(',')
-            ldate = []
-            if os.path.isfile('%s/%s/%s_script_log' % (workdir,job,job)):
-                ldate = os.popen('grep "Started at" %s/%s/%s_script_log' % (workdir,job,job)).readlines()
-            startdate='Unknown'
-            if len(ldate):
-                ldate = ldate[0].split()
-                startdate = "%3s%2s %8s" % (ldate[3],ldate[4],ldate[5])
+        jobLogPath = '%s/%s/%s_log' % (workdir, job, job)
+        if os.path.isfile(jobLogPath):
+            # get handles on the log files for the job itself and the job script
+            jobLog = open(jobLogPath, "r")
+            scriptLogPath = '%s/%s/%s_script_log' % (workdir,job,job)
+            scriptLog = open(scriptLogPath, "r")
+            # now let's get the start and end times for the job
+            
+            startTimeString = "Unknown"
+            endTimeString = "Unknown"
+
+            for line in scriptLog:
+                if "Started at" in line:
+                    words = line.split()
+                    startTimeString = "%3s%2s %8s" % (words[3], words[4], words[5])
+                elif "Results reported at" in line:
+                    words = line.split()
+                    endTimeString = "%3s%2s %8s" % (words[4], words[5], words[6])
+                if startTimeString != "Unknown" and endTimeString != "Unknown":
+                    break
+
+            # check if the batch job completed successfully
+            success = 0
+            for line in scriptLog:
+                if 'Successfully completed.' in line:
+                    success = 1
+                    break
+
+            jobLine      = '%-65s  %14s - %14s   %9s ' % (job,startTimeString,endTimeString,jobstatus[success])
+            jobLineNoCol = '%-65s  %14s - %14s   %9s ' % (job,startTimeString,endTimeString,jobstatusNoColor[success])
+            # do extra checks on file handling of reco jobs (at least RAWtoESD)
+            esdLogs = glob.glob('%s/%s/log.*toESD' % (workdir, job))
+            if len(esdLogs) > 0:
+                isCastorCopyOk = 0;
+                for line in jobLog:
+                    if 'All files copied from castor are ok !' in line:
+                        isCastorCopyOk = 1
+                        break
+                jobLine      = jobLine      + '  %-9s' % jobstatus[isCastorCopyOk]
+                jobLineNoCol = jobLineNoCol + '  %-9s' % jobstatusNoColor[isCastorCopyOk]
                 pass
-            teststr = 'ErrorCode=0 (OK)'
-            ftest = os.popen('grep "%s" %s/%s/%s_log' % (teststr,workdir,job,job))
-            itest = (len(ftest.readlines()) > 0)
-            recostr = 'Py:RAWtoESD'
-            freco = os.popen('grep "%s" %s/%s/%s_log' % (recostr,workdir,job,job))
-            ireco = (len(freco.readlines()) > 0)
-            castorstr = 'All files copied from castor are ok !'
-            fcastor = os.popen('grep "%s" %s/%s/%s_log' % (castorstr,workdir,job,job))
-            icastor = (len(fcastor.readlines()) > 0)
-            str = '%51s  %14s  %11s  %9s' % (job,startdate,host,jobstatus[itest])
-            strNoCol = '%51s  %14s  %11s  %9s' % (job,startdate,host,jobstatusNoColor[itest])
-            if ireco and job != 'Reconstruct_ttbar_RDO_Collisions':
-                str = str + '  %20s' % castorstatus[icastor]
-                strNoCol = strNoCol + '  %20s' % castorstatusNoColor[icastor]
-                pass
+            else:
+                jobLine      = jobLine      + '  %-9s' % jobstatus[2]
+                jobLineNoCol = jobLineNoCol + '  %-9s' % jobstatusNoColor[2]
         else:
-            strNoCol = str = '%40s  Not started yet' % (job)
+            jobLineNoCol = jobLine = '%40s  Not started yet' % (job)
             pass
-        print str
-        if config.dump: config.file.write(strNoCol+'\n')
+        print jobLine
+        if config.dump: 
+            config.file.write(jobLineNoCol+'\n')
         pass
     return
 
