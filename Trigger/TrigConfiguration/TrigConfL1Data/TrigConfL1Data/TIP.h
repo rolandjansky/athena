@@ -17,7 +17,7 @@ namespace TrigConf {
 		
       // Accessors
 		
-      std::string thresholdName() const {return m_ThresholdName;}
+      const std::string & thresholdName() const {return m_ThresholdName;}
       void setThresholdName(const std::string& name) {m_ThresholdName = name;}
 		
       uint16_t slot() const {return m_Slot;}

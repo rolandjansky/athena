@@ -79,12 +79,15 @@ CaloInfo::print(const std::string& indent, unsigned int /*detail*/) const {
    cout << indent <<  "================================================ " << endl; 
    cout << indent << "CaloInfo: " << endl; 
    printNameIdV(indent);
-   cout << indent << "  Global Scale: " << m_GlobalScale << endl;
-   cout << indent << "  JetWeights:   ";
-   for(unsigned int i=0; i<m_JetWeights.size(); ++i) {
-      cout << i << ": " << m_JetWeights[i] << ", ";
-      if((i+1)%6==0) cout << endl;
-      if(i==5) cout << indent << "                ";
+   cout << indent << "  Global em scale : " << globalEmScale() << endl;
+   cout << indent << "  Global jet scale: " << globalJetScale() << endl;
+   if(m_JetWeights.size()>0) {
+      cout << indent << "  JetWeights:   ";
+      for(unsigned int i=0; i<m_JetWeights.size(); ++i) {
+         cout << i << ": " << m_JetWeights[i] << ", ";
+         if((i+1)%6==0) cout << endl;
+         if(i==5) cout << indent << "                ";
+      }
    }
    m_METSigParam.print(indent);
    for(const IsolationParam & isop : m_IsolationHAIsoForEMthr) {

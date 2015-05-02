@@ -39,6 +39,8 @@ BunchGroupSet::setBGName(uint32_t i, const std::string& name) {
 
 void
 BunchGroupSet::fillPattern(uint32_t bitpos, const BunchGroup& bg) {
+   if(bitpos>=16) 
+      return;
    uint16_t bit = 0x1 << bitpos;
    const std::vector<int>& b = bg.bunches();
    for(size_t i=0; i<b.size(); ++i)

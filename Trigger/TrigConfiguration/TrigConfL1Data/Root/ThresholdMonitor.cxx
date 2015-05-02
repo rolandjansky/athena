@@ -42,19 +42,17 @@ TrigConf::ThresholdMonitor::~ThresholdMonitor()
 {}
    
 void
-TrigConf::ThresholdMonitor::print(const std::string& indent, unsigned int /*detail*/) const {
-   std::cout << indent << "MonCounter : '" << name() << "'" << std::endl;
-   std::cout << indent << "ThresholdId: " << m_ThresholdId << std::endl;
-   std::cout << indent << "ThresholdName: " << m_ThresholdName << std::endl;
-   std::cout << indent << "Ctpin slot: " << m_CtpinSlot << std::endl;
-   std::cout << indent << "Connector: " << m_CtpinConnector << std::endl;
-   std::cout << indent << "Multiplicity: " << m_Multiplicity << std::endl;
-   std::cout << indent << "Start bit: " << m_ThresholdStartBit << std::endl; 
-   std::cout << indent << "End bit: " << m_ThresholdEndBit << std::endl; 
-   std::cout << indent << "Active: " << m_ThresholdActive << std::endl;
-   std::cout << indent << "InternalCounter: " << m_InternalCounter << std::endl;
-   std::cout << indent << "BunchGroupId: " << m_BunchGroupId << std::endl;
-   std::cout << indent << "CounterType: " << m_CounterType << std::endl;
+TrigConf::ThresholdMonitor::print(const std::string& indent, unsigned int detail) const {
+   if(detail==3) {
+      cout << indent << "Monitor Counter :  " << name() << " (id=" << m_InternalCounter << ")" << endl;
+   }
+   if(detail>=4) {
+      cout << indent << "==================================" << endl;
+      cout << indent << "Monitor Counter :  " << name() << " (id=" << m_InternalCounter << ")" << endl;
+      cout << indent << "monitors " << m_CounterType << " threshold " << m_ThresholdName << " (id=" << m_ThresholdId << ") with multiplicity " << m_Multiplicity << endl;
+      cout << indent << "Slot " << m_CtpinSlot << ", connector " << m_CtpinConnector << ", bits " << m_ThresholdStartBit << " - " << m_ThresholdEndBit << ", bunch group " << m_BunchGroupId << endl;
+   }
+      
 }
 
 

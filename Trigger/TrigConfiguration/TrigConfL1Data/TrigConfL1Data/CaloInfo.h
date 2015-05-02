@@ -57,10 +57,10 @@ namespace TrigConf {
       unsigned int                       jetWindowSizeSmall() const { return m_JetWindowSizeSmall; }
       unsigned int                       jetWindowSizeLarge() const { return m_JetWindowSizeLarge; }
 
-      const MinTOBPt &                   minTobEM() { return m_tobEM; }
-      const MinTOBPt &                   minTobTau() { return m_tobTau; }
-      const MinTOBPt &                   minTobJetSmall() { return m_tobJetSmall; }
-      const MinTOBPt &                   minTobJetLarge() { return m_tobJetLarge; }
+      const MinTOBPt &                   minTobEM() const { return m_tobEM; }
+      const MinTOBPt &                   minTobTau() const { return m_tobTau; }
+      const MinTOBPt &                   minTobJetSmall() const { return m_tobJetSmall; }
+      const MinTOBPt &                   minTobJetLarge() const { return m_tobJetLarge; }
 
       // setters
       void setGlobalScale(double val) { m_GlobalScale = val; }

@@ -34,7 +34,7 @@ namespace TrigConf {
       int                ctpId()            const { return m_CtpId; }
       unsigned int       partition()        const { return m_Partition; }
       TriggerItemNode*   topNode()          const { return m_TopNode; }
-
+      unsigned short     monitor()          const { return m_Monitor; }
       uint16_t           bunchgroupMask()   const;
 
       // setters
@@ -55,6 +55,8 @@ namespace TrigConf {
                         const std::vector<std::string>& conditions,
                         const std::vector<TrigConf::TriggerThreshold*>& thrs);
 
+      void setMonitor(unsigned short monitor) { m_Monitor = monitor; }
+
       inline bool operator<(const TriggerItem& e) const {
          return ctpId() < e.ctpId();
       }
@@ -70,7 +72,7 @@ namespace TrigConf {
       int m_CtpId;
       unsigned int m_TriggerType; // 8 bit word (4 bit for secondary partitions
       unsigned int m_Partition; // 8 bit word
-
+      unsigned short m_Monitor; // 0x1 TBP, 0x2 TAP, 0x4 TAV
       friend std::ostream & operator<<(std::ostream &, const TrigConf::TriggerItem &);
    };
 

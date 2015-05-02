@@ -23,8 +23,10 @@ TrigConf::JetThresholdValue::createCopy() const{
 
 int
 JetThresholdValue::thresholdValueCount() const {
-   int count = static_cast<int>(m_Ptcut*caloGlobalScaleGeVToCount());
-   if (count > fgCaloJetOff) count = fgCaloJetOff;
+   int count = static_cast<int>(m_Ptcut * caloInfo().globalJetScale() );
+   if (count > fgCaloJetOff) {
+      count = fgCaloJetOff;
+   }
    return count;
 }
 
