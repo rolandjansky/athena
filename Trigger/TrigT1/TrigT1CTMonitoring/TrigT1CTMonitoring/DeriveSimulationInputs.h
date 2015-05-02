@@ -55,48 +55,47 @@ namespace TrigConf {
 
 namespace TrigT1CTMonitoring {
 
-  class DeriveSimulationInputs : public AthAlgorithm {
+   class DeriveSimulationInputs : public AthAlgorithm {
     
-  public:
+   public:
     
-    DeriveSimulationInputs( const std::string& name, ISvcLocator* pSvcLocator );
-    StatusCode DeriveL1CaloInput();
-    StatusCode DeriveL1CaloInput_fromSim();
-    //StatusCode ReadPitConfigFromCool();
-    StatusCode ReadInputMappingFromCool();
-    StatusCode fillPitMap(int pitNum, std::vector<TrigConf::PIT*> m_pitVector);
-		StatusCode fillFPIMap(int bitNum);
-    StatusCode fillStoreGate(unsigned int ctpVersionNum);
+      DeriveSimulationInputs( const std::string& name, ISvcLocator* pSvcLocator );
+      StatusCode DeriveL1CaloInput();
+      StatusCode DeriveL1CaloInput_fromSim();
+      //StatusCode ReadPitConfigFromCool();
+      StatusCode ReadInputMappingFromCool();
+      StatusCode fillPitMap(int pitNum, const std::vector<TrigConf::PIT*> & m_pitVector);
+      StatusCode fillFPIMap(int bitNum);
+      StatusCode fillStoreGate(unsigned int ctpVersionNum);
 
-    virtual StatusCode initialize();
-    virtual StatusCode beginRun();
-    virtual StatusCode execute();
-    virtual StatusCode finalize();
+      virtual StatusCode initialize();
+      virtual StatusCode beginRun();
+      virtual StatusCode execute();
+      virtual StatusCode finalize();
         
-    bool do_MuCTPI_input;
-    bool do_L1Calo_input;
-    bool do_L1Calo_sim;
+      bool do_MuCTPI_input {false};
+      bool do_L1Calo_input {false};
+      bool do_L1Calo_sim   {false};
 		
-    int N_cablebits; //same for CTPIN boards and front panel
-		
-    int N_slots_ctpin;
-    int N_connectors_ctpin;
-		int N_connectors_fp; //front panel
+      int N_cablebits {31}; // same for CTPIN boards and front panel
+      int N_slots_ctpin {3};
+      int N_connectors_ctpin {4};
+      int N_connectors_fp {3}; //front panel
 
-    ServiceHandle<TrigConf::ITrigConfigSvc> m_configSvc;
+      ServiceHandle<TrigConf::ITrigConfigSvc> m_configSvc;
 
-    int CTPINCables[31][3][4]; //[cableBits][slots][connectors] for inputs arriving at CTPIN boards
-    int FPCables[31][3][2]; //[cableBits][connectors][clock] for inputs arriving at CTPCORE front panel (as of runII)
-    std::vector<TrigConf::PIT*> m_pitVector;
+      int CTPINCables[31][3][4]; //[cableBits][slots][connectors] for inputs arriving at CTPIN boards
+      int FPCables[32][3][2]; //[cableBits][connectors][clock] for inputs arriving at CTPCORE front panel (as of runII)
+      std::vector<TrigConf::PIT*> m_pitVector;
 
-    ~DeriveSimulationInputs();
+      ~DeriveSimulationInputs();
 
-  private:
+   private:
     
-    std::vector<std::string> par_atrlist;   
-    std::vector<std::string> par_atrcollist;
+      std::vector<std::string> par_atrlist;   
+      std::vector<std::string> par_atrcollist;
     
-  }; 
+   }; 
 }
 #endif //
   
