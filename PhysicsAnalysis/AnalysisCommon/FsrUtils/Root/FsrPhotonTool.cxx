@@ -11,7 +11,11 @@
 namespace FSR {
 
    FsrPhotonTool::FsrPhotonTool( const std::string& name )
-      : asg::AsgTool( name ) {
+       : asg::AsgTool( name ),
+         m_photons(0),
+         m_electrons(0),
+         m_fsr_type(FsrCandidate::FsrUnknown)
+{
 
 	   declareProperty( "high_et_min", m_high_et_min = 3500. );
 	   declareProperty( "overlap_el_ph", m_overlap_el_ph = 0.01 );
@@ -54,12 +58,12 @@ namespace FSR {
       }
       candidate = FsrCandidate();
       ATH_MSG_DEBUG( "Fsr candidate  f1 = " << candidate.f1
-                << ", topoEtcone40 = " << candidate.topoEtcone40
-                << ", deltaR = " << candidate.deltaR
-                << ", Et = " << candidate.Et
-                << ", Eta = " << candidate.eta
-                << ", Phi = " << candidate.phi
-                << ", type = " <<candidate.type);
+                     << ", topoEtcone40 = " << candidate.topoEtcone40
+                     << ", deltaR = " << candidate.deltaR
+                     << ", Et = " << candidate.Et
+                     << ", Eta = " << candidate.eta
+                     << ", Phi = " << candidate.phi
+                     << ", type = " <<candidate.type);
       return CP::CorrectionCode::Error;
 
    }
@@ -73,8 +77,8 @@ namespace FSR {
 
        if (0 == photons) {
            // Retrieve the photon container:
-           if( evtStore()->retrieve( m_photons, "PhotonCollection" ).isFailure() ) {
-               ATH_MSG_WARNING( "No PhotonCollection object could be retrieved" );
+           if( evtStore()->retrieve( m_photons, "Photons" ).isFailure() ) {
+               ATH_MSG_WARNING( "No Photon Collection object could be retrieved" );
            }
        }
        else {
@@ -84,8 +88,8 @@ namespace FSR {
        
        if (0 == electrons) {
            // Retrieve the electron container:
-           if( evtStore()->retrieve( m_electrons, "ElectronCollection" ).isFailure() ) {
-               ATH_MSG_WARNING( "No ElectronCollection object could be retrieved" );
+           if( evtStore()->retrieve( m_electrons, "Electrons" ).isFailure() ) {
+               ATH_MSG_WARNING( "No Electron Collection object could be retrieved" );
            }
        }
        else {
@@ -98,7 +102,7 @@ namespace FSR {
    	/// Muon     : In case collinar fsr not found, check the far fsr
    
    	/// Set FSR type to far
-   	fsr_type = FsrCandidate::FsrType::FsrUnknown;
+   	m_fsr_type = FsrCandidate::FsrType::FsrUnknown;
    
    	const xAOD::Electron* electron = dynamic_cast<const xAOD::Electron*>(part);
    	if (electron) {
@@ -107,7 +111,7 @@ namespace FSR {
    
    	const xAOD::Muon* muon = dynamic_cast<const xAOD::Muon*>(part);
    	if (muon) {
-   		std::vector<FsrCandidate>* nearlist = getNearFsrCandidateList(part);
+   		std::vector<FsrCandidate>* nearlist = getNearFsrCandidateList(muon);
    		return (nearlist->size() > 0) ? nearlist : getFarFsrCandidateList(part);
    	}
    
@@ -118,7 +122,7 @@ namespace FSR {
    std::vector<FsrCandidate>* FsrPhotonTool::getFarFsrCandidateList(const xAOD::IParticle* part)
    {
    	/// Set FSR type to far
-   	fsr_type = FsrCandidate::FsrType::FsrFar;
+   	m_fsr_type = FsrCandidate::FsrType::FsrFar;
    	std::vector< std::pair <const xAOD::IParticle*, double> > farFsrCandList;
    	farFsrCandList.clear();
    	farFsrCandList.reserve(m_photons->size());
@@ -139,10 +143,10 @@ namespace FSR {
    
    			double dr = deltaR(part->eta(), part->phi(), photon->eta(), photon->phi());
    
-   			ATH_MSG_DEBUG( "Far Fsr candidate kinematics : aouthor  " << photon->author()
-   								<< " Et = " << photon->p4().Et()
-   								<< " tight = " << is_tight_photon
-   								<< " etcone = " << topoetcone40
+   			ATH_MSG_DEBUG( "Far Fsr candidate kinematics : author  " << photon->author()
+                                       << " Et = " << photon->p4().Et()
+                                       << " tight = " << is_tight_photon
+                                       << " etcone = " << topoetcone40
                                      );
    			if(dr > m_far_fsr_drcut) {
    				farFsrCandList.push_back(std::make_pair(photon, dr));
@@ -155,17 +159,17 @@ namespace FSR {
    }
 
 
-   std::vector<FsrCandidate>* FsrPhotonTool::getNearFsrCandidateList(const xAOD::IParticle* part)
+   std::vector<FsrCandidate>* FsrPhotonTool::getNearFsrCandidateList(const xAOD::Muon* muon)
    {
    	/// Set FSR type to far
-   	fsr_type = FsrCandidate::FsrType::FsrNear;
+   	m_fsr_type = FsrCandidate::FsrType::FsrNear;
    	/// Start looking for collinar FSR for muons
    	/// Loop over photon candidates and choose the FSR photons
    	std::vector< std::pair <const xAOD::IParticle*, double> >  nearFsrCandList;
    
    	nearFsrCandList.reserve(m_photons->size()+m_electrons->size());
    	ATH_MSG_DEBUG( "In getNearFsrCandidateList function : photon size = " << m_photons->size()
-   						<< ", electron size = " << m_electrons->size());
+                       << ", electron size = " << m_electrons->size());
    
    	for (auto photon : *m_photons) {
    		float photon_f1;
@@ -177,16 +181,17 @@ namespace FSR {
    		   ||(    (photon->author() == 128) && (photon_f1 > m_topo_f1cut)
    			   && ((m_etcut < photon->p4().Et()) && (photon->p4().Et() <= m_high_et_min)) )  ) {
    
-   			double dr = deltaR(part->eta(), part->phi(), photon->eta(), photon->phi());
+   			double dr = deltaR(muon->eta(), muon->phi(), photon->eta(), photon->phi());
    
    			// ph_cl_eta/phi should be used in duplicate
    			if (   (photon->author() == 128 && dr < m_topo_drcut)
    			    || (std_photon_author && dr < m_drcut)  ) {
    				nearFsrCandList.push_back(std::make_pair(photon, dr));
-   				ATH_MSG_DEBUG( "Near Fsr candidates ( photon ) kinematics ; aouthor  " << photon->author()
-   												<< " Et = " << photon->p4().Et()
-   												<< " f1 = " << photon_f1
-   												<< " dr = " << dr );
+   				ATH_MSG_DEBUG( "Near Fsr candidates ( photon ) kinematics ; author  "
+                                               << photon->author()
+                                               << " Et = " << photon->p4().Et()
+                                               << " f1 = " << photon_f1
+                                               << " dr = " << dr );
    			}
    		}
    	}
@@ -200,24 +205,51 @@ namespace FSR {
            if ( (nearFsrCandList.size() > 0) && isOverlap(electron, nearFsrCandList, nofPhFsr) ) continue;
    
            const xAOD::TrackParticle* electron_track = electron->trackParticle();
+           const xAOD::TrackParticle* muon_track     = muon->primaryTrackParticle();
    
-           bool elmutrackmatch = (    (fabs(electron_track->theta()-part->p4().Theta()) < m_overlap_el_mu)
-                                   && (fabs(electron_track->phi()-part->phi())     < m_overlap_el_mu) );
+           bool elmutrackmatch = (    (fabs(electron_track->theta()- muon_track->theta()) < m_overlap_el_mu)
+                                   && (fabs(electron_track->phi()  - muon_track->phi())   < m_overlap_el_mu) );
            float electron_f1;
            electron->showerShapeValue(electron_f1, xAOD::EgammaParameters::f1);
-   
-           if(    (elmutrackmatch) && (electron->p4().Et() > m_etcut) && (electron->p4().Et() > m_high_et_min)
-               && ( electron_f1 > m_f1cut ) ) {
-               double dr = deltaR(part->eta(), part->phi(), electron->eta(), electron->phi());
+
+           // Get the corrected cluster energy:
+           //  if the electron energy has been calibrated, we apply the change applied to the
+           //  electron four vector assuming that the uncorrected energy is
+           //  Eclus/cosh(track_eta). This will not work if an e-p combination has also been
+           //  applied, and so the following will have to change.  RDS 04/2015.
+           float eCorr = electron->p4().Et()/(electron->caloCluster()->e()/cosh(electron->trackParticle()->eta()));
+           float clEt  = eCorr*electron->caloCluster()->et();
+
+           ATH_MSG_VERBOSE( "Near Fsr candidate ( electron ) Et = " << clEt << " eCorr " << eCorr);
+           
+           if(    (elmutrackmatch) && (clEt > m_etcut) && (clEt > m_high_et_min)
+                  && ( electron_f1 > m_f1cut ) ) {
+               double dr = deltaR(muon->eta(), muon->phi(), electron->caloCluster()->eta(), electron->caloCluster()->phi());
    
                if ( dr < m_drcut ) {
-               	nearFsrCandList.push_back(std::make_pair(electron, dr));
-               	ATH_MSG_DEBUG( "Near Fsr candidates ( electron ) kinematics : aouthor  "
-               			        << electron->author()
-   								<< " Et = " << electron->p4().Et()
-   								<< " f1 = " << electron_f1
-   								<< " dr = " << dr );
+                   nearFsrCandList.push_back(std::make_pair(electron, dr));
+                   ATH_MSG_DEBUG( "Near Fsr candidates ( electron ) kinematics : author  "
+                                  << electron->author()
+                                  << " Et = " << clEt
+                                  << " f1 = " << electron_f1
+                                  << " dr = " << dr );
                }
+               else ATH_MSG_VERBOSE( "FAILED Near Fsr candidates ( electron ) kinematics : author  "
+                                     << electron->author()
+                                     << " Et = " << clEt
+                                     << " f1 = " << electron_f1
+                                     << " dr = " << dr );
+           }
+           else {
+               ATH_MSG_VERBOSE( "FAILED Near Fsr candidates ( electron ) kinematics : author  "
+                                << electron->author()
+                                << " Et = " << clEt
+                                << " f1 = " << electron_f1
+                                << " dr = " << deltaR(muon->eta(), muon->phi(), electron->caloCluster()->eta(), electron->caloCluster()->phi())
+                                << " theta/phi el/mu " << electron_track->theta() << "/" << muon->p4().Theta()
+                                << "/" << electron_track->phi() << "/" << muon->phi()
+                                << " theta/phi mu trk " << muon_track->theta() << "/" << muon_track->phi()
+                                );
            }
        }
    
@@ -237,25 +269,45 @@ namespace FSR {
            const xAOD::IParticle* particle = FsrCandList.at(i).first;
            const xAOD::Electron* electron = dynamic_cast<const xAOD::Electron*>(particle);
            const xAOD::Photon* photon = dynamic_cast<const xAOD::Photon*>(particle);
-           float part_f1, part_isolation;
-           if ( electron )
-           {
+           float part_f1(-999), part_isolation(-999);
+           if ( electron ){
            	c.container =   "electron" ;
            	electron->showerShapeValue(part_f1, xAOD::EgammaParameters::f1);
            	electron->isolationValue(part_isolation, xAOD::Iso::topoetcone40);
-           } else {
+                // Use the cluster pt/eta/phi when considering the electron to be an FSR photon
+                // setup accessor for electron cluster corrected energy
+
+                // Get the corrected cluster energy:
+                //  if the electron energy has been calibrated, we apply the change applied to the
+                //  electron four vector assuming that the uncorrected energy is
+                //  Eclus/cosh(track_eta). This will not work if an e-p combination has also been
+                //  applied, and so the following will have to change.  RDS 04/2015.
+                float eCorr = electron->p4().Et()/(electron->caloCluster()->e()/cosh(electron->trackParticle()->eta()));
+                float clEt  = eCorr*electron->caloCluster()->et();
+                c.Et  = clEt;
+                c.eta = electron->caloCluster()->eta();
+                c.phi = electron->caloCluster()->phi();
+           }
+           else if ( photon ) {
            	c.container =   "photon";
            	photon->showerShapeValue(part_f1, xAOD::EgammaParameters::f1);
            	photon->isolationValue(part_isolation, xAOD::Iso::topoetcone40);
+                c.Et  = photon->p4().Et();
+                c.eta = photon->eta();
+                c.phi = photon->phi();
+           }
+           else {
+               ATH_MSG_WARNING( "sortFsrCandidates: undefined particle - NOT electron nor photon. Should never get here!" );
+           	c.container =   "";
+                c.Et  = 0;
+                c.eta = 0;
+                c.phi = 0;
            }
            c.f1 = part_f1;
            c.topoEtcone40 = part_isolation;
            c.particle     = particle;
            c.deltaR       = FsrCandList.at(i).second;
-           c.Et           = particle->p4().Et();
-           if(c.deltaR < 0.05) c.Et = particle->p4().Et()-(400./cosh(particle->eta()));
-           c.eta = particle->eta();
-           c.phi = particle->phi();
+           if(c.deltaR < 0.05) c.Et -= 400./cosh(particle->eta());
            c.type         = (c.deltaR > m_far_fsr_drcut) ? FsrCandidate::FsrFar : FsrCandidate::FsrNear;
            m_fsrPhotons.push_back(c);
        }
@@ -271,7 +323,11 @@ namespace FSR {
    	for (unsigned int indx=0; indx < nofPhFsr; indx++ ) {
    		const xAOD::Photon* ph = dynamic_cast<const xAOD::Photon*>(phfsr.at(indx).first);
    		const xAOD::CaloCluster* ph_cl = ph->caloCluster();
-   		double dr = deltaR(electron->eta(), electron->phi(), ph_cl->eta(), ph_cl->phi());
+   		const xAOD::CaloCluster* el_cl = electron->caloCluster();
+   		double dr = deltaR(el_cl->eta(), el_cl->phi(),
+                                   ph_cl->eta(), ph_cl->phi());
+                ATH_MSG_VERBOSE( "isOverlap dr, ets " << (dr < m_overlap_el_ph) << "/" << dr << "/"
+                                 << ph_cl->et() << "/" << el_cl->et());
    		if ( dr < m_overlap_el_ph ) return true;
    	}
    	return false;

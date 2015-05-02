@@ -119,7 +119,7 @@ int main( int argc, char* argv[] )
       // Loop over muons
       for( auto muon : *muons ) {
 
-         if ( fsrTool.getFsrPhoton(muon, candidate) )
+         if (CP::CorrectionCode::Ok != fsrTool.getFsrPhoton(muon, candidate))
          {
             Info( APP_NAME, " FSR candidate found !!!!!!!! ");
             Info( APP_NAME, " container = %s deltaR = %f Et = %f f1 = %f"
@@ -140,11 +140,11 @@ int main( int argc, char* argv[] )
 
          if (candidate.container == "photon" ) {
             const xAOD::Photon* photon = dynamic_cast<const xAOD::Photon*>(candidate.particle);
-            fsr_energy = photon->e();
+            if (photon) fsr_energy = photon->e();
          } 
          else if (candidate.container == "electron" ) {
             const xAOD::Electron* electron = dynamic_cast<const xAOD::Electron*>(candidate.particle);
-            fsr_energy = electron->e();
+            if (electron) fsr_energy = electron->e();
          } else
             Info(APP_NAME, " FSR candidate particle is unknown " );
 
