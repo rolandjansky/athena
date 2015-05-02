@@ -37,6 +37,7 @@ public:
 
 	  /// retrieve booked histograms
 	  virtual std::vector<HistData> retrieveBookedHistograms() = 0;
+      virtual std::vector<std::pair <TGraph*,  std::string> > retrieveBookedGraphs() = 0;
 	  virtual void CalcEff () = 0;
 };
 

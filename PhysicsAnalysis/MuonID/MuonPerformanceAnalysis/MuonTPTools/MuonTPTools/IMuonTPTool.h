@@ -9,6 +9,7 @@
 
 #include "AsgTools/IAsgTool.h"
 
+#include "TTree.h"
 #include "xAODMuon/MuonContainer.h"
 #include "xAODBase/IParticleContainer.h"
 #include "MuonPerformanceHistUtils/MuonTPEfficiencyPlots.h"
@@ -18,12 +19,15 @@ class IMuonTPTool : virtual public asg::IAsgTool {
 
 public:
 
-  /// run the tag-and-probe 
-  virtual void runTagAndProbe(const xAOD::MuonContainer*, const xAOD::IParticleContainer*, const xAOD::IParticleContainer*) const =0;
+    /// run the tag-and-probe 
+    virtual void runTagAndProbe(const xAOD::MuonContainer*, const xAOD::IParticleContainer*, const xAOD::IParticleContainer*) =0;
 
-  /// retrieve booked histograms
-  virtual std::vector<HistData> retrieveBookedHistograms() = 0;
-  virtual void UpdateEfficiencies() = 0;
+    /// retrieve booked histograms
+    virtual std::vector<HistData> retrieveBookedHistograms() = 0;
+    virtual std::vector<std::pair < TTree*, std::string> > retrieveBookedTrees() = 0;
+    ///Retrieve all booked graphs
+    virtual std::vector<std::pair <TGraph*,  std::string> > retrieveBookedGraphs() = 0;
+    virtual void UpdateEfficiencies() = 0;
 
 };
 

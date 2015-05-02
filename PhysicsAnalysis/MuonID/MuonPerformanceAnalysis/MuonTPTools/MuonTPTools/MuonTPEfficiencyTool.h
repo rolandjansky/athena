@@ -16,6 +16,7 @@
 #include "AsgTools/AsgTool.h"
 #include "AsgTools/ToolHandle.h"
 #include "MuonEfficiencyCorrections/MuonEfficiencyScaleFactors.h"
+#include "TrigMuonMatching/ITrigMuonMatching.h"
 
 class MuonTPEfficiencyTool
 : virtual public asg::AsgTool,
@@ -41,6 +42,9 @@ public:
 
   /// Get Efficiency Flag
   std::string efficiencyFlag() {return m_efficiencyFlag;}
+  
+  //  check for a trigger match (probe side)
+  bool MatchTrigger (const xAOD::IParticle* match,  std::string trigger) const;
 
 protected:
 
@@ -53,6 +57,8 @@ protected:
   ToolHandle<CP::IMuonSelectionTool> m_selection_tool;
   ToolHandle<CP::IMuonEfficiencyScaleFactors> m_sf_tool;
   bool m_do_sf;
+//   ToolHandle<Trig::TrigDecisionTool> m_trigTool;
+  ToolHandle<Trig::ITrigMuonMatching> m_matchTool;
 
 };
 

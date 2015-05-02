@@ -9,19 +9,32 @@
  *      Author: goblirsc
  */
 
-#include "MuonTPTools/ZmumuMuonTPEfficiencyTool.h"
+#include "MuonTPTools/MuonRecoTPEfficiencyTool.h"
 
-ZmumuMuonTPEfficiencyTool::ZmumuMuonTPEfficiencyTool(std::string myname)
+MuonRecoTPEfficiencyTool::MuonRecoTPEfficiencyTool(std::string myname)
 : AsgTool(myname), MuonTPEfficiencyTool(myname) {
 	declareProperty("MatchToAnyMS",m_match_MS=false);
 	declareProperty("MatchToCB",m_match_CB=false);
+    declareProperty("MatchToLoose",m_match_Loose=false);
 	declareProperty("MatchToMedium",m_match_Medium=false);
+    declareProperty("MatchToLoose_noCaloTag",m_match_Loose_noCT=false);
+    declareProperty("MatchToTight",m_match_Tight=false);
 	declareProperty("MatchToID",m_match_ID=false);
 	declareProperty("MatchToCaloTag",m_match_CaloTag=false);
 	declareProperty("IDhitCut",m_do_IDHits=true);
 
+    declareProperty("MatchToMuidCB",m_match_MuidCB=false);
+    declareProperty("MatchToSTACO",m_match_STACO=false);
+    declareProperty("MatchToMuTag",m_match_MuTag=false);
+    declareProperty("MatchToMuTagIMO",m_match_MuTagIMO=false);
+    declareProperty("MatchToMuidSA",m_match_MuidSA=false);
+    declareProperty("MatchToMuGirl",m_match_MuGirl=false);
+    declareProperty("MatchToMuGirlLowBeta",m_match_MuGirlLowBeta=false);
+    declareProperty("MatchToCaloLikelihood",m_match_CaloLikelihood=false);
+    declareProperty("MatchToExtrapolateToIP",m_match_ExtrapolateToIP=false);
+
 }
-void ZmumuMuonTPEfficiencyTool::dRMatching(ProbeContainer* probes, const xAOD::IParticleContainer* matches) const
+void MuonRecoTPEfficiencyTool::dRMatching(ProbeContainer* probes, const xAOD::IParticleContainer* matches) const
 {
   // loop over probes
 
@@ -48,11 +61,13 @@ void ZmumuMuonTPEfficiencyTool::dRMatching(ProbeContainer* probes, const xAOD::I
 
       if (m_match_ID){
           xAOD::TrackParticle *trk = dynamic_cast<xAOD::TrackParticle*>(match);
-          if(trk && m_do_IDHits && !m_selection_tool->passedIDCuts(*trk)) continue;
+          if(!trk || (m_do_IDHits && !m_selection_tool->passedIDCuts(*trk))) continue;
       }
 
       // Calculate dR
       double dR = deltaR(probe, match);
+
+      // test pointer-level matching! 
       if(dR < dRMin) {
 		dRMin = dR;
 		matchProbe = probe;
@@ -71,7 +86,7 @@ void ZmumuMuonTPEfficiencyTool::dRMatching(ProbeContainer* probes, const xAOD::I
     }
   }
 }
-bool ZmumuMuonTPEfficiencyTool::GoodMatchMuonType(const xAOD::IParticle* probe) const{
+bool MuonRecoTPEfficiencyTool::GoodMatchMuonType(const xAOD::IParticle* probe) const{
 
     const xAOD::Muon* mumatch = dynamic_cast <const xAOD::Muon*> (probe);
 
@@ -80,27 +95,65 @@ bool ZmumuMuonTPEfficiencyTool::GoodMatchMuonType(const xAOD::IParticle* probe) 
 
     // otherwise, we have to manually pick the right probe
 
-    // ID Probe
+    // ID Track
     if (m_match_ID){
         return (mumatch->trackParticle(xAOD::Muon::InnerDetectorTrackParticle) != NULL);
     }
-    // CT Probe
+    // CT Match
 
     if (m_match_CaloTag){
         return (mumatch &&  m_selection_tool->passedCaloTagQuality(*mumatch) &&  mumatch->isAuthor(xAOD::Muon::CaloTag) );
     }
-    // MS Probe
+    // MS Match
     if (m_match_MS){
         return ((mumatch->muonType() == xAOD::Muon::MuonStandAlone || mumatch->muonType() == xAOD::Muon::Combined) && mumatch->trackParticle(xAOD::Muon::MuonSpectrometerTrackParticle)!= NULL);
     }
-    // CB probe
+    // CB Match
     if (m_match_CB){
         return (mumatch->muonType() == xAOD::Muon::Combined && mumatch->trackParticle(xAOD::Muon::CombinedTrackParticle) != NULL);
     }
-    if (m_match_Medium){
-        bool ok = (mumatch->muonType() == xAOD::Muon::Combined && mumatch->trackParticle(xAOD::Muon::CombinedTrackParticle) != NULL );
-        ok &= mumatch->quality()==xAOD::Muon::Medium;
+    if (m_match_Loose){
+        bool ok = (m_selection_tool->getQuality(*mumatch) <= xAOD::Muon::Loose );
         return ok;
+    }
+    if (m_match_Loose_noCT){
+        bool ok = (m_selection_tool->getQuality(*mumatch) <= xAOD::Muon::Loose && mumatch->muonType() != xAOD::Muon::CaloTagged  );
+        return ok;
+    }
+    if (m_match_Medium){
+        bool ok = (m_selection_tool->getQuality(*mumatch) <= xAOD::Muon::Medium );
+        return ok;
+    }
+    if (m_match_Tight){
+        bool ok = (m_selection_tool->getQuality(*mumatch) <= xAOD::Muon::Tight );
+        return ok;
+    }
+    if (m_match_MuidCB){
+        return (mumatch->isAuthor(xAOD::Muon::MuidCo));
+    }
+    if (m_match_STACO){
+        return (mumatch->isAuthor(xAOD::Muon::STACO));
+    }
+    if (m_match_MuTag){
+        return (mumatch->isAuthor(xAOD::Muon::MuTag));
+    }
+    if (m_match_MuTagIMO){
+        return (mumatch->isAuthor(xAOD::Muon::MuTagIMO));
+    }
+    if (m_match_MuidSA){
+        return (mumatch->isAuthor(xAOD::Muon::MuidSA));
+    }
+    if (m_match_MuGirl){
+        return (mumatch->isAuthor(xAOD::Muon::MuGirl));
+    }
+    if (m_match_MuGirlLowBeta){
+        return (mumatch->isAuthor(xAOD::Muon::MuGirlLowBeta));
+    }
+    if (m_match_CaloLikelihood){
+        return (mumatch->isAuthor(xAOD::Muon::CaloLikelihood));
+    }
+    if (m_match_ExtrapolateToIP){
+        return (mumatch->isAuthor(xAOD::Muon::ExtrapolateMuonToIP));
     }
     return false;
 }
