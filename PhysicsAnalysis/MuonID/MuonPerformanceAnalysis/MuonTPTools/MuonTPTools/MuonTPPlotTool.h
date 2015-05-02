@@ -41,6 +41,7 @@ public:
 
 		  /// retrieve booked histograms
 		std::vector<HistData> retrieveBookedHistograms();
+        std::vector<std::pair <TGraph*,  std::string> > retrieveBookedGraphs();
 
 		virtual void CalcEff(void);
 
@@ -54,6 +55,12 @@ protected:
 		std::map<std::string,std::vector<MuonTPEfficiencyPlotBase*> > m_matchTPEffPlots;
 		std::map<std::string,std::vector<MuonTPEfficiencyPlotBase*> > m_effTPEffPlots;
 		std::map<std::string,std::vector<MuonTPCutFlowBase*> > m_TPcutFlowPlots;
+
+        bool m_only_A_side;
+        bool m_only_C_side;
+        double m_probe_abseta_min;
+        double m_probe_abseta_max;
+        bool m_doAsymmErrors;
 };
 
 #endif /* MUONTPPLOTTOOL_H_ */

@@ -10,7 +10,7 @@
 //**********************************************************************
 
 MuonTPEfficiencyTool::MuonTPEfficiencyTool(std::string myname)
-: AsgTool(myname) {
+: AsgTool(myname),  m_matchTool("Trig::ITrigMuonMatching/TrigMuonMatching"){
   
   declareProperty("MatchPtCut",     m_matchPtCut     = 0.0); 
   declareProperty("MatchEtaCut",    m_matchEtaCut    = 5.0);
@@ -21,6 +21,7 @@ MuonTPEfficiencyTool::MuonTPEfficiencyTool(std::string myname)
   declareProperty("SelectionTool", m_selection_tool);
   declareProperty("ScaleFactorTool", m_sf_tool);
   declareProperty("ApplyScaleFactors", m_do_sf = false);
+  declareProperty("TriggerMatchTool", m_matchTool);
 }
 
 MuonTPEfficiencyTool::~MuonTPEfficiencyTool()
@@ -30,6 +31,7 @@ StatusCode MuonTPEfficiencyTool::initialize()
 {
    ATH_CHECK(m_selection_tool.retrieve());
    if (m_do_sf) ATH_CHECK(m_sf_tool.retrieve());
+  ATH_CHECK(m_matchTool.retrieve());
 
   return StatusCode::SUCCESS;
 }
@@ -108,3 +110,8 @@ double MuonTPEfficiencyTool::deltaR(Probe* probe, const xAOD::IParticle* match) 
 }
 //**********************************************************************
 
+  //  check for a trigger match (probe side)
+bool MuonTPEfficiencyTool::MatchTrigger (const xAOD::IParticle* match,  std::string trigger) const {
+    return m_matchTool->match(match->eta(),match->phi(),  trigger);
+    
+}

@@ -30,8 +30,11 @@ public:
 
 protected:
 		bool m_do_TPBasic;
+		bool m_do_TPFineEtaPhi;
+        bool m_do_DetRegions;
 		bool m_do_Valid;
 		bool m_do_DiLepton;
+        bool m_apply_SF;
 
 };
 

@@ -14,6 +14,12 @@
 MuonTPPlotTool::MuonTPPlotTool(std::string name)
 	  : AsgTool(name){
 	  declareProperty("EfficiencyFlag",        m_efficiencyFlag = "ZmmTP");
+
+      declareProperty("DoOnlyAside",      m_only_A_side = false);
+      declareProperty("DoOnlyCside",      m_only_C_side = false);
+      declareProperty("ProbeAbsEtaMin",      m_probe_abseta_min = -1.00);
+      declareProperty("ProbeAbsEtaMax",      m_probe_abseta_max = 100.00);
+      declareProperty("DoAsymmErrorGraphs",      m_doAsymmErrors = false);
 }
 
 StatusCode MuonTPPlotTool::RegisterPlots (ToolHandleArray<IMuonTPSelectionTool> & probeTools, ToolHandleArray<IMuonTPEfficiencyTool> & effTools){
@@ -42,7 +48,11 @@ StatusCode MuonTPPlotTool::RegisterPlots (ToolHandleArray<IMuonTPSelectionTool> 
 	    		  plot->initialize();
 	    	  }
 	    	  for (auto plot :  m_effTPEffPlots[dirs]){
-	    		  plot->initialize();
+                if (m_doAsymmErrors) {
+                    plot->SetDoAsymmErrors(m_doAsymmErrors);
+                    plot->BookAllAsymmErrors();
+                }
+                plot->initialize();
 	    	  }
 	      }
 	    }
@@ -67,6 +77,12 @@ std::vector<MuonTPCutFlowBase*> MuonTPPlotTool::AddCutFlowPlots(std::string){
  // fill the histos
  void MuonTPPlotTool::fill(Probe& probe, ToolHandle <IMuonTPSelectionTool> & tpSelTool, ToolHandle <IMuonTPEfficiencyTool> eff_tool){
 
+     double feta = fabs(probe.eta());
+     if (feta < m_probe_abseta_min) return;
+     if (feta > m_probe_abseta_max) return;
+     if (probe.eta() > 0 && m_only_A_side) return;
+     if (probe.eta() < 0 && m_only_C_side) return;
+     
      std::string dirs = m_efficiencyFlag+"/"+tpSelTool->efficiencyFlag()+"/"+eff_tool->efficiencyFlag();
      for (auto plot : m_probeTPEffPlots[dirs]){
     	 plot->fill(probe);
@@ -114,6 +130,30 @@ std::vector<MuonTPCutFlowBase*> MuonTPPlotTool::AddCutFlowPlots(std::string){
 	  }
 
 	  return histData;
+  }
+  std::vector<std::pair <TGraph*,  std::string > > MuonTPPlotTool::retrieveBookedGraphs(){
+
+      std::vector<std::pair <TGraph*,  std::string > > graphData;
+      for(auto plots : m_probeTPEffPlots) {
+          for (auto hist : plots.second){
+              std::vector<std::pair <TGraph*,  std::string > > graphDataTmp = hist->retrieveBookedGraphs();
+              graphData.insert(graphData.end(), graphDataTmp.begin(), graphDataTmp.end());
+          }
+      }
+      for(auto plots : m_matchTPEffPlots) {
+          for (auto hist : plots.second){
+              std::vector<std::pair <TGraph*,  std::string > > graphDataTmp = hist->retrieveBookedGraphs();
+              graphData.insert(graphData.end(), graphDataTmp.begin(), graphDataTmp.end());
+          }
+      }
+      for(auto plots : m_effTPEffPlots) {
+          for (auto hist : plots.second){
+              std::vector<std::pair <TGraph*,  std::string > > graphDataTmp = hist->retrieveBookedGraphs();
+              graphData.insert(graphData.end(), graphDataTmp.begin(), graphDataTmp.end());
+          }
+      }
+
+      return graphData;
   }
 void  MuonTPPlotTool::CalcEff(void){
 

@@ -10,6 +10,7 @@
  */
 
 #include "MuonTPTools/ZmumuMuonTPSelectionTool.h"
+// #include "../MuonTPTools/ZmumuMuonTPSelectionTool.h"
 
 ZmumuMuonTPSelectionTool::ZmumuMuonTPSelectionTool(std::string myname)
 : AsgTool(myname), MuonTPSelectionTool(myname) {
@@ -20,8 +21,17 @@ ZmumuMuonTPSelectionTool::ZmumuMuonTPSelectionTool(std::string myname)
   declareProperty("UseCaloProbes",  m_CaloProbe = false);
   declareProperty("UseTruthProbes",  m_TruthProbe = false);
 
-  declareProperty("TagIsoCut",  m_tagIsolation = 0.2);
-  declareProperty("ProbeIsoCut",  m_probeIsolation = -1);
+  declareProperty("TagTrackIsoCut",  m_tagPtConeIso = 0.2);
+  declareProperty("ProbeTrackIsoCut",  m_probePtConeIso = -1);
+  declareProperty("TagCaloIsoCut",  m_tagEtConeIso = 0.2);
+  declareProperty("ProbeCaloIsoCut",  m_probeEtConeIso = -1);
+
+  // for background studies
+
+  declareProperty("TagTrackAntiIsoCut",  m_tag_antiPtConeIso = -1);
+  declareProperty("ProbeTrackAntiIsoCut",  m_probe_antiPtConeIso = -1);
+  declareProperty("TagCaloAntiIsoCut",  m_tag_antiEtConeIso = -1);
+  declareProperty("ProbeCaloAntiIsoCut",  m_probe_antiEtConeIso = -1);
 
   declareProperty("AcceptSameCharge",  m_accept_sameCharge = false);
   declareProperty("AcceptOppCharge",  m_accept_oppCharge = true);
@@ -34,6 +44,13 @@ ZmumuMuonTPSelectionTool::ZmumuMuonTPSelectionTool(std::string myname)
   declareProperty("DoOnlyCside",      m_only_C_side = false);
   declareProperty("ProbeAbsEtaMin",      m_probe_abseta_min = -1.00);
   declareProperty("ProbeAbsEtaMax",      m_probe_abseta_max = 100.00);
+
+  declareProperty("TagD0Cut",      m_tag_d0 = -1);
+  declareProperty("TagD0SignCut",      m_tag_d0Sign = -1);
+  declareProperty("TagZ0Cut",      m_tag_z0 = -1);
+  declareProperty("ProbeD0Cut",      m_probe_d0 = -1);
+  declareProperty("ProbeD0SignCut",      m_probe_d0Sign = -1);
+  declareProperty("ProbeZ0Cut",      m_probe_z0 = -1);
 
 
   declareProperty("ProbeIDHitCut", m_probe_ID_hits = false);
@@ -54,6 +71,8 @@ ProbeContainer* ZmumuMuonTPSelectionTool::selectProbes(const xAOD::MuonContainer
   // use m_muonSelectionTool to select muons
   ProbeContainer* probeCont = new ProbeContainer();
   FillCutFlows("Processed");
+  if(!Event_Trigger()) return probeCont;
+  FillCutFlows("Trigger");
   bool have_tag = false;
   bool have_probe = false;
   // truth probes are selected separately
@@ -66,6 +85,7 @@ ProbeContainer* ZmumuMuonTPSelectionTool::selectProbes(const xAOD::MuonContainer
           FillCutFlows("TagPt");
           FillCutFlows("TagEta");
           FillCutFlows("TagTrigger");
+          FillCutFlows("TagIP");
           FillCutFlows("TagIsolation");
           if (!isFinalStateTruthMuon(probe)) {
               continue;
@@ -78,6 +98,7 @@ ProbeContainer* ZmumuMuonTPSelectionTool::selectProbes(const xAOD::MuonContainer
           FillCutFlows("ProbeKinematics");
           FillCutFlows("ProbeQuality");
           FillCutFlows("ProbeQuality");
+          FillCutFlows("ProbeIP");
           FillCutFlows("ProbeIsolation");
           FillCutFlows("ProbeInvMass");
           FillCutFlows("ProbeCharge");
@@ -97,34 +118,30 @@ ProbeContainer* ZmumuMuonTPSelectionTool::selectProbes(const xAOD::MuonContainer
         // select good muons (combined for the time being)
         // A muon selection tool should be used, but the tool
         // should be ASG dual-tool
-        if(tag->muonType() != xAOD::Muon::MuonType::Combined) continue;
-        // Could also cut on tag author, likely the same author of the probed efficiency
-        // if(m_muonTagAuthor!=21 && tag->author()!=m_muonTagAuthor) continue;
-
-        Root::TAccept tagResult = m_selection_tool->accept(*tag);		// we only use the ID cuts for now
+//         if(tag->muonType() != xAOD::Muon::MuonType::Combined) continue;
+        if (m_selection_tool->getQuality(*tag) > xAOD::Muon::Medium)  continue;
 
         if (!m_selection_tool->passedIDCuts(*tag)) continue;
-        // Cut on tag eta, pT
-
 
         FillCutFlows("TagQuality");
         if(tag->pt() < m_tagPtCut) continue;
         FillCutFlows("TagPt");
         if(fabs(tag->eta()) > m_tagEtaCut) continue;
         FillCutFlows("TagEta");
-        if(!this->passDummyTrigger(tag)) continue;
+        if(!this->TagTriggerMatch(tag)) continue;
         FillCutFlows("TagTrigger");
 
-        // tag iso cut
-        float tagiso = 0.;
-        bool haveIso = tag->isolation(tagiso,xAOD::Iso::ptcone40);
-        if (m_tagIsolation > 0 && (!haveIso || tagiso > m_tagIsolation * tag->p4().Pt())) continue;
+        if (!PassTagIPCuts(tag)) continue;
+        FillCutFlows("TagIP");
+
+        if (!PassTagIsoCuts(tag)) continue;
         FillCutFlows("TagIsolation");
+        
         have_tag = true;
         // for each selected tag, loop over probes
         for(auto probe : *probes) {
           // check the probe type
-          if (!isRightType(probe)) continue;          
+          if (!isRightType(probe)) continue;
 
           // remove the probe track matched to the tag
           if(isTag(tag, probe)) continue;
@@ -137,7 +154,7 @@ ProbeContainer* ZmumuMuonTPSelectionTool::selectProbes(const xAOD::MuonContainer
           // Cut on probe eta, pT
           if (!PassProbeKinematics(probe)) continue;
           FillCutFlows("ProbeKinematics");
-    
+
 
           // ID hits
           xAOD::Muon* probemu = dynamic_cast<xAOD::Muon*> (probe);
@@ -150,21 +167,12 @@ ProbeContainer* ZmumuMuonTPSelectionTool::selectProbes(const xAOD::MuonContainer
           }
           FillCutFlows("ProbeQuality");
 
-          // probe iso cut
-          if (m_probeIsolation > 0){
-              float probeiso = -1.;
-              bool probe_have_iso = false;
-              if (probemu){
-                  probe_have_iso = probemu->isolation(probeiso,xAOD::Iso::ptcone40);
-              }
-              else{
-                  probe_have_iso = true;
-                  probeiso = ptcone_trk(probe,probes,0.40);
-              }
-              if (! probe_have_iso || probeiso > m_probeIsolation * probe->p4().Pt()) continue;
-
-          }
+          if (!PassProbeIPCuts(probe)) continue;
+          FillCutFlows("ProbeIP");
+          
+          if (!PassProbeIsoCuts(probe)) continue;
           FillCutFlows("ProbeIsolation");
+          
           // Cut on tag-probe invariant mass
           double mtp = (tag->p4()+probe->p4()).M();
           if(mtp<m_lowMassWindow || mtp>m_highMassWindow) continue;
@@ -177,6 +185,20 @@ ProbeContainer* ZmumuMuonTPSelectionTool::selectProbes(const xAOD::MuonContainer
           if (cp == 1 && !m_accept_sameCharge) continue;
           if (cp == -1 && !m_accept_oppCharge) continue;
           FillCutFlows("ProbeCharge");    // does this work?
+//         if (m_MSProbe && m_accept_oppCharge && m_probe_antiEtConeIso < 0 && !probemu){
+//             const xAOD::TrackParticle* mutrk = dynamic_cast <const xAOD::TrackParticle*> (probe);
+//             uint8_t nPhiHits = 0;
+//             uint8_t nLayers = 0;
+//             uint8_t nHoleLayers = 0;
+//             uint8_t nPhiHoleLayers = 0;
+//             if (mutrk
+//                 && mutrk->summaryValue(nPhiHits,xAOD::numberOfPhiLayers)
+//                 && mutrk->summaryValue(nLayers,xAOD::numberOfPrecisionLayers)
+//                 && mutrk->summaryValue(nHoleLayers,xAOD::numberOfPrecisionHoleLayers)
+//                 && mutrk->summaryValue(nPhiHoleLayers,xAOD::numberOfPhiHoleLayers)
+//             )
+//             ATH_MSG_WARNING("MS probe has "<<(int)nPhiHits<<" phi hits, "<<(int)nLayers<<" precision layers, "<<(int)nHoleLayers<<" precision holes and "<< (int)nPhiHoleLayers<<" Phi holes");
+//         }
 
           // Delta Phi cut
           if (DeltaPhiTP(tag,probe) < m_deltaPhiCut) continue;
@@ -195,9 +217,73 @@ ProbeContainer* ZmumuMuonTPSelectionTool::selectProbes(const xAOD::MuonContainer
 }
 //**********************************************************************
 
+
+
+bool ZmumuMuonTPSelectionTool::PassTagIsoCuts (const xAOD::Muon* tag) const{
+     float tagiso = 0.0;
+     bool haveIso = tag->isolation(tagiso,xAOD::Iso::ptcone40);
+     if (m_tagPtConeIso > 0 && (!haveIso || tagiso > m_tagPtConeIso * tag->p4().Pt())) return false;
+     if (m_tag_antiPtConeIso > 0 && (!haveIso || tagiso < m_tag_antiPtConeIso * tag->pt())) return false;
+     bool haveEtIso = tag->isolation(tagiso,xAOD::Iso::topoetcone40);
+     if (m_tagEtConeIso > 0 && (!haveEtIso || tagiso > m_tagEtConeIso * tag->p4().Pt())) return false;
+     if (m_tag_antiEtConeIso > 0 && (!haveEtIso || tagiso < m_tag_antiEtConeIso * tag->pt())) return false;
+     return true;
+}
+bool ZmumuMuonTPSelectionTool::PassProbeIsoCuts (const xAOD::IParticle* probe) const{
+      // probe iso cut
+    float probeiso = 0.0;
+    float probeEtiso = 0.0;
+    bool haveProbeIso = true;
+    bool haveProbeEtIso = true;
+    const xAOD::Muon* probemu = dynamic_cast<const xAOD::Muon*>(probe);
+    if (probemu){
+        haveProbeIso = probemu->isolation(probeiso,xAOD::Iso::ptcone40);
+        haveProbeEtIso = probemu->isolation(probeEtiso,xAOD::Iso::topoetcone40);
+    }
+    else if (m_IDProbe || m_MSProbe){
+        probeiso = ptcone_trk(probe);
+        probeEtiso = etcone_trk(probe);
+    //             probeiso = r19_ptcone40(probe);
+        haveProbeIso = (probeiso != -1);
+        haveProbeEtIso = (probeEtiso != -1);
+    }
+
+    if (m_probePtConeIso > 0 && (!haveProbeIso || probeiso > m_probePtConeIso * probe->pt())) return false;
+    if (m_probe_antiPtConeIso > 0 && (!haveProbeIso || probeiso < m_probe_antiPtConeIso * probe->pt())) return false;
+
+    if (m_probeEtConeIso > 0 && (!haveProbeEtIso || probeEtiso > m_probeEtConeIso * probe->pt())) return false;
+    if (m_probe_antiEtConeIso > 0 && (!haveProbeEtIso || probeEtiso < m_probe_antiEtConeIso * probe->pt())) return false;
+
+    return true;
+}
+
 bool ZmumuMuonTPSelectionTool::isTag(const xAOD::Muon* tag, const xAOD::IParticle* probe) const
 {
   return (tag->p4().DeltaR(probe->p4()) < 0.01);
+}
+
+bool ZmumuMuonTPSelectionTool::PassProbeIPCuts(const xAOD::IParticle* probe) const{
+
+    const xAOD::TrackParticle* tp = 0;
+    const xAOD::Muon* muprobe = dynamic_cast<const xAOD::Muon*>(probe);
+    if (muprobe) {
+        tp = muprobe->primaryTrackParticle();
+    }
+    else {
+        tp = dynamic_cast<const xAOD::TrackParticle*>(probe);
+    }
+    if (!tp){
+        ATH_MSG_WARNING("Unable to find a track particle to cut on!");
+    }
+    return PassIPCuts(tp,m_probe_d0, m_probe_d0Sign, m_probe_z0);
+}
+bool ZmumuMuonTPSelectionTool::PassTagIPCuts(const xAOD::Muon* tag) const{
+
+    const xAOD::TrackParticle* tp = tag->primaryTrackParticle();
+    if (!tp){
+        ATH_MSG_WARNING("Unable to find the tag muon's track particle to cut on!");
+    }
+    return PassIPCuts(tp,m_tag_d0, m_tag_d0Sign, m_tag_z0);
 }
 
 bool ZmumuMuonTPSelectionTool::isRightType(const xAOD::IParticle* probe) const{
@@ -205,22 +291,27 @@ bool ZmumuMuonTPSelectionTool::isRightType(const xAOD::IParticle* probe) const{
     const xAOD::Muon* muprobe = dynamic_cast <const xAOD::Muon*> (probe);
 
     // if the particle is not a muon, assume that the user knows what TrackParticleContainer he is providing!
+    //  This covers the ID and MS probe use cases
     if (! muprobe) return true;
 
     // otherwise, we have to manually pick the right probe
 
-    // ID Probe
-    if (m_IDProbe){
-        return (muprobe->trackParticle(xAOD::Muon::InnerDetectorTrackParticle) != NULL);
+    // MS probe if we are running on the muon collection
+    if (m_MSProbe){
+//         static int n_zerophi = 0;
+//         uint8_t naux = 0;
+//         if (muprobe->trackParticle(xAOD::Muon::MuonSpectrometerTrackParticle)){
+//             if (!muprobe->summaryValue(naux, xAOD::numberOfPhiLayers) ||  naux < 1 || !muprobe->summaryValue(naux, xAOD::numberOfPrecisionHoleLayers) || naux > 0 ){
+//                 n_zerophi++;
+//                 ATH_MSG_WARNING("Found a low phi hit probe. This is number "<<n_zerophi);
+//                 return false;
+//             }
+//         }
+        return (muprobe &&  muprobe->trackParticle(xAOD::Muon::ExtrapolatedMuonSpectrometerTrackParticle)!=0);
     }
     // CT Probe
-
     if (m_CaloProbe){
-        return (muprobe && m_selection_tool->passedCaloTagQuality(*muprobe) &&  (muprobe->isAuthor(xAOD::Muon::CaloTag) || muprobe->isAuthor(xAOD::Muon::CaloLikelihood)));
-    }
-    // MS Probe
-    if (m_MSProbe){
-        return ((muprobe->muonType() == xAOD::Muon::MuonStandAlone || muprobe->muonType() == xAOD::Muon::Combined) && muprobe->trackParticle(xAOD::Muon::MuonSpectrometerTrackParticle)!= NULL);
+        return (muprobe &&  muprobe->isAuthor(xAOD::Muon::CaloTag) && m_selection_tool->passedCaloTagQuality(*muprobe));
     }
     // CB probe
     if (m_CBProbe){
