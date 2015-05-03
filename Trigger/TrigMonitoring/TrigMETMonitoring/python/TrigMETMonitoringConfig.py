@@ -1,6 +1,5 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-
 compNames_all = [ "PreSamplB", "EMB1", "EMB2", "EMB3",   # LAr barrel
                   "PreSamplE", "EME1", "EME2", "EME3",   # LAr EM endcap
                   "HEC0",      "HEC1", "HEC2", "HEC3",   # Hadronic end cap cal.
@@ -59,46 +58,19 @@ bitNames_allHLT= [
 
 
 
-
-met_triggers_l1 = [
-        "L1_XE35",
-        "L1_XE70",
-]
-
-met_triggers_hlt = [
-        "HLT_xeNOcut",
-        "HLT_xe35_tclcw",
-        "HLT_xe35_tcem"
-        "HLT_xe35_mht",
-        "HLT_xe35_pueta",
-        "HLT_xe100_tclcw",
-        "HLT_xe100_tcem",
-        "HLT_xe100_mht",
-        "HLT_xe100_pueta",
-        "HLT_xe100_wEFMu",
-        "HLT_xe100_tclcw_wEFMu",
-        "HLT_xe100_tcem_wEFMu",
-        "HLT_xe100_mht_wEFMu",
-        "HLT_xe100_pueta_wEFMu",
-] 
-
 def HLTMETMonitoringTool():
-        from TrigMETMonitoring.TrigMETMonitoringConf import HLTMETMonTool
-
-        HLTMETMon = HLTMETMonTool(name          = 'HLTMETMon',
+	from TrigMETMonitoring.TrigMETMonitoringConf import HLTMETMonTool
+	from TrigHLTMonitoring.HLTMonTriggerList import hltmonList # access to central tool
+	HLTMETMon = HLTMETMonTool(name          = 'HLTMETMon',
                                   histoPathBase = "/Trigger/HLT", 
                                   MonPathBase   = "/HLT/METMon",
-                                  CompNames   = compNames_all,
-                                  BitNames    = bitNames_allHLT,
-                                  METTriggersL1 = met_triggers_l1,
-                                  METTriggersHLT = met_triggers_hlt,
-                                  # SampleSelectionTriggers = ["HLT_J10",     # jet trigger
-                                  #                            "HLT_MbSp",    # minbias trigger
-                                  #                            "HLT_mu6_rpc"] # other physics trigger
+                                  comp_names   = compNames_all,
+                                  bit_names    = bitNames_allHLT,
+                                  monitoring_met         = hltmonList.monitoring_met,
+                                  primary_met            = [],
+                                  prescaled_met          = [],
                                   );
-        from AthenaCommon.AppMgr import ToolSvc
-        ToolSvc += HLTMETMon;
-        list = [ "HLTMETMonTool/HLTMETMon" ];
-
-
-        return list
+	from AthenaCommon.AppMgr import ToolSvc
+	ToolSvc += HLTMETMon;
+	list = [ "HLTMETMonTool/HLTMETMon" ];
+	return list
