@@ -216,54 +216,54 @@ StatusCode HLTEgammaFEXNavSigTEBaseTool::book_per_signature_sel(const string sig
     addHistogram(new TH1F("HadCore", "L1 Hadronic Core Energy; L1 Had Core Energy [GeV]; Entries", 12, 0., 12.));
     addHistogram(new TH1F("HadIsol", "L1 Hadronic Isolation Energy ; L1 Had Isolation Energy [GeV] ; Entries", 12, 0., 12.));
     addHistogram(new TH1F("ECore", "L1 EM+Hadronic Core Energy ; L1 EM+Hadronic Core Energy [GeV] ; Entries", 48, 0., 96.));
-    addHistogram(new TH1F("Eta", "L1 \\eta ; L1 \\eta ; Entries", 53, -2.65, 2.65));
-    addHistogram(new TH1F("Phi", "L1 \\phi ; L1 \\phi [rad]; Entries", 66, -3.30, 3.30));
-    addHistogram(new TH2F("EtaPhiMap", "L1 \\eta vs \\phi ; L1 \\eta ; L1 \\phi", 53, -2.65, 2.65, 66, -3.30, 3.30));
+    addHistogram(new TH1F("Eta", "L1 #eta ; L1 #eta ; Entries", 53, -2.65, 2.65));
+    addHistogram(new TH1F("Phi", "L1 #phi ; L1 #phi [rad]; Entries", 66, -3.30, 3.30));
+    addHistogram(new TH2F("EtaPhiMap", "L1 #eta vs #phi ; L1 #eta ; L1 #phi", 53, -2.65, 2.65, 66, -3.30, 3.30));
 
 
     //---L2Calo
     addMonGroup(new MonGroup(this,*pathIt+"/L2Calo",run));
-    addHistogram(new TH1F("Rcore", "L2 Calo R\\eta ; L2 Calo R\\eta ; Entries", 50, 0., 1.));
+    addHistogram(new TH1F("Rcore", "L2 Calo R#eta ; L2 Calo R#eta ; Entries", 50, 0., 1.));
     addHistogram(new TH1F("Rstrip", "L2 Calo E_{ratio} ; L2 Calo E_{ratio} ; Entries", 60, -0.1, 1.4));
     addHistogram(new TH1F("Et", "L2 EM Calo E_{T} ; L2 EM Calo E_{T} [GeV] ; Entries", 80, 0., 80.));
     addHistogram(new TH1F("HadEt", "L2 Hadronic Calo E_{T} ; L2 Hadronic Calo E_{T} [GeV]; Entries", 15, 0., 1.5));
     addHistogram(new TH1F("HadLeak", "L2 Hadronic Leakage; L2 Hadronic Leakage ; Entries", 60, -0.01, 0.05));
     addHistogram(new TH1F("f1", "L2 f1 (E^{S1}/E) ; L2 f1 (E^{S1}/E ; Entries", 24, -0.1, 1.1));
-    addHistogram(new TH1F("eta", "L2 Calo \\eta ; L2 Calo \\eta ; Entries", 53, -2.65, 2.65));
-    addHistogram(new TH1F("phi", "L2 Calo \\phi ; L2 Calo \\phi [rad] ; Entries", 66, -3.30, 3.30));
-    addHistogram(new TH2F("EtaPhiMap", "L2 Calo \\eta vs \\phi ; L2 Calo \\eta; L2 Calo \\phi", 53, -2.65, 2.65, 66, -3.30, 3.30));
+    addHistogram(new TH1F("eta", "L2 Calo #eta ; L2 Calo #eta ; Entries", 53, -2.65, 2.65));
+    addHistogram(new TH1F("phi", "L2 Calo #phi ; L2 Calo #phi [rad] ; Entries", 66, -3.30, 3.30));
+    addHistogram(new TH2F("EtaPhiMap", "L2 Calo #eta vs #phi ; L2 Calo #eta; L2 Calo #phi", 53, -2.65, 2.65, 66, -3.30, 3.30));
 
     //---L2ID
     if(!isPhoton){
       addMonGroup(new MonGroup(this,*pathIt+"/L2ID",run));
-      addHistogram(new TH1F("Eta_AtPeri", "L2 ID \\eta at Perigee; L2 ID \\eta at Perigee; Entries", 53, -2.65, 2.65));
-      addHistogram(new TH1F("Phi_AtPeri", "L2 ID \\phi at Perigee; L2 ID \\phi at Perigee; Entries", 66, -3.30, 3.30));
+      addHistogram(new TH1F("Eta_AtPeri", "L2 ID #eta at Perigee; L2 ID #eta at Perigee; Entries", 53, -2.65, 2.65));
+      addHistogram(new TH1F("Phi_AtPeri", "L2 ID #phi at Perigee; L2 ID #phi at Perigee; Entries", 66, -3.30, 3.30));
       addHistogram(new TH1F("Pt", "L2 ID p_{T} ; p_{T} [GeV/c] ; Entries", 80, 0., 80.));
-      addHistogram(new TH1F("Dphi", "L2 ID \\Delta\\phi (\\phi_{Calo} - \\phi_{track at Calo}); L2 ID \\Delta\\phi [rad] ; Entries", 64, 0., m_L2IDDphi*4));
-      addHistogram(new TH1F("Deta", "L2 ID \\Delta\\eta (\\eta_{Calo} - \\eta_{track at Calo}); L2 ID \\Delta\\eta ; Entries", 64, 0., m_L2IDDeta*4));
+      addHistogram(new TH1F("Dphi", "L2 ID #Delta#phi (#phi_{Calo} - #phi_{track at Calo}); L2 ID #Delta#phi [rad] ; Entries", 64, 0., m_L2IDDphi*4));
+      addHistogram(new TH1F("Deta", "L2 ID #Delta#eta (#eta_{Calo} - #eta_{track at Calo}); L2 ID #Delta#eta ; Entries", 64, 0., m_L2IDDeta*4));
       addHistogram(new TH1F("AlgoId", "L2 ID Track Algo ; L2 ID Track Algo ; Entries", 10, 0., 10.));    
       addHistogram(new TH1F("EP", "L2 ID E_{T}/p_{T} ; L2 IDScan E_{T}/p_{T} ; Entries", 60, 0., 6.));    
       addHistogram(new TH1F("RTRT", "R_{TRT} ; R_{TRT} ; Entries", 50, 0., 1.));
-      addHistogram(new TH2F("EtaPhiAtCaloMap", "L2 ID \\eta vs \\phi at Calo; L2 ID \\eta at Calo; L2 ID \\phi at Calo", 53, -2.65, 2.65, 66, -3.30, 3.30));
+      addHistogram(new TH2F("EtaPhiAtCaloMap", "L2 ID #eta vs #phi at Calo; L2 ID #eta at Calo; L2 ID #phi at Calo", 53, -2.65, 2.65, 66, -3.30, 3.30));
     }
 
     //---EFCalo
     addMonGroup(new MonGroup(this,*pathIt+"/EFCalo",run));
     addHistogram(new TH1F("Et", "EF Calo E_{T} ; EF Calo E_{T} [GeV] ; Entries", 80, 0, 80.));
-    addHistogram(new TH1F("Dphi", "EF Calo \\Delta\\phi (\\phi_{Calo} - \\phi_{L2Calo}) ; EF Calo  \\Delta\\phi [rad] ; Entries", 64, 0., 2*m_EFCaloDphi));
-    addHistogram(new TH1F("Deta", "EF Calo \\Delta\\eta (\\eta_{Calo} - \\eta_{L2Calo}) ; EF Calo  \\Delta\\eta ; Entries", 64, 0., 2*m_EFCaloDeta));
-    addHistogram(new TH1F("Eta", "EF Calo \\eta ; EF Calo \\eta ; Entries", 53, -2.65, 2.65));
-    addHistogram(new TH1F("Phi", "EF Calo \\phi ; EF Calo \\phi ; Entries", 66, -3.30, 3.30));
-    addHistogram(new TH2F("EtaPhiMap", "EF Calo \\eta vs \\phi; EF Calo \\eta; EF Calo \\phi", 53, -2.65, 2.65, 66, -3.30, 3.30));
+    addHistogram(new TH1F("Dphi", "EF Calo #Delta#phi (#phi_{Calo} - #phi_{L2Calo}) ; EF Calo  #Delta#phi [rad] ; Entries", 64, 0., 2*m_EFCaloDphi));
+    addHistogram(new TH1F("Deta", "EF Calo #Delta#eta (#eta_{Calo} - #eta_{L2Calo}) ; EF Calo  #Delta#eta ; Entries", 64, 0., 2*m_EFCaloDeta));
+    addHistogram(new TH1F("Eta", "EF Calo #eta ; EF Calo #eta ; Entries", 53, -2.65, 2.65));
+    addHistogram(new TH1F("Phi", "EF Calo #phi ; EF Calo #phi ; Entries", 66, -3.30, 3.30));
+    addHistogram(new TH2F("EtaPhiMap", "EF Calo #eta vs #phi; EF Calo #eta; EF Calo #phi", 53, -2.65, 2.65, 66, -3.30, 3.30));
     addHistogram(new TH1F("f1", "EF Calo f1 ; EF Calo f1 ; Entries", 60, -0.1, 1.1));
     addHistogram(new TH1F("raphad", "EF Calo Hadronic Leakage ; EF Calo Hadronic Leakage ; Entries", 60, -0.01, 0.05));
     addHistogram(new TH1F("raphad1", "EF Calo Hadronic Leakage (1st sampling) ; EF Calo Hadronic Leakage (1st sampling); Entries", 60, -0.01, 0.05));
     addHistogram(new TH1F("E277", "EF Calo E^{S2} in 7x7 cell window ; EF Calo E^{S2} in 7x7 cell window [GeV]; Entries", 80, 0., 80.));
-    addHistogram(new TH1F("wetas1", "EF Calo \\omega_{\\eta} in S1 ; EF Calo \\omega_{\\eta} in S1 ; Entries", 20, 0., 2.));
-    addHistogram(new TH1F("wtots1", "EF Calo \\omega_{tot} in S1; EF Calo \\omega_{\\eta} in S1 ; Entries", 75, 0., 15.));
-    addHistogram(new TH1F("wetas2", "EF Calo \\omega_{\\eta} in S2 ; EF Calo \\omega_{\\eta} in S2 ; Entries", 20, 0., 2.));
-    addHistogram(new TH1F("DES1", "EF Calo \\DeltaE^{S1} ; \\DeltaE^{S1} [GeV]; Entries", 40, 0., 2.));
-    addHistogram(new TH1F("DEmax2", "EF Calo \\DeltaE_{max2} ; EF Calo \\DeltaE_{max2} ; Entries", 40, 0., 2));
+    addHistogram(new TH1F("wetas1", "EF Calo #omega_{#eta} in S1 ; EF Calo #omega_{#eta} in S1 ; Entries", 20, 0., 2.));
+    addHistogram(new TH1F("wtots1", "EF Calo #omega_{tot} in S1; EF Calo #omega_{#eta} in S1 ; Entries", 75, 0., 15.));
+    addHistogram(new TH1F("wetas2", "EF Calo #omega_{#eta} in S2 ; EF Calo #omega_{#eta} in S2 ; Entries", 20, 0., 2.));
+    addHistogram(new TH1F("DES1", "EF Calo #DeltaE^{S1} ; #DeltaE^{S1} [GeV]; Entries", 40, 0., 2.));
+    addHistogram(new TH1F("DEmax2", "EF Calo #DeltaE_{max2} ; EF Calo #DeltaE_{max2} ; Entries", 40, 0., 2));
     addHistogram(new TH1F("fracs1", "EF Calo Core Shower Shape ; EF Calo Core Shower Shape ; Entries", 55, -0.1, 1.6));
     addHistogram(new TH1F("Eratio", "EF Calo E_{ratio} ; EF Calo E_{ratio} ; Entries", 60, -0.1, 1.1));
     addHistogram(new TH1F("CaloIso", "EF Calo Isolation Energy in Cone20 ; EF Calo Isolation Energy in Cone20 ; Entries", 45, -0.1, 0.8));
@@ -271,21 +271,21 @@ StatusCode HLTEgammaFEXNavSigTEBaseTool::book_per_signature_sel(const string sig
     //---EFeg
     addMonGroup(new MonGroup(this,*pathIt+"/EFeg",run));
     addHistogram(new TH1F("egEt", "EF egamma E_{T} ; EF egamma E_{T} [GeV] ; Entries", 80, 0, 80.));
-    addHistogram(new TH1F("egEta", "EF egamma eta ; EF egamma \\eta  ; Entries", 53, -2.65, 2.65));
-    addHistogram(new TH1F("egPhi", "EF egamma phi ; EF egamma \\phi  ; Entries", 66, -3.30, 3.30));
-    addHistogram(new TH2F("egEtaPhiMap", "EF egamma \\eta vs \\phi; EF egamma \\eta; EF egamma \\phi", 53, -2.65, 2.65, 66, -3.30, 3.30));
+    addHistogram(new TH1F("egEta", "EF egamma eta ; EF egamma #eta  ; Entries", 53, -2.65, 2.65));
+    addHistogram(new TH1F("egPhi", "EF egamma phi ; EF egamma #phi  ; Entries", 66, -3.30, 3.30));
+    addHistogram(new TH2F("egEtaPhiMap", "EF egamma #eta vs #phi; EF egamma #eta; EF egamma #phi", 53, -2.65, 2.65, 66, -3.30, 3.30));
 
     //---EFID
     if(!isPhoton){
       addMonGroup(new MonGroup(this,*pathIt+"/EFID",run));
-      addHistogram(new TH1F("trkPhi", "\\phi for EF Track ; EF Track \\phi ; Entries", 66, -3.30, 3.30));
-      addHistogram(new TH1F("trkEta", "\\eta for EF Track ; EF Track \\eta ; Entries", 53, -2.65, 2.65));
+      addHistogram(new TH1F("trkPhi", "#phi for EF Track ; EF Track #phi ; Entries", 66, -3.30, 3.30));
+      addHistogram(new TH1F("trkEta", "#eta for EF Track ; EF Track #eta ; Entries", 53, -2.65, 2.65));
       addHistogram(new TH1F("trkPt", "p_{T} for EF Track ; P_T [GeV] ; Entries", 80, 0, 80.));    
-      addHistogram(new TH2F("trkEtaPhiMap", "EF Track  \\eta vs \\phi; EF Track \\eta; EF Track \\phi", 53, -2.65, 2.65, 66, -3.30, 3.30));
-      addHistogram(new TH1F("Deta", "\\Delta\\eta for EF Track vs Cluster ; \\Delta\\eta for EF Track vs Cluster ; Entries", 40, 0., 0.2));
-      addHistogram(new TH1F("Dphi", "\\Delta\\phi for EF Track vs Cluster ; \\Delta\\phi for EF Track vs Cluster [rad] ; Entries", 40, 0., 0.2));
+      addHistogram(new TH2F("trkEtaPhiMap", "EF Track  #eta vs #phi; EF Track #eta; EF Track #phi", 53, -2.65, 2.65, 66, -3.30, 3.30));
+      addHistogram(new TH1F("Deta", "#Delta#eta for EF Track vs Cluster ; #Delta#eta for EF Track vs Cluster ; Entries", 40, 0., 0.2));
+      addHistogram(new TH1F("Dphi", "#Delta#phi for EF Track vs Cluster ; #Delta#phi for EF Track vs Cluster [rad] ; Entries", 40, 0., 0.2));
       addHistogram(new TH1F("EoverP", "EF E/p ; EF E/p ; Entries", 50, 0., 10));
-      addHistogram(new TH1F("Qual", "EF Track Quality ; EF Track Quality (\\chi^{2}); Entries", 60, 0., 60.));
+      addHistogram(new TH1F("Qual", "EF Track Quality ; EF Track Quality (#chi^{2}); Entries", 60, 0., 60.));
       addHistogram(new TH1F("Pixel", "EF Track Number of Pixel Hits ; EF Track Number of Pixel Hits ; Entries", 8, 0., 8.));
       addHistogram(new TH1F("SCT", "EF Track Number of SCT Hits ; EF Track Number of SCT Hits ; Entries", 14, 0., 14.));
       addHistogram(new TH1F("TRT", "EF Track Number of TRT Hits ; EF Track Number of TRT Hits ; Entries", 50, 0., 50.));
@@ -331,44 +331,44 @@ StatusCode HLTEgammaFEXNavSigTEBaseTool::book_per_signature_res(const string sig
     //---L1
     addMonGroup(new MonGroup(this,*pathIt+"/L1/Resolution",run));
     addHistogram(new TH1F("EmClus", "L1 EM Cluster Energy Resolution; L1 E_{T} / Off CaloCluster E_{T}; Entries", 63, -0.05, 2.05));
-    addHistogram(new TH1F("Eta", "L1 \\eta Resolution; L1 \\eta / Off CaloCluster \\eta ; Entries", 63, -0.05, 2.05));
-    addHistogram(new TH1F("Phi", "L1 \\phi Resolution; L1 \\phi / Off CaloCluster \\phi; Entries", 63, -0.05, 2.05));
+    addHistogram(new TH1F("Eta", "L1 #eta Resolution; L1 #eta / Off CaloCluster #eta ; Entries", 63, -0.05, 2.05));
+    addHistogram(new TH1F("Phi", "L1 #phi Resolution; L1 #phi / Off CaloCluster #phi; Entries", 63, -0.05, 2.05));
 
     //---L2Calo
     addMonGroup(new MonGroup(this,*pathIt+"/L2Calo/Resolution",run));
-    addHistogram(new TH1F("Rcore", "L2 Calo R\\eta Resolution; L2 Calo R\\eta / Off R\\eta; Entries", 63, -0.05, 2.05));
+    addHistogram(new TH1F("Rcore", "L2 Calo R#eta Resolution; L2 Calo R#eta / Off R#eta; Entries", 63, -0.05, 2.05));
     addHistogram(new TH1F("Rstrip", "L2 Calo E_{ratio} Resolution; L2 Calo E_{ratio} / Off E_{ratio} ; Entries", 21, -0.05, 2.05));   
     addHistogram(new TH1F("HadEt", "L2 Hadronic Calo E_{T} Resolution; L2 Hadronic Calo E_{T} / Off Hadronic Calo E_{T}; Entries", 51, -0.05, 5.05));
     addHistogram(new TH1F("Et", "L2 EM Calo E_{T} Resolution; L2 EM Calo E_{T} / Off CaloCluster E_{T}; Entries", 21, -0.05, 2.05));
-    addHistogram(new TH1F("eta", "L2 Calo \\eta Resolution ; L2 Calo \\eta / Off CaloCluster \\eta ; Entries", 21, -0.05, 2.05));
-    addHistogram(new TH1F("phi", "L2 Calo \\phi Resolution; L2 Calo \\phi / Off CaloCluster \\phi ; Entries", 21, -0.05, 2.05));
+    addHistogram(new TH1F("eta", "L2 Calo #eta Resolution ; L2 Calo #eta / Off CaloCluster #eta ; Entries", 21, -0.05, 2.05));
+    addHistogram(new TH1F("phi", "L2 Calo #phi Resolution; L2 Calo #phi / Off CaloCluster #phi ; Entries", 21, -0.05, 2.05));
 
 
     //--- L2ID 
     if(!isPhoton){
       addMonGroup(new MonGroup(this,*pathIt+"/L2ID/Resolution",run));//AT: dir to be changed!!!!
       addHistogram(new TH1F("Pt", "L2 p_{T} Resolution; L2 p_{T} / Off p_{T}; Entries", 21, -0.05, 2.05));
-      addHistogram(new TH1F("Eta", "L2 eta Resolution (at Perigee); L2 \\eta / Off \\eta ; Entries", 21, -0.05, 2.05));
-      addHistogram(new TH1F("Phi", "L2 phi Resolution (at Perigee); L2 \\phi / Off \\phi; Entries", 21, -0.05, 2.05));
+      addHistogram(new TH1F("Eta", "L2 eta Resolution (at Perigee); L2 #eta / Off #eta ; Entries", 21, -0.05, 2.05));
+      addHistogram(new TH1F("Phi", "L2 phi Resolution (at Perigee); L2 #phi / Off #phi; Entries", 21, -0.05, 2.05));
     }
 
     //---EFCalo
     addMonGroup(new MonGroup(this,*pathIt+"/EFCalo/Resolution",run));
     addHistogram(new TH1F("Et", "EF Calo E_{T} Resolution; EF Calo E_{T} / Off CaloCluster E_{T} ; Entries", 21, -0.05, 2.05));
-    addHistogram(new TH1F("Eta", "EF Calo eta Resolution; EF Calo \\eta / Off CaloCluster \\eta; Entries", 21, -0.05, 2.05));
-    addHistogram(new TH1F("Phi", "EF Calo phi Resolution; EF Calo \\phi / Off CaloCluster \\phi ; Entries", 21, -0.05, 2.05));
+    addHistogram(new TH1F("Eta", "EF Calo eta Resolution; EF Calo #eta / Off CaloCluster #eta; Entries", 21, -0.05, 2.05));
+    addHistogram(new TH1F("Phi", "EF Calo phi Resolution; EF Calo #phi / Off CaloCluster #phi ; Entries", 21, -0.05, 2.05));
 
     //---EFeg
     addMonGroup(new MonGroup(this,*pathIt+"/EFeg/Resolution",run));
     addHistogram(new TH1F("Et", "EF egamma E_{T} Resolution ; EF egamma E_{T} / Off egamma E_{T} ; Entries", 21, -0.05, 2.05));
-    addHistogram(new TH1F("Eta", "EF egamma eta Resolution; EF egamma \\eta / Off egamma \\eta ; Entries", 21, -0.05, 2.05));
-    addHistogram(new TH1F("Phi", "EF egamma phi Resolution; EF egamma \\phi / Off egamma \\phi ; Entries", 21, -0.05, 2.05));
+    addHistogram(new TH1F("Eta", "EF egamma eta Resolution; EF egamma #eta / Off egamma #eta ; Entries", 21, -0.05, 2.05));
+    addHistogram(new TH1F("Phi", "EF egamma phi Resolution; EF egamma #phi / Off egamma #phi ; Entries", 21, -0.05, 2.05));
 
     //---EFID
     if(!isPhoton){
       addMonGroup(new MonGroup(this,*pathIt+"/EFID/Resolution",run));
-      addHistogram(new TH1F("Phi", "\\phi for EF Track Resolution (at Perigee); EF Track \\phi / Off Track \\phi; Entries", 21, -0.05, 2.05));
-      addHistogram(new TH1F("Eta", "\\eta for EF Track Resolution (at Perigee) ; EF Track \\eta / Off Track \\eta; Entries", 21, -0.05, 2.05));
+      addHistogram(new TH1F("Phi", "#phi for EF Track Resolution (at Perigee); EF Track #phi / Off Track #phi; Entries", 21, -0.05, 2.05));
+      addHistogram(new TH1F("Eta", "#eta for EF Track Resolution (at Perigee) ; EF Track #eta / Off Track #eta; Entries", 21, -0.05, 2.05));
       addHistogram(new TH1F("Pt", "p_{T} for EF Track Resolution; EF Track P_{T} / Off Track P_{T} ; Entries", 21, -0.05, 2.05));
     }
   }
@@ -420,9 +420,9 @@ StatusCode HLTEgammaFEXNavSigTEBaseTool::book_per_signature_reject(const string 
       if(stageIt==stages.begin()){
         addHistogram(new TH1F((*stageIt+"Et").c_str(), "Level 1 E_{T} ; L1 E_{T} [GeV] ; Entries",
               80, 0., 80.), *pathIt+"/PreRejection");
-        addHistogram(new TH1F((*stageIt+"Eta").c_str(), "Level 1 \\eta ; L1 \\eta ; Entries",
+        addHistogram(new TH1F((*stageIt+"Eta").c_str(), "Level 1 #eta ; L1 #eta ; Entries",
               65, -3.25, 3.25), *pathIt+"/PreRejection");
-        addHistogram(new TH1F((*stageIt+"Phi").c_str(), "Level 1 \\phi ; L1 \\phi [rad] ; Entries",
+        addHistogram(new TH1F((*stageIt+"Phi").c_str(), "Level 1 #phi ; L1 #phi [rad] ; Entries",
               66, -3.30, 3.30), *pathIt+"/PreRejection");    
       }
 
@@ -432,21 +432,21 @@ StatusCode HLTEgammaFEXNavSigTEBaseTool::book_per_signature_reject(const string 
               ("Level 1 E_{T} (before "+*stageIt+"); L1 E_{T} [GeV] ; Entries").c_str(),
               80, 0., 80.),*pathIt+"/PreRejection");
         addHistogram(new TH1F((*stageIt+"Eta").c_str(),
-              ("Level 1 \\eta (before "+*stageIt+"); L1 \\eta ; Entries").c_str(),
+              ("Level 1 #eta (before "+*stageIt+"); L1 #eta ; Entries").c_str(),
               65, -3.25, 3.25),*pathIt+"/PreRejection");
         addHistogram(new TH1F((*stageIt+"Phi").c_str(),
-              ("Level 1 \\phi (before "+*stageIt+"); L1 \\phi [rad] ; Entries").c_str(),
+              ("Level 1 #phi (before "+*stageIt+"); L1 #phi [rad] ; Entries").c_str(),
               66, -3.30, 3.30),*pathIt+"/PreRejection");    
 
         //rejection histograms are efficiencies -> need special merging algorithm
         addHistogram(new TH1F((*stageIt+"Et").c_str(),
-              ("Level 1 E_{T} (after "+*stageIt+"); L1 E_{T} [GeV] ; \\varepsilon [%]").c_str(),
+              ("Level 1 E_{T} (after "+*stageIt+"); L1 E_{T} [GeV] ; #varepsilon [\%]").c_str(),
               80, 0., 80.),*pathIt+"/Rejection");
         addHistogram(new TH1F((*stageIt+"Eta").c_str(),
-              ("Level 1 \\eta (after "+*stageIt+"); L1 \\eta ; \\varepsilon [%]").c_str(),
+              ("Level 1 #eta (after "+*stageIt+"); L1 #eta ; #varepsilon [\%]").c_str(),
               65, -3.25, 3.25),*pathIt+"/Rejection");
         addHistogram(new TH1F((*stageIt+"Phi").c_str(),
-              ("Level 1 \\phi (after "+*stageIt+"); L1 \\phi [rad] ; \\varepsilon [%]").c_str(),
+              ("Level 1 #phi (after "+*stageIt+"); L1 #phi [rad] ; #varepsilon [\%]").c_str(),
               66, -3.30, 3.30),*pathIt+"/Rejection");     
       }
     }//done looping through stages
@@ -502,9 +502,9 @@ StatusCode HLTEgammaFEXNavSigTEBaseTool::book_per_signature_eff(const string sig
     ATH_MSG_VERBOSE("Booking efficiency histograms to path "<<*pathIt);
 
     addMonGroup(new MonGroup(this,*pathIt,run,ATTRIB_MANAGED,"","effAsPerCent"));
-    addHistogram(new TH1F("egEt", " E_{T} for Offline egamma ; Offline egamma E_{T} [GeV] ; \\varepsilon [%]", 80, 0, 80.));
-    addHistogram(new TH1F("egEta", "\\eta for Offline egamma; Offline egamma \\eta  ; \\varepsilon [%]", 65, -3.25, 3.25));
-    addHistogram(new TH1F("egPhi", "\\phi for Offline egamma ; Offline egamma \\phi  ; \\varepsilon [%]", 66, -3.30, 3.30));
+    addHistogram(new TH1F("egEt", " E_{T} for Offline egamma ; Offline egamma E_{T} [GeV] ; #varepsilon [\%]", 80, 0, 80.));
+    addHistogram(new TH1F("egEta", "#eta for Offline egamma; Offline egamma #eta  ; #varepsilon [\%]", 65, -3.25, 3.25));
+    addHistogram(new TH1F("egPhi", "#phi for Offline egamma ; Offline egamma #phi  ; #varepsilon [\%]", 66, -3.30, 3.30));
 
   }//done looping through paths
 
@@ -623,19 +623,19 @@ StatusCode HLTEgammaFEXNavSigTEBaseTool::book_offline(bool isPhoton, string sign
     //book common egamma histograms
     addMonGroup(new MonGroup(this,*pathIt,run));
     addHistogram(new TH1F("egEt", " E_{T} for Offline egamma ; Offline egamma E_{T} [GeV] ; Entries",80, 0, 80.));
-    addHistogram(new TH1F("egEta", "\\eta for Offline egamma (w/ P_{T} cut); Offline egamma \\eta  ; Entries",65, -3.25, 3.25));
-    addHistogram(new TH1F("egPhi", "\\phi for Offline egamma (w/ P_{T} cut); Offline egamma \\phi  ; Entries", 66, -3.30, 3.30));
-    addHistogram(new TH2F("egEtaPhiMap", "\\eta vs \\phi for Offline egamma ; Offline egamma \\eta  ; Offline egamma \\phi", 65, -3.25, 3.25, 66, -3.30, 3.30));
+    addHistogram(new TH1F("egEta", "#eta for Offline egamma (w/ P_{T} cut); Offline egamma #eta  ; Entries",65, -3.25, 3.25));
+    addHistogram(new TH1F("egPhi", "#phi for Offline egamma (w/ P_{T} cut); Offline egamma #phi  ; Entries", 66, -3.30, 3.30));
+    addHistogram(new TH2F("egEtaPhiMap", "#eta vs #phi for Offline egamma ; Offline egamma #eta  ; Offline egamma #phi", 65, -3.25, 3.25, 66, -3.30, 3.30));
 
     //book track histograms for electrons
     if(!isPhoton){
       addMonGroup(new MonGroup(this,*pathIt,run));
-      addHistogram(new TH1F("trkPhi", "\\phi for Offline Egamma Track ; Offline Egamma Track \\phi ; Entries", 66, -3.30, 3.30));
-      addHistogram(new TH1F("trkEta", "\\eta for Offline Egamma Track ; Offline Egamma Track \\eta ; Entries", 65, -3.25, 3.25));
+      addHistogram(new TH1F("trkPhi", "#phi for Offline Egamma Track ; Offline Egamma Track #phi ; Entries", 66, -3.30, 3.30));
+      addHistogram(new TH1F("trkEta", "#eta for Offline Egamma Track ; Offline Egamma Track #eta ; Entries", 65, -3.25, 3.25));
       addHistogram(new TH1F("trkPt", " p_{T} for Offline Egamma Track  ; Offline Egamma Track P_{T} [GeV] ; Entries", 80, 0, 80.));
-      addHistogram(new TH2F("trkEtaPhiMap", "\\eta vs \\phi for Offline Egamma Track ; Offline Egamma Track \\eta ; Offline Egamma Track \\phi", 65, -3.25, 3.25, 66, -3.30, 3.30));
-      addHistogram(new TH1F("Deta", "\\Delta\\eta for Offline Egamma Track vs Cluster ; \\Delta\\eta for Offline Egamma Track vs Cluster ; Entries", 60, 0., 0.3));
-      addHistogram(new TH1F("Dphi", "\\Delta\\phi for Offline Egamma Track vs Cluster ; \\Delta\\phi for Offline Egamma Track vs Cluster [rad] ; Entries", 60, 0., 0.3));
+      addHistogram(new TH2F("trkEtaPhiMap", "#eta vs #phi for Offline Egamma Track ; Offline Egamma Track #eta ; Offline Egamma Track #phi", 65, -3.25, 3.25, 66, -3.30, 3.30));
+      addHistogram(new TH1F("Deta", "#Delta#eta for Offline Egamma Track vs Cluster ; #Delta#eta for Offline Egamma Track vs Cluster ; Entries", 60, 0., 0.3));
+      addHistogram(new TH1F("Dphi", "#Delta#phi for Offline Egamma Track vs Cluster ; #Delta#phi for Offline Egamma Track vs Cluster [rad] ; Entries", 60, 0., 0.3));
       addHistogram(new TH1F("EoverP", "Offline Egamma Track E/p ; Offline Egamma Track E/p ; Entries", 50, 0., 10));
       addHistogram(new TH1F("Qual", " Track Quality for Offline Egamma Track;  Offline Egamma Track Quality ; Entries", 60, 0., 60.));
       addHistogram(new TH1F("Pixel", "Track Number of Pixel Hits for Offline Egamma Track; Number of Pixel Hits  for Offline Egamma Track ; Entries", 8, 0., 8.));
@@ -703,8 +703,8 @@ StatusCode HLTEgammaFEXNavSigTEBaseTool::book_match(bool isPhoton, string signat
     //book common egamma histograms
     addMonGroup(new MonGroup(this,*pathIt,run));
     addHistogram(new TH1F("egEt", " E_{T} for Offline egamma ; Offline egamma E_{T} [GeV] ; Entries",80, 0, 80.));
-    addHistogram(new TH1F("egEta", "\\eta for Offline egamma (w/ P_{T} cut); Offline egamma \\eta  ; Entries",65, -3.25, 3.25));
-    addHistogram(new TH1F("egPhi", "\\phi for Offline egamma (w/ P_{T} cut); Offline egamma \\phi  ; Entries", 66, -3.30, 3.30));
+    addHistogram(new TH1F("egEta", "#eta for Offline egamma (w/ P_{T} cut); Offline egamma #eta  ; Entries",65, -3.25, 3.25));
+    addHistogram(new TH1F("egPhi", "#phi for Offline egamma (w/ P_{T} cut); Offline egamma #phi  ; Entries", 66, -3.30, 3.30));
 
   }//done looping through paths
 
@@ -1529,7 +1529,7 @@ void HLTEgammaFEXNavSigTEBaseTool::fillEFID(const xAOD::Electron *eg, const stri
     return;
   }
 
-  //load track and perigee, check perigee, load match
+  //load track
   const xAOD::TrackParticle* track = eg->trackParticle();
 
   //fetch track directions
@@ -1537,31 +1537,33 @@ void HLTEgammaFEXNavSigTEBaseTool::fillEFID(const xAOD::Electron *eg, const stri
   float eta = track->eta();
 
   //fetch impact parameter
-  float a0 = -999;
-/*
-  if(m_doExtrapol){
-    const Trk::Perigee* bsPrg = m_trackToVertexTool->perigeeAtBeamspot(*track);
-    if(bsPrg){
-      a0 = bsPrg->parameters()[Trk::d0];
-      delete bsPrg;
-    }
-  }
-*/
+  float a0 = track->d0();
 
+  uint8_t numberOfTRTHighThresholdHits = -1;
+  uint8_t numberOfTRTHighThresholdOutliers = -1;
+  uint8_t numberOfTRTHits = -1;
+  uint8_t numberOfTRTOutliers = -1;
 
+  uint8_t numberOfPixelHits = -1;
+  uint8_t numberOfSCTHits = -1;
+  uint8_t numberOfBLayerHits = -1;
+
+  track->summaryValue(numberOfTRTHighThresholdHits,xAOD::numberOfTRTHighThresholdHits);
+  track->summaryValue(numberOfTRTHighThresholdOutliers,xAOD::numberOfTRTHighThresholdOutliers);
+  track->summaryValue(numberOfTRTHits,xAOD::numberOfTRTHits);
+  track->summaryValue(numberOfTRTOutliers,xAOD::numberOfTRTOutliers);
+
+  track->summaryValue(numberOfPixelHits,xAOD::numberOfPixelHits);
+  track->summaryValue(numberOfSCTHits,xAOD::numberOfSCTHits);
+  track->summaryValue(numberOfBLayerHits,xAOD::numberOfBLayerHits);
+  
   //intermediate TRT hit observables
   float rtottrt = 0;
-  float nTRTht=0;
-  float nTRTtotal= 0;
-/*
-  float nTRTht = (float)track->trackSummary()->get(Trk::numberOfTRTHighThresholdHits)
-    + (float)track->trackSummary()->get(Trk::numberOfTRTHighThresholdOutliers);
-  float nTRTtotal = (float)track->trackSummary()->get(Trk::numberOfTRTOutliers)
-    + (float)track->trackSummary()->get(Trk::numberOfTRTHits);
-*/
+  int nTRTht = numberOfTRTHighThresholdHits + numberOfTRTHighThresholdOutliers;
+  int nTRTtotal = numberOfTRTHits + numberOfTRTOutliers;
 
   //calc R_tot_trt, prevent division by zero for 0 hits
-  if(nTRTtotal > 0){rtottrt = nTRTht / nTRTtotal;}
+  if(nTRTtotal > 0){rtottrt = (float)nTRTht / (float)nTRTtotal;}
 
   //fill histograms
   setCurrentMonGroup(grp);
@@ -1569,20 +1571,20 @@ void HLTEgammaFEXNavSigTEBaseTool::fillEFID(const xAOD::Electron *eg, const stri
   hist("trkEta")->Fill(eta);
   hist("trkPt")->Fill(track->pt() / CLHEP::GeV);
   hist2("trkEtaPhiMap")->Fill(eta, phi, 1.);
-/*
-  hist("Deta")->Fill(match->deltaEta(1));
-  hist("Dphi")->Fill(match->deltaPhi(2));
-*/
+
+  hist("Deta")->Fill(calcDeltaEta(eta,eg->caloCluster()->eta()));
+  hist("Dphi")->Fill(calcDeltaPhi(phi,eg->caloCluster()->phi()));
+
   hist("EoverP")->Fill( fabsf( eg->caloCluster()->et() / track->pt() ) );
   hist("Qual")->Fill(track->chiSquared());
-/*
-  hist("Pixel")->Fill(track->trackSummary()->get(Trk::numberOfPixelHits));
-  hist("SCT")->Fill(track->trackSummary()->get(Trk::numberOfSCTHits));
-  hist("TRT")->Fill(track->trackSummary()->get(Trk::numberOfTRTHits));
-*/
+
+  hist("Pixel")->Fill(numberOfPixelHits);
+  hist("SCT")->Fill(numberOfSCTHits);
+  hist("TRT")->Fill(numberOfTRTHits);
+
   hist("TRTtotal")->Fill(nTRTtotal);
   hist("TRTHT")->Fill(nTRTht);
-  //hist("BLayer")->Fill(track->trackSummary()->get(Trk::numberOfBLayerHits));
+  hist("BLayer")->Fill(numberOfBLayerHits);
   hist("A0")->Fill(a0);
   hist("RtotTRT")->Fill(rtottrt); //prevent div-by-0
 
@@ -1840,6 +1842,17 @@ void HLTEgammaFEXNavSigTEBaseTool::fillOfflineEgamma(const xAOD::Electron* eg, b
   if(!isPhoton) fillEFeg(eg, path, elec_cut);
   else fillEFeg(eg, path, phot_cut);
   if(!isPhoton){ fillEFID(eg, path); }
+}
+void HLTEgammaFEXNavSigTEBaseTool::fillOfflineEgamma(const xAOD::Photon* eg, bool isPhoton, string path="", const double phot_cut=0.)
+{
+  //set path if none was supplied
+  if(path==""){path = m_histoBasePath + "/" + (isPhoton ? m_offPhoPath : m_offElePath); }
+  //otherwise append match foldername
+  else{ path += "/" + (isPhoton ? m_matchedOffPhoPath : m_matchedOffElePath); }
+  ATH_MSG_DEBUG("Filling offline "<<(isPhoton ? "photon" : "electron")<<" histograms to path "<<path);
+
+  //call event filter filling functions
+  fillEFeg(eg, path, phot_cut);
 }
 
 
@@ -2257,33 +2270,33 @@ bool HLTEgammaFEXNavSigTEBaseTool::extrapolateTrackToCalo(const TrigInDetTrack* 
 //---L1
 addMonGroup(new MonGroup(this,BasicPath+"/L1/Rates",run));
 addHistogram(new TH1F("L1Et", "Level 1 E_{T} ; E_{T} [GeV] ; Rate [Hz]", 80, 0., 80.));
-addHistogram(new TH1F("L1Eta", "Level 1 \\eta ; \\eta ; Rate [Hz]", 65, -3.25, 3.25));
-addHistogram(new TH1F("L1Phi", "Level 1 \\phi ; \\phi [rad] ; Rate [Hz]", 66, -3.30, 3.30));
+addHistogram(new TH1F("L1Eta", "Level 1 #eta ; #eta ; Rate [Hz]", 65, -3.25, 3.25));
+addHistogram(new TH1F("L1Phi", "Level 1 #phi ; #phi [rad] ; Rate [Hz]", 66, -3.30, 3.30));
 
 //---L2Calo    
 addMonGroup(new MonGroup(this,BasicPath+"/L2Calo/Rates",run));
 addHistogram(new TH1F("L2CaloEt", "Level 2 Calo E_{T} ; E_{T} [GeV] ; Rate [Hz]", 80, 0., 80.));
-addHistogram(new TH1F("L2CaloEta", "Level 2 Calo \\eta ; \\eta ; Rate [Hz]", 65, -3.25, 3.25));
-addHistogram(new TH1F("L2CaloPhi", "Level 2 Calo \\phi ; \\phi [rad] ; Rate [Hz]", 66, -3.30, 3.30));
+addHistogram(new TH1F("L2CaloEta", "Level 2 Calo #eta ; #eta ; Rate [Hz]", 65, -3.25, 3.25));
+addHistogram(new TH1F("L2CaloPhi", "Level 2 Calo #phi ; #phi [rad] ; Rate [Hz]", 66, -3.30, 3.30));
 
 //---L2ID    
 addMonGroup(new MonGroup(this,BasicPath+"/L2ID/Rates",run));
 addHistogram(new TH1F("L2IDEt", "p_{T} after Level 2 ID  ; p_{T} [GeV] ; Rate [Hz]", 80, 0., 80.));
-addHistogram(new TH1F("L2IDPhi", "\\phi after Level 2 ID ; \\phi [rad] ; Rate [Hz]", 66, -3.30, 3.30));
-addHistogram(new TH1F("L2IDEta", "\\eta after Level 2 ID ; \\eta ; Rate [Hz]", 65, -3.25, 3.25));
+addHistogram(new TH1F("L2IDPhi", "#phi after Level 2 ID ; #phi [rad] ; Rate [Hz]", 66, -3.30, 3.30));
+addHistogram(new TH1F("L2IDEta", "#eta after Level 2 ID ; #eta ; Rate [Hz]", 65, -3.25, 3.25));
 
 //---EFCalo   
 addMonGroup(new MonGroup(this,BasicPath+"/EFCalo/Rates",run));
 addHistogram(new TH1F("EFCaloEt", "E_{T} at EF Calo ; E_{T} [GeV] ; Rate [Hz]", 80, 0, 80.));
-addHistogram(new TH1F("EFCaloEta", "\\eta at EF Calo ; \\eta ; Rate [Hz]", 65, -3.25, 3.25));
-addHistogram(new TH1F("EFCaloPhi", "\\phi at EF Calo ; \\phi [rad] ; Rate [Hz]", 66, -3.30, 3.30));
+addHistogram(new TH1F("EFCaloEta", "#eta at EF Calo ; #eta ; Rate [Hz]", 65, -3.25, 3.25));
+addHistogram(new TH1F("EFCaloPhi", "#phi at EF Calo ; #phi [rad] ; Rate [Hz]", 66, -3.30, 3.30));
 
 
 //---EFID   
 addMonGroup(new MonGroup(this,BasicPath+"/EFID/Rates",run));
 addHistogram(new TH1F("EFIDEt", "E_{T} after EF Track; E_{T} [GeV] ; Rate [Hz]", 80, 0, 80.));
-addHistogram(new TH1F("EFIDPhi", "\\phi after EF Track ; \\phi [rad] ; Rate [Hz]", 66, -3.30, 3.30));
-addHistogram(new TH1F("EFIDEta", "\\eta after EF Track ; \\eta ; Rate [Hz]", 65, -3.25, 3.25));
+addHistogram(new TH1F("EFIDPhi", "#phi after EF Track ; #phi [rad] ; Rate [Hz]", 66, -3.30, 3.30));
+addHistogram(new TH1F("EFIDEta", "#eta after EF Track ; #eta ; Rate [Hz]", 65, -3.25, 3.25));
 
 
 return StatusCode::SUCCESS;

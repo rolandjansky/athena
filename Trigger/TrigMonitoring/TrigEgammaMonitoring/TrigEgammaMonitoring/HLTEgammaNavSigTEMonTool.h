@@ -118,7 +118,7 @@ class HLTEgammaNavSigTEMonTool : public HLTEgammaFEXNavSigTEBaseTool {
    */
   void fillOfflineEgammas(const egammaContainer* egCont);
   void fillOfflineEgammas(const xAOD::ElectronContainer* egCont);
-  
+  void fillOfflineEgammas(const xAOD::PhotonContainer* egCont);
 
   
   /**
@@ -152,7 +152,14 @@ class HLTEgammaNavSigTEMonTool : public HLTEgammaFEXNavSigTEBaseTool {
    * - applies author and minimum pt cuts (the latter are set in joboptions)
    * - returns best match
    */
-  const xAOD::Electron* matchOffline(const float eta, const float phi, bool useCalo, bool isPhoton);
+  const xAOD::Egamma* matchOffline(const float eta, const float phi, bool useCalo, bool isPhoton);
+
+  /**
+   * Match eta/phi coordinates to offline electron object
+   * - applies author and quality cuts (the latter are set in joboptions)
+   * - returns best match
+   */
+  const xAOD::Electron* matchOffline(const float eta, const float phi);
   
 
   /**
@@ -204,9 +211,11 @@ class HLTEgammaNavSigTEMonTool : public HLTEgammaFEXNavSigTEBaseTool {
   string m_electronContainerName; 
   string m_photonContainerName; 
   xAOD::ElectronContainer const* m_elecTES;
-  xAOD::ElectronContainer const* m_photTES;
+  xAOD::PhotonContainer const* m_photTES;
   float m_offEle_minptcut;
   float m_offPho_minptcut;
+  string m_offEle_qcut;
+  string m_offPho_qcut;
   float m_dR_off;
   
   //
