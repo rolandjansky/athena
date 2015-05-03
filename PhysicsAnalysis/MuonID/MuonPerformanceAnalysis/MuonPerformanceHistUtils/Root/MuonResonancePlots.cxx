@@ -5,11 +5,13 @@
 #include "MuonPerformanceHistUtils/MuonResonancePlots.h"
 #include "TLorentzVector.h"
 #include <iostream>
+#ifndef ROOTCORE
 #include "GaudiKernel/IToolSvc.h"
-#include "xAODEventInfo/EventInfo.h"
 #include "AthenaBaseComps/AthCheckMacros.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
+#endif
+#include "xAODEventInfo/EventInfo.h"
 
 
 void MuonResonancePlots::initializePlots(){
@@ -140,7 +142,7 @@ void MuonResonancePlots::BookPlots(){
 }
 
 void MuonResonancePlots::fill(const xAOD::Muon& mu1st, const xAOD::Muon& mu2nd, int trk){
-
+  
   TLorentzVector V,l1,l2;
   l1 = sortedPair(getTrackTLV(mu1st, trk), getTrackTLV(mu2nd, trk)).first;
   l2 = sortedPair(getTrackTLV(mu1st, trk), getTrackTLV(mu2nd, trk)).second;
@@ -155,9 +157,8 @@ void MuonResonancePlots::fill(const xAOD::Muon& mu1st, const xAOD::Muon& mu2nd, 
 
   float w = effWeight(mu1st) * effWeight(mu2nd);
 
-  bool do_print = false;
-  if(do_print) PrintVectors(l1, l2, V, l1_truth, l2_truth, V_truth, trk, w);
-
+  // bool do_print = false;
+  // if(do_print) PrintVectors(l1, l2, V, l1_truth, l2_truth, V_truth, trk, w);
   
   // Filling histos 
   Fill1D( mu_1stAuthor, int(mu1st.author()), w);
@@ -235,7 +236,7 @@ const xAOD::TruthParticle* MuonResonancePlots::findTruthMuon(const xAOD::Muon& m
   const xAOD::TruthParticle *truthMu = 0;
   const xAOD::TrackParticle* tp  = const_cast<xAOD::TrackParticle*>(mu.primaryTrackParticle());
   
-  if( mu.muonType() == xAOD::Muon::Combined && !tp->track() )
+  if( mu.muonType() == xAOD::Muon::Combined && !tp )
     tp = const_cast<xAOD::TrackParticle*>((*mu.inDetTrackParticleLink()));
   
   if(tp){
@@ -252,9 +253,9 @@ const xAOD::TruthParticle* MuonResonancePlots::findTruthMuon(const xAOD::Muon& m
 TLorentzVector MuonResonancePlots::getTrackTLV(const xAOD::Muon& mu, int type){
   
   TLorentzVector v;
-  const xAOD::TrackParticle *cb_ = mu.trackParticle(xAOD::Muon_v1::CombinedTrackParticle);
-  const xAOD::TrackParticle *id_ = mu.trackParticle(xAOD::Muon_v1::InnerDetectorTrackParticle);
-  const xAOD::TrackParticle* me_ = mu.trackParticle(xAOD::Muon_v1::MuonSpectrometerTrackParticle);
+  const xAOD::TrackParticle *cb_ = mu.trackParticle(xAOD::Muon::CombinedTrackParticle);
+  const xAOD::TrackParticle *id_ = mu.trackParticle(xAOD::Muon::InnerDetectorTrackParticle);
+  const xAOD::TrackParticle* me_ = mu.trackParticle(xAOD::Muon::ExtrapolatedMuonSpectrometerTrackParticle);
   if(!cb_ || !id_ || !me_) return v;
 
   float pt_id = id_->pt();
@@ -285,13 +286,17 @@ std::pair<TLorentzVector, TLorentzVector>  MuonResonancePlots::sortedPair(TLoren
 }
 
 //sets PDG mass 
-const float MuonResonancePlots::M0(){
+float MuonResonancePlots::M0(){
   
-  unsigned int res;
+  unsigned int res = 10;
   if(prefix == "Zmm_")    res = 0;
   if(prefix == "Jpsimm_") res = 1;
   if(prefix == "Ymm_")    res = 2;
-  return M_pdg[res];
+  if(res == 10){
+    std::cout << "There is no resonance mass value associated to " << prefix << " . Exiting." << std::endl;
+    throw;
+  }
+  else return M_pdg[res];
 }
 
 // computes p* (ATL-COM-MUON 2014-001)
@@ -315,9 +320,9 @@ float MuonResonancePlots::deltaPt(TLorentzVector v1, TLorentzVector v2){
 // function to return Chi² / DoF
 float MuonResonancePlots::getChiSquared(const xAOD::Muon& mu, int type){
   
-  const xAOD::TrackParticle *cb_ = mu.trackParticle(xAOD::Muon_v1::CombinedTrackParticle);
-  const xAOD::TrackParticle *id_ = mu.trackParticle(xAOD::Muon_v1::InnerDetectorTrackParticle);
-  const xAOD::TrackParticle* me_ = mu.trackParticle(xAOD::Muon_v1::MuonSpectrometerTrackParticle);
+  const xAOD::TrackParticle *cb_ = mu.trackParticle(xAOD::Muon::CombinedTrackParticle);
+  const xAOD::TrackParticle *id_ = mu.trackParticle(xAOD::Muon::InnerDetectorTrackParticle);
+  const xAOD::TrackParticle* me_ = mu.trackParticle(xAOD::Muon::ExtrapolatedMuonSpectrometerTrackParticle);
   if(!cb_ || !id_ || !me_) return 0;
 
   if(type==0) return cb_->chiSquared()/cb_->numberDoF();

@@ -24,9 +24,7 @@ class ZmumuBasicTPEfficiencyPlots: public MuonTPEfficiencyPlotBase {
   TH1* pt;
   TH1* eta;
   TH1* phi;
-  TH1* fineEtaPhi;
   TH1* integrated;
-  fineEtaPhiBinning m_fepb;
 
 };
 
