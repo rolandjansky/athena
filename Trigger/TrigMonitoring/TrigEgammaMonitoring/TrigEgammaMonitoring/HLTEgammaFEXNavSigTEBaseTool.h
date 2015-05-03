@@ -260,6 +260,7 @@ class HLTEgammaFEXNavSigTEBaseTool : public IHLTMonTool {
      */
     void fillOfflineEgamma(const egamma* eg, bool isPhoton, const string path, const double elec_cut, const double phot_cut);
     void fillOfflineEgamma(const xAOD::Electron* eg, bool isPhoton, const string path, const double elec_cut, const double phot_cut);
+    void fillOfflineEgamma(const xAOD::Photon* eg, bool isPhoton, const string path, const double phot_cut);
     
     /**
      *  Fills offline egamma histograms

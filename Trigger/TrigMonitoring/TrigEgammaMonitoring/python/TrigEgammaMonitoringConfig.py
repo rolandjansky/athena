@@ -1,18 +1,17 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-monitoring_egamma = ['e3_etcut','g3_etcut','e5_loose1','e24_medium_iloose','e28_tight_iloose','e28_tight_iloose_L2StarA','e24_medium_L1EM20V']
-
 def HLTEgammaMonitoringTool():
 
   from AthenaCommon.AppMgr import ToolSvc
 
   from TrigEgammaMonitoring.TrigEgammaMonitoringConf import HLTEgammaMonTool
+  from TrigHLTMonitoring.HLTMonTriggerList import hltmonList  # access to central tool
   HLTEgammaMon = HLTEgammaMonTool(name = 'HLTEgammaMon', histoPathBase = "/Trigger/HLT")
   ToolSvc += HLTEgammaMon;
 
   from TrigEgammaMonitoring.TrigEgammaMonitoringConf import HLTEgammaNavMonTool
   HLTEgammaNavMon = HLTEgammaNavMonTool(name = 'HLTEgammaNavMon', histoPathBase = "/Trigger/HLT")
-  HLTEgammaNavMon.signatures = monitoring_egamma
+  HLTEgammaNavMon.signatures = hltmonList.monitoring_egamma
   #HLTEgammaNavMon.signatures = ['e5_NoCut','e5_medium1','e10_loose','e20_loose_IdScan']
   #HLTEgammaNavMon.signatures +=['e5_NoCut_cosmic','e10_loose_cosmic','e10_medium_cosmic']
   #HLTEgammaNavMon.doExtrapol=False
@@ -24,7 +23,7 @@ def HLTEgammaMonitoringTool():
   HLTEgammaNavSigTEMon = HLTEgammaNavSigTEMonTool(name = 'HLTEgammaNavSigTEMon', histoPathBase = "/Trigger/HLT",doExtrapol=False)
   #---Electron Signatures for Collisions:
   #HLTEgammaNavSigTEMon.signatures = ['e28_tight_iloose']
-  HLTEgammaNavSigTEMon.signatures = monitoring_egamma
+  HLTEgammaNavSigTEMon.signatures = hltmonList.monitoring_egamma
   #HLTEgammaNavSigTEMon.signatures +=['e5_loose1','e24_medium_iloose','e28_tight_iloose','e28_tight_iloose_L2StarA']
   #HLTEgammaNavSigTEMon.signatures += ['e24vh_medium1']
   #HLTEgammaNavSigTEMon.signatures +=['e24vhi_medium1']

@@ -548,7 +548,7 @@ StatusCode HLTEgammaMonTool::fill() {
 			    if ( (matchedEFTrk->trackParticle()->trackSummary()) &&
 				 (fabsf(emTrackMatch->deltaEta(2)) < m_EFTrackDeta) &&
 				 (delta(emTrackMatch->deltaPhi(1)) < m_EFTrackDphi) ) {
-			      if (fabsf(EFTrackCluster->eta() > m_EFTrackEtaCut) ) {
+			      if (fabsf(EFTrackCluster->eta()) > m_EFTrackEtaCut) {
 				// high eta
 				if ( (EoverP > m_EFTrackLowEoPHighEta) && (EoverP < m_EFTrackHighEoPHighEta) ) {
 				  EFScanTrk_pass = true;
@@ -673,7 +673,7 @@ StatusCode HLTEgammaMonTool::fill() {
 			    if ( (matchedEFTrk->trackParticle()->trackSummary()) &&
 				 (fabsf(emTrackMatch->deltaEta(2)) < m_EFTrackDeta) &&
 				 (delta(emTrackMatch->deltaPhi(1)) < m_EFTrackDphi) ) {
-			      if (fabsf(EFTrackCluster->eta() > m_EFTrackEtaCut) ) {
+			      if (fabsf(EFTrackCluster->eta()) > m_EFTrackEtaCut) {
 				// high eta
 				if ( (EoverP > m_EFTrackLowEoPHighEta) && (EoverP < m_EFTrackHighEoPHighEta) ) {
 				  EFSiTrk_pass = true;

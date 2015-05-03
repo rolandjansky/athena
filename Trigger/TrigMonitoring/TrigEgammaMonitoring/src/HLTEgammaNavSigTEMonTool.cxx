@@ -72,6 +72,8 @@ HLTEgammaNavSigTEMonTool::HLTEgammaNavSigTEMonTool(const string & type, const st
   declareProperty("DoOffline", m_doOfflineComparisons=true);
   declareProperty("OfflineEleMinPTCut", m_offEle_minptcut= 2.);//GeV
   declareProperty("OfflinePhoMinPTCut", m_offPho_minptcut= 2.);//GeV
+  declareProperty("OfflineEleQualityCut", m_offEle_qcut = "Loose");
+  declareProperty("OfflinePhoQualityCut", m_offPho_qcut = "Loose");
   declareProperty("DRmatchToOffline", m_dR_off= 0.15);//GeV
   declareProperty("DoLumiCalc", m_doLumiCalc = false);//Lumi  
   declareProperty("PayloadName",m_payload = "LBAvInstLumi");//Lumi
@@ -363,7 +365,11 @@ StatusCode HLTEgammaNavSigTEMonTool::fill()
 
     //first check that Electron and Photon Container exist in Storegate, if not quit
     if(!m_storeGate->contains<xAOD::ElectronContainer>(m_electronContainerName) ){
-      ATH_MSG_WARNING("Electron containers not found in TDS.");
+      ATH_MSG_WARNING("Electron container not found in TDS.");
+      return(StatusCode::SUCCESS);
+    }
+    if(!m_storeGate->contains<xAOD::PhotonContainer>(m_photonContainerName) ){
+      ATH_MSG_WARNING("Photon container not found in TDS.");
       return(StatusCode::SUCCESS);
     }
 
@@ -374,18 +380,16 @@ StatusCode HLTEgammaNavSigTEMonTool::fill()
       ATH_MSG_WARNING("Couldn't retrieve offline electron container.");
     }     
 
-#ifdef PHOTON
     //retrieve offline photon container
     if (m_storeGate->retrieve( m_photTES, m_photonContainerName).isSuccess()  &&  m_photTES ) {
       ATH_MSG_DEBUG("Successfully retrieved offline photon container."); 
     }else{
       ATH_MSG_WARNING("Couldn't retrieve offline photon container.");
     }
-#endif
 
     //fill from containers
     fillOfflineEgammas(m_elecTES);
-    //fillOfflineEgammas(m_photTES);
+    fillOfflineEgammas(m_photTES);
 
   }//done filling offline egamma info
 
@@ -898,10 +902,10 @@ void HLTEgammaNavSigTEMonTool::fillOfflineEgammas(const egammaContainer* egCont)
 
 void HLTEgammaNavSigTEMonTool::fillOfflineEgammas(const xAOD::ElectronContainer* egCont)
 {
-  ATH_MSG_DEBUG("Filling offline egamma histograms.");
+  ATH_MSG_DEBUG("Filling offline electron histograms.");
 
   //loop over container
-  ATH_MSG_VERBOSE("Looping over offline egamma container.");
+  ATH_MSG_VERBOSE("Looping over offline electron container.");
   xAOD::ElectronContainer::const_iterator egIt = egCont->begin();
   for (; egIt != egCont->end() ; ++egIt) {
 
@@ -915,12 +919,12 @@ void HLTEgammaNavSigTEMonTool::fillOfflineEgammas(const xAOD::ElectronContainer*
       (*egIt)->author(egammaParameters::AuthorRConv);
 */
 
-    bool isMediumPPElectron(false);
-    (*egIt)->passSelection(isMediumPPElectron,"Medium");
+    bool passedEleSelection(false);
+    (*egIt)->passSelection(passedEleSelection,m_offEle_qcut);
     //bool isTightPhoton = (*egIt)->passID(egammaPID::PhotonIDTight);
 
     //now apply appropriate pt cut and call egamma filling function
-    if(isElectron && isMediumPPElectron){
+    if(isElectron && passedEleSelection){
       fillOfflineEgamma((*egIt), isPhoton, "", m_offEle_minptcut, m_offPho_minptcut);
     }
 /*
@@ -933,7 +937,30 @@ void HLTEgammaNavSigTEMonTool::fillOfflineEgammas(const xAOD::ElectronContainer*
   ATH_MSG_DEBUG("Finished filling offline egamma histograms.");
 }
 
+void HLTEgammaNavSigTEMonTool::fillOfflineEgammas(const xAOD::PhotonContainer* egCont)
+{
+  ATH_MSG_DEBUG("Filling offline photon histograms.");
 
+  //loop over container
+  ATH_MSG_VERBOSE("Looping over offline photon container.");
+  xAOD::PhotonContainer::const_iterator egIt = egCont->begin();
+  for (; egIt != egCont->end() ; ++egIt) {
+    
+    bool isPhoton(false);
+    isPhoton = (*egIt)->author(egammaParameters::AuthorPhoton) ||
+      (*egIt)->author(egammaParameters::AuthorRConv);
+
+    bool passedPhoSelection(false);
+    (*egIt)->passSelection(passedPhoSelection,m_offPho_qcut);
+
+    if(isPhoton && passedPhoSelection){
+      fillOfflineEgamma((*egIt), isPhoton, "", m_offPho_minptcut);
+    }
+
+  }//done looping over container
+  //all done
+  ATH_MSG_DEBUG("Finished filling offline egamma histograms.");
+}
 
 /*  FILL COMBINATIONS
  */
@@ -957,10 +984,7 @@ StatusCode HLTEgammaNavSigTEMonTool::fillCombination(Trig::Combination comb, con
 
 
   //find out whether this is a photon signature
-
-  //bool isPhoton = isPhotonSignature(signature);
-  bool isPhoton = false;
-
+  bool isPhoton = isPhotonSignature(signature);
 
   //abort if we require a passthrough chain to have passed and it didn't
   //TODO find out what effect an active passThroughChain would have
@@ -1235,8 +1259,7 @@ StatusCode HLTEgammaNavSigTEMonTool::fillCombination(Trig::Combination comb, con
       }
 
       //match to offline using track eta/phi for both l2 track and offline
-      const xAOD::Electron* matchedEgamma = matchOffline((*trackIt)->eta(), (*trackIt)->phi(),
-						 false, isPhoton);
+      const xAOD::Electron* matchedEgamma = matchOffline((*trackIt)->eta(), (*trackIt)->phi());
 
       //fill L2 Track resolution histos if a match was found, insert pointer in L2 Track set
       if(matchedEgamma){      
@@ -1348,7 +1371,7 @@ StatusCode HLTEgammaNavSigTEMonTool::fillCombination(Trig::Combination comb, con
   //fetch EFID containers
   vector< Trig::Feature<xAOD::TrackParticleContainer> > EFtrk = comb.get<xAOD::TrackParticleContainer>("",condition);
   ATH_MSG_VERBOSE("- Number of EFtrk "<<EFtrk.size());
-  if(!EFtrk.size()){
+  if(EFtrk.size()==0 && !isPhoton){
     ATH_MSG_DEBUG("- No TrackParticleContainers found. Aborting combination filling.");
     return(StatusCode::SUCCESS);
   }
@@ -1402,7 +1425,63 @@ StatusCode HLTEgammaNavSigTEMonTool::fillCombination(Trig::Combination comb, con
 
   }//done looping over TrackParticleContainers
 
-  //get EF egamma containers
+  if(isPhoton){
+    //get EF photon containers
+    vector< Trig::Feature<xAOD::PhotonContainer> > EFpho = comb.get<xAOD::PhotonContainer>("",condition);
+    
+    //loop over EF photon Containers
+    vector< Trig::Feature<xAOD::PhotonContainer> >::const_iterator phoContIt = EFpho.begin();
+    for(; phoContIt != EFpho.end() ; ++phoContIt){
+
+      //skip container if it's not active and we only look at active ones
+      if(onlyActiveTe && !phoContIt->te()->getActiveState()) { 
+	ATH_MSG_VERBOSE("EFpho not active. Skipping it.");
+	continue;
+      } 
+
+      //loop over EFpho objects
+      ATH_MSG_VERBOSE(" - Number of objects in EFpho container = "<<phoContIt->cptr()->size());
+      xAOD::PhotonContainer::const_iterator phoIt = phoContIt->cptr()->begin();
+
+      set<const xAOD::Egamma*> EFphoMatchedEgamma;
+
+      for(; phoIt != phoContIt->cptr()->end(); ++phoIt){
+
+	if(!skipActiveTE){
+	  fillEFeg((*phoIt), path+"/EFeg", 0);
+	  fillEFCaloShower((*phoIt), path+"/EFCalo");
+	}
+      
+	//if we are only looking at active TEs increment counters
+	if(onlyActiveTe){
+	  if(condition== TrigDefs::alsoDeactivateTEs){ m_counters_perLB_activeTE[signature][5]++; }
+	  if(condition== TrigDefs::Physics){
+	    m_counters[signature][5]++; 
+	    m_counters_perLB[signature][5]++;
+	  }
+	}
+
+	//match to offline and fill EFeg resolution and efficiency
+	const xAOD::Egamma* matchedEgamma = matchOffline((*phoIt)->eta(),(*phoIt)->phi(), true, isPhoton);
+	if(matchedEgamma){
+	  if(!skipActiveTE) fillEFegOffRes(*phoIt,matchedEgamma, path+"/EFeg/Resolution" );
+	  EFphoMatchedEgamma.insert(matchedEgamma);
+	} 
+	
+      }//done looping over photon objects
+
+      //fill EFeg matched objects in efficiency histos  
+      if(!EFphoMatchedEgamma.empty()){  
+	set<const xAOD::Egamma*>::iterator EFphoMatchIt;  
+	for(EFphoMatchIt= EFphoMatchedEgamma.begin(); EFphoMatchIt!=EFphoMatchedEgamma.end(); ++EFphoMatchIt){  
+	  if(!skipActiveTE) fillOfflineMatches(*EFphoMatchIt, isPhoton, path+"/EFeg", m_offEle_minptcut, m_offPho_minptcut);  
+	}  
+      }  
+
+    }//done looping over egamma containers
+  }//end of isPhoton if statement
+
+  //get EF electron containers
   vector< Trig::Feature<xAOD::ElectronContainer> > EFeg = comb.get<xAOD::ElectronContainer>("",condition);
   ATH_MSG_VERBOSE(" - Number of EFeg Collections = "<<EFeg.size());
   if (!EFeg.size()){
@@ -1410,7 +1489,7 @@ StatusCode HLTEgammaNavSigTEMonTool::fillCombination(Trig::Combination comb, con
     return(StatusCode::SUCCESS);
   }
 
-  //loop over EF egammaContainers
+  //loop over EF electron containers
   vector< Trig::Feature<xAOD::ElectronContainer> >::const_iterator egContIt = EFeg.begin();
   int electronnumber=0;
   for(; egContIt != EFeg.end() ; ++egContIt){
@@ -1428,7 +1507,7 @@ StatusCode HLTEgammaNavSigTEMonTool::fillCombination(Trig::Combination comb, con
       continue;
     } 
 
-    //loop over EFegamma objects
+    //loop over EF electron objects
     ATH_MSG_VERBOSE(" - Number of objects in EFeg container = "<<egContIt->cptr()->size());
     xAOD::ElectronContainer::const_iterator egIt = egContIt->cptr()->begin();
 
@@ -1441,7 +1520,7 @@ StatusCode HLTEgammaNavSigTEMonTool::fillCombination(Trig::Combination comb, con
       //
       if(!skipActiveTE) fillEFeg((*egIt), path+"/EFeg", 0);
       
-      //fill EMShowers for calorimetry from EF egamma containers
+      //fill EMShowers for calorimetry from EF electron containers
       if(!skipActiveTE) fillEFCaloShower((*egIt), path+"/EFCalo");
       
       //if we are only looking at active TEs increment counters
@@ -1457,7 +1536,7 @@ StatusCode HLTEgammaNavSigTEMonTool::fillCombination(Trig::Combination comb, con
 
       //match to offline using track directions and fill EFeg resolution and efficiency
       ATH_MSG_VERBOSE("Trying to match EFeg to offline.");
-      const xAOD::Electron* matchedEgamma = matchOffline((*egIt)->eta(),(*egIt)->phi(), false, isPhoton);
+      const xAOD::Electron* matchedEgamma = matchOffline((*egIt)->eta(),(*egIt)->phi());
       if(matchedEgamma){
 
         if(!skipActiveTE) fillEFegOffRes(*egIt,matchedEgamma, path+"/EFeg/Resolution" );
@@ -1477,7 +1556,7 @@ StatusCode HLTEgammaNavSigTEMonTool::fillCombination(Trig::Combination comb, con
         float trk_phi = (*egIt)->trackParticle()->phi();
 
         //fill EFID histograms
-        //if(!skipActiveTE) fillEFID(*egIt, path+"/EFID");
+        if(!skipActiveTE) fillEFID(*egIt, path+"/EFID");
 
         //if we're only looking at active TEs fill rejection histograms and update pointers
         // - note: are we not active by definition?
@@ -1493,7 +1572,7 @@ StatusCode HLTEgammaNavSigTEMonTool::fillCombination(Trig::Combination comb, con
 
         //---Match to Offline and fill resolutions/efficiencies
         ATH_MSG_VERBOSE("Trying to match EFID to offline using track directions.");
-        const xAOD::Electron* matchedEgamma = matchOffline(trk_eta,trk_phi, false, isPhoton);
+        const xAOD::Electron* matchedEgamma = matchOffline(trk_eta,trk_phi);
         if(matchedEgamma){
           if(!skipActiveTE) fillEFIDOffRes(*egIt, matchedEgamma, path+"/EFID/Resolution");
 	  EFIDmatchedEgamma.insert(matchedEgamma);
@@ -1594,22 +1673,25 @@ bool HLTEgammaNavSigTEMonTool::matchL1(const float eta, const float phi)
  *  - returns pointer to closest object within dR < 0.15 (configurable in JOs)
  *            or NULL in case no suitable match is found
  */
-const xAOD::Electron* HLTEgammaNavSigTEMonTool::matchOffline(const float eta, const float phi, bool useCalo, bool isPhoton)
+const xAOD::Egamma* HLTEgammaNavSigTEMonTool::matchOffline(const float eta, const float phi, bool useCalo, bool isPhoton)
 {
   ATH_MSG_DEBUG("Starting to match eta/phi to offline egamma object.");
   //initialise pointer to return object
-  const xAOD::Electron* match = NULL;
+  const xAOD::Egamma* match = NULL;
   //initialise distance of current match to maximum allowed (in job options)
   float match_dr = m_dR_off;
 
   //set egammaContainer based on isPhoton
-  if(isPhoton) return NULL;
-  xAOD::ElectronContainer const* cont = NULL;
-  cont = m_elecTES; 
+  xAOD::EgammaContainer const* cont = NULL;
+  if(!isPhoton){
+    cont = m_elecTES;
+  }else{
+    cont = m_photTES;
+  }
 
   //set up container iterators
-  xAOD::ElectronContainer::const_iterator egIt = cont->begin();
-  xAOD::ElectronContainer::const_iterator egItE = cont->end();
+  xAOD::EgammaContainer::const_iterator egIt = cont->begin();
+  xAOD::EgammaContainer::const_iterator egItE = cont->end();
 
   //loop over container
   for(; egIt != egItE ; ++egIt){
@@ -1630,8 +1712,7 @@ const xAOD::Electron* HLTEgammaNavSigTEMonTool::matchOffline(const float eta, co
     if(clus){
       eg_eta = clus->eta();
       eg_phi = clus->phi();
-      //TODO replace with calcEt
-      eg_pt = calcEt( clus->et(), eg_eta);
+      eg_pt = clus->pt();
     }else{
       eg_eta = (*egIt)->eta();
       eg_phi = (*egIt)->phi();
@@ -1643,16 +1724,14 @@ const xAOD::Electron* HLTEgammaNavSigTEMonTool::matchOffline(const float eta, co
 
     //apply author / minimum pt cuts
     bool pass_author(false), pass_ID(false);
-/*
     if(isPhoton){
       pass_author = ((*egIt)->author(egammaParameters::AuthorPhoton) ||
 		     (*egIt)->author(egammaParameters::AuthorRConv));
-      //pass_ID = (*egIt)->passID(egammaPID::PhotonIDTight);
+      (*egIt)->passSelection(pass_ID,m_offPho_qcut);
     }else{
-*/
       pass_author = (*egIt)->author(egammaParameters::AuthorElectron);
-      (*egIt)->passSelection(pass_ID,"Medium"); 
-//    }
+      (*egIt)->passSelection(pass_ID,m_offEle_qcut); 
+    }
     if(!pass_author || !pass_ID){ continue; }
     ATH_MSG_VERBOSE(" -- egamma object passes author and ID cuts.");
 
@@ -1670,6 +1749,64 @@ const xAOD::Electron* HLTEgammaNavSigTEMonTool::matchOffline(const float eta, co
   //return match
   if(!match){ ATH_MSG_VERBOSE("No good match found. Returning NULL."); }
   ATH_MSG_DEBUG("Finished matching to offline egamma object.");
+  return(match);
+
+}
+
+/*  MATCHING TO OFFLINE ELECTRON OBJECT BY ETA/PHI
+ *
+ *  - uses electron container loaded during init()
+ *  - checks author, applies quality cut
+ *  - returns pointer to closest object within dR < 0.15 (configurable in JOs)
+ *            or NULL in case no suitable match is found
+ */
+const xAOD::Electron* HLTEgammaNavSigTEMonTool::matchOffline(const float eta, const float phi)
+{
+  ATH_MSG_DEBUG("Starting to match eta/phi to offline electron object.");
+  //initialise pointer to return object
+  const xAOD::Electron* match = NULL;
+  //initialise distance of current match to maximum allowed (in job options)
+  float match_dr = m_dR_off;
+
+  xAOD::ElectronContainer const* cont = m_elecTES;
+
+  //set up container iterators
+  xAOD::ElectronContainer::const_iterator egIt = cont->begin();
+  xAOD::ElectronContainer::const_iterator egItE = cont->end();
+
+  //loop over container
+  for(; egIt != egItE ; ++egIt){
+
+    //initialise variables to hold electron info
+    float eg_pt = (*egIt)->pt();
+    float eg_eta = (*egIt)->eta();
+    float eg_phi = (*egIt)->phi();
+
+    //dump current electron info
+    ATH_MSG_VERBOSE(" - at electron object (eta="<<eg_eta<<", phi="<<eg_phi<<", pt="<<eg_pt<<")");
+
+    //apply author / ID cuts
+    bool pass_author(false), pass_ID(false);
+    pass_author = (*egIt)->author(egammaParameters::AuthorElectron);
+    (*egIt)->passSelection(pass_ID,m_offEle_qcut); 
+    
+    if(!pass_author || !pass_ID){ continue; }
+    ATH_MSG_VERBOSE(" -- electron object passes author and ID cuts.");
+
+    //compute distance to trigger object and update match pointer if this is closer than the previous best
+    float dr = calcDeltaR(eta,eg_eta,phi,eg_phi);
+    ATH_MSG_VERBOSE(" -- electron object at distance dr="<<dr);
+    if(dr<match_dr){
+      match_dr = dr;
+      match = *egIt;
+      ATH_MSG_VERBOSE(" -- electron object is closest match so far.");
+    }
+
+  }//done looping over container
+
+  //return match
+  if(!match){ ATH_MSG_VERBOSE("No good match found. Returning NULL."); }
+  ATH_MSG_DEBUG("Finished matching to offline electron object.");
   return(match);
 
 }
