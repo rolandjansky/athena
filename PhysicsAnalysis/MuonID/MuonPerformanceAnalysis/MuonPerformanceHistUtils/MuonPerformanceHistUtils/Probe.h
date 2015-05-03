@@ -42,6 +42,19 @@ class Probe {
   float sfweight(){ return m_sf_weight;}
   void sfweight(float w ){ m_sf_weight = w;}
 
+  // trigger stuff
+  void        SetCurrentTrigger(std::string TrigName) { m_CurrentTrigger = TrigName;}
+  std::string GetCurrentTrigger()		      { return m_CurrentTrigger;}   
+
+  bool HasSomeTrigger(void)    { return m_HasSomeTrigger; }
+  void HasSomeTrigger(bool in) { m_HasSomeTrigger = in;   }
+
+  bool HasSomeTrigger_HLT(void)    { return m_HasSomeTrigger_HLT; }
+  void HasSomeTrigger_HLT(bool in) { m_HasSomeTrigger_HLT = in;   }
+
+  float dRL1;
+  float dRHLT;
+
  private:
 
   bool m_isMatched;
@@ -51,6 +64,10 @@ class Probe {
   
   float m_sf_weight;     // for closure tests
 
+  // trigger stuff
+  std::string m_CurrentTrigger;
+  bool        m_HasSomeTrigger;
+  bool        m_HasSomeTrigger_HLT;
 };
 
 #endif

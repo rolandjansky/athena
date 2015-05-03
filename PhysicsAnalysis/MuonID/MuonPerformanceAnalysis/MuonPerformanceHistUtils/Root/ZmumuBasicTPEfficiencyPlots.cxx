@@ -10,6 +10,8 @@
  */
 
 #include "MuonPerformanceHistUtils/ZmumuBasicTPEfficiencyPlots.h"
+#include "xAODTracking/TrackParticle.h"
+#include "xAODMuon/Muon.h"
 
 ZmumuBasicTPEfficiencyPlots::ZmumuBasicTPEfficiencyPlots(PlotBase* pParent, std::string sDir, bool isMatched, bool ApplySF)
   : MuonTPEfficiencyPlotBase (pParent, sDir, isMatched, ApplySF),
@@ -22,7 +24,6 @@ ZmumuBasicTPEfficiencyPlots::ZmumuBasicTPEfficiencyPlots(PlotBase* pParent, std:
 	eta  = Book1D("eta" ," eta; #eta; Entries ",50,-2.5,2.5);
 	phi  = Book1D("phi" ," phi; #phi; Entries ",32,-TMath::Pi(),TMath::Pi());
     integrated  = Book1D("integrated" ," integrated;  ; Entries ",1,0.5,1.5);
-    fineEtaPhi  = Book1D("fineEtaPhi" ," fineEtaPhi; fine (#eta, #phi) bin; Entries ",m_fepb.nbins(),m_fepb.firstbin()-0.5, m_fepb.lastbin()+0.5);
 
 }
 
@@ -35,6 +36,5 @@ void ZmumuBasicTPEfficiencyPlots::fill(Probe& probe)
 	eta->Fill(probe.eta() ,sfweight);
 	phi->Fill(probe.phi() ,sfweight);
     integrated->Fill(1,sfweight);
-    fineEtaPhi->Fill(m_fepb.bin(probe.probeTrack().p4()),sfweight);
 
 }

@@ -6,16 +6,72 @@
 #define MUONHISTUTILS_MUONRESPLOTS_H
 
 #include "AsgTools/AsgTool.h"
+#ifndef ROOTCORE
 #include "GaudiKernel/ServiceHandle.h"
+#endif
 #include "TrkValHistUtils/PlotBase.h"
-#include "AthenaMonitoring/ManagedMonitorToolBase.h"
 #include "xAODMuon/Muon.h"
 #include "xAODTruth/TruthParticle.h"
 #include "xAODTruth/TruthParticleContainer.h"
 
 class MuonResonancePlots: public PlotBase {
  public:
- MuonResonancePlots(PlotBase *pParent, std::string sDir):PlotBase(pParent, sDir){;}
+  MuonResonancePlots(PlotBase *pParent, std::string sDir) :
+    PlotBase(pParent, sDir),
+    mu_1stAuthor(NULL),
+    mu_2ndAuthor(NULL),
+    mu_1stPt(NULL),
+    mu_2ndPt(NULL),
+    mu_avPt(NULL),
+    mu_1stEta(NULL),
+    mu_2ndEta(NULL),
+    mu_1stPhi(NULL),
+    mu_2ndPhi(NULL),
+    Mmumu(NULL),
+    Z_pt(NULL),
+    Z_phi(NULL),
+    h_Zpt_mu_1stPt(NULL),
+    h_mu_1stPt_1stPhi(NULL),
+    h_mu_2ndPt_2ndPhi(NULL),
+    h_Zpt_mu_avPt(NULL),
+    h_Zm_1stPhi(NULL),
+    h_Zm_2ndPhi(NULL),
+    h_Zm_1stEta(NULL),
+    h_Zm_2ndEta(NULL),
+    h_Zm_1stPt(NULL),
+    h_Zm_2ndPt(NULL),
+    h_Zm_mu_avPt(NULL),
+    h_Zm_Pexp(NULL),
+    h_Zm_1stPhi_truth(NULL),
+    h_Zm_2ndPhi_truth(NULL),
+    h_Zm_1stEta_truth(NULL),
+    h_Zm_2ndEta_truth(NULL),
+    h_Zm_1stPt_truth(NULL),
+    h_Zm_2ndPt_truth(NULL),
+    h_Zm_mu_avPt_truth(NULL),
+    h_Zm_Pexp_truth(NULL),
+    Res_mu_1stPt_2D(NULL),
+    Res_mu_2ndPt_2D(NULL),
+    Res_mu_1stPhi_2D(NULL),
+    Res_mu_2ndPhi_2D(NULL),
+    Res_mu_1stEta_2D(NULL),
+    Res_mu_2ndEta_2D(NULL),
+    Res_Zm_2D(NULL),
+    Res_Zm_Eta_2D(NULL),
+    Res_Zm_Phi_2D(NULL),
+    Res_Zm_Pt_2D(NULL),
+    Res_Zm_Pexp_2D(NULL),
+    Res_Zpt_2D(NULL),
+    Res_Zphi_2D(NULL),
+    ChiSquared(NULL),
+    p_pTRUE(NULL),
+    pID_pME(NULL),
+    Z_m_etaphi(NULL),
+    DeltaZ_m_etaphi(NULL),
+    DeltaZ_m_q_etaphi(NULL),
+    p_pTRUE_etapt(NULL),
+    p_pTRUE_etaphi(NULL)
+  {;}
 
   TString selitool;
   const double M_pdg[3] = {91187.6, 3096.6, 9460.3};
@@ -26,7 +82,7 @@ class MuonResonancePlots: public PlotBase {
   void setBinning(std::map< std::string,std::vector<double> >);
   void BookPlots();
   void fill(const xAOD::Muon& mu1st, const xAOD::Muon& mu2nd, int trk);
-  const float M0(); 
+  float M0();
   float p_star(TLorentzVector v1, TLorentzVector v2);
   float deltaPt(TLorentzVector v1, TLorentzVector v2);
   float effWeight(const xAOD::Muon& mu);
