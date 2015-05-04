@@ -18,8 +18,6 @@
 
 // Local include(s)
 #include "FsrUtils/FsrPhotonTool.h"
-#include "xAODCore/tools/IOStats.h"
-#include "xAODCore/tools/ReadStats.h"
 
 // Error checking macro
 #define CHECK( ARG )                                    \
@@ -125,11 +123,19 @@ int main( int argc, char* argv[] )
          {
             Info( APP_NAME, " FSR candidate found !!!!!!!! ");
             Info( APP_NAME, " container = %s deltaR = %f Et = %f f1 = %f"
-                            " eta = %f phi = %f phIso = %f fsrtype = %i",
+                            " eta = %f phi = %f etcone = %f fsrtype = %i",
                             candidate.container.c_str(),
                             candidate.deltaR, candidate.Et, candidate.f1,
                             candidate.eta, candidate.phi,
-                            candidate.phIso, candidate.type );
+                            candidate.topoEtcone40, candidate.type );
+            //Info( APP_NAME, " container = " << candidate.container
+            //                << " deltaR = " << candidate.deltaR
+            //                << " Et = " << candidate.Et
+            //                << " f1 = " << candidate.f1
+            //                << " eta = " << candidate.eta
+            //                << " phi = " << candidate.phi
+            //                << " etcone = " << candidate.topoEtcone40
+            //                << " fsrtype = " << candidate.type );
          }
 
          if (candidate.container == "photon" ) {
@@ -148,8 +154,6 @@ int main( int argc, char* argv[] )
          }
 
       }
-
-      xAOD::IOStats::instance().stats().printSmartSlimmingBranchList();
 
    }
 

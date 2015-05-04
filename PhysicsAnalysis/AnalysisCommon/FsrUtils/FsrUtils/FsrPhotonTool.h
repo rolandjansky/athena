@@ -7,16 +7,9 @@
 
 // Framework include(s):
 #include "AsgTools/AsgTool.h"
-#include "AsgTools/ToolHandle.h"
 
 // Local include(s):
 #include "FsrUtils/IFsrPhotonTool.h"
-
-// Forward declarations
-namespace CP
-{
-    class IIsolationSelectionTool;
-}
 
 namespace FSR {
 
@@ -27,7 +20,7 @@ namespace FSR {
    /// $Date: 2014-07-18 $
 
    class FsrPhotonTool : public virtual IFsrPhotonTool,
-                         public asg::AsgTool {
+                              public asg::AsgTool {
 
       /// Create a proper constructor for Athena
       ASG_TOOL_CLASS( FsrPhotonTool, FSR::IFsrPhotonTool )
@@ -74,8 +67,7 @@ namespace FSR {
                                                      std::string option="ET");
       bool isOverlap(const xAOD::Electron_v1* electron, std::vector< std::pair <const xAOD::IParticle*, double> > phfsr,
     		  unsigned int nofPhFsr);
-      double deltaR(float muonEta, float muonPhi, float phEta, float phPhi) const;
-      double deltaPhi(float phi1, float phi2) const;
+      double deltaR(float muonEta, float muonPhi, float phEta, float phPhi);
       static bool compareEt(FsrCandidate c1, FsrCandidate c2) { return (c1.Et > c2.Et); }
 
       //const xAOD::PhotonContainer* m_photons;
@@ -87,7 +79,7 @@ namespace FSR {
 
       double m_far_fsr_drcut;
       double m_far_fsr_etcut;
-      std::string m_far_fsr_isoWorkingPoint;
+      double m_far_fsr_etconecut;
 
       double m_drcut;
       double m_etcut;
@@ -98,8 +90,6 @@ namespace FSR {
 
       std::vector<FsrCandidate> m_fsrPhotons;
       FsrCandidate::FsrType     m_fsr_type;
-
-      ToolHandle<CP::IIsolationSelectionTool> m_isoSelTool;
 
    }; // class FsrPhotonTool
 
