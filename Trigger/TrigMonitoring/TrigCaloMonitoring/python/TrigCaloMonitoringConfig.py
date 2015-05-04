@@ -72,6 +72,14 @@ def HLTCaloMonitoringTool():
   elif DQMonFlags.monManEnvironment == 'tier0ESD':
     from TrigCaloMonitoring.TrigCaloMonitoringConf import HLTCaloToolL2
     from TrigCaloMonitoring.TrigCaloMonitoringConf import HLTCaloClusterTool
+    from TrigCaloMonitoring.TrigCaloMonitoringConf import HLTCaloESD_xAODTrigEMClusters
+    from TrigCaloMonitoring.TrigCaloMonitoringConf import HLTCaloESD_xAODCaloClusters
+    from TrigCaloMonitoring.TrigCaloMonitoringConf import HLTCaloESD_CaloCells
+
+    xAODTrigEMClusters = HLTCaloESD_xAODTrigEMClusters("xAODTrigEMClusters")
+    xAODCaloClusters   = HLTCaloESD_xAODCaloClusters  ("xAODCaloClusters")
+    CaloCells          = HLTCaloESD_CaloCells         ("CaloCells")
+        
     HLTCaloL2 = HLTCaloToolL2(name             = 'HLTCaloL2',
                                         histoPathBase    = "/Trigger/HLT",
                                         ListOfCellsKeys  =
@@ -79,10 +87,17 @@ def HLTCaloMonitoringTool():
     HLTCaloCluster =  HLTCaloClusterTool( name = 'HLTCaloCluster',
                                         histoPathBase    = "/Trigger/HLT")
     from AthenaCommon.AppMgr import ToolSvc
-    ToolSvc += HLTCaloL2;
-    list = [ "HLTCaloToolL2/HLTCaloL2" ];
-    ToolSvc += HLTCaloCluster;
-    list += [ "HLTCaloClusterTool/HLTCaloCluster" ];
+   #ToolSvc += HLTCaloL2;                                                                                                                                                                                                                                          
+    ToolSvc += xAODTrigEMClusters
+    #list = [ "HLTCaloToolL2/HLTCaloL2" ];                                                                                                                                                                                                                         
+    list = [ "HLTCaloESD_xAODTrigEMClusters/xAODTrigEMClusters" ]
+    #ToolSvc += HLTCaloCluster;                                                                                                                                                                                                                                    
+    ToolSvc += xAODCaloClusters
+    #list += [ "HLTCaloClusterTool/HLTCaloCluster" ];                                                                                                                                                                                                              
+    list += [ "HLTCaloESD_xAODCaloClusters/xAODCaloClusters" ]
+    ToolSvc += CaloCells
+    list += [ "HLTCaloESD_CaloCells/CaloCells" ]
+    
     return list
   else:
     list=[]

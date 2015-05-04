@@ -205,12 +205,12 @@ StatusCode HLTCaloToolL2::fill() {
 			float diff = fabsf(tenergy-energy);
 			float tdiff = fabsf(ttime-time);
 			float diffp = 0;
-			float tdiffp = 0;
+			//float tdiffp = 0;
 			double lartile = 0;
 			if ( fabsf (energy) > 0.2 )
 				diffp = 100*diff/energy;
-			if ( fabsf (time) > 0.2 )
-				tdiffp = 100*tdiff/time;
+			//if ( fabsf (time) > 0.2 )
+			//	tdiffp = 100*tdiff/time;
 			// time disabled for the moment
                         //
 

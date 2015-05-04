@@ -9,12 +9,14 @@ use GaudiInterface       GaudiInterface-*        External
 use AtlasROOT            AtlasROOT-*             External
 use TrigHLTMonitoring	TrigHLTMonitoring-*	Trigger/TrigMonitoring
 use LArRecEvent 	 LArRecEvent-*		 LArCalorimeter
+#use egammaInterfaces	 egammaInterfaces-*      Reconstruction/egamma
 
 private
 use StoreGate            StoreGate-*             Control
 use CaloEvent            CaloEvent-*             Calorimeter
 use CaloInterface	 CaloInterface-*	 Calorimeter
 use CaloIdentifier	 CaloIdentifier-*	 Calorimeter
+use CaloGeoHelpers       CaloGeoHelpers-*        Calorimeter
 use TrigCaloRec           TrigCaloRec-*           Trigger/TrigAlgorithms
 use LArIdentifier	 LArIdentifier-*	 LArCalorimeter
 use LArTools		 LArTools-*		 LArCalorimeter

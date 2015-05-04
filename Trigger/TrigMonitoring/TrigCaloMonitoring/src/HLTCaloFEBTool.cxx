@@ -15,7 +15,7 @@
 #include "TrigT2CaloCommon/ITrigDataAccess.h"
 #include "CaloInterface/ICaloNoiseTool.h"
 #include "GaudiKernel/IToolSvc.h"
-#include "CaloEvent/CaloSampling.h"
+#include "CaloGeoHelpers/CaloSampling.h"
 
 
 #include "TH1F.h"
@@ -875,17 +875,17 @@ void HLTCaloFEBTool::doComparison(std::vector<LArFebEnergy> &febcoll,std::map<HW
                           found = true;
                           float diffx = fabsf(offFebEx
                                 - (*tit).getFebEx() );
-                          float diffxp = 0;
-                          if ( fabsf ((*tit).getFebEx()) > 0.2 )
-                                diffxp = 100*diffx/(*tit).getFebEx();
+                          //float diffxp = 0;
+                          //if ( fabsf ((*tit).getFebEx()) > 0.2 )
+                          //      diffxp = 100*diffx/(*tit).getFebEx();
                           float diffy = fabsf(offFebEy
                                 - (*tit).getFebEy() );
-                          float diffyp = 0;
-                          if ( fabsf ((*tit).getFebEy()) > 0.2 )
-                                diffyp = 100*diffy/(*tit).getFebEy();
+                          //float diffyp = 0;
+                          //if ( fabsf ((*tit).getFebEy()) > 0.2 )
+                          //      diffyp = 100*diffy/(*tit).getFebEy();
                           float diffz = fabsf(offFebEz
                                 - (*tit).getFebEz() );
-                          float diffzp = 0;
+                          //float diffzp = 0;
                           //float offFebPhi = atan2f(offFebEy,offFebEx);
                           //float offFebEta = atanh(offFebEz/offFebE);
                           float febene = sqrt( ((*tit).getFebEx())*((*tit).getFebEx()) +
@@ -894,20 +894,20 @@ void HLTCaloFEBTool::doComparison(std::vector<LArFebEnergy> &febcoll,std::map<HW
                           float febex = (*tit).getFebEx();
                           float febey = (*tit).getFebEy();
                           float febez = (*tit).getFebEz();
-                          if ( fabsf ((*tit).getFebEz()) > 0.2 )
-                                diffzp = 100*diffz/(*tit).getFebEz();
+                          //if ( fabsf ((*tit).getFebEz()) > 0.2 )
+                          //      diffzp = 100*diffz/(*tit).getFebEz();
                           if ( ((diffx >= m_difflimit) ||
                                (diffy >= m_difflimit) ||
                                (diffz >= m_difflimit)) && febene!=0 ){
                                 countp++; 
                                 float febphi = 999999;
                                 float febeta = 999999;
-                                LArFebEnergy larfebnoise = (*it).second.second;
+				LArFebEnergy larfebnoise = (*it).second.second;
                                 if(febene!=0){
                                    febphi = atan2f((*tit).getFebEy(),(*tit).getFebEx());
                                    febeta = atanh((*tit).getFebEz()/febene);
                                 }
-#ifndef NDEBUG
+//#ifndef NDEBUG
 				if ( m_log->level() <= MSG::DEBUG ) {
                                     float offFebSEx = larfebnoise.getFebEx();
                                     float offFebSEy = larfebnoise.getFebEy();
@@ -930,7 +930,7 @@ void HLTCaloFEBTool::doComparison(std::vector<LArFebEnergy> &febcoll,std::map<HW
                                     (*m_log) << "Offline sigma Ez " << offFebSEz << " ";
                                     (*m_log) << endreq;
 				}
-#endif
+//#endif
                                 if(febidshort == 0x38) {
 #ifndef NDEBUG
 				    if ( m_log->level() <= MSG::VERBOSE ) {
