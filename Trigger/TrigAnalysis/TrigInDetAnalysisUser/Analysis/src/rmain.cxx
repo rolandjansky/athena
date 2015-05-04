@@ -399,6 +399,12 @@ int main(int argc, char** argv)
     select_roi = ( inputdata.GetValue("SelectRoi")!=0 ? true : false );
   }
 
+  if ( !select_roi ) { 
+    std::cout << "****                                               ****" << std::endl;
+    std::cout << "**** RoI filtering of reference tracks is disabled ****" << std::endl;
+    std::cout << "****                                               ****" << std::endl;
+  }
+
   //  bool selectfake_roi = false;  // JK removed (unused)
   //  if ( inputdata.isTagDefined("SelectFakeRoi") )  { 
   //     selectfake_roi = ( inputdata.GetValue("SelectFakeRoi")!=0 ? true : false );  // JK removed (unused)

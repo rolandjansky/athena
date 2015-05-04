@@ -233,7 +233,10 @@ $(EXEDIR)/chains : $(CHOBJECTS)  lib
 	$(CXX) $(LDFLAGS) -o $@ $(CHOBJECTS) $(LIBS) $(RLIBS) $(GLIBS)
 
 
-
+makeSmallRefFile : $(EXEDIR)/makeSmallRefFile
+$(EXEDIR)/makeSmallRefFile : $(OBJDIR)/makeSmallRefFile.o
+	$(CXX) $(LDFLAGS) -o $@ $(OBJDIR)/makeSmallRefFile.o  $(ROOTLIBS)
+# $(GLIBS)
 
 # compile
 # $(OBJDIR)/%.o : $(SRCDIR)/%.cxx 

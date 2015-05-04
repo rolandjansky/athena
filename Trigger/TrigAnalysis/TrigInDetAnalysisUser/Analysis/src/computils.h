@@ -65,8 +65,13 @@ std::ostream& operator<<( std::ostream& s, std::vector<T>& v) {
 }
 
 
-/// automatically set the range on a histogram
+/// automatically set the xrange on a histogram
+std::vector<int>    findxrange(TH1* h, bool symmetric=false );
+std::vector<double> findxrangeuser(TH1* h, bool symmetric=false );
+
 void xrange(TH1* h, bool symmetric=false );
+void xrangeuser(TH1* h, bool symmetric=false );
+
 
 
 /// slightly more convenient legend class
