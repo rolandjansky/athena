@@ -20,7 +20,7 @@
 
 HLTCaloClusterTool::HLTCaloClusterTool(const std::string & type, const std::string & name, const IInterface* parent) : IHLTMonTool(type,name,parent){
    declareProperty ("DoNtuple", m_ntuple = false);
-   declareProperty("CaloOfflineClusterContainer", m_CaloClusterOfflineContainerName = "PhotonCollection");
+   declareProperty("CaloOfflineClusterContainer", m_CaloClusterOfflineContainerName = "Photons");
    declareProperty("CaloEFClusterContainer", m_CaloClusterEFContainerName = "HLT_xAOD__PhotonContainer_egamma_Photons");
    declareProperty("CaloL2ClusterContainer", m_CaloClusterL2ContainerName = "HLT_xAOD__TrigEMClusterContainer_TrigT2CaloEgamma");
    declareProperty("MatchClusterL2EtCut", m_L2EtCut= 10000);
