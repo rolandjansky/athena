@@ -74,6 +74,7 @@ class L2EFChain_CalibTemplate(L2EFChainDef):
       self.EFsignatureList  = []
       self.TErenamingDict   = []
       
+      self.chainDict = chainDict
       self.chainPart = chainDict['chainParts']	
       self.chainL1Item = chainDict['L1item']       
       self.chainPartL1Item = self.chainPart['L1item']	
@@ -273,7 +274,13 @@ class L2EFChain_CalibTemplate(L2EFChainDef):
      theTrigCaloCellMaker_jet_fullcalo = TrigCaloCellMaker_jet_fullcalo("CellMakerFullCalo_topo", doNoise=0, AbsE=True, doPers=True)
 
      from TrigJetHypo.TrigJetHypoConfig import EFJetHypoNoiseConfig
-     theJetHypo = EFJetHypoNoiseConfig()
+
+     if "loose" in self.chainPart['addInfo']:
+       theJetHypo = EFJetHypoNoiseConfig("EFJetHypoNoiseConfigLoose")
+       theJetHypo.NoiseTool.BadChanPerFEB=1
+       theJetHypo.NoiseTool.CellQualityCut=100
+     else:
+       theJetHypo = EFJetHypoNoiseConfig()
 
 
      self.L2sequenceList += [['', [theDummyRoiCreator], 'EF_full']]
@@ -285,7 +292,10 @@ class L2EFChain_CalibTemplate(L2EFChainDef):
      self.EFsignatureList += [ [['jet_hypo']] ]
 
      antiktsize = 0
+     
+     suffix = "_loose" if "loose" in self.chainPart['addInfo'] else ""
+
      self.TErenamingDict = { 
        'EF_full_noise' : mergeRemovingOverlap('HLT_full__cluster__', 'jr_antikt'+str(antiktsize)+'tc_had' ), 
-       'jet_hypo' : mergeRemovingOverlap('HLT_full__cluster__', 'jr_antikt'+str(antiktsize)+'tc_had_noiseHypo' ), 
+       'jet_hypo' : mergeRemovingOverlap('HLT_full__cluster__', 'jr_antikt'+str(antiktsize)+'tc_had_noiseHypo'+suffix ), 
        }

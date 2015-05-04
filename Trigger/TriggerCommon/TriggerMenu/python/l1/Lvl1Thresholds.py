@@ -85,18 +85,20 @@ class ThresholdValue:
         return "name=%s, value=%s, eta=(%s-%s)" % (self.name, self.value, self.etamin, self.etamax)
 
 
+
+
 class LVL1Threshold(object):
     __slots__ = ['name','ttype','mapping','active','seed','seed_ttype', 'seed_multi', 'bcdelay', 'cableinfo', 'thresholdValues']
 
     def __init__(self, name, ttype, mapping = -1, active = 1, seed='', seed_type = '', seed_multi = 0, bcdelay = 0):
-        self.name        = name
-        self.ttype       = ttype
-        self.mapping     = int(mapping)
-        self.active      = int(active)
-        self.seed        = seed
-        self.seed_ttype  = seed_type
-        self.seed_multi  = int(seed_multi)
-        self.bcdelay     = int(bcdelay)
+        self.name            = name
+        self.ttype           = ttype
+        self.mapping         = int(mapping)
+        self.active          = int(active)
+        self.seed            = seed
+        self.seed_ttype      = seed_type
+        self.seed_multi      = int(seed_multi)
+        self.bcdelay         = int(bcdelay)
         self.cableinfo       = None
         self.thresholdValues = []
 
@@ -109,7 +111,7 @@ class LVL1Threshold(object):
 
     def setCableInput(self):
         from Cabling import Cabling
-        self.cableinfo = Cabling.getInputCable(self.ttype, self.mapping, self.seed_ttype)
+        self.cableinfo = Cabling.getInputCable(self)
         return self
 
 
@@ -229,17 +231,63 @@ class LVL1TopoInput(LVL1Threshold):
     In the menu it is treated like a threshold, only the naming
     convention is less strict (allows"-" and can start with a number)
     """
-    def __init__(self, triggerline):
-        super(LVL1TopoInput,self).__init__(name=triggerline.trigger, ttype='TOPO', mapping=triggerline.ordinal)
-        self.cable = triggerline.cable      # 0 .. 1
-        self.bitOnCable = triggerline.bit   # 0 .. 31
-        self.fpga  = triggerline.fpga       # 0 .. 1
-        self.bitOnFpga = triggerline.firstbit # 0 .. 15
-        self.clock = triggerline.clock
+
+    import re
+    multibitPattern = re.compile("(?P<line>.*)\[(?P<bit>\d+)\]")
+
+    #<TriggerThreshold active="1" bitnum="1" id="148" mapping="0" name="4INVM9999-AJ0s6-AJ0s6" type="TOPO" input="ctpcore" version="1">
+    #  <Cable connector="CON1" input="CTPCORE" name="TOPO1">
+    #    <Signal range_begin="0" range_end="0" clock="0"/>
+
+
+    def __init__(self, triggerlines = None , thresholdName = None , mapping = None , connector = None , firstbit = None , numberOfBits = None , clock = None ):
+
+        if triggerlines != None :
+            # from triggerline
+            from TriggerMenu.l1topo.TopoOutput import TriggerLine
+            if type(triggerlines)==list:
+                # multibit triggerlines
+                (commonNameOfLines, firstbit, numberOfBits, cable, clock, fpga) = TriggerLine.checkMultibitConsistency(triggerlines)
+                super(LVL1TopoInput,self).__init__(name=commonNameOfLines, ttype='TOPO', mapping=firstbit)
+
+                self.cable      = cable           # 0 .. 1
+                self.bitnum     = numberOfBits
+                self.bitOnCable = firstbit        # 0 .. 31
+                self.fpga       = fpga
+                self.clock      = clock
+
+            else:
+                triggerline = triggerlines
+                super(LVL1TopoInput,self).__init__(name=triggerline.trigger, ttype='TOPO', mapping=triggerline.ordinal)
+                self.cable      = triggerline.cable      # 0 .. 1
+                self.bitnum     = 1
+                self.bitOnCable = triggerline.bit        # 0 .. 31
+                self.fpga       = triggerline.fpga       # 0 .. 1
+                self.clock      = triggerline.clock
+        else:
+            # from XML
+            super(LVL1TopoInput,self).__init__(name=thresholdName, ttype='TOPO', mapping=firstbit)
+            self.cable      = int(connector[-1]) # 0 .. 1
+            self.bitnum     = numberOfBits
+            self.bitOnCable = firstbit           # 0 .. 31
+            self.fpga       = -1
+            self.clock      = clock
+            
+
+
+    def setCableInput(self):
+        from Cabling import Cabling
+        self.cableinfo = Cabling.getInputCable(self)
+        return self
 
     def getVarName(self):
         """returns a string that can be used as a varname"""
         return ("TOPO_" + self.name).replace('.','').replace('-','_') # we can not have '.' or '-' in the variable name
+
+
+
+
+
 
 
 

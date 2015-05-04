@@ -65,10 +65,10 @@ def defineMenu():
                                                                             
         # MuonJet                                                           
         TopoOutput( algoname='0DR04-MU4ab-CJ15ab',                          module=0, fpga=1, clock=1, firstbit=10 ), # fpga 1 clock 0
-        TopoOutput( algoname='0DR04-MU4ab-CJ30ab',                          module=0, fpga=1, clock=1, firstbit=11 ),
-        TopoOutput( algoname='0DR04-MU6ab-CJ25ab',                          module=0, fpga=1, clock=1, firstbit=12 ),
-        TopoOutput( algoname='0DR04-MU4ab-CJ17ab',                          module=0, fpga=1, clock=1, firstbit=13 ),
-        TopoOutput( algoname='0DR04-MU4ab-CJ20ab',                          module=0, fpga=1, clock=1, firstbit=14 ),
+        TopoOutput( algoname='0DR04-MU4ab-CJ20ab',                          module=0, fpga=1, clock=1, firstbit=11 ),
+        TopoOutput( algoname='0DR04-MU4ab-CJ30ab',                          module=0, fpga=1, clock=1, firstbit=12 ),
+        TopoOutput( algoname='0DR04-MU6ab-CJ20ab',                          module=0, fpga=1, clock=1, firstbit=13 ),
+        TopoOutput( algoname='0DR04-MU6ab-CJ25ab',                          module=0, fpga=1, clock=1, firstbit=14 ),
                                                                             
         # ZH
         TopoOutput( algoname='10MINDPHI-Js2-XE50',                          module=1, fpga=1, clock=1, firstbit=0 ),

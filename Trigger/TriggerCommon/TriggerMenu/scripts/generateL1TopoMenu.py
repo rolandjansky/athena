@@ -17,7 +17,7 @@ def generateL1TopoMenu(menu):
     TF.triggerMenuSetup = menu
 
     # TPC for L1Topo
-    tpcl1 = TriggerConfigL1Topo( outputFile = TF.outputL1TopoConfigFile(), menuName = TF.triggerMenuSetup() )
+    tpcl1 = TriggerConfigL1Topo( outputFile = TF.outputL1TopoConfigFile() )
 
     # build the menu structure
     tpcl1.generateMenu()

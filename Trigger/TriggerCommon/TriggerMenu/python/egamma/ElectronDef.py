@@ -33,8 +33,8 @@ theTrigFastTrackFinder_Electron = TrigFastTrackFinder_Electron()
 
 # EF Electron FEX
 from TrigEgammaRec.TrigEgammaRecConfig       import TrigEgammaRec
-theTrigEgammaRec_eGamma                  = TrigEgammaRec(name = "TrigEgammaRec_eGamma")
-theTrigEgammaRec_Conv_eGamma                  = TrigEgammaRec(name = "TrigEgammaRec_Conv_eGamma", doConversions = True)
+TrigEgammaRec_eGamma                  = TrigEgammaRec.copy(name = "TrigEgammaRec_eGamma",doPrint=False)
+TrigEgammaRec_Conv_eGamma                  = TrigEgammaRec.copy(name = "TrigEgammaRec_Conv_eGamma", doConversions = True,doPrint=False)
 
 from TrigGenericAlgs.TrigGenericAlgsConf import PrescaleAlgo
 terminateAlgo = PrescaleAlgo('terminateAlgo')
@@ -196,8 +196,7 @@ class L2EFChain_e(L2EFChainDef):
         theEFElectronIDFex           = TrigEFIDInsideOut_Electron("Electron").getSequence()
         
         # EF Electron FEX
-        # from TrigEgammaRec.TrigEgammaRecConfig       import TrigEgammaRec
-        # theTrigEgammaRec_eGamma                  = TrigEgammaRec(name = "TrigEgammaRec_eGamma")
+        theTrigEgammaRec_eGamma                  = TrigEgammaRec_eGamma()
         #print 'ESETUP', self.chainPart
         # these can be made more configurable later (according to tracking algorithms etc...)
         if 'etcut' in self.chainPart['addInfo']:
@@ -364,9 +363,8 @@ class L2EFChain_e(L2EFChainDef):
         # Ringer FEX for L2 Calo
         from TrigT2CaloEgamma.TrigT2CaloEgammaConfig        import T2CaloEgamma_Ringer
         theT2CaloEgamma_Ringer  = T2CaloEgamma_Ringer()
-        # EF Electron FEX
-        # from TrigEgammaRec.TrigEgammaRecConfig       import TrigEgammaRec
-        #theTrigEgammaRec_eGamma                  = TrigEgammaRec(name = "TrigEgammaRec_eGamma")
+        
+        
         #print 'ESETUP', self.chainPart
         # these can be made more configurable later (according to tracking algorithms etc...)
         
@@ -387,11 +385,12 @@ class L2EFChain_e(L2EFChainDef):
             from TrigEgammaHypo.TrigEFElectronHypoConfig import TrigEFElectronHypo_e_ID_CaloOnly
             theEFElectronHypo  = \
                 TrigEFElectronHypo_e_ID_CaloOnly("TrigEFElectronHypo_e"+str(threshold)+"_"+str(IDinfo)+"_CaloOnly",threshold,IDinfo)
-
+        
+        # EF Electron FEX
         if 'conv' in self.chainPart['addInfo']:
-            theTrigEgammaFex = theTrigEgammaRec_Conv_eGamma
+            theTrigEgammaFex = TrigEgammaRec_Conv_eGamma()
         else :
-            theTrigEgammaFex = theTrigEgammaRec_eGamma
+            theTrigEgammaFex = TrigEgammaRec_eGamma()
 
 
         ########### Sequences ###########
@@ -495,9 +494,7 @@ class L2EFChain_e(L2EFChainDef):
         # Ringer FEX for L2 Calo
         from TrigT2CaloEgamma.TrigT2CaloEgammaConfig        import T2CaloEgamma_Ringer
         theT2CaloEgamma_Ringer  = T2CaloEgamma_Ringer()
-        # EF Electron FEX
-        # from TrigEgammaRec.TrigEgammaRecConfig       import TrigEgammaRec
-        #theTrigEgammaRec_eGamma                  = TrigEgammaRec(name = "TrigEgammaRec_eGamma")
+        
         #print 'ESETUP', self.chainPart
         # these can be made more configurable later (according to tracking algorithms etc...)
         
@@ -519,10 +516,11 @@ class L2EFChain_e(L2EFChainDef):
             theEFElectronHypo  = \
                 TrigEFElectronHypo_e_ID_CaloOnly("TrigEFElectronHypo_e"+str(threshold)+"_"+str(IDinfo)+"_CaloOnly_heavyIon",threshold,IDinfo)
 
+        # EF Electron FEX
         if 'conv' in self.chainPart['addInfo']:
-            theTrigEgammaFex = theTrigEgammaRec_Conv_eGamma
+            theTrigEgammaFex = TrigEgammaRec_Conv_eGamma()
         else :
-            theTrigEgammaFex = theTrigEgammaRec_eGamma
+            theTrigEgammaFex = TrigEgammaRec_eGamma()
 
 
         ########### Sequences ###########
@@ -684,6 +682,11 @@ class L2EFChain_e(L2EFChainDef):
             logElectronDef.erro('chain suffix: %s', algoSuffix)
             return False
         
+        # EF Electron FEX
+        if 'conv' in self.chainPart['addInfo']:
+            theTrigEgammaFex = TrigEgammaRec_Conv_eGamma()
+        else :
+            theTrigEgammaFex = TrigEgammaRec_eGamma()
         ########### Sequences ###########
         
         trkcomb1st = list(theTrigEFIDDataPrep_Electron)
@@ -718,7 +721,7 @@ class L2EFChain_e(L2EFChainDef):
                                  'EF_e_step3']]
         
         self.EFsequenceList += [[['EF_e_step3'], 
-                                 [theTrigEgammaRec_eGamma, theEFElectronHypo], 
+                                 [theTrigEgammaFex, theEFElectronHypo], 
                                  'EF_e_step4']]
 
         ########### Signatures ###########
@@ -766,9 +769,6 @@ class L2EFChain_e(L2EFChainDef):
         
         # EF Tracking
         theEFElectronIDFex           = theTrigEFIDInsideOutMerged_Electron
-        # EF Electron FEX
-        #from TrigEgammaRec.TrigEgammaRecConfig       import TrigEgammaRec
-        #theTrigEgammaRec_eGamma                  = TrigEgammaRec(name = "TrigEgammaRec_eGamma")
         #print 'ESETUP', self.chainPart
         # these can be made more configurable later (according to tracking algorithms etc...)
         if 'etcut' in self.chainPart['addInfo']:
@@ -814,6 +814,11 @@ class L2EFChain_e(L2EFChainDef):
             logElectronDef.erro('chain suffix: %s', algoSuffix)
             return False
         
+        # EF Electron FEX
+        if 'conv' in self.chainPart['addInfo']:
+            theTrigEgammaFex = TrigEgammaRec_Conv_eGamma()
+        else :
+            theTrigEgammaFex = TrigEgammaRec_eGamma()
         ########### Sequences ###########
         
         trkcomb1st = list(theTrigEFIDDataPrep_Electron)
@@ -835,7 +840,7 @@ class L2EFChain_e(L2EFChainDef):
                                  'EF_e_step3']]
         
         self.EFsequenceList += [[['EF_e_step3'], 
-                                 [theTrigEgammaRec_eGamma, theEFElectronHypo], 
+                                 [theTrigEgammaFex, theEFElectronHypo], 
                                  'EF_e_step4']]
 
         ########### Signatures ###########
@@ -967,14 +972,14 @@ class L2EFChain_e(L2EFChainDef):
                     theEFElectronHypo  = TrigEFElectronHypo_e_ID_EtIsEM_Iso("TrigEFElectronHypo_e"+str(threshold)+"_"+str(IDinfo)+"_EtIsEM"+"_"+str(isoInfo),threshold,IDinfo)
                 elif self.chainPart['lhInfo']:
                     lhInfo = self.chainPart['lhInfo']
-                    theEFElectronHypo = TrigEFElectronHypo_e_LH_Iso("TrigEFElectronHypo_e"+str(threshold)+"_"+str(IDinfo)+"_"+str(lhInfo)+"_"+str(isoInfo),threshold,lhInfo)
+                    theEFElectronHypo = TrigEFElectronHypo_e_LH_Iso("TrigEFElectronHypo_e"+str(threshold)+"_"+str(IDinfo)+"_"+str(lhInfo)+"_"+str(isoInfo),threshold,IDinfo,lhInfo)
                 else:
                     theEFElectronHypo  = TrigEFElectronHypo_e_Iso("TrigEFElectronHypo_e"+str(threshold)+"_"+str(IDinfo)+"_"+str(isoInfo),threshold,IDinfo,isoInfo)
             elif 'etisem' in self.chainPart['addInfo']:
                 theEFElectronHypo  = TrigEFElectronHypo_e_ID_EtIsEM("TrigEFElectronHypo_e"+str(threshold)+"_"+str(IDinfo)+"_EtIsEM",threshold,IDinfo)
             elif self.chainPart['lhInfo']:
                 lhInfo = self.chainPart['lhInfo']
-                theEFElectronHypo = TrigEFElectronHypo_e_LH("TrigEFElectronHypo_e"+str(threshold)+"_"+str(IDinfo)+"_"+str(lhInfo),threshold,lhInfo)
+                theEFElectronHypo = TrigEFElectronHypo_e_LH("TrigEFElectronHypo_e"+str(threshold)+"_"+str(IDinfo)+"_"+str(lhInfo),threshold,IDinfo,lhInfo)
             else: 
                 theEFElectronHypo  = TrigEFElectronHypo_e_ID("TrigEFElectronHypo_e"+str(threshold)+"_"+str(IDinfo),threshold,IDinfo)
         else:
@@ -984,9 +989,9 @@ class L2EFChain_e(L2EFChainDef):
             return False
         
         if 'conv' in self.chainPart['addInfo']:
-            theTrigEgammaFex = theTrigEgammaRec_Conv_eGamma
+            theTrigEgammaFex = TrigEgammaRec_Conv_eGamma()
         else :
-            theTrigEgammaFex = theTrigEgammaRec_eGamma
+            theTrigEgammaFex = TrigEgammaRec_eGamma()
 
         ########### Sequences ###########
         
@@ -1193,9 +1198,9 @@ class L2EFChain_e(L2EFChainDef):
             return False
         
         if 'conv' in self.chainPart['addInfo']:
-            theTrigEgammaFex = theTrigEgammaRec_Conv_eGamma
+            theTrigEgammaFex = TrigEgammaRec_Conv_eGamma()
         else :
-            theTrigEgammaFex = theTrigEgammaRec_eGamma
+            theTrigEgammaFex = TrigEgammaRec_eGamma()
 
         ########### Sequences ###########
         

@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-from Lvl1Thresholds import LVL1Threshold, ThresholdValue
+from Lvl1Thresholds import LVL1Threshold, LVL1TopoInput, ThresholdValue
 from Lvl1MenuItems import LVL1MenuItem
 
 from PrescaleHelper import getCutFromPrescale
@@ -63,9 +63,17 @@ def readMenuFromXML(l1menu, filename):
             
             seed_type  = [t for t in reader.getL1Thresholds() if t['name']==seed][0]['type']
             
-
-        thr = LVL1Threshold( name=x['name'], ttype=x['type'], mapping = x['mapping'], active = x['active'],
-                             seed_type = seed_type, seed = seed, seed_multi = seed_multi, bcdelay = bcdelay)
+        if x['type']=='TOPO' or x['type']=='ALFA':
+            ca = x.Cable
+            si = ca.Signal
+            firstbit = int(si['range_begin'])
+            lastbit = int(si['range_end'])
+            thr = LVL1TopoInput( thresholdName = x['name'], mapping = int(x['mapping']), connector = ca['connector'],
+                                 firstbit = firstbit, numberOfBits = lastbit - firstbit + 1, clock = int(si['clock']))
+            
+        else:
+            thr = LVL1Threshold( name=x['name'], ttype=x['type'], mapping = x['mapping'], active = x['active'],
+                                 seed_type = seed_type, seed = seed, seed_multi = seed_multi, bcdelay = bcdelay)
 
 
         ca = x.Cable

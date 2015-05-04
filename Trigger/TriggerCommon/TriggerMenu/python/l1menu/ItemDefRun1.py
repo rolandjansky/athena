@@ -11,7 +11,7 @@ log = logging.getLogger('TriggerMenu.Lvl1.py')
 
 
 # The trigger types
-from TriggerMenu.l1.TriggerTypeDef import TT
+from TriggerMenu.l1.TriggerTypeDefRun1 import TT
 from TriggerMenu.l1.Limits import Limits
 from TriggerMenu.l1.Logic import Logic,Not
 from TriggerMenu.l1.Lvl1MenuItems import LVL1MenuItem

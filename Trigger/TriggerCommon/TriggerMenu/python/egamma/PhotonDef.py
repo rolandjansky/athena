@@ -24,8 +24,8 @@ from TriggerMenu.menu.HltConfig import *
 # default class, no ID at EF level
 
 from TrigEgammaRec.TrigEgammaRecConfig import TrigEgammaRec
-theTrigEgammaRec_NoIDEF_eGamma         = TrigEgammaRec(name = "TrigEgammaRec_NoIDEF_eGamma",doTrackMatching = False,doTrackIsolation = False)
-theTrigEgammaRec_Conv_eGamma         = TrigEgammaRec(name = "TrigEgammaRec_Conv_eGamma",doTrackMatching = False,doConversions = True)
+TrigEgammaRec_NoIDEF_eGamma         = TrigEgammaRec.copy(name = "TrigEgammaRec_NoIDEF_eGamma",doTrackMatching = False,doTrackIsolation = False,doPrint=False)
+TrigEgammaRec_Conv_eGamma         = TrigEgammaRec.copy(name = "TrigEgammaRec_Conv_eGamma",doTrackMatching = False,doConversions = True,doPrint=False)
 #-----------------------------------
 class L2EFChain_g(L2EFChainDef):
 #-----------------------------------
@@ -187,9 +187,9 @@ class L2EFChain_g(L2EFChainDef):
             #theEFPhotonHypo = eval("EFPhotonHypo_"+algoSuffix) 
         
         if 'conv' in self.chainPart['addInfo']:
-            theTrigEgammaFex = theTrigEgammaRec_Conv_eGamma
+            theTrigEgammaFex = TrigEgammaRec_Conv_eGamma()
         else :
-            theTrigEgammaFex = theTrigEgammaRec_NoIDEF_eGamma
+            theTrigEgammaFex = TrigEgammaRec_NoIDEF_eGamma()
 
         ########### Sequences ###########
         
@@ -331,9 +331,9 @@ class L2EFChain_g(L2EFChainDef):
             #theEFPhotonHypo = eval("EFPhotonHypo_"+algoSuffix) 
         
         if 'conv' in self.chainPart['addInfo']:
-            theTrigEgammaFex = theTrigEgammaRec_Conv_eGamma
+            theTrigEgammaFex = TrigEgammaRec_Conv_eGamma()
         else :
-            theTrigEgammaFex = theTrigEgammaRec_NoIDEF_eGamma
+            theTrigEgammaFex = TrigEgammaRec_NoIDEF_eGamma()
 
         ########### Sequences ###########
         
@@ -433,9 +433,9 @@ class L2EFChain_g(L2EFChainDef):
             #theEFPhotonHypo = eval("EFPhotonHypo_"+algoSuffix) 
         
         if 'conv' in self.chainPart['addInfo']:
-            theTrigEgammaFex = theTrigEgammaRec_Conv_eGamma
+            theTrigEgammaFex = TrigEgammaRec_Conv_eGamma()
         else :
-            theTrigEgammaFex = theTrigEgammaRec_NoIDEF_eGamma
+            theTrigEgammaFex = TrigEgammaRec_NoIDEF_eGamma()
 
         ########### Sequences ###########
         
@@ -494,6 +494,10 @@ class L2EFChain_g(L2EFChainDef):
         theTrigTRTHTHCounter = TrigTRTHTHCounter()
         theTrigTRTHTHhypo = TrigTRTHTHhypo()
             
+        if 'conv' in self.chainPart['addInfo']:
+            theTrigEgammaFex = TrigEgammaRec_Conv_eGamma()
+        else :
+            theTrigEgammaFex = TrigEgammaRec_NoIDEF_eGamma()
 
 
         ########### Sequences ###########
@@ -516,7 +520,7 @@ class L2EFChain_g(L2EFChainDef):
                                  'EF_g_step2']]
 
         self.EFsequenceList += [[['EF_g_step2'],
-                                 [theTrigEgammaRec_NoIDEF_eGamma, theEFPhotonHypo],
+                                 [theTrigEgammaFex, theEFPhotonHypo],
                                  'EF_g_step3']]
 
 

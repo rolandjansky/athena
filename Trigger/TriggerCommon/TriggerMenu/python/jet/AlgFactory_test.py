@@ -8,7 +8,7 @@ import inspect
 class TestAlgFactory(unittest.TestCase):
 
     def setUp(self):
-        self.special_cases = ('jr_hypo_multi',
+        self.special_cases = ('jr_hypo',
                               # follwoing 3 methods tested indirectly
                               'dataScoutingAlg1',  
                               'dataScoutingAlg2',
@@ -80,7 +80,7 @@ class TestAlgFactory(unittest.TestCase):
 
         self.make_algfactory_multijet()
 
-        algs = self.alg_factory.jr_hypo_multi()
+        algs = self.alg_factory.jr_hypo()
         for alg in algs:
             self.assertTrue(alg.__class__.__name__ == 'Alg')
 

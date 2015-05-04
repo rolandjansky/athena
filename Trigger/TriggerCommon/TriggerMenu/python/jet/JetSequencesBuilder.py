@@ -260,21 +260,22 @@ class JetSequencesBuilder(object):
 
         menu_data = self.chain_config.menu_data
         hypo = menu_data.hypo_params
-        single_jet = len(hypo.jet_attributes) == 1
-        if single_jet:
-            hypo_key = 'single'
-        else:
-            hypo_key = 'multi'
+        # single_jet = len(hypo.jet_attributes) == 1
+        # if single_jet:
+        #    hypo_key = 'single'
+        #else:
+        #    hypo_key = 'multi'
 
-        hypo_key = 'jr_hypo_%s' % hypo_key
+        # hypo_key = 'jr_hypo_%s' % hypo_key
 
         alias = 'hypo_' + hypo.jet_attributes_tostring()
 
         # return a list of algs that form the jr sequence
-        if single_jet:
-            return AlgList(self.alg_factory.jr_hypo_single(), alias)
-        else:
-            return AlgList(self.alg_factory.jr_hypo_multi(), alias)
+        # if single_jet:
+        #    return AlgList(self.alg_factory.jr_hypo_single(), alias)
+        #else:
+        #    return AlgList(self.alg_factory.jr_hypo_multi(), alias)
+        return AlgList(self.alg_factory.jr_hypo(), alias)
 
 
     def make_jh_ht(self):
@@ -282,7 +283,7 @@ class JetSequencesBuilder(object):
 
         menu_data = self.chain_config.menu_data
         hypo = menu_data.hypo_params
-        alias = 'hypo_HT_%s' % str(hypo.ht_threshold)
+        alias = 'hypo_%s' % str(hypo.attributes_to_string())
 
         return AlgList(self.alg_factory.ht_hypo(), alias)
 

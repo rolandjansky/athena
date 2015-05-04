@@ -228,6 +228,9 @@ def myBjetConfig_split(theChainDef, chainDict, inputTEsEF,numberOfSubChainDicts=
     comboPrmVtxTE   = prmVertexTE+"Combo"
     secVtxTE        = jetTrackTE+"__"+"superVtx"
     lastTEout       = "HLT_bjet_"+chainParts['chainPartName'] if numberOfSubChainDicts>1 else EFChainName
+    topoStartFrom = chainDict['topoThreshold']
+    if topoStartFrom:
+        lastTEout = lastTEout+'_tsf'
  
     #-----------------------------------------------------------------------------------
     # sequence assembling
@@ -244,7 +247,7 @@ def myBjetConfig_split(theChainDef, chainDict, inputTEsEF,numberOfSubChainDicts=
     theChainDef.addSequence(theBjetEtHypo,  jetSplitTE,  jetEtHypoTE)  # new
     theChainDef.addSequence(theBjetTracks,  jetEtHypoTE, jetTrackTE)   # new
     theChainDef.addSequence(theVxSecondary, [jetTrackTE, comboPrmVtxTE], secVtxTE)
-    theChainDef.addSequence([theBjetFex, theBtagReq], secVtxTE, lastTEout)
+    theChainDef.addSequence([theBjetFex, theBtagReq], secVtxTE, lastTEout, topo_start_from = topoStartFrom)
     theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [lastTEout]*int(btagmult))
 
     return theChainDef
@@ -270,19 +273,10 @@ def myBjetConfig1(theChainDef, chainDict, inputTEsEF,numberOfSubChainDicts=1):
     from TrigBjetHypo.TrigBjetEtHypoConfig          import getBjetEtHypoInstance
     ef_ethypo_startseq = getBjetEtHypoInstance("EF","StartSequence","35GeV")
 
-    from InDetTrigRecExample.EFInDetConfig import TrigEFIDSequence
-    if 'EFID' in btracking:
-        ef_bjet_tracks = TrigEFIDSequence("Bjet","bjet","InsideOut").getSequence()        
-    else:
-        from TrigFastTrackFinder.TrigFastTrackFinder_Config import TrigFastTrackFinder_Jet
-        theTrigFastTrackFinder_Jet = [TrigFastTrackFinder_Jet()]
-        from TrigInDetConf.TrigInDetSequence import TrigInDetSequence
-        [theFastTrackFinderxAOD] = TrigInDetSequence("Bjet","bjet","FastxAOD").getSequence()
-        ef_bjet_tracks = TrigEFIDSequence("Bjet","bjet","DataPrep").getSequence()            
-        ef_bjet_tracks += theTrigFastTrackFinder_Jet
-        ef_bjet_tracks += theFastTrackFinderxAOD
-        ef_bjet_tracks += TrigEFIDSequence("Bjet","bjet","InsideOutMerged").getSequence()            
-
+    # tracking
+    from TrigInDetConf.TrigInDetSequence import TrigInDetSequence # new
+    [trkvtx, trkftf, trkprec] = TrigInDetSequence("Bjet", "bjet", "IDTrig", "2step").getSequence() 
+    ef_bjet_tracks = trkftf+trkprec
 
     from TrigT2HistoPrmVtx.TrigT2HistoPrmVtxAllTEConfig import EFHistoPrmVtxAllTE_Jet
     from TrigT2HistoPrmVtx.TrigT2HistoPrmVtxComboConfig import EFHistoPrmVtxCombo_Jet
@@ -333,7 +327,10 @@ def myBjetConfig1(theChainDef, chainDict, inputTEsEF,numberOfSubChainDicts=1):
     #theChainDef.addSequence([ef_EtHypo_Btagging], ef6, ef7) 
     theChainDef.addSequence([ef_VxSecondary_EF,ef_EtHypo_Btagging], ef6, ef7) 
     lastTEout = "EF_bj_"+chainParts['chainPartName'] if numberOfSubChainDicts>1 else EFChainName
-    theChainDef.addSequence([ef_bjet, ef_hypo], ef7, lastTEout)
+    topoStartFrom = chainDict['topoThreshold']
+    if topoStartFrom:
+        lastTEout = lastTEout+'_tsf'
+    theChainDef.addSequence([ef_bjet, ef_hypo], ef7, lastTEout, topo_start_from = topoStartFrom)
 
     theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [lastTEout]*int(btagmult))
 
