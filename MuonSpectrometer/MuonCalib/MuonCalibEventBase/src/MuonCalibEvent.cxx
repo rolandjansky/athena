@@ -17,21 +17,25 @@ namespace MuonCalib {
 
   MuonCalibEvent::MuonCalibEvent( )
     : m_patternVec(0), m_eventInfo(),  m_triggerTimeInfo(0), m_rawColl(0), m_rawTriggerColl(0), m_truthColl(0),m_rpcSlLogicContainer(0)
-  {}
+  {
+  }
 
   MuonCalibEvent::MuonCalibEvent( MuonCalibEvent::MCPVec patvec )
     : m_patternVec(patvec), m_eventInfo(),  m_triggerTimeInfo(0), m_rawColl(0), m_rawTriggerColl(0), m_truthColl(0),m_rpcSlLogicContainer(0)
-  {}
+  {
+  }
 
-  MuonCalibEvent::MuonCalibEvent( MuonCalibEvent::MCPVec patvec, const MuonCalibRawHitCollection *Coll ) 
+  MuonCalibEvent::MuonCalibEvent( MuonCalibEvent::MCPVec patvec, const MuonCalibRawHitCollection* Coll ) 
     : m_patternVec(patvec), m_eventInfo(), m_triggerTimeInfo(0), m_rawColl(Coll), m_rawTriggerColl(0), m_truthColl(0),m_rpcSlLogicContainer(0)
-  {}
+  {
+  }
 
   MuonCalibEvent::MuonCalibEvent( MuonCalibEvent::MCPVec patvec, 
 				  const MuonCalibEventInfo eventInfo,
-				  const MuonCalibRawHitCollection *Coll )
+				  const MuonCalibRawHitCollection* Coll )
     : m_patternVec(patvec), m_eventInfo(eventInfo), m_triggerTimeInfo(0), m_rawColl(Coll), m_rawTriggerColl(0), m_truthColl(0),m_rpcSlLogicContainer(0)
-  {}
+  {
+  }
   
   MuonCalibEvent::~MuonCalibEvent() {
     //std::cout << "MuonCalibEvent::destructor " << std::endl;
@@ -43,7 +47,8 @@ namespace MuonCalib {
     delete m_truthColl;
   }
 
-  MuonCalibEvent::MuonCalibEvent( const MuonCalibEvent &event ) {
+  MuonCalibEvent::MuonCalibEvent( const MuonCalibEvent& event ) 
+  {
     m_eventInfo = event.eventInfo()  ;
 
     MCPVecCit it = event.patternBegin() ;
@@ -58,7 +63,8 @@ namespace MuonCalib {
     m_rpcSlLogicContainer = event.m_rpcSlLogicContainer;
   }
 
-  MuonCalibEvent& MuonCalibEvent::operator=( const MuonCalibEvent &rhs ) {
+  MuonCalibEvent& MuonCalibEvent::operator=( const MuonCalibEvent& rhs ) 
+  {
     if(this!=&rhs){
       m_eventInfo = rhs.eventInfo() ;
 
@@ -116,4 +122,6 @@ namespace MuonCalib {
     return hits; 
   } 
     
+
+
 } //namespace MuonCalib
