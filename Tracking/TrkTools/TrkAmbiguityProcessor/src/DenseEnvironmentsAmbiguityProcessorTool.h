@@ -123,6 +123,9 @@ namespace Trk {
      
       /**  Update pixel split information based using the fitted track*/    
       void updatePixelSplitInformation(std::map< const InDet::PixelCluster*, const Trk::TrackParameters* >& setOfClustersOnTrack);
+      void updatePixelSplitInformationForCluster(const std::pair<const InDet::PixelCluster* const,
+                                                                 const Trk::TrackParameters*> & clusterTrkPara );
+      
  
       void updateSCT_SplitInformation(std::map< const InDet::SCT_Cluster*, const Trk::TrackParameters* >& setOfClustersOnTrack);
 
