@@ -50,12 +50,8 @@ class MMDigitVariables : public ValAlgVariables
     m_NSWMM_dig_truth_globalPosY(0),
     m_NSWMM_dig_truth_globalPosZ(0),
     m_NSWMM_dig_truth_XZ_angle(0),
-    m_NSWMM_dig_time_trigger(0),
-    m_NSWMM_dig_charge_trigger(0),
-    m_NSWMM_dig_position_trigger(0),
-    m_NSWMM_dig_MMFE_VMM_id_trigger(0),
-    m_NSWMM_dig_VMM_id_trigger(0)
-
+    m_NSWMM_dig_stripForTrigger(0),
+    m_NSWMM_dig_stripTimeForTrigger(0)
   {
     setHelper(idhelper);
   }
@@ -119,11 +115,8 @@ class MMDigitVariables : public ValAlgVariables
   std::vector< double > *m_NSWMM_dig_truth_globalPosZ;
   std::vector< float  > *m_NSWMM_dig_truth_XZ_angle;
 
-  std::vector< std::vector<float> >  *m_NSWMM_dig_time_trigger;
-  std::vector< std::vector<float> >  *m_NSWMM_dig_charge_trigger;
-  std::vector< std::vector<int> >    *m_NSWMM_dig_position_trigger;
-  std::vector< std::vector<int> >    *m_NSWMM_dig_MMFE_VMM_id_trigger;
-  std::vector< std::vector<int> >    *m_NSWMM_dig_VMM_id_trigger;
+  std::vector<int>   *m_NSWMM_dig_stripForTrigger;
+  std::vector<float> *m_NSWMM_dig_stripTimeForTrigger;
 
 };
 
