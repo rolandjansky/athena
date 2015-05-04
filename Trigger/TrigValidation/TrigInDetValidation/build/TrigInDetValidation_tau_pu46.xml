@@ -22,6 +22,7 @@
                 </arg>
             </action>
 
+
             <action position="2">   
               <modulename>RttLibraryTools</modulename> 
               <testname>ExeRunner</testname> 
@@ -31,37 +32,11 @@
               </arg>
               <arg> 
                   <argname>exeParamString</argname>
-                  <argvalue>data-tau.root data-tau-reference.root EF_tau29_IDTrkNoCut_InDetTrigParticleCreation_Tau_EFID -d EF-plots </argvalue>
+                  <argvalue>data-tau.root data-tau_pu46-reference.root HLT_tau20_r1_idperf_InDetTrigTrackingxAODCnv_Tau_EFID -d HLTEF-plots </argvalue>
               </arg>
             </action> 
 
-            <action position="3">   
-              <modulename>RttLibraryTools</modulename> 
-              <testname>ExeRunner</testname> 
-              <arg> 
-                <argname>exeName</argname>
-                <argvalue>TIDAcomparitor.exe</argvalue> 
-              </arg>
-              <arg> 
-                <argname>exeParamString</argname>
-                <argvalue>data-tau.root data-tau-reference.root L2_tau29_IDTrkNoCut_TrigL2SiTrackFinder_Tau_0 L2_tau29_IDTrkNoCut_TrigL2SiTrackFinder_Tau_1 L2_tau29_IDTrkNoCut_TrigL2SiTrackFinder_Tau_2 L2_tau29_IDTrkNoCut_TrigL2SiTrackFinder_Tau_3 -d L2-plots </argvalue>
-              </arg>
-            </action>
-
-            <action position="4">   
-              <modulename>RttLibraryTools</modulename> 
-              <testname>ExeRunner</testname> 
-              <arg> 
-                  <argname>exeName</argname>
-                  <argvalue>TIDAcomparitor.exe</argvalue> 
-              </arg>
-              <arg> 
-                  <argname>exeParamString</argname>
-                  <argvalue>data-tau.root data-tau-pu46-reference-newchains.root HLT_tau20_r1_idperf_InDetTrigTrackingxAODCnv_Tau_EFID -d HLTEF-plots </argvalue>
-              </arg>
-            </action> 
-
-           <action position="5">   
+           <action position="3">   
              <modulename>RttLibraryTools</modulename> 
              <testname>ExeRunner</testname> 
              <arg> 
@@ -70,7 +45,7 @@
              </arg>
              <arg> 
                <argname>exeParamString</argname>
-               <argvalue>data-tau.root data-tau-pu46-reference-newchains.root HLT_tau20_r1_idperf_TrigL2SiTrackFinder_Tau_1 HLT_tau20_r1_idperf_TrigL2SiTrackFinder_Tau_2 -d HLTL2-plots </argvalue>
+               <argvalue>data-tau.root data-tau_pu46-reference.root HLT_tau20_r1_idperf_TrigL2SiTrackFinder_Tau_1 HLT_tau20_r1_idperf_TrigL2SiTrackFinder_Tau_2 -d HLTL2-plots </argvalue>
              </arg>
            </action> 
 
@@ -87,8 +62,7 @@
             </testToRemove>
 
             <auxFilePattern>TIDAdata*.dat</auxFilePattern>
-            <auxFilePattern>data-tau-reference.root</auxFilePattern>
-            <auxFilePattern>data-tau-pu46-reference-newchains.root</auxFilePattern>
+            <auxFilePattern>data-tau_pu46-reference.root</auxFilePattern>
             <auxFilePattern>expert-monitoring-tau_pu46-ref.root</auxFilePattern>
 #           include "TrigInDetValidation_aux.xml"
 	    <auxFilePattern>Test_bin.dat</auxFilePattern>

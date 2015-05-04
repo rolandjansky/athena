@@ -42,7 +42,7 @@ else:
   cosmicTrigChainlist.append(['id_cosmic_trtxk',         '', [], ['IDCosmic'], ['RATE:CosmicSlice', 'BW:Detector'], 1])
   cosmicTrigChainlist.append(['id_cosmic_trtxk_central', '', [], ['IDCosmic'], ['RATE:CosmicSlice', 'BW:Detector'], 1])
 
-  tidaAnalysischains.append('HLT_id_cosmic:InDetTrigTrackingxAODCnvIOTRT_CosmicsN_EFID')
+  tidaAnalysischains.append('HLT_id_cosmic*:InDetTrigTrackingxAODCnvIOTRT_CosmicsN_EFID')
 
 
 
@@ -71,5 +71,5 @@ include("TrigInDetValidation/TrigInDetValidation_RTT_Common.py")
 TestMonTool.KeepAllEvents=True
 
 
-from IOVDbSvc.CondDB import conddb 
-conddb.addOverride('/GLOBAL/TrackingGeo/LayerMaterialV2','AtlasLayerMat_x16_ATLAS-IBL-03') 
+# from IOVDbSvc.CondDB import conddb 
+# conddb.addOverride('/GLOBAL/TrackingGeo/LayerMaterialV2','AtlasLayerMat_x16_ATLAS-IBL-03') 

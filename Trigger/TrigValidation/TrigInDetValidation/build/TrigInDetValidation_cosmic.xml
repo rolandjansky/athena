@@ -8,7 +8,7 @@
             <queue>long</queue>
 
 
-#          include "samples/TrigInDetValidation_cosmic_sample0.xml"
+#          include "samples/TrigInDetValidation_cosmic_sample1.xml"
 
 
             <action position="1">    
@@ -33,7 +33,7 @@
               </arg>
               <arg> 
                 <argname>exeParamString</argname>
-                <argvalue>data-cosmic.root  data-cosmic-reference-newchains.root HLT_id_cosmic_InDetTrigTrackingxAODCnvIOTRT_CosmicsN_EFID  -d HLTEF-plots </argvalue>
+                <argvalue>data-cosmic.root data-cosmic-reference.root HLT_id_cosmic_InDetTrigTrackingxAODCnvIOTRT_CosmicsN_EFID  -d HLTEF-plots </argvalue>
               </arg>
             </action>
 
@@ -51,7 +51,7 @@
             </testToRemove>
 
             <auxFilePattern>TIDA*.dat</auxFilePattern>
-	    <auxFilePattern>data-cosmic-reference-newchains.root</auxFilePattern>
+	    <auxFilePattern>data-cosmic-reference.root</auxFilePattern>
             <auxFilePattern>expert-monitoring-cosmic-ref.root</auxFilePattern>
 #           include "TrigInDetValidation_aux.xml"
 	    <auxFilePattern>Test_bin.dat</auxFilePattern>

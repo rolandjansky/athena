@@ -45,14 +45,12 @@ rMC = False
 if 'runMergedChain' in dir() and runMergedChain==True:
   rMC = True
 
-#Not actually reading out chains, add for convenience
-(idtrigChainlist, tidaAnalysischains) = (None, None)
-(idtrigChainlist, tidaAnalysischains) = bjetChains(rMC)
+(idtrigChainlist, tidaAnalysischains) = beamspotChains(rMC)
 
 def resetSigs():
-  #TriggerFlags.doMuon=False         #dependency of L1Topo
   TriggerFlags.doHypo=False
   TriggerFlags.Slices_all_setOff()
   TriggerFlags.BeamspotSlice.setAll();
+  TriggerFlags.BeamspotSlice.signatures = idtrigChainlist
 
 include("TrigInDetValidation/TrigInDetValidation_RTT_Common.py")

@@ -15,6 +15,7 @@
 
 
 JOBS =  \
+        TrigInDetValidation_el_single_e_7-80_larged0.xml                   \
         TrigInDetValidation_el_single_e_7-80_pu40.xml                   \
         TrigInDetValidation_el_single_e_7-80_pu40_run2.xml              \
         TrigInDetValidation_el_single_e_7-80_pu40_run2_robustness.xml   \
@@ -46,6 +47,7 @@ JOBS =  \
         TrigInDetValidation_mu_bphys_run2.xml                           \
         TrigInDetValidation_mu_bphys_IBL_run2.xml                       \
         TrigInDetValidation_mu_single_mu_100_run2.xml                   \
+        TrigInDetValidation_mu_single_mu_larged0_run2.xml                   \
                                                                         \
         TrigInDetValidation_minBias.xml                                 \
         TrigInDetValidation_minBias_mergeDataPrep.xml                   \

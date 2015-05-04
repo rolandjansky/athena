@@ -172,8 +172,8 @@
             </testToRemove>
 
             <auxFilePattern>TIDAdata*.dat</auxFilePattern>
-            <auxFilePattern>data-all.root</auxFilePattern>
-            <auxFilePattern>data-all.root</auxFilePattern>
+            <auxFilePattern>data-all_ttbar_pu46_run2-reference.root</auxFilePattern>
+            <auxFilePattern>data-all_ttbar_pu46_run2-reference.root</auxFilePattern>
             <auxFilePattern>expert-monitoring-all_ttbar_pu46_run2-ref.root</auxFilePattern>
 #           include "TrigInDetValidation_aux.xml"
 	    <auxFilePattern>Test_bin.dat</auxFilePattern>

@@ -64,7 +64,8 @@ foreach xmlfile ( $files )
 #     grep "<options>" $xmlfile |  sed 's|<options>||g' | sed 's|</options>||g'
 
 
-      set cmdlineflags = `grep "<commandLineFlags>" /tmp/$_file.xml |  sed 's|<commandLineFlags>||g' | sed 's|</commandLineFlags>||g'`
+      set cmdlineflags = `grep "<commandLineFlags>" /tmp/$_file.xml |  sed 's|<commandLineFlags>||g' | sed 's|</commandLineFlags>||g' | sed "s/'/"\""/g"`
+
       set joboptions   = `grep "<options>" /tmp/$_file.xml |  sed 's|<options>||g' | sed 's|</options>||g'`
 
 
