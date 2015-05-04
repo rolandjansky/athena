@@ -819,7 +819,7 @@ void Trk::DenseEnvironmentsAmbiguityProcessorTool::solveTracks()
       truthAfter++;
   }
   ATH_MSG_INFO("Where, the number of true track on output is: "<<truthAfter );
-  ATH_MSG_INFO("And the number of TRUE track failed fits is:  "<< n_trueFitFails );
+  ATH_MSG_INFO("And the number of TRUE tracks failed fits is:  "<< n_trueFitFails );
   ATH_MSG_INFO("And the number of TRUE tracks rejected due to outliers is: "<< numOutliersDiff );
   ATH_MSG_INFO("And the number of TRUE tracks rejected after the first fit is: "<< numFirstFitLost );
   ATH_MSG_INFO("And the number of TRUE tracks rejected after the second fit is: "<< numSecondFitLost );
@@ -840,7 +840,54 @@ void Trk::DenseEnvironmentsAmbiguityProcessorTool::solveTracks()
 
 //==================================================================================================
 
-// Note need to double check what is filled in teh TSOS for the SiS tracks
+void Trk::DenseEnvironmentsAmbiguityProcessorTool::updatePixelSplitInformationForCluster(const std::pair<const InDet::PixelCluster* const,
+                                                                                         const Trk::TrackParameters*> & clusterTrkPara )
+  
+{  
+
+  if (m_splitClusterMap->find( clusterTrkPara.first) != m_splitClusterMap->end() ){
+    return;
+  }
+  // Recaculate the split prob with the use of the track parameters
+  InDet::PixelClusterSplitProb splitProb = m_splitProbTool->splitProbability( *clusterTrkPara.first, *clusterTrkPara.second );
+  // update the split prob information on the cluster --  the use of the split flag is now questionable -- possible it will now indicate if the cluster is shared between multiple tracks
+  InDet::PixelCluster* pixelCluster = const_cast<InDet::PixelCluster*> ( clusterTrkPara.first );    
+
+  ATH_MSG_DEBUG (  "---- "<< pixelCluster->globalPosition().perp() 
+                             <<" Updating split probs 1:  Old " << pixelCluster->splitProbability1() << "  New " << splitProb.splitProbability(2) 
+                             <<" Probs 2:  Old " << pixelCluster->splitProbability2() << "  New " << splitProb.splitProbability(3) 
+                             << std::endl
+                             << " --- pixelCluster: " <<  *pixelCluster
+                             << std::endl
+                             << " --- trk params: " << *clusterTrkPara.second  );
+
+  if ( splitProb.splitProbability(2)  < 0 ){
+    pixelCluster->packSplitInformation( false, 0.0, 0.0 );    
+    pixelCluster->setTooBigToBeSplit( true );    
+  }else{  
+    pixelCluster->packSplitInformation( false, splitProb.splitProbability(2), splitProb.splitProbability(3) ) ;
+    pixelCluster->setTooBigToBeSplit( false );    
+  }
+  
+  // This is a very hacky & backward compatible way of passing information to the PixelClusterOnTrackTool 
+  // that the cluster has been split 
+  if (!m_splitClusterMap){
+    ATH_MSG_ERROR("No splitClusterMap");
+    return;
+  }
+
+  if(  pixelCluster->splitProbability2()  >=  m_sharedProbCut2){
+    m_splitClusterMap->insert(std::make_pair( pixelCluster, pixelCluster ) );
+    m_splitClusterMap->insert(std::make_pair( pixelCluster, pixelCluster ) );
+  } else if ( pixelCluster->splitProbability1()  >=  m_sharedProbCut ){  
+    m_splitClusterMap->insert(std::make_pair( pixelCluster, pixelCluster ) );
+  }
+
+}
+
+
+
+// Note need to double check what is filled in the TSOS for the SiS tracks
 void Trk::DenseEnvironmentsAmbiguityProcessorTool::updatePixelSplitInformation(std::map< const InDet::PixelCluster*, const Trk::TrackParameters* >& setOfClustersOnTrack)
 {
 
@@ -965,8 +1012,14 @@ void Trk::DenseEnvironmentsAmbiguityProcessorTool::overlapppingTracks()
            
       const InDet::PixelCluster* pixel = dynamic_cast<const InDet::PixelCluster*> ( rio->prepRawData() );
       if (pixel) {
-        setOfPixelClustersOnTrack.insert(std::make_pair( pixel, (*tsos)->trackParameters() ) );
-        setOfPixelClustersToTrackAssoc.insert(std::make_pair( pixel, trackScoreMapItem.second.first ) );
+        
+        //Update the pixel split information if the element is unique (The second element of the pair indiciates if the element was inserted into the map)
+        auto ret =  setOfPixelClustersOnTrack.insert(std::make_pair( pixel, (*tsos)->trackParameters() ));
+        if (ret.second) {
+          updatePixelSplitInformationForCluster( *(ret.first) );
+        }
+        
+        setOfPixelClustersToTrackAssoc.insert( std::make_pair( pixel, trackScoreMapItem.second.first ) );
         continue;
       }
 
@@ -980,11 +1033,13 @@ void Trk::DenseEnvironmentsAmbiguityProcessorTool::overlapppingTracks()
   
   
   
+  // This function is no longer used as the clusters are updated in order of insertion into the map
   // Update pixel split information using track information 
-  ATH_MSG_DEBUG("--- Updating Pixel splitting information");
-  updatePixelSplitInformation(setOfPixelClustersOnTrack); 
+  //ATH_MSG_DEBUG("--- Updating Pixel splitting information");
+  //updatePixelSplitInformation(setOfPixelClustersOnTrack); 
     
 
+  // This function is no longer used as no method has been developed to intentify SCT clusters which have multiple particle contributions
   // Update SCT split information using track information 
   //ATH_MSG_DEBUG("--- Updating SCT splitting information");
   //updateSCT_SplitInformation(setOfSCT_ClustersOnTrack); 
