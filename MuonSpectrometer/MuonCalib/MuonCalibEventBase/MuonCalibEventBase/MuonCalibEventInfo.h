@@ -41,6 +41,7 @@ MoMu : Modular muon reconstruction is applied. A pattern may contain multiple se
     MuonCalibEventInfo( unsigned int run_number, unsigned int event_number, unsigned int time_stamp, std::string tag ); //!< constructor from older times
     MuonCalibEventInfo( unsigned int run_number, unsigned int event_number, unsigned int time_stamp, unsigned int lumi_block, unsigned int bc_id, std::string tag ); //!< constructor initializing all members
     MuonCalibEventInfo( const MuonCalibEventInfo& eventInfo ); //!< copyconstructor
+    MuonCalibEventInfo& operator=(const MuonCalibEventInfo& eventInfo ); // !< assignment operator
     ~MuonCalibEventInfo(); //!< destructor
     
     std::ostream& dump( std::ostream& stream ) const ;

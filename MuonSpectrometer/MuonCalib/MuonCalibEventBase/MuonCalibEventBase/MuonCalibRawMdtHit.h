@@ -26,7 +26,9 @@ namespace MuonCalib {
    */
   class MuonCalibRawMdtHit {
     public:
-    MuonCalibRawMdtHit() {}; //!< default constructor
+    MuonCalibRawMdtHit()
+     : m_Lpos(0.,0.,0.), m_Gpos(0.,0.,0.), m_adc(0), m_tdc(0), m_occupancy(0), m_t(0.), m_r(0.), m_dr(0.)
+    {}; //!< default constructor
     MuonCalibRawMdtHit(const MuonFixedId& id, const Amg::Vector3D& loc, const Amg::Vector3D& glob, int occ ); //!<constructor initializing the identifier, the position(s) and occupancy.
     MuonCalibRawMdtHit( const MuonCalibRawMdtHit& hit ); //!< copyconstructor
     ~MuonCalibRawMdtHit( ) {}; //!< destructor

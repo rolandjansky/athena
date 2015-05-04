@@ -100,6 +100,86 @@ namespace MuonCalib {
       addCloseHit( new TgcCalibHitBase(**tgc_it));
     }
   }
+
+  MuonCalibSegment& MuonCalibSegment::operator=( const MuonCalibSegment& seg)
+  {
+    if (this!=&seg) {
+      m_chi2           = seg.chi2();
+      m_dy0            = seg.error_dy0();
+      m_dtheta         = seg.error_dtheta();
+      m_localPosition  = seg.position();
+      m_localDirection = seg.direction();
+      m_localToGlobal  = seg.localToGlobal();
+      m_qualityFlag    = seg.qualityFlag();
+      m_author         = seg.author();
+      m_fittedT0       = seg.m_fittedT0; // don't use function as it would return 0 if m_fittedT0 == -99999.
+
+      std::for_each( mdtHOTBegin(), mdtHOTEnd(), DeleteObject() );
+      m_mdtHitsOnTrack.clear();
+      MdtHitCit mdt_it     = seg.mdtHOTBegin();
+      MdtHitCit mdt_it_end = seg.mdtHOTEnd();
+      for( ; mdt_it!=mdt_it_end;++mdt_it){
+        addHitOnTrack( new MdtCalibHitBase(**mdt_it));
+      }
+
+      std::for_each( mdtCloseHitsBegin(), mdtCloseHitsEnd(), DeleteObject() );
+      m_mdtCloseHits.clear();
+      mdt_it     = seg.mdtCloseHitsBegin();
+      mdt_it_end = seg.mdtCloseHitsEnd();
+      for( ; mdt_it!=mdt_it_end;++mdt_it){
+        addCloseHit( new MdtCalibHitBase(**mdt_it));
+      }
+
+      std::for_each( cscHOTBegin(), cscHOTEnd(), DeleteObject() );
+      m_cscHitsOnTrack.clear();
+      CscHitCit csc_it     = seg.cscHOTBegin();
+      CscHitCit csc_it_end = seg.cscHOTEnd();
+      for( ; csc_it!=csc_it_end;++csc_it){
+        addHitOnTrack( new CscCalibHitBase(**csc_it));
+      }
+
+      std::for_each( cscCloseHitsBegin(), cscCloseHitsEnd(), DeleteObject() ); 
+      m_cscCloseHits.clear();
+      csc_it     = seg.cscCloseHitsBegin();
+      csc_it_end = seg.cscCloseHitsEnd();
+      for( ; csc_it!=csc_it_end;++csc_it){
+        addCloseHit( new CscCalibHitBase(**csc_it));
+      }
+
+      std::for_each( rpcHOTBegin(), rpcHOTEnd(), DeleteObject() );
+      m_rpcHitsOnTrack.clear();
+      RpcHitCit rpc_it     = seg.rpcHOTBegin();
+      RpcHitCit rpc_it_end = seg.rpcHOTEnd();
+      for( ; rpc_it!=rpc_it_end;++rpc_it){
+        addHitOnTrack( new RpcCalibHitBase(**rpc_it));
+      }
+
+      std::for_each( rpcCloseHitsBegin(), rpcCloseHitsEnd(), DeleteObject() );
+      m_rpcCloseHits.clear();
+      rpc_it     = seg.rpcCloseHitsBegin();
+      rpc_it_end = seg.rpcCloseHitsEnd();
+      for( ; rpc_it!=rpc_it_end;++rpc_it){
+        addCloseHit( new RpcCalibHitBase(**rpc_it));
+      }
+
+      std::for_each( tgcHOTBegin(), tgcHOTEnd(), DeleteObject() );
+      m_tgcHitsOnTrack.clear();
+      TgcHitCit tgc_it     = seg.tgcHOTBegin();
+      TgcHitCit tgc_it_end = seg.tgcHOTEnd();
+      for( ; tgc_it!=tgc_it_end;++tgc_it){
+        addHitOnTrack( new TgcCalibHitBase(**tgc_it));
+      }
+
+      std::for_each( tgcCloseHitsBegin(), tgcCloseHitsEnd(), DeleteObject() );
+      m_tgcCloseHits.clear();
+      tgc_it     = seg.tgcCloseHitsBegin();
+      tgc_it_end = seg.tgcCloseHitsEnd();
+      for( ; tgc_it!=tgc_it_end;++tgc_it){
+        addCloseHit( new TgcCalibHitBase(**tgc_it));
+      }
+    }
+    return *this;
+  }
   
   unsigned int MuonCalibSegment::hitsPerML(int ML)const
   {

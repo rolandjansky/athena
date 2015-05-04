@@ -70,13 +70,39 @@ namespace MuonCalib {
       MuonCalibSegment* seg = new MuonCalibSegment( **pat_it );
       addMuonSegment( seg );
     }
+  }
 
+  MuonCalibPattern& MuonCalibPattern::operator=( const MuonCalibPattern& pat)
+  {
+    if (this!=&pat) {
+      m_chi2 = pat.chi2();
+      m_z0 = pat.z0();
+      m_dist0 = pat.r0();
+      m_invP = pat.invP();
+      m_phi = pat.phi();
+      m_theta = pat.theta();
+      m_nmdt = pat.nmdtHits();
+      m_nrpc = pat.nrpcHits();
+      m_ntgc = pat.ntgcHits();
+      m_ncsc = pat.ncscHits();
+
+      std::for_each( muonSegBegin(), muonSegEnd(), DeleteObject() );
+      m_muonSegments.clear();
+      MuonSegCit pat_it = pat.muonSegBegin();
+      MuonSegCit pat_it_end = pat.muonSegEnd();
+      for( ; pat_it!= pat_it_end; ++pat_it){
+        MuonCalibSegment* seg = new MuonCalibSegment( **pat_it );
+        addMuonSegment( seg );
+      }
+    }
+    return *this;
   }
 
   MuonCalibPattern::~MuonCalibPattern()
   {
     // MuonCalibPattern owns the segments
     std::for_each( muonSegBegin(), muonSegEnd(), DeleteObject() );
+    m_muonSegments.clear();
   }
 
   std::ostream& MuonCalibPattern::dump( std::ostream& os) const

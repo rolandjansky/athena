@@ -26,7 +26,11 @@ namespace MuonCalib {
 
   class MuonCalibRawTgcCoin {
     public:
-    MuonCalibRawTgcCoin() {};//!< default constructor
+    MuonCalibRawTgcCoin()
+     : m_gPosIn(0.,0.,0.), m_gPosOut(0.,0.,0.), m_type(0), m_eta(0), m_phi(0), m_sector(0), m_isForward(0), m_isStrip(0), m_trackletId(0),
+       m_trackletIdStrip(0), m_bcTag(0), m_widthIn(0.), m_widthOut(0.), m_widthR(0.), m_widthPhi(0.), m_delta(0), m_roi(0), m_pt(0), m_sub(0),
+       m_isPositiveDeltaR(0) 
+    {}; //!< default constructor
 
     MuonCalibRawTgcCoin( const MuonFixedId& id, const Amg::Vector3D& gPosIn, const Amg::Vector3D& gPosOut, const int type, const int eta, const int phi,
 			 const int sector, const int isForward, const int isStrip, const int trackletId, const int trackletIdStrip, const int bcTag,

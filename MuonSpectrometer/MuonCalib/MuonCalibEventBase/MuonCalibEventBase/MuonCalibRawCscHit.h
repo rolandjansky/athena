@@ -29,7 +29,9 @@ namespace MuonCalib {
   class MuonCalibRawCscHit {
     public: 
     
-    MuonCalibRawCscHit() {};//!< default constructor
+    MuonCalibRawCscHit()
+     : m_Gpos(0.,0.,0.), m_occupancy(0), m_t(0.), m_width(0.), m_charge(0.)
+    {};//!< default constructor
 
     MuonCalibRawCscHit( const MuonFixedId& id, const Amg::Vector3D& glob, int occ, float t, float width, float charge );//!< constructor setting all attributes
 

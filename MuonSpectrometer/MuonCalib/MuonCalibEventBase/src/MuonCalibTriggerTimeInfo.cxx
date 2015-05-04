@@ -22,6 +22,15 @@ namespace MuonCalib {
     m_dLarTime = eventInfo.dLarTime();
   }
 
+  MuonCalibTriggerTimeInfo& MuonCalibTriggerTimeInfo::operator=( const MuonCalibTriggerTimeInfo& eventInfo )
+  {
+    if (this!=&eventInfo) {
+      m_dMbtsTime = eventInfo.dMbtsTime();
+      m_dLarTime = eventInfo.dLarTime();
+    }
+    return *this;
+  }
+
   MuonCalibTriggerTimeInfo::~MuonCalibTriggerTimeInfo()
   {
   }

@@ -50,6 +50,20 @@ namespace MuonCalib {
     m_trigger_bits = eventInfo.m_trigger_bits;
   }
 
+  MuonCalibEventInfo& MuonCalibEventInfo::operator=( const MuonCalibEventInfo& eventInfo)
+  {
+    if (this!=&eventInfo) {
+      m_runNumber = eventInfo.runNumber();
+      m_eventNumber = eventInfo.eventNumber();
+      m_timeStamp = eventInfo.timeStamp();
+      m_lumiBlock = eventInfo.lumiBlock();
+      m_bcId = eventInfo.bcId();
+      m_tag = eventInfo.tag();
+      m_trigger_bits = eventInfo.m_trigger_bits;
+    }
+    return *this;
+  }
+
   MuonCalibEventInfo::~MuonCalibEventInfo()
   {
   }

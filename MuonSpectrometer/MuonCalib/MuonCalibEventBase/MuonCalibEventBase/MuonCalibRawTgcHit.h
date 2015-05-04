@@ -26,7 +26,10 @@ namespace MuonCalib {
 
   class MuonCalibRawTgcHit {
     public:
-    MuonCalibRawTgcHit() {};//!< default constructor
+    MuonCalibRawTgcHit()
+     : m_Gpos(0.,0.,0.), m_occupancy(0), m_station(0), m_eta(0), m_phi(0), m_gasGap(0), m_isStrip(0),
+       m_channel(0), m_bcTag(0), m_width(0.), m_shortWidth(0.), m_longWidth(0.), m_length(0.)
+    {};//!< default constructor
     MuonCalibRawTgcHit( const MuonFixedId& id, const Amg::Vector3D& glob, int occ, int station, int eta, int phi, 
 			int gasGap, int isStrip, int channel, int bcTag, float width, float shortWidth, float longWidth ); //!< constructor setting almost all attributes
     MuonCalibRawTgcHit( const MuonFixedId& id, const Amg::Vector3D& glob, int occ, int station, int eta, int phi, 

@@ -51,7 +51,6 @@ namespace MuonCalib {
   {
     m_eventInfo = event.eventInfo()  ;
 
-
     MCPVecCit it = event.patternBegin() ;
     MCPVecCit it_end = event.patternEnd() ;
     for( ; it!=it_end;++it){
@@ -69,16 +68,23 @@ namespace MuonCalib {
     if(this!=&rhs){
       m_eventInfo = rhs.eventInfo() ;
 
+      std::for_each( patternBegin(), patternEnd(), DeleteObject() ) ;
+      m_patternVec.clear();
+
       MCPVec temp_patternVec;  
       MCPVecCit it = rhs.patternBegin() ;
       MCPVecCit it_end = rhs.patternEnd() ;
       for( ; it!=it_end;++it){
 	temp_patternVec.push_back( new MuonCalibPattern(**it) ) ;
       }
-      m_patternVec = temp_patternVec ; 
+      m_patternVec = temp_patternVec ;
+      if(m_truthColl) { delete m_truthColl; m_truthColl=NULL;}
       m_truthColl = new MuonCalibTruthCollection(*rhs.calibTruthCollection());
+      if(m_rawColl) { delete m_rawColl; m_rawColl=NULL;}
       m_rawColl = new MuonCalibRawHitCollection(*rhs.rawHitCollection());
+      if(m_rawTriggerColl) { delete m_rawTriggerColl; m_rawTriggerColl=NULL;}
       m_rawTriggerColl = new MuonCalibRawTriggerHitCollection(*rhs.rawTriggerHitCollection());
+      if(m_triggerTimeInfo) { delete m_triggerTimeInfo; m_triggerTimeInfo=NULL;}
       m_triggerTimeInfo = new MuonCalibTriggerTimeInfo(*rhs.triggerTimeInfo()); 
       m_rpcSlLogicContainer = rhs.rpcSectorLogicContainer();
       

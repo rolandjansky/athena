@@ -47,6 +47,7 @@ The pattern recognition provides the MuonCalibPattern, optionally one can provid
 		      double invP, double phi, double theta, 
 		     unsigned int nmdt, unsigned int nrpc, unsigned int ntgc, unsigned int ncsc); //!< constructor initializing the pattern with trackparameters, chi2 and number of hits in the different technologies.
     MuonCalibPattern(const MuonCalibPattern& pat);//!< Copy constructor. Not sure wether we need it...
+    MuonCalibPattern& operator=(const MuonCalibPattern& pat ); //!< assignment operator. Not sure wether we need it...
     ~MuonCalibPattern(); //!< destructor
 
     //accessors

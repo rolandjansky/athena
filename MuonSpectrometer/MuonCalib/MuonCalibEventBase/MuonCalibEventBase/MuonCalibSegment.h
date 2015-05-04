@@ -65,6 +65,7 @@ Functionality is forseen to store nearby hits, which are not assigned to the seg
 
     MuonCalibSegment(double chi2, const Amg::Vector3D& pos, const Amg::Vector3D& dir, const Amg::Transform3D& locToGlo,
 		     unsigned int qualityFlag = 0);   //!< constructor fully initializing the segment-parameters, do we need default constructor?  
+    MuonCalibSegment& operator=(const MuonCalibSegment& seg ); //!< assignment operator
     MuonCalibSegment(const MuonCalibSegment& seg);    //!< copy constructor 
     virtual ~MuonCalibSegment();                              //!< destructor 
 

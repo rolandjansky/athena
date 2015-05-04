@@ -14,8 +14,9 @@ namespace MuonCalib {
   class MuonCalibTriggerTimeInfo{
     public:
     MuonCalibTriggerTimeInfo(); //!< Default constructor
-    MuonCalibTriggerTimeInfo( float dMbtsTime, float dLarTime ); //!< constructor with Mbts Time and LAr time 
+    MuonCalibTriggerTimeInfo( float dMbtsTime, float dLarTime ); //!< constructor with Mbts Time and LAr time
     MuonCalibTriggerTimeInfo( const MuonCalibTriggerTimeInfo& dTimeInfo ); //!< copyconstructor
+    MuonCalibTriggerTimeInfo& operator=(const MuonCalibTriggerTimeInfo& dTimeInfo ); //!< assignment operator
     ~MuonCalibTriggerTimeInfo(); //!< destructor
     
     std::ostream& dump( std::ostream& stream ) const ;
