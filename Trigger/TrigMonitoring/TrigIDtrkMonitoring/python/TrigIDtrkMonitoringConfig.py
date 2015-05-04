@@ -19,26 +19,6 @@ def TrigIDtrkMonitoringTool():
 #	if rec.doInDet:
 	if True:
 		# the old DumpTool has been removed, the old TIDAMonTool code has
-		# been moved to TrigInDetAnalysisExample/TrigTestBase
-		# from TrigIDtrkMonitoring.TrigIDtrkMonitoringConf import TIDAMonTool
-		
-
-		# from TrigInDetAnalysisExample.TrigInDetAnalysisExampleConfig import TrigTestCosmic
-		#               how do we set the base class variables in this way??? What do we need to do in the 
-		#               derived class code?
-		# tidacos = TrigTestCosmic(name = "TIDACosmicMonTool",
-		#                          histoPathBase = "/Trigger/HLT")
-		# tidacos = TrigTestCosmic(name = "TIDACosmicMonTool" )
-		# tidacos.AnalysisConfig = "Tier0"
-		# tidacos.SliceTag = "HLT/IDCosmic"
-		# tidacos.ntupleChainNames += [
-		#		"Offline",
-		#		"HLT_id_cosmic.*:InDetTrigTrackingxAODCnv_CosmicsN_EFID",
-		#		"HLT_id_cosmic.*:InDetTrigTrackingxAODCnvIOTRT_CosmicsN_EFID"
-		#		]
-		#	ToolSvc += tidacos;
-		#	list += [ "TrigTestCosmic/TIDACosmicMonTool" ]
-
 
 		from TrigInDetAnalysisExample.TrigInDetAnalysisExampleConf import TrigTestBase
 
@@ -91,9 +71,12 @@ def TrigIDtrkMonitoringTool():
 		tidaegamma.AnalysisConfig = "Tier0"
 		tidaegamma.SliceTag = "HLT/TRIDT/Egamma/Expert"
 		# tidabase.OutputLevel = DEBUG
+		tidaegamma.UseHighestPT = True
 		tidaegamma.ntupleChainNames += [
 			"Offline",
 			"HLT_e.*idperf.*:InDetTrigTrackingxAODCnv_Electron_EFID",
+			"HLT_e.*idperf.*:InDetTrigTrackingxAODCnv_Electron_IDTrig",
+			"HLT_e.*idperf.*:InDetTrigTrackingxAODCnv_Electron_FTF"
 			]
 		ToolSvc += tidaegamma;
 		list += [ "TrigTestBase/IDEgammaTool" ]
@@ -105,10 +88,12 @@ def TrigIDtrkMonitoringTool():
 					       histoPathBase = "/Trigger/HLT")
 		tidaegammashift.AnalysisConfig = "Tier0"
 		tidaegammashift.SliceTag = "HLT/TRIDT/Egamma/Shifter"
+		tidaegammashift.UseHighestPT = True
 		# tidabase.OutputLevel = DEBUG
 		tidaegammashift.ntupleChainNames += [
 			"Offline",
-			"HLT_e.*idperf.*:InDetTrigTrackingxAODCnv_Electron_EFID",
+			"HLT_e.*idperf.*:InDetTrigTrackingxAODCnv_Electron_IDTrig",
+			"HLT_e.*idperf.*:InDetTrigTrackingxAODCnv_Electron_FTF"
 			]
 		ToolSvc += tidaegammashift;
 		list += [ "TrigTestBase/IDEgammaShifterTool" ]
@@ -125,13 +110,31 @@ def TrigIDtrkMonitoringTool():
 					histoPathBase = "/Trigger/HLT")
 		tidamuon.AnalysisConfig = "Tier0"
 		tidamuon.SliceTag = "HLT/TRIDT/Muon/Expert"
+		tidamuon.UseHighestPT = True
 		# tidabase.OutputLevel = DEBUG
 		tidamuon.ntupleChainNames += [
 			"Offline",
-			"HLT_mu.*idperf.*:InDetTrigTrackingxAODCnv_Muon_EFID"
+			"HLT_mu.*idperf.*:InDetTrigTrackingxAODCnv_Muon_EFID",
+			"HLT_mu.*idperf.*:InDetTrigTrackingxAODCnv_Muon_IDTrig",
+			"HLT_mu.*idperf.*:InDetTrigTrackingxAODCnv_Muon_FTF"
 			]
 		ToolSvc += tidamuon;
 		list += [ "TrigTestBase/IDMuonTool" ]
+
+
+		# Shifter instances 
+		tidamuonshift = TrigTestBase(name = "IDMuonShifterTool",
+					histoPathBase = "/Trigger/HLT")
+		tidamuonshift.AnalysisConfig = "Tier0"
+		tidamuonshift.SliceTag = "HLT/TRIDT/Muon/Shifter"
+		tidamuonshift.UseHighestPT = True
+		tidamuonshift.ntupleChainNames += [
+			"Offline",
+			"HLT_mu.*idperf.*:InDetTrigTrackingxAODCnv_Muon_IDTrig",
+			"HLT_mu.*idperf.*:InDetTrigTrackingxAODCnv_Muon_FTF"
+			]
+		ToolSvc += tidamuonshift;
+		list += [ "TrigTestBase/IDMuonShifterTool" ]
 
 
 
@@ -141,44 +144,120 @@ def TrigIDtrkMonitoringTool():
 		##############################################################
 
 		# Expert instances 
-
 		tidatau = TrigTestBase(name = "IDTauTool",
-					histoPathBase = "/Trigger/HLT")
+				       histoPathBase = "/Trigger/HLT")
 		tidatau.AnalysisConfig = "Tier0"
 		tidatau.SliceTag = "HLT/TRIDT/Tau/Expert"
-		# tidabase.OutputLevel = DEBUG
+		tidatau.UseHighestPT = False
 		tidatau.ntupleChainNames += [
 			"Offline",
-			"HLT_tau.*idperf.*:InDetTrigTrackingxAODCnv_TauN_EFID"
+			"HLT_tau.*idperf.*:InDetTrigTrackingxAODCnv_Tau_EFID",
+			"HLT_tau.*idperf.*:key=InDetTrigTrackingxAODCnv_Tau_IDTrig:roi=forID3",
+			"HLT_tau.*idperf.*:key=InDetTrigTrackingxAODCnv_Tau_FTF:roi=forID",
+			"HLT_tau.*idperf.*:key=InDetTrigTrackingxAODCnv_TauCore_FTF:roi=forID1",
+			"HLT_tau.*idperf.*:key=InDetTrigTrackingxAODCnv_TauIso_FTF:roi=forID3"
 			]
-		ToolSvc += tidamuon;
+		ToolSvc += tidatau;
 		list += [ "TrigTestBase/IDTauTool" ]
+
+		
+		# Expert instances 
+		tidataushift = TrigTestBase(name = "IDTauShifterTool",
+					    histoPathBase = "/Trigger/HLT")
+		tidataushift.AnalysisConfig = "Tier0"
+		tidataushift.SliceTag = "HLT/TRIDT/Tau/Shifter"
+		tidataushift.UseHighestPT = False
+		tidataushift.ntupleChainNames += [
+			"Offline",
+			"HLT_tau.*idperf.*_track.*:key=InDetTrigTrackingxAODCnv_Tau_IDTrig:roi=forID3",
+			"HLT_tau.*idperf.*_track.*:key=InDetTrigTrackingxAODCnv_TauIso_FTF:roi=forID3"
+			]
+		ToolSvc += tidataushift;
+		list += [ "TrigTestBase/IDTauShifterTool" ]
+		
 
 
 
 		
-		##############################################################                                                                                                                                                     # Bjet instances - check track collection names
-		##############################################################                                                                                                                                     
+		##############################################################
+                # Bjet instances - check track collection names
+		##############################################################
 
                 # Expert instances
-
 		tidabjet = TrigTestBase(name = "IDBjetTool",
 					histoPathBase = "/Trigger/HLT")
 		tidabjet.AnalysisConfig = "Tier0"
 		tidabjet.SliceTag = "HLT/TRIDT/Bjet/Expert"
-		# tidabase.OutputLevel = DEBUG
 		tidabjet.ntupleChainNames += [
 			"Offline",
-			"HLT_.*bperf.*:InDetTrigTrackingxAOD_Bjet_EFID"
+			"HLT_j.*bperf_split:key=InDetTrigTrackingxAOD_BjetPrmVtx_FTF:roi=TrigSuperRoi",
+			"HLT_j.*bperf_split:key=InDetTrigTrackingxAOD_Bjet_IDTrig:roi=forID",
+			"HLT_j.*bperf_split:InDetTrigTrackingxAOD_Bjet_EFID",
+			"HLT_j.*bperf_split:key=InDetTrigTrackingxAOD_Bjet_FTF:roi=forID",
+			"HLT_mu.*bperf_dr05:key=InDetTrigTrackingxAOD_BjetPrmVtx_FTF:roi=TrigSuperRoi",
+			"HLT_mu.*bperf_dr05:key=InDetTrigTrackingxAOD_Bjet_IDTrig:roi=forID",
+			"HLT_mu.*bperf_dr05:InDetTrigTrackingxAOD_Bjet_EFID",
+			"HLT_mu.*bperf_dr05:key=InDetTrigTrackingxAOD_Bjet_FTF:roi=forID"
 			]
 		ToolSvc += tidabjet;
 		list += [ "TrigTestBase/IDBjetTool" ]
 
 
+                # Shifter instances
+		tidabjetshift = TrigTestBase(name = "IDBjetShifterTool",
+					     histoPathBase = "/Trigger/HLT")
+		tidabjetshift.AnalysisConfig = "Tier0"
+		tidabjetshift.SliceTag = "HLT/TRIDT/Bjet/Shifter"
+		tidabjetshift.ntupleChainNames += [
+			"Offline",
+			"HLT_j.*bperf_split:InDetTrigTrackingxAOD_Bjet_IDTrig",
+			"HLT_j.*bperf_split:InDetTrigTrackingxAOD_Bjet_FTF"
+			]
+		ToolSvc += tidabjetshift;
+		list += [ "TrigTestBase/IDBjetShifterTool" ]
+
 
 
 		##############################################################
-		# Generic test instances
+		# Bphys instances
+		##############################################################
+		
+		# Expert instances 
+		tidabphys = TrigTestBase(name = "IDBphysTool",
+					histoPathBase = "/Trigger/HLT")
+		tidabphys.AnalysisConfig = "Tier0"
+		tidabphys.SliceTag = "HLT/TRIDT/Bphys/Expert"
+		# tidabase.OutputLevel = DEBUG
+		tidabphys.ntupleChainNames += [
+			"Offline",
+			"HLT_.*Bmumux.*:InDetTrigTrackingxAODCnv_Bphysics_EFID",
+			"HLT_.*Bmumux.*:InDetTrigTrackingxAODCnv_Bphysics_IDTrig",
+			"HLT_.*Bmumux.*:InDetTrigTrackingxAODCnv_Bphysics_FTF"
+			]
+		ToolSvc += tidabphys;
+		list += [ "TrigTestBase/IDBphysTool" ]
+
+
+		# Shifter instances 
+		tidabphysshift = TrigTestBase(name = "IDBphysShifterTool",
+					histoPathBase = "/Trigger/HLT")
+		tidabphysshift.AnalysisConfig = "Tier0"
+		tidabphysshift.SliceTag = "HLT/TRIDT/Bphys/Shifter"
+		tidabphysshift.ntupleChainNames += [
+			"Offline",
+			"HLT_.*Bmumux.*:InDetTrigTrackingxAODCnv_Bphysics_IDTrig",
+			"HLT_.*Bmumux.*:InDetTrigTrackingxAODCnv_Bphysics_FTF"
+			]
+		ToolSvc += tidabphysshift;
+		list += [ "TrigTestBase/IDBphysShifterTool" ]
+
+
+
+	if False:
+
+		##############################################################
+		# Generic test instances - these signatures are largely 
+                #                          obsolete and incorrect now
 		##############################################################
 
 		# test instances
@@ -249,8 +328,7 @@ def TrigIDtrkMonitoringTool():
 			"L2_e5_medium1_IDTrkNoCut:TrigL2SiTrackFinder_eGamma:0",
 			"L2_e5_medium1_IDTrkNoCut:TrigL2SiTrackFinder_eGamma:1",
 			"L2_e5_medium1_IDTrkNoCut:TrigL2SiTrackFinder_eGamma:2",
-			"EF_e5_medium1_IDTrkNoCut:InDetTrigParticleCreation_Electron_EFID",
-
+			"EF_e5_medium1_IDTrkNoCut:InDetTrigParticleCreation_Electron_EFID"
 
 			]
 		ToolSvc += tidatool;
@@ -271,24 +349,5 @@ def TrigIDtrkMonitoringTool():
 		theAtlasExtrapolator=AtlasExtrapolator(name =  "MyAtlasExtrapolator")
 		theAtlasExtrapolator.DoCaloDynamic = False # this turns off dynamic
 		ToolSvc += AtlasExtrapolator('MyAtlasExtrapolator')
-
-		# from TrackToCalo.TrackToCaloConf import ExtrapolateToCaloTool
-		# theExtrapolateToCaloTool=ExtrapolateToCaloTool(name =	 "MyCaloExtrapolatorTool", Extrapolator = theAtlasExtrapolator)
-		# ToolSvc += ExtrapolateToCaloTool('MyCaloExtrapolatorTool')
-
-		# from TrigIDtrkMonitoring.TrigIDtrkMonitoringConf import HLTIDZeeTagProbe
-		# from AthenaCommon.AppMgr import ToolSvc
-		# HLTIDZeeTag = HLTIDZeeTagProbe(name               =    'HLTIDZeeTag', histoPathBase      =  "/Trigger/HLT", ExtrapolateToCaloTool = theExtrapolateToCaloTool);
-
-
-		#from TrigIDtrkMonitoring.TrigIDtrkMonitoringConf import HLTIDZeeTagProbe
-		#from AthenaCommon.AppMgr import ToolSvc
-		#HLTIDZeeTag = HLTIDZeeTagProbe(name               = 'HLTIDZeeTag',
-		#			       histoPathBase      = "/Trigger/HLT");
-
-#		HLTIDZeeTag.TrigChainName = "e20_tight_e15_NoCut_Zee"
-
-		# ToolSvc += HLTIDZeeTag;
-		# list += ["HLTIDZeeTagProbe/HLTIDZeeTag"];
 
 	return list

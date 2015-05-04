@@ -1,0 +1,34 @@
+utils
+-----
+
+contains makefile and src to build the hanconfig executable, for 
+writing tamplate han config files from input root files ...
+
+% hanconfig
+Usage: hanconfig [OPTIONS] input1.root ... inputN.root
+
+     filename    name of output (filename required)
+    -d,   --dir  DIR  	 only directories below DIR
+    -x,          DIR  	 exclude directory DIR
+    -b,   --base DIR  	 use directory DIR as the base for the han config
+    -dbg, --dbg      	 print debugging information
+    -h,   --help     	 display this help
+
+for instance ...
+
+ hanconfig hid_shifter.root -d run_253124/HLT/TRIDT -b HLT -x TestMon > hc.config
+
+will take the directory structure in file
+
+  hid_shifter.root
+
+and generate a config from the directory structure hanging from 
+
+  run_253124/HLT/TRIDT
+
+generating the config using the HLT directory as the base directory, and
+excluding the structure hanging from HLT/TRIDT/TestMon
+
+** NB: It writes the config to stdout, and all other documentation and **
+** debugging is writtem to stderr                                      **
+
