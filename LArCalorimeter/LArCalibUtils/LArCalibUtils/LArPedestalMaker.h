@@ -68,9 +68,6 @@ class LArPedestalMaker : public AthAlgorithm
  
   // Sample number for pedestal 
   int m_which_sample;
-
-  int m_sample_min;
-  int m_sample_max;
  
  // Vector of LArPedestal
   //typedef std::map<HWIdentifier, LArPedestal >  LARPEDMAP;

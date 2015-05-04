@@ -72,8 +72,8 @@ StatusCode LArOFPhaseFill::stop()
   uint count; 
   // Open a file and read it - if exists
   if(m_InputFile.size() > 0) {
-     std::ifstream in (m_InputFile.c_str());
-     if(!in.good()) {
+     std::ifstream *in = new std::ifstream(m_InputFile.c_str());
+     if(!in->good()) {
        ATH_MSG_ERROR("Could not open map file "<<m_InputFile);
        ATH_MSG_ERROR("Using default phase " << m_defaultPhase << " for all channels");
      } else {
@@ -81,8 +81,8 @@ StatusCode LArOFPhaseFill::stop()
         count = 0;
         char line[100];
         do {
-           in.getline(line,99);
-           if((!in.good()) || in.eof()) break;
+           in->getline(line,99);
+           if((!in->good()) || in->eof()) break;
            if(line[0]=='#') continue;
            std::istringstream iss(line);
            iss>>std::dec>>b_ec>>p_n>>ft>>sl>>ch>>g>>phase;
@@ -121,7 +121,7 @@ StatusCode LArOFPhaseFill::stop()
            HWIdentifier oc = m_lar_on_id->channel_Id(b_ec, p_n, ft, sl, ch); 
            inmap[std::make_pair(oc,g)] = phase;
            ++count;
-       }while(!in.eof());
+       }while(!in->eof());
      }
   }
 

@@ -54,9 +54,6 @@ class LArCaliWaveBuilder : public AthAlgorithm
   bool                m_pedSub;
   //const ILArPedestal* m_larPedestal;
   unsigned            m_baseline;
-
-  // Reco also unpulsed and saturated cells ?
-  bool            m_recAll;
   
   //used to store different waves for different HEC calib lines
   bool m_useDacAndIsPulsedIndex;
@@ -76,9 +73,7 @@ class LArCaliWaveBuilder : public AthAlgorithm
   float    m_dt;
 
   uint16_t m_fatalFebErrorPattern;
-
-  int      m_usePatt;
-  unsigned m_numPatt; 
+  
 };  
 
 #endif

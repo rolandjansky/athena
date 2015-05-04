@@ -20,7 +20,7 @@
 // Include files
 #include "LArCalibUtils/LArAutoCorrExtrapolate.h"
 #include "LArIdentifier/LArOnlineID.h"
-#include "LArCabling/LArCablingService.h"
+#include "LArTools/LArCablingService.h"
 #include "LArElecCalib/ILArRamp.h"
 
 #include "LArRawConditions/LArAutoCorrComplete.h"
@@ -139,7 +139,7 @@ StatusCode LArAutoCorrExtrapolate::stop()
         unsigned int ii=0;
         for (;ii<corr0_elec.size();ii++)
           msg() << MSG::VERBOSE << corr0_elec[ii] << " "; 
-        msg() << MSG::VERBOSE << endmsg;
+        msg() << MSG::VERBOSE << endreq;
       }
 
       float sigma0_elec2 = sigma0_elec*sigma0_elec;
@@ -192,7 +192,7 @@ StatusCode LArAutoCorrExtrapolate::stop()
              unsigned int ii=0;
              for (;ii<corr_elec.size();ii++)
                msg() << MSG::VERBOSE << corr_elec[ii] << " ";
-             msg() << MSG::VERBOSE << endmsg;
+             msg() << MSG::VERBOSE << endreq;
            }
 
 
@@ -260,7 +260,7 @@ StatusCode LArAutoCorrExtrapolate::stop()
                for (int i=0;i<m_Nsamples;i++) {
                  for (int j=i;j<m_Nsamples;j++,k++)
                    msg() << MSG::VERBOSE <<  corr[k] << " ";
-                 msg() << MSG::VERBOSE << endmsg;
+                 msg() << MSG::VERBOSE << endreq;
                }
             }
            }
@@ -270,7 +270,7 @@ StatusCode LArAutoCorrExtrapolate::stop()
              for (int i=0;i<m_Nsamples;i++) {
                for (int j=i;j<m_Nsamples;j++,k++)
                  msg() << MSG::VERBOSE <<  new_corr[k] << " "; 
-               msg() << MSG::VERBOSE << endmsg;
+               msg() << MSG::VERBOSE << endreq;
              }
            }
 

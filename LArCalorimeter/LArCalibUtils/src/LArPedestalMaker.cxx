@@ -42,8 +42,6 @@ LArPedestalMaker::LArPedestalMaker(const std::string& name, ISvcLocator* pSvcLoc
   declareProperty("events_ref",      m_nref);
   declareProperty("nsigma",          m_rms_cut);
   declareProperty("which_sample",    m_which_sample=-1);
-  declareProperty("sample_min",      m_sample_min=-1);
-  declareProperty("sample_max",      m_sample_max=-1);
   declareProperty("GroupingType",    m_groupingType); 
 }
 
@@ -100,7 +98,7 @@ StatusCode LArPedestalMaker::execute()
       const CaloGain::CaloGain gain=(*it)->gain();
       //LArPedestal& thisPed=m_pedestal[gain][chid];
       LArPedestal& thisPed=m_pedestal.get(chid,gain);
-      //log << MSG::DEBUG << "Cell: " << icell << " with gain " << gain << endmsg;
+      //log << MSG::DEBUG << "Cell: " << icell << " with gain " << gain << endreq;
       if (gain<0 || gain>CaloGain::LARNGAIN) {
 	ATH_MSG_ERROR ( "Found odd gain number ("<< (int)gain <<")" );
 	return StatusCode::FAILURE;
@@ -154,7 +152,7 @@ StatusCode LArPedestalMaker::stop()
 
  //Outermost loop goes over all gains (different containers).
  for (int gain=0;gain<(int)CaloGain::LARNGAIN;gain++) {
-   //log << MSG::INFO << "Gain " << gain << ", m_pedestal size for this gain = " <<  m_pedestal[gain].size() << endmsg;
+   //log << MSG::INFO << "Gain " << gain << ", m_pedestal size for this gain = " <<  m_pedestal[gain].size() << endreq;
 
    LARPEDMAP::ConstConditionsMapIterator cell_it=m_pedestal.begin(gain);
    LARPEDMAP::ConstConditionsMapIterator cell_it_e=m_pedestal.end(gain);
@@ -167,11 +165,7 @@ StatusCode LArPedestalMaker::stop()
      LArPedestal thisPed=*cell_it;
      if(thisPed.get_nentries()==0) { n_zero++; continue; }
      // Get the mean and rms
-      if (m_sample_min >=0 ) {
-	m_mean[0] = thisPed.get_mean(m_sample_min, m_sample_max);
-	m_rms[0]  = thisPed.get_rms(m_sample_max, m_sample_max);
-      }
-      else if (m_which_sample==-1 || m_which_sample>=(int)thisPed.get_nsamples()) {
+      if (m_which_sample==-1 || m_which_sample>=(int)thisPed.get_nsamples()) {
 	m_mean[0] = thisPed.get_mean();
 	m_rms[0]  = thisPed.get_rms();
       }

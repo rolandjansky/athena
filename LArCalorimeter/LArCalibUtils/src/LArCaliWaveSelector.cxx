@@ -13,7 +13,7 @@
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "LArIdentifier/LArOnlineID.h"
 #include "CaloIdentifier/CaloGain.h"
-#include "LArCabling/LArCablingService.h"
+#include "LArTools/LArCablingService.h"
 
 #include "LArRawConditions/LArCaliWaveContainer.h"
 

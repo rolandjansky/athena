@@ -37,7 +37,7 @@
 #include "LArRecUtils/LArShapePeakRecoTool.h"
 #include "LArRecUtils/LArOFPeakRecoTool.h"
 
-#include "LArCabling/LArCablingService.h"
+#include "LArTools/LArCablingService.h"
 #include "CaloIdentifier/LArEM_ID.h"
 
 #include "LArElecCalib/ILArPedestal.h"
@@ -101,20 +101,20 @@ private:
  
   unsigned m_event_counter; 
   int m_delay;
-  int m_ipassShape; 
-  int m_ipassPedestal; 
+  int ipassShape; 
+  int ipassPedestal; 
 
   // vector (gain) of vector(HashCell) of vector (DAC) of vector(Ndelays) of caliwaves
-  std::vector< std::vector< std::vector< std::vector<double> > > >m_CaliWaves;
+  std::vector< std::vector< std::vector< std::vector<double> > > >CaliWaves;
  // vector (gain) of vector(HashCell) of vector (DAC) of DACs
-  std::vector< std::vector< std::vector< int > > >m_CaliDACs;
+  std::vector< std::vector< std::vector< int > > >CaliDACs;
  // vector (gain) of vector(HashCell) of DAC0 index
-  std::vector< std::vector< int> > m_IndexDAC0;
+  std::vector< std::vector< int> > IndexDAC0;
  // vector (gain) of vector(HashCell) of Highest DAC index
-  std::vector< std::vector< int> > m_IndexHighestDAC;
+  std::vector< std::vector< int> > IndexHighestDAC;
 
   // vector(HashCell) of pedestals
-  std::vector<float> m_thePedestal;    
+  std::vector<float> thePedestal;    
 
   std::string m_recoTypeProp; // ( "Parabola", "Shape" or "OF" ) 
   
@@ -144,12 +144,11 @@ private:
   bool m_withIntercept;
   float m_delayShift;
   //  hashID     sample
-  std::vector<std::vector<short> > m_adc0;
+  std::vector<std::vector<short> > adc0;
 
   ToolHandle<LArCablingService> m_larCablingSvc;
   //ToolHandle<ILArBadChanTool> m_badChannelTool;
   ToolHandle< ILArBadChannelMasker> m_badChannelMask;
-  bool m_doBadChannelMask;
 
   const LArOnlineID* m_onlineHelper;
   const LArEM_ID* m_emId;
@@ -160,7 +159,6 @@ private:
   const DataHandle<ILArRinj> m_dd_rinj;
   std::string m_hec_key;
   bool        m_ishec;
-  bool        m_iterate;
 
   uint16_t m_fatalFebErrorPattern;
 

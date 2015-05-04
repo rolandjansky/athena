@@ -10,7 +10,7 @@
 #include "CaloIdentifier/CaloIdManager.h"
 #include "CaloIdentifier/LArEM_ID.h"
 #include "LArIdentifier/LArOnlineID.h"
-#include "LArCabling/LArCablingService.h"
+#include "LArTools/LArCablingService.h"
 
 #include "LArRawEvent/LArAccumulatedCalibDigitContainer.h"
 #include "LArRawEvent/LArCalibDigitContainer.h"
@@ -61,9 +61,7 @@ StatusCode LArAccumulatedCalibDigitContSplitter::execute()
  } 
  
  // execute() method...
- ATH_CHECK( executeWithAccumulatedDigits() );
- return StatusCode::SUCCESS;
-
+ return executeWithAccumulatedDigits();
 }
 
 StatusCode LArAccumulatedCalibDigitContSplitter::executeWithAccumulatedDigits()
@@ -130,6 +128,6 @@ StatusCode LArAccumulatedCalibDigitContSplitter::executeWithAccumulatedDigits()
 StatusCode LArAccumulatedCalibDigitContSplitter::stop()
 {
 //  MsgStream log(msgSvc(), name());
-//  log << MSG::INFO << " finished." << endmsg;
+//  log << MSG::INFO << " finished." << endreq;
   return StatusCode::SUCCESS;
 }

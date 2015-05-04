@@ -124,7 +124,7 @@ StatusCode LArPedestalInPhysicsMaker::execute()
 //  sc = evtStore()->retrieve(theTBScint,"ScintillatorCont");
 //  if (sc.isFailure()) 
 //    {
-//      log << MSG::ERROR << " Cannot read TBScintillatorCont from StoreGate! " << endmsg;
+//      log << MSG::ERROR << " Cannot read TBScintillatorCont from StoreGate! " << endreq;
 //      //return StatusCode::FAILURE;
 //    }
 //  const unsigned nScint=m_scint_names.size();
@@ -157,12 +157,12 @@ StatusCode LArPedestalInPhysicsMaker::execute()
 //  if (sc.isFailure()) {
 //    log << MSG::ERROR
 //	<< "cannot allocate TBPhase "
-//	<< endmsg;
+//	<< endreq;
 //    //return StatusCode::FAILURE;
 //  } else {
 //    time = theTBPhase->getPhase();
 //    itime = theTBPhase->getPhaseind();
-//    log << MSG::INFO << "TBPhase retrieved from storegate - time "<< time <<" itime "<< itime << endmsg;
+//    log << MSG::INFO << "TBPhase retrieved from storegate - time "<< time <<" itime "<< itime << endreq;
 //  }
 
   //Retrieve the TBTriggerPatternUnit
@@ -207,7 +207,7 @@ StatusCode LArPedestalInPhysicsMaker::execute()
     for (;it!=it_end;it++) {  //Loop over all cells
       HWIdentifier chid=(*it)->hardwareID();
       CaloGain::CaloGain gain=(*it)->gain();
-      //log << MSG::DEBUG << "Cell: " << icell << " with gain " << gain << endmsg;
+      //log << MSG::DEBUG << "Cell: " << icell << " with gain " << gain << endreq;
       if (gain<0 || gain>CaloGain::LARNGAIN) {
 	ATH_MSG_ERROR ( "Found odd gain number ("<< (int)gain <<")" );
 	return StatusCode::FAILURE;
@@ -261,7 +261,7 @@ StatusCode LArPedestalInPhysicsMaker::stop()
 //---------------------------------------------------------------------------
 {
   MsgStream log(msgSvc(), name());
-  log << MSG::INFO << ">>> Stop" << endmsg;
+  log << MSG::INFO << ">>> Stop" << endreq;
 
   if (m_keylist.size()==0) {
     ATH_MSG_ERROR ( "Key list is empty! No containers processed!" );

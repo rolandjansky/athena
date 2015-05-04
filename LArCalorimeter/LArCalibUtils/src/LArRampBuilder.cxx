@@ -31,7 +31,7 @@ LArRampBuilder::LArRampBuilder(const std::string& name, ISvcLocator* pSvcLocator
     m_onlineHelper(),
     m_emId(0),
     m_groupingType("ExtendedFeedThrough"),
-    m_dd_rinj(0),m_iterate(false)
+    m_dd_rinj(0)
 {
   declareProperty("KeyList",         m_keylist);
   declareProperty("KeyOutput",       m_keyoutput="LArRamp");
@@ -57,8 +57,6 @@ LArRampBuilder::LArRampBuilder(const std::string& name, ISvcLocator* pSvcLocator
   declareProperty("isHEC",           m_ishec=false);
   declareProperty("HECKey",          m_hec_key="");
   declareProperty("BadChannelMask",  m_badChannelMask);
-  declareProperty("CorrectBadChannels",  m_doBadChannelMask);
-  declareProperty("Iterate",         m_iterate);
 
   int defaultDeadChannelCut;
   if (m_dac0sub)
@@ -67,8 +65,8 @@ LArRampBuilder::LArRampBuilder(const std::string& name, ISvcLocator* pSvcLocator
     defaultDeadChannelCut=1300;
   declareProperty("DeadChannelCut",m_DeadChannelCut=defaultDeadChannelCut);
   m_delay=-1;
-  m_ipassShape = 0; // temporary
-  m_ipassPedestal = 0; // temporary
+  ipassShape = 0; // temporary
+  ipassPedestal = 0; // temporary
   m_ramps=NULL; 
   m_fatalFebErrorPattern=0xffff;
 }
@@ -80,34 +78,33 @@ StatusCode LArRampBuilder::initialize()
 {
   StatusCode sc = detStore()->retrieve(m_onlineHelper, "LArOnlineID");
   if (sc.isFailure()) {
-    msg(MSG::FATAL) << "Could not get LArOnlineID helper !" << endmsg;
+    msg(MSG::FATAL) << "Could not get LArOnlineID helper !" << endreq;
     return StatusCode::FAILURE;
   }
   
   sc = m_larCablingSvc.retrieve(); 
   if(sc.isFailure()){
-    msg(MSG::FATAL) << "Could not retrieve LArCablingService Tool" << endmsg;
+    msg(MSG::FATAL) << "Could not retrieve LArCablingService Tool" << endreq;
     return sc;
   }
-  if(m_doBadChannelMask) { 
-    sc=m_badChannelMask.retrieve(); 
-    if (sc.isFailure()) {
-      msg(MSG::FATAL) << "Could not retrieve BadChannelMask "
-		    << m_badChannelMask << endmsg;
-      return StatusCode::FAILURE;
-    }
+  
+  sc=m_badChannelMask.retrieve(); 
+  if (sc.isFailure()) {
+    msg(MSG::FATAL) << "Could not retrieve BadChannelMask "
+		    << m_badChannelMask << endreq;
+    return StatusCode::FAILURE;
   }
 
   m_ramps=new LArConditionsContainer<ACCRAMP>();
   //FIXME: Thats probably nonsenes, these raw ramps aren't written to COOL
   sc=m_ramps->setGroupingType(m_groupingType,msg()); 
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Failed to set groupingType for intermediate LArRamps object" << endmsg;
+    msg(MSG::ERROR) << "Failed to set groupingType for intermediate LArRamps object" << endreq;
     return sc;
   }
   sc=m_ramps->initialize(); 
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Failed initialize intermediate LArRamps object" << endmsg;
+    msg(MSG::ERROR) << "Failed initialize intermediate LArRamps object" << endreq;
     return sc;
   }
   
@@ -115,15 +112,15 @@ StatusCode LArRampBuilder::initialize()
   m_event_counter=0;
   
   unsigned int online_id_max = m_onlineHelper->channelHashMax() ; 
-  m_thePedestal.resize(online_id_max,-1); 
+  thePedestal.resize(online_id_max,-1); 
   
   if(m_ishec) {
      sc = detStore()->regHandle(m_dd_rinj,m_hec_key);
      if (sc!=StatusCode::SUCCESS) {
-       msg(MSG::ERROR) << "Cannot get register callback for HEC map" << endmsg; 
-       msg(MSG::ERROR) << "Will use default "<< endmsg;
+       msg(MSG::ERROR) << "Cannot get register callback for HEC map" << endreq; 
+       msg(MSG::ERROR) << "Will use default "<< endreq;
      } else {
-       msg(MSG::INFO) << " register callback for HEC map " << endmsg;
+       msg(MSG::INFO) << " register callback for HEC map " << endreq;
      }
   }
 
@@ -138,7 +135,7 @@ void LArRampBuilder::chooseRecoMode()  {
     m_recoType=PARABOLA;
     StatusCode sc=m_peakParabolaTool.retrieve();
     if (sc!=StatusCode::SUCCESS) {
-      msg(MSG::ERROR) << "Can't get LArParabolaPeakRecoTool" << endmsg;
+      msg(MSG::ERROR) << "Can't get LArParabolaPeakRecoTool" << endreq;
 	return;
       }
     ATH_MSG_DEBUG("LArParabolaPeakRecoTool retrieved with success!");
@@ -148,7 +145,7 @@ void LArRampBuilder::chooseRecoMode()  {
       const CaloIdManager *caloIdMgr=CaloIdManager::instance() ;
       m_emId=caloIdMgr->getEM_ID();
       if (!m_emId) {
-	msg(MSG::ERROR) << "Could not access lar EM ID helper" << endmsg;
+	msg(MSG::ERROR) << "Could not access lar EM ID helper" << endreq;
 	return ;
       }
       
@@ -211,19 +208,19 @@ StatusCode LArRampBuilder::execute()
   
   // if using Shape Reco method, retrieve caliWaveContainer (only once !)
   // FT remove the bitwise &&->&
-  if ( m_recoType == SHAPE && m_ipassShape==0) {
+  if ( m_recoType == SHAPE && ipassShape==0) {
     
-    m_ipassShape = 1;
+    ipassShape = 1;
     
     // keep only 8 samples of wave - dont need all samples for pseudo-OF reco
     std::vector<double> tempWave;
     int NSamplesKeep = 8;
     tempWave.resize(24*NSamplesKeep);
     
-    m_CaliWaves.resize(3);
-    m_CaliDACs.resize(3);
-    m_IndexDAC0.resize(3);
-    m_IndexHighestDAC.resize(3);
+    CaliWaves.resize(3);
+    CaliDACs.resize(3);
+    IndexDAC0.resize(3);
+    IndexHighestDAC.resize(3);
     
     // retrieve cali wave container
     
@@ -248,10 +245,10 @@ StatusCode LArRampBuilder::execute()
 	gainref=CaloGain::LARLOWGAIN;
       }
       
-      m_CaliWaves[gainref].resize(m_onlineHelper->channelHashMax());
-      m_CaliDACs[gainref].resize(m_onlineHelper->channelHashMax());
-      m_IndexDAC0[gainref].resize(m_onlineHelper->channelHashMax());
-      m_IndexHighestDAC[gainref].resize(m_onlineHelper->channelHashMax());
+      CaliWaves[gainref].resize(m_onlineHelper->channelHashMax());
+      CaliDACs[gainref].resize(m_onlineHelper->channelHashMax());
+      IndexDAC0[gainref].resize(m_onlineHelper->channelHashMax());
+      IndexHighestDAC[gainref].resize(m_onlineHelper->channelHashMax());
       
       // Set gain from key value
       int gain = CaloGain::LARHIGHGAIN;
@@ -285,16 +282,16 @@ StatusCode LArRampBuilder::execute()
 	  
 	  if(IsBad) continue; // if corrupted wave, skip it;
 	  
-	  m_CaliWaves[gainref][chidwave_hash].push_back(tempWave);
-	  m_CaliDACs[gainref][chidwave_hash].push_back(DAC);
+	  CaliWaves[gainref][chidwave_hash].push_back(tempWave);
+	  CaliDACs[gainref][chidwave_hash].push_back(DAC);
 	  
 	  // remember index of highest DAC value for this cell (i.e. non-saturating)
-	  if(DAC > m_CaliDACs[gainref][chidwave_hash][m_IndexHighestDAC[gainref][chidwave_hash]]) m_IndexHighestDAC[gainref][chidwave_hash]=m_CaliDACs[gainref][chidwave_hash].size()-1;
+	  if(DAC > CaliDACs[gainref][chidwave_hash][IndexHighestDAC[gainref][chidwave_hash]]) IndexHighestDAC[gainref][chidwave_hash]=CaliDACs[gainref][chidwave_hash].size()-1;
 	  
 	  // remember which index corresponds to DAC0
 	  if(m_dac0sub && DAC == m_DAC0) {
-	    m_IndexDAC0[gainref][chidwave_hash] = m_CaliDACs[gainref][chidwave_hash].size()-1;
-	    ATH_MSG_DEBUG("Cell " << chidwave_hash << ": DAC0 is at index = " << m_IndexDAC0[gainref][chidwave_hash]);
+	    IndexDAC0[gainref][chidwave_hash] = CaliDACs[gainref][chidwave_hash].size()-1;
+	    ATH_MSG_DEBUG("Cell " << chidwave_hash << ": DAC0 is at index = " << IndexDAC0[gainref][chidwave_hash]);
 	  }
 	} // loop over dac values
       } // loop over cells
@@ -307,7 +304,7 @@ StatusCode LArRampBuilder::execute()
     }
     ATH_MSG_DEBUG("Succefully removed LArCaliWaveContainer from StoreGate ");
     
-  } // m_ipassShape
+  } // ipassShape
   
   
   // now start to deal with digits   
@@ -364,7 +361,7 @@ StatusCode LArRampBuilder::execute()
 
 	//GU, try to get only once the pedestal per channel...
         IdentifierHash chid_hash = m_onlineHelper->channel_Hash(chid);
-        if (m_thePedestal[chid_hash] < 0) {
+        if (thePedestal[chid_hash] < 0) {
 	  
 	  //Pointer to conditions data objects 
 	  const ILArPedestal* larPedestal=NULL;
@@ -372,15 +369,15 @@ StatusCode LArRampBuilder::execute()
 	  if (sc.isFailure()) {
 	    //larPedestal=NULL;
 	    //ATH_MSG_WARNING("No pedestals found in database. Use default value for all channels.");
-	    //m_thePedestal[chid_hash] = 1000;
-	    msg(MSG::FATAL) << "No pedestals found in database. Aborting executiong." << endmsg;
+	    //thePedestal[chid_hash] = 1000;
+	    msg(MSG::FATAL) << "No pedestals found in database. Aborting executiong." << endreq;
 	    return sc;
 	  }
 	  
 	  if (larPedestal) {
 	    float DBpedestal = larPedestal->pedestal(chid,gain);
 	    if (DBpedestal >= (1.0+LArElecCalib::ERRORCODE) ) {
-	      m_thePedestal[chid_hash]=DBpedestal;
+	      thePedestal[chid_hash]=DBpedestal;
 	    } else {
 	      ATH_MSG_WARNING("No pedestal value found for cell hash ID = " 
 		  << chid_hash << " " << m_onlineHelper->channel_name(chid) 
@@ -397,9 +394,9 @@ StatusCode LArRampBuilder::execute()
 	  }
 
 	  ATH_MSG_DEBUG(" channel,pedestal " << chid_hash << " " 
-	      << m_thePedestal[chid_hash]);
+	      << thePedestal[chid_hash]);
 
-	} // m_ipassPedestal 	 
+	} // ipassPedestal 	 
       }
       
       // if ((*it)->DAC()==1110 || (*it)->DAC()==410 ) {
@@ -505,7 +502,7 @@ StatusCode LArRampBuilder::stop()
 	if(m_dac0sub && dac_it->first== m_DAC0){
 	  // check that DAC0 is the first DAC of list
 	  if(dac_it!=cell_it->begin()) 
-	    msg(MSG::ERROR) << "DAC0 is not the first DAC ? This might be a problem... " << endmsg;
+	    msg(MSG::ERROR) << "DAC0 is not the first DAC ? This might be a problem... " << endreq;
 	  adc0v = dac_it->second.mean();
 	  ramppoint.Samples   = adc0v;
 	  ramppoint.RMS       = dac_it->second.RMS();
@@ -533,57 +530,44 @@ StatusCode LArRampBuilder::stop()
           if (!m_dac0sub) {
             IdentifierHash chid_hash = m_onlineHelper->channel_Hash(chid);
             for (size_t k=0;k<ramppoint.Samples.size();++k) {
-              ramppoint.Samples[k] = ramppoint.Samples[k] - m_thePedestal[chid_hash];
+              ramppoint.Samples[k] = ramppoint.Samples[k] - thePedestal[chid_hash];
             }
           }
 
 	  //The following lines have been moved here from LArOFPeakReco tool:
 	  float delay=m_delay;
 	  unsigned kMax = max_element(ramppoint.Samples.begin(),ramppoint.Samples.end()) - ramppoint.Samples.begin() ;
-          unsigned kLow, kUp;
-          //unsigned nIter=0;
-          if(!m_iterate) { // No iteration, original code
-	   if ( kMax < 2 || kMax+2 >= ramppoint.Samples.size() ) {
+	  if ( kMax < 2 || kMax+2 >= ramppoint.Samples.size() ) {
 	    // probably wrong max for small signal = noise artifact 
 	    kMax=2;
-            bool isgood=true;
-            if(m_doBadChannelMask && m_badChannelMask->cellShouldBeMasked(chid)) isgood=false;
-	    if (m_larCablingSvc->isOnlineConnected(chid) && isgood) {
+	    if (m_larCablingSvc->isOnlineConnected(chid) && !m_badChannelMask->cellShouldBeMasked(chid)) {
 	      msg(MSG::WARNING) << "Not enough samples around the maximum! Use kMax=2 ("
 				<< m_onlineHelper->channel_name(chid) <<", DAC=" << dac_it->first 
-				<< ", Amp[2]=" << ramppoint.Samples[2] <<   " )" << endmsg;
+				<< ", Amp[2]=" << ramppoint.Samples[2] <<   " )" << endreq;
 	      if (msgLvl(MSG::VERBOSE)) {
 		msg(MSG::VERBOSE) <<  " Samples: ";
 		for (unsigned k=0;k<ramppoint.Samples.size();k++) 
 		  msg() << ramppoint.Samples[k] << " "; 
-		msg() << endmsg;
+		msg() << endreq;
 	      }//end if verbose message
 	    }//end if bad or disconnected channel
-	   }//end if kmax out-of-range
+	  }//end if kmax out-of-range
 	  
-	   // convention delay=0 OFC use samp 0-1-2-3-4
-	   //            delay=24 OFC use samp 1-2-3-4-5
-	   // => if kmax=2 : choose OFC with delay + delayShift
-	   //    if kmax=3 : choose OFC with delay+ delayShift+24
-	   //    if kmax=4 : stick to kmax=3 
-	   //GU temporary hardcoded number. To move to jobOptions
+	  // convention delay=0 OFC use samp 0-1-2-3-4
+	  //            delay=24 OFC use samp 1-2-3-4-5
+	  // => if kmax=2 : choose OFC with delay + delayShift
+	  //    if kmax=3 : choose OFC with delay+ delayShift+24
+	  //    if kmax=4 : stick to kmax=3 
+	  //GU temporary hardcoded number. To move to jobOptions
 
-	   if (kMax==4) kMax=3;
-	   if (kMax==3) delay += (m_delayShift+24);
-	   if (kMax==2) delay += m_delayShift;
-	   ATH_MSG_VERBOSE("kMax " << kMax << " delay " << delay);
-	   //std::cout << " kMax " << kMax << " delay " << delay << std::endl;
-	   delay=(delay-0.5)*(25./24.);
-	   //Call OF peak reco tool with no iteration and peak-sample forced to kMax
-           kLow = kUp = kMax;
-          } else { // code with iteration
-           kLow = kMax - 2;
-           kUp = kMax + 2;
-           delay = 0.;
-           //nIter = 10;
-          }
-	  //const LArOFPeakRecoTool::Result &results=m_peakOFTool->peak(ramppoint.Samples,chid,gain,delay,0,kMax,kMax,kMax);
-	  const LArOFPeakRecoTool::Result &results=m_peakOFTool->peak(ramppoint.Samples,chid,gain,delay,0,kMax,kLow,kUp);
+	  if (kMax==4) kMax=3;
+	  if (kMax==3) delay += (m_delayShift+24);
+	  if (kMax==2) delay += m_delayShift;
+	  ATH_MSG_VERBOSE("kMax " << kMax << " delay " << delay);
+	  //std::cout << " kMax " << kMax << " delay " << delay << std::endl;
+	  delay=(delay-0.5)*(25./24.);
+	  //Call OF peak reco tool with no iteration and peak-sample forced to kMax
+	  const LArOFPeakRecoTool::Result &results=m_peakOFTool->peak(ramppoint.Samples,chid,gain,delay,0,kMax,kMax,kMax);
 	  if (results.getValid()) {
 	    adcpeak  = results.getAmplitude();
 	    timepeak = results.getTau();
@@ -609,35 +593,35 @@ StatusCode LArRampBuilder::stop()
 	  IdentifierHash chid_hash = m_onlineHelper->channel_Hash(chid);
 	  
 	  // reconstruct for non-DAC0 values and non-saturating waves
-	  if(dac_it->first!= m_DAC0 && dac_it->first <= m_CaliDACs[gain][chid_hash][m_IndexHighestDAC[gain][chid_hash]]){
+	  if(dac_it->first!= m_DAC0 && dac_it->first <= CaliDACs[gain][chid_hash][IndexHighestDAC[gain][chid_hash]]){
 	    
-	    //	    std::cout <<" Highest DAC for cell " << chid_hash << " is " << m_CaliDACs[chid_hash][m_IndexHighestDAC[chid_hash]] << ", current DAC is " << dac_it->first << std::endl;
+	    //	    std::cout <<" Highest DAC for cell " << chid_hash << " is " << CaliDACs[chid_hash][IndexHighestDAC[chid_hash]] << ", current DAC is " << dac_it->first << std::endl;
 
 	    // find appropriate wave
 	    unsigned int GoodIndex = 9999;
-	    for(unsigned int i=0;i<m_CaliDACs[gain][chid_hash].size();i++){
-	      if(dac_it->first == m_CaliDACs[gain][chid_hash][i]) GoodIndex=i;
+	    for(unsigned int i=0;i<CaliDACs[gain][chid_hash].size();i++){
+	      if(dac_it->first == CaliDACs[gain][chid_hash][i]) GoodIndex=i;
 	    }
 	    if(GoodIndex == 9999) {
 	      ATH_MSG_WARNING("No wave found for cell = " << chid_hash << ", DAC = " << dac_it->first);
 	      float min = 9999999;
-	      for(unsigned int i=0;i<m_CaliDACs[gain][chid_hash].size();i++){
-		if(abs(dac_it->first - m_CaliDACs[gain][chid_hash][i])<min) 
+	      for(unsigned int i=0;i<CaliDACs[gain][chid_hash].size();i++){
+		if(abs(dac_it->first - CaliDACs[gain][chid_hash][i])<min) 
 		  {
-		    min=abs(dac_it->first - m_CaliDACs[gain][chid_hash][i]);
+		    min=abs(dac_it->first - CaliDACs[gain][chid_hash][i]);
 		    GoodIndex=i;
 		  }
 	      } 
-	      ATH_MSG_WARNING("Replace with DAC = " << m_CaliDACs[gain][chid_hash][GoodIndex]);
+	      ATH_MSG_WARNING("Replace with DAC = " << CaliDACs[gain][chid_hash][GoodIndex]);
 	    }
 	    // substract DAC0 wave
-	    for(unsigned int k=0;k<m_CaliWaves[gain][chid_hash][GoodIndex].size();k++){
-	      m_CaliWaves[gain][chid_hash][GoodIndex][k] -= m_CaliWaves[gain][chid_hash][m_IndexDAC0[gain][chid_hash]][k];
+	    for(unsigned int k=0;k<CaliWaves[gain][chid_hash][GoodIndex].size();k++){
+	      CaliWaves[gain][chid_hash][GoodIndex][k] -= CaliWaves[gain][chid_hash][IndexDAC0[gain][chid_hash]][k];
 	    }
 	    
 	    // apply reconstruction 
-	    if(m_CaliWaves[gain][chid_hash][GoodIndex].size() > 0){
-	      peak=m_peakShapeTool->peak(ramppoint.Samples,m_CaliWaves[gain][chid_hash][GoodIndex]);  
+	    if(CaliWaves[gain][chid_hash][GoodIndex].size() > 0){
+	      peak=m_peakShapeTool->peak(ramppoint.Samples,CaliWaves[gain][chid_hash][GoodIndex]);  
 	      ATH_MSG_DEBUG("cell chid=" << chid.get_compact() << ",peak= " << peak[0]);
 	    }else{
 	      ATH_MSG_ERROR( "No wave for this cell chid=" << chid.get_compact() << ",hash= " << chid_hash);
@@ -660,7 +644,7 @@ StatusCode LArRampBuilder::stop()
 	    Identifier id=m_larCablingSvc->cnvToIdentifier(chid);
 	    int layer=m_emId->sampling(id);
 	    //	    std::cout << "samples = " << ramppoint.Samples.size() << ", 0 = " << ramppoint.Samples[0] << ", 1 = " << ramppoint.Samples[1] << std::endl;
-	    peak=m_peakParabolaTool->peak(ramppoint.Samples,layer,m_thePedestal[chid_hash]);
+	    peak=m_peakParabolaTool->peak(ramppoint.Samples,layer,thePedestal[chid_hash]);
 	    
 	  }else{
 	    // call peak reco without layer --> no bias correction 
@@ -714,7 +698,7 @@ StatusCode LArRampBuilder::stop()
 	if (sc!=StatusCode::SUCCESS){
 	  if (!m_larCablingSvc->isOnlineConnected(chid))
 	      ATH_MSG_DEBUG("Failed to produce ramp for disconnected channel " << m_onlineHelper->channel_name(chid));
-	  else if (m_doBadChannelMask && m_badChannelMask->cellShouldBeMasked(chid,gain))
+	  else if (m_badChannelMask->cellShouldBeMasked(chid,gain))
 	    ATH_MSG_INFO( "Failed to produce ramp for known bad channel " << m_onlineHelper->channel_name(chid));
 	  else
 	    ATH_MSG_ERROR( "Failed to produce ramp for channel " << m_onlineHelper->channel_name(chid));
@@ -722,7 +706,7 @@ StatusCode LArRampBuilder::stop()
 	else{
 	  if(rampCoeffs[1]<0) 
 	    msg (MSG::ERROR) <<  "Negative 1rst order coef for ramp = " << rampCoeffs[1] << " for channel " 
-			     << m_onlineHelper->channel_name(chid) << endmsg;
+			     << m_onlineHelper->channel_name(chid) << endreq;
 
 	  if (vSat[0] != -1) { rawramp->setsat(vSat[0]); } 	// if a saturation point was found in rampfit, record it 
 	  else {
@@ -761,7 +745,6 @@ StatusCode LArRampBuilder::stop()
 	key="UNKNOWN";
 	break;
       }
-      key = m_keyoutput + key;
       ATH_MSG_INFO( "Recording LArRawRampContainer for gain " << (int)gain << " key=" << key);
       sc=detStore()->record(larRawRampContainer,key);
       if (sc.isFailure()) {
@@ -806,10 +789,8 @@ StatusCode LArRampBuilder::rampfit(unsigned deg, const std::vector<LArRawRamp::R
                                    const HWIdentifier chid) {
   unsigned linRange=data.size();
   if (linRange<2) {
-    bool isgood=true;
-    if(m_doBadChannelMask && m_badChannelMask->cellShouldBeMasked(chid)) isgood=false; 
-    if (m_larCablingSvc->isOnlineConnected(chid) && isgood ) {
-      msg(MSG::ERROR) << "Not enough datapoints (" << linRange << ") to fit a polynom!" << endmsg;
+    if (m_larCablingSvc->isOnlineConnected(chid) && !m_badChannelMask->cellShouldBeMasked(chid)) {
+      msg(MSG::ERROR) << "Not enough datapoints (" << linRange << ") to fit a polynom!" << endreq;
       return StatusCode::FAILURE;
     }
     else {
@@ -858,11 +839,10 @@ StatusCode LArRampBuilder::rampfit(unsigned deg, const std::vector<LArRawRamp::R
   
   if (!m_withIntercept) 
     deg--;
-  bool isgood=true;
-  if(m_doBadChannelMask && m_badChannelMask->cellShouldBeMasked(chid)) isgood=false;
+
   if (deg>linRange) {
-    if (m_larCablingSvc->isOnlineConnected(chid) && isgood ) 
-      msg(MSG::ERROR) << "Not enough datapoints before saturation (" << linRange << ") to fit a polynom of degree " << deg << endmsg;
+    if (m_larCablingSvc->isOnlineConnected(chid) && !m_badChannelMask->cellShouldBeMasked(chid)) 
+      msg(MSG::ERROR) << "Not enough datapoints before saturation (" << linRange << ") to fit a polynom of degree " << deg << endreq;
     else
       ATH_MSG_DEBUG("Not enough datapoints before saturation (" << linRange << ") to fit a polynom of degree " << deg 
 		    << " (channel disconnected or known to be bad)");
@@ -872,7 +852,7 @@ StatusCode LArRampBuilder::rampfit(unsigned deg, const std::vector<LArRawRamp::R
   
   if (data[linRange-1].DAC>0 && data[linRange-1].ADC<m_DeadChannelCut && data[linRange-1].ADC!=-999.) {
     msg(MSG::ERROR) << "DAC= " << data[linRange-1].DAC << " yields ADC= " << data[linRange-1].ADC 
-	   << ". Dead channel?" << endmsg;
+	   << ". Dead channel?" << endreq;
     return StatusCode::FAILURE;
   }
 

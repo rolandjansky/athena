@@ -31,9 +31,7 @@ LArDigitOscillationCorrTool::LArDigitOscillationCorrTool(const std::string& type
   : AthAlgTool(type, name, parent) , 
     m_priority(1400), 
     m_nSigma(3.0), 
-    m_eventPhase(0),
     m_omega(1.024e6*hertz),
-    m_emId(0), m_fcalId(0), m_hecId(0), m_lar_on_id(0),
     m_cablingService("LArCablingService")
 {
   declareInterface<ILArDigitOscillationCorrTool>(this);
@@ -109,9 +107,9 @@ StatusCode LArDigitOscillationCorrTool::calculateEventPhase(const LArDigitContai
 	ATH_MSG_DEBUG ( "No pedestal RMS found for this cell. Exiting ...." );
 	return StatusCode::FAILURE;
       }
-      //    log << MSG::DEBUG << "Retriving channelPhase " << endmsg;
+      //    log << MSG::DEBUG << "Retriving channelPhase " << endreq;
       const double& DBchannelPhase=larH6Oscillations->channelPhase(chid);
-      //     log << MSG::DEBUG << "Retriving channelAmplitude " << endmsg;
+      //     log << MSG::DEBUG << "Retriving channelAmplitude " << endreq;
       const double& DBchannelAmplitude=larH6Oscillations->channelAmplitude(chid);
       
       if( DBpedestalRMS > 0 && DBchannelAmplitude>0 ) { 

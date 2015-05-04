@@ -7,7 +7,7 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "LArRawEvent/LArDigitContainer.h"
 #include "GaudiKernel/ToolHandle.h"	// Modif J. Labbe from JF Marchand - Nov. 2009
-#include "LArCabling/LArCablingService.h"
+#include "LArTools/LArCablingService.h"
 #include "CaloIdentifier/LArEM_ID.h"
 #include <fstream>
 

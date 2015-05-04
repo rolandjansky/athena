@@ -70,9 +70,6 @@ private:
   uint16_t m_fatalFebErrorPattern;
 
   int m_normalize;
-
-  int m_sample_min;
-  int m_sample_max;
 };
 
 #endif

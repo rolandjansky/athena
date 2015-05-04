@@ -338,7 +338,7 @@ StatusCode LArTimeTuning::execute() {
       if (m_allowTimeJump && ( timeOffsetSum > m_NOFCPhases*m_OFCTimeBin || timeOffsetSum < 0 ) ) {
 	log << MSG::ERROR << "Time offset out of range for channel 0x" << MSG::hex << chid.get_compact() << MSG::dec 
 	                  << " (FEB 0x" << MSG::hex << febid.get_compact() << MSG::dec << "). Found " 
-			  << timeOffsetSum << ",  expected ( 0 - " << m_NOFCPhases*m_OFCTimeBin << ") ns. Skipping channel." << endmsg;
+			  << timeOffsetSum << ",  expected ( 0 - " << m_NOFCPhases*m_OFCTimeBin << ") ns. Skipping channel." << endreq;
 	continue;
       }
       */

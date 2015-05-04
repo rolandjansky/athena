@@ -11,7 +11,7 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 
 #include "StoreGate/StoreGateSvc.h"
-#include "LArCabling/LArCablingService.h"
+#include "LArTools/LArCablingService.h"
 #include "CaloIdentifier/CaloIdManager.h"
 #include "CaloIdentifier/LArEM_ID.h"
 #include "Identifier/HWIdentifier.h"

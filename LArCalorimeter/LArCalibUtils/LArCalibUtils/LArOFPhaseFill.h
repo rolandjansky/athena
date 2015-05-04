@@ -19,7 +19,12 @@ Use a Tshaper raw conditions - reusing existing class instead of writing new
 #include "AthenaBaseComps/AthAlgorithm.h" 
 
 #include "LArIdentifier/LArOnlineID.h"
-#include "LArCabling/LArCablingService.h"
+#include "LArTools/LArCablingService.h"
+
+#include "GaudiKernel/Bootstrap.h"
+#include "GaudiKernel/IToolSvc.h"
+#include "GaudiKernel/Property.h"
+#include "GaudiKernel/ListItem.h"
 
 #include "LArRawConditions/LArOFCBinComplete.h"
 

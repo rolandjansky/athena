@@ -66,8 +66,7 @@ StatusCode LArCalibDigitMaker::initialize()
       return StatusCode::FAILURE;
     }
     LArCalibParams* calibParams=new LArCalibParams;
-    ATH_CHECK( calibParams->initialize() ); 
-
+    calibParams->initialize() ; 
     //void LArCalibParams::set(const HWIdentifier CalibModuleID, const unsigned nTrigger,
     //		 const  std::vector<unsigned>& Pattern, const std::vector<unsigned>& DAC, const std::vector<unsigned>& Delay)
     for (std::vector<unsigned>::const_iterator it=m_vBoardIDs.begin();it!=m_vBoardIDs.end();it++) {
@@ -142,7 +141,7 @@ StatusCode LArCalibDigitMaker::execute()
      calibDigitContainer->push_back(calibDigit);
    } //End iteration to build calibDigits
    ATH_CHECK( evtStore()->record(calibDigitContainer,*key_it) );
-   //log << MSG::DEBUG << "LArCalibDigitContainer recorded to StoreGate. key=" << m_key << endmsg;
+   //log << MSG::DEBUG << "LArCalibDigitContainer recorded to StoreGate. key=" << m_key << endreq;
  } //End loop key list
  return StatusCode::SUCCESS;
 }
