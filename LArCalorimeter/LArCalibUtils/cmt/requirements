@@ -29,10 +29,13 @@ use AtlasEigen       AtlasEigen-*         External
 private
 use AtlasCLHEP       AtlasCLHEP-*         External
 use AtlasGSL            AtlasGSL-*          External
+use AtlasCORAL          AtlasCORAL-*        External
+use AthenaPoolUtilities  AthenaPoolUtilities-*  Database/AthenaPOOL
 use xAODEventInfo       xAODEventInfo-*     Event/xAOD
 use CaloDetDescr        CaloDetDescr-*      Calorimeter
 use LArSimEvent         LArSimEvent-*       LArCalorimeter
 use LArBadChannelTool   LArBadChannelTool-* LArCalorimeter
+use LArCOOLConditions LArCOOLConditions-*      LArCalorimeter
 use TrigAnalysisInterfaces TrigAnalysisInterfaces-* Trigger/TrigAnalysis
 
 apply_tag ROOTMathLibs

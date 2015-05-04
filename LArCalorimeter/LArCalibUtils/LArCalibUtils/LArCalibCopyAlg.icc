@@ -92,7 +92,7 @@ ATH_MSG_INFO ( "Copied " << nDataChans << " data channels and " << nCorrChans <<
 
 template<class CONDITIONSCONTAINER>
 StatusCode  LArCalibCopyAlg<CONDITIONSCONTAINER>::setSymlink(const LArRampComplete* ramp) const {
-  ATH_CHECK( detStore->symLink(ramp, (ILArRamp*)ramp) );
+  ATH_CHECK( detStore()->symLink(ramp, (ILArRamp*)ramp) );
   return StatusCode::SUCCESS;
 }
 

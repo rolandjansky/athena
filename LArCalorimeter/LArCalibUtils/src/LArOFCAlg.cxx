@@ -14,6 +14,9 @@
 #include "LArRawConditions/LArOFCComplete.h"
 #include "LArRawConditions/LArOFCBinComplete.h"
 #include "LArRawConditions/LArPhysCaliTdiffComplete.h"
+#include "LArCOOLConditions/LArDSPConfig.h"
+#include "CoralBase/Blob.h"
+#include "AthenaPoolUtilities/AthenaAttributeList.h"
 
 #include "LArIdentifier/LArOnlineID.h"
 #include "LArTools/LArCablingService.h"
@@ -30,12 +33,11 @@
 
 LArOFCAlg::LArOFCAlg(const std::string& name, ISvcLocator* pSvcLocator) 
 	: AthAlgorithm(name, pSvcLocator),
-	  m_AutoCorrDecoder(nullptr),
-	  m_AutoCorrDecoderV2(nullptr),
           m_onlineID(nullptr),
           m_calo_dd_man(nullptr),
 	  m_larPhysWaveBin(nullptr),
-	  m_groupingType("SubDetector") // SubDetector, Single, FeedThrough
+	  m_groupingType("SubDetector"), // SubDetector, Single, FeedThrough
+          m_DSPConfig(nullptr)
 {
 
   declareProperty("Nsample",m_nSamples = 5);
@@ -78,6 +80,11 @@ LArOFCAlg::LArOFCAlg(const std::string& name, ISvcLocator* pSvcLocator)
   declareProperty("DecoderToolV2",       m_AutoCorrDecoderV2); 
 
   declareProperty("RunThreaded",       m_runThreaded=false);
+
+  declareProperty("ReadDSPConfig",     m_readDSPConfig=false);
+  declareProperty("DSPConfigFolder",   m_DSPConfigFolder="/LAR/Configuration/DSPConfiguration");
+
+  declareProperty("ForceShift",        m_forceShift=false);
 
   m_nPoints = m_nDelays * ( m_nSamples-1 ) + m_nPhases * m_dPhases ;
 }
@@ -178,6 +185,22 @@ StatusCode LArOFCAlg::stop()
   }
   else {
     sc=this->initPhysWaveContainer();
+  }
+
+  if (m_readDSPConfig) {
+     const AthenaAttributeList* attrList=0;
+     sc=detStore()->retrieve(attrList, m_DSPConfigFolder);
+     if (sc.isFailure()) {
+         msg(MSG::ERROR) << "Failed to retrieve AthenaAttributeList with key " << m_DSPConfigFolder << endreq;
+         return sc;
+     }
+
+     const coral::Blob& blob = (attrList->coralList())["febdata"].data<coral::Blob>();
+     if (blob.size()<3) {
+        msg(MSG::INFO) << "Found empty blob, nothing to do"<<endreq;
+     } else {
+        m_DSPConfig = new LArDSPConfig(attrList);
+     }
   }
 
   if (sc.isFailure()) return sc;
@@ -476,6 +499,16 @@ void LArOFCAlg::process(perChannelData_t& chanData) const {
   if (m_computeV2)
     acInverseV2=m_AutoCorrDecoderV2->AutoCorr(chanData.chid,(CaloGain::CaloGain)chanData.gain,m_nSamples).inverse();
 
+  unsigned tShift=0;
+  if(m_readDSPConfig && m_DSPConfig){
+     if(m_DSPConfig->peakSample(m_onlineID->feb_Id(ch_id)) < 2 ) { // 2 is canonical value for peak
+        tShift = 2 - m_DSPConfig->peakSample(m_onlineID->feb_Id(ch_id));
+     }
+  }
+  if(m_forceShift) tShift=1;
+
+  ATH_MSG_DEBUG("Channel " << m_onlineID->channel_name(ch_id) << "shift: " << tShift);
+
   for (unsigned iPhase=0;iPhase<m_nPhases;iPhase++) { //Loop over all phases
       	
     ATH_MSG_VERBOSE ("Channel " << m_onlineID->channel_name(ch_id) 
@@ -491,7 +524,7 @@ void LArOFCAlg::process(perChannelData_t& chanData) const {
     theSamples.reserve(m_nSamples);
     theSamplesDer.reserve(m_nSamples);
     for (unsigned iSample=0;iSample<m_nSamples;++iSample){ //Loop over all samples
-      const unsigned tbin = chanData.tstart + iPhase*m_dPhases + iSample*m_nDelays ;	  
+      const unsigned tbin = chanData.tstart + iPhase*m_dPhases + (iSample+tShift)*m_nDelays ;	  
       theSamples.push_back( aWave.getSample(tbin) );
       theSamplesDer.push_back( aDerivedWave.getSample(tbin) );
     } //End loop over samples
@@ -510,7 +543,7 @@ void LArOFCAlg::process(perChannelData_t& chanData) const {
       std::vector<float> theSamples32;
       theSamples32.reserve(32);
       for (unsigned iSample=0;iSample<32 ;++iSample){ //Loop over all samples
-	const unsigned tbin = chanData.tstart + iPhase*m_dPhases + iSample*m_nDelays ;	  
+	const unsigned tbin = chanData.tstart + iPhase*m_dPhases + (iSample+tShift)*m_nDelays ;	  
 	if (tbin>=aWave.getSize()) continue;
 	theSamples32.push_back( aWave.getSample(tbin) );
       } //End loop over samples
@@ -610,7 +643,7 @@ StatusCode LArOFCAlg::initCaliWaveContainer() {
 
     //Input cali-wave might come from the same job. In this case we see a non-const container in SG probably w/o corrections applied.
     //Try non-const retrieve:
-    const LArCaliWaveContainer* waveCnt;
+    const LArCaliWaveContainer* waveCnt = nullptr;
     LArCaliWaveContainer* waveCnt_nc=detStore()->tryRetrieve<LArCaliWaveContainer>(m_keylist[k]);
     if (waveCnt_nc) {
       waveCnt=waveCnt_nc; //Retain const pointer

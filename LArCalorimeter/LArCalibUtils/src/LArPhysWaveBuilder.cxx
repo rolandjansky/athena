@@ -329,7 +329,7 @@ StatusCode LArPhysWaveBuilder::execute()
   for(; iterd != iendd; iterd++) {
 
     // Get data from LArDigit
-    LArDigit* p_lardigit = *iterd;
+    const LArDigit* p_lardigit = *iterd;
     HWIdentifier chid = p_lardigit->hardwareID();  
 
     // Convert the gain from an enum to an index in our tables.

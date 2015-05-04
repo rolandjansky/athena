@@ -34,6 +34,7 @@
 
 class LArOnlineID; 
 class CaloDetDescrManager; 
+class LArDSPConfig;
 
 class LArCablingService  ; 
 #include "GaudiKernel/ToolHandle.h"
@@ -147,6 +148,12 @@ private:
   int                      m_useDeltaV2;
   bool                     m_computeV2;
   bool                     m_runThreaded;
+
+  bool                     m_readDSPConfig;
+  std::string              m_DSPConfigFolder;
+  LArDSPConfig*            m_DSPConfig;
+
+  bool                     m_forceShift;
 
   Eigen::VectorXd getDelta(std::vector<float>& samples, const HWIdentifier chid, unsigned nSamples) const;
  

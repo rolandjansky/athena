@@ -45,7 +45,6 @@ typedef LArPhysWaveContainer::ConstConditionsMapIterator PhysWaveIt;
 
 LArPhysWavePredictor::LArPhysWavePredictor (const std::string& name, ISvcLocator* pSvcLocator) 
  : AthAlgorithm(name, pSvcLocator),
-   m_maskingTool(0),
    m_badChanTool("LArBadChanTool"),
    m_onlineHelper(0),
    m_groupingType("FeedThrough") // SubDetector, Single, FeedThrough
@@ -211,10 +210,10 @@ StatusCode LArPhysWavePredictor::stop()
   }
 
   // Get parameters from detStore (access through abtract interfaces)
-  const ILArCaliPulseParams* larCaliPulseParams;
-  const ILArDetCellParams*   larDetCellParams;  
-  const ILArTdrift*          larTdrift;
-  const ILArPhysCaliTdiff*   larPhysCaliTdiff;
+  const ILArCaliPulseParams* larCaliPulseParams = nullptr;
+  const ILArDetCellParams*   larDetCellParams = nullptr;  
+  const ILArTdrift*          larTdrift = nullptr;
+  const ILArPhysCaliTdiff*   larPhysCaliTdiff = nullptr;
 
   if ( !m_useJOCaliPulseParams ) {
     sc = detStore()->retrieve(larCaliPulseParams);
