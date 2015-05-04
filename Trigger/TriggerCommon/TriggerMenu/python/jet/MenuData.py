@@ -11,7 +11,9 @@ class MenuData(object):
                  fex_params,
                  hypo_params,
                  cluster_params,
-                 recluster_params,):
+                 recluster_params,
+                 last_fex_params  # parameters of the last fex rn (eg a10r?)
+             ):
 
         self.scan_type = scan_type
         self.data_type = data_type
@@ -19,6 +21,7 @@ class MenuData(object):
         self.hypo_params = hypo_params
         self.cluster_params = cluster_params
         self.recluster_params = recluster_params
+        self.last_fex_params = last_fex_params
 
     def __str__(self):
         s = ['%s\n%s\n' % (k, str(v)) for k, v in self.__dict__.items()]

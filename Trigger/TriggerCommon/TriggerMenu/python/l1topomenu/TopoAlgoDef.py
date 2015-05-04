@@ -790,12 +790,12 @@ class TopoAlgoDef:
             alg.addvariable('MaxMSqr', maxInvm * maxInvm)
             tm.registerAlgo(alg)
             
-        # added for muon-jet items: '0DR04-MU4ab-CJ15ab', '0DR04-MU4ab-CJ30ab', '0DR04-MU6ab-CJ25ab', '0DR04-MU4ab-CJ17ab', '0DR04-MU4ab-CJ20ab'
+        # added for muon-jet items: '0DR04-MU4ab-CJ15ab', '0DR04-MU4ab-CJ30ab', '0DR04-MU6ab-CJ20ab', '0DR04-MU6ab-CJ25ab', '0DR04-MU4ab-CJ20ab'
         for x in [  
             {"minDr": 0, "maxDr": 4, "otype1" : "MU" ,"ocut1": 4,  "olist1" : "ab", "otype2" : "CJ", "ocut2": 15, "olist2" : "ab"},
             {"minDr": 0, "maxDr": 4, "otype1" : "MU" ,"ocut1": 4,  "olist1" : "ab", "otype2" : "CJ", "ocut2": 30, "olist2" : "ab"},
+            {"minDr": 0, "maxDr": 4, "otype1" : "MU" ,"ocut1": 6,  "olist1" : "ab", "otype2" : "CJ", "ocut2": 20, "olist2" : "ab"},
             {"minDr": 0, "maxDr": 4, "otype1" : "MU" ,"ocut1": 6,  "olist1" : "ab", "otype2" : "CJ", "ocut2": 25, "olist2" : "ab"},
-            {"minDr": 0, "maxDr": 4, "otype1" : "MU" ,"ocut1": 4,  "olist1" : "ab", "otype2" : "CJ", "ocut2": 17, "olist2" : "ab"},
             {"minDr": 0, "maxDr": 4, "otype1" : "MU" ,"ocut1": 4,  "olist1" : "ab", "otype2" : "CJ", "ocut2": 20, "olist2" : "ab"} 
             ]:
 
@@ -1137,7 +1137,7 @@ class TopoAlgoDef:
                 exec("%s = x[k]" % k)
                 
             toponame = "MULT-%s%s%s" % (otype1, str(ocut1), olist1)
-            toponames = [toponame+"-0", toponame+"-1"]
+            toponames = [toponame+"[0]", toponame+"[1]"]
             log.info("Define %s" % toponames)
             
             inputList = [otype1 + olist1] 
@@ -1146,7 +1146,7 @@ class TopoAlgoDef:
             alg.addgeneric('InputWidth', inputwidth1)
             alg.addgeneric('MaxTob', nleading1)
             alg.addgeneric('NumResultBits', 2)
-            alg.addgeneric('MinET', ocut1)
+            alg.addgeneric('MinET', ocut1-1) # for MU threshol -1 
             tm.registerAlgo(alg)        
             
         

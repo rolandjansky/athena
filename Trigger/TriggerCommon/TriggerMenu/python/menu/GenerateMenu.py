@@ -61,6 +61,7 @@ class GenerateMenu:
             log.warning('Updating the function to modify signatures from %s to %s'\
                   % (_func_to_modify_signatures.__name__, f.__name__))
         _func_to_modify_signatures = f
+
     def overwriteMenuWith(f):
         log.info('GenerateMenu: In overwriteSignaturesWith ')
         global _func_to_modify_the_menu
@@ -78,11 +79,12 @@ class GenerateMenu:
         self.chains = []
         self.chainDefs = []
         self.listOfErrorChainDefs = []
+        self.signaturesOverwritten = False
 
         # flags
         self.doEgammaChains      = True
         self.doJetChains         = True
-        self.doBjetChains         = True
+        self.doBjetChains        = True
         self.doMuonChains        = True
         self.doBphysicsChains    = True
         self.doMETChains         = True
@@ -229,6 +231,7 @@ class GenerateMenu:
     def checkL1SeedsForChainsFromMenu(self,chains):
         from TriggerMenu.menu.L1Seeds import getSpecificL1Seeds
         l1itemnames = [i.name for i in self.trigConfL1.menu.items]
+        print "BETTA ",l1itemnames
         missingL1items = []
         for chain in chains:
             log.debug('chain %s' % chain)
@@ -580,15 +583,15 @@ class GenerateMenu:
             elif isinstance(chainDef, ChainDef):
                 listOfChainDefs.append(chainDef)
 
-
-        if len(listOfChainDefs) == 0:
-            log.error('GenerateMenu: No ChainDefs set up')
+        if len(listOfChainDefs) == 0 or not (len(listOfChainDefs)==len(chainDicts)):
             return False
+
         elif len(listOfChainDefs)>1:
             if ("mergingStrategy" in chainDicts[0].keys()):
                 theChainDef = TriggerMenu.menu.MenuUtils.mergeChainDefs(listOfChainDefs,chainDicts[0]["mergingStrategy"],chainDicts[0]["mergingOffset"])
             else:
                 log.error("No merging strategy specified for combined chain %s" % chainDicts[0]['chainName'])
+                
 
         else:
             theChainDef = listOfChainDefs[0]
@@ -614,6 +617,12 @@ class GenerateMenu:
                      _func_to_modify_signatures.__name__)
             #log.info('GenerateMenu: setupMenu:  start')
             _func_to_modify_signatures()
+            self.signaturesOverwritten = True
+            print "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            print "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            print "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            print "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+
             #log.info('GenerateMenu: setupMenu:  stop')
 
         #log.info('GenerateMenu: setupMenu: Enabled signatures: '+str(sigs) )
@@ -732,7 +741,8 @@ class GenerateMenu:
         dumpIt(f, TestSliceFlags.signatures(), 'Test')
         pass
 
-            
+
+
     def generate(self):
         log.info('GenerateMenu.py:generate ')
 
@@ -745,7 +755,7 @@ class GenerateMenu:
                 log.info('Generating L1 topo configuration for %s' % TriggerFlags.triggerMenuSetup() )
 
                 from TriggerMenu.TriggerConfigL1Topo import TriggerConfigL1Topo
-                self.trigConfL1Topo = TriggerConfigL1Topo( outputFile = TriggerFlags.outputL1TopoConfigFile(), menuName = TriggerFlags.triggerMenuSetup() )
+                self.trigConfL1Topo = TriggerConfigL1Topo( outputFile = TriggerFlags.outputL1TopoConfigFile() )
 
                 # build the menu structure
                 self.trigConfL1Topo.generateMenu()        
@@ -765,6 +775,10 @@ class GenerateMenu:
                 log.info("Doing nothing with L1 topo menu configuration...")
 
 
+        log.info("JOERG A Trigger xml files L1Topo : in = %s, out = %s (read from XML = %s)" % (TriggerFlags.inputL1TopoConfigFile(), TriggerFlags.outputL1TopoConfigFile(), TriggerFlags.readL1TopoConfigFromXML() ) )
+        log.info("JOERG A Trigger xml files LVL1   : in = %s, out = %s (read from XML = %s)" % (TriggerFlags.inputLVL1configFile(),   TriggerFlags.outputLVL1configFile(), TriggerFlags.readLVL1configFromXML() ) )
+        log.info("JOERG A Trigger xml files HLT    : in = %s, out = %s (read from XML = %s)" % (TriggerFlags.inputHLTconfigFile(),    TriggerFlags.outputHLTconfigFile(), TriggerFlags.readHLTconfigFromXML() ) )
+
         ######################
         # L1 menu generation #
         ######################
@@ -774,7 +788,7 @@ class GenerateMenu:
 
 
             from TriggerMenu.TriggerConfigLVL1 import TriggerConfigLVL1
-            self.trigConfL1 = TriggerConfigLVL1( outputFile = TriggerFlags.outputLVL1configFile(), menuName = TriggerFlags.triggerMenuSetup() )        
+            self.trigConfL1 = TriggerConfigLVL1( outputFile = TriggerFlags.outputLVL1configFile() )        
             
             # build the menu structure
             self.trigConfL1.generateMenu()        
@@ -802,7 +816,7 @@ class GenerateMenu:
 
         #calling TriggerPythonConfig
         self.triggerPythonConfig = TriggerPythonConfig(TriggerFlags.outputHLTconfigFile(),
-                                                       TriggerFlags.outputLVL1configFile())
+                                                       TriggerFlags.outputLVL1configFile(),self.signaturesOverwritten)
         #Setting trigger menu name
         self.triggerPythonConfig.menuName = TriggerFlags.triggerMenuSetup()
         
@@ -829,6 +843,23 @@ class GenerateMenu:
             counter += 1 
             chainCounter =  counter
             chainDicts['chainCounter'] = chainCounter
+
+            chainDicts['topoThreshold'] = None
+            if not (TriggerFlags.readHLTconfigFromXML() or TriggerFlags.readMenuFromTriggerDb()): # only when we generate L1 menu we have trigConfL1 available
+                if chainDicts['topoStartFrom'] == True:
+                    L1item = chainDicts['L1item']
+                    for item in self.trigConfL1.menu.items:
+                        if str(item.name) == L1item:
+                            itemThrNames = item.thresholdNames(include_bgrp=False)
+                            myTEstring = None
+                            for itemThr in itemThrNames: # Catrin, why do we add all thresholds to topo_start_from ?
+                                if myTEstring == None:
+                                    myTEstring = itemThr
+                                else:
+                                    log.error("Can't handle multiple TEs for topo_start_from yet!")
+                                    myTEstring += " "+itemThr
+
+                            chainDicts['topoThreshold'] = myTEstring
 
             chainDef = self.getChainDef(chainDicts)
 
@@ -963,8 +994,14 @@ class GenerateMenu:
                                                    self.triggerPythonConfig.getHLTConfigFile(),
                                                    "TriggerMenu/menu_check_exceptions.xml") )
         print output
+        #if  ("ERROR" in output):
+        #    log.error("There are ERRORs in the TrigConfConsistency checker, please check carefully!!")
+        #if  ("WARNING" in output):
+        #    log.warning("There are WARNING in the TrigConfConsistency checker, please check carefully!!")
 
-        # this does test the triggertype (JS)
+ 
+
+       # this does test the triggertype (JS)
         #for bit in xrange(8):
         #    print "TriggerType",bit,":",self.triggerPythonConfig.Lvl1ItemByTriggerType(0x01<<bit,0x01<<bit)
 

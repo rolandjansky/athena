@@ -119,11 +119,11 @@ class L2EFChain_met(L2EFChainDef):
         else:            
             from TrigMissingETHypo.TrigMissingETHypoConfig import L2MetHypoXE
             theL2MuonHypo  =  L2MetHypoXE('L2MetHypo_xe_noL2%s' %mucorr,l2_thr=threshold*GeV)
-        
+
+
+        mucorr=  '_wMu' if EFmuon else ''          
         ##MET with topo-cluster
         if EFrecoAlg=='tc' or EFrecoAlg=='pueta' or EFrecoAlg=='pufit' or EFrecoAlg=='mht':
-
-            mucorr=  '_wMu' if EFmuon else ''      
 
             ##Topo-cluster
             if EFrecoAlg=='tc':
@@ -209,21 +209,41 @@ class L2EFChain_met(L2EFChainDef):
         else:
             logMETDef.warning("MET EF algorithm not recognised")
         
-        from TrigGenericAlgs.TrigGenericAlgsConf import PESA__DummyUnseededAllTEAlgo as DummyAlgo
-        roi_topo = DummyAlgo('RoiCreator')            
-        from TrigCaloRec.TrigCaloRecConfig import TrigCaloCellMaker_jet_fullcalo
-        cell_maker_fullcalo_topo = TrigCaloCellMaker_jet_fullcalo("CellMakerFullCalo_topo",doNoise=0, AbsE=True, doPers=True) 
-        from TrigCaloRec.TrigCaloRecConfig import TrigCaloClusterMaker_topo
-        topocluster_maker_fullcalo = TrigCaloClusterMaker_topo('TrigCaloClusterMaker_topo_fullscan',doMoments=True,doLC=True) 
-
-
-        from TrigHLTJetRec.TrigHLTJetRecConfig import TrigHLTJetRec_param
+        #----------------------------------------------------
+        # Obtaining the needed jet TEs from the jet code
+        #----------------------------------------------------
+        chain = ['j0_lcw', '',  [], ["Main"], ['RATE:SingleJet', 'BW:Jet'], -1]
+        
+        from TriggerMenu.menu import DictFromChainName
+        theDictFromChainName = DictFromChainName.DictFromChainName()
+        jetChainDict = theDictFromChainName.getChainDict(chain)
+        
+        from TriggerMenu.jet.JetDef import generateHLTChainDef
+        jetChainDict['chainCounter'] = 9151
+        jetChainDef = generateHLTChainDef(jetChainDict)
             
-        theTrigHLTJetRec_AntiKt = TrigHLTJetRec_param(name="TrigHLTJetRec_AntiKt04",alg="AntiKt",merge_param="04", ptmin=7.0 * GeV, ptminFilter=7.0 * GeV, jet_calib='subjes', cluster_calib='EM', do_minimalist_setup=True, output_collection_label='defaultJetCollection')
+        #for i in range(3):
+        #    m_input[i] = jetChainDef.sequenceList[i]['input']
+        #    m_output[i]= jetChainDef.sequenceList[i]['output']
+        #    m_algo[i] =jetChainDef.sequenceList[i]['algorithm']
+
+        #obtaining DummyUnseededAllTEAlgo/RoiCreator
+        input0=jetChainDef.sequenceList[0]['input']
+        output0 =jetChainDef.sequenceList[0]['output']
+        algo0 =jetChainDef.sequenceList[0]['algorithm']
+
+        #obtaining TrigCaloCellMaker/FS, TrigCaloClusterMaker, TrigHLTEnergyDensity
+        input1=jetChainDef.sequenceList[1]['input']
+        output1 =jetChainDef.sequenceList[1]['output']
+        algo1 =jetChainDef.sequenceList[1]['algorithm']
+
+        #obtaining TrigHLTJetRecFromCluster
+        input2=jetChainDef.sequenceList[2]['input']
+        output2 =jetChainDef.sequenceList[2]['output']
+        algo2 =jetChainDef.sequenceList[2]['algorithm']
 
 
-
-    
+        #---End of obtaining jet TEs------------------------------
                    
         ########### Sequences ###########
         
@@ -245,20 +265,23 @@ class L2EFChain_met(L2EFChainDef):
                 self.L2sequenceList += [[ ['L2_xe_step3',muonSeed],   [theL2FEBMuonFex,theL2MuonHypo], 'L2_xe_step4']]
 
         
+
         # --- EF ---                
         #topocluster
         if EFrecoAlg=='tc' or EFrecoAlg=='pueta' or EFrecoAlg=='pufit':
-            self.EFsequenceList +=[[ '',[roi_topo],'EF_full']]
-            self.EFsequenceList +=[[ 'EF_full',[cell_maker_fullcalo_topo, topocluster_maker_fullcalo],'EF_full_cluster']]            
-            self.EFsequenceList +=[[ ['EF_full_cluster'],          [theEFMETFex],  'EF_xe_step1' ]]            
+            self.EFsequenceList +=[[ input0,algo0,  output0 ]]            
+            self.EFsequenceList +=[[ input0,algo0,  output0 ]]            
+            self.EFsequenceList +=[[ input1,algo1,  output1 ]]            
+            self.EFsequenceList +=[[ [output1],          [theEFMETFex],  'EF_xe_step1' ]]            
             self.EFsequenceList +=[[ ['EF_xe_step1',muonSeed],     [theEFMETMuonFex, theEFMETHypo],  'EF_xe_step2' ]]
             
         #trigger-jet based MET
         elif EFrecoAlg=='mht': 
-            self.EFsequenceList +=[[ '',[roi_topo],'EF_full2']]
-            self.EFsequenceList +=[[ 'EF_full2',[cell_maker_fullcalo_topo, topocluster_maker_fullcalo],'EF_full_mht1']]
-            self.EFsequenceList +=[[ 'EF_full_mht1',[theTrigHLTJetRec_AntiKt],'EF_full_mht2']] 
-            self.EFsequenceList +=[[ ['EF_full_mht2'], [theEFMETFex], 'EF_xe_step1' ]]
+            self.EFsequenceList +=[[ input0,algo0,  output0 ]]            
+            self.EFsequenceList +=[[ input1,algo1,  output1 ]]            
+            self.EFsequenceList +=[[ input2,algo2,  output2 ]]            
+
+            self.EFsequenceList +=[[ [output2], [theEFMETFex], 'EF_xe_step1' ]]
             self.EFsequenceList +=[[ ['EF_xe_step1',muonSeed], [theEFMETMuonFex, theEFMETHypo], 'EF_xe_step2' ]]
 
         #cell based MET

@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-from TopoOutput import TopoOutput
+from TopoOutput import TopoOutput, TriggerLine
 from AthenaCommon.Logging import logging
 log = logging.getLogger("TriggerMenu.l1topo.L1TopoMenu")
 
@@ -38,25 +38,11 @@ class L1TopoMenu:
 
 
     def getTriggerLines(self):
-        from collections import namedtuple
-        TriggerLine = namedtuple("TriggerLine","trigger cable bit clock fpga ordinal firstbit")
-        outputLines = {}
-
+        from operator import attrgetter
+        outputLines = []
         for output in self.topoOutput:
-
-            for (idx,line) in enumerate(output.algo.outputs):
-                
-                ordinal = 64*output.module + 32*output.clock + 16*output.fpga + output.firstbit+idx
-
-                outputLines[ordinal] = TriggerLine( trigger = line,
-                                                    cable = output.module,
-                                                    bit = output.firstbit+idx+16*output.fpga,
-                                                    clock = output.clock,
-                                                    fpga = output.fpga,
-                                                    ordinal = ordinal,
-                                                    firstbit = output.firstbit
-                                                    )
-        return [x[1] for x in sorted(outputLines.items())] # return the TriggerLines, sorted by the ordinal
+            outputLines += TriggerLine.createTriggerlinesFromTopoOutput(output)
+        return sorted(outputLines, key=attrgetter('ordinal')) # return the TriggerLines, sorted by the ordinal
 
 
 
@@ -94,28 +80,62 @@ class L1TopoMenu:
         from XMLMenuReader import readMenuFromXML
         readMenuFromXML(self, inputFile)
 
-        
-    def check(self):
-        """
-        All other checks should be implemented in TrigConfStorage/src/CheckConsistency.cxx
 
+
+    def check(self):
+
+        allOk = self.check_consecutiveAlgId()
+        
+        allOk &= self.check_OutputOverlap()
+
+        allOk &= self.check_LUTassignment()
+
+        return allOk
+
+    def check_consecutiveAlgId(self):
+        """
         This method is only for quick solutions but should be intermediate
         """
-
+        allOk = True
         idlist = [x.algo.algoId for x in self.topoOutput]
-
         if len(idlist)>0 and len(idlist) != max(idlist)+1:
             idlist.sort()
             from itertools import groupby
             partition = [list(g) for k,g in groupby(enumerate(idlist), lambda (x,y) : y-x)]
             log.error("Algorithm IDs must start at 0 and be consecutive, but algorithm IDs are %s" % ','.join(["%i-%i" % (x[0][1],x[-1][1]) for x in partition]))
-            #for x in self.topoOutput: # for debugging               
-            #    print x.algo.algoId, x.algo.name 
-            #return False
-        #sortedOutput = sorted(self.topoOutput,lambda x,y: cmp(x.algo.algoId,y.algo.algoId))
-        #for trigger in sortedOutput:
-        #    print trigger
+            allOk = False
+        return allOk
+        
+
+    def check_OutputOverlap(self):
+
+        triggerlines = self.getTriggerLines()
+
+        allOk = True
+
+        tlKeys = [ (tl.cable, tl.fpga, tl.clock, tl.bit) for tl in triggerlines]
+        
+        from collections import Counter
+        c = Counter( tlKeys ).most_common()
+        for key,count in c:
+            if count == 1: break
+            print "Output cable %s, fpga %s, clock %s, bit %i" % key, "is uses more than once (%i times)!" % count
+            print "Check these trigger lines:"
+            for tl in triggerlines:
+                if key == (tl.cable, tl.fpga, tl.clock, tl.bit):
+                    print "     ",tl.trigger
+
+            allOk = False
 
 
-        return True
+        return allOk
 
+
+    def check_LUTassignment(self):
+        """
+        Check if multibit algos are on a single LUT
+        """
+
+        allOk = True
+
+        return allOk

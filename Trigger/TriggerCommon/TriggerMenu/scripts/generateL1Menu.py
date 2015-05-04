@@ -18,7 +18,7 @@ def generateL1Menu(menu, useTopoMenu="MATCH"):
     TF.triggerMenuSetup = menu
 
     # TPC for L1
-    tpcl1 = TriggerConfigLVL1( outputFile = TF.outputLVL1configFile(), menuName = TF.triggerMenuSetup() )
+    tpcl1 = TriggerConfigLVL1( outputFile = TF.outputLVL1configFile() )
 
     # build the menu structure
     tpcl1.generateMenu()
@@ -27,7 +27,7 @@ def generateL1Menu(menu, useTopoMenu="MATCH"):
     outfilename = tpcl1.writeXML()
 
     # consistency checker
-    checkResult = os.system("get_files -xmls -symlink LVL1config.dtd")
+    checkResult = os.system("get_files -xmls -symlink LVL1config.dtd > /dev/null")
     checkResult = os.system("xmllint --noout --dtdvalid LVL1config.dtd %s" % outfilename)
     if checkResult == 0:
         log.info("XML file %s is conform with LVL1config.dtd" % outfilename)
@@ -72,7 +72,8 @@ def findUnneededRun2():
     menus = ['Physics_pp_v5']
 
     for menu in menus:
-        tpcl1 = TriggerConfigLVL1( menuName = menu )
+        TF.triggerMenuSetup = menu
+        tpcl1 = TriggerConfigLVL1()
 
         print set(tpcl1.registeredItems.keys()) - set(Lvl1Flags.items())
 
@@ -110,7 +111,7 @@ def findUnneededRun1(what="items"):
     [menus,allItems,allThrs] = load(f)
 
     # the TPC for L1
-    tpcl1 = TriggerConfigLVL1( outputFile = TF.outputLVL1configFile(), menuName = TF.triggerMenuSetup() )
+    tpcl1 = TriggerConfigLVL1( outputFile = TF.outputLVL1configFile() )
 
     if what=="items":
         unneeded = sorted(list(set( tpcl1.registeredItems.keys() ) - allItems))
@@ -131,7 +132,7 @@ def findFreeCTPIDs(menu):
     [menus,allItems,allThrs] = load(f)
 
     TF.triggerMenuSetup = menu
-    tpcl1 = TriggerConfigLVL1( outputFile = TF.outputLVL1configFile(), menuName = TF.triggerMenuSetup() )
+    tpcl1 = TriggerConfigLVL1( outputFile = TF.outputLVL1configFile() )
 
     print set(Lvl1Flags.CtpIdMap().keys()) - allItems
 

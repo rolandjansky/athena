@@ -27,6 +27,7 @@ def generateChainDefs(chainDict):
     listOfChainDefs = []
     
     for subChainDict in listOfChainDicts:      
+        
         MissingET = L2EFChain_met(subChainDict)
         
         listOfChainDefs += [MissingET.generateHLTChainDef()]
@@ -37,3 +38,9 @@ def generateChainDefs(chainDict):
         theChainDef = listOfChainDefs[0]        
     
     return theChainDef
+
+
+##########################################################
+
+
+    

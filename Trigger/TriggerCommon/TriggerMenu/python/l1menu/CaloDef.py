@@ -28,7 +28,9 @@ class CaloDef:
         caloInfo.setGlobalJetScale(1)
 
         # XS parameterization
-        caloInfo.setXsParams( xsSigmaScale=660, xsSigmaOffset=1561, xeMin=11, xeMax=63, teSqrtMin=4, teSqrtMax=63 )
+        # updated by ATR-10664
+        caloInfo.setXsParams( xsSigmaScale=1264, xsSigmaOffset=1496, xeMin=11, xeMax=63, teSqrtMin=4, teSqrtMax=63 )
+        #caloInfo.setXsParams( xsSigmaScale=660, xsSigmaOffset=1561, xeMin=11, xeMax=63, teSqrtMin=4, teSqrtMax=63 )
         #caloInfo.setXsParams( xsSigmaScale=1150, xsSigmaOffset=1640, xeMin=11, xeMax=63, teSqrtMin=4, teSqrtMax=63 )
 
         # isolation parametrization
@@ -42,9 +44,9 @@ class CaloDef:
         E.g: with offset=-52 slope=35 means isolation <= ET/3.5 - 5.2
         """
 
-        caloInfo.isolation["EMIsoForEMthr"] .addIsolation( isobit=2, slope=80, offset=-18,  mincut=10, upperlimit=50)\
-                                            .addIsolation( isobit=3, slope=80, offset=-18,  mincut=10, upperlimit=50)\
-                                            .addIsolation( isobit=4, slope=80, offset=-18, mincut=10, upperlimit=50)
+        caloInfo.isolation["EMIsoForEMthr"] .addIsolation( isobit=2, slope=80, offset=-18,  mincut=20, upperlimit=50)\
+                                            .addIsolation( isobit=3, slope=80, offset=-18,  mincut=20, upperlimit=50)\
+                                            .addIsolation( isobit=4, slope=80, offset=-18, mincut=20, upperlimit=50)
                                             
         caloInfo.isolation["HAIsoForEMthr"] .addIsolation( isobit=1, slope=230, offset=-2, mincut=10,upperlimit=50)\
                                             .addIsolation( isobit=3, slope=230, offset=-2, mincut=10,upperlimit=50)\
@@ -60,7 +62,7 @@ class CaloDef:
         caloInfo.minTOBPt += [ MinimumTOBPt(thrtype="EM", ptmin=3) ]
         caloInfo.minTOBPt += [ MinimumTOBPt(thrtype="TAU", ptmin=4) ]
         caloInfo.minTOBPt += [ MinimumTOBPt(thrtype="JETS", ptmin=8, window=4) ]
-        caloInfo.minTOBPt += [ MinimumTOBPt(thrtype="JETL", ptmin=5, window=8) ]
+        caloInfo.minTOBPt += [ MinimumTOBPt(thrtype="JETL", ptmin=12, window=8) ]
 
         # jet weights
         if len( tc.menu.thresholds.allThresholdsOf('JET') ) <= 8:

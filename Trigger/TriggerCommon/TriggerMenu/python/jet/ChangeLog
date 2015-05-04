@@ -1,3 +1,54 @@
+2015-03-25   Peter Sherwood  <peter@localhost>
+
+	* AlgFactory.py (AlgFactory.ht_hypo): make HT hypo cuts
+	for jets and Sum ET in MEV rather than GeV.
+
+2015-03-19   Peter Sherwood  <peter@localhost>
+
+	* AlgFactory.py (AlgFactory.ht_hypo): have the instance 
+	name include the return if hypo_params.attributes_to_string()
+	
+
+	* hypo_factory.py (HTHypoAlg.attributes_to_string): 
+	new method to help coordinate te and Alg instance names
+	to prevent duplicate te names.
+
+	* AlgFactory.py (AlgFactory.ht_hypo): add in cut on jet
+	Et.
+
+	* ChainConfigMaker.py (ChainConfigMaker): Add support
+	for jet et cut for the HT hypo.
+
+	* JetSequencesBuilder.py (JetSequencesBuilder.make_jh): 
+	Stop treating single and multiple jets differently. They
+	were being hadled by different python classes that controlled
+	the same C++ class. 'Single' and 'Multi' refer to the
+	number of thresholds. The single jet case is not handled by 
+	with a threshold vector which contains one entry.
+
+	* AlgFactory.py (AlgFactory.jr_hypo_single): removed method
+	(AlgFactory.jr_hypo_multi): renamed method to jr_hypo.
+	The python class setup in thei method controls the same C++
+	path that setup by the now-removed method jr_hypo_single method.
+	This is the start of a rationalization of the jet hypo (C++ and
+	python) process.
+
+	* ChainConfigMaker.py (ChainConfigMaker.process_part): 
+	Add in fex_alg_name. Lead to incorrect evaluation of hypo parameters.
+	(ChainConfigMaker._check_part): Abort chain construction if
+	pileup sibtraction is requested together with the partial scan.
+
+2015-03-18   Peter Sherwood  <peter@localhost>
+
+	* hypo_factory.py (JetRecHypoAlg.jet_attributes_tostring): 
+	improved the doc string.
+
+	* AlgFactory.py (AlgFactory.jr_hypo_multi): remove unused local
+	variable "mult".
+
+	* ChainConfigMaker.py (ChainConfigMaker.__call__): Add
+	merge paramter and jet calib to the recluster_paramters object.
+
 2015-03-12   Peter Sherwood  <peter@pb-d-128-141-171-232.cern.ch>
 
 	* AlgFactory.py (AlgFactory.__init__): remove attribute
@@ -464,154 +515,4 @@
 
 2014-05-04   Peter Sherwood  <peter@peter-8.home>
 
-	* TEout_aliases.py: New class - provides systematic conversion
-	from unique string identirfers for sequences to a human compatible
-	alias.
-
-	* JetDef.py: use new TEout_alias class.
-
-2014-05-01   Peter Sherwood  <peter@pb-d-128-141-242-19.cern.ch>
-
-	* jetDefInstantiator.py: correct import for TrigHLTJetRec
-
-	* JetDef_test.py (TestJetDef.test_0): comment out test that 
-	uses TriggerTower scan - currently broken.
-
-2014-04-30   Peter Sherwood  <peter@pb-d-128-141-242-19.cern.ch>
-
-	* algFactories.py: use new TrigHLTJetRec classes.
-
-	* JetSequenceRouter.py: split the jr sequence into clusters, jr_fex,
-	jr_hypo.
-
-2014-04-30   Peter Sherwood  <peter@peter-8.home>
-
-	* JetDef.py (generateHLTChainDef): Updated doc string.
-
-2014-04-29   Peter Sherwood  <peter@peter-8.home>
-
-	* Remove references to L2, EF as the destruction of release 19
-	has precluded running the 2012 code.
-
-	* Add TrigHLTJetRec_Tools config class to jetDefInstantiation
-	although the instantiation fails for now.
-
-	M       JetDef.py
-	M       jetDefInstantiator.py
-	M       algFactories.py
-	M       ChainSpecifics.py
-	M       JetSequenceRouter_test.py
-	M       JetSequenceRouter.py
-	M       KnownChains_test.py
-	M       KnownChains.py
-
-2014-04-08   Peter Sherwood  <peter@peter-8.home>
-
-	* JetDef_test.py (TestJetDef.test_1): test input at 220 GeV ->
-	200 GeV to conform to KnownChains.
-
-	* algFactories.py: fix factorory names ending in _topo_lctopo -> 
-	_lctopo
-
-	* KnownChains.py (KnownChains.__init__): fj220 -> fj200
-
-	* JetDef.py (_fix_incoming_dict): incoming empty string 
-	for locationInfo converted to 'j'.
-
-2014-04-07   Peter Sherwood  <peter@peter-8.home>
-
-	* algFactories.py (jr_antikt4_tc_had): replace algFactories ending
-	in _calib with thise ending in '_lctopp' (local calibration, following
-	suggestion by MarioC).
-
-2014-04-06   Peter Sherwood  <peter@peter-8.home>
-
-	* JetDef.py (_fix_incoming_dict): add transrmations j->j, fj->fj
-
-2014-04-05   Peter Sherwood  <peter@peter-8.home>
-
-	* Update to new central menu dictionary format.
-	Final test of runnign with the menu not made.
-	M       JetDef_test.py
-	M       JetDef.py
-	M       KnownChains_test.py
-	M       KnownChains.py
-
-
-2014-04-04   Peter Sherwood  <peter@peter-8.home>
-
-	* JetDef.py (run_strawman_test): remove testfor chains
-	with 'em' calibration.
-
-	* JetSequenceRouter.py (JetSequenceRouter.make_alglists): 
-	change error handling.
-
-	* KnownChains.py (KnownChains.__init__): remove 'em' calibration
-	option from known chains (all known chains have 'had' calibration).
-
-	* ChainSpecifics.py (chainSpecifics): made the
-	default calibration for jr and ef 'had' instead of 'em'.
-
-	* JetDef_test.py modify due to above changes
-	* JetSequenceRouter_test.py modify due to above changes
-	* KnownChains_test.py modify due to above changes
-
-2014-04-03   Peter Sherwood  <peter@peter-8.home>
-
-	* JetSequenceRouter.py (JetSequenceRouter.make_alglists): 
-
-	disamniguate KeyError messages - could come from  using
-	key not in sipatch table, as as a result to algFactories
-	where the key ised there was not in the algFactory dispatch table. 
-
-	* ChainSpecifics.py (chainSpecifics): set the level for 'jr'
-	to be 'jr', and not 'ef'.
-
-	* algFactories.py (jr_antikt10_tc_had): give jet rec  Algs there
-	own finctions rather than using ef fucntions in diaptch table.
-
-	* jetDefInstantiator.py (Instantiator.__call__): put eval in a
-	try block to allow informative exception to be raised on error.
-
-	* JetDef.py (_decode): add calibration = 'had' flags to the
-	calls to chainSpecificas for the relevant chains.
-	(run_strawman_test): Add 'had' calibration chains to test.
-
-2014-04-02   Peter Sherwood  <peter@pb-d-128-141-249-178.cern.ch>
-
-	* For each of the existsing chains (all with calibration 'em')
-	add a correponding version with calib = 'had
-	M       JetDef_test.py
-	M       JetDef.py
-	M       KnownChains.py
-
-	* updated multijet code
-	M       JetDef_test.py
-	M       JetDef.py
-	M       JetSequenceRouter_test.py
-	M       JetSequenceRouter.py
-	M       KnownChains_test.py
-	M       KnownChains.py
-
-	* KnownChains.py (KnownChains.__init__): update multjet threshold to 
-	reflect change from 145 to 175v GeV.
-
-	* JetDef.py: updated run_strawman_test() to include mutijet triggers
- 
-	* KnownChains.py: Change all integer parameters to strings
-	(believe incoming data to be string)
-
-	* JetSequenceRouter.py (_make_router_key): allow jr (jetrec) sequences
-	only for inclusuve strawman chains.
-
-	* JetDef.py: Added tests for inclusive strawman menu items
-	(instantiates ChainDefs, and prints them out)
-
-2014-04-01   Peter Sherwood  <peter@peter-8.home>
-
-	* JetDef.py (run_test): fix test - was 
-	missing 'signature' key in input dictioanry.
-
-2014-03-10   Peter Sherwood  <peter@peter-8.home>
-
-	* KnownChains.py (KnownChains.__init__): added new label jetdef_2015_j30_ha
+	* TEout_aliases.py: New c

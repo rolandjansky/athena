@@ -24,7 +24,7 @@ JET2 : 15x2b JET - mapping 10-24
 EN1  : 8x1b TE [0..7] (SumET)
        8x1b XE [8..15] (missing ET)
        8x1b XS [16..23] (missing ET significance)
-EN2  : 8x1b weighted SumET
+EN2  : 8x1b weighted SumET (restricted range TE)
        8x1b restricted range MissET
 
 
@@ -35,7 +35,7 @@ MUCTPI : first bit unused,
 CTPCAL : 6x1b BCM [0..5] - mapping 0-5
          8x1b DBM [6..13] - mapping 0-7
          2x1b BPTX [14..15] - mapping 0-1
-         6x1b LUCID [16..21] - mapping 0-5
+         6x1b LUCID [16..21] - mapping 0-5 (A,C,COMM,?,?,?)
          3x1b ZDC [22..24] - mapping 0-2
          3x1b CALREQ [28..30] last 3 bits! - mapping 0-2
 NIM1   : 12x1b MBTSSI [0..11] - mapping 0-11 A-side
@@ -66,20 +66,29 @@ L1Topo1 : 64x1b TOPO mapping 64-127
 """
 
 
+def getLutInput(connector):
+    """
+    maps the direct input to the LUT number and LUT input
+    -- this is needed so that the multiplicity topo lines end up on the 
+    """
+
+
+
 class Cabling:
     @staticmethod
-    def getInputCable(thrtype, mapping, zbSeedType=None):
-        #if thrtype=='EM' and mapping>=8: # for run 1
-        #    return Cabling.getInputCable('TAU', 15-mapping)
+    def getInputCable(threshold):
 
-        if thrtype=='ZB': # special case for ZB triggers that are sitting on the last bit of the same connector
-            inputCable             = Cabling.getInputCable(zbSeedType, mapping)
+        inputCable = InputCable( threshold )
+
+        if threshold.ttype == 'ZB': # special case for ZB triggers that are sitting on the last bit of the same connector
             inputCable.bitnum      = 1
             inputCable.range_begin = 30
             inputCable.range_end   = 30
-            return inputCable
-        
-        return InputCable( thrtype, mapping )
+
+        return inputCable
+
+
+
 
     @staticmethod
     def getCableName(thrtype,mapping):
@@ -144,19 +153,60 @@ class Cabling:
     @staticmethod
     def calcBitnum(thrtype):
         # get the widths for the threshold types is defined in L1Common
-        if thrtype=='TOPO':
-            nbits = 1
-        else:
-            exec("nbits = Limits.%s_bitnum" % thrtype)
+        exec("nbits = Limits.%s_bitnum" % thrtype)
         return nbits
 
 
 
 class InputCable:
-    def __init__(self, thrtype, mapping):
+        
+    def __fillTopoInputs(self, threshold):
+        # CTPCORE
+        self.isDirectIn  = True
+        connector = threshold.cable + 1
+        self.name        = "TOPO%i" % connector
+        self.connector   = "CON%i" % connector
+        self.bitnum      = threshold.bitnum
+        self.clock       = threshold.clock
+        self.range_begin = threshold.bitOnCable
+        self.range_end   = threshold.bitOnCable+self.bitnum-1
+        
+        log.debug( 'Threshold type %s (mapping=%i) comes in on CTPCore on cable %s, bit %s, clock %i' % ( self.thrtype, self.mapping, self.connector,
+                                                                                                          ("%i" % self.range_begin) if self.bitnum==1
+                                                                                                          else ("%i-%i" % (self.range_begin, self.range_end)), self.clock ) )
 
-        self.thrtype = thrtype
-        self.mapping = int(mapping)
+    def __fillAlfaInputs(self, threshold):
+        # CTPCORE
+        self.isDirectIn = True
+        self.name = Cabling.getCableName(self.thrtype,self.mapping)
+        self.connector = "CON0"
+        self.bitnum = 1
+        self.clock = self.mapping / 32
+        self.range_begin = self.mapping % 32
+        self.range_end   = self.range_begin
+           
+        log.debug( 'Threshold type %s (mapping=%i) comes in on CTPCore on cable %s, bit %s, clock %i' % ( self.thrtype, self.mapping, self.connector,
+                                                                                                          ("%i" % self.range_begin) if self.bitnum==1
+                                                                                                          else ("%i-%i" % (self.range_begin, self.range_end)), self.clock ) )
+
+    def __fillCTPIn(self):
+        self.name = Cabling.getCableName(self.thrtype,self.mapping)
+
+        self.calcSlotAndConnector()
+        log.debug( 'Threshold type %s (mapping=%i) comes in on CTPIN on cable %s/%s and bits %s' % ( self.thrtype, self.mapping, self.slot, self.connector,
+                                                                                                     ("%i" % self.range_begin) if self.bitnum==1
+                                                                                                     else ("%i-%i" % (self.range_begin, self.range_end)) ) )
+
+
+
+    def __init__(self, threshold ):
+
+        if threshold.ttype == 'ZB':
+            self.thrtype = threshold.seed_ttype
+        else:
+            self.thrtype = threshold.ttype
+        self.mapping = int(threshold.mapping)
+
         self.isDirectIn  = False # True for TOPO and ALFA which go into CTPCore
         self.slot        = None  # input cable slot, possible values 7..9
         self.connector   = None  # input cable connector, possible values 0..3
@@ -165,28 +215,15 @@ class InputCable:
         self.range_begin = 0     # first bit of range, possible values 0..30
         self.range_end   = 0     # last bit of range, possible values 0..30 (should be first bit + bitnum - 1)
 
-        if thrtype=='TOPO' or thrtype=='ALFA':
-            self.isDirectIn = True
-
-        self.name = Cabling.getCableName(self.thrtype,self.mapping)
-
-        #if self.thrtype=='NIM':
-        #    print str(self)
-
-        self.calcSlotAndConnector()
-
-        if self.isDirectIn:
-            log.debug( 'Threshold type %s (mapping=%i) comes in on CTPCore on cable %s, bit %s, clock %i' % ( self.thrtype, self.mapping, self.connector,
-                                                                                                              ("%i" % self.range_begin) if self.bitnum==1
-                                                                                                              else ("%i-%i" % (self.range_begin, self.range_end)), self.clock ) )
+        if self.thrtype=='TOPO':
+            self.__fillTopoInputs( threshold )
+        elif self.thrtype=='ALFA':
+            self.__fillAlfaInputs( threshold )
         else:
-            log.debug( 'Threshold type %s (mapping=%i) comes in on CTPIN on cable %s/%s and bits %s' % ( self.thrtype, self.mapping, self.slot, self.connector,
-                                                                                                         ("%i" % self.range_begin) if self.bitnum==1
-                                                                                                         else ("%i-%i" % (self.range_begin, self.range_end)) ) )
+            self.__fillCTPIn()
 
         if not self.connector:
             raise RuntimeError("No cable has been assigned to threshold type '%s' with mapping %i" % (self.thrtype,self.mapping))
-
 
 
     def __str__(self):
@@ -196,55 +233,37 @@ class InputCable:
 
     def calcSlotAndConnector(self):
 
-        #self.bitnum = Cabling.calcBitnum(self.thrtype)
-        #if self.bitnum == 0:
-        #    return;
-        
-        # CTPIN
-        if not self.isDirectIn:
+        cableAssign = self.getCTPINCableAssignment(self.thrtype)
 
-            cableAssign = self.getCTPINCableAssignment(self.thrtype)
+        from TriggerMenu.l1.Lvl1Flags import Lvl1Flags
+        run1 = Lvl1Flags.CTPVersion()<=3
+        if run1 and self.thrtype=="EM":
+            cableAssign += self.getCTPINCableAssignment("TAU")
 
-            from TriggerMenu.l1.Lvl1Flags import Lvl1Flags
-            run1 = Lvl1Flags.CTPVersion()<=3
-            if run1 and self.thrtype=="EM":
-                cableAssign += self.getCTPINCableAssignment("TAU")
+        offset = self.mapping
+        for (slot, connector, start, stop, bitnum) in cableAssign:
 
-            offset = self.mapping
-            for (slot, connector, start, stop, bitnum) in cableAssign:
-                
-                self.bitnum = bitnum
-                
-                delta = (stop - start + 1) / self.bitnum
-                log.debug( 'Cable SLOT%i / CON%i has room for %i thresholds of type %s' % (slot, connector, delta, self.thrtype) )
+            self.bitnum = bitnum
 
-                if offset >= delta: # does not fit on this connector (only 0 to offset-1 will fit)
-                    offset -= delta # move to the next cable for checking
-                    continue
+            delta = (stop - start + 1) / self.bitnum
+            log.debug( 'Cable SLOT%i / CON%i has room for %i thresholds of type %s' % (slot, connector, delta, self.thrtype) )
 
-                self.slot        = "SLOT%i" % slot
-                self.connector   = "CON%i" % connector
-                self.range_begin = start + offset * self.bitnum
-                self.range_end   = self.range_begin + self.bitnum-1
-                break
-            
-            if not self.connector:
-                print "Cable mapping ERROR ",cableAssign
-                raise RuntimeError("No cable has been assigned to threshold type '%s' with mapping %i" % (self.thrtype,self.mapping))
+            if offset >= delta: # does not fit on this connector (only 0 to offset-1 will fit)
+                offset -= delta # move to the next cable for checking
+                continue
+
+            self.slot        = "SLOT%i" % slot
+            self.connector   = "CON%i" % connector
+            self.range_begin = start + offset * self.bitnum
+            self.range_end   = self.range_begin + self.bitnum-1
+            break
+
+        if not self.connector:
+            print "Cable mapping ERROR ",cableAssign
+            raise RuntimeError("No cable has been assigned to threshold type '%s' with mapping %i" % (self.thrtype,self.mapping))
 
 
 
-        else:
-            # CTPCORE
-            self.bitnum = 1
-            self.clock = (self.mapping % 64) / 32
-            self.range_begin = self.mapping % 32
-            self.range_end   = self.range_begin
-            if self.thrtype=="ALFA":
-                self.connector = "CON0"
-            else:
-                module = int(self.mapping) / 64
-                self.connector = "CON%i" % (module+1)
 
 
 

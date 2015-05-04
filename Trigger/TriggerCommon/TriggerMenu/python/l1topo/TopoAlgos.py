@@ -66,6 +66,7 @@ class SortingAlgo(TopoAlgo):
             
     def xml(self):
         _emscale_for_decision=2
+        _mu_for_decision=1 # MU4->3GeV, MU6->5GeV, MU10->9GeV
         if hasattr(TriggerFlags, 'useRun1CaloEnergyScale'):
             if TriggerFlags.useRun1CaloEnergyScale :
                 _emscale_for_decision=1
@@ -84,6 +85,8 @@ class SortingAlgo(TopoAlgo):
             # scale MinEt if outputs match with EM or TAU
             if variable.name=="MinEt" and (self.outputs.find("TAU")>=0 or self.outputs.find("EM")>=0):
                 variable.value = variable.value * _emscale_for_decision
+            if variable.name=="MinEt" and self.outputs.find("MU")>=0:
+                variable.value = ((variable.value - _mu_for_decision) if variable.value>0 else variable.value)
             s+='      <Parameter pos="%i" name="%s" value="%i"/>\n' % ( pos, variable.name, variable.value )
         s+='    </Variable>\n'    
         s+='  </SortAlgo>\n'
@@ -99,6 +102,7 @@ class DecisionAlgo(TopoAlgo):
     def xml(self): 
 
         _emscale_for_decision=2
+        _mu_for_decision=1 
         if hasattr(TriggerFlags, 'useRun1CaloEnergyScale'):
             if TriggerFlags.useRun1CaloEnergyScale :
                 _emscale_for_decision=1
@@ -128,11 +132,17 @@ class DecisionAlgo(TopoAlgo):
 
         for (pos, variable) in enumerate(self.variables):
             # scale MinET if inputs match with EM or TAU
-            if variable.name=="MinET1" or variable.name=="MinET2" or variable.name=="MinET3" or variable.name=="MinET":
-                for (tobid, _input) in enumerate(self.inputs):
-                    if (_input.find("TAU")>=0 or _input.find("EM")>=0):
-                        if (len(self.inputs)>1 and (variable.name=="MinET"+str(tobid+1) or (tobid==0 and variable.name=="MinET"))) or (len(self.inputs)==1 and (variable.name.find("MinET")>=0)):
-                            variable.value = variable.value * _emscale_for_decision
+            for _minet in ["MinET", "MinEt"]:
+                if variable.name==_minet+"1" or variable.name==_minet+"2" or variable.name==_minet+"3" or variable.name==_minet:
+                    for (tobid, _input) in enumerate(self.inputs):
+                        if (_input.find("TAU")>=0 or _input.find("EM")>=0):
+                            if (len(self.inputs)>1 and (variable.name==_minet+str(tobid+1) or (tobid==0 and variable.name==_minet))) or (len(self.inputs)==1 and (variable.name.find(_minet)>=0)):
+                                variable.value = variable.value * _emscale_for_decision
+
+                        if _input.find("MU")>=0:
+                            if (len(self.inputs)>1 and (variable.name==_minet+str(tobid+1) or (tobid==0 and variable.name==_minet))) or (len(self.inputs)==1 and (variable.name.find(_minet)>=0)):
+                                variable.value = ((variable.value - _mu_for_decision ) if variable.value>0 else variable.value)
+                            
             s+='      <Parameter pos="%i" name="%s"%s value="%i"/>\n' % ( pos, variable.name, ((' selection="%i"'%variable.selection) if (variable.selection>=0) else ""), variable.value )
         s+='    </Variable>\n'    
         s+='  </DecisionAlgo>\n'

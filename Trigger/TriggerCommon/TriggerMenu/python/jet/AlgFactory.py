@@ -118,6 +118,7 @@ class AlgFactory(object):
         self.cluster_calib = "'LC'" if self.cluster_params.do_lc else "'EM'"
 
         self.fex_params = self.menu_data.fex_params
+        self.last_fex_params = self.menu_data.last_fex_params
         self.recluster_params = self.menu_data.recluster_params
         self.hypo_params = self.menu_data.hypo_params
 
@@ -147,7 +148,7 @@ class AlgFactory(object):
             'output_collection_label': "'%s'" % (
             self.fex_params.fex_label)
         }
-
+        
         return [Alg('TrigHLTJetRec_param', (), kwds)]
 
     def jetrec_cluster(self):
@@ -197,45 +198,47 @@ class AlgFactory(object):
 
         return [Alg(factory, (), kwds)]
 
-    def jr_hypo_single(self):
-        """
-        Skype discussion RC/P Sherwood
-        [21/01/15, 18:44:50] Ricardo Goncalo:
-        hypo parameters: ET, eta min, eta max
+    # def jr_hypo_single(self):
+    #    """
+    #    Skype discussion RC/P Sherwood
+    #    [21/01/15, 18:44:50] Ricardo Goncalo:
+    #    hypo parameters: ET, eta min, eta max
 
-        recoAlg:   'a4', 'a10', 'a10r'
-        dataType:  'TT', 'tc', 'cc'
-        calib:     'had', 'lcw', 'em'
-        jetCalob:  'jes', 'sub', 'subjes', 'nocalib'
-        scan:      'FS','PS'
+    #     recoAlg:   'a4', 'a10', 'a10r'
+    #    dataType:  'TT', 'tc', 'cc'
+    #    calib:     'had', 'lcw', 'em'
+    #    jetCalob:  'jes', 'sub', 'subjes', 'nocalib'
+    #    scan:      'FS','PS'
 
-        j65_btight_split_3j65_L13J25.0ETA22 ->
-                        EFJetHypo_65000_0eta320_a4_tc_em_subjes_FS
-        """
+    #    j65_btight_split_3j65_L13J25.0ETA22 ->
+    #                    EFJetHypo_65000_0eta320_a4_tc_em_subjes_FS
+    #    """
         
-        assert len(self.hypo_params.jet_attributes) == 1
-        ja = self.hypo_params.jet_attributes[0]
+    #    assert len(self.hypo_params.jet_attributes) == 1
+    #    ja = self.hypo_params.jet_attributes[0]
 
-        name_extension = '_'.join([str(e) for  e in
-                                   (int(ja.threshold * GeV),
-                                    ja.eta_range,
-                                    self.fex_params.fex_alg_name,
-                                    self.fex_params.data_type,
-                                    self.cluster_params.cluster_calib,
-                                    self.fex_params.jet_calib,
-                                    self.menu_data.scan_type)])
+    #    # the hypo instance name is constructed from the
+    #    # last jet fex run.
+    #    name_extension = '_'.join([str(e) for  e in
+    #                               (int(ja.threshold * GeV),
+    #                                ja.eta_range,
+    #                                self.last_fex_params.fex_alg_name,
+    #                                self.last_fex_params.data_type,
+    #                                self.cluster_params.cluster_calib,
+    #                                self.last_fex_params.jet_calib,
+    #                                self.menu_data.scan_type)])
         
-        name = '"EFJetHypo_j%s"' % name_extension
+    #    name = '"EFJetHypo_j%s"' % name_extension
 
-        etaMin = str(ja.eta_min)
-        etaMax = str(ja.eta_max)
-        kargs = {}
+    #    etaMin = str(ja.eta_min)
+    #    etaMax = str(ja.eta_max)
+    #    kargs = {}
     
-        args = [name, str(GeV * ja.threshold), etaMin, etaMax]
+    #    args = [name, str(GeV * ja.threshold), etaMin, etaMax]
     
-        return [Alg('EFJetHypo', args, kargs)]
+    #    return [Alg('EFJetHypo', args, kargs)]
 
-    def jr_hypo_multi(self):
+    def jr_hypo(self):
         """
         Skype discussion R Goncalo/P Sherwood
         [21/01/15, 18:44:50] Ricardo Goncalo:
@@ -252,20 +255,18 @@ class AlgFactory(object):
         """
 
         
-        mult = len(self.hypo_params.jet_attributes)
-        assert mult > 1
-        mult = str(mult)
+        # assert len(self.hypo_params.jet_attributes) > 1
         
-        # ja = self.hypo_params.jet_attributes[0]
         ja = self.hypo_params.jet_attributes_tostring()
 
+        # the hypo instance name is constructed from the
+        # last jet fex run.
         name_extension = '_'.join([str(e) for  e in
                                    (ja,
-                                    # ja.eta_range,
-                                    self.fex_params.fex_alg_name,
-                                    self.fex_params.data_type,
+                                    self.last_fex_params.fex_alg_name,
+                                    self.last_fex_params.data_type,
                                     self.cluster_params.cluster_calib,
-                                    self.fex_params.jet_calib,
+                                    self.last_fex_params.jet_calib,
                                     self.menu_data.scan_type)])
         
         name = '"EFCentFullScanMultiJetHypo_%s"' % name_extension
@@ -280,6 +281,11 @@ class AlgFactory(object):
                  'etaMax': etaMax,
              }
 
+        # the class name EFCentFullScanMultiJetHypo is a misnomer:
+        # it sets up a C++ algorithm that is neither necessarily
+        # central, not multi-jet.
+        # It will now be used for single and multjets, and where
+        # any eta range can be set.
         return [Alg(
             'EFCentFullScanMultiJetHypo',
             (name,),
@@ -291,20 +297,24 @@ class AlgFactory(object):
     
         eta_range = self.hypo_params.eta_range
         name_extension = '_'.join([str(e) for  e in (
-            self.hypo_params.ht_threshold,
-            eta_range)])
+            self.hypo_params.attributes_to_string(),
+            self.last_fex_params.fex_alg_name,
+            self.last_fex_params.data_type,
+            self.cluster_params.cluster_calib,
+            self.last_fex_params.jet_calib,
+            self.menu_data.scan_type)])
 
         name = '"EFHTHypo_%s"' % name_extension
 
-        etaMin, etaMax = eta_string_to_strings(eta_range)
+        eta_min, eta_max = eta_string_to_strings(eta_range)
 
         args = ()
     
         kargs = {'name': name,
-                 # 'eta_min': eta_min,
-                 # 'eta_max': eta_max,
-                 'HT_cut': str(self.hypo_params.ht_threshold),
-                 # 'ET_cut': str(30*GeV),
+                 'eta_min': eta_min,
+                 'eta_max': eta_max,
+                 'HT_cut': self.hypo_params.ht_threshold * GeV,
+                 'Et_cut': self.hypo_params.jet_et_threshold * GeV
                  }
                  
         return [Alg('EFHT', args, kargs)]

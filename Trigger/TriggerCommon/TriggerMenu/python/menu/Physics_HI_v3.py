@@ -33,6 +33,9 @@ def setupMenu():
 	['mu6',                 'L1_MU4', [], ['Muon'], ['RATE:SingleMuon','BW:Muon'], -1],
 	['mu10',                'L1_MU6', [], ['Muon'], ['RATE:SingleMuon','BW:Muon'], -1],
 	
+	#di-muons RoI based
+	['2mu4',                 'L1_2MU4', [], ['Muon'], ['RATE:SingleMuon','BW:Muon'], -1],
+
 	#Full scan
         ['mu4_mu4noL1',         'L1_MU4', ['L1_MU4',''], ['Muon'], ['RATE:MultiMuon','BW:Muon'], -1, ['serial',-1,["mu4","mu4noL1"]]],
         ['mu6_mu4noL1',         'L1_MU4', ['L1_MU4',''], ['Muon'], ['RATE:MultiMuon','BW:Muon'], -1, ['serial',-1,["mu6","mu4noL1"]]],
@@ -73,10 +76,10 @@ def setupMenu():
 	['e15_lhloose',                'L1_EM10', [], ['Egamma'], ['RATE:SingleElectron', 'BW:Egamma'], -1],
 	['e15_lhmedium',               'L1_EM10', [], ['Egamma'], ['RATE:SingleElectron', 'BW:Egamma'], -1],
 
-	#heavy ion instances
+	#heavy ion instances	
         ['e15_etcut_ion',              'L1_EM10', [], ['Egamma'], ['RATE:SingleElectron', 'BW:Egamma'], -1],
         ['g15_etcut_ion',              'L1_EM10', [], ['Egamma'], ['RATE:SingleElectron', 'BW:Egamma'], -1],
-	['g20_etcut_ion',              'L1_EM14', [], ['Egamma'], ['RATE:SingleElectron', 'BW:Egamma'], -1],
+	['g20_etcut_ion',              'L1_EM12', [], ['Egamma'], ['RATE:SingleElectron', 'BW:Egamma'], -1],
 
 	['e15_loose1_ion',             'L1_EM10', [], ['Egamma'], ['RATE:SingleElectron', 'BW:Egamma'], -1],
         ['e15_medium1_ion',            'L1_EM10', [], ['Egamma'], ['RATE:SingleElectron', 'BW:Egamma'], -1],
@@ -85,6 +88,21 @@ def setupMenu():
         ['e15_lhloose_ion',            'L1_EM10', [], ['Egamma'], ['RATE:SingleElectron', 'BW:Egamma'], -1],
         ['e15_lhmedium_ion',           'L1_EM10', [], ['Egamma'], ['RATE:SingleElectron', 'BW:Egamma'], -1],
  
+	#backup for e15
+	['e20_etcut_ion',              'L1_EM12', [], ['Egamma'], ['RATE:SingleElectron', 'BW:Egamma'], -1], 
+	['e20_loose_ion',              'L1_EM12', [], ['Egamma'], ['RATE:SingleElectron', 'BW:Egamma'], -1],
+        ['e20_loose1_ion',             'L1_EM12', [], ['Egamma'], ['RATE:SingleElectron', 'BW:Egamma'], -1],
+        ['e20_lhloose_ion',            'L1_EM12', [], ['Egamma'], ['RATE:SingleElectron', 'BW:Egamma'], -1],
+	['e20_etcut',                  'L1_EM12', [], ['Egamma'], ['RATE:SingleElectron', 'BW:Egamma'], -1],
+        ['e20_loose',                  'L1_EM12', [], ['Egamma'], ['RATE:SingleElectron', 'BW:Egamma'], -1],
+        ['e20_loose1',                 'L1_EM12', [], ['Egamma'], ['RATE:SingleElectron', 'BW:Egamma'], -1],
+        ['e20_lhloose',                'L1_EM12', [], ['Egamma'], ['RATE:SingleElectron', 'BW:Egamma'], -1],
+
+	#di-electrons , timeouts ATR-10226
+	#['2e10_loose_ion',              'L1_2EM5', [], ['Egamma'], ['RATE:SingleElectron', 'BW:Egamma'], -1],
+	#['2e10_loose1_ion',             'L1_2EM5', [], ['Egamma'], ['RATE:SingleElectron', 'BW:Egamma'], -1],
+	#['2e10_lhloose_ion',            'L1_2EM5', [], ['Egamma'], ['RATE:SingleElectron', 'BW:Egamma'], -1],
+
 	['g15_loose',                  'L1_EM10', [], ['Egamma'], ['RATE:SingleElectron', 'BW:Egamma'], -1],
 	['g15_medium',                 'L1_EM10', [], ['Egamma'], ['RATE:SingleElectron', 'BW:Egamma'], -1],
 	['g20_loose',                  'L1_EM12', [], ['Egamma'], ['RATE:SingleElectron', 'BW:Egamma'], -1],
@@ -95,6 +113,9 @@ def setupMenu():
         ['g20_loose_ion',              'L1_EM12', [], ['Egamma'], ['RATE:SingleElectron', 'BW:Egamma'], -1],
         ['g20_medium_ion',             'L1_EM12', [], ['Egamma'], ['RATE:SingleElectron', 'BW:Egamma'], -1],
 
+	#di-photon triggers
+	['2g15_loose',                  'L1_2EM10', [], ['Egamma'], ['RATE:SingleElectron', 'BW:Egamma'], -1],
+	['2g15_loose_ion',              'L1_2EM10', [], ['Egamma'], ['RATE:SingleElectron', 'BW:Egamma'], -1],
         ]
 
     TriggerFlags.BphysicsSlice.signatures = [
@@ -127,8 +148,10 @@ def setupMenu():
         ['mb_idperf_ion_L1MBTS_1', 'L1_MBTS_1', [], ['MinBias'],["BW:MinBias", "RATE:MinBias"], 1],
         
         #Zdc
-	['mb_zdcperf',  'L1_RD0_FILLED', [], ['MinBias'],["BW:MinBias", "RATE:MinBias"], 1],
-        ['mb_zdcperf_L1ZDC_A_C',  'L1_ZDC_A_C', [], ['MinBias'],["BW:MinBias", "RATE:MinBias"], 1],
+	['mb_lg_zdcperf',  'L1_RD0_FILLED', [], ['MinBias'],["BW:MinBias", "RATE:MinBias"], 1],
+        ['mb_lg_zdcperf_L1ZDC_A_C',  'L1_ZDC_A_C', [], ['MinBias'],["BW:MinBias", "RATE:MinBias"], 1],
+        ['mb_hg_zdcperf',  'L1_RD0_FILLED', [], ['MinBias'],["BW:MinBias", "RATE:MinBias"], 1],
+        ['mb_hg_zdcperf_L1ZDC_A_C',  'L1_ZDC_A_C', [], ['MinBias'],["BW:MinBias", "RATE:MinBias"], 1],
         ]
 
     TriggerFlags.CalibSlice.signatures   = []

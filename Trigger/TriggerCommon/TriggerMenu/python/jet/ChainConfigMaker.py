@@ -69,6 +69,7 @@ class ChainConfigMaker(object):
         convey information about different thresholds in for the
         jet hypo"""
 
+        self._check_part(part)
         # -------------- cluster parameters -------------
 
         # the following dictionary translates the incoming value of
@@ -136,6 +137,7 @@ class ChainConfigMaker(object):
             self.check_and_set('recl_etaMaxCut', 2.0)
             self.check_and_set('recl_merge_param', part['recoAlg'][1:-1])
             self.check_and_set('recl_jet_calib', 'nojcalib')
+            self.check_and_set('recl_fex_alg_name', part["recoAlg"])
 
             fex_label = reduce(lambda x, y: x + y,
                            (part["recoAlg"],
@@ -226,31 +228,19 @@ class ChainConfigMaker(object):
             msg = '%s: cannot determine hypo type from trigger type ' % (
                 self.err_hdr, part['trigType'])
             raise RuntimeError(msg)
+
         self.check_and_set('hypo_type', hypo_type)
 
-        if self.hypo_type == 'standard':
-            mult = int(part['multiplicity'])
-            threshold = int(part['threshold'])
-            eta_range = part['etaRange']
+        hypo_setup_fn = {'standard': self._setup_standard_hypo,
+                         'ht': self._setup_ht_hypo}.get(hypo_type, None)
 
-            self.check_and_set('eta_range', eta_range)
-
-            self.jet_attributes.extend(
-                [(JetAttributes(threshold, eta_range)) for i in range(mult)])
-
-        elif self.hypo_type == 'ht':
-
-            eta_range = part['etaRange']
-            self.check_and_set('eta_range', eta_range)
-            ht_threshold = int(part['threshold'])
-            self.check_and_set('ht_threshold',  ht_threshold)
-
-        else:
+        if hypo_setup_fn is None:
             msg = '%s: unknown hypo type (JetDef bug) %s' % (
                 self.err_hdr,
                 str(self.hypo_type))
             raise RuntimeError(msg)
-            
+
+        hypo_setup_fn(part)
         self.n_parts += 1
 
     def check_and_set(self, attr, val):
@@ -292,10 +282,31 @@ class ChainConfigMaker(object):
 
         fex_params = fexparams_factory(self.fex_name, fex_args)
 
+        # various fexes maybe present in the same chain (a4, a10r eg)
+        # the last set of fex parameters is used to name the hypo instance
+        last_fex_params = fex_params  
+
+        recluster_params = None
+        if self.do_recluster:
+            recl_args = dict(fex_args)
+            recl_args.update({'ptMinCut': self.recl_ptMinCut,
+                              'etaMaxCut': self.recl_etaMaxCut,
+                              'fex_label': self.recl_fex_label,
+                              'merge_param': self.recl_merge_param,
+                              'jet_calib': self.recl_jet_calib,
+                              'fex_alg_name': self.recl_fex_alg_name,
+                          })
+
+            recluster_params = fexparams_factory(
+                'jetrec_recluster', recl_args)
+
+            # overwrite last_fex_params
+            # this is used to name the hypo instance
+            last_fex_params = recluster_params  
+
         if self.hypo_type == 'standard':
             hypo_args = {
                 'chain_name': self.chain_name,
-                'eta_str': '',   # '' for now
                 'jet_attributes': self.jet_attributes,
                 'isCaloFullScan': self.scan_type == 'FS',
                 'triggertower': self.data_type == 'TT'}
@@ -303,22 +314,13 @@ class ChainConfigMaker(object):
         elif self.hypo_type == 'ht':
             hypo_args = {
                 'chain_name': self.chain_name,
-                'eta_range': self.eta_range,   # '' for now
-                'ht_threshold': self.ht_threshold}
+                'eta_range': self.eta_range,
+                'ht_threshold': self.ht_threshold,
+                'jet_et_threshold': self.jet_et_threshold}
         else:
             hypo_args = {}
 
         hypo_params = hypo_factory(self.hypo_type, hypo_args)
-
-        recluster_params = None
-        if self.do_recluster:
-            recl_args = dict(fex_args)
-            recl_args.update({'ptMinCut': self.recl_ptMinCut,
-                              'etaMaxCut': self.recl_etaMaxCut,
-                              'fex_label': self.recl_fex_label})
-
-            recluster_params = fexparams_factory(
-                'jetrec_recluster', recl_args)
             
         menu_data = MenuData(self.scan_type,
                              self.data_type,
@@ -326,6 +328,7 @@ class ChainConfigMaker(object):
                              hypo_params=hypo_params,
                              cluster_params=cluster_params,
                              recluster_params=recluster_params,
+                             last_fex_params= last_fex_params
                          )
 
 
@@ -338,3 +341,51 @@ class ChainConfigMaker(object):
                            test=self.test,
                            data_scouting=self.data_scouting,
                            menu_data=menu_data)
+
+    def _check_part(self, part):
+        """Check chain part for errors"""
+
+        # Attempting to do partial scan with pileup subtraction
+        # produces nonsense results
+        if part['scan'] == 'PS' and 'sub' in part['jetCalib']:
+            msg = '%s partial scan is incompatible with pileup subtraction' %(
+                self.err_hdr, )
+            raise RuntimeError(msg)
+
+
+            hypo_setup_fn = {'standard': self.setup_standard_hypo,
+                             'ht': self.setup_ht_hypo}.get(hypo_type, None)
+    def _setup_standard_hypo(self, part):
+        if self.hypo_type == 'standard':
+            mult = int(part['multiplicity'])
+            threshold = int(part['threshold'])
+            eta_range = part['etaRange']
+
+            self.check_and_set('eta_range', eta_range)
+
+            self.jet_attributes.extend(
+                [(JetAttributes(threshold, eta_range)) for i in range(mult)])
+
+    def _setup_ht_hypo(self, part):
+
+        eta_range = part['etaRange']
+        self.check_and_set('eta_range', eta_range)
+        ht_threshold = int(part['threshold'])
+        self.check_and_set('ht_threshold',  ht_threshold)
+
+        # set the default cuts on the jets contributing to the Et
+        # sum to be 30 if not specified. Otherwise the expected form is
+        #j\d+
+
+        try:
+            jet_et_threshold = 30. if not part['extra'] else \
+                               float(part['extra'][1:])
+        except:
+            m = '%s unrecognized value for HT jet cut %' % (
+                self.err_hdr,
+                str(part['extra'][1:]))
+
+            raise RuntimeError(m)
+            
+        self.check_and_set('jet_et_threshold', jet_et_threshold)
+            

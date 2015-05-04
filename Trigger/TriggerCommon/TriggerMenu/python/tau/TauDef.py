@@ -218,8 +218,6 @@ class L2EFChain_tau(L2EFChainDef):
             # This will add up to a tolerance of 5 mm due to the extra 3mm tolerance from the FTF
             # tauRoiUpdater.z0HalfWidth = 2.0 # Temporarily widened to 10 mm
             tauRoiUpdater.z0HalfWidth = 7.0
-            # Cut in GeV
-            tauRoiUpdater.minTrackPt = 1.0
 
             #ftracks = trkcore+[tauRoiUpdater]+trkiso
             ftracks = trkcore+[tauRejectEmpty, tauRoiUpdater]+trkiso

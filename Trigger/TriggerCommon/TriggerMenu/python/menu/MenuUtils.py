@@ -36,7 +36,8 @@ def splitInterSignatureChainDict(chainDict):
             
         if not len(orderedListOfSplitChainDicts) == len(listOfSplitChainDicts):
             log.error("Ordering of split chain dicts failed. Please check that orderedListOfSplitChainDicts and listOfSplitChainDicts contain the same elements!!")
-      
+
+            
         return orderedListOfSplitChainDicts
 
     return listOfSplitChainDicts

@@ -65,20 +65,9 @@ def _addTopoInfo(theChainDef,chainDict,doAtL2AndEF=True):
     HLTChainName = "HLT_" + chainDict['chainName']
 
 
-    useTopoStartFrom = chainDict['topoStartFrom']
-    topoStartFrom = None
-    if useTopoStartFrom:
-        L1item = chainDict['L1item']
-        L1item = L1item.replace("L1_", "")
-        if ("-" in L1item): 
-            topoStartFrom = L1item
-        else: log.error("L1Topo item can't be identified")
-    else:
-        log.debug("topoStartFrom set to False in chain properties in the menu.")
+    topoStartFrom = chainDict['topoThreshold']
 
-    
     if "Jpsiee" in chainDict["topo"]:
-
         topo2StartFrom = None
         if topoStartFrom:
             L2ChainName = L2ChainName+'_tsf'

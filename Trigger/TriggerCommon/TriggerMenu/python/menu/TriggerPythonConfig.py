@@ -44,7 +44,7 @@ class TriggerPythonConfig:
         return TriggerPythonConfig.sCurrentTriggerConfig
     currentTriggerConfig = staticmethod(currentTriggerConfig)
 
-    def __init__(self, hltfile=None, l1file=None):
+    def __init__(self, hltfile=None, l1file=None, signaturesOverwritten=False):
         self.menuName = 'TestMenu'
         self.__HLTFile = hltfile
         self.__L1File = l1file
@@ -67,6 +67,7 @@ class TriggerPythonConfig:
         self.setMuctpiInfo(low_pt=1, high_pt=1, max_cand=13)
         self.Lvl1CaloInfo().setName('standard')
         self.Lvl1CaloInfo().setGlobalScale(1)
+        self.signaturesOverwritten = signaturesOverwritten
         #
         TriggerPythonConfig.sCurrentTriggerConfig = self
         # self.defineInternalThresholds()

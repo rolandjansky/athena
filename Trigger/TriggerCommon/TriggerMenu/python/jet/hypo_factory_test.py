@@ -27,7 +27,8 @@ class Test_hypo_factory(unittest.TestCase):
         self.ht_hypo_args = {
             'chain_name': 'chain_name',
             'eta_range': '',   # '' for now
-            'ht_threshold': 250}
+            'ht_threshold': 250,
+            'jet_et_threshold': 30.}
 
     def test_0(self):
         """test factory function"""
