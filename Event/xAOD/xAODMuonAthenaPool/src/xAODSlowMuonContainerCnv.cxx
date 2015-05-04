@@ -63,8 +63,6 @@ DataObject*& pObj ) {
   m_key = *( pAddr->par() + 1 );
   ATH_MSG_VERBOSE( "Key of xAOD::SlowMuonContainer: " << m_key );
 
-  std::cout<<"SLOWMUON Key of xAOD::SlowMuonContainer: " << m_key<<std::endl;
-
    // Let the base class do its thing now:
   return AthenaPoolConverter::createObj( pAddr, pObj );
 }

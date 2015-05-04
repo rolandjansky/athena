@@ -25,6 +25,7 @@ xAOD::MuonSegmentAuxContainer*
 xAODMuonSegmentAuxContainerCnv::
 createPersistent( xAOD::MuonSegmentAuxContainer* trans ) {
 
+#ifndef XAOD_ANALYSIS
    // Make sure that the dictionary for the Athena-only dynamic variable
    // is loaded:
    static const char* muonSegmentsType =
@@ -39,6 +40,7 @@ createPersistent( xAOD::MuonSegmentAuxContainer* trans ) {
          dictLoaded = true;
       }
    }
+#endif 
 
    // Create a copy of the container:
    return SG::copyThinned (*trans, IThinningSvc::instance());
