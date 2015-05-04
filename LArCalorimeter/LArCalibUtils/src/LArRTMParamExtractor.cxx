@@ -187,8 +187,8 @@ StatusCode LArRTMParamExtractor::stop()
   //const LArDetCellParamsComplete*   prevDetCellParams ;
   
   // use abstract interfaces
-  const ILArCaliPulseParams* prevCaliPulseParams ;
-  const ILArDetCellParams*   prevDetCellParams ; 
+  const ILArCaliPulseParams* prevCaliPulseParams = nullptr;
+  const ILArDetCellParams*   prevDetCellParams = nullptr;
 
   if ( ! ( m_extractTcal && m_extractFstep ) ) {
     //sc = detStore()->retrieve(prevCaliPulseParams,m_keyRetrievedCaliPulse);
