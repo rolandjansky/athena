@@ -185,9 +185,13 @@ void AnalysisConfig_Ntuple::loop() {
 
 		/// handle wildcard chain selection - but only the first time
 		while ( chainitr!=m_chainNames.end() ) {
-  
+
+		  //		  std::cout << "chain name " << *chainitr << " (ACN) " << std::endl;
+
 		  /// get chain
-		  ChainString chainName = (*chainitr);
+		  ChainString& chainName = (*chainitr);
+
+		  //		  std::cout << "chain name " << chainName << " (ChainString roi " << chainName.roi() << " ACN)" << std::endl;
 
 		  /// check for wildcard ...
 		  //if ( chainName.head().find("*")!=std::string::npos ) { 
@@ -202,13 +206,16 @@ void AnalysisConfig_Ntuple::loop() {
 
 		    for ( unsigned iselected=0 ; iselected<selectChains.size() ; iselected++ ) {
  
-		      if ( chainName.tail()!="" )    selectChains[iselected] += ":"+chainName.tail();
-		      if ( chainName.extra()!="" )   selectChains[iselected] += ":"+chainName.extra();
-		      if ( chainName.element()!="" ) selectChains[iselected] += ":"+chainName.element();
-		      if ( !chainName.passed() )     selectChains[iselected] += ";DTE";
+		      if ( chainName.tail()!="" )    selectChains[iselected] += ":key="+chainName.tail();
+		      if ( chainName.extra()!="" )   selectChains[iselected] += ":index="+chainName.extra();
+		   
+		      if ( chainName.element()!="" ) selectChains[iselected] += ":te="+chainName.element(); 
+		      if ( chainName.roi()!="" )     selectChains[iselected] += ":roi="+chainName.roi();
+		     
+		      if ( !chainName.passed() )    selectChains[iselected] += ";DTE";
 		     
 		      /// replace wildcard with actual matching chains ...
-		      chainNames.push_back( selectChains[iselected] );
+		      chainNames.push_back( ChainString(selectChains[iselected]) );
 
 		      m_provider->msg(MSG::INFO) << "[91;1m" << "Matching chain " << selectChains[iselected] << "[m" << endreq;
 		     
@@ -223,7 +230,6 @@ void AnalysisConfig_Ntuple::loop() {
 		m_chainNames = chainNames;
 	}
 
-	
 
 	Filter_AcceptAll filter;
 	/// FIXME: should really have hardcoded limits encoded as 
@@ -887,8 +893,8 @@ void AnalysisConfig_Ntuple::loop() {
 			//   now add rois to this ntuple chain
 
 			// Get seeding RoI
-			// std::vector< Trig::Feature<TrigRoiDescriptor> > initRois = c->get<TrigRoiDescriptor>("initialRoI", TrigDefs::alsoDeactivateTEs);
-			// std::vector< Trig::Feature<TrigRoiDescriptor> > initRois = c->get<TrigRoiDescriptor>("forID", TrigDefs::alsoDeactivateTEs);
+			// std::vector< Trig::Feature<TrigRoiDescriptor> > _rois = c->get<TrigRoiDescriptor>("initialRoI", TrigDefs::alsoDeactivateTEs);
+			// std::vector< Trig::Feature<TrigRoiDescriptor> > _rois = c->get<TrigRoiDescriptor>("forID", TrigDefs::alsoDeactivateTEs);
 
 #if 0
 			/// check bjet roidescriptors ...
@@ -913,28 +919,43 @@ void AnalysisConfig_Ntuple::loop() {
 
 			/// need some way to specify which RoiDescriptor we are really interested in ...
 
-			std::vector< Trig::Feature<TrigRoiDescriptor> > initRois = comb->get<TrigRoiDescriptor>("forID");
+			std::string roi_name = m_chainNames[ichain].roi();
 
-			if ( initRois.empty() ) {
-			  initRois =  comb->get<TrigRoiDescriptor>(""); 
-			  //  TrigDefs::alsoDeactivateTEs);
+			std::vector< Trig::Feature<TrigRoiDescriptor> > _rois;
+			
+			if ( roi_name!="" ) { 
+
+			  _rois = comb->get<TrigRoiDescriptor>(roi_name);
+
+			  std::cout << "roi_name " << roi_name << std::endl;
+
+			  if ( _rois.size()>0 ) { 
+			    for ( unsigned ir=0 ; ir<_rois.size() ; ir++ ) m_provider->msg(MSG::INFO) << "\t\tRetrieved roi  " << roi_name << "\t" << *_rois[ir].cptr() << endreq; 
+			  }
+			  else { 
+			    m_provider->msg(MSG::WARNING) << "\t\tRequested roi  " << roi_name << " not found" << endreq; 
+			  }
 			}
-			if ( initRois.empty() ) initRois = comb->get<TrigRoiDescriptor>("initialRoI"); //TrigDefs::alsoDeactivateTEs);
+			else { 
+			  _rois = comb->get<TrigRoiDescriptor>("forID"); 
+			  if ( _rois.empty() ) _rois = comb->get<TrigRoiDescriptor>(""); 
+			  if ( _rois.empty() ) _rois = comb->get<TrigRoiDescriptor>("initialRoI"); 
+			}			  
 
-			if ( initRois.empty() ) continue;
+			if ( _rois.empty() ) continue;
 
 			// notify if have multiple RoIs (get this for FS chains)
-			if(initRois.size()>1) {
-			  m_provider->msg(MSG::INFO) << "\tMore than one initial RoI found for seeded chain " << chainName << ": not yet supported" << endreq;
+			if( _rois.size()>1) {
+			  m_provider->msg(MSG::INFO) << "\tMore than one RoI found for seeded chain " << chainName << ": not yet supported" << endreq;
 			  //continue; 
 			}
 
 			TIDARoiDescriptor* roiInfo = 0;
-			if( !initRois.empty() ) {
+			if( !_rois.empty() ) {
 			  
-			  for (  unsigned itmp=0  ;  itmp<initRois.size()  ;  itmp++ ) {
+			  for (  unsigned itmp=0  ;  itmp<_rois.size()  ;  itmp++ ) {
 			    
-			    const TrigRoiDescriptor* roid = initRois[itmp].cptr();
+			    const TrigRoiDescriptor* roid = _rois[itmp].cptr();
    
 			    m_provider->msg(MSG::INFO) << "\tchain " << chainName << " RoI descriptor " << itmp << " " << *roid << endreq;
 			    

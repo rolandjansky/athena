@@ -174,8 +174,6 @@ protected:
         }
       }
 
-      first = false;
-
     
       // std::vector<std::string> chains;
       // chains.reserve( m_chainNames.size() );
@@ -211,17 +209,18 @@ protected:
 
         for ( unsigned iselected=0 ; iselected<selectChains.size() ; iselected++ ) {
 
-          if ( chainName.tail()!="" )    selectChains[iselected] += ":"+chainName.tail();
-          if ( chainName.extra()!="" )   selectChains[iselected] += ":"+chainName.extra();
-          if ( chainName.element()!="" ) selectChains[iselected] += ":"+chainName.element();
+          if ( chainName.tail()!="" )    selectChains[iselected] += ":key="+chainName.tail();
+          if ( chainName.extra()!="" )   selectChains[iselected] += ":index="+chainName.extra();
+          if ( chainName.element()!="" ) selectChains[iselected] += ":te="+chainName.element();
+          if ( chainName.roi()!="" )     selectChains[iselected] += ":roi="+chainName.roi();
           if ( !chainName.passed() )     selectChains[iselected] += ";DTE";
 
           /// replace wildcard with actual matching chains ...
-          chains.push_back( selectChains[iselected] );
+          chains.push_back( ChainString(selectChains[iselected]) );
 
-          if(m_provider->msg().level() <= MSG::VERBOSE)
+          if(m_provider->msg().level() <= MSG::VERBOSE) {
             m_provider->msg(MSG::VERBOSE) << "Matching chain " << selectChains[iselected] << " (" << chainName.head() << endreq;
-
+	  }
         }
         // else {
         //   chains.push_back( *chainitr );
@@ -287,6 +286,10 @@ protected:
                                     << "\tevent " << event_number
                                     << "\tlb "    << lumi_block << endreq;
     }
+    
+    //      m_provider->msg(MSG::INFO) << "run "     << run_number
+    //				 << "\tevent " << event_number
+    //				 << "\tlb "    << lumi_block << endreq;
 
     // std::cout << "run "     << run_number  << "\tevent " << event_number  << "\tlb "    << lumi_block << std::endl;
 
@@ -309,6 +312,7 @@ protected:
     for ( unsigned ichain=0 ; ichain<m_chainNames.size() ; ichain++ ) {
       const std::string& chainname = m_chainNames[ichain].head();
 
+
       //Only for trigger chains
       if ( chainname.find("L2")  == std::string::npos &&
         chainname.find("EF")  == std::string::npos &&
@@ -320,10 +324,13 @@ protected:
                                     << "\tpres " << (*m_tdt)->getPrescale(chainname) << endreq;
       }
 
-
       if ( (*(m_tdt))->isPassed(chainname) || (*(m_tdt))->getPrescale(chainname) ) analyse = true;
 
     }
+    
+    first = false;
+
+      
     
     if ( !this->m_keepAllEvents && !analyse ) {
       m_provider->msg(MSG::VERBOSE) << "No chains passed unprescaled - not processing this event" << endreq;
@@ -412,11 +419,15 @@ protected:
     std::vector<TrigInDetAnalysis::Track*> offline_tracks;
     std::vector<TrigInDetAnalysis::Track*> electron_tracks;
     std::vector<TrigInDetAnalysis::Track*> muon_tracks;
+
+    std::vector<TrigInDetAnalysis::Track*> ref_tracks;
     std::vector<TrigInDetAnalysis::Track*> test_tracks;
 
     offline_tracks.clear();
     electron_tracks.clear();
     muon_tracks.clear();
+
+    ref_tracks.clear();
     test_tracks.clear();
 
   
@@ -453,8 +464,10 @@ protected:
       }
 
       if(m_provider->msg().level() <= MSG::VERBOSE){
-        m_provider->msg(MSG::VERBOSE) << chainname << "\tpassed: " << (*m_tdt)->isPassed( chainname ) << std::endl;
+        m_provider->msg(MSG::VERBOSE) << chainname << "\tpassed: " << (*m_tdt)->isPassed( chainname ) << endreq;
       }
+
+      //      m_provider->msg(MSG::INFO) << chainname << "\tpassed: " << (*m_tdt)->isPassed( chainname ) << "\t" << m_chainNames[ichain] << "\trun " << run_number << "\tevent " << event_number << endreq;
 
 
       if ( !this->m_keepAllEvents && !(*m_tdt)->isPassed( chainname, decisiontype ) ) continue;
@@ -496,10 +509,20 @@ protected:
         // std::vector< Trig::Feature<TrigRoiDescriptor> > initRois = c->get<TrigRoiDescriptor>("initialRoI", TrigDefs::alsoDeactivateTEs);
         // std::vector< Trig::Feature<TrigRoiDescriptor> > initRois = c->get<TrigRoiDescriptor>("forID", TrigDefs::alsoDeactivateTEs);
 
-        std::vector< Trig::Feature<TrigRoiDescriptor> > initRois = c->get<TrigRoiDescriptor>("forID", decisiontype );
-        if ( initRois.empty() ) initRois = c->get<TrigRoiDescriptor>("", decisiontype ); //  TrigDefs::alsoDeactivateTEs);
-        if ( initRois.empty() ) initRois = c->get<TrigRoiDescriptor>("initialRoI", decisiontype ); //TrigDefs::alsoDeactivateTEs);
+        std::vector< Trig::Feature<TrigRoiDescriptor> > initRois;
 
+	std::string roi_key = m_chainNames[ichain].roi();
+
+	if ( roi_key!="" ) { 
+	  initRois = c->get<TrigRoiDescriptor>(roi_key, decisiontype );
+	}
+	else { 
+	  initRois = c->get<TrigRoiDescriptor>("forID", decisiontype ); 
+	  if ( initRois.empty() ) initRois = c->get<TrigRoiDescriptor>("", decisiontype ); 
+	  if ( initRois.empty() ) initRois = c->get<TrigRoiDescriptor>("initialRoI", decisiontype );
+	}
+
+	if ( initRois.empty() ) continue;
 
         // Skip chains seeded by multiple RoIs: not yet implemented
         if(initRois.size()>1) {
@@ -547,25 +570,21 @@ protected:
 
         /// HLT and EF-like EDM
         if ( key.find("InDetTrigParticleCreation")!=std::string::npos ||
+	     key.find("_IDTrig")!=std::string::npos ||
+	     key.find("_EFID")!=std::string::npos ||
              chainName.find("EF_")!=std::string::npos ||
              chainName.find("HLT_")!=std::string::npos ) {
-          if      ( this->template selectTracks<Rec::TrackParticleContainer>( m_selectorTest, c, key ) );
+#         ifdef XAODTRACKING_TRACKPARTICLE_H
+          if      ( this->template selectTracks<xAOD::TrackParticleContainer>( m_selectorTest, c, key ) );
+	  else if ( this->template selectTracks<Rec::TrackParticleContainer>( m_selectorTest, c, key ) );
+#         else
+	  if ( this->template selectTracks<Rec::TrackParticleContainer>( m_selectorTest, c, key ) );
+#         endif
           else if ( this->template selectTracks<TrackCollection>( m_selectorTest, c, key ) );
           else if ( this->template selectTracks<TrigInDetTrackCollection>( m_selectorTest, c, truthMap, key, key_index ) );
-#         ifdef XAODTRACKING_TRACKPARTICLE_H
-          //    else if ( this->template selectTracks<xAOD::TrackParticleContainer>( m_selectorTest, c, key ) );
-          else {
-            m_provider->msg(MSG::VERBOSE) << "\tsearch for xAOD::TrackParticle " << key << endreq;
-            if ( this->template selectTracks<xAOD::TrackParticleContainer>( m_selectorTest, c, key ) ) {
-              m_provider->msg(MSG::VERBOSE) << "\tCollection " << key << " found"  << endreq;
-            }
-            else {
-              m_provider->msg(MSG::WARNING) << "\tNo track collection " << key << " found"  << endreq;
-            }
-          }
-#         else
-          else m_provider->msg(MSG::WARNING) << "No track collection " << key << " found"  << endreq;
-#         endif
+	  else { 
+	    //m_provider->msg(MSG::WARNING) << "No track collection " << key << " found"  << endreq;
+	  }
         }
         else {
           /// L2 track EDM
@@ -580,7 +599,6 @@ protected:
           }
         }
       
-
 
         const std::vector<TrigInDetAnalysis::Track*>& testtracks = m_selectorTest->tracks();
 
@@ -610,9 +628,9 @@ protected:
 
         m_selectorRef->clear();
 
-        //  std::cout << "RoI " << chain.rois().at(iroi).roi() << std::endl;
+        if ( this->filterOnRoi() ) filterRef.setRoi( &chain.rois().at(iroi).roi() );
+	else                       filterRef.setRoi( 0 );
 
-        filterRef.setRoi( &chain.rois().at(iroi).roi() );
         test_tracks.clear();
 
 
@@ -637,7 +655,8 @@ protected:
 
         if ( !m_doOffline && m_mcTruth ) {
 
-          filter_truth.setRoi( &chain.rois().at(iroi).roi() );
+	  if ( this->filterOnRoi() )  filter_truth.setRoi( &chain.rois().at(iroi).roi() );
+	  else                        filter_truth.setRoi( 0 ); // don't filter on RoI unless needed  
 
           selectorTruth.clear();
 
@@ -798,17 +817,15 @@ protected:
             this->template selectTracks<xAOD::TrackParticleContainer>( m_selectorRef, "InDetTrackParticles" );
           }
 #         endif
-          else if ( m_provider->msg().level() <= MSG::WARNING )
+          else if ( m_provider->msg().level() <= MSG::WARNING ) {
             m_provider->msg(MSG::WARNING) << " Offline tracks not found " << endreq;
-        }
+	  }
 
-        // std::cout << "seeking (more?) offline tracks..." << std::endl;
+	  // std::cout << "seeking (more?) offline tracks..." << std::endl;
 
-
-        if ( m_doOffline ) {
-
-          //Noff = m_selectorRef->tracks().size();
-          offline_tracks = m_selectorRef->tracks();
+	  
+	  //Noff = m_selectorRef->tracks().size();
+          ref_tracks = m_selectorRef->tracks();
 
           if ( m_provider->msg().level() <= MSG::VERBOSE ) {
             m_provider->msg(MSG::VERBOSE) << "ref tracks.size() " << m_selectorRef->tracks().size() << endreq;
@@ -819,7 +836,7 @@ protected:
 	else { 
 	  /// what is this ???
 	  if ( m_mcTruth && foundTruth ){
-	    offline_tracks=selectorTruth.tracks();
+	    ref_tracks=selectorTruth.tracks();
 	  }
 	}	  
 
@@ -829,29 +846,43 @@ protected:
           test_tracks.push_back(&(chain.rois().at(iroi).tracks().at(itrk)));
         }
 
-
-
-        // std::cout << "offline tracks " << offline_tracks.size()  << std::endl;
-        // std::cout << "trigger tracks " << test_tracks.size()     << std::endl;
-
-        // std::cout << "track multiplicities: offline " << offline_tracks.size() << "\ttest " << test_tracks.size() << std::endl;
+	//	std::cout << "sutt track multiplicities: offline " << offline_tracks.size() << "\ttest " << test_tracks.size() << std::endl;
 
         _analysis->setvertices( vertices.size() );  /// what is this for ???
 
+
+	if ( ref_tracks.size()>1 && this->getUseHighestPT() ) {
+
+	  if ( first && m_NRois==0 && m_provider->msg().level() <= MSG::INFO) {
+	    m_provider->msg(MSG::INFO) << m_provider->name() << " using highest pt reference track only " << this->getUseHighestPT() << endreq;
+	  }
+	  
+	  std::vector<TrigInDetAnalysis::Track*> tmp_tracks; 
+
+	  int ih = 0;
+	  
+	  for ( unsigned i=1 ; i<ref_tracks.size() ; i++ ) { 
+	    if ( std::fabs(ref_tracks[i]->pT())>std::fabs(ref_tracks[ih]->pT()) ) ih = i;
+	  }
+
+	  tmp_tracks.push_back( ref_tracks[ih] );
+	  
+	  ref_tracks = tmp_tracks;
+	}
+
 	/// stats book keeping 
 	m_NRois++;
-	m_NRefTracks  += offline_tracks.size();
+	m_NRefTracks  += ref_tracks.size();
 	m_NTestTracks += test_tracks.size();
 
         /// match test and reference tracks
-        m_associator->match( offline_tracks, test_tracks );
+        m_associator->match( ref_tracks, test_tracks );
 
         // std::cout << " Chain " << chain << std::endl;
         // std::cout << "\nref     tracks " << offline_tracks.size() << std::endl;
         // std::cout << "\ntest    tracks " << test_tracks.size() << std::endl;
-        // std::cout << "\nmatched tracks " << m_associator->size() << std::endl;
 
-        _analysis->execute( offline_tracks, test_tracks, m_associator );
+        _analysis->execute( ref_tracks, test_tracks, m_associator );
 	
       }
     }
@@ -939,6 +970,7 @@ protected:
         if ( chainName.tail()!="" )    selectChains[iselected] += ":"+chainName.tail();
         if ( chainName.extra()!="" )   selectChains[iselected] += ":"+chainName.extra();
         if ( chainName.element()!="" ) selectChains[iselected] += ":"+chainName.element();
+        if ( chainName.roi()!="" )     selectChains[iselected] += ":"+chainName.roi();
         if ( !chainName.passed() )     selectChains[iselected] += ";DTE";
 
         /// replace wildcard with actual matching chains ...
@@ -992,8 +1024,8 @@ protected:
       
       if ( name().find("Shifter")!=std::string::npos ) {
 	/// shifter histograms - do not encode chain names
-	if      ( m_chainNames.at(ic).tail().find("FastTrackFinder")   != std::string::npos ) mongroup = folder_name + "/FTF";
-	else if ( m_chainNames.at(ic).tail().find("InDetTrigTracking") != std::string::npos ) mongroup = folder_name + "/EFID";
+	if      ( m_chainNames.at(ic).tail().find("_FTF") != std::string::npos )              mongroup = folder_name + "/FTF";
+	else if ( m_chainNames.at(ic).tail().find("_IDTrig") != std::string::npos )           mongroup = folder_name + "/EFID";
 	else if ( m_chainNames.at(ic).tail().find("L2SiTrackFinder")   != std::string::npos ) mongroup = folder_name + "/L2STAR"+m_chainNames.at(ic).extra();
 	else if ( m_chainNames.at(ic).tail().find("InDetTrigParticle") != std::string::npos ) mongroup = folder_name + "/EFID_RUN1";
 	else                                                                                  mongroup = folder_name + "/Unknown";
@@ -1001,10 +1033,29 @@ protected:
       else { 
 	/// these are the Expert / non-Shifter histograms - encode the full chain names
 
-	mongroup = folder_name += m_chainNames[ic].head() + "/" + m_chainNames.at(ic).tail() + "/" + m_chainNames.at(ic).extra() + "/";
+	mongroup = folder_name += m_chainNames[ic].head();
 
-	if ( m_chainNames.at(ic).element()!="" )  mongroup += m_chainNames[ic].element() + "/";
-	if ( !m_chainNames.at(ic).passed() )      mongroup += "DTE/";
+	std::string track_collection = ""; 
+
+	if ( m_chainNames.at(ic).tail()!="" )  { 
+	  track_collection =  "/" + m_chainNames.at(ic).tail();
+	  if ( m_chainNames.at(ic).extra()!="" ) track_collection += "_" + m_chainNames.at(ic).extra();
+	}
+
+	if ( m_chainNames.at(ic).roi()!="" ) { 
+	  if ( track_collection!="" ) track_collection += "_" + m_chainNames[ic].roi();
+	  else                        track_collection  = "/" + m_chainNames[ic].roi();
+	}
+
+	/// add trigger element and roi descriptor names
+	if ( m_chainNames.at(ic).element()!="" ) { 
+	  if ( track_collection!="" ) track_collection += "_" + m_chainNames[ic].element();
+	  else                        track_collection  = "/" + m_chainNames[ic].element();
+	}
+	
+	if ( track_collection!="" )  mongroup += "/" + track_collection;
+
+	if ( !m_chainNames.at(ic).passed() )      mongroup += "/DTE";
 	
 	
       }
@@ -1069,9 +1120,6 @@ protected:
 
   }
 
-
-
-
 protected:
 
   IBeamCondSvc*  m_iBeamCondSvc;
@@ -1101,6 +1149,8 @@ protected:
   int m_NRois;
   int m_NRefTracks;
   int m_NTestTracks;
+
+
 
 };
 

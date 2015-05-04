@@ -59,22 +59,31 @@ public:
     m_finalised(true),
     m_printInfo(true)
   {  
+    //    std::cout << "AnalysisConfig_Ntuple::AnalysisConfig_Ntuple() " << chainNames.size() << std::endl;
+
     this->keepAllEvents( _keepAllEvents ); /// this is now i nthe base class
 
     for ( unsigned i=0 ; i<chainNames.size() ; i++ ) { 
-      if ( chainNames[i] != "Offline" &&
+      if ( chainNames[i] != "Offline"   &&
 	   chainNames[i] != "Electrons" &&
-	   chainNames[i] != "Muons" &&
-	   chainNames[i] != "Taus" &&
-	   chainNames[i] != "Taus3" 
-	   )  m_chainNames.push_back(chainNames[i]);
-      if ( chainNames[i]=="Offline" )  m_doOffline = true;
-      if ( chainNames[i]=="Vertex" )   m_doVertices = true;
-      if ( chainNames[i]=="Electrons" )m_doElectrons   = true;
-      if ( chainNames[i]=="Muons" )    m_doMuons   = true;
-      if ( chainNames[i]=="Taus" )m_doTaus   = true;
-      if ( chainNames[i]=="Taus3" )m_doTauThreeProng   = true;
-      if ( chainNames[i]=="Bjets" )m_doBjets = true;
+	   chainNames[i] != "Muons"     &&
+	   chainNames[i] != "Taus"      &&
+	   chainNames[i] != "Taus3"     &&
+	   chainNames[i] != "Bjets" )   { 
+	
+	//	std::cout << "chain[" << i << "] " << chainNames[i] << std::endl;
+	
+	m_chainNames.push_back( ChainString(chainNames[i]) );
+
+      }
+
+      if ( chainNames[i]=="Offline" )   m_doOffline   = true;
+      if ( chainNames[i]=="Vertex" )    m_doVertices  = true;
+      if ( chainNames[i]=="Electrons" ) m_doElectrons = true;
+      if ( chainNames[i]=="Muons" )     m_doMuons     = true;
+      if ( chainNames[i]=="Taus" )      m_doTaus      = true;
+      if ( chainNames[i]=="Taus3" )     m_doTauThreeProng = true;
+      if ( chainNames[i]=="Bjets" )     m_doBjets     = true;
     }
     m_event = new TrackEvent();
     m_outputFileName=outputFileName;
