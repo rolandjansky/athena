@@ -56,14 +56,8 @@ def resetSigs():
 
 PdgId=15
 
+from TriggerJobOpts.TriggerFlags import TriggerFlags
+TriggerFlags.doHypo.set_Value_and_Lock(True)
 include("TrigInDetValidation/TrigInDetValidation_RTT_Common.py")
-
-if 'runMergedChain' in dir() and runMergedChain==True:
-  if 'robust' in dir() and robust==True:
-    topSequence.TrigSteer_HLT.TrigFastTrackFinder_Tau.doSeedRedundancyCheck = True
-    topSequence.TrigSteer_HLT.TrigFastTrackFinder_Tau.RoadMakerTool.LayerOneDepth=3
-    topSequence.TrigSteer_HLT.TrigFastTrackFinder_Tau.RoadMakerTool.LayerTwoDepth=3 
-  if 'newSeeding' in dir() and newSeeding==False:
-    topSequence.TrigSteer_HLT.TrigFastTrackFinder_Tau.UseNewSeeding = False
 
 

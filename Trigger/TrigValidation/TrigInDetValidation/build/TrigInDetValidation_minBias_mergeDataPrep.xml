@@ -31,7 +31,7 @@
               </arg>
               <arg> 
                 <argname>exeParamString</argname>
-                <argvalue>data-monitor-merge.root data-monitor-merge-reference.root EF_InDetMonMergeDP_FS_InDetTrigParticleCreation_FullScan_EFID -d EF-plots </argvalue>
+                <argvalue>data-monitor-merge.root data-minBias_mergeDataPrep-reference.root EF_InDetMonMergeDP_FS_InDetTrigParticleCreation_FullScan_EFID -d EF-plots </argvalue>
               </arg>
             </action>
 
@@ -44,7 +44,7 @@
               </arg>
               <arg> 
                 <argname>exeParamString</argname>
-                <argvalue>data-monitor-merge.root data-monitor-merge-reference.root L2_InDetMonMergeDP_FS_TrigL2SiTrackFinder_FullScan_0 L2_InDetMonMergeDP_FS_TrigL2SiTrackFinder_FullScan_1 L2_InDetMonMergeDP_FS_TrigL2SiTrackFinder_FullScan_2  L2_InDetMonMergeDP_FS_TrigL2SiTrackFinder_FullScan_3 -d L2-plots </argvalue>
+                <argvalue>data-monitor-merge.root data-minBias_mergeDataPrep-reference.root L2_InDetMonMergeDP_FS_TrigL2SiTrackFinder_FullScan_0 L2_InDetMonMergeDP_FS_TrigL2SiTrackFinder_FullScan_1 L2_InDetMonMergeDP_FS_TrigL2SiTrackFinder_FullScan_2  L2_InDetMonMergeDP_FS_TrigL2SiTrackFinder_FullScan_3 -d L2-plots </argvalue>
               </arg>
             </action>
 
@@ -60,7 +60,7 @@
             </testToRemove>
 
             <auxFilePattern>TIDAdata*.dat</auxFilePattern>
-	    <auxFilePattern>data-monitor-merge-reference.root</auxFilePattern>
+	    <auxFilePattern>data-minBias_mergeDataPrep-reference.root</auxFilePattern>
             <auxFilePattern>expert-monitoring-minBias_mergeDataPrep-ref.root</auxFilePattern>
 #           include "TrigInDetValidation_aux.xml"
 	    <auxFilePattern>Test_bin.dat</auxFilePattern>

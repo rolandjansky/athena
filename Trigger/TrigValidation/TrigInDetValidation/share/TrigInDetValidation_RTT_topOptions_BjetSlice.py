@@ -55,16 +55,6 @@ def resetSigs():
 
 include("TrigInDetValidation/TrigInDetValidation_RTT_Common.py")
 
-if 'runMergedChain' in dir() and runMergedChain==True:
-  if 'robust' in dir() and robust==True:
-    topSequence.TrigSteer_HLT.TrigFastTrackFinder_Jet.UseNewSeeding = False
-    topSequence.TrigSteer_HLT.TrigFastTrackFinder_Jet.RoadMakerTool.LayerOneDepth=3
-    topSequence.TrigSteer_HLT.TrigFastTrackFinder_Jet.RoadMakerTool.LayerTwoDepth=3 
-  if 'newSeeding' in dir() and newSeeding==False:
-    topSequence.TrigSteer_HLT.TrigFastTrackFinder_Jet.UseNewSeeding = False
-
-
-
 # print "*********************************"
 # print "*********************************"
 # print " ***         WARNING          ***"

@@ -24,33 +24,8 @@
                 </arg>
             </action>
 
-	    <action position="2">    
-              <modulename>RttLibraryTools</modulename> 
-              <testname>ExeRunner</testname>  
-              <arg> 
-                <argname>exeName</argname>
-                <argvalue>TIDAcomparitor.exe</argvalue> 
-              </arg>
-              <arg> 
-                <argname>exeParamString</argname>
-                <argvalue>data-bjet.root data-bjet-5200-reference.root EF_b55_NoCut_j55_a4tchad_InDetTrigParticleCreation_Bjet_EFID -d EF-plots </argvalue>
-              </arg>
-            </action>
 
-	    <action position="3">    
-              <modulename>RttLibraryTools</modulename> 
-              <testname>ExeRunner</testname>  
-              <arg> 
-                <argname>exeName</argname>
-                <argvalue>TIDAcomparitor.exe</argvalue> 
-              </arg>
-              <arg> 
-                <argname>exeParamString</argname>
-                <argvalue>data-bjet.root data-bjet-5200-reference.root L2_b50_NoCut_j50_c4cchad_TrigL2SiTrackFinder_Jet_0 L2_b50_NoCut_j50_c4cchad_TrigL2SiTrackFinder_Jet_1 L2_b50_NoCut_j50_c4cchad_TrigL2SiTrackFinder_Jet_2 L2_b50_NoCut_j50_c4cchad_TrigL2SiTrackFinder_Jet_3 -d L2-plots </argvalue>
-              </arg>
-            </action>
-
-           <action position="3">   
+           <action position="2">   
                 <modulename>RttLibraryTools</modulename> 
                 <testname>ExeRunner</testname> 
                 <arg> 
@@ -59,7 +34,7 @@
                 </arg>
                 <arg> 
                     <argname>exeParamString</argname>
-                    <argvalue>data-bjet.root data-bjet-reference-newchains.root   HLT_j55_bperf_TrigFastTrackFinder_Jet HLT_j55_bperf_InDetTrigTrackingxAODCnv_Bjet_EFID  HLT_j55_EFID_bperf_InDetTrigTrackingxAODCnv_Bjet_EFID  -d HLTEF-plots </argvalue>
+                    <argvalue>data-bjet.root data-bjet_run2-reference.root   HLT_j55_bperf_TrigFastTrackFinder_Jet HLT_j55_bperf_InDetTrigTrackingxAODCnv_Bjet_EFID  HLT_j55_EFID_bperf_InDetTrigTrackingxAODCnv_Bjet_EFID  -d HLTEF-plots </argvalue>
                 </arg>
             </action>
 
@@ -78,8 +53,7 @@
             </testToRemove>
 
             <auxFilePattern>TIDAdata*.dat</auxFilePattern>
-            <auxFilePattern>data-bjet-5200-reference.root</auxFilePattern>
-            <auxFilePattern>data-bjet-reference-newchains.root</auxFilePattern>
+            <auxFilePattern>data-bjet_run2-reference.root</auxFilePattern>
             <auxFilePattern>expert-monitoring-bjet_run2-ref.root</auxFilePattern>
 #           include "TrigInDetValidation_aux.xml"
 	    <auxFilePattern>Test_bin.dat</auxFilePattern>

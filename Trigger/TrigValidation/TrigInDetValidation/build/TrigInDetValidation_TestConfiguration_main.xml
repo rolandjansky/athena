@@ -18,6 +18,7 @@
       <mailto>D.Emeliyanov@rl.ac.uk,jiri.masik@cern.ch</mailto>
       <refRelease>14.5.0</refRelease>
 
+
       <jobList>
       <classification>
          <displayClass>OfflineValidation</displayClass>
@@ -29,7 +30,9 @@
 
 #     include   "TrigInDetValidation_all_ttbar_pu46_run2.xml"
 
-#     include   "TrigInDetValidation_el_single_e_5_run2.xml"
+<!-- #     include   "TrigInDetValidation_el_single_e_5_run2.xml" -->
+#     include   "TrigInDetValidation_el_Jpsiee_pu40_run2.xml"
+#     include   "TrigInDetValidation_el_single_e_7-80_larged0.xml"
 #     include   "TrigInDetValidation_el_single_e_7-80_pu40.xml"
 #     include   "TrigInDetValidation_el_single_e_7-80_pu40_run2.xml"
 #     include   "TrigInDetValidation_el_single_e_7-80_pu40_run2_robustness.xml"
@@ -58,6 +61,7 @@
 #     include   "TrigInDetValidation_tau_IBL_pu46_run2_offline.xml"
 
 #     include   "TrigInDetValidation_mu_single_mu_100_run2.xml"
+#     include   "TrigInDetValidation_mu_single_mu_larged0_run2.xml"
 #     include   "TrigInDetValidation_mu_Zmumu_pu40.xml"
 #     include   "TrigInDetValidation_mu_Zmumu_pu40_run2.xml"
 #     include   "TrigInDetValidation_mu_Zmumu_IBL_pu40_run2.xml"
@@ -89,6 +93,7 @@
             <keepFilePattern displayColor="blue">expert-monitoring.root</keepFilePattern>
             <keepFilePattern maxsize="100" displayColor="blue">data*.root</keepFilePattern>
             <keepFilePattern maxsize="100" displayColor="blue">trig_cost*.root</keepFilePattern>
+            <keepFilePattern maxsize="100" displayColor="blue">costMon/TrigCostRoot_Results.root</keepFilePattern>
             <keepFilePattern displayColor="blue">*.root</keepFilePattern>
             <keepFilePattern maxsize="150">TrigInDet*.log</keepFilePattern>
             <keepFilePattern>*.log</keepFilePattern>

@@ -8,7 +8,7 @@
             <queue>long</queue>
 
 
-#          include "samples/TrigInDetValidation_mu_sample3.xml"
+#          include "samples/TrigInDetValidation_mu_sample6.xml"
 
 
             <action position="1">
@@ -24,6 +24,7 @@
                 </arg>
             </action>
 
+
 	    <action position="2">    
               <modulename>RttLibraryTools</modulename> 
               <testname>ExeRunner</testname>  
@@ -33,7 +34,7 @@
               </arg>
               <arg> 
                 <argname>exeParamString</argname>
-                <argvalue>data-muon-pileup-merge.root data-muon-pileup-merge-reference.root EF_mu22_IDTrkNoCut_tight_IDT_TrigFastTrackFinder_Muon EF_mu22_IDTrkNoCut_tight_IDT_InDetTrigParticleCreation_Muon_EFID  -d EF-plots </argvalue>
+                <argvalue>data-muon-pileup-merge.root data-mu_Zmumu_IBL_pu40_run2_rzMatcher-reference.root HLT_mu24_idperf_TrigFastTrackFinder_Muon  HLT_mu24_L2Star_idperf_TrigL2SiTrackFinder_Muon_0  HLT_mu24_L2Star_idperf_TrigL2SiTrackFinder_Muon_2  -d HLTL2-plots </argvalue>
               </arg>
             </action>
 
@@ -46,20 +47,7 @@
               </arg>
               <arg> 
                 <argname>exeParamString</argname>
-                <argvalue>data-muon-pileup-merge.root data-muon-Zmumu-IBL-pu40-reference-newchains.root HLT_mu24_idperf_TrigFastTrackFinder_Muon  HLT_mu24_L2Star_idperf_TrigL2SiTrackFinder_Muon_0  HLT_mu24_L2Star_idperf_TrigL2SiTrackFinder_Muon_2  -d HLTL2-plots </argvalue>
-              </arg>
-            </action>
-
-	    <action position="4">    
-              <modulename>RttLibraryTools</modulename> 
-              <testname>ExeRunner</testname>  
-              <arg> 
-                <argname>exeName</argname>
-                <argvalue>TIDAcomparitor.exe</argvalue> 
-              </arg>
-              <arg> 
-                <argname>exeParamString</argname>
-                <argvalue>data-muon-pileup-merge.root data-muon-Zmumu-IBL-pu40-reference-newchains.root HLT_mu24_idperf_TrigFastTrackFinder_Muon HLT_mu24_idperf_InDetTrigTrackingxAODCnv_Muon_EFID HLT_mu24_L2Star_idperf_InDetTrigTrackingxAODCnv_Muon_EFID  -d HLTEF-plots </argvalue>
+                <argvalue>data-muon-pileup-merge.root data-mu_Zmumu_IBL_pu40_run2_rzMatcher-reference.root HLT_mu24_idperf_TrigFastTrackFinder_Muon HLT_mu24_idperf_InDetTrigTrackingxAODCnv_Muon_EFID HLT_mu24_L2Star_idperf_InDetTrigTrackingxAODCnv_Muon_EFID  -d HLTEF-plots </argvalue>
               </arg>
             </action>
 
@@ -75,9 +63,8 @@
             </testToRemove>
 
             <auxFilePattern>TIDAdata*.dat</auxFilePattern>
-	    <auxFilePattern>data-muon-pileup-merge-reference.root</auxFilePattern>
-	    <auxFilePattern>data-muon-Zmumu-IBL-pu40-reference-newchains.root</auxFilePattern>
-            <auxFilePattern>expert-monitoring-mu_Zmumu_IBL_pu40_run2-ref.root</auxFilePattern>
+	    <auxFilePattern>data-mu_Zmumu_IBL_pu40_run2_rzMatcher-reference.root</auxFilePattern>
+            <auxFilePattern>expert-monitoring-mu_Zmumu_IBL_pu40_run2_rzMatcher-ref.root</auxFilePattern>
 #           include "TrigInDetValidation_aux.xml"
 	    <auxFilePattern>Test_bin.dat</auxFilePattern>
 

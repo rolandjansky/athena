@@ -21,6 +21,7 @@
                 </arg>
             </action>
 
+
 	    <action position="2">    
               <modulename>RttLibraryTools</modulename> 
               <testname>ExeRunner</testname>  
@@ -30,7 +31,7 @@
               </arg>
               <arg> 
                 <argname>exeParamString</argname>
-                <argvalue>data-muon-bphys-merge.root data-muon-bphys-merge.root EF_mu22_IDTrkNoCut_tight_IDT_TrigFastTrackFinder_Muon EF_mu22_IDTrkNoCut_tight_IDT_InDetTrigParticleCreation_Muon_EFID  -d EF-plots </argvalue>
+                <argvalue>data-muon-bphys-merge.root data-mu_bphys_run2-reference.root HLT_mu6_idperf_TrigFastTrackFinder_Muon  HLT_mu6_L2Star_idperf_TrigL2SiTrackFinder_Muon_1 HLT_mu6_L2Star_idperf_TrigL2SiTrackFinder_Muon_2   -d HLTL2-plots </argvalue>
               </arg>
             </action>
 
@@ -43,20 +44,7 @@
               </arg>
               <arg> 
                 <argname>exeParamString</argname>
-                <argvalue>data-muon-bphys-merge.root data-muon-Bphys-reference-newchains.root HLT_mu6_idperf_TrigFastTrackFinder_Muon  HLT_mu6_L2Star_idperf_TrigL2SiTrackFinder_Muon_1 HLT_mu6_L2Star_idperf_TrigL2SiTrackFinder_Muon_2   -d HLTL2-plots </argvalue>
-              </arg>
-            </action>
-
-	    <action position="4">    
-              <modulename>RttLibraryTools</modulename> 
-              <testname>ExeRunner</testname>  
-              <arg> 
-                <argname>exeName</argname>
-                <argvalue>TIDAcomparitor.exe</argvalue> 
-              </arg>
-              <arg> 
-                <argname>exeParamString</argname>
-                <argvalue>data-muon-bphys-merge.root data-muon-Bphys-reference-newchains.root HLT_mu6_idperf_TrigFastTrackFinder_Muon HLT_mu6_idperf_InDetTrigTrackingxAODCnv_Muon_EFID HLT_mu6_L2Star_idperf_InDetTrigTrackingxAODCnv_Muon_EFID  -d HLTEF-plots </argvalue>
+                <argvalue>data-muon-bphys-merge.root data-mu_bphys_run2-reference.root HLT_mu6_idperf_TrigFastTrackFinder_Muon HLT_mu6_idperf_InDetTrigTrackingxAODCnv_Muon_EFID HLT_mu6_L2Star_idperf_InDetTrigTrackingxAODCnv_Muon_EFID  -d HLTEF-plots </argvalue>
               </arg>
             </action>
 
@@ -72,7 +60,7 @@
             </testToRemove>
 
             <auxFilePattern>TIDAdata*.dat</auxFilePattern>
-	    <auxFilePattern>data-muon-Bphys-reference-newchains.root</auxFilePattern>
+	    <auxFilePattern>data-mu_bphys_run2-reference.root</auxFilePattern>
             <auxFilePattern>expert-monitoring-mu_bphys_run2-ref.root</auxFilePattern>
 #           include "TrigInDetValidation_aux.xml"
 	    <auxFilePattern>Test_bin.dat</auxFilePattern>

@@ -24,6 +24,7 @@
             </action>
 
 
+
 	    <action position="2">    
               <modulename>RttLibraryTools</modulename> 
               <testname>ExeRunner</testname>  
@@ -33,7 +34,20 @@
               </arg>
               <arg> 
                 <argname>exeParamString</argname>
-                <argvalue>data-electron-IBL.root data-electron-reference.root EF_e24vh_medium1_IDTrkNoCut_IDT_TrigFastTrackFinder_eGamma EF_e22vh_medium_IDTrkNoCut_InDetTrigParticleCreation_Electron_EFID  -d EF-plots </argvalue>
+                <argvalue>data-electron-IBL.root data-el_single_e_7-80_IBL_pu40_run2-reference.root HLT_e24_medium_idperf_TrigFastTrackFinder_eGamma  HLT_e24_medium_idperf_InDetTrigTrackingxAODCnv_Electron_EFID  HLT_e24_medium_L2Star_idperf_InDetTrigTrackingxAODCnv_Electron_EFID -d HLTEF-plots </argvalue>
+              </arg>
+            </action>
+
+	    <action position="3">    
+              <modulename>RttLibraryTools</modulename> 
+              <testname>ExeRunner</testname>  
+              <arg> 
+                <argname>exeName</argname>
+                <argvalue>TIDAcomparitor.exe</argvalue> 
+              </arg>
+              <arg> 
+                <argname>exeParamString</argname>
+                <argvalue>data-electron-IBL.root data-el_single_e_7-80_IBL_pu40_run2-reference.root  HLT_e5_loose_idperf_TrigFastTrackFinder_eGamma  HLT_e5_loose_idperf_InDetTrigTrackingxAODCnv_Electron_EFID HLT_e5_loose_L2Star_idperf_InDetTrigTrackingxAODCnv_Electron_EFID  -d HLTEF-plots-lowpt  </argvalue>
               </arg>
             </action>
 
@@ -47,7 +61,7 @@
               </arg>
               <arg> 
                 <argname>exeParamString</argname>
-                <argvalue>data-electron-IBL.root data-electron-IBL-pu40-reference-newchains.root HLT_e24_medium_idperf_TrigFastTrackFinder_eGamma  HLT_e24_medium_idperf_InDetTrigTrackingxAODCnv_Electron_EFID  HLT_e24_medium_L2Star_idperf_InDetTrigTrackingxAODCnv_Electron_EFID -d HLTEF-plots </argvalue>
+                <argvalue>data-electron-IBL.root data-el_single_e_7-80_IBL_pu40_run2-reference.root HLT_e24_medium_idperf_TrigFastTrackFinder_eGamma HLT_e24_medium_L2Star_idperf_TrigL2SiTrackFinder_eGamma_0  HLT_e24_medium_L2Star_idperf_TrigL2SiTrackFinder_eGamma_2  -d HLTL2-plots </argvalue>
               </arg>
             </action>
 
@@ -60,34 +74,7 @@
               </arg>
               <arg> 
                 <argname>exeParamString</argname>
-                <argvalue>data-electron-IBL.root data-electron-IBL-pu40-reference-newchains.root  HLT_e5_loose_idperf_TrigFastTrackFinder_eGamma  HLT_e5_loose_idperf_InDetTrigTrackingxAODCnv_Electron_EFID HLT_e5_loose_L2Star_idperf_InDetTrigTrackingxAODCnv_Electron_EFID  -d HLTEF-plots-lowpt  </argvalue>
-              </arg>
-            </action>
-
-
-	    <action position="6">    
-              <modulename>RttLibraryTools</modulename> 
-              <testname>ExeRunner</testname>  
-              <arg> 
-                <argname>exeName</argname>
-                <argvalue>TIDAcomparitor.exe</argvalue> 
-              </arg>
-              <arg> 
-                <argname>exeParamString</argname>
-                <argvalue>data-electron-IBL.root data-electron-IBL-pu40-reference-newchains.root HLT_e24_medium_idperf_TrigFastTrackFinder_eGamma HLT_e24_medium_L2Star_idperf_TrigL2SiTrackFinder_eGamma_0  HLT_e24_medium_L2Star_idperf_TrigL2SiTrackFinder_eGamma_2  -d HLTL2-plots </argvalue>
-              </arg>
-            </action>
-
-	    <action position="7">    
-              <modulename>RttLibraryTools</modulename> 
-              <testname>ExeRunner</testname>  
-              <arg> 
-                <argname>exeName</argname>
-                <argvalue>TIDAcomparitor.exe</argvalue> 
-              </arg>
-              <arg> 
-                <argname>exeParamString</argname>
-                <argvalue>data-electron-IBL.root data-electron-IBL-pu40-reference-newchains.root HLT_e5_loose_idperf_TrigFastTrackFinder_eGamma HLT_e5_loose_L2Star_idperf_TrigL2SiTrackFinder_eGamma_0  HLT_e5_loose_L2Star_idperf_TrigL2SiTrackFinder_eGamma_2  -d HLTL2-plots-lowpt  </argvalue>
+                <argvalue>data-electron-IBL.root data-el_single_e_7-80_IBL_pu40_run2-reference.root HLT_e5_loose_idperf_TrigFastTrackFinder_eGamma HLT_e5_loose_L2Star_idperf_TrigL2SiTrackFinder_eGamma_0  HLT_e5_loose_L2Star_idperf_TrigL2SiTrackFinder_eGamma_2  -d HLTL2-plots-lowpt  </argvalue>
               </arg>
             </action>
 
@@ -103,8 +90,7 @@
             </testToRemove>
 
             <auxFilePattern>TIDAdata*.dat</auxFilePattern>
-	    <auxFilePattern>data-electron-reference.root</auxFilePattern>
-	    <auxFilePattern>data-electron-IBL-pu40-reference-newchains.root</auxFilePattern>
+	    <auxFilePattern>data-el_single_e_7-80_IBL_pu40_run2-reference.root</auxFilePattern>
             <auxFilePattern>expert-monitoring-el_single_e_7-80_IBL_pu40_run2-ref.root</auxFilePattern>
 #           include "TrigInDetValidation_aux.xml"
 	    <auxFilePattern>TIDAindex-lowpt.html</auxFilePattern>	

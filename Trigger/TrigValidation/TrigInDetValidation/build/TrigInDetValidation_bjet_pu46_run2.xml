@@ -22,20 +22,8 @@
                 </arg>
             </action>
 
-            <action position="2">   
-                <modulename>RttLibraryTools</modulename> 
-                <testname>ExeRunner</testname> 
-                <arg> 
-                    <argname>exeName</argname>
-                    <argvalue>TIDAcomparitor.exe</argvalue> 
-                </arg>
-                <arg> 
-                    <argname>exeParamString</argname>
-                    <argvalue>data-bjet-pileup-merging.root data-bjet-pileup-merging.root EF_b55_NoCut_j55_a4tchad_IDT_InDetTrigParticleCreation_Bjet_EFID EF_b55_NoCut_j55_a4tchad_IDT_TrigFastTrackFinder_Jet -d EF-plots </argvalue>
-                </arg>
-            </action>
 
-           <action position="3">   
+           <action position="2">   
                 <modulename>RttLibraryTools</modulename> 
                 <testname>ExeRunner</testname> 
                 <arg> 
@@ -44,7 +32,7 @@
                 </arg>
                 <arg> 
                     <argname>exeParamString</argname>
-                    <argvalue>data-bjet-pileup-merging.root data-bjet-pileup-reference-newchains.root   HLT_j55_bperf_TrigFastTrackFinder_Jet HLT_j55_bperf_InDetTrigTrackingxAODCnv_Bjet_EFID HLT_j55_EFID_bperf_InDetTrigTrackingxAODCnv_Bjet_EFID  -d HLTEF-plots </argvalue>
+                    <argvalue>data-bjet-pileup-merging.root data-bjet_pu46_run2-reference.root   HLT_j55_bperf_TrigFastTrackFinder_Jet HLT_j55_bperf_InDetTrigTrackingxAODCnv_Bjet_EFID HLT_j55_EFID_bperf_InDetTrigTrackingxAODCnv_Bjet_EFID  -d HLTEF-plots </argvalue>
                 </arg>
             </action>
 
@@ -62,8 +50,7 @@
             </testToRemove>
 
             <auxFilePattern>TIDAdata*.dat</auxFilePattern>
-            <auxFilePattern>data-bjet-pileup-reference.root</auxFilePattern>
-            <auxFilePattern>data-bjet-pileup-reference-newchains.root</auxFilePattern>
+            <auxFilePattern>data-bjet_pu46_run2-reference.root</auxFilePattern>
             <auxFilePattern>expert-monitoring-bjet_pu46_run2-ref.root</auxFilePattern>
 #           include "TrigInDetValidation_aux.xml"
 	    <auxFilePattern>Test_bin.dat</auxFilePattern>
