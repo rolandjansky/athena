@@ -6,7 +6,7 @@
 // 
 //   Copyright (C) 2007 M.Sutton (sutt@cern.ch)    
 //
-//   $Id: ConfAnalysis.cxx 651747 2015-03-05 09:21:24Z sutt $
+//   $Id: ConfAnalysis.cxx 663185 2015-04-27 10:16:03Z hartj $
 
 
 #include "ConfAnalysis.h"
@@ -123,7 +123,7 @@ void ConfAnalysis::initialiseInternal() {
   const double zresMax  = 10;
 
   const int    d0Bins = int(100*_binConfig.d0_NScale);
-  const double d0Max  = 5;
+  const double d0Max  = 30;
 
   const int    d0resBins = 100;      
   const double d0resMax  = 5;

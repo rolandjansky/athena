@@ -35,6 +35,9 @@ TauSize = {0.2,0.2};
 BjetSize = {0.2,0.2};
 eGammaSize = {0.1,0.1};
 
+/// for cosmics, don't fileter reference tracks by RoI
+SelectRoi = 0;
+
 MinVertices = 0;
 
 testChains = {

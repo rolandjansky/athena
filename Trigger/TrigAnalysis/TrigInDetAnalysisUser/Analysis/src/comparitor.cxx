@@ -375,13 +375,14 @@ int main(int argc, char** argv) {
 
     Legend legend;
     // efficiencies or residuals?
-    if ( contains(histos[i],"eff") ) legend = Legend( 0.15, 0.25, 0.4-chains.size()*0.07, 0.40 );
-    else                             legend = Legend( 0.15, 0.25, 0.9-chains.size()*0.07, 0.90 );
+    //    if ( contains(histos[i],"eff") ) legend = Legend( 0.15, 0.25, 0.4-chains.size()*0.07, 0.40 );
+    if ( contains(histos[i],"eff") ) legend = Legend( 0.15, 0.25, 0.15, 0.15+chains.size()*0.06 );
+    else                             legend = Legend( 0.15, 0.25, 0.92-chains.size()*0.06, 0.92 );
 
     Legend legend_eff;
     // efficiencies or residuals?
-    if ( contains(histos[i],"eff") ) legend_eff = Legend( 0.15, 0.25, 0.4-chains.size()*0.07, 0.40 );
-    else                             legend_eff = Legend( 0.15, 0.25, 0.9-chains.size()*0.07, 0.90 );
+    if ( contains(histos[i],"eff") ) legend_eff = Legend( 0.15, 0.25, 0.15, 0.15+chains.size()*0.06 );
+    else                             legend_eff = Legend( 0.15, 0.25, 0.92-chains.size()*0.06, 0.92  );
 
 
    
@@ -581,8 +582,15 @@ int main(int argc, char** argv) {
 	}
 	if(histos[i]=="d0_eff" || histos[i]=="a0_eff") { 
 	  //	  href->SetMinimum(60);
-	  href->GetXaxis()->SetRangeUser(-3,3);
-	  htest->GetXaxis()->SetRangeUser(-3,3);
+	  std::vector<double> limits = findxrangeuser( href, true );
+	  if ( limits[0]<-3 || limits[1]>3 ) { 
+	    xrangeuser( href, true );
+	    xrangeuser( htest, true );
+	  }
+	  else { 
+	    href->GetXaxis()->SetRangeUser(-3,3);
+	    htest->GetXaxis()->SetRangeUser(-3,3);
+	  }
 	}
 	href->SetMinimum(70);
 	href->SetMaximum(105);

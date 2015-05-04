@@ -70,6 +70,10 @@ macro_append TIDAcpucost_cppflags      " -I../Readcards/src"
 macro_append TIDAcpucostlinkopts       " -lReadcards -lTIDA   -lTIDAcomputils "
 macro_append TIDAcpucost_dependencies  " Readcards TIDA TIDAcomputils"
 
+application  TIDAmakeSmallRefFile       "../Analysis/src/makeSmallRefFile.cxx "
+macro_append TIDAmakeSmallRefFile_cppflags     " "
+macro_append TIDAmakeSmallRefFilelinkopts      " "
+macro_append TIDAmakeSmallRefFile_dependencies " "
 
 apply_pattern declare_runtime extras="../share/TIDA*.dat ../share/Test_bin.dat"
 

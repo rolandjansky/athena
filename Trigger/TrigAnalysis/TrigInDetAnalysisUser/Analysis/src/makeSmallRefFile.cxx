@@ -1,5 +1,10 @@
 // Author: J.Kirk (modified from copyFiles.C in ROOT tutuorial
 
+
+#include <string>
+#include <iostream>
+
+
 #include "TROOT.h"
 #include "TKey.h"
 #include "TFile.h"
@@ -71,6 +76,8 @@ void CopyDir(TDirectory *source, bool mkdirFlag) {
   adir->SaveSelf(kTRUE);
   savdir->cd();
 }
+
+
 void CopyFile(const char *fname) {
    //Copy all objects and subdirs of file fname as a subdir of the current directory
    TDirectory *target = gDirectory;
@@ -84,12 +91,33 @@ void CopyFile(const char *fname) {
    CopyDir(f,false);
    delete f;
    target->cd();
-}  
-void makeSmallRefFile() {
-   //main function copying 4 files as subdirectories of a new file
-   TFile *f = new TFile("new-ref.root","recreate");
-   //   CopyFile("data-tau-merge.root");
-   CopyFile("data-bjet.root");
-   f->ls();
-   delete f;
+}
+
+  
+void makeSmallRefFile( const std::string& in, const std::string& out ) {
+  //main function copying 4 files as subdirectories of a new file
+  TFile *f = new TFile( out.c_str(), "recreate" );
+  //   CopyFile("data-tau-merge.root");
+  CopyFile( in.c_str() );
+  f->ls();
+  delete f;
+}
+
+
+int usage(int status=0) {
+  std::cout << "Usage: makeSmallRefFile <intputfile> <outputfile>" << std::endl;
+  return status;;
+}
+
+
+int main( int argc, char** argv ) {
+
+  if ( argc<3 ) return usage(-1);
+
+  std::string infile  = argv[1];
+  std::string outfile = argv[2];
+  
+  makeSmallRefFile( infile, outfile ); 
+
+  return 0;
 }

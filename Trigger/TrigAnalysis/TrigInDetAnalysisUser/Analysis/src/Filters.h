@@ -7,7 +7,7 @@
 //  
 //   Copyright (C) 2012 M.Sutton (sutt@cern.ch)    
 //
-//   $Id: Filters.h 654038 2015-03-13 18:43:22Z sutt $
+//   $Id: Filters.h 655939 2015-03-21 10:18:36Z sutt $
 
 
 #ifndef  FILTERS_H
@@ -235,6 +235,8 @@ public:
       else  return false;
 
 #endif
+
+      if ( m_roi->isFullscan() ) return ( mf1->select(t,m_roi) && mf2->select(t,m_roi) );
 
       bool contained_phi = false;
 

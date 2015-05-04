@@ -215,13 +215,23 @@ double hmean( TH1* h ) {
 }
 
 
-void xrange(TH1* h, bool symmetric ) { 
+
+
+std::vector<int>  findxrange(TH1* h, bool symmetric ) { 
+
   int ilo = 1;
   int ihi = h->GetNbinsX();
 
+  h->GetXaxis()->SetRange( ilo, ihi );
+
+  std::vector<int> limits(2,0);
+  limits[0] = ilo;
+  limits[1] = ihi;
+
+
   double content = integral(h);
 
-  if ( content == 0 ) return;
+  if ( content == 0 ) return limits;
 
 #if 1
 
@@ -254,19 +264,55 @@ void xrange(TH1* h, bool symmetric ) {
   int delta_lo = ilo-1;
   int delta_hi = h->GetNbinsX()-ihi;
 
+
   if ( symmetric ) { 
-    if ( delta_hi<delta_lo ) h->GetXaxis()->SetRange( 1+delta_hi, ihi );
-    else                     h->GetXaxis()->SetRange( 1+delta_lo, h->GetNbinsX()-delta_lo );
+    if ( delta_hi<delta_lo ) { 
+      limits[0] = 1+delta_hi; 
+      limits[1] = ihi; 
+    }
+    else { 
+      limits[0] = 1+delta_lo; 
+      limits[1] = h->GetNbinsX()-delta_lo;
+    }
   }
   else { 
-
+    
     if ( ilo>1 ) ilo--;
     if ( ihi<h->GetNbinsX() ) ihi++;
-
-    h->GetXaxis()->SetRange(ilo,ihi);
+    
+    limits[0] = ilo;
+    limits[1] = ihi;
   }
 
-
+  return limits; 
 
 }
 
+
+
+void xrange(TH1* h, bool symmetric ) { 
+  std::vector<int> limits = findxrange( h, symmetric );
+  h->GetXaxis()->SetRange( limits[0], limits[1] );
+}
+
+
+
+
+std::vector<double>  findxrangeuser(TH1* h, bool symmetric ) { 
+  std::vector<int> limits = findxrange( h, symmetric );
+
+  std::vector<double> dlimits(2,0);
+
+  double dx = h->GetBinLowEdge(limits[1]+1)-h->GetBinLowEdge(limits[1]);  
+
+  dlimits[0] = h->GetBinLowEdge(limits[0]);  
+  dlimits[1] = h->GetBinLowEdge(limits[1]+1)-dx*1e-11;  
+  
+  return dlimits;
+}
+
+
+void xrangeuser(TH1* h, bool symmetric ) { 
+  std::vector<double> limits = findxrangeuser( h, symmetric );
+  h->GetXaxis()->SetRangeUser( limits[0], limits[1] );
+}
