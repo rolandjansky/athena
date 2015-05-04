@@ -32,6 +32,7 @@ TrigTestBase::TrigTestBase(const std::string & type, const std::string & name, c
      m_keepAllEvents(false),
      m_fileopen(false),
      m_first(true),
+     m_useHighestPT(false),
      m_sliceTag("")
 {
   msg(MSG::INFO) << "TrigTestBase::TrigTestBase() compiled: " << __DATE__ << " " << __TIME__ << endreq;
@@ -85,6 +86,8 @@ TrigTestBase::TrigTestBase(const std::string & type, const std::string & name, c
   declareProperty( "SelectTruthPdgId", m_selectTruthPdgId = 0 );
 
   declareProperty( "KeepAllEvents", m_keepAllEvents = false );
+
+  declareProperty( "UseHighestPT", m_useHighestPT = false );
 
   msg(MSG::INFO) << "TrigTestBase::TrigTestBase() exiting " << gDirectory->GetName() << endreq;
 
@@ -195,8 +198,8 @@ StatusCode TrigTestBase::book(bool newEventsBlock, bool newLumiBlock, bool newRu
     
     /// keep counters of how many efid or ftf chains have been created
     /// for shifter histograms, only want one chain of each
-    int shifter_efid = 0;
-    int shifter_ftf  = 0;
+    int shifter_efid      = 0;
+    int shifter_ftf       = 0;
     int shifter_l2star    = 0;
     int shifter_efid_run1 = 0;
 
@@ -216,9 +219,20 @@ StatusCode TrigTestBase::book(bool newEventsBlock, bool newLumiBlock, bool newRu
 	/// get chain
         ChainString chainName = (*chainitr);
 
-	msg(MSG::DEBUG) << "\tconfiguring chain: " << chainName.head() << "\t: " << chainName.tail() << endreq;
-	
+	msg(MSG::DEBUG) << "configuring chain: " << chainName.head() << "\t: " << chainName.tail() << endreq;
 
+	if ( chainName.roi()!="" ) { 
+	  msg(MSG::INFO) << "configuring chain: " << chainName.head() 
+			 << "\ttracks: " << chainName.tail()
+			 << "\troi: "    << chainName.roi()
+			 << endreq;
+	}
+	else { 
+	  msg(MSG::INFO) << "configuring chain: " << chainName.head() 
+			 << "\ttracks: " << chainName.tail()
+			 << endreq;
+	}
+	
 	/// check for configured chains only ...
 
 	if ( chainName.head().find("HLT_")==std::string::npos && 
@@ -240,15 +254,16 @@ StatusCode TrigTestBase::book(bool newEventsBlock, bool newLumiBlock, bool newRu
 
 	for ( unsigned iselected=0 ; iselected<selectChains.size() ; iselected++ ) {
 
-            if ( chainName.tail()!="" )    selectChains[iselected] += ":"+chainName.tail();
-            if ( chainName.extra()!="" )   selectChains[iselected] += ":"+chainName.extra();
-            if ( chainName.element()!="" ) selectChains[iselected] += ":"+chainName.element();
+            if ( chainName.tail()!="" )    selectChains[iselected] += ":key="+chainName.tail();
+            if ( chainName.extra()!="" )   selectChains[iselected] += ":index="+chainName.extra();
+            if ( chainName.element()!="" ) selectChains[iselected] += ":te="+chainName.element();
+	    if ( chainName.roi()!="" )     selectChains[iselected] += ":roi="+chainName.roi();
             if ( !chainName.passed() )     selectChains[iselected] += ";DTE";
 
 
 	    if ( m_sliceTag.find("Shifter")!=std::string::npos ) { 
 	      /// shifter histograms 
-	      if ( chainName.tail().find("FastTrackFinder")!=std::string::npos ) { 
+	      if ( chainName.tail().find("_FTF")!=std::string::npos ) { 
 		/// FTF chain
 		shifter_ftf++;
 		if ( shifter_ftf>1 ) {
@@ -256,7 +271,7 @@ StatusCode TrigTestBase::book(bool newEventsBlock, bool newLumiBlock, bool newRu
 		  continue;
 		}
 	      }
-	      else if ( chainName.tail().find("InDetTrigTracking")!=std::string::npos ) { 
+	      else if ( chainName.tail().find("_IDTrig")!=std::string::npos || chainName.tail().find("CosmicsN_EFID")!=std::string::npos ) { 
 		/// EFID chain
 		shifter_efid++;
 		if ( shifter_efid>1 ) {
@@ -264,7 +279,7 @@ StatusCode TrigTestBase::book(bool newEventsBlock, bool newLumiBlock, bool newRu
 		  continue;
 		}
 	      }
-	      else if ( chainName.tail().find("InDetTrigParticle")!=std::string::npos ) { 
+	      else if ( chainName.tail().find("_EFID")!=std::string::npos ) { 
 		/// EFID chain
 		shifter_efid_run1++;
 		if ( shifter_efid_run1>1 ) {
@@ -283,7 +298,7 @@ StatusCode TrigTestBase::book(bool newEventsBlock, bool newLumiBlock, bool newRu
 	    }
 	    
             /// replace wildcard with actual matching chains ...
-            chains.push_back( selectChains[iselected] );
+            chains.push_back( ChainString(selectChains[iselected]) );
 
             msg(MSG::VERBOSE) << "^[[91;1m" << "Matching chain " << selectChains[iselected] << "^[[m" << endreq;
 
@@ -302,18 +317,29 @@ StatusCode TrigTestBase::book(bool newEventsBlock, bool newLumiBlock, bool newRu
 							 filterTest, filterRef,
 							 dR_matcher,
 							 new Analysis_Tier0( m_chainNames[i], m_pTCut, m_etaCut, m_d0Cut, m_z0Cut ) ) );
+
+        msg(MSG::INFO)   << " ----- creating analysis " << m_sequences.back()->name() << " : " << m_chainNames[i] << " -----" << endreq;
 	
         m_sequences.back()->releaseData(m_releaseMetaData);
-        msg(MSG::INFO) << " ----- creating analysis " << m_sequences.back()->name() << " : " << m_chainNames[i] << " -----" << endreq;
+        if ( m_useHighestPT ) { 
+	  msg(MSG::INFO) << "       using highest PT only for chain " << m_chainNames[i] << endreq;
+	  m_sequences.back()->setUseHighestPT(true);
+	}
+
+	/// don't filter cosmic chains on Roi
+	/// - could be done with a global job option, but then if configuring some cosmic chains,
+	///   and non cosmic chains, then all would be tarred with the same brush  
+	if ( m_chainNames[i].find("cosmic")!=std::string::npos || 
+	     m_chainNames[i].find("Cosmic")!=std::string::npos )  m_sequences.back()->setFilterOnRoi(false);
 
       }
     }
-
+      
   }
 
   if ( !m_fileopen && newRun && ( m_initialisePerRun || m_firstRun ) ) {
     m_fileopen = true;
-
+    
     for ( unsigned i=0 ; i<m_sequences.size() ; i++ ) {
       msg(MSG::VERBOSE) << " ----- booking for analysis " << m_sequences[i]->name() << " -----" << endreq;
       m_sequences[i]->initialize(this, &m_tdt);
@@ -324,12 +350,12 @@ StatusCode TrigTestBase::book(bool newEventsBlock, bool newLumiBlock, bool newRu
   }
 
   msg(MSG::DEBUG) << " configured " << m_sequences.size() << " sequences" << endreq;
-
+  
   msg(MSG::DEBUG) << " ----- exit book() ----- " << endreq;
   return StatusCode::SUCCESS;
-
+  
 }
-
+ 
 
 
 

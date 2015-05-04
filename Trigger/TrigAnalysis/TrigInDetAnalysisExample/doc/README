@@ -1,0 +1,94 @@
+TrigInDetAnalysis
+=================
+
+Analysis chains names
+---------------------
+
+Analysis chains can be specified, selecting an dactual chain, a specific track collection,
+a TE from which it should originate, an RoI to be retrieved, and whether the chains should
+be required to have passed.
+
+To specify without an RoI the format of the chain names in the configuration ...
+
+   ChainName:TrackCollectionKey:index:TriggerElementKey;DTE
+
+where "index" is 0, 1, 2 etc for strategy A, B, C etc, DTE specifies deactivated trigger elements
+also, and is separated by a semicolon ";" rather than a colon ":" as in all the other cases.
+
+So with the new scheme, to specify the RoiDescriptor name, this instead becomes
+
+   ChainName:TrackCollectionName:index:TriggerElementKey:Roi=RoiKey;DTE
+
+ie, there is an extra field, separated by a ":" if you don't want to specify a trigger element,
+then you still need this separator ie
+ 
+  ChainName:TrackCollectionName:index::Roi=RoiKey;DTE
+
+Note that this "Roi=" should be explicitly included at the start of the string, but also
+"RoI=", "roi=" "ROI=" are all allowed. I will come back to this later.
+
+Without specifying an Roi key, the default keys it uses are
+
+  "forID"
+  ""
+  "initialRoI"
+
+The above chain ie
+
+   ChainName:TrackCollectionName:index:TriggerElementKey:Roi=RoiKey;DTE
+
+should get encoded as
+
+   ChainName:TrackCollectionName:index:TriggerElementKey:RoiKey;DTE
+
+in the names of the chains in the ntple, and as
+
+   ChainName_TrackCollectionName_index_TriggerElementKey_RoiKey_DTE
+
+as the output names of the root directories in the post processing (":" and ";" are special
+characters in root file names, and so are replaced by "_" in the directory names)
+ 
+Of course, if DTE is not specified, or no index or TriggerElement are specifed, one
+should include the spacers but with no index etc ...
+ 
+    ChainName:TrackCollectionName:::roi=RoiKey
+
+which will result in
+
+    ChainName:TrackCollectionName:RoiKey
+    ChainName_TrackCollectionName_RoiKey
+
+as the chain, and root directory names. so for example
+
+   HLT_mu24_L2Star_idperf:InDetTrigTrackingxAODCnv_Muon_EFID:::roi=forID
+
+etc, exactly as one would hope.
+
+So, just as this means that we can book different "analysis chains"
+based on the same trigger chain, but with different track collections, we should now also
+be able to specify different chains, differing only by the RoI, so that independent analyses of
+the two steps in the two step tracking should be possible. Although the empty fields are
+required to specify the chains, they are redundent in the output names, of the chains in the
+ntple, so are not added.
+
+As a word, note that the separateor for the "DTE" is a semi colon, ";" This is "chopped off"
+from the end of the string when parsing, so empty ":" fields are not required for the TE and roi
+(or index, and track collection etc) if these are not set, ie
+
+   HLT_mu24_L2Star_idperf:InDetTrigTrackingxAODCnv_Muon_EFID;DTE
+
+should be a perfectly valid chain. Although this might all sound complicated, it is actually
+quite straightforward and pretty much completely how you might expect it to behave
+intuitively.
+
+
+In practice, the "roi=" is actually optional, although it is prefered that people include it
+explicitly as there is the possibility in the future of specifying the chains with eg
+
+  "ChainName:Collection=TrackCollection:roi=... :"
+
+etc, so that the fields after the chain name itself, can just be added in any order and with any
+number of different configuration parameters for clarity, however this has not yet been implemented.
+If there is anyone who would like to do this, it should not be very hard.
+
+MS 30-4-2015

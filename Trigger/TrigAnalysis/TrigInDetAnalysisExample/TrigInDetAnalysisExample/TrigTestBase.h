@@ -141,6 +141,8 @@ protected:
   /// is this the first event
   bool m_first; 
 
+  bool m_useHighestPT;
+
   std::string  m_sliceTag;
 
 };

@@ -1,57 +1,48 @@
 // emacs: this is -*- c++ -*-  
+//
+//   @file    ChainString.cxx         
+//            parse an analysis chain specification
+//
+//   @author M.Sutton
+// 
+//   Copyright (C) 2015 M.Sutton (sutt@cern.ch)    
+//
+//   $Id: ChainString.h, v0.0   Thu 30 Apr 2015 14:03:50 CEST sutt $
+
 
 #ifndef TrigInDetAnalysisExample_ChainString_H
 #define TrigInDetAnalysisExample_ChainString_H
+
+
+#include <string>
+#include <vector>
+#include <iostream>
 
 
 class ChainString : public std::string {
 
 public:
 
- ChainString(const std::string& s) : std::string(s), mpassed(true) {
-    std::string _s(s);
-    std::string pass = chomp(_s,";");
+  ChainString(const std::string& s);
 
-    //    std::cout << "chomp " << pass << " : " << _s << std::endl;
-
-    if ( pass!="" ) mpassed = ( pass=="DTE" ? false : true );
-
-    mhead  = chop(_s,":");
-    mtail  = chop(_s,":");
-    mextra = chop(_s,":");
-    melement = chop(_s,":");
-
-
-    /*    std::cout << "ChainString()" 
-	  << "|" << s 
-	  << "|" << mhead 
-	  << "|" << mtail
-	  << "|" << mextra 
-	  << "|" << std::endl; 
-    */
-     
-    //     //    std::string::size_type pos = s.find(":");
-    //     if ( pos == std::string::npos ) {
-    //       mhead = s;
-    //       mtail = "";
-    //     }
-    //     else {
-    //       mhead = s.substr(0, pos);
-    //       mtail = s.substr(pos+1, s.size() );
-    //     }
-  }
+  ChainString(const ChainString& s);
 
   std::string head()  { return mhead;  }
   std::string tail()  { return mtail;  }
   std::string extra() { return mextra; }
   std::string element() { return melement; }
+  std::string roi()     { return mroi; }
+
   bool        passed()  { return mpassed; }
 
   const std::string& head()  const { return mhead;  }
   const std::string& tail()  const { return mtail;  }
   const std::string& extra() const { return mextra; }
   const std::string& element() const { return melement; }
+  const std::string& roi()     const { return mroi; }
   const bool&        passed()  const { return mpassed; }
+
+protected:
 
   // chop tokens off the front of a string
   std::string chop(std::string& s1, const std::string& s2) {
@@ -80,9 +71,33 @@ public:
 
     return s3;
   } 
-  
 
+  /// convert to upper case
+  char toupper( char c ) { return ( c>='a' && c<='z' ? c+'A'-'a' : c ); }
 
+  /// convert to upper case
+  std::string toupper( const std::string& s ) { 
+    const char* c = s.c_str();
+    char tmp[512];
+    char* tp = tmp;
+    while (( *tp++ = toupper(*c++) ));
+    return tmp;
+  }
+
+  /// convert to lower case
+  char tolower( char c ) { return ( c>='A' && c<='Z' ? c-'A'+'a' : c ); }
+
+  /// convert to lower case
+  std::string tolower( const std::string& s ) { 
+    const char* c = s.c_str();
+    char tmp[512];
+    char* tp = tmp;
+    while (( *tp++ = tolower(*c++) ));
+    return tmp;
+  }
+
+  /// parse the full specification string
+  void parse();
 
 private:
 
@@ -90,6 +105,7 @@ private:
   std::string mtail;
   std::string mextra;
   std::string melement;
+  std::string mroi;
 
   bool        mpassed;
 
