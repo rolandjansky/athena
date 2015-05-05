@@ -213,15 +213,15 @@ StatusCode HLTMuonMonTool::bookCommonDQA()
     hist2( "Trigger_Overlap_Fraction_Including_Passthrough", histdir   )->SetMarkerSize(0.6);
 
     //Trigger aware
-    for(std::vector<std::string>::const_iterator it=m_chainsRate.begin(); it != m_chainsRate.end() ; it++ ){
+    for(std::map<std::string, std::string>::iterator  it=m_ztpmap.begin(); it != m_ztpmap.end() ; it++ ){
 
-      std::string name     = "Number_Of_"+ (*it) + "_Passed_Events" ;
+      std::string name     = "Number_Of_"+ it->second + "_Passed_Events" ;
       std::string nameaxis = name + "; LB ; Events" ;
 
       addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), 400, 1., 801.),histdirrate );
       hist( name, histdirrate ) -> Sumw2(); 
 
-      name     = (*it) + "_Triggers_Per_Event" ;
+      name     = it->second + "_Triggers_Per_Event" ;
       nameaxis = name + "; LB ; Triggers per Event" ;
 
       addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), 400, 1., 801.),histdirrateratio );
@@ -420,7 +420,7 @@ StatusCode HLTMuonMonTool::bookChainDQA_MSonly(const std::string& cName )
       }
     }
 
-    for (int ihpt = 0; ihpt < 1; ihpt++) {  // reserving also high-pt and MSb histograms for wrt offline 
+    for (int ihpt = 0; ihpt < 2; ihpt++) {  // reserving also high-pt and MSb histograms for wrt offline 
       // remove hpt histograms (Li Yuan 27.02.13)
       //trigger not-aware = wrt offline
       if (ihpt == 0) {
@@ -432,7 +432,7 @@ StatusCode HLTMuonMonTool::bookChainDQA_MSonly(const std::string& cName )
 	pt_nbins = hipt_nbins;
 	pt_bins = hipt_bins;
       }
-      
+     if( ihpt > 0 ) continue; 
       name     = chainName + "_Turn_On_Curve_wrt_MuidSA_Denominator";
       nameaxis = name + "; Muid SA pT (GeV); Events";
       addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), histdireffnumdenom );
@@ -455,7 +455,7 @@ StatusCode HLTMuonMonTool::bookChainDQA_MSonly(const std::string& cName )
     // wrt upstream
     for(int alg=0; alg<3;alg++){
 
-      for (int ihpt = 0; ihpt < 1; ihpt++) {  // reserving also high-pt and MSb histograms for wrt offline 
+      for (int ihpt = 0; ihpt < 2; ihpt++) {  // reserving also high-pt and MSb histograms for wrt offline 
         // remove hpt histograms (Li Yuan 27.02.13)
 	//trigger not-aware = wrt offline
 	if (ihpt == 0) {
@@ -467,6 +467,7 @@ StatusCode HLTMuonMonTool::bookChainDQA_MSonly(const std::string& cName )
 	  pt_nbins = hipt_nbins;
 	  pt_bins = hipt_bins;
 	} 
+	if( ihpt > 0 ) continue;
 	
 	name     = chainName + monalg[alg] + "_Turn_On_Curve_wrt" + wrtalg[alg] + "_Denominator";
 	nameaxis = name + "; Muid SA pT (GeV); Events";
@@ -557,7 +558,7 @@ StatusCode HLTMuonMonTool::bookChainDQA_MSonly(const std::string& cName )
       // Barrel/endcap (YY 27.05.10) - Monitoring MuFast, MuonEFSA wrt upstream / offline
       // monalg[3]={"_MuFast", "_MuonEFMS", "_MuonEFSA"}; -> select {0, 2}
       if (0 == alg || 2 == alg) {
-	for (int ihpt = 0; ihpt < 1; ihpt++) {  // reserving also high-pt and MSb histograms for wrt offline 
+	for (int ihpt = 0; ihpt < 2; ihpt++) {  // reserving also high-pt and MSb histograms for wrt offline 
           // remove hpt histograms (Li Yuan 27.02.13)
 	  //trigger not-aware = wrt offline
 	  if (ihpt == 0) {
@@ -569,6 +570,7 @@ StatusCode HLTMuonMonTool::bookChainDQA_MSonly(const std::string& cName )
 	    pt_nbins = hipt_nbins;
 	    pt_bins = hipt_bins;
 	  } 
+	  if(ihpt > 0) continue;
 	  for (int be = 0; be < 2; be++) {
 	    name     = chainName + monalg[alg] + "_Turn_On_Curve_wrt" + wrtalg[alg] + bestr[be] + "_Denominator";
 	    nameaxis = name + "; Muid SA pT (GeV); Events";
@@ -1466,19 +1468,19 @@ StatusCode HLTMuonMonTool::fillCommonDQA()
   hist("Number_Of_Events", histdirrate )->Fill( m_lumiblock );
 
   //Trigger aware
-  for( std::vector<std::string>::const_iterator it=m_chainsRate.begin(); it != m_chainsRate.end() ; it++ ){
-    ATH_MSG_DEBUG( *it );
+  for( std::map<std::string, std::string>::iterator it=m_ztpmap.begin(); it != m_ztpmap.end() ; it++ ){
+    ATH_MSG_DEBUG( it->first );
     
-    if( getTDT()->isPassed( *it )  ){
+    if( getTDT()->isPassed( ("HLT_"+ it->first) )  ){
       //ATH_MSG_FATAL(" pass" << *it );
-      std::string name     = "Number_Of_"+ (*it) + "_Passed_Events" ;
+      std::string name     = "Number_Of_"+ it->second + "_Passed_Events" ;
       hist( name, histdirrate )->Fill( m_lumiblock );
       
     }
     //cosmic
-    if( getTDT()->isPassed( (*it + "_cosmic") )  ){
+    if( getTDT()->isPassed( ("HLT_"+ it->first + "_cosmic") )  ){
       //ATH_MSG_FATAL(" pass" << *it <<"_cosmic");
-      std::string name     = "Number_Of_"+ (*it) + "_Passed_Events" ;
+      std::string name     = "Number_Of_"+ it->second + "_Passed_Events" ;
       hist( name, histdirrate )->Fill( m_lumiblock );
       
     }
@@ -1495,11 +1497,15 @@ StatusCode HLTMuonMonTool::fillCommonDQA()
   // vs_ESstd.push_back("HLT_mu22_medium"); // for test
 
   std::vector<std::string> vs_EStag;
-  vs_EStag.push_back("HLT_mu24_muCombTag_NoEF_tight");
+  //vs_EStag.push_back("HLT_mu24_muCombTag_NoEF_tight"); // pp v4
+  vs_EStag.push_back("HLT_mu20_idperf"); // pp v5
+  vs_EStag.push_back("HLT_mu6_idperf");
 
   std::vector<std::string> vs_ESid;
-  vs_ESid.push_back("HLT_mu18_IDTrkNoCut_tight");
-  vs_ESid.push_back("HLT_mu22_IDTrkNoCut_tight");
+  //vs_ESid.push_back("HLT_mu18_IDTrkNoCut_tight");  // pp v4
+  //vs_ESid.push_back("HLT_mu22_IDTrkNoCut_tight");
+  vs_ESid.push_back("HLT_mu20_idperf"); // pp v5
+  vs_ESid.push_back("HLT_mu6_idperf");
   
   // independent chains for L1 monitor
   std::vector<std::string> vs_ESindep;
@@ -1534,7 +1540,7 @@ StatusCode HLTMuonMonTool::fillCommonDQA()
   vs_ESHIindep.push_back("HLT_2g5_loose");
 
   for (int i = 0; i <= m_maxESbr; i++) {
-    m_passedES[i] = false;
+    m_passedES[i] = false; 
   }
 
   if (m_requestESchains) {
@@ -1834,7 +1840,8 @@ StatusCode HLTMuonMonTool::fillChainDQA_MSonly(const std::string& chainName, con
   using namespace Trig;
   bool isBarrelChain = false;
   bool isTighterChain = false;
-  int nnn = chainName.find("MSonly_barrel");
+  //int nnn = chainName.find("MSonly_barrel");
+  int nnn = chainName.find("0eta105_msonly");  // run2 name changed
   if (nnn > 0) {
     isBarrelChain = true;
   }
@@ -1875,14 +1882,14 @@ StatusCode HLTMuonMonTool::fillChainDQA_MSonly(const std::string& chainName, con
        << m_RecMuonSA_hasCB[i_rec] << " pt " << m_RecMuonSA_pt[i_rec]); */
     if (!m_RecMuonSA_isGoodCB[i_rec]) {
       ATH_MSG_DEBUG("HLTMuonMon: fillChainDQA_MSonly: not a good combined muon" << i_rec);
-      // continue;  //for LS1, remove requirements on Hits and impact parameter
+      //continue;  //for LS1, remove requirements on Hits and impact parameter, attention
     }
     
     float rec_eta = m_RecMuonSA_eta[i_rec];
     float rec_phi = m_RecMuonSA_phi[i_rec];
     float rec_pt  = m_RecMuonSA_pt[i_rec];
-    ATH_MSG_DEBUG("++ i_rec=" << i_rec);
-    ATH_MSG_DEBUG("rec: eta/phi/pt=" << rec_eta << " / " << rec_phi << " / " << rec_pt);
+    ATH_MSG_DEBUG("++ i_rec=" << i_rec); 
+    ATH_MSG_DEBUG("rec: eta/phi/pt=" << rec_eta << " / " << rec_phi << " / " << rec_pt); 
     //    if( rec_pt > 50. ) rec_pt = 50.;
     // if( rec_pt > 100. ) rec_pt = 100.;
 
@@ -1901,7 +1908,7 @@ StatusCode HLTMuonMonTool::fillChainDQA_MSonly(const std::string& chainName, con
 
     if (EF_lower_passed) {
       name     = histcName + "_Turn_On_Curve_wrt_MuidSA_Denominator";
-      ATH_MSG_DEBUG( name << " filling" );
+      ATH_MSG_DEBUG( name << " filling" ); 
       hist(name, histdireffnumdenom)->Fill(rec_pt);
       
       // Barrel/Endcap (YY 27.05.10) Denominator for "wrtOffline"
@@ -1917,7 +1924,7 @@ StatusCode HLTMuonMonTool::fillChainDQA_MSonly(const std::string& chainName, con
       if(!MS_mon_ESbr[i])continue; 
       if (m_passedES[i]) {
 	name     = histcName + m_triggerES[i] + "_Turn_On_Curve_wrt_MuidSA_Denominator";
-	ATH_MSG_DEBUG( name << " filling" );
+	ATH_MSG_DEBUG( name << " filling" ); 
 	hist(name, histdireffnumdenom)->Fill(rec_pt);
 	// New Barrel/endcap for ES L1
 	name     = histcName + m_triggerES[i] + "_Turn_On_Curve_wrt_MuidSA" + bestr[iBarrelSA] + "_Denominator";
@@ -1941,7 +1948,7 @@ StatusCode HLTMuonMonTool::fillChainDQA_MSonly(const std::string& chainName, con
       else {
         float dr = calc_dR(rec_eta,rec_phi,initRois[0].cptr()->eta(),initRois[0].cptr()->phi());
         name     = histcName + "_deltaR_btw_L1_MuidSA_For" + monalg;
-        ATH_MSG_DEBUG( name << " filling" );
+        ATH_MSG_DEBUG( name << " filling" ); 
         hist(name, histdireffnumdenom)->Fill(dr);
         if( dr < dr_min_l2 ) { 
           dr_min_l2 = dr;
@@ -1953,7 +1960,7 @@ StatusCode HLTMuonMonTool::fillChainDQA_MSonly(const std::string& chainName, con
     //    if( dr_min_l2 < DR_CUT && (EF_lower_passed || ES_lower_passed)) 
     if( dr_min_l2 < DR_CUT ) {
       if (EF_lower_passed) {
-	ATH_MSG_DEBUG("L2: dRmin=" << dr_min_l2);
+	ATH_MSG_DEBUG("L2: dRmin=" << dr_min_l2); 
 	name     = histcName + monalg + "_Turn_On_Curve_wrt" + wrtalg + "_Denominator";
 	ATH_MSG_DEBUG( name << " filling" );
 	hist(name, histdireffnumdenom)->Fill(rec_pt);
@@ -1983,7 +1990,7 @@ StatusCode HLTMuonMonTool::fillChainDQA_MSonly(const std::string& chainName, con
       std::vector< Feature<xAOD::L2StandAloneMuonContainer> > mf = combsHLT[id_min_l2].get<xAOD::L2StandAloneMuonContainer>("MuonL2SAInfo",TrigDefs::alsoDeactivateTEs);
       if( mf.size() == 1 ) {
         mf_active = mf[0].te()->getActiveState();
-        ATH_MSG_DEBUG("...mF: label/active=" << getTEName(*mf[0].te()) << " / " << mf_active);
+        ATH_MSG_DEBUG("...mF: label/active=" << getTEName(*mf[0].te()) << " / " << mf_active); 
       }
       if( mf_active ) {
 	// float mf_pt = mf[0].cptr()->pt();
@@ -2093,7 +2100,7 @@ StatusCode HLTMuonMonTool::fillChainDQA_MSonly(const std::string& chainName, con
     //    if( dr_min_ef < DR_CUT && (EF_lower_passed || ES_lower_passed)) 
     if( dr_min_ef < DR_CUT ) {  // 20.11.11: now it also means that the ROI is not found, which is indicated as dr being negative
                                 // but this condition is not fulfilled if EF feature does not exist in this event
-      ATH_MSG_DEBUG("EF: dRmin=" << dr_min_ef);
+      ATH_MSG_DEBUG("EF: dRmin=" << dr_min_ef); 
 
       if (EF_lower_passed) {
 	name     = histcName + monalg + "_Turn_On_Curve_wrt" + wrtalg + "_Denominator";
@@ -2153,7 +2160,7 @@ StatusCode HLTMuonMonTool::fillChainDQA_MSonly(const std::string& chainName, con
 	ATH_MSG_DEBUG("...ef size=" << ef.size() ); //i
 	if( ef.size() == 1 ) {
 
-	  ATH_MSG_DEBUG("...EFInfo: label/active=" << getTEName(*ef[0].te()) << " / " << ef[0].te()->getActiveState()); //i
+	  ATH_MSG_DEBUG("...EFInfo: label/active=" << getTEName(*ef[0].te()) << " / " << ef[0].te()->getActiveState());
 
 	  std::vector<Feature<xAOD::MuonContainer> >::const_iterator fIt = ef.begin();
 	  for ( ; fIt != ef.end() ; ++fIt) {
@@ -2174,13 +2181,13 @@ StatusCode HLTMuonMonTool::fillChainDQA_MSonly(const std::string& chainName, con
 	            ef_ms_eta = ef_ms_trk->eta();
 	            ef_ms_phi = ef_ms_trk->phi();  // YY
 	          }
-	          ATH_MSG_DEBUG("           MS eta/pt=" << ef_ms_eta << " / " << ef_ms_pt/CLHEP::GeV ); //i
+	          ATH_MSG_DEBUG("           MS eta/pt=" << ef_ms_eta << " / " << ef_ms_pt/CLHEP::GeV ); 
 	          ATH_MSG_DEBUG("MS track found for last_step " << last_step); //i
 	        }else{
-	          ATH_MSG_DEBUG("No MS track found for last_step " << last_step); //i
+	          ATH_MSG_DEBUG("No MS track found for last_step " << last_step); 
 	        }
 
-	        if( ef_cont->at(iCont)->muonType()!=xAOD::Muon::MuonStandAlone){
+	        if( ef_cont->at(iCont)->muonType()!=xAOD::Muon::MuonStandAlone && ef_cont->at(iCont)->muonType()!=xAOD::Muon::Combined){
 	          ef_sa_pt  = -1.;
 	          ef_sa_eta = 0.;
 	          ef_sa_phi = 0.; // YY
@@ -2242,7 +2249,7 @@ StatusCode HLTMuonMonTool::fillChainDQA_MSonly(const std::string& chainName, con
 	            ATH_MSG_DEBUG("No MS track found for last_step " << last_step); //i
 	          }
 	          
-	          if( ef_cont->at(iCont)->muonType()!=xAOD::Muon::MuonStandAlone){
+	          if( ef_cont->at(iCont)->muonType()!=xAOD::Muon::MuonStandAlone && ef_cont->at(iCont)->muonType()!=xAOD::Muon::Combined){
 	            ef_sa_pt  = -1.;
 	            ef_sa_eta = 0.;
 	            ef_sa_phi = 0.; // YY
@@ -2772,23 +2779,25 @@ StatusCode HLTMuonMonTool::fillChainDQA_generic(const std::string& chainName, co
 
   // loop on each CB probe
 
-  float isolThresh = (isIsolOffline ? 0.1 : 0.5);
+  //float isolThresh = (isIsolOffline ? 0.1 : 0.5);
+  float isolThresh = (isIsolOffline ? 0.06 : 0.5);  // tighter isolation in run2
   
   for(int i_rec=0; i_rec<(int)m_RecMuonCB_pt.size(); i_rec++) {
 
     if (!m_RecMuonCB_isGoodCB[i_rec]) {  
       ATH_MSG_DEBUG("HLTMuonMon: fillChainDQA_Standard: not a good combined muon" << i_rec);
-//      continue;  // for LS1, remove cuts on Hits and impact parameter, uncomment for collision
+      continue;  // for LS1, remove cuts on Hits and impact parameter, uncomment for collision. attention
     }
 
     float rec_eta = m_RecMuonCB_eta[i_rec];
     float rec_phi = m_RecMuonCB_phi[i_rec];
     float rec_pt  = m_RecMuonCB_pt[i_rec];
 
-    float rec_ptcone40 = m_RecMuonCB_ptcone40[i_rec];
+    float rec_ptcone30 = m_RecMuonCB_ptcone30[i_rec];
     
     //    if ((rec_ptcone40*0.001) / rec_pt > 0.5) continue; // tomoe added 09/06/2011
-    if ((rec_ptcone40*0.001) / rec_pt > isolThresh) continue; // tomoe added 09/06/2011
+    // if ((rec_ptcone40*0.001) / rec_pt > isolThresh) continue; // tomoe added 09/06/2011
+    if ((rec_ptcone30*0.001) / rec_pt > isolThresh) continue; // use cone30 in run2 
 
     ATH_MSG_DEBUG("++ i_rec=" << i_rec);
     ATH_MSG_DEBUG("rec: eta/phi/pt=" << rec_eta << " / " << rec_phi << " / " << rec_pt);
@@ -3346,10 +3355,10 @@ StatusCode HLTMuonMonTool::procChainDQA()
 
   if(endOfRun){
     //triggers/event
-    for(std::vector<std::string>::const_iterator it=m_chainsRate.begin(); it != m_chainsRate.end() ; it++ ){
+    for(std::map<std::string, std::string>::iterator it=m_ztpmap.begin(); it != m_ztpmap.end() ; it++ ){
       
-      std::string name1     = "Number_Of_"+ (*it) + "_Passed_Events" ;
-      std::string name2     = (*it) + "_Triggers_Per_Event" ;
+      std::string name1     = "Number_Of_"+ it->second + "_Passed_Events" ;
+      std::string name2     = it->second + "_Triggers_Per_Event" ;
      
       hist( name2, histdirrateratio ) -> Divide ( hist(name1, histdirrate), hist("Number_Of_Events", histdirrate));
       
@@ -3394,18 +3403,18 @@ StatusCode HLTMuonMonTool::procChainDQA_MSonly(const std::string& chainName )
 	  sumeff = (double)sumn / (double)sumd;
 	  sumerr = sqrt((double)sumn * (1.-sumeff)) / (double)sumd;
 	}
-	int iholx = -1;
+	int ibin_holx = -1;
 	if (0 == alg) {
-	  iholx = iMuFast;
+	  ibin_holx = iMuFast;
 	} else if (2 == alg) {
-	    iholx = iEFSA;
+	    ibin_holx = iEFSA;
 	}
 
-	if (iholx >= 0) {
+	if (ibin_holx >= 0) {
 	  std::string s = chainName + "_highpt_effsummary_by" + m_vectkwd.at(3);
 	  ATH_MSG_DEBUG("hist summary: " << s << " n: " << sumn << " d: " << sumd << " eff: " << sumeff << " err: " << sumerr);
-	  hist(s, histdireff)->SetBinContent(iholx+1, sumeff);
-	  hist(s, histdireff)->SetBinError(iholx+1, sumerr);
+	  hist(s, histdireff)->SetBinContent(ibin_holx+1, sumeff);
+	  hist(s, histdireff)->SetBinError(ibin_holx+1, sumerr);
 	}
       }
 
@@ -3458,18 +3467,18 @@ StatusCode HLTMuonMonTool::procChainDQA_MSonly(const std::string& chainName )
 	    sumeff = (double)sumn / (double)sumd;
 	    sumerr = sqrt((double)sumn * (1.-sumeff)) / (double)sumd;
 	  }
-	  int iholx = -1;
+	  int ibin_holx = -1;
 	  if (0 == alg) {
-	    iholx = iMuFast;
+	    ibin_holx = iMuFast;
 	  } else if (2 == alg) {
-	    iholx = iEFSA;
+	    ibin_holx = iEFSA;
 	  }
 
-	  if (iholx >= 0) {
+	  if (ibin_holx >= 0) {
 	    std::string s = chainName + "_highpt_effsummary_by" + m_triggerES[i];
 	    ATH_MSG_DEBUG("hist summary: " << s << " n: " << sumn << " d: " << sumd << " eff: " << sumeff << " err: " << sumerr);
-	    hist(s, histdireff)->SetBinContent(iholx+1, sumeff);
-	    hist(s, histdireff)->SetBinError(iholx+1, sumerr);
+	    hist(s, histdireff)->SetBinContent(ibin_holx+1, sumeff);
+	    hist(s, histdireff)->SetBinError(ibin_holx+1, sumerr);
 	  }
 	}
 
@@ -3810,19 +3819,19 @@ StatusCode HLTMuonMonTool::procChainDQA_generic(const std::string& chainName )
 	    sumeff = (double)sumn / (double)sumd;
 	    sumerr = sqrt((double)sumn * (1.-sumeff)) / (double)sumd;
 	  }
-	  int iholx = -1;
+	  int ibin_holx = -1;
 	  if (0 == alg) {
-	      iholx = iMuFast;
+	      ibin_holx = iMuFast;
 	  } else if (1 == alg) {
-	    iholx = iMuComb;
+	    ibin_holx = iMuComb;
 	  } else if (2 == alg) {
-	    iholx = iEFCB;
+	    ibin_holx = iEFCB;
 	  }
 	  
 	  std::string s = chainName + "_highpt_effsummary_by" + m_triggerES[i];
 	  ATH_MSG_DEBUG("hist summary: " << s << " n: " << sumn << " d: " << sumd << " eff: " << sumeff << " err: " << sumerr);
-	  hist(s, histdireff)->SetBinContent(iholx+1, sumeff);
-	  hist(s, histdireff)->SetBinError(iholx+1, sumerr);
+	  hist(s, histdireff)->SetBinContent(ibin_holx+1, sumeff);
+	  hist(s, histdireff)->SetBinError(ibin_holx+1, sumerr);
 	}
 	
 	denom = chainName + m_triggerES[i] + monalg[alg] + "_Turn_On_Curve_wrt" + wrtalg[alg] + "_Denominator";
@@ -3920,13 +3929,13 @@ StatusCode HLTMuonMonTool::procChainDQA_HighPt()
 	monarr.push_back("_EFmuon");
 	monL2arr.push_back("_MuFast");
 	isBarrelMon.push_back(false);
-	isMSbMon.push_back(false);
+	isMSbMon.push_back(true);
 	monL1.push_back(true);
 	isefIsolation.push_back(false);
   }
   for(unsigned int ich = 0; ich < m_chainsEFiso.size(); ich++){
 	MAXARR++;
-	charr.push_back("muChainIso"+std::to_string(ich+1));
+	charr.push_back("muChainEFiso"+std::to_string(ich+1));
 	monarr.push_back("_EFmuon");
 	monL2arr.push_back("_MuFast");
 	isBarrelMon.push_back(false);
@@ -4129,7 +4138,7 @@ bool HLTMuonMonTool::checkOfflineCBdR()
 
 StatusCode HLTMuonMonTool::fillRecMuon()
 {
-  ATH_MSG_DEBUG("entering fillRecMuon");  
+  ATH_MSG_DEBUG("entering fillRecMuon");
 
   int nOFL=0;
   int nOFLMS=0;
@@ -4154,8 +4163,8 @@ StatusCode HLTMuonMonTool::fillRecMuon()
   m_RecMuonCB_eloss.clear();   //for muIso
   m_RecMuonCB_etcone.clear();  //for muIso
   m_RecMuonCB_ptcone.clear();  //for muIso
-  m_RecMuonCB_ptcone40.clear();  //for muIso tomoe added
-  m_RecMuonCB_etcone40.clear();  //for muIso tomoe added
+  m_RecMuonCB_ptcone30.clear();  //for muIso tomoe added
+  m_RecMuonCB_etcone30.clear();  //for muIso tomoe added
 
 
   //const Analysis::MuonContainer* muonCont;
@@ -4221,7 +4230,8 @@ StatusCode HLTMuonMonTool::fillRecMuon()
   int isCombined=0;
   for ( ; muonItr != muonItrE; ++muonItr) {
     nOFL++;
-    ATH_MSG_DEBUG("Muon : "  
+    float pt = fabs((*muonItr)->pt())/CLHEP::GeV;
+    ATH_MSG_DEBUG("Muon : "   
                   << " eta = " << (*muonItr)->eta()
                   << " phi = " << (*muonItr)->phi()
                   << " pt  = " << fabs((*muonItr)->pt())/CLHEP::GeV
@@ -4235,19 +4245,22 @@ StatusCode HLTMuonMonTool::fillRecMuon()
       nOFLMS++;
       const xAOD::TrackParticle* ms_trk=0;
       ms_trk = *((*muonItr)->muonSpectrometerTrackParticleLink());
-      float pt = ms_trk->pt() / CLHEP::GeV ;
+      pt = ms_trk->pt() / CLHEP::GeV ;
       if( pt > 4 )
 	      hist("Number_Of_Moore_MS_Muons_4GeV_Cut",histdirrate)->Fill(m_lumiblock);
       if( pt > 10 )
 	      hist("Number_Of_Moore_MS_Muons_10GeV_Cut",histdirrate)->Fill(m_lumiblock);
     }
 
-    if((*muonItr)->muonType()==xAOD::Muon::MuonStandAlone){
-      ATH_MSG_DEBUG(" count SA muon");
+    if((*muonItr)->muonSpectrometerTrackParticleLink().isValid()){
+      if((*muonItr)->muonType()!=xAOD::Muon::MuonStandAlone && (*muonItr)->muonType()!=xAOD::Muon::Combined) continue;
+      ATH_MSG_DEBUG(" count SA muon"); 
       nOFLSA++;
       const xAOD::TrackParticle* ms_trk=0;
       ms_trk = *((*muonItr)->muonSpectrometerTrackParticleLink());
-      float pt = ms_trk->pt() / CLHEP::GeV ;
+      if(!ms_trk) continue;
+      //pt = ms_trk->pt() / CLHEP::GeV ;
+      pt = fabs((*muonItr)->pt())/CLHEP::GeV; // there seem to be bug in MS trk pt, so use rec pt now
       if( pt > 4 )
         hist("Number_Of_Moore_SA_Muons_4GeV_Cut",histdirrate)->Fill(m_lumiblock);
       if( pt > 10 )
@@ -4257,13 +4270,13 @@ StatusCode HLTMuonMonTool::fillRecMuon()
       float d0 = 0.;
       float z0 = 0.;
       float charge = ms_trk->charge();
-      //const  Trk::Perigee ms_measPerigee = ms_trk->perigeeParameters();
-      //if(ms_measPerigee.size()!=NULL) {
-      //  d0  = ms_measPerigee.parameters()[Trk::d0];
-      //  z0  = ms_measPerigee.parameters()[Trk::z0];
-      //}else{
-      //  ATH_MSG_WARNING(" no measuredPerigee pointer for SA muon");
-      //}
+      const  Trk::Perigee ms_measPerigee = ms_trk->perigeeParameters();
+      if(&ms_measPerigee.parameters()) {
+        d0  = ms_measPerigee.parameters()[Trk::d0];
+        z0  = ms_measPerigee.parameters()[Trk::z0];
+      }else{
+        ATH_MSG_WARNING(" no measuredPerigee pointer for SA muon");
+      }
 
       // YY: CB, isGoodCB;
       bool hasCB = ((*muonItr)->muonType()==xAOD::Muon::Combined);
@@ -4273,20 +4286,22 @@ StatusCode HLTMuonMonTool::fillRecMuon()
         comb = *((*muonItr)->combinedTrackParticleLink());
 	if (!comb) {
 	  ATH_MSG_INFO("HLTMuonMon: is a combined offline muon but no pointer to TrackParticle");
-	}
-	const  Trk::Perigee measPerigee = comb->perigeeParameters();
-	float d0comb = measPerigee.parameters()[Trk::d0];
-	float z0comb = measPerigee.parameters()[Trk::z0];
-	float nPixcomb = 0; 
-	comb->summaryValue(nPixcomb, xAOD::numberOfPixelHits);
-	float nSCTcomb = 0;
-	comb->summaryValue(nPixcomb, xAOD::numberOfSCTHits);
-	if (vtx != 0) {
-	  if (nPixcomb >= 1 && nSCTcomb >= 6 && abs(z0comb - (vtx->position()).z()) < 5. && abs(d0comb) < 1.5) {
-	    isGoodCB = true;
+	} else {
+	  pt = comb->pt()/CLHEP::GeV;
+	  const  Trk::Perigee measPerigee = comb->perigeeParameters();
+	  float d0comb = measPerigee.parameters()[Trk::d0];
+	  float z0comb = measPerigee.parameters()[Trk::z0];
+	  uint8_t nPixcomb = 0; 
+	  comb->summaryValue(nPixcomb, xAOD::numberOfPixelHits);
+	  uint8_t nSCTcomb = 0;
+	  comb->summaryValue(nSCTcomb, xAOD::numberOfSCTHits);
+	  if (vtx != 0) {
+	    if (nPixcomb >= 1 && nSCTcomb >= 6 && abs(z0comb - (vtx->position()).z()) < 5. && abs(d0comb) < 1.5) {
+	      isGoodCB = true;
+	    }
+	    ATH_MSG_DEBUG("HLTMuonMon: SA: good " << isGoodCB << " nPix " << nPixcomb << " nSCT " << nSCTcomb
+	  		<< " z0 " << z0comb - (vtx->position()).z() << " d0 " << d0comb); 
 	  }
-	  ATH_MSG_DEBUG("HLTMuonMon: SA: good " << isGoodCB << " nPix " << nPixcomb << " nSCT " << nSCTcomb
-			<< " z0 " << z0comb - (vtx->position()).z() << " d0 " << d0comb); 
 	}
       }
       
@@ -4351,12 +4366,12 @@ StatusCode HLTMuonMonTool::fillRecMuon()
 	float m_ptcone20;
 	(*muonItr)->isolation(m_ptcone20, xAOD::Iso::ptcone20);
 	m_RecMuonCB_ptcone.push_back( m_ptcone20 );
-	float m_etcone40;
-	(*muonItr)->isolation(m_etcone40, xAOD::Iso::etcone40);
-	m_RecMuonCB_etcone40.push_back( m_etcone40 );
-	float m_ptcone40;
-	(*muonItr)->isolation(m_ptcone40, xAOD::Iso::ptcone40);
-	m_RecMuonCB_ptcone40.push_back( m_ptcone40 );
+	float m_etcone30;
+	(*muonItr)->isolation(m_etcone30, xAOD::Iso::etcone30);
+	m_RecMuonCB_etcone30.push_back( m_etcone30 );
+	float m_ptcone30;
+	(*muonItr)->isolation(m_ptcone30, xAOD::Iso::ptcone30);
+	m_RecMuonCB_ptcone30.push_back( m_ptcone30 );
 
 	isCombined++;
       }
@@ -4370,7 +4385,7 @@ StatusCode HLTMuonMonTool::fillRecMuon()
   if(nOFLCB >10)     nOFLCB=10;
   if(isCombined >10) isCombined=10;
 
-  ATH_MSG_DEBUG(" fill nMuon");
+  ATH_MSG_DEBUG(" fill nMuon"); 
   hist("Offline_Number_Of_Muon", histdir )->Fill(nOFL);
   hist("Offline_Number_Of_MS_Muon", histdir )->Fill(nOFLMS);
   hist("Offline_Number_Of_SA_Muon", histdir )->Fill(nOFLSA);

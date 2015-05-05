@@ -89,9 +89,26 @@ HLTMuonMonTool::HLTMuonMonTool(const std::string & type,
 
   //construction of MuZTP parameters
   //declareProperty("ChainsForZTP", m_ztp_isomap);
-  declareProperty("ZTPPtCone20RelCut",m_ztp_ptcone20rel_cut=0.1);
-  declareProperty("ZTP_EFPtCone20RelCut",m_ztp_EF_ptcone20rel_cut=0.12);
+  declareProperty("ZTPPtCone30RelCut",m_ztp_ptcone30rel_cut=0.06);
+  declareProperty("ZTP_EFPtCone30RelCut",m_ztp_EF_ptcone30rel_cut=0.12);
   declareProperty("BCTool", m_bunchTool);
+  m_activeStore = 0;
+  m_lumiblock = 0;
+  m_event = 0;
+  m_maxindep = 0;
+  m_maxESbr = 0;
+  m_requestESchains = 0;
+  fMuFast = 0;
+  fMuComb = 0;
+  fEFCB = 0;
+  fMuGirl = 0;
+  fEFSA = 0;
+  iSTDL = 0;
+  iSTDH = 0;
+  iMSL = 0;
+  iMSH = 0;
+  m_ztp_newrun = 0;
+  
 }
 
 /*---------------------------------------------------------*/
@@ -179,9 +196,9 @@ StatusCode HLTMuonMonTool::init()
   // m_chainsEFiso.push_back("mu24i_tight")  ;            // v4 primary
 
   for(unsigned int ich = 0; ich < m_chainsEFiso.size(); ich++){
-	m_histChainEFiso.push_back("muChainIso"+std::to_string(ich+1));
+	m_histChainEFiso.push_back("muChainEFiso"+std::to_string(ich+1));
 	m_ztp_isomap.insert(std::pair<std::string, int>(m_chainsEFiso[ich], 1));
-	m_ztpmap.insert(std::pair<std::string, std::string>(m_chainsEFiso[ich], "muChainIso"+std::to_string(ich+1)));
+	m_ztpmap.insert(std::pair<std::string, std::string>(m_chainsEFiso[ich], "muChainEFiso"+std::to_string(ich+1)));
   }
  
 
@@ -214,10 +231,10 @@ StatusCode HLTMuonMonTool::init()
   // m_FS_pre_trigger_second = "mu24i_tight";
   //
   // v5 primary
-  // m_histChainEFFS.push_back("muChainEFFS");
-  // m_chainsEFFS.push_back("mu18_mu8noL1");
-  // m_FS_pre_trigger = "mu18";
-  // m_FS_pre_trigger_second = "mu24_imedium";
+  m_histChainEFFS.push_back("muChainEFFS");
+  m_chainsEFFS.push_back("mu18_mu8noL1");
+  m_FS_pre_trigger = "mu18";
+  m_FS_pre_trigger_second = "mu24_imedium";
   
   // chainAnalysis for MuGirl
   // Warning: corresponding standard chain has to exist!!!!!!!!
@@ -464,7 +481,10 @@ StatusCode HLTMuonMonTool::init()
   m_MSchainName = "_MSb";  // meaning MSonly_barrel
   // m_MSchain.push_back("EF_mu40_MSonly_barrel");
   // m_MSchain.push_back("EF_mu40_MSonly_barrel_medium");  // YY for 2e33
-  m_MSchain.push_back("EF_mu50_MSonly_barrel_tight");  // v4
+  // m_MSchain.push_back("EF_mu50_MSonly_barrel_tight");  // v4
+  for(unsigned int ich = 0; ich < m_chainsMSonly.size(); ich++){
+    m_MSchain.push_back("HLT_" + m_chainsMSonly[ich]);
+  }
 
   m_hptName = "_hpt";
 
@@ -806,7 +826,7 @@ StatusCode HLTMuonMonTool::fill()
 
   int sc = scCommon * scRecMuon * scChain * scMuFast * scMuComb * scMuIso * scTileMu * scMuonEF * scMuGirl * scMuZTP;
 
-  ATH_MSG_DEBUG( " scCommon " << scCommon
+  ATH_MSG_DEBUG( " scCommon " << scCommon  
 		<< " scRecMuon " << scRecMuon 
 		<< " scChain " << scChain
                 << " scMuFast " << scMuFast

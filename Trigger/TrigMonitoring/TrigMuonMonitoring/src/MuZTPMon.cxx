@@ -89,7 +89,7 @@ StatusCode HLTMuonMonTool::initMuZTPDQA()
   }
 
   ATH_MSG_DEBUG("N(T&P) chains = " << m_ztpmap.size());
-  ATH_MSG_DEBUG("Offline isolation cut (sumpt 0.1 / pt) = " << m_ztp_ptcone20rel_cut);
+  ATH_MSG_DEBUG("Offline isolation cut (sumpt 0.1 / pt) = " << m_ztp_ptcone30rel_cut);
 
   // automatically configure the pT cuts for the chains
   for(std::map<std::string, std::string>::const_iterator it=m_ztpmap.begin(); it!=m_ztpmap.end(); ++it) {
@@ -372,11 +372,12 @@ StatusCode HLTMuonMonTool::fillMuZTPDQA()
     bool isTriggered_L1 = false;
     const Trig::ChainGroup* ChainGroupL1 = getTDT()->getChainGroup(m_ztp_l1map[itmap->first]);
     isTriggered_L1 = ChainGroupL1->isPassed();
+    //ATH_MSG_WARNING("check if Fired L1 trigger or not: "<<isTriggered_L1); // attention
     //if (isTriggered_L1 == false){
     //  return StatusCode::SUCCESS;
     //} 
-    // bool isTriggered_L2 = false;
-    bool isTriggered_L2 = true;
+    bool isTriggered_L2 = false;
+    // bool isTriggered_L2 = true;
     // YY 2 Oct 2014 - L2 decision should be obtained from whether the muComb trigger element is active or not?
     // perhaps OK if a matched active TE is found - although this may not be exactly 100% correct.
     
@@ -392,7 +393,6 @@ StatusCode HLTMuonMonTool::fillMuZTPDQA()
     ///////////////////////////////////// get ONLINE Objects //////////////////////////////////////////
 
     Trig::FeatureContainer fL1 = getTDT()->features(m_ztp_l1map[itmap->first]);
-    //    Trig::FeatureContainer fL2 = getTDT()->features(L2_chainName);
     Trig::FeatureContainer fHLT = getTDT()->features("HLT_"+itmap->first,TrigDefs::alsoDeactivateTEs);
     
     std::vector<Trig::Combination>::const_iterator jL1;    
@@ -535,9 +535,9 @@ StatusCode HLTMuonMonTool::fillMuZTPDQA()
 		      EFCbphi.push_back(ef_cb_trk->phi());
 
 		      if(isefIsochain) {
-			  float m_ptcone20;
-			  ef_cont->at(iCont)->isolation(m_ptcone20, xAOD::Iso::ptcone20);
-			  if(m_ptcone20/ef_cont->at(iCont)->pt() < m_ztp_EF_ptcone20rel_cut ) {
+			  float m_ptcone30;
+			  ef_cont->at(iCont)->isolation(m_ptcone30, xAOD::Iso::ptcone30);
+			  if(m_ptcone30/ef_cont->at(iCont)->pt() < m_ztp_EF_ptcone30rel_cut ) {
 			      EFIsopt.push_back(fabs(ef_cb_trk->pt()) / CLHEP::GeV * ef_cb_trk->charge());
 			      EFIsoeta.push_back(ef_cb_trk->eta());
 			      EFIsophi.push_back(ef_cb_trk->phi());
@@ -570,6 +570,10 @@ StatusCode HLTMuonMonTool::fillMuZTPDQA()
       } //active ROI
     } // jEF
 	  
+
+    //  check if there is at least one activated L2 object to determine L2 trigger decision  
+    if(isMSonlychain) isTriggered_L2 = ( L2Expt.size() > 0) ;
+    else isTriggered_L2 = (L2Cbpt.size() > 0);
 
 
     ///////////////////////////////////// get OFFLINE Objects //////////////////////////////////////////
@@ -615,6 +619,7 @@ StatusCode HLTMuonMonTool::fillMuZTPDQA()
 	if (recMuon->combinedTrackParticleLink()!=0 ){
 	  
 	  ATH_MSG_DEBUG(  "CB muon found" );
+	if(recMuon->muonType() != xAOD::Muon::MuonType::Combined) ATH_MSG_WARNING( " Combined track link found, but not a combined muon!!!!");
 	  
 	  n_RecCBmuon++;
 
@@ -632,10 +637,10 @@ StatusCode HLTMuonMonTool::fillMuZTPDQA()
 	  if(pt < 10.0) continue;
 
 	  // isolation cut (sumpt / pt)
-	  float m_ptcone20;
-	  (*contItr)->isolation(m_ptcone20, xAOD::Iso::ptcone20);
+	  float m_ptcone30;
+	  (*contItr)->isolation(m_ptcone30, xAOD::Iso::ptcone30); 
 
-	  if(m_ptcone20 / muidCBMuon->pt() > m_ztp_ptcone20rel_cut) continue;
+	  if(m_ptcone30 / muidCBMuon->pt() > m_ztp_ptcone30rel_cut) continue;
 
 	  RecCBpt.push_back(pt);
 	  RecCBpx.push_back(px);
@@ -984,7 +989,7 @@ StatusCode HLTMuonMonTool::procMuZTPDQA()
 bool CheckMuonTriggerMatch(float off_eta, float off_phi, std::vector<float> v_on_eta, std::vector<float> v_on_phi)
 {
 
-  float deltaRcut = 0.15;
+  float deltaRcut = 0.15; 
   float deltaR= 999999.;
   for(unsigned int i=0; i< v_on_eta.size();++i){
     float dr = CalcdeltaR(off_eta,off_phi,v_on_eta[i],v_on_phi[i]);

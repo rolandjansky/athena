@@ -97,7 +97,7 @@ StatusCode HLTMuonMonTool::fillMuIsoDQA()
 
   //first of all select only mu15 events
   //YY if (!isPassedES(m_esvect, "mu15")) return StatusCode::SUCCESS;
-  if (!m_passedES[ESSTD]) {
+  if (!m_passedES[ESSTD]) { 
     return StatusCode::SUCCESS;
   } // YY modified
 	
