@@ -109,8 +109,8 @@ StatusCode MultiParticleFilter::filterEvent() {
                 if(abs((*pitr)->status()) == m_particleStatus[i]) passedStatus = true;
               
             if(passedPDG && passedStatus)
-                if ((*pitr)->momentum().perp() >= m_ptMinParticle && (*pitr)->momentum().perp() <= m_ptMaxParticle && fabs((*pitr)->momentum().eta() <= m_etaRangeParticle))
-                    Np++; // Found a particle passing all the cuts.
+	      if ((*pitr)->momentum().perp() >= m_ptMinParticle && (*pitr)->momentum().perp() <= m_ptMaxParticle && fabs((*pitr)->momentum().eta()) <= m_etaRangeParticle)
+		Np++; // Found a particle passing all the cuts.
 
             // Test if we fulfilled all the requirements and return in that case.
             if (Np >= m_Np){

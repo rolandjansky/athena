@@ -17,7 +17,7 @@ public:
 
  private:
 
-  double m_MEtmin;
+  double m_METmin;
 
 };
 

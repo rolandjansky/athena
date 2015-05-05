@@ -251,24 +251,24 @@ int SusySubprocessFinder::subProcessFromPdgids(int pdg1, int pdg2) {
     else if (ID[k]== 1000037)    nch2plus++;
     else if (ID[k]==-1000037)    nch2minus++;
 
-    else if ((ID[k] ==  1000011)) nselLplus++;
-    else if ((ID[k] == -1000011)) nselLminus++;
-    else if ((ID[k] ==  2000011)) nselRplus++;
-    else if ((ID[k] == -2000011)) nselRminus++;
+    else if (ID[k] ==  1000011) nselLplus++;
+    else if (ID[k] == -1000011) nselLminus++;
+    else if (ID[k] ==  2000011) nselRplus++;
+    else if (ID[k] == -2000011) nselRminus++;
 
-    else if ((ID[k] ==  1000013)) nsmuLplus++;
-    else if ((ID[k] == -1000013)) nsmuLminus++;
-    else if ((ID[k] ==  2000013)) nsmuRplus++;
-    else if ((ID[k] == -2000013)) nsmuRminus++;
+    else if (ID[k] ==  1000013) nsmuLplus++;
+    else if (ID[k] == -1000013) nsmuLminus++;
+    else if (ID[k] ==  2000013) nsmuRplus++;
+    else if (ID[k] == -2000013) nsmuRminus++;
 
-    else if ((ID[k] ==  1000015)) nstau1plus++;
-    else if ((ID[k] == -1000015)) nstau1minus++;
-    else if ((ID[k] ==  2000015)) nstau2plus++;
-    else if ((ID[k] == -2000015)) nstau2minus++;
+    else if (ID[k] ==  1000015) nstau1plus++;
+    else if (ID[k] == -1000015) nstau1minus++;
+    else if (ID[k] ==  2000015) nstau2plus++;
+    else if (ID[k] == -2000015) nstau2minus++;
 
-    else if ((absID[k] == 1000012)) nsnue++;
-    else if ((absID[k] == 1000014)) nsnum++;
-    else if ((absID[k] == 1000016)) nsnut++;
+    else if (absID[k] == 1000012) nsnue++;
+    else if (absID[k] == 1000014) nsnum++;
+    else if (absID[k] == 1000016) nsnut++;
 
     else if (ID[k] == 1000039) ngrav++;
 

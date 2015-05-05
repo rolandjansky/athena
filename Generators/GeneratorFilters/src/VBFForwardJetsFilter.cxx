@@ -33,7 +33,7 @@ VBFForwardJetsFilter::VBFForwardJetsFilter(const std::string & name, ISvcLocator
   declareProperty("MassJJ",m_MassJJ = 300.*Gaudi::Units::GeV);
   declareProperty("DeltaEtaJJ",m_DeltaEtaJJ = 2.0);
   declareProperty("UseLeadingJJ",m_UseLeadingJJ = false);
-  declareProperty("TruthJetContainer", m_TruthJetContainerName = "Cone4TruthJets");
+  declareProperty("TruthJetContainer", m_TruthJetContainerName = "AntiKt4TruthJets");
   declareProperty("LGMinPt",m_LGMinPt = 10.*Gaudi::Units::GeV);
   declareProperty("LGMaxEta",m_LGMaxEta = 2.5);
   declareProperty("DeltaRJLG",m_DeltaRJLG = 0.05);

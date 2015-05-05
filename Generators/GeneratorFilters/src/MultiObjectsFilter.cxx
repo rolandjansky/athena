@@ -18,7 +18,7 @@ MultiObjectsFilter::MultiObjectsFilter(const std::string& name, ISvcLocator* pSv
     m_usePho(false),
     m_useJet(true),
     m_useSumPt(true),
-    m_TruthJetContainerName("Cone4TruthJets")
+    m_TruthJetContainerName("AntiKt4TruthJets")
     // Electrons and Photons are calculated in TruthJet.
     // You should set useEle=false,usePho=false when useJet=true
 {

@@ -8,9 +8,11 @@
 #include "TLorentzVector.h"
 
 TTbarPlusJetsFilter::TTbarPlusJetsFilter(const std::string& name, ISvcLocator* pSvcLocator)
-  : GenFilter(name, pSvcLocator)
+  : GenFilter(name, pSvcLocator),
+    m_nbEventProcessed(0), m_nbEventKept(0),
+    m_nbJetDiscarded(0), m_nbEventWithJetDiscarded(0)
 {
-  declareProperty("InputJetContainer", m_jetContainerLoc = "ConeTruthJets");
+  declareProperty("InputJetContainer", m_jetContainerLoc = "AntiKt4TruthJets");
   declareProperty("PtMinJet",m_ptMinJet = 14000.0);
   declareProperty("EtaMaxJet",m_etaMaxJet = 5.2);
   declareProperty("NbJetMin",m_nbJet = 6);

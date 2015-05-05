@@ -10,7 +10,10 @@
 
 
 HeavyFlavorHadronFilter::HeavyFlavorHadronFilter(const std::string& name, ISvcLocator* pSvcLocator)
-  : GenFilter(name, pSvcLocator)
+  : GenFilter(name, pSvcLocator),
+    m_NPass(0), m_Nevt(0), m_NbPass(0), 
+    m_NcPass(0), m_NBHadronPass(0), m_NDHadronPass(0), 
+    m_NPDGIDPass(0)
 {
   declareProperty("CharmPtMin",m_charmPtMin=2.0*Gaudi::Units::GeV);
   declareProperty("BottomPtMin",m_bottomPtMin=5.0*Gaudi::Units::GeV);
@@ -33,7 +36,7 @@ HeavyFlavorHadronFilter::HeavyFlavorHadronFilter(const std::string& name, ISvcLo
   declareProperty("RequestSpecificPDGID",m_RequestSpecificPDGID=false);
   declareProperty("RequireTruthJet",m_RequireTruthJet=false);
   declareProperty("DeltaRFromTruth",m_deltaRFromTruth=0.4);
-  declareProperty("TruthContainerName",m_TruthJetContainerName="Cone4TruthJets");
+  declareProperty("TruthContainerName",m_TruthJetContainerName="AntiKt4TruthJets");
 }
 
 

@@ -18,7 +18,7 @@ public:
 
 private:
 
-	double m_Ptmin;
+  //double m_Ptmin;
 	double m_EtaRange;
 
 	double m_maxdphi;
