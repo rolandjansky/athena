@@ -222,10 +222,12 @@ VarHandleBase::setState(SG::DataProxy* proxy) const
 {
 #ifdef DEBUG_VHB
    std::cerr << "::VHB::setState(" 
-             << proxy 
-             << " -- isValid: " << proxy->isValid()
-             << " -- isConst: " << proxy->isConst()
-             << ") const\n";
+             << proxy;
+   if (0 != proxy) {
+     std::cerr << " -- isValid: " << proxy->isValid()
+	       << " -- isConst: " << proxy->isConst();
+   }
+   std::cerr << ") const\n";
 #endif
   if (0 == proxy || !proxy->isValid()) {
     return StatusCode::FAILURE;

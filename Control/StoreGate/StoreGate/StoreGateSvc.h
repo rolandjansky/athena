@@ -954,6 +954,9 @@ private:
   /// a std::cout like stream with levels to log messages
   mutable MsgStream m_msg;
 
+  /// EXPERTS ONLY: Property, allow record to overwrite existing data objects
+  bool m_allowOverwrite;
+
 public:
   ///////////////////////////////////////////////////////////////////////
   /// \name Obsolete and Deprecated methods 
