@@ -844,7 +844,6 @@ void topoEgammaBuilder::RetrieveegammaSuperClusterBuilder()
   if (m_egammaSuperClusterBuilderName=="") {
     ATH_MSG_INFO("m_egammaSuperClusterBuilder is disabled  " 
      << m_egammaSuperClusterBuilderName);
-    m_egammaSuperClusterBuilder=0;
     return;
   } 
  
@@ -867,7 +866,6 @@ void topoEgammaBuilder::RetrieveegammaClusterOverlapMarker()
   if (m_egammaClusterOverlapMarkerName=="") {
     ATH_MSG_INFO("m_egammaClusterOverlapMarker is disabled  " 
      << m_egammaClusterOverlapMarkerName);
-    m_egammaClusterOverlapMarker=0;
     return;
   } 
  
@@ -890,7 +888,6 @@ void topoEgammaBuilder::RetrieveegammaTopoClusterMap()
   if (m_egammaTopoClusterMapToolName=="") {
     ATH_MSG_INFO("Map is disabled  " 
      << m_egammaTopoClusterMapToolName);
-    m_egammaTopoClusterMapTool=0;
     return;
   } 
  
