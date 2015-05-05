@@ -13,6 +13,13 @@
 //STD
 #include <iostream>
 #include <iomanip>
+#include <limits>
+namespace TrkParametersBase{
+	static constexpr double INVALID=std::numeric_limits<double>::quiet_NaN();
+	static constexpr double INVALID_P(10e9);
+	static constexpr double INVALID_QOP(10e-9);
+	static const Amg::Vector2D INVALID_POSITION(INVALID,INVALID);
+}
 
 // default constructor
 template <int DIM, class T, class S> Trk::ParametersT<DIM, T, S>::ParametersT():
@@ -27,14 +34,22 @@ template <int DIM, class T, class S> Trk::ParametersT<DIM, T, S>::ParametersT
 	 AmgSymMatrix(DIM)* covariance) :
     ParametersBase<DIM,T>(covariance),
     m_surface( surface.isFree() ? surface.clone() : &surface )
-{  
+{      
+    // check qoverp is physical
+    double p=0.0;
+    if (qop!=0.) {
+      p = fabs(1./qop);
+    } else {
+      // qop is unphysical. No momentum measurement.
+      p = TrkParametersBase::INVALID_P;
+      qop = TrkParametersBase::INVALID_QOP;
+    }
     // fill the parameters  
     ParametersBase<DIM,T>::m_parameters << loc1, loc2, phi, theta, qop;
     // decide the sign of the charge
     if (qop < 0.) ParametersBase<DIM,T>::m_chargeDefinition.flipSign();
-    // fill momentum & then position using the surface
-    double p = (qop != 0.) ? fabs(1./qop) : 10e5;
-    // now calculate teh momentum
+     
+    // now calculate the momentum
     ParametersBase<DIM,T>::m_momentum = Amg::Vector3D(p*cos(phi)*sin(theta),
                                                       p*sin(phi)*sin(theta),
                                                       p*cos(theta));
@@ -53,10 +68,21 @@ template <int DIM, class T, class S> Trk::ParametersT<DIM, T, S>::ParametersT
 {  
   // decide the sign of the charge
   ParametersBase<DIM,T>::m_parameters = parameters;
-  if (ParametersBase<DIM,T>::m_parameters[Trk::qOverP]) 
-        ParametersBase<DIM,T>::m_chargeDefinition.flipSign();
+  double qop = ParametersBase<DIM,T>::m_parameters[Trk::qOverP];
+  if (qop<0.) 
+    ParametersBase<DIM,T>::m_chargeDefinition.flipSign();
+  
+  // check qoverp is physical
+  double p=0.0;
+  if (qop!=0.) {
+    p = fabs(1./qop);
+  } else {
+    // qop is unphysical. No momentum measurement.
+    p = TrkParametersBase::INVALID_P;
+    qop = TrkParametersBase::INVALID_QOP;
+  }
+  
   // fill momentum & then position using the surface
-  double p = (ParametersBase<DIM,T>::m_parameters[Trk::qOverP] != 0.) ?  fabs(1./ParametersBase<DIM,T>::m_parameters[Trk::qOverP]) : 10e5;
   ParametersBase<DIM,T>::m_momentum = Amg::Vector3D(p*cos(ParametersBase<DIM,T>::m_parameters[Trk::phi])*sin(ParametersBase<DIM,T>::m_parameters[Trk::theta]),
                              p*sin(ParametersBase<DIM,T>::m_parameters[Trk::phi])*sin(ParametersBase<DIM,T>::m_parameters[Trk::theta]),
                              p*cos(ParametersBase<DIM,T>::m_parameters[Trk::theta]));
@@ -75,16 +101,24 @@ template <int DIM, class T, class S> Trk::ParametersT<DIM, T, S>::ParametersT
   m_surface( surface.isFree() ? surface.clone() : &surface )
 {  
    // decide the sign of the charge
-   if (qop) ParametersBase<DIM,T>::m_chargeDefinition.flipSign();
+   if (qop<0.) ParametersBase<DIM,T>::m_chargeDefinition.flipSign();
    // fill momentum & then position using the surface
-   double p = (qop != 0.) ?  fabs(1./qop) : 10e5;
+   double p=0.0;
+   if (qop!=0.) {
+     p = fabs(1./qop);
+   } else {
+     // qop is unphysical. No momentum measurement.
+     p = TrkParametersBase::INVALID_P;
+     qop = TrkParametersBase::INVALID_QOP;
+   }
    ParametersBase<DIM,T>::m_momentum = Amg::Vector3D(p*cos(phi)*sin(theta),
                                                      p*sin(phi)*sin(theta),
                                                      p*cos(theta));
    // get the local parameters via the surface
    Amg::Vector2D lPosition;
-   m_surface->globalToLocal(ParametersBase<DIM,T>::m_position, 
+   const bool ok = m_surface->globalToLocal(ParametersBase<DIM,T>::m_position, 
                             ParametersBase<DIM,T>::m_momentum, lPosition);
+   if (not ok) lPosition = TrkParametersBase::INVALID_POSITION;
    // fill the vector now
    ParametersBase<DIM,T>::m_parameters << lPosition[Trk::loc1], lPosition[Trk::loc2], phi, theta, qop;   
 }
@@ -127,8 +161,9 @@ template <int DIM, class T, class S> Trk::ParametersT<DIM, T, S>::ParametersT
     if (charge < 0.) ParametersBase<DIM,T>::m_chargeDefinition.flipSign();
     // get the local parameters via the surface
     Amg::Vector2D lPosition;
-    m_surface->globalToLocal(ParametersBase<DIM,T>::m_position, 
+    const bool ok = m_surface->globalToLocal(ParametersBase<DIM,T>::m_position, 
                              ParametersBase<DIM,T>::m_momentum, lPosition);
+   if (not ok) lPosition = TrkParametersBase::INVALID_POSITION;
     // fill the vector now
     ParametersBase<DIM,T>::m_parameters << lPosition[Trk::loc1], lPosition[Trk::loc2], 
     ParametersBase<DIM,T>::m_momentum.phi(), 
@@ -168,12 +203,21 @@ template <int DIM, class T, class S> Trk::ParametersT<DIM, T, S>::ParametersT
      ParametersBase<DIM,T>(covariance),
      m_surface(surface)
 {  
-  // decide the sign of the charge
   ParametersBase<DIM,T>::m_parameters = parameters;
-  if (ParametersBase<DIM,T>::m_parameters[Trk::qOverP]) 
-        ParametersBase<DIM,T>::m_chargeDefinition.flipSign();
+
+  float qop = ParametersBase<DIM,T>::m_parameters[Trk::qOverP]; 
+  // decide the sign of the charge 
+  if (qop<0.) ParametersBase<DIM,T>::m_chargeDefinition.flipSign(); 
+
+  double p=0.0;
+  if (qop!=0.) { 
+      p = fabs(1./qop);
+  } else {
+    // qop is unphysical. No momentum measurement. 
+    p = TrkParametersBase::INVALID_P; 
+    qop = TrkParametersBase::INVALID_QOP; 
+  }
   // fill momentum & then position using the surface
-  double p = ((double)ParametersBase<DIM,T>::m_chargeDefinition)/ParametersBase<DIM,T>::m_parameters[Trk::qOverP];
   ParametersBase<DIM,T>::m_momentum = Amg::Vector3D(p*cos(ParametersBase<DIM,T>::m_parameters[Trk::phi])*sin(ParametersBase<DIM,T>::m_parameters[Trk::theta]),
                              p*sin(ParametersBase<DIM,T>::m_parameters[Trk::phi])*sin(ParametersBase<DIM,T>::m_parameters[Trk::theta]),
                              p*cos(ParametersBase<DIM,T>::m_parameters[Trk::theta]));
