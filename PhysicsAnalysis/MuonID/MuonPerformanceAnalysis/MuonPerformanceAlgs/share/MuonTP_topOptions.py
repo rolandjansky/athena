@@ -6,11 +6,17 @@
 # Example job option for running tag-and-probe tools in Athena from xAOD
 #
 
-# Specify input file.
-if not "pandaJob" in globals():
+
+#Specify input file.
+if not "pandaJob" in globals() and not  "FNAME" in globals():
     include ('MuonPerformanceAlgs/Zmumu_19.0.2.1.py')
 else:
     InputAODList=[FNAME]
+
+
+#include ('PhysicsAnalysis/MuonID/MuonPerformanceAnalysis/MuonPerformanceAlgs/share/Sample_Valid3_147407_e3099_s2578_r6588.py')
+
+
 #--------------------------------------------------------------
 # Input stream
 #--------------------------------------------------------------
@@ -19,6 +25,19 @@ from AthenaCommon.AppMgr import ServiceMgr
 import AthenaPoolCnvSvc.ReadAthenaPool
 ServiceMgr.EventSelector.InputCollections = InputAODList
 
+print ServiceMgr.EventSelector.InputCollections
+
+
+from AthenaCommon.AthenaCommonFlags import athenaCommonFlags as acf
+acf.FilesInput = InputAODList
+
+#--------------------------------------------------------------
+# Reduce the event loop spam a bit
+#--------------------------------------------------------------
+from AthenaServices.AthenaServicesConf import AthenaEventLoopMgr
+ServiceMgr += AthenaEventLoopMgr(EventPrintoutInterval = 500)
+
+
 #--------------------------------------------------------------
 # Event related parameters
 #--------------------------------------------------------------
@@ -26,118 +45,102 @@ ServiceMgr.EventSelector.InputCollections = InputAODList
 # Number of events to be processed (default is until the end of
 # input, or -1, however, since we have no input, a limit needs
 # to be set explicitly, here, choose 10)
-theApp.EvtMax =  -1
-if not "pandaJob" in globals():
-    theApp.EvtMax = -1
-    
+
+# we keep a theApp version in case we want to run without RecExCommon
+#theApp.EvtMax =  -1
+#if not "pandaJob" in globals():     # special setting for local running
+#    theApp.EvtMax = -1
+#if "EVTMAX" in  globals():
+#    theApp.EvtMax = EVTMAX
+
+
+acf.EvtMax =  -1
+if not "pandaJob" in globals():     # special setting for local running
+    acf.EvtMax = -1
+#    acf.EvtMax = 1900
+
 # optional override for local testing
 if "EVTMAX" in  globals():
-    theApp.EvtMax = EVTMAX
+    acf.EvtMax = EVTMAX
 
 #--------------------------------------------------------------
 # Configure algorithm.
 #--------------------------------------------------------------
 
+include ("MuonPerformanceAlgs/RecExCommon_for_TP.py")
+
 # Allow messge service more than default 500 lines.
-ServiceMgr.MessageSvc.infoLimit = 200000
+ServiceMgr.MessageSvc.infoLimit = 20000
 
 # Full job is a list of algorithms
 from AthenaCommon.AlgSequence import AlgSequence
 job = AlgSequence()
 
-# add a track iso tool
-
-from IsolationTool.IsolationToolConf import xAOD__TrackIsolationTool
-
-ToolSvc += xAOD__TrackIsolationTool("MyTrackIsoTool")
-from MuonPerformanceAlgs.MuonPerformanceAlgsConf import TrackIsolationDecorAlg
-
-job += TrackIsolationDecorAlg("MyDecorator")
-job.MyDecorator.IsolationTool = ToolSvc.MyTrackIsoTool
-
 
 include ('MuonPerformanceAlgs/ZmumuTPAnalysis.py')
-# add muon quality updater
+include ('MuonPerformanceAlgs/ZmumuTPIsolationAnalysis.py')
+include ('MuonPerformanceAlgs/ZmumuTPTrigAnalysis.py')
 
+# now we can add the TP analysis/es itself/themselves :)
+
+############## Zmumu T&P Configuration ########################
+do_Zmumu_RecoEff_TagProbe      = True # this is for Z->mumu, reco eff. You can add your own analysis in a similar way.
+do_Zmumu_IsolationEff_TagProbe = True # this is for Z->mumu, isolation eff. You can add your own analysis in a similar way.
+do_Zmumu_Trigger_TagProbe      = True  # this is for Z->mumu, Trigger eff.
+
+##### General analysis options
+writeNtuple = True                     # Write an ntuple on top of the histos - for detailed studies, but increases output file size
+doEtaSlices = False
+doClosure   = False
+doDRSys     = False
+doValid     = False
+
+
+# Add utilities (tool, upstream algorithms) we need
+AddIsolationTools()
+AddTrigDecisionTool()
+AddTrigMatchingTool()
 AddMuonSelectionTool()
 
 
-# commented for now. Works with the lates MuonSelectorTools
-#from MuonSelectorTools.MuonSelectorToolsConf import CP__MuonQualityUpdaterAlg
-#alg = CfgMgr.CP__MuonQualityUpdaterAlg("MuonQualityUpdater",Input="Muons",Output="UpdatedMuons")
-#alg.Tool = ToolSvc.TagProbeMuonSelectionTool
-#job += alg
-
-# now we can add the TP analysis itself
-
-MuonContainerToUse = "Muons"
-if hasattr(job, "MuonQualityUpdater"):
-    MuonContainerToUse = "UpdatedMuons"
-
-    
-do_Zmumu_RecoEff_TagProbe = True        # this is for Z->mumu, reco eff. You can add your own analysis in a similar way.
-
+##### Reco eff analysis options
 if do_Zmumu_RecoEff_TagProbe:
-    ##########################################################################################
-    # Add the Zmm TP algorithm using ID tracks as probes and matching to muons
-    AddConfiguredZmumuTPAlg(name_suffix = "IDProbes",
-                            ProbeKind = "ID",
-                            MatchContainer = MuonContainerToUse,
-                            doID = False, doCB = True, doMedium = True,
-                            doStandalone = False, doCaloTag = True,
-                            doEtaSlices=True)
+	writeNtuple = True                    
+	doEtaSlices = False
+	doClosure   = False
+	doDRSys     = True
+	doValid     = True
+	AddZmumuTPAnalysis(doEtaSlices,writeNtuple,doClosure,doDRSys,doValid)      
+###############################################################
 
 
-    ##########################################################################################
-    # Add the Zmm TP algorithm using CaloTag muons as probes and matching to muons
-    AddConfiguredZmumuTPAlg(name_suffix = "CaloProbes",
-                            ProbeKind = "CaloTag",
-                            MatchContainer = MuonContainerToUse,
-                            doID = False, doCB = True, doMedium = True,
-                            doStandalone = False, doCaloTag = False,
-                            doEtaSlices=True)
+##### Isolation eff analysis options
+if do_Zmumu_IsolationEff_TagProbe: 
+    doEtaSlices = False
+    doClosure   = False
+    doDRSys     = True
+    doValid     = True
+    AddZmumuTPIsolationAnalysis(doEtaSlices,writeNtuple,doClosure,doDRSys)
+    pass
+###############################################################
 
 
-    ##########################################################################################
-    # Add the Zmm TP algorithm using MS muons as probes and matching to ID tracks
-    AddConfiguredZmumuTPAlg(name_suffix = "MSProbes_ID",
-                            ProbeKind = "MS",
-                            MatchContainer = "InDetTrackParticles",
-                            doID = True, doCB = False, doMedium = False,
-                            doStandalone = False, doCaloTag = False,
-                            doEtaSlices=True)
-
-
-    ##########################################################################################
-    # Add the Zmm TP algorithm using MS muons as probes and matching to CaloTag muons
-    AddConfiguredZmumuTPAlg(name_suffix = "MSProbes_Muon",
-                            ProbeKind = "MS",
-                            MatchContainer = MuonContainerToUse,
-                            doID = False, doCB = True, doMedium = True,
-                            doStandalone = False, doCaloTag = True,
-                            doEtaSlices=True)
-
-    ##########################################################################################
-    # Add the Zmm TP algorithm using Truth probes for Muons
-    AddConfiguredZmumuTPAlg(name_suffix = "TruthProbes_Muon",
-                            ProbeKind = "Truth",
-                            MatchContainer = MuonContainerToUse,
-                            doID = False, doCB = True, doMedium = True,
-                            doStandalone = True, doCaloTag = True,
-                            doEtaSlices=True)
-
-    ##########################################################################################
-    # Add the Zmm TP algorithm using Truth probes for Tracks
-    AddConfiguredZmumuTPAlg(name_suffix = "TruthProbes_ID",
-                            ProbeKind = "Truth",
-                            MatchContainer = "InDetTrackParticles",
-                            doID = True, doCB = False, doMedium = False,
-                            doStandalone = False, doCaloTag = False,
-                            doEtaSlices=True)
+##### Trigger analysis options
+if do_Zmumu_Trigger_TagProbe:
+        doTriggerL1  = True
+        doTriggerL2  = False
+        doTriggerEF  = False
+        doTriggerHLT = True
+        doEtaSlices  = True
+        doDRSys      = False
+        AddTriggerTPAnalysis(doEtaSlices,writeNtuple,doClosure,doDRSys,doL1=doTriggerL1,doL2=doTriggerL2,doEF=doTriggerEF,doHLT=doTriggerHLT)
+###############################################################
 
 print ToolSvc
 print job
+print ServiceMgr
 # Add HistSvc
 from GaudiSvc.GaudiSvcConf import THistSvc
 ServiceMgr += THistSvc()
 ServiceMgr.THistSvc.Output += ["MUONTP DATAFILE='muontp.root' OPT='RECREATE'"]
+
