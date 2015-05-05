@@ -163,7 +163,6 @@ void egammaForwardBuilder::RetrieveObjectQualityTool()
   if (m_ObjectQualityToolName=="") {
     ATH_MSG_INFO("egammaOQFlagsBuilder is disabled  " 
 		 << m_ObjectQualityToolName);
-    m_objectqualityTool=0;
     return;
   } 
 

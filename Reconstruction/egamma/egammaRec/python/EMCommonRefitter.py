@@ -57,6 +57,7 @@ else :
                 egNnClusterizationFactory = InDet__NnClusterizationFactory( name                 = "egNnClusterizationFactory",
                                                                             NetworkToHistoTool   = egNeuralNetworkToHistoTool,
                                                                             LoadNoTrackNetwork   = True,
+                                                                            useToT = InDetFlags.doNNToTCalibration(),
                                                                             LoadWithTrackNetwork = True)               
             ToolSvc += egNnClusterizationFactory
         #End of splitting type Neural net

@@ -53,9 +53,10 @@ class egammaLocker( PyAthena.Alg ):
 
   def getKeys(self):
     "Loop over egammaKeys.outputs and yield (key, type) for those that pass filterKey"
+    keys = self.storeGateSvc.keys()
     for obj, descr in self.egammakeys:
       cType, cKey = descr[:2]
-      if not self.filterKey(obj) or not cKey in self.storeGateSvc.keys():
+      if not self.filterKey(obj) or not cKey in keys:
         continue
       yield cKey, cType
 

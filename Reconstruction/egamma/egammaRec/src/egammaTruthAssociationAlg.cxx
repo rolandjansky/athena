@@ -235,11 +235,23 @@ template<class T> bool egammaTruthAssociationAlg::decorateWithRecoLink(T* part, 
     ATH_MSG_DEBUG("Truth particle associated to " << name << " not in egamma truth collection");
     return true;
   }
-  
-  ElementLink< DataVector<T> > link(part, *container);
+
+  // Check if link is already set and overwrite it only in case of a better match
+  // defined as a closer Ereco/Etrue - 1  
   std::string linkName = "reco" + name + "Link";
-  truthEgamma->auxdata< ElementLink< DataVector<T> > >(linkName) = link;
-  truthEgamma->auxdata< ElementLink< DataVector<T> > >(linkName).toPersistent(); 
+  const T* oldPart = xAOD::EgammaHelpers::getLink<T>(truthEgamma, linkName);
+  if (oldPart && truthEgamma->e() > 0 &&
+      fabs( oldPart->e()/truthEgamma->e()-1 ) < fabs( part->e()/truthEgamma->e()-1 ) )
+  {
+    ATH_MSG_DEBUG(truthEgamma << ": " << linkName <<
+                 " already set to a better matched particle: " << part);
+    return true;
+  }
+  
+  typedef ElementLink< DataVector<T> > link_t;
+  link_t link(part, *container);
+  truthEgamma->auxdata< link_t >(linkName) = link;
+  truthEgamma->auxdata< link_t >(linkName).toPersistent(); 
   ATH_MSG_DEBUG("Decorating truth egamma particle with link to " << name << ", index = " << link.index() );
   
   return true;
