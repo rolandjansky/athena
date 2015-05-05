@@ -137,9 +137,7 @@ StatusCode StoreGateSvc::record1(DataObject* obj,
                                  T* pObject, const TKEY& key, 
                                  bool allowMods, bool resetOnly, bool noHist)
 {
-#ifndef __clang__
   BOOST_CONCEPT_ASSERT( (KeyConcept<TKEY>) );
-#endif
   // make sure the BaseInfo(Base) structure is initialized
   SG::BaseInfo<T>::baseinfo();
 
@@ -201,9 +199,7 @@ StatusCode StoreGateSvc::overwrite1(DataObject* obj, T* pObject,
                                     const TKEY& key, 
                                     bool allowMods, bool resetOnly, bool noHist)
 {
-#ifndef __clang__
   BOOST_CONCEPT_ASSERT( (KeyConcept<TKEY>) );
-#endif
   // make sure the BaseInfo(Base) structure is initialized
   SG::BaseInfo<T>::baseinfo();
 
@@ -295,10 +291,8 @@ template <typename T, typename TKEY, typename AKEY>
 StatusCode StoreGateSvc::setAlias(const T* /*pObject*/,
  				  const TKEY& key, const AKEY& aKey)
 {
-#ifndef __clang__
   BOOST_CONCEPT_ASSERT( (KeyConcept<TKEY>) );
   BOOST_CONCEPT_ASSERT( (KeyConcept<AKEY>) );
-#endif
 
   SG::DataProxy* dp(0); 
   dp = proxy(ClassID_traits<T>::ID(), key);
@@ -357,11 +351,9 @@ StatusCode StoreGateSvc::symLink(const T* pObject, const TLINK*)
 template <typename TKEY> 
 StatusCode StoreGateSvc::symLink(const CLID& id, const TKEY& key, const CLID& linkID)
 {
-#ifndef __clang__
   //FIXME we have no way to check that the type represented by ID (the primary)
   //FIXME is convertible into the linkid type. VERY BAD. Need introspection???
   BOOST_CONCEPT_ASSERT( (KeyConcept<TKEY>) );
-#endif
   SG::DataProxy* dp(proxy(id, key, false));
   // if symLink already exists, just return success 	 
   return isSymLinked(linkID,dp) ?
@@ -500,9 +492,7 @@ template <typename T, typename TKEY>
 StatusCode StoreGateSvc::retrieve(const DataHandle<T>& handle, 
 				  const TKEY& key)
 {
-#ifndef __clang__
   BOOST_CONCEPT_ASSERT( (KeyConcept<TKEY>) );
-#endif
 
   StatusCode sc = handle.setState(proxy(ClassID_traits<T>::ID(), 
                                         (std::string)key, 
@@ -532,9 +522,7 @@ template <typename T, typename TKEY>
 StatusCode StoreGateSvc::retrieve(DataHandle<T>& handle, 
 				  const TKEY& key)
 {
-#ifndef __clang__
   BOOST_CONCEPT_ASSERT( (KeyConcept<TKEY>) );
-#endif
 
   StatusCode sc = 
     handle.setState(proxy(ClassID_traits<T>::ID(), key, false));
@@ -729,15 +717,6 @@ StoreGateSvc::readPrivateCopy (const std::string& key)
 
 
 template <typename T>
-std::unique_ptr<T> 
-StoreGateSvc::readUniquePrivateCopy (const std::string& key)
-{
-  return std::unique_ptr<T>(SG::Storable_cast<T>(
-     this->typeless_readPrivateCopy(ClassID_traits<T>::ID(), key)));
-}
-
-
-template <typename T>
 std::auto_ptr<T> 
 StoreGateSvc::retrievePrivateCopy (const std::string& key)
 {
@@ -748,20 +727,6 @@ StoreGateSvc::retrievePrivateCopy (const std::string& key)
     this->releaseObject(ClassID_traits<T>::ID(), key);
   }
   return std::auto_ptr<T>(const_cast<T*>(p));
-}
-
-
-template <typename T>
-std::unique_ptr<T> 
-StoreGateSvc::retrieveUniquePrivateCopy (const std::string& key)
-{
-  const T* p = 0;
-  //we do not want anyone to mess up with our copy hence we release it
-  //immediately
-  if(this->retrieve (p, key).isSuccess()) {
-    this->releaseObject(ClassID_traits<T>::ID(), key);
-  }
-  return std::unique_ptr<T>(const_cast<T*>(p));
 }
 
 

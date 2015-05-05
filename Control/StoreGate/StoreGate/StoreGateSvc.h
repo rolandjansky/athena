@@ -390,22 +390,11 @@ public:
   /// so it will fail to return a newly recorded object.
   /// You are responsible for managing the returned object and for keeping it
   /// in sync with the "main" copy in transient memory, if any.
-  /// DEPRECATED: Prefer readUniquePrivateCopy.
+  
   /// @param key The key to use for the lookup.
   /// @return null auto_ptr if the object isn't found or if it is unlocked.
   template <typename T>
   std::auto_ptr<T> readPrivateCopy (const std::string& key);
-
-  /// EXPERTS ONLY: reads from disk your very own private copy of a StoreGate 
-  /// object of type T and given key, if available and locked.
-  /// readPrivateCopy does not look up the object in SG transient memory
-  /// so it will fail to return a newly recorded object.
-  /// You are responsible for managing the returned object and for keeping it
-  /// in sync with the "main" copy in transient memory, if any.
-  /// @param key The key to use for the lookup.
-  /// @return null auto_ptr if the object isn't found or if it is unlocked.
-  template <typename T>
-  std::unique_ptr<T> readUniquePrivateCopy (const std::string& key);
 
   /// readPrivateCopy implementation (possibly useful from python hence public)
   DataObject*
@@ -421,26 +410,10 @@ public:
   /// obviously preventing it from being written out.
   /// Sequencing becomes critical. Caveat emptor!
   ///
-  /// DEPRECATED: Prefer retrieveUniquePrivateCopy.
-  ///
   /// @param key The key to use for the lookup.
   /// @return null auto_ptr if the object isn't found or if it is unlocked.
   template <typename T>
   std::auto_ptr<T> retrievePrivateCopy (const std::string& key);
-
-  /// EXPERTS ONLY: like readPrivateCopy this method returns your own private
-  /// copy of a data object of type T and given key, if available and locked.
-  /// The difference is that it will return you also an object in SG transient 
-  /// memory. Since we are taking ownership of it, the object in SG
-  /// will be released after retrievePrivateCopy returns, making
-  /// all cached references to the object potentially invalid and
-  /// obviously preventing it from being written out.
-  /// Sequencing becomes critical. Caveat emptor!
-  ///
-  /// @param key The key to use for the lookup.
-  /// @return null auto_ptr if the object isn't found or if it is unlocked.
-  template <typename T>
-  std::unique_ptr<T> retrieveUniquePrivateCopy (const std::string& key);
 
   /// Retrieve the main @c CLID of the object recorded in @c StoreGate
   /// with the given "key" 
