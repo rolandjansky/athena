@@ -152,18 +152,15 @@ namespace MuonCombined {
 	std::vector<Trk::MuonTrackSummary::ChamberHitSummary>::const_iterator chit_end = mts.chamberHitSummary().end();
 	for( ;chit!=chit_end;++chit ) {
 	  const Identifier& chId = chit->chamberId();
-	  bool measPhi = m_idHelper->measuresPhi(chId);
 	  bool isMdt = m_idHelper->isMdt(chId);
 	  bool isCsc = m_idHelper->isCsc(chId);
 	  bool isMM   = m_idHelper->isMM(chId);
 	  bool issTgc = m_idHelper->issTgc(chId);
-
-	  // first deal with precision hits
-	  if( isMdt || isMM || (!measPhi && (isCsc || issTgc ) ) ){
+	  if( isMdt || isMM || isCsc || issTgc ){
 	    Muon::MuonStationIndex::ChIndex index = m_idHelper->chamberIndex(chId);
 	    uint8_t* hits = 0;
 	    uint8_t* holes = 0;
-	    if( index == Muon::MuonStationIndex::BIS || index == Muon::MuonStationIndex::EIS || index == Muon::MuonStationIndex::CSS ) {
+            if( index == Muon::MuonStationIndex::BIS || index == Muon::MuonStationIndex::EIS || index == Muon::MuonStationIndex::CSS ) {
 	      hits = &innerSmallHits;
 	      holes = &innerSmallHoles;
 	    }else if( index == Muon::MuonStationIndex::BIL || index == Muon::MuonStationIndex::EIL || index == Muon::MuonStationIndex::CSL ){

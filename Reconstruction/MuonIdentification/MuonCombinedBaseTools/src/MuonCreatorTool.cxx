@@ -62,6 +62,12 @@
 
 #include "TrkToolInterfaces/ITrkMaterialProviderTool.h"
 
+#include "MuonReadoutGeometry/RpcReadoutElement.h"
+#include "MuonRIO_OnTrack/RpcClusterOnTrack.h"
+#include "MuonCompetingRIOsOnTrack/CompetingMuonClustersOnTrack.h"
+
+#include "TrackSegmentAssociationTool.h"
+
 namespace MuonCombined {
  
   //<<<<<< CLASS STRUCTURE INITIALIZATION                                 >>>>>>
@@ -84,7 +90,8 @@ namespace MuonCombined {
       	m_muonSegmentConverterTool("Muon::MuonSegmentConverterTool/MuonSegmentConverterTool"),
       	m_meanMDTdADCTool("Rec::MuonMeanMDTdADCFillerTool/MuonMeanMDTdADCFillerTool"),
         m_caloNoiseTool(""),
-	m_caloMaterialProvider("Trk::TrkMaterialProviderTool/TrkMaterialProviderTool")	
+	m_caloMaterialProvider("Trk::TrkMaterialProviderTool/TrkMaterialProviderTool"),
+        m_trackSegmentAssociationTool("Muon::TrackSegmentAssociationTool/TrackSegmentAssociationTool")
   {
     declareInterface<IMuonCreatorTool>(this);
     declareProperty("MakeTrackAtMSLink",m_makeMSPreExtrapLink=false);
@@ -111,6 +118,7 @@ namespace MuonCombined {
     declareProperty("DoCaloNoiseCut", m_applyCaloNoiseCut=false);
     declareProperty("SigmaCaloNoiseCut", m_sigmaCaloNoiseCut=3.4);
     declareProperty("CaloMaterialProvider", m_caloMaterialProvider);
+    declareProperty("FillTimingInformation", m_fillTimingInformation = true );
   }
 
   MuonCreatorTool::~MuonCreatorTool()
@@ -131,6 +139,7 @@ namespace MuonCombined {
     ATH_CHECK(m_propagator.retrieve());
     ATH_CHECK(m_muonDressingTool.retrieve());
     ATH_CHECK(m_muonSegmentConverterTool.retrieve());
+    ATH_CHECK(m_trackSegmentAssociationTool.retrieve());
     if(!m_momentumBalanceTool.empty()) ATH_CHECK(m_momentumBalanceTool.retrieve());
     if(!m_scatteringAngleTool.empty()) ATH_CHECK(m_scatteringAngleTool.retrieve());   
     if(!m_selectorTool.empty()) ATH_CHECK(m_selectorTool.retrieve());
@@ -215,9 +224,13 @@ namespace MuonCombined {
     
     if( !dressMuon(*muon) ){
       ATH_MSG_WARNING("Failed to dress muon");
-      delete muon; 
+      outputData.muonContainer->pop_back();
       return 0;
     }
+
+    // check if there is a cluster container, if yes collect the cells around the muon and fill
+    // Etcore variables for muon
+    if( outputData.clusterContainer ) collectCells(*muon,*outputData.clusterContainer);
 
     return muon;
   }
@@ -351,7 +364,7 @@ namespace MuonCombined {
 
     if( !dressMuon(*muon) ){ 
       ATH_MSG_WARNING("Failed to dress muon");
-      delete muon; 
+      outputData.muonContainer->pop_back();
       return 0;
     }
 
@@ -392,16 +405,17 @@ namespace MuonCombined {
       Trk::FitQuality fq(  tag.matchChi2() ,5);
       Trk::TrackInfo info( msTrack->info() );
       // todo update patrec bit set adding ID values
-      
-      xAOD::TrackParticle* tp = m_particleCreator->createParticle(&tag.combinedParameters(),&fq,&info,&summary,
+
+            
+      if( outputData.combinedTrackParticleContainer ){
+        xAOD::TrackParticle* tp = m_particleCreator->createParticle(&tag.combinedParameters(),&fq,&info,&summary,
                                                                   std::vector<const Trk::TrackParameters*>(),
                                                                   std::vector<xAOD::ParameterPosition>(),
                                                                   xAOD::muon, outputData.combinedTrackParticleContainer);
-      if( !tp ){
-        ATH_MSG_WARNING("Failed to create track particle");
-      }else{
-        // if the combined track particle is part of a container set the link
-        if( outputData.combinedTrackParticleContainer ){
+
+        if( !tp ){
+          ATH_MSG_WARNING("Failed to create track particle");
+        }else{
           ElementLink<xAOD::TrackParticleContainer> link(*outputData.combinedTrackParticleContainer,outputData.combinedTrackParticleContainer->size()-1);
           if( link.isValid() ) {
             //link.toPersistent();
@@ -410,11 +424,8 @@ namespace MuonCombined {
           }
           // for the purpose of the truth matching, set the track link to point to the ID track
           tp->setTrackLink(candidate.indetTrackParticle().trackLink());
-        }else{
-          // if the track particle is not added to a container, delete it 
-          delete tp;
         }
-      }
+      } //endif outputData.combinedTrackParticleContainer 
     }
     // add muon candidate
     addMuonCandidate(tag.muonCandidate(),muon,outputData);
@@ -486,7 +497,7 @@ namespace MuonCombined {
                             stauExtras->caloBetaRms,
                             stauExtras->caloBetaChi2,
                             stauExtras->caloBetaDof);
-      std::vector<uint8_t>    eTechVec;
+      std::vector<uint8_t> eTechVec;
       std::vector<unsigned int> idVec;
       std::vector<float> mToFVec;
       std::vector<float> xVec;
@@ -499,7 +510,7 @@ namespace MuonCombined {
 
       for( const auto& hit : stauExtras->hits ){
         eTechVec.push_back( hit.eTech );
-        idVec.push_back(hit.id.get_compact());
+        idVec.push_back(hit.id.get_identifier32().get_compact());
         mToFVec.push_back(hit.mToF);
         xVec.push_back(hit.x);
         yVec.push_back(hit.y);
@@ -1068,14 +1079,89 @@ namespace MuonCombined {
         trk = (*(muon.extrapolatedMuonSpectrometerTrackParticleLink() ) )->track();
       }
       if (trk) {
-	      fillEnergyLossFromTrack(muon, trk->trackStateOnSurfaces()->stdcont());
+        fillEnergyLossFromTrack(muon, trk->trackStateOnSurfaces()->stdcont());
       } else {
         ATH_MSG_VERBOSE("Couldn't find matching track which might have energy loss." );
       }
     }
+
+    if( m_fillTimingInformation  ) addRpcTiming(muon);
+    
+    if( !m_trackSegmentAssociationTool.empty() ) addSegmentsOnTrack(muon);
+
+
     return true;
   }
+
+  void MuonCreatorTool::addRpcTiming( xAOD::Muon& muon ) const {
+
+    // vectors to be filled
+    std::vector<unsigned int> rpcHitIdentifier;
+    std::vector<float> rpcHitPositionX;
+    std::vector<float> rpcHitPositionY;
+    std::vector<float> rpcHitPositionZ;
+    std::vector<float> rpcHitTime;
+    
+    // only fill if the primary track particle is not equal to the ID track particle and 
+    // it has an associated track with track states 
+    const xAOD::TrackParticle* tp = muon.primaryTrackParticle();        
+    if( tp && tp->track() && tp->track()->trackStateOnSurfaces() && tp != muon.trackParticle( xAOD::Muon::InnerDetectorTrackParticle) ){
+      
+      // loop over measurements
+      const DataVector<const Trk::TrackStateOnSurface>& tsos = *(tp->track()->trackStateOnSurfaces());
+      auto end = tsos.end();
+      for( auto it = tsos.begin(); it!=end;++it ){
+
+        // require measurement and track parameters 
+        const Trk::MeasurementBase* meas = (*it)->measurementOnTrack();
+        const Trk::TrackParameters* pars = (*it)->trackParameters();
+        if( !meas || !pars ) continue;
+        
+        // only consider RPC hits
+        Identifier mid = m_edmHelper->getIdentifier(*meas);
+        if( !m_idHelper->isMuon(mid) || !m_idHelper->isRpc(mid) ) continue;
+
+        // lambda to add a hit
+        auto addHit = [&]( const Trk::MeasurementBase& meas) { 
+          const Muon::RpcClusterOnTrack* rot = dynamic_cast<const Muon::RpcClusterOnTrack*>(&meas);
+          if( !rot ) return;
+
+          rpcHitIdentifier.push_back(rot->identify().get_identifier32().get_compact());
+          rpcHitPositionX.push_back(pars->position().x());
+          rpcHitPositionY.push_back(pars->position().y());
+          rpcHitPositionZ.push_back(pars->position().z());
+          rpcHitTime.push_back(rot->time()); 
+        };
+        
+        // in case competing rots loop over the contained rots
+        const Muon::CompetingMuonClustersOnTrack* crot = dynamic_cast<const Muon::CompetingMuonClustersOnTrack*>(meas);
+        if( crot ){
+          for( unsigned int i=0;i<crot->numberOfContainedROTs();++i){
+            addHit(crot->rioOnTrack(i));
+          }
+        }else{
+          addHit(*meas);
+        }
+      }
+    }
+    // always add vectors 
+    muon.auxdata< std::vector<unsigned int> >("rpcHitIdentifier") = rpcHitIdentifier;
+    muon.auxdata< std::vector<float> >("rpcHitPositionX")         = rpcHitPositionX;
+    muon.auxdata< std::vector<float> >("rpcHitPositionY")         = rpcHitPositionY;
+    muon.auxdata< std::vector<float> >("rpcHitPositionZ")         = rpcHitPositionZ;
+    muon.auxdata< std::vector<float> >("rpcHitTime")              = rpcHitTime;
+  }
   
+  void MuonCreatorTool::addSegmentsOnTrack( xAOD::Muon& muon ) const {
+    
+    std::vector< ElementLink<xAOD::MuonSegmentContainer> > associatedSegments;
+    if( !m_trackSegmentAssociationTool->associatedSegments(muon,associatedSegments) ){
+      ATH_MSG_DEBUG("Failed to find associated segments ");
+    }
+    muon.auxdata< std::vector< ElementLink<xAOD::MuonSegmentContainer> > >("segmentsOnTrack") = associatedSegments;
+    
+  }
+
   void MuonCreatorTool::addEnergyLossToMuon( xAOD::Muon& muon ) const {
 
     if(!muon.inDetTrackParticleLink().isValid()) {
@@ -1127,6 +1213,20 @@ namespace MuonCombined {
 
   void MuonCreatorTool::fillEnergyLossFromTrack(xAOD::Muon& muon, const std::vector<const Trk::TrackStateOnSurface*>& tsosVector) const
   {    
+    
+    // Ensure these are set for every muon
+	  muon.setParameter(static_cast<float>( 0.0 ), xAOD::Muon::EnergyLoss);
+	  muon.setParameter(static_cast<float>( 0.0 ), xAOD::Muon::ParamEnergyLoss);
+	  muon.setParameter(static_cast<float>( 0.0 ), xAOD::Muon::MeasEnergyLoss);
+	  muon.setParameter(static_cast<float>( 0.0 ), xAOD::Muon::EnergyLossSigma);
+	  muon.setParameter(static_cast<float>( 0.0 ), xAOD::Muon::MeasEnergyLossSigma);
+	  muon.setParameter(static_cast<float>( 0.0 ), xAOD::Muon::ParamEnergyLossSigmaPlus);
+	  muon.setParameter(static_cast<float>( 0.0 ), xAOD::Muon::ParamEnergyLossSigmaMinus);
+
+	  muon.setEnergyLossType( xAOD::Muon::Parametrized ); // Not so nice! Add 'unknown' type?
+	  muon.setParameter(static_cast<float>( 0.0 ), xAOD::Muon::FSR_CandidateEnergy);
+    
+    
     float energyloss=0.0;
     unsigned int numEnergyLossPerTrack=0;
     bool problem=false;
@@ -1221,8 +1321,12 @@ namespace MuonCombined {
     muon.auxdata< float >("ET_TileCore") = etcore[Rec::CaloCellCollector::ET_TileCore];
     muon.auxdata< float >("ET_HECCore")  = etcore[Rec::CaloCellCollector::ET_HECCore];  
 
-    ATH_MSG_DEBUG("Tool,apply,sigma: " << m_caloNoiseTool->name() << "/" << m_applyCaloNoiseCut << "/"
-                  << m_sigmaCaloNoiseCut);
+    if( m_caloNoiseTool.empty() )
+      ATH_MSG_DEBUG("NO Tool for calo noise,apply,sigma: " << "/" << m_applyCaloNoiseCut << "/"
+                    << m_sigmaCaloNoiseCut);
+    else
+      ATH_MSG_DEBUG("Tool,apply,sigma: " << m_caloNoiseTool->name() << "/" << m_applyCaloNoiseCut << "/"
+                    << m_sigmaCaloNoiseCut);
 
     ATH_MSG_DEBUG("Etcore: tot/em/tile/hec " << etcore[Rec::CaloCellCollector::ET_Core] << "/"    
                   << etcore[Rec::CaloCellCollector::ET_EMCore] << "/"    
