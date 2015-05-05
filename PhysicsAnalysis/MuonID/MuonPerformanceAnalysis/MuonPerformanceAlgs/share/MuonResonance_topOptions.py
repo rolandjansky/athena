@@ -1,16 +1,14 @@
 from glob import glob
+from optparse import OptionParser
 
 # MuonResonance_topOptions.py
 #
 # Specify input file.
-include ('MuonPerformanceAlgs/Zmumu_19.2.0.py')
+#include ('MuonPerformanceAlgs/share/Zmumu_20.1.3.3.py')
 
-#FNAME = "/tmp/disimone/AOD.01483636._000100.pool.root.2"
-#include("AthenaPython/iread_file.py")
+path_testDATA = '/afs/cern.ch/user/f/fcardill/Qualification/MuonValidation/Testfiles/DATA/TEST/data12_8TeV.00204158.physics_Muons.merge.AOD.r6499_p2319_tid05173685_00/'
+InputAODList = glob(path_testDATA+'*.root*')
 
-#path_testDATA = '/afs/cern.ch/user/f/fcardill/Qualification/MuonValidation/Testfiles/DATA/19.2.0/data12_8TeV.00204240.physics_Muons.merge.AOD.r5724_p1751_tid01534418_00/'
-#path_testMC = '/afs/cern.ch/work/d/dzhang/public/MUON_DxAOD_test/mc14_8TeV.147807.PowhegPythia8_AU2CT10_Zmumu.merge.AOD.e1852_s1896_s1912_r5591_r5625_tid01512432_00/'
-#InputAODList = glob(path_testDATA+'AOD.*.pool.root*')
 
 print "Input files:"
 for infile in InputAODList: print infile
@@ -28,18 +26,20 @@ ServiceMgr.EventSelector.InputCollections = InputAODList
 #--------------------------------------------------------------
 
 # Number of events to be processed (-1 for all)
-theApp.EvtMax =  500
-#theApp.EvtMax = -1
+#theApp.EvtMax = 200
+theApp.EvtMax = -1
 print "Maximum number of events to be processed:",theApp.EvtMax
 
 # Some general environment variables 
 #Resonances = ['Z', 'Jpsi', 'Y']
 Resonances = ['Z']
-doCorrection = True
-doEfficiency = True
-doSystematics = True
-#Systematics = ['MUONS_ID', 'MUONS_MS'] 
-Systematics = ['MUONSFSTAT', 'MUONSFSYS', 'MUONS_ID', 'MUONS_MS', 'MUONS_SCALE']
+doCorrection = False
+doEfficiency = False
+doSystematics = False
+
+#Systematics = ['MUONSFSTAT', 'MUONSFSYS', 'MUONS_ID', 'MUONS_MS', 'MUONS_SCALE']
+Systematics = ['MUONS_ID', 'MUONS_MS']
+
 print "Resonances ::", Resonances
 
 
@@ -48,7 +48,7 @@ print "Resonances ::", Resonances
 #--------------------------------------------------------------
 
 # Allow messge service more than default 500 lines.
-ServiceMgr.MessageSvc.infoLimit = 10000
+ServiceMgr.MessageSvc.infoLimit = 100000
 
 # Full job is a list of algorithms
 from AthenaCommon.AlgSequence import AlgSequence
@@ -78,6 +78,19 @@ from MuonSelectorTools.MuonSelectorToolsConf import CP__MuonSelectionTool
 SelectionTool = CP__MuonSelectionTool()
 SelectionTool.OutputLevel=INFO
 
+from TrigDecisionTool.TrigDecisionToolConf import Trig__TrigDecisionTool
+TriggerTool = Trig__TrigDecisionTool("TrigDecTool")
+ToolSvc += TriggerTool
+TriggerTool.TrigDecisionKey="xTrigDecision"
+TriggerTool.OutputLevel=INFO
+
+from TrigMuonMatching.TrigMuonMatchingConf import Trig__TrigMuonMatching
+MatchingTool = Trig__TrigMuonMatching("TrigMatchTool");
+MatchingTool.dRmin = 0.1
+MatchingTool.LVL1dRmin = 0.2
+MatchingTool.TriggerTool = TriggerTool 
+MatchingTool.OutputLevel=INFO
+
 # Create an instance of the Resonance selection tool for Zmumu
 from MuonResonanceTools.MuonResonanceToolsConf import MuonResonanceSelectionTool 
 ToolSvc += MuonResonanceSelectionTool("MuonZSelectionTool")
@@ -93,6 +106,9 @@ ToolSvc.MuonZSelectionTool.UseIDCuts = True
 ToolSvc.MuonZSelectionTool.ScaleFactorTool = SFtool
 ToolSvc.MuonZSelectionTool.MuonSelectionTool = SelectionTool
 ToolSvc.MuonZSelectionTool.MuonCalibrationTool = CalibrationTool
+ToolSvc.MuonZSelectionTool.TriggerDecisionTool = TriggerTool 
+ToolSvc.MuonZSelectionTool.TriggerMatchingTool = MatchingTool
+ToolSvc.MuonZSelectionTool.TriggerList = ["HLT_mu26_imedium"]
 ToolSvc.MuonZSelectionTool.Calibrate = doCorrection
 ToolSvc.MuonZSelectionTool.EfficiencyCorr = doEfficiency
 ToolSvc.MuonZSelectionTool.OutputLevel=INFO
@@ -111,6 +127,9 @@ ToolSvc.MuonYSelectionTool.UseIDCuts = True
 ToolSvc.MuonYSelectionTool.ScaleFactorTool = SFtool
 ToolSvc.MuonYSelectionTool.MuonSelectionTool = SelectionTool
 ToolSvc.MuonYSelectionTool.MuonCalibrationTool = CalibrationTool
+ToolSvc.MuonYSelectionTool.TriggerDecisionTool = TriggerTool
+ToolSvc.MuonYSelectionTool.TriggerMatchingTool = MatchingTool
+ToolSvc.MuonYSelectionTool.TriggerList = []
 ToolSvc.MuonYSelectionTool.Calibrate = doCorrection
 ToolSvc.MuonYSelectionTool.EfficiencyCorr = doEfficiency
 ToolSvc.MuonYSelectionTool.OutputLevel=INFO
@@ -129,6 +148,9 @@ ToolSvc.MuonJpsiSelectionTool.UseIDCuts = True
 ToolSvc.MuonJpsiSelectionTool.ScaleFactorTool = SFtool
 ToolSvc.MuonJpsiSelectionTool.MuonSelectionTool = SelectionTool
 ToolSvc.MuonJpsiSelectionTool.MuonCalibrationTool = CalibrationTool
+ToolSvc.MuonJpsiSelectionTool.TriggerDecisionTool = TriggerTool
+ToolSvc.MuonJpsiSelectionTool.TriggerMatchingTool = MatchingTool
+ToolSvc.MuonJpsiSelectionTool.TriggerList = []
 ToolSvc.MuonJpsiSelectionTool.Calibrate = doCorrection
 ToolSvc.MuonJpsiSelectionTool.EfficiencyCorr = doEfficiency
 ToolSvc.MuonJpsiSelectionTool.OutputLevel=INFO

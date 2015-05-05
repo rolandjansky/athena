@@ -15,10 +15,18 @@
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
+
+# if !defined(XAOD_ANALYSIS)
 #include "RecoToolInterfaces/ITrackIsolationTool.h"
+#include "RecoToolInterfaces/ICaloTopoClusterIsolationTool.h"
+# endif
 
 class ITHistSvc;
 class IMuonTPTool;
+
+//  This is a dummy alg that just ensures that our isolation tools correctly get the geometry info they need...
+//  Don't we all LOVE the transparent way athena works?
+
 
 class TrackIsolationDecorAlg : public AthAlgorithm {
 
@@ -42,12 +50,12 @@ private:
 
 private:
 
-  std::string m_containerName;
-
   /// Athena configured tools
   ServiceHandle<ITHistSvc> m_histSvc;
-  ToolHandle<xAOD::ITrackIsolationTool> m_iso_tool;
-  std::vector<xAOD::Iso::IsolationType> m_iso_to_run;
+# if !defined(XAOD_ANALYSIS)
+  ToolHandle<xAOD::ITrackIsolationTool> m_track_iso_tool;
+  ToolHandle<xAOD::ICaloTopoClusterIsolationTool> m_calo_iso_tool;
+# endif
 };
 
 

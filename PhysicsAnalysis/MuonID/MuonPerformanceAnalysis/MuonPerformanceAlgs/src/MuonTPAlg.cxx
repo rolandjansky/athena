@@ -11,7 +11,6 @@
 #include "xAODMuon/MuonContainer.h"
 #include "GaudiKernel/ITHistSvc.h"
 #include "xAODEventInfo/EventInfo.h"
-
 using std::string;
 
 //**********************************************************************
@@ -44,8 +43,24 @@ StatusCode MuonTPAlg::initialize() {
     std::vector<HistData> histData = tool->retrieveBookedHistograms();
 
     for(auto hd : histData) {
+      
       std::string histPath = hd.second+"/"+hd.first->GetName();
       m_histSvc->regHist("/MUONTP/"+histPath, hd.first).ignore(); //or check the statuscode
+    }
+
+    std::vector<std::pair <TTree*, std::string> > treeData = tool->retrieveBookedTrees();
+    for(auto hd : treeData) {
+
+      std::string treePath = hd.second+"/"+hd.first->GetName();
+      m_histSvc->regTree("/MUONTP/"+treePath, hd.first).ignore(); //or check the statuscode
+      ATH_MSG_DEBUG(std::string(" registered tree ")+"/MUONTP/"+treePath);
+    }
+    std::vector<std::pair <TGraph*, std::string> > graphData = tool->retrieveBookedGraphs();
+    for(auto hd : graphData) {
+
+      std::string graphPath = hd.second+"/"+hd.first->GetName();
+      m_histSvc->regGraph("/MUONTP/"+graphPath, hd.first).ignore(); //or check the statuscode
+      ATH_MSG_DEBUG(std::string(" registered graph ")+"/MUONTP/"+graphPath);
     }
   }
   
