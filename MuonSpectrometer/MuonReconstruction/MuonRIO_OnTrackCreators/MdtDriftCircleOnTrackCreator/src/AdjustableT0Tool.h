@@ -61,7 +61,7 @@ private:
 
   double m_inverseSpeedOfLight;
   
-  int m_Verbose;
+  int mb_Verbose;
   
   AdjustableT0Map* p_AdjustableT0Map ; //!< Pointer on AdjustableT0Map
 
