@@ -8,10 +8,11 @@ use Lhapdf         Lhapdf-*            External
 use Pythia           Pythia-*               External
 use LCG_Configuration
 
-
-macro AtlasBaurMC_home "$(LCG_ROOT)/external/MCGenerators_lcgcmt$(LCG_config_version)/baurmc"
+macro my_LCG_config_version "67c"
+#macro AtlasBaurMC_home "$(LCG_external)/MCGenerators/baurmc"
+macro AtlasBaurMC_home "$(LCG_ROOT)/external/MCGenerators_lcgcmt$(my_LCG_config_version)/baurmc"
 macro atlasbaurmc_native_version "1.0"
-macro AtlasBaurMC_native_version $(atlasbaurmc_native_version)_lcgcmt$(LCG_config_version)
+macro AtlasBaurMC_native_version $(atlasbaurmc_native_version)_lcgcmta$(my_LCG_config_version)
 macro baurmc_system "$(LCG_ext_system)" \
      slc4&gcc43&32 "slc4_ia32_gcc34" \
       slc4&gcc43    "slc4_amd64_gcc34"
