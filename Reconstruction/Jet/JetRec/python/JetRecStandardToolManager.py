@@ -133,6 +133,7 @@ if jetFlags.useTruth():
 # Add track jet ghosts.
 if jetFlags.useTracks():
   trackjetgetters = []
+  trackjetgetters += [jtm.gakt2trackget]
   trackjetgetters += [jtm.gakt3trackget]
   trackjetgetters += [jtm.gakt4trackget]
   emgetters += trackjetgetters
@@ -193,13 +194,14 @@ if jetFlags.useTruth() and jtm.haveParticleJetTools:
 topo_ungroomed_modifiers = ["jetfilter"]
 topo_ungroomed_modifiers += common_ungroomed_modifiers
 topo_ungroomed_modifiers += [jtm.jetens]
-# Tool initialization raises errors.
-# ATLJETMET-15
 topo_ungroomed_modifiers += [jtm.larhvcorr]
 if jetFlags.useCaloQualityTool():
   topo_ungroomed_modifiers += [jtm.caloqual_cluster]
 if jetFlags.useTracks():
-  topo_ungroomed_modifiers += [jtm.jvf, jtm.jvt, jtm.trkmoms]
+  topo_ungroomed_modifiers += [jtm.jvf]
+  topo_ungroomed_modifiers += [jtm.jvt]
+  topo_ungroomed_modifiers += [jtm.trkmoms]
+  topo_ungroomed_modifiers += [jtm.charge]
   topo_ungroomed_modifiers += ["trackassoc"]
 if jetFlags.useTruth():
   topo_ungroomed_modifiers += ["truthassoc"]
@@ -245,15 +247,15 @@ pflow_ungroomed_modifiers += topo_ungroomed_modifiers
 # Cluster moments.
 topo_ungroomed_modifiers += [jtm.clsmoms]
 
-# Add origin corrn for uncalibrated, ungroomed topo jets.
-if jetFlags.useTracks():
-  topo_ungroomed_modifiers += [jtm.jetorigincorr]
-
 # Modifiers for calibrated topo jets.
 calib_topo_ungroomed_modifiers = []
 if jetFlags.useTracks():
   calib_topo_ungroomed_modifiers += [jtm.jetorigincorr, "calib", jtm.jetsorter]
 calib_topo_ungroomed_modifiers += topo_ungroomed_modifiers
+
+# Add origin corrn for uncalibrated, ungroomed topo jets.
+if jetFlags.useTracks():
+  topo_ungroomed_modifiers += [jtm.jetorigincorr]
 
 # Add Btagging.
 btags = ["btag"]

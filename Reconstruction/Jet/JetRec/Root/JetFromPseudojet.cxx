@@ -147,7 +147,7 @@ JetFromPseudojet::addjet(const PseudoJet& pj, xAOD::JetContainer& jets,
   double p = sqrt(p2);
   double dpovere = p/e - 1.0;
   if ( m < 0.0 ) {
-    if ( dpovere > 1.e-15 ) {  // Worse than rounding error
+    if ( dpovere > 1.e-6 ) {  // Worse than float rounding error
       ATH_MSG_WARNING("...........................");
       ATH_MSG_WARNING("Found jet with negative mass: E, p, m, p/E-1 = "
                    << e << ", " << p << ", " << m << ", " << p/e-1.0);

@@ -89,6 +89,7 @@ def addJetRecoToAlgSequence(job =None, useTruth =None, eventShapeTools =None,
   if jetFlags.useTracks:
     rtools += [jtm.tracksel]
     rtools += [jtm.tvassoc]
+    rtools += [jtm.trackselloose_trackjets]
   rtools += jtm.jetrecs
   from JetRec.JetRecConf import JetToolRunner
   jtm += JetToolRunner("jetrun",
