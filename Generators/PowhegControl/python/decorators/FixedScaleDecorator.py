@@ -7,17 +7,14 @@
 
 #! /usr/bin/env python
 
-class FixedScaleDecorator :
+class FixedScaleDecorator(object) :
+
+  ## Define decorator name string
+  name = 'fixed scale'
 
   def __init__( self, decorated ) :
     ## Attach decorations to Powheg configurable
     decorated.run_card_decorators.append( self )
     self.decorated = decorated
 
-    self.decorated.fixedscale = -1
-
-
-  def append_to_run_card( self ) :
-    ## Write decorations to runcard
-    with open( self.decorated.runcard_path(), 'a' ) as f :
-      f.write( 'fixedscale '+str(self.decorated.fixedscale)+' ! use reference renormalisation and factorisation scales \n' )
+    self.decorated.add_parameter( 'fixedscale', -1, desc='(default -1, disabled) use reference renormalisation and factorisation scales' )

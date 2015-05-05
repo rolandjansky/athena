@@ -7,7 +7,6 @@
 
 #! /usr/bin/env python
 from ..PowhegConfig_base import PowhegConfig_base
-from ..decorators import PowhegDecorators
 
 ## Default Powheg configuration for DMGG generation
 #
@@ -20,41 +19,28 @@ class PowhegConfig_DMGG(PowhegConfig_base) :
     self._powheg_executable += '/DMGG/pwhg_main'
 
     ## Add process specific options
-    self.Lambda      = 100
-    self.nloformfact = 1
+    self.add_parameter( 'Lambda', 100,    desc='(default 100) UV scale', parameter='DMLambda' )
+    self.add_parameter( 'nloformfact', 1, desc='(default 1, enabled) include Higgs-specific corrections into GGS and GGP form factor' )
 
     ## Decorate with generic option sets
-    PowhegDecorators.decorate( self, 'CKKW' )
-    PowhegDecorators.decorate( self, 'dark matter' )
-    PowhegDecorators.decorate( self, 'dark matter phi' )
-    PowhegDecorators.decorate( self, 'mass window' )
-    PowhegDecorators.decorate( self, 'radiation' )
-    PowhegDecorators.decorate( self, 'running scale' )
-    PowhegDecorators.decorate( self, 'v2' )
-    PowhegDecorators.decorate( self, 'v2 radiation' )
+    self.add_parameter_set( 'CKKW' )
+    self.add_parameter_set( 'dark matter' )
+    self.add_parameter_set( 'dark matter phi' )
+    self.add_parameter_set( 'LHEv3' )
+    self.add_parameter_set( 'mass window' )
+    self.add_parameter_set( 'running scale' )
+    self.add_parameter_set( 'v2' )
 
     ## Set optimised integration parameters
-    self.ncall1   = 2500000
-    self.ncall2   = 1000000
-    self.nubound  = 500000
-    self.xupbound = 5
+    self.ncall1   = 2000000
+    self.itmx1    = 10
+    self.ncall2   = 100000
+    self.nubound  = 100000
     self.foldx    = 2
     self.foldy    = 2
-    self.foldphi  = 2
 
     ## Override defaults
     self.bornktmin    = 100.0
     self.doublefsr    = 1
-    self.runningscale = 3 # ! (default 3) 0, 1, 2, 3 correspond to 2mX (fixed), ptj, XXbar invmass, Ht/2
-    self.mass_low     = 0.0
-    self.mass_high    = 2.0 * self.beam_energy
     self.minlo        = -1
-
-
-  ## Extend base-class runcard generation
-  def generateRunCard(self) :
-    self.initialiseRunCard()
-
-    with open( self.runcard_path(), 'a' ) as f :
-      f.write( 'DMLambda '+str(self.Lambda)+'         ! UV scale\n' )
-      f.write( 'nloformfact '+str(self.nloformfact)+' ! (default 0) if 1, include Higgs-specific corrections into GGS and GGP form factor\n' )
+    self.runningscale = 3

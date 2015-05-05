@@ -19,7 +19,7 @@ class RepeatingTimer(threading._Timer):
       if self.finished.is_set():
         return
       else:
-        self.function(*self.args, **self.kwargs)
+        self.function( *self.args, **self.kwargs )
 
   @classmethod
   def human_readable_time_interval( cls, seconds_elapsed ) :

@@ -8,7 +8,6 @@
 
 #! /usr/bin/env python
 from ..PowhegConfig_base import PowhegConfig_base
-from ..decorators import PowhegDecorators
 
 ## Default Powheg configuration for VBF_H generation
 #
@@ -21,26 +20,17 @@ class PowhegConfig_VBF_H(PowhegConfig_base) :
     self._powheg_executable += '/VBF_H/pwhg_main'
 
     ## Add process specific options
-    self.complexpolescheme = -1
+    self.add_parameter( 'complexpolescheme', -1, desc='0 = SM' )
 
     ## Decorate with generic option sets
-    PowhegDecorators.decorate( self, 'Higgs decay mode' )
-    PowhegDecorators.decorate( self, 'Higgs fixed width' )
-    PowhegDecorators.decorate( self, 'Higgs properties' )
-    PowhegDecorators.decorate( self, 'radiation' )
+    self.add_parameter_set( 'Higgs decay mode' )
+    self.add_parameter_set( 'Higgs fixed width' )
+    self.add_parameter_set( 'Higgs properties' )
 
     ## Set optimised integration parameters
-    self.ncall1   = 50000
-    self.ncall2   = 150000
-    self.nubound  = 150000
-    self.xupbound = 10
+    self.ncall1   = 20000
+    self.ncall2   = 300000
+    self.nubound  = 100000
     self.foldx    = 2
     self.foldy    = 2
-    self.foldphi  = 2
-
-  ## Extend base-class runcard generation
-  def generateRunCard(self) :
-    self.initialiseRunCard()
-
-    with open( self.runcard_path(), 'a' ) as f :
-      f.write( 'complexpolescheme '+str(self.complexpolescheme)+' ! 0 = SM\n' )
+    self.foldphi  = 5

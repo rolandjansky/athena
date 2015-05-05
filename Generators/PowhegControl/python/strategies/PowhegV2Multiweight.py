@@ -20,7 +20,7 @@ from ..utility import RepeatingTimer
 #
 ###############################################################################
 def runPowhegV2Multiweight(configurator) :
-  configurator.logger().info( 'Running in single core mode with PDF/scale variations' )
+  configurator.logger.info( 'Running in single core mode with PDF/scale variations' )
 
   # Construct PDF list
   if isinstance(configurator.PDF,list) :
@@ -39,7 +39,7 @@ def runPowhegV2Multiweight(configurator) :
   WeightSpecifier = collections.namedtuple( 'WeightSpecifier', ['PDF', 'mu_F', 'mu_R', 'weight_ID', 'weight_description', 'group_combination_method', 'group_description'] )
 
   # Construct nominal (assuming that it is first)
-  configurator.logger().info( 'Using PDF={0}, mu_F={1}, mu_R={2} as nominal sample'.format(PDF_list[0],mu_F_list[0],mu_R_list[0]) )
+  configurator.logger.info( 'Using PDF={0}, mu_F={1}, mu_R={2} as nominal sample'.format(PDF_list[0],mu_F_list[0],mu_R_list[0]) )
   variations = [ WeightSpecifier( PDF=PDF_list[0], mu_F=mu_F_list[0], mu_R=mu_R_list[0], weight_ID=0, weight_description='nominal', group_combination_method='', group_description='' ) ]
 
   # Construct variations (ignoring first entry)
@@ -53,7 +53,7 @@ def runPowhegV2Multiweight(configurator) :
 
   # Iterate over variations
   for idx_variation, variation in enumerate( variations ) :
-    configurator.logger().info( 'Now running weight variation {0}/{1}'.format(idx_variation, len(variations)) )
+    configurator.logger.info( 'Now running weight variation {0}/{1}'.format(idx_variation, len(variations)) )
     # Use default runcard for nominal, turn on compute_rwgt otherwise
     if idx_variation == 0 : shutil.copy( 'powheg_nominal.input', 'powheg.input' )
     else : subprocess.call( 'sed "s/compute_rwgt 0/compute_rwgt 1/g" powheg_nominal.input > powheg.input', shell=True )
@@ -71,7 +71,7 @@ def runPowhegV2Multiweight(configurator) :
     time_start = time.time()
     runPowhegSingleThread( configurator )
     if idx_variation > 0 : shutil.move( 'pwgevents-rwgt.lhe', 'pwgevents.lhe' )
-    configurator.logger().info( 'Finished weight variation {0}/{1} in {2}'.format(idx_variation, len(variations), RepeatingTimer.human_readable_time_interval(time.time() - time_start)) )
+    configurator.logger.info( 'Finished weight variation {0}/{1} in {2}'.format(idx_variation, len(variations), RepeatingTimer.human_readable_time_interval(time.time() - time_start)) )
 
   # Remove rwgt lines, which are not needed if lhrwgt xml is present
   subprocess.call( 'sed -i "/^#rwgt/d" pwgevents.lhe', shell=True )

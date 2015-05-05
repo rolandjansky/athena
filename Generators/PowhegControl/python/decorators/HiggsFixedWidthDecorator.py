@@ -7,17 +7,14 @@
 
 #! /usr/bin/env python
 
-class HiggsFixedWidthDecorator :
+class HiggsFixedWidthDecorator(object) :
+
+  ## Define decorator name string
+  name = 'Higgs fixed width'
 
   def __init__( self, decorated ) :
     ## Attach decorations to Powheg configurable
     decorated.run_card_decorators.append( self )
     self.decorated = decorated
 
-    self.decorated.higgsfixedwidth = 0
-
-
-  def append_to_run_card( self ) :
-    ## Write decorations to runcard
-    with open( self.decorated.runcard_path(), 'a' ) as f :
-      f.write( 'higgsfixedwidth '+str(self.decorated.higgsfixedwidth)+' (default 0) 0:running width; 1:standard, fixed width in Breit-Wigner\n' )
+    self.decorated.add_parameter( 'higgsfixedwidth', 0, desc='(default 0) 0:running width; 1:fixed width in Breit-Wigner' )

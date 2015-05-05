@@ -8,17 +8,16 @@
 #! /usr/bin/env python
 from .. import ATLASCommonParameters
 
-class LeptonMassDecorator :
+class LeptonMassDecorator(object) :
+
+  ## Define decorator name string
+  name = 'lepton mass'
 
   def __init__( self, decorated ) :
     ## Attach decorations to Powheg configurable
     decorated.run_card_decorators.append( self )
     self.decorated = decorated
 
-
-  def append_to_run_card( self ) :
-    ## Write decorations to runcard
-    with open( self.decorated.runcard_path(), 'a' ) as f :
-      f.write( 'lhfm/emass '+str(ATLASCommonParameters.mass_e)+'     ! electron mass\n' )
-      f.write( 'lhfm/mumass '+str(ATLASCommonParameters.mass_mu)+'   ! mu mass\n' )
-      f.write( 'lhfm/taumass '+str(ATLASCommonParameters.mass_tau)+' ! tau mass\n' )
+    self.decorated.fix_parameter( 'lhfm/emass', ATLASCommonParameters.mass_e,     desc='(default ATLAS) electron mass' )
+    self.decorated.fix_parameter( 'lhfm/mumass', ATLASCommonParameters.mass_mu,   desc='(default ATLAS) mu mass' )
+    self.decorated.fix_parameter( 'lhfm/taumass', ATLASCommonParameters.mass_tau, desc='(default ATLAS) tau mass' )

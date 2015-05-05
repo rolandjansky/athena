@@ -9,7 +9,6 @@
 
 #! /usr/bin/env python
 from ..PowhegConfig_base import PowhegConfig_base
-from ..decorators import PowhegDecorators
 
 ## Default Powheg configuration for WZ generation
 #
@@ -22,36 +21,33 @@ class PowhegConfig_WZ(PowhegConfig_base) :
     self._powheg_executable += '/WZ/pwhg_main'
 
     ## Add process specific options
-    self.diagCKM = 0
+    self.add_parameter( 'diagCKM', 0, desc='(default 0) 0:normal CKM; 1:diagonal CKM' )
 
     ## Decorate with generic option sets
-    PowhegDecorators.decorate( self, 'anomalous coupling' )
-    PowhegDecorators.decorate( self, 'diboson' )
-    PowhegDecorators.decorate( self, 'diboson interference' )
-    PowhegDecorators.decorate( self, 'fixed scale' )
-    PowhegDecorators.decorate( self, 'radiation' )
-    PowhegDecorators.decorate( self, 'running width' )
-    PowhegDecorators.decorate( self, 'v2' )
-    PowhegDecorators.decorate( self, 'v2 radiation' )
-    PowhegDecorators.decorate( self, 'zero width' )
+    self.add_parameter_set( 'anomalous coupling' )
+    self.add_parameter_set( 'diboson' )
+    self.add_parameter_set( 'diboson interference' )
+    self.add_parameter_set( 'fixed scale' )
+    self.add_parameter_set( 'LHEv3' )
+    self.add_parameter_set( 'running width' )
+    self.add_parameter_set( 'v2' )
+    self.add_parameter_set( 'zero width' )
 
     ## Set optimised integration parameters
-    self.ncall1   = 40000
-    self.ncall2   = 70000
-    self.nubound  = 80000
-    self.itmx1    = 4
-    self.itmx2    = 8
+    self.ncall1   = 10000
+    self.ncall2   = 150000
+    self.nubound  = 100000
+    self.itmx2    = 12
     self.xupbound = 10
 
     ## Override defaults
-    self.allowed_decay_modes = [ 'WZevee', 'WZmuvmumu', 'WZtauvtautau', 'WZevmumu', 'WZmuvee', 'WZevtautau', 'WZmuvtautau', 'WZtauvee', 'WZtauvmumu', 'WZlvqq', 'WZqqll', 'WZlvll', 'WZlvvv', 'WZqqvv', 'WZqqqq', 'e+ee', 'e+mumu', 'e-mumu' ]
+    # See https://docs.google.com/spreadsheets/d/1Aa7FwB74ppHbXles5LyHrKGlvUFi5PxbZC-Mrc3Lz90 for meanings
+    self.allowed_decay_modes = [ 'WZevee', 'WZmuvmumu', 'WZtauvtautau', 'WpZevee', 'WmZevee',\
+                                 'WpZmuvmumu', 'WmZmuvmumu', 'WpZtauvtautau', 'WmZtauvtautau', 'WZevmumu', \
+                                 'WpZevmumu', 'WmZevmumu', 'WZmuvee', 'WpZmuvee', 'WmZmuvee',\
+                                 'WZevtautau', 'WpZevtautau', 'WmZevtautau', 'WZmuvtautau', 'WpZmuvtautau',\
+                                 'WmZmuvtautau', 'WZtauvee', 'WpZtauvee', 'WmZtauvee', 'WZtauvmumu',\
+                                 'WpZtauvmumu', 'WmZtauvmumu', 'WZlvqq', 'WZqqll', 'WZlvll',\
+                                 'WZlvvv', 'WZqqvv', 'WZqqqq' ]
     self.decay_mode = 'WZlvll'
     self.minlo      = -1
-
-
-  ## Extend base-class runcard generation
-  def generateRunCard(self) :
-    self.initialiseRunCard()
-
-    with open( self.runcard_path(), 'a' ) as f :
-      f.write( 'diagCKM '+str(self.diagCKM)+' ! (default 0) 0:normal CKM; 1:diagonal CKM\n' )

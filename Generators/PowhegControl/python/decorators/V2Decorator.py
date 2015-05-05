@@ -7,7 +7,10 @@
 
 #! /usr/bin/env python
 
-class V2Decorator :
+class V2Decorator(object) :
+
+  ## Define decorator name string
+  name = 'v2'
 
   def __init__( self, decorated ) :
     ## Attach decorations to Powheg configurable
@@ -15,60 +18,47 @@ class V2Decorator :
     self.decorated = decorated
     self.decorated._powheg_version_type = 2
 
-    self.decorated.btildeborn           = -1
-    self.decorated.btildecoll           = -1
-    self.decorated.btildereal           = -1
-    self.decorated.btildevirt           = -1
-    self.decorated.doublefsr            = -1
-    self.decorated.evenmaxrat           = 1
-    self.decorated.fastbtlbound         = 1
-    self.decorated.fixedgrid            = -1
-    self.decorated.itmx1rm              = None
-    self.decorated.itmx2rm              = None
-    self.decorated.lhrwgt_descr         = 'nominal'
-    self.decorated.lhrwgt_group_combine = 'none'
-    self.decorated.lhrwgt_group_name    = 'none'
-    self.decorated.lhrwgt_id            = 0
-    self.decorated.minlo                = 1 # if minlo is set for unsupported processes, Powheg will crash with an 'st_bornorder' error
-    self.decorated.ncall1rm             = -1
-    self.decorated.ncall2rm             = -1
-    self.decorated.novirtual            = -1
-    self.decorated.parallelstage        = -1
-    self.decorated.stage2init           = -1
-    self.decorated.storemintupb         = 1
-    self.decorated.xgriditeration       = -1
+    self.decorated.add_parameter( 'btildeborn', -1 )
+    self.decorated.add_parameter( 'btildecoll', -1 )
+    self.decorated.add_parameter( 'btildereal', -1,                             desc='(default -1, disabled) for fixed order distributions: distinguish Born, virtual and subtraction-term contributions from real ones.' )
+    self.decorated.add_parameter( 'btildevirt', -1 )
+    self.decorated.add_parameter( 'doublefsr', -1,                              desc='(default -1, disabled) reduce observable spikes by suppressing FSR emissions harder than the emitter.' )
+    self.decorated.add_parameter( 'evenmaxrat', 1,                              desc='(default 1, enabled) speed up upper-bound calculation by taking maximum of all identical processes.' )
+    self.decorated.add_parameter( 'fastbtlbound', 1,                            desc='(default 1, enabled) use fast btilde bound.' )
+    self.decorated.add_parameter( 'fixedgrid', -1 )
+    self.decorated.add_parameter( 'itmx1rm', None,                              desc='(default None) number of iterations for initializing the integration grid for the remnant.' )
+    self.decorated.add_parameter( 'itmx2rm', None,                              desc='(default None) number of iterations for computing the integral and finding upper bound for the remnant.' )
+    self.decorated.add_parameter( 'lhrwgt_descr', 'nominal',                    desc='weight description.' )
+    self.decorated.add_parameter( 'lhrwgt_id', 0,                               desc='weight ID.' )
+    self.decorated.add_parameter( 'lhrwgt_group_combine', 'none',               desc='reweighting combination method.' )
+    self.decorated.add_parameter( 'lhrwgt_group_name', 'none',                  desc='group description.' )
+    self.decorated.fix_parameter( 'LOevents', ['-1','1'][self.decorated.is_LO], desc='(default process-dependent) produce LOPS events (scalup=ptj); in this case bornonly should also be enabled.' )
+    self.decorated.add_parameter( 'minlo', 1,                                   desc='(default enabled where available) use MiNLO.' ) # if minlo is set for unsupported processes, Powheg will crash with an 'st_bornorder' error
+    self.decorated.add_parameter( 'ncall1rm', None,                             desc='(default None) number of calls for initializing the integration grid for the remant.' )
+    self.decorated.add_parameter( 'ncall2rm', None,                             desc='(default None) number of calls for computing the integral and finding upper bound for the remnant.' )
+    self.decorated.add_parameter( 'noevents', -1 )
+    self.decorated.add_parameter( 'novirtual', -1 )
+    self.decorated.fix_parameter( 'parallelstage', -1,                          desc='(default -1, disabled) 1...4, which stage to perform in parallel.' )
+    self.decorated.add_parameter( 'stage2init', -1 )
+    self.decorated.add_parameter( 'storemintupb', 1,                            desc='(default 1, enabled) cache cross section calls to ease building of upper bounding envelope in later parallel stage.' )
+    ## Add radiation for NLO processes
+    if not self.decorated.is_LO :
+      self.decorated.add_parameter( 'olddij', -1 )
 
 
-  def append_to_run_card( self ) :
-    ## Set remnant iterations to be equal to regular iterations if not set
+  def finalise( self ) :
+    ## Set up parallelisation parameters if in multicore mode
+    if self.decorated.cores > 1 :
+      if self.decorated.ncall1rm is not None : self.decorated.ncall1rm = int( self.decorated.ncall1rm / self.decorated.cores + 0.5 )
+      self.decorated.parallelstage = 1
+      self.decorated.fix_parameter( 'ncallfrominput', -1, desc='(default -1, disabled) read ncall parameters from input.' )
+      self.decorated.fix_parameter( 'xgriditeration', 1,  desc='(default 1) iteration level for the calculation of the importance sampling grid (only relevant for parallelstage=1).' )
+
+    ## Set remnant properties to be equal to regular properties if not set
     if self.decorated.itmx1rm is None : self.decorated.itmx1rm = self.decorated.itmx1
     if self.decorated.itmx2rm is None : self.decorated.itmx2rm = self.decorated.itmx2
-    ## Write decorations to runcard
-    with open( self.decorated.runcard_path(), 'a' ) as f :
-      f.write( 'btildeborn '+str(self.decorated.btildeborn)+'                         ! \n' )
-      f.write( 'btildecoll '+str(self.decorated.btildecoll)+'                         ! \n' )
-      f.write( 'btildereal '+str(self.decorated.btildereal)+'                         ! For fixed order distributions: Born, virtual and subtraction-term contributions distinguished from the real ones.\n' )
-      f.write( 'btildevirt '+str(self.decorated.btildevirt)+'                         ! \n' )
-      f.write( 'compute_rwgt 0                                                        ! (default 0) 0:nominal, 1:reweight\n' )
-      f.write( 'doublefsr '+str(self.decorated.doublefsr)+'                           ! (default 0) if 1 reduces spikes on final observables. Use new mechanism to generate regions such that emissions harder than the emitter in FSR are suppressed\n' )
-      f.write( 'evenmaxrat '+str(self.decorated.evenmaxrat)+'                         ! (default 0) if 1 speed up upper-bound calculation by taking maximum of all identical processes\n' )
-      f.write( 'fastbtlbound '+str(self.decorated.fastbtlbound)+'                     ! (default 0) if 1 use fast btilde bound\n' )
-      f.write( 'fixedgrid '+str(self.decorated.fixedgrid)+'                           ! \n' )
-      f.write( 'itmx1rm '+str(self.decorated.itmx1rm)+'                               ! number of iterations for initializing the integration grid for the remnant\n' )
-      f.write( 'itmx2rm '+str(self.decorated.itmx2rm)+'                               ! number of iterations for computing the integral and finding upper bound for the remnant\n' )
-      f.write( 'lhrwgt_descr \''+str(self.decorated.lhrwgt_descr)+'\'                 ! weight description\n' )
-      f.write( 'lhrwgt_id \''+str(self.decorated.lhrwgt_id)+'\'                       ! weight ID\n' )
-      f.write( 'lhrwgt_group_combine \''+str(self.decorated.lhrwgt_group_combine)+'\' ! reweighting combination method\n' )
-      f.write( 'lhrwgt_group_name \''+str(self.decorated.lhrwgt_group_name)+'\'       ! group description\n' )
-      f.write( 'LOevents -1                                                           ! with LOevents==1 bornonly must be set equal to 1\n' )
-      f.write( 'minlo '+str(self.decorated.minlo)+'                                   ! (default 0) set to 1 to use MiNLO\n' )
-      f.write( 'ncall1rm '+str(self.decorated.ncall1rm)+'                             ! number of calls for initializing the integration grid for the remant\n' )
-      f.write( 'ncall2rm '+str(self.decorated.ncall2rm)+'                             ! number of calls for computing the integral and finding upper bound for the remnant\n' )
-      f.write( 'ncallfrominput -1                                                     ! Read ncall parameters from input\n' )
-      f.write( 'noevents -1                                                           ! \n' )
-      f.write( 'novirtual '+str(self.decorated.novirtual)+'                           ! \n' )
-      f.write( 'parallelstage '+str(self.decorated.parallelstage)+'                   ! 1...4, which stage to perform in parallel\n' )
-      f.write( 'stage2init '+str(self.decorated.stage2init)+'                         ! \n' )
-      f.write( 'storeinfo_rwgt 0                                                      ! enable new-style PDF information\n' )
-      f.write( 'storemintupb '+str(self.decorated.storemintupb)+'                     ! store results of inclusive cross section calls to allow easier building of upper bounding envelope in a later parallel stage2init\n' )
-      f.write( 'xgriditeration '+str(self.decorated.xgriditeration)+'                 ! iteration level for the calculation of the importance sampling grid (only relevant for parallelstage=1\n' )
+    if self.decorated.ncall1rm is None : self.decorated.ncall1rm = self.decorated.ncall1
+    if self.decorated.ncall2rm is None : self.decorated.ncall2rm = self.decorated.ncall2
+
+    ## Fix integration parameters before printing list for user
+    [ self.decorated.fix_parameter( parameter ) for parameter in ('itmx1rm', 'itmx2rm', 'ncall1rm', 'ncall2rm') ]

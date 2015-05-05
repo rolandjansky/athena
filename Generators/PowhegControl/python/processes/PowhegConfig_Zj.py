@@ -9,8 +9,6 @@
 
 #! /usr/bin/env python
 from ..PowhegConfig_base import PowhegConfig_base
-from ..decorators import PowhegDecorators
-from .. import ATLASCommonParameters
 
 ## Default Powheg configuration for Zj generation
 #
@@ -23,17 +21,17 @@ class PowhegConfig_Zj(PowhegConfig_base) :
     self._powheg_executable += '/Zj/pwhg_main'
 
     ## Decorate with generic option sets
-    PowhegDecorators.decorate( self, 'extra tests' )
-    PowhegDecorators.decorate( self, 'lepton mass' )
-    PowhegDecorators.decorate( self, 'radiation' )
-    PowhegDecorators.decorate( self, 'running scales' )
-    PowhegDecorators.decorate( self, 'sin**2 theta W' )
-    PowhegDecorators.decorate( self, 'single vector boson' )
-    PowhegDecorators.decorate( self, 'V+jets' )
-    PowhegDecorators.decorate( self, 'vector boson decay' )
-    PowhegDecorators.decorate( self, 'v2' )
-    PowhegDecorators.decorate( self, 'v2 radiation' )
-    PowhegDecorators.decorate( self, 'Z mass window' )
+    self.add_parameter_set( 'extra tests' )
+    self.add_parameter_set( 'lepton mass' )
+    self.add_parameter_set( 'LHEv3' )
+    self.add_parameter_set( 'MiNLO NNLL' )
+    self.add_parameter_set( 'running scales' )
+    self.add_parameter_set( 'sin**2 theta W' )
+    self.add_parameter_set( 'single vector boson' )
+    self.add_parameter_set( 'V+jets' )
+    self.add_parameter_set( 'vector boson decay' )
+    self.add_parameter_set( 'v2' )
+    self.add_parameter_set( 'Z mass window' )
 
     ## Set optimised integration parameters
     self.ncall1   = 120000
@@ -45,14 +43,6 @@ class PowhegConfig_Zj(PowhegConfig_base) :
     self.foldphi  = 5
 
     ## Override defaults
-    self.bornktmin = 5.0
-    self.mass_low  = 60.0
-    self.mass_high = 2.0 * self.beam_energy
-
-  ## Extend base-class runcard generation
-  def generateRunCard(self) :
-    ## Set Z mass based on mass window parameters
-    self.mass_Z_low = self.mass_low
-    self.mass_Z_high = self.mass_high
-
-    self.initialiseRunCard()
+    self.bornktmin   = 5.0
+    self.mass_Z_low  = 60.0
+    self.mass_Z_high = 2.0 * self.beam_energy

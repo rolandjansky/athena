@@ -7,22 +7,17 @@
 
 #! /usr/bin/env python
 
-class DarkMatterDecorator :
+class DarkMatterDecorator(object) :
+
+  ## Define decorator name string
+  name = 'dark matter'
 
   def __init__( self, decorated ) :
     ## Attach decorations to Powheg configurable
     decorated.run_card_decorators.append( self )
     self.decorated = decorated
 
-    self.decorated.DM_mass = 10
-    self.decorated.gDM     = 1.0
-    self.decorated.gSM     = 1.0
-
-
-  def append_to_run_card( self ) :
-    ## Write decorations to runcard
-    with open( self.decorated.runcard_path(), 'a' ) as f :
-      f.write( 'DMgDM '+str(self.decorated.gDM)+'      ! X-Xbar-med coupling\n' )
-      f.write( 'DMgSM '+str(self.decorated.gSM)+'      ! q-q-med coupling\n' )
-      f.write( 'DMmass '+str(self.decorated.DM_mass)+' ! DM-candidate mass \n' )
-      f.write( 'idDM 1000022                           ! id of DM particles; (+- 19 is the default, but might not always work; Using the id of neutralinos is recommended)\n' )
+    self.decorated.add_parameter( 'DM_mass', 10,   desc='(default, 10) DM-candidate mass', parameter='DMmass' )
+    self.decorated.add_parameter( 'gDM', 1.0,      desc='(default, 1.0) X-Xbar-med coupling', parameter='DMgDM' )
+    self.decorated.add_parameter( 'gSM', 1.0,      desc='(default, 1.0) q-q-med coupling', parameter='DMgSM' )
+    self.decorated.fix_parameter( 'idDM', 1000022, desc='(default, 1000022) id of DM particles' )

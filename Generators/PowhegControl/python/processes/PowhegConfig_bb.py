@@ -9,7 +9,6 @@
 
 #! /usr/bin/env python
 from ..PowhegConfig_base import PowhegConfig_base
-from ..decorators import PowhegDecorators
 from .. import ATLASCommonParameters
 
 ## Default Powheg configuration for bb generation
@@ -23,13 +22,12 @@ class PowhegConfig_bb(PowhegConfig_base) :
     self._powheg_executable += '/hvq/pwhg_main'
 
     ## Decorate with generic option sets
-    PowhegDecorators.decorate( self, 'fixed scale' )
-    PowhegDecorators.decorate( self, 'heavy quark' )
-    PowhegDecorators.decorate( self, 'radiation' )
-    PowhegDecorators.decorate( self, 'second generation quark mass' )
-    PowhegDecorators.decorate( self, 'top decay mode' )
-    PowhegDecorators.decorate( self, 'v2' )
-    PowhegDecorators.decorate( self, 'v2 radiation' )
+    self.add_parameter_set( 'fixed scale' )
+    self.add_parameter_set( 'heavy quark' )
+    self.add_parameter_set( 'LHEv3' )
+    self.add_parameter_set( 'second generation quark mass' )
+    self.add_parameter_set( 'top decay mode' )
+    self.add_parameter_set( 'v2' )
 
     ## Set optimised integration parameters
     self.ncall1   = 10000
@@ -43,9 +41,5 @@ class PowhegConfig_bb(PowhegConfig_base) :
     ## Override defaults
     self.bornktmin    = 5.0
     self.minlo        = -1
+    self.quark_mass   = ATLASCommonParameters.mass_b
     self.topdecaymode = 0
-
-  ## Extend base-class runcard generation
-  def generateRunCard(self) :
-    self.quark_mass = ATLASCommonParameters.mass_b
-    self.initialiseRunCard()

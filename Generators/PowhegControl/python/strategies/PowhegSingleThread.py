@@ -20,4 +20,4 @@ from OutputHandler import write_output
 def runPowhegSingleThread(configurator, stdin=None, output_prefix='', display_output=True) :
   configurator.running_processes.append( (subprocess.Popen( [configurator._powheg_executable,''], stdout=subprocess.PIPE, stdin=stdin, stderr=subprocess.STDOUT ), output_prefix) )
   if display_output :
-    write_output( configurator.running_processes, configurator.logger() )
+    write_output( configurator.running_processes, configurator.logger )

@@ -9,7 +9,6 @@
 
 #! /usr/bin/env python
 from ..PowhegConfig_base import PowhegConfig_base
-from ..decorators import PowhegDecorators
 
 ## Default Powheg configuration for WW generation
 #
@@ -22,14 +21,13 @@ class PowhegConfig_WW(PowhegConfig_base) :
     self._powheg_executable += '/WW/pwhg_main'
 
     ## Decorate with generic option sets
-    PowhegDecorators.decorate( self, 'anomalous coupling' )
-    PowhegDecorators.decorate( self, 'diboson' )
-    PowhegDecorators.decorate( self, 'fixed scale' )
-    PowhegDecorators.decorate( self, 'radiation' )
-    PowhegDecorators.decorate( self, 'running width' )
-    PowhegDecorators.decorate( self, 'v2' )
-    PowhegDecorators.decorate( self, 'v2 radiation' )
-    PowhegDecorators.decorate( self, 'zero width' )
+    self.add_parameter_set( 'anomalous coupling' )
+    self.add_parameter_set( 'diboson' )
+    self.add_parameter_set( 'fixed scale' )
+    self.add_parameter_set( 'LHEv3' )
+    self.add_parameter_set( 'running width' )
+    self.add_parameter_set( 'v2' )
+    self.add_parameter_set( 'zero width' )
 
     ## Set optimised integration parameters
     self.ncall1  = 40000
@@ -38,11 +36,12 @@ class PowhegConfig_WW(PowhegConfig_base) :
     self.itmx1   = 3
 
     ## Override defaults
-    self.allowed_decay_modes = [ 'WWevev', 'WWmuvmuv', 'WWtauvtauv', 'WWevmuv', 'WWmuvtauv', 'WWevtauv', 'WWlvlv', 'WWqqqq', 'WWlvqq' ]
+    # See https://docs.google.com/spreadsheets/d/1Aa7FwB74ppHbXles5LyHrKGlvUFi5PxbZC-Mrc3Lz90 for meanings
+    self.allowed_decay_modes = [ 'WpWmevev', 'WpWmmuvmuv', 'WpWmtauvtauv', 'WpWmevmuv', 'WpWmmuvev',\
+                                 'WpWmevtauv', 'WpWmtauvev', 'WpWmuvtauv', 'WpWmtauvmuv', 'WWevmuv',\
+                                 'WWmuvtauv', 'WWevtauv', 'WWlvlv', 'WWqqqq', 'WWlvqq' ]
     self.decay_mode = 'WWlvlv'
     self.minlo      = -1
 
 
-  ## Extend base-class runcard generation
-  def generateRunCard(self) :
-    self.initialiseRunCard()
+

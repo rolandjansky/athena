@@ -8,16 +8,15 @@
 #! /usr/bin/env python
 from .. import ATLASCommonParameters
 
-class TopMassDecorator :
+class TopMassDecorator(object) :
+
+  ## Define decorator name string
+  name = 'top mass'
 
   def __init__( self, decorated ) :
     ## Attach decorations to Powheg configurable
     decorated.run_card_decorators.append( self )
     self.decorated = decorated
 
-
-  def append_to_run_card( self ) :
-    ## Write decorations to runcard
-    with open( self.decorated.runcard_path(), 'a' ) as f :
-      f.write( 'tmass '+str(ATLASCommonParameters.mass_t)+'   ! top quark mass\n' )
-      f.write( 'topmass '+str(ATLASCommonParameters.mass_t)+' ! top quark mass\n' )
+    self.decorated.add_parameter( 'tmass', ATLASCommonParameters.mass_t,   desc='(default ATLAS) top quark mass' )
+    self.decorated.add_parameter( 'topmass', ATLASCommonParameters.mass_t, desc='(default ATLAS) top quark mass' )

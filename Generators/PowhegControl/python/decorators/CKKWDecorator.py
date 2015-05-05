@@ -7,18 +7,15 @@
 
 #! /usr/bin/env python
 
-class CKKWDecorator :
+class CKKWDecorator(object) :
+
+  ## Define decorator name string
+  name = 'CKKW'
 
   def __init__( self, decorated ) :
     ## Attach decorations to Powheg configurable
     decorated.run_card_decorators.append( self )
     self.decorated = decorated
 
-    self.decorated.ckkwscalup = 1
+    self.decorated.add_parameter( 'ckkwscalup', 1, desc='(default 0, use Powheg scalup) compute the scalup scale for subsequent shower using the smallest kt in the final state (CKKW)' )
 
-
-  def append_to_run_card( self ) :
-    ## Write decorations to runcard
-    with open( self.decorated.runcard_path(), 'a' ) as f :
-      f.write( 'ckkwscalup '+str(self.decorated.ckkwscalup)+' ! 0: do not use the CKKW scalup, use the normal Powheg one (default)\n')
-      f.write( '                                              ! 1: compute the scalup scale for subsequent shower using the smallest kt in the final state\n' )

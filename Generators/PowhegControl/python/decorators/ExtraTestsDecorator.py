@@ -7,17 +7,14 @@
 
 #! /usr/bin/env python
 
-class ExtraTestsDecorator :
+class ExtraTestsDecorator(object) :
+
+  ## Define decorator name string
+  name = 'extra tests'
 
   def __init__( self, decorated ) :
     ## Attach decorations to Powheg configurable
     decorated.run_card_decorators.append( self )
     self.decorated = decorated
 
-    self.decorated.skipextratests = -1
-
-
-  def append_to_run_card( self ) :
-    ## Write decorations to runcard
-    with open( self.decorated.runcard_path(), 'a' ) as f :
-      f.write( 'skipextratests '+str(self.decorated.skipextratests)+' ! \n' )
+    self.decorated.add_parameter( 'skipextratests', -1 )
