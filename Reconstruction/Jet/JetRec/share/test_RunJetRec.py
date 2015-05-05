@@ -96,7 +96,7 @@ if len(vertexCollectionName):
   jtm.vertexContainer = vertexCollectionName
 
 # Read job options and import the jet algorithm.
-from RunJetRec import runJetGrooming, useLArHVCorr, useJVFLoose, useDRTruthFlavor
+from RunJetRec import runJetGrooming, useLArHVCorr, useDRTruthFlavor
 from JetRec.JetAlgorithm import jetalg
 
 if not runJetGrooming:
@@ -132,7 +132,7 @@ if 0:
 verbosetools = []
 if 0:
   verbosetools += ["jvf"]
-  if useJVFLoose: verbosetools += ["jvfloose"]
+  verbosetools += ["jvfloose"]
 #verbosetools += ["calib_AntiKt4TopoEM_reco_arj"]
 #verbosetools += ["LCTopoEventShape"]
 #verbosetools = ["truthsel"]
@@ -213,6 +213,7 @@ if dumpUngroomed:
   if jetFlags.useTracks():
     names += ["Run2AntiKt4TrackJets"]
     names += ["Run2AntiKt4ZTrackJets"]
+    names += ["Run2AntiKt2PV0TrackJets"]
     names += ["Run2AntiKt3PV0TrackJets"]
     names += ["Run2AntiKt4PV0TrackJets"]
   names += ["Run2AntiKt4EMTopoJets"]
@@ -267,8 +268,10 @@ for name in names:
     jdmp.FloatMoments += ["ShowerDeconstructionW"]
     jdmp.FloatMoments += ["ShowerDeconstructionTop"]
     if isTrackJetTagged:
+      jdmp.IntMoments += ["GhostAntiKt2TrackJetCount"]
       jdmp.IntMoments += ["GhostAntiKt3TrackJetCount"]
       jdmp.IntMoments += ["GhostAntiKt4TrackJetCount"]
+      jdmp.FloatMoments += ["GhostAntiKt2TrackJetPt"]
       jdmp.FloatMoments += ["GhostAntiKt3TrackJetPt"]
       jdmp.FloatMoments += ["GhostAntiKt4TrackJetPt"]
     if isTopo and isAntiKt4:
@@ -334,17 +337,18 @@ for name in names:
     jdmp.FloatVectorMoments += ["EnergyPerSampling"]
   if isTopo and jetFlags.useTracks():
     jdmp.FloatVectorMoments += ["JVF"]
-    if useJVFLoose:
-      jdmp.FloatVectorMoments += ["JVFLoose"]
+    #jdmp.FloatVectorMoments += ["JVFLoose"]
   if isVTrack:
     jdmp.ElementLinkMoments += ["OriginVertex"]
   if isTopo and jetFlags.useTracks():
     jdmp.ElementLinkMoments += ["HighestJVFVtx"]
+    #jdmp.ElementLinkMoments += ["HighestJVFLooseVtx"]
   if isTopo or isTrack:
     jdmp.AssociatedParticleVectors += ["GhostTruth"]
   if isTopo:
     jdmp.AssociatedParticleVectors += ["GhostTrack"]
     if isTrackJetTagged:
+      jdmp.AssociatedParticleVectors += ["GhostAntiKt2TrackJet"]
       jdmp.AssociatedParticleVectors += ["GhostAntiKt3TrackJet"]
       jdmp.AssociatedParticleVectors += ["GhostAntiKt4TrackJet"]
   if isTopo:

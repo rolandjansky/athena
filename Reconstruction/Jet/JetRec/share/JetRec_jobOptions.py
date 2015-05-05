@@ -32,6 +32,7 @@ if jetFlags.useTruth():
   jtm.addJetFinder("CamKt12TruthJets",     "CamKt", 1.2,    "truth", ptmin=40000)
   jtm.addJetFinder("CamKt12TruthWZJets",   "CamKt", 1.2,  "truthwz", ptmin=40000)
 if jetFlags.useTracks():
+  jtm.addJetFinder("AntiKt2PV0TrackJets", "AntiKt", 0.2, "pv0track", ptmin= 2000)
   jtm.addJetFinder("AntiKt3PV0TrackJets", "AntiKt", 0.3, "pv0track", ptmin= 2000)
   jtm.addJetFinder("AntiKt4PV0TrackJets", "AntiKt", 0.4, "pv0track", ptmin= 2000)
 if jetFlags.useTopo():

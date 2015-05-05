@@ -118,6 +118,18 @@ jtm += JetTrackSelectionTool(
   Selector        = jtm.trk_trackselloose
 )
 
+jtm += InDet__InDetTrackSelectionTool(
+  "trk_trackselloose_trackjets",
+  CutLevel                = "Loose"
+)
+
+jtm += JetTrackSelectionTool(
+   "trackselloose_trackjets",
+  InputContainer  = jtm.trackContainer,
+  OutputContainer = "JetSelectedTracks_LooseTrackJets",
+  Selector        = jtm.trk_trackselloose_trackjets
+)
+
 if jetFlags.useInDetTrackSelection():
   jtm += JetTrackSelectionTool(
     "tracksel",
@@ -220,7 +232,7 @@ jtm += PseudoJetGetter(
 # Tracks.
 jtm += TrackPseudoJetGetter(
   "trackget",
-  InputContainer = jtm.tracksel.OutputContainer,
+  InputContainer = jtm.trackselloose_trackjets.OutputContainer,
   Label = "Track",
   OutputContainer = "PseudoJetTracks",
   TrackVertexAssociation = jtm.tvassoc.TrackVertexAssociation,
@@ -289,6 +301,16 @@ jtm += PFlowPseudoJetGetter(
   CalibratePFO = False,
   SkipNegativeEnergy = True,
   UseVertices = useVertices
+)
+
+# AntiKt2 track jets.
+jtm += PseudoJetGetter(
+  "gakt2trackget", # give a unique name
+  InputContainer = jetFlags.containerNamePrefix() + "AntiKt2PV0TrackJets", # SG key
+  Label = "GhostAntiKt2TrackJet",   # this is the name you'll use to retrieve associated ghosts
+  OutputContainer = "PseudoJetGhostAntiKt2TrackJet",
+  SkipNegativeEnergy = True,
+  GhostScale = 1.e-20,   # This makes the PseudoJet Ghosts, and thus the reco flow will treat them as so.
 )
 
 # AntiKt3 track jets.
@@ -377,12 +399,12 @@ if jetFlags.useTruth and jtm.haveParticleJetTools:
     CParticleCollection = "TruthLabelCHadronsFinal",
     TauParticleCollection = "TruthLabelTausFinal",
     PartPtMin = 5000.0,
-    JetPtMin = 10000.0,
+    JetPtMin =     0.0,
     DRMax = 0.3,
     MatchMode = "MinDR"
   )
 
-  # Cone matching for B, C and tau truth for all but track jets.
+  # Cone matching for B, C and tau truth for track jets.
   jtm += ParticleJetDeltaRLabelTool(
     "trackjetdrlabeler",
     LabelName = "HadronConeExclTruthLabelID",
@@ -501,21 +523,21 @@ jtm += JetCaloEnergies("jetens")
 
 # Jet vertex fraction.
 jtm += JetVertexFractionTool(
-  "jvf",
+  "jvfold",
   VertexContainer = jtm.vertexContainer,
   AssociatedTracks = "GhostTrack",
   TrackVertexAssociation = jtm.tvassoc.TrackVertexAssociation,
-  JVFName = "JVF"
+  JVFName = "JVFOld"
 )
 
 # Jet vertex fraction with selection.
 jtm += JetVertexFractionTool(
-  "jvfloose",
+  "jvf",
   VertexContainer = jtm.vertexContainer,
   AssociatedTracks = "GhostTrack",
   TrackVertexAssociation = jtm.tvassoc.TrackVertexAssociation,
   TrackSelector = jtm.trackselloose,
-  JVFName = "JVFLoose"
+  JVFName = "JVF"
 )
 
 # Jet vertex tagger.
@@ -538,7 +560,8 @@ jtm += JetTrackMomentsTool(
   VertexContainer = jtm.vertexContainer,
   AssociatedTracks = "GhostTrack",
   TrackVertexAssociation = jtm.tvassoc.TrackVertexAssociation,
-  TrackMinPtCuts = [500, 1000]
+  TrackMinPtCuts = [500, 1000],
+  TrackSelector = jtm.trackselloose
 )
 
 # Jet cluster info.
