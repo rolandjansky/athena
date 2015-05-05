@@ -1213,6 +1213,20 @@ namespace MuonCombined {
 
   void MuonCreatorTool::fillEnergyLossFromTrack(xAOD::Muon& muon, const std::vector<const Trk::TrackStateOnSurface*>& tsosVector) const
   {    
+    
+    // Ensure these are set for every muon
+	  muon.setParameter(static_cast<float>( 0.0 ), xAOD::Muon::EnergyLoss);
+	  muon.setParameter(static_cast<float>( 0.0 ), xAOD::Muon::ParamEnergyLoss);
+	  muon.setParameter(static_cast<float>( 0.0 ), xAOD::Muon::MeasEnergyLoss);
+	  muon.setParameter(static_cast<float>( 0.0 ), xAOD::Muon::EnergyLossSigma);
+	  muon.setParameter(static_cast<float>( 0.0 ), xAOD::Muon::MeasEnergyLossSigma);
+	  muon.setParameter(static_cast<float>( 0.0 ), xAOD::Muon::ParamEnergyLossSigmaPlus);
+	  muon.setParameter(static_cast<float>( 0.0 ), xAOD::Muon::ParamEnergyLossSigmaMinus);
+
+	  muon.setEnergyLossType( xAOD::Muon::Parametrized ); // Not so nice! Add 'unknown' type?
+	  muon.setParameter(static_cast<float>( 0.0 ), xAOD::Muon::FSR_CandidateEnergy);
+    
+    
     float energyloss=0.0;
     unsigned int numEnergyLossPerTrack=0;
     bool problem=false;
