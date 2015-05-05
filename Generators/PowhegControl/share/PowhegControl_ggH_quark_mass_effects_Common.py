@@ -1,7 +1,3 @@
-from PowhegControl import PowhegConfig_ggH_quark_mass_effects
-
-# Use the Powheg_ggH_quark_mass_effects configuration
-if 'runArgs' in dir() :
-  PowhegConfig = PowhegConfig_ggH_quark_mass_effects(runArgs)
-else :
-  PowhegConfig = PowhegConfig_ggH_quark_mass_effects()
+# Use the Powheg_ggF_H configuration
+include('PowhegControl/PowhegControl_ggF_H_Common.py')
+PowhegConfig.logger.warning( 'This jobOption fragment is deprecated - please use PowhegControl_ggF_H_Common.py instead.' )
