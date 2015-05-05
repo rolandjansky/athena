@@ -654,11 +654,11 @@ const Muon::MdtDriftCircleOnTrack* Muon::MdtDriftCircleOnTrackCreator::updateErr
   double t = DCT.driftTime();
 
   const MuonGM::MdtReadoutElement* detEl = DCT.detectorElement();
-  Identifier detElId = detEl->identify();
   if( !detEl ){
-    ATH_MSG_WARNING("MdtDriftCircleOnTrack without MdtReadoutElement " << m_idHelper->toString(detElId));
+    ATH_MSG_WARNING("MdtDriftCircleOnTrack without MdtReadoutElement!");
     return 0;
   }
+  Identifier detElId = detEl->identify();
 
   sigmaRT = getErrorFromRt(DCT);
 
@@ -940,8 +940,9 @@ double Muon::MdtDriftCircleOnTrackCreator::mooreErrorStrategyMC(const MuonDriftC
 	ATH_MSG_VERBOSE(" segment error, precise ");
 	return sigmaR2 + 0.005; // Input segments , no T0 refit
       }
-      ATH_MSG_VERBOSE(" segment error default ");
-      return sigmaR2;
+      // dead code never reached - should be kept nevertheless to remember default
+      // ATH_MSG_VERBOSE(" segment error default ");
+      // return sigmaR2;
     }
     // Don't know how to handle other cases - error?
   } else { // Track
@@ -1019,8 +1020,9 @@ double Muon::MdtDriftCircleOnTrackCreator::mooreErrorStrategyLoose(const MuonDri
         ATH_MSG_VERBOSE(" segment error, precise ");
         return sigmaR2 + 0.005; // Input segments , no T0 refit
       }
-      ATH_MSG_VERBOSE(" segment error default ");
-      return sigmaR2;
+      // dead code never reached - should be kept nevertheless to remember default
+      // ATH_MSG_VERBOSE(" segment error default ");
+      // return sigmaR2;
     } 
     // Don't know how to handle other cases - error?
   } else { // Track
@@ -1098,8 +1100,9 @@ double Muon::MdtDriftCircleOnTrackCreator::mooreErrorStrategyTight(const MuonDri
         ATH_MSG_VERBOSE(" segment error, precise ");
         return sigmaR2 + 0.005; // Input segments , no T0 refit
       }
-      ATH_MSG_VERBOSE(" segment error default ");
-      return sigmaR2;
+      // dead code never reached - should be kept nevertheless to remember default
+      // ATH_MSG_VERBOSE(" segment error default ");
+      // return sigmaR2;
     } 
     // Don't know how to handle other cases - error?
   } else { // Track
@@ -1112,7 +1115,7 @@ double Muon::MdtDriftCircleOnTrackCreator::mooreErrorStrategyTight(const MuonDri
         ATH_MSG_VERBOSE(" track error EE ");
         if(  m_idHelper->isSmallChamber(id) ) return 1.21*sigmaR2 + 0.01; // 1.1* + 0.1 mm
         else                                  return 1.21*sigmaR2 + 0.01; // 1.1* + 0.1 mm
-        }else if( stIndex == MuonStationIndex::BI && m_idHelper->chamberIndex(id) == MuonStationIndex::BIS &&
+      }else if( stIndex == MuonStationIndex::BI && m_idHelper->chamberIndex(id) == MuonStationIndex::BIS &&
         abs(m_idHelper->stationEta(id)) > 6 ){
           ATH_MSG_VERBOSE(" track error BIS78 ");
           if( abs(m_idHelper->stationEta(id)) == 7 ) return 1.44*sigmaR2 + 1.; // 1.2* + 1. mm
@@ -1193,10 +1196,11 @@ double Muon::MdtDriftCircleOnTrackCreator::mboyErrorStrategy(const MuonDriftCirc
     ATH_MSG_DEBUG("mboyErrorStrategy tracks with input sigmaR2="<<sigmaR*sigmaR<<" and returning "<<(1.1*(sigmaR+0.085))*(1.1*(sigmaR+0.085)));
     return (1.1*(sigmaR+0.085))*(1.1*(sigmaR+0.085));
   }
-  static bool first = true;
-  if (first){
-    msg(MSG::WARNING) << "Unknown error strategy combination - check your configuration please! "<<(*myStrategy)<<endreq;
-    first = false;
-  }
-  return sigmaR*sigmaR;
+  // dead code never reached - should be kept nevertheless to remember default
+  // static bool first = true;
+  // if (first){
+  //   msg(MSG::WARNING) << "Unknown error strategy combination - check your configuration please! "<<(*myStrategy)<<endreq;
+  //   first = false;
+  // }
+  // return sigmaR*sigmaR;
 }
