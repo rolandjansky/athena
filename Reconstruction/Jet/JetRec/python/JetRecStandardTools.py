@@ -560,7 +560,8 @@ jtm += JetTrackMomentsTool(
   VertexContainer = jtm.vertexContainer,
   AssociatedTracks = "GhostTrack",
   TrackVertexAssociation = jtm.tvassoc.TrackVertexAssociation,
-  TrackMinPtCuts = [500, 1000]
+  TrackMinPtCuts = [500, 1000],
+  TrackSelector = jtm.trackselloose
 )
 
 # Jet cluster info.
