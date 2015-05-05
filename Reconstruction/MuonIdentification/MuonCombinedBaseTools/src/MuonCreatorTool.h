@@ -39,6 +39,7 @@ namespace Muon {
   class MuonEDMPrinterTool;
   class MuonEDMHelperTool;
   class MuonSegment;
+  class TrackSegmentAssociationTool;
 }
 namespace Trk {
   class ITrackParticleCreatorTool;
@@ -127,6 +128,9 @@ namespace MuonCombined {
 
     void collectCells( xAOD::Muon& muon, xAOD::CaloClusterContainer& clusterContainer ) const;
 
+    void addRpcTiming( xAOD::Muon& muon ) const;
+    void addSegmentsOnTrack( xAOD::Muon& muon ) const;
+
     /// flag to decide whether or not to make link to MS track before extrapolation
     bool m_makeMSPreExtrapLink;
 
@@ -153,6 +157,9 @@ namespace MuonCombined {
 
     /// flag to print muon edm
     bool m_printSummary;
+    
+    /// enable filling of timing information
+    bool m_fillTimingInformation;
 
     // helpers, managers, tools
     ToolHandle<Muon::MuonIdHelperTool>            m_idHelper;
@@ -171,10 +178,9 @@ namespace MuonCombined {
     ToolHandle<Rec::IMuonMeanMDTdADCFiller>       m_meanMDTdADCTool;
     ToolHandle <ICaloNoiseTool>                   m_caloNoiseTool; 
     ToolHandle<Trk::ITrkMaterialProviderTool>     m_caloMaterialProvider;
+    ToolHandle<Muon::TrackSegmentAssociationTool> m_trackSegmentAssociationTool;
     Rec::CaloCellCollector                        m_cellCollector;
     std::string                                   m_cellContainerName;
-      
-
   };
 
   inline void MuonCreatorTool::setP4( xAOD::Muon& muon, const xAOD::TrackParticle& tp ) const {
