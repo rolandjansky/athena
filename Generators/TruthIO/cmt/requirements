@@ -6,8 +6,10 @@ use AtlasPolicy      AtlasPolicy-*
 use GaudiInterface   GaudiInterface-*      External
 use GeneratorModules GeneratorModules-*    Generators
 use AtlasHepMC	     AtlasHepMC-*	       External
+use AthenaBaseComps     AthenaBaseComps-*      Control
 
 private
+use StoreGate        StoreGate-*           Control
 use GeneratorObjects GeneratorObjects-*    Generators
 use EventInfo        EventInfo-*           Event
 use HepPDT           v*                    LCG_Interfaces
@@ -15,10 +17,11 @@ end_private
 
 private
 #macro_append HepMC_linkopts " $(HepMC_IO_linkopts) "
+macro_append  TruthIO_shlibflags  "$(HepMC_IO_linkopts)"
 end_private
 
 public
-library TruthIO files=" *.cxx " -s=components *.cxx
+library TruthIO *.cxx *.F -s=components *.cxx
 apply_pattern component_library
 
 apply_pattern declare_joboptions files="*.py"
