@@ -99,13 +99,16 @@ StoreGateSvc::StoreGateSvc(const string& name,ISvcLocator* svc)
     m_pacSvc("PageAccessControlSvc", name),
     m_monitorPageAccess(false),
     m_arena (name),
-    m_msg(msgSvc(), name)
+    m_msg(msgSvc(), name),
+    m_allowOverwrite(false)
 {
   declareProperty("Dump", m_DumpStore);
   declareProperty("ActivateHistory", m_ActivateHistory);
   declareProperty("MonitorPageAccess", m_monitorPageAccess,
 		  "Activate PageAccessControlSvc to get statistics on "
 		  "unused data objects (SLOW, debug only)");
+  declareProperty("AllowOverwrite", m_allowOverwrite,
+		  "EXPERTS ONLY: set to true to allow record to overwrite existing objects"); 
   //add handler for Service base class property
   m_outputLevel.declareUpdateHandler(&StoreGateSvc::msg_update_handler, this);
 }
@@ -134,6 +137,11 @@ StatusCode StoreGateSvc::initialize()    {
     return StatusCode::FAILURE;
   }
   //properties accessible from now on
+  if (m_allowOverwrite) {
+    msg() << MSG::WARNING 
+	  << "AllowOverwrite=true. Please set to false for production jobs"
+	  << endreq;
+  }
   
   // set store ID (ugly!):
   string generic_name = getGaudiThreadGenericName(name()) ;
@@ -837,20 +845,25 @@ StoreGateSvc::typeless_record( DataObject* obj, const std::string& key,
 			       bool allowMods, bool resetOnly, bool noHist,
                                const std::type_info* tinfo)
 {
-  const bool NOOVERWRITE(false);
-  if ( record_impl( obj, key, raw_ptr, allowMods, resetOnly, NOOVERWRITE, tinfo).isFailure() ) {
-    return StatusCode::FAILURE;
-  }
-
-  if ( !m_ActivateHistory || noHist ) {
-    return StatusCode::SUCCESS;
-  }
-
-  if ( store()->storeID() != StoreID::EVENT_STORE ) {
-    return StatusCode::SUCCESS;
+  if (m_allowOverwrite) { 
+    assert(obj);
+    return typeless_overwrite(obj->clID(), obj, key, raw_ptr, allowMods, resetOnly, noHist, tinfo); 
   } else {
-    return record_HistObj( obj->clID(), key, name(), allowMods, resetOnly );
-  }
+    const bool NOOVERWRITE(false);
+    if ( record_impl( obj, key, raw_ptr, allowMods, resetOnly, NOOVERWRITE, tinfo).isFailure() ) {
+      return StatusCode::FAILURE;
+    }
+    
+    if ( !m_ActivateHistory || noHist ) {
+      return StatusCode::SUCCESS;
+    }
+    
+    if ( store()->storeID() != StoreID::EVENT_STORE ) {
+      return StatusCode::SUCCESS;
+    } else {
+      return record_HistObj( obj->clID(), key, name(), allowMods, resetOnly );
+    }
+  } //allow overwrite
 }
 
 StatusCode
@@ -1141,9 +1154,8 @@ StoreGateSvc::record_HistObj(const CLID& id, const std::string& key,
   idname = idname + "/" + key;
 
   DataObject* obj = asStorable<DataHistory>(dho);
-  
-  const bool ALLOWOVERWRITE(false);
-  return record_impl(obj, idname, dho, allowMods, resetOnly, ALLOWOVERWRITE,
+  const bool NOOVERWRITE(false);
+  return record_impl(obj, idname, dho, allowMods, resetOnly, NOOVERWRITE,
                      &typeid(DataHistory));
 }
 

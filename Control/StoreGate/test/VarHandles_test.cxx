@@ -40,7 +40,7 @@ bool operator==(const MyDataObj& lhs, const MyDataObj& rhs) {
 typedef std::list<int> IntList;
 /** @file DataHandle_test.cxx  unit test for DataHandle
  * @author ATLAS Collaboration
- * $Id: VarHandles_test.cxx 645081 2015-02-08 23:54:04Z calaf $
+ * $Id: VarHandles_test.cxx 645080 2015-02-08 23:52:57Z calaf $
  ***************************************************************************/
 
 #include "SGTools/CLASS_DEF.h"

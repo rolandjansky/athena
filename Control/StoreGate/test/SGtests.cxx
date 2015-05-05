@@ -226,6 +226,7 @@ namespace Athena_test
     /// Test overwriting.
     assert (rSG.record(new Foo(101), "ow").isSuccess());
     assert (rSG.overwrite(new Foo(102), "ow").isSuccess());
+    //    assert (rSG.record(new Foo(1002), "ow").isSuccess());
 #if __cplusplus > 201100
     assert (rSG.overwrite(make_unique<Foo>(103), "ow").isSuccess());
 #else
