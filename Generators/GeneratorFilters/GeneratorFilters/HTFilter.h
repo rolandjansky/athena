@@ -24,12 +24,14 @@ public:
 
 private:
 
-    double m_MinPt;  //!< Min pT for the truth jets
-    double m_MaxEta; //!< Max eta for the truth jets
+    double m_MinJetPt;  //!< Min pT for the truth jets
+    double m_MaxJetEta; //!< Max eta for the truth jets
     double m_MinHT;  //!< Min HT for events
     double m_MaxHT;  //!< Max HT for events
+    double m_MinMuPt;  //!< Min pT for the truth jets
+    double m_MaxMuEta; //!< Max eta for the truth jets
     bool   m_UseNu;  //!< Use neutrinos in HT
-    bool   m_UseL;   //!< Use leptons in HT
+    bool   m_UseMu;   //!< Use leptons in HT
 
     std::string m_TruthJetContainerName;  //!< Name of the truth jet container
 

@@ -5,7 +5,11 @@
 #include "GeneratorFilters/WMultiLeptonFilter.h"
 
 WMultiLeptonFilter::WMultiLeptonFilter(const std::string& name, ISvcLocator* pSvcLocator)
-  : GenFilter(name,pSvcLocator)
+  : GenFilter(name,pSvcLocator),
+    H_WPlus_e(0), H_WMinus_e(0), 
+    H_WPlus_m(0), H_WMinus_m(0), 
+    T_WPlus_e(0), T_WMinus_e(0), 
+    T_WPlus_m(0), T_WMinus_m(0)
 {
   declareProperty("NLeptonsH",m_NLeptonsH = 2);
   declareProperty("NLeptonsT",m_NLeptonsT = 1);
