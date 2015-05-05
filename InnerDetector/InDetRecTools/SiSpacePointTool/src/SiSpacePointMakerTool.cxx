@@ -36,7 +36,6 @@ SiSpacePointMakerTool::SiSpacePointMakerTool(const std::string &type,
   declareInterface< SiSpacePointMakerTool>( this );
   declareProperty("StripLengthTolerance",m_stripLengthTolerance = 0.01 );
   declareProperty("UsePerpendicularProjection",m_usePerpProj = false );
-  declareProperty("SCTGapParameter",  m_SCTgapParameter = 0.  );    // Recommend  m_SCTgapParameter = .001 - .0015 for ITK geometry
   m_idHelper=nullptr;
 }
 //---------------------------------------------------------------------------
@@ -48,7 +47,6 @@ SiSpacePointMakerTool::~SiSpacePointMakerTool()
 StatusCode SiSpacePointMakerTool::initialize()  {
   // Get the SCT Helper
   ATH_CHECK(detStore()->retrieve(m_idHelper, "SCT_ID"));
-  m_SCTgapParameter = fabs(m_SCTgapParameter); if(m_SCTgapParameter > .002) m_SCTgapParameter = .002;
   return StatusCode::SUCCESS;
 }
 //--------------------------------------------------------------------------
@@ -93,8 +91,7 @@ Trk::SpacePoint* SiSpacePointMakerTool::makeSCT_SpacePoint(const InDet::SiCluste
   Amg::Vector3D q(a-b);          // vector joining ends of line
   Amg::Vector3D r(c-d);          // vector joining ends of line
 
-  Amg::Vector3D point;
-
+  const Amg::Vector3D *point(0);
   bool ok(true);  
   if ( m_usePerpProj){
       /* a simple hack for the case the origin of the particle is completely unknown:
@@ -110,79 +107,53 @@ Trk::SpacePoint* SiSpacePointMakerTool::makeSCT_SpacePoint(const InDet::SiCluste
       double denom = 1 - eaTeb*eaTeb;
       if (fabs(denom)>10e-7){
 	    double lambda0 = (mab.dot(q) - mab.dot(r)*eaTeb)/denom;
-	    point = a+lambda0*q;    
+	    point = new Amg::Vector3D( a+lambda0*q );    
 	    ATH_MSG_VERBOSE( "Endpoints 1 : ( " <<  a.x() << " , " << a.y() << " , " << a.z() << " )   to   (" << b.x() << " , " << b.y() << " , " << b.z() << " ) " );
 	    ATH_MSG_VERBOSE( "Endpoints 2 : ( " <<  c.x() << " , " << c.y() << " , " << c.z() << " )   to   (" << d.x() << " , " << d.y() << " , " << d.z() << " )  " );
-	    ATH_MSG_VERBOSE( "Intersection: ( " <<  point.x() << " , " << point.y() << " , " << point.z() << " )   " );
+	    ATH_MSG_VERBOSE( "Intersection: ( " <<  point->x() << " , " << point->y() << " , " << point->z() << " )   " );
       }else{
 	    ATH_MSG_WARNING("Intersection failed");
 	    ok = false;
       }
     } else {
-   
-      Amg::Vector3D s(a+b-2*vertexVec);  // twice the vector from vertex to midpoint
-      Amg::Vector3D t(c+d-2*vertexVec);  // twice the vector from vertex to midpoint
+      // -ME fixme- const Amg::Vector3D* point;
+      Amg::Vector3D s(a+b-2*vertexVec);   // twice the vector from vertex to midpoint
+      Amg::Vector3D t(c+d-2*vertexVec);   // twice the vector from vertex to midpoint
       Amg::Vector3D qs(q.cross(s));  
       Amg::Vector3D rt(r.cross(t));  
-      double m(-s.dot(rt)/q.dot(rt));    // ratio for first  line
-      double n(0.);                      // ratio for second line
+      double m(-s.dot(rt)/q.dot(rt)); // ratio for first line
 
       // We increase the length of the strip by 1%. This a fudge which allows
       // us to recover space-points from tracks pointing back to an interaction
       // point up to around z = +- 20 cm
 
-      double limit  = 1. + m_stripLengthTolerance;
-
-      if      (fabs(            m             ) > limit) ok = false;
-      else if (fabs((n=-(t.dot(qs)/r.dot(qs)))) > limit) ok = false;
- 
-      if(!ok && m_stripLengthGapTolerance !=0.) {
-
- 	double qm     = q.mag()                             ;
-	double limitn = limit+(m_stripLengthGapTolerance/qm);
-
-	if(fabs(m) <= limitn)  {
-	  
-	  if(n==0.) n = -(t.dot(qs)/r.dot(qs));
-
-	  if(fabs(n) <= limitn) {
-
-	    double mn  = q.dot(r)/(qm*qm);
-
-	    if     (m >  1. || n >  1.) {
-	      double dm = (m-1.)   ;
-	      double dn = (n-1.)*mn;
-	      double sm = dm; if(dm < dn) sm = dn; m-=sm; n-=(sm*mn);
-	    }
-	    else if(m < -1. || n < -1.) {
-	      double dm =-(m+1.)   ;
-	      double dn =-(n+1.)*mn;
-	      double sm = dm; if(dm < dn) sm = dn; m+=sm;  n+=(sm*mn);
-	    }
-	    if(fabs(m) < limit && fabs(n) < limit) ok = true;
+      double limit = 1. + m_stripLengthTolerance;
+      if (m>limit || m<-1.*limit){
+       ok=false;
+      } else {
+	    double n(-t.dot(qs)/r.dot(qs)); // ratio for second line
+	    if (n>limit || n<-1.*limit) ok=false;
 	  }
-	}
-      }
-      if(ok) point = 0.5*(a + b + m*q);
-  }
+      if (cluster1.detectorElement() == 0 || cluster2.detectorElement() == 0  )  ok=false;
+      if (ok) point = new Amg::Vector3D( 0.5*(a + b + m*q) );    
+    }
+      
   if (ok){
-
-      ATH_MSG_VERBOSE( "SpacePoint generated at: ( " <<  point.x() << " , " << point.y() << " , " << point.z() << " )   " );       
+      ATH_MSG_VERBOSE( "SpacePoint generated at: ( " <<  point->x() << " , " << point->y() << " , " << point->z() << " )   " );       
       const std::pair<IdentifierHash,IdentifierHash> elementIdList( element1->identifyHash() , element2->identifyHash() ); 
       const std::pair<const Trk::PrepRawData*,const Trk::PrepRawData*>* clusList = new std::pair<const Trk::PrepRawData*,const Trk::PrepRawData*>(&cluster1,&cluster2);
-
-      return new InDet::SCT_SpacePoint(elementIdList,new Amg::Vector3D(point),clusList);
-  }   
+      // -ME fixe- added line
+      Trk::SpacePoint*  sp= new InDet::SCT_SpacePoint(elementIdList,point,clusList); 
+      return sp;
+    }    
 
   return 0;
-  }
+}
 
 //--------------------------------------------------------------------------
 void SiSpacePointMakerTool::fillSCT_SpacePointCollection(const InDet::SCT_ClusterCollection* clusters1, 
   const InDet::SCT_ClusterCollection* clusters2, double min, double max, bool m_allClusters, 
   const Amg::Vector3D& vertexVec, const InDetDD::SCT_DetectorManager *SCT_Manager, SpacePointCollection* spacepointCollection){
-
-  m_stripLengthGapTolerance = 0.; 
 
   // Try all combinations of clusters for space points
   InDet::SCT_ClusterCollection::const_iterator
@@ -197,7 +168,7 @@ void SiSpacePointMakerTool::fillSCT_SpacePointCollection(const InDet::SCT_Cluste
   if ((*clusters1Next) &&(clusters1Next!=clusters1Finish)) element1 = SCT_Manager->getDetectorElement(m_idHelper->wafer_id((*clusters1Next)->identify()));
 
   if (!element1) {
-    msg(MSG::ERROR) << "Bad cluster identifier  " << m_idHelper->show_to_string((*clusters1Next)->identify()) <<endmsg;
+    msg(MSG::ERROR) << "Bad cluster identifier  " << m_idHelper->show_to_string((*clusters1Next)->identify()) <<endreq;
     return;
   }
  
@@ -218,11 +189,9 @@ void SiSpacePointMakerTool::fillSCT_SpacePointCollection(const InDet::SCT_Cluste
     if (*clusters2Next && (clusters2Next != clusters2Finish)) element2= SCT_Manager->getDetectorElement(m_idHelper->wafer_id((*clusters2Next)->identify()));
 
     if (!element2) {
-      msg(MSG::ERROR) << "Bad cluster identifier  " << m_idHelper->show_to_string((*clusters2Next)->identify()) <<endmsg;
+      msg(MSG::ERROR) << "Bad cluster identifier  " << m_idHelper->show_to_string((*clusters2Next)->identify()) <<endreq;
       break;
     } 
-
-    if(m_SCTgapParameter!=0.) {double dm = offset(element1,element2); min-=dm; max+=dm; }
    
     for (; clusters2Next != clusters2Finish; ++clusters2Next){
       Amg::Vector2D locpos = (*clusters2Next)->localPosition();
@@ -269,9 +238,6 @@ void SiSpacePointMakerTool::fillSCT_SpacePointEtaOverlapCollection(const InDet::
   const InDet::SCT_ClusterCollection* clusters2, double min, double max, bool m_allClusters, 
   const Amg::Vector3D& vertexVec, const InDetDD::SCT_DetectorManager *SCT_Manager, 
   SpacePointOverlapCollection* m_spacepointoverlapCollection){
-
-  m_stripLengthGapTolerance = 0.; 
-
   // Require that (xPhi2 - xPhi1) lie in the range specified.
   // Used eta modules
   // Try all combinations of clusters for space points
@@ -284,7 +250,7 @@ void SiSpacePointMakerTool::fillSCT_SpacePointEtaOverlapCollection(const InDet::
    
   if ((*clusters1Next) &&(clusters1Next!=clusters1Finish)) element1 = SCT_Manager->getDetectorElement(m_idHelper->wafer_id((*clusters1Next)->identify()));
   if (!element1) {
-    msg(MSG::ERROR) << "Bad cluster identifier  " << m_idHelper->show_to_string((*clusters1Next)->identify()) <<endmsg;
+    msg(MSG::ERROR) << "Bad cluster identifier  " << m_idHelper->show_to_string((*clusters1Next)->identify()) <<endreq;
     return;
   } 
   for (; clusters1Next!=clusters1Finish; ++clusters1Next){
@@ -301,11 +267,10 @@ void SiSpacePointMakerTool::fillSCT_SpacePointEtaOverlapCollection(const InDet::
     const InDetDD::SiDetectorElement *element2 =0;
     if (*clusters2Next && (clusters2Next != clusters2Finish)) element2= SCT_Manager->getDetectorElement(m_idHelper->wafer_id((*clusters2Next)->identify()));
     if (!element2) {
-      msg(MSG::ERROR) << "Bad cluster identifier  " << m_idHelper->show_to_string((*clusters2Next)->identify()) <<endmsg;
+      msg(MSG::ERROR) << "Bad cluster identifier  " << m_idHelper->show_to_string((*clusters2Next)->identify()) <<endreq;
       break;
     } 
-    if(m_SCTgapParameter!=0.) {double dm = offset(element1,element2); min-=dm; max+=dm; }
-   
+    
     for (; clusters2Next != clusters2Finish; ++clusters2Next){
       Amg::Vector2D locpos = (*clusters2Next)->localPosition();
       Amg::Vector2D localPos = Amg::Vector2D(locpos[0], locpos[1]);
@@ -330,8 +295,6 @@ void SiSpacePointMakerTool::fillSCT_SpacePointPhiOverlapCollection(const InDet::
   bool m_allClusters, const Amg::Vector3D& vertexVec, const InDetDD::SCT_DetectorManager *SCT_Manager, 
   SpacePointOverlapCollection* m_spacepointoverlapCollection){
 
-  m_stripLengthGapTolerance = 0.; if(m_SCTgapParameter!=0.) {min1-=20.;  max1+=20.;}
-
   // Clus1 must lie
   // within min1 and max1 and clus between min2 and max2. Used for phi
   // overlaps.
@@ -345,7 +308,7 @@ void SiSpacePointMakerTool::fillSCT_SpacePointPhiOverlapCollection(const InDet::
   const InDetDD::SiDetectorElement *element1 =0;
   if ( (*clusters1Next) && (clusters1Next!=clusters1Finish)) element1= SCT_Manager->getDetectorElement(m_idHelper->wafer_id((*clusters1Next)->identify()));
   if (!element1) {
-    msg(MSG::ERROR) << "Bad cluster identifier  " << m_idHelper->show_to_string((*clusters1Next)->identify()) <<endmsg;
+    msg(MSG::ERROR) << "Bad cluster identifier  " << m_idHelper->show_to_string((*clusters1Next)->identify()) <<endreq;
     return;
   } 
   
@@ -362,12 +325,9 @@ void SiSpacePointMakerTool::fillSCT_SpacePointPhiOverlapCollection(const InDet::
       const InDetDD::SiDetectorElement *element2 =0;
       if (*clusters2Next&&(clusters2Next != clusters2Finish)) element2 = SCT_Manager->getDetectorElement(m_idHelper->wafer_id((*clusters2Next)->identify()));
       if (!element2) {
-	msg(MSG::ERROR) << "Bad cluster identifier  " << m_idHelper->show_to_string((*clusters2Next)->identify()) <<endmsg;
+	msg(MSG::ERROR) << "Bad cluster identifier  " << m_idHelper->show_to_string((*clusters2Next)->identify()) <<endreq;
 	break;
-      }
- 
-      if(m_SCTgapParameter!=0.) {double dm = offset(element1,element2); min2-=dm; max2+=dm; }
-
+      } 
       for (; clusters2Next != clusters2Finish; ++clusters2Next)
 	{
 	  Amg::Vector2D locpos = (*clusters2Next)->localPosition(); 
@@ -386,28 +346,5 @@ void SiSpacePointMakerTool::fillSCT_SpacePointPhiOverlapCollection(const InDet::
   }
   
 }
-
-  ///////////////////////////////////////////////////////////////////
-  // Possible offset estimation in Z or R direction due to gap size 
-  ///////////////////////////////////////////////////////////////////
-
-  double SiSpacePointMakerTool::offset
-  (const InDetDD::SiDetectorElement *element1, const InDetDD::SiDetectorElement *element2)
-  {
-    const Amg::Transform3D& T1  =  element1->transform();
-    const Amg::Transform3D& T2  =  element2->transform();
-
-    double x12 = T1(0,0)*T2(0,0)+T1(1,0)*T2(1,0)+T1(2,0)*T2(2,0)                              ;
-    double r   = sqrt(T1(0,3)*T1(0,3)+T1(1,3)*T1(1,3))                                        ;
-    double s   = (T1(0,3)-T2(0,3))*T1(0,2)+(T1(1,3)-T2(1,3))*T1(1,2)+(T1(2,3)-T2(2,3))*T1(2,2);
-
-    double dm  = (m_SCTgapParameter*r)*fabs(s*x12);
-    double d   = dm/sqrt((1.-x12)*(1.+x12));
-    
-    if(fabs(T1(2,2)) > .7) d*=(r/fabs(T1(2,3))); // endcap d = d*R/Z
-
-    m_stripLengthGapTolerance = d; 
-    return dm;
-  }
 
 }
