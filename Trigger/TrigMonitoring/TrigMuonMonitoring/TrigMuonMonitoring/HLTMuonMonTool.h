@@ -267,8 +267,8 @@ class HLTMuonMonTool : public IHLTMonTool
   std::vector<double> m_RecMuonCB_eloss;
   std::vector<double> m_RecMuonCB_etcone;
   std::vector<double> m_RecMuonCB_ptcone;
-  std::vector<double> m_RecMuonCB_etcone40;
-  std::vector<double> m_RecMuonCB_ptcone40;
+  std::vector<double> m_RecMuonCB_etcone30;
+  std::vector<double> m_RecMuonCB_ptcone30;
   
 
   //private parameters/functions for TileMu
@@ -377,8 +377,8 @@ class HLTMuonMonTool : public IHLTMonTool
   // variable to know when we should load the trigger info
   bool m_ztp_newrun;
   // isolation cut for ztp
-  double m_ztp_ptcone20rel_cut;
-  double m_ztp_EF_ptcone20rel_cut;
+  double m_ztp_ptcone30rel_cut;
+  double m_ztp_EF_ptcone30rel_cut;
 
   //2d histos parameter
 
