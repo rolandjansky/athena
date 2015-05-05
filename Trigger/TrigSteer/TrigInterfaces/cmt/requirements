@@ -4,11 +4,15 @@ author Gianluca Comune <Gianluca.Comune@cern.ch>
 public
 
 use AtlasPolicy         AtlasPolicy-*
+use StoreGate           StoreGate-*                  Control
 use GaudiInterface      GaudiInterface-*             External
 use AthenaBaseComps     AthenaBaseComps-*            Control
+use AtlasBoost          AtlasBoost-*                 External
 use AthenaMonitoring    AthenaMonitoring-*           Control
 use TrigSteeringEvent   TrigSteeringEvent-*          Trigger/TrigEvent
-use DataModel           DataModel-*		             Control
+
+
+use DataModel           DataModel-*		     Control
 use DataCollection      DataCollection-*             External
 
 
@@ -29,9 +33,7 @@ use TrigStorageDefinitions      TrigStorageDefinitions-*             Trigger/Tri
 private
 
 use AthenaKernel        AthenaKernel-*               Control
-use StoreGate           StoreGate-*                  Control
 use TrigTimeAlgs        TrigTimeAlgs-*               Trigger/TrigTools
-use xAODTrigger	    	xAODTrigger-*		         Event/xAOD
 
 # UnitTest programs
 

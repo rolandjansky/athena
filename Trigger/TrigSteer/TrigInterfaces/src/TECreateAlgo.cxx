@@ -12,6 +12,7 @@
 #include "TrigTimeAlgs/TrigTimerSvc.h"
 
 #include "GaudiKernel/GaudiException.h"
+#include "eformat/Issue.h"
 
 using namespace HLT;
 
@@ -145,6 +146,7 @@ ErrorCode TECreateAlgo::processTEs(TEVec& outputTEs) {
 	addSteeringOperationalInfo(false, 1, *outputTE);
       }
 
+      if ( msgLvl() <= MSG::DEBUG )
 	ATH_MSG_DEBUG ( name() 
 			<< " already ran on RoIs(and obejcts) of TE " << (*outputTE)->getId()
 			<< ", reattached features only." );

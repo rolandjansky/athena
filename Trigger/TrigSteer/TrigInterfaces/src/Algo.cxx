@@ -4,8 +4,13 @@
 
 #include <sstream>
 
+#include "GaudiKernel/ListItem.h"
+
 #include "TrigInterfaces/AlgoConfig.h"
 #include "TrigNavigation/TriggerElement.h"
+
+#include "GaudiKernel/MsgStream.h"
+#include "GaudiKernel/ThreadGaudi.h"
 
 #include "TrigTimeAlgs/TrigTimerSvc.h"
 #include "AthenaMonitoring/IMonitorToolBase.h"
@@ -13,10 +18,8 @@
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 
 #include "TrigInterfaces/Algo.h"
-#include "StoreGate/StoreGateSvc.h"
 
 using namespace HLT;
-using namespace std;
 
 
 namespace localns {
@@ -32,8 +35,9 @@ Algo::Algo(const std::string& name, ISvcLocator* pSvcLocator)
   : AthAlgorithm(name, pSvcLocator),
     m_config(0),
     m_monitoringStarted(false),
-    m_ecMapSize(0),    
     m_doAuditors(false),
+    m_msg( new MsgStream( msgSvc(), name) ),
+    m_msgLvl( m_msg->level() ),
     m_timerSvc(0),
     m_totalTime(0),
     m_monitors(this)
@@ -102,6 +106,12 @@ TrigTimer* Algo::totalTimeTimer() const {
 
 StatusCode Algo::initialize()
 {
+
+  // reset OutputLevel
+  m_msg->setLevel(outputLevel());
+  m_msgLvl = outputLevel();
+
+
   map<string,string>::const_iterator mitr(m_errorCodeMap.begin());
   map<string,string>::const_iterator mend(m_errorCodeMap.end());
   while ( mitr!=mend ) {
@@ -113,7 +123,7 @@ StatusCode Algo::initialize()
     else {
       ATH_MSG_WARNING( "ErrorCode " << in << " already in map - not adding");
     }
-    ++mitr;
+    mitr++;
   }
   m_ecMapSize = m_ecMap.size();
 
@@ -232,6 +242,11 @@ StatusCode Algo::finalize()
 {
   // call initialize from derived class:
   HLT::ErrorCode stat = hltFinalize();
+
+  if (m_msg) {
+    delete m_msg;
+    m_msg = 0;
+  }
 
   if (stat != HLT::OK) return StatusCode::FAILURE;
   return StatusCode::SUCCESS;
@@ -486,40 +501,21 @@ void Algo::addSteeringOperationalInfo(bool wasRun, unsigned int /*ntes*/, Trigge
   // determine number of times this function was called for this TOI
   const std::string callkey = prefix+":Call";
   unsigned int icall = 0;
-
-  // Don't want to use "defined" any more as we no longer have map behavior here. 
-  const std::vector<std::string>& keys = steer_opi->getKeys();
-  const std::vector<float>& values = steer_opi->getValues();
-
-  // Find any previous "call", reverse-iterate until we come upon a "CHAIN" at which point we must stop
-  for (unsigned int pos = keys.size() - 1; pos > 0; --pos) {
-    if (keys[pos] == callkey) {
-      icall = floor(values[pos]) + 1; // Increment value
-      steer_opi->updateAtLocation( pos, static_cast<float>(icall) );
-      break;
-    } else if (keys.at(pos).compare(0, 3, "SEQ") == 0) {
-      break; // Only look back as far as the last SEQUENCE call
-    }
+  if(steer_opi -> defined(callkey)) {
+    icall = static_cast<unsigned int>(steer_opi -> get(callkey)) + 1;
   }
-
-  // This is what we replaced wit the above loop, because OPI does not behave "map like" any more (duplicate keys are allowed)
-  // if(steer_opi -> defined(callkey)) {
-  //   icall = static_cast<unsigned int>(steer_opi -> get(callkey)) + 1;
-  // }
 
   // set current function call number, to be used next time
-  // Now we only do this if icall == 0, else we already had one and have updated it in the loop above
-  if (icall == 0) {
-    steer_opi -> set(callkey, static_cast<float>(icall));
-  }
+  steer_opi -> set(callkey, static_cast<float>(icall));
 
   // now create unique prefix
-  prefix = prefix + ":" + std::to_string(icall);
+  std::stringstream callstr;
+  callstr << prefix << ":" << icall;
+  prefix = callstr.str();
 
   // Iterate over ROI TEs and collect ROI words
   if(te && m_config->getNavigation()) {
     const std::vector<TriggerElement*> &roi_vec = Navigation::getRoINodes(te);
-    std::string roi_istr_pref = prefix + ":RoiId:";
     for(unsigned int i = 0; i < roi_vec.size(); ++i) {
       TriggerElement *roiTE = roi_vec[i];
       if(!roiTE) continue;
@@ -528,14 +524,16 @@ void Algo::addSteeringOperationalInfo(bool wasRun, unsigned int /*ntes*/, Trigge
       const TrigRoiDescriptor *roi_des = 0;
       m_config -> getNavigation() -> getFeature<TrigRoiDescriptor>(roiTE, roi_des);
    
-      std::string roi_istr = roi_istr_pref + std::to_string(i);
+      std::stringstream roi_istr;
+      roi_istr << prefix+":RoiId:" << i;
 
       if(roi_des) {
-	      // RoI node has RoI descriptor - save RoiId
-	      steer_opi -> set(roi_istr, static_cast<float>(roi_des->roiId()));
-      } else {
-	      // RoI node is either Energy or JetEt: assume there are less than 255 rois!
-	      steer_opi -> set(roi_istr, 255.0);	
+	// RoI node has RoI descriptor - save RoiId
+	steer_opi -> set(roi_istr.str(), static_cast<float>(roi_des->roiId()));
+      }
+      else {
+	// RoI node is either Energy or JetEt: assume there are less than 255 rois!
+	steer_opi -> set(roi_istr.str(), 255.0);	
       }
     }
   }

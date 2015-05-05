@@ -4,15 +4,18 @@
 
 #ifndef TRIGINTERFACES_IMONITOREDALGO_H
 #define TRIGINTERFACES_IMONITOREDALGO_H
-#include <type_traits>
-#include <functional>
+#include <boost/function.hpp>
+#include <boost/type_traits.hpp>
+#include <boost/mpl/if.hpp>
 #include <string>
 #include <map>
 #include <limits>
 
-#include <cstdlib>
+#include <stdlib.h>
+#include <cxxabi.h>
 #include <string>
 #include <iostream>
+
 
 #include <DataModel/DataVector.h>
 /**
@@ -27,6 +30,9 @@
  * - to list the current set of monitored variables.
  */
 
+//#define HERE "\n" << __FILE__<< ":" <<__LINE__<< ": "
+
+
 namespace {
 
   
@@ -37,28 +43,33 @@ namespace {
     return arg;
   }
 
+
+
   template<class CONTAINER>
   struct contained_type {
-    typedef typename std::remove_reference<CONTAINER>::type UNREF_CONTAINER;
-    typedef typename std::remove_pointer<UNREF_CONTAINER>::type CONTAINER_TYPE;    
-    typedef typename CONTAINER_TYPE::value_type type; // works because std::vector and DataVector both have public value_type
+    typedef typename boost::remove_reference<CONTAINER>::type UNREF_CONTAINER;
+    typedef typename boost::remove_pointer<UNREF_CONTAINER>::type CONTAINER_TYPE;    
+    typedef typename CONTAINER_TYPE::value_type type; // this works because std::vector and DataVector both decided to public value_type
 
   };
+
+
   
   template<class CONTAINED> 
   struct getter_arg_type {
-    typedef typename std::add_const<typename std::remove_pointer<CONTAINED>::type>::type BASE;
-    typedef typename std::conditional< std::is_pointer<CONTAINED>::value, 
-                                       typename std::add_pointer<BASE>::type, 
-                                       typename std::add_lvalue_reference<BASE>::type >::type type;
+    typedef typename boost::add_const<typename boost::remove_pointer<CONTAINED>::type>::type BASE;
+    typedef typename boost::mpl::if_c<boost::is_pointer<CONTAINED>::value, 
+				      typename boost::add_pointer<BASE>::type, 
+				      typename boost::add_reference<BASE>::type >::type type;
   };
 
   template<class CONTAINER>
   struct nonconst_type {
-    typedef typename std::remove_const<typename std::remove_pointer<CONTAINER>::type>::type BASE;
-    typedef typename std::conditional< std::is_pointer<CONTAINER>::value, 
-                                       typename std::add_pointer<BASE>::type, 
-                                       BASE >::type type;    
+    typedef typename boost::remove_const<typename boost::remove_pointer<CONTAINER>::type>::type BASE;
+    typedef typename boost::mpl::if_c<boost::is_pointer<CONTAINER>::value, 
+				      typename boost::add_pointer<BASE>::type, 
+				      BASE >::type type;
+    
   };
 
   template<class T>
@@ -74,7 +85,7 @@ namespace {
 
   template<class T> 
   struct dereference<T, true> {
-    typedef typename std::remove_pointer<T>::type type;
+    typedef typename boost::remove_pointer<T>::type type;
     static type& go(T& c) {
       return *c;
     }
@@ -82,27 +93,34 @@ namespace {
 
   template<class T> 
   struct dereference<T, false> {
-    typedef typename std::remove_pointer<T>::type type;
+    typedef typename boost::remove_pointer<T>::type type;
     static type& go(T& c) {
       return c;
     }
   };
 
   template<class T, bool is_const> struct container_reset {
-    static void go(T&, bool) {}
+    static void go(T&,  bool) {
+    }
+
   };
 
   template<class T>
   struct container_reset<T, false> { // the object is const, resetting is not allowed
     static void go(T& container, bool do_reset) {
-      if (do_reset) dereference<T, std::is_pointer<T>::value>::go(container).clear();
+      typedef typename dereference<T, boost::is_pointer<T>::value>::type deref;
+
+      if (do_reset){        	
+	dereference<T, boost::is_pointer<T>::value>::go(container).clear();
+      }
     }
   };
 
 
+
   // In principle this can be done with succint specialization for T and T*.
-  // But in practice std::is_pointer used as a second arg is better,
-  // as it handles nicelly all the const's around the object.
+  // But in practice boost::is_pointer used as a second arg is better,
+  // as it handles nicelly all the const's afound the object.
   template<class T, bool is_pointer> struct is_null_ptr;
 
   template<class T>
@@ -122,7 +140,7 @@ namespace {
   // adapter for the external monitoring function arguments
   template<class FROM, class TO, bool is_from_a_pointer, bool is_to_a_pointer > 
   struct adapt {
-    static TO go(FROM& a) {
+    static TO  go(FROM& a) {
       return a;
     }
   };
@@ -142,8 +160,12 @@ namespace {
       return &a;
     }
   };
-}
 
+
+  
+
+
+}
 
 
 class IMonitoredAlgo {
@@ -243,7 +265,7 @@ class IMonitoredAlgo {
     
     typedef typename contained_type<T>::type CONTAINED;
     typedef typename getter_arg_type<CONTAINED>::type GETTER_ARG_TYPE;
-    typedef std::function<U(GETTER_ARG_TYPE)> MethodType;
+    typedef boost::function1<U, GETTER_ARG_TYPE> MethodType;
     typedef T & REF;
 
     StdContainerSmartGetter(REF container, MethodType method, ContainerReset rpolicy=NoClear) 
@@ -256,23 +278,23 @@ class IMonitoredAlgo {
 		<< " __REF__  " << rtti_real_name<REF>() 
 	
 		<< " __GART__  " << rtti_real_name<GETTER_ARG_TYPE>() 
-		<< " __Removed pointer__ " << rtti_real_name< typename std::remove_pointer<T>::type >() << std::endl;
+		<< " __Removed pointer__ " << rtti_real_name< typename boost::remove_pointer<T>::type >() << std::endl;
       */
     }
 
     virtual double get(unsigned i = 0) const {       
-      return m_method(dereference<T, std::is_pointer<T>::value>::go(m_container)[i]);      
+      return m_method(dereference<T, boost::is_pointer<T>::value>::go(m_container)[i]);      
     }    
 
     virtual unsigned int size() const { 
-      return is_null_ptr<T, std::is_pointer<T>::value>::check(m_container) ? 0 	
-        : dereference<T, std::is_pointer<T>::value>::go(m_container).size();
+      return is_null_ptr<T, boost::is_pointer<T>::value>::check(m_container) ? 0 	
+	: dereference<T, boost::is_pointer<T>::value>::go(m_container).size();
+
     }
 
     virtual void reset() {             
-      container_reset<T, std::is_const<T>::value>::go(m_container, m_resetPolicy==AutoClear);      
+      container_reset<T, boost::is_const<T>::value>::go(m_container, m_resetPolicy==AutoClear);      
     }
-
   private:
     REF m_container;
     MethodType  m_method;
@@ -287,21 +309,23 @@ class IMonitoredAlgo {
    */
   template<class T, class U, class METHOD_ARG>
   class ObjectSmartGetter : public IGetter {
-    typedef std::function<U(METHOD_ARG)> MethodType;
+    typedef boost::function1<U, METHOD_ARG> MethodType;
   public:
     ObjectSmartGetter(T& obj, MethodType method) 
       : m_object(obj),
-        m_method(method)
+	m_method(method)
     {
     }
 
     virtual unsigned int size() const { 
-      return is_null_ptr<T, std::is_pointer<T>::value>::check(m_object) ? 0 : 1;
+      return  is_null_ptr<T, boost::is_pointer<T>::value>::check(m_object) ? 0 : 1;
+
     }    
 
     virtual double get(unsigned) const {
-      return m_method( adapt<T, METHOD_ARG, 
-                       std::is_pointer<T>::value, std::is_pointer<METHOD_ARG>::value>::go( m_object ) );
+      return m_method(  adapt<T, METHOD_ARG, 
+      			boost::is_pointer<T>::value, boost::is_pointer<METHOD_ARG>::value>::go( m_object ) );
+
     }    
 
   private:
@@ -351,14 +375,16 @@ class IMonitoredAlgo {
   template <class T> 
   IGetter*
   declareMonitoredStdContainer(const std::string& name, 
-                               T& container, 
-                               ContainerReset resetPolicy = NoClear) {
+			       T& container, 
+			       ContainerReset resetPolicy = NoClear) {
 
     typedef typename contained_type<T>::type CONTAINED;
+
+
     return declareMonitoredCustomVariable(name, 
-                                          new StdContainerSmartGetter<T, CONTAINED >(container,
-                                                                                     noop<CONTAINED>,
-                                                                                     resetPolicy));    
+					  new StdContainerSmartGetter<T, CONTAINED >(container,
+										     noop<CONTAINED>,
+										     resetPolicy));    
   }
 
 
@@ -372,7 +398,7 @@ class IMonitoredAlgo {
   template <class T, class U> 
   IGetter*
   declareMonitoredCollection(const std::string& name,  
-                             const DataVector<T>* const & coll, U (T::*method)() const ) {
+			     const DataVector<T>* const & coll, U (T::*method)() const ) {
 
     return declareMonitoredCustomVariable(name, new StdContainerSmartGetter<const DataVector<T>*const, U >(coll, method));
   }
@@ -387,19 +413,9 @@ class IMonitoredAlgo {
   template <class T, class U> 
   IGetter*
   declareMonitoredCollection(const std::string& name, 
-                             const DataVector<T>* const & coll, U (*method)(const T*)) {
+			     const DataVector<T>* const & coll, U (*method)(const T*)) {
  
     return declareMonitoredCustomVariable(name, new StdContainerSmartGetter<const DataVector<T>*const, U >(coll, method));
-  }
-
-
-  // Explicit specialization needed to avoid clang compilation error.
-  template <class T> 
-  IGetter*
-  declareMonitoredCollection(const std::string& name, 
-                             const DataVector<T>* const & coll, float (*method)(const T*)) {
- 
-    return declareMonitoredCustomVariable(name, new StdContainerSmartGetter<const DataVector<T>*const, float >(coll, method));
   }
 
 
@@ -432,7 +448,7 @@ class IMonitoredAlgo {
    */
   template <class T, class U> 
   IGetter* declareMonitoredObject(const std::string& name, 
-                                  const T& obj, U (T::*method)() const ) {
+				  const T& obj, U (T::*method)() const ) {
 
     return declareMonitoredCustomVariable(name, new ObjectSmartGetter<const T, U, const T& >(obj, method));
   }
@@ -443,7 +459,7 @@ class IMonitoredAlgo {
    */  
   template <class T, class U> 
   IGetter* declareMonitoredObject(const std::string& name, 
-                                  const T& obj, U (*method)(const T&) ) {
+				  const T& obj, U (*method)(const T&) ) {
     
     return declareMonitoredCustomVariable(name, new ObjectSmartGetter<const T, U, const T&>(obj, method));
   }
@@ -455,7 +471,7 @@ class IMonitoredAlgo {
    */  
   template <class T, class U> 
   IGetter* declareMonitoredObject(const std::string& name, 
-                                  T const* const & obj, U (T::*method)() const ) {
+				  T const* const & obj, U (T::*method)() const ) {
 
     return declareMonitoredCustomVariable(name, new ObjectSmartGetter<const T * const, U, const T*>(obj, method));
   }
@@ -465,7 +481,7 @@ class IMonitoredAlgo {
    */  
   template <class T, class U> 
   IGetter* declareMonitoredObject(const std::string& name, 
-                                  const T * const & obj, U (*method)(const T*) ) {
+				  const T * const & obj, U (*method)(const T*) ) {
 
     return declareMonitoredCustomVariable(name, new ObjectSmartGetter<const T* const, U, const T*>(obj, method));
   }
@@ -475,7 +491,7 @@ class IMonitoredAlgo {
    */  
   template <class T, class U> 
   IGetter* declareMonitoredObject(const std::string& name, 
-                                  const T & obj, U (*method)(const T*) ) {
+				  const T & obj, U (*method)(const T*) ) {
 
     return declareMonitoredCustomVariable(name, new ObjectSmartGetter<const T, U, const T*>(obj, method));
   }
@@ -486,7 +502,7 @@ class IMonitoredAlgo {
    */  
   template <class T, class U> 
   IGetter* declareMonitoredObject(const std::string& name, 
-                                  const T * const & obj, U (*method)(const T&) ) {
+				  const T * const & obj, U (*method)(const T&) ) {
 
     return declareMonitoredCustomVariable(name, new ObjectSmartGetter<const T* const, U, const T&>(obj, method) );
   }
@@ -508,7 +524,7 @@ class IMonitoredAlgo {
   ~IMonitoredAlgo();
 
 private:
-  /** @brief checks if algorithm already exported variable of that name */
+  /** @brief checks if algorithm already exported varaible of that name */
   bool assesName(const std::string& name); 
   
   /** @brief Map of monitored variables, addressed by their name. */

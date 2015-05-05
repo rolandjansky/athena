@@ -22,24 +22,24 @@ ErrorCode HLT::trigExceptionHandler(MsgStream* log)
     throw;
   }
   catch (GaudiException& ex) {
-    if (log) *log << MSG::WARNING << "Caught GAUDI exception: "  << ex.what() << endmsg;
+    if (log) *log << MSG::WARNING << "Caught GAUDI exception: "  << ex.what() << endreq;
     return  GAUDI_EXCEPTION;
   }
   catch (eformat::Issue& ex) {
     if (log) *log << MSG::WARNING << "Caught eformat issue (data access error): "  << ex.what()
-		  << "in: " << ex.context().file_name() << "line: " << ex.context().line_number() << endmsg;
+		  << "in: " << ex.context().file_name() << "line: " << ex.context().line_number() << endreq;
     return EFORMAT_EXCEPTION;
   }
   catch (std::bad_alloc& ex) {
-    if (log) *log << MSG::ERROR << "Memory allocation issue caught: " << ex.what() << endmsg;        
+    if (log) *log << MSG::ERROR << "Memory allocation issue caught: " << ex.what() << endreq;        
     throw;  // this is serious, re-throwing
   }
   catch (std::exception& ex) {
-    if (log) *log << MSG::ERROR << "std::exception caught: " << ex.what() << endmsg;    
+    if (log) *log << MSG::ERROR << "std::exception caught: " << ex.what() << endreq;    
     return STD_EXCEPTION;
   }
   catch (...) {
-    if (log) *log << MSG::ERROR << "Unknown exception caught" << endmsg;
+    if (log) *log << MSG::ERROR << "Unknown exception caught" << endreq;
     return UNKNOWN_EXCEPTION;
   } 
 }
