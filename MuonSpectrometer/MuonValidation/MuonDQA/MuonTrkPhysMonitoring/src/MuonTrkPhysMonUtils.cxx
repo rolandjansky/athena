@@ -8,43 +8,43 @@
 
 
 //---------------------------------------------------------------------------------------
-float MuonTrkPhysMonUtils::EtaRegion(double eta)
+float MuonTrkPhysMonUtils::EtaRegionFine(double eta)
 {
-  if (eta < -2.50) {return -1.;} //underflow
-  if (eta < -2.00) {return 0.5;} //CSC C
-  if (eta < -1.70) {return 1.5;} //ENDCAP C
-  if (eta < -1.05) {return 2.5;} //Trans C
-  if (eta <  0.00) {return 3.5;} //Barrel C
-  if (eta >  2.50) {return 8.5;} //OverFlow
-  if (eta >  2.00) {return 7.5;} //CSC A
-  if (eta >  1.70) {return 6.5;} //ENDCAP A
-  if (eta >  1.05) {return 5.5;} //Trans A
-  if (eta >  0.00) {return 4.5;} //Barrel A
+  if (eta < -2.50) {return -1.;} // underflow
+  if (eta < -2.00) {return 0.5;} // CSC C
+  if (eta < -1.70) {return 1.5;} // ENDCAP C
+  if (eta < -1.05) {return 2.5;} // Trans C
+  if (eta <  0.00) {return 3.5;} // Barrel C
+  if (eta >  2.50) {return 8.5;} // OverFlow
+  if (eta >  2.00) {return 7.5;} // CSC A
+  if (eta >  1.70) {return 6.5;} // ENDCAP A
+  if (eta >  1.05) {return 5.5;} // Trans A
+  if (eta >  0.00) {return 4.5;} // Barrel A
   return -1.;
 }
 //---------------------------------------------------------------------------------------
-float MuonTrkPhysMonUtils::EtaRegionSmall(double eta)
+float MuonTrkPhysMonUtils::EtaRegionCoarse(double eta)
 {
     
-  if(eta < -2.50) {return -1.;} //underflow
-  if(eta < -1.05) {return 0.5;} //EC
-  if(eta <  0.00) {return 1.5;} //BC
-  if(eta <  1.05) {return 2.5;} //BA
-  if(eta <  2.50) {return 3.5;} //BC
-  return 4.5; //Overflow
+  if(eta < -2.50) {return -1.;} // underflow
+  if(eta < -1.05) {return 0.5;} // EC
+  if(eta <  0.00) {return 1.5;} // BC
+  if(eta <  1.05) {return 2.5;} // BA
+  if(eta <  2.50) {return 3.5;} // BC
+  return 4.5; // Overflow
     
 }
 //---------------------------------------------------------------------------------------
 bool MuonTrkPhysMonUtils::LabelLargeEtaRegions(TAxis * axis)
 {
-  axis->SetBinLabel(1,"CSC C");
-  axis->SetBinLabel(2,"EC C");
-  axis->SetBinLabel(3,"TRANS C");
-  axis->SetBinLabel(4,"BARR C");
-  axis->SetBinLabel(5,"BARR A");
-  axis->SetBinLabel(6,"TRANS A");
-  axis->SetBinLabel(7,"EC A");
-  axis->SetBinLabel(8,"CSC A");
+  axis->SetBinLabel(1, "CSC C");
+  axis->SetBinLabel(2, "EC C");
+  axis->SetBinLabel(3, "TRANS C");
+  axis->SetBinLabel(4, "BARR C");
+  axis->SetBinLabel(5, "BARR A");
+  axis->SetBinLabel(6, "TRANS A");
+  axis->SetBinLabel(7, "EC A");
+  axis->SetBinLabel(8," CSC A");
   axis->SetTitle("Detector #eta Regions");
     
   return true;
@@ -52,24 +52,24 @@ bool MuonTrkPhysMonUtils::LabelLargeEtaRegions(TAxis * axis)
 //---------------------------------------------------------------------------------------
 bool MuonTrkPhysMonUtils::LabelCombinedEtaRegions(TAxis * axis)
 {
-  axis->SetBinLabel(1,"EC-EC");
-  axis->SetBinLabel(2,"EC-BC");
-  axis->SetBinLabel(3,"EC-BA");
-  axis->SetBinLabel(4,"EC-EA");
-  axis->SetBinLabel(5,"BC-EC");
-  axis->SetBinLabel(6,"BC-BC");
-  axis->SetBinLabel(7,"BC-BA");
-  axis->SetBinLabel(8,"BC-EA");
-  axis->SetBinLabel(9,"BA-EC");
-  axis->SetBinLabel(10,"BA-BC");
-  axis->SetBinLabel(11,"BA-BA");
-  axis->SetBinLabel(12,"BA-EA");
-  axis->SetBinLabel(13,"EA-EC");
-  axis->SetBinLabel(14,"EA-BC");
-  axis->SetBinLabel(15,"EA-BA");
-  axis->SetBinLabel(16,"EA-EA");
+  axis->SetBinLabel( 1, "EC-EC");
+  axis->SetBinLabel( 2, "EC-BC");
+  axis->SetBinLabel( 3, "EC-BA");
+  axis->SetBinLabel( 4, "EC-EA");
+  axis->SetBinLabel( 5, "BC-EC");
+  axis->SetBinLabel( 6, "BC-BC");
+  axis->SetBinLabel( 7, "BC-BA");
+  axis->SetBinLabel( 8, "BC-EA");
+  axis->SetBinLabel( 9, "BA-EC");
+  axis->SetBinLabel(10, "BA-BC");
+  axis->SetBinLabel(11, "BA-BA");
+  axis->SetBinLabel(12, "BA-EA");
+  axis->SetBinLabel(13, "EA-EC");
+  axis->SetBinLabel(14, "EA-BC");
+  axis->SetBinLabel(15, "EA-BA");
+  axis->SetBinLabel(16, "EA-EA");
     
-  axis->SetTitle("#eta Region Permutations [(+#mu),(-#mu)]");
+  axis->SetTitle("#eta Region Permutations [+#mu, -#mu]");
     
   return true;
 }
