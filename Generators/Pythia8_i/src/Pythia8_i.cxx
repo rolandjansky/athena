@@ -11,6 +11,8 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/assign/std/vector.hpp>
+#include <boost/foreach.hpp>
+#define foreach BOOST_FOREACH
 
 // calls to fortran routines
 #include "CLHEP/Random/RandFlat.h"
@@ -31,6 +33,9 @@ m_pythia(xmlpath()),
 m_internal_event_number(0),
 m_version(-1.),
 m_atlasRndmEngine(0),
+m_lheSubProcId(-999),
+m_nAccepted(0.),
+m_nMerged(0.),
 m_failureCount(0),
 m_procPtr(0),
 m_userHookPtr(0)
@@ -43,6 +48,7 @@ m_userHookPtr(0)
   declareProperty("Beam1", m_beam1 = "PROTON");
   declareProperty("Beam2", m_beam2 = "PROTON");
   declareProperty("LHEFile", m_lheFile = "");
+  declareProperty("CKKWLAcceptance", m_doCKKWLAcceptance = false);
   declareProperty("MaxFailures", m_maxFailures = 10);//the max number of consecutive failures
   declareProperty("UserProcess", m_userProcess="");
   declareProperty("UserHook", m_userHook="");
@@ -127,12 +133,27 @@ StatusCode Pythia8_i::genInitialize() {
   }
   
   // Now apply the settings from the JO
-  for(vector<string>::const_iterator cmd = m_commands.begin();
-      cmd != m_commands.end(); ++cmd){
-    bool read = m_pythia.readString(*cmd);
+  foreach(const string &cmd, m_commands){
+    
+    if(cmd.compare("")==0) continue;
+    try{
+      string val = findValue(cmd, "Tune:pp");
+      if(val != ""){
+        int tune = boost::lexical_cast<int>(val);
+        if(tune > s_allowedTunes(m_version)){
+          ATH_MSG_ERROR("Tune setting is not known to this version of Pythia:" + cmd);
+          return StatusCode::FAILURE;
+        }
+      }
+    }catch(CommandException err){
+      ATH_MSG_ERROR(err.what());
+      return StatusCode::FAILURE;
+    }
+    
+    bool read = m_pythia.readString(cmd);
     
     if(!read){
-      ATH_MSG_ERROR("Pythia could not understand the command '"<< *cmd<<"'");
+      ATH_MSG_ERROR("Pythia could not understand the command '"<< cmd<<"'");
       return StatusCode::FAILURE;
     }
   }
@@ -311,12 +332,31 @@ StatusCode Pythia8_i::callGenerator(){
 
   m_failureCount = 0;
   
+  if(m_pythia.info.isLHA() && m_pythia.info.hasSub() && m_doCKKWLAcceptance){
+    if(m_lheSubProcId == -999){
+      m_lheSubProcId = m_pythia.info.codeSub();
+    }else{
+      if(m_lheSubProcId != m_pythia.info.codeSub() ){
+        // don't know how to handle this, so give up
+        return StatusCode::FAILURE;
+      }
+    }
+  }
+  
+  m_nAccepted += 1.;
   // some CKKWL merged events have zero weight (or unfilled event). 
   // start again with such events
+  
+  double eventWeight = m_pythia.info.mergingWeight()*m_pythia.info.weight();
+  
   if(returnCode != StatusCode::FAILURE &&
-     (fabs(m_pythia.info.mergingWeight()*m_pythia.info.weight()) < 1.e-18 ||
-      m_pythia.event.size() < 2))
-    returnCode = this->callGenerator(); 
+     (fabs(eventWeight) < 1.e-18 ||
+      m_pythia.event.size() < 2)){
+       
+       returnCode = this->callGenerator();
+     }else{
+       m_nMerged += eventWeight;
+     }
   
   ++m_internal_event_number;
 
@@ -395,7 +435,12 @@ StatusCode Pythia8_i::genFinalize(){
   m_pythia.stat();
   
   Pythia8::Info info = m_pythia.info;
-  double xs = info.sigmaGen();// in mb
+  double xs = info.sigmaGen(); // in mb
+  
+  if(m_doCKKWLAcceptance){
+    ATH_MSG_DEBUG("Multiplying cross-section by CKKWL merging acceptance of "<<m_nMerged <<"/" <<info.nAccepted());
+    xs *= m_nMerged / info.nAccepted();
+  }
   xs *= 1000. * 1000.;//convert to nb
 
   std::cout << "MetaData: cross-section (nb)= " << xs <<std::endl;
@@ -407,6 +452,21 @@ StatusCode Pythia8_i::genFinalize(){
 ////////////////////////////////////////////////////////////////////////////////
 double Pythia8_i::pythiaVersion()const{
   return m_version;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+string Pythia8_i::findValue(const string &command, const string &key){
+  if(command.find(key) == std::string::npos) return "";
+  
+  vector<string> splits;
+  boost::split(splits, command, boost::is_any_of("="));
+  if(splits.size() != 2){
+    throw Pythia8_i::CommandException(command);
+  }
+  
+  boost::erase_all(splits[1], " ");
+  
+  return splits[1];
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -436,3 +496,29 @@ string Pythia8_i::xmlpath(){
   
   return foundpath;
 }
+
+  ////////////////////////////////////////////////////////////////////////////////
+int Pythia8_i::s_allowedTunes(double version){
+  static map<double, int> allowedTunes;
+  if(allowedTunes.size()==0){
+    allowedTunes[0.]    = 0;
+    allowedTunes[8.126] = 1;
+    allowedTunes[8.139] = 2;
+    allowedTunes[8.140] = 4;
+    allowedTunes[8.145] = 5;
+    allowedTunes[8.153] = 6;
+    allowedTunes[8.160] = 7;
+    allowedTunes[8.165] = 11;
+    allowedTunes[8.183] = 14;
+    allowedTunes[8.2]   = 17;
+    allowedTunes[8.204] = 18;
+    allowedTunes[8.205] = 32;
+  }
+  
+  map<double, int>::const_iterator maxTune = allowedTunes.upper_bound(version + 0.0000001);
+  
+  if(maxTune != allowedTunes.begin()) --maxTune;
+  
+  return maxTune->second;
+}
+  
