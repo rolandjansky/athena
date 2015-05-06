@@ -18,6 +18,8 @@
 #include "G4MagneticField.hh"
 #include "G4ChordFinder.hh"
 #include "G4MagIntegratorDriver.hh"
+#include "G4AtlasRK4.hh"
+#include "G4Mag_UsualEqRhs.hh"
 
 FieldMenu::FieldMenu()
   :SimpleMenu("FieldMenu")
@@ -66,10 +68,14 @@ void FieldMenu::assign(const std::string fieldMap, const std::string name, const
 	//fieldMgr->SetField(nname);
 
     // Apply the current stepper to this field manager
-    if (fm->GetCurrentStepper()){
-      fieldMgr->GetChordFinder()->GetIntegrationDriver()->RenewStepperAndAdjust(fm->GetCurrentStepper());
-    } else { // Default value
-      fieldMgr->GetChordFinder()->GetIntegrationDriver()->RenewStepperAndAdjust(fm->GetStepper(m_defaultStepper));
+	if ("G4AtlasFieldSvc"==fieldMap){
+      if (fm->GetCurrentStepper()){
+        fieldMgr->GetChordFinder()->GetIntegrationDriver()->RenewStepperAndAdjust(fm->GetCurrentStepper());
+      } else { // Default value
+        fieldMgr->GetChordFinder()->GetIntegrationDriver()->RenewStepperAndAdjust(fm->GetStepper(m_defaultStepper));
+      }
+    } else {
+      fieldMgr->GetChordFinder()->GetIntegrationDriver()->RenewStepperAndAdjust( new G4AtlasRK4( new G4Mag_UsualEqRhs( magField ) ) );
     }
 
 	// step two - fish for the volume
@@ -150,6 +156,7 @@ void FieldMenu::ListAvailableSteppers()
 
 void FieldMenu::SetCurrentStepper(const std::string stepperName)
 {
+		if (stepperName==m_defaultStepper) return;
 		FADS::FieldManager *fm=FADS::FieldManager::GetFieldManager();
 		fm->SetCurrentStepper( stepperName);
 }
@@ -162,6 +169,7 @@ void FieldMenu::UseCurrentStepper()
 
 void FieldMenu::UseStepper(const std::string stepperName)
 {
+        if (stepperName==m_defaultStepper) return;
 		FADS::FieldManager *fm=FADS::FieldManager::GetFieldManager();
 		fm->UseStepper( stepperName);
 }
@@ -177,6 +185,7 @@ void FieldMenu::UseStepper(const std::string volName, const std::string stepperN
 
 void FieldMenu::SetEquationOfMotion(const std::string equationName)
 {
+		if ("Default"==equationName) return;
 		FADS::FieldManager *fm=FADS::FieldManager::GetFieldManager();
 		fm->EquationOfMotion( equationName);
 }
