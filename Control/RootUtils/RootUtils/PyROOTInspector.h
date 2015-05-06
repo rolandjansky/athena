@@ -18,11 +18,13 @@ class PyROOTInspector
 {
  public:
   static
-  PyObject* pyroot_inspect(PyObject* obj);
+  PyObject* pyroot_inspect(PyObject* obj,
+                           bool persistentOnly = false);
 
   static
   PyObject* pyroot_inspect2(PyObject *obj, 
-                            PyObject *obj_name);
+                            PyObject *obj_name,
+                            bool persistentOnly = false);
 
 };
 
