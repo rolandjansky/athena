@@ -673,9 +673,17 @@ void TileDQFragMonTool::fillErrHist(int ros, int drawer) {
     for (int idmu = 0; idmu < NDMU; idmu++) { // loop over dmus
       int ichn = 3 * idmu;
 
-      if (m_checkDCS && (m_tileDCSSvc->statusIsBad(ros + 1, drawer, ichn)
-                         || m_tileDCSSvc->statusIsBad(ros + 1, drawer, ichn + 1)
-                         || m_tileDCSSvc->statusIsBad(ros + 1, drawer, ichn + 2))) fillOneErrHist(ros, drawer, idmu, 14);
+      unsigned int drawerIdx = TileCalibUtils::getDrawerIdx(ros + 1, drawer);
+      if (m_checkDCS 
+          && ((m_tileDCSSvc->statusIsBad(ros + 1, drawer, ichn)
+               && !m_tileBadChanTool->getChannelStatus(drawerIdx, ichn).contains(TileBchPrbs::NoHV)) 
+              || (m_tileDCSSvc->statusIsBad(ros + 1, drawer, ichn + 1) 
+                  && !m_tileBadChanTool->getChannelStatus(drawerIdx, ichn + 1).contains(TileBchPrbs::NoHV))
+              || (m_tileDCSSvc->statusIsBad(ros + 1, drawer, ichn + 2) 
+                  && !m_tileBadChanTool->getChannelStatus(drawerIdx, ichn + 2).contains(TileBchPrbs::NoHV)))) {
+
+        fillOneErrHist(ros, drawer, idmu, 14);      
+      }
 
       if (m_dqStatus->isChanDQgood(ros + 1, drawer, ichn)) {
         fillOneErrHist(ros, drawer, idmu, 0);

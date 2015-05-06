@@ -815,14 +815,14 @@ StatusCode TileCellMonTool::fillHistograms() {
           if (badch2 && ch2Ok) gn2 = 1 - gn2;
         }
 
-        if (badch1 && ch1Ok) {
+        if (badch1 && ch1Ok && !(single_PMT_C10 && ch1 == 4)) {
           if (m_TileCellStatFromDB[partition][gn1]->GetBinContent(drw + 1, ch1 + 1) == 0) {
             ++badonfly[partition];
             m_TileCellStatOnFly[partition]->Fill(drawer, ch1);
           }
         }
     
-        if (badch2 && ch2Ok) {
+        if (badch2 && ch2Ok && !(single_PMT_C10 && ch2 == 4)) {
           if (m_TileCellStatFromDB[partition2][gn2]->GetBinContent(drw + 1, ch2 + 1) == 0) {
             ++badonfly[partition2];
             m_TileCellStatOnFly[partition2]->Fill(drawer, ch2);

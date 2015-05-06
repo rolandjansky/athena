@@ -58,7 +58,7 @@ TileRODMonTool::TileRODMonTool(const std::string & type, const std::string & nam
   declareProperty("DspComparisonFit", m_useFitRef = false); //reference type
   declareProperty("DspComparisonOF", m_useOFRef = true);
   declareProperty("doOnline", m_isOnline = false); // Switch for online running
-  declareProperty("Details", m_details = true); // Switch for online running
+  declareProperty("Details", m_details = false); // Switch for online running
 
   m_path = "/Tile/ROD"; //ROOT File directory
 
