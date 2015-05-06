@@ -6,7 +6,6 @@ from PROCTools.getFileLists import *
 sys.argv += [ '-b' ] # tell ROOT to not use graphics
 from ROOT import TFile,TTree
 from PROCTools.diffTAGTree import diffTTree
-#import re
 
 os.environ['STAGE_SVCCLASS']="atlascerngroupdisk"
 os.environ['STAGE_HOST']="castoratlast3"
@@ -135,7 +134,6 @@ if __name__ == "__main__":
         if o=="--refPath": refPath=a
         if o=="--valPath": valPath=a
         
-
     if refPath is None:
         if nRef is None:
             print "Reference nightly not defined! Please use --nRef parameter!"
@@ -178,7 +176,6 @@ if __name__ == "__main__":
     print "Comparing files matching:" 
     print filePattern
 
-
     #Hack to process POOL files first (otherwise inifite loop)
     allPatterns=[]
     for fP in filePattern:
@@ -186,7 +183,6 @@ if __name__ == "__main__":
             allPatterns.append(fP)
         else:
             allPatterns.insert(0,fP)
-
 
     if refPath is None:
         refPath=tctPath(nRef,rRef);
@@ -214,19 +210,22 @@ if __name__ == "__main__":
     else:
         details=None
 
-    ff=findTCTFiles(refPath,valPath)
+    ff = findTCTFiles(refPath,valPath)
     tctlist=ff.getCommonChains()
-
+    print "Output from findTCTFile.getCommonChains():"
+    print tctlist
         
     statPerChain=dict()
     
     Summary=""
     for pattern in allPatterns:
-        nIdenticalFiles=0
-        nDifferentFiles=0
-        filesToCompare=ff.findFiles(pattern)
+        nIdenticalFiles = 0
+        nDifferentFiles = 0
+        filesToCompare = ff.findFiles(pattern)
+        print "Will now look for files matching pattern:", pattern
+        print "The found files to compare:", filesToCompare
         print "Comparing files matching [%s]" % pattern
-        Summary+="Comparing files matching [%s]\n" % pattern
+        Summary += "Comparing files matching [%s]\n" % pattern
         #for (tctName,r,v) in filesToCompare:
         for name,rv in filesToCompare.iteritems():
             #print "TCT:",name,":",len(rv)
@@ -244,7 +243,7 @@ if __name__ == "__main__":
                     (eq,dif)=compareTreeFiles(r,v,details)
                     if eq==0 and dif==0: continue
                     identical=(dif==0)
-                elif fileName.endswith(".gpickle"):
+                elif fileName.endswith(".pickle"):
                     stat=diffPickleFiles(r,v,details)
                     identical=not stat
                 else:
@@ -261,8 +260,6 @@ if __name__ == "__main__":
                     statPerChain[name]=True
                     nDifferentFiles+=1
                     print "Files are not identical"
-
-        
             
         Summary+="Found %i identical files and %i different files\n" % (nIdenticalFiles, nDifferentFiles)
         print "Found %i identical files and %i different files\n" % (nIdenticalFiles, nDifferentFiles)
@@ -312,9 +309,6 @@ if __name__ == "__main__":
                     complain+=name+" "+ln+"***\n"
                 else:
                     print ln
-
-
-
                     
         if len(info[0].memlist)>4 and len(info[1].memlist)>4:
             mem_r=info[0].memlist[1]
@@ -338,24 +332,22 @@ if __name__ == "__main__":
                     complain+=name+" "+ln+"***\n"
                 else:
                     print ln
-
     
     for f,s in statPerChain.iteritems():
         if s:
-            print f,"  CHANGED"
+            print "%-70s CHANGED" % f
         else:
-            print f,"  IDENTICAL"
-
-
+            print "%-70s IDENTICAL" % f
 
     if sumFileName is not None:
         sumFile=open(sumFileName,"w")
-        #sumFile.write(Summary)
         for f,s in statPerChain.iteritems():
+            line = "%-70s" % f
             if s:
-                sumFile.write(f+"  CHANGED\n")
+                line += "CHANGED\n"
             else:
-                sumFile.write(f+"  IDENTICAL\n")
+                line += "IDENTICAL\n"
+            sumFile.write(line)
 
         sumFile.write("\n\n")
         sumFile.write(complain)
