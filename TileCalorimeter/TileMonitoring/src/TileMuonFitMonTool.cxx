@@ -42,7 +42,7 @@ TileMuonFitMonTool::TileMuonFitMonTool(const std::string & type, const std::stri
 
   declareProperty("muonfitContainerName", m_muonfitContName = "TileCosmicMuonHT"); //SG MuonFit Container
   declareProperty("muonfitCellContainerName", m_cellContainerKey = "AllCalo");
-  declareProperty("UseLVL1", m_useLVL1 = "true");
+  declareProperty("UseLVL1", m_useLVL1 = true);
 
   m_path = "/Tile/Muonfit"; //ROOT File directory
 }
@@ -214,13 +214,14 @@ StatusCode TileMuonFitMonTool::fillHistograms() {
       for (int i = PartEBA; i < NumPart; i++) {
         // set the x-axis label to partition name for occupancy and balance plot
 
-        m_tileMuonFitTimePartLVL1[i] = book2F("", "tileMuonTimePartLVL1" + m_PartNames[i], "Run " + runNumStr + ": " + m_PartNames[i] + " TileCal MuonFit Average Time VS LVL1 item when crossing y=0 plane", 31, -77.5, 77.5, 256, -0.5, 255.5);
-        m_tileMuonFitTimePartLVL1[i]->GetXaxis()->SetTitle("Time at y=0 (ns)");
         if (m_trigok) {
+          m_tileMuonFitTimePartLVL1[i] = book2F("", "tileMuonTimePartLVL1" + m_PartNames[i], "Run " + runNumStr + ": " + m_PartNames[i] + " TileCal MuonFit Average Time VS LVL1 item when crossing y=0 plane", 31, -77.5, 77.5, m_l1triggers.size(), -0.5, m_l1triggers.size() - 0.5);
           SetBinLabel(m_tileMuonFitTimePartLVL1[i]->GetYaxis(), m_l1triggers);
         } else {
+          m_tileMuonFitTimePartLVL1[i] = book2F("", "tileMuonTimePartLVL1" + m_PartNames[i], "Run " + runNumStr + ": " + m_PartNames[i] + " TileCal MuonFit Average Time VS LVL1 item when crossing y=0 plane", 31, -77.5, 77.5, 256, -0.5, 255.5);
           m_tileMuonFitTimePartLVL1[i]->GetYaxis()->SetTitle("LVL1 item");
         }
+        m_tileMuonFitTimePartLVL1[i]->GetXaxis()->SetTitle("Time at y=0 (ns)");
       }
     }
 

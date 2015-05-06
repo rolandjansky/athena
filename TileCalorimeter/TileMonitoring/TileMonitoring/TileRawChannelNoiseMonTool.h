@@ -41,28 +41,25 @@ class TileRawChannelNoiseMonTool: public TileFatherMonTool {
 
     ~TileRawChannelNoiseMonTool();
 
-    StatusCode initialize();
+    virtual StatusCode initialize();
 
     //pure virtual methods
-    StatusCode bookHistograms();
-    StatusCode fillHistograms();
-    StatusCode procHistograms();
-    StatusCode checkHists(bool fromFinalize);
-    StatusCode finalHists();
-
-    StatusCode bookRawChannelNoiseHistos();
-
-    StatusCode fillHistoPerRawChannel();  // work on the raw channels
-
-    // perform the 2G fit at the channel level, optional only if m_do2gfit=true
-    void do2GFit();                         // perform double gaussian fit
-    void do2GFit(TH1F* h, double *, TF1 *); // perform double gaussian fit
-
-    void cleanHistVec();
+    virtual StatusCode bookHistograms();
+    virtual StatusCode fillHistograms();
+    virtual StatusCode procHistograms();
 
   private:
 
-    void FirstEvInit();
+    StatusCode bookRawChannelNoiseHistos();
+    StatusCode fillHistoPerRawChannel();  // work on the raw channels
+
+    void cleanHistVec();
+
+    // perform the 2G fit at the channel level, optional only if m_do2gfit=true
+    void doFit();                         // perform  gaussian fit
+
+    void fitGauss(TH1F* h, double*, TF1*); // perform  gaussian fit
+    void fitDoubleGauss(TH1F* h, double*, TF1*); // perform  gaussian fit
 
     ToolHandle<TileBeamInfoProvider> m_beamInfo;
     ToolHandle<ITileBadChanTool> m_tileBadChanTool; //!< Tile Bad Channel tool
@@ -71,19 +68,19 @@ class TileRawChannelNoiseMonTool: public TileFatherMonTool {
     const TileDQstatus* m_DQstatus;
 
     bool m_doOnline;
-    bool m_isFirstEv;
 
     // x-axis range for the individual cell noise histograms
     float m_xmin;
     float m_xmax;
 
-    Bool_t m_do2gfit;
-    std::string m_RawChannelContainer;
+    Bool_t m_do2GFit;
+    Bool_t m_doFit;
+    std::string m_rawChannelContainerName;
 
     // histograms
-    std::vector<TH1F*> m_TileChannelEne[5][64]; // a 2D array of 5x64 partitions X modules, each containing a vector of channels
+    std::vector<TH1F*> m_tileChannelEne[5][64]; // a 2D array of 5x64 partitions X modules, each containing a vector of channels
 
-    TH2F* m_map_sigma1[5];
+    TH2F* m_map_sigma[5];
     TH2F* m_map_sigma2[5];
     TH2F* m_map_R[5];
     TH2F* m_map_chi2[5];
@@ -97,7 +94,7 @@ class TileRawChannelNoiseMonTool: public TileFatherMonTool {
 
     int m_nEventsProcessed;
     std::vector<uint32_t> m_triggerTypes;
-
+    int m_nbins;
 };
 
 #endif

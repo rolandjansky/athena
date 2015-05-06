@@ -45,7 +45,7 @@ class TileFatherMonTool: public TilePaterMonTool
   void get_eventTrigs(uint32_t lvl1info);
 
   //method to set an histogram axis bin labels according to a vector of strings
-  void SetBinLabel(TAxis*,std::vector<std::string>&); 
+  void SetBinLabel(TAxis*, const std::vector<std::string>&); 
 
   //method to set an histogram axis bin labels according to an array of strings
   void SetBinLabel(TAxis*, std::string *, int);

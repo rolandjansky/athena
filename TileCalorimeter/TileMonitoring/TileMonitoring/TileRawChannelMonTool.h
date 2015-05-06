@@ -158,7 +158,7 @@ class TileRawChannelMonTool: public TilePaterMonTool {
     bool m_resetAfterSummaryUpdate;
     bool m_doLaserSummaryVsPMT;
     bool m_drawHists;
-
+    float m_minAmpForCorrectedTime;
 };
 
 #endif

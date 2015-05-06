@@ -17,6 +17,7 @@
 #include "TileMonitoring/TilePaterMonTool.h"
 
 class TileBeamInfoProvider;
+class TileCondToolNoiseSample;
 
 /** @class TileDigitsMonTool
  *  @brief Class for TileCal monitoring at digits level
@@ -88,12 +89,9 @@ class TileDigitsMonTool: public TilePaterMonTool {
       for (int i = 0; i < 32; ++i)
         parity += ((header >> i) & 0x1);
 
-      if ((parity % 2) == 1)
-        return false; //no error
-      else
-        return true; //error
-    }
-    ;
+      if ((parity % 2) == 1) return false; //no error
+      else return true; //error
+    };
 
     bool m_bookAll;
     bool m_book2D;
@@ -112,40 +110,43 @@ class TileDigitsMonTool: public TilePaterMonTool {
     };
 
     ToolHandle<TileBeamInfoProvider> m_beamInfo;
+    ToolHandle<TileCondToolNoiseSample> m_tileToolNoiseSample; //!< tool which provided noise values
+
     const uint32_t* m_cispar;
 
     bool m_bigain;
     int m_nEvents;
     int m_nSamples;
-    double SumPed1[5][64][48][2];
-    double SumPed2[5][64][48][2];
-    double SumRms1[5][64][48][2];
-    double SumRms2[5][64][48][2];
-    double MeanAmp[5][64][2][48];
-    double MeanAmp_ij[5][64][2][48][48];
+    double m_sumPed1[5][64][48][2];
+    double m_sumPed2[5][64][48][2];
+    double m_sumRms1[5][64][48][2];
+    double m_sumRms2[5][64][48][2];
+    double m_meanAmp[5][64][2][48];
+    double m_meanAmp_ij[5][64][2][48][48];
     double m_cov_ratio[5][64][2]; //covariance ratio printed in covariance plots
 
     //vector to hold data corruption information
     // std::vector<bool> corrup[5][64][2]; //ros, drawer, gain (index of each vector is channel)
-    bool corrup[5][64][2][16]; //ros, drawer, gain, DMU
+    bool m_corrup[5][64][2][16]; //ros, drawer, gain, DMU
 
     //Pointers to Histograms
-    std::vector<TH1S *> hist0[5][64]; // ros,drawer
-    std::vector<TH1S *> hist1[5][64][48][2]; // ros,drawer,channel,gain
-    std::vector<TH2F *> hist2[5][64][2];
-    std::vector<TProfile *> histP[5][64][48][2];
-    std::vector<TH1F *> final_hist1[5][64][2]; // ros, drawer, gain
-    std::vector<TH2F *> final_hist2[5][64][2];
-    TH2C* final_hist_stucks[5][64][2]; // stuck bits, saturation: ros, drawer. gain
-    std::vector<TH1D *> OutInHighGain;
+    std::vector<TH1S *> m_hist0[5][64]; // ros,drawer
+    std::vector<TH1S *> m_hist1[5][64][48][2]; // ros,drawer,channel,gain
+    std::vector<TH2F *> m_hist2[5][64][2];
+    std::vector<TProfile *> m_histP[5][64][48][2];
+    std::vector<TH1F *> m_final_hist1[5][64][2]; // ros, drawer, gain
+    std::vector<TH2F *> m_final_hist2[5][64][2];
+    TH2C* m_final_hist_stucks[5][64][2]; // stuck bits, saturation: ros, drawer. gain
+    std::vector<TH1D *> m_outInHighGain;
 
     //shifted histos for DQMF
-    TH1S * shifted_hist[5][64][49][2]; // one extra histo for reference!
+    TH1S * m_shifted_hist[5][64][49][2]; // one extra histo for reference!
 
     //For test
-    int hp;
-    int hb;
-
+    //int hp;
+    //int hb;
+    bool m_fillPedestalDifference;
+    std::string m_digitsContainerName;
 };
 
 #endif
