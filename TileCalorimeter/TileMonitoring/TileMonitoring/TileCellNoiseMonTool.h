@@ -55,9 +55,9 @@ class TileCellNoiseMonTool: public TileFatherMonTool {
     ToolHandle<ITileBadChanTool> m_tileBadChanTool; //!< Tile Bad Channel tool
 
     bool m_doOnline;
-    int32_t m_TileCellTrig;
+    //int32_t m_TileCellTrig;
     int32_t m_old_lumiblock;
-    int32_t m_delta_lumiblock;
+    //int32_t m_delta_lumiblock;
     std::string m_cellsContName;
 
     bool m_isFirstEv;

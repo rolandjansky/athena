@@ -12,8 +12,9 @@
 //
 //********************************************************************//
 
-#include "TileMonitoring/TileRODMonTool.h"
+#include "ByteStreamCnvSvcBase/ROBDataProviderSvc.h"
 
+#include "TileMonitoring/TileRODMonTool.h"
 #include "TileCalibBlobObjs/TileCalibUtils.h" 
 #include "TileConditions/ITileBadChanTool.h"
 #include "TileConditions/TileCondToolEmscale.h"
@@ -39,6 +40,8 @@ TileRODMonTool::TileRODMonTool(const std::string & type, const std::string & nam
   , m_corrtime(false)
   , m_tileToolEmscale("TileCondToolEmscale")
   , m_tileBadChanTool("TileBadChanTool")
+  , m_robSvc("ROBDataProviderSvc", name)
+  , m_old_lumiblock(-1)
 /*---------------------------------------------------------*/
 {
   declareInterface<IMonitorToolBase>(this);
@@ -55,35 +58,9 @@ TileRODMonTool::TileRODMonTool(const std::string & type, const std::string & nam
   declareProperty("DspComparisonFit", m_useFitRef = false); //reference type
   declareProperty("DspComparisonOF", m_useOFRef = true);
   declareProperty("doOnline", m_isOnline = false); // Switch for online running
+  declareProperty("Details", m_details = false); // Switch for online running
 
   m_path = "/Tile/ROD"; //ROOT File directory
-  
-  int chMap_LB[48] = {
-      1,1,1,1,1,1,1,1,1,1,1,1,
-      1,1,1,1,1,1,1,1,1,1,1,1,
-      1,1,1,1,1,1,0,0,1,1,1,1,
-      1,1,1,1,1,1,1,0,1,1,1,1
-  };
-
-  memcpy(m_chMap_LB, chMap_LB, 48 * sizeof(int));
-
-  int chMap_EB[48] = {
-      1,1,1,1,1,1,1,1,1,1,1,1,
-      1,1,1,1,1,1,0,0,1,1,1,1,
-      0,0,0,0,0,0,1,1,1,0,0,1,
-      1,1,1,1,1,1,0,0,0,0,0,0
-  };
-
-  memcpy(m_chMap_EB, chMap_EB, 48 * sizeof(int));
-
-  int chMap_EBsp[48] = {
-      0,0,0,0,1,1,1,1,1,1,1,1,
-      1,1,1,1,1,1,1,1,1,1,1,1,
-      0,0,0,0,0,0,1,1,1,0,0,1,
-      1,1,1,1,1,1,0,0,0,0,0,0
-  };
-
-  memcpy(m_chMap_EBsp, chMap_EBsp, 48 * sizeof(int));
 
 }
 
@@ -94,13 +71,23 @@ TileRODMonTool::~TileRODMonTool()
 }
 
 /*---------------------------------------------------------*/
-StatusCode TileRODMonTool:: initialize()
+StatusCode TileRODMonTool:: initialize() {
 /*---------------------------------------------------------*/
-{
+
   ATH_MSG_INFO( "in initialize()" );
+
+  m_tileRobIds.reserve(4 * 16); // partitions * fragments
+  
+  for (uint32_t robId = 0x510000; robId < 0x510010; ++robId) m_tileRobIds.push_back(robId); // LBA
+  for (uint32_t robId = 0x520000; robId < 0x520010; ++robId) m_tileRobIds.push_back(robId); // LBC
+  for (uint32_t robId = 0x530000; robId < 0x530010; ++robId) m_tileRobIds.push_back(robId); // EBA
+  for (uint32_t robId = 0x540000; robId < 0x540010; ++robId) m_tileRobIds.push_back(robId); // EBC
  
   CHECK( m_tileToolEmscale.retrieve() );
   CHECK( m_beamInfo.retrieve() );
+  CHECK( m_robSvc.retrieve() );
+
+  memset(m_nEventsProcessed, 0, sizeof(m_nEventsProcessed));
 
   return TileFatherMonTool::initialize();
 }
@@ -210,7 +197,7 @@ StatusCode TileRODMonTool::bookHistTrig( int trig )
     eName = ref[0];
     tName = ref[2];
   } else if (m_useOFRef) {
-
+    
     if (m_OFI) {
       sStr << ref[5] << "-I" << "--DSP-" << algName << "-" << iterName;
       config = sStr.str();
@@ -225,73 +212,75 @@ StatusCode TileRODMonTool::bookHistTrig( int trig )
       tName = ref[3];
     }
   }
- 
-
- const char *partName[4] = { "LBA", "LBC", "EBA", "EBC" };
   
- const char *modmap[32] = {"61-62","63-64","01-02","03-04","05-06","07-08",
-			   "09-10","11-12","13-14","15-16","17-18","19-20",
-			   "21-22","23-24","25-26","27-28","29-30","31-32",
-			   "33-34","35-36","37-38","39-40","41-42","43-44",
-			   "45-46","47-48","49-50","51-52","53-54","55-56",
-			   "57-58","59-60"};
-
-  for (int part = 0; part < NumPart; part++) {
-    int i = 0;
-    for (int rod = 0; rod < 8; rod++) {
-      for (int dsp = 0; dsp < 4; dsp++) {
-
-        sStr << m_TrigNames[trig] << "/Details";
-        histDir = sStr.str();
-        sStr.str("");
-
-        sStr << partName[part] << "_MOD_" << modmap[i];
-        dspName = sStr.str();
-        sStr.str("");
-
-        sStr << "TileDspRefEn_" << dspName << "_" << m_TrigNames[trig];
-        histName = sStr.str();
-        sStr.str("");
-        sStr << "Run: " << runNumStr
-            << " Config: " << config
-            << " Relative difference between E_{dsp} and " << eName << " for " << dspName;
-
-        histTitle = sStr.str();
-        sStr.str("");
-        sStr << "(E_{dsp}-" << eName << ")/" << eName;
-        xName = sStr.str();
-        sStr.str("");
-
-        m_TileDspRefEn[part][rod][dsp].push_back(book1F(histDir, histName, histTitle, 40, -0.2, 0.2));  //Alberto: It was 40,-0.75,0.75
-        m_TileDspRefEn[part][rod][dsp][element]->GetXaxis()->SetTitle(xName.c_str());
-
-        sStr << "TileDspRefTim_" << dspName << "_" << m_TrigNames[trig];
-        histName = sStr.str();
-        sStr.str("");
-        sStr << "Run: " << runNumStr
-            << " Config: " << config
-            << " Difference between t_{dsp} and " << tName << " for " << dspName;
-
-        histTitle = sStr.str();
-        sStr.str("");
-        sStr << "t_{dsp}-" << tName << " (ns) ";
-        xName = sStr.str();
-        sStr.str("");
-
-        m_TileDspRefTim[part][rod][dsp].push_back(book1F(histDir, histName, histTitle, 40, -50., 50.)); //Alberto: It was 40,-75,75
-        m_TileDspRefTim[part][rod][dsp][element]->GetXaxis()->SetTitle(xName.c_str());
-
-        i++;
+  
+  const char *partName[4] = { "LBA", "LBC", "EBA", "EBC" };
+  
+  const char *modmap[32] = {"61-62","63-64","01-02","03-04","05-06","07-08",
+                            "09-10","11-12","13-14","15-16","17-18","19-20",
+                            "21-22","23-24","25-26","27-28","29-30","31-32",
+                            "33-34","35-36","37-38","39-40","41-42","43-44",
+                            "45-46","47-48","49-50","51-52","53-54","55-56",
+                            "57-58","59-60"};
+  
+  if (m_details) {
+    for (int part = 0; part < NumPart; part++) {
+      int i = 0;
+      for (int rod = 0; rod < 8; rod++) {
+        for (int dsp = 0; dsp < 4; dsp++) {
+          
+          sStr << m_TrigNames[trig] << "/Details";
+          histDir = sStr.str();
+          sStr.str("");
+          
+          sStr << partName[part] << "_MOD_" << modmap[i];
+          dspName = sStr.str();
+          sStr.str("");
+          
+          sStr << "TileDspRefEn_" << dspName << "_" << m_TrigNames[trig];
+          histName = sStr.str();
+          sStr.str("");
+          sStr << "Run: " << runNumStr
+               << " Config: " << config
+               << " Relative difference between E_{dsp} and " << eName << " for " << dspName;
+          
+          histTitle = sStr.str();
+          sStr.str("");
+          sStr << "(E_{dsp}-" << eName << ")/" << eName;
+          xName = sStr.str();
+          sStr.str("");
+          
+          m_TileDspRefEn[part][rod][dsp].push_back(book1F(histDir, histName, histTitle, 40, -0.2, 0.2));  //Alberto: It was 40,-0.75,0.75
+          m_TileDspRefEn[part][rod][dsp][element]->GetXaxis()->SetTitle(xName.c_str());
+          
+          sStr << "TileDspRefTim_" << dspName << "_" << m_TrigNames[trig];
+          histName = sStr.str();
+          sStr.str("");
+          sStr << "Run: " << runNumStr
+               << " Config: " << config
+               << " Difference between t_{dsp} and " << tName << " for " << dspName;
+          
+          histTitle = sStr.str();
+          sStr.str("");
+          sStr << "t_{dsp}-" << tName << " (ns) ";
+          xName = sStr.str();
+          sStr.str("");
+          
+          m_TileDspRefTim[part][rod][dsp].push_back(book1F(histDir, histName, histTitle, 40, -50., 50.)); //Alberto: It was 40,-75,75
+          m_TileDspRefTim[part][rod][dsp][element]->GetXaxis()->SetTitle(xName.c_str());
+          
+          i++;
+        }
       }
     }
   }
-
-
+  
+  
   sStr << m_TrigNames[trig] << "/Summary";
   histDir = sStr.str();
   sStr.str("");
 
- // book per part histograms 
+  // book per part histograms 
  
   for (int part = 0; part < NumPart; part++) {
 
@@ -299,8 +288,8 @@ StatusCode TileRODMonTool::bookHistTrig( int trig )
     histName = sStr.str();
     sStr.str("");
     sStr << "Run: " << runNumStr
-        << " Config: " << config
-        << " Relative difference between E_{dsp} and " << eName << " in " << partName[part];
+         << " Config: " << config
+         << " Relative difference between E_{dsp} and " << eName << " in " << partName[part];
     histTitle = sStr.str();
     sStr.str("");
     sStr << eName << " " << units[m_compUnit];
@@ -322,8 +311,8 @@ StatusCode TileRODMonTool::bookHistTrig( int trig )
     histName = sStr.str();
     sStr.str("");
     sStr << "Run: " << runNumStr
-        << " Config: " << config
-        << " Relative difference between E_{dsp} and " << eName << " in " << partName[part];
+         << " Config: " << config
+         << " Relative difference between E_{dsp} and " << eName << " in " << partName[part];
 
     histTitle = sStr.str();
     sStr.str("");
@@ -397,17 +386,52 @@ StatusCode TileRODMonTool::bookHistTrig( int trig )
     m_TdspProfile[part][element]->GetYaxis()->SetTitle(yName.c_str());
 
 
+    sStr.str("");
+    
+    sStr << "TileDspRefEnSummary_" << partName[part] << "_" << m_TrigNames[trig];
+    histName = sStr.str();
+    
+    sStr.str("");
+    sStr << "Run: " << runNumStr
+         << " Config: " << config
+         << " Relative difference between E_{dsp} and " << eName << " for " << partName[part];
+    histTitle = sStr.str();
+    
+    sStr.str("");
+    sStr << "(E_{dsp}-" << eName << ")/" << eName;
+    xName = sStr.str();
+    
+    m_TileDspRefEnSummary[part].push_back(book1F(histDir, histName, histTitle, 40, -0.2, 0.2));  //Alberto: It was 40,-0.75,0.75
+    m_TileDspRefEnSummary[part][element]->GetXaxis()->SetTitle(xName.c_str());
+    
+    sStr.str("");          
+    sStr << "TileDspRefTimSummary_" << partName[part] << "_" << m_TrigNames[trig];
+    histName = sStr.str();
+    sStr.str("");
+    sStr << "Run: " << runNumStr
+         << " Config: " << config
+         << " Difference between t_{dsp} and " << tName << " for " << partName[part];
+    histTitle = sStr.str();
+    
+    sStr.str("");
+    sStr << "t_{dsp}-" << tName << " (ns) ";
+    xName = sStr.str();
+    sStr.str("");
+    
+    m_TileDspRefTimSummary[part].push_back(book1F(histDir, histName, histTitle, 40, -50., 50.)); //Alberto: It was 40,-75,75
+    m_TileDspRefTimSummary[part][element]->GetXaxis()->SetTitle(xName.c_str());
+    
   } //end book per part
-
-
-
+  
+  
+  
     //book summary plots 
   sStr << "TileDspRefEn_Summary" << "_" << m_TrigNames[trig];
   histName = sStr.str();
   sStr.str("");
   sStr << "Run: " << runNumStr
-      << " Config: " << config
-      << " Mean (E_{dsp}-" << eName << ")/" << eName << " with rms error per DSP ";
+       << " Config: " << config
+       << " Mean (E_{dsp}-" << eName << ")/" << eName << " with rms error per DSP ";
 
   histTitle = sStr.str();
   sStr.str("");
@@ -424,8 +448,8 @@ StatusCode TileRODMonTool::bookHistTrig( int trig )
   histName = sStr.str();
   sStr.str("");
   sStr << "Run: " << runNumStr
-      << " Config: " << config
-      << " Mean t_{dsp}-" << tName << " with rms error per DSP ";
+       << " Config: " << config
+       << " Mean t_{dsp}-" << tName << " with rms error per DSP ";
 
   histTitle = sStr.str();
   sStr.str("");
@@ -462,6 +486,37 @@ StatusCode TileRODMonTool::bookHistTrig( int trig )
   }
 
 
+  m_tileRodFragmentSize.push_back( bookProfile2D(m_TrigNames[trig]
+                                                 , "tileRodFragmentSize_" + m_TrigNames[trig]
+                                                 , "Run " + runNumStr + " Trigger " + m_TrigNames[trig] +
+                                                 ": Tile ROD fragment size (word) (entries = events)"
+                                                 , 16, -0.5, 15.5, 4, 1, 5, 0, 2.e6)) ;
+  
+  m_tileRodFragmentSize[element]->GetXaxis()->SetTitle("Fragment Number");
+  m_tileRodFragmentSize[element]->GetYaxis()->SetTitle("Partition Number");
+  m_tileRodFragmentSize[element]->GetYaxis()->SetBinLabel(1, "LBA");
+  m_tileRodFragmentSize[element]->GetYaxis()->SetBinLabel(2, "LBC");
+  m_tileRodFragmentSize[element]->GetYaxis()->SetBinLabel(3, "EBA");
+  m_tileRodFragmentSize[element]->GetYaxis()->SetBinLabel(4, "EBC");
+  
+  if (m_isOnline) {
+    m_tileRodFragmentSizeLB.push_back( bookProfile(m_TrigNames[trig]
+                                                   ,"tileRodFragmentSizeLB_" + m_TrigNames[trig]
+                                                   , "Run " + runNumStr + " Trigger " + m_TrigNames[trig] +
+                                                   ": Tile ROD fragment size (word) per LumiBlock"
+                                                   , 100, -99.5, 0.5) );
+    
+    m_tileRodFragmentSizeLB[element]->GetXaxis()->SetTitle("Last LumiBlocks");
+  } else {
+    m_tileRodFragmentSizeLB.push_back( bookProfile(m_TrigNames[trig]
+                                                   ,"tileRodFragmentSizeLB_" + m_TrigNames[trig]
+                                                   , "Run " + runNumStr + " Trigger " + m_TrigNames[trig] +
+                                                   ": Tile ROD fragment size (word) per LumiBlock"
+                                                   , 1500, -0.5, 1499.5) );
+    
+    m_tileRodFragmentSizeLB[element]->GetXaxis()->SetTitle("LumiBlocks");
+  }
+ 
 
   return StatusCode::SUCCESS;
 
@@ -491,12 +546,19 @@ void TileRODMonTool::cleanHistVec()
   m_tileRODTrig = 0; //Reset trigger index
 
   for (int part = 0; part < NumPart; part++) {
-    for (int rod = 0; rod < 8; rod++) {
-      for (int dsp = 0; dsp < 4; dsp++) {
-        m_TileDspRefEn[part][rod][dsp].clear();
-        m_TileDspRefTim[part][rod][dsp].clear();
+
+    if (m_details) {
+      for (int rod = 0; rod < 8; rod++) {
+        for (int dsp = 0; dsp < 4; dsp++) {
+          m_TileDspRefEn[part][rod][dsp].clear();
+          m_TileDspRefTim[part][rod][dsp].clear();
+        }
       }
     }
+
+    m_TileDspRefEnSummary[part].clear();
+    m_TileDspRefTimSummary[part].clear();
+
     m_TileAvgDspRefEn[part].clear();
     m_TileAvgDspRefTim[part].clear();
     m_TileAvgDspRefEnPhase[part].clear();
@@ -508,10 +570,13 @@ void TileRODMonTool::cleanHistVec()
   m_TileDspRefSummary[0].clear();
   m_TileDspRefSummary[1].clear();
 
+  m_tileRodFragmentSize.clear();
+
   for (int t = 0; t < NTrigHisto; t++) {
     m_activeTrigs[t] = -1;
   }
 
+  memset(m_nEventsProcessed, 0, sizeof(m_nEventsProcessed));
 }
 
 
@@ -542,6 +607,8 @@ StatusCode TileRODMonTool::fillHistograms()
 
   // Compute Collision Candidates variable to fill Timing Monitoring plot
   //LF: NOT NEEDED, already done once. collcand();  // m_iscoll=true if TMBTSc-TMBSa < 7.5ns
+
+  
 
 ///////////////////////////////
 //  Get RawChannel Ref data  //
@@ -576,13 +643,13 @@ StatusCode TileRODMonTool::fillHistograms()
     return StatusCode::SUCCESS;
   }
 
- TileRawChannelUnit::UNIT RChUnitRef = RawChannelCntRef->get_unit(); 
+  TileRawChannelUnit::UNIT RChUnitRef = RawChannelCntRef->get_unit(); 
   
- TileRawChannelContainer::const_iterator collItrRef=RawChannelCntRef->begin();
- TileRawChannelContainer::const_iterator lastCollRef=RawChannelCntRef->end();
+  TileRawChannelContainer::const_iterator collItrRef=RawChannelCntRef->begin();
+  TileRawChannelContainer::const_iterator lastCollRef=RawChannelCntRef->end();
   
- for (; collItrRef != lastCollRef; ++collItrRef) {
-
+  for (; collItrRef != lastCollRef; ++collItrRef) {
+    
     TileRawChannelCollection::const_iterator chItrRef = (*collItrRef)->begin();
     TileRawChannelCollection::const_iterator lastChRef = (*collItrRef)->end();
 
@@ -705,15 +772,19 @@ StatusCode TileRODMonTool::fillHistograms()
           double tref = m_evTref[ros - 1][drawer][chan];
 
           for (unsigned int element = 0; element < m_eventTrigs.size(); element++) {
+      
+            m_TileDspRefEnSummary[ros - 1][vecIndx(element)]->Fill(((edsp - eref) / eref), 1.0);
+            if (m_details) m_TileDspRefEn[ros - 1][rod - 1][dsp - 1][vecIndx(element)]->Fill(((edsp - eref) / eref), 1.0);
 
-            m_TileDspRefEn[ros - 1][rod - 1][dsp - 1][vecIndx(element)]->Fill(((edsp - eref) / eref), 1.0);
             m_TileAvgDspRefEn[ros - 1][vecIndx(element)]->Fill(eref, ((edsp - eref) / eref));
             m_TileAvgDspRefEnPhase[ros - 1][vecIndx(element)]->Fill(tdsp, ((edsp - eref) / eref));
             m_TileDspRefSummary[0][vecIndx(element)]->Fill((ros - 1) * 32 + (rod - 1) * 4 + dsp, (edsp - eref) / eref);
 
             if (tref > -65. && tref < 65.) {	// DSP can reconstruct time only to +- 65 ns
             // don't compare if offline time is out of range
-              m_TileDspRefTim[ros - 1][rod - 1][dsp - 1][vecIndx(element)]->Fill((tdsp - tref), 1.0);
+              m_TileDspRefTimSummary[ros - 1][vecIndx(element)]->Fill((tdsp - tref), 1.0);
+              if (m_details) m_TileDspRefTim[ros - 1][rod - 1][dsp - 1][vecIndx(element)]->Fill((tdsp - tref), 1.0);
+
               m_TileAvgDspRefTim[ros - 1][vecIndx(element)]->Fill(eref, (tdsp - tref));
               m_TileAvgDspRefTimPhase[ros - 1][vecIndx(element)]->Fill(tdsp, (tdsp - tref));
               m_TileDspRefSummary[1][vecIndx(element)]->Fill((ros - 1) * 32 + (rod - 1) * 4 + dsp, tdsp - tref);
@@ -728,6 +799,49 @@ StatusCode TileRODMonTool::fillHistograms()
       } //end for on chans     
     }
   }
+
+
+    
+  int allTileRodSize(0);
+  
+  std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*> robFragments;
+  m_robSvc->getROBData(m_tileRobIds, robFragments);
+  
+  for (const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment* robFragment : robFragments) {
+    uint32_t rodSourceId = robFragment->rod_source_id();
+    double ros = (rodSourceId & 0x0F0000) >> 16;
+    double fragment = rodSourceId & 0x00000F;
+    allTileRodSize += robFragment->rod_fragment_size_word();
+    
+    for (unsigned int element = 0; element < m_eventTrigs.size(); ++element) {
+      m_tileRodFragmentSize[vecIndx(element)]->Fill(fragment, ros, robFragment->rod_fragment_size_word());
+    }
+  }
+  
+  
+  int32_t current_lumiblock = getLumiBlock();
+  if(m_old_lumiblock == -1) {
+    m_old_lumiblock = current_lumiblock;
+  }
+  
+  if(m_isOnline && (m_old_lumiblock < current_lumiblock)) {// move bins
+    for (unsigned int element = 0; element < m_eventTrigs.size(); ++element) {
+      ShiftTprofile(m_tileRodFragmentSizeLB[vecIndx(element)], current_lumiblock - m_old_lumiblock);    
+    }
+    m_old_lumiblock = current_lumiblock;
+  }
+
+  
+  for (unsigned int element = 0; element < m_eventTrigs.size(); ++element) {
+    ++m_nEventsProcessed[m_eventTrigs[element]];
+    m_tileRodFragmentSize[vecIndx(element)]->SetEntries(m_nEventsProcessed[m_eventTrigs[element]]);
+    
+    if (m_isOnline) m_tileRodFragmentSizeLB[vecIndx(element)]->Fill(0.0, allTileRodSize);
+    else m_tileRodFragmentSizeLB[vecIndx(element)]->Fill(current_lumiblock, allTileRodSize);
+  }
+  
+  
+
   return StatusCode::SUCCESS;
 
 }

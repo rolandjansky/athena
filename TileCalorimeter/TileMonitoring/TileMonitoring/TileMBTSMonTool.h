@@ -56,6 +56,7 @@ class TileMBTSMonTool: public TileFatherMonTool {
 
     // Cell level histograms
     TH1F* m_h_energy[32];
+    TProfile* m_h_energy_lb[32];
     TH1F* m_h_time[32];
     TH1F* m_h_energy_wTBP[32];
     TH1F* m_h_time_wTBP[32];
@@ -152,6 +153,8 @@ class TileMBTSMonTool: public TileFatherMonTool {
     std::vector<bool> m_counterExist;
 
     bool m_useTrigger;
+
+    int32_t m_old_lumiblock;
 };
 
 #endif

@@ -90,6 +90,7 @@ TileMBTSMonTool::TileMBTSMonTool(	const std::string & type, const std::string & 
   , m_ctpID(32, 0)
   , m_tileTBID(0)
   , m_counterExist(32, false)
+  , m_old_lumiblock(-1)
 {
   declareInterface<IMonitorToolBase>(this);
   declareProperty("LVL1ConfigSvc", m_lvl1ConfigSvc, "LVL1 Config Service");
@@ -99,7 +100,7 @@ TileMBTSMonTool::TileMBTSMonTool(	const std::string & type, const std::string & 
   declareProperty("TileBeamElemContainerName", m_TileBeamElemContainerID = "TileBeamElemCnt");
   declareProperty("readTrigger", m_readTrigger = true); // Switch for CTP config
   declareProperty("doOnline", m_isOnline = false); // Switch for online running
-  declareProperty("UserTrigger", m_useTrigger = true); // Switch for using trigger information
+  declareProperty("UseTrigger", m_useTrigger = true); // Switch for using trigger information
 
   m_path = "/Tile/MBTS";
   m_numEvents = 0;
@@ -285,6 +286,19 @@ StatusCode TileMBTSMonTool::bookHistograms() {
 
       // Cell
       m_h_energy[counter] = book1F("Cell", "Energy_" + m_counterNames[counter], "MBTS Energy of " + m_counterNames[counter], 400, -0.5, 10.);
+      
+      if (m_isOnline) {
+        m_h_energy_lb[counter] = bookProfile("Cell", "EnergyLB_" + m_counterNames[counter], "MBTS Energy of " + m_counterNames[counter] + " per lumiblock", 100, -99.5, 0.5);
+        m_h_energy_lb[counter]->GetXaxis()->SetTitle("Last LumiBlocks");
+        
+        for (int bin = 1; bin < 100; ++bin) {
+          m_h_energy_lb[counter]->SetBinContent(bin, 0);
+          m_h_energy_lb[counter]->SetBinEntries(bin, 1);
+          
+        }
+        m_h_energy_lb[counter]->SetEntries(0);
+      }
+      
       m_h_time[counter] = book1F("Cell", "Time_" + m_counterNames[counter], "MBTS Time of " + m_counterNames[counter], 100, -100, 100);
       m_h_energy_wTBP[counter] = book1F("Cell", "Energy_wTBP_" + m_counterNames[counter], "MBTS Energy with TBP fired of " + m_counterNames[counter], 400, -0.5, 10);
       m_h_time_wTBP[counter] = book1F("Cell", "Time_wTBP_" + m_counterNames[counter], "MBTS Time with TBP fired of " + m_counterNames[counter], 100, -100, 100);
@@ -689,6 +703,33 @@ StatusCode TileMBTSMonTool::fillHistograms() {
       m_h_sumEnergy->Fill(counter, energy[counter]);
       if (m_hasTBP[counter]) m_h_sumEnergy_wTBP->Fill(counter, energy[counter]);
       m_h_energy[counter]->Fill(energy[counter], 1.0);
+
+      if (m_isOnline) {
+
+        int32_t current_lumiblock = getLumiBlock();
+        if(m_old_lumiblock == -1) {
+          m_old_lumiblock = current_lumiblock;
+        }
+        
+        if(m_old_lumiblock < current_lumiblock) {// move bins
+          int32_t delta_lumiblock = current_lumiblock - m_old_lumiblock;
+          for (int counter = 0; counter < 32; ++counter) {
+            if (m_counterExist[counter]) {
+
+              ShiftTprofile(m_h_energy_lb[counter], delta_lumiblock);
+
+              int last_bin = m_h_energy_lb[counter]->GetNbinsX();
+              for(int bin = last_bin - delta_lumiblock + 1; bin < last_bin; ++bin) {
+                m_h_energy_lb[counter]->SetBinContent(bin, 0);
+                m_h_energy_lb[counter]->SetBinEntries(bin, 1);
+              }
+            }
+          }
+          m_old_lumiblock = current_lumiblock;
+        }
+
+        m_h_energy_lb[counter]->Fill(0.0, energy[counter]);
+      }
 
       if (counter < 16) bcidEnergyA += energy[counter];
       else bcidEnergyC += energy[counter];

@@ -250,3 +250,6 @@ if doAtlantis:
 
 if doOnline and not 'TileCablingType' in dir():
     TileCablingType = 4
+
+if not 'TileNoiseFilter' in dir():
+    TileNoiseFilter = 1

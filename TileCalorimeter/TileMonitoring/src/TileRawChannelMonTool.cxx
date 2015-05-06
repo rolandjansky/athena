@@ -74,6 +74,7 @@ TileRawChannelMonTool::TileRawChannelMonTool(const std::string & type, const std
   declareProperty("SummaryUpdateFrequency", m_summaryUpdateFrequency = 0);
   declareProperty("ResetAfterSummaryUpdate", m_resetAfterSummaryUpdate = false);
   declareProperty("DoLaserSummaryVsPMT", m_doLaserSummaryVsPMT = false);
+  declareProperty("MinAmpForCorrectedTime", m_minAmpForCorrectedTime = 0.5);
 }
 
 /*---------------------------------------------------------*/
@@ -666,7 +667,7 @@ StatusCode TileRawChannelMonTool::fillHists()
                    //Lukas
                    */
                   //Lukas
-                  if (isDisconnected(ros, drawer, chan) || amp < 0.5) continue;
+                  if (isDisconnected(ros, drawer, chan) || amp < m_minAmpForCorrectedTime) continue;
                   if ((ros == 3 || ros == 4)
                       && (chan == 0 || chan == 1 || chan == 2 || chan == 3 || chan == 4 || chan == 5 || chan == 12 || chan == 13 || chan == 18
                           || chan == 19)) {
@@ -678,7 +679,7 @@ StatusCode TileRawChannelMonTool::fillHists()
 
                 }			     //if k==0 //Lukas
                 else if (k == 1) { //Lukas
-                  if (isDisconnected(ros, drawer, chan) || amp < 0.5) continue;
+                  if (isDisconnected(ros, drawer, chan) || amp < m_minAmpForCorrectedTime) continue;
 
                   timeCorr = time - avgTimePerPart[ros];			//Lukas
                   hist1[ros][drawer][chan][gain][2]->Fill(timeCorr, 1.0);		//Lukas
@@ -1365,7 +1366,7 @@ void TileRawChannelMonTool::drawHists(int ros, int drawer, std::string moduleNam
 /*---------------------------------------------------------*/
 {
 
-  ATH_MSG_INFO("in drawHists()");
+  ATH_MSG_DEBUG("in drawHists()");
 
   int maxgain = (m_bigain) ? 2 : 1;
   double ms = (m_bigain) ? 0.75 : 1.0; // marker size
@@ -1909,7 +1910,7 @@ bool TileRawChannelMonTool::DMUheaderCheck(std::vector<uint32_t>* headerVec, int
 void TileRawChannelMonTool::LaserFancyPlotting(int ros, int drawer, int maxgain, std::string moduleName) {
   /*---------------------------------------------------------*/
 
-  ATH_MSG_INFO("in LaserFancyPlotting...");
+  ATH_MSG_DEBUG("in LaserFancyPlotting...");
 
   //TCanvas * Can = new TCanvas("fit_amp","fit_amp",402*maxgain,588);
   bool do_plots = m_savePng || m_savePs || m_saveSvg;

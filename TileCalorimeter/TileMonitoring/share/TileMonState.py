@@ -1,3 +1,6 @@
+from AthenaCommon.Logging import logging
+tilemon_log = logging.getLogger('TileMonState.py')
+
 #########################################
 #
 # Set db
@@ -47,6 +50,46 @@ if 'Partition' not in dir():
     Partition="ATLAS"
 ByteStreamEmonInputSvc.Partition = Partition
 
+
+from ipc import IPCPartition
+from ispy import ISObject
+ipc_partition = IPCPartition(Partition);
+
+if not ipc_partition.isValid():
+    tilemon_log.error( 'Partition: ' + ipc_partition.name() + ' is not valid' )
+    sys.exit(1)
+
+### ATLAS partition: Read Global Run Parameters to configure the jobs
+if ByteStreamEmonInputSvc.Partition == 'ATLAS':
+    try:
+        run_params = ISObject(ipc_partition, 'RunParams.SOR_RunParams', 'RunParams')
+    except:
+        tilemon_log.warning( "Could not find Run Parameters in IS - Set default beam type to 'cosmics'")
+        beamType = 'cosmics'
+    else:
+        run_params.checkout()
+        beam_type = run_params.beam_type
+        beam_energy = run_params.beam_energy
+        RunNumber = run_params.run_number
+        project = run_params.T0_project_tag
+        tilemon_log.info( "RUN CONFIGURATION: beam type: %i, beam energy: %i, run number: %i, project tag: %s" %(beam_type, beam_energy, RunNumber, project) )
+        
+        # define beam type based on project tag name
+        if project[7:] == "cos" or project[5:] == "test":
+            beamType = 'cosmics'
+        elif project[7:] == '1beam':
+            beamType = 'singlebeam'
+            StreamType = 'express'
+            KeyCount = 20
+        else:
+            beamType = 'collisions'
+            
+    tilemon_log.info( 'Set up beam type: ' + beamType )
+    TileNoiseFilter = 1
+
+else:
+    TileNoiseFilter = 0
+
 # #########################################
 # The source of events, SFI for full events
 # #########################################
@@ -91,7 +134,7 @@ if 'LVL1Logic' in dir():
 
 if 'LVL1Names' in dir():
     ByteStreamEmonInputSvc.LVL1Names = LVL1Names
-elif Partition=="ATLAS":
+elif Partition == 'ATLAS':
     # make sure that we do not read calibration events in physics run
     if 'StreamType' not in dir():
         StreamType = "physics"
@@ -120,10 +163,24 @@ if 'StreamType' in dir():
 
 if 'StreamNames' in dir():
     ByteStreamEmonInputSvc.StreamNames = StreamNames
+
+if 'KeyCount' in dir():
+    ByteStreamEmonInputSvc.KeyCount = KeyCount
+elif 'TriggerType' in dir():
+    ByteStreamEmonInputSvc.KeyCount = 1000
+    import os
+    os.environ['TDAQ_IPC_TIMEOUT'] = '240000'
+else:
+    ByteStreamEmonInputSvc.KeyCount = 100
     
 if 'TriggerType' in dir():
     ByteStreamEmonInputSvc.TriggerType = TriggerType
-    ByteStreamEmonInputSvc.KeyCount = 1000
+
+
+if 'Dispersion' in dir():
+    ByteStreamEmonInputSvc.Dispersion = Dispersion
+else:
+    ByteStreamEmonInputSvc.Dispersion = True
 
 # #################################################
 # Shall athena exit if the partition is shutdown ?
