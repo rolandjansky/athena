@@ -313,7 +313,7 @@ StatusCode CpByteStreamTool::convert(const LVL1::CPBSCollection* const cp,
       
       // Pack and write the sub-blocks
 
-      DataVector<CpmSubBlock>::const_iterator pos;
+      DataVector<CpmSubBlock>::iterator pos;
       for (pos = m_cpmBlocks.begin(); pos != m_cpmBlocks.end(); ++pos) {
         CpmSubBlock* const subBlock = *pos;
 	if ( !subBlock->pack()) {
@@ -401,7 +401,7 @@ StatusCode CpByteStreamTool::convert(const LVL1::CPBSCollection* const cp,
         }
       }
     }
-    DataVector<CmmCpSubBlock>::const_iterator cos = m_cmmHit0Blocks.begin();
+    DataVector<CmmCpSubBlock>::iterator cos = m_cmmHit0Blocks.begin();
     for (; cos != m_cmmHit0Blocks.end(); ++cos) {
       CmmCpSubBlock* const subBlock = *cos;
       if ( !subBlock->pack()) {

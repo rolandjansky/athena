@@ -52,6 +52,7 @@ CpByteStreamV2Tool::CpByteStreamV2Tool(const std::string &type,
     : AthAlgTool(type, name, parent),
       m_cpmMaps("LVL1::CpmMappingTool/CpmMappingTool"),
       m_errorTool("LVL1BS::L1CaloErrorByteStreamTool/L1CaloErrorByteStreamTool"),
+      m_robDataProvider("ROBDataProviderSvc", name),
       m_channels(80), m_crates(4), m_modules(14), m_cmxs(2), m_maxTobs(5),
       m_chips(16), m_locs(4),
       m_coreOverlap(0), m_subDetector(eformat::TDAQ_CALO_CLUSTER_PROC_DAQ),
@@ -109,28 +110,17 @@ StatusCode CpByteStreamV2Tool::initialize()
     msg(MSG::INFO) << "Initializing " << name() << " - package version "
                    << PACKAGE_VERSION << endreq;
 
-    StatusCode sc = m_cpmMaps.retrieve();
-    if (sc.isFailure())
-    {
-        msg(MSG::ERROR) << "Failed to retrieve tool " << m_cpmMaps << endreq;
-        return sc;
-    }
-    else msg(MSG::INFO) << "Retrieved tool " << m_cpmMaps << endreq;
-
-    sc = m_errorTool.retrieve();
-    if (sc.isFailure())
-    {
-        msg(MSG::ERROR) << "Failed to retrieve tool " << m_errorTool << endreq;
-        return sc;
-    }
-    else msg(MSG::INFO) << "Retrieved tool " << m_errorTool << endreq;
-
+    CHECK(m_cpmMaps.retrieve());
+    CHECK(m_errorTool.retrieve());
+    CHECK(m_robDataProvider.retrieve());
+    
     m_srcIdMap      = new L1CaloSrcIdMap();
     m_towerKey      = new LVL1::TriggerTowerKey();
     m_cpmSubBlock   = new CpmSubBlockV2();
     m_cmxCpSubBlock = new CmxCpSubBlock();
     m_rodStatus     = new std::vector<uint32_t>(2);
     m_fea           = new FullEventAssembler<L1CaloSrcIdMap>();
+    
     return StatusCode::SUCCESS;
 }
 
@@ -148,6 +138,17 @@ StatusCode CpByteStreamV2Tool::finalize()
 }
 
 // Conversion bytestream to CPM towers
+StatusCode CpByteStreamV2Tool::convert(
+    const std::string& sgKey,
+    DataVector<LVL1::CPMTower> *const ttCollection)
+{
+ const std::vector<uint32_t>& vID(sourceIDs(sgKey));
+  // // get ROB fragments
+  IROBDataProviderSvc::VROBFRAG robFrags;
+  m_robDataProvider->getROBData(vID, robFrags, "CpByteStreamV2Tool");
+  ATH_MSG_DEBUG("Number of ROB fragments:" << robFrags.size());
+  return convert(robFrags, ttCollection);
+}
 
 StatusCode CpByteStreamV2Tool::convert(
     const IROBDataProviderSvc::VROBFRAG &robFrags,
@@ -159,6 +160,17 @@ StatusCode CpByteStreamV2Tool::convert(
 }
 
 // Conversion bytestream to CMX-CP TOBs
+StatusCode CpByteStreamV2Tool::convert(
+    const std::string& sgKey,
+    DataVector<LVL1::CMXCPTob> *const tobCollection)
+{
+  const std::vector<uint32_t>& vID(sourceIDs(sgKey));
+  // // get ROB fragments
+  IROBDataProviderSvc::VROBFRAG robFrags;
+  m_robDataProvider->getROBData(vID, robFrags, "CpByteStreamV2Tool");
+  ATH_MSG_DEBUG("Number of ROB fragments:" << robFrags.size());
+  return convert(robFrags, tobCollection);
+}
 
 StatusCode CpByteStreamV2Tool::convert(
     const IROBDataProviderSvc::VROBFRAG &robFrags,
@@ -170,6 +182,17 @@ StatusCode CpByteStreamV2Tool::convert(
 }
 
 // Conversion bytestream to CMX-CP hits
+StatusCode CpByteStreamV2Tool::convert(
+    const std::string& sgKey,
+    DataVector<LVL1::CMXCPHits> *const hitCollection)
+{
+  const std::vector<uint32_t>& vID(sourceIDs(sgKey));
+  // // get ROB fragments
+  IROBDataProviderSvc::VROBFRAG robFrags;
+  m_robDataProvider->getROBData(vID, robFrags, "CpByteStreamV2Tool");
+  ATH_MSG_DEBUG("Number of ROB fragments:" << robFrags.size());
+  return convert(robFrags, hitCollection);
+}
 
 StatusCode CpByteStreamV2Tool::convert(
     const IROBDataProviderSvc::VROBFRAG &robFrags,
@@ -336,7 +359,7 @@ StatusCode CpByteStreamV2Tool::convert(const LVL1::CPBSCollectionV2 *const cp,
 
             // Pack and write the sub-blocks
 
-            DataVector<CpmSubBlockV2>::const_iterator pos;
+            DataVector<CpmSubBlockV2>::iterator pos;
             for (pos = m_cpmBlocks.begin(); pos != m_cpmBlocks.end(); ++pos)
             {
                 CpmSubBlockV2 *const subBlock = *pos;
@@ -447,10 +470,8 @@ StatusCode CpByteStreamV2Tool::convert(const LVL1::CPBSCollectionV2 *const cp,
                     }
                 }
             }
-            DataVector<CmxCpSubBlock>::const_iterator cos = m_cmxBlocks.begin();
-            for (; cos != m_cmxBlocks.end(); ++cos)
+            for (CmxCpSubBlock* subBlock : m_cmxBlocks)
             {
-                CmxCpSubBlock *const subBlock = *cos;
                 if ( !subBlock->pack())
                 {
                     msg(MSG::ERROR) << "CMX-Cp sub-block packing failed" << endreq;

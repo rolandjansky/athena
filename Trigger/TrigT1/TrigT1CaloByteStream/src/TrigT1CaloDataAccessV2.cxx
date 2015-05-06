@@ -5,7 +5,7 @@
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/StatusCode.h"
 
-#include "xaod/L1CaloByteStreamReadTool.h"
+#include "xaod/PpmByteStreamReadV1V2Tool.h"
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 #include "TrigT1CaloDataAccessV2.h"
 
@@ -16,9 +16,9 @@ namespace LVL1BS {
 
 // Constructor
 
-TrigT1CaloDataAccessV2::TrigT1CaloDataAccessV2(const std::string& name="TrigT1CaloDataAccessV2")
+TrigT1CaloDataAccessV2::TrigT1CaloDataAccessV2(const std::string& name /*="TrigT1CaloDataAccessV2"*/)
                     : AsgTool(name),
- m_tool("LVL1BS::L1CaloByteStreamReadTool/L1CaloByteStreamReadTool")
+ m_tool("LVL1BS::PpmByteStreamReadV1V2Tool/PpmByteStreamReadV1V2Tool")
 {
 
 }

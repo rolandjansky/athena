@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TRIGT1CALOBYTESTREAM_PPMBYTESTREAMXAODCNV_H
-#define TRIGT1CALOBYTESTREAM_PPMBYTESTREAMXAODCNV_H
+#ifndef TRIGT1CALOBYTESTREAM_CMXCPHITSBYTESTREAMAUXCNV_H
+#define TRIGT1CALOBYTESTREAM_CMXCPHITSBYTESTREAMXAUXCNV_H
 
 #include <string>
 
@@ -23,33 +23,30 @@ class ISvcLocator;
 class StatusCode;
 
 template <typename> class CnvFactory;
-class StoreGateSvc;
-
 
 // Externals
 extern long ByteStream_StorageType;
 
 
-
-
 namespace LVL1BS {
+class CpByteStreamV2Tool;
 
 /** ByteStream converter for Pre-processor Module DAQ data / TriggerTowers.
  *
  *  @author alexander.mazurov@cern.ch
  */
 
-class PpmByteStreamxAODCnv: public Converter, public ::AthMessaging {
+class CmxCpHitsByteStreamAuxCnv: public Converter, public ::AthMessaging {
 
-  friend class CnvFactory<PpmByteStreamxAODCnv>;
+  friend class CnvFactory<CmxCpHitsByteStreamAuxCnv>;
 
 protected:
 
-  PpmByteStreamxAODCnv(ISvcLocator* svcloc);
+  CmxCpHitsByteStreamAuxCnv(ISvcLocator* svcloc);
 
 public:
 
-  virtual ~PpmByteStreamxAODCnv(){};
+  virtual ~CmxCpHitsByteStreamAuxCnv(){};
 
   virtual StatusCode initialize();
   /// Create TriggerTowers from ByteStream
@@ -62,13 +59,15 @@ public:
   static  long storageType(){ return ByteStream_StorageType; }
 
   static const CLID& classID();
-
 private:
   /// Converter name
   std::string m_name;
 
+  /// Do the main job - retrieve xAOD TriggerTowers from robs
+  ToolHandle<CpByteStreamV2Tool> m_cpmReadTool;
 };
 
-} // end namespace
 
+
+} // end namespace
 #endif

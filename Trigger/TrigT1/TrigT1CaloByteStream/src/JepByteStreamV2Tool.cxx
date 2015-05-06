@@ -361,7 +361,7 @@ StatusCode JepByteStreamV2Tool::convert(const LVL1::JEPBSCollectionV2* const jep
       
       // Pack and write the sub-blocks
 
-      DataVector<JemSubBlockV2>::const_iterator pos;
+      DataVector<JemSubBlockV2>::iterator pos;
       for (pos = m_jemBlocks.begin(); pos != m_jemBlocks.end(); ++pos) {
         JemSubBlockV2* const subBlock = *pos;
 	if ( !subBlock->pack()) {
@@ -456,7 +456,7 @@ StatusCode JepByteStreamV2Tool::convert(const LVL1::JEPBSCollectionV2* const jep
         }
       }
     }
-    DataVector<CmxEnergySubBlock>::const_iterator pos;
+    DataVector<CmxEnergySubBlock>::iterator pos;
     pos = m_cmxEnergyBlocks.begin();
     for (; pos != m_cmxEnergyBlocks.end(); ++pos) {
       CmxEnergySubBlock* const subBlock = *pos;
@@ -552,7 +552,7 @@ StatusCode JepByteStreamV2Tool::convert(const LVL1::JEPBSCollectionV2* const jep
         }
       }
     }
-    DataVector<CmxJetSubBlock>::const_iterator jos;
+    DataVector<CmxJetSubBlock>::iterator jos;
     jos = m_cmxJetBlocks.begin();
     for (; jos != m_cmxJetBlocks.end(); ++jos) {
       CmxJetSubBlock* const subBlock = *jos;

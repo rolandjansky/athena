@@ -46,7 +46,7 @@ const int      CmxJetSubBlock::s_presenceBits;
 const int      CmxJetSubBlock::s_coordBits;
 const int      CmxJetSubBlock::s_energyLgBits;
 //const int      CmxJetSubBlock::s_energySmBits[8];
-const int      CmxJetSubBlock::s_energySmBits[8] = {3,6,5,4,7,2,9,0};
+const int      CmxJetSubBlock::s_energySmBits[8] = {3, 6, 5, 4, 7, 2, 9, 0};
 const int      CmxJetSubBlock::s_threshMainBits;
 const int      CmxJetSubBlock::s_threshFwdLBits;
 const int      CmxJetSubBlock::s_threshFwdHBits;
@@ -87,7 +87,7 @@ void CmxJetSubBlock::clear()
 // Return presence map for given JEM
 
 unsigned int CmxJetSubBlock::presenceMap(const int slice,
-                                         const int jem) const
+    const int jem) const
 {
   unsigned int map = 0;
   const unsigned int ix = mapIndex(slice, jem);
@@ -168,14 +168,14 @@ int CmxJetSubBlock::parityBits(const int slice, const int jem) const
 // Return hit/topo counts for given source ID and HL flag
 
 unsigned int CmxJetSubBlock::hits(const int slice, const int source,
-                                                   const int flag) const
+                                  const int flag) const
 {
   unsigned int hits = 0;
   const unsigned int ix = hitIndex(slice, source, flag);
   if (ix < m_hitsData.size()) {
     uint32_t mask = s_threshMainMask;
     if (source == REMOTE_FORWARD || source == LOCAL_FORWARD
-                                 || source == TOTAL_FORWARD) {
+        || source == TOTAL_FORWARD) {
       mask = (flag) ? s_threshFwdHMask : s_threshFwdLMask;
     }
     else if (source == TOPO_CHECKSUM)         mask = s_topoCheckMask;
@@ -189,12 +189,12 @@ unsigned int CmxJetSubBlock::hits(const int slice, const int source,
 // Return hit error for given source ID and HL flag
 
 int CmxJetSubBlock::hitsError(const int slice, const int source,
-                                               const int flag) const
+                              const int flag) const
 {
   int error = 0;
   if (source == REMOTE_MAIN || source == LOCAL_MAIN || source == TOTAL_MAIN ||
       source == REMOTE_FORWARD || source == LOCAL_FORWARD ||
-                                  source == TOTAL_FORWARD) {
+      source == TOTAL_FORWARD) {
     const unsigned int ix = hitIndex(slice, source, flag);
     if (ix < m_hitsData.size()) {
       error = (m_hitsData[ix] >> s_threshErrorBit) & s_errorMask;
@@ -206,7 +206,7 @@ int CmxJetSubBlock::hitsError(const int slice, const int source,
 // Store presence map
 
 void CmxJetSubBlock::setPresenceMap(const int slice, const int jem,
-                                                     const unsigned int map)
+                                    const unsigned int map)
 {
   resize();
   if (map) {
@@ -219,7 +219,7 @@ void CmxJetSubBlock::setPresenceMap(const int slice, const int jem,
 
 void CmxJetSubBlock::setTob(const int slice, const int jem, const int frame,
                             const int loc, const int energyLarge,
-			    const int energySmall, const int error)
+                            const int energySmall, const int error)
 {
   resize();
   if (energyLarge || energySmall || error) {
@@ -236,15 +236,15 @@ void CmxJetSubBlock::setTob(const int slice, const int jem, const int frame,
       const unsigned int ix = tobIndex(slice, jem, tob);
       if (m_tobData[ix] == 0) {
         m_tobData[ix] = word;
-	break;
+        break;
       } else {
-        const int frameOld = (m_tobData[ix]>>s_tobFrameBit)&s_tobFrameMask;
-	if (frame < frameOld) {
-          for (int i = s_tobsPerModule-tob-1; i > 0; --i) {
-	    m_tobData[ix + i] = m_tobData[ix + i - 1];
+        const int frameOld = (m_tobData[ix] >> s_tobFrameBit)&s_tobFrameMask;
+        if (frame < frameOld) {
+          for (int i = s_tobsPerModule - tob - 1; i > 0; --i) {
+            m_tobData[ix + i] = m_tobData[ix + i - 1];
           }
-	  m_tobData[ix] = word;
-	  break;
+          m_tobData[ix] = word;
+          break;
         }
       }
     }
@@ -254,7 +254,7 @@ void CmxJetSubBlock::setTob(const int slice, const int jem, const int frame,
 // Store parity bits for neutral format
 
 void CmxJetSubBlock::setParityBits(const int slice, const int jem,
-                                                    const int parity)
+                                   const int parity)
 {
   resize();
   if (parity) {
@@ -274,7 +274,7 @@ void CmxJetSubBlock::setHits(const int slice, const int source, const int flag,
     uint32_t word = m_hitsData[ix];
     uint32_t mask = s_threshMainMask;
     if (source == REMOTE_FORWARD || source == LOCAL_FORWARD ||
-                                    source == TOTAL_FORWARD) {
+        source == TOTAL_FORWARD) {
       mask = (flag) ? s_threshFwdHMask : s_threshFwdLMask;
     }
     else if (source == TOPO_CHECKSUM)         mask = s_topoCheckMask;
@@ -295,21 +295,21 @@ bool CmxJetSubBlock::pack()
 {
   bool rc = false;
   switch (version()) {
-    case 1:
-    case 2:                                                  // <<== CHECK
-      switch (format()) {
-        case NEUTRAL:
-	  rc = packNeutral();
-	  break;
-        case UNCOMPRESSED:
-	  rc = packUncompressed();
-	  break;
-        default:
-	  break;
-      }
+  case 1:
+  case 2:                                                  // <<== CHECK
+    switch (format()) {
+    case NEUTRAL:
+      rc = packNeutral();
+      break;
+    case UNCOMPRESSED:
+      rc = packUncompressed();
       break;
     default:
       break;
+    }
+    break;
+  default:
+    break;
   }
   return rc;
 }
@@ -318,23 +318,23 @@ bool CmxJetSubBlock::unpack()
 {
   bool rc = false;
   switch (version()) {
-    case 1:    
-    case 2:                                                  // <<== CHECK
-      switch (format()) {
-        case NEUTRAL:
-	  rc = unpackNeutral();
-	  break;
-        case UNCOMPRESSED:
-	  rc = unpackUncompressed();
-	  break;
-        default:
-	  setUnpackErrorCode(UNPACK_FORMAT);
-	  break;
-      }
+  case 1:
+  case 2:                                                  // <<== CHECK
+    switch (format()) {
+    case NEUTRAL:
+      rc = unpackNeutral();
+      break;
+    case UNCOMPRESSED:
+      rc = unpackUncompressed();
       break;
     default:
-      setUnpackErrorCode(UNPACK_VERSION);
+      setUnpackErrorCode(UNPACK_FORMAT);
       break;
+    }
+    break;
+  default:
+    setUnpackErrorCode(UNPACK_VERSION);
+    break;
   }
   return rc;
 }
@@ -362,7 +362,7 @@ unsigned int CmxJetSubBlock::parIndex(const int slice,
 // Return tob data index appropriate to format
 
 unsigned int CmxJetSubBlock::tobIndex(const int slice, const int jem,
-                                             const int tob) const
+                                      const int tob) const
 {
   unsigned int ix = jem * s_tobsPerModule + tob;
   if (format() == NEUTRAL) ix += slice * s_modules * s_tobsPerModule;
@@ -372,9 +372,9 @@ unsigned int CmxJetSubBlock::tobIndex(const int slice, const int jem,
 // Return hits data index appropriate to format
 
 unsigned int CmxJetSubBlock::hitIndex(const int slice, const int source,
-                                             const int flag) const
+                                      const int flag) const
 {
-  unsigned int ix = (source<<1)|flag;
+  unsigned int ix = (source << 1) | flag;
   if (format() == NEUTRAL) ix += slice * 2 * MAX_SOURCE_ID;
   return ix;
 }
@@ -413,60 +413,60 @@ bool CmxJetSubBlock::packNeutral()
   for (int slice = 0; slice < slices; ++slice) {
     for (int pin = 0; pin < s_glinkPins; ++pin) {
       if (pin < s_modules) { // TOB data
-	const int jem = pin;
+        const int jem = pin;
         // Presence map
         packerNeutral(pin, presenceMap(slice, jem), s_presenceBits);
-	// Get tob data for this jem
-	locVec.clear();
-	energyLgVec.clear();
-	energySmVec.clear();
-	for (int tob = 0; tob < s_tobsPerModule; ++tob) {
-	  locVec.push_back(localCoord(slice, jem, tob));
-	  energyLgVec.push_back(energyLarge(slice, jem, tob));
-	  energySmVec.push_back(energySmall(slice, jem, tob));
-	}
-	const int parity = parityBits(slice, jem);
-	// And pack
+        // Get tob data for this jem
+        locVec.clear();
+        energyLgVec.clear();
+        energySmVec.clear();
         for (int tob = 0; tob < s_tobsPerModule; ++tob) {
-	  // Energy small window LSB
-	  const int nbitsL = s_energySmBits[2*tob];
-	  packerNeutral(pin, energySmVec[tob], nbitsL);
+          locVec.push_back(localCoord(slice, jem, tob));
+          energyLgVec.push_back(energyLarge(slice, jem, tob));
+          energySmVec.push_back(energySmall(slice, jem, tob));
+        }
+        const int parity = parityBits(slice, jem);
+        // And pack
+        for (int tob = 0; tob < s_tobsPerModule; ++tob) {
+          // Energy small window LSB
+          const int nbitsL = s_energySmBits[2 * tob];
+          packerNeutral(pin, energySmVec[tob], nbitsL);
           // Local coordinates
-	  packerNeutral(pin, locVec[tob], s_coordBits);
-	  // Energy large window
-	  packerNeutral(pin, energyLgVec[tob], s_energyLgBits);
-	  // Backplane parity error
-	  packerNeutral(pin, (parity>>tob), s_parityErrorBits);
-	  // Energy small window HSB
-	  const int nbitsH = s_energySmBits[2*tob+1];
-	  if (nbitsH > 0) {
-	    packerNeutral(pin, (energySmVec[tob]>>nbitsL), nbitsH);
-	  }
+          packerNeutral(pin, locVec[tob], s_coordBits);
+          // Energy large window
+          packerNeutral(pin, energyLgVec[tob], s_energyLgBits);
+          // Backplane parity error
+          packerNeutral(pin, (parity >> tob), s_parityErrorBits);
+          // Energy small window HSB
+          const int nbitsH = s_energySmBits[2 * tob + 1];
+          if (nbitsH > 0) {
+            packerNeutral(pin, (energySmVec[tob] >> nbitsL), nbitsH);
+          }
         }
       } else { // Hits and Topo data
-        if (pin < s_glinkPins-1) {
+        if (pin < s_glinkPins - 1) {
           // Remote, local and total hits; parity error
           const int source1 = pin - s_modules + REMOTE_MAIN;
           const int source2 = pin - s_modules + REMOTE_FORWARD;
           packerNeutral(pin, hits(slice, source1, 0), s_threshMainBits);
           packerNeutral(pin, hitsError(slice, source1, 0), s_parityErrorBits);
           packerNeutral(pin, hits(slice, source1, 1), s_threshMainBits);
-          packerNeutral(pin, (hitsError(slice, source1, 1)>>1), s_parityErrorBits);
+          packerNeutral(pin, (hitsError(slice, source1, 1) >> 1), s_parityErrorBits);
           packerNeutral(pin, hits(slice, source2, 0), s_threshFwdLBits);
           packerNeutral(pin, hitsError(slice, source2, 0), s_parityErrorBits);
           packerNeutral(pin, hits(slice, source2, 1), s_threshFwdHBits);
-          packerNeutral(pin, (hitsError(slice, source2, 1)>>1), s_parityErrorBits);
-          packerNeutral(pin, (hitsError(slice, source1, 0)>>2), s_roiOverflowBits);
-	  packerNeutral(pin, 0, s_paddingBits);
+          packerNeutral(pin, (hitsError(slice, source2, 1) >> 1), s_parityErrorBits);
+          packerNeutral(pin, (hitsError(slice, source1, 0) >> 2), s_roiOverflowBits);
+          packerNeutral(pin, 0, s_paddingBits);
         } else {
           // Bunch crossing number, Fifo overflow and Topo data
           packerNeutral(pin, bunchCrossing(), s_bunchCrossingBits);
-	  packerNeutral(pin, daqOverflow(), s_fifoOverflowBits);
-	  packerNeutral(pin, hits(slice, TOPO_CHECKSUM, 0), s_topoChecksumBits);
-	  packerNeutral(pin, hits(slice, TOPO_OCCUPANCY_MAP, 0), s_topoMapBits);
-	  packerNeutral(pin, hits(slice, TOPO_OCCUPANCY_COUNTS, 0), s_topoCountsBits);
-	  packerNeutral(pin, hits(slice, TOPO_OCCUPANCY_COUNTS, 1), s_topoCountsBits);
-	  packerNeutral(pin, 0, s_topoPaddingBits);
+          packerNeutral(pin, daqOverflow(), s_fifoOverflowBits);
+          packerNeutral(pin, hits(slice, TOPO_CHECKSUM, 0), s_topoChecksumBits);
+          packerNeutral(pin, hits(slice, TOPO_OCCUPANCY_MAP, 0), s_topoMapBits);
+          packerNeutral(pin, hits(slice, TOPO_OCCUPANCY_COUNTS, 0), s_topoCountsBits);
+          packerNeutral(pin, hits(slice, TOPO_OCCUPANCY_COUNTS, 1), s_topoCountsBits);
+          packerNeutral(pin, 0, s_topoPaddingBits);
         }
       }
       // G-Link parity
@@ -507,74 +507,74 @@ bool CmxJetSubBlock::unpackNeutral()
     for (int pin = 0; pin < s_glinkPins; ++pin) {
       if (pin < s_modules) { // TOB data
         // Presence map
-	const unsigned int map = unpackerNeutral(pin, s_presenceBits);
-	locVec.assign(s_tobsPerModule, 0);
-	energyLgVec.assign(s_tobsPerModule, 0);
-	energySmVec.assign(s_tobsPerModule, 0);
-	int parity = 0;
-	for (int tob = 0; tob < s_tobsPerModule; ++tob) {
-	  // Energy small window LSB
-	  const int nbitsL = s_energySmBits[2*tob];
-	  energySmVec[tob] = unpackerNeutral(pin, nbitsL);
-	  // Local coordinates
-	  locVec[tob] = unpackerNeutral(pin, s_coordBits);
-	  // Energy large window
-	  energyLgVec[tob] = unpackerNeutral(pin, s_energyLgBits);
-	  // Backplane parity error
-	  parity |= (unpackerNeutral(pin, s_parityErrorBits) << tob);
-	  // Energy small window HSB
-	  const int nbitsH = s_energySmBits[2*tob+1];
-	  if (nbitsH > 0) {
-	    energySmVec[tob] += (unpackerNeutral(pin, nbitsH) << nbitsL);
+        const unsigned int map = unpackerNeutral(pin, s_presenceBits);
+        locVec.assign(s_tobsPerModule, 0);
+        energyLgVec.assign(s_tobsPerModule, 0);
+        energySmVec.assign(s_tobsPerModule, 0);
+        int parity = 0;
+        for (int tob = 0; tob < s_tobsPerModule; ++tob) {
+          // Energy small window LSB
+          const int nbitsL = s_energySmBits[2 * tob];
+          energySmVec[tob] = unpackerNeutral(pin, nbitsL);
+          // Local coordinates
+          locVec[tob] = unpackerNeutral(pin, s_coordBits);
+          // Energy large window
+          energyLgVec[tob] = unpackerNeutral(pin, s_energyLgBits);
+          // Backplane parity error
+          parity |= (unpackerNeutral(pin, s_parityErrorBits) << tob);
+          // Energy small window HSB
+          const int nbitsH = s_energySmBits[2 * tob + 1];
+          if (nbitsH > 0) {
+            energySmVec[tob] += (unpackerNeutral(pin, nbitsH) << nbitsL);
           }
         }
-	const int error = (parity) ? 1 : 0;
-	int tob = 0;
-	const int jem = pin;
-	for (int frame = 0; frame < s_presenceBits && tob < s_tobsPerModule; ++frame) {  // <<== CHECK - assuming bit==frame
-	  if ((map>>frame)&1) {
-	    setTob(slice, jem, frame, locVec[tob], energyLgVec[tob],
-	                                           energySmVec[tob], error);
-	    ++tob;
+        const int error = (parity) ? 1 : 0;
+        int tob = 0;
+        const int jem = pin;
+        for (int frame = 0; frame < s_presenceBits && tob < s_tobsPerModule; ++frame) {  // <<== CHECK - assuming bit==frame
+          if ((map >> frame) & 1) {
+            setTob(slice, jem, frame, locVec[tob], energyLgVec[tob],
+                   energySmVec[tob], error);
+            ++tob;
           }
         }
         setPresenceMap(slice, jem, map);
-	setParityBits(slice, jem, parity);
+        setParityBits(slice, jem, parity);
       } else {  // Hits and Topo data
-        if (pin < s_glinkPins-1) {
-	  // Remote, local and total hits; parity error, RoI overflow
+        if (pin < s_glinkPins - 1) {
+          // Remote, local and total hits; parity error, RoI overflow
           const int source1 = pin - s_modules + REMOTE_MAIN;
           const int source2 = pin - s_modules + REMOTE_FORWARD;
-	  const unsigned int main0 = unpackerNeutral(pin, s_threshMainBits);
-	  int errorMain = unpackerNeutral(pin, s_parityErrorBits);
-	  const unsigned int main1 = unpackerNeutral(pin, s_threshMainBits);
-	  errorMain |= (unpackerNeutral(pin, s_parityErrorBits)<<1);
-	  const unsigned int fwd0 = unpackerNeutral(pin, s_threshFwdLBits);
-	  int errorFwd = unpackerNeutral(pin, s_parityErrorBits);
-	  const unsigned int fwd1 = unpackerNeutral(pin, s_threshFwdHBits);
-	  errorFwd |= (unpackerNeutral(pin, s_parityErrorBits)<<1);
-	  const int overflow = (unpackerNeutral(pin, s_roiOverflowBits)<<2);
-	  errorMain |= overflow;
-	  errorFwd  |= overflow;
-	  setHits(slice, source1, 0, main0, errorMain);
-	  setHits(slice, source1, 1, main1, errorMain);
-	  setHits(slice, source2, 0, fwd0,  errorFwd);
-	  setHits(slice, source2, 1, fwd1,  errorFwd);
-	  unpackerNeutral(pin, s_paddingBits);
+          const unsigned int main0 = unpackerNeutral(pin, s_threshMainBits);
+          int errorMain = unpackerNeutral(pin, s_parityErrorBits);
+          const unsigned int main1 = unpackerNeutral(pin, s_threshMainBits);
+          errorMain |= (unpackerNeutral(pin, s_parityErrorBits) << 1);
+          const unsigned int fwd0 = unpackerNeutral(pin, s_threshFwdLBits);
+          int errorFwd = unpackerNeutral(pin, s_parityErrorBits);
+          const unsigned int fwd1 = unpackerNeutral(pin, s_threshFwdHBits);
+          errorFwd |= (unpackerNeutral(pin, s_parityErrorBits) << 1);
+          const int overflow = (unpackerNeutral(pin, s_roiOverflowBits) << 2);
+          errorMain |= overflow;
+          errorFwd  |= overflow;
+          setHits(slice, source1, 0, main0, errorMain);
+          setHits(slice, source1, 1, main1, errorMain);
+          setHits(slice, source2, 0, fwd0,  errorFwd);
+          setHits(slice, source2, 1, fwd1,  errorFwd);
+          unpackerNeutral(pin, s_paddingBits);
         } else {
-	  // Bunch crossing number, Fifo overflow and Topo data
-	  bunchCrossing = unpackerNeutral(pin, s_bunchCrossingBits);
-	  fifoOverflow |= unpackerNeutral(pin, s_fifoOverflowBits);
-	  unsigned int hits = unpackerNeutral(pin, s_topoChecksumBits);
-	  int error = 0;
-	  setHits(slice, TOPO_CHECKSUM, 0, hits, error);
-	  hits = unpackerNeutral(pin, s_topoMapBits);
-	  setHits(slice, TOPO_OCCUPANCY_MAP, 0, hits, error);
-	  hits = unpackerNeutral(pin, s_topoCountsBits);
-	  setHits(slice, TOPO_OCCUPANCY_COUNTS, 0, hits, error);
-	  hits = unpackerNeutral(pin, s_topoCountsBits);
-	  setHits(slice, TOPO_OCCUPANCY_COUNTS, 1, hits, error);
-	  unpackerNeutral(pin, s_topoPaddingBits);
+          // Bunch crossing number, Fifo overflow and Topo data
+          bunchCrossing = unpackerNeutral(pin, s_bunchCrossingBits);
+          fifoOverflow |= unpackerNeutral(pin, s_fifoOverflowBits);
+          unsigned int hits = unpackerNeutral(pin, s_topoChecksumBits);
+          int error = 0;
+          setHits(slice, TOPO_CHECKSUM, 0, hits, error);
+          hits = unpackerNeutral(pin, s_topoMapBits);
+          setHits(slice, TOPO_OCCUPANCY_MAP, 0, hits, error);
+          hits = unpackerNeutral(pin, s_topoCountsBits);
+          setHits(slice, TOPO_OCCUPANCY_COUNTS, 0, hits, error);
+          hits = unpackerNeutral(pin, s_topoCountsBits);
+          setHits(slice, TOPO_OCCUPANCY_COUNTS, 1, hits, error);
+          unpackerNeutral(pin, s_topoPaddingBits);
         }
       }
       // G-Link parity errors
@@ -604,21 +604,21 @@ bool CmxJetSubBlock::unpackUncompressed()
     if (id == s_tobWordId) {  // TOB data
       const int index = jem(word);
       const int count = m_jemTobCount[index];
-      const int index2 = index*s_tobsPerModule + count;
+      const int index2 = index * s_tobsPerModule + count;
       if (count < s_tobsPerModule) {
         m_tobData[index2] = word;
         ++m_jemTobCount[index];
       } else {
         setUnpackErrorCode(UNPACK_EXCESS_TOBS);             // New code.  Check consequences
-	return false;
+        return false;
       }
     } else if (id == s_threshWordId) {  // Hits and Topo data
-      const int index = (sourceId(word)<<1) | hlFlag(word);
+      const int index = (sourceId(word) << 1) | hlFlag(word);
       if (index < maxHits && m_hitsData[index] == 0) {
         m_hitsData[index] = word;
       } else {
         setUnpackErrorCode(UNPACK_SOURCE_ID);
-	return false;
+        return false;
       }
     } else {
       setUnpackErrorCode(UNPACK_DATA_ID);                // New code

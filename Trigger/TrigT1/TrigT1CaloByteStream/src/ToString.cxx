@@ -27,6 +27,7 @@ std::string LVL1BS::ToString(const xAOD::TriggerTower& tt){
 	} else {
 		o << "xAOD::TriggerTower, coolId=" << std::hex << tt.coolId() << std::dec
 		  << ", layer=" << int(tt.layer())
+                  << ", sampling=" << int(tt.sampling())
 		  << ", eta=" << tt.eta()
 		  << ", phi=" << tt.phi()
 		  << ", lut_cp=" << ::ToString(tt.lut_cp())
@@ -36,7 +37,7 @@ std::string LVL1BS::ToString(const xAOD::TriggerTower& tt){
 		  << ", bcidVec=" << ::ToString(tt.bcidVec())
 		  << ", adc=" << ::ToString(tt.adc())
 		  << ", bcidExt=" << ::ToString(tt.bcidExt())
-		  << ", error=" << tt.error()
+		  << ", errorWord=" << tt.errorWord()
 		  << ", peak=" << int(tt.peak())
 		  << ", adcPeak=" << int(tt.adcPeak());
 		  if (!tt.lut_cp().empty()) {

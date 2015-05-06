@@ -3,7 +3,7 @@
 */
 
 #ifndef TRIGT1CALOBYTESTREAM_PPMBYTESTREAMAUXCNV_H
-#define TRIGT1CALOBYTESTREAM_PPMBYTESTREAMXAUXCNV_H
+#define TRIGT1CALOBYTESTREAM_PPMBYTESTREAMAUXCNV_H
 
 #include <string>
 
@@ -16,9 +16,7 @@
 #include "AthenaBaseComps/AthMessaging.h"
 
 class DataObject;
-class IByteStreamEventAccess;
 class IOpaqueAddress;
-class IROBDataProviderSvc;
 class ISvcLocator;
 class StatusCode;
 
@@ -29,7 +27,7 @@ extern long ByteStream_StorageType;
 
 
 namespace LVL1BS {
-class L1CaloByteStreamReadTool;
+class PpmByteStreamReadV1V2Tool;
 
 /** ByteStream converter for Pre-processor Module DAQ data / TriggerTowers.
  *
@@ -67,10 +65,10 @@ private:
   std::string m_name;
 
   /// Do the main job - retrieve xAOD TriggerTowers from robs
-  ToolHandle<L1CaloByteStreamReadTool> m_readTool;
+  ToolHandle<PpmByteStreamReadV1V2Tool> m_readTool;
 };
 
 
 
 } // end namespace
-#endif
+#endif // not TRIGT1CALOBYTESTREAM_PPMBYTESTREAMAUXCNV_H

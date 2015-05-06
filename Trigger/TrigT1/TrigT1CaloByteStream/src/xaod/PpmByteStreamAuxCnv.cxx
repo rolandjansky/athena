@@ -31,14 +31,14 @@
 
 #include "PpmByteStreamAuxCnv.h"
 #include "../ToString.h"
-#include "L1CaloByteStreamReadTool.h"
+#include "PpmByteStreamReadV1V2Tool.h"
 
 namespace LVL1BS {
 PpmByteStreamAuxCnv::PpmByteStreamAuxCnv(ISvcLocator* svcloc) :
     Converter(ByteStream_StorageType, classID(), svcloc),
     AthMessaging(svcloc != 0 ? msgSvc() : 0, "PpmByteStreamAuxCnv"),
     m_name("PpmByteStreamAuxCnv"),
-    m_readTool("LVL1BS::L1CaloByteStreamReadTool/L1CaloByteStreamReadTool") {
+    m_readTool("LVL1BS::PpmByteStreamReadV1V2Tool/PpmByteStreamReadV1V2Tool") {
 
 }
 

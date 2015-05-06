@@ -35,7 +35,7 @@ namespace LVL1BS {
 // Interface ID
 
 static const InterfaceID IID_IJepRoiByteStreamV1Tool("JepRoiByteStreamV1Tool",
-                                                                        1, 1);
+    1, 1);
 
 const InterfaceID& JepRoiByteStreamV1Tool::interfaceID()
 {
@@ -45,8 +45,8 @@ const InterfaceID& JepRoiByteStreamV1Tool::interfaceID()
 // Constructor
 
 JepRoiByteStreamV1Tool::JepRoiByteStreamV1Tool(const std::string& type,
-                                               const std::string& name,
-    				               const IInterface*  parent)
+    const std::string& name,
+    const IInterface*  parent)
   : AthAlgTool(type, name, parent),
     m_errorTool("LVL1BS::L1CaloErrorByteStreamTool/L1CaloErrorByteStreamTool"),
     m_crates(2), m_modules(16), m_srcIdMap(0), m_subBlock(0), m_rodStatus(0),
@@ -76,7 +76,7 @@ JepRoiByteStreamV1Tool::JepRoiByteStreamV1Tool(const std::string& type,
                   "The number of S-Links per crate");
   declareProperty("CrateMin",       m_crateMin = 0,
                   "Minimum crate number, allows partial output");
-  declareProperty("CrateMax",       m_crateMax = m_crates-1,
+  declareProperty("CrateMax",       m_crateMax = m_crates - 1,
                   "Maximum crate number, allows partial output");
 
 }
@@ -126,8 +126,8 @@ StatusCode JepRoiByteStreamV1Tool::finalize()
 // Conversion bytestream to JEM RoI
 
 StatusCode JepRoiByteStreamV1Tool::convert(
-                            const IROBDataProviderSvc::VROBFRAG& robFrags,
-                            DataVector<LVL1::JEMRoI>* const jeCollection)
+  const IROBDataProviderSvc::VROBFRAG& robFrags,
+  DataVector<LVL1::JEMRoI>* const jeCollection)
 {
   m_jeCollection = jeCollection;
   return convertBs(robFrags, JEM_ROI);
@@ -136,8 +136,8 @@ StatusCode JepRoiByteStreamV1Tool::convert(
 // Conversion bytestream to CMM RoI
 
 StatusCode JepRoiByteStreamV1Tool::convert(
-                            const IROBDataProviderSvc::VROBFRAG& robFrags,
-                            LVL1::CMMRoI* const cmCollection)
+  const IROBDataProviderSvc::VROBFRAG& robFrags,
+  LVL1::CMMRoI* const cmCollection)
 {
   m_cmCollection = cmCollection;
   return convertBs(robFrags, CMM_ROI);
@@ -146,8 +146,8 @@ StatusCode JepRoiByteStreamV1Tool::convert(
 // Conversion of JEP container to bytestream
 
 StatusCode JepRoiByteStreamV1Tool::convert(
-                                 const LVL1::JEPRoIBSCollectionV1* const jep,
-                                 RawEventWrite* const re)
+  const LVL1::JEPRoIBSCollectionV1* const jep,
+  RawEventWrite* const re)
 {
   const bool debug = msgLvl(MSG::DEBUG);
   if (debug) msg(MSG::DEBUG);
@@ -180,27 +180,27 @@ StatusCode JepRoiByteStreamV1Tool::convert(
   for (int crate = m_crateMin; crate <= m_crateMax; ++crate) {
     const int hwCrate = crate + m_crateOffsetHw;
 
-    for (int module=0; module < m_modules; ++module) {
+    for (int module = 0; module < m_modules; ++module) {
 
       // Pack required number of modules per slink
 
-      if (module%modulesPerSlink == 0) {
-	const int daqOrRoi = 1;
-	const int slink = module/modulesPerSlink;
+      if (module % modulesPerSlink == 0) {
+        const int daqOrRoi = 1;
+        const int slink = module / modulesPerSlink;
         if (debug) {
           msg() << "Treating crate " << hwCrate
-	        << " slink " << slink << endreq
-	        << "Data Version/Format: " << m_version
-	        << " " << m_dataFormat << endreq;
+                << " slink " << slink << endreq
+                << "Data Version/Format: " << m_version
+                << " " << m_dataFormat << endreq;
         }
-	const uint32_t rodIdJem = m_srcIdMap->getRodID(hwCrate, slink, daqOrRoi,
-	                                                        m_subDetector);
-	theROD = m_fea->getRodData(rodIdJem);
+        const uint32_t rodIdJem = m_srcIdMap->getRodID(hwCrate, slink, daqOrRoi,
+                                  m_subDetector);
+        theROD = m_fea->getRodData(rodIdJem);
         if (neutralFormat) {
           const L1CaloUserHeader userHeader;
-	  theROD->push_back(userHeader.header());
+          theROD->push_back(userHeader.header());
         }
-	m_rodStatusMap.insert(make_pair(rodIdJem, m_rodStatus));
+        m_rodStatusMap.insert(make_pair(rodIdJem, m_rodStatus));
       }
       if (debug) msg() << "JEM Module " << module << endreq;
       if (!theROD) break; // for coverity, shouldn't happen
@@ -209,20 +209,20 @@ StatusCode JepRoiByteStreamV1Tool::convert(
 
       if (neutralFormat) {
         m_subBlock->clear();
-	m_subBlock->setRoiHeader(m_version, hwCrate, module);
+        m_subBlock->setRoiHeader(m_version, hwCrate, module);
       }
 
       // Find JEM RoIs for this module
 
       for (; mapIter != mapIterEnd; ++mapIter) {
         const LVL1::JEMRoI* const roi = mapIter->second;
-	if (roi->crate() < crate)  continue;
-	if (roi->crate() > crate)  break;
-	if (roi->jem()   < module) continue;
-	if (roi->jem()   > module) break;
-	if (roi->hits() || roi->error()) {
-	  if (neutralFormat) m_subBlock->fillRoi(*roi);
-	  else theROD->push_back(roi->roiWord());
+        if (roi->crate() < crate)  continue;
+        if (roi->crate() > crate)  break;
+        if (roi->jem()   < module) continue;
+        if (roi->jem()   > module) break;
+        if (roi->hits() || roi->error()) {
+          if (neutralFormat) m_subBlock->fillRoi(*roi);
+          else theROD->push_back(roi->roiWord());
         }
       }
 
@@ -230,14 +230,14 @@ StatusCode JepRoiByteStreamV1Tool::convert(
 
       if (neutralFormat) {
         if ( !m_subBlock->pack()) {
-	  msg(MSG::ERROR) << "JEM RoI sub-block packing failed" << endreq;
-	  return StatusCode::FAILURE;
+          msg(MSG::ERROR) << "JEM RoI sub-block packing failed" << endreq;
+          return StatusCode::FAILURE;
         }
-	if (debug) {
-	  msg() << "JEM RoI sub-block data words: "
-	        << m_subBlock->dataWords() << endreq;
-	}
-	m_subBlock->write(theROD);
+        if (debug) {
+          msg() << "JEM RoI sub-block data words: "
+                << m_subBlock->dataWords() << endreq;
+        }
+        m_subBlock->write(theROD);
       }
     }
     if (!theROD) break; // for coverity, shouldn't happen
@@ -258,27 +258,27 @@ StatusCode JepRoiByteStreamV1Tool::convert(
       const int cmmEnergyVersion = 2; // with Missing-ET-Sig
       enBlock.setCmmHeader(cmmEnergyVersion, m_dataFormat, slice, hwCrate,
                            CmmSubBlock::SYSTEM, CmmSubBlock::CMM_ENERGY,
-			   CmmSubBlock::LEFT, timeslices);
+                           CmmSubBlock::LEFT, timeslices);
       int maxDataID = static_cast<int>(LVL1::CMMEtSums::MAXID);
       for (int dataID = 0; dataID < maxDataID; ++dataID) {
         int source = dataID;
         if (dataID >= m_modules) {
-	  switch (dataID) {
-	    case LVL1::CMMEtSums::LOCAL:
-	      source = CmmEnergySubBlock::LOCAL;
-	      break;
-	    case LVL1::CMMEtSums::REMOTE:
-	      source = CmmEnergySubBlock::REMOTE;
-	      break;
-	    case LVL1::CMMEtSums::TOTAL:
-	      source = CmmEnergySubBlock::TOTAL;
-	      break;
-	    case LVL1::CMMEtSums::MISSING_ET_MAP:
-	    case LVL1::CMMEtSums::SUM_ET_MAP:
-	    case LVL1::CMMEtSums::MISSING_ET_SIG_MAP:
-	      break;
-            default:
-	      continue;
+          switch (dataID) {
+          case LVL1::CMMEtSums::LOCAL:
+            source = CmmEnergySubBlock::LOCAL;
+            break;
+          case LVL1::CMMEtSums::REMOTE:
+            source = CmmEnergySubBlock::REMOTE;
+            break;
+          case LVL1::CMMEtSums::TOTAL:
+            source = CmmEnergySubBlock::TOTAL;
+            break;
+          case LVL1::CMMEtSums::MISSING_ET_MAP:
+          case LVL1::CMMEtSums::SUM_ET_MAP:
+          case LVL1::CMMEtSums::MISSING_ET_SIG_MAP:
+            break;
+          default:
+            continue;
           }
         }
         const LVL1::CMMEtSums* const sums = findCmmSums(crate, dataID);
@@ -289,24 +289,24 @@ StatusCode JepRoiByteStreamV1Tool::convert(
           const int exErr = sums->ExError();
           const int eyErr = sums->EyError();
           const int etErr = sums->EtError();
-	  if (dataID == LVL1::CMMEtSums::MISSING_ET_MAP) {
-	    enBlock.setMissingEtHits(slice, et); 
+          if (dataID == LVL1::CMMEtSums::MISSING_ET_MAP) {
+            enBlock.setMissingEtHits(slice, et);
           } else if (dataID == LVL1::CMMEtSums::SUM_ET_MAP) {
-	    enBlock.setSumEtHits(slice, et); 
-	  } else if (dataID == LVL1::CMMEtSums::MISSING_ET_SIG_MAP) {
-	    enBlock.setMissingEtSigHits(slice, et);
+            enBlock.setSumEtHits(slice, et);
+          } else if (dataID == LVL1::CMMEtSums::MISSING_ET_SIG_MAP) {
+            enBlock.setMissingEtSigHits(slice, et);
           } else {
-	    enBlock.setSubsums(slice, source, ex, ey, et, exErr, eyErr, etErr);
+            enBlock.setSubsums(slice, source, ex, ey, et, exErr, eyErr, etErr);
           }
         }
       }
       if ( !enBlock.pack()) {
         msg(MSG::ERROR) << "CMM-Energy sub-block packing failed" << endreq;
-	return StatusCode::FAILURE;
+        return StatusCode::FAILURE;
       }
       if (debug) {
-	msg() << "CMM-Energy sub-block data words: "
-	      << enBlock.dataWords() << endreq;
+        msg() << "CMM-Energy sub-block data words: "
+              << enBlock.dataWords() << endreq;
       }
       enBlock.write(theROD);
 
@@ -315,54 +315,57 @@ StatusCode JepRoiByteStreamV1Tool::convert(
       CmmJetSubBlock jetBlock;
       jetBlock.setCmmHeader(m_version, m_dataFormat, slice, hwCrate,
                             CmmSubBlock::SYSTEM, CmmSubBlock::CMM_JET,
-			    CmmSubBlock::RIGHT, timeslices);
+                            CmmSubBlock::RIGHT, timeslices);
       maxDataID = static_cast<int>(LVL1::CMMJetHits::MAXID);
       for (int dataID = 0; dataID < maxDataID; ++dataID) {
         int source = dataID;
         if (dataID >= m_modules) {
-	  switch (dataID) {
-	    case LVL1::CMMJetHits::LOCAL_MAIN:
-	      source = CmmJetSubBlock::LOCAL_MAIN;
-	      break;
-	    case LVL1::CMMJetHits::REMOTE_MAIN:
-	      source = CmmJetSubBlock::REMOTE_MAIN;
-	      break;
-	    case LVL1::CMMJetHits::TOTAL_MAIN:
-	      source = CmmJetSubBlock::TOTAL_MAIN;
-	      break;
-	    case LVL1::CMMJetHits::LOCAL_FORWARD:
-	      source = CmmJetSubBlock::LOCAL_FORWARD;
-	      break;
-	    case LVL1::CMMJetHits::REMOTE_FORWARD:
-	      source = CmmJetSubBlock::REMOTE_FORWARD;
-	      break;
-	    case LVL1::CMMJetHits::TOTAL_FORWARD:
-	      source = CmmJetSubBlock::TOTAL_FORWARD;
-	      break;
-	    case LVL1::CMMJetHits::ET_MAP:
-	      break;
-            default:
-	      continue;
+          // coverity[mixed_enums : FALSE]
+          // coverity[switch_on_enum : FALSE]
+          // coverity[first_enum_type : FALSE]
+          switch (dataID) {
+          case LVL1::CMMJetHits::LOCAL_MAIN:
+            source = CmmJetSubBlock::LOCAL_MAIN;
+            break;
+          case LVL1::CMMJetHits::REMOTE_MAIN:
+            source = CmmJetSubBlock::REMOTE_MAIN;
+            break;
+          case LVL1::CMMJetHits::TOTAL_MAIN:
+            source = CmmJetSubBlock::TOTAL_MAIN;
+            break;
+          case LVL1::CMMJetHits::LOCAL_FORWARD:
+            source = CmmJetSubBlock::LOCAL_FORWARD;
+            break;
+          case LVL1::CMMJetHits::REMOTE_FORWARD:
+            source = CmmJetSubBlock::REMOTE_FORWARD;
+            break;
+          case LVL1::CMMJetHits::TOTAL_FORWARD:
+            source = CmmJetSubBlock::TOTAL_FORWARD;
+            break;
+          case LVL1::CMMJetHits::ET_MAP:
+            break;
+          default:
+            continue;
           }
         }
         const LVL1::CMMJetHits* const ch = findCmmHits(crate, dataID);
         if ( ch ) {
           const unsigned int hits = ch->Hits();
           const int          errs = ch->Error();
-	  if (dataID == LVL1::CMMJetHits::ET_MAP) {
-	    jetBlock.setJetEtMap(slice, hits);
+          if (dataID == LVL1::CMMJetHits::ET_MAP) {
+            jetBlock.setJetEtMap(slice, hits);
           } else {
-	    jetBlock.setJetHits(slice, source, hits, errs);
+            jetBlock.setJetHits(slice, source, hits, errs);
           }
         }
       }
       if ( !jetBlock.pack()) {
         msg(MSG::ERROR) << "CMM-Jet sub-block packing failed" << endreq;
-	return StatusCode::FAILURE;
+        return StatusCode::FAILURE;
       }
       if (debug) {
-	msg() << "CMM-Jet sub-block data words: "
-	      << jetBlock.dataWords() << endreq;
+        msg() << "CMM-Jet sub-block data words: "
+              << jetBlock.dataWords() << endreq;
       }
       jetBlock.write(theROD);
 
@@ -372,22 +375,22 @@ StatusCode JepRoiByteStreamV1Tool::convert(
 
       const LVL1::CMMRoI* const roi = jep->CmmRoi();
       if ( roi ) {
-	// Make sure word IDs are correct
+        // Make sure word IDs are correct
         const LVL1::CMMRoI roid(roi->jetEtHits(), roi->sumEtHits(),
-	            roi->missingEtHits(), roi->missingEtSigHits(),
-		    roi->ex(), roi->ey(), roi->et(),
-		    roi->jetEtError(), roi->sumEtError(),
-		    roi->missingEtError(), roi->missingEtSigError(),
-		    roi->exError(), roi->eyError(), roi->etError());
+                                roi->missingEtHits(), roi->missingEtSigHits(),
+                                roi->ex(), roi->ey(), roi->et(),
+                                roi->jetEtError(), roi->sumEtError(),
+                                roi->missingEtError(), roi->missingEtSigError(),
+                                roi->exError(), roi->eyError(), roi->etError());
         if (roid.jetEtHits() || roid.jetEtError()) {
           theROD->push_back(roid.jetEtRoiWord());
         }
         // CMM-Energy RoIs are not zero-supressed unless all are zero
-	if (roid.sumEtHits() || roid.missingEtHits() ||
-	    roid.missingEtSigHits() || roid.ex() || roid.ey() || roid.et() ||
-	    roid.sumEtError() || roid.missingEtError() ||
-	    roid.missingEtSigError() || roid.exError() || roid.eyError() ||
-	    roid.etError()) {
+        if (roid.sumEtHits() || roid.missingEtHits() ||
+            roid.missingEtSigHits() || roid.ex() || roid.ey() || roid.et() ||
+            roid.sumEtError() || roid.missingEtError() ||
+            roid.missingEtSigError() || roid.exError() || roid.eyError() ||
+            roid.etError()) {
           theROD->push_back(roid.energyRoiWord0());
           theROD->push_back(roid.energyRoiWord1());
           theROD->push_back(roid.energyRoiWord2());
@@ -410,12 +413,12 @@ StatusCode JepRoiByteStreamV1Tool::convert(
 // Return reference to vector with all possible Source Identifiers
 
 const std::vector<uint32_t>& JepRoiByteStreamV1Tool::sourceIDs(
-                                                   const std::string& sgKey)
+  const std::string& sgKey)
 {
   const std::string flag("RoIB");
   const std::string::size_type pos = sgKey.find(flag);
   const bool roiDaq =
-           (pos == std::string::npos || pos != sgKey.length() - flag.length());
+    (pos == std::string::npos || pos != sgKey.length() - flag.length());
   const bool empty  = (roiDaq) ? m_sourceIDs.empty() : m_sourceIDsRoIB.empty();
   if (empty) {
     const int maxCrates = m_crates + m_crateOffsetHw;
@@ -424,11 +427,11 @@ const std::vector<uint32_t>& JepRoiByteStreamV1Tool::sourceIDs(
       for (int slink = 0; slink < maxSlinks; ++slink) {
         const int daqOrRoi = 1;
         const uint32_t rodId = m_srcIdMap->getRodID(hwCrate, slink, daqOrRoi,
-                                                             m_subDetector);
+                               m_subDetector);
         const uint32_t robId = m_srcIdMap->getRobID(rodId);
-	if (roiDaq) {
-	  if (slink < 2) m_sourceIDs.push_back(robId);
-	} else if (slink >= 2) m_sourceIDsRoIB.push_back(robId);
+        if (roiDaq) {
+          if (slink < 2) m_sourceIDs.push_back(robId);
+        } else if (slink >= 2) m_sourceIDsRoIB.push_back(robId);
       }
     }
   }
@@ -438,8 +441,8 @@ const std::vector<uint32_t>& JepRoiByteStreamV1Tool::sourceIDs(
 // Convert bytestream to given container type
 
 StatusCode JepRoiByteStreamV1Tool::convertBs(
-                            const IROBDataProviderSvc::VROBFRAG& robFrags,
-                            const CollectionType collection)
+  const IROBDataProviderSvc::VROBFRAG& robFrags,
+  const CollectionType collection)
 {
   const bool debug = msgLvl(MSG::DEBUG);
   if (debug) msg(MSG::DEBUG);
@@ -466,8 +469,8 @@ StatusCode JepRoiByteStreamV1Tool::convertBs(
       (*rob)->status(robData);
       if (*robData != 0) {
         m_errorTool->robError(robid, *robData);
-	if (debug) msg() << "ROB status error - skipping fragment" << endreq;
-	continue;
+        if (debug) msg() << "ROB status error - skipping fragment" << endreq;
+        continue;
       }
     }
 
@@ -496,14 +499,14 @@ StatusCode JepRoiByteStreamV1Tool::convertBs(
     const uint32_t sourceID = (*rob)->rod_source_id();
     if (m_srcIdMap->getRobID(sourceID) != robid           ||
         m_srcIdMap->subDet(sourceID)   != m_subDetector   ||
-	m_srcIdMap->daqOrRoi(sourceID) != 1               ||
-       (m_srcIdMap->slink(sourceID) != 0 && m_srcIdMap->slink(sourceID) != 2) ||
+        m_srcIdMap->daqOrRoi(sourceID) != 1               ||
+        (m_srcIdMap->slink(sourceID) != 0 && m_srcIdMap->slink(sourceID) != 2) ||
         m_srcIdMap->crate(sourceID)    <  m_crateOffsetHw ||
-	m_srcIdMap->crate(sourceID)    >= m_crateOffsetHw + m_crates) {
+        m_srcIdMap->crate(sourceID)    >= m_crateOffsetHw + m_crates) {
       m_errorTool->rodError(robid, L1CaloSubBlock::ERROR_ROD_ID);
       if (debug) {
         msg() << "Wrong source identifier in data: "
-	      << MSG::hex << sourceID << MSG::dec << endreq;
+              << MSG::hex << sourceID << MSG::dec << endreq;
       }
       continue;
     }
@@ -516,7 +519,7 @@ StatusCode JepRoiByteStreamV1Tool::convertBs(
     }
     const int rodCrate = m_srcIdMap->crate(sourceID);
     if (debug) {
-      msg() << "Treating crate " << rodCrate 
+      msg() << "Treating crate " << rodCrate
             << " slink " << m_srcIdMap->slink(sourceID) << endreq;
     }
 
@@ -528,7 +531,7 @@ StatusCode JepRoiByteStreamV1Tool::convertBs(
       if (headerWords != 1) {
         m_errorTool->rodError(robid, L1CaloSubBlock::ERROR_USER_HEADER);
         if (debug) msg() << "Unexpected number of user header words: "
-	                 << headerWords << endreq;
+                           << headerWords << endreq;
         continue;
       }
       for (int i = 0; i < headerWords; ++i) ++payload;
@@ -538,128 +541,128 @@ StatusCode JepRoiByteStreamV1Tool::convertBs(
 
     unsigned int rodErr = L1CaloSubBlock::ERROR_NONE;
     while (payload != payloadEnd) {
-      
+
       if (L1CaloSubBlock::wordType(*payload) == L1CaloSubBlock::HEADER) {
-	const int slice = 0;
+        const int slice = 0;
         if (CmmSubBlock::cmmBlock(*payload)) {
           // CMMs
-	  if (CmmSubBlock::cmmType(*payload) == CmmSubBlock::CMM_JET) {
+          if (CmmSubBlock::cmmType(*payload) == CmmSubBlock::CMM_JET) {
             CmmJetSubBlock subBlock;
             payload = subBlock.read(payload, payloadEnd);
-	    if (collection == CMM_ROI) {
-	      if (subBlock.dataWords() && !subBlock.unpack()) {
-	        if (debug) {
-		  std::string errMsg(subBlock.unpackErrorMsg());
-	          msg() << "CMM-Jet sub-block unpacking failed: "
-		        << errMsg << endreq;
-	        }
-		rodErr = m_subBlock->unpackErrorCode();
-		break;
+            if (collection == CMM_ROI) {
+              if (subBlock.dataWords() && !subBlock.unpack()) {
+                if (debug) {
+                  std::string errMsg(subBlock.unpackErrorMsg());
+                  msg() << "CMM-Jet sub-block unpacking failed: "
+                        << errMsg << endreq;
+                }
+                rodErr = m_subBlock->unpackErrorCode();
+                break;
               }
-	      const LVL1::CMMRoI roi(subBlock.jetEtMap(slice),
-	                             0,0,0,0,0,0,0,0,0,0,0,0,0);
-	      m_cmCollection->setRoiWord(roi.jetEtRoiWord());
+              const LVL1::CMMRoI roi(subBlock.jetEtMap(slice),
+                                     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+              m_cmCollection->setRoiWord(roi.jetEtRoiWord());
             }
           } else {
-	    CmmEnergySubBlock subBlock;
-	    payload = subBlock.read(payload, payloadEnd);
-	    if (collection == CMM_ROI) {
-	      if (subBlock.dataWords() && !subBlock.unpack()) {
-	        if (debug) {
-		  std::string errMsg(subBlock.unpackErrorMsg());
-	          msg() << "CMM-Energy sub-block unpacking failed: "
-		        << errMsg << endreq;
-	        }
-		rodErr = m_subBlock->unpackErrorCode();
-		break;
+            CmmEnergySubBlock subBlock;
+            payload = subBlock.read(payload, payloadEnd);
+            if (collection == CMM_ROI) {
+              if (subBlock.dataWords() && !subBlock.unpack()) {
+                if (debug) {
+                  std::string errMsg(subBlock.unpackErrorMsg());
+                  msg() << "CMM-Energy sub-block unpacking failed: "
+                        << errMsg << endreq;
+                }
+                rodErr = m_subBlock->unpackErrorCode();
+                break;
               }
-	      const LVL1::CMMRoI roi(0, subBlock.sumEtHits(slice),
-	                   subBlock.missingEtHits(slice),
-	                   subBlock.missingEtSigHits(slice),
-			   subBlock.ex(slice, CmmEnergySubBlock::TOTAL),
-			   subBlock.ey(slice, CmmEnergySubBlock::TOTAL),
-			   subBlock.et(slice, CmmEnergySubBlock::TOTAL),
-			   0, 0, 0, 0,
-			   subBlock.exError(slice, CmmEnergySubBlock::TOTAL),
-			   subBlock.eyError(slice, CmmEnergySubBlock::TOTAL),
-			   subBlock.etError(slice, CmmEnergySubBlock::TOTAL));
-	      m_cmCollection->setRoiWord(roi.energyRoiWord0());
-	      m_cmCollection->setRoiWord(roi.energyRoiWord1());
-	      m_cmCollection->setRoiWord(roi.energyRoiWord2());
+              const LVL1::CMMRoI roi(0, subBlock.sumEtHits(slice),
+                                     subBlock.missingEtHits(slice),
+                                     subBlock.missingEtSigHits(slice),
+                                     subBlock.ex(slice, CmmEnergySubBlock::TOTAL),
+                                     subBlock.ey(slice, CmmEnergySubBlock::TOTAL),
+                                     subBlock.et(slice, CmmEnergySubBlock::TOTAL),
+                                     0, 0, 0, 0,
+                                     subBlock.exError(slice, CmmEnergySubBlock::TOTAL),
+                                     subBlock.eyError(slice, CmmEnergySubBlock::TOTAL),
+                                     subBlock.etError(slice, CmmEnergySubBlock::TOTAL));
+              m_cmCollection->setRoiWord(roi.energyRoiWord0());
+              m_cmCollection->setRoiWord(roi.energyRoiWord1());
+              m_cmCollection->setRoiWord(roi.energyRoiWord2());
             }
-	  }
+          }
         } else {
           // JEM RoI
           JemRoiSubBlockV1 subBlock;
           payload = subBlock.read(payload, payloadEnd);
-	  if (collection == JEM_ROI) {
-	    if (subBlock.dataWords() && !subBlock.unpack()) {
-	      if (debug) {
-		std::string errMsg(subBlock.unpackErrorMsg());
-	        msg() << "JEM RoI sub-block unpacking failed: "
-		      << errMsg << endreq;
-	      }
+          if (collection == JEM_ROI) {
+            if (subBlock.dataWords() && !subBlock.unpack()) {
+              if (debug) {
+                std::string errMsg(subBlock.unpackErrorMsg());
+                msg() << "JEM RoI sub-block unpacking failed: "
+                      << errMsg << endreq;
+              }
               rodErr = m_subBlock->unpackErrorCode();
               break;
             }
-	    for (int frame = 0; frame < 8; ++frame) {
-	      for (int forward = 0; forward < 2; ++forward) {
-	        const LVL1::JEMRoI roi = subBlock.roi(frame, forward);
-		if (roi.hits() || roi.error()) {
-		  m_jeCollection->push_back(new LVL1::JEMRoI(roi));
-	        }
-	      }
-	    }
+            for (int frame = 0; frame < 8; ++frame) {
+              for (int forward = 0; forward < 2; ++forward) {
+                const LVL1::JEMRoI roi = subBlock.roi(frame, forward);
+                if (roi.hits() || roi.error()) {
+                  m_jeCollection->push_back(new LVL1::JEMRoI(roi));
+                }
+              }
+            }
           }
         }
       } else {
         // Just RoI word
-	LVL1::JEMRoI jroi;
-	LVL1::CMMRoI croi;
-	if (jroi.setRoiWord(*payload)) {
-	  if (collection == JEM_ROI) {
-	    if (jroi.crate() != rodCrate - m_crateOffsetHw) {
-	      if (debug) msg() << "Inconsistent RoI crate number: "
-	                       << jroi.crate() << endreq;
+        LVL1::JEMRoI jroi;
+        LVL1::CMMRoI croi;
+        if (jroi.setRoiWord(*payload)) {
+          if (collection == JEM_ROI) {
+            if (jroi.crate() != rodCrate - m_crateOffsetHw) {
+              if (debug) msg() << "Inconsistent RoI crate number: "
+                                 << jroi.crate() << endreq;
               rodErr = L1CaloSubBlock::ERROR_CRATE_NUMBER;
-	      break;
+              break;
             }
-	    const uint32_t location = (*payload) & 0xfffc0000;
-	    if (dupRoiCheck.insert(location).second) {
-	      if (jroi.hits() || jroi.error()) {
-	        m_jeCollection->push_back(new LVL1::JEMRoI(*payload));
-	      }
-	    } else {
-	      if (debug) msg() << "Duplicate RoI word "
-	                       << MSG::hex << *payload << MSG::dec << endreq;
+            const uint32_t location = (*payload) & 0xfffc0000;
+            if (dupRoiCheck.insert(location).second) {
+              if (jroi.hits() || jroi.error()) {
+                m_jeCollection->push_back(new LVL1::JEMRoI(*payload));
+              }
+            } else {
+              if (debug) msg() << "Duplicate RoI word "
+                                 << MSG::hex << *payload << MSG::dec << endreq;
               rodErr = L1CaloSubBlock::ERROR_DUPLICATE_DATA;
-	      break;
+              break;
             }
-	  }
+          }
         } else if (croi.setRoiWord(*payload)) {
-	  if (collection == CMM_ROI) {
-	    uint32_t roiType = (*payload) & 0xf0000000;
-	    if ((roiType & 0xe0000000) == 0xa0000000) roiType = 0xa0000000;
-	    if (dupRoiCheck.insert(roiType).second) {
-	      m_cmCollection->setRoiWord(*payload);
-	    } else {
-	      if (debug) msg() << "Duplicate RoI word "
-	                       << MSG::hex << *payload << MSG::dec << endreq;
+          if (collection == CMM_ROI) {
+            uint32_t roiType = (*payload) & 0xf0000000;
+            if ((roiType & 0xe0000000) == 0xa0000000) roiType = 0xa0000000;
+            if (dupRoiCheck.insert(roiType).second) {
+              m_cmCollection->setRoiWord(*payload);
+            } else {
+              if (debug) msg() << "Duplicate RoI word "
+                                 << MSG::hex << *payload << MSG::dec << endreq;
               rodErr = L1CaloSubBlock::ERROR_DUPLICATE_DATA;
-	      break;
+              break;
             }
-	  }
+          }
         } else {
-	  if (debug) msg() << "Invalid RoI word "
-	                   << MSG::hex << *payload << MSG::dec << endreq;
-	  rodErr = L1CaloSubBlock::ERROR_ROI_TYPE;
-	  break;
+          if (debug) msg() << "Invalid RoI word "
+                             << MSG::hex << *payload << MSG::dec << endreq;
+          rodErr = L1CaloSubBlock::ERROR_ROI_TYPE;
+          break;
         }
-	++payload;
+        ++payload;
       }
     }
     if (rodErr != L1CaloSubBlock::ERROR_NONE)
-                                        m_errorTool->rodError(robid, rodErr);
+      m_errorTool->rodError(robid, rodErr);
   }
 
   return StatusCode::SUCCESS;
@@ -668,11 +671,11 @@ StatusCode JepRoiByteStreamV1Tool::convertBs(
 // Find CMM hits for given crate, dataID
 
 const LVL1::CMMJetHits* JepRoiByteStreamV1Tool::findCmmHits(const int crate,
-                                                            const int dataID)
+    const int dataID)
 {
   const LVL1::CMMJetHits* hits = 0;
   CmmHitsMap::const_iterator mapIter;
-  mapIter = m_cmmHitsMap.find(crate*100 + dataID);
+  mapIter = m_cmmHitsMap.find(crate * 100 + dataID);
   if (mapIter != m_cmmHitsMap.end()) hits = mapIter->second;
   return hits;
 }
@@ -680,11 +683,11 @@ const LVL1::CMMJetHits* JepRoiByteStreamV1Tool::findCmmHits(const int crate,
 // Find CMM energy sums for given crate, module, dataID
 
 const LVL1::CMMEtSums* JepRoiByteStreamV1Tool::findCmmSums(const int crate,
-                                                           const int dataID)
+    const int dataID)
 {
   const LVL1::CMMEtSums* sums = 0;
   CmmSumsMap::const_iterator mapIter;
-  mapIter = m_cmmEtMap.find(crate*100 + dataID);
+  mapIter = m_cmmEtMap.find(crate * 100 + dataID);
   if (mapIter != m_cmmEtMap.end()) sums = mapIter->second;
   return sums;
 }
@@ -692,7 +695,7 @@ const LVL1::CMMEtSums* JepRoiByteStreamV1Tool::findCmmSums(const int crate,
 // Set up JEM RoIs map
 
 void JepRoiByteStreamV1Tool::setupJemRoiMap(const JemRoiCollection*
-                                                            const jeCollection)
+    const jeCollection)
 {
   m_roiMap.clear();
   if (jeCollection) {
@@ -709,7 +712,7 @@ void JepRoiByteStreamV1Tool::setupJemRoiMap(const JemRoiCollection*
 // Set up CMM hits map
 
 void JepRoiByteStreamV1Tool::setupCmmHitsMap(const CmmHitsCollection*
-                                                           const hitCollection)
+    const hitCollection)
 {
   m_cmmHitsMap.clear();
   if (hitCollection) {
@@ -718,7 +721,7 @@ void JepRoiByteStreamV1Tool::setupCmmHitsMap(const CmmHitsCollection*
     for (; pos != pose; ++pos) {
       const LVL1::CMMJetHits* const hits = *pos;
       const int crate = hits->crate() - m_crateOffsetSw;
-      const int key   = crate*100 + hits->dataID();
+      const int key   = crate * 100 + hits->dataID();
       m_cmmHitsMap.insert(std::make_pair(key, hits));
     }
   }
@@ -727,7 +730,7 @@ void JepRoiByteStreamV1Tool::setupCmmHitsMap(const CmmHitsCollection*
 // Set up CMM energy sums map
 
 void JepRoiByteStreamV1Tool::setupCmmEtMap(const CmmSumsCollection*
-                                                            const etCollection)
+    const etCollection)
 {
   m_cmmEtMap.clear();
   if (etCollection) {
@@ -736,7 +739,7 @@ void JepRoiByteStreamV1Tool::setupCmmEtMap(const CmmSumsCollection*
     for (; pos != pose; ++pos) {
       const LVL1::CMMEtSums* const sums = *pos;
       const int crate = sums->crate() - m_crateOffsetSw;
-      const int key   = crate*100 + sums->dataID();
+      const int key   = crate * 100 + sums->dataID();
       m_cmmEtMap.insert(std::make_pair(key, sums));
     }
   }

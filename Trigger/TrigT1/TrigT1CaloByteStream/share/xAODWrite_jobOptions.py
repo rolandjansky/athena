@@ -2,7 +2,9 @@
 # ==============================================================================
 # Change the input file
 InputFiles = [
-    "/afs/cern.ch/work/g/geisler/public/misc/l1caloruns/data15_calib.00252372.calibration_L1CaloPprPhos4ScanPars.daq.RAW._lb0000._SFO-1._0001.data",
+    "/afs/cern.ch/work/v/vkousk/public/L1Calo/data15_cos.00255313.physics_CosmicCalo.merge.RAW._lb0700._SFO-ALL._0001.1"
+#    "/afs/cern.ch/user/t/tcorneli/public/PROC/extractedEvents8.data",
+#    "/afs/cern.ch/work/g/geisler/public/misc/l1caloruns/data15_calib.00252372.calibration_L1CaloPprPhos4ScanPars.daq.RAW._lb0000._SFO-1._0001.data",
 #    "/afs/cern.ch/work/h/hmeyerzt/public/data/data15_cos.00252223.physics_CosmicCalo.merge.RAW._lb0025._SFO-ALL._0001.1",
 #    "/afs/cern.ch/user/r/rhowen/ppmData/ppmBcMuxRamp.data",
 #     "/afs/cern.ch/user/r/rhowen/ppmData/ppmBcMuxRamp_Compressed.data",
@@ -46,8 +48,8 @@ class PyTriggerTowerRef(PyAthena.Alg):
         return PyAthena.StatusCode.Success
 
     def execute(self):
-        tt =  self.event_store["xAODTriggerTowers"]
-        # cpm =  self.event_store["CPMTowers"]
+        #tt =  self.event_store["xAODTriggerTowers"]
+        cpm =  self.event_store["CPMTowers"]
         # je = self.event_store["JetElements"]
         # for j in je:
         #     vv = j.hadEnergyVec()
