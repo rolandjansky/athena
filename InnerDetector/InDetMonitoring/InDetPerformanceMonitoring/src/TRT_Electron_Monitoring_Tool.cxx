@@ -36,7 +36,7 @@ TRT_Electron_Monitoring_Tool( const std::string & type,
   m_pTRTHelper			(0),
   mgr				(0)
 {
-  declareProperty( "trackName", m_tracksName="CombinedInDetTracks" );
+  declareProperty( "trackName", m_tracksName="InDetTrackParticles" );
   declareProperty( "electronName", m_electronsName="Electrons");
   declareProperty( "conversionName", m_conversionName="ConversionCandidate");
   declareProperty( "muonName", m_muonsName="Muons");

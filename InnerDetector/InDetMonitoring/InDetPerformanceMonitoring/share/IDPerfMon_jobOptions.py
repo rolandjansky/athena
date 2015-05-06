@@ -34,39 +34,50 @@ else:
     print 'IDPerfMon_jobOptions.py : following express stream trigger menu (pp_v5_menu) -> https://twiki.cern.ch/twiki/bin/view/Atlas/ExpressStream#Run_2_Physics_Physics_pp_v5_menu'
     print 'IDPerfMon_jobOptions.py : lowLumi Zee triggers'
     IDPerfMonZee_2e12_loose = IDPerfMonZee (name = "IDPerfMonZee_2e12_loose",
-                                            tracksName = InDetKeys.TrackParticles())
+                                            tracksName = InDetKeys.TrackParticles(),
+                                            triggerChainName = "2e12_loose")
+
     IDPerfMonZee_e24_medium_L1EM18VH = IDPerfMonZee (name = "IDPerfMonZee_e24_medium_L1EM18VH",
-                                            tracksName = InDetKeys.TrackParticles())
+                                                     tracksName = InDetKeys.TrackParticles(),
+                                                     triggerChainName = "e24_medium_L1EM18VH")
+
     print 'IDPerfMon_jobOptions.py : highLumi Zee triggers'
     IDPerfMonZee_2e15_loose = IDPerfMonZee (name = "IDPerfMonZee_2e15_loose",
-                                            tracksName = InDetKeys.TrackParticles())
+                                            tracksName = InDetKeys.TrackParticles(),
+                                            triggerChainName = "2e15_loose")
+
     IDPerfMonZee_e24_tight_L1EM20VH  = IDPerfMonZee (name = "IDPerfMonZee_e24_tight_L1EM20VH",
-                                            tracksName = InDetKeys.TrackParticles())
+                                                     tracksName = InDetKeys.TrackParticles(),
+                                                     triggerChainName = "e24_tight_L1EM20VH")
+
     print 'IDPerfMon_jobOptions.py : Wenu triggers'
-    IDPerfMonWenu_g25_loose_xe35 = IDPerfMonWenu (name = "IDPerfMonWenu_g25_loose_xe35",
-                                            tracksName = InDetKeys.TrackParticles())
+#    IDPerfMonWenu_g25_loose_xe35 = IDPerfMonWenu (name = "IDPerfMonWenu_g25_loose_xe35",
+#                                            tracksName = InDetKeys.TrackParticles())
     IDPerfMonWenu_e24_medium_L1EM18VH = IDPerfMonWenu (name = "IDPerfMonWenu_e24_medium_L1EM18VH",
-                                            tracksName = InDetKeys.TrackParticles())
+                                                       tracksName = InDetKeys.TrackParticles(),
+                                                       triggerChainName = "e24_medium_L1EM18VH")
+
     IDPerfMonWenu_e24_tight_L1EM20VH  = IDPerfMonWenu (name = "IDPerfMonWenu_e24_tight_L1EM20VH",
-                                            tracksName = InDetKeys.TrackParticles())
+                                                       tracksName = InDetKeys.TrackParticles(),
+                                                       triggerChainName = "e24_tight_L1EM20VH")
 
 
     IDPerfMonZee_2e12_loose.TrigDecisionTool             = monTrigDecTool
     IDPerfMonZee_e24_medium_L1EM18VH.TrigDecisionTool             = monTrigDecTool
     IDPerfMonZee_2e15_loose.TrigDecisionTool             = monTrigDecTool
     IDPerfMonZee_e24_tight_L1EM20VH.TrigDecisionTool             = monTrigDecTool
-    IDPerfMonWenu_g25_loose_xe35.TrigDecisionTool             = monTrigDecTool
+#    IDPerfMonWenu_g25_loose_xe35.TrigDecisionTool             = monTrigDecTool
     IDPerfMonWenu_e24_medium_L1EM18VH.TrigDecisionTool             = monTrigDecTool
     IDPerfMonWenu_e24_tight_L1EM20VH.TrigDecisionTool             = monTrigDecTool
 
-    IDPerfMonZee_2e12_loose.TriggerChain = "2e12_loose"
-    IDPerfMonZee_e24_medium_L1EM18VH.TriggerChain             = "e24_medium_L1EM18VH"
-    IDPerfMonZee_2e15_loose.TriggerChain             = "2e15_loose"
-    IDPerfMonZee_e24_tight_L1EM20VH.TriggerChain             = "e24_tight_L1EM20VH"
+    IDPerfMonZee_2e12_loose.TriggerChain = "HLT_2e12_loose"
+    IDPerfMonZee_e24_medium_L1EM18VH.TriggerChain             = "HLT_e24_medium_L1EM18VH"
+    IDPerfMonZee_2e15_loose.TriggerChain             = "HLT_2e15_loose"
+    IDPerfMonZee_e24_tight_L1EM20VH.TriggerChain             = "HLT_e24_tight_L1EM20VH"
 
-    IDPerfMonWenu_g25_loose_xe35.TriggerChain             = "g25_loose_xe35"
-    IDPerfMonWenu_e24_medium_L1EM18VH.TriggerChain             = "e24_medium_L1EM18VH"
-    IDPerfMonWenu_e24_tight_L1EM20VH.TriggerChain             = "e24_tight_L1EM20VH"
+#    IDPerfMonWenu_g25_loose_xe35.TriggerChain             = "g25_loose_xe35"
+    IDPerfMonWenu_e24_medium_L1EM18VH.TriggerChain             = "HLT_e24_medium_L1EM18VH"
+    IDPerfMonWenu_e24_tight_L1EM20VH.TriggerChain             = "HLT_e24_tight_L1EM20VH"
 
     ToolSvc += IDPerfMonZee_2e12_loose
     if (InDetFlags.doPrintConfigurables()):
@@ -81,9 +92,9 @@ else:
     if (InDetFlags.doPrintConfigurables()):
         print IDPerfMonZee_e24_tight_L1EM20VH
 
-    ToolSvc += IDPerfMonWenu_g25_loose_xe35
-    if (InDetFlags.doPrintConfigurables()):
-        print IDPerfMonWenu_g25_loose_xe35
+#    ToolSvc += IDPerfMonWenu_g25_loose_xe35
+#    if (InDetFlags.doPrintConfigurables()):
+#        print IDPerfMonWenu_g25_loose_xe35
     ToolSvc += IDPerfMonWenu_e24_medium_L1EM18VH
     if (InDetFlags.doPrintConfigurables()):
         print IDPerfMonWenu_e24_medium_L1EM18VH
@@ -116,7 +127,7 @@ else:
     IDPerfMonManager.AthenaMonTools += [ IDPerfMonZee_2e15_loose ]
     IDPerfMonManager.AthenaMonTools += [ IDPerfMonZee_e24_tight_L1EM20VH ]
 
-    IDPerfMonManager.AthenaMonTools += [ IDPerfMonWenu_g25_loose_xe35 ]
+#    IDPerfMonManager.AthenaMonTools += [ IDPerfMonWenu_g25_loose_xe35 ]
     IDPerfMonManager.AthenaMonTools += [ IDPerfMonWenu_e24_medium_L1EM18VH ]
     IDPerfMonManager.AthenaMonTools += [ IDPerfMonWenu_e24_tight_L1EM20VH ]
 
