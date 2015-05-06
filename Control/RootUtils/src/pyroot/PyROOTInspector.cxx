@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: PyROOTInspector.cxx 664409 2015-05-01 16:57:25Z ssnyder $
+// $Id: PyROOTInspector.cxx 665413 2015-05-06 18:35:57Z ssnyder $
 
 //#define PYROOT_INSPECTOR_DBG 1
 #define PYROOT_INSPECTOR_DBG 0
@@ -285,37 +285,43 @@ recurse_pyinspect(PyObject *pyobj,
   if (hdr) {
     // handle collection
 #if PYROOT_INSPECTOR_DBG
-    const Py_ssize_t nelems = PySequence_Size(pyobj);
-    std::cerr << "== sequence (" << nelems << ")...\n";
+    {
+      const Py_ssize_t nelems = PySequence_Size(pyobj);
+      std::cerr << "== sequence (" << nelems << ")...\n";
+    }
 #endif
 
     // This used to use PySequence_GetItem.
     // However, xAOD::MissingETContainer redefines operator[] to do
     // something completely different, so that didn't work.
     // Rewriting in terms of iteration avoids this.
-    PyObject* iter = PyObject_GetIter(pyobj);
-    size_t i = 0;
-    if (iter) {
-      while (PyObject* item = PyIter_Next(iter)) {
+    // .. except that it mysteriously fails (sometimes) for TileCellVec.
+    if (strcmp(tcls->GetName(), "TileCellVec") == 0) {
+      const Py_ssize_t nelems = PySequence_Size(pyobj);
+      for (Py_ssize_t i = 0; i < nelems; ++i) {
         PyObject *pyidx = PyLong_FromLong(i);
+        PyObject *itr = PySequence_GetItem(pyobj, i);
         PyObject *itr_name = ::new_pylist(pyobj_name, pyidx);
-        recurse_pyinspect(item, itr_name, pystack, persistentOnly);
+        recurse_pyinspect(itr, itr_name, pystack, persistentOnly);
         Py_XDECREF(itr_name);
         Py_XDECREF(pyidx);
-        Py_DECREF(item);
+        Py_XDECREF(itr);
       }
     }
-#if 0
-    for (Py_ssize_t i = 0; i < nelems; ++i) {
-      PyObject *pyidx = PyLong_FromLong(i);
-      PyObject *itr = PySequence_GetItem(pyobj, i);
-      PyObject *itr_name = ::new_pylist(pyobj_name, pyidx);
-      recurse_pyinspect(itr, itr_name, pystack, persistentOnly);
-      Py_XDECREF(itr_name);
-      Py_XDECREF(pyidx);
-      Py_XDECREF(itr);
+    else {
+      PyObject* iter = PyObject_GetIter(pyobj);
+      size_t i = 0;
+      if (iter) {
+        while (PyObject* item = PyIter_Next(iter)) {
+          PyObject *pyidx = PyLong_FromLong(i);
+          PyObject *itr_name = ::new_pylist(pyobj_name, pyidx);
+          recurse_pyinspect(item, itr_name, pystack, persistentOnly);
+          Py_XDECREF(itr_name);
+          Py_XDECREF(pyidx);
+          Py_DECREF(item);
+        }
+      }
     }
-#endif
 
 #if PYROOT_INSPECTOR_DBG
     std::cerr << "== sequence (" << nelems << ")... [done]\n";
