@@ -31,8 +31,8 @@ namespace MTPM_Location_Bins {
 }
 
 namespace MuonTrkPhysMonUtils{
-  float EtaRegion(double eta);
-  float EtaRegionSmall(double eta);
+  float EtaRegionFine(double eta);
+  float EtaRegionCoarse(double eta);
   bool  LabelLargeEtaRegions(TAxis * axis);
   bool  LabelCombinedEtaRegions(TAxis * axis);
   bool  LabelSectorAxis(TAxis * axis);
