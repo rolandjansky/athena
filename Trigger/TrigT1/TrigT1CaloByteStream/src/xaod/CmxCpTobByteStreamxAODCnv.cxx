@@ -24,27 +24,26 @@
 #include "SGTools/StorableConversions.h"
 #include "StoreGate/StoreGateSvc.h"
 
-#include "xAODTrigL1Calo/TriggerTower.h"
-#include "xAODTrigL1Calo/TriggerTowerContainer.h"
-#include "xAODTrigL1Calo/TriggerTowerAuxContainer.h"
+#include "xAODTrigL1Calo/CMXCPTob.h"
+#include "xAODTrigL1Calo/CMXCPTobContainer.h"
+#include "xAODTrigL1Calo/CMXCPTobAuxContainer.h"
 
-#include "PpmByteStreamxAODCnv.h"
-
+#include "CmxCpTobByteStreamxAODCnv.h"
 
 namespace LVL1BS {
 
-PpmByteStreamxAODCnv::PpmByteStreamxAODCnv(ISvcLocator* svcloc) :
+CmxCpTobByteStreamxAODCnv::CmxCpTobByteStreamxAODCnv(ISvcLocator* svcloc) :
     Converter(ByteStream_StorageType, classID(), svcloc),
-    AthMessaging(svcloc != 0 ? msgSvc() : 0, "PpmByteStreamxAODCnv"),
-    m_name("PpmByteStreamxAODCnv")
+    AthMessaging(svcloc != 0 ? msgSvc() : 0, "CmxCpTobByteStreamxAODCnv"),
+    m_name("CmxCpTobByteStreamxAODCnv")
 {
 
 }
 
 // CLID
 
-const CLID& PpmByteStreamxAODCnv::classID() {
-  return ClassID_traits<xAOD::TriggerTowerContainer>::ID();
+const CLID& CmxCpTobByteStreamxAODCnv::classID() {
+  return ClassID_traits<xAOD::CMXCPTobContainer>::ID();
 }
 
 //  Init method gets all necessary services etc.
@@ -53,17 +52,18 @@ const CLID& PpmByteStreamxAODCnv::classID() {
 #define PACKAGE_VERSION "unknown"
 #endif
 
-StatusCode PpmByteStreamxAODCnv::initialize() {
+StatusCode CmxCpTobByteStreamxAODCnv::initialize() {
   ATH_MSG_DEBUG(
       "Initializing " << m_name << " - package version " << PACKAGE_VERSION);
 
   CHECK(Converter::initialize());
+  //CHECK(m_readTool.retrieve());
   return StatusCode::SUCCESS;
 }
 
 // createObj should create the RDO from bytestream.
 
-StatusCode PpmByteStreamxAODCnv::createObj(IOpaqueAddress* pAddr,
+StatusCode CmxCpTobByteStreamxAODCnv::createObj(IOpaqueAddress* pAddr,
     DataObject*& pObj) {
   ATH_MSG_DEBUG("createObj() called");
   // -------------------------------------------------------------------------
@@ -72,29 +72,29 @@ StatusCode PpmByteStreamxAODCnv::createObj(IOpaqueAddress* pAddr,
   // -------------------------------------------------------------------------
   const std::string nm = *(pBS_Addr->par());
   const std::string nmAux = nm + "Aux.";
-  ATH_MSG_DEBUG("Creating xAOD::TriggerTower interface objects '" << nm << "'");
+  ATH_MSG_DEBUG("Creating xAOD::CMXCPTob interface objects '" << nm << "'");
 
-  xAOD::TriggerTowerContainer* const ttCollection =
-      new xAOD::TriggerTowerContainer;
+  xAOD::CMXCPTobContainer* const cpmCollection =
+      new xAOD::CMXCPTobContainer;
 
   // Create link with AUX container
-  DataLink<xAOD::TriggerTowerAuxContainer> link(nmAux);
+  DataLink<xAOD::CMXCPTobAuxContainer> link(nmAux);
   ATH_MSG_DEBUG("Creating store with data link to '" << nmAux);
 
   for(size_t i=0; i < link->size(); ++i){
-     ttCollection->push_back(new xAOD::TriggerTower());
+     cpmCollection->push_back(new xAOD::CMXCPTob());
   }
   // ========================================================================== 
-  ttCollection->setStore(link);
-  pObj = SG::asStorable(ttCollection);
-  ATH_MSG_DEBUG("Number of xAOD Trigger Towers created: " << ttCollection->size());
+  cpmCollection->setStore(link);
+  pObj = SG::asStorable(cpmCollection);
+  ATH_MSG_DEBUG("Number of xAOD CPM Towers created: " << cpmCollection->size());
 
   return StatusCode::SUCCESS;
 }
 
 // createRep should create the bytestream from RDOs.
 
-StatusCode PpmByteStreamxAODCnv::createRep(DataObject* /*pObj*/,
+StatusCode CmxCpTobByteStreamxAODCnv::createRep(DataObject* /*pObj*/,
     IOpaqueAddress*& /*pAddr*/) {
   return StatusCode::FAILURE;
 }

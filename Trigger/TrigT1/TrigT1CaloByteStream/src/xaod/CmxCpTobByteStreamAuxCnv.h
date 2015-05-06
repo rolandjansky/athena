@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TRIGT1CALOBYTESTREAM_PPMBYTESTREAMV2CNV_H
-#define TRIGT1CALOBYTESTREAM_PPMBYTESTREAMV2CNV_H
+#ifndef TRIGT1CALOBYTESTREAM_XMXCPTOBBYTESTREAMAUXCNV_H
+#define TRIGT1CALOBYTESTREAM_XMXCPTOBBYTESTREAMXAUXCNV_H
 
 #include <string>
 
@@ -23,36 +23,30 @@ class ISvcLocator;
 class StatusCode;
 
 template <typename> class CnvFactory;
-class StoreGateSvc;
-
 
 // Externals
 extern long ByteStream_StorageType;
 
 
-
-
 namespace LVL1BS {
-
-class PpmByteStreamV2Tool;
+class CpByteStreamV2Tool;
 
 /** ByteStream converter for Pre-processor Module DAQ data / TriggerTowers.
  *
  *  @author alexander.mazurov@cern.ch
- *  @author Peter Faulkner
  */
 
-class PpmByteStreamV2Cnv: public Converter, public ::AthMessaging {
+class CmxCpTobByteStreamAuxCnv: public Converter, public ::AthMessaging {
 
-  friend class CnvFactory<PpmByteStreamV2Cnv>;
+  friend class CnvFactory<CmxCpTobByteStreamAuxCnv>;
 
 protected:
 
-  PpmByteStreamV2Cnv(ISvcLocator* svcloc);
+  CmxCpTobByteStreamAuxCnv(ISvcLocator* svcloc);
 
 public:
 
-  virtual ~PpmByteStreamV2Cnv();
+  virtual ~CmxCpTobByteStreamAuxCnv(){};
 
   virtual StatusCode initialize();
   /// Create TriggerTowers from ByteStream
@@ -63,28 +57,17 @@ public:
   //  Storage type and class ID
   virtual long repSvcType() const { return ByteStream_StorageType;}
   static  long storageType(){ return ByteStream_StorageType; }
+
   static const CLID& classID();
-
 private:
-  void _reserveMemory();
-
-private:
-
   /// Converter name
   std::string m_name;
 
-  /// Tool that does the actual work
-  ToolHandle<LVL1BS::PpmByteStreamV2Tool> m_tool;
-
-  /// ServiceHandle to the data store service to store aux objects
-  ServiceHandle<StoreGateSvc> m_storeSvc;
-
-  /// Service for reading bytestream
-  ServiceHandle<IROBDataProviderSvc> m_robDataProvider;
-  /// Service for writing bytestream
-  ServiceHandle<IByteStreamEventAccess> m_ByteStreamEventAccess;
+  /// Do the main job - retrieve xAOD TriggerTowers from robs
+  ToolHandle<CpByteStreamV2Tool> m_cpmReadTool;
 };
 
-} // end namespace
 
+
+} // end namespace
 #endif

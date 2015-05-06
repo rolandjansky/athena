@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TRIGT1CALOBYTESTREAM_PPMBYTESTREAMXAODCNV_H
-#define TRIGT1CALOBYTESTREAM_PPMBYTESTREAMXAODCNV_H
+#ifndef TRIGT1CALOBYTESTREAM_CPMTOWERBYTESTREAMXAODCNV_H
+#define TRIGT1CALOBYTESTREAM_CPMTOWERBYTESTREAMXAODCNV_H
 
 #include <string>
 
@@ -16,40 +16,32 @@
 #include "AthenaBaseComps/AthMessaging.h"
 
 class DataObject;
-class IByteStreamEventAccess;
 class IOpaqueAddress;
-class IROBDataProviderSvc;
 class ISvcLocator;
 class StatusCode;
 
 template <typename> class CnvFactory;
 class StoreGateSvc;
-
-
 // Externals
 extern long ByteStream_StorageType;
 
-
-
-
 namespace LVL1BS {
-
-/** ByteStream converter for Pre-processor Module DAQ data / TriggerTowers.
+/** ByteStream converter for CpmTowers.
  *
  *  @author alexander.mazurov@cern.ch
  */
 
-class PpmByteStreamxAODCnv: public Converter, public ::AthMessaging {
+class CpmTowerByteStreamxAODCnv: public Converter, public ::AthMessaging {
 
-  friend class CnvFactory<PpmByteStreamxAODCnv>;
+  friend class CnvFactory<CpmTowerByteStreamxAODCnv>;
 
 protected:
 
-  PpmByteStreamxAODCnv(ISvcLocator* svcloc);
+  CpmTowerByteStreamxAODCnv(ISvcLocator* svcloc);
 
 public:
 
-  virtual ~PpmByteStreamxAODCnv(){};
+  virtual ~CpmTowerByteStreamxAODCnv(){};
 
   virtual StatusCode initialize();
   /// Create TriggerTowers from ByteStream
@@ -66,7 +58,6 @@ public:
 private:
   /// Converter name
   std::string m_name;
-
 };
 
 } // end namespace

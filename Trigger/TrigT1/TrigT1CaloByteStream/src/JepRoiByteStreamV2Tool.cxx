@@ -32,7 +32,7 @@ namespace LVL1BS {
 // Interface ID
 
 static const InterfaceID IID_IJepRoiByteStreamV2Tool("JepRoiByteStreamV2Tool",
-                                                                        1, 1);
+    1, 1);
 
 const InterfaceID& JepRoiByteStreamV2Tool::interfaceID()
 {
@@ -42,8 +42,8 @@ const InterfaceID& JepRoiByteStreamV2Tool::interfaceID()
 // Constructor
 
 JepRoiByteStreamV2Tool::JepRoiByteStreamV2Tool(const std::string& type,
-                                               const std::string& name,
-    				               const IInterface*  parent)
+    const std::string& name,
+    const IInterface*  parent)
   : AthAlgTool(type, name, parent),
     m_errorTool("LVL1BS::L1CaloErrorByteStreamTool/L1CaloErrorByteStreamTool"),
     m_crates(2), m_modules(16), m_frames(8), m_maxRoiWords(6),
@@ -73,7 +73,7 @@ JepRoiByteStreamV2Tool::JepRoiByteStreamV2Tool(const std::string& type,
                   "The number of S-Links per crate");
   declareProperty("CrateMin",       m_crateMin = 0,
                   "Minimum crate number, allows partial output");
-  declareProperty("CrateMax",       m_crateMax = m_crates-1,
+  declareProperty("CrateMax",       m_crateMax = m_crates - 1,
                   "Maximum crate number, allows partial output");
 
 }
@@ -123,8 +123,8 @@ StatusCode JepRoiByteStreamV2Tool::finalize()
 // Conversion bytestream to JEM RoI
 
 StatusCode JepRoiByteStreamV2Tool::convert(
-                            const IROBDataProviderSvc::VROBFRAG& robFrags,
-                            DataVector<LVL1::JEMTobRoI>* const jeCollection)
+  const IROBDataProviderSvc::VROBFRAG& robFrags,
+  DataVector<LVL1::JEMTobRoI>* const jeCollection)
 {
   m_jeCollection = jeCollection;
   return convertBs(robFrags, JEM_ROI);
@@ -133,8 +133,8 @@ StatusCode JepRoiByteStreamV2Tool::convert(
 // Conversion bytestream to CMX RoI
 
 StatusCode JepRoiByteStreamV2Tool::convert(
-                            const IROBDataProviderSvc::VROBFRAG& robFrags,
-                            LVL1::CMXRoI* const cmCollection)
+  const IROBDataProviderSvc::VROBFRAG& robFrags,
+  LVL1::CMXRoI* const cmCollection)
 {
   m_cmCollection = cmCollection;
   return convertBs(robFrags, CMX_ROI);
@@ -143,8 +143,8 @@ StatusCode JepRoiByteStreamV2Tool::convert(
 // Conversion of JEP container to bytestream
 
 StatusCode JepRoiByteStreamV2Tool::convert(
-                                 const LVL1::JEPRoIBSCollectionV2* const jep,
-                                 RawEventWrite* const re)
+  const LVL1::JEPRoIBSCollectionV2* const jep,
+  RawEventWrite* const re)
 {
   const bool debug = msgLvl(MSG::DEBUG);
   if (debug) msg(MSG::DEBUG);
@@ -176,27 +176,27 @@ StatusCode JepRoiByteStreamV2Tool::convert(
   for (int crate = m_crateMin; crate <= m_crateMax; ++crate) {
     const int hwCrate = crate + m_crateOffsetHw;
 
-    for (int module=0; module < m_modules; ++module) {
+    for (int module = 0; module < m_modules; ++module) {
 
       // Pack required number of modules per slink
 
-      if (module%modulesPerSlink == 0) {
-	const int daqOrRoi = 1;
-	const int slink = module/modulesPerSlink;
+      if (module % modulesPerSlink == 0) {
+        const int daqOrRoi = 1;
+        const int slink = module / modulesPerSlink;
         if (debug) {
           msg() << "Treating crate " << hwCrate
-	        << " slink " << slink << endreq
-	        << "Data Version/Format: " << m_version
-	        << " " << m_dataFormat << endreq;
+                << " slink " << slink << endreq
+                << "Data Version/Format: " << m_version
+                << " " << m_dataFormat << endreq;
         }
-	const uint32_t rodIdJem = m_srcIdMap->getRodID(hwCrate, slink, daqOrRoi,
-	                                                        m_subDetector);
-	theROD = m_fea->getRodData(rodIdJem);
+        const uint32_t rodIdJem = m_srcIdMap->getRodID(hwCrate, slink, daqOrRoi,
+                                  m_subDetector);
+        theROD = m_fea->getRodData(rodIdJem);
         if (neutralFormat) {
           const L1CaloUserHeader userHeader;
-	  theROD->push_back(userHeader.header());
+          theROD->push_back(userHeader.header());
         }
-	m_rodStatusMap.insert(make_pair(rodIdJem, m_rodStatus));
+        m_rodStatusMap.insert(make_pair(rodIdJem, m_rodStatus));
       }
       if (debug) msg() << "JEM Module " << module << endreq;
       if (!theROD) break; // for coverity, shouldn't happen
@@ -205,20 +205,20 @@ StatusCode JepRoiByteStreamV2Tool::convert(
 
       if (neutralFormat) {
         m_subBlock->clear();
-	m_subBlock->setRoiHeader(m_version, hwCrate, module);
+        m_subBlock->setRoiHeader(m_version, hwCrate, module);
       }
 
       // Find JEM RoIs for this module
 
       for (; mapIter != mapIterEnd; ++mapIter) {
         const LVL1::JEMTobRoI* const roi = mapIter->second;
-	if (roi->crate() < crate)  continue;
-	if (roi->crate() > crate)  break;
-	if (roi->jem()   < module) continue;
-	if (roi->jem()   > module) break;
-	if (roi->energyLarge() || roi->energySmall()) {
-	  if (neutralFormat) m_subBlock->fillRoi(*roi);
-	  else theROD->push_back(roi->roiWord());
+        if (roi->crate() < crate)  continue;
+        if (roi->crate() > crate)  break;
+        if (roi->jem()   < module) continue;
+        if (roi->jem()   > module) break;
+        if (roi->energyLarge() || roi->energySmall()) {
+          if (neutralFormat) m_subBlock->fillRoi(*roi);
+          else theROD->push_back(roi->roiWord());
         }
       }
 
@@ -226,14 +226,14 @@ StatusCode JepRoiByteStreamV2Tool::convert(
 
       if (neutralFormat) {
         if ( !m_subBlock->pack()) {
-	  msg(MSG::ERROR) << "JEM RoI sub-block packing failed" << endreq;
-	  return StatusCode::FAILURE;
+          msg(MSG::ERROR) << "JEM RoI sub-block packing failed" << endreq;
+          return StatusCode::FAILURE;
         }
-	if (debug) {
-	  msg() << "JEM RoI sub-block data words: "
-	        << m_subBlock->dataWords() << endreq;
-	}
-	m_subBlock->write(theROD);
+        if (debug) {
+          msg() << "JEM RoI sub-block data words: "
+                << m_subBlock->dataWords() << endreq;
+        }
+        m_subBlock->write(theROD);
       }
     }
     if (!theROD) break; // for coverity, shouldn't happen
@@ -254,7 +254,7 @@ StatusCode JepRoiByteStreamV2Tool::convert(
       const int cmxEnergyVersion = 3;                                      //<<== CHECK
       subBlock.setCmxHeader(cmxEnergyVersion, m_dataFormat, slice, hwCrate,
                             CmxSubBlock::SYSTEM, CmxSubBlock::CMX_ENERGY,
-	 		    CmxSubBlock::LEFT, timeslices);
+                            CmxSubBlock::LEFT, timeslices);
       int maxSource = static_cast<int>(LVL1::CMXEtSums::MAX_SOURCE);
       for (int source = 0; source < maxSource; ++source) {
         const LVL1::CMXEtSums* const sums = findCmxSums(crate, source);
@@ -265,29 +265,29 @@ StatusCode JepRoiByteStreamV2Tool::convert(
           const int exErr = sums->ExError();
           const int eyErr = sums->EyError();
           const int etErr = sums->EtError();
-	  if (source < m_modules) {
-	    subBlock.setSubsums(slice, source, ex, ey, et, exErr, eyErr, etErr);
-	  } else {
-	    CmxEnergySubBlock::SourceType srcType = CmxEnergySubBlock::MAX_SOURCE_TYPE;
-	    CmxEnergySubBlock::SumType    sumType = CmxEnergySubBlock::MAX_SUM_TYPE;
-	    CmxEnergySubBlock::HitsType   hitType = CmxEnergySubBlock::MAX_HITS_TYPE;
-	    energySubBlockTypes(source, srcType, sumType, hitType);
-	    if (srcType != CmxEnergySubBlock::MAX_SOURCE_TYPE) {
-	      subBlock.setSubsums(slice, srcType, sumType, ex, ey, et,
-	                          exErr, eyErr, etErr);
+          if (source < m_modules) {
+            subBlock.setSubsums(slice, source, ex, ey, et, exErr, eyErr, etErr);
+          } else {
+            CmxEnergySubBlock::SourceType srcType = CmxEnergySubBlock::MAX_SOURCE_TYPE;
+            CmxEnergySubBlock::SumType    sumType = CmxEnergySubBlock::MAX_SUM_TYPE;
+            CmxEnergySubBlock::HitsType   hitType = CmxEnergySubBlock::MAX_HITS_TYPE;
+            energySubBlockTypes(source, srcType, sumType, hitType);
+            if (srcType != CmxEnergySubBlock::MAX_SOURCE_TYPE) {
+              subBlock.setSubsums(slice, srcType, sumType, ex, ey, et,
+                                  exErr, eyErr, etErr);
             } else if (hitType != CmxEnergySubBlock::MAX_HITS_TYPE) {
-	      subBlock.setEtHits(slice, hitType, sumType, et);
+              subBlock.setEtHits(slice, hitType, sumType, et);
             }
           }
         }
       }
       if ( !subBlock.pack()) {
         msg(MSG::ERROR) << "CMX-Energy sub-block packing failed" << endreq;
-	return StatusCode::FAILURE;
+        return StatusCode::FAILURE;
       }
       if (debug) {
-	msg() << "CMX-Energy sub-block data words: "
-	      << subBlock.dataWords() << endreq;
+        msg() << "CMX-Energy sub-block data words: "
+              << subBlock.dataWords() << endreq;
       }
       subBlock.write(theROD);
 
@@ -298,7 +298,7 @@ StatusCode JepRoiByteStreamV2Tool::convert(
       const LVL1::CMXRoI* const roi = jep->CmxRoi();
       if ( roi ) {
         // CMX-Energy RoIs are not zero-supressed unless all are zero
-	for (int word = 0; word < m_maxRoiWords; ++word) {
+        for (int word = 0; word < m_maxRoiWords; ++word) {
           theROD->push_back(roi->roiWord(word));
         }
       }
@@ -319,12 +319,12 @@ StatusCode JepRoiByteStreamV2Tool::convert(
 // Return reference to vector with all possible Source Identifiers
 
 const std::vector<uint32_t>& JepRoiByteStreamV2Tool::sourceIDs(
-                                                   const std::string& sgKey)
+  const std::string& sgKey)
 {
   const std::string flag("RoIB");
   const std::string::size_type pos = sgKey.find(flag);
   const bool roiDaq =
-           (pos == std::string::npos || pos != sgKey.length() - flag.length());
+    (pos == std::string::npos || pos != sgKey.length() - flag.length());
   const bool empty  = (roiDaq) ? m_sourceIDs.empty() : m_sourceIDsRoIB.empty();
   if (empty) {
     const int maxCrates = m_crates + m_crateOffsetHw;
@@ -333,11 +333,11 @@ const std::vector<uint32_t>& JepRoiByteStreamV2Tool::sourceIDs(
       for (int slink = 0; slink < maxSlinks; ++slink) {
         const int daqOrRoi = 1;
         const uint32_t rodId = m_srcIdMap->getRodID(hwCrate, slink, daqOrRoi,
-                                                             m_subDetector);
+                               m_subDetector);
         const uint32_t robId = m_srcIdMap->getRobID(rodId);
-	if (roiDaq) {
-	  if (slink < 2) m_sourceIDs.push_back(robId);
-	} else if (slink >= 2) m_sourceIDsRoIB.push_back(robId);
+        if (roiDaq) {
+          if (slink < 2) m_sourceIDs.push_back(robId);
+        } else if (slink >= 2) m_sourceIDsRoIB.push_back(robId);
       }
     }
   }
@@ -347,8 +347,8 @@ const std::vector<uint32_t>& JepRoiByteStreamV2Tool::sourceIDs(
 // Convert bytestream to given container type
 
 StatusCode JepRoiByteStreamV2Tool::convertBs(
-                            const IROBDataProviderSvc::VROBFRAG& robFrags,
-                            const CollectionType collection)
+  const IROBDataProviderSvc::VROBFRAG& robFrags,
+  const CollectionType collection)
 {
   const bool debug = msgLvl(MSG::DEBUG);
   if (debug) msg(MSG::DEBUG);
@@ -375,8 +375,8 @@ StatusCode JepRoiByteStreamV2Tool::convertBs(
       (*rob)->status(robData);
       if (*robData != 0) {
         m_errorTool->robError(robid, *robData);
-	if (debug) msg() << "ROB status error - skipping fragment" << endreq;
-	continue;
+        if (debug) msg() << "ROB status error - skipping fragment" << endreq;
+        continue;
       }
     }
 
@@ -405,14 +405,14 @@ StatusCode JepRoiByteStreamV2Tool::convertBs(
     const uint32_t sourceID = (*rob)->rod_source_id();
     if (m_srcIdMap->getRobID(sourceID) != robid           ||
         m_srcIdMap->subDet(sourceID)   != m_subDetector   ||
-	m_srcIdMap->daqOrRoi(sourceID) != 1               ||
-       (m_srcIdMap->slink(sourceID) != 0 && m_srcIdMap->slink(sourceID) != 2) ||
+        m_srcIdMap->daqOrRoi(sourceID) != 1               ||
+        (m_srcIdMap->slink(sourceID) != 0 && m_srcIdMap->slink(sourceID) != 2) ||
         m_srcIdMap->crate(sourceID)    <  m_crateOffsetHw ||
-	m_srcIdMap->crate(sourceID)    >= m_crateOffsetHw + m_crates) {
+        m_srcIdMap->crate(sourceID)    >= m_crateOffsetHw + m_crates) {
       m_errorTool->rodError(robid, L1CaloSubBlock::ERROR_ROD_ID);
       if (debug) {
         msg() << "Wrong source identifier in data: "
-	      << MSG::hex << sourceID << MSG::dec << endreq;
+              << MSG::hex << sourceID << MSG::dec << endreq;
       }
       continue;
     }
@@ -425,7 +425,7 @@ StatusCode JepRoiByteStreamV2Tool::convertBs(
     }
     const int rodCrate = m_srcIdMap->crate(sourceID);
     if (debug) {
-      msg() << "Treating crate " << rodCrate 
+      msg() << "Treating crate " << rodCrate
             << " slink " << m_srcIdMap->slink(sourceID) << endreq;
     }
 
@@ -437,7 +437,7 @@ StatusCode JepRoiByteStreamV2Tool::convertBs(
       if (headerWords != 1) {
         m_errorTool->rodError(robid, L1CaloSubBlock::ERROR_USER_HEADER);
         if (debug) msg() << "Unexpected number of user header words: "
-	                 << headerWords << endreq;
+                           << headerWords << endreq;
         continue;
       }
       for (int i = 0; i < headerWords; ++i) ++payload;
@@ -447,145 +447,146 @@ StatusCode JepRoiByteStreamV2Tool::convertBs(
 
     unsigned int rodErr = L1CaloSubBlock::ERROR_NONE;
     while (payload != payloadEnd) {
-      
+
       if (L1CaloSubBlock::wordType(*payload) == L1CaloSubBlock::HEADER) {
-	const int slice = 0;
+        const int slice = 0;
         if (CmxSubBlock::cmxBlock(*payload)) {
           // CMXs
-	  if (CmxSubBlock::cmxType(*payload) == CmxSubBlock::CMX_ENERGY) {
-	    CmxEnergySubBlock subBlock;
-	    payload = subBlock.read(payload, payloadEnd);
-	    if (collection == CMX_ROI) {
-	      if (subBlock.dataWords() && !subBlock.unpack()) {
-	        if (debug) {
-		  std::string errMsg(subBlock.unpackErrorMsg());
-	          msg() << "CMX-Energy sub-block unpacking failed: "
-		        << errMsg << endreq;
-	        }
-		rodErr = m_subBlock->unpackErrorCode();
-		break;
+          if (CmxSubBlock::cmxType(*payload) == CmxSubBlock::CMX_ENERGY) {
+            CmxEnergySubBlock subBlock;
+            payload = subBlock.read(payload, payloadEnd);
+            if (collection == CMX_ROI) {
+              if (subBlock.dataWords() && !subBlock.unpack()) {
+                if (debug) {
+                  std::string errMsg(subBlock.unpackErrorMsg());
+                  msg() << "CMX-Energy sub-block unpacking failed: "
+                        << errMsg << endreq;
+                }
+                rodErr = m_subBlock->unpackErrorCode();
+                break;
               }
-	      const LVL1::CMXRoI roi(
-	        subBlock.energy(slice, CmxEnergySubBlock::TOTAL,
-		                       CmxEnergySubBlock::STANDARD,
-				       CmxEnergySubBlock::ENERGY_EX),
-	        subBlock.energy(slice, CmxEnergySubBlock::TOTAL,
-		                       CmxEnergySubBlock::STANDARD,
-				       CmxEnergySubBlock::ENERGY_EY),
-	        subBlock.energy(slice, CmxEnergySubBlock::TOTAL,
-		                       CmxEnergySubBlock::STANDARD,
-				       CmxEnergySubBlock::ENERGY_ET),
-	        subBlock.error(slice, CmxEnergySubBlock::TOTAL,
-		                      CmxEnergySubBlock::STANDARD,
-				      CmxEnergySubBlock::ENERGY_EX),
-	        subBlock.error(slice, CmxEnergySubBlock::TOTAL,
-		                      CmxEnergySubBlock::STANDARD,
-				      CmxEnergySubBlock::ENERGY_EY),
-	        subBlock.error(slice, CmxEnergySubBlock::TOTAL,
-		                      CmxEnergySubBlock::STANDARD,
-				      CmxEnergySubBlock::ENERGY_ET),
-		subBlock.hits(slice, CmxEnergySubBlock::SUM_ET,
-		                     CmxEnergySubBlock::STANDARD),
-		subBlock.hits(slice, CmxEnergySubBlock::MISSING_ET,
-		                     CmxEnergySubBlock::STANDARD),
-		subBlock.hits(slice, CmxEnergySubBlock::MISSING_ET_SIG,
-		                     CmxEnergySubBlock::STANDARD),
-	        subBlock.energy(slice, CmxEnergySubBlock::TOTAL,
-		                       CmxEnergySubBlock::RESTRICTED_WEIGHTED,
-				       CmxEnergySubBlock::ENERGY_EX),
-	        subBlock.energy(slice, CmxEnergySubBlock::TOTAL,
-		                       CmxEnergySubBlock::RESTRICTED_WEIGHTED,
-				       CmxEnergySubBlock::ENERGY_EY),
-	        subBlock.energy(slice, CmxEnergySubBlock::TOTAL,
-		                       CmxEnergySubBlock::RESTRICTED_WEIGHTED,
-				       CmxEnergySubBlock::ENERGY_ET),
-	        subBlock.error(slice, CmxEnergySubBlock::TOTAL,
-		                      CmxEnergySubBlock::RESTRICTED_WEIGHTED,
-				      CmxEnergySubBlock::ENERGY_EX),
-	        subBlock.error(slice, CmxEnergySubBlock::TOTAL,
-		                      CmxEnergySubBlock::RESTRICTED_WEIGHTED,
-				      CmxEnergySubBlock::ENERGY_EY),
-	        subBlock.error(slice, CmxEnergySubBlock::TOTAL,
-		                      CmxEnergySubBlock::RESTRICTED_WEIGHTED,
-				      CmxEnergySubBlock::ENERGY_ET),
-		subBlock.hits(slice, CmxEnergySubBlock::SUM_ET,
-		                     CmxEnergySubBlock::RESTRICTED_WEIGHTED),
-		subBlock.hits(slice, CmxEnergySubBlock::MISSING_ET,
-		                     CmxEnergySubBlock::RESTRICTED_WEIGHTED));
-	      for (int word = 0; word < m_maxRoiWords; ++word) {
-	        m_cmCollection->setRoiWord(roi.roiWord(word));
-	      }
+              const LVL1::CMXRoI roi(
+                subBlock.energy(slice, CmxEnergySubBlock::TOTAL,
+                                CmxEnergySubBlock::STANDARD,
+                                CmxEnergySubBlock::ENERGY_EX),
+                subBlock.energy(slice, CmxEnergySubBlock::TOTAL,
+                                CmxEnergySubBlock::STANDARD,
+                                CmxEnergySubBlock::ENERGY_EY),
+                subBlock.energy(slice, CmxEnergySubBlock::TOTAL,
+                                CmxEnergySubBlock::STANDARD,
+                                CmxEnergySubBlock::ENERGY_ET),
+                subBlock.error(slice, CmxEnergySubBlock::TOTAL,
+                               CmxEnergySubBlock::STANDARD,
+                               CmxEnergySubBlock::ENERGY_EX),
+                subBlock.error(slice, CmxEnergySubBlock::TOTAL,
+                               CmxEnergySubBlock::STANDARD,
+                               CmxEnergySubBlock::ENERGY_EY),
+                subBlock.error(slice, CmxEnergySubBlock::TOTAL,
+                               CmxEnergySubBlock::STANDARD,
+                               CmxEnergySubBlock::ENERGY_ET),
+                subBlock.hits(slice, CmxEnergySubBlock::SUM_ET,
+                              CmxEnergySubBlock::STANDARD),
+                subBlock.hits(slice, CmxEnergySubBlock::MISSING_ET,
+                              CmxEnergySubBlock::STANDARD),
+                subBlock.hits(slice, CmxEnergySubBlock::MISSING_ET_SIG,
+                              CmxEnergySubBlock::STANDARD),
+                subBlock.energy(slice, CmxEnergySubBlock::TOTAL,
+                                CmxEnergySubBlock::RESTRICTED_WEIGHTED,
+                                CmxEnergySubBlock::ENERGY_EX),
+                subBlock.energy(slice, CmxEnergySubBlock::TOTAL,
+                                CmxEnergySubBlock::RESTRICTED_WEIGHTED,
+                                CmxEnergySubBlock::ENERGY_EY),
+                subBlock.energy(slice, CmxEnergySubBlock::TOTAL,
+                                CmxEnergySubBlock::RESTRICTED_WEIGHTED,
+                                CmxEnergySubBlock::ENERGY_ET),
+                subBlock.error(slice, CmxEnergySubBlock::TOTAL,
+                               CmxEnergySubBlock::RESTRICTED_WEIGHTED,
+                               CmxEnergySubBlock::ENERGY_EX),
+                subBlock.error(slice, CmxEnergySubBlock::TOTAL,
+                               CmxEnergySubBlock::RESTRICTED_WEIGHTED,
+                               CmxEnergySubBlock::ENERGY_EY),
+                subBlock.error(slice, CmxEnergySubBlock::TOTAL,
+                               CmxEnergySubBlock::RESTRICTED_WEIGHTED,
+                               CmxEnergySubBlock::ENERGY_ET),
+                subBlock.hits(slice, CmxEnergySubBlock::SUM_ET,
+                              CmxEnergySubBlock::RESTRICTED_WEIGHTED),
+                subBlock.hits(slice, CmxEnergySubBlock::MISSING_ET,
+                              CmxEnergySubBlock::RESTRICTED_WEIGHTED));
+              for (int word = 0; word < m_maxRoiWords; ++word) {
+                m_cmCollection->setRoiWord(roi.roiWord(word));
+              }
             }
-	  }
+          }
         } else {
           // JEM RoI
           JemRoiSubBlockV2 subBlock;
           payload = subBlock.read(payload, payloadEnd);
-	  if (collection == JEM_ROI) {
-	    if (subBlock.dataWords() && !subBlock.unpack()) {
-	      if (debug) {
-		std::string errMsg(subBlock.unpackErrorMsg());
-	        msg() << "JEM RoI sub-block unpacking failed: "
-		      << errMsg << endreq;
-	      }
+          if (collection == JEM_ROI) {
+            if (subBlock.dataWords() && !subBlock.unpack()) {
+              if (debug) {
+                std::string errMsg(subBlock.unpackErrorMsg());
+                msg() << "JEM RoI sub-block unpacking failed: "
+                      << errMsg << endreq;
+              }
               rodErr = m_subBlock->unpackErrorCode();
               break;
             }
-	    for (int frame = 0; frame < m_frames; ++frame) {
-	      const LVL1::JEMTobRoI roi = subBlock.roi(frame);
-	      if (roi.energyLarge() || roi.energySmall()) {
-		m_jeCollection->push_back(new LVL1::JEMTobRoI(roi));
-	      }
-	    }
+            for (int frame = 0; frame < m_frames; ++frame) {
+              const LVL1::JEMTobRoI roi = subBlock.roi(frame);
+              if (roi.energyLarge() || roi.energySmall()) {
+                m_jeCollection->push_back(new LVL1::JEMTobRoI(roi));
+              }
+            }
           }
         }
       } else {
         // Just RoI word
-	LVL1::JEMTobRoI jroi;
-	LVL1::CMXRoI croi;
-	if (jroi.setRoiWord(*payload)) {
-	  if (collection == JEM_ROI) {
-	    if (jroi.crate() != rodCrate - m_crateOffsetHw) {
-	      if (debug) msg() << "Inconsistent RoI crate number: "
-	                       << jroi.crate() << endreq;
+        LVL1::JEMTobRoI jroi;
+        LVL1::CMXRoI croi;
+        if (jroi.setRoiWord(*payload)) {
+          if (collection == JEM_ROI) {
+            if (jroi.crate() != rodCrate - m_crateOffsetHw) {
+              if (debug) msg() << "Inconsistent RoI crate number: "
+                                 << jroi.crate() << endreq;
               rodErr = L1CaloSubBlock::ERROR_CRATE_NUMBER;
-	      break;
+              break;
             }
-	    const uint32_t location = (*payload) & 0xfff80000;
-	    if (dupRoiCheck.insert(location).second) {
-	      if (jroi.energyLarge() || jroi.energySmall()) {
-	        m_jeCollection->push_back(new LVL1::JEMTobRoI(*payload));
-	      }
-	    } else {
-	      if (debug) msg() << "Duplicate RoI word "
-	                       << MSG::hex << *payload << MSG::dec << endreq;
+            const uint32_t location = (*payload) & 0xfff80000;
+            if (dupRoiCheck.insert(location).second) {
+              if (jroi.energyLarge() || jroi.energySmall()) {
+                m_jeCollection->push_back(new LVL1::JEMTobRoI(*payload));
+              }
+            } else {
+              if (debug) msg() << "Duplicate RoI word "
+                                 << MSG::hex << *payload << MSG::dec << endreq;
               rodErr = L1CaloSubBlock::ERROR_DUPLICATE_DATA;
-	      break;
+              break;
             }
-	  }
+          }
         } else if (croi.setRoiWord(*payload)) {
-	  if (collection == CMX_ROI) {
-	    const uint32_t roiType = (*payload) & 0xf8000000;
-	    if (dupRoiCheck.insert(roiType).second) {
-	      m_cmCollection->setRoiWord(*payload);
-	    } else {
-	      if (debug) msg() << "Duplicate RoI word "
-	                       << MSG::hex << *payload << MSG::dec << endreq;
+          if (collection == CMX_ROI) {
+            const uint32_t roiType = (*payload) & 0xfc000000;
+   
+            if (dupRoiCheck.insert(roiType).second) {
+              m_cmCollection->setRoiWord(*payload);
+            } else {
+              if (debug) msg() << "Duplicate RoI word "
+                                 << MSG::hex << *payload << MSG::dec << endreq;
               rodErr = L1CaloSubBlock::ERROR_DUPLICATE_DATA;
-	      break;
+              break;
             }
-	  }
+          }
         } else {
-	  if (debug) msg() << "Invalid RoI word "
-	                   << MSG::hex << *payload << MSG::dec << endreq;
-	  rodErr = L1CaloSubBlock::ERROR_ROI_TYPE;
-	  break;
+          if (debug) msg() << "Invalid RoI word "
+                             << MSG::hex << *payload << MSG::dec << endreq;
+          rodErr = L1CaloSubBlock::ERROR_ROI_TYPE;
+          break;
         }
-	++payload;
+        ++payload;
       }
     }
     if (rodErr != L1CaloSubBlock::ERROR_NONE)
-                                        m_errorTool->rodError(robid, rodErr);
+      m_errorTool->rodError(robid, rodErr);
   }
 
   return StatusCode::SUCCESS;
@@ -594,11 +595,11 @@ StatusCode JepRoiByteStreamV2Tool::convertBs(
 // Find CMX energy sums for given crate, source
 
 const LVL1::CMXEtSums* JepRoiByteStreamV2Tool::findCmxSums(const int crate,
-                                                           const int source)
+    const int source)
 {
   const LVL1::CMXEtSums* sums = 0;
   CmxSumsMap::const_iterator mapIter;
-  mapIter = m_cmxEtMap.find(crate*100 + source);
+  mapIter = m_cmxEtMap.find(crate * 100 + source);
   if (mapIter != m_cmxEtMap.end()) sums = mapIter->second;
   return sums;
 }
@@ -606,7 +607,7 @@ const LVL1::CMXEtSums* JepRoiByteStreamV2Tool::findCmxSums(const int crate,
 // Set up JEM RoIs map
 
 void JepRoiByteStreamV2Tool::setupJemRoiMap(const JemRoiCollection*
-                                                            const jeCollection)
+    const jeCollection)
 {
   m_roiMap.clear();
   if (jeCollection) {
@@ -623,7 +624,7 @@ void JepRoiByteStreamV2Tool::setupJemRoiMap(const JemRoiCollection*
 // Set up CMX energy sums map
 
 void JepRoiByteStreamV2Tool::setupCmxEtMap(const CmxSumsCollection*
-                                                            const etCollection)
+    const etCollection)
 {
   m_cmxEtMap.clear();
   if (etCollection) {
@@ -632,7 +633,7 @@ void JepRoiByteStreamV2Tool::setupCmxEtMap(const CmxSumsCollection*
     for (; pos != pose; ++pos) {
       const LVL1::CMXEtSums* const sums = *pos;
       const int crate = sums->crate() - m_crateOffsetSw;
-      const int key   = crate*100 + sums->source();
+      const int key   = crate * 100 + sums->source();
       m_cmxEtMap.insert(std::make_pair(key, sums));
     }
   }
@@ -641,57 +642,57 @@ void JepRoiByteStreamV2Tool::setupCmxEtMap(const CmxSumsCollection*
 // Get energy subBlock types from CMXEtSums source type
 
 void JepRoiByteStreamV2Tool::energySubBlockTypes(const int source,
-                             CmxEnergySubBlock::SourceType& srcType,
-	   		     CmxEnergySubBlock::SumType&    sumType,
-			     CmxEnergySubBlock::HitsType&   hitType)
+    CmxEnergySubBlock::SourceType& srcType,
+    CmxEnergySubBlock::SumType&    sumType,
+    CmxEnergySubBlock::HitsType&   hitType)
 {
   switch (source) {
-    case LVL1::CMXEtSums::REMOTE_STANDARD:
-      srcType = CmxEnergySubBlock::REMOTE;
-      sumType = CmxEnergySubBlock::STANDARD;
-      break;
-    case LVL1::CMXEtSums::REMOTE_RESTRICTED:
-      srcType = CmxEnergySubBlock::REMOTE;
-      sumType = CmxEnergySubBlock::RESTRICTED_WEIGHTED;
-      break;
-    case LVL1::CMXEtSums::LOCAL_STANDARD:
-      srcType = CmxEnergySubBlock::LOCAL;
-      sumType = CmxEnergySubBlock::STANDARD;
-      break;
-    case LVL1::CMXEtSums::LOCAL_RESTRICTED:
-      srcType = CmxEnergySubBlock::LOCAL;
-      sumType = CmxEnergySubBlock::RESTRICTED_WEIGHTED;
-      break;
-    case LVL1::CMXEtSums::TOTAL_STANDARD:
-      srcType = CmxEnergySubBlock::TOTAL;
-      sumType = CmxEnergySubBlock::STANDARD;
-      break;
-    case LVL1::CMXEtSums::TOTAL_RESTRICTED:
-      srcType = CmxEnergySubBlock::TOTAL;
-      sumType = CmxEnergySubBlock::RESTRICTED_WEIGHTED;
-      break;
-    case LVL1::CMXEtSums::SUM_ET_STANDARD:
-      hitType = CmxEnergySubBlock::SUM_ET;
-      sumType = CmxEnergySubBlock::STANDARD;
-      break;
-    case LVL1::CMXEtSums::SUM_ET_RESTRICTED:
-      hitType = CmxEnergySubBlock::SUM_ET;
-      sumType = CmxEnergySubBlock::RESTRICTED_WEIGHTED;
-      break;
-    case LVL1::CMXEtSums::MISSING_ET_STANDARD:
-      hitType = CmxEnergySubBlock::MISSING_ET;
-      sumType = CmxEnergySubBlock::STANDARD;
-      break;
-    case LVL1::CMXEtSums::MISSING_ET_RESTRICTED:
-      hitType = CmxEnergySubBlock::MISSING_ET;
-      sumType = CmxEnergySubBlock::RESTRICTED_WEIGHTED;
-      break;
-    case LVL1::CMXEtSums::MISSING_ET_SIG_STANDARD:
-      hitType = CmxEnergySubBlock::MISSING_ET_SIG;
-      sumType = CmxEnergySubBlock::STANDARD;
-      break;
-    default:
-      break;
+  case LVL1::CMXEtSums::REMOTE_STANDARD:
+    srcType = CmxEnergySubBlock::REMOTE;
+    sumType = CmxEnergySubBlock::STANDARD;
+    break;
+  case LVL1::CMXEtSums::REMOTE_RESTRICTED:
+    srcType = CmxEnergySubBlock::REMOTE;
+    sumType = CmxEnergySubBlock::RESTRICTED_WEIGHTED;
+    break;
+  case LVL1::CMXEtSums::LOCAL_STANDARD:
+    srcType = CmxEnergySubBlock::LOCAL;
+    sumType = CmxEnergySubBlock::STANDARD;
+    break;
+  case LVL1::CMXEtSums::LOCAL_RESTRICTED:
+    srcType = CmxEnergySubBlock::LOCAL;
+    sumType = CmxEnergySubBlock::RESTRICTED_WEIGHTED;
+    break;
+  case LVL1::CMXEtSums::TOTAL_STANDARD:
+    srcType = CmxEnergySubBlock::TOTAL;
+    sumType = CmxEnergySubBlock::STANDARD;
+    break;
+  case LVL1::CMXEtSums::TOTAL_RESTRICTED:
+    srcType = CmxEnergySubBlock::TOTAL;
+    sumType = CmxEnergySubBlock::RESTRICTED_WEIGHTED;
+    break;
+  case LVL1::CMXEtSums::SUM_ET_STANDARD:
+    hitType = CmxEnergySubBlock::SUM_ET;
+    sumType = CmxEnergySubBlock::STANDARD;
+    break;
+  case LVL1::CMXEtSums::SUM_ET_RESTRICTED:
+    hitType = CmxEnergySubBlock::SUM_ET;
+    sumType = CmxEnergySubBlock::RESTRICTED_WEIGHTED;
+    break;
+  case LVL1::CMXEtSums::MISSING_ET_STANDARD:
+    hitType = CmxEnergySubBlock::MISSING_ET;
+    sumType = CmxEnergySubBlock::STANDARD;
+    break;
+  case LVL1::CMXEtSums::MISSING_ET_RESTRICTED:
+    hitType = CmxEnergySubBlock::MISSING_ET;
+    sumType = CmxEnergySubBlock::RESTRICTED_WEIGHTED;
+    break;
+  case LVL1::CMXEtSums::MISSING_ET_SIG_STANDARD:
+    hitType = CmxEnergySubBlock::MISSING_ET_SIG;
+    sumType = CmxEnergySubBlock::STANDARD;
+    break;
+  default:
+    break;
   }
 }
 

@@ -14,8 +14,7 @@ from TrigT1CaloByteStream.TrigT1CaloByteStreamConf import LVL1BS__CpmRoiByteStre
 from TrigT1CaloByteStream.TrigT1CaloByteStreamConf import LVL1BS__JepByteStreamV2Tool
 from TrigT1CaloByteStream.TrigT1CaloByteStreamConf import LVL1BS__JepRoiByteStreamV2Tool
 
-from TrigT1CaloByteStream.TrigT1CaloByteStreamConf import LVL1BS__L1CaloByteStreamReadTool
-
+from TrigT1CaloByteStream.TrigT1CaloByteStreamConf import LVL1BS__PpmByteStreamReadV1V2Tool
 
 from TrigT1CaloByteStream.TrigT1CaloByteStreamConf import LVL1BS__RodHeaderByteStreamTool
 from TrigT1CaloByteStream.TrigT1CaloByteStreamConf import LVL1BS__L1CaloErrorByteStreamTool
@@ -24,15 +23,11 @@ ToolSvc += LVL1BS__CpByteStreamV2Tool("CpByteStreamV2Tool")
 ToolSvc += LVL1BS__CpmRoiByteStreamV2Tool("CpmRoiByteStreamV2Tool")
 ToolSvc += LVL1BS__JepByteStreamV2Tool("JepByteStreamV2Tool")
 ToolSvc += LVL1BS__JepRoiByteStreamV2Tool("JepRoiByteStreamV2Tool")
-ToolSvc += LVL1BS__L1CaloByteStreamReadTool("L1CaloByteStreamReadTool")
+ToolSvc += LVL1BS__PpmByteStreamReadV1V2Tool("PpmByteStreamReadV1V2Tool")
 ToolSvc += LVL1BS__RodHeaderByteStreamTool("RodHeaderByteStreamTool")
 ToolSvc += LVL1BS__L1CaloErrorByteStreamTool("L1CaloErrorByteStreamTool")
 
 ByteStreamAddressProviderSvc = Service( "ByteStreamAddressProviderSvc" )
-ByteStreamAddressProviderSvc.TypeNames += [ "DataVector<LVL1::CPMTower>/CPMTowers" ]
-ByteStreamAddressProviderSvc.TypeNames += [ "DataVector<LVL1::CPMTower>/CPMTowersOverlap" ]
-ByteStreamAddressProviderSvc.TypeNames += [ "DataVector<LVL1::CMXCPTob>/CMXCPTobs" ]
-ByteStreamAddressProviderSvc.TypeNames += [ "DataVector<LVL1::CMXCPHits>/CMXCPHits" ]
 ByteStreamAddressProviderSvc.TypeNames += [ "DataVector<LVL1::CPMTobRoI>/CPMTobRoIs" ]
 ByteStreamAddressProviderSvc.TypeNames += [ "DataVector<LVL1::CPMTobRoI>/CPMTobRoIsRoIB" ]
 ByteStreamAddressProviderSvc.TypeNames += [ "DataVector<LVL1::JetElement>/JetElements" ]
@@ -46,13 +41,34 @@ ByteStreamAddressProviderSvc.TypeNames += [ "DataVector<LVL1::JEMTobRoI>/JEMTobR
 ByteStreamAddressProviderSvc.TypeNames += [ "LVL1::CMXRoI/CMXRoIs" ]
 ByteStreamAddressProviderSvc.TypeNames += [ "LVL1::CMXRoI/CMXRoIsRoIB" ]
 
+# =============================================================================
+# PPM
+# =============================================================================
 ByteStreamAddressProviderSvc.TypeNames += [ "xAOD::TriggerTowerContainer/xAODTriggerTowers"]
 ByteStreamAddressProviderSvc.TypeNames += [ "xAOD::TriggerTowerAuxContainer/xAODTriggerTowersAux."]
 ByteStreamAddressProviderSvc.TypeNames += [ "xAOD::TriggerTowerContainer/xAODTriggerTowersMuon"]
 ByteStreamAddressProviderSvc.TypeNames += [ "xAOD::TriggerTowerAuxContainer/xAODTriggerTowersMuonAux."]
 ByteStreamAddressProviderSvc.TypeNames += [ "xAOD::TriggerTowerContainer/xAODTriggerTowersSpare"]
 ByteStreamAddressProviderSvc.TypeNames += [ "xAOD::TriggerTowerAuxContainer/xAODTriggerTowersSpareAux."]
-ByteStreamAddressProviderSvc.TypeNames += [ "xAOD::CPMTowerContainer/xAODCPMTowers" ]
+# =============================================================================
+# CPM
+# =============================================================================
+ByteStreamAddressProviderSvc.TypeNames += [ "xAOD::CPMTowerContainer/CPMTowers" ]
+ByteStreamAddressProviderSvc.TypeNames += [ "xAOD::CPMTowerAuxContainer/CPMTowersAux." ]
+
+ByteStreamAddressProviderSvc.TypeNames += [ "xAOD::CPMTowerAuxContainer/CPMTowersOverlap" ]
+ByteStreamAddressProviderSvc.TypeNames += [ "xAOD::CPMTowerAuxContainer/CPMTowersOverlapAux." ]
+# =============================================================================
+# CMXCPTOB
+# =============================================================================
+ByteStreamAddressProviderSvc.TypeNames += [ "xAOD::CMXCPTobContainer/CMXCPTobs" ]
+ByteStreamAddressProviderSvc.TypeNames += [ "xAOD::CMXCPTobAuxContainer/CMXCPTobsAux." ]
+# =============================================================================
+# CMXCPHITS
+# =============================================================================
+ByteStreamAddressProviderSvc.TypeNames += [ "xAOD::CMXCPHitsContainer/CMXCPHits" ]
+ByteStreamAddressProviderSvc.TypeNames += [ "xAOD::CMXCPHitsAuxContainer/CMXCPHitsAux." ]
+# =============================================================================
 
 ByteStreamAddressProviderSvc.TypeNames += [ "DataVector<LVL1::RODHeader>/RODHeaders" ]
 ByteStreamAddressProviderSvc.TypeNames += [ "DataVector<LVL1::RODHeader>/RODHeadersPP" ]

@@ -24,6 +24,7 @@ use xAODTrigL1Calo       xAODTrigL1Calo-*       Event/xAOD
 private
 use AthenaBaseComps      AthenaBaseComps-*      Control
 use AthenaKernel         AthenaKernel-*         Control
+use AthContainers        AthContainers-*        Control
 use ByteStreamCnvSvcBase ByteStreamCnvSvcBase-* Event 
 use ByteStreamData       ByteStreamData-*       Event
 use StoreGate            StoreGate-*            Control

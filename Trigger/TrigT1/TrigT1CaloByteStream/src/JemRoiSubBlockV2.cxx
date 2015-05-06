@@ -42,7 +42,7 @@ void JemRoiSubBlockV2::clear()
 // Store header
 
 void JemRoiSubBlockV2::setRoiHeader(const int version, const int crate,
-                                                       const int module)
+                                    const int module)
 {
   setHeader(s_wordIdVal, version, NEUTRAL, 0, crate, module, 0, 1);
 }
@@ -74,17 +74,17 @@ bool JemRoiSubBlockV2::pack()
 {
   bool rc = false;
   switch (version()) {
-    case 1:                                               //<< CHECK
-      switch (format()) {
-        case NEUTRAL:
-	  rc = packNeutral();
-	  break;
-        default:
-	  break;
-      }
+  case 1:                                               //<< CHECK
+    switch (format()) {
+    case NEUTRAL:
+      rc = packNeutral();
       break;
     default:
       break;
+    }
+    break;
+  default:
+    break;
   }
   return rc;
 }
@@ -93,19 +93,19 @@ bool JemRoiSubBlockV2::unpack()
 {
   bool rc = false;
   switch (version()) {
-    case 2:                                               //<< CHECK
-      switch (format()) {
-        case NEUTRAL:
-	  rc = unpackNeutral();
-	  break;
-        default:
-	  setUnpackErrorCode(UNPACK_FORMAT);
-	  break;
-      }
+  case 2:                                               //<< CHECK
+    switch (format()) {
+    case NEUTRAL:
+      rc = unpackNeutral();
       break;
     default:
-      setUnpackErrorCode(UNPACK_VERSION);
+      setUnpackErrorCode(UNPACK_FORMAT);
       break;
+    }
+    break;
+  default:
+    setUnpackErrorCode(UNPACK_VERSION);
+    break;
   }
   return rc;
 }
@@ -119,7 +119,7 @@ bool JemRoiSubBlockV2::packNeutral()
   // RoI data
   for (int frame = 0; frame < s_frames; ++frame) {
     const LVL1::JEMTobRoI& roi(m_roiData[frame]);
-    const int pin1 = frame/s_framesPerPin;
+    const int pin1 = frame / s_framesPerPin;
     const int pin2 = s_bunchCrossingPin + pin1 + 1;
     packerNeutral(pin1, roi.energyLarge(), s_energyLargeBits);
     packerNeutral(pin1, 0, 1);
@@ -144,14 +144,14 @@ bool JemRoiSubBlockV2::unpackNeutral()
   int maxPin  = 0;
   // RoI data
   for (int frame = 0; frame < s_frames; ++frame) {
-    const int pin1 = frame/s_framesPerPin;
+    const int pin1 = frame / s_framesPerPin;
     const int pin2 = s_bunchCrossingPin + pin1 + 1;
     const int enLarge = unpackerNeutral(pin1, s_energyLargeBits);
-                        unpackerNeutral(pin1, 1);
+    unpackerNeutral(pin1, 1);
     const int enSmall = unpackerNeutral(pin2, s_energySmallBits);
     const int loc     = unpackerNeutral(pin2, s_locationBits);
     m_roiData[frame] = LVL1::JEMTobRoI(crate(), module(),
-                                               frame, loc, enLarge, enSmall);
+                                       frame, loc, enLarge, enSmall);
     maxPin = pin2;
   }
   // Bunch Crossing number

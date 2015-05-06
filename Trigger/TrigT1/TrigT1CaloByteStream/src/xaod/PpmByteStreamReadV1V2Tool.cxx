@@ -18,10 +18,11 @@
 #include "SubBlockHeader.h"
 #include "SubBlockStatus.h"
 #include "WordDecoder.h"
-#include "CpmWord.h"
+
+#include "../L1CaloSubBlock.h" // Only for error codes
 #include "../L1CaloSrcIdMap.h"
 
-#include "L1CaloByteStreamReadTool.h"
+#include "PpmByteStreamReadV1V2Tool.h"
 // ===========================================================================
 
 namespace {
@@ -39,25 +40,26 @@ int16_t pedCorrection(uint16_t twoBytePedCor) {
   return twoBytePedCor > 511? (twoBytePedCor - 1024): twoBytePedCor;
 }
 
+#if 0
 std::string noAuxSuffix(const std::string& name) {
   if ((name.size() > 4) && (name.substr(name.size()-4, 4) == "Aux.")) {
     return name.substr(0, name.size() - 4);
   }
   return name;
 }
+#endif
 }
 // ===========================================================================
 namespace LVL1BS {
 // ===========================================================================
 // Constructor
-L1CaloByteStreamReadTool::L1CaloByteStreamReadTool(const std::string& name =
-    "PpmByteStreamxAODReadTool") :
-    AsgTool(name), m_sms("SegMemSvc/SegMemSvc", name),
+PpmByteStreamReadV1V2Tool::PpmByteStreamReadV1V2Tool(const std::string& name /*=
+  "PpmByteStreamxAODReadTool"*/) :
+    AsgTool(name),
     m_errorTool("LVL1BS::L1CaloErrorByteStreamTool/L1CaloErrorByteStreamTool"),
     m_ppmMaps("LVL1::PpmMappingTool/PpmMappingTool"),
-    m_cpmMaps("LVL1::CpmMappingTool/CpmMappingTool"),
     m_robDataProvider("ROBDataProviderSvc", name) {
-  declareInterface<L1CaloByteStreamReadTool>(this);
+  declareInterface<PpmByteStreamReadV1V2Tool>(this);
   declareProperty("PpmMappingTool", m_ppmMaps,
       "Crate/Module/Channel to Eta/Phi/Layer mapping tool");
   declareProperty("ROBDataProviderSvc", m_robDataProvider,
@@ -71,14 +73,13 @@ L1CaloByteStreamReadTool::L1CaloByteStreamReadTool(const std::string& name =
 #define PACKAGE_VERSION "unknown"
 #endif
 
-StatusCode L1CaloByteStreamReadTool::initialize() {
+StatusCode PpmByteStreamReadV1V2Tool::initialize() {
   ATH_MSG_INFO(
       "Initializing " << name() << " - package version " << PACKAGE_VERSION);
 
   m_srcIdMap = new L1CaloSrcIdMap();
   CHECK(m_errorTool.retrieve());
   CHECK(m_ppmMaps.retrieve());
-  CHECK(m_cpmMaps.retrieve());
   CHECK(m_robDataProvider.retrieve());
 
   ServiceHandle<IIncidentSvc> incidentSvc("IncidentSvc", name());
@@ -90,20 +91,20 @@ StatusCode L1CaloByteStreamReadTool::initialize() {
 // ===========================================================================
 // Finalize
 
-StatusCode L1CaloByteStreamReadTool::finalize() {
+StatusCode PpmByteStreamReadV1V2Tool::finalize() {
   delete m_srcIdMap;
 
   return StatusCode::SUCCESS;
 }
 
-void L1CaloByteStreamReadTool::handle( const Incident& inc )
+void PpmByteStreamReadV1V2Tool::handle( const Incident& inc )
 {
   if ( inc.type() == IncidentType::EndEvent) {
    
   } 
 }
 // Conversion bytestream to trigger towers
-StatusCode L1CaloByteStreamReadTool::convert(
+StatusCode PpmByteStreamReadV1V2Tool::convert(
     const IROBDataProviderSvc::VROBFRAG& robFrags,
     xAOD::TriggerTowerContainer* const ttCollection) {
 
@@ -126,38 +127,13 @@ StatusCode L1CaloByteStreamReadTool::convert(
   return StatusCode::SUCCESS;
 }
 
-// Conversion bytestream to trigger towers
-StatusCode L1CaloByteStreamReadTool::convert(
-    const IROBDataProviderSvc::VROBFRAG& robFrags,
-    xAOD::CPMTowerContainer* const cpmCollection) {
-  ATH_MSG_DEBUG("Start converting CPM towers");
-  ATH_MSG_DEBUG("Number of Calo Cluster Processor fragments: " << robFrags.size());
 
-  m_cpmTowers = cpmCollection;
-  m_subDetectorID = eformat::TDAQ_CALO_CLUSTER_PROC_DAQ;
-  m_requestedType = RequestType::CPM;
-
-  ROBIterator rob = robFrags.begin();
-  ROBIterator robEnd = robFrags.end();
-
-  int robCounter = 1;
-  for (; rob != robEnd; ++rob, ++robCounter) {
-
-    StatusCode sc = processRobFragment_(rob, RequestType::CPM);
-    if (!sc.isSuccess()) {
-
-    }
-  }
-  m_cpmTowers = nullptr;
-  return StatusCode::SUCCESS;
-}
-
-StatusCode L1CaloByteStreamReadTool::convert(
+StatusCode PpmByteStreamReadV1V2Tool::convert(
     xAOD::TriggerTowerContainer* const ttCollection) {
   return convert(LVL1::TrigT1CaloDefs::xAODTriggerTowerLocation, ttCollection);
 }
 
-StatusCode L1CaloByteStreamReadTool::convert(const std::string& sgKey,
+StatusCode PpmByteStreamReadV1V2Tool::convert(const std::string& sgKey,
     xAOD::TriggerTowerContainer* const ttCollection) {
 
   m_triggerTowers = ttCollection;
@@ -172,27 +148,8 @@ StatusCode L1CaloByteStreamReadTool::convert(const std::string& sgKey,
   return StatusCode::SUCCESS;
 }
 
-StatusCode L1CaloByteStreamReadTool::convert(
-  xAOD::CPMTowerContainer* const cpmCollection) {
-  // TODO: replace key with TrigT1CaloDefs::xAODCPMTriggerTowerLocation
-  return convert("xAODCPMTriggerTowers", cpmCollection);
-}
-
-StatusCode L1CaloByteStreamReadTool::convert(const std::string& /*sgKey*/, 
-    xAOD::CPMTowerContainer* const cpmCollection) {
-  const std::vector<uint32_t>& vID(cpSourceIDs());
-  // get ROB fragments
-  IROBDataProviderSvc::VROBFRAG robFrags;
-  m_robDataProvider->getROBData(vID, robFrags, "L1CaloByteStreamReadTool");
-  ATH_MSG_DEBUG("Number of ROB fragments:" << robFrags.size());
-
-  CHECK(convert(robFrags, cpmCollection));
-
-  return StatusCode::SUCCESS;
-}
-
 // ===========================================================================
-StatusCode L1CaloByteStreamReadTool::processRobFragment_(
+StatusCode PpmByteStreamReadV1V2Tool::processRobFragment_(
     const ROBIterator& robIter, const RequestType& /*requestedType*/) {
 
   auto rob = **robIter;
@@ -201,10 +158,11 @@ StatusCode L1CaloByteStreamReadTool::processRobFragment_(
       "Treating ROB fragment source id #" << MSG::hex << rob.rob_source_id());
 
 
-  const auto robSourceID = rob.rod_source_id();
-  const auto sourceID = (robSourceID >> 16) & 0xff;
-  const auto rodCrate = m_srcIdMap->crate(sourceID);
-  const auto rodSlink = m_srcIdMap->slink(sourceID);
+  m_rodSourceId = rob.rod_source_id();
+  m_robSourceId = rob.source_id();
+  const auto sourceID = (m_rodSourceId >> 16) & 0xff;
+  const auto rodCrate = m_srcIdMap->crate(m_rodSourceId);
+  const auto rodSlink = m_srcIdMap->slink(m_rodSourceId);
   // -------------------------------------------------------------------------
   // Check Rob status
   if (rob.nstatus() > 0) {
@@ -212,7 +170,7 @@ StatusCode L1CaloByteStreamReadTool::processRobFragment_(
     rob.status(robData);
     if (*robData != 0) {
       ATH_MSG_WARNING("ROB status error - skipping fragment");
-      m_errorTool->robError(robSourceID, *robData);
+      m_errorTool->robError(m_rodSourceId, *robData);
       return StatusCode::FAILURE;
     }
   }
@@ -238,7 +196,7 @@ StatusCode L1CaloByteStreamReadTool::processRobFragment_(
 
 
   if (sourceID != m_subDetectorID) {
-    ATH_MSG_ERROR("Wrong subdetector source id for requested objects: " << sourceID);
+    ATH_MSG_ERROR("Wrong subdetector source id for requested objects: " << m_rodSourceId);
     return StatusCode::FAILURE;
   }
 
@@ -294,9 +252,6 @@ StatusCode L1CaloByteStreamReadTool::processRobFragment_(
       case eformat::TDAQ_CALO_PREPROC:
           CHECK(processPpmWord_(*payload, indata));
           break;
-      case eformat::TDAQ_CALO_CLUSTER_PROC_DAQ:
-          CHECK(processCpWord_(*payload));
-          break;
       default:
         break;
       }
@@ -307,7 +262,7 @@ StatusCode L1CaloByteStreamReadTool::processRobFragment_(
   return StatusCode::SUCCESS;
 }
 
-StatusCode L1CaloByteStreamReadTool::processPpmWord_(uint32_t word,
+StatusCode PpmByteStreamReadV1V2Tool::processPpmWord_(uint32_t word,
     int indata) {
   if ( (m_subBlockHeader.format() == 0) 
       || (m_subBlockHeader.format() >= 2) 
@@ -324,35 +279,8 @@ StatusCode L1CaloByteStreamReadTool::processPpmWord_(uint32_t word,
   return StatusCode::SUCCESS;
 }
 
-StatusCode L1CaloByteStreamReadTool::processCpWord_(uint32_t word) {
-  if ((m_requestedType == RequestType::CPM) && CpmWord::isValid(word)) {
-    switch(m_verCode){
-      case 0x41:
-        CHECK(processCpmWordR4V1_(word));
-        break;
-      case 0x31:
-        // TODO
-        return StatusCode::FAILURE;
-        break;
-      default:
-        break;
-    }
-  }
 
-  return StatusCode::SUCCESS;
-}
-
-StatusCode L1CaloByteStreamReadTool::processCpmWordR4V1_(uint32_t word) {
-  CpmWord cpm(word);
-
-  CHECK(cpm.isValid());
-  CHECK(addCpmTower_(m_subBlockHeader.crate(), m_subBlockHeader.module(),
-      word));
-
-  return StatusCode::SUCCESS;
-}
-
-StatusCode L1CaloByteStreamReadTool::processPpmBlock_() {
+StatusCode PpmByteStreamReadV1V2Tool::processPpmBlock_() {
   if (m_ppBlock.size() > 0) {
     m_ppPointer = 0;
     if (m_subBlockHeader.format() == 0) {
@@ -395,7 +323,7 @@ StatusCode L1CaloByteStreamReadTool::processPpmBlock_() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode L1CaloByteStreamReadTool::processPpmNeutral_() {
+StatusCode PpmByteStreamReadV1V2Tool::processPpmNeutral_() {
   uint8_t numLut = m_subBlockHeader.nSlice1();
   uint8_t numFadc = m_subBlockHeader.nSlice2();
   uint8_t totSlice = 3 * numLut + numFadc;
@@ -477,7 +405,7 @@ StatusCode L1CaloByteStreamReadTool::processPpmNeutral_() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode L1CaloByteStreamReadTool::processPpmCompressedR3V1_() {
+StatusCode PpmByteStreamReadV1V2Tool::processPpmCompressedR3V1_() {
   uint8_t chan = 0;
   m_ppPointer = 0;
   m_ppMaxBit = 31 * m_ppBlock.size();
@@ -554,13 +482,13 @@ StatusCode L1CaloByteStreamReadTool::processPpmCompressedR3V1_() {
       chan++;
     }
   }catch (const std::out_of_range& ex) {
-      ATH_MSG_ERROR("Failed to decode ppm block " << ex.what());
-      return StatusCode::FAILURE;
+      ATH_MSG_WARNING("Excess Data in Sub-block");
+      m_errorTool->rodError(m_rodSourceId, L1CaloSubBlock::UNPACK_EXCESS_DATA);
   } 
   return StatusCode::SUCCESS;
 }
 
-std::vector<uint16_t> L1CaloByteStreamReadTool::getPpmAdcSamplesR3_(
+std::vector<uint16_t> PpmByteStreamReadV1V2Tool::getPpmAdcSamplesR3_(
   uint8_t format, uint8_t minIndex) {
 
   std::vector<uint16_t> adc = {0, 0, 0, 0, 0};
@@ -597,7 +525,7 @@ std::vector<uint16_t> L1CaloByteStreamReadTool::getPpmAdcSamplesR3_(
 
 
 
-StatusCode L1CaloByteStreamReadTool::processPpmStandardR3V1_(uint32_t word,
+StatusCode PpmByteStreamReadV1V2Tool::processPpmStandardR3V1_(uint32_t word,
     int inData){
   bool error = false;
   if (m_subBlockHeader.seqNum() == 63) { // Error block
@@ -633,7 +561,7 @@ StatusCode L1CaloByteStreamReadTool::processPpmStandardR3V1_(uint32_t word,
   return !error;
 }
 
-StatusCode L1CaloByteStreamReadTool::processPpmBlockR4V1_() {
+StatusCode PpmByteStreamReadV1V2Tool::processPpmBlockR4V1_() {
   if (m_subBlockHeader.format() == 1) {
     CHECK(processPpmStandardR4V1_());
     return StatusCode::SUCCESS;
@@ -645,7 +573,7 @@ StatusCode L1CaloByteStreamReadTool::processPpmBlockR4V1_() {
   return StatusCode::FAILURE;
 }
 
-StatusCode L1CaloByteStreamReadTool::processPpmCompressedR4V1_() {
+StatusCode PpmByteStreamReadV1V2Tool::processPpmCompressedR4V1_() {
   m_ppPointer = 0;
   m_ppMaxBit = 31 * m_ppBlock.size();
 
@@ -784,14 +712,14 @@ StatusCode L1CaloByteStreamReadTool::processPpmCompressedR4V1_() {
       pedEn));
     }
   } catch (const std::out_of_range& ex) {
-      ATH_MSG_ERROR("Failed to decode ppm block " << ex.what());
-      return StatusCode::FAILURE;
+      ATH_MSG_WARNING("Excess Data in Sub-block");
+      m_errorTool->rodError(m_rodSourceId, L1CaloSubBlock::UNPACK_EXCESS_DATA);
   }
   return StatusCode::SUCCESS;
 
 }
 
-void L1CaloByteStreamReadTool::interpretPpmHeaderR4V1_(uint8_t numAdc,
+void PpmByteStreamReadV1V2Tool::interpretPpmHeaderR4V1_(uint8_t numAdc,
   int8_t& encoding, int8_t& minIndex) {
  uint8_t minHeader = 0;
 
@@ -840,7 +768,7 @@ void L1CaloByteStreamReadTool::interpretPpmHeaderR4V1_(uint8_t numAdc,
   }
 }
 
-std::vector<uint16_t> L1CaloByteStreamReadTool::getPpmAdcSamplesR4_(
+std::vector<uint16_t> PpmByteStreamReadV1V2Tool::getPpmAdcSamplesR4_(
   uint8_t encoding, uint8_t minIndex) {
   uint8_t numAdc = m_subBlockHeader.nSlice2();
 
@@ -872,7 +800,7 @@ std::vector<uint16_t> L1CaloByteStreamReadTool::getPpmAdcSamplesR4_(
   }
 }
 
-StatusCode L1CaloByteStreamReadTool::processPpmBlockR3V1_() {
+StatusCode PpmByteStreamReadV1V2Tool::processPpmBlockR3V1_() {
   if (m_subBlockHeader.format() == 1) {
     CHECK(processPpmStandardR3V1_());
     return StatusCode::SUCCESS;
@@ -883,7 +811,7 @@ StatusCode L1CaloByteStreamReadTool::processPpmBlockR3V1_() {
   return StatusCode::FAILURE;
 }
 
-StatusCode L1CaloByteStreamReadTool::processPpmStandardR4V1_() {
+StatusCode PpmByteStreamReadV1V2Tool::processPpmStandardR4V1_() {
   uint8_t numAdc = m_subBlockHeader.nSlice2();
   uint8_t numLut = m_subBlockHeader.nSlice1();
   uint8_t crate = m_subBlockHeader.crate();
@@ -929,8 +857,8 @@ StatusCode L1CaloByteStreamReadTool::processPpmStandardR4V1_() {
         pedEn.push_back(getPpmBytestreamField_(1));
       }
     } catch (const std::out_of_range& ex) {
-      ATH_MSG_ERROR("Failed to decode ppm block " << ex.what());
-      return StatusCode::FAILURE;
+      ATH_MSG_WARNING("Excess Data in Sub-block");
+      m_errorTool->rodError(m_rodSourceId, L1CaloSubBlock::UNPACK_EXCESS_DATA);
     }
     CHECK(
         addTriggerTowerV2_(crate, module, chan, lcpVal, lcpBcidVec,
@@ -940,7 +868,7 @@ StatusCode L1CaloByteStreamReadTool::processPpmStandardR4V1_() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode L1CaloByteStreamReadTool::processPpmStandardR3V1_() {
+StatusCode PpmByteStreamReadV1V2Tool::processPpmStandardR3V1_() {
     for(auto lut : m_ppLuts) {
       CHECK(addTriggerTowerV1_(
         m_subBlockHeader.crate(), 
@@ -952,7 +880,7 @@ StatusCode L1CaloByteStreamReadTool::processPpmStandardR3V1_() {
     return StatusCode::SUCCESS;
 }
 
-StatusCode L1CaloByteStreamReadTool::addTriggerTowerV2_(
+StatusCode PpmByteStreamReadV1V2Tool::addTriggerTowerV2_(
     uint8_t crate,
     uint8_t module,
     uint8_t channel,
@@ -1011,7 +939,7 @@ StatusCode L1CaloByteStreamReadTool::addTriggerTowerV2_(
   return StatusCode::SUCCESS;
 }
 
-StatusCode L1CaloByteStreamReadTool::addTriggerTowerV1_(
+StatusCode PpmByteStreamReadV1V2Tool::addTriggerTowerV1_(
     uint8_t crate,
     uint8_t module,
     uint8_t channel,
@@ -1021,19 +949,19 @@ StatusCode L1CaloByteStreamReadTool::addTriggerTowerV1_(
     const std::vector<uint8_t>& bcidExt
   ) {
 
-    std::vector<uint8_t> ljeVal;
     std::vector<uint8_t> ljeSat80Vec;
 
     std::vector<int16_t> pedCor;
     std::vector<uint8_t> pedEn;
 
    CHECK(addTriggerTowerV2_(crate, module, channel, luts, lcpBcidVec,
-            ljeVal, ljeSat80Vec, fadc, bcidExt, pedCor, pedEn));
+            luts , ljeSat80Vec, fadc, bcidExt, pedCor, pedEn)
+   );
 
    return StatusCode::SUCCESS;
 }
 
-StatusCode L1CaloByteStreamReadTool::addTriggerTowerV1_(
+StatusCode PpmByteStreamReadV1V2Tool::addTriggerTowerV1_(
     uint8_t crate,
     uint8_t module,
     uint8_t channel,
@@ -1063,43 +991,10 @@ StatusCode L1CaloByteStreamReadTool::addTriggerTowerV1_(
    return StatusCode::SUCCESS;
 }
 
-StatusCode L1CaloByteStreamReadTool::addCpmTower_(
-    uint8_t crate,
-    uint8_t module,
-    const CpmWord& word) {
-  // TODO: Handle slices
-
-  std::vector<uint8_t> emEnergy { word.tower0Et()};
-  std::vector<uint8_t> hadEnergy { word.tower1Et()};
-  std::vector<uint8_t> emError { 0 };
-  std::vector<uint8_t> hadError { 0 };
-
-
-
-  uint8_t channel = word.ttPair(); // TODO: fix
-  double eta = 0.;
-  double phi = 0.;
-  int layer = 0;
-  int peak = 0;
-  m_cpmMaps->mapping(crate, module, channel, eta, phi, layer);
-
-  xAOD::CPMTower *cpm = new xAOD::CPMTower();
-  m_cpmTowers->push_back(cpm);
-
-  cpm->setEmEnergyVec(emEnergy);
-  cpm->setHadEnergyVec(hadEnergy);
-  cpm->setEmErrorVec(emError);
-  cpm->setHadErrorVec(hadError);
-  cpm->setEta(eta);
-  cpm->setPhi(phi);
-  cpm->setPeak(peak);
-
-  return StatusCode::SUCCESS;
-}
 
 // Return reference to vector with all possible Source Identifiers
 
-const std::vector<uint32_t>& L1CaloByteStreamReadTool::ppmSourceIDs(
+const std::vector<uint32_t>& PpmByteStreamReadV1V2Tool::ppmSourceIDs(
   const std::string& sgKey) {
   
   const int crates = 8;
@@ -1142,31 +1037,8 @@ const std::vector<uint32_t>& L1CaloByteStreamReadTool::ppmSourceIDs(
 }
 
 
-const std::vector<uint32_t>& L1CaloByteStreamReadTool::cpSourceIDs() {
-  const int creates = 4;
-  const int crateOffsetHw = 8;
 
-  if (m_cpSourceIDs.empty())
-      {
-          const int maxCrates = creates + crateOffsetHw;
-          const int maxSlinks = m_srcIdMap->maxSlinks();
-          for (int hwCrate = crateOffsetHw; hwCrate < maxCrates; ++hwCrate)
-          {
-              for (int slink = 0; slink < maxSlinks; ++slink)
-              {
-                  const int daqOrRoi = 0;
-                  const uint32_t rodId = m_srcIdMap->getRodID(hwCrate, slink,
-                      daqOrRoi, eformat::TDAQ_CALO_CLUSTER_PROC_DAQ);
-                  const uint32_t robId = m_srcIdMap->getRobID(rodId);
-                  m_cpSourceIDs.push_back(robId);
-              }
-          }
-      }
-      return m_cpSourceIDs;
-}
-
-
-uint32_t L1CaloByteStreamReadTool::getPpmBytestreamField_(const uint8_t numBits) {
+uint32_t PpmByteStreamReadV1V2Tool::getPpmBytestreamField_(const uint8_t numBits) {
   if ((m_ppPointer + numBits) <= m_ppMaxBit) {
     uint32_t iWord = m_ppPointer / 31;
     uint8_t iBit = m_ppPointer % 31;

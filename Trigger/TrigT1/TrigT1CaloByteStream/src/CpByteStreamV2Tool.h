@@ -14,7 +14,7 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 #include "ByteStreamData/RawEvent.h"
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 #include "eformat/SourceIdentifier.h"
 #include "GaudiKernel/ToolHandle.h"
 
@@ -62,12 +62,17 @@ class CpByteStreamV2Tool : public AthAlgTool {
    virtual StatusCode finalize();
 
    /// Convert ROB fragments to CPM towers
+   StatusCode convert(const std::string& sgKey, DataVector<LVL1::CPMTower>* ttCollection);
    StatusCode convert(const IROBDataProviderSvc::VROBFRAG& robFrags,
                       DataVector<LVL1::CPMTower>* ttCollection);
    /// Convert ROB fragments to CMX-CP TOBs
+   StatusCode convert(const std::string& sgKey,
+                      DataVector<LVL1::CMXCPTob>* tobCollection);
    StatusCode convert(const IROBDataProviderSvc::VROBFRAG& robFrags,
                       DataVector<LVL1::CMXCPTob>* tobCollection);
    /// Convert ROB fragments to CMX-CP hits
+   StatusCode convert(const std::string& sgKey,
+                      DataVector<LVL1::CMXCPHits>* hitCollection);
    StatusCode convert(const IROBDataProviderSvc::VROBFRAG& robFrags,
                       DataVector<LVL1::CMXCPHits>* hitCollection);
 
@@ -127,7 +132,7 @@ class CpByteStreamV2Tool : public AthAlgTool {
    ToolHandle<LVL1::IL1CaloMappingTool> m_cpmMaps;
    /// Error collection tool
    ToolHandle<LVL1BS::L1CaloErrorByteStreamTool> m_errorTool;
-
+   ServiceHandle<IROBDataProviderSvc> m_robDataProvider;
    /// Hardware crate number offset
    int m_crateOffsetHw;
    /// Software crate number offset
@@ -222,7 +227,6 @@ class CpByteStreamV2Tool : public AthAlgTool {
    std::map<uint32_t, std::vector<uint32_t>* > m_rodStatusMap;
    /// Event assembler
    FullEventAssembler<L1CaloSrcIdMap>* m_fea;
-
 };
 
 } // end namespace

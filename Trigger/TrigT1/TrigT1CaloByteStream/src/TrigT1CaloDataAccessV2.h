@@ -14,7 +14,7 @@
 
 namespace LVL1BS {
 
-class L1CaloByteStreamReadTool;
+class PpmByteStreamReadV1V2Tool;
 
 /** Tool to retrieve all TriggerTowers
  *  from bytestream.
@@ -37,7 +37,7 @@ class TrigT1CaloDataAccessV2 : public asg::AsgTool,
  private:
    std::string m_message;
    /// Tool that does the actual work
-   ToolHandle<LVL1BS::L1CaloByteStreamReadTool> m_tool;
+   ToolHandle<LVL1BS::PpmByteStreamReadV1V2Tool> m_tool;
 };
 
 } // end namespace
