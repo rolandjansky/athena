@@ -115,6 +115,9 @@ TriggerHLTList = [
     ('xAOD::TrigCompositeContainer#HLT_L1TopoMET',                         'BS ESD AODFULL AODSLIM',  'Steer'),  
     ('xAOD::TrigCompositeAuxContainer#HLT_L1TopoMETAux.',                  'BS ESD AODFULL AODSLIM',  'Steer'),  
 
+    ('xAOD::TrigCompositeContainer#HLT_MuonCalibrationStream', 		   'DS',	 	      'Muon'),
+    ('xAOD::TrigCompositeAuxContainer#HLT_MuonCalibrationStreamAux.',      'DS', 		      'Muon'),
+
     ('xAOD::EmTauRoIContainer#HLT_L1TopoEM',                               'BS ESD AODFULL AODSLIM',  'Steer'),  
     ('xAOD::EmTauRoIAuxContainer#HLT_L1TopoEMAux.',                        'BS ESD AODFULL AODSLIM',  'Steer'),  
     ('xAOD::EmTauRoIContainer#HLT_L1TopoTau',                              'BS ESD AODFULL AODSLIM',  'Steer'),  
@@ -458,6 +461,8 @@ TriggerHLTList = [
     ('xAOD::VertexContainer#HLT_SecondaryVertex',                        'BS ESD AODFULL AODSLIM', 'Bjet'),
     ('xAOD::VertexAuxContainer#HLT_SecondaryVertexAux.',                 'BS ESD AODFULL AODSLIM', 'Bjet'), 
 
+    ('xAOD::HIEventShapeContainer_v1#HLT_HIUE',                          'BS ESD AODFULL AODSLIM', 'HeavyIon'),
+    ('xAOD::HIEventShapeAuxContainer_v1#HLT_HIUEAux.',                   'BS ESD AODFULL AODSLIM', 'HeavyIon'),
 
     # start of L2+EF list
 
@@ -466,6 +471,7 @@ TriggerHLTList = [
     ('TrigRoiDescriptor#HLT_forID',                                       'BS ESD AODFULL AODSLIM', 'Tracking'),
     ('TrigRoiDescriptor#HLT_forID1',                                      'BS ESD AODFULL AODSLIM', 'Tracking'),
     ('TrigRoiDescriptor#HLT_forID2',                                      'BS ESD AODFULL AODSLIM', 'Tracking'),
+    ('TrigRoiDescriptor#HLT_forID3',                                      'BS ESD AODFULL AODSLIM', 'Tracking'),
     ('TrigRoiDescriptor#HLT_forMS',                                       'BS ESD AODFULL AODSLIM', 'Muon'),
     ('TrigRoiDescriptor#HLT_initialRoI',                                  'BS ESD AODFULL AODSLIM', 'Steer'),
     ('TrigRoiDescriptor#HLT_secondaryRoI_L2',                             'BS ESD AODFULL AODSLIM', 'Steer'),
@@ -734,7 +740,7 @@ TriggerIDTruth= [
 
 EDMDetails = {}
 
-EDMDetails[ "TrigRoiDescriptor" ]         = {'persistent':"TrigRoiDescriptorCollection_p2",     'typealias':'Roi', 'collection':'TrigRoiDescriptorCollection' }
+EDMDetails[ "TrigRoiDescriptor" ]         = {'persistent':"TrigRoiDescriptorCollection_p3",     'typealias':'Roi', 'collection':'TrigRoiDescriptorCollection' }
 #EDMDetails[ "TrigRoiDescriptor" ]         = {'persistent':"TrigRoiDescriptorCollection_tlp1",     'typealias':'Roi', 'collection':'TrigRoiDescriptorCollection' }
 EDMDetails[ "TrigOperationalInfo" ]       = {'persistent':"TrigOperationalInfoCollection_tlp1",   'typealias':'', 'collection':'TrigOperationalInfoCollection' }    
 EDMDetails[ "TrigMonConfig" ]             = {'persistent':"TrigMonConfigCollection_tlp1",         'typealias':'', 'collection':'TrigMonConfigCollection' }
@@ -894,6 +900,9 @@ EDMDetails["xAOD::TauJetAuxContainer" ]        = {'persistent':"",              
 
 EDMDetails["xAOD::VertexContainer" ]           = {'persistent':"",              'typealias':'' }
 EDMDetails["xAOD::VertexAuxContainer" ]        = {'persistent':"",              'typealias':'', 'parent': 'xAOD::VertexContainer'}
+
+EDMDetails["xAOD::HIEventShapeContainer_v1" ]    = {'persistent':"",              'typealias':'' }
+EDMDetails["xAOD::HIEventShapeAuxContainer_v1" ] = {'persistent':"",              'typealias':'', 'parent': 'xAOD::HIEventShapeContainer_v1'}
 
 EDMDetails["xAOD::TrigCompositeContainer"]     = {'persistent':'', 		'typealias':''} 
 EDMDetails["xAOD::TrigCompositeAuxContainer"]  = {'persistent':'', 		'typealias':'', 'parent': 'xAOD::TrigCompositeContainer'} 
@@ -1383,7 +1392,10 @@ def getARATypesRenaming():
             if not EDMDetails[t].has_key('typealias') or EDMDetails[t]['typealias'] == '':
                 if nonunique[key] == 1:
                     # First time's ok.
-                    nonunique[key] = 2
+                    nonunique[key] = t
+                elif nonunique[key] == t:
+                    # Duplicate entry; ok.
+                    continue
                 else:
                     print "ERROR types/keys will catch ", t, " ", key
                 continue
