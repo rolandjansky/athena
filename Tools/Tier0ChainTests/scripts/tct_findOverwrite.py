@@ -11,7 +11,7 @@ if len(sys.argv)<9 or sys.argv[1]=="-h" or sys.argv[1]=="--help":
 
 from PROCTools.compareTCTs import * 
 
-irrelevantContainers = ['RecoTimingObj_p1_RAWtoESD_timings', 'RecoTimingObj_p1_ESDtoAOD_timings', 'EventBookkeeperCollection_p2_EventBookkeepers', 'EventBookkeeperCollection_p2_IncompleteEventBookkeepers', 'IOVMetaDataContainer_p1__TagInfo', 'EventFormat', '_TagInfo']
+irrelevantContainers = ['RecoTimingObj_p1_RAWtoESD_timings', 'RecoTimingObj_p1_ESDtoAOD_timings', 'EventBookkeeperCollection_p2_EventBookkeepers', 'EventBookkeeperCollection_p2_IncompleteEventBookkeepers', 'IOVMetaDataContainer_p1__TagInfo', 'EventFormat', '_TagInfo', 'xAOD::EventFormat_v1_EventFormat']
 
 ESDwHIST = sys.argv[1]
 if not os.path.exists(ESDwHIST):
