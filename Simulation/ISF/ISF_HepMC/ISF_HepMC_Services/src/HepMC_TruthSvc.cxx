@@ -239,7 +239,7 @@ void ISF::HepMC_TruthSvc::registerTruthIncident( ISF::ITruthIncident& truth) {
 
   // number of secondary particles
   unsigned short numSec = truth.numberOfSecondaries();
-  if ( (numSec==0) && (m_skipIfNoSecondaries) ) {
+  if ( m_skipIfNoSecondaries && (numSec==0) ) {
     ATH_MSG_VERBOSE( "No secondary particles present in the TruthIncident,"
                      << " will not record this TruthIncident.");
     return;
@@ -247,7 +247,7 @@ void ISF::HepMC_TruthSvc::registerTruthIncident( ISF::ITruthIncident& truth) {
 
   // the primary particle -> get its barcode
   Barcode::ParticleBarcode primBC = truth.primaryBarcode();
-  if ( (primBC==Barcode::fUndefinedBarcode) && (m_skipIfNoPrimaryBarcode) ) {
+  if ( m_skipIfNoPrimaryBarcode && (primBC==Barcode::fUndefinedBarcode) ) {
     ATH_MSG_VERBOSE( "Primary particle in TruthIncident does not have a barcode,"
                      << " will not record this TruthIncident.");
     return;
@@ -300,9 +300,9 @@ void ISF::HepMC_TruthSvc::registerTruthIncident( ISF::ITruthIncident& truth) {
     HepMC::GenVertex *vtx = new HepMC::GenVertex( truth.position(), 0, weights ); // 0 = barcode, overwritten below
     Barcode::VertexBarcode vtxbcode = m_barcodeSvcQuick->newVertex( primBC, processCode );
     if ( vtxbcode == Barcode::fUndefinedBarcode) {
-      if (m_ignoreUndefinedBarcodes)
+      if (m_ignoreUndefinedBarcodes) {
         ATH_MSG_WARNING("Unable to generate new Truth Vertex Barcode. Continuing due to 'IgnoreUndefinedBarcodes'==True");
-      else {
+      } else {
         ATH_MSG_ERROR("Unable to generate new Truth Vertex Barcode. Aborting");
         abort();
       }
@@ -315,9 +315,9 @@ void ISF::HepMC_TruthSvc::registerTruthIncident( ISF::ITruthIncident& truth) {
     // update primary barcode and add it to the vertex as outgoing particle
     Barcode::ParticleBarcode newPrimBC = m_barcodeSvcQuick->incrementBarcode( primBC, processCode);
     if ( newPrimBC == Barcode::fUndefinedBarcode) {
-      if (m_ignoreUndefinedBarcodes)
+      if (m_ignoreUndefinedBarcodes) {
         ATH_MSG_WARNING("Unable to generate new Particle Barcode. Continuing due to 'IgnoreUndefinedBarcodes'==True");
-      else {
+      } else {
         ATH_MSG_ERROR("Unable to generate new Particle Barcode. Aborting");
         abort();
       }
@@ -327,39 +327,45 @@ void ISF::HepMC_TruthSvc::registerTruthIncident( ISF::ITruthIncident& truth) {
 
     // update all _extra_ barcodes of secondary particles with parent info
     // MB: sofar extra barcode only contains parent info, so can be the same for each secondary
-    if (m_storeExtraBCs)
+    if (m_storeExtraBCs) {
       truth.setAllSecondaryExtraBarcodes( primExtraBC );
-
-    // add all secondary particles to the vertex
-    for ( unsigned short i=0; i<numSec; ++i) {
-      // generate a new barcode for the secondary particle
-      Barcode::ParticleBarcode secBC = m_barcodeSvcQuick->newSecondary( primBC, processCode);
-      if ( secBC == Barcode::fUndefinedBarcode) {
-        if (m_ignoreUndefinedBarcodes)
-          ATH_MSG_WARNING("Unable to generate new Secondary Particle Barcode. Continuing due to 'IgnoreUndefinedBarcodes'==True");
-        else {
-          ATH_MSG_ERROR("Unable to generate new Secondary Particle Barcode. Aborting");
-          abort();
-        }
-      }
-      HepMC::GenParticle *p = truth.secondaryParticle(i, secBC, setPersistent);
-
-      // add particle to vertex
-      vtx->add_particle_out( p);
-
-      // Check to see if this is meant to be a "primary" vertex
-      if ( p && p->barcode() < myFirstSecondary){
-        vtx->suggest_barcode( myLowestVertex );
-        ++myLowestVertex;
-        if (m_quasiStableParticlesIncluded){
-          ATH_MSG_VERBOSE( "Found a case of low barcode (" << p->barcode() << " < " << myFirstSecondary << " changing vtx barcode to " << myLowestVertex+1 );
-        } else {
-          ATH_MSG_WARNING( "Modifying vertex barcode, but no apparent quasi-stable particle simulation enabled." );
-          ATH_MSG_WARNING( "This means that you have encountered a very strange configuration.  Watch out!" );
-        }
-      }
-
     }
+
+    // add secondary particles to the vertex
+    for ( unsigned short i=0; i<numSec; ++i) {
+
+      bool writeOutSecondary = truth.writeOutSecondary(i);
+
+      if (writeOutSecondary) {
+        // generate a new barcode for the secondary particle
+        Barcode::ParticleBarcode secBC = m_barcodeSvcQuick->newSecondary( primBC, processCode);
+        if ( secBC == Barcode::fUndefinedBarcode) {
+          if (m_ignoreUndefinedBarcodes)
+            ATH_MSG_WARNING("Unable to generate new Secondary Particle Barcode. Continuing due to 'IgnoreUndefinedBarcodes'==True");
+          else {
+            ATH_MSG_ERROR("Unable to generate new Secondary Particle Barcode. Aborting");
+            abort();
+          }
+        }
+        HepMC::GenParticle *p = truth.secondaryParticle(i, secBC, setPersistent);
+
+        // add particle to vertex
+        vtx->add_particle_out( p);
+
+        // Check to see if this is meant to be a "primary" vertex
+        if ( p && p->barcode() < myFirstSecondary){
+          vtx->suggest_barcode( myLowestVertex );
+          ++myLowestVertex;
+          if (m_quasiStableParticlesIncluded){
+            ATH_MSG_VERBOSE( "Found a case of low barcode (" << p->barcode() << " < " << myFirstSecondary << " changing vtx barcode to " << myLowestVertex+1 );
+          } else {
+            ATH_MSG_WARNING( "Modifying vertex barcode, but no apparent quasi-stable particle simulation enabled." );
+            ATH_MSG_WARNING( "This means that you have encountered a very strange configuration.  Watch out!" );
+          }
+        }
+      } // <-- if write out secondary
+
+    } // <-- loop over all secondaries
 
     // finally add the vertex to the current GenEvent
     m_mcEvent->add_vertex( vtx);
@@ -382,8 +388,9 @@ void ISF::HepMC_TruthSvc::registerTruthIncident( ISF::ITruthIncident& truth) {
 
     // update all _extra_ barcodes of secondary particles with parent info
     // MB: sofar extra barcode only contains parent info, so can be the same for each secondary
-    if (m_storeExtraBCs)
+    if (m_storeExtraBCs) {
       truth.setAllSecondaryExtraBarcodes( primExtraBC );
+    }
   }
 
   return;
