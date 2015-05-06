@@ -25,20 +25,14 @@
 //____________________________________________________________________
 class VP1Gui::Imp {
 public:
-  Imp() : the_scheduler(nullptr), sg(nullptr), detstore(nullptr),
-    svclocator(nullptr), toolSvc(nullptr),
-    initialvp1files{},
-    initialCruiseSeconds{},
-    localFileCacheLimit{}{
-    //nop
-  }
+  Imp() : the_scheduler(0) {}
   VP1ExecutionScheduler * the_scheduler;
 
   //We hold the arguments here until init is called:
-  StoreGateSvc * sg;
-  StoreGateSvc * detstore;
-  ISvcLocator * svclocator;
-  IToolSvc * toolSvc;
+  StoreGateSvc* sg;
+  StoreGateSvc* detstore;
+  ISvcLocator* svclocator;
+  IToolSvc*toolSvc;
   QStringList initialvp1files;
   QString initialCruiseMode;
   unsigned initialCruiseSeconds;
@@ -199,14 +193,8 @@ void VP1Gui::cleanup()
 }
 
 //____________________________________________________________________
-bool VP1Gui::executeNewEvent( const int& run, const uint64_t& event, const unsigned& triggerType, const unsigned& time )
+bool VP1Gui::executeNewEvent( const int& run, const int& event, const unsigned& triggerType, const unsigned& time )
 {
-	//tests
-	int evN = event;
-	qulonglong evNqu = event;
-
-	qDebug() << "tests:" << QString::number(event) << QString::number(evN) << QString::number(evNqu);
-
   VP1Msg::messageDebug("Examining new event ( run# "+QString::number(run)+", event# "+QString::number(event)+" )");
 
   bool b = d->the_scheduler->executeNewEvent(run,event,triggerType,time);

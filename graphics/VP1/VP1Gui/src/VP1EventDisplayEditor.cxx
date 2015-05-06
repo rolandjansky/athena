@@ -15,7 +15,7 @@
 ////////////////////////////////////////////////////////////////
 
 #include "VP1Gui/VP1EventDisplayEditor.h"
-#include "ui_vp1eventdisplayeditor.h"
+#include "ui_vp1eventdisplaywidget.h"
 
 #include "VP1Base/VP1ExaminerViewer.h"
 #include "VP1Base/VP1QtInventorUtils.h"
@@ -139,7 +139,7 @@ public:
  * new version
  */
 //____________________________________________________________________
-VP1EventDisplayEditor::VP1EventDisplayEditor(VP1MainWindow* mainWindow, QList<unsigned long long> listRunEventNumberTimestamp)
+VP1EventDisplayEditor::VP1EventDisplayEditor(VP1MainWindow* mainWindow, QList<int> listRunEventNumberTimestamp)
 //: QWidget(0,Qt::WindowStaysOnTopHint), d(new Imp)
 : QWidget(0), d(new Imp)
 {
@@ -371,7 +371,7 @@ QString VP1EventDisplayEditor::getEventDetailsLabel()
 
 	QString evtstr = "Run: "+QString::number(_runNumber)+"\n"
 			+ "Event: "+QString::number(_eventNumber)+"\n"
-			+ QString(QDateTime::fromTime_t(_eventTimestamp).toString(Qt::ISODate).replace('T',' ')+ " CEST" );
+			+ QString(time>0 ? QDateTime::fromTime_t(_eventTimestamp).toString(Qt::ISODate).replace('T',' ')+ " CEST" : "");
 
 	//VP1Msg::messageVerbose(evtstr);
 

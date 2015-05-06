@@ -221,7 +221,7 @@ QString VP1EvtsOnServerInfo::Imp::init(const QString& infofile)
 }
 
 //____________________________________________________________________
-unsigned long long VP1EvtsOnServerInfo::numberOfEvents() const
+int VP1EvtsOnServerInfo::numberOfEvents() const
 {
   return d->events.count();
 }

@@ -35,7 +35,7 @@ public:
   QStringList print() const;
 
   //Access the results:
-  unsigned long long numberOfEvents() const;
+  int numberOfEvents() const;
   VP1EventFile newestEvent() const;
   QList<VP1EventFile> events(int timecut = -1, bool requireNewestRunNumber = false ) const;
   //Returns events in order of increasing time.

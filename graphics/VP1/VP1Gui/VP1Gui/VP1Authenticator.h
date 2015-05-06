@@ -16,7 +16,7 @@
 
 #include <QtCore/QObject>
 #include <QtGui/QDialog>
-#include "ui_vp1authenticator.h"
+#include "ui_vp1authentication.h"
 
 #include <QtNetwork/QNetworkReply>
 class QNetworkAccessManager;

@@ -66,7 +66,6 @@
 #include <QtCore/QSet>
 #include <QtGui/QMessageBox>
 
-#include <Inventor/C/errors/debugerror.h>
 #include <Inventor/Qt/SoQt.h>
 
 #include <set>
@@ -74,8 +73,6 @@
 #include <iostream>     //For "widgetcount" output
 #include <sstream>      // std::ostringstream
 #include <ctime>
-#include <stdexcept>
-
 
 //___________________________________________________________________
 class VP1ExecutionScheduler::Imp {
@@ -468,7 +465,7 @@ void VP1ExecutionScheduler::setNextRequestedEventFile(const QString& f)
 }
 
 //___________________________________________________________________
-bool VP1ExecutionScheduler::executeNewEvent(const int& runnumber, const unsigned long long& eventnumber, const unsigned& triggerType, const unsigned& time)
+bool VP1ExecutionScheduler::executeNewEvent(const int& runnumber, const int& eventnumber, const unsigned& triggerType, const unsigned& time)
 {
 	VP1Msg::messageDebug("VP1ExecutionScheduler::executeNewEvent()");
 
@@ -775,16 +772,8 @@ QString VP1ExecutionScheduler::saveSnaphsotToFile(IVP1System* s, bool batch)
 
 
 		// A FOLDER CONTAINER
-		QString folderName = "";
 
-		// check if use specified an output folder for the batch job
-		QString batchOutFolder = VP1QtUtils::environmentVariableValue("VP1_BATCHMODE_OUT_FOLDER"); // ::getenv("VP1_BATCHMODE");
-		if ( ! (batchOutFolder == "") ) {
-			VP1Msg::messageDebug("Setting 'batch' output folder from user's settings");
-			folderName = batchOutFolder;
-		}
-		else
-			folderName = "atlas_vp1_batch_images";
+		QString folderName = "vp1_batch_images";
 
 		// check if the folder already exists, if not make a new folder
 		QDir dir(folderName);
@@ -792,13 +781,8 @@ QString VP1ExecutionScheduler::saveSnaphsotToFile(IVP1System* s, bool batch)
 		    dir.mkpath(".");
 		}
 
-		QString folder;
-		if (folderName.startsWith("/"))
-			folder = folderName + QDir::separator();
-		else
-			folder = currentsaveimagepath + folderName + QDir::separator();
+		QString folder = currentsaveimagepath + QDir::separator() + folderName + QDir::separator();
 
-		VP1Msg::messageDebug("folder set: " + folder);
 
 
 		// EVENT INFO AND TIMESTAMP
@@ -863,17 +847,6 @@ QString VP1ExecutionScheduler::saveSnaphsotToFile(IVP1System* s, bool batch)
 
 		// saving to file
 		pm.save(filename);
-
-		// save last-saved image filename to working dir
-		QString latestImageFileName = currentsaveimagepath + QString("latest_vp1image");
-		QFile latestImage(latestImageFileName);
-		if(latestImage.exists() && !latestImage.remove())
-			throw std::runtime_error("Unable to overwrite the existing latest image file");
-		if(!latestImage.open(QIODevice::WriteOnly | QIODevice::Text))
-		    throw std::runtime_error("Unable to create new latest image file");
-		latestImage.write(filename.toStdString().c_str());
-		latestImage.close();
-
 
 		return filename;
 	}

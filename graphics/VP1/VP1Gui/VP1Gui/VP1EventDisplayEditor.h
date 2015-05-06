@@ -37,7 +37,7 @@ class VP1EventDisplayEditor : public QWidget {
 
 public:
 
-	VP1EventDisplayEditor(VP1MainWindow* mainWindow, QList<unsigned long long> listRunEventNumberTimestamp);
+	VP1EventDisplayEditor(VP1MainWindow* mainWindow, QList<int> listRunEventNumberTimestamp);
 	virtual ~VP1EventDisplayEditor();
 
 //	QGraphicsView* getView();
@@ -83,7 +83,7 @@ private:
 	VP1MainWindow* _mainWindow;
 
 	int _runNumber;
-	unsigned long long _eventNumber;
+	int _eventNumber;
 	unsigned _eventTimestamp;
 
 //	QSplitter *h1Splitter;
