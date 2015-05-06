@@ -11,7 +11,6 @@
 // for RooFit method of Beamspot determination.
 ////////////////////////////////////////////////////////////
 
-#include "InDetBeamSpotVertex.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "InDetBeamSpotFinder/IInDetBeamSpotTool.h"
 #include "TrkEventPrimitives/VertexType.h"
@@ -75,7 +74,7 @@ namespace InDet {
     std::string m_vtxCut;
     double m_kStart;
     double m_rmsCutNum;
-    bool m_fixInputK;
+    bool m_kConst;
   };
 }
 

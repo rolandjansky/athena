@@ -4,12 +4,16 @@
 
 #include "BeamSpotID.h"
 
-
-std::ostream & operator<<(std::ostream & os,const BeamSpot::ID & rhs){
-  os << "Run:Id = [" << rhs.run() <<" , " << rhs.id() << "]  "
-     << "LumiRange = [ " << rhs.lumiStart() << ", " << rhs.lumiEnd() << ")  " 
-     << "EventRange = [ " << rhs.firstEvent() << ", " << rhs.lastEvent() << "]  "
-     << "TimeStamp  = [ " << rhs.firstTimeStamp() << ", " << rhs.lastTimeStamp() << "] (Offset "
-     << rhs.timeStampOffset() << ") , BCID = " << rhs.bcid() <<" m_beamSpotTool = "<<rhs.getBSTool();
-  return os;
+bool BeamSpot::ID::operator<( const ID & rhs) const { 
+  if ( m_runNumber < rhs.m_runNumber ) return true;
+  if ( m_runNumber > rhs.m_runNumber ) return false;
+  if ( m_lumiBlock < rhs.m_lumiBlock ) return true;
+  if ( m_lumiBlock > rhs.m_lumiBlock ) return false;
+  if ( m_pileup < rhs.m_pileup ) return true;
+  if ( m_pileup > rhs.m_pileup ) return false;
+  if ( m_bcid < rhs.m_bcid ) return true;
+  if ( m_bcid > rhs.m_bcid ) return false;
+  return false;
 }
+
+

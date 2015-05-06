@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef INDET_INDETBEAMSPOTFINDER_STATUS_HPP
-#define INDET_INDETBEAMSPOTFINDER_STATUS_HPP
+#ifndef INDET_BEAMSPOTSTATUSCODE
+#define INDET_BEAMSPOTSTATUSCODE
 /** @class BeamSpotStatusCode 
     A simple class/interface to deal with the  status-code bit.
     @author: jwalder     
