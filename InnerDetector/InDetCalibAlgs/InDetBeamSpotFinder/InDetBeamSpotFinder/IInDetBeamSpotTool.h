@@ -7,38 +7,31 @@
 
 ///////////////////////////////////////////////////////////
 // Beamspot Abstract base class for beamspot determination
-// Author jwalder@cern.ch
-// All classes for beamspot determination should be derived from 
-// this class.
+// Authors btamadio@lbl.gov, jwalder@cern.ch
+// Beamspot fit tools are derived from IInDetBeamSpotTool
 ////////////////////////////////////////////////////////////
 
 #include "GaudiKernel/IAlgTool.h"
 #include "CLHEP/Matrix/SymMatrix.h"
-//#include "TrkEventPrimitives/VertexType.h"
 #include "xAODTracking/TrackingPrimitives.h"
-
-//Abstract class
 
 static const InterfaceID IID_IInDetBeamSpotTool("IInDetBeamSpotTool", 1 , 0); 
 
 namespace BeamSpot {
-  /** A simple struct for holding vertex info.
-   */
   struct VrtHolder {
-    //simple container of vertex info
-    VrtHolder():x(0.),y(0.),z(0.),vxx(0.), vxy(0.), vyy(0.),
-	 vxz(0.),vyz(0.),vzz(0.),
-      chi2(0.),ndf(0.), vertexType(xAOD::VxType::NotSpecified),valid(true)
-	 ,run(0),evt(0),lb(0),tck(0),idx(0),outlierRemoved(false)
-    {}
-    double x,y,z;  //vertex position
-    double vxx, vxy, vyy,vxz,vyz,vzz; //covariance parameters
-    double chi2, ndf;
+  VrtHolder():x(0.),y(0.),z(0.),vxx(0.),vxy(0.), vyy(0.), vzz(0.), vertexType(xAOD::VxType::NotSpecified),nTracks(0),passed(false),valid(false){}
+    double x,y,z;  
+    double vxx, vxy, vyy, vzz; 
     xAOD::VxType::VertexType vertexType;
-    bool valid;
-    unsigned int  run,evt,lb,tck;
-    int idx; // idx is an index of the pv position in the container
-    bool outlierRemoved; // Was this vertex removed during outlier removal
+    unsigned int nTracks;
+    bool passed, valid;
+  };
+}
+
+namespace BeamSpot{
+  struct Event {
+    unsigned int pileup, runNumber, lumiBlock, bcid;
+    std::vector<BeamSpot::VrtHolder> vertices;
   };
 }
 
@@ -66,7 +59,7 @@ namespace InDet {
     virtual FitID getFitID() const = 0; //!< A unique ID for the specific fit type.
 
     virtual IInDetBeamSpotTool *Clone() = 0;
-    virtual std::map<std::string,double> getCovMap() const = 0;
+    virtual std::map<std::string,double> getCovMap() const  = 0;
     virtual std::map<std::string,double> getParamMap() const = 0;
   };
 }

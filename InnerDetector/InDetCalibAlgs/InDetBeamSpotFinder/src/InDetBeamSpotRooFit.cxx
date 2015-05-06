@@ -27,11 +27,10 @@ InDetBeamSpotRooFit::InDetBeamSpotRooFit( const std::string& type,
   m_fitStatus(unsolved)
 {
   declareInterface<IInDetBeamSpotTool>(this);
-  declareProperty("VtxCut", m_vtxCut="vxx < .0025 && vyy< .0025 && abs(x) < 2 && abs(y) < 2 && abs(z) < 300");
-  declareProperty("kStart", m_kStart=1.0);
+  declareProperty("vtxCut", m_vtxCut="abs(vxx)<.0025 && abs(vyy)<.0025 && abs(z) < 300 && abs(x)<2 && abs(y)<2");
+  declareProperty("InitialKFactor", m_kStart=1.0);
   declareProperty("RMSCut", m_rmsCutNum = 16);
-  declareProperty("FixParK", m_fixInputK = false);
-  //  declareProperty("UseTruth", m_useTruth = false);
+  declareProperty("ConstantKFactor", m_kConst=false);
 }
 
 //Copy constructor: any variables that can be set with job options should be copied here
@@ -46,7 +45,7 @@ InDetBeamSpotRooFit::InDetBeamSpotRooFit( const InDetBeamSpotRooFit& rhs ) :
   m_vtxCut(rhs.m_vtxCut),
   m_kStart(rhs.m_kStart),
   m_rmsCutNum(rhs.m_rmsCutNum),
-  m_fixInputK(rhs.m_fixInputK)
+  m_kConst(rhs.m_kConst)
 {}
 
 StatusCode InDetBeamSpotRooFit::initialize() {
@@ -134,6 +133,7 @@ InDetBeamSpotRooFit::FitStatus InDetBeamSpotRooFit::fit(std::vector< BeamSpot::V
   RooRealVar ax("ax","Tilt x",axStart,-1e-3,1e-3);
   RooRealVar ay("ay","Tilt y",ayStart,-1e-3,1e-3);
   RooRealVar k("k","k factor",kStart,0,3);
+  if (m_kConst){ k.setConstant(kTRUE); }
   RooRealVar mx("mx","Mean x",mxStart,xMin,xMax);
   RooRealVar my("my","Mean y",myStart,yMin,yMax);
   RooRealVar mz("mz","Mean z",mzStart,zMin,zMax);
@@ -203,6 +203,9 @@ InDetBeamSpotRooFit::FitStatus InDetBeamSpotRooFit::fit(std::vector< BeamSpot::V
   m_sy  = sy.getVal();
   m_sz  = sz.getVal();
   
+  if( m_kConst ){
+    m_cov.ResizeTo(9,9);
+  }
   m_cov = r->covarianceMatrix();
 
   return (  m_fitStatus );
@@ -210,9 +213,19 @@ InDetBeamSpotRooFit::FitStatus InDetBeamSpotRooFit::fit(std::vector< BeamSpot::V
 
 
 std::map< std::string, double > InDetBeamSpotRooFit::getCovMap() const{
+  int numParams=0;
+  if (m_kConst){
+    numParams = 9;
+  }
+  else{
+    numParams = 10;
+  }
  
   const std::string offDiagArr[] = {"TiltX","TiltY","k","X","Y","Z","RhoXY","Sx","Sy","Sz"};
   const std::string diagArr[] = {"tiltX","tiltY","k","posX","posY","posZ","rhoXY","sigmaX","sigmaY","sigmaZ"};
+
+  const std::string offDiagArrConstK[] = {"TiltX","TiltY","X","Y","Z","RhoXY","Sx","Sy","Sz"};
+  const std::string diagArrConstK[] = {"tiltX","tiltY","posX","posY","posZ","rhoXY","sigmaX","sigmaY","sigmaZ"};
   
   std::map< std::string, double > covMap;
   std::vector< std::string > offDiagVector;
@@ -222,11 +235,17 @@ std::map< std::string, double > InDetBeamSpotRooFit::getCovMap() const{
 
   std::string key;
 
-  for(int i = 0; i < 10; i++){
-    offDiagVector.push_back(offDiagArr[i]);
-    diagVector.push_back(diagArr[i]);
+  for(int i = 0; i < numParams; i++){
+    if(m_kConst){
+      offDiagVector.push_back(offDiagArrConstK[i]);
+      diagVector.push_back(diagArrConstK[i]);
+    }
+    else{
+      offDiagVector.push_back(offDiagArr[i]);
+      diagVector.push_back(diagArr[i]);
+    }
   }
-  
+
   for( unsigned int i = 0; i < offDiagVector.size(); i++){
     for( unsigned int j = 0; j <= i; j++){
       if( i == j ){
@@ -242,13 +261,23 @@ std::map< std::string, double > InDetBeamSpotRooFit::getCovMap() const{
 
     }
   }
+  
+  if( m_kConst ){
+    covMap["kErr"] = 0;
+  }
 
   //We've filled the entire covariance matrix, but we only want to keep the top half, in the order:
   //x,y,z,ax,ay,sx,sy,sz,rho,k
   const std::string offDiagRemoveArr[] = {"k","RhoXY","Sz","Sy","Sx","TiltY","TiltX","Z","Y","X"};
+  const std::string offDiagRemoveArrConstK[] = {"RhoXY","Sz","Sy","Sx","TiltY","TiltX","Z","Y","X"};
   std::vector< std::string > offDiagRemoveVector;
-  for (int i = 0; i < 10; i++){
-    offDiagRemoveVector.push_back(offDiagRemoveArr[i]);
+  for (int i = 0; i < numParams; i++){
+    if( m_kConst ){
+      offDiagRemoveVector.push_back(offDiagRemoveArrConstK[i]);
+    }
+    else{
+      offDiagRemoveVector.push_back(offDiagRemoveArr[i]);
+    }
   }
   for( unsigned int i = 0; i < offDiagRemoveVector.size(); i++){
     for( unsigned int j = i+1; j < offDiagRemoveVector.size(); j++){

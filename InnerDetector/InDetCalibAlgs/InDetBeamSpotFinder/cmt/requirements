@@ -2,8 +2,7 @@ package InDetBeamSpotFinder
 
 author James Walder  <jwalder@cern.ch>
 author Guennadi Borissov <Gennady.Borisov@cern.ch> 
-
-
+author Brian Amadio <btamadio@lbl.gov>
 
 use AtlasPolicy          AtlasPolicy-*
 use GaudiInterface GaudiInterface-*    External
@@ -36,8 +35,6 @@ public
 use xAODTracking   xAODTracking-*      Event/xAOD
 
 private
-use AthenaPoolUtilities AthenaPoolUtilities-* Database/AthenaPOOL
-use RegistrationServices RegistrationServices-* Database
 use InDetBeamSpotService   InDetBeamSpotService-* InnerDetector/InDetConditions
 
 use TrigAnalysisInterfaces       TrigAnalysisInterfaces-* Trigger/TrigAnalysis

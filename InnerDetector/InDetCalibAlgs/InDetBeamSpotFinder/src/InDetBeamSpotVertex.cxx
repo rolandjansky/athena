@@ -675,7 +675,7 @@ bool InDetBeamSpotVertex::applyOutlierRemoval() {
         << endreq;
       
       it->valid = false;
-      it->outlierRemoved = true;
+      //      it->outlierRemoved = true;
       ++failCount;
     } else {
       // still valid, so add into chi2
@@ -884,7 +884,7 @@ bool InDetBeamSpotVertex::applyOutlierRemoval() {
     // any vertex that is found here should be removed
     ++fCount;
     vit->second->valid = false;
-    vit->second->outlierRemoved = true;
+    //    vit->second->outlierRemoved = true;
     if (msgLvl(MSG::DEBUG)) {
       msg(MSG::DEBUG) << "Vertex rejected; chi2: " << vit->first <<". pos(x,y,z): " 
       << vit->second->x << "  " << vit->second->y << "  " << vit->second->z 
@@ -1280,7 +1280,7 @@ void InDetBeamSpotVertex::doFit2( TMinuit * minuit) {
 }
 
 
-std::map<std::string,double> InDetBeamSpotVertex::getCovMap() const{
+std::map<std::string,double> InDetBeamSpotVertex::getCovMap() const {
 
   //Note: all the off-diagonal elements are errors calculated at (0,0,0).
   //While the diagonal elements are calculated at the z centroid
@@ -1356,7 +1356,7 @@ std::map<std::string,double> InDetBeamSpotVertex::getCovMap() const{
 
   
 }
-std::map<std::string,double> InDetBeamSpotVertex::getParamMap() const{
+std::map<std::string,double> InDetBeamSpotVertex::getParamMap() const {
   double z = getZ();
 
   std::map<std::string,double> paramMap;
