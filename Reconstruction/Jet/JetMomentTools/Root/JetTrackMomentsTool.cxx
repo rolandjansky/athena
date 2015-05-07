@@ -14,12 +14,30 @@ JetTrackMomentsTool::JetTrackMomentsTool(const std::string& name)
     , m_assocTracksName("")
     , m_tva("")
     , m_minTrackPt()
+    , m_htsel("")
 {
     declareProperty("VertexContainer",m_vertexContainer);
     declareProperty("AssociatedTracks",m_assocTracksName);
     declareProperty("TrackVertexAssociation",m_tva);
     declareProperty("TrackMinPtCuts",m_minTrackPt);
+    declareProperty("TrackSelector", m_htsel);
 }
+
+
+//**********************************************************************
+
+StatusCode JetTrackMomentsTool::initialize() {
+  ATH_MSG_INFO("Initializing JetTrackMomentsTool " << name());
+  if ( m_htsel.empty() ) {
+    ATH_MSG_INFO("  No track selector.");
+  } else {
+    ATH_MSG_INFO("  Track selector: " << m_htsel->name());
+  }
+  return StatusCode::SUCCESS;
+}
+
+//**********************************************************************
+
 
 int JetTrackMomentsTool::modifyJet(xAOD::Jet& jet) const {
 
@@ -154,6 +172,11 @@ JetTrackMomentsTool::TrackMomentStruct JetTrackMomentsTool::getTrackMoments(cons
     const float jetEta = jet.eta();
     const float jetPhi = jet.phi();
 
+    // Track selection and counters
+    bool notsel = m_htsel.empty();
+    unsigned int nkeep = 0;
+    unsigned int nskip = 0;
+
     // Loop over the tracks
     for (size_t iTrack = 0; iTrack < tracks.size(); ++iTrack)
     {
@@ -167,17 +190,28 @@ JetTrackMomentsTool::TrackMomentStruct JetTrackMomentsTool::getTrackMoments(cons
         // Skip the track if it's not from the vertex in question
         if( vertex == nullptr || vertex != tva->associatedVertex(track) ) continue ;
 
-        // Calculate necessary info for the moments
-        const double deltaR = jet::JetDistances::deltaR(jetEta, jetPhi, track->eta(),  track->phi() );
-        
-        // Adjust values as necessary for this track
-        moments.numTrk     += 1;
-        moments.sumPtTrk   += trackPt;
-        moments.trackWidth += deltaR * trackPt;
+	// Check track passes track selection, otherwise mark as skipped 
+	if ( notsel || m_htsel->keep(*track) ) {
+	  ++nkeep;
+	  
+	  // Calculate necessary info for the moments
+	  const double deltaR = jet::JetDistances::deltaR(jetEta, jetPhi, track->eta(),  track->phi() );
+	  
+	  // Adjust values as necessary for this track
+	  moments.numTrk     += 1;
+	  moments.sumPtTrk   += trackPt;
+	  moments.trackWidth += deltaR * trackPt;
+	}
+	else { ++nskip;}
     }
 
     // Finish processing the moments
     moments.trackWidth = moments.sumPtTrk > 0 ? moments.trackWidth / moments.sumPtTrk : -1;
+ 
+    ATH_MSG_VERBOSE("JetTrackMomentsTool " << name()
+		    << ": nsel=" << nkeep
+		    << ", nrej=" << nskip );
+
     
     return moments;
 }

@@ -100,6 +100,8 @@ class JetVertexTaggerTool : public asg::AsgTool,virtual public IJetModifier
 				const xAOD::TrackParticleContainer*&, 
 				const jet::TrackVertexAssociation*) const; 
 
+	// Local method to return the HS vertex - that of type PriVtx
+	const xAOD::Vertex* findHSVertex(const xAOD::VertexContainer*&) const;
 
  private:   // data
 

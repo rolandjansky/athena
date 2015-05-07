@@ -18,6 +18,8 @@
 ///     TrackWidthPtXXX
 /// where the track pT threhsold is XXX MeV.
 
+#include "AsgTools/ToolHandle.h"
+#include "JetInterface/IJetTrackSelector.h"
 #include "JetRec/JetModifierBase.h"
 #include "JetEDM/TrackVertexAssociation.h"
 
@@ -37,6 +39,9 @@ public:
   // Constructor from tool name
   JetTrackMomentsTool(const std::string& name);
 
+  // Initialization.
+  StatusCode initialize();
+
   // Inherited methods to modify a jet
   // Calls getTrackMoments and puts the results in the jet
   virtual int modifyJet(xAOD::Jet& jet) const;
@@ -48,6 +53,7 @@ private:
   std::string m_assocTracksName;
   std::string m_tva;
   std::vector<float> m_minTrackPt;
+  ToolHandle<IJetTrackSelector> m_htsel;
         
   // Private struct to make it unambiguous what each value is (rather than a vector)
   // Doubles for calculation for now - will be written as float in the aux store
