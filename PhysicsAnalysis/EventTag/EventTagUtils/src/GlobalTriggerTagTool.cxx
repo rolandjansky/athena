@@ -92,15 +92,13 @@ void GlobalTriggerTagTool::handle ( const Incident& incident ) {
   ATH_MSG_DEBUG("in beginRun()");
 
   if (incident.type()==IncidentType::BeginRun) {
-     ccnameL1 = getChainCounter("L1_.*");
-     ccnameL2 = getChainCounter("L2_.*");
-     ccnameEF = getChainCounter("EF_.*");
+     m_ccnameL1 = getChainCounter("L1_.*");
+     m_ccnameL2 = getChainCounter("L2_.*");
+     m_ccnameEF = getChainCounter("EF_.*");
 
      CollectionMetadataContainer* bitmaplist = 0;
-     bool newlist(true);
 
      if (m_pMetaDataStore->contains<CollectionMetadataContainer>(this->name())) {
-        newlist=false;
         ATH_MSG_DEBUG("Pre-existing CollectionMetadataContainer found");
         StatusCode status = m_pMetaDataStore->retrieve(bitmaplist,this->name());
         if (!status.isSuccess()) {
@@ -109,6 +107,13 @@ void GlobalTriggerTagTool::handle ( const Incident& incident ) {
      }
      else {
         bitmaplist = new CollectionMetadataContainer;
+        StatusCode sc = m_pMetaDataStore->record(bitmaplist,this->name());
+        if (!sc.isSuccess()) {
+           ATH_MSG_ERROR("Could not store stream bit map in Metadata store for " << this->name());
+        }
+        else {
+           ATH_MSG_INFO("stream bit map copied to MetaDataStore");
+        }
      }
      const EventIncident* evtinc = dynamic_cast<const EventIncident*>(&incident);
      if(evtinc==0) ATH_MSG_ERROR("Couldn't get EventIncident object => EventInfo not available");
@@ -137,24 +142,12 @@ void GlobalTriggerTagTool::handle ( const Incident& incident ) {
      }
 
      // Add it to the list
-     CollectionMetadata* newmap = new CollectionMetadata(bitmap); 
-     bitmaplist->push_back(newmap);
-
-     // if new list then record it in metadata store.
-     if (newlist) {
-        StatusCode sc = m_pMetaDataStore->record(bitmaplist,this->name());
-        if (!sc.isSuccess()) {
-           ATH_MSG_ERROR("Could not store stream bit map in Metadata store for " << this->name());
-        }
-        else {
-           ATH_MSG_INFO("stream bit map copied to MetaDataStore");
-        }
-     }
-
+     //CollectionMetadata* newmap = new CollectionMetadata(bitmap); 
+     //bitmaplist->push_back(newmap);
   }
   else {
      ATH_MSG_DEBUG(incident.type() << " not handled");
-  } 
+  }
 
 }
 
@@ -294,21 +287,22 @@ StatusCode  GlobalTriggerTagTool::execute(TagFragmentCollection& globalTriggerTa
   test.resize(maxNumber,0x0);
 
   // Fill the 3 sets of words for Level 1
-  for( std::map<int, std::string>::iterator it=ccnameL1.begin(); it!=ccnameL1.end(); ++it) {
+  for( std::map<int, std::string>::iterator it=m_ccnameL1.begin(); it!=m_ccnameL1.end(); ++it) {
     unsigned int bit = 1u << ( (*it).first % 32 );
     unsigned int word = ((*it).first)/32;
-    if ( word<maxNumber ) {
-      if(this->isPassedBits(((*it).second), TrigDefs::L1_isPassedBeforePrescale)) test[word] |= bit;
-      if(this->isPassedBits(((*it).second), TrigDefs::L1_isPassedAfterPrescale))  test[word+8] |= bit;
-      if(this->isPassedBits(((*it).second), TrigDefs::L1_isPassedAfterVeto))      test[word+16] |= bit;
+    if ( (word+16)<maxNumber ) {
+      if (this->isPassedBits(((*it).second), TrigDefs::L1_isPassedBeforePrescale)) test[word]    |= bit;
+      if (this->isPassedBits(((*it).second), TrigDefs::L1_isPassedAfterPrescale))  test[word+8]  |= bit;
+      if (this->isPassedBits(((*it).second), TrigDefs::L1_isPassedAfterVeto))      test[word+16] |= bit;
     } else {
       ATH_MSG_DEBUG("Word is not within the limit : " << word);
     }
   }
 
   for (unsigned int i=0; i<maxNumber; i++) {
-    if ( i<ccnameL1.size() ) {
-      globalTriggerTag.insert( m_lv1Str[i], test[i]);
+    if ( i<m_ccnameL1.size() ) {
+      // careful: we are converting the 'int' bitfield to 'double' here
+      globalTriggerTag.insert( m_lv1Str[i], (double)test[i] );
     } else {
       globalTriggerTag.insert( m_lv1Str[i], 0.0 );
     }
@@ -320,7 +314,7 @@ StatusCode  GlobalTriggerTagTool::execute(TagFragmentCollection& globalTriggerTa
   if ( max.size()>1 )  maxNumber = max[1]; 
   test.clear(); test.resize(maxNumber,0x0);
 
-  for( std::map<int, std::string>::iterator it=ccnameL2.begin(); it!=ccnameL2.end(); ++it) {
+  for( std::map<int, std::string>::iterator it=m_ccnameL2.begin(); it!=m_ccnameL2.end(); ++it) {
     unsigned int bit = 1u << ( (*it).first % 32 );
     unsigned int word = ((*it).first)/32;
     if ( word<maxNumber ) {
@@ -336,8 +330,9 @@ StatusCode  GlobalTriggerTagTool::execute(TagFragmentCollection& globalTriggerTa
   }
 
   for (unsigned int i=0; i<maxNumber; i++) {
-    if ( i<ccnameL2.size()) {
-      globalTriggerTag.insert( m_lv2Str[i], test[i]);
+    if ( i<m_ccnameL2.size()) {
+        // careful: we are converting the 'int' bitfield to 'double' here
+      globalTriggerTag.insert( m_lv2Str[i], (double)test[i]);
     } else {
       globalTriggerTag.insert( m_lv2Str[i], 0.0 );
     }
@@ -348,7 +343,7 @@ StatusCode  GlobalTriggerTagTool::execute(TagFragmentCollection& globalTriggerTa
   std::vector<unsigned long long> testEF;
   testEF.resize(maxNumber,0x0L);
 
-  for( std::map<int, std::string>::iterator it=ccnameEF.begin(); it!=ccnameEF.end(); ++it) {
+  for( std::map<int, std::string>::iterator it=m_ccnameEF.begin(); it!=m_ccnameEF.end(); ++it) {
     // take word number as chain counter integer divided by word length (32 bits)
     unsigned int word = (*it).first/32;
     // take raw bit in word as chain counter remaindered with word length (32 bits)
@@ -372,7 +367,8 @@ StatusCode  GlobalTriggerTagTool::execute(TagFragmentCollection& globalTriggerTa
   }
 
   for (unsigned int i=0; i<maxNumber; i++) {
-    if ( i<ccnameEF.size() ) globalTriggerTag.insert( m_efStr[i], testEF[i]);
+    // careful: we are converting the 'unsigned long long' bitfield to 'double' here
+    if ( i<m_ccnameEF.size() ) globalTriggerTag.insert( m_efStr[i], testEF[i]);
     else globalTriggerTag.insert( m_efStr[i], 0.0 );
   }
 

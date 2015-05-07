@@ -81,7 +81,7 @@ GlobalEventTagTool::attributeSpecification(std::vector<std::pair<std::string,Ath
   ATH_MSG_DEBUG("in attributeSpecification()");
 
   if ( m_includeVertexFlag )  {
-     for (unsigned int i = Evt::NCaloClus; i <= Evt::NVxTight; ++i) {
+     for (unsigned int i = Evt::NCaloClus; i <= Evt::VtxNdof; ++i) {
        attrMap.push_back(std::make_pair(EventAttributeSpecs[i].name(),
                                         EventAttributeSpecs[i].attributeType() 
                                         )              );
@@ -312,39 +312,26 @@ StatusCode GlobalEventTagTool::vertexTag(TagFragmentCollection& globalEventTag) 
   }
   ATH_MSG_DEBUG("Primary Vertex Container successfully retrieved");
 
-  int NtightVtx=0;
+  int NVtx=0;
   xAOD::VertexContainer::const_iterator vtxList=vxc->begin();
   xAOD::VertexContainer::const_iterator vtxList_end=vxc->end();
-  //excluding dummy vertex
-  --vtxList_end;
+
   for(; vtxList != vtxList_end; ++vtxList) {
     if((*vtxList)!=0)  {
       
-      if((*vtxList)->vertexType()==xAOD::VxType::PriVtx ){
-	NtightVtx++;
-	// const Trk::RecVertex thisVx = (*vxc)[0]->recVertex();
+      if( (*vtxList)->vertexType()==xAOD::VxType::PriVtx || (*vtxList)->vertexType()==xAOD::VxType::PileUp ){
+	NVtx++;
+	if( (*vtxList)->vertexType()==xAOD::VxType::PriVtx){
 	globalEventTag.insert ( EventAttributeSpecs[Evt::VtxX].name(), (*vtxList)->x() );
 	globalEventTag.insert ( EventAttributeSpecs[Evt::VtxY].name(),  (*vtxList)->y() );
 	globalEventTag.insert ( EventAttributeSpecs[Evt::VtxZ].name(),  (*vtxList)->z() );
 	globalEventTag.insert ( EventAttributeSpecs[Evt::VtxChiSq].name(), (*vtxList)->chiSquared() );
-	globalEventTag.insert ( EventAttributeSpecs[Evt::VtxNdof].name(), (*vtxList)->numberDoF());
+	globalEventTag.insert ( EventAttributeSpecs[Evt::VtxNdof].name(), (*vtxList)->numberDoF());}
       }
-      int nGoodTracks=0;
-      //      std::vector<Trk::VxTrackAtVertex*>::const_iterator begin=(*vtxList)->vxTrackAtVertex()->begin();
-      //    std::vector<Trk::VxTrackAtVertex*>::const_iterator end=(*vtxList)->vxTrackAtVertex()->end();
-      //    for (std::vector<Trk::VxTrackAtVertex*>::const_iterator iter=begin;iter!=end;++iter){
-      //       if ((*iter)->weight()>0.01){
-      //        nGoodTracks+=1;
-      //      }
-      //    }
-      if (nGoodTracks>m_vertexTrackCut) NtightVtx++;
     }
   }
   
-  globalEventTag.insert ( EventAttributeSpecs[Evt::NVx].name(), vxc->size()-1 );
-  globalEventTag.insert ( EventAttributeSpecs[Evt::NVxTight].name(), NtightVtx );
-  
-  
+  globalEventTag.insert ( EventAttributeSpecs[Evt::NVx].name(), NVtx );
   
   return StatusCode::SUCCESS;
 }
