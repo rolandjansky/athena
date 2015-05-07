@@ -6,7 +6,9 @@
 #include "TrkVKalVrtFitter/TrkVKalVrtFitter.h"
 #include "TrkVKalVrtFitter/VKalVrtAtlas.h"
 #include "TrkVKalVrtFitter/VxCascadeInfo.h"
+#include "TrkTrack/LinkToTrack.h"
 #include "VxVertex/VxTrackAtVertex.h"
+#include "TrkParticleBase/LinkToTrackParticleBase.h"
 #include "VxVertex/ExtendedVxCandidate.h"
 #include "TrkVKalVrtCore/TrkVKalUtils.h"
 //-------------------------------------------------
@@ -76,13 +78,13 @@ namespace Trk {
 //
 //----------------------------------------------------------------------------------------
 
-VertexID TrkVKalVrtFitter::startVertex(const  std::vector<const xAOD::TrackParticle*> & list,
+VertexID TrkVKalVrtFitter::startVertex(const  std::vector<const TrackParticleBase*> & list,
                                        const  std::vector<double>& particleMass,
 	  			       const  double massConstraint)
 {
     VertexID new_vID=10000;
 
-    if(!m_isFieldInitialized)setInitializedField();  //to allow callback for init
+    if(!isFieldInitialized)setInitializedField();  //to allow callback for init
     m_cascadeSize=1;
     int NTRK = list.size();
     m_partMassForCascade.clear();
@@ -142,7 +144,7 @@ int TrkVKalVrtFitter::getCascadeNDoF() const
 //
 // Next vertex in cascade
 //
-VertexID TrkVKalVrtFitter::nextVertex(const  std::vector<const xAOD::TrackParticle*> & list,
+VertexID TrkVKalVrtFitter::nextVertex(const  std::vector<const TrackParticleBase*> & list,
                                       const  std::vector<double>& particleMass,
 	  		              const  double massConstraint)
 {
@@ -185,7 +187,7 @@ VertexID TrkVKalVrtFitter::nextVertex(const  std::vector<const xAOD::TrackPartic
 //
 // Next vertex in cascade
 //
-VertexID TrkVKalVrtFitter::nextVertex(const  std::vector<const xAOD::TrackParticle*> & list,
+VertexID TrkVKalVrtFitter::nextVertex(const  std::vector<const TrackParticleBase*> & list,
                                       const  std::vector<double>& particleMass,
 		                      const  std::vector<VertexID> precedingVertices,
 	  		              const  double massConstraint)
@@ -320,7 +322,7 @@ VxCascadeInfo * TrkVKalVrtFitter::fitCascade(const Vertex* primVrt, bool FirstDe
     std::vector<double>  fitFullCovariance;
     std::vector<double>  particleChi2;
 //
-    if(!m_isFieldInitialized)setInitializedField();    //to allow callback for init
+    if(!isFieldInitialized)setInitializedField();    //to allow callback for init
     Trk::myMagFld.setMagHandler(m_fitField);             // needed for reenterability
     if(m_PropagatorType <=1 ){                           // needed for reenterability
        Trk::myPropagator.setTypeProp(m_PropagatorType);  // needed for reenterability
@@ -332,18 +334,8 @@ VxCascadeInfo * TrkVKalVrtFitter::fitCascade(const Vertex* primVrt, bool FirstDe
     StatusCode sc;
     std::vector<const TrackParameters*> baseInpTrk;
     if(m_firstMeasuredPoint){               //First measured point strategy
-       std::vector<const xAOD::TrackParticle*>::const_iterator   i_ntrk;
-       //for (i_ntrk = m_partListForCascade.begin(); i_ntrk < m_partListForCascade.end(); ++i_ntrk) baseInpTrk.push_back(GetFirstPoint(*i_ntrk));
-       unsigned int indexFMP;
-       for (i_ntrk = m_partListForCascade.begin(); i_ntrk < m_partListForCascade.end(); ++i_ntrk) {
-	  if ((*i_ntrk)->indexOfParameterAtPosition(indexFMP, xAOD::FirstMeasurement)){
-            if(msgLvl(MSG::DEBUG))msg()<< "FirstMeasuredPoint on track is discovered. Use it."<<'\n';
-	    baseInpTrk.push_back(new CurvilinearParameters((*i_ntrk)->curvilinearParameters(indexFMP)));
-          }else{
-            if(msgLvl(MSG::INFO))msg()<< "No FirstMeasuredPoint on track in CascadeFitter. Stop fit"<<'\n';
-            return 0;
-          }	      
-       }
+       std::vector<const TrackParticleBase*>::const_iterator   i_ntrk;
+       for (i_ntrk = m_partListForCascade.begin(); i_ntrk < m_partListForCascade.end(); ++i_ntrk) baseInpTrk.push_back(GetFirstPoint(*i_ntrk));
        sc=CvtTrackParameters(baseInpTrk,ntrk);
        if(sc.isFailure()){ntrk=0; sc=CvtTrackParticle(m_partListForCascade,ntrk);}
     }else{
@@ -377,7 +369,7 @@ VxCascadeInfo * TrkVKalVrtFitter::fitCascade(const Vertex* primVrt, bool FirstDe
     }
     if(IERR){ cleanCascade(); return 0;}
     if(msgLvl(MSG::DEBUG)){
-       msg(MSG::DEBUG)<<"Standard cascade fit" << endmsg;
+       msg(MSG::DEBUG)<<"Standard cascade fit" << endreq;
        printSimpleCascade(m_vertexDefinition,m_cascadeDefinition);
     }
 //
@@ -446,7 +438,7 @@ VxCascadeInfo * TrkVKalVrtFitter::fitCascade(const Vertex* primVrt, bool FirstDe
        m_cascadeVList[ivTo].mergedIN.push_back(ivFrom);
        makeSimpleCascade(new_vertexDefinition, new_cascadeDefinition);
        if(msgLvl(MSG::DEBUG)){
-          msg(MSG::DEBUG)<<"Compressed cascade fit" << endmsg;
+          msg(MSG::DEBUG)<<"Compressed cascade fit" << endreq;
           printSimpleCascade(new_vertexDefinition,new_cascadeDefinition);
        }
 //-----------------------------------------------------------------------------------------
@@ -467,20 +459,18 @@ VxCascadeInfo * TrkVKalVrtFitter::fitCascade(const Vertex* primVrt, bool FirstDe
 	     int icv=indexInV(inV);  if(icv<0) break;
 	     if(m_cascadeVList[icv].mergedTO == m_partMassCnstForCascade[ic].VRT){
 	        IERR = findPositions(m_cascadeVList[icv].trkInVrt,    new_vertexDefinition[index],  indexTT);
-	        if(IERR)break;
-                for(int ki=0; ki<(int)indexTT.size(); ki++) indexT.push_back(indexTT[ki]);
+	        if(IERR)break;  for(int ki=0; ki<(int)indexTT.size(); ki++) indexT.push_back(indexTT[ki]);
 	     }else{
 	        std::vector<int> tmpI(1); tmpI[0]=inV;
                 IERR = findPositions(tmpI, new_cascadeDefinition[index], indexVV);
-		if(IERR)break;
-                for(int ki=0; ki<(int)indexVV.size(); ki++) indexV.push_back(indexVV[ki]);
+		if(IERR)break; for(int ki=0; ki<(int)indexVV.size(); ki++) indexV.push_back(indexVV[ki]);
              }							 
          }   if(IERR)break;
          //std::cout<<"trk2="; for(int I=0; I<(int)indexT.size(); I++)std::cout<<indexT[I]; std::cout<<'\n';
          //std::cout<<"pse="; for(int I=0; I<(int)indexV.size(); I++)std::cout<<indexV[I]; std::cout<<'\n';
          IERR = setCascadeMassConstraint(index , indexT, indexV, m_partMassCnstForCascade[ic].Mass); if(IERR)break;
        }
-       msg(MSG::DEBUG)<<"Setting compressed mass constraints ierr="<<IERR<<endmsg;
+       msg(MSG::DEBUG)<<"Setting compressed mass constraints ierr="<<IERR<<endreq;
        if(IERR){ cleanCascade(); return 0;}
 //
 //--------------------------- Refit
@@ -515,11 +505,11 @@ VxCascadeInfo * TrkVKalVrtFitter::fitCascade(const Vertex* primVrt, bool FirstDe
 //------------------------- Real tracks
 //
        if(msgLvl(MSG::DEBUG)){
-         msg(MSG::DEBUG)<<"Initial cascade momenta"<<endmsg;
+         msg(MSG::DEBUG)<<"Initial cascade momenta"<<endreq;
          for(int kv=0; kv<(int)fittedParticles.size(); kv++){
            for(int kt=0; kt<(int)fittedParticles[kv].size(); kt++)std::cout<<
 	         " Px="<<fittedParticles[kv][kt].Px<<" Py="<<fittedParticles[kv][kt].Py<<";"; std::cout<<'\n'; }
-         msg(MSG::DEBUG)<<"Squized cascade momenta"<<endmsg;
+         msg(MSG::DEBUG)<<"Squized cascade momenta"<<endreq;
          for(int kv=0; kv<(int)t_fittedParticles.size(); kv++){
            for(int kt=0; kt<(int)t_fittedParticles[kv].size(); kt++)std::cout<<
 	         " Px="<<t_fittedParticles[kv][kt].Px<<" Py="<<t_fittedParticles[kv][kt].Py<<";"; std::cout<<'\n'; }
@@ -571,7 +561,7 @@ VxCascadeInfo * TrkVKalVrtFitter::fitCascade(const Vertex* primVrt, bool FirstDe
          }
        }
        if(msgLvl(MSG::DEBUG)){
-         msg(MSG::DEBUG)<<"Refit cascade momenta"<<endmsg;
+         msg(MSG::DEBUG)<<"Refit cascade momenta"<<endreq;
           for(int kv=0; kv<(int)fittedParticles.size(); kv++){
             for(int kt=0; kt<(int)fittedParticles[kv].size(); kt++)std::cout<<
 	          " Px="<<fittedParticles[kv][kt].Px<<" Py="<<fittedParticles[kv][kt].Py<<";"; std::cout<<'\n'; }
@@ -595,7 +585,7 @@ VxCascadeInfo * TrkVKalVrtFitter::fitCascade(const Vertex* primVrt, bool FirstDe
 //
 //-------------------------------------Saving
 //
-    msg(MSG::DEBUG)<<"Now save results" << endmsg;
+    msg(MSG::DEBUG)<<"Now save results" << endreq;
     //CLHEP::HepSymMatrix VrtCovMtx(3,0);  
     Amg::MatrixX VrtCovMtx(3,3);
     Trk::Perigee * measPerigee;
@@ -735,10 +725,6 @@ VxCascadeInfo * TrkVKalVrtFitter::fitCascade(const Vertex* primVrt, bool FirstDe
        tmpXAODVertex->setCovariance(floatErrMtx);
        std::vector<VxTrackAtVertex> xaodVTAV=tmpXAODVertex->vxTrackAtVertex();
        xaodVTAV.swap(*tmpVTAV);
-       for(int itvk=0; itvk<(int)xaodVTAV.size(); itvk++) {
-          ElementLink<xAOD::TrackParticleContainer> TEL;  TEL.setElement( m_partListForCascade[itvk] );
-          tmpXAODVertex->addTrackAtVertex(TEL,1.);
-       }
        xaodVrtList.push_back(tmpXAODVertex);              //VK Save xAOD::Vertex
 //
 //---- Save and clean
@@ -799,7 +785,7 @@ VxCascadeInfo * TrkVKalVrtFitter::fitCascade(const Vertex* primVrt, bool FirstDe
  
  
 StatusCode  TrkVKalVrtFitter::addMassConstraint(VertexID Vertex,
-                                 const std::vector<const xAOD::TrackParticle*> & tracksInConstraint,
+                                 const std::vector<const TrackParticleBase*> & tracksInConstraint,
                                  const std::vector<VertexID> pseudotracksInConstraint, 
 				 double massConstraint )
 {

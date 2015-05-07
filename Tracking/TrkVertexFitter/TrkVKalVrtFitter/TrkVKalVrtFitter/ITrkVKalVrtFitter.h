@@ -21,7 +21,6 @@
 #include  "TrkTrack/Track.h"
 #include  "TrkParticleBase/TrackParticleBase.h"
 #include  "xAODTracking/TrackParticle.h" 
-#include  "xAODTracking/NeutralParticle.h" 
 
 namespace MagField{
    class IMagFieldSvc;
@@ -109,7 +108,7 @@ namespace Trk{
       virtual void setCnstType(int)=0;
       virtual void setMomCovCalc(int)=0;
       virtual void setIterations(int, double)=0;
-      virtual void setVertexForConstraint(const xAOD::Vertex &)=0;
+      virtual void setVertexForConstraint(RecVertex &)=0;
       virtual void setVertexForConstraint(double,double,double)=0;
       virtual void setCovVrtForConstraint(double,double,double,
                                           double,double,double)=0;

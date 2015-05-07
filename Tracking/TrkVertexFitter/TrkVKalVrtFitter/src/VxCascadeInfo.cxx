@@ -4,6 +4,7 @@
 
 // Header include
 #include "TrkVKalVrtFitter/VxCascadeInfo.h"
+#include "VxVertex/ExtendedVxCandidate.h"
 //-------------------------------------------------
 
 namespace Trk {
