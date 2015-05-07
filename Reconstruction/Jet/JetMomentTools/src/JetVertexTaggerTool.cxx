@@ -102,8 +102,10 @@ int JetVertexTaggerTool::modify(xAOD::JetContainer& jetCont) const {
     return 4;
   }
 
+  const xAOD::Vertex* HSvertex = findHSVertex(vertices);
+
   // Count pileup tracks - currently done for each collection
-  const int n_putracks = getPileupTrackCount(vertices->at(0), tracksCont, tva);
+  const int n_putracks = getPileupTrackCount(HSvertex, tracksCont, tva);
 
   for(xAOD::Jet * jet : jetCont) 
     {
@@ -116,8 +118,6 @@ int JetVertexTaggerTool::modify(xAOD::JetContainer& jetCont) const {
       }
 
       // Retrieve the Vertex associated to the jet.
-      const xAOD::Vertex* jetorigin;
-      jetorigin = vertices->at(0);  // Calculate sums w.r.t. PV always.
 
       /* // For retrieving the origin from the jet
       if( ! jet->getAssociatedObject<xAOD::Vertex>("OriginVertex", jetorigin) )
@@ -131,7 +131,7 @@ int JetVertexTaggerTool::modify(xAOD::JetContainer& jetCont) const {
       */
       
       // Get the track pTs sums associated to the primary (first key of pair) and PU (second key) vertices.
-      const std::pair<float,float> tracksums = getJetVertexTrackSums(jetorigin, tracks, tva);
+      const std::pair<float,float> tracksums = getJetVertexTrackSums(HSvertex, tracks, tva);
       
       // Calculate RpT and JVFCorr 
       // Default JVFcorr to -1 when no tracks are associated.
@@ -200,12 +200,16 @@ std::pair<float,float> JetVertexTaggerTool::getJetVertexTrackSums(const xAOD::Ve
 	const xAOD::Vertex* ptvtx = tva->associatedVertex(track);
 
 	// Check track provenance
-	if ( ptvtx == nullptr ) {
+	//	if ( ptvtx == nullptr ) {
 
 	  // No track associated, check if z0 within cut.
-	  if( (fabs(track->z0()+track->vz()-vertex->z()) < m_z0cut)  ) {sumTrackPV += track->pt(); }  // if pass z0 cuts, assign track without vertex to PV track sum
-	}
-	else {
+	  // Now done upstream in TVA, comment inactive code.
+	  //	  if( (fabs(track->z0()+track->vz()-vertex->z()) < m_z0cut)  ) {sumTrackPV += track->pt(); }  // if pass z0 cuts, assign track without vertex to PV track sum
+	  //	}
+	  //	else {
+
+	// Previously tracks associated to no vertex were checked against z0 cuts, this is now done in the TVA tool - only consider tracks associated to a vertex.
+	if( ptvtx != nullptr ) {
 	  // Track has vertex, assign to appropriate pT sum
 	  if ( ptvtx->index() == vertex->index() ) { sumTrackPV += track->pt(); }
 	  else {sumTracknotPV += track->pt(); }	
@@ -261,6 +265,18 @@ int JetVertexTaggerTool::getPileupTrackCount(const xAOD::Vertex* vertex,
     return n_pileuptracks;
 }
 
+const xAOD::Vertex* JetVertexTaggerTool::findHSVertex(const xAOD::VertexContainer*& vertices) const
+{
+  for ( size_t iVertex = 0; iVertex < vertices->size(); ++iVertex ) {
+    if(vertices->at(iVertex)->vertexType() == xAOD::VxType::PriVtx) {
+      
+      ATH_MSG_VERBOSE("JetVertexTaggerTool " << name() << " Found HS vertex at index: "<< iVertex);
+      return vertices->at(iVertex);
+    }
+  }
 
+  ATH_MSG_WARNING("There is no vertex of type PriVx. Taking default vertex."); 
+  return vertices->at(0);
+}
 
 
