@@ -99,6 +99,7 @@ StatusCode TrkVKalVrtFitter::VKalVrtFit(const std::vector<const xAOD::TrackParti
     long int ntrk=0;
     std::vector<const TrackParameters*>   tmpInputC(0);
     StatusCode sc; sc.setChecked(); 
+    double closestHitR=1.e6;   //VK needed for FirstMeasuredPointLimit if this hit itself is absent
     if(m_firstMeasuredPoint){               //First measured point strategy
        //------
        if(InpTrkC.size()){
@@ -108,15 +109,24 @@ StatusCode TrkVKalVrtFitter::VKalVrtFit(const std::vector<const xAOD::TrackParti
             return StatusCode::FAILURE;        
           }
           std::vector<const xAOD::TrackParticle*>::const_iterator     i_ntrk;
-          if(msgLvl(MSG::DEBUG))msg()<< "Start Perigee extrapolation to FirstMeasuredPoint radius"<<'\n';
+          if(msgLvl(MSG::DEBUG))msg()<< "Start FirstMeasuredPoint handling"<<'\n';
+          unsigned int indexFMP;
           for (i_ntrk = InpTrkC.begin(); i_ntrk < InpTrkC.end(); ++i_ntrk) {
-             tmpInputC.push_back(m_fitPropagator->myxAODFstPntOnTrk((*i_ntrk))); 
-	     if(tmpInputC[tmpInputC.size()-1]==0){  //Extrapolation failure 
-             if(msgLvl(MSG::WARNING))msg()<< "InDetExtrapolator can't etrapolate xAOD::TrackParticle Perigee "<<
-	                                      "to FirstMeasuredPoint radius! Stop vertex fit!" << endreq;
-               for(unsigned int i=0; i<tmpInputC.size()-1; i++) delete tmpInputC[i]; 
-               return StatusCode::FAILURE;
-	     }
+	    if ((*i_ntrk)->indexOfParameterAtPosition(indexFMP, xAOD::FirstMeasurement)){
+              if(msgLvl(MSG::DEBUG))msg()<< "FirstMeasuredPoint on track is discovered. Use it."<<'\n';
+	      tmpInputC.push_back(new CurvilinearParameters((*i_ntrk)->curvilinearParameters(indexFMP)));
+	    }else{
+              if(msgLvl(MSG::DEBUG))msg()<< "FirstMeasuredPoint on track is absent."<<
+	                                    "Try extrapolation from Perigee to FisrtMeasuredPoint radius"<<'\n';
+              tmpInputC.push_back(m_fitPropagator->myxAODFstPntOnTrk((*i_ntrk))); 
+              if( (*i_ntrk)->radiusOfFirstHit() < closestHitR ) closestHitR=(*i_ntrk)->radiusOfFirstHit();
+              if(tmpInputC[tmpInputC.size()-1]==0){  //Extrapolation failure 
+              if(msgLvl(MSG::WARNING))msg()<< "InDetExtrapolator can't etrapolate xAOD::TrackParticle Perigee "<<
+                                              "to FirstMeasuredPoint radius! Stop vertex fit!" << endreq;
+                for(unsigned int i=0; i<tmpInputC.size()-1; i++) delete tmpInputC[i]; 
+                return StatusCode::FAILURE;
+	      }
+            }
           }
           sc=CvtTrackParameters(tmpInputC,ntrk);
           if(sc.isFailure()){
@@ -132,6 +142,42 @@ StatusCode TrkVKalVrtFitter::VKalVrtFit(const std::vector<const xAOD::TrackParti
 //--
     long int ierr = VKalVrtFit3( ntrk, Vertex, Momentum, Charge, ErrorMatrix, 
                                  Chi2PerTrk, TrkAtVrt,Chi2 ) ;
+//
+//-- Check vertex position with respect to first measured hit and refit with plane constraint if needed
+    m_planeCnstNDOF = 0;
+    if(m_firstMeasuredPointLimit && !ierr){
+       Amg::Vector3D  cnstRefPoint(0.,0.,0.);
+       //----------- Use as reference either hit(m_globalFirstHit) or its radius(closestHitR) if hit is absent
+       if(m_globalFirstHit)cnstRefPoint=m_globalFirstHit->position();
+       else if(closestHitR < 1.e6){
+	  Amg::Vector3D unitMom=Amg::Vector3D(Momentum.Vect().Unit().x(),Momentum.Vect().Unit().y(),Momentum.Vect().Unit().z());
+	  if((Vertex+unitMom).perp() < Vertex.perp()) unitMom=-unitMom;
+	  cnstRefPoint=Vertex+(closestHitR-Vertex.perp())*unitMom;
+       }
+       //------------
+       if(Vertex.perp()>cnstRefPoint.perp() && cnstRefPoint.perp()>0.){
+          if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<"Vertex behind first measured point is detected. Constraint is applied!"<<endreq;
+          m_planeCnstNDOF = 1;   // Additional NDOF due to plane constraint
+          double pp[3]={Momentum.Px()/Momentum.Rho(),Momentum.Py()/Momentum.Rho(),Momentum.Pz()/Momentum.Rho()};
+          double D= pp[0]*(cnstRefPoint.x()-m_refFrameX)
+                   +pp[1]*(cnstRefPoint.y()-m_refFrameY)
+                   +pp[2]*(cnstRefPoint.z()-m_refFrameZ);
+          vksetUsePlaneCnst( pp[0], pp[1], pp[2], D); 
+	  std::vector<double> saveApproxV(3,0.); m_ApproximateVertex.swap(saveApproxV); 
+          m_ApproximateVertex[0]=cnstRefPoint.x();
+          m_ApproximateVertex[1]=cnstRefPoint.y();
+          m_ApproximateVertex[2]=cnstRefPoint.z();
+          ierr = VKalVrtFit3( ntrk, Vertex, Momentum, Charge, ErrorMatrix, 
+                                 Chi2PerTrk, TrkAtVrt,Chi2 ) ;
+          vksetUsePlaneCnst(0.,0.,0.,0.);
+          if (ierr)  {
+	     ierr = VKalVrtFit3( ntrk, Vertex, Momentum, Charge,   // refit without plane cnst
+	                  ErrorMatrix, Chi2PerTrk, TrkAtVrt,Chi2 ) ;        // if fit with it failed
+             m_planeCnstNDOF = 0;
+          }
+	  m_ApproximateVertex.swap(saveApproxV); 
+       }
+    }
 //--
     for(unsigned int i=0; i<tmpInputC.size(); i++) delete tmpInputC[i]; 
     if (ierr) return StatusCode::FAILURE;
@@ -223,7 +269,7 @@ StatusCode TrkVKalVrtFitter::VKalVrtFit(const std::vector<const TrackParameters*
 //
 //-- Check vertex position with respect to first measured hit and refit with plane constraint if needed
     m_planeCnstNDOF = 0;
-    if(m_globalFirstHit && m_firstMeasuredPointLimit){
+    if(m_globalFirstHit && m_firstMeasuredPointLimit && !ierr){
        if(Vertex.perp()>m_globalFirstHit->position().perp()){
           if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<"Vertex behind first measured point is detected. Constraint is applied!"<<endreq;
           m_planeCnstNDOF = 1;   // Additional NDOF due to plane constraint
@@ -232,10 +278,10 @@ StatusCode TrkVKalVrtFitter::VKalVrtFit(const std::vector<const TrackParameters*
                    +pp[1]*(m_globalFirstHit->position().y()-m_refFrameY)
                    +pp[2]*(m_globalFirstHit->position().z()-m_refFrameZ);
           vksetUsePlaneCnst( pp[0], pp[1], pp[2], D); 
-          m_ApproximateVertex.clear(); m_ApproximateVertex.reserve(3);
-          m_ApproximateVertex.push_back(m_globalFirstHit->position().x());
-          m_ApproximateVertex.push_back(m_globalFirstHit->position().y());
-          m_ApproximateVertex.push_back(m_globalFirstHit->position().z());
+	  std::vector<double> saveApproxV(3,0.); m_ApproximateVertex.swap(saveApproxV); 
+          m_ApproximateVertex[0]=m_globalFirstHit->position().x();
+          m_ApproximateVertex[1]=m_globalFirstHit->position().y();
+          m_ApproximateVertex[2]=m_globalFirstHit->position().z();
           ierr = VKalVrtFit3( ntrk, Vertex, Momentum, Charge, ErrorMatrix, 
                                  Chi2PerTrk, TrkAtVrt,Chi2 ) ;
           vksetUsePlaneCnst(0.,0.,0.,0.);
@@ -244,10 +290,10 @@ StatusCode TrkVKalVrtFitter::VKalVrtFit(const std::vector<const TrackParameters*
 	                  ErrorMatrix, Chi2PerTrk, TrkAtVrt,Chi2 ) ;        // if fit with it failed
              m_planeCnstNDOF = 0;
           }
-	  m_ApproximateVertex.clear(); 
-          if (ierr) return StatusCode::FAILURE;
+	  m_ApproximateVertex.swap(saveApproxV); 
        }
     }
+    if (ierr) return StatusCode::FAILURE;
     return StatusCode::SUCCESS;
 }
 
@@ -334,6 +380,9 @@ long int TrkVKalVrtFitter::VKalVrtFit3( long int ntrk,
        m_ErrMtx = new double[ (3*ntrk+3)*(3*ntrk+4)/2  ];      //create new array for errors
        int IERR = Trk::fiterm(ntrk,m_ErrMtx);                //Real error matrix after fit
        if(IERR)  {delete[] m_ErrMtx; m_ErrMtx=0;}
+       ErrorMatrix.clear(); ErrorMatrix.reserve(21); ErrorMatrix.assign(covf,covf+21);
+    } else {
+       ErrorMatrix.clear(); ErrorMatrix.reserve(6);  ErrorMatrix.assign(covf,covf+6);
     }
 //--------------------------------------------------------------------------- 
 // Rotate back to ATLAS frame if rotation was used in the fit
@@ -395,8 +444,6 @@ long int TrkVKalVrtFitter::VKalVrtFit3( long int ntrk,
 //  std::cout<<" Ptot="<<ptot[0]<<", "<<ptot[1]<<", "<<ptot[2]<<", "<<ptot[3]<<'\n';
 //  std::cout<<" Vertex="<<Vertex.x()<<", "<<Vertex.y()<<", "<<Vertex.z()
 //           <<" LocalMag="<<m_BMAG_CUR<<" Chi2="<<Chi2<<" Mass="<<Momentum.m()<<'\n';
-
-    ErrorMatrix.clear(); ErrorMatrix.reserve(21); ErrorMatrix.assign(covf,covf+21);
 
 
     Chi2PerTrk.clear(); Chi2PerTrk.reserve(ntrk);

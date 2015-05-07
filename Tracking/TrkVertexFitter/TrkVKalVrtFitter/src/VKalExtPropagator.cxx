@@ -182,7 +182,7 @@
         VectPerig = m_Line->parameters(); 
         CovMtx    = m_Line->covariance();
       }      
-      if( m_Line==0 && m_mPer==0 ){         
+      if( (m_Line==0 && m_mPer==0) || CovMtx==0 ){         
         ParNew[0]=0.; ParNew[1]=0.;ParNew[2]=0.;ParNew[3]=0.;ParNew[4]=0.;
         delete inpPer; return;
       }

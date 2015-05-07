@@ -206,8 +206,8 @@ namespace Trk {
 //--- Get rid of beamline rotation and move ref. frame to the track common point m_refGVertex
 //    Small beamline inclination doesn't change track covariance matrix 
 //
-       AmgSymMatrix(5) tmpCov(*(m_mPer->covariance()));
-       const Perigee * tmpPer=surfGRefPoint.createTrackParameters(m_mPer->position(),m_mPer->momentum(),m_mPer->charge(),&tmpCov);
+       AmgSymMatrix(5) * tmpCov = new AmgSymMatrix(5)(*(m_mPer->covariance()));
+       const Perigee * tmpPer=surfGRefPoint.createTrackParameters(m_mPer->position(),m_mPer->momentum(),m_mPer->charge(),tmpCov);
        VectPerig    =  tmpPer->parameters(); 
        //--- Transform to internal parametrisation
        VKalTransform( m_BMAG_FIXED, (double)VectPerig[0], (double)VectPerig[1],
@@ -219,6 +219,7 @@ namespace Trk {
                               m_awgt[ntrk][11] = -m_awgt[ntrk][11];
                               m_awgt[ntrk][12] = -m_awgt[ntrk][12];
                               m_awgt[ntrk][13] = -m_awgt[ntrk][13]; }
+       delete tmpPer; //tmpCov matrix is deleted here!!!
 //
 
        ntrk++; if(ntrk>=m_NTrMaxVFit) return StatusCode::FAILURE;
@@ -275,7 +276,7 @@ namespace Trk {
        tmpMat.trkRotation = Amg::RotationMatrix3D::Identity();
        tmpMat.rotateToField=false; if(m_useMagFieldRotation)tmpMat.rotateToField=true;
        tmpMat.extrapolationType=2;                   // Perigee point strategy
-       if(m_mPer){ tmpMat.TrkPnt=m_mPer; }else{ tmpMat.TrkPnt=NULL;}
+       tmpMat.TrkPnt=m_mPer;
        tmpMat.prtMass = 139.5702;
        if(counter<(int)m_MassInputParticles.size())tmpMat.prtMass = m_MassInputParticles[counter];
        tmpMat.TrkID=counter; m_trkControl.push_back(tmpMat);
