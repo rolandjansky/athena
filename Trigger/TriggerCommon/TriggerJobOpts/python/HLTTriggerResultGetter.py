@@ -275,6 +275,10 @@ class HLTTriggerResultGetter(Configured):
         # set EDMDecodingVersion
         EDMDecodingVersion()
 
+        # Set AODFULL for data unless it was set explicitly already
+        if TriggerFlags.AODEDMSet.isDefault() and globalflags.DataSource()=='data':
+            TriggerFlags.AODEDMSet = 'AODFULL'
+            
         from AthenaCommon.AlgSequence import AlgSequence
         topSequence = AlgSequence()
         log.info("BS unpacking (TF.readBS): %d" % TriggerFlags.readBS() )

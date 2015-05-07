@@ -66,16 +66,16 @@ def monitoringTools(steering):
             return False
         return True
 
-    try:
-        Set = set
-    except NameError:
-        from sets import Set
-    setOfEnabled = Set(TriggerFlags.enableMonitoring()) # this is set of enabled monitoring targets
+    #try:
+    #    Set = set
+    #except NameError:
+    #    from sets import Set
+    setOfEnabled = set(TriggerFlags.enableMonitoring()) # this is set of enabled monitoring targets
 
     log.info("requested targets: "+str(setOfEnabled)+" pruning other tools")
     # prune subalgorithms
     for alg in steering.getChildren():
-        tokeep = [ x for x in alg.AthenaMonTools if len(Set(x.target()) & setOfEnabled) != 0 ]
+        tokeep = [ x for x in alg.AthenaMonTools if len(set(x.target()) & setOfEnabled) != 0 ]
         log.debug( "will keep "+str( [ x.getFullName() for x in tokeep ]) )
         toscratch = list(set(alg.AthenaMonTools)-set(tokeep))        
         log.debug( "will scratch "+str( [ x.getFullName() for x in toscratch ]) )
@@ -139,7 +139,7 @@ class HLTSimulationGetter(Configured):
             from RecExConfig.ObjKeyStore import objKeyStore
             if ( not objKeyStore.isInInput( "xAOD::EventInfo_v1") ) and ( not hasattr( topSequence, "xAODMaker::EventInfoCnvAlg" ) ):
                 from xAODEventInfoCnv.xAODEventInfoCreator import xAODMaker__EventInfoCnvAlg
-                topSequence+=xAODMaker__EventInfoCnvAlg()
+                topSequence += xAODMaker__EventInfoCnvAlg()
 	        
 
         log.info("Loading RegionSelector")
@@ -155,57 +155,67 @@ class HLTSimulationGetter(Configured):
             # FTK algorithm inclusions
             from TrigFTKSim.TrigFTKSimConf import FTKMergerAlgo
             FTKMerger = FTKMergerAlgo( "FTKMergerAlgo" , OutputLevel=INFO)
-            topSequence+= FTKMerger
+            topSequence += FTKMerger
         
-        if TriggerFlags.doLVL2():
-            log.info("configuring LVL2")
-            from TrigSteering.TrigSteeringConfig import TrigSteer_L2, ReruningTrigSteer_L2
-            if TriggerFlags.doFEX():
-                log.info("configuring LVL2 for normal running (FEX + Hypo)")
-                TrigSteer_L2 = TrigSteer_L2('TrigSteer_L2', hltFile=TriggerFlags.inputHLTconfigFile(), lvl1File=TriggerFlags.inputLVL1configFile())
-                TrigSteer_L2.doHypo = TriggerFlags.doHypo()
-                
-            if not TriggerFlags.doFEX() and TriggerFlags.doHypo():
-                log.info("configuring LVL2 for re-running (Hypo only)")
-                TrigSteer_L2 = ReruningTrigSteer_L2('TrigSteer_L2', hltFile=TriggerFlags.inputHLTconfigFile(), lvl1File=TriggerFlags.inputLVL1configFile())
-
-                #            if not TriggerFlags.writeBS():
-            from TrigEDMConfig.TriggerEDM import getL2PreregistrationList, getEDMLibraries
-            TrigSteer_L2.Navigation.ClassesToPreregister = getL2PreregistrationList()
-                    
-            TrigSteer_L2.Navigation.Dlls = getEDMLibraries()
-            
-            monitoringTools(TrigSteer_L2)            
-            topSequence += TrigSteer_L2
+        ## if TriggerFlags.doLVL2():
+        ##     log.info("configuring LVL2")
+        ##     from TrigSteering.TrigSteeringConfig import TrigSteer_L2, ReruningTrigSteer_L2
+        ##     if TriggerFlags.doFEX():
+        ##         log.info("configuring LVL2 for normal running (FEX + Hypo)")
+        ##         TrigSteer_L2 = TrigSteer_L2('TrigSteer_L2', hltFile=TriggerFlags.inputHLTconfigFile(), lvl1File=TriggerFlags.inputLVL1configFile())
+        ##         TrigSteer_L2.doHypo = TriggerFlags.doHypo()
+        ##         
+        ##     if not TriggerFlags.doFEX() and TriggerFlags.doHypo():
+        ##         log.info("configuring LVL2 for re-running (Hypo only)")
+        ##         TrigSteer_L2 = ReruningTrigSteer_L2('TrigSteer_L2', hltFile=TriggerFlags.inputHLTconfigFile(), lvl1File=TriggerFlags.inputLVL1configFile())
+        ## 
+        ##         #            if not TriggerFlags.writeBS():
+        ##     from TrigEDMConfig.TriggerEDM import getL2PreregistrationList, getEDMLibraries
+        ##     TrigSteer_L2.Navigation.ClassesToPreregister = getL2PreregistrationList()
+        ##             
+        ##     TrigSteer_L2.Navigation.Dlls = getEDMLibraries()
+        ##     
+        ##     monitoringTools(TrigSteer_L2)            
+        ##     topSequence += TrigSteer_L2
 
         
-        if TriggerFlags.doEF():
-            log.info("configuring EF")
-            from TrigSteering.TrigSteeringConfig import TrigSteer_EF,ReruningAfterL2TrigSteer_EF
-            if TriggerFlags.doFEX():            
-                TrigSteer_EF = TrigSteer_EF('TrigSteer_EF', hltFile=TriggerFlags.inputHLTconfigFile(), lvl1File=TriggerFlags.inputLVL1configFile())
-                TrigSteer_EF.doHypo = TriggerFlags.doHypo()
-                
-            if not TriggerFlags.doFEX() and TriggerFlags.doHypo():
-                TrigSteer_EF = ReruningAfterL2TrigSteer_EF('TrigSteer_EF', hltFile=TriggerFlags.inputHLTconfigFile(), lvl1File=TriggerFlags.inputLVL1configFile())
-
-            # if not TriggerFlags.writeBS():
-            from TrigEDMConfig.TriggerEDM import getEFPreregistrationList, getEDMLibraries
-            TrigSteer_EF.Navigation.ClassesToPreregister = getEFPreregistrationList()
-
-            TrigSteer_EF.Navigation.Dlls = getEDMLibraries()
-
-            monitoringTools(TrigSteer_EF)
-            topSequence += TrigSteer_EF
+        ## if TriggerFlags.doEF():
+        ##     log.info("configuring EF")
+        ##     from TrigSteering.TrigSteeringConfig import TrigSteer_EF,ReruningAfterL2TrigSteer_EF
+        ##     if TriggerFlags.doFEX():            
+        ##         TrigSteer_EF = TrigSteer_EF('TrigSteer_EF', hltFile=TriggerFlags.inputHLTconfigFile(), lvl1File=TriggerFlags.inputLVL1configFile())
+        ##         TrigSteer_EF.doHypo = TriggerFlags.doHypo()
+        ##         
+        ##     if not TriggerFlags.doFEX() and TriggerFlags.doHypo():
+        ##         TrigSteer_EF = ReruningAfterL2TrigSteer_EF('TrigSteer_EF', hltFile=TriggerFlags.inputHLTconfigFile(), lvl1File=TriggerFlags.inputLVL1configFile())
+        ## 
+        ##     # if not TriggerFlags.writeBS():
+        ##     from TrigEDMConfig.TriggerEDM import getEFPreregistrationList, getEDMLibraries
+        ##     TrigSteer_EF.Navigation.ClassesToPreregister = getEFPreregistrationList()
+        ## 
+        ##     TrigSteer_EF.Navigation.Dlls = getEDMLibraries()
+        ## 
+        ##     monitoringTools(TrigSteer_EF)
+        ##     topSequence += TrigSteer_EF
 
             
-            ### merged system
         if TriggerFlags.doHLT():
-            log.info("configuring merged HLT")
-           
+            log.info("configuring HLT Steering")
+            
             from TrigSteering.TrigSteeringConfig import TrigSteer_HLT, ReruningTrigSteer_HLT
-            #, ReruningAfterL2TrigSteer_EF
             if TriggerFlags.doFEX():
+                from RecExConfig.RecFlags  import rec
+                from AthenaCommon.GlobalFlags  import globalflags
+
+                # schedule the conversion of the L1Calo ROIB data to topo simulation input
+                if globalflags.DataSource()=='data':
+                    if not hasattr( topSequence, 'RoiB2TopoInputDataCnv' ):
+                        log.info("Setting up RoiB2TopoInputDataCnv")
+                        from L1TopoSimulation.L1TopoSimulationConfig import RoiB2TopoInputDataCnv
+                        roib2Topo = RoiB2TopoInputDataCnv()
+                        roib2Topo.OutputLevel = DEBUG # getHLTOutputLevel()
+                        topSequence += roib2Topo
+
                 log.info("configuring HLT merged system, for normal running (FEX + Hypo)")
                 TrigSteer_HLT = TrigSteer_HLT('TrigSteer_HLT', hltFile=TriggerFlags.inputHLTconfigFile(), lvl1File=TriggerFlags.inputLVL1configFile())
                 TrigSteer_HLT.doHypo = TriggerFlags.doHypo()
@@ -215,35 +225,35 @@ class HLTSimulationGetter(Configured):
                 TrigSteer_HLT = ReruningTrigSteer_HLT('TrigSteer_HLT', hltFile=TriggerFlags.inputHLTconfigFile(), lvl1File=TriggerFlags.inputLVL1configFile())             
                 #            if not TriggerFlags.writeBS():
                 
-            TrigSteer_HLT.doL1TopoSimulation = TriggerFlags.doL1Topo() # this later needs to be extented to also run when we take data with L1Topo
+            # TrigSteer_HLT.doL1TopoSimulation = TriggerFlags.doL1Topo() # this later needs to be extented to also run when we take data with L1Topo
+            TrigSteer_HLT.doL1TopoSimulation = True # always needs to run if the HLT is simulated
 
-            from TrigEDMConfig.TriggerEDM import  getHLTPreregistrationList, getEDMLibraries 
-            TrigSteer_HLT.Navigation.ClassesToPreregister = getHLTPreregistrationList() 
+            from TrigEDMConfig.TriggerEDM import  getHLTPreregistrationList, getEDMLibraries
+            TrigSteer_HLT.Navigation.ClassesToPreregister = getHLTPreregistrationList()
             
-            TrigSteer_HLT.Navigation.Dlls = getEDMLibraries()                       
+            TrigSteer_HLT.Navigation.Dlls = getEDMLibraries()
 
             monitoringTools(TrigSteer_HLT)
             topSequence += TrigSteer_HLT
 
 
-        if TriggerFlags.writeBS():            
+        if TriggerFlags.writeBS():
             # declare objects to go to BS (from the lists above)
-            if TriggerFlags.doLVL2():                
-                from TrigEDMConfig.TriggerEDM import getL2BSList
-                TrigSteer_L2.Navigation.ClassesToPayload = getL2BSList()
-                TrigSteer_L2.Navigation.ClassesToPreregister = []
-            
-            if TriggerFlags.doEF():
-                from TrigEDMConfig.TriggerEDM import getEFBSList
-                TrigSteer_EF.Navigation.ClassesToPayload = getEFBSList()
-                TrigSteer_EF.Navigation.ClassesToPreregister = []
-                try:
-                    from TrigEDMConfig.TriggerEDM import getEFDSList
-                    TrigSteer_EF.Navigation.ClassesToPayload_DSonly = getEFDSList()
-                except ImportError:
-                    log.warning("DataScouting not available in this release")
+            ## if TriggerFlags.doLVL2():                
+            ##     from TrigEDMConfig.TriggerEDM import getL2BSList
+            ##     TrigSteer_L2.Navigation.ClassesToPayload = getL2BSList()
+            ##     TrigSteer_L2.Navigation.ClassesToPreregister = []
+            ## 
+            ## if TriggerFlags.doEF():
+            ##     from TrigEDMConfig.TriggerEDM import getEFBSList
+            ##     TrigSteer_EF.Navigation.ClassesToPayload = getEFBSList()
+            ##     TrigSteer_EF.Navigation.ClassesToPreregister = []
+            ##     try:
+            ##         from TrigEDMConfig.TriggerEDM import getEFDSList
+            ##         TrigSteer_EF.Navigation.ClassesToPayload_DSonly = getEFDSList()
+            ##     except ImportError:
+            ##         log.warning("DataScouting not available in this release")
 
-                ### merged system
             if TriggerFlags.doHLT():
                 from TrigEDMConfig.TriggerEDM import  getHLTBSList 
                 TrigSteer_HLT.Navigation.ClassesToPayload = getHLTBSList() 
@@ -268,14 +278,13 @@ class HLTSimulationGetter(Configured):
             ToolSvc += TrigSerializeConvHelper
 
             #do not activate T/P of EF classes at L2
-            if TriggerFlags.doLVL2(): 
-                from TrigEDMConfig.TriggerEDM import getL2BSTypeList
-                TrigSerToolTP.ActiveClasses = getL2BSTypeList()
-            if TriggerFlags.doEF():
-                from TrigEDMConfig.TriggerEDM import getL2BSTypeList, getEFBSTypeList
-                TrigSerToolTP.ActiveClasses = getL2BSTypeList() + getEFBSTypeList()
+            ## if TriggerFlags.doLVL2(): 
+            ##     from TrigEDMConfig.TriggerEDM import getL2BSTypeList
+            ##     TrigSerToolTP.ActiveClasses = getL2BSTypeList()
+            ## if TriggerFlags.doEF():
+            ##     from TrigEDMConfig.TriggerEDM import getL2BSTypeList, getEFBSTypeList
+            ##     TrigSerToolTP.ActiveClasses = getL2BSTypeList() + getEFBSTypeList()
 
-            ### merged system
             if TriggerFlags.doHLT():
                 from TrigEDMConfig.TriggerEDM import getHLTBSTypeList 
                 TrigSerToolTP.ActiveClasses = getHLTBSTypeList()
@@ -283,6 +292,7 @@ class HLTSimulationGetter(Configured):
         from TriggerJobOpts.HLTTriggerResultGetter import HLTTriggerResultGetter
         result = HLTTriggerResultGetter()
         return True
+
 
     def postConfigure(self, menu):
         log = logging.getLogger("HLTTriggergetter.py")

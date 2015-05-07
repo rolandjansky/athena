@@ -154,7 +154,7 @@ class Lvl1SimulationGetter (Configured):
             if TriggerFlags.doL1Topo():
                 from L1TopoSimulation.L1TopoSimulationConfig import L1TopoSimulation
                 topSequence += L1TopoSimulation()
-
+                #topSequence.L1TopoSimulation.OutputLevel = DEBUG
 
 
             log.info("adding ctp simulation to the topSequence")
