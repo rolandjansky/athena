@@ -104,11 +104,6 @@ int JetVertexTaggerTool::modify(xAOD::JetContainer& jetCont) const {
 
   const xAOD::Vertex* HSvertex = findHSVertex(vertices);
 
-  if (HSvertex==nullptr ) {
-      ATH_MSG_WARNING("There is no vertex of type PriVx. Exiting"); 
-      return 5;
-  }
-
   // Count pileup tracks - currently done for each collection
   const int n_putracks = getPileupTrackCount(HSvertex, tracksCont, tva);
 
@@ -279,7 +274,9 @@ const xAOD::Vertex* JetVertexTaggerTool::findHSVertex(const xAOD::VertexContaine
       return vertices->at(iVertex);
     }
   }
-  return nullptr;
+
+  ATH_MSG_WARNING("There is no vertex of type PriVx. Taking default vertex."); 
+  return vertices->at(0);
 }
 
 
