@@ -31,6 +31,7 @@ class Lvl1SimulationGetter (Configured):
     _output = {"CTP_Decision":"CTP_Decision", "LVL1_ROI":"LVL1_ROI"}
 
     def configure(self):
+
         log = logging.getLogger( "Lvl1TriggerOnlineGetter.py" )
 
         from AthenaServices.AthenaServicesConf import AthenaOutputStream
@@ -42,7 +43,7 @@ class Lvl1SimulationGetter (Configured):
         if not hasattr( ServiceMgr, 'LVL1ConfigSvc' ):
             from TrigConfigSvc.TrigConfigSvcConfig import LVL1ConfigSvc
             LVL1ConfigSvc = LVL1ConfigSvc("LVL1ConfigSvc")
-            LVL1ConfigSvc.XMLFile = TriggerFlags.inputLVL1configFile()
+            LVL1ConfigSvc.XMLMenuFile = TriggerFlags.inputLVL1configFile()
             ServiceMgr += LVL1ConfigSvc
         else:
             log.info( "LVL1ConfigSvc already created. Will ignore configuration from xml file="+TriggerFlags.inputLVL1configFile()\
@@ -56,7 +57,13 @@ class Lvl1SimulationGetter (Configured):
             topSequence += LVL1__TrigT1MBTS()
 
             topSequence += L1Muctpi()
-            
+
+            if TriggerFlags.doL1Topo():
+                log.info("adding l1topo simulation to the topSequence")
+                from L1TopoSimulation.L1TopoSimulationConfig import L1TopoSimulation
+                topSequence += L1TopoSimulation()
+                topSequence.L1TopoSimulation.OutputLevel = DEBUG
+
             log.info("adding ctp simulation to the topSequence")
             topSequence += CTPSimulation("CTPSimulation")
             

@@ -156,7 +156,7 @@ class doHLT(JobProperty):
                 TriggerFlags.doLVL2.lock()
             else:
                 TriggerFlags.doLVL2.set_Off()
-            log = logging.getLogger( 'TriggerJobOpts.TriggerFlags' )
+            log = logging.getLogger( 'TriggerFlags.doHLT' )
             log.info("doHLT is True: force doLVL2=False and doEF=False"  )
 
             
@@ -425,7 +425,7 @@ class triggerUseFrontier(JobProperty):
     allowedType=['bool']
     StoredValue = False
     def _do_action(self):
-        log = logging.getLogger( 'TriggerJobOpts.TriggerFlags' )
+        log = logging.getLogger( 'TriggerFlags.triggerUseFrontier' )
         log.info("Setting TriggerFlags.triggerUseFrontier to %r" % self.get_Value())
         
 _flags.append(triggerUseFrontier)
@@ -483,7 +483,7 @@ class triggerConfig(JobProperty):
         """ setup some consistency """
         from TriggerJobOpts.TriggerFlags import TriggerFlags as tf
                 
-        log = logging.getLogger( 'TriggerJobOpts.TriggerFlags' )
+        log = logging.getLogger( 'TriggerFlags.triggerConfig' )
         log.info("triggerConfig: \""+self.get_Value()+"\"")
         # We split the string passed to the flag
         configs = self.get_Value().split(":")
@@ -619,8 +619,6 @@ class triggerConfig(JobProperty):
                 log.info("triggerConfig: Setting tf.triggerMenuSetup to " + tf.triggerMenuSetup())
             else:
                 ### We read the menu from xml
-                tf.readLVL1configFromXML=True
-                tf.readHLTconfigFromXML=True
                 if "L1CaloCalib" in configs[1]:
                     if configs[1].split("=")[-1] == "True" or configs[1].split("=")[-1] == "true":
                         log.info("Setting L1CaloCalib from TriggerConfig command to %s " % configs[1].split("=")[-1])
@@ -634,6 +632,9 @@ class triggerConfig(JobProperty):
                     tf.triggerMenuSetup = 'default'
                 else:
                     tf.triggerMenuSetup = configs[-1]
+
+                tf.readLVL1configFromXML=True
+                tf.readHLTconfigFromXML=True
                 log.info("triggerConfig: MCRECO menu from xml (%s)" % tf.triggerMenuSetup())
 
             # This part was there in the original (old) csc_reco_trigger.py snippet
@@ -698,7 +699,7 @@ class readLVL1configFromXML(JobProperty):
     def _do_action(self):
         """ setup some consistency """
         import os
-        log = logging.getLogger( 'TriggerJobOpts.TriggerFlags' )
+        log = logging.getLogger( 'TriggerFlags.readLVL1configFromXML' )
 
         import TriggerMenu.l1.Lvl1Flags
         
@@ -736,7 +737,7 @@ class readHLTconfigFromXML(JobProperty):
         """ Disable all subcontainers defining slices ON/OFF flags """
 
         import os
-        log = logging.getLogger( 'TriggerJobOpts.TriggerFlags' )
+        log = logging.getLogger( 'TriggerFlags.readHLTconfigFromXML' )
 
         ## loop over all properties in the container
         # from AthenaCommon.JobProperties import JobPropertyContainer
@@ -755,13 +756,15 @@ class readHLTconfigFromXML(JobProperty):
             TriggerFlags.inputHLTconfigFile = TriggerFlags.outputHLTconfigFile()
         else:
             if TriggerFlags.inputHLTconfigFile != 'NONE':
+                
                 TriggerFlags.inputHLTconfigFile = "HLTconfig_"+TriggerFlags.triggerMenuSetup()+"_" + TriggerFlags.menuVersion() + ".xml"
                 nightlyPaths=os.environ['XMLPATH'].split(':')
 
                 for p in nightlyPaths:
                     #print p+"/TriggerMenuXML/HLTconfig_"+TriggerFlags.triggerMenuSetup()+"_" + TriggerFlags.menuVersion() + ".xml"
-                    if os.path.exists(p+"/TriggerMenuXML/HLTconfig_"+TriggerFlags.triggerMenuSetup()+"_" + TriggerFlags.menuVersion() + ".xml") is True:
-                        log.info("The HLT xml file is found in "+p+"/TriggerMenuXML/")
+                    full_path_name = p+"/TriggerMenuXML/"+TriggerFlags.inputHLTconfigFile()
+                    if os.path.exists(full_path_name) is True:
+                        log.info("The HLT xml file is: "+full_path_name)
                         success = True
                         break
                     else:
@@ -1028,6 +1031,7 @@ class triggerMenuSetup(JobProperty):
         # Run 2
         'MC_pp_v5', 'MC_pp_v5_no_prescale', 'MC_pp_v5_tight_mc_prescale', 'MC_pp_v5_loose_mc_prescale','MC_pp_v5_special_mc_prescale', # for development and simulation
         'Physics_pp_v5', # for testing algorithms and software quality during LS1, later for data taking
+        'Physics_pp_v5_cosmics_prescale', 
         'LS1_v1', # for P1 detector commissioning (cosmics, streamers)
         'DC14', 'DC14_no_prescale', 'DC14_tight_mc_prescale', 'DC14_loose_mc_prescale', # for DC14
         'Physics_HI_v3', 'Physics_HI_v3_no_prescale', # for 2015 lead-lead menu 
@@ -1035,7 +1039,7 @@ class triggerMenuSetup(JobProperty):
         ]
 
     _default_menu='MC_pp_v5_tight_mc_prescale'
-    _default_cosmic_menu='Physics_pp_v4_cosmics_prescale'
+    _default_cosmic_menu='Physics_pp_v5_cosmics_prescale'
     _default_InitialBeam_menu='MC_InitialBeam_v3_no_prescale'
     
     StoredValue = _default_menu

@@ -45,9 +45,6 @@ class T0TriggerGetter(Configured):
             return True
         self._done=True
 
-        # make sure we write the full AOD EDM
-        TriggerFlags.AODEDMSet = "AODFULL"
-        
         # setup configuration services
         from TriggerJobOpts.TriggerConfigGetter import TriggerConfigGetter
         cfg =  TriggerConfigGetter()
