@@ -125,7 +125,7 @@ StatusCode RawInfoSummaryForTagTool::execute(TagFragmentCollection& rawfragment)
   rawfragment.insert(RawSummaryAttributeSpecs[20].name(),rawinfo->getBCMHit());
 
   //putting back MBTS and LAr
-  rawfragment.insert(RawSummaryAttributeSpecs[19].name(),rawinfo->getMBTSword());
+  rawfragment.insert(RawSummaryAttributeSpecs[21].name(),rawinfo->getMBTSword());
 
 
   return StatusCode::SUCCESS;
