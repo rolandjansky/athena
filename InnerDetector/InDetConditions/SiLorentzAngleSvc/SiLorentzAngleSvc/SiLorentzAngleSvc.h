@@ -132,6 +132,9 @@ private:
   std::vector<std::string> m_bfieldFolders;
   int                      m_outOfRangeWarningThresh;
   std::string              m_corrDBFolder;
+  bool                     m_pixelDefaults;
+  bool                     m_sctDefaults;
+
 
   // needed services
   ServiceHandle<ISiliconConditionsSvc>   m_siConditionsSvc;

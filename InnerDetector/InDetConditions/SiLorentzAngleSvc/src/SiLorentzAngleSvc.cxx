@@ -23,6 +23,8 @@
 
 SiLorentzAngleSvc::SiLorentzAngleSvc( const std::string& name, ISvcLocator* pSvcLocator ) : 
   AthService(name, pSvcLocator),
+  m_pixelDefaults(true),
+  m_sctDefaults(true),
   m_siConditionsSvc("PixelSiliconConditionsSvc", name),
   m_magFieldSvc("AtlasFieldSvc", name),
   m_detStore("StoreGateSvc/DetectorStore", name),
@@ -32,6 +34,7 @@ SiLorentzAngleSvc::SiLorentzAngleSvc( const std::string& name, ISvcLocator* pSvc
   m_isPixel(true),
   m_magFieldInit(false),
   m_detManager(0)
+ 
 {
 
   m_bfieldFolders.push_back("/GLOBAL/BField/Map");
@@ -66,6 +69,8 @@ SiLorentzAngleSvc::SiLorentzAngleSvc( const std::string& name, ISvcLocator* pSvc
       "Warning will be given if more elements than this return an invalid temperature");
 
   declareProperty("CorrDBFolder",m_corrDBFolder="");
+  declareProperty("usePixelDefaults",m_pixelDefaults);
+  declareProperty("useSctDefaults",m_sctDefaults);
 }
 
 SiLorentzAngleSvc::~SiLorentzAngleSvc(){
@@ -453,16 +458,8 @@ SiLorentzAngleSvc::updateCache(const IdentifierHash & elementHash, const Amg::Ve
   double temperature;
   double deplVoltage;
   double biasVoltage;
-  //if (!m_conditionsSvcValid) {
-  if (true) {
-    //temperature = m_temperature + 273.15;
-    //deplVoltage = m_deplVoltage * CLHEP::volt;
-    //biasVoltage = m_biasVoltage * CLHEP::volt;
-    if(m_isPixel){
-      temperature = m_temperaturePix + 273.15;
-    }else{
-      temperature = m_temperature + 273.15;
-    }
+  if ((!m_conditionsSvcValid && m_isPixel) || (m_pixelDefaults && m_isPixel)) {
+    temperature = m_temperaturePix + 273.15;
     if (isIBL && !is3D) deplVoltage = 40. * CLHEP::volt; 
     if (isIBL &&  is3D) deplVoltage =  10. * CLHEP::volt; 
     if (!isIBL) deplVoltage = m_deplVoltage * CLHEP::volt;
@@ -470,7 +467,15 @@ SiLorentzAngleSvc::updateCache(const IdentifierHash & elementHash, const Amg::Ve
     if (isIBL &&  is3D) biasVoltage = m_biasVoltageIBL3D * CLHEP::volt; 
     if (!isIBL) biasVoltage = m_biasVoltage * CLHEP::volt;
     ATH_MSG_DEBUG("Hash = " << elementHash << " Temperature = " << temperature << " BiasV = " << biasVoltage << " DeplV = " << deplVoltage);
-  } else {
+  }
+
+  else if ((!m_conditionsSvcValid && !m_isPixel) || (m_sctDefaults && !m_isPixel)) {
+   biasVoltage = m_biasVoltage * CLHEP::volt;
+   deplVoltage = m_deplVoltage * CLHEP::volt;
+   temperature = m_temperature + 273.15;
+  }
+
+  else {
     temperature = m_siConditionsSvc->temperature(elementHash) + 273.15;
     deplVoltage = m_siConditionsSvc->depletionVoltage(elementHash) * CLHEP::volt;
     biasVoltage = m_siConditionsSvc->biasVoltage(elementHash) * CLHEP::volt;

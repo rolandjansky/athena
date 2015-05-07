@@ -77,7 +77,7 @@ class SCTLorentzAngleSvcSetup:
     def forceUseDB(self) :
         "Force usage of conditions DB"
         self.SCT_SiliconConditionsSvc.CheckGeoModel = False
-    
+        self.SCTLorentzAngleSvc.useSctDefaults = False
 
     # Force to use the defaults from GeoModel. In case it is not possible to use DCS
     def forceUseGeoModel(self) :
