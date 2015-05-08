@@ -58,7 +58,6 @@
 #include "G4RunManager.hh"
 #include "MCTruth/EventInformation.h"
 
-#include "ISF_Event/ISFParticle.h"
 #include "MCTruth/VTrackInformation.h"
 
 #include <iostream>

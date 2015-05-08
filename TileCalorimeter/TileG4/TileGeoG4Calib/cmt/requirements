@@ -1,5 +1,5 @@
 package TileGeoG4Calib
-author Gia Khoriauli <gia@mail.cern.ch> 
+author Gia Khoriauli <gia@mail.cern.ch>
 
 branches src cmt TileGeoG4Calib
 
@@ -26,7 +26,6 @@ use GeoModelUtilities      GeoModelUtilities-*      DetectorDescription/GeoModel
 use CaloIdentifier         CaloIdentifier-*         Calorimeter
 use TileGeoG4SD            TileGeoG4SD-*            TileCalorimeter/TileG4
 use TileSimUtils           TileSimUtils-*           TileCalorimeter
-use ISF_Event              ISF_Event-*              Simulation/ISF/ISF_Core
 
 end_private
 
