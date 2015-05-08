@@ -6,7 +6,7 @@
 # @details Contains validation classes controlling how the transforms
 # will validate jobs they run.
 # @author atlas-comp-transforms-dev@cern.ch
-# @version $Id: trfValidation.py 634986 2014-12-10 12:43:21Z graemes $
+# @version $Id: trfValidation.py 665892 2015-05-08 14:54:36Z graemes $
 # @note Old validation dictionary shows usefully different options:
 # <tt>self.validationOptions = {'testIfEmpty' : True, 'testIfNoEvents' : False, 'testIfExists' : True,
 #                          'testIfCorrupt' : True, 'testCountEvents' : True, 'extraValidation' : False,
@@ -229,6 +229,7 @@ class athenaLogFileReport(logFileReport):
 
         self._metaPat = re.compile(r"MetaData:\s+(.*?)\s*=\s*(.*)$")
         self._metaData = {}
+        self._msgLimit = msgLimit
 
         self.resetReport()
 
@@ -302,6 +303,11 @@ class athenaLogFileReport(logFileReport):
                         msg.warning('Detected python exception - activating python exception grabber')
                         self.pythonExceptionParser(myGen, line, lineCounter)
                         continue
+                    # Add parser for missed bad_alloc
+                    if 'terminate called after throwing an instance of \'std::bad_alloc\'' in line:
+                        msg.warning('Detected bad_alloc!')
+                        self.badAllocExceptionParser(myGen, line, lineCounter)
+                        continue
                     msg.debug('Non-standard line in %s: %s' % (log, line))
                     self._levelCounter['UNKNOWN'] += 1
                     continue
@@ -345,15 +351,20 @@ class athenaLogFileReport(logFileReport):
                 # Record some error details
                 # N.B. We record 'IGNORED' errors as these really should be flagged for fixing
                 if fields['level'] is 'IGNORED' or stdLogLevels[fields['level']] >= self._msgDetails:
-                    detailsHandled = False
-                    for seenError in self._errorDetails[fields['level']]:
-                        if seenError['message'] == line:
-                            seenError['count'] += 1
-                            detailsHandled = True
-                            break
-                    if detailsHandled == False:
-                        self._errorDetails[fields['level']].append({'message': line, 'firstLine': lineCounter, 'count': 1})
-
+                    if self._levelCounter[fields['level']] <= self._msgLimit: 
+                        detailsHandled = False
+                        for seenError in self._errorDetails[fields['level']]:
+                            if seenError['message'] == line:
+                                seenError['count'] += 1
+                                detailsHandled = True
+                                break
+                        if detailsHandled == False:
+                            self._errorDetails[fields['level']].append({'message': line, 'firstLine': lineCounter, 'count': 1})
+                    elif self._levelCounter[fields['level']] == self._msgLimit + 1:
+                        msg.warning("Found message number {0} at level {1} - this and further messages will be supressed from the report".format(self._levelCounter[fields['level']], fields['level']))
+                    else:
+                        # Overcounted
+                        pass
 
     ## Return the worst error found in the logfile (first error of the most serious type)
     def worstError(self):
@@ -391,11 +402,14 @@ class athenaLogFileReport(logFileReport):
     # There is a slight problem here in that the end of core dump trigger line will not get parsed
     # TODO: fix this (OTOH core dump is usually the very last thing and fatal!)
     def coreDumpSvcParser(self, lineGenerator, firstline, firstLineCount):
-        coreDumpReport = firstline
+        coreDumpReport = ''
         for line, linecounter in lineGenerator:
             m = self._regExp.match(line)
             if m == None:
-                coreDumpReport += os.linesep + line
+                if 'Event counter' in line:
+                    coreDumpReport += line + '; '
+                if 'Current algorithm' in line:
+                    coreDumpReport += line
             else:
                 # Can this be done - we want to push the line back into the generator to be
                 # reparsed in the normal way (might need to make the generator a class with the
@@ -403,6 +417,8 @@ class athenaLogFileReport(logFileReport):
                 # pushback onto an internal FIFO stack
 #                 lineGenerator.pushback(line)
                 break
+        if coreDumpReport == '':
+            coreDumpReport = 'Event counter and current algorithm unknown.'
 
         # Core dumps are always fatal...
         msg.debug('Identified core dump - adding to error detail report')
@@ -477,6 +493,13 @@ class athenaLogFileReport(logFileReport):
         self._levelCounter['FATAL'] += 1
         self._errorDetails['FATAL'].append({'message': pythonExceptionReport, 'firstLine': pythonErrorLine, 'count': 1})
 
+    def badAllocExceptionParser(self, lineGenerator, firstline, firstLineCount):
+        badAllocExceptionReport = 'terminate after \'std::bad_alloc\'.'
+
+        msg.debug('Identified bad_alloc - adding to error detail report')
+        self._levelCounter['CATASTROPHE'] += 1
+        self._errorDetails['CATASTROPHE'].append({'message': badAllocExceptionReport, 'firstLine': firstLineCount, 'count': 1})
+
 
     def __str__(self):
         return str(self._levelCounter) + str(self._errorDetails)
@@ -505,6 +528,8 @@ def performStandardFileValidation(dictionary, io, parallelMode = False):
             if not isinstance(arg, argFile):
                 continue
             if not arg.io == io:
+                continue
+            if arg.auxiliaryFile:
                 continue
             
             msg.info('Validating data type %s...' % key)

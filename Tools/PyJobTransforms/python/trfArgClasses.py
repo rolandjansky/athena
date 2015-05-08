@@ -3,7 +3,7 @@
 ## @package PyJobTransforms.trfArgClasses
 # @brief Transform argument class definitions
 # @author atlas-comp-transforms-dev@cern.ch
-# @version $Id: trfArgClasses.py 652372 2015-03-06 22:13:05Z graemes $
+# @version $Id: trfArgClasses.py 665892 2015-05-08 14:54:36Z graemes $
 
 import argparse
 import bz2
@@ -496,10 +496,12 @@ class argFile(argList):
     #  for digitisation)
     #  @param mergeTargetSize Target merge size if this instance supports a selfMerge method. Value is in bytes, with the
     #  special values: @c -1 Always merge to a single file, @c 0 never merge these files 
+    #  @param auxiliaryFile Is set to @c True then all validation for this file is disabled - used for
+    #  non-primary input files, e.g., pileup inputs
     #  @note When used in argument parser, set nargs='+' to get auto-concatenation of multiple arguments (should be used
     #  when @c multipleOK is @c True)
-    def __init__(self, value=list(), type=None, subtype=None, io = 'output', splitter=',', runarg = True, guid = None, 
-                 multipleOK = None, name=None, executor=list(), mergeTargetSize=-1):
+    def __init__(self, value=list(), type=None, subtype=None, io = 'output', splitter=',', runarg=True, guid=None, 
+                 multipleOK = None, name=None, executor=list(), mergeTargetSize=-1, auxiliaryFile=False):
         # Set these values before invoking super().__init__ to make sure they can be
         # accessed in our setter 
         self._dataset = None
@@ -508,6 +510,7 @@ class argFile(argList):
         self._subtype = subtype
         self._guid = guid
         self._mergeTargetSize = mergeTargetSize
+        self._auxiliaryFile = auxiliaryFile
         
         # User setter to get valid value check
         self.io = io
@@ -852,6 +855,9 @@ class argFile(argList):
         else:
             msg.debug("ArgFile name setter did not match against '{0}'".format(value))
 
+    @property
+    def auxiliaryFile(self):
+        return self._auxiliaryFile
     
     ## @brief Returns the whole kit and kaboodle...
     #  @note Populates the whole metadata dictionary for this instance
@@ -1164,9 +1170,10 @@ class argFile(argList):
 #  @details Never used directly, but is the parent of concrete classes
 class argAthenaFile(argFile):
     def __init__(self, value = list(), type=None, subtype=None, io = 'output', splitter=',', runarg=True, multipleOK = None, 
-                 name=None, executor=list(), mergeTargetSize=-1):
+                 name=None, executor=list(), mergeTargetSize=-1, auxiliaryFile=False):
         super(argAthenaFile, self).__init__(value=value, subtype=subtype, io=io, type=type, splitter=splitter, runarg=runarg, 
-                                            multipleOK=multipleOK, name=name, executor=executor, mergeTargetSize=mergeTargetSize)
+                                            multipleOK=multipleOK, name=name, executor=executor, mergeTargetSize=mergeTargetSize,
+                                            auxiliaryFile=auxiliaryFile)
 
         # Extra metadata known for athena files:
         for key in athFileInterestingKeys:
@@ -1461,9 +1468,9 @@ class argHISTFile(argFile):
     integrityFunction = "returnIntegrityOfHISTFile"
 
     def __init__(self, value=list(), io = 'output', type=None, subtype=None, splitter=',', runarg=True, countable=True, multipleOK = None,
-                 name=None):
+                 name=None, auxiliaryFile=False):
         super(argHISTFile, self).__init__(value=value, io=io, type=type, subtype=subtype, splitter=splitter, runarg=runarg, multipleOK=multipleOK,
-                                          name=name)
+                                          name=name, auxiliaryFile=auxiliaryFile)
 
         # Make events optional for HISTs (can be useful for HIST_AOD, HIST_ESD before hist merging)
         if countable:
@@ -1497,9 +1504,9 @@ class argNTUPFile(argFile):
     integrityFunction = "returnIntegrityOfNTUPFile"
 
     def __init__(self, value=list(), io = 'output', type=None, subtype=None, splitter=',', treeNames=None, runarg=True, multipleOK = None, 
-                 name=None, mergeTargetSize=-1):
+                 name=None, mergeTargetSize=-1, auxiliaryFile=False):
         super(argNTUPFile, self).__init__(value=value, io=io, type=type, subtype=subtype, splitter=splitter, runarg=runarg, multipleOK=multipleOK, 
-                                          name=name, mergeTargetSize=mergeTargetSize)
+                                          name=name, mergeTargetSize=mergeTargetSize, auxiliaryFile=auxiliaryFile)
         self._treeNames=treeNames
 
         self._metadataKeys.update({
@@ -1749,7 +1756,8 @@ class argSubstep(argument):
 
     @property
     def prodsysDescription(self):
-        desc = {'type': 'substep', 'substeptype': 'str'}
+        desc = {'type': 'substep', 'substeptype': 'str', 'separator': self._separator,
+                'default': self._defaultSubstep}
         return desc
     
 ## @brief Argument class for substep lists, suitable for preExec/postExec 
@@ -1775,7 +1783,9 @@ class argSubstepList(argSubstep):
 
     @property
     def prodsysDescription(self):
-        desc = {'type': 'substep', 'substeptype': 'list', 'listtype': 'str'}
+        desc = {'type': 'substep', 'substeptype': 'list', 'listtype': 'str',
+                'separator': self._separator,
+                'default': self._defaultSubstep}
         return desc
     @value.setter
     def value(self, value):
@@ -1826,7 +1836,8 @@ class argSubstepBool(argSubstep):
 
     @property
     def prodsysDescription(self):
-        desc = {'type': 'substep', 'substeptype': 'bool'}
+        desc = {'type': 'substep', 'substeptype': 'bool', 'separator': self._separator,
+                'default': self._defaultSubstep}
         return desc
     
     @value.setter
@@ -1868,7 +1879,8 @@ class argSubstepInt(argSubstep):
  
     @property
     def prodsysDescription(self):
-        desc = {'type': 'substep', 'substeptype': 'int'}
+        desc = {'type': 'substep', 'substeptype': 'int', 'separator': self._separator,
+                'default': self._defaultSubstep}
         return desc
    
     @value.setter
@@ -1915,7 +1927,8 @@ class argSubstepFloat(argSubstep):
         
     @property
     def prodsysDescription(self):
-        desc = {'type': 'substep', 'substeptype': 'float'}     
+        desc = {'type': 'substep', 'substeptype': 'float', 'separator': self._separator,
+                'default': self._defaultSubstep}     
         if self._min:
             desc['min'] = self._min
         if self._max:
@@ -1990,7 +2003,8 @@ class argSubstepSteering(argSubstep):
 
     @property
     def prodsysDescription(self):
-        desc = {'type': 'substep', 'substeptype': 'steering', 'listtype': 'str'}
+        desc = {'type': 'substep', 'substeptype': 'steering', 'listtype': 'str', 'separator': self._separator,
+                'default': self._defaultSubstep}
         return desc
     
     ## @details For strings passed to the setter we expect the format to be @c substep:{in/out}{+/-}DATATYPE
@@ -2065,14 +2079,19 @@ class trfArgParser(argparse.ArgumentParser):
         super(trfArgParser, self).__init__(*args, **kwargs)
 
     def add_argument(self, *args, **kwargs):
-        # Convert argument name to argparse standard
-        argName = cliToKey(args[0])
-        msg.debug('found arg name {0}'.format(argName))
+        argName = args[0].lstrip('-')
+        msg.debug('Found arg name {0}'.format(argName))
+
+        # Ban arguments with hyphens as they cause trouble in signature files and then
+        # AMI tag definitions because of the auto-translation to underscores in argparse
+        if '-' in argName:
+            raise trfExceptions.TransformArgException(trfExit.nameToCode('TRF_ARG_ERROR'),
+                                                      'Transform arguments may not use hyphens (use camelCase or underscore')
         
         # Prevent a crash if this argument already exists (there are valid use cases for 'grabbing' an
-        # argument, so this is INFO, not WARNING)
+        # argument, so this is DEBUG, not WARNING)
         if argName in self._argClass:
-            msg.info('Double definition of argument {0} - ignored'.format(argName))
+            msg.debug('Double definition of argument {0} - ignored'.format(argName))
             return
         
         # if there is a help function defined for the argument then populate the helpString dict

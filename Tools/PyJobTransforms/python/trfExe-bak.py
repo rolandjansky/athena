@@ -5,16 +5,14 @@
 # @brief Transform execution functions
 # @details Standard transform executors
 # @author atlas-comp-transforms-dev@cern.ch
-# @version $Id: trfExe.py 665892 2015-05-08 14:54:36Z graemes $
+# @version $Id: trfExe.py 643045 2015-01-30 13:43:56Z graemes $
 
 import copy
-import json
 import math
 import os
 import os.path as path
 import re
 import shutil
-import signal
 import subprocess
 import sys
 import time
@@ -437,8 +435,7 @@ class echoExecutor(transformExecutor):
 
 
 class scriptExecutor(transformExecutor):
-    def __init__(self, name = 'Script', trf = None, conf = None, inData = set(), outData = set(), 
-                 exe = None, exeArgs = None, memMonitor = True):
+    def __init__(self, name = 'Script', trf = None, conf = None, inData = set(), outData = set(), exe = None, exeArgs = None):
         # Name of the script we want to execute
         self._exe = exe
         
@@ -455,7 +452,9 @@ class scriptExecutor(transformExecutor):
         # Can either be written by base class or child   
         self._cmd = None
         
-        self._memMonitor = memMonitor
+        # Do I memory monitor my child?
+        self._memoryMonitor = True
+        self._memoryMonitorInterval = 10
 
     @property
     def exe(self):
@@ -550,24 +549,23 @@ class scriptExecutor(transformExecutor):
             msg.info('execOnly flag is set - execution will now switch, replacing the transform')
             os.execvp(self._cmd[0], self._cmd)
 
+        if self._memoryMonitor:
+            lastStamp = time.time()
+            try:
+                import MemoryMonitor
+            except ImportError:
+                msg.warning("Failed to import MemoryMonitor - memory monitoring is disabled")
+                self._memoryMonitor = False
         try:
             p = subprocess.Popen(self._cmd, shell = False, stdout = subprocess.PIPE, stderr = subprocess.STDOUT, bufsize = 1)
-            
-            if self._memMonitor:
-                try:
-                    self._memSummaryFile = 'mem.summary.' + self._name + '.json'
-                    memMonitorCommand = ['MemoryMonitor', '--pid', str(p.pid), '--filename', 'mem.full.' + self._name, 
-                                         '--json-summary', self._memSummaryFile, '--interval', '30']
-                    mem_proc = subprocess.Popen(memMonitorCommand, shell = False, close_fds=True)
-                    # TODO - link mem.full.current to mem.full.SUBSTEP
-                except Exception, e:
-                    msg.warning('Failed to spawn memory monitor for {0}: {1}'.format(self._name, e))
-                    self._memMonitor = False
-            
             while p.poll() is None:
                 line = p.stdout.readline()
                 if line:
                     self._echologger.info(line.rstrip())
+                if self._memoryMonitor and time.time() - lastStamp >= self._memoryMonitorInterval:
+                    values = MemoryMonitor.GetMemoryValues(p.pid)
+                    lastStamp = time.time()
+                    print "Mem Monitor:", values
             # Hoover up remaining buffered output lines
             for line in p.stdout:
                 self._echologger.info(line.rstrip())
@@ -579,30 +577,12 @@ class scriptExecutor(transformExecutor):
             errMsg = 'Execution of {0} failed and raised OSError: {1}'.format(self._cmd[0], e)
             msg.error(errMsg)
             raise trfExceptions.TransformExecutionException(trfExit.nameToCode('TRF_EXEC'), errMsg)
-        finally:
-            if self._memMonitor:
-                try:
-                    mem_proc.send_signal(signal.SIGUSR1)
-                    countWait = 0
-                    while (not mem_proc.poll()) and countWait < 10:
-                        time.sleep(0.1)
-                        countWait += 1
-                except OSError:
-                    pass
-        
+
         
     def postExecute(self):
         if hasattr(self._exeLogFile, 'close'):
             self._exeLogFile.close()
-        if self._memMonitor:
-            try:
-                memFile = open(self._memSummaryFile)
-                self._memStats = json.load(memFile)
-            except Exception, e:
-                msg.warning('Failed to load JSON memory summmary file {0}: {1}'.format(self._memSummaryFile, e))
-                self._memMonitor = False
-                self._memStats = {}
-            
+
 
     def validate(self):
         self._hasValidated = True
@@ -651,7 +631,7 @@ class athenaExecutor(scriptExecutor):
     #  @param exeArgs Transform argument names whose value is passed to athena
     #  @param substep The athena substep this executor represents (alias for the name)
     #  @param inputEventTest Boolean switching the skipEvents < inputEvents test
-    #  @param perfMonFile Name of perfmon file for this substep (used to retrieve vmem/rss information) @b DEPRECATED
+    #  @param perfMonFile Name of perfmon file for this substep (used to retrieve vmem/rss information)
     #  @param tryDropAndReload Boolean switch for the attempt to add '--drop-and-reload' to athena args
     #  @param extraRunargs Dictionary of extra runargs to write into the job options file, using repr
     #  @param runtimeRunargs Dictionary of extra runargs to write into the job options file, using str
@@ -664,7 +644,6 @@ class athenaExecutor(scriptExecutor):
     #  @param manualDataDictionary Instead of using the inData/outData parameters that binds the data types for this
     #  executor to the workflow graph, run the executor manually with these data parameters (useful for 
     #  post-facto executors, e.g., for AthenaMP merging)
-    #  @param memMonitor Enable subprocess memory monitoring
     #  @note The difference between @c extraRunargs, @runtimeRunargs and @literalRunargs is that: @c extraRunargs 
     #  uses repr(), so the RHS is the same as the python object in the transform; @c runtimeRunargs uses str() so 
     #  that a string can be interpreted at runtime; @c literalRunargs allows the direct insertion of arbitary python
@@ -673,21 +652,18 @@ class athenaExecutor(scriptExecutor):
                  outData = set(), exe = 'athena.py', exeArgs = ['athenaopts'], substep = None, inputEventTest = True,
                  perfMonFile = None, tryDropAndReload = True, extraRunargs = {}, runtimeRunargs = {},
                  literalRunargs = [], dataArgs = [], checkEventCount = False, errorMaskFiles = None,
-                 manualDataDictionary = None, memMonitor = True):
+                 manualDataDictionary = None):
         
         self._substep = forceToAlphaNum(substep)
         self._athenaMP = None # As yet unknown; N.B. this flag is used for AthenaMP version 2+. For AthenaMP-I it is set to False
         self._inputEventTest = inputEventTest
+        self._perfMonFile = perfMonFile
         self._tryDropAndReload = tryDropAndReload
         self._extraRunargs = extraRunargs
         self._runtimeRunargs = runtimeRunargs
         self._literalRunargs = literalRunargs
         self._dataArgs = dataArgs
         self._errorMaskFiles = errorMaskFiles
-
-        if perfMonFile:
-            self._perfMonFile = None
-            msg.warning("Resource monitoring from PerfMon is now deprecated")
         
         # SkeletonFile can be None (disable) or a string or a list of strings - normalise it here
         if type(skeletonFile) is str:
@@ -695,15 +671,14 @@ class athenaExecutor(scriptExecutor):
         else:
             self._skeleton = skeletonFile
             
-        super(athenaExecutor, self).__init__(name=name, trf=trf, conf=conf, inData=inData, outData=outData, exe=exe, 
-                                             exeArgs=exeArgs, memMonitor=memMonitor)
+        super(athenaExecutor, self).__init__(name=name, trf=trf, conf=conf, inData=inData, outData=outData, exe=exe, exeArgs=exeArgs)
         
         # Add athena specific metadata
         self._extraMetadata.update({'substep': substep})
 
         # Setup JO templates
         if self._skeleton is not None:
-            self._jobOptionsTemplate = JobOptionsTemplate(exe = self, version = '$Id: trfExe.py 665892 2015-05-08 14:54:36Z graemes $')
+            self._jobOptionsTemplate = JobOptionsTemplate(exe = self, version = '$Id: trfExe.py 643045 2015-01-30 13:43:56Z graemes $')
         else:
             self._jobOptionsTemplate = None
 
@@ -790,8 +765,6 @@ class athenaExecutor(scriptExecutor):
         dbrelease = dbsetup = None
         if 'DBRelease' in self.conf.argdict:
             dbrelease = self.conf.argdict['DBRelease'].returnMyValue(name=self._name, substep=self._substep, first=self.conf.firstExecutor)
-            if path.islink(dbrelease):
-                dbrelease = path.realpath(dbrelease)
             if dbrelease:
                 # Classic tarball - filename format is DBRelease-X.Y.Z.tar.gz
                 dbdMatch = re.match(r'DBRelease-([\d\.]+)\.tar\.gz', path.basename(dbrelease))
@@ -804,7 +777,6 @@ class athenaExecutor(scriptExecutor):
                         dbsetup = cvmfsDBReleaseCheck(dbrelease)
                     else:
                         # Check if the DBRelease is setup
-                        msg.debug('Setting up {0} from {1}'.format(dbdMatch.group(1), dbrelease))
                         unpacked, dbsetup = unpackDBRelease(tarball=dbrelease, dbversion=dbdMatch.group(1))
                         if unpacked:
                             # Now run the setup.py script to customise the paths to the current location...
@@ -875,6 +847,18 @@ class athenaExecutor(scriptExecutor):
             else:
                 msg.warning('AthenaMP run was set to True, but no outputs file was found')
                 
+        # If we have a perfmon file, get memory information
+        if self._perfMonFile:
+            try:
+                import PerfMonComps.PMonSD
+                info = PerfMonComps.PMonSD.parse(self._perfMonFile)
+                vmem_peak = int(info[0]['special']['values']['vmem_peak'])
+                vmem_mean = int(info[0]['special']['values']['vmem_mean'])
+                rss_mean = int(info[0]['special']['values']['rss_mean'])
+                self._memStats = {'vmemPeak': vmem_peak, 'vmemMean': vmem_mean, 'rssMean': rss_mean}
+                msg.debug('Found these memory stats from {0}: {1}'.format(self._perfMonFile, self._memStats))
+            except Exception, e:
+                msg.info('Failed to process expected perfMon stats file {0}: {1}'.format(self._perfMonFile, e))
             
         if 'TXT_JIVEXMLTGZ' in self.conf.dataDictionary.keys():
             #tgzipping JiveXML files
@@ -1230,7 +1214,7 @@ class athenaExecutor(scriptExecutor):
             if len(mergeCandidates) == 1:
                 mergeName = fileArg.originalName
             else:
-                mergeName = fileArg.originalName + '_{0}'.format(counter)
+                mergeName = fileArg.originalName + '.merge.{0}'.format(counter)
             msg.info('Want to merge files {0} to {1}'.format(mergeGroup, mergeName))
             if len(mergeGroup) <= 1:
                 msg.info('Skip merging for single file')
@@ -1270,7 +1254,7 @@ class hybridPOOLMergeExecutor(athenaExecutor):
     def __init__(self, name = 'hybridPOOLMerge', trf = None, conf = None, skeletonFile = 'RecJobTransforms/skeleton.MergePool_tf.py', inData = set(), 
                  outData = set(), exe = 'athena.py', exeArgs = ['athenaopts'], substep = None, inputEventTest = True,
                  perfMonFile = None, tryDropAndReload = True, hybridMerge = None, extraRunargs = {},
-                 manualDataDictionary = None, memMonitor = True):
+                 manualDataDictionary = None):
         
         # By default we will do a hybridMerge
         self._hybridMerge = hybridMerge
@@ -1279,7 +1263,7 @@ class hybridPOOLMergeExecutor(athenaExecutor):
                                                       outData=outData, exe=exe, exeArgs=exeArgs, substep=substep,
                                                       inputEventTest=inputEventTest, perfMonFile=perfMonFile, 
                                                       tryDropAndReload=tryDropAndReload, extraRunargs=extraRunargs,
-                                                      manualDataDictionary=manualDataDictionary, memMonitor=memMonitor)
+                                                      manualDataDictionary=manualDataDictionary)
     
     def preExecute(self, input = set(), output = set()):
         # Now check to see if the fastPoolMerger option was set
@@ -1437,12 +1421,11 @@ class reductionFrameworkExecutorNTUP(athenaExecutor):
 ## @brief Specialist execution class for merging DQ histograms
 class DQMergeExecutor(scriptExecutor):
     def __init__(self, name='DQHistMerge', trf=None, conf=None, inData=set(['HIST_AOD', 'HIST_ESD']), outData=set(['HIST']),
-                 exe='DQHistogramMerge.py', exeArgs = [], memMonitor = True):
+                 exe='DQHistogramMerge.py', exeArgs = []):
         
         self._histMergeList = 'HISTMergeList.txt'
         
-        super(DQMergeExecutor, self).__init__(name=name, trf=trf, conf=conf, inData=inData, outData=outData, exe=exe, 
-                                              exeArgs=exeArgs, memMonitor=memMonitor)
+        super(DQMergeExecutor, self).__init__(name=name, trf=trf, conf=conf, inData=inData, outData=outData, exe=exe, exeArgs=exeArgs)
 
 
     def preExecute(self, input = set(), output = set()):

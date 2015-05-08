@@ -6,7 +6,7 @@
 # @details Define all transform exit codes with their acronymns
 # @remarks Usual usage is to import @c trfExit from this module
 # @author atlas-comp-transforms-dev@cern.ch
-# @version $Id: trfExitCodes.py 634752 2014-12-09 15:01:52Z graemes $
+# @version $Id: trfExitCodes.py 663754 2015-04-29 12:29:56Z lerrenst $
 # 
 
 import signal
@@ -140,9 +140,13 @@ class trfExitCodes(object):
     _errorCodeList.append(trfExitCode('TRF_INTERNAL', 252, 'Internal transform error'))
     _errorCodeList.append(trfExitCode('TRF_UNKOWN', 253, 'Unknown error code'))
     
-    # Add signaled exits
+    # Add signaled exits without duplicates
     _errorCodeList.extend([trfExitCode('TRF_SIG_'+signalname, getattr(signal, signalname)+128, 'Transform received signal {0}'.format(signalname), signalname) 
-                           for signalname in dir(signal) if signalname.startswith('SIG') and '_' not in signalname])
+                           for signalname in dir(signal) if signalname.startswith('SIG') 
+                           and '_' not in signalname
+                           and 'SIGIOT' not in signalname
+                           and 'SIGCLD' not in signalname
+                           and 'SIGPOLL' not in signalname])
 
     # Now map the entries to fast lookup dictionaries
     _nameToCodeDict = dict()

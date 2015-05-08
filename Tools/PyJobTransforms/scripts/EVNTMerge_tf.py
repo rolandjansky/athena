@@ -22,8 +22,6 @@ from PyJobTransforms.trfDecorators import stdTrfExceptionHandler, sigUsrStackTra
 
 import PyJobTransforms.trfArgClasses as trfArgClasses
 
-ListOfDefaultPositionalKeys=['--amiConfig', '--amiMetadataTag', '--asetup', '--athena', '--athenaopts', '--checkEventCount', '--command', '--env', '--eventAcceptanceEfficiency', '--execOnly', '--ignoreErrors', '--ignoreFilters', '--ignorePatterns', '--inputEVNTFile', '--maxEvents', '--noimf', '--notcmalloc', '--outputEVNT_MRGFile', '--postExec', '--postInclude', '--preExec', '--preInclude', '--reportName', '--showGraph', '--showPath', '--showSteps', '--skipEvents', '--skipFileValidation', '--skipInputFileValidation', '--skipOutputFileValidation']
-
 @stdTrfExceptionHandler
 @sigUsrStackTrace
 def main():

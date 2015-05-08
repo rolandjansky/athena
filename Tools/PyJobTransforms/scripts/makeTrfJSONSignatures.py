@@ -2,7 +2,7 @@
 
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 #
-# $Id: makeTrfJSONSignatures.py 636429 2014-12-17 09:48:38Z graemes $
+# $Id: makeTrfJSONSignatures.py 659213 2015-04-07 13:20:39Z graemes $
 #
 
 ## @brief Dump job transform arguments into a file, JSON encoded
@@ -26,7 +26,7 @@ def _getTransformsFromPATH():
             for trf in transforms:
                 if trf not in transforms_list:
                     if trf in ('Athena_tf.py', 'Cat_tf.py', 'Echo_tf.py', 'ExeWrap_tf.py', 'Sleep_tf.py', 'RAWtoESD_tf.py', 'ESDtoAOD_tf.py'):
-                        # Test transform - not for production
+                        # Test transforms - not for production
                         continue
                     transforms_list.append(trf)
                     transforms_path_list.append(path.join(path_element, trf))
@@ -55,10 +55,13 @@ def main():
     for fulltrf in cliargs['transforms']:
         myTrfs.append(path.basename(fulltrf))
         # Add the PATH to the PYTHONPATH if it's not there already
+        # N.B. This has to be done carefully to avoid picking up a transform
+        # from a later PATH element (e.g., from the base release instead of a 
+        # cache, but appending elements ensures this). See ATLASJT-231.
         trfpath = path.dirname(fulltrf)
         if len(trfpath) > 1:
             if trfpath not in sys.path:
-                sys.path.insert(1, trfpath)
+                sys.path.append(trfpath)
 
     msg.info('Will process this list of transforms: {0}'.format(' '.join(myTrfs)))
     processedTrfs = []

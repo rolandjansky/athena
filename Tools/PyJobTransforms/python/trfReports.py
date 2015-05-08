@@ -6,10 +6,10 @@
 #  @details Classes whose instance encapsulates transform reports
 #   at different levels, such as file, executor, transform
 #  @author atlas-comp-transforms-dev@cern.ch
-#  @version $Id: trfReports.py 623865 2014-10-24 12:39:44Z graemes $
+#  @version $Id: trfReports.py 665892 2015-05-08 14:54:36Z graemes $
 #
 
-__version__ = '$Revision: 623865 $'
+__version__ = '$Revision: 665892 $'
 
 import cPickle as pickle
 import json
@@ -105,7 +105,7 @@ class trfReport(object):
 class trfJobReport(trfReport):
     ## @brief This is the version counter for transform job reports
     #  any changes to the format @b must be reflected by incrementing this
-    _reportVersion = '1.0.0'
+    _reportVersion = '1.0.1'
     _metadataKeyMap = {'AMIConfig': 'AMI', }
     _maxMsgLen = 256
     _truncationMsg = " (truncated)"
@@ -116,19 +116,20 @@ class trfJobReport(trfReport):
         self._trf = parentTrf
 
     ## @brief generate the python transform job report
-    #  @param type Then general type of this report (e.g. fast)
+    #  @param type The general type of this report (e.g. fast)
     #  @param fileReport Dictionary giving the type of report to make for each type of file.
     #  This dictionary has to have all io types as keys and valid values are:
     #  @c None - skip this io type; @c 'full' - Provide all details; @c 'name' - only dataset and
     #  filename will be reported on.
-    #  @param machineReport Boolean as to whether to include machine information
-    def python(self, fast = False, fileReport = defaultFileReport, machineReport = False):
+    def python(self, fast = False, fileReport = defaultFileReport):
         myDict = {'name': self._trf.name,
                   'reportVersion': self._reportVersion,
                   'cmdLine': ' '.join(shQuoteStrings(sys.argv)),
                   'exitAcronym': trfExit.codeToName(self._trf.exitCode),
                   'exitCode': self._trf.exitCode,
                   'created': isodate(),
+                  'resource': {'executor': {}, 'transform': {}},
+                  'files': {}
                   }
         if len(self._trf.exitMsg) > self._maxMsgLen:
             myDict['exitMsg'] = self._trf.exitMsg[:self._maxMsgLen-len(self._truncationMsg)] + self._truncationMsg
@@ -146,12 +147,13 @@ class trfJobReport(trfReport):
                 myDict['argValues'][k] = v
 
         # Iterate over files
-        myDict['files'] = {}
         for fileType in ('input', 'output', 'temporary'):
             if fileReport[fileType]:
                 myDict['files'][fileType] = []
         # Should have a dataDictionary, unless something went wrong very early...
         for dataType, dataArg in self._trf._dataDictionary.iteritems():
+            if dataArg.auxiliaryFile: # Always skip auxilliary files from the report
+                continue
             if fileReport[dataArg.io]:
                 entry = {"type": dataType}
                 entry.update(trfFileReport(dataArg).python(fast = fast, type = fileReport[dataArg.io]))
@@ -161,11 +163,15 @@ class trfJobReport(trfReport):
         myDict['executor'] = []
         if hasattr(self._trf, '_executorPath'):
             for executionStep in self._trf._executorPath:
-                myDict['executor'].append(trfExecutorReport(self._trf._executorDictionary[executionStep['name']]).python(fast = fast))
-
-        # By default we do not include the machine report - delegated to pilot/Tier 0
-        if machineReport:
-            myDict['machine'] = machineReport().python(fast = fast)
+                exe = self._trf._executorDictionary[executionStep['name']]
+                myDict['executor'].append(trfExecutorReport(exe).python(fast = fast))
+                # Executor resources are gathered here to unify where this information is held
+                # and allow T0/PanDA to just store this JSON fragment on its own
+                exeResource = {'cpuTime': exe.cpuTime, 
+                               'wallTime': exe.wallTime,}
+                if exe.memStats:
+                    exeResource['memory'] = exe.memStats
+                myDict['resource']['executor'][executionStep['name']] = exeResource
 
         # Resource consumption
         reportTime = os.times()
@@ -175,17 +181,18 @@ class trfJobReport(trfReport):
         childCpuTime = reportTime[2] + reportTime[3]
         wallTime = reportTime[4] - self._trf.transformStart[4]
         msg.debug('Raw cpu resource consumption: transform {0}, children {1}'.format(myCpuTime, childCpuTime))
-        # Reduce childCpuTime by times reported in the executors
-        for exeReport in myDict['executor']:
-            if isinstance(exeReport['resource']['cpuTime'], (float, int, long)):
-                msg.debug('Subtracting {0}s time for executor {1}'.format(exeReport['resource']['cpuTime'], exeReport['name']))
-                childCpuTime -= exeReport['resource']['cpuTime']
+        # Reduce childCpuTime by times reported in the executors (broken for MP...?)
+        for exeName, exeReport in myDict['resource']['executor'].iteritems():
+            try:
+                msg.debug('Subtracting {0}s time for executor {1}'.format(exeReport['cpuTime'], exeName))
+                childCpuTime -= exeReport['cpuTime']
+            except TypeError:
+                pass
 
-        myDict['resource'] = {'transformCpuTime': int(myCpuTime + 0.5),
-                              'externalsCpuTime': int(childCpuTime + 0.5),
-                              'wallTime': int(wallTime + 0.5),
-                              'cpuUnit': 'seconds',
-                              'memUnit': 'kB'}  # Not clear if this is 10^3 or 2^10
+        myDict['resource']['transform'] = {'cpuTime': int(myCpuTime + 0.5),
+                              'externalCpuTime': int(childCpuTime + 0.5),
+                              'wallTime': int(wallTime + 0.5),}
+        myDict['resource']['machine'] = machineReport().python(fast = fast)
 
         return myDict
 
@@ -308,17 +315,16 @@ class trfExecutorReport(object):
 
         # Do we have a logscan to add?
         if hasattr(self._exe, '_logScan'):
-            reportDict['logfileReport'] = self._exe._logScan.python
+            try:
+                json.dumps(self._exe._logScan.python)
+                reportDict['logfileReport'] = self._exe._logScan.python
+            except UnicodeDecodeError, e:
+                msg.error('Problem with serialising logfile report as JSON - this will be skipped from the report ({0})'.format(e))
             reportDict['metaData'] = self._exe._logScan._metaData
 
         # Asetup information
         if hasattr(self._exe, '_asetup'):
             reportDict['asetup'] = self._exe._asetup
-
-        # Resource consumption
-        reportDict['resource'] = {'cpuTime': self._exe.cpuTime, 'wallTime': self._exe.wallTime, }
-        if self._exe.memStats:
-            reportDict['resource'].update(self._exe.memStats)
 
         return reportDict
 
@@ -533,12 +539,29 @@ class machineReport(object):
     def python(self, fast = False):
         machine = {}
         # Get the following from the platform module
-        attrs = ['architecture', 'machine', 'node', 'platform', 'processor', 'python_version', 'uname', 'linux_distribution']
+        attrs = ['node', 'platform', 'linux_distribution']
         for attr in attrs:
             try:
                 machine[attr] = getattr(platform, attr).__call__()
             except AttributeError, e:
                 msg.error('Failed to get "{0}" attribute from platform module: {1}'.format(attr, e))
+                
+        # Now try to get processor information from /proc/cpuinfo
+        try:
+            with open('/proc/cpuinfo') as cpuinfo:
+                for line in cpuinfo:
+                    try:
+                        k, v = [ e.strip() for e in line.split(':') ]
+                        if k == 'cpu family' and 'cpu_family' not in machine:
+                            machine['cpu_family'] = v
+                        elif k == 'model' and 'model' not in machine:
+                            machine['model'] = v
+                        elif k == 'model name' and 'model_name' not in machine:
+                            machine['model_name'] = v
+                    except ValueError:
+                        pass
+        except Exception, e:
+            msg.warning('Unexpected error while parsing /proc/cpuinfo: {0}'.format(e))
         return machine
 
 

@@ -5,7 +5,7 @@
 ## @Package test_trfValidation.py
 #  @brief Unittests for trfValidation.py
 #  @author graeme.andrew.stewart@cern.ch
-#  @version $Id: test_trfValidation.py 636448 2014-12-17 11:40:15Z graemes $
+#  @version $Id: test_trfValidation.py 663754 2015-04-29 12:29:56Z lerrenst $
 
 import unittest
 
@@ -407,6 +407,62 @@ class athenaLogFileReportTests(unittest.TestCase):
 22:41:44 ./runwrapper.AODMerge.sh: line 10:  6608 Segmentation fault      athena.py --preloadlib=/cvmfs/atlas.cern.ch/repo/sw/software/x86_64-slc6-gcc47-opt/19.1.1/sw/IntelSoftware/linux/x86_64/xe2013/composer_xe_2013.3.163/compiler/lib/intel64/libintlc.so.5:/cvmfs/atlas.cern.ch/repo/sw/software/x86_64-slc6-gcc47-opt/19.1.1/sw/IntelSoftware/linux/x86_64/xe2013/composer_xe_2013.3.163/compiler/lib/intel64/libimf.so --drop-and-reload runargs.AODMerge.py RecJobTransforms/skeleton.MergePool_tf.py
 '''
 
+        testSuppressExcerpt = ""
+        for i in range(100):
+            testSuppressExcerpt += "12:13:14 DummyAlg ERROR An error message number {0}\n".format(i)
+
+        testCoreDumpCurAlg = '''
+18:16:05 ToolSvc.CombinedMuonTrackBuilder                  WARNING standaloneRefit:: no outer material
+18:16:06 -------------------------------------------------------------------------------------
+18:16:06 Core dump from CoreDumpSvc on wn029.datagrid.cea.fr at Fri Mar 13 18:16:06 2015
+18:16:06 
+18:16:06 Caught signal 11(Segmentation fault). Details:
+18:16:06   errno = 0, code = 128 (kernel)
+18:16:06   pid   = 0, uid = 0
+18:16:06   value = (319308181, 0xc093e25f13084195)
+18:16:06   vmem = 3197.72 MB
+18:16:06   rss  = 2365.55 MB
+18:16:06   total-ram = 48257.9 MB
+18:16:06   free-ram  = 303.656 MB
+18:16:06   buffer-ram= 73.25 MB
+18:16:06   total-swap= 73728 MB
+18:16:06   free-swap = 73686.9 MB
+18:16:06   addr  = 0
+18:16:06 
+18:16:06 Event counter: 41
+18:16:06 EventID: [Run,Evt,Lumi,Time,BunchCross,DetMask] = [204158,70319934,598,1338451622:532780295,2772,0xbffffffffff7,0x0,0x0]
+18:16:06 Last incident: AthenaEventLoopMgr:BeginEvent
+18:16:06 Current algorithm: MuonCreatorAlg
+18:16:06 Algorithm stack:
+18:16:06    AthMasterSeq
+18:16:06    AthAlgSeq
+18:16:06    MuonCreatorAlg
+18:16:06 -------------------------------------------------------------------------------------
+        '''
+            
+        testCoreDumpNoCurAlg = '''
+18:16:05 ToolSvc.CombinedMuonTrackBuilder                  WARNING standaloneRefit:: no outer material
+18:16:06 -------------------------------------------------------------------------------------
+18:16:06 Core dump from CoreDumpSvc on wn029.datagrid.cea.fr at Fri Mar 13 18:16:06 2015
+18:16:06 -------------------------------------------------------------------------------------
+        '''
+        
+        testMissedBadAlloc = '''
+10:18:13 StreamESD                                            INFO Records written: 3642
+10:18:13 /cvmfs/atlas.cern.ch/repo/sw/database/DBRelease/28.1.1/poolcond/cond09_mc.000079.gen.COND/cond09_mc.000079.gen.COND._0002.pool.root Info Database being retired...
+10:18:13 Domain[ROOT_All] Info ->  Deaccess DbDatabase   READ      [ROOT_All] BC292F26-AE73-9041-BF5C-BCE6C5C651EC
+10:18:13 Domain[ROOT_All] Info >   Deaccess DbDomain     READ      [ROOT_All]
+10:18:13 tmp.ESD Info Database being retired...
+10:18:14 terminate called after throwing an instance of 'std::bad_alloc'
+10:18:14   what():  std::bad_alloc
+10:18:14
+10:18:14 (pid=29034 ppid=29033) received fatal signal 6 (Aborted)
+10:18:14 signal context:
+10:18:14   signo  = 6, errno = 0, code = -6 (*unknown reason*)
+10:18:14   pid    = 29034, uid = 41000
+10:18:14   value  = (0, (nil))
+10:18:14   stack  = (2, 0, (nil))'''
+
         with open('file1', 'w') as f1:
             print >> f1, 'This is test file 1 w/o meaning'
         with open('file2', 'w') as f2:
@@ -416,14 +472,26 @@ class athenaLogFileReportTests(unittest.TestCase):
             print >> f3, testErrorExcerpt
         with open('file4', 'w') as f4:
             print >> f4, testBadAlloc
+        with open('file5', 'w') as f5:
+            print >> f5, testSuppressExcerpt
+        with open('file6', 'w') as f6:
+            print >> f6, testCoreDumpCurAlg
+        with open('file7', 'w') as f7:
+            print >> f7, testCoreDumpNoCurAlg
+        with open('file8', 'w') as f8:
+            print >> f8, testMissedBadAlloc
 
         self.myFileReport1 = athenaLogFileReport('file1')
         self.myFileReport2 = athenaLogFileReport('file2')
         self.myFileReport3 = athenaLogFileReport('file3')
         self.myFileReport4 = athenaLogFileReport('file4')
+        self.myFileReport5 = athenaLogFileReport('file5')
+        self.myFileReport6 = athenaLogFileReport('file6')
+        self.myFileReport7 = athenaLogFileReport('file7')
+        self.myFileReport8 = athenaLogFileReport('file8')
 
     def tearDown(self):
-        for f in 'file1', 'file2', 'file3', 'file4':
+        for f in 'file1', 'file2', 'file3', 'file4', 'file5', 'file6', 'file7', 'file8':
             try:
                 os.unlink(f)
             except OSError:
@@ -451,6 +519,23 @@ class athenaLogFileReportTests(unittest.TestCase):
         self.assertEqual(self.myFileReport4.worstError(), {'level': 'CATASTROPHE', 'nLevel': stdLogLevels['CATASTROPHE'],
                                                            'firstError': {'count': 1, 'firstLine': 11,
                                                                           'message': 'TrigDecisionCnvAlg                                  ERROR std::bad_alloc'}})
+        self.assertEqual(self.myFileReport8.worstError(), {'level': 'CATASTROPHE', 'nLevel': stdLogLevels['CATASTROPHE'],
+                                                           'firstError': {'count': 1, 'firstLine': 7,
+                                                                          'message': 'terminate after \'std::bad_alloc\'.'}})
+
+    def test_suppress(self):
+        print self.myFileReport5
+        self.assertEqual(self.myFileReport5._levelCounter['ERROR'], 100)
+        self.assertEqual(len(self.myFileReport5._errorDetails['ERROR']), 10)
+        pass
+
+    def test_coreDumpCurAlg(self):
+        self.assertEqual(self.myFileReport6.worstError(), {'level': 'FATAL', 'nLevel': logging.FATAL,
+                                                           'firstError': {'count': 1, 'firstLine': 4,
+                                                                          'message': 'Event counter: 41; Current algorithm: MuonCreatorAlg'}})
+        self.assertEqual(self.myFileReport7.worstError(), {'level': 'FATAL', 'nLevel': logging.FATAL,
+                                                           'firstError': {'count': 1, 'firstLine': 4,
+                                                                          'message': 'Event counter and current algorithm unknown.'}})
     ## TODO
     # Special tests for G4 errors and core dumps
 
