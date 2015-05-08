@@ -64,6 +64,11 @@ if hasattr(runArgs,"inputRDO_TRIGFile"):
     l1output = Lvl1ResultBuilderGetter()
     from TrigHLTMonitoring.HLTMonFlags import HLTMonFlags
     HLTMonFlags.doMonTier0 = False
+    from AthenaMonitoring.DQMonFlags import DQMonFlags
+    DQMonFlags.doCTPMon = False
+    DQMonFlags.doHLTMon = False
+    DQMonFlags.useTrigger = False
+    DQMonFlags.doLVL1CaloMon = False
 if hasattr(runArgs,"inputRDO_FILTFile"):
     rec.readRDO.set_Value_and_Lock( True )
     globalflags.InputFormat.set_Value_and_Lock('pool')
@@ -175,7 +180,10 @@ if hasattr(runArgs,"topOptions"): include(runArgs.topOptions)
 else: include( "RecExCommon/RecExCommon_topOptions.py" )
 
 if hasattr(runArgs,"inputRDO_TRIGFile") and hasattr(topSequence,'TrigDecMaker'):
-   topSequence.TrigDecMaker.doL1 = False
+   topSequence.TrigDecMaker.doL1 = True
+   for i in topSequence.getAllChildren():
+       if "TrigDecisionCnvAlg" in i.getName():
+          i.AODKey = "TrigDecisionRdo"
 
 ## Post-include
 if hasattr(runArgs,"postInclude"): 
@@ -188,4 +196,3 @@ if hasattr(runArgs,"postExec"):
     for cmd in runArgs.postExec:
         recoLog.info(cmd)
         exec(cmd)
-        
