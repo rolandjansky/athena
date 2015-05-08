@@ -8,6 +8,7 @@ use AtlasHepMC        AtlasHepMC-*        External
 use AtlasROOT         AtlasROOT-*         External
 use GeneratorModules  GeneratorModules-*  Generators
 use TruthHelper       TruthHelper-*       Generators/GenAnalysisTools
+use AthenaBaseComps  AthenaBaseComps-*  Control
 
 private
 use AthenaKernel      AthenaKernel-*      Control

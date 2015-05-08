@@ -4,16 +4,19 @@
 #include "EvgenProdTools/CountHepMC.h"
 #include "EvgenProdTools/FixHepMC.h"
 #include "EvgenProdTools/TestHepMC.h"
+#include "EvgenProdTools/EvgenOTFTopUpSvc.h"
 
 DECLARE_ALGORITHM_FACTORY(CopyEventWeight)
 DECLARE_ALGORITHM_FACTORY(CountHepMC)
 DECLARE_ALGORITHM_FACTORY(FixHepMC)
 DECLARE_ALGORITHM_FACTORY(TestHepMC)
+DECLARE_SERVICE_FACTORY(EvgenOTFTopUpSvc)
 
 DECLARE_FACTORY_ENTRIES( EvgenProdTools ) {
-  DECLARE_ALGORITHM( ExpressionGenFilter );
+  DECLARE_ALGORITHM( ExpressionGenFilter )
   DECLARE_ALGORITHM(CopyEventWeight)
   DECLARE_ALGORITHM(CountHepMC)
   DECLARE_ALGORITHM(FixHepMC)
   DECLARE_ALGORITHM(TestHepMC)
+  DECLARE_SERVICE(EvgenOTFTopUpSvc)
 }

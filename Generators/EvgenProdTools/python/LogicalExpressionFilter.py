@@ -209,6 +209,7 @@ class LogicalExpressionFilter( PyAthena.Alg ):
 
 
     def setup(self):
+       self._isLocked=False #need to unlock because if this configurable is pickled and later recreated, if _isLocked is set before another attribute, that attribute is locked out (seems that unpickling doesn't cause __init__ to be recalled?) 
        #check for spurious properties of myself, which would indicate the user has made mistakes
        self.filters = [ d.getFullName() for d in self.getChildren() ]
        return super(LogicalExpressionFilter,self).setup()

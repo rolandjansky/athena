@@ -4,7 +4,6 @@
 
 #include "EvgenProdTools/TestHepMC.h"
 #include "GaudiKernel/DataSvc.h"
-#include <cmath>
 
 using namespace std;
 
@@ -27,6 +26,8 @@ TestHepMC::TestHepMC(const string& name, ISvcLocator* pSvcLocator)
   declareProperty("EffFailThreshold", m_eff_fail_threshold=0.98); // fraction
 
   declareProperty("THistSvc", m_thistSvc);
+
+  declareProperty("DoHist", m_doHist=true); //histograming yes/no true/false
 
   m_nPass = 0;
   m_nFail = 0;
@@ -91,6 +92,8 @@ TestHepMC::TestHepMC(const string& name, ISvcLocator* pSvcLocator)
 
 StatusCode TestHepMC::initialize() {
   CHECK(GenBase::initialize());
+
+  if (m_doHist){
   CHECK(m_thistSvc.retrieve());
 
   m_h_energy_dispVtxCheck = new TH1F("h_energy_dispVtxCheck", "h_energy_dispVtxCheck", 2000, 0., 2000.);
@@ -145,6 +148,48 @@ StatusCode TestHepMC::initialize() {
   CHECK(m_thistSvc->regHist("/TestHepMCname/h_beamparticle2_Energy", m_h_beamparticle2_Energy));
   CHECK(m_thistSvc->regHist("/TestHepMCname/h_cmEnergyDiff", m_h_cmEnergyDiff));
 
+  }
+
+  //open the files and read G4particle_whitelist.txt
+  G4file.open("G4particle_whitelist.txt");
+         std::string line;
+         int G4pdgID;
+        
+         if (!G4file.fail()){
+       
+            while(std::getline(G4file,line)){
+                 std::stringstream ss(line);
+                 ss >> G4pdgID;
+
+                 m_G4pdgID_tab.push_back(G4pdgID);
+                 
+            }
+            G4file.close();
+         }
+         else{
+          ATH_MSG_WARNING("Failed to open G4particle_whitelist.txt, checking that all particles are known by Genat4 cannot be performed");
+         }
+
+ //open the files and read susyParticlePdgid.txt
+  susyFile.open("susyParticlePdgid.txt");
+         string line1;
+         int susyPdgID;
+        
+         if (!susyFile.fail()){
+       
+            while(getline(susyFile,line1)){
+                 stringstream ss1(line1);
+                 ss1 >> susyPdgID;
+
+                 m_SusyPdgID_tab.push_back(susyPdgID);
+                 
+            }
+            susyFile.close();
+         }
+         else{
+          ATH_MSG_WARNING("Failed to open susyParticlePdgid.txt, listing particles not present in PDTTable");
+         }
+
   return StatusCode::SUCCESS;
 }
 
@@ -160,7 +205,7 @@ StatusCode TestHepMC::execute() {
 
   // Loop over all events in McEventCollection
   /// @todo Use C++ for(:)
-  for (McEventCollection::const_iterator itr = events()->begin(); itr != events()->end(); ++itr) {
+  for (McEventCollection::const_iterator itr = events_const()->begin(); itr != events_const()->end(); ++itr) {
     const HepMC::GenEvent* evt = *itr;
 
     double totalPx = 0;
@@ -192,9 +237,11 @@ StatusCode TestHepMC::execute() {
       if (m_cm_energy > 0 && fabs(cmenergy - m_cm_energy) > 1) {
         ATH_MSG_FATAL("Beam particles have incorrect energy: " << m_cm_energy/1000. << " GeV expected, vs. " << cmenergy/1000. << " GeV found");
         setFilterPassed(false);
+       if (m_doHist){
         m_h_beamparticle1_Energy->Fill(beams.first->momentum().e()*1.E-03);
         m_h_beamparticle2_Energy->Fill(beams.second->momentum().e()*1.E-03);
         m_h_cmEnergyDiff->Fill((cmenergy-m_cm_energy)*1.E-03);
+       }
         ++m_beamEnergyCheckRate;
         //return StatusCode::SUCCESS;
         return StatusCode::FAILURE;
@@ -257,6 +304,8 @@ StatusCode TestHepMC::execute() {
           else
             m_vtxDisplacedstatuscodenot12CheckRateCnt += 1;
 
+
+       if (m_doHist){
           m_h_energy_dispVtxCheck->Fill((*par)->momentum().e()*1e-3);
           if ((*par)->momentum().e()*1e-3 < 10.) {
             m_h_energy_dispVtxCheck_lt10->Fill((*par)->momentum().e()*1e-3);}
@@ -281,6 +330,7 @@ StatusCode TestHepMC::execute() {
           double proddis = sqrt(prodvx*prodvx + prodvy*prodvy + prodvz*prodvz);
           m_h_vtxend_dispVtxCheck->Fill(enddis);
           m_h_vtxprod_dispVtxCheck->Fill(proddis);
+       }
         }
       }
     }
@@ -331,32 +381,44 @@ StatusCode TestHepMC::execute() {
           }
         }
         else{
-          ATH_MSG_WARNING("Stable particle not found in PDT, no lifetime check done");
-          (*pitr)->print();
+          int susyPart = 0;
+          vector<int>::size_type count = 0;
+          while (susyPart==0 && (count < m_SusyPdgID_tab.size() )){
+	    // no warning for SUSY particles from the list susyParticlePdgid.txt
+            if (m_SusyPdgID_tab[count] == abs(ppdgid)) {
+	      //  cout << "susy particle " << ppdgid << endl;
+              susyPart=1;
+	    }
+            count++;
+	  }
+	  if (susyPart==0){
+            ATH_MSG_WARNING("Stable particle not found in PDT, no lifetime check done");
+            (*pitr)->print();
+	  }
         }
       }
+
       //Check that stable particles are known by G4 or they are non-interacting
-      HepPDT::ParticleID pid(ppdgid);         
-      if ((pstatus == 1 ) && (!(*pitr)->end_vertex()) && (!nonint.operator()(*pitr)) && (!pid.isNucleus())) {
-         G4file.open("G4particle_whitelist.txt");
-         std::string line;
-         int G4pdgID;
-         if (!G4file.fail()){
-            int known_byG4 = 0;
-            while(std::getline(G4file,line)){
-                 std::stringstream ss(line);
-                 if(ss >> G4pdgID){if(ppdgid == G4pdgID) known_byG4=1;}
+      HepPDT::ParticleID pid(ppdgid);
+      int first_dig = ppdgid;
+      while(first_dig > 9) first_dig /= 10;
+         
+      if ((pstatus == 1 ) && (!(*pitr)->end_vertex()) && (!nonint.operator()(*pitr)) && (!pid.isNucleus()) && (first_dig != 9) ) {
+
+           int known_byG4 = 0;
+           vector<int>::size_type count =0;
+
+	     while (known_byG4==0 && count < m_G4pdgID_tab.size()){
+
+                 if(ppdgid == m_G4pdgID_tab[count]) known_byG4=1;
+                 count++;
             }
             if(known_byG4==0){
               nonG4_energy += pmom.e();
               ATH_MSG_WARNING("Interacting particle not known by Geant4 with ID " << ppdgid);
             }
-            G4file.close();
-         }
-         else{
-          ATH_MSG_WARNING("Failed to open G4particle_whitelist.txt, checking that all particles are known by Genat4 cannot be performed");
-         }
-      }   
+      }
+
       // Check for unstables with no end vertex, such as undecayed gluons, Ws, Zs, and h [not status 3 to avoid probles with photos]
       if (!(*pitr)->end_vertex() &&
           ((pstatus != 1 && pstatus != 3 && pstatus != 4) || ((abs(ppdgid) == 23 || ppdgid == 24 || ppdgid == 25) && pstatus != 3))) {
@@ -463,7 +525,9 @@ StatusCode TestHepMC::execute() {
     if (lostE > m_energy_diff) {
       ATH_MSG_WARNING("ENERGY BALANCE FAILED : E-difference = " << lostE << " MeV");
       //if (m_dumpEvent || lostE > m_max_energy_diff) (*itr)->print();
+     if (m_doHist){
       m_h_energyImbalance->Fill(lostE*1.E-03);
+     }
       if (m_dumpEvent) (*itr)->print();
       setFilterPassed(false);
       ++m_energyBalanceCheckRate;
@@ -475,9 +539,11 @@ StatusCode TestHepMC::execute() {
     if ( fabs(totalPx) > m_energy_diff || fabs(totalPy) > m_energy_diff || fabs(totalPz) > m_energy_diff ) {
       ATH_MSG_WARNING("MOMENTUM BALANCE FAILED : SumPx = " << totalPx << " SumPy = " <<  totalPy << " SumPz = " <<  totalPz << " MeV");
       //if (m_dumpEvent || fabs(totalPx) > m_max_energy_diff || fabs(totalPy) > m_max_energy_diff || fabs(totalPz) > m_max_energy_diff) (*itr)->print();
+    if (m_doHist){
       m_h_momentumImbalance_px->Fill(fabs(totalPx)*1.E-03);
       m_h_momentumImbalance_py->Fill(fabs(totalPy)*1.E-03);
       m_h_momentumImbalance_pz->Fill(fabs(totalPz)*1.E-03);
+    }
       if (m_dumpEvent) (*itr)->print();
       setFilterPassed(false);
       ++m_momentumBalanceCheckRate;
@@ -555,13 +621,13 @@ StatusCode TestHepMC::execute() {
       return StatusCode::SUCCESS;
     }
 
-  }
+    }
 
   // End of execution for each event
   ++m_nPass;
 
   return StatusCode::SUCCESS;
-}
+  }
 
 
 StatusCode TestHepMC::finalize() {
@@ -592,7 +658,7 @@ StatusCode TestHepMC::finalize() {
   ATH_MSG_INFO(" Event rate with undisplaced decay daughters of displaced vertices = " << m_undisplacedDecayDaughtersOfDisplacedVtxCheckRate*100.0/double(m_nPass + m_nFail) << "%");
   ATH_MSG_INFO(" Event rate with particles with status 1 but lifetime < " << m_min_tau << "~ns = " << m_Status1ShortLifetime*100.0/double(m_nPass + m_nFail) << "%");
   ATH_MSG_INFO(" Event rate with energy sum of interacting particles non known by Geant4 above " << m_nonG4_energy_threshold << " MeV = " << m_nonG4_energyCheckRate*100.0/double(m_nPass + m_nFail) << "%");
-
+ 
   const double tau_fastDrate = double(m_FastDecayedTau) / double(m_TotalTaus);
   if(tau_fastDrate > m_tau_eff_threshold){
     ATH_MSG_FATAL("MORE THAN " << 100.*m_tau_eff_threshold << "% OF TAUS DECAYING IMMEDIATELY! " << m_FastDecayedTau << " found, out of: " << m_TotalTaus);
