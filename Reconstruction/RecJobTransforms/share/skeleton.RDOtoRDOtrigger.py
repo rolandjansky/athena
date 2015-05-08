@@ -49,6 +49,11 @@ if hasattr(runArgs,"preInclude"):
     for fragment in runArgs.preInclude:
         include(fragment)
 
+from AthenaCommon.AppMgr import ServiceMgr, ToolSvc
+from TrigDecisionTool.TrigDecisionToolConf import *
+if not hasattr(ToolSvc, 'TrigDecisionTool'):
+   ToolSvc += Trig__TrigDecisionTool('TrigDecisionTool')
+
 #========================================================
 # Central topOptions (this is one is a string not a list)
 #========================================================
@@ -61,10 +66,31 @@ idx=0
 for i in topSequence.getAllChildren():
     idx += 1
     if "TrigSteer_HLT" in i.getName():
-       topSequence.insert(idx+1, RoIBResultToAOD("RoIBResultToxAOD"))
+       if not hasattr(i,'RoIBResultToxAOD'):
+           topSequence.insert(idx+1, RoIBResultToAOD("RoIBResultToxAOD"))
+    if "StreamRDO" in i.getName():
+       from TrigDecisionMaker.TrigDecisionMakerConfig import TrigDecisionMaker,WritexAODTrigDecision
+       topSequence.insert(idx, TrigDecisionMaker('TrigDecMaker'))
+       from AthenaCommon.Logging import logging 
+       log = logging.getLogger( 'WriteTrigDecisionToAOD' )
+       log.info('TrigDecision writing enabled')
+       makexAOD = WritexAODTrigDecision()
+    if "xAODMaker\:\:TrigDecisionCnvAlg" in i.getName():
+       i.AODKey = "TrigDecisionRdo"
+       i.xAODKey = "TrigDecisionRdo"
+    if "TrigDecMaker" in i.getName():
+       i.TrigDecisionKey = "TrigDecisionRdo"
 
-from TrigDecisionMaker.TrigDecisionMakerConfig import WriteTrigDecision
-trigDecWriter = WriteTrigDecision()
+if hasattr(ToolSvc, 'TrigDecisionTool'):
+    ToolSvc.TrigDecisionTool.TrigDecisionKey = "TrigDecisionRdo"
+
+for i in topSequence.getAllChildren():
+    if "TrigDecisionCnvAlg" in i.getName():
+       i.AODKey = "TrigDecisionRdo"
+       i.xAODKey = "TrigDecisionRdo"
+    if "TrigDecMaker" in i.getName():
+       i.TrigDecisionKey = "TrigDecisionRdo"
+
 # inform TD maker that some parts may be missing
 if TriggerFlags.dataTakingConditions()=='Lvl1Only':
     topSequence.TrigDecMaker.doL2=False
@@ -95,7 +121,7 @@ def preplist(input):
    return triglist
 
 StreamRDO.ItemList += ["HLT::HLTResult#HLTResult_HLT"]
-StreamRDO.ItemList += ["TrigDec::TrigDecision#TrigDecision"]
+StreamRDO.ItemList += ["TrigDec::TrigDecision#TrigDecisionRdo"]
 StreamRDO.ItemList += preplist(_TriggerESDList)
 StreamRDO.ItemList += preplist(_TriggerAODList)
 from TrigEDMConfig.TriggerEDM import getLvl1ESDList

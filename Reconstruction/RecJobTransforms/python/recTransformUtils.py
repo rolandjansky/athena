@@ -94,23 +94,20 @@ def addRecoSubsteps(executorSet):
     executorSet.add(athenaExecutor(name = 'RDOtoRDOTrigger', skeletonFile = 'RecJobTransforms/skeleton.RDOtoRDOtrigger.py',
                                    substep = 'r2t', inData = ['RDO'], outData = ['RDO_TRIG']))
     executorSet.add(athenaExecutor(name = 'RAWtoESD', skeletonFile = 'RecJobTransforms/skeleton.RAWtoESD_tf.py',
-                                   substep = 'r2e', inData = ['BS', 'RDO', 'DRAW_ZMUMU', 'DRAW_ZEE', 'DRAW_EMU'], outData = ['ESD', 'HIST_ESD_INT', 'TXT_JIVEXMLTGZ'],
-                                   perfMonFile = 'ntuple_RAWtoESD.pmon.gz'))
+                                   substep = 'r2e', inData = ['BS', 'RDO', 'DRAW_ZMUMU', 'DRAW_ZEE', 'DRAW_EMU'], 
+                                   outData = ['ESD', 'HIST_ESD_INT', 'TXT_JIVEXMLTGZ'],))
     executorSet.add(athenaExecutor(name = 'ESDtoAOD', skeletonFile = 'RecJobTransforms/skeleton.ESDtoAOD_tf.py',
-                                   substep = 'e2a', inData = ['ESD'], outData = ['AOD', 'HIST_AOD_INT'], 
-                                   perfMonFile = 'ntuple_ESDtoAOD.pmon.gz'))
+                                   substep = 'e2a', inData = ['ESD'], outData = ['AOD', 'HIST_AOD_INT']))
     executorSet.add(DQMergeExecutor(name = 'DQHistogramMerge', inData = [('HIST_ESD_INT', 'HIST_AOD_INT')], outData = ['HIST']))
     executorSet.add(athenaExecutor(name = 'ESDtoDPD', skeletonFile = 'PATJobTransforms/skeleton.ESDtoDPD_tf.py',
-                                   substep = 'e2d', inData = ['ESD'], outData = [],
-                                   perfMonFile = 'ntuple_ESDtoDPD.pmon.gz'))
+                                   substep = 'e2d', inData = ['ESD'], outData = []))
     executorSet.add(athenaExecutor(name = 'AODtoDPD', skeletonFile = 'PATJobTransforms/skeleton.AODtoDPD_tf.py',
-                                   substep = 'a2d', inData = ['AOD', 'EVNT'], outData = [],
-                                   perfMonFile = 'ntuple_AODtoDPD.pmon.gz'))
+                                   substep = 'a2d', inData = ['AOD', 'EVNT'], outData = []))
     executorSet.add(athenaExecutor(name = 'AODtoAOD', skeletonFile = 'RecJobTransforms/skeleton.AODtoAOD_tf.py',
                                    substep = 'a2a', inData = ['AOD'], outData = ['AOD_RPR'],
                                    perfMonFile = None))
     executorSet.add(athenaExecutor(name = 'AODtoTAG', skeletonFile = 'RecJobTransforms/skeleton.AODtoTAG_tf.py',
-                                   inData = ['AOD'], outData = ['TAG'],))
+                                   inData = ['AOD', 'AOD_RPR'], outData = ['TAG'],))
     executorSet.add(athenaExecutor(name = 'AODtoHIST', skeletonFile = 'RecJobTransforms/skeleton.AODtoHIST_tf.py',
                                    inData = ['AOD'], outData = ['HIST_AOD'],))
     executorSet.add(reductionFrameworkExecutor(name = 'AODtoDAOD', skeletonFile = 'PATJobTransforms/skeleton.AODtoDAOD_tf.py',
@@ -128,6 +125,5 @@ def addAllRecoArgs(trf):
     addCommonRecTrfArgs(trf.parser)
     addStandardRecoFiles(trf.parser)
     addPrimaryDPDArguments(trf.parser, transform = trf)
-    addD3PDArguments(trf.parser, transform = trf)
     addExtraDPDTypes(trf.parser, transform = trf)
     addReductionArguments(trf.parser, transform = trf)

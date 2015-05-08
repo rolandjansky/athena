@@ -22,6 +22,12 @@ if hasattr(runArgs,"inputAODFile"):
     rec.readRDO.set_Value_and_Lock( False )
     athenaCommonFlags.PoolAODInput.set_Value_and_Lock( runArgs.inputAODFile )
 
+if hasattr(runArgs,"inputAOD_RPRFile"):
+    globalflags.InputFormat.set_Value_and_Lock('pool')
+    rec.readAOD.set_Value_and_Lock( True )
+    rec.readRDO.set_Value_and_Lock( False )
+    athenaCommonFlags.PoolAODInput.set_Value_and_Lock( runArgs.inputAOD_RPRFile )
+
 if hasattr(runArgs,"inputAOD_MRGFile"):
     globalflags.InputFormat.set_Value_and_Lock('pool')
     rec.readAOD.set_Value_and_Lock( True )
