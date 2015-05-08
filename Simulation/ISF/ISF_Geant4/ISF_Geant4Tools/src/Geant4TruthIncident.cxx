@@ -42,27 +42,27 @@
 
 /*
   Comments:
-    what about primary particle surviving (e.g. bremstrahlung)
+  what about primary particle surviving (e.g. bremstrahlung)
 
 
   Existing code:
-    Simulation/G4Sim/SimHelpers/src/StepHelper.cxx
-      - provids convenient information of a G4Step
-    Simulation/G4Sim/SimHelpers/src/SecondaryTracksHelper.cxx
-      - provids convenient information about secondaries produced in (last) G4Step
-    Simulation/G4Utilities/G4TruthStrategies/src/BremsstrahlungStrategy.cxx
-      - retrives information from a G4Step (via StepHelper)
-    Simulation/G4Sim/MCTruth/MCTruth/TruthStrategy.h
-      - common base for different truth strategies
-    Simulation/G4Sim/MCTruth/src/EventInformation.cxx
-      - stores HepMCevent in G4
-    Simulation/G4Sim/MCTruth/src/TrackInformation.cxx
-    Simulation/G4Sim/MCTruth/src/TrackHelper.cxx
-      - store/manage barcode
+  Simulation/G4Sim/SimHelpers/src/StepHelper.cxx
+  - provids convenient information of a G4Step
+  Simulation/G4Sim/SimHelpers/src/SecondaryTracksHelper.cxx
+  - provids convenient information about secondaries produced in (last) G4Step
+  Simulation/G4Utilities/G4TruthStrategies/src/BremsstrahlungStrategy.cxx
+  - retrives information from a G4Step (via StepHelper)
+  Simulation/G4Sim/MCTruth/MCTruth/TruthStrategy.h
+  - common base for different truth strategies
+  Simulation/G4Sim/MCTruth/src/EventInformation.cxx
+  - stores HepMCevent in G4
+  Simulation/G4Sim/MCTruth/src/TrackInformation.cxx
+  Simulation/G4Sim/MCTruth/src/TrackHelper.cxx
+  - store/manage barcode
 
-    Simulation/G4Sim/MCTruth/src/AtlasTrajectory.cxx
-      - setup SecondaryTrackHelper to provide secondaries to truth
- */
+  Simulation/G4Sim/MCTruth/src/AtlasTrajectory.cxx
+  - setup SecondaryTrackHelper to provide secondaries to truth
+*/
 
 
 ISF::Geant4TruthIncident::Geant4TruthIncident(const G4Step *step, AtlasDetDescr::AtlasRegion geoID, int numSecondaries, SecondaryTracksHelper &sHelper) :
@@ -335,46 +335,3 @@ void ISF::Geant4TruthIncident::prepareSecondaries() const {
     m_secondariesPrepared  = true;
   }
 }
-
-bool ISF::Geant4TruthIncident::secondaryPt2Pass(double pt2cut) const {
-  unsigned short numSec = numberOfSecondaries();
-  bool pass = false; // true if cut passed
-
-  // if vertex is ionisation, brem or Compton scattering, use only last secondary for check
-  int imin=0;
-  if (m_checkLastSecondaryOnly && numSec>1) {
-    imin = numSec-1;
-    numSec = imin+1;
-  }
-
-  // as soon as at a particle passes the cut -> end loop and return true
-  for ( unsigned short i=imin; (!pass) && (i<numSec); ++i) {
-    bool thispassed = (secondaryPt2(i) >= pt2cut);
-    if(thispassed) { setSecondaryPassed(i); }
-    pass |= thispassed;
-  }
-  m_wholeVertexPassed=m_passWholeVertex && pass;
-  return pass;
-}
-
-bool ISF::Geant4TruthIncident::secondaryEkinPass(double ekincut) const {
-    unsigned short numSec = numberOfSecondaries();
-    bool pass = false; // true if cut passed
-
-    // if vertex is ionisation, brem or Compton scattering, use only last secondary for check
-    int imin=0;
-    if (m_checkLastSecondaryOnly && numSec>1) {
-      imin = numSec-1;
-      numSec = imin+1;
-    }
-
-    // as soon as at a particle passes the cut -> end loop and return true
-    for ( unsigned short i=imin; (!pass) && (i<numSec); ++i) {
-       bool thispassed = (secondaryEkin(i) >= ekincut);
-       if(thispassed) { setSecondaryPassed(i); }
-       pass |= thispassed;
-   }
-    m_wholeVertexPassed=m_passWholeVertex && pass;
-    return pass;
-  }
-

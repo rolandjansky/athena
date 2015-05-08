@@ -45,63 +45,55 @@ namespace ISF {
       virtual ~Geant4TruthIncident() {};
 
       /** Return Physics process code of the truth incident */
-      Barcode::PhysicsProcessCode physicsProcessCode() const;
+      Barcode::PhysicsProcessCode physicsProcessCode() const override final;
 
       /** Return p^2 of the primary particle */
-      double                    primaryP2() const;
+      double                    primaryP2() const override final;
       /** Return pT^2 of the primary particle */
-      double                    primaryPt2() const;
+      double                    primaryPt2() const override final;
       /** Return Ekin of the primary particle */
-      double                    primaryEkin() const;
+      double                    primaryEkin() const override final;
       /** Return the PDG Code of the primary particle */
-      int                       primaryPdgCode() const;
+      int                       primaryPdgCode() const override final;
       /** Return the barcode of the primary particle */
-      Barcode::ParticleBarcode  primaryBarcode() const;
+      Barcode::ParticleBarcode  primaryBarcode() const override final;
       /** Return the primary particle after the TruthIncident vertex (and give
           it a new barcode) */
       HepMC::GenParticle*       primaryParticleAfterIncident(Barcode::ParticleBarcode newBC,
-                                                             bool setPersistent);
+                                                             bool setPersistent) override final;
 
       /** Return total number of secondary particles */
-      unsigned short            numberOfSecondaries() const;
+      unsigned short            numberOfSecondaries() const override final;
       /** Return p of the i-th secondary particle */
       const G4ThreeVector       secondaryP(unsigned short index) const;
       /** Return p^2 of the i-th secondary particle */
-      double                    secondaryP2(unsigned short index) const;
+      double                    secondaryP2(unsigned short index) const override final;
       /** Return pT^2 of the i-th secondary particle */
-      double                    secondaryPt2(unsigned short index) const;
+      double                    secondaryPt2(unsigned short index) const override final;
       /** Return Ekin of the i-th secondary particle */
-      double                    secondaryEkin(unsigned short index) const;
+      double                    secondaryEkin(unsigned short index) const override final;
       /** Return the PDG Code of the i-th secondary particle */
-      int                       secondaryPdgCode(unsigned short index) const;
+      int                       secondaryPdgCode(unsigned short index) const override final;
       /** Set the the barcode of all secondary particles to the given bc */
-      void                      setAllSecondaryBarcodes(Barcode::ParticleBarcode bc);
+      void                      setAllSecondaryBarcodes(Barcode::ParticleBarcode bc) override final;
 
       // only called once accepted
 
       /** Return the primary particle as a HepMC particle type */
-      HepMC::GenParticle*       primaryParticle(bool setPersistent) const;
+      HepMC::GenParticle*       primaryParticle(bool setPersistent) const override final;
       /** Return the i-th secondary as a HepMC particle type and assign the given
           Barcode to the simulator particle */
       HepMC::GenParticle*       secondaryParticle(unsigned short index,
                                                   Barcode::ParticleBarcode bc,
-                                                  bool setPersistent) const;
+                                                  bool setPersistent) const override final;
 
       /** Return HepMC position of the truth vertex */
-      const HepMC::FourVector&  position() const;
-
-      /** Return true if at least one secondary particle passes the given pT^2 cut
-          (= at least one secondary with pT^2 >= pt2cut) */
-      bool secondaryPt2Pass(double pt2cut) const;
-
-      /** Return true if at least one secondary particle passes the given Ekin cut
-          (= at least one secondary with Ekin >= ekincut) */
-      bool secondaryEkinPass(double ekincut) const;
+      const HepMC::FourVector&  position() const override final;
 
       /** Record that a particular secondary passed a check */
-      inline void                      setSecondaryPassed(unsigned short index) const;
+      inline void                      setSecondaryPassed(unsigned short index) const override final;
       /** Should a particular secondary be written out to the GenEvent */
-      inline bool                      writeOutSecondary(unsigned short index) const;
+      inline bool                      writeOutSecondary(unsigned short index) const override final;
 
     private:
       Geant4TruthIncident();
