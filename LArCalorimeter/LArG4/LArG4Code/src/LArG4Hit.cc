@@ -17,7 +17,7 @@
 #include "G4Allocator.hh"
 #include "G4ios.hh"
 #include "globals.hh"
-#include "AthenaKernel/Units.h" 
+#include "CLHEP/Units/PhysicalConstants.h" 
 
 G4Allocator<LArG4Hit> LArG4HitAllocator;
 
@@ -45,6 +45,6 @@ void LArG4Hit::Print()
   G4cout << "LArG4Hit: ";
   m_identifier.show();
   G4cout << ", "
-	 << energy()/Athena::Units::MeV << " [MeV],"
-	 << time()/Athena::Units::ns << " [ns])" << G4endl;
+	 << energy()/CLHEP::MeV << " [MeV],"
+	 << time()/CLHEP::ns << " [ns])" << G4endl;
 }

@@ -34,28 +34,28 @@ LArHitMaker::LArHitMaker()
   // Initialize the fake G4Step that we'll pass to the sensitive
   // detector.
 
-  m_fakeStep          = new G4Step();
-  m_fakePreStepPoint  = m_fakeStep->GetPreStepPoint();
-  m_fakePostStepPoint = m_fakeStep->GetPostStepPoint();
-  m_touchableHandle   = new G4TouchableHistory();
-  m_pNavigator        = G4TransportationManager::GetTransportationManager()->GetNavigatorForTracking();
-  m_naviSetup         = false;
-  m_baseName          = "LAr";
+  fFakeStep          = new G4Step();
+  fFakePreStepPoint  = fFakeStep->GetPreStepPoint();
+  fFakePostStepPoint = fFakeStep->GetPostStepPoint();
+  fTouchableHandle   = new G4TouchableHistory();
+  fpNavigator        = G4TransportationManager::GetTransportationManager()->GetNavigatorForTracking();
+  fNaviSetup         = false;
+  fBaseName          = "LAr";
 }
 
 
 LArHitMaker::~LArHitMaker()
 {
   // Cleanup pointers.
-  delete m_fakeStep;
-  delete m_pNavigator;
+  delete fFakeStep;
+  delete fpNavigator;
 }
 
 
 void LArHitMaker::make(const EnergySpot& a_spot)
 {
   // ------------------- 
-  // Locate the spot.  Use m_naviSetup to test whether we've
+  // Locate the spot.  Use fNaviSetup to test whether we've
   // initialized the G4Navigator _after_ all the G4 geometry
   // construction routines have executed.
   // -------------------
@@ -64,19 +64,19 @@ void LArHitMaker::make(const EnergySpot& a_spot)
                    << G4endl;
 #endif
 
-  if (!m_naviSetup)
+  if (!fNaviSetup)
     {
-      m_pNavigator->
+      fpNavigator->
     	LocateGlobalPointAndUpdateTouchable(a_spot.GetPosition(),
-					    m_touchableHandle(),
+					    fTouchableHandle(),
 					    false);
-      m_naviSetup = true;
+      fNaviSetup = true;
     }
   else
     {
-      m_pNavigator->
+      fpNavigator->
 	LocateGlobalPointAndUpdateTouchable(a_spot.GetPosition(),
-					    m_touchableHandle() );
+					    fTouchableHandle() );
      }
 
   //--------------------------------------
@@ -93,9 +93,9 @@ void LArHitMaker::make(const EnergySpot& a_spot)
   G4double t = a_spot.GetTime();
 
   // set touchable volume at PreStepPoint:
-  m_fakePreStepPoint->SetTouchableHandle(m_touchableHandle);
-  m_fakePreStepPoint->SetPosition(p);
-  m_fakePreStepPoint->SetGlobalTime(t);
+  fFakePreStepPoint->SetTouchableHandle(fTouchableHandle);
+  fFakePreStepPoint->SetPosition(p);
+  fFakePreStepPoint->SetGlobalTime(t);
   
 
   // WGS: Most of the calculators in LArG4 expect a PostStepPoint as
@@ -104,18 +104,18 @@ void LArHitMaker::make(const EnergySpot& a_spot)
 
   // AS move post step point a little bit to make Calculator happy
   
-  m_fakePostStepPoint->SetTouchableHandle(m_touchableHandle);
-  m_fakePostStepPoint->SetPosition(p);
-  m_fakePostStepPoint->SetGlobalTime(t);
+  fFakePostStepPoint->SetTouchableHandle(fTouchableHandle);
+  fFakePostStepPoint->SetPosition(p);
+  fFakePostStepPoint->SetGlobalTime(t);
 
   // set total energy deposit:
-  m_fakeStep->SetTotalEnergyDeposit(a_spot.GetEnergy());
+  fFakeStep->SetTotalEnergyDeposit(a_spot.GetEnergy());
   //set very short step length
-  m_fakeStep->SetStepLength(1e-10);
+  fFakeStep->SetStepLength(1e-10);
   //set pre and post step point
-  m_fakeStep->SetPreStepPoint(m_fakePreStepPoint);
-  m_fakeStep->SetPostStepPoint(m_fakePostStepPoint);
-  m_fakeStep->SetTrack(0);
+  fFakeStep->SetPreStepPoint(fFakePreStepPoint);
+  fFakeStep->SetPostStepPoint(fFakePostStepPoint);
+  fFakeStep->SetTrack(0);
 
   //--------------------------------------
   // Produce Hits
@@ -123,13 +123,13 @@ void LArHitMaker::make(const EnergySpot& a_spot)
 
   // First, find out in which physical volume our hit is located.
   G4VPhysicalVolume* pCurrentVolume =
-    m_fakeStep->GetPreStepPoint()->GetPhysicalVolume();
+    fFakeStep->GetPreStepPoint()->GetPhysicalVolume();
 
   // If the volume is valid...
   if ( pCurrentVolume != 0 ) {
 
     // for the time being create hits only in LAr volumes
-    if ( (pCurrentVolume->GetName()).substr(0,m_baseName.length()) == m_baseName ) 
+    if ( (pCurrentVolume->GetName()).substr(0,fBaseName.length()) == fBaseName ) 
       {
 
       // Is this volume associated with a sensitive detector?
@@ -144,7 +144,7 @@ void LArHitMaker::make(const EnergySpot& a_spot)
 	if ( pSensitive != 0 )
 	  {
 	    // Create the actual hit.
-	    pSensitive->Hit(m_fakeStep);
+	    pSensitive->Hit(fFakeStep);
 	  }
 	
 	else
@@ -160,7 +160,7 @@ void LArHitMaker::make(const EnergySpot& a_spot)
 	G4cout << "LArHitMaker::make - will not make hit in "
 	       << pCurrentVolume->GetName()
 	       << " since volume name does not begin with "
-	       << m_baseName
+	       << fBaseName
 	       << G4endl;
       }
 #endif
