@@ -120,7 +120,7 @@ namespace ISF {
     unsigned short numSec = numberOfSecondaries();
     bool pass = false; // true if cut passed
     // as soon as at a particle passes the cut -> end loop and return true
-    for ( unsigned short i=0; (!pass && m_passWholeVertex) && (i<numSec); ++i) {
+    for ( unsigned short i=0; !(pass && m_passWholeVertex) && (i<numSec); ++i) {
       bool thispassed = (secondaryP2(i) >= p2cut);
       if(thispassed) { setSecondaryPassed(i); }
       pass |= thispassed;
@@ -134,7 +134,7 @@ namespace ISF {
     unsigned short numSec = numberOfSecondaries();
     bool pass = false; // true if cut passed
     // as soon as at a particle passes the cut -> end loop and return true
-    for ( unsigned short i=0; (!pass && m_passWholeVertex) && (i<numSec); ++i) {
+    for ( unsigned short i=0; !(pass && m_passWholeVertex) && (i<numSec); ++i) {
       bool thispassed = (secondaryPt2(i) >= pt2cut);
       if(thispassed) { setSecondaryPassed(i); }
       pass |= thispassed;
@@ -148,7 +148,7 @@ namespace ISF {
     unsigned short numSec = numberOfSecondaries();
     bool pass = false; // true if cut passed
     // as soon as at a particle passes the cut -> end loop and return true
-    for ( unsigned short i=0; (!pass && m_passWholeVertex) && (i<numSec); ++i) {
+    for ( unsigned short i=0; !(pass && m_passWholeVertex) && (i<numSec); ++i) {
       bool thispassed = (secondaryEkin(i) >= ekincut);
       if(thispassed) { setSecondaryPassed(i); }
       pass |= thispassed;
