@@ -432,17 +432,14 @@ namespace DerivationFramework {
 
 
         const Trk::TrackParameters* tp = trackState->trackParameters();       
-        if(!tp){
-          continue;
-        }
 
         // Set local positions on the surface
-        msos->setLocalPosition( tp->parameters()[0], tp->parameters()[1] );
+        if(tp) { msos->setLocalPosition( tp->parameters()[0], tp->parameters()[1] ); }
 
         // Set calculate local incident angles
         const Trk::TrkDetElementBase *de = trackState->surface().associatedDetectorElement();
         const InDetDD::SiDetectorElement *side = dynamic_cast<const InDetDD::SiDetectorElement *>(de);
-        if ( side && (isSCT || isPixel) ) {
+        if ( tp && side && (isSCT || isPixel) ) {
           Amg::Vector3D mytrack = tp->momentum();
           Amg::Vector3D mynormal = side->normal();
           Amg::Vector3D myphiax = side->phiAxis();
@@ -505,13 +502,13 @@ namespace DerivationFramework {
  
  
         // Add the drift time for the tracks position -- note the position is biased 
-        if(isTRT){
+        if(tp && isTRT){
           TRTCond::RtRelation const *rtr = m_trtcaldbSvc->getRtRelation(surfaceID);
           if(rtr) 
             msos->auxdata<float>("driftTime") = rtr->drifttime(fabs(tp->parameters()[0]));
         }
 
-        if(m_addPulls){
+        if(tp && m_addPulls){
           const Trk::ResidualPull *biased   = m_residualPullCalculator->residualPull(measurement, tp, Trk::ResidualPull::Biased);
           if(biased){
             if(biased->dimension()>Trk::locY){  
@@ -524,7 +521,7 @@ namespace DerivationFramework {
             delete biased;
           } 
 
-          const Trk::ResidualPull *unbiased = m_residualPullCalculator->residualPull(measurement, tp, Trk::ResidualPull::Unbiased);
+		  const Trk::ResidualPull *unbiased = m_residualPullCalculator->residualPull(measurement, tp, Trk::ResidualPull::Unbiased);
           if(unbiased){
             if(unbiased->dimension()>Trk::locY){  
               msos->setUnbiasedResidual( unbiased->residual()[Trk::locX], unbiased->residual()[Trk::locY] );
