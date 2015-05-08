@@ -100,6 +100,11 @@ TrigDecChecker.MonitoredChains=[]
 #from AthenaCommon.GlobalFlags import GlobalFlags
 #GlobalFlags.DetGeo.set_atlas()
 
+from TrigDecisionTool.TrigDecisionToolConf import Trig__TrigDecisionTool
+ToolSvc += Trig__TrigDecisionTool( "TrigDecisionTool" )
+
+from TrigEDMConfig.TriggerEDM import EDMLibraries
+ToolSvc.TrigDecisionTool.Navigation.Dlls = EDMLibraries
 
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
