@@ -57,7 +57,6 @@
 #include "MCTruth/EventInformation.h"
 #include "LArG4RunControl/LArG4GlobalOptions.h"
 
-#include "ISF_Event/ISFParticle.h"
 #include "MCTruth/VTrackInformation.h"
 
 #include <vector>
