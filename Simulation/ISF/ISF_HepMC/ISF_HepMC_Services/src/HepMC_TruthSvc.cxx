@@ -100,7 +100,7 @@ StatusCode ISF::HepMC_TruthSvc::queryInterface(const InterfaceID& riid, void** p
 /** framework methods */
 StatusCode ISF::HepMC_TruthSvc::initialize()
 {
-    ATH_MSG_INFO( "initialize()" );
+    ATH_MSG_VERBOSE( "initialize()" );
 
     // Screen output
     for (size_t prl = 0; prl < m_screenOutputPrefix.size(); ++prl) m_screenEmptyPrefix += " ";
@@ -140,7 +140,7 @@ StatusCode ISF::HepMC_TruthSvc::initialize()
       }
     }
 
-    ATH_MSG_INFO( "initialize() successful" );
+    ATH_MSG_VERBOSE( "initialize() successful" );
     return StatusCode::SUCCESS;
 }
 
@@ -148,7 +148,7 @@ StatusCode ISF::HepMC_TruthSvc::initialize()
 /** framework methods */
 StatusCode ISF::HepMC_TruthSvc::finalize()
 {
-    ATH_MSG_INFO ( m_screenOutputPrefix << "Finalizing ..." );
+    ATH_MSG_VERBOSE ( m_screenOutputPrefix << "Finalizing ..." );
     return StatusCode::SUCCESS;
 }
 
@@ -265,12 +265,10 @@ void ISF::HepMC_TruthSvc::registerTruthIncident( ISF::ITruthIncident& truth) {
     // (*) test if given TruthIncident passes current strategy
     pass = m_geoStrategies[geoID][stratID]->pass(truth);
   }
-
   //
   // a truth stategy returend true -> record incident
   //
   if (pass) {
-    ATH_MSG_DEBUG("TruthIncident passed cuts. Will record this one.");
     // passed -> create and record vertex now
     //
     std::vector<double> weights(2);
@@ -311,7 +309,9 @@ void ISF::HepMC_TruthSvc::registerTruthIncident( ISF::ITruthIncident& truth) {
 
     // add primary particle to vtx
     vtx->add_particle_in( prim );
-
+    ATH_MSG_VERBOSE ( "End Vertex representing process: " << processCode << ", for primary with barcode "<<primBC<<". Creating." );
+    ATH_MSG_VERBOSE ( "Primary: " << *prim);
+    ATH_MSG_VERBOSE ( "Outgoing particles:" );
     // update primary barcode and add it to the vertex as outgoing particle
     Barcode::ParticleBarcode newPrimBC = m_barcodeSvcQuick->incrementBarcode( primBC, processCode);
     if ( newPrimBC == Barcode::fUndefinedBarcode) {
@@ -324,7 +324,7 @@ void ISF::HepMC_TruthSvc::registerTruthIncident( ISF::ITruthIncident& truth) {
     }
     prim = truth.primaryParticleAfterIncident( newPrimBC, setPersistent);
     vtx->add_particle_out( prim ); // prim==0 is checked inside add_particle_out(..)
-
+    if(prim) { ATH_MSG_VERBOSE ( "Primary After Incident: " << *prim); }
     // update all _extra_ barcodes of secondary particles with parent info
     // MB: sofar extra barcode only contains parent info, so can be the same for each secondary
     if (m_storeExtraBCs) {
@@ -334,7 +334,7 @@ void ISF::HepMC_TruthSvc::registerTruthIncident( ISF::ITruthIncident& truth) {
     // add secondary particles to the vertex
     for ( unsigned short i=0; i<numSec; ++i) {
 
-      bool writeOutSecondary = truth.writeOutSecondary(i);
+      bool writeOutSecondary = m_passWholeVertex || truth.writeOutSecondary(i);
 
       if (writeOutSecondary) {
         // generate a new barcode for the secondary particle
@@ -348,7 +348,7 @@ void ISF::HepMC_TruthSvc::registerTruthIncident( ISF::ITruthIncident& truth) {
           }
         }
         HepMC::GenParticle *p = truth.secondaryParticle(i, secBC, setPersistent);
-
+        ATH_MSG_VERBOSE ( "Writing out " << i << "th secondary: " << *p);
         // add particle to vertex
         vtx->add_particle_out( p);
 
@@ -364,6 +364,9 @@ void ISF::HepMC_TruthSvc::registerTruthIncident( ISF::ITruthIncident& truth) {
           }
         }
       } // <-- if write out secondary
+      else {
+        ATH_MSG_VERBOSE ( "Not writing out " << i << "th secondary." );
+      }
 
     } // <-- loop over all secondaries
 
@@ -376,7 +379,7 @@ void ISF::HepMC_TruthSvc::registerTruthIncident( ISF::ITruthIncident& truth) {
   //   -> assign shared barcode for all child particles
   //
   else {
-    ATH_MSG_VERBOSE("TruthIncident did not pass cuts. Will not record this one.");
+    ATH_MSG_VERBOSE ( "End Vertex representing process: " << processCode << ". TruthIncident failed cuts. Skipping.");
 
     // generate one new barcode for all secondary particles
     Barcode::ParticleBarcode childBC = m_barcodeSvcQuick->sharedChildBarcode( primBC, processCode);
