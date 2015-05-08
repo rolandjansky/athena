@@ -88,6 +88,8 @@ void dumptrace (FILE* fp)
   fseek (fp, 0, SEEK_SET);
   char buf[65536];
   while (fgets (buf, sizeof (buf), fp)) {
+    if (strstr (buf, "libasan") != nullptr)
+      continue;
     filter (buf);
     fputs (buf, stdout);
   }
@@ -96,15 +98,18 @@ void dumptrace (FILE* fp)
 
 bool initialized = false;
 bool initializing = false;
+bool finishing = false;
 bool nomalloc = false;
 
 void *(*old_malloc)(size_t size);
+void  (*old_free)(void* ptr);
 void *(*old_realloc)(void* ptr, size_t size);
 
 void initpointers()
 {
   initializing = true;
   old_malloc = (void* (*)(size_t)) (unsigned long) dlsym(RTLD_NEXT, "__libc_malloc");
+  old_free = (void (*)(void*)) (unsigned long) dlsym(RTLD_NEXT, "__libc_free");
   old_realloc = (void* (*)(void*, size_t)) (unsigned long) dlsym(RTLD_NEXT, "__libc_realloc");
   initialized = true;
   initializing = false;
@@ -148,6 +153,35 @@ void* __libc_malloc (size_t size)
 }
 
 
+void do_free (void* ptr)
+{
+  if (!initialized) {
+    if (initializing)
+      return;
+    initpointers();
+  }
+  if (finishing)
+    return;
+
+  (*old_free) (ptr);
+}
+
+
+void free (void* ptr)
+#ifndef __APPLE__
+throw()
+#endif
+{
+  return do_free (ptr);
+}
+
+
+void __libc_free (void* ptr)
+{
+  return do_free (ptr);
+}
+
+
 void* do_realloc (void* ptr, size_t size)
 {
   if (!initialized) {
@@ -177,6 +211,7 @@ void* __libc_realloc (void* ptr, size_t size)
 {
   return do_realloc (ptr, size);
 }
+
 
 
 // Used to check that we don't call malloc during the stack trace.
@@ -214,5 +249,6 @@ int main()
   initpointers();
   Athena::DebugAids::setStackTraceAddr2Line ("/usr/bin/addr2line");
   fromhere();
+  finishing = true;
   return 0;
 }

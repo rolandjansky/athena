@@ -18,8 +18,8 @@ class procmaps {
 public:
   struct Entry {
     Entry(const char* line);
-    unsigned int begAddress;
-    unsigned int endAddress;
+    unsigned long begAddress;
+    unsigned long endAddress;
     bool readable;
     bool writable;
     bool executable;

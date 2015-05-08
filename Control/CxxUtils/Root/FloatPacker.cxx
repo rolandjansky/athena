@@ -102,7 +102,7 @@ int max_int (int nbits)
 inline
 int min_int (int nbits)
 {
-  return ((-1 << nbits) >> 1);
+  return static_cast<int>(~0U << nbits) >> 1;
 }
 
 
