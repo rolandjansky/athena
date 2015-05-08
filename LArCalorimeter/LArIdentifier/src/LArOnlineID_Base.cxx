@@ -174,6 +174,9 @@ std::string LArOnlineID_Base::feedthrough_name( const HWIdentifier id )const{
       if( ft==22){result = "A12L";}
       if( ft==23){result = "A13R";}
       if( ft==24){result = "A13L";}
+      if( ft==25){result = "A14R";} // ft25-27 are sFCal; A14R, A14L, A15L  
+      if( ft==26){result = "A14L";} // will need to be replaced by actual
+      if( ft==27){result = "A15L";} // crate name once it exists           
     }
     else{
       // EMEC-C
@@ -202,6 +205,9 @@ std::string LArOnlineID_Base::feedthrough_name( const HWIdentifier id )const{
       if( ft==13 ){result = "C13R";}
       if( ft==14 ){result = "C13L";}
       if( ft==6  ){result = "C04L";}
+      if( ft==25 ){result = "C14R";} // ft25-27 are sFCal; C14R, C14L, C15L 
+      if( ft==26 ){result = "C14L";} // will need to be replaced by actual  
+      if( ft==27 ){result = "C15L";} // crate name once it exists           
     }
   }
   return result;
@@ -1388,12 +1394,15 @@ bool LArOnlineID_Base::isValidId(const HWIdentifier id) const {
     if (slot>14) return false;
   }
   else { //Endcap case
-    if (ft>24) return false;
+    if (ft>27) return false;
     if (ft==2 || ft==9 || ft==15 || ft==21){ //Special crate
       if (slot >15) return false;
     }
     else if (ft==6) { //FCAL
-      if (slot>15) return false;
+      if (slot>15) return false; 
+    }
+    else if (ft>24 && ft<28) { //sFCAL
+      if (slot>10) return false; 
     }
     else if (ft==3 || ft==10 || ft==16 || ft==22) { //HEC
       if (slot==3 || slot==4 || slot>10) return false;
@@ -1403,6 +1412,611 @@ bool LArOnlineID_Base::isValidId(const HWIdentifier id) const {
   }//end endcap
   return true;
 }
+
+//=====================
+// Inline Definitions
+//=====================
+
+							   
+
+
+HWIdentifier LArOnlineID_Base::feedthrough_Id (int barrel_ec, int pos_neg, int feedthrough ) const 
+{
+  HWIdentifier result(0);
+
+  /*Pack fields independently */
+  m_lar_impl.pack        (lar_field_value(), result);
+  m_laronline_impl.pack  (s_lar_online_field_value, result);
+  m_bec_impl.pack        (barrel_ec        , result);
+  m_side_impl.pack       (pos_neg          , result);
+  m_feedthrough_impl.pack(feedthrough      , result);
+  if ( m_this_is_slar )
+	m_slar_impl.pack       (1                , result);
+
+  /* Do checks */
+  if(m_do_checks) 
+    {
+      feedthrough_Id_checks ( barrel_ec, pos_neg, feedthrough );
+    }
+  return result;
+}
+
+HWIdentifier LArOnlineID_Base::feedthrough_Id(IdentifierHash feedthroughHashId) const
+/*=============================================================================== */
+{
+  return(m_feedthrough_vec[feedthroughHashId]);
+}
+
+IdentifierHash LArOnlineID_Base::feedthrough_Hash (HWIdentifier feedthroughId) const
+/*=============================================================================== */
+{
+    std::vector<HWIdentifier>::const_iterator it = std::lower_bound(m_feedthrough_vec.begin(),m_feedthrough_vec.end(),feedthroughId);
+    if ( it != m_feedthrough_vec.end() ){
+	return (it - m_feedthrough_vec.begin());
+    }
+    return (0);
+}
+
+HWIdentifier LArOnlineID_Base::feedthrough_Id(const HWIdentifier Id) const
+/*============================================================================== */
+{
+  HWIdentifier result(Id);
+  m_slot_impl.reset(result);
+  m_channel_in_slot_impl.reset(result);
+  return(result);
+}
+
+std::vector<HWIdentifier>::const_iterator LArOnlineID_Base::feedthrough_begin(void) const
+/*====================================================================*/
+{
+  return(m_feedthrough_vec.begin());
+}
+
+std::vector<HWIdentifier>::const_iterator LArOnlineID_Base::feedthrough_end(void) const
+/*==================================================================*/
+{
+  return(m_feedthrough_vec.end());
+}
+
+
+/* FEB id */
+/*========*/
+
+HWIdentifier LArOnlineID_Base::feb_Id(int barrel_ec, int pos_neg, 
+					int feedthrough, int slot ) const 
+/*==================================================================== */
+{
+  HWIdentifier result(0);
+
+  /*Pack fields independently */
+  m_lar_impl.pack        (lar_field_value(), result);
+  m_laronline_impl.pack  (s_lar_online_field_value, result);
+  m_bec_impl.pack        (barrel_ec        , result);
+  m_side_impl.pack       (pos_neg          , result);
+  m_feedthrough_impl.pack(feedthrough      , result);
+  m_slot_impl.pack       (slot             , result);
+  if ( m_this_is_slar )
+    m_slar_impl.pack       (1                , result);
+
+  /* Do checks */
+  if(m_do_checks) {
+    feb_Id_checks ( barrel_ec, pos_neg, feedthrough, slot );
+  }
+  return result;
+}
+
+HWIdentifier LArOnlineID_Base::feb_Id(const HWIdentifier feedthroughId , int slot) const
+/*==================================================================================== */
+{
+  HWIdentifier result(feedthroughId);
+  /* Pack fields independently */
+  m_slot_impl.reset           (result);
+  m_slot_impl.pack            (slot  , result);
+  if ( m_this_is_slar )
+     m_slar_impl.pack            (1     , result);
+
+  return(result);
+}
+
+HWIdentifier LArOnlineID_Base::feb_Id(const HWIdentifier channelId ) const
+/*======================================================================= */
+{
+  HWIdentifier result(channelId);
+  m_channel_in_slot_impl.reset(result);
+  return(result);
+}
+
+HWIdentifier LArOnlineID_Base::feb_Id(IdentifierHash febHashId) const
+/*================================================================== */
+{
+  return(m_feb_vec[febHashId]);
+}
+
+IdentifierHash LArOnlineID_Base::feb_Hash (HWIdentifier febId) const
+/*=============================================================================== */
+{
+    // Get the hash caculator for the febs
+    const HashCalcFeb& hc = m_feb_hash_calcs[m_bec_ft_impl.unpack(febId)];
+    // Two cases: 
+    //   1) slot values are enumerated and we must look for a matching
+    //      value to obtain the index
+    //   2) slot values are a continuous range, then the slot index is
+    //      sufficient for the hash calculation
+    if (hc.m_slot_values.size()) {
+        // find matching value
+        int slotValue = slot(febId);
+        for (int i = 0; (unsigned int)i < hc.m_slot_values.size(); ++i) {
+            if (slotValue == hc.m_slot_values[i]) return (hc.m_hash + i);
+        }
+        std::cout << "LArOnlineID_Base::feb_Hash - ***** ERROR: could not match slot value for has calculation " << std::endl;
+    }
+    size_type slotIndex = m_slot_impl.unpackToIndex(febId);
+    return (hc.m_hash + slotIndex);
+}
+
+IdentifierHash LArOnlineID_Base::feb_Hash_binary_search (HWIdentifier febId) const
+/*=============================================================================== */
+{
+    std::vector<HWIdentifier>::const_iterator it = std::lower_bound(m_feb_vec.begin(),m_feb_vec.end(),febId);
+    if ( it != m_feb_vec.end() ){
+	return (it - m_feb_vec.begin());
+    }
+    return (0);
+}
+
+HWIdentifier LArOnlineID_Base::channel_Id( int barrel_ec, int pos_neg, int feedthrough, 
+					     int slot,      int channel ) const 
+/*============================================================================== */
+{  
+  HWIdentifier result(0);
+  /* Pack fields independently */
+  m_lar_impl.pack            (lar_field_value()    , result);
+  m_laronline_impl.pack      (s_lar_online_field_value , result);
+  m_bec_impl.pack            (barrel_ec            , result);
+  m_side_impl.pack           (pos_neg              , result);
+  m_feedthrough_impl.pack    (feedthrough          , result);
+  m_slot_impl.pack           (slot                 , result);
+  m_channel_in_slot_impl.pack(channel              , result);
+  if ( m_this_is_slar )
+     m_slar_impl.pack           (1                    , result);
+
+  /* Do checks */
+  if(m_do_checks) {
+    channel_Id_checks( barrel_ec, pos_neg, feedthrough, slot, channel );
+  }
+  return result;
+}
+
+
+HWIdentifier LArOnlineID_Base::channel_Id(IdentifierHash channelHashId) const
+/*===================================================================*/
+{
+    return(m_channel_vec[channelHashId]);
+}
+
+
+HWIdentifier LArOnlineID_Base::channel_Id(const HWIdentifier feedthroughId,int slot,int channel) const 
+/*==================================================================================================== */
+{  
+  HWIdentifier result(feedthroughId);
+  /* Pack fields independently */
+  m_slot_impl.reset           (result);
+  m_channel_in_slot_impl.reset(result);
+  m_slot_impl.pack            (slot  , result);
+  m_channel_in_slot_impl.pack (channel, result);
+  if ( m_this_is_slar )
+    m_slar_impl.pack            (1  , result);
+
+  /* Do checks */
+  if(m_do_checks) {
+      channel_Id_checks( feedthroughId, slot, channel );
+  }
+  return result;
+}
+
+HWIdentifier LArOnlineID_Base::channel_Id(const HWIdentifier febId, int channel) const 
+/*======================================================================================= */
+{  
+  HWIdentifier result(febId);
+  /* Pack fields independently */
+  m_channel_in_slot_impl.reset(result);
+  m_channel_in_slot_impl.pack (channel, result);
+  if ( m_this_is_slar )
+	m_slar_impl.pack (1, result);
+
+  /* Do checks */
+  if(m_do_checks) {
+    channel_Id_checks( febId, channel );
+  }
+  return result;
+}
+
+//----------------------------------------------------------------------------
+IdentifierHash LArOnlineID_Base::channel_Hash (HWIdentifier channelId) const
+{
+    const HashCalc& hc = m_chan_hash_calcs[m_bec_slot_impl.unpack(channelId)];
+    return (hc.m_hash + channel(channelId));
+}
+
+IdentifierHash LArOnlineID_Base::channel_Hash_binary_search (HWIdentifier channelId) const
+/*=========================================================================*/
+{
+  std::vector<HWIdentifier>::const_iterator it = std::lower_bound(m_channel_vec.begin(),m_channel_vec.end(),channelId);
+  if ( it != m_channel_vec.end() ){
+    return (it - m_channel_vec.begin());
+  }
+  return(0) ;
+}
+
+/* BOOLEAN */
+
+/* 
+ *=============================================================
+ *=============================================================
+ *                   Recommended methods 
+ *=============================================================
+ *=============================================================
+ */
+
+bool LArOnlineID_Base::isEMBchannel(const HWIdentifier id) const
+/*========================================================*/
+{
+    return (barrel_ec(id)==0);
+}
+bool LArOnlineID_Base::isFCALchannel(const HWIdentifier id) const
+/*========================================================*/
+{
+  int ft = feedthrough(id);
+  return ( barrel_ec(id)==1 && (ft == 6 || (ft > 24 && ft < 28)) );
+}
+bool LArOnlineID_Base::isHECchannel(const HWIdentifier id) const
+/*========================================================*/
+{
+  int ft = feedthrough(id);
+  return ( barrel_ec(id)==1 
+	   && 
+	   ( ft==3 || ft==10 || ft==16 || ft==22 )
+	   &&
+	   slot(id) > 2 );
+}
+bool LArOnlineID_Base::isEMECIW(const HWIdentifier id) const {
+  /*======================================================*/
+  // 
+  int bec= barrel_ec(id);
+  int ft = feedthrough(id);
+  int sl = slot(id);
+  return (bec==1 && sl<3 && (ft==3  || ft==10 || 
+			     ft==16 || ft==22)); 
+}
+bool LArOnlineID_Base::isEMECOW(const HWIdentifier id) const {
+  /*======================================================*/
+  // 
+  int bec= barrel_ec(id);
+  int ft = feedthrough(id);
+  return (bec==1 && 
+	  (ft==0 || ft==1 ||
+	   ft==2 || ft==4 ||
+	   ft==5 || ft==7 ||
+	   ft==8 || ft==9 ||
+	   ft==11|| ft==12||
+	   ft==13|| ft==14||
+	   ft==15|| ft==17||
+	   ft==18|| ft==19||
+	   ft==20|| ft==21||
+	   ft==23|| ft==24 )
+	  );
+}
+bool LArOnlineID_Base::isEMECchannel(const HWIdentifier id) const
+/*========================================================*/
+{/* redefinition with isEMECIW and isEMECOW */
+  return (isEMECOW(id) || isEMECIW(id));
+}
+
+
+bool LArOnlineID_Base::isEMBPS(const HWIdentifier id) const
+/*=================================================================*/
+{
+  int bec= barrel_ec(id);
+  int sl = slot(id);
+  return ( 
+	  bec == 0 && sl == 1 
+	  );
+}
+
+bool LArOnlineID_Base::isEMECPS(const HWIdentifier id) const
+/*=================================================================*/
+{/* redefinition (bug fix) */
+  return (isEMECOW(id) && slot(id)==1);
+}
+
+bool LArOnlineID_Base::isPS(const HWIdentifier id) const
+/*=================================================================*/
+{/* redefinition with isEMBPS and isEMECPS */
+  return ( isEMBPS(id) || isEMECPS(id));
+}
+
+
+bool LArOnlineID_Base::isNotWarmCableConnected(const HWIdentifier id) const
+/*========================================================*/
+{
+  int ft = feedthrough(id);
+  int sl = slot(id);
+  int ch = channel(id);
+  return ( 
+	  (
+	   isEMBchannel(id) &&
+	   ( (-1 < ft  && ft < 32) &&
+	     ( sl == 14 ) &&
+	     ( 63 < ch && ch < 128 )
+	     )
+	   ) 
+	  ||
+	  (
+	   isEMECchannel(id) && sl == 1 &&
+	   (ft == 2 || ft == 9 || ft == 15 || ft == 21 ) &&
+	   (63 < ch && ch < 128) 
+	   )
+	  );
+}
+
+
+/* 
+ *=============================================================
+ *=============================================================
+ *                   Obsolete methods 
+ *=============================================================
+ *=============================================================
+ */
+
+bool LArOnlineID_Base::isEmBarrelOnline(const HWIdentifier id) const
+/*========================================================*/
+{/* redefined to isEMBchannel() */
+  return (isEMBchannel(id));
+}
+
+bool LArOnlineID_Base::isEndcapOnline(const HWIdentifier id) const
+/*========================================================*/
+{
+  return (barrel_ec(id)==1);
+}
+
+bool LArOnlineID_Base::isFcalOnline(const HWIdentifier id) const
+/*========================================================*/
+{/* redefinition (was redundant with isFCALchannel) */
+  return isFCALchannel(id);
+}
+bool LArOnlineID_Base::isEmEndcapOnline(const HWIdentifier id) const
+/*========================================================*/
+{/* redefinition */
+ return isEMECchannel(id);
+}
+
+
+/* 
+ *=============================================================
+ *=============================================================
+ *                  Specific UseCases
+ *=============================================================
+ *=============================================================
+ */
+
+bool LArOnlineID_Base::isEmEndcapStandardOnline(const HWIdentifier id) const
+/*======================================================================*/
+{
+  int ft = feedthrough(id);
+  return ( barrel_ec(id)==1 && 
+	   (ft==0 ||
+	    ft==1 ||
+	    ft==4 ||
+	    ft==5 ||
+	    ft==7 ||
+	    ft==8 ||
+	    ft==11 ||
+	    ft==12 ||
+	    ft==13 ||
+	    ft==14 ||
+	    ft==17 ||
+	    ft==18 ||
+	    ft==19 ||
+	    ft==20 ||
+	    ft==23 ||
+	    ft==24)
+	   );
+}
+bool LArOnlineID_Base::isEmEndcapSpecialOnline(const HWIdentifier id) const
+/*======================================================================*/
+{
+  int ft = feedthrough(id);
+  return ( barrel_ec(id)==1 && 
+	   (ft==2 ||
+	    ft==9 ||
+	    ft==15 ||
+	    ft==21 )
+	   );
+}
+
+bool LArOnlineID_Base::isCalibration(const HWIdentifier id) const
+/*========================================================*/
+{
+  int bec= barrel_ec(id);
+  int ft = feedthrough(id);
+  int sl = slot(id);
+  return (  (bec==0 && sl==15) 
+	    ||
+	    ( bec==1 && sl==15 &&
+	      (ft==0 ||
+	       ft==1 ||
+	       ft==4 ||
+	       ft==5 ||
+	       ft==7 ||
+	       ft==8 ||
+	       ft==11 ||
+	       ft==12 ||
+	       ft==13 ||
+	       ft==14 ||
+	       ft==17 ||
+	       ft==18 ||
+	       ft==19 ||
+	       ft==20 ||
+	       ft==23 ||
+	       ft==24 )
+	      )
+	    ||
+	    ( barrel_ec(id)==1 && 
+	      (sl==3 || sl==4 || sl==12) &&
+	      (ft==3 ||
+	       ft==10 ||
+	       ft==16 ||
+	       ft==22 )
+	      )
+	    ||
+	    ( barrel_ec(id)==1 && sl==16 )
+	    ||
+	    ( barrel_ec(id)==1 && ft==27 && sl==11 )
+	    );
+}
+
+
+/*
+ *================================================================
+ *================================================================
+ * The following methods should NOT be used for new applications:
+ *================================================================
+ *================================================================
+ */
+
+bool LArOnlineID_Base::isHecOnline(const HWIdentifier id) const
+/*========================================================*/
+{
+  /* Must be used with CARE !
+   * This method returns true for all slots/channel in HEC crates,  
+   * thus including the EMEC slot/channels that are present 
+   * in slot 1 and slot 2 of HEC crates ! 
+   * To access specifically EMEC in HEC slot/channel, you then 
+   * have to use isEMECinHECchannel()
+   */
+  int ft = feedthrough(id);
+  return ( 
+	  //(slot(id)!=1 && slot(id)!= 2) &&
+	  barrel_ec(id)==1 && 
+	  (ft==3 || 
+	   ft==10 || 
+	   ft==16 || 
+	   ft==22 )
+	  );
+}
+
+bool LArOnlineID_Base::isHecOnlineFebId(const HWIdentifier febId) const
+/*========================================================*/
+{
+  /* Must be used with CARE !
+   * This method returns true for all slots/channel in HEC crates,  
+   * thus including the EMEC slot/channels that are present 
+   * in slot 1 and slot 2 of HEC crates ! 
+   * To access specifically EMEC in HEC slot/channel, you then 
+   * have to use isEMECinHECchannel()
+   */
+  int ft = feedthrough(febId);
+  return ( barrel_ec(febId)==1 && 
+	   (ft==3 || 
+	    ft==10 || 
+	    ft==16 || 
+	    ft==22 )
+	   );
+}
+
+bool LArOnlineID_Base::isEMECinHECchannel(const HWIdentifier id) const
+/*=================================================================*/
+{/* re-definition with isEMECIW */
+  return isEMECIW(id);
+}
+
+
+
+
+
+
+
+
+
+LArOnlineID_Base::size_type LArOnlineID_Base::feedthroughHashMax (void) const
+     /*=======================================================================*/
+{
+  return m_feedthroughHashMax;
+}
+LArOnlineID_Base::size_type LArOnlineID_Base::febHashMax (void) const
+/*=======================================================================*/
+{
+  return m_febHashMax;
+}
+LArOnlineID_Base::size_type LArOnlineID_Base::channelHashMax (void) const
+/*====================================================================*/
+{
+  return m_channelHashMax;
+}
+
+
+
+
+std::vector<HWIdentifier>::const_iterator LArOnlineID_Base::feb_begin(void) const
+/*====================================================================*/
+{
+  return(m_feb_vec.begin());
+}
+std::vector<HWIdentifier>::const_iterator LArOnlineID_Base::feb_end(void) const
+/*==================================================================*/
+{
+  return(m_feb_vec.end());
+}
+
+std::vector<HWIdentifier>::const_iterator LArOnlineID_Base::channel_begin(void) const
+/*======================================================================*/
+{
+  return(m_channel_vec.begin());
+}
+std::vector<HWIdentifier>::const_iterator LArOnlineID_Base::channel_end(void) const
+/*======================================================================*/
+{
+  return(m_channel_vec.end());
+}
+
+int LArOnlineID_Base::barrel_ec(const HWIdentifier id)const
+/*=========================================================*/
+{
+  return (m_bec_impl.unpack(id));
+}
+
+int LArOnlineID_Base::feedthrough(const HWIdentifier id)const
+/*===========================================================*/
+{
+  return (m_feedthrough_impl.unpack(id));
+}
+
+int LArOnlineID_Base::pos_neg(const HWIdentifier id)const
+/*===========================================================*/
+{
+  return (m_side_impl.unpack(id));
+}
+
+
+int LArOnlineID_Base::slot(const HWIdentifier id)const
+/*=====================================================*/
+{
+  return (m_slot_impl.unpack(id));
+}
+
+int LArOnlineID_Base::channel(const HWIdentifier id)const
+/*=====================================================*/
+{
+  return (m_channel_in_slot_impl.unpack(id));
+}
+
+int LArOnlineID_Base::is_slar(const HWIdentifier id)const
+/*=====================================================*/
+{
+  return (m_slar_impl.unpack(id));
+}
+
 
 
 
