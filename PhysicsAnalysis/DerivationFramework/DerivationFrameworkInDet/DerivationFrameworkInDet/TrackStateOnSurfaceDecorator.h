@@ -25,6 +25,8 @@ class PixelID;
 class SCT_ID;
 class TRT_ID;
 class ITRT_CalDbSvc;
+class ITRT_ToT_dEdx;
+
 
 namespace Trk {
   class IResidualPullCalculator;
@@ -48,7 +50,21 @@ namespace DerivationFramework {
       ElementLink< xAOD::TrackMeasurementValidationContainer > buildElementLink( const Trk::PrepRawData*, 
                                                                   const std::vector<unsigned int>*, 
                                                                   const xAOD::TrackMeasurementValidationContainer* ) const;
-    
+
+      // --- Steering and configuration flags
+      bool    m_isSimulation;
+      
+      bool    m_storeHoles;
+      bool    m_storeOutliers;
+      bool    m_storeTRT;
+      bool    m_storeSCT;
+      bool    m_storePixel;
+      bool    m_addPulls;
+      bool    m_addSurfaceInfo;
+      bool    m_addPRD;
+      bool    m_addExtraEventInfo;
+
+      // --- Configuration keys
       std::string m_sgName;
       std::string m_containerName;
     
@@ -63,7 +79,10 @@ namespace DerivationFramework {
       std::string m_pixelMsosName;
       std::string m_sctMsosName;
       std::string m_trtMsosName;
-      
+
+      std::string m_PriVtxContainerName;
+
+      // --- Services and tools
       const AtlasDetectorID* m_idHelper;
       const PixelID*         m_pixId; 
       const SCT_ID*          m_sctId;
@@ -72,17 +91,13 @@ namespace DerivationFramework {
       ToolHandle < Trk::IResidualPullCalculator > m_residualPullCalculator;
       ToolHandle< Trk::ITrackHoleSearchTool >     m_holeSearchTool;
       ServiceHandle<ITRT_CalDbSvc>                m_trtcaldbSvc;
-      
-      bool    m_storeHoles;
-      bool    m_storeOutliers;
-      bool    m_storeTRT;
-      bool    m_storeSCT;
-      bool    m_storePixel;
-      bool    m_addPulls;
-      bool    m_addSurfaceInfo;
-      bool    m_addPRD;
-      bool    m_addExtraEventInfo;
-      
+	  
+      /**tool to calculate dE/dx using TRT ToT*/
+      ToolHandle<ITRT_ToT_dEdx>    m_TRTdEdxTool;
+
+      // --- Private other members
+      bool m_firstEventWarnings;
+	  
   }; 
 }
 
